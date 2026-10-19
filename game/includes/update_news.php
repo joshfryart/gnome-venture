@@ -386,6 +386,10 @@ function post_update_news(string $from): void
         . "[*]Two florists: [b]Petalpin's Posies[/b] in Mossbottom and [b]Blossom & Bough[/b]. Volunteer for 30 minutes for XP, friendship and a bundle of stems.\n"
         . "[*]Every flower now has its own picture.\n"
         . "[*][b]Gathering games[/b]: each tool has its own short game: knife cuts, axe strikes, pick glints, rod tug, net swipes and a calm bucket moment. Play well for an extra find. Rather not? Press [b]Quick gather[/b].[/list]"],
+    '2.0.0.1' => ['🧩 Puzzles',
+        "[list][*][b]Puzzles[/b] are new in Games: animated jigsaws, just for fun. No prizes, no daily limit.\n"
+        . "[*]Pick a picture and a piece count. Drag pieces onto the outline; neighbours that fit join together.\n"
+        . "[*]New picture: a 🌻 swaying sunflower with a busy bee.[/list]"],
     '1.9.8' => ['🛍️ Picture shops',
         "[list][*][b]Shops[/b] now show pictures, like your Satchel. Tap one to see it, pick how many, and buy or sell.\n"
         . "[*]Tap a glowing hive or bin in your garden to collect it and stay in your garden.[/list]"],

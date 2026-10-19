@@ -1,0 +1,174 @@
+/* Layout: toolbar on top, scrollable puzzle table below. Dashed outline in the middle, loose pieces scattered around it. */
+:root{
+  --table:#dfe7e4; --dot:#c6d3cf; --panel:#f6faf8; --ink:#1d2b2a; --muted:#566b67;
+  --line:#9db0ab; --accent:#e5487f; --accent-ink:#ffffff; --well:rgba(20,40,38,.09); --slot:rgba(20,40,38,.2); --tray:rgba(20,40,38,.06);
+  --rim:rgba(255,255,255,.95); --rimsh:rgba(20,40,38,.34); --edge:rgba(25,12,24,.5);
+  --font-display:'Arial Rounded MT Bold','Trebuchet MS',sans-serif;
+  --font-body:system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --table:#172321; --dot:#243531; --panel:#1f2e2b; --ink:#e8f1ee; --muted:#93aaa5;
+    --line:#4f6b63; --accent:#ff6a9e; --accent-ink:#2a0a17; --well:rgba(255,255,255,.11); --slot:rgba(255,255,255,.16); --tray:rgba(0,0,0,.22);
+    --rim:rgba(255,255,255,.62); --rimsh:rgba(0,0,0,.45); --edge:rgba(0,0,0,.55);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --table:#172321; --dot:#243531; --panel:#1f2e2b; --ink:#e8f1ee; --muted:#93aaa5;
+  --line:#4f6b63; --accent:#ff6a9e; --accent-ink:#2a0a17; --well:rgba(255,255,255,.11); --slot:rgba(255,255,255,.16); --tray:rgba(0,0,0,.22);
+  --rim:rgba(255,255,255,.62); --rimsh:rgba(0,0,0,.45); --edge:rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+html,body{height:100%}
+#game{flex:1; min-height:0; display:flex; flex-direction:column}
+#game[hidden],#lib[hidden]{display:none}
+#lib{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain}
+.libwrap{max-width:1100px; margin:0 auto; padding:18px max(16px, env(safe-area-inset-right, 0px)) 28px max(16px, env(safe-area-inset-left, 0px))}
+.libhead h1{font-size:32px}
+.libhead p{margin:6px 0 0; color:var(--muted); font-size:15px; line-height:1.4}
+.grid{list-style:none; margin:18px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px}
+.card{display:flex; flex-direction:column; min-width:0; background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.thumb{display:block; aspect-ratio:4/3; background:var(--well); position:relative}
+.thumb img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block}
+.cbody{padding:10px 12px 12px; display:flex; flex-direction:column; gap:8px}
+.cbody h2{margin:0; font:700 16px/1.25 var(--font-body); color:var(--ink); overflow-wrap:anywhere}
+.cbody select,.cbody .btn{height:44px; width:100%; font-size:14px}
+.cbody .btn{padding:0 10px}
+#lk{position:fixed; z-index:10000; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); max-width:520px; margin:0 auto; display:flex; gap:8px; padding:10px; background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 32px rgba(0,0,0,.28)}
+#lk[hidden]{display:none}
+#lk .btn{flex:none; width:auto; min-width:76px; padding:0 14px; height:44px}
+#lk input{flex:1; min-width:0; height:44px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--table); color:var(--ink); font:14px var(--font-body)}
+@media (max-width:560px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+  .libhead h1{font-size:26px}
+  .cbody{padding:8px 8px 10px}
+  .cbody h2{font-size:15px}
+}
+body{margin:0}
+body{
+  display:flex; flex-direction:column; overflow:hidden;
+  background:var(--table); color:var(--ink); font-family:var(--font-body); font-size:15px;
+}
+.bar{
+  flex:none; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px;
+  padding-block:10px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  background:var(--panel); border-bottom:1px solid var(--line); position:relative;
+}
+#prog{position:absolute; left:0; bottom:-1px; height:3px; width:0; background:var(--accent); border-radius:0 3px 3px 0; transition:width .35s ease}
+.brand{min-width:0}
+h1,.gt{margin:0; font:400 26px/1.1 var(--font-display); color:var(--accent); letter-spacing:.01em}
+.sub{margin:2px 0 0; font-size:12.5px; color:var(--muted); line-height:1.35}
+.controls{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.btn,select{
+  height:36px; padding:0 14px; border:1px solid var(--line); border-radius:10px;
+  background:transparent; color:var(--ink); font:600 14px var(--font-body); cursor:pointer;
+}
+select{padding-right:8px}
+label.btn{display:inline-flex; align-items:center}
+.vh{position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none}
+.btn:hover,select:hover{border-color:var(--accent)}
+.zoom{display:flex; align-items:center; gap:4px}
+.zoom .btn{width:36px; padding:0; font-size:20px; line-height:1}
+.zoom .btn:disabled{opacity:.35; cursor:default}
+#zl{min-width:38px; text-align:center; font:700 13px var(--font-body); font-variant-numeric:tabular-nums; color:var(--muted)}
+.btn[aria-pressed="true"]{background:var(--well); border-color:var(--accent)}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.btn:focus-visible,select:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.hud{
+  min-width:92px; text-align:center; font:700 14px var(--font-body);
+  font-variant-numeric:tabular-nums; color:var(--ink); padding:0 4px;
+}
+#stage{flex:1; min-height:0; overflow:auto; position:relative; overscroll-behavior:contain; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none}
+#field{
+  position:relative; user-select:none; -webkit-user-select:none;
+  background-image:radial-gradient(var(--dot) 1.6px, transparent 1.8px);
+  background-size:24px 24px;
+}
+#board{
+  position:absolute; z-index:0; background:var(--well);
+  outline:2px dashed var(--line); outline-offset:4px; border-radius:3px;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.18);
+}
+#slots{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
+#slots path{fill:none; stroke:var(--slot); stroke-width:1.2}
+#field.noguide #slots{opacity:.9}
+#tray{position:absolute; z-index:0; border-radius:16px; background:var(--tray); pointer-events:none}
+#ghost{position:absolute; inset:0; width:100%; height:100%; opacity:.2; pointer-events:none}
+#field.noguide #ghost{display:none}
+#final{position:absolute; z-index:3; opacity:0; pointer-events:none; transition:opacity .5s ease}
+#final.on{opacity:1}
+.piece{position:absolute; pointer-events:none; content-visibility:auto}
+.cut{position:absolute; inset:0; overflow:hidden; pointer-events:auto; cursor:grab; touch-action:none}
+.cut img{position:absolute; max-width:none; pointer-events:none; -webkit-user-drag:none}
+.cut svg{will-change:transform; position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
+.rim{will-change:transform; position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
+.rim path{fill:none; stroke-linejoin:round}
+.rim .sh{stroke:var(--rimsh); stroke-width:3.6; transform:translate(0,1.5px)}
+.rim .rm{stroke:var(--rim); stroke-width:2.6}
+.piece.locked .rim{display:none}
+.cut .lo{fill:none; stroke:var(--edge); stroke-width:1.6}
+.cut .hi{fill:none; stroke:rgba(255,255,255,.4); stroke-width:1; transform:translate(1px,1px)}
+#lift{position:absolute; left:0; top:0; width:0; height:0; z-index:99999; will-change:transform}
+#lift:not(.multi){filter:drop-shadow(0 10px 12px rgba(0,0,0,.42))}
+.piece.joined .cut svg{opacity:.5}
+.piece.drag .cut{cursor:grabbing}
+.piece.locked .cut{pointer-events:none}
+.piece.locked .cut svg{opacity:.22}
+.piece.pop .cut{animation:pop .5s ease-out}
+@keyframes pop{0%{filter:brightness(1.9) saturate(1.3)}100%{filter:none}}
+.piece.pop .lo{animation:popl .5s ease-out}
+@keyframes popl{0%{stroke:var(--accent); stroke-width:3.5; opacity:1}100%{}}
+.won .piece svg{opacity:0}
+.won #board{outline-color:transparent; box-shadow:none}
+.won #slots,.won #tray{display:none}
+#win{
+  position:fixed; z-index:9999; left:50%; transform:translateX(-50%);
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 16px;
+  width:max-content; max-width:calc(100% - 32px);
+  padding:14px 18px; background:var(--panel); border:1px solid var(--line); border-radius:16px;
+  box-shadow:0 12px 32px rgba(0,0,0,.28);
+  animation:rise .45s cubic-bezier(.2,1.2,.4,1);
+}
+@keyframes rise{from{opacity:0; transform:translate(-50%,24px)}}
+#win[hidden]{display:none}
+#win strong{font:400 22px var(--font-display); color:var(--accent)}
+#win span{font-variant-numeric:tabular-nums}
+#win .row{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+@media (max-width:560px){
+  .bar{display:grid; grid-template-columns:1.7fr 1fr 1fr 1fr; gap:6px 8px; padding-block:8px}
+  .brand,.controls{display:contents}
+  h1,.gt{font-size:22px; grid-column:1 / 3; grid-row:1}
+  .gt{display:none}
+  #back{grid-column:1; grid-row:1}
+  #copy{grid-column:2; grid-row:1}
+  .zoom{grid-column:4; grid-row:3}
+  .zoom .btn{flex:1; width:auto; min-width:0; font-size:22px}
+  #zl{display:none}
+  .hud{grid-column:3 / 5; grid-row:1; justify-self:end; min-width:0; padding:0; white-space:nowrap}
+  .sub{grid-column:1 / -1; grid-row:2; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #win{left:12px; right:12px; width:auto; max-width:none; transform:none; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); animation-name:rise2}
+  @keyframes rise2{from{opacity:0; transform:translateY(24px)}}
+  .btn,select{height:44px; padding:0 8px; font-size:14px; width:100%; min-width:0; grid-row:3}
+  #back,#copy{grid-row:1; white-space:nowrap}
+  #copy{padding:0 2px; font-size:13px}
+  #win .btn{width:auto; padding:0 12px}
+}
+@media (max-width:359px){
+  .bar{grid-template-columns:1.35fr 1fr 1.15fr .85fr; gap:6px}
+  .btn,select{font-size:13px; padding:0 4px}
+  select{padding-right:0}
+  #copy{font-size:12px; padding:0}
+  #back{font-size:12.5px}
+}
+@media (prefers-reduced-motion: reduce){ #final,#prog{transition:none} .piece.pop .cut,.piece.pop .lo,#win{animation:none} }
+
+/* v2.0.0.1: Gnome Venture additions (centred, link-as-button) */
+a.btn{display:inline-flex; align-items:center; justify-content:center; text-decoration:none}
+.libhead{text-align:center}
+.cbody h2{text-align:center}
+.libhead p .btn{height:44px; padding:0 16px}
+.libhead p .btn{width:auto; min-width:150px}

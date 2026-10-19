@@ -2,6 +2,11 @@
 
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
+## 2.0.0.1
+- Puzzles: animated jigsaw game (puzzles.php, Games hub tile). No prizes, nothing saved on the server.
+- New picture: Swaying Sunflower (generator: tests/gen_puzzle_sunflower.py). Also 6 pictures from the Jiggy Jigsaws source.
+- Fitted to the site CSP: own CSS/JS files, pictures as files (no blob:, no web fonts).
+
 ## 2.0.0
 - Treks Chapter I: story text bodies written as drafts for the 89 slots that had none (status draft, editable in Admin > Trek text).
 - Upgrade step fills any empty trek body from its draft. Never overwrites a body Joshua wrote.

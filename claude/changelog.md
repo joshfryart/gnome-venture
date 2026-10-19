@@ -1,6 +1,11 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.0.1 (2026-10-19)
+- Puzzles: animated jigsaw game from the Jiggy Jigsaws source. `game/puzzles.php` + `assets/puzzles.css/.js` + `assets/img/puzzles/*.gif`; tile at the end of the Games hub. No prizes, no server state, no schema.
+- New picture: Swaying Sunflower (`tests/gen_puzzle_sunflower.py`). Add more: drop a .gif in assets/img/puzzles/ and a row in PUZZLES (puzzles.php).
+- Fitted to CSP (no blob:, inline, web fonts): pictures are files, data in a JSON block.
+
 ## 1.9.9
 - Treks audit (3 parallel passes). Ch I: KO clears stale event card; hidden crew moment no longer blocks trail events; double-tap camp when rested no longer burns a kit; free first kit goes to pack when kits at max; trek_short_name() ("Captain Dov" not "Captain"); fight Round heading centred; mother-aphid brief says 4th round. Ch II: silvergate zone l→m, drumgate s→r; new slot ch2.spot.thrum.stunned; never-locked gate no longer asks for missing .open text. Engine: trek_load survives corrupt state/log/fight JSON; removed crew row plays as plain trailmate; admin/trek_text.php array-param guards (trek_arg); trek_inside() honours trek_open/level gate (admins exempt). New tests: trek_audit_ch1.php, trek_audit_ch2.php, trek_audit_engine.php + trek_audit.sh (in treks.sh). Security: ~45 bad-input POSTs, XSS, concurrency all pass.
 ## 1.9.8
