@@ -1,0 +1,273 @@
+# Treks final text v2.0.0: every Chapter I and II slot (key|body, \n = line break). Applied once by the 2.0.0 text pass; rows Joshua edited keep his words. Edit in Admin > Trek text.
+ch1.intro|A crack has opened under the Hollow square.\nBlackened roots poke out of it, and the soil nearby smells wrong.\n{gnome} the {calling} frowns, then kneels to look.\nSomeone ought to see where it goes.
+ch1.tut.walk|Tap a lit tile to walk there.\nYou will stop if something blocks the way.
+ch1.zone.g.arrive|A crack splits the ground, edged with blackened roots.\nThe light above grows thin and grey.\nThe only way is down.
+ch1.spot.start.arrive|Daylight and the Hollow are just above you. Catch your breath.\nYou can climb back out here, or at the exit marker.
+ch1.spot.exit.arrive|A rope and a ladder of roots hang here, leading up to the Hollow.\nGo when you like. Your progress will be kept.
+ch1.spot.rootwall.locked|A wall of blackened roots blocks the tunnel. It twitches as you step close.\nSomething must be dealt with before it will move.
+ch1.spot.rootwall.open|The roots shrivel back with a dry rustle.\nA passage slopes down into the dark.
+ch1.tut.firstfight|Well done! Use Snack to heal with the home-cooked treats in your satchel.\nAuto settles a fight for you if you would rather not pick every move.\nLoot waits in your pack, and is only safe once you reach a camp.
+ch1.zone.w.arrive|The tunnels narrow and twist in loops, round and round.\nThe walls are slick under your fingers.\nFar off, someone is calling for help.
+ch1.spot.burdock.before|“Ah. Hello. Sorry. I seem to be stuck.”\n“Could you lend a hand with this stone? No rush. Well, a little rush.”
+ch1.spot.burdock.freed|“Oof. Thank you, friend. I thought I'd be here till spring.”\n“I came down because the soil smelled sour. Like rot, but wrong. Not rot at all.”\n“I'll come along, if you'll have me. Something lives deeper down, I think.”
+ch1.tut.party|Each friend in your party picks a move every round.\nBurdock's Bark Skin can cover a friend, and Guard halves the damage you take for a round.
+ch1.spot.boulder.locked|A great boulder fills the tunnel from wall to wall.\nIt is far too heavy for you alone.
+ch1.spot.boulder.open|Burdock rolls up his sleeves, sets his shoulder to the boulder, and shoves.\nIt grumbles aside, and the way on opens.
+ch1.zone.c.arrive|A hollow stump glows ahead, hung with glowworm lanterns.\nThere is light, the smell of a fire, and a little counter.\nAfter the dark tunnels, it is the first safe place you have seen.
+ch1.spot.camp.arrive|This is a camp. Rest here, and your finds are banked.\nYou can swap trailmates, too.
+ch1.camp.innkeeper.greet|“Welcome, welcome!” The keeper straightens a lantern that was already straight.\n“I keep the lanterns lit on purpose. The deeper you trek, the more I worry.”
+ch1.camp.innkeeper.shop|“Kits are for making camp out in the tunnels.”\n“You can only carry a few, mind. They take up room.”
+ch1.camp.innkeeper.rest|“There now. A bowl and a blanket. Your finds are safe in the satchel now.”
+ch1.camp.innkeeper.firstkit|“First kit is on the house. Don't tell the others.”\n“Unroll it anywhere in the tunnels and you can rest.”
+ch1.camp.innkeeper.nofunds|“Not enough {currency} today, dear. Come back when you have the coin.”
+ch1.camp.innkeeper.full|“Ha! Your pack is full of kits already. You could open a shop.”
+ch1.tut.camp|What you carry is not safe until you bank it at a camp. If you are knocked out, you lose part of it.\nA knock-out sends you back to the last camp you reached.\nSo bank your finds when you can.
+ch1.camp.makecamp|The kit unrolls into a snug little nest.\nA short rest, a few mouthfuls, and you feel much better.
+ch1.camp.makecamp.free|You curl up on bare stone for a cold, quick rest.\nIt is not as good as a kit, but it is something.
+ch1.camp.ambush|The quiet breaks. Something is coming.
+ch1.ko.tutorial|You wake at the Root Gate, sore but unharmed.\nNothing is lost this time.
+ch1.ko.camp|You wake at the last camp, the lanterns glowing softly above you.\nSome of what you carried is gone, but you are here, and that matters.
+ch1.ui.tired|Your legs feel heavy. Perhaps rest at a camp, or make camp soon.
+ch1.ui.wornout|Everyone is dragging their feet, and the next fights will go worse. Rest soon.
+ch1.zone.f.arrive|The cavern opens wide, its floor all soft soil and slow mud patches.\nThis was once a good growing floor. You can tell by the way the dirt still smells hopeful.\nThe beetles here twitch at every sound.
+ch1.spot.cellar.locked|An old gnome-made door sits low in the wall, bound by a heavy lock.\nThe keyhole is a curious shape, just right for something a beetle might carry.
+ch1.spot.cellar.open|The lock turns with a tired click, and the door swings open.\nInside, tin camp supplies and a few {currency} wait, just where someone left them.
+ch1.spot.cellar.after|The cellar is empty now, but tidy, as if the old gnomes had only just stepped out.
+ch1.zone.d.arrive|The cavern hushes. Still pools glow softly in the dark, clear as glass.\nThis is the only clean water for a long way.\nLeeches slide about in the shallows.
+ch1.spot.dewsign.arrive|Someone has scratched a note into the post: clean dew can be gathered here.\nThey added: the leeches drink the best of it.
+ch1.zone.h.arrive|A little village of mushroom folk huddles beneath the roof of the cave.\nHalf the caps are grey and drooping, and gentle hands tend the sick.\nA bumblebee buzzes between them, hard at work.
+ch1.spot.zinnia.before|“Oh! Visitors! I followed some wilting flowers down here, and now look.”\n“The caps are sick, poor dears. Clean dew from the pools would help.”\n“Could you fetch me 3 Clean Dew? Please?”
+ch1.spot.zinnia.need|“Not quite enough yet, dear. That is all right.”\n“The Dew Pools are just west of the Grubfields. The leeches drink the best of it, so be quick.”
+ch1.spot.zinnia.join|“Look! The caps are perking up already!”\n“I am coming along, I have decided. I am quite sure this sickness comes from deeper down.”
+ch1.spot.elder.talk|“Mm. Hello, little traveller. Do sit. No, stand. Well, as you like.”\n“It began as a smell, you see. Then the grey crept in. The Worm Choir to the east knows old songs and old riddles.”\n“A bridge lies south. Mind your step.”
+ch1.spot.choir.question|An old worm rises from the soil, and the choir hums behind him.\n“I drink in the dark and never see the sun.\nI hold the tall ones up when the wind has begun.\nWhat am I, little digger?”
+ch1.spot.choir.a1|A sleepy worm
+ch1.spot.choir.a2|A root
+ch1.spot.choir.a3|A green stem
+ch1.spot.choir.right|“Ha! Well dug, well answered!”\n“Take a Lanternroot Seed. A lantern-root grows where light is rare.”
+ch1.spot.choir.wrong|“Not quite, little digger. Try again.”
+ch1.spot.choir.out|“No more tries, I am afraid. The choir must return to its song.”\nThe worms hum on, and the cave is a little warmer for it.
+ch1.spot.capwall.locked|A thicket of blighted caps blocks the way south. It sags toward you, grey and sorry.\nNothing you carry will clear it yet.
+ch1.spot.capwall.open|Zinnia hums a soft little tune.\nThe caps lift their heads and slowly part.
+ch1.zone.b.arrive|A bridge of woven roots stretches across a bottomless dark.\nBig shapes lie sleeping in the shadows. Stag beetles.\nTread softly, and perhaps they will stay asleep.
+ch1.spot.bracken.before|“Halt. I am Captain Bracken Spurwing. The beetles on this bridge were my watch, and now they are sick.”\n“I will not let strangers pass until they prove themselves.”\n“A duel, then. We stop at 1 HP. No true harm shall come of it.”
+ch1.spot.bracken.lose|“A good try. Truly.”\n“Come back when you are ready. No harm done.”
+ch1.spot.bracken.win|“I yield. You have earned it.”\n“My watch fell sick, and I failed them. I will come along and see this through.”\n“Be warned. The blight is stronger below.”
+ch1.zone.r.arrive|Rows of topsoil stretch ahead, grey and dead. Nothing here is quite right.\nThe creatures that crawl between them are sickly copies of ordinary ones.\nFar ahead, something swollen stirs.
+ch1.spot.mother.intro|She is a vast grey aphid queen, bloated and shivering, pouring out young.\nShe fills the only way east.\nThe party steels itself and steps forward.
+ch1.spot.mother.spawn|More blighted young spill out of her, wriggling.
+ch1.spot.mother.defeat|She collapses into grey dust, and the grey settles on the dead rows.\nThe way east is open at last.\nBut something deeper has been feeding her, and you feel it watching.
+ch1.spot.grotto.arrive|Your eyes catch a thin side-path others would miss. It bends away from the trail. Only a Wayfinder would see it.\nBeyond it, glowworms light a small cave in soft green, and the blight has not touched a single root here.
+ch1.spot.grotto.find|You lift one precious thing from the glow, gently, as if it might wake.\nThe rest you leave to shine.
+ch1.spot.dengate.locked|A door of packed earth fills the tunnel, shut from within.\nSomething heavy shifts behind it. Not yet.
+ch1.spot.dengate.open|The packed earth crumbles like old bread and falls away.\nA long tunnel slopes down into a dark chamber.
+ch1.zone.x.arrive|The tunnel opens into a huge round chamber. Claw-marks cover every wall, old and new.\nThe black stuff weeps slowly from the roof, drop by drop.\nThe air hums, low and sad, and nobody speaks.
+ch1.spot.gloomtooth.intro|At the middle of the chamber sits a blind old mole, his muzzle blackened to the nose.\nHe turns his pale face toward the party and sniffs the air. He knows you are here.\nHe is not wicked. He is sick, and weary.\nThe blight drives him to dig, and he cannot stop.
+ch1.spot.gloomtooth.claw|He rears up and swipes at one of you.
+ch1.spot.gloomtooth.burrow|He sinks into the floor, and the ground begins to tremble.
+ch1.spot.gloomtooth.burst|The floor bursts in a thunder of earth, and someone in the party is thrown back.
+ch1.spot.gloomtooth.quake|He slams the floor, and the whole cavern rolls beneath your feet.
+ch1.spot.gloomtooth.enrage|The blight flares inside him. He lashes out blindly, again and again,\nfrightened more than angry.
+ch1.spot.gloomtooth.defeat|The black drains out of him like ink into water.\nHe sags, and for a moment the chamber is very still. Then he breathes, long and slow.\nSomething small and dark rolls from his paws, a Blight Shard.\nIt hums softly, and it points down.
+ch1.spot.gloomtooth.burdock|“Oh. Oh, old friend.”\n“We shared a cellar once, long ago. I came down because I feared it was you.”\n“I am glad. I am so glad you are alive.”
+ch1.outro|You have crossed the topsoil, {gnome}.\nThe party is bruised and muddy, but you are all still together.\nThe Blight Shard is warm in your hand, humming quietly.
+ch1.hook|The Blight Shard points straight down, into the cold clay below.\nThe real source lies deeper than any of this.\nThe trek is not over yet.
+ch1.banter.burdock.1|“Smell that soil. Rich, damp, a little sour. It is good to be a mole in tunnels again.”
+ch1.banter.burdock.2|“That innkeeper's soup is a fine thing, {gnome}. Have a second bowl. I will not tell.”
+ch1.banter.zinnia.1|“Flowers underground! Do you think these lanterns count as sunshine? I am choosing to say yes.”
+ch1.banter.zinnia.2|“I do miss the sun, a little. I hope the caps in the hamlet are all right.”
+ch1.banter.bracken.1|“I shall take first watch. A good camp keeps its discipline, even when it is cosy.”
+ch1.banter.bracken.2|“I keep thinking of the old watch on the bridge. I should like to have kept it better.”
+item.camp-kit|A rolled bundle of tin and cloth. Unpack it to make a snug camp in the tunnels.
+item.clean-dew|Water gathered from the pools the blight has not reached. It soothes sick caps and makes them well.
+item.cellar-key|A small old key, still warm from the beetle that carried it. It fits a cellar lock.
+item.blight-shard|A black shard that hums softly to itself.\nIt does not lie flat. It points down.
+item.lanternroot-seed|A small seed with a faint glow inside, like a coal that forgot to go out.
+book.ch1|The Wilting Rows. My first trek, down through the topsoil.\nThe roots were grey and the caps were sick, so we went below to find out why.\nBurdock, a gruff old mole, dug us through the hard parts.\nZinnia joined us too, small and bright, and never quiet.\nBracken kept the watch and the order, proud as a polished shell.\nThe tunnels were long and the black stuff dripped everywhere.\nIn the end we reached a round den, cured the sick old mole within,\nand came away with a strange shard that points down.
+book.blightlings|Blightlings are grey, sickly copies of ordinary creatures.\nThey look like the beetles, caps and crawlers we know, but faded, as if washed out.\nTheir touch carries a poison that lingers after the hit.\nIn the topsoil we met Withered Aphids, Rot Snails and Ashen Ants.\nThey seem more lost than cruel. I try to remember that.
+book.gloomtooth|A blind old mole who dug many of the tunnels beneath the topsoil.\nHe was cured, not killed, and I am glad of it.\nHe fought with a swipe of his claws, a burst up from beneath the floor,\nand a quake that shook the cavern. When the blight flared he lashed out blindly.\nHe was never wicked, only sick.
+book.lantern-stump|The first camp on the trek, and a kind one.\nAn innkeeper runs it, and the soup is warm.\nYou can buy Camp Kits here, rest, and bank what you carry.
+book.glowworm-grotto|A hidden spur off the trail, lit green by glowworms.\nOnly a Wayfinder can see the way in.\nThe blight has never touched it. It feels like the world before.
+ch2.intro|Under the topsoil, the ground turns to clay.\nClay holds water, and it holds whatever falls into it.\nThe Blight Shard hums and points down. Around you, the walls are weeping.
+ch2.ko.tutorial|You wake on the Sinkhole Ledge, sore but unharmed.\nNothing was lost this time.
+ch2.camp.innkeeper.greet|“Welcome, welcome. Mind the drips.” The keeper nudges the tin lamp, which swings and keeps on glowing. “I keep it lit on purpose.”\n“If you go down to the Library, keep an ear out. A snail went to read there and never came back.”
+ch2.camp.innkeeper.shop|“Kits are for resting out in the wet. Nothing else keeps the damp off.”\n“You can only carry a few, mind. They are lumpy.”
+ch2.camp.innkeeper.rest|“There now. A mug of something warm, and your finds are safe in the satchel.”
+ch2.banter.sorrel.1|“I do like a lamp. The light is soft, and the pages go gold.”\n“I once read three whole chapters by one like it. The print was very small.”
+ch2.banter.sorrel.2|“It is nice to be off the shelf for once.”\n“I am rather overdue, I know. Perhaps they will take a very long thank-you instead.”
+ch2.banter.burdock.1|“I like clay. It remembers whatever it is told.”\n“I do wonder what it was told, to weep like this.”
+ch2.ms.ch2_sorrel|Sorrel tucks herself a little way into her shell and smiles a small, shy smile.\nThe Library has someone to read it back to life.
+ch2.ms.ch2_silverfin|The silver blight lifts from the pages like frost in the morning sun.\nSilverfin is only a hungry little book-lover now, and she looks very sorry about the crumbs.
+ch2.ms.ch2a_end|The Crossroads gate swings open with a long, creaky yawn.\nBeyond it is a wide plaza of signposts, every one pointing a different way.\nIt seems the sign-makers could not agree.
+book.ch2|Below the roots lies a layer of clay. It is grey-brown, cold and slow.\nClay holds water, and it holds on. Little can drain through it.\nSo the clay weeps. The water has nowhere to go, and neither does the blight it carries.\nThe party goes down, following the Shard.
+book.claybound|Ordinary creatures, caked in grey-brown clay that hardens as it dries.\nThey are not wicked. They are only stuck, and rather sorry about it.\nA Claybound can be cured. Patience, and a little kindness, loosen the clay.
+book.silverfin|She ate the pages because the blight made her hungry. Nothing more.\nCured, she is a quiet little book-lover, and she says sorry a lot.\nShe loves the smell of old paper above all things.
+ch2.crew.burdock.talk|“Hold still a moment.” Burdock lays a broad palm on the wall and listens.\n“The clay is keeping something in a crack nearby. Shall I fetch it?”
+ch2.crew.burdock.done|He digs two fingers into the crack and draws out a little hoard of {currency}.\n“Clay keeps things safe. Even the ones it forgot it had.”
+ch2.crew.zinnia.talk|A drip lands on Zinnia's wing. “Oh, that is cold! Everyone gather round, I have a plan.”\n“A tune, a little warmth, and a bit of fluff. Shall I?”
+ch2.crew.zinnia.done|She hums a small sunny tune and fluffs out her fuzz.\nThe chill leaves everyone's toes, and you all feel a good deal better.
+ch2.crew.bracken.talk|Bracken stands very still and stares into the dark. “Something ahead. Let me take a look.”\n“I can be quick, and I will be quiet. Say the word.”
+ch2.crew.bracken.done|He glides off on silent wings and is back before the next drip falls.\nNow you can see the shape of the way ahead.
+ch2.crew.sorrel.talk|Sorrel pats her satchel. “I could draw us a map, if somebody holds the lamp.”\n“It would be a small map. A tidy one.”
+ch2.crew.sorrel.done|She inks a neat little map on the back of an old library slip.\nShe circles the way ahead, then circles it again to be safe.
+ch2.ev.handprints.text|A wall of clay is covered in small handprints, pressed there as if many hands once leaned on it.\nThe clay is still faintly warm.\nYou could press your hand to them, or trace them with a finger.
+ch2.ev.handprints.press|You press your palm into a print. The clay hums, soft and low.\nFor a moment you feel counted among friends, and you walk on a little lighter.
+ch2.ev.handprints.trace|You copy the shapes slowly with one finger.\nThe fingers are short and square, and well used to kneading. Potters, then, and patient ones.
+ch2.ev.pot.text|A small clay pot comes rolling down the slope, wobbling as if it is in a hurry.\nIt is headed straight for your feet. You could try to catch it.
+ch2.ev.pot.catch|You scoop it up just before it bumps your toes.\nSomething rattles inside: a few {currency}, saved for later.
+ch2.ev.pot.miss|It slips through your fingers and rolls on into the dark with a cheerful clink.\nNo harm done. It looked like it knew where it was going.
+ch2.zone.j.arrive|Ledge after ledge of weeping clay climbs down in terraces, orange in the lamplight.\nWater seeps down every wall, and the Shard in your pack points firmly down.\nFar off, something drips, slow and patient.
+ch2.zone.k.arrive|A dry pocket in the clay, with a tin lamp hanging from a hook.\nThe floor is swept, the air is warm, and folk can rest here.\nAfter the wet ledges, it is the first safe place in the clay.
+ch2.zone.l.arrive|Shelves of old gnome books stand half sunk in dark water.\nThe air smells of paper and damp, and many pages have been nibbled.\nThe silence here is not empty. It is listening.
+ch2.zone.m.arrive|A tidy lane of clay-folk houses, each with a round door and a cold kiln.\nNobody is home. Every step has been swept and every pot set straight.\nIt feels as though everyone has only just gone out.
+ch2.spot.start.arrive|This is the ledge where you came down.\nThe root-rungs overhead lead back up. Use Leave to climb out.
+ch2.spot.sluice1.before|A pool of high water blocks the ledge ahead.\nBeside it stands an old gnome wheel with a brass rim, green with age.\nIf you turn it, the water might drain away.
+ch2.spot.sluice1.done|The wheel groans, then gurgles, then the water goes rushing away.\nIt leaves wet mud behind, and a path across.
+ch2.spot.sluice1.after|The wheel is still now. The water is gone, and only a trickle sings somewhere below.
+ch2.spot.barrow.before|A barrow lies tipped over in the mud, a cloth wrapped around something underneath.\nHeaving it upright might take some strength.
+ch2.spot.barrow.win|You heave, and it comes up with a great squelch.\nThe bundle rolls out from under the cloth.
+ch2.spot.barrow.fail|The clay holds on tight. Try again, or dig it out slowly.
+ch2.spot.barrow.work|It takes a long scrape and a lot of sweat, but the clay lets go at last.\nThe barrow rights itself, and you are rather proud of it.
+ch2.spot.barrow.after|The barrow stands straight now, a little muddy and quite pleased.
+ch2.spot.camp.arrive|This is a camp. Rest here and your finds are banked.\nYou can swap trailmates and buy kits, too.
+ch2.spot.book.arrive|A book lies open on a tiny stand, swollen with water, a snail-shaped bookmark in its gutter.\nA library slip is tucked inside, stamped OVERDUE in red.
+ch2.spot.book.find|You tuck the book away carefully, still damp.\nSomeone is missing this, and they have been missing it for a long time.
+ch2.spot.nook.arrive|A small nook sits between two shelves, with a round cushion and a lamp turned low.\nOpen notes lie on the cushion, written in a small, neat hand.\n“The Claybound are not to be killed. With patience, the grey can be cured.”
+ch2.spot.rest.before|In a dry corner beneath a high shelf, someone has piled a heap of cushions.\nThey look very much like an invitation to sit.
+ch2.spot.rest.done|You sink into the cushions and sleep a short, deep sleep.\nYou all wake feeling much better.
+ch2.spot.rest.after|The cushions are still warm.
+ch2.spot.libdoor.question|A brass plate on the door clears its throat. It has a very correct voice.\n“This door does not open for just anyone. Answer me properly.”\n“What has a spine and pages, yet cannot stand on its own?”\nThe answers are on the three buttons below.
+ch2.spot.libdoor.a1|A snail
+ch2.spot.libdoor.a2|A book
+ch2.spot.libdoor.a3|A hedgehog
+ch2.spot.libdoor.right|“Quite right. Do mind the wet floor.”\nThe plate sniffs approvingly, and the door swings open.
+ch2.spot.libdoor.wrong|The plate tuts. “Clever, but no. Try again.”
+ch2.spot.libdoor.out|The plate sighs. “Oh, very well.”\nThe old clay around the frame slumps, and the door sags open by itself. No one is turned away.
+ch2.spot.libdoor.seed|A Seedkeeper's trained eye reads the old letters on the plate.\nOne quiet word, and the door swings open.
+ch2.spot.libgate.locked|A tall door stands here, with a brass plate set in it.\nIt has a riddle for you. Try the plate.
+ch2.spot.libgate.open|The door creaks wide.\nBeyond it lie the Stacks, half drowned in grey water.
+ch2.spot.sluice2.before|A second brass wheel sits in the end of a shelf.\nThe stacks ahead are drowned, but the same trick should work.
+ch2.spot.sluice2.done|The wheel turns, and the water drains away between the shelves.\nBooks rise out of it like small islands.
+ch2.spot.sluice2.after|The stacks are drying slowly.
+ch2.spot.sorrel.before|“I lost a book, you see. It's very overdue, and I can't leave without it.” She is a snail on a high shelf, clutching nothing, and she shrinks a little into her shell.
+ch2.spot.sorrel.need|“Have you seen a swollen book with a snail bookmark? It's somewhere in the Library.”\n“No rush. I'll be here. I'm always here.”
+ch2.spot.sorrel.join|“Oh, there you are, you silly thing!” She hugs the book tight. “Thank you. Truly.”\n“I'll come with you. The Library is hurt, and the Shard hums in my shell.”\n“And I think the Page-Eater is close. I can hear it chewing.”
+ch2.spot.silverfin.intro|In the old Reading Room, a huge silverfish is eating a page. She is silver, and she is shaking.\nThe air is thick with clay-grey dust.\nShe does not look cruel. She looks hungry, and very sad.
+ch2.spot.silverfin.hit|Silverfin snaps her jaws at the nearest of you.
+ch2.spot.silverfin.sweep|Silverfin's long silver body sweeps across the room and bumps everyone.
+ch2.spot.silverfin.mend|Silverfin nibbles a clean page, and her crust of clay knits back together.
+ch2.spot.silverfin.enrage|Silverfin thrashes, fed up with it all. She strikes one extra time each round now!
+ch2.spot.silverfin.spawn|A little silverfish shakes out of the book and darts in to join her.
+ch2.spot.silverfin.defeat|The clay crust falls off Silverfin in grey flakes.\nShe hiccups out a single page, then goes shy and tucks her head down.\nSorrel catches the page before it can touch the floor.\nWith a soft click, the hatch to the lane below unlatches.
+ch2.spot.silvergate.locked|A round hatch sits in the floor, shut tight.\nThe grey creature in this room must be dealt with first.
+ch2.spot.silvergate.open|The hatch lowers you gently onto a quiet lane.\nA warm porch light glows ahead.
+ch2.spot.wheel.before|A potter's wheel turns slowly by itself in an empty workshop.\nA note is propped beside it. “Three lumps of wet clay would make a good pot.”\n“For someone down the road, who will want it.”
+ch2.spot.wheel.short|The wheel slows, as if waiting. The note says it again: three lumps of wet clay.\nThe clay-caked creatures nearby sometimes drop some.
+ch2.spot.wheel.done|The wheel hums. The clay rises into a round little pot, glazed warm and brown.\nIt is set aside for later.
+ch2.spot.wheel.after|The wheel turns on, all by itself.
+ch2.spot.kilnstone.question|A mossy stone stands by the Sealed Kiln, carved with a riddle in old, patient letters.\n“What is soft and wet, grows hard in the fire, and holds whatever you pour in?”\nThe answers are on the three buttons below.
+ch2.spot.kilnstone.a1|A pot
+ch2.spot.kilnstone.a2|A cloud
+ch2.spot.kilnstone.a3|A candle
+ch2.spot.kilnstone.right|A hidden niche opens in the stone.\nInside lies a blue-glazed key.
+ch2.spot.kilnstone.wrong|The stone waits, mossy and patient. Try again.
+ch2.spot.kilnstone.out|The stone falls quiet, and says no more.\nNever mind. A key like this may come another way. Toads carry them.
+ch2.spot.kiln.locked|A round clay chest sits in the cold mouth of the kiln.\nIts lock is glazed blue.
+ch2.spot.kiln.open|The blue lock clicks open.\nA few {currency} wait inside, kept dry all this time.
+ch2.spot.kiln.after|The chest is empty now, but swept clean.
+ch2.spot.crossroads.locked|The gate is shut. The clay beyond is still settling.\nYou can see signposts waiting past the bars, every arm ready to point.\nComing soon.
+ch2.zone.n.arrive|A round clay plaza opens out, crowded with signposts. Every arm points a different way.\nOne signpost stands taller than the rest.\nUnder it, a very small gnome is muttering to himself.
+ch2.zone.o.arrive|The clay muffles every sound. Your footsteps sink in and vanish.\nThings here listen rather than look.\nYou find yourself walking on tiptoe.
+ch2.zone.o.hint|This stretch is best sneaked through. Each patrol is a single large creature, and a careful party can slip past.\nWander about noisily, and you will be noticed.
+ch2.zone.p.arrive|Your lamp barely reaches past your own hands.\nThe glow crystals are the only friendly lights here.\nThe dark is not hostile. It is only thick.
+ch2.zone.q.arrive|A round-roofed clay hall waits, warm with the smell of old herbs and bay.\nA huge cauldron sits cold in the middle, with benches all around. The fire is already lit, and the benches are warm.\nAfter the Dim, it feels like a safe place at last.
+ch2.zone.r.arrive|A huge cistern of old clay opens around you, its walls streaked and weeping.\nSour green water runs in channels, and narrow walkways wind between the pools.\nSomewhere a wheel controls the flow. Something big has been here a very long time.
+ch2.zone.s.arrive|The chamber is vast and perfectly round, and the floor hums under your boots.\nThe walls hum too, curving up around a great drum-shaped hollow.\nA slow beat rolls through the room. You feel it in your teeth.
+ch2.ui.loose|The clay here is crumbly and cracked, and something is tucked behind it.\nA Wayfinder would know how to nudge it loose.
+ch2.spot.signpost.question|A tall signpost leans here with six arms, all covered in faded paint.\n“Sorry,” says a small voice from behind it. “I built it, but I can't read my own writing.”\nOne riddle is painted on the post.\n“Many arms, but cannot hug. Many names, but cannot speak.”\n“Stands still, and sends everyone everywhere.”
+ch2.spot.signpost.a1|A weathervane
+ch2.spot.signpost.a2|An old gnome
+ch2.spot.signpost.a3|A signpost
+ch2.spot.signpost.right|The paint warms, and the arms creak round to point the way on.\nFrom somewhere low down comes a tiny cheer.
+ch2.spot.signpost.wrong|The post stays put. One arm swings round sulkily and flops back.\nNo harm done. Have another go.
+ch2.spot.signpost.out|The clay shrugs, and the post gives in. The riddle is not worth anyone's sleep.\nTumble is free to talk now, though the post was never truly solved.
+ch2.spot.signpost.seed|A Seedkeeper reads the old paint the way a gardener reads a seed packet.\nThe answer simply arrives, and the post gives way with a happy creak.
+ch2.spot.signpost.after|The post points steadily now, and every arm knows where it is going.
+ch2.spot.tumble.before|“Tumble Waymarsh, Wayfinder! I build signs, you see.”\n“Never could read my own, though. Silly, but there it is.”\n“I would love someone to walk with, if you'll have me.”
+ch2.spot.tumble.locked|“Hm. Turn it this way, turn it that way. Still no meaning.”\n“I can't help until this post gives in, I'm afraid.”
+ch2.spot.tumble.freed|“Compass, packed! Oh, this is splendid.”\n“Loose clay tiles? Leave those to me.”
+ch2.spot.nookA.arrive|A tiny hidey-hole sits behind the loose clay, snug as a mouse's bed.\nSomeone left something here on purpose. Only a Wayfinder would ever find it.
+ch2.spot.nookA.find|You take it, and the nook is left bare and tidy.
+ch2.spot.nookB.arrive|Another hidey-hole, and the clay inside is warm to the touch.\nA trail-weary pack is tucked into one corner.
+ch2.spot.nookB.find|You take what it holds and tuck it away. No one will miss it.
+ch2.spot.nookC.arrive|This nook is deeper, dry and very still.\nA few {currency} sit in a little dish, the last of the hidden stash.
+ch2.spot.nookC.find|You take it, and the nook feels finished, as if it had been waiting for you.
+ch2.spot.slide.before|A smooth chute of polished clay slopes away into the dark.\nA smell of warm bread drifts up from the bottom. It is a shortcut, but only one way.
+ch2.spot.slide.done|Whoosh! A squeal, a flurry of mud, and then everyone lands in a heap.
+ch2.spot.rack.arrive|An old drying rack stands by a glowing crystal, with clay pots in careful rows.\nMost are cracked through. One is whole.
+ch2.spot.rack.find|You take the whole pot. The cracked ones look jealous.
+ch2.spot.brewdoor.arrive|A round door with a ladle for a knocker stands here, warm light leaking round its edge.\nThe smell of herb broth drifts through the gap.
+ch2.spot.camp2.arrive|This is a camp. Rest, bank your finds, swap trailmates, or buy a Camp Kit.\nYou can travel from here to the Tin Lamp. The fire is already lit, and the benches are warm.
+ch2.spot.juniper.before|“Juniper Kettleby, Brewroot. I cook for the lost, and all my pots are cracked.”\n“Bring me two sound Clay Pots and I'll cook properly again.”\n“And I'll travel with anyone who feeds the hungry.”
+ch2.spot.juniper.need|“Not two sound pots yet, dear. No rush.”\n“Try the Dim. Old potters left things on the shelves.”
+ch2.spot.juniper.join|“Ladle, packed. Spice tin, packed.”\n“There. The pack smells better already.”
+ch2.spot.sluice3.before|A brass wheel stands here, stiff with sour crust.\nTurning it would drain the whole cistern, and the big thing in the water will not like that.
+ch2.spot.sluice3.done|The wheel groans, long and low. The water slides away down the drains.\nThe lanes turn to dry mud.\nFar below, something big shifts, and it is not pleased.
+ch2.spot.sluice3.after|The wheel is still. The cistern is mud now.
+ch2.spot.pinch.intro|The mud heaves, and a huge old clay-crab rises from the cistern floor.\nShe has lived here for ages and thinks the whole cistern is hers.\nShe is claybound and cranky, not wicked, and her big claw is already open.
+ch2.spot.pinch.hit|Old Pinch swipes at you with her claw.
+ch2.spot.pinch.grab|Old Pinch's great claw closes round one of the party.\nNext round she will squeeze. Bark Skin could break her hold.
+ch2.spot.pinch.squeeze|Squeeze! The one in her claw groans, rattled but whole.
+ch2.spot.pinch.break|The claw cannot crush bark, and her catch drops free.
+ch2.spot.pinch.defeat|The clay cracks off her shell and falls away in grey flakes.\nOld Pinch sinks back, calm at last, and lets go of a shining pearl.\nThe cistern is hers to keep.
+ch2.spot.drumdoor.locked|A heavy door stands here, with a round dimple in the middle.\nSomething smooth from the cistern would fit it nicely.
+ch2.spot.drumdoor.open|The pearl fits with a satisfied click, and the door rolls aside.\nA beat grows from within, and a small chest of supplies waits behind.
+ch2.spot.drumdoor.after|The door stands open, and the slow beat carries on.
+ch2.spot.drumgate.locked|The way on is behind the Drum Door.
+ch2.spot.drumgate.open|The gate swings wide and the beat grows louder.\nThe chamber beyond is enormous.
+ch2.spot.thrum.intro|The floor trembles, and a giant clay-caked cicada nymph unfolds from the chamber's heart.\nOld Thrum has been drumming for years and cannot stop. The whole chamber is his drum.\nHe is claybound, tired and very loud.
+ch2.spot.thrum.hit|Old Thrum gives a clumsy thump with one big leg.
+ch2.spot.thrum.drum|Old Thrum drums, and the beat rolls over every one of you.\nYour hands go slow, as if the air has turned to syrup.
+ch2.spot.thrum.harden|Thrum tucks in tight, and his clay shell thickens. Your hits will glance off, and bite only half as hard.
+ch2.spot.thrum.crack|A long crack runs down Thrum's shell, and he blinks, stunned. Hits will land hard now.
+ch2.spot.thrum.stunned|Thrum sways on his long legs, dazed, and the chamber goes quiet. Take your free moment.
+ch2.spot.thrum.molt|Thrum splits his old clay shell and lets it fall away like a cast-off coat.\nThe beat changes to a quicker rhythm, and he cycles through his moves faster now.
+ch2.spot.thrum.defeat|The drumming stops. For the first time in years, there is only silence, and it rings.\nThrum sinks down, calm at last, a drumskin left on the floor beside him.\nHe looks at you with thanks, and the quiet is enormous.
+ch2.camp.cook.greet|“Come in, come in! Soup is on and the beds are free.”\n“Mind the big pots down below, dear. They bubble when they like.”
+ch2.camp.cook.shop|“A kit is a tied bundle: bedding and a pot of broth for rough nights.”\n“Take a few, but you can only carry so many.”
+ch2.camp.cook.rest|“There. Something hot in you, and your finds are safe with me.”
+ch2.banter.tumble.1|“I put up a sign that says LEFT. It points right. Or I am facing the wrong way. Both, probably.”
+ch2.banter.tumble.2|“Look at that lamp light on the clay. So many long roads, and someone kept a light for every one.”
+ch2.banter.juniper.1|“Sit. Eat. No, a proper bowl, not a nibble. I will not have anyone marching on a thin stomach.”
+ch2.banter.juniper.2|“Hmm. Needs salt. And a little more patience. There, that is better. Taste it.”
+ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try? I might find a short cut.”\n“I can read them, mostly. Other people's, I mean.”
+ch2.crew.tumble.done|Tumble squints at the signs, turns one the right way up, and picks out a good bit of the way.\n“There! That should save our boots a little.”
+ch2.crew.juniper.talk|“Everyone looks a bit peaky. Stop a moment, {gnome}.”\n“I have a quick bite in my pocket. Do not argue. Eat.”
+ch2.crew.juniper.done|Juniper hands round hot little bites, still warm from her pocket.\n“There. Colour in your cheeks. You feel readier, yes?”
+ch2.ev.echo.text|A smooth round wall curves ahead. Your whispers come back softer, as if someone liked them.\nYou could whisper a thank-you.
+ch2.ev.echo.whisper|The wall hums back a kindly “you're welcome”.\nYou stand a while, and rest.
+ch2.ev.moth.text|A pale moth drifts through the Dim, carrying one small dot of light.\nYou could follow it.
+ch2.ev.moth.follow|The moth leads you past a glittering crystal.\nThe fog thins around you, and you can see again.
+ch2.ev.kettle.text|A copper kettle sits on a flat stone, still warm, steam curling from the spout.\nNo one is near.
+ch2.ev.kettle.sip|You share the kettle, and the warm drink goes round.\nIt tastes of herbs and somebody's kindness.
+ch2.ev.drumbeat.text|A slow beat rolls through the clay from far away.\nYou could try counting it. It seems to want to be counted.
+ch2.ev.drumbeat.listen|You catch the rhythm and move to it, step for step.\nYou feel steady, and ready for whatever comes.
+ch2.ev.drumbeat.miss|You lose count, and your feet go one way while the beat goes another. You trip, softly.\nNo harm done, only a little laughter.
+ch2.ms.ch2_tumble|A small gnome with a compass has a trail again.\nThe plaza's signs finally have a reader, of sorts.
+ch2.ms.ch2_juniper|Juniper's ladle is back in a proper pot.\nThe whole party's bellies will be looked after.
+ch2.ms.ch2_pinch|The cistern is quiet now.\nOld Pinch settles in the mud, no longer cranky, and the pearl is yours.
+ch2.ms.ch2_thrum|The drumming has stopped for the first time in years.\nThe whole clay seems to exhale.
+ch2.ms.ch2_chapter|You have reached the bottom of the Weeping Clay.\nThe walls have stopped weeping.
+book.crossroads|The Crossroads. A round plaza of signposts, each one pointing somewhere else.\nThe Wayfinders built them, but not to send anyone anywhere.\nThey built them to remember the roads they had walked.\nSo the signs do not agree, and that is quite all right.\nA Wayfinder can read the loose clay here, and find a quiet way through.
+book.brewhouse|The Brewhouse. A round-roofed hall with a great cauldron at its heart.\nThe Brewroots cook here for anyone tired, and ask for little.\nThe benches are worn smooth, and the broth is always on.\nIt is a good camp. I slept well.
+book.pinch|Old Pinch. A huge crab of the old cistern, caked head to claw in clay.\nShe grabbed whatever came too close, and held on.\nCranky, but not wicked. She only wanted to be left alone.\nWe left her the mud, and took away the Cistern Pearl.
+book.thrum|Old Thrum. A giant cicada nymph, caked in clay, all long legs and tired eyes.\nHe drummed for years and could not stop.\nHis beat travels through the rock, far further than you would think.\nWhen he rested at last, he left behind his drumskin.
+ch2.outro|The walls have stopped weeping, and the drumming is gone.\nEveryone is tired, and fed, and quietly proud.\nThen, from far below, comes one last, slow sound.
+ch2.hook|A slow knock rises from deep in the rock. Three beats, patient and even.\nIt is not a threat. Something below is waiting.
+interlude.2.intro|The Shard Hollow again, with the kettle on and everyone round the fire.\nThe clay is behind you, but listen closely.\nThe slow knock is still in the rock.
+interlude.2.burdock|“Three beats, and in no hurry. Rock does not knock by accident, friend. Something down there has manners, at least.”
+interlude.2.zinnia|“I keep tapping along with it! Tap, tap, tap. Is that rude? I hope it is not rude.”
+interlude.2.bracken|“Three beats, evenly kept. That is a sentry's knock, or I am a poor captain. We shall be ready.”
+interlude.2.sorrel|“I wrote the knock down in the margin. Three neat beats, like a line of verse. I will keep listening.”
+interlude.2.tumble|“I cannot read my own signs, but I can read that knock. It says come down, and very politely.”
+interlude.2.juniper|“Whoever knocks, they get fed first. That is the rule. Then we ask who they are.”
