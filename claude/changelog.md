@@ -1,0 +1,134 @@
+# Gnome Venture changelog (newest first, condensed)
+Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
+
+## 1.9.9
+- Treks audit (3 parallel passes). Ch I: KO clears stale event card; hidden crew moment no longer blocks trail events; double-tap camp when rested no longer burns a kit; free first kit goes to pack when kits at max; trek_short_name() ("Captain Dov" not "Captain"); fight Round heading centred; mother-aphid brief says 4th round. Ch II: silvergate zone l→m, drumgate s→r; new slot ch2.spot.thrum.stunned; never-locked gate no longer asks for missing .open text. Engine: trek_load survives corrupt state/log/fight JSON; removed crew row plays as plain trailmate; admin/trek_text.php array-param guards (trek_arg); trek_inside() honours trek_open/level gate (admins exempt). New tests: trek_audit_ch1.php, trek_audit_ch2.php, trek_audit_engine.php + trek_audit.sh (in treks.sh). Security: ~45 bad-input POSTs, XSS, concurrency all pass.
+## 1.9.8
+- shop.php Buy/Sell = Satchel-style picture tiles (rarity, art, name, price, stock/you-have, season/price marker) → `<dialog>` sheet (gvOpenDlg) with −/qty/+/All, live total ("Too much" disables Buy), same POST fields (do=buy|sell, qty[id], CSRF). Long text folded. Old basket JS replaced in site.js; chip filter scoped to .shopwrap. CSS "v1.9.8 shop tiles". Shop intro + counter centred. Not converted (one-click rows): Curio/Dye Pot (sinks.php), marketday.php, haven pantry, festival.php stalls, local.php, market.php. News entry.
+## 1.9.7
+- Yard: tapping a glowing building (hive, compost, animal homes) collects and returns to the garden (form field from=yard); not glowing still opens its info on the Buildings tab. Panel Collect buttons still return to Buildings.
+## 1.9.6
+- Today page centring (CSS block "v1.9.6 Today centring"): greeting card (desktop too, overrides v1.7.5 left rule), news card header/Read, Wren tip.
+## 1.9.5
+- Treks no longer use gnome level for balance: setting `trek_base_level` 15. Ch I foes grow toward base−1; Ch II lift row removed (parser ignores lift); Bracken duel + trailmates (base−2) + player gnome (`trek_gnome_user()`: level = base; stat points, calling, buffs still count; level-derived HP/armour/attack and calling tier don't) use base; find-Petals outlevel cut vs base. Party cards no longer show level. Gate L15 + milestone gnome XP unchanged. Retune: silverfin 106|7|3|14, zone l 250|12|8|11, m 250|11|8|12, o 385|14|8|16, old-pinch 212|11|6|21, old-thrum 140|17|8|60 (short, hard-hitting). Sims same at gnome 15/20/30: zones 82–94%, Silverfin Lv10 72–78 / Lv11 ~90, Pinch ~85, Thrum healer ~85, no-healer 61–71 (parties with Sorrel or no Burdock ~21–25%). tests/trek_levels.php asserts identical numbers at L15/L30. No news entry (Treks hidden).
+## 1.9.4
+- Road (branch road2): road choice cards (data/road_events.txt: 30 generic + 8 each NA/NWE/EA + 12 sights; OFFPATH_* moved out of explore.php; old saved choices still resolve). Roll shares creature 40 / problem 22 / choice 14 / find 24 (constants). Villagers + travellers met on roads (data/road_meet.txt 44 lines incl. Warm/Eager/Fussy/Dreamy; clock hashes, no cron; ~30% of finds when someone is about; chat = existing once-a-day claim, travellers use npc_talk maths minus gifts). Wonder text per wonder (data/wonder_text.txt intro/success/fail ×35 + 9 day moods; mood shifts DC −1/0/+1; non-own approaches change daily). village_blurbs.txt (+4 per landscape, hashed). Centring pass road/explore/delve/landmarks/walk bar. `.choice` text centred sitewide (spacer balances the icon when no badge). No schema change.
+- Treks (branch trek2b): Chapter II-b — map ch2 40x106, +15 spots (Crossroads/Tumble signpost riddle, Hush sneak, Dim, Brewhouse camp 2/Juniper, Sour Cistern/Old Pinch, Drum Chamber/Old Thrum), finish + interlude 2. Data *_ch2b.txt (94 text slots with briefs + drafts), 5 new creatures (placeholders tests/gen_ph_ch2.py). Camp-to-camp travel (+12 fatigue) + Slide (spot type `slide`), spot `icon=` key, zone style `d` + `hint`. Settings trek_ch2_petals 500 (chapter finish, once), 5 II-b milestones, `trek_cold_rest_fatigue` 25 (cold rest without kit: −25 fatigue, ¼ heal; kits/camps/rest spots stay −50/½). trek_drafts() multi-line parser fixed. tests/trek_ch2b.php in treks.sh (226 ok). Sims: gnome16 normal 82–92%, Pinch ~82% (95% if drained), Thrum ~89% with a healer (20–60% without); gnome20 ~100%.
+- Fast travel blocked inside a trek (gathering allowed). News entry (Treks not announced).
+## 1.9.3
+- Road life (non-trek explore). includes/road_life.php: `road_pick()` anti-repeat ring (last 8 per kind in users.road_recent; last 3 banned, next 5 ×0.3; written only by road_flush() inside adventure.php transaction + user lock) for creatures, problems, finds, off-path choices/sights, ambient lines; creatures/problems cached per request. `cond` column (VARCHAR 190) on problems/creatures/gatherables, stop syntax dp/se/we; `!` prefix = hard requirement, plain = ×3 weight; tags in data files' last column; admin editor field. 8 new weather/season problems (all hard-gated). upgrade193.php step `upg193_road_cond` (import_problems_txt + road_cond_backfill only where cond empty). data/road_lines.txt (160 lines: cond|lands|region|text; Claude drafts) one per road space/explore step, heading + walk bar show the next one (seeded); arrival logs the stop type's daypart ambience. UI: off-path choices + road/explore/delve buttons as `.choice` rows; small result card. CSS "v1.9.3 road". Tests: tests/roadlife.sh (+ roadlife.php), tests/upgrade193.sh. News entry.
+## 1.9.2
+- Treks Chapter II-a "The Weeping Clay" (data *_ch2.txt, trek_map_ch2.txt 40x46, 553 walkable, ~202 route steps, ~21 fights): Seep Steps → Tin Lamp camp → Drowned Library (Sorrel Inkcap Seedkeeper, lore 3; riddle door opens on answer / Seedkeeper / 3rd fail; Silverfin boss hit/sweep/mend, enrage <30%, ≤2 adds) → Potter's Row → closed Crossroads gate (ch2a_end). Tiles `:` wet clay, `*` crystal, `w` water drained by sluice switch spots. Milestones ch2_sorrel 400, ch2_silverfin 1000, ch2a_end 800. 88 new text slots (briefs + drafts). Admin trek_text.php: chapter tabs, status filter, Claude's suggestion, Restore; in-game ✏️ pencil for admins on draft text (trek_draft_marker). Today page merged (no tabs; phone: greeting, news, 6 cards, Hollow, tip; desktop: greeting, 3x2 cards (4-wide with Treks), Hollow | news+tip; rail hides weather/boosts/tasks on Today); status strip centred. tests/trek_ch2.php in treks.sh. Tuned for gnome Lv16 (sim 89-97%, Silverfin 79-91%).
+## 1.9.1
+- Treks chapter engine: per-chapter trek_runs rows (UNIQUE user,trek,mode,chapter), users.trek_ch, per-user Petal cap users.trek_pet_day/today. Interlude hub "The Shard Hollow" after a chapter (no replay; old run read-only, Log tab keeps it). trek_godown carries recruits, st.tl, st.tac, kits. Data-driven chapters: includes/data/trek_chapters*.txt (chapter/zone/ms/check/tune/finish/lift rows); boss registry trek_scripts()/trek_script_register(). MySQL migration verified live.
+## 1.9.0
+- Player's own gnome (gnome_avatar via trek_me_ico / trek_art_me) in Treks; Leave + Climb out confirm (trek_form $formAttrs, trek_leave_confirm); map wall texture + root/hedge seam; road fight "Show all" log (exp_log_cap 160 in fights); security fixes (trek_post_str/int, plan slots 0-3) + tests/security190.sh; news entry.
+## 1.8.10
+- Trek map art (includes/trek_art.php, one SVG per map; open zones = blighted hedge bands, underground g/w/c/x = root bands; lantern radial gradient on player), walk animation (assets/trekmap.js; path one-shot in $_SESSION['trek_walk']).
+## 1.8.9
+- Trek levels (includes/trek_levels.php; st.tl[crew]=[lv,xp]; uncapped; +6% HP/lv, +1 hit/2 lv, +1 dmg/3 lv; late recruit = avg−2 with +50% catch-up). Gnome XP ONLY from milestones (settings trek_ms_*: 150/250/350/500/600/350, × 0.5–1.0 by checks); table trek_ms (survives admin reset). trek_xp_daily retired. TREK_TUNE retuned. Migration gives mid-run players a start level. Banked items as Satchel tiles. tests/trek_levels.php.
+## 1.8.8 / 1.8.8.1
+- Trail events (includes/trek_events.php; trek_event_pct 6, trek_event_gap 15), stops Stuck Cart / Mushroom Camp / Riddle Stone, crew moments, full fight log (Show all, replay stays open, Full log link). New text slots ship drafts from includes/data/trek_drafts.txt (used only when slot is new). tests/trek_events.php.
+## 1.8.7 / 1.8.7.1
+- Road fight compact on desktop (fight above map, 2-col actions, Attack centred); party cards "▾ Tap for stats & tactics".
+## 1.8.6
+- Tactics per member (st.tac[crew_key]); trek_fight_ai (snack > heal > shield > open > ability > attack); tests/trek_tactics.php. Party/Pack rework; same-name foes grouped ×N. Blight Mother: 1 add / 4 rounds, ≤3 alive, ≤4 adds.
+## 1.8.5
+- Trek Auto plays back round by round ($_SESSION['trek_replay'], `<dialog class="tkr">`).
+## 1.8.4
+- Trek fight redesign: plan line + plan sheet (`<dialog class="trekplan">`, radio tiles), plan memory st.plan, "Plan each turn" mode, fades. assets/trekfight.js.
+## 1.8.3 / 1.8.2.1
+- 1.8.3 Treks tidy (hud card, no empty story lines, capped map, tile buttons, 2 cols ≥1000px). 1.8.2.1 phone toasts move to top while a Satchel item sheet is open.
+## 1.8.2
+- Pickers + chest = native `<dialog>` (gvOpenDlg/gvCloseDlg); confirm()/alert() → gvAsk/gvSay (data-confirm on forms and buttons); aria-labels on icon buttons; @view-transition fade; :user-invalid; hero fetchpriority. CSS block "v1.8.2 tighter layout" (desktop header 40px, strip 34px, phone header 46px, travel stack 700px).
+## 1.8.1
+- `games_petals_percent` 60 + `game_petals()` (Worms, Memory, Spit, Mushroom, Pest, Letters + Rules text). `orders_food_quality` 0 (crop/preserve orders no grade, diff 1); boot_step `market176_almanac`. "Where to next?" restyle (CSS "v1.7.6 travel card"). Treks fixes: trek_petals_daily 150, trek.php in AJAX_PAGES, trek_runs.finished set, admin reset warns rewards re-pay. tests/market100.php covers food quality.
+## 1.8.0
+- Treks (NeoQuest-style party campaign), Chapter I "The Wilting Rows": trek.php (?t=map|party|pack|log), includes/trek.php, trek_fight.php (copies adventure.php maths, keep in sync), trek_data.php, admin/treks.php, admin/trek_text.php. Data trek_map_ch1.txt, trek_spots.txt, trek_crew.txt, trek_creatures.txt, trek_texts.txt (89 slots). Tables trek_runs/party/recruits/pack/flags/texts. Gate L15 + trek_open (default admins only). Road walks/explore/landmarks blocked inside a trek. tests/treks.sh, tests/trek.php. CSS "v1.8.0 Treks".
+## 1.7.5
+- Tasks badge + bottom-bar pip = jobs + quests + orders (cached $_SESSION['nav_badges'] 60s). Journey Hand in / Finish on jobs.php?t=quests. "Villagers" wording. 721–1199px side nav = A4 look. Shop one season tag. Today greeting stacked on phones. CSS "v1.7.5".
+## 1.7.4
+- CSS-only alignment pass (style.css block "v1.7.4 alignment"): contests 2-col grid + compact buttons on desktop; rail walk/fight centred, stacked duel, 1-col choices; phone walk bar centred; Today jar bars full width, right-aligned links, equal tabs; town tiles auto-fill 260px; donate row flex; tabular-nums; balanced headings; dark `.btn:hover` readable.
+## 1.7.3 / 1.7.3.1
+- Menu regroup (phone + desktop): You (Gnome, Almanac, Satchel, Crafting), Grow (Garden, Arranging), Out & about (World, Town, Villagers, Seasons, Passport, Games), Together (Trading, Together, Tasks, Gnome friends), Account at bottom. Desktop >=1200px "A4" sidebar: groups always open (`.navfixed`), 2-col icon+name tiles. 21 `nav-*` placeholder icons (tests/gen_ph_nav.py; items.php `nav_icon()`/`NAV_ICONS`; real art uploads/nav/{slug}.png via Admin → Images). Rail box "Tasks". Almanac: Contents always open; Plants/Flowers filter by region (`reg`) + kind (`tier`). 1.7.3.1: phone sheet shows tiles that are also on the bottom bar.
+## 1.7.2
+- jobs.php = "📋 Tasks" tabs ?t=jobs|quests|orders|errands (sub ?p=); helpers tasks_* in includes/quests_view.php; town.php?view=quests → jobs.php?t=orders; jobs.php?s=quests → t=quests; journey.php `back` accepts jobs.php. community.php = "🌻 Together" ?t=garden|jar|about; hollow.php redirects to ?t=jar. "Gnome friends" / "Villagers" names; "Calling mentor" vs "Gnome mentor". games.php?tab=contests hub (contests_hub_html, includes/contests.php); entry pages "← Contests". Tests updated (social100, mentors120, games2).
+## 1.7.1
+- Today Home: one jar/Pulse row. Admin settings: ~143 labels prefixed by feature + sub-headings. Unlinked pages audit: none orphaned.
+## 1.7.0 (upgrade170.php, flag upg170_reacts)
+- Reactions merged into guestbook stamps (PAL_STAMPS starts 🌻👏🐝✨; garden_reacts copied → garden_stamps, table kept unused). Player text "Guestbook" (passport stamps unchanged). One "Visitors today" roll-up notice per garden/day (stamps + watering; `social169_notify_owner`). `gate_can_interact()`. Garden "🤝 Need help?" fold. Menu de-dup (one Jobs & quests tile, Contests via Games, Getting started only during tour <L5). `tour_active()` false when `away_from` set.
+## 1.6.9 / 1.6.9.1
+- includes/social169.php: 💧 Water for them on visit.php (1/day per plot per helper, cap `social169_water_gardens` 3, 1 energy, 5 XP + 5 Petals; garden_waterings UNIQUE; water logic duplicated from garden water case) + reactions (merged in 1.7.0). 1.6.9.1: no friendship needed; same sign-up IP (`mentors120_same_origin`) earns nothing. Shop/sell/curio/dye `.choice` rows; seed picker selected; crafting ×1 solid. World map piecewise depth scale (MYC_VER 160b), desktop cap 460px. Phone header fits ≤440px.
+## 1.6.8
+- Email verify at sign-up (verify.php; resend 3/h). Opt-in reminder emails default OFF (users.email_nudges; includes/mail_nudge.php `mail_nudge_tick()` in page_footer shutdown after fastcgi_finish_request, once/hour; unsub.php HMAC + List-Unsubscribe; no sends while `mail_address` blank). send_mail optional SMTP (config smtp_*). admin/retention.php. includes/logrotate.php (error log → .1 at 1 MB). Backups: 5 DB / 2 program zips. bootstrap writes data/.htaccess deny (data/ had been web-readable). Tour-first helpers (`helper_slot()`: back > fw > daily > fest). Placeholder red outline removed. Sub-folder installs: own session cookie + X-Robots-Tag noindex (`app_base_path()`).
+## 1.6.7
+- Desktop rail: "On the road" box above Messages (site.js `walkBox()`).
+## 1.6.6
+- World → 🗺️ Map tab (`?tab=map`): region map first, world map in `details#worldmap` (`&w=1` opens). Old `?r=` links land there.
+## 1.6.5 (10-17)
+- Dark by default: `<html data-theme>` from users.theme (new column, default dark; dark/light/auto) → cookie gvtheme → dark; auto via early.js. Dark CSS now keyed on `:root[data-theme="dark"]` (tests/theme_css.py rewrites @media dark blocks; re-runnable). theme.php (POST+CSRF, safe back). Toggles: phone menu (next to Today), desktop header, account "Look" box, footer (logged out/admin). News post.
+## 1.6.4.1–1.6.4.2 (10-17)
+- Walk-bar fight rows compact 2-up. Desktop admin side menu = plain list; "Update, settings & system" section first.
+## 1.6.4 (10-17)
+- Region maps: 🏷️ Names chip (remembered per device), ＋/−/⤢ zoom + drag (names show at ≥1.5×), pinch coded (untested on real touch), tip line. Walk-bar fight actions as .choice rows (closed line keeps small buttons).
+## 1.6.3.1–1.6.3.5 (10-17)
+- Phone status line flat + centred (level + XP bar, season day + weather, festival icon, badges). Admin phone menu = tile grid from admin_menu_def (old side-nav removed). Tab rows ≤5 one equal row on phones; World "Here" tab. Fast travel = own World tab.
+## 1.6.3 (10-17)
+- `.choice` rows on fights (odds badge), problem approaches, rest-stop activities, Job Board. Adopt slots: 1 + 1 per stop at Hall tier (max = stop_adopt_limit, now 3). Animal cards show feeder N/M + next gift ETA; worms 12h (was 24). Satchel/Crafting/Arrange tabs one row; Show/Sort dropdowns; ✨ Untasted filter; Almanac dropdowns. Phone top chrome folded to 2 lines. Garden phone crop covers all used squares (toggle above grid). Path line drops ❤️/⚡. New logged-out landing + How to play + 7 SVG teasers (old landing jpgs removed). Admin: grouped searchable menu, crumbs, phone tables. Player news for 1.6. upgrade163.php (adopt limit 1→3, worm 24→12).
+## 1.6.2 (10-17)
+- First-hour fixes from a newcomer playtest: tour card once per step then a one-line chip; phones show 1 toast at a time above the bottom nav ("🧺 +3 Radish"); square panel = 2 plain lines + "Soil details" fold; seed picker cards size to content; phone garden crops to beds (~48px squares, "Show whole yard"); energy note; till confirm only for no-till; Almanac day one flags 3 "Start here" pages; rest-stop odds as %; walk bar shows 🏁 destination; tap targets ≥40px; tab/chip rows wrap (no sideways scroll); seed placeholders show their crop.
+- Games energy: no daily cap (upgrade step `gamesnolimit`). Map auto-scroll only on map tab/fold. Rest-stop "full town square" footer removed.
+## 1.6.1 (10-17)
+- Maps shorter on phones: region map defaults to nearby view (2 steps + town + quest targets; "Show whole region" `?full=1`), names only on big places/current/quest spots (villages: tap), auto-scroll to 🎩 (`gvMycScroll`, site.js).
+## 1.6.0 (10-17)
+- Mycelium cross-section world + 14 region maps (includes/maps_myc.php): depth = 8+(min_level-1)*1.75 roots (topsoil/clay/deep rock/bedrock at 28/45/62), gauge, surface shaft, folk 👤 / quest ! / gather overlays, filter chips (sessionStorage). Scenery cache data/cache/myc-*.txt (denied .htaccess, atomic writes; bump MYC_VER when scenery changes). Setting `map_style` = classic rolls back. Fable-reviewed.
+## 1.5.3 (10-17)
+- ~1400 SVG placeholders in assets/img/ph/ (palette.json). Lookup order: real art → flower art → ph → emoji (`ph_img`, `ph_or_emoji`, items.php). Generators: tests/gen_ph_items.php, gen_ph_folk.py, gen_ph_world.py. Admin → Images counts placeholders (still "missing").
+## 1.5.2
+- Fixed CSS merge markers (snail cards). build_update.sh refuses conflict markers.
+## 1.5.1
+- Image URLs versioned (`url()` adds ?v=APP_VERSION / upload filemtime). Rock-pick practice = gather game.
+## 1.5.0
+- Gathering minigames reworked (six, incl. Spore Lure fishing), Games → Practice tab. Rest stops: no hard cap; after `stop_daily_total` (100) visits Petals/XP halved till midnight (6 per stop/day, 3 per visit).
+## 1.4.8 / 1.4.7
+- Pest Patrol (25 growing plants, Ladybird tie-in, bug-net bonus). Wonder approaches as compact rows. All games give energy. Walk-bar choices centred. GOTM: players above NPCs. Animals tab quiet-day note. Snail race / weight / letters restyled.
+## 1.4.6
+- Seed Memory and Mushroom Sweeper restyled (assets/memory.js, assets/mushroom.js); double-tap guard. Delve chest reveal overlay (includes/chest.php, assets/chest.js). Walk bar fold keying (`data-busy`, `window.gvAdvLast`). Bottom bar gesture gap capped. tests/explore.sh home fallback.
+## 1.4.5 / 1.4.4 / 1.4.3 / 1.4.2 / 1.4.1
+- 1.4.5 spit result faster; admin/xp.php groups sources. 1.4.4 admin/xp.php CSV export. 1.4.3 region map rework (`region_map_svg()`), smaller fight buttons, craft filter chips in place. 1.4.2 spit hotfix (never swallow a tap, wait `spit_min_ms`). 1.4.1 game pages 🎮 Play / 📖 Rules tabs (includes/games.php).
+
+## 1.4.0 (slim needs 1.2.0+; `upgrade140.php` flags `upg140_animals|crafts`)
+- Garden animals (`animals140.php`): 🦋 Butterfly Bush (L4, 1,100), 🐌 Snail Jar (L3, 300). 26 new creatures L12-28; `pick_creature` window L-6..L+2. 🎒 Snack in fights (`fight_snack_heal_mult` 3, 1/fight). Fight on replays (assets/fighton.js). Seed Spitting physics (assets/spit.js; server `spit_sim()`), Worm Hunting wander (assets/worms.js). Garden tabs `?t=` beds/bld/an/help/grow. Soil craft outputs up. tests/games140.sh.
+
+## 1.3.0 (slim needs 1.2.0+)
+- Fights: odds line, ⏩ Fight on, flee DC 8 + lvl/3, +10% HP on quiet steps. Late creature HP eased at fight start (`creature_hp_late_percent`). Rest stops tabs Do / Folk / Stop, 2 errands offered.
+
+## 1.2.3
+- Smaller walk-bar buttons; problem approaches with chance badge; visit.php 🧬 cross hint; admin/xp.php `mentor_share` label; trade.sh fixed.
+
+## 1.2.2 (slim needs 1.2.0+; col `users.sess_ver`)
+- Free daily water in select mode. Oct 13 review fixes (GotM alt guards, mod self-action, sess_ver logout, reset timing leak, account delete scrub, notices pruned 30 d). Races closed (users-row lock + re-read, or DELETE/conditional UPDATE as claim) across jobs, expeditions, games, gifts, GotM. Day turnover = midnight Hollow time. Bug fixes (spider map, rand:rare, mole, delve kind, Wayfinder price, admin item delete refs). `boot_step()` wrapper + `boot_failed_steps`. load_plot writes only on change.
+
+## 1.2.1
+- Garden select mode quick picks.
+
+## 1.2.0 (slim needs 1.0.0+; `upgrade120.php`)
+- Quail Coop, Silkworm Shelf, Tortoise Run; Clementine the goat, Percy the pigeon; 9 recipes, 4 crafts, 13 Almanac pages. Player mentors (mentors120.php). Today tabs Home / Out / Hollow.
+
+## 1.1.0 (slim needs 1.0.0+; `upgrade110.php`)
+- Crop breeding (22 hybrids, breeding110.php, admin/hybrids.php). 11 egg recipes. Quests tab in Jobs. `cook_energy_percent` 150 → 115; `orders_board_max` 5 → 3.
+
+## 1.0.4 / 1.0.3 / 1.0.2 / 1.0.1
+- 1.0.4 pause at rest stops too. 1.0.3 walk bar folds. 1.0.2 phone declutter (Today ~7100px → ~1450px). 1.0.1 `fresh_hold()`, Hollow Goals roll-up, caches.
+
+## 1.0.0 "The Hollow Wakes Up" (slim needs 0.9.9+; `upgrade100.php`)
+- Clock/seasons/weather/daypart. Rest stops rewrite (12 types, 55 activities, 365 villagers, passport, adopt-a-stop). Crop seasons, weather, pests, companions; Worm Farm, Ladybird Lodge, Frog Pond, Biddy. Townsfolk orders, market day, price drift. Social: Hollow Goals + Pulse, friends/guestbook/gifts, First Week, welcome back, daily card, Opening Day.
+
+## 0.9.x
+- 0.9.9 flower arranging, drying rack, seed packets, florists; gathering mini-games rewrite. 0.9.8 Pantry; item pictures + Admin → Images. 0.9.7 action XP scale, easy roads, Petal sinks (Curio, skins, feasts, Dye Pot, signposts). 0.9.6 desktop 3 columns, dark mode tokens. 0.9.5 "Add 4 beds", Kitchen stacking, fences auto-join, yard undo. 0.9.4 calling questlines (6 mentors, 12 chapters) + cooking/energy rework. 0.9.3 region maps, road board, GPS plans. 0.9.2 visual makeover. 0.9.1.1 select-all, calling change cost (versions stay numeric). 0.9.0/0.9.1 calling tiers + XP retune.
+
+## 0.8.x
+- 0.8.9 real climates, editable page text, energy regen 1/min. 0.8.8 SEO (seo.php, guide.php, sitemap.php, robots.txt, manifest). 0.8.7 soil care stars. 0.8.6 landing page, feedback form. 0.8.3/0.8.4 new menu. 0.8.1 Mushroom Sweeper, Lost Letters, Harvest Fair. 0.8.0 Guess the Weight.
+
+## 0.7.x (2026-10-09 →)
+- 0.7.0 14 regions, 81 landmarks, staple/uncommon/treasure tiers, 168 flowers, region medals. Wren's tour, auto DB upgrade, tools, gathering, crafting/cooking, NPK, hired help, Job Board, Trading Post, Worms/Memory/Snail Race, NPC friendships, Community garden, Village Show, carving, town squares, NPC lives, roads, exploring, moderation, yard designer, visits, GotM, renamed Gnome Venture (0.7.36), first live MySQL fixes, SVG maps, admin updater (0.7.40), start in Maplewold, npc.php/mod.php renamed (host blocks), in-place updates, security pass. 0.7.64 balance (sell mults, regrow, steep XP). 0.7.74–0.7.99 exploring tuning, repairs, gathering, Toolbelt, building upgrades, Gather tab + Seek, destinations, tappable buildings.
