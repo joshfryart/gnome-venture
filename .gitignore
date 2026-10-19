@@ -56,3 +56,6 @@ Thumbs.db
 *.swp
 node_modules/
 vendor/
+
+# Release source zips are kept in the repo on purpose
+!releases/*.zip
