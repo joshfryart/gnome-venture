@@ -17,7 +17,26 @@ Current version: **1.9.9** (see [CHANGELOG.md](CHANGELOG.md)).
   <img src="game/assets/img/landing/stats.svg" alt="A gnome with four stat bars and an apple" width="360">
 </p>
 
-Phone and desktop screenshots: to add (see Open work).
+### Live build (test account)
+
+Desktop (1400px):
+
+<p align="center">
+  <img src="docs/screens/desktop-today.png" alt="Today page on desktop" width="48%">
+  <img src="docs/screens/desktop-garden.png" alt="Garden page on desktop" width="48%">
+</p>
+
+<p align="center">
+  <img src="docs/screens/desktop-world.png" alt="World page on desktop" width="48%">
+</p>
+
+Phone (412px, dark theme):
+
+<p align="center">
+  <img src="docs/screens/phone-today.png" alt="Today page on phone" width="22%">
+  <img src="docs/screens/phone-garden.png" alt="Garden page on phone" width="22%">
+  <img src="docs/screens/phone-world.png" alt="World page on phone" width="22%">
+</p>
 
 ## Stack
 - Plain PHP 8.1+ with PDO. No framework, no build step.
