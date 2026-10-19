@@ -215,9 +215,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             trek_pet_migrate();  // v1.9.1: today's trek Petal count moves from the run state to the player
         });
         boot_step('trek_bodies_200', function () {
-            if (version_compare((string)setting('db_version'), '2.0.0', '<')) {   // v2.0.0: draft bodies for slots that were made empty (never overwrites a body)
+            if (setting('trek_text_pass') !== '2') {   // v2.0.0: final Treks text (Chapter I and II), once; a row Joshua wrote keeps his words
                 require_once __DIR__ . '/trek_data.php';
-                trek_fill_empty_bodies();
+                if (trek_apply_final_texts() > 0) set_setting('trek_text_pass', '2');   // only once the final file is there: an empty file must not close the pass
             }
         });
         boot_step('upgrade_094_callings', function () {

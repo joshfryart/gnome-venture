@@ -598,16 +598,40 @@ function trek_import_texts(): int
     return $added;
 }
 
-/** v2.0.0: a slot whose body is empty takes its draft (trek_drafts*.txt). A body Joshua wrote is never touched; a todo slot becomes draft. */
-function trek_fill_empty_bodies(): int
+/** v2.0.0 text pass (runs once, setting trek_text_pass = 2): final bodies from trek_final_200.txt.
+ *  A row takes the final body when it is empty, or still holds the shipped draft. A body Joshua edited is kept.
+ *  Every row in the file, and every Chapter I row with a body, becomes status done. */
+function trek_apply_final_texts(): int
 {
-    $drafts = trek_drafts();
+    $final = [];
+    $key = null;
+    foreach (trek_lines('trek_final_200.txt') as $line) {
+        if (preg_match('/^([A-Za-z][A-Za-z0-9_.\-]*)\|(.*)$/s', $line, $m)) {
+            $key = trim($m[1]);
+            $final[$key] = $m[2];
+        } elseif ($key !== null) {
+            $final[$key] .= "\n" . $line;
+        }
+    }
+    foreach ($final as $k => $body) {
+        $body = trim(str_replace('\n', "\n", $body));
+        if ($body === '') unset($final[$k]); else $final[$k] = $body;
+    }
+    $old = trek_drafts();   // the shipped drafts, before this pass
     $n = 0;
-    foreach (q("SELECT id, text_key, status FROM trek_texts WHERE body IS NULL OR body = ''")->fetchAll() as $r) {
-        if (!isset($drafts[$r['text_key']])) continue;
-        $status = $r['status'] === 'todo' ? 'draft' : $r['status'];
-        q("UPDATE trek_texts SET body = ?, status = ? WHERE id = ? AND (body IS NULL OR body = '')", [$drafts[$r['text_key']], $status, $r['id']]);
-        $n++;
+    foreach (q('SELECT id, text_key, chapter, body, status FROM trek_texts')->fetchAll() as $r) {
+        $k = $r['text_key'];
+        $cur = trim((string)$r['body']);
+        if (isset($final[$k])) {
+            if ($cur === '' || $cur === trim((string)($old[$k] ?? '')) || $cur === $final[$k]) {
+                q('UPDATE trek_texts SET body = ?, status = ? WHERE id = ?', [$final[$k], 'done', $r['id']]);
+            } else {
+                q('UPDATE trek_texts SET status = ? WHERE id = ?', ['done', $r['id']]);   // Joshua wrote it: his words stay
+            }
+            $n++;
+        } elseif ((int)$r['chapter'] === 1 && $cur !== '' && $r['status'] !== 'done') {
+            q('UPDATE trek_texts SET status = ? WHERE id = ?', ['done', $r['id']]);
+        }
     }
     return $n;
 }
