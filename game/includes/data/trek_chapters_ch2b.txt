@@ -1,0 +1,26 @@
+# Chapter II-b "The Weeping Clay", the second half (v1.9.4): the Crossroads, the Hush, the Dim, the Brewhouse (camp 2), the Sour Cistern, the Drum Chamber. Format: see trek_chapters.txt.
+# New zone flags: hint = the zone says a hint line (ch2.zone.<letter>.hint) the first time you enter it. New zone style d = underground and dark (map art only: a deep vignette, the crystals are the light).
+# This file only adds to Chapter II (zones, milestones, checks, tune rows, the finish row); the chapter row is in trek_chapters_ch2.txt. Milestone XP at full checks: II-a 2,200 + II-b 2,200 = 4,400.
+zone|2|n|The Crossroads|🪧|u|
+zone|2|o|The Hush|🤫|u|single,hint
+zone|2|p|The Dim|🌑|d|
+zone|2|q|The Brewhouse|🍲|u|
+zone|2|r|The Sour Cistern|🫗|u|
+zone|2|s|The Drum Chamber|🥁|u|
+ms|2|ch2_tumble|Tumble found|trek_ms_ch2_tumble|Tumble|250
+ms|2|ch2_juniper|Juniper found|trek_ms_ch2_juniper|Juniper|300
+ms|2|ch2_pinch|Old Pinch down|trek_ms_ch2_pinch|Old Pinch|600
+ms|2|ch2_thrum|Old Thrum down|trek_ms_ch2_thrum|Old Thrum|650
+ms|2|ch2_chapter|Chapter II complete|trek_ms_ch2_chapter|Chapter II|400
+check|2|Signpost riddle solved|flag|sign_solved|3
+check|2|Wayfinder nooks found|all|nookA_found,nookB_found|4
+check|2|Cistern nook found|flag|nookC_found|5
+check|2|Cistern sluice turned|flag|sluice3_done|6
+tune|2|n|240|11|7|11
+tune|2|o|385|14|8|16
+tune|2|p|232|11|7|11
+tune|2|r|280|13|8|13
+tune|2|s|240|12|7|12
+tune|2|pinch|212|11|6|21
+tune|2|thrum|140|17|8|60
+finish|2|thrum_down|ch2_thrum,ch2_chapter|trek_ch2_petals|drum-skin,brewhouse-ladle|trek:crossroads,trek:brewhouse,trek:pinch,trek:thrum|Chapter II

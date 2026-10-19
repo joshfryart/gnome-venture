@@ -1,0 +1,85 @@
+# Trek map, Chapter I (40x40). Legend: # wall, . floor, ~ mud (2x fatigue), % roots (2x), = bridge, ^ chasm (blocked), , blighted floor,
+# capital letters = spots (see trek_spots.txt, column "sym"). Second layer (after ---) = zone letters:
+# g gate, w wormway, c camp, f grubfields, h hamlet, d dew pools, b bridge, r black rows, x gloomtooth den.
+# v1.8.8 hand-placed stops: K stuck cart, T mushroom camp (the only way into the Dew Pools), J riddle stone (one in each gap between trailmates).
+########################################
+#############.Q.....S...#...############
+#############...#.....%%%%%.############
+#############.....#...%%%%%.############
+####################R###################
+##############B..K.........#############
+##########################.#############
+################...~~~~....#############
+################.#######################
+################..%%.....###############
+########################O###############
+####################.#.....#.###########
+####.Y..############....C....###########
+####....############.#.....#.###########
+####....################.###############
+####.......#....%%%..........#......####
+####.....~~~~~~.....##.....~~~~~~~#.####
+####.....~~~~~~..........#.~~~~~~~..####
+####...#.~~~~~~....~~~~~...~~~~~~~..####
+####........#..#...~~~~~#.....%%%%%.####
+########.#################.....#########
+########T#################.....#########
+########.#################.....#########
+###..........#######................####
+###.##.D..~~.#######.##.......V.###.####
+###.##.......#######.##.Z.......###....#
+###~~~~......#######...........###...W.#
+####################.##...##...###..####
+############################P###########
+############^^^^^^^^^^^^^^^^.^^^########
+##.......###^^^^^^^^^^^^^^^^=^^^#......#
+##...H...###^^^^^^^^^^^^^^^^=^^^#..L...#
+##.......###^=======J========^^^#......#
+##.......###^=^^^^^^^^^^^^^^^^^^#......#
+#####.######^X^^^^^^^^^^^^^^^^^^####N###
+###,,,,,,,#,,,,,,,,#,,,,#,,,#,,,,,,,,,##
+###,,,,,#,,,,,,,#,,,,,,,M,,,,,#,,,,,,,##
+###,,,,,,,,,#,,,,,,,,,,,#,,,,,,,,#,,,,##
+########################################
+########################################
+---
+                                        
+             ggggggggggggggg            
+             ggggggggggggggg            
+             ggggggggggggggg            
+                    g                   
+              wwwwwwwwwwwww             
+                          w             
+                wwwwwwwwwww             
+                w                       
+                wwwwwwwww               
+                        w               
+                    ccccccccc           
+    ffff            ccccccccc           
+    ffff            ccccccccc           
+    ffff                c               
+    ffffffffffffffffffffffffffffffff    
+    ffffffffffffffffffffffffffffffff    
+    ffffffffffffffffffffffffffffffff    
+    ffffffffffffffffffffffffffffffff    
+    ffffffffffffffffffffffffffffffff    
+        f                 hhhhh         
+        d                 hhhhh         
+        d                 hhhhh         
+   dddddddddd       hhhhhhhhhhhhhhhh    
+   dddddddddd       hhhhhhhhhhhhhhhh    
+   dddddddddd       hhhhhhhhhhhhhhhhhhh 
+   dddddddddd       hhhhhhhhhhhhhhhhhhh 
+                    hhhhhhhhhhhhhhhh    
+                            h           
+            bbbbbbbbbbbbbbbbbbbb        
+  rrrrrrr   bbbbbbbbbbbbbbbbbbbb xxxxxx 
+  rrrrrrr   bbbbbbbbbbbbbbbbbbbb xxxxxx 
+  rrrrrrr   bbbbbbbbbbbbbbbbbbbb xxxxxx 
+  rrrrrrr   bbbbbbbbbbbbbbbbbbbb xxxxxx 
+     r      bbbbbbbbbbbbbbbbbbbb    x   
+   rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr  
+   rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr  
+   rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr  
+                                        
+                                        

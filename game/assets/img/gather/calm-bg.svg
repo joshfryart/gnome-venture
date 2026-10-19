@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-hidden="true"><defs><radialGradient id="w" cx=".5" cy=".55" r=".75"><stop offset="0" stop-color="#4f6f78"/><stop offset=".6" stop-color="#2f4a58"/><stop offset="1" stop-color="#1b2e3b"/></radialGradient><radialGradient id="g"><stop offset="0" stop-color="#bff7d4" stop-opacity=".65"/><stop offset="1" stop-color="#bff7d4" stop-opacity="0"/></radialGradient></defs>
+<rect width="200" height="200" fill="url(#w)"/>
+<path d="M0 0H200V30Q170 52 150 36T100 40T50 34T0 48z" fill="#26404e"/><path d="M0 70Q30 62 44 90T60 140V200H0z" fill="#223846"/><path d="M200 60Q172 70 160 100T146 150V200H200z" fill="#223846"/>
+
+<path d="M0 184Q50 172 100 180T200 172V200H0z" fill="#3a5a46"/><path d="M0 192Q60 184 120 190T200 186V200H0z" fill="#2c4636"/><ellipse cx="100" cy="190" rx="50" ry="5" fill="#5fa1b6" opacity=".55"/><ellipse cx="96" cy="189" rx="22" ry="1.800" fill="#bfe6ee" opacity=".6"/>
+<g><circle cx="22" cy="176" r="12" fill="url(#g)"/><path d="M17 186q-1-10 5-12q6 2 5 12z" fill="#bff7d4"/><path d="M14 176q8-8 16 0z" fill="#7fe0a8"/><circle cx="178" cy="172" r="12" fill="url(#g)"/><path d="M173 182q-1-10 5-12q6 2 5 12z" fill="#bff7d4"/><path d="M170 172q8-8 16 0z" fill="#7fe0a8"/></g>
+<g fill="#fff" opacity=".28"><circle cx="64" cy="70" r="1.800"/><circle cx="140" cy="92" r="1.400"/><circle cx="36" cy="120" r="1.600"/><circle cx="168" cy="130" r="1.800"/></g></svg>

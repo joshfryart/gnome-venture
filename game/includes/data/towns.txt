@@ -1,0 +1,116 @@
+# Town squares (v0.7.20). Imported once into town_spots / town_actions / town_lore; edit them in Admin → Town places.
+# Every town also gets four shared places made in includes/town.php: the Green, a teahouse, the notice board and the library.
+#
+# S | region | slug | icon | name | hours (e.g. 18-23, blank = always) | months (e.g. 12,1,2, blank = all year) | description
+# A | spot slug | action slug | label | kind | effect | cost coins | cost item | energy | chance % | stat | uses a day | success text | fail text
+#     kind: effect · read (local lore) · quiz (a question from the Almanac) · link (effect = a page, e.g. jobs.php)
+#     cost item: an item slug, "anyseed" or "anyfood" (blank = none) · stat: adds 5% chance per modifier point (luck adds its own %)
+#     effect: the same as random events (coins:10-30 · item:slug:qty · rand:forage · energy:N · xp:N · tbuff:stat:amount:minutes · tip …)
+# L | region | a line of local lore for the library
+
+S|The Maplewold|na-sugarshack|🍁|The Sugar Shack|||Steam pours from the roof of a log cabin at the edge of the maple wood. Inside, sap bubbles in a long pan and everything smells of syrup.
+A|na-sugarshack|na-boil|Help boil the sap|effect|coins:15-30+xp:4|0||8|100||2|Sticky, sweet work. The sugarmaker pays you in Petals and a little taffy on snow.|
+S|The Maplewold|na-pond|⛸️|Beaver Pond||12,1,2,3|In winter the pond freezes hard and the whole town comes out to skate. The beavers grumble about it.
+A|na-pond|na-skate|Go skating|effect|xp:6+tbuff:nimble:2:60|0||5|70|nimble|2|You swoop around the pond like a pro!|Whoops! You land on your bottom. Still fun, though.
+S|Maizehollow|ma-plaza|💃|Plaza of the Bells|18-23||Strings of paper flags cross the plaza. Every evening the musicians tune up by the fountain and everyone dances.
+A|ma-plaza|ma-dance|Join the dance|effect|xp:3+tbuff:charm:2:90|0||6|100||1|You dance until your hat falls off. Everyone cheers.|
+S|Maizehollow|ma-pinata|🪅|The Piñata Tree|||A huge old fig hung with a donkey-shaped piñata. Whoever breaks it gets the sweets.
+A|ma-pinata|ma-swing|Swing at the piñata|effect|rand:food+coins:10-25|0||4|40|grit|3|CRACK! Sweets everywhere, and a few Petals too!|Swing and a miss! The crowd cheers anyway.
+S|The Sunsprinkle Isles|ss-beach|🏖️|Sandpiper Beach|||Pale sand, warm water and a lot of very busy crabs. The tide brings something new every hour.
+A|ss-beach|ss-comb|Comb the beach|effect|rand:forage|0||5|80|sense|3|Something glints in the wet sand…|Only shells and seaweed this time.
+S|The Sunsprinkle Isles|ss-band|🥁|The Bandstand|||A steel-drum band plays under a striped awning. Nobody can keep their feet still.
+A|ss-band|ss-listen|Listen to the band|effect|energy:5+tbuff:charm:1:60|0||0|100||1|The music makes you feel light as a feather.|
+S|The Rainroot Reaches|rr-bridge|🌉|The Canopy Bridge|||A rope bridge strung between two giant trees, high above the forest floor. The view is wonderful. Don’t look down.
+A|rr-bridge|rr-cross|Cross the rope bridge|effect|rand:uncommon+xp:5|0||6|65|nimble|2|You make it across and find something tucked in a hollow branch!|You freeze halfway and creep back. Next time!
+S|The Rainroot Reaches|rr-canoe|🛶|River Landing|||Dugout canoes are pulled up on the muddy bank. The river winds away into the green.
+A|rr-canoe|rr-paddle|Paddle the river|effect|rand:seed+xp:4|0||8|100||1|Round a bend you spot a wild garden on the bank and gather a few seeds.|
+S|Mistmoor|mm-stones|🪨|The Standing Stones|||A ring of grey stones on the hill, older than anyone can remember. People leave little coins on top for luck.
+A|mm-stones|mm-wish|Make a wish (5 Petals)|effect|coins:40-80|5||3|25|luck|3|The stones hum. When you look down, there are Petals at your feet!|The stones hum politely. Nothing happens. Maybe next time.
+S|Mistmoor|mm-pub|🍺|The Crooked Kettle|18-23||A low, warm pub with a crackling fire. On quiz nights the regulars take it very seriously.
+A|mm-pub|mm-quiz|Pub quiz night|quiz|coins:20-40+xp:5|0||3|100||3|“Correct!” The table bangs their mugs.|“Ooh, no!” the quizmaster says kindly.
+S|Olivewhistle Shore|ow-press|🫒|The Olive Press|||A great stone wheel turns slowly, crushing olives into green-gold oil. The press owner is always short of hands.
+A|ow-press|ow-help|Help at the press|effect|coins:20-35+xp:3|0||8|100||2|Hard work, but you’re paid well, and the bread dipped in fresh oil is wonderful.|
+S|Olivewhistle Shore|ow-harbour|🎣|The Little Harbour|||Painted boats bob at the quay. Old fishers sit on upturned crates, mending nets and telling tall tales.
+A|ow-harbour|ow-fish|Cast a line|effect|rand:food|0||4|55|sense|3|A tug! You pull up a fine catch and trade it for something tasty.|Only seaweed. The fishers nod sympathetically.
+S|Birchbramble Steppe|bb-banya|🧖|The Banya|||A wooden bathhouse with a roaring stove. Locals swear by it: steam, birch twigs, then a cold plunge!
+A|bb-banya|bb-steam|Steam in the banya (10 Petals)|effect|energy:15+tbuff:hardiness:2:120|10||0|100||1|You come out pink, glowing and ready for anything.|
+S|Birchbramble Steppe|bb-wood|🍄|The Birch Wood|||White trunks, golden leaves, and mushrooms popping up everywhere after the rain.
+A|bb-wood|bb-mushroom|Hunt for mushrooms|effect|rand:forage|0||5|75|sense|3|Your basket isn’t empty!|You find lots of mushrooms, but every one is the wrong kind.
+S|The Dunewhisper|dw-oasis|💧|The Oasis Well|||A deep, cool well under date palms. Travellers drop a coin in and make a wish before crossing the dunes.
+A|dw-oasis|dw-wish|Toss a coin in the well (5 Petals)|effect|coins:40-80|5||3|25|luck|3|A gleam in the water… and a bucket comes up full of Petals!|Plink. The well keeps your coin. Wells do that.
+S|The Dunewhisper|dw-bazaar|🧿|The Spice Bazaar|||Narrow lanes of stalls under bright awnings: spices, lamps, carpets, and merchants who love to haggle.
+A|dw-bazaar|dw-haggle|Haggle with a merchant|effect|coins:20-50|0||3|50|charm|2|You drive a fine bargain and sell your story for a tidy sum!|They laugh and wave you away. You’ll get them next time.
+S|The Greatcanopy|gc-drums|🥁|The Drum Circle|17-23||As the sun goes down, drummers gather under the big kapok tree. The rhythm gets into your bones.
+A|gc-drums|gc-drum|Join the drummers|effect|energy:6+tbuff:grit:2:60|0||0|100||1|You drum until your hands tingle. You feel strong.|
+S|The Greatcanopy|gc-story|🌳|The Storyteller’s Tree|||A circle of stools around an ancient tree, where Grandmother Tortoise tells stories to anyone who sits still long enough.
+A|gc-story|gc-listen|Listen to a story|effect|xp:8+tip|0||0|100||1|A tale of the clever spider and the sky god. At the end she leans in and adds:|
+S|Thornacre Savanna|ts-lookout|🔭|The Waterhole Lookout|||A wooden platform above the waterhole. Elephants, zebras and very small gnomes all come here for a drink.
+A|ts-lookout|ts-watch|Watch the animals|effect|xp:6+coins:5-15|0||2|100|sense|2|A herd of elephants splashes about. You sketch them for the Almanac and sell a copy to a tourist.|
+S|Thornacre Savanna|ts-kopje|🌅|Sunset Rock|17-20||A great rounded rock rising out of the grass. From the top, the sunset goes on for ever.
+A|ts-kopje|ts-sunset|Watch the sunset|effect|energy:8+tbuff:luck:2:60|0||0|100||1|The whole sky turns orange. You feel very lucky to be here.|
+S|Spicepeak|sp-grind|🌶️|The Spice Grinders|||Rows of stone mortars where cardamom, cumin and chilli are ground by hand. Your eyes water just walking past.
+A|sp-grind|sp-help|Grind spices|effect|coins:15-30+xp:3|0||6|100||2|Pound, pound, pound. You’re paid, and you smell amazing.|
+S|Spicepeak|sp-monastery|🏔️|The Cloud Monastery|||High on the mountain, prayer flags snap in the wind. The monks welcome anyone who comes to sit quietly.
+A|sp-monastery|sp-meditate|Meditate|effect|energy:12+tbuff:lore:2:90|0||0|100||1|Your mind goes still and clear, like a mountain lake.|
+S|Blossomreach|br-koi|🎏|The Koi Pond|||A still green pond under a red bridge. Huge orange and white koi drift about. Legend says a golden one brings good fortune.
+A|br-koi|br-feed|Feed the koi (3 Petals)|effect|coins:30-60|3||3|30|luck|3|A golden koi leaps! Good fortune follows!|The koi gobble up the food and swirl away.
+S|Blossomreach|br-blossom|🌸|The Blossom Garden|||Paths of raked gravel wind between cherry trees. In spring the petals fall like pink snow.
+A|br-blossom|br-stroll|Stroll under the trees|effect|energy:5+xp:4+tbuff:charm:1:60|0||0|100||1|A peaceful walk. You feel calm and kind.|
+S|The Monsoon Tangle|mt-float|🛶|The Floating Market|||Boats piled with fruit, noodles and flowers jostle on the canal. You shop by leaning over the side.
+A|mt-float|mt-paddle|Paddle round the stalls|effect|rand:food|0||4|100||2|A smiling boat-seller hands you a treat to try.|
+S|The Monsoon Tangle|mt-lanterns|🏮|Lantern Bridge|19-23||Every evening people release paper lanterns from the bridge. They drift up into the dark like slow stars.
+A|mt-lanterns|mt-release|Release a lantern (5 Petals)|effect|xp:8+tbuff:luck:2:120|5||0|100||1|Your lantern rises and rises until it’s just one more star.|
+S|The Coralscatter|cs-pools|🦀|The Rock Pools|||When the tide goes out, the rocks are full of tiny pools of starfish, crabs and sea snails.
+A|cs-pools|cs-poke|Poke around the rock pools|effect|rand:forage|0||5|80|sense|3|Under a ledge you find a treasure!|A crab pinches your finger. Nothing else.
+S|The Coralscatter|cs-surf|🏄|Breaker Beach|||Big rolling waves and a lot of very tanned beetles with surfboards.
+A|cs-surf|cs-wave|Catch a wave|effect|xp:10+coins:10-20|0||8|50|nimble|2|You ride it all the way in! The beetles give you a nod of respect.|Wipeout! A mouthful of sea water.
+S|Mossbottom|hub-meadow|🌾|Whispering Meadow|||Long grass that whispers when the wind blows. Some gnomes say it’s giving advice.
+A|hub-meadow|hub-listen|Listen to the wind|effect|tip+xp:3|0||0|100||1|You lie back in the grass and listen. The wind seems to say:|
+S|Mossbottom|hub-burrows|🕳️|Rootling Burrows|||A maze of cosy tunnels where the rootlings live. They’re always digging, and always throwing out good earth.
+A|hub-burrows|hub-dig|Help the rootlings dig|effect|rand:soil|0||5|100||1|The rootlings thank you with a bucket of their best earth.|
+
+L|The Maplewold|Long ago the first gnomes of the Maplewold tapped the maples by moonlight, because the trees were said to give sweeter sap when they thought nobody was watching.
+L|The Maplewold|The beavers of Beaver Pond have a written agreement with the town: skating is allowed, but only after the first of December, and only quietly.
+L|The Maplewold|Every autumn the Maplewold holds a leaf-pile contest. The record is a pile so tall the winner needed a ladder to jump in.
+L|Maizehollow|Maizehollow gnomes plant the three sisters together, corn, beans and squash, because, they say, sisters grow better side by side.
+L|Maizehollow|The bells in the plaza were cast from a hundred melted thimbles, given by every family in town.
+L|Maizehollow|Hot chocolate was once so precious here that cocoa beans were used as coins. Some old gnomes still keep a few in their pockets, just in case.
+L|The Sunsprinkle Isles|Every island in the Sunsprinkles has its own drum rhythm. Sailors used to find their way home by listening for it.
+L|The Sunsprinkle Isles|The crabs of Sandpiper Beach hold a parade every full moon. Nobody knows where they’re going.
+L|The Sunsprinkle Isles|A Sunsprinkle saying: plant a coconut and you plant for your grandchildren.
+L|The Rainroot Reaches|The Rainroot has two worlds: the misty highlands where potatoes come in a hundred colours, and the steaming forest below.
+L|The Rainroot Reaches|The Canopy Bridge was built by spiders and finished by gnomes. The spiders still charge a toll of one fly a year.
+L|The Rainroot Reaches|Highland gnomes say there is a potato for every day of the year, and they intend to grow them all.
+L|Mistmoor|In Mistmoor it rains a little almost every day, which is why the gardens are so green and the gnomes own so many umbrellas.
+L|Mistmoor|No one knows who raised the Standing Stones. The stones aren’t telling.
+L|Mistmoor|The Crooked Kettle’s quiz has had the same champion for forty years: an owl called Professor Hoot, who never says a word.
+L|Olivewhistle Shore|Some olive trees on the Shore are a thousand years old. The gnomes call them grandmother and grandfather and always say good morning.
+L|Olivewhistle Shore|The Shore’s cicadas sing so loudly in summer that the fishers time their nets by them.
+L|Olivewhistle Shore|A good olive oil, the press owners say, should make you cough just a little.
+L|Birchbramble Steppe|Steppe summers are short and hot, so Birchbramble gnomes plant fast crops and eat them faster.
+L|Birchbramble Steppe|Every Birchbramble kitchen has a samovar, and every samovar has a name.
+L|Birchbramble Steppe|Mushroom hunting is serious business here. Grandmothers keep their best spots secret, even from their grandchildren.
+L|The Dunewhisper|The dunes of the Dunewhisper really do whisper. When the wind is right, the sand sings a low, humming note.
+L|The Dunewhisper|The Oasis Well is said to have no bottom. A gnome once lowered a rope for three days and only found a lost sandal.
+L|The Dunewhisper|In the bazaar, the first price is a joke and the second is a story. The third price is where the haggling starts.
+L|The Greatcanopy|Under the Greatcanopy the trees are so tall that some gnomes have never seen the sky.
+L|The Greatcanopy|Grandmother Tortoise has told stories under the same tree for three hundred years. She says she’s only just getting started.
+L|The Greatcanopy|When the rainy season comes, the drummers play the rain in, and when it ends they play it out again.
+L|Thornacre Savanna|Thornacre’s highland coffee is so strong that the gnomes drink it from thimbles.
+L|Thornacre Savanna|The elephants at the waterhole have a long memory. Be polite to them, and they’ll be polite back for a hundred years.
+L|Thornacre Savanna|On Sunset Rock there’s a scratch for every gnome who has watched the sun go down from the top. There are a great many scratches.
+L|Spicepeak|In monsoon season the spice terraces of Spicepeak grow so fast you can almost hear them.
+L|Spicepeak|The monks of the Cloud Monastery grow their tea on the roof, where it is closest to the clouds.
+L|Spicepeak|A pinch of cardamom, the spice grinders say, will cheer up any pot of anything.
+L|Blossomreach|Blossomreach has four true seasons, and its gnomes have a different word for the rain of each one.
+L|Blossomreach|The golden koi is real. A gnome sees it about once a year, and that gnome always has a very good year.
+L|Blossomreach|When the cherry trees bloom, the whole town stops work and has a picnic. Even the shops close.
+L|The Monsoon Tangle|In the Tangle it is always warm and always wet, and the plants grow while you watch.
+L|The Monsoon Tangle|The floating market moved onto boats after the great flood. It was such a success it never moved back.
+L|The Monsoon Tangle|Every lantern on Lantern Bridge carries a wish. The ones that go highest come true first.
+L|The Coralscatter|In the Coralscatter, island time is a real thing: the walk between villages takes longer, but you always find something on the way.
+L|The Coralscatter|The surfing beetles of Breaker Beach once rode a single wave for a whole afternoon.
+L|The Coralscatter|Coralscatter gnomes greet each other by touching noses, so they always know who’s had garlic for lunch.
+L|Mossbottom|Mossbottom sits where every mycelium thread in the Hollow meets. That’s why everyone passes through sooner or later.
+L|Mossbottom|Old Twigg has run the seed emporium for so long that some of his seeds are older than his customers.
+L|Mossbottom|The rootlings of the Burrows were here before the gnomes. They’re happy to share, as long as nobody stomps.

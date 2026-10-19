@@ -1,0 +1,179 @@
+# Road ambience (v1.0.0). One short beat shown before whatever happens on a road space. Max 110 characters.
+# cond | lands | region | text
+# cond: - = always; dp=dawn,day,dusk,night  se=spring,summer,autumn,winter  we=sun,cloud,rain,storm,frost,heat,wind,fog,snow  (join with /)
+# lands: comma list of forest,grassland,coast,mountain,desert,rainforest,wetland,tundra,island or any. region: code or any.
+# --- FOREST ---
+dp=dawn|forest|any|Light slips between the trunks in long gold ribbons, and something small is already singing.
+dp=dawn|forest|any|Mushrooms steam gently on a stump, as if they had just got out of a bath.
+dp=day|forest|any|A fallen branch bridges the path like a green hill. You climb it simply because it is there.
+dp=day|forest|any|Dappled light shifts over the road, and every leaf seems to be waving at you.
+dp=dusk|forest|any|Fireflies wake in the ferns, one slow blink at a time.
+dp=night|forest|any|An owl far above asks its one question again, and nobody answers.
+we=rain|forest|any|Raindrops gather on the leaves overhead, then fall one fat drop at a time. Plip.
+we=fog|forest|any|Fog threads through the trunks, and the path ahead is only a rumour.
+we=wind|forest|any|The canopy sighs and sways, and a flurry of tiny seeds spins down like helicopters.
+we=snow|forest|any|Snow settles on the pine needles and turns every footstep into a whisper.
+we=frost|forest|any|Each fallen leaf wears a crisp white edge, and crunches politely as you pass.
+# --- GRASSLAND ---
+dp=dawn|grassland|any|The grass stems bow with silver, and a lark climbs the sky in loops.
+dp=day|grassland|any|Seed heads nod on both sides of the road, tall as a hedge of feathers.
+dp=dusk|grassland|any|The long grass turns amber, and the crickets tune up one by one.
+dp=night|grassland|any|Moths drift over the meadow like loose sparks of moonlight.
+dp=night|grassland|any|Far across the dark plain, a single window glows like a dropped coin.
+we=wind|grassland|any|Waves run through the grass, and the road feels like a path across a green sea.
+we=rain|grassland|any|A warm shower patters on the clover, and every blade stands a little straighter.
+we=storm|grassland|any|Thunder rolls across the open plain, and you hurry along the sheltered side of the road.
+we=heat|grassland|any|The air shimmers above the dry stalks, and grasshoppers click like tiny rattles.
+we=frost|grassland|any|Frost has furred every seed head, and the whole meadow looks sugared.
+# --- COAST ---
+dp=dawn|coast|any|The tide has left a neat line of shells, and the gulls are inspecting each one.
+dp=day|coast|any|A hermit crab marches past with its whole house on its back and not a care.
+dp=dusk|coast|any|The sea goes copper, and the waves fold over with a long, lazy hush.
+dp=night|coast|any|The tide whispers in the dark, and the foam glows faintly where it meets the sand.
+we=storm|coast|any|Big waves slap the rocks and fling spray high, so you keep to the landward side.
+we=fog|coast|any|A foghorn moans somewhere out at sea, patient and slightly sorry about it.
+we=wind|coast|any|The wind tugs at your hat and sends a strand of kelp cartwheeling across the road.
+we=sun|coast|any|Sunlight sparkles on the water so brightly that you walk with one eye shut.
+we=rain|coast|any|Rain freckles the sand, and the rock pools quietly fill up to the brim.
+# --- MOUNTAIN ---
+dp=dawn|mountain|any|The peaks blush pink first, long before the road below gets any light.
+dp=day|mountain|any|Pebbles clatter down the slope, and a goat regards you as if you owe it money.
+dp=dusk|mountain|any|Shadows slide down the mountainside, and the rocks hold their warmth a little longer.
+dp=night|mountain|any|Stars crowd so close above the pass that you could nearly tuck one in your pocket.
+we=snow|mountain|any|Fat flakes drift down the pass, and the road becomes a soft white page.
+we=wind|mountain|any|A thin wind whistles through the rocks, playing the same three notes over and over.
+we=fog|mountain|any|Cloud has wandered down onto the road, and the cliffs appear and vanish like shy relatives.
+we=storm|mountain|any|Thunder bounces from peak to peak until it sounds like furniture being moved by giants.
+we=frost|mountain|any|Every rock has grown a little white beard overnight.
+# --- DESERT ---
+dp=dawn|desert|any|The sand is cool and blue, and every pebble casts a shadow twenty times its size.
+dp=day|desert|any|Heat hums over the dunes, and a lizard does press-ups on a hot rock.
+dp=dusk|desert|any|The dunes glow like warm bread, and the first cool breath slips down the road.
+dp=night|desert|any|The desert is wide and hushed, under a sky so full of stars it looks sprinkled.
+we=heat|desert|any|The air wobbles ahead of you, and the road seems to be made of water. It is not.
+we=wind|desert|any|Sand skitters along the road in little curling streams, and you pull your scarf up.
+we=sun|desert|any|Not a cloud anywhere. Your shadow trots beside you like a small dark dog.
+we=storm|desert|any|Rare thunder rumbles over the dunes, and the whole sky smells of hot stone and far-off rain.
+we=rain|desert|any|A rare shower darkens the sand, and every sleeping seed seems to sit up and listen.
+# --- RAINFOREST ---
+dp=dawn|rainforest|any|Mist lifts off the leaves, and the whole forest begins to whoop and chatter.
+dp=day|rainforest|any|Leaves the size of rooftops drip overhead, and a frog the colour of a boiled sweet watches you pass.
+dp=dusk|rainforest|any|The forest hums its evening tune, and pale blossoms glow in the gloom.
+dp=night|rainforest|any|The night is thick with chirrs and clicks, and now and then a soft thump of falling fruit.
+we=rain|rainforest|any|The rain arrives like a drum roll, and every leaf becomes a gutter, a fountain, or both.
+we=heat|rainforest|any|Steam rises off the road, and even the butterflies seem to be moving slowly.
+we=storm|rainforest|any|Thunder rumbles through the canopy, and a hundred birds hush at once.
+we=fog|rainforest|any|Mist hangs between the trees, and vines trail out of it like dropped ribbons.
+# --- WETLAND ---
+dp=dawn|wetland|any|Reeds stand in the mist, and a heron holds perfectly still, pretending to be a stick.
+dp=day|wetland|any|Dragonflies stitch the air above the pools, bright as dropped jewels.
+dp=dusk|wetland|any|The frogs begin their evening choir, none of them quite agreeing on the key.
+dp=night|wetland|any|The marsh breathes softly in the dark, with a plink here and a ripple there.
+we=rain|wetland|any|Rain pocks the pond into a thousand tiny rings, and the frogs are delighted.
+we=fog|wetland|any|Fog sits on the water like a lid, and the boardwalk creaks away into nothing.
+we=wind|wetland|any|The cattails bob and rustle together, as though the whole marsh were nodding along.
+we=frost|wetland|any|Each reed wears a rim of white, and the puddles have gone crisp as biscuits.
+we=heat|wetland|any|Midges dance in golden clouds, and the mud smells rich and warm.
+# --- TUNDRA ---
+dp=dawn|tundra|any|The sky goes pale lilac over the open ground, and tiny flowers lift their faces.
+dp=day|tundra|any|Lichen paints the stones orange and green, and a hare sits up to study you.
+dp=dusk|tundra|any|Long low light turns the heather rust and gold, and the wind finally settles.
+dp=night|tundra|any|Ribbons of green light drift across the sky, slow and silent and wonderfully rude to the stars.
+we=snow|tundra|any|Snow blows in thin, glittering curtains, and the only sound is your own boots.
+we=frost|tundra|any|The ground rings faintly underfoot, and every pebble is dressed in ice.
+we=wind|tundra|any|A brisk wind combs the low heather flat and sends your scarf out like a flag.
+we=fog|tundra|any|The open land has gone soft and grey, and the cairns loom up like sleepy giants.
+we=sun|tundra|any|Thin bright sunshine makes every puddle a mirror, and the whole land sparkles.
+# --- ISLAND ---
+dp=dawn|island|any|Pale light spills over the water, and the whole island smells of salt and sleepy flowers.
+dp=day|island|any|The road winds between wind-bent trees, with the sea peeking round every corner.
+dp=dusk|island|any|Fishing boats rock home across the bay, small and slow in the golden light.
+dp=night|island|any|Waves hush on every side at once, as though the island were being rocked to sleep.
+we=rain|island|any|Rain drifts across the bay in grey curtains, and the sea and sky blur into one.
+we=storm|island|any|Waves thump the far rocks, and the wind hums in every wire and branch.
+we=wind|island|any|A salt wind pushes you along the road, and every tree leans the same polite way.
+we=sun|island|any|The shallows glow turquoise, and tiny fish flicker through them like thrown confetti.
+we=fog|island|any|Sea mist wraps the island up, and a bell somewhere out there tolls softly.
+# --- SPRING ---
+se=spring|any|any|Fresh green shoots push up through last year’s leaves, looking very pleased with themselves.
+se=spring|forest,grassland,mountain|any|Blossom petals drift down the road like slow pink snow.
+se=spring|any|any|Everything smells of wet soil and new beginnings.
+se=spring|forest,grassland,wetland,coast|any|Tadpoles wriggle in a puddle by the verge, wholly unaware of their grand futures.
+se=spring|any|any|A bee bumbles past, loud and lost and thoroughly delighted about it.
+se=spring|any|any|A sparrow eyes the fluff on your scarf with a builder’s gleam.
+# --- SUMMER ---
+se=summer|any|any|The air is warm and drowsy, and the road dust is soft as flour underfoot.
+se=summer|forest,grassland|any|Bees hum in the clover, a steady note that makes you want to nap.
+se=summer|forest,grassland,desert,rainforest|any|A cicada starts up somewhere, and then a hundred more join in.
+se=summer|any|any|The light is long and golden, and every patch of shade feels like a gift.
+se=summer|any|any|A butterfly keeps pace with you for a while, then loses interest.
+se=summer|forest,grassland,mountain,tundra|any|Wild berries hang ripe beside the road, warm from the sun and very tempting.
+# --- AUTUMN ---
+se=autumn|forest,grassland,mountain|any|Leaves spiral down in reds and golds, each one a small umbrella for a passing beetle.
+se=autumn|any|any|The air smells of woodsmoke, apples and something faintly like cinnamon.
+se=autumn|forest,grassland,wetland|any|Mushrooms have popped up along the verge in neat little rings.
+se=autumn|any|any|Far overhead, a wedge of geese honks its way south, sounding very sure of itself.
+se=autumn|any|any|Spiders have hung silver webs between the stalks, each one strung with beads of light.
+se=autumn|forest,grassland,mountain|any|A squirrel hurries by with full cheeks, muttering about winter.
+# --- WINTER ---
+se=winter|any|any|Your breath makes little clouds, and you puff a few on purpose.
+se=winter|any|any|The world is hushed, and the road feels longer and somehow cosier.
+se=winter|forest,grassland,mountain,wetland|any|Bare branches draw dark lace against a pale sky.
+se=winter|forest,mountain,tundra|any|Icicles hang from every ledge, a row of glass chimes waiting for a breeze.
+se=winter|any|any|A robin puffs up on a post to twice its size and glares at the cold.
+se=winter|any|any|Somewhere ahead, someone has a fire going. You can smell it on the air.
+# --- REGIONS ---
+-|any|NA|The air smells of pine resin and, faintly, of someone making pancakes with syrup.
+-|any|NA|A woodpecker drums on a distant trunk, steady as a clock.
+-|any|CA|Somewhere nearby, tortillas are being patted out by hand, and the smell drifts down the road.
+-|any|CA|Tall corn rustles beside the road, with bean vines twining up every stalk.
+-|any|CB|The sea breeze carries sweet fruit and salt, and a lazy drumbeat from a faraway porch.
+-|any|CB|A hummingbird hovers at a scarlet hibiscus, a tiny jewel with a very busy engine.
+-|any|SA|Potatoes of a dozen colours are being dug nearby, purple, red and gold in the earth.
+-|any|SA|A llama gazes over a stone wall with calm, expert disapproval.
+-|any|NWE|The soft air smells of peat smoke and baking oats.
+-|any|NWE|A blackbird sings from a hawthorn hedge, rich and unhurried.
+-|any|SE|Olive leaves flash silver in the breeze, and somewhere something simmers with garlic.
+-|any|SE|A lizard sunbathes on an old stone wall, utterly sure it owns the place.
+-|any|EE|The smell of rye bread and dill drifts from a cottage window.
+-|any|EE|Slim white birches line the road, their leaves chattering like a crowd.
+-|any|MENA|Cardamom and warm coffee scent the air from a nearby courtyard.
+-|any|MENA|A hoopoe struts along a wall, crest raised like a tiny crown.
+-|any|WCA|Bright woven cloth hangs drying on a line, its patterns shouting cheerfully.
+-|any|WCA|Weaverbird nests dangle from a tree like little woven lanterns.
+-|any|ESA|Flat-topped acacias spread their shade like tables set for lunch.
+-|any|ESA|The smell of fresh-roasted coffee drifts across the sunny highland air.
+-|any|CSA|A pot of tea simmers with ginger nearby, and the air is warm with cumin and cardamom.
+-|any|CSA|A peacock calls across the fields, loud, proud and not at all sorry.
+-|any|EA|A moss-covered stone lantern stands by the path, patient as a monk.
+-|any|EA|Steam and the smell of green tea rise from a small stall by the road.
+-|any|SEA|Lemongrass and lime hang in the warm air, bright as a bell.
+-|any|SEA|Rice paddies climb the hillside in shining steps, each one holding a piece of sky.
+-|any|OC|Eucalyptus leaves scent the breeze, and a distant bird laughs at its own joke.
+-|any|OC|Frangipani sweetens the air, and the surf murmurs somewhere just out of sight.
+# --- QUIET (anywhere, anytime) ---
+-|any|any|A snail ahead is holding up traffic. Everyone waits, quite politely.
+-|any|any|You pass a signpost so old that its arrows point mostly at each other.
+-|any|any|A beetle trundles by, looking important and carrying nothing at all.
+-|any|any|Your footsteps settle into a rhythm, and for a while the road simply happens.
+-|any|any|A dandelion clock sheds one seed at a time, as if it were counting.
+-|any|any|The road bends here for no reason that anyone has ever explained.
+-|any|any|A stray feather lies in the dust, larger than you, and wonderfully soft.
+-|any|any|You hum a tune you don’t remember learning, and a sparrow hums back, slightly off-key.
+-|any|any|An ant column marches past with great purpose and an enormous crumb.
+-|any|any|The road is wide, the pack is light, and nobody is hurrying you.
+-|any|any|A tiny cobweb sparkles across the path. You duck under it with a nod of respect.
+-|any|any|Someone has left a neat stack of pebbles on a stone, balanced just so.
+-|any|any|A ladybird lands on your sleeve, takes a look around, and decides you will do.
+-|any|any|The wheel ruts here are deep and old, and full of tiny, busy lives.
+-|any|any|You stop to retie a bootlace and stay a moment to enjoy the view.
+-|any|any|A worm surfaces, considers the weather, and thinks better of it.
+-|any|any|A clump of moss on the verge is so plump and green it begs to be patted.
+-|any|any|Somewhere nearby a kettle is whistling, though there is no house in sight.
+-|any|any|A pebble in your boot becomes a topic of deep thought, then is shaken out.
+-|any|any|A slow breeze brings the faint scent of bread from somewhere ahead.
+-|any|any|A wasp bumbles by, looks fierce, then forgets what it was cross about.
+-|any|any|A gossipy crowd of sparrows quiets down as you pass, then starts up twice as loud.
+-|any|any|The path is dotted with small bright pebbles. You pocket none, but you admire each one.
+-|any|any|A thread of spider silk catches the light across the road, then lets you through.
+-|any|any|The road hums with small, sensible, everyday sounds, and you hum along.

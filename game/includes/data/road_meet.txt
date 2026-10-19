@@ -1,0 +1,60 @@
+# Villagers and travellers met on the road (v1.9.4). Same style as stop_chat.txt: when | who | line
+#
+# when: - = always; dp=dawn,day,dusk,night  se=spring,summer,autumn,winter  we=sun,cloud,rain,storm,frost,heat,wind,fog,snow  (join with /).
+#       Here every "when" is a must (a line about rain is never said in the sun).
+# who:  a personality (Chatty Cheerful Warm Generous Eager Grumpy Shy Fussy Proud Curious Dreamy Sleepy), a traveller (merchant minstrel
+#       naturalist), or any. A line for someone in particular is likelier than a line for any.
+#       Three special values are the "you meet them" lines, shown on the card:
+#         @folk      a villager of one end of the road. {folk} {role} {place} (their home stop) {dest} (where they are heading)
+#         @trav-in   a travelling NPC just arriving in a region's town. {folk} {from} (where they came from) {dest} (the town)
+#         @trav-out  a travelling NPC about to leave a town. {folk} {place} (the town) {dest} (where they are going)
+# Chat lines can use {name} (the gnome), {folk}, {place} (where the villager lives) and {dest}. Keep each line under 140 characters.
+# Chatting uses up the same once-a-day chat as at the stop itself, so a road chat is not a second reward.
+#
+# ---- the card: who you meet
+-|@folk|{folk}, the {role} from {place}, is out on the road toward {dest}. “Fancy meeting you here!”
+-|@folk|You catch up with {folk} of {place}, hauling a basket toward {dest}. “Tell them I am coming!”
+-|@folk|{folk} ({role}, {place}) waves from the verge. “On my way to {dest}. Slowly, but on my way.”
+dp=night|@folk|{folk} of {place} comes by with a lantern, bound for {dest}. “Late, I know. Don’t tell the cat.”
+dp=dawn|@folk|{folk} of {place} is out before the dew has dried, heading for {dest}. “Early bird, me.”
+we=rain|@folk|{folk} of {place} trudges toward {dest} under a dock leaf. “Lovely weather for the moss!”
+we=snow|@folk|{folk} of {place} stamps along toward {dest}, wrapped up to the ears. “Hello! Under here!”
+se=autumn|@folk|{folk} of {place} crunches along toward {dest} with a sack of windfalls. “Plenty to go round!”
+-|@trav-in|{folk} is just coming in from {from} on the way to {dest}, a little dusty and wholly delighted about it.
+-|@trav-out|{folk} is setting off from {place} for {dest}, humming to the road ahead.
+# ---- the chat: villagers by personality
+-|Chatty|“Oh, {name}! I was just telling the hedge about you. Well, about someone. It might have been you.”
+-|Chatty|“Did you hear about {place}? No? Sit down. Well, don’t sit, we’re on the road. Walk and listen!”
+-|Cheerful|“What a lovely stretch of road, {name}! Every stone has a sparkle on it today.”
+-|Cheerful|“I always say, any road with a friend on it is a short one!”
+-|Warm|“Come here, {name}, you look cold. Have a biscuit. They’re only slightly squashed.”
+-|Warm|“It does my heart good to see a friendly face out here. Mind how you go, dear.”
+-|Generous|“Take this, {name}. No, take it. I made far too many, and I’ll only worry if you don’t.”
+-|Generous|“If the road gets long, you stop at {place} and tell them I sent you. There’s soup.”
+-|Eager|“{name}! Hello! Can I carry something? Anything? I have two spare hands and I’m so ready!”
+-|Eager|“I’m off to {dest} and I’ve left early, so I’ll be early, and then I can be early some more!”
+-|Grumpy|“Hmph. Road’s too long. Hills are too steep. Hello, {name}, though. You’re all right.”
+-|Grumpy|“Don’t mind me. I always sound like this. It’s just a face I have.”
+-|Shy|“Oh! Hello, {name}. I didn’t think… I mean, yes. Lovely road. Bye. Not bye. Hello.”
+-|Shy|“I always walk the quiet bits. There are fewer people… but you’re all right.”
+-|Fussy|“Do keep to the left, {name}. And wipe your feet before {dest}. The mud does get about.”
+-|Fussy|“Three days I’ve been meaning to straighten that signpost. It is still wrong. It hurts to look at.”
+-|Proud|“You’ll find {place} is the tidiest stop for miles, {name}. I’d say so even if I didn’t live there.”
+-|Proud|“I once walked this road in under an hour. I’ve slowed since, but I’m still the best walker I know.”
+-|Curious|“{name}, which way did the wind come from this morning? I keep a list. I’ll show you sometime.”
+-|Curious|“Have you noticed the moss only grows on one side of every signpost? I have a theory. It’s a long one.”
+-|Dreamy|“Oh. Hello, {name}. I was miles away. I was in a teapot, I think. A nice teapot.”
+-|Dreamy|“Do you ever walk and think the road is walking you? I’m almost sure it is, today.”
+-|Sleepy|“{name}… yes… hello… I walk better with my eyes closed. Don’t tell me what I’ve passed.”
+-|Sleepy|“Is it nearly there? I’ve been nearly there for an hour. The nearly is lovely, though.”
+dp=night|any|“Dark out, isn’t it, {name}? Keep to the middle, and don’t mind the owls. They only look.”
+we=rain|any|“Mind the puddles, {name}. Some of them are deeper than they look, and some are deeper than I look.”
+se=winter|any|“Cold one, {name}! You keep your ears covered and I’ll keep mine. Fair’s fair.”
+-|any|“Good to see you, {name}. The road’s a lot friendlier with company.”
+# ---- the chat: travellers
+-|merchant|“Psst, {name}. Today’s special, as ever: nothing. But tomorrow’s special is a rare seed. Bring a bucket.”
+-|merchant|“My shell’s heavy and my prices are light, {name}. That’s the merchant’s way. The road’s kind to good manners.”
+-|minstrel|“A song for the road, {name}? It only has twenty-seven verses. I’ll skip the lobster ones.”
+-|minstrel|“Tap your foot, {name}, and the road walks itself. It’s a very old trick.”
+-|naturalist|“{name}! Have you looked under that fern yet? I’ve spent a week on that fern, and it’s still surprising me.”
+-|naturalist|“The best seeds come from the strangest corners, {name}. Keep your eyes low and your pockets open.”

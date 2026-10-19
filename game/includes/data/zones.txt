@@ -1,0 +1,57 @@
+# Region | zone # | landscape | Gnomish zone name | difficulty (easy = matches your level; medium/hard = set level ranges) | villages
+NA|1|grassland|Bramblesweep Prairie|easy|3
+NA|2|forest|Old Maplewood|medium|3
+NA|3|coast|Foghorn Shallows|medium|2
+NA|4|tundra|The Frostbitten North|hard|2
+CA|1|grassland|Cornrow Flats|easy|3
+CA|2|rainforest|The Quetzal Tangle|medium|3
+CA|3|desert|Cactusbristle Barrens|medium|2
+CA|4|mountain|Smokecap Volcanoes|hard|2
+CB|1|island|Sunsprinkle Cay|easy|3
+CB|2|coast|Coralteeth Reef|medium|3
+CB|3|rainforest|Greenmist Peaks|medium|2
+CB|4|wetland|Mangrove Murk|hard|2
+SA|1|grassland|Pampas Breeze|easy|3
+SA|2|mountain|The Cloudstair Heights|medium|3
+SA|3|rainforest|The Deep Rainroot|hard|3
+SA|4|desert|Saltglass Flats|medium|2
+NWE|1|grassland|Hedgerow Downs|easy|3
+NWE|2|forest|Fernhollow Wood|medium|3
+NWE|3|coast|Fjordfang Coast|medium|2
+NWE|4|tundra|The Long Night Fells|hard|2
+SE|1|coast|Olive Terrace Shore|easy|3
+SE|2|mountain|Goatbell Hills|medium|3
+SE|3|island|The Scattered Isles|medium|2
+SE|4|mountain|Cinderpeak|hard|2
+EE|1|grassland|Sunflower Steppe|easy|3
+EE|2|forest|Birchbramble Wood|medium|3
+EE|3|wetland|The Reedmarsh|medium|2
+EE|4|mountain|Wolfback Ridges|hard|2
+MENA|1|coast|Lemonwhite Harbour|easy|3
+MENA|2|grassland|Crescent Fields|medium|3
+MENA|3|mountain|Cedarcrown Heights|medium|2
+MENA|4|desert|The Endless Dunes|hard|3
+WCA|1|grassland|Shea Sahel|easy|3
+WCA|2|wetland|Riverdelta Weave|medium|3
+WCA|3|rainforest|The Greatcanopy Deep|hard|3
+WCA|4|coast|Goldsand Coast|medium|2
+ESA|1|grassland|Thornacre Plains|easy|3
+ESA|2|mountain|Coffeecloud Highlands|medium|3
+ESA|3|wetland|Rift Lakes|medium|2
+ESA|4|desert|Bonedry Karoo|hard|2
+CSA|1|wetland|Lotus Delta|easy|3
+CSA|2|grassland|Silkroad Steppe|medium|3
+CSA|3|forest|Tigerstripe Jungle|medium|2
+CSA|4|mountain|The Roof of the World|hard|3
+EA|1|grassland|Ricestep Terraces|easy|3
+EA|2|forest|Bamboo Whisperwood|medium|3
+EA|3|coast|Pearlwave Shore|medium|2
+EA|4|desert|The Gobi Wastes|hard|2
+SEA|1|wetland|Paddy Patchwork|easy|3
+SEA|2|coast|Longtail Lagoons|medium|3
+SEA|3|island|Spice Scatter|medium|2
+SEA|4|rainforest|The Hornbill Deep|hard|3
+OC|1|island|Lagoon Ring Atolls|easy|3
+OC|2|coast|Kelpwhisker Coast|medium|3
+OC|3|forest|Fernmist Gullies|medium|2
+OC|4|desert|The Red Heart|hard|3

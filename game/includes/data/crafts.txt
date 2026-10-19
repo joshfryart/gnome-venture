@@ -1,0 +1,90 @@
+# Crafting recipes that aren't cooking (cooking lives in recipes.txt).
+# slug | Recipe name | category (tools, garden) | makes (item slug:qty) | ingredients (item slug:qty, ...) | energy
+# A recipe is discovered once you've collected every ingredient. Tools need a Tool Shed; garden supplies need nothing.
+
+# Masterwork tools: your Fine tool plus rare finds from adventures
+masterwork-wheel-hoe|Masterwork Wheel Hoe|tools|masterwork-wheel-hoe:1|steel-spade:1,bog-iron:2,flint:4|6
+masterwork-rain-wand|Masterwork Rain Wand|tools|masterwork-rain-wand:1|sprinkler-can:1,rock-crystal:2,dragonfly-wing:2|6
+masterwork-gnome-seeder|Masterwork Gnome Seeder|tools|masterwork-gnome-seeder:1|seed-drill:1,geode:1,pine-resin:3|6
+masterwork-barrow|Masterwork Barrow|tools|masterwork-barrow:1|wheelbarrow:1,bog-iron:2,coir-fibre:4|6
+masterwork-stirrup-hoe|Masterwork Stirrup Hoe|tools|masterwork-stirrup-hoe:1|stirrup-hoe:1,slate-shard:4,desert-glass:1|6
+masterwork-harvest-cart|Masterwork Harvest Cart|tools|masterwork-harvest-cart:1|harvest-sack:1,coir-fibre:4,rubber-sap:2|6
+masterwork-secateurs|Masterwork Secateurs|tools|masterwork-secateurs:1|fine-secateurs:1,flint:3,seed-pearl:1|6
+# Cheaper upgrades from gathered materials
+garden-hoe|Garden Hoe|tools|garden-hoe:1|worn-trowel:1,flint:2,river-clay:1|3
+copper-watering-can|Copper Watering Can|tools|copper-watering-can:1|tin-watering-can:1,red-ochre:2,river-clay:2|3
+gathering-basket|Gathering Basket|tools|gathering-basket:1|gathering-pouch:1,coir-fibre:3|3
+fine-mesh-net|Fine-mesh Net|tools|fine-mesh-net:1|bug-net:1,cottongrass:3|3
+prospector-s-pick|Prospector’s Pick|tools|prospector-s-pick:1|rock-pick:1,flint:3,slate-shard:2|3
+
+# Garden supplies
+# v0.9.4: leftovers from eating raw food; no building and no energy (worse than a Compost Bin on purpose). The 12 is the setting scrap_compost_cost.
+food-scrap-compost|Scrap Compost|garden|plain-compost:1|food-scrap:12|0
+seaweed-compost|Seaweed Compost|garden|plain-compost:3|bladderwrack:3|2
+bog-compost|Bog Compost|garden|plain-compost:3|sphagnum:3|2
+clay-loam|Clay Loam|garden|rich-loam:2|river-clay:3,plain-compost:2|2
+laterite-loam|Laterite Loam|garden|rich-loam:2|laterite-clay:3,plain-compost:2|2
+worm-bedding|Worm Bedding|garden|worm-castings:2|plain-compost:2,leaf-mould:1|2
+mushroom-leaf-mould|Mushroom Leaf Mould|garden|leaf-mould:3|straw-mulch:2,chanterelle:1|2
+coir-chips|Coir Chips|garden|wood-chips:2|coir-fibre:3|2
+cottongrass-straw|Cottongrass Straw|garden|straw-mulch:2|cottongrass:3|2
+
+# NPK soil amendments (v0.7.6). N = leaves & grains, P = roots & blooms, K = fruit.
+kelp-meal|Kelp Meal|garden|kelp-meal:2|bladderwrack:2|2
+shell-meal-mussel|Shell Meal (mussel shells)|garden|shell-meal:2|blue-mussels:3|2
+shell-meal-spiral|Shell Meal (spiral shells)|garden|shell-meal:2|spiral-shell:4|2
+shell-meal-urchin|Shell Meal (urchin shells)|garden|shell-meal:2|urchin-test:1|2
+shell-meal-fossil|Shell Meal (fossil shells)|garden|shell-meal:3|fossil-shell:1|2
+worm-tea|Worm Tea|garden|worm-tea:3|worm-castings:1|1
+fern-tea|Fern Tea|garden|fern-tea:2|fiddleheads:2|1
+wood-ash|Wood Ash|garden|wood-ash:4|wood-chips:2|1
+rock-dust|Rock Dust|garden|rock-dust:2|slate-shard:2,flint:1|2
+rock-dust-geo|Rock Dust (red ochre)|garden|rock-dust:2|red-ochre:2,river-clay:1|2
+
+# Building materials (v0.7.29) for landmark repairs (v0.7.77; the monthly "Rebuild a landmark" job is retired)
+building-stone|Dressed Stone|building|building-stone:2|slate-shard:2,river-clay:1|3
+building-stone-flint|Dressed Stone (flint)|building|building-stone:1|flint:3|3
+building-stone-ochre|Dressed Stone (red rock)|building|building-stone:1|red-ochre:2,laterite-clay:1|3
+timber-plank|Timber Planks|building|timber-plank:2|wood-chips:3,pine-resin:1|3
+timber-plank-palm|Timber Planks (palm)|building|timber-plank:1|coir-fibre:2,wood-chips:2|3
+rope|Rope|building|rope:1|coir-fibre:2|3
+rope-cottongrass|Rope (cottongrass)|building|rope:1|cottongrass:3|3
+rope-cattail|Rope (cattail)|building|rope:1|cattail-root:3|3
+
+# Adventure gear (v0.7.30): tier 1 is sold at Twigg's; better ones are made at a Tool Shed (or bought, rarely)
+hiking-staff|Hiking Staff|tools|hiking-staff:1|walking-stick:1,timber-plank:1,rope:1|3
+wayfarer-s-staff|Wayfarer’s Staff|tools|wayfarer-s-staff:1|hiking-staff:1,rock-crystal:2,pine-resin:2|6
+miner-s-lantern|Miner’s Lantern|tools|miner-s-lantern:1|tin-lantern:1,rock-crystal:1,flint:2|3
+glowcap-lantern|Glowcap Lantern|tools|glowcap-lantern:1|miner-s-lantern:1,firefly-glow:1,chanterelle:3|6
+soil-probe|Soil Probe|tools|soil-probe:1|soil-test-kit:1,bog-iron:1,slate-shard:2|3
+
+# Yard & decor (v0.7.33): place them with the yard designer
+stepping-stones|Stepping Stones|decor|stepping-stones:4|building-stone:1|1
+wattle-fence|Wattle Fence|decor|wattle-fence:3|timber-plank:1,rope:1|1
+stone-wall|Dry Stone Wall|decor|stone-wall:2|building-stone:2|2
+bird-box|Bird Box|decor|bird-box:1|timber-plank:1,pine-resin:1|1
+log-seat|Log Seat|decor|log-seat:1|timber-plank:2|1
+log-pile|Log Pile|decor|log-pile:1|timber-plank:1,stag-beetle-shell:1|1
+firefly-jar|Firefly Jar|decor|firefly-jar:1|firefly-glow:3,river-clay:1|1
+toadstool-ring|Toadstool Ring|decor|toadstool-ring:1|chanterelle:3,morel:1|1
+fairy-house|Fairy House|decor|fairy-house:1|timber-plank:1,oak-gall:2,butterfly-scales:1|2
+rock-garden|Rock Garden|decor|rock-garden:1|building-stone:1,edelweiss:1,flint:2|2
+
+# v0.7.81: planks and chips from logs (building and garden categories; no building needed beyond the category)
+timber-plank-log|Timber Planks (logs)|building|timber-plank:2|pine-log:2|2
+timber-plank-birch|Timber Planks (birch)|building|timber-plank:2|birch-log:2|2
+timber-plank-oak|Timber Planks (oak)|building|timber-plank:4|oak-log:1|2
+timber-plank-drift|Timber Planks (driftwood)|building|timber-plank:1|driftwood:2|2
+timber-plank-palm-trunk|Timber Planks (palm trunk)|building|timber-plank:2|palm-trunk:2|2
+wood-chips-log|Wood Chips|garden|wood-chips:4|birch-log:1|1
+beeswax-candles|Beeswax Candles|decor|beeswax-candles:1|beeswax:2,rope:1|1
+
+# v1.2.0 garden animal crafts (animals120.php): peace silk, shed tortoise scutes and goat hair. The decor items are made by animals120_items().
+silk-thread|Silk Thread|decor|silk-thread:2|silk-cocoon:3|1
+silk-bunting|Silk Bunting|decor|silk-bunting:1|silk-thread:3|1
+scute-wind-chime|Scute Wind Chime|decor|scute-wind-chime:1|tortoise-scute:3,silk-thread:1|2
+rope-goat-hair|Rope (goat hair)|building|rope:2|goat-hair:3|3
+
+# v1.4.0 garden animal crafts (animals140.php): Wing Scales and Snail Trail Glaze. The decor items are made by animals140_items().
+wing-scale-lantern|Wing Scale Lantern|decor|wing-scale-lantern:1|wing-scale:3,silk-thread:1|2
+glazed-garden-pot|Glazed Garden Pot|decor|glazed-garden-pot:1|snail-trail-glaze:2,river-clay:2|2

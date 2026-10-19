@@ -1,0 +1,207 @@
+# Road and wilds scenes (v1.9.4). Little choice cards ("events") and strange sights. Edit freely; keep one row per line.
+#
+# E|id|cond|lands|region|where|icon|scene text            starts a choice card; the O rows under it are its options
+# O|label|stat|dc|win effect|win text|lose effect|lose text   stat blank = no roll (then the win effect always happens)
+# S|id|cond|lands|region|where|icon|text|effect             a strange sight (wilds only: a one-line find, no choice)
+#
+# cond:   - = always. Rest-stop syntax: dp=dawn,day,dusk,night  se=spring,summer,autumn,winter  we=sun,cloud,rain,storm,frost,heat,wind,fog,snow
+#         (join with /). A plain cond makes the scene 3x likelier when it holds; "!" in front = it ONLY happens then.
+# lands:  comma list of forest,grassland,coast,mountain,desert,rainforest,wetland,tundra,island, or any.
+# region: a region code (NA NWE EA ...) or any. A scene for the region you are walking through is likelier than a generic one.
+# where:  road (walks between stops), wild (exploring off the path) or both.
+# stat:   grit nimble hardiness lore sense charm luck.   dc: about 10 (easy) to 13 (hard); a little harder further off the path.
+# effects (same language as random events): xp:N  coins:A-B  {c} = Petals sized for the depth  item:slug:N  rand:forage|uncommon|food
+#         energy:N  buff:stat:amount:minutes  heal:N  hp:-N (never knocks you out)  pay:N (checked first: no free money)  landmark (wilds only)
+#         Join with +. Add @N (percent) to make a part happen only sometimes: item:garden-honey:1@15
+#         On a road, every item or rand part is capped at 20% and only common/uncommon finds are given, whatever it says here.
+# Text must not contain the | character. Use ’ (curly) for apostrophes.
+#
+# The first 14 scenes keep their order: walks that were saved before v1.9.4 point at them by number. Add new ones at the end.
+#
+# ---------------------------------------------------------------- the original 14
+E|bee-log|-|any|any|both|🐝|A hollow log hums with wild bees. Honey glistens inside.
+O|Reach in for honey|nimble|12|item:garden-honey:1|Sticky fingers, sweet reward!|hp:-4|Ouch! Stung, twice.
+O|Hum to the bees|charm|10|xp:4+buff:charm:1:30|The bees hum back. You feel rather charming.|xp:1|They ignore you. Rude.
+O|Leave them be||0||You tiptoe past.||
+E|lost-hedgehog|-|any|any|wild|🦔|A tiny hedgehog is lost, sniffling under a fern.
+O|Help it home||0|xp:6+coins:{c}|Its grateful mother presses a shiny thing into your hand.||
+O|Ask it the way|sense|11|landmark|Between sniffles, it points somewhere interesting.|xp:1|It just sniffles. Fair enough.
+E|glow-mushrooms|-|any|any|both|🍄|A patch of mushrooms glows softly in the gloom.
+O|Pick a few||0|rand:forage+rand:forage|Into the bag they go.||
+O|Taste one|luck|12|energy:3|Fizzy! You feel full of beans.|hp:-3|Your tummy disagrees.
+E|rope-bridge|-|any|any|both|🌉|A rickety rope bridge sways over a ravine. Something glints on the far side.
+O|Cross carefully|nimble|11|xp:5+rand:uncommon|You make it across and pocket the glint.|hp:-3|A plank snaps. You scramble back, scraped.
+O|Go the long way||0|xp:2|Slow and steady.||
+E|frog-choir|-|any|any|both|🐸|A frog choir is in full voice around a puddle.
+O|Join in|charm|11|buff:charm:2:30+xp:3|They make you an honorary frog.|xp:1|They stop singing and stare.
+O|Just listen||0|heal:4+xp:2|Lovely. You feel rested.||
+E|mole-peddler|-|any|any|both|🧳|A travelling mole peddler blinks at you from a burrow.
+O|Buy a mystery parcel (15 Petals)||0|pay:15+rand:uncommon|“No refunds,” it says. Worth it.||
+O|Haggle for a freebie|charm|13|rand:forage|It sighs and hands you a little something.||“Cheeky,” it says, and vanishes underground.
+E|wishing-well|-|any|any|both|⛲|An old wishing well, mossy and deep.
+O|Toss in 5 Petals|luck|12|pay:5+coins:20-40|The well coughs back more than you gave!|pay:5|Plink. Nothing. It was a nice wish, though.
+O|Peer down|sense|12|rand:uncommon|You spot something on a ledge and fish it out.||Just your own face looking back.
+E|round-door|-|any|any|wild|🌳|A hollow tree with a tiny round door.
+O|Knock|charm|10|rand:food+xp:4|A dormouse invites you in for a snack.|xp:1|Nobody home.
+O|Peek through the keyhole|sense|13|landmark|Inside, a map is pinned to the wall…||Too dark to see.
+E|sleeping-camp|-|any|any|both|🔥|A crackling campfire with a sleeping traveller beside it.
+O|Rest by the fire||0|heal:10|You warm your toes and feel much better.||
+O|Share a story when they wake|lore|11|xp:7|They trade you a tale from far away.|xp:2|They yawn and go back to sleep.
+E|toadstool-ring|-|any|any|both|🌀|A ring of toadstools, perfectly round.
+O|Step inside|luck|13|buff:luck:3:60|The air sparkles. You feel lucky!|hp:-2|The world spins. You sit down hard.
+O|Leave a gift (5 Petals)||0|pay:5+xp:5|Something giggles. You feel welcome here.||
+E|fallen-nest|-|any|any|both|🪺|A nest has fallen from a branch. The eggs are still warm.
+O|Climb up and put it back|nimble|11|xp:8+item:pretty-feather:1|A grateful bird drops you a feather.|xp:3|You can’t reach, but you tuck it somewhere safe.
+O|Find someone taller||0|xp:3|A passing heron helps out.||
+E|downpour|!we=rain,storm|any|any|both|🌧️|A sudden downpour drums on the leaves.
+O|Shelter under a mushroom||0|heal:5|Cosy and dry.||
+O|Dance in the rain|hardiness|10|buff:hardiness:2:60+xp:2|Soaked and grinning, you feel tough.|hp:-1|Atchoo!
+E|stuck-caterpillar|-|any|any|both|🐛|A caterpillar is stuck on its back, legs waving.
+O|Flip it over||0|xp:3|It wriggles off happily. Good deed done.||
+O|Ask it a riddle|lore|12|xp:6+coins:{c}|It answers, then pays you in shiny beetle-wing coins.|xp:1|It doesn’t do riddles.
+E|carved-boulder|-|any|any|both|🪨|A boulder with old carvings. One stone in the pattern is loose.
+O|Pull the loose stone|grit|12|rand:uncommon+xp:4|A hidden cubby! Something’s inside.|hp:-2|It won’t budge, and you pinch a finger.
+O|Copy the carvings|lore|11|xp:6|You sketch them for your Almanac margins.|xp:1|They’re too worn to make out.
+#
+# ---------------------------------------------------------------- generic scenes, anywhere
+E|dandelion-clock|se=spring,summer|any|any|both|🌼|A dandelion clock stands taller than you, its seed head perfectly round.
+O|Blow on it and wish|luck|11|xp:4+buff:luck:1:30|The seeds sail off like a thousand tiny parachutes. You feel hopeful.|xp:1|It gives a polite little puff and nothing else.
+O|Collect a few seeds||0|xp:2+rand:forage@15|You fill your pockets with fluff.||
+E|snail-ferry|-|any|any|both|🐌|A very large snail offers you a ride. It does not look like it is in a hurry.
+O|Climb aboard||0|heal:4+xp:2|Slow, steady and surprisingly smooth.||
+O|Race it|nimble|10|xp:5|You win by a whole afternoon. The snail is gracious about it.|xp:1|You trip over your own bootlace. The snail waits politely.
+E|puddle-mirror|we=rain|any|any|both|💧|A puddle lies so still that the sky is in it. A cloud drifts across the bottom.
+O|Peer closely|sense|11|xp:5+coins:{c}|There, under the cloud, a glint on the bottom. You fish it out.|xp:1|Only your own nose, wobbling back at you.
+O|Jump in|hardiness|10|buff:hardiness:1:30+xp:2|Splash! You feel gloriously awake.|hp:-1|Colder than it looked. Brr.
+E|lost-button|-|any|any|both|🔘|A button as big as a cartwheel lies in the path, with four holes and a bit of thread.
+O|Carry it to the lost and found||0|xp:5|Some far-off coat sighs with relief.||
+O|Pocket it quietly|luck|12|coins:{c}|A button this size is worth something to a collector.|xp:1|Your conscience is heavier than the button. You put it back.
+E|many-arrows|-|any|any|road|🪧|A signpost with far too many arrows. One just says “Ish”.
+O|Read every arrow|lore|11|xp:6|Turns out “Ish” is a real place, and a lovely one.|xp:1|You get dizzy and turn back to the first arrow.
+O|Follow the silliest one|luck|10|coins:{c}|It leads to a tin of toffees at the foot of the post.|xp:2|It leads in a circle. A quite pleasant one.
+E|humming-stone|-|any|any|both|🪨|A smooth grey stone hums softly when the wind blows across it.
+O|Hum back|charm|11|buff:charm:1:30+xp:3|The stone and you settle on a note. You feel lighter.|xp:1|You hit the wrong note. The stone sulks.
+O|Press your ear to it|sense|12|xp:5+rand:forage@15|You hear a faraway river, and something shiny in a crack beneath.|xp:1|Just your own pulse. Quite a lively one, mind.
+E|mossy-bench|-|any|any|both|🪑|A mossy bench sits at the best view on the road, as if someone had planned it.
+O|Sit a while||0|heal:6+xp:2|The view does most of the work.||
+O|Leave a crumb for the sparrows||0|xp:3+buff:luck:1:30|A sparrow tips its head in thanks.||
+E|dew-web|-|any|any|both|🕸️|A spider’s web hangs across the road, strung with dew like a necklace.
+O|Duck underneath|nimble|10|xp:4|Not a bead disturbed. The spider nods.|hp:-1|Tangled! The spider is far too polite to say anything.
+O|Admire the pattern|sense|11|xp:5+rand:forage@15|Every thread in its place. You notice a lost trinket caught at the edge.|xp:1|It is very pretty. You stand there rather a long time.
+E|acorn-fall|-|any|any|both|🌰|Squirrels in the branches are dropping acorns with great enthusiasm.
+O|Catch them|nimble|12|xp:3+item:acorn-cap:2@20|You catch a hatful. The squirrels cheer.|hp:-2|One lands square on your head. Bonk.
+O|Shout “heads up!”|charm|10|xp:4|The squirrels salute and aim at someone else.|xp:1|They think you are cheering. More acorns.
+E|leaf-boat|se=autumn|any|any|both|🍂|A leaf has landed in the stream and is sailing off with great dignity.
+O|Launch a message on it||0|xp:3|You scribble “hello” and wave it off.||
+O|Hop aboard|nimble|12|xp:6|A brief, glorious voyage to the next bend.|hp:-2|The leaf is smaller than it looked. Splosh.
+E|old-boot|-|any|any|both|🥾|An old boot lies on its side, with a curl of smoke coming out of the toe.
+O|Knock on the tongue|charm|10|xp:4+coins:{c}|A family of mice invites you in for tea, and presses a coin on you.|xp:1|“Not today, thank you!” says a squeaky voice.
+O|Peek in the top|sense|11|xp:3+rand:uncommon@15|Cosy. You spot something useful by the door.|xp:1|Too many mice staring back. You back away.
+E|lamp-moths|!dp=dusk,night|any|any|both|🪔|A little lamp has been left burning on a stump, with moths circling like tiny dancers.
+O|Sit by its light||0|heal:5+xp:2|A warm glow, and good company.||
+O|Read by the lamplight|lore|11|xp:6|A scrap of book left by the lamp. It is a very good bit.|xp:1|The moths keep landing on the page.
+E|ant-parade|-|any|any|both|🐜|A line of ants marches by, each carrying a crumb ten times its size.
+O|Wait for them to pass||0|xp:2+heal:3|You count to four hundred and ninety-one.||
+O|Help carry a crumb|grit|10|xp:5+coins:{c}|The ants salute and slip you a shiny pebble in thanks.|xp:1|It is heavier than it looks. They are very forgiving.
+E|spoon-chimes|we=wind|any|any|both|🎐|Spoons and forks hang from a branch, ringing like a tiny orchestra.
+O|Play a tune|charm|11|buff:charm:2:30+xp:2|Not Mozart, but the birds join in.|xp:1|It sounds like a drawer falling down stairs.
+O|Untangle a string|nimble|11|xp:5|The chimes ring clearer, and a bell hums its thanks.|xp:1|You tangle it worse. They ring crossly.
+E|toll-toad|-|any|any|road|🐸|A toad sits on a plank across a ditch, wearing a very small hat. “Toll,” it says.
+O|Pay the toll (3 Petals)||0|pay:3+xp:3|“Pleasure doing business,” it croaks.||
+O|Haggle|charm|13|xp:6+coins:{c}|It lets you through free, and tips you for the entertainment.|pay:3|You pay anyway. It is smug about it.
+O|Hop over the ditch|nimble|12|xp:5|The toad is outraged and impressed in equal measure.|hp:-2|Your foot lands in the ditch. “Told you,” says the toad.
+E|cloud-watching|we=sun,cloud|any|any|both|☁️|The grass is soft, the sky is wide, and one cloud looks just like a teapot.
+O|Lie back and watch||0|heal:5+xp:2|The teapot turns into a rabbit. You feel better.||
+O|Find the shapes|sense|10|xp:4+buff:luck:1:30|A teapot, a rabbit, a very smug hat. You feel lucky.|xp:1|They all just look like clouds today.
+#
+# ---------------------------------------------------------------- The Maplewold (NA)
+E|na-sap-bucket|-|any|NA|both|🪣|A tin bucket hangs on a maple tree, going plink… plink… with sap.
+O|Sneak a sip|luck|11|energy:2+xp:2|Sweet as sunshine. You feel full of beans.|xp:1|Mostly bark flavour. You make a face.
+O|Swap the full bucket for the empty one|nimble|10|xp:5+coins:{c}|The sugar-maker tips their hat from the trees and leaves a coin.|xp:1|You slop a little. The maple does not mind.
+E|na-loon-lake|-|any|NA|both|🦆|A loon calls from a still lake, long and wavering, and another answers from the far shore.
+O|Call back|charm|12|buff:charm:2:30+xp:3|Both loons hush to listen. You have a gift.|xp:1|Your call comes out as a squeak. The loons look away, embarrassed.
+O|Just listen||0|heal:5+xp:2|The sound drifts over the water like a blanket.||
+E|na-beaver-dam|-|any|NA|both|🦫|A beaver dam backs up a pond. One stick looks loose, and a beaver is frowning at it.
+O|Wedge the stick back|grit|11|xp:6+rand:forage@15|The beaver gives a slap of the tail. A pleased one.|hp:-2|The stick pops out and so do you. Into the pond.
+O|Offer advice|lore|12|xp:5+coins:{c}|It takes your sketch, nods, and pays you in cut-glass pond pebbles.|xp:1|It has engineered dams since before you were born.
+E|na-covered-bridge|-|any|NA|road|🌉|A little red covered bridge. Names are carved all over the beams.
+O|Carve yours in||0|xp:4|G.V. was here. It is in good company.||
+O|Listen for the echo|sense|11|xp:5+buff:luck:1:30|Your own voice comes back, and with it a wish.|xp:1|The echo only says “…ho”.
+E|na-pie-sill|-|any|NA|road|🥧|A blueberry pie cools on a windowsill. Nobody is in sight.
+O|Leave a coin and take a slice (5 Petals)||0|pay:5+heal:6+xp:2|It tastes like summer. A thank-you note flutters down.||
+O|Wait for the baker|charm|11|rand:food@20+xp:4|She waves you in for a sample on the house.|xp:1|She shoos you off the sill, laughing.
+E|na-campfire-sing|dp=dusk,night|any|NA|both|🔥|A campfire and a ring of woodland folk singing something with many, many verses.
+O|Join the chorus|charm|11|buff:charm:2:30+xp:4|By verse nineteen you are practically family.|xp:1|You know only the chorus. You sing it with feeling.
+O|Toast a marshmallow||0|heal:6+xp:2|Golden outside, gooey in. Perfect.||
+E|na-snow-fort|se=winter|any|NA|both|⛄|A snow fort with a flag on top. “Defend the pass!” cries a small voice.
+O|Join the defence|grit|11|xp:6|A wild snowball battle. You win by being the last one standing.|hp:-2|You are buried in a snowdrift. Fair play.
+O|Build a new tower|nimble|11|xp:5+coins:{c}|Your tower is so tall it gets its own flag. They pay you in marbles.|xp:1|It collapses in a gentle puff.
+E|na-raccoon-lantern|dp=dusk,night|any|NA|both|🦝|A raccoon in a tiny waistcoat sits on a crate, selling lanterns “by the half-dozen”.
+O|Buy a lantern (6 Petals)||0|pay:6+buff:sense:2:60|Warm light, and you can see everything. Even the toadstool you nearly stepped on.||
+O|Ask where it got them|sense|12|xp:5+rand:uncommon@15|“Found them,” it says, looking very pointedly elsewhere.|xp:1|It tidies its crates and says nothing.
+#
+# ---------------------------------------------------------------- Mistmoor (NWE)
+E|nwe-sheep-wall|-|any|NWE|both|🐑|A dry-stone wall runs over the hill, and a very wooly sheep is looking at you through a gap.
+O|Pat the sheep|charm|10|xp:4+buff:charm:1:30|It is warm and smells of rain. You feel looked after.|xp:1|It nibbles your hat instead.
+O|Mend the gap in the wall|grit|11|xp:6+coins:{c}|A farmer leaves a few coins under a stone for you.|hp:-1|A stone drops on your toe. The sheep escapes.
+E|nwe-bramble-hedge|se=summer,autumn|any|NWE|both|🫐|A hedgerow heavy with blackberries, all at the very top.
+O|Climb for the best ones|nimble|12|xp:4+rand:food@20|Purple-fingered and proud.|hp:-2|Brambles grab at your sleeves. They win.
+O|Pick the low ones||0|xp:3+heal:3|Not the best, but far from the worst.||
+E|nwe-post-box|-|any|NWE|road|📮|A little red post box stands by the road, with a letter wedged in the slot.
+O|Post the letter for them||0|xp:5|Somewhere, someone will be very happy to hear from someone.||
+O|Read the address|lore|12|xp:6+coins:{c}|It is for a village up ahead. You are tipped when you pass it on.|xp:1|The ink has run. Let’s hope it is not urgent.
+E|nwe-heather-hill|-|any|NWE|both|🌸|A hill in full purple heather, humming with bees.
+O|Climb to the top|hardiness|11|xp:5+buff:sense:1:30|You can see for miles, and every mile is lovely.|hp:-1|The wind pushes back. You sit and get your breath back.
+O|Lie among the bees||0|heal:6+xp:2|They hum a lullaby and you almost sleep.||
+E|nwe-moor-mist|we=fog,rain|any|NWE|both|🌫️|The moor mist rolls in, thick as porridge. Somewhere ahead, a bell tolls softly.
+O|Follow the bell|sense|12|xp:6+coins:{c}|It leads to a shepherd’s hut and a hot cup of something.|hp:-1|It was a goat. Not a bell. A goat with a bell.
+O|Wait it out||0|heal:5+xp:2|It lifts after a cup of tea and a long sit.||
+E|nwe-stepping-stones|-|any|NWE|road|🪨|Stepping stones cross a brown peaty stream. Some wobble and some do not.
+O|Hop across|nimble|11|xp:5+rand:forage@15|Across, dry-footed, with a pocketful of pebbles.|hp:-2|Splash! The stream was colder than it looked.
+O|Wade through|hardiness|10|xp:4|Brr, but quick, and the far bank is welcoming.|hp:-1|Your boots are full of stream.
+E|nwe-lone-cairn|-|any|NWE|both|🗿|A cairn stands alone on a bare ridge, every stone added by a traveller.
+O|Add a stone||0|xp:4+buff:luck:1:30|The cairn is a little taller. So are you, somehow.||
+O|Read the marks on the stones|lore|12|xp:6|Names, dates, a small joke from 412 years ago.|xp:1|Too weathered. They keep their stories.
+E|nwe-wellie-planter|-|any|NWE|road|👢|A row of old wellington boots by a gate, each one full of flowers.
+O|Water them|charm|10|xp:4+coins:{c}|The owner waves from the window and drops you a coin.|xp:1|You spill more than you pour. The flowers are delighted.
+O|Take a cutting|luck|12|rand:uncommon@15+xp:3|One of them holds more than flowers.|xp:1|You feel you were being watched. You put it back.
+#
+# ---------------------------------------------------------------- Blossomreach (EA)
+E|ea-petal-fall|se=spring|any|EA|both|🌸|A cherry tree lets go of its petals all at once, and the air is pink.
+O|Catch one before it lands|nimble|11|xp:5+buff:luck:2:30|They say it brings a year of good luck. Or at least a good hour.|xp:1|You catch a leaf, a bee, and a face full of blossom.
+O|Sit under the tree||0|heal:6+xp:2|The sort of peace you can only really get from falling petals.||
+E|ea-red-gate|-|any|EA|road|⛩️|A small red gate stands in the middle of the path, with nothing behind it but more path.
+O|Bow and walk through||0|xp:4+buff:hardiness:1:30|Something in the air feels steadier.||
+O|Look for the carvings|lore|12|xp:6+coins:{c}|Beside it, an offering bowl has tipped over. You set it right, and a neighbour tips you for the trouble.|xp:1|The writing is older than the gate.
+E|ea-koi-bridge|-|any|EA|both|🐟|A humped wooden bridge over a pond, and the koi are queuing underneath for crumbs.
+O|Scatter your crumbs||0|xp:4+buff:luck:1:30|Gold, white, and orange koi circle in gratitude.||
+O|Count the koi|sense|12|xp:5+rand:forage@15|Twenty-seven. One of them has a little pearl button for an eye.|xp:1|They keep moving. You have lost count.
+E|ea-wind-bells|we=wind,cloud|any|EA|both|🎐|A row of tiny bells hangs from the eaves of a shrine, each a different note.
+O|Ring them in turn|charm|11|buff:charm:2:30+xp:3|A melody drifts across the village. Someone smiles at their washing.|xp:1|It is more of an enthusiastic jingle.
+O|Listen for a long time||0|heal:5+xp:2|Your thoughts gently line up.||
+E|ea-tea-stall|-|any|EA|road|🍵|A tea stall under a paper umbrella. The kettle is just off the boil.
+O|Buy a cup (4 Petals)||0|pay:4+energy:2+xp:2|Smooth, grassy, and slightly smug.||
+O|Help with the tea ceremony|charm|12|xp:6+rand:food@20|You pour with both hands, and nobody drops a thing.|xp:1|You spill. The host says nothing, beautifully.
+E|ea-paper-cranes|-|any|EA|both|🕊️|Someone has hung a thousand paper cranes from a bamboo pole. One has come loose.
+O|Fold a new one|nimble|11|xp:5+buff:luck:2:30|Slightly lopsided. Somehow luckier for it.|xp:1|It becomes a very determined boat.
+O|Clip the loose one back||0|xp:4|The pole sways, and all the cranes seem to nod.||
+E|ea-stone-lantern|dp=dusk,night|any|EA|both|🏮|A stone lantern glows beside the path, though no one is near to light it.
+O|Trim the wick|sense|10|xp:4+buff:sense:1:30|Brighter now. Everything on the road is clearer.|xp:1|It sputters once, and then forgives you.
+O|Leave a Petal for the keeper (2 Petals)||0|pay:2+xp:5|A small voice whispers thank you.||
+E|ea-paddy-frog|se=spring,summer|any|EA|both|🐸|A frog the size of a teapot sits on a rice-paddy bank, thinking very hard.
+O|Ask what it is thinking|lore|11|xp:5+coins:{c}|“Rain,” says the frog. It is right, and pays you a coin for asking.|xp:1|“Lunch,” it says. You back away.
+O|Sit and think with it||0|xp:3+heal:3|You both think about rain. Calm settles over you.||
+#
+# ---------------------------------------------------------------- strange sights (wilds only)
+S|glow-ring|-|any|any|wild|🍄|A ring of glowing mushrooms hums softly. Standing in the middle, you feel lucky.|buff:luck:2:60
+S|abandoned-camp|-|any|any|wild|🏕️|An abandoned camp. Someone left a little food behind.|rand:food
+S|loamy-burrow|-|any|any|wild|🕳️|A forgotten burrow, lined with the loamiest earth you’ve ever seen.|rand:soil
+S|glitter-seam|-|any|any|wild|💎|A glittering seam in the rock. You prise something loose.|rand:uncommon
+S|squirrel-hoard|-|any|any|wild|🌰|A squirrel’s hoard, long forgotten.|rand:treeseed
+S|old-purse|-|any|any|wild|👛|An old purse, half buried in the moss.|coins:{c}
+S|wild-garden|-|any|any|wild|🌱|A wild garden gone to seed.|rand:seed+rand:flowerseed
+S|ancient-owl|-|any|any|wild|🦉|An ancient owl peers down and shares a secret.|tip+xp:{x}
+S|cold-spring|-|any|any|wild|💧|A clear, cold spring. You drink deep.|energy:2
+S|empty-nest|-|any|any|wild|🪺|An empty nest with a striped feather in it.|item:pretty-feather:1
+S|scratched-map|-|any|any|wild|📜|A stone scratched with an old map.|landmark
+S|giant-snail|-|any|any|wild|🐌|A giant snail trundles past and leaves a trail of shiny things.|rand:forage+coins:{c}

@@ -1,0 +1,169 @@
+# slug | Name | Region code | tier | perennial | pollinator | flavour  (12 flowers per region)
+damask-rose|Damask Rose|MENA|4|1|bee|Grown by the field in Morocco's Valley of Roses for rosewater and perfume.
+blue-lotus|Blue Lotus|MENA|4|1|beetle|Sacred in ancient Egypt, painted on temple walls and tombs.
+oleander|Oleander|MENA|5|1|moth|A tough, showy shrub of dry riverbeds. Every part is poisonous.
+atlas-daisy|Mount Atlas Daisy|MENA|3|1|bee|A low daisy from Morocco's Atlas Mountains with red-backed petals.
+african-tulip-tree|African Tulip Tree|WCA|6|1|bird|Flame-orange blooms that sunbirds visit for nectar.
+desert-rose|Desert Rose|WCA|5|1|moth|A fat-trunked succulent of the Sahel with pink trumpet flowers.
+crinum-lily|Crinum Lily|WCA|4|1|moth|A big bulb with white, fragrant flowers that open in the rainy season.
+wild-gardenia|Wild Gardenia|WCA|5|1|moth|A savanna shrub whose white flowers scent the night air.
+blood-lily|Blood Lily|WCA|4|1|butterfly|A perfect sphere of scarlet flowers rising from a bulb.
+glory-bower|Bleeding Glory-bower|WCA|5|1|butterfly|A climbing vine with crimson flowers peeking out of white bracts.
+gloriosa-lily|Gloriosa Lily|WCA|4|1|butterfly|Wavy flame-red petals that sweep backwards. Toxic to eat.
+congo-cockatoo|Congo Cockatoo|WCA|3|1|bird|An impatiens whose red and yellow flowers look like tiny parrots.
+african-violet|African Violet|ESA|3|1|bee|Found in Tanzania's cloud forests, now a windowsill classic.
+busy-lizzie|Busy Lizzie|ESA|2|0|butterfly|A shade-loving impatiens that flowers nonstop.
+flamboyant|Flamboyant|ESA|6|1|bird|Madagascar's flame tree, blanketed in scarlet blossom.
+periwinkle|Madagascar Periwinkle|ESA|3|1|butterfly|A tough little flower that also gave the world important medicines.
+king-protea|King Protea|ESA|5|1|bird|South Africa's national flower, as big as a dinner plate.
+bird-of-paradise|Bird of Paradise|ESA|5|1|bird|Looks like a crested bird in flight. Sunbirds perch on it to feed.
+agapanthus|Agapanthus|ESA|4|1|bee|The "lily of the Nile", though it actually comes from South Africa.
+gerbera|Barberton Daisy|ESA|3|1|butterfly|The wild ancestor of the gerbera, found near Barberton.
+pride-of-barbados|Pride of Barbados|CB|5|1|butterfly|Barbados's national flower, a fiery shrub loved by butterflies.
+lignum-vitae|Lignum Vitae|CB|6|1|bee|Jamaica's national flower: blue blossoms on one of the hardest woods on Earth.
+bayahibe-rose|Bayahibe Rose|CB|5|1|bee|A rare pink-flowered cactus, national flower of the Dominican Republic.
+chaconia|Chaconia|CB|5|1|bird|Trinidad and Tobago's national flower, red as a flame.
+dahlia|Dahlia|CA|3|1|bee|Mexico's national flower, bred into thousands of forms.
+poinsettia|Poinsettia|CA|5|1|butterfly|Its red "petals" are really leaves. The true flowers are tiny.
+guaria-morada|Guaria Morada|CA|4|1|bee|A purple orchid and Costa Rica's national flower.
+monja-blanca|Monja Blanca|CA|5|1|bee|The rare white nun orchid, national flower of Guatemala.
+coneflower|Purple Coneflower|NA|3|1|butterfly|A prairie favourite. Goldfinches eat the seeds in fall.
+black-eyed-susan|Black-eyed Susan|NA|2|0|butterfly|A cheerful roadside wildflower across North America.
+blue-violet|Common Blue Violet|NA|2|1|bee|A woodland violet. A purple violet is New Brunswick's provincial flower.
+milkweed|Butterfly Milkweed|NA|3|1|butterfly|The plant monarch butterfly caterpillars need to survive.
+bougainvillea|Bougainvillea|SA|5|1|butterfly|Papery bracts in hot pink and purple. Native to Brazil.
+alstroemeria|Peruvian Lily|SA|3|1|bee|Striped, long-lasting flowers from the Andes.
+cantuta|Cantuta|SA|5|1|bird|The sacred flower of the Inca and national flower of Peru and Bolivia.
+copihue|Copihue|SA|5|1|bird|Chile's national flower, a waxy red bell on a forest vine.
+greigs-tulip|Greig's Tulip|CSA|3|1|bee|A wild tulip of the Tian Shan mountains, where tulips come from.
+foxtail-lily|Foxtail Lily|CSA|4|1|bee|Spires of flowers taller than a person, from the steppes.
+giant-allium|Giant Allium|CSA|4|1|bee|An ornamental onion with purple globes on tall stems.
+bukhara-iris|Bukhara Iris|CSA|3|1|bee|A small yellow-and-white iris from the mountains of Uzbekistan.
+sakura|Cherry Blossom|EA|6|1|bee|Japan's sakura bloom for about a week, celebrated with picnics.
+chrysanthemum|Chrysanthemum|EA|3|1|butterfly|An emblem of Japan's imperial family, grown in China for millennia.
+tree-peony|Tree Peony|EA|5|1|beetle|The "king of flowers" in Chinese tradition.
+rose-of-sharon|Rose of Sharon|EA|5|1|bee|The mugunghwa, South Korea's national flower, blooming all summer.
+moth-orchid|Moth Orchid|SEA|4|1|bee|Wild in Southeast Asian forests, now the world's favourite houseplant orchid.
+sampaguita|Sampaguita|SEA|4|1|moth|A jasmine strung into garlands, the national flower of the Philippines.
+miss-joaquim|Vanda Miss Joaquim|SEA|4|1|bee|Singapore's national flower, a natural orchid hybrid.
+torch-ginger|Torch Ginger|SEA|5|1|bird|A waxy pink torch of a flower, also used in cooking.
+sacred-lotus|Sacred Lotus|CSA|4|1|beetle|India's national flower rises clean from muddy water.
+rhododendron|Red Rhododendron|CSA|6|1|bird|Nepal's national flower turns Himalayan hillsides red.
+blue-poppy|Himalayan Blue Poppy|CSA|4|1|bee|Bhutan's rare sky-blue national flower.
+night-jasmine|Night-flowering Jasmine|CSA|5|1|moth|Its orange-stemmed flowers open at night and fall by dawn.
+crown-anemone|Crown Anemone|MENA|3|1|bee|Carpets the hills of the Levant in red each spring.
+persian-buttercup|Persian Buttercup|MENA|3|1|bee|Rose-like ranunculus with layer upon layer of petals.
+cyclamen|Cyclamen|MENA|3|1|bee|Swept-back petals that bloom in the cool season.
+black-iris|Black Iris|MENA|4|1|bee|A nearly black iris, the national flower of Jordan.
+lilac|Common Lilac|EE|5|1|butterfly|Native to the Balkans. Its scent means spring has arrived.
+chamomile|Chamomile|EE|2|0|bee|Little daisies that make a calming tea.
+snowdrop|Snowdrop|EE|3|1|bee|One of the first flowers to push up through the snow.
+kalyna|Kalyna|EE|5|1|bee|The guelder rose, a beloved symbol in Ukraine with red winter berries.
+heather|Heather|NWE|4|1|bee|Turns moors purple in late summer. Bees make dark heather honey from it.
+lily-of-the-valley|Lily of the Valley|NWE|3|1|bee|Finland's national flower. Tiny scented bells, but poisonous.
+cornflower|Cornflower|NWE|2|0|bee|Estonia's national flower, once a weed of every grain field.
+bluebell|Bluebell|NWE|3|1|bee|Paints British woodlands blue each spring.
+lavender|Lavender|SE|4|1|bee|Mediterranean hillsides humming with bees.
+carnation|Carnation|SE|3|1|butterfly|Spain's national flower, with ruffled, clove-scented petals.
+rock-rose|Rock Rose|SE|4|1|bee|Crinkled petals that last a single day on sun-baked hills.
+florentine-iris|Florentine Iris|SE|4|1|bee|The iris behind the fleur-de-lis of Florence.
+dutch-tulip|Dutch Tulip|NWE|3|1|bee|Tulips once caused "tulip mania" in the Netherlands.
+edelweiss|Edelweiss|NWE|4|1|bee|A woolly white star of high Alpine rocks.
+corn-poppy|Corn Poppy|NWE|2|0|bee|A red field poppy and a symbol of remembrance.
+forget-me-not|Forget-me-not|NWE|2|0|bee|Tiny sky-blue flowers that love damp ground.
+kangaroo-paw|Kangaroo Paw|OC|4|1|bird|Fuzzy flowers shaped like a kangaroo's paw, fed on by honeyeaters.
+waratah|Waratah|OC|5|1|bird|A huge crimson flower, emblem of New South Wales.
+golden-wattle|Golden Wattle|OC|6|1|bee|Australia's national flower, fluffy golden balls in late winter.
+kowhai|Kōwhai|OC|6|1|bird|Golden flowers that tūī birds visit in New Zealand spring.
+pohutukawa|Pōhutukawa|OC|6|1|bird|New Zealand's "Christmas tree", glowing crimson along the coast.
+tagimoucia|Tagimoucia|OC|5|1|bird|A rare red-and-white vine found only in the mountains of Fiji.
+dendrobium|Dendrobium Orchid|SEA|4|1|bee|New Guinea is home to hundreds of wild dendrobium orchids.
+heliconia|Heliconia|SA|5|1|bird|Lobster-claw bracts in red and yellow.
+croton|Croton|SEA|4|1|bee|Grown for its fiery, painted leaves more than its flowers.
+ylang-ylang|Ylang-ylang|SEA|6|1|moth|Drooping yellow flowers used in Pacific garlands and perfume.
+naupaka|Beach Naupaka|OC|4|1|bee|Its flowers look like half a flower, as if torn in two.
+pua-kenikeni|Pua Kenikeni|OC|6|1|moth|Flowers that change from white to orange as they age.
+spider-lily|Beach Spider Lily|SEA|4|1|moth|Spidery white blooms along Pacific shores.
+tiare|Tiare|OC|5|1|moth|A fragrant gardenia worn behind the ear across Polynesia.
+teuila|Teuila|OC|5|1|bird|The red ginger, Samoa's national flower.
+heilala|Heilala|OC|6|1|bee|Tonga's national flower, reserved for royal garlands.
+beach-hibiscus|Beach Hibiscus|OC|6|1|bee|Yellow flowers that turn red by evening, on a coastal tree.
+california-poppy|California Poppy|NA|2|0|bee|Golden cups that close at dusk, the state flower of California.
+trillium|Trillium|NA|4|1|beetle|Three petals on a woodland floor; Ontario's emblem.
+columbine|Columbine|NA|3|1|bird|Nodding spurred flowers that hummingbirds adore.
+bee-balm|Bee Balm|NA|3|1|bee|Shaggy red heads once brewed as Oswego tea.
+goldenrod|Goldenrod|NA|3|1|bee|Late-summer gold that feeds the prairie's bees.
+lupine|Lupine|NA|3|1|bee|Tall spires that line the roadsides of New Brunswick and Maine.
+fireweed|Fireweed|NA|3|1|bee|The first pink bloom to return after a forest fire.
+blue-flag-iris|Blue Flag Iris|NA|3|1|bee|A wetland iris, the flower of Quebec.
+marigold|Marigold|CA|2|0|butterfly|Cempasúchil, the orange path-flower of Mexico's Day of the Dead.
+cosmos|Cosmos|CA|2|0|butterfly|Airy pink daisies from the Mexican highlands.
+zinnia|Zinnia|CA|2|0|butterfly|Bright, sturdy blooms first grown by the Aztecs.
+mexican-sunflower|Mexican Sunflower|CA|3|0|butterfly|Flame-orange daisies that butterflies flock to.
+tuberose|Tuberose|CA|4|1|moth|A waxy white flower with a heavy evening scent.
+mexican-sage|Mexican Sage|CA|3|1|bird|Velvety purple spikes for hummingbirds.
+tiger-flower|Tiger Flower|CA|3|1|bee|A spotted three-petal bloom that lasts one day.
+chocolate-cosmos|Chocolate Cosmos|CA|4|1|butterfly|Deep maroon flowers that smell of cocoa.
+frangipani|Frangipani|CB|5|1|moth|Plumeria: waxy, sweet flowers of island lei and temples.
+ixora|Ixora|CB|3|1|butterfly|Clusters of tiny red stars on a hedge.
+allamanda|Allamanda|CB|4|1|bee|Golden trumpet vine of sunny Caribbean walls.
+lantana|Lantana|CB|2|1|butterfly|Small flowers that change colour as they age.
+peregrina|Peregrina|CB|4|1|butterfly|A scarlet jatropha shrub from Cuba.
+yellow-elder|Yellow Elder|CB|4|1|bee|Golden bells, the national flower of the Bahamas.
+white-ginger-lily|White Ginger Lily|CB|4|1|moth|Mariposa: Cuba's butterfly-shaped national flower.
+red-hibiscus|Red Hibiscus|CB|3|1|bird|The classic tropical hibiscus with a long red tongue.
+passionflower|Passionflower|SA|4|1|bee|An intricate, crown-like flower that sets passion fruit.
+fuchsia|Fuchsia|SA|3|1|bird|Dangling ballerina flowers from the Andes.
+nasturtium|Nasturtium|SA|2|0|bee|Peppery, edible flowers first carried from Peru.
+petunia|Petunia|SA|2|0|moth|A trumpet bloom first found on the pampas.
+cattleya|Cattleya Orchid|SA|5|1|bee|The ruffled orchid of Colombian and Brazilian forests.
+lapacho|Lapacho|SA|5|1|bee|The pink trumpet tree that blooms before its leaves.
+ceibo|Ceibo|SA|5|1|bird|Coral-red flowers of riverbanks, Argentina's national flower.
+myrtle|Myrtle|SE|4|1|bee|A fragrant shrub woven into Mediterranean wedding crowns.
+spanish-broom|Spanish Broom|SE|3|1|bee|Yellow pea-flowers lighting up dry hillsides.
+acanthus|Acanthus|SE|4|1|bee|Bear's breeches, whose leaves were carved on Greek columns.
+sea-daffodil|Sea Daffodil|SE|4|1|moth|A white lily that blooms on summer beaches.
+sweet-pea|Sweet Pea|SE|2|0|bee|A scented climbing pea first sent from Sicily.
+stock|Stock|SE|2|0|moth|Clove-scented spikes from the Mediterranean shore.
+snapdragon|Snapdragon|SE|2|0|bee|Flowers that open like little mouths when pinched.
+field-gladiolus|Field Gladiolus|SE|3|1|bee|A wild magenta sword lily of Italian fields.
+martagon-lily|Martagon Lily|EE|4|1|moth|A turban-shaped lily of mountain meadows.
+pasque-flower|Pasque Flower|EE|3|1|bee|Silky purple cups that bloom around Easter.
+steppe-peony|Steppe Peony|EE|4|1|beetle|A fern-leaved wild peony of the open grasslands.
+hollyhock|Hollyhock|EE|3|1|bee|Tall cottage-garden spires beside village walls.
+dog-rose|Dog Rose|EE|3|1|bee|A wild hedgerow rose that gives rosehips.
+marsh-marigold|Marsh Marigold|EE|3|1|beetle|Glossy yellow cups at the edge of spring streams.
+lungwort|Lungwort|EE|3|1|bee|Spotted leaves and flowers that turn pink to blue.
+spring-adonis|Spring Adonis|EE|4|1|bee|A golden steppe flower that opens to the sun.
+primrose|Primrose|NWE|2|1|bee|The first pale yellow flower of an English spring.
+foxglove|Foxglove|NWE|3|0|bee|Tall bells of woodland edges. Poisonous.
+daffodil|Daffodil|NWE|3|1|bee|Wales's spring flower, nodding in the wind.
+sea-thrift|Sea Thrift|NWE|3|1|bee|Pink pompoms clinging to windy sea cliffs.
+star-of-bethlehem|Star of Bethlehem|MENA|3|1|bee|White starry flowers of Levant hillsides.
+statice|Statice|MENA|2|0|butterfly|Sea lavender that keeps its colour when dried.
+henna|Henna|MENA|4|1|moth|A shrub with fragrant blossoms; its leaves make a red dye.
+hyacinth|Hyacinth|MENA|3|1|bee|A sweetly scented spring bulb from the Levant and Anatolia.
+ashanti-blood|Ashanti Blood|WCA|4|1|butterfly|A shrub with blood-red leafy bracts from Ghana.
+senegal-coral-tree|Senegal Coral Tree|WCA|5|1|bird|Scarlet claws of flowers on a bare savanna tree.
+sausage-tree|Sausage Tree|WCA|5|1|moth|Maroon night blooms pollinated by bats; giant hanging fruit.
+kapok-blossom|Kapok Blossom|WCA|5|1|moth|Night flowers of the giant kapok, a village meeting tree.
+pentas|Pentas|ESA|2|1|butterfly|Star clusters loved by East African butterflies.
+clivia|Clivia|ESA|4|1|bird|Orange bush lilies of shady South African forests.
+red-hot-poker|Red Hot Poker|ESA|3|1|bird|Torches of red and yellow for sunbirds.
+cape-daisy|Cape Daisy|ESA|2|1|bee|Blue-eyed daisies of the Western Cape.
+flame-of-the-forest|Flame of the Forest|CSA|5|1|bird|Bright orange blooms that colour the Holi festival.
+champak|Champak|CSA|5|1|moth|A golden magnolia offered at temples for its scent.
+cannonball-tree|Cannonball Tree|CSA|5|1|bee|Pink temple flowers growing straight from the trunk.
+tibetan-gentian|Tibetan Gentian|CSA|4|1|bee|Deep blue trumpets of the high plateau.
+camellia|Camellia|EA|4|1|bird|Glossy winter flowers, cousin of the tea plant.
+plum-blossom|Plum Blossom|EA|5|1|bee|Mume: the first tree to flower at the end of winter.
+morning-glory|Morning Glory|EA|2|0|bee|Asagao, bred for centuries in Japanese pots.
+hydrangea|Hydrangea|EA|3|1|bee|Rainy-season blooms that turn blue in acid soil.
+wisteria|Wisteria|EA|5|1|bee|Purple waterfalls of flowers over temple trellises.
+satsuki-azalea|Satsuki Azalea|EA|4|1|butterfly|Late-spring azaleas pruned into cloud shapes.
+osmanthus|Osmanthus|EA|4|1|moth|Tiny flowers with a scent of apricots, used in tea.
+balloon-flower|Balloon Flower|EA|3|1|bee|Buds puff up like balloons before they pop open.
+jade-vine|Jade Vine|SEA|5|1|bird|Claws of glowing turquoise from Philippine forests.
+siam-tulip|Siam Tulip|SEA|3|1|bee|A pink curcuma that blooms with the monsoon.
+golden-shower|Golden Shower|SEA|5|1|bee|Ratchaphruek: cascades of yellow, Thailand's national flower.
+rangoon-creeper|Rangoon Creeper|SEA|4|1|moth|Flowers that open white and darken to red.

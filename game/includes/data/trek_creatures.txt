@@ -1,0 +1,24 @@
+# Trek creatures: slug | Name | size | landscapes | level | drops (Item name:chance%, ...) | description
+# Same format as creatures.txt. Landscape "trek" means the roads and exploring never pick them.
+# @pool|zone|encounter % of the trek_enc_percent setting|slug:weight,slug:weight   = what can jump out in a zone (zone letters: see trek_map_ch1.txt)
+@pool|g|100|withered-aphid:1
+@pool|w|100|withered-aphid:2,earthworm-bully:2,ashen-ant:1
+@pool|c|0|withered-aphid:1
+@pool|f|100|earthworm-bully:2,pill-bug-brute:2,root-weevil:2,grub-beetle:3,mole-cricket:1
+@pool|d|100|dew-leech:4,rot-snail:1,earthworm-bully:1
+@pool|h|60|ashen-ant:1,rot-snail:1,root-weevil:1
+@pool|b|200|stag-beetle-patrol:1
+@pool|r|110|rot-snail:2,ashen-ant:2,withered-aphid:1,mole-cricket:1
+@pool|x|0|ashen-ant:1
+earthworm-bully|Earthworm Bully|small|trek|15|Honeydew:40|A fat pink worm that thinks the tunnel is his, and shoves like it.
+pill-bug-brute|Pill Bug Brute|medium|trek|16|Beetle Shell:40|Rolls into a ball, then rolls into you.
+root-weevil|Root Weevil|small|trek|17|Beetle Shell:40,Wing Dust:20|A long-snouted gnawer of anything that used to grow.
+mole-cricket|Mole Cricket|medium|trek|17|Earwig Pincer:40|A shovel-clawed cricket that digs up from underneath.
+grub-beetle|Grubfield Beetle|medium|trek|17|Beetle Shell:50|A glossy black beetle that guards the soft soil. Something glints under its wing case.
+dew-leech|Dew Leech|medium|trek|16|Clean Dew:60,Leech Slime:40|A pale leech that drinks from the clean pools and keeps the water for itself.
+withered-aphid|Withered Aphid|small|trek|15|Aphid Wings:50|A grey, papery aphid. Blight has dried it out and made it mean.
+rot-snail|Rot Snail|medium|trek|16|Snail Slime:50,Spiral Shell:25|Its shell is soft and black, and the trail it leaves kills grass.
+ashen-ant|Ashen Ant|small|trek|16|Ant Chitin:60|An ant the colour of cold ashes. It no longer follows the scent trail, only you.
+stag-beetle-patrol|Stag Beetle Patrol|large|trek|18|Beetle Shell:60,Antler Shard:25|Captain Bracken’s old watch, sick with blight and still walking its beat.
+blight-mother|Blight Mother|boss|trek|19||A swollen aphid queen, grey and glistening, who pours out blighted young.
+gloomtooth|Gloomtooth|boss|trek|19||A blind old mole with a blackened muzzle. His digging made every tunnel down here.

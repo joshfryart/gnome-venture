@@ -1,0 +1,14 @@
+{
+  "_note": "Gnome Venture art palette v1 (2026-10-17). Use these for all game SVG/PNG art. Shade = the next darker step of the same family. Shadow ellipse #000 at .15 opacity; highlight #fff at .35-.45.",
+  "soil":  {"900": "#3d2a1c", "700": "#7a4a1f", "500": "#9a6b3f", "300": "#c9a96e", "100": "#f1ece0"},
+  "moss":  {"800": "#2f5a2a", "600": "#4f9a45", "400": "#7ab55c", "200": "#a4b86a"},
+  "gold":  {"700": "#b07a10", "500": "#e8a317", "300": "#f5cf6a"},
+  "ember": {"700": "#a8241f", "500": "#d6322b", "400": "#e0501f", "300": "#f08a24"},
+  "petal": {"500": "#e46a9b", "300": "#f6b8cf"},
+  "water": {"700": "#25637d", "500": "#3f8fb0", "300": "#a9d6ea"},
+  "dusk":  {"700": "#4e3a8a", "500": "#7a5cc0", "300": "#c3b2ea"},
+  "stone": {"700": "#5b6470", "500": "#8b8f96", "300": "#c9c5bc"},
+  "ink": "#2b2b2b",
+  "cream": "#f4f0e0",
+  "placeholder_outline": "#e0392b"
+}

@@ -1,0 +1,7 @@
+# Adopt-a-stop upgrades (v1.0.0). One adopter per stop; their materials and Petals, handed in over time, raise the tier for everybody.
+# Admin can change these rows in Admin > Stop upgrades. Needs: item slugs, "coins", "meal" (home-cooked meals/feasts), "fine" (uncommon or rare finds).
+# tier | name | icon | needs (slug:qty, comma list) | what it gives everybody | plaque line
+1|Bench & lantern post|🪑|building-stone:4,timber-plank:4,coins:200|A bench to rest on (+3 energy) and an adopters' welcome for the one who looks after the place.|A bench and a lantern post, for tired boots.
+2|Little stall|🛒|timber-plank:6,rope:3,building-stone:4,coins:400|A stall with cheap rope, and a lantern-post walk at dusk.|A stall with a striped awning.
+3|Wishing well|⛲|building-stone:10,rope:4,fine:2,coins:700|A wishing well that brings luck to anyone who tries.|A stone well with a little roof.
+4|Long-table hall|🍽️|timber-plank:12,building-stone:8,meal:4,coins:1200|A great long table (+6 energy, once a day) and one more thing to do on every visit.|A hall with a table long enough for everyone.

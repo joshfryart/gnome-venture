@@ -1,0 +1,12 @@
+# plant | pests it keeps off the beds around it | crops it helps (slugs; a small chance of +1 harvest) | why     v1.0.0 companion planting. Edit in Admin -> Companion plants.
+marigold|aphids,gnats|tomato,cucumber,bell-pepper|Its smell confuses small pests.
+nasturtium|aphids,caterpillars|cabbage,broccoli,cucumber|A tasty decoy: pests pick it instead.
+basil|gnats,aphids|tomato,bell-pepper,chili-pepper,eggplant|Flies and gnats hate basil.
+garlic|aphids,slugs|lettuce,cabbage,carrot,beet|A sharp smell that puts many pests off.
+onion|aphids|carrot,lettuce,beet|Its smell hides carrots and lettuce from pests.
+mint|caterpillars,aphids|cabbage,broccoli,cauliflower|Moths avoid minty beds.
+thyme|caterpillars|cabbage,strawberry|Low, fragrant and unwelcoming to caterpillars.
+rosemary|slugs,caterpillars|carrot,cabbage|Woody and strong-smelling.
+lavender|aphids,gnats||Bees love it, small pests do not.
+dill|aphids|cabbage,lettuce,cucumber|Feathery flowers draw hoverflies that eat aphids.
+coriander|aphids|spinach,lettuce|Its flowers draw the aphid-eaters.

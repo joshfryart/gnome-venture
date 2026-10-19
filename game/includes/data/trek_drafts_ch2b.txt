@@ -1,0 +1,151 @@
+# Chapter II-b draft bodies (v1.9.4). key|body   (a body may run over several lines). Players see these until Joshua rewrites the slot in Admin > Trek text.
+ch2.zone.n.arrive|The clay opens into a wide round plaza, swept and silent.
+Signposts grow from it like a small wood, every arm pointing a different way.
+Under the tallest, someone is muttering at the ground.
+ch2.zone.o.arrive|The clay swallows your footsteps whole.
+It is the kind of quiet that leans in to listen.
+ch2.zone.o.hint|Big things walk these halls, one at a time. Tread softly and they might never turn round.
+ch2.zone.p.arrive|The Dim is exactly as advertised.
+Your lamp lights an arm’s length of clay and not an inch more.
+Somewhere ahead a crystal glows like a patient eye.
+ch2.zone.q.arrive|Warm clay, low beams, and a smell of bay leaves that makes your stomach sit up.
+A great round cauldron squats in the middle, cold but loved.
+It is the first place in ages that feels like a kitchen.
+ch2.zone.r.arrive|The air goes sharp and sour, the way a pickle jar smells from across the room.
+Channels of green water crawl between the paths.
+Something has worn the clay smooth along the edges, like a big thing turning over and over.
+ch2.zone.s.arrive|The chamber is round as the inside of a drum, and about as loud.
+The floor hums under your boots in a slow, patient beat.
+Your teeth have begun to keep time.
+ch2.ui.loose|The clay here is cracked and crumbling, with something behind it.
+It needs someone who knows how tunnels like to be asked.
+ch2.spot.signpost.question|The tallest signpost has six arms and a line of old paint down its trunk.
+"I have many arms but cannot hug.
+I have many names but cannot speak.
+I stand still, and send everyone everywhere. What am I?"
+ch2.spot.signpost.a1|A river
+ch2.spot.signpost.a2|A kettle
+ch2.spot.signpost.a3|A signpost
+ch2.spot.signpost.right|The six arms creak round and all agree for once.
+A small, delighted cheer rises from somewhere near your knees.
+ch2.spot.signpost.wrong|The signpost does not move. One arm swings in a sulk.
+It seems to be waiting for you to think again.
+ch2.spot.signpost.out|The signpost sighs, a long clay creak, and swings all six arms toward the middle.
+Even old posts get tired of waiting.
+ch2.spot.signpost.seed|Your Seedkeeper runs a thumb down the old paint as if reading a seed packet.
+"Ah," they say, and the post creaks round before they say anything else.
+ch2.spot.signpost.after|All six arms point the same way, a little smugly.
+ch2.spot.tumble.before|Oh! Oh, you got the post to talk. I make signposts, you see, but I can’t read a single one of mine once it’s up. Terribly embarrassing. Might I walk with you? I know a loose tile when I smell one.
+ch2.spot.tumble.locked|"It says… it says… oh, I never can tell," mutters a small gnome, hugging the post. "Perhaps you could ask it nicely?"
+ch2.spot.tumble.freed|Tumble bows, nearly loses his hat, and falls in at the back. "Lovely! Wherever you’re going, I’ve probably made a sign pointing the other way."
+ch2.spot.nookA.arrive|Behind the crumbled clay, a nook the size of a pocket.
+Someone tucked a little something here, the way you hide a sweet for later.
+ch2.spot.nookA.find|You take it. The nook is empty now, and still neatly swept.
+ch2.spot.nookB.arrive|Another tiny nook, tucked behind a crumbling tile.
+A bundle has been wedged into the corner, waiting for a traveller with sharp eyes.
+ch2.spot.nookB.find|Yours now, with a silent thank-you to whoever left it.
+ch2.spot.nookC.arrive|The deepest nook, dry as a cupboard.
+A little dish sits in the middle, holding the last of somebody’s savings.
+ch2.spot.nookC.find|You scoop it up. The nook gives a small, satisfied creak.
+ch2.spot.slide.before|A chute of polished clay curls away downward, worn smooth by a great many seats.
+A warm, bready smell drifts up from the bottom.
+ch2.spot.slide.done|You all go down at once in a tangle of knees, elbows and one loud "wheee" that nobody will admit to.
+ch2.spot.rack.arrive|A drying rack lines the wall, crowded with clay pots in the faint crystal light.
+Most are cracked. One has been waiting patiently to be noticed.
+ch2.spot.rack.find|You lift the one whole pot. The rest seem to look away.
+ch2.spot.brewdoor.arrive|A round clay door with a ladle for a knocker.
+Warm light and a smell of bay leaf leak through the gap.
+ch2.spot.camp2.arrive|The Brewhouse hearth is lit, and the cauldron is wide enough for a gnome to sit in.
+Here you can rest, bank your finds and swap trailmates.
+ch2.spot.juniper.before|Two pots! That’s all I need, two sound ones, and I can feed half the tunnels. Every pot I own has a crack in it. Bring me two, love, and I’ll come along and keep you fed. Nobody should face a boss on an empty stomach.
+ch2.spot.juniper.need|"Not yet, dear. Two pots, sound ones," says Juniper, tapping the cauldron. "Try the Dim. People leave good crockery in the strangest places."
+ch2.spot.juniper.join|Juniper tucks the pots into her apron and a ladle into her belt. "Right! Soup first, adventures second. Mind the steps."
+ch2.spot.sluice3.before|A brass wheel as tall as you, crusted green with age.
+Below, the cistern’s sour water laps at the walkway as if it knew.
+ch2.spot.sluice3.done|The wheel groans and gives.
+The sour water draws back through the grates in a long, hungry gurgle.
+Somewhere below, something turns over in the mud, grumbling.
+ch2.spot.sluice3.after|The wheel is still. The cistern sulks in its own mud.
+ch2.spot.pinch.intro|Old Pinch rises out of the sour water, as wide as a cart and twice as grumpy.
+Her left claw is clay-grey and enormous. Her right claw is waving at you rather rudely.
+ch2.spot.pinch.hit|Old Pinch swipes with her small claw. It still stings.
+ch2.spot.pinch.grab|The big claw snaps shut round one of you and lifts. She is clearly not letting go until she’s ready.
+ch2.spot.pinch.squeeze|She squeezes, and the poor gnome’s breath leaves them in a squeak.
+ch2.spot.pinch.break|The claw can’t get a grip on bark. Pinch drops her catch with an offended click.
+ch2.spot.pinch.defeat|The clay flakes off her shell like old paint, and Old Pinch sighs a long, bubbly sigh.
+She pushes something round and pale towards you with one claw, as if paying a toll.
+The cistern, she seems to say, is hers again, but you may pass.
+ch2.spot.drumdoor.locked|A heavy clay door, round and deaf. In its middle sits a dimple the exact size of a pearl.
+ch2.spot.drumdoor.open|The pearl fits, and the door rolls aside without a sound.
+Behind it a slow beat rolls out, and a small chest waits against the wall.
+ch2.spot.drumdoor.after|The door is open, and the beat inside goes on, patient as a clock.
+ch2.spot.drumgate.locked|The gate hums, but won’t budge. The drum door has more to say first.
+ch2.spot.drumgate.open|The gate lets you through. The beat is a good deal louder on this side.
+ch2.spot.thrum.intro|Old Thrum unfolds from the middle of the chamber: all legs, all drum, and a very tired face.
+He drums once, and your ribs answer.
+He does not look angry. He looks like he has been doing this for ten years.
+ch2.spot.thrum.hit|Thrum swings a long leg like a drumstick and catches someone on the ear.
+ch2.spot.thrum.drum|He drums. The whole floor thumps through your boots, and your hands go slow.
+ch2.spot.thrum.harden|Thrum tucks in and stiffens. His shell turns to stone, and your hits glance off.
+ch2.spot.thrum.crack|There is a loud crack down his shell. Thrum blinks, stunned, wide open.
+ch2.spot.thrum.stunned|Thrum sways on his legs, dazed, and for one whole round the chamber is quiet.
+ch2.spot.thrum.molt|The old shell splits down the back and falls away like a cast-off coat.
+The beat quickens. He has been waiting a long time to get that off.
+ch2.spot.thrum.defeat|The drumming stops, and the silence is so big it rings.
+Thrum sinks down onto the floor, shell cracked and eyes closed, a cricket at last.
+A drumskin lies where he stood, still warm.
+ch2.camp.cook.greet|Sit, sit, there’s broth on. The lamp-folk at the Tin Lamp send their regards, I expect, though they never write.
+ch2.camp.cook.shop|A kit’s a bedroll, a candle and a pouch of dried broth. Handy when the stairs are far.
+ch2.camp.cook.rest|There. Hot bowl, warm bench. Your finds are safe in the cupboard.
+ch2.banter.tumble.1|I made the sign for the privy, you know. Everyone goes to the pantry. I’ve never said a word.
+ch2.banter.tumble.2|I’ve never been this far from my signposts. Mind you, I’ve never been this far from anywhere.
+ch2.banter.juniper.1|Have you eaten? You haven’t eaten. Sit. I’ve got half an onion and a dream.
+ch2.banter.juniper.2|Needs salt. Everything down here needs salt. And possibly an apology.
+ch2.crew.tumble.talk|Hold on, hold on. I think that sign over there is pointing at something, if only I could tell which end is the pointy end.
+ch2.crew.tumble.done|Tumble squints, hums, and points. "That way. Probably. I did make that sign, after all."
+ch2.crew.juniper.talk|You lot look peaky. Give me two minutes and a spoon.
+ch2.crew.juniper.done|"Eat," says Juniper, and you do, and you feel better, and nobody argues.
+ch2.ev.echo.text|A smooth wall bends the sound round it. Your footsteps come back softer than they went.
+ch2.ev.echo.whisper|You whisper thanks. The wall whispers something back that sounds like "any time", and you all feel lighter.
+ch2.ev.moth.text|A pale moth flutters past, glowing faintly. It does not seem to be in any hurry.
+ch2.ev.moth.follow|You follow it a few steps. The dark thins as it goes, as though it were being paid to.
+ch2.ev.kettle.text|A kettle sits on a stone, steam curling from the spout. Nobody is anywhere near it.
+ch2.ev.kettle.sip|You share a cup between you. It tastes of thyme and kindness, and somehow nobody asks whose it was.
+ch2.ev.drumbeat.text|Somewhere, far off, a drum beats once. Then again. Then, after what feels like a very long wait, a third time.
+ch2.ev.drumbeat.listen|You count along and fall into step with it. It feels, oddly, like being counted in.
+ch2.ev.drumbeat.miss|You lose count at nine, and the floor takes offence at your feet. No harm done, only a little embarrassing.
+ch2.ms.ch2_tumble|A gnome who makes signs and cannot read them now has someone to read to. The plaza looks almost pleased.
+ch2.ms.ch2_juniper|The Brewhouse cauldron is warm again, and the party has someone to fuss over their dinner.
+ch2.ms.ch2_pinch|The cistern goes quiet. Old Pinch settles into her mud like a cat in a sunny window.
+ch2.ms.ch2_thrum|For the first time in years the drumming stops. The clay lets out a long breath it seems to have been holding.
+ch2.ms.ch2_chapter|The walls of the Weeping Clay have stopped weeping. The place is, for the moment, merely damp.
+book.crossroads|The Crossroads is a round clay plaza full of signposts.
+The Wayfinders made them, not to direct travellers, but to remember every way they had ever been.
+So every arm is right, and no two agree.
+Loose clay tiles around the edge hide small nooks. Only a Wayfinder knows how to ask them to open.
+book.brewhouse|The Brewhouse is a round-roofed clay hall built around one huge cauldron.
+The Brewroots who kept it cooked for anyone who came in tired.
+The fire is still lit. The soup, they say, is never quite finished.
+It makes a very good camp.
+book.pinch|Old Pinch is a very old, very large cistern crab, caked in grey clay.
+She grabbed whatever came near because the cistern was hers, and it had been a long time.
+Under the clay she is only a crab.
+She keeps a pearl, for no reason she ever explained.
+book.thrum|Old Thrum is a giant drumming cricket, clay-shelled and tired.
+He drummed for years, and his beat ran through the whole Weeping Clay.
+With the clay off, he is just a cricket, and quiet.
+But a drum, they say, can be heard from both sides.
+ch2.outro|The walls of the Weeping Clay are only damp now.
+The whole party is tired and fed and quietly proud.
+It is very, very still, in the way a room goes still just before somebody speaks.
+ch2.hook|Then, from deep in the rock below you, something knocks.
+Once. Twice. Three times, slowly, like a visitor who has all the time in the world.
+interlude.2.intro|The Shard Hollow is as you left it, only a good deal wetter on your boots.
+The kettle is on. Everyone has found a place by the fire.
+If you hold very still, you can feel the knock in the floor.
+interlude.2.burdock|Clay remembers everything you tell it. I just hope we told it kind things.
+interlude.2.zinnia|I counted forty-one signposts and I swear every one of them pointed at the kettle.
+interlude.2.bracken|That knock. Three beats, evenly spaced. Nothing natural keeps time that well. I like it less than I should.
+interlude.2.sorrel|I wrote the knock down in the margin. It scans. I wish it did not scan.
+interlude.2.tumble|I can’t read my own signs, but I can read that knock. It’s saying "come down", and very politely.
+interlude.2.juniper|Whoever knocks, they get fed first. That’s the rule. Then we ask who they are.

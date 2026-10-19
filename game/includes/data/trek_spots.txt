@@ -1,0 +1,26 @@
+# Trek spots. chapter|code|type|name|zone|data   (data = k=v;k=v)
+# type: start exit camp recruit npc chest riddle gate miniboss boss duel hidden fetch sign
+# sym = the capital letter on the map (trek_map_ch1.txt). obj = order of the "!" objective marker. flag = set when the spot is done.
+# needs = a flag (gate/chest/fetch) or an item slug (chest: cellar-key). crew = trailmate (trek_crew.txt). script = fight script (trek_fight.php).
+# Texts for a spot are the keys ch1.spot.<code>.<part> in trek_texts.txt.
+1|start|start|The Root Gate|g|sym=S
+1|exit|exit|Climb out|g|sym=Q
+1|rootwall|gate|The Root Wall|g|sym=R;needs=won_fight
+1|burdock|recruit|Burdock Deepdelve|w|sym=B;crew=burdock;obj=1;flag=freed_burdock
+1|boulder|gate|The Fallen Stone|w|sym=O;needs=freed_burdock
+1|camp|camp|Lantern Stump|c|sym=C;obj=2
+1|cellar|chest|Old Gnome Cellar|f|sym=Y;needs=cellar-key;item=camp-kit:2;petals=120;flag=cellar_open
+1|dewsign|sign|The Dew Pools|d|sym=D
+1|zinnia|fetch|Zinnia Fuzzbottom|h|sym=Z;crew=zinnia;need=clean-dew:3;obj=3;flag=freed_zinnia
+1|elder|npc|The Cap Elder|h|sym=V
+1|choir|riddle|The Worm Choir|h|sym=W;right=2;tries=3;item=lanternroot-seed:1;flag=choir_solved
+1|capwall|gate|The Blighted Caps|h|sym=P;needs=freed_zinnia
+1|bracken|duel|Captain Bracken|b|sym=X;crew=bracken;obj=4;flag=freed_bracken;script=duel_bracken
+1|mother|miniboss|The Blight Mother|r|sym=M;obj=5;flag=mother_down;script=blight-mother;creature=blight-mother
+1|grotto|hidden|The Glowworm Grotto|r|sym=H;wayfinder=1;item=glowing-bead:1;flag=grotto_found;entry=trek:glowworm-grotto
+1|dengate|gate|The Den Door|x|sym=N;needs=mother_down
+1|gloomtooth|boss|Gloomtooth|x|sym=L;obj=6;flag=gloomtooth_cured;script=gloomtooth;creature=gloomtooth
+# v1.8.8 hand-placed stops, one in each gap between trailmates. pass=1: the walk only stops here the first time (it is on the way).
+1|cart|cart|The Stuck Cart|w|sym=K;pass=1;dc=11;item=camp-kit:1;flag=cart_done
+1|mushcamp|mush|The Mushroom Camp|d|sym=T;pass=1;need=beetle-shell:2;petals=30;flag=mush_done
+1|bridgestone|riddle|The Riddle Stone|b|sym=J;pass=1;right=3;tries=3;item=singing-pebble:1;flag=stone_solved

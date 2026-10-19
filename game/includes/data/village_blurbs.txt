@@ -1,0 +1,40 @@
+# More ways to describe a village (v1.9.4). landscape | text
+# Every generated village used to share one sentence for its landscape (146 villages, 9 sentences). Now each village shows one of these,
+# picked from its own name, so the same village always reads the same. The first sentence for each landscape (the old one) is in
+# adventure_data.php, and is also in the pool. Edit freely; one line each; keep it under 120 characters.
+coast|Gulls argue on the rooftops, and every doorstep has a shell on it.
+coast|Fishing boats the size of teacups bob at the quay, and the whole village smells of sea and fresh bread.
+coast|Rope, nets and washing flap together in the salt wind, and the cat on the wall has seen it all.
+coast|The tide comes right up to the garden gate twice a day, and nobody minds in the least.
+mountain|Houses cling to the slope like goats, with stairs instead of streets.
+mountain|The air is thin and clear, and the bell on the hill carries all the way down.
+mountain|Stone walls, wood smoke and a kettle always on. Folk here are slow to speak and quick to help.
+mountain|Every window looks out over a great deal of nothing, which is its own kind of view.
+forest|Lanterns hang between the trunks, and the paths wind between the roots like a ball of wool.
+forest|Moss on every roof, ferns in every gutter, and a woodpecker keeping time somewhere.
+forest|Tall trees lean over the houses like old friends who have pulled up a chair.
+forest|Smoke curls up through the leaves, and the whole place smells of pine and toast.
+desert|Low houses of warm clay with cool, dark doors, and shade where there’s none to be had.
+desert|The wells are the heart of the place, and every visitor is offered a drink first and a question second.
+desert|Windchimes tick in the dry air, and evening can’t come fast enough or slow enough.
+desert|Painted shutters, striped awnings, and a lizard who owns the best sunny stone.
+rainforest|Rope bridges and tin roofs that drum with the rain, and a different bird at every window.
+rainforest|Everything is green, wet and humming, and the washing never quite dries.
+rainforest|Orchids grow on the doorposts and the path is sometimes a puddle with ideas.
+rainforest|Frogs sing from the gutters, and the whole village smells of rain and ripe fruit.
+grassland|One long street, one long sky, and a windmill that is always waving.
+grassland|Haystacks, hedgerows and a village bell you can hear for miles in every direction.
+grassland|The grass reaches the doorsteps, the bees reach everything else, and nobody is in a hurry.
+grassland|Neat cottages, a duck pond in the middle, and a noticeboard that has been wrong since spring.
+wetland|Boardwalks and stilts, with a heron on every post and a ferry that goes when it feels like it.
+wetland|Reeds whisper along every path, and the houses stand a polite distance above the puddles.
+wetland|Mist hangs about until noon, and the frogs insist on having the last word every evening.
+wetland|Duckboards, lanterns and a flat-bottomed boat for every front door.
+tundra|Snug houses half buried in snow, with steam rising from every chimney.
+tundra|Lamps glow gold in the long dark, and the whole place is wrapped in wool.
+tundra|Frost paints the windows each morning, and there is always, always soup.
+tundra|Sledges by the doors, icicles on the eaves, and a sky that sometimes puts on a show.
+island|Hammocks, shells and a laid-back breeze. The postman delivers by canoe.
+island|Palms lean over the houses, and the sea is a short walk in any direction.
+island|Everything here runs on island time, which is to say mostly on tea and gossip.
+island|Colourful shutters and a lighthouse that is mostly decoration. The sea behaves.

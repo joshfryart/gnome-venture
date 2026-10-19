@@ -1,0 +1,70 @@
+# Things gnomes gather while adventuring. Gathered automatically on "find" spaces if you carry the tool.
+# slug | Name | landscapes (comma list) | tool (forage, pick, net, bucket, axe, rod) | rarity (common, uncommon, rare) | price | stat if edible (or -) | description
+# Common needs a Worn tool, uncommon a Sturdy one, rare a Fine one.
+# cond (optional 9th column, v1.9.3): rest-stop syntax (dp= se= we=). 3x likelier when it matches, never excluded; ! at the start = a must.
+chanterelle|Chanterelle|forest|forage|common|14|lore|Golden, apricot-scented mushrooms hiding under the moss.|we=rain
+ramsons|Ramsons|forest,wetland|forage|common|10|sense|Wild garlic leaves. The whole wood smells of them in spring.|se=spring
+oak-gall|Oak Gall|forest|forage|uncommon|18|-|A little wasp-made ball on an oak twig. Old gnomes brewed ink from these.
+morel|Morel|forest|forage|rare|60|lore|A honeycombed mushroom prized by every cook in the Hollow.|se=spring
+pine-resin|Pine Resin|forest,mountain|forage|uncommon|20|-|Sticky amber sap. It seals, glues and smells wonderful.
+stag-beetle-shell|Stag Beetle Shell|forest|net|uncommon|22|-|A shed wing case, glossy as a conker.
+firefly-glow|Firefly Glow|forest,wetland|net|rare|55|-|A pinch of faint light that some fireflies leave behind.|dp=dusk,night
+wild-strawberries|Wild Strawberries|grassland,forest|forage|common|9|nimble|Tiny, sweet and gone in one bite.|se=summer
+meadowsweet|Meadowsweet|grassland,wetland|forage|common|10|sense|Frothy cream flowers that smell of honey and almonds.
+butterfly-scales|Shed Butterfly Scales|grassland,rainforest|net|uncommon|24|-|Shimmering dust left on a leaf. No butterflies were harmed.|we=sun
+cricket-chirp|Cricket Chirp|grassland|net|common|8|-|Somehow you caught the sound itself. It chirps in your satchel at dusk.|dp=dusk,night
+flint|Flint Nodule|grassland,mountain,desert|pick|common|8|-|A knobbly grey stone that sparks against steel.
+river-clay|River Clay|wetland,grassland|pick|common|8|-|Smooth, grey and perfect for pots.
+bilberries|Bilberries|mountain,tundra,forest|forage|common|10|nimble|Dusky blue berries that stain your fingers purple.|se=summer,autumn
+edelweiss|Edelweiss|mountain|forage|rare|50|charm|A woolly white star of a flower from the highest ledges.
+slate-shard|Slate Shard|mountain|pick|common|6|-|Thin grey slate. Good for roofs and garden labels.
+rock-crystal|Rock Crystal|mountain|pick|uncommon|30|-|Clear quartz, cold to the touch.
+geode|Geode|mountain,desert|pick|rare|80|-|A plain stone hiding a little cave of crystals.
+red-ochre|Red Ochre|desert,mountain|pick|common|9|-|Earthy red pigment. Gnomes paint their doors with it.
+desert-sage|Desert Sage|desert|forage|common|10|sense|Silvery leaves that smell of rain on hot stone.
+mesquite-pods|Mesquite Pods|desert|forage|uncommon|15|grit|Sweet, chewy pods ground into a nutty flour.
+scarab-shell|Scarab Shell|desert|net|uncommon|25|-|An iridescent beetle shell, green as a jewel.
+desert-glass|Desert Glass|desert|pick|rare|70|-|Pale yellow glass made by lightning striking the sand.
+fiddleheads|Fiddlehead Ferns|rainforest,forest|forage|common|11|hardiness|Curled young fern fronds, crisp and green.|se=spring
+rubber-sap|Rubber Sap|rainforest|forage|uncommon|20|-|Milky sap that dries into bouncy rubber.
+laterite-clay|Laterite Clay|rainforest|pick|common|8|-|Rust-red clay that bakes hard as brick.
+morpho-scales|Morpho Scales|rainforest|net|rare|65|-|Scales of electric blue from the wings of a morpho butterfly.|we=sun
+bromeliad-seeds|Bromeliad Seeds|rainforest|forage|uncommon|18|-|Feathery seeds from a plant that holds its own tiny pond.
+cattail-root|Cattail Root|wetland|forage|common|9|grit|Starchy roots that marsh gnomes roast in the coals.
+sphagnum|Sphagnum Moss|wetland,tundra|forage|common|10|-|Holds twenty times its weight in water. Seed-starters swear by it.
+dragonfly-wing|Shed Dragonfly Wing|wetland|net|uncommon|24|-|A clear, veined wing like a stained-glass window.|we=sun,heat
+bog-iron|Bog Iron|wetland|pick|rare|60|-|Lumpy iron ore that grows slowly in the bottom of bogs.
+crowberries|Crowberries|tundra|forage|common|10|nimble|Shiny black berries on a low, needled shrub.|se=autumn
+cottongrass|Cottongrass|tundra,wetland|forage|common|8|-|Fluffy white tufts, soft enough for a pillow.
+snow-moth-dust|Snow Moth Dust|tundra|net|uncommon|26|-|Silvery dust from the moths that fly in the long white nights.|se=winter
+fossil-shell|Fossil Shell|tundra,mountain,desert|pick|rare|75|-|A sea shell turned to stone, far from any sea.
+sea-salt|Sea Salt|coast,island|bucket|common|8|-|Flaky crystals scraped from a sun-dried rock pool.
+blue-mussels|Blue Mussels|coast|bucket|common|12|hardiness|A handful of mussels from the rocks at low tide.
+bladderwrack|Bladderwrack|coast|bucket|common|9|-|Seaweed with little air pockets that pop. Soil loves it.|we=storm,wind
+samphire|Samphire|coast,wetland|forage|uncommon|14|sense|Salty green stems that taste of the sea.
+urchin-test|Urchin Shell|coast,island|bucket|uncommon|22|-|The empty, spotted shell of a sea urchin.
+seed-pearl|Seed Pearl|coast,island|bucket|rare|90|-|A pearl no bigger than a poppy seed, but perfect.
+spiral-shell|Spiral Shell|island,coast|bucket|common|9|-|A pretty, empty shell a hermit crab has moved out of.
+sea-grapes|Sea Grapes|island,coast|forage|common|10|nimble|Round, juicy fruit from a tree that grows on the beach.
+coir-fibre|Coir Fibre|island|forage|common|8|-|Tough coconut fibre for ropes, mats and seed pots.
+pink-sand|Pink Sand|island|bucket|uncommon|16|-|Sand tinted pink by tiny crushed shells.
+coral-fragment|Coral Fragment|island|bucket|rare|60|-|A storm-broken branch of coral washed up on the shore.
+# v0.7.81: logging (axe) and fishing (rod)
+pine-log|Pine Log|forest,mountain|axe|common|8|-|A resin-scented log, light and straight.
+birch-log|Birch Log|forest,tundra,grassland|axe|common|8|-|Papery white bark that peels in curls.
+driftwood|Driftwood|coast,island|axe|common|7|-|Sea-smoothed wood, silver-grey and salty.|we=storm,wind
+palm-trunk|Palm Trunk|island,rainforest|axe|common|8|-|A fibrous length of palm, tougher than it looks.
+oak-log|Oak Log|forest,grassland|axe|uncommon|22|-|Heavy, honest oak. Builders love it.
+cork-bark|Cork Bark|mountain,desert|axe|uncommon|24|-|Springy bark that floats and seals.
+mangrove-root|Mangrove Root|wetland,coast|axe|uncommon|22|-|A twisting root that never rots in water.
+heartwood|Heartwood|forest,rainforest|axe|rare|70|-|The dark, sweet-smelling core of a very old tree.
+minnow|Minnow|wetland,grassland|rod|common|6|-|A tiddler, quick and silver.
+sardine|Sardine|coast|rod|common|7|-|Small, oily and very tasty grilled.
+perch|River Perch|wetland,forest|rod|common|9|-|Striped and spiny, from slow rivers.
+reef-fish|Reef Fish|island|rod|common|9|-|Bright as a painted tile.
+mackerel|Mackerel|coast,island|rod|uncommon|20|-|Tiger-striped and full of fight.
+trout|Brook Trout|mountain,forest|rod|uncommon|24|-|Speckled, from cold clear streams.
+arctic-char|Arctic Char|tundra|rod|uncommon|26|-|Fished through a hole in the ice.
+rainbow-fish|Rainbow Fish|rainforest,wetland|rod|uncommon|24|-|Flashes every colour in the river shallows.
+golden-carp|Golden Carp|wetland,grassland|rod|rare|80|-|An old, gold, wise-looking carp. Lucky to catch.
+moonfish|Moonfish|coast,island|rod|rare|85|-|Round, pale and silver, it only bites under a full sky.|dp=night

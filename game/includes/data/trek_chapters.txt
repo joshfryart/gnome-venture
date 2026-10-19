@@ -1,0 +1,37 @@
+# Trek chapters (v1.9.1). One block per chapter; more chapters go in this file or in trek_chapters_<name>.txt. Lines are pipe-separated:
+#   chapter|N|roman|title
+#   zone|N|letter|name|icon|style|flags      style: o = open air, u = underground (map art). flags (comma): single = fights here are always one foe,
+#                                             first30 = until the first fight is won the chance is at least 30%, pool = mud tiles here are pools
+#   ms|N|key|label|setting|short name|default XP   a milestone (main XP, paid once per player ever). The setting is made in Game settings.
+#   check|N|label|type|arg|from   a milestone check for chapters after I (Chapter I has its own code): type flag (any of the comma flags set),
+#                                 evn (trail events resolved >= arg). from = the first milestone index (0 = the first) the check counts for.
+#   (v1.9.2) check types: flag = any of the flags, all = every flag set, evn = trail events resolved >= arg, crew = every crew moment that came up was taken.
+#   lift|N|anchor|per|max   (v1.9.5: IGNORED, kept only so old data parses) foes no longer follow the gnome's main level in treks. Chapter I foes grow toward the setting trek_base_level (default 15); later chapters use the creature file + tune rows. Only TREK levels (st.tl) make the party stronger.
+#   tune|N|key|health %|+attack|+defence|+damage   key = a zone letter or a fight script name (trek_fight.php registry)
+#   finish|N|extra flag|milestones paid at the end (comma)|Petals setting|reward items (comma)|Almanac keys (comma)|title
+# The map is trek_map_ch<N>.txt, the spots are the rows of trek_spots.txt (or trek_spots_ch<N>.txt) with that chapter number, the pools are
+# the @pool rows of trek_creatures*.txt (5th field = chapter, default 1), text slots are ch<N>.* in trek_texts*.txt.
+chapter|1|I|The Withering
+zone|1|g|The Root Gate|🕳️|u|single,first30
+zone|1|w|The Wormway|🪱|u|
+zone|1|c|Lantern Stump|🏮|u|
+zone|1|f|The Grubfields|🌾|o|
+zone|1|d|The Dew Pools|💧|o|pool
+zone|1|h|Mycel Hamlet|🍄|o|
+zone|1|b|Beetle Bridge|🌉|o|single
+zone|1|r|The Black Rows|🥀|o|
+zone|1|x|Gloomtooth’s Den|🕳️|u|
+ms|1|burdock|Burdock found|trek_ms_burdock|Burdock|150
+ms|1|zinnia|Zinnia found|trek_ms_zinnia|Zinnia|250
+ms|1|bracken|Bracken found|trek_ms_bracken|Bracken|350
+ms|1|mother|Blight Mother down|trek_ms_mother|Blight Mother|500
+ms|1|gloomtooth|Gloomtooth down|trek_ms_gloomtooth|Gloomtooth|600
+ms|1|chapter|Chapter I complete|trek_ms_chapter|Chapter I|350
+tune|1|d|110|1|1|3
+tune|1|h|125|3|3|6
+tune|1|b|130|3|3|8
+tune|1|r|140|4|3|10
+tune|1|x|140|4|3|10
+tune|1|blight-mother|100|8|5|22
+tune|1|gloomtooth|160|6|4|12
+finish|1|gloomtooth_cured|gloomtooth,chapter|trek_ch1_petals|blight-shard,velvet-pelt,digging-claw|trek:ch1,trek:blightlings,trek:gloomtooth,trek:lantern-stump|Chapter I

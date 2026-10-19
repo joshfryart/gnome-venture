@@ -1,0 +1,19 @@
+# Chapter II "The Weeping Clay" (v1.9.2). This file holds II-a (Seep Steps, the Tin Lamp, the Drowned Library, Potter's Row); II-b will add its zones, milestones and the
+# finish row below the Crossroads gate. Format: see trek_chapters.txt. Milestone keys are unique per player ever, so Chapter II's start with ch2.
+chapter|2|II|The Weeping Clay
+zone|2|j|Seep Steps|💦|u|
+zone|2|k|The Tin Lamp|🏮|u|
+zone|2|l|The Drowned Library|📚|u|
+zone|2|m|Potter’s Row|🏺|u|
+ms|2|ch2_sorrel|Sorrel found|trek_ms_ch2_sorrel|Sorrel|400
+ms|2|ch2_silverfin|Silverfin cured|trek_ms_ch2_silverfin|Silverfin|1000
+ms|2|ch2a_end|Reached the Crossroads gate|trek_ms_ch2a_end|Crossroads gate|800
+check|2|Library riddle solved|flag|libdoor_solved|1
+check|2|Trail events resolved|evn|3|1
+check|2|Crew moments taken|crew||1
+check|2|Side stops visited|all|barrow_done,wheel_done,seen_nook,rest_used,kiln_open|2
+check|2|Kiln riddle solved|flag|kilnstone_solved|2
+tune|2|j|260|11|7|11
+tune|2|l|250|12|8|11
+tune|2|m|250|11|8|12
+tune|2|silverfin|106|7|3|14

@@ -1,0 +1,59 @@
+# Trek draft bodies, shipped for NEW text slots only (v1.8.8). key|body   (\n = line break; tokens like {trailmate} work).
+# The importer uses a line here only when it creates the slot: the slot starts as status "draft" with this body, so players never see a blank.
+# Existing slots (and anything Joshua has edited) are never touched. Rewrite in Admin > Trek text.
+ch1.spot.cart.before|A little handcart sits stuck in a rut, one wheel buried in black soil.\nThere is something under the cloth.
+ch1.spot.cart.win|Together you heave. The wheel pops free with a soft squelch,\nand a tidy Camp Kit tumbles out from under the cloth.
+ch1.spot.cart.fail|You push. The cart pushes back. Nothing moves, but a little more effort might.
+ch1.spot.cart.work|Slowly, patiently, you dig the wheel out a spoonful at a time.\nIt takes a while, but the cart rolls free and a Camp Kit rolls out.
+ch1.spot.cart.after|The cart sits straight now. Its owner would be glad.
+ch1.spot.mushcamp.before|A ring of tiny mushroom-folk huddles round a cold fire.\n“Brave soul! Could you spare two Beetle Shells? Our roofs are leaking.”
+ch1.spot.mushcamp.short|“Two Beetle Shells, please. Any that fall off the trail beetles will do!”
+ch1.spot.mushcamp.done|The mushroom-folk cheer and press a little purse into your hands.\n“Dry roofs tonight!”
+ch1.spot.mushcamp.after|Little roofs shine with new shells. Someone waves from a doorway.
+ch1.spot.bridgestone.question|A flat grey stone sits in the middle of the bridge, humming.\n“I sleep in a shell and wake in the dark.\nEvery tree you have ever seen began as me.”
+ch1.spot.bridgestone.a1|A pebble
+ch1.spot.bridgestone.a2|A puddle
+ch1.spot.bridgestone.a3|A seed
+ch1.spot.bridgestone.right|The stone hums happily and a smooth little pebble rolls out for you.\n“Well grown!”
+ch1.spot.bridgestone.wrong|The stone hums a low, kind note. “Think of what sleeps before it grows.”
+ch1.spot.bridgestone.out|The stone falls quiet. Perhaps it will talk to someone else, another day.
+ch1.spot.bridgestone.after|The stone hums to itself, quite pleased.
+ch1.ev.stash.text|Something glints between two roots, half-buried in soft dirt.
+ch1.ev.stash.dig|You scrape the dirt away and find a little hoard, left by some forgetful beetle.
+ch1.ev.forager.text|A tiny forager sits on a stone, basket empty, looking quite lost.
+ch1.ev.forager.help|You walk them to the right tunnel.\nThey press a sweet root into your hand and wave until you are out of sight.
+ch1.ev.fork.text|The tunnel splits in two. One way is a narrow ledge, the other a wet crawl.\nBoth seem to rejoin up ahead.
+ch1.ev.fork.win|You pick your way through and come out well ahead,\nfeeling oddly rested.
+ch1.ev.fork.fail|It is harder than it looked. You scramble out a little muddy and a little tired.
+ch1.ev.trader.text|A travelling beetle with a big pack waves you down.\n“Camp Kits, fresh-rolled! A fair price for friends.”
+ch1.ev.trader.buy|The beetle hands over a neatly rolled Camp Kit. “Safe roads!”
+ch1.ev.shrine.text|A little shrine of pebbles and old roots.\nSomeone has left a glowworm to keep it lit.
+ch1.ev.shrine.rest|You sit a while in the soft light. Aches ease and breathing slows.
+ch1.ev.shrine.bless|You whisper a thank-you. The light flickers warm,\nand your steps feel lighter.
+ch1.ev.puddle.text|A puddle glows faintly blue, quiet as a held breath.\nIt smells of rain and something sweet.
+ch1.ev.puddle.good|A sip. It is cool and clean, and a pleasant warmth spreads through everyone.
+ch1.ev.puddle.bad|Oh. That was not the right kind of puddle.\nEveryone feels a bit green for a while.
+ch1.ev.beetle.text|A small beetle lies on its back, one leg bent the wrong way, clicking weakly.
+ch1.ev.beetle.patch|You turn it over and splint the leg with a twig.\nIt clicks a thank-you.
+ch1.ev.beetle.heal|{trailmate}’s hands glow soft and green. The leg straightens,\nand the beetle scuttles a happy circle and leaves a few Petals behind.
+ch1.ev.song.text|A smooth stone stands by the path.\nWhen the air moves, it hums a slow, low tune.
+ch1.ev.song.hum|You hum along. The tune settles in your bones and the tiredness drifts off.
+ch1.ev.walkon|You nod and walk on.
+ch1.crew.burdock.talk|Burdock sniffs the air and nods at a wall of roots.\n“I can shift that, if you like. Something is tucked behind.”
+ch1.crew.burdock.done|Burdock leans in with a grunt. The roots part,\nand behind them sits a small forgotten cache. “Told you.”
+ch1.crew.zinnia.talk|Zinnia hums as she walks, then stops.\n“Everyone looks a little wilted. Come here, all of you.”
+ch1.crew.zinnia.done|Warm green light drifts over the party.\nEveryone stands a little taller.
+ch1.crew.bracken.talk|Bracken flicks his wings and squints ahead.\n“Give me a moment. I will take a look.”
+ch1.crew.bracken.done|Bracken hops up on a ledge and points.\n“That way. I can see further from up here.”
+# v1.8.9 trek levels + milestones
+ch1.tut.treklevel|Fights and the trail make your whole party stronger down here: more health, better aim, harder hits.\nTrailmates who join late catch up fast.\nYour gnome’s own level grows at milestones, like finding people and bringing down big foes.
+ch1.ms.burdock|One friend found. The tunnels feel a little less lonely.
+ch1.ms.zinnia|Two friends now, and the dew pools sing a little.
+ch1.ms.bracken|The whole party stands together. It feels like a team.
+ch1.ms.mother|The Blight Mother is down. The air tastes a little cleaner.
+ch1.ms.gloomtooth|Gloomtooth is himself again, and the deep breathes out.
+ch1.ms.chapter|The climb is behind you. Take a breath before whatever comes next.
+interlude.1.intro|The den is quiet. Roots curl around a small hollow, and the Blight Shard sits on a stone, humming low.\nThis is a good place to rest, to talk, and to decide when to go on.
+interlude.1.burdock|The den feels wrong without Gloomtooth rumbling in it. Good wrong.\nBut that shard is still pulling toward something deeper. I will go first, {gnome}. Roots hold better than tunnels.
+interlude.1.zinnia|I have patched everyone twice. Do not tell Burdock he winced.\nThe shard smells of wet clay and old water. Something down there is crying, I think.
+interlude.1.bracken|I walked the edge of the new tunnel. It slopes down, cold and dripping.\nGive me a lantern and a quiet hour, {gnome}, and I will tell you where the floor ends.

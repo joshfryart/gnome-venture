@@ -1,0 +1,61 @@
+# Random events while browsing (v0.7.19). Imported into the random_events table; edit them in Admin → Random events.
+# slug | weight | kind | effect | icon | title | text | button
+#
+# kind:   instant (happens at once) · click (one button to claim) · choice (shooting star: pick one of three) · game (a quick chance game)
+# weight: how often, compared with the others (10 = normal, 3 = rare)
+# effect: coins:MIN-MAX · item:slug:qty · rand:seed|flowerseed|treeseed|forage|food|soil|uncommon · energy:N · xp:N
+#         buff:stat:amount:minutes · water (waters the active garden) · tip · landmark · swapseed · friendmail · community:energy:N
+#         star (choice of three) · rps (rock-paper-trowel) · duel · pebbles · duck
+# Several effects can be joined with + (e.g. coins:20-40+xp:5).
+
+ladybug|10|instant|buff:luck:2:60|🐞|A ladybug lands on your hat|It sits there, perfectly still, looking very pleased with itself. You feel lucky! (+2 Luck for an hour)|
+wren-seeds|10|instant|rand:seed|🐦|Wren drops by|“I had a spare seed packet. You’ll put it to better use than me!”|
+gust|10|instant|coins:10-30|🍃|A gust of wind|A sudden breeze blows a few Petals right into your hands.|
+snail-trail|8|instant|item:acorn-cap:1|🐌|A shiny snail trail|You follow it under a hedge and find a perfect little acorn cap.|
+hedgehog|8|instant|rand:forage|🦔|A snuffling hedgehog|It roots around in the leaves, finds something, and drops it at your feet before trundling off.|
+shower|7|instant|water|🌦️|A sudden shower!|Rain patters down on your garden. Everything that was thirsty has had a good drink.|
+magpie|7|instant|rand:uncommon|🐦‍⬛|A magpie!|It snatches something shiny from your hat… then drops something even shinier as it flies away.|
+root-trip|10|instant|item:earthworm:1|🪱|Whoops!|You trip over a root. While you’re down there, an earthworm says hello.|
+moss-tea|9|instant|energy:10|🍵|Old Moss waves you over|“Sit a minute, have a cup of tea.” You feel refreshed. (+10 energy)|
+coin-purse|7|instant|coins:30-80|👛|A coin purse!|Tucked under a toadstool, forgotten by some careless traveller.|
+crow-lecture|8|instant|xp:5|🐦‍⬛|A grumpy crow|It lectures you at length about the proper placement of scarecrows. You do learn something. (+5 XP)|
+butterfly|8|instant|xp:8|🦋|A butterfly lands on your sleeve|You watch its wings open and close, and make a note in your Almanac. (+8 XP)|
+rps|6|game|rps|✊|A rival gnome appears!|“Rock, paper, trowel! Best of one, for a handful of Petals!”|
+squirrel|6|instant|rand:treeseed|🐿️|A busy squirrel|It buries something in your satchel by mistake and scampers away. Oh well, finders keepers!|
+hat-chase|8|click|coins:20-50|🎩|Your hat blows off!|It tumbles away down the path, end over end…|🏃 Chase it!
+frog-choir|8|instant|buff:charm:2:60|🐸|A tiny frog choir|They sing you a song so sweet that you can’t stop smiling. (+2 Charm for an hour)|
+compost-burp|9|instant|item:plain-compost:1|♻️|The compost heap burps|A warm, crumbly scoop of compost rolls out. Lovely.|
+duckling|6|click|duck|🦆|A lost duckling|It’s following you, peeping. It must have wandered away from the pond.|🦆 Take it home
+spider-map|6|instant|landmark|🕸️|A spider’s web, sparkling with dew|The threads look almost like a map…|
+shooting-star|4|choice|star|🌠|A shooting star!|Quick, make a wish!|
+mole-swap|6|instant|swapseed|🐾|A mole pops up|It sniffs one of your seed packets, swaps it for a different one, and vanishes. Moles!|
+pie|8|instant|rand:food|🥧|A kindly old gnome|“You look peckish, dear. Take a pie.”|
+raccoon|6|instant|rand:uncommon|🦝|A raccoon in your satchel!|It rummages, finds nothing it likes, and leaves a little trinket behind as an apology.|
+snail-mail|5|instant|friendmail|✉️|Snail mail|A snail arrives with a parcel. It took a while, but it got here!|
+dew|9|instant|xp:5|💧|Morning dew sparkles|The whole Hollow glitters for a moment. (+5 XP)|
+ants|8|instant|rand:seed|🐜|An ant parade|You follow a trail of ants carrying crumbs… straight to a dropped seed packet.|
+chime|5|instant|xp:15|🎐|A wind chime sings|You stand and listen until the tune is stuck in your head. (+15 XP)|
+traveller|8|instant|coins:20-40|🧳|A lost traveller|You point them the right way and they insist on giving you a tip.|
+beetle-knight|5|game|duel|🪲|A beetle knight challenges you!|“Have at thee, gnome!” It waves a very small sword.|
+dandelion|8|instant|rand:flowerseed|🌼|A dandelion clock|You blow it and the seeds drift away… except a few that land in your satchel.|
+owl-tip|7|instant|tip+xp:3|🦉|An owl at noon|Which is odd. It blinks at you and says something wise.|
+feather|8|instant|item:pretty-feather:1|🪶|A feather drifts down|Striped and soft. Surely useful for something.|
+tremor|2|instant|item:geode:1|🌋|A tiny tremor!|The ground shivers and a round stone pops out of the soil. It rattles when you shake it: a geode!|
+bakeoff|8|instant|rand:food|🧁|The smell of the village bake-off|You follow your nose and someone hands you a sample.|
+statue|7|instant|buff:luck:2:60|🗿|A garden-gnome statue winks at you|You’re almost sure it did. (+2 Luck for an hour)|
+pebbles|7|game|pebbles|🪨|Pebble skipping with a toad|“Bet you can’t beat my four skips.”|🪨 Skip a pebble
+leaf-pile|9|instant|item:leaf-mould:1|🍂|A big pile of leaves|You jump right in! At the bottom it’s gone soft and crumbly.|
+wheelbarrow|7|instant|rand:soil|🛒|A forgotten wheelbarrow|Nobody seems to own it. There’s still something useful in the bottom.|
+old-tree|2|instant|community:energy:5|🌳|The Hollow’s oldest tree hums|Everyone in the Hollow right now feels a little lighter. (+5 energy for every gnome online)|
+quiet-moment|6|instant|energy:5+xp:2|☁️|A quiet moment|You sit on a mossy stone and watch the clouds for a while. (+5 energy)|
+
+# v0.7.31: the last nine
+fairy-ring|5|instant|fairyring|🍄|A fairy ring!|You step into a ring of tiny mushrooms and something tingles. Your next harvest will be a generous one.|
+bee|6|instant|bee|🐝|A busy bee|It bumbles straight into your garden and dusts one of your crops with pollen. That one will give extra.|
+fireflies|6|instant|fireflies|✨|Fireflies!|A cloud of fireflies gathers around your hat. They’ll light your next walk, so you’re there in a flash.|
+riddle|5|game|riddle|📜|A letter with a riddle|“Answer my riddle and a prize is yours.” It isn’t signed.|
+moonlit|5|instant|moonlit|🌙|Moonlight on the garden|A silver moon peeks out, and everything you’re growing stretches toward it.|
+rainbow|4|instant|rainbow|🌈|A rainbow!|It ends somewhere out on the threads. For the next hour, your gathering brings home double.|
+weather-vane|5|instant|sale|🐓|The weather vane spins|…and points straight at the shops. For the next 30 minutes, everything costs you 20% less.|
+puddle-hat|5|click|item:puddle-hat:1|🎩|A hat in a puddle|Someone has lost a very fine hat. It’s soggy, but it’s yours now.|🎩 Pick it up
+caterpillar|6|instant|caterpillar|🐛|A hungry caterpillar|It munches its way through the weeds in your beds, then naps on a leaf.|

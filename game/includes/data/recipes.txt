@@ -1,0 +1,99 @@
+# slug | Dish name | ingredients (crop slug:qty, comma separated) | meal buff (stat:+n, ...) | buff minutes | energy GIVEN when eaten (v0.9.4: the real number, not /5) | description | tier (snack, meal, feast or preserve) | cook minutes | items per batch (preserve only)
+# Stats: grit, nimble, hardiness, lore, sense, charm, luck. A recipe is discovered once you've harvested all its ingredients.
+garden-vegetable-soup|Garden Vegetable Soup|tomato:2,carrot:2,onion:1|hardiness:3,grit:1|240|11|A warm bowl that makes you feel ready for anything.|meal|15
+three-sisters-stew|Three Sisters Stew|corn:2,kidney-bean:2,pumpkin:1|grit:3,hardiness:2|300|11|Corn, beans and squash, simmered together just as they grow together.|meal|15
+berry-tart|Berry Tart|strawberry:3,wheat:2|nimble:3,charm:1|180|11|Flaky, sticky and gone in two bites.|meal|15
+herb-flatbread|Herb Flatbread|wheat:2,basil:1,parsley:1|lore:2,sense:2|180|9|Warm bread speckled green with fresh herbs.|meal|15
+rice-and-beans|Rice and Beans|rice:2,black-bean:2|grit:2,hardiness:2|240|9|Simple, filling, and loved the world over.|meal|15
+potato-leek-soup|Potato and Leek Soup|potato:2,leek:2|hardiness:3,sense:1|240|9|Silky soup for a damp day.|meal|15
+pickled-radishes|Pickled Radishes|radish:2,dill:1|sense:2,luck:1|180|6|Crunchy, tangy and bright pink.|snack|3
+garden-salad|Garden Salad|lettuce:2,cucumber:1,tomato:1|nimble:2,hardiness:1|120|8|Crisp leaves picked minutes ago.|snack|3
+mint-tea|Mint Tea|mint:2|sense:2|120|4|Steaming and sweet. Clears the head.|snack|3
+carrot-cake|Carrot Cake|carrot:3,wheat:2|charm:2,luck:1|240|11|Everyone suddenly wants to be your friend.|meal|15
+lentil-dal|Lentil Dal|lentil:3,onion:1,turmeric:1|lore:2,hardiness:2|300|12|Golden, gently spiced and deeply comforting.|meal|15
+tropical-fruit-bowl|Tropical Fruit Bowl|mango:1,pineapple:1,banana:1|nimble:3,luck:1|180|5|Sunshine in a bowl.|snack|3
+roasted-roots|Roasted Roots|beet:2,carrot:2,turnip:1|grit:2,hardiness:2|240|11|Caramelised at the edges, sweet in the middle.|meal|15
+chickpea-stew|Chickpea Stew|chickpea:3,tomato:2|grit:2,lore:1|240|11|Hearty enough for a long walk.|meal|15
+coconut-curry|Coconut Curry|coconut:1,rice:2,chili-pepper:1|charm:2,grit:2|300|8|Creamy, fiery and fragrant.|meal|15
+apple-crumble|Apple Crumble|apple:3,oats:2|hardiness:2,charm:2|240|9|Warm apples under a buttery oat crust.|meal|15
+cornbread|Cornbread|corn:3|grit:1|120|6|Golden squares, still warm.|snack|3
+sunflower-snack|Toasted Sunflower Seeds|sunflower:3|nimble:1,sense:1|120|6|A pocketful of crunch for the road.|snack|3
+fiery-pickled-cabbage|Fiery Pickled Cabbage|napa-cabbage:2,chili-pepper:1,garlic:1|grit:3,luck:1|300|9|Fermented, spicy and good for your insides.|meal|15
+peanut-toast|Peanut Toast|peanut:2,wheat:1|lore:2|180|6|Sticky, salty and surprisingly brain-boosting.|snack|3
+hot-cocoa|Hot Cocoa|cacao:2,sugarcane:1|charm:3,luck:1|180|6|A mug of happiness.|snack|3
+green-pea-soup|Green Pea Soup|pea:3,onion:1|hardiness:2,sense:1|180|9|Bright green and sweet.|meal|15
+# Foraged dishes (v0.7.5): gathered on adventures plus your own crops
+mushroom-toast|Mushroom Toast|chanterelle:2,wheat:1|lore:2,grit:1|180|4|Golden chanterelles fried in butter on thick toast.|snack|3
+ramson-pesto|Ramson Pesto|ramsons:2,basil:1,garlic:1|sense:2,charm:1|180|6|Wild garlic leaves pounded green and glossy.|snack|3
+morel-risotto|Morel Risotto|morel:1,rice:2,onion:1|lore:3,luck:2|300|8|A rare mushroom makes an ordinary pot of rice unforgettable.|meal|15
+wild-berry-jam|Wild Berry Jam|wild-strawberries:2,bilberries:2|nimble:2,luck:1|240|4|Two kinds of tiny berry, boiled down to a jar of summer.|snack|3
+meadowsweet-tea|Meadowsweet Tea|meadowsweet:2|sense:1,hardiness:1|120|2|Smells of honey and almonds. Soothes sore legs.|snack|3
+desert-sage-tea|Desert Sage Tea|desert-sage:2|lore:2|120|2|Smoky and clean. Sharpens the memory.|snack|3
+mesquite-flatbread|Mesquite Flatbread|mesquite-pods:2,wheat:1|grit:2,hardiness:1|180|4|Sweet, nutty bread from ground pods.|snack|3
+fiddlehead-fry|Fiddlehead Fry|fiddleheads:2,garlic:1|nimble:2,sense:1|180|4|Curled fern tips, crisp and green.|snack|3
+cattail-fritters|Cattail Fritters|cattail-root:2,wheat:1|hardiness:2,grit:1|180|4|Crunchy little fritters from marsh roots.|snack|3
+mussel-broth|Mussel Broth|blue-mussels:3,sea-salt:1,onion:1|hardiness:3,charm:1|240|7|A steaming bowl that tastes of the sea.|meal|15
+samphire-salad|Samphire Salad|samphire:2,lettuce:1,tomato:1|sense:2,nimble:1|150|6|Salty, crunchy sea asparagus over crisp leaves.|snack|3
+sea-grape-sorbet|Sea Grape Sorbet|sea-grapes:3,mint:1|nimble:2,charm:2|150|5|Icy, sweet and a little sharp.|snack|3
+crowberry-cordial|Crowberry Cordial|crowberries:3,mint:1|hardiness:2,luck:1|180|5|A dark, warming drink for cold evenings.|snack|3
+# v0.7.81: fish from the rod (gatherables work as ingredients, the same as mussel broth's blue mussels)
+grilled-sardines|Grilled Sardines|sardine:3,lemon:1|grit:2|120|4|Crispy little fish with a squeeze of something sharp.|snack|3
+fishermans-stew|Fisherman’s Stew|perch:2,potato:2,onion:1|hardiness:3|240|9|A pot that warms the whole boat.|meal|15
+smoked-trout|Smoked Trout|trout:2|sense:2,lore:1|180|2|Pink, smoky and rich.|snack|3
+mackerel-rice|Mackerel Rice Bowl|mackerel:1,rice:2|nimble:2,grit:1|180|6|Seared fish on fluffy rice.|meal|15
+golden-carp-feast|Golden Carp Feast|golden-carp:1,carrot:2,onion:2|luck:3,charm:2|360|10|A rare feast for a lucky day.|meal|15
+# v0.7.96 feasts: need a level 3 Kitchen (slug starts with "feast-"). Big, long-lasting buffs; lots of ingredients, so never an energy profit.
+feast-harvest-pie|Harvest Home Pie|pumpkin:2,potato:2,carrot:2,onion:1,wheat:3,thyme:1|hardiness:4,grit:3|480|24|A golden pie the size of a cartwheel, packed with the whole harvest.|feast|45
+feast-forest-roast|Forest Feast|chanterelle:2,morel:1,potato:3,garlic:2,rosemary:1|sense:4,lore:3|480|17|Wild mushrooms roasted with garlic and rosemary. It smells like an old wood after rain.|feast|45
+feast-riverside-bake|Riverside Trout Bake|trout:2,lemon:1,leek:2,potato:2,green-bean:2|nimble:4,sense:3|480|18|Fresh trout baked on a bed of leeks and potatoes, with a squeeze of lemon.|feast|45
+feast-orchard-crumble|Orchard Crumble|apple:3,pear:2,plum:2,barley:2,garden-honey:1|charm:4,luck:3|480|16|Three orchards in one dish, under a honeyed crumble.|feast|45
+feast-summer-table|Long Summer Table|tomato:3,bell-pepper:2,basil:2,garlic:1,rice:2,black-bean:2|grit:3,nimble:3,charm:2|480|26|Enough for the whole street. Everyone brings a chair.|feast|45
+feast-berry-honey-cake|Berry and Honey Cake|strawberry:2,blueberry:2,raspberry:2,wheat:3,garden-honey:2,hazelnut:1|luck:4,charm:3|480|25|Three kinds of berries, your own honey, and a crunch of hazelnut on top.|feast|45
+# v0.9.7 regional feasts: each needs one or two of a region's treasure crops, so a far-off garden pays off. Same rules as above: Kitchen III, "feast-" slug, 480 minutes of buff.
+feast-maplewold-table|Maplewold Harvest Table|pecan:2,cranberry:1,pumpkin:2,potato:2,corn:2,wild-rice:1|hardiness:4,grit:3|480|22|Pecan-crusted squash, cranberry relish and wild rice: the Maplewold's whole autumn on one table.|feast|45
+feast-maizehollow-mole|Maizehollow Mole Feast|cacao:2,chili-pepper:2,corn:3,black-bean:2,tomatillo:1|grit:4,charm:3|480|21|Dark chocolate mole poured over steaming corn and beans. Sweet first, then a slow warm kick.|feast|45
+feast-isles-ackee-pot|Sunsprinkle Ackee Pot|ackee:2,nutmeg:1,plantain:2,sweet-potato:2,pigeon-pea:2,lime:1|nimble:4,luck:3|480|22|Golden ackee, sweet plantain and a grating of fresh nutmeg, simmered the island way.|feast|45
+feast-olivewhistle-supper|Olivewhistle Shore Supper|chestnut:2,caper:1,olive:2,artichoke:2,fava-bean:2,lemon:1,oregano:1|sense:4,charm:3|480|22|Roast chestnuts, olives and artichokes with lemon, eaten slowly while the sun goes down on the sea.|feast|45
+feast-steppe-table|Birchbramble Steppe Table|walnut:2,quince:2,buckwheat:3,beet:2,plum:1,onion:1|hardiness:4,lore:3|480|22|Buckwheat and beets with crushed walnuts, baked quince and plum, all warm from the steppe oven.|feast|45
+feast-dunewhisper-pilaf|Dunewhisper Saffron Pilaf|saffron:2,pistachio:2,rice:3,chickpea:2,onion:1,garlic:1|charm:4,luck:3|480|22|Rice the colour of sunrise, scattered with pistachios and almonds. A guest-of-honour dish.|feast|45
+feast-spicepeak-thali|Spicepeak Thali|black-pepper:1,cinnamon:1,lentil:2,rice:3,chickpea:2,turmeric:1,onion:1|sense:4,hardiness:3|480|22|A big round tray of little dishes, each spiced a different way. Finish the whole thing if you dare.|feast|45
+feast-mistmoor-supper|Mistmoor Cloudberry Supper|cloudberry:2,hazelnut:1,leek:2,barley:3,potato:2,thyme:1|hardiness:4,luck:3|480|23|Barley and leek broth, then cloudberries with toasted hazelnuts, eaten while the mist rolls in.|feast|45
+# v0.9.8 Pantry preserves: tier "preserve" (made in a Pantry jar, category "pantry"). Cook minutes = REAL minutes in the jar (jam 1440 = 1 day, chutney 2 days, pickles 3, kimchi 5, sauerkraut 7, cordials 14).
+# The last column is how many come out of one batch (one jar = one batch). Buff minutes are long (720 = 12 h, 1440 = 24 h) and small. A preserve with no buff leaves the buff columns empty/0.
+# Sale price is worked out when the item is made: more than the crops would fetch, and more the longer it takes. Never spoils; every townsfolk likes one as a gift.
+strawberry-jam|Strawberry Jam|strawberry:5||0|3|Sweet, sticky and bright red. A whole June in a jar.|preserve|1440|4
+plum-jam|Plum Jam|plum:5|charm:1|720|3|Dark, tart and glossy. Smooths over awkward conversations.|preserve|1440|4
+raspberry-jam|Raspberry Jam|raspberry:5||0|3|Seedy, tangy and gone from the toast before you turn round.|preserve|1440|4
+tomato-chutney|Tomato Chutney|tomato:4,onion:1,chili-pepper:1|grit:1|720|5|Sweet, sharp and slow-cooked until it shines. Wonderful with cheese.|preserve|2880|3
+apple-chutney|Apple Chutney|apple:3,onion:1,ginger:1|lore:1|720|5|Chunky and gingery. It improves in the jar, they say, and so does everyone who eats it.|preserve|2880|3
+mango-chutney|Mango Chutney|mango:2,ginger:1,chili-pepper:1|charm:1|720|5|Golden, spiced and a little bit fierce.|preserve|2880|3
+dill-pickles|Dill Pickles|cucumber:4,dill:1,garlic:1|sense:1|720|4|Crunchy, sour and green. The brine is the best bit.|preserve|4320|3
+pickled-beets|Pickled Beets|beet:4,onion:1|hardiness:1|720|4|Ruby slices that stain everything they touch.|preserve|4320|3
+pickled-green-beans|Pickled Green Beans|green-bean:5,dill:1,garlic:1|nimble:1|720|4|Snappy little spears in garlicky brine.|preserve|4320|3
+kimchi|Kimchi|napa-cabbage:3,chili-pepper:1,garlic:1,ginger:1|grit:2,sense:1|1080|6|Fermented, fiery and fizzing a little when you open the jar.|preserve|7200|3
+sauerkraut|Sauerkraut|cabbage:4|hardiness:1,grit:1|1080|5|Shredded, salted and left alone for a week. Good for you, say the old gnomes.|preserve|10080|4
+elderberry-cordial|Elderberry Cordial|elderberry:5,mint:1|hardiness:2,sense:1|1440|4|Dark, sweet and warming. Two weeks in a cool cupboard makes it syrupy.|preserve|20160|3
+mixed-berry-cordial|Mixed Berry Cordial|blueberry:3,raspberry:3,mint:1|charm:2,luck:1|1440|4|A ruby cordial that tastes of every hedgerow at once.|preserve|20160|3
+ginger-apple-cordial|Ginger and Apple Cordial|ginger:3,apple:2|nimble:2,grit:1|1440|4|Sharp ginger over sweet apple. It wakes you right up.|preserve|20160|3
+# v1.1.0 egg dishes: Hen Eggs come from Biddy the hen (trade her Food Scraps at the garden fence). Holding or ever trading for an egg counts as "collected" for discovery.
+scrambled-eggs|Scrambled Eggs|hen-egg:2,parsley:1|nimble:1,sense:1|120|7|Soft, buttery and quick. A proper start to the day.|snack|3
+pancakes|Pancakes|hen-egg:1,wheat:2|nimble:2,charm:1|150|8|A tall stack, golden on both sides.|snack|3
+devilled-eggs|Devilled Eggs|hen-egg:3,dill:1|charm:2,luck:1|150|7|Boiled, mashed, piped back in and finished with a sprig of dill.|snack|3
+egg-fried-rice|Egg Fried Rice|hen-egg:2,rice:2,onion:1,pea:1|nimble:2,grit:2|240|11|Day-old rice, hot pan, a swirl of egg. Done in minutes.|meal|15
+spanish-tortilla|Spanish Tortilla|hen-egg:3,potato:3,onion:1|hardiness:3,grit:1|240|12|A thick potato omelette, flipped on a plate and cut in wedges.|meal|15
+shakshuka|Shakshuka|hen-egg:2,tomato:3,bell-pepper:1,onion:1|grit:2,sense:2|240|12|Eggs poached in a bubbling pan of spiced tomato and peppers.|meal|15
+spinach-quiche|Spinach Quiche|hen-egg:2,wheat:2,spinach:2|hardiness:2,lore:2|240|11|Crisp pastry, a wobbly green filling and a golden top.|meal|15
+custard-tart|Custard Tart|hen-egg:3,wheat:2,vanilla:1|charm:3,luck:1|180|10|Silky vanilla custard in a buttery shell.|meal|15
+asparagus-frittata|Asparagus Frittata|hen-egg:3,asparagus:2,leek:1|sense:2,nimble:2|240|11|Spring spears and sweet leek baked into a fluffy egg round.|meal|15
+feast-egg-pie|Savoury Egg Pie|hen-egg:6,wheat:3,leek:2,potato:2,spinach:2,thyme:1|hardiness:4,sense:3|480|20|A deep pie of eggs, leek and spinach under a lid of golden pastry. Cut it hot.|feast|45
+pickled-eggs|Pickled Eggs|hen-egg:4,beet:2,dill:1|sense:1|720|4|Pink-stained and tangy, from a jar of beet brine. A pub favourite.|preserve|4320|3
+# v1.2.0 quail egg and goat dishes: Quail Eggs come from the Quail Coop, Goat Milk from Clementine the goat over the fence (goat cheese is made in the Pantry from milk). Holding or ever receiving one counts as "collected".
+goat-cheese|Goat Cheese|goat-milk:4||0|4|Soft, tangy rounds of cheese, set in a jar from a day or two of patience and warm milk.|preserve|2880|3
+quail-egg-toast|Quail Egg Toast|quail-egg:4,wheat:1,parsley:1|nimble:1,charm:1|120|7|Little fried eggs on buttered toast, each one a single bite.|snack|3
+goat-cheese-salad|Goat Cheese Salad|goat-cheese:1,lettuce:2,tomato:1|charm:1,sense:1|120|8|Crisp leaves and a crumble of tangy cheese.|snack|3
+goat-milk-porridge|Goat Milk Porridge|goat-milk:2,oats:2|hardiness:2,grit:1|180|8|Oats simmered slow in creamy goat milk. A cold-morning bowl.|snack|3
+quail-egg-rice-bowl|Quail Egg Rice Bowl|quail-egg:4,rice:2,spinach:1|nimble:2,grit:1|240|10|Steamed rice, wilted spinach and a row of tiny jammy eggs.|meal|15
+scotch-quail-eggs|Scotch Quail Eggs|quail-egg:6,wheat:2,thyme:1|grit:2,hardiness:2|240|11|Soft-boiled quail eggs wrapped in a crisp herby crust.|meal|15
+stuffed-peppers-goat|Goat Cheese Stuffed Peppers|goat-cheese:2,bell-pepper:2,basil:1|sense:2,charm:2|240|11|Roasted pepper boats filled with warm, herby goat cheese.|meal|15
+goat-cheese-tart|Goat Cheese and Quail Egg Tart|goat-cheese:1,quail-egg:3,wheat:2,onion:1|hardiness:2,lore:2|240|12|Flaky pastry, sweet onion, goat cheese and a scatter of quail eggs.|meal|15
+pickled-quail-eggs|Pickled Quail Eggs|quail-egg:8,beet:1,dill:1|sense:1|720|4|Tiny pink-stained eggs in a jar of beet brine. Gone in a night.|preserve|4320|3

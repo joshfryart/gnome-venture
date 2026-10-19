@@ -1,0 +1,201 @@
+# slug | Name | kind | tier (1 fast - 6 slow) | perennial (1 = keeps producing) | short description
+# kinds: vegetable, tuber, legume, grain, fruit, tree, nut, herb, spice
+tomato|Tomato|vegetable|3|0|Botanically a fruit. First domesticated in Mesoamerica, now grown almost everywhere.
+potato|Potato|tuber|3|0|Domesticated in the Andes thousands of years ago. Grown from seed potatoes.
+onion|Onion|vegetable|3|0|One of the oldest cultivated vegetables, grown since ancient Egypt.
+garlic|Garlic|vegetable|4|0|Planted clove by clove. Each clove becomes a whole new bulb.
+carrot|Carrot|vegetable|2|0|Early carrots were purple and yellow. Orange ones became popular later in Europe.
+cabbage|Cabbage|vegetable|3|0|A hardy leafy head that stores for months, pickled into sauerkraut and more.
+lettuce|Lettuce|vegetable|1|0|Fast-growing salad leaf. Ancient Egyptians grew it too.
+radish|Radish|vegetable|1|0|One of the quickest crops there is. Perfect for impatient gardeners.
+spinach|Spinach|vegetable|1|0|Tender leaves that grow best in cool weather.
+cucumber|Cucumber|vegetable|2|0|A climbing vine, first grown in South Asia. Mostly water and very refreshing.
+pumpkin|Pumpkin|vegetable|4|0|A sprawling vine with huge fruits. Native to the Americas.
+eggplant|Eggplant|vegetable|3|0|Also called aubergine or brinjal. Domesticated in Asia.
+bell-pepper|Bell Pepper|vegetable|3|0|A sweet, mild pepper. Dried and ground, some varieties become paprika.
+chili-pepper|Chili Pepper|vegetable|3|0|Its heat comes from capsaicin. Spread worldwide from the Americas.
+okra|Okra|vegetable|2|0|Heat-loving pods used to thicken stews like gumbo.
+sweet-potato|Sweet Potato|tuber|3|0|Sweet roots and edible leaves. Called kumara in New Zealand.
+cassava|Cassava|tuber|5|0|Also called yuca or manioc. A staple root for hundreds of millions of people. Must be cooked properly.
+yam|Yam|tuber|5|0|Large starchy tubers, central to West African cooking and festivals.
+taro|Taro|tuber|4|0|Grown in wet fields for its corms and leaves. Called dalo, kalo and dasheen.
+beet|Beetroot|vegetable|2|0|Deep red roots, the base of borscht.
+turnip|Turnip|vegetable|2|0|Quick roots and peppery greens, grown since ancient times.
+leek|Leek|vegetable|3|0|A mild cousin of the onion and a national emblem of Wales.
+celery|Celery|vegetable|3|0|Crunchy stalks that need steady water.
+cauliflower|Cauliflower|vegetable|3|0|A dense head of flower buds, usually white but sometimes purple or orange.
+broccoli|Broccoli|vegetable|3|0|Bred from wild cabbage in Italy.
+kale|Kale|vegetable|2|0|Tough, frost-sweetened leaves. Key to Portugal's caldo verde soup.
+collard|Collard Greens|vegetable|2|0|Broad leaves known as sukuma wiki in East Africa.
+bok-choy|Bok Choy|vegetable|1|0|A fast Chinese cabbage with crisp white stems.
+napa-cabbage|Napa Cabbage|vegetable|2|0|Tall, pale Chinese cabbage, the heart of kimchi.
+daikon|Daikon|vegetable|2|0|A long, mild white radish central to Japanese and Korean cooking.
+kohlrabi|Kohlrabi|vegetable|2|0|A cabbage relative with a swollen, apple-sized stem.
+brussels-sprouts|Brussels Sprouts|vegetable|4|0|Tiny cabbages up a tall stalk, named after Brussels.
+asparagus|Asparagus|vegetable|5|1|Spears return every spring for decades from the same roots.
+artichoke|Artichoke|vegetable|5|1|The edible part is an unopened thistle flower.
+fennel|Fennel|vegetable|3|0|Anise-scented bulb and feathery fronds.
+horseradish|Horseradish|vegetable|4|1|A fiery root that spreads eagerly once planted.
+rhubarb|Rhubarb|vegetable|4|1|Tart pink stalks. Only the stalks are eaten. The leaves are toxic.
+chayote|Chayote|vegetable|4|1|A climbing squash with pear-shaped fruit.
+tomatillo|Tomatillo|vegetable|3|0|A tangy husked fruit, the base of Mexican salsa verde.
+bitter-melon|Bitter Melon|vegetable|3|0|A warty, very bitter gourd treasured across Asia.
+kangkong|Water Spinach|vegetable|1|0|Hollow-stemmed greens that grow in water. Very fast.
+amaranth|Amaranth|vegetable|2|0|Grown for both leaves and grain. Called callaloo in Jamaica.
+jute-mallow|Jute Mallow|vegetable|2|0|The leaves make molokhia, a beloved Egyptian soup.
+perilla|Perilla|herb|2|0|Fragrant leaves used to wrap food in Korea.
+lotus-root|Lotus Root|vegetable|5|0|The rhizome of the water lily, lacy with holes when sliced.
+bamboo-shoot|Bamboo Shoot|vegetable|5|1|Young bamboo, harvested as it bursts from the ground.
+egusi|Egusi Melon|vegetable|4|0|A melon grown for its seeds, ground into rich West African soups.
+green-bean|Green Bean|legume|2|0|Tender young pods eaten whole. Long beans are a close relative.
+pea|Pea|legume|2|0|Cool-season climber. Used by Gregor Mendel in early genetics research.
+chickpea|Chickpea|legume|3|0|The base of hummus, falafel and chana masala.
+lentil|Lentil|legume|3|0|One of the first crops ever domesticated, in the Fertile Crescent.
+fava-bean|Fava Bean|legume|3|0|Broad beans. In Egypt they become ful medames.
+black-bean|Black Bean|legume|3|0|A shiny bean central to Cuban, Brazilian and Venezuelan cooking.
+kidney-bean|Kidney Bean|legume|3|0|Common beans come in many colours. Must be well cooked before eating.
+soybean|Soybean|legume|3|0|Domesticated in China. Becomes tofu, soy sauce and edamame.
+peanut|Peanut|legume|4|0|Flowers above ground, then pushes its pods into the soil to ripen.
+cowpea|Cowpea|legume|3|0|Also called black-eyed pea. Very tough in heat and drought.
+pigeon-pea|Pigeon Pea|legume|4|0|A drought-hardy bush bean, used in dal and Caribbean rice and peas.
+mung-bean|Mung Bean|legume|2|0|Small green beans, often sprouted.
+adzuki|Adzuki Bean|legume|3|0|A small red bean, sweetened into paste for East Asian desserts.
+bambara|Bambara Groundnut|legume|4|0|An African legume that ripens underground like a peanut.
+corn|Maize|grain|4|0|Domesticated in Mexico from a wild grass called teosinte.
+rice|Rice|grain|4|0|Feeds more people than any other crop. Usually grown in flooded paddies.
+wheat|Wheat|grain|4|0|The grain behind bread and pasta, first farmed in the Fertile Crescent.
+barley|Barley|grain|4|0|An ancient grain used for bread, soups and malting.
+rye|Rye|grain|4|0|Thrives in cold, poor soil. Makes dark northern breads.
+oats|Oats|grain|4|0|Loves cool, damp climates. Porridge's best friend.
+millet|Millet|grain|3|0|Small, tough grains that survive heat and drought.
+sorghum|Sorghum|grain|4|0|A heat-proof cereal that is a staple across Africa and South Asia.
+teff|Teff|grain|3|0|A tiny Ethiopian grain, fermented into spongy injera bread.
+fonio|Fonio|grain|2|0|A tiny West African grain, among the fastest-maturing cereals.
+quinoa|Quinoa|grain|4|0|An Andean seed crop that grows at high altitude.
+buckwheat|Buckwheat|grain|2|0|Not actually wheat. Used for soba, kasha and buckwheat pancakes.
+sesame|Sesame|grain|3|0|One of the oldest oilseed crops. Pods burst open when ripe.
+sunflower|Sunflower|grain|3|0|Young heads follow the sun. Grown for oil and snacking seeds.
+hibiscus|Roselle|vegetable|3|0|Its red calyces make bissap, karkadé and Caribbean sorrel drinks.
+watermelon|Watermelon|fruit|4|0|Wild ancestors grew in Africa. A summer favourite worldwide.
+melon|Melon|fruit|4|0|Sweet muskmelons, prized in Central Asia for centuries.
+strawberry|Strawberry|fruit|3|1|Spreads by runners, producing berries year after year.
+grape|Grape|fruit|5|1|Vines can live for over a century. Eaten fresh, dried or made into wine.
+pineapple|Pineapple|fruit|5|1|Takes well over a year to fruit. Native to South America.
+blueberry|Blueberry|fruit|5|1|Bushes that love acidic soil. Native to North America.
+raspberry|Raspberry|fruit|4|1|Canes that fruit on a yearly cycle.
+lingonberry|Lingonberry|fruit|5|1|Tart red berries from Nordic forests, served with meatballs.
+cloudberry|Cloudberry|fruit|5|1|A rare amber berry of Arctic bogs. Hard to cultivate.
+blackcurrant|Blackcurrant|fruit|5|1|Rich in vitamin C and very tart.
+gooseberry|Gooseberry|fruit|5|1|Sour, veined berries on a prickly bush.
+cranberry|Cranberry|fruit|5|1|Grown in bogs that are flooded for harvest.
+sea-buckthorn|Sea Buckthorn|fruit|5|1|Bright orange berries on thorny shrubs that survive harsh steppes.
+passion-fruit|Passion Fruit|fruit|5|1|A climbing vine with wrinkly fruit full of fragrant pulp.
+dragon-fruit|Dragon Fruit|fruit|5|1|The fruit of a climbing cactus that flowers at night.
+papaya|Papaya|fruit|5|1|A fast-growing tree-like plant that fruits within a year.
+plantain|Plantain|fruit|6|1|A starchy cooking banana, fried, boiled or pounded.
+banana|Banana|fruit|6|1|Technically a giant herb. Each plant fruits once, then new suckers take over.
+ensete|Enset|fruit|6|1|The "false banana". Its stem, not its fruit, feeds millions in Ethiopia.
+nopal|Prickly Pear Cactus|fruit|5|1|Both the pads and the fruit are eaten.
+coconut|Coconut|tree|6|1|A palm that gives water, meat, oil and fibre.
+date|Date Palm|tree|6|1|Grown in desert oases for at least 6,000 years.
+sago|Sago Palm|tree|6|1|Its trunk is full of starch that is washed out to make sago.
+pandanus|Pandanus|tree|6|1|Screwpine fruit and leaves, a lifeline on coral atolls.
+breadfruit|Breadfruit|tree|6|1|One tree can produce hundreds of starchy fruits a season.
+jackfruit|Jackfruit|tree|6|1|The largest tree fruit in the world.
+mango|Mango|tree|6|1|Cultivated in South Asia for thousands of years.
+guava|Guava|tree|6|1|Fragrant fruit with pink or white flesh.
+avocado|Avocado|tree|6|1|Domesticated in Mesoamerica. Ripens only after picking.
+lime|Lime|tree|6|1|Sour citrus. Dried limes are a staple in Gulf cooking.
+lemon|Lemon|tree|6|1|Citrus that can flower and fruit year round.
+orange|Orange|tree|6|1|A sweet citrus hybrid, first grown in southern China.
+mandarin|Mandarin|tree|6|1|Small, easy-peel citrus. Clementines are a type.
+grapefruit|Grapefruit|tree|6|1|A citrus hybrid that arose in Barbados in the 1700s.
+yuzu|Yuzu|tree|6|1|An aromatic, cold-hardy citrus prized in Japan.
+apple|Apple|tree|6|1|The wild ancestor still grows in the forests of Kazakhstan.
+pear|Pear|tree|6|1|Ripens best off the tree.
+plum|Plum|tree|6|1|Eaten fresh, dried into prunes, or distilled into brandy.
+cherry|Cherry|tree|6|1|Sweet and sour varieties. Famous for spring blossoms.
+apricot|Apricot|tree|6|1|Thrives in dry mountain valleys.
+peach|Peach|tree|6|1|First domesticated in China.
+fig|Fig|tree|6|1|What looks like a fruit is really an inside-out cluster of flowers.
+pomegranate|Pomegranate|tree|6|1|Hundreds of jewel-like seeds inside a leathery skin.
+olive|Olive|tree|6|1|Olive trees can live and fruit for over a thousand years.
+quince|Quince|tree|6|1|Hard and fragrant. Cooked into jellies and paste.
+mulberry|Mulberry|tree|6|1|Sweet berries, and leaves that feed silkworms.
+jujube|Jujube|tree|6|1|A small date-like fruit grown in China for over 4,000 years.
+persimmon|Persimmon|tree|6|1|Bright orange fruit, often dried in Japan and Korea.
+kiwi|Kiwifruit|fruit|6|1|A vine from China, renamed and made famous by New Zealand.
+feijoa|Feijoa|tree|6|1|A fragrant green fruit, hugely popular in New Zealand autumns.
+tamarillo|Tree Tomato|tree|6|1|Tangy egg-shaped fruit on a small Andean tree.
+naranjilla|Naranjilla|tree|6|1|Fuzzy orange fruit whose juice tastes of citrus and rhubarb.
+lucuma|Lúcuma|tree|6|1|An Andean fruit with maple-like flavour, beloved in Peruvian ice cream.
+cherimoya|Cherimoya|tree|6|1|Mark Twain called it "the most delicious fruit known to men".
+mamey|Mamey Sapote|tree|6|1|Salmon-coloured flesh that tastes like sweet potato and pumpkin pie.
+soursop|Soursop|tree|6|1|A spiky green fruit with creamy, tangy flesh.
+lychee|Lychee|tree|6|1|A fragrant fruit in bumpy red skin, prized since ancient China.
+longan|Longan|tree|6|1|The "dragon's eye", a cousin of the lychee.
+rambutan|Rambutan|tree|6|1|A hairy red fruit. Its name comes from the Malay word for hair.
+durian|Durian|tree|6|1|The famously pungent "king of fruits".
+mangosteen|Mangosteen|tree|6|1|The "queen of fruits", with snowy segments under a purple rind.
+starfruit|Starfruit|tree|6|1|Cut it crossways for perfect stars.
+tamarind|Tamarind|tree|6|1|Sweet-sour pulp in brown pods, used in sauces and drinks.
+ackee|Ackee|tree|6|1|Jamaica's national fruit. Only safe to eat when fully ripe and opened.
+baobab|Baobab|tree|6|1|The "tree of life". Can store huge amounts of water in its trunk.
+moringa|Moringa|tree|5|1|The fast-growing "drumstick tree" with nutritious leaves.
+noni|Noni|tree|6|1|A pungent Pacific fruit used in traditional remedies.
+carob|Carob|tree|6|1|Sweet pods once used to weigh gems, which is where "carat" comes from.
+acai|Açaí|tree|6|1|An Amazon palm whose small purple berries are mashed into a thick pulp.
+cacao|Cacao|tree|6|1|Pods grow straight from the trunk. Their beans become chocolate.
+coffee|Coffee|tree|6|1|Red "cherries" hold the beans. It originated in Ethiopia.
+tea|Tea|tree|5|1|All true teas come from one plant, Camellia sinensis.
+yerba-mate|Yerba Mate|tree|6|1|A holly whose leaves make the shared South American drink mate.
+kava|Kava|tree|6|1|A pepper plant whose root makes a calming ceremonial Pacific drink.
+sugarcane|Sugarcane|grain|5|1|A giant grass that regrows after each cutting.
+cashew|Cashew|nut|6|1|Each nut hangs below a juicy "cashew apple".
+almond|Almond|nut|6|1|A close relative of the peach. We eat the seed.
+walnut|Walnut|nut|6|1|Walnut forests still grow wild in Kyrgyzstan.
+hazelnut|Hazelnut|nut|6|1|Turkey grows most of the world's supply.
+pistachio|Pistachio|nut|6|1|Shells split open naturally as the nuts ripen.
+chestnut|Chestnut|nut|6|1|Roasted in autumn streets across Europe.
+macadamia|Macadamia|nut|6|1|Native to Australian rainforests. Very hard shells.
+brazil-nut|Brazil Nut|nut|6|1|Only fruits reliably in wild Amazon forest with the right bees.
+pecan|Pecan|nut|6|1|A hickory native to North America.
+shea|Shea|nut|6|1|Its nuts make shea butter. Trees take decades to mature.
+kola|Kola Nut|nut|6|1|A caffeine-rich nut shared as a sign of hospitality in West Africa.
+vanilla|Vanilla|spice|6|1|An orchid. Each flower is pollinated by hand in most farms.
+black-pepper|Black Pepper|spice|6|1|A climbing vine whose berries were once worth their weight in silver.
+cinnamon|Cinnamon|spice|6|1|The inner bark of a tree, rolled into quills.
+clove|Clove|spice|6|1|Dried unopened flower buds, native to the Maluku Islands.
+nutmeg|Nutmeg|spice|6|1|One fruit gives two spices, nutmeg and mace.
+cardamom|Cardamom|spice|5|1|Aromatic pods from a ginger relative.
+ginger|Ginger|spice|4|0|A knobbly rhizome, grown from a piece of itself.
+turmeric|Turmeric|spice|4|0|A golden rhizome that colours curries.
+saffron|Saffron Crocus|spice|4|1|Each flower gives just three red threads, picked by hand.
+cumin|Cumin|spice|3|0|Seeds of a small plant in the parsley family.
+wasabi|Wasabi|spice|6|1|Real wasabi grows in cold mountain streams and is very hard to farm.
+ginseng|Ginseng|spice|6|1|A slow root that takes years before it is ready to harvest.
+caper|Caper|spice|5|1|Pickled flower buds from a shrub that grows in rock walls.
+hops|Hops|spice|5|1|Climbing vines whose cones flavour beer.
+coriander|Coriander|herb|2|0|Leaves are called cilantro. The seeds are a spice.
+basil|Basil|herb|2|0|Sweet basil makes pesto. Holy basil is sacred in India.
+mint|Mint|herb|2|1|Spreads everywhere if you let it.
+parsley|Parsley|herb|2|0|The star of tabbouleh.
+dill|Dill|herb|2|0|Feathery leaves that flavour Nordic and Baltic dishes.
+oregano|Oregano|herb|3|1|A sun-loving Mediterranean herb.
+rosemary|Rosemary|herb|4|1|A woody, fragrant evergreen.
+thyme|Thyme|herb|3|1|A tiny-leaved herb loved by bees.
+lemongrass|Lemongrass|herb|3|1|A citrus-scented grass central to Southeast Asian cooking.
+fenugreek|Fenugreek|herb|2|0|Both leaves (methi) and seeds are used in Indian cooking.
+# Cover crops: grown to feed the soil. Digging them in adds fertility and soil life instead of a harvest.
+white-clover|White Clover|cover|2|0|A low clover that pulls nitrogen from the air into the soil. Bees adore it.
+winter-rye|Winter Rye|cover|3|0|A tough cover crop whose deep roots break up soil and smother weeds.
+crimson-clover|Crimson Clover|cover|2|0|Bright red flowers above the ground, nitrogen-fixing nodules below.
+# Added v0.7 to even out regions
+wild-rice|Wild Rice|grain|4|0|A water grass of northern lakes, harvested by canoe.
+elderberry|Elderberry|fruit|5|1|Dark berry clusters for syrups and cordials.
+sorrel|Sorrel|herb|2|1|Lemony leaves for a sharp green soup.
+rooibos|Rooibos|herb|4|1|A needle-leaved shrub that makes a red caffeine-free tea.
+warrigal-greens|Warrigal Greens|vegetable|2|1|A sprawling coastal spinach of the southern Pacific.
+grains-of-paradise|Grains of Paradise|spice|5|1|Peppery seeds of a West African ginger, once traded as a luxury.
+salak|Salak|tree|6|1|Snake fruit: scaly brown skin over sweet, crunchy flesh.
+finger-lime|Finger Lime|tree|6|1|A thorny native lime whose pods burst with tiny citrus pearls.

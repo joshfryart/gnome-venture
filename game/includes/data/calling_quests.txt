@@ -1,0 +1,131 @@
+# Calling questlines (v0.9.4). Imported once by ensure_calling_quests(); chapters already in the database are skipped (admin edits stick).
+# Use \n for a new line in text. Never use a pipe inside a field.
+#
+# C|slug|calling|tier (2=Journeyman, 3=Master)|title|mentor slug|reward Petals|reward XP|reward item slug (or -)|item qty|reward title (or -)|intro|outro (the Almanac page)
+# T|chapter slug|mode|kind|spec|qty|label        (tasks keep file order; give tasks go last)
+#
+# mode event: counted from when the chapter is accepted. kind: harvest water gather cook craft defeat befriend page arrive walk depth
+#             wonder haven travel eat sell talk gift tend seed_saved townact
+#   spec filters (comma separated): key=a/b  key>=3  key^=prefix  key$=suffix  distinct=1 ("slug" = the event's target, other keys come from the event's ctx)
+#   ctx keys now emitted: harvest(kind, bedgrade, plant, helper)  tend(kind, plant)  craft/cook(cat, recipe, tier)  eat(homecooked, tier)
+#   defeat/befriend(size, creature)  sell(cat, coins)  talk/gift(cat, npc)  page(target = unlock key)  arrive(kind)  walk(kind)  townact(spot)
+# mode state: read live from the game, so earlier play counts. kind: grade (best bed index, 4=C 8=A 10=S) | beds (spec=grade index, qty beds)
+#             regions (qty, or spec=codes "EA,SEA") | places (spec any/village/haven/wonder/delve/lair) | clears (spec delve/lair) |
+#             friends (spec = level 1 Acquaintance, 2 Friend, "1@Region name" for one region's folk) | mastered | known (spec = plant kind) |
+#             guides | recipes | roads (spec = part of a road name)
+# mode give:  kind is give; spec = item:slug:N,coins:N,meal:N,fine:N  (handed in at the mentor, in order, once everything else is done)
+
+C|rootwarden-1|rootwarden|2|Deep Roots|burdock-deepdelve|800|400|rich-loam|3|Soil Tender|Burdock Deepdelve sniffs a handful of soil, sighs happily, and sniffs another.\n\n"Good earth is patient, little gnome. Show me you can grow it slowly and keep it. Mulch it, feed it, harvest from it, and bring me the dust and compost that a proper bed is made of."|Burdock presses a fist of black earth into your palm.\n\n"Deep roots, steady hands. You have the look of someone who listens to the ground. The Rootwardens would call you a Journeyman, and so do I."
+T|rootwarden-1|state|grade||4|Raise a no-till bed to grade C
+T|rootwarden-1|event|tend|slug=sheet|4|Sheet-mulch 4 squares
+T|rootwarden-1|event|harvest|bedgrade>=4|15|Harvest 15 crops from beds at grade C or better
+T|rootwarden-1|event|craft|cat=garden|3|Craft 3 items in Crafting, Garden
+T|rootwarden-1|event|gather||12|Gather 12 things on your adventures
+T|rootwarden-1|state|friends|1@Birchbramble Steppe|1|Get to know one Birchbramble local (Acquaintance)
+T|rootwarden-1|give|give|item:rock-dust:4,item:plain-compost:3|1|Bring Burdock the makings of a good bed (4 Rock Dust, 3 Plain Compost)
+
+# ---- Rootwarden, chapter 2 (Master)
+C|rootwarden-2|rootwarden|3|Heartwood|burdock-deepdelve|1600|800|worm-castings|5|Warden of the Deep|Burdock Deepdelve is waiting by the Root Cellar door, one paw resting on a barrel of black earth.\n\n"A Journeyman grows good soil. A Master grows soil that remembers. Build me a bed that glows like an old oak's heart, and show me the dark places under the hills where the roots go."|Burdock bows so low his whiskers brush the floor.\n\n"Heartwood, little gnome. The ground will know your name now. Go gently, Warden of the Deep."
+T|rootwarden-2|state|grade||8|Raise a no-till bed to grade A
+T|rootwarden-2|state|beds|4|3|Keep 3 no-till beds at grade C or better
+T|rootwarden-2|event|tend|slug=sheet|12|Sheet-mulch 12 squares
+T|rootwarden-2|event|harvest|bedgrade>=6|40|Harvest 40 crops from beds at grade B or better
+T|rootwarden-2|event|craft|cat=garden|8|Craft 8 items in Crafting, Garden
+T|rootwarden-2|state|clears|delve|2|Clear 2 different delves
+T|rootwarden-2|give|give|item:rich-loam:2,item:worm-castings:3|1|Bring Burdock 2 Rich Loam and 3 Worm Castings
+
+# ---- Bloomcaller
+C|bloomcaller-1|bloomcaller|2|First Bloom|zinnia-fuzzbottom|800|400|rich-loam|2|Bee's Friend|Zinnia Fuzzbottom hovers over the Marigold Stall, wings a happy blur, a smudge of pollen on her nose.\n\n"Oh, a Bloomcaller! Flowers are never only for looking at, dear. Grow them, share them, dance among them. Let's see how brightly you can make the Hollow bloom."|Zinnia buzzes in a delighted loop around your hat.\n\n"First bloom, and it's a beauty! The bees will remember you kindly, Bee's Friend."
+T|bloomcaller-1|event|harvest|kind=flower|12|Harvest 12 flowers
+T|bloomcaller-1|event|tend|slug=plant,kind=flower|6|Plant 6 flower seeds
+T|bloomcaller-1|state|known|flower|5|Harvest 5 different flowers
+T|bloomcaller-1|event|gift|cat=flower|3|Give flowers to townsfolk 3 times
+T|bloomcaller-1|event|sell|cat=flower|10|Sell 10 cut flowers
+T|bloomcaller-1|event|townact|slug=ma-dance|2|Join the dance in the Plaza of the Bells twice (evenings)
+T|bloomcaller-1|give|give|item:beeswax-candles:2|1|Bring Zinnia 2 Beeswax Candles
+
+C|bloomcaller-2|bloomcaller|3|The Honey Year|zinnia-fuzzbottom|1600|800|rich-loam|5|Keeper of Blooms|Zinnia is sitting very still, for her, on the edge of a honey jar.\n\n"A whole year of flowers, that's what a Master carries. Grow them by the hundred, save their seeds, and go and see how far away gardens bloom. Then come and tell me everything."|Zinnia dabs her eyes with a petal.\n\n"The Hollow has never smelled so sweet. Keeper of Blooms, the honey is yours whenever you like."
+T|bloomcaller-2|event|harvest|kind=flower|60|Harvest 60 flowers
+T|bloomcaller-2|state|known|flower|15|Harvest 15 different flowers
+T|bloomcaller-2|event|seed_saved|kind=flower|10|Save 10 flower seeds
+T|bloomcaller-2|state|regions|EA,SEA|2|Visit Blossomreach and the Monsoon Tangle
+T|bloomcaller-2|state|friends|2|3|Make 3 townsfolk Friends
+T|bloomcaller-2|event|tend|slug=plant,kind=flower|25|Plant 25 flower seeds
+T|bloomcaller-2|give|give|item:fairy-house:1,item:bird-box:1|1|Bring Zinnia a Fairy House and a Bird Box
+
+# ---- Thornblade
+C|thornblade-1|thornblade|2|Thorn and Mist|bracken-spurwing|800|400|timber-plank|4|Thorn Guard|Captain Bracken Spurwing stands on the old watchtower, mandibles polished, looking out over the mist.\n\n"Gardens don't defend themselves, recruit. Clear the pests, keep your beds tidy, learn what lurks out there. A Thornblade knows the enemy by name."|The Captain salutes with a clatter of shell.\n\n"Well fought. The mist is a little less dangerous tonight. Thorn Guard, you have earned your second stripe."
+T|thornblade-1|event|defeat||20|Defeat 20 creatures
+T|thornblade-1|event|tend|slug=weed|15|Weed 15 squares in your own beds
+T|thornblade-1|event|defeat|size=large/boss|3|Defeat 3 large or boss creatures
+T|thornblade-1|state|clears|delve|1|Clear a delve
+T|thornblade-1|event|page|slug^=creature:|5|Meet 5 new kinds of creature
+T|thornblade-1|event|craft|slug=wattle-fence|2|Craft Wattle Fences twice
+T|thornblade-1|give|give|item:flint:6,item:timber-plank:2|1|Bring the Captain 6 Flint and 2 Timber Planks
+
+C|thornblade-2|thornblade|3|Thorn Master|bracken-spurwing|1600|800|rich-loam|5|Hedge Knight|Captain Bracken Spurwing is polishing a very old badge.\n\n"The great beasts, the deep lairs, the far corners nobody maps. That's the Master's road. Prove you can hold a line when it matters, and keep your own beds spotless while you do."|The Captain stands to full height, which is quite tall for a beetle.\n\n"Hedge Knight. I'd follow you into any bramble. Wear the title well."
+T|thornblade-2|event|defeat||60|Defeat 60 creatures
+T|thornblade-2|event|defeat|size=boss|2|Defeat 2 boss creatures
+T|thornblade-2|state|clears|delve|3|Clear 3 different delves
+T|thornblade-2|state|clears|lair|1|Defeat the guardian of a lair
+T|thornblade-2|event|depth||5|Reach 5 steps off the road
+T|thornblade-2|event|tend|slug=weed|40|Weed 40 squares in your own beds
+T|thornblade-2|give|give|fine:3|1|Bring the Captain 3 uncommon or rare finds
+
+# ---- Seedkeeper
+C|seedkeeper-1|seedkeeper|2|The Seed Library|sorrel-inkcap|800|400|worm-castings|3|Seed Scribe|Sorrel Inkcap peers over a very large book, one eyestalk on the page and one on you.\n\n"Ah. A Seedkeeper. Every seed is a story, and most are unfinished. Learn your plants properly, save their seeds, read the old histories. Slowly, mind. We are in no hurry here."|Sorrel closes the book with great care.\n\n"Well read, well grown. Your name goes in the margin now, Seed Scribe. Not in pencil."
+T|seedkeeper-1|state|mastered||3|Master 3 plants (full knowledge)
+T|seedkeeper-1|event|seed_saved||10|Save 10 seeds
+T|seedkeeper-1|state|known||12|Harvest 12 different plants
+T|seedkeeper-1|event|page|slug^=gather:|3|Find 3 new things to gather
+T|seedkeeper-1|event|wonder||2|Solve 2 wonders
+T|seedkeeper-1|event|townact|kind=read,distinct=1|3|Read the local history in 3 different town libraries
+T|seedkeeper-1|give|give|item:rich-loam:2,coins:200|1|Bring Sorrel 2 Rich Loam and 200 Petals (the library fee)
+
+C|seedkeeper-2|seedkeeper|3|Keeper of the Hollow's Seeds|sorrel-inkcap|1600|800|rich-loam|5|Grand Archivist|Sorrel has cleared a whole shelf, which for a snail is a day's work.\n\n"The great collection needs a keeper. Master the plants of the world, save their seeds, solve the old riddles, and share what you know. Then I shall hand you the key."|Sorrel presses a small brass key into your hand.\n\n"The Archive is yours to care for, Grand Archivist. Guard it, and keep adding to it."
+T|seedkeeper-2|state|mastered||10|Master 10 plants (full knowledge)
+T|seedkeeper-2|event|seed_saved||40|Save 40 seeds
+T|seedkeeper-2|state|guides||4|Study 4 regional Gardening Guides
+T|seedkeeper-2|event|wonder||8|Solve 8 wonders
+T|seedkeeper-2|event|gift|cat=seed|5|Give seeds to townsfolk 5 times
+T|seedkeeper-2|state|known||40|Harvest 40 different plants
+T|seedkeeper-2|give|give|item:seed-pearl:2|1|Bring Sorrel 2 Seed Pearls
+
+# ---- Wayfinder
+C|wayfinder-1|wayfinder|2|The Trailmarker|tumble-waymarsh|800|400|timber-plank|3|Trailwise|Tumble Waymarsh pops out of the Trailmarker's Hut with a map in each paw and a third under one ear.\n\n"There you are! Roads are just gardens that go sideways. Come on, walk a few, find the hidden corners, learn the crossroads. I'll be right here when you're done."|Tumble tosses a map in the air and catches it.\n\n"Trailwise! You read a road like a book now. The next one's longer, you know."
+T|wayfinder-1|state|regions||6|Visit 6 regions
+T|wayfinder-1|state|places|any|4|Find 4 hidden places
+T|wayfinder-1|event|gather||20|Gather 20 things on your adventures
+T|wayfinder-1|event|depth||3|Reach 3 steps off the road
+T|wayfinder-1|event|walk|kind=road|30|Walk 30 legs of the road
+T|wayfinder-1|state|roads|Maizehollow – The Rainroot Reaches|1|Walk the whole road between Maizehollow and the Rainroot Reaches
+T|wayfinder-1|event|travel||2|Fast travel twice
+T|wayfinder-1|give|give|item:hiking-staff:1,item:rope:2|1|Bring Tumble a Hiking Staff and 2 Rope
+
+C|wayfinder-2|wayfinder|3|The Long Road|tumble-waymarsh|1600|800|rich-loam|5|Long-Road Walker|Tumble Waymarsh has pinned the whole world to the hut wall, with string.\n\n"Now the long road. Eleven regions, a dozen secrets, five roads walked end to end. Wonders, camps, and the quiet bits between. Bring back a good story."|Tumble stares at the map, then at you, then at the map.\n\n"You've walked more of it than I have. Long-Road Walker. The next trail marker is yours to place."
+T|wayfinder-2|state|regions||11|Visit 11 regions
+T|wayfinder-2|state|places|any|12|Find 12 hidden places
+T|wayfinder-2|state|roads||5|Walk 5 whole roads
+T|wayfinder-2|event|depth||5|Reach 5 steps off the road
+T|wayfinder-2|event|wonder||4|Solve 4 wonders
+T|wayfinder-2|event|haven||3|Use 3 havens (rest or stay)
+T|wayfinder-2|give|give|item:wayfarer-s-staff:1|1|Bring Tumble a Wayfarer's Staff
+
+# ---- Brewroot
+C|brewroot-1|brewroot|2|The Brewhouse|juniper-kettleby|800|400|rich-loam|2|Kettle Hand|Juniper Kettleby is stirring something that smells wonderful and slightly dangerous.\n\n"A Brewroot! Come in, mind the steam. Real cooking is meals, not snacks: proper dishes with patience in them. Cook, taste, forage, and see how many recipes you can find."|Juniper tastes your last dish and says nothing for a long moment.\n\n"...Again. Please. Kettle Hand, the Brewhouse has a hook with your name on it."
+T|brewroot-1|event|cook|tier=meal/feast|10|Cook 10 meals (Meal or Feast dishes)
+T|brewroot-1|event|cook|tier=meal/feast,distinct=1|4|Cook 4 different Meal or Feast dishes
+T|brewroot-1|event|page|slug^=recipe:|4|Discover 4 new recipes
+T|brewroot-1|event|eat|homecooked=1,tier=meal/feast|6|Eat 6 home-cooked meals
+T|brewroot-1|event|gather||12|Gather 12 things (forage for the pot)
+T|brewroot-1|event|townact|slug$=-drink|2|Order a drink at a teahouse twice
+T|brewroot-1|give|give|meal:3|1|Bring Juniper 3 home-cooked meals
+
+C|brewroot-2|brewroot|3|Master Brewer|juniper-kettleby|1600|800|rich-loam|5|Master Brewer|Juniper Kettleby has put on a clean apron, which is a first.\n\n"Thirty meals, a dozen dishes, two feasts, and a taste of faraway spices. That is the Master's test. Feed people. Feed them well."|Juniper hangs a small copper ladle on your belt.\n\n"Master Brewer. There is nothing left to teach you, so I shall simply ask you to cook for me every Sunday."
+T|brewroot-2|event|cook|tier=meal/feast|30|Cook 30 meals (Meal or Feast dishes)
+T|brewroot-2|event|cook|tier=meal/feast,distinct=1|12|Cook 12 different Meal or Feast dishes
+T|brewroot-2|event|cook|tier=feast|2|Cook 2 feasts (needs Kitchen III)
+T|brewroot-2|state|regions|CSA,SEA|2|Visit Spicepeak and the Monsoon Tangle
+T|brewroot-2|event|sell|cat=food|10|Sell 10 food items to shops
+T|brewroot-2|event|eat|homecooked=1,tier=meal/feast|15|Eat 15 home-cooked meals
+T|brewroot-2|give|give|meal:6,fine:2|1|Bring Juniper 6 home-cooked meals and 2 uncommon or rare finds

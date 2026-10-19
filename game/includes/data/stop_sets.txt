@@ -1,0 +1,19 @@
+# Stamp passport rewards (v1.0.0). Admin can edit these in Admin > Passport rewards. Region sets are made for every region automatically ("all the road stops of that region").
+# scope (total | type | region) | target (stop type key, region code, or blank) | stamps needed (0 = every road stop in scope) | reward (c=coins, xp=, item=slug:qty) | title (or blank) | label
+total||5|c=100,xp=20|Wayfarer|Walk to 5 rest stops
+total||15|c=300,item=timber-plank:3|Roadwise|Stamp 15 rest stops
+total||30|c=600,item=building-stone:4,xp=40|Road Warden|Stamp 30 rest stops
+total||60|c=1200,item=rope:6,xp=80|Stamp Collector|Stamp 60 rest stops
+total||100|c=2500,item=beeswax:4,xp=150|Hollow Wanderer|Stamp 100 rest stops
+type|market|3|c=120,xp=20|Market Regular|Three market hamlets
+type|mill|3|c=120,xp=20|Miller’s Friend|Three old mills
+type|inn|3|c=120,xp=20|Inn Hopper|Three wayfarers’ inns
+type|shrine|3|c=120,xp=20|Shrine Pilgrim|Three moss shrines
+type|jetty|3|c=120,xp=20|Jetty Angler|Three fishing jetties
+type|herb|3|c=120,xp=20|Herb Gatherer|Three herb crofts
+type|workshop|3|c=120,xp=20|Tinker’s Mate|Three tinkers’ workshops
+type|orchard|3|c=120,xp=20|Orchard Picker|Three orchard camps
+type|ferry|3|c=120,xp=20|Ferry Hand|Three ferry landings
+type|tower|3|c=120,xp=20|Tower Watcher|Three watchtowers
+type|spring|3|c=120,xp=20|Hot Spring Soaker|Three hot springs
+type|camp|3|c=120,xp=20|Fireside Friend|Three campfire clearings

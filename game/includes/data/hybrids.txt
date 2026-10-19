@@ -1,0 +1,24 @@
+# v1.1.0 crop breeding. slug | Name | parent A (plant slug) | parent B (plant slug) | kind | trait | description | icon
+# Only crosses where BOTH parents exist in the game are imported. Adds missing rows only; never overwrites what an admin edited.
+pluot|Pluot|plum|apricot|tree|Sweet and juicy: sells for more|A plum-apricot cross bred in California, plum-sweet with an apricot's velvet skin.|🍑
+peachcot|Peachcot|peach|apricot|tree|Honey-sweet fruit|Peach and apricot together: a golden, fragrant little fruit.|🍑
+nectaplum|Nectaplum|peach|plum|tree|Smooth skin, rich flavour|A peach and plum cross with smooth skin and a deep, wine-like sweetness.|🍑
+almond-peach|Almond-Peach|almond|peach|nut|Hardy and generous|Almond and peach are close cousins. Their cross gives big blossoms and a sweet kernel.|🌰
+tangelo|Tangelo|mandarin|grapefruit|tree|Juicy and tangy|Mandarin crossed with grapefruit: loose-skinned, bell-shaped and very juicy.|🍊
+tangor|Tangor|mandarin|orange|tree|Easy-peel sweetness|A mandarin-orange cross, like the old Temple orange: rich, sweet and easy to peel.|🍊
+orangelo|Orangelo|orange|grapefruit|tree|Mild, floral citrus|Orange and grapefruit make a gentle, juicy citrus with little bitterness.|🍊
+meyer-lemon|Meyer Lemon|lemon|mandarin|tree|Sweet-tart and fragrant|A lemon crossed with a mandarin: rounder, sweeter and wonderfully fragrant.|🍋
+sunrise-lime|Sunrise Lime|finger-lime|mandarin|tree|Citrus pearls|A finger lime and mandarin cross with blush-pink, pearly flesh.|🍋
+jostaberry|Jostaberry|blackcurrant|gooseberry|fruit|Thornless and hardy|Blackcurrant and gooseberry together: a big, thornless, dark berry bush.|🫐
+nessberry|Nessberry|cloudberry|raspberry|fruit|Golden, tart berries|A cloudberry-raspberry cross that keeps the cloudberry's honeyed amber colour.|🍓
+pomato|Pomato|potato|tomato|vegetable|Two crops from one plant|Potato and tomato are close kin, and a graft really can grow both.|🍅
+kalette|Kalette|kale|brussels-sprouts|vegetable|Sweet little frilly sprouts|Kale and Brussels sprouts: tiny frilled rosettes, nutty and sweet.|🥬
+broccoflower|Broccoflower|broccoli|cauliflower|vegetable|Mild and crunchy|Broccoli and cauliflower cousins: a pale green head with a mild, sweet taste.|🥦
+raphanobrassica|Radish-Cabbage|radish|cabbage|vegetable|Strange but sturdy|A famous oddity: a radish crossed with a cabbage, with both plants' habits.|🥬
+triticale|Triticale|wheat|rye|grain|Tough, high-yield grain|Wheat and rye: wheat's flour with rye's toughness. A real field crop.|🌾
+tritordeum|Tritordeum|wheat|barley|grain|Golden, hardy grain|A wheat and barley cross grown in dry fields for its golden flour.|🌾
+darwin-tulip|Darwin Hybrid Tulip|dutch-tulip|greigs-tulip|flower|Giant, long-lasting blooms|Dutch and Greig's tulips make a tall, sturdy tulip with huge cups.|🌷
+white-rose-of-york|White Rose of York|damask-rose|dog-rose|flower|Fragrant, hardy rose|Damask rose and dog rose: an old white rose, scented and tough.|🌹
+itoh-peony|Itoh Peony|tree-peony|steppe-peony|flower|Huge blooms, strong stems|Tree and herbaceous peony cross: giant flowers on strong, tidy plants.|🌸
+choca-mocha-cosmos|Chocolate Cosmos Hybrid|cosmos|chocolate-cosmos|flower|Cocoa-scented, easy bloomer|Cosmos and chocolate cosmos: deep wine petals with a hint of cocoa scent.|🌺
+vandaenopsis|Vandaenopsis|moth-orchid|miss-joaquim|flower|Long-lasting orchid sprays|A moth orchid crossed with a Vanda: bright, long-lasting sprays of blooms.|🌸

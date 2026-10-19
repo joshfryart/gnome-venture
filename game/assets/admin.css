@@ -1,0 +1,87 @@
+/* v1.6.3: admin panel look. Loaded only on admin pages. The .choice row itself lives in style.css; this is admin layout only. */
+body.admin main { overflow-wrap: anywhere; }
+body.admin main h1 { font-size: 22px; line-height: 1.2; margin: 6px 0 12px; }
+body.admin main h1 small { font-size: 15px; font-weight: 400; }
+body.admin main h2 { font-size: 17px; margin: 18px 0 8px; }
+.asr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* breadcrumbs: ← Admin › Section › Page */
+.acrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; margin: 0 0 6px; font-size: 14px; color: var(--muted); }
+.acrumbs a { display: inline-flex; align-items: center; min-height: 36px; color: var(--brand-ink); }
+.acrumbs a.aback { font-weight: 600; }
+.acrumbs [aria-current] { color: var(--ink); font-weight: 600; }
+.acrumbs .asep { color: var(--line-2); }
+
+/* the menu */
+.amenu { margin: 0 0 16px; }
+.afind { margin: 0 0 10px; position: sticky; top: calc(var(--hdr, 52px) + 4px); z-index: 5; }
+.afind input { display: block; width: 100%; max-width: none; margin: 0; min-height: 46px; box-shadow: var(--shadow); }
+.acols { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start; }
+.asec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.asec > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 12px; cursor: pointer; list-style: none; font-size: 16px; }
+.asec > summary::-webkit-details-marker { display: none; }
+.asec > summary::after { content: '▾'; color: var(--muted); margin-left: 4px; transition: transform .15s; }
+.asec:not([open]) > summary::after { transform: rotate(-90deg); }
+.asec > summary b { flex: 1; font-weight: 700; }
+.asec > summary small { color: var(--muted); font-size: 13px; background: var(--surface-2); border-radius: var(--pill); padding: 1px 9px; }
+.asec-ico { font-size: 20px; width: 26px; text-align: center; }
+.arows { display: grid; gap: 6px; padding: 2px 10px 10px; }
+.arows .choice { text-decoration: none; color: inherit; }
+.asec.is-empty, .arows .choice[hidden] { display: none; }
+body.admin main .arows a.choice, body.admin main .arows a.choice:hover { text-decoration: none; }
+/* wider screens: sections flow in balanced columns (no gaps under short sections) */
+@media (min-width: 700px) { .acols { display: block; column-count: 2; column-gap: 12px; } .asec { break-inside: avoid; margin-bottom: 10px; } }
+@media (min-width: 1000px) { .afind input { max-width: 520px; } .afind { position: static; } }
+@media (min-width: 1500px) { .acols { column-count: 3; } }
+
+/* dashboard extras sit under the menu */
+body.admin .stats { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+body.admin .stats div { padding: 8px 6px; font-size: 13px; }
+body.admin .stats b { font-size: 20px; }
+
+/* tables: scroll inside the table, never the page */
+body.admin main table.grid, body.admin main table.cover { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+body.admin main table.grid { border: 1px solid var(--line); border-radius: var(--radius-sm); }
+body.admin main table.grid th, body.admin main table.grid td { white-space: normal; min-width: 72px; max-width: 260px; overflow-wrap: break-word; word-break: normal; }
+body.admin main table.grid td { font-size: 13px; }
+body.admin main { overflow-x: clip; }
+body.admin main table.grid td a { display: inline-flex; align-items: center; min-height: 36px; }
+body.admin main table.grid th { position: sticky; top: 0; }
+body.admin .box table.grid { margin-bottom: 4px; }
+body.admin pre, body.admin textarea.code { max-width: 100%; overflow-x: auto; }
+body.admin .scroll { max-width: 100%; }
+
+/* action bars and buttons */
+body.admin .toolbar { gap: 8px; padding: 8px; margin: 0 0 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+body.admin .toolbar form.inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1 1 260px; min-width: 0; max-width: 100%; }
+body.admin .toolbar input:not([type=hidden]), body.admin .toolbar select { flex: 1 1 140px; min-width: 0; width: auto; max-width: 100%; }
+body.admin .btn, body.admin button.btn { min-height: 40px; }
+body.admin .btn.small { min-height: 40px; }
+body.admin .pager { display: flex; flex-wrap: wrap; gap: 6px; }
+body.admin .pager a, body.admin .pager strong { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--surface); }
+body.admin .pager strong { background: var(--brand-soft); border-color: var(--brand-line); }
+
+/* forms: full width on a phone */
+@media (max-width: 719px) {
+  body.admin main .form input:not([type=checkbox], [type=radio], [type=file]), body.admin main .form select, body.admin main .form textarea,
+  body.admin main form.box input:not([type=checkbox], [type=radio], [type=file], [type=hidden]), body.admin main form.box select, body.admin main form.box textarea { width: 100%; max-width: 100%; }
+  body.admin main input[type=file] { max-width: 100%; }
+  body.admin .box { padding: 12px; }
+}
+body.admin main textarea { max-width: 100%; }
+/* v1.6.3.3: admin menu sheet = equal tile grid, like the game's menu */
+body.admin .side .navtiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+body.admin .side .navtile { min-width: 0; width: auto; }
+body.admin .side .navtile .ntl { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 1.15; text-align: center; }
+/* v1.6.4.2: desktop side menu = a plain one-column list (the 4-up tile grid is for the phone sheet only) */
+@media (min-width: 721px) {
+  body.admin .side .navtiles { display: flex; flex-direction: column; gap: 1px; }
+  body.admin .side .navtile { flex-direction: row; justify-content: flex-start; align-items: center; gap: 8px; width: 100%; min-height: 32px; padding: 4px 8px; border: 0; background: none; border-radius: 8px; }
+  body.admin .side .navtile:hover { background: var(--surface-2); }
+  body.admin .side .navtile.on { background: var(--brand-soft); }
+  body.admin .side .navtile .nti { font-size: 15px; width: 1.4em; text-align: center; }
+  body.admin .side .navtile .ntl { text-align: left; font-size: 13.5px; white-space: normal; }
+  body.admin .side .anavtop { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line, rgba(127,127,127,.25)); }
+  body.admin .side .navgroupt > summary h3 { font-size: 12px; margin: 6px 0 2px; }
+  body.admin .tablewrap, body.admin .awrap, body.admin table { width: 100%; }
+}

@@ -1,0 +1,12 @@
+# Gnome Venture (v0.8.8). Public pages are open to search engines; the game itself needs a log-in.
+User-agent: *
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /data/
+Disallow: /install.php
+Disallow: /forgot.php
+Disallow: /reset.php
+Disallow: /logout.php
+Allow: /
+
+Sitemap: https://gnomeventure.ca/sitemap.php

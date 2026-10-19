@@ -1,0 +1,33 @@
+# Job Board templates (v0.7.8). Imported into the job_templates table; edit them in Admin → Job templates.
+# period | kind | title | text | min | max | stages | coins | xp | reward (item slug:qty, or @treasure-seed / @guide / @rare-gather / @rare-material :qty, or -)
+#
+# kinds: harvest (any crops) · harvest_crop (one crop) · deliver_crop · deliver_gather · deliver_dish
+#        water · gather · cook · craft · defeat · grade (reach a no-till soil grade; min = grade index, C = 4, A = 8)
+# {qty} {item} {npc} are filled in. Amounts for harvest/deliver jobs grow a little with your garden size.
+# Monthly jobs pay part of the reward at every stage, and the rest plus the item at the end.
+
+daily|harvest|A busy morning|{npc} wants to see a productive garden. Harvest {qty} crops of any kind.|4|8|1|60|20|-
+daily|harvest_crop|Fresh for the stall|{npc} has customers asking for {item}. Harvest {qty}.|5|12|1|70|25|-
+daily|deliver_crop|Market basket|{npc} is short of {item} at the market. Bring {qty}.|4|10|1|90|25|plain-compost:1
+daily|water|Thirsty weather|It hasn’t rained in days. Water plants {qty} times.|8|16|1|50|20|-
+daily|gather|Bits and bobs|{npc} collects curiosities. Gather {qty} things on an adventure.|2|4|1|70|25|-
+daily|cook|Lunch for the workers|{npc} is feeding a work crew. Cook {qty} meal.|1|1|1|80|25|-
+daily|craft|Handy gnome|{npc} needs a hand at the workbench. Craft {qty} things (any tab).|1|2|1|70|25|-
+daily|defeat|Pests on the path|Creatures are bothering travellers. Defeat or befriend {qty} on an adventure.|2|4|1|80|30|-
+
+weekly|harvest_crop|Bulk order|{npc} is stocking up on {item} for the week. Harvest {qty}.|30|60|1|450|120|rich-loam:2
+weekly|deliver_crop|The big shop|{npc} is putting on a feast and needs {qty} {item}.|20|40|1|550|130|worm-castings:3
+weekly|deliver_gather|Collector’s request|{npc} is building a collection and wants {qty} {item}.|5|10|1|500|130|@rare-gather:1
+weekly|deliver_dish|Feast day|{npc} is hosting a feast. Bring {qty} {item}.|3|5|1|600|140|@treasure-seed:1
+weekly|gather|Field notes|Wren wants specimens. Gather {qty} things on adventures this week.|15|25|1|500|140|@rare-gather:1
+weekly|cook|Week of suppers|{npc} is laid up and needs feeding. Cook {qty} meals this week.|5|8|1|450|120|kelp-meal:2
+weekly|defeat|Clear the roads|The mycelium threads are getting dangerous. Defeat or befriend {qty} creatures.|15|25|1|600|160|@rare-material:1
+weekly|grade|Good soil|{npc} wants to see what no-till can do. Raise a bed to soil grade C.|4|4|1|500|150|rock-dust:2
+
+monthly|harvest_crop|Harvest Festival order|The Harvest Festival needs {qty} {item}, grown by you after taking this job. {npc} will pay at every stage.|250|350|5|4000|800|@treasure-seed:2
+monthly|deliver_crop|The great pantry|{npc} is filling the village store for winter. Deliver {qty} {item}, in batches whenever you like.|150|250|5|4000|800|@guide:1
+monthly|gather|The great survey|Wren is mapping every find in the Hollow. Gather {qty} things on adventures this month.|80|120|4|3500|800|@rare-material:2
+monthly|defeat|Wardens of the threads|Keep the network safe all month. Defeat or befriend {qty} creatures.|70|100|4|3500|900|@rare-material:2
+monthly|cook|Village kitchen|{npc} is running the village kitchen and needs a cook. Cook {qty} meals this month.|30|45|3|3000|700|@treasure-seed:1
+monthly|grade|Master bed|Raise a no-till bed all the way to soil grade A. {npc} will judge it.|8|8|1|3500|900|@guide:1
+monthly|rebuild|Rebuild {item}|{item} has fallen into ruin, and {npc} is gathering builders. Bring dressed stone, timber and rope (Crafting → Building), meals for the crew and some fine finds, one stage at a time. Once it stands again, it stays rebuilt for every gnome.|4|4|4|4500|1000|@rare-material:2

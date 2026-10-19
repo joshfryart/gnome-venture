@@ -1,0 +1,41 @@
+#!/bin/bash
+GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
+php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/fun-php.log 2>&1 & PID=$!; sleep 1
+trap "kill $PID 2>/dev/null" EXIT
+csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
+db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
+dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
+C=/tmp/fun-ck; rm -f $C; curl -s -c $C -b $C $BASE/login.php > /tmp/f.html; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
+SID=$(db "SELECT id FROM users WHERE username='sprout'"); dbx "UPDATE expeditions SET status='done' WHERE user_id=$SID"; dbx "UPDATE users SET tour_step=0, energy=30, coins=500 WHERE id=$SID"
+P=$(db "SELECT active_plot_id FROM users WHERE id=$SID"); PL=$(db "SELECT id FROM plants WHERE slug='pumpkin'")
+dbx "UPDATE plot_tiles SET tilled=1, method='till', plant_id=$PL, planted_at=datetime('now'), growth_seconds=0, growth_updated_at=datetime('now'), last_watered=datetime('now'), weeds=40 WHERE plot_id=$P AND y=0"
+dbx "UPDATE settings SET value='2' WHERE name='event_chance'"; dbx "INSERT OR IGNORE INTO settings (name,value) VALUES ('event_cooldown_minutes','0'),('event_daily_max','1000')"; dbx "UPDATE settings SET value='0' WHERE name='event_cooldown_minutes'"; dbx "UPDATE settings SET value='1000' WHERE name='event_daily_max'"
+echo "== nine new events"
+for ev in fairy-ring bee fireflies moonlit rainbow weather-vane caterpillar puddle-hat riddle; do
+  dbx "UPDATE random_events SET weight = CASE WHEN slug='$ev' THEN 10 ELSE 0 END"
+  for i in $(seq 25); do curl -s -b $C -c $C $BASE/inventory.php > /tmp/f.html; grep -q 'class="eventbox' /tmp/f.html && break; done
+  if grep -q 'eventbox waiting' /tmp/f.html; then T=$(grep -o 'name="token" value="[a-f0-9]*"' /tmp/f.html | head -1 | sed 's/.*value="//; s/"//'); CH=$(grep -o 'name="choice" value="[^"]*"' /tmp/f.html | head -1 | sed 's/.*value="//; s/"//')
+    R=$(grep -oE 'class="riddle"><i>[^<]*' /tmp/f.html | sed 's/.*<i>//'); curl -s -b $C -c $C -X POST $BASE/event.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d token=$T -d choice=$CH -d back=inventory.php -o /dev/null; curl -s -b $C -c $C $BASE/inventory.php > /tmp/f.html; [ -n "$R" ] && echo "  (riddle: $R)"; fi
+  echo "  $ev: $(grep -oE 'evtitle">[^<]*' /tmp/f.html | head -1 | sed 's/.*">//') → $(grep -oE '<li>[^<]*' /tmp/f.html | sed 's/<li>//' | head -3 | tr '\n' ';')"
+done
+dbx "UPDATE random_events SET weight=10"; dbx "UPDATE settings SET value='100000' WHERE name='event_chance'"
+echo "  flags: $(db "SELECT 'harvest+'||ev_harvest_bonus||' quickwalk '||ev_quickwalk||' gather '||(ev_gather_until > datetime('now'))||' sale '||(ev_sale_until > datetime('now')) FROM users WHERE id=$SID") · bee tiles: $(db "SELECT COUNT(*) FROM plot_tiles WHERE plot_id=$P AND bonus_yield > 0") · weeds left: $(db "SELECT MAX(weeds) FROM plot_tiles WHERE plot_id=$P")"
+echo "== sale price at Twigg's: $(php -r 'chdir("'$GAME'"); $_SERVER["HTTP_HOST"]="x"; require "includes/bootstrap.php"; require_once "includes/world.php"; $u=q_one("SELECT * FROM users WHERE username=\"sprout\""); echo shop_price($u, 100, 15); q("UPDATE users SET ev_sale_until=NULL WHERE id=?",[$u["id"]]); echo " (normal ", shop_price(q_one("SELECT * FROM users WHERE id=?",[$u["id"]]), 100, 15), ")";')"
+echo "== fireflies walk: "; HOME=$(db "SELECT home_village_id FROM users WHERE id=$SID"); dbx "UPDATE users SET location_id=$HOME, ev_quickwalk=1 WHERE id=$SID"; R=$(db "SELECT id FROM routes WHERE kind='road' AND (a_id=$HOME OR b_id=$HOME) LIMIT 1"); E0=$(db "SELECT energy FROM users WHERE id=$SID")
+curl -s -b $C -c $C $BASE/world.php > /tmp/f.html; curl -s -b $C -c $C -X POST $BASE/adventure.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d do=start -d route_id=$R -o /dev/null; echo "   energy $E0 → $(db "SELECT energy FROM users WHERE id=$SID"), arrive in $(db "SELECT CAST((julianday(arrive_at)-julianday(started_at))*1440 AS INT) FROM expeditions WHERE user_id=$SID ORDER BY id DESC LIMIT 1") min, flag now $(db "SELECT ev_quickwalk FROM users WHERE id=$SID")"
+dbx "UPDATE expeditions SET status='done' WHERE user_id=$SID"; dbx "UPDATE users SET location_id=$HOME WHERE id=$SID"
+echo "== harvest with fairy ring + bee"; dbx "UPDATE users SET ev_harvest_bonus=2 WHERE id=$SID"; T=$(db "SELECT x||'-'||y FROM plot_tiles WHERE plot_id=$P AND bonus_yield>0 LIMIT 1"); [ -z "$T" ] && T=$(db "SELECT x||'-'||y FROM plot_tiles WHERE plot_id=$P AND plant_id IS NOT NULL LIMIT 1")
+dbx "UPDATE plot_tiles SET growth_seconds=99999 WHERE plot_id=$P AND x||'-'||y='$T'"; X=${T%-*}; Y=${T#*-}
+curl -s -b $C -c $C "$BASE/garden.php?sel=$T" > /tmp/f.html; curl -s -b $C -c $C -X POST $BASE/garden.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d do=harvest -d x=$X -d y=$Y -d sel=$T -o /dev/null; curl -s -b $C "$BASE/garden.php?sel=$T" | grep -oE '(🐝|🍄)[^<]*' | head -3 | sed 's/^/   /'
+echo "== seed spitting"; for i in 1 2 3 4; do curl -s -b $C -c $C $BASE/spit.php > /tmp/f.html; curl -s -b $C -c $C -X POST $BASE/spit.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -o /dev/null; curl -s -b $C $BASE/spit.php | grep -oE 'class="ml (prize|err) new">.{0,150}' | head -1 | sed 's/<small class="mlwhen">.*//; s/<[^>]*>/ /g; s/^class="[^"]*"> *//'; done   # v1.4.0: the result is in the message log now
+echo "== giant marrow"; curl -s -b $C -c $C $BASE/marrow.php > /tmp/f.html; grep -oE 'Today’s marrow:</b>[^<]*' /tmp/f.html | sed 's/<[^>]*>//g'; curl -s -b $C -c $C -X POST $BASE/marrow.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d kg=21.5 -o /dev/null; curl -s -b $C $BASE/marrow.php | grep -oE 'flash (ok|err)">[^<]*'
+curl -s -b $C -c $C -X POST $BASE/marrow.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d kg=22 -o /dev/null; curl -s -b $C $BASE/marrow.php | grep -oE 'flash (ok|err)">[^<]*'
+dbx "UPDATE marrow_guesses SET day='2026-01-01' WHERE user_id=$SID"; curl -s -b $C $BASE/games.php -o /dev/null; echo "   settled: $(db "SELECT placed FROM marrow_guesses WHERE user_id=$SID") · notice: $(db "SELECT text FROM notices WHERE user_id=$SID AND text LIKE '%marrow%' LIMIT 1" | cut -c1-100)"
+echo "== games page cards: $(curl -s -b $C $BASE/games.php | grep -c 'class="box gamecard"')"
+echo "== festival (moved to today in this copy)"; curl -s -b $C $BASE/town.php?hub=1 > /tmp/f.html; grep -oE 'Today: the [^<]*' /tmp/f.html; grep -A3 'Festivals coming up' /tmp/f.html | grep -oE '<b>[^<]*</b> in [^·]*· [^<]*' | head -2 | sed 's/<[^>]*>//g'
+G=$(db "SELECT id FROM town_spots WHERE region='Mossbottom' AND kind='green'"); curl -s -b $C -c $C "$BASE/town.php?hub=1&spot=$G" > /tmp/f.html; echo "   stall button: $(grep -c 'Visit the festival stall' /tmp/f.html)"
+curl -s -b $C -c $C -X POST $BASE/town.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d do=festival -d spot=$G -d hub=1 -o /dev/null; curl -s -b $C -c $C "$BASE/town.php?hub=1&spot=$G" | grep -oE 'class="(pztitle|pzbig)">[^<]*|<li>[^<]*' | sed 's/.*>//' | head -5 | tr '\n' ';'; echo
+curl -s -b $C -c $C -X POST $BASE/town.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d do=festival -d spot=$G -d hub=1 -o /dev/null; curl -s -b $C "$BASE/town.php?hub=1&spot=$G" | grep -oE 'flash err">[^<]*' | sed 's/^/   again: /'
+BA=$(db "SELECT id FROM town_actions WHERE slug='hub-bench'"); dbx "UPDATE users SET energy=1 WHERE id=$SID"; curl -s -b $C -c $C -X POST $BASE/town.php --data-urlencode "csrf=$(csrf /tmp/f.html)" -d do=act -d action_id=$BA -d spot=$G -d hub=1 -o /dev/null; echo "   bench on festival day: $(curl -s -b $C "$BASE/town.php?hub=1&spot=$G" | grep -oE '<li>[^<]*' | sed 's/<li>//' | tr '\n' ';')"
+echo "== birthdays"; php -r 'chdir("'$GAME'"); $_SERVER["HTTP_HOST"]="x"; require "includes/bootstrap.php"; require_once "includes/npc_life.php"; $n=q_one("SELECT * FROM npcs LIMIT 1"); echo "   ", $n["name"], " born ", npc_birthday_text($n), "; ", count(array_filter(q("SELECT * FROM npcs")->fetchAll(), "npc_birthday_today")), " NPCs have a birthday today\n";'
+echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/fun-php.log || echo "(none)"

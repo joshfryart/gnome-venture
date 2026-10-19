@@ -1,0 +1,33 @@
+# slug | what happens | landscapes (or any) | approaches: stat:difficulty:what you try ; ... | cond (optional, v1.9.3)
+# cond = time/season/weather in the rest-stop syntax (dp=night,dusk/se=winter/we=rain). A plain cond makes it 3x likelier when it matches.
+# A cond starting with ! is a must (a fog puzzle only in fog). Rewards never depend on it.
+# Stats: grit, nimble, hardiness, lore, sense, charm, luck. Roll d20 + stat modifier and meet the difficulty.
+# Failing never ends the adventure: you just lose a little energy and carry on.
+fallen-branch|A fallen branch, huge to a gnome, blocks the path.|forest,rainforest,grassland|grit:12:Heave it aside;nimble:11:Squeeze underneath;lore:13:Remember an old detour
+riddle-toad|A wise old toad sits on the only bridge and asks you a riddle.|wetland,forest|lore:12:Answer the riddle;charm:13:Flatter the toad;sense:14:Spot the answer hidden in its smile
+rushing-stream|A rushing stream cuts across the trail.|mountain,forest,rainforest|nimble:12:Hop across the stones;grit:13:Wade through;sense:11:Find a shallow ford|we=rain,storm
+sliding-dune|The dune slides out from under your boots.|desert,coast|hardiness:12:Trudge to the top;nimble:13:Surf down the far side;sense:11:Read the wind for firmer sand
+icy-ledge|The path narrows to an icy ledge.|tundra,mountain|nimble:13:Edge along carefully;hardiness:12:Brace against the cold and push on;lore:12:Recall how mountain gnomes cross ice|we=frost,snow
+tangled-vines|Vines as thick as your arm knot together across the way.|rainforest,forest|grit:12:Tear through;nimble:12:Climb over;lore:11:Find the vine that unties the rest
+lost-beetle|A small beetle has lost its family and is crying.|any|charm:11:Comfort it and help it home;sense:12:Follow the tracks to its family;lore:13:Recognise its family's markings
+sleeping-hedgehog|A sleeping hedgehog blocks the path like a spiky boulder.|forest,grassland|nimble:12:Tiptoe past;charm:12:Gently wake it with a song;grit:14:Roll it aside, carefully|dp=dusk,night
+mud-pit|Thick mud sucks at your boots.|wetland,rainforest|grit:12:Haul yourself through;hardiness:11:Slog on regardless;sense:12:Spot the firm tussocks|we=rain,storm
+rising-tide|The tide is coming in fast.|coast,island|nimble:12:Race the waves;sense:12:Read the tide line;luck:13:Trust your luck and dash
+broken-cart|A traveller's cart has lost a wheel.|grassland,mountain,desert|grit:12:Lift it while they fix it;lore:12:Show them a clever fix;charm:11:Rally passers-by to help
+pedlar|A wandering pedlar offers you a "very special" seed.|any|charm:13:Haggle a fair deal;sense:12:Spot whether it's the real thing;luck:14:Take the gamble
+old-gate|An old garden gate, locked tight, blocks a shortcut.|forest,grassland,mountain|lore:13:Work out the lock;nimble:12:Climb over;grit:14:Force it open
+angry-bees|A buzzing hive hangs right over the path.|grassland,forest,rainforest|charm:12:Hum to calm the bees;nimble:13:Sneak past underneath;sense:11:Find another way round|we=sun,heat
+thick-fog|Fog rolls in until you can't see your own boots.|coast,mountain,wetland,tundra|sense:13:Feel your way by sound;lore:12:Navigate by memory;luck:14:Just keep walking and hope|!we=fog
+quicksand|The ground turns soft and starts swallowing your boots.|desert,wetland|lore:12:Remember: lie flat and wriggle;grit:14:Fight your way out;hardiness:13:Stay calm and slowly pull free
+crevasse|A crack in the ice yawns across the path.|tundra,mountain|nimble:13:Leap it;lore:12:Find where it narrows;grit:14:Build a bridge from snow blocks|se=winter
+nightfall|Night falls before you reach shelter.|any|hardiness:12:Keep walking through the dark;sense:12:Find a safe hollow to rest;charm:13:Ask a glowworm to light your way|!dp=night,dusk
+coconut-rain|Coconuts thud down from the palms like cannonballs.|island,coast,rainforest|nimble:12:Dodge between the trunks;sense:12:Listen for the creak before each drop;luck:13:Stride on and hope
+heat-haze|The sun beats down and the horizon wobbles.|desert,grassland|hardiness:13:Push on through the heat;lore:12:Find shade by the old stone markers;sense:12:Spot a hidden spring|!dp=day/we=sun,heat
+frozen-puddle|A puddle has frozen over, and it is the only way across.|forest,grassland,mountain,tundra,wetland|nimble:12:Skate across in your boots;sense:12:Test the ice with a twig;hardiness:11:Stomp straight through the crust|!we=frost,snow
+mud-after-rain|Last night’s rain has turned the path to soup.|forest,grassland,wetland,rainforest,mountain|grit:12:Haul your boots free;nimble:12:Hop along the firm tussocks;lore:12:Remember the flat-stone trick|!we=rain,storm
+falling-leaves|A gust shakes the trees and leaves rain down until the path vanishes.|forest,grassland,mountain|sense:11:Follow the path by feel;nimble:12:Catch a leaf and keep moving;luck:12:Walk on and trust the leaves|!se=autumn
+snow-drift|A snow drift has piled across the trail, tall as a toadstool house.|tundra,mountain,forest,grassland|grit:13:Dig a tunnel through;nimble:12:Walk the hard crust on light feet;lore:12:Find the windy side where the snow is thin|!we=snow
+storm-shelter|Thunder cracks overhead. You need shelter, and fast.|any|sense:12:Spot a dry hollow;hardiness:13:Weather it under your hat;luck:13:Dash for the next stop and hope|!we=storm
+dew-web|Dew-heavy spider webs glitter across the path at head height.|forest,grassland,wetland,rainforest|nimble:12:Duck under every strand;charm:11:Ask the spiders to hold the door;sense:12:Find the gap in the glitter|!dp=dawn
+windy-hat|A gust snatches your hat and sends it tumbling down the trail.|any|nimble:12:Chase it down;sense:11:Cut it off at the hedge;luck:13:Wait for the wind to drop it|!we=wind,storm
+heat-shimmer|The air ahead shimmers. A pond, or a trick of the heat?|desert,grassland,island|sense:13:Look past the mirage;hardiness:12:Walk straight on;lore:12:Remember what a real pond smells like|!we=heat

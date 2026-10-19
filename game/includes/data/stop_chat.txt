@@ -1,0 +1,32 @@
+# What villagers say (v1.0.0). {name} = the gnome, {folk} = the villager, {place} = the stop. Pick by time, season and weather.
+# when (- = always; same format as activities: dp= se= we=) | personalities (or any) | line
+-|any|“Good to see you again, {name}.”
+-|any|“{name}! Pull up a stool. Tell me where you’ve been.”
+-|any|“Mind the third step, {name}. Everyone does.”
+-|Chatty|“Did you hear? {place} has had three visitors today already. Three!”
+-|Chatty|“I told them you’d be back, {name}. I did say.”
+-|Shy|“Oh. Hello, {name}. I was just… yes. Hello.”
+-|Grumpy|“Hmph. You again, {name}. Fine. Welcome.”
+-|Curious|“{name}, have you ever wondered why the road bends here? I have. I’ve been wondering for years.”
+-|Generous|“Take a seat, {name}. I’ll find you something.”
+-|Cheerful|“What a day to be alive, {name}!”
+-|Sleepy|“Mm? Oh, {name}. Sorry. Just resting my eyes.”
+-|Proud|“I keep {place} better than any other on this road, you know.”
+dp=dawn|any|“Early start, {name}! The dew’s still on everything.”
+dp=day|any|“Busy afternoon, {name}. Everybody’s about.”
+dp=dusk|any|“The light is lovely just now. Stay a while, {name}.”
+dp=night|any|“You walk late, {name}. Come in from the dark.”
+dp=night|Sleepy|“Shh… it’s the quiet hour, {name}.”
+we=rain|any|“Terrible weather for the road, {name}. Lovely for the moss.”
+we=rain|Cheerful|“Rain! Splendid! Jump in a puddle with me, {name}.”
+we=storm|any|“Hear that thunder, {name}? Stay put until it passes.”
+we=snow|any|“Snow on the road, {name}. Boots dry by the fire.”
+we=frost|any|“Frost on the gate this morning, {name}. Keep your ears covered.”
+we=sun|any|“Sunny, {name}! Everything grows a bit faster today.”
+we=heat|any|“Hot enough to bake a loaf on the path, {name}.”
+we=wind|any|“Hold your hat, {name}! Mine’s gone to the next valley.”
+we=fog|any|“Fog so thick I can’t see {place}’s own gate, {name}.”
+se=spring|any|“The first shoots are up, {name}. Everyone’s planting.”
+se=summer|any|“The long days, {name}. Make the most of them.”
+se=autumn|any|“Leaves are turning, {name}. Soon it’ll be pie season.”
+se=winter|any|“Cold one, {name}. Hot drinks all round.”

@@ -1,0 +1,95 @@
+# slug | Name | size | landscapes (or any) | level | drops (Item name:chance%, ...) | description | cond (optional, v1.9.3)
+# cond = rest-stop syntax (dp=night,dusk/se=winter/we=rain): 3x likelier when it matches, never excluded. Start it with ! to make it a must.
+# Everything is gnome-sized: a snail is a nuisance, a crow is a real threat, a fox is a dragon.
+# Sizes: small, medium, large, boss. Health, attack, defence, damage and XP are worked out from size + level.
+# Special drops: *seed = a seed of a crop grown in that country, *guide = that region's gardening guide.
+aphid-swarm|Aphid Swarm|small|any|1|Honeydew:70,Aphid Wings:25|A whining cloud of sap-suckers. Every gardener's oldest foe.
+garden-snail|Garden Snail|small|forest,grassland,wetland,coast|1|Snail Slime:70,Spiral Shell:30|Slow, sticky and astonishingly stubborn about who owns the path.|we=rain,fog
+ant-scouts|Ant Scouts|small|any|2|Ant Chitin:60,Forager's Crumb:30,*seed:5|A patrol of ants who think your satchel smells delicious.
+gnat-cloud|Gnat Cloud|small|wetland,rainforest|2|Gnat Dust:70|Thousands of tiny wings, all aimed at your ears.|dp=dawn,dusk
+leopard-slug|Leopard Slug|small|forest,wetland,rainforest|2|Slug Slime:80,Spotted Hide:20|A spotted slug the length of a gnome, slithering for your lettuce.|we=rain,fog
+sand-fleas|Sand Flea Pack|small|coast,island,desert|3|Flea Legs:60,Sea Glass:10|Hopping, nipping, impossible to pin down.
+dusk-moth|Dusk Moth|small|forest,grassland,mountain|3|Moth Wing:60,Wing Dust:30|Dazzles you with powdery wings in the twilight.|dp=dusk,night
+dung-beetle|Dung Beetle|small|grassland,desert|3|Beetle Shell:60,Dung Ball:40|Rolls a ball three times its size, and will roll you too.
+earwig|Pincer Earwig|small|forest,grassland,wetland|4|Earwig Pincer:50,Beetle Shell:30|All snap and swagger.
+cave-glowworm|Cave Glowworm|small|mountain,rainforest|5|Glow Silk:60,Glowing Bead:10|Lovely to look at. Sticky to touch.|dp=night
+orb-spider|Orb Spider|medium|any|5|Spider Silk:70,Spider Fang:20|Weaves wheels of silk across the path and waits.
+paper-wasp|Paper Wasp|medium|grassland,forest,desert|6|Wasp Stinger:50,Paper Comb:40|A striped guard with a short temper.|we=sun,heat
+bog-leech|Bog Leech|medium|wetland|6|Leech Slime:70|Wriggles out of the murk looking for a snack.|we=rain
+grumpy-lemming|Grumpy Lemming|medium|tundra|6|Lemming Fluff:70,*seed:5|Small, round, furious.
+bullfrog|Bullfrog|medium|wetland,rainforest|7|Frog Skin:50,Croak Sac:30|One gulp and you'd be lunch. Keep moving.|we=rain,storm
+shore-crab|Shore Crab|medium|coast,island|7|Crab Claw:50,Crab Shell:50|Sidesteps, then pinches.
+barn-rat|Barn Rat|medium|grassland,forest,coast|8|Rat Pelt:50,Rat Tooth:30,*seed:10|A seed thief with a long memory.|dp=night
+sun-lizard|Sun Lizard|medium|desert,grassland,rainforest|8|Lizard Scale:60,Shed Skin:30|Basks on hot stones and darts at anything that moves.|we=sun,heat
+tunnel-mole|Tunnel Mole|medium|grassland,forest|9|Velvet Pelt:60,Digging Claw:30|Bursts up through the soil like a furry earthquake.
+carrion-crow|Carrion Crow|medium|grassland,forest,mountain|9|Black Feather:70,Shiny Trinket:15|Clever, patient, and very interested in your hat.
+herring-gull|Herring Gull|medium|coast,island|10|Gull Feather:70,Sea Glass:20|Screams, swoops and steals.
+dune-scorpion|Dune Scorpion|medium|desert|10|Scorpion Stinger:40,Scorpion Plate:50|Its tail curls like a question you don't want answered.|dp=dusk,night
+frost-hare|Frost Hare|medium|tundra,mountain|11|Frost Fur:60,Frost Crystal:10|A white hare with breath like a winter wind.|we=snow,frost
+giant-centipede|Giant Centipede|medium|rainforest,forest|11|Centipede Plate:60,Venom Fang:20|A hundred legs and not one of them friendly.
+thistle-beast|Thistle Beast|medium|grassland,mountain|12|Thistle Spines:60,Thistle Heart:10|A walking thistle patch with a bad attitude.
+ember-beetle|Ember Beetle|medium|desert,mountain|12|Ember Shell:50,Ember Spark:20|Its shell glows like a coal fresh from the fire.
+will-o-wisp|Will-o'-Wisp|medium|wetland|13|Wisp Light:40,Marsh Pearl:10|A floating light that leads gnomes astray.|dp=night
+grass-snake|Grass Snake|large|grassland,wetland,rainforest,desert|14|Snake Skin:60,Snake Fang:20|A green river of scales. Do not stand still.
+grey-heron|Grey Heron|large|wetland,coast|15|Heron Plume:60,Long Feather:30|Stands like a statue. Strikes like lightning.
+mischief-monkey|Mischief Monkey|large|rainforest|15|Monkey Fur:50,Stolen Trinket:30,*seed:15|Steals your hat, then your seeds, then your dignity.
+red-fox|Red Fox|large|forest,grassland,mountain,tundra|16|Fox Pelt:60,Fox Fang:30,Bushy Tuft:20|To a gnome, a fox is a dragon with a smile.|dp=dawn,dusk
+raccoon|Raccoon|large|forest,wetland|16|Raccoon Pelt:50,Stolen Bauble:25|A masked bandit with clever hands.|dp=night,dusk
+tawny-owl|Tawny Owl|large|forest,mountain|17|Owl Feather:70,Owl Pellet:40|Silent wings in the dark. Listen for them.|dp=night,dusk
+arctic-fox|Arctic Fox|large|tundra|17|White Pelt:60,Fox Fang:30|A ghost of the snow.|se=winter
+badger|Badger|large|forest,grassland|18|Badger Pelt:60,Badger Claw:40|An armoured digger who does not like visitors.
+mire-toad|Mire Toad|large|wetland|18|Mire Hide:60,Toad Jewel:5|Ancient, warty, and much bigger than it has any right to be.|we=rain,fog
+tide-crab-knight|Tide Crab Knight|large|coast,island|19|Tide Shell:50,Pearl:10|Wears a shell like plate armour and duels anything on its beach.
+moss-golem|Moss Golem|large|forest,rainforest,mountain|20|Living Moss:70,Golem Pebble:30,*seed:10|A boulder that woke up covered in moss and opinions.
+bramble-wolf|Bramble Wolf|large|forest|22|Bramble Pelt:50,Thorn Fang:30|Woven from thorny vines, it hunts by the smell of fresh soil.
+coconut-crab-titan|Coconut Crab Titan|boss|island|26|Titan Claw:60,Coconut Husk:50,*seed:30|Cracks coconuts like eggs. Cracks gnomes like coconuts.
+great-hawk|Great Hawk|boss|grassland|28|Hawk Feather:70,Sky Talon:30,*guide:5|A shadow that crosses the meadow, and the meadow goes quiet.
+ancient-snapper|Ancient Snapping Turtle|boss|wetland|28|Turtle Scute:60,Mossy Shell:40,*guide:5|Older than the marsh itself.
+reef-leviathan|Reef Leviathan|boss|coast|29|Eel Skin:60,Sea Glass:50,Pearl:20,*guide:5|An eel as long as a village street.
+old-bramblehorn|Old Bramblehorn|boss|forest|30|Antler Shard:60,Elder Pelt:40,*guide:5|A great stag crowned with living branches.
+dune-wyrm|Dune Wyrm|boss|desert|30|Wyrm Scale:60,Wyrm Fang:30,Desert Gem:10,*guide:5|The sand ripples. Then the sand stands up.
+snow-owl-monarch|Snow Owl Monarch|boss|tundra|30|Snowy Plume:60,Frost Crystal:40,*guide:5|Ruler of the white silence.
+storm-eagle|Storm Eagle|boss|mountain|32|Storm Feather:60,Golden Talon:20,*guide:5|Rides the thunder above the peaks.
+jade-jaguar|Jade Jaguar Spirit|boss|rainforest|32|Spotted Pelt:60,Jade Eye:15,*guide:5|A spirit of the deep jungle with eyes like polished jade.
+# v0.9.7: for regions 23-35 (Spicepeak, the Monsoon Tangle, the Greatcanopy, Thornacre Savanna, the Coralscatter); levels 24-37, so those regions stop meeting scaled wolves
+delta-gharial|Delta Gharial|large|wetland|24|Mire Hide:55,Eel Skin:30,*seed:8|A river-bank log with a very long nose and no sense of humour about gnomes on its mud.
+emerald-python|Emerald Python|large|rainforest,wetland|25|Snake Skin:60,Snake Fang:30,Jade Eye:4|Hangs from the canopy like a green rope, and a rope that hugs back.
+jungle-tiger|Jungle Tiger|large|forest,rainforest|26|Velvet Pelt:55,Spotted Pelt:25,Fox Fang:20|Stripes in the shade, then suddenly a tiger-shaped problem.
+spice-monitor|Spice Monitor|medium|rainforest,island,coast|27|Lizard Scale:60,Shed Skin:30,*seed:10|Smells of cinnamon and bad intentions. Its tongue tastes you from across the clearing.
+cloud-leopard|Cloud Leopard|large|mountain|28|Frost Fur:50,Spotted Pelt:30,Antler Shard:10|Walks the high ledges as if gnomes were a rumour.
+savanna-hyena|Savanna Hyena|medium|grassland|29|Spotted Hide:55,Fox Fang:30,Rat Tooth:20|Laughs at you first. The rest of the pack laughs later.
+mangrove-crab-king|Mangrove Crab King|large|coast,island,wetland|30|Crab Shell:55,Crab Claw:40,Pearl:8|Rules the root tangle with one huge claw and a very small crown of barnacles.
+sand-viper-matriarch|Sand Viper Matriarch|large|desert|31|Snake Skin:55,Venom Fang:35,Desert Gem:6|Hidden in the dune until the moment you step on her dinner.
+honey-badger-brute|Honey Badger Brute|large|grassland,desert|32|Badger Pelt:55,Badger Claw:40|Does not care. Has never cared. Is currently charging.
+thunder-yak|Thunder Yak|large|mountain|33|Frost Fur:55,Antler Shard:30|Its hooves on the pass sound like the sky clearing its throat.
+reef-eel-lord|Reef Eel Lord|large|coast,island|34|Eel Skin:60,Sea Glass:40,Pearl:8|Lives in the coral keep and bites anyone who swims past without paying.
+outback-dingo|Outback Dingo|medium|desert,grassland|35|Fox Pelt:55,Fox Fang:35|Pale as the dust and twice as patient.
+fern-cassowary|Fern Cassowary|large|forest,rainforest,island|36|Long Feather:55,Black Feather:30,Spotted Hide:15|A feathered helmet on two legs, with kicks like falling rocks.
+deep-octopus|Deep Octopus|large|island,coast|37|Sea Glass:45,Pearl:15,Glowing Bead:25|Eight arms, three hearts, and not one of them is friendly today.
+# v1.4.0: fills the level gaps (L11-29) in every landscape; drops lean toward gardening and crafting (shells, feathers, silk, wax, fibre, logs, moss)
+hermit-crab-hoarder|Hermit Crab Hoarder|medium|island,coast|12|Spiral Shell:60,Cowrie Shell:30,Sea Glass:10|Wears three stolen shells at once and is still looking for a fourth.
+sea-otter-bandit|Sea Otter Bandit|medium|coast|13|Blue Mussels:55,Kelp Frond:35,Seed Pearl:3|Cracks mussels on its tummy and considers your lunch pail an open shellfish.
+dust-sidewinder|Dust Sidewinder|medium|desert|15|Snake Skin:55,Desert Rose Stone:20|Travels sideways, which is somehow more alarming.|we=heat,sun
+poison-dart-frog|Poison Dart Frog|medium|rainforest,wetland|16|Frog Skin:55,Morpho Scales:6,Fiddleheads:30|Jewel-bright and very sure of itself. Admire it from two gnome-lengths away.|we=rain
+reef-turtle|Reef Turtle|large|island|16|Tortoise Scute:45,Sea Grapes:40,Cowrie Shell:20|Paddles up the beach like a slow green boulder and snaps at anything on its path.
+leafcutter-column|Leafcutter Column|medium|rainforest|17|Ant Chitin:55,Fiddleheads:35,*seed:6|A marching green parade of leaves, each carried by an ant who has opinions about your trowel.
+ptarmigan-flock|Ptarmigan Flock|medium|tundra,mountain|18|Bright Feather:55,Cottongrass:35,Pretty Feather:15|White in winter, brown in summer, and cross in every season.|se=winter
+bog-pike|Bog Pike|large|wetland|20|Perch:55,Eel Skin:30,Bog Peat:25|A long-toothed fish that lunges from the reeds at anything dangling a boot.
+desert-gila-dragon|Gila Dragon|large|desert|20|Lizard Scale:55,Scarab Shell:30,Desert Rose Stone:15|Pink and black and slow, until it isn't. Its bite stays with you.
+cliff-ram|Cliff Ram|large|mountain|21|Goat Hair:60,Slate Shard:30,Frost Crystal:8|Lowers its curled horns and treats the ledge as private property.
+wolverine|Grumpy Wolverine|large|tundra,mountain|21|White Pelt:50,Badger Claw:35,Frost Crystal:10|Small for a large foe and furious about it.
+wild-boar|Wild Boar|large|forest,grassland|21|Leaf Mould Clump:55,Oak Gall:30,*seed:8|Roots up the acorn path like a plough with bristles, and your plot looks like next.
+pelican-parliament|Pelican Parliament|large|coast,island|21|Long Feather:55,Sardine:45,Sea Glass:8|A solemn committee of bills. Motion carried: you are lunch.
+beaver-foreman|Beaver Foreman|large|wetland,forest|22|Birch Log:55,Velvet Pelt:40,Cattail Root:20|Directs a dam crew with a flat tail and a loud slap. Everything is a lumber order.
+giant-anteater|Giant Anteater|large|rainforest|22|Digging Claw:50,Rubber Sap:35,Ant Chitin:30|Wears its tail like a cloak and its tongue like a whip.
+giant-bumblebee|Giant Bumblebee|large|grassland,forest|23|Wild Honeycomb:55,Beeswax:35,Pretty Feather:8|A round fuzzy gentleman the size of a pony to a gnome, warm, cross, and very hard to argue with.|we=sun,heat
+tufted-lynx|Tufted Lynx|large|forest,mountain|23|Spotted Pelt:50,Bushy Tuft:40,Owl Feather:10|Tufted ears, soft paws and a way of being suddenly on your path.
+clam-lurker|Clam Lurker|large|coast|23|Blue Mussels:60,Seed Pearl:15,Pearl:5|A clam as big as a garden gate, and it has just yawned open.
+desert-tortoise|Desert Tortoise|large|desert|24|Tortoise Scute:50,Mesquite Pods:35,Desert Gem:3|Carries a whole hill on its back and expects you to go around.
+griffon-vulture|Griffon Vulture|large|mountain,desert|24|Eagle Down:50,Long Feather:40,Bright Feather:15|Circles very patiently. It has plenty of time.
+black-bear|Black Bear|large|forest,mountain|25|Wild Honeycomb:45,Badger Pelt:40,Leaf Mould Clump:25|To a gnome, a rolling hill that smells strongly of blackberries and trouble.
+salt-sea-lion|Salt Sea Lion|large|coast|25|Sea Salt:55,Bladderwrack:40,Eel Skin:25|Honks across the bay from a rock crusted white with salt.
+glacier-bear|Glacier Bear|large|tundra|26|Frost Fur:55,White Pelt:35,Frost Crystal:20,*seed:6|Blue-white and slow-footed, with a ten-gnome-long shadow.
+prairie-bison|Prairie Bison|large|grassland|26|Velvet Pelt:50,Dung Ball:40,Straw Mulch:20|The herd moves like thunder in a field and leaves the best fertiliser behind.
+desert-camel|Dunegrass Camel|large|desert|27|Goat Hair:45,Mesquite Pods:35,Desert Gem:6|Chews in your direction. That is all it takes.
+lichen-reindeer|Lichen Reindeer|large|tundra|28|Antler Shard:45,Reindeer Lichen:55,Cottongrass:30|A moss-garden on antlers, grazing the frozen plain.

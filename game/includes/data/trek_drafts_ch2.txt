@@ -1,0 +1,128 @@
+# Chapter II-a draft bodies (v1.9.2). key|body   (\n = line break). Players see these until Joshua rewrites the slot in Admin > Trek text.
+ch2.intro|Under the topsoil, the clay.
+It holds water, and it holds on to whatever falls into it.
+The Blight Shard hums in your pocket, pointing down, and the walls are weeping.
+ch2.ko.tutorial|You wake on the cold ledge where you landed, damp and sore.
+Nothing is missing. The clay is patient, and so are you.
+ch2.camp.innkeeper.greet|“Mind the drips, and come in. The lamp stays lit for folk like you.”
+“Down the steps is the Library. A snail went in to read, and I haven’t seen her come out since.”
+ch2.camp.innkeeper.shop|“Camp kits, tin and cloth. Keep them dry if you can. Nobody can.”
+ch2.camp.innkeeper.rest|“There. Warm toes, safe satchel. Off you go when you’re ready.”
+ch2.banter.sorrel.1|“It’s a good lamp. Steady. I read three chapters by one like it once, before the water came up.”
+ch2.banter.sorrel.2|“I think I’m only slightly overdue now. Perhaps the fine can be paid in soup.”
+ch2.banter.burdock.1|“Clay remembers everything it is told. I’d like to know who told it all this sorrow.”
+ch2.ms.ch2_sorrel|Sorrel tucks the book under her arm like a sleeping child.
+The Library feels a little less lonely already.
+ch2.ms.ch2_silverfin|The grey slips off Silverfin like dust off a spine.
+She blinks, hiccups a single page, and curls up on a warm shelf to read.
+ch2.ms.ch2a_end|The Crossroads gate swings open on its own, with the creak of a door that has been waiting to be asked.
+Beyond it, signposts stand in a ring, every arm pointing somewhere different.
+book.ch2|THE WEEPING CLAY
+Below the topsoil lies the clay, cold and grey-brown and very patient. Clay holds water, and it holds on to anything that falls in.
+Now the clay is weeping. Something has plugged the old wells, and the water has nowhere to go but out through the walls.
+Gnomes call the first part of the clay the Seep Steps, then the Tin Lamp, the Drowned Library and Potter’s Row.
+book.claybound|THE CLAYBOUND
+Crawlers, crayfish, toads and book-nibbling silverfish, each wearing a crust of grey-brown clay like a coat that does not come off.
+They are not wicked. They are stuck, and cross about it. Cure the blight under the clay and the crust crumbles away.
+book.silverfin|SILVERFIN THE PAGE-EATER
+A silverfish grown as long as a gnome, silver and shy. The blight made her hungry for words, and she ate the Library’s shelves one page at a time.
+Cured, she is gentle. She still likes the smell of old paper, and now she is allowed to sniff it.
+ch2.crew.burdock.talk|“Hold still a moment.” Burdock presses a broad palm to the wall and listens.
+ch2.crew.burdock.done|He nods at something only he can hear, and scoops a few Petals out of a crack in the clay.
+ch2.crew.zinnia.talk|Zinnia hums, and a drip lands on her wing. “Oh, that’s cold. Everyone gather round, I have a plan.”
+ch2.crew.zinnia.done|She sings a small sunny tune. The chill goes out of everyone’s toes, and everyone feels a little better.
+ch2.crew.bracken.talk|Bracken stands very still and stares at the dark. “Something ahead. Let me look.”
+ch2.crew.bracken.done|He scouts ahead and comes back with a quiet report. The way on is clearer now.
+ch2.crew.sorrel.talk|Sorrel taps her ink-stained eyestalk. “I could draw us a map. If someone holds the lamp.”
+ch2.crew.sorrel.done|She inks a neat little map on the back of an overdue slip. The next goal is circled twice.
+ch2.ev.handprints.text|The clay wall is covered in handprints, big and small, pressed in rows like a greeting.
+The clay under them is faintly warm.
+ch2.ev.handprints.press|You press your palm into the clay. It hums softly, as if saying: yes, you too.
+ch2.ev.handprints.trace|You trace each print with a finger. Some of them have a little ink at the edge. Readers, then.
+ch2.ev.pot.text|A little clay pot comes rolling down the slope, wobbling like it is in a hurry.
+ch2.ev.pot.catch|You catch it neatly. Something rattles inside: a few Petals someone saved for later.
+ch2.ev.pot.miss|It slips through your fingers and rolls off into the dark with a cheerful clink.
+ch2.zone.j.arrive|You step off the last root-rung onto a ledge of wet orange clay.
+Water weeps down every wall in thin bright threads, and the ledges step away below you like a crooked stair.
+ch2.zone.k.arrive|A dry pocket in the clay, and in it, a tin lamp swinging on a hook.
+It throws a warm, wobbly light over a counter, a few stools and the smell of something hot.
+ch2.zone.l.arrive|Shelves climb into the dark, heavy with books that smell of damp and old thought.
+Water laps at the lower rows. Here and there a page has been nibbled to lace.
+ch2.zone.m.arrive|A neat lane of round-doored clay houses, every step swept, every kiln cold.
+Someone loved this place. Nobody is home, but the porch lamps are still lit.
+ch2.spot.start.arrive|The root-rungs hang overhead, back toward the Hollow. You can climb up from here whenever you need to.
+ch2.spot.sluice1.before|Ahead, the ledge ends in deep, still water. Next to you stands a brass-rimmed wheel set in the wall, the kind old gnomes used to move water about.
+It looks stiff, but not stuck.
+ch2.spot.sluice1.done|The wheel turns with a groan. Somewhere in the wall, something gurgles, and the water goes sliding off down a hidden drain.
+What is left is shining wet mud, and a way across.
+ch2.spot.sluice1.after|The wheel sits still. Behind it, the old drain trickles contentedly.
+ch2.spot.barrow.before|A wheelbarrow lies on its side in the wet clay, one handle sunk to the knuckle.
+Something is wrapped in cloth beneath it.
+ch2.spot.barrow.win|You heave. The barrow comes up with a rude squelch, and a Camp Kit rolls out of the cloth.
+ch2.spot.barrow.fail|The clay hangs on like a toddler on a coat. Not this time.
+ch2.spot.barrow.work|Spoonful by spoonful you dig the handle out. It takes a while, but the barrow tips upright and gives up its Camp Kit.
+ch2.spot.barrow.after|The barrow stands upright, a little proud of itself.
+ch2.spot.camp.arrive|The tin lamp swings gently. Here you can rest, bank your finds and swap trailmates.
+ch2.spot.book.arrive|In a shelf alcove lies a swollen book with a snail-shaped bookmark.
+A slip tucked inside is stamped OVERDUE in very small, very sad letters.
+ch2.spot.book.find|You wrap the book in your scarf as gently as you can. Someone, somewhere in here, is missing it.
+ch2.spot.nook.arrive|A reading nook, with a cushion shaped like somebody who sat here a long time.
+A page of neat notes lies open: “The clay-caked creatures are not wicked. They are stuck. Be patient with them.”
+ch2.spot.rest.before|Someone has stacked cushions in a dry corner under a high shelf, and left a blanket folded on top.
+It looks like the best idea anyone has had in a while.
+ch2.spot.rest.done|You all sit. For a little while nobody speaks, and the drips keep time. You get up feeling much better.
+ch2.spot.rest.after|The cushions still hold a little of your warmth.
+ch2.spot.libdoor.question|A brass plate on the door clears its throat.
+“Silence in the Library. Answer me this and you may pass: I have a spine, and I have pages, but I can’t stand up on my own. What am I?”
+ch2.spot.libdoor.a1|A snail
+ch2.spot.libdoor.a2|A book
+ch2.spot.libdoor.a3|A hedgehog
+ch2.spot.libdoor.right|“Quite right. Do mind the wet floor.” The plate sniffs approvingly, and the door swings open.
+ch2.spot.libdoor.wrong|“Hm. Close, perhaps, to something. Try again.”
+ch2.spot.libdoor.out|The plate sighs. Then the damp clay around the frame gives way with a wet little sigh of its own, and the door sags open.
+“Well. The wall seems to approve of you.”
+ch2.spot.libdoor.seed|A Seedkeeper knows these old shelf-marks. One quiet word to the plate and the door swings open, with apologies.
+ch2.spot.libgate.locked|The door is shut tight. The brass plate beside it looks as if it has something to say.
+ch2.spot.libgate.open|The door creaks wide. Beyond it, the Stacks wait in the water-light.
+ch2.spot.sluice2.before|Another brass wheel, set into the end of a shelf. Beyond it the Stacks are flooded to the knees.
+You have seen this trick before.
+ch2.spot.sluice2.done|The wheel groans. Water pours away down the floor-drains, and the lowest shelves surface one by one, dripping.
+ch2.spot.sluice2.after|The Stacks are drying slowly. Somewhere a page flutters.
+ch2.spot.sorrel.before|“Oh! Um. Hello. I’m Sorrel. I’ve been up here a long while.”
+“There was a book, you see. It’s very overdue. I can’t leave until it’s back on the shelf.”
+ch2.spot.sorrel.need|“If you happen to find a swollen book with a snail bookmark, I’d be ever so grateful.”
+“It’ll be lying open somewhere, probably quite embarrassed.”
+ch2.spot.sorrel.join|“Oh, there you are, you silly thing.” She hugs the book.
+“Thank you. Truly. I’ll come with you. Something grey has been eating the shelves, and I think… I think I know how to help.”
+ch2.spot.silverfin.intro|In the old Reading Room, something long and silver is gnawing at the last page of a very large book.
+Its scales are crusted with grey clay, and it looks, more than anything, hungry.
+ch2.spot.silverfin.hit|Silverfin lunges and snaps at the nearest of you.
+ch2.spot.silverfin.sweep|Silverfin sweeps her long silver body across the whole room.
+ch2.spot.silverfin.mend|Silverfin swallows a clean page and the clay on her flanks knits back together.
+ch2.spot.silverfin.enrage|Silverfin thrashes in a flurry of silver. She is frantic now!
+ch2.spot.silverfin.spawn|A little silverfish shakes loose from the torn pages and darts at you.
+ch2.spot.silverfin.defeat|The clay crust crumbles away in grey flakes. Silverfin blinks and hiccups out a whole page, quite undamaged.
+Sorrel catches it before it lands. “There, there,” she tells the great silver creature. “You were only hungry.”
+Somewhere below, a latch clicks open.
+ch2.spot.silvergate.locked|A round wooden hatch in the floor is bolted from this side. The Reading Room has something to settle first.
+ch2.spot.silvergate.open|The hatch swings down onto a swept lane, and warm porch light spills up to meet you.
+ch2.spot.wheel.before|In a little workshop a potter’s wheel turns slowly all by itself.
+A note on the bench: “Three lumps of wet clay and I’ll make you a pot. A good pot. Somebody down the road will want it.”
+ch2.spot.wheel.short|The wheel turns patiently. Three lumps, the note says. The clay-caked creatures in the Library are carrying plenty.
+ch2.spot.wheel.done|The wheel hums, the clay climbs up into a round little pot, and a pair of invisible hands set it on the bench.
+It is warm and slightly lopsided, and it is perfect.
+ch2.spot.wheel.after|The wheel keeps turning, waiting for the next customer.
+ch2.spot.kilnstone.question|A stone by the kiln has words carved on it in a careful old hand.
+“I begin soft and wet. The fire makes me hard. I hold whatever you pour into me. What am I?”
+ch2.spot.kilnstone.a1|A pot
+ch2.spot.kilnstone.a2|A cloud
+ch2.spot.kilnstone.a3|A candle
+ch2.spot.kilnstone.right|The stone shivers, and a little niche slides open at its base. Inside lies a heavy key, glazed blue.
+ch2.spot.kilnstone.wrong|The stone waits. It has waited for longer than this.
+ch2.spot.kilnstone.out|The stone goes quiet. Somewhere in the lane, they say, the toads have been collecting keys.
+ch2.spot.kiln.locked|A round clay chest sits in the mouth of the cold kiln, shut with a blue-glazed lock.
+The keyhole is shaped like something the kiln stone might hold.
+ch2.spot.kiln.open|The key turns with a soft clink. Inside, tidy as a pantry: camp supplies and a purse of Petals.
+ch2.spot.kiln.after|The kiln chest is empty and swept clean. Someone cared for this place.
+ch2.spot.crossroads.locked|The Crossroads gate is shut. Through the slats you can see signposts, a great many of them, all pointing different ways.
+The way on is still settling… (coming soon)

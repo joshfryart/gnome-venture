@@ -1,0 +1,83 @@
+# Region | zone # | type | Gnomish name | flavour / what happens there
+# Types: haven (safe: rest, buff, special shop) · wonder (puzzle or event, special finds) · delve (hard multi-space side path) · lair (boss, set level)
+NA|1|haven|The Sugar Shack|A gnome sugarhouse tapping maples. Rest and buy maple syrup (energy snack).
+NA|2|wonder|Thousand Rings Stump|A giant hollow stump; read the rings for Lore checks and old seeds.
+NA|3|wonder|Lighthouse of the Lost Lantern|Help the keeper relight it; rewards coastal finds.
+NA|2|delve|Beaverdam Tunnels|A maze of lodges and flooded passages.
+NA|4|lair|Den of the Great White Owl|Boss lair. The owl guards the aurora fields.
+NA|4|haven|Aurora Camp|Northern-lights rest stop; a night here gives a Luck buff.
+CA|1|haven|Market of a Thousand Chilies|Spice stalls and a cocoa house (warming meal buff).
+CA|2|wonder|The Stepped Seed Temple|Old gnome terraces with riddles carved in stone.
+CA|3|wonder|Cenote of Echoes|A sunken pool; dive for lost treasures (Hardiness).
+CA|2|delve|Jaguar Root Caves|Twisting caves under the jungle floor.
+CA|4|lair|Smokecap Caldera|Boss lair. A fire salamander sleeps in the crater.
+CB|1|haven|Driftwood Tavern|Coconut water, music, rest. Buy sea-shell charms.
+CB|2|wonder|Sunken Gnome Galleon|A shipwreck reef full of old seed chests.
+CB|3|wonder|The Singing Waterfall|Climb behind it for rare flowers.
+CB|4|delve|Mangrove Root Maze|Tangled roots over dark water.
+CB|4|lair|Lair of the Hurricane Crab|Boss lair. Its shell is a whole island.
+CB|2|haven|Turtle Nesting Beach|Help hatchlings reach the sea; Charm buff.
+SA|1|haven|Gaucho Gnome Ranch|Rest, ride, buy yerba-mate gourds.
+SA|2|wonder|The Sky City Ruins|Old stone walls in the clouds; Lore puzzles.
+SA|3|wonder|Pink River Dolphin Pools|Friendly dolphins guide you to hidden seeds.
+SA|4|wonder|The Mirror Salt Flat|After rain it reflects the sky; a Sense trial.
+SA|3|delve|Anaconda Hollows|Long, dangerous creek paths.
+SA|2|lair|Condor's Crag|Boss lair. The Grand Condor rules the peaks.
+NWE|1|haven|Thatchtop Tearoom|Scones and rest. Sells heirloom seed packets.
+NWE|1|wonder|The Standing Stones|Mossy stones that hum at dusk; Lore checks.
+NWE|2|wonder|Fairy-ring Clearing|A ring of mushrooms that leads deeper into the mycelium.
+NWE|3|delve|Sea-cave Smugglers' Run|Tide-timed caves.
+NWE|4|lair|Barrow of the Frost Toad|Boss lair. A great cold toad in an old mound.
+NWE|4|haven|Northern Lights Sauna|Steam and rest; Hardiness buff.
+SE|1|haven|Olive Press Piazza|Fresh bread and oil; buy olive-wood tools.
+SE|2|wonder|Goat Path Vineyards|Help with the grape harvest for rare cuttings.
+SE|3|wonder|The Labyrinth Isle|A hedge maze with a stone-gnome riddle at its heart.
+SE|3|delve|Pirate-gull Grottoes|Sea grottoes full of thieving gulls.
+SE|4|lair|Forge of the Cinder Wyrm|Boss lair. A lava lizard in an old volcano.
+SE|1|haven|Lemon Grove Monastery|Quiet monks trade herbs; Lore buff.
+EE|1|haven|Painted Egg House|Folk-art cottage; rest and buy painted charms.
+EE|2|wonder|The Amber Woods|Amber with seeds trapped inside; careful digging (Nimble).
+EE|3|wonder|Stork Chimney Village|Storks carry messages and odd gifts.
+EE|2|delve|Salt Mine Galleries|Salt caves with carved gnome halls.
+EE|4|lair|Lair of the Grey Wolf King|Boss lair. Wolf of the high ridges.
+MENA|1|haven|Spice Souk|A covered market; mint tea and rest. Rare spice seeds.
+MENA|2|wonder|The Hanging Garden Ruins|Terraced ruins where old crops still grow.
+MENA|3|wonder|Cedar Sanctuary|Ancient cedars; meditate for a Sense buff.
+MENA|4|wonder|The Oasis That Moves|Appears in a different village each day.
+MENA|4|delve|Rose-red Canyon City|A city carved in canyon walls.
+MENA|4|lair|Tomb of the Sand Scarab|Boss lair. A beetle as big as a cart.
+WCA|1|haven|Drum Circle Market|Music, groundnut stew, rest.
+WCA|2|wonder|Mud Mosque Library|Old gnome scrolls on farming; Lore checks for guides.
+WCA|3|wonder|Gorilla Glade|Quiet giants who share forest fruits if you're polite (Charm).
+WCA|3|delve|The Canopy Bridges|Rope bridges high in the trees.
+WCA|3|lair|Hollow of the Silverback Spider|Boss lair.
+ESA|1|haven|Baobab Inn|A guesthouse inside a giant baobab.
+ESA|2|wonder|Coffee Ceremony Hut|Three cups, three blessings: energy and buffs.
+ESA|1|wonder|The Great Migration|Herds pass by; follow them for lucky finds.
+ESA|3|wonder|Flamingo Shallows|A pink lake; trade with flamingo-feather crafters.
+ESA|4|delve|Fynbos Fire Trails|Scorched trails through hardy shrubs.
+ESA|2|lair|Snowcrown Peak|Boss lair. The Mountain Lion of the Snowpeak.
+CSA|1|haven|Floating Flower Market|Boats of flowers; rest and buy garlands.
+CSA|2|wonder|The Silk Road Caravanserai|Trade stop; swap seeds with travelling gnomes.
+CSA|3|wonder|Tea Garden Slopes|Pick tea for a Sense buff.
+CSA|4|wonder|Prayer-flag Pass|Flags carry wishes; Luck buff.
+CSA|4|delve|Snowleopard Ledges|Narrow mountain paths.
+CSA|3|lair|Temple of the Tiger Moth|Boss lair.
+EA|1|haven|Cherry Blossom Teahouse|Tea, rest, and the best view in the Hollow.
+EA|2|wonder|The Thousand Gates|Walk the red gates; each one tests a stat.
+EA|3|wonder|Pearl Diver Cove|Dive for pearls (Hardiness).
+EA|2|wonder|Panda Bamboo Grove|Help a panda; shares bamboo shoots.
+EA|4|delve|The Long Wall Walk|A long, windy wall path.
+EA|4|lair|Lair of the Jade Dragon-fly|Boss lair.
+SEA|1|haven|Floating Market|Boat stalls; noodles and rest.
+SEA|2|wonder|Lantern Festival River|Float a lantern for a Luck buff.
+SEA|3|wonder|Volcano Spice Gardens|The original spice islands; rare treasure seeds.
+SEA|4|wonder|Root-wrapped Temple|A temple held in tree roots; Lore puzzles.
+SEA|4|delve|Firefly Caves|Dark caves lit by fireflies.
+SEA|3|lair|Dragonlizard Den|Boss lair. A huge monitor lizard.
+OC|1|haven|Kava Circle|Share kava; rest and Charm buff.
+OC|2|wonder|Glowworm Grotto|Ceiling of glowing worms; Sense trial for rare finds.
+OC|1|wonder|Starpath Canoe|Learn wayfinding from navigators (Wayfinder bonus).
+OC|3|wonder|Stone Head Watchers|Giant carved heads that answer one question each.
+OC|4|delve|The Red Rock Songlines|Long desert paths that follow old songs.
+OC|2|lair|Reef of the Box Jelly Queen|Boss lair.

@@ -1,0 +1,13 @@
+# Chapter II-b creatures (v1.9.4). Same format as trek_creatures_ch2.txt. Levels come from here (and the tune rows), plus the chapter's lift row.
+# The Hush is a sneak section: only the Claybound Millipede (a large patrol of one) walks there, often. The Dim is dark: moths and newts. The Tin Lamp style rule: a camp zone has no random fights.
+@pool|n|90|mud-crayfish:2,spadefoot-toad:2,dimwing-moth:1|2
+@pool|o|130|claybound-millipede:1|2
+@pool|p|95|dimwing-moth:3,cistern-newt:2,spadefoot-toad:1|2
+@pool|q|0|dimwing-moth:1|2
+@pool|r|105|cistern-newt:3,mud-crayfish:1,claybound-millipede:1|2
+@pool|s|110|drumming-cricket:3,cistern-newt:1|2
+dimwing-moth|Dimwing Moth|small|trek|19|Wing Dust:45|A pale moth with clay-grey wings that only beat when nobody is looking. It is drawn to the glow crystals and to your lantern.
+cistern-newt|Cistern Newt|medium|trek|20|Newt Tail:40,Wet Clay:35|A long dark newt with a clay-slick back, raised in the old cistern. Its sour breath smells of vinegar and old pennies.
+drumming-cricket|Drumming Cricket|medium|trek|21|Cricket Leg:45|A fat cricket in a crust of clay that drums its wings on the walls. Nobody told it the beat has stopped meaning anything.
+old-pinch|Old Pinch|boss|trek|23||An enormous cistern crab, sour and old, with one claw the size of a barrow wheel. She has held on to this cistern a very long time, and she is not letting go of anything.
+old-thrum|Old Thrum|boss|trek|24||A hulking clay-crusted cricket the size of a cart, who has been drumming the Chamber walls since before the clay wept. He is not angry. He is only very, very loud.
