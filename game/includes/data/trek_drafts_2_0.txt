@@ -6,22 +6,22 @@ ch1.spot.start.arrive|Daylight and the Hollow are just above you. Catch your bre
 ch1.spot.exit.arrive|A rope and a ladder of roots hang here, leading up to the Hollow.\nGo when you like. Your progress will be kept.
 ch1.spot.rootwall.locked|A wall of blackened roots blocks the tunnel. It twitches as you step close.\nSomething must be dealt with before it will move.
 ch1.spot.rootwall.open|The roots shrivel back with a dry rustle.\nA passage slopes down into the dark.
-ch1.tut.firstfight|Well done! Use Snack to heal with the home-cooked treats in your pack.\nAuto settles a fight for you if you would rather not pick every move.\nLoot waits in your pack, and is only safe once you reach a camp.
+ch1.tut.firstfight|Well done! Use Snack to heal with the home-cooked treats in your satchel.\nAuto settles a fight for you if you would rather not pick every move.\nLoot waits in your pack, and is only safe once you reach a camp.
 ch1.zone.w.arrive|The tunnels narrow and twist in loops, round and round.\nThe walls are slick under your fingers.\nFar off, someone is calling for help.
 ch1.spot.burdock.before|“Ah. Hello. Sorry. I seem to be stuck.”\n“Could you lend a hand with this stone? No rush. Well, a little rush.”
 ch1.spot.burdock.freed|“Oof. Thank you, friend. I thought I'd be here till spring.”\n“I came down because the soil smelled sour. Like rot, but wrong. Not rot at all.”\n“I'll come along, if you'll have me. Something lives deeper down, I think.”
-ch1.tut.party|Each friend in your party picks a move every round.\nBark Skin can cover a friend, and Guard halves the damage you take for a round.
+ch1.tut.party|Each friend in your party picks a move every round.\nBurdock's Bark Skin can cover a friend, and Guard halves the damage you take for a round.
 ch1.spot.boulder.locked|A great boulder fills the tunnel from wall to wall.\nIt is far too heavy for you alone.
 ch1.spot.boulder.open|Burdock rolls up his sleeves, sets his shoulder to the boulder, and shoves.\nIt grumbles aside, and the way on opens.
 ch1.zone.c.arrive|A hollow stump glows ahead, hung with glowworm lanterns.\nThere is light, the smell of a fire, and a little counter.\nAfter the dark tunnels, it is the first safe place you have seen.
 ch1.spot.camp.arrive|This is a camp. Rest here, and your finds are banked.\nYou can swap trailmates, too.
 ch1.camp.innkeeper.greet|“Welcome, welcome!” The keeper straightens a lantern that was already straight.\n“I keep the lanterns lit on purpose. The deeper you trek, the more I worry.”
 ch1.camp.innkeeper.shop|“Kits are for making camp out in the tunnels.”\n“You can only carry a few, mind. They take up room.”
-ch1.camp.innkeeper.rest|“There now. A bowl and a blanket. Your finds are safe in the pack.”
+ch1.camp.innkeeper.rest|“There now. A bowl and a blanket. Your finds are safe in the satchel now.”
 ch1.camp.innkeeper.firstkit|“First kit is on the house. Don't tell the others.”\n“Unroll it anywhere in the tunnels and you can rest.”
 ch1.camp.innkeeper.nofunds|“Not enough {currency} today, dear. Come back when you have the coin.”
 ch1.camp.innkeeper.full|“Ha! Your pack is full of kits already. You could open a shop.”
-ch1.tut.camp|If you are knocked out, you lose part of what you carry, until you reach a camp and bank it.\nA knock-out sends you back to the last camp you reached.\nSo bank your finds when you can.
+ch1.tut.camp|What you carry is not safe until you bank it at a camp. If you are knocked out, you lose part of it.\nA knock-out sends you back to the last camp you reached.\nSo bank your finds when you can.
 ch1.camp.makecamp|The kit unrolls into a snug little nest.\nA short rest, a few mouthfuls, and you feel much better.
 ch1.camp.makecamp.free|You curl up on bare stone for a cold, quick rest.\nIt is not as good as a kit, but it is something.
 ch1.camp.ambush|The quiet breaks. Something is coming.
@@ -31,7 +31,7 @@ ch1.ui.tired|Your legs feel heavy. Perhaps rest at a camp, or make camp soon.
 ch1.ui.wornout|Everyone is dragging their feet, and the next fights will go worse. Rest soon.
 ch1.zone.f.arrive|The cavern opens wide, its floor all soft soil and slow mud patches.\nThis was once a good growing floor. You can tell by the way the dirt still smells hopeful.\nThe beetles here twitch at every sound.
 ch1.spot.cellar.locked|An old gnome-made door sits low in the wall, bound by a heavy lock.\nThe keyhole is a curious shape, just right for something a beetle might carry.
-ch1.spot.cellar.open|The lock turns with a tired click, and the lid swings up.\nInside, tin camp supplies and a few {currency} wait, just where someone left them.
+ch1.spot.cellar.open|The lock turns with a tired click, and the door swings open.\nInside, tin camp supplies and a few {currency} wait, just where someone left them.
 ch1.spot.cellar.after|The cellar is empty now, but tidy, as if the old gnomes had only just stepped out.
 ch1.zone.d.arrive|The cavern hushes. Still pools glow softly in the dark, clear as glass.\nThis is the only clean water for a long way.\nLeeches slide about in the shallows.
 ch1.spot.dewsign.arrive|Someone has scratched a note into the post: clean dew can be gathered here.\nThey added: the leeches drink the best of it.
@@ -54,15 +54,15 @@ ch1.spot.bracken.before|“Halt. I am Captain Bracken Spurwing. The beetles on t
 ch1.spot.bracken.lose|“A good try. Truly.”\n“Come back when you are ready. No harm done.”
 ch1.spot.bracken.win|“I yield. You have earned it.”\n“My watch fell sick, and I failed them. I will come along and see this through.”\n“Be warned. The blight is stronger below.”
 ch1.zone.r.arrive|Rows of topsoil stretch ahead, grey and dead. Nothing here is quite right.\nThe creatures that crawl between them are sickly copies of ordinary ones.\nFar ahead, something swollen stirs.
-ch1.spot.mother.intro|She is a vast grey aphid queen, bloated and shivering, pouring out young.\nShe fills the only way east.\n{gnome} and {trailmate} steel themselves and step forward.
+ch1.spot.mother.intro|She is a vast grey aphid queen, bloated and shivering, pouring out young.\nShe fills the only way east.\nThe party steels itself and steps forward.
 ch1.spot.mother.spawn|More blighted young spill out of her, wriggling.
-ch1.spot.mother.defeat|She collapses into grey dust, and the wind carries it away.\nThe way east is open at last.\nBut something deeper has been feeding her, and you feel it watching.
+ch1.spot.mother.defeat|She collapses into grey dust, and the grey settles on the dead rows.\nThe way east is open at last.\nBut something deeper has been feeding her, and you feel it watching.
 ch1.spot.grotto.arrive|Your eyes catch a thin side-path others would miss. It bends away from the trail. Only a Wayfinder would see it.\nBeyond it, glowworms light a small cave in soft green, and the blight has not touched a single root here.
 ch1.spot.grotto.find|You lift one precious thing from the glow, gently, as if it might wake.\nThe rest you leave to shine.
 ch1.spot.dengate.locked|A door of packed earth fills the tunnel, shut from within.\nSomething heavy shifts behind it. Not yet.
 ch1.spot.dengate.open|The packed earth crumbles like old bread and falls away.\nA long tunnel slopes down into a dark chamber.
 ch1.zone.x.arrive|The tunnel opens into a huge round chamber. Claw-marks cover every wall, old and new.\nThe black stuff weeps slowly from the roof, drop by drop.\nThe air hums, low and sad, and nobody speaks.
-ch1.spot.gloomtooth.intro|At the middle of the chamber sits a blind old mole, his muzzle blackened to the nose.\nHe turns his pale face toward {trailmate} and you, and sniffs the air. He knows you are here.\nHe is not wicked. He is sick, and weary.\nThe blight drives him to dig, and he cannot stop.
+ch1.spot.gloomtooth.intro|At the middle of the chamber sits a blind old mole, his muzzle blackened to the nose.\nHe turns his pale face toward the party and sniffs the air. He knows you are here.\nHe is not wicked. He is sick, and weary.\nThe blight drives him to dig, and he cannot stop.
 ch1.spot.gloomtooth.claw|He rears up and swipes at one of you.
 ch1.spot.gloomtooth.burrow|He sinks into the floor, and the ground begins to tremble.
 ch1.spot.gloomtooth.burst|The floor bursts in a thunder of earth, and someone in the party is thrown back.
@@ -75,7 +75,7 @@ ch1.hook|The Blight Shard points straight down, into the cold clay below.\nThe r
 ch1.banter.burdock.1|“Smell that soil. Rich, damp, a little sour. It is good to be a mole in tunnels again.”
 ch1.banter.burdock.2|“That innkeeper's soup is a fine thing, {gnome}. Have a second bowl. I will not tell.”
 ch1.banter.zinnia.1|“Flowers underground! Do you think these lanterns count as sunshine? I am choosing to say yes.”
-ch1.banter.zinnia.2|“I do miss the sun, a little. I hope the caps back home are all right.”
+ch1.banter.zinnia.2|“I do miss the sun, a little. I hope the caps in the hamlet are all right.”
 ch1.banter.bracken.1|“I shall take first watch. A good camp keeps its discipline, even when it is cosy.”
 ch1.banter.bracken.2|“I keep thinking of the old watch on the bridge. I should like to have kept it better.”
 item.camp-kit|A rolled bundle of tin and cloth. Unpack it to make a snug camp in the tunnels.
@@ -83,8 +83,8 @@ item.clean-dew|Water gathered from the pools the blight has not reached. It soot
 item.cellar-key|A small old key, still warm from the beetle that carried it. It fits a cellar lock.
 item.blight-shard|A black shard that hums softly to itself.\nIt does not lie flat. It points down.
 item.lanternroot-seed|A small seed with a faint glow inside, like a coal that forgot to go out.
-book.ch1|The Wilting Rows. My first trek, down through the topsoil.\nThe roots were grey and the caps were sick, so we went below to find out why.\nBurdock, a gruff old mole, led us through the tunnels.\nZinnia joined us too, small and bright, and never quiet.\nBracken kept the watch and the order, as proud as a feather.\nThe tunnels were long and the black stuff dripped everywhere.\nIn the end we reached a round den at the bottom of the topsoil,\nand came out the other side with a strange shard that points down.
-book.blightlings|Blightlings are grey, sickly copies of ordinary creatures.\nThey look like the beetles, caps and crawlers we know, but faded, as if washed out.\nTheir touch carries a poison that lingers after the hit.\nIn the topsoil we met them on every trail.\nThey seem more lost than cruel. I try to remember that.
+book.ch1|The Wilting Rows. My first trek, down through the topsoil.\nThe roots were grey and the caps were sick, so we went below to find out why.\nBurdock, a gruff old mole, dug us through the hard parts.\nZinnia joined us too, small and bright, and never quiet.\nBracken kept the watch and the order, proud as a polished shell.\nThe tunnels were long and the black stuff dripped everywhere.\nIn the end we reached a round den, cured the sick old mole within,\nand came away with a strange shard that points down.
+book.blightlings|Blightlings are grey, sickly copies of ordinary creatures.\nThey look like the beetles, caps and crawlers we know, but faded, as if washed out.\nTheir touch carries a poison that lingers after the hit.\nIn the topsoil we met Withered Aphids, Rot Snails and Ashen Ants.\nThey seem more lost than cruel. I try to remember that.
 book.gloomtooth|A blind old mole who dug many of the tunnels beneath the topsoil.\nHe was cured, not killed, and I am glad of it.\nHe fought with a swipe of his claws, a burst up from beneath the floor,\nand a quake that shook the cavern. When the blight flared he lashed out blindly.\nHe was never wicked, only sick.
-book.lantern-stump|The first camp on the trek, and a kind one.\nAn innkeeper runs it, and the soup is warm.\nYou can use a Camp Kit here, rest, and bank what you carry.
+book.lantern-stump|The first camp on the trek, and a kind one.\nAn innkeeper runs it, and the soup is warm.\nYou can buy Camp Kits here, rest, and bank what you carry.
 book.glowworm-grotto|A hidden spur off the trail, lit green by glowworms.\nOnly a Wayfinder can see the way in.\nThe blight has never touched it. It feels like the world before.
