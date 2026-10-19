@@ -598,6 +598,20 @@ function trek_import_texts(): int
     return $added;
 }
 
+/** v2.0.0: a slot whose body is empty takes its draft (trek_drafts*.txt). A body Joshua wrote is never touched; a todo slot becomes draft. */
+function trek_fill_empty_bodies(): int
+{
+    $drafts = trek_drafts();
+    $n = 0;
+    foreach (q("SELECT id, text_key, status FROM trek_texts WHERE body IS NULL OR body = ''")->fetchAll() as $r) {
+        if (!isset($drafts[$r['text_key']])) continue;
+        $status = $r['status'] === 'todo' ? 'draft' : $r['status'];
+        q("UPDATE trek_texts SET body = ?, status = ? WHERE id = ? AND (body IS NULL OR body = '')", [$drafts[$r['text_key']], $status, $r['id']]);
+        $n++;
+    }
+    return $n;
+}
+
 // ------------------------------------------------------------------ trek_text()
 
 /** Every text row once per request: key => [body, brief, status, kind]. */

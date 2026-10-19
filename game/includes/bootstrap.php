@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '1.9.9');
+define('APP_VERSION', '2.0.0');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -213,6 +213,12 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             require_once __DIR__ . '/trek_data.php';
             trek_ch_ensure();    // v1.9.1: per-chapter runs: the users columns, the new unique index on trek_runs
             trek_pet_migrate();  // v1.9.1: today's trek Petal count moves from the run state to the player
+        });
+        boot_step('trek_bodies_200', function () {
+            if (version_compare((string)setting('db_version'), '2.0.0', '<')) {   // v2.0.0: draft bodies for slots that were made empty (never overwrites a body)
+                require_once __DIR__ . '/trek_data.php';
+                trek_fill_empty_bodies();
+            }
         });
         boot_step('upgrade_094_callings', function () {
             if (version_compare((string)setting('db_version'), '0.9.4', '<')) upgrade_094_callings();   // v0.9.4: tiers II/III now need the chapter

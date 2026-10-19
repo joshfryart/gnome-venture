@@ -2,6 +2,11 @@
 
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
+## 2.0.0
+- Treks Chapter I: story text bodies written as drafts for the 89 slots that had none (status draft, editable in Admin > Trek text).
+- Upgrade step fills any empty trek body from its draft. Never overwrites a body Joshua wrote.
+- Version numbering: 1.9.99 is followed by 2.0.0.
+
 ## 1.9.9
 - Treks audit fixes across Chapters I and II; corrupt-state safety; new audit tests.
 - Admin trek text: bad-input guards. Security pass (~45 bad-input POSTs, XSS, concurrency).
