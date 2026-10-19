@@ -1,0 +1,58 @@
+# Secrets and server config (DB passwords, SMTP, keys)
+config.php
+*.env
+.env*
+*.pem
+*.key
+*.p12
+id_*
+.ssh/
+
+# AI tool folders and local agent/session files
+.claude/
+.claude-*
+.cursor/
+.aider*
+.windsurf/
+.copilot/
+.continue/
+CLAUDE.local.md
+scratchpad/
+mockups/
+*.mockup.*
+
+# Build output and packaged zips
+dist/
+build/
+tests/out/
+*.zip
+*.tar
+*.tar.gz
+
+# Runtime data (never commit live player data or caches)
+game/data/cache/
+game/data/*.lock
+data/cache/
+data/*.lock
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.log.1
+upgrade.lock
+
+# Uploads by players and admin backups
+game/uploads/*/
+!game/uploads/.htaccess
+backups/
+*.sql
+*.sql.gz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+node_modules/
+vendor/
