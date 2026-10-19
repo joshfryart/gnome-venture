@@ -5,6 +5,20 @@ Live: gnomeventure.ca. No monetization.
 
 Current version: **1.9.9** (see [CHANGELOG.md](CHANGELOG.md)).
 
+## Screens
+
+<p align="center">
+  <img src="game/assets/img/landing/hero.svg" alt="A gnome in a red hat standing in a sunny garden" width="360">
+  <img src="game/assets/img/landing/garden.svg" alt="A 4x4 garden bed with sprouts, a tomato and a carrot" width="360">
+  <img src="game/assets/img/landing/roads.svg" alt="Glowing mycelium roads at dusk linking mushroom houses" width="360">
+  <img src="game/assets/img/landing/cook.svg" alt="A cooking pot with steam beside a tomato and a carrot" width="360">
+  <img src="game/assets/img/landing/almanac.svg" alt="An open almanac with a sprout and a mushroom on its pages" width="360">
+  <img src="game/assets/img/landing/games.svg" alt="A snail racing past a rolling die" width="360">
+  <img src="game/assets/img/landing/stats.svg" alt="A gnome with four stat bars and an apple" width="360">
+</p>
+
+Phone and desktop screenshots: to add (see Open work).
+
 ## Stack
 - Plain PHP 8.1+ with PDO. No framework, no build step.
 - MySQL on live host (CanSpace shared cPanel). SQLite for local tests.
