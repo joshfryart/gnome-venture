@@ -101,7 +101,7 @@ function trek_oldcamp_panel(array $run, array $spot, string $textKey): string
     $fat = trek_oldcamp_fatigue();
     $amb = trek_oldcamp_ambush_pct();
     $h = '<div class="trektext">' . trek_text($textKey) . '</div>'
-        . '<div class="trekbtns">' . trek_form('rest_old', '⛺ Rest here (free)', ['t' => 'map']) . '</div>'
+        . '<div class="trekbtns trekone">' . trek_form('rest_old', '⛺ Rest here (free)', ['t' => 'map']) . '</div>'
         . '<p class="help">No kit needed. Fatigue −' . $fat . ', everyone heals half' . ($amb > 0 ? '. A small chance of an ambush.' : '.') . '</p>';
     if ((int)setting('trek_oldcamp_checkpoint') === 1) {
         $here = ($run['st']['oc'] ?? '') === $spot['code'];

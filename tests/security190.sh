@@ -187,7 +187,7 @@ assert "event: nothing was paid by a bad choice" eq "$(db "SELECT petals_found F
 th sprout tp choir >/dev/null; th sprout stunset tries_choir >/dev/null
 for a in 0 -1 99999999999999999999 abc 1; do post trek.php -d do=riddle --data-urlencode "ans=$a" >/dev/null; done
 assert "riddle: junk answers use up the tries, never solve it" eq "$(FLAGQ sprout choir_solved)" 0
-assert "riddle: tries capped at 3 (no 4th)" eq "$(th sprout stkey tries_choir)" 3
+assert "riddle: tries capped at 2 (no 3rd, v2.0.1)" eq "$(th sprout stkey tries_choir)" 2
 post trek.php -d do=riddle -d ans=2 >/dev/null
 assert "riddle: the right answer after the tries are gone pays nothing" eq "$(th sprout packq lanternroot-seed)" 0
 th sprout tp cart >/dev/null; post trek.php -d do=cart -d how=zzz >/dev/null; post trek.php -d do=cart -d 'how[]=work' >/dev/null

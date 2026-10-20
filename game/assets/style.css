@@ -4307,3 +4307,6 @@ dialog.isheet .sgo:disabled { opacity: .55; cursor: not-allowed; }
 .shophelp summary { justify-content: center; }
 .shopintro { text-align: center; }
 nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
+
+/* v2.0.1 old campsite: the lone Rest button centred */
+.trekspot .trekbtns.trekone, .trekbtns.trekone { grid-template-columns: minmax(0, 280px); justify-content: center; }
