@@ -1139,6 +1139,7 @@ function trek_fight_win(array &$run, array $u): void
     $after = (string)$meta['after'];
     $run['fi'] = null;
     if ($after === 'rest') { trek_apply_rest($run, $u, true); trek_say_text($run, 'ch' . $n . '.camp.makecamp.free'); trek_say($run, '🏕️ A cold rest. Fatigue −' . trek_cold_rest_fatigue() . ', everyone heals a quarter of their health.'); }
+    if ($after === 'oldrest') trek_oldcamp_after_fight($run, $u, $n);   // v2.0.1: the rest an old campsite ambush interrupted
     $script = (string)$meta['script'];
     $spot = $meta['spot'] ? (trek_spots($n)[$meta['spot']] ?? null) : null;
     $sdef = trek_script_def($script);

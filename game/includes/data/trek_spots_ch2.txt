@@ -36,3 +36,7 @@
 2|drumdoor|chest|The Drum Door|r|sym=5;needs=cistern-pearl;item=camp-kit:1;petals=60;obj=14;flag=drumdoor_open
 2|drumgate|gate|The Drum Chamber|r|sym=6;needs=drumdoor_open
 2|thrum|boss|Old Thrum|s|sym=7;obj=15;script=thrum;creature=old-thrum;flag=thrum_down
+# v2.0.1 old campsites (type oldcamp). A free, repeatable rest, not a camp. Text parts: ch2.spot.<code>.find, ch2.oldcamp.rest|ambush, ch2.ko.oldcamp.
+2|olddry|oldcamp|The Dry Ledge|j|sym=E
+2|oldtent|oldcamp|The Sagging Tent|o|sym=8
+2|oldbench|oldcamp|The Cistern Bench|r|sym=9

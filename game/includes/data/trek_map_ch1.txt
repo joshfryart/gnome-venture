@@ -1,6 +1,7 @@
 # Trek map, Chapter I (40x40). Legend: # wall, . floor, ~ mud (2x fatigue), % roots (2x), = bridge, ^ chasm (blocked), , blighted floor,
 # capital letters = spots (see trek_spots.txt, column "sym"). Second layer (after ---) = zone letters:
 # g gate, w wormway, c camp, f grubfields, h hamlet, d dew pools, b bridge, r black rows, x gloomtooth den.
+# v2.0.1: E, F old campsites (free repeatable rests).
 # v1.8.8 hand-placed stops: K stuck cart, T mushroom camp (the only way into the Dew Pools), J riddle stone (one in each gap between trailmates).
 ########################################
 #############.Q.....S...#...############
@@ -17,7 +18,7 @@
 ####.Y..############....C....###########
 ####....############.#.....#.###########
 ####....################.###############
-####.......#....%%%..........#......####
+####.......#....%%%..........#...E..####
 ####.....~~~~~~.....##.....~~~~~~~#.####
 ####.....~~~~~~..........#.~~~~~~~..####
 ####...#.~~~~~~....~~~~~...~~~~~~~..####
@@ -29,7 +30,7 @@
 ###.##.D..~~.#######.##.......V.###.####
 ###.##.......#######.##.Z.......###....#
 ###~~~~......#######...........###...W.#
-####################.##...##...###..####
+####################F##...##...###..####
 ############################P###########
 ############^^^^^^^^^^^^^^^^.^^^########
 ##.......###^^^^^^^^^^^^^^^^=^^^#......#

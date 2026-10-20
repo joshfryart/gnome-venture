@@ -26,7 +26,7 @@ ok('no Chapter III yet; the finish row is II-b\'s (tests/trek_ch2b.php)', !trek_
 $map = trek_map(2);
 ok('the map is 40 wide (II-a took the top 46 rows, II-b added to 106) with a zone row for each', $map['w'] === 40 && $map['h'] === 106 && count($map['z']) === 106, $map['w'] . 'x' . $map['h']);
 $sp = trek_spots(2);
-ok('17 II-a spots + 15 II-b, every symbol sits on its own tile', count($sp) === 32 && !array_filter($sp, fn($s) => trek_tile(2, $s['x'], $s['y']) !== $s['sym']), count($sp) . '');
+ok('17 II-a spots + 15 II-b, every symbol sits on its own tile', count(array_filter($sp, fn($s) => $s['type'] !== 'oldcamp')) === 32 && !array_filter($sp, fn($s) => trek_tile(2, $s['x'], $s['y']) !== $s['sym']), count($sp) . '');
 $types = array_count_values(array_column($sp, 'type'));
 ok('the new spot types are in use (switch 2, find, rest, trade)', ($types['switch'] ?? 0) === 3 && ($types['find'] ?? 0) === 5 && ($types['rest'] ?? 0) === 1 && ($types['trade'] ?? 0) === 1, json_encode($types));
 $cr = ['clay-crawler', 'page-silverfish', 'mud-crayfish', 'spadefoot-toad', 'claybound-millipede', 'silverfin'];

@@ -132,6 +132,7 @@ function trek_dispatch_do(?array &$run, array $u, string $do): array
         case 'switch': return trek_act_switch($run, $u);   // v1.9.2: Chapter II-a
         case 'trade': return trek_act_trade($run, $u);
         case 'rest_spot': return trek_act_rest($run, $u);
+        case 'rest_old': return trek_act_oldcamp($run, $u);                              // v2.0.1: old campsites
         case 'slide': return trek_act_slide($run, $u);                                   // v1.9.4: Chapter II-b
         case 'travel': return trek_act_travel($run, $u, trek_post_str('to'));
     }
@@ -225,7 +226,7 @@ function trek_map_html(array &$run, array $u, ?array $walk = null): string
                 $cls .= ' fog';
             } elseif ($spot) {
                 $locked = $spot['type'] === 'gate' && !trek_gate_open($run, $spot);
-                $done = $spot['type'] !== 'gate' && !in_array($spot['type'], ['start', 'exit', 'camp', 'npc', 'sign'], true) && trek_spot_done($run, $spot);
+                $done = $spot['type'] !== 'gate' && !in_array($spot['type'], ['start', 'exit', 'camp', 'npc', 'sign', 'oldcamp'], true) && trek_spot_done($run, $spot);
                 $ico = !empty($spot['data']['icon']) ? (string)$spot['data']['icon'] : ($spot['type'] === 'gate' ? ($locked ? '🚧' : '') : ($icons[$spot['type']] ?? '•'));   // v1.9.4: a spot may carry its own icon (data icon=)
                 $cls .= ' spot' . ($done ? ' done' : '') . ($locked ? ' locked' : '');
                 $label = $spot['name'];
@@ -255,6 +256,7 @@ function trek_legend_html(array $run): string
     if (str_contains($all, ':')) $items[] = '<li><b class="lg">⁚</b> Wet clay. Slow going, like mud.</li>';
     if (str_contains($all, '*')) $items[] = '<li><b class="lg">◆</b> Glow crystal. It lights the fog around it.</li>';
     if (str_contains($all, '+')) $items[] = '<li><b class="lg">✚</b> Loose clay. A Wayfinder in the party can push through to the nook behind it.</li>';
+    foreach (trek_spots((int)$run['chapter']) as $sp) if ($sp['type'] === 'oldcamp') { $items[] = '<li><b class="lg">⛺</b> Old campsite. Rest here for free, no kit. A small risk of an ambush.</li>'; break; }   // v2.0.1
     return $items ? '<details class="tklegend"><summary>🗝️ Map key</summary><ul>' . implode('', $items) . '</ul></details>' : '';
 }
 
@@ -362,6 +364,9 @@ function trek_spot_panel(array &$run, array $u): string
         case 'switch':
             $h .= '<div class="trektext">' . trek_text($k($code, $done ? 'after' : 'before')) . '</div>';
             if (!$done) $h .= trek_form('switch', '⚙️ Turn the wheel', ['t' => 'map']);
+            break;
+        case 'oldcamp':   // v2.0.1
+            $h .= trek_oldcamp_panel($run, $spot, $k($code, 'find'));
             break;
         case 'rest':
             $h .= '<div class="trektext">' . trek_text($k($code, $done ? 'after' : 'before')) . '</div>';

@@ -24,3 +24,6 @@
 1|cart|cart|The Stuck Cart|w|sym=K;pass=1;dc=11;item=camp-kit:1;flag=cart_done
 1|mushcamp|mush|The Mushroom Camp|d|sym=T;pass=1;need=beetle-shell:2;petals=30;flag=mush_done
 1|bridgestone|riddle|The Riddle Stone|b|sym=J;pass=1;right=3;tries=3;item=singing-pebble:1;flag=stone_solved
+# v2.0.1 old campsites (type oldcamp): a free, repeatable rest; the text parts are ch1.spot.<code>.find, ch1.oldcamp.rest|ambush, ch1.ko.oldcamp. Not a camp: no kits, no banking.
+1|oldhearth|oldcamp|A Cold Hearth|f|sym=E
+1|oldleanto|oldcamp|The Old Lean-to|h|sym=F

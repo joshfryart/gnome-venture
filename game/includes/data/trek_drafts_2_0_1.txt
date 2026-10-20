@@ -1,0 +1,12 @@
+# Trek draft bodies v2.0.1: the old campsite slots (key|body, \n = line break). Joshua edits them in Admin > Trek text.
+ch1.spot.oldhearth.find|A ring of old stones, a bed of cold ash.\nSomeone camped here once. You could sit a while.
+ch1.spot.oldleanto.find|A lean-to of cap-stalk and bark, half fallen in.\nThe ground under it is dry, and it looks lived in once.
+ch1.oldcamp.rest|You settle out of the draught and sleep a little.\nIt is no proper camp, but you wake much better.
+ch1.oldcamp.ambush|The quiet breaks. Something is coming.
+ch1.ko.oldcamp|You wake beside the cold ash of the old campsite.\nSome of what you carried did not make it back.
+ch2.spot.olddry.find|One dry shelf of clay above the seep, with a scrap of old blanket.\nWhoever slept here left it tidy.
+ch2.spot.oldtent.find|A patched tent, folded over by the damp.\nThe quiet is thick here, but the roof still keeps the drips off.
+ch2.spot.oldbench.find|A plank bench against the wall, above the water line.\nSomeone waited here once. It smells awful, but it is dry.
+ch2.oldcamp.rest|You sleep somewhere dry, for a little while.\nIt is no proper camp, but you wake much better.
+ch2.oldcamp.ambush|The quiet breaks. Something is crawling out of the damp.
+ch2.ko.oldcamp|You wake at the old campsite where you rested before.\nIt is damp, and some of what you carried is gone.

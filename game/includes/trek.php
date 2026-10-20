@@ -5,6 +5,7 @@ require_once __DIR__ . '/adventure.php';   // gnome_combat, scale_creature, outl
 require_once __DIR__ . '/friends.php';     // friendship(), friend_add()
 require_once __DIR__ . '/trek_data.php';
 require_once __DIR__ . '/trek_fight.php';
+require_once __DIR__ . '/trek_oldcamp.php';   // v2.0.1: old campsites
 require_once __DIR__ . '/trek_events.php';   // v1.8.8: trail events, crew moments, the side stops
 require_once __DIR__ . '/trek_levels.php';   // v1.8.9: trek levels, milestone XP, migration
 
@@ -751,6 +752,10 @@ function trek_spot_stops(array &$run, array $u, array $spot, bool $isGoal): bool
         case 'start':
         case 'exit':
             return $isGoal;
+        case 'oldcamp':   // v2.0.1: stops the walk the first time (its card shows the find text), then it is just a place you pass
+            $first = !trek_flag($run, 'seen_' . $spot['code']);
+            trek_flag_set($run, 'seen_' . $spot['code']);
+            return $first || $isGoal;
         case 'npc':
         case 'sign':
             $first = !trek_flag($run, 'seen_' . $spot['code']);
@@ -929,7 +934,8 @@ function trek_ko(array &$run, array $u): void
 {
     $ch = (int)$run['chapter'];
     $spots = trek_spots($ch);
-    $spot = ($run['camp'] && isset($spots[$run['camp']])) ? $spots[$run['camp']] : $spots['start'];
+    $oc = trek_oldcamp_ko_spot($run);   // v2.0.1: an old campsite rested at, further along than the last camp
+    $spot = $oc ?: (($run['camp'] && isset($spots[$run['camp']])) ? $spots[$run['camp']] : $spots['start']);
     $tutorial = $run['camp'] === null || $run['camp'] === '';
     $run['st']['kos'] = (int)($run['st']['kos'] ?? 0) + 1;   // v1.8.9: a milestone check ("no knock-out so far")
     $run['fi'] = null;
@@ -941,11 +947,11 @@ function trek_ko(array &$run, array $u): void
     $run['st']['fh'] = 0;
     trek_seen_reveal($run, $spot['x'], $spot['y'], 2);
     if ($tutorial) {
-        trek_say_text($run, 'ch' . $ch . '.ko.tutorial');
-        trek_say($run, '💫 You wake at the start. Nothing was lost this time.');
+        trek_say_text($run, 'ch' . $ch . ($oc ? '.ko.oldcamp' : '.ko.tutorial'));
+        trek_say($run, $oc ? '💫 You wake at the old campsite. Nothing was lost this time.' : '💫 You wake at the start. Nothing was lost this time.');
         return;
     }
-    trek_say_text($run, 'ch' . $ch . '.ko.camp');
+    trek_say_text($run, 'ch' . $ch . ($oc ? '.ko.oldcamp' : '.ko.camp'));
     $pct = max(0, min(100, (int)setting('trek_ko_loss_pct')));
     $lost = [];
     foreach (q('SELECT item_id, qty FROM trek_pack WHERE run_id = ? AND banked = 0 AND qty > 0', [$run['id']])->fetchAll() as $r) {

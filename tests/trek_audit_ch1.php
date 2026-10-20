@@ -108,7 +108,7 @@ $r = reach($spots, $allFlags);
 $lost = [];
 foreach ($m['t'] as $y => $row) foreach (str_split($row) as $x => $c) if (!in_array($c, ['#', '^', ' ', '*'], true) && !isset($r["$x,$y"])) $lost[] = "$c@$x,$y";
 ok('every walkable tile is reachable from the start once the gates are open (no isolated pocket)', !$lost, implode(' ', array_slice($lost, 0, 10)));
-$order = [[[], ['start', 'exit']], [['won_fight'], ['rootwall', 'burdock', 'cart']], [['won_fight', 'freed_burdock'], ['boulder', 'camp', 'cellar', 'dewsign', 'zinnia', 'elder', 'choir', 'mushcamp']],
+$order = [[[], ['start', 'exit']], [['won_fight'], ['rootwall', 'burdock', 'cart']], [['won_fight', 'freed_burdock'], ['boulder', 'camp', 'cellar', 'dewsign', 'zinnia', 'elder', 'choir', 'mushcamp', 'oldhearth', 'oldleanto']],
     [['won_fight', 'freed_burdock', 'freed_zinnia'], ['capwall', 'bracken', 'bridgestone', 'mother', 'grotto']], [['won_fight', 'freed_burdock', 'freed_zinnia', 'mother_down'], ['dengate', 'gloomtooth']]];
 $have = [];
 $flags = [];

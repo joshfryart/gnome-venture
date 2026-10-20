@@ -13,7 +13,7 @@ $run = fn() => trek_load(trek_run_row($uid));
 
 echo "== data\n";
 $spots = trek_spots(1);
-ok('20 spots (17 + the 3 hand-placed stops)', count($spots) === 20, (string)count($spots));
+ok('20 spots (17 + the 3 hand-placed stops)', count(array_filter($spots, fn($s) => $s['type'] !== 'oldcamp')) === 20, (string)count($spots)));
 foreach ($spots as $code => $s) ok("spot $code on the map", trek_tile(1, $s['x'], $s['y']) === $s['data']['sym'], 'tile=' . trek_tile(1, $s['x'], $s['y']));
 $bad = 0;
 foreach (file($argv[1] . '/includes/data/trek_texts.txt') as $ln) { $ln = rtrim($ln, "\r\n"); if ($ln === '' || $ln[0] === '#') continue; if (count(explode('|', $ln)) !== 5) { $bad++; echo "   bad line: $ln\n"; } }

@@ -254,6 +254,7 @@ ok('the never-locked Crossroads gate says no "it opens" line when you walk throu
 foreach (array_keys($asked) as $k) if (str_starts_with($k, 'ch2.') || str_starts_with($k, 'interlude.2.')) $expect[$k] = $expect[$k] ?? 'log';
 $rows = trek_text_rows(true); $rows = trek_text_rows();
 $missing = array_values(array_filter(array_keys($expect), fn($k) => trek_text_row($k) === null));   // (a generic key may fall back to Chapter I's slot)
+foreach (['olddry.find', 'oldtent.find', 'oldbench.find'] as $p) $expect['ch2.spot.' . $p] = 'oldcamp'; foreach (['oldcamp.rest', 'oldcamp.ambush', 'ko.oldcamp'] as $p) $expect['ch2.' . $p] = 'oldcamp';   // v2.0.1: old campsites
 ok(count($expect) . ' keys the Chapter II code can ask for: every one is a slot', !$missing, implode(', ', $missing));
 $blank = array_values(array_filter(array_keys($expect), fn($k) => isset($rows[$k]) && trim(trek_text($k)) === ''));
 ok('...and each of Chapter II\'s own slots reads something (draft or written) for a player', !$blank, implode(', ', $blank));
