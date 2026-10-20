@@ -963,12 +963,24 @@ function trek_foe_groups(array $fi): array
     return array_values($g);
 }
 
+/** v2.0.10: the foe pop-over card: art (real picture, placeholder, or emoji; HTML built here), plain name, level, one short line. Render only. */
+function trek_foe_card(array $f): array
+{
+    $slug = (string)($f['slug'] ?? '');
+    $rel = $slug !== '' ? creature_image($slug, true) : '';
+    $c = $slug !== '' ? trek_creature($slug) : null;
+    $d = trim(preg_replace('/\s+/u', ' ', strip_tags((string)($c['description'] ?? ''))));
+    if ($d !== '' && preg_match('/^(.+?[.!?])(\s|$)/us', $d, $mm)) $d = $mm[1];
+    if (mb_strlen($d) > 90) $d = rtrim(mb_substr($d, 0, 87), " ,;:") . '…';
+    return ['a' => $rel !== '' ? art_img($rel, 'lg', (string)$f['name'], 'tkfoeimg') : e((string)($f['icon'] ?? '🐾')), 'n' => (string)$f['name'], 'l' => (int)($f['lv'] ?? 1), 't' => $d];
+}
+
 /** v1.8.5: foes and party as [name, icon, hp, max] rows, for the Auto replay. $fi may be the fight as it stood (the run's own is gone once it ends). */
 function trek_replay_snap(array &$run, array $u, array $fi, bool $over = false): array
 {
     $names = trek_foe_names($fi);
     $f = [];
-    foreach ($fi['foes'] as $i => $x) $f[] = [$names[$i], (string)$x['icon'], $over && !empty($GLOBALS['trek_won']) ? 0 : max(0, (int)$x['hp']), (int)$x['max'], trek_foe_own($fi, (int)$i) ? 1 : 0, (string)$x['name']];   // v1.8.6: [4] own row, [5] plain name (the replay groups foes of one kind)
+    foreach ($fi['foes'] as $i => $x) $f[] = [$names[$i], (string)$x['icon'], $over && !empty($GLOBALS['trek_won']) ? 0 : max(0, (int)$x['hp']), (int)$x['max'], trek_foe_own($fi, (int)$i) ? 1 : 0, (string)$x['name'], trek_foe_card($x)];   // v1.8.6: [4] own row, [5] plain name (the replay groups foes of one kind); v2.0.10: [6] pop-over card
     $p = [];
     foreach (trek_party_stats($run, $u) as $slot => $m) $p[] = [trek_short_name((string)$m['name']), (string)$m['icon'], max(0, (int)$run['party'][$slot]['hp']), (int)$m['max'], (int)$slot === 0 ? 1 : 0];   // v1.9.0: [4] the player's own gnome (its drawing comes from the page)
     return ['f' => $f, 'p' => $p];

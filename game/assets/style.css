@@ -4493,3 +4493,43 @@ dialog.tkcamp::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(
 :root[data-theme="dark"] .tkctalk b { color: var(--brand-ink); }
 
 :root[data-theme="dark"] .tkcfoot { background: var(--surface); }
+
+/* v2.0.10 trek fight touches: the foe pop-over (non-modal <dialog class="tkfoe">) and the round's small animations (assets/trekfight.js). Motion only under no-preference. */
+dialog.tkfoe { position: fixed; inset: 64px auto auto 50%; transform: translateX(-50%); margin: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 6px; box-sizing: border-box; width: min(300px, calc(100vw - 32px)); max-width: none; max-height: none; padding: 12px 14px; border: 1px solid var(--danger-line); border-radius: 16px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-2); text-align: center; cursor: pointer; overflow: visible; }
+dialog.tkfoe:not([open]) { display: none; }
+dialog.tkfoe:focus, dialog.tkfoe:focus-visible { outline: none; }
+.tkfoeart { display: flex; align-items: center; justify-content: center; min-height: 64px; font-size: 52px; line-height: 1; }
+.tkfoeart img { width: 64px; height: 64px; object-fit: contain; }
+.tkfoetx { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; max-width: 100%; }
+.tkfoenm { font-size: 18px; overflow-wrap: anywhere; }
+.tkfoelv { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tkfoeline { font-size: 14px; line-height: 1.35; color: var(--ink-2); overflow-wrap: anywhere; }
+.tkfoehint { margin-top: 4px; padding: 3px 10px; border-radius: var(--pill); background: var(--danger-soft); color: var(--danger-ink); font-size: 13px; font-weight: 600; }
+.hprow { position: relative; }
+.tkfloat { position: absolute; right: 4.6em; top: -10px; z-index: 2; font: 700 16px/1 var(--font); font-variant-numeric: tabular-nums; pointer-events: none; text-shadow: 0 1px 2px var(--bg); }
+.tkfloat.hurt { color: var(--danger-ink); }
+.tkfloat.crit { color: var(--accent-ink); font-size: 20px; }
+.tkfloat.heal { color: var(--brand-ink); }
+.hprow.tkx-ghost { opacity: .45; }
+:root[data-theme="dark"] dialog.tkfoe { background: var(--surface-2); border-color: var(--danger-line); }
+:root[data-theme="dark"] .tkfoehint { background: var(--danger-soft); color: var(--danger-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tkxshake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
+  @keyframes tkxflash { 0% { background-color: var(--danger-line); } 100% { background-color: transparent; } }
+  @keyframes tkxcrit { 0% { background-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); } 100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; } }
+  @keyframes tkxfloat { 0% { opacity: 0; transform: translateY(6px) scale(.8); } 20% { opacity: 1; transform: translateY(-2px) scale(1.15); } 100% { opacity: 0; transform: translateY(-26px) scale(1); } }
+  @keyframes tkxko { 0% { opacity: 1; transform: scale(1.03); filter: none; } 100% { opacity: .45; transform: scale(.97); filter: grayscale(1); } }
+  @keyframes tkxpopin { from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.94); } to { opacity: 1; transform: translateX(-50%); } }
+  .hprow.tkx-hit { animation: tkxshake .32s linear, tkxflash .55s ease-out; }
+  .hprow.tkx-hit.tkx-crit { animation: tkxshake .32s linear, tkxcrit .7s ease-out; }
+  .hprow.tkr-hit.tkr-crit { animation: tkrshake .3s linear, tkxcrit .7s ease-out, tkrpop .5s ease-out; }
+  .tkfloat { animation: tkxfloat 1s ease-out both; }
+  .hprow.tkx-ko { animation: tkxko .7s ease-out both; }
+  .hprow.tkx-ghost { animation: tkxko 1s ease-out both; }
+  dialog.tkfoe[open] { animation: tkxpopin .22s ease-out; }
+  dialog.tkfoe { transition: opacity .2s ease; }
+  dialog.tkfoe.out { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tkfloat { display: none; }
+}

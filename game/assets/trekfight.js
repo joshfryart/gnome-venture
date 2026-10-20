@@ -303,6 +303,175 @@
   if (window.MutationObserver) new MutationObserver(scan).observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
 })();
 
+/* v2.0.10: small touches on Trek fights. (1) A foe pop-over (non-modal <dialog class="tkfoe">) the first time a foe or boss shows in a fight: art, name, level,
+   one line, the boss's next-round hint. About 2 s or a tap. Muted by the same localStorage flag as the story pop-ups (gvSceneOff). It waits for an open Auto replay or
+   story scene and never takes focus. (2) After a round: hit shake, a floating number, a flash on a crit, a fade for a foe that fell, bars that ease down.
+   Reduced motion: none of it. Art is built by the server (escaped there); everything else goes in with textContent. */
+(function () {
+  var SEEN = 'gvTkFoeSeen', SNAP = 'gvTkSnap', HOLD = 2200;
+  var reduce = function () { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); };
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function get(k) { try { return JSON.parse(window.sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function put(k, v) { try { if (v == null) window.sessionStorage.removeItem(k); else window.sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
+  function muted() { try { return window.localStorage.getItem('gvSceneOff') === '1'; } catch (e) { return false; } }
+  function seenList() { var s = get(SEEN); return s && s.n ? s.n : []; }
+  function markSeen(names) {
+    var n = seenList();
+    names.forEach(function (x) { if (n.indexOf(x) < 0) n.push(x); });
+    put(SEEN, { n: n });
+  }
+
+  var timer = 0, pop = null;
+  function closePop() {
+    clearTimeout(timer);
+    if (!pop) return;
+    var d = pop; pop = null;
+    d.classList.add('out');
+    setTimeout(function () { try { d.close(); } catch (e) { d.removeAttribute('open'); } if (d.parentNode) d.parentNode.removeChild(d); }, reduce() ? 0 : 200);
+  }
+  /* card = {a: art html, n, l, t, b}. host: where the dialog lives (the open replay dialog, so a tap still reaches it, else the page). */
+  function showPop(card, host) {
+    if (pop) closePop();
+    var d = el('dialog', 'tkfoe');
+    d.setAttribute('role', 'status');
+    d.setAttribute('aria-label', 'A foe appears');
+    var art = el('div', 'tkfoeart');
+    art.setAttribute('aria-hidden', 'true');
+    if (card.a) art.innerHTML = card.a;   /* server-built art, escaped by the server (picture lookup: art, placeholder, emoji) */
+    d.appendChild(art);
+    var tx = el('div', 'tkfoetx');
+    tx.appendChild(el('b', 'tkfoenm', card.n || ''));
+    tx.appendChild(el('small', 'tkfoelv', 'Level ' + (card.l || 1)));
+    if (card.t) tx.appendChild(el('span', 'tkfoeline', card.t));
+    if (card.b) tx.appendChild(el('span', 'tkfoehint', card.b));
+    d.appendChild(tx);
+    d.addEventListener('click', function (ev) { ev.stopPropagation(); closePop(); });
+    var keep = document.activeElement;
+    (host || document.body).appendChild(d);
+    if (d.show) d.show(); else d.setAttribute('open', '');
+    try { if (keep && keep !== document.body && keep.focus) keep.focus({ preventScroll: true }); } catch (e) { /* old browser */ }
+    pop = d;
+    timer = setTimeout(closePop, HOLD);
+  }
+  /* the Auto replay uses this for a foe that joins mid-fight */
+  window.gvFoePop = function (card, host) {
+    if (!card || muted() || reduce()) return;
+    markSeen([card.n]);
+    showPop(card, host);
+  };
+  window.gvFoeSeen = function (names) { markSeen(names); };
+
+  /* ---- first sight of each foe ---- */
+  function waitThenPop(box) {
+    var tries = 0;
+    (function go() {
+      if (!box.isConnected) return;
+      var busy = document.querySelector('dialog.tkr[open], dialog.tkscene[open], .trekreplay:not([data-seen]), .trekscene:not([data-seen])');
+      if (busy && tries++ < 70) { setTimeout(go, 300); return; }
+      if (busy) return;
+      var holder = box.querySelector('.trekfoes'), cards = [];
+      try { cards = JSON.parse((holder && holder.getAttribute('data-foes')) || '[]'); } catch (e) { cards = []; }
+      var seen = seenList(), fresh = cards.filter(function (c) { return seen.indexOf(c.n) < 0; });
+      markSeen(cards.map(function (c) { return c.n; }));
+      if (!fresh.length || muted() || reduce()) return;
+      /* one at a time: the boss first, then the rest, each after the last has gone */
+      fresh.sort(function (a, b) { return (b.b ? 1 : 0) - (a.b ? 1 : 0); });
+      var i = 0;
+      (function next() {
+        if (i >= fresh.length || !box.isConnected) return;
+        showPop(fresh[i++], null);
+        setTimeout(next, HOLD + 350);
+      })();
+    })();
+  }
+
+  /* ---- the round's touches ---- */
+  function rowsOf(box) {
+    var out = { f: {}, a: {}, order: [] };
+    [].forEach.call(box.querySelectorAll('.trekhealth .hprow'), function (r) {
+      var ref = r.getAttribute('data-ref') || '', foe = ref.charAt(0) === 'f';
+      var key = foe ? 'g' + r.getAttribute('data-g') : ref;
+      var ico = r.querySelector('.hpico');
+      var o = { hp: parseInt(r.getAttribute('data-hp'), 10) || 0, max: parseInt(r.getAttribute('data-max'), 10) || 1, name: r.getAttribute('data-name') || '', ico: ico ? ico.innerHTML : '', foe: foe, key: key };   /* server-built art, escaped by the server */
+      (foe ? out.f : out.a)[key] = o;
+      out.order.push(o);
+    });
+    return out;
+  }
+  function floatNum(li, txt, cls) {
+    var n = el('span', 'tkfloat ' + cls, txt);
+    n.setAttribute('aria-hidden', 'true');
+    li.appendChild(n);
+    n.addEventListener('animationend', function () { if (n.parentNode) n.parentNode.removeChild(n); });
+    setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 1600);
+  }
+  function ease(li, from, to, max) {
+    var bar = li.querySelector('progress'), num = li.querySelector('.hpnum'), t0 = null;
+    if (!bar) return;
+    function paint(v) { bar.value = v; if (num) num.textContent = v + '/' + max; }
+    paint(from);
+    function tick(t) {
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / 420);
+      paint(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))));
+      if (k < 1 && li.isConnected) requestAnimationFrame(tick); else paint(to);
+    }
+    requestAnimationFrame(tick);
+  }
+  function touches(box, snap) {
+    var now = rowsOf(box), prev = snap.rows;
+    var crit = [].some.call(box.querySelectorAll('.trekwhat .trekrounds > li'), function (li) { return /critical/i.test(li.textContent); });
+    var foeList = box.querySelector('.trekhealth .hprows');
+    [].forEach.call(box.querySelectorAll('.trekhealth .hprow'), function (li) {
+      var ref = li.getAttribute('data-ref') || '', foe = ref.charAt(0) === 'f';
+      var key = foe ? 'g' + li.getAttribute('data-g') : ref;
+      var was = (foe ? prev.f : prev.a)[key], cur = (foe ? now.f : now.a)[key];
+      if (!was || !cur || was.hp === cur.hp) return;
+      var lost = was.hp - cur.hp;
+      if (lost > 0) {
+        li.classList.add('tkx-hit');
+        if (crit && foe) li.classList.add('tkx-crit');
+        floatNum(li, '−' + lost, foe && crit ? 'crit' : 'hurt');
+        setTimeout(function () { li.classList.remove('tkx-hit', 'tkx-crit'); }, 900);
+      } else {
+        floatNum(li, '+' + (-lost), 'heal');
+      }
+      ease(li, was.hp, cur.hp, cur.max);
+    });
+    /* a foe that is gone from the list: a ghost row fades out where it stood */
+    if (foeList) Object.keys(prev.f).forEach(function (key) {
+      if (now.f[key] || prev.f[key].hp <= 0) return;
+      var o = prev.f[key];
+      var li = el('li', 'hprow foe down tkx-ghost tkx-ko');
+      li.setAttribute('aria-hidden', 'true');
+      var ic = el('span', 'hpico'); ic.innerHTML = o.ico;   /* copied from the server-built row (escaped by the server) */
+      li.appendChild(ic); li.appendChild(el('span', 'hpname', o.name));
+      var bar = document.createElement('progress'); bar.className = 'foebar'; bar.max = Math.max(1, o.max); bar.value = 0;
+      li.appendChild(bar); li.appendChild(el('span', 'hpnum', '0/' + o.max));
+      foeList.insertBefore(li, foeList.firstChild);
+      floatNum(li, '−' + o.hp, crit ? 'crit' : 'hurt');
+      setTimeout(function () { if (li.parentNode) li.parentNode.removeChild(li); }, 1100);
+    });
+  }
+
+  function init(box) {
+    box.setAttribute('data-tkx', '1');
+    var run = box.getAttribute('data-run'), round = parseInt(box.getAttribute('data-round'), 10) || 1;
+    var snap = get(SNAP);
+    var rows = rowsOf(box);
+    if (!reduce() && snap && snap.run === run && snap.round < round && snap.round >= round - 1 && snap.rows) touches(box, snap);
+    put(SNAP, { run: run, round: round, rows: { f: rows.f, a: rows.a } });
+    waitThenPop(box);
+  }
+  function scan() {
+    var b = document.querySelector('.trekfight');
+    if (!b) { if (!document.querySelector('.trekreplay')) { put(SEEN, null); put(SNAP, null); } return; }   /* not in a fight: the next one starts fresh */
+    if (!b.hasAttribute('data-tkx')) init(b);
+  }
+  scan();
+  if (window.MutationObserver) new MutationObserver(scan).observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
+})();
+
 /* v1.8.5: Auto replay. The server has already played every round and drawn the final page; this shows the rounds one by one in a card
    on top (bars, hit flashes, log lines). Tap, Esc or any key skips. Reduced motion or no script: the page just shows the result.
    Round lines come from the server already escaped (trek_line_html), so they are the only thing inserted as HTML. */
@@ -343,6 +512,7 @@
     dlg.appendChild(card);
     this.groups = [];
     data.s.f.forEach(function (x) { self.addRow('f', x); });
+    if (window.gvFoeSeen) window.gvFoeSeen(data.s.f.map(function (x) { return x[5] || x[0]; }));   /* v2.0.10: foes shown here need no pop-over afterwards */
     data.s.p.forEach(function (x) { self.addRow('p', x); });
     /* v1.8.8: while it plays, any key or tap skips to the end; once it is over only the Done button (or Esc) closes it, and keys scroll the list */
     this.onKey = function (ev) {
@@ -418,11 +588,18 @@
       if (crit) row.li.classList.add('tkr-crit');
     }
     if (from === to) return;
+    if (hit && from > to) {   /* v2.0.10: a floating number */
+      var fl = el('span', 'tkfloat ' + (crit ? 'crit' : 'hurt'), '−' + (from - to));
+      fl.setAttribute('aria-hidden', 'true');
+      row.li.appendChild(fl);
+      setTimeout(function () { if (fl.parentNode) fl.parentNode.removeChild(fl); }, 1000);
+    }
     function tick(t) {
       if (t0 === null) t0 = t;
       var k = Math.min(1, (t - t0) / TWEEN);
       self.paint(row, Math.round(from + (to - from) * k));
       if (k < 1) self.raf.push(requestAnimationFrame(tick));
+      else if (to <= 0 && from > 0 && row.li.classList.contains('down')) { row.li.classList.remove('tkx-ko'); void row.li.offsetWidth; row.li.classList.add('tkx-ko'); }   /* v2.0.10: it fell */
     }
     this.raf.push(requestAnimationFrame(tick));
   };
@@ -438,7 +615,11 @@
   };
   Play.prototype.apply = function (r, instant) {
     var self = this, crit = r.l.some(function (h) { return /critical/i.test(h); });
-    (r.nf || []).forEach(function (x) { self.addRow('f', x); });
+    (r.nf || []).forEach(function (x) {
+      self.addRow('f', x);
+      if (!instant && x[6] && window.gvFoePop) window.gvFoePop(x[6], self.dlg);   /* v2.0.10: a new foe or boss joins mid-fight */
+      else if (window.gvFoeSeen) window.gvFoeSeen([x[5] || x[0]]);
+    });
     this.rows.f.forEach(function (row, k) {
       var v = r.f[k]; if (v == null) return;
       if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, crit);

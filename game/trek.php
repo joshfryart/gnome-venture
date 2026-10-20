@@ -555,7 +555,7 @@ function trek_fight_html(array &$run, array $u): string
     $fname = [];   // v1.8.6: foes of one kind share a row, so no numbers
     foreach ($fi['foes'] as $i => $f) $fname[$i] = (string)$f['name'];
     $groups = trek_foe_groups($fi);
-    $h = '<div class="trekfight' . ($round === 1 ? ' fresh' : '') . '"><h3>⚔️ Round ' . $round . ($duel ? ' · duel' : '') . '</h3>';
+    $h = '<div class="trekfight' . ($round === 1 ? ' fresh' : '') . '" data-round="' . $round . '" data-run="' . (int)$run['id'] . '"><h3>⚔️ Round ' . $round . ($duel ? ' · duel' : '') . '</h3>';
     // what happened: the last lines, one a row
     $lines = array_slice(trek_latest_html($run), -5);
     $all = trek_flog_html($run);   // v1.8.8: "Show all (N)" opens the whole fight so far in a scrollable box
@@ -586,6 +586,14 @@ function trek_fight_html(array &$run, array $u): string
             . trek_bar($hp, (int)$m['max']) . '<span class="hpnum">' . $hp . '/' . (int)$m['max'] . '</span></li>';
     }
     $h .= '</ul></div>';
+    // v2.0.10: the foe pop-over cards (assets/trekfight.js shows each once per fight; the boss one carries the next-round hint)
+    $cards = [];
+    foreach ($groups as $g) {
+        $card = trek_foe_card($fi['foes'][$g['show']]);
+        if ($boss && $g['gid'] === 0 && !empty($fi['meta']['script'])) $card['b'] = 'Next: ' . (TREK_MOVE_NAMES[$boss[0]] ?? ucfirst($boss[0])) . ', then ' . (TREK_MOVE_NAMES[$boss[1]] ?? ucfirst($boss[1]));
+        $cards[] = $card;
+    }
+    if ($cards) $h .= '<div class="trekfoes" hidden data-foes="' . e((string)json_encode($cards, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '"></div>';
     if ($boss) {
         $code = trek_script_code((string)($fi['meta']['script'] ?? ''));   // v1.9.2: any scripted boss (was Gloomtooth only)
         $h .= '<div class="trekboss"><b>Next: ' . e(TREK_MOVE_NAMES[$boss[0]] ?? ucfirst($boss[0])) . '</b> <span class="muted">then ' . e(TREK_MOVE_NAMES[$boss[1]] ?? ucfirst($boss[1])) . '</span><div class="trektext small">' . trek_text('ch' . $ch . '.spot.' . $code . '.' . $boss[0]) . '</div></div>';
