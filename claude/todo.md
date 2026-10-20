@@ -27,6 +27,11 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 ## 2.0.13 desktop fight layout: BUILT (see claude/plan-trek-desktop-layout.md)
 - Desktop map screen: log + Sneak/Camp/Leave under the map; fight screen keeps the inert map left and cross-fades the right column to the fight panel and back. Waiting for Joshua's "go" after the 2.0.12 phone test. One Sonnet task + Opus review.
 
+## 2.0.20 (Opus review 2026-10-20)
+- Shipped: Knacks (11 slots to Lv22, minor/major sidegrades, change filled slots at camp/hub), trek level cap 23, Whole map fold, friendship +1 per 20 won fights (cap `trek_friend_daily` 3/day), Ch II first-fight lesson, text pass 7, Drum Door label, feed keeps last lines. Ch III-a built but HIDDEN (`trek_chapters_open` 2; admins bypass).
+- Joshua checks (phone): Party tab knack selects (pick, Save, change at camp only), Whole map fold under the map, a 20th won fight shows "X likes you a little more", Ch II sluice lines.
+- Joshua decides: Old Gneiss median ~90 (target 78-88; worst 72, best 98); knack numbers (sims: builds add +7 to +9 avg win on Pinch/Thrum, test limit 8); knacks at Lv22 = 11 select rows (~800px on phone: fold?); Mushroom Camp beetle shells (pack first?); Lanternroot crop; when to set `trek_chapters_open` 3.
+
 ## Now: Joshua
 0. Treks are open (`trek_open` on since 2.0.19). Watch Admin → Usage (treks row), the error log, and players' first runs.
 1. Upload the next release (adds text pass 7: sluice lines name the water and clay layer, Ch II stash/shrine lines, Drum Door says "Open the door"). Rows you edited keep your words.
@@ -36,9 +41,7 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 
 ### Joshua decides
 - **Mushroom Camp beetle shells:** should Mushroom Camp take them from the pack first, then the Satchel? (~10 lines in `trek_events.php` `trek_act_mush`.)
-- **Friendship +1 per 20 fights:** needs a daily cap before it ships.
 - **Lanternroot as a real crop:** the seed exists; the crop is not built.
-- **Trek level cap `TREK_TL_MAX` 20:** decide before Chapter III-b.
 
 ## Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; Phase 3 done in 2.0.6; NEXT: read Admin → Usage, decision gate on maps (roads strip/town hub only if delve maps get played), gated cuts, more picture-tile shops (Curio/Dye Pot, festival, pantry, local))
 
