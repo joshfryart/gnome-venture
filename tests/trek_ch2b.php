@@ -121,6 +121,15 @@ $at('slide');
 $r = $tx(fn(&$run, $u) => trek_act_slide($run, $u));
 $bd = $sp['brewdoor'];
 ok('the slide drops the party at the Brewhouse Door, sets slide_seen, costs a little fatigue', $r[0] === true && [$run()['x'], $run()['y']] === [$bd['x'], $bd['y']] && $flag('slide_seen') && (int)$run()['fatigue'] === 3, json_encode([$run()['x'], $run()['y'], $run()['fatigue']]));
+// v2.0.20: the Map feed (ul.trekLatest) must survive a quiet step: after the slide, one plain walk says nothing, and the feed used to vanish.
+ok('the slide leaves its lines in the feed', (bool)array_filter(trek_latest_html($run(), true), fn($l) => str_contains($l, 'Whoosh')));
+$moved = false;
+foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) {
+    $tx(function (&$run, $u) use ($dx, $dy, &$moved) { $before = [$run['x'], $run['y']]; trek_walk($run, $u, $run['x'] + $dx, $run['y'] + $dy); $moved = [$run['x'], $run['y']] !== $before; return [true, '']; });
+    if ($moved) break;
+}
+ok('one plain step after the slide: it did walk, and said nothing new', $moved && !trek_latest_html($run()));
+ok('...yet the Map feed still shows the last lines (Whoosh)', (bool)array_filter(trek_latest_html($run(), true), fn($l) => str_contains($l, 'Whoosh')));
 $at('start'); $viaSlide = $pathLen('slide');
 ok('the slide is part of a real route (reachable from the start)', $viaSlide > 0);
 ok('nookB also gives a Clay Pot (v2.0.15)', trek_pack_qty((int)$run()['id'], trek_item_id('clay-pot')) === 1);

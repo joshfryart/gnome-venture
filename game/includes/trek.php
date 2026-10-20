@@ -197,11 +197,19 @@ function trek_flog_html(array $run): array
 }
 
 /** The log lines of the latest action (same turn number), as safe HTML strings. */
-function trek_latest_html(array $run): array
+function trek_latest_html(array $run, bool $keep = false): array
 {
     $turn = (int)($run['st']['turn'] ?? 0);
     $out = [];
     foreach ($run['lg'] as $l) if ((int)($l['n'] ?? -1) === $turn) { $t = trek_line_html($l); if ($t !== '') $out[] = $t; }   // v1.8.3: skip unwritten (empty) lines
+    if ($out || !$keep) return $out;
+    // v2.0.20: on the Map a quiet step (plain walking says nothing) used to empty the feed, so it vanished after the first walk (e.g. after the Clay Slide): keep the lines of the last action that said something.
+    for ($i = count($run['lg']) - 1; $i >= 0; $i--) {
+        $n = (int)($run['lg'][$i]['n'] ?? -1);
+        if ($n >= $turn) continue;
+        foreach ($run['lg'] as $l) if ((int)($l['n'] ?? -1) === $n) { $t = trek_line_html($l); if ($t !== '') $out[] = $t; }
+        if ($out) break;
+    }
     return $out;
 }
 

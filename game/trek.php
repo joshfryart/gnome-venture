@@ -934,7 +934,7 @@ $fat = (int)$run['fatigue'];
     <?= trek_fight_html($run, $u) ?>
     </div>
   <?php else:
-    $latest = trek_latest_html($run); ?>
+    $latest = trek_latest_html($run, true); ?>
     <?php /* v2.0.13: .trekcolL (map, key, latest lines, Sneak/Camp/Leave) + .trekcolR (everything else). Phones: display:contents, so the old order rules still apply */ ?>
     <div class="trekplay">
     <div class="trekcol trekcolR">
