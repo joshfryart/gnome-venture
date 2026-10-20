@@ -129,4 +129,4 @@ The way on is still settling… (coming soon)
 ch2.banter.burdock.2|“Clay walls keep the warmth in, {gnome}. A mole could get used to this.”
 ch2.scene.sorrel.me|“Glad the book is home, Sorrel.”\n“Sad things need gentle hands. We will go and listen.”
 ch2.scene.tumble.me|“Welcome aboard, Tumble. The clay tiles are all yours.”\n“Lead on, and mind your hat.”
-ch2.scene.juniper.me|“It does smell lovely already, Juniper.”\n“Welcome aboard. I hope there is soup at camp.”
+ch2.scene.juniper.me|“It does smell lovely already, Juniper.”\n“Glad you came along. I hope there is soup at camp.”

@@ -848,6 +848,7 @@ $fat = (int)$run['fatigue'];
   <a class="<?= $tab === 'log' ? 'on' : '' ?>" href="<?= $tabLink('log') ?>">📜 Log</a>
 </nav>
 <?php if ($tab === 'map' && $hub): ?>
+  <?= $sceneHtml ?>
   <?= trek_hub_html($run, $u, $party) ?>
 <?php elseif ($tab === 'map'): ?>
   <?= $replayHtml ?>

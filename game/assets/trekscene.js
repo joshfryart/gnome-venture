@@ -155,9 +155,20 @@
     if (o && o.focus && document.contains(o)) { try { o.focus({ preventScroll: true }); } catch (e) { /* gone */ } }
   };
 
+  var waiting = false;
   function scan() {
     var s = document.querySelector('.trekscene:not([data-seen])');
     if (!s) return;
+    /* an Auto replay is open: wait for it to close so the scene does not spoil the result */
+    if (document.querySelector('dialog.tkr[open]')) {
+      if (!waiting) {
+        waiting = true;
+        var t = setInterval(function () {
+          if (!document.querySelector('dialog.tkr[open]')) { clearInterval(t); waiting = false; scan(); }
+        }, 300);
+      }
+      return;
+    }
     s.setAttribute('data-seen', '1');
     var data = null;
     try { data = JSON.parse(s.getAttribute('data-scene') || ''); } catch (e) { data = null; }

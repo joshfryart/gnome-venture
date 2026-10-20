@@ -60,4 +60,4 @@ interlude.1.bracken|I walked the edge of the new tunnel. It slopes down, cold an
 ch1.scene.burdock.me|“Glad I found you, Burdock.”\n“Come along, and tell me more about that sour smell.”
 ch1.scene.zinnia.me|“A humming trailmate is a fine thing, Zinnia.”\n“Deeper down it is, then. Lead on.”
 ch1.scene.bracken.me|“That was a good duel, Bracken. I am glad you are with us.”\n“Stronger below? Then we go carefully, together.”
-ch1.scene.gloomtooth.me|“Rest now, old mole. You are not alone down here.”\n“We will take the shard and see where it points.”
+ch1.scene.gloomtooth.me|“Rest now, old mole. You are not alone down here.”\n“We will take the Shard and see where it points.”

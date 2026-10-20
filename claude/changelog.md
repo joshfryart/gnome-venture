@@ -2,6 +2,7 @@
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
 ## 2.0.8
+- Fix: Gloomtooth cure scene now also shows on the chapter hub render; scene waits until an open Auto replay closes.
 - Treks map tab: the latest log lines now sit directly under the map (above Sneak / Camp / Leave), not under the buttons.
 - NEW talk pop-over ("scene"): a `<dialog class="tkscene">` for story beats. Speaker always LEFT at full strength, listener RIGHT faded (opacity .35, scale .88); sides slide across (.28s) when the speaker changes; narration beats fade both; text fades out/in (.12s/.2s); tap, Enter, Space or Right-arrow = next, Skip = last beat, Done/Esc closes; reduced-motion = instant. Portraits use the picture lookup (real art, placeholder, emoji) + the player's gnome svg.
 - Files: NEW includes/trek_scene.php (`trek_scene_queue` parks plain-text beats in `$_SESSION['trek_scene']`, `trek_scene_stage` emits the hidden `.trekscene[data-scene]` once on the Map tab, 30 s, this run only), assets/trekscene.js (scan + MutationObserver like the Auto replay), CSS block "v2.0.8 trek scene", script tag in layout.php (trek.php only). No schema change.

@@ -1,0 +1,13 @@
+[2026-10-20 14:02:43 UTC] To: s@b.local
+Subject: Confirm your Gnome Venture email
+
+Hello sprout,
+
+Please confirm your email by opening this link within 48 hours:
+
+http://127.0.0.1:8840/verify.php?t=022de94ba9b981f28b3dc03073bd0dd53ff8729febedb3f06a85c6e0bfe17e43
+
+If you did not sign up, ignore this email.
+
+Gnome Venture
+------------------------------------------------------------
