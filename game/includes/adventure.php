@@ -257,6 +257,7 @@ function save_exp(array $exp): void
 {
     q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ? WHERE id = ?',
         [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['id']]);
+    if (($exp['status'] ?? 'active') !== 'active' && in_array($exp['kind'] ?? 'walk', ['delve', 'lair'], true)) dm_scene_drop((int)$exp['id']);   // v2.0.6: the map goes when the delve ends
 }
 
 /** v0.9.7: on an easy road (a walk next to home with the switch on) the walk's level is the most any creature may have; else 0. */

@@ -309,7 +309,11 @@ function tm_palette(string $land): array
         'tundra'     => ['floor' => '#6a7a8c', 'bed' => '#92a4b8', 'rock' => '#34445a', 'rock2' => '#586f8c', 'rock3' => '#8ca6c2', 'moss' => '#9ac0b0'],
         'island'     => ['floor' => '#76684a', 'bed' => '#9c8a62', 'rock' => '#1f4850', 'rock2' => '#34707a', 'rock3' => '#58a6a8', 'moss' => '#5aa86a'],
     ];
-    return ($lands[$land] ?? []) + $base;
+    $P = ($lands[$land] ?? []) + $base;
+    $mix = fn(string $a, string $b, float $t): string => sprintf('#%02x%02x%02x', ...array_map(fn($i) => (int)round(hexdec(substr($a, $i, 2)) * (1 - $t) + hexdec(substr($b, $i, 2)) * $t), [1, 3, 5]));
+    $P['rock2'] = $mix($P['rock'], $P['rock2'], .55);   // walls stay clearly darker than the floor in every landscape
+    $P['rock3'] = $mix($P['rock'], $P['rock3'], .4);
+    return $P;
 }
 
 function tm_n(float $v): string

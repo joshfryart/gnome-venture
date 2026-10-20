@@ -43,7 +43,7 @@ const FRESH_USER_TABLES = [
     'user_items' => 'user_id', 'user_recipes' => 'user_id', 'user_encyclopedia' => 'user_id', 'user_milestones' => 'user_id',
     'user_plant_knowledge' => 'user_id', 'user_guides' => 'user_id', 'user_quests' => 'user_id', 'user_jobs' => 'user_id',
     'user_calling_chapters' => 'user_id', 'user_calling_tasks' => 'user_id', 'user_food_bonus' => 'user_id', 'user_tasted' => 'user_id',
-    'user_npc_met' => 'user_id', 'npc_friends' => 'user_id', 'npc_favours' => 'user_id', 'expeditions' => 'user_id',
+    'user_npc_met' => 'user_id', 'npc_friends' => 'user_id', 'npc_favours' => 'user_id', 'expeditions' => 'user_id', 'walk_scene' => 'user_id',
     'region_visits' => 'user_id', 'landmark_clears' => 'user_id', 'landmark_uses' => 'user_id', 'landmark_repairs' => 'user_id',
     'landmark_rebuilds' => 'user_id', 'xp_log' => 'user_id', 'game_scores' => 'user_id', 'game_state' => 'user_id',
     'snail_bets' => 'user_id', 'marrow_guesses' => 'user_id', 'stall_listings' => 'seller_id', 'job_rerolls' => 'user_id',

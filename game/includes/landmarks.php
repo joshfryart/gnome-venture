@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/roads.php';
 require_once __DIR__ . '/rebuild.php';   // v0.7.88: ruins are per gnome (landmark_rebuilt_by)
+require_once __DIR__ . '/delve_map.php';   // v2.0.6: the optional map view of delves and lairs (walk_scene)
 
 const DELVE_ROOMS = 5;
 
@@ -290,12 +291,13 @@ function delve_start(array $u, int $lmId): array
     if (!spend_energy($uid, 1)) return [false, 'You need 1 energy to go in.'];
     landmark_once($uid, $lmId, 'delve');
     $gc = gnome_combat($u);
-    db_insert('expeditions', [
+    $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
         'steps_total' => DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
         'log' => json_encode(array_values(array_filter(['🕳️ You light a lantern and step into ' . $lm['name'] . '.',
             ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $uid . '|' . now())) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
     ]);
+    if (dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');   // v2.0.6: the map (the simple list works the same without it)
     return [true, '🕳️ Into the delve! (−1 energy)'];
 }
 
@@ -405,13 +407,42 @@ function lair_start(array $u, int $lmId): array
     if (!spend_energy($uid, 2)) return [false, 'You need 2 energy to face the ' . $boss['name'] . '.'];
     landmark_once($uid, $lmId, 'lair');
     $gc = gnome_combat($u);
-    db_insert('expeditions', [
-        'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'lair', 'depth' => 1,
-        'steps_total' => 1, 'step' => 1, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$boss['level'], 'scaled' => 0,
-        'encounter' => json_encode(['type' => 'creature', 'id' => (int)$boss['id'], 'hp' => (int)$boss['hp'], 'max' => (int)$boss['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]),
-        'log' => json_encode(['🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' rises to meet you!']), 'started_at' => now(), 'arrive_at' => now(),
+    $map = dm_on() && dm_pref() === 'map';   // v2.0.6: with the map the boss waits at the far end of the lair; with the list it rises at once, as it always did
+    $expId = db_insert('expeditions', [
+        'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'lair', 'depth' => $map ? 0 : 1,
+        'steps_total' => 1, 'step' => $map ? 0 : 1, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$boss['level'], 'scaled' => 0,
+        'encounter' => $map ? null : json_encode(lair_boss_encounter($boss)),
+        'log' => json_encode([$map ? '🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' waits somewhere deeper in the dark.' : '🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' rises to meet you!']), 'started_at' => now(), 'arrive_at' => now(),
     ]);
-    return [true, '🐉 The fight is on! (−2 energy)'];
+    if ($map) dm_scene_make($uid, $expId, $lm, 'lair');
+    return [true, $map ? '🐉 You step into the lair. (−2 energy)' : '🐉 The fight is on! (−2 energy)'];
+}
+
+/** The fight state of a boss at the start of its fight. */
+function lair_boss_encounter(array $boss): array
+{
+    return ['type' => 'creature', 'id' => (int)$boss['id'], 'hp' => (int)$boss['hp'], 'max' => (int)$boss['hp'], 'bark' => 0, 'poison' => 0, 'used' => false];
+}
+
+/** v2.0.6: the boss rises (you reached its tile on the map, or chose to face it now). From here it is the old lair fight. */
+function lair_engage(array &$exp): void
+{
+    if ($exp['encounter'] || ($exp['kind'] ?? '') !== 'lair') return;
+    $lm = landmark_at((int)$exp['from_id']);
+    $boss = $lm ? lair_boss($lm) : null;
+    if (!$boss) { $exp['status'] = 'done'; exp_log($exp, '🐉 The lair is empty. Strange…'); return; }
+    $exp['encounter'] = json_encode(lair_boss_encounter($boss));
+    $exp['depth'] = 1;
+    $exp['step'] = 1;
+    exp_log($exp, '🐉 The ' . $boss['name'] . ' rises to meet you!');
+}
+
+/** v2.0.6: slip out of a lair before the boss has risen (the day’s try is spent, as it is when you run). */
+function lair_leave(array &$exp): void
+{
+    if ($exp['encounter'] || ($exp['kind'] ?? '') !== 'lair') return;
+    $exp['status'] = 'done';
+    exp_log($exp, '🏃 You slip back out of the lair before anything stirs.');
 }
 
 /** After the boss falls: the lair's reward (more the first time). */

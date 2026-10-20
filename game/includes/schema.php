@@ -1449,5 +1449,7 @@ function schema_statements(string $driver): array
     [$trt, $tri, $trc] = trek_schema($PK, $ID, $END);
     require_once __DIR__ . '/road_text.php';   // v2.0.4: owner overrides of the road wording (road_texts)
     [$rtt, $rti, $rtc] = road_text_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc)];
+    require_once __DIR__ . '/delve_map.php';   // v2.0.6: the delve / lair map view (walk_scene)
+    [$wst, $wsi, $wsc] = walk_scene_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc)];
 }

@@ -7,6 +7,11 @@ $uid = (int)$u['id'];
 
 $exp = active_expedition($uid);
 
+if (!is_post() && isset($_GET['view']) && in_array($_GET['view'], ['list', 'map'], true)) {   // v2.0.6: map or the simple list, remembered in the session
+    dm_set_pref((string)$_GET['view']);
+    redirect('adventure.php');
+}
+
 if (is_post()) {
     csrf_check();
     refresh_energy($u);
@@ -71,6 +76,18 @@ if (is_post()) {
             if ($do === 'next') delve_next($u, $exp);
             elseif ($do === 'leave') delve_leave($u, $exp);
             elseif ($do === 'chest') delve_chest($u, $exp);
+            elseif ($do === 'go') {   // v2.0.6: a tap on the map (walk there; a room tile goes into the room)
+                [$gx, $gy] = array_map('intval', array_pad(explode(',', (string)($_POST['go'] ?? ''), 2), 2, '0'));
+                [$gok, $gmsg] = dm_walk($u, $exp, $gx, $gy);
+                if (!$gok) flash($gmsg, 'err');
+            }
+        } elseif (($exp['kind'] ?? 'walk') === 'lair') {   // v2.0.6: the boss has not risen yet (it waits at the end of the map)
+            if ($do === 'go') {
+                [$gx, $gy] = array_map('intval', array_pad(explode(',', (string)($_POST['go'] ?? ''), 2), 2, '0'));
+                [$gok, $gmsg] = dm_walk($u, $exp, $gx, $gy);
+                if (!$gok) flash($gmsg, 'err');
+            } elseif ($do === 'lair_engage') lair_engage($exp);
+            elseif ($do === 'leave') lair_leave($exp);
         } elseif (($exp['kind'] ?? 'walk') === 'explore') {
             $logBefore = count(json_decode((string)$exp['log'], true) ?: []);   // v1.3.0: a quiet step rests
             if ($do === 'deeper') explore_deeper($u, $exp);
@@ -87,7 +104,7 @@ if (is_post()) {
             $arrivedAt = (int)$exp['to_id'];
         }
         // A lair fight is over when the boss is gone: a win (defeated or befriended) or a getaway (v0.7.26)
-        if (($exp['kind'] ?? '') === 'lair' && $exp['status'] === 'active' && !$exp['encounter']) {
+        if (($exp['kind'] ?? '') === 'lair' && $exp['status'] === 'active' && !$exp['encounter'] && (int)$exp['depth'] >= 1) {   // v2.0.6: depth 0 = the boss has not risen yet
             $recent = array_slice(json_decode((string)$exp['log'], true) ?: [], -8);
             if (preg_grep('/ is (defeated|befriended)!/u', $recent)) lair_victory($u, $exp);
             else { $exp['status'] = 'done'; exp_log($exp, '🏃 You escape the lair in one piece.'); }
@@ -126,6 +143,8 @@ road_bind($u, $last);   // v1.9.3: read-only on a page view (road_flush is never
 $enc = $exp && $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
 $gc = gnome_combat($u);
 $L = LANDSCAPES[$scene['land']] ?? ['🌱', 'Wilds', ''];
+$dmScene = ($exp && dm_on()) ? dm_scene($exp) : null;   // v2.0.6: a delve or lair that has a map (the list still works for it)
+$mapMode = $dmScene && dm_pref() === 'map';
 
 function act(string $do, string $label, string $extra = '', string $class = ''): string
 {
@@ -169,7 +188,13 @@ if ($wi): ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?>">
 <div class="mapcol">
+<?php if ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
+<?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
+<p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
+<?php else: ?>
 <div class="mapwrap small"><?= in_array($kind, ['delve', 'lair'], true) ? mycelium_track($last) : journey_map_svg($u, $last) ?></div>
+<?php if ($dmScene): ?><p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=map')) ?>">🗺️ Show the map</a></p><?php endif; ?>
+<?php endif; ?>
 <?php // v1.9.3: the last quiet outcome (a solved problem, a choice, a find) as a small card; the Latest strip steps aside while it shows
 $rcIcons = array_merge(['✅', '❌', '👉', '✨', '🪙', '🧺', '🌱', '🎁', '👛', '💬', '👋'], road_sight_icons());   // v1.9.4: the sights come from road_events.txt
 $lastLine = $log ? (string)end($log) : '';
@@ -278,6 +303,23 @@ if ($resultCard): ?>
     <form method="post" class="option"><?= csrf_field() ?><input type="hidden" name="do" value="solve"><input type="hidden" name="option" value="<?= (int)$i ?>">
       <?= choice_row($st[1], (string)$o['label'], $st[0] . ' ' . ($mod >= 0 ? '+' : '') . $mod . ' vs ' . (int)$o['dc'], [$chance . '%', choice_odds_class($chance)]) ?></form>   <?php // v1.6.3: .choice row ?>
   <?php endforeach; ?>
+
+<?php elseif ($mapMode): // v2.0.6: nothing in front of you: walk the map ?>
+  <?php if ($kind === 'delve' && (int)$exp['depth'] >= DELVE_ROOMS): ?>
+    <h3>💰 The chest sits in the last room, unguarded at last.</h3>
+    <div class="choicelist"><?= act_choice('chest', '💰', 'Open the chest', 'Everything in it is yours', '', 'primary') ?></div>
+  <?php else: ?>
+    <h3><?= $kind === 'lair' ? 'The lair stretches away into the dark…' : ((int)$exp['depth'] === 0 ? 'Steps lead down into the dark…' : 'More rooms lie deeper in…') ?></h3>
+    <p class="help"><?= $kind === 'lair' ? 'Tap a lit tile to walk. The boss waits at the far end (🐉).' : 'Tap a lit tile to walk. Walking is free; going into a room costs ⚡1 (free with a lantern). Do four rooms in any order, then the guardian’s.' ?></p>
+  <?php endif; ?>
+  <div class="choicelist"><?= act_choice('leave', '🪜', $kind === 'lair' ? 'Slip back out' : 'Climb back out', 'Free · you keep what you found') ?></div>
+
+<?php elseif ($kind === 'lair' && !$enc): // v2.0.6: a lair whose boss has not risen yet, seen as the simple list ?>
+  <h3>🐉 The boss waits deeper in the lair.</h3>
+  <div class="choicelist">
+  <?= act_choice('lair_engage', '⚔️', 'Face the boss now', 'It rises to meet you', '', 'primary') ?>
+  <?= act_choice('leave', '🏃', 'Slip back out', 'Free') ?>
+  </div>
 
 <?php elseif ($kind === 'delve'): ?>
   <?php if ((int)$exp['depth'] >= DELVE_ROOMS): ?>

@@ -4333,3 +4333,34 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .shopintro .mycoins { white-space: nowrap; }
 .shopwrap + .help, .shopwrap + p { margin-top: 10px; }
 .marketwanted h3, .marketwanted .help { text-align: center; }
+
+/* v2.0.6 tilemap: the delve and lair map (includes/delve_map.php, assets/tilemap.js). Phone first: the window is 9 x 9 tiles; on a narrow phone the middle 7 x 7 shows so every tile stays 44px or more; no sideways scroll. */
+.tmwrap { container-type: inline-size; container-name: tm; width: 100%; max-width: 504px; margin: 8px auto; }
+@media (max-width: 720px) { .tmwrap { width: auto; margin-inline: -8px; max-width: none; } }
+.tilemap { position: relative; background: #05040a; border-radius: var(--radius); box-shadow: 0 0 0 3px #1b1610; overflow: hidden; }
+:root[data-theme="dark"] .tilemap { box-shadow: 0 0 0 3px #000; }
+.tilemap .tmview { position: relative; overflow: hidden; aspect-ratio: 1 / 1; }
+.tilemap .tmstage { position: relative; width: calc(100% * 9 / 7); margin: calc(-100% / 7); aspect-ratio: 1 / 1; }
+.tilemap .tmbg, .tilemap .tmpv { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; display: block; pointer-events: none; }
+.tilemap .tmgrid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); grid-template-rows: repeat(9, minmax(0, 1fr)); }
+.tilemap .tmt { position: relative; appearance: none; -webkit-appearance: none; background: transparent; border: 0; border-radius: 0; padding: 0; margin: 0; min-width: 0; min-height: 0; width: 100%; height: 100%; cursor: default; color: transparent; -webkit-tap-highlight-color: transparent; }
+.tilemap .tmt:disabled { opacity: 1; }
+.tilemap .tmt.ring { visibility: hidden; }
+@container tm (min-width: 396px) { .tilemap .tmstage { width: 100%; margin: 0; } .tilemap .tmt.ring { visibility: visible; } }
+.tilemap .tmt.reach { cursor: pointer; }
+.tilemap .tmt.reach::after { content: ""; position: absolute; left: 50%; top: 50%; width: 20%; height: 20%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(245, 207, 106, .6); box-shadow: 0 0 6px rgba(245, 207, 106, .5); pointer-events: none; }
+.tilemap .tmt.reach.spot::after { display: none; }
+.tilemap .tmt.reach.spot { outline: 2px dashed rgba(245, 207, 106, .85); outline-offset: -5px; }
+.tilemap .tmt.reach:hover, .tilemap .tmt.reach:focus-visible { background: rgba(245, 207, 106, .22); outline: 2px solid #f5cf6a; outline-offset: -2px; }
+.tilemap .tmt.here { outline: 3px solid rgba(245, 207, 106, .9); outline-offset: -3px; z-index: 1; }
+.tilemap .tmt.barred { cursor: not-allowed; }
+.tilemap .tmpv .tmpv-dot { fill: #fff6d0; stroke: #14110e; stroke-width: 1.5; opacity: .95; }
+.tilemap .tmpv .tmpv-end { fill: none; stroke: #f5cf6a; stroke-width: 3; opacity: .95; }
+.tilemap.tmplay .tmt { pointer-events: none; }
+.tilemap.tmplay .tmft:not(.on) { opacity: 0; }
+.tilemap .tmchip { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); background: rgba(20, 17, 14, .88); color: #f4f0e0; padding: 2px 10px; border-radius: 999px; font-size: 13px; line-height: 1.5; z-index: 2; white-space: nowrap; }
+.tmwrap.busy .tilemap { filter: saturate(.75) brightness(.82); }
+.tmlegend { display: flex; justify-content: center; flex-wrap: nowrap; gap: 4px 12px; margin: 6px 0 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.tmlinks { text-align: center; margin: 2px 0 8px; }
+.tmlinks a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; }
+.advgrid .tmwrap .tmform { margin: 0; }

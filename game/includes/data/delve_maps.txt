@@ -1,0 +1,44 @@
+# Hand-built delve layouts (v2.0.6). Every map is 11 wide and 11 tall. Characters: a hash is a wall, a dot is floor, a comma is rough floor (same, looks different),
+# S is the way in, and the digits 1 to 5 are the five rooms: four rooms to clear in any order and room 5 (the guardian, then the chest), which opens last.
+# A room tile is never the only doorway to another one, so all five can be reached in any order (tests/delvemap.php checks that for every map here).
+# A delve picks one of these from a hash of its id, otherwise its map is made from a seed. The landscape of the delve only changes the colours.
+# Start a layout with a line "@name". Rows are only the characters above (no spaces).
+
+@gallery
+###########
+#..1#..4..#
+#...#.....#
+##.##.##.##
+#.........#
+#....,....#
+##.##.##.##
+#...#.....#
+#S..#..2..#
+#..3#....5#
+###########
+
+@crossing
+###########
+#..2#..5..#
+#...#.....#
+##.##.##.##
+#....,...3#
+#.##.#.####
+#.#S...####
+#.#.##.####
+#1..#...,4#
+#...#.....#
+###########
+
+@hollow
+###########
+##5##1##2##
+#.........#
+#.##...##.#
+#.##.,.##.#
+#.........#
+#.##.,.##.#
+#.##...##.#
+#.........#
+##3##S##4##
+###########
