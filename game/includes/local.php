@@ -130,6 +130,35 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
     return '';
 }
 
+/** v2.0.17: a stall activity (buy / snack) as a picture tile + sheet. Same POST as before (do=local, kind=slug); nothing about price or limits changes. */
+function local_buy_tile(array $u, array $loc, array $a, bool $isDone, bool $locked): string
+{
+    require_once __DIR__ . '/shop_tiles.php';
+    require_once __DIR__ . '/landmarks.php';   // shop_oneform()
+    $spec = (string)$a['spec'];
+    if ((string)$a['kind'] === 'snack') {
+        $sn = stop_snack($loc);
+        if (!$sn) return '<p class="muted">Sold out today.</p>';
+        $item = q_one('SELECT * FROM items WHERE id = ?', [(int)$sn[0]['id']]);
+        [$qty, $price] = [2, (int)$sn[1]];
+        $blurb = 'Fresh from today’s bake';
+    } else {
+        [$bs, $bq, $bp] = array_pad(explode(':', $spec), 3, '');
+        $item = q_one('SELECT * FROM items WHERE slug = ?', [$bs]);
+        [$qty, $price] = [max(1, (int)$bq), max(0, (int)$bp)];
+        $blurb = (string)$a['name'];
+    }
+    if (!$item) return '';
+    $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], (int)$item['id']]);
+    $off = $isDone || $locked;
+    $t = $GLOBALS['st_tab'] ?? 'do';
+    $fields = ($t !== 'do' ? ['t' => $t] : []) + ['do' => 'local', 'kind' => (string)$a['slug']];
+    $info = '<p class="help">Buy ' . $qty . ' × ' . e((string)$item['name']) . '. You have ' . $have . '.</p>'
+        . ($isDone ? '<p class="help">✔ Done this visit.</p>' : ($locked ? '<p class="help">Come back later.</p>' : shop_oneform('', $fields, money($price) . ' for ' . $qty, 'Buy')));
+    return shop_tile(['id' => (int)$a['id'], 'item' => $item, 'price' => $price, 'max' => 1, 'priceHtml' => money($price), 'mini' => '×' . $qty,
+        'dim' => $off, 'badge' => $isDone ? '✔' : ($have > 0 ? (string)$have : ''), 'badgeTitle' => $isDone ? 'Done this visit' : 'You have', 'info' => $info]);
+}
+
 /** One villager card with friendship, chat and the errand. */
 function local_folk_card(array $u, array $loc, array $folk, array $deliver): string
 {
@@ -254,8 +283,10 @@ function local_panel(array $u, array $loc): string
     $h .= '<h3 class="st-h">🧭 Things to do</h3><div class="st-tiles">';
     $locked = $capped || $left === 0;
     $folk0 = $folk[0] ?? null;
+    $shelf = '';
     foreach ($pool['offer'] as $a) {
         $isDone = in_array($a['slug'], $done, true);
+        if (in_array((string)$a['kind'], ['buy', 'snack'], true)) { $shelf .= local_buy_tile($u, $loc, $a, $isDone, $locked); continue; }   // v2.0.17: stalls are picture tiles
         $badge = !empty($a['now']) ? '<span class="st-badge now">Right now</span>' : ((int)$a['tier'] > 0 ? '<span class="st-badge up">Built here</span>' : '');
         $h .= '<div class="st-tile' . ($isDone ? ' chosen' : ($locked ? ' gone' : '')) . '"><h4>' . e((string)$a['icon']) . ' ' . e((string)$a['name']) . $badge . '</h4><p class="st-blurb" title="' . e(stop_say((string)$a['blurb'], $loc, $folk0)) . '">' . e(stop_say((string)$a['blurb'], $loc, $folk0)) . '</p>';
         if ($isDone) $h .= '<p class="good"><b>✔ Done this visit</b></p>';
@@ -263,6 +294,7 @@ function local_panel(array $u, array $loc): string
         $h .= '</div>';
     }
     $h .= '</div>';
+    if ($shelf !== '') $h .= '<div class="mkstall"><h3 class="st-h">🛒 For sale</h3><div class="shopwrap"><div class="satchel shopgrid shopflex">' . $shelf . '</div></div></div>';
     if ($pool['later']) {
         $h .= '<details class="st-later"><summary>🕰️ Other times here (' . count($pool['later']) . ')</summary><ul>';
         foreach ($pool['later'] as $a) $h .= '<li>' . e((string)$a['icon']) . ' <b>' . e((string)$a['name']) . '</b> <small class="muted">' . e(stop_cond_text((string)$a['cond'])) . '</small></li>';

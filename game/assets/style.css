@@ -4574,3 +4574,14 @@ details.tkfmap.late { display: none; }
 .trekfightcol.tkhold > .trekfight { opacity: 0; pointer-events: none; animation: tkholdout 0s 8s forwards; }
 .trekfightcol > .trekfight { transition: opacity .3s ease; }
 @keyframes tkholdout { to { opacity: 1; pointer-events: auto; } }
+
+/* v2.0.17 shop tiles 2: Curio Cabinet, Dye Pot and festival stalls use the shop tiles and sheet (confirm button, no quantity) */
+.curios, .dyes, .stall { text-align: center; }
+.curios h2, .dyes h2, .dyes h3, .stall h3, .curios .help, .dyes .help, .stall .help { text-align: center; }
+.stalls .shopwrap .shopgrid { margin-left: auto; margin-right: auto; }
+dialog.isheet .confirmform { margin: 10px 0 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+dialog.isheet .sown { color: var(--muted); font-weight: 600; }
+dialog.isheet .sline b { font-size: 16px; }
+.shopgrid .spick .smini { white-space: nowrap; }
+:root[data-theme="dark"] dialog.isheet .sown { color: var(--muted); }
+:root[data-theme="dark"] .curios, :root[data-theme="dark"] .dyes { color: var(--ink); }

@@ -104,6 +104,15 @@ function haven_pantry(array $lm, int $uid): array
     return $out;
 }
 
+/** v2.0.17: the sheet form for a fixed one-click buy (no quantity): CSRF, hidden fields as given, price line, one button. Used by the haven pantry and village stalls. */
+function shop_oneform(string $action, array $fields, string $priceHtml, string $label, bool $off = false): string
+{
+    $hid = '';
+    foreach ($fields as $k => $v) $hid .= '<input type="hidden" name="' . e((string)$k) . '" value="' . e((string)$v) . '">';
+    return '<form method="post" class="sheetone"' . ($action !== '' ? ' action="' . e($action) . '"' : '') . '>' . csrf_field() . $hid
+        . '<p class="sline">' . $priceHtml . '</p><button class="btn sgo"' . ($off ? ' disabled' : '') . '>' . e($label) . '</button></form>';
+}
+
 function haven_act(array $u, int $lmId, string $what, int $itemId = 0): array
 {
     $lm = at_landmark($u, $lmId);
@@ -556,11 +565,17 @@ function landmark_panel(array $u, array $node): string
                 . $form('rest', '🔥 Rest by the fire <span class="cost">+4⚡</span>', '', landmark_done_today($uid, $id, 'rest'))
                 . $form('stay', '🛏️ Stay the night <span class="cost">' . money(20) . '</span>', '', landmark_done_today($uid, $id, 'stay'))
                 . '<p class="help">Staying the night: +3 ' . e(GNOME_STATS[haven_stat($lm)][0]) . ' for 2 hours and a little energy. Each once a day.</p>'
-                . '<h4>🧺 Today’s pantry</h4><div class="pantry">';
+                . '<h4>🧺 Today’s pantry</h4>';
+            require_once __DIR__ . '/shop_tiles.php';   // v2.0.17: the same picture tiles + sheet as the shops
+            $h .= '<div class="shopwrap"><div class="satchel shopgrid shopflex">';
             foreach (haven_pantry($lm, $uid) as [$it, $price]) {
-                $h .= $form('buy', e($it['name']) . ' <span class="cost">' . money($price) . '</span>', '<input type="hidden" name="item_id" value="' . (int)$it['id'] . '">', landmark_done_today($uid, $id, 'buy' . (int)$it['id']));
+                $row = q_one('SELECT * FROM items WHERE id = ?', [(int)$it['id']]) ?: $it;
+                $done = landmark_done_today($uid, $id, 'buy' . (int)$it['id']);
+                $h .= shop_tile(['id' => (int)$it['id'], 'item' => $row, 'price' => $price, 'max' => 1, 'dim' => $done, 'badge' => $done ? '✔' : '', 'badgeTitle' => 'Bought today',
+                    'info' => $done ? '<p class="help">Bought today. Back tomorrow.</p>'
+                        : shop_oneform(url('landmark.php'), ['do' => 'buy', 'lm' => $id, 'item_id' => (int)$it['id']], money($price), 'Buy')]);
             }
-            $h .= '</div><p class="help">One of each a day. The pantry changes every day.</p>';
+            $h .= '</div></div><p class="help">One of each a day. Changes daily.</p>';
             break;
         case 'wonder':
             $done = landmark_done_today($uid, $id, 'wonder');

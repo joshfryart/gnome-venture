@@ -400,6 +400,33 @@ function dye_editor_html(array $u): string
 
 // ---------- 5. The shops' panels ----------
 
+/**
+ * v2.0.17: a one-click item as a shop tile + sheet with a plain confirm button (no quantity). Wraps shop_tile() (includes/shop_tiles.php).
+ * Options: shop_tile's (id, item, price, dim, badge, badgeTitle, mini, tags) plus action, do, fields, verb, open (can buy now), note (shown instead of the button), icon (html replacing the item picture).
+ */
+function sink_tile(array $o): string
+{
+    require_once __DIR__ . '/shop_tiles.php';
+    $hid = '<input type="hidden" name="do" value="' . e((string)$o['do']) . '">';
+    foreach ((array)($o['fields'] ?? []) as $k => $v) $hid .= '<input type="hidden" name="' . e((string)$k) . '" value="' . e((string)$v) . '">';
+    if (!empty($o['open'])) {
+        $info = '<form method="post" class="confirmform" action="' . e((string)$o['action']) . '">' . csrf_field() . $hid
+            . '<p class="sline"><b>' . money((int)$o['price']) . '</b></p><button class="btn sgo">' . e((string)($o['verb'] ?? 'Buy')) . '</button></form>';
+    } else {
+        $info = '<p class="sown">' . (($o['note'] ?? '') !== '' ? e((string)$o['note']) : 'Not at the counter right now.') . '</p>';
+    }
+    $o['info'] = $info;
+    $o['open'] = false;
+    $o['max'] = 1;
+    $html = shop_tile($o);
+    if (!empty($o['icon'])) {
+        $ic = item_icon((array)$o['item']);
+        if ($ic !== '') $html = str_replace($ic, (string)$o['icon'], $html);
+    }
+    return $html;
+}
+
+
 const DYE_SHOP = 'the-dye-pot';
 
 /** Which special panel a shop has: 'curio', 'dye' or ''. */
@@ -438,41 +465,39 @@ function sink_shop_panel(array $u, array $shop, bool $open): string
     $uid = (int)$u['id'];
     $action = e(url('shop.php?id=' . (int)$shop['id']));
     $h = '';
+    require_once __DIR__ . '/shop_tiles.php';   // v2.0.17: same picture tiles + sheet as the other shops
     if ($kind === 'curio') {
         $stock = curio_stock($uid);
         $h .= '<section class="box curios" id="curios"><h2>🗝️ The Curio Cabinet</h2>'
-            . '<p class="help">Rare pieces for a fine yard, locked in a glass cabinet. The stock changes in <b>' . e(nice_time(curio_reset_in())) . '</b> (every Monday). You can buy '
-            . (int)setting('curio_item_limit') . ' of each curio per week.</p><div class="curiogrid">';
+            . '<p class="help">Rare pieces for a fine yard. Changes in <b>' . e(nice_time(curio_reset_in())) . '</b> (Mondays). Up to '
+            . (int)setting('curio_item_limit') . ' of each a week.</p><div class="shopwrap"><div class="satchel shopgrid shopflex">';
         foreach ($stock as $r) {
             $it = $r['item'];
-            $sold = $r['left'] < 1;   // v1.6.9: each curio is a .choice row (price on the right)
-            $h .= '<form method="post" class="curio choiceform' . ($sold ? ' sold' : '') . '" action="' . $action . '">' . csrf_field()
-                . '<input type="hidden" name="do" value="sink_curio"><input type="hidden" name="slug" value="' . e($it['slug']) . '">'
-                . '<button class="choice"' . ($sold || !$open ? ' disabled' : '') . '><span class="choice-ico" aria-hidden="true">' . (item_pic($it, 'lg') ?: e($r['def']['icon'] ?: '🏡')) . '</span>'
-                . '<span class="choice-body"><b class="choice-title">' . e($it['name']) . '</b>'
-                . '<small class="choice-sub">🌼 +' . (int)$r['def']['appeal'] . ' appeal · ' . (int)$r['def']['w'] . '×' . (int)$r['def']['h'] . '</small>'
-                . '<small class="choice-sub">' . e(preg_replace('/ Place it in your yard.*$/', '', (string)$it['description'])) . '</small></span>'
-                . ($sold ? '<b class="choice-badge good">✔ bought</b>' : '<b class="choice-badge cost">' . money($r['price']) . '</b>') . '</button></form>';
+            $sold = $r['left'] < 1;
+            $it['description'] = trim((string)preg_replace('/ Place it in your yard.*$/', '', (string)$it['description']));
+            $h .= sink_tile(['id' => (int)$it['id'], 'item' => $it, 'price' => (int)$r['price'], 'action' => $action, 'verb' => 'Buy', 'do' => 'sink_curio',
+                'fields' => ['slug' => $it['slug']], 'open' => $open && !$sold, 'dim' => $sold, 'badge' => $sold ? '✔' : '', 'badgeTitle' => 'Bought',
+                'note' => $sold ? '✔ Limit bought this week' : '', 'mini' => '🌼+' . (int)$r['def']['appeal'],
+                'tags' => ['<span class="tag">🌼 +' . (int)$r['def']['appeal'] . ' appeal</span>', '<span class="tag">' . (int)$r['def']['w'] . '×' . (int)$r['def']['h'] . '</span>']]);
         }
         if (!$stock) $h .= '<p class="muted">The cabinet is empty this week.</p>';
-        $h .= '</div></section>';
+        $h .= '</div></div></section>';
     } else {
         $own = array_fill_keys(q("SELECT ref FROM sink_owned WHERE user_id = ? AND kind = 'dye'", [$uid])->fetchAll(PDO::FETCH_COLUMN), true);
         $h .= '<section class="box dyes" id="dyepots"><h2>🎨 Dye pots</h2>'
-            . '<p class="help">Buy a pot once and the colour is yours for good. Then pick it on <a href="' . e(url('gnome.php?dye=1#dyes')) . '">My Gnome</a>. Dyes only change how your gnome looks.</p>';
+            . '<p class="help">Buy a pot once; the colour is yours. Pick it on <a href="' . e(url('gnome.php?dye=1#dyes')) . '">My Gnome</a>.</p>';
         foreach (DYE_TIER_NAMES as $tier => $tname) {
-            $h .= '<h3>' . e($tname) . ' <small class="muted">' . money(dye_price($tier)) . ' a pot</small></h3><div class="dyegrid">';
+            $h .= '<h3>' . e($tname) . ' <small class="muted">' . money(dye_price($tier)) . ' a pot</small></h3><div class="shopwrap"><div class="satchel shopgrid shopflex">';
             foreach (['hat' => '🎩 Hat', 'beard' => '🧔 Beard'] as $part => $plabel) {
                 foreach (DYES[$part][$tier] as $c => $name) {
                     $have = isset($own[$part . ':' . $c]);
-                    $h .= '<form method="post" class="dyeopt choiceform' . ($have ? ' have' : '') . '" action="' . $action . '">' . csrf_field()   // v1.6.9: .choice row, swatch as icon
-                        . '<input type="hidden" name="do" value="sink_dye"><input type="hidden" name="part" value="' . $part . '"><input type="hidden" name="color" value="' . e($c) . '">'
-                        . '<button class="choice' . ($have ? ' is-selected' : '') . '"' . ($have || !$open ? ' disabled' : '') . '><span class="choice-ico" aria-hidden="true">' . dye_swatch($c, 10) . '</span>'
-                        . '<span class="choice-body"><b class="choice-title">' . e($name) . '</b><small class="choice-sub">' . $plabel . '</small></span>'
-                        . ($have ? '<b class="choice-badge good">✔ owned</b>' : '<b class="choice-badge cost">' . money(dye_price($tier)) . '</b>') . '</button></form>';
+                    $h .= sink_tile(['id' => 0, 'item' => ['id' => 0, 'slug' => '', 'name' => $name, 'category' => 'other', 'description' => '', 'rarity' => [1 => 1, 2 => 30, 3 => 60][$tier]],
+                        'price' => dye_price($tier), 'action' => $action, 'verb' => 'Buy', 'do' => 'sink_dye', 'fields' => ['part' => $part, 'color' => $c],
+                        'open' => $open && !$have, 'dim' => $have, 'badge' => $have ? '✔' : '', 'badgeTitle' => 'Owned', 'note' => $have ? '✔ Owned' : '',
+                        'mini' => mb_substr($plabel, 0, 2), 'tags' => ['<span class="tag">' . e($plabel) . '</span>'], 'icon' => dye_swatch($c, 16)]);
                 }
             }
-            $h .= '</div>';
+            $h .= '</div></div>';
         }
         $h .= '</section>';
     }

@@ -62,17 +62,19 @@ page_header($f ? $f['name'] : 'Festivals');
 
 <section class="box">
   <h2>🛍️ The stalls</h2>
-  <p class="help">Run by the townsfolk, here for the festival only. Prices in <?= e(setting('currency_name')) ?>; each gnome can buy a few of each.</p>
+  <p class="help">Run by the townsfolk, here for the festival only. A few of each per gnome. The number on a tile is what you have left.</p>
   <div class="stalls">
   <?php foreach ($stalls as $s): ?>
     <div class="stall">
       <h3><?= e($s['icon'] . ' ' . $s['name']) ?></h3>
       <?php if ($s['keeper']): ?><p class="help">Run by <b><?= e($s['keeper']) ?></b> 🏡</p><?php endif; ?>
+      <div class="shopwrap"><div class="satchel shopgrid shopflex">
       <?php foreach ($s['goods'] as $g): $left = $g['limit'] - $g['bought']; ?>
-        <form method="post" class="stallrow"><?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="stall" value="<?= e($s['key']) ?>"><input type="hidden" name="idx" value="<?= (int)$g['idx'] ?>">
-          <span><b><?= e($g['item']['name']) ?></b><br><small class="muted"><?= $left > 0 ? $left . ' left for you' : 'You have all you can carry' ?></small></span>
-          <button class="btn small"<?= $left > 0 ? '' : ' disabled' ?>><?= e(money((int)$g['price'])) ?></button></form>
+        <?= sink_tile(['id' => (int)$g['item']['id'], 'item' => $g['item'], 'price' => (int)$g['price'], 'action' => url('festival.php'), 'verb' => 'Buy', 'do' => 'buy',
+            'fields' => ['stall' => $s['key'], 'idx' => (int)$g['idx']], 'open' => $left > 0, 'dim' => $left < 1, 'badge' => (string)max(0, $left), 'badgeTitle' => 'Left for you',
+            'note' => 'You have all you can carry', 'mini' => '']) ?>
       <?php endforeach; ?>
+      </div></div>
     </div>
   <?php endforeach; ?>
   </div>

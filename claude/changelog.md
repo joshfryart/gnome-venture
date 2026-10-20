@@ -1,6 +1,11 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.17
+- Picture tiles + sheet (shop_tiles.php) for the last row-style shops: Curio Cabinet + Dye Pot (sinks.php `sink_tile()`, plain confirm sheet, max 1), festival stalls (festival.php, includes/festival.php selects items `*`), haven pantry (landmarks.php `shop_oneform()`), village stall buy/snack kinds (local.php `local_buy_tile()`, "🛒 For sale" row). Prices, limits, POST fields, payouts unchanged. swap/seedswap/rest stay rows.
+- tests/sinks097.sh greps fixed (66 ok). CSS "v2.0.17 shop tiles 2" (11 lines). News entry.
+- Watch: CSP inline-style console error on town.php (pre-existing). Optional polish: /tmp scratch css for "For sale" heading margin (not applied).
+
 ## 2.0.16
 - Treks II-b: NEW skill-check stop "The Fallen Shelf" (zone p, the Dim, tile `0` at 18,74; `cart` type, dc 11, 1 Camp Kit once; slots ch2.spot.shelf.before/win/fail/work/after with briefs + drafts).
 - Admin settings (advanced): road_roll_creature 40 / _problem 22 / _choice 14 / _find 24 = weights of the road roll (clamped 0-100, need not sum to 100; all 0 = defaults). `road_roll_bands()` in road_life.php replaces ROAD_CHOICE_PCT; adventure.php next_step uses it. Defaults give the old 40/62/76 bands exactly.

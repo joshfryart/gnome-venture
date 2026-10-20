@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.16)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.17)
+
+Built: **2.0.17** (picture-tile shops done: Curio, Dye Pot, festival stalls, haven pantry, village stalls). Check on phone: each opens a sheet, buy works, centred. Watch: CSP inline-style console error on town.php (pre-existing). The "NEXT UP picture tiles" list below is DONE.
 
 Built: **2.0.16** (II-b Fallen Shelf stop, road roll admin settings, Tumble lines pass 6, .tkfoelv CSS gone). Check: Admin → Settings → advanced "Road:" four weights; II-b shelf at the Dim (dc 11, camp kit). The "II-b held" list below is DONE except the Tumble brief note.
 

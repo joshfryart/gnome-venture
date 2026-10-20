@@ -45,7 +45,7 @@ php -r 'chdir("'$GAME'"); $_SERVER["HTTP_HOST"]="x"; require "includes/bootstrap
 
 echo "== Curio Cabinet shop"
 curl -s -b $A "$BASE/shop.php?id=$HH" > /tmp/s97.html
-chk "five curios on offer" "$(grep -o 'class="curio"' /tmp/s97.html | wc -l)" 5
+chk "five curios on offer" "$(tr '\n' ' ' < /tmp/s97.html | grep -o 'id="curios".*' | sed 's/<\/section>.*//' | grep -o 'class="btile stile' | wc -l)" 5
 echo "  help text: $(grep -c 'More ways to spend Petals' /tmp/s97.html) · reset note: $(grep -oE 'changes in <b>[^<]*' /tmp/s97.html | head -1)"
 SLUGS=$(grep -oE 'name="slug" value="[^"]*"' /tmp/s97.html | sed 's/.*value="//;s/"//'); SLUG=$(echo "$SLUGS" | sed -n 1p)
 PRICE=$(db "SELECT base_price FROM items WHERE slug='$SLUG'"); C0=$(coins)
@@ -68,7 +68,7 @@ dbx "UPDATE users SET coins=200000 WHERE username='sprout'"
 curl -s -b $A "$BASE/shop.php?id=$HH" > /tmp/s97.html
 chk "bought curio shows as bought" "$(grep -o 'bought this week' /tmp/s97.html | wc -l)" 1
 echo -n "  csrf missing: "; curl -s -b $A "$BASE/shop.php?id=$HH" -d do=sink_curio -d slug=$SLUG2 -o /dev/null -w '%{http_code}\n'
-chk "curio_count setting 4 -> four curios" "$(dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('curio_count','4')"; curl -s -b $A "$BASE/shop.php?id=$HH" | grep -o 'class="curio"' | wc -l)" 4
+chk "curio_count setting 4 -> four curios" "$(dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('curio_count','4')"; curl -s -b $A "$BASE/shop.php?id=$HH" | grep -o 'id="curios".*' | sed 's/<\/section>.*//' | grep -o 'class="btile stile' | wc -l)" 4
 dbx "DELETE FROM settings WHERE name='curio_count'"
 
 echo "== building looks"
@@ -118,7 +118,7 @@ chk "bloom has no sign, sprout's is still up" "$(db "SELECT COUNT(*) FROM sink_o
 
 echo "== dyes"
 curl -s -b $A "$BASE/shop.php?id=$DP" > /tmp/s97.html
-chk "Dye Pot page: 21 colours" "$(grep -o 'class="dyeopt' /tmp/s97.html | wc -l)" 21
+chk "Dye Pot page: 21 colours" "$(tr '\n' ' ' < /tmp/s97.html | grep -o 'id="dyepots".*' | sed 's/<\/section>.*//' | grep -o 'class="btile stile' | wc -l)" 21
 echo -n "  buy a hat dye: "; C0=$(coins); postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=hat -d color='#e75480'
 chk "800 taken" "$(coins)" "$((C0 - 800))"
 echo -n "  again: "; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=hat -d color='#e75480'
@@ -126,7 +126,7 @@ chk "no double charge" "$(coins)" "$((C0 - 800))"
 echo -n "  a colour not on sale: "; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=hat -d color='#123456'
 echo -n "  rare + gilded beard dyes: "; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=beard -d color='#2a9d8f'; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=beard -d color='#d4af37' >/dev/null
 chk "800 + 2500 + 6000 spent" "$((C0 - $(coins)))" 9300
-chk "Dye Pot shows owned" "$(curl -s -b $A "$BASE/shop.php?id=$DP" | grep -o 'owned</span>' | wc -l)" 3
+chk "Dye Pot shows owned" "$(curl -s -b $A "$BASE/shop.php?id=$DP" | grep -o '✔ Owned</p>' | wc -l)" 3
 echo -n "  wear a dye not owned: "; postf $A gnome.php gnome.php -d do=dye -d hat='#b8325a'
 chk "hat unchanged" "$(db "SELECT COALESCE(hat_dye,'none') FROM users WHERE id=$SID")" none
 echo -n "  wear a made-up colour: "; postf $A gnome.php gnome.php -d do=dye -d beard='#abcdef'

@@ -209,7 +209,7 @@ function festival_stalls(array $f, int $uid): array
     foreach ($f['stalls'] as $i => $s) {
         $goods = [];
         foreach ($s['sells'] as $j => [$slug, $price, $limit]) {
-            $item = q_one('SELECT id, name, description FROM items WHERE slug = ?', [$slug]);
+            $item = q_one('SELECT * FROM items WHERE slug = ?', [$slug]);
             if (!$item) continue;
             $bought = (int)q_val('SELECT qty FROM festival_buys WHERE festival = ? AND user_id = ? AND stall = ?', [$f['slug'], $uid, $s['key'] . ':' . $j]);
             $goods[] = ['idx' => $j, 'item' => $item, 'price' => $price, 'limit' => $limit, 'bought' => $bought];

@@ -67,6 +67,8 @@ const UPDATE_NEWS = [
         . "[*]Folk pages have tabs: About, Likes & dislikes, and Standing.\n"
         . "[*][b]Feed the birds[/b] lets you choose which seeds; a picnic lets you choose the food.\n"
         . "[*]Fixed: the festival stall said you'd already had your treat.[/list]"],
+    '2.0.17' => ['🛒 More picture shops',
+        "The Curio Cabinet, the Dye Pot, festival stalls, haven pantries and village stalls now show goods as picture tiles. Tap one to see it and buy."],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */
