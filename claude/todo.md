@@ -1,6 +1,6 @@
 # Gnome Venture: to-do (updated 2026-10-20, after 2.0.2)
 
-Built: **2.0.4** (Phase 1 of plan-consolidation.md; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.2). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+Built: **2.0.5** (Phase 2: shop tiles, rewards wrapper, combat_math; 2.0.4 = Phase 1; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.2). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 
 ## Now: Joshua
 1. 1.9.2 uploaded; all 1.8.x checks pass (Joshua 2026-10-17). Play Chapter II-a as admin on phone; time it.
@@ -11,7 +11,7 @@ Built: **2.0.4** (Phase 1 of plan-consolidation.md; 2.0.3 = Usage page) (slim ne
 
 1b. Upload **2.0.2** (2.0.1 + Puzzles locked to admins; turn on in Admin → Settings "Games: Puzzles open"). As admin check: a Ch II boss with a non-Burdock party, a riddle (2 tries), an old campsite ⛺ rest + KO wake-up there, road in-sight timer ticking.
 
-## Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; then Phase 2 = give_petals wrapper, shop merge, combat_math; Phase 3 = tilemap + delve maps)
+## Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; Phase 3 = tilemap + delve maps = 2.0.6)
 
 ## NEXT UP (Joshua 2026-10-17)
 - Picture tiles + sheet (like shop.php 1.9.8) on: Curio + Dye Pot (sinks.php), market day stalls (marketday.php), haven pantry (landmarks.php), festival stalls, local.php buys, Trading Post (market.php).

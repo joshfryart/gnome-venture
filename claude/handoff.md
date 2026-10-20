@@ -1,4 +1,4 @@
-# Gnome Venture: handoff (current as of v2.0.4, 2026-10-20; plan: claude/plan-consolidation.md)
+# Gnome Venture: handoff (current as of v2.0.5, 2026-10-20; plan: claude/plan-consolidation.md)
 Latest: 2.0.0.1 = Puzzles (puzzles.php, standalone page; see changelog). Versions after 2.0.0 are four-part (2.0.0.1, 2.0.0.2 ...) until Joshua says otherwise.
 
 Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.1), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
@@ -44,7 +44,7 @@ Mockups go in scratchpad only (not in project).
 - Today (index.php, 1.9.2): one page, no tabs. Phone: greeting, news, 6 cards, Hollow, tip. Desktop: greeting, 3x2 cards (4-wide with Treks), Hollow | news+tip; rail hides weather/boosts/tasks on Today. `helper_slot()` shows one of welcome back > First Week > daily card > festival banner, none during Wren's tour.
 
 ## Treks (1.8.0+)
-- NeoQuest-style party campaign. Files: includes/trek.php (state, map, walk, fatigue, camp, KO, bank, spots), trek_fight.php (party combat; copies adventure.php maths, keep-in-sync comments both sides; TREK_TUNE; trek_fight_ai), trek_data.php (schema, importers, `trek_text()`, `trek_inside()`, settings "Treks: …"), trek_levels.php, trek_events.php, trek_art.php (one SVG per map). JS assets/trekfight.js, trekmap.js.
+- NeoQuest-style party campaign. Files: includes/trek.php (state, map, walk, fatigue, camp, KO, bank, spots), trek_fight.php (party combat; shared maths in includes/combat_math.php; golden test tests/combat_math_golden.php; TREK_TUNE; trek_fight_ai), trek_data.php (schema, importers, `trek_text()`, `trek_inside()`, settings "Treks: …"), trek_levels.php, trek_events.php, trek_art.php (one SVG per map). JS assets/trekfight.js, trekmap.js.
 - Chapters are data-driven: includes/data/trek_chapters*.txt (chapter/zone/ms/check/tune/finish rows; lift rows ignored since 1.9.5), maps trek_map_ch1.txt / trek_map_ch2.txt, spots, crew, creatures (landscape 'trek'), trek_texts*.txt + trek_drafts.txt (importer never overwrites body/status; draft used only when slot is new). Boss scripts via trek_scripts()/trek_script_register().
 - Tables trek_runs (one row per user,trek,mode,chapter; state JSON incl. st.tl levels, st.tac tactics, st.plan), trek_party, trek_recruits, trek_pack, trek_flags, trek_texts, trek_ms (milestones paid; survives admin reset). users.trek_ch, users.trek_pet_day/today. State changes in `trek_tx` (users-row lock + re-read). Once-only payouts via flags.
 - After a chapter: interlude hub "The Shard Hollow" (no replay; old run read-only). trek_godown carries recruits, levels, tactics, kits.
@@ -57,7 +57,7 @@ Mockups go in scratchpad only (not in project).
 - XP: `add_xp()`; `add_action_xp()` scales past `xp_steep_from`. Events: `job_event()` feeds Job Board, Callings, Hollow Goals.
 - Mini-game Petals: wrap every game payout AND its Rules-text amount in `game_petals($n)` (setting `games_petals_percent`). Snail Race and Guess the Weight not scaled.
 - Orders quality: `orders_food_quality` (default 0) → crop/preserve orders minq 0, diff 1. item_quality still recorded.
-- Race safety: (a) conditional UPDATE/DELETE as claim + rowCount; (b) UNIQUE insert; (c) transaction + `UPDATE users SET id = id WHERE id = ?` then RE-READ. Any new repeatable Petal source needs a daily cap or energy cost.
+- Race safety: (a) conditional UPDATE/DELETE as claim + rowCount; (b) UNIQUE insert; (c) transaction + `UPDATE users SET id = id WHERE id = ?` then RE-READ. Any new repeatable Petal source needs a daily cap or energy cost. New Petal gives/spends go through give_petals()/take_petals() (includes/rewards.php).
 - Anti-alt: `fresh_hold($u)`, `gnome_in_play_sql()`, `mentors120_same_origin()`.
 - Visitor actions on gardens (visit.php): `gate_can_interact()`; guestbook = garden_stamps; watering = social169.php; one roll-up owner notice per garden/day.
 - Email: `send_mail()` (mail() or SMTP via config smtp_*). Reminder emails only for verified + opted-in players (`users.email_nudges` default 0), unsubscribe link (unsub.php HMAC).

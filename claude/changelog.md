@@ -1,6 +1,12 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.5
+- Phase 2 of claude/plan-consolidation.md. NEW includes/shop_tiles.php (shop_tile/shop_chips/shop_mini/shop_cat_of): shop.php, market.php (stall buy), marketday.php (stall buy + wanted sell) share one tile + `<dialog>` sheet (site.js gvSheetTotal: skips "Too much" when no .mycoins[data-coins]). CSS "v2.0.5 shop tiles". Left as rows: sinks.php (Curio/Dye Pot), festival stalls, haven pantry, local.php, florist, my stall list.
+- NEW includes/rewards.php: give_petals/take_petals (single-statement UPDATE, take = conditional claim), reward_log() empty hook, give_xp alias. 26 plain call sites moved (15 give, 11 take); rest still raw `coins = coins` (list in git history of this change; migrate lazily when touching a file). tests/rewards.php.
+- NEW includes/combat_math.php: d(), attack_roll, damage, scale_creature, foe_hits, foe_damage, flee_roll, combat_pct shared by adventure.php and trek_fight.php; all "keep in sync" comments gone. Proof: tests/combat_math_golden.php + tests/combat_golden.json (~9,500 outputs identical before/after; run `php -d disable_functions=random_int tests/combat_math_golden.php GAME_DIR` on a fresh install; `--record` only from known-good code). treks/security190/explore same as pristine.
+- News entry.
+
 ## 2.0.4
 - Phase 1 of claude/plan-consolidation.md. Menu 19 -> 14 tiles: Seasons = fold on World (?tab=seasons), Passport = town.php?view=passport, Villagers you know = town.php?view=villagers; seasons.php/passport.php/folk.php (no id) are 302 stubs (folk.php?id=N stays: Talk/Gift/Deal POSTs). "Stop villagers" label for rest stops. Admin settings: search box + advanced flag (`settings_is_adv()` ~70 keys hidden by default; no keys deleted; save skips fields not on the page). CSS "v2.0.4 menu folds".
 - Content: +66 road events (11 regions x 6), +44 region road lines, +24 stop chat lines (Warm/Eager/Fussy/Dreamy), 4 finds per landscape, delve room text (data/delve_rooms.txt kind|cond|lands|text; delve_room_line() in landmarks.php).

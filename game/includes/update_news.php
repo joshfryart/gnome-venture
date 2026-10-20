@@ -536,6 +536,8 @@ function post_update_news(string $from): void
         "[list][*][b]Fewer menu tiles[/b]: Seasons now lives on the World page, and your Passport and the Villagers you know are tabs in Town.\n"
         . "[*][b]Livelier roads[/b]: new road scenes and sights for every region, more finds on the way, and a line of colour in every room of a delve.\n"
         . "[*][b]More to say[/b]: the stop villagers who were quiet now chat.[/list]"],
+    '2.0.5' => ['🛒 Picture shops',
+        "The shop, the Trading Post stalls and Market Day now show your goods as picture tiles. Tap one to pick how many, and see the total before you buy."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
