@@ -923,7 +923,7 @@ $fat = (int)$run['fatigue'];
   $hud .= '</div>';
   ?>
   <?php if ($run['fi']): ?>
-    <div class="trekfightcol">
+    <div class="trekfightcol<?= (int)($run['fi']['round'] ?? 1) <= 1 ? ' tkhold' : '' /* v2.0.14: round 1 waits for the foe pop-over */ ?>">
     <?= $hud ?>
     <?php /* v2.0.10: display only (inert, no form); assets/trekfight.js folds it after the pop-up. v2.0.13: drawn on every fight load: desktop shows it in column 1 all fight long (summary hidden), phones only on the first load (.late = hidden below 1000px) */ ?>
     <details class="tkfmap<?= $fightWalk ? '' : ' late' ?>" open<?= $fightWalk ? ' data-bang="1"' : '' ?>><summary>🗺️ Where it began</summary><div class="tkfmapbox" inert><?= trek_map_html($run, $u, $fightWalk) ?></div></details>

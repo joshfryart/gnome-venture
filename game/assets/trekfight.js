@@ -375,6 +375,10 @@
     var d = document.querySelector('details.tkfmap');
     if (d && box.isConnected && !(window.matchMedia && window.matchMedia('(min-width: 1000px)').matches)) d.removeAttribute('open');   /* v2.0.13: on desktop the map stays open in column 1 */
   }
+  function unhold() {   /* v2.0.14: round 1: the fight panel stays faded until the foe pop-over is done (CSS lets go by itself after 8 s) */
+    var c = document.querySelector('.trekfightcol.tkhold');
+    if (c) c.classList.remove('tkhold');
+  }
   function waitThenPop(box) {
     var tries = 0;
     (function go() {
@@ -386,9 +390,9 @@
       var holder = box.querySelector('.trekfoes'), cards = [];
       try { cards = JSON.parse((holder && holder.getAttribute('data-foes')) || '[]'); } catch (e) { cards = []; }
       var seen = seenList(), fresh = cards.filter(function (c) { return seen.indexOf(c.n) < 0; });
-      if (!fresh.length || muted()) { markSeen(cards.map(function (c) { return c.n; })); setTimeout(function () { foldMap(box); }, 400); return; }
+      if (!fresh.length || muted()) { unhold(); markSeen(cards.map(function (c) { return c.n; })); setTimeout(function () { foldMap(box); }, 400); return; }
       fresh.sort(function (a, b) { return (b.b ? 1 : 0) - (a.b ? 1 : 0); });   /* the boss first */
-      showPop(fresh, null, function () { foldMap(box); });
+      showPop(fresh, null, function () { unhold(); foldMap(box); });
       markSeen(cards.map(function (c) { return c.n; }));   /* only now that it is on screen */
     })();
   }

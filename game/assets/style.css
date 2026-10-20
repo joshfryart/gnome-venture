@@ -4570,3 +4570,8 @@ details.tkfmap.late { display: none; }
   .trekmapcol, .tkfmapbox { view-transition-name: trek-map; }
   .trekcolR, .trekfightcol > .trekfight { view-transition-name: trek-stage; }
 }
+
+/* v2.0.14 round 1: the fight panel fades in after the foe pop-over (assets/trekfight.js removes .tkhold); no script = it shows itself after 8 s */
+.trekfightcol.tkhold > .trekfight { opacity: 0; pointer-events: none; animation: tkholdout 0s 8s forwards; }
+.trekfightcol > .trekfight { transition: opacity .3s ease; }
+@keyframes tkholdout { to { opacity: 1; pointer-events: auto; } }
