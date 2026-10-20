@@ -4364,3 +4364,55 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .tmlinks { text-align: center; margin: 2px 0 8px; }
 .tmlinks a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; }
 .advgrid .tmwrap .tmform { margin: 0; }
+
+/* v2.0.8 trek scene */
+dialog.tkscene { border: 0; padding: 0; margin: auto; width: min(520px, calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); background: transparent; color: var(--ink); overflow: visible; text-align: center; }
+dialog.tkscene::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(4px); }
+.tkscard { --pw: 84px; display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 12px 12px; border: 1px solid var(--line-2); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-2); cursor: pointer; outline: 0; max-height: calc(100dvh - 24px); overflow-y: auto; overflow-x: hidden; }
+.tkscard:focus-visible { box-shadow: var(--shadow-2), 0 0 0 3px var(--focus); }
+.tksstage { position: relative; height: 104px; }
+.tkschar { position: absolute; top: 0; width: var(--pw); display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: .35; transform: scale(.88); transform-origin: 50% 40%; }
+.tkschar.l { left: 2%; }
+.tkschar.r { left: calc(98% - var(--pw)); }
+.tkschar.spk { opacity: 1; transform: none; }
+.tkschar.off { opacity: 0; visibility: hidden; }
+.tksav { flex: 0 0 auto; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 34px; line-height: 1; background: var(--surface-2); border: 2px solid var(--line-2); }
+.tkschar.spk .tksav { border-color: var(--brand); }
+.tksav img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.tksav svg.meico { width: 1em; height: 1.25em; vertical-align: 0; }
+.tksnm { max-width: 100%; font-size: 12px; font-weight: 500; line-height: 1.2; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tkstext { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 7.5em; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--box-bg); }
+.tksspk { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--brand-ink); }
+.tksline { margin: 0; font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; }
+.tkscard.nar .tksspk { color: var(--muted); }
+.tkscard.nar .tksline { font-style: italic; color: var(--muted); }
+.tksfoot { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.tksdots { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+.tksdot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-2); }
+.tksdot.past { background: var(--brand-line); }
+.tksdot.on { background: var(--brand); transform: scale(1.3); }
+.tksbtn { min-width: 120px; min-height: 44px; }
+@media (max-width: 480px) {
+  .tkscard { --pw: 72px; padding: 12px 10px 10px; }
+  .tksstage { height: 88px; }
+  .tksav { width: 48px; height: 48px; font-size: 26px; }
+  .tksline { font-size: 15px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tksin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes tksfade { from { opacity: 0; } to { opacity: 1; } }
+  dialog.tkscene[open] { animation: tksin .15s ease-out; }
+  dialog.tkscene[open]::backdrop { animation: tksfade .15s ease-out; }
+  .tkschar { transition: left .28s ease, opacity .28s ease, transform .28s ease; }
+  .tksline { transition: opacity .2s ease, transform .2s ease; }
+  .tksline.out { opacity: 0; transform: translateY(4px); transition-duration: .12s; }
+  .tksdot { transition: background-color .2s ease, transform .2s ease; }
+}
+:root[data-theme="dark"] dialog.tkscene::backdrop { background: rgba(0, 0, 0, .8); }
+:root[data-theme="dark"] .tkscard { border-color: var(--line-2); background: var(--surface); }
+:root[data-theme="dark"] .tksav { background: var(--surface-2); border-color: var(--line-2); }
+:root[data-theme="dark"] .tkschar.spk .tksav { border-color: var(--brand-ink); }
+:root[data-theme="dark"] .tkstext { background: var(--surface-2); border-color: var(--line); }
+:root[data-theme="dark"] .tksspk { color: var(--brand-ink); }
+:root[data-theme="dark"] .tkscard.nar .tksspk, :root[data-theme="dark"] .tkscard.nar .tksline { color: var(--muted); }
+:root[data-theme="dark"] .tksdot.on { background: var(--brand-ink); }

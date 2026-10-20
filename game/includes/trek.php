@@ -7,6 +7,7 @@ require_once __DIR__ . '/trek_data.php';
 require_once __DIR__ . '/trek_fight.php';
 require_once __DIR__ . '/trek_oldcamp.php';   // v2.0.1: old campsites
 require_once __DIR__ . '/trek_events.php';   // v1.8.8: trail events, crew moments, the side stops
+require_once __DIR__ . '/trek_scene.php';   // v2.0.8: the talk pop-over (scene) queue and stage
 require_once __DIR__ . '/trek_levels.php';   // v1.8.9: trek levels, milestone XP, migration
 
 /**
@@ -1032,6 +1033,7 @@ function trek_act_recruit(array &$run, array $u): array
     $in = trek_recruit_crew($run, $u, (string)$s['data']['crew']);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.freed', ['trailmate' => $npc['name']]);
     if (!$in) trek_say($run, trek_benched_line((string)$npc['name']));
+    trek_scene_recruit($run, $u, (string)$s['data']['crew'], 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.freed', 'ch' . $run['chapter'] . '.scene.' . $s['data']['crew'] . '.me', ['trailmate' => $npc['name']]);   // v2.0.8
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);   // v1.9.4
     trek_ms_award($run, $u, (string)($s['data']['ms'] ?? 'burdock'));
     return [true, ''];
@@ -1054,6 +1056,7 @@ function trek_act_fetch(array &$run, array $u): array
     $in = trek_recruit_crew($run, $u, (string)$s['data']['crew']);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.join', ['trailmate' => $npc['name']]);
     if (!$in) trek_say($run, trek_benched_line((string)$npc['name']));
+    trek_scene_recruit($run, $u, (string)$s['data']['crew'], 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.join', 'ch' . $run['chapter'] . '.scene.' . $s['data']['crew'] . '.me', ['trailmate' => $npc['name']]);   // v2.0.8
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);   // v1.9.4
     trek_ms_award($run, $u, (string)($s['data']['ms'] ?? 'zinnia'));
     return [true, ''];

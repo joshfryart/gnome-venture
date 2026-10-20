@@ -835,6 +835,7 @@ if (!$run || (!(int)$run['inside'] && !$hub)):
 <?php
 $walkPath = trek_walk_take($run);
 if ($run['fi'] || $tab !== 'map') $walkPath = null;   // v1.8.10: the path of the last walk (one-shot; dropped when a fight starts)
+$sceneHtml = trek_scene_stage($run, $u);   // v2.0.8: same, for the talk pop-over
 $replayHtml = trek_replay_stage($run, $u);   // v1.8.5: taken (and cleared) on every render, shown only on the Map tab
 $tabLink = fn(string $t) => e(url('trek.php' . ($t === 'map' ? '' : '?t=' . $t)));
 $party = trek_party_stats($run, $u);
@@ -850,6 +851,7 @@ $fat = (int)$run['fatigue'];
   <?= trek_hub_html($run, $u, $party) ?>
 <?php elseif ($tab === 'map'): ?>
   <?= $replayHtml ?>
+  <?= $sceneHtml ?>
   <?php
   // v1.8.3: one compact hud card (party, chips, where) instead of loose rows
   $obj = $run['fi'] ? null : trek_objective($run);

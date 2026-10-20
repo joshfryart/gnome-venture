@@ -57,3 +57,7 @@ interlude.1.intro|The den is quiet. Roots curl around a small hollow, and the Bl
 interlude.1.burdock|The den feels wrong without Gloomtooth rumbling in it. Good wrong.\nBut that shard is still pulling toward something deeper. I will go first, {gnome}. Roots hold better than tunnels.
 interlude.1.zinnia|I have patched everyone twice. Do not tell Burdock he winced.\nThe shard smells of wet clay and old water. Something down there is crying, I think.
 interlude.1.bracken|I walked the edge of the new tunnel. It slopes down, cold and dripping.\nGive me a lantern and a quiet hour, {gnome}, and I will tell you where the floor ends.
+ch1.scene.burdock.me|“Glad I found you, Burdock.”\n“Come along, and tell me more about that sour smell.”
+ch1.scene.zinnia.me|“A humming trailmate is a fine thing, Zinnia.”\n“Deeper down it is, then. Lead on.”
+ch1.scene.bracken.me|“That was a good duel, Bracken. I am glad you are with us.”\n“Stronger below? Then we go carefully, together.”
+ch1.scene.gloomtooth.me|“Rest now, old mole. You are not alone down here.”\n“We will take the shard and see where it points.”
