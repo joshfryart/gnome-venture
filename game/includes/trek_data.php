@@ -41,6 +41,7 @@ function trek_settings_base(): array
         'trek_ms_mother'      => ['label' => 'Treks: milestone XP, Blight Mother down', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
         'trek_ms_gloomtooth'  => ['label' => 'Treks: milestone XP, Gloomtooth down', 'type' => 'int', 'default' => '600', 'min' => 0, 'max' => 1000000],
         'trek_ms_chapter'     => ['label' => 'Treks: milestone XP, Chapter I complete (each pays 50-100% by its checks)', 'type' => 'int', 'default' => '350', 'min' => 0, 'max' => 1000000],
+        'trek_friend_daily'   => ['label' => 'Treks: friendship per 20 fights per day (v2.0.20)', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 20],
         'trek_petals_daily'   => ['label' => 'Treks: most Petals found in fights in one Hollow day (v1.8.1)', 'type' => 'int', 'default' => '150', 'min' => 0, 'max' => 1000000],
         'trek_items_daily'    => ['label' => 'Treks: most items found in fights in one Hollow day (0 = no limit) (v2.0.1)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 1000000],
         'trek_campkit_price'  => ['label' => 'Treks: Camp Kit price (Petals)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 100000],

@@ -1,6 +1,15 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.20
+- Treks: NEW Knacks (includes/trek_knacks.php): one slot per even trek level (Lv2 minor, Lv4 major, ... max 11 at Lv22), 6 minor + 6 major sidegrade knacks, each once per member, stats only (no knacks = identical stats). Pick on the Party tab, change filled slots at a camp or the hub, free. Trek level cap 20 -> 23.
+- Treks: NEW whole-map fold (includes/trek_minimap.php): seen tiles only, display only, 2-3 KB.
+- Treks: Map feed keeps the previous action's last lines after a quiet step (trek_latest_html($run, true)).
+- Treks: Chapter III-a "The Humming Deep" (HIDDEN: setting trek_chapters_open default 2, admins bypass): 40x50 map, 12 spots, Wren Thimblewick recruit (Bloomcaller), boss Old Gneiss, 5 creatures Lv20-23, 79 draft text slots. Old Gneiss sim over 35 parties: worst 72, median 90, best 98 (target was 78-88 / <=95; cliff is steep, accepted). Opens III-b later.
+- Treks: friendship +1 per 20 won fights per trailmate in the party, cap trek_friend_daily 3 awards/day (0 = off). Ch II first-fight tutorial slot ch2.tut.firstfight.
+- Text pass 7 (sluice lines, Ch II stash + shrine events), Drum Door says "Open the door", docs: text freeze lifted.
+- News entry (knacks, whole map; Ch III not announced).
+
 ## 2.0.19
 - Trek POST tap brake: `rate_limited('trek:'.$uid, 400, 5)` + `record_attempt` in trek.php before trek_tx (reuses login_attempts; no schema). Refused = flash "Easy there!". Closes the "no rate limit on trek POSTs" watch item.
 - News entry "Treks are open!" (shows only in the news post; Treks stay gated by setting `trek_open`: Joshua flips it at upload).

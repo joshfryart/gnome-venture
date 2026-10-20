@@ -311,6 +311,16 @@ php /tmp/trek_i201b.php $GAME >/dev/null 2>&1
 get trek.php >/dev/null; grep -q 'gate is shut' $H && echo "  ok   next to the locked Crossroads gate its text shows" || echo "  FAIL no Crossroads locked text"
 echo "== engine audit (tests/trek_audit.sh: who may call what, bad input, simultaneous POSTs, escaping, admin pages, damaged state, settings extremes)"
 bash "$HERE/trek_audit.sh" "" $((PORT+1)) "$ROUTER" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 text pass: sluice clay lines, Ch II stash, door label (tests/trek_text2020.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text2020.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 Ch II first-fight tutorial (tests/trek_tut2.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_tut2.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 friendship per 20 fights (tests/trek_friend.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_friend.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 Whole map fold (tests/trek_minimap.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_minimap.php" "$GAME" $((PORT+40)) 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 Knacks: slots, deltas, respec, bad input, carry-over, HTTP, boss sims (tests/trek_knacks.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_knacks.php" "$GAME" "$BASE" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== error log"
 test -s $GAME/data/error-log.txt && { echo "  ERROR LOG HAS ENTRIES:"; head -8 $GAME/data/error-log.txt; } || echo "  error log empty"
 echo "== log checks"

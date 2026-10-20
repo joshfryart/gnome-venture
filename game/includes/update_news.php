@@ -73,6 +73,8 @@ const UPDATE_NEWS = [
         "A new adventure for gnomes level 15 and up: [b]Treks[/b], under Out & about.\n\n"
         . "Lead a party down the cracks under the Hollow. Free trailmates, fight the blight, rest at camps and bring home Petals. Two chapters are ready: [b]The Wilting Rows[/b] and [b]The Weeping Clay[/b].\n\n"
         . "[list][*]Starting costs 10 energy. Fights cost none.\n[*]Your progress saves at every step, on any device.\n[*]Auto lets the party fight for you.[/list]"],
+    '2.0.20' => ['🥾 Treks: knacks and a whole map',
+        "[list][*][b]Knacks[/b]: every two trek levels each trailmate (and you) earns a knack slot, small then bigger. Each knack trades one thing for another. Pick them on the Party tab; change them at camp.\n[*][b]Whole map[/b]: a small fold under the map shows everywhere you have been.\n[*]Trailmates grow fonder of you as you fight together.\n[*]The map feed keeps your last lines after a quiet step.[/list]"],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */
