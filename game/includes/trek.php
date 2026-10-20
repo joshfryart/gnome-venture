@@ -8,6 +8,7 @@ require_once __DIR__ . '/trek_fight.php';
 require_once __DIR__ . '/trek_oldcamp.php';   // v2.0.1: old campsites
 require_once __DIR__ . '/trek_events.php';   // v1.8.8: trail events, crew moments, the side stops
 require_once __DIR__ . '/trek_scene.php';   // v2.0.8: the talk pop-over (scene) queue and stage
+require_once __DIR__ . '/trek_camp_ui.php';   // v2.0.11: the camp pop-over
 require_once __DIR__ . '/trek_levels.php';   // v1.8.9: trek levels, milestone XP, migration
 
 /**

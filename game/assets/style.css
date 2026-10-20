@@ -4442,3 +4442,54 @@ dialog.tkscene::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur
 .tilemap .tmbg.tmx { display: none; inset: auto; }
 .tilemap.tmcam .tmbg.tmx { display: block; }
 .tilemap.tmcam .tmstage .tmbg:not(.tmx) { display: none; }
+
+/* v2.0.11 trek camp pop-over */
+dialog.tkcamp { border: 0; padding: 0; margin: auto; width: min(480px, calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); background: transparent; color: var(--ink); overflow: visible; text-align: center; }
+dialog.tkcamp::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(4px); }
+.tkccard { display: flex; flex-direction: column; align-items: stretch; gap: 10px; max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; padding: 14px 12px 12px; border: 1px solid var(--line-2); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-2); }
+.tkccard h3 { margin: 0; font-size: 19px; text-wrap: balance; }
+.tkcgreet { margin: 0; font-size: 13px; line-height: 1.35; font-style: italic; color: var(--muted); text-wrap: balance; }
+.tkcchips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.tkcparty { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.tkcmem { display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(70px, 96px) auto; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--box-bg); text-align: left; }
+.tkcmem.talking { border-color: var(--brand); }
+.tkcmem.down { opacity: .7; }
+.tkcico { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; font-size: 22px; line-height: 1; }
+.tkcico svg.meico { width: 1em; height: 1.25em; }
+.tkcwho { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.tkcwho b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tkcwho small, .tkchp small { color: var(--muted); font-size: 12px; }
+.tkchp { display: flex; flex-direction: column; align-items: stretch; gap: 2px; text-align: center; }
+.tkchp progress { width: 100%; }
+.tkctalkbtn { min-height: 40px; white-space: nowrap; }
+.tkcnotalk { width: 1px; }
+.tkctalk { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 12px; border: 1px solid var(--brand-line); border-radius: var(--radius); background: var(--box-bg); }
+.tkctalk[hidden] { display: none; }
+.tkctalk b { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--brand-ink); }
+.tkctalk p { margin: 0; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+.tkctalk small { color: var(--muted); font-size: 12px; }
+.tkcblock { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.tkchead { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.tkcblock .choicelist { display: flex; flex-direction: column; gap: 6px; }
+.tkcform { margin: 0; }
+.tkcnote { margin: 0; }
+.tkcfoot { position: sticky; bottom: -12px; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 2px; padding: 8px 0 2px; background: var(--surface); }
+.tkcauto { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.tkcclose { min-width: 120px; min-height: 44px; }
+@media (max-width: 480px) {
+  .tkccard { padding: 12px 10px 10px; }
+  .tkcmem { grid-template-columns: 30px minmax(0, 1fr) 64px auto; gap: 6px; padding: 6px; }
+  .tkcico { width: 30px; height: 30px; font-size: 20px; }
+  .tkctalkbtn { padding-inline: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tkcin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  dialog.tkcamp[open] { animation: tkcin .15s ease-out; }
+}
+:root[data-theme="dark"] dialog.tkcamp::backdrop { background: rgba(0, 0, 0, .8); }
+:root[data-theme="dark"] .tkccard { border-color: var(--line-2); background: var(--surface); }
+:root[data-theme="dark"] .tkcmem, :root[data-theme="dark"] .tkctalk { background: var(--surface-2); border-color: var(--line); }
+:root[data-theme="dark"] .tkctalk { border-color: var(--brand-line); }
+:root[data-theme="dark"] .tkctalk b { color: var(--brand-ink); }
+
+:root[data-theme="dark"] .tkcfoot { background: var(--surface); }

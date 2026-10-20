@@ -53,6 +53,10 @@ function trek_dispatch(?array &$run, array $u, string $do): array
         $run['st']['plan'] = $plan;
     }
     $res = trek_dispatch_do($run, $u, $do);
+    if ($run && !$run['fi'] && !empty($run['inside']) && !trek_in_hub($run)) {   // v2.0.11: the camp pop-over opens after a camp action, or on reaching a camp tile
+        if ($res[0] && in_array($do, ['rest', 'makecamp', 'buy_kit', 'party'], true)) trek_camp_open_note($run, 'again');
+        elseif ($do === 'go' && trek_here_camp($run)) trek_camp_open_note($run, 'arrive');
+    }
     if ($run) {
         if (!$run['fi']) {
             unset($run['st']['plan']);
@@ -871,6 +875,7 @@ if (!$run || (!(int)$run['inside'] && !$hub)):
 $walkPath = trek_walk_take($run);
 if ($run['fi'] || $tab !== 'map') $walkPath = null;   // v1.8.10: the path of the last walk (one-shot; dropped when a fight starts)
 $sceneHtml = $tab === 'map' ? trek_scene_stage($run, $u) : '';   // v2.0.8: same, for the talk pop-over
+$campAuto = $tab === 'map' && !$hub && !$run['fi'] ? trek_camp_open_take($run) : '';   // v2.0.11: the camp pop-over's one-shot open
 $replayHtml = trek_replay_stage($run, $u);   // v1.8.5: taken (and cleared) on every render, shown only on the Map tab
 $tabLink = fn(string $t) => e(url('trek.php' . ($t === 'map' ? '' : '?t=' . $t)));
 $party = trek_party_stats($run, $u);
@@ -927,7 +932,7 @@ $fat = (int)$run['fatigue'];
     <div class="trekacts">
       <div class="trekbtns">
         <?= trek_form('mode', $run['sneak'] ? '🥾 Hunt' : '🤫 Sneak', ['mode' => $run['sneak'] ? 'hunt' : 'sneak', 't' => 'map'], 'btn ghost small') ?>
-        <?= trek_form('makecamp', '🏕️ Camp', ['t' => 'map'], $fat >= 100 ? 'btn gold small' : 'btn ghost small') ?>
+        <button type="button" class="<?= $fat >= 100 ? 'btn gold small' : 'btn ghost small' ?>" data-tkcamp-open>🏕️ Camp</button><noscript><?= trek_form('makecamp', '🏕️ Camp', ['t' => 'map'], 'btn ghost small') ?></noscript>
         <?= trek_form('leave', '🪜 Leave', ['t' => 'map'], 'btn ghost small', trek_leave_confirm()) /* v1.9.0: ask first */ ?>
       </div>
       <p class="help"><?= $run['sneak'] ? 'Sneaking: fewer fights' : 'Hunting: fights find you' ?> · Camp: <?= (int)$run['campkits'] > 0 ? 'uses a kit' : 'free, may be ambushed' ?></p>
@@ -936,6 +941,7 @@ $fat = (int)$run['fatigue'];
     <?= trek_crew_html($run, $u) ?>
     <?= trek_ms_card_html($run) ?>
     <?= trek_spot_panel($run, $u) ?>
+    <?= trek_camp_dialog_html($run, $u, $party, $campAuto) ?>
     </div>
   <?php endif; ?>
 <?php elseif ($tab === 'party'): ?>

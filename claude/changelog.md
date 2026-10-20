@@ -1,6 +1,14 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.11
+- NEW camp pop-over (Treks). The 🏕️ Camp button on the map now opens a `<dialog class="tkcamp">` instead of resting at once. It also opens by itself when the party reaches a camp tile (switch in the pop-over: "Open this when I reach a camp", this browser only) and again after each action inside it. It waits for a story pop-over or Auto replay to finish first.
+- Inside: camp name + keeper greeting (short ones), Fatigue and kit chips, party with health bars, 💬 Talk per trailmate (cycles their banter slots 1-4, then their bio; no POST, no state), Rest (camp tile: Rest and bank; elsewhere: Use a Camp Kit, or Cold rest with the ambush odds, or "Everyone is rested"), at a camp also Buy a Camp Kit and Trailmates (rest here / bring along; full party shows a disabled row).
+- Rules unchanged: every button is the old POST (rest, makecamp, buy_kit, party). No-JS: the old Camp form sits in `<noscript>`. The interlude hub keeps its own "Talk to your party".
+- Files: NEW includes/trek_camp_ui.php (dialog html, open note), assets/trekcamp.js, CSS "v2.0.11 trek camp pop-over", hooks in trek.php (button, note in trek_dispatch after rest/makecamp/buy_kit/party and a walk onto a camp, dialog printed on the Map tab) and layout.php (script on trek.php). No schema change. No news entry (Treks hidden).
+- Tests: NEW tests/trek_camp.php (in treks.sh). Playwright 390 + 1400 px: opens from the button, Talk cycles, rest reopens it after the story pop-over, no sideways scroll, no console errors.
+- Open: no single-member healing (camp tiles already heal in full; the rest choices are the wound care). Only 2 banter lines per trailmate per chapter, so Talk repeats fast: more `chN.banter.<crew>.3/.4` slots would be read automatically once they exist. Gnome has no Talk.
+
 ## 2.0.10
 - Map camera follows the token while it walks (Treks map, delve + lair maps). Before: the server drew the window centred on the END tile, so the picture jumped, then the token walked across it from the edge. Now a wider picture covering the whole walk is sent with the walk (`.tkbg.tkx` in trek_art.php/trek.php; `.tmbg.tmx` in tilemap.php/delve_map.php, param `sfx`; delve `dim` param = no dimming on the wide picture), shown only while the token walks. assets/trekmap.js + tilemap.js `look()` slide it so the token stays centred (trek: clamped at map edges like the final window; delves: unclamped like the final window). At the end the wide picture hides and the normal final picture shows: no jump. No script / reduced motion: unchanged.
 - Cap: trek wide picture <= 2600 tiles, delve <= 900 (else old behaviour). Wide pictures are made only on walk renders.
