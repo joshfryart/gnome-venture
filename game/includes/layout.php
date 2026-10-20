@@ -64,6 +64,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v1.8.4: assets/trekfight.js (the fight plan sheet and turn-by-turn stage) */ ?>
 <?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/trekmap.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.8.10: assets/trekmap.js (the walk animation on the map) */ ?>
+<?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/trekscene.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* v2.0.8: assets/trekscene.js (the talk pop-over: speaker left, listener faded right) */ ?>
 <?php if (!$admin && $page === 'adventure.php'): ?><script src="<?= e(url('assets/tilemap.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v2.0.6: assets/tilemap.js (walk the token on a delve or lair map) */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/fighton.js?v=' . APP_VERSION)) ?>" defer></script>

@@ -882,6 +882,9 @@ $fat = (int)$run['fatigue'];
       <?= trek_map_html($run, $u, $walkPath) ?>
     </form>
     <?= trek_legend_html($run) ?>
+    <?php /* v2.0.8: the latest log lines sit right under the map, the Sneak / Camp / Leave buttons after them */ ?>
+    <?php if ($latest): ?><ul class="trekrounds trekLatest" aria-live="polite"><?php foreach (array_slice($latest, -3) as $l): ?><li><?= $l ?></li><?php endforeach; ?></ul>
+      <?php if (!empty($run['st']['flog']) && (int)($run['st']['back'] ?? -1) === (int)($run['st']['turn'] ?? 0)): ?><p class="tkfull"><a href="<?= $tabLink('log') ?>">Full log ›</a></p><?php endif; ?><?php endif; ?>
     <div class="trekacts">
       <div class="trekbtns">
         <?= trek_form('mode', $run['sneak'] ? '🥾 Hunt' : '🤫 Sneak', ['mode' => $run['sneak'] ? 'hunt' : 'sneak', 't' => 'map'], 'btn ghost small') ?>
@@ -890,8 +893,6 @@ $fat = (int)$run['fatigue'];
       </div>
       <p class="help"><?= $run['sneak'] ? 'Sneaking: fewer fights' : 'Hunting: fights find you' ?> · Camp: <?= (int)$run['campkits'] > 0 ? 'uses a kit' : 'free, may be ambushed' ?></p>
     </div>
-    <?php if ($latest): ?><ul class="trekrounds trekLatest" aria-live="polite"><?php foreach (array_slice($latest, -3) as $l): ?><li><?= $l ?></li><?php endforeach; ?></ul>
-      <?php if (!empty($run['st']['flog']) && (int)($run['st']['back'] ?? -1) === (int)($run['st']['turn'] ?? 0)): ?><p class="tkfull"><a href="<?= $tabLink('log') ?>">Full log ›</a></p><?php endif; ?><?php endif; ?>
     <?= trek_event_html($run, $u) ?>
     <?= trek_crew_html($run, $u) ?>
     <?= trek_ms_card_html($run) ?>
