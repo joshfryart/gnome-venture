@@ -33,5 +33,5 @@ tune|1|b|130|3|3|8
 tune|1|r|140|4|3|10
 tune|1|x|140|4|3|10
 tune|1|blight-mother|100|8|5|22
-tune|1|gloomtooth|160|6|4|12
+tune|1|gloomtooth|166|6|4|12
 finish|1|gloomtooth_cured|gloomtooth,chapter|trek_ch1_petals|blight-shard,velvet-pelt,digging-claw|trek:ch1,trek:blightlings,trek:gloomtooth,trek:lantern-stump|Chapter I

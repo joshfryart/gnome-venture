@@ -35,7 +35,7 @@ function trek_fight_ai_old(array &$run, array $u): array
             $a = ['a' => 'ability', 't' => 'a:' . $lowest];
         } elseif ($m['calling'] === 'rootwarden' && $cd === 0 && ($big || $boss === null && count($foesOk) >= 2)) {
             $a = ['a' => 'ability', 't' => 'a:' . ($lowest ?? $slot)];
-        } elseif ($m['calling'] === 'seedkeeper' && $cd === 0 && count($foesOk) >= 2) {
+        } elseif ($m['calling'] === 'seedkeeper' && $cd === 0 && (count($foesOk) >= 2 || ($foesOk && (isset($fi['meta']['held']) || array_filter($stats, fn($st, $sl) => (int)$run['party'][$sl]['hp'] > 0 && (int)$run['party'][$sl]['hp'] * 100 < $st['max'] * 75, ARRAY_FILTER_USE_BOTH))))) {   // v2.0.1: the spores also mend
             $a = ['a' => 'ability'];
         } elseif (in_array($m['calling'], ['thornblade', 'wayfinder', 'brewroot', ''], true) && $cd === 0 && $foesOk) {
             $a = ['a' => 'ability', 't' => 'f:' . $weak];

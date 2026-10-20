@@ -2,7 +2,7 @@
 # Stats are modifiers (0-3): the stat is 10 + 2 x the number. Names and species come from the npcs table at runtime.
 burdock|burdock-deepdelve|rootwarden|2|0|3|0|1
 zinnia|zinnia-fuzzbottom|bloomcaller|0|1|1|2|1
-bracken|bracken-spurwing|thornblade|3|1|1|0|1
-sorrel|sorrel-inkcap|seedkeeper|0|0|1|1|2|3
-tumble|tumble-waymarsh|wayfinder|0|3|1|1|2|0
-juniper|juniper-kettleby|brewroot|1|0|2|1|2|1
+bracken|bracken-spurwing|thornblade|3|1|2|0|1
+sorrel|sorrel-inkcap|seedkeeper|1|1|2|1|2|3
+tumble|tumble-waymarsh|wayfinder|3|1|2|1|2|0
+juniper|juniper-kettleby|brewroot|2|0|3|1|2|1

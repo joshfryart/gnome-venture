@@ -21,6 +21,6 @@ tune|2|o|385|14|8|16
 tune|2|p|232|11|7|11
 tune|2|r|280|13|8|13
 tune|2|s|240|12|7|12
-tune|2|pinch|212|11|6|21
-tune|2|thrum|140|17|8|60
+tune|2|pinch|252|11|6|21
+tune|2|thrum|160|17|8|60
 finish|2|thrum_down|ch2_thrum,ch2_chapter|trek_ch2_petals|drum-skin,brewhouse-ladle|trek:crossroads,trek:brewhouse,trek:pinch,trek:thrum|Chapter II
