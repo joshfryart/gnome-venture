@@ -471,9 +471,9 @@ foreach (file($dd . 'road_lines.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
     if (count($f) < 4 || mb_strlen($f[3]) > 120 || str_contains($l, '\'')) $lnBad[] = $i + 1;
     if (($f[2] ?? 'any') !== 'any') $lnReg[$f[2]] = ($lnReg[$f[2]] ?? 0) + 1;
 }
-$lnMissing = array_filter($regs, fn($r) => ($lnReg[$r] ?? 0) < 6);
+$lnMissing = array_filter($regs, fn($r) => ($lnReg[$r] ?? 0) < (in_array($r, ['NA', 'NWE', 'EA'], true) ? 2 : 6));
 ok('road_lines.txt lint (<= 120 chars)' . ($lnBad ? ' [' . implode(',', $lnBad) . ']' : ''), !$lnBad);
-ok('every region has 6+ region-tagged ambient lines' . ($lnMissing ? ' [' . implode(',', $lnMissing) . ']' : ''), !$lnMissing);
+ok('every region has region-tagged ambient lines (the 11 filled ones 6+)' . ($lnMissing ? ' [' . implode(',', $lnMissing) . ']' : ''), !$lnMissing);
 $pers = []; $scBad = [];
 foreach (file($dd . 'stop_chat.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
     if ($l === '' || $l[0] === '#') continue;

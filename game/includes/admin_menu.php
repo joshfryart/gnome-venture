@@ -90,6 +90,7 @@ function admin_menu_def(): array
         ]],
         ['content', '📝', 'Content & text', [
             ['texts.php', '📝', 'Page text', 'Edit the wording of game pages', ''],
+            ['road_text.php', '🛣️', 'Road text', 'Edit road lines, scenes, wonder and delve wording', ''],
             ['r:encyclopedia_entries', '📚', null, 'The Almanac’s pages', 't:encyclopedia_entries'],
             ['r:news', '📰', null, 'News posts on the front page', 't:news'],
             ['r:pages', '📄', null, 'Rules, About and other site pages', 't:pages'],

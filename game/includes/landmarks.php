@@ -168,6 +168,8 @@ function wonder_texts(bool $reload = false): array
         if ($f[0][0] === '*') { if ($f[1] !== '') $rows[$f[0]][] = $f[1]; continue; }
         $rows[slugify($f[0])] = [$f[1], $f[2] ?? '', $f[3] ?? ''];
     }
+    require_once __DIR__ . '/road_text.php';
+    $rows = road_text_wonder_apply($rows);   // v2.0.4: Admin > Road text overrides
     return $rows;
 }
 
@@ -263,6 +265,8 @@ function delve_room_line(string $kind, string $land, string $seed): string
             $lands = $f[2] === '' || strtolower($f[2]) === 'any' ? ['any'] : array_map('strtolower', array_map('trim', explode(',', $f[2])));
             $rows[] = ['kind' => strtolower($f[0]), 'cond' => $f[1] === '' ? '-' : $f[1], 'lands' => $lands, 'text' => $f[3]];
         }
+        require_once __DIR__ . '/road_text.php';
+        $rows = road_text_delve_apply($rows);   // v2.0.4: Admin > Road text overrides
     }
     $now = function_exists('stop_now') ? stop_now([]) : [];
     $pool = [];
@@ -286,11 +290,11 @@ function delve_start(array $u, int $lmId): array
     if (!spend_energy($uid, 1)) return [false, 'You need 1 energy to go in.'];
     landmark_once($uid, $lmId, 'delve');
     $gc = gnome_combat($u);
-    $expId = db_insert('expeditions', [
+    db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
         'steps_total' => DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
         'log' => json_encode(array_values(array_filter(['🕳️ You light a lantern and step into ' . $lm['name'] . '.',
-            ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $expId)) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
+            ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $uid . '|' . now())) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
     ]);
     return [true, '🕳️ Into the delve! (−1 energy)'];
 }

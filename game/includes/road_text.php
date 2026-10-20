@@ -97,7 +97,7 @@ function road_text_wonder_apply(array $rows): array
     return $rows;
 }
 
-/** Hook for the delve loader: rows with a 'text' key (cond|lands|text). Other keys untouched. */
+/** Hook for the delve loader: rows with a 'text' key (kind|cond|lands|text). Other keys untouched. */
 function road_text_delve_apply(array $rows): array
 {
     if (!road_text_overrides()) return $rows;
@@ -163,13 +163,13 @@ function road_text_catalog(): array
             $c['road.wonder.' . $slug . '.' . $p] = ['wonder', $p, 'Wonder ' . $f[0], ['intro' => 'shown above the approaches', 'success' => 'on success', 'fail' => 'on failure'][$p], $f[$at], ROAD_TEXT_MAX['wonder']];
         }
     }
-    // delve_rooms.txt (cond|lands|text) may not exist yet: load defensively
+    // delve_rooms.txt (kind|cond|lands|text) may not exist: load defensively
     foreach (road_text_file_lines('delve_rooms.txt') as $line) {
         $line = trim($line);
         if ($line === '' || $line[0] === '#') continue;
-        $f = array_map('trim', explode('|', $line, 3));
-        if (count($f) < 3 || $f[2] === '') continue;
-        $c['road.delve.' . road_text_hash($f[2])] = ['delve', 'text', 'Delve room', 'when ' . ($f[0] === '' ? '-' : $f[0]) . ' · ' . ($f[1] ?: 'any'), $f[2], ROAD_TEXT_MAX['delve']];
+        $f = array_map('trim', explode('|', $line, 4));
+        if (count($f) < 4 || $f[3] === '') continue;
+        $c['road.delve.' . road_text_hash($f[3])] = ['delve', 'text', 'Delve room (' . $f[0] . ')', 'when ' . ($f[1] === '' ? '-' : $f[1]) . ' · ' . ($f[2] ?: 'any'), $f[3], ROAD_TEXT_MAX['delve']];
     }
     return $c;
 }
