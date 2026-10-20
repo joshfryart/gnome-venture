@@ -1,6 +1,14 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.1
+- Treks rebalance (w201-a): Auto uses Spore Burst on bosses when a friend <75% or boss holding; Sorrel 1|1|2|1 lore 3, Spore Burst mends 7% + breaks hold; Tumble 3|1|2|1, Sling +5 hit +5 dmg cd2, breaks hold; Juniper 2|0|3|1, Poison 2d6 then 3/round, poisoned foe hits 5% softer; Bracken 3|1|2|0, Power Strike +6, crit +1, breaks hold; Zinnia Heal 27%. Tune health %: Silverfin 138, Pinch 252, Thrum 160, Gloomtooth 166. Sims (800 trials): Pinch 75.9–93.1 (median 87), Thrum 76.1–94.6 (median 88); Silverfin Lv10 74.5–95, Lv11 93–99; Ch I ±1. trek_audit_ch2 asserts every party ≥70%.
+- Riddles 2 tries (choir, stone, library door, kiln stone, signpost); trek_riddle_heal opens doors for runs saved with 2 misses. Orphan slots shown: item.camp-kit (Pack tile), item.blight-shard (banked tiles + reward card), ch2.spot.crossroads.locked (gate needs=silverfin_down;noopen=1). Bracken: no unpaid path (migration pays 0) — tests only.
+- Setting trek_items_daily (0 = off; users.trek_item_day/today; creature drops only).
+- Old campsites (includes/trek_oldcamp.php, spot type oldcamp ⛺, do=rest_old): repeatable, −trek_oldcamp_fatigue 40, half heal, ambush trek_oldcamp_ambush_pct 12, refused when nothing to mend; trek_oldcamp_checkpoint 1 = KO wakes at the furthest-down rested site if beyond last camp (no banking). Ch I Cold Hearth 33,15, Old Lean-to 20,27; Ch II Dry Ledge 7,14, Sagging Tent 16,66, Cistern Bench 14,89. 11 text slots (trek_texts_oldcamp.txt, trek_drafts_2_0_1.txt). tests/trek_oldcamp.php.
+- Road in-sight card live countdown (gvCountdown ticks every [data-countdown]; data-show-at-zero / data-hide-at-zero); "then on to B, then toward C (your destination)" wording (Poppy names were correct, wording confusing).
+- Tests fixed: stale draft count, security190 riddle tries. News entry (Treks not announced).
+
 ## 2.0.0.1 (2026-10-19)
 - Puzzles: animated jigsaw game from the Jiggy Jigsaws source. `game/puzzles.php` + `assets/puzzles.css/.js` + `assets/img/puzzles/*.gif`; tile at the end of the Games hub. No prizes, no server state, no schema.
 - New picture: Swaying Sunflower (`tests/gen_puzzle_sunflower.py`). Add more: drop a .gif in assets/img/puzzles/ and a row in PUZZLES (puzzles.php).

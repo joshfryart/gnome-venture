@@ -1,7 +1,7 @@
-# Gnome Venture: handoff (current as of v2.0.0.1, 2026-10-19)
+# Gnome Venture: handoff (current as of v2.0.1, 2026-10-19)
 Latest: 2.0.0.1 = Puzzles (puzzles.php, standalone page; see changelog). Versions after 2.0.0 are four-part (2.0.0.1, 2.0.0.2 ...) until Joshua says otherwise.
 
-Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 1.9.5), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.1), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 Owner: Joshua Fry (admin). Neopets-style cosy garden browser game. Live: gnomeventure.ca. No monetization.
 Project rules: Opus = final say/review only; Opus/Sonnet = planning/general; Sonnet/Haiku = coding/grunt work; always check agents' work (look at their screenshots, run suites vs pristine). Replies to Joshua: terse, short sentences, critical (not a yes man). Joshua is poor, on Pro plan: keep cost low.
 Joshua uploads each release himself (Admin -> Update, or FTP). He play-tests on his phone (Firefox Android, dark) and desktop, sends screenshots with circles: keep doing polish passes (centering, folding, few words).
@@ -17,7 +17,7 @@ Mockups go in scratchpad only (not in project).
 
 ## Stack, hosting, layout
 - Plain PHP 8.1+ and PDO. MySQL live (CanSpace Starter shared cPanel, Canada), SQLite for local tests. No framework, no build step. Vanilla JS (`assets/site.js`, `early.js`, `arrange.js`, `gather-games.js`, `trekfight.js`, `trekmap.js`, game JS files). One CSS file `assets/style.css` (tokens at top; dark via `:root[data-theme="dark"]`; versioned blocks at the end).
-- Folders: `game/` (web root: pages, `includes/`, `admin/`, `assets/`, `uploads/`, `data/`) and `tests/`. Newest source zip holds the latest code; Joshua re-uploads it at the start of a new session. `git init` the unpacked source first.
+- Folders: `game/` (web root: pages, `includes/`, `admin/`, `assets/`, `uploads/`, `data/`) and `tests/`. Code lives on GitHub: joshfryart/gnome-venture (private, branch main). Clone it at the start of a session (add_repo), work on main or worktree branches, commit as Claude <noreply@anthropic.com> (stop hook checks), push when a release is built. Release source zips may also be in releases/.
 - `includes/data/*.txt` = shipped content (importers add missing rows only). `includes/schema.php` = tables + `$c` column list (new columns added on db_version change) + `$i` indexes. Feature files may add their own tables via a `*_schema()` merged at the end of schema.php (e.g. `trek_schema()`).
 - Host security layer blocked file names `npc.php` and `mod.php`: renamed `folk.php`, `modtools.php`. Be careful with risky file names.
 - Hollow time = America/Halifax (`game_timezone`). Every day/week/month turnover is local midnight (`hollow_date`, `job_period_key`, `job_period_span`). Seasons 14 days. Weather/daypart computed on view, no cron.

@@ -1,6 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-17 18:15, after 1.9.9)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.1)
 
-Built + sent: **1.9.9** (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 1.9.9). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+Built + sent: **2.0.1** (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.1). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 
 ## Now: Joshua
 1. 1.9.2 uploaded; all 1.8.x checks pass (Joshua 2026-10-17). Play Chapter II-a as admin on phone; time it.
@@ -9,30 +9,24 @@ Built + sent: **1.9.9** (slim needs 1.4.1+). Live: whatever Joshua last uploaded
 4. Art in progress (Admin → Images).
 - Email: Joshua says OK, drop it.
 
-1b. Upload **1.9.9** (includes 1.9.3–1.9.8; trek audit fixes; picture shops; yard tap-to-collect stays on garden; Today centred; Treks now ignore gnome level, setting trek_base_level 15). Check: road meetings + choice cards, a wonder, centred buttons. As admin: play Ch II-b (time it), edit ch2.ms.ch2a_end draft (old one says "more is coming"). Text now Ch I 89 + Ch II 182 slots. Check on phone: walk a road (scene line each space, no repeats), wander off path (choice rows), arrive at a stop (ambience line). Edit road lines later if wanted (includes/data/road_lines.txt; no admin editor yet).
+1b. Upload **2.0.1** (on top of 2.0.0.1). As admin check: a Ch II boss with a non-Burdock party, a riddle (2 tries), an old campsite ⛺ rest + KO wake-up there, road in-sight timer ticking.
 
 ## NEXT UP (Joshua 2026-10-17)
 - Picture tiles + sheet (like shop.php 1.9.8) on: Curio + Dye Pot (sinks.php), market day stalls (marketday.php), haven pantry (landmarks.php), festival stalls, local.php buys, Trading Post (market.php).
 
-- Road "X is in sight!" card (adventure.php): the "about 3 min" must count down live like the top-bar walk timer (data-countdown), then show Arrive.
-- Check same card: says "go on to Poppyburrow" while map's next stop is Poppynook (Joshua screenshot 2026-10-18) — wrong destination name or confusing wording?
 
 ## Explore: next (from `claude/explore-review.md`; 1-5, 7, 10 done)
 - Region packs for the other 11 regions. 6 traces of other players, 9 festival/goal chips, 11 calling/animal lines, 12 delve room text, 8 Tales.
 - Also: road_lines admin editor (draft status like trek text); 146 villages share 9 descriptions; 4 stop personalities lack chat lines; Haven text promises shops that don't exist; tundra thin.
 
 ## Treks: next
-- II-b watch: Thrum without a healer 61–71% but parties with Sorrel / no Burdock ~21–25%; Silverfin Lv10 ~75% (low edge); Overdue Book unused in II-b; only 2 new crew moments;  Admin settings for road roll % not built. Road data files have no admin editor.
+- II-b watch: Overdue Book unused in II-b; only 2 new crew moments;  Admin settings for road roll % not built. Road data files have no admin editor.
 - Not built: zone j first-fight tutorial, Chapters III-VI, Thorny/Bramble, skill points/respec, mini-map, Lanternroot real crop, hats/stamp/trophy, friendship +1/20 fights, trailmates 4-8.
 
-## Treks: decided 2026-10-18 — scheduled build Tue 2026-10-20 02:00 (1.9.10)
-- Party wall: rebalance trailmates equal; buff weak ones if still uneven.
-- Riddles: 2 tries.
-- Bracken "bypass" was a false report (map has no way around his duel). Only check: trek_levels.php ~247 counts his milestone if freed_bracken OR he is in party — confirm it can't skip the duel reward.
-- Hook up orphan slots item.camp-kit, item.blight-shard, ch2.spot.crossroads.locked.
-- Trek item drops: no cap, but admin setting for a daily cap (0 = off).
-- KO before Ch II camp → start stays; add old campsites (rest spots, lower ambush than cold rest, admin %).
-- No rate limit on trek POSTs (low).
+## Treks: done in 2.0.1 (decided 2026-10-18)
+- Party wall fixed (all 20 parties 76–95%). Watch: Silverfin Lv11 93–99% (above 92 target), Bu+Zi+Br Silverfin Lv10 74.5%.
+- Riddles 2 tries; orphan slots shown; trek_items_daily setting (off); old campsites + KO checkpoint; Bracken OK.
+- Still open: no rate limit on trek POSTs (low). Crossroads locked text only reachable by unusual paths.
 ## Next (ideas, Joshua picks)
 - No-typing social: preset postcards; follow a friend's trail; seed lineage.
 - How-to-play "Folk & friendship" title still says Folk (title is DB key in ensure_almanac_howto; needs guarded migration).

@@ -2,6 +2,10 @@
 
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
+## 2.0.1
+- Treks: trailmates rebalanced so any party can win Chapter II bosses (all 20 parties 76–95% vs Pinch and Thrum). Riddles give 2 tries. Old campsites (2 in Chapter I, 3 in Chapter II): free rest, small ambush chance, optional KO checkpoint. Daily trek item cap setting (off by default). Unused text slots hooked up.
+- Road: the "in sight" timer counts down live; clearer "then on to" wording.
+
 ## 2.0.0.1
 - Puzzles: animated jigsaw game (puzzles.php, Games hub tile). No prizes, nothing saved on the server.
 - New picture: Swaying Sunflower (generator: tests/gen_puzzle_sunflower.py). Also 6 pictures from the Jiggy Jigsaws source.
