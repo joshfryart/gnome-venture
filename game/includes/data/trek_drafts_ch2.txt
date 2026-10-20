@@ -1,4 +1,7 @@
 # Chapter II-a draft bodies (v1.9.2). key|body   (\n = line break). Players see these until Joshua rewrites the slot in Admin > Trek text.
+ch2.tut.firstfight|Foes hit harder down in the clay.
+Set each Trailmate's tactics on the Party tab.
+Watch the "Next:" line for what comes after.
 ch2.intro|Under the topsoil, the clay.
 It holds water, and it holds on to whatever falls into it.
 The Blight Shard hums in your pocket, pointing down, and the walls are weeping.
