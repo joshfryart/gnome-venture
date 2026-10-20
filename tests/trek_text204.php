@@ -26,11 +26,11 @@ setting('__reload__');
 ok('db_version is back to the app version, no failed boot step', setting('db_version') === APP_VERSION && (string)setting('boot_failed_steps') === '', (string)setting('db_version') . ' / ' . (string)setting('boot_failed_steps'));
 $new = trek_kv_file('trek_final_204.txt');
 $f200 = trek_kv_file('trek_final_200.txt');
-$n207 = trek_kv_file('trek_final_207.txt') + trek_kv_file('trek_final_2012.txt') + trek_kv_file('trek_final_2015.txt') + trek_kv_file('trek_final_2020.txt');   // v2.0.7, v2.0.12, v2.0.15 and v2.0.20 replace a few 2.0.4 bodies at boot
+$n207 = trek_kv_file('trek_final_207.txt') + trek_kv_file('trek_final_2012.txt') + trek_kv_file('trek_final_2015.txt') + trek_kv_file('trek_final_2020.txt') + trek_kv_file('trek_final_2021.txt');   // v2.0.7, v2.0.12, v2.0.15 and v2.0.20 (passes 7 and 8) replace a few 2.0.4 bodies at boot
 $exp = fn(string $k) => $n207[$k] ?? $new[$k];
 $drafts = trek_drafts();
 ok('trek_final_204.txt has rows', count($new) >= 50, (string)count($new));
-ok('trek_text_pass is 7 after boot (2.0.4, 2.0.7, 2.0.12, 2.0.15, then 2.0.20 pass)', setting('trek_text_pass') === '7', (string)setting('trek_text_pass'));
+ok('trek_text_pass is 8 after boot (2.0.4, 2.0.7, 2.0.12, 2.0.15, then the 2.0.20 passes 7 and 8)', setting('trek_text_pass') === '8', (string)setting('trek_text_pass'));
 $missing = []; $wrong = [];
 foreach ($new as $k => $b) {
     if (!q_val('SELECT 1 FROM trek_texts WHERE text_key = ?', [$k])) { $missing[] = $k; continue; }
