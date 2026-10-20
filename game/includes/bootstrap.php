@@ -57,6 +57,7 @@ require_once __DIR__ . '/layout.php';
 require_once __DIR__ . '/progression.php';   // region levels and where you've been (v0.7.43)
 require_once __DIR__ . '/calling_quests.php';   // v0.9.4: calling_event() is called from the hooks on every page
 require_once __DIR__ . '/sinks.php';   // v0.9.7: Petal sinks (dyes are read wherever a gnome is drawn)
+require_once __DIR__ . '/rewards.php';   // give_petals / take_petals / give_xp wrapper
 require_once __DIR__ . '/moderation.php';   // report buttons and the word filter, on every page (v0.7.28)
 
 /**
