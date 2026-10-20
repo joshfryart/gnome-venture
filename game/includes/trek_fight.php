@@ -444,8 +444,7 @@ function trek_scripts_builtin(): array
                 trek_say_text($run, 'ch' . $n . '.spot.gloomtooth.defeat');
                 $bd = (bool)array_filter($run['party'], fn($p) => $p['crew_key'] === 'burdock');
                 if ($bd) trek_say_text($run, 'ch' . $n . '.spot.gloomtooth.burdock', ['trailmate' => trek_crew_npc('burdock')['name']]);
-                trek_say_text($run, 'ch' . $n . '.scene.gloomtooth.me');   // v2.0.8: the gnome’s reply, then the pop-over (defeat as narration, Burdock, the gnome)
-                trek_scene_queue($run, $u, array_merge([['npc', null, 'ch' . $n . '.spot.gloomtooth.defeat', []]], $bd ? [['npc2', 'burdock', 'ch' . $n . '.spot.gloomtooth.burdock', ['trailmate' => trek_crew_npc('burdock')['name']]]] : [], [['me', null, 'ch' . $n . '.scene.gloomtooth.me', []]]));
+                trek_say_text($run, 'ch' . $n . '.scene.gloomtooth.me');   // the gnome’s reply (also lands in the pop-over)
                 trek_complete_chapter($run, $u);
             },
         ],
@@ -1050,7 +1049,7 @@ function trek_duel_end(array &$run, array $u, bool $won): void
         $wname = trek_crew_npc((string)$spot['data']['crew'])['name'];
         trek_say_text($run, 'ch' . $n . '.spot.' . $spot['code'] . '.win', ['trailmate' => $wname]);
         if (!$in) trek_say($run, trek_benched_line((string)$wname));
-        trek_scene_recruit($run, $u, (string)$spot['data']['crew'], 'ch' . $n . '.spot.' . $spot['code'] . '.win', 'ch' . $n . '.scene.' . $spot['data']['crew'] . '.me', ['trailmate' => $wname]);   // v2.0.8
+        trek_scene_recruit($run, $u, (string)$spot['data']['crew'], 'ch' . $n . '.scene.' . $spot['data']['crew'] . '.me', $in);   // v2.0.9
         trek_say($run, '🏅 Duel won! The party is back on its feet.');
         trek_tl_give($run, $u, trek_fight_xp($fi['foes']), true);   // v1.8.9: trek XP for a duel too (the foe counts as medium)
         trek_ms_award($run, $u, 'bracken');

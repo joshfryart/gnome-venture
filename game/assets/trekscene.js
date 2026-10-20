@@ -46,6 +46,9 @@
     this.line.setAttribute('aria-atomic', 'true');
     box.appendChild(this.nameEl);
     box.appendChild(this.line);
+    this.joinEl = el('div', 'tksjoin');
+    this.joinEl.hidden = true;
+    box.appendChild(this.joinEl);
 
     var foot = el('div', 'tksfoot');
     this.dots = el('div', 'tksdots');
@@ -57,6 +60,7 @@
     foot.appendChild(this.dots);
     foot.appendChild(this.btn);
 
+    if (!keys.length) stage.hidden = true;   /* narration only: no portraits */
     card.appendChild(stage); card.appendChild(box); card.appendChild(foot);
     dlg.appendChild(card);
 
@@ -119,14 +123,33 @@
     this.line.classList.remove('out');
     var set = function () {
       self.timer = 0;
-      self.nameEl.textContent = label;
-      self.line.textContent = b.t;
+      self.card.classList.toggle('join', !!b.j);
+      self.joinEl.hidden = !b.j;
+      self.line.hidden = !!b.j;
+      if (b.j) { self.nameEl.textContent = b.j.placed ? '🎉 Party member joined!' : '🎒 Joined the Trailmates (bench)'; self.fillJoin(b.j); }
+      else { self.nameEl.textContent = label; self.line.textContent = b.t; }
       self.line.classList.remove('out');
     };
     if (animate && !reduce()) {
       this.line.classList.add('out');
       this.timer = setTimeout(set, 120);
     } else set();
+  };
+
+  /* the "party member joined!" card: name, line under it, three numbers, role, a bit about them (all textContent) */
+  Scene.prototype.fillJoin = function (j) {
+    var d = this.joinEl;
+    while (d.firstChild) d.removeChild(d.firstChild);
+    d.appendChild(el('b', 'tksjn', j.full || j.name || ''));
+    d.appendChild(el('span', 'tksjs', j.sub || ''));
+    var row = el('div', 'tksjst');
+    Object.keys(j.stats || {}).forEach(function (k) {
+      var c = el('span', 'tksjc'); c.appendChild(el('i', null, k)); c.appendChild(el('b', null, String(j.stats[k]))); row.appendChild(c);
+    });
+    d.appendChild(row);
+    if (j.role) d.appendChild(el('span', 'tksjr', j.role));
+    if (j.bio) d.appendChild(el('p', 'tksjb', j.bio));
+    if (!j.placed) d.appendChild(el('span', 'tksjr', 'Your party is full. Swap them in at a camp (Party tab).'));
   };
 
   Scene.prototype.next = function () {
@@ -156,6 +179,15 @@
   };
 
   var waiting = false;
+  function muted() { try { return localStorage.getItem('gvSceneOff') === '1'; } catch (e) { return false; } }
+  function muteBtn() {
+    var b = document.querySelector('[data-tksmute]');
+    if (!b) return;
+    b.hidden = false;
+    var paint = function () { var m = muted(); b.textContent = m ? '🗨 Story pop-ups: off' : '🗨 Story pop-ups: on'; b.setAttribute('aria-pressed', m ? 'false' : 'true'); };
+    paint();
+    b.addEventListener('click', function () { try { localStorage.setItem('gvSceneOff', muted() ? '0' : '1'); } catch (e) { /* storage blocked: stays on */ } paint(); });
+  }
   function scan() {
     var s = document.querySelector('.trekscene:not([data-seen])');
     if (!s) return;
@@ -170,13 +202,15 @@
       return;
     }
     s.setAttribute('data-seen', '1');
+    if (muted()) { if (s.parentNode) s.parentNode.removeChild(s); return; }
     var data = null;
     try { data = JSON.parse(s.getAttribute('data-scene') || ''); } catch (e) { data = null; }
     if (s.parentNode) s.parentNode.removeChild(s);
-    if (!data || !data.who || !data.beats || !data.beats.length || !Object.keys(data.who).length || typeof gvOpenDlg !== 'function') return;
+    if (!data || !data.beats || !data.beats.length || typeof gvOpenDlg !== 'function') return;
     if (cur) cur.end();
     cur = new Scene(data);
   }
+  muteBtn();
   scan();
   if (window.MutationObserver) new MutationObserver(function () { if (document.querySelector('.trekscene:not([data-seen])')) scan(); }).observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
 })();

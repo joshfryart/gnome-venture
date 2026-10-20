@@ -170,6 +170,7 @@ function trek_say_text(array &$run, string $key, array $vars = []): void
 {
     $GLOBALS['trek_said'] = (int)($GLOBALS['trek_said'] ?? 0) + 1;
     trek_flog($run, ['n' => (int)($run['st']['turn'] ?? 0), 'k' => $key, 'v' => $vars]);
+    if (function_exists('trek_scene_collect')) trek_scene_collect($run, $key, $vars);   // v2.0.9: story lines also open as the talk pop-over
 }
 
 /** Append one line to the run log, and to the latest fight's own log while a fight is being recorded (st.flog_on, set when a fight starts, dropped on the next action after it ends). */
@@ -1033,7 +1034,7 @@ function trek_act_recruit(array &$run, array $u): array
     $in = trek_recruit_crew($run, $u, (string)$s['data']['crew']);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.freed', ['trailmate' => $npc['name']]);
     if (!$in) trek_say($run, trek_benched_line((string)$npc['name']));
-    trek_scene_recruit($run, $u, (string)$s['data']['crew'], 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.freed', 'ch' . $run['chapter'] . '.scene.' . $s['data']['crew'] . '.me', ['trailmate' => $npc['name']]);   // v2.0.8
+    trek_scene_recruit($run, $u, (string)$s['data']['crew'], 'ch' . $run['chapter'] . '.scene.' . $s['data']['crew'] . '.me', $in);   // v2.0.9
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);   // v1.9.4
     trek_ms_award($run, $u, (string)($s['data']['ms'] ?? 'burdock'));
     return [true, ''];
@@ -1056,7 +1057,7 @@ function trek_act_fetch(array &$run, array $u): array
     $in = trek_recruit_crew($run, $u, (string)$s['data']['crew']);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.join', ['trailmate' => $npc['name']]);
     if (!$in) trek_say($run, trek_benched_line((string)$npc['name']));
-    trek_scene_recruit($run, $u, (string)$s['data']['crew'], 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.join', 'ch' . $run['chapter'] . '.scene.' . $s['data']['crew'] . '.me', ['trailmate' => $npc['name']]);   // v2.0.8
+    trek_scene_recruit($run, $u, (string)$s['data']['crew'], 'ch' . $run['chapter'] . '.scene.' . $s['data']['crew'] . '.me', $in);   // v2.0.9
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);   // v1.9.4
     trek_ms_award($run, $u, (string)($s['data']['ms'] ?? 'zinnia'));
     return [true, ''];

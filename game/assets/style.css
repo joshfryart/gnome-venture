@@ -4416,3 +4416,19 @@ dialog.tkscene::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur
 :root[data-theme="dark"] .tksspk { color: var(--brand-ink); }
 :root[data-theme="dark"] .tkscard.nar .tksspk, :root[data-theme="dark"] .tkscard.nar .tksline { color: var(--muted); }
 :root[data-theme="dark"] .tksdot.on { background: var(--brand-ink); }
+
+/* v2.0.9 trek scene: party-joined card, mute toggle */
+.tksmuterow { margin: 4px 0 0; text-align: center; }
+.tksmutebtn { min-height: 36px; font-size: 13px; padding: 4px 12px; }
+.tksjoin { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.tksjn { font-size: 18px; line-height: 1.2; }
+.tksjs { font-size: 13px; color: var(--muted); }
+.tksjst { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+.tksjc { display: inline-flex; flex-direction: column; align-items: center; min-width: 64px; padding: 4px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--surface); }
+.tksjc i { font-style: normal; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.tksjc b { font-size: 16px; }
+.tksjr { font-size: 13px; color: var(--ink-2); }
+.tksjb { margin: 0; font-size: 14px; line-height: 1.45; font-style: italic; overflow-wrap: anywhere; }
+.tkscard.join .tkstext { min-height: 12em; }
+.tksstage[hidden] { display: none; }
+.tksjoin[hidden] { display: none; }

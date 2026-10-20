@@ -847,6 +847,7 @@ $fat = (int)$run['fatigue'];
   <a class="<?= $tab === 'pack' ? 'on' : '' ?>" href="<?= $tabLink('pack') ?>">🎒 Pack</a>
   <a class="<?= $tab === 'log' ? 'on' : '' ?>" href="<?= $tabLink('log') ?>">📜 Log</a>
 </nav>
+<p class="tksmuterow"><button type="button" class="btn alt tksmutebtn" data-tksmute hidden aria-pressed="true">🗨 Story pop-ups: on</button></p>
 <?php if ($tab === 'map' && $hub): ?>
   <?= $sceneHtml ?>
   <?= trek_hub_html($run, $u, $party) ?>
