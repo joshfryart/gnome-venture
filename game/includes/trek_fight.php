@@ -1127,6 +1127,57 @@ function trek_item_allowed(array &$run): bool
     return true;
 }
 
+/** v2.0.20: does this exact slot hold a written body? Reads the stored row only, never the Chapter I fallback of trek_text_row(). */
+function trek_own_slot_written(string $key): bool
+{
+    $row = trek_text_rows()[$key] ?? null;
+    return $row !== null && trim((string)$row['body']) !== '';
+}
+
+/** v2.0.20: awards per Hollow day from fights (setting trek_friend_daily; 0 = off; clamped 0-20; 3 when the setting is missing or not a number). */
+function trek_friend_daily_cap(): int
+{
+    $v = trim((string)setting('trek_friend_daily'));
+    if ($v === '' || !is_numeric($v)) return 3;
+    return max(0, min(20, (int)$v));
+}
+
+/**
+ * v2.0.20: every 20 WON fights (counted in st.ff, per run) each trailmate in the party gains +1 friendship, at most trek_friend_daily awards per gnome
+ * per Hollow day (the day and count live in game_state 'trek_friend'). Benched trailmates get nothing. Called once per won fight from trek_fight_win,
+ * inside the fight's trek_tx, so a reload or an Auto replay never pays again. Runs no RNG.
+ */
+function trek_friend_fight_won(array &$run, array $u): void
+{
+    $run['st']['ff'] = (int)($run['st']['ff'] ?? 0) + 1;
+    if ($run['st']['ff'] < 20) return;
+    $run['st']['ff'] = 0;   // the 20 fights are used up, paid or not
+    $cap = trek_friend_daily_cap();
+    if ($cap < 1) return;
+    $eligible = [];
+    foreach ($run['party'] as $p) {
+        $ck = (string)($p['crew_key'] ?? '');
+        if ($ck === '') continue;
+        $npc = trek_crew_npc($ck);
+        if ((int)$npc['id'] > 0) $eligible[] = $npc;
+    }
+    if (!$eligible) return;
+    $uid = (int)$u['id'];
+    $day = hollow_date('Y-m-d');
+    $raw = q_val('SELECT state FROM game_state WHERE user_id = ? AND game = ?', [$uid, 'trek_friend']);
+    $have = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
+    $n = ($have['day'] ?? '') === $day ? (int)($have['n'] ?? 0) : 0;
+    if ($n >= $cap) return;   // today's awards are used up
+    foreach ($eligible as $npc) {
+        friend_add($uid, (int)$npc['id'], 1);
+        trek_say($run, $npc['name'] . ' likes you a little more.');
+    }
+    $state = json_encode(['day' => $day, 'n' => $n + 1]);
+    if (q('UPDATE game_state SET state = ?, updated_at = ? WHERE user_id = ? AND game = ?', [$state, now(), $uid, 'trek_friend'])->rowCount() === 0) {
+        db_insert('game_state', ['user_id' => $uid, 'game' => 'trek_friend', 'state' => $state, 'updated_at' => now()]);
+    }
+}
+
 /** Won: XP, loot into the pack (at risk until banked), maybe Petals, fatigue, and anything the spot's script does. */
 function trek_fight_win(array &$run, array $u): void
 {
@@ -1187,7 +1238,9 @@ function trek_fight_win(array &$run, array $u): void
     }
     $first = !trek_flag($run, 'won_fight');
     trek_flag_set($run, 'won_fight');
-    if ($first && $n === 1) trek_say_text($run, 'ch' . $n . '.tut.firstfight');   // v2.0.4: Chapter I's lesson only (Chapter II runs start without the flag)
+    // v2.0.4: Chapter I's lesson. v2.0.20: a later chapter gets its own lesson, but only when its own slot is written (no fallback to Chapter I's Snack/Auto text)
+    if ($first && ($n === 1 || trek_own_slot_written('ch' . $n . '.tut.firstfight'))) trek_say_text($run, 'ch' . $n . '.tut.firstfight');
+    trek_friend_fight_won($run, $u);   // v2.0.20: every 20 won fights, +1 friendship per party trailmate (daily cap)
     $after = (string)$meta['after'];
     $run['fi'] = null;
     if ($after === 'rest') { trek_apply_rest($run, $u, true); trek_say_text($run, 'ch' . $n . '.camp.makecamp.free'); trek_say($run, '🏕️ A cold rest. Fatigue −' . trek_cold_rest_fatigue() . ', everyone heals a quarter of their health.'); }
