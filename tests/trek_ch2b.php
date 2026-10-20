@@ -34,7 +34,7 @@ ok('pools: n o p r s have fights, the Brewhouse (q) none', trek_zone_pool('n', 2
 $map = trek_map(2); $sp = trek_spots(2);
 ok('the map is 40 x 106 with 106 zone rows', $map['w'] === 40 && $map['h'] === 106 && count($map['z']) === 106);
 $ii = array_filter($sp, fn($s) => $s['y'] >= 46 && $s['type'] !== 'oldcamp');   // (v2.0.1: old campsites are tested in tests/trek_oldcamp.php)
-ok('15 II-b spots, each symbol on its own tile, every one unique in the chapter', count($ii) === 15 && !array_filter($sp, fn($s) => trek_tile(2, $s['x'], $s['y']) !== $s['sym']) && count(array_unique(array_column($sp, 'sym'))) === count($sp), (string)count($ii));
+ok('16 II-b spots, each symbol on its own tile, every one unique in the chapter', count($ii) === 16 && !array_filter($sp, fn($s) => trek_tile(2, $s['x'], $s['y']) !== $s['sym']) && count(array_unique(array_column($sp, 'sym'))) === count($sp), (string)count($ii));
 $plus = []; for ($y = 0; $y < $map['h']; $y++) for ($x = 0; $x < $map['w']; $x++) if (trek_tile(2, $x, $y) === '+') $plus[] = [$x, $y];
 ok('three loose clay tiles (+), one by each nook', count($plus) === 3, json_encode($plus));
 ok('placed in the right zones (signpost n, slide o, rack p, juniper q, pinch r, thrum s)', $sp['signpost']['zone'] === 'n' && $sp['slide']['zone'] === 'o' && $sp['rack']['zone'] === 'p' && $sp['juniper']['zone'] === 'q' && $sp['pinch']['zone'] === 'r' && $sp['thrum']['zone'] === 's');

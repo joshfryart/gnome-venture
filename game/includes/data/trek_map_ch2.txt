@@ -5,7 +5,7 @@
 ; Spots II-a: S start, W sluice wheel, B tipped barrow, C camp, O overdue book, N reading nook, H rest nook, R library door riddle, G library door, V library sluice,
 ; L Sorrel, X Silverfin, F Silverfin's hatch, P potter's wheel, Q kiln stone riddle, Y sealed kiln chest, Z the Crossroads gate (open since II-b).
 ; v2.0.1 old campsites: E (Seep Steps, before the Tin Lamp), 8 (the Hush, between the Crossroads and the Brewhouse), 9 (the Sour Cistern, before Old Pinch).
-; Spots II-b: I signpost riddle, T Tumble, A/D/3 Wayfinder nooks, U the clay slide, M cooling rack, 4 the Brewhouse door, J the Brewhouse camp, K Juniper, 1 cistern wheel, 2 Old Pinch, 5 the drum door, 6 the Drum Chamber gate, 7 Old Thrum.
+; Spots II-b: I signpost riddle, T Tumble, A/D/3 Wayfinder nooks, U the clay slide, M cooling rack, 0 fallen shelf, 4 the Brewhouse door, J the Brewhouse camp, K Juniper, 1 cistern wheel, 2 Old Pinch, 5 the drum door, 6 the Drum Chamber gate, 7 Old Thrum.
 ########################################
 ####.....#######........*.##############
 ###.S..%%...~......:::......B###########
@@ -80,7 +80,7 @@
 ##############..########################
 ##############..#####M##################
 ##############..*##*#.##*###############
-##############..............############
+##############....0.........############
 ###########################.############
 ##################*####*##*.############
 ################............############

@@ -53,6 +53,12 @@ ch2.spot.slide.done|You all go down at once in a tangle of knees, elbows and one
 ch2.spot.rack.arrive|A drying rack lines the wall, crowded with clay pots in the faint crystal light.
 Most are cracked. One has been waiting patiently to be noticed.
 ch2.spot.rack.find|You lift the one whole pot. The rest seem to look away.
+ch2.spot.shelf.before|An old shelf has fallen across the Dim, and something is wedged beneath it.
+A good heave might shift it.
+ch2.spot.shelf.win|You heave. The shelf grinds aside with a groan, and a Camp Kit slides out from under it.
+ch2.spot.shelf.fail|The shelf settles back with a sigh. It is heavier than it looks.
+ch2.spot.shelf.work|Pot shard by pot shard, you scrape a gap under the shelf by crystal light. It takes a while, but the Camp Kit comes free.
+ch2.spot.shelf.after|The shelf rests against the wall, looking relieved.
 ch2.spot.brewdoor.arrive|A round clay door with a ladle for a knocker.
 Warm light and a smell of bay leaf leak through the gap.
 ch2.spot.camp2.arrive|The Brewhouse hearth is lit, and the cauldron is wide enough for a gnome to sit in.
