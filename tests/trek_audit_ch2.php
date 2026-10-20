@@ -389,9 +389,9 @@ $r = $tx(fn(&$run, $u) => trek_godown($run, $u));
 $tx(function (&$run, $u) { foreach (['ch2_sorrel', 'ch2_silverfin', 'ch2a_end', 'ch2_tumble'] as $m) trek_ms_award($run, $u, $m); return [true, '']; });
 ok('after an admin reset of Chapter II you go down again with your party, and a milestone already paid pays no XP the second time', $r[0] === true && trek_active_ch($uid) === 2 && $mainXp() === $xpBefore && (int)q_val("SELECT COUNT(*) FROM trek_ms WHERE user_id = ?", [$uid]) === $msN);
 
-echo "== boss sims at the plan's trek levels, every party the player can pick (Auto, full health, 150 fights each; real dice)\n";
+echo "== boss sims at the plan's trek levels, every party the player can pick (Auto, full health, 300 fights each; real dice)\n";
 $GLOBALS['trek_sim'] = true;
-$N = (int)(getenv('AUDIT_N') ?: 150);
+$N = (int)(getenv('AUDIT_N') ?: 300);
 $su = q_one('SELECT * FROM users WHERE id = ?', [$uid]); $su['id'] = 999999; $su['level'] = 15; $su['calling'] = null;
 foreach (['grit', 'nimble', 'hardiness'] as $st) $su['stat_' . $st] = 12;
 $simWin = function (array $keys, int $L, string $boss, int $mateLv, bool $drained = false) use ($su, $N): float {
@@ -437,5 +437,15 @@ $P = $simRes['pinch']; $Th = $simRes['thrum'];
 echo '  info Thrum: worst party ' . array_key_first($Th) . ' ' . reset($Th) . '%, best ' . array_key_last($Th) . ' ' . end($Th) . '%; parties without Burdock: ' . implode(', ', array_map(fn($k) => "$k {$Th[$k]}%", array_filter(array_keys($Th), fn($k) => !str_contains($k, 'Bu')))) . "\n";
 ok('the Chapter I trio (Bu+Zi+Br) beats Old Thrum at Lv14 at least half the time', ($Th['Bu+Zi+Br'] ?? 0) >= 50, (string)($Th['Bu+Zi+Br'] ?? 'n/a'));
 ok('the Chapter I trio (Bu+Zi+Br) beats Old Pinch at Lv13 at least 60%', ($P['Bu+Zi+Br'] ?? 0) >= 60, (string)($P['Bu+Zi+Br'] ?? 'n/a'));
+$pMin = min($P); $tMin = min($Th); $lowMin = min($simRes['thrum_low']);
+ok('v2.0.1 party wall: every one of the 20 parties wins Old Pinch at least 70% (worst ' . array_search($pMin, $P) . ' ' . $pMin . '%) and Old Thrum at least 70% (worst ' . array_search($tMin, $Th) . ' ' . $tMin . '%)', $pMin >= 70 && $tMin >= 70, json_encode([$pMin, $tMin]));
+ok('v2.0.1 party wall: with every mate a level lower, every party still wins Old Thrum 55%+ (worst ' . $lowMin . '%)', $lowMin >= 55, (string)$lowMin);
+ok('v2.0.1 no mandatory trailmate: parties without Burdock and parties without Zinnia both average within 8 points of the rest on Pinch and Thrum', (function () use ($P, $Th) {
+    foreach ([$P, $Th] as $res) foreach (['Bu', 'Zi'] as $k) {
+        $with = array_filter($res, fn($v, $n) => str_contains($n, $k), ARRAY_FILTER_USE_BOTH); $without = array_diff_key($res, $with);
+        if (abs(array_sum($with) / count($with) - array_sum($without) / count($without)) > 8) return false;
+    }
+    return true;
+})());
 ok('Silverfin is no wall for any of the four-mate parties: at Lv10 every party wins 65%+, at Lv11 85%+', min($simRes['silverfin'][10]) >= 65 && min($simRes['silverfin'][11]) >= 85, json_encode([min($simRes['silverfin'][10]), min($simRes['silverfin'][11])]));
 unset($GLOBALS['trek_sim'], $GLOBALS['trek_sim_won']);

@@ -10,11 +10,11 @@ declare(strict_types=1);
 /** Calling abilities in a party fight: calling => [name, what it does, target kind (foe|ally|none), cooldown in rounds]. */
 const TREK_ABILITIES = [
     'rootwarden' => ['Bark Skin', 'Halves the damage you or a friend take for 3 rounds.', 'ally', 4],
-    'bloomcaller' => ['Heal', 'Heals you or a friend for about a third of their health.', 'ally', 2],
-    'thornblade' => ['Power Strike', 'A heavy blow: extra damage and a wider crit range.', 'foe', 2],
-    'seedkeeper' => ['Spore Burst', 'Spores hit every foe for half damage.', 'none', 3],
-    'wayfinder' => ['Sling', 'A ranged shot with +2 to hit.', 'foe', 1],
-    'brewroot' => ['Poison', 'A vial: 1d6, then 2 damage a round for 3 rounds.', 'foe', 3],
+    'bloomcaller' => ['Heal', 'Heals you or a friend for about a quarter of their health.', 'ally', 2],
+    'thornblade' => ['Power Strike', 'A heavy blow: extra damage and a wider crit range. A hit on a boss that is holding a friend makes it let go.', 'foe', 2],
+    'seedkeeper' => ['Spore Burst', 'Spores hit every foe for half damage, mend every friend a little and make a holding boss let go.', 'none', 3],
+    'wayfinder' => ['Sling', 'A ranged shot with +5 to hit and +5 damage. A hit on a boss that is holding a friend makes it let go.', 'foe', 2],
+    'brewroot' => ['Poison', 'A vial: 2d6, then 3 damage a round for 3 rounds. A poisoned foe hits 5% softer.', 'foe', 3],
     '' => ['Gnome Pluck', 'A determined swing: +3 to hit and +3 damage.', 'foe', 2],
 ];
 
@@ -31,6 +31,8 @@ const TREK_PI_MOVES = ['hit', 'grab', 'squeeze'];
 /** v1.9.4: Old Thrum's patterns: hit, drum (a little to all), harden (he takes half), crack (he takes +50% and is stunned for a round); after the molt (under 30%): hit, crack, drum. Still one action a round. */
 const TREK_TH_MOVES = ['hit', 'drum', 'harden', 'crack'];
 const TREK_TH_MOLT = ['hit', 'crack', 'drum'];
+const TREK_SPORE_MEND_PCT = 7;   // v2.0.1: Spore Burst mends every living friend this % of their max health
+const TREK_SICK_PCT = 5;   // v2.0.1: a poisoned foe's hits do this % less damage
 const TREK_PARTY_HP_PCT = 60;   // foes get this % more health for each trailmate beyond the gnome (tune with the fight tests)
 
 // ------------------------------------------------------------------ the maths (copies of adventure.php)
@@ -493,6 +495,7 @@ function trek_ally_target(array $run, string $t, int $self, bool $livingOnly = t
 function trek_hurt_member(array &$run, int $slot, int $dmg, array $stats, string $from): void
 {
     $fi = &$run['fi'];
+    if (!empty($fi['meta']['sick'])) $dmg = max(1, (int)round($dmg * (100 - TREK_SICK_PCT) / 100));   // v2.0.1: a poisoned foe hits softer
     if (($fi['mem'][$slot]['bark'] ?? 0) > 0) $dmg = max(1, intdiv($dmg, 2));
     if (($fi['mem'][$slot]['guard'] ?? 0) > 0) $dmg = max(1, intdiv($dmg, 2));
     $hp = (int)$run['party'][$slot]['hp'] - $dmg;
@@ -505,6 +508,15 @@ function trek_hurt_foe(array &$fi, int $i, int $dmg): void
     if (!empty($fi['foes'][$i]['dm'])) $dmg = max(1, (int)round($dmg * (int)$fi['foes'][$i]['dm'] / 100));   // v1.9.4: Old Thrum's Harden (50) and Crack (150): a percent of the damage he takes
     $floor = !empty($fi['meta']['duel']) ? 1 : -999;
     $fi['foes'][$i]['hp'] = max($floor, (int)$fi['foes'][$i]['hp'] - $dmg);
+}
+
+/** v2.0.1: a Sling or Power Strike that lands, or a Spore Burst, also makes a boss let go of the friend it is holding (Bark Skin is no longer the only answer to Old Pinch). */
+function trek_break_hold_by(array &$run, string $line): void
+{
+    $fi = &$run['fi'];
+    if (!isset($fi['meta']['held'])) return;
+    unset($fi['meta']['held']);
+    trek_say($run, $line);
 }
 
 /** v1.9.4: Bark Skin on the member a boss is holding (fight meta "held" = slot) breaks the hold. */
@@ -559,7 +571,7 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
                 return;
             case 'bloomcaller':
                 $to = trek_ally_target($run, $t, $slot);
-                $amt = max(1, (int)round($stats[$to]['max'] * 0.30));
+                $amt = max(1, (int)round($stats[$to]['max'] * 0.27));
                 $new = min($stats[$to]['max'], (int)$run['party'][$to]['hp'] + $amt);
                 trek_say($run, '🌸 ' . $name . ' heals ' . ($to === $slot ? 'themself' : $stats[$to]['name']) . ': +' . ($new - (int)$run['party'][$to]['hp']) . ' health.');
                 $run['party'][$to]['hp'] = $new;
@@ -571,7 +583,14 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
                     trek_hurt_foe($fi, $i, $dmg);
                     $hit++;
                 }
-                trek_say($run, '🍄 ' . $name . '’s Spore Burst engulfs ' . ($hit === 1 ? 'the foe' : 'every foe') . '.');
+                trek_break_hold_by($run, '🍄 The spores make her sneeze, and she lets go!');
+                $mend = 0;   // v2.0.1: the spores also mend every living friend a share of their health (a niche on one-foe boss fights, where half damage is nothing)
+                foreach (trek_live_members($run) as $s2) {
+                    $new = min($stats[$s2]['max'], (int)$run['party'][$s2]['hp'] + max(1, (int)round($stats[$s2]['max'] * TREK_SPORE_MEND_PCT / 100)));
+                    $mend += $new - (int)$run['party'][$s2]['hp'];
+                    $run['party'][$s2]['hp'] = $new;
+                }
+                trek_say($run, '🍄 ' . $name . '’s Spore Burst engulfs ' . ($hit === 1 ? 'the foe' : 'every foe') . ' and mends the party: +' . $mend . ' health in all.');
                 return;
         }
         $i = trek_foe_target($fi, $t);
@@ -580,16 +599,16 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
         switch ($calling) {
             case 'thornblade':
                 $g2 = $gc;
-                $g2['crit_from'] = max(2, (int)$gc['crit_from'] - 2);
+                $g2['crit_from'] = max(2, (int)$gc['crit_from'] - 3);
                 [, $tot, $crit] = trek_attack_roll($g2, 0);
-                $extra = 4;
+                $extra = 6;
                 break;
             case 'wayfinder':
-                [, $tot, $crit] = trek_attack_roll($gc, 2);
-                $extra = 0;
+                [, $tot, $crit] = trek_attack_roll($gc, 5);
+                $extra = 5;
                 break;
             case 'brewroot':
-                $dmg = d(6);
+                $dmg = d(6) + d(6);
                 trek_hurt_foe($fi, $i, $dmg);
                 $fi['foes'][$i]['pz'] = 3;
                 trek_say($run, '🧪 ' . $name . '’s vial splashes ' . $foe['name'] . ' for ' . $dmg . ' and keeps burning.');
@@ -603,6 +622,8 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
             $dmg = trek_damage($gc, $crit, $extra);
             trek_hurt_foe($fi, $i, $dmg);
             trek_say($run, '✨ ' . $name . '’s ' . $label . ' hits ' . $foe['name'] . ' for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
+            if ($calling === 'wayfinder') trek_break_hold_by($run, '🪃 The shot stings her claw, and she lets go!');
+            elseif ($calling === 'thornblade') trek_break_hold_by($run, '💪 The heavy blow pries the claw open: the grab is broken!');
         } else {
             trek_say($run, '✨ ' . $name . '’s ' . $label . ' misses ' . $foe['name'] . '.');
         }
@@ -629,6 +650,7 @@ function trek_foe_attack(array &$run, array $stats, int $i, bool $always = false
     if (!$live) return;
     $foe = $run['fi']['foes'][$i];
     $slot = $live[array_rand($live)];
+    $run['fi']['meta']['sick'] = (int)($foe['pz'] ?? 0) > 0 ? 1 : 0;
     if ($always || d(20) + (int)$foe['atk'] >= $stats[$slot]['gc']['ac']) {
         trek_hurt_member($run, $slot, max(1, d((int)$foe['die']) + (int)$foe['bonus']), $stats, $foe['name']);
         if (!empty($foe['blight']) && (int)$run['party'][$slot]['hp'] > 0) $run['fi']['mem'][$slot]['pz'] = 2;   // Blightlings poison: 1 a round for 2 rounds
@@ -645,6 +667,7 @@ function trek_foes_act(array &$run, array $stats): void
     $round = (int)$fi['round'];
     $n = (int)$run['chapter'];
     $def = trek_script_def($script);
+    $fi['meta']['sick'] = (int)($fi['foes'][0]['pz'] ?? 0) > 0 ? 1 : 0;   // v2.0.1: set again per foe in trek_foe_attack
     if ($def && isset($def['act'])) { $def['act']($run, $stats); return; }
     foreach ($fi['foes'] as $i => $f) {
         if ((int)$f['hp'] <= 0) continue;
@@ -684,9 +707,9 @@ function trek_fight_round(array &$run, array $u, array $acts): bool
     if ($sdef && isset($sdef['round_start'])) $sdef['round_start']($run, $stats);
     foreach ($fi['foes'] as $i => $f) {   // poison on foes
         if ((int)$f['pz'] > 0 && (int)$f['hp'] > 0) {
-            trek_hurt_foe($fi, $i, 2);
+            trek_hurt_foe($fi, $i, 3);
             $fi['foes'][$i]['pz'] = (int)$f['pz'] - 1;
-            trek_say($run, '🧪 Poison stings ' . $f['name'] . ' for 2.');
+            trek_say($run, '🧪 Poison stings ' . $f['name'] . ' for 3.');
         }
     }
     foreach (array_keys($stats) as $slot) {   // the party acts, in slot order
@@ -861,7 +884,7 @@ function trek_fight_ai(array &$run, array $u): array
             if ($to !== null) { $barked[$to] = 1; $a = ['a' => 'ability', 't' => 'a:' . $to]; }
         }
         // 4 the round-1 opening move; 5 the ability by its rule
-        $ability = function (bool $open) use ($calling, $tac, $foesOk, $order, $run, $stats, $pickFoe, &$focus, &$healed, &$barked, $shieldTo, $bossFight, $fi): ?array {
+        $ability = function (bool $open) use ($calling, $tac, $foesOk, $order, $under, $run, $stats, $pickFoe, &$focus, &$healed, &$barked, $shieldTo, $bossFight, $fi): ?array {
             switch ($calling) {
                 case 'bloomcaller':   // the heal itself is step 2; as an opener it heals the friend most hurt
                     if (!$open) return null;
@@ -878,6 +901,7 @@ function trek_fight_ai(array &$run, array $u): array
                     $barked[$to] = 1;
                     return ['a' => 'ability', 't' => 'a:' . $to];
                 case 'seedkeeper':
+                    if ($foesOk && ($under(75) || isset($fi['meta']['held']))) return ['a' => 'ability'];   // v2.0.1: the spores mend (a hurt friend is reason enough) and make a boss let go
                     return count($foesOk) >= ($open ? 1 : ($tac['rule'] === 'foes3' ? 3 : 2)) ? ['a' => 'ability'] : null;
                 case 'thornblade': case 'wayfinder': case 'brewroot': case '':
                     $f = $pickFoe($tac['target'], $focus, $calling === 'brewroot');

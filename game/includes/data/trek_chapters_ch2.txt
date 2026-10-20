@@ -16,4 +16,4 @@ check|2|Kiln riddle solved|flag|kilnstone_solved|2
 tune|2|j|260|11|7|11
 tune|2|l|250|12|8|11
 tune|2|m|250|11|8|12
-tune|2|silverfin|106|7|3|14
+tune|2|silverfin|138|7|3|14
