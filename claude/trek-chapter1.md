@@ -57,7 +57,7 @@ Use the calling mentors (CALLING_MENTORS in includes/calling_quests.php). They e
    - Zinnia is tending the sick caps (she followed the wilting flowers down).
    - Mini-quest: fetch 3 Clean Dew from the Dew Pools (short detour, 3 fights). Then she joins.
    - Teaches: heal ally, the quest log, the ! marker.
-   - Side spot B, **Worm Choir**: an old worm asks a riddle. Answering right (3 tries) gives a trek-only seed, **Lanternroot**. Seedkeeper in the party later: auto-answer.
+   - Side spot B, **Worm Choir**: an old worm asks a riddle. Answering right (2 tries) gives a trek-only seed, **Lanternroot**. Seedkeeper in the party later: auto-answer.
 
 6. **Beetle Bridge**. A root bridge over a dark drop, with sleeping stag beetle patrols (Bracken's lost watch, blight-sick).
    - Teaches: 🤫 Sneak. Waking a patrol = a hard fight, not a KO trap.
@@ -65,7 +65,7 @@ Use the calling mentors (CALLING_MENTORS in includes/calling_quests.php). They e
    - After this point, pick any 3 trailmates at camp.
 
 7. **The Black Rows**. Blighted topsoil, where the new creature family Blightlings appears: grey, corrupted versions of normal creatures (Withered Aphid, Rot Snail, Ashen Ant). Same stats, +1 poison on hit.
-   - Mini-boss: **Blight Mother** (a swollen aphid queen). She spawns 2 small adds every 3 rounds.
+   - Mini-boss: **Blight Mother** (a swollen aphid queen). She spawns 1 small add every 4th round (max 3 alive, 4 in all).
    - Side spot C, **Glowworm Grotto**: hidden tile, revealed only with a Wayfinder in the party. Holds a rare find + a Book entry.
 
 8. **BOSS: Gloomtooth, the Blind Mole**. Burdock's old cellar-mate, sick with blight; his digging made the tunnels.

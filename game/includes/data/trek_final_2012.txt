@@ -1,0 +1,10 @@
+# Treks text v2.0.12 fixes: key|body, \n = line break. Applied once by the 2.0.12 text pass (trek_text_pass = 5); bodies Joshua edited keep his words.
+ch2.camp.innkeeper.greet|“Come under, mind the drips. The lamp burns all night, for whoever is out there.”\n“Going down to the Library? Listen out. It has gone very quiet down there, even for a library.”
+ch2.intro|Under the topsoil, the ground turns to clay.\nClay holds water, and whatever falls into it.\nThe Blight Shard hums in your satchel and points down. The walls are weeping.
+ch2.zone.j.arrive|Ledge after ledge of weeping clay climbs down in terraces, orange in the lamplight.\nWater seeps down every wall, and the Shard in your satchel points firmly down.\nFar off, something drips, slow and steady.
+ch2.spot.kiln.open|The blue lock clicks open.\nInside wait camp kits wrapped against the damp, and a purse of {currency}. Dry as a bone, somehow.
+ch2.camp.cook.nofunds|“Short on {currency} today, I’m afraid. Come back with a few more, and the pot will be on.”
+ch2.banter.zinnia.1|“Everything here glows orange. Nearly like a sunset, if I squint.”\n“I am squinting very hard.”
+ch2.banter.zinnia.2|“The clay is patient, I think. It only wants to be listened to.”\n“Do keep your socks dry, all of you.”
+ch2.banter.bracken.1|“Wet stone and narrow ledges. A lookout’s paradise.”\n“I shall take first watch.”
+ch2.banter.bracken.2|“Every drip sounds like a footstep, until it is not.”\n“I count them. It keeps me sharp.”

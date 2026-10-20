@@ -130,3 +130,7 @@ ch2.banter.burdock.2|“Clay walls keep the warmth in, {gnome}. A mole could get
 ch2.scene.sorrel.me|“Glad the book is home, Sorrel.”\n“Sad things need gentle hands. We will go and listen.”
 ch2.scene.tumble.me|“Welcome aboard, Tumble. The clay tiles are all yours.”\n“Lead on, and mind your hat.”
 ch2.scene.juniper.me|“It does smell lovely already, Juniper.”\n“Glad you came along. I hope there is soup at camp.”
+ch2.banter.zinnia.1|“Everything here glows orange. Nearly like a sunset, if I squint.”\n“I am squinting very hard.”
+ch2.banter.zinnia.2|“The clay is patient, I think. It only wants to be listened to.”\n“Do keep your socks dry, all of you.”
+ch2.banter.bracken.1|“Wet stone and narrow ledges. A lookout’s paradise.”\n“I shall take first watch.”
+ch2.banter.bracken.2|“Every drip sounds like a footstep, until it is not.”\n“I count them. It keeps me sharp.”

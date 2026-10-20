@@ -712,6 +712,34 @@ function trek_apply_text_207(): int
     return $n;
 }
 
+/**
+ * v2.0.12 text fixes (runs once, setting trek_text_pass = 5): bodies from trek_final_2012.txt, plus the interlude.1 speaker slugs.
+ * Same rule as the 2.0.7 pass: a row takes the new body only when it is empty or still holds a text we shipped before, or already the new one.
+ * A body Joshua edited is never touched. A speaker is changed only when it still holds the old first-name value.
+ */
+function trek_apply_text_2012(): int
+{
+    $n = 0;
+    foreach (['burdock' => 'burdock-deepdelve', 'zinnia' => 'zinnia-fuzzbottom', 'bracken' => 'bracken-spurwing'] as $short => $slug) {
+        q('UPDATE trek_texts SET speaker = ? WHERE text_key = ? AND speaker = ?', [$slug, 'interlude.1.' . $short, ucfirst($short)]);
+    }
+    $new = trek_kv_file('trek_final_2012.txt');
+    if (!$new) return 0;
+    $old = [trek_drafts(), trek_kv_file('trek_final_200.txt'), trek_kv_file('trek_final_204.txt'), trek_kv_file('trek_final_207.txt')];
+    foreach (q('SELECT id, text_key, body, status FROM trek_texts')->fetchAll() as $r) {
+        $k = $r['text_key'];
+        if (!isset($new[$k])) continue;
+        $cur = trim((string)$r['body']);
+        $was = false;
+        foreach ($old as $set) if ($cur === trim((string)($set[$k] ?? ''))) $was = true;
+        if ($cur === '' || $was || $cur === $new[$k]) {
+            q('UPDATE trek_texts SET body = ?, status = ? WHERE id = ?', [$new[$k], $cur === '' ? 'done' : ($r['status'] ?: 'done'), $r['id']]);
+            $n++;
+        }
+    }
+    return $n;
+}
+
 // ------------------------------------------------------------------ trek_text()
 
 /** Every text row once per request: key => [body, brief, status, kind, speaker]. */
