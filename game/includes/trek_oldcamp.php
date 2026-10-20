@@ -1,16 +1,11 @@
 <?php
 /**
  * v2.0.1: old campsites. A spot type (oldcamp) on the Chapter I and II maps: a free, repeatable rest that is better than a cold rest and needs no kit,
- * with a smaller ambush chance. Fatigue -trek_oldcamp_fatigue, everyone heals half, no Petals, no XP, nothing found (no faucet).
+ * with a smaller ambush chance. Fatigue to 0, everyone back to full health (v2.0.20; the setting trek_oldcamp_fatigue is no longer used), no Petals, no XP, nothing found (no faucet).
  * With trek_oldcamp_checkpoint on, a knock-out after resting at one wakes you there instead of at the last camp, as long as it lies further along than that camp
  * (spots further down the map, larger y). Camps stay the real checkpoints: only a camp banks your finds and sells kits.
  * Everything here runs inside trek_tx (the caller holds the users-row lock); state is run['st']['oc'] (the code of the site) and the existing fatigue/party fields.
  */
-
-function trek_oldcamp_fatigue(): int
-{
-    return max(0, min(100, (int)setting('trek_oldcamp_fatigue')));
-}
 
 function trek_oldcamp_ambush_pct(): int
 {
@@ -31,19 +26,19 @@ function trek_party_hurt(array &$run, array $u): bool
     return false;
 }
 
-/** The rest itself: fatigue down, half health back. */
+/** The rest itself (v2.0.20): fatigue 0, full health. */
 function trek_oldcamp_apply(array &$run, array $u): void
 {
-    $run['fatigue'] = max(0, (int)$run['fatigue'] - trek_oldcamp_fatigue());
+    $run['fatigue'] = 0;
     $run['st']['fh'] = 0;
-    trek_heal_party($run, $u, 50);
+    trek_heal_party($run, $u);
 }
 
 /** The log lines of a finished old-campsite rest. */
 function trek_apply_oldcamp_log(array &$run, int $n): void
 {
     trek_say_text($run, 'ch' . $n . '.oldcamp.rest');
-    trek_say($run, '⛺ An old campsite rest. Fatigue −' . trek_oldcamp_fatigue() . ', everyone heals half their health.');
+    trek_say($run, '⛺ An old campsite rest. Fatigue to 0, everyone back to full health.');
 }
 
 /** After an ambush at an old campsite is won: the rest the party came for (called by the fight code for after = oldrest). */
@@ -98,11 +93,10 @@ function trek_act_oldcamp(array &$run, array $u): array
 /** The card of an old campsite: its text, the rest button and a plain line on what it does. */
 function trek_oldcamp_panel(array $run, array $spot, string $textKey): string
 {
-    $fat = trek_oldcamp_fatigue();
     $amb = trek_oldcamp_ambush_pct();
     $h = '<div class="trektext">' . trek_text($textKey) . '</div>'
         . '<div class="trekbtns trekone">' . trek_form('rest_old', '⛺ Rest here (free)', ['t' => 'map']) . '</div>'
-        . '<p class="help">No kit needed. Fatigue −' . $fat . ', everyone heals half' . ($amb > 0 ? '. A small chance of an ambush.' : '.') . '</p>';
+        . '<p class="help">No kit needed. Fatigue to 0, everyone back to full health' . ($amb > 0 ? '. A small chance of an ambush.' : '.') . '</p>';
     if ((int)setting('trek_oldcamp_checkpoint') === 1) {
         $here = ($run['st']['oc'] ?? '') === $spot['code'];
         $h .= '<p class="help">' . ($here ? 'If you fall, you wake up here.' : 'Rest here and, if you fall, you wake up here instead of far back at a camp.') . ' Only a camp banks your finds.</p>';

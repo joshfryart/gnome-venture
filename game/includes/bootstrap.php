@@ -254,6 +254,12 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 trek_apply_text_2020();                 // sets trek_text_pass = 7
             }
         });
+        boot_step('trek_bodies_2021', function () {
+            if ((int)setting('trek_text_pass') < 8) {   // v2.0.20: camp rests heal fully; the kit, old campsite and rest spot lines say rested and whole, once; a row Joshua wrote keeps his words
+                require_once __DIR__ . '/trek_textpass.php';
+                trek_apply_text_2021();                 // sets trek_text_pass = 8
+            }
+        });
         boot_step('trek_item_desc_2012', function () {   // v2.0.12: the Lanternroot Seed showed a TODO in the Satchel; only a row that still holds the old words is changed
             db_update('items', ['description' => 'A small seed with a faint glow inside, like a coal that forgot to go out.'], 'slug = ? AND description = ?', ['lanternroot-seed', 'A seed that glows faintly. TODO: the Lanternroot crop is not built yet.']);
         });

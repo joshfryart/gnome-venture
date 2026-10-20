@@ -50,6 +50,8 @@ echo "== Chapter II-b: Crossroads, Tumble, Juniper, Pinch, Thrum, finish, cold r
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_ch2b.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Old campsites (v2.0.1): data, reachability, rest, ambush rate, checkpoint, no faucet (tests/trek_oldcamp.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_oldcamp.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 camps heal full and clear fatigue: kit, old campsite, rest spot, fixed camp; cold rest unchanged (tests/trek_camps_full.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_camps_full.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Chapter I audit: map, text keys, every spot once-only / replay / KO / fatigue / kit edge, milestones, Petal cap, fuzz (tests/trek_audit_ch1.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch1.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Chapter II audit: data, reachability, whole walk, text keys, soft-locks, boss sims (tests/trek_audit_ch2.php)"
@@ -313,6 +315,8 @@ echo "== engine audit (tests/trek_audit.sh: who may call what, bad input, simult
 bash "$HERE/trek_audit.sh" "" $((PORT+1)) "$ROUTER" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.20 text pass: sluice clay lines, Ch II stash, door label (tests/trek_text2020.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text2020.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.20 text pass 8: camp rest lines say rested and whole, edited rows kept (tests/trek_text2021.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text2021.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.20 Ch II first-fight tutorial (tests/trek_tut2.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_tut2.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.20 friendship per 20 fights (tests/trek_friend.php)"

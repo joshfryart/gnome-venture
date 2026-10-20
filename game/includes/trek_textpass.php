@@ -46,3 +46,9 @@ function trek_apply_text_2020(): int
     trek_import_texts();   // the new slots ship their briefs and drafts in trek_texts_2020.txt / trek_drafts_2020.txt
     return trek_apply_text_file('trek_final_2020.txt', 'trek_final_2020_old.txt', 7);
 }
+
+/** v2.0.20 pass 8: camp-type rests heal everyone fully and take fatigue to 0; the kit, old campsite and rest spot lines say rested and whole. */
+function trek_apply_text_2021(): int
+{
+    return trek_apply_text_file('trek_final_2021.txt', 'trek_final_2021_old.txt', 8);
+}

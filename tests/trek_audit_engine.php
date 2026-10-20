@@ -55,7 +55,7 @@ $high = $tx(fn(&$run, $u) => trek_party_stats($run, $u)[0]['max']);
 ok('base level 1 and 100 both give sane health (' . $low . ' < ' . $high . ')', $low > 0 && $high > $low);
 set_setting('trek_base_level', '15'); setting('__reload__');
 
-echo "== rest numbers: kit 50 / half, cold 25 / quarter, camp full\n";
+echo "== rest numbers: kit 0 / full (v2.0.20), cold 25 / quarter, camp full\n";
 $fresh();
 $tx(fn(&$run, $u) => trek_enter($run, $u), false);
 $r = $tx(function (&$run, $u) {
@@ -71,8 +71,8 @@ $r = $tx(function (&$run, $u) {
     $o['floor'] = $run['fatigue'];
     return $o;
 });
-ok('Camp Kit: fatigue 80 -> 30, a kit used', $r['kit'][0] === 30 && $r['kit'][3] === 0, json_encode($r['kit']));
-ok('Camp Kit heals half the health (1 -> ' . $r['kit'][1] . ' of ' . $r['kit'][2] . ')', $r['kit'][1] === min($r['kit'][2], 1 + (int)ceil($r['kit'][2] / 2)), json_encode($r['kit']));
+ok('Camp Kit: fatigue 80 -> 0, a kit used', $r['kit'][0] === 0 && $r['kit'][3] === 0, json_encode($r['kit']));
+ok('Camp Kit heals to full (1 -> ' . $r['kit'][1] . ' of ' . $r['kit'][2] . ')', $r['kit'][1] === $r['kit'][2], json_encode($r['kit']));
 ok('cold rest: fatigue 80 -> 55', $r['cold'][0] === 55, json_encode($r['cold']));
 ok('cold rest heals a quarter (not half)', $r['cold'][1] === min($r['kit'][2], 1 + (int)ceil($r['kit'][2] / 4)), json_encode($r['cold']));
 ok('fatigue never below 0', $r['floor'] === 0);

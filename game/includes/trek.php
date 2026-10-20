@@ -970,13 +970,18 @@ function trek_buy_kit(array &$run, array $u): array
     return [true, ''];
 }
 
-/** What a rest anywhere does: fatigue -50, everyone heals half their health. */
+/** What a rest anywhere does. v2.0.20: a camp-type rest (kit, rest spot, old campsite) is a full rest: fatigue 0, everyone at full health. The cold rest (no kit) stays weak. */
 function trek_apply_rest(array &$run, array $u, bool $cold = false): void
 {
-    $fat = $cold ? trek_cold_rest_fatigue() : 50;
-    $run['fatigue'] = max(0, (int)$run['fatigue'] - $fat);
+    if ($cold) {
+        $run['fatigue'] = max(0, (int)$run['fatigue'] - trek_cold_rest_fatigue());
+        $run['st']['fh'] = 0;
+        trek_heal_party($run, $u, 25);
+        return;
+    }
+    $run['fatigue'] = 0;
     $run['st']['fh'] = 0;
-    trek_heal_party($run, $u, $cold ? 25 : 50);
+    trek_heal_party($run, $u);
 }
 
 /** v1.9.4: fatigue a cold rest (no kit) takes off. */
@@ -997,7 +1002,7 @@ function trek_make_camp(array &$run, array $u): array
         $run['campkits'] = (int)$run['campkits'] - 1;
         trek_apply_rest($run, $u);
         trek_say_text($run, 'ch' . $ch . '.camp.makecamp');
-        trek_say($run, '🏕️ Camp Kit used. Fatigue −50, everyone heals half their health.');
+        trek_say($run, '🏕️ Camp Kit used. Fatigue to 0, everyone back to full health.');
         return [true, ''];
     }
     $zone = trek_zone_at($ch, (int)$run['x'], (int)$run['y']);
@@ -1260,7 +1265,7 @@ function trek_act_switch(array &$run, array $u): array
     return [true, ''];
 }
 
-/** v1.9.2: a free rest on a spot (once): fatigue -50 and half health back, like a Camp Kit. */
+/** v1.9.2: a free rest on a spot (once): fatigue 0 and full health, like a Camp Kit. */
 function trek_act_rest(array &$run, array $u): array
 {
     $s = trek_here($run, $u);
@@ -1268,7 +1273,7 @@ function trek_act_rest(array &$run, array $u): array
     trek_flag_set($run, (string)$s['data']['flag']);
     trek_apply_rest($run, $u);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.done');
-    trek_say($run, '🛋️ A good sit. Fatigue −50, everyone heals half their health.');
+    trek_say($run, '🛋️ A good sit. Fatigue to 0, everyone back to full health.');
     return [true, ''];
 }
 

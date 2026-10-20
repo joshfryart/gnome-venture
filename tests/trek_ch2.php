@@ -178,7 +178,7 @@ echo "== side stops: rest, trade, kiln\n";
 $at('rest');
 $tx(function (&$run, $u) { $run['fatigue'] = 60; return [true, '']; });
 $tx(fn(&$run, $u) => trek_act_rest($run, $u));
-ok('the Cushion Corner is a free rest, once (fatigue down 50)', $flag('rest_used') && (int)$run()['fatigue'] === 10);
+ok('the Cushion Corner is a free rest, once (v2.0.20: fatigue to 0)', $flag('rest_used') && (int)$run()['fatigue'] === 0);
 $r = $tx(fn(&$run, $u) => trek_act_rest($run, $u));
 ok('...and not again', $r[0] === false);
 $at('wheel');

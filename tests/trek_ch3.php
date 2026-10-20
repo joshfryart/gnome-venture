@@ -115,7 +115,7 @@ ok('the ore cart is a once-only stop', $flag('cart_done') && ($tx(fn(&$run, $u) 
 $at('bench');
 $tx(function (&$run, $u) { $run['fatigue'] = 60; return [true, '']; }, true, 3);
 $tx(fn(&$run, $u) => trek_act_rest($run, $u), true, 3);
-ok('the Quiet Bench is one free rest', $flag('rest_used') && (int)$run(3)['fatigue'] === 10 && $tx(fn(&$run, $u) => trek_act_rest($run, $u), true, 3)[0] === false);
+ok('the Quiet Bench is one free rest', $flag('rest_used') && (int)$run(3)['fatigue'] === 0 && $tx(fn(&$run, $u) => trek_act_rest($run, $u), true, 3)[0] === false);
 $at('nookA');
 $tx(fn(&$run, $u) => trek_act_hidden($run, $u), true, 3);
 ok('the Wayfinder nook pays once (flag nookA_found)', $flag('nookA_found') && $tx(fn(&$run, $u) => trek_act_hidden($run, $u), true, 3)[0] === false);

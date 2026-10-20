@@ -52,7 +52,7 @@ function trek_settings_base(): array
         'trek_event_gap'      => ['label' => 'Treks: fewest plain steps between two trail events (v1.8.8)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],
         'trek_ambush_pct'     => ['label' => 'Treks: chance of an ambush when you make camp without a kit (%)', 'type' => 'int', 'default' => '30', 'min' => 0, 'max' => 100],
         'trek_ch2_petals'     => ['label' => 'Treks: Petals for finishing Chapter II (v1.9.4)', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
-        'trek_oldcamp_fatigue' => ['label' => 'Treks: fatigue removed by resting at an old campsite (v2.0.1)', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 100],
+        'trek_oldcamp_fatigue' => ['label' => 'Treks: fatigue removed by resting at an old campsite (no longer used since v2.0.20)', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 100],
         'trek_oldcamp_ambush_pct' => ['label' => 'Treks: chance of an ambush when resting at an old campsite (%) (v2.0.1)', 'type' => 'int', 'default' => '12', 'min' => 0, 'max' => 100],
         'trek_oldcamp_checkpoint' => ['label' => 'Treks: a knock-out after resting at an old campsite wakes you there (1 = yes, 0 = last camp) (v2.0.1)', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 1],
         'trek_cold_rest_fatigue' => ['label' => 'Treks: fatigue removed by a cold rest without a kit (v1.9.4)', 'type' => 'int', 'default' => '25', 'min' => 0, 'max' => 100],
