@@ -1,5 +1,5 @@
 <?php
-// Treks v2.0.11: the camp pop-over (includes/trek_camp_ui.php). Checks: what the dialog shows at a camp tile and away from one (rest choice by state, kit shop,
+// Treks v2.0.2 (code comments say 2.0.11): the camp pop-over (includes/trek_camp_ui.php). Checks: what the dialog shows at a camp tile and away from one (rest choice by state, kit shop,
 // trailmate swap forms), the Talk lines, the one-shot open note (run id, 30 s, arrive vs again), that camp actions leave the note and other actions do not,
 // that the old actions still behave (rest, makecamp, kit, party), escaping, and that the page, script and layout are wired.
 // Run by treks.sh: php tests/trek_camp.php GAME_DIR  (clones of the test player "t211_*").
