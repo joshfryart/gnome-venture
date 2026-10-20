@@ -4619,3 +4619,28 @@ dialog.isheet .sline b { font-size: 16px; }
 .tkcknack { text-align: center; margin: 8px 0 0; font-size: 14px; }
 :root[data-theme="dark"] .pknform { border-top-color: var(--line); }
 .pknlock { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+
+/* ===== v2.0.20 trek mini-map ===== */
+.tkmini { margin: 6px 0 2px; font-size: 13px; text-align: center; }
+.tkmini summary { cursor: pointer; color: var(--muted, #6b5a45); text-align: center; }
+.tkmini .tkminimap { display: block; width: 100%; height: auto; max-height: 70vh; margin: 6px auto 2px; border-radius: 8px; shape-rendering: crispEdges; }
+.tkmini .tmbg { fill: #4a3f33; }
+.tkmini path { fill: none; stroke-width: 1; }
+.tkmini .tmf { stroke: #e8dcc2; }
+.tkmini .tmw { stroke: #6aa6d6; }
+.tkmini .tmm { stroke: #a7824f; }
+.tkmini .tmcp rect { fill: #e0a526; }
+.tkmini .tmsp circle { fill: #3f8f5a; }
+.tkmini .tmdn circle { fill: #3f8f5a; opacity: .35; }
+.tkmini .tmob { fill: #d6402b; stroke: #fff; stroke-width: .18; paint-order: stroke; font: bold 3px sans-serif; }
+.tkmini .tmme { fill: #2d6fd6; stroke: #fff; stroke-width: .25; }
+.tkmini .tkminikey { margin: 2px 0 0; font-size: 12px; color: var(--muted, #6b5a45); text-align: center; }
+:root[data-theme="dark"] .tkmini .tmbg { fill: #17130f; }
+:root[data-theme="dark"] .tkmini .tmf { stroke: #6f6a5c; }
+:root[data-theme="dark"] .tkmini .tmw { stroke: #2f5f8a; }
+:root[data-theme="dark"] .tkmini .tmm { stroke: #6b5232; }
+:root[data-theme="dark"] .tkmini .tmcp rect { fill: #f0b93a; }
+:root[data-theme="dark"] .tkmini .tmsp circle { fill: #62c283; }
+:root[data-theme="dark"] .tkmini .tmdn circle { fill: #62c283; }
+:root[data-theme="dark"] .tkmini .tmob { fill: #ff6a52; stroke: #0d0b09; }
+:root[data-theme="dark"] .tkmini .tmme { fill: #5aa0ff; stroke: #0d0b09; }
