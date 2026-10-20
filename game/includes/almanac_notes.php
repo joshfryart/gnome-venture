@@ -181,7 +181,7 @@ const ALMANAC_HOWTO = [
         . "Shops pay more for rarer things: Uncommon about ×1.3, Rare ×1.8, Legendary ×2.5. Charm helps, and some Journey projects make a region’s shops pay 10% more.\n\n"
         . "In a shop, use the [b]Sell[/b] tab: tap things, add them to your basket (+1, +2, +5, +10 or All) and sell the lot at once."],
     'Folk & friendship' => ['Getting started', 23,
-        "You meet villagers by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Everyone you’ve met is on [b]Villagers you know[/b] (in the menu), and in the Almanac’s Villagers chapter.\n\n"
+        "You meet villagers by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Everyone you’ve met is on [b]Town → Villagers[/b], and in the Almanac’s Villagers chapter.\n\n"
         . "Chat once a day and give a gift once a day to grow a friendship: Stranger → Acquaintance → Friend → Good friend → Best friend. Friends give discounts in their shops, and acquaintances post favours on the town Notice Board. "
         . "Everyone has a favourite thing, two kinds of thing they like and one they don’t: gifts teach you which."],
     'Exploring & fighting' => ['Getting started', 24,

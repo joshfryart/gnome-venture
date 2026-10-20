@@ -7,55 +7,9 @@ require_once __DIR__ . '/includes/friends.php';
 require_once __DIR__ . '/includes/npc_life.php';
 $u = require_login();
 $uid = (int)$u['id'];
-if (!isset($_GET['id'])) {   // v0.7.52 / v0.7.69: everyone you've met, where they are now, with search and filters
-    require_once __DIR__ . '/includes/maps.php';
-    require_once __DIR__ . '/includes/folk_list.php';
-    $all = met_npcs($uid);
-    $qs = trim((string)($_GET['q'] ?? ''));
-    $f = (string)($_GET['f'] ?? '');
-    $reg = (string)($_GET['r'] ?? '');
-    $regions = array_values(array_unique(array_filter(array_map(fn($n) => (string)($n['home']['region'] ?? ''), $all))));
-    sort($regions);
-    $list = array_filter($all, function ($n) use ($qs, $f, $reg, $u) {
-        if ($qs !== '' && stripos($n['name'] . ' ' . $n['species'] . ' ' . $n['personality'], $qs) === false) return false;
-        if ($f === 'here' && !npc_here($u, (int)$n['id'])) return false;
-        if ($reg !== '' && ($n['home']['region'] ?? '') !== $reg) return false;
-        return true;
-    });
-    $byLevel = [];
-    foreach ($list as $n) $byLevel[$n['level']['index']][] = $n;
-    krsort($byLevel);
-    $total = (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1');
-    page_header('Villagers you know');
-    ?>
-    <h1>👥 Villagers you know</h1>
-    <p class="help">Everyone you’ve met: <?= count($all) ?> of the Hollow’s <?= $total ?> villagers. You meet people by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Their full pages are in your <a href="<?= e(url('book.php?ch=Folk')) ?>">Almanac → Villagers</a> too.</p>
-    <form method="get" class="box folkfilter">
-      <input type="search" name="q" value="<?= e($qs) ?>" placeholder="Search by name…" aria-label="Search by name">
-      <select name="r" aria-label="Home region"><option value="">All regions</option><?php foreach ($regions as $rg): ?><option<?= $rg === $reg ? ' selected' : '' ?>><?= e($rg) ?></option><?php endforeach; ?></select>
-      <label><input type="checkbox" name="f" value="here"<?= $f === 'here' ? ' checked' : '' ?>> Here now</label>
-      <button class="btn small">Show</button><?php if ($qs !== '' || $f !== '' || $reg !== ''): ?> <a href="<?= e(url('folk.php')) ?>">Clear</a><?php endif; ?>
-    </form>
-    <?php if (!$all): ?><div class="box"><p class="muted">Nobody yet. Visit a shop or wander the town square to meet the locals.</p></div>
-    <?php elseif (!$list): ?><div class="box"><p class="muted">Nobody matches that.</p></div><?php endif; ?>
-    <?php foreach ($byLevel as $li => $group): ?>
-      <h2 class="folkgroup">💛 <?= e(FRIEND_LEVELS[$li][1] ?? 'Stranger') ?> <small><?= count($group) ?></small></h2>
-      <div class="box">
-        <?php foreach ($group as $n): ?>
-          <div class="folkrow">
-            <a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= npc_portrait($n, 'small') ?></a>
-            <div><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><b><?= e($n['name']) ?></b></a> <small class="muted"><?= e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) ?><?= !empty($n['traveller']) ? ' · traveller' : '' ?></small>
-              <br><small>📍 <?= e($n['now']['what']) ?><?= npc_here($u, (int)$n['id']) ? ' · <b class="good">here now</b>' : '' ?></small>
-              <br><small class="muted">🏡 <?= $n['home'] ? e($n['home']['name'] . ' · ' . $n['home']['region']) : (!empty($n['traveller']) ? 'travels the Hollow' : '—') ?><?= npc_birthday_today($n) ? ' · 🎂 birthday today!' : '' ?></small></div>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    <?php endforeach; ?>
-    <?php
-    echo '<details class="fold mapfold"><summary>🗺️ On the world map</summary><div class="mapwrap">' . world_map_svg($u) . '</div>'
-        . '<p class="help">👤 marks a town where villagers you know (Acquaintance or better) are right now. 🎩 is you.</p></details>';
-    page_footer();
-    exit;
+if (!isset($_GET['id'])) {   // v2.0.4 menu folds: the list of villagers you know lives on Town (town.php?view=villagers); keep the old search/filter links working
+    $keep = array_filter(['q' => (string)($_GET['q'] ?? ''), 'f' => (string)($_GET['f'] ?? ''), 'r' => (string)($_GET['r'] ?? '')], fn($v) => $v !== '');
+    redirect('town.php?view=villagers&known=1' . ($keep ? '&' . http_build_query($keep) : '') . '#known');
 }
 $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [(int)($_GET['id'] ?? 0)]);
 if (!$npc) {
@@ -91,7 +45,7 @@ $tastes = known_tastes($f, $npc);
 $tl = fn(string $t) => e(url('folk.php?id=' . $nid . ($t === 'about' ? '' : '&tab=' . $t)));
 page_header($npc['name']);
 ?>
-<p class="crumbs">👤 <a href="<?= e(url('folk.php')) ?>">Villagers you know</a> › <b><?= e($npc['name']) ?></b></p>
+<p class="crumbs">👤 <a href="<?= e(url('town.php?view=villagers#known')) ?>">Villagers you know</a> › <b><?= e($npc['name']) ?></b></p>
 <?php
 // v0.7.73: the gift picker — Satchel-style tiles, with the tastes you've found marked
 $known = json_decode((string)($f['known'] ?? '[]'), true) ?: [];

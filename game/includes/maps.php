@@ -301,7 +301,7 @@ function world_map_svg(array $u, ?int $sel = null): string
         $list = '';
         foreach (array_slice($names, 0, 6) as $i => $nm) $list .= map_text('👤 ' . e($nm), -4 + $i * 11, 9, ['anchor' => 'start', 'bold' => false]);
         if (count($names) > 6) $list .= map_text('+' . (count($names) - 6) . ' more', -4 + 6 * 11, 9, ['anchor' => 'start']);
-        $svg .= '<a href="' . e(url('folk.php')) . '">' . map_mark($pos[$lid][0], $pos[$lid][1],
+        $svg .= '<a href="' . e(url('town.php?view=villagers')) . '">' . map_mark($pos[$lid][0], $pos[$lid][1],
             '<title>' . e(implode(', ', $names)) . '</title>'
             . '<g class="lodf"><circle cx="24" cy="-20" r="11" fill="#fff3b0" stroke="#b08a2a" stroke-width="2"/><text x="24" y="-15" text-anchor="middle" font-size="13">👤</text>'
             . (count($names) > 1 ? map_text((string)count($names), -26, 11, ['x' => 37, 'anchor' => 'start']) : '') . '</g>'

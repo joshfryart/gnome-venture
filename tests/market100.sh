@@ -50,7 +50,7 @@ get "shop.php?id=$SH&tab=sell" >/dev/null; echo "sell tab chips: up=$(grep -o 'c
 get "shop.php?id=$SH" >/dev/null; echo "buy tab ok: $(grep -c 'btile' $H) tiles"
 echo "== admin settings has the new fields"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
-get admin/settings.php >/dev/null
+get admin/settings.php?adv=1 >/dev/null
 for k in orders_on orders_cycle_days market_day market_stalls price_drift_on price_base_pct price_max_pct basket_rewards; do grep -q "name=\"s\[$k\]\"" $H && echo "  field $k" || echo "  MISSING $k"; done
 grep -q 'id="s-market-orders"' $H && echo "  section Market & orders"
 echo "== php errors"

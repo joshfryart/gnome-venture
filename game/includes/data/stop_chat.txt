@@ -30,3 +30,28 @@ se=spring|any|“The first shoots are up, {name}. Everyone’s planting.”
 se=summer|any|“The long days, {name}. Make the most of them.”
 se=autumn|any|“Leaves are turning, {name}. Soon it’ll be pie season.”
 se=winter|any|“Cold one, {name}. Hot drinks all round.”
+# --- Warm, Eager, Fussy, Dreamy (v1.9.5) ---
+-|Warm|“There you are, {name}. Sit, sit. The kettle’s only just gone on.”
+-|Warm|“I saved you the good cushion, {name}. Don’t tell anyone.”
+-|Warm|“You look tired, dear. Have a rest, and tell me everything.”
+dp=night|Warm|“Come in out of the dark, {name}. There’s always a lamp on at {place}.”
+we=rain|Warm|“Shake off your coat, {name}. There’s a warm spot by the fire for you.”
+se=winter|Warm|“Here, {name}. Take this scarf. No, I insist.”
+-|Eager|“{name}! You’re here! Tell me everything! What did you see? Quick, quick!”
+-|Eager|“I’ve been counting the days, {name}! Well, one day. But I counted it twice!”
+-|Eager|“Oh, {name}, have you tried the new thing at {place}? You must. Right now. Go!”
+dp=dawn|Eager|“Up before the sun, {name}! I’ve been up for hours! What’s first?”
+we=sun|Eager|“Sunshine! A perfect day for anything at all, {name}! Pick something!”
+se=spring|Eager|“Everything is starting, {name}! Seeds, buds, birds! I can hardly stand it!”
+-|Fussy|“Wipe your boots, {name}. Properly. The mat is there for a reason.”
+-|Fussy|“Mind the shelf, {name}. It’s sorted by height, then by colour, then by mood.”
+-|Fussy|“Ah, {name}. Punctual, at least. Do sit up straight.”
+we=rain|Fussy|“Mud, {name}. Everywhere. I have just done that floor.”
+dp=night|Fussy|“It is very late, {name}. Everything has a time, and this is not it. Come in, though.”
+se=autumn|Fussy|“Leaves on the step again, {name}. I swept it this morning. And this afternoon.”
+-|Dreamy|“Oh, {name}. I was just thinking about a very small cloud. It had opinions.”
+-|Dreamy|“Have you noticed the way the road hums, {name}? Only on Tuesdays, I think.”
+-|Dreamy|“I dreamed of {place} last night, {name}. It had wings. Rather nice ones.”
+dp=night|Dreamy|“The moon is very close tonight, {name}. I almost waved.”
+we=fog|Dreamy|“Fog, {name}. The world is just thinking out loud.”
+dp=dusk|Dreamy|“That sky, {name}. Someone has spilled all the colours again.”

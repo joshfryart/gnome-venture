@@ -752,7 +752,7 @@ function myc_region_svg_one(array $u, array $D, int $selId, bool $wide, string $
         $cx = $cl($it['x'] - $it['rx'] - 6, $area[0] + 14, $area[2] - 14); $cy = $cl($it['y'] + 6, $area[1] + 14, $area[3] - 14);
         $placed[] = [$cx - 14, $cy - 18, $cx + 20, $cy + 14];
         $names = implode(', ', array_map(fn($f) => $f[0], $list));
-        $ov['f'] .= '<a class="ov-f" href="' . e(url('folk.php')) . '" transform="translate(' . myc_f($cx) . ' ' . myc_f($cy) . ')" aria-label="Villagers you know here: ' . e($names) . '"><title>' . e($names) . '</title>'
+        $ov['f'] .= '<a class="ov-f" href="' . e(url('town.php?view=villagers')) . '" transform="translate(' . myc_f($cx) . ' ' . myc_f($cy) . ')" aria-label="Villagers you know here: ' . e($names) . '"><title>' . e($names) . '</title>'
             . '<circle r="14" class="mbub"/><text y="6" text-anchor="middle" class="mfolk">' . $list[0][1] . '</text>'
             . (count($list) > 1 ? '<circle cx="11" cy="-10" r="8" class="mcnt"/><text x="11" y="-6.5" text-anchor="middle" class="mcntt">' . count($list) . '</text>' : '') . '</a>';
     }
@@ -1192,7 +1192,7 @@ function myc_world_svg(array $u, ?int $sel = null): string
             if (!empty($quests[$id])) $ovq .= '<g class="ov-q" transform="translate(' . myc_f($x - 30) . ' ' . myc_f($y - 22) . ')"><title>' . e(implode(' · ', $quests[$id])) . '</title><path d="M0 12C-12 2 -11 -10 0 -12 11 -10 12 2 0 12z" class="mpin"/><text y="5" text-anchor="middle" class="mpint">!</text></g>';
             if (!empty($folk[$id])) {
                 $nm = implode(', ', $folk[$id]);
-                $ovf .= '<a class="ov-f" href="' . e(url('folk.php')) . '" transform="translate(' . myc_f($x + 34) . ' ' . myc_f($y + 6) . ')" aria-label="Villagers you know: ' . e($nm) . '"><title>' . e($nm) . '</title><circle r="14" class="mbub"/><text y="6" text-anchor="middle" class="mfolk">👤</text>'
+                $ovf .= '<a class="ov-f" href="' . e(url('town.php?view=villagers')) . '" transform="translate(' . myc_f($x + 34) . ' ' . myc_f($y + 6) . ')" aria-label="Villagers you know: ' . e($nm) . '"><title>' . e($nm) . '</title><circle r="14" class="mbub"/><text y="6" text-anchor="middle" class="mfolk">👤</text>'
                     . (count($folk[$id]) > 1 ? '<circle cx="11" cy="-10" r="8" class="mcnt"/><text x="11" y="-6.5" text-anchor="middle" class="mcntt">' . count($folk[$id]) . '</text>' : '') . '</a>';
             }
         }

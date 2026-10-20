@@ -19,7 +19,7 @@ const FIRST_WEEK = [
            'read' => ['Read three Almanac pages', 'book.php', 'Open the Almanac and read three pages. The Getting started chapter is a good one.']],
           50, 10, 'plain-compost:3'],
     2 => ['Meet the neighbours', 'Gnomes are lovely company. Say hello and look at what needs doing.',
-          ['talk' => ['Chat with a townsperson', 'folk.php', 'Open Villagers, pick someone who is about, and press Talk.'],
+          ['talk' => ['Chat with a townsperson', 'town.php?view=villagers', 'Open Town → Villagers, pick someone who is about, and press Talk.'],
            'job' => ['Take a job from the Job Board', 'jobs.php', 'Pick any daily job. Doing your usual gardening usually finishes it.']],
           60, 10, ''],
     3 => ['Out and about', 'The Hollow is bigger than one garden. Take a short walk.',

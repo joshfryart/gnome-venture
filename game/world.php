@@ -157,10 +157,10 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
 <details class="fold mapfold" id="worldmap"<?= $worldOpen ? ' open' : '' ?>><summary>🌍 World map</summary>
 <?php if (myc_on()): ?>
   <div class="mapwrap mycwrap"><?= world_map_svg($u, $mapRegion) ?></div>
-  <p class="help">Tap a region to open its chamber: its town, roads and villages as big tap targets. 🎩 you · <a href="<?= e(url('folk.php')) ?>">👤 villagers</a> · <a href="<?= e(url('world.php?tab=travel')) ?>">🧭 Fast travel</a> costs <?= money($travelBase) ?> (home is free).</p>
+  <p class="help">Tap a region to open its chamber: its town, roads and villages as big tap targets. 🎩 you · <a href="<?= e(url('town.php?view=villagers')) ?>">👤 villagers</a> · <a href="<?= e(url('world.php?tab=travel')) ?>">🧭 Fast travel</a> costs <?= money($travelBase) ?> (home is free).</p>
 <?php else: ?>
   <div class="mapwrap"><?= world_map_svg($u, $mapRegion) ?></div>
-  <p class="help">Tap a region to open its map: its town, roads and villages as big tap targets. Zoom the world with ＋ − (or pinch) and drag to look around. 🎩 you · 🏡 home garden · 🌱 other gardens · <a href="<?= e(url('folk.php')) ?>">👤 villagers you know</a> · 📗 guide read · 🔒 not visited yet · 🍄 Mossbottom is reachable from anywhere.
+  <p class="help">Tap a region to open its map: its town, roads and villages as big tap targets. Zoom the world with ＋ − (or pinch) and drag to look around. 🎩 you · 🏡 home garden · 🌱 other gardens · <a href="<?= e(url('town.php?view=villagers')) ?>">👤 villagers you know</a> · 📗 guide read · 🔒 not visited yet · 🍄 Mossbottom is reachable from anywhere.
     <a href="<?= e(url('world.php?tab=travel')) ?>">🧭 Fast travel</a> costs <?= money($travelBase) ?> (home is free).</p>
 <?php endif; ?>
 </details>
@@ -260,6 +260,48 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
 
 <?php require_once __DIR__ . '/includes/letters.php'; echo letters_box($u);   // v0.8.1: Lost Letters ?>
 <?= landmark_panel($u, $node) ?>
+
+<?php // v2.0.4 menu folds: Seasons & weather (was seasons.php) is a fold here; ?tab=seasons opens it
+$sRegion = hollow_user_region($u);
+$sn = hollow_now($sRegion);
+$sNext = hollow_next_season();
+$sFc = hollow_forecast($sRegion, 3);
+$sCh = hollow_weather_chances($sn['season'], $sRegion);
+arsort($sCh);
+$sRegions = q('SELECT code, gnomish_name AS name, real_name FROM regions ORDER BY id')->fetchAll(); ?>
+<details class="fold box seasonfold" id="seasons"<?= ($_GET['tab'] ?? '') === 'seasons' ? ' open' : '' ?>>
+  <summary><?= $sn['season_emoji'] ?> Seasons &amp; weather: <?= e($sn['season_label']) ?>, <?= $sn['weather_emoji'] ?> <?= e($sn['weather_label']) ?></summary>
+  <p><b><?= e(hollow_line($sRegion)) ?></b></p>
+  <p class="muted"><?= e(HOLLOW_SEASONS[$sn['season']][3]) ?> <?= e(HOLLOW_WEATHER[$sn['weather']][3]) ?>
+    <?= $sn['mode'] === 'game' ? 'Day ' . $sn['season_day'] . ' of ' . $sn['season_length'] . '.' : 'Following the real calendar.' ?>
+    <?= e(HOLLOW_SEASONS[$sNext['season']][0] . ' ' . HOLLOW_SEASONS[$sNext['season']][1]) ?> begins in <?= (int)$sNext['in_days'] ?> day<?= $sNext['in_days'] === 1 ? '' : 's' ?>.
+    <?= $sn['season_forced'] || $sn['weather_forced'] ? '<br><small>(An override is on' . ($sn['season_forced'] ? ': season' : '') . ($sn['weather_forced'] ? ': today’s weather' : '') . '.)</small>' : '' ?></p>
+  <h3>Forecast</h3>
+  <div class="fcgrid">
+  <?php foreach ($sFc as $f): ?>
+    <div class="box"><b><?= e($f['label']) ?></b><div class="wxbig" aria-hidden="true"><?= $f['emoji'] ?></div><?= e($f['wlabel']) ?></div>
+  <?php endforeach; ?>
+  </div>
+  <h3>The year</h3>
+  <div class="seasonrow">
+  <?php foreach (HOLLOW_SEASONS as $k => $s): ?>
+    <div class="box<?= $k === $sn['season'] ? ' cur' : '' ?>"><div class="wxbig" aria-hidden="true"><?= $s[0] ?></div><b><?= e($s[1]) ?></b><br><small class="muted"><?= $sn['mode'] === 'game' ? hollow_season_length() . ' days' : '3 months' ?></small></div>
+  <?php endforeach; ?>
+  </div>
+  <h3>What <?= e(HOLLOW_SEASONS[$sn['season']][1]) ?> weather is like</h3>
+  <table class="wxtable">
+  <?php foreach ($sCh as $k => $pct): if ($pct <= 0) continue; ?>
+    <tr><td><?= HOLLOW_WEATHER[$k][0] ?> <?= e(HOLLOW_WEATHER[$k][1]) ?></td><td><?= $pct ?>%</td></tr>
+  <?php endforeach; ?>
+  </table>
+  <h3>Around the world today</h3>
+  <table class="wxtable">
+  <?php foreach ($sRegions as $r): $w = hollow_weather_info(hollow_weather($r['code']), 'day'); ?>
+    <tr><td><?= e($r['name']) ?> <small class="muted">(<?= e($r['real_name']) ?>)</small></td><td><?= $w['emoji'] ?> <?= e($w['label']) ?></td></tr>
+  <?php endforeach; ?>
+  </table>
+  <?php if (is_admin()): ?><p class="help"><a href="<?= e(url('admin/settings.php#s-seasons-weather')) ?>">Admin: seasons &amp; weather settings and overrides</a></p><?php endif; ?>
+</details>
 
 <?php if ($node['kind'] === 'village' && $node['region_id']):
     $mine = q_one('SELECT * FROM plots WHERE user_id = ? AND region_id = ?', [$u['id'], $node['region_id']]);

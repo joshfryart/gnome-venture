@@ -144,7 +144,7 @@ $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, 
       <?php endforeach; ?>
     </table>
   <?php endif; ?>
-  <p><a href="<?= e(url('folk.php')) ?>">👤 Everyone you know, and where they are now →</a></p>
+  <p><a href="<?= e(url('town.php?view=villagers')) ?>">👤 Everyone you know, and where they are now →</a></p>
 </details>
 
 <?php if ((int)$u['level'] < $callingLevel): ?>
