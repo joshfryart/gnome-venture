@@ -1,0 +1,4 @@
+# v2.0.20: Chapter II overrides of Chapter I trail events whose words only fit the topsoil (new slots only).
+ch2.ev.stash.text|Something glints in the clay wall, just under the surface.
+ch2.ev.stash.dig|You pick at the clay layer until it breaks.\nInside is a little hoard, left by some forgetful beetle.
+ch2.ev.shrine.text|A little shrine of pebbles and old clay.\nSomeone has left a glowworm to keep it lit.

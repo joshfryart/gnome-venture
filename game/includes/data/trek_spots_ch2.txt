@@ -34,7 +34,7 @@
 2|sluice3|switch|The Cistern Wheel|r|sym=1;flag=sluice3_done
 2|pinch|boss|Old Pinch|r|sym=2;obj=13;script=pinch;creature=old-pinch;flag=pinch_down;weak=drained_r;weak_pct=80
 2|nookC|find|The Last Nook|r|sym=3;petals=90;flag=nookC_found
-2|drumdoor|chest|The Drum Door|r|sym=5;needs=cistern-pearl;item=camp-kit:1;petals=60;obj=14;flag=drumdoor_open
+2|drumdoor|chest|The Drum Door|r|sym=5;needs=cistern-pearl;item=camp-kit:1;petals=60;obj=14;flag=drumdoor_open;verb=door
 2|drumgate|gate|The Drum Chamber|r|sym=6;needs=drumdoor_open
 2|thrum|boss|Old Thrum|s|sym=7;obj=15;script=thrum;creature=old-thrum;flag=thrum_down
 # v2.0.1 old campsites (type oldcamp). A free, repeatable rest, not a camp. Text parts: ch2.spot.<code>.find, ch2.oldcamp.rest|ambush, ch2.ko.oldcamp.
