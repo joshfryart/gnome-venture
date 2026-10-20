@@ -12,6 +12,9 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 - Not tested live: creature pictures in the pop-over (only emoji in tests). Last foe KO fade only in Auto replay.
 - Fable text review: Ch I + II-a work. Fixed 7 of 8 issues. Left: ch2.spot.crossroads.locked is unreachable (leave).
 
+## NEXT (planned, not built): 2.0.13 desktop fight layout, see claude/plan-trek-desktop-layout.md
+- Desktop map screen: log + Sneak/Camp/Leave under the map; fight screen keeps the inert map left and cross-fades the right column to the fight panel and back. Waiting for Joshua's "go" after the 2.0.12 phone test. One Sonnet task + Opus review.
+
 ## Now: Joshua
 1. Upload **2.0.9** (covers 2.0.3–2.0.8). Check on phone: log sits under the map; free Burdock/Zinnia/Bracken: story pop-ups, then the "Party member joined!" card (stats + bio); the "Story pop-ups" button under the tabs mutes them; edit the 7 gnome reply lines (Admin → Trek text, keys `*.scene.*.me`) and the trailmates' bios (npcs, used on the join card). Decide: should the milestone line come before the join card? Do pop-ups feel too many? As admin on phone check: a delve and a lair on the map (tap a lit tile, no sideways scroll, "Use the simple list" works, chest opens after the other rooms); shop, Trading Post and Market Day tiles + sheet; Town → Passport + Villagers tabs; World → Seasons fold; Admin → Usage, Road text, settings search.
 2. Play Ch I + Ch II-a as admin on phone (text reworked in 2.0.4; rows you edited kept your words). Edit/approve in Admin → Trek text. Then say when to turn on "Treks: open".
