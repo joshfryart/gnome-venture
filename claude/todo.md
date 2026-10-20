@@ -2,21 +2,21 @@
 
 Built: **2.0.19** (trek tap brake 400/5 min, news entry "Treks are open!"). Joshua: upload it, then Admin → Settings → "Treks: open" = on. News post goes out at upload even if you wait: set the switch right after. Watch the first days: Admin → Usage (treks row), error log.
 
-Built: **2.0.18** (Treks phone play-test fixes: spot-text pop-overs, fight feed cap, obstacle bypass fixed, compact party cards, Ch II rest-site camp pop-over, Ch II sluices closer). Check on phone: walk to Burdock (cart now blocks: dig it), back out of a fight/duel and try to walk on (refused), Ch II oldcamps + Cushion Corner open the camp pop-over with free rest, sluice turn shows water change. DECIDED 2026-10-20: first cart dig keeps +8 fatigue (no change; free dig would make the Grit heave pointless; 8 is far under Tired 60 and Lantern Stump camp resets it); sluice text pass SKIPPED (text frozen until Joshua plays Ch II). Ideas: short CSS pulse on drained tiles; Clay Slide can skip the Shelf (left).
+Built: **2.0.18** (Treks phone play-test fixes: spot-text pop-overs, fight feed cap, obstacle bypass fixed, compact party cards, Ch II rest-site camp pop-over, Ch II sluices closer). Check on phone: walk to Burdock (cart now blocks: dig it), back out of a fight/duel and try to walk on (refused), Ch II oldcamps + Cushion Corner open the camp pop-over with free rest, sluice turn shows water change. DECIDED 2026-10-20: first cart dig keeps +8 fatigue (no change; free dig would make the Grit heave pointless; 8 is far under Tired 60 and Lantern Stump camp resets it); sluice text pass done in the next release (text pass 7; the freeze is lifted). Ideas: short CSS pulse on drained tiles; Clay Slide can skip the Shelf (left).
 
 Built: **2.0.17** (picture-tile shops done: Curio, Dye Pot, festival stalls, haven pantry, village stalls). Check on phone: each opens a sheet, buy works, centred. Watch: CSP inline-style console error on town.php (pre-existing). The "NEXT UP picture tiles" list below is DONE.
 
-Built: **2.0.16** (II-b Fallen Shelf stop, road roll admin settings, Tumble lines pass 6, .tkfoelv CSS gone). Check: Admin → Settings → advanced "Road:" four weights; II-b shelf at the Dim (dc 11, camp kit). The "II-b held" list below is DONE except the Tumble brief note.
+Built: **2.0.16** (II-b Fallen Shelf stop, road roll admin settings, Tumble lines pass 6, .tkfoelv CSS gone). Check: Admin → Settings → advanced "Road:" four weights; II-b shelf at the Dim (dc 11, camp kit). The II-b held list is DONE (Tumble brief fixed in the next release).
 
 Live and OK (Joshua 2026-10-20): **2.0.15** (join card Trek Lv, foe level dropped, Juniper pot at nookB, Tumble own effect), 2.0.14, 2.0.13 desktop layout. Overdue Book "gap" was not real (Sorrel takes it in II-a).
-II-b held until Joshua plays it: one skill-check stop (cart) in II-b; road roll % settings (~25 lines); Tumble talk lines reword; stale `.tkfoelv` CSS.
+II-b held items: ALL CLOSED. II-b skill-check stop, road roll settings, `.tkfoelv` CSS: done 2.0.16. Silverfin Sorrel line fixed 2.0.4. `thrum.harden` and the Tumble interlude are fine. Trailmates 4-6 are built; Wren is the 7th, in Ch III.
 
 
-Built: **2.0.11** (camp pop-over; check on phone: Camp button opens it, Talk cycles, Rest runs, it reopens after the story pop-over, auto-open switch works; add `chN.banter.<crew>.3/.4` text slots for more Talk lines). Before: 2.0.10 (map camera follows the token while walking, Treks + delves; check on phone: no jump at the end of a walk). Upload it instead of 2.0.9.
+Built: **2.0.11** (camp pop-over; check on phone: Camp button opens it, Talk cycles, Rest runs, it reopens after the story pop-over, auto-open switch works; add `chN.banter.<crew>.3/.4` text slots for more Talk lines). Before: 2.0.10 (map camera follows the token while walking, Treks + delves; check on phone: no jump at the end of a walk). 
 
 Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + pop-up toggle). Before: 2.0.8 (talk pop-over + log under the map). Before: 2.0.7 (Treks text fixes + party-full note). Before: 2.0.6 (Phase 3: delve/lair maps; 2.0.5 = Phase 2: shop tiles, rewards wrapper, combat_math; 2.0.4 = Phase 1; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.6). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 
-**Standing orders (Joshua 2026-10-20):** Puzzles = ignore until he says. Treks stay admin-only and their text stays as it is until he has played through it.
+**Standing orders (Joshua 2026-10-20):** Puzzles = ignore until he says. **Treks are OPEN (`trek_open` on) since 2.0.19, and the Treks text freeze is LIFTED** (text may be changed again; rows Joshua edited keep his words).
 
 ## 2.0.12 (built 2026-10-20, branch trek-fight-touches)
 - Check on phone as admin: start a fight by walking: "!" over the gnome, then one pop-over with all foes side by side; hit shake / −N numbers in Fight round, Auto 1, plan-each-turn, Auto replay. Does the 2-foe pop-over feel too long (~2.2 s)? Is the map block "Where it began" good or too tall?
@@ -28,12 +28,17 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 - Desktop map screen: log + Sneak/Camp/Leave under the map; fight screen keeps the inert map left and cross-fades the right column to the fight panel and back. Waiting for Joshua's "go" after the 2.0.12 phone test. One Sonnet task + Opus review.
 
 ## Now: Joshua
-0. 2.0.15 checked OK. Next: play Ch I + II-a + II-b as admin; then say go on the held II-b items above. Ask if Tumble talk lines should be reworded.
-1. Upload **2.0.9** (covers 2.0.3–2.0.8). Check on phone: log sits under the map; free Burdock/Zinnia/Bracken: story pop-ups, then the "Party member joined!" card (stats + bio); the "Story pop-ups" button under the tabs mutes them; edit the 7 gnome reply lines (Admin → Trek text, keys `*.scene.*.me`) and the trailmates' bios (npcs, used on the join card). Decide: should the milestone line come before the join card? Do pop-ups feel too many? As admin on phone check: a delve and a lair on the map (tap a lit tile, no sideways scroll, "Use the simple list" works, chest opens after the other rooms); shop, Trading Post and Market Day tiles + sheet; Town → Passport + Villagers tabs; World → Seasons fold; Admin → Usage, Road text, settings search.
-2. Play Ch I + Ch II-a as admin on phone (text reworked in 2.0.4; rows you edited kept your words). Edit/approve in Admin → Trek text. Then say when to turn on "Treks: open".
-3. Get players (slow going). Read Admin → Retention and Admin → Usage after a week or two: they decide the gated cuts.
-4. Art in progress (Admin → Images).
+0. Treks are open (`trek_open` on since 2.0.19). Watch Admin → Usage (treks row), the error log, and players' first runs.
+1. Upload the next release (adds text pass 7: sluice lines name the water and clay layer, Ch II stash/shrine lines, Drum Door says "Open the door"). Rows you edited keep your words.
+2. Get players (slow going). Read Admin → Retention and Admin → Usage after a week or two: they decide the gated cuts.
+3. Art in progress (Admin → Images).
 - Email: Joshua says OK, drop it.
+
+### Joshua decides
+- **Mushroom Camp beetle shells:** should Mushroom Camp take them from the pack first, then the Satchel? (~10 lines in `trek_events.php` `trek_act_mush`.)
+- **Friendship +1 per 20 fights:** needs a daily cap before it ships.
+- **Lanternroot as a real crop:** the seed exists; the crop is not built.
+- **Trek level cap `TREK_TL_MAX` 20:** decide before Chapter III-b.
 
 ## Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; Phase 3 done in 2.0.6; NEXT: read Admin → Usage, decision gate on maps (roads strip/town hub only if delve maps get played), gated cuts, more picture-tile shops (Curio/Dye Pot, festival, pantry, local))
 

@@ -359,7 +359,7 @@ function trek_spot_panel(array &$run, array $u): string
             break;
         case 'chest':
             $h .= '<div class="trektext">' . trek_text($k($code, $done ? 'after' : 'locked')) . '</div>';
-            if (!$done) $h .= trek_form('chest', '🧰 Open the chest', ['t' => 'map']) . '<p class="help">Needs the ' . e(trek_item_name(trek_item_id((string)$spot['data']['needs']))) . '.</p>';
+            if (!$done) $h .= trek_form('chest', (($spot['data']['verb'] ?? '') === 'door' ? '🚪 Open the door' : '🧰 Open the chest'), ['t' => 'map']) . '<p class="help">Needs the ' . e(trek_item_name(trek_item_id((string)$spot['data']['needs']))) . '.</p>';
             break;
         case 'npc':
             $h .= '<div class="trektext">' . trek_text($k($code, 'talk')) . '</div>';

@@ -1,0 +1,4 @@
+# The sluice bodies shipped before the pass-7 text pass (so the pass can tell an unedited row from one Joshua wrote).
+ch2.spot.sluice1.done|The wheel groans, then gurgles, then the water goes rushing away.\nIt leaves wet mud behind, and a path across.
+ch2.spot.sluice2.done|The wheel turns, and the water drains away between the shelves.\nBooks rise out of it like small islands.
+ch2.spot.sluice3.done|The wheel groans, long and low, and the water slides away down the drains.\nThe lanes turn to dry mud.\nFar below, something big shifts. It is not pleased.

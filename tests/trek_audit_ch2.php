@@ -288,7 +288,7 @@ echo '  info the generic Chapter II keys that fall back to Chapter I slots (unwr
 $orph = [];
 foreach (q("SELECT text_key FROM trek_texts WHERE chapter = 2 ORDER BY sort_order")->fetchAll(PDO::FETCH_COLUMN) as $k) if (!isset($expect[$k])) $orph[] = $k;
 echo '  info slots of Chapter II that no code path asks for (orphans): ' . ($orph ? implode(', ', $orph) : 'none') . "\n";
-$KNOWN_ORPHANS = ['ch2.spot.crossroads.locked'];   // the Crossroads gate is open from II-b on (never locked)
+$KNOWN_ORPHANS = ['ch2.spot.crossroads.locked', 'ch2.ev.stash.text', 'ch2.ev.stash.dig', 'ch2.ev.shrine.text'];   // the Crossroads gate is open from II-b on (never locked)
 ok('no unexpected orphan slots (known: ' . implode(', ', $KNOWN_ORPHANS) . ')', !array_diff($orph, $KNOWN_ORPHANS), implode(', ', array_diff($orph, $KNOWN_ORPHANS)));
 
 

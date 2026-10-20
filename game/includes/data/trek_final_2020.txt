@@ -1,0 +1,4 @@
+# Treks text v2.0.20: the three sluice lines name the water level changing and the clay layer. key|body, \n = line break. Applied once by the pass-7 text pass (trek_text_pass = 7); bodies Joshua edited keep his words.
+ch2.spot.sluice1.done|The wheel groans, and the water sinks.\nPale clay shows underneath, wet and smooth, with a path across.
+ch2.spot.sluice2.done|The wheel turns, and the water sinks between the shelves.\nBooks rise out of it, and the clay floor shines beneath.
+ch2.spot.sluice3.done|The wheel groans, long and low, and the water sinks away down the drains.\nThe lanes dry to grey clay.\nFar below, something big shifts. It is not pleased.
