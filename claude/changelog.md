@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.3
+- Admin → Progress & quests → 📊 Usage (admin/usage.php, read-only, no schema): rows + distinct players + last 7 days per feature (jobs, orders, favours, errands, hires, helping water, gifts, trades, stops, landmarks, market, contests, mini-games per game, treks). Players only (no admin/mod/banned). CSV export. Phase 0 of the 2026-10-20 review (claude/plan-consolidation.md). No news entry.
+
 ## 2.0.2
 - Setting `puzzles_open` (default 0 = admins only): puzzles.php redirects players to games.php with "coming soon"; Games hub tile shown only when open or admin. 2.0.0.1 news entry still mentions Puzzles.
 

@@ -85,6 +85,7 @@ function admin_menu_def(): array
             ['trek_text.php', '✍️', 'Trek story text', 'Write the story text for treks', ''],
             ['xp.php', '📈', 'XP sources', 'Where players earn XP, per day and top players', ''],
             ['retention.php', '🔁', 'Retention', 'Do new players finish the tour and come back?', ''],
+            ['usage.php', '📊', 'Usage', 'What real players use: jobs, helpers, shops, contests, games', ''],
             ['r:almanac_milestones', '🏅', null, 'Almanac milestones and their rewards', 't:almanac_milestones'],
         ]],
         ['content', '📝', 'Content & text', [
