@@ -239,9 +239,44 @@ function trek_map_html(array &$run, array $u, ?array $walk = null): string
         }
     }
     $data = '';
-    if ($walk) $data = ' data-x0="' . $x0 . '" data-y0="' . $y0 . '" data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
+    $ext = '';
+    if ($walk) {
+        $data = ' data-x0="' . $x0 . '" data-y0="' . $y0 . '" data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
+        // v2.0.10: a second, wider picture covering the whole walk, so assets/trekmap.js can keep the camera on the token (no jump to the end tile first).
+        $xs = array_column($walk['p'], 0);
+        $ys = array_column($walk['p'], 1);
+        $ex0 = max(0, min($xs) - 8);
+        $ey0 = max(0, min($ys) - 6);
+        $ex1 = min($m['w'], max($xs) + 9);
+        $ey1 = min($m['h'], max($ys) + 7);
+        $ex0 = min($ex0, $x0);
+        $ey0 = min($ey0, $y0);
+        $ex1 = max($ex1, $x0 + 15);
+        $ey1 = max($ey1, $y0 + 11);
+        $ew = $ex1 - $ex0;
+        $eh = $ey1 - $ey0;
+        if ($ew * $eh <= 2600 && ($ew > 15 || $eh > 11)) {
+            $etok = [];
+            for ($y = $ey0; $y < $ey1; $y++) {
+                for ($x = $ex0; $x < $ex1; $x++) {
+                    if (!trek_seen_get($run, $x, $y) || ($x === $px && $y === $py)) continue;
+                    $c = trek_tile((int)$run['chapter'], $x, $y);
+                    if (!(ctype_upper($c) || ctype_digit($c))) continue;
+                    $spot = trek_spot_at((int)$run['chapter'], $x, $y);
+                    if (!$spot || ($spot['type'] === 'hidden' && !trek_spot_visible($run, $u, $spot))) continue;
+                    $locked = $spot['type'] === 'gate' && !trek_gate_open($run, $spot);
+                    $done = $spot['type'] !== 'gate' && !in_array($spot['type'], ['start', 'exit', 'camp', 'npc', 'sign', 'oldcamp'], true) && trek_spot_done($run, $spot);
+                    $ico = !empty($spot['data']['icon']) ? (string)$spot['data']['icon'] : ($spot['type'] === 'gate' ? ($locked ? '🚧' : '') : ($icons[$spot['type']] ?? '•'));
+                    if ($ico !== '') $etok[] = [$x, $y, $ico, in_array($spot['type'], ['duel', 'miniboss', 'boss'], true) ? 'ember' : 'gold', $done];
+                }
+            }
+            $data .= ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . $ew . '" data-eh="' . $eh . '" data-mw="' . $m['w'] . '" data-mh="' . $m['h'] . '"';
+            $ext = trek_art_svg((int)$run['chapter'], $run, $ex0, $ey0, $ew, $eh, $etok, $walk, trek_art_me($u), 'x');
+        }
+    }
     $h = '<div class="trekmap tkart wx' . ($a0 - $x0) . ' wy' . ($b0 - $y0) . '" role="group" aria-label="Map"' . $data . '>'
         . trek_art_svg((int)$run['chapter'], $run, $x0, $y0, 15, 11, $tokens, $walk, trek_art_me($u))
+        . $ext
         . '<span class="tkchip" hidden></span>';
     return $h . $btn . '</div>';
 }

@@ -59,7 +59,7 @@ function tk_dot(float $cx, float $cy, float $r): string
  * $tokens = [[x, y, icon, ring ('gold'|'ember'), done]]; $walk = ['p' => [[x,y],...], 'd' => [x,y]] or null.
  * Returns the <svg> markup. Each layer is one path; $stats (by reference) counts them.
  */
-function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $rows, array $tokens, ?array $walk, string $me = ''): string
+function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $rows, array $tokens, ?array $walk, string $me = '', string $sfx = ''): string
 {
     $C = TK_C;
     $P = TK_P;
@@ -237,8 +237,8 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     $ly = ($py - $y0) * $C + $C / 2;
     $W = $cols * $C;
     $H = $rows * $C;
-    $o = '<svg class="tkbg" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
-    $o .= '<defs><radialGradient id="tklan" cx="' . tk_n($lx) . '" cy="' . tk_n($ly) . '" r="' . ($dark ? 120 : ($under ? 215 : 300)) . '" gradientUnits="userSpaceOnUse">'
+    $o = '<svg class="tkbg' . ($sfx !== '' ? ' tkx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
+    $o .= '<defs><radialGradient id="tklan' . $sfx . '" cx="' . tk_n($lx) . '" cy="' . tk_n($ly) . '" r="' . ($dark ? 120 : ($under ? 215 : 300)) . '" gradientUnits="userSpaceOnUse">'
         . ($under
             ? '<stop offset="0" stop-color="' . $P['gold300'] . '" stop-opacity=".34"/><stop offset=".3" stop-color="' . $P['ember300'] . '" stop-opacity=".12"/><stop offset=".62" stop-color="' . $P['ember300'] . '" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="' . ($dark ? '.82' : '.3') . '"/>'
             : '<stop offset="0" stop-color="' . $P['gold300'] . '" stop-opacity=".16"/><stop offset=".55" stop-color="' . $P['ember300'] . '" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".16"/>')
@@ -259,7 +259,7 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     $strokes = ['arc' => [$P['soil700'], '1.5', '.6'], 'chasm_rip' => [$P['water500'], '1.6', '.6'], 'ripple' => [$P['water300'], '1.8', '.8'], 'wo_crack' => [$P['ink'], '1.3', '.6'], 'wo_thorn' => [$P['ember700'], '1.5', '.8'], 'tuft' => [$P['moss600'], '1.5', ''], 'utuft' => [$P['moss600'], '1.5', ''], 'hair' => [$P['soil300'], '1.6', '.7'],
         'dripple' => [$P['water300'], '1.6', '.5'], 'slump' => [$P['ember400'], '1.6', '.38'], 'crysline' => [$P['ink'], '1.1', '.45']];
     foreach ($strokes as $layer => [$col, $sw, $op]) if (isset($L[$layer])) $o .= '<path fill="none" stroke="' . $col . '" stroke-width="' . $sw . '" stroke-linecap="round"' . ($op ? ' opacity="' . $op . '"' : '') . ' d="' . $L[$layer] . '"/>';
-    $o .= '<rect width="' . $W . '" height="' . $H . '" fill="url(#tklan)"/>';
+    $o .= '<rect width="' . $W . '" height="' . $H . '" fill="url(#tklan' . $sfx . ')"/>';
 
     // --- footprints of the walk just taken (shown as they are walked by assets/trekmap.js; plain without script)
     if ($walk && count($walk['p']) > 1) {

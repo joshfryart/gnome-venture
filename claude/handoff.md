@@ -1,5 +1,5 @@
-# Gnome Venture: handoff (current as of v2.0.9, 2026-10-20; plan: claude/plan-consolidation.md)
-Latest: **2.0.9** (ALL Treks story text as talk pop-over, Party-member-joined card, pop-up toggle; 2.0.8 = pop-over + log under the map; 2.0.7 = Treks text fixes; 2.0.6 = delve + lair maps). Versions are three-part again (2.0.3–2.0.6); the four-part rule that started at 2.0.0.1 is over. Always go UP past whatever Joshua last got.
+# Gnome Venture: handoff (current as of v2.0.10, 2026-10-20; plan: claude/plan-consolidation.md)
+Latest: **2.0.10** (map camera follows the token on walks: Treks + delve/lair maps; no schema change; 2.0.9 = (ALL Treks story text as talk pop-over, Party-member-joined card, pop-up toggle; 2.0.8 = pop-over + log under the map; 2.0.7 = Treks text fixes; 2.0.6 = delve + lair maps). Versions are three-part again (2.0.3–2.0.6); the four-part rule that started at 2.0.0.1 is over. Always go UP past whatever Joshua last got.
 
 Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.6), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 Owner: Joshua Fry (admin). Neopets-style cosy garden browser game. Live: gnomeventure.ca. No monetization.

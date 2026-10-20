@@ -4433,3 +4433,12 @@ dialog.tkscene::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur
 .tksstage[hidden] { display: none; }
 .tksjoin[hidden] { display: none; }
 .tksmutebtn[aria-pressed="false"] { opacity: .6; text-decoration: line-through; }
+
+/* v2.0.10 trek camera: a wider picture for the walk, shown only while the token walks (assets/trekmap.js sets its size and position) */
+.trekmap.tkart .tkbg.tkx { display: none; width: auto; height: auto; }
+.trekmap.tkart.tkcam .tkbg.tkx { display: block; }
+.trekmap.tkart.tkcam .tkbg:not(.tkx) { display: none; }
+/* v2.0.10 delve camera: the wide walk picture sits in the view behind the stage and is shown only while the token walks */
+.tilemap .tmbg.tmx { display: none; inset: auto; }
+.tilemap.tmcam .tmbg.tmx { display: block; }
+.tilemap.tmcam .tmstage .tmbg:not(.tmx) { display: none; }

@@ -337,6 +337,24 @@ function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
         'px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
         'light' => dm_reveal_radius((int)$u['id']) + 1, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u),
     ]);
+    // v2.0.10: a wider picture covering the whole walk, shown only while the token walks (assets/tilemap.js keeps the camera on it)
+    $extSvg = '';
+    $extData = '';
+    if ($walk && count($walk['p']) > 1) {
+        $xs = array_column($walk['p'], 0);
+        $ys = array_column($walk['p'], 1);
+        $ex0 = min(min($xs) - 5, $win['x0']);
+        $ey0 = min(min($ys) - 5, $win['y0']);
+        $ex1 = max(max($xs) + 6, $win['x0'] + DM_VIEW);
+        $ey1 = max(max($ys) + 6, $win['y0'] + DM_VIEW);
+        if (($ex1 - $ex0) * ($ey1 - $ey0) <= 900) {
+            $extSvg = tm_render_svg($map, $land, [
+                'px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0,
+                'light' => dm_reveal_radius((int)$u['id']) + 1, 'dim' => 999, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u), 'sfx' => 'x',
+            ]);
+            $extData = ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . ($ex1 - $ex0) . '" data-eh="' . ($ey1 - $ey0) . '"';
+        }
+    }
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) {
         for ($i = 0; $i < DM_VIEW; $i++) {
@@ -367,11 +385,11 @@ function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
             $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
         }
     }
-    $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
+    $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"' . $extData;
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
     $legend = $lair ? '<span>🐉 Boss</span><span>🪜 Entrance</span>' : '<span>🚪 Room</span><span>🛡️ Guardian</span><span>💰 Chest</span><span>🪜 Entrance</span>';
     $out = '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="go">'
-        . '<div class="tilemap tm-cave" role="group" aria-label="' . ($lair ? 'Lair map' : 'Delve map') . '"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
+        . '<div class="tilemap tm-cave" role="group" aria-label="' . ($lair ? 'Lair map' : 'Delve map') . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
         . '<p class="tmlegend" aria-hidden="true">' . $legend . '</p></div>';

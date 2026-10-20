@@ -70,11 +70,14 @@
   function Walk(box) {
     var self = this, i;
     this.box = box;
-    this.svg = box.querySelector('.tmbg');
+    var ext = box.querySelector('.tmbg.tmx');
+    this.cam = !!ext;   /* v2.0.10: a wider picture came with the walk: the camera follows the token */
+    this.svg = this.cam ? ext : box.querySelector('.tmbg');
     this.me = this.svg ? this.svg.querySelector('.tmme') : null;
     this.chip = box.querySelector('.tmchip');
-    this.feet = box.querySelectorAll('.tmft');
-    var T = num(box, 'data-tile') || 42, x0 = num(box, 'data-x0'), y0 = num(box, 'data-y0');
+    this.feet = this.svg ? this.svg.querySelectorAll('.tmft') : [];
+    var T = num(box, 'data-tile') || 42, x0 = num(box, this.cam ? 'data-ex0' : 'data-x0'), y0 = num(box, this.cam ? 'data-ey0' : 'data-y0');
+    this.T = T; this.gx = x0; this.gy = y0;
     var raw = (box.getAttribute('data-walk') || '').split(';');
     this.pts = [];
     for (i = 0; i < raw.length; i++) {
@@ -97,10 +100,13 @@
       if (n >= self.steps) { self.end(); return; }
       if (n > self.n) self.reveal(n);
       var f = k - n, a = self.pts[n], b = self.pts[n + 1];
-      self.put(a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f - Math.sin(Math.PI * f) * 6);
+      var wx = a[0] + (b[0] - a[0]) * f, wy = a[1] + (b[1] - a[1]) * f;
+      self.put(wx, wy - Math.sin(Math.PI * f) * 6);
+      self.look(wx, wy);
       self.raf = window.requestAnimationFrame(self.tick);
     };
     box.classList.add('tmplay');
+    if (this.cam) { box.classList.add('tmcam'); this.look(this.pts[0][0], this.pts[0][1]); }
     this.put(this.pts[0][0], this.pts[0][1]);
     this.reveal(0);
     document.addEventListener('keydown', this.skip, true);
@@ -110,6 +116,22 @@
   }
   Walk.prototype.put = function (x, y) {
     if (this.me) this.me.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')');
+  };
+  /* The camera: the wide picture slides so the token stays in the middle of the window (7 or 9 tiles wide, as the css crops it). The final
+     window the server draws is centred on the token the same way, so there is no jump when the walk ends. x, y in picture units. */
+  Walk.prototype.look = function (x, y) {
+    if (!this.cam) return;
+    var b = this.box, view = b.querySelector('.tmview'), stage = b.querySelector('.tmstage');
+    if (!view || !stage) return;
+    var cols = num(b, 'data-cols') || 9, tp = stage.getBoundingClientRect().width / cols;   /* one tile in pixels */
+    if (!tp) return;
+    var vc = Math.round(view.clientWidth / tp);
+    var ox = x / this.T + this.gx - vc / 2, oy = y / this.T + this.gy - vc / 2;
+    var st = this.svg.style;
+    st.width = (num(b, 'data-ew') * tp).toFixed(1) + 'px';
+    st.height = (num(b, 'data-eh') * tp).toFixed(1) + 'px';
+    st.left = ((this.gx - ox) * tp).toFixed(1) + 'px';
+    st.top = ((this.gy - oy) * tp).toFixed(1) + 'px';
   };
   Walk.prototype.reveal = function (n) {
     this.n = n;
@@ -130,6 +152,7 @@
     document.removeEventListener('touchstart', this.skip, true);
     var last = this.pts[this.pts.length - 1];
     this.put(last[0], last[1]);
+    if (this.cam) { this.box.classList.remove('tmcam'); this.svg.removeAttribute('style'); }   /* back to the plain final picture */
     this.box.classList.remove('tmplay');
     for (var i = 0; i < this.feet.length; i++) this.feet[i].setAttribute('class', 'tmft on');
     if (this.chip) this.chip.hidden = true;

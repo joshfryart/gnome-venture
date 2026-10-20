@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.9)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.10)
+
+Built: **2.0.10** (map camera follows the token while walking, Treks + delves; check on phone: no jump at the end of a walk). Upload it instead of 2.0.9.
 
 Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + pop-up toggle). Before: 2.0.8 (talk pop-over + log under the map). Before: 2.0.7 (Treks text fixes + party-full note). Before: 2.0.6 (Phase 3: delve/lair maps; 2.0.5 = Phase 2: shop tiles, rewards wrapper, combat_math; 2.0.4 = Phase 1; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.6). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 

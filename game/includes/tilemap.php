@@ -409,15 +409,15 @@ function tm_render_svg(array $map, string $theme, array $state): string
             if ($hh % 3 === 0) $add('arc', 'M' . ($X + 10 + $hh % 8) . ' ' . ($Y + 28) . 'q6-5 12 0');
             if ($t === ',' || $hh % 5 === 0) $add('peb', 'M' . ($X + 8 + $hh % 20) . ' ' . ($Y + 12 + ($hh >> 4) % 18) . 'a3 2 0 1 0 6 0a3 2 0 1 0-6 0M' . ($X + 24 + $hh % 12) . ' ' . ($Y + 30 - ($hh >> 5) % 8) . 'a2.6 1.8 0 1 0 5.2 0a2.6 1.8 0 1 0-5.2 0');
             if ($t === 'S') $add('stair', 'M' . ($X + 12) . ' ' . ($Y + 8) . 'h18M' . ($X + 12) . ' ' . ($Y + 16) . 'h18M' . ($X + 12) . ' ' . ($Y + 24) . 'h18M' . ($X + 12) . ' ' . ($Y + 32) . 'h18');
-            if (max(abs($x - $px), abs($y - $py)) > $light) $add('dim', $sq);
+            if (max(abs($x - $px), abs($y - $py)) > ($state['dim'] ?? $light)) $add('dim', $sq);
         }
     }
     $lx = ($px - $x0) * $C + $C / 2;
     $ly = ($py - $y0) * $C + $C / 2;
     $W = $cols * $C;
     $H = $rows * $C;
-    $o = '<svg class="tmbg" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
-    $o .= '<defs><radialGradient id="tmlan" cx="' . tm_n($lx) . '" cy="' . tm_n($ly) . '" r="' . (($light + 1) * $C + 40) . '" gradientUnits="userSpaceOnUse">'
+    $o = '<svg class="tmbg' . (($state['sfx'] ?? '') !== '' ? ' tmx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
+    $o .= '<defs><radialGradient id="tmlan' . ($state['sfx'] ?? '') . '" cx="' . tm_n($lx) . '" cy="' . tm_n($ly) . '" r="' . (($light + 1) * $C + 40) . '" gradientUnits="userSpaceOnUse">'
         . '<stop offset="0" stop-color="' . $P['glow'] . '" stop-opacity=".30"/><stop offset=".35" stop-color="' . $P['glow'] . '" stop-opacity=".08"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs>';
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="#05040a"/>';
     $fills = ['rock' => $P['rock'], 'floor' => $P['floor'], 'bed' => $P['bed'], 'rock2' => $P['rock2'], 'rock3' => $P['rock3']];
@@ -427,7 +427,7 @@ function tm_render_svg(array $map, string $theme, array $state): string
     $strokes = ['crack' => [$P['ink'], '1.3', '.6'], 'arc' => [$P['rock3'], '1.5', '.35'], 'stair' => [$P['cream'], '2.4', '.8']];
     foreach ($strokes as $layer => [$col, $sw, $op]) if (isset($L[$layer])) $o .= '<path fill="none" stroke="' . $col . '" stroke-width="' . $sw . '" stroke-linecap="round" opacity="' . $op . '" d="' . $L[$layer] . '"/>';
     if (isset($L['dim'])) $o .= '<path fill="#000" opacity=".4" d="' . $L['dim'] . '"/>';
-    $o .= '<rect width="' . $W . '" height="' . $H . '" fill="url(#tmlan)"/>';
+    $o .= '<rect width="' . $W . '" height="' . $H . '" fill="url(#tmlan' . ($state['sfx'] ?? '') . ')"/>';
     // footprints of the walk just taken (the script reveals them as the token passes; plain without script)
     $walk = $state['walk'] ?? null;
     if ($walk && count($walk['p']) > 1) {

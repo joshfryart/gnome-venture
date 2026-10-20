@@ -1,6 +1,11 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.10
+- Map camera follows the token while it walks (Treks map, delve + lair maps). Before: the server drew the window centred on the END tile, so the picture jumped, then the token walked across it from the edge. Now a wider picture covering the whole walk is sent with the walk (`.tkbg.tkx` in trek_art.php/trek.php; `.tmbg.tmx` in tilemap.php/delve_map.php, param `sfx`; delve `dim` param = no dimming on the wide picture), shown only while the token walks. assets/trekmap.js + tilemap.js `look()` slide it so the token stays centred (trek: clamped at map edges like the final window; delves: unclamped like the final window). At the end the wide picture hides and the normal final picture shows: no jump. No script / reduced motion: unchanged.
+- Cap: trek wide picture <= 2600 tiles, delve <= 900 (else old behaviour). Wide pictures are made only on walk renders.
+- Tests: delvemap.sh ALL OK, treks.sh all ok. Playwright 390 + 1400 px (trek + delve): token x offset 0 every frame, same offset before/after the camera, no sideways scroll. No schema change. No news entry.
+
 ## 2.0.9
 - ALL story text (speech, narration, place arrivals, boss intro/defeat) now opens as the talk pop-over, once per line per run; the log keeps every line. Speakers come from the text slot's speaker; narration shows with no portraits. Mixed lines ("Tumble bows. “Lovely!”") split into narration + speech.
 - NEW "Party member joined!" card after a recruit: name, species, calling, level, Health/Attack/Armour, role, a bit about them (npc bio). Benched trailmates say the party is full.
