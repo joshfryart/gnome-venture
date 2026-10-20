@@ -1066,7 +1066,7 @@ function trek_act_chest(array &$run, array $u): array
 }
 
 /**
- * Answer a riddle: 3 tries in all. v1.9.2: a riddle may have no prize item (a door), may be answered by a Seedkeeper in the party instead ($how = 'seed', data
+ * Answer a riddle: 2 tries in all (v2.0.1; was 3). v1.9.2: a riddle may have no prize item (a door), may be answered by a Seedkeeper in the party instead ($how = 'seed', data
  * seedkeeper=1), and may open anyway after the last wrong answer (data failopen=1: "the clay gives way"; the flag in data open= is set, but the "solved" flag is not).
  */
 function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): array
@@ -1084,7 +1084,7 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
         return [true, ''];
     }
     $tries = (int)($run['st']['tries_' . $s['code']] ?? 0);
-    $max = max(1, (int)($s['data']['tries'] ?? 3));
+    $max = max(1, (int)($s['data']['tries'] ?? 2));
     if ($tries >= $max) return [false, 'No tries left.'];
     $run['st']['tries_' . $s['code']] = ++$tries;
     if ($answer === (int)$s['data']['right']) {
@@ -1102,6 +1102,24 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
     trek_say_text($run, $key($tries >= $max ? 'out' : 'wrong'));
     if ($tries >= $max && !empty($s['data']['failopen'])) trek_flag_set($run, (string)$s['data']['flag']);   // the clay gives way
     return [true, ''];
+}
+
+/** v2.0.1: riddle doors (failopen) whose tries are used up but whose way never opened (a run saved when riddles had 3 tries). */
+function trek_riddle_stuck(array $run): bool
+{
+    foreach (trek_spots((int)$run['chapter']) as $s) {
+        if ($s['type'] !== 'riddle' || empty($s['data']['failopen'])) continue;
+        if ((int)($run['st']['tries_' . $s['code']] ?? 0) >= max(1, (int)($s['data']['tries'] ?? 2)) && !trek_flag($run, (string)$s['data']['flag'])) return true;
+    }
+    return false;
+}
+
+function trek_riddle_heal(array &$run): void
+{
+    foreach (trek_spots((int)$run['chapter']) as $s) {
+        if ($s['type'] !== 'riddle' || empty($s['data']['failopen'])) continue;
+        if ((int)($run['st']['tries_' . $s['code']] ?? 0) >= max(1, (int)($s['data']['tries'] ?? 2))) trek_flag_set($run, (string)$s['data']['flag']);
+    }
 }
 
 /** Is there a living-or-not member of this calling in the party (the gnome's own calling counts)? */

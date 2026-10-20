@@ -325,7 +325,7 @@ function trek_spot_panel(array &$run, array $u): string
             break;
         case 'riddle':
             $tries = (int)($run['st']['tries_' . $code] ?? 0);
-            $max = (int)($spot['data']['tries'] ?? 3);
+            $max = (int)($spot['data']['tries'] ?? 2);
             if ($done) { $h .= isset(trek_text_rows()[$k($code, 'after')]) ? '<div class="trektext">' . trek_text($k($code, 'after')) . '</div>' : '<p class="help">' . ($ch === 1 ? 'The choir hums happily.' : 'Solved.') . '</p>'; break; }
             if ($tries >= $max) { $h .= '<div class="trektext">' . trek_text($k($code, 'out')) . '</div>'; break; }
             $h .= '<div class="trektext">' . trek_text($k($code, 'question')) . '</div><form method="post" class="choiceform">' . csrf_field() . '<input type="hidden" name="do" value="riddle"><input type="hidden" name="t" value="map"><div class="choicelist">';
@@ -793,6 +793,11 @@ if ($run && !isset($run['st']['tl'])) {   // v1.8.9: a run from before trek leve
 }
 if ($run && trek_hub_pending($run)) {   // v1.9.1: a finished chapter: bring the gnome to the interlude (bank, rest, close the run)
     trek_tx($uid, function (&$r, $uu) { if (trek_hub_pending($r)) trek_hub_arrive($r, $uu); return [true, '']; });
+    $row = trek_run_row($uid);
+    $run = $row ? trek_load($row) : null;
+}
+if ($run && trek_riddle_stuck($run)) {   // v2.0.1: riddles went from 3 tries to 2: a door with 2 misses on a run from before must open now
+    trek_tx($uid, function (&$r, $uu) { trek_riddle_heal($r); return [true, '']; });
     $row = trek_run_row($uid);
     $run = $row ? trek_load($row) : null;
 }
