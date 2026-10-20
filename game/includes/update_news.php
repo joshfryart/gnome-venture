@@ -386,6 +386,9 @@ function post_update_news(string $from): void
         . "[*]Two florists: [b]Petalpin's Posies[/b] in Mossbottom and [b]Blossom & Bough[/b]. Volunteer for 30 minutes for XP, friendship and a bundle of stems.\n"
         . "[*]Every flower now has its own picture.\n"
         . "[*][b]Gathering games[/b]: each tool has its own short game: knife cuts, axe strikes, pick glints, rod tug, net swipes and a calm bucket moment. Play well for an extra find. Rather not? Press [b]Quick gather[/b].[/list]"],
+    '2.0.1' => ['⏳ Live road timer',   // v2.0.1 (Treks balance, riddles, old campsites not announced: Treks still admin-only)
+        "[list][*]When the next stop is [b]in sight[/b], the minutes count down live and [b]Arrive[/b] appears by itself.\n"
+        . "[*]Clearer wording about where you go after a pause.[/list]"],
     '2.0.0.1' => ['🧩 Puzzles',
         "[list][*][b]Puzzles[/b] are new in Games: animated jigsaws, just for fun. No prizes, no daily limit.\n"
         . "[*]Pick a picture and a piece count. Drag pieces onto the outline; neighbours that fit join together.\n"

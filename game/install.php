@@ -6,7 +6,7 @@ declare(strict_types=1);
  * DELETE THIS FILE from your host after installing.
  */
 define('APP_ROOT', __DIR__);
-define('APP_VERSION', '2.0.0.1');
+define('APP_VERSION', '2.0.1');
 require __DIR__ . '/includes/db.php';
 require __DIR__ . '/includes/functions.php';
 require __DIR__ . '/includes/seed.php';
