@@ -280,7 +280,7 @@ trek_tx($uid, fn(&$run,$u) => trek_godown($run,$u));
 trek_tx($uid, function(&$run,$u){ $g=trek_spots(2)["crossroads"]; $run["sn"]=str_repeat("\xff", strlen($run["sn"])); $run["fi"]=null; $run["inside"]=1; $run["x"]=$g["x"]-1; $run["y"]=$g["y"]; return [true,""]; }, true, 2);
 PHP
 php /tmp/trek_i201b.php $GAME >/dev/null 2>&1
-get trek.php >/dev/null; grep -q 'The gate is shut' $H && echo "  ok   next to the locked Crossroads gate its text shows" || echo "  FAIL no Crossroads locked text"
+get trek.php >/dev/null; grep -q 'gate is shut' $H && echo "  ok   next to the locked Crossroads gate its text shows" || echo "  FAIL no Crossroads locked text"
 echo "== engine audit (tests/trek_audit.sh: who may call what, bad input, simultaneous POSTs, escaping, admin pages, damaged state, settings extremes)"
 bash "$HERE/trek_audit.sh" "" $((PORT+1)) "$ROUTER" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== error log"
