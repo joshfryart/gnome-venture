@@ -86,7 +86,7 @@ ok('every draft belongs to a text slot', !$miss, implode(',', $miss));
 $need = ['ch1.ev.walkon'];
 foreach (array_keys(array_diff_key(TREK_EVENTS, TREK_EVENT_CH)) as $id) $need[] = "ch1.ev.$id.text";
 foreach (['stash.dig', 'forager.help', 'fork.win', 'fork.fail', 'trader.buy', 'shrine.rest', 'shrine.bless', 'puddle.good', 'puddle.bad', 'beetle.patch', 'beetle.heal', 'song.hum'] as $k) $need[] = "ch1.ev.$k";
-foreach (array_diff(array_keys(TREK_CREW_BEATS), ['sorrel', 'tumble', 'juniper']) as $k) { $need[] = "ch1.crew.$k.talk"; $need[] = "ch1.crew.$k.done"; }
+foreach (array_diff(array_keys(TREK_CREW_BEATS), ['sorrel', 'tumble', 'juniper', 'wren']) as $k) { $need[] = "ch1.crew.$k.talk"; $need[] = "ch1.crew.$k.done"; }
 foreach (['before', 'win', 'fail', 'work', 'after'] as $k) $need[] = "ch1.spot.cart.$k";
 foreach (['before', 'short', 'done', 'after'] as $k) $need[] = "ch1.spot.mushcamp.$k";
 foreach (['question', 'a1', 'a2', 'a3', 'right', 'wrong', 'out', 'after'] as $k) $need[] = "ch1.spot.bridgestone.$k";
