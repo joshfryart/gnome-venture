@@ -286,7 +286,7 @@ ok('the old stone riddle and gates still behave (Ch I spot types are intact)', t
 
 echo "== text: slots, drafts, fallback\n";
 $ch2keys = []; foreach (file($GAME . '/includes/data/trek_texts_ch2.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) if (!str_starts_with($l, '#')) $ch2keys[] = explode('|', $l)[0];
-$dr = trek_drafts();
+$dr = trek_drafts() + trek_kv_file('trek_final_204.txt');   // v2.0.4: a slot added then has its body in trek_final_204.txt, no draft
 ok(count($ch2keys) . ' Chapter II slots, each with a brief and a draft', count($ch2keys) >= 80 && !array_filter($ch2keys, fn($k) => empty($dr[$k])), (string)count($ch2keys));
 $noBrief = array_filter($ch2keys, fn($k) => mb_strlen((string)q_val('SELECT brief FROM trek_texts WHERE text_key = ?', [$k])) < 40);
 ok('every slot has a useful brief (40+ letters)', !$noBrief, implode(',', array_slice($noBrief, 0, 4)));

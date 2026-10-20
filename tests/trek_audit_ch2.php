@@ -249,6 +249,7 @@ foreach (['pinch' => ['hit', 'grab', 'squeeze', 'break', 'defeat'], 'thrum' => [
 foreach (['handprints' => ['text', 'press', 'trace'], 'pot' => ['text', 'catch', 'miss'], 'echo' => ['text', 'whisper'], 'moth' => ['text', 'follow'], 'kettle' => ['text', 'sip'], 'drumbeat' => ['text', 'listen', 'miss']] as $e => $ps) foreach ($ps as $p) $expect["ch2.ev.$e.$p"] = 'event';
 foreach (['ch2', 'claybound', 'silverfin', 'crossroads', 'brewhouse', 'pinch', 'thrum'] as $b) $expect["book.$b"] = 'book';
 foreach (['greet', 'shop', 'rest'] as $p) { $expect["ch2.camp.innkeeper.$p"] = 'camp'; $expect["ch2.camp.cook.$p"] = 'camp'; }
+$expect['ch2.camp.cook.full'] = 'camp'; $expect['ch2.camp.cook.nofunds'] = 'camp';   // v2.0.4: the Brewhouse cook speaks the kit-shop lines (trek_buy_kit asks trek_camp_key)
 $expect['ch2.ko.tutorial'] = 'ko'; unset($expect['ch2.spot.crossroads.open']);   // the Crossroads gate was never locked: no "it opens" line (v1.9.8 audit)
 ok('the never-locked Crossroads gate says no "it opens" line when you walk through (the milestone card does)', !isset($asked['ch2.spot.crossroads.open'])); $expect['ch2.ui.loose'] = 'ui';
 foreach (array_keys($asked) as $k) if (str_starts_with($k, 'ch2.') || str_starts_with($k, 'interlude.2.')) $expect[$k] = $expect[$k] ?? 'log';
@@ -256,7 +257,8 @@ $rows = trek_text_rows(true); $rows = trek_text_rows();
 $missing = array_values(array_filter(array_keys($expect), fn($k) => trek_text_row($k) === null));   // (a generic key may fall back to Chapter I's slot)
 foreach (['olddry.find', 'oldtent.find', 'oldbench.find'] as $p) $expect['ch2.spot.' . $p] = 'oldcamp'; foreach (['oldcamp.rest', 'oldcamp.ambush', 'ko.oldcamp'] as $p) $expect['ch2.' . $p] = 'oldcamp';   // v2.0.1: old campsites
 ok(count($expect) . ' keys the Chapter II code can ask for: every one is a slot', !$missing, implode(', ', $missing));
-$blank = array_values(array_filter(array_keys($expect), fn($k) => isset($rows[$k]) && trim(trek_text($k)) === ''));
+$f204 = trek_kv_file('trek_final_204.txt');   // a slot added in 2.0.4 gets its body from the 2.0.4 text pass (tests/trek_text204.php), not from a draft
+$blank = array_values(array_filter(array_keys($expect), fn($k) => isset($rows[$k]) && trim(trek_text($k)) === '' && !isset($f204[$k])));
 ok('...and each of Chapter II\'s own slots reads something (draft or written) for a player', !$blank, implode(', ', $blank));
 // keys the log asked for that are not Chapter II's own: they must fall back to Chapter I's and read something
 $gen = array_values(array_filter(array_keys($asked), fn($k) => trek_text_row($k) === null));

@@ -329,7 +329,11 @@ function trek_spot_panel(array &$run, array $u): string
             $tries = (int)($run['st']['tries_' . $code] ?? 0);
             $max = (int)($spot['data']['tries'] ?? 2);
             if ($done) { $h .= isset(trek_text_rows()[$k($code, 'after')]) ? '<div class="trektext">' . trek_text($k($code, 'after')) . '</div>' : '<p class="help">' . ($ch === 1 ? 'The choir hums happily.' : 'Solved.') . '</p>'; break; }
-            if ($tries >= $max) { $h .= '<div class="trektext">' . trek_text($k($code, 'out')) . '</div>'; break; }
+            if ($tries >= $max) {   // v2.0.4: once the clay has given way (failopen) the card says "after", not the "out" scene again
+                $opened = !empty($spot['data']['failopen']) && trek_flag($run, (string)$spot['data']['flag']) && isset(trek_text_rows()[$k($code, 'after')]);
+                $h .= '<div class="trektext">' . trek_text($k($code, $opened ? 'after' : 'out')) . '</div>';
+                break;
+            }
             $h .= '<div class="trektext">' . trek_text($k($code, 'question')) . '</div><form method="post" class="choiceform">' . csrf_field() . '<input type="hidden" name="do" value="riddle"><input type="hidden" name="t" value="map"><div class="choicelist">';
             foreach ([1, 2, 3] as $n) $h .= choice_row('🎶', trek_plain($k($code, 'a' . $n), 'Answer ' . $n), '', '', '', 'type="submit" name="ans" value="' . $n . '"');
             if (!empty($spot['data']['seedkeeper']) && trek_has_calling($run, $u, 'seedkeeper')) $h .= choice_row('🍄', 'Read it the Seedkeeper’s way', 'a Seedkeeper in the party can open this', '', '', 'type="submit" name="how" value="seed"');   // v1.9.2

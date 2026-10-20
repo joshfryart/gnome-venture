@@ -139,7 +139,8 @@ function trek_start_fight(array &$run, array $u, array $creatures, array $meta, 
     $names = array_map(fn($f) => $f['name'], $foes);
     trek_say($run, '⚔️ ' . implode(', ', $names) . (count($names) > 1 ? ' block' : ' blocks') . ' the way!');
     $n = (int)$run['chapter'];
-    if (count($stats) > 1 && !trek_flag($run, 'tut_party')) { trek_flag_set($run, 'tut_party'); trek_say_text($run, 'ch' . $n . '.tut.party'); }
+    // v2.0.4: the lessons are Chapter I's (a run starts without the flags, so Chapter II would replay them); the party lesson names Burdock, so it waits until he is in the party
+    if ($n === 1 && count($stats) > 1 && trek_in_party($run, 'burdock') && !trek_flag($run, 'tut_party')) { trek_flag_set($run, 'tut_party'); trek_say_text($run, 'ch' . $n . '.tut.party'); }
 }
 
 function trek_start_random_fight(array &$run, array $u, string $zone, string $after = ''): void
@@ -1186,7 +1187,7 @@ function trek_fight_win(array &$run, array $u): void
     }
     $first = !trek_flag($run, 'won_fight');
     trek_flag_set($run, 'won_fight');
-    if ($first) trek_say_text($run, 'ch' . $n . '.tut.firstfight');
+    if ($first && $n === 1) trek_say_text($run, 'ch' . $n . '.tut.firstfight');   // v2.0.4: Chapter I's lesson only (Chapter II runs start without the flag)
     $after = (string)$meta['after'];
     $run['fi'] = null;
     if ($after === 'rest') { trek_apply_rest($run, $u, true); trek_say_text($run, 'ch' . $n . '.camp.makecamp.free'); trek_say($run, '🏕️ A cold rest. Fatigue −' . trek_cold_rest_fatigue() . ', everyone heals a quarter of their health.'); }

@@ -47,8 +47,8 @@ foreach ($sites as $ch => $list) foreach ($list as $c => $s) {
 foreach ([1, 2] as $ch) foreach (['oldcamp.rest', 'oldcamp.ambush', 'ko.oldcamp'] as $p) { $k = "ch$ch.$p"; $row = trek_text_row($k); if (!$row || trim((string)$row['body']) === '' || trim(trek_text($k)) === '') $bad[] = "$k no draft"; }
 ok('each site sits on its symbol tile in its zone, the zone has fights, and every find/rest/ambush/KO slot has a brief and a draft', !$bad, implode(', ', $bad));
 $none = [];
-foreach ([1, 2] as $ch) { $rows = q('SELECT brief, status FROM trek_texts WHERE text_key LIKE ? AND text_key LIKE ?', ["ch$ch.%", '%old%'])->fetchAll(); foreach ($rows as $r) if (trim((string)$r['brief']) === '' || $r['status'] !== 'draft') $none[] = $r['status']; }
-ok('all 11 slots are status draft with a brief', !$none && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE (text_key LIKE 'ch%.spot.old%.find' OR text_key LIKE 'ch%.oldcamp.%' OR text_key LIKE 'ch%.ko.oldcamp')") === 11, json_encode($none));
+foreach ([1, 2] as $ch) { $rows = q('SELECT brief, status FROM trek_texts WHERE text_key LIKE ? AND text_key LIKE ?', ["ch$ch.%", '%old%'])->fetchAll(); foreach ($rows as $r) if (trim((string)$r['brief']) === '' || !in_array($r['status'], ['draft', 'done'], true)) $none[] = $r['status']; }
+ok('all 11 slots are status draft or done with a brief', !$none && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE (text_key LIKE 'ch%.spot.old%.find' OR text_key LIKE 'ch%.oldcamp.%' OR text_key LIKE 'ch%.ko.oldcamp')") === 11, json_encode($none));
 
 // ------------------------------------------------------------------ Chapter I
 echo "== Chapter I: setup\n";

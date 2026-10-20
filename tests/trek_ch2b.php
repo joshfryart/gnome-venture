@@ -281,12 +281,13 @@ ok('II-a + II-b = 4,400', $all === 4400, (string)$all);
 echo "== text: every II-b slot has a brief and a draft; the code needs nothing else\n";
 $keys = []; foreach (file($GAME . '/includes/data/trek_texts_ch2b.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) if (!str_starts_with($l, '#')) $keys[] = explode('|', $l)[0];
 $dr = trek_drafts();
-ok(count($keys) . ' II-b slots, each with a draft body', count($keys) >= 90 && !array_filter($keys, fn($k) => empty($dr[$k])), implode(',', array_filter($keys, fn($k) => empty($dr[$k]))));
+$f204 = trek_kv_file('trek_final_204.txt');   // v2.0.4: slots added then have their body in trek_final_204.txt, no draft
+ok(count($keys) . ' II-b slots, each with a draft body', count($keys) >= 90 && !array_filter($keys, fn($k) => empty($dr[$k]) && !isset($f204[$k])), implode(',', array_filter($keys, fn($k) => empty($dr[$k]) && !isset($f204[$k]))));
 $noBrief = array_filter($keys, fn($k) => mb_strlen((string)q_val('SELECT brief FROM trek_texts WHERE text_key = ?', [$k])) < 60);
 $briefs = []; foreach (file($GAME . '/includes/data/trek_texts_ch2b.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $l) if (!str_starts_with($l, '#')) { $f = explode('|', $l, 5); $briefs[$f[0]] = $f[4] ?? ''; }
 $badFmt = array_filter($briefs, fn($b) => !preg_match('/^Shows: .* • .*Mood: .* • Must cover: .* • Must not: .* • Length: /', $b));
 ok('every brief is in the spec format (Shows, Mood, Must cover, Must not, Length), and is stored as bullets', !$noBrief && !$badFmt && str_starts_with((string)q_val("SELECT brief FROM trek_texts WHERE text_key = 'ch2.zone.n.arrive'"), '• Shows:'), implode(',', $noBrief) . ' / ' . implode(',', array_slice(array_keys($badFmt), 0, 3)));
-ok('every II-b draft is a draft slot (status draft) and none runs over 1,200 letters; speech is 300 or less', !array_filter($keys, fn($k) => q_val('SELECT status FROM trek_texts WHERE text_key = ?', [$k]) !== 'draft' || mb_strlen($dr[$k]) > 1200) && !array_filter($keys, fn($k) => q_val('SELECT kind FROM trek_texts WHERE text_key = ?', [$k]) === 'speech' && mb_strlen($dr[$k]) > 300));
+ok('every II-b draft is a draft or done slot and none runs over 1,200 letters; speech is 300 or less', !array_filter($keys, fn($k) => isset($dr[$k]) && (!in_array(q_val('SELECT status FROM trek_texts WHERE text_key = ?', [$k]), ['draft', 'done'], true) || mb_strlen($dr[$k]) > 1200)) && !array_filter($keys, fn($k) => isset($dr[$k]) && q_val('SELECT kind FROM trek_texts WHERE text_key = ?', [$k]) === 'speech' && mb_strlen($dr[$k]) > 300));
 ok('no draft carries raw HTML', !array_filter($dr, fn($b) => preg_match('/<[a-z]/i', $b)));
 // every key the code can ask for in II-b
 $need = ['ch2.ui.loose', 'ch2.outro', 'ch2.hook', 'interlude.2.intro', 'ch2.zone.o.hint'];

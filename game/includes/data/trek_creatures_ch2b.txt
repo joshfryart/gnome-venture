@@ -10,4 +10,4 @@ dimwing-moth|Dimwing Moth|small|trek|19|Wing Dust:45|A pale moth with clay-grey 
 cistern-newt|Cistern Newt|medium|trek|20|Newt Tail:40,Wet Clay:35|A long dark newt with a clay-slick back, raised in the old cistern. Its sour breath smells of vinegar and old pennies.
 drumming-cricket|Drumming Cricket|medium|trek|21|Cricket Leg:45|A fat cricket in a crust of clay that drums its wings on the walls. Nobody told it the beat has stopped meaning anything.
 old-pinch|Old Pinch|boss|trek|23||An enormous cistern crab, sour and old, with one claw the size of a barrow wheel. She has held on to this cistern a very long time, and she is not letting go of anything.
-old-thrum|Old Thrum|boss|trek|24||A hulking clay-crusted cricket the size of a cart, who has been drumming the Chamber walls since before the clay wept. He is not angry. He is only very, very loud.
+old-thrum|Old Thrum|boss|trek|24||A hulking clay-crusted cicada nymph the size of a cart, who has been drumming the Chamber walls since before the clay wept. He is not angry. He is only very, very loud.

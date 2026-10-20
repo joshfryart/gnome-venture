@@ -96,7 +96,7 @@ function trek_tl_give(array &$run, array $u, int $xp, bool $halfDown = false): i
         if ($lv > $from) $ups[(int)$slot] = $lv;
     }
     if ($ups) {
-        if (!trek_flag($run, 'tut_tl')) { trek_flag_set($run, 'tut_tl'); trek_say_text($run, 'ch' . (int)$run['chapter'] . '.tut.treklevel'); }
+        if ((int)$run['chapter'] === 1 && !trek_flag($run, 'tut_tl')) { trek_flag_set($run, 'tut_tl'); trek_say_text($run, 'ch1.tut.treklevel'); }   // v2.0.4: Chapter I's lesson only
         $stats = trek_party_stats($run, $u);   // the new maximum health
         foreach ($ups as $slot => $lv) {
             if ((int)$run['party'][$slot]['hp'] > 0) $run['party'][$slot]['hp'] = min($stats[$slot]['max'], (int)$run['party'][$slot]['hp'] + (int)ceil($stats[$slot]['max'] * 0.25));

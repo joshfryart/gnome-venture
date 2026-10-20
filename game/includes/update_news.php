@@ -532,6 +532,10 @@ function post_update_news(string $from): void
         . "[*]Townsfolk now enter the shows, fairs and races too, so there's always company (they never take your prizes).\n"
         . "[*][b]Wren's First Week[/b] for new gnomes, a [b]welcome back[/b] page after time away, and a gentle daily card. No streaks to lose.[/list]\n"
         . "[b]🎉 Opening Day[/b] is on now: a launch festival with its own goal, stalls and keepsakes.\n\nThank you for playing. 🍄"],
+    '2.0.4' => ['🧭 A tidier menu and livelier roads',
+        "[list][*][b]Fewer menu tiles[/b]: Seasons now lives on the World page, and your Passport and the Villagers you know are tabs in Town.\n"
+        . "[*][b]Livelier roads[/b]: new road scenes and sights for every region, more finds on the way, and a line of colour in every room of a delve.\n"
+        . "[*][b]More to say[/b]: the stop villagers who were quiet now chat.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

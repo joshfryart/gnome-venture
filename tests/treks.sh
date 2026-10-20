@@ -56,6 +56,8 @@ echo "== Chapter II audit: data, reachability, whole walk, text keys, soft-locks
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch2.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.1: 2-try riddles, door heal, Crossroads locked text, Bracken milestone, daily item cap (tests/trek_201.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_201.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.4 text pass: new bodies on a fresh install, edited rows kept, old finals replaced, idempotent (tests/trek_text204.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text204.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 dbx "UPDATE trek_texts SET body='A hush falls over the Hollow.', status='draft' WHERE text_key='ch1.intro'"
 echo "== pages as player, trek open"
 dbx "UPDATE users SET trek_ch=1; UPDATE trek_runs SET inside=0, fight=NULL; DELETE FROM trek_runs; DELETE FROM trek_party; DELETE FROM trek_pack; DELETE FROM trek_flags; UPDATE users SET energy=100 WHERE username='sprout'"

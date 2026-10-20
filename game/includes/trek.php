@@ -700,7 +700,11 @@ function trek_walk(array &$run, array $u, int $tx, int $ty): array
             if ($spot['type'] === 'gate') {
                 if (!trek_flag($run, 'gateopen_' . $spot['code'])) {
                     trek_flag_set($run, 'gateopen_' . $spot['code']);
-                    if (!empty($spot['data']['needs']) && empty($spot['data']['noopen'])) trek_say_text($run, 'ch' . $ch . '.spot.' . $spot['code'] . '.open');   // (a gate that was never locked, the Crossroads since II-b, has no "it opens" line: the milestone card says it)
+                    if (!empty($spot['data']['needs']) && empty($spot['data']['noopen'])) {
+                        $who = preg_match('/^freed_(\w+)$/', (string)$spot['data']['needs'], $wm) ? $wm[1] : '';   // v2.0.4: "Burdock shoves it" only when Burdock is in the party; benched, a plain line
+                        if ($who !== '' && !trek_in_party($run, $who)) trek_say($run, '🚪 ' . $spot['name'] . ' gives way. The way on is open.');
+                        else trek_say_text($run, 'ch' . $ch . '.spot.' . $spot['code'] . '.open');
+                    }   // (a gate that was never locked, the Crossroads since II-b, has no "it opens" line: the milestone card says it)
                     if (!empty($spot['data']['ms']) && !trek_flag($run, 'reached_' . $spot['code'])) {   // v1.9.4: a gate that is open from the start (the Crossroads since II-b) pays its milestone the first time you go through
                         trek_flag_set($run, 'reached_' . $spot['code']);
                         trek_ms_award($run, $u, (string)$spot['data']['ms']);
@@ -873,10 +877,10 @@ function trek_buy_kit(array &$run, array $u): array
 {
     if (!trek_at_camp($run) || $run['fi']) return [false, 'Kits are sold at a camp.'];
     $ch = (int)$run['chapter'];
-    if ((int)$run['campkits'] >= max(0, (int)setting('trek_campkit_max'))) { trek_say_text($run, 'ch' . $ch . '.camp.innkeeper.full'); return [true, '']; }
+    if ((int)$run['campkits'] >= max(0, (int)setting('trek_campkit_max'))) { trek_say_text($run, trek_camp_key($ch, trek_here_camp($run), 'full')); return [true, '']; }
     $price = max(0, (int)setting('trek_campkit_price'));
     if ($price > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$price, $u['id'], $price])->rowCount() !== 1) {
-        trek_say_text($run, 'ch' . $ch . '.camp.innkeeper.nofunds');
+        trek_say_text($run, trek_camp_key($ch, trek_here_camp($run), 'nofunds'));
         return [false, 'Not enough ' . setting('currency_name') . '.'];
     }
     $run['campkits'] = (int)$run['campkits'] + 1;
@@ -947,7 +951,7 @@ function trek_ko(array &$run, array $u): void
     $run['st']['fh'] = 0;
     trek_seen_reveal($run, $spot['x'], $spot['y'], 2);
     if ($tutorial) {
-        trek_say_text($run, 'ch' . $ch . ($oc ? '.ko.oldcamp' : '.ko.tutorial'));
+        if (!$oc) trek_say_text($run, 'ch' . $ch . '.ko.tutorial');   // v2.0.4: at an old campsite the log line below says it (the oldcamp text says "may be gone", which is not true before the first camp)
         trek_say($run, $oc ? '💫 You wake at the old campsite. Nothing was lost this time.' : '💫 You wake at the start. Nothing was lost this time.');
         return;
     }

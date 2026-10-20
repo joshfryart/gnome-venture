@@ -26,7 +26,7 @@ Trailmates (existing CALLING_MENTORS rows): **Sorrel** Inkcap (Seedkeeper; retur
 - New tiles `:` wet clay, `w` high water, `+` loose clay, `*` crystal — each with a glyph.
 - One free rest spot per long segment.
 - Hush = Sneak section, single large patrols + hint (add 'o' to single-foe zone list).
-- Riddle doors: 3rd fail opens ("the clay gives way") or Seedkeeper. Ch I items = bonuses, never gates.
+- Riddle doors: the 2nd wrong answer opens (riddles have 2 tries) ("the clay gives way") or Seedkeeper. Ch I items = bonuses, never gates.
 
 ## Difficulty
 Not anchored to main gnome level. Creatures lv 17–21, bosses 22/23/24, gate = Ch I complete. Growth via TREK_TUNE + trek levels (~Lv9 → ~Lv15). Normal fights 85–95% win; bosses 75–85% at Silverfin Lv10–11, Pinch Lv13, Thrum Lv14. Sim at gnome 16 and 20.

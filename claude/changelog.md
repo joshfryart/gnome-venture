@@ -1,6 +1,14 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.4
+- Phase 1 of claude/plan-consolidation.md. Menu 19 -> 14 tiles: Seasons = fold on World (?tab=seasons), Passport = town.php?view=passport, Villagers you know = town.php?view=villagers; seasons.php/passport.php/folk.php (no id) are 302 stubs (folk.php?id=N stays: Talk/Gift/Deal POSTs). "Stop villagers" label for rest stops. Admin settings: search box + advanced flag (`settings_is_adv()` ~70 keys hidden by default; no keys deleted; save skips fields not on the page). CSS "v2.0.4 menu folds".
+- Content: +66 road events (11 regions x 6), +44 region road lines, +24 stop chat lines (Warm/Eager/Fussy/Dreamy), 4 finds per landscape, delve room text (data/delve_rooms.txt kind|cond|lands|text; delve_room_line() in landmarks.php).
+- Admin > Road text (admin/road_text.php, includes/road_text.php, NEW table road_texts): override road lines, scenes, wonder text, delve lines; hash ids; status todo/draft/done; restore. Hooks in road_life.php + landmarks.php (wonder_texts, delve_room_line).
+- Treks text rework (Sonnet writers + story and gameplay reviewers): includes/data/trek_final_204.txt (146 slots), one-time pass `trek_apply_text_204()` (setting trek_text_pass = 3; replaces a body only if empty or still a shipped draft/2.0.0 final; Joshua's edits kept). New slots ch2.ko.camp, ch2.spot.libdoor.after, ch2.camp.cook.full/.nofunds. ~60 briefs updated. seed.php now runs both text passes (fresh installs had only drafts before). Tests accept status done.
+- Treks code: cook speaks Ch II kit lines; first-fight/party/trek-level tutorials Chapter I only; boulder/capwall open text only names Burdock/Zinnia when in the party; libdoor.after on failopen; no "may be gone" at an old campsite KO before first camp; old-thrum description says cicada nymph (existing installs keep the old Almanac line).
+- News entry. Open (see claude/todo.md): beetle shells lost on KO (mush quest), Silverfin Sorrel line, Ch II stash event text, chest button label.
+
 ## 2.0.3
 - Admin → Progress & quests → 📊 Usage (admin/usage.php, read-only, no schema): rows + distinct players + last 7 days per feature (jobs, orders, favours, errands, hires, helping water, gifts, trades, stops, landmarks, market, contests, mini-games per game, treks). Players only (no admin/mod/banned). CSV export. Phase 0 of the 2026-10-20 review (claude/plan-consolidation.md). No news entry.
 

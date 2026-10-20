@@ -1,4 +1,4 @@
-# Gnome Venture: handoff (current as of v2.0.3, 2026-10-20; plan: claude/plan-consolidation.md)
+# Gnome Venture: handoff (current as of v2.0.4, 2026-10-20; plan: claude/plan-consolidation.md)
 Latest: 2.0.0.1 = Puzzles (puzzles.php, standalone page; see changelog). Versions after 2.0.0 are four-part (2.0.0.1, 2.0.0.2 ...) until Joshua says otherwise.
 
 Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.1), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.

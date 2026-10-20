@@ -93,10 +93,10 @@ foreach (['question', 'a1', 'a2', 'a3', 'right', 'wrong', 'out', 'after'] as $k)
 $noRow = $noDraft = [];
 foreach ($need as $k) {
     $r = q_one('SELECT body, status FROM trek_texts WHERE text_key = ?', [$k]);
-    if (!$r) $noRow[] = $k; elseif (trim((string)$r['body']) === '' || $r['status'] !== 'draft') $noDraft[] = $k;
+    if (!$r) $noRow[] = $k; elseif (trim((string)$r['body']) === '' || !in_array($r['status'], ['draft', 'done'], true)) $noDraft[] = $k;   // v2.0.4: a fresh install gets the final text, status done
 }
 ok('44 slots needed by the code all exist', !$noRow && count($need) === 44, implode(',', $noRow) . ' n=' . count($need));
-ok('every new slot has a draft body with status draft (players never see a blank)', !$noDraft, implode(',', $noDraft));
+ok('every new slot has a body with status draft or done (players never see a blank)', !$noDraft, implode(',', $noDraft));
 $allOk = true; foreach ($need as $k) if (trek_text($k) === '') $allOk = false;
 ok('trek_text shows the draft to a player (not admin)', $allOk && !is_admin());
 q('UPDATE trek_texts SET body = ?, status = ? WHERE text_key = ?', ['Joshua wrote this', 'done', 'ch1.ev.walkon']);
