@@ -1,6 +1,15 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.8
+- Treks map tab: the latest log lines now sit directly under the map (above Sneak / Camp / Leave), not under the buttons.
+- NEW talk pop-over ("scene"): a `<dialog class="tkscene">` for story beats. Speaker always LEFT at full strength, listener RIGHT faded (opacity .35, scale .88); sides slide across (.28s) when the speaker changes; narration beats fade both; text fades out/in (.12s/.2s); tap, Enter, Space or Right-arrow = next, Skip = last beat, Done/Esc closes; reduced-motion = instant. Portraits use the picture lookup (real art, placeholder, emoji) + the player's gnome svg.
+- Files: NEW includes/trek_scene.php (`trek_scene_queue` parks plain-text beats in `$_SESSION['trek_scene']`, `trek_scene_stage` emits the hidden `.trekscene[data-scene]` once on the Map tab, 30 s, this run only), assets/trekscene.js (scan + MutationObserver like the Auto replay), CSS block "v2.0.8 trek scene", script tag in layout.php (trek.php only). No schema change.
+- Scenes: Burdock freed, Zinnia joins, Bracken duel win, Gloomtooth cured (narration, then Burdock if in party, then the gnome), Sorrel, Tumble, Juniper. The normal log lines stay as they were; the scene is an extra view.
+- NEW gnome reply slots (draft status, edit in Admin → Trek text): ch1.scene.burdock.me, zinnia.me, bracken.me, gloomtooth.me, ch2.scene.sorrel.me, tumble.me, juniper.me. The speaker is the gnome; a quoted line = speech, any other line = narration.
+- Tests: tests/trek_scene.php (in treks.sh), trek_audit_ch1 orphan list. Real-page Playwright check at 390 and 1400 px (Burdock scene), no sideways scroll, scene not shown again after reload.
+- Not announced (Treks hidden). Open: Gloomtooth INTRO is still a plain panel (only the cure is a scene); banter, trail events, riddles stay plain cards by design.
+
 ## 2.0.7
 - Treks text fix pass after a Haiku review (100 findings), Sonnet check (88 false) and Opus recheck (102/105 agreed). NEW data/trek_final_207.txt (12 slots) applied once by `trek_apply_text_207()` (boot_step `trek_bodies_207`, setting trek_text_pass = 4; replaces a body only if empty or still a shipped draft/2.0.0/2.0.4 text; Joshua's edits kept; seed.php runs it on fresh installs). Fixes: tut.treklevel + tut.firstfight under 200 chars, gloomtooth.burdock (one reason), barrow.work (bundle), tumble.freed, thrum.defeat + ms.ch2_thrum + 3 "patient" lines (repetition), signpost.question 4 lines. NEW slot ch2.banter.burdock.2 (Ch I "innkeeper's soup" line no longer shows at Ch II camps; brief in trek_texts_ch2.txt, draft in trek_drafts_ch2.txt).
 - Code: `trek_recruit_crew()` returns bool (false = joined but all 3 places taken); recruit, fetch and duel-win log `trek_benched_line()` ("X waits with the other Trailmates: your party is full. Swap them in at a camp"). Before, Sorrel/Tumble/Juniper were benched silently.

@@ -216,20 +216,20 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             trek_pet_migrate();  // v1.9.1: today's trek Petal count moves from the run state to the player
         });
         boot_step('trek_bodies_200', function () {
-            if (setting('trek_text_pass') !== '2') {   // v2.0.0: final Treks text (Chapter I and II), once; a row Joshua wrote keeps his words
+            if ((int)setting('trek_text_pass') < 2) {   // v2.0.8: numeric and never lowers the pass (the setting is cached for the request, so a !== test re-ran steps and left the flag one behind). v2.0.0: final Treks text (Chapter I and II), once; a row Joshua wrote keeps his words
                 require_once __DIR__ . '/trek_data.php';
                 if (trek_apply_final_texts() > 0) set_setting('trek_text_pass', '2');   // only once the final file is there: an empty file must not close the pass
             }
         });
         boot_step('trek_bodies_204', function () {
-            if (setting('trek_text_pass') !== '3') {   // v2.0.4: reworked Treks text, once; a row Joshua wrote keeps his words
+            if ((int)setting('trek_text_pass') < 3) {   // v2.0.4: reworked Treks text, once; a row Joshua wrote keeps his words
                 require_once __DIR__ . '/trek_data.php';
                 trek_import_texts();                    // the new slots first (they ship their briefs in trek_texts*.txt)
                 if (trek_apply_text_204() > 0) set_setting('trek_text_pass', '3');
             }
         });
         boot_step('trek_bodies_207', function () {
-            if (setting('trek_text_pass') !== '4') {   // v2.0.7: small Treks text fixes, once; a row Joshua wrote keeps his words
+            if ((int)setting('trek_text_pass') < 4) {   // v2.0.7: small Treks text fixes, once; a row Joshua wrote keeps his words
                 require_once __DIR__ . '/trek_data.php';
                 trek_import_texts();                    // the new slot first (it ships its brief in trek_texts_ch2.txt)
                 if (trek_apply_text_207() > 0) set_setting('trek_text_pass', '4');
