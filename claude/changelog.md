@@ -7,6 +7,7 @@ Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgr
 - Treks: Map feed keeps the previous action's last lines after a quiet step (trek_latest_html($run, true)).
 - Treks: Chapter III-a "The Humming Deep" (HIDDEN: setting trek_chapters_open default 2, admins bypass): 40x50 map, 12 spots, Wren Thimblewick recruit (Bloomcaller), boss Old Gneiss, 5 creatures Lv20-23, 79 draft text slots. Old Gneiss sim over 35 parties: worst 72, median 90, best 98 (target was 78-88 / <=95; cliff is steep, accepted). Opens III-b later.
 - Treks: friendship +1 per 20 won fights per trailmate in the party, cap trek_friend_daily 3 awards/day (0 = off). Ch II first-fight tutorial slot ch2.tut.firstfight.
+- Treks camps: every camp-type rest (camp tile, Camp Kit, old campsite, rest spot) = full health + fatigue 0 (was half / -40..-50). Cold rest without a kit unchanged (25 fatigue, quarter heal). Setting trek_oldcamp_fatigue now unused (relabelled). Text pass 8 (6 slots). Balance watch: kits and old camps are stronger; levers: trek_oldcamp_ambush_pct, trek_campkit_price.
 - Text pass 7 (sluice lines, Ch II stash + shrine events), Drum Door says "Open the door", docs: text freeze lifted.
 - News entry (knacks, whole map; Ch III not announced).
 
