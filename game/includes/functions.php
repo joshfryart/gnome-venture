@@ -447,6 +447,10 @@ function settings_schema(): array
         'easy_roads_gap'     => ['label' => 'Easy roads: near-home encounters stay this many levels below the gnome (never bosses)', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 100],
         'low_road_gap'       => ['label' => 'Quick walks: a road whose top level is this many levels (or more) below the gnome is a quick walk', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],
         'low_road_time_pct'  => ['label' => 'Quick walks: walking time on such a road (% of normal)', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 100],
+        'road_roll_creature' => ['label' => 'Road: creature %', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 100],   // v2.0.16: weights of the road roll (they need not add up to 100; all 0 = the shipped split)
+        'road_roll_problem' => ['label' => 'Road: problem %', 'type' => 'int', 'default' => '22', 'min' => 0, 'max' => 100],   // v2.0.16: weights of the road roll (they need not add up to 100; all 0 = the shipped split)
+        'road_roll_choice' => ['label' => 'Road: choice %', 'type' => 'int', 'default' => '14', 'min' => 0, 'max' => 100],   // v2.0.16: weights of the road roll (they need not add up to 100; all 0 = the shipped split)
+        'road_roll_find' => ['label' => 'Road: find %', 'type' => 'int', 'default' => '24', 'min' => 0, 'max' => 100],   // v2.0.16: weights of the road roll (they need not add up to 100; all 0 = the shipped split)
         'compost_heap_scraps' => ['label' => 'Compost Bin: scraps (harvests, dug-up plants, weedings) for each heap compost', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 1000],
         'compost_heap_scraps_2' => ['label' => 'Compost Bin: level 2+ scraps for each heap compost', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 1000],
         'compost_heap_max'   => ['label' => 'Compost Bin: most heap compost waiting to be collected', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],

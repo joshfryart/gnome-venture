@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.15)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.16)
+
+Built: **2.0.16** (II-b Fallen Shelf stop, road roll admin settings, Tumble lines pass 6, .tkfoelv CSS gone). Check: Admin → Settings → advanced "Road:" four weights; II-b shelf at the Dim (dc 11, camp kit). The "II-b held" list below is DONE except the Tumble brief note.
 
 Live and OK (Joshua 2026-10-20): **2.0.15** (join card Trek Lv, foe level dropped, Juniper pot at nookB, Tumble own effect), 2.0.14, 2.0.13 desktop layout. Overdue Book "gap" was not real (Sorrel takes it in II-a).
 II-b held until Joshua plays it: one skill-check stop (cart) in II-b; road roll % settings (~25 lines); Tumble talk lines reword; stale `.tkfoelv` CSS.

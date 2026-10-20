@@ -289,7 +289,24 @@ function road_cond_backfill(): int
 
 // ---------------------------------------------------------------- v1.9.4: choice cards (data/road_events.txt)
 
-const ROAD_CHOICE_PCT = 14;    // of road spaces (taken from the problems: 30 -> 22, and the finds: 30 -> 24; fights stay 40)
+const ROAD_ROLL_DEFAULTS = ['creature' => 40, 'problem' => 22, 'choice' => 14, 'find' => 24];   // the shipped split of road spaces
+
+/**
+ * v2.0.16: the road roll as settings (road_roll_creature / _problem / _choice / _find). Each is clamped 0-100 and used as a weight;
+ * all zero = the shipped split. Returns the cumulative edges and the total: a d100 roll r falls in a band when r * total <= edge * 100
+ * (with the defaults the total is 100, so the edges are the old 40 / 62 / 76 exactly).
+ */
+function road_roll_bands(): array
+{
+    $w = [];
+    foreach (ROAD_ROLL_DEFAULTS as $k => $d) {
+        $v = setting('road_roll_' . $k);
+        $w[$k] = ($v === null || $v === '' || !is_numeric($v)) ? $d : max(0, min(100, (int)$v));
+    }
+    if (array_sum($w) <= 0) $w = ROAD_ROLL_DEFAULTS;
+    $total = array_sum($w);
+    return ['creature' => $w['creature'], 'problem' => $w['creature'] + $w['problem'], 'choice' => $w['creature'] + $w['problem'] + $w['choice'], 'total' => $total];
+}
 const ROAD_ITEM_CAP = 20;      // an item or find from a road event happens at most this often (percent)
 const ROAD_LEGACY_EVENTS = 14; // the first 14 scenes keep their order: walks saved before v1.9.4 point at them by number
 

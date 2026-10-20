@@ -12,7 +12,7 @@ function settings_is_adv(string $k): bool
     static $exact = ['season_epoch', 'season_force', 'weather_force', 'weather_regions', 'luck_percent_per_2', 'upgrade_cost_percent', 'explore_step_levels', 'explore_warn_from', 'explore_wild_from', 'explore_deep_from',
         'road_fixed_below', 'walk_rest_heal_percent', 'curio_price_pct', 'arrange_value_pct', 'dried_price_pct', 'shop_food_energy_pct', 'price_noise', 'price_season_swing', 'price_buy_season',
         'xp_steep_percent', 'xp_action_scale_percent', 'native_bonus_percent', 'care_growth_percent', 'pest_slow_pct', 'pest_max_pct', 'pest_butterfly_pct', 'pest_charm_pct', 'pest_counter_cut_pct', 'trek_xp_daily', 'trek_base_level'];
-    static $prefix = ['weather_weights_', 'price_vol_', 'price_wanted_', 'price_market_', 'low_road_', 'outlevel_', 'creature_', 'trek_event_', 'trek_oldcamp_', 'trek_cold_', 'trek_ms_', 'trek_ambush_', 'trek_enc_', 'trek_sneak_',
+    static $prefix = ['weather_weights_', 'price_vol_', 'price_wanted_', 'price_market_', 'low_road_', 'road_roll_', 'outlevel_', 'creature_', 'trek_event_', 'trek_oldcamp_', 'trek_cold_', 'trek_ms_', 'trek_ambush_', 'trek_enc_', 'trek_sneak_',
         'trek_ko_', 'storm_', 'frost_', 'heat_', 'wind_', 'stack_kitchen_', 'unstudied_', 'companion_', 'critter_', 'hybrid_', 'biddy_', 'clementine_', 'butterfly_', 'snail_', 'pmentor_', 'yard_barrel', 'yard_shade', 'yard_hive', 'yard_birds', 'yard_path_'];
     if (in_array($k, $exact, true)) return true;
     foreach ($prefix as $p) if (str_starts_with($k, $p)) return true;

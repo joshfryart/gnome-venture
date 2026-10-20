@@ -1,0 +1,4 @@
+# Treks text v2.0.15 fixes: key|body, \n = line break. Applied once by the pass-6 text pass (trek_text_pass = 6); bodies Joshua edited keep his words.
+# Tumble's crew moment is now an easier way (fatigue -6), not a short cut.
+ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try?\nI might find us an easier way.”\n“I can read them, mostly. Other people’s, I mean.”
+ch2.crew.tumble.done|Tumble squints at the signs, turns one the right way up, and picks out a gentler stretch of the way.\n“There! That should go easy on our boots.”

@@ -4507,7 +4507,6 @@ dialog.tkfoe:focus, dialog.tkfoe:focus-visible { outline: none; }
 .tkfoe.c2 .tkfoeart img, .tkfoe.c3 .tkfoeart img { width: 44px; height: 44px; }
 .tkfoenm { max-width: 100%; font-size: 17px; overflow-wrap: anywhere; }
 .tkfoe.c2 .tkfoenm, .tkfoe.c3 .tkfoenm { font-size: 15px; }
-.tkfoelv { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .tkfoeline { max-width: 100%; font-size: 14px; line-height: 1.35; color: var(--ink-2); overflow-wrap: anywhere; }
 .tkfoe.c2 .tkfoeline, .tkfoe.c3 .tkfoeline { font-size: 12.5px; }
 .tkfoehint { max-width: 100%; margin-top: 4px; padding: 3px 10px; border-radius: var(--pill); background: var(--danger-soft); color: var(--danger-ink); font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }

@@ -395,17 +395,19 @@ function next_step(array $u, array &$exp): void
     if ($line = road_line($scene, ['seed' => road_line_seed($exp, (int)$exp['step'])])) exp_log($exp, '🍃 ' . $line);
     $roll = random_int(1, 100);
     $cap = exp_easy_cap($u, $exp);   // v0.9.7
-    if ($roll <= 40 && ($c = pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap))) {
+    $rb = road_roll_bands();   // v2.0.16: the split is a setting (defaults 40 / 22 / 14 / 24)
+    $rr = $roll * $rb['total'];
+    if ($rr <= $rb['creature'] * 100 && ($c = pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap))) {
         $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
             'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
         exp_log($exp, '⚔️ ' . (preg_match('/^[AEIOU]/i', $c['name']) ? 'An ' : 'A ') . $c['name'] . ' blocks your way!');
-    } elseif ($roll <= 40 + 22 && ($p = pick_problem($scene['land']))) {   // v1.9.4: problems 30 -> 22 ...
+    } elseif ($rr <= $rb['problem'] * 100 && ($p = pick_problem($scene['land']))) {   // v1.9.4: problems 30 -> 22 ...
         $exp['encounter'] = json_encode(['type' => 'problem', 'id' => (int)$p['id']]);
         exp_log($exp, '❓ ' . $p['text']);
-    } elseif ($roll > 40 + 22 && $roll <= 40 + 22 + ROAD_CHOICE_PCT && ($ev = road_event_pick($scene, 'road'))) {   // ... and a little choice card takes 14 (finds 30 -> 24): no new reward layer
+    } elseif ($rr > $rb['problem'] * 100 && $rr <= $rb['choice'] * 100 && ($ev = road_event_pick($scene, 'road'))) {   // ... and a little choice card takes 14 (finds 30 -> 24): no new reward layer
         $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ev['id']]);
         exp_log($exp, $ev['icon'] . ' ' . $ev['text']);
-    } elseif ($roll > 40 + 22 + ROAD_CHOICE_PCT && ($exp['kind'] ?? 'walk') === 'walk' && ($mt = road_meet_pick($scene, road_state()['ts'])) && random_int(1, 100) <= ROAD_MEET_PCT) {
+    } elseif ($rr > $rb['choice'] * 100 && ($exp['kind'] ?? 'walk') === 'walk' && ($mt = road_meet_pick($scene, road_state()['ts'])) && random_int(1, 100) <= ROAD_MEET_PCT) {
         road_meet_start($u, $exp, $mt);   // v1.9.4: somebody on the road (a chat card; the only pay is the usual once-a-day chat)
     } else {
         $exp['encounter'] = null;

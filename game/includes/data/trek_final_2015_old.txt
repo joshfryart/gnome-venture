@@ -1,0 +1,3 @@
+# The Tumble bodies shipped before the pass-6 text pass (so the pass can tell an unedited row from one Joshua wrote).
+ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try?\nI might spot the way ahead.”\n“I can read them, mostly. Other people’s, I mean.”
+ch2.crew.tumble.done|Tumble squints at the signs, turns one the right way up, and picks out a good bit of the way.\n“There! That should save our boots a little.”

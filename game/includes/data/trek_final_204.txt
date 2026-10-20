@@ -119,7 +119,7 @@ ch2.camp.cook.greet|“Come in, come in. Soup is on and the beds are free.”\n�
 ch2.camp.cook.shop|“Tin and cloth, rolled tight. Unpack one and you have a snug camp, even down here.”\n“Take a few, but you can only carry so many.”
 ch2.banter.tumble.1|“I put up a sign that says LEFT. It points right. Or I’m facing the wrong way. Both, probably.”
 ch2.banter.tumble.2|“Look at the lamp light on the clay. So many long roads, and someone kept a light for every one.”
-ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try?\nI might spot the way ahead.”\n“I can read them, mostly. Other people’s, I mean.”
+ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try?\nI might find us an easier way.”\n“I can read them, mostly. Other people’s, I mean.”
 ch2.ev.echo.whisper|The wall hums back a kindly “you’re welcome”.\nYou stand a while, and rest.
 ch2.ev.kettle.sip|You share the kettle, and the warm drink goes round.\nIt tastes of herbs and somebody’s kindness.
 ch2.ms.ch2_tumble|A hare with a compass has a trail again.\nThe plaza’s signs finally have a reader, of sorts.

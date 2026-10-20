@@ -1,6 +1,13 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.16
+- Treks II-b: NEW skill-check stop "The Fallen Shelf" (zone p, the Dim, tile `0` at 18,74; `cart` type, dc 11, 1 Camp Kit once; slots ch2.spot.shelf.before/win/fail/work/after with briefs + drafts).
+- Admin settings (advanced): road_roll_creature 40 / _problem 22 / _choice 14 / _find 24 = weights of the road roll (clamped 0-100, need not sum to 100; all 0 = defaults). `road_roll_bands()` in road_life.php replaces ROAD_CHOICE_PCT; adventure.php next_step uses it. Defaults give the old 40/62/76 bands exactly.
+- Tumble talk/done lines reworded to match fatigue −6 (trek_final_200/204 + one-time pass 6: `trek_apply_text_2015()`, data trek_final_2015.txt + trek_final_2015_old.txt, boot_step `trek_bodies_2015`, trek_text_pass 6; edited rows kept; seed.php runs it).
+- Removed unused `.tkfoelv` CSS. Tests: trek_ch2/trek_ch2b spot counts, trek_text204 (pass 6), NEW trek_text2015.php, roadlife road-roll block. treks.sh + roadlife + explore pass. No schema, no news.
+- Left: ch2.crew.tumble.done brief (trek_texts_ch2b.txt:74) still has the old wording (brief only, not shown to players).
+
 ## 2.0.15
 - Join card shows "Trek Lv N" (the Party tab number; a late recruit shows avg−2). Before it showed base level + trek level (e.g. 17 when you were Lv 7).
 - Foe pop-over no longer shows a creature level (it was on the base-15 scale and meant nothing next to trek Lv).

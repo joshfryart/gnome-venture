@@ -514,5 +514,20 @@ if ($dl) {
     q('DELETE FROM expeditions WHERE user_id = ?', [$uid]);
 }
 
+echo "== v2.0.16 road roll settings\n";
+$edges = fn() => (function () { $b = road_roll_bands(); return [$b['creature'], $b['problem'], $b['choice'], $b['total']]; })();
+foreach (['creature' => '40', 'problem' => '22', 'choice' => '14', 'find' => '24'] as $k => $v) ok("road_roll_$k default $v", setting("road_roll_$k") === $v, setting("road_roll_$k"));
+ok('defaults reproduce the old split (40 / 62 / 76 of 100)', $edges() === [40, 62, 76, 100], json_encode($edges()));
+foreach (['creature', 'problem', 'choice', 'find'] as $k) $set("road_roll_$k", '0');
+ok('all zero falls back to the defaults', $edges() === [40, 62, 76, 100], json_encode($edges()));
+$set('road_roll_creature', '500'); $set('road_roll_problem', '-5'); $set('road_roll_choice', 'x'); $set('road_roll_find', '0');
+ok('clamped to 0-100, junk = default weight', $edges() === [100, 100, 114, 114], json_encode($edges()));
+$set('road_roll_creature', '10'); $set('road_roll_problem', '10'); $set('road_roll_choice', '0'); $set('road_roll_find', '30');
+ok('weights need not sum to 100', $edges() === [10, 20, 20, 50], json_encode($edges()));
+foreach (['creature', 'problem', 'choice', 'find'] as $k) q('DELETE FROM settings WHERE name = ?', ["road_roll_$k"]);
+setting('__reload__');
+ok('settings removed = defaults again', $edges() === [40, 62, 76, 100]);
+ok('admin lists them as advanced', str_contains(file_get_contents($GLOBALS['argv'][1] . '/admin/settings.php'), "'road_roll_'"));
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

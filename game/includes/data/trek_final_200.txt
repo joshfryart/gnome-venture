@@ -240,8 +240,8 @@ ch2.banter.tumble.1|“I put up a sign that says LEFT. It points right. Or I am 
 ch2.banter.tumble.2|“Look at that lamp light on the clay. So many long roads, and someone kept a light for every one.”
 ch2.banter.juniper.1|“Sit. Eat. No, a proper bowl, not a nibble. I will not have anyone marching on a thin stomach.”
 ch2.banter.juniper.2|“Hmm. Needs salt. And a little more patience. There, that is better. Taste it.”
-ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try? I might find a short cut.”\n“I can read them, mostly. Other people's, I mean.”
-ch2.crew.tumble.done|Tumble squints at the signs, turns one the right way up, and picks out a good bit of the way.\n“There! That should save our boots a little.”
+ch2.crew.tumble.talk|“Ah, {gnome}! These signs are all over the place. May I try? I might find an easier way.”\n“I can read them, mostly. Other people's, I mean.”
+ch2.crew.tumble.done|Tumble squints at the signs, turns one the right way up, and picks out a gentler stretch of the way.\n“There! That should go easy on our boots.”
 ch2.crew.juniper.talk|“Everyone looks a bit peaky. Stop a moment, {gnome}.”\n“I have a quick bite in my pocket. Do not argue. Eat.”
 ch2.crew.juniper.done|Juniper hands round hot little bites, still warm from her pocket.\n“There. Colour in your cheeks. You feel readier, yes?”
 ch2.ev.echo.text|A smooth round wall curves ahead. Your whispers come back softer, as if someone liked them.\nYou could whisper a thank-you.

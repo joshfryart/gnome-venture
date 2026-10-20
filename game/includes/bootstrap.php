@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.15');
+define('APP_VERSION', '2.0.16');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -240,6 +240,12 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 require_once __DIR__ . '/trek_data.php';
                 trek_import_texts();                    // the four new Zinnia/Bracken banter slots first
                 if (trek_apply_text_2012() > 0) set_setting('trek_text_pass', '5');
+            }
+        });
+        boot_step('trek_bodies_2015', function () {
+            if ((int)setting('trek_text_pass') < 6) {   // v2.0.15: Tumble's lines match his easier way, once; a row Joshua wrote keeps his words
+                require_once __DIR__ . '/trek_data.php';
+                if (trek_apply_text_2015() > 0) set_setting('trek_text_pass', '6');
             }
         });
         boot_step('trek_item_desc_2012', function () {   // v2.0.12: the Lanternroot Seed showed a TODO in the Satchel; only a row that still holds the old words is changed

@@ -740,6 +740,31 @@ function trek_apply_text_2012(): int
     return $n;
 }
 
+/**
+ * v2.0.15 text fix (runs once, setting trek_text_pass = 6): Tumble's crew moment is an easier way, not a short cut. Bodies from trek_final_2015.txt.
+ * Same rule as the 2.0.12 pass: a row takes the new body only when it is empty, still holds a text we shipped before (any earlier final file,
+ * the drafts, or trek_final_2015_old.txt), or already the new one. A body Joshua edited is never touched.
+ */
+function trek_apply_text_2015(): int
+{
+    $new = trek_kv_file('trek_final_2015.txt');
+    if (!$new) return 0;
+    $old = [trek_drafts(), trek_kv_file('trek_final_200.txt'), trek_kv_file('trek_final_204.txt'), trek_kv_file('trek_final_207.txt'), trek_kv_file('trek_final_2012.txt'), trek_kv_file('trek_final_2015_old.txt')];
+    $n = 0;
+    foreach (q('SELECT id, text_key, body, status FROM trek_texts')->fetchAll() as $r) {
+        $k = $r['text_key'];
+        if (!isset($new[$k])) continue;
+        $cur = trim((string)$r['body']);
+        $was = false;
+        foreach ($old as $set) if ($cur === trim((string)($set[$k] ?? ''))) $was = true;
+        if ($cur === '' || $was || $cur === $new[$k]) {
+            q('UPDATE trek_texts SET body = ?, status = ? WHERE id = ?', [$new[$k], $cur === '' ? 'done' : ($r['status'] ?: 'done'), $r['id']]);
+            $n++;
+        }
+    }
+    return $n;
+}
+
 // ------------------------------------------------------------------ trek_text()
 
 /** Every text row once per request: key => [body, brief, status, kind, speaker]. */

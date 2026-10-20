@@ -197,7 +197,8 @@ function seed_starter_content(): void
     trek_apply_text_204();
     trek_apply_text_207();
     trek_apply_text_2012();
-    set_setting('trek_text_pass', '5');
+    trek_apply_text_2015();
+    set_setting('trek_text_pass', '6');
     require_once __DIR__ . '/almanac_notes.php';
     ensure_almanac_howto(true);   // v0.7.72
     ensure_shop_food();
