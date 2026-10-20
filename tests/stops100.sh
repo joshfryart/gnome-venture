@@ -43,7 +43,7 @@ get town.php >/dev/null
 KIND=$(grep -oE 'name="kind" value="[a-z_]+"' $H | sed -n 8p | sed 's/.*value="\(.*\)"/\1/')
 echo "post an activity -> $(post town.php -d do=local -d kind=chores -d opt=0)"
 get town.php >/dev/null; flashes=$(grep -oE 'class="flash (ok|err)">[^<]*' $H | head -2); echo "flash: $flashes"
-get passport.php >/dev/null; echo "passport.php -> $(get passport.php)  stamps=$(grep -c 'class="st-stamp has' $H) sets=$(grep -c 'class="st-sets"' $H)"
+get "town.php?view=passport" >/dev/null; echo "passport -> $(get "town.php?view=passport")  stamps=$(grep -c 'class="st-stamp has' $H) sets=$(grep -c 'class="st-sets"' $H)"
 get index.php >/dev/null; echo "today card mentions the stop: $(grep -c 'rest stop' $H)"
 echo "== admin pages"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null

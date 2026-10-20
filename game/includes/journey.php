@@ -450,7 +450,7 @@ function journey_next_hint(array $u, array $ch, array $st): ?array
             if ($done || $t['kind'] === 'stage') continue;
             $how = ['grow' => 'Plant and harvest it in any garden; the region’s market sells the seeds.', 'friend' => 'Chat with them and give a gift from their villager page.',
                     'find' => 'At a road stop in the region, choose Wander off the path.', 'visit' => 'Walk there from a neighbouring region.'][$t['kind']] ?? '';
-            return [preg_replace('/\s*\(.*\)$/', '', (string)$t['label']) . ($goal > 1 ? ' (' . $now . ' of ' . $goal . ' so far)' : '') . '. ' . $how, $t['kind'] === 'grow' ? 'garden.php' : ($t['kind'] === 'friend' ? 'folk.php' : 'world.php')];
+            return [preg_replace('/\s*\(.*\)$/', '', (string)$t['label']) . ($goal > 1 ? ' (' . $now . ' of ' . $goal . ' so far)' : '') . '. ' . $how, $t['kind'] === 'grow' ? 'garden.php' : ($t['kind'] === 'friend' ? 'town.php?view=villagers' : 'world.php')];
         }
     }
     if ($st['complete']) return ['Everything is built. Finish the chapter and read Wren’s letter.', $book];

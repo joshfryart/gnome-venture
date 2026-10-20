@@ -151,6 +151,50 @@ se=winter|any|any|Somewhere ahead, someone has a fire going. You can smell it on
 -|any|SEA|Rice paddies climb the hillside in shining steps, each one holding a piece of sky.
 -|any|OC|Eucalyptus leaves scent the breeze, and a distant bird laughs at its own joke.
 -|any|OC|Frangipani sweetens the air, and the surf murmurs somewhere just out of sight.
+-|any|CA|Strings of dried chillies hang from a doorway, red as sunsets and twice as warm.
+dp=dusk|any|CA|Church bells and distant guitars drift down from a hillside town.
+we=rain|any|CA|The rain smells of hot stone and wet earth, and the whole road breathes out.
+se=autumn|any|CA|Marigolds line the path in orange drifts, put out to guide someone home.
+-|any|CB|A little lizard does push-ups on a sun-baked wall, very serious about it.
+dp=day|any|CB|Laughter and a radio playing from a verandah, and the smell of something frying sweetly.
+we=wind|any|CB|Palm fronds clatter overhead like a crowd applauding the breeze.
+dp=night|any|CB|Tree frogs chime in the dark, a thousand tiny bells, all slightly out of tune.
+-|any|SA|A rope of pale river mist drifts through the trees, and a toucan hops along it.
+dp=dawn|any|SA|Mist lifts off the valley, and the first condor circles on the warm air.
+we=rain|any|SA|Rain drums on broad leaves, and the whole forest speaks at once.
+-|any|SA|Quinoa fields blush red and gold on the terraces, tidy as embroidered cloth.
+-|any|SE|Bougainvillea spills over a whitewashed wall in a magenta waterfall.
+dp=dusk|any|SE|Villagers stroll the lane at sunset, nodding to everyone, as if it were a rule.
+dp=day|any|SE|Cicadas saw away in the pines, and the heat makes the road shimmer.
+se=autumn|any|SE|Grape leaves turn amber on the vine, and the air smells faintly of must and sunshine.
+-|any|EE|A wooden cottage with blue shutters and carved eaves leans companionably against a fence.
+se=winter|any|EE|Smoke rises straight up from a chimney, and the snow squeaks underfoot.
+se=summer|any|EE|The wheat is as tall as a gnome, and the sky is as large as a sea.
+dp=dusk|any|EE|Somewhere beyond the birches, someone is singing in harmony with the frogs.
+-|any|MENA|Pale arches and whitewashed walls hold their own cool air, a pocket of shade in the glare.
+dp=night|any|MENA|The stars are huge and close, and the sand holds the day’s warmth like a sigh.
+dp=dawn|any|MENA|The first call to prayer floats across the rooftops, soft as a blanket.
+-|any|MENA|Date palms lean over a wall, heavy with golden clusters.
+-|any|WCA|Red earth, green leaves, and a child on a wall waving with her whole arm.
+we=rain|any|WCA|Rain thunders on tin roofs, and the whole village cheers from the doorways.
+dp=day|any|WCA|A market hums with laughter, and every stall is draped in cloth like a flag.
+dp=dusk|any|WCA|Drums start up across the valley, a slow pulse like a second heartbeat.
+-|any|ESA|A tall giraffe watches you from behind an acacia, chewing, thinking very slowly.
+dp=dawn|any|ESA|Mist rolls off the highland tea fields, and the first birds call hello.
+we=sun|any|ESA|Golden grass stretches in every direction, and a hawk lazes on the warm air.
+dp=night|any|ESA|Distant lion-sounds roll over the plain, and you walk a little quicker. Politely.
+-|any|CSA|A bright sari hangs drying across a courtyard like a flag of tiny suns.
+dp=dawn|any|CSA|Bells ring from a temple on the hill, and the whole valley turns gold.
+we=rain|any|CSA|The monsoon rolls in, and every leaf along the lane sings back.
+-|any|CSA|Marigold garlands drape every doorway, orange as small suns.
+-|any|SEA|A wooden boat slides down a green river, loaded with fruit and a very relaxed dog.
+we=rain|any|SEA|Warm rain falls like a curtain of beads, and the frogs hold a very loud meeting.
+dp=night|any|SEA|Fireflies light up a mangrove like a floating city.
+dp=dawn|any|SEA|Mist rises off the paddies, and farmers wade into the silver water.
+-|any|OC|A flock of pink-and-grey galahs wheels overhead, shouting about something important.
+dp=dusk|any|OC|The sunset turns the sky coral, and the surf hushes the whole shore.
+we=wind|any|OC|Salt wind snaps across the ridge, and a gull hangs in it like a kite.
+-|any|OC|A fern frond unrolls beside the path, slow and silver, like a hello.
 # --- QUIET (anywhere, anytime) ---
 -|any|any|A snail ahead is holding up traffic. Everyone waits, quite politely.
 -|any|any|You pass a signpost so old that its arrows point mostly at each other.

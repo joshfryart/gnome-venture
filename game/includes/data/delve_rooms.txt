@@ -1,0 +1,83 @@
+# Delve room text (v1.9.5). One short line shown with each room of a delve, picked from the delve and room number so it never changes for that room.
+# kind | cond | lands | text
+# kind:  entry (the way in), creature (the room has a fight), problem (a trap or puzzle), find (treasure), chest (the last room, before the chest opens).
+# cond:  - = always; same dp= se= we= syntax as road_lines.txt. It is a must, not a preference (underground, so use sparingly: se= is fine).
+# lands: comma list of forest,grassland,coast,mountain,desert,rainforest,wetland,tundra,island, or any.
+# Under 120 characters. No | inside a text. Use ’ (curly) for apostrophes. Several lines for one kind and land is good: the room picks one.
+# --- FOREST ---
+entry|-|forest|Roots arch over the doorway like fingers, and the air smells of earth and old leaves.
+creature|-|forest|Something rustles in the dry leaves, and a pair of eyes catches the lantern.
+creature|-|forest|A hollow of twisted roots, and a low growl comes from inside.
+problem|-|forest|Roots have knotted across the path, and one of them looks suspiciously alive.
+find|-|forest|A tiny shrine of moss and acorns sits in a nook, and something glints in its offering bowl.
+chest|-|forest|The tunnel ends in a round chamber with a chest tucked between two great roots.
+# --- GRASSLAND ---
+entry|-|grassland|A burrow mouth in the hillside, edged with grass and a little too tidy to be natural.
+creature|-|grassland|The tunnel widens into a warren, and something moves in the shadows.
+creature|-|grassland|Hay and fur lie in a heap, and the heap seems to be breathing.
+problem|-|grassland|The floor here is soft and dusty. Something is not quite right underfoot.
+find|-|grassland|A burrowing creature’s pantry, long forgotten, with something shiny in it.
+chest|-|grassland|At the very end of the warren, a chest sits in a nest of old grass.
+# --- COAST ---
+entry|-|coast|A sea cave breathes in and out with the tide, and the lantern shows wet stone and shells.
+creature|-|coast|Water drips, and something scuttles across the wet rock ahead.
+creature|-|coast|A pool glints in the dark, and a pair of claws rises slowly from it.
+problem|-|coast|The floor is slick with weed, and the tide is making its own opinions known.
+find|-|coast|A rock shelf holds a little hoard of shells, glass and a thing that gleams.
+chest|-|coast|The cave opens into a high chamber, and a barnacled chest sits where the tide cannot quite reach.
+# --- MOUNTAIN ---
+entry|-|mountain|A crack in the cliff opens into a cold, dry tunnel, and the lantern flame leans inward.
+creature|-|mountain|Pebbles trickle down the wall, and something large shifts in the dark.
+creature|-|mountain|A ledge, a gleam of teeth, and an echo that arrives before the sound.
+problem|-|mountain|The tunnel narrows to a ledge, and the stones below do not look entirely settled.
+find|-|mountain|Crystals glitter in the lantern light, and a few have come loose from the wall.
+chest|-|mountain|A stone door swings aside, and a chest sits on a ledge like a quiet guest.
+# --- DESERT ---
+entry|-|desert|A staircase of sandstone leads down, each step worn into a shallow bowl by long-ago feet.
+creature|-|desert|Dry sand hisses across the floor, and something rattles ahead.
+creature|-|desert|Dust hangs in the lantern beam, and a shape unfolds from the wall.
+problem|-|desert|Carved tiles line the floor. Some of them are lying about being safe.
+find|-|desert|A niche in the wall holds a clay jar, and a glint of something inside.
+chest|-|desert|The last chamber is painted with stars, and a chest sits right under the biggest one.
+# --- RAINFOREST ---
+entry|-|rainforest|A tangle of vines hangs over a cave mouth, and warm air puffs out, smelling of damp and flowers.
+creature|-|rainforest|Drip, drip, and a rustle that is far too big for a leaf.
+creature|-|rainforest|Colourful eyes blink from a curtain of vines at the back of the room.
+problem|-|rainforest|Slippery roots and a mossy slope. It is a short way across, and a long way down.
+find|-|rainforest|A cluster of bright orchids grows here, and something shiny lies among them.
+chest|-|rainforest|Vines part like curtains, and a mossy chest sits in a pool of green light.
+# --- WETLAND ---
+entry|-|wetland|The ground goes soft and the reeds close behind you, and a low door of mud-brick opens ahead.
+creature|-|wetland|Bubbles rise in the dark water, and something is watching from the shallows.
+creature|-|wetland|Mist coils on the floor, and a croak echoes from a corner that is not empty.
+problem|-|wetland|The path is a row of stepping stones, and some of them are not stones.
+find|-|wetland|A sunken crate bobs in the shallows with something dry inside.
+chest|-|wetland|A raised platform of old planks stands in the water, and on it sits a chest, quite dry.
+# --- TUNDRA ---
+entry|-|tundra|A blue-white opening in the ice leads inward, and your breath hangs in the lantern light.
+creature|-|tundra|The ice creaks, and a pale shape shifts against the glittering wall.
+creature|-|tundra|Frost crunches somewhere ahead, in a rhythm that is not yours.
+problem|-|tundra|The floor is clear ice. You can see right down through it, and it can see you.
+find|-|tundra|A frozen shelf holds a handful of glinting things, caught mid-fall.
+chest|-|tundra|The ice opens into a blue hall, and a chest sits in the middle, wearing a coat of frost.
+# --- ISLAND ---
+entry|-|island|A lava-tube mouth, half-hidden by palm fronds, breathes out warm sea air.
+creature|-|island|Waves boom somewhere below, and something clatters in the dark ahead.
+creature|-|island|A tide pool of black glass glints, and the shadows inside it move.
+problem|-|island|Loose coral sand covers the floor, and it has been moved about by something.
+find|-|island|A smuggler’s niche lies in the rock, with a few things left behind.
+chest|-|island|The tunnel opens onto a hidden cove inside the rock, and a salt-white chest sits in the sand.
+# --- any land: extra variety ---
+entry|-|any|Cool air breathes out of the dark, and the first step down is a very old one.
+entry|se=winter|any|Frost on the threshold, and a little warmth leaking up from below.
+creature|-|any|Your lantern flame dips, and something in the dark shifts to face you.
+creature|-|any|A scrape of claws on stone, a pause, and then another scrape closer.
+creature|-|any|The next room has a smell, and the smell has an owner.
+problem|-|any|The floor here has a pattern, and the pattern seems to be paying attention.
+problem|-|any|A narrow gap, a loose stone and a sign you cannot read. It still seems a bad omen.
+problem|-|any|Something clicks in the wall. It is probably nothing. It is probably.
+find|-|any|A forgotten pack lies against the wall, and it is not entirely empty.
+find|-|any|Something catches the lantern light from a crack in the floor.
+find|-|any|A neat little stash behind a loose stone. Whoever hid it did not come back.
+chest|-|any|The last room is round and quiet, and in the middle, a chest sits as if it was expecting you.
+chest|-|any|At the end of the passage, a heavy chest. The lock has rusted open, mostly.

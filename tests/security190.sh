@@ -410,7 +410,7 @@ $k = 's[' . $argv[2] . ']'; $set = false; foreach ($o as &$p) if ($p[0] === $k) 
 echo implode('&', array_map(fn($p) => rawurlencode($p[0]) . '=' . rawurlencode($p[1]), $o));
 PHP
 settings_post() {   # settings_post KEY VALUE: as the current login, with the admin's page as the template
-    curl -s -c $TMP/jar-admin -b $TMP/jar-admin "$BASE/admin/settings.php" -o $TMP/set.html
+    curl -s -c $TMP/jar-admin -b $TMP/jar-admin "$BASE/admin/settings.php?adv=1" -o $TMP/set.html
     php $TMP/sb.php $TMP/set.html "$1" "$2" > $TMP/set.body
     curl -s -c $JAR -b $JAR -X POST "$BASE/admin/settings.php" --data-binary @$TMP/set.body --data-urlencode "csrf=$(tokof $JAR)" -o /dev/null -w '%{http_code}'
 }
@@ -428,7 +428,7 @@ assert "players / moderators cannot reset a run" eq "$(RUNID sprout)" "$RIDS"
 assert "players / moderators cannot edit story text" eq "$(db "SELECT COUNT(*) FROM trek_texts WHERE body='HACKED'")" 0
 assert "players / moderators cannot change Trek settings (full valid form, own token)" bash -c "[ '$(db "SELECT COALESCE((SELECT value FROM settings WHERE name='trek_ms_burdock'),'')")' != 9999999 ]"
 use admin
-curl -s -c $JAR -b $JAR "$BASE/admin/settings.php" -o $TMP/set.html; php $TMP/sb.php $TMP/set.html trek_ms_burdock 7777777 > $TMP/set.body
+curl -s -c $JAR -b $JAR "$BASE/admin/settings.php?adv=1" -o $TMP/set.html; php $TMP/sb.php $TMP/set.html trek_ms_burdock 7777777 > $TMP/set.body
 curl -s -c $JAR -b $JAR -X POST "$BASE/admin/settings.php" --data-binary @$TMP/set.body -o /dev/null
 nocsrf admin/trek_text.php -d key=ch1.intro -d body=HACKED2 -d status=draft >/dev/null; curl -s -c $JAR -b $JAR -X POST $BASE/admin/treks.php -d "run=$RIDS" -d confirm=RESET -d csrf=bad -o /dev/null
 assert "admin posts with no / bad token change nothing (settings, story text, reset)" bash -c "[ '$(db "SELECT COALESCE((SELECT value FROM settings WHERE name='trek_ms_burdock'),'')")' != 7777777 ] && [ '$(db "SELECT COUNT(*) FROM trek_texts WHERE body='HACKED2'")' = 0 ] && [ '$(RUNID sprout)' = '$RIDS' ]"

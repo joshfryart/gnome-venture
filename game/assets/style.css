@@ -4310,3 +4310,17 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 
 /* v2.0.1 old campsite: the lone Rest button centred */
 .trekspot .trekbtns.trekone, .trekbtns.trekone { grid-template-columns: minmax(0, 280px); justify-content: center; }
+
+/* v2.0.4 menu folds: Seasons fold on World, Passport + Villagers tabs on Town, admin settings search */
+.wxbig { font-size: 1.8rem; line-height: 1.2; }
+.fcgrid .wxbig { font-size: 2rem; }
+.seasonfold, .knownfold { text-align: center; }
+.seasonfold > summary, .knownfold > summary { justify-content: center; }
+.seasonfold h3, .knownfold h2, .knownfold h3 { text-align: center; }
+.seasonfold .wxtable { max-width: 420px; margin: 0 auto; }
+.knownfold .folkfilter, .setfind { justify-content: center; text-align: center; }
+.knownfold .folkrow { text-align: left; }
+.setfind { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.setfind input[type=search] { flex: 1 1 200px; min-width: 0; }
+.setfind .help { flex: 1 1 100%; margin: 0; text-align: center; }
+.townview > h2, .townview > p, .townview > .help { text-align: center; }

@@ -40,7 +40,7 @@ echo "== admin: building select, settings"
 curl -s -c $CA -b $CA $BASE/login.php > $H; curl -s -c $CA -b $CA -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=admin -d password=TestPassword123 -o /dev/null
 curl -s -c $CA -b $CA "$BASE/admin/crud.php?r=critter_kinds&action=new" > $H
 has "admin select lists Butterfly Bush" "butterfly_bush"; has "...Snail Jar" "snail_jar"
-curl -s -c $CA -b $CA "$BASE/admin/settings.php" > $H
+curl -s -c $CA -b $CA "$BASE/admin/settings.php?adv=1" > $H
 for k in animals140_on butterfly_stem_pct snail_rescue_pct; do has "setting $k" "$k"; done
 
 echo "== build both homes"

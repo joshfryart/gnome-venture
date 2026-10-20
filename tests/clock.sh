@@ -31,12 +31,12 @@ echo "== clock engine (tests/clock.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/clock.php" "$GAME" 2>&1; RC=$?
 echo "== pages show the chip"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE settings SET value=\"game\" WHERE name=\"season_mode\"");'
-for pg in index.php garden.php world.php seasons.php; do echo "$pg -> $(get "$pg")  chip=$(grep -c 'class="st hollow"' $H) rail=$(grep -c 'rhollow' $H)"; done
+for pg in index.php garden.php world.php world.php?tab=seasons; do echo "$pg -> $(get "$pg")  chip=$(grep -c 'class="st hollow"' $H) rail=$(grep -c 'rhollow' $H)"; done
 get index.php >/dev/null; echo "today page chip: $(grep -c 'class="hollow"' $H)"
-get seasons.php >/dev/null; grep -qi "fatal\|error" $H && sed -e "s/<[^>]*>//g" $H | grep -i "error\|fatal" | head -3; grep -q 'Forecast' $H && grep -q 'Around the world today' $H && echo "  almanac page: forecast + regions"; grep -oE '<b>[^<]*· day [0-9]+[^<]*</b>' $H | head -1
+get "world.php?tab=seasons" >/dev/null; grep -qi "fatal\|error" $H && sed -e "s/<[^>]*>//g" $H | grep -i "error\|fatal" | head -3; grep -q 'Forecast' $H && grep -q 'Around the world today' $H && echo "  almanac page: forecast + regions"; grep -oE '<b>[^<]*· day [0-9]+[^<]*</b>' $H | head -1
 echo "== admin: settings + overrides"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
-get admin/settings.php >/dev/null
+get admin/settings.php?adv=1 >/dev/null
 for k in season_mode season_days season_epoch season_force weather_force weather_weights_winter daypart_dusk; do grep -q "name=\"s\[$k\]\"" $H && echo "  field $k" || echo "  MISSING $k"; done
 grep -q 'id="s-seasons-weather"' $H && echo "  section Seasons & weather"
 echo "== php errors"

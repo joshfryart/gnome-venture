@@ -14,6 +14,7 @@ declare(strict_types=1);
  *  - Ambient lines (data/road_lines.txt): `cond|lands|region|text`, one line per road space, plus the stop's own ambience on arrival.
  */
 
+require_once __DIR__ . '/road_text.php';   // v2.0.4: owner overrides of the road wording (Admin -> Road text)
 require_once __DIR__ . '/stops.php';   // stop_now(), stop_cond_ok(), stop_types(), HOLLOW_DAYPARTS
 
 const ROAD_RING_SIZE = 8;     // picks remembered per kind
@@ -192,7 +193,7 @@ function road_lines(bool $reload = false): array
         if (count($f) < 4 || $f[3] === '') continue;
         $lands = $f[1] === '' || strtolower($f[1]) === 'any' ? ['any'] : array_values(array_filter(array_map('strtolower', array_map('trim', explode(',', $f[1])))));
         $reg = $f[2] === '' || strtolower($f[2]) === 'any' ? ['any'] : array_values(array_filter(array_map('strtoupper', array_map('trim', explode(',', $f[2])))));
-        $rows[] = ['cond' => $f[0] === '' ? '-' : $f[0], 'lands' => $lands ?: ['any'], 'region' => $reg ?: ['any'], 'text' => $f[3]];
+        $rows[] = ['cond' => $f[0] === '' ? '-' : $f[0], 'lands' => $lands ?: ['any'], 'region' => $reg ?: ['any'], 'text' => road_text_apply('road.line.' . road_text_hash($f[3]), $f[3])];   // v2.0.4: Admin -> Road text can override the words
     }
     return $rows;
 }
@@ -322,13 +323,15 @@ function road_events(bool $reload = false): array
         if ($t === 'E' && count($f) >= 8 && $f[1] !== '' && $f[7] !== '') {
             $cur = $f[1];
             $data['ev'][$cur] = ['id' => $cur, 'cond' => $f[2] === '' ? '-' : $f[2], 'lands' => road_event_list($f[3], false), 'region' => road_event_list($f[4], true),
-                'where' => in_array($f[5], ['road', 'wild'], true) ? $f[5] : 'both', 'icon' => $f[6], 'text' => $f[7], 'opts' => [], 'n' => count($data['ev'])];
+                'where' => in_array($f[5], ['road', 'wild'], true) ? $f[5] : 'both', 'icon' => $f[6], 'text' => road_text_apply('road.event.' . $cur, $f[7]), 'opts' => [], 'n' => count($data['ev'])];
         } elseif ($t === 'O' && $cur !== null && count($f) >= 8) {
-            $data['ev'][$cur]['opts'][] = ['label' => $f[1], 'stat' => $f[2], 'dc' => (int)$f[3], 'win' => $f[4], 'wintext' => $f[5], 'lose' => $f[6], 'losetext' => $f[7]];
+            $ok = 'road.event.' . $cur . '.' . road_text_hash($f[1]) . '.';   // v2.0.4: only the words can be overridden, never stat/dc/effects
+            $data['ev'][$cur]['opts'][] = ['label' => road_text_apply($ok . 'label', $f[1]), 'stat' => $f[2], 'dc' => (int)$f[3], 'win' => $f[4], 'wintext' => $f[5] === '' ? '' : road_text_apply($ok . 'win', $f[5]),
+                'lose' => $f[6], 'losetext' => $f[7] === '' ? '' : road_text_apply($ok . 'lose', $f[7])];
         } elseif ($t === 'S' && count($f) >= 9 && $f[1] !== '' && $f[7] !== '') {
             $cur = null;
             $data['sights'][$f[1]] = ['id' => $f[1], 'cond' => $f[2] === '' ? '-' : $f[2], 'lands' => road_event_list($f[3], false), 'region' => road_event_list($f[4], true),
-                'where' => in_array($f[5], ['road', 'wild'], true) ? $f[5] : 'both', 'icon' => $f[6], 'text' => $f[7], 'fx' => $f[8]];
+                'where' => in_array($f[5], ['road', 'wild'], true) ? $f[5] : 'both', 'icon' => $f[6], 'text' => road_text_apply('road.sight.' . $f[1], $f[7]), 'fx' => $f[8]];
         }
     }
     foreach ($data['ev'] as $id => $e) if (!$e['opts']) unset($data['ev'][$id]);   // a scene with no options cannot be played

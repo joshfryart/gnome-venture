@@ -97,7 +97,7 @@ $f = hollow_forecast('NA', 3);
 ok('forecast has today + 2', count($f) === 3 && $f[0]['label'] === 'Today' && $f[1]['label'] === 'Tomorrow' && $f[0]['date'] === hollow_today());
 ok('forecast day 1 matches weather()', $f[1]['weather'] === hollow_weather('NA', $f[1]['date']));
 $chip = hollow_chip('NA');
-ok('chip has season, weather, daypart', str_contains($chip, 'class="st hollow"') && str_contains($chip, hollow_now('NA')['season_label']) && str_contains($chip, 'seasons.php'));
+ok('chip has season, weather, daypart', str_contains($chip, 'class="st hollow"') && str_contains($chip, hollow_now('NA')['season_label']) && str_contains($chip, 'tab=seasons'));
 ok('chip is escaped HTML only', !preg_match('/<script/i', $chip));
 ok('line text', (bool)preg_match('/ · day \d+ · .* · /', hollow_line()));
 ok('rail section', str_contains(hollow_rail_section(), 'rhollow'));

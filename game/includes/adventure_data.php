@@ -27,15 +27,15 @@ const VILLAGE_ENDINGS = ['bottom', 'hollow', 'burrow', 'nook', 'dell', 'by', 'wi
 
 /** Little things gnomes pick up along the way, by landscape. */
 const LANDSCAPE_FINDS = [
-    'coast' => [['Kelp Frond', 'A ribbon of seaweed. Gardeners say it’s good for the soil.'], ['Sea Glass', 'Frosted glass worn smooth by the waves.']],
-    'mountain' => [['Shiny Quartz', 'A clear crystal that catches the light.'], ['Eagle Down', 'A wisp of feather from far above.']],
-    'forest' => [['Acorn Cap', 'Makes a perfect gnome teacup.'], ['Leaf Mould Clump', 'Dark, crumbly and full of life.']],
-    'desert' => [['Desert Rose Stone', 'Sand crystals grown into a rose.'], ['Old Campfire Ash', 'Ash from a long-cold fire. Rich in potash.']],
-    'rainforest' => [['Giant Seed Pod', 'Rattles when shaken.'], ['Bright Feather', 'Every colour at once.']],
-    'grassland' => [['Four-leaf Clover', 'Lucky, or so they say.'], ['Wild Honeycomb', 'Sticky and sweet.']],
-    'wetland' => [['Cattail Fluff', 'Soft as a cloud.'], ['Bog Peat', 'Dark, damp and ancient.']],
-    'tundra' => [['Reindeer Lichen', 'A frosty grey lichen.'], ['Frost Crystal', 'Never quite melts.']],
-    'island' => [['Cowrie Shell', 'Smooth and glossy, once used as money.'], ['Coconut Husk', 'Hairy, tough and useful.']],
+    'coast' => [['Kelp Frond', 'A ribbon of seaweed. Gardeners say it’s good for the soil.'], ['Sea Glass', 'Frosted glass worn smooth by the waves.'], ['Blue Mussels', 'Shiny blue shells, still cool from the tide.'], ['Bladderwrack', 'Popping seaweed with little air bladders.']],
+    'mountain' => [['Shiny Quartz', 'A clear crystal that catches the light.'], ['Eagle Down', 'A wisp of feather from far above.'], ['Slate Shard', 'A flat grey chip that rings when tapped.'], ['Bilberries', 'Tiny dark berries that stain your fingers.']],
+    'forest' => [['Acorn Cap', 'Makes a perfect gnome teacup.'], ['Leaf Mould Clump', 'Dark, crumbly and full of life.'], ['Chanterelle', 'Golden mushrooms that smell faintly of apricots.'], ['Pine Resin', 'A sticky amber bead from a pine trunk.']],
+    'desert' => [['Desert Rose Stone', 'Sand crystals grown into a rose.'], ['Old Campfire Ash', 'Ash from a long-cold fire. Rich in potash.'], ['Desert Sage', 'Silvery leaves with a sharp, clean scent.'], ['Red Ochre', 'Soft red rock that leaves a mark on everything.']],
+    'rainforest' => [['Giant Seed Pod', 'Rattles when shaken.'], ['Bright Feather', 'Every colour at once.'], ['Laterite Clay', 'Rusty red clay, heavy and damp.'], ['Bromeliad Seeds', 'Tiny seeds from a plant that holds its own pond.']],
+    'grassland' => [['Four-leaf Clover', 'Lucky, or so they say.'], ['Wild Honeycomb', 'Sticky and sweet.'], ['Wild Strawberries', 'Small, fragrant and gone in one bite.'], ['Meadowsweet', 'Frothy cream flowers with a honey-almond scent.']],
+    'wetland' => [['Cattail Fluff', 'Soft as a cloud.'], ['Bog Peat', 'Dark, damp and ancient.'], ['Cattail Root', 'A starchy root, good for a hungry gnome.'], ['River Clay', 'Smooth grey clay from the bank.']],
+    'tundra' => [['Reindeer Lichen', 'A frosty grey lichen.'], ['Frost Crystal', 'Never quite melts.'], ['Crowberries', 'Black berries that last under the snow.'], ['Cottongrass', 'White tufts that nod over the bog.']],
+    'island' => [['Cowrie Shell', 'Smooth and glossy, once used as money.'], ['Coconut Husk', 'Hairy, tough and useful.'], ['Sea Grapes', 'Green beads on a string, salty and crisp.'], ['Coir Fibre', 'Tough golden fibre, good for rope.']],
 ];
 
 /**

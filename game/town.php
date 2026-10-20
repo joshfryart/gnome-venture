@@ -45,6 +45,37 @@ if (is_post()) {
 if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: orders, Journey and repairs live on the Tasks page
 refresh_energy($u);
 if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }   // v0.9.1a
+$viewReq = (string)($_GET['view'] ?? '');
+if ($viewReq === 'folk') $viewReq = 'villagers';   // v2.0.4 menu folds: old name of the Villagers tab
+$nodeNow = player_node($u);
+$inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
+if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2.0.4 menu folds: Passport and Villagers you know (were passport.php, folk.php) work from anywhere
+    require_once __DIR__ . '/includes/stop_pass.php';
+    $isPass = $viewReq === 'passport';
+    if ($isPass) foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
+    page_header($isPass ? 'Stamp passport' : 'Villagers you know');
+    ?>
+    <h1>🏘️ Town</h1>
+    <nav class="tabs">
+      <a href="<?= e(url('town.php' . ($hub ? '?hub=1' : ''))) ?>">🏘️ <?= $inTown ? 'The square' : 'Where you are' ?></a>
+      <a class="<?= $isPass ? '' : 'on' ?>" href="<?= e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers')) ?>">👥 Villagers</a>
+      <a class="<?= $isPass ? 'on' : '' ?>" href="<?= e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=passport')) ?>">🛂 Passport</a>
+      <a href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) ?>">📜 Orders</a>
+    </nav>
+    <div class="townview">
+    <?php if ($isPass): ?>
+      <h2>🛂 Stamp passport</h2>
+      <p class="muted">Every rest stop gives you a stamp on your first visit. Fill the sets for rewards and titles. Hidden villages you find count too.</p>
+      <?php $titles = stop_titles($uid); if ($titles): ?><p>Titles earned: <?php foreach ($titles as $t) echo '<span class="tag">“' . e($t) . '”</span> '; ?> <a href="<?= e(url('book.php?ch=Milestones')) ?>">Choose yours in the Almanac →</a></p><?php endif; ?>
+      <?= stop_passport_html($u) ?>
+    <?php else: ?>
+      <?= town_known_html($u, $hub) ?>
+    <?php endif; ?>
+    </div>
+    <?php
+    page_footer();
+    exit;
+}
 $town = town_for($u, $hub);
 $q = $hub ? 'hub=1&' : '';
 $spot = !empty($_GET['spot']) ? q_one('SELECT * FROM town_spots WHERE id = ? AND region = ? AND active = 1', [(int)$_GET['spot'], $town]) : null;
@@ -95,6 +126,54 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
 }
 
 page_header($spot ? $spot['name'] : $town . ' Town Square');
+
+/** v2.0.4 menu folds: everyone you've met, where they are now, with search and filters (was the folk.php list). */
+function town_known_html(array $u, bool $hub, bool $title = true): string
+{
+    require_once __DIR__ . '/includes/maps.php';
+    require_once __DIR__ . '/includes/folk_list.php';
+    require_once __DIR__ . '/includes/friends.php';
+    $uid = (int)$u['id'];
+    $all = met_npcs($uid);
+    $qs = trim((string)($_GET['q'] ?? ''));
+    $f = (string)($_GET['f'] ?? '');
+    $reg = (string)($_GET['r'] ?? '');
+    $regions = array_values(array_unique(array_filter(array_map(fn($n) => (string)($n['home']['region'] ?? ''), $all))));
+    sort($regions);
+    $list = array_filter($all, function ($n) use ($qs, $f, $reg, $u) {
+        if ($qs !== '' && stripos($n['name'] . ' ' . $n['species'] . ' ' . $n['personality'], $qs) === false) return false;
+        if ($f === 'here' && !npc_here($u, (int)$n['id'])) return false;
+        if ($reg !== '' && ($n['home']['region'] ?? '') !== $reg) return false;
+        return true;
+    });
+    $byLevel = [];
+    foreach ($list as $n) $byLevel[$n['level']['index']][] = $n;
+    krsort($byLevel);
+    $total = (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1');
+    $h = ($title ? '<h2 id="known">👥 Villagers you know</h2>' : '')
+        . '<p class="help">Everyone you’ve met: ' . count($all) . ' of the Hollow’s ' . $total . ' villagers. You meet people by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Their full pages are in your <a href="' . e(url('book.php?ch=Folk')) . '">Almanac → Villagers</a> too.</p>'
+        . '<form method="get" action="' . e(url('town.php')) . '" class="box folkfilter"><input type="hidden" name="view" value="villagers"><input type="hidden" name="known" value="1">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
+        . '<input type="search" name="q" value="' . e($qs) . '" placeholder="Search by name…" aria-label="Search by name">'
+        . '<select name="r" aria-label="Home region"><option value="">All regions</option>';
+    foreach ($regions as $rg) $h .= '<option' . ($rg === $reg ? ' selected' : '') . '>' . e($rg) . '</option>';
+    $h .= '</select><label><input type="checkbox" name="f" value="here"' . ($f === 'here' ? ' checked' : '') . '> Here now</label>'
+        . '<button class="btn small">Show</button>' . ($qs !== '' || $f !== '' || $reg !== '' ? ' <a href="' . e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers#known')) . '">Clear</a>' : '') . '</form>';
+    if (!$all) $h .= '<div class="box"><p class="muted">Nobody yet. Visit a shop or wander the town square to meet the locals.</p></div>';
+    elseif (!$list) $h .= '<div class="box"><p class="muted">Nobody matches that.</p></div>';
+    foreach ($byLevel as $li => $group) {
+        $h .= '<h3 class="folkgroup">💛 ' . e(FRIEND_LEVELS[$li][1] ?? 'Stranger') . ' <small>' . count($group) . '</small></h3><div class="box">';
+        foreach ($group as $n) {
+            $lnk = e(url('folk.php?id=' . (int)$n['id']));
+            $h .= '<div class="folkrow"><a href="' . $lnk . '">' . npc_portrait($n, 'small') . '</a>'
+                . '<div><a href="' . $lnk . '"><b>' . e($n['name']) . '</b></a> <small class="muted">' . e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : '') . '</small>'
+                . '<br><small>📍 ' . e($n['now']['what']) . (npc_here($u, (int)$n['id']) ? ' · <b class="good">here now</b>' : '') . '</small>'
+                . '<br><small class="muted">🏡 ' . ($n['home'] ? e($n['home']['name'] . ' · ' . $n['home']['region']) : (!empty($n['traveller']) ? 'travels the Hollow' : '—')) . (npc_birthday_today($n) ? ' · 🎂 birthday today!' : '') . '</small></div></div>';
+        }
+        $h .= '</div>';
+    }
+    return $h . '<details class="fold mapfold"><summary>🗺️ On the world map</summary><div class="mapwrap">' . world_map_svg($u) . '</div>'
+        . '<p class="help">👤 marks a town where villagers you know (Acquaintance or better) are right now. 🎩 is you.</p></details>';
+}
 
 /** Who's at a place: little links to each NPC. */
 function npc_faces(array $npcs, bool $names): string
@@ -291,7 +370,7 @@ function town_pickers(int $uid): string
     <?php if (player_location($u) !== HUB_REGION): ?><a class="<?= $hub ? 'on' : '' ?>" href="<?= e(url('town.php?hub=1')) ?>">🍄 Mossbottom <small>(reachable from anywhere)</small></a><?php endif; ?>
     <a href="<?= e(url('world.php')) ?>">🏪 Markets &amp; travel</a>
   </nav>
-  <?php $view = in_array($_GET['view'] ?? '', ['folk'], true) ? (string)$_GET['view'] : 'square';   // v0.7.61 folk, v0.7.66 quests
+  <?php $view = $viewReq === 'villagers' ? 'folk' : 'square';   // v0.7.61 folk, v0.7.66 quests
   $present = [];
   foreach (town_spots($town) as $ps) foreach (npcs_at_spot($ps) as $n) $present[(int)$n['id']] = ['n' => $n, 'spot' => $ps];
   require_once __DIR__ . '/includes/friends.php';
@@ -306,7 +385,8 @@ function town_pickers(int $uid): string
   } ?>
   <nav class="tabs">
     <a class="<?= $view === 'square' ? 'on' : '' ?>" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">🏘️ The square</a>
-    <a class="<?= $view === 'folk' ? 'on' : '' ?>" href="<?= e(url('town.php?' . $q . 'view=folk')) ?>">👥 Villagers <small><?= count($present) + count($homeIn) ?></small></a>
+    <a class="<?= $view === 'folk' ? 'on' : '' ?>" href="<?= e(url('town.php?' . $q . 'view=villagers')) ?>">👥 Villagers <small><?= count($present) + count($homeIn) ?></small></a>
+    <a href="<?= e(url('town.php?' . $q . 'view=passport')) ?>">🛂 Passport</a>
     <a href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) ?>">📜 Orders</a>
   </nav>
   <?php if ($view === 'folk'): ?>
@@ -348,6 +428,8 @@ function town_pickers(int $uid): string
     </div>
     <?php endif; ?>
     <p class="help">Knock to visit someone at home: you can chat and give a gift there. Tap a name above to see what you know about them.</p>
+    <details class="fold box knownfold" id="known"<?= (isset($_GET['q']) || isset($_GET['f']) || isset($_GET['r']) || isset($_GET['known'])) ? ' open' : '' ?>><summary>📒 Everyone you know</summary>
+      <?= town_known_html($u, $hub, false) ?></details>
   <?php else: ?>
   <div class="spotgrid">
     <?php foreach (town_spots($town) as $s): $closed = spot_closed($s);

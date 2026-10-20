@@ -391,7 +391,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
     [$wxHead, $wxText, $wxCls] = garden_weather_note((int)$plot['id'], $tiles, $plants);
     $seasonNow = hollow_now(garden_region_code((int)$plot['id'])); ?>
 <p class="wxline wx-<?= e($wxCls) ?>"><b><?= e($wxHead) ?></b> · <?= e($wxText) ?>
-  <span class="muted"><?= $seasonNow['season_emoji'] ?> <?= e($seasonNow['season_label']) ?>, day <?= (int)$seasonNow['season_day'] ?>. <a href="<?= e(url('seasons.php')) ?>">Forecast</a></span></p>
+  <span class="muted"><?= $seasonNow['season_emoji'] ?> <?= e($seasonNow['season_label']) ?>, day <?= (int)$seasonNow['season_day'] ?>. <a href="<?= e(url('world.php?tab=seasons#seasons')) ?>">Forecast</a></span></p>
 <?php if (empty($u['region_id'])): ?>
   <div class="flash err">You haven’t chosen a home region yet. <a href="<?= e(url('world.php')) ?>">Choose one</a> to get your home seeds.</div>
 <?php endif; ?>

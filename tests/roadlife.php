@@ -450,5 +450,69 @@ $errs = []; $per = [];
 foreach (file($argv[1] . '/includes/data/village_blurbs.txt', FILE_IGNORE_NEW_LINES) as $i => $line) { $line = trim($line); if ($line === '' || $line[0] === '#') continue; $f = explode('|', $line); if (count($f) !== 2 || !isset(LANDSCAPES[$f[0]]) || mb_strlen($f[1]) > 130 || str_contains($f[1], '\'')) $errs[] = 'line ' . ($i + 1); else $per[$f[0]] = ($per[$f[0]] ?? 0) + 1; }
 ok('village_blurbs.txt lint, 4+ extra sentences for each of the 9 landscapes' . ($errs ? ' [' . implode(',', $errs) . ']' : ''), !$errs && count($per) === 9 && min($per) >= 4);
 
+echo "== v1.9.5 content fill\n";
+$dd = $argv[1] . '/includes/data/';
+$regs = []; foreach (file($dd . 'regions.txt', FILE_IGNORE_NEW_LINES) as $l) { if ($l === '' || $l[0] === '#') continue; $regs[] = explode('|', $l)[0]; }
+$evReg = []; $evIds = []; $evBad = [];
+foreach (file($dd . 'road_events.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
+    if ($l === '' || $l[0] === '#') continue;
+    $f = explode('|', $l);
+    if ($f[0] === 'E') { if (count($f) !== 8 || isset($evIds[$f[1]])) $evBad[] = $i + 1; $evIds[$f[1]] = 1; $evReg[$f[4]] = ($evReg[$f[4]] ?? 0) + 1; }
+    elseif ($f[0] === 'O') { if (count($f) !== 8) $evBad[] = $i + 1; foreach ([$f[4], $f[6]] as $fx) foreach (explode('+', $fx) as $part) if (preg_match('/@(\d+)$/', $part, $m) && (int)$m[1] > 20) $evBad[] = $i + 1; }
+    if (str_contains($l, '\'')) $evBad[] = $i + 1;
+}
+$missing = array_filter($regs, fn($r) => ($evReg[$r] ?? 0) < 6);
+ok('road_events.txt: unique ids, field counts, no apostrophes, item chance <= 20' . ($evBad ? ' [' . implode(',', $evBad) . ']' : ''), !$evBad);
+ok('every one of the ' . count($regs) . ' regions has a pack of 6+ events' . ($missing ? ' [' . implode(',', $missing) . ']' : ''), !$missing);
+$lnReg = []; $lnBad = [];
+foreach (file($dd . 'road_lines.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
+    if ($l === '' || $l[0] === '#') continue;
+    $f = explode('|', $l, 4);
+    if (count($f) < 4 || mb_strlen($f[3]) > 120 || str_contains($l, '\'')) $lnBad[] = $i + 1;
+    if (($f[2] ?? 'any') !== 'any') $lnReg[$f[2]] = ($lnReg[$f[2]] ?? 0) + 1;
+}
+$lnMissing = array_filter($regs, fn($r) => ($lnReg[$r] ?? 0) < 6);
+ok('road_lines.txt lint (<= 120 chars)' . ($lnBad ? ' [' . implode(',', $lnBad) . ']' : ''), !$lnBad);
+ok('every region has 6+ region-tagged ambient lines' . ($lnMissing ? ' [' . implode(',', $lnMissing) . ']' : ''), !$lnMissing);
+$pers = []; $scBad = [];
+foreach (file($dd . 'stop_chat.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
+    if ($l === '' || $l[0] === '#') continue;
+    $f = explode('|', $l);
+    if (count($f) !== 3 || str_contains($l, '\'')) $scBad[] = $i + 1;
+    $pers[$f[1]] = ($pers[$f[1]] ?? 0) + 1;
+}
+ok('stop_chat.txt lint' . ($scBad ? ' [' . implode(',', $scBad) . ']' : ''), !$scBad);
+ok('Warm, Eager, Fussy and Dreamy each have 6+ own lines', min($pers['Warm'] ?? 0, $pers['Eager'] ?? 0, $pers['Fussy'] ?? 0, $pers['Dreamy'] ?? 0) >= 6, json_encode($pers));
+$kinds = ['entry', 'creature', 'problem', 'find', 'chest']; $dv = []; $dvBad = [];
+foreach (file($dd . 'delve_rooms.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
+    if ($l === '' || $l[0] === '#') continue;
+    $f = explode('|', $l);
+    if (count($f) !== 4 || !in_array($f[0], $kinds, true) || mb_strlen($f[3]) > 120 || str_contains($l, '\'')) { $dvBad[] = $i + 1; continue; }
+    foreach (explode(',', $f[2]) as $ld) $dv[$f[0]][$ld === 'any' ? 'any' : $ld] = 1;
+}
+$dvGap = []; foreach (array_keys(LANDSCAPES) as $ld) foreach ($kinds as $k) if (empty($dv[$k][$ld]) && empty($dv[$k]['any'])) $dvGap[] = "$k/$ld";
+ok('delve_rooms.txt lint' . ($dvBad ? ' [' . implode(',', $dvBad) . ']' : ''), !$dvBad);
+ok('every landscape has a line for every room kind' . ($dvGap ? ' [' . implode(',', $dvGap) . ']' : ''), !$dvGap);
+ok('a delve room line is stable for the same seed', delve_room_line('creature', 'forest', 'a|1|2') === delve_room_line('creature', 'forest', 'a|1|2') && delve_room_line('creature', 'forest', 'a|1|2') !== '');
+$seen = []; for ($i = 0; $i < 30; $i++) $seen[delve_room_line('problem', 'coast', "s|$i")] = 1;
+ok('different rooms get different lines', count($seen) >= 2);
+ok('every landscape now has 4 finds, all existing gatherable items', (function () use ($dd) {
+    $slugs = []; foreach (file($dd . 'gatherables.txt', FILE_IGNORE_NEW_LINES) as $l) { if ($l === '' || $l[0] === '#') continue; $slugs[explode('|', $l)[0]] = 1; }
+    foreach (LANDSCAPE_FINDS as $land => $fs) { if (count($fs) !== 4) return false; foreach (array_slice($fs, 2) as [$n]) if (!isset($slugs[slugify($n)])) return false; }
+    return count(LANDSCAPE_FINDS) === 9;
+})());
+// a delve walk writes a room line
+q('DELETE FROM expeditions WHERE user_id = ?', [$uid]);
+$dl = q_one("SELECT * FROM landmarks WHERE kind = 'delve' ORDER BY id LIMIT 1");
+if ($dl) {
+    q('UPDATE users SET location_id = ?, energy = 20 WHERE id = ?', [$dl['location_id'], $uid]);
+    q('DELETE FROM landmark_uses WHERE user_id = ?', [$uid]);
+    $gu = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    [$okD] = delve_start($gu, (int)$dl['id']);
+    $ex = q_one("SELECT * FROM expeditions WHERE user_id = ? AND kind = 'delve' ORDER BY id DESC LIMIT 1", [$uid]);
+    ok('starting a delve logs the way in with a line', $okD && $ex && count(json_decode($ex['log'], true)) === 2, (string)($ex['log'] ?? ''));
+    q('DELETE FROM expeditions WHERE user_id = ?', [$uid]);
+}
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

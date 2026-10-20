@@ -245,6 +245,36 @@ function wonder_try(array $u, int $lmId, string $stat): array
 
 // ---------------- Delves ----------------
 
+/**
+ * v1.9.5: one short line of text for a delve room (data/delve_rooms.txt: kind|cond|lands|text). Picked from the delve and the room
+ * number, so a room always reads the same. Returns '' when no line fits (the room then shows only its number).
+ */
+function delve_room_line(string $kind, string $land, string $seed): string
+{
+    static $rows = null;
+    if ($rows === null) {
+        $rows = [];
+        $path = __DIR__ . '/data/delve_rooms.txt';
+        foreach (is_file($path) ? file($path, FILE_IGNORE_NEW_LINES) : [] as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') continue;
+            $f = array_map('trim', explode('|', $line, 4));
+            if (count($f) < 4 || $f[3] === '') continue;
+            $lands = $f[2] === '' || strtolower($f[2]) === 'any' ? ['any'] : array_map('strtolower', array_map('trim', explode(',', $f[2])));
+            $rows[] = ['kind' => strtolower($f[0]), 'cond' => $f[1] === '' ? '-' : $f[1], 'lands' => $lands, 'text' => $f[3]];
+        }
+    }
+    $now = function_exists('stop_now') ? stop_now([]) : [];
+    $pool = [];
+    foreach ($rows as $r) {
+        if ($r['kind'] !== $kind) continue;
+        if ($r['lands'] !== ['any'] && !in_array($land, $r['lands'], true)) continue;
+        if ($r['cond'] !== '-' && $r['cond'] !== '' && !stop_cond_ok(ltrim($r['cond'], '!'), $now)) continue;
+        $pool[] = $r['text'];
+    }
+    return $pool ? $pool[crc32($kind . '|' . $land . '|' . $seed) % count($pool)] : '';
+}
+
 function delve_start(array $u, int $lmId): array
 {
     $lm = at_landmark($u, $lmId);
@@ -256,10 +286,11 @@ function delve_start(array $u, int $lmId): array
     if (!spend_energy($uid, 1)) return [false, 'You need 1 energy to go in.'];
     landmark_once($uid, $lmId, 'delve');
     $gc = gnome_combat($u);
-    db_insert('expeditions', [
+    $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
         'steps_total' => DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
-        'log' => json_encode(['🕳️ You light a lantern and step into ' . $lm['name'] . '.']), 'started_at' => now(), 'arrive_at' => now(),
+        'log' => json_encode(array_values(array_filter(['🕳️ You light a lantern and step into ' . $lm['name'] . '.',
+            ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $expId)) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
     ]);
     return [true, '🕳️ Into the delve! (−1 energy)'];
 }
@@ -280,9 +311,11 @@ function delve_next(array $u, array &$exp): void
     $land = (string)($lm['landscape'] ?? 'forest');
     $lvl = (int)($lm['level'] ?? 5) + $room - 1;
     $exp['level'] = $lvl;
-    exp_log($exp, '🚪 Room ' . $room . ' of ' . DELVE_ROOMS . ' (danger level ' . $lvl . ').');
-    if ($lantern && ($wear = tool_use((int)$u['id'], 'lantern'))) exp_log($exp, $wear);   // v0.7.86: a lit room wears the lantern (Glowcap: never)
     $roll = random_int(1, 100);
+    $kind = ($room === DELVE_ROOMS || $roll <= 45) ? 'creature' : ($roll <= 70 ? 'problem' : 'find');
+    $rl = delve_room_line($kind, $land, (int)($exp['id'] ?? 0) . '|' . (int)$exp['from_id'] . '|' . $room);   // v1.9.5: a line of text for the room, the same every time
+    exp_log($exp, '🚪 Room ' . $room . ' of ' . DELVE_ROOMS . ' (danger level ' . $lvl . ').' . ($rl !== '' ? ' ' . $rl : ''));
+    if ($lantern && ($wear = tool_use((int)$u['id'], 'lantern'))) exp_log($exp, $wear);   // v0.7.86: a lit room wears the lantern (Glowcap: never)
     if ($room === DELVE_ROOMS || $roll <= 45) {
         $c = pick_creature($land, $lvl + ($room === DELVE_ROOMS ? 2 : 0), false);
         if ($c) {
@@ -308,6 +341,7 @@ function delve_chest(array $u, array &$exp): void
     $lm = landmark_at((int)$exp['from_id']);
     $lvl = (int)($lm['level'] ?? 5);
     $coins = random_int(20 + 5 * $lvl, 40 + 10 * $lvl);
+    if (($cl = delve_room_line('chest', (string)($lm['landscape'] ?? 'forest'), (int)($exp['id'] ?? 0) . '|' . (int)$exp['from_id'])) !== '') exp_log($exp, '🗝️ ' . $cl);
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
     exp_log($exp, '💰 The chest creaks open: ' . money($coins) . '!');
     $extra = (landmark_rebuilt_by($lm, $uid) ? 1 : 0) + (tool_tier($uid, 'lantern') >= 3 ? 1 : 0);   // a delve made safe for you, and a Glowcap Lantern, find more (v0.7.88)

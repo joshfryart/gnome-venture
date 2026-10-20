@@ -316,7 +316,7 @@ page_header('My Almanac');
     $sel = $met[(int)($_GET['n'] ?? 0)] ?? null; ?>
   <div class="bookwide">
     <h2>👥 Villagers of the Hollow <small><?= count($met) ?> of <?= count($everyone) ?> met</small></h2>
-    <p class="intro">A page for everyone you meet. It fills in as you get to know them: their tastes as you give gifts, their birthday once you’re acquainted. See where everyone is right now on <a href="<?= e(url('folk.php')) ?>">Villagers you know</a>.</p>
+    <p class="intro">A page for everyone you meet. It fills in as you get to know them: their tastes as you give gifts, their birthday once you’re acquainted. See where everyone is right now on <a href="<?= e(url('town.php?view=villagers')) ?>">Villagers you know</a>.</p>
     <?php if ($sel): $lv = $sel['level']; $tastes = known_tastes(friendship($uid, (int)$sel['id']), $sel);
         $work = q('SELECT DISTINCT sh.id, sh.name FROM npc_schedules s JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$sel['id']])->fetchAll(); ?>
       <article class="bookpage folkpage" id="np">

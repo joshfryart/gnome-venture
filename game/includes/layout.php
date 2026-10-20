@@ -324,7 +324,7 @@ function status_strip(array $u): string
         . '<div class="stfold"><div class="stsum">'
         . '<a class="stl" href="' . e(url('gnome.php')) . '" title="Gnome level ' . (int)$u['level'] . ': ' . number_format((int)$u['xp']) . '/' . number_format(xp_for_level((int)$u['level'] + 1)) . ' XP">🌱 <b>' . (int)$u['level'] . '</b> '
         . '<progress class="xpbar" aria-label="XP to next level" max="' . max(1, xp_for_level((int)$u['level'] + 1) - xp_for_level((int)$u['level'])) . '" value="' . max(0, min((int)$u['xp'], xp_for_level((int)$u['level'] + 1)) - xp_for_level((int)$u['level'])) . '"></progress></a>'
-        . '<a class="stl" href="' . e(url('seasons.php')) . '" title="' . e($hn['season_label'] . ' day ' . (int)$hn['season_day'] . ' · ' . $hn['weather_label']) . '">' . $hn['season_emoji'] . ' ' . e($hn['season_label']) . ' ' . (int)$hn['season_day'] . ' ' . $hn['weather_emoji'] . '</a>'
+        . '<a class="stl" href="' . e(url('world.php?tab=seasons#seasons')) . '" title="' . e($hn['season_label'] . ' day ' . (int)$hn['season_day'] . ' · ' . $hn['weather_label']) . '">' . $hn['season_emoji'] . ' ' . e($hn['season_label']) . ' ' . (int)$hn['season_day'] . ' ' . $hn['weather_emoji'] . '</a>'
         . ($fest ? '<a class="stl" href="' . e(url('festival.php')) . '" aria-label="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '" title="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '">' . e($fest['icon']) . '</a>' : '')
         . ($pots > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '" title="Pots ready" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
         . ($jars > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=pantry')) . '" title="Jars ready" aria-label="' . $jars . ' jars ready">🫙 ' . $jars . '</a>' : '')
@@ -604,7 +604,8 @@ function nav_sheet(array $u, string $page): string
         $_SESSION['nav_badges'] = $b;
     }
     $tile = function (string $file, string $icon, string $label, string $badge = '', string $slug = '') use ($page): string {
-        $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
+        $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
+        if ($page === 'folk.php') $cur = 'town.php';   // v2.0.4 menu folds: a villager's page sits under Town   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
         $on = $cur === $file;
         $bar = in_array($file, ['garden.php', 'world.php', 'inventory.php', 'town.php', 'jobs.php'], true);   // v1.0.0.1: already in the phone's bottom bar, so the phone sheet skips it
         return '<a class="navtile' . ($on ? ' on' : '') . ($bar ? ' inbar' : '') . '" href="' . e(url($file)) . '"' . ($on ? ' aria-current="page"' : '') . '><span class="nti">' . ($slug !== '' ? nav_icon($slug, $icon, 20) : e($icon)) . '</span>'
@@ -615,7 +616,7 @@ function nav_sheet(array $u, string $page): string
     $groups = [
         'You' => [['gnome.php', '🧙', 'My Gnome', '', 'gnome'], ['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
         'Grow' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'], ['arrange.php', '💐', 'Arranging', '', 'arranging']],
-        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '🏘️', 'Town', '', 'town'], ['folk.php', '👥', 'Villagers', '', 'villagers'], ['seasons.php', '🌦️', 'Seasons', '', 'seasons'], ['passport.php', '🛂', 'Passport', '', 'passport'],
+        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '🏘️', 'Town', '', 'town'],
             ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
         'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Gnome friends', $b['pals'] ?? '', 'friends']],

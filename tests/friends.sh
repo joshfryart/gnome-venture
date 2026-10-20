@@ -32,5 +32,5 @@ echo "list price $PR, shown price $P1, paid $((C0 - $(db "SELECT coins FROM user
 echo "== someone not around"; FAR=$(db "SELECT s.npc_id FROM npc_schedules s JOIN shops sh ON sh.id=s.shop_id JOIN locations l ON l.id=sh.location_id WHERE l.region <> 'Mossbottom' AND l.region <> (SELECT r.gnomish_name FROM regions r JOIN users u ON u.region_id=r.id WHERE u.id=$UID_) LIMIT 1")
 np $FAR -d do=talk; echo "notice shown: $(grep -c 'Not anywhere you can reach' /tmp/f.html)"
 curl -s -b $C $BASE/gnome.php > /tmp/f.html; echo "gnome friends rows: $(grep -c 'folk.php?id=' /tmp/f.html)"
-curl -s -b $C $BASE/world.php > /tmp/f.html; echo "world folk links: $(grep -c 'href="[^"]*folk.php"' /tmp/f.html)"
+curl -s -b $C $BASE/world.php > /tmp/f.html; echo "world folk links: $(grep -c 'href="[^"]*view=villagers"' /tmp/f.html)"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/fr-php.log || echo "(none)"

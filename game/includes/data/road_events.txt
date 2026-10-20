@@ -192,6 +192,226 @@ E|ea-paddy-frog|se=spring,summer|any|EA|both|🐸|A frog the size of a teapot si
 O|Ask what it is thinking|lore|11|xp:5+coins:{c}|“Rain,” says the frog. It is right, and pays you a coin for asking.|xp:1|“Lunch,” it says. You back away.
 O|Sit and think with it||0|xp:3+heal:3|You both think about rain. Calm settles over you.||
 #
+# ---------------------------------------------------------------- Maizehollow (CA)
+E|ca-tortilla-stand|-|any|CA|road|🫓|A tortilla stand by the road: a griddle, a stack of warm cloths and a very patient grandmother.
+O|Buy a warm stack (5 Petals)||0|pay:5+heal:6+xp:2|Hot, soft and folded around beans. You walk taller.||
+O|Offer to pat a few|nimble|11|xp:5+coins:{c}|Round as moons. She tips you for the help.|xp:1|Yours come out shaped like Australia. She laughs kindly.
+E|ca-milpa-three|-|any|CA|both|🌽|Corn, beans and squash grow together in one patch, each holding up the others.
+O|Study how they fit|lore|11|xp:6+buff:lore:1:30|Tall one climbs, vine twines, leaf shades. Of course.|xp:1|You count the leaves and lose count.
+O|Pick a ripe squash flower||0|rand:food@15+xp:3|Golden and delicate. A fine thing for a fritter.||
+E|ca-xolo-dog|-|any|CA|road|🐕|A hairless dog naps on a warm stone, and opens one eye at you.
+O|Share your shade|charm|10|xp:4+buff:charm:1:30|It leans against your leg. You are chosen.|xp:1|It sighs and rolls the other way.
+O|Scratch behind its ears||0|heal:5+xp:2|The sun is warm and the dog is warmer.||
+E|ca-papel-picado|-|any|CA|road|🎏|Paper banners in every colour flutter across the road, cut with lace-fine patterns.
+O|Straighten a tangled one|nimble|10|xp:4+coins:{c}|A shopkeeper waves thanks and presses a coin into your palm.|xp:1|You tear a corner. It is, honestly, still pretty.
+O|Walk beneath them||0|xp:3+buff:luck:1:30|Every colour on your shoulders. You feel lucky.||
+E|ca-volcano-warm|se=autumn,winter|any|CA|both|🌋|The soil is warm here, and a thread of steam curls from a crack beside the path.
+O|Warm your hands||0|heal:6+xp:2|Toasty fingers all the way to the next stop.||
+O|Dig for something|grit|12|xp:5+rand:forage@15|Black soil, rich as chocolate cake. Something small turns up.|hp:-2|The ground bites back, a little hot.
+E|ca-cacao-grove|-|any|CA|both|🍫|Pods of cacao hang from a trunk like red-gold lanterns. A parrot is guarding them.
+O|Ask the parrot nicely|charm|12|xp:5+rand:food@15|It lets you take one. You sniff it. Wonderful.|xp:1|It squawks something rude and turns its back.
+O|Admire from afar||0|xp:3+heal:3|They look even better from here.||
+#
+# ---------------------------------------------------------------- The Sunsprinkle Isles (CB)
+E|cb-steel-drum|-|any|CB|both|🥁|Somewhere close, a steel drum is playing, and your feet are keeping time without you.
+O|Dance along|nimble|10|xp:5+buff:nimble:1:30|Light on your feet, and you stay that way.|xp:1|You trip over your own rhythm. Nobody minds.
+O|Find the player|sense|11|xp:5+coins:{c}|A small crab on a bucket, hammering away. You tip the hat.|xp:1|The sound bounces off every palm and you find nothing.
+E|cb-mango-tree|se=spring,summer|any|CB|both|🥭|A mango tree leans over the road, heavy with fruit, one mango just out of reach.
+O|Shake the trunk|grit|11|xp:4+rand:food@20|Thud. Sticky, sweet and absolutely worth it.|hp:-2|A mango lands on your head. Fair.
+O|Wait for the next to fall||0|heal:4+xp:3|It does. Eventually.||
+E|cb-hammock|-|any|CB|road|🏝️|A hammock hangs between two palms, with a note: “Back soon. Rest if you like.”
+O|Rest a while||0|heal:8+energy:1|You wake with a coconut’s worth of calm.||
+O|Leave a thank-you note|charm|10|xp:5+coins:{c}|When you pass later, a coin is tucked under a stone.|xp:1|Your spelling is a bit adventurous. They will work it out.
+E|cb-sugarcane-press|-|any|CB|road|🎋|A press squeezes sugarcane into a bright green drink. A queue of dragonflies waits.
+O|Turn the crank|grit|10|xp:4+buff:grit:1:30|Hard going, but the first cup is yours.|xp:1|You turn it backwards. Nothing happens, loudly.
+O|Buy a cup (4 Petals)||0|pay:4+energy:2+xp:2|Sweet, cold and a little grassy.||
+E|cb-conch-call|-|any|CB|both|🐚|A big conch lies on the sand. When you lift it, you hear someone laughing, far away.
+O|Blow it|hardiness|11|xp:5+buff:charm:1:30|A deep note rolls across the water. Somewhere, boats turn.|xp:1|Only a rude noise. A gull takes offence.
+O|Listen to the sea inside||0|heal:5+xp:2|It tells you very little, very soothingly.||
+E|cb-hummingbird-feeder|-|any|CB|both|🐦|A red feeder hangs empty by a hibiscus, and a hummingbird hovers there, giving you a look.
+O|Fill it with sugar water||0|xp:4+buff:sense:1:30|It sips, whirrs round your head, and approves.||
+O|Hold very still|nimble|12|xp:6+rand:forage@15|It lands on your finger for a heartbeat. You feel enormous.|xp:1|You sneeze. It leaves in a huff.
+#
+# ---------------------------------------------------------------- The Rainroot Reaches (SA)
+E|sa-rope-bridge|-|any|SA|road|🌉|A rope bridge sways over a green gorge. The planks are mostly there.
+O|Cross carefully|nimble|12|xp:6+buff:nimble:1:30|Step, step, hold, step. You make it, feeling very brave.|hp:-2|A plank gives. You catch a rope, but your pride falls.
+O|Look for a way round|sense|11|xp:5+coins:{c}|A goat track, and a lost coin on it.|xp:1|The only way round is the bridge. You go back.
+E|sa-llama-herd|-|any|SA|both|🦙|A llama herd blocks the track, each with a bright tassel in its ear. They are in no hurry.
+O|Wait for them|charm|10|xp:4+heal:3|The leader nods and the herd drifts on. You nod back.|xp:1|One spits, politely, near your boots.
+O|Admire the tassels||0|xp:3+buff:charm:1:30|Pink, yellow and green. You feel properly dressed.||
+E|sa-potato-dig|-|any|SA|both|🥔|A family digs potatoes in every colour, and holds up a purple one in greeting.
+O|Help dig|grit|10|xp:5+coins:{c}|By noon you are filthy and paid in coins and a warm roast one.|xp:1|You dig up mostly worms. The worms are fine.
+O|Ask how many kinds there are|lore|12|xp:6|“Thousands,” says the grandmother. “Sit down, sit down.”|xp:1|You lose count at nine.
+E|sa-cloud-forest|we=fog,rain|any|SA|both|☁️|The cloud has come down into the trees, and the orchids on every branch drip like tiny lamps.
+O|Follow the dripping|sense|11|xp:6+rand:forage@15|It leads to a mossy hollow. Something precious is tucked in.|hp:-1|You slip on the moss. The orchids look away.
+O|Stand in the mist||0|heal:6+xp:2|Cool, soft and quiet.||
+E|sa-pan-pipes|-|any|SA|road|🎶|Someone is playing a panpipe tune on a ridge, and every bird has stopped to hear.
+O|Whistle the second part|charm|11|xp:5+buff:charm:2:30|You find the harmony. The ridge-top player bows to you.|xp:1|You find the wrong harmony. Everyone hears it.
+O|Sit and listen||0|heal:5+xp:3|It goes all the way into your boots.||
+E|sa-quinoa-terrace|-|any|SA|both|🌾|A stone terrace of quinoa, red and gold. A small farmer is arguing gently with a vicuña.
+O|Mediate|charm|11|xp:5+coins:{c}|You settle it with a compromise and half a bun.|xp:1|You make both sides cross. Well done.
+O|Admire the stonework|lore|11|xp:6+buff:lore:1:30|Not one gap you could slip a leaf into.|xp:1|It is stone. You are impressed by stone.
+#
+# ---------------------------------------------------------------- Olivewhistle Shore (SE)
+E|se-olive-press|se=autumn,winter|any|SE|both|🫒|An old stone press turns slowly, and green-gold oil runs into a clay jar.
+O|Lean on the beam|grit|11|xp:5+coins:{c}|A pair of hands shoves too, and you split the oil and the wages.|hp:-1|The beam swings round. You are pushed in a polite circle.
+O|Dip bread in the first drops (3 Petals)||0|pay:3+heal:6+xp:2|Peppery, grassy and perfect.||
+E|se-cicada-noon|dp=day|any|SE|both|🦗|The cicadas are screaming in the pines. The heat makes every word wobble.
+O|Find the shade||0|heal:5+xp:2|A cool wall, a bench and a lizard who shares it.||
+O|Sing back|charm|12|xp:5+buff:charm:1:30|The cicadas pause, impressed, then carry on.|xp:1|They drown you out. They always do.
+E|se-fig-tree|se=summer,autumn|any|SE|both|🍈|A fig tree has split its fruit in the sun. Wasps have already visited.
+O|Pick the ripest|nimble|11|xp:4+rand:food@20|Honey-sweet and seeded with tiny crunch.|hp:-1|A wasp objects. You retreat.
+O|Eat one on the spot||0|heal:5+xp:2|Warm from the sun, and gone in a moment.||
+E|se-hill-chapel|-|any|SE|road|🔔|A small white chapel on a hill. The bell rope is low, and the door is open.
+O|Ring the bell once||0|xp:4+buff:luck:1:30|It rolls over every field. Somewhere, someone smiles.||
+O|Sit in the cool inside||0|heal:7+xp:2|Stone, shade and a sleeping cat.||
+E|se-tile-mender|-|any|SE|road|🏺|A tile painter is mending a blue-and-white wall panel, and has run out of the right blue.
+O|Offer to find the blue|sense|12|xp:6+coins:{c}|There is a patch of just the right sky. She is delighted.|xp:1|Nothing is quite the right blue. She hums and carries on.
+O|Hold the brush||0|xp:4|She paints the leaf. You feel a little artistic.||
+E|se-lemon-wall|-|any|SE|both|🍋|Lemons hang over a garden wall like small suns. A sign says “For travellers”.
+O|Take one, gently||0|xp:3+rand:food@15|Zesty enough to wake a sleeping snail.||
+O|Squeeze one into your water||0|energy:1+xp:2|Bright and sharp. You feel awake all over.||
+#
+# ---------------------------------------------------------------- Birchbramble Steppe (EE)
+E|ee-bread-salt|-|any|EE|road|🍞|A woman in an embroidered shawl waits at a gate with a round loaf and a pinch of salt.
+O|Accept it with thanks|charm|10|xp:5+heal:6|“Safe road to you,” she says, and means it.|xp:1|You forget the salt and she smiles anyway.
+O|Share a story instead|charm|12|xp:6+coins:{c}|You tell the one about the hedgehog. She pays you in dumplings and coins.|xp:1|Your story is shorter than the loaf. She is gracious.
+E|ee-sunflower-field|se=summer|any|EE|both|🌻|A field of sunflowers all face the same way. Then, as you pass, a few turn to face you.
+O|Walk between the rows||0|xp:4+buff:sense:1:30|Yellow on every side. You see further than before.||
+O|Collect a handful of seeds|nimble|10|xp:4+rand:forage@15|Fat and stripy. Good for a pocket.|xp:1|The birds beat you to it.
+E|ee-stork-nest|se=spring,summer|any|EE|both|🕊️|A stork nest stands on a chimney, three heads poking up like soft question marks.
+O|Wait for the parent|sense|11|xp:5+buff:luck:1:30|It lands with a frog and a flourish. You feel blessed.|xp:1|The parent glares. You leave.
+O|Wave to the chicks||0|xp:3+heal:3|They clatter their beaks in reply.||
+E|ee-wooden-well|-|any|EE|road|⛲|A carved wooden well with a little tin cup on a chain. The water is sweet and very cold.
+O|Draw a bucket|grit|10|xp:4+energy:2|Heavy, but the drink is worth it.|hp:-1|The bucket gets away. The well is deep.
+O|Drop in a coin and wish (3 Petals)||0|pay:3+buff:luck:2:30+xp:2|You wish. Far down, something chimes.||
+E|ee-bear-honey|se=summer,autumn|any|EE|wild|🐻|A beekeeper sits very still on a log. “Shh,” she says. “Bear.”
+O|Freeze beside her|hardiness|11|xp:6+coins:{c}|The bear lumbers off with a full belly. She gives you a jar’s worth of thanks.|hp:-2|You sneeze. The bear takes offence.
+O|Back away quietly|nimble|10|xp:4+heal:2|Slow steps. Your heart does the running.|xp:1|A twig snaps. Several heads turn.
+E|ee-birch-bark|-|any|EE|both|🌳|Strips of silver birch bark curl from a trunk like old letters. Someone has written on one.
+O|Read it|lore|11|xp:6|A recipe for kvass, and a note about not being late for dinner.|xp:1|The letters are old and cramped. Maybe it is a poem.
+O|Leave a line of your own||0|xp:4+buff:charm:1:30|Words from a stranger, to a stranger. That is nice.||
+#
+# ---------------------------------------------------------------- The Dunewhisper (MENA)
+E|mena-courtyard-tea|-|any|MENA|road|🍵|A host at an arched gate waves you into a courtyard. Mint tea steams in a tray of glasses.
+O|Accept the glass|charm|10|xp:5+energy:2|Three glasses is the custom. You do your best.|xp:1|You drink it far too fast. They laugh, and pour another.
+O|Share what you know of the road|lore|11|xp:6+coins:{c}|He listens, pays for the news and wishes you shade.|xp:1|He knows the road better than you. Politely.
+E|mena-date-palm|-|any|MENA|both|🌴|A date palm drops its sticky brown fruit onto the sand, one by one, like slow rain.
+O|Gather the fallen|nimble|10|xp:4+rand:food@20|Sticky, sweet and full of energy.|xp:1|Ants got there first. They were organised.
+O|Sit in its shade||0|heal:6+xp:2|The shade of a palm is a kind of cool you cannot buy.||
+E|mena-caravan-bell|dp=dawn,dusk|any|MENA|road|🐪|A line of camels comes over the dune, bells chiming, each one more dignified than the last.
+O|Offer the lead camel a carrot|charm|11|xp:5+buff:charm:1:30|It takes it like a duchess accepting a gift.|xp:1|It looks over your head. Not even a snort.
+O|Ask the drover for news|sense|11|xp:5+coins:{c}|He tells you where the water is cool and where it is not.|xp:1|He answers in a language you do not speak. Cheerfully.
+E|mena-tile-fountain|-|any|MENA|road|⛲|A tiled fountain trickles in a quiet square. The tiles make stars on the water.
+O|Count the stars|lore|12|xp:6+buff:lore:1:30|Eight points, then sixteen, then your head hurts.|xp:1|You count thirty-one. It is wrong. It is beautiful.
+O|Splash your face||0|heal:5+energy:1|Cold, bright, and instantly better.||
+E|mena-night-stars|dp=night|any|MENA|wild|🌌|The desert night is so clear that the stars seem close enough to pick.
+O|Chart a constellation|lore|12|xp:7+buff:sense:1:30|An old shape: a lantern. It points the way.|xp:1|You lose the thread, and find a different one.
+O|Lie back and look||0|heal:7+xp:2|The sand gives off the day’s warmth, and the sky does the rest.||
+E|mena-spice-market|-|any|MENA|road|🧺|Sacks of cumin, sumac and saffron stand in a row. The trader is asleep on a heap of cloth.
+O|Wake him gently|charm|10|xp:5+coins:{c}|He gives you a pinch of something warm, and a coin for the courtesy.|xp:1|He mumbles “Fifteen” and is gone again.
+O|Take a deep breath||0|xp:3+buff:sense:1:30|Everything smells brighter for the next half hour.||
+#
+# ---------------------------------------------------------------- The Greatcanopy (WCA)
+E|wca-drum-talk|-|any|WCA|both|🥁|A drum answers another across the valley. Two villages are having a long and friendly chat.
+O|Tap along|nimble|11|xp:5+buff:charm:1:30|You fit a beat in. The valley answers you back.|xp:1|You tap a very rude rhythm. Nobody understands, thankfully.
+O|Listen|sense|11|xp:5+coins:{c}|It is gossip: the wedding, a goat, a missing spoon. And a small reward at the end.|xp:1|It is too fast. You keep up with every fourth beat.
+E|wca-cloth-weavers|-|any|WCA|road|🧵|Two weavers work a wide loom in the shade, and every row has a pattern with a name.
+O|Hand them the thread|nimble|10|xp:5+coins:{c}|They let you do three rows. They are crooked, and brilliant.|xp:1|You hand them the wrong colour. They say it is “bold”.
+O|Ask what the pattern says|lore|12|xp:6+buff:lore:1:30|“It says: we met at the river.” You nod slowly.|xp:1|“It says: you will not understand yet.” Fair.
+E|wca-baobab|-|any|WCA|both|🌳|A baobab stands alone, its trunk wider than a house and its branches like roots in the sky.
+O|Circle it with arms outstretched|grit|11|xp:5+buff:grit:1:30|You get a third of the way. It is a good start.|hp:-1|You trip on a root and are hugged by the baobab. Sort of.
+O|Rest against the trunk||0|heal:6+xp:2|It feels very old and very calm.||
+E|wca-rain-dance|we=rain,storm|any|WCA|both|🌧️|The first big raindrops fall, and everyone in the village runs out to dance in them.
+O|Join the dancing|nimble|10|xp:5+heal:5|Wet to the bone and happier than you have been all week.|xp:1|You slip in the mud. They cheer anyway.
+O|Catch the rain in a pot||0|xp:3+buff:luck:1:30|It makes a very clean sound when you tip it out.||
+E|wca-yam-mound|-|any|WCA|both|🍠|A row of earth mounds, each with a yam vine climbing a stick. A child stands guard with a stern look.
+O|Ask permission to look|charm|10|xp:4+rand:food@15|She gives you a tiny nod, and a sweet root for the road.|xp:1|She stares. You tiptoe away.
+O|Offer to pull a weed|grit|10|xp:5+coins:{c}|One weed becomes a hundred. You earn every coin.|hp:-1|The mound defends itself. With thorns.
+E|wca-parrot-chatter|-|any|WCA|wild|🦜|A grey parrot in a fig tree copies everything you say, half a beat late.
+O|Teach it a polite phrase|charm|11|xp:5+buff:charm:1:30|“Good day,” it says. Then, “Good day.” Then “Gooo-day.”|xp:1|It learns a rude noise instead. You cannot fix it.
+O|Listen to what it already knows|sense|12|xp:6+coins:{c}|It says where someone hid a little purse. It is still there.|xp:1|“Squawk,” it says. Very informative.
+#
+# ---------------------------------------------------------------- Thornacre Savanna (ESA)
+E|esa-acacia-shade|-|any|ESA|both|🌳|An acacia spreads its flat crown over the road like a table, and several animals are already sharing it.
+O|Join them in the shade||0|heal:6+energy:1|A zebra shifts over. Nobody talks. It is lovely.||
+O|Check the thorns|lore|11|xp:5+rand:forage@15|Ants make their homes in the swollen ones. One shell is just right.|xp:1|You find a thorn. With your finger.
+E|esa-coffee-picking|se=autumn,winter|any|ESA|both|☕|Red coffee cherries glow on the hillside, and pickers sing as they fill their baskets.
+O|Pick a basket|grit|10|xp:5+coins:{c}|Sore fingers, shiny coins and a warm cup at the end.|xp:1|Most of yours are green. They are kind about it.
+O|Smell the roasting||0|xp:3+buff:sense:1:30|It clears your head completely.||
+E|esa-giraffe-crossing|-|any|ESA|road|🦒|A tower of giraffes strolls across the road, one slow stride at a time.
+O|Wait respectfully|charm|10|xp:4+buff:charm:1:30|The last one looks down and winks. Or blinks. Hard to say.|xp:1|You count legs and lose your place.
+O|Draw one in the dust|lore|11|xp:5+coins:{c}|A passing herder pays you for the likeness.|xp:1|Yours looks mostly like a table with ideas.
+E|esa-mud-hut-market|-|any|ESA|road|🧺|A tiny market in the shade: baskets, beads and a woman who reads every customer’s mood.
+O|Browse|sense|11|xp:5+rand:uncommon@10|She gives you a thoughtful look and a small trinket.|xp:1|“You are not buying today,” she says. She is right.
+O|Compliment the baskets|charm|10|xp:4+coins:{c}|She smiles and hands you something for the road.|xp:1|You pick the wrong one to praise. She is amused.
+E|esa-storm-gather|we=storm,cloud|any|ESA|both|⛈️|A huge anvil of cloud builds on the horizon, and the whole savanna goes quiet and electric.
+O|Find shelter|sense|11|xp:5+heal:4|A rocky overhang, just in time. Rain sweeps across the grass like a curtain.|hp:-2|You get soaked to the skin. It is dramatic, at least.
+O|Watch from a hilltop|hardiness|12|xp:7+buff:grit:1:30|The best show on earth, and your hair stands on end.|hp:-2|A bolt snaps close by. Your ears ring all the way home.
+E|esa-termite-mound|-|any|ESA|wild|🏛️|A termite mound stands as high as a cottage, with chimneys and tiny balconies.
+O|Study its air vents|lore|12|xp:6+buff:lore:1:30|It cools itself all day. The termites are better engineers than you.|xp:1|You get a good look at the termites. They look back.
+O|Knock politely||0|xp:3|The whole mound hums. You apologise, quietly.||
+#
+# ---------------------------------------------------------------- Spicepeak (CSA)
+E|csa-chai-cart|-|any|CSA|road|🍵|A chai cart on a bicycle rings a bell as it nears. Ginger and cardamom travel with it.
+O|Buy a clay cup (4 Petals)||0|pay:4+energy:2+heal:3|Sweet, milky and strong. The cup goes “clink” when you set it down.||
+O|Help hold the kettle|nimble|10|xp:5+coins:{c}|The vendor tips you with a smile and a spare biscuit.|xp:1|It slops. Not a lot. A fair bit.
+E|csa-rangoli|-|any|CSA|road|🎨|On a doorstep, a woman sprinkles coloured powder into an intricate pattern. Petals, dots and swirls.
+O|Hold the bowl|charm|10|xp:4+buff:charm:1:30|She nods her thanks. You step carefully around the edge.|xp:1|You sneeze into the red. She laughs.
+O|Learn the pattern|lore|12|xp:6+buff:luck:1:30|Every line returns to where it began. A good omen.|xp:1|You lose the thread. It is complicated.
+E|csa-spice-drying|-|any|CSA|both|🌶️|Red chillies, golden turmeric and brown cumin dry on cloths across a rooftop.
+O|Turn the chillies|grit|11|xp:5+coins:{c}|Your eyes water, your hands burn. They pay you handsomely.|hp:-2|You rub your eye. Never rub your eye.
+O|Breathe in||0|xp:3+buff:sense:1:30|Your nose wakes up and your head follows.||
+E|csa-peacock-dance|se=summer,autumn|any|CSA|both|🦚|A peacock fans its tail in the road and turns slowly, in case you missed it.
+O|Applaud|charm|10|xp:5+buff:charm:2:30|He bows, with enormous tail-feather dignity.|xp:1|He is offended you only clapped once.
+O|Pick up a dropped feather|nimble|11|xp:4+rand:forage@15|Turquoise, gold and a little bit smug.|xp:1|He has his eye on it. You decide to leave it.
+E|csa-tea-slope|-|any|CSA|both|🍃|Tea bushes climb a hillside in neat green rows. Pickers dip and rise like a slow tide.
+O|Pick two leaves and a bud|nimble|11|xp:5+coins:{c}|“Just so,” the head picker says, pleased.|xp:1|You pick three leaves and no bud. Close.
+O|Walk the terrace||0|heal:5+xp:3|Cool mist, soft earth and steady footsteps.||
+E|csa-stepwell|-|any|CSA|wild|🏛️|A stepwell drops down in carved stone stairs. At the bottom, the water is blue and perfectly still.
+O|Climb down|grit|11|xp:6+buff:sense:1:30|It gets cooler with every step. At the bottom, you can hear your heartbeat.|hp:-2|The last steps are slippery. You sit down firmly.
+O|Study the carvings|lore|12|xp:6+coins:{c}|A line of elephants, each smaller than the last, and a small bag in a niche.|xp:1|They are lovely. They are also older than you can guess.
+#
+# ---------------------------------------------------------------- The Monsoon Tangle (SEA)
+E|sea-floating-market|-|any|SEA|road|🛶|Little boats loaded with mangoes and noodles bob together on the river. Everyone is shouting happily.
+O|Buy a bowl of noodles (5 Petals)||0|pay:5+heal:7+xp:2|Hot, sour and sweet all at once. You slurp loudly, as is correct.||
+O|Haggle for a mango|charm|11|xp:5+rand:food@20|You pay half. The seller says you must be a local.|xp:1|You pay double. The seller is very kind about it.
+E|sea-monsoon-burst|we=rain,storm|any|SEA|both|🌧️|The monsoon breaks all at once. The road turns to a river in thirty seconds.
+O|Shelter under a banana leaf|nimble|10|xp:4+heal:5|One leaf, a whole umbrella. You are dry as toast.|hp:-1|You find the one leaf with a hole in it.
+O|Splash through it|hardiness|11|xp:5+buff:hardiness:1:30|Drenched, delighted and unstoppable.|xp:1|You step in a deep bit. Glub.
+E|sea-rice-terrace|-|any|SEA|both|🌾|A paddy terrace shines like a staircase of mirrors, with a farmer in a cone hat standing in the middle.
+O|Plant a row|grit|11|xp:6+coins:{c}|Your row is crooked. It grows anyway.|hp:-1|You lose a boot to the mud. The paddy keeps it.
+O|Watch the water buffalo||0|xp:3+heal:3|It gives you a look of great calm, and goes on chewing.||
+E|sea-temple-bell|-|any|SEA|road|🔔|A temple bell hangs under a carved roof, and a monk nods at you to ring it.
+O|Ring it once||0|xp:4+buff:luck:1:30|The note rolls out over the jungle, long and deep.||
+O|Sit in the cool and breathe|hardiness|10|heal:6+xp:3|The quiet goes all the way down.|xp:1|You fidget. The monk smiles anyway.
+E|sea-durian-stall|se=summer,autumn|any|SEA|road|🍈|A stall with a sign that says “Durian: you will either love it or leave.”
+O|Try a piece (3 Petals)||0|pay:3+energy:2+xp:3|Creamy, strange, and somehow lovely. Your nose will remember.||
+O|Hold your nose and haggle|charm|11|xp:5+coins:{c}|The seller is so impressed with your nerve that he pays you.|xp:1|Your voice goes funny. Everyone nods knowingly.
+E|sea-orchid-vine|-|any|SEA|wild|🌺|An orchid hangs from a high branch, with petals like a small and very elegant tiger.
+O|Climb for a closer look|nimble|12|xp:6+rand:uncommon@10|A tiny seed pod, dropped just as you reach it.|hp:-2|The branch lets you down. Gently, and a long way.
+O|Sketch it|lore|11|xp:5+buff:lore:1:30|You get the stripe pattern just right.|xp:1|Your tiger looks like a worried cat.
+#
+# ---------------------------------------------------------------- The Coralscatter (OC)
+E|oc-kangaroo-crossing|-|any|OC|road|🦘|A kangaroo is sitting in the road like a person at a bus stop, scratching its chest.
+O|Offer it the right of way|charm|10|xp:4+buff:charm:1:30|It bounds off, then looks back with a very serious expression.|xp:1|It does not move. You walk around, very politely.
+O|Mimic its hop|nimble|11|xp:5+coins:{c}|It is delighted, or horrified. Either way, it drops something.|hp:-1|You fall over. The kangaroo is clearly judging.
+E|oc-kookaburra|dp=dawn,dusk|any|OC|both|🐦|A kookaburra on a gum branch bursts into laughter, as if you have just said something wonderful.
+O|Laugh back|charm|10|xp:4+buff:charm:1:30|Soon you are both crying with laughter at nothing at all.|xp:1|Your laugh is the wrong sort. It stops, mid-chuckle.
+O|Wave and walk on||0|xp:3+heal:3|It chuckles all the way to the horizon.||
+E|oc-tide-pool|-|any|OC|both|🦀|A tide pool in the black rock holds a tiny garden: anemones, a starfish and a very small crab.
+O|Peer closely|sense|10|xp:5+rand:forage@15|Something pearly sits between two stones.|xp:1|Everything is wet and you get your sleeve in it.
+O|Splash your feet||0|heal:5+xp:2|Cool, salty and perfect.||
+E|oc-friendly-greeting|-|any|OC|road|🌿|Travellers on the path stop and greet each other with a hand to the chest and a long, friendly look.
+O|Greet them back|charm|10|xp:5+buff:charm:1:30|You hold their gaze. They nod. You are somehow welcome.|xp:1|You wave. It is slightly the wrong greeting. They smile.
+O|Share your water||0|xp:4+heal:3|A sip passed around. A good start to a friendship.||
+E|oc-fern-gully|-|any|OC|wild|🌿|A fern gully glows green, with silver-backed fronds unrolling like slow fists.
+O|Follow the stream|sense|11|xp:6+coins:{c}|At the end, a clear pool and a coin from a long-ago wish.|hp:-1|It leads in a circle. You are very dizzy, and very green.
+O|Rest among the ferns||0|heal:7+xp:2|The air tastes green. A bellbird rings.||
+E|oc-outrigger|-|any|OC|both|🛶|An outrigger canoe waits on the sand, its sail furled. A sailor on the beach is eyeing the sky.
+O|Help launch it|grit|11|xp:6+coins:{c}|You push, she paddles, and the sail fills. A coin lands on the sand.|hp:-1|A wave soaks you to the knees. She laughs kindly.
+O|Read the sky with her|sense|12|xp:6+buff:sense:1:30|Clouds say rain by dusk, and the stars say luck.|xp:1|You see clouds. She sees weather.
+#
 # ---------------------------------------------------------------- strange sights (wilds only)
 S|glow-ring|-|any|any|wild|🍄|A ring of glowing mushrooms hums softly. Standing in the middle, you feel lucky.|buff:luck:2:60
 S|abandoned-camp|-|any|any|wild|🏕️|An abandoned camp. Someone left a little food behind.|rand:food

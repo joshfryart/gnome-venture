@@ -357,7 +357,7 @@ function hollow_chip(?string $region = null, string $class = 'st hollow'): strin
 {
     $n = hollow_now($region);
     $title = $n['season_label'] . ' day ' . $n['season_day'] . ' of ' . $n['season_length'] . '. ' . (HOLLOW_WEATHER[$n['weather']][3] ?? '') . ' ' . HOLLOW_DAYPARTS[$n['daypart']][2];
-    return '<span class="' . e($class) . '" title="' . e($title) . '"><a href="' . e(url('seasons.php')) . '">'
+    return '<span class="' . e($class) . '" title="' . e($title) . '"><a href="' . e(url('world.php?tab=seasons#seasons')) . '">'
         . '<span aria-hidden="true">' . $n['season_emoji'] . '</span> ' . e($n['season_label']) . ' <small>day ' . $n['season_day'] . '</small>'
         . ' · <span aria-hidden="true">' . $n['weather_emoji'] . '</span> ' . e($n['weather_label'])
         . ' · <span aria-hidden="true">' . $n['daypart_emoji'] . '</span> ' . e($n['daypart_label']) . '</a></span>';
@@ -368,7 +368,7 @@ function hollow_rail_section(?string $region = null): string
 {
     $n = hollow_now($region);
     $h = '<section class="rbox rhollow" aria-labelledby="rt-hollow"><h3 id="rt-hollow">' . $n['season_emoji'] . ' The Hollow</h3>'
-        . '<p class="rhnow"><a href="' . e(url('seasons.php')) . '"><b>' . e($n['season_label']) . '</b> day ' . $n['season_day'] . '/' . $n['season_length']
+        . '<p class="rhnow"><a href="' . e(url('world.php?tab=seasons#seasons')) . '"><b>' . e($n['season_label']) . '</b> day ' . $n['season_day'] . '/' . $n['season_length']
         . '<br>' . $n['weather_emoji'] . ' ' . e($n['weather_label']) . ' · ' . $n['daypart_emoji'] . ' ' . e($n['daypart_label']) . '</a></p><ul class="rlist">';
     foreach (array_slice(hollow_forecast($region, 3), 1) as $f) {
         $h .= '<li><span>' . e($f['label']) . '</span> <small class="rtime">' . $f['emoji'] . ' ' . e($f['wlabel']) . '</small></li>';
