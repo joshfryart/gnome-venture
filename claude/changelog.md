@@ -1,6 +1,12 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.19
+- Trek POST tap brake: `rate_limited('trek:'.$uid, 400, 5)` + `record_attempt` in trek.php before trek_tx (reuses login_attempts; no schema). Refused = flash "Easy there!". Closes the "no rate limit on trek POSTs" watch item.
+- News entry "Treks are open!" (shows only in the news post; Treks stay gated by setting `trek_open`: Joshua flips it at upload).
+- Decided: first cart dig keeps +8 fatigue; sluice text pass skipped. Joshua checked Ch II (no notes).
+- Tests: security190 +1 (brake), treks.sh rc 0, security190 0 failed.
+
 ## 2.0.18
 - Treks fixes from Joshua's phone play-test: (1) first-meeting spot text (Bracken, etc.) now opens as the story pop-over: NEW `trek_scene_spot()` (trek_scene.php) queues the spot panel text (before/arrive/talk/locked/question/intro) once per key per run. (2) Fight feed capped <1000px: `ul.trekrounds` max-height 11em, scrolls, newest line shown; "Show all" box 16em. (3) Obstacles can no longer be bypassed: `trek_spot_blocks()` (duel, miniboss, boss, cart, riddle with failopen while flag unset) + `trek_blocker_hold()` in trek_walk (standing on an undone blocker, the first step must go back toward the start; else refused "X blocks the way on…"); `trek_spot_stops()` stops on every pass. Stuck Cart now blocks the way to Burdock in Ch I (dig +8 fatigue always works, or heave; pays its Camp Kit): balance idea: no fatigue on the first dig. Clay Slide still skips the Fallen Shelf (reward only a kit). (4) Party cards one compact row each (~65px, 4 cards ~415 → ~260px at 390px; tap for stats stays). (5) Camp pop-over now works at Ch II rest sites + oldcamps (both chapters): `trek_here_restspot()`, "again"/"arrive" notes for rest_old/rest_spot, dialog offers free "Rest here", no kit shop/swap there.
 - Ch II sluices moved close to their water (within 4 tiles = inside the 9x9 phone window): sluice1 (24,9)→(20,9), sluice3 (11,89)→(21,89), sluice2 unchanged. Sluice done-line drafts reworded (drafts only apply to NEW slots: live rows keep generic text until edited).
