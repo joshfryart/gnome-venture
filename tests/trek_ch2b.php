@@ -123,6 +123,8 @@ $bd = $sp['brewdoor'];
 ok('the slide drops the party at the Brewhouse Door, sets slide_seen, costs a little fatigue', $r[0] === true && [$run()['x'], $run()['y']] === [$bd['x'], $bd['y']] && $flag('slide_seen') && (int)$run()['fatigue'] === 3, json_encode([$run()['x'], $run()['y'], $run()['fatigue']]));
 $at('start'); $viaSlide = $pathLen('slide');
 ok('the slide is part of a real route (reachable from the start)', $viaSlide > 0);
+ok('nookB also gives a Clay Pot (v2.0.15)', trek_pack_qty((int)$run()['id'], trek_item_id('clay-pot')) === 1);
+$tx(function (&$run, $u) { q('DELETE FROM trek_pack WHERE run_id = ? AND item_id = ?', [(int)$run['id'], trek_item_id('clay-pot')]); return [true, '']; });   // keep the rack-only scenario below
 $at('rack');
 $r = $tx(fn(&$run, $u) => trek_act_hidden($run, $u));
 ok('the Cooling Rack gives one Clay Pot (carried)', $flag('rack_found') && trek_pack_qty((int)$run()['id'], trek_item_id('clay-pot')) === 1);

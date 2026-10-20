@@ -348,7 +348,6 @@
       if (c.a) art.innerHTML = c.a;   /* server-built art, escaped by the server (picture lookup: art, placeholder, emoji) */
       card.appendChild(art);
       card.appendChild(el('b', 'tkfoenm', (c.n || '') + (c.x > 1 ? ' ×' + c.x : '')));
-      card.appendChild(el('small', 'tkfoelv', 'Level ' + (c.l || 1)));
       if (c.t) card.appendChild(el('span', 'tkfoeline', c.t));
       if (c.b) card.appendChild(el('span', 'tkfoehint', c.b));
       row.appendChild(card);

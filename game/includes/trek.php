@@ -1233,6 +1233,11 @@ function trek_act_hidden(array &$run, array $u): array
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.find');
     if ($kits) trek_say($run, trek_give_kits($run, $u, (int)$qty));
     elseif ($iid) trek_say($run, '✨ Rare find: ' . (int)$qty . ' × ' . trek_item_name($iid) . ' (carried).');
+    if (!empty($s['data']['also'])) {   // v2.0.15: a second item with the find (nookB: a Clay Pot, so Juniper can be fetched without the wheel)
+        [$s2, $q2] = array_pad(explode(':', (string)$s['data']['also'], 2), 2, '1');
+        $i2 = trek_item_id($s2);
+        if ($i2) { trek_pack_add((int)$run['id'], $i2, (int)$q2); trek_say($run, '✨ Rare find: ' . (int)$q2 . ' × ' . trek_item_name($i2) . ' (carried).'); }
+    }
     if ((int)($s['data']['petals'] ?? 0) > 0) trek_find_petals($run, (int)$s['data']['petals']);
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);
     return [true, ''];

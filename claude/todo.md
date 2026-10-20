@@ -1,4 +1,8 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.11)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.15)
+
+Built: **2.0.15** (join card Trek Lv, foe level dropped, Juniper pot at nookB, Tumble own effect). 2.0.13 desktop layout and 2.0.14 are live and OK (Joshua 2026-10-20). Overdue Book "gap" was not real (Sorrel takes it in II-a).
+II-b held until Joshua plays it: one skill-check stop (cart) in II-b; road roll % settings (~25 lines); Tumble talk lines reword; stale `.tkfoelv` CSS.
+
 
 Built: **2.0.11** (camp pop-over; check on phone: Camp button opens it, Talk cycles, Rest runs, it reopens after the story pop-over, auto-open switch works; add `chN.banter.<crew>.3/.4` text slots for more Talk lines). Before: 2.0.10 (map camera follows the token while walking, Treks + delves; check on phone: no jump at the end of a walk). Upload it instead of 2.0.9.
 
@@ -12,7 +16,7 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 - Not tested live: creature pictures in the pop-over (only emoji in tests). Last foe KO fade only in Auto replay.
 - Fable text review: Ch I + II-a work. Fixed 7 of 8 issues. Left: ch2.spot.crossroads.locked is unreachable (leave).
 
-## NEXT (planned, not built): 2.0.13 desktop fight layout, see claude/plan-trek-desktop-layout.md
+## 2.0.13 desktop fight layout: BUILT (see claude/plan-trek-desktop-layout.md)
 - Desktop map screen: log + Sneak/Camp/Leave under the map; fight screen keeps the inert map left and cross-fades the right column to the fight panel and back. Waiting for Joshua's "go" after the 2.0.12 phone test. One Sonnet task + Opus review.
 
 ## Now: Joshua

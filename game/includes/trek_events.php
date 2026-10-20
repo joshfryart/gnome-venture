@@ -397,12 +397,15 @@ function trek_act_crew(array &$run, array $u, int $c): array
         trek_heal_party($run, $u, 25);
         trek_add_fatigue($run, -4);
         trek_say($run, '💚 Everyone heals a quarter of their health. Fatigue −4.');
-    } elseif ($k === 'sorrel' || $k === 'tumble') {   // v1.9.2: she inks a map; v1.9.4: Tumble reads the signs (the same: the fog lifts around the next goal)
+    } elseif ($k === 'tumble') {   // v2.0.15: Tumble's own: he reads the signs and finds an easier way (fatigue -6)
+        trek_add_fatigue($run, -6);
+        trek_say($run, '🧭 Tumble reads the signs and finds an easier way. Fatigue −6.');
+    } elseif ($k === 'sorrel') {   // v1.9.2: she inks a map: the fog lifts around the next goal
         $obj = trek_objective($run);
         trek_seen_reveal($run, (int)$run['x'], (int)$run['y'], 4);
         if ($obj) {
             trek_seen_reveal($run, $obj['x'], $obj['y'], 3);
-            trek_say($run, ($k === 'tumble' ? '🧭 Tumble reads the signs and points the way. Next: ' : '🗺️ The little map shows the way. Next: ') . $obj['name'] . ', ' . trek_compass($run, $obj) . '.');
+            trek_say($run, '🗺️ The little map shows the way. Next: ' . $obj['name'] . ', ' . trek_compass($run, $obj) . '.');
         } else {
             trek_say($run, '🗺️ The little map fills in the fog nearby.');
         }

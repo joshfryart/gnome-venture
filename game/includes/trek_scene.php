@@ -78,13 +78,13 @@ function trek_scene_joincard(array $run, array $u, string $crewKey, bool $placed
     $st = trek_party_stats($run, $u);
     $m = null;
     foreach ($st as $p) if ($p['key'] === $crewKey) { $m = $p; break; }
-    if ($m) { $lvl = (int)$m['level'] + max(0, (int)$m['tl'] - 1); $hp = (int)$m['max']; $gc = $m['gc']; }
-    else { $mu = trek_crew_user($crewKey, $u); $gc = gnome_combat($mu); $lvl = (int)$mu['level']; $hp = (int)$gc['max_hp']; }
+    if ($m) { $lvl = (int)$m['tl']; $hp = (int)$m['max']; $gc = $m['gc']; }
+    else { $mu = trek_crew_user($crewKey, $u); $gc = gnome_combat($mu); $lvl = isset($run['st']['tl'][$crewKey]) ? trek_tl_get($run, $crewKey)[0] : max(1, (int)round(trek_tl_avg($run)) - 2); $hp = (int)$gc['max_hp']; }
     $cl = CALLINGS[$crew['calling']] ?? null;
     $bio = trim((string)($npc['bio'] ?? ''));
     if (mb_strlen($bio) > 220) $bio = mb_substr($bio, 0, 217) . '…';
     return ['w' => (string)$crew['npc_slug'], 'name' => trek_first_name_of((string)$npc['name']), 'full' => (string)$npc['name'],
-        'sub' => trim(((string)($npc['species'] ?? '') !== '' ? (string)$npc['species'] . ' · ' : '') . ($cl ? $cl[0] : '') . ' · Level ' . $lvl, ' ·'),
+        'sub' => trim(((string)($npc['species'] ?? '') !== '' ? (string)$npc['species'] . ' · ' : '') . ($cl ? $cl[0] : '') . ' · Trek Lv ' . $lvl, ' ·'),
         'stats' => ['Health' => $hp, 'Attack' => (int)($gc['atk'] ?? 0), 'Armour' => (int)($gc['ac'] ?? 0)],
         'role' => $cl ? (string)($cl[5] ?? '') : '', 'bio' => $bio, 'placed' => $placed];
 }

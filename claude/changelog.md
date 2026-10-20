@@ -1,6 +1,21 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.15
+- Join card shows "Trek Lv N" (the Party tab number; a late recruit shows avg−2). Before it showed base level + trek level (e.g. 17 when you were Lv 7).
+- Foe pop-over no longer shows a creature level (it was on the base-15 scale and meant nothing next to trek Lv).
+- Juniper: nookB (Another Nook) now also gives 1 Clay Pot (spot key `also=slug:qty`, read in trek_act_hidden), so skipping the optional II-a wheel no longer forces a walk back.
+- Tumble's crew moment is his own: fatigue −6 (Sorrel keeps the map reveal). Talk lines in trek_final_200/204 still promise a short cut: reword when text is next touched.
+- Drafts: Old Thrum is a cicada nymph, not a cricket (trek_drafts_ch2b.txt).
+- Tests: trek_scene, trek_ch2b, trek_audit_ch2 updated. treks.sh 229 ok (same on pristine; old "243" figure was stale). trek_oldcamp "banks them" flakes on the 12% ambush roll.
+- Unused CSS `.tkfoelv` left. No schema, no news (Treks hidden).
+
+## 2.0.14
+- Round-1 fight panel waits for the foe pop-over.
+
+## 2.0.13
+- Desktop Treks layout: log + Sneak/Camp/Leave under the map; fight keeps the map in column 1 (view-transition `trek-map`), column 2 (`trek-stage`) cross-fades to the fight panel and back. Phone unchanged.
+
 ## 2.0.12
 - Treks fights (branch trek-fight-touches): ONE combined foe pop-over (`dialog.tkfoe`, all foes side by side, same-name = one card ×N, boss shows "Next: X, then Y"; muted by `gvSceneOff`). After a walk into a fight the map shows above the fight card ("🗺️ Where it began", `details.tkfmap`, inert) and a red "!" bounces over the token before the pop-over; reload shows neither. Animations in every mode (hit shake, floating −N/+N, crit flash on the hit row, KO fade, eased bars, plan-each-turn stage tokens, Auto replay). Files: trek.php, includes/trek_fight.php (`trek_foe_card`, replay snap [6]), assets/trekfight.js, assets/trekmap.js, CSS block "v2.0.10 trek fight touches". No fight maths changed.
 - Treks text fixes (Fable review, 8 verified issues): NEW data/trek_final_2012.txt (9 slots) applied once by `trek_apply_text_2012()` (boot_step `trek_bodies_2012`, trek_text_pass = 5; edited rows kept; seed.php runs it): Tin Lamp keeper no longer says the snail never came back, "satchel" not "pack" for the Shard, kiln/cook lines reworded, NEW slots ch2.banter.zinnia.1/2 + bracken.1/2 (briefs in trek_texts_ch2.txt, drafts in trek_drafts_ch2.txt). interlude.1.* speakers now NPC slugs (pass updates existing rows only if still the old first name).

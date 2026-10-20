@@ -972,7 +972,7 @@ function trek_foe_card(array $f): array
     $d = trim((string)preg_replace('/\s+/u', ' ', strip_tags((string)($c['description'] ?? ''))));
     if ($d !== '' && preg_match('/^(.+?[.!?])(\s|$)/us', $d, $mm)) $d = $mm[1];
     if (mb_strlen($d) > 90) $d = rtrim(mb_substr($d, 0, 87), " ,;:") . '…';
-    return ['a' => $rel !== '' ? art_img($rel, 'lg', (string)$f['name'], 'tkfoeimg') : e((string)($f['icon'] ?? '🐾')), 'n' => (string)$f['name'], 'l' => (int)($f['lv'] ?? 1), 't' => $d];
+    return ['a' => $rel !== '' ? art_img($rel, 'lg', (string)$f['name'], 'tkfoeimg') : e((string)($f['icon'] ?? '🐾')), 'n' => (string)$f['name'], 't' => $d];
 }
 
 /** v1.8.5: foes and party as [name, icon, hp, max] rows, for the Auto replay. $fi may be the fight as it stood (the run's own is gone once it ends). */

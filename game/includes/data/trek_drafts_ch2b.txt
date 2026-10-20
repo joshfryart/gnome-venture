@@ -92,7 +92,7 @@ ch2.spot.thrum.stunned|Thrum sways on his legs, dazed, and for one whole round t
 ch2.spot.thrum.molt|The old shell splits down the back and falls away like a cast-off coat.
 The beat quickens. He has been waiting a long time to get that off.
 ch2.spot.thrum.defeat|The drumming stops, and the silence is so big it rings.
-Thrum sinks down onto the floor, shell cracked and eyes closed, a cricket at last.
+Thrum sinks down onto the floor, shell cracked and eyes closed, a cicada nymph at last.
 A drumskin lies where he stood, still warm.
 ch2.camp.cook.greet|Sit, sit, there’s broth on. The lamp-folk at the Tin Lamp send their regards, I expect, though they never write.
 ch2.camp.cook.shop|A kit’s a bedroll, a candle and a pouch of dried broth. Handy when the stairs are far.
@@ -131,9 +131,9 @@ book.pinch|Old Pinch is a very old, very large cistern crab, caked in grey clay.
 She grabbed whatever came near because the cistern was hers, and it had been a long time.
 Under the clay she is only a crab.
 She keeps a pearl, for no reason she ever explained.
-book.thrum|Old Thrum is a giant drumming cricket, clay-shelled and tired.
+book.thrum|Old Thrum is a giant drumming cicada nymph, clay-shelled and tired.
 He drummed for years, and his beat ran through the whole Weeping Clay.
-With the clay off, he is just a cricket, and quiet.
+With the clay off, he is just a cicada nymph, and quiet.
 But a drum, they say, can be heard from both sides.
 ch2.outro|The walls of the Weeping Clay are only damp now.
 The whole party is tired and fed and quietly proud.

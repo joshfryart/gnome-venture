@@ -146,6 +146,8 @@ ok('walk: to the Signpost, wrong answer ×2: the clay gives way (open, not solve
 ok('walk: Tumble joins', $goto('tumble') === true && $act('trek_act_recruit')[0] === true && $flag('freed_tumble'));
 $party(['gnome', 'burdock', 'zinnia', 'tumble']);
 ok('walk: Wayfinder nooks A, B, C open and can be emptied by walking there', $goto('nookA') === true && $act('trek_act_hidden')[0] && $goto('nookB') === true && $act('trek_act_hidden')[0] && $flag('nookA_found') && $flag('nookB_found'));
+ok('walk: nookB also gives a Clay Pot (v2.0.15)', $pack('clay-pot') === 1);
+$tx(function (&$run, $u) { q('DELETE FROM trek_pack WHERE run_id = ? AND item_id = ?', [(int)$run['id'], trek_item_id('clay-pot')]); return [true, '']; });   // the rest of this walk tests the wheel route, so spend the nook's pot
 $party(['gnome', 'burdock', 'zinnia', 'bracken']); $at('signpost'); $lightAll();   // (the party can only be changed at a camp: a Wayfinder never gets locked inside a nook, so this test steps out)
 ok('walk: the cooling rack (on foot, through the Dim) gives the second pot', $goto('rack') === true && $act('trek_act_hidden')[0] && $pack('clay-pot') === 1);
 ok('walk: Brewhouse door, camp 2 (Almanac, travel list), Juniper', $goto('brewdoor') === true && $goto('camp2') === true && $flag('camp2_seen') && $goto('juniper') === true);

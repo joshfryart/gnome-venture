@@ -24,7 +24,7 @@
 2|signpost|riddle|The Signpost|n|sym=I;icon=🪧;obj=9;right=3;tries=2;flag=sign_open;solved=sign_solved;seedkeeper=1;failopen=1
 2|tumble|recruit|Tumble Waymarsh|n|sym=T;crew=tumble;obj=10;needs=sign_open;flag=freed_tumble;ms=ch2_tumble;entry=trek:crossroads
 2|nookA|find|A Wayfinder’s Nook|n|sym=A;item=glowing-bead:1;flag=nookA_found
-2|nookB|find|Another Nook|o|sym=D;item=camp-kit:1;flag=nookB_found
+2|nookB|find|Another Nook|o|sym=D;item=camp-kit:1;also=clay-pot:1;flag=nookB_found
 2|slide|slide|The Clay Slide|o|sym=U;to=brewdoor;flag=slide_seen
 2|rack|find|The Cooling Rack|p|sym=M;item=clay-pot:1;flag=rack_found
 2|brewdoor|sign|The Brewhouse Door|q|sym=4
