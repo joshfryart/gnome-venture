@@ -5,6 +5,26 @@
   var TILE = 42, cur = null;
   var reduce = function () { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); };
 
+  /* v2.0.10: the walk ran into a fight (server: data-fight): a "!" pops over the token where it began (bounce about .6 s, then it holds), and only then is
+     the fold marked ready (details.tkfmap loses data-bang) so assets/trekfight.js can show the foe pop-up. Reduced motion: a still "!" for 1 s. */
+  function settle(box) {
+    var d = box.closest ? box.closest('details.tkfmap') : null;
+    if (d) d.removeAttribute('data-bang');
+  }
+  function bang(box) {
+    if (!box.hasAttribute('data-fight')) return;
+    var svg = box.querySelector('.tkbg:not(.tkx)'), me = svg ? svg.querySelector('.tkme') : null;
+    if (!me) { settle(box); return; }
+    var NS = 'http://www.w3.org/2000/svg', g = document.createElementNS(NS, 'g'), c = document.createElementNS(NS, 'circle'), t = document.createElementNS(NS, 'text');
+    g.setAttribute('class', 'tkbang' + (reduce() ? ' still' : ''));
+    g.setAttribute('aria-hidden', 'true');
+    c.setAttribute('cy', '-36'); c.setAttribute('r', '12');
+    t.setAttribute('y', '-30'); t.setAttribute('text-anchor', 'middle');
+    t.textContent = '!';
+    g.appendChild(c); g.appendChild(t); me.appendChild(g);
+    setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); settle(box); }, reduce() ? 1000 : 1100);
+  }
+
   function Walk(box) {
     var self = this, i;
     this.box = box;
@@ -97,6 +117,7 @@
     this.box.classList.remove('tkplay');   /* every footprint shows, the flag goes */
     if (this.chip) this.chip.hidden = true;
     if (cur === this) cur = null;
+    bang(this.box);
   };
 
   function scan() {
@@ -104,7 +125,7 @@
     if (!box) return;
     box.setAttribute('data-played', '1');
     if (cur) cur.end();
-    if (reduce() || !window.requestAnimationFrame) return;
+    if (reduce() || !window.requestAnimationFrame) { bang(box); return; }
     var w = new Walk(box);
     if (w.steps < 2 || !w.me) { w.end(); return; }
     cur = w;

@@ -245,7 +245,7 @@ function trek_map_html(array &$run, array $u, ?array $walk = null): string
     $data = '';
     $ext = '';
     if ($walk) {
-        $data = ' data-x0="' . $x0 . '" data-y0="' . $y0 . '" data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
+        $data = ($run['fi'] ? ' data-fight="1"' : '') . ' data-x0="' . $x0 . '" data-y0="' . $y0 . '" data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
         // v2.0.10: a second, wider picture covering the whole walk, so assets/trekmap.js can keep the camera on the token (no jump to the end tile first).
         $xs = array_column($walk['p'], 0);
         $ys = array_column($walk['p'], 1);
@@ -590,6 +590,7 @@ function trek_fight_html(array &$run, array $u): string
     $cards = [];
     foreach ($groups as $g) {
         $card = trek_foe_card($fi['foes'][$g['show']]);
+        $card['x'] = count($g['idx']);   // same name = one card, "×N"
         if ($boss && $g['gid'] === 0 && !empty($fi['meta']['script'])) $card['b'] = 'Next: ' . (TREK_MOVE_NAMES[$boss[0]] ?? ucfirst($boss[0])) . ', then ' . (TREK_MOVE_NAMES[$boss[1]] ?? ucfirst($boss[1]));
         $cards[] = $card;
     }
@@ -881,6 +882,7 @@ if (!$run || (!(int)$run['inside'] && !$hub)):
 <?php page_footer(); exit; endif; ?>
 <?php
 $walkPath = trek_walk_take($run);
+$fightWalk = $tab === 'map' && $run['fi'] && !$hub ? $walkPath : null;   // v2.0.10: a walk that ran into a fight keeps its map for this one page load (a "!" over the token)
 if ($run['fi'] || $tab !== 'map') $walkPath = null;   // v1.8.10: the path of the last walk (one-shot; dropped when a fight starts)
 $sceneHtml = $tab === 'map' ? trek_scene_stage($run, $u) : '';   // v2.0.8: same, for the talk pop-over
 $campAuto = $tab === 'map' && !$hub && !$run['fi'] ? trek_camp_open_take($run) : '';   // v2.0.11: the camp pop-over's one-shot open
@@ -923,6 +925,7 @@ $fat = (int)$run['fatigue'];
   <?php if ($run['fi']): ?>
     <div class="trekfightcol">
     <?= $hud ?>
+    <?php if ($fightWalk): ?><details class="tkfmap" open data-bang="1"><summary>🗺️ Where it began</summary><div class="tkfmapbox" inert><?= trek_map_html($run, $u, $fightWalk) ?></div></details><?php endif; /* v2.0.10: display only (inert, no form); assets/trekfight.js folds it after the pop-up */ ?>
     <?= trek_fight_html($run, $u) ?>
     </div>
   <?php else:

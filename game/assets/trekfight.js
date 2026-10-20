@@ -303,10 +303,13 @@
   if (window.MutationObserver) new MutationObserver(scan).observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
 })();
 
-/* v2.0.10: small touches on Trek fights. (1) A foe pop-over (non-modal <dialog class="tkfoe">) the first time a foe or boss shows in a fight: art, name, level,
-   one line, the boss's next-round hint. About 2 s or a tap. Muted by the same localStorage flag as the story pop-ups (gvSceneOff). It waits for an open Auto replay or
-   story scene and never takes focus. (2) After a round: hit shake, a floating number, a flash on a crit, a fade for a foe that fell, bars that ease down.
-   Reduced motion: none of it. Art is built by the server (escaped there); everything else goes in with textContent. */
+/* v2.0.10: small touches on Trek fights.
+   (1) ONE foe pop-over (non-modal <dialog class="tkfoe">) with a card for every foe not yet shown in this fight (same name = one card, "×N"); the boss card carries the
+       next-round hint. About 2.2 s or a tap closes all. Muted by the story pop-up flag (gvSceneOff). It waits for an open Auto replay, a story scene and, after a walk
+       into a fight, for the "!" over the token (assets/trekmap.js); it never takes focus, so the plan sheet and the Auto replay still work. A foe that joins later pops alone.
+   (2) After a round: hit shake, a floating number, a stronger flash on a crit, a fade for a foe kind that is gone, bars that ease. On the fight screen and on the
+       "Plan each turn" stage. (The Auto replay has its own below; a fight that ends goes to the map, so its last KO is only seen in the replay.)
+   Reduced motion: no movement (CSS) and no floating numbers; the pop-over still shows, still. Art is built by the server (escaped there); everything else is textContent. */
 (function () {
   var SEEN = 'gvTkFoeSeen', SNAP = 'gvTkSnap', HOLD = 2200;
   var reduce = function () { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); };
@@ -325,26 +328,32 @@
   function closePop() {
     clearTimeout(timer);
     if (!pop) return;
-    var d = pop; pop = null;
+    var d = pop, cb = d.tkAfter; pop = null;
     d.classList.add('out');
     setTimeout(function () { try { d.close(); } catch (e) { d.removeAttribute('open'); } if (d.parentNode) d.parentNode.removeChild(d); }, reduce() ? 0 : 200);
+    if (cb) cb();
   }
-  /* card = {a: art html, n, l, t, b}. host: where the dialog lives (the open replay dialog, so a tap still reaches it, else the page). */
-  function showPop(card, host) {
+  /* cards = [{a: art html, n, l, t, x, b}]; host = where the dialog lives (the open replay dialog, so a tap still reaches it, else the page); after = called when it closes */
+  function showPop(cards, host, after) {
     if (pop) closePop();
-    var d = el('dialog', 'tkfoe');
+    var d = el('dialog', 'tkfoe c' + Math.min(cards.length, 3));
     d.setAttribute('role', 'status');
-    d.setAttribute('aria-label', 'A foe appears');
-    var art = el('div', 'tkfoeart');
-    art.setAttribute('aria-hidden', 'true');
-    if (card.a) art.innerHTML = card.a;   /* server-built art, escaped by the server (picture lookup: art, placeholder, emoji) */
-    d.appendChild(art);
-    var tx = el('div', 'tkfoetx');
-    tx.appendChild(el('b', 'tkfoenm', card.n || ''));
-    tx.appendChild(el('small', 'tkfoelv', 'Level ' + (card.l || 1)));
-    if (card.t) tx.appendChild(el('span', 'tkfoeline', card.t));
-    if (card.b) tx.appendChild(el('span', 'tkfoehint', card.b));
-    d.appendChild(tx);
+    d.setAttribute('aria-label', cards.length > 1 ? 'Foes appear' : 'A foe appears');
+    var row = el('div', 'tkfoerow');
+    cards.forEach(function (c) {
+      var card = el('div', 'tkfoecard');
+      var art = el('div', 'tkfoeart');
+      art.setAttribute('aria-hidden', 'true');
+      if (c.a) art.innerHTML = c.a;   /* server-built art, escaped by the server (picture lookup: art, placeholder, emoji) */
+      card.appendChild(art);
+      card.appendChild(el('b', 'tkfoenm', (c.n || '') + (c.x > 1 ? ' ×' + c.x : '')));
+      card.appendChild(el('small', 'tkfoelv', 'Level ' + (c.l || 1)));
+      if (c.t) card.appendChild(el('span', 'tkfoeline', c.t));
+      if (c.b) card.appendChild(el('span', 'tkfoehint', c.b));
+      row.appendChild(card);
+    });
+    d.appendChild(row);
+    d.tkAfter = after || null;
     d.addEventListener('click', function (ev) { ev.stopPropagation(); closePop(); });
     var keep = document.activeElement;
     (host || document.body).appendChild(d);
@@ -353,49 +362,56 @@
     pop = d;
     timer = setTimeout(closePop, HOLD);
   }
-  /* the Auto replay uses this for a foe that joins mid-fight */
+  /* the Auto replay uses these: a foe that joins mid-fight pops alone; foes it already shows need no pop-over afterwards */
   window.gvFoePop = function (card, host) {
-    if (!card || muted() || reduce()) return;
     markSeen([card.n]);
-    showPop(card, host);
+    if (!muted()) showPop([card], host, null);
   };
   window.gvFoeSeen = function (names) { markSeen(names); };
 
-  /* ---- first sight of each foe ---- */
+  /* ---- first sight of the foes ---- */
+  function foldMap(box) {   /* after a walk into a fight: the map folds away once the pop-over is done (the summary reopens it) */
+    var d = document.querySelector('details.tkfmap');
+    if (d && box.isConnected) d.removeAttribute('open');
+  }
   function waitThenPop(box) {
     var tries = 0;
     (function go() {
       if (!box.isConnected) return;
-      var busy = document.querySelector('dialog.tkr[open], dialog.tkscene[open], .trekreplay:not([data-seen]), .trekscene:not([data-seen])');
-      if (busy && tries++ < 70) { setTimeout(go, 300); return; }
-      if (busy) return;
+      var busy = document.querySelector('dialog.tkr[open], dialog.tkscene[open], .trekreplay:not([data-seen]), .trekscene:not([data-seen]), details.tkfmap[data-bang]');
+      if (busy && tries++ < 70) { setTimeout(go, 250); return; }
       var holder = box.querySelector('.trekfoes'), cards = [];
       try { cards = JSON.parse((holder && holder.getAttribute('data-foes')) || '[]'); } catch (e) { cards = []; }
       var seen = seenList(), fresh = cards.filter(function (c) { return seen.indexOf(c.n) < 0; });
       markSeen(cards.map(function (c) { return c.n; }));
-      if (!fresh.length || muted() || reduce()) return;
-      /* one at a time: the boss first, then the rest, each after the last has gone */
-      fresh.sort(function (a, b) { return (b.b ? 1 : 0) - (a.b ? 1 : 0); });
-      var i = 0;
-      (function next() {
-        if (i >= fresh.length || !box.isConnected) return;
-        showPop(fresh[i++], null);
-        setTimeout(next, HOLD + 350);
-      })();
+      if (!fresh.length || muted()) { setTimeout(function () { foldMap(box); }, 400); return; }
+      fresh.sort(function (a, b) { return (b.b ? 1 : 0) - (a.b ? 1 : 0); });   /* the boss first */
+      showPop(fresh, null, function () { foldMap(box); });
     })();
   }
 
   /* ---- the round's touches ---- */
   function rowsOf(box) {
-    var out = { f: {}, a: {}, order: [] };
+    var out = { f: {}, a: {} };
     [].forEach.call(box.querySelectorAll('.trekhealth .hprow'), function (r) {
       var ref = r.getAttribute('data-ref') || '', foe = ref.charAt(0) === 'f';
-      var key = foe ? 'g' + r.getAttribute('data-g') : ref;
       var ico = r.querySelector('.hpico');
-      var o = { hp: parseInt(r.getAttribute('data-hp'), 10) || 0, max: parseInt(r.getAttribute('data-max'), 10) || 1, name: r.getAttribute('data-name') || '', ico: ico ? ico.innerHTML : '', foe: foe, key: key };   /* server-built art, escaped by the server */
-      (foe ? out.f : out.a)[key] = o;
-      out.order.push(o);
+      var o = { hp: parseInt(r.getAttribute('data-hp'), 10) || 0, max: parseInt(r.getAttribute('data-max'), 10) || 1, n: parseInt(r.getAttribute('data-n') || '1', 10) || 1,
+        name: r.getAttribute('data-name') || '', ico: ico ? ico.innerHTML : '' };   /* server-built art, escaped by the server */
+      (foe ? out.f : out.a)[foe ? o.name : ref] = o;
     });
+    return out;
+  }
+  /* the row on the fight screen and, in "Plan each turn", the token on the stage: both get the touches */
+  function shown(box, foe, key, o) {
+    var out = [], i, n;
+    var rows = box.querySelectorAll('.trekhealth .hprow');
+    for (i = 0; i < rows.length; i++) if (foe ? rows[i].getAttribute('data-name') === key && rows[i].getAttribute('data-ref').charAt(0) === 'f' : rows[i].getAttribute('data-ref') === key) out.push(rows[i]);
+    var toks = box.querySelectorAll('.trekstage .stok');
+    for (i = 0; i < toks.length; i++) {
+      n = toks[i].querySelector('.sname');
+      if (foe ? toks[i].classList.contains('foe') && n && n.textContent === key : toks[i].getAttribute('data-ref') === key) out.push(toks[i]);
+    }
     return out;
   }
   function floatNum(li, txt, cls) {
@@ -406,7 +422,7 @@
     setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 1600);
   }
   function ease(li, from, to, max) {
-    var bar = li.querySelector('progress'), num = li.querySelector('.hpnum'), t0 = null;
+    var bar = li.querySelector('progress'), num = li.querySelector('.hpnum, .shp'), t0 = null;
     if (!bar) return;
     function paint(v) { bar.value = v; if (num) num.textContent = v + '/' + max; }
     paint(from);
@@ -418,39 +434,51 @@
     }
     requestAnimationFrame(tick);
   }
-  function touches(box, snap) {
-    var now = rowsOf(box), prev = snap.rows;
-    var crit = [].some.call(box.querySelectorAll('.trekwhat .trekrounds > li'), function (li) { return /critical/i.test(li.textContent); });
-    var foeList = box.querySelector('.trekhealth .hprows');
-    [].forEach.call(box.querySelectorAll('.trekhealth .hprow'), function (li) {
-      var ref = li.getAttribute('data-ref') || '', foe = ref.charAt(0) === 'f';
-      var key = foe ? 'g' + li.getAttribute('data-g') : ref;
-      var was = (foe ? prev.f : prev.a)[key], cur = (foe ? now.f : now.a)[key];
-      if (!was || !cur || was.hp === cur.hp) return;
-      var lost = was.hp - cur.hp;
-      if (lost > 0) {
-        li.classList.add('tkx-hit');
-        if (crit && foe) li.classList.add('tkx-crit');
-        floatNum(li, '−' + lost, foe && crit ? 'crit' : 'hurt');
-        setTimeout(function () { li.classList.remove('tkx-hit', 'tkx-crit'); }, 900);
-      } else {
-        floatNum(li, '+' + (-lost), 'heal');
-      }
-      ease(li, was.hp, cur.hp, cur.max);
+  function critOn(name, lines) { return lines.some(function (t) { return /critical/i.test(t) && t.indexOf('hits ' + name) >= 0; }); }
+  function hit(items, txt, crit) {
+    items.forEach(function (li) {
+      li.classList.add('tkx-hit');
+      if (crit) li.classList.add('tkx-crit');
+      floatNum(li, txt, crit ? 'crit' : 'hurt');
+      setTimeout(function () { li.classList.remove('tkx-hit', 'tkx-crit'); }, 900);
     });
-    /* a foe that is gone from the list: a ghost row fades out where it stood */
-    if (foeList) Object.keys(prev.f).forEach(function (key) {
-      if (now.f[key] || prev.f[key].hp <= 0) return;
+  }
+  function touches(box, prev) {
+    var now = rowsOf(box);
+    var lines = [].map.call(box.querySelectorAll('.trekwhat .trekrounds > li'), function (li) { return li.textContent; });
+    Object.keys(now.f).forEach(function (key) {
+      var was = prev.f[key], cur = now.f[key];
+      if (!was) return;
+      var items = shown(box, true, key);
+      if (cur.n < was.n) { hit(items, '−' + was.hp, critOn(key, lines)); return; }   /* one of the kind fell: the row now shows the next one */
+      if (cur.hp === was.hp) return;
+      if (cur.hp < was.hp) hit(items, '−' + (was.hp - cur.hp), critOn(key, lines)); else items.forEach(function (li) { floatNum(li, '+' + (cur.hp - was.hp), 'heal'); });
+      items.forEach(function (li) { ease(li, was.hp, cur.hp, cur.max); });
+    });
+    Object.keys(now.a).forEach(function (key) {
+      var was = prev.a[key], cur = now.a[key];
+      if (!was || cur.hp === was.hp) return;
+      var items = shown(box, false, key);
+      if (cur.hp < was.hp) hit(items, '−' + (was.hp - cur.hp), critOn(cur.name, lines)); else items.forEach(function (li) { floatNum(li, '+' + (cur.hp - was.hp), 'heal'); });
+      items.forEach(function (li) { ease(li, was.hp, cur.hp, cur.max); });
+    });
+    /* a kind of foe that is gone: a ghost where it stood fades out */
+    var stage = box.classList.contains('turnmode') ? box.querySelector('.trekstage .stgrow.foes') : null;
+    var list = stage || box.querySelector('.trekhealth .hprows');
+    if (list) Object.keys(prev.f).forEach(function (key) {
       var o = prev.f[key];
-      var li = el('li', 'hprow foe down tkx-ghost tkx-ko');
-      li.setAttribute('aria-hidden', 'true');
-      var ic = el('span', 'hpico'); ic.innerHTML = o.ico;   /* copied from the server-built row (escaped by the server) */
-      li.appendChild(ic); li.appendChild(el('span', 'hpname', o.name));
-      var bar = document.createElement('progress'); bar.className = 'foebar'; bar.max = Math.max(1, o.max); bar.value = 0;
-      li.appendChild(bar); li.appendChild(el('span', 'hpnum', '0/' + o.max));
-      foeList.insertBefore(li, foeList.firstChild);
-      floatNum(li, '−' + o.hp, crit ? 'crit' : 'hurt');
-      setTimeout(function () { if (li.parentNode) li.parentNode.removeChild(li); }, 1100);
+      if (now.f[key] || o.hp <= 0) return;
+      var g = stage ? el('div', 'stok foe down tkx-ghost tkx-ko') : el('li', 'hprow foe down tkx-ghost tkx-ko');
+      g.setAttribute('aria-hidden', 'true');
+      var ic = el('span', stage ? 'sico' : 'hpico'); ic.innerHTML = o.ico;   /* copied from the server-built row (escaped by the server) */
+      g.appendChild(ic); g.appendChild(el('span', stage ? 'sname' : 'hpname', o.name));
+      if (!stage) {
+        var bar = document.createElement('progress'); bar.className = 'foebar'; bar.max = Math.max(1, o.max); bar.value = 0;
+        g.appendChild(bar); g.appendChild(el('span', 'hpnum', '0/' + o.max));
+      }
+      list.insertBefore(g, list.firstChild);
+      floatNum(g, '−' + o.hp, critOn(key, lines) ? 'crit' : 'hurt');
+      setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); }, 1100);
     });
   }
 
@@ -459,8 +487,8 @@
     var run = box.getAttribute('data-run'), round = parseInt(box.getAttribute('data-round'), 10) || 1;
     var snap = get(SNAP);
     var rows = rowsOf(box);
-    if (!reduce() && snap && snap.run === run && snap.round < round && snap.round >= round - 1 && snap.rows) touches(box, snap);
-    put(SNAP, { run: run, round: round, rows: { f: rows.f, a: rows.a } });
+    if (!reduce() && snap && snap.run === run && snap.round < round && snap.round >= round - 1 && snap.rows) touches(box, snap.rows);
+    put(SNAP, { run: run, round: round, rows: rows });
     waitThenPop(box);
   }
   function scan() {
@@ -567,7 +595,7 @@
     if (x[4] && this.d.me) ic.appendChild(this.d.me.cloneNode(true));   /* v1.9.0: the player's gnome, from the server-drawn template */
     li.appendChild(ic); li.appendChild(el('span', 'hpname', x[0])); li.appendChild(bar); li.appendChild(num);
     (side === 'f' ? this.fl : this.pl).appendChild(li);
-    var row = { li: li, bar: bar, num: num, v: x[2], max: x[3] };
+    var row = { li: li, bar: bar, num: num, v: x[2], max: x[3], name: x[0] };
     this.rows[side].push(row);
     this.paint(row, x[2]);
   };
@@ -614,7 +642,8 @@
     list.scrollTop = list.scrollHeight;   /* v1.8.8: every line is kept; the list follows the newest */
   };
   Play.prototype.apply = function (r, instant) {
-    var self = this, crit = r.l.some(function (h) { return /critical/i.test(h); });
+    var self = this, txt = r.l.map(function (h) { var d = document.createElement('div'); d.innerHTML = h; return d.textContent; });   /* escaped by the server */
+    var crit = function (name) { return txt.some(function (t) { return /critical/i.test(t) && t.indexOf('hits ' + name) >= 0; }); };   /* a crit flashes the row it landed on */
     (r.nf || []).forEach(function (x) {
       self.addRow('f', x);
       if (!instant && x[6] && window.gvFoePop) window.gvFoePop(x[6], self.dlg);   /* v2.0.10: a new foe or boss joins mid-fight */
@@ -622,12 +651,12 @@
     });
     this.rows.f.forEach(function (row, k) {
       var v = r.f[k]; if (v == null) return;
-      if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, crit);
+      if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, crit(row.g ? row.g.name : row.name));
     });
     var mine = function () {
       self.rows.p.forEach(function (row, k) {
         var v = r.p[k]; if (v == null) return;
-        if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, false);
+        if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, crit(row.name));
       });
     };
     if (instant) mine(); else this.later(mine, 260);
