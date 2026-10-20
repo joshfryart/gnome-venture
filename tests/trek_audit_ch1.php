@@ -160,6 +160,7 @@ foreach (['stash' => ['dig'], 'forager' => ['help'], 'fork' => ['win', 'fail'], 
 $add('ch1.ev.walkon');
 foreach (['burdock', 'zinnia', 'bracken'] as $k) $add('ch1.crew.' . $k . '.talk', 'ch1.crew.' . $k . '.done', 'ch1.banter.' . $k . '.1', 'ch1.banter.' . $k . '.2', 'interlude.1.' . $k);
 foreach (array_keys(trek_milestones(1)) as $k) $add('ch1.ms.' . $k);
+$add('ch1.scene.burdock.me', 'ch1.scene.zinnia.me', 'ch1.scene.bracken.me', 'ch1.scene.gloomtooth.me');   // v2.0.8: the gnome’s reply in the talk pop-over (tests/trek_scene.php)
 $add('ch1.intro', 'ch1.outro', 'ch1.hook', 'interlude.1.intro', 'ch1.ko.camp', 'ch1.ko.tutorial', 'ch1.tut.walk', 'ch1.tut.camp', 'ch1.tut.firstfight', 'ch1.tut.party', 'ch1.tut.treklevel', 'ch1.ui.tired', 'ch1.ui.wornout');
 $add('ch1.camp.innkeeper.greet', 'ch1.camp.innkeeper.shop', 'ch1.camp.innkeeper.rest', 'ch1.camp.innkeeper.firstkit', 'ch1.camp.innkeeper.full', 'ch1.camp.innkeeper.nofunds', 'ch1.camp.makecamp', 'ch1.camp.makecamp.free', 'ch1.camp.ambush');
 $add('item.cellar-key', 'item.clean-dew', 'item.lanternroot-seed');   // the Pack tab: carried items with a note
