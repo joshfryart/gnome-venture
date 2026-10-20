@@ -369,16 +369,16 @@ ok('chest: no key, no loot', $r[0] === false && $R()['campkits'] === 0 && (int)$
 $tx(function (&$run, $u) { trek_pack_add((int)$run['id'], trek_item_id('cellar-key'), 2, 0); return [true, '']; });
 $r = $tx(fn(&$run, $u) => trek_act_chest($run, $u)); $r2 = $tx(fn(&$run, $u) => trek_act_chest($run, $u));
 ok('chest: opens once for 1 key (2 kits and 120 Petals carried); a second tap keeps the spare key and pays nothing', $r[0] === true && $r2[0] === false && $R()['campkits'] === 2 && (int)$R()['petals_found'] === 120 && pack_n((int)$R()['id'], 'cellar-key') === 1);
-// the Worm Choir (right = 2, 3 tries): a wrong answer repeated runs the tries out; trying every answer always wins on the 3rd try
+// the Worm Choir (right = 2, 2 tries since v2.0.1): a wrong answer repeated runs the tries out
 $goto('choir');
 $tx(function (&$run, $u) { $run['st']['tries_choir'] = 0; return [true, '']; });
-foreach ([1, 1, 1] as $a) $tx(fn(&$run, $u) => trek_act_riddle($run, $u, $a));
+foreach ([1, 1] as $a) $tx(fn(&$run, $u) => trek_act_riddle($run, $u, $a));
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 2));
-ok('riddle: the same wrong answer 3 times locks it (even the right one is refused after)', $r[0] === false && !isset($R()['flags']['choir_solved']) && $R()['st']['tries_choir'] === 3);
+ok('riddle: the same wrong answer twice locks it (even the right one is refused after)', $r[0] === false && !isset($R()['flags']['choir_solved']) && $R()['st']['tries_choir'] === 2);
 $tx(function (&$run, $u) { $run['st']['tries_choir'] = 0; return [true, '']; });
-$tx(fn(&$run, $u) => trek_act_riddle($run, $u, 1)); $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3));
+$tx(fn(&$run, $u) => trek_act_riddle($run, $u, 1));
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 2));
-ok('riddle: 3 different answers always find the right one on try 3 (design: it cannot be failed by a player who tries each)', $r[0] === true && isset($R()['flags']['choir_solved']) && pack_n((int)$R()['id'], 'lanternroot-seed') === 1);
+ok('riddle: one wrong answer then the right one on try 2 wins', $r[0] === true && isset($R()['flags']['choir_solved']) && pack_n((int)$R()['id'], 'lanternroot-seed') === 1);
 $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 2));
 ok('riddle: solved is solved (no second seed)', pack_n((int)$R()['id'], 'lanternroot-seed') === 1);
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 99));

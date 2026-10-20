@@ -334,16 +334,21 @@ if ($resultCard): ?>
     $wait = ts($exp['arrive_at']) - time(); ?>
   <h3><?= e($to['name']) ?> is in sight!</h3>
   <?php if ($wait > 0): ?>
-    <p>The mycelium is carrying you the last stretch. You’ll arrive in about <b><?= nice_time($wait) ?></b><?= $quickRoute ? ' (💨 a quick walk)' : '' ?>. Feel free to tend your garden meanwhile.</p>
+    <p class="insight" data-hide-at-zero>The mycelium is carrying you the last stretch. You’ll arrive in about <b data-countdown="<?= (int)$wait ?>"><?= nice_time($wait) ?></b><?= $quickRoute ? ' (💨 a quick walk)' : '' ?>. Feel free to tend your garden meanwhile.</p>
+    <div class="choicelist" hidden data-show-at-zero><?= act_choice('arrive', '🏡', 'Arrive', 'Walk into ' . $to['name'], '', 'primary') ?></div>   <?php // v2.0.1: counts down live like the top bar, then Arrive appears without a reload ?>
   <?php else: ?>
     <div class="choicelist"><?= act_choice('arrive', '🏡', 'Arrive', 'Walk into ' . $to['name'], '', 'primary') ?></div>
   <?php endif; ?>
   <?php if ($wi && $wi['next']): ?>
     <?php $arr = q_one('SELECT * FROM locations WHERE id = ?', [(int)$exp['to_id']]);   // v1.0.4: say when the route will pause here
+      // v2.0.1: "go on to B" is the stop AFTER this one; say so, and name the final destination when B is not it
+      $nextName = dest_name($uid, $wi['next']);
+      $goalName = dest_name($uid, $wi['loc']);
+      $thenTxt = (int)$wi['next']['id'] === (int)$wi['loc']['id'] ? 'on to <b>' . e($nextName) . '</b> (your destination)' : 'on to <b>' . e($nextName) . '</b>, then toward <b>' . e($goalName) . '</b> (your destination)';
       if ((int)($u['dest_auto'] ?? 1) && (int)($u['dest_pause_towns'] ?? 0) && $arr && dest_is_town($arr)): ?>
-    <p class="help">⏸️ You’ll pause at <b><?= e((string)$arr['name']) ?></b> to look around. Tap Set off when you’re ready to go on to <?= e(dest_name($uid, $wi['next'])) ?>.</p>
+    <p class="help">⏸️ You’ll pause at <b><?= e((string)$arr['name']) ?></b> to look around. Tap Set off when you’re ready, then <?= $thenTxt ?>.</p>
     <?php else: ?>
-    <p class="help"><?= (int)($u['dest_auto'] ?? 1) ? '🧭 Next: walk on to <b>' . e(dest_name($uid, $wi['next'])) . '</b> (⚡' . (int)$wi['next_energy'] . ') as soon as you arrive.' : '🧭 Next stop on your route: ' . e(dest_name($uid, $wi['next'])) . '.' ?></p>
+    <p class="help"><?= (int)($u['dest_auto'] ?? 1) ? '🧭 After this stop: walk ' . $thenTxt . ' (⚡' . (int)$wi['next_energy'] . ') as soon as you arrive.' : '🧭 Next stop on your route after this one: ' . e($nextName) . '.' ?></p>
     <?php endif; ?>
   <?php endif; ?>
 <?php endif; ?>

@@ -128,10 +128,9 @@ $q0 = fn() => $run();
 $at('libdoor');
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 1));
 ok('a wrong answer: no flags, 1 try used', $r[0] === true && !$flag('libdoor_open') && (int)($run()['st']['tries_libdoor'] ?? 0) === 1);
+ok('first wrong answer: still shut', !$flag('libdoor_open'));
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3));
-ok('second wrong answer: still shut', !$flag('libdoor_open'));
-$r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 1));
-ok('the 3rd wrong answer: "the clay gives way" (door open), but NOT solved', $flag('libdoor_open') && !$flag('libdoor_solved'));
+ok('the 2nd wrong answer (v2.0.1: 2 tries): "the clay gives way" (door open), but NOT solved', $flag('libdoor_open') && !$flag('libdoor_solved'));
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 2));
 ok('no tries after that (the spot is done)', $r[0] === false);
 // the right answer on a fresh run

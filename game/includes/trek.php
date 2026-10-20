@@ -673,7 +673,7 @@ function trek_walk(array &$run, array $u, int $tx, int $ty): array
         $spot = (ctype_upper($tile) || ctype_digit($tile)) ? trek_spot_at($ch, $x, $y) : null;
         if ($spot && $spot['type'] === 'gate' && !trek_gate_open($run, $spot)) {   // bumped a locked gate: stand next to it and say why
             trek_say_text($run, 'ch' . $ch . '.spot.' . $spot['code'] . '.locked');
-            if (!empty($spot['data']['ms']) && !trek_flag($run, 'reached_' . $spot['code'])) {   // v1.9.2: a gate that is only reached (the Crossroads in II-a) pays its milestone
+            if (!empty($spot['data']['ms']) && empty($spot['data']['noopen']) && !trek_flag($run, 'reached_' . $spot['code'])) {   // v1.9.2: a gate that is only reached (v2.0.1: not the Crossroads, which pays only when you go through) (the Crossroads in II-a) pays its milestone
                 trek_flag_set($run, 'reached_' . $spot['code']);
                 trek_ms_award($run, $u, (string)$spot['data']['ms']);
             }
@@ -700,7 +700,7 @@ function trek_walk(array &$run, array $u, int $tx, int $ty): array
             if ($spot['type'] === 'gate') {
                 if (!trek_flag($run, 'gateopen_' . $spot['code'])) {
                     trek_flag_set($run, 'gateopen_' . $spot['code']);
-                    if (!empty($spot['data']['needs'])) trek_say_text($run, 'ch' . $ch . '.spot.' . $spot['code'] . '.open');   // (a gate that was never locked, the Crossroads since II-b, has no "it opens" line: the milestone card says it)
+                    if (!empty($spot['data']['needs']) && empty($spot['data']['noopen'])) trek_say_text($run, 'ch' . $ch . '.spot.' . $spot['code'] . '.open');   // (a gate that was never locked, the Crossroads since II-b, has no "it opens" line: the milestone card says it)
                     if (!empty($spot['data']['ms']) && !trek_flag($run, 'reached_' . $spot['code'])) {   // v1.9.4: a gate that is open from the start (the Crossroads since II-b) pays its milestone the first time you go through
                         trek_flag_set($run, 'reached_' . $spot['code']);
                         trek_ms_award($run, $u, (string)$spot['data']['ms']);
@@ -1072,7 +1072,7 @@ function trek_act_chest(array &$run, array $u): array
 }
 
 /**
- * Answer a riddle: 3 tries in all. v1.9.2: a riddle may have no prize item (a door), may be answered by a Seedkeeper in the party instead ($how = 'seed', data
+ * Answer a riddle: 2 tries in all (v2.0.1; was 3). v1.9.2: a riddle may have no prize item (a door), may be answered by a Seedkeeper in the party instead ($how = 'seed', data
  * seedkeeper=1), and may open anyway after the last wrong answer (data failopen=1: "the clay gives way"; the flag in data open= is set, but the "solved" flag is not).
  */
 function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): array
@@ -1090,7 +1090,7 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
         return [true, ''];
     }
     $tries = (int)($run['st']['tries_' . $s['code']] ?? 0);
-    $max = max(1, (int)($s['data']['tries'] ?? 3));
+    $max = max(1, (int)($s['data']['tries'] ?? 2));
     if ($tries >= $max) return [false, 'No tries left.'];
     $run['st']['tries_' . $s['code']] = ++$tries;
     if ($answer === (int)$s['data']['right']) {
@@ -1108,6 +1108,34 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
     trek_say_text($run, $key($tries >= $max ? 'out' : 'wrong'));
     if ($tries >= $max && !empty($s['data']['failopen'])) trek_flag_set($run, (string)$s['data']['flag']);   // the clay gives way
     return [true, ''];
+}
+
+/** v2.0.1: riddle doors (failopen) whose tries are used up but whose way never opened (a run saved when riddles had 3 tries). */
+function trek_riddle_stuck(array $run): bool
+{
+    foreach (trek_spots((int)$run['chapter']) as $s) {
+        if ($s['type'] !== 'riddle' || empty($s['data']['failopen'])) continue;
+        if ((int)($run['st']['tries_' . $s['code']] ?? 0) >= max(1, (int)($s['data']['tries'] ?? 2)) && !trek_flag($run, (string)$s['data']['flag'])) return true;
+    }
+    return false;
+}
+
+function trek_riddle_heal(array &$run): void
+{
+    foreach (trek_spots((int)$run['chapter']) as $s) {
+        if ($s['type'] !== 'riddle' || empty($s['data']['failopen'])) continue;
+        if ((int)($run['st']['tries_' . $s['code']] ?? 0) >= max(1, (int)($s['data']['tries'] ?? 2))) trek_flag_set($run, (string)$s['data']['flag']);
+    }
+}
+
+/** v2.0.1: the item flavour text (item.<slug>) for each reward item that has one, as small centred notes. */
+function trek_item_notes(array $slugs): string
+{
+    $h = '';
+    foreach ($slugs as $slug) {
+        if (is_string($slug) && isset(trek_text_rows()['item.' . $slug])) $h .= '<div class="trektext small tkitemnote">' . trek_text('item.' . $slug) . '</div>';
+    }
+    return $h;
 }
 
 /** Is there a living-or-not member of this calling in the party (the gnome's own calling counts)? */
@@ -1283,12 +1311,12 @@ function trek_complete_chapter(array &$run, array $u): void
     trek_flag_set($run, 'ch' . $n . '_rewarded');
     $petals = $fin['petals'] !== '' ? max(0, (int)setting($fin['petals'])) : 0;
     if ($petals > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$petals, $uid]);
-    $names = [];
+    $names = []; $slugs = [];
     foreach ($fin['items'] as $slug) {
         $iid = trek_item_id($slug);
-        if ($iid) { give_item($uid, $iid, 1); $names[] = trek_item_name($iid); }
+        if ($iid) { give_item($uid, $iid, 1); $names[] = trek_item_name($iid); $slugs[] = $slug; }
     }
     foreach ($fin['entries'] as $key) unlock_entries($uid, $key);
-    $run['st']['rewards'] = ['petals' => $petals, 'items' => $names];
+    $run['st']['rewards'] = ['petals' => $petals, 'items' => $names, 'slugs' => $slugs];
     trek_say($run, '🎉 ' . $fin['title'] . ' complete! +' . $petals . ' ' . setting('currency_name') . ', ' . implode(', ', $names) . '.');
 }

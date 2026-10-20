@@ -142,7 +142,7 @@ $xp0 = $mainXp();
 ok('walk: to Sorrel, who takes the book and joins; milestone paid', $goto('sorrel') === true && $act('trek_act_fetch')[0] === true && $flag('freed_sorrel') && $pack('overdue-book') === 0 && $mainXp() > $xp0);
 ok('walk: to Silverfin, face her, win', $goto('silverfin') === true && $act('trek_act_challenge')[0] === true && $win() && $flag('silverfin_down'));
 ok('walk: through the hatch to Potter\'s Row and the Crossroads (first pass pays ch2a_end)', $goto('silvergate') === true && $goto('wheel') === true && $goto('crossroads') === true && $flag('reached_crossroads'));
-ok('walk: to the Signpost, wrong answer ×3: the clay gives way (open, not solved)', $goto('signpost') === true && $act('trek_act_riddle', 1)[0] && $act('trek_act_riddle', 1)[0] && $act('trek_act_riddle', 2)[0] && $flag('sign_open') && !$flag('sign_solved'));
+ok('walk: to the Signpost, wrong answer ×2: the clay gives way (open, not solved)', $goto('signpost') === true && $act('trek_act_riddle', 1)[0] && $act('trek_act_riddle', 2)[0] && $flag('sign_open') && !$flag('sign_solved'));
 ok('walk: Tumble joins', $goto('tumble') === true && $act('trek_act_recruit')[0] === true && $flag('freed_tumble'));
 $party(['gnome', 'burdock', 'zinnia', 'tumble']);
 ok('walk: Wayfinder nooks A, B, C open and can be emptied by walking there', $goto('nookA') === true && $act('trek_act_hidden')[0] && $goto('nookB') === true && $act('trek_act_hidden')[0] && $flag('nookA_found') && $flag('nookB_found'));
@@ -323,8 +323,8 @@ $tx(function (&$run, $u) { foreach (['wet-clay', 'clay-pot', 'overdue-book', 'ki
 ok('knock-out then banking leaves all five quest items in the pack, untouched', (function () use ($pack) { foreach (['wet-clay', 'clay-pot', 'overdue-book', 'kiln-key', 'cistern-pearl'] as $s) if ($pack($s) !== 2) return false; return true; })());
 // the riddle door in every combination
 $at('libdoor'); $tx(function (&$run, $u) { foreach (['libdoor_open', 'libdoor_solved'] as $f) { q('DELETE FROM trek_flags WHERE run_id = ? AND flag = ?', [(int)$run['id'], $f]); unset($run['flags'][$f]); } unset($run['st']['tries_libdoor']); return [true, '']; });
-$r = $act('trek_act_riddle', 1); $r = $act('trek_act_riddle', 3);
-ok('door plate: two wrong answers leave one try and the door shut', $flag('libdoor_open') === false && (int)$run()['st']['tries_libdoor'] === 2);
+$r = $act('trek_act_riddle', 1);
+ok('door plate: one wrong answer leaves one try and the door shut', $flag('libdoor_open') === false && (int)$run()['st']['tries_libdoor'] === 1);
 $party(['gnome', 'burdock', 'zinnia', 'sorrel']);
 $r = $act('trek_act_riddle', 0, 'seed');
 ok('...a Seedkeeper in the party can still open it after wrong tries (open and solved)', $r[0] === true && $flag('libdoor_open') && $flag('libdoor_solved'));
@@ -334,10 +334,10 @@ $clear(['libdoor_open', 'libdoor_solved']); $tx(function (&$run, $u) { unset($ru
 $party(['gnome', 'burdock', 'zinnia', 'bracken']);
 $r = $act('trek_act_riddle', 0, 'seed');
 ok('no Seedkeeper in the party: "read it the Seedkeeper\'s way" is refused', $r[0] === false && !$flag('libdoor_open'));
-foreach ([1, 3, 1] as $a) $act('trek_act_riddle', $a);
-ok('door plate: three wrong answers — the clay gives way, the door is open, but NOT counted as solved (no check credit)', $flag('libdoor_open') && !$flag('libdoor_solved'));
+foreach ([1, 3] as $a) $act('trek_act_riddle', $a);
+ok('door plate: two wrong answers — the clay gives way, the door is open, but NOT counted as solved (no check credit)', $flag('libdoor_open') && !$flag('libdoor_solved'));
 $r = $act('trek_act_riddle', 2);
-ok('...the sixth tap does nothing', $r[0] === false);
+ok('...the next tap does nothing', $r[0] === false);
 // the Kiln: key from the riddle or from three toad kills, and the chest takes it
 $at('kilnstone'); $clear(['kilnstone_solved', 'kiln_open']); $tx(function (&$run, $u) { unset($run['st']['tries_kilnstone'], $run['st']['kills']); q('DELETE FROM trek_pack WHERE run_id = ?', [(int)$run['id']]); return [true, '']; });
 foreach ([2, 3, 2] as $a) $act('trek_act_riddle', $a);

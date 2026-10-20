@@ -327,7 +327,7 @@ function trek_spot_panel(array &$run, array $u): string
             break;
         case 'riddle':
             $tries = (int)($run['st']['tries_' . $code] ?? 0);
-            $max = (int)($spot['data']['tries'] ?? 3);
+            $max = (int)($spot['data']['tries'] ?? 2);
             if ($done) { $h .= isset(trek_text_rows()[$k($code, 'after')]) ? '<div class="trektext">' . trek_text($k($code, 'after')) . '</div>' : '<p class="help">' . ($ch === 1 ? 'The choir hums happily.' : 'Solved.') . '</p>'; break; }
             if ($tries >= $max) { $h .= '<div class="trektext">' . trek_text($k($code, 'out')) . '</div>'; break; }
             $h .= '<div class="trektext">' . trek_text($k($code, 'question')) . '</div><form method="post" class="choiceform">' . csrf_field() . '<input type="hidden" name="do" value="riddle"><input type="hidden" name="t" value="map"><div class="choicelist">';
@@ -739,7 +739,7 @@ function trek_hub_html(array &$run, array $u, array $party): string
     if (!empty($run['st']['show_done'])) {
         $rw = $run['st']['rewards'] ?? ['petals' => 0, 'items' => []];
         $h .= '<div class="trekdone"><b>🎉 ' . e(trek_chapter($ch)['finish']['title'] ?? 'Chapter ' . $ch) . ' complete</b><div class="trektext">' . trek_text('ch' . $ch . '.outro') . '</div>'
-            . '<p>🪙 ' . (int)$rw['petals'] . ' ' . e(setting('currency_name')) . ' · 🎁 ' . e(implode(', ', (array)$rw['items'])) . ' · 📖 new Almanac pages</p><div class="trektext">' . trek_text('ch' . $ch . '.hook') . '</div>'
+            . '<p>🪙 ' . (int)$rw['petals'] . ' ' . e(setting('currency_name')) . ' · 🎁 ' . e(implode(', ', (array)$rw['items'])) . ' · 📖 new Almanac pages</p>' . trek_item_notes((array)($rw['slugs'] ?? [])) . '<div class="trektext">' . trek_text('ch' . $ch . '.hook') . '</div>'
             . trek_form('dismiss', 'Got it', ['t' => 'map'], 'btn small') . '</div>';
     }
     $h .= '<div class="trektext">' . trek_text('interlude.' . $ch . '.intro') . '</div><div class="hudparty">';
@@ -798,6 +798,11 @@ if ($run && !isset($run['st']['tl'])) {   // v1.8.9: a run from before trek leve
 }
 if ($run && trek_hub_pending($run)) {   // v1.9.1: a finished chapter: bring the gnome to the interlude (bank, rest, close the run)
     trek_tx($uid, function (&$r, $uu) { if (trek_hub_pending($r)) trek_hub_arrive($r, $uu); return [true, '']; });
+    $row = trek_run_row($uid);
+    $run = $row ? trek_load($row) : null;
+}
+if ($run && trek_riddle_stuck($run)) {   // v2.0.1: riddles went from 3 tries to 2: a door with 2 misses on a run from before must open now
+    trek_tx($uid, function (&$r, $uu) { trek_riddle_heal($r); return [true, '']; });
     $row = trek_run_row($uid);
     $run = $row ? trek_load($row) : null;
 }
@@ -953,11 +958,15 @@ $fat = (int)$run['fatigue'];
   <div class="trekpackview">
     <div class="packchips"><span class="chip">🎒 <?= (int)$run['petals_found'] ?> 🪙 carried</span><span class="chip">🏕️ <?= (int)$run['campkits'] ?>/<?= (int)setting('trek_campkit_max') ?> kits</span><span class="chip">✅ <?= $pb ? $pb . ' 🪙' : $nBank . ' items' ?> banked</span></div>
     <details class="helpfold packhelp"><summary>ℹ️ Bank at camp</summary><p class="help">Rest at a camp to bank: items go straight to your Satchel and Petals to your purse. Carried finds can be lost if the party is knocked out. Quest items are safe.</p></details>
-    <?php if (!$carried && !(int)$run['petals_found']): ?><p class="muted packnone">Nothing yet.</p><?php else: ?>
+    <?php if (!$carried && !(int)$run['petals_found'] && (int)$run['campkits'] < 1): ?><p class="muted packnone">Nothing yet.</p><?php else: ?>
     <div class="satchel packgrid">
       <?php if ((int)$run['petals_found']): ?>
         <details class="itile"><summary><span class="iicon">🪙</span><span class="iname"><?= $cur ?></span><b class="iqty"><?= (int)$run['petals_found'] ?></b></summary>
           <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= $cur ?></b><p>Found on the trek. Bank it at a camp.</p></div></details>
+      <?php endif; ?>
+      <?php if ((int)$run['campkits'] > 0): ?>
+        <details class="itile"><summary><span class="iicon">🏕️</span><span class="iname">Camp Kit</span><b class="iqty"><?= (int)$run['campkits'] ?></b></summary>
+          <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b>Camp Kit</b><div class="trektext small"><?= trek_text('item.camp-kit') ?></div></div></details>
       <?php endif; ?>
       <?php foreach ($carried as $r): $quest = trek_is_quest_item((int)$r['item_id']); $note = isset(trek_text_rows()['item.' . $r['slug']]) ? trek_text('item.' . $r['slug']) : ''; ?>
         <details class="itile"><summary><span class="iicon"><?= item_icon($r) ?></span><span class="iname"><?= e($r['name']) ?></span><b class="iqty"><?= (int)$r['qty'] ?></b></summary>
@@ -973,7 +982,7 @@ $fat = (int)$run['fatigue'];
         <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= $cur ?></b><p>Already added to your Petals.</p></div></details><?php endif; ?>
       <?php foreach ($banked as $r): ?>
         <details class="itile"><summary><span class="iicon"><?= item_icon($r) ?></span><span class="iname"><?= e($r['name']) ?></span><b class="iqty"><?= (int)$r['qty'] ?></b></summary>
-          <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= e($r['name']) ?></b> <span class="cat">in your Satchel</span><?php if (trim((string)($r['description'] ?? '')) !== ''): ?><p><?= desc_html((string)$r['description']) ?></p><?php endif; ?></div></details>
+          <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= e($r['name']) ?></b> <span class="cat">in your Satchel</span><?php if (isset(trek_text_rows()['item.' . $r['slug']])): ?><div class="trektext small"><?= trek_text('item.' . $r['slug']) ?></div><?php elseif (trim((string)($r['description'] ?? '')) !== ''): ?><p><?= desc_html((string)$r['description']) ?></p><?php endif; ?></div></details>
       <?php endforeach; ?></div>
       <?php endif; ?>
     </details>

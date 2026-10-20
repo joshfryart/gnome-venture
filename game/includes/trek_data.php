@@ -41,6 +41,7 @@ function trek_settings_base(): array
         'trek_ms_gloomtooth'  => ['label' => 'Treks: milestone XP, Gloomtooth down', 'type' => 'int', 'default' => '600', 'min' => 0, 'max' => 1000000],
         'trek_ms_chapter'     => ['label' => 'Treks: milestone XP, Chapter I complete (each pays 50-100% by its checks)', 'type' => 'int', 'default' => '350', 'min' => 0, 'max' => 1000000],
         'trek_petals_daily'   => ['label' => 'Treks: most Petals found in fights in one Hollow day (v1.8.1)', 'type' => 'int', 'default' => '150', 'min' => 0, 'max' => 1000000],
+        'trek_items_daily'    => ['label' => 'Treks: most items found in fights in one Hollow day (0 = no limit) (v2.0.1)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 1000000],
         'trek_campkit_price'  => ['label' => 'Treks: Camp Kit price (Petals)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 100000],
         'trek_campkit_max'    => ['label' => 'Treks: most Camp Kits carried', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 99],
         'trek_ko_loss_pct'    => ['label' => 'Treks: share of unbanked finds lost when the party is knocked out (%)', 'type' => 'int', 'default' => '45', 'min' => 0, 'max' => 100],
@@ -137,6 +138,8 @@ function trek_schema(string $PK, string $ID, string $END): array
         ['users', 'trek_ch', 'INT NOT NULL DEFAULT 1'],
         ['users', 'trek_pet_day', 'VARCHAR(10) NULL'],
         ['users', 'trek_pet_today', 'INT NOT NULL DEFAULT 0'],
+        ['users', 'trek_item_day', 'VARCHAR(10) NULL'],   // v2.0.1: the daily count of items found in fights (setting trek_items_daily)
+        ['users', 'trek_item_today', 'INT NOT NULL DEFAULT 0'],
     ];
     return [$t, $i, $c];
 }
@@ -155,7 +158,7 @@ function trek_ch_ensure(): void
     $done = true;
     $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
     try {
-        q('SELECT trek_ch, trek_pet_day, trek_pet_today FROM users LIMIT 1');
+        q('SELECT trek_ch, trek_pet_day, trek_pet_today, trek_item_day, trek_item_today FROM users LIMIT 1');
     } catch (Throwable $e) {
         foreach (trek_schema('', '', '')[2] as [$tb, $col, $def]) {
             try { db()->query("SELECT $col FROM $tb LIMIT 1"); } catch (Throwable $e2) { db()->exec("ALTER TABLE $tb ADD COLUMN $col $def"); }   // DDL from the constant column list above (cannot be a bound parameter)

@@ -8,20 +8,20 @@
 2|book|find|The Overdue Book|l|sym=O;obj=3;item=overdue-book:1;flag=book_found
 2|nook|sign|The Reading Nook|l|sym=N;entry=trek:claybound
 2|rest|rest|The Cushion Corner|l|sym=H;flag=rest_used
-2|libdoor|riddle|The Door Plate|l|sym=R;obj=4;right=2;tries=3;flag=libdoor_open;solved=libdoor_solved;seedkeeper=1;failopen=1
+2|libdoor|riddle|The Door Plate|l|sym=R;obj=4;right=2;tries=2;flag=libdoor_open;solved=libdoor_solved;seedkeeper=1;failopen=1
 2|libgate|gate|The Library Door|l|sym=G;needs=libdoor_open
 2|sluice2|switch|The Library Sluice|l|sym=V;obj=5;flag=sluice2_done
 2|sorrel|fetch|Sorrel Inkcap|l|sym=L;crew=sorrel;need=overdue-book:1;obj=6;flag=freed_sorrel;ms=ch2_sorrel
 2|silverfin|miniboss|Silverfin the Page-Eater|l|sym=X;obj=7;flag=silverfin_down;script=silverfin;creature=silverfin
 2|silvergate|gate|The Reading Room Hatch|m|sym=F;needs=silverfin_down
 2|wheel|trade|The Potter’s Wheel|m|sym=P;need=wet-clay:3;give=clay-pot:1;xp=12;flag=wheel_done
-2|kilnstone|riddle|The Kiln Stone|m|sym=Q;pass=1;right=1;tries=3;item=kiln-key:1;flag=kilnstone_solved
+2|kilnstone|riddle|The Kiln Stone|m|sym=Q;pass=1;right=1;tries=2;item=kiln-key:1;flag=kilnstone_solved
 2|kiln|chest|The Sealed Kiln|m|sym=Y;needs=kiln-key;item=camp-kit:2;petals=120;flag=kiln_open
-2|crossroads|gate|The Crossroads Gate|m|sym=Z;ms=ch2a_end;obj=8;flag=reached_crossroads
+2|crossroads|gate|The Crossroads Gate|m|sym=Z;needs=silverfin_down;noopen=1;ms=ch2a_end;obj=8;flag=reached_crossroads
 # Chapter II-b spots (v1.9.4). New types: slide (a one-way chute: to= another spot's code; the button posts do=slide). New data: a recruit may have needs= (a flag, the text part .locked shows until it is set) and entry= (an Almanac page);
 # find/hidden may have petals= and a camp-kit item (kits); a camp may have keeper= (the text piece for its keeper, ch2.camp.<keeper>.greet|shop|rest), flag= (its "reached" flag) and entry=; a boss may have weak=<flag>;weak_pct=<n>
 # (if the flag is set the boss starts the fight at that % of its health). The Crossroads gate is open from II-b on (it pays ch2a_end the first time you go through).
-2|signpost|riddle|The Signpost|n|sym=I;icon=🪧;obj=9;right=3;tries=3;flag=sign_open;solved=sign_solved;seedkeeper=1;failopen=1
+2|signpost|riddle|The Signpost|n|sym=I;icon=🪧;obj=9;right=3;tries=2;flag=sign_open;solved=sign_solved;seedkeeper=1;failopen=1
 2|tumble|recruit|Tumble Waymarsh|n|sym=T;crew=tumble;obj=10;needs=sign_open;flag=freed_tumble;ms=ch2_tumble;entry=trek:crossroads
 2|nookA|find|A Wayfinder’s Nook|n|sym=A;item=glowing-bead:1;flag=nookA_found
 2|nookB|find|Another Nook|o|sym=D;item=camp-kit:1;flag=nookB_found

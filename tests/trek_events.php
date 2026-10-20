@@ -271,8 +271,8 @@ $fresh(); $at('bridgestone');
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 1)); ok('stone: a wrong answer, no reward, tries 1', $r[0] === true && !$flag('stone_solved') && $run()['st']['tries_bridgestone'] === 1);
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3)); ok('stone: the right answer (3) gives a Singing Pebble', $r[0] === true && $flag('stone_solved') && $pack('singing-pebble') === 1);
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3)); ok('stone: once only', $r[0] === false && $pack('singing-pebble') === 1);
-$fresh(); $at('bridgestone'); foreach ([1, 2, 1] as $a) $tx(fn(&$run, $u) => trek_act_riddle($run, $u, $a));
-$r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3)); ok('stone: three wrong answers lock it', $r[0] === false && $pack('singing-pebble') === 0);
+$fresh(); $at('bridgestone'); foreach ([1, 2] as $a) $tx(fn(&$run, $u) => trek_act_riddle($run, $u, $a));
+$r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3)); ok('stone: two wrong answers lock it (v2.0.1: 2 tries)', $r[0] === false && $pack('singing-pebble') === 0);
 // pass=1: the walk stops once
 foreach ([['cart', 20, 5, 14, 5], ['mushcamp', 8, 19, 8, 23], ['bridgestone', 28, 32, 16, 32]] as [$code, $x1, $y1, $x2, $y2]) {
     $fresh(); $sp = $spots[$code];

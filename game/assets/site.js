@@ -63,23 +63,26 @@ document.addEventListener('change', function (ev) {
 });
 
 // Adventure bar: count down to arrival, then show the Arrive button. (Run again after an in-place update.)
+// v2.0.1: every [data-countdown] on the page ticks (the top bar AND the "in sight" card); at zero: [data-show-at-zero] appears, [data-hide-at-zero] goes.
 function gvCountdown() {
-  var el = document.querySelector('[data-countdown]');
-  if (!el || el.getAttribute('data-ticking')) return;
-  el.setAttribute('data-ticking', '1');
-  var left = parseInt(el.getAttribute('data-countdown'), 10) || 0;
-  var tick = function () {
-    if (left <= 0) {
-      el.textContent = 'now';
-      document.querySelectorAll('[data-show-at-zero]').forEach(function (f) { f.hidden = false; });
-      return;
-    }
-    var m = Math.floor(left / 60), s = left % 60;
-    el.textContent = (m ? m + 'm ' : '') + (s < 10 && m ? '0' : '') + s + 's';
-    left--;
-    setTimeout(tick, 1000);
-  };
-  tick();
+  document.querySelectorAll('[data-countdown]').forEach(function (el) {
+    if (el.getAttribute('data-ticking')) return;
+    el.setAttribute('data-ticking', '1');
+    var left = parseInt(el.getAttribute('data-countdown'), 10) || 0;
+    var tick = function () {
+      if (left <= 0) {
+        el.textContent = 'now';
+        document.querySelectorAll('[data-show-at-zero]').forEach(function (f) { f.hidden = false; });
+        document.querySelectorAll('[data-hide-at-zero]').forEach(function (f) { f.hidden = true; });
+        return;
+      }
+      var m = Math.floor(left / 60), s = left % 60;
+      el.textContent = (m ? m + 'm ' : '') + (s < 10 && m ? '0' : '') + s + 's';
+      left--;
+      setTimeout(tick, 1000);
+    };
+    tick();
+  });
 }
 gvCountdown();
 

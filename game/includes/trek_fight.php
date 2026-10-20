@@ -1078,6 +1078,30 @@ function trek_petals_capped(array &$run, int $want): int
     return $paid;
 }
 
+/**
+ * v2.0.1: may one more item found in a fight be carried today? Setting trek_items_daily (0 = no limit, nothing counted) per player per Hollow day, shared by every chapter,
+ * counted in users.trek_item_day / trek_item_today (the caller holds the users row lock, trek_tx). Quest and key items never go through this. Falls back to the run's state if the columns are missing.
+ */
+function trek_item_allowed(array &$run): bool
+{
+    $cap = max(0, (int)setting('trek_items_daily'));
+    if ($cap === 0) return true;
+    $day = hollow_date('Y-m-d');
+    $uid = (int)$run['user_id'];
+    $stored = true;
+    try {
+        $r = q_one('SELECT trek_item_day, trek_item_today FROM users WHERE id = ?', [$uid]) ?: [];
+        $have = (($r['trek_item_day'] ?? null) === $day) ? (int)($r['trek_item_today'] ?? 0) : 0;
+    } catch (Throwable $e) {
+        $stored = false;
+        $have = (($run['st']['item_day'] ?? '') === $day) ? (int)($run['st']['item_today'] ?? 0) : 0;
+    }
+    if ($have >= $cap) return false;
+    if ($stored) q('UPDATE users SET trek_item_day = ?, trek_item_today = ? WHERE id = ?', [$day, $have + 1, $uid]);
+    else { $run['st']['item_day'] = $day; $run['st']['item_today'] = $have + 1; }
+    return true;
+}
+
 /** Won: XP, loot into the pack (at risk until banked), maybe Petals, fatigue, and anything the spot's script does. */
 function trek_fight_win(array &$run, array $u): void
 {
@@ -1094,12 +1118,14 @@ function trek_fight_win(array &$run, array $u): void
     trek_tl_give($run, $u, $txp, true);
     $luckBonus = max(0, luck_mod($u)) * 2;
     $drops = [];
+    $capped = false;
     foreach ($real as $f) {
         job_event($uid, 'defeat', $f['slug'], 1, ['size' => $f['size'], 'peaceful' => 0]);
         if ($f['cid'] && unlock_entries($uid, 'creature:' . $f['slug'])) trek_say($run, '📖 New Almanac page: ' . $f['name'] . '!');
         if (in_array($f['slug'], TREK_CLAYBOUND, true) && unlock_entries($uid, 'trek:claybound')) trek_say($run, '📖 New Almanac page: The Claybound!');
         foreach (q('SELECT * FROM creature_drops WHERE creature_id = ?', [$f['cid']])->fetchAll() as $dr) {
             if (!$dr['item_id'] || random_int(1, 100) > min(100, (int)$dr['chance'] + $luckBonus)) continue;
+            if (!trek_is_quest_item((int)$dr['item_id']) && !trek_item_allowed($run)) { $capped = true; continue; }   // v2.0.1: daily item cap
             trek_pack_add((int)$run['id'], (int)$dr['item_id'], 1);
             $drops[] = trek_item_name((int)$dr['item_id']);
         }
@@ -1120,6 +1146,7 @@ function trek_fight_win(array &$run, array $u): void
         }
     }
     if ($drops) trek_say($run, '🎁 Loot (carried, bank it at a camp): ' . implode(', ', $drops) . '.');
+    if ($capped) trek_say($run, '🎒 You have found all you can carry today. Anything else is left on the trail.');
     if (random_int(1, 100) <= 40) {   // like give_find: Petals on the ground, 5-15 plus 2 a level, cut if the area is outgrown
         $coins = outlevel_scale(random_int(5, 15) + 2 * $area, outlevel_percent(trek_gnome_user($u), $area));
         $coins = trek_petals_capped($run, $coins);   // v1.8.1: daily Petal cap (fights cost no energy); v1.8.8: shared with trail events

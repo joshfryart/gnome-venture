@@ -13,7 +13,7 @@
 1|dewsign|sign|The Dew Pools|d|sym=D
 1|zinnia|fetch|Zinnia Fuzzbottom|h|sym=Z;crew=zinnia;need=clean-dew:3;obj=3;flag=freed_zinnia
 1|elder|npc|The Cap Elder|h|sym=V
-1|choir|riddle|The Worm Choir|h|sym=W;right=2;tries=3;item=lanternroot-seed:1;flag=choir_solved
+1|choir|riddle|The Worm Choir|h|sym=W;right=2;tries=2;item=lanternroot-seed:1;flag=choir_solved
 1|capwall|gate|The Blighted Caps|h|sym=P;needs=freed_zinnia
 1|bracken|duel|Captain Bracken|b|sym=X;crew=bracken;obj=4;flag=freed_bracken;script=duel_bracken
 1|mother|miniboss|The Blight Mother|r|sym=M;obj=5;flag=mother_down;script=blight-mother;creature=blight-mother
@@ -23,7 +23,7 @@
 # v1.8.8 hand-placed stops, one in each gap between trailmates. pass=1: the walk only stops here the first time (it is on the way).
 1|cart|cart|The Stuck Cart|w|sym=K;pass=1;dc=11;item=camp-kit:1;flag=cart_done
 1|mushcamp|mush|The Mushroom Camp|d|sym=T;pass=1;need=beetle-shell:2;petals=30;flag=mush_done
-1|bridgestone|riddle|The Riddle Stone|b|sym=J;pass=1;right=3;tries=3;item=singing-pebble:1;flag=stone_solved
+1|bridgestone|riddle|The Riddle Stone|b|sym=J;pass=1;right=3;tries=2;item=singing-pebble:1;flag=stone_solved
 # v2.0.1 old campsites (type oldcamp): a free, repeatable rest; the text parts are ch1.spot.<code>.find, ch1.oldcamp.rest|ambush, ch1.ko.oldcamp. Not a camp: no kits, no banking.
 1|oldhearth|oldcamp|A Cold Hearth|f|sym=E
 1|oldleanto|oldcamp|The Old Lean-to|h|sym=F
