@@ -446,6 +446,7 @@ dbx "UPDATE users SET coins=500 WHERE id=$SID"
 XPA=$(db "SELECT xp||':'||level FROM users WHERE id=$SID"); CA=$(db "SELECT coins FROM users WHERE id=$SID")
 th sprout tp camp >/dev/null
 for i in $(seq 1 20); do for act in mode rest makecamp buy_kit party dismiss msdismiss tactics leave enter; do post trek.php -d do=$act -d mode=sneak -d slot=0 -d p1=burdock >/dev/null; done; dbx "UPDATE users SET energy=100 WHERE id=$SID"; done
+dbx "DELETE FROM login_attempts WHERE username='trek:$SID'"   # v2.0.19: the tap brake (400 per 5 min) is tested below; start clean
 CB=$(db "SELECT coins FROM users WHERE id=$SID")
 assert "200 cheap POSTs (rest / camp / mode / leave / enter ...): XP and level unchanged" eq "$(db "SELECT xp||':'||level FROM users WHERE id=$SID")" "$XPA"
 assert "...Petals only ever went down (kits bought), never up ($CA -> $CB)" test "$CB" -le "$CA"
@@ -471,6 +472,13 @@ assert "...the saved fight plan keeps only party places (plan $PLAN bytes, want 
 head -c 300000 /dev/zero | tr '\0' 'Z' > $TMP/big.txt
 c=$(curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d "csrf=$TK" -d do=tactics -d slot=0 --data-urlencode "rule@$TMP/big.txt" --data-urlencode "open@$TMP/big.txt" -o /dev/null -w '%{http_code}'); assert "300 KB values: no 500 ($c)" test "$c" != 500
 assert "...nothing from it stored (state stays small)" bash -c "[ \$(php $TMP/th.php $GAME sprout state | wc -c) -lt 30000 ]"
+# v2.0.19: tap brake. 405 cheap POSTs in a row: the flash says "Easy there", and after clearing the log the page works again.
+dbx "DELETE FROM login_attempts WHERE username='trek:$SID'"
+dbx "INSERT INTO login_attempts (ip, username, attempted_at) SELECT '127.0.0.1', 'trek:$SID', datetime('now') FROM (WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<400) SELECT i FROM n)"
+post trek.php -d do=dismiss -d t=map >/dev/null; get trek.php >/dev/null
+assert "tap brake: the 401st trek POST in 5 minutes is refused" grep -q 'Easy there' $H
+dbx "DELETE FROM login_attempts WHERE username='trek:$SID'"
+post trek.php -d do=enter -d mode=gentle >/dev/null
 DEEP=""; for i in $(seq 1 60); do DEEP="$DEEP[x]"; done
 c=$(curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d "csrf=$TK" -d do=round --data-urlencode "a$DEEP=attack" --data-urlencode "t$DEEP=f:1" -d "slot$DEEP=1" -o /dev/null -w '%{http_code}'); assert "60-deep nested arrays: no 500 ($c)" test "$c" != 500
 for i in 1 2 3; do c=$(curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d "csrf=$TK" -d do=go --data-urlencode "go@$TMP/big.txt" -o /dev/null -w '%{http_code}'); [ "$c" = 500 ] && bad "go with a 300 KB value gave 500"; done

@@ -69,6 +69,10 @@ const UPDATE_NEWS = [
         . "[*]Fixed: the festival stall said you'd already had your treat.[/list]"],
     '2.0.17' => ['🛒 More picture shops',
         "The Curio Cabinet, the Dye Pot, festival stalls, haven pantries and village stalls now show goods as picture tiles. Tap one to see it and buy."],
+    '2.0.19' => ['🥾 Treks are open!',
+        "A new adventure for gnomes level 15 and up: [b]Treks[/b], under Out & about.\n\n"
+        . "Lead a party down the cracks under the Hollow. Free trailmates, fight the blight, rest at camps and bring home Petals. Two chapters are ready: [b]The Wilting Rows[/b] and [b]The Weeping Clay[/b].\n\n"
+        . "[list][*]Starting costs 10 energy. Fights cost none.\n[*]Your progress saves at every step, on any device.\n[*]Auto lets the party fight for you.[/list]"],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */

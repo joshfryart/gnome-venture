@@ -154,6 +154,9 @@ if (is_post()) {
     csrf_check();
     $do = trek_post_str('do');
     if (!$open) { flash($closedWhy, 'err'); redirect('trek.php'); }
+    // v2.0.19: a tap-spam brake (400 actions per 5 minutes per player; a hand never gets near it).
+    if (rate_limited('trek:' . $uid, 400, 5)) { flash('Easy there! Too many taps in a row. Wait a minute and go on.', 'err'); redirect('trek.php'); }
+    record_attempt('trek:' . $uid);
     $res = trek_tx($uid, function (?array &$run, array $uu) use ($do) { return trek_dispatch($run, $uu, $do); }, $do !== 'begin' && $do !== 'enter');
     if (is_array($res) && $res[1] !== '') flash($res[1], $res[0] ? 'ok' : 'err');
     if ($res === null) flash('Begin the trek first.', 'err');
