@@ -125,6 +125,7 @@ function trek_save(array $run): void
  */
 function trek_tx(int $uid, callable $fn, bool $needRun = true, ?int $chapter = null)
 {
+    $sceneSave = [$_SESSION['trek_scene_auto'] ?? null, $_SESSION['trek_scene_seen'] ?? null];   // v2.0.9: a rolled-back action must not leave its pop-up behind
     db()->beginTransaction();
     try {
         q('UPDATE users SET id = id WHERE id = ?', [$uid]);
@@ -140,6 +141,7 @@ function trek_tx(int $uid, callable $fn, bool $needRun = true, ?int $chapter = n
         return $res;
     } catch (Throwable $e) {
         if (db()->inTransaction()) db()->rollBack();
+        foreach (['trek_scene_auto', 'trek_scene_seen'] as $i => $k) { if ($sceneSave[$i] === null) unset($_SESSION[$k]); else $_SESSION[$k] = $sceneSave[$i]; }
         throw $e;
     }
 }

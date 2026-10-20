@@ -4432,3 +4432,4 @@ dialog.tkscene::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur
 .tkscard.join .tkstext { min-height: 12em; }
 .tksstage[hidden] { display: none; }
 .tksjoin[hidden] { display: none; }
+.tksmutebtn[aria-pressed="false"] { opacity: .6; text-decoration: line-through; }

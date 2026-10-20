@@ -60,7 +60,7 @@ echo "== v2.0.4 text pass: new bodies on a fresh install, edited rows kept, old 
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text204.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.7 text pass: fixes land, edited rows kept, idempotent, party-full note (tests/trek_text207.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text207.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
-echo "== v2.0.8 talk pop-over: scene queue/stage, hooks, new gnome slots (tests/trek_scene.php)"
+echo "== v2.0.9 talk pop-over: collect/seen, stage, join card, hooks, new gnome slots (tests/trek_scene.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_scene.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 dbx "UPDATE trek_texts SET body='A hush falls over the Hollow.', status='draft' WHERE text_key='ch1.intro'"
 echo "== pages as player, trek open"
@@ -194,6 +194,12 @@ grep -q 'The Shard Hollow' $H && echo "  ok   rest stop shown" || echo "  FAIL r
 grep -q 'class="trekmap' $H && echo "  FAIL map shown after completion" || echo "  ok   no map"
 grep -q 'name="do" value="godown"' $H && ! grep -q 'disabled>⬇️ Chapter II' $H && echo "  ok   Go down enabled (Chapter II-a exists)" || echo "  FAIL go down button"
 grep -q 'Talk to your party' $H && echo "  ok   talk list shown" || echo "  FAIL talk list"
+SID=$(awk '$6=="garden_sess"{print $7}' $C | tail -1); SRUN=$(db 'SELECT id FROM trek_runs')
+if [ -n "$SID" ] && [ -f "/tmp/sess_$SID" ]; then
+  php -r 'echo "trek_scene_auto|" . serialize(["run" => (int)$argv[1], "t" => time(), "items" => [["k" => "ch1.spot.burdock.freed", "v" => ["trailmate" => "Burdock"]], ["join" => "burdock", "placed" => true]]]);' "$SRUN" >> "/tmp/sess_$SID"
+  get trek.php >/dev/null; grep -q 'class="trekscene" hidden data-scene=' $H && grep -q 'Burdock joined!' $H && echo "  ok   hub prints the talk stage (with the join card)" || echo "  FAIL hub does not print the talk stage"
+  get trek.php >/dev/null; grep -q 'class="trekscene"' $H && echo "  FAIL talk stage printed twice" || echo "  ok   talk stage is one-shot"
+else echo "  FAIL cannot find the session file to inject a talk stage ($SID)"; fi
 echo "  inside after the page: $(db 'SELECT inside FROM trek_runs') carried Petals: $(db 'SELECT petals_found FROM trek_runs') (want 0 0)"
 echo "walk (POST go) -> $(post trek.php -d do=go -d go=5,5)"; P1=$(db 'SELECT x||","||y FROM trek_runs'); get trek.php >/dev/null; grep -q 'behind you' $H && echo "  ok   refused with a message"; echo "  position still $P1"
 E0=$(db "SELECT energy FROM users WHERE username='sprout'")

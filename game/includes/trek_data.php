@@ -714,14 +714,14 @@ function trek_apply_text_207(): int
 
 // ------------------------------------------------------------------ trek_text()
 
-/** Every text row once per request: key => [body, brief, status, kind]. */
+/** Every text row once per request: key => [body, brief, status, kind, speaker]. */
 function trek_text_rows(bool $forget = false): array
 {
     static $rows = null;
     if ($forget) { $rows = null; return []; }
     if ($rows === null) {
         $rows = [];
-        foreach (q('SELECT text_key, body, brief, status, kind FROM trek_texts')->fetchAll() as $r) $rows[$r['text_key']] = $r;
+        foreach (q('SELECT text_key, body, brief, status, kind, speaker FROM trek_texts')->fetchAll() as $r) $rows[$r['text_key']] = $r;
     }
     return $rows;
 }

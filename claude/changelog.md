@@ -1,6 +1,12 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.9
+- ALL story text (speech, narration, place arrivals, boss intro/defeat) now opens as the talk pop-over, once per line per run; the log keeps every line. Speakers come from the text slot's speaker; narration shows with no portraits. Mixed lines ("Tumble bows. “Lovely!”") split into narration + speech.
+- NEW "Party member joined!" card after a recruit: name, species, calling, level, Health/Attack/Armour, role, a bit about them (npc bio). Benched trailmates say the party is full.
+- NEW "Story pop-ups" toggle (this browser only) under the tabs.
+- Fix: trek_text_rows() now loads the speaker column. Pop-up lines are dropped if the action rolls back; queue-full lines can still show later.
+
 ## 2.0.8
 - Fix: Gloomtooth cure scene now also shows on the chapter hub render; scene waits until an open Auto replay closes.
 - Treks map tab: the latest log lines now sit directly under the map (above Sneak / Camp / Leave), not under the buttons.

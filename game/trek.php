@@ -835,7 +835,7 @@ if (!$run || (!(int)$run['inside'] && !$hub)):
 <?php
 $walkPath = trek_walk_take($run);
 if ($run['fi'] || $tab !== 'map') $walkPath = null;   // v1.8.10: the path of the last walk (one-shot; dropped when a fight starts)
-$sceneHtml = trek_scene_stage($run, $u);   // v2.0.8: same, for the talk pop-over
+$sceneHtml = $tab === 'map' ? trek_scene_stage($run, $u) : '';   // v2.0.8: same, for the talk pop-over
 $replayHtml = trek_replay_stage($run, $u);   // v1.8.5: taken (and cleared) on every render, shown only on the Map tab
 $tabLink = fn(string $t) => e(url('trek.php' . ($t === 'map' ? '' : '?t=' . $t)));
 $party = trek_party_stats($run, $u);
@@ -847,7 +847,7 @@ $fat = (int)$run['fatigue'];
   <a class="<?= $tab === 'pack' ? 'on' : '' ?>" href="<?= $tabLink('pack') ?>">🎒 Pack</a>
   <a class="<?= $tab === 'log' ? 'on' : '' ?>" href="<?= $tabLink('log') ?>">📜 Log</a>
 </nav>
-<p class="tksmuterow"><button type="button" class="btn alt tksmutebtn" data-tksmute hidden aria-pressed="true">🗨 Story pop-ups: on</button></p>
+<p class="tksmuterow"><button type="button" class="btn alt tksmutebtn" data-tksmute hidden aria-pressed="true">🗨 Story pop-ups</button></p>
 <?php if ($tab === 'map' && $hub): ?>
   <?= $sceneHtml ?>
   <?= trek_hub_html($run, $u, $party) ?>

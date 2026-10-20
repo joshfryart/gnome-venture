@@ -184,7 +184,8 @@
     var b = document.querySelector('[data-tksmute]');
     if (!b) return;
     b.hidden = false;
-    var paint = function () { var m = muted(); b.textContent = m ? '🗨 Story pop-ups: off' : '🗨 Story pop-ups: on'; b.setAttribute('aria-pressed', m ? 'false' : 'true'); };
+    b.textContent = '🗨 Story pop-ups';
+    var paint = function () { var m = muted(); b.setAttribute('aria-pressed', m ? 'false' : 'true'); };
     paint();
     b.addEventListener('click', function () { try { localStorage.setItem('gvSceneOff', muted() ? '0' : '1'); } catch (e) { /* storage blocked: stays on */ } paint(); });
   }

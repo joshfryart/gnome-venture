@@ -34,9 +34,9 @@ function trek_scene_collect(array $run, string $key, array $vars = []): void
     $rid = (int)$run['id'];
     $seen = &$_SESSION['trek_scene_seen'][$rid];
     if (isset($seen[$key])) return;
+    if (!trek_scene_push($rid, ['k' => $key, 'v' => $vars])) return;   // queue full: not marked seen, so it can still show later
     $seen[$key] = 1;
     if (count($seen) > 400) $seen = array_slice($seen, -200, null, true);
-    trek_scene_push($rid, ['k' => $key, 'v' => $vars]);
 }
 
 /** The party-member-joined card: crew key + whether they got a place (false = waits on the bench). */
@@ -45,13 +45,15 @@ function trek_scene_join(array $run, string $crewKey, bool $placed): void
     trek_scene_push((int)$run['id'], ['join' => $crewKey, 'placed' => $placed]);
 }
 
-function trek_scene_push(int $rid, array $item): void
+function trek_scene_push(int $rid, array $item): bool
 {
     $a = $_SESSION['trek_scene_auto'] ?? null;
     if (!is_array($a) || (int)($a['run'] ?? 0) !== $rid || time() - (int)($a['t'] ?? 0) > 30) $a = ['run' => $rid, 't' => time(), 'items' => []];
-    if (count($a['items']) < TREK_SCENE_MAX) $a['items'][] = $item;
+    $fit = count($a['items']) < TREK_SCENE_MAX;
+    if ($fit) $a['items'][] = $item;
     $a['t'] = time();
     $_SESSION['trek_scene_auto'] = $a;
+    return $fit;
 }
 
 /** Who a speaker slug is: ['name', 'ico'] (cached per request). 'gnome' is handled by the caller. */
@@ -72,6 +74,7 @@ function trek_scene_joincard(array $run, array $u, string $crewKey, bool $placed
     $crew = trek_crew()[$crewKey] ?? null;
     if (!$crew) return null;
     $npc = trek_crew_npc($crewKey);
+    if (!$npc) return null;
     $st = trek_party_stats($run, $u);
     $m = null;
     foreach ($st as $p) if ($p['key'] === $crewKey) { $m = $p; break; }
@@ -111,10 +114,13 @@ function trek_scene_stage(array $run, array $u): string
         foreach (explode("\n", $text) as $line) {
             $line = trim($line);
             if ($line === '') continue;
-            $bw = $w !== '' && trek_scene_is_speech($line) ? $w : 'nar';
-            $beats[] = ['w' => $bw, 't' => $line];
-            if ($bw === 'me') $who['me'] ??= ['name' => gnome_name($u), 'ico' => trek_me_ico($u)];
-            elseif ($bw !== 'nar') $who[$bw] ??= trek_scene_who($bw);
+            $parts = [[$w !== '' && trek_scene_is_speech($line) ? $w : 'nar', $line]];
+            if ($w !== '' && !trek_scene_is_speech($line) && preg_match('/^([^“"]+?)\s*(“[^”]+”)$/u', $line, $mm)) $parts = [['nar', $mm[1]], [$w, $mm[2]]];   // 'Tumble bows. “Lovely!”' = narration, then speech
+            foreach ($parts as [$bw, $txt]) {
+                $beats[] = ['w' => $bw, 't' => $txt];
+                if ($bw === 'me') $who['me'] ??= ['name' => gnome_name($u), 'ico' => trek_me_ico($u)];
+                elseif ($bw !== 'nar') $who[$bw] ??= trek_scene_who($bw);
+            }
         }
     }
     if (!$beats) return '';
