@@ -213,7 +213,7 @@ ok('finishing the chapter again (a replayed win, double tap) pays nothing more',
 $T(function (&$run, $u) { trek_hub_arrive($run, $u); return [true, '']; });
 ok('hub: the party is outside, healed, rested; quest items stay in the closed run', (int)$run()['inside'] === 0 && (int)$run()['fatigue'] === 0 && trek_in_hub($run()));
 $gd = $tx(fn(&$run, $u) => trek_godown($run, $u));
-ok('no Chapter III: Go down refuses, spends no energy', $gd[0] === false && str_contains($gd[1], 'coming soon') && trek_active_ch($uid) === 2);
+ok('Chapter III is shut to players (trek_chapters_open 2): Go down refuses, spends no energy (tests/trek_ch3.php covers the gate)', $gd[0] === false && str_contains($gd[1], 'coming soon') && trek_active_ch($uid) === 2);
 $paid = q('SELECT ms_key, xp, done, total FROM trek_ms WHERE user_id = ? ORDER BY paid_at, ms_key', [$uid])->fetchAll();
 echo '  info milestones paid: ' . implode(', ', array_map(fn($m) => str_replace('withering:', '', $m['ms_key']) . ' ' . $m['xp'] . ' (' . $m['done'] . '/' . $m['total'] . ')', $paid)) . "\n";
 
@@ -262,7 +262,7 @@ foreach (trek_chapter(2)['zones'] as $z => $zi) { $expect["ch2.zone.$z.arrive"] 
 foreach (array_keys(trek_milestones(2)) as $m) $expect["ch2.ms.$m"] = 'milestone';
 foreach (['intro' => 'page', 'outro' => 'page', 'hook' => 'page'] as $p => $w) $expect["ch2.$p"] = $w;
 $expect['interlude.2.intro'] = 'hub';
-foreach (array_keys(trek_crew()) as $k) { $expect["interlude.2.$k"] = 'hub'; }
+foreach (array_keys(array_filter(trek_crew(), fn($c) => $c['chapter'] <= 2)) as $k) { $expect["interlude.2.$k"] = 'hub'; }   // v2.0.20: Wren is recruited in Chapter III
 foreach (['burdock', 'zinnia', 'bracken', 'sorrel', 'tumble', 'juniper'] as $k) { $expect["ch2.crew.$k.talk"] = 'crew'; $expect["ch2.crew.$k.done"] = 'crew'; $expect["ch2.banter.$k.1"] = 'banter'; $expect["ch2.banter.$k.2"] = 'banter'; }
 foreach (['pinch' => ['hit', 'grab', 'squeeze', 'break', 'defeat'], 'thrum' => ['hit', 'drum', 'harden', 'crack', 'stunned', 'molt', 'defeat'], 'silverfin' => ['hit', 'sweep', 'mend', 'enrage', 'spawn', 'defeat']] as $b => $ps) foreach ($ps as $p) $expect["ch2.spot.$b.$p"] = 'boss';
 foreach (['handprints' => ['text', 'press', 'trace'], 'pot' => ['text', 'catch', 'miss'], 'echo' => ['text', 'whisper'], 'moth' => ['text', 'follow'], 'kettle' => ['text', 'sip'], 'drumbeat' => ['text', 'listen', 'miss']] as $e => $ps) foreach ($ps as $p) $expect["ch2.ev.$e.$p"] = 'event';

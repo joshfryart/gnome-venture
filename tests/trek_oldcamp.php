@@ -44,11 +44,11 @@ foreach ($sites as $ch => $list) foreach ($list as $c => $s) {
     if (!$p || !$p['list'] || (int)$p['mult'] <= 0) $bad[] = "$c no fight pool";
     foreach (['find'] as $part) { $k = "ch$ch.spot.$c.$part"; $row = trek_text_row($k); if (!$row || trim((string)$row['body']) === '' || trim(trek_text($k)) === '') $bad[] = "$k no draft"; }
 }
-foreach ([1, 2] as $ch) foreach (['oldcamp.rest', 'oldcamp.ambush', 'ko.oldcamp'] as $p) { $k = "ch$ch.$p"; $row = trek_text_row($k); if (!$row || trim((string)$row['body']) === '' || trim(trek_text($k)) === '') $bad[] = "$k no draft"; }
+foreach ([1, 2, 3] as $ch) foreach (['oldcamp.rest', 'oldcamp.ambush', 'ko.oldcamp'] as $p) { $k = "ch$ch.$p"; $row = trek_text_row($k); if (!$row || trim((string)$row['body']) === '' || trim(trek_text($k)) === '') $bad[] = "$k no draft"; }
 ok('each site sits on its symbol tile in its zone, the zone has fights, and every find/rest/ambush/KO slot has a brief and a draft', !$bad, implode(', ', $bad));
 $none = [];
-foreach ([1, 2] as $ch) { $rows = q('SELECT brief, status FROM trek_texts WHERE text_key LIKE ? AND text_key LIKE ?', ["ch$ch.%", '%old%'])->fetchAll(); foreach ($rows as $r) if (trim((string)$r['brief']) === '' || !in_array($r['status'], ['draft', 'done'], true)) $none[] = $r['status']; }
-ok('all 11 slots are status draft or done with a brief', !$none && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE (text_key LIKE 'ch%.spot.old%.find' OR text_key LIKE 'ch%.oldcamp.%' OR text_key LIKE 'ch%.ko.oldcamp')") === 11, json_encode($none));
+foreach ([1, 2, 3] as $ch) { $rows = q('SELECT brief, status FROM trek_texts WHERE text_key LIKE ? AND text_key LIKE ?', ["ch$ch.%", '%old%'])->fetchAll(); foreach ($rows as $r) if (trim((string)$r['brief']) === '' || !in_array($r['status'], ['draft', 'done'], true)) $none[] = $r['status']; }
+ok('all 15 slots (11 in Ch I-II, 4 in Ch III) are status draft or done with a brief', !$none && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE (text_key LIKE 'ch%.spot.old%.find' OR text_key LIKE 'ch%.oldcamp.%' OR text_key LIKE 'ch%.ko.oldcamp')") === 15, json_encode($none));
 
 // ------------------------------------------------------------------ Chapter I
 echo "== Chapter I: setup\n";

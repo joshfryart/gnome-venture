@@ -28,6 +28,7 @@ function trek_settings_base(): array
 {
     return [
         'trek_open'           => ['label' => 'Treks: open to every player (off = admins only)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'trek_chapters_open'  => ['label' => 'Treks: deepest chapter players may go down to (admins always can; a player already inside one stays) (v2.0.20)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 20],
         'trek_base_level'     => ['label' => 'Treks: the level every party member fights at before trek levels (gnome level no longer counts) (v1.9.5)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],
         'trek_level'          => ['label' => 'Treks: gnome level needed', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],
         'trek_entry_energy'   => ['label' => 'Treks: energy to go in (each time)', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 1000],
@@ -512,7 +513,8 @@ const TREK_ITEMS = [
 ];
 
 /** v1.9.2: the Almanac slots (book.<slug>) that are not named book.ch<N>, with their chapter. */
-const TREK_BOOK_CH = ['claybound' => 2, 'silverfin' => 2, 'crossroads' => 2, 'brewhouse' => 2, 'pinch' => 2, 'thrum' => 2];   // v1.9.4: II-b's four
+const TREK_BOOK_CH = ['claybound' => 2, 'silverfin' => 2, 'crossroads' => 2, 'brewhouse' => 2, 'pinch' => 2, 'thrum' => 2,   // v1.9.4: II-b's four
+    'deeprock' => 3, 'gneiss' => 3];   // v2.0.20: Chapter III-a's two
 
 /** Make the trek's items, creatures, text slots and Almanac pages. Safe to run again. Returns counts. */
 function trek_import(): array
@@ -539,7 +541,8 @@ function trek_import(): array
     // Almanac pages for the book.* texts (the body is filled in from trek_texts when Joshua saves one)
     $titles = ['ch1' => 'Treks: The Wilting Rows', 'blightlings' => 'Blightlings', 'gloomtooth' => 'Gloomtooth', 'lantern-stump' => 'The Lantern Stump', 'glowworm-grotto' => 'The Glowworm Grotto',
         'ch2' => 'Treks: The Weeping Clay', 'claybound' => 'The Claybound', 'silverfin' => 'Silverfin',   // v1.9.2: Chapter II-a pages
-        'crossroads' => 'The Crossroads', 'brewhouse' => 'The Brewhouse', 'pinch' => 'Old Pinch', 'thrum' => 'Old Thrum'];   // v1.9.4: Chapter II-b pages
+        'crossroads' => 'The Crossroads', 'brewhouse' => 'The Brewhouse', 'pinch' => 'Old Pinch', 'thrum' => 'Old Thrum',   // v1.9.4: Chapter II-b pages
+        'ch3' => 'Treks: The Humming Deep', 'deeprock' => 'The Deep Rock Folk', 'gneiss' => 'Old Gneiss'];   // v2.0.20: Chapter III-a pages
     $n = 0;
     foreach ($titles as $slug => $title) {
         if (q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['trek:' . $slug])) continue;

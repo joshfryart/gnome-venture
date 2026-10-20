@@ -7,6 +7,7 @@ require_once __DIR__ . '/trek_data.php';
 require_once __DIR__ . '/trek_fight.php';
 require_once __DIR__ . '/trek_oldcamp.php';   // v2.0.1: old campsites
 require_once __DIR__ . '/trek_events.php';   // v1.8.8: trail events, crew moments, the side stops
+require_once __DIR__ . '/trek_ch3.php';      // v2.0.20: Chapter III-a's mini-boss script (Old Gneiss)
 require_once __DIR__ . '/trek_scene.php';   // v2.0.8: the talk pop-over (scene) queue and stage
 require_once __DIR__ . '/trek_camp_ui.php';   // v2.0.11: the camp pop-over
 require_once __DIR__ . '/trek_levels.php';   // v1.8.9: trek levels, milestone XP, migration
@@ -72,6 +73,15 @@ function trek_chapter_done(int $uid, int $chapter): bool
 function trek_next_chapter(int $chapter): ?int
 {
     return trek_chapter_exists($chapter + 1) ? $chapter + 1 : null;
+}
+
+/**
+ * v2.0.20: may this gnome go down to chapter $n? Only to chapters up to the setting trek_chapters_open (default 2); admins always can. Checked on the server in
+ * trek_godown() and by the interlude box, so a forged POST is refused. It is a gate for GOING DOWN only: a player already inside a chapter stays there if the setting is lowered.
+ */
+function trek_chapter_open(int $n, array $u): bool
+{
+    return $n <= max(1, (int)setting('trek_chapters_open')) || ($u['role'] ?? '') === 'admin';
 }
 
 /** Is this run finished (its chapter complete)? A finished run is never walked again: the gnome is in the interlude. */
@@ -518,7 +528,7 @@ function trek_godown(array &$run, array $u): array
     if (!trek_in_hub($run)) return [false, 'Not now.'];
     $uid = (int)$u['id'];
     $next = trek_next_chapter((int)$run['chapter']);
-    if ($next === null) return [false, 'The next chapter is coming soon.'];
+    if ($next === null || !trek_chapter_open($next, $u)) return [false, 'The next chapter is coming soon.'];   // v2.0.20: a chapter that exists but is not open yet reads the same, and costs nothing
     if ($why = trek_entry_blocker($u)) return [false, $why];
     $cost = max(0, (int)setting('trek_entry_energy'));
     if ($cost > 0 && !spend_energy($uid, $cost)) return [false, 'Not enough energy. A trek costs ' . $cost . ' to go in.'];

@@ -22,7 +22,7 @@ q('UPDATE creature_drops SET chance = 0 WHERE 1 = 1');
 
 echo "== data: chapter, map, spots, creatures\n";
 ok('Chapter II exists: II-a zones j k l m (II-b adds n-s), II-a milestones first, no lift row (v1.9.5)', trek_chapter_exists(2) && array_slice(array_keys(trek_chapter(2)['zones']), 0, 4) === ['j', 'k', 'l', 'm'] && array_slice(array_keys(trek_milestones(2)), 0, 3) === ['ch2_sorrel', 'ch2_silverfin', 'ch2a_end'] && empty(trek_chapter(2)['lift']), json_encode(trek_chapter(2)['lift'] ?? null));
-ok('no Chapter III yet; the finish row is II-b\'s (tests/trek_ch2b.php)', !trek_chapter_exists(3) && trek_next_chapter(2) === null && !empty(trek_chapter(2)['finish']));
+ok('Chapter III-a exists (v2.0.20) but is shut to players by default; the finish row is II-b\'s (tests/trek_ch2b.php)', trek_chapter_exists(3) && trek_next_chapter(2) === 3 && !trek_chapter_open(3, ['role' => 'player']) && !empty(trek_chapter(2)['finish']));
 $map = trek_map(2);
 ok('the map is 40 wide (II-a took the top 46 rows, II-b added to 106) with a zone row for each', $map['w'] === 40 && $map['h'] === 106 && count($map['z']) === 106, $map['w'] . 'x' . $map['h']);
 $sp = trek_spots(2);

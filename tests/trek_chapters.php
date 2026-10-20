@@ -53,7 +53,7 @@ ok('stub map parses: 40 wide, 72 tall, comments skipped, zones aligned', $m2['w'
 ok('a 40-wide wall row is not taken for a comment', $m2['t'][71] === str_repeat('#', 40) && $m2['t'][1][1] === 'Q');
 ok('trek_map_comment rules', trek_map_comment('; x') && trek_map_comment('# x') && trek_map_comment('#') && !trek_map_comment('####') && !trek_map_comment('#.#') && !trek_map_comment('#Q..'));
 ok('stub spots read from trek_spots_ch2.txt', array_keys(trek_spots(2)) === ['start', 'exit', 'camp', 'boss'] && trek_spots(2)['boss']['y'] === 3);
-ok('chapter 2 exists (stub) and chapter 3 does not', trek_chapter_exists(2) && !trek_chapter_exists(3) && trek_next_chapter(1) === 2 && trek_next_chapter(2) === null);
+ok('chapter 2 exists (stub), chapter 3 is the real III-a, chapter 4 does not', trek_chapter_exists(2) && trek_chapter_exists(3) && !trek_chapter_exists(4) && trek_next_chapter(1) === 2 && trek_next_chapter(2) === 3 && trek_next_chapter(3) === null);
 ok('pools are per chapter', trek_zone_pool('j', 2) !== null && trek_zone_pool('j', 1) === null && trek_zone_pool('g', 1) !== null && trek_zone_pool('g', 2) === null);
 ok('a later chapter\'s milestones make their own settings', isset(settings_schema()['trek_ms_ch2_a']) && (int)setting('trek_ms_ch2_a') === 100);
 ok('zone data: info, style, single', trek_zone_info(2, 'j') === ['Stub Gate', '🧪'] && trek_chapter(2)['zones']['j']['style'] === 'u' && !empty(trek_chapter(2)['zones']['j']['single']) && trek_zone_info(2, 'z') === null);

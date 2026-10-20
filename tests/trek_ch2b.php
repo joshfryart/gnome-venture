@@ -26,7 +26,7 @@ ok('Chapter II has the six II-b zones n o p q r s after II-a\'s four', array_sli
 ok('the Hush is single + hint, the Dim is the dark style', !empty($ch['zones']['o']['single']) && !empty($ch['zones']['o']['hint']) && $ch['zones']['p']['style'] === 'd' && $ch['zones']['r']['style'] === 'u');
 ok('II-b milestones: tumble 250, juniper 300, pinch 600, thrum 650, chapter 400', array_slice(array_keys(trek_milestones(2)), 3) === ['ch2_tumble', 'ch2_juniper', 'ch2_pinch', 'ch2_thrum', 'ch2_chapter']);
 ok('the chapter finishes on thrum_down and pays the Drum-skin and the Brewhouse Ladle', ($ch['finish']['flag'] ?? '') === 'thrum_down' && ($ch['finish']['items'] ?? []) === ['drum-skin', 'brewhouse-ladle'] && ($ch['finish']['ms'] ?? []) === ['ch2_thrum', 'ch2_chapter']);
-ok('still no Chapter III: the interlude says coming soon', !trek_chapter_exists(3) && trek_next_chapter(2) === null);
+ok('Chapter III is shut to players (trek_chapters_open 2): the interlude says coming soon; admins may go down', trek_chapter_exists(3) && !trek_chapter_open(3, ['role' => 'player']) && trek_chapter_open(3, ['role' => 'admin']) && trek_chapter_open(2, ['role' => 'player']));
 $cr = ['dimwing-moth' => 19, 'cistern-newt' => 20, 'drumming-cricket' => 21, 'old-pinch' => 23, 'old-thrum' => 24];
 $bad = []; foreach ($cr as $s => $lv) { $c = trek_creature($s); if (!$c || (int)$c['level'] !== $lv) $bad[] = $s; if (!is_file($GAME . '/assets/img/ph/creature-' . $s . '.svg')) $bad[] = "$s.svg"; }
 ok('five II-b creatures at levels 19, 20, 21, 23, 24, each with placeholder art', !$bad, implode(',', $bad));

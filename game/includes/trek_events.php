@@ -42,6 +42,7 @@ const TREK_CREW_BEATS = [
     'sorrel'  => ['🗺️', 'Sorrel inks a little map'],   // v1.9.2
     'tumble'  => ['🧭', 'Tumble reads the signs'],       // v1.9.4
     'juniper' => ['🍲', 'Juniper stirs up a snack'],
+    'wren'    => ['🌟', 'Wren coaxes the glowcaps'],     // v2.0.20: Chapter III. Bloomcaller; reuses the shrine’s blessing (st.bless)
 ];
 
 /** A roll from 1 to $max. The tests can pin it with $GLOBALS['trek_test_roll'] (never set in the game). */
@@ -397,6 +398,9 @@ function trek_act_crew(array &$run, array $u, int $c): array
         trek_heal_party($run, $u, 25);
         trek_add_fatigue($run, -4);
         trek_say($run, '💚 Everyone heals a quarter of their health. Fatigue −4.');
+    } elseif ($k === 'wren') {   // v2.0.20: she coaxes the glowcaps to shine on the party: the shrine’s blessing, +1 to hit and armour until the next fight ends
+        $run['st']['bless'] = 1;
+        trek_say($run, '🌟 The glowcaps shine on you. +1 to hit and armour until the next fight ends.');
     } elseif ($k === 'tumble') {   // v2.0.15: Tumble's own: he reads the signs and finds an easier way (fatigue -6)
         trek_add_fatigue($run, -6);
         trek_say($run, '🧭 Tumble reads the signs and finds an easier way. Fatigue −6.');

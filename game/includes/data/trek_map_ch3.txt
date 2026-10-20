@@ -1,0 +1,105 @@
+; Trek map, Chapter III "The Humming Deep" (draft title), III-a (40x50): the Shale Stair, the Lamp Niche (camp), the Glimmer Vein, the Echo Hollow, the Still Landing. Ends at the closed Still Gate Z.
+; Legend: see trek_map_ch2.txt. Used here: # wall, . floor, ~ none, % roots (2x fatigue), : wet clay (2x, left over from above), * glow crystal (decor, blocks, lights the fog), + loose clay (a Wayfinder can push through), ^ chasm, = bridge, capital letters = spots.
+; Zones: t Shale Stair, u The Lamp Niche (camp, no fights), v The Glimmer Vein, w The Echo Hollow, x The Still Landing.
+; Spots III-a: S start, B ore cart, C camp, N chalk wall (Almanac nook), H quiet bench (free rest), R knock door (riddle), G the knock door gate, A Wayfinder nook, W Wren, E old campsite, X Old Gneiss (mini-boss), Z the Still Gate (closed).
+########################################
+###........##############.*.......######
+###.S..%%......%%.................######
+###..%%::..##############...##....######
+###.#......##############.........######
+#########################.........######
+#############################..#########
+#############################..#########
+######*.......###############..#########
+#####.........############..........####
+#####.........############..%%......####
+#####....C.........B...............#####
+#####.........#.......####.........*####
+#####........*#..*....##################
+#########.##############################
+#########.######################.....###
+#########.#####################.......##
+####..................#########.......##
+####.N....#..........##########.*.....##
+################...############.......##
+####...............##############.##.###
+#.A+....#########################.##.###
+####...............##############.##.###
+####..............H...............##.###
+####...............#################.###
+####################################.###
+####################################R###
+####################################G###
+####################################.###
+###########################..........###
+###########################..........###
+###########################.*........###
+###########################..........###
+###########################..W..##...###
+##############...X.......E...........###
+##############.############.........*###
+##############.#############........####
+##############.#########################
+######.........#########################
+######.#################################
+######.#################################
+######.#################################
+######.#################################
+###.........*....#######################
+###....^^^=^^^...#######################
+###....^^^=^^^...#######################
+###*............*#######################
+##########Z#############################
+########################################
+########################################
+---
+                                        
+   tttttttt              ttttttttt      
+   ttttttttttttttttttttttttttttttt      
+   tttttttt              ttt  tttt      
+   t tttttt              ttttttttt      
+                         ttttttttt      
+                             tt         
+                             tt         
+      uuuuuuuu               tt         
+     uuuuuuuuu            tttttttttt    
+     uuuuuuuuu            tttttttttt    
+     uuuuuuuuuttttttttttttttttttttt     
+     uuuuuuuuu ttttttt    tttttttttt    
+     uuuuuuuuu ttttttt                  
+         v                              
+         v                      vvvvv   
+         v                     vvvvvvv  
+    vvvvvvvvvvvvvvvvvv         vvvvvvv  
+    vvvvvv vvvvvvvvvv          vvvvvvv  
+                vvv            vvvvvvv  
+    vvvvvvvvvvvvvvv              v  v   
+ vvvvvvv                         v  v   
+    vvvvvvvvvvvvvvv              v  v   
+    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv  v   
+    vvvvvvvvvvvvvvv                 v   
+                                    v   
+                                    v   
+                                    v   
+                                    w   
+                           wwwwwwwwww   
+                           wwwwwwwwww   
+                           wwwwwwwwww   
+                           wwwwwwwwww   
+                           wwwww  www   
+              wwwwwwwwwwwwwwwwwwwwwww   
+              w            wwwwwwwwww   
+              w             wwwwwwww    
+              w                         
+      wwwwwwwww                         
+      w                                 
+      w                                 
+      w                                 
+      w                                 
+   xxxxxxxxxxxxxx                       
+   xxxxxxxxxxxxxx                       
+   xxxxxxxxxxxxxx                       
+   xxxxxxxxxxxxxx                       
+          x                             
+                                        
+                                        
