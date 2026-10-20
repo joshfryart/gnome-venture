@@ -1,0 +1,7 @@
+# The bodies that shipped before the pass-8 text pass (so the pass can tell an unedited row from one Joshua wrote).
+ch1.camp.makecamp|The kit unrolls into a snug little nest.\nA short rest, a few mouthfuls, and you feel much better.
+ch1.oldcamp.rest|You settle out of the draught and sleep a little.\nIt is no proper camp, but you wake much better.
+ch2.oldcamp.rest|You sleep somewhere dry, short and deep.\nIt is no proper camp, but you wake much better.
+ch3.oldcamp.rest|You sleep on the warm stone, short and deep.\nIt is no proper camp, but you wake much better.
+ch2.spot.rest.done|You sink into the cushions and sleep a short, deep sleep.\nYou all wake feeling much better.
+ch3.spot.bench.done|You sit. The hum slows to match your breathing.\nWhen you stand, everyone is better.

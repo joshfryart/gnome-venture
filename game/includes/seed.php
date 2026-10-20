@@ -200,6 +200,7 @@ function seed_starter_content(): void
     trek_apply_text_2015();
     require_once __DIR__ . '/trek_textpass.php';
     trek_apply_text_2020();   // v2.0.20: sets trek_text_pass = 7
+    trek_apply_text_2021();   // v2.0.20: camp rests heal fully; sets trek_text_pass = 8
     require_once __DIR__ . '/almanac_notes.php';
     ensure_almanac_howto(true);   // v0.7.72
     ensure_shop_food();

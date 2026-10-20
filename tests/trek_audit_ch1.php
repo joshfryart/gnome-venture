@@ -273,7 +273,7 @@ $tx(function (&$run, $u) { $run['fatigue'] = 70; foreach (trek_party_stats($run,
 $k0 = $R()['campkits'];
 $tx(fn(&$run, $u) => trek_make_camp($run, $u));
 $x = $R();
-ok('camp with a kit: -1 kit, fatigue -50, half health back', $x['campkits'] === $k0 - 1 && (int)$x['fatigue'] === 20 && $x['party'][0]['hp'] >= (int)floor(trek_party_stats($x, q_one('SELECT * FROM users WHERE id = ?', [$uid]))[0]['max'] * 0.5), json_encode([$x['campkits'], $x['fatigue']]));
+ok('camp with a kit: -1 kit, fatigue 0, full health back (v2.0.20)', $x['campkits'] === $k0 - 1 && (int)$x['fatigue'] === 0 && $x['party'][0]['hp'] === (int)trek_party_stats($x, q_one('SELECT * FROM users WHERE id = ?', [$uid]))[0]['max'], json_encode([$x['campkits'], $x['fatigue']]));
 $tx(function (&$run, $u) { $run['fatigue'] = 0; trek_heal_party($run, $u); return [true, '']; });
 $k1 = $R()['campkits'];
 $r = $tx(fn(&$run, $u) => trek_make_camp($run, $u));

@@ -170,7 +170,7 @@ ok('a cold rest takes off 25 fatigue and heals a quarter', (int)$run()['fatigue'
 $tx(function (&$run, $u) { $run['campkits'] = 2; $run['fatigue'] = 80; foreach (trek_party_stats($run, $u) as $s => $m) $run['party'][$s]['hp'] = 1; return [true, '']; });
 $tx(fn(&$run, $u) => trek_make_camp($run, $u));
 $h = $run()['party'][0]['hp'];
-ok('a Camp Kit still takes off 50 and heals half', (int)$run()['fatigue'] === 30 && $h >= (int)floor($mx * 0.5) && (int)$run()['campkits'] === 1, json_encode([$run()['fatigue'], $h, $run()['campkits']]));
+ok('a Camp Kit takes fatigue to 0 and heals to full (v2.0.20)', (int)$run()['fatigue'] === 0 && $h === (int)$mx && (int)$run()['campkits'] === 1, json_encode([$run()['fatigue'], $h, $run()['campkits']]));
 
 echo "== the Cistern: dry route, wheel shortcut, Old Pinch\n";
 $party(['gnome', 'burdock', 'zinnia', 'juniper']);

@@ -109,7 +109,7 @@ echo "== the old actions still behave\n";
 $tx(function (&$run, $u) { $run['x'] = 2; $run['y'] = 2; $run['fatigue'] = 60; $run['campkits'] = 2; $run['party'][0]['hp'] = 5; return [true, '']; });
 $r = $tx(fn(&$run, $u) => trek_make_camp($run, $u));
 $R = trek_load(trek_run_row($uid));
-ok('makecamp with a kit: kit spent, fatigue 10', $r[0] === true && (int)$R['campkits'] === 1 && (int)$R['fatigue'] === 10, json_encode([$r, $R['campkits'], $R['fatigue']]));
+ok('makecamp with a kit: kit spent, fatigue 0, full health (v2.0.20)', $r[0] === true && (int)$R['campkits'] === 1 && (int)$R['fatigue'] === 0 && (int)$R['party'][0]['hp'] >= 6, json_encode([$r, $R['campkits'], $R['fatigue']]));
 $tx(function (&$run, $u) use ($camp) { $run['x'] = $camp['x']; $run['y'] = $camp['y']; $run['fatigue'] = 30; return [true, '']; });
 $r = $tx(fn(&$run, $u) => trek_camp_rest($run, $u));
 $R = trek_load(trek_run_row($uid));

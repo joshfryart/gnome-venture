@@ -1,0 +1,7 @@
+# Treks text v2.0.21 (text pass 8): camp-type rests (kit, old campsite, rest spot) now heal everyone fully and take fatigue to 0, so the lines say rested and whole, not "better". key|body, \n = line break. Applied once by the pass-8 text pass (trek_text_pass = 8); bodies Joshua edited are kept.
+ch1.camp.makecamp|The kit unrolls into a snug little nest.\nA long rest, a few mouthfuls, and everyone wakes whole again.
+ch1.oldcamp.rest|You settle out of the draught and sleep soundly.\nIt is no proper camp, but you wake rested and whole.
+ch2.oldcamp.rest|You sleep somewhere dry, long and deep.\nIt is no proper camp, but you wake rested and whole.
+ch3.oldcamp.rest|You sleep on the warm stone, long and deep.\nIt is no proper camp, but you wake rested and whole.
+ch2.spot.rest.done|You sink into the cushions and sleep a long, deep sleep.\nYou all wake rested and whole.
+ch3.spot.bench.done|You sit. The hum slows to match your breathing.\nWhen you stand, everyone is rested and whole.

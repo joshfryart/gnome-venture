@@ -87,13 +87,13 @@ function trek_camp_dialog_html(array &$run, array $u, array $party, string $auto
     if ($camp) {
         $h .= trek_camp_choice('rest', '🛌', 'Rest and bank', 'Free. Everyone heals, fatigue to 0, finds go to your satchel');
     } elseif ($oc && ($fat > 0 || $hurt)) {
-        $h .= trek_camp_choice('rest_old', '⛺', 'Rest here (free)', 'No kit needed. Fatigue −' . trek_oldcamp_fatigue() . ', everyone heals half. Finds are not banked');
+        $h .= trek_camp_choice('rest_old', '⛺', 'Rest here (free)', 'No kit needed. Fatigue to 0, everyone back to full health. Finds are not banked');
     } elseif ($rs) {
-        $h .= trek_camp_choice('rest_spot', '🛋️', 'Sit a while (free rest)', 'Free, once');
+        $h .= trek_camp_choice('rest_spot', '🛋️', 'Sit a while (free rest)', 'Free, once. Fatigue to 0, everyone back to full health');
     } elseif ($fat <= 0 && !$hurt) {
         $h .= '<p class="help tkcnote">Everyone is rested already.</p>';
     } elseif ($kits > 0) {
-        $h .= trek_camp_choice('makecamp', '🏕️', 'Use a Camp Kit', 'Fatigue −50, everyone heals half their health');
+        $h .= trek_camp_choice('makecamp', '🏕️', 'Use a Camp Kit', 'Fatigue to 0, everyone back to full health');
     } else {
         $h .= trek_camp_choice('makecamp', '🌙', 'Cold rest', 'Free: fatigue −' . trek_cold_rest_fatigue() . ', heal a quarter. ' . max(0, (int)setting('trek_ambush_pct')) . '% chance of an ambush first');
     }
