@@ -1,4 +1,4 @@
-# Gnome Venture: handoff (current as of v2.0.5, 2026-10-20; plan: claude/plan-consolidation.md)
+# Gnome Venture: handoff (current as of v2.0.6, 2026-10-20; plan: claude/plan-consolidation.md)
 Latest: 2.0.0.1 = Puzzles (puzzles.php, standalone page; see changelog). Versions after 2.0.0 are four-part (2.0.0.1, 2.0.0.2 ...) until Joshua says otherwise.
 
 Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.1), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
@@ -52,6 +52,9 @@ Mockups go in scratchpad only (not in project).
 - Gate: L15 + setting `trek_open` (default 0 = admins only). `trek_inside()` blocks road walks/explore/landmarks only.
 - Caps: `trek_petals_daily` 150 per user/day; fights cost no energy; entry 10 energy. Carried Petals/loot bank at camp; KO loses 45% carried. Admin reset re-pays chapter rewards (UI warns).
 - Ch II-a built (Seep Steps → Drowned Library/Silverfin → Potter's Row → closed Crossroads gate). II-b next (plan in trek-chapter2.md).
+
+## Maps for adventuring (2.0.6)
+- includes/tilemap.php (generic grid/path/fog/render) + delve_map.php + assets/tilemap.js: delves and lairs are walked on a seeded map (table walk_scene); list flow still works (`?view=list`). Trek code is separate on purpose (strangler); roads/towns/gardens stay list-based. Tests: tests/delvemap.sh.
 
 ## Key conventions
 - XP: `add_xp()`; `add_action_xp()` scales past `xp_steep_from`. Events: `job_event()` feeds Job Board, Callings, Hollow Goals.

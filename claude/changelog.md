@@ -1,6 +1,12 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.6
+- Phase 3 of claude/plan-consolidation.md: delve + lair MAPS (optional view, list flow kept as fallback). NEW includes/tilemap.php (generic: tm_parse/tile/walkable/path/reach/reveal/window/spots/gen/validate/render_svg, 9 landscape palettes), includes/delve_map.php (walk_scene schema, setting `delve_map` default 1, scene handling, dm_walk, dm_view_html), assets/tilemap.js (tap-to-walk, token animation; tile size from data attr), data/delve_maps.txt (3 hand layouts, ~3 in 12 delves; rest generated 11x11, lairs 13x13, seeded by landmark+expedition).
+- NEW table walk_scene (user_id, exp_id UNIQUE, map_key, x, y, seen, state; VARCHAR only; row removed when the expedition ends; orphans purged at next start; dm_table_ok() creates it on first use if upgrade not run). Reaching a room tile calls the existing delve_next() (odds, danger, rewards unchanged); room 5 (guardian + chest) opens only after 4 rooms cleared; walking free; fog radius 2 (3 with lantern). Lairs: boss waits at the far tile (lair_engage), "Slip out" before it rises ends the lair. `?view=list|map` remembered in session. Phone window 9x9 at 44px (7x7 at 390px), no overflow.
+- Trek files untouched (strangler). tests/delvemap.sh (500 delve + 500 lair seeds, 6 full tile-played delves, fallback, lairs, cleanup). CSS "v2.0.6 tilemap". News entry.
+- Open: path preview is hover/focus only (touch sees reachable dots then walks); 390px crop hides outer tiles; walk_scene purge SQL untested on MySQL; roads/towns stay list-based by design (decision gate: look at delve completion before extending maps).
+
 ## 2.0.5
 - Phase 2 of claude/plan-consolidation.md. NEW includes/shop_tiles.php (shop_tile/shop_chips/shop_mini/shop_cat_of): shop.php, market.php (stall buy), marketday.php (stall buy + wanted sell) share one tile + `<dialog>` sheet (site.js gvSheetTotal: skips "Too much" when no .mycoins[data-coins]). CSS "v2.0.5 shop tiles". Left as rows: sinks.php (Curio/Dye Pot), festival stalls, haven pantry, local.php, florist, my stall list.
 - NEW includes/rewards.php: give_petals/take_petals (single-statement UPDATE, take = conditional claim), reward_log() empty hook, give_xp alias. 26 plain call sites moved (15 give, 11 take); rest still raw `coins = coins` (list in git history of this change; migrate lazily when touching a file). tests/rewards.php.
