@@ -373,7 +373,7 @@
   /* ---- first sight of the foes ---- */
   function foldMap(box) {   /* after a walk into a fight: the map folds away once the pop-over is done (the summary reopens it) */
     var d = document.querySelector('details.tkfmap');
-    if (d && box.isConnected) d.removeAttribute('open');
+    if (d && box.isConnected && !(window.matchMedia && window.matchMedia('(min-width: 1000px)').matches)) d.removeAttribute('open');   /* v2.0.13: on desktop the map stays open in column 1 */
   }
   function waitThenPop(box) {
     var tries = 0;

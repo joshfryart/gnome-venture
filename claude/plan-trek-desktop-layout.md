@@ -1,6 +1,6 @@
 # Plan: Trek fight layout on desktop (2.0.13) — written 2026-10-20, NOT built
 
-Status: planned, waiting for Joshua's "go". Builds on 2.0.12 (branch trek-fight-touches, last commit ae95a00+; web zip sent 2026-10-20).
+Status: BUILT as 2.0.13 (Joshua said go 2026-10-20). Fade = view-transition: map named trek-map (stays), column 2 named trek-stage. Builds on 2.0.12 (branch trek-fight-touches, last commit ae95a00+; web zip sent 2026-10-20).
 
 ## Joshua's asks (in order)
 1. Desktop map screen: the log lines + Sneak/Camp/Leave buttons go under the map (left column), into the empty space. Right column keeps the rest (status, map key, events, spot, trailmates).

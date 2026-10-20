@@ -3780,7 +3780,7 @@ h1 { margin-block: 0 8px; }
 .trekhud .trekwhere { margin: 8px 0 0; font-size: 14px; line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
 /* map: capped and centred */
 .trekplay { display: flex; flex-direction: column; gap: 8px; }
-.trekplay > * { min-width: 0; margin-top: 0; margin-bottom: 0; }
+.trekplay > *, .trekcol > * { min-width: 0; margin-top: 0; margin-bottom: 0; }
 .trekmapform { margin: 0; }
 .trekmap { max-width: 520px; margin-inline: auto; }
 .trektut { text-align: center; margin: 0; }
@@ -3818,8 +3818,6 @@ ul.trekrounds.trekLatest li { padding: 1px 0; }
 .trekfight .fightbtns > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 @media (min-width: 1000px) {
   .trekplay { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); column-gap: 16px; row-gap: 8px; align-items: start; }
-  .trekplay > .trekmapform { grid-column: 1; grid-row: 1 / span 6; }
-  .trekplay > :not(.trekmapform) { grid-column: 2; }
   .trekmap { max-width: 520px; }
 }
 @media (max-width: 999px) { .trekmap { max-width: none; } }
@@ -4056,9 +4054,9 @@ dialog.tkr::backdrop { background: rgba(0, 0, 0, .78); backdrop-filter: blur(5px
 dialog.tkr.ended .tkrcard { cursor: default; }
 dialog.tkr .tkrcard { max-height: calc(100dvh - 24px); overflow-y: auto; }
 /* v1.8.8: what needs a tap (trail event, crew moment, the spot you stand on) sits right under the hud, above the map */
-.trekplay > * { order: 2; }
-.trekplay > .trekhud { order: 0; }
-.trekplay > .trekev, .trekplay > .trekspot { order: 1; }
+.trekplay > *, .trekcol > * { order: 2; }
+.trekplay .trekhud { order: 0; }
+.trekplay .trekev, .trekplay .trekspot { order: 1; }
 
 /* v1.8.9 trek levels */
 .trekhud .hm .tlv { color: var(--muted); font-size: 11px; font-weight: 600; }
@@ -4552,4 +4550,23 @@ details.tkfmap > summary { display: flex; align-items: center; justify-content: 
 }
 @media (prefers-reduced-motion: reduce) {
   .tkfloat { display: none; }
+}
+
+/* v2.0.13 trek desktop layout. Map screen: left column = map + key + latest lines + Sneak/Camp/Leave, right column = the rest. Fight screen: the same map (inert) stays in the left column, the fight sits in the right one. Phones: wrappers vanish (display: contents), old order kept. */
+.trekcol { display: contents; }
+.trekcolR > :not(.trekhud):not(.trekev):not(.trekspot):not(.trektut) { order: 3; }
+details.tkfmap.late { display: none; }
+@media (min-width: 1000px) {
+  .trekplay { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); column-gap: 16px; row-gap: 8px; align-items: start; }
+  .trekplay > .trekcol { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .trekplay > .trekcolL { grid-column: 1; grid-row: 1; width: 100%; max-width: 520px; justify-self: center; }
+  .trekplay > .trekcolR { grid-column: 2; grid-row: 1; }
+  .trekfightcol { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); column-gap: 16px; row-gap: 8px; align-items: start; max-width: none; }
+  .trekfightcol > * { grid-column: 2; min-width: 0; }
+  .trekfightcol > details.tkfmap, .trekfightcol > details.tkfmap.late { display: block; grid-column: 1; grid-row: 1 / span 4; width: 100%; max-width: 520px; justify-self: center; }
+  details.tkfmap > summary { display: none; }
+  .tkfmapbox { margin-top: 0; }
+  /* fades: the map stays put, column 2 cross-fades between the map-screen cards and the fight */
+  .trekmapcol, .tkfmapbox { view-transition-name: trek-map; }
+  .trekcolR, .trekfightcol > .trekfight { view-transition-name: trek-stage; }
 }

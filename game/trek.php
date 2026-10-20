@@ -925,14 +925,23 @@ $fat = (int)$run['fatigue'];
   <?php if ($run['fi']): ?>
     <div class="trekfightcol">
     <?= $hud ?>
-    <?php if ($fightWalk): ?><details class="tkfmap" open data-bang="1"><summary>🗺️ Where it began</summary><div class="tkfmapbox" inert><?= trek_map_html($run, $u, $fightWalk) ?></div></details><?php endif; /* v2.0.10: display only (inert, no form); assets/trekfight.js folds it after the pop-up */ ?>
+    <?php /* v2.0.10: display only (inert, no form); assets/trekfight.js folds it after the pop-up. v2.0.13: drawn on every fight load: desktop shows it in column 1 all fight long (summary hidden), phones only on the first load (.late = hidden below 1000px) */ ?>
+    <details class="tkfmap<?= $fightWalk ? '' : ' late' ?>" open<?= $fightWalk ? ' data-bang="1"' : '' ?>><summary>🗺️ Where it began</summary><div class="tkfmapbox" inert><?= trek_map_html($run, $u, $fightWalk) ?></div></details>
     <?= trek_fight_html($run, $u) ?>
     </div>
   <?php else:
     $latest = trek_latest_html($run); ?>
+    <?php /* v2.0.13: .trekcolL (map, key, latest lines, Sneak/Camp/Leave) + .trekcolR (everything else). Phones: display:contents, so the old order rules still apply */ ?>
     <div class="trekplay">
+    <div class="trekcol trekcolR">
     <?= $hud ?>
     <?php if ((int)($run['st']['turn'] ?? 0) <= 2): ?><div class="trektext small trektut"><?= trek_text('ch' . (int)$run['chapter'] . '.tut.walk') ?></div><?php endif; ?>
+    <?= trek_event_html($run, $u) ?>
+    <?= trek_crew_html($run, $u) ?>
+    <?= trek_ms_card_html($run) ?>
+    <?= trek_spot_panel($run, $u) ?>
+    </div>
+    <div class="trekcol trekcolL">
     <form method="post" class="trekmapform trekmapcol<?= (int)($run['st']['back'] ?? -1) === (int)($run['st']['turn'] ?? 0) && (int)($run['st']['turn'] ?? 0) > 0 ? ' back' : '' ?>"><?= csrf_field() ?><input type="hidden" name="do" value="go"><input type="hidden" name="t" value="map">
       <?= trek_map_html($run, $u, $walkPath) ?>
     </form>
@@ -948,10 +957,7 @@ $fat = (int)$run['fatigue'];
       </div>
       <p class="help"><?= $run['sneak'] ? 'Sneaking: fewer fights' : 'Hunting: fights find you' ?> · Camp: <?= (int)$run['campkits'] > 0 ? 'uses a kit' : 'free, may be ambushed' ?></p>
     </div>
-    <?= trek_event_html($run, $u) ?>
-    <?= trek_crew_html($run, $u) ?>
-    <?= trek_ms_card_html($run) ?>
-    <?= trek_spot_panel($run, $u) ?>
+    </div>
     <?= trek_camp_dialog_html($run, $u, $party, $campAuto) ?>
     </div>
   <?php endif; ?>
