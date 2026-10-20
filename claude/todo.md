@@ -6,6 +6,12 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 
 **Standing orders (Joshua 2026-10-20):** Puzzles = ignore until he says. Treks stay admin-only and their text stays as it is until he has played through it.
 
+## 2.0.12 (built 2026-10-20, branch trek-fight-touches)
+- Check on phone as admin: start a fight by walking: "!" over the gnome, then one pop-over with all foes side by side; hit shake / −N numbers in Fight round, Auto 1, plan-each-turn, Auto replay. Does the 2-foe pop-over feel too long (~2.2 s)? Is the map block "Where it began" good or too tall?
+- Idea parked: fight as a bottom sheet over the map (phone: map top 35%). Cost ~1 release, medium risk; needs all other dialogs converted to modal. Decide after the phone test.
+- Not tested live: creature pictures in the pop-over (only emoji in tests). Last foe KO fade only in Auto replay.
+- Fable text review: Ch I + II-a work. Fixed 7 of 8 issues. Left: ch2.spot.crossroads.locked is unreachable (leave).
+
 ## Now: Joshua
 1. Upload **2.0.9** (covers 2.0.3–2.0.8). Check on phone: log sits under the map; free Burdock/Zinnia/Bracken: story pop-ups, then the "Party member joined!" card (stats + bio); the "Story pop-ups" button under the tabs mutes them; edit the 7 gnome reply lines (Admin → Trek text, keys `*.scene.*.me`) and the trailmates' bios (npcs, used on the join card). Decide: should the milestone line come before the join card? Do pop-ups feel too many? As admin on phone check: a delve and a lair on the map (tap a lit tile, no sideways scroll, "Use the simple list" works, chest opens after the other rooms); shop, Trading Post and Market Day tiles + sheet; Town → Passport + Villagers tabs; World → Seasons fold; Admin → Usage, Road text, settings search.
 2. Play Ch I + Ch II-a as admin on phone (text reworked in 2.0.4; rows you edited kept your words). Edit/approve in Admin → Trek text. Then say when to turn on "Treks: open".

@@ -14,6 +14,14 @@ Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgr
 - Cap: trek wide picture <= 2600 tiles, delve <= 900 (else old behaviour). Wide pictures are made only on walk renders.
 - Tests: delvemap.sh ALL OK, treks.sh all ok. Playwright 390 + 1400 px (trek + delve): token x offset 0 every frame, same offset before/after the camera, no sideways scroll. No schema change. No news entry.
 
+## 2.0.12
+- Treks fights (branch trek-fight-touches): ONE combined foe pop-over (`dialog.tkfoe`, all foes side by side, same-name = one card ×N, boss shows "Next: X, then Y"; muted by `gvSceneOff`). After a walk into a fight the map shows above the fight card ("🗺️ Where it began", `details.tkfmap`, inert) and a red "!" bounces over the token before the pop-over; reload shows neither. Animations in every mode (hit shake, floating −N/+N, crit flash on the hit row, KO fade, eased bars, plan-each-turn stage tokens, Auto replay). Files: trek.php, includes/trek_fight.php (`trek_foe_card`, replay snap [6]), assets/trekfight.js, assets/trekmap.js, CSS block "v2.0.10 trek fight touches". No fight maths changed.
+- Treks text fixes (Fable review, 8 verified issues): NEW data/trek_final_2012.txt (9 slots) applied once by `trek_apply_text_2012()` (boot_step `trek_bodies_2012`, trek_text_pass = 5; edited rows kept; seed.php runs it): Tin Lamp keeper no longer says the snail never came back, "satchel" not "pack" for the Shard, kiln/cook lines reworded, NEW slots ch2.banter.zinnia.1/2 + bracken.1/2 (briefs in trek_texts_ch2.txt, drafts in trek_drafts_ch2.txt). interlude.1.* speakers now NPC slugs (pass updates existing rows only if still the old first name).
+- Fix: Lanternroot Seed Satchel description showed "TODO" (item row; boot_step `trek_item_desc_2012`, only if still the old words).
+- Left: ch2.spot.crossroads.locked (unreachable by design). Doc drift fixed in trek-chapter1.md (2 tries, 1 add / 4th round).
+- Tests: tests/trek_text2012.php (in treks.sh); trek_text204 expects pass 5. treks.sh 243 ok, security190 170 ok. No news entry (Treks hidden).
+- Numbering: 2.0.10–2.0.19, then 2.0.20 (set 2026-10-20 by Joshua's other session). Not built as 2.0.10/2.0.11 here.
+
 ## 2.0.9
 - ALL story text (speech, narration, place arrivals, boss intro/defeat) now opens as the talk pop-over, once per line per run; the log keeps every line. Speakers come from the text slot's speaker; narration shows with no portraits. Mixed lines ("Tumble bows. “Lovely!”") split into narration + speech.
 - NEW "Party member joined!" card after a recruit: name, species, calling, level, Health/Attack/Armour, role, a bit about them (npc bio). Benched trailmates say the party is full.
