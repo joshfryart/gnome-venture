@@ -1,6 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.1)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.2)
 
-Built + sent: **2.0.1** (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.1). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+Built + sent: **2.0.2** (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.2). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 
 ## Now: Joshua
 1. 1.9.2 uploaded; all 1.8.x checks pass (Joshua 2026-10-17). Play Chapter II-a as admin on phone; time it.
@@ -9,7 +9,7 @@ Built + sent: **2.0.1** (slim needs 1.4.1+). Live: whatever Joshua last uploaded
 4. Art in progress (Admin → Images).
 - Email: Joshua says OK, drop it.
 
-1b. Upload **2.0.1** (on top of 2.0.0.1). As admin check: a Ch II boss with a non-Burdock party, a riddle (2 tries), an old campsite ⛺ rest + KO wake-up there, road in-sight timer ticking.
+1b. Upload **2.0.2** (2.0.1 + Puzzles locked to admins; turn on in Admin → Settings "Games: Puzzles open"). As admin check: a Ch II boss with a non-Burdock party, a riddle (2 tries), an old campsite ⛺ rest + KO wake-up there, road in-sight timer ticking.
 
 ## NEXT UP (Joshua 2026-10-17)
 - Picture tiles + sheet (like shop.php 1.9.8) on: Curio + Dye Pot (sinks.php), market day stalls (marketday.php), haven pantry (landmarks.php), festival stalls, local.php buys, Trading Post (market.php).

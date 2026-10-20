@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.2
+- Setting `puzzles_open` (default 0 = admins only): puzzles.php redirects players to games.php with "coming soon"; Games hub tile shown only when open or admin. 2.0.0.1 news entry still mentions Puzzles.
+
 ## 2.0.1
 - Treks rebalance (w201-a): Auto uses Spore Burst on bosses when a friend <75% or boss holding; Sorrel 1|1|2|1 lore 3, Spore Burst mends 7% + breaks hold; Tumble 3|1|2|1, Sling +5 hit +5 dmg cd2, breaks hold; Juniper 2|0|3|1, Poison 2d6 then 3/round, poisoned foe hits 5% softer; Bracken 3|1|2|0, Power Strike +6, crit +1, breaks hold; Zinnia Heal 27%. Tune health %: Silverfin 138, Pinch 252, Thrum 160, Gloomtooth 166. Sims (800 trials): Pinch 75.9–93.1 (median 87), Thrum 76.1–94.6 (median 88); Silverfin Lv10 74.5–95, Lv11 93–99; Ch I ±1. trek_audit_ch2 asserts every party ≥70%.
 - Riddles 2 tries (choir, stone, library door, kiln stone, signpost); trek_riddle_heal opens doors for runs saved with 2 misses. Orphan slots shown: item.camp-kit (Pack tile), item.blight-shard (banked tiles + reward card), ch2.spot.crossroads.locked (gate needs=silverfin_down;noopen=1). Bracken: no unpaid path (migration pays 0) — tests only.

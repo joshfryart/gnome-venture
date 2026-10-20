@@ -38,11 +38,13 @@ page_header('Games');
     <?php if ($extra !== ''): ?><small class="gtextra"><?= $extra ?></small><?php endif; ?>
   </a>
 <?php endforeach; ?>
+<?php if (setting('puzzles_open') === '1' || is_admin()): ?>
   <a class="gtile ok" href="<?= e(url('puzzles.php')) ?>" title="Animated jigsaw puzzles. Just for fun: no prizes, no daily limit."><?php /* v2.0.0.1 */ ?>
     <span class="gticon">🧩</span>
     <b>Puzzles</b>
     <span class="gtbadge">Relax</span>
   </a>
+<?php endif;   // v2.0.2: Puzzles locked for players (setting puzzles_open) ?>
 </div>
 <details class="fold box"><summary>🏅 This week’s high scores</summary>
   <div class="gtops">

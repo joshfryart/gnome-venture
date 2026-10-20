@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 require __DIR__ . '/includes/bootstrap.php';
 $u = require_login();
+if (setting('puzzles_open') !== '1' && !is_admin()) { flash('Puzzles are coming soon.', 'err'); redirect('games.php'); }   // v2.0.2: locked for players for now
 
 /** id => [title, picture file, default piece count] (add a .gif to assets/img/puzzles/ and a row here) */
 const PUZZLES = [
