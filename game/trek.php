@@ -433,7 +433,7 @@ function trek_plain(string $key, string $fallback): string
 
 /** v1.8.4: the icon of each calling's ability, and a few words on what it does (the long text stays in TREK_ABILITIES). */
 const TREK_ABILITY_ICONS = ['rootwarden' => '🌳', 'bloomcaller' => '🌸', 'thornblade' => '🗡️', 'seedkeeper' => '🍄', 'wayfinder' => '🏹', 'brewroot' => '🧪', '' => '✨'];
-const TREK_ABILITY_SHORT = ['rootwarden' => '½ damage, 3 rounds', 'bloomcaller' => 'heals about ⅓', 'thornblade' => 'heavy hit', 'seedkeeper' => 'every foe, ½ damage', 'wayfinder' => '+2 to hit', 'brewroot' => 'then burns 3 rounds', '' => '+3 to hit, +3 damage'];
+const TREK_ABILITY_SHORT = ['rootwarden' => '½ damage, 3 rounds', 'bloomcaller' => 'heals about ¼', 'thornblade' => 'heavy hit', 'seedkeeper' => 'every foe, ½ damage, mends friends', 'wayfinder' => '+5 to hit, +5 damage', 'brewroot' => 'then burns 3 rounds', '' => '+3 to hit, +3 damage'];
 
 /** The first word of a name (trailmates and gnomes have long ones). */
 function trek_first_name(string $n): string
