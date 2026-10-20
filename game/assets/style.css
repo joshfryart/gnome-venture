@@ -4607,3 +4607,15 @@ dialog.isheet .sline b { font-size: 16px; }
 .trekhud .hudparty { gap: 4px 10px; }
 .trekhud .hm { min-width: 58px; gap: 1px; }
 .trekhud .hm progress { width: 62px; height: 7px; }
+
+/* v2.0.20 trek knacks */
+.pknform { margin: 10px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); text-align: center; }
+.pknform .ptachead { text-align: center; }
+.pkngrid { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 8px; }
+.pkngrid label { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; max-width: 320px; min-width: 0; font-size: 12px; color: var(--muted); }
+.pkngrid select { width: 100%; max-width: 100%; min-height: 38px; font-size: 14px; text-align: center; text-align-last: center; }
+.pkngrid select:disabled { opacity: .7; }
+.pknnone { text-align: center; margin: 4px 0; }
+.tkcknack { text-align: center; margin: 8px 0 0; font-size: 14px; }
+:root[data-theme="dark"] .pknform { border-top-color: var(--line); }
+.pknlock { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }

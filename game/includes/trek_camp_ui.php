@@ -129,6 +129,9 @@ function trek_camp_dialog_html(array &$run, array $u, array $party, string $auto
         }
     }
 
+    if ($camp) {   // v2.0.20: knacks can be swapped here; the link only shows once someone has earned a slot
+        foreach ($party as $m) if (trek_knack_slots((int)$m['tl']) > 0) { $h .= '<p class="tkcknack"><a href="' . e(url('trek.php?t=party')) . '">🎯 Knacks ›</a></p>'; break; }
+    }
     $h .= '<div class="tkcfoot"><label class="tkcauto"><input type="checkbox" data-tkcamp-auto checked> Open this when I reach a camp</label>'
         . '<button type="button" class="btn tkcclose" data-tkcamp-close>Close</button></div>';
     return $h . '</div></dialog>';

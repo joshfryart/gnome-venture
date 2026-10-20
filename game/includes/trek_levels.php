@@ -22,7 +22,7 @@ declare(strict_types=1);
  * Leveling up heals that member a quarter of their health.
  */
 
-const TREK_TL_MAX = 20;
+const TREK_TL_MAX = 23;   // v2.0.20: was 20
 const TREK_TL_HP_PCT = 6;       // +max health per level gained, % of the base health
 const TREK_TL_NEED_BASE = 44;   // XP to go from level 1 to 2
 const TREK_TL_NEED_STEP = 16;   // ...and this much more for each level after

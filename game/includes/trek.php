@@ -10,6 +10,7 @@ require_once __DIR__ . '/trek_events.php';   // v1.8.8: trail events, crew momen
 require_once __DIR__ . '/trek_scene.php';   // v2.0.8: the talk pop-over (scene) queue and stage
 require_once __DIR__ . '/trek_camp_ui.php';   // v2.0.11: the camp pop-over
 require_once __DIR__ . '/trek_levels.php';   // v1.8.9: trek levels, milestone XP, migration
+require_once __DIR__ . '/trek_knacks.php';   // v2.0.20: knacks (skill slots)
 
 /**
  * v1.8.0 Treks, the engine: one run per gnome (trek_runs), a party, a pack, flags, a map to walk, camps, bank and knock-outs.
@@ -351,6 +352,7 @@ function trek_party_stats(array &$run, array $u): array
         $gc['atk'] += $tb['atk'] - $pen + $bless;
         $gc['dmg_bonus'] += $tb['dmg'];
         $gc['ac'] -= $pen - $bless;
+        trek_knack_apply($gc, $run, (string)$p['crew_key']);   // v2.0.20: knacks, after the trek-level bonus (no st.kn = untouched)
         $run['party'][$slot]['hp'] = min((int)$p['hp'], (int)$gc['max_hp']);
         if ((string)($mu['calling'] ?? '') === 'wayfinder') $run['wf'] = true;
         $npc = $isGnome ? null : trek_crew_npc($p['crew_key']);
@@ -413,6 +415,7 @@ function trek_new_run(array $u, int $chapter, ?array $from = null): array
     if ($from) {
         $run['st']['tl'] = (array)($from['st']['tl'] ?? $run['st']['tl']);
         if (!empty($from['st']['tac'])) $run['st']['tac'] = $from['st']['tac'];
+        if (!empty($from['st']['kn'])) $run['st']['kn'] = $from['st']['kn'];   // v2.0.20: knacks
         foreach (trek_recruits((int)$from['id']) as $k) {
             try { db_insert('trek_recruits', ['run_id' => $rid, 'crew_key' => $k]); } catch (PDOException $e) { /* there already */ }
         }

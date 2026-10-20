@@ -95,6 +95,7 @@ function trek_dispatch_hub(array &$run, array $u, string $do): array
         case 'buy_kit': return trek_buy_kit($run, $u);
         case 'party': return trek_set_party($run, $u, [1 => trek_post_str('p1'), 2 => trek_post_str('p2'), 3 => trek_post_str('p3')]);
         case 'tactics': return trek_act_tactics($run, $u);
+        case 'knack': return trek_act_knack($run, $u, trek_post_str('who'), trek_post_knacks());
         case 'talk': return trek_hub_talk($run, $u, trek_post_str('who'));
         case 'godown': return trek_godown($run, $u);
     }
@@ -129,6 +130,7 @@ function trek_dispatch_do(?array &$run, array $u, string $do): array
         case 'dismiss': unset($run['st']['show_done']); return [true, ''];
         case 'msdismiss': unset($run['st']['msc']); return [true, ''];   // v1.8.9: the milestone card
         case 'tactics': return trek_act_tactics($run, $u);
+        case 'knack': return trek_act_knack($run, $u, trek_post_str('who'), trek_post_knacks());   // v2.0.20
         case 'event': return trek_act_event($run, $u, trek_post_int('c', -1));          // v1.8.8: trail event choice (0 = walk on)
         case 'crew': return trek_act_crew($run, $u, trek_post_int('c', 1));            // v1.8.8: a trailmate's tiny task (0 = not now)
         case 'cart': return trek_act_cart($run, $u, trek_post_str('how'));
@@ -974,7 +976,7 @@ $fat = (int)$run['fatigue'];
         <span class="ptl"><b>Trek Lv <?= (int)$m['tl'] ?></b><?= trek_xp_bar((int)$m['tl'], (int)$m['txp']) ?></span>
         <?php if ($sum !== ''): ?><small class="ptac"><?= e($sum) ?></small><?php endif; ?></summary>
       <div class="pbody">
-        <?= trek_tl_facts((int)$m['tl'], (int)$m['txp'], (int)$m['max'] - (int)$m['tb']['hp']) ?>
+        <?= trek_tl_facts((int)$m['tl'], (int)$m['txp'], (int)$m['max'] - (int)$m['tb']['hp'] - (int)($m['gc']['kn_hp'] ?? 0)) ?>
         <?= trek_member_facts($m['gc'], $m['calling']) ?>
         <form method="post" class="ptacform"><?= csrf_field() ?><input type="hidden" name="do" value="tactics"><input type="hidden" name="t" value="party"><input type="hidden" name="slot" value="<?= (int)$slot ?>">
           <b class="ptachead">Tactics</b>
@@ -985,6 +987,7 @@ $fat = (int)$run['fatigue'];
           </div>
           <button class="btn small">Save</button>
         </form>
+        <?= trek_knack_form_html($run, (string)$m['key']) ?>
       </div>
     </details>
   <?php endforeach; ?>
@@ -1002,7 +1005,7 @@ $fat = (int)$run['fatigue'];
       <?php [$wl, $wx] = trek_tl_get($run, $rk); $wb = trek_tl_bonus($wl, (int)$cg['max_hp']); ?>
       <summary><span class="pico"><?= TREK_CREW_ICONS[$cc] ?? '🧑' ?></span><span class="pwho"><b><?= e(trek_first_name((string)trek_crew_npc($rk)['name'])) ?></b><small><?= e((CALLINGS[$cc][0] ?? '')) ?></small></span>
         <span class="ptl"><b>Trek Lv <?= $wl ?></b><?= trek_xp_bar($wl, $wx) ?></span></summary>
-      <div class="pbody"><?= trek_tl_facts($wl, $wx, (int)$cg['max_hp']) ?><?= trek_member_facts($cg, $cc) ?></div>
+      <div class="pbody"><?= trek_tl_facts($wl, $wx, (int)$cg['max_hp']) ?><?= trek_member_facts($cg, $cc) ?><?= trek_knack_form_html($run, $rk) ?></div>
     </details>
   <?php endforeach; ?>
   <?php if ($recruits && $atCamp): ?>
