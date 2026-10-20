@@ -235,6 +235,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 if (trek_apply_text_207() > 0) set_setting('trek_text_pass', '4');
             }
         });
+        boot_step('trek_item_desc_2012', function () {   // v2.0.12: the Lanternroot Seed showed a TODO in the Satchel; only a row that still holds the old words is changed
+            db_update('items', ['description' => 'A small seed with a faint glow inside, like a coal that forgot to go out.'], 'slug = ? AND description = ?', ['lanternroot-seed', 'A seed that glows faintly. TODO: the Lanternroot crop is not built yet.']);
+        });
         boot_step('upgrade_094_callings', function () {
             if (version_compare((string)setting('db_version'), '0.9.4', '<')) upgrade_094_callings();   // v0.9.4: tiers II/III now need the chapter
         });

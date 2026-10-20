@@ -497,7 +497,7 @@ const TREK_ITEMS = [
     'clean-dew' => ['Clean Dew', 'misc', 20, 8, 0, 'Water from the unblighted pools.'],
     'cellar-key' => ['Cellar Key', 'misc', 30, 8, 0, 'A small old key, still warm.'],
     'blight-shard' => ['Blight Shard', 'misc', 200, 40, 0, 'A black shard that hums and points down.'],
-    'lanternroot-seed' => ['Lanternroot Seed', 'misc', 80, 30, 0, 'A seed that glows faintly. TODO: the Lanternroot crop is not built yet.'],
+    'lanternroot-seed' => ['Lanternroot Seed', 'misc', 80, 30, 0, 'A small seed with a faint glow inside, like a coal that forgot to go out.'],
     'glowing-bead' => ['Glowing Bead', 'part', 40, 40, 1, 'Dropped by the Cave Glowworm.'],
     'singing-pebble' => ['Singing Pebble', 'misc', 25, 12, 1, 'A smooth little pebble that hums when the air moves. The Riddle Stone gave it away.'],
     // v1.9.2 Chapter II-a (all four are quest items: they stay in the trek pack, see TREK_QUEST_ITEMS)
