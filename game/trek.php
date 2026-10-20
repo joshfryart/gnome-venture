@@ -724,16 +724,6 @@ function trek_ms_list_html(array $run, string $title = 'Milestones'): string
         . '<p class="help">Gnome XP comes from milestones. Each pays once, and more when you did the side stops, events, riddles and crew moments, and were never knocked out.</p></details>';
 }
 
-/** v2.0.1: the item flavour text (item.<slug>) for each reward item that has one, as small centred notes. */
-function trek_item_notes(array $slugs): string
-{
-    $h = '';
-    foreach ($slugs as $slug) {
-        if (is_string($slug) && isset(trek_text_rows()['item.' . $slug])) $h .= '<div class="trektext small tkitemnote">' . trek_text('item.' . $slug) . '</div>';
-    }
-    return $h;
-}
-
 /** v1.9.1: the interlude between chapters: one screen, no map. The finished chapter's card, a rest, the Camp Kit shop, the party, a word with each trailmate, and the way down. */
 function trek_hub_html(array &$run, array $u, array $party): string
 {

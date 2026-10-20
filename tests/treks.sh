@@ -52,6 +52,8 @@ echo "== Chapter I audit: map, text keys, every spot once-only / replay / KO / f
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch1.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Chapter II audit: data, reachability, whole walk, text keys, soft-locks, boss sims (tests/trek_audit_ch2.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch2.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.1: 2-try riddles, door heal, Crossroads locked text, Bracken milestone, daily item cap (tests/trek_201.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_201.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 dbx "UPDATE trek_texts SET body='A hush falls over the Hollow.', status='draft' WHERE text_key='ch1.intro'"
 echo "== pages as player, trek open"
 dbx "UPDATE users SET trek_ch=1; UPDATE trek_runs SET inside=0, fight=NULL; DELETE FROM trek_runs; DELETE FROM trek_party; DELETE FROM trek_pack; DELETE FROM trek_flags; UPDATE users SET energy=100 WHERE username='sprout'"
@@ -256,6 +258,29 @@ grep -q 'Chapter III is coming soon' $H && echo "  ok   Chapter III: coming soon
 grep -q 'class="trekmap' $H && echo "  FAIL map shown after the finish" || echo "  ok   no map"
 post trek.php -d do=talk -d who=tumble >/dev/null; get trek.php >/dev/null; grep -q 'come down' $H && echo "  ok   Tumble talks at the rest stop" || echo "  FAIL no Tumble line"
 echo "  map key shown: $(grep -c 'class="tklegend"' $H)  inline style attrs on the page: $(grep -o ' style="' $H | wc -l)"
+echo "== v2.0.1: item text is shown (hub reward note, Pack tab Camp Kit + banked Blight Shard), Crossroads locked card"
+cat > /tmp/trek_i201.php <<'PHP'
+<?php
+$_SERVER["SCRIPT_NAME"]="/trek.php"; require $argv[1]."/includes/bootstrap.php"; require $argv[1]."/includes/trek.php";
+$uid=(int)q_val("SELECT id FROM users WHERE username='sprout'");
+trek_tx($uid, function(&$run,$u){ $run["st"]["show_done"]=1; $run["st"]["rewards"]=["petals"=>1,"items"=>["Blight Shard"],"slugs"=>["blight-shard"]]; $run["campkits"]=2; trek_pack_add((int)$run["id"], trek_item_id("blight-shard"), 1, 1); return [true,""]; });
+PHP
+php /tmp/trek_i201.php $GAME >/dev/null 2>&1
+get trek.php >/dev/null; grep -q 'hums softly' $H && echo "  ok   interlude reward card shows the Blight Shard text" || echo "  FAIL no Blight Shard text on the reward card"
+get 'trek.php?t=pack' >/dev/null; grep -q 'rolled bundle' $H && echo "  ok   Pack tab shows the Camp Kit text" || echo "  FAIL no Camp Kit text in the Pack tab"
+grep -q 'hums softly' $H && echo "  ok   Pack tab shows the banked Blight Shard text" || echo "  FAIL no Blight Shard text in the Pack tab"
+cat > /tmp/trek_i201b.php <<'PHP'
+<?php
+$_SERVER["SCRIPT_NAME"]="/trek.php"; require $argv[1]."/includes/bootstrap.php"; require $argv[1]."/includes/trek.php";
+$uid=(int)q_val("SELECT id FROM users WHERE username='sprout'");
+q("DELETE FROM trek_runs WHERE user_id = ? AND chapter = 2", [$uid]); q("UPDATE users SET trek_ch = 1, energy = 100 WHERE id = ?", [$uid]);
+trek_tx($uid, function(&$run,$u){ $run["inside"]=1; $run["st"]["show_done"]=1; $run["campkits"]=0; return [true,""]; });
+trek_tx($uid, function(&$run,$u){ foreach (["burdock","zinnia","bracken"] as $k) if (!in_array($k, trek_recruits((int)$run["id"]), true)) trek_recruit_crew($run,$u,$k); trek_complete_chapter($run,$u); trek_hub_arrive($run,$u); return [true,""]; });
+trek_tx($uid, fn(&$run,$u) => trek_godown($run,$u));
+trek_tx($uid, function(&$run,$u){ $g=trek_spots(2)["crossroads"]; $run["sn"]=str_repeat("\xff", strlen($run["sn"])); $run["fi"]=null; $run["inside"]=1; $run["x"]=$g["x"]-1; $run["y"]=$g["y"]; return [true,""]; }, true, 2);
+PHP
+php /tmp/trek_i201b.php $GAME >/dev/null 2>&1
+get trek.php >/dev/null; grep -q 'The gate is shut' $H && echo "  ok   next to the locked Crossroads gate its text shows" || echo "  FAIL no Crossroads locked text"
 echo "== engine audit (tests/trek_audit.sh: who may call what, bad input, simultaneous POSTs, escaping, admin pages, damaged state, settings extremes)"
 bash "$HERE/trek_audit.sh" "" $((PORT+1)) "$ROUTER" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== error log"
