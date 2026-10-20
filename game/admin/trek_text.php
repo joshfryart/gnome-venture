@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 // v1.8.0: the Trek story text editor. Joshua writes the body of every slot; Claude's brief says what must go in it.
-// Filter by chapter (tabs: Chapter I, Chapter II, Interludes), kind, status (to do / draft / written) or "only unwritten". Saving a body that is not empty turns "to do" into "draft"
+// Filter by chapter (tabs: Chapter I, II, III, Interludes), kind, status (to do / draft / written) or "only unwritten". Saving a body that is not empty turns "to do" into "draft"
 // (v1.9.2: the Save form offers Written first, so a plain Save marks the slot written). Claude's suggestion is the draft body from trek_drafts*.txt; "Restore the suggestion" puts it back.
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';
@@ -94,7 +94,7 @@ admin_crumbs('trek_text.php');
 function trek_progress_bar(int $v, int $n): string { return '<progress max="' . max(1, $n) . '" value="' . $v . '"></progress>'; }
 ?>
 <nav class="tabs trekchtabs" aria-label="Chapter">
-<?php foreach (['' => 'All', '1' => 'Chapter I', '2' => 'Chapter II', 'i' => 'Interludes'] as $tk => $tl):
+<?php foreach (['' => 'All', '1' => 'Chapter I', '2' => 'Chapter II', '3' => 'Chapter III', 'i' => 'Interludes'] as $tk => $tl):
     $qs = http_build_query(array_filter(['ch' => $tk !== '' ? $tk : null, 'kind' => $fKind ?: null, 'status' => $fStatus ?: null, 'only' => $fOnly ? '1' : null])); ?>
   <a class="<?= (string)$tk === $fCh ? 'on' : '' ?>" href="<?= e(url('admin/trek_text.php' . ($qs !== '' ? '?' . $qs : ''))) ?>"><?= e($tl) ?></a>
 <?php endforeach; ?>

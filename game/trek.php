@@ -789,6 +789,7 @@ function trek_hub_html(array &$run, array $u, array $party): string
 {
     $ch = (int)$run['chapter'];
     $next = trek_next_chapter($ch);
+    if ($next !== null && !trek_chapter_open($next, $u)) $next = null;   // v2.0.20: not open to players yet: the usual "coming soon" box
     $cost = (int)setting('trek_entry_energy');
     $h = '<div class="box trekhub"><h3>🏕️ The Shard Hollow</h3>';
     if (!empty($run['st']['show_done'])) {
