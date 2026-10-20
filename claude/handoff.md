@@ -1,15 +1,20 @@
 # Gnome Venture: handoff (current as of v2.0.6, 2026-10-20; plan: claude/plan-consolidation.md)
-Latest: 2.0.0.1 = Puzzles (puzzles.php, standalone page; see changelog). Versions after 2.0.0 are four-part (2.0.0.1, 2.0.0.2 ...) until Joshua says otherwise.
+Latest: **2.0.6** (delve + lair maps). Versions are three-part again (2.0.3–2.0.6); the four-part rule that started at 2.0.0.1 is over. Always go UP past whatever Joshua last got.
 
-Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.1), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+Read first in a new session: this file, `claude/todo.md` (now/next/watch/art), `claude/changelog.md` (full history to 2.0.6), `claude/plan-consolidation.md` (structure decisions). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
 Owner: Joshua Fry (admin). Neopets-style cosy garden browser game. Live: gnomeventure.ca. No monetization.
 Project rules: Opus = final say/review only; Opus/Sonnet = planning/general; Sonnet/Haiku = coding/grunt work; always check agents' work (look at their screenshots, run suites vs pristine). Replies to Joshua: terse, short sentences, critical (not a yes man). Joshua is poor, on Pro plan: keep cost low.
 Joshua uploads each release himself (Admin -> Update, or FTP). He play-tests on his phone (Firefox Android, dark) and desktop, sends screenshots with circles: keep doing polish passes (centering, folding, few words).
 Joshua sometimes runs TWO sessions at once (e.g. one on Treks, one on polish/balance). If he says "hold, another agent is working": don't build/send; keep changes as commits/patch, then port onto his next source zip (git apply --reject, fix .rej by hand), bump version past his, re-test, build.
 Mockups go in scratchpad only (not in project).
 
+## Standing orders from Joshua (2026-10-20)
+- **Puzzles: ignore until he says otherwise.** Admin-only (`puzzles_open` 0). Do not build, test, plan or mention them.
+- **Treks: admin-only** (`trek_open` 0). He still has to play through the text (Ch I + II-a, reworked in 2.0.4). Leave the text and the gate as they are until he says.
+
 ## State
-- Built + sent: 1.9.5 (slim needs 1.4.1+). 1.9.5: Treks balance ignores gnome level (trek_base_level 15; only trek levels scale the party). 1.9.4 = road choices/meetings/wonder text + Treks Ch II-b (see changelog). 1.9.3 = road life (includes/road_life.php: road_pick anti-repeat ring, `cond` tags with `!` hard prefix, data/road_lines.txt ambient lines; see changelog). Explore plan: claude/explore-review.md. Live: whatever Joshua last uploaded (1.9.1 MySQL migration verified live). Next: see todo.md.
+- Built + sent: **2.0.6** (slim needs 1.4.1+; zip holds all files changed since 1.4.1, ~1,700 files: normal). Live: whatever Joshua last uploaded (1.9.1 MySQL migration verified live). 2.0.6 delve/lair maps (see Maps section). 2.0.5 picture shops (`shop_tiles.php`), `rewards.php` (give_petals/take_petals, 26 call sites moved, rest lazily), shared `combat_math.php`. 2.0.4 menu folds, Admin → Road text, settings search + advanced, Treks text rework (text pass 3). 2.0.3 Admin → Usage. 2.0.2/2.0.0.1 Puzzles (parked). Details in changelog; next: todo.md.
+- Schema changes in 2.0.4 (`road_texts`) and 2.0.6 (`walk_scene`) migrate themselves on the first request after upload (bootstrap `db_migrate`, additive, lock file). Checked by simulation 2026-10-20 (see Testing).
 - 1.9.x: Treks chapter engine (per-chapter runs, interlude hub "The Shard Hollow"), Chapter II-a "The Weeping Clay", trek text editor upgrades (chapter tabs, drafts, ✏️ in-game pencil), Today page merged (no tabs).
 - 1.8.x: Treks Ch I + fight redesign, tactics, Auto playback, trail events, trek levels + milestone XP, map art + walk animation; 1.8.2 `<dialog>` pickers + gvAsk/gvSay + tighter layout; 1.8.1 game Petals 60%, food quality off on orders.
 - Done by Joshua: reminder-email postal address (CASL); opcache on. Waiting: CanSpace SPF/DKIM. Skipped: test site /testvault/.
@@ -77,6 +82,10 @@ Mockups go in scratchpad only (not in project).
 ## Testing
 - Suite: copy game/ to a scratchpad dir, remove data/ + config.php, `mkdir -p data`, `bash tests/walk.sh COPY PORT tests/router.php` (sprout / TestPass123!, admin / TestPassword123; sprout ends on tour step 10), then `bash tests/<suite>.sh COPY PORT2 tests/router.php`. One suite per FRESH copy. Compare against pristine (`git archive HEAD game | tar -x -C dir`).
 - Key suites: walk.sh, treks.sh (+ tests/trek.php, trek_ch2.php, trek_levels.php, trek_tactics.php, trek_events.php), security190.sh, market100.sh, games2.sh (no payouts), explore.sh, landmarks.sh.
+- 2026-10-20 full run on 2.0.6 (PHP 8.3, SQLite): no real failures. Pass: treks 227, trek_audit 54, delvemap 87, security190 170, combat_math_golden 10, calling 80, clock 67, fix100 30, garden100 152, market100 98, mentors120 93, breeding110 40, roads097 68, stops100 114, roadtext 16, fresh_hold 8, rewards, roadlife, walk. All other install-based suites exit 0 with no FAIL lines except the noise below.
+- Which suites are self-contained: treks, trek_audit, delvemap, security190, calling, clock, fix100, garden100, market100, mentors120, breeding110, roads097, social100, stops100 (make their own temp copy; `bash tests/X.sh`). rewards/roadlife/the rest take a walk.sh-installed COPY (rewards.sh GAME; roadlife.sh takes an uninstalled copy and installs it). upgrade193.sh needs the PREVIOUS release as OLD_GAME_DIR; build_update.sh is a build script. Fast way for many suites: install once with walk.sh, snapshot, give each suite a fresh copy.
+- Upgrade check without the previous release (2026-10-20): install, DROP the newest tables, set db_version to the previous version, load index + login: tables come back, version bumps, `boot_failed_steps` empty.
+- Stale test greps (game is fine): sinks097.sh looks for `class="curio"` and `owned</span>` but the page has `class="curio choiceform"` (4 FAIL). Fix the greps.
 - Known noise: social100 "daily card: no [htdaily]" (mid-tour); animals120/pantry random flakes; worms/pjobs/reset fatals on pristine too; cook.sh 2 map checks stale; comm.sh PDOException on pristine too; walk.sh "INSTALL FAILED" under parallel runs. Game pages as admin redirect to welcome.php (mid-tour): use sprout in Playwright.
 - Browser: Playwright + Chromium (`NODE_PATH=$(npm root -g) node script.js`), 390/412px phone, 900 + 1400px desktop. No rsync (use tar pipe).
 - Upgrade test: install previous release via walk.sh, copy new game/ over, load pages, check db_version, new tables, boot_failed_steps empty, empty error log.
@@ -96,7 +105,7 @@ Mockups go in scratchpad only (not in project).
 - SEO: Search Console + Bing, submit sitemap.php; get linked (Reddit r/WebGames, r/cozygames, itch.io, AlternativeTo).
 
 ## Open issues (current list in todo.md)
-- Live/MySQL watch: hybrid neighbour CAST, mentor tables, users-row lock on InnoDB, garden_waterings/reacts, trek_* tables, trek_ms, trek_flag_set duplicate-insert catch.
+- Live/MySQL watch: hybrid neighbour CAST, mentor tables, users-row lock on InnoDB, garden_waterings/reacts, trek_* tables, trek_ms, trek_flag_set duplicate-insert catch, `walk_scene` purge SQL and `road_texts` (2.0.4/2.0.6, untested on MySQL). Delve maps untested on Joshua's real phone.
 - Treks before opening: no rate limit on trek POSTs (low). Cold rest weakened 1.9.4, fast travel blocked in treks 1.9.4, gnome level decoupled 1.9.5.
 - Balance watch: crops lose money on bought seed; cooking 115%, order board 3, price drift, stop rewards, hybrid odds, mentor XP share, animal gifts. Stall prices uncapped. Cosmetic sinks no level gate.
 - Tooltips still hover-only (minor, left): games.php tile blurb, race.php, weather label, ability buttons, yard edit tiles, community bed %, inventory tool purpose, adventure odds, region climate, guestbook.

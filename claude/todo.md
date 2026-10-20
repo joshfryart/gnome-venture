@@ -1,15 +1,15 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.2)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.6)
 
-Built: **2.0.6** (Phase 3: delve/lair maps; 2.0.5 = Phase 2: shop tiles, rewards wrapper, combat_math; 2.0.4 = Phase 1; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.2). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+Built: **2.0.6** (Phase 3: delve/lair maps; 2.0.5 = Phase 2: shop tiles, rewards wrapper, combat_math; 2.0.4 = Phase 1; 2.0.3 = Usage page) (slim needs 1.4.1+). Live: whatever Joshua last uploaded (1.9.1 migration verified live). Read `claude/handoff.md` first, history in `claude/changelog.md` (complete to 2.0.6). Treks: `claude/plan-treks.md`, `claude/trek-chapter1.md`, `claude/trek-chapter2.md`, `claude/trek-text-spec.md`, `claude/plan-trek-levels.md`.
+
+**Standing orders (Joshua 2026-10-20):** Puzzles = ignore until he says. Treks stay admin-only and their text stays as it is until he has played through it.
 
 ## Now: Joshua
-1. 1.9.2 uploaded; all 1.8.x checks pass (Joshua 2026-10-17). Play Chapter II-a as admin on phone; time it.
-2. Trek text this week: Ch I (89) + Ch II-a (88) drafts. Edit/approve in Admin → Trek text. Then turn on "Treks: open".
-3. Get players (slow going). Check Admin → Retention.
+1. Upload **2.0.6** (covers 2.0.3–2.0.5). As admin on phone check: a delve and a lair on the map (tap a lit tile, no sideways scroll, "Use the simple list" works, chest opens after the other rooms); shop, Trading Post and Market Day tiles + sheet; Town → Passport + Villagers tabs; World → Seasons fold; Admin → Usage, Road text, settings search.
+2. Play Ch I + Ch II-a as admin on phone (text reworked in 2.0.4; rows you edited kept your words). Edit/approve in Admin → Trek text. Then say when to turn on "Treks: open".
+3. Get players (slow going). Read Admin → Retention and Admin → Usage after a week or two: they decide the gated cuts.
 4. Art in progress (Admin → Images).
 - Email: Joshua says OK, drop it.
-
-1b. Upload **2.0.2** (2.0.1 + Puzzles locked to admins; turn on in Admin → Settings "Games: Puzzles open"). As admin check: a Ch II boss with a non-Burdock party, a riddle (2 tries), an old campsite ⛺ rest + KO wake-up there, road in-sight timer ticking.
 
 ## Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; Phase 3 done in 2.0.6; NEXT: read Admin → Usage, decision gate on maps (roads strip/town hub only if delve maps get played), gated cuts, more picture-tile shops (Curio/Dye Pot, festival, pantry, local))
 
@@ -37,6 +37,8 @@ Built: **2.0.6** (Phase 3: delve/lair maps; 2.0.5 = Phase 2: shop tiles, rewards
 - Later: cPanel cron for reminder emails; test site /testvault/ (code ready, skipped).
 
 ## Small / watch
+- Fix stale greps in tests/sinks097.sh (`class="curio"` is now `class="curio choiceform"`; `owned</span>`). Game is fine.
+- `walk_scene` row is deleted when a delve ends, so delve completion is not recorded anywhere; the plan's gate after the maps has no data source until a count is added (Usage has no map line).
 - Trek map: open-zone walls flat grey; long walks enter from phone-window edge.
 - "Community garden" tab wraps on phone. Sign/skin Buy buttons small.
 - Friend watering duplicates garden water logic. Nudge crops-ready approximate; SMTP untested live.

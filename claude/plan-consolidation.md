@@ -3,6 +3,15 @@
 From the overlap review (Sonnet, 2026-10-17).
 Rule: one job = one place. Never remove access to a page without a link from its hub.
 
+## Progress 2026-10-20 (v2.0.6)
+Every step of the "Order" line shipped in 2.0.3–2.0.6. Details per release in changelog.md.
+- P0: Usage page built (2.0.3). Joshua has not read live numbers yet; every cut stays gated on them.
+- P1: menu folds, settings search + advanced, Road text editor, data fill (+66 road events, +44 region lines, +24 stop chat lines, finds, delve room text) in 2.0.4. Not done: drop Daily card; mini-game cuts (wait for Usage); editor for creatures/problems.
+- P2: shop tiles for shop.php, Trading Post, Market Day; `rewards.php` wrapper (26 call sites, rest lazily); `combat_math.php` with a golden-file test (2.0.5). Still rows: Curio/Dye Pot, festival stalls, haven pantry, local.php.
+- P3: tilemap core + delve/lair maps (2.0.6). 3c/3d stay deferred.
+- Deviation: 3a/3b shipped before Ch I/II text settled and before Joshua's phone check of Ch II-a, both listed as preconditions. Treks code untouched, so risk is contained.
+- Next: Joshua plays delves on his phone > fix > reads Usage > only then cuts > remaining shop lists. New system must delete one.
+
 ## Done
 - 1.7.0: stamps+reactions merge, "Guestbook" rename, one visitor notice/day, duplicate menu links, Getting started link, garden "Need help?" panel.
 - 1.7.1 (Phase A): Today Home one jar/Pulse row; admin settings labels prefixed + grouped; unlinked pages audit (no orphans).
