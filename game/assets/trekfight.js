@@ -317,11 +317,12 @@
   function get(k) { try { return JSON.parse(window.sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function put(k, v) { try { if (v == null) window.sessionStorage.removeItem(k); else window.sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
   function muted() { try { return window.localStorage.getItem('gvSceneOff') === '1'; } catch (e) { return false; } }
-  function seenList() { var s = get(SEEN); return s && s.n ? s.n : []; }
+  function runId() { var b = document.querySelector('.trekfight'); return b ? b.getAttribute('data-run') : ''; }   /* SEEN belongs to the run the page shows, so another run never inherits */
+  function seenList() { var s = get(SEEN); return s && s.n && s.run === runId() ? s.n : []; }
   function markSeen(names) {
     var n = seenList();
     names.forEach(function (x) { if (n.indexOf(x) < 0) n.push(x); });
-    put(SEEN, { n: n });
+    put(SEEN, { run: runId(), n: n });
   }
 
   var timer = 0, pop = null;
@@ -378,15 +379,17 @@
     var tries = 0;
     (function go() {
       if (!box.isConnected) return;
-      var busy = document.querySelector('dialog.tkr[open], dialog.tkscene[open], .trekreplay:not([data-seen]), .trekscene:not([data-seen]), details.tkfmap[data-bang]');
-      if (busy && tries++ < 70) { setTimeout(go, 250); return; }
+      /* any open dialog (plan sheet, Auto replay, story scene, camp) or a pending replay/scene/"!" holds the pop-over back; a non-modal card under a modal would go unseen */
+      var modal = document.querySelector('dialog[open]:not(.tkfoe)');
+      var busy = modal || document.querySelector('.trekreplay:not([data-seen]), .trekscene:not([data-seen]), details.tkfmap[data-bang]');
+      if (busy && (modal || tries++ < 70)) { setTimeout(go, 250); return; }
       var holder = box.querySelector('.trekfoes'), cards = [];
       try { cards = JSON.parse((holder && holder.getAttribute('data-foes')) || '[]'); } catch (e) { cards = []; }
       var seen = seenList(), fresh = cards.filter(function (c) { return seen.indexOf(c.n) < 0; });
-      markSeen(cards.map(function (c) { return c.n; }));
-      if (!fresh.length || muted()) { setTimeout(function () { foldMap(box); }, 400); return; }
+      if (!fresh.length || muted()) { markSeen(cards.map(function (c) { return c.n; })); setTimeout(function () { foldMap(box); }, 400); return; }
       fresh.sort(function (a, b) { return (b.b ? 1 : 0) - (a.b ? 1 : 0); });   /* the boss first */
       showPop(fresh, null, function () { foldMap(box); });
+      markSeen(cards.map(function (c) { return c.n; }));   /* only now that it is on screen */
     })();
   }
 
@@ -397,21 +400,19 @@
       var ref = r.getAttribute('data-ref') || '', foe = ref.charAt(0) === 'f';
       var ico = r.querySelector('.hpico');
       var o = { hp: parseInt(r.getAttribute('data-hp'), 10) || 0, max: parseInt(r.getAttribute('data-max'), 10) || 1, n: parseInt(r.getAttribute('data-n') || '1', 10) || 1,
-        name: r.getAttribute('data-name') || '', ico: ico ? ico.innerHTML : '' };   /* server-built art, escaped by the server */
-      (foe ? out.f : out.a)[foe ? o.name : ref] = o;
+        name: r.getAttribute('data-name') || '', g: r.getAttribute('data-g'), ico: ico ? ico.innerHTML : '' };   /* server-built art, escaped by the server */
+      /* a boss or duel foe has its own row (keyed by its index); other foes of one name share one row (keyed by the name) */
+      (foe ? out.f : out.a)[foe ? (r.getAttribute('data-own') === '1' ? 'o' + o.g : 'n' + o.name) : ref] = o;
     });
     return out;
   }
   /* the row on the fight screen and, in "Plan each turn", the token on the stage: both get the touches */
-  function shown(box, foe, key, o) {
-    var out = [], i, n;
+  function shown(box, foe, key) {
+    var out = [], i;
     var rows = box.querySelectorAll('.trekhealth .hprow');
-    for (i = 0; i < rows.length; i++) if (foe ? rows[i].getAttribute('data-name') === key && rows[i].getAttribute('data-ref').charAt(0) === 'f' : rows[i].getAttribute('data-ref') === key) out.push(rows[i]);
+    for (i = 0; i < rows.length; i++) if (foe ? rows[i].getAttribute('data-ref').charAt(0) === 'f' && rows[i].getAttribute('data-g') === key : rows[i].getAttribute('data-ref') === key) out.push(rows[i]);
     var toks = box.querySelectorAll('.trekstage .stok');
-    for (i = 0; i < toks.length; i++) {
-      n = toks[i].querySelector('.sname');
-      if (foe ? toks[i].classList.contains('foe') && n && n.textContent === key : toks[i].getAttribute('data-ref') === key) out.push(toks[i]);
-    }
+    for (i = 0; i < toks.length; i++) if (foe ? toks[i].classList.contains('foe') && toks[i].getAttribute('data-g') === key : toks[i].getAttribute('data-ref') === key) out.push(toks[i]);
     return out;
   }
   function floatNum(li, txt, cls) {
@@ -434,7 +435,7 @@
     }
     requestAnimationFrame(tick);
   }
-  function critOn(name, lines) { return lines.some(function (t) { return /critical/i.test(t) && t.indexOf('hits ' + name) >= 0; }); }
+  function critOn(name, lines) { return lines.some(function (t) { return /critical/i.test(t) && t.indexOf('hits ' + name + ' for ') >= 0; }); }
   function hit(items, txt, crit) {
     items.forEach(function (li) {
       li.classList.add('tkx-hit');
@@ -449,17 +450,17 @@
     Object.keys(now.f).forEach(function (key) {
       var was = prev.f[key], cur = now.f[key];
       if (!was) return;
-      var items = shown(box, true, key);
-      if (cur.n < was.n) { hit(items, '−' + was.hp, critOn(key, lines)); return; }   /* one of the kind fell: the row now shows the next one */
+      var items = shown(box, true, cur.g);
+      if (cur.n < was.n) { hit(items, '−' + was.hp, critOn(cur.name, lines)); return; }   /* one of the kind fell: the row now shows the next one */
       if (cur.hp === was.hp) return;
-      if (cur.hp < was.hp) hit(items, '−' + (was.hp - cur.hp), critOn(key, lines)); else items.forEach(function (li) { floatNum(li, '+' + (cur.hp - was.hp), 'heal'); });
+      if (cur.hp < was.hp) hit(items, '−' + (was.hp - cur.hp), critOn(cur.name, lines)); else items.forEach(function (li) { floatNum(li, '+' + (cur.hp - was.hp), 'heal'); });
       items.forEach(function (li) { ease(li, was.hp, cur.hp, cur.max); });
     });
     Object.keys(now.a).forEach(function (key) {
       var was = prev.a[key], cur = now.a[key];
       if (!was || cur.hp === was.hp) return;
       var items = shown(box, false, key);
-      if (cur.hp < was.hp) hit(items, '−' + (was.hp - cur.hp), critOn(cur.name, lines)); else items.forEach(function (li) { floatNum(li, '+' + (cur.hp - was.hp), 'heal'); });
+      if (cur.hp < was.hp) hit(items, '−' + (was.hp - cur.hp), false); else items.forEach(function (li) { floatNum(li, '+' + (cur.hp - was.hp), 'heal'); });   /* foes never crit */
       items.forEach(function (li) { ease(li, was.hp, cur.hp, cur.max); });
     });
     /* a kind of foe that is gone: a ghost where it stood fades out */
@@ -477,7 +478,7 @@
         g.appendChild(bar); g.appendChild(el('span', 'hpnum', '0/' + o.max));
       }
       list.insertBefore(g, list.firstChild);
-      floatNum(g, '−' + o.hp, critOn(key, lines) ? 'crit' : 'hurt');
+      floatNum(g, '−' + o.hp, critOn(o.name, lines) ? 'crit' : 'hurt');
       setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); }, 1100);
     });
   }
@@ -486,14 +487,16 @@
     box.setAttribute('data-tkx', '1');
     var run = box.getAttribute('data-run'), round = parseInt(box.getAttribute('data-round'), 10) || 1;
     var snap = get(SNAP);
+    if (round === 1 && snap && snap.round > 1) { put(SEEN, null); snap = null; }   /* round 1 after later rounds: a new fight, nothing inherited */
     var rows = rowsOf(box);
-    if (!reduce() && snap && snap.run === run && snap.round < round && snap.round >= round - 1 && snap.rows) touches(box, snap.rows);
+    if (!reduce() && snap && snap.run === run && snap.round === round - 1 && snap.rows) touches(box, snap.rows);
     put(SNAP, { run: run, round: round, rows: rows });
     waitThenPop(box);
   }
   function scan() {
     var b = document.querySelector('.trekfight');
-    if (!b) { if (!document.querySelector('.trekreplay')) { put(SEEN, null); put(SNAP, null); } return; }   /* not in a fight: the next one starts fresh */
+    /* .trekfight only exists on the Map tab, so the Party/Pack/Log tabs must not end the fight: only a Map render with no fight does (the map form) */
+    if (!b) { if (document.querySelector('.trekmapcol') && !document.querySelector('.trekreplay')) { put(SEEN, null); put(SNAP, null); } return; }
     if (!b.hasAttribute('data-tkx')) init(b);
   }
   scan();
@@ -643,7 +646,7 @@
   };
   Play.prototype.apply = function (r, instant) {
     var self = this, txt = r.l.map(function (h) { var d = document.createElement('div'); d.innerHTML = h; return d.textContent; });   /* escaped by the server */
-    var crit = function (name) { return txt.some(function (t) { return /critical/i.test(t) && t.indexOf('hits ' + name) >= 0; }); };   /* a crit flashes the row it landed on */
+    var crit = function (name) { return txt.some(function (t) { return /critical/i.test(t) && t.indexOf('hits ' + name + ' for ') >= 0; }); };   /* a crit flashes the row it landed on */
     (r.nf || []).forEach(function (x) {
       self.addRow('f', x);
       if (!instant && x[6] && window.gvFoePop) window.gvFoePop(x[6], self.dlg);   /* v2.0.10: a new foe or boss joins mid-fight */
@@ -656,7 +659,7 @@
     var mine = function () {
       self.rows.p.forEach(function (row, k) {
         var v = r.p[k]; if (v == null) return;
-        if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, crit(row.name));
+        if (instant) { row.v = v; self.paint(row, v); } else self.tween(row, v, v < row.v, false);   /* foes never crit */
       });
     };
     if (instant) mine(); else this.later(mine, 260);

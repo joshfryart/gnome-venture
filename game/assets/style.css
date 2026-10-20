@@ -4527,8 +4527,7 @@ details.tkfmap > summary { display: flex; align-items: center; justify-content: 
 .tkbang circle { fill: #c0392b; stroke: #fff; stroke-width: 2.5; }
 .tkbang text { fill: #fff; font: 800 18px/1 var(--font); }
 .hprow.tkx-ghost { opacity: .45; }
-:root[data-theme="dark"] dialog.tkfoe { background: var(--surface-2); border-color: var(--danger-line); }
-:root[data-theme="dark"] .tkfoehint { background: var(--danger-soft); color: var(--danger-ink); }
+:root[data-theme="dark"] dialog.tkfoe { background: var(--surface-2); }
 @media (prefers-reduced-motion: no-preference) {
   @keyframes tkxbang { 0% { transform: translateY(8px) scale(.3); opacity: 0; } 35% { transform: translateY(-8px) scale(1.25); opacity: 1; } 60% { transform: translateY(0) scale(.95); } 80% { transform: translateY(-4px) scale(1.05); } 100% { transform: translateY(0) scale(1); } }
   .tkbang:not(.still) { animation: tkxbang .6s ease-out both; transform-box: fill-box; transform-origin: center bottom; }

@@ -569,7 +569,7 @@ function trek_fight_html(array &$run, array $u): string
         $anyPz = false;
         foreach ($g['idx'] as $i) if ((int)$fi['foes'][$i]['pz'] > 0) $anyPz = true;
         $ref = $g['weak'] ?? $g['show'];
-        $h .= '<li class="hprow foe' . ($g['own'] && !empty($f['under']) ? ' under' : '') . ($n > 1 ? ' grp' : '') . '" data-ref="f:' . $ref . '" data-g="' . $g['gid'] . '" data-n="' . $n . '" data-tgt="' . ($g['weak'] !== null ? 1 : 0) . '" data-name="' . e($g['name']) . '" data-hp="' . (int)$f['hp'] . '" data-max="' . (int)$f['max'] . '">'
+        $h .= '<li class="hprow foe' . ($g['own'] && !empty($f['under']) ? ' under' : '') . ($n > 1 ? ' grp' : '') . '" data-ref="f:' . $ref . '" data-g="' . $g['gid'] . '" data-own="' . ($g['own'] ? 1 : 0) . '" data-n="' . $n . '" data-tgt="' . ($g['weak'] !== null ? 1 : 0) . '" data-name="' . e($g['name']) . '" data-hp="' . (int)$f['hp'] . '" data-max="' . (int)$f['max'] . '">'
             . '<span class="hpico">' . e($g['icon']) . '</span><span class="hpname">' . e($g['name']) . ($n > 1 ? ' <b class="hpx">×' . $n . '</b>' : '')
             . ($g['own'] && !empty($f['under']) ? ' <span class="hpmk" role="img" aria-label="underground">🕳️</span>' : '')
             . ($g['own'] && !empty($f['dm']) ? ' <span class="hpmk" role="img" aria-label="' . ((int)$f['dm'] < 100 ? 'hardened, takes half damage' : 'cracked, takes more damage') . '">' . ((int)$f['dm'] < 100 ? '🛡️' : '💥') . '</span>' : '')   // v1.9.4: Old Thrum

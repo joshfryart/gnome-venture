@@ -969,7 +969,7 @@ function trek_foe_card(array $f): array
     $slug = (string)($f['slug'] ?? '');
     $rel = $slug !== '' ? creature_image($slug, true) : '';
     $c = $slug !== '' ? trek_creature($slug) : null;
-    $d = trim(preg_replace('/\s+/u', ' ', strip_tags((string)($c['description'] ?? ''))));
+    $d = trim((string)preg_replace('/\s+/u', ' ', strip_tags((string)($c['description'] ?? ''))));
     if ($d !== '' && preg_match('/^(.+?[.!?])(\s|$)/us', $d, $mm)) $d = $mm[1];
     if (mb_strlen($d) > 90) $d = rtrim(mb_substr($d, 0, 87), " ,;:") . '…';
     return ['a' => $rel !== '' ? art_img($rel, 'lg', (string)$f['name'], 'tkfoeimg') : e((string)($f['icon'] ?? '🐾')), 'n' => (string)$f['name'], 'l' => (int)($f['lv'] ?? 1), 't' => $d];
