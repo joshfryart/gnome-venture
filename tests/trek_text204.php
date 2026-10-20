@@ -26,21 +26,24 @@ setting('__reload__');
 ok('db_version is back to the app version, no failed boot step', setting('db_version') === APP_VERSION && (string)setting('boot_failed_steps') === '', (string)setting('db_version') . ' / ' . (string)setting('boot_failed_steps'));
 $new = trek_kv_file('trek_final_204.txt');
 $f200 = trek_kv_file('trek_final_200.txt');
+$n207 = trek_kv_file('trek_final_207.txt');   // v2.0.7 replaces a few 2.0.4 bodies at boot
+$exp = fn(string $k) => $n207[$k] ?? $new[$k];
 $drafts = trek_drafts();
 ok('trek_final_204.txt has rows', count($new) >= 50, (string)count($new));
-ok('trek_text_pass is 3 after boot', setting('trek_text_pass') === '3', (string)setting('trek_text_pass'));
+ok('trek_text_pass is 4 after boot (2.0.4 then 2.0.7 pass)', setting('trek_text_pass') === '4', (string)setting('trek_text_pass'));
 $missing = []; $wrong = [];
 foreach ($new as $k => $b) {
     if (!q_val('SELECT 1 FROM trek_texts WHERE text_key = ?', [$k])) { $missing[] = $k; continue; }
-    if ($body($k) !== $b) $wrong[] = $k;
+    if ($body($k) !== $exp($k)) $wrong[] = $k;
 }
 ok('every key in trek_final_204.txt exists as a slot', !$missing, implode(', ', array_slice($missing, 0, 8)));
-ok('every row has the 2.0.4 body after boot', !$wrong, implode(', ', array_slice($wrong, 0, 8)));
+ok('every row has the 2.0.4 body (or its 2.0.7 fix) after boot', !$wrong, implode(', ', array_slice($wrong, 0, 8)));
 ok('no empty body among the 2.0.4 keys', !array_filter(array_keys($new), fn($k) => $body($k) === ''));
 
 echo "== a re-run of the pass\n";
 $edited = null; $old200 = null; $oldDraft = null;
 foreach ($new as $k => $b) {
+    if (isset($n207[$k])) continue;   // test rows: keys the 2.0.7 pass leaves alone
     if ($edited === null) $edited = $k;
     elseif ($old200 === null && isset($f200[$k]) && trim($f200[$k]) !== $b && $k !== $edited) $old200 = $k;
     elseif ($oldDraft === null && !isset($f200[$k]) && isset($drafts[$k]) && trim($drafts[$k]) !== $b && $k !== $edited) $oldDraft = $k;
@@ -55,7 +58,7 @@ ok('the pass reports rows changed', $n >= 1, (string)$n);
 ok('an edited row keeps MINE', $body($edited) === 'MINE', $body($edited));
 ok('a row holding its 2.0.0 final gets the new body', $body($old200) === $new[$old200], $body($old200));
 if ($oldDraft !== null) ok('a row holding its shipped draft gets the new body', $body($oldDraft) === $new[$oldDraft], $body($oldDraft));
-$bad = []; foreach ($new as $k => $b) if ($k !== $edited && $body($k) !== $b) $bad[] = $k;
+$bad = []; foreach ($new as $k => $b) if ($k !== $edited && !isset($n207[$k]) && $body($k) !== $b) $bad[] = $k;
 ok('every other row still has the 2.0.4 body', !$bad, implode(', ', array_slice($bad, 0, 8)));
 $s1 = $snap();
 trek_apply_text_204();

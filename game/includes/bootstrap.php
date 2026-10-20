@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.6');
+define('APP_VERSION', '2.0.7');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -226,6 +226,13 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 require_once __DIR__ . '/trek_data.php';
                 trek_import_texts();                    // the new slots first (they ship their briefs in trek_texts*.txt)
                 if (trek_apply_text_204() > 0) set_setting('trek_text_pass', '3');
+            }
+        });
+        boot_step('trek_bodies_207', function () {
+            if (setting('trek_text_pass') !== '4') {   // v2.0.7: small Treks text fixes, once; a row Joshua wrote keeps his words
+                require_once __DIR__ . '/trek_data.php';
+                trek_import_texts();                    // the new slot first (it ships its brief in trek_texts_ch2.txt)
+                if (trek_apply_text_207() > 0) set_setting('trek_text_pass', '4');
             }
         });
         boot_step('upgrade_094_callings', function () {

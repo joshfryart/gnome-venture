@@ -195,7 +195,8 @@ function seed_starter_content(): void
     trek_import();   // v1.8.0: Treks
     trek_apply_final_texts();   // v2.0.4: a fresh install gets the final Treks text too (the boot steps only run on upgrades)
     trek_apply_text_204();
-    set_setting('trek_text_pass', '3');
+    trek_apply_text_207();
+    set_setting('trek_text_pass', '4');
     require_once __DIR__ . '/almanac_notes.php';
     ensure_almanac_howto(true);   // v0.7.72
     ensure_shop_food();

@@ -983,19 +983,24 @@ function trek_here(array &$run, array $u): ?array
     return $s;
 }
 
-/** Take a trailmate on: they join the party (if a slot is free), you become Acquaintance with them at least. */
-function trek_recruit_crew(array &$run, array $u, string $crewKey): void
+/**
+ * Take a trailmate on: they join the party (if a slot is free), you become Acquaintance with them at least.
+ * v2.0.7: returns false only when they joined the bench because all 3 places were taken (the caller then says so); true otherwise.
+ */
+function trek_recruit_crew(array &$run, array $u, string $crewKey): bool
 {
     $crew = trek_crew()[$crewKey] ?? null;
-    if (!$crew) return;
+    if (!$crew) return true;
     $rid = (int)$run['id'];
-    try { db_insert('trek_recruits', ['run_id' => $rid, 'crew_key' => $crewKey]); } catch (PDOException $e) { return; }
+    try { db_insert('trek_recruits', ['run_id' => $rid, 'crew_key' => $crewKey]); } catch (PDOException $e) { return true; }
+    $placed = false;
     trek_tl_join($run, $crewKey);   // v1.8.9: joins at the party's average trek level - 2 (at least 1)
     foreach ([1, 2, 3] as $slot) {
         if (isset($run['party'][$slot])) continue;
         db_insert('trek_party', ['run_id' => $rid, 'slot' => $slot, 'crew_key' => $crewKey, 'hp' => 1]);
         $run['party'][$slot] = ['crew_key' => $crewKey, 'hp' => 1];
         $run['party'][$slot]['hp'] = trek_party_stats($run, $u)[$slot]['max'];
+        $placed = true;
         break;
     }
     $npc = trek_crew_npc($crewKey);
@@ -1004,6 +1009,13 @@ function trek_recruit_crew(array &$run, array $u, string $crewKey): void
         if ($have < 20) friend_add((int)$u['id'], (int)$npc['id'], 20 - $have);
         unlock_entries((int)$u['id'], 'npc:' . $npc['slug']);
     }
+    return $placed;
+}
+
+/** v2.0.7: the log line for a trailmate who joined but found the party full. */
+function trek_benched_line(string $npcName): string
+{
+    return '🧑‍🤝‍🧑 ' . trek_first_name_of($npcName) . ' waits with the other Trailmates: your party is full. Swap them in at a camp (Party tab).';
 }
 
 /** Free Burdock (recruit spot). */
@@ -1017,8 +1029,9 @@ function trek_act_recruit(array &$run, array $u): array
     }
     $npc = trek_crew_npc((string)$s['data']['crew']);
     trek_flag_set($run, (string)$s['data']['flag']);
-    trek_recruit_crew($run, $u, (string)$s['data']['crew']);
+    $in = trek_recruit_crew($run, $u, (string)$s['data']['crew']);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.freed', ['trailmate' => $npc['name']]);
+    if (!$in) trek_say($run, trek_benched_line((string)$npc['name']));
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);   // v1.9.4
     trek_ms_award($run, $u, (string)($s['data']['ms'] ?? 'burdock'));
     return [true, ''];
@@ -1038,8 +1051,9 @@ function trek_act_fetch(array &$run, array $u): array
     trek_pack_take((int)$run['id'], $iid, (int)$qty);
     $npc = trek_crew_npc((string)$s['data']['crew']);
     trek_flag_set($run, (string)$s['data']['flag']);
-    trek_recruit_crew($run, $u, (string)$s['data']['crew']);
+    $in = trek_recruit_crew($run, $u, (string)$s['data']['crew']);
     trek_say_text($run, 'ch' . $run['chapter'] . '.spot.' . $s['code'] . '.join', ['trailmate' => $npc['name']]);
+    if (!$in) trek_say($run, trek_benched_line((string)$npc['name']));
     if (!empty($s['data']['entry'])) unlock_entries((int)$u['id'], (string)$s['data']['entry']);   // v1.9.4
     trek_ms_award($run, $u, (string)($s['data']['ms'] ?? 'zinnia'));
     return [true, ''];

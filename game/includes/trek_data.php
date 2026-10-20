@@ -687,6 +687,31 @@ function trek_apply_text_204(): int
     return $n;
 }
 
+/**
+ * v2.0.7 text fixes (runs once, setting trek_text_pass = 4): bodies from trek_final_207.txt.
+ * Same rule as the 2.0.4 pass: a row takes the new body only when it is empty or still holds a text we shipped before (a draft, the 2.0.0 or the 2.0.4 final)
+ * or already the new one. A body Joshua edited is never touched.
+ */
+function trek_apply_text_207(): int
+{
+    $new = trek_kv_file('trek_final_207.txt');
+    if (!$new) return 0;
+    $old = [trek_drafts(), trek_kv_file('trek_final_200.txt'), trek_kv_file('trek_final_204.txt')];
+    $n = 0;
+    foreach (q('SELECT id, text_key, body, status FROM trek_texts')->fetchAll() as $r) {
+        $k = $r['text_key'];
+        if (!isset($new[$k])) continue;
+        $cur = trim((string)$r['body']);
+        $was = false;
+        foreach ($old as $set) if ($cur === trim((string)($set[$k] ?? ''))) $was = true;
+        if ($cur === '' || $was || $cur === $new[$k]) {
+            q('UPDATE trek_texts SET body = ?, status = ? WHERE id = ?', [$new[$k], $cur === '' ? 'done' : ($r['status'] ?: 'done'), $r['id']]);
+            $n++;
+        }
+    }
+    return $n;
+}
+
 // ------------------------------------------------------------------ trek_text()
 
 /** Every text row once per request: key => [body, brief, status, kind]. */

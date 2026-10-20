@@ -1043,8 +1043,10 @@ function trek_duel_end(array &$run, array $u, bool $won): void
     $n = (int)$run['chapter'];
     if ($won) {
         trek_flag_set($run, (string)$spot['data']['flag']);
-        trek_recruit_crew($run, $u, (string)$spot['data']['crew']);
-        trek_say_text($run, 'ch' . $n . '.spot.' . $spot['code'] . '.win', ['trailmate' => trek_crew_npc((string)$spot['data']['crew'])['name']]);
+        $in = trek_recruit_crew($run, $u, (string)$spot['data']['crew']);
+        $wname = trek_crew_npc((string)$spot['data']['crew'])['name'];
+        trek_say_text($run, 'ch' . $n . '.spot.' . $spot['code'] . '.win', ['trailmate' => $wname]);
+        if (!$in) trek_say($run, trek_benched_line((string)$wname));
         trek_say($run, '🏅 Duel won! The party is back on its feet.');
         trek_tl_give($run, $u, trek_fight_xp($fi['foes']), true);   // v1.8.9: trek XP for a duel too (the foe counts as medium)
         trek_ms_award($run, $u, 'bracken');

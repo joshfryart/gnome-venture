@@ -1,0 +1,13 @@
+# Treks text v2.0.7 fixes: key|body, \n = line break. Applied once by the 2.0.7 text pass (trek_text_pass = 4); bodies Joshua edited keep his words.
+ch1.tut.treklevel|Fights and the trail make your whole party stronger: more health, better aim, harder hits.\nTrailmates who join late catch up fast.\nYour gnome levels up at milestones, like curing big foes.
+ch1.tut.firstfight|Well done! Use Snack to heal with home-cooked treats from your satchel.\nAuto settles a fight for you.\nLoot waits in your pack, and is only safe once you reach a camp.
+ch1.spot.gloomtooth.burdock|“Oh. Oh, old friend.”\n“We shared a cellar once, long ago. I came down for the sour soil, but I feared it was you.”\n“I am glad. I am so glad you are alive.”\n“Sleep now. I shall sit with you a while.”
+ch2.spot.barrow.work|It takes a long scrape and a lot of sweat, but the clay lets go at last.\nThe barrow rights itself, and the bundle slides out from under the cloth.
+ch2.spot.tumble.freed|“Compass, packed! Oh, this is splendid.”\n“Loose clay? Leave that to me. My ears hear every hollow tile.”
+ch2.spot.thrum.defeat|The drumming stops. For the first time in years there is only silence, and it rings.\nThrum sinks down, at peace, a drumskin left on the floor beside him.\nHe looks at you with thanks, and the quiet is enormous.
+ch2.ms.ch2_thrum|The drumming has stopped, and the whole clay seems to exhale.\nEven the drips sound shy in the quiet.
+ch2.zone.j.arrive|Ledge after ledge of weeping clay climbs down in terraces, orange in the lamplight.\nWater seeps down every wall, and the Shard in your pack points firmly down.\nFar off, something drips, slow and steady.
+ch2.ko.tutorial|You wake on the Sinkhole Ledge, sore but unharmed.\nA drip lands on your nose, steady as a clock. Nothing was lost this time.
+ch2.spot.kilnstone.wrong|The stone waits, mossy and calm. Try again.
+ch2.spot.signpost.question|A tall signpost leans here, six arms of faded paint, with a riddle painted on it.\n“Sorry,” says a voice behind it. “I built it, but I can’t read my own writing.”\n“Many arms, but cannot hug. Many names, but cannot speak.\nStands still, and sends everyone everywhere.”
+ch2.banter.burdock.2|“Clay walls keep the warmth in, {gnome}. A mole could get used to this.”

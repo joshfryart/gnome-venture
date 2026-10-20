@@ -126,3 +126,4 @@ ch2.spot.kiln.open|The key turns with a soft clink. Inside, tidy as a pantry: ca
 ch2.spot.kiln.after|The kiln chest is empty and swept clean. Someone cared for this place.
 ch2.spot.crossroads.locked|The Crossroads gate is shut. Through the slats you can see signposts, a great many of them, all pointing different ways.
 The way on is still settling… (coming soon)
+ch2.banter.burdock.2|“Clay walls keep the warmth in, {gnome}. A mole could get used to this.”

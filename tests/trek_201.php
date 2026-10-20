@@ -109,6 +109,18 @@ $b1 = $xp();
 $tx3(function (&$run, $u) { trek_ms_award($run, $u, 'bracken'); return [true, '']; });
 ok('asking again pays nothing more', $xp() === $b1 && $rows() === 1);
 
+echo "== v2.0.7: a 4th trailmate with all 3 places taken is benched and the caller is told\n";
+$uid7 = mkuser();
+$tx7 = fn(callable $f) => trek_tx($uid7, $f, true);
+trek_tx($uid7, fn(&$run, $u) => trek_enter($run, $u), false);
+$got = [];
+$tx7(function (&$run, $u) use (&$got) { foreach (['burdock', 'zinnia', 'bracken'] as $k) $got[$k] = trek_recruit_crew($run, $u, $k); $got['sorrel'] = trek_recruit_crew($run, $u, 'sorrel'); $got['dup'] = trek_recruit_crew($run, $u, 'sorrel'); return [true, '']; });
+$R7 = trek_load(trek_run_row($uid7));
+ok('the first three are placed (true)', $got['burdock'] === true && $got['zinnia'] === true && $got['bracken'] === true);
+ok('the 4th returns false: recruited but no place', $got['sorrel'] === false && in_array('sorrel', trek_recruits((int)$R7['id']), true) && !in_array('sorrel', array_column($R7['party'], 'crew_key'), true));
+ok('asking for the same trailmate again returns true (nothing to say)', $got['dup'] === true);
+ok('the note names the trailmate and says the party is full', strpos(trek_benched_line('Sorrel Inkcap'), 'Sorrel') !== false && strpos(trek_benched_line('Sorrel Inkcap'), 'party is full') !== false);
+
 $uid4 = mkuser();
 $tx4 = fn(callable $f) => trek_tx($uid4, $f, true);
 trek_tx($uid4, fn(&$run, $u) => trek_enter($run, $u), false);
