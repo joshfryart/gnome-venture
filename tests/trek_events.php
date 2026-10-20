@@ -80,7 +80,7 @@ $texts = [];
 $ch2keys = []; foreach (array_merge(file($argv[1] . '/includes/data/trek_texts_ch2.txt'), file($argv[1] . '/includes/data/trek_texts_ch2b.txt'), file($argv[1] . '/includes/data/trek_texts_oldcamp.txt')) as $ln) { $ln = rtrim($ln, "\r\n"); if ($ln === '' || $ln[0] === '#') continue; $ch2keys[explode('|', $ln)[0]] = true; }
 $drafts = array_diff_key($drafts, $ch2keys);   // v1.9.2: Chapter II-a's and II-b's drafts are checked in tests/trek_ch2.php and trek_ch2b.php
 foreach (file($argv[1] . '/includes/data/trek_texts.txt') as $ln) { $ln = rtrim($ln, "\r\n"); if ($ln === '' || $ln[0] === '#') continue; $texts[explode('|', $ln)[0]] = true; }
-ok('55 draft bodies shipped (44 + 7 for trek levels + 4 for the interlude)', count($drafts) === 55, (string)count($drafts));
+ok('at least the 55 original draft bodies shipped (2.0.0 added the rest)', count($drafts) >= 55, (string)count($drafts));
 $miss = array_diff(array_keys($drafts), array_keys($texts));
 ok('every draft belongs to a text slot', !$miss, implode(',', $miss));
 $need = ['ch1.ev.walkon'];

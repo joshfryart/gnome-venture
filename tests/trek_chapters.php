@@ -46,7 +46,7 @@ q('UPDATE creature_drops SET chance = 0 WHERE 1 = 1');
 echo "== chapter data and the map loader\n";
 ok('Chapter I defined: 9 zones, 6 milestones', count(trek_chapter(1)['zones']) === 9 && array_keys(trek_milestones(1)) === ['burdock', 'zinnia', 'bracken', 'mother', 'gloomtooth', 'chapter']);
 ok('Chapter I milestone settings are the old ones', trek_milestones(1)['mother'][1] === 'trek_ms_mother' && (int)setting('trek_ms_mother') === 500);
-ok('Chapter I map still 40x40 with 20 spots', trek_map(1)['w'] === 40 && trek_map(1)['h'] === 40 && count(array_filter(trek_spots(1), fn($s) => $s['type'] !== 'oldcamp')) === 20)   // (v2.0.1: the old campsites are counted in tests/trek_oldcamp.php);
+ok('Chapter I map still 40x40 with 20 spots', trek_map(1)['w'] === 40 && trek_map(1)['h'] === 40 && count(array_filter(trek_spots(1), fn($s) => $s['type'] !== 'oldcamp')) === 20);   // (v2.0.1: the old campsites are counted in tests/trek_oldcamp.php)
 ok('Chapter I tune rows = the old table', trek_foe_tune(['zone' => 'd']) === [110, 1, 1, 3] && trek_foe_tune(['script' => 'gloomtooth', 'zone' => 'x']) === [160, 6, 4, 12] && trek_foe_tune(['zone' => 'g']) === [100, 0, 0, 0]);
 $m2 = trek_map(2);
 ok('stub map parses: 40 wide, 72 tall, comments skipped, zones aligned', $m2['w'] === 40 && $m2['h'] === 72 && count($m2['z']) === 72 && $m2['t'][0] === str_repeat('#', 40), $m2['w'] . 'x' . $m2['h'] . ' zrows=' . count($m2['z']));
