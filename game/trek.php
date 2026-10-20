@@ -724,6 +724,16 @@ function trek_ms_list_html(array $run, string $title = 'Milestones'): string
         . '<p class="help">Gnome XP comes from milestones. Each pays once, and more when you did the side stops, events, riddles and crew moments, and were never knocked out.</p></details>';
 }
 
+/** v2.0.1: the item flavour text (item.<slug>) for each reward item that has one, as small centred notes. */
+function trek_item_notes(array $slugs): string
+{
+    $h = '';
+    foreach ($slugs as $slug) {
+        if (is_string($slug) && isset(trek_text_rows()['item.' . $slug])) $h .= '<div class="trektext small tkitemnote">' . trek_text('item.' . $slug) . '</div>';
+    }
+    return $h;
+}
+
 /** v1.9.1: the interlude between chapters: one screen, no map. The finished chapter's card, a rest, the Camp Kit shop, the party, a word with each trailmate, and the way down. */
 function trek_hub_html(array &$run, array $u, array $party): string
 {
@@ -734,7 +744,7 @@ function trek_hub_html(array &$run, array $u, array $party): string
     if (!empty($run['st']['show_done'])) {
         $rw = $run['st']['rewards'] ?? ['petals' => 0, 'items' => []];
         $h .= '<div class="trekdone"><b>🎉 ' . e(trek_chapter($ch)['finish']['title'] ?? 'Chapter ' . $ch) . ' complete</b><div class="trektext">' . trek_text('ch' . $ch . '.outro') . '</div>'
-            . '<p>🪙 ' . (int)$rw['petals'] . ' ' . e(setting('currency_name')) . ' · 🎁 ' . e(implode(', ', (array)$rw['items'])) . ' · 📖 new Almanac pages</p><div class="trektext">' . trek_text('ch' . $ch . '.hook') . '</div>'
+            . '<p>🪙 ' . (int)$rw['petals'] . ' ' . e(setting('currency_name')) . ' · 🎁 ' . e(implode(', ', (array)$rw['items'])) . ' · 📖 new Almanac pages</p>' . trek_item_notes((array)($rw['slugs'] ?? [])) . '<div class="trektext">' . trek_text('ch' . $ch . '.hook') . '</div>'
             . trek_form('dismiss', 'Got it', ['t' => 'map'], 'btn small') . '</div>';
     }
     $h .= '<div class="trektext">' . trek_text('interlude.' . $ch . '.intro') . '</div><div class="hudparty">';
@@ -953,11 +963,15 @@ $fat = (int)$run['fatigue'];
   <div class="trekpackview">
     <div class="packchips"><span class="chip">🎒 <?= (int)$run['petals_found'] ?> 🪙 carried</span><span class="chip">🏕️ <?= (int)$run['campkits'] ?>/<?= (int)setting('trek_campkit_max') ?> kits</span><span class="chip">✅ <?= $pb ? $pb . ' 🪙' : $nBank . ' items' ?> banked</span></div>
     <details class="helpfold packhelp"><summary>ℹ️ Bank at camp</summary><p class="help">Rest at a camp to bank: items go straight to your Satchel and Petals to your purse. Carried finds can be lost if the party is knocked out. Quest items are safe.</p></details>
-    <?php if (!$carried && !(int)$run['petals_found']): ?><p class="muted packnone">Nothing yet.</p><?php else: ?>
+    <?php if (!$carried && !(int)$run['petals_found'] && (int)$run['campkits'] < 1): ?><p class="muted packnone">Nothing yet.</p><?php else: ?>
     <div class="satchel packgrid">
       <?php if ((int)$run['petals_found']): ?>
         <details class="itile"><summary><span class="iicon">🪙</span><span class="iname"><?= $cur ?></span><b class="iqty"><?= (int)$run['petals_found'] ?></b></summary>
           <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= $cur ?></b><p>Found on the trek. Bank it at a camp.</p></div></details>
+      <?php endif; ?>
+      <?php if ((int)$run['campkits'] > 0): ?>
+        <details class="itile"><summary><span class="iicon">🏕️</span><span class="iname">Camp Kit</span><b class="iqty"><?= (int)$run['campkits'] ?></b></summary>
+          <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b>Camp Kit</b><div class="trektext small"><?= trek_text('item.camp-kit') ?></div></div></details>
       <?php endif; ?>
       <?php foreach ($carried as $r): $quest = trek_is_quest_item((int)$r['item_id']); $note = isset(trek_text_rows()['item.' . $r['slug']]) ? trek_text('item.' . $r['slug']) : ''; ?>
         <details class="itile"><summary><span class="iicon"><?= item_icon($r) ?></span><span class="iname"><?= e($r['name']) ?></span><b class="iqty"><?= (int)$r['qty'] ?></b></summary>
@@ -973,7 +987,7 @@ $fat = (int)$run['fatigue'];
         <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= $cur ?></b><p>Already added to your Petals.</p></div></details><?php endif; ?>
       <?php foreach ($banked as $r): ?>
         <details class="itile"><summary><span class="iicon"><?= item_icon($r) ?></span><span class="iname"><?= e($r['name']) ?></span><b class="iqty"><?= (int)$r['qty'] ?></b></summary>
-          <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= e($r['name']) ?></b> <span class="cat">in your Satchel</span><?php if (trim((string)($r['description'] ?? '')) !== ''): ?><p><?= desc_html((string)$r['description']) ?></p><?php endif; ?></div></details>
+          <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= e($r['name']) ?></b> <span class="cat">in your Satchel</span><?php if (isset(trek_text_rows()['item.' . $r['slug']])): ?><div class="trektext small"><?= trek_text('item.' . $r['slug']) ?></div><?php elseif (trim((string)($r['description'] ?? '')) !== ''): ?><p><?= desc_html((string)$r['description']) ?></p><?php endif; ?></div></details>
       <?php endforeach; ?></div>
       <?php endif; ?>
     </details>

@@ -17,7 +17,7 @@
 2|wheel|trade|The Potter’s Wheel|m|sym=P;need=wet-clay:3;give=clay-pot:1;xp=12;flag=wheel_done
 2|kilnstone|riddle|The Kiln Stone|m|sym=Q;pass=1;right=1;tries=2;item=kiln-key:1;flag=kilnstone_solved
 2|kiln|chest|The Sealed Kiln|m|sym=Y;needs=kiln-key;item=camp-kit:2;petals=120;flag=kiln_open
-2|crossroads|gate|The Crossroads Gate|m|sym=Z;ms=ch2a_end;obj=8;flag=reached_crossroads
+2|crossroads|gate|The Crossroads Gate|m|sym=Z;needs=silverfin_down;noopen=1;ms=ch2a_end;obj=8;flag=reached_crossroads
 # Chapter II-b spots (v1.9.4). New types: slide (a one-way chute: to= another spot's code; the button posts do=slide). New data: a recruit may have needs= (a flag, the text part .locked shows until it is set) and entry= (an Almanac page);
 # find/hidden may have petals= and a camp-kit item (kits); a camp may have keeper= (the text piece for its keeper, ch2.camp.<keeper>.greet|shop|rest), flag= (its "reached" flag) and entry=; a boss may have weak=<flag>;weak_pct=<n>
 # (if the flag is set the boss starts the fight at that % of its health). The Crossroads gate is open from II-b on (it pays ch2a_end the first time you go through).
