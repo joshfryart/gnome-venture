@@ -3,6 +3,7 @@ declare(strict_types=1);
 // v1.8.0 Treks: a party campaign. Tabs ?t=map|party|pack|log. Every POST runs through trek_tx() (transaction + gnome lock + run re-read).
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/trek.php';
+require_once __DIR__ . '/includes/trek_minimap.php';   // v2.0.20: the Whole map fold
 require_once __DIR__ . '/includes/trek_art.php';   // v1.8.10: the map art
 $u = require_login();
 $uid = (int)$u['id'];
@@ -950,6 +951,7 @@ $fat = (int)$run['fatigue'];
       <?= trek_map_html($run, $u, $walkPath) ?>
     </form>
     <?= trek_legend_html($run) ?>
+    <?= trek_minimap_fold($run, $u) ?>
     <?php /* v2.0.8: the latest log lines sit right under the map, the Sneak / Camp / Leave buttons after them */ ?>
     <?php if ($latest): ?><ul class="trekrounds trekLatest" aria-live="polite"><?php foreach (array_slice($latest, -3) as $l): ?><li><?= $l ?></li><?php endforeach; ?></ul>
       <?php if (!empty($run['st']['flog']) && (int)($run['st']['back'] ?? -1) === (int)($run['st']['turn'] ?? 0)): ?><p class="tkfull"><a href="<?= $tabLink('log') ?>">Full log ›</a></p><?php endif; ?><?php endif; ?>
