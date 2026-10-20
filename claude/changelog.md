@@ -1,7 +1,7 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
-## 2.0.2 (camp pop-over; Joshua chose this number on purpose, it is LOWER than 2.0.10: the updater needs "install an older version" ticked; code comments and CSS say v2.0.11)
+## 2.0.11
 - NEW camp pop-over (Treks). The 🏕️ Camp button on the map now opens a `<dialog class="tkcamp">` instead of resting at once. It also opens by itself when the party reaches a camp tile (switch in the pop-over: "Open this when I reach a camp", this browser only) and again after each action inside it. It waits for a story pop-over or Auto replay to finish first.
 - Inside: camp name + keeper greeting (short ones), Fatigue and kit chips, party with health bars, 💬 Talk per trailmate (cycles their banter slots 1-4, then their bio; no POST, no state), Rest (camp tile: Rest and bank; elsewhere: Use a Camp Kit, or Cold rest with the ambush odds, or "Everyone is rested"), at a camp also Buy a Camp Kit and Trailmates (rest here / bring along; full party shows a disabled row).
 - Rules unchanged: every button is the old POST (rest, makecamp, buy_kit, party). No-JS: the old Camp form sits in `<noscript>`. The interlude hub keeps its own "Talk to your party".
