@@ -642,6 +642,51 @@ function trek_apply_final_texts(): int
     return $n;
 }
 
+/** v2.0.4: a key|body data file as key => body (a line that does not start with "key|" continues the body above; literal \n = line break). */
+function trek_kv_file(string $file): array
+{
+    $out = [];
+    $key = null;
+    foreach (trek_lines($file) as $line) {
+        if (preg_match('/^([A-Za-z][A-Za-z0-9_.\-]*)\|(.*)$/s', $line, $m)) {
+            $key = trim($m[1]);
+            $out[$key] = $m[2];
+        } elseif ($key !== null) {
+            $out[$key] .= "\n" . $line;
+        }
+    }
+    foreach ($out as $k => $body) {
+        $body = trim(str_replace('\n', "\n", $body));
+        if ($body === '') unset($out[$k]); else $out[$k] = $body;
+    }
+    return $out;
+}
+
+/**
+ * v2.0.4 text rework (runs once, setting trek_text_pass = 3): bodies from trek_final_204.txt.
+ * A row takes the new body only when it is empty or still holds a text we shipped before (a draft or the 2.0.0 final) or already the new one.
+ * A body Joshua edited is never touched, and no status is changed except an empty row, which becomes "done".
+ */
+function trek_apply_text_204(): int
+{
+    $new = trek_kv_file('trek_final_204.txt');
+    if (!$new) return 0;
+    $old = trek_drafts() + trek_kv_file('trek_final_200.txt');   // every body we shipped before this pass
+    $oldFinal = trek_kv_file('trek_final_200.txt');
+    $n = 0;
+    foreach (q('SELECT id, text_key, body, status FROM trek_texts')->fetchAll() as $r) {
+        $k = $r['text_key'];
+        if (!isset($new[$k])) continue;
+        $cur = trim((string)$r['body']);
+        $was = [trim((string)($old[$k] ?? '')), trim((string)($oldFinal[$k] ?? ''))];
+        if ($cur === '' || in_array($cur, $was, true) || $cur === $new[$k]) {
+            q('UPDATE trek_texts SET body = ?, status = ? WHERE id = ?', [$new[$k], $cur === '' ? 'done' : ($r['status'] ?: 'done'), $r['id']]);
+            $n++;
+        }
+    }
+    return $n;
+}
+
 // ------------------------------------------------------------------ trek_text()
 
 /** Every text row once per request: key => [body, brief, status, kind]. */
