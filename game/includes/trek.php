@@ -599,6 +599,60 @@ function trek_step_cost(string $tile): int
     return $tile === '~' || $tile === '%' || $tile === ':' || $tile === 'w' ? 2 : 1;   // v1.9.2: wet clay and drained water cost like mud
 }
 
+/**
+ * v2.0.18: does this spot BLOCK the way on until it is dealt with? A duel, a mini-boss, a boss, a stuck cart (always solvable: "dig it out slowly" works) and a riddle door
+ * that gives way after its last try. Optional side stops (pass=1: the Mushroom Camp, the riddle stones) never block. Gates are handled by trek_gate_open().
+ */
+function trek_spot_blocks(array $run, array $spot): bool
+{
+    if (!in_array($spot['type'], ['duel', 'miniboss', 'boss', 'cart', 'riddle'], true)) return false;
+    if ($spot['type'] === 'riddle' && empty($spot['data']['failopen'])) return false;
+    return !trek_spot_done($run, $spot);
+}
+
+/** Steps from the chapter's start to every tile the party could reach (index y * w + x), counting locked gates and walls as shut. */
+function trek_dist_from_start(array $run): array
+{
+    $ch = (int)$run['chapter'];
+    $m = trek_map($ch);
+    $st = trek_spots($ch)['start'] ?? null;
+    if (!$st) return [];
+    $w = $m['w'];
+    $dist = [(int)$st['y'] * $w + (int)$st['x'] => 0];
+    $queue = [(int)$st['y'] * $w + (int)$st['x']];
+    for ($qi = 0; $qi < count($queue); $qi++) {
+        $cur = $queue[$qi];
+        $cx = $cur % $w;
+        $cy = intdiv($cur, $w);
+        foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) {
+            $nx = $cx + $dx;
+            $ny = $cy + $dy;
+            if ($nx < 0 || $ny < 0 || $nx >= $w || $ny >= $m['h']) continue;
+            $k = $ny * $w + $nx;
+            if (isset($dist[$k]) || !trek_passable($run, $nx, $ny)) continue;
+            $dist[$k] = $dist[$cur] + 1;
+            $queue[] = $k;
+        }
+    }
+    return $dist;
+}
+
+/**
+ * v2.0.18: standing ON a blocking spot that is not dealt with (you backed out of its fight, text or pop-over, fled, reloaded), the only way off is back toward the start,
+ * never on past it. Returns the reason ('' = free to go). Dealing with the spot sets its flag and lifts this.
+ */
+function trek_blocker_hold(array $run, array $first): string
+{
+    $spot = trek_spot_at((int)$run['chapter'], (int)$run['x'], (int)$run['y']);
+    if (!$spot || !trek_spot_blocks($run, $spot)) return '';
+    $m = trek_map((int)$run['chapter']);
+    $dist = trek_dist_from_start($run);
+    $here = (int)$run['y'] * $m['w'] + (int)$run['x'];
+    if (!isset($dist[$here])) return '';   // arrived some other way (a slide): nothing to measure against
+    if (($dist[$first[1] * $m['w'] + $first[0]] ?? PHP_INT_MAX) < $dist[$here]) return '';
+    return $spot['name'] . ' blocks the way on. Deal with it, or step back the way you came.';
+}
+
 /** Has this spot been dealt with? (its flag, or "seen_<code>" for spots with none; the camp counts once reached) */
 function trek_spot_done(array $run, array $spot): bool
 {
@@ -667,6 +721,7 @@ function trek_walk(array &$run, array $u, int $tx, int $ty): array
         if ($c === '+' || trek_near_tile($ch, $tx, $ty, '+')) { trek_say_text($run, 'ch' . $ch . '.ui.loose'); return [false, 'The clay is loose here. Something is tucked behind it, and a Wayfinder would find the way in.']; }   // v1.9.4
         return [false, ($c === '#' || $c === '^' || $c === '*') ? 'That way is blocked.' : 'There’s no way there from here (yet).'];
     }
+    if ($why = trek_blocker_hold($run, $path[0])) return [false, $why];   // v2.0.18: no walking on past a blocker you backed out of
     $ch = (int)$run['chapter'];
     $steps = 0;
     $half = (int)($run['st']['fh'] ?? 0);
@@ -772,6 +827,7 @@ function trek_spot_stops(array &$run, array $u, array $spot, bool $isGoal): bool
             if (!empty($spot['data']['entry'])) unlock_entries((int)$u['id'], (string)$spot['data']['entry']);   // v1.9.2: a reading nook that adds an Almanac page
             return $first || $isGoal;
         default:
+            if (trek_spot_blocks($run, $spot)) return true;   // v2.0.18: a blocker stops the walk every time (the cart used to halt it only once, via pass=1)
             if (!empty($spot['data']['pass'])) {   // v1.8.8: a stop on the way: it halts the walk the first time only
                 $first = !trek_flag($run, 'seen_' . $spot['code']);
                 trek_flag_set($run, 'seen_' . $spot['code']);

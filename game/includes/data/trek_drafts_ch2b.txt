@@ -69,7 +69,7 @@ ch2.spot.juniper.join|Juniper tucks the pots into her apron and a ladle into her
 ch2.spot.sluice3.before|A brass wheel as tall as you, crusted green with age.
 Below, the cistern’s sour water laps at the walkway as if it knew.
 ch2.spot.sluice3.done|The wheel groans and gives.
-The sour water draws back through the grates in a long, hungry gurgle.
+The sour water in the Cistern lanes draws back through the grates in a long, hungry gurgle.
 Somewhere below, something turns over in the mud, grumbling.
 ch2.spot.sluice3.after|The wheel is still. The cistern sulks in its own mud.
 ch2.spot.pinch.intro|Old Pinch rises out of the sour water, as wide as a cart and twice as grumpy.

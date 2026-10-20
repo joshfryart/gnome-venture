@@ -4585,3 +4585,25 @@ dialog.isheet .sline b { font-size: 16px; }
 .shopgrid .spick .smini { white-space: nowrap; }
 :root[data-theme="dark"] dialog.isheet .sown { color: var(--muted); }
 :root[data-theme="dark"] .curios, :root[data-theme="dark"] .dyes { color: var(--ink); }
+
+/* v2.0.18 trek fixes */
+/* fight screen: the "What happened" feed is a short box on phones and tablets; it scrolls inside (assets/trekfight.js keeps the newest line in view) */
+@media (max-width: 999px) {
+  .trekwhat > ul.trekrounds { max-height: 11em; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+  .trekwhat .tkall { max-height: 16em; }
+}
+/* party cards (Party tab): one compact row = icon, name + calling, Trek Lv, health bar; the XP bar and the tactics line live in the fold */
+.partybox .pmem { margin: 5px 0; }
+.pmem > summary { grid-template-columns: 1.7em minmax(0, 1fr) auto auto; gap: 0 8px; padding: 4px 8px; min-height: 40px; }
+.pmem > summary .pico { grid-column: 1; grid-row: 1; font-size: 22px; }
+.pmem > summary .pwho { grid-column: 2; grid-row: 1; }
+.pmem > summary .ptl { grid-column: 3; grid-row: 1; display: block; font-size: 12px; }
+.pmem > summary .ptl progress { display: none; }
+.pmem > summary .php { grid-column: 4; grid-row: 1; }
+.pmem > summary .php progress { width: 60px; height: 7px; }
+.pmem > summary .ptac { display: none; }
+.pmem > summary::after { grid-row: 2; margin-top: 1px; padding: 0 10px; line-height: 1.4; font-size: 11.5px; }
+/* map-tab party strip: tighter */
+.trekhud .hudparty { gap: 4px 10px; }
+.trekhud .hm { min-width: 58px; gap: 1px; }
+.trekhud .hm progress { width: 62px; height: 7px; }

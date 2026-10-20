@@ -54,8 +54,8 @@ function trek_dispatch(?array &$run, array $u, string $do): array
     }
     $res = trek_dispatch_do($run, $u, $do);
     if ($run && !$run['fi'] && !empty($run['inside']) && !trek_in_hub($run)) {   // v2.0.11: the camp pop-over opens after a camp action, or on reaching a camp tile
-        if ($res[0] && in_array($do, ['rest', 'makecamp', 'buy_kit', 'party'], true)) trek_camp_open_note($run, 'again');
-        elseif ($do === 'go' && trek_here_camp($run)) trek_camp_open_note($run, 'arrive');
+        if ($res[0] && in_array($do, ['rest', 'makecamp', 'buy_kit', 'party', 'rest_old', 'rest_spot'], true)) trek_camp_open_note($run, 'again');
+        elseif ($do === 'go' && (trek_here_camp($run) || trek_here_oldcamp($run) || trek_here_restspot($run))) trek_camp_open_note($run, 'arrive');
     }
     if ($run) {
         if (!$run['fi']) {
@@ -884,6 +884,7 @@ if (!$run || (!(int)$run['inside'] && !$hub)):
 $walkPath = trek_walk_take($run);
 $fightWalk = $tab === 'map' && $run['fi'] && !$hub ? $walkPath : null;   // v2.0.10: a walk that ran into a fight keeps its map for this one page load (a "!" over the token)
 if ($run['fi'] || $tab !== 'map') $walkPath = null;   // v1.8.10: the path of the last walk (one-shot; dropped when a fight starts)
+if ($tab === 'map' && !$hub) trek_scene_spot($run, $u);   // v2.0.18: first meeting at a spot opens as a pop-over too
 $sceneHtml = $tab === 'map' ? trek_scene_stage($run, $u) : '';   // v2.0.8: same, for the talk pop-over
 $campAuto = $tab === 'map' && !$hub && !$run['fi'] ? trek_camp_open_take($run) : '';   // v2.0.11: the camp pop-over's one-shot open
 $replayHtml = trek_replay_stage($run, $u);   // v1.8.5: taken (and cleared) on every render, shown only on the Map tab

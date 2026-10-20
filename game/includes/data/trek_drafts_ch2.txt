@@ -54,7 +54,7 @@ ch2.spot.start.arrive|The root-rungs hang overhead, back toward the Hollow. You 
 ch2.spot.sluice1.before|Ahead, the ledge ends in deep, still water. Next to you stands a brass-rimmed wheel set in the wall, the kind old gnomes used to move water about.
 It looks stiff, but not stuck.
 ch2.spot.sluice1.done|The wheel turns with a groan. Somewhere in the wall, something gurgles, and the water goes sliding off down a hidden drain.
-What is left is shining wet mud, and a way across.
+The pool to the west sinks away. What is left is shining wet mud, and a way across.
 ch2.spot.sluice1.after|The wheel sits still. Behind it, the old drain trickles contentedly.
 ch2.spot.barrow.before|A wheelbarrow lies on its side in the wet clay, one handle sunk to the knuckle.
 Something is wrapped in cloth beneath it.
@@ -86,7 +86,7 @@ ch2.spot.libgate.locked|The door is shut tight. The brass plate beside it looks 
 ch2.spot.libgate.open|The door creaks wide. Beyond it, the Stacks wait in the water-light.
 ch2.spot.sluice2.before|Another brass wheel, set into the end of a shelf. Beyond it the Stacks are flooded to the knees.
 You have seen this trick before.
-ch2.spot.sluice2.done|The wheel groans. Water pours away down the floor-drains, and the lowest shelves surface one by one, dripping.
+ch2.spot.sluice2.done|The wheel groans. Water pours away down the floor-drains, and the water in the Drowned Library sinks. The lowest shelves surface one by one, dripping.
 ch2.spot.sluice2.after|The Stacks are drying slowly. Somewhere a page flutters.
 ch2.spot.sorrel.before|“Oh! Um. Hello. I’m Sorrel. I’ve been up here a long while.”
 “There was a book, you see. It’s very overdue. I can’t leave until it’s back on the shelf.”

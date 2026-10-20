@@ -39,6 +39,49 @@ function trek_scene_collect(array $run, string $key, array $vars = []): void
     if (count($seen) > 400) $seen = array_slice($seen, -200, null, true);
 }
 
+/**
+ * v2.0.18: the story text of the spot the party stands on (or next to a shut gate) is a talk pop-over the FIRST time too. Those lines are printed
+ * by trek_spot_panel() with trek_text(), not trek_say_text(), so nothing noted them (Captain Bracken's duel challenge was only a panel).
+ * Called on the Map render before trek_scene_stage(); once per key per run (trek_scene_seen); the panel itself stays.
+ */
+function trek_scene_spot(array &$run, array $u): void
+{
+    if (!empty($run['fi'])) return;
+    $ch = (int)$run['chapter'];
+    $spot = trek_here($run, $u);
+    if (!$spot) {
+        foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) {
+            $s = trek_spot_at($ch, (int)$run['x'] + $dx, (int)$run['y'] + $dy);
+            if ($s && $s['type'] === 'gate' && !trek_gate_open($run, $s)) { trek_scene_collect($run, 'ch' . $ch . '.spot.' . $s['code'] . '.locked'); return; }
+        }
+        return;
+    }
+    $code = (string)$spot['code'];
+    $done = trek_spot_done($run, $spot);
+    $crew = isset($spot['data']['crew']) ? (string)$spot['data']['crew'] : '';
+    $vars = $crew !== '' && trek_crew_npc($crew) ? ['trailmate' => trek_crew_npc($crew)['name']] : [];
+    $part = null;
+    switch ($spot['type']) {
+        case 'start': case 'sign': case 'hidden': $part = 'arrive'; break;
+        case 'find': $part = $done ? null : 'arrive'; break;
+        case 'npc': $part = 'talk'; break;
+        case 'recruit':
+            if ($done) break;
+            $part = !empty($spot['data']['needs']) && !trek_flag($run, (string)$spot['data']['needs']) ? 'locked' : 'before';
+            break;
+        case 'fetch': case 'cart': case 'mush': case 'slide': case 'trade': $part = $done ? null : 'before'; break;
+        case 'switch': case 'rest': $part = $done ? null : 'before'; break;
+        case 'chest': $part = $done ? null : 'locked'; break;
+        case 'riddle':
+            $max = (int)($spot['data']['tries'] ?? 2);
+            $part = !$done && (int)($run['st']['tries_' . $code] ?? 0) < $max ? 'question' : null;
+            break;
+        case 'duel': $part = $done ? null : 'before'; break;
+        case 'miniboss': case 'boss': $part = $done ? null : 'intro'; break;
+    }
+    if ($part !== null) trek_scene_collect($run, 'ch' . $ch . '.spot.' . $code . '.' . $part, $vars);
+}
+
 /** The party-member-joined card: crew key + whether they got a place (false = waits on the bench). */
 function trek_scene_join(array $run, string $crewKey, bool $placed): void
 {

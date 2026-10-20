@@ -60,6 +60,19 @@ ok('every milestone check type is known and every flag it reads can be set', !$c
 $fin = trek_chapter(2)['finish'];
 ok('the finish row: flag thrum_down, Petals setting exists, both reward items exist, Almanac keys exist', $fin['flag'] === 'thrum_down' && setting($fin['petals']) !== null && !array_filter($fin['items'], fn($s) => !trek_item_id($s)) && !array_filter($fin['entries'], fn($k) => !q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', [$k])), json_encode($fin));
 
+echo "== sluices: the wheel is next to the water it drains (inside the 9x9 phone window, +-4) and reachable without wading through its own water\n";
+$sluiceBad = []; $sluiceN = 0;
+foreach ($sp as $s) {
+    if ($s['type'] !== 'switch') continue;
+    $sluiceN++; $z = $s['zone']; $own = [];
+    for ($y = 0; $y < $map['h']; $y++) for ($x = 0; $x < $map['w']; $x++) if (trek_tile(2, $x, $y) === 'w' && trek_zone_at(2, $x, $y) === $z) $own[] = [$x, $y];
+    $near = $own ? min(array_map(fn($p) => max(abs($p[0] - $s['x']), abs($p[1] - $s['y'])), $own)) : 99;
+    // walk from the start, high water of the OWN zone is a wall (other zones count as drained), gates are ignored
+    $seen = [$sp['start']['x'] . ',' . $sp['start']['y'] => 1]; $qq = [[$sp['start']['x'], $sp['start']['y']]];
+    while ($qq) { [$cx, $cy] = array_shift($qq); foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as $d) { $nx = $cx + $d[0]; $ny = $cy + $d[1]; if (isset($seen["$nx,$ny"])) continue; $t = trek_tile(2, $nx, $ny); if (in_array($t, ['#', '^', ' ', '*', '+', ''], true)) continue; if ($t === 'w' && trek_zone_at(2, $nx, $ny) === $z) continue; $seen["$nx,$ny"] = 1; $qq[] = [$nx, $ny]; } }
+    if ($near > 4 || !isset($seen[$s['x'] . ',' . $s['y']])) $sluiceBad[] = [$s['code'], $near, isset($seen[$s['x'] . ',' . $s['y']])];
+}
+ok("all $sluiceN sluice wheels: nearest drained tile within 4 (Chebyshev) and the wheel reachable before its own water", $sluiceN === 3 && !$sluiceBad, json_encode($sluiceBad));
 echo "== reachability, in the intended order (the real trek_path with flags)\n";
 q('UPDATE users SET level = 16, energy = 100, coins = 1000, calling = NULL, trek_ch = 1, trek_pet_day = NULL, trek_pet_today = 0 WHERE id = ?', [$uid]);
 foreach (['trek_flags', 'trek_pack', 'trek_party', 'trek_recruits'] as $t) q("DELETE FROM $t WHERE run_id IN (SELECT id FROM trek_runs WHERE user_id = ?)", [$uid]);
@@ -112,7 +125,11 @@ $goto = function (string $code, int $max = 40) use ($T, $run, $sp) {
         $R = $run(); if ((int)$R['x'] === $s['x'] && (int)$R['y'] === $s['y']) return true;
         if ($R['fi']) return false;
         $r = $T(function (&$run, $u) use ($s) { if ((int)$run['fatigue'] >= 90) { $run['campkits'] = 3; trek_make_camp($run, $u); } return trek_walk($run, $u, $s['x'], $s['y']); });
-        if ($r[0] === false) return false;
+        if ($r[0] === false) {   // v2.0.18: a cart in the way blocks until it is dug out (the player's "dig it out slowly" always works)
+            $cur = trek_spot_at(2, (int)$run()['x'], (int)$run()['y']);
+            if ($cur && $cur['type'] === 'cart' && !trek_spot_done($run(), $cur)) { $T(fn(&$run, $u) => trek_act_cart($run, $u, 'work')); continue; }
+            return false;
+        }
     }
     return false;
 };

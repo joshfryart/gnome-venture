@@ -121,11 +121,48 @@ $tx(function (&$run, $u) { $run['x'] = 2; $run['y'] = 2; return [true, '']; });
 $r = $tx(fn(&$run, $u) => trek_camp_rest($run, $u));
 ok('rest away from a camp is refused', $r[0] === false);
 
+echo "== v2.0.18 Chapter II: camp, Brewhouse, old campsites and the Cushion Corner\n";
+$uid2 = mkuser('Mina');
+$tx2 = fn(callable $f, bool $need = true) => trek_tx($uid2, $f, $need, 2);
+q('UPDATE users SET trek_ch = 2 WHERE id = ?', [$uid2]);
+$tx2(fn(&$run, $u) => trek_enter($run, $u), false);
+$html2 = function (string $auto = '') use ($uid2) {
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid2]);
+    $run = trek_load(trek_run_row($uid2, 2));
+    return trek_camp_dialog_html($run, $u, trek_party_stats($run, $u), $auto);
+};
+$at2 = fn(string $code, int $fat = 30) => $tx2(function (&$run, $u) use ($code, $fat) { $s = trek_spots(2)[$code]; $run['x'] = $s['x']; $run['y'] = $s['y']; $run['fatigue'] = $fat; $run['campkits'] = 1; $run['fi'] = null; return [true, '']; });
+foreach (['camp', 'camp2'] as $c) {
+    $at2($c); $h = $html2(); $sp = trek_spots(2)[$c];
+    ok("$c: title is the camp name, Rest and bank, kit shop, no makecamp", str_contains($h, '🏕️ ' . $sp['name']) && str_contains($h, 'value="rest"') && str_contains($h, 'value="buy_kit"') && !str_contains($h, 'value="makecamp"'));
+}
+$h = $html2();
+ok('camp2 (Brewhouse) shows the cook greeting (ch2.camp.cook.greet)', trek_scene_plain('ch2.camp.cook.greet', [], q_one('SELECT * FROM users WHERE id = ?', [$uid2])) !== '' && str_contains($h, 'tkcgreet'));
+foreach (['olddry', 'oldtent', 'oldbench'] as $c) {
+    $at2($c); $h = $html2(); $sp = trek_spots(2)[$c];
+    ok("$c: title is the spot name, free rest_old, no makecamp, no kit shop, no swap", str_contains($h, '🏕️ ' . $sp['name']) && str_contains($h, 'value="rest_old"') && !str_contains($h, 'value="makecamp"') && !str_contains($h, 'value="buy_kit"') && !str_contains($h, 'value="party"') && !str_contains($h, 'value="rest"'));
+}
+$at2('olddry', 0); $tx2(function (&$run, $u) { foreach ($run['party'] as $i => $p) $run['party'][$i]['hp'] = trek_party_stats($run, $u)[$i]['max']; return [true, '']; });
+$h = $html2();
+ok('olddry rested: "Everyone is rested", no rest form, still no makecamp', str_contains($h, 'Everyone is rested already') && !str_contains($h, 'value="rest_old"') && !str_contains($h, 'value="makecamp"'));
+$at2('rest');
+$h = $html2(); $sp = trek_spots(2)['rest'];
+ok('rest spot before use: title is its name, rest_spot offered, no makecamp / kit shop', str_contains($h, '🏕️ ' . $sp['name']) && str_contains($h, 'value="rest_spot"') && !str_contains($h, 'value="makecamp"') && !str_contains($h, 'value="buy_kit"'));
+$tx2(function (&$run, $u) { trek_flag_set($run, 'rest_used'); return [true, '']; });
+$h = $html2();
+ok('rest spot after use: no rest_spot form', !str_contains($h, 'value="rest_spot"'));
+$tx2(function (&$run, $u) { trek_flag_set($run, 'freed_sorrel'); trek_recruit_crew($run, $u, 'sorrel'); return [true, '']; });
+$h = $html2();
+ok('Chapter II Talk: Sorrel has non-empty lines', (bool)preg_match('/data-who="Sorrel" data-lines="([^"]+)"/', $h, $m2) && count(json_decode(html_entity_decode($m2[1], ENT_QUOTES, 'UTF-8'), true) ?: []) >= 1);
+$pg = (string)file_get_contents($GAME . '/trek.php');
+ok('trek.php notes the pop-over for rest_old / rest_spot and a walk onto an old campsite or the rest spot',
+    str_contains($pg, "'rest_old', 'rest_spot'") && str_contains($pg, 'trek_here_oldcamp($run) || trek_here_restspot($run)'));
+
 echo "== wiring: the page, the script, the layout, the styles\n";
 $src = (string)file_get_contents($GAME . '/trek.php');
 ok('trek.php: Camp button opens the pop-over (no-JS form kept in <noscript>), dialog printed once, flag taken once per render',
     str_contains($src, 'data-tkcamp-open') && str_contains($src, '<noscript>') && substr_count($src, 'trek_camp_dialog_html(') === 1 && substr_count($src, 'trek_camp_open_take(') === 1);
-ok('trek.php: the note is set only for rest / makecamp / buy_kit / party and a walk onto a camp', str_contains($src, "['rest', 'makecamp', 'buy_kit', 'party']") && str_contains($src, "trek_camp_open_note(\$run, 'arrive')"));
+ok('trek.php: the note is set only for rest / makecamp / buy_kit / party and a walk onto a camp', str_contains($src, "['rest', 'makecamp', 'buy_kit', 'party', 'rest_old', 'rest_spot']") && str_contains($src, "trek_camp_open_note(\$run, 'arrive')"));
 ok('assets/trekcamp.js exists and layout.php loads it on trek.php only', is_file($GAME . '/assets/trekcamp.js') && (bool)preg_match("/page === 'trek.php'\): \?><script src=\"<\?= e\(url\('assets\/trekcamp\.js/", (string)file_get_contents($GAME . '/includes/layout.php')));
 ok('the script never writes HTML (textContent only)', !preg_match('/innerHTML|insertAdjacentHTML|document\.write/', (string)file_get_contents($GAME . '/assets/trekcamp.js')));
 $css = (string)file_get_contents($GAME . '/assets/style.css');

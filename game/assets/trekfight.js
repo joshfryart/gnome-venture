@@ -742,7 +742,7 @@
     var d = ev.target;
     if (d && d.classList && d.classList.contains('trekall') && d.open) down(d.querySelector('.tkall'));
   }, true);
-  function scan() { [].forEach.call(document.querySelectorAll('.tklastfight .tkall'), down); }
+  function scan() { [].forEach.call(document.querySelectorAll('.tklastfight .tkall, .trekwhat > ul.trekrounds'), down); }   /* v2.0.18: the fight screen's short feed shows the newest line too */
   scan();
   if (window.MutationObserver) new MutationObserver(scan).observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
 })();

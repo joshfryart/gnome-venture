@@ -274,7 +274,8 @@ $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3)); ok('stone: once only', 
 $fresh(); $at('bridgestone'); foreach ([1, 2] as $a) $tx(fn(&$run, $u) => trek_act_riddle($run, $u, $a));
 $r = $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3)); ok('stone: two wrong answers lock it (v2.0.1: 2 tries)', $r[0] === false && $pack('singing-pebble') === 0);
 // pass=1: the walk stops once
-foreach ([['cart', 20, 5, 14, 5], ['mushcamp', 8, 19, 8, 23], ['bridgestone', 28, 32, 16, 32]] as [$code, $x1, $y1, $x2, $y2]) {
+// (v2.0.18: the Stuck Cart is no longer a pass=1 stop: it blocks until dug out, see tests/trek_block.php)
+foreach ([['mushcamp', 8, 19, 8, 23], ['bridgestone', 28, 32, 16, 32]] as [$code, $x1, $y1, $x2, $y2]) {
     $fresh(); $sp = $spots[$code];
     $tx(function (&$run, $u) use ($x1, $y1) { $run['x'] = $x1; $run['y'] = $y1; return [true, '']; });
     $tx(fn(&$run, $u) => trek_walk($run, $u, $x2, $y2)); $R = $run();

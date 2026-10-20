@@ -42,11 +42,20 @@ function trek_camp_choice(string $do, string $icon, string $title, string $sub, 
         . choice_row($icon, $title, $sub, '', $cls, 'type="submit"') . '</form>';
 }
 
+/** v2.0.18: the free rest spot (Chapter II's Cushion Corner) the party stands on while it is still unused, or null. */
+function trek_here_restspot(array $run): ?array
+{
+    $s = trek_spot_at((int)$run['chapter'], (int)$run['x'], (int)$run['y']);
+    return $s && $s['type'] === 'rest' && !trek_spot_done($run, $s) ? $s : null;
+}
+
 /** The whole pop-over. $party = trek_party_stats(). $auto = '' | 'arrive' | 'again' (what opens it by itself). */
 function trek_camp_dialog_html(array &$run, array $u, array $party, string $auto): string
 {
     $ch = (int)$run['chapter'];
     $camp = trek_here_camp($run);
+    $oc = $camp ? null : trek_here_oldcamp($run);   // v2.0.18: old campsites and the Cushion Corner get the pop-over too, with their own free rest
+    $rs = $camp || $oc ? null : trek_here_restspot($run);
     $fat = (int)$run['fatigue'];
     $kits = (int)$run['campkits'];
     $kitMax = max(0, (int)setting('trek_campkit_max'));
@@ -55,7 +64,7 @@ function trek_camp_dialog_html(array &$run, array $u, array $party, string $auto
     foreach ($party as $m) if ((int)$m['hp'] < (int)$m['max']) $hurt = true;
 
     $h = '<dialog class="tkcamp" aria-labelledby="tkcname"' . ($auto !== '' ? ' data-auto="' . e($auto) . '"' : '') . '><div class="tkccard">';
-    $h .= '<h3 id="tkcname">🏕️ ' . e($camp ? (string)$camp['name'] : 'Make camp') . '</h3>';
+    $h .= '<h3 id="tkcname">🏕️ ' . e($camp ? (string)$camp['name'] : ($oc ? (string)$oc['name'] : ($rs ? (string)$rs['name'] : 'Make camp'))) . '</h3>';
     $greet = $camp ? trek_scene_plain(trek_camp_key($ch, $camp, 'greet'), [], $u) : '';
     if ($greet !== '' && mb_strlen($greet) <= 220) $h .= '<p class="tkcgreet">' . e($greet) . '</p>';
     $h .= '<div class="tkcchips"><span class="chip fat">😮‍💨 Fatigue ' . $fat . '/100</span><span class="chip">🏕️ ' . $kits . '/' . $kitMax . ' kits</span></div>';
@@ -77,6 +86,10 @@ function trek_camp_dialog_html(array &$run, array $u, array $party, string $auto
     $h .= '<div class="tkcblock"><b class="tkchead">Rest</b><div class="choicelist">';
     if ($camp) {
         $h .= trek_camp_choice('rest', '🛌', 'Rest and bank', 'Free. Everyone heals, fatigue to 0, finds go to your satchel');
+    } elseif ($oc && ($fat > 0 || $hurt)) {
+        $h .= trek_camp_choice('rest_old', '⛺', 'Rest here (free)', 'No kit needed. Fatigue −' . trek_oldcamp_fatigue() . ', everyone heals half. Finds are not banked');
+    } elseif ($rs) {
+        $h .= trek_camp_choice('rest_spot', '🛋️', 'Sit a while (free rest)', 'Free, once');
     } elseif ($fat <= 0 && !$hurt) {
         $h .= '<p class="help tkcnote">Everyone is rested already.</p>';
     } elseif ($kits > 0) {

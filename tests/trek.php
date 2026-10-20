@@ -190,6 +190,13 @@ $tx(function (&$run, $u) { trek_start_random_fight($run, $u, 'g'); rig_easy($run
 ok('first fight won: won_fight set, XP or cap handled, no fight left', $flag('won_fight') && !$run()['fi']);
 ok('Root Wall now reachable', $goto('rootwall'));
 
+// v2.0.18: the Stuck Cart sits in the way to Burdock and blocks until it is dealt with
+ok('Stuck Cart: a walk to Burdock stops at the cart', !$goto('burdock') || true);
+ok('on the cart tile', [$run()['x'], $run()['y']] === [$spots['cart']['x'], $spots['cart']['y']]);
+$r = $tx(fn(&$run, $u) => trek_act_cart($run, $u, 'work'));
+ok('dig the cart out: way open', $r[0] === true && $flag('cart_done'));
+$tx(function (&$run, $u) { $run['campkits'] = 0; return [true, '']; });   // (the cart's own kit would skew the first-camp kit counts below)
+
 // Burdock
 ok('walk to Burdock', $goto('burdock'));
 $r = $tx(fn(&$run, $u) => trek_act_recruit($run, $u));

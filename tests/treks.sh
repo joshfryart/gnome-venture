@@ -66,6 +66,8 @@ php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text2015.php" "$GAME" 
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_text2012.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.9 talk pop-over: collect/seen, stage, join card, hooks, new gnome slots (tests/trek_scene.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_scene.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== v2.0.18 blockers: duel, mini-boss, boss, stuck cart, riddle door keep blocking after you back out (tests/trek_block.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_block.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.11 camp pop-over: dialog by state, talk lines, swap forms, open note, wiring (tests/trek_camp.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_camp.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 dbx "UPDATE trek_texts SET body='A hush falls over the Hollow.', status='draft' WHERE text_key='ch1.intro'"
