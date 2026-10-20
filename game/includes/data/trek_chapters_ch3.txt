@@ -1,0 +1,22 @@
+# Chapter III "The Humming Deep" (v2.0.20; the title is a draft for Joshua). This file holds III-a: the Shale Stair, the Lamp Niche, the Glimmer Vein, the Echo Hollow, the Still Landing.
+# III-b will add its zones, milestones and the finish row below the closed Still Gate. Format: see trek_chapters.txt. Milestone keys are unique per player ever, so Chapter III's start with ch3.
+# Players can only go down here when the setting trek_chapters_open is 3 or more (admins always can).
+chapter|3|III|The Humming Deep
+zone|3|t|The Shale Stair|🪨|u|
+zone|3|u|The Lamp Niche|🏮|u|
+zone|3|v|The Glimmer Vein|💎|u|
+zone|3|w|The Echo Hollow|🔔|d|
+zone|3|x|The Still Landing|🕯️|d|hint
+ms|3|ch3_wren|Wren found|trek_ms_ch3_wren|Wren|450
+ms|3|ch3_gneiss|Old Gneiss cured|trek_ms_ch3_gneiss|Old Gneiss|1100
+ms|3|ch3a_end|Reached the Still Gate|trek_ms_ch3a_end|Still Gate|900
+check|3|Knock door solved|flag|knock_solved|0
+check|3|Trail events resolved|evn|3|1
+check|3|Crew moments taken|crew||1
+check|3|Side stops visited|all|cart_done,rest_used,seen_chalk|1
+check|3|Wayfinder nook found|flag|nookA_found|2
+tune|3|t|330|12|7|12
+tune|3|v|345|13|8|13
+tune|3|w|335|13|8|13
+tune|3|x|355|14|8|14
+tune|3|gneiss|540|10|5|20

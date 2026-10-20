@@ -6,3 +6,4 @@ bracken|bracken-spurwing|thornblade|3|1|2|0|1
 sorrel|sorrel-inkcap|seedkeeper|1|1|2|1|2|3
 tumble|tumble-waymarsh|wayfinder|3|1|2|1|2|0
 juniper|juniper-kettleby|brewroot|2|0|3|1|2|1
+wren|wren-thimblewick|bloomcaller|0|1|1|2|3|3

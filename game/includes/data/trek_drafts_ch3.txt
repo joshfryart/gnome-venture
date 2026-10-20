@@ -1,0 +1,80 @@
+# Chapter III-a draft bodies (v2.0.20). key|body   (\n = line break). Players see these until Joshua rewrites the slot in Admin > Trek text.
+ch3.intro|Below the clay, the stone.\nIt is dry down here, and old, and it hums.\nThe Shard hums back, lower than before. Far below, something knocks, once, and waits.
+ch3.ko.tutorial|You wake on the broken stair, sore and a little dusty.\nNothing is missing. The rock is patient, and so are you.
+ch3.ko.camp|You wake in the warm yellow light of the Lamp Niche.\nSome of what you carried is lost in the dark.
+ch3.ko.oldcamp|You wake on the warm ledge where you rested before.\nThe stone is quiet, and some of what you carried is gone.
+ch3.oldcamp.rest|You sleep on the warm stone, short and deep.\nIt is no proper camp, but you wake much better.
+ch3.oldcamp.ambush|The quiet breaks. Something is scrabbling in the rock.
+ch3.camp.innkeeper.greet|“Mind your head, the roof hums. Sit, sit. The lamp is lit for you.”\n“Up the glimmering way there is a round door. It likes to be asked, not pushed.”
+ch3.camp.innkeeper.shop|“Kits, tin and cloth. The rock is dry down here, but it is cold.”\n“Only so many fit in a pack, mind.”
+ch3.camp.innkeeper.rest|“There. Warm cup, safe satchel. The hum is always quieter by the lamp.”
+ch3.ui.loose|The rock is loose here, and something is tucked behind it.\nA Wayfinder would find the way in.
+ch3.ms.ch3_wren|Wren pencils a line into her notebook: found company.\nThe glowcaps lean toward the party, pleased.
+ch3.ms.ch3_gneiss|The grey drains out of the stone, vein by vein.\nOld Gneiss rumbles once, softly, and falls asleep against the wall.
+ch3.ms.ch3a_end|You reach the Still Gate. It does not open.\nBut the knock comes again from the other side, a little closer than before.
+book.ch3|THE HUMMING DEEP\nBelow the clay, the rock. It is grey, dry and cold, and it rings softly when you step. Veins of pale crystal run through it and hum when you stop to listen.\nThe blight has got in here too, in thin dark veins like frost. It can be cured, but it does not leave for good.\nThe Shard points down. The party follows.
+book.deeprock|THE DEEP ROCK FOLK\nShale slaters, quartz snails, pale olms, echo bats and gravel centipedes: ordinary cave folk, each with a thin grey vein of blight running through them.\nThey are not wicked. They are stuck, and a bit cross about it.\nA vein can be cured. The folk are tougher than the clay ones, so go in with a rested party.
+book.gneiss|OLD GNEISS\nA rockshell beetle with a back like a boulder. He knocked on the stone for so long that he forgot why.\nCured, he is a large and sleepy gentleman who likes warm walls. He still knocks now and then, out of habit.
+ch3.banter.wren.1|“Listen. The hum is lower by the lamp.”\n“Almost like a lullaby. I do not trust it, and I like it.”
+ch3.banter.wren.2|“I have counted the knocks. Three, then a long wait.”\n“I do not think it is counting for us.”
+ch3.banter.burdock.1|“Rock is only slow soil, little one.”\n“Give it a few thousand years and it will grow you something.”
+ch3.banter.zinnia.1|“Even the crystals look a bit sleepy.”\n“I hummed at them. One hummed back. I am calling that a friend.”
+ch3.banter.bracken.1|“Quiet down here. Too quiet.”\n“I have checked my boots twice. Nothing in them. Yet.”
+ch3.banter.sorrel.1|“Somebody chalked the walls so neatly.”\n“I think they wanted to be found, or at least read.”
+ch3.banter.tumble.1|“No signposts in the rock. Not one.”\n“Somebody should really do something about that.”
+ch3.banter.juniper.1|“Cold stone, warm soup. That is the whole secret of the deep.”\n“Sit, I have a ladle.”
+ch3.crew.burdock.talk|“Roots go down even through stone. Shall I feel in the cracks?”
+ch3.crew.burdock.done|He leans into the wall and comes up with a fistful of bright grit.
+ch3.crew.zinnia.talk|“You all look a bit grey. Shall I hum some glimmer into you?”
+ch3.crew.zinnia.done|One soft note, one pale glow, and the aches slide away.
+ch3.crew.bracken.talk|“I could climb that ledge and have a look ahead.”
+ch3.crew.bracken.done|He drops back down. “Open floor that way. Mind the dark patch.”
+ch3.crew.sorrel.talk|“I could ink a little map of what the walls are saying.”
+ch3.crew.sorrel.done|She traces the veins with her pen, and a path comes up out of the paper.
+ch3.crew.tumble.talk|“I know a trick for tunnels like this. Want it?”
+ch3.crew.tumble.done|He taps the wall twice, listens, and finds where the air goes. The way is easier.
+ch3.crew.juniper.talk|“Cold gets in the bones. Bowl of something?”
+ch3.crew.juniper.done|Steam, salt and a long sip. You can feel your toes again.
+ch3.crew.wren.talk|“The glowcaps like a hum. Shall I ask them to shine on us?”
+ch3.crew.wren.done|Wren hums a single note. The glowcaps lean in and light you up.
+ch3.zone.t.arrive|The clay lets go. Under it, grey stone, ringing softly underfoot.\nA stair of broken shale winds down into the dark.\nThe Shard hums lower than before.
+ch3.zone.u.arrive|A round niche in the rock, swept clean, with a lamp kept lit.\nIt smells of oil and warm stone.
+ch3.zone.v.arrive|The walls are shot through with veins of pale crystal.\nThey glimmer as you pass, and hum when you stop.\nYour footsteps sound like a stranger’s.
+ch3.zone.w.arrive|A wide hollow where every sound comes back late.\nYour footsteps return one step behind you.\nPale glowcaps light the dark like little lamps.
+ch3.zone.x.arrive|The hum stops. The air is warm and very still.\nA stone bridge crosses a dark gap, and past it a great shut gate.
+ch3.zone.x.hint|From very far below: one slow knock. Then nothing.\nThe Shard hums back in your pocket.
+ch3.spot.start.arrive|You step off the last of the clay onto a broken stair of shale.\nThe rock below is dry, and very old.
+ch3.spot.orecart.before|An ore cart lies tipped across the tunnel, spilling grey rubble.\nSomething is wrapped in cloth under the wheel.
+ch3.spot.orecart.win|It scrapes upright with a shriek.\nA rolled Camp Kit tumbles out of the cloth.
+ch3.spot.orecart.fail|The cart rocks, settles, and stays exactly where it was.
+ch3.spot.orecart.work|You shift the rubble stone by stone.\nIt takes a while, but the cart comes free.
+ch3.spot.orecart.after|The cart stands on its wheels again, waiting for ore that will never come.
+ch3.spot.camp.arrive|A tin lamp hangs on a hook, a little smoke curling from it.\nSomeone has swept the floor, and set out a warm stone for your feet.
+ch3.spot.chalk.arrive|Chalk marks run down the wall in neat columns: tallies, little drawings, a list of the folk down here.\nOne line is underlined twice.\nCured, not killed.
+ch3.spot.bench.before|A flat stone bench, warm as a hearth stone, sits under a very quiet crystal.\nIt looks made for sitting.
+ch3.spot.bench.done|You sit. The hum slows to match your breathing.\nWhen you stand, everyone is better.
+ch3.spot.bench.after|The bench is still warm.
+ch3.spot.nookA.arrive|Behind the loose rock, a hollow just big enough for one.\nA tiny cache sits under a bright cloth.
+ch3.spot.nookA.find|Under the cloth: a rolled Camp Kit, and a few Petals someone saved for a rainy day.
+ch3.spot.knock.question|A round stone door, cold and humming.\nWords are cut above it:\n“I answer every time you call, but I never speak first. Say my name.”
+ch3.spot.knock.a1|A shadow
+ch3.spot.knock.a2|An echo
+ch3.spot.knock.a3|A cricket
+ch3.spot.knock.right|The door hums a deep, pleased note.\nThen it rolls aside.
+ch3.spot.knock.wrong|The door waits. A faint, patient knock comes from inside the stone.
+ch3.spot.knock.out|The door gives a long, tired sigh.\nThe stone softens, and it rolls aside anyway.
+ch3.spot.knock.after|The round door stands open, humming to itself.
+ch3.spot.knock.seed|A Seedkeeper reads old cut-marks as easily as a leaf.\nOne soft word, and the door rolls aside.
+ch3.spot.knockgate.locked|A round stone door, with words cut above it.\nIt would like to be asked something.
+ch3.spot.knockgate.open|Beyond the door the air is cooler.\nYour footsteps come back late.
+ch3.spot.oldwarm.find|A flat ledge above the echoes, warm from some vein below.\nA scrap of blanket, and a ring of candle stubs.
+ch3.spot.wren.before|“Shh. Do not clap. Come and listen.”\n“I am Wren. I came to count the glowcaps, and found something knocking instead.”\n“I would rather listen with company.”
+ch3.spot.wren.freed|Wren shuts her notebook. “Right. Better to listen with company.”\nShe tucks the pencil behind her ear and falls in beside you.
+ch3.scene.wren.me|“Welcome, Wren. We will listen together.”\n“Lead on, and mind the glowcaps.”
+ch3.spot.gneiss.intro|In the middle of the tunnel, a rockshell beetle the size of a barrow is knocking his head on the wall.\nSlow. Patient. Grey veins run through his shell.\nHe turns, and the knocking stops.
+ch3.spot.gneiss.hit|Old Gneiss swings his heavy head at one of you.
+ch3.spot.gneiss.brace|Old Gneiss pulls into his shell like a boulder.
+ch3.spot.gneiss.slam|Old Gneiss rears and slams the floor.\nThe whole tunnel knocks, and far below, something knocks back.
+ch3.spot.gneiss.crumble|A crack runs across his shell, and grey flakes fall away.\nHe is tired, and sorry, and still swinging.
+ch3.spot.gneiss.defeat|The grey veins in his shell fade, and the last flake drops away.\nOld Gneiss blinks, yawns, and settles with a rumble: a very large, very sleepy beetle at last.\nThe tunnel is quiet.\nThen, from far below, one slow knock.
+ch3.spot.stillgate.locked|A great gate of dark stone, shut tight.\nCold air breathes through the seam.\nSomething on the other side knocks, slow and close.

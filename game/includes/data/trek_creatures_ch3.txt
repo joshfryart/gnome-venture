@@ -1,0 +1,12 @@
+# Chapter III creatures (v2.0.20). Same format as trek_creatures_ch2.txt. The deep rock folk: ordinary cave creatures with a thin vein of blight running through them (cured, not killed). Levels come from here and the tune rows.
+@pool|t|105|shale-slater:3,quartz-snail:2|3
+@pool|u|0|shale-slater:1|3
+@pool|v|110|quartz-snail:2,pale-olm:2,shale-slater:1,gravel-centipede:1|3
+@pool|w|115|echo-bat:3,pale-olm:2,gravel-centipede:1|3
+@pool|x|105|echo-bat:2,gravel-centipede:2,pale-olm:1|3
+shale-slater|Shale Slater|small|trek|20|Shale Chip:55|A pale woodlouse the colour of slate that rolls into a ball at the first sign of trouble. Today it rolls at you.
+quartz-snail|Quartz Snail|medium|trek|21|Quartz Shell:45|A slow snail with a shell of tiny crystals that chime when it turns. It looks sleepy and snaps anyway.
+pale-olm|Pale Olm|medium|trek|21|Pale Scale:40|A long white salamander with no eyes to speak of. It has lived in the dark so long that it hears your heartbeat first.
+echo-bat|Echo Bat|medium|trek|22|Bat Down:45|A small brown bat that calls out and listens for the answer. Its answer comes back a little too late, as if from further down.
+gravel-centipede|Gravel Centipede|large|trek|23|Centipede Plate:40|A long grey centipede in a rattling coat of gravel. It has the whole tunnel to itself and has opinions about that.
+old-gneiss|Old Gneiss|boss|trek|24||A rockshell beetle as big as a wheelbarrow, with a back like a boulder. He has been knocking on the stone for so long that he no longer remembers why.
