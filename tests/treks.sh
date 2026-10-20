@@ -54,10 +54,12 @@ echo "== Chapter I audit: map, text keys, every spot once-only / replay / KO / f
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch1.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Chapter II audit: data, reachability, whole walk, text keys, soft-locks, boss sims (tests/trek_audit_ch2.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch2.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+cp "$GAME/data/game.sqlite" "$GAME/data/pre_ch3.bak"   # the Chapter III tests rebuild runs; later tests expect the state the Chapter II ones left
 echo "== Chapter III-a: map, gate (trek_chapters_open), Wren, Old Gneiss, milestones, Ch II -> III carry-over (tests/trek_ch3.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_ch3.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Chapter III-a audit: text keys + orphans, whole walk, milestones once-only, 35-party boss sim, zone sims (tests/trek_audit_ch3.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch3.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+cp "$GAME/data/pre_ch3.bak" "$GAME/data/game.sqlite"; rm -f "$GAME/data/pre_ch3.bak"
 echo "== v2.0.1: 2-try riddles, door heal, Crossroads locked text, Bracken milestone, daily item cap (tests/trek_201.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_201.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== v2.0.4 text pass: new bodies on a fresh install, edited rows kept, old finals replaced, idempotent (tests/trek_text204.php)"
