@@ -153,7 +153,7 @@ function mush_finish(array $u, array $s, ?int $boom, bool $clean = false): array
         return [false, 'That walk is already over.'];
     }
     game_score($uid, 'mushroom', $safe);
-    if ($petals) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$petals, $uid]);
+    if ($petals) give_petals((int)$uid, (int)$petals);
     if ($xp) add_xp($uid, $xp);
     db()->commit();
     $en = game_energy($uid, $clean);   // v1.4.7: every game gives a little energy

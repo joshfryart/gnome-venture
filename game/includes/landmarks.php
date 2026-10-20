@@ -122,7 +122,7 @@ function haven_act(array $u, int $lmId, string $what, int $itemId = 0): array
     }
     if ($what === 'stay') {
         if (!landmark_once($uid, $lmId, 'stay')) return [false, 'You’ve already stayed the night here today.'];
-        if (q('UPDATE users SET coins = coins - 20 WHERE id = ? AND coins >= 20', [$uid])->rowCount() !== 1) {
+        if (!take_petals((int)$uid, 20)) {
             q('DELETE FROM landmark_uses WHERE user_id = ? AND landmark_id = ? AND action = ? AND day = ?', [$uid, $lmId, 'stay', landmark_day()]);
             return [false, 'A bed for the night costs ' . money(20) . '.'];
         }
@@ -346,7 +346,7 @@ function delve_chest(array $u, array &$exp): void
     $lvl = (int)($lm['level'] ?? 5);
     $coins = random_int(20 + 5 * $lvl, 40 + 10 * $lvl);
     if (($cl = delve_room_line('chest', (string)($lm['landscape'] ?? 'forest'), (int)($exp['id'] ?? 0) . '|' . (int)$exp['from_id'])) !== '') exp_log($exp, '🗝️ ' . $cl);
-    q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    give_petals((int)$uid, (int)$coins);
     exp_log($exp, '💰 The chest creaks open: ' . money($coins) . '!');
     $extra = (landmark_rebuilt_by($lm, $uid) ? 1 : 0) + (tool_tier($uid, 'lantern') >= 3 ? 1 : 0);   // a delve made safe for you, and a Glowcap Lantern, find more (v0.7.88)
     $loot = [];   // v1.4.6: what the chest gave, for the opening animation (assets/chest.js)

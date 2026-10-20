@@ -90,7 +90,7 @@ function pantry_buy(array $u, int $plotId): array
         db()->rollBack();
         return [false, 'This Kitchen already has a Pantry.'];
     }
-    if ($coins > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$coins, $uid, $coins])->rowCount() !== 1) {
+    if ($coins > 0 && !take_petals((int)$uid, (int)$coins)) {
         db()->rollBack();
         return [false, 'A Pantry costs ' . money($coins) . ($mats ? ' and ' . upgrade_mats_text($mats) : '') . '.'];
     }

@@ -318,7 +318,7 @@ function worm_finish(array $u, array $s, string $last = ''): array
     }
     game_score($uid, 'worms', (int)$s['score']);
     $coins = game_petals((int)$s['score'] * (int)setting('worm_coins_per_point'));
-    if ($coins) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    if ($coins) give_petals((int)$uid, (int)$coins);
     $xp = (string)setting('games_give_xp') === '1' ? max(1, intdiv((int)$s['score'], 2)) : 0;   // v0.9.1: game XP only when games_give_xp is on
     if ($xp) add_xp($uid, $xp);
     $en = game_energy($uid, (int)$s['score'] >= 10);   // v0.9.1a
@@ -506,7 +506,7 @@ function place_bet(array $u, int $snail, int $amount): array
     [$race] = next_race();
     if (q_val('SELECT 1 FROM snail_bets WHERE user_id = ? AND race = ?', [$uid, $race])) return [false, 'You’ve already backed a snail in this race.'];
     db()->beginTransaction();
-    if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$amount, $uid, $amount])->rowCount() !== 1) {
+    if (!take_petals((int)$uid, (int)$amount)) {
         db()->rollBack();
         return [false, 'You don’t have that many Petals.'];
     }
@@ -637,7 +637,7 @@ function spit_pay(array $u, float $cm): array
     $cm = round($cm, 1);
     game_score($uid, 'spit', (int)round($cm * 10));
     $coins = game_petals($cm >= 60 ? 30 : ($cm >= 45 ? 15 : ($cm >= 30 ? 5 : 0)));
-    if ($coins) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    if ($coins) give_petals((int)$uid, (int)$coins);
     $xp = (string)setting('games_give_xp') === '1' ? 1 + intdiv((int)$cm, 15) : 0;   // v0.7.42: every game pays a little XP. v0.9.1: only when games_give_xp is on
     if ($xp) add_xp($uid, $xp);
     $en = game_energy($uid, $cm >= 45);   // v0.9.1a

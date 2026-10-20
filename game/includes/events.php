@@ -288,7 +288,7 @@ function finish_event(array $u, string $token, string $choice): array
             }
             $seed = q_one("SELECT i.id, i.name FROM plant_regions pr JOIN plants p ON p.id = pr.plant_id JOIN items i ON i.id = p.seed_item_id
                            WHERE pr.tier = 'uncommon' ORDER BY " . sql_random() . ' LIMIT 1');
-            if ($seed && q('UPDATE users SET coins = coins - 60 WHERE id = ? AND coins >= 60', [$uid])->rowCount() === 1) {
+            if ($seed && take_petals((int)$uid, 60)) {
                 give_item($uid, (int)$seed['id'], 1);
                 $title = 'A bargain!';
                 $lines = ['−' . money(60), '+1 × ' . $seed['name']];

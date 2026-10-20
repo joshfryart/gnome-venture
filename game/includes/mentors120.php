@@ -368,11 +368,11 @@ function mentors120_graduate(int $linkId): bool
         $week = (int)q_val('SELECT COUNT(*) FROM pmentor_grads WHERE mentor_id = ? AND mentor_rewarded = 1 AND graduated_at > ?', [$mid, gmdate('Y-m-d H:i:s', time() - 7 * 86400)]);
         $mentorOk = $week < (int)setting('pmentor_grad_week_cap') && !mentors120_same_origin($mid, $nid);
         $np = (int)setting('pmentor_grad_petals');
-        if ($np > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$np, $nid]);
+        if ($np > 0) give_petals((int)$nid, (int)$np);
         if ($mentorOk) {
             q('UPDATE pmentor_grads SET mentor_rewarded = 1 WHERE newcomer_id = ?', [$nid]);
             $mp = (int)setting('pmentor_grad_petals_mentor');
-            if ($mp > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$mp, $mid]);
+            if ($mp > 0) give_petals((int)$mid, (int)$mp);
             unlock_entries($mid, 'pmentor:mentor');
             $paidMentor = true;
         }

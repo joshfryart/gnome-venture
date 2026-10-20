@@ -337,7 +337,7 @@ function town_act(array $u, int $actionId, bool $toGo = false, int $pickId = 0):
         return [false, 'You need ' . $e . ' energy for that.'];
     }
     $c = (int)$a['cost_coins'];
-    if ($c > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$c, $uid, $c])->rowCount() !== 1) {
+    if ($c > 0 && !take_petals((int)$uid, (int)$c)) {
         db()->rollBack();
         return [false, 'You need ' . money($c) . ' for that.'];
     }

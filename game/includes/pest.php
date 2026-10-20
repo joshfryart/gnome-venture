@@ -270,7 +270,7 @@ function pest_finish(array $u, string $tok, string $tapsJson): array
     $score = (int)$r['score'];
     game_score($uid, 'pest', $score);
     $coins = game_petals(pest_coins($score));
-    if ($coins) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    if ($coins) give_petals((int)$uid, (int)$coins);
     $xp = (string)setting('games_give_xp') === '1' ? 1 + intdiv($score, 60) : 0;
     if ($xp) add_xp($uid, $xp);
     $en = game_energy($uid, $score >= PEST_GOOD);

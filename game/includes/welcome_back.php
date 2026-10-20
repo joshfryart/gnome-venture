@@ -60,7 +60,7 @@ function welcome_back_open(array $u, bool $basket): array
     if (q('UPDATE users SET away_from = NULL WHERE id = ? AND away_from IS NOT NULL', [$uid])->rowCount() !== 1) return [false, 'You already did that.'];
     $coins = (int)setting('welcome_back_coins');
     if ($basket && $coins > 0) {
-        q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+        give_petals((int)$uid, (int)$coins);
         return [true, '🧺 A welcome-back basket: ' . money($coins) . '. The garden kept well while you were away.'];
     }
     return [true, 'Welcome back!'];

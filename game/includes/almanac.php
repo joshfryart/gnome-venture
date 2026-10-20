@@ -110,7 +110,7 @@ function check_milestones(int $uid): array
         }
         $rewards = [];
         if ((int)$m['reward_coins'] > 0) {
-            q('UPDATE users SET coins = coins + ? WHERE id = ?', [(int)$m['reward_coins'], $uid]);
+            give_petals((int)$uid, (int)$m['reward_coins']);
             $rewards[] = number_format((int)$m['reward_coins']) . ' ' . setting('currency_name');
         }
         if ($m['reward_item_id'] && (int)$m['reward_qty'] > 0) {

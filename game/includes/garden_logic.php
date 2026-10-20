@@ -567,7 +567,7 @@ function cellar_store(int $uid, int $x, int $y): array
     $grown = tile_grow(annotate_tile($t, $p), $p);
     $secs = min((int)$p['grow_minutes'] * 60, (int)$grown['growth_seconds']);
     db()->beginTransaction();
-    if ($cost > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) {
+    if ($cost > 0 && !take_petals((int)$uid, (int)$cost)) {
         db()->rollBack();
         return [false, 'Storing it costs ' . number_format($cost) . ' ' . setting('currency_name') . '.'];
     }
@@ -1451,7 +1451,7 @@ function expand_plot(int $uid): array
     [$cost, $items] = bed_add_cost($plot);
     $adds = bed_adds($plot) + 1;   // (counted before the new beds go in)
     db()->beginTransaction();
-    if ($cost > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) {
+    if ($cost > 0 && !take_petals((int)$uid, (int)$cost)) {
         db()->rollBack();
         return [false, 'Adding beds costs ' . number_format($cost) . ' ' . setting('currency_name') . ($items ? ' and ' . upgrade_mats_text($items) : '') . '.'];
     }

@@ -4324,3 +4324,12 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .setfind input[type=search] { flex: 1 1 200px; min-width: 0; }
 .setfind .help { flex: 1 1 100%; margin: 0; text-align: center; }
 .townview > h2, .townview > p, .townview > .help { text-align: center; }
+
+/* v2.0.5 shop tiles: Trading Post + Market day use the same tiles and sheet as shop.php */
+.shopgrid .spick .smini .sby { display: block; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--muted); }
+.marketwanted, .mkstall { text-align: center; }
+.mkstall .shopgrid.satchel, .marketwanted .shopgrid.satchel, .shopgrid.satchel.shopflex { display: flex; flex-wrap: wrap; justify-content: center; }
+.mkstall .shopgrid .btile, .marketwanted .shopgrid .btile, .shopflex .btile { width: 104px; flex: none; }
+.shopintro .mycoins { white-space: nowrap; }
+.shopwrap + .help, .shopwrap + p { margin-top: 10px; }
+.marketwanted h3, .marketwanted .help { text-align: center; }

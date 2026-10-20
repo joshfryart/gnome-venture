@@ -536,7 +536,7 @@ function packet_make(array $u, int $plantId): array
         db()->rollBack();
         return [false, 'You need ' . $n . ' × ' . $p['seed_name'] . ' for a packet.'];
     }
-    if ($fee > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$fee, $uid, $fee])->rowCount() !== 1) {
+    if ($fee > 0 && !take_petals((int)$uid, (int)$fee)) {
         db()->rollBack();
         return [false, 'Paper and string cost ' . money($fee) . '.'];
     }

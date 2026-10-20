@@ -239,7 +239,7 @@ function hollow_goal_settle(int $uid): array
                 continue;
             }
             $coins = hollow_goal_tier_coins($tier);
-            if ($coins > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+            if ($coins > 0) give_petals((int)$uid, (int)$coins);
             if (function_exists('add_xp')) add_xp($uid, HOLLOW_GOAL_TIER_XP[$tier - 1], 'Hollow Goal');
             $got = '';
             if ($spec = HOLLOW_GOAL_TIER_ITEMS[$tier - 1] ?? '') {

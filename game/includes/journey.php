@@ -334,7 +334,7 @@ function journey_finish(array $u, int $chapterId): array
         return [false, 'You’ve already finished this chapter.'];
     }
     $lines = [];
-    if ((int)$ch['reward_coins'] > 0) { q('UPDATE users SET coins = coins + ? WHERE id = ?', [(int)$ch['reward_coins'], $uid]); $lines[] = '+' . money((int)$ch['reward_coins']); }
+    if ((int)$ch['reward_coins'] > 0) { give_petals((int)$uid, (int)$ch['reward_coins']); $lines[] = '+' . money((int)$ch['reward_coins']); }
     if ($ch['reward_item_slug'] && ($iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$ch['reward_item_slug']]))) {
         give_item($uid, $iid, max(1, (int)$ch['reward_qty']));
         $lines[] = '+' . max(1, (int)$ch['reward_qty']) . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]);

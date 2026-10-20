@@ -110,7 +110,7 @@ function stop_friend_add(int $uid, int $folkId, int $n): int
     // v1.0.0: claim the level first (conditional update); only the request that moves `gifts` up pays
     if ($lvl > (int)$row['gifts'] && q('UPDATE stop_friend SET gifts = ? WHERE user_id = ? AND folk_id = ? AND gifts < ?', [$lvl, $uid, $folkId, $lvl])->rowCount() === 1) {
         $coins = 20 * $lvl;
-        q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+        give_petals((int)$uid, (int)$coins);
         $extra = '';
         if ($lvl >= 2) {
             $seed = (int)q_val("SELECT i.id FROM items i WHERE i.category = 'seed' AND i.id IN (SELECT seed_item_id FROM plants WHERE common = 1) ORDER BY i.id LIMIT 1 OFFSET " . (crc32($uid . '|' . $folkId) % 5));

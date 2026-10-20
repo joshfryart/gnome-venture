@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/items.php';
+require_once __DIR__ . '/includes/shop_tiles.php';
 $u = require_login();
 
 $shop = q_one('SELECT * FROM shops WHERE id = ? AND open = 1', [(int)($_GET['id'] ?? 0)]);
@@ -110,66 +111,14 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
   <a class="<?= $tab === 'sell' ? 'on' : '' ?>" href="<?= e(url('shop.php?id=' . $sid . '&tab=sell')) ?>">💰 Sell</a>
 </nav>
 
-<?php
-/** One tile in the basket grid. $tags: small notes; $info: escaped HTML for the details box. */
-// v0.7.83: shelves grouped by type, with chips that filter in place (the basket keeps what you picked)
-const SHOP_CATS = ['seed' => '🌱 Seeds', 'produce' => '🥕 Crops', 'flower' => '🌸 Flowers', 'food' => '🍲 Food', 'soil' => '🪱 Soil', 'mulch' => '🍂 Mulch',
-    'supply' => '🧪 Supplies', 'tool' => '🧰 Tools', 'guide' => '📗 Guides', 'forage' => '🍄 Finds', 'part' => '🦴 Parts', 'decor' => '🏡 Decor', 'arrangement' => '💐 Arrangements', 'packet' => '📦 Seed packets'];
-$catOf = fn(string $c): string => isset(SHOP_CATS[$c]) ? $c : 'other';
-$catRank = fn(array $r): int => (int)array_search($catOf((string)$r['category']), array_keys(SHOP_CATS + ['other' => 1]), true);
-$chips = function (array $rows) use ($catOf): string {
-    $n = [];
-    foreach ($rows as $r) { $k = $catOf((string)$r['category']); $n[$k] = ($n[$k] ?? 0) + 1; }
-    if (count($n) < 2) return '';
-    $h = '<nav class="chips shopcats" aria-label="Show"><button type="button" class="on" data-cat="all">All <small>' . count($rows) . '</small></button>';
-    foreach (SHOP_CATS + ['other' => '📦 Other'] as $k => $label) if (!empty($n[$k])) $h .= '<button type="button" data-cat="' . $k . '">' . $label . ' <small>' . $n[$k] . '</small></button>';
-    return $h . '</nav>';
-};
-// v1.9.8: tiles like the Satchel (picture, name, small price, count badge). Tap one: a sheet (<dialog>) with the details and the Buy/Sell form.
-$tile = function (int $id, array $i, int $price, int $max, string $priceHtml, string $mini, array $tags, string $info, bool $dim = false, string $badge = '', string $mode = 'buy', string $action = '') use ($IL, $open, $catOf): string {
-    [$rl, $rw] = item_rarity($i, $IL);
-    $desc = (string)($i['description'] ?? '');
-    $descH = $desc === '' ? '' : (mb_strlen($desc) > 90
-        ? '<details class="helpfold sdesc"><summary>About it</summary><p>' . desc_html($desc) . '</p></details>'
-        : '<p class="sdesc">' . desc_html($desc) . '</p>');
-    $verb = $mode === 'buy' ? 'Buy' : 'Sell';
-    $form = !$open ? '' : '<form method="post" class="sheetform" data-mode="' . $mode . '" data-price="' . $price . '" data-max="' . $max . '" action="' . e($action) . '">' . csrf_field()
-        . '<input type="hidden" name="do" value="' . $mode . '">'
-        . '<div class="qctl"><button type="button" class="qbtn" data-q="-1" aria-label="One less">−</button>'
-        . '<input type="number" class="qin" name="qty[' . $id . ']" value="1" min="1" max="' . $max . '" inputmode="numeric" aria-label="How many">'
-        . '<button type="button" class="qbtn" data-q="1" aria-label="One more">+</button>'
-        . '<button type="button" class="qbtn qmax" data-q="max">All</button></div>'
-        . '<p class="sline"><span>' . $priceHtml . ' each</span> · <b class="stot" data-lbl="' . ($mode === 'buy' ? 'Total' : 'You get') . '"></b></p>'
-        . '<p class="sbad" hidden></p>'
-        . '<button class="btn sgo">' . $verb . '</button></form>';
-    return '<div class="btile stile' . ($dim ? ' dim' : '') . '" data-cat="' . $catOf((string)($i['category'] ?? '')) . '" data-id="' . $id . '" data-price="' . $price . '" data-max="' . $max . '" data-name="' . e($i['name']) . '">'
-        . '<button type="button" class="spick" data-sheet aria-haspopup="dialog"><i class="rar r' . $rl . '" role="img" aria-label="' . e($rw) . '" title="' . e($rw) . '">' . $rl . '</i>'
-        . '<span class="iicon" aria-hidden="true">' . item_icon($i) . '</span><span class="iname">' . e($i['name']) . '</span>'
-        . '<span class="sprice">' . $priceHtml . '</span>' . ($mini !== '' ? '<span class="smini">' . $mini . '</span>' : '')
-        . ($badge !== '' ? '<b class="iqty" title="' . e($mode === 'buy' ? 'On the shelf' : 'You have') . '">' . e($badge) . '</b>' : '') . '</button>'
-        . '<dialog class="isheet" aria-label="' . e($i['name']) . '"><button type="button" class="sheetx" data-sheetx aria-label="Close">✕</button>'
-        . '<div class="shead"><span class="sico" aria-hidden="true">' . item_icon($i) . '</span><b class="sname">' . e($i['name']) . '</b> <span class="rarword r' . $rl . '">' . e($rw) . '</span></div>'
-        . ($tags ? '<p class="stags">' . implode(' ', $tags) . '</p>' : '') . $descH . $info . $form . '</dialog></div>';
-};
-/** A short marker for the tile: season and price direction only. */
-$miniOf = function (string $html): string {
-    $o = '';
-    if (str_contains($html, '⭐')) $o .= '⭐';
-    if (str_contains($html, '🌿') || str_contains($html, '🌱')) $o .= '🌿';
-    elseif (str_contains($html, '🍂')) $o .= '🍂';
-    if (str_contains($html, '↑')) $o .= '<span class="up">↑</span>';
-    elseif (str_contains($html, '↓')) $o .= '<span class="down">↓</span>';
-    return $o;
-};
-?>
 
 <?php if ($tab === 'buy'):
     $stock = q('SELECT st.*, i.id AS iid, i.name, i.slug, i.category, i.description, i.rarity, i.effects, i.base_price, p.id AS plant_id, p.seasons AS plant_seasons FROM shop_stock st
                 JOIN items i ON i.id = st.item_id LEFT JOIN plants p ON p.seed_item_id = i.id
                 WHERE st.shop_id = ? AND st.current_stock > 0 ORDER BY i.category, i.name', [$sid])->fetchAll();
-    usort($stock, fn($a, $b) => [$catRank($a), $a['name']] <=> [$catRank($b), $b['name']]);   // v0.7.83: grouped in chip order ?>
+    usort($stock, fn($a, $b) => [shop_cat_rank($a), $a['name']] <=> [shop_cat_rank($b), $b['name']]);   // v0.7.83: grouped in chip order ?>
   <div class="shopwrap">
-  <?= $chips($stock) ?>
+  <?= shop_chips($stock) ?>
   <div class="satchel shopgrid">
   <?php foreach ($stock as $s):
       $item = ['id' => $s['iid']] + $s;
@@ -195,7 +144,8 @@ $miniOf = function (string $html): string {
           . (!empty($owned[(int)$s['iid']]) ? '<p class="help">👜 You have ' . (int)$owned[(int)$s['iid']] . '.</p>' : '')
           . '<p class="help">' . (int)$s['current_stock'] . ' on the shelf</p>';
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
-      echo $tile((int)$s['id'], $item, $myPrice, (int)$s['current_stock'], $priceHtml, $miniOf(implode(' ', $tags)), $tags, $info, $read, (string)(int)$s['current_stock'], 'buy', url('shop.php?id=' . $sid));
+      echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
+          'tags' => $tags, 'info' => $info, 'dim' => $read, 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open]);
   endforeach; ?>
   </div>
   </div>
@@ -209,13 +159,14 @@ $miniOf = function (string $html): string {
   <details class="helpfold shophelp"><summary>ℹ️ What sells here</summary><p class="help">Shopkeepers buy crops, flowers, arrangements, food, creature parts and finds. Rarer things fetch much more. Prices drift: ↑ pays more than usual (wanted, out of season), ↓ pays less (in season, or lots sold lately).</p></details>
   <?= $sellBonus ? '<p class="help">🧭 Your Journey project here: ' . $sellBonus . '% extra.</p>' : '' ?>
   <div class="shopwrap">
-  <?= $chips($sellable) ?>
+  <?= shop_chips($sellable) ?>
   <div class="satchel shopgrid">
   <?php foreach ($sellable as $i):
       $p = sell_price_with_bonus($i, $u, $sellBonus);
       $mc = market_chip($i);   // v1.0.0: ↑/↓ and ⭐ wanted
       $info = item_origin_html($i, $IL) . '<p class="help">👜 You have ' . (int)$i['qty'] . '</p>';
-      echo $tile((int)$i['id'], $i, $p, (int)$i['qty'], money($p), $miniOf($mc), $mc !== '' ? [$mc] : [], $info, false, (string)(int)$i['qty'], 'sell', url('shop.php?id=' . $sid . '&tab=sell'));
+      echo shop_tile(['id' => (int)$i['id'], 'item' => $i, 'price' => $p, 'max' => (int)$i['qty'], 'priceHtml' => money($p), 'mini' => shop_mini($mc), 'tags' => $mc !== '' ? [$mc] : [],
+          'info' => $info, 'badge' => (string)(int)$i['qty'], 'mode' => 'sell', 'action' => url('shop.php?id=' . $sid . '&tab=sell'), 'open' => (bool)$open]);
   endforeach; ?>
   </div>
   </div>

@@ -375,7 +375,7 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
         db()->rollBack();
         return [false, $short(), $none];
     }
-    if ($fee > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$fee, $uid, $fee])->rowCount() !== 1) {
+    if ($fee > 0 && !take_petals((int)$uid, (int)$fee)) {
         db()->rollBack();
         return [false, $short(), $none];
     }

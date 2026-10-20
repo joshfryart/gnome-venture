@@ -204,7 +204,7 @@ function letters_look(array $u): array
             db()->rollBack();
             return [false, 'You’ve already read today’s letter.'];
         }
-        q('UPDATE users SET coins = coins + ? WHERE id = ?', [$petals, $uid]);
+        give_petals((int)$uid, (int)$petals);
         if ($xp) add_xp($uid, $xp);
         game_score($uid, 'letters', 1);
         db()->commit();

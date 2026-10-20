@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/trade.php';
 require_once __DIR__ . '/includes/items.php';   // v0.9.1a: item_origin_html on the stalls
+require_once __DIR__ . '/includes/shop_tiles.php';
 $u = require_login();
 $uid = (int)$u['id'];
 expire_offers();
@@ -59,7 +60,7 @@ page_header('Trading Post');
 
 <?php if ($tab === 'buy'):
     $search = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 40);
-    $rows = q("SELECT l.*, i.name, i.category, COALESCE(s.gnome_name, s.username) AS seller FROM stall_listings l
+    $rows = q("SELECT l.*, i.name, i.category, i.description, i.slug, i.rarity, i.effects, i.base_price, COALESCE(s.gnome_name, s.username) AS seller FROM stall_listings l
                JOIN items i ON i.id = l.item_id JOIN users s ON s.id = l.seller_id
                WHERE l.qty > 0 AND " . gnome_in_play_sql('s') . ($search !== '' ? ' AND LOWER(i.name) LIKE ?' : '') . ' ORDER BY i.name, l.price LIMIT 60',
         $search !== '' ? ['%' . mb_strtolower($search) . '%'] : [])->fetchAll();
@@ -68,17 +69,18 @@ page_header('Trading Post');
     <input name="q" value="<?= e($search) ?>" placeholder="Search: radish, sapling, geode…"> <button class="btn small">Search</button></form>
   <?php if (!$rows): ?><p class="muted">Nothing for sale<?= $search !== '' ? ' matching “' . e($search) . '”' : '' ?> yet. Be the first: put something on your stall!</p>
   <?php else: ?>
-    <table class="grid market">
-      <tr><th>Item</th><th>Seller</th><th>Each</th><th>Available</th><th></th></tr>
-      <?php foreach ($rows as $r): ?>
-        <tr><td><?= item_pic(['id' => $r['item_id']], 'sm') ?><?= e($r['name']) ?> <span class="muted">(<?= e($r['category']) ?>)</span><?= item_origin_html(['id' => $r['item_id'], 'category' => $r['category']], $IL) ?></td><td><?= profile_link(['id' => $r['seller_id']], (string)$r['seller']) ?></td>
-          <td><?= money((int)$r['price']) ?></td><td><?= (int)$r['qty'] ?></td>
-          <td><?php if ((int)$r['seller_id'] !== $uid && !$why): ?>
-            <form method="post" class="inline" action="<?= e(url('market.php?t=buy')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-              <input type="number" name="qty" value="1" min="1" max="<?= (int)$r['qty'] ?>" class="qty"> <button class="btn small">Buy</button></form>
-          <?php elseif ((int)$r['seller_id'] === $uid): ?><span class="muted">yours</span><?php endif; ?></td></tr>
-      <?php endforeach; ?>
-    </table>
+    <p class="status shopintro">You have <b class="mycoins" data-coins="<?= (int)$u['coins'] ?>"><?= money((int)$u['coins']) ?></b></p>
+    <div class="shopwrap"><div class="satchel shopgrid shopflex">
+      <?php foreach ($rows as $r):
+          $mineRow = (int)$r['seller_id'] === $uid;
+          $it = ['id' => $r['item_id']] + $r;
+          $info = '<p class="help">Sold by ' . profile_link(['id' => $r['seller_id']], (string)$r['seller']) . '</p>' . item_origin_html($it, $IL)
+              . ($mineRow ? '<p class="help">Your own listing. Manage it on My stall.</p>' : '');
+          echo shop_tile(['id' => (int)$r['id'], 'item' => $it, 'price' => (int)$r['price'], 'max' => (int)$r['qty'], 'mini' => '<span class="sby">' . e((string)$r['seller']) . '</span>',
+              'info' => $info, 'badge' => (string)(int)$r['qty'], 'badgeTitle' => 'Available', 'mode' => 'buy', 'action' => url('market.php?t=buy'),
+              'open' => !$mineRow && !$why, 'qtyName' => 'qty', 'fields' => ['id' => (int)$r['id']], 'dim' => $mineRow]);
+      endforeach; ?>
+    </div></div>
   <?php endif; ?>
 
 <?php elseif ($tab === 'stall'):

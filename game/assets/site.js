@@ -1374,10 +1374,10 @@ function gvSheetTotal(form) {
   var inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 0, price = +form.getAttribute('data-price') || 0;
   var n = Math.max(0, Math.min(max, Math.floor(+inp.value || 0)));
   var buy = form.getAttribute('data-mode') === 'buy';
-  var coinsEl = document.querySelector('.mycoins'), coins = coinsEl ? +coinsEl.getAttribute('data-coins') : 0;
+  var coinsEl = document.querySelector('.mycoins[data-coins]'), coins = coinsEl ? +coinsEl.getAttribute('data-coins') : -1;   // v2.0.5: no coin figure on the page = no 'too much' check
   var tot = form.querySelector('.stot'), bad = form.querySelector('.sbad'), go = form.querySelector('.sgo');
   tot.textContent = n > 0 ? tot.getAttribute('data-lbl') + ' ' + (n * price).toLocaleString() : '';
-  var over = buy && n * price > coins;
+  var over = buy && coins >= 0 && n * price > coins;
   if (bad) { bad.hidden = !over; bad.textContent = over ? 'You have ' + coins.toLocaleString() + '. Too much.' : ''; }
   if (go) go.disabled = n < 1 || over;
 }

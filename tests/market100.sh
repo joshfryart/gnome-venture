@@ -41,7 +41,7 @@ for pg in index.php "town.php" "town.php?view=quests" marketday.php "marketday.p
 get "town.php?view=quests" >/dev/null; echo "order board: $(grep -c 'class="favour order' $H) orders, header=$(grep -c 'Orders from the townsfolk' $H)"
 get index.php >/dev/null; echo "today: orders card $(grep -c '📜 Orders' $H), market card $(grep -c 'marketcard' $H), rail $(grep -c 'rmarket' $H)"
 get town.php >/dev/null; echo "square: market banner $(grep -c 'marketbanner' $H)"
-get marketday.php >/dev/null; echo "market page: stalls $(grep -c 'mkstall' $H), wanted rows $(grep -c 'class="mkitem"' $H), basket form $(grep -c 'name="do" value="basket"' $H)"
+get marketday.php >/dev/null; echo "market page: stalls $(grep -c 'mkstall' $H), wanted+stall tiles $(grep -c 'class="btile stile' $H), basket form $(grep -c 'name="do" value="basket"' $H)"
 STALL=$(grep -o 'name="npc" value="[0-9]*"' $H | head -1 | sed 's/.*value="//;s/"//'); ITEM=$(grep -o 'name="item" value="[0-9]*"' $H | sed -n 1p | sed 's/.*value="//;s/"//')
 echo "buy via page: $(post marketday.php -d do=buy -d npc=$STALL -d item=$ITEM -d qty=1)"; get marketday.php >/dev/null; grep -oE 'flash (ok|err)">[^<]*' $H | head -2
 echo "== shop sell tab shows drift chips"

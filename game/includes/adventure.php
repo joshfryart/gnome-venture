@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/combat_math.php';   // v2.0.5: d(), attack_roll, damage, scale_creature, foe_hits ... shared with trek_fight.php
 require_once __DIR__ . '/garden_logic.php';
 require_once __DIR__ . '/adventure_data.php';
 require_once __DIR__ . '/gathering.php';
@@ -24,11 +25,6 @@ const CALLING_ABILITIES = [
     'wayfinder' => ['Aimed Shot', 'A careful sling shot: roll twice, keep the best, +2 damage.'],
     'brewroot' => ['Bitter Brew', 'Throw a vial: 1d6 now, and 2 poison damage every round after.'],
 ];
-
-function d(int $sides): int
-{
-    return random_int(1, max(1, $sides));
-}
 
 function luck_mod(array $u): int
 {
@@ -71,7 +67,6 @@ function outlevel_fx(string $fx, int $pct): string
     return implode('+', $parts);
 }
 
-// Treks copy this maths in includes/trek_fight.php — keep in sync
 /** The gnome's fighting numbers, from stats, level and calling. */
 function gnome_combat(array $u): array
 {
@@ -297,29 +292,6 @@ function exp_scene(array $exp): array
         'region' => $to['region'], 'to' => $to, 'from' => $from];
 }
 
-/**
- * v0.7.64: a creature grown stronger to fit a higher level (there are no ordinary creatures above level 22).
- * Follows the curve of the existing ones: about +5.5 health, +0.4 attack and defence, +0.25 damage and +10 XP a level.
- */
-function scale_creature(array $c, int $toLevel, int $pct = 100, int $hpPct = 100): array
-{
-    $d = $toLevel - (int)$c['level'];
-    if ($d <= 0) return $c;
-    // v0.7.74: $pct eases the per-level growth, $hpPct eases health on top (bosses and the wild stay at 100)
-    $f = $pct / 100;
-    $c['hp'] = (int)$c['hp'] + (int)round(5.5 * $d * $f);
-    $c['attack'] = (int)$c['attack'] + (int)round(0.4 * $d * $f);
-    $c['defense'] = (int)$c['defense'] + (int)round(0.4 * $d * $f);
-    $c['dmg_bonus'] = (int)$c['dmg_bonus'] + (int)round(0.25 * $d * $f);
-    if ($hpPct < 100) $c['hp'] = max(1, (int)round($c['hp'] * $hpPct / 100));
-    $c['xp'] = (int)$c['xp'] + 10 * $d;
-    $c['level'] = $toLevel;
-    $c['_scaled'] = true;
-    $c['_pct'] = $pct;
-    $c['_hpp'] = $hpPct;
-    return $c;
-}
-
 /** The creature in an encounter, grown to its level if it was scaled up (v0.7.64; eased strength v0.7.74). */
 function encounter_creature(array $enc): ?array
 {
@@ -443,23 +415,6 @@ function next_step(array $u, array &$exp): void
 
 // ----------------------------------------------------------------- Combat
 
-// Treks copy this maths in includes/trek_fight.php — keep in sync
-function attack_roll(array $gc, int $bonus, bool $advantage = false): array
-{
-    $r = d(20);
-    if ($advantage) $r = max($r, d(20));
-    $crit = $r >= $gc['crit_from'] || random_int(1, 1000000) <= (int)round((float)($gc['luck_crit'] ?? 0) * 10000);
-    return [$r, $r + $gc['atk'] + $bonus, $crit];
-}
-
-// Treks copy this maths in includes/trek_fight.php — keep in sync
-function damage(array $gc, bool $crit, int $extra = 0): int
-{
-    $dmg = d($gc['dmg_die']) + $gc['dmg_bonus'] + $extra;
-    if ($crit) $dmg += d($gc['dmg_die']);
-    return max(1, $dmg);
-}
-
 /**
  * Is the outcome already certain? Auto-resolve is only offered then.
  * Creatures never auto-hit, and nobody auto-misses, so these are exact:
@@ -570,8 +525,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if ($enc['hp'] > 0) {
         switch ($action) {
             case 'flee':
-                $r = d(20) + eff_mod($u, 'nimble');
-                if ($r >= 8 + intdiv((int)$c['level'], 3)) {   // v1.3.0: level/3 (was /2)
+                if (flee_roll(eff_mod($u, 'nimble'), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
                     $exp['encounter'] = null;
                     return true;
@@ -680,9 +634,8 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     }
 
     // Creature's turn
-    $r = d(20) + (int)$c['attack'];
-    if ($r >= $gc['ac']) {
-        $dmg = max(1, d((int)$c['dmg_die']) + (int)$c['dmg_bonus']);
+    if (foe_hits((int)$c['attack'], $gc['ac'])) {
+        $dmg = foe_damage((int)$c['dmg_die'], (int)$c['dmg_bonus']);
         if ($enc['bark'] > 0) $dmg = max(1, intdiv($dmg, 2));
         $exp['hp'] = (int)$exp['hp'] - $dmg;
         exp_log($exp, '💥 The ' . $c['name'] . ' hits you for ' . $dmg . '.');
@@ -787,8 +740,8 @@ function fight_prep(array &$enc, array $c): void
     $pct = creature_hp_percent($c);
     $enc['hs'] = $pct;
     if ($pct >= 100) return;
-    $enc['max'] = max(1, (int)round((int)$enc['max'] * $pct / 100));
-    $enc['hp'] = (int)$enc['hp'] > 0 ? min($enc['max'], max(1, (int)round((int)$enc['hp'] * $pct / 100))) : 0;
+    $enc['max'] = combat_pct((int)$enc['max'], $pct);
+    $enc['hp'] = (int)$enc['hp'] > 0 ? min($enc['max'], combat_pct((int)$enc['hp'], $pct)) : 0;
 }
 
 /** v1.3.0: how many of the d20 rolls reach $need with a +$bonus (never auto-hit or auto-miss), as a 0-20 count. */

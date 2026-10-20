@@ -151,7 +151,7 @@ function first_week_claim(array $u, int $day): array
         db()->rollBack();
         return [false, 'You already took that reward.'];
     }
-    q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    give_petals((int)$uid, (int)$coins);
     $lines = [money($coins), $xp . ' XP'];
     if ($item !== '') {
         [$slug, $qty] = explode(':', $item) + [1 => '1'];

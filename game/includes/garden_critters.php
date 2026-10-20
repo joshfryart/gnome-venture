@@ -216,7 +216,7 @@ function critter_welcome(array $u, int $plotId, string $building, string $name):
     $cost = (int)$k['welcome_cost'];
     critter_forget();
     $res = db_tx(function () use ($u, $plotId, $building, $k, $name, $cost): ?array {
-        if ($cost > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $u['id'], $cost])->rowCount() !== 1) {
+        if ($cost > 0 && !take_petals((int)$u['id'], (int)$cost)) {
             db()->rollBack();
             return [false, 'Welcoming a ' . strtolower((string)$k['name']) . ' costs ' . money($cost) . '.'];
         }

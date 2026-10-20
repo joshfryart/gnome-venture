@@ -387,7 +387,7 @@ function job_pay(int $uid, array $job): void
     for ($s = $paid + 1; $s <= $reached; $s++) {
         $coins += $s < $stages ? $stageCoins : (int)$job['reward_coins'] - $stageCoins * ($stages - 1);
     }
-    if ($coins) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    if ($coins) give_petals((int)$uid, (int)$coins);
     if (!$done) {
         flash('📋 ' . $job['title'] . ': stage ' . $reached . ' of ' . $stages . ' done! ' . $job['npc'] . ' pays you ' . money($coins) . '.');
         return;

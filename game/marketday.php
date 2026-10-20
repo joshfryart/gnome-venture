@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/town.php';
 require_once __DIR__ . '/includes/items.php';
+require_once __DIR__ . '/includes/shop_tiles.php';
 require_once __DIR__ . '/includes/town_social.php';
 $u = require_login();
 $uid = (int)$u['id'];
@@ -32,8 +33,8 @@ page_header('Market day');
 ?>
 <p class="crumbs">🏘️ <a href="<?= e(url('town.php' . ($hub ? '?hub=1' : ''))) ?>"><?= e($town) ?> square</a> › <b>Market day</b></p>
 <h1>🧺 Market day in <?= e($town) ?></h1>
-<p class="status"><?= $on ? '🎪 <b>The market is open today.</b>' : ($until > 0 ? '🗓️ Next market day: <b>' . e(MARKET_WEEKDAYS[max(0, min(6, (int)setting('market_day')))]) . '</b>, in ' . $until . ' day' . ($until === 1 ? '' : 's') . '.' : ($until < 0 ? 'The market is switched off.' : '')) ?>
-  · You have <b class="mycoins"><?= money((int)$u['coins']) ?></b></p>
+<p class="status shopintro"><?= $on ? '🎪 <b>The market is open today.</b>' : ($until > 0 ? '🗓️ Next market day: <b>' . e(MARKET_WEEKDAYS[max(0, min(6, (int)setting('market_day')))]) . '</b>, in ' . $until . ' day' . ($until === 1 ? '' : 's') . '.' : ($until < 0 ? 'The market is switched off.' : '')) ?>
+  · You have <b class="mycoins" data-coins="<?= (int)$u['coins'] ?>"><?= money((int)$u['coins']) ?></b></p>
 <?php if (!$reach): ?><div class="flash err">🧭 This market is in <b><?= e($town) ?></b>. You need to be there to buy, sell or show a basket. <a href="<?= e(url('world.php')) ?>">Where to next →</a></div><?php endif; ?>
 
 <?php
@@ -48,48 +49,40 @@ if ($wanted) {
   <h3>⭐ Wanted this week</h3>
   <p class="help">These goods fetch more from every shop all week<?= $on ? ', and a little more again today' : ', and a little more again on market day' ?>. Grow or cook a few ahead of time.</p>
   <?php if (!$wantedRows): ?><p class="muted">Nothing is especially wanted this week.</p><?php else: ?>
-  <div class="mkgrid">
-    <?php foreach ($wantedRows as $r): $pp = market_price_parts($r); $each = sell_price($r, $u); ?>
-      <div class="mkitem">
-        <span class="iicon"><?= item_icon($r) ?></span>
-        <div><b><?= e($r['name']) ?></b> <?= market_chip($r) ?><br><small class="muted">about <?= money($each) ?> each · you have <?= (int)$r['have'] ?></small></div>
-        <?php if ($on && $reach && (int)$r['have'] > 0): ?>
-          <form method="post" class="inline" action="<?= e(url($self)) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="sell"><input type="hidden" name="item" value="<?= (int)$r['id'] ?>">
-            <?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
-            <input type="number" name="qty" value="<?= min(5, (int)$r['have']) ?>" min="1" max="<?= (int)$r['have'] ?>" class="qty" aria-label="How many <?= e($r['name']) ?>"> <button class="btn small">Sell</button></form>
-        <?php endif; ?>
-      </div>
-    <?php endforeach; ?>
-  </div>
+  <div class="shopwrap"><div class="satchel shopgrid">
+    <?php foreach ($wantedRows as $r): $each = sell_price($r, $u); $have = (int)$r['have'];
+        echo shop_tile(['id' => (int)$r['id'], 'item' => $r, 'price' => $each, 'max' => $have, 'priceHtml' => money($each), 'mini' => shop_mini(market_chip($r)), 'tags' => [market_chip($r)],
+            'info' => '<p class="help">👜 You have ' . $have . '.</p><p class="help">About ' . money($each) . ' each: the shop works out the exact price.</p>', 'badge' => (string)$have, 'badgeTitle' => 'You have',
+            'mode' => 'sell', 'action' => url($self), 'open' => $on && $reach && $have > 0, 'qtyName' => 'qty', 'each' => 'each, about', 'totalLabel' => 'About',
+            'fields' => ['item' => (int)$r['id']] + ($hub ? ['hub' => 1] : [])]);
+    endforeach; ?>
+  </div></div>
   <p class="help">Shops pay the same prices, in every town. The ↑ ↓ marks on a shop’s Sell tab show what is up or down.</p>
   <?php endif; ?>
 </div>
 
 <?php if ($on): $stalls = market_stalls($town); ?>
-<h2>🎪 The stalls</h2>
-<p class="help">Townsfolk set up stalls with different goods every market day. Each gnome may buy a few of each thing a day (<?= (int)setting('market_stall_limit') ?>).</p>
+<h2 class="shopintro">🎪 The stalls</h2>
+<p class="help shopintro">Townsfolk set up stalls with different goods every market day. Each gnome may buy a few of each thing a day (<?= (int)setting('market_stall_limit') ?>).</p>
 <?php if (!$stalls): ?><div class="box"><p class="muted">Nobody has set up a stall in <?= e($town) ?> today.</p></div><?php endif; ?>
 <div class="mkstalls">
 <?php foreach ($stalls as ['npc' => $n, 'goods' => $goods]): ?>
   <div class="box mkstall">
     <h3><?= npc_icon($n['species']) ?> <a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a>’s stall</h3>
-    <?php foreach ($goods as $g): $it = $g['item']; $had = market_bought_today($uid, (int)$n['id'], (int)$it['id']); $left = max(0, (int)setting('market_stall_limit') - $had); ?>
-      <div class="mkitem">
-        <span class="iicon"><?= item_icon($it) ?></span>
-        <div><b><?= e($it['name']) ?></b> <?= market_is_wanted((int)$it['id']) ? '<span class="tag up" role="img" aria-label="Wanted this week" title="Wanted this week">⭐</span>' : '' ?><br><small class="muted"><?= money($g['price']) ?> each<?= $had ? ' · bought ' . $had : '' ?></small></div>
-        <?php if ($reach && $left > 0): ?>
-          <form method="post" class="inline" action="<?= e(url($self)) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="npc" value="<?= (int)$n['id'] ?>"><input type="hidden" name="item" value="<?= (int)$it['id'] ?>">
-            <?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
-            <input type="number" name="qty" value="1" min="1" max="<?= $left ?>" class="qty" aria-label="How many <?= e($it['name']) ?>"> <button class="btn small">Buy</button></form>
-        <?php elseif ($left < 1): ?><small class="muted">sold out for you</small><?php endif; ?>
-      </div>
-    <?php endforeach; ?>
+    <div class="shopwrap"><div class="satchel shopgrid">
+    <?php foreach ($goods as $g): $it = $g['item']; $had = market_bought_today($uid, (int)$n['id'], (int)$it['id']); $left = max(0, (int)setting('market_stall_limit') - $had);
+        $info = ($had ? '<p class="help">You bought ' . $had . ' today.</p>' : '') . ($left < 1 ? '<p class="help">Sold out for you today.</p>' : '<p class="help">You can buy ' . $left . ' more today.</p>');
+        echo shop_tile(['id' => (int)$it['id'], 'item' => $it, 'price' => (int)$g['price'], 'max' => $left, 'mini' => market_is_wanted((int)$it['id']) ? '⭐' : '', 'info' => $info,
+            'badge' => $left > 0 ? (string)$left : '', 'badgeTitle' => 'You can buy', 'dim' => $left < 1, 'mode' => 'buy', 'action' => url($self), 'open' => $reach && $left > 0, 'qtyName' => 'qty',
+            'fields' => ['npc' => (int)$n['id'], 'item' => (int)$it['id']] + ($hub ? ['hub' => 1] : [])]);
+    endforeach; ?>
+    </div></div>
   </div>
 <?php endforeach; ?>
 </div>
 
 <?php if (setting('basket_on') === '1'): $mine = basket_entry($uid); $rivals = basket_rivals($town); ?>
-<h2>🧺 Best-basket judging</h2>
+<h2 class="shopintro">🧺 Best-basket judging</h2>
 <div class="box mkbasket">
   <?php if ($mine): $its = json_decode((string)$mine['items'], true) ?: []; ?>
     <p><b>Your basket scored <?= (int)$mine['score'] ?>.</b> <?= e(implode(', ', $its)) ?></p>

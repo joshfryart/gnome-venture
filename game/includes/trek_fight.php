@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 /**
  * v1.8.0 Treks: party fights. Each living member picks Attack / Ability / Snack (the gnome only) / Guard; foes act after the party.
- * The maths copies includes/adventure.php (d20 to hit, damage die + bonus, crits, flee, foe attacks): keep both in sync.
- * Do not edit combat_turn() for this; change the copies here. Boss and mini-boss scripts are at the bottom.
+ * The dice and sums (d20 to hit, damage die + bonus, crits, foe attacks, flee, creature scaling) are shared with the road fights: includes/combat_math.php.
+ * What is trek-only lives here: the party, abilities, tactics, TREK_TUNE and the boss scripts at the bottom.
  */
+
+require_once __DIR__ . '/combat_math.php';
 
 /** Calling abilities in a party fight: calling => [name, what it does, target kind (foe|ally|none), cooldown in rounds]. */
 const TREK_ABILITIES = [
@@ -34,25 +36,6 @@ const TREK_TH_MOLT = ['hit', 'crack', 'drum'];
 const TREK_SPORE_MEND_PCT = 7;   // v2.0.1: Spore Burst mends every living friend this % of their max health
 const TREK_SICK_PCT = 5;   // v2.0.1: a poisoned foe's hits do this % less damage
 const TREK_PARTY_HP_PCT = 60;   // foes get this % more health for each trailmate beyond the gnome (tune with the fight tests)
-
-// ------------------------------------------------------------------ the maths (copies of adventure.php)
-
-// mirrors adventure.php attack_roll — keep in sync
-function trek_attack_roll(array $gc, int $bonus, bool $advantage = false): array
-{
-    $r = d(20);
-    if ($advantage) $r = max($r, d(20));
-    $crit = $r >= $gc['crit_from'] || random_int(1, 1000000) <= (int)round((float)($gc['luck_crit'] ?? 0) * 10000);
-    return [$r, $r + $gc['atk'] + $bonus, $crit];
-}
-
-// mirrors adventure.php damage — keep in sync
-function trek_damage(array $gc, bool $crit, int $extra = 0): int
-{
-    $dmg = d($gc['dmg_die']) + $gc['dmg_bonus'] + $extra;
-    if ($crit) $dmg += d($gc['dmg_die']);
-    return max(1, $dmg);
-}
 
 // ------------------------------------------------------------------ foes
 
@@ -89,9 +72,9 @@ function trek_make_foe(array $c, array $u, int $partySize, bool $add = false, ar
     // (creature file + tune rows). The old "lift" rows (foes +1 per gnome level) are ignored.
     $lv = ($chapter > 1 || $add) ? (int)$c['level'] : max((int)$c['level'], min(trek_base_level() - 1, (int)$c['level'] + 4));
     if ($lv > (int)$c['level']) $c = scale_creature($c, $lv, (int)setting('creature_scale_percent'), (int)setting('creature_scaled_hp_percent'));
-    $hp = max(1, (int)round((int)$c['hp'] * creature_hp_percent($c) / 100));   // mirrors adventure.php fight_prep — keep in sync
-    $hp = max(1, (int)round($hp * (100 + TREK_PARTY_HP_PCT * max(0, $partySize - 1)) / 100));
-    $hp = max(1, (int)round($hp * $tune[0] / 100));
+    $hp = combat_pct((int)$c['hp'], creature_hp_percent($c));   // the road's late-game easing, then the party's growth (trek only), then the chapter tune (trek only)
+    $hp = combat_pct($hp, 100 + TREK_PARTY_HP_PCT * max(0, $partySize - 1));
+    $hp = combat_pct($hp, $tune[0]);
     return ['slug' => (string)$c['slug'], 'name' => (string)$c['name'], 'size' => (string)$c['size'], 'lv' => (int)$c['level'], 'hp' => $hp, 'max' => $hp,
         'atk' => (int)$c['attack'] + $tune[1], 'def' => (int)$c['defense'] + $tune[2], 'die' => (int)$c['dmg_die'], 'bonus' => (int)$c['dmg_bonus'] + $tune[3], 'xp' => $add ? 0 : (int)$c['xp'],
         'cid' => (int)$c['id'], 'pz' => 0, 'under' => 0, 'add' => $add ? 1 : 0,
@@ -284,7 +267,7 @@ function trek_scripts_builtin(): array
                 if ($move === 'hit') {
                     trek_foe_attack($run, $stats, 0);
                 } elseif ($move === 'sweep') {   // everyone, at half
-                    $base = max(1, d((int)$boss['die']) + (int)$boss['bonus']);
+                    $base = foe_damage((int)$boss['die'], (int)$boss['bonus']);
                     foreach (trek_live_members($run) as $slot) trek_hurt_member($run, $slot, max(1, intdiv($base, 2)), $stats, $boss['name'] . '’s Sweep');
                 } else {   // mend: +8% of her health
                     $heal = max(1, (int)ceil((int)$boss['max'] * 0.08));
@@ -348,7 +331,7 @@ function trek_scripts_builtin(): array
                 } else {   // squeeze: a big hit on the one she holds, no roll
                     $slot = (int)$fi['meta']['held'];
                     unset($fi['meta']['held']);
-                    trek_hurt_member($run, $slot, 2 * max(1, d((int)$boss['die']) + (int)$boss['bonus']), $stats, $boss['name'] . '’s Squeeze');
+                    trek_hurt_member($run, $slot, 2 * foe_damage((int)$boss['die'], (int)$boss['bonus']), $stats, $boss['name'] . '’s Squeeze');
                 }
             },
             'win' => function (array &$run, array $u, array $spot, int $n): void {
@@ -384,7 +367,7 @@ function trek_scripts_builtin(): array
                 if ($move === 'hit') {
                     trek_foe_attack($run, $stats, 0);
                 } elseif ($move === 'drum') {   // a little to everyone, at a third; Cling (round_end) makes tired abilities a round slower
-                    $base = max(1, d((int)$boss['die']) + (int)$boss['bonus']);
+                    $base = foe_damage((int)$boss['die'], (int)$boss['bonus']);
                     foreach (trek_live_members($run) as $slot) trek_hurt_member($run, $slot, max(1, intdiv($base, 3)), $stats, $boss['name'] . '’s Drum');
                     $fi['meta']['cling'] = 1;
                 } elseif ($move === 'harden') {   // he takes half from the party's next round
@@ -441,10 +424,10 @@ function trek_scripts_builtin(): array
                     $live = trek_live_members($run);
                     if ($live) {
                         $slot = $live[array_rand($live)];
-                        trek_hurt_member($run, $slot, 2 * max(1, d((int)$boss['die']) + (int)$boss['bonus']), $stats, $boss['name'] . '’s Burst');
+                        trek_hurt_member($run, $slot, 2 * foe_damage((int)$boss['die'], (int)$boss['bonus']), $stats, $boss['name'] . '’s Burst');
                     }
                 } elseif ($move === 'quake') {   // everyone, at half
-                    $base = max(1, d((int)$boss['die']) + (int)$boss['bonus']);
+                    $base = foe_damage((int)$boss['die'], (int)$boss['bonus']);
                     foreach (trek_live_members($run) as $slot) trek_hurt_member($run, $slot, max(1, intdiv($base, 2)), $stats, $boss['name'] . '’s Quake');
                 }
                 $fi['foes'][0]['under'] = 0;
@@ -601,11 +584,11 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
             case 'thornblade':
                 $g2 = $gc;
                 $g2['crit_from'] = max(2, (int)$gc['crit_from'] - 3);
-                [, $tot, $crit] = trek_attack_roll($g2, 0);
+                [, $tot, $crit] = attack_roll($g2, 0);
                 $extra = 6;
                 break;
             case 'wayfinder':
-                [, $tot, $crit] = trek_attack_roll($gc, 5);
+                [, $tot, $crit] = attack_roll($gc, 5);
                 $extra = 5;
                 break;
             case 'brewroot':
@@ -615,12 +598,12 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
                 trek_say($run, '🧪 ' . $name . '’s vial splashes ' . $foe['name'] . ' for ' . $dmg . ' and keeps burning.');
                 return;
             default:   // a gnome with no calling: Gnome Pluck
-                [, $tot, $crit] = trek_attack_roll($gc, 3);
+                [, $tot, $crit] = attack_roll($gc, 3);
                 $extra = 3;
         }
         $label = $ab[0];
         if ($tot >= (int)$foe['def']) {
-            $dmg = trek_damage($gc, $crit, $extra);
+            $dmg = damage($gc, $crit, $extra);
             trek_hurt_foe($fi, $i, $dmg);
             trek_say($run, '✨ ' . $name . '’s ' . $label . ' hits ' . $foe['name'] . ' for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
             if ($calling === 'wayfinder') trek_break_hold_by($run, '🪃 The shot stings her claw, and she lets go!');
@@ -634,9 +617,9 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
     $i = trek_foe_target($fi, $t);
     if ($i === null) { $fi['mem'][$slot]['guard'] = 1; trek_say($run, '🛡️ ' . $name . ' waits for an opening.'); return; }
     $foe = $fi['foes'][$i];
-    [$raw, $tot, $crit] = trek_attack_roll($gc, 0);
+    [$raw, $tot, $crit] = attack_roll($gc, 0);
     if ($tot >= (int)$foe['def']) {
-        $dmg = trek_damage($gc, $crit);
+        $dmg = damage($gc, $crit);
         trek_hurt_foe($fi, $i, $dmg);
         trek_say($run, '⚔️ ' . $name . ' hits ' . $foe['name'] . ' for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
     } else {
@@ -644,7 +627,7 @@ function trek_member_act(array &$run, array $u, array $stats, int $slot, array $
     }
 }
 
-/** A foe attacks a random living member (mirrors adventure.php combat_turn creature turn — keep in sync). */
+/** A foe attacks a random living member (the same roll and damage as the road's creature turn: combat_math.php). */
 function trek_foe_attack(array &$run, array $stats, int $i, bool $always = false): void
 {
     $live = trek_live_members($run);
@@ -652,8 +635,8 @@ function trek_foe_attack(array &$run, array $stats, int $i, bool $always = false
     $foe = $run['fi']['foes'][$i];
     $slot = $live[array_rand($live)];
     $run['fi']['meta']['sick'] = (int)($foe['pz'] ?? 0) > 0 ? 1 : 0;
-    if ($always || d(20) + (int)$foe['atk'] >= $stats[$slot]['gc']['ac']) {
-        trek_hurt_member($run, $slot, max(1, d((int)$foe['die']) + (int)$foe['bonus']), $stats, $foe['name']);
+    if ($always || foe_hits((int)$foe['atk'], $stats[$slot]['gc']['ac'])) {
+        trek_hurt_member($run, $slot, foe_damage((int)$foe['die'], (int)$foe['bonus']), $stats, $foe['name']);
         if (!empty($foe['blight']) && (int)$run['party'][$slot]['hp'] > 0) $run['fi']['mem'][$slot]['pz'] = 2;   // Blightlings poison: 1 a round for 2 rounds
     } else {
         trek_say($run, '🛡️ ' . $foe['name'] . ' misses ' . $stats[$slot]['name'] . '.');
@@ -731,7 +714,7 @@ function trek_fight_round(array &$run, array $u, array $acts): bool
     return false;
 }
 
-/** The whole party tries to get away: one roll with the best Nimble (mirrors adventure.php flee — keep in sync). Not in a duel. */
+/** The whole party tries to get away: one roll with the best Nimble against the top foe level (combat_math.php flee_roll, as on the road). Not in a duel. */
 function trek_fight_flee(array &$run, array $u): bool
 {
     $fi = &$run['fi'];
@@ -740,7 +723,7 @@ function trek_fight_flee(array &$run, array $u): bool
     $best = -99;
     foreach (trek_live_members($run) as $slot) $best = max($best, eff_mod($stats[$slot]['user'], 'nimble'));
     $level = max(array_map(fn($f) => (int)$f['lv'], $fi['foes']));
-    if (d(20) + $best >= 8 + intdiv($level, 3)) {
+    if (flee_roll($best, $level)) {
         trek_say($run, '🏃 The party slips away. No reward.');
         $run['fi'] = null;
         unset($run['st']['bless']);

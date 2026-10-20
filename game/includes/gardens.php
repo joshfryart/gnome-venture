@@ -297,7 +297,7 @@ function upgrade_building(array $u, int $plotId, string $b): array
         db()->rollBack();
         return [false, 'Already upgraded.'];
     }
-    if ($coins > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$coins, $uid, $coins])->rowCount() !== 1) {
+    if ($coins > 0 && !take_petals((int)$uid, (int)$coins)) {
         db()->rollBack();
         return [false, 'That upgrade costs ' . money($coins) . '.'];
     }
