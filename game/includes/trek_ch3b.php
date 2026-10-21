@@ -7,28 +7,33 @@ declare(strict_types=1);
  *
  * Old Holler, the giant blind cave toad of the Still Mere. She gulps every sound and booms it back wrong. One action a round, shown a round ahead ("Next: ..."):
  *   Hit     a plain attack.
- *   Gulp    she swallows the sound of your tricks: every living friend whose ability is still tired stays tired a round longer.
- *   Holler  a boom on everyone at once (no roll, 90% of a blow each). A Guard or Bark Skin halves it: guard before it.
- * Under 35% health the grey flakes off her throat (after_round): no more Gulp, the pattern is Hit, Holler, she takes 15% more damage, and the Holler is softer (60%).
- * From below the Warden knocks: every 3rd round each living friend regains 10% of max health.
- * A long fight tires her: from round 4 she takes 10% more damage a round (up to +100%), so a party with little damage is not simply ground down.
+ *   Gulp    she swallows the sound of your tricks: every living friend whose ability is still tired stays tired a round longer (as Thrum's Cling).
+ *   Holler  a boom on everyone at once (no roll, TREK_HO_HOLLER_PCT of a blow each). A Guard or Bark Skin halves it: guard before it.
+ * Under 35% health the grey flakes off her throat (after_round): no more Gulp, the pattern is Hit, Holler, she takes 15% more damage, and the Holler is softer.
+ * From below the Warden knocks: every 2nd round each living friend regains 10% of max health (the spec said every 3rd: the sims needed more, see below).
+ * A long fight tires her: from round 4 she takes 40% more damage a round (up to +400%), so a party with little damage is not simply ground down.
+ * Party balance (round_start, once): her health follows the party's mending score (Heal, Spore Burst, Bark Skin, Poison): softer for a party of fighters, tougher for menders.
  * Cured, not killed: the win text and the Almanac page say so. It ends Chapter III: the finish row of Chapter III pays ch3_holler and ch3_chapter
  * (this script does NOT call trek_ms_award), and trek_complete_chapter() is called here. The numbers are the constants below plus the "holler" tune row
- * in trek_chapters_ch3b_tune.txt.
+ * in trek_chapters_ch3b_tune.txt (1050% health, +11 attack, +6 defence, +31 damage). Tuned with tests/trek_audit_ch3b.php: gnome Lv19, mates Lv18, all 35 parties of three,
+ * 300 fights each: median about 85%, worst about 74%. The sims showed Holler's all-party boom made a party with no healer or shield a wall, and that the odds swing by
+ * about 1.2 for each mender (Heal, Spore Burst, Bark Skin) and -1.3 for each fighter; hence the mending score, the stronger tire and the more frequent knock.
  */
 
 const TREK_HO_MOVES = ['hit', 'gulp', 'holler'];
 const TREK_HO_CRACKED = ['hit', 'holler'];
-const TREK_HO_HOLLER_PCT = 90;    // a Holler hits every living friend for this % of a normal blow (no roll)
+const TREK_HO_HOLLER_PCT = 70;    // a Holler hits every living friend for this % of a normal blow (no roll)
 const TREK_HO_HOLLER_CRACK_PCT = 60;   // ... and this % once her throat has cracked
 const TREK_HO_CRACK_PCT = 35;     // her throat cracks under this % of her health
 const TREK_HO_TAKE_PCT = 115;     // ... and she takes this % of the damage after that
-const TREK_HO_KNOCK_EVERY = 3;    // the Warden knocks from below at the end of every Nth round ...
+const TREK_HO_KNOCK_EVERY = 2;    // the Warden knocks from below at the end of every Nth round ...
 const TREK_HO_KNOCK_PCT = 10;     // ... and each living friend regains this % of max health
 const TREK_HO_TIRE_FROM = 3;      // from the round after this one she takes TREK_HO_TIRE_STEP % more damage each round ...
-const TREK_HO_TIRE_STEP = 10;
-const TREK_HO_TIRE_MAX = 100;     // ... up to this many % more
-const TREK_HO_SUP_PCT = 30;       // she is that % tougher for each healer or Bark Skin giver beyond the first
+const TREK_HO_TIRE_STEP = 40;
+const TREK_HO_TIRE_MAX = 400;     // ... up to this many % more
+const TREK_HO_SUP_PCT = 35;       // her health moves this % for each point of the party's mending score above (or below) the average one
+const TREK_HO_SUP_WT = ['bloomcaller' => 100, 'seedkeeper' => 100, 'rootwarden' => 70, 'brewroot' => 40];   // ... counted by what the calling does for the party (% of a Heal or Bark Skin; fighters count 0)
+const TREK_HO_SUP_REF = 150;       // the score of an average party (1.5): she is softer below it and tougher above it
 const TREK_HO_WIN_ORDER = ['wren', 'burdock', 'zinnia', 'bracken', 'sorrel', 'tumble', 'juniper'];   // the first of these in the party speaks after the fall
 
 trek_script_register('holler', [
@@ -68,10 +73,10 @@ trek_script_register('holler', [
         $fi = &$run['fi'];
         if (!empty($fi['meta']['sized']) || TREK_HO_SUP_PCT <= 0) return;
         $fi['meta']['sized'] = 1;
-        $n = 0;
-        foreach (trek_live_members($run) as $sl) if (in_array($stats[$sl]['calling'], ['bloomcaller', 'seedkeeper', 'rootwarden', 'brewroot'], true)) $n++;
-        if ($n < 2) return;
-        $f = (100 + ($n - 1) * TREK_HO_SUP_PCT) / 100;
+        $n = 0;   // the party's mending score: a Heal counts 1, Spore Burst less, Bark Skin least; Poison mends nothing (Brewroot is a damage dealer here)
+        foreach (trek_live_members($run) as $sl) $n += (TREK_HO_SUP_WT[$stats[$sl]['calling']] ?? 0) / 100;
+        $f = max(0.5, 1 + ($n - TREK_HO_SUP_REF / 100) * TREK_HO_SUP_PCT / 100);   // a party of fighters meets a softer Holler, a party of menders a tougher one (the sims showed a mender is worth about 1.2 in the odds, a fighter -1.3)
+        if (abs($f - 1) < 0.005) return;
         $fi['foes'][0]['max'] = (int)round($fi['foes'][0]['max'] * $f);
         $fi['foes'][0]['hp'] = (int)round($fi['foes'][0]['hp'] * $f);
     },

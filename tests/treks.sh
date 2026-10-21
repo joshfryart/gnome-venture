@@ -61,6 +61,10 @@ echo "== Chapter III-a: map, gate (trek_chapters_open), Wren, Old Gneiss, milest
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_ch3.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 echo "== Chapter III-a audit: text keys + orphans, whole walk, milestones once-only, 35-party boss sim, zone sims (tests/trek_audit_ch3.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch3.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== Chapter III-b: map, pillar, Mere Wheel, lodge, Hush Bell, Tally and Counting Doors, Old Holler script, finish row (tests/trek_ch3b.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_ch3b.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
+echo "== Chapter III-b audit: text keys + orphans, whole walk, milestones once-only, 35-party boss sim, zone sims (tests/trek_audit_ch3b.php)"
+php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_audit_ch3b.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
 cp "$GAME/data/pre_ch3.bak" "$GAME/data/game.sqlite"; rm -f "$GAME/data/pre_ch3.bak"
 echo "== v2.0.1: 2-try riddles, door heal, Crossroads locked text, Bracken milestone, daily item cap (tests/trek_201.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/trek_201.php" "$GAME" 2>&1 | grep -v "^  ok" ; [ "${PIPESTATUS[0]}" = 0 ] || RC=1
