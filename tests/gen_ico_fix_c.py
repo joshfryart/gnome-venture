@@ -35,19 +35,13 @@ I['handbag'] = ('drawstring pouch',
 
 # grain: wheat V
 def stalk(tx,ty):
-    bx,by = 32,58; L=math.hypot(tx-bx,ty-by); ux,uy=(tx-bx)/L,(ty-by)/L; px,py=-uy,ux
-    ang=math.degrees(math.atan2(uy,ux))+90
-    o=[ln(bx,by,tx-ux*8,ty-uy*8,GO,5)]
-    for t in (-18,-9,0):
-        cx,cy=tx+ux*t,ty+uy*t
-        for s in (-1,1): o.append(ell(cx+px*4.5*s,cy+py*4.5*s,4,6.5,YE,ang+s*22))
-    o.append(ell(tx+ux*3,ty+uy*3,3.6,7,YE,ang)); o.append(ln(tx+ux*8,ty+uy*8,tx+ux*14,ty+uy*14,W,5))
-    return ''.join(o)
-I['grain'] = ('wheat', stalk(10,34)+stalk(54,34)+stalk(32,26)+rect(23,45,18,6,RD,2))
+    bx,by = 32,58; rot=math.degrees(math.atan2(tx-bx,by-ty))
+    return ln(bx,by,tx,ty+6,GO,5)+grp(rot,tx,ty,'<path d="M%d %dQ%d %d %d %dQ%d %d %d %dZ" fill="%s"/>'%(tx,ty+13,tx-12,ty,tx,ty-9,tx+12,ty,tx,ty+13,YE)+ln(tx,ty-9,tx,ty-15,W,5)+ln(tx,ty+11,tx,ty-3,GO,4))
+I['grain'] = ('wheat', stalk(14,30)+stalk(50,30)+stalk(32,24)+rect(23,46,18,6,RD,2))
 
 # ruin
 I['ruin'] = ('ruin',
-    rect(7,50,50,7,DS,1)
+    rect(8,50,48,7,DS,1)
     +poly([(10,50),(10,30),(14,26),(18,31),(22,25),(22,50)],ST)
     +poly([(25,50),(25,22),(29,13),(33,19),(37,9),(41,18),(41,50)],ST)
     +poly([(44,50),(44,36),(48,31),(52,38),(54,34),(54,50)],ST)
@@ -57,7 +51,7 @@ I['ruin'] = ('ruin',
 # path
 pts=[]
 for i in range(0,11):
-    t=i/10; y=58-46*t; x=32+11*math.sin(t*5.2)*(1-.3*t); w=15-9*t; pts.append((x,y,w))
+    t=i/10; y=58-46*t; x=32+11*math.sin(t*5.2)*(1-.2*t)*1.35; w=15-9*t; pts.append((x,y,w))
 Lp=[(x-w,y) for x,y,w in pts]; Rp=[(x+w,y) for x,y,w in pts]
 I['path'] = ('winding path',
     path('M8 54Q6 34 16 22Q22 12 32 10Q44 12 50 22Q58 34 56 54Q32 62 8 54Z',LF)
@@ -82,7 +76,7 @@ I['wind-chime'] = ('wind chime',
     stroke('M32 15V10',ST,5)+ell(32,10,4,4,ST)
     +rect(9,15,46,8,W,4)
     +ln(13,23,13,30,ST)+ln(51,23,51,34,ST)+ln(32,23,32,31,ST)
-    +rect(9,30,8,26,GO,3)+rect(47,34,8,14,GO,3)+rect(28,31,8,16,YE,3)+circ(32,54,4.5,W))
+    +rect(9,30,8,26,GO,3)+rect(47,34,8,14,GO,3)+rect(28,31,8,16,YE,3)+circ(32,53,4.5,W))
 
 # clap
 hand = lambda mir: (
@@ -92,13 +86,13 @@ def hnd(sgn):
     inner = rect(22,24,17,32,SK,7)+ell(22,44,4.5,7,SK,-sgn*20)   # palm + thumb
     inner += ln(27,25,27,34,W,3.2)+ln(33,25,33,34,W,3.2)
     return inner
-left = grp(-16,32,56,rect(14,18,17,38,SK,7)+ln(20,19,20,29,DW,3)+ln(26,19,26,29,DW,3))
-right = grp(16,32,56,rect(33,18,17,38,SK,7)+ln(38,19,38,29,DW,3)+ln(44,19,44,29,DW,3))
-I['clap'] = ('clapping hands', left+right+ln(32,6,32,12,YE)+ln(14,10,18,15,YE)+ln(50,10,46,15,YE))
+left = rect(6,28,28,17,SK,8)+ell(14,28,7,4.5,SK,-10)+ln(23,33,31,33,DW,4)+ln(23,40,31,40,DW,4)
+right = rect(30,34,28,17,SK,8)+ell(50,51,7,4.5,SK,-10)+ln(33,39,41,39,DW,4)+ln(33,46,41,46,DW,4)
+I['clap'] = ('clapping hands', left+right+ln(32,7,32,16,YE)+ln(16,12,21,19,YE)+ln(48,12,43,19,YE))
 
 # otter
 I['otter'] = ('otter',
-    stroke('M6 53Q13 48 20 53T34 53T48 53T58 51',WA,5)
+    stroke('M10 53Q16 48 22 53T34 53T46 53T54 51',WA,5)
     +ell(11,44,7,4.5,DW,-10)+ell(28,40,19,10,W)+ell(28,37,12,5,CR)
     +ell(24,39,3,2.6,W)+ell(33,39,3,2.6,W)
     +circ(47,32,9,W)+circ(41,25,3.5,DW)+ell(53,35,5,3.8,CR)+circ(56,34,2.4,U)+circ(48,29,2,U))
@@ -111,13 +105,9 @@ I['deer'] = ('deer',
     +ell(32,49,8.5,6.5,CR)+circ(32,46,3,U)+circ(24,36,2.6,U)+circ(40,36,2.6,U))
 
 # telescope
-tube = (rect(6,28,9,8,DW,2)+rect(14,26,22,12,GO,2)+rect(35,24,12,16,YE,2)
-        +poly([(46,23),(58,16),(58,48),(46,41)],GO)+poly([(58,18),(58,46),(61,48),(61,16)],CR) if False else
-        rect(5,28,9,8,DW,2)+rect(13,26,22,12,GO,2)+rect(34,24,12,16,YE,2)+poly([(45,22),(56,15),(56,49),(45,42)],GO)+rect(52,19,5,26,CR,1))
+tube = rect(5,30,8,5,DW,2)+rect(12,28,24,9,GO,2)+rect(35,26,10,13,YE,2)+poly([(44,24),(55,18),(55,47),(44,41)],GO)+rect(51,21,4,22,CR,1)
 I['telescope'] = ('telescope',
-    ln(31,36,22,56,W)+ln(31,36,40,56,W)+grp(-30,32,32,tube.replace('','')) )
-I['telescope'] = ('telescope',
-    ln(30,34,21,56,W)+ln(30,34,41,56,W)+'<g transform="translate(32 26) scale(.85) translate(-32 -32)">'+grp(-30,32,32,tube)+'</g>')
+    ln(29,35,21,55,W)+ln(29,35,39,55,W)+'<g transform="translate(32 26) scale(.85) translate(-32 -32)">'+grp(-35,32,32,tube)+'</g>')
 
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
