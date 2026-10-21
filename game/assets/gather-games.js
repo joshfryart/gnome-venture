@@ -302,7 +302,7 @@
   GAMES.glint = function (c) {
     var r = c.r, ev = [], res = {}, gl = [], hits = 0, lastTap = -1e9;
     c.bg('pick-bg.svg');
-    var tallyEl = el('div', 'gtally', c.field, '💎 0 / ' + r.n);
+    var tallyEl = el('div', 'gtally', c.field, ' 0 / ' + r.n); tallyEl.insertBefore(gvIcoNode('ico-gem'), tallyEl.firstChild);
     var pick = c.piece('pick-pick.svg', 'gpiece gpickaxe'); pick.style.display = 'none';
     r.gl.forEach(function (gx, k) {
       var b = el('button', 'ggl k' + gx.k, c.field); b.type = 'button'; b.hidden = true; b.style.left = pct(gx.x); b.style.top = pct(gx.y);
@@ -327,7 +327,7 @@
       lastTap = t; res[k] = 1; hits++; ev.push([k, t, Math.round(px * 10), Math.round(py * 10)]);
       gl[k].state = 2; gl[k].b.classList.add('struck'); gl[k].b.disabled = true;
       swing(g.x, g.y); c.burst(g.x, g.y, 'shard k' + g.k, 9); c.burst(g.x, g.y, 'spark', 5);
-      tallyEl.textContent = '💎 ' + hits + ' / ' + r.n; c.say(['Ting!', 'Sparkle!', 'Got one!', 'Lovely!'][hits % 4] + ' ' + hits + ' of ' + r.n + '.');
+      gvIcoLine(tallyEl, 'ico-gem', ' ' + hits + ' / ' + r.n); c.say(['Ting!', 'Sparkle!', 'Got one!', 'Lovely!'][hits % 4] + ' ' + hits + ' of ' + r.n + '.');
     }
     c.field.addEventListener('pointerdown', function (e) {   // a tap on bare rock: a tink and a spark, no penalty
       if (c.over()) return; var p = toField(e); swing(p[0], p[1]); c.burst(p[0], p[1], 'chip', 3);
@@ -363,7 +363,7 @@
       bugs.push({ im: im, lastX: b.x0, lastY: b.y0 });
     });
     var net = c.piece('net-net.svg', 'gpiece gnet'); net.style.left = pct(cur[0]); net.style.top = pct(cur[1]); net.style.width = pct(r.rad * 3.2);
-    var tallyEl = el('div', 'gtally', c.field, '🦋 0 / ' + r.n);
+    var tallyEl = el('div', 'gtally', c.field, ' 0 / ' + r.n); tallyEl.insertBefore(gvIcoNode('ico-butterfly'), tallyEl.firstChild);
     function toField(e) {
       var rc = c.field.getBoundingClientRect();
       return [clamp(100 * (e.clientX - rc.left) / rc.width, 0, 100), clamp(100 * (e.clientY - rc.top) / rc.height, 0, 100)];
@@ -376,7 +376,7 @@
           var bg = r.bugs[k];
           if (got[k] || t < bg.a || t > bg.a + bg.life) continue;
           var p = flitPos(bg, t);
-          if (Math.hypot(p[0] - nx, p[1] - ny) <= r.rad) { got[k] = 1; nGot++; bugs[k].im.classList.add('caught'); bugs[k].im.style.left = pct(nx); bugs[k].im.style.top = pct(ny); c.burst(nx, ny, 'puff', 6); tallyEl.textContent = '🦋 ' + nGot + ' / ' + r.n; c.say(['Got one!', 'Another!', 'Two at once!', 'Wings everywhere!'][nGot % 4] + ' ' + nGot + ' caught.'); }
+          if (Math.hypot(p[0] - nx, p[1] - ny) <= r.rad) { got[k] = 1; nGot++; bugs[k].im.classList.add('caught'); bugs[k].im.style.left = pct(nx); bugs[k].im.style.top = pct(ny); c.burst(nx, ny, 'puff', 6); gvIcoLine(tallyEl, 'ico-butterfly', ' ' + nGot + ' / ' + r.n); c.say(['Got one!', 'Another!', 'Two at once!', 'Wings everywhere!'][nGot % 4] + ' ' + nGot + ' caught.'); }
         }
       }
     }
@@ -400,7 +400,7 @@
     }
     function end() {
       if (ended) return;
-      if (len < 15) { ev.length = 0; trail.length = 0; trailEl.setAttribute('d', ''); got = {}; nGot = 0; lastPt = null; begun = false; down = false; net.classList.remove('swing'); bugs.forEach(function (b) { b.im.classList.remove('caught'); }); tallyEl.textContent = '🦋 0 / ' + r.n; c.say('One long sweep! Try again.'); return; }
+      if (len < 15) { ev.length = 0; trail.length = 0; trailEl.setAttribute('d', ''); got = {}; nGot = 0; lastPt = null; begun = false; down = false; net.classList.remove('swing'); bugs.forEach(function (b) { b.im.classList.remove('caught'); }); gvIcoLine(tallyEl, 'ico-butterfly', ' 0 / ' + r.n); c.say('One long sweep! Try again.'); return; }
       ended = true; net.classList.remove('swing'); net.classList.add('lift');
       c.say(nGot ? 'Swoosh! ' + nGot + ' in the net.' : 'Swoosh… only air.');
       c.done(ev, 1300);
@@ -450,7 +450,7 @@
     var Y_TIP = 15, Y_RIM = 69;
     c.bg('calm-bg.svg');
     r.sx.forEach(function (x) { var st = c.img('calm-stalac.svg', 'gstalac', c.field); st.style.left = pct(x); });
-    var tallyEl = el('div', 'gtally', c.field, '💧 0');
+    var tallyEl = el('div', 'gtally', c.field, ' 0'); tallyEl.insertBefore(gvIcoNode('ico-droplet'), tallyEl.firstChild);
     r.dr.forEach(function (d, i) {
       var im = c.img('calm-drop.svg', 'gdrop', c.field); im.hidden = true; im.style.left = pct(r.sx[d.s]);
       drops.push({ im: im, state: 0 });
@@ -481,7 +481,7 @@
       for (var j = 1; j < ev.length; j++) if (ev[j][1] >= t) { var d = ev[j][1] - ev[j - 1][1]; return (ev[j - 1][0] + (ev[j][0] - ev[j - 1][0]) * (d > 0 ? (t - ev[j - 1][1]) / d : 1)) / 10; }
       return ev[ev.length - 1][0] / 10;
     }
-    function upd() { tallyEl.textContent = '💧 ' + Math.max(0, caught - spills); wat.style.height = pct(clamp(12 + 6.5 * water, 12, 68)); }
+    function upd() { gvIcoLine(tallyEl, 'ico-droplet', ' ' + Math.max(0, caught - spills)); wat.style.height = pct(clamp(12 + 6.5 * water, 12, 68)); }
     function splash(x, y, kind) {
       if (kind === 'catch') { bk.classList.remove('plink'); void bk.offsetWidth; bk.classList.add('plink'); c.burst(x, y - 2, 'drop', 5); }
       else if (kind === 'spill') c.burst(x + (Math.random() < .5 ? -1 : 1) * r.bw * 0.7, y - 2, 'drop big', 7);

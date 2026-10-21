@@ -41,8 +41,8 @@
 
     var timers = [], raf = [], done = false, closed = false;
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-    function setCoins(v) { tc.textContent = '🪙 +' + v.toLocaleString() + ' ' + cur; }
-    function setXp(v) { tx.textContent = '⭐ +' + v + ' XP'; }
+    function setCoins(v) { gvIcoLine(tc, 'ico-coin', ' +' + v.toLocaleString() + ' ' + cur); }
+    function setXp(v) { gvIcoLine(tx, 'ico-star', ' +' + v + ' XP', 'Star'); }
     function count(set, to, ms) {
       var t0 = null;
       function tick(t) {

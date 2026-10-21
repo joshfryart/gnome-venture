@@ -211,7 +211,7 @@
         p.appendChild(b);
       });
       var verb = need === 'a' ? 'Tap who gets it' : 'Tap who to hit';
-      turn.hint.textContent = turn.wait ? '👆 ' + verb : 'Pick a move';
+      if (turn.wait) gvIcoLine(turn.hint, 'ico-pointing', ' ' + verb); else turn.hint.textContent = 'Pick a move';
     }
   }
 
@@ -526,7 +526,7 @@
     var dlg = this.dlg = el('dialog', 'tkr');
     dlg.setAttribute('aria-label', 'Auto fight replay');
     var card = el('div', 'tkrcard');
-    this.title = el('h3', 'tkrtitle', '⚔️ Auto');
+    this.title = el('h3', 'tkrtitle', ' Auto'); this.title.insertBefore(gvIcoNode('ico-sword'), this.title.firstChild);
     var health = el('div', 'box trekhealth');
     this.fl = el('ul', 'hprows');
     this.pl = el('ul', 'hprows');
@@ -667,7 +667,7 @@
     };
     if (instant) mine(); else this.later(mine, 260);
   };
-  Play.prototype.label = function (i) { this.title.textContent = '⚔️ Round ' + (this.d.s.n + i - 1); };
+  Play.prototype.label = function (i) { gvIcoLine(this.title, 'ico-sword', ' Round ' + (this.d.s.n + i - 1)); };
   Play.prototype.round = function () {
     var r = this.d.r[this.i++];
     if (!r) { this.finish(); return; }

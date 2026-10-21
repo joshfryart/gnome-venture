@@ -140,7 +140,7 @@
     }
     if (this.chip) {
       this.chip.hidden = false;
-      this.chip.textContent = '🥾 ' + n + ' / ' + this.steps;
+      gvIcoLine(this.chip, 'ico-boot', ' ' + n + ' / ' + this.steps);
     }
   };
   Walk.prototype.end = function () {

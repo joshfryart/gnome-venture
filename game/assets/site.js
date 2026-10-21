@@ -7,6 +7,27 @@ function gvCloseDlg(d) {
   if (!d || !d.open) return;
   if (d.close) d.close(); else d.removeAttribute('open');
 }
+/* v2.0.24: own icons in JS. gvIco() = <img> markup (no user text inside), gvIcoLine() = icon then plain text (safe: text goes in as a text node). Other files call them if present; no icon = they keep the emoji. */
+var gvIcoBase = (function () { var s = document.currentScript; return s && s.src ? s.src.replace(/[^\/]*$/, '') + 'img/ico/' : 'assets/img/ico/'; })();
+function gvIco(slug, alt) { return '<img class="ico" src="' + gvIcoBase + slug + '.svg" alt="' + (alt || '') + '" width="16" height="16">'; }
+function gvIcoNode(slug, alt) {
+  var im = document.createElement('img');
+  im.className = 'ico'; im.src = gvIcoBase + slug + '.svg'; im.alt = alt || ''; im.width = 16; im.height = 16;
+  return im;
+}
+/* True when the node's text starts with this emoji, or with its icon image (PHP swaps emoji to <img alt="">, so textContent has lost the emoji). */
+function gvLeads(n, emoji, slug) {
+  if (n.textContent.trim().indexOf(emoji) === 0) return true;
+  var f = n.firstChild;
+  if (f && f.nodeType === 3 && !f.nodeValue.trim()) f = f.nextSibling;
+  return !!(f && f.nodeType === 1 && f.tagName === 'IMG' && (f.getAttribute('src') || '').indexOf('/' + slug + '.svg') > -1);
+}
+function gvIcoLine(el, slug, rest, alt) {
+  if (!el) return;
+  var im = document.createElement('img');
+  im.className = 'ico'; im.src = gvIcoBase + slug + '.svg'; im.alt = alt || ''; im.width = 16; im.height = 16;
+  el.textContent = ''; el.appendChild(im); el.appendChild(document.createTextNode(rest));
+}
 /* v1.8.2: one reusable in-page dialog instead of confirm()/alert(). Text goes in with textContent, never innerHTML. */
 var gvAskState = null;
 function gvAskBox(msg, withCancel, onYes) {
@@ -845,7 +866,7 @@ function gvMaps() {
       var p = document.createElement('p'); p.className = 'help'; p.textContent = m.getAttribute('data-what');
       card.appendChild(x); card.appendChild(h); card.appendChild(p);
       var route = m.getAttribute('data-route'), q = document.createElement('p');
-      if (m.getAttribute('data-here')) q.textContent = '🎩 You are here.';
+      if (m.getAttribute('data-here')) { if (window.gvIcoLine) gvIcoLine(q, 'ico-gnome-hat', ' You are here.'); else q.textContent = '🎩 You are here.'; }
       else if (route && goForm) {
         var go = document.createElement('button');
         go.type = 'button'; go.className = 'btn small';
@@ -854,7 +875,7 @@ function gvMaps() {
         q.appendChild(go);
       } else if (m.getAttribute('data-go')) {   // v0.7.98: directions there (the first walk only)
         var a = document.createElement('a');
-        a.className = 'btn small alt'; a.href = m.getAttribute('data-go'); a.textContent = '🧭 How do I get there?';
+        a.className = 'btn small alt'; a.href = m.getAttribute('data-go'); if (window.gvIcoLine) gvIcoLine(a, 'ico-compass', ' How do I get there?'); else a.textContent = '🧭 How do I get there?';
         q.appendChild(a);
       } else q.textContent = 'Not next to you: walk the roads to get here.';
       q.className = q.className || 'muted';
@@ -1084,8 +1105,8 @@ function gvToastNode(li) {
   // v1.6.2: a harvest says what you got ("🧺 +3 Radish")
   d.textContent = d.textContent.replace(/^You harvest (\d+) × (.+?)\.$/, '🧺 +$1 $2');
   // v0.8.6: a long list of new Almanac pages becomes one short line (the full list stays in Messages)
-  var pages = d.textContent.match(/^📖 New Almanac pages:(.*)$/);
-  if (pages && pages[1].split(' · ').length > 3) d.textContent = '📖 ' + pages[1].split(' · ').length + ' new Almanac pages. See them in your Almanac.';
+  var pages = d.textContent.match(/^\s*(?:📖)?\s*New Almanac pages:(.*)$/);
+  if (pages && pages[1].split(' · ').length > 3) gvIcoLine(d, 'ico-book-open', ' ' + pages[1].split(' · ').length + ' new Almanac pages. See them in your Almanac.');
   return d;
 }
 (function () {
@@ -1166,7 +1187,7 @@ function gvGarden() {
     if (hsum) {
       var hs = 0;
       for (var k in picked) hs += hcost[k] || 0;
-      hsum.textContent = count() && hs ? '⚡ up to ' + hs : '';
+      if (count() && hs) gvIcoLine(hsum, 'ico-lightning', ' up to ' + hs, 'Energy'); else hsum.textContent = '';
     }
     if (cropRow) {   // v0.9.1a: offer "select all" for the crop last picked (or any crop still picked)
       var pid = 0;
@@ -1174,7 +1195,7 @@ function gvGarden() {
       if (!pid) for (var k3 in picked) if (pids[k3] > 0) { pid = pids[k3]; break; }
       lastPid = pid;
       cropRow.hidden = !pid;
-      if (pid) cropBtn.textContent = '☑️ Select all ' + (pnames[pid] || 'this crop');
+      if (pid) gvIcoLine(cropBtn, 'ico-check', ' Select all ' + (pnames[pid] || 'this crop'), 'Check');
     }
   }
   function setOn(v) {
@@ -1299,7 +1320,7 @@ function gvCapToasts(nodes) {
   nodes = nodes.filter(isPrize).concat(nodes.filter(function (n) { return !isPrize(n); }));
   var phone = window.innerWidth <= 720, max = phone ? 2 : 4;
   if (phone) {   // v1.6.2: one toast at a time on a phone: errors, then what you harvested, then prizes, then the rest. The others wait in 🔔.
-    var rank = function (n) { return n.classList.contains('err') ? 0 : (isPrize(n) ? 1 : (/^(🧺|\+\d)/.test(n.textContent.trim()) ? 2 : (/^🐦/.test(n.textContent.trim()) ? 4 : 3))); };
+    var rank = function (n) { return n.classList.contains('err') ? 0 : (isPrize(n) ? 1 : (/^(🧺|\+\d)/.test(n.textContent.trim()) || gvLeads(n, '🧺', 'ico-basket') ? 2 : (/^🐦/.test(n.textContent.trim()) || gvLeads(n, '🐦', 'ico-bird') ? 4 : 3))); };
     var idx = nodes.map(function (n, i) { return [rank(n), i, n]; });
     idx.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
     var top = idx[0][2];
@@ -1319,7 +1340,7 @@ function gvCapToasts(nodes) {
     more = document.createElement('a');
     more.href = '#';
     more.className = 'flash ok toastmore';
-    more.textContent = '🔔 +' + n + ' more';
+    gvIcoLine(more, 'ico-bell', ' +' + n + ' more', 'Bell');
     more.addEventListener('click', function (ev) {
       ev.preventDefault();
       var top = document.querySelector('.msglog.top');
@@ -1329,7 +1350,7 @@ function gvCapToasts(nodes) {
   } else {
     more = document.createElement('div');
     more.className = 'flash ok toastmore';
-    more.textContent = '🔔 ' + n + ' more message' + (n === 1 ? '' : 's') + ': see Messages in the left-hand menu.';
+    gvIcoLine(more, 'ico-bell', ' ' + n + ' more message' + (n === 1 ? '' : 's') + ': see Messages in the left-hand menu.', 'Bell');
   }
   return nodes.slice(0, max).concat([more]);
 }
@@ -1689,7 +1710,7 @@ document.addEventListener('click', function (ev) {
       box = document.createElement('section');
       box.className = 'rbox rwalk';
       box.setAttribute('aria-labelledby', 'rt-walk');
-      box.innerHTML = '<h3 id="rt-walk">🍄 On the road</h3>';
+      box.innerHTML = '<h3 id="rt-walk">' + gvIco('ico-mushroom') + ' On the road</h3>';
       rail.insertBefore(box, rail.firstChild);   // v1.6.7: the walk/fight box sits above Messages
     }
     return box;

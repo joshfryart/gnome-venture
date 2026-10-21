@@ -126,7 +126,7 @@
       self.card.classList.toggle('join', !!b.j);
       self.joinEl.hidden = !b.j;
       self.line.hidden = !!b.j;
-      if (b.j) { self.nameEl.textContent = b.j.placed ? '🎉 Party member joined!' : '🎒 Joined the Trailmates (bench)'; self.fillJoin(b.j); }
+      if (b.j) { if (b.j.placed) gvIcoLine(self.nameEl, 'ico-party', ' Party member joined!'); else gvIcoLine(self.nameEl, 'ico-satchel', ' Joined the Trailmates (bench)'); self.fillJoin(b.j); }
       else { self.nameEl.textContent = label; self.line.textContent = b.t; }
       self.line.classList.remove('out');
     };
@@ -184,7 +184,7 @@
     var b = document.querySelector('[data-tksmute]');
     if (!b) return;
     b.hidden = false;
-    b.textContent = '🗨 Story pop-ups';
+    gvIcoLine(b, 'ico-speech', ' Story pop-ups');
     var paint = function () { var m = muted(); b.setAttribute('aria-pressed', m ? 'false' : 'true'); };
     paint();
     b.addEventListener('click', function () { try { localStorage.setItem('gvSceneOff', muted() ? '0' : '1'); } catch (e) { /* storage blocked: stays on */ } paint(); });

@@ -659,7 +659,7 @@
     var nameTag = document.createElement('div'); nameTag.className = 'pstname'; nameTag.textContent = NAMES[round.design]; stageEl.appendChild(nameTag);
     if (how) how.textContent = 'Tap a pest to flick it off. Tapping a bare leaf bruises it: three bruises and it falls.';
     // chips
-    chips.innerHTML = '<span class="gmchip">⏱ <b class="ct">–</b></span><span class="gmchip">⭐ <b class="cs">0</b></span><span class="gmchip cc">🔥 <b>–</b></span><span class="gmchip">🍃 <b class="cl">' + round.n + '</b></span>' + (round.net ? '<span class="gmchip" title="Bug net in your satchel">🦋 net <small class="muted">in satchel</small></span>' : '');
+    chips.innerHTML = '<span class="gmchip">' + gvIco('ico-clock') + ' <b class="ct">–</b></span><span class="gmchip">' + gvIco('ico-star', 'Star') + ' <b class="cs">0</b></span><span class="gmchip cc">' + gvIco('ico-fire') + ' <b>–</b></span><span class="gmchip">' + gvIco('ico-leaf') + ' <b class="cl">' + round.n + '</b></span>' + (round.net ? '<span class="gmchip" title="Bug net in your satchel">' + gvIco('ico-butterfly') + ' net <small class="muted">in satchel</small></span>' : '');
     var cT = chips.querySelector('.ct'), cS = chips.querySelector('.cs'), cC = chips.querySelector('.cc b'), cCc = chips.querySelector('.cc'), cL = chips.querySelector('.cl');
 
     var leafEl = [], leafGeo = [];

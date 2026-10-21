@@ -103,7 +103,7 @@
     var won = false;   // a win shows as a prize box, or as a new line in the message log
     document.querySelectorAll('.prizebox:not(.cele), li.ml.prize.new:not(.cele)').forEach(function (b) {
       b.classList.add('cele');
-      if (b.textContent.trim().indexOf('🏆') === 0) won = true;
+      if (window.gvLeads ? gvLeads(b, '🏆', 'ico-trophy') : b.textContent.trim().indexOf('🏆') === 0) won = true;
     });
     if (won && document.querySelector('.mushboard')) petals();
   }

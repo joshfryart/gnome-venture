@@ -4,7 +4,7 @@
   var STEP = 550, TWEEN = 240, active = null;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function num(el, v, max) { if (el) el.textContent = '❤️ ' + v + '/' + max; }
+  function num(el, v, max) { if (el) gvIcoLine(el, 'ico-heart-red', ' ' + v + '/' + max, 'Heart'); }
   function flash(el, cls) {
     if (!el) return;
     el.classList.remove('fo-hit', 'fo-crit');
@@ -38,7 +38,7 @@
     if (this.fold) this.fold.open = true;
     this.hp = document.querySelector('.advbar .advhp');
     this.hpText = this.hp ? this.hp.textContent : '';
-    if (this.hp) this.hp.textContent = '❤️ ' + data.m0 + '/' + data.mmax;
+    if (this.hp) gvIcoLine(this.hp, 'ico-heart-red', ' ' + data.m0 + '/' + data.mmax, 'Heart');
     stage.hidden = false;
     stage.classList.add('on');
     stage.setAttribute('data-playing', '1');
@@ -81,7 +81,7 @@
     if (meHit || r.m !== this.me.v) {
       this.later(function () {
         self.tween(self.me, r.m);
-        if (self.hp) self.hp.textContent = '❤️ ' + r.m + '/' + self.data.mmax;
+        if (self.hp) gvIcoLine(self.hp, 'ico-heart-red', ' ' + r.m + '/' + self.data.mmax, 'Heart');
         if (meHit) flash(self.me.box);
       }, 260);
     }

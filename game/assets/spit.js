@@ -4,6 +4,9 @@
    spit_sim() in includes/games.php (constants come from the page's data-phys), so what you see matches what is scored. */
 (function () {
   'use strict';
+  /* v2.0.24: the gnome on the canvas is our icon when it has loaded (emoji until then) */
+  var gnomeImg = null;
+  function gnomeIco() { if (!gnomeImg && window.gvIcoNode) gnomeImg = gvIcoNode('ico-gnome-gardener'); return gnomeImg && gnomeImg.complete ? gnomeImg : null; }
   var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   var W = 400, H = 220, GY = 188, X0 = 40, PXCM = 4, MAXPULL = 120, MINPULL = 10;
   var RAF = window.requestAnimationFrame || function (f) { return setTimeout(function () { f(Date.now()); }, 16); };
@@ -139,7 +142,8 @@
       drawWind(c, t);
       // the gnome
       c.font = '34px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'; c.textBaseline = 'alphabetic';
-      c.fillText('🧑‍🌾', X0 - 34, GY + 2);
+      var gi = gnomeIco();
+      if (gi) { try { c.drawImage(gi, X0 - 34, GY - 32, 34, 34); } catch (e) { c.fillText('🧑‍🌾', X0 - 34, GY + 2); } } else c.fillText('🧑‍🌾', X0 - 34, GY + 2);
       if (state === 'ready') {
         guide(c);
         if (drag) {
