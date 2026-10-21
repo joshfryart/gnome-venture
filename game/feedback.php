@@ -50,7 +50,7 @@ page_header('Send feedback');
 <details class="fold"><summary>📮 Notes you’ve sent</summary>
   <?php foreach ($mine as $m): ?>
     <div class="box"><p class="muted"><?= e(gmdate('M j', ts($m['created_at']))) ?><?= $m['page'] !== '' ? ' · ' . e($m['page']) : '' ?> · <?= $m['status'] === 'done' ? '✅ read' : '📬 sent' ?></p>
-      <p><?= nl2br(e($m['body'])) ?></p></div>
+      <p><?= nl2br(eu($m['body'])) ?></p></div>
   <?php endforeach; ?>
 </details>
 <?php endif; ?>

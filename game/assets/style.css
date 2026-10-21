@@ -4644,3 +4644,15 @@ dialog.isheet .sline b { font-size: 16px; }
 :root[data-theme="dark"] .tkmini .tmdn circle { fill: #62c283; }
 :root[data-theme="dark"] .tkmini .tmob { fill: #ff6a52; stroke: #0d0b09; }
 :root[data-theme="dark"] .tkmini .tmme { fill: #5aa0ff; stroke: #0d0b09; }
+
+/* v2.0.23 icons */
+.ico{height:1.1em;width:1.1em;max-width:none;vertical-align:-.2em;display:inline-block;flex:none;object-fit:contain}
+h1 .ico,h2 .ico,h3 .ico{height:1em;width:1em;vertical-align:-.12em}
+button .ico,.btn .ico,a.btn .ico{height:1.05em;width:1.05em;vertical-align:-.18em}
+nav.tabs .ico,nav.chips .ico,.tab .ico,.chip .ico{height:1.05em;width:1.05em;vertical-align:-.18em}
+.choice .ico{height:1.1em;width:1.1em}
+.choice-ico .ico{height:1em;width:1em;vertical-align:middle}
+.choice-badge .ico,.choice-sub .ico{height:1em;width:1em}
+summary .ico{height:1.05em;width:1.05em}
+small .ico,.muted .ico{height:1em;width:1em}
+.statusstrip .ico,.userbar .ico{height:1.1em;width:1.1em;vertical-align:-.2em}

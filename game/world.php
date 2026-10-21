@@ -308,7 +308,7 @@ $sRegions = q('SELECT code, gnomish_name AS name, real_name FROM regions ORDER B
     $owned = (int)q_val('SELECT COUNT(*) FROM plots WHERE user_id = ?', [$u['id']]); ?>
   <div class="box deed">
     <?php if ($mine): ?>
-      🏡 Your garden in <?= e($nodeRegion['gnomish_name'] ?? 'this region') ?>: <b><?= e($mine['garden_name'] ?: 'Garden') ?></b>.
+      🏡 Your garden in <?= e($nodeRegion['gnomish_name'] ?? 'this region') ?>: <b><?= eu($mine['garden_name'] ?: 'Garden') ?></b>.
     <?php elseif ($owned < max_gardens($u)): ?>
       📜 Land for sale: start a garden here for <b><?= money(deed_cost((int)$u['id'])) ?></b>. Native crops grow faster at home.
       <form method="post" class="inline" data-confirm="Buy a land deed here for <?= number_format(deed_cost((int)$u['id'])) ?>?"><?= csrf_field() ?>

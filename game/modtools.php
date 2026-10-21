@@ -37,7 +37,7 @@ page_header('Moderation');
   <div class="box report">
     <p><b><?= e(REPORT_KINDS[$r['kind']] ?? $r['kind']) ?></b> from <b><?= e($r['t_name'] ?: $r['t_user']) ?></b> <small class="muted">(log-in <?= e($r['t_user']) ?>, #<?= (int)$r['target_id'] ?><?= $r['priors'] ? ', ' . (int)$r['priors'] . ' earlier report' . ((int)$r['priors'] === 1 ? '' : 's') . ' upheld' : '' ?>)</small></p>
     <?php if ((string)$r['snapshot'] !== ''): ?><blockquote class="snap"><?= e((string)$r['snapshot']) ?></blockquote><?php endif; ?>
-    <p class="help">Reason: <?= e(REPORT_REASONS[$r['reason']] ?? $r['reason']) ?><?= $r['details'] ? ' · “' . e($r['details']) . '”' : '' ?> · reported by <?= e($r['r_name'] ?: $r['r_user']) ?>, <?= e($r['created_at']) ?> UTC</p>
+    <p class="help">Reason: <?= e(REPORT_REASONS[$r['reason']] ?? $r['reason']) ?><?= $r['details'] ? ' · “' . eu($r['details']) . '”' : '' ?> · reported by <?= e($r['r_name'] ?: $r['r_user']) ?>, <?= e($r['created_at']) ?> UTC</p>
     <?php if ((int)$r['target_id'] === (int)$u['id']): ?><p class="muted">This one is about you. Another moderator must handle it.</p><?php elseif ($r['t_role'] === 'admin' && !is_admin()): ?><p class="muted">This is an admin’s; only another admin can act.</p><?php else: ?>
     <?= $f('dismiss', 'Dismiss') ?>
     <?php if (in_array($r['kind'], ['yard', 'garden'], true) && $r['ref_id']): ?><a class="btn small alt" href="<?= e(url('visit.php?g=' . (int)$r['ref_id'])) ?>" target="_blank" rel="noopener">👀 Look at the garden</a> <?php endif; ?>

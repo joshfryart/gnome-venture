@@ -52,7 +52,7 @@ page_header('My Gnome');
     <p class="status">
       🧑‍🌾 Gnome level <b><?= (int)$u['level'] ?></b> (<?= (int)$u['xp'] ?>/<?= xp_for_level((int)$u['level'] + 1) ?> XP)
       · 🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?>
-      (<?= e(implode(', ', array_map(fn($g) => ($g['garden_name'] ?: 'Garden') . ' L' . $g['garden_level'], $gardens))) ?>)
+      (<?= eu(implode(', ', array_map(fn($g) => ($g['garden_name'] ?: 'Garden') . ' L' . $g['garden_level'], $gardens))) ?>)
       · ⚡ <?= (int)$u['energy'] ?>/<?= max_energy($u) ?> energy
     </p>
   </div>

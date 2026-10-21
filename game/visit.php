@@ -58,7 +58,7 @@ foreach ($tiles as $row) foreach ($row as $t) if ($t['plant_id'] && isset($plant
 arsort($growing);
 page_header($plot['garden_name'] ?: 'A garden');
 ?>
-<h1>🏡 <?= e($plot['garden_name'] ?: gnome_name($owner) . '’s Garden') ?> <?= report_link((int)$owner['id'], 'garden', $plotId) ?></h1>
+<h1>🏡 <?= eu($plot['garden_name'] ?: gnome_name($owner) . '’s Garden') ?> <?= report_link((int)$owner['id'], 'garden', $plotId) ?></h1>
 <p class="help">Tended by <?= profile_link($owner) ?><?= $region && $region['gnomish_name'] ? ' · ' . e(($region['village'] ? $region['village'] . ', ' : '') . $region['gnomish_name']) : '' ?>
   · garden level <?= (int)$plot['garden_level'] ?> · <?= (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ?', [$plot['id']]) ?> beds
   <?= $mine ? ' · <b>This is how visitors see your garden.</b> <a href="' . e(url('garden.php')) . '">Back to tending</a>' : '' ?></p>

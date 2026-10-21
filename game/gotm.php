@@ -90,13 +90,13 @@ endif; ?>
 <?php foreach ($entries as $e): if ($e['npc']): ?>
   <div class="box gardencard tfcard">
     <div class="tficon" aria-hidden="true"><?= e($e['icon']) ?>🏡</div>
-    <h3><?= e($e['garden_name']) ?></h3>
+    <h3><?= eu($e['garden_name']) ?></h3>
     <p class="help">by <?= e($e['owner']) ?> <?= townsfolk_tag() ?> · 🗳️ <?= (int)$e['votes'] ?> · 🌼 <?= (int)$e['appeal'] ?></p>
   </div>
 <?php continue; endif; $mineE = (int)$e['uid'] === $uid; ?>
   <div class="box gardencard">
     <a href="<?= e(url('visit.php?g=' . (int)$e['plot_id'])) ?>"><div class="yardwrap"><?= $mini((int)$e['plot_id'], (int)$e['uid']) ?></div></a>
-    <h3><a href="<?= e(url('visit.php?g=' . (int)$e['plot_id'])) ?>"><?= e($e['garden_name'] ?: 'Garden') ?></a></h3>
+    <h3><a href="<?= e(url('visit.php?g=' . (int)$e['plot_id'])) ?>"><?= eu($e['garden_name'] ?: 'Garden') ?></a></h3>
     <p class="help">by <?= profile_link(['id' => $e['uid'], 'gnome_name' => $e['gnome_name'], 'username' => $e['username']]) ?> · 🗳️ <?= (int)$e['votes'] ?></p>
     <?php if (isset($myVotes[(int)$e['id']])): ?><p class="good">You voted for this one.</p>
     <?php elseif (!$mineE && !$block && $left > 0): ?>
@@ -111,7 +111,7 @@ endif; ?>
 <?php if ($last): ?>
   <h2>Last winners (<?= e($last[0]['month']) ?>)</h2>
   <ul><?php foreach ($last as $w): ?>
-    <li><?= ['', '🥇', '🥈', '🥉'][(int)$w['placed']] ?> <?= $w['garden_name'] !== null ? '<a href="' . e(url('visit.php?g=' . (int)$w['plot_id'])) . '">' . e($w['garden_name'] ?: 'Garden') . '</a>' : 'a garden' ?>
+    <li><?= ['', '🥇', '🥈', '🥉'][(int)$w['placed']] ?> <?= $w['garden_name'] !== null ? '<a href="' . e(url('visit.php?g=' . (int)$w['plot_id'])) . '">' . eu($w['garden_name'] ?: 'Garden') . '</a>' : 'a garden' ?>
       by <?= profile_link(['id' => $w['uid'], 'gnome_name' => $w['gnome_name'], 'username' => $w['username']]) ?> (<?= (int)$w['votes'] ?> votes)</li>
   <?php endforeach; ?></ul>
 <?php endif; ?>
@@ -120,7 +120,7 @@ endif; ?>
   <h2>Wander the lanes</h2>
   <p class="help">Some gardens to peek into. Admire the ones you like: their gardeners will hear about it.</p>
   <ul class="lanes"><?php foreach ($wander as $w): ?>
-    <li><a href="<?= e(url('visit.php?g=' . (int)$w['id'])) ?>"><?= e($w['garden_name'] ?: 'Garden') ?></a> by <?= profile_link(['id' => $w['uid'], 'gnome_name' => $w['gnome_name'], 'username' => $w['username']]) ?>
+    <li><a href="<?= e(url('visit.php?g=' . (int)$w['id'])) ?>"><?= eu($w['garden_name'] ?: 'Garden') ?></a> by <?= profile_link(['id' => $w['uid'], 'gnome_name' => $w['gnome_name'], 'username' => $w['username']]) ?>
       <small class="muted">· 🌼 <?= (int)$w['appeal'] ?></small></li>
   <?php endforeach; ?></ul>
 <?php endif; ?>

@@ -32,7 +32,7 @@ page_header('Feedback', true);
   <div class="box">
     <p class="muted"><?= e($r['created_at']) ?> UTC · <b><?= e((string)($r['gname'] ?? '?')) ?></b> (<?= e((string)($r['username'] ?? '?')) ?>)<?= $r['page'] !== '' ? ' · from ' . e($r['page']) : '' ?>
       · <?= $r['status'] === 'done' ? '✅ read' : '<span class="tag">new</span>' ?></p>
-    <p><?= nl2br(e($r['body'])) ?></p>
+    <p><?= nl2br(eu($r['body'])) ?></p>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><?= $all ? '<input type="hidden" name="all" value="1">' : '' ?>
       <?php if ($r['status'] === 'done'): ?><button class="btn small alt" name="do" value="new">Mark as new</button>
       <?php else: ?><button class="btn small" name="do" value="done">✅ Mark as read</button><?php endif; ?>

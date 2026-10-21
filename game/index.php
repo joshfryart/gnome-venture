@@ -98,7 +98,7 @@ if ($nReady) $gb[] = '<b>🧺 ' . $nReady . ' ready</b>';
 if ($nThirsty) $gb[] = '<b>💧 ' . $nThirsty . ' thirsty</b>';
 if ($nGrowing) $gb[] = '🌿 ' . $nGrowing . ' growing';
 if ($nEmpty) $gb[] = '<span class="muted">⬜ ' . $nEmpty . ' empty</span>';
-$cards[] = ['', '🌱 ' . e($plot['garden_name'] ?: 'Your garden'), implode(' · ', $gb) ?: 'Nothing planted yet.', 'Go to your garden →', 'garden.php'];
+$cards[] = ['', '🌱 ' . eu($plot['garden_name'] ?: 'Your garden'), implode(' · ', $gb) ?: 'Nothing planted yet.', 'Go to your garden →', 'garden.php'];
 if ($jc) {
     $jn = count(array_filter($jst['tasks'], fn($t) => $t[3])); $jr = journey_ready($u, $jst);
     $jh = journey_next_hint($u, $jc, $jst);

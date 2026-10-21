@@ -328,7 +328,7 @@ function picker_html(string $kind, string $title, array $items, callable $icon, 
 
 page_header('My Garden');
 ?>
-<div class="ghead"><h1><?= e($plot['garden_name'] ?: gnome_name($u) . '’s Garden') ?></h1>
+<div class="ghead"><h1><?= eu($plot['garden_name'] ?: gnome_name($u) . '’s Garden') ?></h1>
   <details class="renamefold"><summary aria-label="Rename this garden">✏️ Rename</summary>
     <form method="post" class="inline renamer"><?= csrf_field() ?><input type="hidden" name="do" value="rename"><input type="hidden" name="t" value="<?= e($tab) ?>">
       <label>Garden name <input name="name" value="<?= e($plot['garden_name'] ?? '') ?>" maxlength="40"></label>
@@ -337,7 +337,7 @@ page_header('My Garden');
   <nav class="gardentabs">
     <?php foreach ($gardens as $g): ?>
       <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="switch"><input type="hidden" name="t" value="<?= e($tab) ?>"><input type="hidden" name="plot_id" value="<?= (int)$g['id'] ?>">
-        <button class="tab<?= (int)$g['id'] === (int)$plot['id'] ? ' on' : '' ?>">🏡 <?= e($g['garden_name'] ?: 'Garden') ?> <small>L<?= (int)$g['garden_level'] ?></small></button></form>
+        <button class="tab<?= (int)$g['id'] === (int)$plot['id'] ? ' on' : '' ?>">🏡 <?= eu($g['garden_name'] ?: 'Garden') ?> <small>L<?= (int)$g['garden_level'] ?></small></button></form>
     <?php endforeach; ?>
   </nav>
 <?php endif; ?>

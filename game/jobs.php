@@ -103,7 +103,7 @@ if ($nRep = count(repair_list($uid))): ?>
     <?php if ($job): $pct = $job['kind'] === 'grade' ? ((int)$job['progress'] >= (int)$job['qty'] ? 100 : max(0, (int)$job['progress']) * 100 / max(1, (int)$job['qty'])) : (int)$job['progress'] * 100 / max(1, (int)$job['qty']); ?>
       <div class="job taken<?= $job['status'] === 'done' ? ' done' : '' ?>">
         <h3><?= e($job['title']) ?> <?= $job['status'] === 'done' ? '<span class="tag">✅ done</span>' : '' ?></h3>
-        <p><?= e($job['text']) ?></p>
+        <p><?= str_starts_with((string)$job['kind'], 'p_') ? eu($job['text']) : e($job['text']) ?></p>
         <progress max="100" value="<?= (int)$pct ?>"></progress> <span class="help"><?= e(job_progress_text($job)) ?></span>
         <p class="help">Reward: <?= e(job_reward_text($job)) ?><?= (int)$job['stages'] > 1 ? ' (part paid at each stage)' : '' ?></p>
         <?php if ($job['status'] === 'done'): ?>
@@ -153,7 +153,7 @@ if ($nRep = count(repair_list($uid))): ?>
         <?php foreach ($pjobs as $pj): ?>
           <div class="job pjob">
             <h3><?= e(pjob_title($pj)) ?></h3>
-            <p><?= e(pjob_text($pj)) ?><?= $pj['note'] ? report_link((int)$pj['poster_id'], 'job', (int)$pj['id']) : '' ?></p>
+            <p><?= eu(pjob_text($pj)) ?><?= $pj['note'] ? report_link((int)$pj['poster_id'], 'job', (int)$pj['id']) : '' ?></p>
             <form method="post" class="choiceform" action="<?= e(url('jobs.php?t=jobs&p=' . $tab)) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="take_player"><input type="hidden" name="id" value="<?= (int)$pj['id'] ?>">
               <?= choice_row('📌', 'Take this job', 'Wage held safely until the work is done', [money_txt((int)$pj['wage']), 'cost'], 'primary') ?></form>
           </div>
@@ -190,7 +190,7 @@ if ($nRep = count(repair_list($uid))): ?>
         <h3>🌱 Tend my garden</h3>
         <p class="help">They can only water, weed and harvest. Harvests come to you, less a <?= (int)setting('helper_cut_percent') ?>% share for them.
           Full pay = <?= (int)setting('player_tend_actions_per_day') ?> jobs a day.</p>
-        <label>Garden <select name="plot_id"><?php foreach ($gardens as $g): ?><option value="<?= (int)$g['id'] ?>"><?= e((string)$g['garden_name']) ?></option><?php endforeach; ?></select></label>
+        <label>Garden <select name="plot_id"><?php foreach ($gardens as $g): ?><option value="<?= (int)$g['id'] ?>"><?= eu((string)$g['garden_name']) ?></option><?php endforeach; ?></select></label>
         <label>For <select name="days"><?php foreach (PJOB_TEND_DAYS as $d): ?><option value="<?= $d ?>"><?= $d ?> day<?= $d > 1 ? 's' : '' ?></option><?php endforeach; ?></select></label>
         <label>Wage <input type="number" name="wage" min="<?= (int)setting('player_job_min_wage') ?>" value="<?= (int)setting('player_job_min_wage') * 3 ?>"></label>
         <label>Note (optional) <input name="note" maxlength="140" placeholder="The tomatoes are thirsty!"></label>

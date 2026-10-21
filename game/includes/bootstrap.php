@@ -458,6 +458,9 @@ start_secure_session();
 
 $CURRENT_USER = load_current_user();
 
+require_once __DIR__ . '/emoji_icons.php';
+ico_start();   // v2.0.23: one output pass swaps emoji for our icons in every HTML page (JSON, downloads, redirects are skipped inside it)
+
 if (setting('maintenance_mode') === '1' && !is_admin() && !defined('ALLOW_DURING_MAINTENANCE')) {
     http_response_code(503);
     page_header('Closed for tending');

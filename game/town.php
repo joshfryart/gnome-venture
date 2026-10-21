@@ -115,7 +115,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
       <p class="muted">🪧 <b>Rest stop</b> · <?= $road ? 'a small village on the road ' . e($road['name']) : 'a hidden village, off the road' ?>. No town square here, but there is always something going on.</p>
       <?= local_panel($u, $node) ?>
       <?php $mine = q_one('SELECT id, garden_name FROM plots WHERE user_id = ? AND village_id = ?', [$uid, $node['id']]);
-      if ($mine): ?><p>🏡 Your garden <a href="<?= e(url('garden.php')) ?>"><b><?= e($mine['garden_name'] ?: 'Garden') ?></b></a> is here.</p><?php endif; ?>
+      if ($mine): ?><p>🏡 Your garden <a href="<?= e(url('garden.php')) ?>"><b><?= eu($mine['garden_name'] ?: 'Garden') ?></b></a> is here.</p><?php endif; ?>
     <?php else: ?>
       <?= landmark_panel($u, $node) ?>
     <?php endif; ?>

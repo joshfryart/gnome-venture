@@ -11,6 +11,16 @@ function e($v): string
     return htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/**
+ * v2.0.23: e() for PLAYER-TYPED text (garden and critter names, notes, titles, feedback). Emoji and their joiners are written as numeric
+ * references (&#x1F331;), so the emoji-to-icon pass (emoji_icons.php), which only matches literal UTF-8, leaves what the player typed alone.
+ */
+function eu($v): string
+{
+    return preg_replace_callback('/[\x{00A9}\x{00AE}\x{200D}\x{203C}\x{2049}\x{20E3}\x{2122}\x{2139}\x{2190}-\x{21FF}\x{2300}-\x{23FF}\x{24C2}\x{25A0}-\x{27BF}\x{2900}-\x{297F}\x{2B00}-\x{2BFF}\x{3030}\x{303D}\x{3297}\x{3299}\x{FE0F}\x{1F000}-\x{1FAFF}\x{E0020}-\x{E007F}]/u',
+        fn($m) => '&#x' . strtoupper(dechex(mb_ord($m[0], 'UTF-8'))) . ';', e($v)) ?? e($v);
+}
+
 /** v0.9.1a: "a cup of tea" / "an acorn coffee": the right article plus the word. */
 function an(string $s): string
 {
@@ -271,6 +281,7 @@ function settings_schema(): array
     require_once __DIR__ . '/mentors120.php';   // v1.2.0: player mentors
     require_once __DIR__ . '/trek_data.php';   // v1.8.0: Treks
     require_once __DIR__ . '/delve_map.php';   // v2.0.6: Delves: map view
+    require_once __DIR__ . '/emoji_icons.php';   // v2.0.23: emoji to icons
     return $schema = [
         'site_name'          => ['label' => 'Site: name', 'type' => 'text', 'default' => 'Gnome Venture'],
         'site_tagline'       => ['label' => 'Site: tagline', 'type' => 'text', 'default' => 'Grow, tend, trade, explore.'],
@@ -577,7 +588,7 @@ function settings_schema(): array
 
         'travel_needs_visit' => ['label' => 'Travel: only fast-travel to regions a gnome has already walked to', 'type' => 'bool', 'default' => '1'],
         'gotm_thanks'        => ['label' => 'Garden of the Month: Petals for every other entry', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000000],
-    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
+    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + ico_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
 }
 
 /** v1.7.6: scale a mini-game's Petal payout by games_petals_percent (never below 1 if the game paid something). */

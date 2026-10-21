@@ -61,7 +61,7 @@ foreach ($tiles as $row) foreach ($row as $t) {
 }
 $todo = array_filter($work, fn($w) => $w['acts']);
 ?>
-<h1>🌱 Tending <?= e((string)$plot['garden_name']) ?></h1>
+<h1>🌱 Tending <?= eu((string)$plot['garden_name']) ?></h1>
 <p class="help">For <?= e((string)$job['npc']) ?>. You can water, weed and harvest here. Each job pays part of the wage:
   <b><?= (int)$pj['progress'] ?> / <?= (int)$pj['qty'] ?></b> done, <?= money((int)$pj['paid']) ?> of <?= money((int)$pj['wage']) ?> earned.
   Time left: <?= nice_time(max(0, ts($pj['ends_at']) - time())) ?>. Harvests go to <?= e((string)$job['npc']) ?>; you keep a <?= (int)setting('helper_cut_percent') ?>% share.</p>

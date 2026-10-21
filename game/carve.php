@@ -68,7 +68,7 @@ endif; ?>
     <?php foreach ($entries as $c): ?>
       <div class="box carving">
         <?= carving_html((string)$c['pattern']) ?>
-        <b><?= e($c['title']) ?></b><?= $c['npc'] ? '' : report_link((int)$c['user_id'], 'carving', (int)$c['id']) ?><br><span class="muted">by <?= $c['npc'] ? e($c['gname']) . ' ' . townsfolk_tag() : profile_link(['id' => $c['user_id']], (string)$c['gname']) ?> · <?= (int)$c['votes'] ?> vote<?= (int)$c['votes'] === 1 ? '' : 's' ?></span>
+        <b><?= eu($c['title']) ?></b><?= $c['npc'] ? '' : report_link((int)$c['user_id'], 'carving', (int)$c['id']) ?><br><span class="muted">by <?= $c['npc'] ? e($c['gname']) . ' ' . townsfolk_tag() : profile_link(['id' => $c['user_id']], (string)$c['gname']) ?> · <?= (int)$c['votes'] ?> vote<?= (int)$c['votes'] === 1 ? '' : 's' ?></span>
         <?php if ($c['placed']): ?><span class="tag">#<?= (int)$c['placed'] ?></span><?php endif; ?>
         <?php if ($c['npc']): ?>
         <?php elseif ($open && (int)$c['user_id'] !== $uid && !$c['voted']): ?>

@@ -420,7 +420,7 @@ function critter_panel_html(array $u, array $plot, string $b): string
             if ((int)$c['held'] > 0) $line[] = '🎁 ' . (int)$c['held'];
             if ($c['kind'] === 'tadpole' && $c['grows_at']) $line[] = $c['fed_at'] ? '🌱 growing up in ' . nice_time(max(60, ts($c['grows_at']) - time())) : '🌱 needs a feed to grow';
             $h .= '<li class="crit ' . e($cls) . '">' . critter_img((string)$c['kind'])
-                . '<span class="critmain"><b>' . e($c['name']) . '</b> <small class="muted">' . e($k['name']) . '</small>'
+                . '<span class="critmain"><b>' . eu($c['name']) . '</b> <small class="muted">' . e($k['name']) . '</small>'
                 . ' <span class="mood ' . e($cls) . '" title="' . e($word === 'Sulking' ? 'Works at half speed until it is fed or happier' : ($word === 'Delighted' ? 'Might leave an extra gift' : 'Doing fine')) . '">' . $face . ' ' . e($word) . ($word === 'Sulking' ? ' <small class="muted">half speed</small>' : ($word === 'Delighted' ? ' <small class="muted">extra gift</small>' : '')) . '</span>'
                 . ($line ? '<br><small>' . e(implode(' · ', $line)) . '</small>' : '') . '</span>'
                 . '<details class="critname"><summary aria-label="Rename ' . e($c['name']) . '">✏️</summary><form method="post" class="inline">' . csrf_field()
@@ -459,7 +459,7 @@ function critter_panel_html(array $u, array $plot, string $b): string
     if ($b === 'snail_jar' && count($list) < $homes) $h .= '<p class="help">🐌 Pick slugs and snails off your beds by hand: now and then a snail asks to come and live here.</p>';   // v1.4.0
     if ($b === 'butterfly_bush') $h .= '<p class="help">🦋 Flowers growing within 2 squares of the bush (place it by your flower beds in the yard designer) sometimes give an extra stem.</p>';
     if ($b === 'frog_pond' && $list && in_array(hollow_now()['daypart'], ['dusk', 'night'], true)) {
-        foreach ($list as $c) if ($c['kind'] === 'frog') { $h .= '<p class="help">🌙 ' . e($c['name']) . ' croaks happily from a lily pad.</p>'; break; }
+        foreach ($list as $c) if ($c['kind'] === 'frog') { $h .= '<p class="help">🌙 ' . eu($c['name']) . ' croaks happily from a lily pad.</p>'; break; }
     }
     return $h . '</div>';
 }

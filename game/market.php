@@ -120,7 +120,7 @@ page_header('Trading Post');
     <div class="box offer <?= $o['status'] ?>">
       <?= implode('', array_map(fn($id) => item_pic(['id' => (int)$id], 'sm'), array_keys($gives + $wants))) ?><b><?= $in ? e($o['from_name']) . ' offers you' : 'You offer ' . e($o['to_name']) ?></b> <?= e(trade_text($gives, (int)$o['give_coins'])) ?>
       <b>for</b> <?= e(trade_text($wants, (int)$o['want_coins'])) ?>.
-      <?= $o['note'] ? '<span class="muted">“' . e($o['note']) . '”</span>' . ($in ? report_link((int)$o['from_id'], 'offer', (int)$o['id']) : '') : '' ?>
+      <?= $o['note'] ? '<span class="muted">“' . eu($o['note']) . '”</span>' . ($in ? report_link((int)$o['from_id'], 'offer', (int)$o['id']) : '') : '' ?>
       <?php if ($o['status'] === 'open'): ?>
         <form method="post" class="inline" action="<?= e(url('market.php?t=trades')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="answer"><input type="hidden" name="id" value="<?= (int)$o['id'] ?>">
           <?php if ($in): ?><button class="btn small" name="answer" value="accept">Accept</button> <button class="btn small alt" name="answer" value="decline">Decline</button>

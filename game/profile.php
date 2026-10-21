@@ -82,7 +82,7 @@ $gid = (int)$g['id']; ?>
         $objs = yard_objects((int)$pl['id']); $ap = yard_appeal((int)$pl['id'], $objs); ?>
       <div class="box gardencard">
         <a href="<?= e(url('visit.php?g=' . (int)$pl['id'])) ?>" aria-label="Visit <?= e($pl['garden_name'] ?: 'this garden') ?>"><div class="yardwrap"><?= render_yard($plot, $tiles, $plants, $objs, 'mini') ?></div></a>
-        <h3><a href="<?= e(url('visit.php?g=' . (int)$pl['id'])) ?>"><?= e($pl['garden_name'] ?: 'Garden') ?></a></h3>
+        <h3><a href="<?= e(url('visit.php?g=' . (int)$pl['id'])) ?>"><?= eu($pl['garden_name'] ?: 'Garden') ?></a></h3>
         <p class="help"><?= e((string)($pl['region'] ?? '')) ?> · level <?= (int)$pl['garden_level'] ?> · 🌼 <?= $ap ?> (<?= e(appeal_word($ap)) ?>)</p>
       </div>
     <?php endforeach; ?>
@@ -95,7 +95,7 @@ $gid = (int)$g['id']; ?>
   <div class="box"><h3>🎀 Ribbons: <?= (int)$g['ribbons'] ?></h3><p class="help">Won at the Village Show, the Grand Harvest Fair and in contests.</p>
     <?php require_once __DIR__ . '/includes/fair.php'; echo fair_ribbons_html((int)$g['id']);   // v0.8.1 ?></div>
   <div class="box"><h3>🏆 Garden of the Month</h3>
-    <?php if ($wins): ?><ul><?php foreach ($wins as $w): ?><li><?= ['', '🥇 1st', '🥈 2nd', '🥉 3rd'][(int)$w['placed']] ?> in <?= e($w['month']) ?> with <?= e($w['garden_name'] ?: 'a garden') ?></li><?php endforeach; ?></ul>
+    <?php if ($wins): ?><ul><?php foreach ($wins as $w): ?><li><?= ['', '🥇 1st', '🥈 2nd', '🥉 3rd'][(int)$w['placed']] ?> in <?= e($w['month']) ?> with <?= eu($w['garden_name'] ?: 'a garden') ?></li><?php endforeach; ?></ul>
     <?php else: ?><p class="muted">No placings yet.</p><?php endif; ?>
   </div>
   <div class="box"><h3>📜 Milestones earned: <?= count($ms) ?></h3>
