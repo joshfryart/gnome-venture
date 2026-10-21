@@ -1,4 +1,8 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.20)
+# Gnome Venture: to-do (updated 2026-10-21, after 2.0.22)
+
+Built: **2.0.22** (Ch III-b "The Knock Below", hidden like III-a; branch trek-ch3b, not merged). `trek_chapters_open` 3 opens ALL of Ch III (a + b) at once: there is no separate III-b switch.
+- Joshua decides: (1) Holler numbers: two sim runs median 86.0 / 85.7, worst 70.7 / 74.7, best ~99; zone means 87-91, worst single parties 62-80 (real dice swing). OK? (2) Hush Bell has no failopen (fail twice = no bell); fallback is 3 Bellcap Beetle kills in the Gallery give the clapper. Keep, or make the bell failopen? (3) Play-test III-a + III-b on phone as admin (Lodge Camp Talk, Hush Bell, Mere Wheel, Holler fight card, finish screen). (4) When to set `trek_chapters_open` 3 (then add a news entry).
+- Art later: npc-pip-dustwing, items warden-scute / echo-stone / bell-clapper (emoji fallback now).
 
 Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.
 

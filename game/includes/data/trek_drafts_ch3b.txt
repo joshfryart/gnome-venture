@@ -50,7 +50,7 @@ ch3.spot.tallydoor.out|The door lets out a long, tired sigh.\nThe stone gives wa
 ch3.spot.tallydoor.after|The door stands open, its cut threes gone dim.
 ch3.spot.tallydoor.seed|A Seedkeeper reads the cuts like a row of seedlings: three, three, three.\nOne soft word, and the door swings open.
 ch3.spot.tallygate.locked|The Counting Door stands shut, its threes cut deep.\nIt wants a word, not a shove.
-ch3.spot.tallygate.open|You step through the Counting Door.\nBeyond it, the gallery ends in a round, silent hall.
+ch3.spot.tallygate.open|You step through the Counting Door.\nBeyond it, the gallery ends in a round, hushed hall.
 ch3.spot.door.arrive|The banded stone in the floor is a door.\nYou knock three times, softly. A pause. Then three knocks answer from below, slow and kind.\nThe Shard tugs toward the stone.\nThen BOOM, from the black water in the hall’s far corner, where the mere runs in under the rock: something huge answers too.
 ch3.spot.holler.intro|The black water in the corner heaves, and a toad as wide as a cart hauls herself out.\nHer eyes are blind and milky, and her throat is stained grey with blight.\nShe gulps at the air as if starving for sound.\nShe is not wicked. She is stuffed with noise, and it comes out wrong.
 ch3.spot.holler.hit|Old Holler lunges and thumps one of you with her wide, wet chin.
@@ -94,7 +94,7 @@ ch3.banter.tumble.3|“Pip is waiting for someone who said wait.”\n“That is 
 ch3.banter.juniper.3|“That kettle is stone cold. I will put it on, if Pip lets me.”\n“A lodge wants steam in it.”
 ch3.banter.wren.3|“Pip trims the lamp on the hour, every hour. I counted.”\n“She has never once missed. I like her very much.”
 book.lodge|THE WARDEN’S LODGE\nA small, tidy stone lodge below the Still Mere. A lamp burns in the window, trimmed by Pip, a small cured bat who has kept it a very long time.\nThere is a bed with a shell-shaped dent in it, and one cup on the table.\nWarden Umber went down to knock, and said wait. Pip is waiting.
-book.tally|THE TALLY WALL\nA sentry’s log, scratched into the gallery wall in rows of three, year after year.\nAt the top, in a firm hand: three means all is well. Every row is signed with a small U.\nThe last row is not finished.
+book.tally|THE TALLY WALL\nA sentry’s log, scratched into the gallery wall in rows of three, year after year.\nAt the top, in a firm hand: three means all is well.\nEvery row is signed with a small U, but the last row is not finished, and not signed.
 book.holler|OLD HOLLER\nA giant blind cave toad, wide as a cart, who lives in the Still Mere. She swallows every sound she hears.\nThe blight made her boom them back late and wrong, and she could not stop.\nCured, she sleeps in the mere, snoring, and rather embarrassed.
 item.warden-scute|A shed shell plate, warm to the touch.\nThree neat lines are scratched in it.
 item.echo-stone|A smooth grey stone that holds one sound.\nPress it to your ear and it hums it back.

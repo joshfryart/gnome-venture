@@ -118,7 +118,7 @@ New `includes/data/trek_creatures_ch3b.txt` (A). Format as ch3; landscape `trek`
 - `TREK_HO_MOVES = ['hit','gulp','holler']`, `TREK_HO_CRACKED = ['hit','holler']`. Shown a round ahead via `moves`. `'big' => ['holler']`.
 - hit: `trek_foe_attack`. gulp: every living member whose ability cooldown >0 gets +1 (Thrum's cling pattern); log line. holler: no roll; every living member takes `HO_HOLLER_PCT` (90) % of `foe_damage`; Guard and Bark halve it (`trek_hurt_member`); after crack 60 %.
 - Crack (`after_round`): under 35 % health. Pattern → TREK_HO_CRACKED, `gp` resets, she takes 115 %. Say `ch3.spot.holler.crack` once.
-- Knock (`round_end`): every 3rd round each living member regains 10 % max health. Say `ch3.spot.holler.knock` first time, then plain `trek_say('🪨 Knock. Knock. Knock. Everyone steadies.')`.
+- Knock (`round_end`): every 2nd round (C retuned from 3rd) each living member regains 10 % max health. Say `ch3.spot.holler.knock` first time, then plain `trek_say('🪨 Knock. Knock. Knock. Everyone steadies.')`.
 - Tire: from round 4 she takes +10 % a round up to +100 % (combine with crack via `dm`, as Gneiss).
 - Party balance (`round_start`, once): +30 % max and hp per living bloomcaller, seedkeeper, rootwarden or brewroot beyond the first (as Gneiss).
 - Weak start: `drained_z` → starts at 85 % (engine does this).

@@ -65,7 +65,7 @@ trek_script_register('holler', [
             foreach (trek_live_members($run) as $slot) trek_hurt_member($run, $slot, $dmg, $stats, $boss['name'] . '’s Holler');
         }
         $tire = min(TREK_HO_TIRE_MAX, max(0, (int)$fi['round'] - TREK_HO_TIRE_FROM) * TREK_HO_TIRE_STEP);
-        if ($tire > 0 && empty($fi['meta']['tired'])) { $fi['meta']['tired'] = 1; trek_say($run, '😮‍💨 ' . $boss['name'] . ' is tiring: she takes a little more damage every round now.'); }
+        if ($tire > 0 && empty($fi['meta']['tired'])) { $fi['meta']['tired'] = 1; trek_say($run, '😮‍💨 ' . $boss['name'] . ' is tiring: she takes more damage every round now.'); }
         $pct = (!empty($fi['meta']['crack']) ? TREK_HO_TAKE_PCT : 100) + $tire;
         if ($pct !== 100) $fi['foes'][0]['dm'] = $pct;
     },
