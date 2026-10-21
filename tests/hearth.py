@@ -44,32 +44,39 @@ def shade_color(kids):
 CHAR_REMAP = {'#6a6070': '#8f7060', '#968f96': '#a38f80', '#d6c9b6': '#e6d2ae', '#e46a9b': '#d9667f', '#f4f0e0': '#f8eed2', '#f1ece0': '#f8eed2', '#a9d6ea': '#b8d8d2', '#a8241f': '#9c2a1e'}
 CHARS = ('creature-', 'npc-')
 def eye_pass(kids, root, npc):
-    whites, pupils = [], []; ids = {}; glints = []
+    whites, pupils = [], []; ids = {}; glints = []; under = {}; seen = []
     def walk(el, tr):
         ta, tb, tc, td = tr
         if el.tag == q('g'):
             a, b, c, d = _tf(el.get('transform'))
             for k in el: walk(k, (ta * a, tb * b, tc + ta * c, td + tb * d))
             return
+        if el.tag in (q('circle'), q('ellipse'), q('path'), q('rect')) and not el.get('opacity') and not el.get('stroke') and _hex(el.get('fill')) and not (el.tag == q('circle') and num(el.get('r')) < 3.9 and (el.get('fill') or '').lower() == UMBER):   # i12: what lies under a later pupil (bbox test)
+            P = _pts(el)
+            if P: seen.append((tc + ta * min(p[0] for p in P), td + tb * min(p[1] for p in P), tc + ta * max(p[0] for p in P), td + tb * max(p[1] for p in P), el.get('fill').lower()))
         if el.tag != q('circle') or el.get('stroke') or el.get('opacity'): return
         f = (el.get('fill') or '').lower(); R0 = ORIG_R.get(id(el), num(el.get('r'))); r = num(el.get('r')) * ta
         x, y = tc + ta * num(el.get('cx')), td + tb * num(el.get('cy'))
         if f in ('#fff', '#ffffff', '#f8eed2') and 2.4 <= R0 <= 7: whites.append((x, y, r)); ids[('w', len(whites) - 1)] = id(el)
-        elif f == UMBER and 1.2 <= R0 <= 3.8: pupils.append((x, y, r)); ids[('p', len(pupils) - 1)] = id(el)
+        elif f == UMBER and 1.2 <= R0 <= 3.8:
+            ul = [b[4] for b in seen if b[0] <= x <= b[2] and b[1] <= y <= b[3]]
+            if not npc and R0 >= 3.4 and not [w for w in whites if (w[0] - x) ** 2 + (w[1] - y) ** 2 < w[2] ** 2]: return   # i12: a big dark dot with no eye-white is a tail tip / nub, not an eye
+            pupils.append((x, y, r)); ids[('p', len(pupils) - 1)] = id(el); under[len(pupils) - 1] = (ul[-1] if ul else '#fff')
         elif f in ('#fff', '#ffffff') and R0 < 2.4: glints.append((x, y, id(el)))
     for k in kids: walk(k, (1, 1, 0, 0))
     rm = set()
     if not pupils: return rm
-    Rg, Wg, Pg, Gg = [], [], [], []
+    Rg, Wg, Pg, Gg, Rd = [], [], [], [], []
     for pi, (x, y, r) in enumerate(pupils):
         rm.add(ids[('p', pi)])
         wh = [w for w in whites if (w[0] - x) ** 2 + (w[1] - y) ** 2 < w[2] ** 2]
-        pr = max(r * 1.1, 1.25)
+        pr = max(r * 1.1, 1.25); uh = _hex(under.get(pi)); dark = not npc and bool(uh) and .3 * uh[0] + .59 * uh[1] + .11 * uh[2] < 80
         if wh:
             rm.add(ids[('w', whites.index(wh[0]))])
             for gx, gy, gi in glints:
                 if (gx - wh[0][0]) ** 2 + (gy - wh[0][1]) ** 2 < wh[0][2] ** 2: rm.add(gi)
             wx, wy, wr = wh[0]; wr = max(wr, pr * 1.55, 2.1); (Rg.append((wx, wy, 2 * wr + .7)) if wr >= 2.6 else None); Wg.append((wx, wy, 2 * wr))
+        elif dark: wr = max(pr * 1.6, 2.1); Rd.append((x, y, 2 * wr + 1.4)); Wg.append((x, y, 2 * wr))   # i12: eye on a dark fill: cream disc + ring so it reads
         Pg.append((x, y, 2 * pr))
         if pr >= 3.1: Gg.append((x - .38 * pr, y - .4 * pr, 2 * .42 * pr))
     def dots(L, col, op=None):
@@ -79,7 +86,7 @@ def eye_pass(kids, root, npc):
             a = {'d': ''.join('M%s %sh0' % (fmt(x), fmt(y)) for x, y in pts), 'stroke': col, 'stroke-width': fmt(d), 'stroke-linecap': 'round'}
             if op: a['opacity'] = op
             ET.SubElement(root, q('path'), a)
-    dots(Rg, UMBER, '.5'); dots(Wg, '#fffaf0'); dots(Pg, UMBER); dots(Gg, '#fffaf0')
+    dots(Rg, UMBER, '.5'); dots(Rd, '#a38f80'); dots(Wg, '#fffaf0'); dots(Pg, UMBER); dots(Gg, '#fffaf0')
     return rm
 
 def compact_tf(out):
@@ -742,9 +749,10 @@ def hedge_kids(kids, name):
     out.append(ET.Element(q('path'), {'d': sd, 'fill': UMBER, 'opacity': '.3'}))
     return out
 HEDGE_SH = {'end': 'M24 34h42v12h-42z', 'cross': 'M-2 34h68v12h-68zM34 -2h12v68h-12z', 'straight': 'M-2 34h68v12h-68z', 'gate': 'M-2 34h68v12h-68z', 'tee': 'M-2 34h68v12h-68zM34 34h12v32h-12z', 'corner': 'M24 34h42v12h-42zM34 34h12v32h-12z'}
-FENCE_RE = r'^(picket|wattle)-fence-(straight|corner|tee|cross|end|gate)$'
+FENCE_RE = r'^((picket|wattle)-fence|garden-gate|stone-wall)-(straight|corner|tee|cross|end|gate)$'
 def fence_kids(kids, name):
     """i9: picket/wattle pieces rebuilt on the hedge lattice: pitch 6.4u (10 per tile), rails run past both edges, so runs join with no seam."""
+    if not re.match(r'(picket|wattle)-fence-', name): return [k for k in kids if k.tag != q('ellipse')]   # i12: garden-gate/stone-wall pieces keep their art; ground shadow dropped, fixed band shade (FENCE_SH) joins runs
     kind, piece = name.split('-fence-')
     pk = kind == 'picket'
     def E(t, **a): return ET.Element(q(t), a)
@@ -815,7 +823,11 @@ def restyle(src, name):
     TRIM = False; INNER_W = w0; MAT = True; CAPS = False
     return best[1]
 
+def is_aura(e):
+    return e.tag == q('circle') and not e.get('transform') and (e.get('fill') or '').lower() not in ('#000', '#000000', UMBER, 'none') and num(e.get('opacity'), 1) < .3 and num(e.get('r')) >= 18 and not e.get('stroke')
+
 def _restyle(src, name):
+    ORIG_R.clear(); PRUNE.clear()   # i12: id()-keyed caches must not leak across sprites (output depended on file order / heap layout)
     global CHARMODE
     global FIXED, HEDGE, FENCE
     CHARMODE = name.startswith(CHARS); NAVF[0] = name.startswith('nav-')
@@ -831,6 +843,22 @@ def _restyle(src, name):
         for k in kids:
             for e in k.iter():
                 if e.tag == q('rect') and num(e.get('rx')) <= 1.6 and num(e.get('ry'), 0) <= 1.6: e.attrib.pop('rx', None); e.attrib.pop('ry', None)
+    if name == 'tile-brick-path':   # i12: running bond on a 64 lattice: 4 bricks per row (pitch 16), 6 rows (pitch 64/6), odd rows offset 8 and wrapped; no edge stubs/glint
+        cols = ('#a8241f', '#d6322b', '#a8241f', '#a8241f', '#d6322b', '#a8241f', '#a8241f', '#a8241f')
+        kids = [kids[0]]; ph = 64 / 6.0
+        for r in range(6):
+            for c in range(4):
+                x = 1 + 16 * c + (8 if r % 2 else 0)
+                for xx in ((x, x - 64) if x > 50 else (x,)):
+                    kids.append(ET.Element(q('rect'), {'x': fmt(xx), 'y': fmt(r * ph + 1), 'width': '14', 'height': fmt(ph - 2), 'rx': '1.5', 'fill': cols[(r * 3 + c * 5) % 8]}))
+    if name == 'tile-bark-path':   # i12: bark chips must not cross the tile edge (clipped chips made a horizontal seam)
+        for k in kids[1:]:
+            m = re.fullmatch(r'rotate\(([-\d.]+) ([-\d.]+) ([-\d.]+)\)', k.get('transform') or '')
+            if not m: continue
+            t = math.radians(float(m.group(1))); x, y, w, h = [num(k.get(a)) for a in ('x', 'y', 'width', 'height')]; px, py = float(m.group(2)), float(m.group(3))
+            P = [(px + (a - px) * math.cos(t) - (b - py) * math.sin(t), py + (a - px) * math.sin(t) + (b - py) * math.cos(t)) for a in (x, x + w) for b in (y, y + h)]
+            dx = max(0, 1 - min(p[0] for p in P)) - max(0, max(p[0] for p in P) - 63); dy = max(0, 1 - min(p[1] for p in P)) - max(0, max(p[1] for p in P) - 63)
+            if dx or dy: k.set('x', fmt(x + dx)); k.set('y', fmt(y + dy)); k.set('transform', 'rotate(%s %s %s)' % (m.group(1), fmt(px + dx), fmt(py + dy)))
     if name.startswith('stage-'):   # i11: mound bottom (60) + heavy-tier halo reaches 63.5 = touches the frame row; lift the mound cy 52 -> 51.5 on every step (same for all, so the base never moves between steps)
         for k in kids:
             if k.tag == q('ellipse') and num(k.get('cy')) == 52 and num(k.get('ry')) == 8: k.set('cy', '51.5')
@@ -851,6 +879,10 @@ def _restyle(src, name):
                 kids = SH + (bk if all(e.tag != q('g') for e in bk) else [g])
     if name.startswith(CHARS):
         kids = bake_source(flat_groups(kids))
+        for e in kids:   # i12: rarity aura disc must stay inside the frame (fit shift used to push it off the left edge -> flat clip)
+            if is_aura(e):
+                cx0, cy0 = num(e.get('cx')), num(e.get('cy')); lim = min(cx0 - vb[0], vb[0] + W - cx0, cy0 - vb[1], vb[1] + H - cy0)
+                if num(e.get('r')) > lim > 4: e.set('r', fmt(lim))
         for k in kids:   # i9: whiskers (white multi-subpath hairlines) become soft umber ticks, not white noise on the halo
             for e in k.iter():
                 if e.tag == q('path') and e.get('fill') == 'none' and (e.get('stroke') or '').lower() in ('#fff', '#ffffff') and num(e.get('stroke-width'), 9) <= 1.6 and (e.get('d') or '').count('M') >= 3 and not e.get('opacity'):
@@ -925,6 +957,9 @@ def _restyle(src, name):
         if first.get('rx'): bd['rx'] = first.get('rx')
         ET.SubElement(root, q('rect'), bd)
     else:
+        if CHARMODE and not npc:   # i12: aura discs sit under the cream halo (a glow behind the sprite), not over its outline
+            for e in [k for k in kids if is_aura(k)]:
+                kids.remove(e); h = _hex(e.get('fill')); e.set('fill', '#%02x%02x%02x' % tuple(int(a + .55 * (b - a)) for a, b in zip(h, (255, 244, 205)))); e.set('opacity', fmt3(min(.4, num(e.get('opacity')) * 1.5))); root.append(e)   # lighter, same hue: reads as glow on dark
         shadow = [k for k in kids if (k.get('fill') or '').lower() == UMBER and num(k.get('opacity'), 1) < .5]
         for s in shadow: s.set('opacity', '.42')
         for s in shadow: root.append(s)
@@ -941,6 +976,9 @@ def _restyle(src, name):
         for k in kids:
             if k not in shadow and id(k) not in EYE_RM:
                 if not nav and not HEDGE: inner(k, u)
+                if name.startswith('broken-'):   # i12: crack strokes are clipped to the silhouette so they never poke through the halo
+                    for e in ([k] if k.tag != q('g') else list(k.iter())):
+                        if e.tag == q('path') and (e.get('stroke') or '').lower() == UMBER and not e.get('transform') and e.get('opacity') is None: e.set('clip-path', 'url(#%s)' % cid)
                 fk.append(k)
         cnt = {}
         for e in fk:
