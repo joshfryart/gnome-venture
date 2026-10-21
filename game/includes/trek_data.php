@@ -52,6 +52,7 @@ function trek_settings_base(): array
         'trek_event_gap'      => ['label' => 'Treks: fewest plain steps between two trail events (v1.8.8)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],
         'trek_ambush_pct'     => ['label' => 'Treks: chance of an ambush when you make camp without a kit (%)', 'type' => 'int', 'default' => '30', 'min' => 0, 'max' => 100],
         'trek_ch2_petals'     => ['label' => 'Treks: Petals for finishing Chapter II (v1.9.4)', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
+        'trek_ch3_petals'     => ['label' => 'Treks: Petals for finishing Chapter III (v2.0.22)', 'type' => 'int', 'default' => '600', 'min' => 0, 'max' => 1000000],
         'trek_oldcamp_fatigue' => ['label' => 'Treks: fatigue removed by resting at an old campsite (no longer used since v2.0.20)', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 100],
         'trek_oldcamp_ambush_pct' => ['label' => 'Treks: chance of an ambush when resting at an old campsite (%) (v2.0.1)', 'type' => 'int', 'default' => '12', 'min' => 0, 'max' => 100],
         'trek_oldcamp_checkpoint' => ['label' => 'Treks: a knock-out after resting at an old campsite wakes you there (1 = yes, 0 = last camp) (v2.0.1)', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 1],
@@ -511,11 +512,16 @@ const TREK_ITEMS = [
     'cistern-pearl' => ['Cistern Pearl', 'misc', 60, 20, 0, 'A cloudy pearl as big as a plum, sour to the nose. Old Pinch kept it for a very long time.'],
     'drum-skin' => ['Drum Skin', 'misc', 120, 35, 1, 'A scrap of old drumhead, taut as a promise. It still hums when the wind is right.'],
     'brewhouse-ladle' => ['Brewhouse Ladle', 'misc', 90, 30, 1, 'A copper ladle, dented and well loved. Juniper says it has never made a bad soup.'],
+    // v2.0.22 Chapter III-b: the clapper is a quest item (it opens the Warden’s Strongbox); the scute and the stone are the Chapter III finish gifts
+    'bell-clapper' => ['Bell Clapper', 'misc', 25, 10, 0, 'An iron clapper. It fits a small bell-shaped box.'],
+    'warden-scute' => ['Warden’s Scute', 'misc', 140, 40, 1, 'A shed shell plate, warm, scratched with three neat lines.'],
+    'echo-stone' => ['Echo Stone', 'misc', 110, 35, 1, 'A smooth stone that holds one sound and hums it back.'],
 ];
 
 /** v1.9.2: the Almanac slots (book.<slug>) that are not named book.ch<N>, with their chapter. */
 const TREK_BOOK_CH = ['claybound' => 2, 'silverfin' => 2, 'crossroads' => 2, 'brewhouse' => 2, 'pinch' => 2, 'thrum' => 2,   // v1.9.4: II-b's four
-    'deeprock' => 3, 'gneiss' => 3];   // v2.0.20: Chapter III-a's two
+    'deeprock' => 3, 'gneiss' => 3,   // v2.0.20: Chapter III-a's two
+    'lodge' => 3, 'tally' => 3, 'holler' => 3, 'warden-scute' => 3, 'echo-stone' => 3, 'bell-clapper' => 3];   // v2.0.22: Chapter III-b's pages and items
 
 /** Make the trek's items, creatures, text slots and Almanac pages. Safe to run again. Returns counts. */
 function trek_import(): array
@@ -543,7 +549,8 @@ function trek_import(): array
     $titles = ['ch1' => 'Treks: The Wilting Rows', 'blightlings' => 'Blightlings', 'gloomtooth' => 'Gloomtooth', 'lantern-stump' => 'The Lantern Stump', 'glowworm-grotto' => 'The Glowworm Grotto',
         'ch2' => 'Treks: The Weeping Clay', 'claybound' => 'The Claybound', 'silverfin' => 'Silverfin',   // v1.9.2: Chapter II-a pages
         'crossroads' => 'The Crossroads', 'brewhouse' => 'The Brewhouse', 'pinch' => 'Old Pinch', 'thrum' => 'Old Thrum',   // v1.9.4: Chapter II-b pages
-        'ch3' => 'Treks: The Humming Deep', 'deeprock' => 'The Deep Rock Folk', 'gneiss' => 'Old Gneiss'];   // v2.0.20: Chapter III-a pages
+        'ch3' => 'Treks: The Humming Deep', 'deeprock' => 'The Deep Rock Folk', 'gneiss' => 'Old Gneiss',   // v2.0.20: Chapter III-a pages
+        'lodge' => 'The Warden’s Lodge', 'tally' => 'The Tally Wall', 'holler' => 'Old Holler'];   // v2.0.22: Chapter III-b pages
     $n = 0;
     foreach ($titles as $slug => $title) {
         if (q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['trek:' . $slug])) continue;

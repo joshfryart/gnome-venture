@@ -42,6 +42,10 @@ Built + LIVE and OK (Joshua uploaded 2026-10-21): **2.0.23** (emoji swapped for 
 
 Built: **2.0.22** (art only: all placeholder SVGs Hearthlight-restyled; new placeholders need the restyle pass last, see handoff Art line). Optional polish: ember-beetle eyes hard to read; nav festival/friends/villagers/arranging mush at 24px; nav account low contrast on dark.
 
+Built: **2.0.30** (Ch III-b "The Knock Below", hidden like III-a; merged onto main 2.0.29). `trek_chapters_open` 3 opens ALL of Ch III (a + b) at once: there is no separate III-b switch.
+- Joshua decides: (1) Holler numbers: two sim runs median 86.0 / 85.7, worst 70.7 / 74.7, best ~99; zone means 87-91, worst single parties 62-80 (real dice swing). OK? (2) Hush Bell has no failopen (fail twice = no bell); fallback is 3 Bellcap Beetle kills in the Gallery give the clapper. Keep, or make the bell failopen? (3) Play-test III-a + III-b on phone as admin (Lodge Camp Talk, Hush Bell, Mere Wheel, Holler fight card, finish screen). (4) When to set `trek_chapters_open` 3 (then add a news entry).
+- Art later: npc-pip-dustwing, items warden-scute / echo-stone / bell-clapper (emoji fallback now).
+
 Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.
 
 Built: **2.0.19** (trek tap brake 400/5 min, news entry "Treks are open!"). Joshua: upload it, then Admin → Settings → "Treks: open" = on. News post goes out at upload even if you wait: set the switch right after. Watch the first days: Admin → Usage (treks row), error log.

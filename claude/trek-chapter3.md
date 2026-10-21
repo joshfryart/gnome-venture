@@ -1,5 +1,7 @@
 # Chapter III-a: The Humming Deep (draft title, for Joshua)
 
+> III-b "The Knock Below" (v2.0.22) continues this chapter below the Still Gate: see `claude/trek-chapter3b.md`. The Still Gate now opens after Old Gneiss.
+
 Cosy-eerie deep rock. The blight is cured, not killed. A slow knock from below gets closer. Nothing says what knocks.
 
 ## Zones (map 40x50, ~517 walkable tiles, main route ~190 steps, ~20 min)

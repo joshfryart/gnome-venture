@@ -1,0 +1,17 @@
+# Chapter III-b "The Knock Below" (v2.0.22): zones, milestones, checks and the finish row below the Still Gate. Format: see trek_chapters.txt. The chapter row is in trek_chapters_ch3.txt.
+# Milestone order: III-a (ch3_wren, ch3_gneiss, ch3a_end), then these three. Check labels are unique per chapter.
+zone|3|y|The Quiet Steps|🪜|u|
+zone|3|z|The Still Mere|🫧|u|
+zone|3|l|The Warden’s Lodge|🛖|u|
+zone|3|g|The Tally Gallery|🧮|d|
+zone|3|k|The Knock Hall|🚪|d|hint
+ms|3|ch3_hall|Reached the Knock Hall|trek_ms_ch3_hall|Knock Hall|700
+ms|3|ch3_holler|Old Holler cured|trek_ms_ch3_holler|Old Holler|1300
+ms|3|ch3_chapter|Chapter III complete|trek_ms_ch3_chapter|Chapter III|600
+check|3|Tally Door solved|flag|tallydoor_solved|3
+check|3|Deep side stops visited|all|pillar_done,rest2_used,seen_tally|3
+check|3|Bell riddle solved|flag|bell_solved|4
+check|3|Still Mere drained|flag|mere_done|4
+check|3|Drowned nook found|flag|nookB_found|4
+check|3|Deep trail events resolved|evn|6|5
+finish|3|holler_down|ch3_holler,ch3_chapter|trek_ch3_petals|warden-scute,echo-stone|trek:holler|Chapter III

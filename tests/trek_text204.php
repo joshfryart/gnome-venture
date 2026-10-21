@@ -30,7 +30,7 @@ $n207 = trek_kv_file('trek_final_207.txt') + trek_kv_file('trek_final_2012.txt')
 $exp = fn(string $k) => $n207[$k] ?? $new[$k];
 $drafts = trek_drafts();
 ok('trek_final_204.txt has rows', count($new) >= 50, (string)count($new));
-ok('trek_text_pass is 8 after boot (2.0.4, 2.0.7, 2.0.12, 2.0.15, then the 2.0.20 passes 7 and 8)', setting('trek_text_pass') === '8', (string)setting('trek_text_pass'));
+ok('trek_text_pass is 9 after boot (2.0.4, 2.0.7, 2.0.12, 2.0.15, the 2.0.20 passes 7 and 8, then the 2.0.22 pass 9)', setting('trek_text_pass') === '9', (string)setting('trek_text_pass'));
 $missing = []; $wrong = [];
 foreach ($new as $k => $b) {
     if (!q_val('SELECT 1 FROM trek_texts WHERE text_key = ?', [$k])) { $missing[] = $k; continue; }

@@ -1,5 +1,5 @@
 <?php
-// Treks v2.0.20: Chapter III-a "The Humming Deep" (draft title). Run on an installed copy: php tests/trek_ch3.php GAME_DIR (treks.sh does).
+// Treks v2.0.20 (updated v2.0.22 for III-b): Chapter III-a "The Humming Deep" (draft title). Run on an installed copy: php tests/trek_ch3.php GAME_DIR (treks.sh does).
 // Map, spots, reachability, the chapter gate (trek_chapters_open), Wren (recruit, join card, +20 friendship, Bloom crew moment), milestones once-only
 // (also after an admin reset), the Old Gneiss script, the Ch II -> III carry-over (levels, tactics, kits, an extra st.kn key), and the 35-party boss sim + zone sims.
 $GAME = $argv[1];
@@ -20,13 +20,14 @@ set_setting('trek_chapters_open', '2'); setting('__reload__');
 q('UPDATE creature_drops SET chance = 0 WHERE 1 = 1');
 
 echo "== data: chapter, map, spots, creatures\n";
-ok('Chapter III exists, zones t u v w x, milestones ch3_wren ch3_gneiss ch3a_end, no finish row (III-b), no Chapter IV', trek_chapter_exists(3) && array_keys(trek_chapter(3)['zones']) === ['t', 'u', 'v', 'w', 'x'] && array_keys(trek_milestones(3)) === ['ch3_wren', 'ch3_gneiss', 'ch3a_end'] && !trek_chapter_exists(4) && trek_next_chapter(3) === null);
+ok('Chapter III exists: III-a zones t u v w x first, milestones ch3_wren ch3_gneiss ch3a_end first (III-b adds more after them), no Chapter IV', trek_chapter_exists(3) && array_slice(array_keys(trek_chapter(3)['zones']), 0, 5) === ['t', 'u', 'v', 'w', 'x'] && array_slice(array_keys(trek_milestones(3)), 0, 3) === ['ch3_wren', 'ch3_gneiss', 'ch3a_end'] && !trek_chapter_exists(4) && trek_next_chapter(3) === null);
 $map = trek_map(3);
-ok('the map is 40 x 50 with a zone row for each', $map['w'] === 40 && $map['h'] === 50 && count($map['z']) === 50, $map['w'] . 'x' . $map['h']);
-$n = 0; for ($y = 0; $y < $map['h']; $y++) for ($x = 0; $x < $map['w']; $x++) { $c = trek_tile(3, $x, $y); if ($c !== '#' && $c !== '^' && $c !== ' ' && $c !== '*') $n++; }
-ok('about 520 walkable tiles (480-560)', $n >= 480 && $n <= 560, (string)$n);
-$sp = trek_spots(3);
-ok('12 spots, every symbol sits on its own tile', count($sp) === 12 && !array_filter($sp, fn($s) => trek_tile(3, $s['x'], $s['y']) !== $s['data']['sym'] && $s['type'] !== 'start'));
+ok('the map is 40 wide, 100 tall (III-a rows 0-47, III-b below) with a zone row for each', $map['w'] === 40 && $map['h'] === 100 && count($map['z']) === 100, $map['w'] . 'x' . $map['h']);
+$n = 0; for ($y = 0; $y < 48; $y++) for ($x = 0; $x < $map['w']; $x++) { $c = trek_tile(3, $x, $y); if ($c !== '#' && $c !== '^' && $c !== ' ' && $c !== '*') $n++; }
+ok('about 520 walkable tiles in the III-a rows (480-560)', $n >= 480 && $n <= 560, (string)$n);
+$spAll = trek_spots(3);
+$sp = array_intersect_key($spAll, array_flip(['start', 'orecart', 'camp', 'chalk', 'bench', 'nookA', 'knock', 'knockgate', 'wren', 'oldwarm', 'gneiss', 'stillgate']));
+ok('the 12 III-a spots are all there (III-b adds more), every symbol sits on its own tile, all in rows 0-47', count($sp) === 12 && !array_filter($sp, fn($s) => ($s['y'] >= 48) || (trek_tile(3, $s['x'], $s['y']) !== $s['data']['sym'] && $s['type'] !== 'start')));
 $types = array_count_values(array_column($sp, 'type'));
 ok('1 camp, 1 oldcamp, 1 rest, 1 riddle, 1 find (Wayfinder nook), 1 cart, 1 miniboss, 1 recruit, 2 gates', ($types['camp'] ?? 0) === 1 && ($types['oldcamp'] ?? 0) === 1 && ($types['rest'] ?? 0) === 1 && ($types['riddle'] ?? 0) === 1 && ($types['find'] ?? 0) === 1 && ($types['cart'] ?? 0) === 1 && ($types['miniboss'] ?? 0) === 1 && ($types['recruit'] ?? 0) === 1 && ($types['gate'] ?? 0) === 2, json_encode($types));
 $cr = ['shale-slater' => 20, 'quartz-snail' => 21, 'pale-olm' => 21, 'echo-bat' => 22, 'gravel-centipede' => 23];
@@ -167,10 +168,14 @@ $R = $run(3);
 ok('Old Gneiss falls: flag set, fight over, chapter NOT complete (no finish row in III-a)', !$R['fi'] && $flag('gneiss_down') && !trek_run_done($R), json_encode($R['fi']));
 $ms = q_one('SELECT * FROM trek_ms WHERE user_id = ? AND ms_key = ?', [$uid, TREK_KEY . ':ch3_gneiss']);
 ok('ch3_gneiss paid once (max 1100 XP)', $ms && (int)$ms['xp'] > 0 && (int)$ms['xp'] <= 1100);
-$at('stillgate');
-$r = $tx(fn(&$run, $u) => trek_walk($run, $u, trek_spots(3)['stillgate']['x'], trek_spots(3)['stillgate']['y']), true, 3);
 $at('gneiss');
 $sg = trek_spots(3)['stillgate'];
-$tx(function (&$run, $u) use ($sg) { $run['x'] = $sg['x'] - 1; $run['y'] = $sg['y']; return trek_walk($run, $u, $sg['x'], $sg['y']); }, true, 3);
-ok('bumping the closed Still Gate pays ch3a_end once, and the gate stays shut (no finish row)', $flag('reached_stillgate') && (int)q_val('SELECT COUNT(*) FROM trek_ms WHERE user_id = ? AND ms_key = ?', [$uid, TREK_KEY . ':ch3a_end']) === 1 && !trek_run_done($run(3)));
+$passes = fn() => $tx(function (&$run, $u) use ($sg) { $run['x'] = $sg['x'] - 1; $run['y'] = $sg['y']; return trek_walk($run, $u, $sg['x'], $sg['y']); }, true, 3);
+$passes();
+$msA = fn() => (int)q_val('SELECT COUNT(*) FROM trek_ms WHERE user_id = ? AND ms_key = ?', [$uid, TREK_KEY . ':ch3a_end']);
+$keys = array_column(array_filter($run(3)['lg'], fn($l) => isset($l['k'])), 'k');
+ok('with Old Gneiss down the Still Gate OPENS (III-b): the first pass pays ch3a_end once, says .open, and the chapter is not complete (no finish before Old Holler)', $flag('reached_stillgate') && $msA() === 1 && !trek_run_done($run(3)) && ((int)$run(3)['x'] === $sg['x'] && (int)$run(3)['y'] === $sg['y']) && in_array('ch3.spot.stillgate.open', $keys, true), json_encode([$run(3)['x'], $run(3)['y'], $sg['x'], $sg['y'], $keys]));
+$passes();
+ok('passing the opened gate again pays nothing more (ch3a_end stays one row)', $msA() === 1);
+if (isset($spAll['pillar'])) { $pl = $spAll['pillar']; ok('III-b: from the opened gate a way leads down to the Fallen Pillar', $pathLen('pillar') > 0 || (bool)$tx(function (&$run, $u) use ($pl) { return [count(trek_path($run, $pl['x'], $pl['y'])) > 0, '']; }, true, 3)[0]); }
 exit($fails ? 1 : 0);

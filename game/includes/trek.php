@@ -8,6 +8,7 @@ require_once __DIR__ . '/trek_fight.php';
 require_once __DIR__ . '/trek_oldcamp.php';   // v2.0.1: old campsites
 require_once __DIR__ . '/trek_events.php';   // v1.8.8: trail events, crew moments, the side stops
 require_once __DIR__ . '/trek_ch3.php';      // v2.0.20: Chapter III-a's mini-boss script (Old Gneiss)
+require_once __DIR__ . '/trek_ch3b.php';   // v2.0.22: Chapter III-b's boss script (Old Holler)
 require_once __DIR__ . '/trek_scene.php';   // v2.0.8: the talk pop-over (scene) queue and stage
 require_once __DIR__ . '/trek_camp_ui.php';   // v2.0.11: the camp pop-over
 require_once __DIR__ . '/trek_levels.php';   // v1.8.9: trek levels, milestone XP, migration
@@ -21,11 +22,12 @@ require_once __DIR__ . '/trek_knacks.php';   // v2.0.20: knacks (skill slots)
  */
 
 /** Items that belong to a quest: they stay in the pack (never banked) and a knock-out never takes them. */
-const TREK_QUEST_ITEMS = ['cellar-key', 'clean-dew', 'wet-clay', 'clay-pot', 'overdue-book', 'kiln-key', 'cistern-pearl'];   // v1.9.2: Chapter II-a's four; v1.9.4: the Cistern Pearl
+const TREK_QUEST_ITEMS = ['cellar-key', 'clean-dew', 'wet-clay', 'clay-pot', 'overdue-book', 'kiln-key', 'cistern-pearl', 'bell-clapper'];   // v1.9.2: Chapter II-a's four; v1.9.4: the Cistern Pearl; v2.0.22: the Bell Clapper
 
 /** A kill count that guarantees a quest drop: creature slug => [item slug, kills, zone, flag that ends it]. */
 const TREK_GUARANTEE = ['grub-beetle' => ['cellar-key', 3, 'f', 'cellar_open'], 'dew-leech' => ['clean-dew', 2, 'd', 'freed_zinnia'],
-    'spadefoot-toad' => ['kiln-key', 3, 'm', 'kiln_open', 2]];   // v1.9.2: the 5th field is the chapter (default 1)
+    'spadefoot-toad' => ['kiln-key', 3, 'm', 'kiln_open', 2],   // v1.9.2: the 5th field is the chapter (default 1)
+    'bellcap-beetle' => ['bell-clapper', 3, 'g', 'strongbox_open', 3]];   // v2.0.22: the Hush Bell has no second chance, so the Tally Gallery's beetles carry a clapper too
 
 const TREK_MAX_STEPS = 40;     // tiles walked by one tap
 const TREK_LOG_KEEP = 30;

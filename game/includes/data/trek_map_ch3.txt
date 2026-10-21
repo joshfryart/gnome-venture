@@ -1,7 +1,7 @@
-; Trek map, Chapter III "The Humming Deep" (draft title), III-a (40x50): the Shale Stair, the Lamp Niche (camp), the Glimmer Vein, the Echo Hollow, the Still Landing. Ends at the closed Still Gate Z.
+; Trek map, Chapter III "The Humming Deep" (draft title), III-a + III-b (40x100). III-a rows 0-47: the Shale Stair, the Lamp Niche (camp), the Glimmer Vein, the Echo Hollow, the Still Landing, the Still Gate Z (opens in III-b). III-b rows 48-99: the Quiet Steps, the Still Mere, the Warden’s Lodge (camp), the Tally Gallery, the Knock Hall.
 ; Legend: see trek_map_ch2.txt. Used here: # wall, . floor, ~ none, % roots (2x fatigue), : wet clay (2x, left over from above), * glow crystal (decor, blocks, lights the fog), + loose clay (a Wayfinder can push through), ^ chasm, = bridge, capital letters = spots.
-; Zones: t Shale Stair, u The Lamp Niche (camp, no fights), v The Glimmer Vein, w The Echo Hollow, x The Still Landing.
-; Spots III-a: S start, B ore cart, C camp, N chalk wall (Almanac nook), H quiet bench (free rest), R knock door (riddle), G the knock door gate, A Wayfinder nook, W Wren, E old campsite, X Old Gneiss (mini-boss), Z the Still Gate (closed).
+; Zones: t Shale Stair, u The Lamp Niche (camp, no fights), v The Glimmer Vein, w The Echo Hollow, x The Still Landing; III-b: y The Quiet Steps, z The Still Mere (w = high water only here), l The Warden’s Lodge (camp, no fights), g The Tally Gallery, k The Knock Hall.
+; Spots III-a: S start, B ore cart, C camp, N chalk wall (Almanac nook), H quiet bench (free rest), R knock door (riddle), G the knock door gate, A Wayfinder nook, W Wren, E old campsite, X Old Gneiss (mini-boss), Z the Still Gate. Spots III-b: P fallen pillar (cart), M mere wheel (switch), D drowned nook (only across the mere), L lodge camp, Y strongbox, T tally wall, Q still pool (rest), I hush bell (riddle), F narrow nook (behind loose clay), O cold lantern, U tally door (riddle), V counting door (gate), K bedrock door, J Old Holler (boss).
 ########################################
 ###........##############.*.......######
 ###.S..%%......%%.................######
@@ -50,7 +50,57 @@
 ###....^^^=^^^...#######################
 ###*............*#######################
 ##########Z#############################
-########################################
+##########.#############################
+##########.#############################
+##########.#############################
+##########.#############################
+##########P#############################
+#########....###########################
+#########..............#################
+#####...##############.#################
+#####...############....################
+#####...................################
+######.########################*.....*##
+######.########################.......##
+######.##wwwwwwwwwww###########.....Y.##
+######...wwwwwwwwwww###########.......##
+######.##wwwww...www###########...L...##
+######.##wwwww.D.www..................##
+######.##wwwww...www########.##.......##
+######.##wwwwwwwwwww########.##.......##
+######.##wwwwwwwwwww########.##*.....*##
+######.#####################.#####.#####
+######.#######M#############.#####.#####
+###..........................#####.#####
+###...#.....................######.#####
+##################################.#####
+######........................T....#####
+######.###...#....................######
+####I..#################################
+######.#################...#############
+######.......................###########
+############+####.##.........###########
+############F####Q##########.###########
+############################.###########
+########.....................###########
+########.###................############
+########.O##############################
+########.###############################
+########.###############################
+########.###############################
+########.###############################
+########U###############################
+########V###############################
+########.####.......####################
+########.###.*.....*.###################
+########.##...........##################
+########.##...........##################
+########........K..........#############
+###########...........##.....###########
+###########...........##..J..###########
+############.*.....*.###.....###########
+#############.......####.....###########
+##############.....#####################
 ########################################
 ---
                                         
@@ -101,5 +151,55 @@
    xxxxxxxxxxxxxx                       
    xxxxxxxxxxxxxx                       
           x                             
-                                        
+          y                             
+          y                             
+          y                             
+          y                             
+          y                             
+         yyyy                           
+         yyyyyyyyyyyyyy                 
+     yyy              y                 
+     yyy            yyyy                
+     yyyyyyyyyyyyyyyyyyy                
+      z                        lllllll  
+      z                        lllllll  
+      z  zzzzzzzzzzz           lllllll  
+      zzzzzzzzzzzzzz           lllllll  
+      z  zzzzzzzzzzz           lllllll  
+      z  zzzzzzzzzzzzzzzzzzzzzllllllll  
+      z  zzzzzzzzzzz        z  lllllll  
+      z  zzzzzzzzzzz        z  lllllll  
+      z  zzzzzzzzzzz        z  lllllll  
+      z                     z     l     
+      z       z             z     l     
+   zzzzzzzzzzzzzzzzzzzzzzzzzz     l     
+   zzz zzzzzzzzzzzzzzzzzzzzz      g     
+                                  g     
+      ggggggggggggggggggggggggggggg     
+      g   ggg gggggggggggggggggggg      
+    ggg                                 
+      g                 ggg             
+      ggggggggggggggggggggggg           
+            g    g  ggggggggg           
+            g    g          g           
+                            g           
+        ggggggggggggggggggggg           
+        g   gggggggggggggggg            
+        gg                              
+        g                               
+        g                               
+        g                               
+        g                               
+        g                               
+        g                               
+        k    kkkkkkk                    
+        k   kkkkkkkkk                   
+        k  kkkkkkkkkkk                  
+        k  kkkkkkkkkkk                  
+        kkkkkkkkkkkkkkkkkkk             
+           kkkkkkkkkkk  kkkkk           
+           kkkkkkkkkkk  kkkkk           
+            kkkkkkkkk   kkkkk           
+             kkkkkkk    kkkkk           
+              kkkkk                     
                                         
