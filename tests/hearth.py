@@ -430,6 +430,9 @@ def sil_bbox(kids):
         if FITB[0] and thin_wood(el):   # i10: woodfix later widens thin shafts to MINSHAFT; fit must see that
             th = min(num(el.get('width')), num(el.get('height'))) if el.tag == q('rect') else num(el.get('stroke-width'), 1)
             sw = max(sw, (MINSHAFT - th) / 2 + (th / 2 if el.tag != q('rect') else 0), MINSHAFT / 2 if el.tag != q('rect') else 0)
+            sw += (.55 * UU[0] if not NAVF[0] else 0) if el.tag == q('rect') else (.75 * UU[0] if not CHARMODE else 0)   # i11: woodfix rim (rect RIM stroke 1.1u / path copy sw+1.5u) sits outside the shaft; halo grows from it
+        if FITB[0] and NAVF[0]: sw += .5 * UU[0]   # i11: nav coords round to whole units (up to .5 off)
+        if FITB[0] and TIER and not NAVF[0]: sw += TIER_D[2] * UU[0]   # i11: big silhouettes get the heavy pen tier (+.3u halo/outline); fit must budget it
         P0 = _pts(el); mr = re.fullmatch(r'rotate\(([-\d.]+) ([-\d.]+) ([-\d.]+)\)', el.get('transform') or '')
         if mr and len(P0) == 2 and el.tag in (q('rect'), q('ellipse'), q('circle')):   # i10: rotated shapes: bbox of the 4 rotated corners
             t0 = math.radians(float(mr.group(1))); rx0, ry0 = float(mr.group(2)), float(mr.group(3)); (xa, ya), (xb, yb) = P0
@@ -455,8 +458,9 @@ def tscale(t):
         s *= math.sqrt(abs(a * b))
     return s
 
+BAKE1 = [False]   # i11: fit-bake emits 1 decimal (a rescaled sprite must not cost +10% bytes in 2-decimal coords)
 def fmt(x):
-    s = (('%.1f' if CHARMODE and LEAN else '%.2f') % x).rstrip('0').rstrip('.')
+    s = (('%.1f' if (CHARMODE and LEAN) or BAKE1[0] else '%.2f') % x).rstrip('0').rstrip('.')
     return s
 
 def skip(el):
@@ -827,20 +831,23 @@ def _restyle(src, name):
         for k in kids:
             for e in k.iter():
                 if e.tag == q('rect') and num(e.get('rx')) <= 1.6 and num(e.get('ry'), 0) <= 1.6: e.attrib.pop('rx', None); e.attrib.pop('ry', None)
+    if name.startswith('stage-'):   # i11: mound bottom (60) + heavy-tier halo reaches 63.5 = touches the frame row; lift the mound cy 52 -> 51.5 on every step (same for all, so the base never moves between steps)
+        for k in kids:
+            if k.tag == q('ellipse') and num(k.get('cy')) == 52 and num(k.get('ry')) == 8: k.set('cy', '51.5')
     if name in ('stage-tree-4', 'stage-nut-4'):   # i9: crown overflowed the top edge; shrink trunk+crown about the mound top, mound fixed
         g = ET.Element(q('g'), {'transform': 'translate(4.8 7.5) scale(.85)'}); [g.append(k) for k in kids[4:]]; kids = kids[:4] + [g]
     if FENCE: kids = fence_kids(kids, name)
     elif HEDGE: kids = hedge_kids(kids, name)
     if FIT and not re.search(r'border|logo|fence|hedge|-(straight|corner|tee|cross|end|gate)$|^tile-|^banner-|^land-|^guide-|^npc-|^stage-', name) and kids and not (kids[0].tag == q('rect') and num(kids[0].get('width')) >= W - 6):
         FITB[0] = True; bb = sil_bbox([k for k in kids if k.tag != q('ellipse') or (k.get('fill') or '').lower() not in ('#000', '#000000')]); FITB[0] = False
-        if bb and (bb[0] < 3.4 * u or bb[1] < 3.4 * u or bb[2] > W - 3.4 * u or bb[3] > H - 3.4 * u):   # i10: halo (3.2u) must fit inside the frame
+        if bb and (bb[0] < 3.8 * u or bb[1] < 3.8 * u or bb[2] > W - 3.8 * u or bb[3] > H - 3.8 * u):   # i11: 3.2u halo + AA px: reach must stay <= 63.5 at 64px   # i10: halo (3.2u) must fit inside the frame
             k = min(1.0, (W - 8.4 * u) / max(bb[2] - bb[0], 1), (H - 8.4 * u) / max(bb[3] - bb[1], 1)); cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
             if k < .985 or True:
                 tf = 'translate(%s %s) scale(%s) translate(%s %s)' % (fmt(W / 2), fmt(H / 2), fmt3(k), fmt(-cx), fmt(-cy))
                 if k >= .985:   # i10: fits, but off-centre: minimal shift keeps the 3.6u halo margin
-                    dx = max(0, 3.6 * u - bb[0]) - max(0, bb[2] - (W - 3.6 * u)); dy = max(0, 3.6 * u - bb[1]) - max(0, bb[3] - (H - 3.6 * u)); tf = 'translate(%s %s)' % (fmt(dx), fmt(dy))
-                g = ET.Element(q('g'), {'transform': tf}); SH = [c for c in kids if c.tag == q('ellipse') and (c.get('fill') or '').lower() in ('#000', '#000000')]; [g.append(c) for c in kids if c not in SH]
-                bk = bake_source([copy.deepcopy(g)])   # i10: bake the fit transform into geometry when every leaf can take it (clip copies stay transform-free)
+                    dx = max(0, 3.9 * u - bb[0]) - max(0, bb[2] - (W - 3.9 * u)); dy = max(0, 3.9 * u - bb[1]) - max(0, bb[3] - (H - 3.9 * u)); tf = 'translate(%s %s)' % (fmt(dx), fmt(dy))
+                g = ET.Element(q('g'), {'transform': tf}); SH = [c for c in kids if c.tag == q('ellipse') and ((c.get('fill') or '').lower() in ('#000', '#000000') or ((c.get('fill') or '').lower() == UMBER and num(c.get('opacity'), 1) < .5))]; [g.append(c) for c in kids if c not in SH]   # i11: ground shadow may already be UMBER here; it must stay put, not ride the fit shift/scale out of frame
+                BAKE1[0] = True; bk = bake_source([copy.deepcopy(g)]); BAKE1[0] = False   # i10: bake the fit transform into geometry when every leaf can take it (clip copies stay transform-free)
                 kids = SH + (bk if all(e.tag != q('g') for e in bk) else [g])
     if name.startswith(CHARS):
         kids = bake_source(flat_groups(kids))

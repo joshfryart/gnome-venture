@@ -4,7 +4,7 @@ usage: python3 tests/hearth_edge.py OUT_DIR   (cairosvg -> rsvg-convert -> inksc
 import io, os, shutil, subprocess, sys
 S = 64; ALPHA = 128   # alpha >= 128/255 counts as opaque (lower values flag 1-2 faint anti-aliased pixels)
 import re
-EXEMPT = re.compile(r"^(banner|land|guide|tile)-|-(hedge|border)-(straight|corner|tee|cross|end|gate)$|^(picket|wattle)-fence-")   # full-bleed scenes, tiles, seamless fences/hedges touch the frame by design
+EXEMPT = re.compile(r"^(banner|land|guide|tile)-|-(hedge|border)-(straight|corner|tee|cross|end|gate)$|^(picket|wattle)-fence-|^(garden-gate|stone-wall)-|^npc-")   # full-bleed scenes, tiles, seamless fences/hedges/walls/gates (join neighbours at the frame), npc busts (cropped by the portrait frame; fit exempt) touch the frame by design
 
 def stats(alpha):   # alpha: 2D list/array S x S
     import numpy as np
