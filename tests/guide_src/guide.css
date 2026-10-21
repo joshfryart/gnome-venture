@@ -86,8 +86,12 @@ svg.i { display: inline-block; vertical-align: middle; flex: none; }
 .tiny-spec img { width: 20mm; height: 20mm; background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2mm; padding: 1mm; }
 
 .keep { break-inside: avoid; }
-.shots { display: grid; grid-template-columns: 1fr 1fr; }
+.shots { display: block; font-size: 0; }
+.shots > div { display: inline-block; width: 49%; vertical-align: top; font-size: 10.5pt; margin-right: 1%; }
 .shot-wide { display: block; }
 .shot-wide + .shots { display: block; margin-top: 3mm; }
 .fig { display: block; }
 .cardimg { display: block; width: 100%; height: auto; border-radius: 1.5mm; }
+section.flow { margin-top: 12mm; }
+section.flow > h1 { break-after: avoid; }
+section.flow.pa, section.flow.pb, section.flow.pc { }

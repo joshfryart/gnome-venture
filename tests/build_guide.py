@@ -98,6 +98,7 @@ def ico_map():
         d['emoji'].append(emo)
     return res
 
+BREAK = {'about', 'a1', 'b1', 'b4', 'c1', 'c3'}   # sections that start a new page; the rest flow on
 VEC = {'gnome-hat', 'bee', 'watering-can', 'carrot', 'mushroom', 'coffee'}
 FORBID = ['<script', '<style', 'style=', 'filter', 'xlink', 'href', '<image', '<foreignObject', '<use', 'gradient', '<text']
 def load_icons():
@@ -121,7 +122,7 @@ def use(stem, cls, px=None):
     return '<svg class="i %s"%s viewBox="0 0 64 64" aria-hidden="true"><use href="#s-%s"/></svg>' % (cls, sz, stem)
 
 RAS = {}
-SC = 2   # raster scale for catalogue cards
+SC = 1.5   # raster scale for catalogue cards
 def raster_icons(icons):
     """One PNG per icon holding the dark strip and the light strip (48, 24, 16 px each). Vector copies cost ~20 KB each in a
     Chromium PDF and separate small PNGs cost an object each; one opaque PNG per icon is ~5 KB."""
@@ -130,27 +131,33 @@ def raster_icons(icons):
     L, D = tokens(rd(STYLE)); dark_bg = D.get('--surface', '#1c2a22'); line = L.get('--line', '#dcd8c8')
     js = """async ([items, sizes]) => { const out = []; for (const [n, svg] of items) { const img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       try { await img.decode(); } catch (e) { continue; } for (const z of sizes) { const c = document.createElement('canvas'); c.width = c.height = z; c.getContext('2d').drawImage(img, 0, 0, z, z); out.push([n, z, c.toDataURL('image/png')]); } } return out; }"""
+    jse = """async (items) => { const out = []; for (const [n, t, w, h] of items) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.fillStyle = '#fffaf0'; x.fillRect(0, 0, w, h);
+      x.font = Math.round(h * .72) + 'px "Noto Color Emoji", sans-serif'; x.textBaseline = 'middle'; x.fillStyle = '#5a4332'; x.fillText(t, 2, h / 2 + 1); out.push([n, c.toDataURL('image/png')]); } return out; }"""
+    EH = 20
     W, H, GAP = 150, 56, 4
     with sync_playwright() as p:
         b = p.chromium.launch(); pg = b.new_page(); pg.set_content('<html><body></body></html>')
         for k in range(0, len(icons), 60):
             got = {}
-            for n, z, u in pg.evaluate(js, [[[i['stem'], i['svg']] for i in icons[k:k + 60]], [48 * SC, 24 * SC, 16 * SC]]):
-                got[(n, z // SC)] = Image.open(io.BytesIO(base64.b64decode(u.split(',', 1)[1]))).convert('RGBA')
+            for n, z, u in pg.evaluate(js, [[[i['stem'], i['svg']] for i in icons[k:k + 60]], [int(48 * SC), int(24 * SC), int(16 * SC)]]):
+                got[(n, round(z / SC))] = Image.open(io.BytesIO(base64.b64decode(u.split(',', 1)[1]))).convert('RGBA')
+            emo = {n: Image.open(io.BytesIO(base64.b64decode(u.split(',', 1)[1]))).convert('RGB') for n, u in pg.evaluate(jse, [[i['stem'], ' '.join(i['map']['emoji'][:2]) + (' +%d' % (len(i['map']['emoji']) - 2) if len(i['map']['emoji']) > 2 else ''), int(W * SC), int(EH * SC)] for i in icons[k:k + 60] if i['map']])}
             for i in icons[k:k + 60]:
                 n = i['stem']
                 if (n, 48) not in got: continue
-                im = Image.new('RGB', (W * SC, (2 * H + GAP) * SC), '#f8f0dc')
+                top = int(EH * SC) if n in emo else 0
+                im = Image.new('RGB', (int(W * SC), int((2 * H + GAP) * SC) + top), '#fffaf0')
+                if top: im.paste(emo[n], (0, 0))
                 for row, bg in ((0, dark_bg), (1, '#ffffff')):
-                    y0 = row * (H + GAP) * SC
-                    im.paste(Image.new('RGB', (W * SC, H * SC), bg), (0, y0))
+                    y0 = int(row * (H + GAP) * SC) + top
+                    im.paste(Image.new('RGB', (int(W * SC), int(H * SC)), bg), (0, y0))
                     x = (W - (48 + 14 + 24 + 14 + 16)) // 2
                     for sz in (48, 24, 16):
-                        ic = got[(n, sz)]; im.paste(ic, (x * SC, y0 + (H - sz) * SC // 2), ic); x += sz + 14
+                        ic = got[(n, sz)]; im.paste(ic, (int(x * SC), y0 + int((H - sz) * SC / 2)), ic); x += sz + 14
                     if row == 1:   # hairline round the light chip
                         from PIL import ImageDraw
-                        ImageDraw.Draw(im).rectangle([0, y0, W * SC - 1, y0 + H * SC - 1], outline='#cdb98a', width=SC)
-                bio = io.BytesIO(); im.save(bio, 'JPEG', quality=80, subsampling=2, optimize=True)   # JPEG passes into the PDF as is (PNG gets re-encoded raw)
+                        ImageDraw.Draw(im).rectangle([0, y0, int(W * SC) - 1, y0 + int(H * SC) - 1], outline='#cdb98a', width=2)
+                bio = io.BytesIO(); im.save(bio, 'JPEG', quality=74, subsampling=2, optimize=True)   # JPEG passes into the PDF as is (PNG gets re-encoded raw)
                 RAS[n] = 'data:image/jpeg;base64,' + base64.b64encode(bio.getvalue()).decode()
         b.close()
 
@@ -189,7 +196,7 @@ def pack_png(png):
     """JPEG goes into the PDF as is; PNG would be re-encoded raw (3x the size)."""
     try:
         from PIL import Image
-        im = Image.open(io.BytesIO(png)).convert('RGB'); bio = io.BytesIO(); im.save(bio, 'JPEG', quality=84, subsampling=0, optimize=True)
+        im = Image.open(io.BytesIO(png)).convert('RGB'); bio = io.BytesIO(); im.save(bio, 'JPEG', quality=78, subsampling=0, optimize=True)
         return 'data:image/jpeg;base64,' + base64.b64encode(bio.getvalue()).decode()
     except Exception:
         return 'data:image/png;base64,' + base64.b64encode(png).decode()
@@ -316,8 +323,7 @@ def f_catstats():
 def f_catalog():
     cards = ''
     for i in C.icons:
-        m = i['map']; emo = ' '.join(m['emoji'][:4]) if m else ''
-        e = '<div class="e">%s</div>' % (E(emo) if emo else '<span class="muted">no map row yet</span>')
+        m = i['map']; e = '' if m else '<div class="e"><span class="muted">no map row yet</span></div>'
         if i['stem'] in RAS: pic = '<img class="cardimg" src="%s" alt="">' % RAS[i['stem']]
         else:
             row = lambda cls: '<div class="strip %s">%s%s%s</div>' % (cls, use(i['stem'], 'ico48', 48), use(i['stem'], 'ico24', 24), use(i['stem'], 'ico16', 16)); VEC.add(i['name']); pic = row('dk') + row('lt')
@@ -335,8 +341,8 @@ def f_unmapped():
 def f_shots():
     def fig(name, cap, wide=False):
         d, l = C.shots.get((name, 'dark')), C.shots.get((name, 'light'))
-        if wide: return '<figure class="fig"><div class="shot-wide shots"><div><div class="lab">Dark</div><img src="%s" alt=""></div></div><div class="shots"><div><div class="lab">Light</div><img src="%s" alt=""></div></div><figcaption>%s</figcaption></figure>' % (d, l, E(cap))
-        return '<figure class="fig"><div class="shots"><div><div class="lab">Dark</div><img src="%s" alt=""></div><div><div class="lab">Light</div><img src="%s" alt=""></div></div><figcaption>%s</figcaption></figure>' % (d, l, E(cap))
+        if wide: return '<figure class="fig"><div class="shot-wide shots"><div><div class="lab">Dark</div><img src="%s" alt=""></div></div><div class="shots"><div><div class="lab">Light</div><img src="%s" alt=""></div></div><figcaption>%s</figcaption></figure>' % (d, l, cap)
+        return '<figure class="fig"><div class="shots"><div><div class="lab">Dark</div><img src="%s" alt=""></div><div><div class="lab">Light</div><img src="%s" alt=""></div></div><figcaption>%s</figcaption></figure>' % (d, l, cap)
     parts = [('type', '<code>.box</code> card, centred: h1 22, h2 18, h3 16, body 16, small 13, <code>.help</code> 13 muted.'),
              ('buttons', '<code>.btn</code> solid green = main verb. <code>.ghost</code> for the rest. <code>.gold</code> buys, <code>.red</code> destroys. <code>.small</code> 36 px, <code>.act</code> 48 px. Tap target 44 px.'),
              ('tabs', '<code>nav.tabs</code> pills (on = solid green) and <code>.chip</code> status chips (<code>chip-in</code>, <code>chip-off</code>, <code>chip-pest</code>, <code>chip-rain</code>).'),
@@ -403,7 +409,7 @@ def page_html(pages, pagecount, shots_ok=True):
         entries.append(('sub', title, sid))
     toc = '<section class="page pfront"><h1>Contents</h1>' + toc_html(entries, pages) + '</section>'
     for sid, part, title, src in text.SECTIONS:
-        body += '<section class="page p%s" id="%s"><h1>%s</h1>%s</section>\n' % ('' if part == 'front' else ' ' * 0 + part, sid, E(title), md(src, fill))
+        body += '<section class="%s p%s" id="%s"><h1>%s</h1>%s</section>\n' % ('page' if sid in BREAK else 'flow', '' if part == 'front' else part, sid, E(title), md(src, fill))
     body = body.replace('class="page pa"', 'class="page pa"')
     sprite = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>%s</defs></svg>' % ''.join(sym(i) for i in C.icons if i['name'] in VEC)
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Gnome Venture Style Sheet and Art Guide</title><style>%s</style></head><body>%s%s%s%s</body></html>' % (css, sprite, cover, toc, body), entries
