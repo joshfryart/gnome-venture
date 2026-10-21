@@ -68,8 +68,8 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 /* icons */
 .ico48 { width: 48px; height: 48px; } .ico24 { width: 24px; height: 24px; } .ico16 { width: 16px; height: 16px; } .ico32 { width: 32px; height: 32px; }
 svg.i { display: inline-block; vertical-align: middle; flex: none; }
-.cat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
-.ic { background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2mm; padding: 2mm; break-inside: avoid; min-width: 0; }
+.cat { font-size: 0; margin-right: -3mm; }
+.ic { display: inline-block; vertical-align: top; width: calc(25% - 3mm); margin: 0 3mm 3mm 0; font-size: 10.5pt; background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2mm; padding: 2mm; break-inside: avoid; min-width: 0; }
 .ic .n { font-weight: 700; font-size: 10.5pt; line-height: 1.2; overflow-wrap: anywhere; }
 .ic .e { font-size: 10.5pt; color: var(--ink2); line-height: 1.25; margin-bottom: 1.2mm; min-height: 1.25em; overflow-wrap: anywhere; }
 .strip { display: flex; align-items: center; gap: 2.2mm; padding: 1.6mm 2mm; border-radius: 1.5mm; margin-top: 1mm; justify-content: center; }

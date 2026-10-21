@@ -121,7 +121,7 @@ def use(stem, cls, px=None):
     return '<svg class="i %s"%s viewBox="0 0 64 64" aria-hidden="true"><use href="#s-%s"/></svg>' % (cls, sz, stem)
 
 RAS = {}
-SC = 3   # raster scale for catalogue cards
+SC = 2   # raster scale for catalogue cards
 def raster_icons(icons):
     """One PNG per icon holding the dark strip and the light strip (48, 24, 16 px each). Vector copies cost ~20 KB each in a
     Chromium PDF and separate small PNGs cost an object each; one opaque PNG per icon is ~5 KB."""
@@ -150,9 +150,8 @@ def raster_icons(icons):
                     if row == 1:   # hairline round the light chip
                         from PIL import ImageDraw
                         ImageDraw.Draw(im).rectangle([0, y0, W * SC - 1, y0 + H * SC - 1], outline='#cdb98a', width=SC)
-                q = im.quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
-                bio = io.BytesIO(); q.save(bio, 'PNG', optimize=True)
-                RAS[n] = 'data:image/png;base64,' + base64.b64encode(bio.getvalue()).decode()
+                bio = io.BytesIO(); im.save(bio, 'JPEG', quality=80, subsampling=2, optimize=True)   # JPEG passes into the PDF as is (PNG gets re-encoded raw)
+                RAS[n] = 'data:image/jpeg;base64,' + base64.b64encode(bio.getvalue()).decode()
         b.close()
 
 def data_uri(path, mime):
@@ -187,12 +186,11 @@ def shots():
     return out
 
 def pack_png(png):
+    """JPEG goes into the PDF as is; PNG would be re-encoded raw (3x the size)."""
     try:
         from PIL import Image
-        im = Image.open(io.BytesIO(png)).convert('RGB')
-        q = im.quantize(colors=96, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
-        bio = io.BytesIO(); q.save(bio, 'PNG', optimize=True); small = bio.getvalue()
-        return 'data:image/png;base64,' + base64.b64encode(small if len(small) < len(png) else png).decode()
+        im = Image.open(io.BytesIO(png)).convert('RGB'); bio = io.BytesIO(); im.save(bio, 'JPEG', quality=84, subsampling=0, optimize=True)
+        return 'data:image/jpeg;base64,' + base64.b64encode(bio.getvalue()).decode()
     except Exception:
         return 'data:image/png;base64,' + base64.b64encode(png).decode()
 
