@@ -81,6 +81,38 @@ ok('no Content-Type header = HTML, swapped', str_contains($get('x=1'), '<img'));
 ok('download untouched', !str_contains($get('dl=1'), '<img'));
 ok('redirect untouched', !str_contains($get('loc=1'), '<img'));
 proc_terminate($proc); proc_close($proc);
+echo "== real map (includes/data/ico_map.php)\n";
+$real = APP_ROOT . '/includes/data/ico_map.php';
+$t0 = hrtime(true); $map = require $real; $ms = (hrtime(true) - $t0) / 1e6;
+ok('real map loads as array', is_array($map) && count($map) > 100, (string)count((array)$map));
+ok('real map load < 5 ms (' . round($ms, 2) . ' ms)', $ms < 5.0);
+$bad = []; foreach ($map as $k => $r) if (!preg_match('/^ico-[a-z0-9-]+$/', (string)($r[0] ?? '')) || !is_bool($r[1] ?? null) || ($r[1] === false && trim((string)($r[2] ?? '')) === '')) $bad[] = $k;
+ok('every slug starts with ico-, flag is bool, named rows have a name', !$bad, implode(' ', array_slice($bad, 0, 5)));
+$norm = []; $dupe = [];
+foreach ($map as $k => $r) { $n = str_replace("\u{FE0F}", '', (string)$k); if (isset($norm[$n]) && $norm[$n] !== $r) $dupe[] = $k; $norm[$n] = $r; }
+ok('bare and VS16 forms of a key agree (no conflicting duplicates)', !$dupe, implode(' ', array_slice($dupe, 0, 5)));
+ok('both bare and VS16 forms present (🖼 / 🖼️ style)', isset($map['⚡']) && isset($map["⚡\u{FE0F}"]) || isset($map['✔']) && isset($map["✔\u{FE0F}"]));
+$auditFile = null;
+foreach ([__DIR__ . '/ico_src/emoji_audit.json', getenv('EMOJI_AUDIT') ?: ''] as $f) if ($f !== '' && is_file($f)) { $auditFile = $f; break; }
+if ($auditFile) {
+    $aset = []; foreach (json_decode((string)file_get_contents($auditFile), true) ?: [] as $a) $aset[str_replace("\u{FE0F}", '', $a['emoji'])] = true;
+    $miss = []; foreach ($map as $k => $r) if (!isset($aset[str_replace("\u{FE0F}", '', (string)$k)])) $miss[] = $k;
+    ok('every map emoji is in emoji_audit.json', !$miss, implode(' ', array_slice($miss, 0, 5)));
+} else echo "  skip every-emoji-in-audit (no tests/ico_src/emoji_audit.json; set EMOJI_AUDIT)\n";
+// ZWJ rows must sort before their parts in the regex alternation (longest first)
+$zwj = array_values(array_filter(array_keys($map), fn($k) => str_contains((string)$k, "\u{200D}")));
+ok('real map has ZWJ rows', count($zwj) > 0);
+// sample sentence with 5 real entries, temp icon dir holding exactly those svgs
+$pick = []; foreach ($map as $k => $r) { if (!isset($pick[$r[0]]) && strlen((string)$k) <= 8 && !str_contains((string)$k, "\u{FE0F}") && !str_contains((string)$k, "\u{200D}")) $pick[$r[0]] = [$k, $r]; if (count($pick) >= 5) break; }
+$d2 = sys_get_temp_dir() . '/ico_r_' . getmypid(); @mkdir($d2);
+$sent = ''; foreach ($pick as $slug => [$k, $r]) { file_put_contents("$d2/$slug.svg", '<svg xmlns="http://www.w3.org/2000/svg"/>'); $sent .= "$k word "; }
+$child2 = '<?php define("APP_ROOT", $argv[1]); define("APP_VERSION","T1"); $CONFIG=["base_url"=>""]; require APP_ROOT."/includes/functions.php"; define("ICO_DIR",$argv[2]); require APP_ROOT."/includes/emoji_icons.php"; echo emoji_swap($argv[3]);';
+file_put_contents("$d2/c.php", $child2);
+$o2 = (string)shell_exec('php ' . escapeshellarg("$d2/c.php") . ' ' . escapeshellarg(APP_ROOT) . ' ' . escapeshellarg($d2) . ' ' . escapeshellarg("<p>$sent</p>"));
+$okAll = substr_count($o2, '<img') === count($pick) && count($pick) === 5;
+foreach ($pick as $slug => [$k]) $okAll = $okAll && str_contains($o2, "$slug.svg") && !str_contains($o2, $k);
+ok('5 real entries swapped via real map + temp icon dir', $okAll, $o2);
+array_map('unlink', glob("$d2/*")); rmdir($d2);
 array_map('unlink', glob("$tmp/*")); rmdir($tmp);
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
