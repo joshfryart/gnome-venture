@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.26
+- Ruler icon slimmed (4126 B to 1680 B, was over the 4096 B cap); style guide PDF rebuilt. No other change.
+
 ## 2.0.25
 - Almanac tiles + page header show the real picture (`almanac_pic()` in almanac.php): plant produce / flower art, dish, item, creature (emoji guess for trek foes without art), named animal, region banner, rest-stop type, landmark kind. Before, only items had pictures; everything else showed the chapter emoji.
 - New icons: thermometer (heat weather chip), link (admin editor), garden glove, ruler (also set square). Redrawn: clap, path, flatbread, pancakes. Map: `tests/ico_map_source.json` rows. Admin editor buttons Link/Image use icons.

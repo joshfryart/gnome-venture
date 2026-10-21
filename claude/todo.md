@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-21, after 2.0.25)
+# Gnome Venture: to-do (updated 2026-10-21, after 2.0.26)
+
+Built: **2.0.26** (ruler icon size fix + guide PDF rebuild; supersedes 2.0.25). The PDF Joshua uploaded 2026-10-21 is the 2.0.23 build and still carries the reconstructed art-rule text: the real `art-style-guide.md` is still needed to compare.
 
 Built: **2.0.25** (Almanac real pictures, 4 new + 4 redrawn icons, summary icon spacing, stop-tint CSP fix; Joshua: upload; check on phone: Almanac tabs Plants/Flowers/Recipes/Creatures/Villages/Landmarks/Regions show pictures, heat weather chip, a rest stop page tints). Left on purpose: pest.js SVG pop text emoji (cannot hold an img), `<option>` emoji (sort labels), 🃏 on Seed Memory, colour-swatch squares, one-off emoji marked SKIP in ico_map_source.json. Still weak: party, bouquet (cones), dove, grain, boat, telescope, nav festival/friends/villagers/arranging at 24px. Trek foes (12 creatures) and cover crops (clover, rye) have no art in the Almanac yet. Art guide text vs Project doc: NOT compared (Projects doc not readable from this session; Joshua: paste `claude/art-style-guide.md` into the repo or the chat).
 
