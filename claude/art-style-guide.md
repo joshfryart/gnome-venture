@@ -251,3 +251,90 @@ _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Dodont
 - New component class or token? Add a demo to `tests/guide_src/components.html` and a line in `text.py`.
 - New rule from Joshua? Add it to section C4 and to the do / don’t lists.
 - Commit the new PDF with the release so Admin can serve it.
+
+# Part D. Aseprite pixel-art style: "Stitched Toy"
+
+## What this is
+
+The Aseprite version of Hearthlight. Same three layers as Part A (cream halo, umber line, one lower-right cel shade, one light direction), redrawn as **hard-pixel art** with its own signature: things look like **hand-stitched felt toys with enamel gloss**. The reference is the test ladybird, **version v09**, from the third iteration branch (`style-iterations-v14/png/v09.png`, script `style-iterations-v14/scripts/v09.lua`, sources in `scripts/_src/h09.lua` + `engine.lua`, `run.sh 09`). Match it for every new Aseprite asset.
+
+Where Part D and Part A disagree, **Part D wins for Aseprite art**. Part A still rules everything else (palette families, names, size on the 64 grid, reads at 16 px).
+
+### How to build one (Aseprite CLI)
+1. Write a Lua script. Run it in batch mode: `"C:\Program Files\Aseprite\Aseprite.exe" -b --script <file>.lua` (Aseprite 1.3.18).
+2. `Sprite(64,64)` (portraits `npc-*` are 80 x 100), transparent background, `Image:putPixel` and your own helpers. Save the `.aseprite` and a 64 px `.png` with `sprite:saveAs`.
+3. Check the PNG at 64, 32 and 16 px. Keep the `.lua` with the art.
+
+## Grid and pixels
+- Hard pixels only: **no anti-aliasing, no semi-transparent blends, no gradients**. Every pixel is a solid palette colour or fully transparent.
+- Halo fully inside the frame (at least 3 px margin on a 64 px canvas).
+- Limbs and shafts are at least **2 px** wide. Stitches, glints and highlights are **1 px accents** only.
+- Detail must survive at 32 and 16 px: red body, dark head and eyes still read.
+
+## Halo and outline
+- **Halo**: the silhouette grown 4 px, then a morphological closing of radius 6, so the edge is a round die-cut sticker. Then clean 1 px nubs and notches. Colour `#f2e4c0` only.
+- **Outline**: 2 px umber grown from the silhouette, plus **1 extra px on the lower-right** (where `s = (x-32) + (y-32)` is above 12). Never pure black.
+- **Selective by light** (the outline is lighter toward the light): `s < -18` is `#74462a`, `s < -2` is `#4a2c1a`, everything else `#2a1a10`.
+- Inner contour: 1 px `#2a1a10` where one big shape overlaps another (the head over the body).
+
+## Shading
+- **One crescent** at the lower right, cut from an ellipse shifted (-4, -4). Hard steps only. Keep one light direction everywhere.
+- **Hue-shifted ramps**: shadows go warmer and deeper, lights go orange. Do not just darken. Ramp for red: base `#dd3a2a`, shade `#ae2a2a`, deep `#6b1b2c`.
+- **Bounce line**: a 1 px `#b8452f` just inside the lower-right edge of the shade.
+- **Rim light**: 1 px on the upper-left edge, `#f2793a` on warm colours, `#7b66b4` on dusk-purple parts.
+- **Contact shadow**: a 1 px line of the shade colour (`#ae2a2a`) directly under an overlapping part such as the head. This is the one allowed extra shade shape.
+- Dark parts use the **dusk** family: head `#3e2f66`, shade `#291d4a`, rim `#7b66b4`. Spots `#35161f`.
+
+## Gloss (enamel)
+- A short **enamel comma** on the lit upper-left: highlight `#ff9158`, dot `#ffc27a`. On dark heads use a `#a894dc` arc and dot.
+- Spots get a 1 px glint `#5e2a3a` at their upper-left, so they look glazed.
+- Gloss sits on top of the shading and is the brightest thing on the object.
+
+## Eyes (locked)
+Do not redesign these. 5 x 5 cream `#f2e4c0` disc with cut corners, 3 x 3 umber `#2a1a10` pupil, and a 1 px cream glint on the pupil's upper-left pixel. Set the eyes wide on the head. No blush patches under them.
+
+## The stitched-toy signature
+This is what makes the look ours. Use the thread gold on seams and joins of any object where it makes sense (a seam down the back, a lid, a hem, a join between halves).
+- **Seam**: a dashed line of thread gold `#f5cf6a`, 2 px on, 1 px off.
+- **Edge stitch**: a 1 px dashed ring just inside the body edge, thread gold, about every third diagonal pixel. It makes the object look sewn. Keep it 1 px and regular.
+- **Button**: a 4 x 4 cut-corner gold disc `#f5cf6a` with a darker lower-right `#e8a317` and two diagonal thread holes `#8a4a1c`, placed at the head of the seam. It should still read as a button at 32 px.
+
+## Shape language
+- **Chibi** proportions: big head (about 5/6 of the body width), short squat body, eyes set wide.
+- Bent 2 px limbs in lavender `#54447f` with a lit top edge `#7b66b4`, so they separate from the umber outline.
+- Antennae and similar tips end in a 4 x 4 club.
+- Markings are diamond or bean shaped, evenly varied. Not random blobs.
+
+## Palette quick list (all from Part A families, plus the shifts below)
+| use | colour |
+| --- | --- |
+| halo | `#f2e4c0` |
+| outline (light to dark) | `#74462a`, `#4a2c1a`, `#2a1a10` |
+| red ramp | `#ff9158` gloss, `#ffc27a` gloss dot, `#f2793a` rim, `#dd3a2a` base, `#b8452f` bounce, `#ae2a2a` shade, `#6b1b2c` deep |
+| dusk (head) | `#7b66b4` rim, `#3e2f66` base, `#291d4a` shade, `#a894dc` gloss |
+| legs | `#54447f`, lit top `#7b66b4` |
+| spots | `#35161f`, glint `#5e2a3a` |
+| thread gold | `#f5cf6a`, shade `#e8a317`, button holes `#8a4a1c` |
+
+For other subjects, take the matching Part A family (moss, water, soil, petal, stone...) and build the same four steps: gloss, base, shade, deep, with the shade shifted warmer and the lights shifted toward yellow-orange.
+
+## Checks before an Aseprite asset ships
+- Is every pixel solid (no blends, no transparency except outside the halo)?
+- Halo inside the frame, round die-cut, `#f2e4c0` only?
+- One crescent plus the bounce line and the 1 px contact shadow, and no other shade shapes?
+- Outline selective by light, never pure black?
+- Eyes exactly as locked?
+- Stitch seam, edge stitch and button present where the object has a join?
+- Readable at 64, 32 and 16 px?
+- Avoid: dither bands, blush or cheek patches, zipper or double-wide stitching, blobby asymmetric markings, shading under 2 px limbs.
+
+## Deviations from Part A (on purpose)
+- Outline is three tones and heavier on the lower right, instead of one umber line.
+- Four-step hue-shifted ramps instead of one tint at .34 opacity (no blends in pixel art).
+- Rim light, bounce line and a 1 px contact shadow.
+- Gold stitching, seams and the button are an added signature.
+- No ground shadow ellipse on the test subject; add a 1 px-step umber ellipse only if the object stands on the ground.
+
+## Open items
+- v09's edge stitch partly hides the body gloss on the lit side. Version v10 fixed this by skipping stitches over the gloss patch (x <= 21, y 33 to 46). Use v09 as the reference, and apply that gloss-patch skip when a stitch runs through a gloss.
+- Only the ladybird has been drawn in this style. Check the rules on a creature with a different silhouette, a folk portrait and an icon before treating them as final.
