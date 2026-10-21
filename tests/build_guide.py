@@ -357,8 +357,8 @@ def f_shots():
     return h
 
 def f_sources():
-    return ('<ul><li>Art rules: reconstructed from <code>tests/hearth.py</code> and <code>hearth_all.py</code> (constants and docstrings), <code>claude/handoff.md</code> and <code>assets/img/ph/palette.json</code>. '
-            'The art guide text was reconstructed from <code>hearth.py</code>; the Projects copy <code>claude/art-style-guide.md</code> was not available to the build. If the two differ, change <code>guide_src/text.py</code>.</li>'
+    return ('<ul><li>Art rules: written from <code>tests/hearth.py</code> and <code>hearth_all.py</code> (constants and docstrings), <code>claude/handoff.md</code> and <code>assets/img/ph/palette.json</code>. '
+            'This text also builds <code>claude/art-style-guide.md</code> (<code>tests/build_guide_md.py</code>); no older hand-written guide was found. Change <code>guide_src/text.py</code> to change both.</li>'
             '<li>Icons: <code>assets/img/ico/</code> and <code>includes/data/ico_map.php</code>, read at build time.</li>'
             '<li>UI: <code>assets/style.css</code> (%d tokens read), plus real screenshots of the component classes.</li></ul>' % C.ntokens)
 

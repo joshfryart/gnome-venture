@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-21, after 2.0.26)
+# Gnome Venture: to-do (updated 2026-10-21, after 2.0.27)
+
+Built: **2.0.27** (docs + guide PDF only: `claude/art-style-guide.md` now exists, generated from `tests/guide_src/text.py`; no original Project doc was found, so there is nothing left to compare).
 
 Built: **2.0.26** (ruler icon size fix + guide PDF rebuild; supersedes 2.0.25). The PDF Joshua uploaded 2026-10-21 is the 2.0.23 build and still carries the reconstructed art-rule text: the real `art-style-guide.md` is still needed to compare.
 

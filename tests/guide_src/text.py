@@ -26,7 +26,7 @@ Run it whenever an icon, a colour token or a rule changes. Text lives in `tests/
 A1 = """
 Hearthlight is the house style of every placeholder picture, creature, folk portrait, nav icon and inline icon. One look, three layers, drawn on a **64 x 64 grid**. All widths below are in grid units **u** (u = shorter side / 64; so 1 u = 1 px at 64 px). Pen weights below are for large stickers (pictures, creatures, portraits). **Icons (`ico-` names) use heavier pens**: see the icon rules.
 
-*Note: the art guide text was reconstructed from `tests/hearth.py` (the original Projects copy was not available to the build).*
+*Note: these rules are written from `tests/hearth.py`, `hearth_all.py` and `claude/handoff.md`. Text source for this PDF and for `claude/art-style-guide.md` is this file; no older hand-written guide was found.*
 
 ## The three layers
 1. **Cream halo**: a thick sticker edge round the whole silhouette, `#f2e4c0`, 3.2 u out from the shape (stroke 6.4) on large stickers; icons use 6.0 u. It lifts the picture off dark and light pages alike.
