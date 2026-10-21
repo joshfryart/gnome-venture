@@ -390,6 +390,14 @@ function creature_icon(string $name, string $size = 'small'): string
     return ['small' => '🐛', 'medium' => '🐾', 'large' => '👹', 'boss' => '🐉'][$size] ?? '🐾';
 }
 
+/** v2.0.24: a creature's own picture (uploaded, else the drawn placeholder) when it has one, else the emoji guess above. $c = a creatures row (needs slug, name, size). */
+function creature_pic(array $c, string $artSize = 'md'): string
+{
+    require_once __DIR__ . '/items.php';
+    $rel = creature_image((string)($c['slug'] ?? ''), true);
+    return $rel !== '' ? art_img($rel, $artSize, (string)($c['name'] ?? '')) : creature_icon((string)($c['name'] ?? ''), (string)($c['size'] ?? 'small'));
+}
+
 function adventure_topbar(array $u): string
 {
     $exp = q_one("SELECT * FROM expeditions WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1", [$u['id']]);
@@ -429,7 +437,7 @@ function adventure_topbar(array $u): string
         [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES[''];
         // v0.7.61: one box, the creature on the left and you on the right (with your energy), sized for phones
         $what = '<div class="duel">'
-            . '<div class="fighter foe' . ($ch * 3 <= $cm ? ' low' : '') . '"><span class="foeicon">' . creature_icon((string)($c['name'] ?? ''), (string)($c['size'] ?? 'small')) . '</span>'
+            . '<div class="fighter foe' . ($ch * 3 <= $cm ? ' low' : '') . '"><span class="foeicon">' . creature_pic($c) . '</span>'
             . '<div class="fwho"><b>' . e($c['name'] ?? 'Creature') . '</b> <small>lv ' . (int)($c['level'] ?? 1) . '</small><br><meter min="0" max="' . $cm . '" low="' . (int)ceil($cm / 3) . '" value="' . $ch . '"></meter> <span class="hpnum">❤️ ' . $ch . '/' . $cm . '</span>'
             . (!empty($enc['poison']) ? ' <span class="fx" role="img" aria-label="Poisoned" title="Poisoned">🧪</span>' : '') . '</div></div>'
             . '<div class="vs">vs</div>'

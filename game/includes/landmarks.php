@@ -612,7 +612,7 @@ function landmark_panel(array $u, array $node): string
             $done = landmark_done_today($uid, $id, 'lair');
             $h .= '<h3>🐉 A lair</h3>';
             if ($boss) {
-                $h .= '<p><span class="bigfoe">' . creature_icon((string)$boss['name'], 'boss') . '</span> <b>' . e($boss['name']) . '</b> lives here. <small class="muted">Level ' . (int)$boss['level'] . ' · ❤️ ' . (function_exists('creature_hp_percent') ? max(1, (int)round((int)$boss['hp'] * creature_hp_percent($boss + ['size' => 'boss']) / 100)) : (int)$boss['hp']) . '</small></p>'
+                $h .= '<p><span class="bigfoe">' . creature_pic($boss, 'sm') . '</span> <b>' . e($boss['name']) . '</b> lives here. <small class="muted">Level ' . (int)$boss['level'] . ' · ❤️ ' . (function_exists('creature_hp_percent') ? max(1, (int)round((int)$boss['hp'] * creature_hp_percent($boss + ['size' => 'boss']) / 100)) : (int)$boss['hp']) . '</small></p>'
                     . '<p class="help">' . e((string)$boss['description']) . '</p>'
                     . $form('lair', '⚔️ Challenge the ' . e($boss['name']) . ' <span class="cost">⚡2</span>', '', $done)
                     . '<p class="help">' . ($done ? '✔️ It won’t come out again today. ' : '') . 'Once a day. Win for a big hoard; the first win also earns a ribbon and a treasure seed.'
