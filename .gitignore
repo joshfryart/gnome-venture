@@ -59,3 +59,6 @@ vendor/
 
 # Release source zips are kept in the repo on purpose
 !releases/*.zip
+
+# Dev mail log and other runtime text files (may hold reset/verify links)
+game/data/*.txt

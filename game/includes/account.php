@@ -161,6 +161,7 @@ function change_email(array $u, string $pass, string $email): array
     if (q_val('SELECT 1 FROM users WHERE email = ? AND id <> ?', [$email, $u['id']])) return [false, 'Another account uses that email.'];
     $old = (string)$u['email'];
     q('UPDATE users SET email = ?, email_verified_at = NULL, verify_hash = NULL, verify_expires = NULL, email_nudges = 0 WHERE id = ?', [$email, $u['id']]);   // v1.7: a new address must be verified again; reminders stop until re-confirmed
+    q('UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0', [$u['id']]);   // reset links sent before the change stop working
     send_mail($old, 'Your email was changed', 'The email on your ' . setting('site_name') . " account was changed to $email. If that wasn't you, contact the game's admin.");
     return [true, 'Email updated.'];
 }
@@ -171,6 +172,7 @@ function change_password(array $u, string $current, string $pass, string $pass2)
     if (strlen($pass) < 10) return [false, 'Your new password needs at least 10 characters.'];
     if ($pass !== $pass2) return [false, 'The new passwords don’t match.'];
     q('UPDATE users SET password_hash = ?, sess_ver = sess_ver + 1 WHERE id = ?', [password_hash($pass, PASSWORD_DEFAULT), $u['id']]);   // v1.2.2: other sessions are signed out
+    q('UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0', [$u['id']]);   // reset links sent before the change stop working
     $_SESSION['sv'] = (int)q_val('SELECT sess_ver FROM users WHERE id = ?', [$u['id']]);   // this one stays
     session_regenerate_id(true);
     return [true, 'Password changed.'];
