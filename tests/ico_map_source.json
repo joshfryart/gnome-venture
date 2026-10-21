@@ -1,0 +1,3158 @@
+{
+ "ℹ️": {
+  "slug": "ico-info",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "info circle"
+ },
+ "↖️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 4 uses; directional compass arrows: use CSS-rotated ico-arrow-up"
+ },
+ "↗️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 4 uses; directional compass arrows: use CSS-rotated ico-arrow-up"
+ },
+ "↘️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 4 uses; directional compass arrows: use CSS-rotated ico-arrow-up"
+ },
+ "↙️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 4 uses; directional compass arrows: use CSS-rotated ico-arrow-up"
+ },
+ "↩️": {
+  "slug": "ico-undo",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "curved undo arrow"
+ },
+ "⏩": {
+  "slug": "ico-play",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "play triangle"
+ },
+ "⏱": {
+  "slug": "ico-clock",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "round wall clock"
+ },
+ "⏱️": {
+  "slug": "ico-clock",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "round wall clock"
+ },
+ "⏲️": {
+  "slug": "ico-clock",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "round wall clock"
+ },
+ "⏳": {
+  "slug": "ico-hourglass",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "sand timer"
+ },
+ "⏸️": {
+  "slug": "ico-play",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "play triangle"
+ },
+ "▶": {
+  "slug": "ico-play",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "play triangle"
+ },
+ "☀️": {
+  "slug": "ico-sun",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "smiling-free yellow sun with rays"
+ },
+ "☁️": {
+  "slug": "ico-cloud",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "puffy white cloud"
+ },
+ "☄️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "★": {
+  "slug": "ico-star",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "solid gold star"
+ },
+ "☆": {
+  "slug": "ico-star-empty",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "outline star"
+ },
+ "☑️": {
+  "slug": "ico-check",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "green tick"
+ },
+ "☔": {
+  "slug": "ico-rain",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "cloud with drops"
+ },
+ "☕": {
+  "slug": "ico-coffee",
+  "group": "food",
+  "reuse": "ph/hot-cocoa",
+  "note": "hot mug"
+ },
+ "☘️": {
+  "slug": "ico-clover",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "three-lobed shamrock"
+ },
+ "☠️": {
+  "slug": "ico-skull",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "skull"
+ },
+ "☰": {
+  "slug": "ico-menu",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "three-line menu"
+ },
+ "♨️": {
+  "slug": "ico-coffee",
+  "group": "food",
+  "reuse": "ph/hot-cocoa",
+  "note": "hot mug"
+ },
+ "♻️": {
+  "slug": "ico-compost",
+  "group": "objects-tools",
+  "reuse": "ph/plain-compost",
+  "note": "compost heap"
+ },
+ "⚒️": {
+  "slug": "ico-tools",
+  "group": "objects-tools",
+  "reuse": "ph/nav-crafting",
+  "note": "hammer and wrench"
+ },
+ "⚔️": {
+  "slug": "ico-sword",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "crossed swords"
+ },
+ "⚖️": {
+  "slug": "ico-scales",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "brass scales"
+ },
+ "⚙️": {
+  "slug": "ico-cog",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "gear"
+ },
+ "⚠️": {
+  "slug": "ico-warning",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "warning triangle"
+ },
+ "⚡": {
+  "slug": "ico-lightning",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "yellow lightning bolt (energy)"
+ },
+ "⚪": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: fallback-only; ph/turnip.svg exists"
+ },
+ "⛄": {
+  "slug": "ico-snowflake",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "six-arm snowflake"
+ },
+ "⛈️": {
+  "slug": "ico-storm",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "cloud with lightning"
+ },
+ "⛏️": {
+  "slug": "ico-pick",
+  "group": "treks-combat",
+  "reuse": "ph/prospector-s-pick",
+  "note": "miner pick"
+ },
+ "⛔": {
+  "slug": "ico-cross",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red cross"
+ },
+ "⛩️": {
+  "slug": "ico-shrine",
+  "group": "treks-combat",
+  "reuse": "stops/shrine",
+  "note": "torii gate"
+ },
+ "⛰️": {
+  "slug": "ico-mountain",
+  "group": "places",
+  "reuse": "ph/land-mountain",
+  "note": "two snow-capped peaks"
+ },
+ "⛲": {
+  "slug": "ico-fountain",
+  "group": "places",
+  "reuse": "ph/fountain",
+  "note": "garden fountain"
+ },
+ "⛵": {
+  "slug": "ico-boat",
+  "group": "places",
+  "reuse": null,
+  "note": "canoe"
+ },
+ "⛸️": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "⛺": {
+  "slug": "ico-tent",
+  "group": "treks-combat",
+  "reuse": "stops/camp",
+  "note": "camping tent"
+ },
+ "✂️": {
+  "slug": "ico-shears",
+  "group": "objects-tools",
+  "reuse": "ph/pruning-shears",
+  "note": "secateurs"
+ },
+ "✅": {
+  "slug": "ico-check",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "green tick"
+ },
+ "✉️": {
+  "slug": "ico-envelope",
+  "group": "ui-status",
+  "reuse": "games/envelope",
+  "note": "sealed letter"
+ },
+ "✊": {
+  "slug": "ico-fist",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "raised fist (rock-paper-trowel)"
+ },
+ "✋": {
+  "slug": "ico-hand-stop",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "flat open hand"
+ },
+ "✍️": {
+  "slug": "ico-pencil",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "yellow pencil (edit / write)"
+ },
+ "✏️": {
+  "slug": "ico-pencil",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "yellow pencil (edit / write)"
+ },
+ "✓": {
+  "slug": "ico-check",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "green tick"
+ },
+ "✔": {
+  "slug": "ico-check",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "green tick"
+ },
+ "✔️": {
+  "slug": "ico-check",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "green tick"
+ },
+ "✕": {
+  "slug": "ico-cross",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red cross"
+ },
+ "✖": {
+  "slug": "ico-cross",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red cross"
+ },
+ "✘": {
+  "slug": "ico-cross",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red cross"
+ },
+ "✚": {
+  "slug": "ico-plus",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "plus sign"
+ },
+ "✨": {
+  "slug": "ico-sparkle",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "gold three-point sparkle cluster"
+ },
+ "❄️": {
+  "slug": "ico-snowflake",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "six-arm snowflake"
+ },
+ "❌": {
+  "slug": "ico-cross",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red cross"
+ },
+ "❓": {
+  "slug": "ico-question",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "question mark"
+ },
+ "❔": {
+  "slug": "ico-question",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "question mark"
+ },
+ "❗": {
+  "slug": "ico-exclaim",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "exclamation mark"
+ },
+ "❝": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: typographic quote mark: use real curly quotes in text"
+ },
+ "❤️": {
+  "slug": "ico-heart-red",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red heart"
+ },
+ "➕": {
+  "slug": "ico-plus",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "plus sign"
+ },
+ "➜": {
+  "slug": "ico-arrow-right",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "right arrow"
+ },
+ "➡": {
+  "slug": "ico-arrow-right",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "right arrow"
+ },
+ "➡️": {
+  "slug": "ico-arrow-right",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "right arrow"
+ },
+ "⬅": {
+  "slug": "ico-arrow-left",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "left arrow"
+ },
+ "⬅️": {
+  "slug": "ico-arrow-left",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "left arrow"
+ },
+ "⬆": {
+  "slug": "ico-arrow-up",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "up arrow"
+ },
+ "⬆️": {
+  "slug": "ico-arrow-up",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "up arrow"
+ },
+ "⬇️": {
+  "slug": "ico-arrow-down",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "down arrow"
+ },
+ "⬜": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: colour swatch: use CSS square"
+ },
+ "⭐": {
+  "slug": "ico-star",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "solid gold star"
+ },
+ "🌀": {
+  "slug": "ico-wind",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "swirling wind lines"
+ },
+ "🌄": {
+  "slug": "ico-sun",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "smiling-free yellow sun with rays"
+ },
+ "🌅": {
+  "slug": "ico-sun",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "smiling-free yellow sun with rays"
+ },
+ "🌇": {
+  "slug": "ico-sun",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "smiling-free yellow sun with rays"
+ },
+ "🌈": {
+  "slug": "ico-rainbow",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "small rainbow arc"
+ },
+ "🌉": {
+  "slug": "ico-bridge",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "arched bridge"
+ },
+ "🌊": {
+  "slug": "ico-wave",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "blue wave curl"
+ },
+ "🌋": {
+  "slug": "ico-mountain",
+  "group": "places",
+  "reuse": "ph/land-mountain",
+  "note": "two snow-capped peaks"
+ },
+ "🌌": {
+  "slug": "ico-star",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "solid gold star"
+ },
+ "🌍": {
+  "slug": "ico-globe",
+  "group": "treks-combat",
+  "reuse": "ph/nav-world",
+  "note": "globe"
+ },
+ "🌑": {
+  "slug": "ico-moon",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "crescent moon"
+ },
+ "🌕": {
+  "slug": "ico-moon",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "crescent moon"
+ },
+ "🌙": {
+  "slug": "ico-moon",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "crescent moon"
+ },
+ "🌞": {
+  "slug": "ico-sun",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "smiling-free yellow sun with rays"
+ },
+ "🌟": {
+  "slug": "ico-star",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "solid gold star"
+ },
+ "🌠": {
+  "slug": "ico-star",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "solid gold star"
+ },
+ "🌡️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🌤️": {
+  "slug": "ico-sun",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "smiling-free yellow sun with rays"
+ },
+ "🌦️": {
+  "slug": "ico-sun-rain",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "sun with a small rain cloud"
+ },
+ "🌧️": {
+  "slug": "ico-rain",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "cloud with drops"
+ },
+ "🌨️": {
+  "slug": "ico-snowflake",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "six-arm snowflake"
+ },
+ "🌫️": {
+  "slug": "ico-fog",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "layered mist lines"
+ },
+ "🌬️": {
+  "slug": "ico-wind",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "swirling wind lines"
+ },
+ "🌮": {
+  "slug": "ico-taco",
+  "group": "food",
+  "reuse": null,
+  "note": "folded taco"
+ },
+ "🌯": {
+  "slug": "ico-taco",
+  "group": "food",
+  "reuse": null,
+  "note": "folded taco"
+ },
+ "🌰": {
+  "slug": "ico-acorn-nut",
+  "group": "nature-plants",
+  "reuse": "ph/hazelnut",
+  "note": "brown nut with cap"
+ },
+ "🌱": {
+  "slug": "ico-sprout",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "two-leaf seedling in a little soil mound"
+ },
+ "🌲": {
+  "slug": "ico-tree",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "round-crowned green tree, brown trunk"
+ },
+ "🌳": {
+  "slug": "ico-tree",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "round-crowned green tree, brown trunk"
+ },
+ "🌴": {
+  "slug": "ico-tree",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "round-crowned green tree, brown trunk"
+ },
+ "🌶️": {
+  "slug": "ico-chili",
+  "group": "food",
+  "reuse": "ph/chili-pepper",
+  "note": "red chili"
+ },
+ "🌷": {
+  "slug": "ico-blossom",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "pink five-petal cherry blossom"
+ },
+ "🌸": {
+  "slug": "ico-blossom",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "pink five-petal cherry blossom"
+ },
+ "🌹": {
+  "slug": "ico-blossom",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "pink five-petal cherry blossom"
+ },
+ "🌺": {
+  "slug": "ico-blossom",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "pink five-petal cherry blossom"
+ },
+ "🌻": {
+  "slug": "ico-sunflower",
+  "group": "nature-plants",
+  "reuse": "ph/sunflower",
+  "note": "sunflower face"
+ },
+ "🌼": {
+  "slug": "ico-daisy",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "yellow-centre white daisy"
+ },
+ "🌽": {
+  "slug": "ico-corn",
+  "group": "food",
+  "reuse": "ph/corn",
+  "note": "corn cob"
+ },
+ "🌾": {
+  "slug": "ico-grain",
+  "group": "nature-plants",
+  "reuse": "ph/wheat",
+  "note": "wheat ear, golden"
+ },
+ "🌿": {
+  "slug": "ico-herb-sprig",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "leafy herb sprig, three pairs of leaves"
+ },
+ "🍀": {
+  "slug": "ico-four-leaf-clover",
+  "group": "nature-plants",
+  "reuse": "ph/four-leaf-clover",
+  "note": "lucky four-leaf clover"
+ },
+ "🍁": {
+  "slug": "ico-autumn-leaf",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "orange-red maple leaf"
+ },
+ "🍂": {
+  "slug": "ico-autumn-leaf",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "orange-red maple leaf"
+ },
+ "🍃": {
+  "slug": "ico-leaf",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "single green leaf with a pale midrib"
+ },
+ "🍄": {
+  "slug": "ico-mushroom",
+  "group": "nature-plants",
+  "reuse": "ph/giant-toadstool",
+  "note": "red-capped white-dotted toadstool"
+ },
+ "🍅": {
+  "slug": "ico-tomato",
+  "group": "food",
+  "reuse": "ph/tomato",
+  "note": "tomato"
+ },
+ "🍆": {
+  "slug": "ico-tomato",
+  "group": "food",
+  "reuse": "ph/tomato",
+  "note": "tomato"
+ },
+ "🍇": {
+  "slug": "ico-grapes",
+  "group": "food",
+  "reuse": "ph/grape",
+  "note": "purple grape bunch"
+ },
+ "🍈": {
+  "slug": "ico-melon",
+  "group": "food",
+  "reuse": "ph/melon",
+  "note": "green melon wedge"
+ },
+ "🍉": {
+  "slug": "ico-watermelon",
+  "group": "food",
+  "reuse": "ph/watermelon",
+  "note": "watermelon slice"
+ },
+ "🍊": {
+  "slug": "ico-orange",
+  "group": "food",
+  "reuse": "ph/orange",
+  "note": "orange"
+ },
+ "🍋": {
+  "slug": "ico-orange",
+  "group": "food",
+  "reuse": "ph/orange",
+  "note": "orange"
+ },
+ "🍌": {
+  "slug": "ico-banana",
+  "group": "food",
+  "reuse": "ph/banana",
+  "note": "banana"
+ },
+ "🍍": {
+  "slug": "ico-banana",
+  "group": "food",
+  "reuse": "ph/banana",
+  "note": "banana"
+ },
+ "🍎": {
+  "slug": "ico-apple",
+  "group": "food",
+  "reuse": "ph/apple",
+  "note": "red apple"
+ },
+ "🍐": {
+  "slug": "ico-apple",
+  "group": "food",
+  "reuse": "ph/apple",
+  "note": "red apple"
+ },
+ "🍑": {
+  "slug": "ico-peach",
+  "group": "food",
+  "reuse": "ph/peach",
+  "note": "peach with leaf"
+ },
+ "🍒": {
+  "slug": "ico-cherry",
+  "group": "food",
+  "reuse": "ph/cherry",
+  "note": "two cherries"
+ },
+ "🍓": {
+  "slug": "ico-strawberry",
+  "group": "food",
+  "reuse": "ph/strawberry",
+  "note": "strawberry"
+ },
+ "🍕": {
+  "slug": "ico-taco",
+  "group": "food",
+  "reuse": null,
+  "note": "folded taco"
+ },
+ "🍖": {
+  "slug": "ico-roast",
+  "group": "food",
+  "reuse": null,
+  "note": "meat on bone"
+ },
+ "🍚": {
+  "slug": "ico-curry",
+  "group": "food",
+  "reuse": "ph/coconut-curry",
+  "note": "plate of curry and rice"
+ },
+ "🍛": {
+  "slug": "ico-curry",
+  "group": "food",
+  "reuse": "ph/coconut-curry",
+  "note": "plate of curry and rice"
+ },
+ "🍜": {
+  "slug": "ico-soup-bowl",
+  "group": "food",
+  "reuse": "ph/garden-vegetable-soup",
+  "note": "steaming stew pot"
+ },
+ "🍝": {
+  "slug": "ico-soup-bowl",
+  "group": "food",
+  "reuse": "ph/garden-vegetable-soup",
+  "note": "steaming stew pot"
+ },
+ "🍞": {
+  "slug": "ico-bread",
+  "group": "food",
+  "reuse": null,
+  "note": "round loaf"
+ },
+ "🍠": {
+  "slug": "ico-potato",
+  "group": "food",
+  "reuse": "ph/potato",
+  "note": "potato"
+ },
+ "🍢": {
+  "slug": "ico-roast",
+  "group": "food",
+  "reuse": null,
+  "note": "meat on bone"
+ },
+ "🍣": {
+  "slug": "ico-fish",
+  "group": "animals",
+  "reuse": "ph/creature-silverfin",
+  "note": "round orange fish"
+ },
+ "🍨": {
+  "slug": "ico-pudding",
+  "group": "food",
+  "reuse": "ph/custard-tart",
+  "note": "caramel pudding"
+ },
+ "🍪": {
+  "slug": "ico-bread",
+  "group": "food",
+  "reuse": null,
+  "note": "round loaf"
+ },
+ "🍫": {
+  "slug": "ico-candy",
+  "group": "food",
+  "reuse": null,
+  "note": "wrapped sweet"
+ },
+ "🍬": {
+  "slug": "ico-candy",
+  "group": "food",
+  "reuse": null,
+  "note": "wrapped sweet"
+ },
+ "🍮": {
+  "slug": "ico-pudding",
+  "group": "food",
+  "reuse": "ph/custard-tart",
+  "note": "caramel pudding"
+ },
+ "🍯": {
+  "slug": "ico-honey-pot",
+  "group": "nature-plants",
+  "reuse": "ph/garden-honey",
+  "note": "honey jar with dipper"
+ },
+ "🍰": {
+  "slug": "ico-cake",
+  "group": "food",
+  "reuse": "ph/carrot-cake",
+  "note": "layered cake slice"
+ },
+ "🍲": {
+  "slug": "ico-soup-bowl",
+  "group": "food",
+  "reuse": "ph/garden-vegetable-soup",
+  "note": "steaming stew pot"
+ },
+ "🍳": {
+  "slug": "ico-cooking-pan",
+  "group": "food",
+  "reuse": null,
+  "note": "frying pan with egg"
+ },
+ "🍴": {
+  "slug": "ico-plate-cutlery",
+  "group": "food",
+  "reuse": "ph/feast-summer-table",
+  "note": "plate with knife and fork"
+ },
+ "🍵": {
+  "slug": "ico-tea",
+  "group": "food",
+  "reuse": "ph/mint-tea",
+  "note": "steaming teacup"
+ },
+ "🍺": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🍽️": {
+  "slug": "ico-plate-cutlery",
+  "group": "food",
+  "reuse": "ph/feast-summer-table",
+  "note": "plate with knife and fork"
+ },
+ "🍿": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🎀": {
+  "slug": "ico-ribbon",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "bow ribbon"
+ },
+ "🎁": {
+  "slug": "ico-gift",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "wrapped gift"
+ },
+ "🎂": {
+  "slug": "ico-cake",
+  "group": "food",
+  "reuse": "ph/carrot-cake",
+  "note": "layered cake slice"
+ },
+ "🎃": {
+  "slug": "ico-pumpkin",
+  "group": "food",
+  "reuse": "ph/pumpkin",
+  "note": "pumpkin"
+ },
+ "🎉": {
+  "slug": "ico-party",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "party popper"
+ },
+ "🎋": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🎏": {
+  "slug": "ico-carp-streamer",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "carp streamer"
+ },
+ "🎐": {
+  "slug": "ico-wind-chime",
+  "group": "objects-tools",
+  "reuse": "ph/wind-chime",
+  "note": "wind chime"
+ },
+ "🎒": {
+  "slug": "ico-satchel",
+  "group": "objects-tools",
+  "reuse": "ph/nav-satchel",
+  "note": "leather satchel"
+ },
+ "🎓": {
+  "slug": "ico-graduation",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "scholar cap"
+ },
+ "🎗️": {
+  "slug": "ico-ribbon",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "bow ribbon"
+ },
+ "🎚️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🎟️": {
+  "slug": "ico-label-tag",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "price tag"
+ },
+ "🎡": {
+  "slug": "ico-circus-tent",
+  "group": "places",
+  "reuse": null,
+  "note": "striped fair tent"
+ },
+ "🎣": {
+  "slug": "ico-rod",
+  "group": "treks-combat",
+  "reuse": "ph/cane-fishing-rod",
+  "note": "fishing rod"
+ },
+ "🎨": {
+  "slug": "ico-palette",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "paint palette"
+ },
+ "🎩": {
+  "slug": "ico-gnome-hat",
+  "group": "people",
+  "reuse": "ph/nav-gnome",
+  "note": "pointy red hat (you are here marker)"
+ },
+ "🎪": {
+  "slug": "ico-circus-tent",
+  "group": "places",
+  "reuse": null,
+  "note": "striped fair tent"
+ },
+ "🎫": {
+  "slug": "ico-label-tag",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "price tag"
+ },
+ "🎮": {
+  "slug": "ico-dice",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "six-sided die"
+ },
+ "🎯": {
+  "slug": "ico-target",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "bullseye"
+ },
+ "🎲": {
+  "slug": "ico-dice",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "six-sided die"
+ },
+ "🎶": {
+  "slug": "ico-music",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "musical notes"
+ },
+ "🎻": {
+  "slug": "ico-music",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "musical notes"
+ },
+ "🎼": {
+  "slug": "ico-music",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "musical notes"
+ },
+ "🏁": {
+  "slug": "ico-finish",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "chequered flag"
+ },
+ "🏃": {
+  "slug": "ico-walker",
+  "group": "people",
+  "reuse": null,
+  "note": "walking figure"
+ },
+ "🏄": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "🏅": {
+  "slug": "ico-medal-gold",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "gold medal"
+ },
+ "🏆": {
+  "slug": "ico-trophy",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "gold cup"
+ },
+ "🏔️": {
+  "slug": "ico-mountain",
+  "group": "places",
+  "reuse": "ph/land-mountain",
+  "note": "two snow-capped peaks"
+ },
+ "🏕️": {
+  "slug": "ico-tent",
+  "group": "treks-combat",
+  "reuse": "stops/camp",
+  "note": "camping tent"
+ },
+ "🏖️": {
+  "slug": "ico-island",
+  "group": "places",
+  "reuse": "ph/land-island",
+  "note": "palm islet in water"
+ },
+ "🏘️": {
+  "slug": "ico-house-row",
+  "group": "places",
+  "reuse": "ph/nav-town",
+  "note": "three small houses"
+ },
+ "🏚️": {
+  "slug": "ico-ruin",
+  "group": "places",
+  "reuse": "ph/lm-ruins",
+  "note": "crumbling stone house"
+ },
+ "🏛️": {
+  "slug": "ico-castle",
+  "group": "places",
+  "reuse": null,
+  "note": "stone castle"
+ },
+ "🏜️": {
+  "slug": "ico-desert",
+  "group": "places",
+  "reuse": "ph/land-desert",
+  "note": "dune with a cactus"
+ },
+ "🏝️": {
+  "slug": "ico-island",
+  "group": "places",
+  "reuse": "ph/land-island",
+  "note": "palm islet in water"
+ },
+ "🏞️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🏠": {
+  "slug": "ico-home",
+  "group": "places",
+  "reuse": null,
+  "note": "little cottage with chimney"
+ },
+ "🏡": {
+  "slug": "ico-home",
+  "group": "places",
+  "reuse": null,
+  "note": "little cottage with chimney"
+ },
+ "🏪": {
+  "slug": "ico-shop",
+  "group": "places",
+  "reuse": "stops/market",
+  "note": "striped-awning shop"
+ },
+ "🏮": {
+  "slug": "ico-lantern",
+  "group": "treks-combat",
+  "reuse": "ph/tin-lantern",
+  "note": "paper lantern"
+ },
+ "🏰": {
+  "slug": "ico-castle",
+  "group": "places",
+  "reuse": null,
+  "note": "stone castle"
+ },
+ "🏳️": {
+  "slug": "ico-flag-red",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "red flag"
+ },
+ "🏷️": {
+  "slug": "ico-label-tag",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "price tag"
+ },
+ "🏹": {
+  "slug": "ico-bow",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "bow and arrow"
+ },
+ "🏺": {
+  "slug": "ico-trowel-pot",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "clay jar"
+ },
+ "🐀": {
+  "slug": "ico-mouse",
+  "group": "animals",
+  "reuse": "ph/creature-barn-rat",
+  "note": "mouse head"
+ },
+ "🐅": {
+  "slug": "ico-cat",
+  "group": "animals",
+  "reuse": "ph/creature-tufted-lynx",
+  "note": "cat"
+ },
+ "🐇": {
+  "slug": "ico-rabbit",
+  "group": "animals",
+  "reuse": "ph/creature-frost-hare",
+  "note": "rabbit"
+ },
+ "🐈": {
+  "slug": "ico-cat",
+  "group": "animals",
+  "reuse": "ph/creature-tufted-lynx",
+  "note": "cat"
+ },
+ "🐉": {
+  "slug": "ico-dragon",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "friendly green dragon head"
+ },
+ "🐊": {
+  "slug": "ico-lizard",
+  "group": "animals",
+  "reuse": "ph/creature-sun-lizard",
+  "note": "small lizard"
+ },
+ "🐌": {
+  "slug": "ico-snail",
+  "group": "animals",
+  "reuse": "animals/snail",
+  "note": "brown shell snail"
+ },
+ "🐍": {
+  "slug": "ico-snake",
+  "group": "animals",
+  "reuse": "ph/creature-grass-snake",
+  "note": "coiled green snake"
+ },
+ "🐏": {
+  "slug": "ico-goat",
+  "group": "animals",
+  "reuse": "animals/goat",
+  "note": "goat"
+ },
+ "🐐": {
+  "slug": "ico-goat",
+  "group": "animals",
+  "reuse": "animals/goat",
+  "note": "goat"
+ },
+ "🐑": {
+  "slug": "ico-goat",
+  "group": "animals",
+  "reuse": "animals/goat",
+  "note": "goat"
+ },
+ "🐒": {
+  "slug": "ico-monkey",
+  "group": "animals",
+  "reuse": "ph/creature-mischief-monkey",
+  "note": "monkey"
+ },
+ "🐓": {
+  "slug": "ico-chicken",
+  "group": "animals",
+  "reuse": "animals/hen",
+  "note": "hen"
+ },
+ "🐔": {
+  "slug": "ico-chicken",
+  "group": "animals",
+  "reuse": "animals/hen",
+  "note": "hen"
+ },
+ "🐕": {
+  "slug": "ico-wolf",
+  "group": "animals",
+  "reuse": "ph/creature-bramble-wolf",
+  "note": "wolf"
+ },
+ "🐗": {
+  "slug": "ico-wolf",
+  "group": "animals",
+  "reuse": "ph/creature-bramble-wolf",
+  "note": "wolf"
+ },
+ "🐘": {
+  "slug": "ico-safari",
+  "group": "animals",
+  "reuse": null,
+  "note": "elephant"
+ },
+ "🐙": {
+  "slug": "ico-sea-creature",
+  "group": "animals",
+  "reuse": null,
+  "note": "octopus"
+ },
+ "🐚": {
+  "slug": "ico-shell",
+  "group": "nature-plants",
+  "reuse": "ph/spiral-shell",
+  "note": "spiral seashell"
+ },
+ "🐛": {
+  "slug": "ico-caterpillar",
+  "group": "animals",
+  "reuse": "animals/silkworm",
+  "note": "green caterpillar"
+ },
+ "🐜": {
+  "slug": "ico-ant",
+  "group": "animals",
+  "reuse": "ph/creature-ant-scouts",
+  "note": "black ant"
+ },
+ "🐝": {
+  "slug": "ico-bee",
+  "group": "animals",
+  "reuse": "ph/creature-giant-bumblebee",
+  "note": "striped bee"
+ },
+ "🐞": {
+  "slug": "ico-ladybird",
+  "group": "animals",
+  "reuse": "animals/ladybird",
+  "note": "red spotted ladybird"
+ },
+ "🐟": {
+  "slug": "ico-fish",
+  "group": "animals",
+  "reuse": "ph/creature-silverfin",
+  "note": "round orange fish"
+ },
+ "🐢": {
+  "slug": "ico-turtle",
+  "group": "animals",
+  "reuse": "animals/tortoise",
+  "note": "domed turtle"
+ },
+ "🐤": {
+  "slug": "ico-chicken",
+  "group": "animals",
+  "reuse": "animals/hen",
+  "note": "hen"
+ },
+ "🐦": {
+  "slug": "ico-bird",
+  "group": "animals",
+  "reuse": "ph/creature-great-hawk",
+  "note": "small round songbird"
+ },
+ "🐦‍⬛": {
+  "slug": "ico-bird",
+  "group": "animals",
+  "reuse": "ph/creature-great-hawk",
+  "note": "small round songbird"
+ },
+ "🐪": {
+  "slug": "ico-safari",
+  "group": "animals",
+  "reuse": null,
+  "note": "elephant"
+ },
+ "🐭": {
+  "slug": "ico-mouse",
+  "group": "animals",
+  "reuse": "ph/creature-barn-rat",
+  "note": "mouse head"
+ },
+ "🐲": {
+  "slug": "ico-dragon",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "friendly green dragon head"
+ },
+ "🐸": {
+  "slug": "ico-frog",
+  "group": "animals",
+  "reuse": "animals/frog",
+  "note": "round green frog"
+ },
+ "🐺": {
+  "slug": "ico-wolf",
+  "group": "animals",
+  "reuse": "ph/creature-bramble-wolf",
+  "note": "wolf"
+ },
+ "🐻": {
+  "slug": "ico-bear",
+  "group": "animals",
+  "reuse": "ph/creature-black-bear",
+  "note": "bear head"
+ },
+ "🐾": {
+  "slug": "ico-paw",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "paw print"
+ },
+ "🐿️": {
+  "slug": "ico-squirrel",
+  "group": "animals",
+  "reuse": null,
+  "note": "squirrel"
+ },
+ "👀": {
+  "slug": "ico-eyes",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "pair of eyes"
+ },
+ "👁️": {
+  "slug": "ico-eyes",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "pair of eyes"
+ },
+ "👂": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses, ornamental"
+ },
+ "👆": {
+  "slug": "ico-pointing",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "pointing finger"
+ },
+ "👉": {
+  "slug": "ico-pointing",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "pointing finger"
+ },
+ "👋": {
+  "slug": "ico-hand-wave",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "waving hand"
+ },
+ "👍": {
+  "slug": "ico-thumbs-up",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "thumbs up"
+ },
+ "👎": {
+  "slug": "ico-thumbs-down",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "thumbs down"
+ },
+ "👏": {
+  "slug": "ico-clap",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "clapping hands"
+ },
+ "👑": {
+  "slug": "ico-crown",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "gold crown"
+ },
+ "👛": {
+  "slug": "ico-handbag",
+  "group": "objects-tools",
+  "reuse": "ph/gathering-pouch",
+  "note": "small pouch"
+ },
+ "👜": {
+  "slug": "ico-handbag",
+  "group": "objects-tools",
+  "reuse": "ph/gathering-pouch",
+  "note": "small pouch"
+ },
+ "👢": {
+  "slug": "ico-boot",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "hiking boot"
+ },
+ "👤": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "👥": {
+  "slug": "ico-people",
+  "group": "people",
+  "reuse": "ph/nav-friends",
+  "note": "two villager busts"
+ },
+ "👫": {
+  "slug": "ico-people",
+  "group": "people",
+  "reuse": "ph/nav-friends",
+  "note": "two villager busts"
+ },
+ "👹": {
+  "slug": "ico-goblin",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "green goblin face"
+ },
+ "👺": {
+  "slug": "ico-goblin",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "green goblin face"
+ },
+ "👻": {
+  "slug": "ico-ghost",
+  "group": "animals",
+  "reuse": "ph/creature-will-o-wisp",
+  "note": "small ghost"
+ },
+ "💀": {
+  "slug": "ico-skull",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "skull"
+ },
+ "💃": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "💎": {
+  "slug": "ico-gem",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "faceted blue gem"
+ },
+ "💐": {
+  "slug": "ico-bouquet",
+  "group": "nature-plants",
+  "reuse": "ph/nav-arranging",
+  "note": "wrapped posy of mixed flowers"
+ },
+ "💓": {
+  "slug": "ico-heart-red",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red heart"
+ },
+ "💔": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "💗": {
+  "slug": "ico-heart-red",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red heart"
+ },
+ "💚": {
+  "slug": "ico-heart-green",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "green heart"
+ },
+ "💛": {
+  "slug": "ico-heart-yellow",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "yellow heart (kindness)"
+ },
+ "💡": {
+  "slug": "ico-bulb",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "light bulb"
+ },
+ "💤": {
+  "slug": "ico-face-sigh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sighing face"
+ },
+ "💥": {
+  "slug": "ico-burst",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "cartoon impact starburst, orange and yellow"
+ },
+ "💦": {
+  "slug": "ico-droplet",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "blue water drop"
+ },
+ "💧": {
+  "slug": "ico-droplet",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "blue water drop"
+ },
+ "💨": {
+  "slug": "ico-wind",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "swirling wind lines"
+ },
+ "💪": {
+  "slug": "ico-strength",
+  "group": "people",
+  "reuse": null,
+  "note": "flexed arm"
+ },
+ "💫": {
+  "slug": "ico-sparkle",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "gold three-point sparkle cluster"
+ },
+ "💬": {
+  "slug": "ico-speech",
+  "group": "ui-status",
+  "reuse": "ph/nav-feedback",
+  "note": "speech bubble"
+ },
+ "💰": {
+  "slug": "ico-money-bag",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "coin sack"
+ },
+ "💱": {
+  "slug": "ico-coin",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "gold coin"
+ },
+ "💾": {
+  "slug": "ico-floppy",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "floppy disk (save)"
+ },
+ "📄": {
+  "slug": "ico-page",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sheet of paper"
+ },
+ "📅": {
+  "slug": "ico-calendar",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "tear-off calendar page"
+ },
+ "📈": {
+  "slug": "ico-chart",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "rising bar chart"
+ },
+ "📊": {
+  "slug": "ico-chart",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "rising bar chart"
+ },
+ "📋": {
+  "slug": "ico-clipboard",
+  "group": "ui-status",
+  "reuse": "ph/nav-tasks",
+  "note": "clipboard"
+ },
+ "📌": {
+  "slug": "ico-pushpin",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "round pin"
+ },
+ "📍": {
+  "slug": "ico-map-pin",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "location pin"
+ },
+ "📏": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 5 uses; replace with words"
+ },
+ "📐": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 5 uses; replace with words"
+ },
+ "📒": {
+  "slug": "ico-book-red",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "red book"
+ },
+ "📕": {
+  "slug": "ico-book-red",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "red book"
+ },
+ "📖": {
+  "slug": "ico-book-open",
+  "group": "objects-tools",
+  "reuse": "ph/nav-almanac",
+  "note": "open almanac"
+ },
+ "📗": {
+  "slug": "ico-book-green",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "green book (guide)"
+ },
+ "📚": {
+  "slug": "ico-books",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "stacked books"
+ },
+ "📜": {
+  "slug": "ico-scroll",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "rolled scroll"
+ },
+ "📝": {
+  "slug": "ico-notepad",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "notepad"
+ },
+ "📣": {
+  "slug": "ico-bell",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "brass bell"
+ },
+ "📦": {
+  "slug": "ico-box",
+  "group": "objects-tools",
+  "reuse": "ph/cardboard-sheet",
+  "note": "cardboard box"
+ },
+ "📨": {
+  "slug": "ico-mailbox",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "post box"
+ },
+ "📬": {
+  "slug": "ico-mailbox",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "post box"
+ },
+ "📮": {
+  "slug": "ico-mailbox",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "post box"
+ },
+ "📰": {
+  "slug": "ico-newspaper",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "newspaper"
+ },
+ "📱": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses"
+ },
+ "🔀": {
+  "slug": "ico-shuffle",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "crossed arrows"
+ },
+ "🔁": {
+  "slug": "ico-refresh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "two curved arrows"
+ },
+ "🔄": {
+  "slug": "ico-refresh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "two curved arrows"
+ },
+ "🔍": {
+  "slug": "ico-magnifier",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "magnifying glass"
+ },
+ "🔎": {
+  "slug": "ico-magnifier",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "magnifying glass"
+ },
+ "🔑": {
+  "slug": "ico-key",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "brass key"
+ },
+ "🔒": {
+  "slug": "ico-lock",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "padlock"
+ },
+ "🔔": {
+  "slug": "ico-bell",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "brass bell"
+ },
+ "🔗": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🔘": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🔢": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses"
+ },
+ "🔤": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses"
+ },
+ "🔥": {
+  "slug": "ico-fire",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "orange flame"
+ },
+ "🔧": {
+  "slug": "ico-tools",
+  "group": "objects-tools",
+  "reuse": "ph/nav-crafting",
+  "note": "hammer and wrench"
+ },
+ "🔨": {
+  "slug": "ico-hammer",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "claw hammer"
+ },
+ "🔩": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use, one-off"
+ },
+ "🔪": {
+  "slug": "ico-knife",
+  "group": "objects-tools",
+  "reuse": "ph/foraging-knife",
+  "note": "knife"
+ },
+ "🔬": {
+  "slug": "ico-magnifier",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "magnifying glass"
+ },
+ "🔭": {
+  "slug": "ico-telescope",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "telescope"
+ },
+ "🔮": {
+  "slug": "ico-crystal-ball",
+  "group": "nature-plants",
+  "reuse": "ph/sea-glass",
+  "note": "violet orb / sea glass"
+ },
+ "🔱": {
+  "slug": "ico-fork",
+  "group": "objects-tools",
+  "reuse": "ph/garden-fork",
+  "note": "garden fork"
+ },
+ "🔴": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: fallback-only; ph/radish.svg exists"
+ },
+ "🕊️": {
+  "slug": "ico-dove",
+  "group": "animals",
+  "reuse": "animals/pigeon",
+  "note": "white dove"
+ },
+ "🕐": {
+  "slug": "ico-clock",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "round wall clock"
+ },
+ "🕒": {
+  "slug": "ico-clock",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "round wall clock"
+ },
+ "🕯️": {
+  "slug": "ico-lantern",
+  "group": "treks-combat",
+  "reuse": "ph/tin-lantern",
+  "note": "paper lantern"
+ },
+ "🕰️": {
+  "slug": "ico-clock",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "round wall clock"
+ },
+ "🕳️": {
+  "slug": "ico-hole",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "dark burrow hole in the grass with a ring of soil (delve entrance)"
+ },
+ "🕷️": {
+  "slug": "ico-spider",
+  "group": "animals",
+  "reuse": "ph/creature-orb-spider",
+  "note": "dangling spider"
+ },
+ "🕸️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses"
+ },
+ "🖋️": {
+  "slug": "ico-pencil",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "yellow pencil (edit / write)"
+ },
+ "🖐️": {
+  "slug": "ico-hand-stop",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "flat open hand"
+ },
+ "🖥️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🖼": {
+  "slug": "ico-palette",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "paint palette"
+ },
+ "🖼️": {
+  "slug": "ico-palette",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "paint palette"
+ },
+ "🗂️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses"
+ },
+ "🗄️": {
+  "slug": "ico-box",
+  "group": "objects-tools",
+  "reuse": "ph/cardboard-sheet",
+  "note": "cardboard box"
+ },
+ "🗑️": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🗒️": {
+  "slug": "ico-notepad",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "notepad"
+ },
+ "🗓️": {
+  "slug": "ico-calendar",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "tear-off calendar page"
+ },
+ "🗝️": {
+  "slug": "ico-key",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "brass key"
+ },
+ "🗡️": {
+  "slug": "ico-sword",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "crossed swords"
+ },
+ "🗣": {
+  "slug": "ico-speech",
+  "group": "ui-status",
+  "reuse": "ph/nav-feedback",
+  "note": "speech bubble"
+ },
+ "🗣️": {
+  "slug": "ico-speech",
+  "group": "ui-status",
+  "reuse": "ph/nav-feedback",
+  "note": "speech bubble"
+ },
+ "🗨": {
+  "slug": "ico-speech",
+  "group": "ui-status",
+  "reuse": "ph/nav-feedback",
+  "note": "speech bubble"
+ },
+ "🗳️": {
+  "slug": "ico-ballot",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "ballot box"
+ },
+ "🗺️": {
+  "slug": "ico-world-map",
+  "group": "treks-combat",
+  "reuse": "ph/nav-world",
+  "note": "folded map"
+ },
+ "🗼": {
+  "slug": "ico-tower",
+  "group": "treks-combat",
+  "reuse": "stops/tower",
+  "note": "stone tower"
+ },
+ "🗿": {
+  "slug": "ico-moss-rock",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "grey boulder with moss"
+ },
+ "😊": {
+  "slug": "ico-face-smile",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "small smiling face"
+ },
+ "😋": {
+  "slug": "ico-face-smile",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "small smiling face"
+ },
+ "😌": {
+  "slug": "ico-face-smile",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "small smiling face"
+ },
+ "😮‍💨": {
+  "slug": "ico-face-sigh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sighing face"
+ },
+ "😴": {
+  "slug": "ico-face-sigh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sighing face"
+ },
+ "🙂": {
+  "slug": "ico-face-smile",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "small smiling face"
+ },
+ "🙃": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🙇": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "🙋": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "🙏": {
+  "slug": "ico-prayer",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "hands pressed together"
+ },
+ "🚣": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "🚧": {
+  "slug": "ico-roadworks",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "barrier"
+ },
+ "🚩": {
+  "slug": "ico-flag-red",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "red flag"
+ },
+ "🚪": {
+  "slug": "ico-door",
+  "group": "places",
+  "reuse": null,
+  "note": "wooden door"
+ },
+ "🚫": {
+  "slug": "ico-cross",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "red cross"
+ },
+ "🚶": {
+  "slug": "ico-walker",
+  "group": "people",
+  "reuse": null,
+  "note": "walking figure"
+ },
+ "🚿": {
+  "slug": "ico-watering-can",
+  "group": "objects-tools",
+  "reuse": "ph/tin-watering-can",
+  "note": "tin watering can"
+ },
+ "🛁": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🛂": {
+  "slug": "ico-id-card",
+  "group": "ui-status",
+  "reuse": "ph/nav-passport",
+  "note": "passport"
+ },
+ "🛋️": {
+  "slug": "ico-chair",
+  "group": "places",
+  "reuse": null,
+  "note": "wooden chair"
+ },
+ "🛌": {
+  "slug": "ico-bed",
+  "group": "places",
+  "reuse": null,
+  "note": "bed"
+ },
+ "🛍️": {
+  "slug": "ico-handbag",
+  "group": "objects-tools",
+  "reuse": "ph/gathering-pouch",
+  "note": "small pouch"
+ },
+ "🛏️": {
+  "slug": "ico-bed",
+  "group": "places",
+  "reuse": null,
+  "note": "bed"
+ },
+ "🛒": {
+  "slug": "ico-stamp-cart",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "cart"
+ },
+ "🛖": {
+  "slug": "ico-home",
+  "group": "places",
+  "reuse": null,
+  "note": "little cottage with chimney"
+ },
+ "🛝": {
+  "slug": "ico-circus-tent",
+  "group": "places",
+  "reuse": null,
+  "note": "striped fair tent"
+ },
+ "🛟": {
+  "slug": "ico-boat",
+  "group": "places",
+  "reuse": null,
+  "note": "canoe"
+ },
+ "🛠️": {
+  "slug": "ico-tools",
+  "group": "objects-tools",
+  "reuse": "ph/nav-crafting",
+  "note": "hammer and wrench"
+ },
+ "🛡": {
+  "slug": "ico-shield",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "round shield"
+ },
+ "🛡️": {
+  "slug": "ico-shield",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "round shield"
+ },
+ "🛢️": {
+  "slug": "ico-barrel",
+  "group": "objects-tools",
+  "reuse": "ph/rain_barrel-1",
+  "note": "barrel"
+ },
+ "🛣️": {
+  "slug": "ico-path",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "winding road"
+ },
+ "🛤️": {
+  "slug": "ico-path",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "winding road"
+ },
+ "🛶": {
+  "slug": "ico-boat",
+  "group": "places",
+  "reuse": null,
+  "note": "canoe"
+ },
+ "🟠": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: colour dot, fallback-only (amber)"
+ },
+ "🟣": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: fallback-only; ph/fig.svg exists"
+ },
+ "🟤": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: fallback-only; ph/date.svg exists"
+ },
+ "🟨": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: colour swatch: use CSS square"
+ },
+ "🟩": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: colour swatch: use CSS square"
+ },
+ "🟫": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: colour swatch (map legend): use CSS coloured square"
+ },
+ "🤍": {
+  "slug": "ico-heart-yellow",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "yellow heart (kindness)"
+ },
+ "🤝": {
+  "slug": "ico-handshake",
+  "group": "people",
+  "reuse": "ph/nav-trading",
+  "note": "two hands shaking"
+ },
+ "🤢": {
+  "slug": "ico-face-sigh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sighing face"
+ },
+ "🤫": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 3 uses (one-off flavour text); keep text only"
+ },
+ "🤲": {
+  "slug": "ico-prayer",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "hands pressed together"
+ },
+ "🤸": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "🥀": {
+  "slug": "ico-blossom",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "pink five-petal cherry blossom"
+ },
+ "🥁": {
+  "slug": "ico-drum",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "drum"
+ },
+ "🥄": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: fallback-only (scoop); ph art exists"
+ },
+ "🥇": {
+  "slug": "ico-medal-gold",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "gold medal"
+ },
+ "🥈": {
+  "slug": "ico-medal-silver",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "silver medal"
+ },
+ "🥉": {
+  "slug": "ico-medal-bronze",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "bronze medal"
+ },
+ "🥑": {
+  "slug": "ico-olive",
+  "group": "food",
+  "reuse": "ph/olive",
+  "note": "olive branch fruit"
+ },
+ "🥒": {
+  "slug": "ico-leafy-green",
+  "group": "food",
+  "reuse": "ph/lettuce",
+  "note": "lettuce head"
+ },
+ "🥔": {
+  "slug": "ico-potato",
+  "group": "food",
+  "reuse": "ph/potato",
+  "note": "potato"
+ },
+ "🥕": {
+  "slug": "ico-carrot",
+  "group": "food",
+  "reuse": "ph/carrot",
+  "note": "carrot"
+ },
+ "🥗": {
+  "slug": "ico-salad",
+  "group": "food",
+  "reuse": "ph/garden-salad",
+  "note": "salad bowl"
+ },
+ "🥘": {
+  "slug": "ico-soup-bowl",
+  "group": "food",
+  "reuse": "ph/garden-vegetable-soup",
+  "note": "steaming stew pot"
+ },
+ "🥚": {
+  "slug": "ico-egg",
+  "group": "animals",
+  "reuse": "animals/item-hen-egg",
+  "note": "cream egg"
+ },
+ "🥛": {
+  "slug": "ico-milk",
+  "group": "food",
+  "reuse": "animals/item-goat-milk",
+  "note": "milk glass"
+ },
+ "🥜": {
+  "slug": "ico-peanut",
+  "group": "food",
+  "reuse": "ph/peanut",
+  "note": "peanut shells"
+ },
+ "🥝": {
+  "slug": "ico-melon",
+  "group": "food",
+  "reuse": "ph/melon",
+  "note": "green melon wedge"
+ },
+ "🥞": {
+  "slug": "ico-pancakes",
+  "group": "food",
+  "reuse": "ph/pancakes",
+  "note": "stack of pancakes"
+ },
+ "🥟": {
+  "slug": "ico-pie",
+  "group": "food",
+  "reuse": "ph/berry-tart",
+  "note": "lattice pie slice"
+ },
+ "🥣": {
+  "slug": "ico-porridge",
+  "group": "food",
+  "reuse": "ph/goat-milk-porridge",
+  "note": "bowl of porridge"
+ },
+ "🥤": {
+  "slug": "ico-juice",
+  "group": "food",
+  "reuse": null,
+  "note": "juice box with straw"
+ },
+ "🥥": {
+  "slug": "ico-banana",
+  "group": "food",
+  "reuse": "ph/banana",
+  "note": "banana"
+ },
+ "🥦": {
+  "slug": "ico-leafy-green",
+  "group": "food",
+  "reuse": "ph/lettuce",
+  "note": "lettuce head"
+ },
+ "🥧": {
+  "slug": "ico-pie",
+  "group": "food",
+  "reuse": "ph/berry-tart",
+  "note": "lattice pie slice"
+ },
+ "🥨": {
+  "slug": "ico-bread",
+  "group": "food",
+  "reuse": null,
+  "note": "round loaf"
+ },
+ "🥪": {
+  "slug": "ico-bread",
+  "group": "food",
+  "reuse": null,
+  "note": "round loaf"
+ },
+ "🥬": {
+  "slug": "ico-leafy-green",
+  "group": "food",
+  "reuse": "ph/lettuce",
+  "note": "lettuce head"
+ },
+ "🥭": {
+  "slug": "ico-peach",
+  "group": "food",
+  "reuse": "ph/peach",
+  "note": "peach with leaf"
+ },
+ "🥶": {
+  "slug": "ico-face-sigh",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sighing face"
+ },
+ "🥾": {
+  "slug": "ico-boot",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "hiking boot"
+ },
+ "🦀": {
+  "slug": "ico-crab",
+  "group": "animals",
+  "reuse": "ph/creature-shore-crab",
+  "note": "red crab"
+ },
+ "🦁": {
+  "slug": "ico-cat",
+  "group": "animals",
+  "reuse": "ph/creature-tufted-lynx",
+  "note": "cat"
+ },
+ "🦂": {
+  "slug": "ico-spider",
+  "group": "animals",
+  "reuse": "ph/creature-orb-spider",
+  "note": "dangling spider"
+ },
+ "🦆": {
+  "slug": "ico-duck",
+  "group": "animals",
+  "reuse": null,
+  "note": "duck"
+ },
+ "🦇": {
+  "slug": "ico-bat",
+  "group": "animals",
+  "reuse": "ph/creature-echo-bat",
+  "note": "bat"
+ },
+ "🦈": {
+  "slug": "ico-sea-creature",
+  "group": "animals",
+  "reuse": null,
+  "note": "octopus"
+ },
+ "🦉": {
+  "slug": "ico-owl",
+  "group": "animals",
+  "reuse": "ph/creature-tawny-owl",
+  "note": "owl"
+ },
+ "🦊": {
+  "slug": "ico-fox",
+  "group": "animals",
+  "reuse": "ph/creature-red-fox",
+  "note": "fox"
+ },
+ "🦋": {
+  "slug": "ico-butterfly",
+  "group": "animals",
+  "reuse": "animals/butterfly",
+  "note": "blue-orange butterfly"
+ },
+ "🦌": {
+  "slug": "ico-deer",
+  "group": "animals",
+  "reuse": "ph/creature-lichen-reindeer",
+  "note": "antlered deer"
+ },
+ "🦍": {
+  "slug": "ico-monkey",
+  "group": "animals",
+  "reuse": "ph/creature-mischief-monkey",
+  "note": "monkey"
+ },
+ "🦎": {
+  "slug": "ico-lizard",
+  "group": "animals",
+  "reuse": "ph/creature-sun-lizard",
+  "note": "small lizard"
+ },
+ "🦐": {
+  "slug": "ico-crab",
+  "group": "animals",
+  "reuse": "ph/creature-shore-crab",
+  "note": "red crab"
+ },
+ "🦒": {
+  "slug": "ico-safari",
+  "group": "animals",
+  "reuse": null,
+  "note": "elephant"
+ },
+ "🦔": {
+  "slug": "ico-hedgehog",
+  "group": "animals",
+  "reuse": null,
+  "note": "hedgehog"
+ },
+ "🦗": {
+  "slug": "ico-cricket",
+  "group": "animals",
+  "reuse": "ph/creature-drumming-cricket",
+  "note": "green cricket"
+ },
+ "🦘": {
+  "slug": "ico-safari",
+  "group": "animals",
+  "reuse": null,
+  "note": "elephant"
+ },
+ "🦙": {
+  "slug": "ico-safari",
+  "group": "animals",
+  "reuse": null,
+  "note": "elephant"
+ },
+ "🦚": {
+  "slug": "ico-bird",
+  "group": "animals",
+  "reuse": "ph/creature-great-hawk",
+  "note": "small round songbird"
+ },
+ "🦜": {
+  "slug": "ico-bird",
+  "group": "animals",
+  "reuse": "ph/creature-great-hawk",
+  "note": "small round songbird"
+ },
+ "🦝": {
+  "slug": "ico-badger",
+  "group": "animals",
+  "reuse": "ph/creature-badger",
+  "note": "badger"
+ },
+ "🦞": {
+  "slug": "ico-crab",
+  "group": "animals",
+  "reuse": "ph/creature-shore-crab",
+  "note": "red crab"
+ },
+ "🦟": {
+  "slug": "ico-fly",
+  "group": "animals",
+  "reuse": "ph/creature-gnat-cloud",
+  "note": "buzzing fly"
+ },
+ "🦡": {
+  "slug": "ico-badger",
+  "group": "animals",
+  "reuse": "ph/creature-badger",
+  "note": "badger"
+ },
+ "🦢": {
+  "slug": "ico-duck",
+  "group": "animals",
+  "reuse": null,
+  "note": "duck"
+ },
+ "🦦": {
+  "slug": "ico-otter",
+  "group": "animals",
+  "reuse": "ph/creature-sea-otter-bandit",
+  "note": "otter"
+ },
+ "🦪": {
+  "slug": "ico-shell",
+  "group": "nature-plants",
+  "reuse": "ph/spiral-shell",
+  "note": "spiral seashell"
+ },
+ "🦫": {
+  "slug": "ico-otter",
+  "group": "animals",
+  "reuse": "ph/creature-sea-otter-bandit",
+  "note": "otter"
+ },
+ "🦯": {
+  "slug": "ico-staff",
+  "group": "treks-combat",
+  "reuse": "ph/walking-stick",
+  "note": "walking staff"
+ },
+ "🦴": {
+  "slug": "ico-bone",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "old curved bone"
+ },
+ "🧁": {
+  "slug": "ico-cake",
+  "group": "food",
+  "reuse": "ph/carrot-cake",
+  "note": "layered cake slice"
+ },
+ "🧂": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: fallback-only; ph/sea-salt.svg"
+ },
+ "🧃": {
+  "slug": "ico-juice",
+  "group": "food",
+  "reuse": null,
+  "note": "juice box with straw"
+ },
+ "🧄": {
+  "slug": "ico-onion",
+  "group": "food",
+  "reuse": "ph/onion",
+  "note": "onion"
+ },
+ "🧅": {
+  "slug": "ico-onion",
+  "group": "food",
+  "reuse": "ph/onion",
+  "note": "onion"
+ },
+ "🧊": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🧑": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "🧑‍🌾": {
+  "slug": "ico-gnome-gardener",
+  "group": "people",
+  "reuse": "ph/nav-gnome",
+  "note": "gnome with a hat holding a trowel"
+ },
+ "🧑‍🏫": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "🧑‍🔧": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "🧑‍🤝‍🧑": {
+  "slug": "ico-handshake",
+  "group": "people",
+  "reuse": "ph/nav-trading",
+  "note": "two hands shaking"
+ },
+ "🧔": {
+  "slug": "ico-person",
+  "group": "people",
+  "reuse": "ph/nav-account",
+  "note": "neutral villager bust"
+ },
+ "🧖": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "🧗": {
+  "slug": "ico-activity",
+  "group": "people",
+  "reuse": null,
+  "note": "figure doing sport"
+ },
+ "🧙": {
+  "slug": "ico-wizard",
+  "group": "people",
+  "reuse": null,
+  "note": "gnome wizard with star hat"
+ },
+ "🧠": {
+  "slug": "ico-brain",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "pink brain (Lore / thinking)"
+ },
+ "🧤": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 2 uses"
+ },
+ "🧩": {
+  "slug": "ico-puzzle",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "jigsaw piece"
+ },
+ "🧪": {
+  "slug": "ico-test-tube",
+  "group": "objects-tools",
+  "reuse": "ph/soil-test-kit",
+  "note": "test tube"
+ },
+ "🧬": {
+  "slug": "ico-dna",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "double helix"
+ },
+ "🧭": {
+  "slug": "ico-compass",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "brass compass"
+ },
+ "🧰": {
+  "slug": "ico-toolbox",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "red-brown tin toolbox with handle"
+ },
+ "🧱": {
+  "slug": "ico-stone-wall",
+  "group": "nature-plants",
+  "reuse": "ph/building-stone",
+  "note": "stack of bricks or stone blocks"
+ },
+ "🧳": {
+  "slug": "ico-handbag",
+  "group": "objects-tools",
+  "reuse": "ph/gathering-pouch",
+  "note": "small pouch"
+ },
+ "🧵": {
+  "slug": "ico-rope",
+  "group": "objects-tools",
+  "reuse": "ph/rope",
+  "note": "coiled rope"
+ },
+ "🧺": {
+  "slug": "ico-basket",
+  "group": "objects-tools",
+  "reuse": "ph/woven-basket",
+  "note": "woven gathering basket"
+ },
+ "🧾": {
+  "slug": "ico-page",
+  "group": "ui-status",
+  "reuse": null,
+  "note": "sheet of paper"
+ },
+ "🧿": {
+  "slug": "ico-crystal-ball",
+  "group": "nature-plants",
+  "reuse": "ph/sea-glass",
+  "note": "violet orb / sea glass"
+ },
+ "🩹": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🪃": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🪅": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use, one-off"
+ },
+ "🪏": {
+  "slug": "ico-spade",
+  "group": "objects-tools",
+  "reuse": "ph/steel-spade",
+  "note": "spade"
+ },
+ "🪑": {
+  "slug": "ico-chair",
+  "group": "places",
+  "reuse": null,
+  "note": "wooden chair"
+ },
+ "🪓": {
+  "slug": "ico-axe",
+  "group": "treks-combat",
+  "reuse": "ph/hatchet",
+  "note": "hatchet"
+ },
+ "🪔": {
+  "slug": "ico-lantern",
+  "group": "treks-combat",
+  "reuse": "ph/tin-lantern",
+  "note": "paper lantern"
+ },
+ "🪙": {
+  "slug": "ico-coin",
+  "group": "objects-tools",
+  "reuse": null,
+  "note": "gold coin"
+ },
+ "🪚": {
+  "slug": "ico-axe",
+  "group": "treks-combat",
+  "reuse": "ph/hatchet",
+  "note": "hatchet"
+ },
+ "🪜": {
+  "slug": "ico-ladder",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "wooden ladder"
+ },
+ "🪟": {
+  "slug": "ico-door",
+  "group": "places",
+  "reuse": null,
+  "note": "wooden door"
+ },
+ "🪢": {
+  "slug": "ico-rope",
+  "group": "objects-tools",
+  "reuse": "ph/rope",
+  "note": "coiled rope"
+ },
+ "🪣": {
+  "slug": "ico-bucket",
+  "group": "treks-combat",
+  "reuse": "ph/tide-bucket",
+  "note": "wooden bucket"
+ },
+ "🪤": {
+  "slug": "skip",
+  "group": "skip",
+  "reuse": null,
+  "note": "SKIP: 1 use"
+ },
+ "🪧": {
+  "slug": "ico-signpost",
+  "group": "treks-combat",
+  "reuse": null,
+  "note": "wooden signpost"
+ },
+ "🪨": {
+  "slug": "ico-moss-rock",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "grey boulder with moss"
+ },
+ "🪰": {
+  "slug": "ico-fly",
+  "group": "animals",
+  "reuse": "ph/creature-gnat-cloud",
+  "note": "buzzing fly"
+ },
+ "🪱": {
+  "slug": "ico-worm",
+  "group": "animals",
+  "reuse": "animals/worm",
+  "note": "pink earthworm"
+ },
+ "🪲": {
+  "slug": "ico-beetle",
+  "group": "animals",
+  "reuse": "ph/beetle-shell",
+  "note": "shiny dark beetle"
+ },
+ "🪴": {
+  "slug": "ico-sprout",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "two-leaf seedling in a little soil mound"
+ },
+ "🪵": {
+  "slug": "ico-log",
+  "group": "nature-plants",
+  "reuse": "ph/oak-log",
+  "note": "cut log end showing rings"
+ },
+ "🪶": {
+  "slug": "ico-feather",
+  "group": "nature-plants",
+  "reuse": "ph/bright-feather",
+  "note": "single cream feather"
+ },
+ "🪷": {
+  "slug": "ico-blossom",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "pink five-petal cherry blossom"
+ },
+ "🪸": {
+  "slug": "ico-shell",
+  "group": "nature-plants",
+  "reuse": "ph/spiral-shell",
+  "note": "spiral seashell"
+ },
+ "🪺": {
+  "slug": "ico-bird",
+  "group": "animals",
+  "reuse": "ph/creature-great-hawk",
+  "note": "small round songbird"
+ },
+ "🪼": {
+  "slug": "ico-sea-creature",
+  "group": "animals",
+  "reuse": null,
+  "note": "octopus"
+ },
+ "🫐": {
+  "slug": "ico-grapes",
+  "group": "food",
+  "reuse": "ph/grape",
+  "note": "purple grape bunch"
+ },
+ "🫑": {
+  "slug": "ico-chili",
+  "group": "food",
+  "reuse": "ph/chili-pepper",
+  "note": "red chili"
+ },
+ "🫒": {
+  "slug": "ico-olive",
+  "group": "food",
+  "reuse": "ph/olive",
+  "note": "olive branch fruit"
+ },
+ "🫓": {
+  "slug": "ico-flatbread",
+  "group": "food",
+  "reuse": "ph/herb-flatbread",
+  "note": "flat round bread"
+ },
+ "🫕": {
+  "slug": "ico-soup-bowl",
+  "group": "food",
+  "reuse": "ph/garden-vegetable-soup",
+  "note": "steaming stew pot"
+ },
+ "🫖": {
+  "slug": "ico-tea",
+  "group": "food",
+  "reuse": "ph/mint-tea",
+  "note": "steaming teacup"
+ },
+ "🫗": {
+  "slug": "ico-jar",
+  "group": "food",
+  "reuse": null,
+  "note": "empty preserving jar with lid"
+ },
+ "🫘": {
+  "slug": "ico-sprout",
+  "group": "nature-plants",
+  "reuse": null,
+  "note": "two-leaf seedling in a little soil mound"
+ },
+ "🫙": {
+  "slug": "ico-jar",
+  "group": "food",
+  "reuse": null,
+  "note": "empty preserving jar with lid"
+ },
+ "🫚": {
+  "slug": "ico-onion",
+  "group": "food",
+  "reuse": "ph/onion",
+  "note": "onion"
+ },
+ "🫛": {
+  "slug": "ico-peanut",
+  "group": "food",
+  "reuse": "ph/peanut",
+  "note": "peanut shells"
+ },
+ "🫧": {
+  "slug": "ico-droplet",
+  "group": "weather-time",
+  "reuse": null,
+  "note": "blue water drop"
+ }
+}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-theme="{{THEME}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="{{CSS}}">
+<style>/* demo frame only: not part of the game */
+body{margin:0;padding:0} .stage{padding:12px var(--gut);max-width:{{W}}px;margin:0 auto} .stage section{margin:0 0 6px;padding:6px 0}
+.row2{display:flex;gap:12px;flex-wrap:wrap} .row2>*{flex:1 1 300px;min-width:0}
+</style></head>
+<body data-area="garden"><main class="stage" id="main">
+
+<section data-shot="type"><div class="box">
+<h1 class="center">Fernhollow Patch</h1>
+<p class="help center">Help text: one short line, muted, centred.</p>
+<h2 class="center">Section heading</h2>
+<h3 class="center">Sub heading</h3>
+<p class="center">Body text, 16px phone, 15px desktop. Short lines.</p>
+<p class="center muted"><small>Small, muted: 13px</small></p>
+<p class="center"><span class="good">Good news 600</span> · <span class="bad">Bad news 600</span></p>
+</div></section>
+
+<section data-shot="buttons"><div class="box center">
+<p><a class="btn" href="#">[[ico:spade]] Dig</a> <a class="btn ghost" href="#">Look</a></p>
+<p><a class="btn gold" href="#">Buy · 40 Petals</a> <a class="btn red" href="#">Discard</a></p>
+<p><a class="btn small" href="#">Small</a> <a class="btn small ghost" href="#">Small ghost</a> <a class="btn disabled" href="#">Disabled</a></p>
+<p><a class="btn act" href="#">[[ico:watering-can]] Water <span class="cost">1 energy</span></a></p>
+</div></section>
+
+<section data-shot="tabs"><div class="box">
+<nav class="tabs center"><a class="on" href="#">Garden</a><a href="#">Beds</a><a href="#">Shed</a><a href="#">Rules</a></nav>
+<div class="chips center" style="justify-content:center"><span class="chip">Lv 7</span><span class="chip chip-in">In season</span><span class="chip chip-off">Off season</span><span class="chip chip-pest">Aphids</span><span class="chip chip-rain">Rain</span></div>
+</div></section>
+
+<section data-shot="choice"><div class="box"><div class="choicelist">
+<button class="choice primary"><span class="choice-ico">[[ico:carrot]]</span><span class="choice-body"><b class="choice-title">Plant carrots</b><small class="choice-sub">Ready in 3 days</small></span><b class="choice-badge good">85%</b></button>
+<button class="choice"><span class="choice-ico">[[ico:basket]]</span><span class="choice-body"><b class="choice-title">Pick berries</b><small class="choice-sub">Costs 2 energy</small></span><b class="choice-badge cost">2</b></button>
+<button class="choice"><span class="choice-ico">[[ico:mushroom]]</span><span class="choice-body"><b class="choice-title">Forage the wood</b><small class="choice-sub">Risky</small></span><b class="choice-badge poor">20%</b></button>
+<button class="choice is-disabled" disabled><span class="choice-ico">[[ico:shop]]</span><span class="choice-body"><b class="choice-title">Market</b><small class="choice-sub">Closed until morning</small></span><b class="choice-badge free">Shut</b></button>
+</div></div></section>
+
+<section data-shot="fold"><div class="box">
+<details class="fold" open><summary>How it works</summary><p>Folded text. Explanations hide until asked for.</p></details>
+<details class="fold"><summary>More detail</summary><p>Hidden.</p></details>
+</div></section>
+
+<section data-shot="flash"><div>
+<p class="flash">Planted 3 carrots.</p>
+<p class="flash err">Not enough energy.</p>
+<div class="box notice"><p>Notice box: gold edge, soft gold fill.</p></div>
+<div class="box danger"><p>Danger box: red outline.</p></div>
+</div></section>
+
+<section data-shot="picker"><div class="pickbox" style="width:100%;max-height:none">
+<div class="pickhead"><b>Choose a seed</b><button class="pickx" type="button">×</button></div>
+<div class="pickgrid">
+<button class="pcard" type="button"><span class="pcicon">[[ico:carrot]]</span><span class="pcname">Carrot</span><span class="pcqty">×4</span><span class="pcinfo">3 days</span></button>
+<button class="pcard on" type="button"><span class="pcicon">[[ico:mushroom]]</span><span class="pcname">Mushroom</span><span class="pcqty">×2</span><span class="pcinfo">5 days</span></button>
+</div>
+<div class="pickfoot"><span class="muted">1 chosen</span><a class="btn" href="#">Plant</a></div>
+</div></section>
+
+<section data-shot="form"><div class="box form">
+<label>Garden name<input type="text" value="Fernhollow Patch"></label>
+<label>Region<select><option>The Maplewold</option></select></label>
+<label class="check"><input type="checkbox" checked> Email me reminders</label>
+<p class="center"><button class="btn" type="button">Save</button></p>
+</div></section>
+<section data-shot="deskgrid"><div class="row2">
+<div class="box center"><h2>Today</h2><p class="help">Equal cards. Centred.</p><p><a class="btn" href="#">[[ico:spade]] Garden</a></p></div>
+<div class="box center"><h2>World</h2><p class="help">Small buttons, no lone full-width bars.</p><p><a class="btn ghost" href="#">[[ico:world-map]] Roads</a></p></div>
+<div class="box center"><h2>Satchel</h2><p class="help">Solid only for the main verb.</p><p><a class="btn ghost" href="#">[[ico:satchel]] Open</a></p></div>
+</div></section>
+
+</main></body></html>

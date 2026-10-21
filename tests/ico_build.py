@@ -12,6 +12,8 @@ MAP = os.environ.get('ICO_MAP', '/tmp/claude-0/-home-claude/ea011c08-e1f5-543d-9
 SHADOW = re.compile(r'<ellipse\b(?=[^>]*fill="#6a4528")(?=[^>]*opacity="\.5")[^>]*/>')       # Hearthlight ground shadow (warm umber .5 + cream ring)
 SHADOW_RAW = re.compile(r'^(<svg[^>]*>)<ellipse\b(?=[^>]*cy="5[2-9]")(?=[^>]*fill="#(?:000|6b4a2e)")(?=[^>]*opacity="\.[1-3]\d?")[^>]*/>')   # raw animals/ art: black/brown low-opacity ground blob (first child only)
 
+REDRAW = set('ico-ant ico-beetle ico-fly ico-fish ico-knife ico-mushroom ico-peach ico-peanut ico-four-leaf-clover ico-chili ico-cherry ico-sunflower ico-test-tube ico-watermelon ico-shell ico-snake ico-person ico-shop ico-shrine ico-tent ico-tower ico-goat ico-milk ico-caterpillar'.split())   # reuse candidates judged illegible/muddy at 16-24px: drawn fresh via ico_src instead
+
 def uniq_ids(s, slug):
     ids = re.findall(r'\bid="([^"]+)"', s)
     if not ids: return s
@@ -28,6 +30,7 @@ def reuse():
         if e.get('reuse'): done[e['slug']] = e['reuse']
     raster = []; n = 0
     for slug, rel in sorted(done.items()):
+        if slug in REDRAW: continue
         f = os.path.join(IMG, rel + '.svg')
         if not os.path.exists(f):
             raster.append((slug, rel)); continue
