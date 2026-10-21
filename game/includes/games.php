@@ -18,6 +18,7 @@ const GAMES = [
     'letters' => ['Lost Letters', '🗺️', 'letters.php', 'A daily riddle: work out which town or village it describes, go there, and lift the stone to find the letter.', 'letters_per_day'],   // v0.8.1
     'pest' => ['Pest Patrol', '🪰', 'pest.php', 'Flick aphids, gnats, caterpillars and slugs off a growing plant before they chew its leaves away. Keep a bug net handy for butterflies.', 'pest_plays_per_day'],   // v1.4.8:
     'hive' => ['Honey Hive Harvest', '🍯', 'hive.php', 'Lift the hive’s frames one by one. Listen to the hum, and bank your basket before a swarm wakes.', 'hive_plays_per_day'],
+    'burrow' => ['Burrow Sorting', '🦔', 'burrow.php', 'Five doors, five sleepy neighbours. Read the clues, knock, and work out who lives where.', 'burrow_plays_per_day'],   // v2.1
     'marrow' => ['Guess the Weight', '⚖️', 'marrow.php', 'Old Moss grows a giant crop every day. Guess its weight EXACTLY to win the growing jackpot.', 'marrow_guesses_per_day'],
 ];
 

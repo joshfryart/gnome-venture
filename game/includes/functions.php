@@ -358,6 +358,7 @@ function settings_schema(): array
         'spit_wind_max'      => ['label' => 'Seed Spitting: strongest wind (cm/s; a lucky gust is 1.5×)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 120],   // v1.4.0:
         'spit_min_ms'        => ['label' => 'Seed Spitting: least time (ms) between loading a seed and spitting it', 'type' => 'int', 'default' => '1000', 'min' => 0, 'max' => 10000],   // v1.4.0:
         'worm_wander'        => ['label' => 'Worm Hunting: % chance a worm wriggles one square after each dig (0 = still worms)', 'type' => 'int', 'default' => '35', 'min' => 0, 'max' => 100],   // v1.4.0:
+        'burrow_plays_per_day' => ['label' => 'Burrow Sorting: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],   // v2.1
         'mush_plays_per_day' => ['label' => 'Mushroom Sweeper: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'hive_plays_per_day' => ['label' => 'Honey Hive Harvest: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'hive_gifts_per_day' => ['label' => 'Honey Hive Harvest: honey/beeswax gifts a gnome can win a day', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 10],

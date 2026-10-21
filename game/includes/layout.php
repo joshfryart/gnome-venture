@@ -59,6 +59,8 @@ function page_header(string $title, bool $admin = false): void
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
+<?php if (!$admin && $page === 'burrow.php'): ?><script src="<?= e(url('assets/burrow.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* v2.1: assets/burrow.js (Burrow Sorting) */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.8: assets/pest.js (Pest Patrol) */ ?>
 <?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/trekfight.js?v=' . APP_VERSION)) ?>" defer></script>
