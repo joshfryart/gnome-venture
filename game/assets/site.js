@@ -169,19 +169,20 @@ gvAdvFold();
         ta.focus();
         refresh();
       }],
-      ['🔗', 'Link', function () {
+      ['🔗', 'Link', 'ico-link', function () {
         var u = window.prompt('Link address (https://…)', 'https://');
         if (u && /^https?:\/\/\S+$/.test(u)) wrap('[url=' + u + ']', '[/url]', 'link text');
       }],
-      ['🖼', 'Image', function () { file.click(); }]
+      ['🖼', 'Image', 'ico-palette', function () { file.click(); }]
     ];
     buttons.forEach(function (b) {
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.textContent = b[0];
+      if (b.length > 3 && window.gvIcoNode) btn.appendChild(gvIcoNode(b[2]));   // v2.0.25: our own icon for the link and image buttons
+      else btn.textContent = b[0];
       btn.title = b[1];
       btn.setAttribute('aria-label', b[1]);
-      btn.addEventListener('click', b[2]);
+      btn.addEventListener('click', b[b.length - 1]);
       bar.appendChild(btn);
     });
     var status = document.createElement('span');
@@ -1780,3 +1781,16 @@ document.addEventListener('change', function (ev) {
   if (sel.form.requestSubmit) sel.form.requestSubmit(); else sel.form.submit();
 });
 document.documentElement.classList.add('js');
+
+/* v2.0.25: the style-src 'self' policy refuses style="" attributes, so rest-stop tints travel as data-sh="hue" and are set through the CSSOM (allowed), also on content swapped in later. */
+(function () {
+  function hues(root) {
+    var list = root.querySelectorAll ? root.querySelectorAll('[data-sh]') : [];
+    for (var i = 0; i < list.length; i++) list[i].style.setProperty('--sh', list[i].getAttribute('data-sh'));
+    if (root.getAttribute && root.hasAttribute('data-sh')) root.style.setProperty('--sh', root.getAttribute('data-sh'));
+  }
+  hues(document);
+  if (window.MutationObserver) new MutationObserver(function (ms) {
+    ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) hues(n); }); });
+  }).observe(document.documentElement, { childList: true, subtree: true });
+})();

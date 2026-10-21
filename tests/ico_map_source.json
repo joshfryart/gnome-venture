@@ -561,11 +561,18 @@
   "reuse": null,
   "slug": "ico-star"
  },
- "🌡️": {
-  "group": "skip",
-  "note": "SKIP: 1 use",
+ "🌡": {
+  "group": "weather-time",
+  "note": "red-bulb thermometer (heat)",
   "reuse": null,
-  "slug": "skip"
+  "slug": "ico-thermometer"
+ },
+ "🌡️": {
+  "decorative": true,
+  "group": "weather-time",
+  "note": "red-bulb thermometer (heat)",
+  "reuse": null,
+  "slug": "ico-thermometer"
  },
  "🌤️": {
   "decorative": true,
@@ -1769,16 +1776,30 @@
   "slug": "ico-map-pin"
  },
  "📏": {
-  "group": "skip",
-  "note": "SKIP: 5 uses; replace with words",
+  "group": "objects-tools",
+  "note": "ruler",
   "reuse": null,
-  "slug": "skip"
+  "slug": "ico-ruler"
+ },
+ "📏️": {
+  "decorative": true,
+  "group": "objects-tools",
+  "note": "ruler",
+  "reuse": null,
+  "slug": "ico-ruler"
  },
  "📐": {
-  "group": "skip",
-  "note": "SKIP: 5 uses; replace with words",
+  "group": "objects-tools",
+  "note": "ruler (also set square)",
   "reuse": null,
-  "slug": "skip"
+  "slug": "ico-ruler"
+ },
+ "📐️": {
+  "decorative": true,
+  "group": "objects-tools",
+  "note": "ruler (also set square)",
+  "reuse": null,
+  "slug": "ico-ruler"
  },
  "📒": {
   "group": "objects-tools",
@@ -1915,10 +1936,17 @@
   "slug": "ico-bell"
  },
  "🔗": {
-  "group": "skip",
-  "note": "SKIP: 1 use",
+  "group": "ui-status",
+  "note": "chain link",
   "reuse": null,
-  "slug": "skip"
+  "slug": "ico-link"
+ },
+ "🔗️": {
+  "decorative": true,
+  "group": "ui-status",
+  "note": "chain link",
+  "reuse": null,
+  "slug": "ico-link"
  },
  "🔘": {
   "group": "skip",
@@ -2896,10 +2924,17 @@
   "slug": "ico-brain"
  },
  "🧤": {
-  "group": "skip",
-  "note": "SKIP: 2 uses",
+  "group": "objects-tools",
+  "note": "garden glove",
   "reuse": null,
-  "slug": "skip"
+  "slug": "ico-gloves"
+ },
+ "🧤️": {
+  "decorative": true,
+  "group": "objects-tools",
+  "note": "garden glove",
+  "reuse": null,
+  "slug": "ico-gloves"
  },
  "🧩": {
   "decorative": true,

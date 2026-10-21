@@ -144,7 +144,7 @@ function stop_stamp_tile(array $s, ?array $stamp): string
     $types = stop_types();
     $t = $types[$s['type']] ?? null;
     if ($stamp) {
-        return '<div class="st-stamp has" style="--sh:' . (int)($t['hue'] ?? 100) . '" title="' . e($s['name']) . ' · stamped ' . e(substr((string)$stamp['first_at'], 0, 10)) . '">'
+        return '<div class="st-stamp has" data-sh="' . (int)($t['hue'] ?? 100) . '" title="' . e($s['name']) . ' · stamped ' . e(substr((string)$stamp['first_at'], 0, 10)) . '">'
             . stop_svg($s['type'], 'stamp', 'st-stamp-art') . '<b>' . e($s['name']) . '</b><small>' . e((string)($t['name'] ?? '')) . '</small></div>';
     }
     return '<div class="st-stamp"><span class="st-stamp-ghost">?</span><b>' . e($s['name']) . '</b><small>not yet visited</small></div>';
@@ -166,7 +166,7 @@ function stop_passport_html(array $u): string
     foreach ($types as $slug => $t) {
         $all = count(array_filter($stops, fn($s) => $s['type'] === $slug && $s['on_road']));
         $mine = count(array_filter($stops, fn($s, $id) => $s['type'] === $slug && isset($stamps[$id]), ARRAY_FILTER_USE_BOTH));
-        $h .= '<div class="st-kind' . ($mine ? ' has' : '') . '" style="--sh:' . (int)$t['hue'] . '">' . stop_svg($slug, 'icon', 'st-ico') . '<b>' . e((string)$t['name']) . '</b><small>' . $mine . ' / ' . $all . '</small></div>';
+        $h .= '<div class="st-kind' . ($mine ? ' has' : '') . '" data-sh="' . (int)$t['hue'] . '">' . stop_svg($slug, 'icon', 'st-ico') . '<b>' . e((string)$t['name']) . '</b><small>' . $mine . ' / ' . $all . '</small></div>';
     }
     $h .= '</div>';
     // sets

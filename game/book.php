@@ -401,6 +401,8 @@ page_header('My Almanac');
     $iconFor = function (array $en, string $size = 'md') use ($tab, $chapterIcon, $kindBySlug): string {
         $key = (string)$en['unlock_key'];
         if (str_starts_with($key, 'item:') && ($pic = item_pic(['slug' => substr($key, 5)], $size)) !== '') return $pic;   // v0.9.8: an item's picture
+        if (($pic = almanac_pic($key, $size)) !== '') return $pic;   // v2.0.25: the real picture for plants, dishes, creatures, stops, landmarks, regions
+        if ($tab === 'Creatures' && str_starts_with($key, 'creature:')) return creature_icon((string)$en['title']);   // no drawing yet (trek foes): the kind's emoji, swapped for our icon
         if ($tab === 'Plants' && str_starts_with($key, 'plant:')) return catalog_kind_icon($kindBySlug[substr($key, 6)] ?? '');
         return $chapterIcon[$tab] ?? '📜';
     }; ?>

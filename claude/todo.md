@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-21, after 2.0.24)
+# Gnome Venture: to-do (updated 2026-10-21, after 2.0.25)
+
+Built: **2.0.25** (Almanac real pictures, 4 new + 4 redrawn icons, summary icon spacing, stop-tint CSP fix; Joshua: upload; check on phone: Almanac tabs Plants/Flowers/Recipes/Creatures/Villages/Landmarks/Regions show pictures, heat weather chip, a rest stop page tints). Left on purpose: pest.js SVG pop text emoji (cannot hold an img), `<option>` emoji (sort labels), 🃏 on Seed Memory, colour-swatch squares, one-off emoji marked SKIP in ico_map_source.json. Still weak: party, bouquet (cones), dove, grain, boat, telescope, nav festival/friends/villagers/arranging at 24px. Trek foes (12 creatures) and cover crops (clover, rye) have no art in the Almanac yet. Art guide text vs Project doc: NOT compared (Projects doc not readable from this session; Joshua: paste `claude/art-style-guide.md` into the repo or the chat).
 
 Built: **2.0.24** (JS/CSS emoji pass + creature art in duel/lair; Joshua: upload; check on phone: chest prize, Mushroom win, Pest chips, Spit gnome, harvest toast, duel + lair boss pictures). Remaining from the emoji list: season/weather/daypart emoji (hollow_clock.php) and yard decor tray print emoji (already swapped by the PHP pass, no art fallback), unmapped Satchel/Book emoji, composer toolbar 🔗/🖼, Pest pop text. NPC portraits for `npc_icon()`: DECIDED not worth it (portraits 400x500 per NPC, sites are species text).
 

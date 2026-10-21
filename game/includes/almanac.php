@@ -190,3 +190,50 @@ function almanac_milestone_progress(int $uid, array $m, int $have, int $total): 
     }
     return null;
 }
+
+/**
+ * v2.0.25: the picture for an Almanac page tile or page header: the real thing (a plant's produce, a dish, a creature,
+ * a rest stop's type, a landmark's kind, a region's banner) before the generic chapter emoji. '' when nothing fits.
+ */
+function almanac_pic(string $key, string $size = 'md'): string
+{
+    static $plants = null, $recipes = null, $items = null, $locs = null;
+    require_once __DIR__ . '/items.php';
+    require_once __DIR__ . '/flower_art.php';
+    [$type, $slug] = explode(':', $key, 2) + [1 => ''];
+    $itemRow = function (int $id) use (&$items): ?array {
+        if ($items === null) $items = q('SELECT * FROM items')->fetchAll(PDO::FETCH_UNIQUE);
+        if (!isset($items[$id])) return null;
+        return ['id' => $id] + $items[$id];
+    };
+    $itemPic = fn(?array $r) => $r ? (item_pic($r, $size, '', false) ?: flower_icon($r, $size) ?: item_pic($r, $size)) : '';
+    switch ($type) {
+        case 'plant':
+            if ($plants === null) $plants = q('SELECT slug, produce_item_id FROM plants WHERE slug IS NOT NULL AND produce_item_id IS NOT NULL')->fetchAll(PDO::FETCH_KEY_PAIR);
+            return isset($plants[$slug]) ? $itemPic($itemRow((int)$plants[$slug])) : '';
+        case 'recipe':
+            if ($recipes === null) $recipes = q('SELECT slug, output_item_id FROM recipes WHERE slug IS NOT NULL')->fetchAll(PDO::FETCH_KEY_PAIR);
+            return isset($recipes[$slug]) ? $itemPic($itemRow((int)$recipes[$slug])) : '';
+        case 'item':
+        case 'gather':
+            return item_pic(['slug' => $slug], $size);
+        case 'creature':
+            if (str_starts_with($slug, 'boss-lm-')) return ($rel = ph_path('lm-lair')) !== '' ? art_img($rel, $size, '') : '';
+            return ($rel = creature_image($slug, true)) !== '' ? art_img($rel, $size, '') : '';
+        case 'critter':
+            $slug = ['biddy' => 'hen', 'clementine' => 'goat', 'percy' => 'pigeon'][$slug] ?? $slug;   // the named animals use their species drawing
+            return ($rel = art_path('assets/img/animals/' . preg_replace('/[^a-z0-9_-]/', '', $slug) . '.svg')) !== '' ? art_img($rel, $size, '') : '';
+        case 'region':
+            return ($rel = ph_path('banner-' . preg_replace('/[^a-z0-9]/', '', $slug))) !== '' ? art_img($rel, $size, '') : '';
+        case 'village':
+        case 'landmark':
+            if ($locs === null) $locs = q("SELECT slug, l.* FROM locations l WHERE kind <> 'place'")->fetchAll(PDO::FETCH_UNIQUE);
+            $l = $locs[$slug] ?? null;
+            if (!$l) return '';
+            if ($type === 'landmark') return ($rel = ph_path('lm-' . $l['kind'])) !== '' ? art_img($rel, $size, '') : '';
+            require_once __DIR__ . '/stop_pass.php';
+            $svg = stop_svg(stop_type_of($l), 'icon', 'almstop-svg');
+            return $svg === '' ? '' : '<span class="almstop almstop-' . e($size) . '">' . $svg . '</span>';
+    }
+    return '';
+}

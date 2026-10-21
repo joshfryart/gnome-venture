@@ -1,6 +1,13 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.25
+- Almanac tiles + page header show the real picture (`almanac_pic()` in almanac.php): plant produce / flower art, dish, item, creature (emoji guess for trek foes without art), named animal, region banner, rest-stop type, landmark kind. Before, only items had pictures; everything else showed the chapter emoji.
+- New icons: thermometer (heat weather chip), link (admin editor), garden glove, ruler (also set square). Redrawn: clap, path, flatbread, pancakes. Map: `tests/ico_map_source.json` rows. Admin editor buttons Link/Image use icons.
+- Fixed: flex `<summary>` rows lost the space after an icon image (CSS gap): "Other times here", "Seasons & weather", folds.
+- Fixed: CSP "refused inline style" on rest-stop pages: `style="--sh:hue"` is now `data-sh` set through the CSSOM in site.js (the stop tint was silently not applied before).
+- Art & style guide PDF rebuilt (273 icons). No schema change.
+
 ## 2.0.24
 - Emoji second pass: JS shows our own icons (`gvIco()` html, `gvIcoLine(el, slug, text)`, `gvIcoNode()`, `gvLeads(node, emoji, slug)` in site.js; no icon = emoji). Done: chest, fighton, gather-games, pest, tilemap, trekfight, trekscene, spit.js canvas gnome, site.js toasts/crop select/energy. CSS pin + leaf are background icons.
 - Fixed (2.0.23 regression): Mushroom win celebration, "New Almanac pages" toast folding, 🧺/🐦 toast rank (PHP swaps emoji to `<img alt="">`, so JS text checks that start with an emoji must use `gvLeads`).

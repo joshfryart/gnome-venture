@@ -217,12 +217,12 @@ function local_panel(array $u, array $loc): string
     $adoption = stop_adoption((int)$loc['id']);
     $tier = $adoption ? (int)$adoption['tier'] : 0;
 
-    $h = '<section class="st" style="--sh:' . (int)$t['hue'] . '" data-stop-type="' . e($type) . '" data-dp="' . e($now['dp']) . '">';
+    $h = '<section class="st" data-sh="' . (int)$t['hue'] . '" data-stop-type="' . e($type) . '" data-dp="' . e($now['dp']) . '">';
     $h .= '<header class="st-head"><div class="st-art">' . stop_svg($type, 'icon', 'st-ico-lg') . '</div><div class="st-headtxt"><h2>' . e($t['name']) . '</h2><p class="st-amb">' . e($ambLine) . '</p>'
         . '<p class="st-chips"><span class="chip">' . HOLLOW_DAYPARTS[$now['dp']][0] . ' ' . HOLLOW_DAYPARTS[$now['dp']][1] . '</span><span class="chip">' . $wi['emoji'] . ' ' . e($wi['label']) . '</span><span class="chip">' . HOLLOW_SEASONS[$now['se']][0] . ' ' . HOLLOW_SEASONS[$now['se']][1] . '</span>'
         . ($tier ? '<span class="chip">★ Tier ' . $tier . '</span>' : '') . '</p></div></header>';
     if ($isNew || $stampMsgs) {
-        $h .= '<div class="box notice st-newstamp"><div class="st-stamp has" style="--sh:' . (int)$t['hue'] . '">' . stop_svg($type, 'stamp', 'st-stamp-art') . '<b>' . e($loc['name']) . '</b></div><div>';
+        $h .= '<div class="box notice st-newstamp"><div class="st-stamp has" data-sh="' . (int)$t['hue'] . '">' . stop_svg($type, 'stamp', 'st-stamp-art') . '<b>' . e($loc['name']) . '</b></div><div>';
         foreach ($stampMsgs as $m) $h .= '<p>' . e($m) . '</p>';
         $h .= '<p class="help"><a href="' . e(url('town.php?view=passport')) . '">Open your passport →</a></p></div></div>';
     }
