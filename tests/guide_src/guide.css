@@ -1,0 +1,86 @@
+/* Gnome Venture style guide: print stylesheet (A4). Cream paper, umber ink, moss/gold accents. Min text 10.5pt. */
+:root { --paper: #f8f0dc; --paper2: #f1e6c8; --ink: #2a1a10; --ink2: #5a4332; --rule: #d9c6975e; --rule2: #cdb98a; --umber: #2a1a10; --wood: #8c4a1a; --moss: #2e5a2c; --moss-soft: #e4ecd2; --gold: #b07a10; --gold-soft: #f6e6b4; --bad: #9c2a1e; --bad-soft: #f3dcd2; --halo: #f2e4c0; }
+@page { size: A4; margin: 20mm 16mm 18mm 16mm;
+  @top-left { content: "Gnome Venture  ·  Style Sheet & Art Guide"; font: 600 10.5pt "Inter", system-ui, sans-serif; color: #8c6a4a; vertical-align: bottom; padding-bottom: 4mm; }
+  @bottom-center { content: counter(page); font: 600 10.5pt "Inter", system-ui, sans-serif; color: #8c6a4a; } }
+@page :first { margin: 0; @top-left { content: none; } @bottom-center { content: none; } }
+@page front { }
+@page parta { @top-right { content: "Part A  ·  Hearthlight art"; font: 400 10.5pt "Inter", system-ui, sans-serif; color: #8c6a4a; vertical-align: bottom; padding-bottom: 4mm; } }
+@page partb { @top-right { content: "Part B  ·  Inline icons"; font: 400 10.5pt "Inter", system-ui, sans-serif; color: #8c6a4a; vertical-align: bottom; padding-bottom: 4mm; } }
+@page partc { @top-right { content: "Part C  ·  UI style sheet"; font: 400 10.5pt "Inter", system-ui, sans-serif; color: #8c6a4a; vertical-align: bottom; padding-bottom: 4mm; } }
+section.pa { page: parta; } section.pb { page: partb; } section.pc { page: partc; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 10.5pt/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+h1, h2, h3 { font-family: "Inter", system-ui, sans-serif; color: var(--ink); line-height: 1.2; }
+h1 { font-size: 24pt; font-weight: 700; margin: 0 0 4mm; padding-bottom: 3mm; border-bottom: 2px solid var(--wood); letter-spacing: -.01em; }
+h2 { font-size: 15pt; font-weight: 700; margin: 8mm 0 3mm; color: var(--wood); break-after: avoid; }
+h3 { font-size: 12pt; font-weight: 700; margin: 5mm 0 2mm; break-after: avoid; }
+p { margin: 0 0 3mm; orphans: 3; widows: 3; }
+code { font: 500 10.5pt "DejaVu Sans Mono", ui-monospace, monospace; background: var(--paper2); padding: 0 1.2mm; border-radius: 1mm; overflow-wrap: anywhere; }
+pre { font: 400 10.5pt/1.4 "DejaVu Sans Mono", ui-monospace, monospace; background: var(--umber); color: #f6e9c8; padding: 3mm 4mm; border-radius: 2mm; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 4mm; break-inside: avoid; }
+ul, ol { margin: 0 0 3mm; padding-left: 6mm; } li { margin: 0 0 1mm; }
+section.page { break-before: page; }
+.lead { font-size: 12pt; color: var(--ink2); margin-bottom: 4mm; }
+.muted { color: var(--ink2); }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; align-items: start; }
+.cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; align-items: start; }
+.card { background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2.5mm; padding: 3.5mm 4mm; break-inside: avoid; margin-bottom: 4mm; }
+.card > :first-child { margin-top: 0; } .card > :last-child { margin-bottom: 0; }
+.note { background: var(--gold-soft); border-left: 1.2mm solid var(--gold); border-radius: 0 2mm 2mm 0; padding: 2.5mm 4mm; margin: 0 0 4mm; break-inside: avoid; }
+.do, .dont { border-radius: 2.5mm; padding: 3.5mm 4mm 2mm; break-inside: avoid; margin-bottom: 4mm; }
+.do { background: var(--moss-soft); border: 1px solid #b7c99a; } .dont { background: var(--bad-soft); border: 1px solid #deb3a2; }
+.do h3, .dont h3 { margin-top: 0; } .do h3 { color: var(--moss); } .dont h3 { color: var(--bad); }
+.do ul, .dont ul { list-style: none; padding-left: 0; } .do li, .dont li { padding-left: 6mm; position: relative; }
+.do li::before { content: "✓"; position: absolute; left: 0; color: var(--moss); font-weight: 700; }
+.dont li::before { content: "✕"; position: absolute; left: 0; color: var(--bad); font-weight: 700; }
+table { border-collapse: collapse; width: 100%; margin: 0 0 4mm; font-size: 10.5pt; }
+th, td { text-align: left; vertical-align: top; padding: 1.8mm 2.5mm; border-bottom: 1px solid var(--rule2); overflow-wrap: anywhere; }
+th { background: var(--paper2); font-weight: 700; border-bottom: 2px solid var(--wood); }
+tr { break-inside: avoid; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.sw { display: inline-block; width: 9mm; height: 6mm; border-radius: 1.2mm; border: 1px solid rgba(42,26,16,.35); vertical-align: middle; }
+.swrow { display: flex; flex-wrap: wrap; gap: 3mm; margin-bottom: 4mm; }
+.swatch { width: 40mm; break-inside: avoid; }
+.swatch i { display: block; height: 14mm; border-radius: 2mm; border: 1px solid rgba(42,26,16,.35); margin-bottom: 1.2mm; }
+.swatch b { display: block; font-size: 10.5pt; } .swatch span { font: 400 10.5pt "DejaVu Sans Mono", monospace; color: var(--ink2); }
+.fig { margin: 0 0 4mm; break-inside: avoid; }
+.fig figcaption { font-size: 10.5pt; color: var(--ink2); margin-top: 1.5mm; }
+.shots { display: flex; gap: 4mm; align-items: flex-start; }
+.shots img { display: block; width: 100%; border-radius: 2mm; border: 1px solid var(--rule2); }
+.shots > div { flex: 1 1 0; min-width: 0; } .shots .lab { font-size: 10.5pt; font-weight: 600; color: var(--ink2); margin-bottom: 1mm; }
+.shot-wide img { width: 100%; }
+/* cover */
+.cover { height: 297mm; break-after: page; background: radial-gradient(circle at 70% 18%, #4a2e1c 0, #2a1a10 62%); color: #f6e9c8; padding: 34mm 22mm 20mm; position: relative; overflow: hidden; }
+.cover .hat { width: 62mm; height: 62mm; display: block; margin: 0 0 12mm; }
+.cover h1 { color: #fff3d2; font-size: 40pt; border: 0; padding: 0; margin: 0 0 4mm; line-height: 1.05; }
+.cover .sub { font-size: 17pt; color: #e8cf94; margin: 0 0 14mm; }
+.cover .meta { font-size: 11pt; color: #d9c391; line-height: 1.7; }
+.cover .band { position: absolute; left: 0; right: 0; bottom: 0; height: 20mm; background: #f2e4c0; color: #2a1a10; display: flex; align-items: center; padding: 0 22mm; font-weight: 600; font-size: 11pt; }
+.cover .row { display: flex; gap: 3mm; margin: 0 0 10mm; }
+.cover .row svg { width: 14mm; height: 14mm; }
+/* toc */
+.toc { list-style: none; padding: 0; margin: 4mm 0; }
+.toc li { display: flex; align-items: baseline; gap: 2mm; padding: 1.6mm 0; border-bottom: 1px dotted var(--rule2); font-size: 11.5pt; margin: 0; }
+.toc li.part { font-weight: 700; color: var(--wood); border-bottom: 2px solid var(--wood); margin-top: 5mm; font-size: 12.5pt; }
+.toc li span.t { flex: 1; } .toc li span.p { font-weight: 700; min-width: 8mm; text-align: right; }
+.toc li.sub { padding-left: 6mm; font-size: 10.5pt; color: var(--ink2); }
+/* icons */
+.ico48 { width: 48px; height: 48px; } .ico24 { width: 24px; height: 24px; } .ico16 { width: 16px; height: 16px; } .ico32 { width: 32px; height: 32px; }
+svg.i { display: inline-block; vertical-align: middle; flex: none; }
+.cat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.ic { background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2mm; padding: 2mm; break-inside: avoid; min-width: 0; }
+.ic .n { font-weight: 700; font-size: 10.5pt; line-height: 1.2; overflow-wrap: anywhere; }
+.ic .e { font-size: 10.5pt; color: var(--ink2); line-height: 1.25; margin-bottom: 1.2mm; min-height: 1.25em; overflow-wrap: anywhere; }
+.strip { display: flex; align-items: center; gap: 2.2mm; padding: 1.6mm 2mm; border-radius: 1.5mm; margin-top: 1mm; justify-content: center; }
+.strip.dk { background: #1c2a22; } .strip.lt { background: #ffffff; border: 1px solid var(--rule2); }
+.kv { display: grid; grid-template-columns: 38mm 1fr; gap: 1mm 4mm; margin-bottom: 4mm; } .kv b { color: var(--wood); }
+.demo { display: flex; gap: 6mm; flex-wrap: wrap; align-items: flex-end; }
+.demo > div { text-align: center; font-size: 10.5pt; color: var(--ink2); }
+.chipbox { padding: 3mm 4mm; border-radius: 2mm; font-size: 14px; line-height: 1.5; }
+.chipbox.dk { background: #1c2a22; color: #e8ecdf; } .chipbox.lt { background: #fff; color: #1f2a1c; border: 1px solid var(--rule2); }
+.chipbox svg.i { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
+.badge { display: inline-block; padding: 0 2mm; border-radius: 5mm; font-size: 10.5pt; font-weight: 700; }
+.b-ok { background: var(--moss-soft); color: var(--moss); } .b-bad { background: var(--bad-soft); color: var(--bad); }
+.tiny-spec { display: flex; gap: 3mm; flex-wrap: wrap; } .tiny-spec figure { margin: 0; text-align: center; font-size: 10.5pt; color: var(--ink2); width: 24mm; }
+.tiny-spec img { width: 20mm; height: 20mm; background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2mm; padding: 1mm; }

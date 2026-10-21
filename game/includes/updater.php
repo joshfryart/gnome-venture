@@ -16,7 +16,7 @@ const UPDATE_KEEP_BACKUPS = 5;   // database dumps kept
 const UPDATE_KEEP_FILE_BACKUPS = 2;   // program zips are big, so fewer
 /** Files from older versions that are gone now; an update removes them (v0.7.50). Fixed list, never from the zip. */
 const UPDATE_OBSOLETE = ['npc.php', 'mod.php'];
-const UPDATE_EXT = ['php', 'css', 'js', 'txt', 'md', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'json', 'woff', 'woff2'];
+const UPDATE_EXT = ['php', 'css', 'js', 'txt', 'md', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'json', 'woff', 'woff2', 'pdf'];
 
 function update_dir(string $sub = ''): string
 {

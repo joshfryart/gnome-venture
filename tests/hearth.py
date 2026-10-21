@@ -4,6 +4,9 @@ import re, copy, math
 import xml.etree.ElementTree as ET
 
 NAVF = [False]
+ICO = [False]   # ico-* inline icons (16-24px): nav-style simplification + bolder pen
+ICO_HALO = 6.0   # halo extent beyond the silhouette, user units (large stickers: 3.2): cream ring 2.6u outside the outline; 1.5px at 16px
+ICO_OUT = 3.4    # umber outline extent (large stickers: 1.9): 0.85px at 16px
 NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', NS)
 UMBER = '#2a1a10'
@@ -159,7 +162,7 @@ def flat_groups(kids):
 # ---- i7: byte diet helpers -------------------------------------------------
 GEOM = ('x', 'y', 'width', 'height', 'rx', 'ry', 'cx', 'cy', 'r', 'd', 'points')
 def f1(x):
-    if NAVF[0]: return str(int(round(x)))   # nav icons (24px): whole units are enough for halo/outline/clip/shade copies
+    if NAVF[0] and not ICO[0]: return str(int(round(x)))   # (ico-*: 1 decimal, keeps fill/outline/clip registered)   # nav icons (24px): whole units are enough for halo/outline/clip/shade copies
     return ('%.1f' % x).rstrip('0').rstrip('.') if abs(x) >= .05 else '0'
 def rnd1(el):
     """1-decimal numbers on halo/outline/clip copies (geometry attrs only)."""
@@ -439,7 +442,7 @@ def sil_bbox(kids):
             th = min(num(el.get('width')), num(el.get('height'))) if el.tag == q('rect') else num(el.get('stroke-width'), 1)
             sw = max(sw, (MINSHAFT - th) / 2 + (th / 2 if el.tag != q('rect') else 0), MINSHAFT / 2 if el.tag != q('rect') else 0)
             sw += (.55 * UU[0] if not NAVF[0] else 0) if el.tag == q('rect') else (.75 * UU[0] if not CHARMODE else 0)   # i11: woodfix rim (rect RIM stroke 1.1u / path copy sw+1.5u) sits outside the shaft; halo grows from it
-        if FITB[0] and NAVF[0]: sw += .5 * UU[0]   # i11: nav coords round to whole units (up to .5 off)
+        if FITB[0] and NAVF[0] and not ICO[0]: sw += .5 * UU[0]   # i11: nav coords round to whole units (up to .5 off)
         if FITB[0] and TIER and not NAVF[0]: sw += TIER_D[2] * UU[0]   # i11: big silhouettes get the heavy pen tier (+.3u halo/outline); fit must budget it
         P0 = _pts(el); mr = re.fullmatch(r'rotate\(([-\d.]+) ([-\d.]+) ([-\d.]+)\)', el.get('transform') or '')
         if mr and len(P0) == 2 and el.tag in (q('rect'), q('ellipse'), q('circle')):   # i10: rotated shapes: bbox of the 4 rotated corners
@@ -832,7 +835,7 @@ def _restyle(src, name):
     ORIG_R.clear(); PRUNE.clear(); AURA_IDS.clear()   # i12: id()-keyed caches must not leak across sprites (output depended on file order / heap layout)
     global CHARMODE
     global FIXED, HEDGE, FENCE
-    CHARMODE = name.startswith(CHARS); EYE_DARK[0] = name in ('creature-black-bear', 'creature-honey-badger-brute', 'creature-paper-wasp'); NAVF[0] = name.startswith('nav-')
+    CHARMODE = name.startswith(CHARS); EYE_DARK[0] = name in ('creature-black-bear', 'creature-honey-badger-brute', 'creature-paper-wasp'); NAVF[0] = name.startswith(('nav-', 'ico-')); ICO[0] = name.startswith('ico-')
     HEDGE = bool(re.search(r'-(hedge|border)-(straight|corner|tee|gate|end|cross)$', name)); FENCE = bool(re.search(FENCE_RE, name)); HEDGE = HEDGE or FENCE; FIXED = HEDGE or name.startswith('stage-')
     root = ET.fromstring(src)
     vb = [float(x) for x in root.get('viewBox').split()]
@@ -870,12 +873,13 @@ def _restyle(src, name):
     elif HEDGE: kids = hedge_kids(kids, name)
     if FIT and not re.search(r'border|logo|fence|hedge|-(straight|corner|tee|cross|end|gate)$|^tile-|^banner-|^land-|^guide-|^npc-|^stage-', name) and kids and not (kids[0].tag == q('rect') and num(kids[0].get('width')) >= W - 6):
         FITB[0] = True; bb = sil_bbox([k for k in kids if k.tag != q('ellipse') or (k.get('fill') or '').lower() not in ('#000', '#000000')]); FITB[0] = False
-        if bb and (bb[0] < 3.8 * u or bb[1] < 3.8 * u or bb[2] > W - 3.8 * u or bb[3] > H - 3.8 * u):   # i11: 3.2u halo + AA px: reach must stay <= 63.5 at 64px   # i10: halo (3.2u) must fit inside the frame
-            k = min(1.0, (W - 8.4 * u) / max(bb[2] - bb[0], 1), (H - 8.4 * u) / max(bb[3] - bb[1], 1)); cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+        M1 = (ICO_HALO + .5) if ICO[0] else 3.8   # frame margin: halo reach + AA
+        if bb and (bb[0] < M1 * u or bb[1] < M1 * u or bb[2] > W - M1 * u or bb[3] > H - M1 * u):   # i11: 3.2u halo + AA px: reach must stay <= 63.5 at 64px   # i10: halo (3.2u) must fit inside the frame
+            k = min(1.0, (W - (2 * M1 + .8) * u) / max(bb[2] - bb[0], 1), (H - (2 * M1 + .8) * u) / max(bb[3] - bb[1], 1)); cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
             if k < .985 or True:
                 tf = 'translate(%s %s) scale(%s) translate(%s %s)' % (fmt(W / 2), fmt(H / 2), fmt3(k), fmt(-cx), fmt(-cy))
                 if k >= .985:   # i10: fits, but off-centre: minimal shift keeps the 3.6u halo margin
-                    dx = max(0, 3.9 * u - bb[0]) - max(0, bb[2] - (W - 3.9 * u)); dy = max(0, 3.9 * u - bb[1]) - max(0, bb[3] - (H - 3.9 * u)); tf = 'translate(%s %s)' % (fmt(dx), fmt(dy))
+                    dx = max(0, (M1 + .1) * u - bb[0]) - max(0, bb[2] - (W - (M1 + .1) * u)); dy = max(0, (M1 + .1) * u - bb[1]) - max(0, bb[3] - (H - (M1 + .1) * u)); tf = 'translate(%s %s)' % (fmt(dx), fmt(dy))
                 g = ET.Element(q('g'), {'transform': tf}); SH = [c for c in kids if c.tag == q('ellipse') and ((c.get('fill') or '').lower() in ('#000', '#000000') or ((c.get('fill') or '').lower() == UMBER and num(c.get('opacity'), 1) < .5))]; [g.append(c) for c in kids if c not in SH]   # i11: ground shadow may already be UMBER here; it must stay put, not ride the fit shift/scale out of frame
                 BAKE1[0] = True; bk = bake_source([copy.deepcopy(g)]); BAKE1[0] = False   # i10: bake the fit transform into geometry when every leaf can take it (clip copies stay transform-free)
                 kids = SH + (bk if all(e.tag != q('g') for e in bk) else [g])
@@ -929,7 +933,7 @@ def _restyle(src, name):
     slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
     cid = 'hl-' + slug
     npc = name.startswith('npc-')
-    nav = name.startswith('nav-')
+    nav = name.startswith(('nav-', 'ico-'))
     ok = 0.6 if npc else 1.0
     # crescent: everything outside a circle shifted up-left => shade hugs lower-right edges
     cx, cy, r = vb[0] + W * .40, vb[1] + H * .36, min(W, H) * .50
@@ -965,7 +969,7 @@ def _restyle(src, name):
         shadow = [k for k in kids if (k.get('fill') or '').lower() == UMBER and num(k.get('opacity'), 1) < .5]
         for s in shadow: s.set('opacity', '.42')
         for s in shadow: root.append(s)
-        for col, ex in ((HALO, 3.2 * u * ok), (UMBER, 1.9 * u * ok)):
+        for col, ex in ((HALO, (ICO_HALO if ICO[0] else 3.2) * u * ok), (UMBER, (ICO_OUT if ICO[0] else 1.9) * u * ok)):
             g = ET.SubElement(root, q('g'), {'fill': col, 'stroke': col, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'})
             for e in silhouette(kids, col, ex): g.append(e)
             tidy(g); hoist(g)
