@@ -1,6 +1,10 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.21
+- Security fixes from the 2026-10-21 audit (branch security-audit-fixes, no schema change): (1) report.php / file_report(): `report_snapshot()` takes the viewer; gift/trade notes only for their recipient (mods/admins exempt), garden/yard names only if `garden_visible()`. (2) Marrow hint: length noise keyed with race_secret (was crc32 of the public day), length clamped 54-74 cm, plumpness follows the shown length; every hint fits 125+ weights. (3) Delivery jobs refuse `tradable = 0` items (form list hides them). (4) delve_start/lair_start use `landmark_once()` as the real daily check, undo it if energy can't be paid. (5) `ensure_launch()` no longer seeds `site_url` from the Host header (check Admin > Game settings has it set). (6) Password and email changes revoke open password_resets; game/data/mail-log.txt untracked, `game/data/*.txt` ignored.
+- Tests: security190 0 failed, trek_audit 0 failed.
+
 ## 2.0.20
 - Treks: NEW Knacks (includes/trek_knacks.php): one slot per even trek level (Lv2 minor, Lv4 major, ... max 11 at Lv22), 6 minor + 6 major sidegrade knacks, each once per member, stats only (no knacks = identical stats). Pick on the Party tab, change filled slots at a camp or the hub, free. Trek level cap 20 -> 23.
 - Treks: NEW whole-map fold (includes/trek_minimap.php): seen tiles only, display only, 2-3 KB.
