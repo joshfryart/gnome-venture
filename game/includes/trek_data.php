@@ -500,7 +500,7 @@ const TREK_ITEMS = [
     'clean-dew' => ['Clean Dew', 'misc', 20, 8, 0, 'Water from the unblighted pools.'],
     'cellar-key' => ['Cellar Key', 'misc', 30, 8, 0, 'A small old key, still warm.'],
     'blight-shard' => ['Blight Shard', 'misc', 200, 40, 0, 'A black shard that hums and points down.'],
-    'lanternroot-seed' => ['Lanternroot Seed', 'misc', 80, 30, 0, 'A small seed with a faint glow inside, like a coal that forgot to go out.'],
+    'lanternroot-seed' => ['Lanternroot Seed', 'seed', 80, 30, 0, 'A small seed with a faint glow inside, like a coal that forgot to go out.'],
     'glowing-bead' => ['Glowing Bead', 'part', 40, 40, 1, 'Dropped by the Cave Glowworm.'],
     'singing-pebble' => ['Singing Pebble', 'misc', 25, 12, 1, 'A smooth little pebble that hums when the air moves. The Riddle Stone gave it away.'],
     // v1.9.2 Chapter II-a (all four are quest items: they stay in the trek pack, see TREK_QUEST_ITEMS)
@@ -522,6 +522,23 @@ const TREK_ITEMS = [
 const TREK_BOOK_CH = ['claybound' => 2, 'silverfin' => 2, 'crossroads' => 2, 'brewhouse' => 2, 'pinch' => 2, 'thrum' => 2,   // v1.9.4: II-b's four
     'deeprock' => 3, 'gneiss' => 3,   // v2.0.20: Chapter III-a's two
     'lodge' => 3, 'tally' => 3, 'holler' => 3, 'warden-scute' => 3, 'echo-stone' => 3, 'bell-clapper' => 3];   // v2.0.22: Chapter III-b's pages and items
+
+/** v2.0.31: Lanternroot is a real crop. The trek seed becomes a plantable seed; the plant is common (no unstudied penalty). Adds only what is missing. */
+function trek_lanternroot_crop(): void
+{
+    $seed = (int)q_val('SELECT id FROM items WHERE slug = ?', ['lanternroot-seed']);
+    if (!$seed) return;
+    q("UPDATE items SET category = 'seed' WHERE id = ? AND category = 'misc'", [$seed]);
+    if (q_val('SELECT 1 FROM plants WHERE slug = ?', ['lanternroot'])) return;
+    $desc = 'A root that glows faintly in the dark, like a lantern left on low. It grows where light is rare.';
+    $produce = (int)q_val('SELECT id FROM items WHERE slug = ?', ['lanternroot']);
+    if (!$produce) $produce = db_insert('items', ['name' => 'Lanternroot', 'slug' => 'lanternroot', 'category' => 'produce', 'rarity' => 30, 'base_price' => 30,
+        'description' => $desc, 'edible' => 1, 'effects' => json_encode(['temp' => ['sense' => 2, 'minutes' => 120]])]);
+    db_insert('plants', ['name' => 'Lanternroot', 'slug' => 'lanternroot', 'kind' => 'tuber', 'perennial' => 0, 'regrow_minutes' => 0, 'common' => 1,
+        'region_code' => null, 'pollinator' => null, 'soil_effect' => -8, 'seed_item_id' => $seed, 'produce_item_id' => $produce,
+        'grow_minutes' => 90, 'water_interval_minutes' => 720, 'stages' => 4, 'yield_min' => 1, 'yield_max' => 3,
+        'xp_per_harvest' => 20, 'knowledge_max' => 100, 'knowledge_per_harvest' => 14, 'min_soil' => 25, 'description' => $desc]);
+}
 
 /** Make the trek's items, creatures, text slots and Almanac pages. Safe to run again. Returns counts. */
 function trek_import(): array
@@ -559,6 +576,7 @@ function trek_import(): array
         $n++;
     }
     $made['pages'] = $n + $stats['pages'];
+    trek_lanternroot_crop();   // v2.0.31: the Lanternroot Seed grows a real crop
     return $made;
 }
 

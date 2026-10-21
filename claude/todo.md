@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-21, after 2.0.27)
+# Gnome Venture: to-do (updated 2026-10-21, after 2.0.31)
+
+Built: **2.0.31** (Lanternroot crop + heading-space fix; see changelog). Joshua: upload; check on phone: Lanternroot Seed from the Choir Stone is plantable in the garden and gives Lanternroot; "Other times here" and "Seasons & weather" headings have a gap after the icon. Joshua confirmed 2.0.30 and all earlier versions OK (2026-10-21), so the 2.0.30 decisions and all older "check on phone" lists are closed. Art is handled by another agent: ignore all art items below.
 
 Built + shipped: **2.0.29** (logged-out homepage + How to play rework). Joshua: check on phone logged out; a logged-in Today page render and Firefox Android were not tested.
 
@@ -18,7 +20,7 @@ Built + LIVE and OK (Joshua uploaded 2026-10-21): **2.0.23** (emoji swapped for 
 1. **DONE in 2.0.24 except the leftovers named at the top.** Emoji second pass (old list below): `gvIco()` JS helper, 2 CSS `content:` emoji, unmapped Satchel/Book emoji, `npc_icon()` ignores the real `ph/npc-*.svg` portraits (26 call sites; shown as emoji directly) and `creature_icon()` (trek_fight.php, layout.php:432, landmarks.php:615, adventure.php:832), season/weather/daypart emoji (hollow_clock.php), yard decor tray icons: these print emoji straight, no art fallback. Fix = use the portrait/art when it exists.
 2. **Weak icons to redraw when time allows** (Opus rounds 1-3; none misleading now): clap (can read as bread at 24px), path (egg-shaped mound), flatbread (looks like a cookie), pancakes (boxy), party and bouquet (both cones), watering-can (looks like a kettle), dove (cream wing relies on outline on light), grain, boat, telescope (small at 16px). Withheld on purpose: prayer, handshake (`WITHHOLD` in tests/ico_build.py). Nav icons at 24px: festival, friends, villagers, arranging are mush; account is low contrast on dark; ember-beetle eyes hard to read (large placeholders).
 3. **Joshua checks still open:** Satchel/Book pages for stray emoji; `/assets/guides/` must be blocked by .htaccess (PHP built-in server ignored it in tests); Admin → Art & style guide downloads.
-4. Small known bugs: pre-existing CSP "refused inline style" console error on town.php (also with swap off, not found yet); two headings lack a space after the icon ("Other times here" on town, "Seasons & weather:" on world; the space is missing in the PHP).
+4. Small known bugs: none (heading space fixed 2.0.31; town.php CSP error does not reproduce).
 5. The guide PDF's art-rule text was RECONSTRUCTED from tests/hearth.py (the subagent could not read the Project doc). Compare with Project `claude/art-style-guide.md` and edit `tests/guide_src/text.py`, then `python3 tests/build_guide.py`. The Project doc itself lacks the new `ico-` section (halo 6.0u / outline 3.4u, 16-24px, plain sources in tests/ico_src, `tests/ico_build.py`): add it or point to the PDF.
 6. Sizes: ph set is 265% of the old size (3.3 MB) and the PDF 3.5 MB: fine, watch only.
 

@@ -2,6 +2,11 @@
 
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
+## 2.0.31
+- Lanternroot is now a real crop: `trek_lanternroot_crop()` (trek_data.php, run by `trek_import` and boot step `lanternroot_crop_2031`) turns the Lanternroot Seed into a plantable seed (category seed) and adds the plant + Lanternroot produce (tuber, common so never "unstudied"). The seed still only comes from the Ch I Choir Stone riddle. Trek text briefs no longer say TODO.
+- Fix: summary headings had no space after the icon ("Other times here", "Seasons & weather"): flex gap on `details.fold > summary` and `.st-later summary`.
+- Stale TODO comment in trek.php (chapters) corrected. No schema change.
+
 ## 2.0.29
 - Logged-out homepage and How to play page reworked in the Hearthlight look (warm hero card, one primary button, picture tiles, centred on desktop, real headings in guide folds); 7 landing scenes restyled. Review: claude/landing-review.md. No schema change.
 

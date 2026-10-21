@@ -422,7 +422,7 @@ table.stats td.score { text-align: center; font-size: 15px; }
 
 /* folds, crumbs, misc */
 details.fold { margin: 12px 0; }
-details.fold > summary { cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; min-height: var(--tap); display: flex; align-items: center; }
+details.fold > summary { gap: .35em; cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; min-height: var(--tap); display: flex; align-items: center; }
 details.fold > summary::-webkit-details-marker { display: none; }
 details.fold > summary::before { content: '▸ '; color: var(--muted); margin-right: 4px; }
 details.fold[open] > summary::before { content: '▾ '; }
@@ -2271,7 +2271,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .st-badge.now { background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--accent-line); }
 .st-badge.up { background: var(--brand-soft); color: var(--brand-ink); border: 1px solid var(--brand-line); }
 .st-later { margin: 10px 0; }
-.st-later summary { cursor: pointer; min-height: var(--tap); display: flex; align-items: center; font-weight: 600; }
+.st-later summary { gap: .35em; cursor: pointer; min-height: var(--tap); display: flex; align-items: center; font-weight: 600; }
 .st-later ul, .st-errlist { margin: 4px 0 0; padding-left: 18px; }
 .st-errlist li { margin-bottom: 6px; }
 .st-adopt { margin-top: 14px; }

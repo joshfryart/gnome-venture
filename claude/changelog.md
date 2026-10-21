@@ -1,6 +1,11 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.31
+- Lanternroot is now a real crop: `trek_lanternroot_crop()` (trek_data.php, run by `trek_import` and boot step `lanternroot_crop_2031`) turns the Lanternroot Seed into a plantable seed (category seed) and adds the plant + Lanternroot produce (tuber, common so never "unstudied"). The seed still only comes from the Ch I Choir Stone riddle. Trek text briefs no longer say TODO.
+- Fix: summary headings had no space after the icon ("Other times here", "Seasons & weather"): flex gap on `details.fold > summary` and `.st-later summary`.
+- Stale TODO comment in trek.php (chapters) corrected. No schema change.
+
 ## 2.0.29
 - Landing (index.php) + guide.php + landing.css reworked by review (claude/landing-review.md); landing SVGs restyled. No schema change.
 

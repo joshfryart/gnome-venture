@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.30');
+define('APP_VERSION', '2.0.31');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -265,6 +265,10 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 require_once __DIR__ . '/trek_textpass.php';
                 trek_apply_text_2022();                 // sets trek_text_pass = 9
             }
+        });
+        boot_step('lanternroot_crop_2031', function () {   // v2.0.31: Lanternroot is a plantable crop
+            require_once __DIR__ . '/trek_data.php';
+            trek_lanternroot_crop();
         });
         boot_step('trek_item_desc_2012', function () {   // v2.0.12: the Lanternroot Seed showed a TODO in the Satchel; only a row that still holds the old words is changed
             db_update('items', ['description' => 'A small seed with a faint glow inside, like a coal that forgot to go out.'], 'slug = ? AND description = ?', ['lanternroot-seed', 'A seed that glows faintly. TODO: the Lanternroot crop is not built yet.']);
