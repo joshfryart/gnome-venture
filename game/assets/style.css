@@ -4699,7 +4699,16 @@ h1 { font-size: 22px; }
 .statusstrip { background: var(--bg); border-bottom: 1px solid var(--line); }
 .statusin { justify-content: safe center; align-items: flex-start; }   /* centred pills rode 4px up under the header on desktop */
 .statusstrip .st { border-color: var(--line-2); box-shadow: var(--hl-halo); }
-.statusstrip .st a { margin: 0 -12px; min-height: 0; }   /* the 44px tap link overflowed the 34px strip and pushed the pills up under the header */
+/* the 44px tap link overflowed the 34px strip and pushed the pills up under the header. Negative side margin = the pill's own side padding (10px on a computer, 12px on a phone), so the link never spills past the pill */
+.statusstrip .st a { margin: 0 -10px; min-height: 0; }
+@media (max-width: 720px) {
+  .statusstrip .st a { margin: 0 -12px; position: relative; }
+  .statusstrip .st a::after { content: ''; position: absolute; inset: -10px 0; }   /* hit area only: 40px+ tall, pill height unchanged */
+  /* phone line (.stsum is what a phone really shows): let hit areas grow past the 40px band, clip sideways only so nothing scrolls */
+  .stsum { overflow-x: clip; overflow-y: visible; }
+  .statusstrip a.stbadge { position: relative; }
+  .statusstrip a.stbadge::after { content: ''; position: absolute; inset: -10px -6px; }   /* 24px badge -> 42px+ tap area */
+}
 
 /* ---- 5. cards and panels: sticker card = umber-step border, cream inner hairline, small lower-right cel ---- */
 .box, .tcard.box, .rbox, .rail .msglog.mlside, .pickbox { border: 1px solid var(--line); border-radius: var(--hl-r); box-shadow: var(--hl-halo), var(--hl-cel); }
@@ -4779,3 +4788,7 @@ body[data-area] .tabs a.on { background: var(--accent-soft); color: var(--accent
 
 /* ---- FIX 2: shop item sheet backdrop warm like the other dialogs ---- */
 dialog.isheet::backdrop { background: rgba(26, 21, 17, .6); }
+
+/* ---- disabled buttons: muted fill, readable ink (>= 4.5:1), no ledge. The old .5 opacity halved the white-on-green text. ---- */
+.btn.btn:is([disabled], :disabled, .disabled), .btn.btn:is([disabled], :disabled, .disabled):hover { opacity: 1; background: var(--surface-2); color: var(--muted); border-color: var(--line-2); border-style: dashed; box-shadow: none; transform: none; cursor: not-allowed; }
+:root[data-theme="dark"] .btn.btn:is([disabled], :disabled, .disabled), :root[data-theme="dark"] .btn.btn:is([disabled], :disabled, .disabled):hover { background: var(--surface-2); color: var(--muted); border-color: var(--line-2); box-shadow: none; }
