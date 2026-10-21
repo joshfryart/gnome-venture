@@ -166,7 +166,7 @@ Everything in `assets/img/ico/`, read when this guide was built. Each card: the 
 """
 
 C1 = """
-All colours are **tokens** in `assets/css/style.css`, section 1 (`:root`). Components never hard-code a colour; dark mode only changes the tokens. Dark is the default. Dark overrides are always written `:root[data-theme="dark"] X`, never `@media (prefers-color-scheme)`.
+All colours are **tokens** in `assets/style.css`, section 1 (`:root`). Components never hard-code a colour; dark mode only changes the tokens. Dark is the default. Dark overrides are always written `:root[data-theme="dark"] X`, never `@media (prefers-color-scheme)`.
 
 {{TOKENS}}
 

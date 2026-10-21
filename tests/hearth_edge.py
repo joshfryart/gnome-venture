@@ -2,7 +2,7 @@
 """Render each svg in OUT_DIR at 64px on transparent bg; flag halo touching the 1px frame and blank/tiny icons (<3% opaque).
 usage: python3 tests/hearth_edge.py OUT_DIR   (cairosvg -> rsvg-convert -> inkscape -> headless chromium via playwright)"""
 import io, os, shutil, subprocess, sys
-S = 64; ALPHA = 128   # alpha >= 128/255 counts as opaque (lower values flag 1-2 faint anti-aliased pixels)
+S = int(os.environ.get("EDGE_PX", 64)); ALPHA = 128   # alpha >= 128/255 counts as opaque (lower values flag 1-2 faint anti-aliased pixels)
 import re
 EXEMPT = re.compile(r"^(banner|land|guide|tile)-|-(hedge|border)-(straight|corner|tee|cross|end|gate)$|^(picket|wattle)-fence-|^(garden-gate|stone-wall)-|^npc-")   # full-bleed scenes, tiles, seamless fences/hedges/walls/gates (join neighbours at the frame), npc busts (cropped by the portrait frame; fit exempt) touch the frame by design
 

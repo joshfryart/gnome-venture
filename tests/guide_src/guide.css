@@ -84,3 +84,10 @@ svg.i { display: inline-block; vertical-align: middle; flex: none; }
 .b-ok { background: var(--moss-soft); color: var(--moss); } .b-bad { background: var(--bad-soft); color: var(--bad); }
 .tiny-spec { display: flex; gap: 3mm; flex-wrap: wrap; } .tiny-spec figure { margin: 0; text-align: center; font-size: 10.5pt; color: var(--ink2); width: 24mm; }
 .tiny-spec img { width: 20mm; height: 20mm; background: #fffaf0; border: 1px solid var(--rule2); border-radius: 2mm; padding: 1mm; }
+
+.keep { break-inside: avoid; }
+.shots { display: grid; grid-template-columns: 1fr 1fr; }
+.shot-wide { display: block; }
+.shot-wide + .shots { display: block; margin-top: 3mm; }
+.fig { display: block; }
+.cardimg { display: block; width: 100%; height: auto; border-radius: 1.5mm; }
