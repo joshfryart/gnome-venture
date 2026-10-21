@@ -1,0 +1,2 @@
+# Treks text v2.0.22 (text pass 9): Chapter III-a’s Still Gate now opens. key|body, \n = line break. Applied once by the pass-9 text pass (trek_text_pass = 9); bodies Joshua edited are kept.
+ch3.ms.ch3a_end|The Still Gate swings open at last.\nThe knock comes again, louder, from far below.

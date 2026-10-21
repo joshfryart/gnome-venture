@@ -1,4 +1,4 @@
-# Chapter III-a spots (v2.0.20). Same format and types as trek_spots_ch2.txt (no new types). chapter|code|type|name|zone|data. The Still Gate has no way through yet: it pays ch3a_end when you reach it (III-b opens it).
+# Chapter III-a spots (v2.0.20). Same format and types as trek_spots_ch2.txt (no new types). chapter|code|type|name|zone|data. The Still Gate opens once Old Gneiss is cured (III-b lies below it) and pays ch3a_end when you first pass it.
 3|start|start|The Broken Stair|t|sym=S
 3|orecart|cart|The Spilled Ore Cart|t|sym=B;dc=12;item=camp-kit:1;flag=cart_done
 3|camp|camp|The Lamp Niche|u|sym=C;obj=1
@@ -10,4 +10,20 @@
 3|wren|recruit|Wren Thimblewick|w|sym=W;crew=wren;obj=3;flag=freed_wren;ms=ch3_wren
 3|oldwarm|oldcamp|The Warm Ledge|w|sym=E
 3|gneiss|miniboss|Old Gneiss|w|sym=X;obj=4;flag=gneiss_down;script=gneiss;creature=old-gneiss
-3|stillgate|gate|The Still Gate|x|sym=Z;needs=ch3b_open;ms=ch3a_end;obj=5;flag=reached_stillgate
+3|stillgate|gate|The Still Gate|x|sym=Z;needs=gneiss_down;ms=ch3a_end;obj=5;flag=reached_stillgate
+
+# Chapter III-b spots (v2.0.22). No new types.
+3|pillar|cart|The Fallen Pillar|y|sym=P;obj=6;dc=13;item=camp-kit:1;flag=pillar_done
+3|mere|switch|The Mere Wheel|z|sym=M;flag=mere_done
+3|nookB|find|A Drowned Nook|z|sym=D;item=camp-kit:1;petals=80;flag=nookB_found
+3|camp2|camp|The Warden’s Lodge|l|sym=L;obj=7;flag=camp2_seen;keeper=lodge;entry=trek:lodge
+3|strongbox|chest|The Warden’s Strongbox|l|sym=Y;needs=bell-clapper;item=camp-kit:2;petals=120;flag=strongbox_open
+3|tally|sign|The Tally Wall|g|sym=T;obj=8;entry=trek:tally
+3|bench2|rest|The Still Pool|g|sym=Q;flag=rest2_used
+3|bell|riddle|The Hush Bell|g|sym=I;pass=1;right=3;tries=2;item=bell-clapper:1;flag=bell_solved
+3|nookC|find|A Narrow Nook|g|sym=F;item=glowing-bead:1;petals=100;flag=nookC_found
+3|oldlamp|oldcamp|The Cold Lantern|g|sym=O
+3|tallydoor|riddle|The Tally Door|g|sym=U;obj=9;right=2;tries=2;flag=tallydoor_open;solved=tallydoor_solved;seedkeeper=1;failopen=1
+3|tallygate|gate|The Counting Door|g|sym=V;needs=tallydoor_open;ms=ch3_hall;obj=10;flag=reached_tallygate
+3|door|sign|The Bedrock Door|k|sym=K;obj=11
+3|holler|boss|Old Holler|k|sym=J;obj=12;script=holler;creature=old-holler;flag=holler_down;weak=drained_z;weak_pct=85

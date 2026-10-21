@@ -1,5 +1,5 @@
 <?php
-// Treks v2.0.20 audit of Chapter III-a "The Humming Deep": text coverage (every key the code can ask for exists, orphans listed), a played-out walk collecting the log's keys,
+// Treks v2.0.20 (updated v2.0.22 for III-b: III-b's own slots, spots and milestones are audited in trek_audit_ch3b.php) audit of Chapter III-a "The Humming Deep": text coverage (every key the code can ask for exists, orphans listed), a played-out walk collecting the log's keys,
 // milestones once-only (also after an admin reset), and the balance sims: zone fights (4-member parties) and Old Gneiss (all 35 three-trailmate parties, Auto, 300 fights each).
 // Run on an installed copy: php tests/trek_audit_ch3.php GAME_DIR (treks.sh does). AUDIT_N sets the fights per party (default 300).
 $GAME = $argv[1];
@@ -18,7 +18,7 @@ set_setting('trek_open', '1'); set_setting('trek_event_pct', '0'); set_setting('
 foreach (['trek_ms_ch3_wren' => 450, 'trek_ms_ch3_gneiss' => 1100, 'trek_ms_ch3a_end' => 900] as $k => $v) set_setting($k, (string)$v);
 set_setting('trek_chapters_open', '3'); set_setting('trek_base_level', '15'); setting('__reload__');
 q('UPDATE creature_drops SET chance = 0 WHERE 1 = 1');
-$sp = trek_spots(3);
+$sp = array_intersect_key(trek_spots(3), array_flip(['start', 'orecart', 'camp', 'chalk', 'bench', 'nookA', 'knock', 'knockgate', 'wren', 'oldwarm', 'gneiss', 'stillgate']));   // the 12 III-a spots (III-b's are in the ch3b audit)
 
 echo "== text coverage: every key the Chapter III code can ask for is a slot\n";
 $asked = [];
@@ -80,12 +80,11 @@ $expect = [];
 foreach ($sp as $c => $s) foreach ($panel[$s['type']] ?? [] as $p) {
     if ($p === 'seed' && empty($s['data']['seedkeeper'])) continue;
     if ($p === 'after' && !isset(trek_text_rows()["ch3.spot.$c.after"])) continue;
-    if ($p === 'open' && $s['type'] === 'gate' && !empty($s['data']['ms']) && empty($s['data']['noopen'])) continue;   // the Still Gate never opens in III-a
     if ($p === 'locked' && $s['type'] === 'gate' && empty($s['data']['needs'])) continue;
     $expect["ch3.spot.$c.$p"] = 'panel';
 }
-foreach (trek_chapter(3)['zones'] as $z => $zi) { $expect["ch3.zone.$z.arrive"] = 'zone'; if (!empty($zi['hint'])) $expect["ch3.zone.$z.hint"] = 'zone'; }
-foreach (array_keys(trek_milestones(3)) as $m) $expect["ch3.ms.$m"] = 'milestone';
+foreach (array_intersect_key(trek_chapter(3)['zones'], array_flip(['t', 'u', 'v', 'w', 'x'])) as $z => $zi) { $expect["ch3.zone.$z.arrive"] = 'zone'; if (!empty($zi['hint'])) $expect["ch3.zone.$z.hint"] = 'zone'; }
+foreach (array_slice(array_keys(trek_milestones(3)), 0, 3) as $m) $expect["ch3.ms.$m"] = 'milestone';
 foreach (['wren', 'burdock', 'zinnia', 'bracken', 'sorrel', 'tumble', 'juniper'] as $k) { $expect["ch3.crew.$k.talk"] = 'crew'; $expect["ch3.crew.$k.done"] = 'crew'; }
 foreach (['burdock', 'zinnia', 'bracken', 'sorrel', 'tumble', 'juniper', 'wren'] as $k) { $expect["ch3.banter.$k.1"] = 'banter'; }
 $expect['ch3.banter.wren.2'] = 'banter';   // Wren has two lines (she is new); the others one each
@@ -104,15 +103,16 @@ ok('...and each of Chapter III\'s own slots reads something (draft or written) f
 $gen = array_values(array_filter(array_keys($asked), fn($k) => trek_text_row($k) === null));
 ok('every key the played-out walk put in the log has a slot (its own, or Chapter I\'s for the generic ones)', !$gen, implode(', ', $gen));
 $orph = [];
-foreach (q('SELECT text_key FROM trek_texts WHERE chapter = 3 ORDER BY sort_order')->fetchAll(PDO::FETCH_COLUMN) as $k) if (!isset($expect[$k])) $orph[] = $k;
+foreach (q('SELECT text_key FROM trek_texts WHERE chapter = 3 AND sort_order < 3200 ORDER BY sort_order')->fetchAll(PDO::FETCH_COLUMN) as $k) if (!isset($expect[$k])) $orph[] = $k;
 echo '  info slots of Chapter III that no code path asks for (orphans): ' . ($orph ? implode(', ', $orph) : 'none') . "\n";
-$KNOWN_ORPHANS = [];
+$KNOWN_ORPHANS = ['ch3.spot.stillgate.locked'];   // v2.0.22: the Still Gate opens as soon as Old Gneiss is down, so the walk never reads .locked (kept)
 ok('no unexpected orphan slots', !array_diff($orph, $KNOWN_ORPHANS), implode(', ', array_diff($orph, $KNOWN_ORPHANS)));
-$slots = (int)q_val('SELECT COUNT(*) FROM trek_texts WHERE chapter = 3');
-ok('about 80 text slots for Chapter III (70-95), all drafts for Joshua', $slots >= 70 && $slots <= 95 && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE chapter = 3 AND status <> 'draft'") === 0, (string)$slots);
+$slots = (int)q_val('SELECT COUNT(*) FROM trek_texts WHERE chapter = 3 AND sort_order < 3200');
+$slotsAll = (int)q_val('SELECT COUNT(*) FROM trek_texts WHERE chapter = 3');
+ok('about 80 III-a text slots (70-95), about 170-200 for all of Chapter III with III-b, all drafts for Joshua', $slots >= 70 && $slots <= 95 && $slotsAll >= 160 && $slotsAll <= 210 && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE chapter = 3 AND status <> 'draft'") === 0, "$slots / $slotsAll");
 $bad = [];
 foreach (q("SELECT text_key, body, brief FROM trek_texts WHERE chapter = 3")->fetchAll() as $t) if (str_contains((string)$t['body'], "'") && false) $bad[] = $t['text_key'];
-ok('no slot spells out what knocks (spoiler guard: no "knocker is" / "the knocker" reveal)', !preg_grep('/the knocker is|it was the knocker|Old Gneiss knocks/i', array_map('strval', q('SELECT body FROM trek_texts WHERE chapter = 3')->fetchAll(PDO::FETCH_COLUMN))));
+ok('no III-a slot spells out what knocks (spoiler guard: no "knocker is" / "the knocker" reveal; III-b is checked in the ch3b audit)', !preg_grep('/the knocker is|it was the knocker|Old Gneiss knocks/i', array_map('strval', q('SELECT body FROM trek_texts WHERE chapter = 3 AND sort_order < 3200')->fetchAll(PDO::FETCH_COLUMN))));
 
 echo "== milestones once-only, also after an admin reset\n";
 $msN = (int)q_val('SELECT COUNT(*) FROM trek_ms WHERE user_id = ?', [$uid]);
@@ -128,7 +128,7 @@ $x1 = $mainXp();
 $r = $tx(fn(&$run, $u) => trek_godown($run, $u), true, 2);
 $tx(function (&$run, $u) { foreach (['ch3_wren', 'ch3_gneiss', 'ch3a_end'] as $m) trek_ms_award($run, $u, $m); return [true, '']; }, true, 3);
 ok('after an admin reset of Chapter III you go down again; the milestones pay no XP the second time and add no rows', $r[0] === true && $mainXp() === $x1 && (int)q_val("SELECT COUNT(*) FROM trek_ms WHERE user_id = ? AND ms_key LIKE '%:ch3%'", [$uid]) === 3, json_encode($r));
-ok('Chapter III totals match the plan: 450 + 1100 + 900', (int)trek_milestones(3)['ch3_wren'][1] >= 0 && count(trek_milestones(3)) === 3);
+ok('Chapter III totals match the plan: 450 + 1100 + 900', (int)trek_milestones(3)['ch3_wren'][1] >= 0 && array_slice(array_keys(trek_milestones(3)), 0, 3) === ['ch3_wren', 'ch3_gneiss', 'ch3a_end']);
 
 echo "== balance sims (Auto, full health, real dice, AUDIT_N fights each)\n";
 $GLOBALS['trek_sim'] = true;

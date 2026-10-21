@@ -1,0 +1,6 @@
+# Chapter III-b tune rows (v2.0.22), kept apart from trek_chapters_ch3b.txt so the sims can retune them. tune|chapter|zone or boss script|health %|attack|defense|damage
+tune|3|y|320|13|8|13
+tune|3|z|330|14|8|14
+tune|3|g|335|14|9|14
+tune|3|k|340|15|9|15
+tune|3|holler|480|11|6|20

@@ -1,0 +1,101 @@
+# Chapter III-b draft bodies (v2.0.22). key|body   (\n = line break). Players see these until Joshua rewrites the slot in Admin > Trek text.
+ch3.spot.stillgate.open|The Still Gate swings inward without a sound.\nWarm, still air breathes out, and the knock is louder now.
+ch3.zone.y.arrive|The stair winds down into a hush so deep you can hear yourself.\nYour heartbeat. Your breath. The soft creak of your own boots.\nNow and then, far below, the knock.
+ch3.zone.z.arrive|A wide black mere lies flat as glass.\nWhen the knock comes, it rings across the water late, and then again, doubled.\nSomething huge is breathing under the surface, slow and wet.
+ch3.zone.l.arrive|A small stone lodge, tidy as a pin.\nThe kettle on the hob is cold, but a lamp is kept lit in the window.
+ch3.zone.g.arrive|A long dark gallery, and every wall is scratched with tally marks.\nThey run in threes: three, three, three, in neat rows.\nSomeone counted here for a very long time.
+ch3.zone.k.arrive|A round hall, plain and cold.\nIn the middle of the floor lies one great banded stone.\nThe knock is right underneath it.
+ch3.zone.k.hint|Stand still. Count.\nThree beats, then a long wait.
+ch3.spot.pillar.before|A fallen pillar lies across the narrow stair, long as a barrow and twice as stubborn.\nA Camp Kit is wrapped in cloth beneath it.
+ch3.spot.pillar.win|The pillar rolls aside with a long, grinding groan.\nA Camp Kit slides out from under it.
+ch3.spot.pillar.fail|You shove. The pillar does not budge, and neither does anything else.
+ch3.spot.pillar.work|You chip at the stone, bit by bit.\nIt takes a while, but the Camp Kit comes free.
+ch3.spot.pillar.after|The pillar lies to one side now, and the stair is clear.
+ch3.spot.mere.before|An old wheel stands at the water’s edge, with a chain running down into the dark.\nIt looks as though it would turn, if asked.
+ch3.spot.mere.done|The wheel creaks round, and the black water slides away down a hidden drain.\nSomething big grumbles in the dark. The mere sinks low.
+ch3.spot.mere.after|The wheel hangs still. The mere lies low and quiet.
+ch3.spot.nookB.arrive|Where the water stood, a dry pocket in the rock.\nA bundle sits in it, tied with string.
+ch3.spot.nookB.find|Inside: a rolled Camp Kit, and a few Petals, kept dry all this time.
+ch3.spot.camp2.arrive|A narrow bed, with a shell-shaped dent in the blanket, and one cup on the table.\nThe lamp is lit, as if for someone who is late.
+ch3.camp.lodge.greet|“Oh! Hello. I am Pip. I keep the lamp.”\n“Warden Umber went down to knock. She said wait. I waited. Please, rest.”
+ch3.camp.lodge.shop|“She left spares. For whoever came.”\n“Kits, tin and cloth. I think that means you.”
+ch3.camp.lodge.rest|“Lamp trimmed, satchel safe. She would like that you came.”
+ch3.camp.lodge.full|“Oh, you carry the most already! Sorry, I would give you more.”
+ch3.camp.lodge.nofunds|“Oh, sorry. Not quite enough Petals. Come back when your purse is heavier.”
+ch3.spot.strongbox.locked|A small iron box sits on the shelf, shaped like a bell.\nThere is a hole where its clapper should hang.
+ch3.spot.strongbox.open|The clapper fits. The lid clicks open on kits, a pouch of Petals, and a note.\n“For whoever came.”
+ch3.spot.strongbox.after|The bell-box sits open and empty, its note still tucked inside.
+ch3.spot.tally.arrive|Rows and rows of marks, in threes, year after year.\nAt the top, in a firm hand: “3 = all well.”\nEvery row ends with the same small U.
+ch3.spot.bench2.before|A still pool, warm as a bath, lies in a hollow by the wall.\nIt looks made for sitting beside.
+ch3.spot.bench2.done|You sit with your feet in the warm water.\nWhen you stand, everyone is rested and whole.
+ch3.spot.bench2.after|The pool is still warm.
+ch3.spot.bell.question|A small bronze bell hangs from a hook, and it has no tongue.\nA riddle is scratched on its rim:\n“I hang inside the bell but am not the bell. Without me, it cannot tell.”\nThe answers are on the three buttons below.
+ch3.spot.bell.a1|A rope
+ch3.spot.bell.a2|A hammer
+ch3.spot.bell.a3|A clapper
+ch3.spot.bell.right|The bell shivers, and something drops into your palm.\nAn iron clapper, still warm.
+ch3.spot.bell.wrong|The bell stays silent. It seems to be listening for a better answer.
+ch3.spot.bell.out|The bell keeps its secret and hangs very still.\nPerhaps another day.
+ch3.spot.bell.after|The bell hangs quiet on its hook.
+ch3.spot.nookC.arrive|Behind the loose rock, a crack just wide enough to squeeze through.\nSomething glints inside.
+ch3.spot.nookC.find|A glowing bead on a thread, and a few Petals tucked in beside it.
+ch3.spot.oldlamp.find|A cold lantern sits on a ledge beside a folded blanket.\nSomeone kept watch here, and left it tidy.
+ch3.spot.tallydoor.question|A tall door, cut all over with threes.\nWords run across the lintel: “No voice, yet heard through stone. Three of me mean all is well.”\nThe answers are on the three buttons below.
+ch3.spot.tallydoor.a1|A bell
+ch3.spot.tallydoor.a2|A knock
+ch3.spot.tallydoor.a3|A heartbeat
+ch3.spot.tallydoor.right|The cut threes glow faintly, one after another.\nThe door swings open.
+ch3.spot.tallydoor.wrong|The door waits, patient as stone.
+ch3.spot.tallydoor.out|The door lets out a long, tired sigh.\nThe stone gives way anyway.
+ch3.spot.tallydoor.after|The door stands open, its cut threes gone dim.
+ch3.spot.tallydoor.seed|A Seedkeeper reads the cuts like a row of seedlings: three, three, three.\nOne soft word, and the door swings open.
+ch3.spot.tallygate.locked|The Counting Door stands shut, its threes cut deep.\nIt wants a word, not a shove.
+ch3.spot.tallygate.open|The Counting Door swings wide on a round, silent hall.\nThe knock is plain here, and very near.
+ch3.spot.door.arrive|The banded stone in the floor is a door.\nYou knock three times, softly. A pause. Then three knocks answer from below, slow and kind.\nThe Shard tugs toward the stone.\nThen BOOM, from the dark pool behind you: something huge answers too.
+ch3.spot.holler.intro|The dark pool heaves, and a toad as wide as a cart hauls herself out.\nHer eyes are blind and milky, and her throat is stained grey with blight.\nShe gulps at the air as if starving for sound.\nShe is not wicked. She is stuffed with noise, and it comes out wrong.
+ch3.spot.holler.hit|Old Holler lunges and thumps one of you with her wide, wet chin.
+ch3.spot.holler.gulp|Old Holler gulps, and every sound goes out of the air. Your tricks come back slower.
+ch3.spot.holler.holler|Old Holler swells, and booms back every sound she has swallowed. Guard!
+ch3.spot.holler.crack|Grey flakes fall from her throat like old paint.\nShe tries to gulp, and cannot. There is nothing left to swallow.
+ch3.spot.holler.knock|From far below: knock, knock, knock.\nEveryone steadies, as if a hand had rested on their shoulder.
+ch3.spot.holler.defeat|The grey drains from her throat in one long, sulky stream.\nOld Holler coughs up a humming stone, blinks, embarrassed, and sinks into the pool to sleep.\nThe hall is silent. Then, from below, the knock, clear at last: three.\nAnd then a fourth.
+ch3.spot.holler.wren|“Four.”\n“Four. That is new. Three has always meant all is well. I think four means come.”
+ch3.spot.holler.burdock|“Roots stop at bedrock, {gnome}. Nothing grows below it.”\n“I do not like it. We go anyway, and I go first.”
+ch3.spot.holler.zinnia|“Hush now, big love. Sleep.”\n“I counted four with my feelers. The last was softer, like a question.”
+ch3.spot.holler.bracken|“At ease, Warden. A fellow sentry, still at her post.”\n“That fourth beat was a call. I mean to answer it.”
+ch3.spot.holler.sorrel|“Three beats and a rest. It scanned, and now it does not.”\n“The fourth beat breaks the verse. Something has changed down there.”
+ch3.spot.holler.tumble|“There. ‘This way down.’ And underneath, ‘politely’.”\n“You should always be polite to a door that answers.”
+ch3.spot.holler.juniper|“Covered bowl, by the door. Hot, mind.”\n“Whoever knocks gets fed first. That is the rule.”
+ch3.scene.holler.me|“We heard you.”\n“We are coming down.”
+ch3.ms.ch3_hall|You step into the Knock Hall.\nThe knock is plain here, three slow beats under your feet.
+ch3.ms.ch3_holler|The mere is quiet at last.\nOld Holler snores in it, one very large and rather embarrassed toad.
+ch3.ms.ch3_chapter|You have reached the bottom of the deep rock.\nThe knock is clear now, and it is waiting.
+ch3.outro|The deep rock is behind you, humming softly in its sleep.\nEveryone is tired, and fed, and together.\nIn your pocket the Shard hums in time with the knock.
+ch3.hook|The Shard no longer points down. It points at the door, and hums in time.\nBelow the door is bedrock, where nothing grows.\nThree knocks. Then a fourth.
+interlude.3.intro|The Shard Hollow has found you again, deep in the cold stone.\nThe kettle is on, and nobody says much.\nIf you listen, the floor knocks four.
+interlude.3.burdock|“Roots stop at bedrock, little one. Whatever is below has never had a root to hold on to.”\n“I am not afraid, exactly. I am only quiet. We will go, of course.”
+interlude.3.zinnia|“Sit. Everyone sit. That boom shook you all more than you let on.”\n“I hummed to the toad, and she hummed back a bit flat. I call that progress.”
+interlude.3.bracken|“A sentry does not leave her post, {gnome}. Not for years. Not for anything.”\n“Whatever she holds back, I would stand beside her.”
+interlude.3.sorrel|“I copied the Tally Wall into my margin. Three, three, three, and now four.”\n“It scans. It also does not. I like that less than I should.”
+interlude.3.tumble|“I chalked THIS WAY DOWN on the door. Underneath, ‘politely’.”\n“Does it still count as a signpost if nobody can follow it yet? Asking for a friend.”
+interlude.3.juniper|“I left a covered bowl by the door. It will go cold, but I do not mind.”\n“Whoever knocks gets fed first. Then we ask who they are.”
+interlude.3.wren|“Three means all is well. Four I had never counted.”\n“I wrote it down twice. I do not think it is a number. I think it is an invitation.”
+ch3.banter.burdock.2|“A hush like this, a mole hears his own heart.”\n“Mine is going a bit quicker than I would like.”
+ch3.banter.zinnia.2|“I have taken to humming under my breath, just to hear something.”\n“Nobody tell me if it is flat.”
+ch3.banter.bracken.2|“No wind, no drip, no footsteps but ours.”\n“A sentry could go soft in a hush like this. I shall stay hard.”
+ch3.banter.sorrel.2|“All those tallies, in threes, so neatly.”\n“Whoever kept them had a lovely hand. I should like to shake it.”
+ch3.banter.tumble.2|“I counted the tally marks. Then I lost count. Then I counted that.”\n“Nobody carved one arrow. Not one.”
+ch3.banter.juniper.2|“A hush this deep makes folk forget their meals.”\n“Eat. I do not care how quiet it is.”
+ch3.banter.burdock.3|“That little bat keeps a lamp lit through all this hush.”\n“Gentle work. Harder than fighting, I would say.”
+ch3.banter.zinnia.3|“Pip is so small and so brave. I wanted to give her a whole garden.”\n“A warm cup will have to do for now.”
+ch3.banter.bracken.3|“Whoever Warden Umber is, she left a good sentry on her lamp.”\n“Tidy post. I respect it.”
+ch3.banter.sorrel.3|“That dent in the bed is an oddly wide shape. Domed, almost.”\n“I shall not guess. I shall only write it down.”
+ch3.banter.tumble.3|“Pip is waiting for someone who said wait.”\n“That is the longest ‘back in a minute’ I ever heard.”
+ch3.banter.juniper.3|“That kettle is stone cold. I will put it on, if Pip lets me.”\n“A lodge wants steam in it.”
+ch3.banter.wren.3|“Pip trims the lamp on the hour, every hour. I counted.”\n“She has never once missed. I like her very much.”
+book.lodge|THE WARDEN’S LODGE\nA small, tidy stone lodge below the Still Mere. A lamp burns in the window, trimmed by Pip, a small cured bat who has kept it a very long time.\nThere is a bed with a shell-shaped dent in it, and one cup on the table.\nWarden Umber went down to knock, and said wait. Pip is waiting.
+book.tally|THE TALLY WALL\nA sentry’s log, scratched into the gallery wall in rows of three, year after year.\nAt the top, in a firm hand: three means all is well. Every row is signed with a small U.\nThe last row is not finished.
+book.holler|OLD HOLLER\nA giant blind cave toad, wide as a cart, who lives in the Still Mere. She swallows every sound she hears.\nThe blight made her boom them back late and wrong, and she could not stop.\nCured, she sleeps in the mere, snoring, and rather embarrassed.
+item.warden-scute|A shed shell plate, warm to the touch.\nThree neat lines are scratched in it.
+item.echo-stone|A smooth grey stone that holds one sound.\nPress it to your ear and it hums it back.
+item.bell-clapper|A small iron clapper. It looks made for a bell-shaped box.

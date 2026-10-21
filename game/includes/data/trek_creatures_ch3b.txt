@@ -1,0 +1,12 @@
+# Chapter III-b creatures (v2.0.22). Same format as trek_creatures_ch3.txt. The deep rock folk below the Still Gate: grubs, loaches, weavers, beetles and borers with the same thin vein of blight (cured, not killed). Levels come from here and the tune rows.
+@pool|y|105|tallow-grub:3,stone-loach:1,crystal-weaver:1|3
+@pool|z|110|stone-loach:3,tallow-grub:1,bellcap-beetle:1|3
+@pool|l|0|tallow-grub:1|3
+@pool|g|115|crystal-weaver:2,bellcap-beetle:2,basalt-borer:1|3
+@pool|k|105|bellcap-beetle:2,basalt-borer:2,crystal-weaver:1|3
+tallow-grub|Tallow Grub|small|trek|24|Tallow Wax:50|A pale fat grub that glows faintly, like a candle stub. It wriggles at you, mostly out of fright.
+stone-loach|Stone Loach|medium|trek|25|Loach Scale:45|A blind grey fish that slides out of the still water to see who is knocking.
+crystal-weaver|Crystal Weaver|medium|trek|25|Glass Thread:40|A long-legged spider that spins threads so thin they ring. It does not like to be rung.
+bellcap-beetle|Bellcap Beetle|medium|trek|26|Bellcap Shell:40|A round beetle with a shell like a little bell. It chimes when it charges.
+basalt-borer|Basalt Borer|large|trek|27|Borer Plate:40|A mole-cricket as long as a wheelbarrow, with spade hands. It digs toward the knock and gets cross when you are in the way.
+old-holler|Old Holler|boss|trek|28||A giant blind cave toad, wide as a cart, who lives in the Still Mere. She swallows every sound she hears, and the blight makes her boom it back wrong.
