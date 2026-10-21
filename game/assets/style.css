@@ -4656,3 +4656,4 @@ nav.tabs .ico,nav.chips .ico,.tab .ico,.chip .ico{height:1.05em;width:1.05em;ver
 summary .ico{height:1.05em;width:1.05em}
 small .ico,.muted .ico{height:1em;width:1em}
 .statusstrip .ico,.userbar .ico{height:1.1em;width:1.1em;vertical-align:-.2em}
+@media (max-width:720px){.gogrid{grid-template-columns:minmax(0,1fr)}}
