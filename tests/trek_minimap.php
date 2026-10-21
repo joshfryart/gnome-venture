@@ -91,7 +91,7 @@ $h = $get('login.php');
 $get('login.php', ['csrf' => $csrf($h), 'username' => 'sprout', 'password' => 'TestPass123!']);
 $page = $get('trek.php?t=map');
 ok('the map page loads the trek', str_contains($page, 'trekmapcol'), substr(strip_tags($page), 0, 200));
-ok('...and has the Whole map fold, closed, with the svg', str_contains($page, '<details class="tkmini"><summary>🗺️ Whole map</summary><svg class="tkminimap"') && !str_contains($page, '<details class="tkmini" open'));
+ok('...and has the Whole map fold, closed, with the svg', preg_match('~<details class="tkmini"><summary>(?:🗺️|<img class="ico"[^>]*>) Whole map</summary><svg class="tkminimap"~u', $page) === 1 && !str_contains($page, '<details class="tkmini" open'));
 ok('...after the Map key position (legend then fold, or fold alone)', preg_match('~tkmini~', $page) === 1);
 ok('...and nothing in it has a style= attribute', !preg_match('~<svg class="tkminimap"[^>]*style=|<details class="tkmini"[^>]*style=~', $page));
 $tx(function (&$run, $uu) { $c = trek_creature('spadefoot-toad'); trek_start_fight($run, $uu, [$c], ['kind' => 'random', 'zone' => 'm'], [trek_make_foe($c, $uu, 1)]); return [true, '']; });

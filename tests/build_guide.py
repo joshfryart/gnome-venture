@@ -263,7 +263,7 @@ def f_tint():
 
 def f_layers():
     s = '<div class="cols3">'
-    for lab, col in (('Halo 3.2 u', hearth.HALO), ('Outline 1.9 u', hearth.UMBER), ('Shade crescent', hearth.TINT['g'])):
+    for lab, col in (('Halo: icons 6.0 u, stickers 3.2 u', hearth.HALO), ('Outline: icons 3.4 u, stickers 1.9 u', hearth.UMBER), ('Shade crescent', hearth.TINT['g'])):
         s += '<div class="card"><b>%s</b><br>%s</div>' % (lab, sw(col) + ' <code>%s</code>' % col)
     hat = [i for i in C.icons if i['name'] == 'gnome-hat']
     if hat: s = s.replace('</div><div class="card"><b>Outline', '</div><div class="card"><b>Outline', 1)
@@ -358,7 +358,7 @@ def f_shots():
 
 def f_sources():
     return ('<ul><li>Art rules: reconstructed from <code>tests/hearth.py</code> and <code>hearth_all.py</code> (constants and docstrings), <code>claude/handoff.md</code> and <code>assets/img/ph/palette.json</code>. '
-            'The Projects copy <code>claude/art-style-guide.md</code> was not available to the build; if the two differ, change <code>guide_src/text.py</code>.</li>'
+            'The art guide text was reconstructed from <code>hearth.py</code>; the Projects copy <code>claude/art-style-guide.md</code> was not available to the build. If the two differ, change <code>guide_src/text.py</code>.</li>'
             '<li>Icons: <code>assets/img/ico/</code> and <code>includes/data/ico_map.php</code>, read at build time.</li>'
             '<li>UI: <code>assets/style.css</code> (%d tokens read), plus real screenshots of the component classes.</li></ul>' % C.ntokens)
 

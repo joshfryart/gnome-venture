@@ -1,5 +1,15 @@
 # Gnome Venture: to-do (updated 2026-10-20, after 2.0.20)
 
+Built: **2.0.23** (emoji swapped for our own icons at render; see handoff Art). Joshua: upload it, check a few pages for stray emoji.
+
+## Emoji leftovers (2.0.23 swap is PHP-only; JS/CSS second pass is NEXT)
+- Add `gvIco(slug)` helper to `site.js` (loaded on every page; other files call it if present; base path via a data attribute on body from layout.php). Only innerHTML sinks can take an img; textContent/alert/confirm/title stay emoji.
+- 10 JS files: chest.js (44,45), fighton.js (7,41,84), gather-games.js (14 lines), mushroom.js 106, pest.js (662,750), puzzles.js 463, spit.js (142,153), site.js (33 lines: menu toggle, toasts, composer toolbar, pickers; biggest win), tilemap.js 143, trekfight.js (7 lines), trekscene.js (129,187). Plain symbols (arrows, check, cross) stay.
+- style.css `content:` emoji: ~line 1337 `.yard.editing .tile.fixed::after` pin -> background-image ico-pushpin; ~line 2620 `.memboard .card.matched .pk::after` leaf -> ico-leaf. Check-glyph contents are text symbols: leave.
+- Unmapped emoji (still emoji): in Satchel/Book 📦 🔤 🪱 🧰 and others; find with the list from `php tests/emoji_icons.php game`. Add icons via handoff Art recipe.
+- `<option>` and `<title>` emoji stay (cannot hold an img).
+- Full detail: scratchpad `ico/js_css_leftovers.md` (session file, may be gone).
+
 Built: **2.0.22** (art only: all placeholder SVGs Hearthlight-restyled; new placeholders need the restyle pass last, see handoff Art line). Optional polish: ember-beetle eyes hard to read; nav festival/friends/villagers/arranging mush at 24px; nav account low contrast on dark.
 
 Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.

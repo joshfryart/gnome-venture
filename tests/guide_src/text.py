@@ -24,11 +24,13 @@ Run it whenever an icon, a colour token or a rule changes. Text lives in `tests/
 """
 
 A1 = """
-Hearthlight is the house style of every placeholder picture, creature, folk portrait, nav icon and inline icon. One look, three layers, drawn on a **64 x 64 grid**. All widths below are in grid units **u** (u = shorter side / 64; so 1 u = 1 px at 64 px).
+Hearthlight is the house style of every placeholder picture, creature, folk portrait, nav icon and inline icon. One look, three layers, drawn on a **64 x 64 grid**. All widths below are in grid units **u** (u = shorter side / 64; so 1 u = 1 px at 64 px). Pen weights below are for large stickers (pictures, creatures, portraits). **Icons (`ico-` names) use heavier pens**: see the icon rules.
+
+*Note: the art guide text was reconstructed from `tests/hearth.py` (the original Projects copy was not available to the build).*
 
 ## The three layers
-1. **Cream halo**: a thick sticker edge round the whole silhouette, `#f2e4c0`, 3.2 u out from the shape (stroke 6.4). It lifts the picture off dark and light pages alike.
-2. **Umber line**: a warm near-black outline, `#2a1a10`, 1.9 u out from the shape (stroke 3.8). Never pure black.
+1. **Cream halo**: a thick sticker edge round the whole silhouette, `#f2e4c0`, 3.2 u out from the shape (stroke 6.4) on large stickers; icons use 6.0 u. It lifts the picture off dark and light pages alike.
+2. **Umber line**: a warm near-black outline, `#2a1a10`, 1.9 u out from the shape (stroke 3.8) on large stickers; icons use 3.4 u. Never pure black.
 3. **Cel shade**: one crescent at the lower right, clipped to the silhouette, in a dark tint of the picture’s main colour, opacity .34. One light direction for every picture.
 
 {{LAYERS}}
@@ -116,9 +118,9 @@ Emoji inside JS-built strings, attributes, `<option>`, `<title>` and SVG text st
 B2 = """
 ## The grid
 Every icon is a **64 x 64** `viewBox` and is drawn as a plain silhouette first. Keep shapes chunky: it must read at **16 px**.
-- Keep the artwork at least **4 u** away from the frame. Halo (3.2 u) plus anti-alias must stay inside.
+- Keep the artwork at least **6.5 u** away from the frame. The halo (6.0 u for icons) plus anti-alias must stay inside.
 - One clear shape, 2 or 3 colours from the palette, one crescent of shade. No fine detail under 1 u.
-- Pen weights (the restyle adds them): **halo 3.2 u, outline 1.9 u** (stroke 6.4 and 3.8 in the files).
+- Pen weights for icons (the restyle adds them; `ICO_HALO` / `ICO_OUT` in `tests/hearth.py`): **halo 6.0 u, outline 3.4 u**, so the cream ring sits 2.6 u beyond the outline. Large stickers keep 3.2 / 1.9. Icons are drawn as plain shapes: the build adds the pens.
 - Size cap: 4096 bytes per icon. Typical is 1.5 to 3.5 KB.
 
 ## Sizes in the game
@@ -254,7 +256,7 @@ PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline ico
 
 DODONT = {
   'icons': (
-    ['Draw plain SVG on the 64 grid', 'Keep 4 u clear of the frame', 'Make it read at 16 px', 'Use palette colours', 'Run the restyle, then the edge check', 'One map row per emoji', 'Give a name to icons that stand alone', 'Print player text with <code>eu()</code>'],
+    ['Draw plain SVG on the 64 grid', 'Keep 6.5 u clear of the frame', 'Make it read at 16 px', 'Use palette colours', 'Run the restyle, then the edge check', 'One map row per emoji', 'Give a name to icons that stand alone', 'Print player text with <code>eu()</code>'],
     ['Gradients, text, filters, <code>&lt;style&gt;</code>, scripts', 'Strokes under 1 u', 'Hand-edit files in <code>assets/img/ico/</code>', 'Recolour an icon with CSS', 'Put emoji in new UI text', 'Rely on colour alone for meaning', 'Expect swaps in attributes, options, titles or JS strings', 'Re-run <code>gen_ph_*.py</code> over restyled art'],
   ),
   'ui': (
