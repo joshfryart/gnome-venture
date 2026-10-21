@@ -181,7 +181,7 @@ if ($nRep = count(repair_list($uid))): ?>
       require_once __DIR__ . '/includes/crafting.php';
       $slugs = array_keys(collected_slugs($uid));
       $wantable = $slugs ? q('SELECT id, name FROM items WHERE slug IN (' . implode(',', array_fill(0, count($slugs), '?')) . ")
-                             AND category NOT IN ('tool', 'guide') ORDER BY name", $slugs)->fetchAll() : []; ?>
+                             AND category NOT IN ('tool', 'guide') AND tradable = 1 ORDER BY name", $slugs)->fetchAll() : []; ?>
     <p class="help">The wage comes out of your purse now and is held safely. The worker is paid bit by bit as they do the work;
       anything they don’t earn comes back to you. Jobs stay on the board for <?= (int)setting('player_job_listing_days') ?> days.
       A one-day job fills their daily slot, longer ones their weekly slot.</p>

@@ -89,8 +89,8 @@ function post_player_job(array $u, array $in): array
     } elseif ($kind === 'deliver') {
         $days = ($in['size'] ?? '') === 'weekly' ? 7 : 1;
         $qty = (int)($in['qty'] ?? 0);
-        $item = q_one('SELECT id, name, slug, category FROM items WHERE id = ?', [(int)($in['item_id'] ?? 0)]);
-        if (!$item || in_array($item['category'], ['tool', 'guide'], true)) return [false, 'Pick something to ask for.'];
+        $item = q_one('SELECT id, name, slug, category, tradable FROM items WHERE id = ?', [(int)($in['item_id'] ?? 0)]);
+        if (!$item || in_array($item['category'], ['tool', 'guide'], true) || !(int)$item['tradable']) return [false, 'Pick something to ask for.'];
         if ($qty < 1 || $qty > 500) return [false, 'Ask for between 1 and 500.'];
         $min = (int)setting('player_job_min_wage');
         $row += ['days' => $days, 'item_id' => (int)$item['id'], 'qty' => $qty];
