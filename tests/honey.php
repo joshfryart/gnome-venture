@@ -153,7 +153,8 @@ $old = preg_replace('/\n🍯 \[b\]Honey Hive Harvest:[^\n]*/u', '', GAMES_PAGE);
 q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General'", [$old]);
 hive_almanac(); hive_almanac();
 $body = (string)q_val("SELECT body FROM encyclopedia_entries WHERE title = 'Games' AND chapter = 'General'");
-ok('upgrade: almanac line added once, same text as a fresh install', $body === GAMES_PAGE, $body);
+$strip = fn(string $t): string => preg_replace('/\n🍯 \[b\]Honey Hive Harvest:[^\n]*/u', '', $t);   // v2.0.31: the line's place differs once other games add theirs
+ok('upgrade: almanac line added once, rest of the page unchanged', substr_count($body, 'Honey Hive Harvest') === 1 && $strip($body) === $strip(GAMES_PAGE), $body);
 
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
