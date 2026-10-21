@@ -176,7 +176,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
 </div>
 <?php elseif (!$u): ?>
 <?php // v0.8.6: a front page that says what the game is, for visitors who've never played ?>
-<section class="lp"><?php // v1.6.3: short, phone-first front page: hero, big buttons, six picture cards ?>
+<section class="lp"><?php // v1.6.3: short, phone-first front page. v2.0.29: Hearthlight look: warm hero card, one solid button per block, centred picture tiles ?>
   <div class="lp-hero">
     <img class="lp-scene" src="<?= e(url('assets/img/landing/hero.svg')) ?>" alt="" width="360" height="170" fetchpriority="high">
     <h1><?= e(setting('site_name')) ?><?= is_admin() ? ' <a class="small" href="' . e(url('admin/texts.php?page=' . urlencode('Front page'))) . '">✏️ Edit</a>' : '' ?></h1>
@@ -184,30 +184,32 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
     <p class="lp-sub">A free, cosy garden game about gnomes.</p>
     <div class="lp-cta">
       <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.button')) ?></a>
-      <a class="btn alt lp-big" href="<?= e(url('login.php')) ?>">Log in</a>
+      <a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a>
     </div>
     <p class="lp-small"><?= e(stext('home.small')) ?></p>
   </div>
+  <h2 class="lp-h2">What you do here</h2>
   <ul class="lp-cards">
     <?php foreach ([
-        ['garden', 'Grow your garden', 'Start with a 4×4 plot. Buy more land as you go.'],
-        ['cook', 'Cook, craft, trade', 'Turn harvests into meals, tools and Petals.'],
-        ['stats', 'You are what you eat', 'Food and plants change your gnome’s stats.'],
-        ['roads', 'Walk the mycelium roads', 'Meet townsfolk who live their own lives.'],
+        ['garden', 'Grow a garden', 'A 4×4 plot to start. Buy more land as you go.'],
+        ['cook', 'Cook, craft, trade', 'Harvests become meals, tools and Petals.'],
+        ['stats', 'Eat well, grow strong', 'Food and rare plants change your gnome’s stats.'],
+        ['roads', 'Walk the roads', 'Villages and townsfolk with lives of their own.'],
         ['games', 'Little games', 'Quick daily games, at your own pace.'],
         ['almanac', 'Fill your Almanac', 'A book that fills in as you play.'],
     ] as [$img, $ttl, $line]): ?>
     <li class="lp-card">
       <img src="<?= e(url('assets/img/landing/' . $img . '.svg')) ?>" alt="" width="240" height="160" loading="lazy">
-      <div><h2><?= e($ttl) ?></h2><p><?= e($line) ?></p></div>
+      <h3><?= e($ttl) ?></h3>
+      <p><?= e($line) ?></p>
     </li>
     <?php endforeach; ?>
   </ul>
   <div class="lp-cta lp-end">
     <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.cta')) ?></a>
-    <a class="btn alt lp-big" href="<?= e(url('login.php')) ?>">Log in</a>
+    <a class="btn ghost lp-big" href="<?= e(url('guide.php')) ?>">📖 How to play</a>
+    <a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a>
   </div>
-  <p class="lp-small"><a href="<?= e(url('guide.php')) ?>">📖 How to play</a></p>
   <?php if (!in_array(trim((string)setting('motd')), ['', 'Welcome, new gardener! Open your Almanac to begin.'], true)): ?><p class="help lmotd"><?= format_text(setting('motd')) ?></p><?php endif; ?>
 </section>
 <?php else: ?>
@@ -220,7 +222,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
 <?php endif; ?>
 <?php if ($today): /* v1.9.2: news is part of the merged Today page above */ ?>
 <?php else: ?>
-<details class="fold" id="news"<?= ($u && !$today) || $allNews || ($u && $freshNews) ? ' open' : '' ?>><summary>📰 News from the Hollow<?= $freshNews ? ' <span class="tag">new</span>' : '' ?></summary>
+<details class="fold<?= $u ? '' : ' lp-news' ?>" id="news"<?= ($u && !$today) || $allNews || ($u && $freshNews) ? ' open' : '' ?>><summary>📰 News from the Hollow<?= $freshNews ? ' <span class="tag">new</span>' : '' ?></summary>
 <?php foreach ($news as $n): ?>
   <article class="box news">
     <h3><?= e($n['title']) ?></h3>

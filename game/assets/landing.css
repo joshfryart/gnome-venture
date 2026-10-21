@@ -1,38 +1,74 @@
-/* v1.6.3: logged-out front page + How to play. Uses the site tokens, so dark mode follows style.css. */
-.lp, .lpg { max-width: 760px; margin: 0 auto; }
+/* v1.6.3: logged-out front page + How to play. v2.0.29: Hearthlight look (warm cream/brown card tokens from style.css; dark via :root[data-theme="dark"]).
+   Loaded only on the logged-out index.php and guide.php, so the shell rules below (side menu, h1 rule) touch nothing else. */
+.lp, .lpg { max-width: 880px; margin: 0 auto; text-align: center;
+  --lp-paper: var(--accent-soft); --lp-edge: var(--accent-line); --lp-ink: var(--accent-ink); --lp-card: var(--box-bg, var(--surface)); --lp-r: 16px; }
+:root[data-theme="dark"] .lp, :root[data-theme="dark"] .lpg { --lp-paper: #2b241a; --lp-edge: #5a4a2c; --lp-ink: #efd393; }
 .lp *, .lpg * { min-width: 0; }
-.lp-hero { text-align: center; padding: 4px 0 8px; }
-.lp-scene { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto 10px; border-radius: 16px; }
-.lp-hero h1 { font-size: 30px; line-height: 1.15; margin: 4px 0 6px; overflow-wrap: anywhere; }
+body[data-area] main .lp h1, body[data-area] main .lpg h1 { border-bottom: 0; padding-bottom: 0; }   /* no area rule under the title here */
+body[data-area]:has(.lpg) .wrap { border-top-color: var(--brand); }   /* guide.php sits in the purple "book" area: the visitor pages share the front page's green line */
+@media (min-width: 721px) {   /* the logged-out side menu (Home / Log in / Join) is on the page already: hide it so the page sits in the middle */
+  body:has(.lp) .side, body:has(.lpg) .side { display: none; }
+}
+
+/* hero card */
+.lp-hero { background: var(--lp-paper); border: 2px solid var(--lp-edge); border-radius: var(--lp-r); padding: 14px 14px 16px; margin: 0 0 18px; box-shadow: var(--shadow); }
+.lp-scene { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto 10px; }
+.lp-hero h1 { font-size: 30px; line-height: 1.15; margin: 4px 0 6px; overflow-wrap: anywhere; color: var(--lp-ink); }
 .lp-pitch { font-size: 19px; font-weight: 600; margin: 0 0 4px; color: var(--ink); }
 .lp-sub { margin: 0 0 14px; color: var(--ink-2); }
-.lp-cta { display: flex; flex-direction: column; gap: 10px; max-width: 420px; margin: 0 auto 8px; }
-.lp-big { min-height: 54px; font-size: 18px; font-weight: 700; border-radius: 14px; width: 100%; text-align: center; }
-.btn.alt.lp-big { background: var(--surface); color: var(--brand-ink); border: 2px solid var(--brand); }
-.lp-small { text-align: center; font-size: 14px; color: var(--muted); margin: 6px 0 14px; }
-.lp-cards { list-style: none; margin: 8px 0 16px; padding: 0; display: grid; gap: 10px; grid-template-columns: 1fr; }
-.lp-card { display: grid; grid-template-columns: 42% 1fr; align-items: center; gap: 12px; background: var(--box-bg, var(--surface)); border: 1px solid var(--line); border-radius: 14px; padding: 8px; box-shadow: var(--shadow); }
-.lp-card img { display: block; width: 100%; height: auto; border-radius: 10px; }
-.lp-card h2 { font-size: 17px; line-height: 1.25; margin: 0 0 3px; border: 0; padding: 0; }
-.lp-card p { margin: 0; font-size: 15px; line-height: 1.4; color: var(--ink-2); }
+.lp-cta { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 360px; margin: 0 auto 8px; }
+.lp-big { min-height: 50px; font-size: 17px; font-weight: 700; border-radius: 12px; width: 100%; padding: 8px 18px; text-align: center; }
+.lp-login { display: inline-flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 4px 12px; color: var(--ink-2); font-size: 15px; text-decoration: none; }
+.lp-login b { color: var(--brand-ink); text-decoration: underline; margin-left: .3em; }
+.lp-login:hover b { text-decoration: none; }
+.lp-small { font-size: 14px; color: var(--muted); margin: 4px auto 0; max-width: 34em; }
+
+/* picture tiles */
+.lp-h2 { font-size: 18px; margin: 0 0 10px; color: var(--lp-ink); border: 0; padding: 0; }
+.lp-cards { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lp-card { display: flex; flex-direction: column; align-items: center; background: var(--lp-card); border: 1px solid var(--lp-edge); border-radius: 14px; padding: 8px 8px 10px; box-shadow: var(--shadow); }
+.lp-card img { display: block; width: 100%; height: auto; }
+.lp-card h3 { font-size: 15px; line-height: 1.25; margin: 6px 0 3px; border: 0; padding: 0; }
+.lp-card p { margin: 0; font-size: 13.5px; line-height: 1.35; color: var(--ink-2); }
 .lp-end { margin-top: 4px; }
-@media (min-width: 720px) {
-  .lp-cards { grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .lp-card { grid-template-columns: 1fr; text-align: center; padding: 10px; }
-  .lp-cta { flex-direction: row; max-width: 520px; }
+.lmotd { text-align: center; }
+.lp-news { max-width: 880px; margin: 16px auto 0; text-align: center; }
+details.lp-news > summary { justify-content: center; }
+.lp-news .box.news { text-align: left; }
+@media (min-width: 721px) {
+  .lp-hero { padding: 22px 24px 24px; }
   .lp-hero h1 { font-size: 38px; }
+  .lp-cards { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .lp-card { padding: 10px 10px 12px; }
+  .lp-card h3 { font-size: 17px; }
+  .lp-card p { font-size: 15px; }
+  .lp-cta { max-width: 420px; }
+  .lp-big { width: auto; min-width: 260px; max-width: 100%; }   /* never a lone full-width button on a wide screen */
 }
+
 /* How to play */
-.lpg-top { text-align: center; margin-bottom: 10px; }
-.lpg-top h1 { font-size: 26px; margin: 4px 0; }
+.lpg-top { margin-bottom: 12px; }
+.lpg-top h1 { font-size: 28px; margin: 6px 0 2px; color: var(--lp-ink); }
 .lpg-lede { margin: 0 0 10px; color: var(--muted); }
-.lpg-fold { background: var(--box-bg, var(--surface)); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 8px; box-shadow: var(--shadow); }
-.lpg-fold > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 14px; font-weight: 700; font-size: 17px; }
+.lp-top { margin-bottom: 4px; }
+.lpg-fold { background: var(--lp-card); border: 1px solid var(--lp-edge); border-radius: 14px; margin: 0 0 8px; box-shadow: var(--shadow); text-align: left; }
+.lpg-fold > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 12px; }
 .lpg-fold > summary::-webkit-details-marker { display: none; }
-.lpg-fold > summary::after { content: "▾"; margin-left: auto; color: var(--muted); transition: transform .15s; }
+.lpg-fold > summary h2 { flex: 1 1 auto; margin: 0; padding: 0; border: 0; font-size: 17px; font-weight: 700; line-height: 1.25; color: var(--ink); }
+.lpg-ico { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: var(--lp-paper); border: 1px solid var(--lp-edge); font-size: 20px; line-height: 1; }
+.lpg-ico .ico { width: 22px; height: 22px; }
+.lpg-fold > summary::after { content: "▾"; flex: none; color: var(--muted); font-size: 18px; transition: transform .15s; }
 .lpg-fold[open] > summary::after { transform: rotate(180deg); }
-.lpg-fold > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: 12px; }
-.lpg-fold ul, .lpg-fold ol { margin: 0; padding: 0 14px 6px 36px; }
+.lpg-fold > summary:hover { background: var(--surface-2); border-radius: 14px; }
+.lpg-fold[open] > summary:hover { border-radius: 14px 14px 0 0; }
+.lpg-fold > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: 14px; }
+.lpg-body { border-top: 1px solid var(--lp-edge); padding: 10px 14px 4px; }
+.lpg-fold ul, .lpg-fold ol { margin: 0; padding: 0 0 6px 22px; }
 .lpg-fold li { margin: 0 0 6px; line-height: 1.45; overflow-wrap: anywhere; }
-.lpg-fold p { margin: 0; padding: 0 14px 12px; line-height: 1.45; }
-.lpg-q { font-size: 16px; margin: 6px 14px 2px; border: 0; padding: 0; }
+.lpg-fold p { margin: 0; padding: 0 0 10px; line-height: 1.45; }
+.lpg-q { font-size: 16px; margin: 4px 0 2px; border: 0; padding: 0; color: var(--lp-ink); }
+@media (min-width: 721px) {
+  .lpg-top h1 { font-size: 34px; }
+  .lpg-fold > summary { padding: 8px 16px; }
+  .lpg-body { padding: 12px 18px 6px; }
+}
