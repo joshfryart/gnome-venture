@@ -17,6 +17,7 @@ const GAMES = [
     'mushroom' => ['Mushroom Sweeper', '🍄', 'mushroom.php', 'Clear the forest floor without stepping on a toadstool. The numbers tell you how many are hiding nearby.', 'mush_plays_per_day'],   // v0.8.1
     'letters' => ['Lost Letters', '🗺️', 'letters.php', 'A daily riddle: work out which town or village it describes, go there, and lift the stone to find the letter.', 'letters_per_day'],   // v0.8.1
     'pest' => ['Pest Patrol', '🪰', 'pest.php', 'Flick aphids, gnats, caterpillars and slugs off a growing plant before they chew its leaves away. Keep a bug net handy for butterflies.', 'pest_plays_per_day'],   // v1.4.8:
+    'hive' => ['Honey Hive Harvest', '🍯', 'hive.php', 'Lift the hive’s frames one by one. Listen to the hum, and bank your basket before a swarm wakes.', 'hive_plays_per_day'],
     'marrow' => ['Guess the Weight', '⚖️', 'marrow.php', 'Old Moss grows a giant crop every day. Guess its weight EXACTLY to win the growing jackpot.', 'marrow_guesses_per_day'],
 ];
 
@@ -334,6 +335,8 @@ function worm_finish(array $u, array $s, string $last = ''): array
 function ensure_games(): void
 {
     ensure_race_secret();
+    require_once __DIR__ . '/hive.php';
+    hive_almanac();   // Honey Hive Harvest line on the Games page
     // v0.7.12: the Games page now covers all three games
     q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body NOT LIKE '%Snail%'", [GAMES_PAGE]);
     q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body LIKE 'When the garden is growing on its own%' AND body LIKE '%Mushroom%' AND body NOT LIKE '%Pest Patrol%'", [GAMES_PAGE]);   // v1.4.8: the Games page lists Pest Patrol too

@@ -4671,3 +4671,34 @@ small .ico,.muted .ico{height:1em;width:1em}
 details.fold > summary, .st-later summary, .renamefold > summary, .btbody details.how > summary { gap: .35em; }
 .book .ctile .ci img[src*="/banner-"] { width: 72px; height: auto; max-height: 36px; border-radius: 4px; }
 .book .bpicon img[src*="/banner-"] { width: 140px; height: auto; max-height: 72px; border-radius: 6px; }
+
+/* v2.1: Honey Hive Harvest (hive.php). Tokens are shared names for the other mini-games; dark rules use data-theme. */
+:root { --mg-wood: #9a6b3f; --mg-wood-hi: #c9a96e; --mg-comb: #f5cf6a; --mg-hum: #b07a10; --mg-loud: #a8241f; }
+:root[data-theme="dark"] { --mg-wood: #7a4a1f; --mg-wood-hi: #9a6b3f; --mg-comb: #b07a10; --mg-hum: #f5cf6a; --mg-loud: #f08a24; }
+.hivestart { text-align: center; }
+.hivestart .phimg { display: block; margin: 0 auto 6px; }
+.hivemeter { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: 4px 0 8px; min-height: 10px; }
+.hivemeter i { width: 14px; height: 10px; border-radius: 3px; background: var(--mg-hum); }
+.hivemeter i.swarm { background: var(--mg-loud); }
+.hiveboard { display: grid; grid-template-columns: repeat(4, minmax(0, 84px)); gap: 6px; justify-content: center; margin: 12px auto; }
+.hiveboard > * { aspect-ratio: 3 / 4; min-height: var(--tap); margin: 0; padding: 4px 2px; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; font: 600 11px/1.2 var(--font); color: var(--ink); min-width: 0; }
+.hframe { border: 2px solid var(--line); background: var(--mg-wood); color: #fff; cursor: pointer; }
+.hframe:hover, .hframe:focus-visible { background: var(--mg-wood-hi); color: var(--ink); }
+.hframe:disabled { cursor: default; background: var(--danger-soft); border-color: var(--mg-loud); color: var(--ink); }
+.hframe.peek { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.hframe .hart { display: block; width: 100%; min-height: 28px; text-align: center; }
+.hframe .hart:empty { border-radius: 4px; border: 2px dashed var(--mg-wood-hi); height: 28px; width: 70%; min-height: 0; }
+.hdots { display: inline-flex; gap: 3px; }
+.hdots i { width: 8px; height: 8px; border-radius: 50%; background: var(--mg-hum); box-shadow: 0 0 0 1.5px #fff; }
+.hframe[data-hum="1"] .hdots i:nth-child(n+2), .hframe[data-hum="2"] .hdots i:nth-child(n+3) { opacity: .25; }
+.hframe[data-hum="3"] .hdots i { background: var(--mg-loud); }
+.hopen { border: 2px solid var(--line); background: var(--mg-comb); color: var(--ink); }
+.hopen.k-drowsy { background: var(--surface-2); }
+.hopen.k-swarm { background: var(--danger-soft); border-color: var(--mg-loud); }
+.hopen.dim { opacity: .6; }
+.hface .phimg { max-width: 100%; height: auto; }
+.hval { font-variant-numeric: tabular-nums; }
+.hivebank { display: flex; justify-content: center; margin: 8px 0; }
+@media (min-width: 721px) { .hiveboard { grid-template-columns: repeat(8, minmax(0, 88px)); max-width: 760px; } }
+@media (prefers-reduced-motion: no-preference) { .hopen { animation: hivepop .25s ease-out; } }
+@keyframes hivepop { from { transform: scale(.9); } to { transform: scale(1); } }

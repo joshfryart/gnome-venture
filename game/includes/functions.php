@@ -359,6 +359,8 @@ function settings_schema(): array
         'spit_min_ms'        => ['label' => 'Seed Spitting: least time (ms) between loading a seed and spitting it', 'type' => 'int', 'default' => '1000', 'min' => 0, 'max' => 10000],   // v1.4.0:
         'worm_wander'        => ['label' => 'Worm Hunting: % chance a worm wriggles one square after each dig (0 = still worms)', 'type' => 'int', 'default' => '35', 'min' => 0, 'max' => 100],   // v1.4.0:
         'mush_plays_per_day' => ['label' => 'Mushroom Sweeper: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
+        'hive_plays_per_day' => ['label' => 'Honey Hive Harvest: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
+        'hive_gifts_per_day' => ['label' => 'Honey Hive Harvest: honey/beeswax gifts a gnome can win a day', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 10],
         // v1.4.8: Pest Patrol
         'pest_plays_per_day' => ['label' => 'Pest Patrol: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'pest_butterfly_pct' => ['label' => 'Pest Patrol: % chance a butterfly wanders across the plant in a round', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 100],
