@@ -1,10 +1,12 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.19)
+# Gnome Venture: to-do (updated 2026-10-20, after 2.0.20)
+
+Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.
 
 Built: **2.0.19** (trek tap brake 400/5 min, news entry "Treks are open!"). Joshua: upload it, then Admin → Settings → "Treks: open" = on. News post goes out at upload even if you wait: set the switch right after. Watch the first days: Admin → Usage (treks row), error log.
 
 Built: **2.0.18** (Treks phone play-test fixes: spot-text pop-overs, fight feed cap, obstacle bypass fixed, compact party cards, Ch II rest-site camp pop-over, Ch II sluices closer). Check on phone: walk to Burdock (cart now blocks: dig it), back out of a fight/duel and try to walk on (refused), Ch II oldcamps + Cushion Corner open the camp pop-over with free rest, sluice turn shows water change. DECIDED 2026-10-20: first cart dig keeps +8 fatigue (no change; free dig would make the Grit heave pointless; 8 is far under Tired 60 and Lantern Stump camp resets it); sluice text pass done in the next release (text pass 7; the freeze is lifted). Ideas: short CSS pulse on drained tiles; Clay Slide can skip the Shelf (left).
 
-Built: **2.0.17** (picture-tile shops done: Curio, Dye Pot, festival stalls, haven pantry, village stalls). Check on phone: each opens a sheet, buy works, centred. Watch: CSP inline-style console error on town.php (pre-existing). The "NEXT UP picture tiles" list below is DONE.
+Built: **2.0.17** (picture-tile shops done: Curio, Dye Pot, festival stalls, haven pantry, village stalls). Check on phone: each opens a sheet, buy works, centred. Watch: CSP inline-style console error on town.php (pre-existing).
 
 Built: **2.0.16** (II-b Fallen Shelf stop, road roll admin settings, Tumble lines pass 6, .tkfoelv CSS gone). Check: Admin → Settings → advanced "Road:" four weights; II-b shelf at the Dim (dc 11, camp kit). The II-b held list is DONE (Tumble brief fixed in the next release).
 
@@ -29,12 +31,13 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 
 ## 2.0.20 (Opus review 2026-10-20)
 - Shipped: Knacks (11 slots to Lv22, minor/major sidegrades, change filled slots at camp/hub), trek level cap 23, Whole map fold, friendship +1 per 20 won fights (cap `trek_friend_daily` 3/day), Ch II first-fight lesson, text pass 7, Drum Door label, feed keeps last lines. Ch III-a built but HIDDEN (`trek_chapters_open` 2; admins bypass).
+- Balance watch: camps are now full rest (kits + old camps stronger). Levers: `trek_oldcamp_ambush_pct`, `trek_campkit_price`.
 - Joshua checks (phone): Party tab knack selects (pick, Save, change at camp only), Whole map fold under the map, a 20th won fight shows "X likes you a little more", Ch II sluice lines.
 - Joshua decides: Old Gneiss median ~90 (target 78-88; worst 72, best 98); knack numbers (sims: builds add +7 to +9 avg win on Pinch/Thrum, test limit 8); knacks at Lv22 = 11 select rows (~800px on phone: fold?); Mushroom Camp beetle shells (pack first?); Lanternroot crop; when to set `trek_chapters_open` 3.
 
 ## Now: Joshua
 0. Treks are open (`trek_open` on since 2.0.19). Watch Admin → Usage (treks row), the error log, and players' first runs.
-1. Upload the next release (adds text pass 7: sluice lines name the water and clay layer, Ch II stash/shrine lines, Drum Door says "Open the door"). Rows you edited keep your words.
+1. Upload **2.0.20** (covers 2.0.19; adds text pass 7: sluice lines name the water and clay layer, Ch II stash/shrine lines, Drum Door says "Open the door"). Rows you edited keep your words. Then play Ch III-a as admin on phone (hidden from players).
 2. Get players (slow going). Read Admin → Retention and Admin → Usage after a week or two: they decide the gated cuts.
 3. Art in progress (Admin → Images).
 - Email: Joshua says OK, drop it.
@@ -45,18 +48,14 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 
 ## Plan 2026-10-20: see claude/plan-consolidation.md (Phase 0 usage page 2.0.3, Phase 1 2.0.4; next: read Admin → Usage; gated cuts wait for the numbers; Phase 3 done in 2.0.6; NEXT: read Admin → Usage, decision gate on maps (roads strip/town hub only if delve maps get played), gated cuts, more picture-tile shops (Curio/Dye Pot, festival, pantry, local))
 
-## NEXT UP (Joshua 2026-10-17)
-- Picture tiles + sheet (like shop.php 1.9.8) on: Curio + Dye Pot (sinks.php), market day stalls (marketday.php), haven pantry (landmarks.php), festival stalls, local.php buys, Trading Post (market.php).
-
-
 ## Explore: next (from `claude/explore-review.md`; 1-5, 7, 10 done)
 - Region packs for the other 11 regions. 6 traces of other players, 9 festival/goal chips, 11 calling/animal lines, 12 delve room text, 8 Tales.
 - Also: road_lines admin editor (draft status like trek text); 146 villages share 9 descriptions; 4 stop personalities lack chat lines; Haven text promises shops that don't exist; tundra thin.
 
 ## Treks: next
 - Scenes next: Gloomtooth intro, Sorrel's door, signpost riddle as pop-overs (need speaker-tagged text); gnome reply lines are drafts.
-- II-b watch: Overdue Book unused in II-b; only 2 new crew moments;  Admin settings for road roll % not built. Road data files have no admin editor.
-- Not built: zone j first-fight tutorial, Chapters III-VI, Thorny/Bramble, skill points/respec, mini-map, Lanternroot real crop, hats/stamp/trophy, friendship +1/20 fights, trailmates 4-8.
+- II-b watch: only 2 new crew moments. Road data files have no admin editor (road roll % settings done 2.0.16).
+- Not built: Ch III-b to VI, Thorny/Bramble, respec, Lanternroot real crop, hats/stamp/trophy, trailmates 8 (4-7 built).
 
 ## Treks: done in 2.0.1 (decided 2026-10-18)
 - Party wall fixed (all 20 parties 76–95%). Watch: Silverfin Lv11 93–99% (above 92 target), Bu+Zi+Br Silverfin Lv10 74.5%.
@@ -70,7 +69,6 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 - Later: cPanel cron for reminder emails; test site /testvault/ (code ready, skipped).
 
 ## Small / watch
-- Fix stale greps in tests/sinks097.sh (`class="curio"` is now `class="curio choiceform"`; `owned</span>`). Game is fine.
 - `walk_scene` row is deleted when a delve ends, so delve completion is not recorded anywhere; the plan's gate after the maps has no data source until a count is added (Usage has no map line).
 - Trek map: open-zone walls flat grey; long walks enter from phone-window edge.
 - "Community garden" tab wraps on phone. Sign/skin Buy buttons small.
