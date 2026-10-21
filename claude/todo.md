@@ -1,5 +1,7 @@
 # Gnome Venture: to-do (updated 2026-10-21, after 2.0.27)
 
+Built (not yet versioned/shipped): **2.0.31 candidate**: (1) trek fight log, replay rows and foe cards now swap emoji to our icons (`trek_ico_html()` in includes/trek.php; trekfight.js uses innerHTML for server-escaped icon HTML); (2) BUG: tapping any tile at row 100+ said "Pick a tile." because the `go` regex allowed 2 digits; Chapter II's Drum Chamber (rows 99-104) was untappable. Now 1-3 digits. Missing icons: see `claude/art-todo.md`. Not run: tests/treks.sh; check on phone: Drum Chamber tap-to-walk, Auto replay icons.
+
 Built + shipped: **2.0.29** (logged-out homepage + How to play rework). Joshua: check on phone logged out; a logged-in Today page render and Firefox Android were not tested.
 
 Built + shipped: **2.0.28** (art only: clap, party, watering-can, flatbread, boat, grain redrawn). Checked 2026-10-21 and closed: JS/CSS emoji leftovers (all mapped, only SVG pop text and `<option>` stay emoji); missing space after icon in summaries (fixed 2.0.25 with flex gap); town.php CSP console error does not reproduce (no inline styles left in source). Still weak, optional: path, dove, nav festival/friends/villagers/arranging at 24px, account on dark.

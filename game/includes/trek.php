@@ -228,7 +228,13 @@ function trek_latest_html(array $run, bool $keep = false): array
 
 function trek_line_html(array $l): string
 {
-    return isset($l['k']) ? trek_text((string)$l['k'], (array)($l['v'] ?? [])) : e((string)($l['s'] ?? ''));
+    return trek_ico_html(isset($l['k']) ? trek_text((string)$l['k'], (array)($l['v'] ?? [])) : e((string)($l['s'] ?? '')));
+}
+
+/** v2.0.31: emoji in HTML that reaches the page as JSON (fight replay lines, rows) never meets the output-buffer swap, so swap it here. */
+function trek_ico_html(string $html): string
+{
+    return function_exists('emoji_swap') && setting('ico_swap') === '1' ? emoji_swap($html) : $html;
 }
 
 function trek_seen_get(array $run, int $x, int $y): bool

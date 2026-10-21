@@ -112,7 +112,7 @@ function trek_dispatch_do(?array &$run, array $u, string $do): array
     switch ($do) {
         case 'leave': return trek_leave($run);
         case 'go':
-            if (!preg_match('/^(\d{1,2}),(\d{1,2})$/', trek_post_str('go'), $m)) return [false, 'Pick a tile.'];
+            if (!preg_match('/^(\d{1,3}),(\d{1,3})$/', trek_post_str('go'), $m)) return [false, 'Pick a tile.'];
             return trek_walk($run, $u, (int)$m[1], (int)$m[2]);
         case 'mode':
             if ($run['fi']) return [false, 'Not during a fight.'];
