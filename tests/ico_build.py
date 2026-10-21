@@ -15,6 +15,8 @@ SHADOW_RAW = re.compile(r'^(<svg[^>]*>)<ellipse\b(?=[^>]*cy="5[2-9]")(?=[^>]*fil
 
 REDRAW = set('ico-ant ico-beetle ico-fly ico-fish ico-knife ico-mushroom ico-peach ico-peanut ico-four-leaf-clover ico-chili ico-cherry ico-sunflower ico-test-tube ico-watermelon ico-shell ico-snake ico-person ico-shop ico-shrine ico-tent ico-tower ico-goat ico-milk ico-caterpillar'.split())   # reuse candidates judged illegible/muddy at 16-24px: drawn fresh via ico_src instead
 
+WITHHOLD = {'prayer','handshake'}   # icons judged illegible at 16px: never (re)created; ico-<name> skipped by reuse/restyle/rawrestyle/all
+
 SHRINK = {'ico-hedgehog': .88, 'ico-snail': .88}   # art touches the 64px frame: scale about the centre
 ONLY = set(filter(None, os.environ.get('ICO_ONLY', '').split(',')))   # ICO_ONLY=ico-snail,ico-hedgehog regenerates just these
 
@@ -41,7 +43,7 @@ def reuse():
         if e.get('reuse'): done[e['slug']] = e['reuse']
     raster = []; n = 0
     for slug, rel in sorted(done.items()):
-        if slug in REDRAW or (ONLY and slug not in ONLY): continue
+        if slug in REDRAW or slug[4:] in WITHHOLD or (ONLY and slug not in ONLY): continue
         f = os.path.join(IMG, rel + '.svg')
         if not os.path.exists(f):
             raster.append((slug, rel)); continue
@@ -57,6 +59,7 @@ def rawrestyle():
     import hearth
     os.makedirs(OUT, exist_ok=True)
     for n, rel in RAW_RESTYLE.items():
+        if n in WITHHOLD: continue
         slug = 'ico-' + n
         out = hearth.restyle(open(os.path.join(IMG, rel + '.svg'), encoding='utf-8').read(), slug)
         open(os.path.join(OUT, slug + '.svg'), 'w', encoding='utf-8').write(out); print('rawrestyle', slug, len(out))
@@ -67,6 +70,7 @@ def restyle():
     for f in sorted(os.listdir(SRC)):
         if not f.endswith('.svg'): continue
         slug = f[:-4]
+        if slug[4:] in WITHHOLD: continue
         if ONLY and slug not in ONLY: continue
         try: out = hearth.restyle(open(os.path.join(SRC, f), encoding='utf-8').read(), slug)
         except Exception as ex: bad.append((slug, repr(ex))); continue
