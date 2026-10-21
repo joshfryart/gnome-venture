@@ -75,18 +75,24 @@ function blocked_word(string $text): bool
     return false;
 }
 
-/** The reported text as it is right now. */
-function report_snapshot(string $kind, int $targetId, int $refId): ?string
+/** The reported text as it is right now, only if the viewer may see it (a gift or trade note: its recipient; a garden: if visible). */
+function report_snapshot(string $kind, int $targetId, int $refId, ?array $viewer = null): ?string
 {
+    $staff = $viewer && in_array($viewer['role'] ?? '', ['admin', 'mod'], true);
+    $to = $staff ? '' : ' AND to_id = ' . (int)($viewer['id'] ?? 0);
+    if ($kind === 'garden' || $kind === 'yard') {
+        require_once __DIR__ . '/yard.php';
+        $g = q_one('SELECT user_id, garden_name FROM plots WHERE id = ? AND user_id = ?', [$refId, $targetId]);
+        if (!$g || !garden_visible($g, $viewer)) return null;
+        if ($kind === 'garden') return $g['garden_name'] ?: null;
+        return 'The yard of “' . ($g['garden_name'] ?: 'Garden') . '” (garden #' . $refId . ')';
+    }
     return match ($kind) {
         'name' => q_val('SELECT gnome_name FROM users WHERE id = ?', [$targetId]) ?: null,
-        'garden' => q_val('SELECT garden_name FROM plots WHERE id = ? AND user_id = ?', [$refId, $targetId]) ?: null,
-        'gift' => q_val('SELECT note FROM gifts WHERE id = ? AND from_id = ?', [$refId, $targetId]) ?: null,
-        'offer' => q_val('SELECT note FROM trade_offers WHERE id = ? AND from_id = ?', [$refId, $targetId]) ?: null,
+        'gift' => q_val('SELECT note FROM gifts WHERE id = ? AND from_id = ?' . $to, [$refId, $targetId]) ?: null,
+        'offer' => q_val('SELECT note FROM trade_offers WHERE id = ? AND from_id = ?' . $to, [$refId, $targetId]) ?: null,
         'job' => q_val('SELECT note FROM player_jobs WHERE id = ? AND poster_id = ?', [$refId, $targetId]) ?: null,
         'carving' => q_val('SELECT title FROM carvings WHERE id = ? AND user_id = ?', [$refId, $targetId]) ?: null,
-        'yard' => ($g = q_one('SELECT garden_name, appeal FROM plots WHERE id = ? AND user_id = ?', [$refId, $targetId]))
-            ? 'The yard of “' . ($g['garden_name'] ?: 'Garden') . '” (garden #' . $refId . ')' : null,
         'other' => '',
         default => null,
     };
@@ -99,7 +105,7 @@ function file_report(array $u, int $targetId, string $kind, int $refId, string $
     if ($targetId === $uid) return [false, 'You can’t report yourself.'];
     $target = q_one('SELECT id, role FROM users WHERE id = ?', [$targetId]);
     if (!$target) return [false, 'That gnome doesn’t exist.'];
-    $snap = report_snapshot($kind, $targetId, $refId);
+    $snap = report_snapshot($kind, $targetId, $refId, $u);
     if ($snap === null) return [false, 'That’s already gone.'];
     if ((int)q_val('SELECT COUNT(*) FROM reports WHERE reporter_id = ? AND created_at > ?', [$uid, gmdate('Y-m-d H:i:s', time() - 86400)]) >= REPORTS_PER_DAY) {
         return [false, 'You’ve sent a lot of reports today. Thank you! The moderators will catch up.'];

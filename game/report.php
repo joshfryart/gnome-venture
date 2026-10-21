@@ -15,7 +15,7 @@ if (is_post()) {
     redirect($ok ? safe_back('index.php') : 'report.php?u=' . $target . '&k=' . $kind . ($ref ? '&r=' . $ref : ''));
 }
 $who = q_one('SELECT id, username, gnome_name FROM users WHERE id = ?', [$target]);
-$snap = $who ? report_snapshot($kind, $target, $ref) : null;
+$snap = $who ? report_snapshot($kind, $target, $ref, $u) : null;
 $back = (string)($_GET['back'] ?? '');
 page_header('Report');
 ?>
