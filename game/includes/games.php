@@ -699,12 +699,14 @@ function marrow_crop(string $day): array
     return $cache[$day] = [(string)$c['name'], catalog_kind_icon((string)$c['kind'])];
 }
 
-/** A hint gnomes can see: its length, which goes with its weight (roughly), and how plump it looks. */
+/** A hint gnomes can see: its length, which goes with its weight (roughly), and how plump it looks.
+ *  Noise is keyed with the race secret and the length is clamped, so any hint fits 100+ weights; plumpness follows the length (no extra clue). */
 function marrow_hint(string $day): string
 {
     $g = marrow_weight($day);
-    $len = (int)round(40 + $g / 400 + (crc32('len|' . $day) % 11) - 5);
-    return 'It’s about ' . $len . ' cm across and ' . ($g > 28000 ? 'very' : ($g > 18000 ? 'quite' : 'a bit')) . ' plump.';
+    $noise = hexdec(substr(hash_hmac('sha256', 'len|' . $day, setting('race_secret')), 0, 8)) % 13 - 6;
+    $len = max(54, min(74, (int)round(40 + $g / 1000 + $noise)));
+    return 'It’s about ' . $len . ' cm across and ' . ($len > 68 ? 'very' : ($len > 58 ? 'quite' : 'a bit')) . ' plump.';
 }
 
 /** v0.8.0: the jackpot for an exact guess (it grows every day nobody hits it). */
