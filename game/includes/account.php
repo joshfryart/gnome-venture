@@ -250,12 +250,7 @@ const PRIVACY_TEXT = "[h]What we keep[/h]\n"
 
 function ensure_launch(): void
 {
-    // Older worlds: fill in the site's address from the request that runs the upgrade (editable in Game settings)
-    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
-    if (setting('site_url') === '' && preg_match('/^[A-Za-z0-9.\-]+(:\d+)?$/', $host)) {
-        set_setting('site_url', ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://') . $host);
-        setting('__reload__');
-    }
+    // site_url is never seeded from the request's Host header (spoofable): the admin sets it in Game settings, and the admin page warns while it's empty
     if (!q_val("SELECT 1 FROM pages WHERE slug = 'privacy'")) {
         db_insert('pages', ['slug' => 'privacy', 'title' => 'Privacy', 'body' => PRIVACY_TEXT, 'published' => 1, 'show_in_nav' => 0, 'updated_at' => now()]);
     }
