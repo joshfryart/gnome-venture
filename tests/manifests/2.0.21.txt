@@ -1603,7 +1603,7 @@ cc5b8c7cfd1e449c8dfde0a49bc8993c2436a73c  assets/puzzles.js
 c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 a23e86617760d892bf84df9d75ccc0fe4997e22b  assets/site.js
 4f7b1a603c89a58dff82ba2b08d66f9424a4e138  assets/spit.js
-4c006a79cc835b37268ba388782f3103774fc1a5  assets/style.css
+f35f8d74d85462f499d5c7f85340dead2bfc75c3  assets/style.css
 cb26a7dc4e29df3fb63b07ea901b384d5018eae4  assets/tilemap.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
 6caece0a84490e3a339a7c23260f368213354512  assets/trekfight.js
