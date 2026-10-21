@@ -43,6 +43,7 @@ def shade_color(kids):
 
 CHAR_REMAP = {'#6a6070': '#8f7060', '#968f96': '#a38f80', '#d6c9b6': '#e6d2ae', '#e46a9b': '#d9667f', '#f4f0e0': '#f8eed2', '#f1ece0': '#f8eed2', '#a9d6ea': '#b8d8d2', '#a8241f': '#9c2a1e'}
 CHARS = ('creature-', 'npc-')
+EYE_DARK = [False]
 def eye_pass(kids, root, npc):
     whites, pupils = [], []; ids = {}; glints = []; under = {}; seen = []
     def walk(el, tr):
@@ -70,7 +71,7 @@ def eye_pass(kids, root, npc):
     for pi, (x, y, r) in enumerate(pupils):
         rm.add(ids[('p', pi)])
         wh = [w for w in whites if (w[0] - x) ** 2 + (w[1] - y) ** 2 < w[2] ** 2]
-        pr = max(r * 1.1, 1.25); uh = _hex(under.get(pi)); dark = not npc and bool(uh) and .3 * uh[0] + .59 * uh[1] + .11 * uh[2] < 80
+        pr = max(r * 1.1, 1.25); uh = _hex(under.get(pi)); dark = not npc and EYE_DARK[0] and bool(uh) and .3 * uh[0] + .59 * uh[1] + .11 * uh[2] < 80
         if wh:
             rm.add(ids[('w', whites.index(wh[0]))])
             for gx, gy, gi in glints:
@@ -823,14 +824,15 @@ def restyle(src, name):
     TRIM = False; INNER_W = w0; MAT = True; CAPS = False
     return best[1]
 
+AURA_IDS = set()
 def is_aura(e):
-    return e.tag == q('circle') and not e.get('transform') and (e.get('fill') or '').lower() not in ('#000', '#000000', UMBER, 'none') and num(e.get('opacity'), 1) < .3 and num(e.get('r')) >= 18 and not e.get('stroke')
+    return id(e) in AURA_IDS or e.tag == q('circle') and not e.get('transform') and (e.get('fill') or '').lower() not in ('#000', '#000000', UMBER, 'none') and num(e.get('opacity'), 1) < .3 and num(e.get('r')) >= 18 and not e.get('stroke')
 
 def _restyle(src, name):
-    ORIG_R.clear(); PRUNE.clear()   # i12: id()-keyed caches must not leak across sprites (output depended on file order / heap layout)
+    ORIG_R.clear(); PRUNE.clear(); AURA_IDS.clear()   # i12: id()-keyed caches must not leak across sprites (output depended on file order / heap layout)
     global CHARMODE
     global FIXED, HEDGE, FENCE
-    CHARMODE = name.startswith(CHARS); NAVF[0] = name.startswith('nav-')
+    CHARMODE = name.startswith(CHARS); EYE_DARK[0] = name in ('creature-black-bear', 'creature-honey-badger-brute', 'creature-paper-wasp'); NAVF[0] = name.startswith('nav-')
     HEDGE = bool(re.search(r'-(hedge|border)-(straight|corner|tee|gate|end|cross)$', name)); FENCE = bool(re.search(FENCE_RE, name)); HEDGE = HEDGE or FENCE; FIXED = HEDGE or name.startswith('stage-')
     root = ET.fromstring(src)
     vb = [float(x) for x in root.get('viewBox').split()]
@@ -882,7 +884,7 @@ def _restyle(src, name):
         for e in kids:   # i12: rarity aura disc must stay inside the frame (fit shift used to push it off the left edge -> flat clip)
             if is_aura(e):
                 cx0, cy0 = num(e.get('cx')), num(e.get('cy')); lim = min(cx0 - vb[0], vb[0] + W - cx0, cy0 - vb[1], vb[1] + H - cy0)
-                if num(e.get('r')) > lim > 4: e.set('r', fmt(lim))
+                if num(e.get('r')) > lim - 1 > 4: AURA_IDS.add(id(e)); e.set('r', fmt(lim - 1))   # i13: keep 1u inside the frame; id-tagged because r may now be < 18
         for k in kids:   # i9: whiskers (white multi-subpath hairlines) become soft umber ticks, not white noise on the halo
             for e in k.iter():
                 if e.tag == q('path') and e.get('fill') == 'none' and (e.get('stroke') or '').lower() in ('#fff', '#ffffff') and num(e.get('stroke-width'), 9) <= 1.6 and (e.get('d') or '').count('M') >= 3 and not e.get('opacity'):
@@ -959,7 +961,7 @@ def _restyle(src, name):
     else:
         if CHARMODE and not npc:   # i12: aura discs sit under the cream halo (a glow behind the sprite), not over its outline
             for e in [k for k in kids if is_aura(k)]:
-                kids.remove(e); h = _hex(e.get('fill')); e.set('fill', '#%02x%02x%02x' % tuple(int(a + .55 * (b - a)) for a, b in zip(h, (255, 244, 205)))); e.set('opacity', fmt3(min(.4, num(e.get('opacity')) * 1.5))); root.append(e)   # lighter, same hue: reads as glow on dark
+                kids.remove(e); h = _hex(e.get('fill')); e.set('fill', '#%02x%02x%02x' % tuple(int(a + .35 * (b - a)) for a, b in zip(h, (255, 244, 205)))); e.set('opacity', fmt3(min(.4, num(e.get('opacity')) * 1.5))); root.append(e)   # lighter, same hue: reads as glow on dark
         shadow = [k for k in kids if (k.get('fill') or '').lower() == UMBER and num(k.get('opacity'), 1) < .5]
         for s in shadow: s.set('opacity', '.42')
         for s in shadow: root.append(s)
@@ -973,12 +975,25 @@ def _restyle(src, name):
                     if e.tag == q('path') and e.get('fill') == 'none' and e.get('stroke') and num(e.get('stroke-width'), 9) <= 1.7: e.set('stroke-width', '1' if num(e.get('stroke-width')) < 1.3 else '1.5')
         fk = ET.Element(q('g')); eyes = ET.Element(q('g')); EYE_RM = set()
         if CHARMODE: EYE_RM = eye_pass([k for k in kids if k not in shadow], eyes, npc)
+        MASKG = None
+        def is_crack(e): return e.tag == q('path') and (e.get('stroke') or '').lower() == UMBER and (e.get('fill') or 'none') == 'none' and not e.get('transform') and e.get('opacity') is None
+        if name.startswith('broken-'):   # i13: cracks are masked by the body INCLUDING stroked shafts (a clipPath ignores strokes -> cracks vanished on thin handles); mask built from the body without the cracks
+            holes = []
+            for k in kids:
+                for par in k.iter():
+                    for c in list(par):
+                        if is_crack(c): holes.append((par, c, list(par).index(c)))
+            body = [k for k in kids if not is_crack(k)]
+            for par, c, i in holes: par.remove(c)
+            MASKG = ET.Element(q('g'), {'fill': '#fff', 'stroke': '#fff', 'stroke-linejoin': 'round', 'stroke-linecap': 'round'})
+            for e in silhouette(body, '#fff', 0.0): MASKG.append(e)
+            for par, c, i in reversed(holes): par.insert(i, c)
         for k in kids:
             if k not in shadow and id(k) not in EYE_RM:
                 if not nav and not HEDGE: inner(k, u)
-                if name.startswith('broken-'):   # i12: crack strokes are clipped to the silhouette so they never poke through the halo
+                if MASKG is not None:
                     for e in ([k] if k.tag != q('g') else list(k.iter())):
-                        if e.tag == q('path') and (e.get('stroke') or '').lower() == UMBER and not e.get('transform') and e.get('opacity') is None: e.set('clip-path', 'url(#%s)' % cid)
+                        if is_crack(e): e.set('mask', 'url(#%s-m)' % cid); e.set('stroke-width', fmt(max(num(e.get('stroke-width')), 2.6 * u)))
                 fk.append(k)
         cnt = {}
         for e in fk:
@@ -994,6 +1009,8 @@ def _restyle(src, name):
         defs = ET.SubElement(root, q('defs'))
         cp = ET.SubElement(defs, q('clipPath'), {'id': cid})
         for e in silhouette(kids, '#000', 0.0): cp.append(e)
+        if MASKG is not None:
+            mk = ET.SubElement(defs, q('mask'), {'id': cid + '-m', 'maskUnits': 'userSpaceOnUse', 'x': fmt(vb[0]), 'y': fmt(vb[1]), 'width': fmt(W), 'height': fmt(H)}); mk.append(MASKG)
         # clipPath children cannot be <g>; flatten groups by moving transform down
         flat = []
         def fl(el, tr):
