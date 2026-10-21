@@ -1,6 +1,11 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.21
+- Art: Hearthlight refresh. All 1,428 assets/img/ph/*.svg restyled (cream sticker halo, warm umber line, one lower-right cel shade, warmer palette; each icon <= 4 KB, scenes/banners <= 8 KB). Guide claude/art-style-guide.md; tool tests/hearth.py.
+- Chrome: CSS block 'v2.0.21 hearthlight chrome' appended to assets/style.css (warm tokens light + dark, gold tabs, status strip, sheet backdrops). No selector or class changes in PHP.
+- News entry (new look). No schema change. Image URLs carry ?v=APP_VERSION so caches refresh.
+
 ## 2.0.20
 - Treks: NEW Knacks (includes/trek_knacks.php): one slot per even trek level (Lv2 minor, Lv4 major, ... max 11 at Lv22), 6 minor + 6 major sidegrade knacks, each once per member, stats only (no knacks = identical stats). Pick on the Party tab, change filled slots at a camp or the hub, free. Trek level cap 20 -> 23.
 - Treks: NEW whole-map fold (includes/trek_minimap.php): seen tiles only, display only, 2-3 KB.

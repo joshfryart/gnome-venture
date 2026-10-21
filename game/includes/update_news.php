@@ -75,6 +75,10 @@ const UPDATE_NEWS = [
         . "[list][*]Starting costs 10 energy. Fights cost none.\n[*]Your progress saves at every step, on any device.\n[*]Auto lets the party fight for you.[/list]"],
     '2.0.20' => ['🥾 Treks: knacks and a whole map',
         "[list][*][b]Knacks[/b]: every two trek levels each trailmate (and you) earns a knack slot, small then bigger. Each knack trades one thing for another. Pick them on the Party tab; change them at camp.\n[*][b]Whole map[/b]: a small fold under the map shows everywhere you have been.\n[*][b]Camps[/b] now heal everyone fully and clear fatigue: camp tiles, Camp Kits, old campsites and rest spots.\n[*]Trailmates grow fonder of you as you fight together.\n[*]The map feed keeps your last lines after a quiet step.[/list]"],
+    '2.0.21' => ['🎨 A new look',
+        "[list][*][b]Warmer colours[/b] across the whole game: cosy cream, soft brown and gold.\n"
+        . "[*][b]New icons[/b]: every item, creature and villager is redrawn like a sticker with a soft outline and a little shadow.\n"
+        . "[*][b]Gold tabs[/b] and a tidier top bar.[/list]"],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */

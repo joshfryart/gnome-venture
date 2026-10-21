@@ -4644,3 +4644,138 @@ dialog.isheet .sline b { font-size: 16px; }
 :root[data-theme="dark"] .tkmini .tmdn circle { fill: #62c283; }
 :root[data-theme="dark"] .tkmini .tmob { fill: #ff6a52; stroke: #0d0b09; }
 :root[data-theme="dark"] .tkmini .tmme { fill: #5aa0ff; stroke: #0d0b09; }
+/* v2.0.21 hearthlight chrome (art direction: claude/art-style-guide.md, claude/layout-spec.md). Site chrome in the Hearthlight look: warm umber + cream halo, one lower-right cel shade.
+   Append-only: overrides existing selectors, adds no class names. Dark = :root[data-theme="dark"]. Motion only under no-preference. */
+
+/* ---- 1. tokens: light ---- */
+:root {
+  --bg: #f4f0e0; --surface: #fffaf0; --surface-2: #f3ead6; --box-bg: #fffaf0;
+  --ink: #2a1a10; --ink-2: #4e3a2a; --muted: #6b5640;
+  --line: #e3d6b8; --line-2: #8c714b;
+  --accent: #b07a10; --accent-soft: #fbf1d6; --accent-ink: #6b4a00; --accent-line: #e3c97f;
+  --hl-umber: #2a1a10; --hl-cream: #f4ead2; --hl-gold: #e8a317; --hl-gold-dk: #b07a10;
+  --hl-halo: inset 0 0 0 1px rgba(255, 255, 255, .7);
+  --hl-cel: 2px 2px 0 rgba(42, 26, 16, .14);
+  --hl-cel-2: 3px 3px 0 rgba(42, 26, 16, .18), 0 10px 28px rgba(42, 26, 16, .22);
+  --hl-bar-on: #7a4a1f; --hl-r: 12px; --hl-r-sm: 10px;
+  --radius: 12px; --radius-sm: 10px;
+  --shadow: var(--hl-cel); --shadow-2: var(--hl-cel-2);
+  --font: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+/* ---- 1b. tokens: dark (default theme) ---- */
+:root[data-theme="dark"] {
+  --bg: #1a1511; --surface: #241d17; --surface-2: #2e251d; --box-bg: #241d17;
+  --ink: #f1e8d4; --ink-2: #d8cbb1; --muted: #ad9d80;
+  --line: #3a2f25; --line-2: #8a735a;
+  --accent: #e8a317; --accent-soft: #3a2f1c; --accent-ink: #efd393; --accent-line: #6b5530;
+  --focus: #f5cf6a;
+  --hl-halo: inset 0 0 0 1px rgba(244, 234, 210, .07);
+  --hl-cel: 2px 2px 0 rgba(0, 0, 0, .45);
+  --hl-cel-2: 3px 3px 0 rgba(0, 0, 0, .5), 0 10px 28px rgba(0, 0, 0, .6);
+  --hl-bar-on: #f5cf6a;
+  --chip-energy-bg: #3a2f1c; --chip-gold-bg: #3a2f1c; --chip-lvl-bg: #1f3a28;
+}
+
+/* ---- 2. type ---- */
+h1, h2, h3, h4 { font-weight: 700; letter-spacing: -.005em; }
+main > h1, main > h2, .box > h2, .box > h3, .tcard h3 { text-align: center; }
+h1 { font-size: 22px; }
+@media (min-width: 721px) { h1 { font-size: 24px; } }
+
+/* ---- 3. top bar: umber band, gold seam, cream logo (same in both themes) ---- */
+.bannerin { background: var(--hl-umber); border-bottom: 2px solid var(--hl-gold-dk); box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+.banner .logo { color: var(--hl-cream); font-weight: 800; }
+.banner .logo small { background: var(--hl-gold-dk); color: #fff; }
+.banner .tagline { color: #c9b896; }
+.userbar, .userbar .linkbtn { color: var(--hl-cream); }
+.hdr-pill { background: #3a2a1e; border: 1px solid rgba(244, 234, 210, .28); color: var(--hl-cream); }
+.hdr-pill.hdr-coins { background: #f5cf6a; border-color: var(--hl-gold-dk); color: #3d2a1c; box-shadow: 1px 1px 0 rgba(0, 0, 0, .35); }
+.menubtn { background: #3a2a1e; color: var(--hl-cream); border: 1px solid rgba(244, 234, 210, .4); border-radius: var(--hl-r-sm); }
+.menubtn:hover { background: #4a3626; }
+.th-hdr .thb { border-color: rgba(244, 234, 210, .4); background: #3a2a1e; color: var(--hl-cream); }
+.th-hdr .thb:hover { background: #4a3626; }
+
+/* ---- 4. status strip ---- */
+.statusstrip { background: var(--bg); border-bottom: 1px solid var(--line); }
+.statusin { justify-content: safe center; align-items: flex-start; }   /* centred pills rode 4px up under the header on desktop */
+.statusstrip .st { border-color: var(--line-2); box-shadow: var(--hl-halo); }
+.statusstrip .st a { margin: 0 -12px; min-height: 0; }   /* the 44px tap link overflowed the 34px strip and pushed the pills up under the header */
+
+/* ---- 5. cards and panels: sticker card = umber-step border, cream inner hairline, small lower-right cel ---- */
+.box, .tcard.box, .rbox, .rail .msglog.mlside, .pickbox { border: 1px solid var(--line); border-radius: var(--hl-r); box-shadow: var(--hl-halo), var(--hl-cel); }
+.box.notice { border-left-width: 1px; border-color: var(--accent-line); box-shadow: var(--hl-halo), var(--hl-cel), inset 0 3px 0 var(--accent); }
+.prizebox, .eventbox { border: 1px solid var(--accent-line); border-radius: var(--hl-r); box-shadow: var(--hl-halo), var(--hl-cel); }
+
+/* ---- 6. buttons: solid = primary verbs only, quiet = everything else ---- */
+.btn, button.btn { border: 1px solid rgba(42, 26, 16, .55); border-radius: var(--hl-r-sm); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 2px 0 rgba(42, 26, 16, .45); }
+.btn:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18); }
+.btn.ghost, .btn.alt, .btn.pickbtn { background: var(--surface); color: var(--ink); border-color: var(--line-2); box-shadow: none; }
+.btn.ghost:hover, .btn.alt:hover, .btn.pickbtn:hover { background: var(--surface-2); }
+.btn.gold, .btn.go { background: var(--hl-gold); color: #2a1a10; }
+.btn.gold:hover, .btn.go:hover { background: #f0b53a; color: #2a1a10; }
+:root[data-theme="dark"] .btn, :root[data-theme="dark"] button.btn { border-color: rgba(0, 0, 0, .6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 2px 0 rgba(0, 0, 0, .6); }
+:root[data-theme="dark"] .btn.ghost, :root[data-theme="dark"] .btn.alt, :root[data-theme="dark"] .btn.pickbtn { background: var(--surface-2); border-color: var(--line-2); box-shadow: none; }
+.linkbtn { color: var(--ink-2); }
+
+/* ---- 7. tabs and chips: on = gold-soft with gold edge (not solid green; solid is for verbs) ---- */
+.tabs a, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .mgtool, .sortpick summary { background: var(--surface-2); border: 1px solid var(--line); }
+.tabs a.on, .crafttabs a.on, .gardentabs .tab.on, .chips a.on, .chips button.on, .ccfilter a.on, .sortopts a.on, .book .tabs a.on, .mgtool.on { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent); box-shadow: var(--hl-halo); }
+.tabs a.on .tbadge { background: var(--accent-ink); color: var(--surface); }
+.tabs a.on .tbadge.muted { background: var(--line); color: var(--ink-2); }
+.tabs, .chips:has(> a, > button) { justify-content: safe center; }
+.chip { border-color: var(--line-2); }
+
+/* ---- 8. choice rows ---- */
+.choice, a.choice { border: 1px solid var(--line-2); border-radius: var(--hl-r-sm); box-shadow: var(--hl-halo), var(--hl-cel); }
+.choice:active { box-shadow: var(--hl-halo); }
+.choice:focus-visible { outline-color: var(--focus); }
+
+/* ---- 9. inputs ---- */
+:where(input:not([type=checkbox], [type=radio], [type=range], [type=hidden], [type=submit], [type=button], [type=file], [type=color]), select, textarea) { border-color: var(--line-2); border-radius: var(--hl-r-sm); background: var(--surface); }
+:where(input[type=checkbox], input[type=radio], input[type=range]) { accent-color: var(--hl-gold-dk); }
+
+/* ---- 10. dialogs and pop-overs ---- */
+dialog.gvask, .pickbox { border: 1px solid var(--line-2); border-radius: 16px; box-shadow: var(--hl-halo), var(--hl-cel-2); }
+dialog.gvask { text-align: center; }
+dialog.gvask .gvbtns { justify-content: center; }
+dialog.gvask::backdrop, dialog.picker::backdrop { background: rgba(26, 21, 17, .6); }
+
+/* ---- 11. flashes and toasts ---- */
+.flash, .msglog .ml, .newpages { border-radius: var(--hl-r-sm); }
+.flash, .newpages { text-align: center; border: 1px solid var(--line); border-left-width: 1px; box-shadow: var(--hl-halo), inset 0 3px 0 var(--brand); }
+.flash.err { border-color: var(--danger-line); box-shadow: var(--hl-halo), inset 0 3px 0 var(--danger); }
+.newpages { box-shadow: var(--hl-halo), inset 0 3px 0 var(--accent); }
+.toasts .flash, .toasts .prizebox, .toasts .newpages { box-shadow: var(--hl-halo), var(--hl-cel-2); }
+
+/* ---- 12. side menu: desktop and mid (A4 tiles as small stickers) ---- */
+@media (min-width: 721px) {
+  .side a.navtile { min-height: 40px; border-color: var(--line); border-radius: var(--hl-r-sm); box-shadow: var(--hl-halo); }
+  .side a.navtile.on, body[data-area] .side a.navtile.on { background: var(--area-soft); border: 1px solid var(--area); color: var(--area-ink); box-shadow: var(--hl-halo), var(--hl-cel); }
+  .side a.navhome, .side a.navfeedback, .side .navlogout .linkbtn { min-height: 40px; border-color: var(--line-2); border-radius: var(--hl-r-sm); }
+  .navgroupt.navfixed > summary h3 { text-align: center; color: var(--muted); }
+}
+
+/* ---- 13. phone: menu sheet + bottom bar ---- */
+@media (max-width: 720px) {
+  .navtoggle:checked ~ .wrap .side { border-top: 2px solid var(--hl-gold-dk); border-radius: 18px 18px 0 0; }
+  .side h3 { text-align: center; }
+  .side a.navtile { border-color: var(--line); border-radius: var(--hl-r-sm); box-shadow: var(--hl-halo); }
+  .side a.navtile.on, body[data-area] .side a.navtile.on { background: var(--area-soft); border-color: var(--area); color: var(--area-ink); box-shadow: var(--hl-halo), var(--hl-cel); }
+  .side .ntb { border: 1px solid var(--accent-line); }
+  .bottombar { background: var(--surface); border-top: 1px solid var(--line-2); box-shadow: 0 -2px 0 rgba(42, 26, 16, .08); }
+  .bottombar a.on { color: var(--hl-bar-on); border-top: 3px solid var(--hl-gold); }
+  .bottombar a.on span { background: var(--accent-soft); border-radius: var(--pill); padding: 2px 12px; }
+  .bottombar .barpip { background: #a8241f; }
+}
+
+/* ---- 14. motion: none unless the player allows it ---- */
+@media (prefers-reduced-motion: reduce) {
+  .navtoggle:checked ~ .wrap .side, .prizebox, .eventbox { animation: none; }
+  .btn:active, .choice:active { transform: none; }
+}
+
+/* ---- FIX 1: body[data-area] .tabs a.on (area solid) out-ranked the gold on-state ---- */
+body[data-area] .tabs a.on { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent); }
+
+/* ---- FIX 2: shop item sheet backdrop warm like the other dialogs ---- */
+dialog.isheet::backdrop { background: rgba(26, 21, 17, .6); }

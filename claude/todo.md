@@ -1,5 +1,7 @@
 # Gnome Venture: to-do (updated 2026-10-20, after 2.0.20)
 
+Built: **2.0.21** (Hearthlight art refresh + new site chrome; see Art section). Joshua: upload it; check on phone (Firefox Android, dark): tabs, status strip, trek map/fight colours, shop sheets.
+
 Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.
 
 Built: **2.0.19** (trek tap brake 400/5 min, news entry "Treks are open!"). Joshua: upload it, then Admin → Settings → "Treks: open" = on. News post goes out at upload even if you wait: set the switch right after. Watch the first days: Admin → Usage (treks row), error log.
@@ -84,6 +86,8 @@ Built: **2.0.9** (all Treks story text as pop-over + Party-member-joined card + 
 - Growing villages · caravans · more festivals · Duck Pond animal.
 
 ## Art
+- DONE 2.0.21: Hearthlight restyle of all 1,428 ph icons + chrome CSS block (guide: claude/art-style-guide.md; tool: tests/hearth.py).
+- Remaining: 126 hand-made SVGs outside ph/ (flowers, animals, games, gather, landing, stops) still in the old look; real uploaded art is mixed with the new style; check on Firefox Android; ph svg total is ~3.3 MB so make sure gzip is on in cPanel (mod_deflate / Optimize Website).
 - Placeholders game/assets/img/ph/*.svg, palette ph/palette.json, guide = "Gnome Venture Art Guide" artifact.
 - Names: `{item-slug}`, `creature-{slug}`, `npc-{slug}` (400×500), `{building}-{1..3}`, `{building}-{mossy|painted|lantern}`, `{fence}-{end|straight|corner|tee|cross|gate}`, `tile-{...}`, `stage-{kind}-{1..4}`, `land-{...}`, `banner-{code}`, `hat-{calling}`, `lm-{haven|wonder|delve|lair}`, `logo`, `nav-{gnome|almanac|satchel|crafting|garden|arranging|world|town|villagers|seasons|passport|games|trading|together|tasks|friends|account|today|festival|start|feedback|treks}`.
 - Trek art needed: creature-{slug} for trek creatures (Ch I + Ch II incl. Silverfin), npc for Sorrel Inkcap + innkeeper (name TBD).
