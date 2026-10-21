@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.21');
+define('APP_VERSION', '2.0.22');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -258,6 +258,12 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             if ((int)setting('trek_text_pass') < 8) {   // v2.0.20: camp rests heal fully; the kit, old campsite and rest spot lines say rested and whole, once; a row Joshua wrote keeps his words
                 require_once __DIR__ . '/trek_textpass.php';
                 trek_apply_text_2021();                 // sets trek_text_pass = 8
+            }
+        });
+        boot_step('trek_bodies_2022', function () {
+            if ((int)setting('trek_text_pass') < 9) {   // v2.0.22: Chapter III-b; the Still Gate opens, so ch3a_end no longer says it stays shut, once; a row Joshua wrote keeps his words
+                require_once __DIR__ . '/trek_textpass.php';
+                trek_apply_text_2022();                 // sets trek_text_pass = 9
             }
         });
         boot_step('trek_item_desc_2012', function () {   // v2.0.12: the Lanternroot Seed showed a TODO in the Satchel; only a row that still holds the old words is changed

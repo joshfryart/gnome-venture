@@ -18,13 +18,14 @@ function trek_camp_open_take(array $run): string
     return ($a['why'] ?? '') === 'arrive' ? 'arrive' : 'again';
 }
 
-/** What a trailmate can say at camp: the banter slots (1-4, as many as are written), then a bit about them. Plain strings. */
+/** What a trailmate can say at camp: the banter slots (1-4, as many as are written; 3-4 only once the chapter's second camp is reached), then a bit about them. Plain strings. */
 function trek_camp_talk_lines(array $run, array $u, string $crewKey): array
 {
     $npc = trek_crew_npc($crewKey);
     $vars = ['trailmate' => (string)$npc['name']];
     $out = [];
     for ($n = 1; $n <= 4; $n++) {
+        if ($n >= 3 && !trek_flag($run, 'camp2_seen')) break;   // v2.0.22: lines 3-4 belong to the chapter's second camp (Chapter III: Pip at the Warden’s Lodge), not before it
         $t = trek_scene_plain('ch' . (int)$run['chapter'] . '.banter.' . $crewKey . '.' . $n, $vars, $u);
         if ($t !== '') $out[] = $t;
     }

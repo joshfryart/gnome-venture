@@ -29,11 +29,11 @@ ch3.spot.tally.arrive|Rows and rows of marks, in threes, year after year.\nAt th
 ch3.spot.bench2.before|A still pool, warm as a bath, lies in a hollow by the wall.\nIt looks made for sitting beside.
 ch3.spot.bench2.done|You sit with your feet in the warm water.\nWhen you stand, everyone is rested and whole.
 ch3.spot.bench2.after|The pool is still warm.
-ch3.spot.bell.question|A small bronze bell hangs from a hook, and it has no tongue.\nA riddle is scratched on its rim:\n“I hang inside the bell but am not the bell. Without me, it cannot tell.”\nThe answers are on the three buttons below.
+ch3.spot.bell.question|A small bronze bell hangs from a hook, and makes no sound at all.\nIts tongue is tied up inside, out of reach. A riddle is scratched on its rim:\n“I hang inside the bell but am not the bell. Without me, it cannot tell.”\nThe answers are on the three buttons below.
 ch3.spot.bell.a1|A rope
 ch3.spot.bell.a2|A hammer
 ch3.spot.bell.a3|A clapper
-ch3.spot.bell.right|The bell shivers, and something drops into your palm.\nAn iron clapper, still warm.
+ch3.spot.bell.right|The bell shivers, and its tongue drops loose into your palm.\nAn iron clapper, still warm. Someone tied it up to keep the hush.
 ch3.spot.bell.wrong|The bell stays silent. It seems to be listening for a better answer.
 ch3.spot.bell.out|The bell keeps its secret and hangs very still.\nThe Bellcap Beetles in this gallery pick up anything that rings, they say. Perhaps one has a clapper.
 ch3.spot.bell.after|The bell hangs quiet on its hook.
@@ -56,7 +56,7 @@ ch3.spot.holler.intro|The black water in the corner heaves, and a toad as wide a
 ch3.spot.holler.hit|Old Holler lunges and thumps one of you with her wide, wet chin.
 ch3.spot.holler.gulp|Old Holler gulps, and every sound goes out of the air. Your tricks come back slower.
 ch3.spot.holler.holler|Old Holler swells, and booms back every sound she has swallowed. Guard!
-ch3.spot.holler.crack|Grey flakes fall from her throat like old paint.\nShe tries to gulp, and cannot. There is nothing left to swallow.
+ch3.spot.holler.crack|Grey flakes fall from her throat like old paint.\nShe tries to gulp, and cannot. Her boom comes out thinner now.
 ch3.spot.holler.knock|From under the floor: knock, knock, knock.\nEveryone steadies, as if a hand had rested on their shoulder.
 ch3.spot.holler.defeat|The grey drains from her throat in one long, sulky stream.\nOld Holler coughs up a humming stone, blinks, embarrassed, and slides back into the water to sleep.\nThe hall is silent. Then, from below, the knock, clear at last: three.\nAnd then a fourth.
 ch3.spot.holler.wren|“Four.”\n“Four. That is new. The wall said three means all is well. I think four means come.”
@@ -89,7 +89,7 @@ ch3.banter.juniper.2|“Deep rock makes folk forget their meals.”\n“Eat. I d
 ch3.banter.burdock.3|“That little bat keeps a lamp lit through all this hush.”\n“Gentle work. Harder than fighting, I would say.”
 ch3.banter.zinnia.3|“Pip is so small and so brave. I wanted to give her a whole garden.”\n“A warm cup will have to do for now.”
 ch3.banter.bracken.3|“Whoever Warden Umber is, she left a good sentry on her lamp.”\n“Tidy post. I respect it.”
-ch3.banter.sorrel.3|“That dent in the bed is an oddly wide shape. Domed, almost.”\n“I shall not guess. I shall only write it down.”
+ch3.banter.sorrel.3|“Every jar in this lodge is labelled in the same neat hand as the chalk wall upstairs.”\n“Cured, not killed. I think we are in the writer’s house.”
 ch3.banter.tumble.3|“Pip is waiting for someone who said wait.”\n“That is the longest ‘back in a minute’ I ever heard.”
 ch3.banter.juniper.3|“That kettle is stone cold. I will put it on, if Pip lets me.”\n“A lodge wants steam in it.”
 ch3.banter.wren.3|“Pip trims the lamp on the hour, every hour. I counted.”\n“She has never once missed. I like her very much.”

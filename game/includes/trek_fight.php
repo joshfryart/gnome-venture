@@ -1209,7 +1209,7 @@ function trek_fight_win(array &$run, array $u): void
         $zone = (string)($meta['zone'] ?? '');
         if ($g && $n === (int)($g[4] ?? 1) && $zone === $g[2] && !trek_flag($run, $g[3])) {   // (the key and the dew are Chapter I's; a 5th field names another chapter)
             $iid = trek_item_id($g[0]);
-            $want = !in_array($g[0], ['cellar-key', 'kiln-key'], true) || trek_pack_qty((int)$run['id'], $iid) === 0;
+            $want = !in_array($g[0], ['cellar-key', 'kiln-key', 'bell-clapper'], true) || trek_pack_qty((int)$run['id'], $iid) === 0;
             if ($want && $g[0] === 'clean-dew' && trek_pack_qty((int)$run['id'], $iid) >= 3) $want = false;
             if ($want) {
                 $run['st']['kills'][$f['slug']] = (int)($run['st']['kills'][$f['slug']] ?? 0) + 1;

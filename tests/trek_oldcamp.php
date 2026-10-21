@@ -49,7 +49,7 @@ foreach ([1, 2, 3] as $ch) foreach (['oldcamp.rest', 'oldcamp.ambush', 'ko.oldca
 ok('each site sits on its symbol tile in its zone, the zone has fights, and every find/rest/ambush/KO slot has a brief and a draft', !$bad, implode(', ', $bad));
 $none = [];
 foreach ([1, 2, 3] as $ch) { $rows = q('SELECT brief, status FROM trek_texts WHERE text_key LIKE ? AND text_key LIKE ?', ["ch$ch.%", '%old%'])->fetchAll(); foreach ($rows as $r) if (trim((string)$r['brief']) === '' || !in_array($r['status'], ['draft', 'done'], true)) $none[] = $r['status']; }
-ok('all 15 slots (11 in Ch I-II, 4 in Ch III) are status draft or done with a brief', !$none && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE (text_key LIKE 'ch%.spot.old%.find' OR text_key LIKE 'ch%.oldcamp.%' OR text_key LIKE 'ch%.ko.oldcamp')") === 15, json_encode($none));
+ok('all 16 slots (11 in Ch I-II, 5 in Ch III) are status draft or done with a brief', !$none && (int)q_val("SELECT COUNT(*) FROM trek_texts WHERE (text_key LIKE 'ch%.spot.old%.find' OR text_key LIKE 'ch%.oldcamp.%' OR text_key LIKE 'ch%.ko.oldcamp')") === 16, json_encode($none));
 
 // ------------------------------------------------------------------ Chapter I
 echo "== Chapter I: setup\n";

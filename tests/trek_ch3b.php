@@ -159,6 +159,16 @@ if ($cl) {
     ok('with the clapper the Strongbox opens once: 2 Camp Kits, 120 Petals, clapper used up', $flag('strongbox_open') && (int)$run(3)['campkits'] === $k0 + 2 && (int)$run(3)['petals_found'] === $pe + 120 && trek_pack_qty((int)$run(3)['id'], $cl) === 0 && $tx(fn(&$run, $u) => trek_act_chest($run, $u), true, 3)[0] === false);
 }
 
+if ($cl) {   // v2.0.22 stitcher: the Hush Bell has no failopen, so three Bellcap Beetle kills in the Tally Gallery give a clapper (TREK_GUARANTEE), only while the Strongbox is shut
+    $beetle = function () use ($tx) { $tx(function (&$run, $u) { $c = trek_creature('bellcap-beetle'); trek_start_fight($run, $u, [$c], ['kind' => 'random', 'zone' => 'g'], [trek_make_foe($c, $u, 1)]); $run['fi']['foes'][0]['hp'] = 0; trek_fight_win($run, $u); $run['fi'] = null; return [true, '']; }, true, 3); };
+    $tx(function (&$run, $u) { unset($run['flags']['strongbox_open'], $run['st']['kills']); q('DELETE FROM trek_flags WHERE run_id = ? AND flag = ?', [(int)$run['id'], 'strongbox_open']); return [true, '']; }, true, 3);
+    for ($i = 0; $i < 3; $i++) $beetle();
+    ok('three Bellcap Beetle kills in the Gallery give a Bell Clapper while the Strongbox is shut (the bell has no second chance)', trek_pack_qty((int)$run(3)['id'], $cl) === 1, (string)trek_pack_qty((int)$run(3)['id'], $cl));
+    for ($i = 0; $i < 3; $i++) $beetle();
+    ok('...and no second one while you hold it', trek_pack_qty((int)$run(3)['id'], $cl) === 1);
+    $at('strongbox'); $tx(fn(&$run, $u) => trek_act_chest($run, $u), true, 3);
+}
+
 echo "== the Tally Door (riddle, 2 tries, Seedkeeper) and the Counting Door (pays ch3_hall once)\n";
 $at('tallydoor');
 $right = (int)$sp['tallydoor']['data']['right']; $wrong = $right === 1 ? 3 : 1;

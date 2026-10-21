@@ -52,3 +52,10 @@ function trek_apply_text_2021(): int
 {
     return trek_apply_text_file('trek_final_2021.txt', 'trek_final_2021_old.txt', 8);
 }
+
+/** v2.0.22 pass 9: Chapter III-a's Still Gate now opens (III-b lies below it): the ch3a_end milestone no longer says it stays shut. The III-b slots first. */
+function trek_apply_text_2022(): int
+{
+    trek_import_texts();
+    return trek_apply_text_file('trek_final_2022.txt', '', 9);
+}
