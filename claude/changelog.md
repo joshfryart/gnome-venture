@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.29
+- Landing (index.php) + guide.php + landing.css reworked by review (claude/landing-review.md); landing SVGs restyled. No schema change.
+
 ## 2.0.28
 - Art only: icons clap, party, watering-can, flatbread, boat, grain redrawn (`tests/gen_ico_fix_f.py`); guide PDF + art-style-guide.md rebuilt. No code or schema change.
 
