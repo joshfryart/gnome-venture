@@ -1,5 +1,7 @@
 # Gnome Venture: to-do (updated 2026-10-21, after 2.0.27)
 
+Built + shipped: **2.0.28** (art only: clap, party, watering-can, flatbread, boat, grain redrawn). Checked 2026-10-21 and closed: JS/CSS emoji leftovers (all mapped, only SVG pop text and `<option>` stay emoji); missing space after icon in summaries (fixed 2.0.25 with flex gap); town.php CSP console error does not reproduce (no inline styles left in source). Still weak, optional: path, dove, nav festival/friends/villagers/arranging at 24px, account on dark.
+
 Built: **2.0.27** (docs + guide PDF only: `claude/art-style-guide.md` now exists, generated from `tests/guide_src/text.py`; no original Project doc was found, so there is nothing left to compare).
 
 Built: **2.0.26** (ruler icon size fix + guide PDF rebuild; supersedes 2.0.25). The PDF Joshua uploaded 2026-10-21 is the 2.0.23 build and still carries the reconstructed art-rule text: the real `art-style-guide.md` is still needed to compare.
