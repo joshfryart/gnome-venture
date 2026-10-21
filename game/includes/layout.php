@@ -12,7 +12,7 @@ const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.p
     'world.php', 'trek.php', 'town.php', 'inventory.php', 'shop.php', 'crafting.php', 'jobs.php', 'gnome.php', 'community.php', 'market.php', 'folk.php', 'tend.php', 'book.php', 'gotm.php', 'event.php',
     'festival.php', 'marketday.php', 'hollow.php', 'pals.php', 'index.php',   // v1.2.0: festival + market-day stalls, the Hollow, friends and the Today tabs update in place too
     'mushroom.php', 'letters.php', 'fair.php', 'pest.php',   // v1.4.0: the last three game pages update in place too
-    'hive.php'];   // v2.0.31: Honey Hive Harvest
+    'hive.php', 'burrow.php'];   // v2.0.31: Honey Hive Harvest, Burrow Sorting
 
 function page_header(string $title, bool $admin = false): void
 {
@@ -60,7 +60,7 @@ function page_header(string $title, bool $admin = false): void
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
 <?php if (!$admin && $page === 'burrow.php'): ?><script src="<?= e(url('assets/burrow.js?v=' . APP_VERSION)) ?>" defer></script>
-<?php endif; /* v2.1: assets/burrow.js (Burrow Sorting) */ ?>
+<?php endif; /* v2.0.31: assets/burrow.js (Burrow Sorting) */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.8: assets/pest.js (Pest Patrol) */ ?>
 <?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/trekfight.js?v=' . APP_VERSION)) ?>" defer></script>
@@ -237,7 +237,7 @@ function page_area(string $page): string
         $map = [];
         $groups = [
             'garden' => 'garden tend yard spit worms',
-            'world' => 'seasons world town adventure visit landmark journey gather carve explore destination maps passport',
+            'world' => 'seasons world town adventure visit landmark journey gather carve explore destination maps passport burrow',   // v2.0.31: burrow
             'kitchen' => 'kitchen crafting',
             'book' => 'book guide memory marrow',
             'market' => 'market shop inventory fair jobs',

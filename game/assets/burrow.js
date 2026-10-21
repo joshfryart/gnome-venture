@@ -1,4 +1,4 @@
-/* Gnome Venture v2.1: Burrow Sorting. Vanilla JS, no libraries.
+/* Gnome Venture v2.0.31: Burrow Sorting. Vanilla JS, no libraries.
    The server decides every knock and keeps the answer; this file only helps you place the five neighbours.
    Tap a neighbour (it gets the selected state), then tap a door to put them there. Tapping a door that holds someone
    swaps them; tapping a placed neighbour with nothing selected picks them up again. Without JS the <select> boxes work. */

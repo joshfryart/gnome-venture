@@ -19,7 +19,6 @@ if (is_post()) {
     redirect('burrow.php');
 }
 
-$GLOBALS['AJAX_PAGE'] = true;   // v2.1: loads in place like the other game pages
 $s = game_state($uid, 'burrow');
 page_header('Burrow Sorting');
 ?>

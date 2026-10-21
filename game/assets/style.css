@@ -4703,12 +4703,12 @@ details.fold > summary, .st-later summary, .renamefold > summary, .btbody detail
 @media (min-width: 721px) { .hiveboard { grid-template-columns: repeat(8, minmax(0, 88px)); max-width: 760px; } }
 @media (prefers-reduced-motion: no-preference) { .hopen { animation: hivepop .25s ease-out; } }
 @keyframes hivepop { from { transform: scale(.9); } to { transform: scale(1); } }
-/* v2.1: Hive, Burrow, Plot mini-games (Burrow Sorting block; assets/burrow.js). Classes only, dark rules as :root[data-theme="dark"]. */
+/* v2.0.31: Hive, Burrow, Plot mini-games (Burrow Sorting block; assets/burrow.js). Classes only, dark rules as :root[data-theme="dark"]. */
 :root { --mg-wood: #9a6b3f; --mg-wood-hi: #c9a96e; --mg-ok: #2f5a2a; }
 :root[data-theme="dark"] { --mg-wood: #7a4a1f; --mg-wood-hi: #9a6b3f; --mg-ok: #7ab55c; }
 .burrowstart, .burrowclues, .burrowhist, .burrowreveal { text-align: center; }
 .burrowstart p { margin: 10px 0; }
-.burrowclues ol { text-align: left; margin: 0; padding-left: 1.6em; display: grid; gap: 6px; }
+.burrowclues ol { display: inline-grid; gap: 6px; max-width: 100%; text-align: left; margin: 0 auto; padding-left: 1.6em; }   /* the list block sits centred, its lines read left to right */
 .burrowclues li { line-height: 1.45; }
 .bwho { white-space: nowrap; }
 .bwho .ico { vertical-align: -.2em; }
@@ -4718,9 +4718,10 @@ details.fold > summary, .st-later summary, .renamefold > summary, .btbody detail
   background: var(--surface-2); border: 2px solid var(--mg-wood); border-radius: 36px 36px var(--radius-sm) var(--radius-sm); overflow: hidden; }
 .bpic img { width: 100%; height: 100%; object-fit: contain; }
 .bpic .ico { width: 34px; height: 34px; }
-.bnum { font-size: 11px; line-height: 1.2; color: var(--ink-2); overflow-wrap: anywhere; }
+.bnum { flex: 1 0 auto; font-size: 11px; line-height: 1.2; color: var(--ink-2); overflow-wrap: anywhere; }   /* grows so the slots/selects line up when a label wraps */
 .bnum b { color: var(--ink); font-size: 13px; }
 .bsel select { width: 100%; min-height: var(--tap); font: inherit; font-size: 12px; }
+@media (max-width: 720px) { .bsel select { -webkit-appearance: none; appearance: none; padding: 2px; font-size: 11px; text-align: center; text-align-last: center; } }   /* no-JS: drop the arrow so names like Field mouse fit */
 .burrowform .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .burrowform:not(.on) .bslot, .burrowform:not(.on) .burrowtray, .burrowform:not(.on) .bclear, .burrowform:not(.on) .burrowhelp { display: none; }
 .burrowform.on .bsel { display: none; }

@@ -1,5 +1,5 @@
 <?php
-// v2.1 Burrow Sorting. Run on the world walk.sh made (player "sprout"): php burrow21.php GAME
+// v2.0.31 Burrow Sorting. Run on the world walk.sh made (player "sprout"): php burrow21.php GAME
 //   generator properties over 2,000 seeds, knock validation, hit counting, payout-once, Charm knock, no solution in rendered clue text.
 $_SERVER['SCRIPT_NAME'] = '/burrow.php';
 require $argv[1] . '/includes/bootstrap.php';
@@ -91,6 +91,8 @@ $refused = [
     'negative' => ['0', '1', '2', '3', '-1'],
     'non integer' => ['0', '1', '2', '3', 'x'],
     'float' => ['0', '1', '2', '3', '4.0'],
+    'trailing newline' => ['0', '1', '2', '3', "4\n"],   // v2.0.31: \z, not $
+    'leading space' => ['0', '1', '2', '3', ' 4'],
     'extra door' => ['0', '1', '2', '3', '4', '0'],
     'not an array' => 'abc',
 ];
@@ -113,6 +115,7 @@ ok('paid game_petals(score) = ' . game_petals($score), $coins() - $before === ga
 ok('score recorded', (int)q_val("SELECT score FROM game_scores WHERE user_id = ? AND game = 'burrow'", [$uid]) === $score);
 $pr = take_prizes();
 ok('prize box shows', count($pr) === 1 && str_contains($pr[0]['title'], 'Everyone') && str_contains($pr[0]['big'], '2 knocks'), json_encode($pr));
+ok('prize title has no icon of its own (the box shows it)', !str_contains($pr[0]['title'], '🏆'), $pr[0]['title']);
 $c1 = $coins();
 ok('second knock after the win is refused and pays nothing', burrow_knock($user(), $sol)[0] === false && $coins() === $c1);
 

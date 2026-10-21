@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Burrow Sorting (v2.1): five doors, five sleepy neighbours. A few clues leave 3 to 8 possible orders; the player
+ * Burrow Sorting (v2.0.31): five doors, five sleepy neighbours. A few clues leave 3 to 8 possible orders; the player
  * places everyone and knocks, and hears only HOW MANY are at home. Server-authoritative: the solution lives in
  * game_state ('sol') and is never printed. State: v, cast (5 creature keys), sol[door] = cast index, clues (structured,
  * rendered to text on the page), knocks (left), max, hist [[arrangement, hits]...], last, season, t0.
@@ -220,13 +220,16 @@ function burrow_score(int $knocksLeft): int
 function burrow_start(array $u): array
 {
     $uid = (int)$u['id'];
-    if (game_state($uid, 'burrow')) return [true, 'Your walk past the burrows is still on.'];
-    if (game_plays_left($uid, 'burrow') <= 0) return [false, 'The neighbours have gone to bed. Come back after the daily reset.'];
     $season = function_exists('hollow_season') ? hollow_season() : 'spring';
-    $pz = burrow_new_puzzle($season);
+    $pz = burrow_new_puzzle($season);   // made before the lock so the transaction stays short
     $max = burrow_max_knocks($u);
+    db()->beginTransaction();
+    q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // lock this gnome so two quick starts can't re-roll a fresh round (as Pest Patrol does)
+    if (game_state($uid, 'burrow')) { db()->rollBack(); return [true, 'Your walk past the burrows is still on.']; }
+    if (game_plays_left($uid, 'burrow') <= 0) { db()->rollBack(); return [false, 'The neighbours have gone to bed. Come back after the daily reset.']; }
     game_save($uid, 'burrow', ['v' => 1, 'cast' => $pz['cast'], 'sol' => $pz['sol'], 'clues' => $pz['clues'], 'knocks' => $max, 'max' => $max,
         'hist' => [], 'last' => [], 'season' => $pz['season'], 't0' => time()]);
+    db()->commit();
     return [true, '🚪 You wander down the bank. Five little doors, and everyone’s tidy-up labels have blown away.'];
 }
 
@@ -237,7 +240,7 @@ function burrow_read_arrangement($d): array
     $out = [];
     for ($i = 0; $i < BURROW_DOORS; $i++) {
         $v = $d[$i] ?? null;
-        if (!is_string($v) || !preg_match('/^[0-9]$/', $v) || (int)$v >= BURROW_DOORS) return [null, 'Put one neighbour behind every door.'];
+        if (!is_string($v) || !preg_match('/\A[0-4]\z/', $v) || (int)$v >= BURROW_DOORS) return [null, 'Put one neighbour behind every door.'];
         $out[] = (int)$v;
     }
     if (count($d) !== BURROW_DOORS) return [null, 'Put one neighbour behind every door.'];
@@ -294,10 +297,10 @@ function burrow_finish_prize(int $uid, array $s, array $pay, bool $won, int $use
     if (!$won) $_SESSION['burrow_last'] = ['cast' => $s['cast'], 'sol' => $s['sol']];
     $petals = (int)$pay['petals'];
     if ($won) {
-        prize('🏆', '🏆 Everyone’s home!', 'Sorted in ' . $used . ' knock' . ($used === 1 ? '' : 's'),
+        prize('🏆', 'Everyone’s home!', 'Sorted in ' . $used . ' knock' . ($used === 1 ? '' : 's'),
             [$petals ? '+' . money($petals) : '', $pay['xp'] ? '+' . $pay['xp'] . ' XP' : '', $en !== '' ? trim($en) . ' energy' : '']);
     } else {
-        prize('🌙', '🌙 The neighbours have gone to bed', 'Out of knocks',
+        prize('🌙', 'The neighbours have gone to bed', 'Out of knocks',
             [$petals ? '+' . money($petals) . ' for the walk' : '', $en !== '' ? trim($en) . ' energy' : '']);
     }
 }

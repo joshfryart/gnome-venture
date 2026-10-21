@@ -351,14 +351,14 @@ function settings_schema(): array
         'worm_count'         => ['label' => 'Worm Hunting: worms hidden in each dig', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 20],
         'worm_coins_per_point' => ['label' => 'Worm Hunting: currency per point', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 1000],
         'puzzles_open' => ['label' => 'Games: Puzzles open to every player (off = admins only) (v2.0.2)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
-        'games_petals_percent' => ['label' => 'Games: Petals paid, % of the normal payout (Worms, Memory, Spit, Mushroom, Pest Patrol, Letters, Honey Hive)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 300],   // v1.7.6: games out-earned the garden
+        'games_petals_percent' => ['label' => 'Games: Petals paid, % of the normal payout (Worms, Memory, Spit, Mushroom, Pest Patrol, Letters, Honey Hive, Burrow)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 300],   // v1.7.6: games out-earned the garden
         'memory_plays_per_day' => ['label' => 'Seed Memory: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'spit_plays_per_day' => ['label' => 'Seed Spitting: goes per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'spit_game_on'       => ['label' => 'Seed Spitting: aim-and-power physics game (off = quick spit only)', 'type' => 'bool', 'default' => '1'],   // v1.4.0:
         'spit_wind_max'      => ['label' => 'Seed Spitting: strongest wind (cm/s; a lucky gust is 1.5×)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 120],   // v1.4.0:
         'spit_min_ms'        => ['label' => 'Seed Spitting: least time (ms) between loading a seed and spitting it', 'type' => 'int', 'default' => '1000', 'min' => 0, 'max' => 10000],   // v1.4.0:
         'worm_wander'        => ['label' => 'Worm Hunting: % chance a worm wriggles one square after each dig (0 = still worms)', 'type' => 'int', 'default' => '35', 'min' => 0, 'max' => 100],   // v1.4.0:
-        'burrow_plays_per_day' => ['label' => 'Burrow Sorting: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],   // v2.1
+        'burrow_plays_per_day' => ['label' => 'Burrow Sorting: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],   // v2.0.31
         'mush_plays_per_day' => ['label' => 'Mushroom Sweeper: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'hive_plays_per_day' => ['label' => 'Honey Hive Harvest: rounds per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'hive_gifts_per_day' => ['label' => 'Honey Hive Harvest: honey/beeswax gifts a gnome can win a day', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 10],

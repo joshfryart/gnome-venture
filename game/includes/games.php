@@ -18,7 +18,7 @@ const GAMES = [
     'letters' => ['Lost Letters', '🗺️', 'letters.php', 'A daily riddle: work out which town or village it describes, go there, and lift the stone to find the letter.', 'letters_per_day'],   // v0.8.1
     'pest' => ['Pest Patrol', '🪰', 'pest.php', 'Flick aphids, gnats, caterpillars and slugs off a growing plant before they chew its leaves away. Keep a bug net handy for butterflies.', 'pest_plays_per_day'],   // v1.4.8:
     'hive' => ['Honey Hive Harvest', '🍯', 'hive.php', 'Lift the hive’s frames one by one. Listen to the hum, and bank your basket before a swarm wakes.', 'hive_plays_per_day'],
-    'burrow' => ['Burrow Sorting', '🦔', 'burrow.php', 'Five doors, five sleepy neighbours. Read the clues, knock, and work out who lives where.', 'burrow_plays_per_day'],   // v2.1
+    'burrow' => ['Burrow Sorting', '🦔', 'burrow.php', 'Five doors, five sleepy neighbours. Read the clues, knock, and work out who lives where.', 'burrow_plays_per_day'],   // v2.0.31
     'marrow' => ['Guess the Weight', '⚖️', 'marrow.php', 'Old Moss grows a giant crop every day. Guess its weight EXACTLY to win the growing jackpot.', 'marrow_guesses_per_day'],
 ];
 
@@ -141,6 +141,7 @@ const GAMES_PAGE = "When the garden is growing on its own, try the [b]Games[/b] 
     . "🗺️ [b]Lost Letters:[/b] a daily riddle describes a town or village. Work out which, walk there and lift the stone to find the letter.\n"
     . "🪰 [b]Pest Patrol:[/b] a plant grows and pests pop up on its leaves. Tap to flick them off before they chew a leaf away, and don't tap bare leaves: they bruise. Quick clean flicks build a combo. A bug net in your satchel lets you catch a passing butterfly.\n"   // v1.4.8:
     . "🍯 [b]Honey Hive Harvest:[/b] lift a hive’s frames one by one. Each frame hums Quiet, Humming or Loud; swarms are always Loud, and so are the best combs. Bank your basket before a swarm wakes. A puff of smoke shows what’s inside one frame.\n"   // v2.0.31:
+    . "🦔 [b]Burrow Sorting:[/b] five doors, five neighbours. Read the clues, place everyone and knock: you hear how many are home, not which. Sort them in as few knocks as you can.\n"   // v2.0.31
     . "⚖️ [b]Guess the Weight:[/b] Old Moss grows a giant crop every day. Guess its weight exactly to win the growing jackpot.\n\n"
     . "The [b]🏆 Contests[/b] tab has the Village Show, Garden of the Month, the Grand Harvest Fair and, in October, pumpkin carving.";   // v0.8.8: all seven games
 
@@ -342,6 +343,7 @@ function ensure_games(): void
     // v0.7.12: the Games page now covers all three games
     q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body NOT LIKE '%Snail%'", [GAMES_PAGE]);
     q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body LIKE 'When the garden is growing on its own%' AND body LIKE '%Mushroom%' AND body NOT LIKE '%Pest Patrol%'", [GAMES_PAGE]);   // v1.4.8: the Games page lists Pest Patrol too
+    q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body LIKE 'When the garden is growing on its own%' AND body NOT LIKE '%Burrow Sorting%'", [GAMES_PAGE]);   // v2.0.31: and Burrow Sorting
     if (!q_val("SELECT 1 FROM items WHERE slug = 'earthworm'")) {
         db_insert('items', ['name' => 'Earthworm', 'slug' => 'earthworm', 'category' => 'soil', 'rarity' => 5, 'base_price' => 6,
             'description' => 'A wriggly friend from the old mine. Let it go in a garden square: soil life +8 over a few hours. Or keep a few for a worm bin.',
