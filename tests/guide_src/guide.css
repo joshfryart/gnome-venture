@@ -95,3 +95,4 @@ svg.i { display: inline-block; vertical-align: middle; flex: none; }
 section.flow { margin-top: 12mm; }
 section.flow > h1 { break-after: avoid; }
 section.flow.pa, section.flow.pb, section.flow.pc { }
+.shot-wide > div, .shot-wide + .shots > div { width: 100%; margin-right: 0; }

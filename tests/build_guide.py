@@ -436,7 +436,7 @@ def find_pages(path, entries, n):
     for kind, title, sid in entries:
         if kind == 'part': continue
         for i in range(toc_pg + 1, n):
-            if any(norm(l) == norm(title) for l in texts[i].split('\n')[:10] if l.strip()) or norm(title) in norm(texts[i][:400]): res[sid] = i + 1; break
+            if any(norm(l) == norm(title) for l in texts[i].split('\n') if l.strip()): res[sid] = i + 1; break
     return res
 
 def main():
