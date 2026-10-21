@@ -1,6 +1,24 @@
-# Gnome Venture: to-do (updated 2026-10-20, after 2.0.20)
+# Gnome Venture: to-do (updated 2026-10-21, after 2.0.23)
 
-Built: **2.0.23** (emoji swapped for our own icons at render; see handoff Art). Joshua: upload it, check a few pages for stray emoji.
+Built + LIVE and OK (Joshua uploaded 2026-10-21): **2.0.23** (emoji swapped for our own icons at render, 269 `ico-*` icons, Admin → Art & style guide PDF; see handoff Art). main = f33b6b6. Next version: 2.0.24 or higher (check bootstrap.php first).
+
+## NEXT SESSION: start here (2026-10-21)
+1. **Emoji second pass** (list below): `gvIco()` JS helper, 2 CSS `content:` emoji, unmapped Satchel/Book emoji, `npc_icon()` ignores the real `ph/npc-*.svg` portraits (26 call sites; shown as emoji directly) and `creature_icon()` (trek_fight.php, layout.php:432, landmarks.php:615, adventure.php:832), season/weather/daypart emoji (hollow_clock.php), yard decor tray icons: these print emoji straight, no art fallback. Fix = use the portrait/art when it exists.
+2. **Weak icons to redraw when time allows** (Opus rounds 1-3; none misleading now): clap (can read as bread at 24px), path (egg-shaped mound), flatbread (looks like a cookie), pancakes (boxy), party and bouquet (both cones), watering-can (looks like a kettle), dove (cream wing relies on outline on light), grain, boat, telescope (small at 16px). Withheld on purpose: prayer, handshake (`WITHHOLD` in tests/ico_build.py). Nav icons at 24px: festival, friends, villagers, arranging are mush; account is low contrast on dark; ember-beetle eyes hard to read (large placeholders).
+3. **Joshua checks still open:** Satchel/Book pages for stray emoji; `/assets/guides/` must be blocked by .htaccess (PHP built-in server ignored it in tests); Admin → Art & style guide downloads.
+4. Small known bugs: pre-existing CSP "refused inline style" console error on town.php (also with swap off, not found yet); two headings lack a space after the icon ("Other times here" on town, "Seasons & weather:" on world; the space is missing in the PHP).
+5. The guide PDF's art-rule text was RECONSTRUCTED from tests/hearth.py (the subagent could not read the Project doc). Compare with Project `claude/art-style-guide.md` and edit `tests/guide_src/text.py`, then `python3 tests/build_guide.py`. The Project doc itself lacks the new `ico-` section (halo 6.0u / outline 3.4u, 16-24px, plain sources in tests/ico_src, `tests/ico_build.py`): add it or point to the PDF.
+6. Sizes: ph set is 265% of the old size (3.3 MB) and the PDF 3.5 MB: fine, watch only.
+
+### Working notes learned 2026-10-21 (for the next Claude)
+- Subagents may not have the Projects tool: they cannot read Project docs; give them what they need in the prompt or have them read repo files. The lead (this chat) can read Project docs.
+- The stop hook "no remote branch / N unpushed" can be stale: verify with `git ls-remote --heads origin <branch>` against `git rev-parse HEAD` before assuming a push failed. Uncommitted files while agents run = WIP; commit WIP only on feature branches (never on main).
+- The auto-mode classifier denied pushing a release to main until Joshua said "Ship". Ask for an explicit go before merging/pushing main; feature branches are fine.
+- Start the work in the SAME turn you announce it (ending a turn after "building X" wastes hours; Joshua scolded this).
+- Never `pkill -f` a pattern that matches your own shell.
+- Version drift: another session shipped 2.0.21 (security) while this one worked. Always `git fetch` and read APP_VERSION before bumping.
+- Icon pipeline: draw plain SVG (viewBox 64, no halo) in tests/ico_src/ico-<slug>.svg, `PYTHONHASHSEED=1 python3 tests/ico_build.py restyle` (never for a single slug in parallel runs: use the gen_ico_fix_*.py pattern), add a row in tests/ico_map_source.json, `python3 tests/ico_map_build.py`, `python3 tests/build_guide.py`. Review sheets: scratchpad sheet.py (SVGDIR PREFIX COLS). Opus reviews the 16/24px sheets before shipping.
+
 
 ## Emoji leftovers (2.0.23 swap is PHP-only; JS/CSS second pass is NEXT)
 - Add `gvIco(slug)` helper to `site.js` (loaded on every page; other files call it if present; base path via a data attribute on body from layout.php). Only innerHTML sinks can take an img; textContent/alert/confirm/title stay emoji.
