@@ -139,6 +139,7 @@ const GAMES_PAGE = "When the garden is growing on its own, try the [b]Games[/b] 
     . "🍄 [b]Mushroom Sweeper:[/b] clear the forest floor without stepping on a toadstool. The numbers tell you how many are hiding nearby.\n"
     . "🗺️ [b]Lost Letters:[/b] a daily riddle describes a town or village. Work out which, walk there and lift the stone to find the letter.\n"
     . "🪰 [b]Pest Patrol:[/b] a plant grows and pests pop up on its leaves. Tap to flick them off before they chew a leaf away, and don't tap bare leaves: they bruise. Quick clean flicks build a combo. A bug net in your satchel lets you catch a passing butterfly.\n"   // v1.4.8:
+    . "🍯 [b]Honey Hive Harvest:[/b] lift a hive’s frames one by one. Each frame hums Quiet, Humming or Loud; swarms are always Loud, and so are the best combs. Bank your basket before a swarm wakes. A puff of smoke shows what’s inside one frame.\n"   // v2.0.31:
     . "⚖️ [b]Guess the Weight:[/b] Old Moss grows a giant crop every day. Guess its weight exactly to win the growing jackpot.\n\n"
     . "The [b]🏆 Contests[/b] tab has the Village Show, Garden of the Month, the Grand Harvest Fair and, in October, pumpkin carving.";   // v0.8.8: all seven games
 
@@ -336,7 +337,7 @@ function ensure_games(): void
 {
     ensure_race_secret();
     require_once __DIR__ . '/hive.php';
-    hive_almanac();   // Honey Hive Harvest line on the Games page
+    hive_almanac();   // v2.0.31: Honey Hive Harvest line on an existing Games page (new installs get it from GAMES_PAGE)
     // v0.7.12: the Games page now covers all three games
     q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body NOT LIKE '%Snail%'", [GAMES_PAGE]);
     q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General' AND body LIKE 'When the garden is growing on its own%' AND body LIKE '%Mushroom%' AND body NOT LIKE '%Pest Patrol%'", [GAMES_PAGE]);   // v1.4.8: the Games page lists Pest Patrol too

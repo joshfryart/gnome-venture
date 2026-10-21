@@ -215,14 +215,24 @@ function hive_settle(array $u, array $s, bool $swarm): array
     return [true, ''];
 }
 
-/** Adds the Honey Hive line to the Almanac Games page once. Runs from ensure_games(). */
+/** One face-up frame (end view, lifted and peeked cells): the comb, bee or swarm picture, else the emoji. */
+function hive_face(string $kind): string
+{
+    $emoji = $kind === 'swarm' ? '💥' : ($kind === 'drowsy' ? '🐝' : '🍯');
+    $art = $kind === 'swarm' ? 'hive-swarm' : ($kind === 'drowsy' ? 'hive-drowsy-bee' : 'comb-' . $kind);
+    return '<span class="hface">' . ph_or_emoji($art, $emoji, 48) . '</span>';
+}
+
+/** Adds the Honey Hive line (from GAMES_PAGE) to an existing Almanac Games page once, after Pest Patrol. Runs from ensure_games(). */
 function hive_almanac(): void
 {
-    $line = "🍯 [b]Honey Hive Harvest:[/b] lift a hive’s frames one by one. Each frame hums Quiet, Humming or Loud; swarms are always Loud, and so are the best combs. Bank your basket before a swarm wakes. A puff of smoke shows what’s inside one frame.";
+    if (!preg_match('/^🍯 \[b\]Honey Hive Harvest:.*$/mu', GAMES_PAGE, $m)) return;
+    $line = $m[0];
     $row = q_one("SELECT id, body FROM encyclopedia_entries WHERE title = 'Games' AND chapter = 'General' AND body LIKE 'When the garden is growing on its own%' AND body NOT LIKE '%Honey Hive%'");
     if (!$row) return;
     $body = (string)$row['body'];
-    $at = strpos($body, "\n\nThe [b]🏆 Contests");
+    $at = strpos($body, "\n⚖️ [b]Guess the Weight");
+    if ($at === false) $at = strpos($body, "\n\nThe [b]🏆 Contests");
     $body = $at === false ? rtrim($body) . "\n" . $line : substr($body, 0, $at) . "\n" . $line . substr($body, $at);
     q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$body, (int)$row['id']]);
 }

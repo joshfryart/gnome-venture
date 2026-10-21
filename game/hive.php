@@ -48,14 +48,6 @@ page_header('Honey Hive Harvest');
     echo '<p><a href="' . e(url('games.php')) . '">← All games</a></p>';
     page_footer(); return;
 endif;
-
-/** One face-up frame (end view and lifted/peeked cells). */
-function hive_face(string $kind): string
-{
-    $emoji = $kind === 'swarm' ? '💥' : ($kind === 'drowsy' ? '🐝' : '🍯');
-    $art = $kind === 'swarm' ? 'hive-swarm' : ($kind === 'drowsy' ? 'hive-drowsy-bee' : 'comb-' . $kind);
-    return '<span class="hface">' . ph_or_emoji($art, $emoji, 48) . '</span>';
-}
 ?>
 <p class="gtagline">Lift the frames, listen to the hum, bank before the bees wake.</p>
 
@@ -66,7 +58,7 @@ function hive_face(string $kind): string
     <span class="gmchip">💨 Smoke <b><?= $v['puffs'] ?></b></span>
   </div>
   <div class="hivemeter" aria-hidden="true"><?php for ($k = 0; $k < $v['loud']; $k++): ?><i class="<?= $k < $v['swarms'] ? 'swarm' : 'safe' ?>"></i><?php endfor; ?></div>
-  <form method="post" class="mushtools"><?= csrf_field() ?><input type="hidden" name="do" value="mode">
+  <form method="post" class="mushtools hivetools"><?= csrf_field() ?><input type="hidden" name="do" value="mode">
     <button class="btn small<?= $v['mode'] === 'lift' ? '' : ' alt' ?>" name="mode" value="lift" aria-pressed="<?= $v['mode'] === 'lift' ? 'true' : 'false' ?>">🍯 Lift</button>
     <button class="btn small<?= $v['mode'] === 'smoke' ? '' : ' alt' ?>" name="mode" value="smoke" aria-pressed="<?= $v['mode'] === 'smoke' ? 'true' : 'false' ?>">💨 Smoke</button>
   </form>

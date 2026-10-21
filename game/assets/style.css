@@ -4672,7 +4672,7 @@ details.fold > summary, .st-later summary, .renamefold > summary, .btbody detail
 .book .ctile .ci img[src*="/banner-"] { width: 72px; height: auto; max-height: 36px; border-radius: 4px; }
 .book .bpicon img[src*="/banner-"] { width: 140px; height: auto; max-height: 72px; border-radius: 6px; }
 
-/* v2.1: Honey Hive Harvest (hive.php). Tokens are shared names for the other mini-games; dark rules use data-theme. */
+/* v2.0.31: Honey Hive Harvest (hive.php). Tokens are shared names for the other mini-games; dark rules use data-theme. */
 :root { --mg-wood: #9a6b3f; --mg-wood-hi: #c9a96e; --mg-comb: #f5cf6a; --mg-hum: #b07a10; --mg-loud: #a8241f; }
 :root[data-theme="dark"] { --mg-wood: #7a4a1f; --mg-wood-hi: #9a6b3f; --mg-comb: #b07a10; --mg-hum: #f5cf6a; --mg-loud: #f08a24; }
 .hivestart { text-align: center; }
@@ -4696,9 +4696,10 @@ details.fold > summary, .st-later summary, .renamefold > summary, .btbody detail
 .hopen.k-drowsy { background: var(--surface-2); }
 .hopen.k-swarm { background: var(--danger-soft); border-color: var(--mg-loud); }
 .hopen.dim { opacity: .6; }
-.hface .phimg { max-width: 100%; height: auto; }
 .hval { font-variant-numeric: tabular-nums; }
 .hivebank { display: flex; justify-content: center; margin: 8px 0; }
+.hivetools .btn { min-height: var(--tap); min-width: 112px; }
+.hframe .hart img, .hface img { display: block; margin: 0 auto; max-width: 100%; height: auto; }
 @media (min-width: 721px) { .hiveboard { grid-template-columns: repeat(8, minmax(0, 88px)); max-width: 760px; } }
 @media (prefers-reduced-motion: no-preference) { .hopen { animation: hivepop .25s ease-out; } }
 @keyframes hivepop { from { transform: scale(.9); } to { transform: scale(1); } }

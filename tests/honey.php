@@ -147,9 +147,13 @@ echo "== mode, gifts cap, almanac\n";
 [$o] = hive_mode($g, 'x'); ok('bad mode refused', !$o);
 ok('GAMES row', isset(GAMES['hive']) && GAMES['hive'][2] === 'hive.php' && GAMES['hive'][4] === 'hive_plays_per_day');
 ok('settings defaults', setting('hive_plays_per_day') === '3' && setting('hive_gifts_per_day') === '1');
+$body = (string)q_val("SELECT body FROM encyclopedia_entries WHERE title = 'Games' AND chapter = 'General'");
+ok('fresh install: almanac has the line', substr_count($body, 'Honey Hive Harvest') === 1);
+$old = preg_replace('/\n🍯 \[b\]Honey Hive Harvest:[^\n]*/u', '', GAMES_PAGE);   // an upgrade: the page as it was before
+q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Games' AND chapter = 'General'", [$old]);
 hive_almanac(); hive_almanac();
 $body = (string)q_val("SELECT body FROM encyclopedia_entries WHERE title = 'Games' AND chapter = 'General'");
-ok('almanac line added once', substr_count($body, 'Honey Hive Harvest') === 1 && strpos($body, 'Contests') !== false);
+ok('upgrade: almanac line added once, same text as a fresh install', $body === GAMES_PAGE, $body);
 
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
