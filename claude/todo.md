@@ -1,5 +1,7 @@
 # Gnome Venture: to-do (updated 2026-10-20, after 2.0.20)
 
+Built: **2.0.22** (art only: all placeholder SVGs Hearthlight-restyled; new placeholders need the restyle pass last, see handoff Art line). Optional polish: ember-beetle eyes hard to read; nav festival/friends/villagers/arranging mush at 24px; nav account low contrast on dark.
+
 Built: **2.0.20** (Knacks, whole-map fold, Ch III-a hidden, camps = full rest, friendship per fights; details in the 2.0.20 section below). Joshua: upload it.
 
 Built: **2.0.19** (trek tap brake 400/5 min, news entry "Treks are open!"). Joshua: upload it, then Admin → Settings → "Treks: open" = on. News post goes out at upload even if you wait: set the switch right after. Watch the first days: Admin → Usage (treks row), error log.

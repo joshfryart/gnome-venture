@@ -2,6 +2,9 @@
 
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
+## 2.0.22
+- Art only: all 1428 placeholder SVGs restyled in the Hearthlight look (warm palette, same names and viewBoxes, no code or schema change). No player news.
+
 ## 2.0.2
 - Puzzles locked to admins for now (setting "Games: Puzzles open to every player", off by default). The Games tile is hidden for players.
 
