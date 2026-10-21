@@ -2,6 +2,11 @@
 
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
+## 2.0.31
+- Three new mini-games on the Games page: 🍯 Honey Hive Harvest (lift frames, read the hum, bank before a swarm), 🦔 Burrow Sorting (five doors, clue deduction, knock to count who is home) and 🪴 Garden Plot Logic (one daily 5 × 5 bed, same for everyone, one solution, first solve pays). All server-side, Petals via `game_petals()`, Almanac Games page updated.
+- New art: 8 Hive pictures, 5 burrow doors, mole icon. New settings `hive_plays_per_day`, `burrow_plays_per_day`, `plot_plays_per_day`, `plot_min_seconds`. No schema change.
+- Tests: `tests/honey.sh`, `tests/burrow21.php`, `tests/plot.sh`.
+
 ## 2.0.29
 - Logged-out homepage and How to play page reworked in the Hearthlight look (warm hero card, one primary button, picture tiles, centred on desktop, real headings in guide folds); 7 landing scenes restyled. Review: claude/landing-review.md. No schema change.
 
