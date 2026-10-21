@@ -95,7 +95,7 @@ def ico_map():
     for m in re.finditer(r"""(?:'((?:[^'\\]|\\.)+)'|"((?:[^"\\]|\\.)+)")\s*=>\s*\[\s*'([A-Za-z0-9_-]+)'\s*(?:,\s*(true|false))?\s*(?:,\s*'((?:[^'\\]|\\.)*)')?""", t):
         emo = php_str(m.group(1) or m.group(2)).replace('\ufe0f', ''); slug = m.group(3)
         d = res.setdefault(slug, {'emoji': [], 'dec': m.group(4) != 'false', 'name': php_str(m.group(5) or '')})
-        d['emoji'].append(emo)
+        if emo not in d['emoji']: d['emoji'].append(emo)
     return res
 
 BREAK = {'about', 'a1', 'b1', 'b4', 'c1', 'c3'}   # sections that start a new page; the rest flow on

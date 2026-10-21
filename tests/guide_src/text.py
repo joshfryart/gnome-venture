@@ -143,7 +143,7 @@ B3 = """
 '🐝' => ['ico-bee', true],
 '⚡' => ['ico-energy', false, 'Energy'],
 ```
-   The second value is *decorative* (true = no spoken name). Use false and a name when the icon stands alone.
+   The second value is “decorative” (true = no spoken name). Use false and a name when the icon stands alone.
 3. **Restyle**: `PYTHONHASHSEED=1 python3 tests/ico_build.py restyle`. This writes `assets/img/ico/ico-<slug>.svg`. Never edit that folder by hand.
 4. **Check**: `python3 -B tests/hearth_edge.py game/assets/img/ico` (0 flagged) and `php tests/emoji_icons.php game`.
 5. **Regenerate this guide**: `python3 tests/build_guide.py`, then upload `assets/guides/` with the release.

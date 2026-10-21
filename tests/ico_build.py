@@ -15,6 +15,16 @@ SHADOW_RAW = re.compile(r'^(<svg[^>]*>)<ellipse\b(?=[^>]*cy="5[2-9]")(?=[^>]*fil
 
 REDRAW = set('ico-ant ico-beetle ico-fly ico-fish ico-knife ico-mushroom ico-peach ico-peanut ico-four-leaf-clover ico-chili ico-cherry ico-sunflower ico-test-tube ico-watermelon ico-shell ico-snake ico-person ico-shop ico-shrine ico-tent ico-tower ico-goat ico-milk ico-caterpillar'.split())   # reuse candidates judged illegible/muddy at 16-24px: drawn fresh via ico_src instead
 
+SHRINK = {'ico-hedgehog': .88, 'ico-snail': .88}   # art touches the 64px frame: scale about the centre
+ONLY = set(filter(None, os.environ.get('ICO_ONLY', '').split(',')))   # ICO_ONLY=ico-snail,ico-hedgehog regenerates just these
+
+def shrink(s, slug):
+    k = SHRINK.get(slug)
+    if not k: return s
+    m = re.match(r'(<svg\b[^>]*>)(.*)</svg>\s*$', s, re.S)
+    if not m: return s
+    return '%s<g transform="translate(32 32) scale(%s) translate(-32 -32)">%s</g></svg>' % (m.group(1), ('%.3f' % k).rstrip('0'), m.group(2))
+
 def uniq_ids(s, slug):
     ids = re.findall(r'\bid="([^"]+)"', s)
     if not ids: return s
@@ -31,13 +41,13 @@ def reuse():
         if e.get('reuse'): done[e['slug']] = e['reuse']
     raster = []; n = 0
     for slug, rel in sorted(done.items()):
-        if slug in REDRAW: continue
+        if slug in REDRAW or (ONLY and slug not in ONLY): continue
         f = os.path.join(IMG, rel + '.svg')
         if not os.path.exists(f):
             raster.append((slug, rel)); continue
         s = open(f, encoding='utf-8').read()
         s, k1 = SHADOW.subn('', s); s, k2 = SHADOW_RAW.subn(r'\1', s)
-        s = uniq_ids(s, slug)
+        s = shrink(uniq_ids(s, slug), slug)
         open(os.path.join(OUT, slug + '.svg'), 'w', encoding='utf-8').write(s); n += 1
     print('reuse copied %d  non-svg/missing %s' % (n, raster))
 
@@ -57,8 +67,10 @@ def restyle():
     for f in sorted(os.listdir(SRC)):
         if not f.endswith('.svg'): continue
         slug = f[:-4]
+        if ONLY and slug not in ONLY: continue
         try: out = hearth.restyle(open(os.path.join(SRC, f), encoding='utf-8').read(), slug)
         except Exception as ex: bad.append((slug, repr(ex))); continue
+        out = shrink(out, slug)
         open(os.path.join(OUT, slug + '.svg'), 'w', encoding='utf-8').write(out); n += 1
     print('restyled %d  errors %s' % (n, bad))
 
