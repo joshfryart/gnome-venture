@@ -1,6 +1,12 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.24
+- Emoji second pass: JS shows our own icons (`gvIco()` html, `gvIcoLine(el, slug, text)`, `gvIcoNode()`, `gvLeads(node, emoji, slug)` in site.js; no icon = emoji). Done: chest, fighton, gather-games, pest, tilemap, trekfight, trekscene, spit.js canvas gnome, site.js toasts/crop select/energy. CSS pin + leaf are background icons.
+- Fixed (2.0.23 regression): Mushroom win celebration, "New Almanac pages" toast folding, 🧺/🐦 toast rank (PHP swaps emoji to `<img alt="">`, so JS text checks that start with an emoji must use `gvLeads`).
+- `creature_pic()` (layout.php): duel box + lair boss use creature art when present. NPC portraits NOT used for `npc_icon()` (400x500 per NPC; sites are species text/JSON).
+- No schema change. Test: treks.sh has 1 known dice FAIL (party floor 68.5% vs 70, balance sim, unrelated).
+
 ## 2.0.23
 - Emoji are replaced by our own hand-drawn icons at render time (`includes/emoji_icons.php`, `ico_start()` output buffer): map of 480 emoji -> 269 `ico-*` icons (`includes/data/ico_map.php`, built from `tests/ico_map_source.json`). Admin setting `ico_swap` (default on; off = plain emoji). Player-typed text goes through `eu()` so it stays emoji.
 - Small-icon pen mode in the Hearthlight restyle (ICO_HALO 6.0 u / ICO_OUT 3.4 u; large stickers keep 3.2 / 1.9).
