@@ -4,7 +4,7 @@ usage: python3 tests/build_guide.py [--html-only] [--keep-tmp]
 Reads the real files at run time (icons, ico_map.php, style.css tokens, palette.json, hearth.py constants), renders component
 screenshots from the real style.css with Playwright chromium, builds ONE self-contained HTML (tests/guide_src: guide.css, text.py,
 components.html) and prints it to A4 PDF. Needs: python3, playwright + chromium; optional: Pillow (smaller PNGs), pdftotext (TOC page numbers)."""
-import os, re, sys, json, html, base64, io, shutil, subprocess, tempfile, datetime
+import os, re, sys, json, html, base64, io, shutil, subprocess, tempfile, datetime, pathlib
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 SRC = os.path.join(HERE, 'guide_src'); GAME = os.path.join(ROOT, 'game')
 ICO = os.path.join(GAME, 'assets/img/ico'); PH = os.path.join(GAME, 'assets/img/ph')
@@ -14,6 +14,7 @@ sys.path.insert(0, HERE); sys.path.insert(0, SRC)
 import hearth, text   # constants stay in sync with the real restyle
 
 E = lambda s: html.escape(str(s), quote=True)
+FURL = lambda p: pathlib.Path(p).resolve().as_uri()   # file URL that works on Windows and POSIX
 def rd(p): return open(p, encoding='utf-8').read()
 def log(*a): print('[guide]', *a, flush=True)
 
@@ -167,13 +168,13 @@ def data_uri(path, mime):
 # ---------- screenshots ----------
 def shots():
     from playwright.sync_api import sync_playwright
-    css_url = 'file://' + STYLE; tpl = rd(os.path.join(SRC, 'components.html'))
+    css_url = FURL(STYLE); tpl = rd(os.path.join(SRC, 'components.html'))
     def icoimg(m):
         n = m.group(1); p = os.path.join(ICO, 'ico-%s.svg' % n)
-        return '<img class="ico" src="file://%s" alt="" width="16" height="16">' % p if os.path.isfile(p) else ''
+        return '<img class="ico pix" src="%s" alt="" width="16" height="16">' % FURL(p) if os.path.isfile(p) else ''
     tpl = re.sub(r'\[\[ico:([\w-]+)\]\]', icoimg, tpl)
     out = {}; tmp = tempfile.mkdtemp(prefix='gvguide-')
-    phone = ['type', 'buttons', 'tabs', 'choice', 'fold', 'flash', 'picker', 'form']
+    phone = ['type', 'buttons', 'tabs', 'choice', 'fold', 'flash', 'stitch', 'picker', 'form']
     try:
         with sync_playwright() as p:
             b = p.chromium.launch()
@@ -182,7 +183,7 @@ def shots():
                     f = os.path.join(tmp, 'c-%s-%d.html' % (theme, width))
                     open(f, 'w', encoding='utf-8').write(tpl.replace('{{THEME}}', theme).replace('{{CSS}}', css_url).replace('{{W}}', str(width)))
                     ctx = b.new_context(viewport={'width': width, 'height': 900}, device_scale_factor=2, bypass_csp=True)
-                    pg = ctx.new_page(); pg.goto('file://' + f); pg.wait_for_timeout(250)
+                    pg = ctx.new_page(); pg.goto(FURL(f)); pg.wait_for_timeout(250)
                     for n in names:
                         png = pg.locator('[data-shot="%s"]' % n).first.screenshot(type='png')
                         out[(n, theme)] = pack_png(png)
@@ -209,17 +210,20 @@ def sw(c): return '<span class="sw" style="background:%s"></span>' % E(c)
 def swatch(name, c): return '<div class="swatch"><i style="background:%s"></i><b>%s</b><span>%s</span></div>' % (E(c), E(name), E(c))
 
 ROLES = {'--bg': 'Page background', '--surface': 'Cards, inputs, popups', '--surface-2': 'Quiet fills: tabs, hover, strips', '--ink': 'Main text', '--ink-2': 'Second text', '--muted': 'Hints, help lines',
- '--line': 'Hairlines', '--line-2': 'Input and button borders', '--brand': 'Green: links, focus accents', '--brand-ink': 'Green text', '--brand-soft': 'Green wash (good, selected)', '--brand-line': 'Green border',
+ '--line': 'Light frame edge, rules', '--line-2': 'Input borders, dark frame edge', '--brand': 'Moss: links, good accents', '--brand-ink': 'Green text', '--brand-soft': 'Green wash (good, selected)', '--brand-line': 'Green border',
  '--accent': 'Gold: energy, notices, highlights', '--accent-soft': 'Gold wash', '--accent-ink': 'Gold text', '--accent-line': 'Gold border', '--danger': 'Red: errors, destructive', '--danger-soft': 'Red wash',
  '--danger-ink': 'Red text', '--danger-line': 'Red border', '--info-soft': 'Blue wash', '--info-ink': 'Blue text', '--info-line': 'Blue border', '--purple': 'Purple: Book, magic', '--purple-soft': 'Purple wash', '--purple-ink': 'Purple text',
- '--focus': 'Keyboard focus ring', '--brand-fill': 'Solid green behind white text', '--badge-bg': 'Solid grey behind white text', '--box-bg': 'Card fill', '--plot': 'Garden soil', '--sel': 'Selected tile',
+ '--focus': 'Keyboard focus ring', '--brand-fill': 'Solid moss behind cream text', '--badge-bg': 'Solid umber behind cream text',
+ '--edge-lt': 'Frame: lit upper-left edge', '--edge-dk': 'Frame: dark lower-right edge', '--drop': 'Frame: 2 px stepped drop', '--ol': 'Umber outline (buttons, felt bars)',
+ '--thread': 'Stitch thread on cards', '--thread-bright': 'Hem stitch on felt', '--felt': 'Umber felt: header, bottom bar, footer', '--felt-2': 'Felt patches (header pills)', '--felt-ink': 'Text on felt', '--felt-muted': 'Quiet text on felt', '--on-fill': 'Text on solid fills', '--box-bg': 'Card fill', '--plot': 'Garden soil', '--sel': 'Selected tile',
  '--chip-energy-bg': 'Energy chip', '--chip-gold-bg': 'Petals chip', '--chip-lvl-bg': 'Level chip', '--r-c': 'Rarity: common', '--r-u': 'Rarity: uncommon', '--r-r': 'Rarity: rare', '--r-l': 'Rarity: legendary', '--map-sea': 'Region map sea', '--map-road': 'Region map road'}
 
 def f_tokens():
     css = rd(STYLE); L, D = tokens(css)
     groups = [('Surfaces and text', ['--bg', '--surface', '--surface-2', '--box-bg', '--ink', '--ink-2', '--muted', '--line', '--line-2']),
-              ('Brand green', ['--brand', '--brand-ink', '--brand-soft', '--brand-line', '--brand-fill', '--badge-bg']),
+              ('Moss (brand)', ['--brand', '--brand-ink', '--brand-soft', '--brand-line', '--brand-fill', '--badge-bg']),
               ('Gold, red, blue, purple', ['--accent', '--accent-soft', '--accent-ink', '--accent-line', '--danger', '--danger-soft', '--danger-ink', '--danger-line', '--info-soft', '--info-ink', '--info-line', '--purple', '--purple-soft', '--purple-ink', '--focus']),
+              ('Stitched Toy chrome', ['--edge-lt', '--edge-dk', '--drop', '--ol', '--thread', '--thread-bright', '--felt', '--felt-2', '--felt-ink', '--felt-muted', '--on-fill']),
               ('Chips and rarity', ['--chip-energy-bg', '--chip-gold-bg', '--chip-lvl-bg', '--r-c', '--r-u', '--r-r', '--r-l']),
               ('Game art', ['--plot', '--sel', '--map-sea', '--map-road'])]
     h = []
@@ -343,12 +347,13 @@ def f_shots():
         d, l = C.shots.get((name, 'dark')), C.shots.get((name, 'light'))
         if wide: return '<figure class="fig"><div class="shot-wide shots"><div><div class="lab">Dark</div><img src="%s" alt=""></div></div><div class="shots"><div><div class="lab">Light</div><img src="%s" alt=""></div></div><figcaption>%s</figcaption></figure>' % (d, l, cap)
         return '<figure class="fig"><div class="shots"><div><div class="lab">Dark</div><img src="%s" alt=""></div><div><div class="lab">Light</div><img src="%s" alt=""></div></div><figcaption>%s</figcaption></figure>' % (d, l, cap)
-    parts = [('type', '<code>.box</code> card, centred: h1 22, h2 18, h3 16, body 16, small 13, <code>.help</code> 13 muted.'),
-             ('buttons', '<code>.btn</code> solid green = main verb. <code>.ghost</code> for the rest. <code>.gold</code> buys, <code>.red</code> destroys. <code>.small</code> 36 px, <code>.act</code> 48 px. Tap target 44 px.'),
-             ('tabs', '<code>nav.tabs</code> pills (on = solid green) and <code>.chip</code> status chips (<code>chip-in</code>, <code>chip-off</code>, <code>chip-pest</code>, <code>chip-rain</code>).'),
-             ('choice', '<code>choice_row()</code> rows: icon, title, small sub-line, badge (<code>good</code>, <code>cost</code>, <code>poor</code>, <code>free</code>). <code>primary</code> / <code>is-selected</code> = green outline.'),
+    parts = [('type', '<code>.box</code> felt patch (<code>--frame</code>), centred: h1 24 (26 desktop) on an area ribbon with a gold seam, h2 19, h3 16, all 800; body 16, small 13, <code>.help</code> 13 muted.'),
+             ('buttons', '<code>.btn</code> felt toy: lit top, shaded bottom, umber outline, presses 2 px. Solid moss = main verb. <code>.ghost</code> for the rest. <code>.gold</code> buys, <code>.red</code> destroys. <code>.small</code> 36 px, <code>.act</code> 48 px. Tap target 44 px.'),
+             ('tabs', '<code>nav.tabs</code> felt tags (on = solid area colour, outlined) and <code>.chip</code> status chips (<code>chip-in</code>, <code>chip-off</code>, <code>chip-pest</code>, <code>chip-rain</code>).'),
+             ('choice', '<code>choice_row()</code> rows: icon, title, small sub-line, badge (<code>good</code>, <code>cost</code>, <code>poor</code>, <code>free</code>). <code>primary</code> / <code>is-selected</code> = moss edge and inner band.'),
              ('fold', '<code>details.fold</code>: closed by default. Explanations live here.'),
              ('flash', '<code>.flash</code> messages (ok, <code>err</code>) and <code>.box.notice</code> / <code>.box.danger</code>.'),
+             ('stitch', 'Special cards only: <code>.prizebox</code> / <code>.eventbox</code> get the gold edge stitch (<code>--st-h</code>, <code>--st-v</code>); <code>hr</code> is a stitched seam with a button knot.'),
              ('picker', '<code>dialog.picker</code> &gt; <code>.pickbox</code>: head, grid of <code>.pcard</code>, foot with one solid button.'),
              ('form', '<code>.form</code> labels above inputs, 44 px fields, 16 px text so phones do not zoom.')]
     h = ''.join('<div class="keep"><h3>%s</h3>%s</div>' % (n.capitalize(), fig(n, c)) for n, c in parts if (n, 'dark') in C.shots)
@@ -368,9 +373,9 @@ FILL = {'SOURCES': lambda a: f_sources(), 'LAYERS': lambda a: f_layers(), 'PALET
         'TYPE': lambda a: TYPE_TABLE, 'SPACING': lambda a: SPACE_TABLE}
 
 TYPE_TABLE = ('<table><tr><th>Style</th><th class="num">Size</th><th>Weight</th><th>Sample</th></tr>'
- '<tr><td>h1</td><td class="num">22 px</td><td>600</td><td style="font-size:17pt;font-weight:600">Fernhollow Patch</td></tr>'
- '<tr><td>h2</td><td class="num">18 px</td><td>600</td><td style="font-size:14pt;font-weight:600">Section heading</td></tr>'
- '<tr><td>h3, <code>.subhead</code> 15</td><td class="num">16 px</td><td>600</td><td style="font-size:12pt;font-weight:600">Sub heading</td></tr>'
+ '<tr><td>h1</td><td class="num">24 px (26 from 721)</td><td>800</td><td style="font-size:18pt;font-weight:800">Fernhollow Patch</td></tr>'
+ '<tr><td>h2</td><td class="num">19 px</td><td>800</td><td style="font-size:14pt;font-weight:800">Section heading</td></tr>'
+ '<tr><td>h3, <code>.subhead</code> 15</td><td class="num">16 px</td><td>800</td><td style="font-size:12pt;font-weight:800">Sub heading</td></tr>'
  '<tr><td>body</td><td class="num">16 px (15 on desktop)</td><td>400</td><td>Short lines, plain words.</td></tr>'
  '<tr><td>choice title / sub</td><td class="num">15 / 12.5 px</td><td>600 / 400</td><td>Plant carrots <span class="muted">Ready in 3 days</span></td></tr>'
  '<tr><td>small, help, chip</td><td class="num">13 px</td><td>400</td><td class="muted">One short muted line</td></tr>'
@@ -378,13 +383,16 @@ TYPE_TABLE = ('<table><tr><th>Style</th><th class="num">Size</th><th>Weight</th>
  '<tr><td>code</td><td class="num">13 px</td><td>mono</td><td><code>choice_row()</code></td></tr></table>')
 SPACE_TABLE = ('<table><tr><th>Token</th><th class="num">Value</th><th>Use</th></tr>'
  '<tr><td><code>--tap</code></td><td class="num">44 px</td><td>Minimum touch target (buttons, inputs, summary rows)</td></tr>'
- '<tr><td><code>--radius</code> / <code>-sm</code> / <code>--pill</code></td><td class="num">10 / 6 / 999 px</td><td>Cards and dialogs / buttons, inputs, choice rows / tabs, chips</td></tr>'
+ '<tr><td><code>--radius</code> / <code>-sm</code> / <code>--pill</code></td><td class="num">0</td><td>Hard pixel corners everywhere (v2.0.32). Frames notch the corners instead.</td></tr>'
+ '<tr><td><code>--px</code></td><td class="num">2 px</td><td>One art pixel: frame edges, stitches, drops</td></tr>'
+ '<tr><td><code>--frame</code> / <code>--frame-lite</code></td><td class="num">2 px + 2 px drop</td><td>Box-shadow frame for panels / one-tone frame for rows inside them. No layout space: leave ~4 px room</td></tr>'
+ '<tr><td><code>--hem</code>, <code>--st-h</code>, <code>--st-v</code></td><td class="num">4 on / 2 off</td><td>Stitch lines (hard-stop stripes): felt hems / edge stitch</td></tr>'
  '<tr><td><code>--gut</code></td><td class="num">16 px (24 from 721 px)</td><td>Side gutter of the page</td></tr>'
  '<tr><td><code>--hdr</code>, <code>--bar</code></td><td class="num">52 (60) / 56 px</td><td>Slim top bar / phone bottom bar</td></tr>'
  '<tr><td><code>--maxw</code></td><td class="num">1392 px</td><td>Widest content</td></tr>'
- '<tr><td><code>.box</code> padding</td><td class="num">14 x 16 px</td><td>Card inner space, 12 px below</td></tr>'
- '<tr><td>gaps</td><td class="num">6, 8, 10, 12 px</td><td>Choice list 6, tabs 8, toolbar 10, stacked cards 12</td></tr>'
- '<tr><td><code>--shadow</code></td><td class="num">0 1 2 / .06</td><td>Cards. Popups use <code>--shadow-2</code></td></tr></table>')
+ '<tr><td><code>.box</code> padding</td><td class="num">14 x 16 px</td><td>Card inner space, 16 px below</td></tr>'
+ '<tr><td>gaps</td><td class="num">10, 12, 14 px</td><td>Choice list and tabs 10, tiles 12, stat cards 14 (room for the frames)</td></tr>'
+ '<tr><td><code>--shadow</code></td><td class="num">2 2 0, no blur</td><td>Hard pixel drop. Popups use <code>--shadow-2</code> (outline + 6 px drop)</td></tr></table>')
 
 # ---------- assemble ----------
 def toc_html(entries, pages):
@@ -396,7 +404,8 @@ def toc_html(entries, pages):
 
 def page_html(pages, pagecount, shots_ok=True):
     css = rd(os.path.join(SRC, 'guide.css'))
-    when = datetime.date.today().strftime('%-d %B %Y'); ver = app_version()
+    _d = datetime.date.today(); when = '%d %s' % (_d.day, _d.strftime('%B %Y'));   # portable (no %-d on Windows)
+    ver = app_version()
     hat = next((i for i in C.icons if i['name'] == 'gnome-hat'), None) or (C.icons[0] if C.icons else None)
     if hat: VEC.add(hat['name'])
     cover = '<section class="cover">%s<h1>Gnome Venture<br>Style Sheet &amp; Art Guide</h1><p class="sub">Hearthlight art, inline icons and the UI rules</p><div class="meta">Game version %s<br>Built %s<br>%d inline icons &middot; %d colour tokens%s</div><div class="band">Cosy garden game &middot; gnomeventure.ca</div></section>' % (
@@ -430,7 +439,7 @@ def find_pages(path, entries, n):
     if not shutil.which('pdftotext'): return {}
     texts = []
     for pg in range(1, n + 1):
-        texts.append(subprocess.run(['pdftotext', '-f', str(pg), '-l', str(pg), '-layout', path, '-'], capture_output=True, text=True).stdout)
+        texts.append(subprocess.run(['pdftotext', '-enc', 'UTF-8', '-f', str(pg), '-l', str(pg), '-layout', path, '-'], capture_output=True, encoding='utf-8', errors='replace').stdout or '')
     res = {}; norm = lambda s: re.sub(r'\s+', ' ', s).strip().lower()
     toc_pg = next((i for i, t in enumerate(texts) if 'contents' in t.lower()[:200] and 'About this guide' in t), 1)
     for kind, title, sid in entries:

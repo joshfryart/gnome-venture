@@ -47,7 +47,7 @@ page_header('Hybrids', true);
       <td><?= e($r['an']) ?> × <?= e($r['bn']) ?></td>
       <td><?= (int)$r['finders'] ?></td>
       <td><input type="checkbox" name="enabled" value="1" <?= (int)$r['enabled'] ? 'checked' : '' ?>></td>
-      <td><input type="number" name="chance_bonus" value="<?= (int)$r['chance_bonus'] ?>" min="-50" max="50" style="width:5em"></td>
+      <td><input type="number" name="chance_bonus" value="<?= (int)$r['chance_bonus'] ?>" min="-50" max="50" class="qty"></td>
       <td><input type="text" name="hint" maxlength="255" value="<?= e((string)($r['hint'] ?? '')) ?>" placeholder="(made from the parents' kinds)"></td>
       <td><button class="btn small">Save</button></td></form></tr>
   <?php endforeach; ?>

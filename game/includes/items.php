@@ -138,28 +138,30 @@ function art_path(string $p): string
     // v1.5.2: assets/img/ph/*.svg are the red-outlined placeholders
     $ok = $p !== '' && strlen($p) <= 255 && !str_contains($p, '..') && !str_contains($p, '//')
         && (preg_match('#^(uploads|assets/img)/[A-Za-z0-9_][A-Za-z0-9_./-]*\.(png|jpe?g|webp)$#i', $p) || preg_match('#^assets/img/animals/[A-Za-z0-9_-]+\.svg$#', $p)
-            || preg_match('#^assets/img/ph/[a-z0-9][a-z0-9_-]*\.svg$#', $p)) && is_file(APP_ROOT . '/' . $p);
+            || preg_match('#^assets/img/ph/[a-z0-9][a-z0-9_-]*\.(svg|png)$#', $p) || preg_match('#^assets/img/animals/[A-Za-z0-9_-]+\.png$#', $p)) && is_file(APP_ROOT . '/' . $p);
     return $cache[$p] = $ok ? $p : '';
 }
 
 /** An <img> for art at $rel (already checked with art_path), sized sm/md/lg. */
 function art_img(string $rel, string $size, string $alt, string $cls = 'aimg'): string
 {
+    $pix = str_ends_with($rel, '.png') ? ' pix' : '';   // v2.0.31 pixel art
     $px = ART_SIZES[$size] ?? ART_SIZES['md'];
-    return '<img class="' . e($cls) . ' ' . e($cls) . '-' . e(isset(ART_SIZES[$size]) ? $size : 'md') . '" src="' . e(url($rel))   /* v1.5.2: url() adds ?v= itself */ . '" width="' . $px . '" height="' . $px
+    return '<img class="' . e($cls) . ' ' . e($cls) . '-' . e(isset(ART_SIZES[$size]) ? $size : 'md') . $pix . '" src="' . e(url($rel))   /* v1.5.2: url() adds ?v= itself */ . '" width="' . $px . '" height="' . $px
         . '" alt="' . e($alt) . '" loading="lazy" decoding="async">';
 }
 
 /** v1.5.2: a placeholder drawing (assets/img/ph/{name}.svg; no outline since v1.6.8) or ''. Real art always wins; use this only after the real lookup came up empty. */
 function ph_path(string $name): string
 {
-    return preg_match('/^[a-z0-9][a-z0-9_-]{0,100}$/', $name) ? art_path('assets/img/ph/' . $name . '.svg') : '';
+    return preg_match('/^[a-z0-9][a-z0-9_-]{0,100}$/', $name) ? (art_path('assets/img/ph/' . $name . '.png') ?: art_path('assets/img/ph/' . $name . '.svg')) : '';
 }
 
 /** v1.5.2: a placeholder as <img> at $px CSS pixels, or '' when there is none. */
 function ph_img(string $name, int $px, string $alt = '', string $cls = 'phimg'): string
 {
     $rel = ph_path($name);
+    if (str_ends_with($rel, '.png')) $cls .= ' pix';
     return $rel === '' ? '' : '<img class="' . e($cls) . '" src="' . e(url($rel)) . '" width="' . $px . '" height="' . $px . '" alt="' . e($alt) . '" loading="lazy" decoding="async">';
 }
 

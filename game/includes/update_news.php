@@ -77,6 +77,8 @@ const UPDATE_NEWS = [
         "[list][*][b]Knacks[/b]: every two trek levels each trailmate (and you) earns a knack slot, small then bigger. Each knack trades one thing for another. Pick them on the Party tab; change them at camp.\n[*][b]Whole map[/b]: a small fold under the map shows everywhere you have been.\n[*][b]Camps[/b] now heal everyone fully and clear fatigue: camp tiles, Camp Kits, old campsites and rest spots.\n[*]Trailmates grow fonder of you as you fight together.\n[*]The map feed keeps your last lines after a quiet step.[/list]"],
     '2.0.23' => ['🎨 New hand-drawn icons',
         "The little pictures around the game (menus, buttons, items, messages) are now hand-drawn icons instead of emoji, so everything looks the same on every phone. What you type yourself, like names and notes, stays as you wrote it."],
+    '2.0.32' => ['🧵 A new stitched look',
+        "The whole Hollow has a fresh coat of felt: new pixel pictures everywhere, and the pages, buttons and menus now look hand-stitched to match. Light and dark both got the new look (switch in the menu)."],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */

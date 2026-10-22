@@ -178,7 +178,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
 <?php // v0.8.6: a front page that says what the game is, for visitors who've never played ?>
 <section class="lp"><?php // v1.6.3: short, phone-first front page. v2.0.29: Hearthlight look: warm hero card, one solid button per block, centred picture tiles ?>
   <div class="lp-hero">
-    <img class="lp-scene" src="<?= e(url('assets/img/landing/hero.svg')) ?>" alt="" width="360" height="170" fetchpriority="high">
+    <img class="lp-scene pix" src="<?= e(art_url('assets/img/landing/hero')) ?>" alt="" width="360" height="170" fetchpriority="high">
     <h1><?= e(setting('site_name')) ?><?= is_admin() ? ' <a class="small" href="' . e(url('admin/texts.php?page=' . urlencode('Front page'))) . '">✏️ Edit</a>' : '' ?></h1>
     <p class="lp-pitch"><?= e(stext('home.headline')) ?></p>
     <p class="lp-sub">A free, cosy garden game about gnomes.</p>
@@ -199,7 +199,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
         ['almanac', 'Fill your Almanac', 'A book that fills in as you play.'],
     ] as [$img, $ttl, $line]): ?>
     <li class="lp-card">
-      <img src="<?= e(url('assets/img/landing/' . $img . '.svg')) ?>" alt="" width="240" height="160" loading="lazy">
+      <img class="pix" src="<?= e(art_url('assets/img/landing/' . $img)) ?>" alt="" width="240" height="160" loading="lazy">
       <h3><?= e($ttl) ?></h3>
       <p><?= e($line) ?></p>
     </li>

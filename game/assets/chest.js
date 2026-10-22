@@ -11,6 +11,16 @@
 
   var CHEST = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="cs-svg" aria-hidden="true" focusable="false"><ellipse cx="32" cy="56" rx="24" ry="3.500" fill="#000" opacity=".15"/><g class="cs-bodyg"><rect x="10" y="30" width="44" height="25" rx="4" fill="#9a6a3a"/><path d="M10 46h44v5a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="#7e5430"/><rect x="12" y="32" width="40" height="4" rx="2" fill="#b98450" opacity=".7"/><path d="M11 42h42" stroke="#6e4726" stroke-width="1.600" stroke-linecap="round" opacity=".5"/><rect x="16" y="30" width="5" height="25" fill="#e2b13c"/><rect x="43" y="30" width="5" height="25" fill="#e2b13c"/><rect x="17" y="30" width="1.600" height="25" fill="#f6d77a" opacity=".8"/><rect x="44" y="30" width="1.600" height="25" fill="#f6d77a" opacity=".8"/><ellipse class="cs-inside" cx="32" cy="31" rx="21" ry="3.500" fill="#3a2410"/></g><ellipse class="cs-glow" cx="32" cy="30" rx="20" ry="5" fill="#fff1b0"/><g class="cs-lid"><path d="M10 33v-7c0-8 10-12 22-12s22 4 22 12v7z" fill="#a97640"/><path d="M14 24c3-5 10-7 18-7s13 2 16 6c-4-2-10-3-16-3s-13 1-18 4z" fill="#c48e55" opacity=".7"/><rect x="16" y="14" width="5" height="19" fill="#e2b13c"/><rect x="43" y="14" width="5" height="19" fill="#e2b13c"/><rect x="10" y="30" width="44" height="4.500" rx="2" fill="#e2b13c"/><rect x="12" y="31" width="40" height="1.400" rx=".7" fill="#f6d77a"/><rect x="27.500" y="30" width="9" height="10" rx="2.500" fill="#f3c94f"/><circle cx="32" cy="34.500" r="1.600" fill="#5e3b1c"/></g></svg>';
 
+  /* v2.0.31: pixel chest (64x64 body + lid PNGs, same canvas). The vector CHEST above is the fallback when the PHP side has no PNGs or one fails to load. */
+  function pixelChest(body, lid) {
+    var q = function (s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+    body = q(body); lid = q(lid);
+    return '<svg xmlns="' + NS + '" viewBox="0 0 64 64" class="cs-svg cs-px" aria-hidden="true" focusable="false"><ellipse cx="32" cy="56" rx="24" ry="3.5" fill="#000" opacity=".15"/>'
+      + '<g class="cs-bodyg"><image class="cs-img" href="' + body + '" x="0" y="0" width="64" height="64" image-rendering="pixelated"/><ellipse class="cs-inside" cx="32" cy="32" rx="18" ry="3" fill="#3a2410"/></g>'
+      + '<ellipse class="cs-glow" cx="32" cy="30" rx="20" ry="5" fill="#fff1b0"/>'
+      + '<g class="cs-lid"><image class="cs-img" href="' + lid + '" x="0" y="0" width="64" height="64" image-rendering="pixelated"/></g></svg>';
+  }
+
   function open(data) {
     if (active) active.close(true);
     var coins = parseInt(data.getAttribute('data-coins'), 10) || 0, xp = parseInt(data.getAttribute('data-xp'), 10) || 0;
@@ -23,7 +33,12 @@
     root.setAttribute('aria-label', 'The chest');
     var back = el('div', 'cs-back');
     var box = el('div', 'cs-box');
-    var stage = el('div', 'cs-stage'); stage.innerHTML = CHEST;
+    var stage = el('div', 'cs-stage');
+    var pBody = data.getAttribute('data-body'), pLid = data.getAttribute('data-lid');
+    stage.innerHTML = pBody && pLid ? pixelChest(pBody, pLid) : CHEST;
+    Array.prototype.forEach.call(stage.querySelectorAll('.cs-img'), function (im) {
+      im.addEventListener('error', function () { stage.querySelector('.cs-svg').outerHTML = CHEST; });   // a PNG failed: swap in the vector chest (the swap detaches the other image, so it fires once)
+    });
     var sparks = el('div', 'cs-sparks'); sparks.setAttribute('aria-hidden', 'true'); stage.appendChild(sparks);
     var title = el('h2', 'cs-title', 'The chest creaks open!');
     var loot = el('ul', 'cs-loot');

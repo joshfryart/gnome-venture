@@ -632,7 +632,7 @@
       var s = session = { fin: false, raf: 0, t0: performance.now(), g: null, keys: [], finAt: 0, submitted: false };
       var ctx = {
         r: round, field: field, pad: pad, rm: rmq.matches,
-        img: function (name, cls, parent) { var i = document.createElement('img'); i.src = base + name + (fold.getAttribute('data-v') ? '?v=' + fold.getAttribute('data-v') : '');   /* v1.5.1: fresh art after an update */ i.alt = ''; i.draggable = false; i.className = cls || ''; (parent || field).appendChild(i); return i; },
+        img: function (name, cls, parent) { var i = document.createElement('img'); var q = fold.getAttribute('data-v') ? '?v=' + fold.getAttribute('data-v') : '';   /* v1.5.1: fresh art after an update */ i.onerror = function () { i.onerror = null; i.src = base + name + q; }; i.src = base + name.replace(/\.svg$/, '.png') + q;   /* v2.0.31: pixel PNG first, SVG if missing */ i.alt = ''; i.draggable = false; i.className = (cls || '') + ' pix'; (parent || field).appendChild(i); return i; },
         bg: function (name) { ctx.img(name, 'gbg'); },
         piece: function (name, cls) { return ctx.img(name, cls); },
         svg: function (tag, attrs, parent) { var n = document.createElementNS(SVGNS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); (parent || field).appendChild(n); return n; },

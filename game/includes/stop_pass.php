@@ -12,7 +12,11 @@ function stop_svg(string $type, string $kind = 'icon', string $class = ''): stri
 {
     static $cache = [];
     $type = preg_replace('/[^a-z0-9_-]/', '', $type) ?: 'camp';
-    $file = dirname(__DIR__) . '/assets/img/stops/' . ($kind === 'stamp' ? 'stamp-' : '') . $type . '.svg';
+    $base = 'assets/img/stops/' . ($kind === 'stamp' ? 'stamp-' : '') . $type;
+    if (is_file(APP_ROOT . '/' . $base . '.png')) {   // v2.0.31: pixel art as an <img> (no currentColor tint)
+        return '<img class="' . e(trim($class . ' pix')) . '" src="' . e(url($base . '.png')) . '" alt="" aria-hidden="true" loading="lazy" decoding="async">';
+    }
+    $file = dirname(__DIR__) . '/' . $base . '.svg';
     if (!isset($cache[$file])) $cache[$file] = is_file($file) ? (string)file_get_contents($file) : '';
     $svg = $cache[$file];
     if ($svg === '') return '';

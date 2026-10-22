@@ -362,8 +362,8 @@ function critter_ready_map(int $plotId): array
 /** The art for a critter kind (assets/img/animals/{kind}.svg). */
 function critter_img(string $kind, string $cls = 'cimg'): string
 {
-    $rel = 'assets/img/animals/' . $kind . '.svg';
-    return is_file(APP_ROOT . '/' . $rel) ? '<img class="' . e($cls) . '" src="' . e(url($rel)) . '" alt="" width="40" height="40" loading="lazy">' : '';
+    $rel = 'assets/img/animals/' . $kind . (pixel_has('assets/img/animals/' . $kind . '.png') ? '.png' : '.svg');
+    return is_file(APP_ROOT . '/' . $rel) ? '<img class="' . e($cls) . (str_ends_with($rel, '.png') ? ' pix' : '') . '" src="' . e(url($rel)) . '" alt="" width="40" height="40" loading="lazy">' : '';
 }
 
 /** v1.6.3: the word for what a home's animals are fed (scraps for most, leaves for silkworms, greens for the tortoise). */
@@ -557,7 +557,7 @@ function biddy_html(array $u, array $plot): string
     if (!biddy_here($plot)) return '';
     unlock_entries((int)$u['id'], 'critter:biddy');
     $plotId = (int)$plot['id'];
-    $img = is_file(APP_ROOT . '/assets/img/animals/hen.svg') ? '<img class="cimg" src="' . e(url('assets/img/animals/hen.svg')) . '" alt="" width="48" height="48" loading="lazy">' : '<span class="oi">🐔</span>';
+    $img = is_file(APP_ROOT . '/assets/img/animals/hen.svg') ? '<img class="cimg pix" src="' . e(art_url('assets/img/animals/hen')) . '" alt="" width="48" height="48" loading="lazy">' : '<span class="oi">🐔</span>';
     $h = '<div class="biddy box">' . $img . '<div><b>Biddy is at the fence</b> <small class="muted">the neighbour’s hen · ' . biddy_friendship($plotId) . ' trades so far</small><br>';
     if (biddy_traded_today($plotId)) return $h . '<small>She has had her fill today and bobs her head in thanks. 🥚</small></div></div>';
     $have = (int)q_val("SELECT ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = 'food-scrap'", [(int)$u['id']]);

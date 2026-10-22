@@ -170,6 +170,8 @@ Everything in `assets/img/ico/`, read when this guide was built. Each card: the 
 C1 = """
 All colours are **tokens** in `assets/style.css`, section 1 (`:root`). Components never hard-code a colour; dark mode only changes the tokens. Dark is the default. Dark overrides are always written `:root[data-theme="dark"] X`, never `@media (prefers-color-scheme)`.
 
+Since v2.0.32 (**Stitched Toy chrome**) every token is a colour from the art palette (Part A families, the Part D table, or the Part D hue-shift recipe, marked in a CSS comment): cream and umber felt, moss for the main verb, gold thread for stitches. No pure black or white. The header, phone bottom bar and footer are umber felt (`--felt`) in both themes.
+
 {{TOKENS}}
 
 ## Area hues
@@ -185,6 +187,13 @@ System font stack, no web fonts: `system-ui, -apple-system, "Segoe UI", Roboto, 
 ## Space, shape, touch
 {{SPACING}}
 
+## Pixel frames (v2.0.32)
+- No `border-radius` and no blurred shadows. A panel is framed with `box-shadow: var(--frame)`: 2 px edges, lighter on the lit upper-left (`--edge-lt`), darker lower-right (`--edge-dk`), a 2 px stepped `--drop`, notched corners. Rows inside a panel use `--frame-lite`.
+- Frames take no layout space: give framed things about 4 px of room inside scrolling boxes.
+- Buttons are felt toys: variants only set `--b-bg --b-hi --b-lo --b-ink --b-hover`. Margins are vertical only, so full-width buttons never overflow.
+- Stitches are hard-stop stripes, 4 px on / 2 px off: `--hem` on felt, `--st-h` / `--st-v` for the edge stitch on special cards (prize, event, landing hero). Ordinary boxes stay unstitched.
+- Pixel images use `.pix` (`image-rendering: pixelated`) at whole-number scales only. UI tiles live in `assets/img/ui/` (made by `tests/gen_ui_chrome.lua`, written at 2x).
+
 ## Breakpoints
 - **Phone first**: design for about 412 px wide, dark. Base CSS is the phone.
 - **721 px and up**: tablet and desktop. Gutter 24 px, header 60 px.
@@ -193,7 +202,7 @@ System font stack, no web fonts: `system-ui, -apple-system, "Segoe UI", Roboto, 
 """
 
 C3 = """
-Real markup and the real `style.css`, captured at build time. Each pair: dark (default) on the left, light on the right.
+Real markup and the real `style.css`, captured at build time. Each pair: dark (default) on the left, light on the right. Since v2.0.32 they show the Stitched Toy frames.
 {{SHOTS}}
 """
 

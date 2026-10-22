@@ -9,10 +9,10 @@ function gvCloseDlg(d) {
 }
 /* v2.0.24: own icons in JS. gvIco() = <img> markup (no user text inside), gvIcoLine() = icon then plain text (safe: text goes in as a text node). Other files call them if present; no icon = they keep the emoji. */
 var gvIcoBase = (function () { var s = document.currentScript; return s && s.src ? s.src.replace(/[^\/]*$/, '') + 'img/ico/' : 'assets/img/ico/'; })();
-function gvIco(slug, alt) { return '<img class="ico" src="' + gvIcoBase + slug + '.svg" alt="' + (alt || '') + '" width="16" height="16">'; }
+function gvIco(slug, alt) { return '<img class="ico pix" src="' + gvIcoBase + slug + '.png" alt="' + (alt || '') + '" width="16" height="16">'; }
 function gvIcoNode(slug, alt) {
   var im = document.createElement('img');
-  im.className = 'ico'; im.src = gvIcoBase + slug + '.svg'; im.alt = alt || ''; im.width = 16; im.height = 16;
+  im.className = 'ico pix'; im.onerror = function () { im.onerror = null; im.src = gvIcoBase + slug + '.svg'; }; im.src = gvIcoBase + slug + '.png'; im.alt = alt || ''; im.width = 16; im.height = 16;
   return im;
 }
 /* True when the node's text starts with this emoji, or with its icon image (PHP swaps emoji to <img alt="">, so textContent has lost the emoji). */
@@ -20,12 +20,12 @@ function gvLeads(n, emoji, slug) {
   if (n.textContent.trim().indexOf(emoji) === 0) return true;
   var f = n.firstChild;
   if (f && f.nodeType === 3 && !f.nodeValue.trim()) f = f.nextSibling;
-  return !!(f && f.nodeType === 1 && f.tagName === 'IMG' && (f.getAttribute('src') || '').indexOf('/' + slug + '.svg') > -1);
+  return !!(f && f.nodeType === 1 && f.tagName === 'IMG' && (f.getAttribute('src') || '').indexOf('/' + slug + '.') > -1);
 }
 function gvIcoLine(el, slug, rest, alt) {
   if (!el) return;
   var im = document.createElement('img');
-  im.className = 'ico'; im.src = gvIcoBase + slug + '.svg'; im.alt = alt || ''; im.width = 16; im.height = 16;
+  im.className = 'ico pix'; im.onerror = function () { im.onerror = null; im.src = gvIcoBase + slug + '.svg'; }; im.src = gvIcoBase + slug + '.png'; im.alt = alt || ''; im.width = 16; im.height = 16;
   el.textContent = ''; el.appendChild(im); el.appendChild(document.createTextNode(rest));
 }
 /* v1.8.2: one reusable in-page dialog instead of confirm()/alert(). Text goes in with textContent, never innerHTML. */
@@ -80,6 +80,21 @@ document.addEventListener('change', function (ev) {
   var part = input.getAttribute('data-part');
   form.querySelectorAll('svg.gnomeart [data-part="' + part + '"]').forEach(function (el) {
     el.setAttribute('fill', input.value);
+    /* v2.0.31: pixel gnome layers are <image>s tinted by an SVG filter (see pixel_tint_filter() in includes/pixel_art.php): point them at a tint-<hex> filter, adding it if new */
+    var im = el.tagName.toLowerCase() === 'g' ? el.querySelector('image[filter]') : null, svg = el.ownerSVGElement;
+    var h = String(input.value).replace(/^#/, '').toLowerCase();
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    if (!im || !svg || !/^[0-9a-f]{6}$/.test(h)) return;
+    var NS = 'http://www.w3.org/2000/svg', id = 'tint-' + h;
+    if (!svg.querySelector('filter[id="' + id + '"]')) {
+      var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
+      var f = document.createElementNS(NS, 'filter'), m = document.createElementNS(NS, 'feColorMatrix');
+      var c = [0, 2, 4].map(function (i) { return Math.round(parseInt(h.substr(i, 2), 16) / 255 * 1.25 * 10000) / 10000; });
+      f.setAttribute('id', id); f.setAttribute('color-interpolation-filters', 'sRGB');
+      m.setAttribute('type', 'matrix'); m.setAttribute('values', c[0] + ' 0 0 0 0  0 ' + c[1] + ' 0 0 0  0 0 ' + c[2] + ' 0 0  0 0 0 1 0');
+      f.appendChild(m); defs.appendChild(f);
+    }
+    im.setAttribute('filter', 'url(#' + id + ')');
   });
 });
 

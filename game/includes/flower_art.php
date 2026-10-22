@@ -30,6 +30,62 @@ function flower_svg_inner(string $name): string
     return $cache[$name] = trim($s);
 }
 
+const FLOWER_PX_DIR = 'assets/img/flowers-pixel/';   // v2.0.31 pixel art; each piece falls back to the old SVG when its PNG is missing
+const FLOWER_TINT_GAIN = 1.25;   // see pixel_tint_filter(); mirrored in assets/arrange.js (D.px.gain)
+
+/** The two image tags (tinted petals, then the untinted centre) for a pixel head at 0,0 / 64x64, or '' if either PNG is missing. */
+function flower_pixel_head(string $shape, string $tint): string
+{
+    if (!in_array($shape, FLOWER_SHAPES, true)) return '';
+    $p = FLOWER_PX_DIR . $shape . '-petals.png';
+    $c = FLOWER_PX_DIR . $shape . '-centre.png';
+    if (!pixel_has($p) || !pixel_has($c) || pixel_hex($tint) === '') return '';
+    return pixel_image($p, 0, 0, 64, 64, $tint) . pixel_image($c, 0, 0, 64, 64);
+}
+
+/** [back, front] <image> tags (200x150 at y -30) for a pixel vessel, or null if either PNG is missing. */
+function flower_pixel_vessel(string $v): ?array
+{
+    $b = FLOWER_PX_DIR . $v . '-back.png';
+    $f = FLOWER_PX_DIR . $v . '-front.png';
+    if (!isset(VESSELS[$v]) || !pixel_has($b) || !pixel_has($f)) return null;
+    return [pixel_image($b, 0, -30, 200, 150), pixel_image($f, 0, -30, 200, 150)];
+}
+
+/** The <image> tag (64x96) for a pixel sprig, or '' if missing. */
+function flower_pixel_sprig(string $name): string
+{
+    $p = FLOWER_PX_DIR . $name . '.png';
+    return in_array($name, FLOWER_SPRIGS, true) && pixel_has($p) ? pixel_image($p, 0, 0, 64, 96) : '';
+}
+
+/** <defs> with one tint filter per tint-<hex> used in $markup (once per SVG), or ''. */
+function flower_tint_defs(string $markup): string
+{
+    if (!preg_match_all('/filter="url\(#tint-([0-9a-f]{6})\)"/', $markup, $m)) return '';
+    $f = '';
+    foreach (array_unique($m[1]) as $h) $f .= pixel_tint_filter($h, FLOWER_TINT_GAIN);
+    return '<defs>' . $f . '</defs>';
+}
+
+/** For assets/arrange.js (JS cannot stat files): hrefs of the pixel pieces that exist, plus the tint gain. */
+function flower_pixel_data(): array
+{
+    $d = ['gain' => FLOWER_TINT_GAIN, 'petals' => [], 'centre' => [], 'back' => [], 'front' => [], 'sprig' => []];
+    foreach (FLOWER_SHAPES as $sh) {
+        if (pixel_has(FLOWER_PX_DIR . $sh . '-petals.png') && pixel_has(FLOWER_PX_DIR . $sh . '-centre.png')) {
+            $d['petals'][$sh] = url(FLOWER_PX_DIR . $sh . '-petals.png');
+            $d['centre'][$sh] = url(FLOWER_PX_DIR . $sh . '-centre.png');
+        }
+    }
+    foreach (array_keys(VESSELS) as $v) {
+        if (flower_pixel_vessel($v) !== null) { $d['back'][$v] = url(FLOWER_PX_DIR . $v . '-back.png'); $d['front'][$v] = url(FLOWER_PX_DIR . $v . '-front.png'); }
+    }
+    foreach (FLOWER_SPRIGS as $sp) if (pixel_has(FLOWER_PX_DIR . $sp . '.png')) $d['sprig'][$sp] = url(FLOWER_PX_DIR . $sp . '.png');
+    foreach (['petals', 'centre', 'back', 'front', 'sprig'] as $k) if (!$d[$k]) $d[$k] = new stdClass;   // empty => JSON {} not []
+    return $d;
+}
+
 /** Both halves of a vessel file: [back, front]. */
 function flower_vessel_parts(string $v): array
 {
@@ -115,11 +171,13 @@ function flower_hsl(string $hex): array
 /** One flower head as a <g> placed on a canvas: centre at x,y, $scale 1 = 64 units. */
 function flower_head_g(string $shape, string $tint, float $x, float $y, float $scale, float $rotate = 0): string
 {
-    $inner = flower_svg_inner($shape);
+    $inner = flower_pixel_head($shape, $tint);
+    $px = $inner !== '';
+    if (!$px) $inner = flower_svg_inner($shape);
     if ($inner === '') return '';
     $tr = 'translate(' . round($x - 32 * $scale, 2) . ' ' . round($y - 32 * $scale, 2) . ') scale(' . round($scale, 3) . ')';
     if ($rotate) $tr = 'translate(' . round($x, 2) . ' ' . round($y, 2) . ') rotate(' . round($rotate, 1) . ') scale(' . round($scale, 3) . ') translate(-32 -32)';
-    return '<g transform="' . $tr . '" color="' . e($tint) . '">' . $inner . '</g>';
+    return '<g transform="' . $tr . '"' . ($px ? '' : ' color="' . e($tint) . '"') . '>' . $inner . '</g>';
 }
 
 /** The pixel size for sm / md / lg (same sizes as the rest of the picture helpers). */
@@ -138,13 +196,18 @@ function flower_icon_svg(array $look, string $size, string $alt, bool $dried = f
     $g = '<path d="M48 54 C48 70 46 82 50 95" fill="none" stroke="' . $stem . '" stroke-width="3.4" stroke-linecap="round"/>';
     if (!$dried) $g .= '<path d="M48.6 80 C56 76 62 78 66 72 C62 84 54 86 48.6 80 Z" fill="#4f9d5d"/>';
     $g .= flower_head_g($shape, $tint, 48, 30, .9);
-    return '<svg class="flsvg flsvg-' . e($size) . '" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="' . $px . '" height="' . $px . '" role="img" aria-label="' . e($alt) . '">' . $g . '</svg>';
+    return '<svg class="flsvg flsvg-' . e($size) . '" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="' . $px . '" height="' . $px . '" role="img" aria-label="' . e($alt) . '">' . flower_tint_defs($g) . $g . '</svg>';
 }
 
 /** A seed packet icon with the flower on its label. */
 function flower_packet_svg(array $look, string $size, string $alt): string
 {
     $px = flower_px($size);
+    if (pixel_has(FLOWER_PX_DIR . 'packet.png')) {   // pixel packet, then the head at half size on the label panel (x17..47, y26..51)
+        $g = pixel_image(FLOWER_PX_DIR . 'packet.png', 0, 0, 64, 64) . flower_head_g($look[0], $look[1], 32, 38.5, .5);
+        return '<svg class="flsvg flsvg-' . e($size) . '" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="' . $px . '" height="' . $px . '" role="img" aria-label="' . e($alt)
+            . '">' . flower_tint_defs($g) . $g . '</svg>';
+    }
     $body = str_replace('<!--HEAD-->', flower_svg_inner($look[0]), flower_svg_inner('packet'));
     return '<svg class="flsvg flsvg-' . e($size) . '" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="' . $px . '" height="' . $px . '" role="img" aria-label="' . e($alt)
         . '"><g color="' . e($look[1]) . '">' . $body . '</g></svg>';
@@ -157,7 +220,7 @@ function flower_packet_svg(array $look, string $size, string $alt): string
 function arrangement_inner(array $comp): string
 {
     $v = isset(VESSELS[$comp['v'] ?? '']) ? (string)$comp['v'] : 'vase';
-    [$back, $front] = flower_vessel_parts($v);
+    [$back, $front] = flower_pixel_vessel($v) ?? flower_vessel_parts($v);
     $my = CANVAS_MOUTH_Y;
     $stems = [];
     foreach ((array)($comp['s'] ?? []) as $s) {
@@ -175,7 +238,7 @@ function arrangement_inner(array $comp): string
     $mouthW = ['jar' => 12, 'vase' => 14, 'basket' => 26][$v];
     foreach ([[-1, 36, 1.0], [1, 36, .95], [0, 0, 1.12]] as $k => [$side, $ang, $sc]) {
         $name = $sprigs[($seed >> ($k * 3)) % count($sprigs)];
-        $out .= '<g transform="translate(' . (100 + $side * $mouthW * .6) . ' ' . ($my + 4) . ') rotate(' . ($side * $ang) . ') scale(' . $sc . ') translate(-32 -96)">' . flower_svg_inner($name) . '</g>';
+        $out .= '<g transform="translate(' . (100 + $side * $mouthW * .6) . ' ' . ($my + 4) . ') rotate(' . ($side * $ang) . ') scale(' . $sc . ') translate(-32 -96)">' . (flower_pixel_sprig($name) ?: flower_svg_inner($name)) . '</g>';
     }
     // stems first (all behind), then heads, so a low head never gets a stem drawn across it
     $heads = '';
@@ -195,7 +258,7 @@ function arrangement_inner(array $comp): string
     }
     $out .= $heads;
     $out .= '<g transform="translate(0 ' . ($my - 16) . ')">' . $front . '</g>';
-    return $out;
+    return flower_tint_defs($out) . $out;
 }
 
 /** The whole arrangement as an inline SVG. $size sm/md/lg for icons, or 'full' (fills its box, up to 340px). */

@@ -453,10 +453,10 @@ function countFor(pz){ var n=loadCounts()[pz.id]; return COUNTS.indexOf(n)>=0 ? 
 function buildLibrary(){
   var i;
   for(i=0;i<PUZZLES.length;i++) (function(pz){
-    var li=document.createElement('li'); li.className='card';
-    var th=document.createElement('div'); th.className='thumb';
+    var li=document.createElement('li'); li.className='pzcard';
+    var th=document.createElement('div'); th.className='pzthumb';
     var im=document.createElement('img'); im.src=pz.gif; im.alt=pz.title+' (animated preview)'; th.appendChild(im);
-    var body=document.createElement('div'); body.className='cbody';
+    var body=document.createElement('div'); body.className='pzbody';
     var h=document.createElement('h2'); h.textContent=pz.title;
     var sel=document.createElement('select'); sel.setAttribute('aria-label','Pieces for '+pz.title);
     for(var k=0;k<COUNTS.length;k++){
@@ -464,7 +464,7 @@ function buildLibrary(){
     }
     sel.value=String(countFor(pz)); cardSels.push([pz,sel]);
     sel.addEventListener('change',function(){ saveCount(pz.id,parseInt(sel.value,10)); });
-    var btn=document.createElement('button'); btn.type='button'; btn.className='btn primary'; btn.textContent='Play';
+    var btn=document.createElement('button'); btn.type='button'; btn.className='btn'; btn.textContent='Play';
     btn.setAttribute('aria-label','Play '+pz.title);
     btn.addEventListener('click',function(){ var n=parseInt(sel.value,10); saveCount(pz.id,n); setHash(pz.id,n,false); route(); });
     body.appendChild(h); body.appendChild(sel); body.appendChild(btn);
@@ -507,11 +507,11 @@ function resetStage(){
 function showLibrary(){
   if(inGame){ resetStage(); inGame=false; }
   for(var i=0;i<cardSels.length;i++) cardSels[i][1].value=String(countFor(cardSels[i][0]));
-  gameEl.hidden=true; lib.hidden=false; lib.scrollTop=libScroll;
+  gameEl.hidden=true; lib.hidden=false; document.body.classList.remove('pz-play'); window.scrollTo(0,libScroll);
 }
 function enterGame(pz,n){
   resetStage(); inGame=true;
-  libScroll=lib.scrollTop; lib.hidden=true; gameEl.hidden=false;
+  libScroll=window.pageYOffset||0; lib.hidden=true; gameEl.hidden=false; document.body.classList.add('pz-play'); window.scrollTo(0,0);
   for(var i=0;i<countSel.options.length;i++) countSel.options[i].textContent=countSel.options[i].value+(window.innerWidth<360?' pcs':' pieces');
   countSel.value=String(n); curId=pz.id;
   SUB_DEFAULT=NARROW ? pz.title+' · join neighbours' : pz.title+'. '+SUB_BASE; sub.textContent=SUB_DEFAULT;
