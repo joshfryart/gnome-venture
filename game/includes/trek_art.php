@@ -6,6 +6,9 @@ declare(strict_types=1);
 // The tile buttons sit on top of it as a transparent grid (see trek_map_html in trek.php).
 
 const TK_C = 42;                          // one tile = 42 SVG units
+// v2.0.32: the ground is drawn from the hand-made pixel tiles in assets/img/trek/ (set TK_PIXEL_TILES to false, before this file loads, for the old code-drawn map)
+if (!defined('TK_PIXEL_TILES')) define('TK_PIXEL_TILES', true);
+if (!defined('TK_PIXEL_ME')) define('TK_PIXEL_ME', true);   // the pixel player marker (false: the cream disc with the player's own gnome, as before)
 // v1.9.1: which zones are underground (style u) and which have pools in their mud (flag pool) is data: the zone rows of trek_chapters*.txt
 const TK_P = [
     'soil900' => '#3d2a1c', 'soil700' => '#7a4a1f', 'soil500' => '#9a6b3f', 'soil300' => '#c9a96e',
@@ -14,6 +17,24 @@ const TK_P = [
     'water700' => '#25637d', 'water500' => '#3f8fb0', 'water300' => '#a9d6ea', 'dusk700' => '#4e3a8a', 'dusk500' => '#7a5cc0',
     'stone700' => '#5b6470', 'stone500' => '#8b8f96', 'ink' => '#2b2b2b', 'cream' => '#f4f0e0',
 ];
+
+/** v2.0.32: URL of one trek pixel PNG (url() adds the ?v=APP_VERSION cache-buster for assets/img). */
+function tk_png(string $name): string
+{
+    $p = 'assets/img/trek/' . $name . '.png';
+    return function_exists('url') ? url($p) : $p . '?v=' . (defined('APP_VERSION') ? APP_VERSION : '0');
+}
+
+/** Quarter [qx,qy] of an auto-join sheet for one quadrant ($sx,$sy = -1/+1 = left/right, top/bottom) from the masses: $nv vertical neighbour, $nh horizontal neighbour, $dg diagonal. */
+function tk_quarter(int $sx, int $sy, bool $nv, bool $nh, bool $dg): array
+{
+    $cx = $sx < 0 ? 0 : 3;   // outer column on this side
+    $ix = $sx < 0 ? 1 : 2;   // inner column
+    if ($nv && $nh) return $dg ? [$ix, $sy < 0 ? 3 : 4] : [$sx < 0 ? 2 : 3, $sy < 0 ? 0 : 1];
+    if ($nh) return [$ix, $sy < 0 ? 2 : 5];                  // vertical neighbour empty: top / bottom edge
+    if ($nv) return [$cx, $sy < 0 ? 3 : 4];                  // horizontal neighbour empty: left / right edge
+    return [$cx, $sy < 0 ? 2 : 5];                           // outer corner
+}
 
 /** Deterministic little number from a tile (so the details do not jump when the window moves). */
 function tk_h(int $x, int $y, int $k = 0): int
@@ -110,6 +131,66 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     $isPool = fn(int $x, int $y) => $kind($x, $y) === 'P';
     $isHigh = fn(int $x, int $y) => $kind($x, $y) === 'H';
 
+    // --- v2.0.32: pixel tiles. Each PNG is defined once in <defs> (ids end in $sfx, because the map can be on the page twice) and placed with <use>.
+    $pix = TK_PIXEL_TILES;
+    $dsz = ['wall-o-auto' => [84, 126], 'wall-u-auto' => [84, 126], 'water-auto' => [84, 126], 'rail-n' => [42, 4], 'rail-s' => [42, 4], 'rail-e' => [4, 42], 'rail-w' => [4, 42],
+        'wallcap-n' => [42, 5], 'wallcap-s' => [42, 5], 'wallcap-e' => [5, 42], 'wallcap-w' => [5, 42], 'token-gold' => [34, 34], 'token-ember' => [34, 34],
+        'me' => [38, 40], 'foot-h' => [12, 12], 'foot-v' => [12, 12], 'flag' => [20, 20]];
+    $defs = [];   // id => <image>/<symbol> markup
+    $img = function (string $n) use (&$defs, $dsz, $sfx): string {   // the id of the PNG's <image>
+        $id = 'tkp-' . $n . $sfx;
+        if (!isset($defs[$id])) { [$w, $h2] = $dsz[$n] ?? [42, 42]; $defs[$id] = '<image id="' . $id . '" href="' . htmlspecialchars(tk_png('trek-' . $n), ENT_QUOTES) . '" width="' . $w . '" height="' . $h2 . '"/>'; }
+        return $id;
+    };
+    $put = fn(string $n, float $X, float $Y): string => '<use href="#' . $img($n) . '" x="' . tk_n($X) . '" y="' . tk_n($Y) . '"/>';
+    $qid = function (string $sheet, int $qx, int $qy) use (&$defs, $sfx, $img): string {   // a 21x21 quarter of an auto-join sheet, as a clipped <symbol>
+        $id = 'tkq-' . $sheet . '-' . $qx . $qy . $sfx;
+        if (!isset($defs[$id])) $defs[$id] = '<symbol id="' . $id . '" viewBox="' . (21 * $qx) . ' ' . (21 * $qy) . ' 21 21" width="21" height="21"><use href="#' . $img($sheet . '-auto') . '"/></symbol>';
+        return $id;
+    };
+    $autoTile = function (string $sheet, callable $mass, int $x, int $y, float $X, float $Y) use ($qid): string {
+        $o2 = '';
+        foreach ([[-1, -1], [1, -1], [-1, 1], [1, 1]] as [$sx, $sy]) {
+            [$qx, $qy] = tk_quarter($sx, $sy, $mass($x, $y + $sy), $mass($x + $sx, $y), $mass($x + $sx, $y + $sy));
+            $o2 .= '<use href="#' . $qid($sheet, $qx, $qy) . '" x="' . tk_n($X + ($sx < 0 ? 0 : 21)) . '" y="' . tk_n($Y + ($sy < 0 ? 0 : 21)) . '" width="21" height="21"/>';
+        }
+        return $o2;
+    };
+    $T = '';   // the pixel ground, in paint order
+    $pxTile = function (string $k, int $x, int $y, float $X, float $Y, string $s, int $h) use ($put, $autoTile, $kind, $isW, $isWall, $isPool, $isHigh): ?string {
+        $C = TK_C;
+        $n3 = fn(int $m) => (string)((($h >> 4) ^ $h) % $m + 1);   // the variants are picked by tk_h, so they vary but never jump when the window moves
+        switch ($k) {
+            case 'W':
+                $deep = true;
+                foreach ([[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]] as [$dx, $dy]) if (!$isW($x + $dx, $y + $dy, $s)) { $deep = false; break; }
+                $o2 = $deep ? $put('wall-' . $s . '-deep', $X, $Y) : $autoTile('wall-' . $s, $isWall, $x, $y, $X, $Y);
+                foreach ([[0, -1, 'n', 0, 0], [0, 1, 's', 0, $C - 5], [-1, 0, 'w', 0, 0], [1, 0, 'e', $C - 5, 0]] as [$sx, $sy, $c, $ox, $oy]) {   // the seam between a root wall and a hedge wall
+                    if ($kind($x + $sx, $y + $sy) === 'W' && !$isW($x + $sx, $y + $sy, $s)) $o2 .= $put('wallcap-' . $c, $X + $ox, $Y + $oy);
+                }
+                return $o2;
+            case 'C': return $put('chasm-' . ($h % 2 + 1), $X, $Y);
+            case '=':
+                $vert = $kind($x - 1, $y) === 'C' || $kind($x + 1, $y) === 'C';   // chasm at the sides: the planks run across (north-south travel)
+                $o2 = $put('chasm-' . ($h % 2 + 1), $X, $Y) . $put($vert ? 'bridge-v' : 'bridge-h', $X, $Y);
+                foreach ([[0, -1, 'n', 0, 0], [0, 1, 's', 0, $C - 4], [-1, 0, 'w', 0, 0], [1, 0, 'e', $C - 4, 0]] as [$dx, $dy, $c, $ox, $oy]) {
+                    if ($kind($x + $dx, $y + $dy) === 'C') $o2 .= $put('rail-' . $c, $X + $ox, $Y + $oy);
+                }
+                return $o2;
+            case 'P': return $autoTile('water', $isPool, $x, $y, $X, $Y) . $put('ripple-pool', $X, $Y);
+            case 'H': return $autoTile('water', $isHigh, $x, $y, $X, $Y) . $put('ripple-high', $X, $Y);
+            case 'D': return $put('drained', $X, $Y);
+            case 'K': return $put('clay-wet', $X, $Y);
+            case 'L': return $put('clay-loose', $X, $Y);
+            case 'G': return $put($s === 'o' ? 'crystal-o' : 'crystal-u', $X, $Y);
+            case 'F': return $put($s === 'o' ? 'floor-o-' . $n3(3) : 'floor-u-' . $n3(3), $X, $Y);
+            case 'M': return $put($s === 'o' ? 'mud-o-' . $n3(2) : 'mud-u', $X, $Y);
+            case 'R': return $put($s === 'o' ? 'roots-o-' . $n3(2) : 'roots-u', $X, $Y);
+            case 'B': return $put($s === 'o' ? 'blight-o-' . $n3(2) : 'blight-u', $X, $Y);
+        }
+        return null;   // unknown kind: the old code drawing takes it
+    };
+
     $L = [];   // layer => path data
     $add = function (string $layer, string $d) use (&$L): void { $L[$layer] = ($L[$layer] ?? '') . $d; };
     $x1 = $x0 + $cols;
@@ -123,6 +204,7 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
             $s = $style($x, $y);
             $sq = tk_rr($X, $Y, $C, $C, 0);
             $h = tk_h($x, $y);
+            if ($pix && ($px_o = $pxTile($k, $x, $y, $X, $Y, $s, $h)) !== null) { $T .= $px_o; continue; }
             switch ($k) {
                 case 'W':
                     // v1.9.0: bands join their wall neighbours across styles too (a mossy cap covers the seam); the deep middle of an open wall is the darker stone with speckles
@@ -237,8 +319,8 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     $ly = ($py - $y0) * $C + $C / 2;
     $W = $cols * $C;
     $H = $rows * $C;
-    $o = '<svg class="tkbg' . ($sfx !== '' ? ' tkx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
-    $o .= '<defs><radialGradient id="tklan' . $sfx . '" cx="' . tk_n($lx) . '" cy="' . tk_n($ly) . '" r="' . ($dark ? 120 : ($under ? 215 : 300)) . '" gradientUnits="userSpaceOnUse">'
+    $o = '<svg class="tkbg' . ($sfx !== '' ? ' tkx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"' . ($pix ? ' style="image-rendering:pixelated"' : '') . '>';
+    $o .= '<defs>' . ($pix ? '@@DEFS@@' : '') . '<radialGradient id="tklan' . $sfx . '" cx="' . tk_n($lx) . '" cy="' . tk_n($ly) . '" r="' . ($dark ? 120 : ($under ? 215 : 300)) . '" gradientUnits="userSpaceOnUse">'
         . ($under
             ? '<stop offset="0" stop-color="' . $P['gold300'] . '" stop-opacity=".34"/><stop offset=".3" stop-color="' . $P['ember300'] . '" stop-opacity=".12"/><stop offset=".62" stop-color="' . $P['ember300'] . '" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="' . ($dark ? '.82' : '.3') . '"/>'
             : '<stop offset="0" stop-color="' . $P['gold300'] . '" stop-opacity=".16"/><stop offset=".55" stop-color="' . $P['ember300'] . '" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".16"/>')
@@ -251,6 +333,7 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
         'pool7' => $P['water700'], 'pool5' => $P['water500'],
         'wo_out' => $P['stone700'], 'wo_in' => $P['stone500'], 'wo_deep' => $P['stone700'], 'wu_out' => $P['soil500'], 'wu_in' => $P['soil300'],
     ];
+    if ($pix) $o .= $T;
     foreach ($fills as $layer => $col) if (isset($L[$layer])) $o .= '<path fill="' . $col . '" d="' . $L[$layer] . '"/>';
     if (isset($L['chasm'])) $o .= '<path fill="#000" opacity=".45" d="' . $L['chasm'] . '"/>';
     $dots = ['wo_lit' => [$P['stone500'], '.8'], 'wo_spk' => [$P['ink'], '.5'], 'wo_moss' => [$P['moss800'], '.9'], 'wo_cap' => [$P['moss800'], '.95'], 'wo_capdot' => [$P['moss600'], ''], 'thorn' => [$P['ember400'], ''], 'bdot' => [$P['dusk500'], ''], 'mdot' => [$P['soil900'], '.5'], 'peb' => [$P['soil700'], '.55'],
@@ -275,25 +358,37 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
             $cy = ($fy - $y0) * $C + $C / 2;
             $hz = abs($dx) > abs($dy);
             $op = tk_n(max(.2, .8 - ($n - 2 - $i) * .12));
+            if ($pix) {   // v2.0.32: the pixel prints (12x12, two prints each)
+                $o .= '<g class="tkft" data-i="' . $i . '" opacity="' . $op . '">' . $put($hz ? 'foot-h' : 'foot-v', $cx - 6, $cy - 6) . '</g>';
+                continue;
+            }
             $f = fn(float $ox, float $oy) => '<ellipse cx="' . tk_n($cx + $ox) . '" cy="' . tk_n($cy + $oy) . '" rx="' . ($hz ? '4.5' : '3') . '" ry="' . ($hz ? '3' : '4.5') . '"/>';
             $o .= '<g class="tkft" data-i="' . $i . '" fill="' . $P['gold300'] . '" opacity="' . $op . '">' . $f($hz ? -4 : -5, $hz ? -5 : -4) . $f($hz ? 4 : 5, $hz ? 5 : 4) . '</g>';
         }
         $o .= '</g>';
         [$dx2, $dy2] = $walk['d'];
         if ($dx2 >= $x0 && $dx2 < $x1 && $dy2 >= $y0 && $dy2 < $y1) {
-            $o .= '<text class="tkflag" x="' . (($dx2 - $x0) * $C + $C / 2) . '" y="' . (($dy2 - $y0) * $C + $C / 2 + 7) . '" font-size="19" text-anchor="middle">🚩</text>';
+            if ($pix) $o .= '<g class="tkflag">' . $put('flag', ($dx2 - $x0) * $C + $C / 2 - 10, ($dy2 - $y0) * $C + $C / 2 - 10) . '</g>';
+            else $o .= '<text class="tkflag" x="' . (($dx2 - $x0) * $C + $C / 2) . '" y="' . (($dy2 - $y0) * $C + $C / 2 + 7) . '" font-size="19" text-anchor="middle">🚩</text>';
         }
     }
     // --- spot tokens
     foreach ($tokens as [$tx, $ty, $icon, $ring, $done]) {
         $cx = ($tx - $x0) * $C + $C / 2;
         $cy = ($ty - $y0) * $C + $C / 2;
+        if ($pix) {   // v2.0.32: the pixel coin; its centre 16x16 is flat, the icon sits on top
+            $o .= '<g' . ($done ? ' opacity=".55"' : '') . '>' . $put($ring === 'ember' ? 'token-ember' : 'token-gold', $cx - 17, $cy - 17)
+                . '<text x="' . $cx . '" y="' . tk_n($cy + 5.8) . '" font-size="16" text-anchor="middle">' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '</text></g>';
+            continue;
+        }
         $o .= '<g' . ($done ? ' opacity=".55"' : '') . '><circle cx="' . $cx . '" cy="' . $cy . '" r="15" fill="' . $P['cream'] . '" stroke="' . ($ring === 'ember' ? $P['ember500'] : $P['gold700']) . '" stroke-width="2.5"/>'
             . '<text x="' . $cx . '" y="' . tk_n($cy + 5.8) . '" font-size="16" text-anchor="middle">' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '</text></g>';
     }
     // --- the player
-    $o .= '<g class="tkme" transform="translate(' . tk_n($lx) . ' ' . tk_n($ly) . ')"><ellipse cy="14" rx="12" ry="4" fill="#000" opacity=".3"/><circle r="17" fill="' . $P['cream'] . '" stroke="' . $P['gold500'] . '" stroke-width="3"/>' . ($me !== '' ? $me : '<text y="7" font-size="20" text-anchor="middle">🧙</text>') . '</g>';   // v1.9.0: the player's own gnome
-    return $o . '</svg>';
+    if ($pix && TK_PIXEL_ME) $o .= '<g class="tkme" transform="translate(' . tk_n($lx) . ' ' . tk_n($ly) . ')">' . $put('me', -19, -22) . '</g>';
+    else $o .= '<g class="tkme" transform="translate(' . tk_n($lx) . ' ' . tk_n($ly) . ')"><ellipse cy="14" rx="12" ry="4" fill="#000" opacity=".3"/><circle r="17" fill="' . $P['cream'] . '" stroke="' . $P['gold500'] . '" stroke-width="3"/>' . ($me !== '' ? $me : '<text y="7" font-size="20" text-anchor="middle">🧙</text>') . '</g>';   // v1.9.0: the player's own gnome
+    $o .= '</svg>';
+    return $pix ? str_replace('@@DEFS@@', implode('', $defs), $o) : $o;   // the <defs> are known only after every tile is placed
 }
 
 /** v1.8.10: the path walked by the last tap (one-shot, from the session), or null. Fresh for 30 s, this run only. Always cleared. */
