@@ -8,7 +8,7 @@ declare(strict_types=1);
 const TK_C = 42;                          // one tile = 42 SVG units
 // v2.0.32: the ground is drawn from the hand-made pixel tiles in assets/img/trek/ (set TK_PIXEL_TILES to false, before this file loads, for the old code-drawn map)
 if (!defined('TK_PIXEL_TILES')) define('TK_PIXEL_TILES', true);
-if (!defined('TK_PIXEL_ME')) define('TK_PIXEL_ME', true);   // the pixel player marker (false: the cream disc with the player's own gnome, as before)
+if (!defined('TK_PIXEL_ME')) define('TK_PIXEL_ME', false);   // the pixel player marker (false: the cream disc with the player's own gnome, as before)
 // v1.9.1: which zones are underground (style u) and which have pools in their mud (flag pool) is data: the zone rows of trek_chapters*.txt
 const TK_P = [
     'soil900' => '#3d2a1c', 'soil700' => '#7a4a1f', 'soil500' => '#9a6b3f', 'soil300' => '#c9a96e',
