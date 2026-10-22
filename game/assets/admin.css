@@ -17,7 +17,7 @@ body.admin main h2 { font-size: 17px; margin: 18px 0 8px; }
 .afind { margin: 0 0 10px; position: sticky; top: calc(var(--hdr, 52px) + 4px); z-index: 5; }
 .afind input { display: block; width: 100%; max-width: none; margin: 0; min-height: 46px; box-shadow: var(--shadow); }
 .acols { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start; }
-.asec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.asec { background: var(--surface); border: 0; border-radius: var(--radius); box-shadow: var(--frame); margin: 2px 4px 14px 2px; }   /* v2.0.33: pixel frame */
 .asec > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 12px; cursor: pointer; list-style: none; font-size: 16px; }
 .asec > summary::-webkit-details-marker { display: none; }
 .asec > summary::after { content: '▾'; color: var(--muted); margin-left: 4px; transition: transform .15s; }
@@ -41,7 +41,7 @@ body.admin .stats b { font-size: 20px; }
 
 /* tables: scroll inside the table, never the page */
 body.admin main table.grid, body.admin main table.cover { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-body.admin main table.grid { border: 1px solid var(--line); border-radius: var(--radius-sm); }
+body.admin main table.grid { border: 0; border-radius: 0; }
 body.admin main table.grid th, body.admin main table.grid td { white-space: normal; min-width: 72px; max-width: 260px; overflow-wrap: break-word; word-break: normal; }
 body.admin main table.grid td { font-size: 13px; }
 body.admin main { overflow-x: clip; }
@@ -52,13 +52,13 @@ body.admin pre, body.admin textarea.code { max-width: 100%; overflow-x: auto; }
 body.admin .scroll { max-width: 100%; }
 
 /* action bars and buttons */
-body.admin .toolbar { gap: 8px; padding: 8px; margin: 0 0 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+body.admin .toolbar { gap: 8px; padding: 8px; margin: 2px 4px 14px 2px; background: var(--surface); border: 0; border-radius: 0; box-shadow: var(--frame-lite); }
 body.admin .toolbar form.inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1 1 260px; min-width: 0; max-width: 100%; }
 body.admin .toolbar input:not([type=hidden]), body.admin .toolbar select { flex: 1 1 140px; min-width: 0; width: auto; max-width: 100%; }
 body.admin .btn, body.admin button.btn { min-height: 40px; }
 body.admin .btn.small { min-height: 40px; }
 body.admin .pager { display: flex; flex-wrap: wrap; gap: 6px; }
-body.admin .pager a, body.admin .pager strong { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--surface); }
+body.admin .pager a, body.admin .pager strong { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; border: 2px solid var(--line-2); border-radius: 0; background: var(--surface); }
 body.admin .pager strong { background: var(--brand-soft); border-color: var(--brand-line); }
 
 /* forms: full width on a phone */
@@ -76,12 +76,12 @@ body.admin .side .navtile .ntl { white-space: normal; overflow: visible; text-ov
 /* v1.6.4.2: desktop side menu = a plain one-column list (the 4-up tile grid is for the phone sheet only) */
 @media (min-width: 721px) {
   body.admin .side .navtiles { display: flex; flex-direction: column; gap: 1px; }
-  body.admin .side .navtile { flex-direction: row; justify-content: flex-start; align-items: center; gap: 8px; width: 100%; min-height: 32px; padding: 4px 8px; border: 0; background: none; border-radius: 8px; }
+  body.admin .side .navtile { flex-direction: row; justify-content: flex-start; align-items: center; gap: 8px; width: 100%; min-height: 32px; padding: 4px 8px; border: 0; background: none; border-radius: 0; }
   body.admin .side .navtile:hover { background: var(--surface-2); }
   body.admin .side .navtile.on { background: var(--brand-soft); }
   body.admin .side .navtile .nti { font-size: 15px; width: 1.4em; text-align: center; }
   body.admin .side .navtile .ntl { text-align: left; font-size: 13.5px; white-space: normal; }
-  body.admin .side .anavtop { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line, rgba(127,127,127,.25)); }
+  body.admin .side .anavtop { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   body.admin .side .navgroupt > summary h3 { font-size: 12px; margin: 6px 0 2px; }
   body.admin .tablewrap, body.admin .awrap, body.admin table { width: 100%; }
 }

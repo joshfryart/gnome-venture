@@ -1,8 +1,8 @@
-/* Puzzles (v2.0.0.1, folded into the site shell). Colours, fonts, buttons and inputs come from style.css (--bg --surface --ink --muted --line --brand ...).
+/* Puzzles (v2.0.0.1, folded into the site shell). v2.0.33: Stitched Toy chrome (square, hard pixel shadows, stitched win card). Colours, fonts, buttons and inputs come from style.css (--bg --surface --ink --muted --line --brand ...).
    Only the pieces' own art tokens live here (like the site's game-art tokens). Library = normal page content; playing = body.pz-play, a table that fills the view under the site header. */
 #pz{--slot:color-mix(in srgb, var(--ink) 22%, transparent); --well:color-mix(in srgb, var(--ink) 9%, transparent); --tray:color-mix(in srgb, var(--ink) 6%, transparent);
-  --rim:rgba(255,255,255,.95); --rimsh:rgba(20,40,38,.34); --edge:rgba(25,12,24,.5)}
-:root[data-theme="dark"] #pz{--rim:rgba(255,255,255,.62); --rimsh:rgba(0,0,0,.45); --edge:rgba(0,0,0,.55); --well:color-mix(in srgb, var(--ink) 12%, transparent); --slot:color-mix(in srgb, var(--ink) 18%, transparent)}
+  --rim:rgba(242,228,192,.95); --rimsh:rgba(42,26,16,.34); --edge:rgba(42,26,16,.5)}   /* v2.0.33: cream / umber, never pure white or black */
+:root[data-theme="dark"] #pz{--rim:rgba(242,228,192,.62); --rimsh:rgba(42,26,16,.6); --edge:rgba(42,26,16,.7); --well:color-mix(in srgb, var(--ink) 12%, transparent); --slot:color-mix(in srgb, var(--ink) 18%, transparent)}
 
 /* ---- library ---- */
 #lib[hidden],#game[hidden],#lk[hidden],#win[hidden]{display:none}
@@ -22,9 +22,9 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 #game .bar{
   flex:none; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; position:relative;
   padding:8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px));
-  background:var(--surface); border-bottom:1px solid var(--line);
+  background:var(--surface); border-bottom:0; box-shadow:0 2px 0 0 var(--ol);   /* v2.0.33: pixel edge */
 }
-#prog{position:absolute; left:0; bottom:-1px; height:3px; width:0; background:var(--brand); border-radius:0 3px 3px 0; transition:width .35s ease}
+#prog{position:absolute; left:0; bottom:-2px; height:4px; width:0; background:var(--thread-bright); border-radius:0; transition:width .35s ease}
 #game .brand{min-width:0}
 #game .gt{margin:0; font-size:18px; font-weight:600; line-height:1.2; color:var(--ink)}
 #game .sub{margin:2px 0 0; font-size:12.5px; color:var(--muted); line-height:1.35}
@@ -38,12 +38,12 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 #zl{min-width:38px; text-align:center; font:700 13px var(--font); font-variant-numeric:tabular-nums; color:var(--muted)}
 #game .hud{min-width:92px; text-align:center; font:700 14px var(--font); font-variant-numeric:tabular-nums; color:var(--ink); padding:0 4px}
 #stage{flex:1; min-height:0; overflow:auto; position:relative; overscroll-behavior:contain; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; background:var(--surface-2)}
-#field{position:relative; user-select:none; -webkit-user-select:none; background-image:radial-gradient(var(--line-2) 1.6px, transparent 1.8px); background-size:24px 24px}
-#board{position:absolute; z-index:0; background:var(--well); outline:2px dashed var(--line-2); outline-offset:4px; border-radius:3px; box-shadow:inset 0 2px 8px rgba(0,0,0,.18)}
+#field{position:relative; user-select:none; -webkit-user-select:none; background-color:var(--surface-2); background-image:linear-gradient(var(--surface-2) 22px, transparent 22px), linear-gradient(90deg, var(--line-2) 2px, transparent 2px); background-size:24px 24px}   /* v2.0.33: square 2 px dots, hard edges */
+#board{position:absolute; z-index:0; background:var(--well); outline:2px dashed var(--line-2); outline-offset:4px; border-radius:0; box-shadow:inset 2px 2px 0 0 rgba(42,26,16,.18)}
 #slots{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
 #slots path{fill:none; stroke:var(--slot); stroke-width:1.2}
 #field.noguide #slots{opacity:.9}
-#tray{position:absolute; z-index:0; border-radius:16px; background:var(--tray); pointer-events:none}
+#tray{position:absolute; z-index:0; border-radius:0; background:var(--tray); pointer-events:none}
 #tray[hidden]{display:none}
 #ghost{position:absolute; inset:0; width:100%; height:100%; opacity:.2; pointer-events:none}
 #field.noguide #ghost{display:none}
@@ -59,9 +59,9 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 .rim .rm{stroke:var(--rim); stroke-width:2.6}
 .piece.locked .rim{display:none}
 .cut .lo{fill:none; stroke:var(--edge); stroke-width:1.6}
-.cut .hi{fill:none; stroke:rgba(255,255,255,.4); stroke-width:1; transform:translate(1px,1px)}
+.cut .hi{fill:none; stroke:rgba(242,228,192,.4); stroke-width:1; transform:translate(1px,1px)}
 #lift{position:absolute; left:0; top:0; width:0; height:0; z-index:99999; will-change:transform}
-#lift:not(.multi){filter:drop-shadow(0 10px 12px rgba(0,0,0,.42))}
+#lift:not(.multi){filter:drop-shadow(4px 8px 0 rgba(42,26,16,.42))}   /* v2.0.33: hard pixel drop, no blur */
 .piece.joined .cut svg{opacity:.5}
 .piece.drag .cut{cursor:grabbing}
 .piece.locked .cut{pointer-events:none}
@@ -74,18 +74,20 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 .won #board{outline-color:transparent; box-shadow:none}
 .won #slots,.won #tray{display:none}
 
-#win,#lk{position:fixed; z-index:70; background:var(--surface); color:var(--ink); border:1px solid var(--line-2); box-shadow:var(--shadow-2)}
+#win,#lk{position:fixed; z-index:70; background:var(--surface); color:var(--ink); border:0; box-shadow:var(--shadow-2)}
 #win{
   left:50%; transform:translateX(-50%); bottom:calc(16px + env(safe-area-inset-bottom, 0px));
   display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 16px;
-  width:max-content; max-width:calc(100% - 32px); padding:14px 18px; border-radius:16px;
+  width:max-content; max-width:calc(100% - 32px); padding:18px 22px; border-radius:0;
+  background-image:var(--st-h), var(--st-h), var(--st-v), var(--st-v); background-repeat:no-repeat;   /* v2.0.33: stitched like a prize card */
+  background-position:6px 6px, 6px calc(100% - 6px), 6px 6px, calc(100% - 6px) 6px; background-size:calc(100% - 12px) 2px, calc(100% - 12px) 2px, 2px calc(100% - 12px), 2px calc(100% - 12px);
   animation:pzrise .45s cubic-bezier(.2,1.2,.4,1);
 }
 @keyframes pzrise{from{opacity:0; transform:translate(-50%,24px)}}
 #win strong{font-size:22px; font-weight:700; color:var(--brand-ink)}
 #win span{font-variant-numeric:tabular-nums}
 #win .row{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
-#lk{left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); max-width:520px; margin:0 auto; display:flex; gap:8px; padding:10px; border-radius:14px}
+#lk{left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); max-width:520px; margin:0 auto; display:flex; gap:8px; padding:10px; border-radius:0}
 #lk .btn{flex:none; min-width:76px}
 #lk input{flex:1; min-width:0}
 @media (max-width:720px){ #win,#lk{bottom:calc(var(--bar) + var(--sab) + 12px)} }

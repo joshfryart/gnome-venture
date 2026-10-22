@@ -155,7 +155,7 @@ function seed_chips(array $list): string
 function swatch(string $color, int $r = 11): string
 {
     return '<svg width="' . ($r * 2) . '" height="' . ($r * 2) . '" viewBox="0 0 ' . ($r * 2) . ' ' . ($r * 2) . '" aria-hidden="true">'
-        . '<circle cx="' . $r . '" cy="' . $r . '" r="' . ($r - 1) . '" fill="' . e($color) . '" stroke="#6b4a2b" stroke-width="1"/></svg>';
+        . '<circle cx="' . $r . '" cy="' . $r . '" r="' . ($r - 1) . '" fill="' . e($color) . '" stroke="#4a2c1a" stroke-width="1"/></svg>';
 }
 
 page_header('Welcome to the Hollow');

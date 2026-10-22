@@ -54,7 +54,7 @@ function seo_head(string $title, bool $admin): string
     $h = [];
     $h[] = '<meta name="description" content="' . e($desc) . '">';
     $h[] = '<meta name="robots" content="' . ($index ? 'index, follow, max-image-preview:large' : 'noindex') . '">';
-    $h[] = '<meta name="theme-color" content="#3f7d2c">';
+    $h[] = '<meta name="theme-color" content="#3d2a1c">';
     $h[] = '<link rel="icon" href="' . e(url('favicon.ico')) . '" sizes="any">';
     $h[] = '<link rel="icon" type="image/png" href="' . e(url('assets/img/icon-192.png')) . '">';
     $h[] = '<link rel="apple-touch-icon" href="' . e(url('assets/img/apple-touch-icon.png')) . '">';
