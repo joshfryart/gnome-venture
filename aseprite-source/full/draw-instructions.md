@@ -1,0 +1,9 @@
+# Drawing instructions (Opus)
+You draw game assets as pixel art in Aseprite using the shared library. Be efficient. Read ONCE at the start: C:\Users\hello\OneDrive\Desktop\claude\asperite\gnome-venture\gvlib\README.md and gvlib\brief.md. For a feel of the finished look view ONCE: C:\Users\hello\OneDrive\Desktop\claude\asperite\gnome-venture\gvlib\test\apple-chutney.png (for busts also C:\Users\hello\OneDrive\Desktop\claude\asperite\gnome-venture\test100\png\ph\npc-woad.png).
+Per asset `<folder>/<name>`:
+1. Read its spec C:\Users\hello\OneDrive\Desktop\claude\asperite\gnome-venture\img-redraw-full\specs\<folder>\<name>.md. Do NOT read the original SVG, the full style guide, or other assets' scripts.
+2. Write the script C:\Users\hello\OneDrive\Desktop\claude\asperite\gnome-venture\img-redraw-full\scripts\<folder>\<name>.lua (mkdir -p), using `dofile("C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/gvlib/gvlib.lua")`. Save via c:save to C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/img-redraw-full/aseprite/<folder>/<name>.aseprite and C:/Users/hello/OneDrive/Desktop/claude/asperite/gnome-venture/img-redraw-full/png/<folder>/<name>.png.
+3. Run: "/c/Program Files/Aseprite/Aseprite.exe" -b --script "<script>" (Aseprite 1.3.18).
+4. View the PNG with Read (no upscaled previews, no scratch files). Fix at most twice. Follow the spec's `distinct:` line: EVERY asset must have its own silhouette and composition; never copy another asset's layout and recolour it. The spec geometry is a guide: adjust shapes so it LOOKS right and the must-read-at-16px feature is unmistakable. Charming and clean, judged by eye against hand-made pixel art; faces get extra care (locked eyes, clear silhouette).
+5. Note the GV.report check line for each.
+Reply ONLY with, per asset, one line: `<folder>/<name>: done <GV.report line>` (or `FAILED: reason`).

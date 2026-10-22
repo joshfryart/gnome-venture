@@ -1,0 +1,61 @@
+{
+"shard": 65,
+"groups": [
+[
+{
+"id": "ph/stage-cover-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/goat",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/jetty",
+"viewBox": "0 0 48 48"
+}
+],
+[
+{
+"id": "gather/calm-bucket-front",
+"viewBox": "0 0 100 90"
+},
+{
+"id": "ph/nav-feedback",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/jar",
+"viewBox": "0 -30 200 150"
+}
+],
+[
+{
+"id": "ph/garden-gate-corner",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-forest-roast",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-ea",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/banner-ea",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/land-forest",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "games/crop-tree",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

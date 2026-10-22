@@ -1,0 +1,67 @@
+{
+"shard": 129,
+"groups": [
+[
+{
+"id": "ph/mung-bean-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-tomato",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/myrtle-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+}
+],
+[
+{
+"id": "ico/ico-toolbox",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/napa-cabbage-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ico/ico-tools",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/naranjilla-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-tower",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/naupaka-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+}
+],
+[
+{
+"id": "ico/ico-tree",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/nectaplum-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+},
+{
+"id": "ico/ico-trophy",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

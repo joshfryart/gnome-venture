@@ -1,0 +1,73 @@
+{
+"shard": 136,
+"groups": [
+[
+{
+"id": "ph/rhododendron-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ph/rhubarb-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+},
+{
+"id": "ph/rice-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+}
+],
+[
+{
+"id": "ph/rock-rose-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ph/rooibos-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ph/rose-of-sharon-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ph/rosemary-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ph/rye-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ph/sacred-lotus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ph/saffron-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ph/sago-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ph/sakura-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+}
+]
+]
+}

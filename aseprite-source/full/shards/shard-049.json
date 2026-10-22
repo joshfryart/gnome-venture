@@ -1,0 +1,61 @@
+{
+"shard": 49,
+"groups": [
+[
+{
+"id": "ph/shed-skin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/shell-meal",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/silk-net",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/silver-birch",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sky-talon",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/slate-shard",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/slug-slime",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/smoked-trout",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/snail-slime",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/snow-moth-dust",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/snowy-plume",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sorghum",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 57,
+"groups": [
+[
+{
+"id": "ph/stone-path",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/box-hedge-cross",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/holly-hedge-cross",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lavender-border-cross",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tile-brick-path",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/compost_bin-1",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/fine-fly-rod",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/greenhouse-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hat-brewroot",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/kitchen-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/masterwork-harvest-cart",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/picket-fence-cross",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,77 @@
+{
+"shard": 4,
+"groups": [
+[
+{
+"id": "ph/creature-emerald-python",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-fern-cassowary",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-frost-hare",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-garden-snail",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-giant-anteater",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-giant-bumblebee",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-giant-centipede",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-gnat-cloud",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-grass-snake",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-gravel-centipede",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-great-hawk",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-grey-heron",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,67 @@
+{
+"shard": 127,
+"groups": [
+[
+{
+"id": "ph/mexican-sage-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-sun-rain",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mexican-sunflower-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ico/ico-sun",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/meyer-lemon-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-sunflower",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/milkweed-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-sword",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/millet-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ico/ico-taco",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mint-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-target",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

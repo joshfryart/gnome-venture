@@ -1,0 +1,70 @@
+{
+"shard": 137,
+"groups": [
+[
+{
+"id": "ph/salak-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ph/sampaguita-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ph/satsuki-azalea-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+}
+],
+[
+{
+"id": "ph/sausage-tree-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ph/sea-buckthorn-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ph/sea-daffodil-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+}
+],
+[
+{
+"id": "ph/sea-thrift-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ph/seed-drill",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/seed-pearl",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/seed-scoop",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/senegal-coral-tree-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ph/sesame-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+}
+]
+]
+}

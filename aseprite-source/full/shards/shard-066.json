@@ -1,0 +1,61 @@
+{
+"shard": 66,
+"groups": [
+[
+{
+"id": "ph/stone-wall-corner",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/box-hedge-end",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/holly-hedge-end",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lavender-border-end",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tile-grass",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/compost_bin-2",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/fine-foraging-knife",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/greenhouse-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hat-rootwarden",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/kitchen-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/masterwork-rain-wand",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/picket-fence-end",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

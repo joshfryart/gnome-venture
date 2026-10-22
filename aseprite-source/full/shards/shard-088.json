@@ -1,0 +1,63 @@
+{
+"shard": 88,
+"groups": [
+[
+{
+"id": "ph/atlas-daisy-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-bed",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-hand-fork",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-legume-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/lilypad",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/stamp-workshop",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "gather/rod-lure",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/avocado-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-bee",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-harvest-sack",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-legume-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/pigeon",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

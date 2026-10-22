@@ -1,0 +1,67 @@
+{
+"shard": 118,
+"groups": [
+[
+{
+"id": "ph/hibiscus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-peanut",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hollyhock-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+}
+],
+[
+{
+"id": "ico/ico-pencil",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hops-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-people",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/horseradish-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-person",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hyacinth-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+}
+],
+[
+{
+"id": "ico/ico-pick",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hydrangea-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-pie",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

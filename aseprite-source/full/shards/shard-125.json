@@ -1,0 +1,67 @@
+{
+"shard": 125,
+"groups": [
+[
+{
+"id": "ph/lungwort-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-speech",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lupine-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+}
+],
+[
+{
+"id": "ico/ico-spider",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lychee-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-sprout",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/macadamia-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-squirrel",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mamey-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+}
+],
+[
+{
+"id": "ico/ico-staff",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mandarin-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-stamp-cart",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,67 @@
+{
+"shard": 103,
+"groups": [
+[
+{
+"id": "ph/cherimoya-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-duck",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cherry-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+}
+],
+[
+{
+"id": "ico/ico-egg",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/chestnut-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-envelope",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/chickpea-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-exclaim",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/chili-pepper-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+}
+],
+[
+{
+"id": "ico/ico-eyes",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/choca-mocha-cosmos-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-face-sigh",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,67 @@
+{
+"shard": 121,
+"groups": [
+[
+{
+"id": "ph/kapok-blossom-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ico/ico-rainbow",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/kava-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+}
+],
+[
+{
+"id": "ico/ico-refresh",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/kidney-bean-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-ribbon",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/king-protea-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+},
+{
+"id": "ico/ico-roadworks",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/kiwi-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+}
+],
+[
+{
+"id": "ico/ico-roast",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/kohlrabi-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-rope",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

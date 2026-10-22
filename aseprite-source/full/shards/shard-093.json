@@ -1,0 +1,64 @@
+{
+"shard": 93,
+"groups": [
+[
+{
+"id": "ico/ico-box",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-masterwork-stirrup-hoe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-tree-3",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/bell-pepper-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-brain",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-masterwork-wheel-hoe",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-tuber-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bird-of-paradise-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-bread",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-miner-s-lantern",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-tuber-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bitter-melon-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+]
+]
+}

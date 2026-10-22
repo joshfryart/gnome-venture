@@ -1,0 +1,61 @@
+{
+"shard": 15,
+"groups": [
+[
+{
+"id": "ph/stage-cover-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/butterfly",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/ferry",
+"viewBox": "0 0 48 48"
+}
+],
+[
+{
+"id": "gather/axe-bg",
+"viewBox": "0 0 200 200"
+},
+{
+"id": "ph/nav-account",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/bell",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/garden-bench",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-berry-honey-cake",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-cb",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/banner-ca",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/land-coast",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "games/crop-fruit",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 32,
+"groups": [
+[
+{
+"id": "ph/earthworm",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/earwig-pincer",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/edelweiss",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/eel-skin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/egg-fried-rice",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/eggplant",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/egusi",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/elder-pelt",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/ensete",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/fairy-house",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/fava-bean",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feijoa",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

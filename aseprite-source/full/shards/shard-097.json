@@ -1,0 +1,65 @@
+{
+"shard": 97,
+"groups": [
+[
+{
+"id": "ph/broken-tide-pail-and-scoop",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bluebell-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-cat",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-tin-lantern",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blueberry-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-caterpillar",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-tin-watering-can",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bok-choy-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+},
+{
+"id": "ico/ico-chair",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-walking-stick",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bougainvillea-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-check",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

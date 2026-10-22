@@ -1,0 +1,62 @@
+{
+"shard": 79,
+"groups": [
+[
+{
+"id": "ph/allamanda-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-arrow-up",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-fine-mesh-net",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-fruit-4",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-ladybird-charm",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/stamp-camp",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "gather/calm-stalac",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/nav-passport",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/rose",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/garden-gate-tee",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-orchard-crumble",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-oc",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

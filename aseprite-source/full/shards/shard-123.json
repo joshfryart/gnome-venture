@@ -1,0 +1,67 @@
+{
+"shard": 123,
+"groups": [
+[
+{
+"id": "ph/lemon-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-scroll",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lemongrass-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+}
+],
+[
+{
+"id": "ico/ico-sea-creature",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lentil-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-shears",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lettuce-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-shop",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lignum-vitae-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+}
+],
+[
+{
+"id": "ico/ico-shrine",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lilac-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-signpost",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

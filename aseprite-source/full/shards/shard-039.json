@@ -1,0 +1,61 @@
+{
+"shard": 39,
+"groups": [
+[
+{
+"id": "ph/laterite-clay",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/leech-slime",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/leek",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lemming-fluff",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lemon",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lemongrass",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lettuce",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lime",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lingonberry",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/living-moss",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lizard-scale",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/logo",
+"viewBox": "0 0 240 60"
+}
+]
+]
+}

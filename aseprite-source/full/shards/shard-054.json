@@ -1,0 +1,61 @@
+{
+"shard": 54,
+"groups": [
+[
+{
+"id": "ph/walking-stick",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/walnut",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/warrigal-greens",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/wasabi",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wasp-stinger",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/watermelon",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/wayfarer-s-staff",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/weeping-willow",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wheat",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/wheelbarrow",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/white-pelt",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/willow-fishing-rod",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,62 @@
+{
+"shard": 64,
+"groups": [
+[
+{
+"id": "ph/sunflower",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/thistle-spines",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tin-watering-can",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/tomato",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wind-harp",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wing-scale-lantern",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/wood-chips",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/worm-tea",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wyrm-scale",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/ackee-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-ant",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-compost-scoop",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

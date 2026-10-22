@@ -1,0 +1,62 @@
+{
+"shard": 83,
+"groups": [
+[
+{
+"id": "stops/stamp-inn",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "gather/net-bg",
+"viewBox": "0 0 200 200"
+},
+{
+"id": "ph/nav-start",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "flowers/sprig-leaf",
+"viewBox": "0 0 64 96"
+},
+{
+"id": "ph/garden-oak",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-steppe-table",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/guide-wca",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/amaranth-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ico/ico-ballot",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-foraging-knife",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-grain-4",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-silk-bunting",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

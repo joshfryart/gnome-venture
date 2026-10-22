@@ -1,0 +1,61 @@
+{
+"shard": 63,
+"groups": [
+[
+{
+"id": "ph/raspberry",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/rat-tooth",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/samphire",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/scorpion-stinger",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/shiny-trinket",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/snake-skin",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/soil-test-kit",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/spider-silk",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/spinach",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/spotted-pelt",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stolen-trinket",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/strawberry",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

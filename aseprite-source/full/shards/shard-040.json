@@ -1,0 +1,61 @@
+{
+"shard": 40,
+"groups": [
+[
+{
+"id": "ph/long-feather",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lotus-root",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lucuma",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lychee",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/macadamia",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mamey",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/mandarin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mangosteen",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mangrove-root",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/marble-cascade",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/marsh-pearl",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/melon",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 72,
+"groups": [
+[
+{
+"id": "ph/broken-diver-s-creel",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-fruit-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-frogspawn",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "stops/mill",
+"viewBox": "0 0 48 48"
+},
+{
+"id": "gather/calm-pool",
+"viewBox": "0 0 200 200"
+},
+{
+"id": "ph/nav-friends",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "flowers/orchid",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/garden-gate-end",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-maizehollow-mole",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/guide-esa",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/banner-esa",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/land-island",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 19,
+"groups": [
+[
+{
+"id": "ph/butterfly-house",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/carrot-cake",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/chickpea-stew",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/crab-claw",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/dill-pickles",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/dragon-fruit",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/elderberry-cordial",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/ember-shell",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/firefly-glow",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/forager-s-crumb",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/fox-fang",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/frost-crystal",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

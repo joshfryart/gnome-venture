@@ -1,0 +1,67 @@
+{
+"shard": 102,
+"groups": [
+[
+{
+"id": "ph/ceibo-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-dna",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/celery-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ico/ico-door",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/chaconia-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-dove",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/chamomile-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-dragon",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/champak-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ico/ico-droplet",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/chayote-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-drum",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

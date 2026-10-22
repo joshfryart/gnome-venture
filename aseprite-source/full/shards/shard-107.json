@@ -1,0 +1,67 @@
+{
+"shard": 107,
+"groups": [
+[
+{
+"id": "ph/cowpea-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-gloves",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cranberry-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ico/ico-gnome-gardener",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/crimson-clover-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-gnome-hat",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/crinum-lily-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-goat",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/croton-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ico/ico-grapes",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/crown-anemone-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-hammer",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

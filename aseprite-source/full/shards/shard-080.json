@@ -1,0 +1,62 @@
+{
+"shard": 80,
+"groups": [
+[
+{
+"id": "ph/banner-se",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/land-tundra",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "games/snail-grey",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stone-wall",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/almond-peach-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-autumn-leaf",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-fine-rock-hammer",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-grain-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-mulberry-leaf",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "stops/stamp-ferry",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "gather/knife-bg",
+"viewBox": "0 0 200 200"
+},
+{
+"id": "ph/nav-satchel",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

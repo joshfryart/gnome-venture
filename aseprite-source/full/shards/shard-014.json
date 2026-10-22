@@ -1,0 +1,62 @@
+{
+"shard": 14,
+"groups": [
+[
+{
+"id": "ph/npc-tumble-seedwell",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-tumble-waymarsh",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-willow-rootstock",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-wren-thimblewick",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-yarrow-mossfoot",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-yoru-quillmoss",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-zinnia-fuzzbottom",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/acai-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-acorn-nut",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-bug-net",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

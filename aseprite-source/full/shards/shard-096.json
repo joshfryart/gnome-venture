@@ -1,0 +1,65 @@
+{
+"shard": 96,
+"groups": [
+[
+{
+"id": "ph/broken-sprinkler-can",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blue-flag-iris-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-candy",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-steel-spade",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blue-lotus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-carp-streamer",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-stirrup-hoe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blue-poppy-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-carrot",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-tide-bucket",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blue-violet-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ico/ico-castle",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

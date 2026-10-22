@@ -1,0 +1,67 @@
+{
+"shard": 117,
+"groups": [
+[
+{
+"id": "ph/guava-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-palette",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hazelnut-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ico/ico-pancakes",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/heather-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-party",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/heilala-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-path",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/heliconia-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ico/ico-paw",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/henna-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-peach",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

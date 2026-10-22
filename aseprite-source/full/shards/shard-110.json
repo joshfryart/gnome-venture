@@ -1,0 +1,67 @@
+{
+"shard": 110,
+"groups": [
+[
+{
+"id": "ph/dog-rose-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-house-row",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/dragon-fruit-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+}
+],
+[
+{
+"id": "ico/ico-id-card",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/durian-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-info",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/dutch-tulip-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-island",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/edelweiss-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+}
+],
+[
+{
+"id": "ico/ico-jar",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/eggplant-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-juice",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

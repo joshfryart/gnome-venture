@@ -1,0 +1,77 @@
+{
+"shard": 7,
+"groups": [
+[
+{
+"id": "ph/creature-poison-dart-frog",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-prairie-bison",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-ptarmigan-flock",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-quartz-snail",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-raccoon",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-red-fox",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-reef-eel-lord",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-reef-leviathan",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-reef-turtle",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-salt-sea-lion",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-sand-fleas",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-savanna-hyena",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

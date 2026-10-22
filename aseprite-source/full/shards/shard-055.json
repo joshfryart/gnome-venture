@@ -1,0 +1,62 @@
+{
+"shard": 55,
+"groups": [
+[
+{
+"id": "ph/wishing-well",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wisp-light",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/woodcutter-s-axe",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/wooden-dibber",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/worn-trowel",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/woven-basket",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/yam",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/yerba-mate",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/yuzu",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/acanthus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ico/ico-activity",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-cane-fishing-rod",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

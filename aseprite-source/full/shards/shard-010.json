@@ -1,0 +1,77 @@
+{
+"shard": 10,
+"groups": [
+[
+{
+"id": "ph/npc-burdock-deepdelve",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-burdock-puddlejump",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-clover-thornwhistle",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-cricket-hollowell",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-dew-dewberry",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-ember-seedwell",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-fennick-barkley",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-fennick-hollowell",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-fern-sunpatch",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-ginger-thornwhistle",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-gloam",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-haru-pennywhistle",
+"viewBox": "0 0 80 100"
+}
+]
+]
+}

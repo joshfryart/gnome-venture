@@ -1,0 +1,64 @@
+{
+"shard": 90,
+"groups": [
+[
+{
+"id": "ph/bamboo-shoot-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+},
+{
+"id": "ico/ico-bird",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-hiking-staff",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-nut-4",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/silkworm",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/baobab-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+}
+],
+[
+{
+"id": "ico/ico-blossom",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-hooked-forager-s-knife",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-spice-1",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "animals/snail",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/barley-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-bone",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,67 @@
+{
+"shard": 112,
+"groups": [
+[
+{
+"id": "ph/fenugreek-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-leaf",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/field-gladiolus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ico/ico-leafy-green",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/fig-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-lightning",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/finger-lime-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-link",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/fireweed-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ico/ico-lizard",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/flamboyant-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-lock",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

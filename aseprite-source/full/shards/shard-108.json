@@ -1,0 +1,67 @@
+{
+"shard": 108,
+"groups": [
+[
+{
+"id": "ph/cucumber-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-hand-stop",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cumin-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+}
+],
+[
+{
+"id": "ico/ico-hand-wave",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cyclamen-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-handbag",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/daffodil-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-heart-green",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/dahlia-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+}
+],
+[
+{
+"id": "ico/ico-heart-red",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/daikon-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-heart-yellow",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,77 @@
+{
+"shard": 9,
+"groups": [
+[
+{
+"id": "ph/creature-thunder-yak",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-tide-crab-knight",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-tufted-lynx",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-tunnel-mole",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-wild-boar",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-will-o-wisp",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-wolverine",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/npc-bracken-spurwing",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-bram",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-bramble-mossfoot",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-bramble-sunpatch",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-bramble-thornwick",
+"viewBox": "0 0 80 100"
+}
+]
+]
+}

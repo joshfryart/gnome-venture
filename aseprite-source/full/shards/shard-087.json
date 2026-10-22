@@ -1,0 +1,62 @@
+{
+"shard": 87,
+"groups": [
+[
+{
+"id": "animals/item-tortoise-scute",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/stamp-spring",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "gather/rod-bg",
+"viewBox": "0 0 200 200"
+}
+],
+[
+{
+"id": "ph/nav-villagers",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/asparagus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-bear",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-glowcap-lantern",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-legume-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/ladybird",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "stops/stamp-tower",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "gather/rod-fish",
+"viewBox": "0 0 100 56"
+},
+{
+"id": "ph/nav-world",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

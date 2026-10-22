@@ -1,0 +1,63 @@
+{
+"shard": 89,
+"groups": [
+[
+{
+"id": "stops/tower",
+"viewBox": "0 0 48 48"
+},
+{
+"id": "ph/balloon-flower-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-beetle",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-harvest-trug",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-nut-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/quail",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "stops/workshop",
+"viewBox": "0 0 48 48"
+},
+{
+"id": "ph/bambara-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-bell",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-hatchet",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-nut-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/quail_coop",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

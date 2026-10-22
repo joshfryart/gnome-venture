@@ -1,0 +1,62 @@
+{
+"shard": 82,
+"groups": [
+[
+{
+"id": "gather/knife-blade",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/nav-seasons",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/sprig-fern",
+"viewBox": "0 0 64 96"
+}
+],
+[
+{
+"id": "ph/garden-honey",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-spicepeak-thali",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-sea",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/banner-wca",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/alstroemeria-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-badger",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-forager-s-pack",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-grain-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-scute-wind-chime",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 70,
+"groups": [
+[
+{
+"id": "ph/lavender-border-gate",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tile-gravel-path",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/compost_bin-3",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/fine-mesh-net",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/greenhouse-lantern",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/hat-seedkeeper",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/kitchen-lantern",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/masterwork-secateurs",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/picket-fence-straight",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/tool_shed-lantern",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wattle-fence-straight",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/beehive-lantern",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

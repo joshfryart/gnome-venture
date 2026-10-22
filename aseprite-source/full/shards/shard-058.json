@@ -1,0 +1,61 @@
+{
+"shard": 58,
+"groups": [
+[
+{
+"id": "ph/tool_shed-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wattle-fence-cross",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/beehive-2",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/desert-glass",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/goat-cheese-tart",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lm-haven",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/pickled-eggs",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/rain_barrel-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/root_cellar-2",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/sea-glass",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "landing/garden",
+"viewBox": "0 0 240 160"
+},
+{
+"id": "ph/rock-dust",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

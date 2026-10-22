@@ -1,0 +1,62 @@
+{
+"shard": 84,
+"groups": [
+[
+{
+"id": "stops/stamp-jetty",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "gather/net-net",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/nav-today",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "flowers/star",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/garden-snips",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-summer-table",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/apple-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-banana",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-garden-fork",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-herb-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-silk-cocoon",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/stamp-market",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

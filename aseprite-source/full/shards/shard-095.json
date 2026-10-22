@@ -1,0 +1,64 @@
+{
+"shard": 95,
+"groups": [
+[
+{
+"id": "ico/ico-burst",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-seed-scoop",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-vegetable-3",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/black-pepper-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-butterfly",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-silk-net",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-vegetable-4",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blackcurrant-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-cake",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-soil-probe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/blood-lily-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-calendar",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

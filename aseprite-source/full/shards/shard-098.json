@@ -1,0 +1,65 @@
+{
+"shard": 98,
+"groups": [
+[
+{
+"id": "ph/broken-wayfarer-s-staff",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/brazil-nut-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-cherry",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-willow-fishing-rod",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/breadfruit-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-chili",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-woodcutter-s-axe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broccoflower-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-circus-tent",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-wooden-dibber",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broccoli-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-clap",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

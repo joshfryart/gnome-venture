@@ -1,0 +1,67 @@
+{
+"shard": 100,
+"groups": [
+[
+{
+"id": "ph/camellia-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-coin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cantuta-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+}
+],
+[
+{
+"id": "ico/ico-compost",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cape-daisy-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-cooking-pan",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/caper-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-corn",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cardamom-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+}
+],
+[
+{
+"id": "ico/ico-crab",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/carnation-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-cross",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

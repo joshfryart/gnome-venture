@@ -1,0 +1,77 @@
+{
+"shard": 6,
+"groups": [
+[
+{
+"id": "ph/creature-moss-golem",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-mud-crayfish",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-old-bramblehorn",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-old-gneiss",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-old-holler",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-old-pinch",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-old-thrum",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-orb-spider",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-outback-dingo",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-pale-olm",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-paper-wasp",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-pelican-parliament",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

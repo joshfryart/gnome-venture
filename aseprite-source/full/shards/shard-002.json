@@ -1,0 +1,77 @@
+{
+"shard": 2,
+"groups": [
+[
+{
+"id": "ph/creature-bramble-wolf",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-bullfrog",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-carrion-crow",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-cave-glowworm",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-cistern-newt",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-clam-lurker",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-clay-crawler",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-claybound-millipede",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-cliff-ram",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-cloud-leopard",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-coconut-crab-titan",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-deep-octopus",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

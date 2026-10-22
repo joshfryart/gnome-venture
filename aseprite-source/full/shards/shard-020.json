@@ -1,0 +1,61 @@
+{
+"shard": 20,
+"groups": [
+[
+{
+"id": "ph/gathering-basket",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/giant-seed-pod",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/ginger-apple-cordial",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/gnome-bandstand",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/green-bean",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/harvest-sack",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/kelp-frond",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/leaf-mould-clump",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lentil-dal",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/log-pile",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mackerel-rice",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/mango-chutney",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

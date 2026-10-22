@@ -1,0 +1,67 @@
+{
+"shard": 122,
+"groups": [
+[
+{
+"id": "ph/kola-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-ruin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/kowhai-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+],
+[
+{
+"id": "ico/ico-ruler",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lantana-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+},
+{
+"id": "ico/ico-safari",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/lapacho-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-salad",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lavender-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: drawstring cloth pouch"
+}
+],
+[
+{
+"id": "ico/ico-satchel",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/leek-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: glass jar with cork"
+},
+{
+"id": "ico/ico-scales",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

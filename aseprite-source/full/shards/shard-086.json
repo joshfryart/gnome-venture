@@ -1,0 +1,63 @@
+{
+"shard": 86,
+"groups": [
+[
+{
+"id": "ph/artichoke-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+},
+{
+"id": "ico/ico-basket",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-gathering-basket",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-herb-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-snail-trail-glaze",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/stamp-orchard",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "gather/pick-pick",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/nav-trading",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/ashanti-blood-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+}
+],
+[
+{
+"id": "ico/ico-bat",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-gathering-pouch",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-herb-4",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

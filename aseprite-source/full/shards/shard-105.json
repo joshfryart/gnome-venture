@@ -1,0 +1,67 @@
+{
+"shard": 105,
+"groups": [
+[
+{
+"id": "ph/coconut-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-floppy",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/coffee-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+}
+],
+[
+{
+"id": "ico/ico-fly",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/collard-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-fog",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/columbine-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-fork",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/coneflower-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: string-tied bundle in a cloth wrap"
+}
+],
+[
+{
+"id": "ico/ico-fountain",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/congo-cockatoo-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: flat paper packet with folded flap"
+},
+{
+"id": "ico/ico-four-leaf-clover",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

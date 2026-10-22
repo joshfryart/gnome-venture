@@ -1,0 +1,61 @@
+{
+"shard": 50,
+"groups": [
+[
+{
+"id": "ph/sorrel",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/soursop",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/soybean",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/spanish-tortilla",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sphagnum",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/spiral-shell",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/sprinkler-can",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stag-beetle-shell",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stained-glass-arbor",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/starfruit",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/starlight-hammock",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/steel-spade",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 34,
+"groups": [
+[
+{
+"id": "ph/fonio",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/food-scrap",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/foraging-knife",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/fossil-shell",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/fountain",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/four-leaf-clover",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/frog-skin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/garlic",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/gazing-ball",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/geode",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/gilded-sundial",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/ginseng",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

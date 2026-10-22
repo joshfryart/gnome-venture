@@ -1,0 +1,61 @@
+{
+"shard": 56,
+"groups": [
+[
+{
+"id": "ph/stage-cover-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/frog_pond",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/herb",
+"viewBox": "0 0 48 48"
+}
+],
+[
+{
+"id": "gather/calm-bucket-back",
+"viewBox": "0 0 100 90"
+},
+{
+"id": "ph/nav-almanac",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/cluster",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/garden-fork",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-dunewhisper-pilaf",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-csa",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/banner-csa",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/land-desert",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "games/crop-nut",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

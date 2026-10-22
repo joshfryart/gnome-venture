@@ -1,0 +1,61 @@
+{
+"shard": 69,
+"groups": [
+[
+{
+"id": "gather/calm-drop",
+"viewBox": "0 0 32 40"
+},
+{
+"id": "ph/nav-festival",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/lily",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/garden-gate-cross",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/feast-harvest-pie",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-ee",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/banner-ee",
+"viewBox": "0 0 240 80"
+},
+{
+"id": "ph/land-grassland",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "games/crop-vegetable",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stone-wall-end",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/box-hedge-gate",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/holly-hedge-gate",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

@@ -1,0 +1,61 @@
+{
+"shard": 75,
+"groups": [
+[
+{
+"id": "ico/ico-arrow-left",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-fine-fly-rod",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-fruit-2",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "animals/item-goat-milk",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/orchard",
+"viewBox": "0 0 48 48"
+},
+{
+"id": "gather/calm-ripple",
+"viewBox": "0 0 200 200"
+}
+],
+[
+{
+"id": "ph/nav-games",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/packet",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/garden-gate-gate",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/feast-mistmoor-supper",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/guide-na",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/banner-na",
+"viewBox": "0 0 240 80"
+}
+]
+]
+}

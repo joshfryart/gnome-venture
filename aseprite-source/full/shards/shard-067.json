@@ -1,0 +1,61 @@
+{
+"shard": 67,
+"groups": [
+[
+{
+"id": "ph/tool_shed-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/wattle-fence-end",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/beehive-3",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/desert-rose-stone",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/goat-cheese",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/lm-lair",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/pickled-green-beans",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/rain_barrel-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/root_cellar-3",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/sea-grape-sorbet",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "landing/roads",
+"viewBox": "0 0 240 160"
+},
+{
+"id": "ph/rock-garden",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

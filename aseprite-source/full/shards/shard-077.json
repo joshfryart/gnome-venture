@@ -1,0 +1,62 @@
+{
+"shard": 77,
+"groups": [
+[
+{
+"id": "ph/masterwork-wheel-hoe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/picket-fence",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tool_shed-painted",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/wattle-fence",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/agapanthus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-arrow-right",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-fine-foraging-knife",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-fruit-3",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-hen-egg",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "stops/spring",
+"viewBox": "0 0 48 48"
+},
+{
+"id": "gather/calm-shell",
+"viewBox": "0 0 200 200"
+},
+{
+"id": "ph/nav-garden",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

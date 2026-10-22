@@ -1,0 +1,77 @@
+{
+"shard": 8,
+"groups": [
+[
+{
+"id": "ph/creature-sea-otter-bandit",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-shale-slater",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-shore-crab",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-silverfin",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-snow-owl-monarch",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-spadefoot-toad",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-spice-monitor",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-stone-loach",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-storm-eagle",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-sun-lizard",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-tawny-owl",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-thistle-beast",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

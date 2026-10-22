@@ -1,0 +1,61 @@
+{
+"shard": 31,
+"groups": [
+[
+{
+"id": "ph/cumin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/custard-tart",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/daikon",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/date",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/devilled-eggs",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/digging-claw",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/diver-s-creel",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/dragonfly-wing",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/driftwood",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/dung-ball",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/durian",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/eagle-down",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

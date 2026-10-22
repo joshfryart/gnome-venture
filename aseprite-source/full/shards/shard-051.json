@@ -1,0 +1,61 @@
+{
+"shard": 51,
+"groups": [
+[
+{
+"id": "ph/stepping-stones",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stirrup-hoe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/storm-feather",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/straw-mulch",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stuffed-peppers-goat",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sugarcane",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/sundial",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sunrise-lime",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sweet-potato",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/tamarillo",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tamarind",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tangelo",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

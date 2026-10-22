@@ -1,0 +1,77 @@
+{
+"shard": 11,
+"groups": [
+[
+{
+"id": "ph/npc-hazel-brambleby",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-holly-barkley",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-indigo-fennelwick",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-ivy-brambleby",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-juniper-burrowman",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-juniper-kettleby",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-kestrel-petalwing",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-lantern-lou",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-lyra-fiddlewing",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-madder-quillfeather",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-maple-leafwhisker",
+"viewBox": "0 0 80 100"
+}
+],
+[
+{
+"id": "ph/npc-marigold-puddleby",
+"viewBox": "0 0 80 100"
+}
+]
+]
+}

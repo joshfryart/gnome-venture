@@ -1,0 +1,61 @@
+{
+"shard": 48,
+"groups": [
+[
+{
+"id": "ph/saffron",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sago",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/salak",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/sardine",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/sauerkraut",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/scarab-shell",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/scarecrow",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/scotch-quail-eggs",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/scrambled-eggs",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/sesame",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/shakshuka",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/shea",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

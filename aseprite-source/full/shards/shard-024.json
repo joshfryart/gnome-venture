@@ -1,0 +1,61 @@
+{
+"shard": 24,
+"groups": [
+[
+{
+"id": "ph/adzuki",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/amaranth",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/amber-lamppost",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/ant-chitin",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/antler-shard",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/aphid-wings",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/apricot",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/arctic-char",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/artichoke",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/avocado",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bambara",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/bamboo-shoot",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

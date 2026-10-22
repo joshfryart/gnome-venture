@@ -1,0 +1,64 @@
+{
+"shard": 92,
+"groups": [
+[
+{
+"id": "animals/tortoise",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/beach-hibiscus-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-books",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-masterwork-rain-wand",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-tree-1",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/tortoise_run",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/bee-balm-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+},
+{
+"id": "ico/ico-boot",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-masterwork-secateurs",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-tree-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/worm",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/beet-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+}
+]
+]
+}

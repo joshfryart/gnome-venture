@@ -1,0 +1,62 @@
+{
+"shard": 85,
+"groups": [
+[
+{
+"id": "gather/pick-bg",
+"viewBox": "0 0 200 200"
+},
+{
+"id": "ph/nav-together",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "flowers/tulip",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/garden-vegetable-soup",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/apricot-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-barrel",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/broken-garden-hoe",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/stage-herb-2",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/item-silk-thread",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "stops/stamp-mill",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "gather/pick-glint",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/nav-town",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

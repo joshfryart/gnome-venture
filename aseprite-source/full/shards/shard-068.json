@@ -1,0 +1,62 @@
+{
+"shard": 68,
+"groups": [
+[
+{
+"id": "ph/wild-rice",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/black-pepper",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cattail-root",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/coconut",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/golden-talon",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/tide-shell",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/adzuki-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-apple",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/broken-copper-watering-can",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/stage-cover-4",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "animals/hen",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "stops/market",
+"viewBox": "0 0 48 48"
+}
+]
+]
+}

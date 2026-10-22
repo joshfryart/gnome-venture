@@ -1,0 +1,67 @@
+{
+"shard": 113,
+"groups": [
+[
+{
+"id": "ph/flame-of-the-forest-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tin box with hinged lid"
+},
+{
+"id": "ico/ico-log",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/florentine-iris-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: burlap sack tied with twine"
+}
+],
+[
+{
+"id": "ico/ico-mailbox",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/fonio-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: tall narrow envelope"
+},
+{
+"id": "ico/ico-map-pin",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/forget-me-not-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: small wooden crate"
+},
+{
+"id": "ico/ico-medal-bronze",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/foxglove-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: paper cone twist"
+}
+],
+[
+{
+"id": "ico/ico-medal-gold",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/frangipani-seed",
+"viewBox": "0 0 64 64",
+"hint": "SEED ITEM: draw it inside this container type so seeds differ from each other: ceramic pot with lid"
+},
+{
+"id": "ico/ico-medal-silver",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

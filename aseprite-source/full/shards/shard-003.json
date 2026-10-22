@@ -1,0 +1,77 @@
+{
+"shard": 3,
+"groups": [
+[
+{
+"id": "ph/creature-delta-gharial",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-desert-camel",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-desert-gila-dragon",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-desert-tortoise",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-dimwing-moth",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-drumming-cricket",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-dune-wyrm",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-dung-beetle",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-dusk-moth",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-dust-sidewinder",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-earwig",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/creature-echo-bat",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}

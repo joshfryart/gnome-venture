@@ -1,0 +1,61 @@
+{
+"shard": 29,
+"groups": [
+[
+{
+"id": "ph/cherimoya",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cherry",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/chestnut",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/chili-pepper",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/cinnamon",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/clove",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/coffee",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/coir-fibre",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/collard",
+"viewBox": "0 0 64 64"
+}
+],
+[
+{
+"id": "ph/copper-watering-can",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/coral-fragment",
+"viewBox": "0 0 64 64"
+},
+{
+"id": "ph/coriander",
+"viewBox": "0 0 64 64"
+}
+]
+]
+}
