@@ -4,18 +4,23 @@
 /* ===== 1. Tokens ===== */
 :root {
   color-scheme: light;
-  --bg: #f6f4ec; --surface: #ffffff; --surface-2: #f0eee5;
-  --ink: #1f2a1c; --ink-2: #4b5546; --muted: #5f6a5a;
-  --line: #dcd8c8; --line-2: #c6c1ad;
-  --brand: #2f6f3e; --brand-ink: #245a31; --brand-soft: #e6f1e2; --brand-line: #b4d0ae;
-  --accent: #b8862b; --accent-soft: #fbf1d6; --accent-ink: #6b4a00; --accent-line: #e3c97f;
-  --danger: #a7332a; --danger-soft: #fbe7e4; --danger-ink: #8a2a22; --danger-line: #e3b0aa;
-  --info-soft: #e7eef8; --info-ink: #1e3f78; --info-line: #b9cbe8;
-  --purple: #6b4fa8; --purple-soft: #efe9fb; --purple-ink: #46307a;
-  --focus: #1d4ed8;
-  --brand-fill: #2f6f3e; --badge-bg: #4b5546;   /* solid fills that carry white text */
-  --radius: 10px; --radius-sm: 6px; --pill: 999px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .06); --shadow-2: 0 8px 24px rgba(0, 0, 0, .14);
+  /* v2.0.32 Stitched Toy: every colour is from the art guide (Part A families, Part D table, or the Part D hue-shift recipe, noted "recipe") */
+  --bg: #f1ece0; --surface: #fff3c8; --surface-2: #f2e4c0;
+  --ink: #2a1a10; --ink-2: #4a2c1a; --muted: #74462a;
+  --line: #c9a96e; --line-2: #9a6b3f;
+  --brand: #2f5a2a; --brand-ink: #2f5a2a; --brand-soft: #c8d09f; --brand-line: #7ab55c;   /* brand-soft: recipe gloss of moss 200 */
+  --accent: #e8a317; --accent-soft: #fff3c8; --accent-ink: #7a4a1f; --accent-line: #e8a317;
+  --danger: #a8241f; --danger-soft: #f6b8cf; --danger-ink: #6b1b2c; --danger-line: #e46a9b;
+  --info-soft: #a9d6ea; --info-ink: #1f4a6a; --info-line: #3f8fb0;   /* info-ink: recipe deep of water 500 */
+  --purple: #4e3a8a; --purple-soft: #c3b2ea; --purple-ink: #3e2f66;
+  --focus: #25637d;
+  --brand-fill: #2f5a2a; --badge-bg: #4a2c1a;   /* solid fills that carry cream text */
+  --radius: 0; --radius-sm: 0; --pill: 0;   /* v2.0.32: hard pixel corners; components step their corners with box-shadow frames */
+  /* v2.0.32 Stitched Toy chrome: one art pixel = --px; outlines lighter on the lit upper-left (Part D selective outline) */
+  --px: 2px; --on-fill: #f2e4c0;
+  --edge-lt: #74462a; --edge-dk: #2a1a10; --drop: #c9a96e; --ol: #2a1a10;
+  --thread: #e8a317; --thread-bright: #f5cf6a; --felt: #3d2a1c; --felt-2: #4a2c1a; --felt-ink: #f2e4c0; --felt-muted: #c9a96e;
+  --shadow: 2px 2px 0 0 var(--drop); --shadow-2: 0 0 0 2px var(--ol), 6px 6px 0 0 var(--drop);
   --tap: 44px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -31,48 +36,50 @@
 @media (min-width: 721px) { :root { --hdr: 60px; --gut: 24px; } }
 /* v0.9.2: colour tokens (box tint, status chips, area hues) */
 :root {
-  --box-bg: #fbfaf4;
-  --chip-energy-bg: #fbf1d6; --chip-energy-ink: #6b4a00; --chip-energy-line: #e3c97f;
-  --chip-gold-bg: #f8e6a8; --chip-gold-ink: #5a3d00; --chip-gold-line: #d9b650;
-  --chip-lvl-bg: #e6f1e2; --chip-lvl-ink: #245a31; --chip-lvl-line: #b4d0ae;
-  --area: #2f6f3e; --area-solid: #2f6f3e; --area-soft: #e6f1e2; --area-ink: #245a31; --area-line: #b4d0ae;
+  --box-bg: #fff3c8;
+  --chip-energy-bg: #fff3c8; --chip-energy-ink: #7a4a1f; --chip-energy-line: #e8a317;
+  --chip-gold-bg: #f5cf6a; --chip-gold-ink: #2a1a10; --chip-gold-line: #b07a10;
+  --chip-lvl-bg: #c8d09f; --chip-lvl-ink: #2f5a2a; --chip-lvl-line: #7ab55c;
+  --area: #2f5a2a; --area-solid: #2f5a2a; --area-soft: #c8d09f; --area-ink: #2f5a2a; --area-line: #7ab55c;
 }
-body[data-area="garden"] { --area: #2f6f3e; --area-solid: #2f6f3e; --area-soft: #e6f1e2; --area-ink: #245a31; --area-line: #b4d0ae; }
-body[data-area="world"] { --area: #2a6fa5; --area-solid: #26679c; --area-soft: #e3eef8; --area-ink: #1d5382; --area-line: #b0cde6; }
-body[data-area="kitchen"] { --area: #b5542a; --area-solid: #a84a22; --area-soft: #f9e8df; --area-ink: #8f3f1c; --area-line: #e6bba6; }
-body[data-area="book"] { --area: #6b4fa8; --area-solid: #6b4fa8; --area-soft: #efe9fb; --area-ink: #46307a; --area-line: #cbbdea; }
-body[data-area="market"] { --area: #b8862b; --area-solid: #8a6212; --area-soft: #fbf1d6; --area-ink: #6b4a00; --area-line: #e3c97f; }
-body[data-area="community"] { --area: #1f8a7a; --area-solid: #1a7a6b; --area-soft: #dff3ef; --area-ink: #146155; --area-line: #a6d6ce; }
+/* v2.0.32: area hues from the art palette (moss, water, ember, dusk, gold, petal) */
+body[data-area="garden"] { --area: #2f5a2a; --area-solid: #2f5a2a; --area-soft: #c8d09f; --area-ink: #2f5a2a; --area-line: #7ab55c; }
+body[data-area="world"] { --area: #3f8fb0; --area-solid: #25637d; --area-soft: #a9d6ea; --area-ink: #1f4a6a; --area-line: #3f8fb0; }
+body[data-area="kitchen"] { --area: #e0501f; --area-solid: #a8241f; --area-soft: #ffc27a; --area-ink: #6b1b2c; --area-line: #f08a24; }
+body[data-area="book"] { --area: #7a5cc0; --area-solid: #4e3a8a; --area-soft: #c3b2ea; --area-ink: #3e2f66; --area-line: #7a5cc0; }
+body[data-area="market"] { --area: #b07a10; --area-solid: #7a4a1f; --area-soft: #fff3c8; --area-ink: #7a4a1f; --area-line: #e8a317; }
+body[data-area="community"] { --area: #e46a9b; --area-solid: #6b1b2c; --area-soft: #f6b8cf; --area-ink: #6b1b2c; --area-line: #e46a9b; }
 
 /* v0.9.2: dark mode follows the device setting. Only tokens change; game art tokens stay. */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #15201a; --surface: #1c2a22; --surface-2: #23342a;
-  --ink: #e8ecdf; --ink-2: #c3cbb9; --muted: #9aa793;
-  --line: #2f4036; --line-2: #435a4b;
-  --brand: #4a9a5b; --brand-ink: #9fd3a9; --brand-soft: #1f3a28; --brand-line: #2f5a3c;
-  --accent: #d4a444; --accent-soft: #3a3220; --accent-ink: #efd393; --accent-line: #66552d;
-  --danger: #e8786d; --danger-soft: #3d2422; --danger-ink: #f3aaa2; --danger-line: #6b3a35;
-  --info-soft: #1b2b44; --info-ink: #b4cdf3; --info-line: #2f4a75;
-  --purple: #9479d4; --purple-soft: #2d2742; --purple-ink: #cfc1f2;
-  --focus: #7ca3ff;
-  --brand-fill: #2b7a40; --badge-bg: #3d5144;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-2: 0 8px 24px rgba(0, 0, 0, .55);
-  --box-bg: #1c2a22;
-  --chip-energy-bg: #3a3220; --chip-energy-ink: #efd393; --chip-energy-line: #66552d;
-  --chip-gold-bg: #3a3220; --chip-gold-ink: #efd393; --chip-gold-line: #66552d;
-  --chip-lvl-bg: #1f3a28; --chip-lvl-ink: #a9d9b3; --chip-lvl-line: #2f5a3c;
+  --bg: #2a1a10; --surface: #3d2a1c; --surface-2: #4a2c1a;
+  --ink: #f2e4c0; --ink-2: #c9c5bc; --muted: #c9a96e;
+  --line: #74462a; --line-2: #9a6b3f;
+  --brand: #7ab55c; --brand-ink: #a4b86a; --brand-soft: #1f3f3a; --brand-line: #2f6a3a;   /* moss deep / shade from the Part D recipe examples */
+  --accent: #e8a317; --accent-soft: #6a4510; --accent-ink: #f5cf6a; --accent-line: #b07a10;
+  --danger: #f08a24; --danger-soft: #6b1b2c; --danger-ink: #f6b8cf; --danger-line: #a8241f;
+  --info-soft: #1f4a6a; --info-ink: #a9d6ea; --info-line: #3f8fb0;
+  --purple: #a894dc; --purple-soft: #3e2f66; --purple-ink: #c3b2ea;
+  --focus: #a9d6ea;
+  --brand-fill: #2f5a2a; --badge-bg: #74462a;
+  --edge-lt: #9a6b3f; --edge-dk: #74462a; --drop: #291d4a; --ol: #2a1a10;   /* dark shadows lean to dusk (Part D) */
+  --thread: #f5cf6a;
+  --box-bg: #3d2a1c;
+  --chip-energy-bg: #6a4510; --chip-energy-ink: #f5cf6a; --chip-energy-line: #b07a10;
+  --chip-gold-bg: #6a4510; --chip-gold-ink: #f5cf6a; --chip-gold-line: #b07a10;
+  --chip-lvl-bg: #1f3f3a; --chip-lvl-ink: #a4b86a; --chip-lvl-line: #2f6a3a;
   --r-c: #5f6a5a; --r-u: #2f7d44; --r-r: #2f68b0; --r-l: #8a5a00;   /* rarity badges carry white text */
   --map-sea: #1e3a4e; --map-road: #3f2b17;   /* v1.4.2 */
 }
 :root[data-theme="dark"] .regionmap .land, :root[data-theme="dark"] .regionmap .shoal { filter: brightness(.68) saturate(.8); }
 /* v1.4.2: the island dims with the page */
-:root[data-theme="dark"] body[data-area="garden"] { --area: #4fa662; --area-soft: #1f3a28; --area-ink: #a9d9b3; --area-line: #2f5a3c; }
-:root[data-theme="dark"] body[data-area="world"] { --area: #4a95cf; --area-soft: #1b3347; --area-ink: #a9d0ef; --area-line: #2b5273; }
-:root[data-theme="dark"] body[data-area="kitchen"] { --area: #d9773f; --area-soft: #3d2a21; --area-ink: #f0b999; --area-line: #6a4331; }
-:root[data-theme="dark"] body[data-area="book"] { --area: #9479d4; --area-soft: #2d2742; --area-ink: #cfc1f2; --area-line: #4b4070; }
-:root[data-theme="dark"] body[data-area="market"] { --area: #d4a444; --area-soft: #3a3220; --area-ink: #efd393; --area-line: #66552d; }
-:root[data-theme="dark"] body[data-area="community"] { --area: #3bb3a0; --area-soft: #1c3a36; --area-ink: #a3e0d6; --area-line: #2d5b54; }
+:root[data-theme="dark"] body[data-area="garden"] { --area: #7ab55c; --area-soft: #1f3f3a; --area-ink: #a4b86a; --area-line: #2f6a3a; }
+:root[data-theme="dark"] body[data-area="world"] { --area: #3f8fb0; --area-soft: #1f4a6a; --area-ink: #a9d6ea; --area-line: #25637d; }
+:root[data-theme="dark"] body[data-area="kitchen"] { --area: #f08a24; --area-soft: #6b1b2c; --area-ink: #ffc27a; --area-line: #a8241f; }
+:root[data-theme="dark"] body[data-area="book"] { --area: #a894dc; --area-soft: #3e2f66; --area-ink: #c3b2ea; --area-line: #4e3a8a; }
+:root[data-theme="dark"] body[data-area="market"] { --area: #e8a317; --area-soft: #6a4510; --area-ink: #f5cf6a; --area-line: #b07a10; }
+:root[data-theme="dark"] body[data-area="community"] { --area: #e46a9b; --area-soft: #6b1b2c; --area-ink: #f6b8cf; --area-line: #a8241f; }
 :root[data-theme="dark"] .btn.ghost, :root[data-theme="dark"] .btn.pickbtn { background: var(--surface-2); }
 
 /* ===== 2. Reset and type ===== */
@@ -4677,3 +4684,228 @@ details.fold > summary, .st-later summary, .renamefold > summary, .btbody detail
 .book .bpicon img[src*="/banner-"] { width: 140px; height: auto; max-height: 72px; border-radius: 6px; }
 /* v2.0.31: pixel art stays crisp when scaled */
 .pix { image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
+
+/* ===== v2.0.32 Stitched Toy chrome =====
+   The site frame now matches the pixel art (art guide Part D): warm cream / umber felt, hard 2 px pixel steps (no blur, no soft gradients),
+   outlines lighter on the lit upper-left, a 2 px drop on the lower-right, and thread-gold stitching (2 on, 1 off, at 2x) on seams and hems.
+   Frames are box-shadows, so nothing moves in the layout. Colours: tokens in section 1. Felt tiles + button: assets/img/ui/ (source: tests/gen_ui_chrome.lua). */
+:root {
+  /* the pixel frame: top/left lit edge, bottom/right dark edge, stepped lower-right drop; corners stay notched */
+  --frame: 0 calc(-1 * var(--px)) 0 0 var(--edge-lt), calc(-1 * var(--px)) 0 0 0 var(--edge-lt), 0 var(--px) 0 0 var(--edge-dk), var(--px) 0 0 0 var(--edge-dk),
+           var(--px) calc(2 * var(--px)) 0 0 var(--drop), calc(2 * var(--px)) var(--px) 0 0 var(--drop);
+  /* a lighter frame for rows inside boxes (tiles, choices, tags): one tone each side, no drop */
+  --frame-lite: 0 calc(-1 * var(--px)) 0 0 var(--line), calc(-1 * var(--px)) 0 0 0 var(--line), 0 var(--px) 0 0 var(--line-2), var(--px) 0 0 0 var(--line-2);
+  /* stitches: dashed thread, 4 px on / 2 px off (2 on, 1 off at 2x); hard stops only */
+  --st-h: repeating-linear-gradient(90deg, var(--thread) 0 4px, transparent 4px 6px);
+  --st-v: repeating-linear-gradient(180deg, var(--thread) 0 4px, transparent 4px 6px);
+  --hem: repeating-linear-gradient(90deg, var(--thread-bright) 0 4px, transparent 4px 6px);
+}
+
+/* page felt: a 2x tile on a fixed layer behind everything (only that layer is pixelated, never player photos) */
+body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--bg) url("img/ui/felt-light.png") 0 0 / 32px 32px repeat; image-rendering: pixelated; }
+:root[data-theme="dark"] body::before { background-image: url("img/ui/felt-dark.png"); }
+body.pz-play::before { display: none; }
+
+/* type: chunkier headings */
+h1, h2, h3, h4 { font-weight: 800; letter-spacing: -.005em; }
+h1 { font-size: 24px; }
+h2 { font-size: 19px; }
+@media (min-width: 721px) { h1 { font-size: 26px; } }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+a.skip { background: var(--felt); color: var(--felt-ink); border-radius: 0; box-shadow: var(--frame); }
+
+/* ---- header: umber felt bar, gold hem stitch along the bottom ---- */
+.bannerin { background: var(--felt) url("img/ui/felt-umber.png") 0 0 / 32px 32px repeat; image-rendering: pixelated; border-bottom: 0; box-shadow: 0 var(--px) 0 0 var(--ol); }
+.bannerin::after { content: ''; position: absolute; left: 0; right: 0; bottom: 4px; height: 2px; background: var(--hem); pointer-events: none; }
+.banner .logo { display: inline-flex; align-items: center; gap: 8px; color: var(--felt-ink); font-weight: 800; letter-spacing: .01em; text-shadow: 2px 2px 0 var(--ol); }
+.banner .logo::before { content: ''; flex: none; width: 24px; height: 24px; background: url("img/ui/button.png") 0 0 / 24px 24px no-repeat; image-rendering: pixelated; }
+@media (max-width: 420px) { .banner .logo::before { display: none; } }   /* phones: the name needs the room */
+.banner .logo small { background: var(--felt-2); color: var(--thread-bright); border-radius: 0; text-shadow: none; box-shadow: 0 0 0 2px var(--ol); }
+.banner .tagline { color: var(--felt-muted); }
+.userbar, .userbar .linkbtn { color: var(--felt-ink); }
+.userbar .linkbtn:hover { color: var(--thread-bright); }
+.hdr-pill, .menubtn, .th-hdr .thb { border: 0; border-radius: 0; background: var(--felt-2); color: var(--felt-ink); text-shadow: none;
+  box-shadow: inset 0 2px 0 0 #74462a, 0 -2px 0 0 var(--ol), -2px 0 0 0 var(--ol), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol); }
+.hdr-pill { height: 30px; margin: 0 2px; }
+.hdr-pill.hdr-energy { color: var(--thread-bright); }
+.hdr-pill.hdr-energy.empty { background: #6b1b2c; color: #f6b8cf; }
+.hdr-pill.hdr-coins { background: #f5cf6a; color: var(--ol); box-shadow: inset 0 2px 0 0 #fff3c8, inset 0 -2px 0 0 #e8a317, 0 -2px 0 0 var(--ol), -2px 0 0 0 var(--ol), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol); }
+.menubtn:hover, .th-hdr .thb:hover { background: #74462a; }
+.menubtn:active, .th-hdr .thb:active { transform: translate(0, 2px); }
+@media (max-width: 720px) { .userbar .hdr-pill { height: 34px; } }
+
+/* status strip under the header: felt tags */
+.statusstrip { background: transparent; border-bottom: 0; }
+.statusin { padding-left: max(var(--gut), 6px); padding-right: var(--gut); }
+.statusstrip .st { border: 0; border-radius: 0; box-shadow: var(--frame-lite); margin: 0 2px; }
+.statusstrip .st.energy { box-shadow: 0 -2px 0 0 var(--chip-energy-line), -2px 0 0 0 var(--chip-energy-line), 0 2px 0 0 var(--chip-energy-line), 2px 0 0 0 var(--chip-energy-line); }
+.statusstrip .st.lvl { box-shadow: 0 -2px 0 0 var(--chip-lvl-line), -2px 0 0 0 var(--chip-lvl-line), 0 2px 0 0 var(--chip-lvl-line), 2px 0 0 0 var(--chip-lvl-line); }
+.statusstrip .st.hot { box-shadow: 0 -2px 0 0 var(--accent), -2px 0 0 0 var(--accent), 0 2px 0 0 var(--accent), 2px 0 0 0 var(--accent); }
+.statusstrip a { border-radius: 0; }
+/* the chips snap to their start: without scroll padding the first one was snapped half out of view when the strip overflowed (~900 px) */
+.statusstrip .statusin { scroll-padding-inline: var(--gut); }
+
+/* page column: no coloured rule on top any more (the header hem is the seam) */
+body[data-area] .wrap { border-top: 0; padding-top: 14px; }
+.wrap { min-height: calc(100vh - var(--hdr) - 140px); }   /* short pages: the footer sits near the bottom of the screen */
+
+/* page title: a felt ribbon in the area colour with a gold seam through it */
+body[data-area] main h1, main h1 { border-bottom: 0; padding-bottom: 14px;
+  background: var(--hem) left 0 bottom 2px / 100% 2px no-repeat, linear-gradient(var(--area), var(--area)) left bottom / 100% 6px no-repeat; }
+body[data-area] main .todayhead h1, main .todayhead h1, body[data-area] main .lp h1, body[data-area] main .lpg h1 { background: none; padding-bottom: 0; }
+
+/* ---- side menu ---- */
+.side h3 { color: var(--muted); font-weight: 800; letter-spacing: .08em; }
+.side a { border-radius: 0; }
+.side a:hover { background: var(--surface-2); }
+.side a.navtile, .side a.navhome, .side a.navfeedback, .side .navlogout .linkbtn { border: 0; border-radius: 0; background: var(--surface); box-shadow: var(--frame-lite); }
+.side a.navtile:hover, .side a.navhome:hover, .side a.navfeedback:hover { background: var(--surface-2); }
+.side a.navtile.on, body[data-area] .side a.navtile.on { background: var(--area-soft); color: var(--area-ink); font-weight: 800;
+  box-shadow: 0 -2px 0 0 var(--area), -2px 0 0 0 var(--area), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol), inset 4px 0 0 0 var(--area); }
+.side .ntb, .side a.navtile .ntb { border-radius: 0; border: 0; background: var(--thread-bright); color: var(--ol); box-shadow: 0 0 0 2px var(--ol); font-weight: 800; }
+.side .navx { border-radius: 0; box-shadow: var(--frame-lite); }
+.side details.navstaff { border-top: 2px dashed var(--line); }
+.side .gnomecard { border-bottom: 2px solid var(--line); }
+@media (min-width: 721px) {
+  .side { padding: 4px 6px 8px 4px; }   /* room for the frames inside the scrolling column */
+}
+@media (min-width: 1200px) {
+  .side a.navtile, .side a.navhome, .side a.navfeedback, .side .navlogout .linkbtn { border: 0; border-radius: 0; }
+  .side .navgroupt.navfixed .navtiles, .side .navacct { gap: 10px; }
+  .navgroupt.navfixed > summary h3 { display: flex; align-items: center; gap: 8px; }
+  .navgroupt.navfixed > summary h3::after { content: ''; flex: 1; height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 6px); }
+}
+/* phone sheet: square felt sheet with a hem along its top */
+@media (max-width: 720px) {
+  .navtoggle:checked ~ .wrap .side { border-radius: 0; background-color: var(--surface); box-shadow: 0 -2px 0 0 var(--ol), 0 -8px 0 0 var(--felt);
+    background-image: var(--hem); background-size: 100% 2px; background-repeat: no-repeat; background-position: 0 0; }
+  .navtoggle:checked ~ .wrap .side::before { width: 48px; height: 6px; border-radius: 0; background: var(--line-2); margin-top: 6px; }
+  .navtoggle:checked ~ .navbackdrop, .navtoggle:checked ~ .wrap .navbackdrop { background: rgba(42, 26, 16, .55); }
+  .side .navtiles { gap: 10px; padding: 2px; }
+}
+
+/* ---- phone bottom bar: umber felt, hem along the top ---- */
+@media (max-width: 720px) {
+  .bottombar { background: var(--felt) url("img/ui/felt-umber.png") 0 0 / 32px 32px repeat; image-rendering: pixelated; border-top: 0; box-shadow: 0 -2px 0 0 var(--ol); }
+  .bottombar::before { content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 2px; background: var(--hem); pointer-events: none; }
+  .bottombar a, .bottombar .menubtn.more { color: var(--felt-muted); border-top: 0; background: none; box-shadow: none; padding-top: 6px; }
+  .bottombar a.on { color: var(--felt-ink); background: var(--felt-2); box-shadow: inset 0 -4px 0 0 var(--area); }
+  .bottombar a:active, .bottombar .menubtn.more:active { background: var(--felt-2); }
+  .bottombar .barpip { border-radius: 0; background: var(--thread-bright); color: var(--ol); box-shadow: 0 0 0 2px var(--ol); }
+}
+
+/* ---- footer: felt strip with a hem stitch ---- */
+footer { position: relative; margin-top: 20px; padding: 20px var(--gut) 16px; color: var(--felt-muted); background: var(--felt) url("img/ui/felt-umber.png") 0 0 / 32px 32px repeat; image-rendering: pixelated;
+  box-shadow: 0 -2px 0 0 var(--ol), 0 100vh 0 100vh var(--felt); }   /* the second shadow carries the felt to the bottom of a short page */
+footer::before { content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: var(--hem); }
+footer a { color: var(--thread-bright); }
+footer .themeform .thb { background: var(--felt-2); color: var(--felt-ink); border: 0; border-radius: 0; box-shadow: 0 0 0 2px var(--ol); }
+
+/* ---- messages ---- */
+.msglog.mlside { border-top: 2px dashed var(--line); }
+.msglog .ml, .flash, .newpages { border-radius: 0; border-left: 0; box-shadow: var(--frame-lite), inset 4px 0 0 0 var(--brand); padding-left: 14px; margin: 6px 2px; }
+.msglog .ml.err, .flash.err { box-shadow: var(--frame-lite), inset 4px 0 0 0 var(--danger); }
+.msglog .ml.prize, .msglog .ml.pages, .newpages { box-shadow: var(--frame-lite), inset 4px 0 0 0 var(--accent); }
+.msglog .ml.new { box-shadow: 0 -2px 0 0 var(--accent), -2px 0 0 0 var(--accent), 0 2px 0 0 var(--accent-line), 2px 0 0 0 var(--accent-line), inset 4px 0 0 0 var(--accent); }
+.msglog .ml.new.err { box-shadow: 0 -2px 0 0 var(--danger), -2px 0 0 0 var(--danger), 0 2px 0 0 var(--danger), 2px 0 0 0 var(--danger), inset 4px 0 0 0 var(--danger); }
+.msglog .mlnew, .rbadge, .rail .mlnew { border-radius: 0; }
+.flash { margin: 0 2px 14px; }
+@media (max-width: 720px) { .msglog.top { background: var(--surface-2); border-bottom: 2px solid var(--line); } }
+
+/* ---- boxes: felt patches ---- */
+.box, .rbox, .rail .msglog.mlside, .stats div, .lp-card, .pzcard { border: 0; border-radius: 0; box-shadow: var(--frame); }
+.box { padding: 14px 16px; margin-bottom: 16px; }
+body[data-area] main > .box:not(.notice):not(.danger):not(.report) { border-left: 0; box-shadow: var(--frame), inset 4px 0 0 0 var(--area); padding-left: 18px; }
+.box.notice { border-left: 0; box-shadow: var(--frame), inset 4px 0 0 0 var(--accent); padding-left: 18px; }
+.box.danger, .box.report { box-shadow: 0 -2px 0 0 var(--danger-line), -2px 0 0 0 var(--danger-line), 0 2px 0 0 var(--danger), 2px 0 0 0 var(--danger), 2px 4px 0 0 var(--drop), 4px 2px 0 0 var(--drop); }
+/* stitched cards: the special ones get the edge stitch */
+.prizebox, .eventbox, .lp-hero, .restbanner {
+  border: 0; border-radius: 0; box-shadow: var(--frame);
+  background-image: var(--st-h), var(--st-h), var(--st-v), var(--st-v);
+  background-position: 6px 6px, 6px calc(100% - 6px), 6px 6px, calc(100% - 6px) 6px;
+  background-size: calc(100% - 12px) 2px, calc(100% - 12px) 2px, 2px calc(100% - 12px), 2px calc(100% - 12px);
+  background-repeat: no-repeat; }
+.prizebox, .eventbox { padding: 18px 20px; }
+.eventbox { --thread: var(--purple); }
+
+/* hr: a stitched seam with a gold button in the middle */
+hr { height: 24px; border: 0; margin: 14px 0; image-rendering: pixelated;
+  background: url("img/ui/button.png") center / 24px 24px no-repeat, repeating-linear-gradient(90deg, var(--line-2) 0 4px, transparent 4px 6px) left center / 100% 2px no-repeat; }
+
+/* ---- buttons: felt toys with a lit top, a shaded bottom and a 2 px umber outline; they press down ---- */
+.btn, button.btn, a.btn {
+  --b-bg: var(--brand-fill); --b-hi: #4f9a45; --b-lo: #1f3f3a; --b-ink: var(--on-fill); --b-hover: #2f6a3a;
+  border: 0; border-radius: 0; background: var(--b-bg); color: var(--b-ink); font-weight: 700; text-shadow: none;
+  box-shadow: inset 0 2px 0 0 var(--b-hi), inset 0 -2px 0 0 var(--b-lo), 0 -2px 0 0 var(--ol), -2px 0 0 0 var(--ol), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol), 2px 4px 0 0 var(--drop), 4px 2px 0 0 var(--drop);
+  margin: 2px 0 6px; }   /* vertical room for the frame only: full-width buttons must not overflow */
+.btn + .btn { margin-left: 6px; }
+.btn:hover, a.btn:hover { background: var(--b-hover); color: var(--b-ink); text-decoration: none; }
+.btn:active:not([disabled]) { transform: translate(2px, 2px); box-shadow: inset 0 2px 0 0 var(--b-lo), 0 -2px 0 0 var(--ol), -2px 0 0 0 var(--ol), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol); }
+:root[data-theme] .btn.ghost, :root[data-theme] .btn.alt, :root[data-theme] .btn.pickbtn { --b-bg: var(--surface); --b-hi: #fff3c8; --b-lo: var(--surface-2); --b-ink: var(--ink); --b-hover: var(--surface-2); background: var(--b-bg); }
+:root[data-theme="dark"] .btn.ghost, :root[data-theme="dark"] .btn.alt, :root[data-theme="dark"] .btn.pickbtn { --b-bg: var(--surface-2); --b-hi: #74462a; --b-lo: #3d2a1c; --b-hover: #74462a; }
+:root[data-theme] .btn.ghost:hover, :root[data-theme] .btn.alt:hover, :root[data-theme] .btn.pickbtn:hover { background: var(--b-hover); }
+.btn.red, .btn.danger { --b-bg: #a8241f; --b-hi: #d6322b; --b-lo: #6b1b2c; --b-hover: #6b1b2c; --b-ink: #f2e4c0; }
+.btn.gold, .btn.go { --b-bg: #e8a317; --b-hi: #f5cf6a; --b-lo: #b07a10; --b-hover: #f5cf6a; --b-ink: #2a1a10; }
+/* the older variant rules (section 4, colour layer) paint background/colour directly: repaint from the felt variables in both themes */
+.btn.red, .btn.danger, .btn.gold, .btn.go { background: var(--b-bg); color: var(--b-ink); }
+.btn.red:hover, .btn.danger:hover, .btn.gold:hover, .btn.go:hover { background: var(--b-hover); color: var(--b-ink); }
+.btn.small { margin: 2px 0 4px; }
+.btn.small::after { inset: -6px -4px; }
+.linkbtn { color: var(--brand-ink); text-underline-offset: 3px; }
+
+/* ---- forms: sunken felt ---- */
+:where(input:not([type=checkbox], [type=radio], [type=range], [type=hidden], [type=submit], [type=button], [type=file], [type=color]), select, textarea) {
+  border: 2px solid var(--line-2); border-radius: 0; background: var(--surface); box-shadow: inset 2px 2px 0 0 var(--surface-2); }
+:root[data-theme="dark"] :where(input:not([type=checkbox], [type=radio], [type=range], [type=hidden], [type=submit], [type=button], [type=file], [type=color]), select, textarea) { background: var(--bg); box-shadow: inset 2px 2px 0 0 #3d2a1c; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-color: var(--ink); }
+progress { border-radius: 0; background: var(--surface-2); box-shadow: 0 0 0 2px var(--ol); }
+progress::-webkit-progress-bar { background: var(--surface-2); }
+progress::-webkit-progress-value { border-radius: 0; background: var(--fill); }
+
+/* ---- tabs and chips: felt tags; the open one is the area colour ---- */
+.tabs, .crafttabs, .gardentabs, .ccfilter, .sortopts, .book .tabs, .chips:has(> a, > button) { gap: 10px; padding: 4px 6px 8px 4px; }
+.tabs a, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .mgtool, .sortpick summary {
+  border: 0; border-radius: 0; background: var(--surface); box-shadow: var(--frame-lite); font-weight: 600; }
+.tabs a:hover, .crafttabs a:hover, .gardentabs .tab:hover, .chips a:hover, .chips button:hover, .ccfilter a:hover, .sortopts a:hover, .book .tabs a:hover { background: var(--surface-2); }
+.tabs a.on, .crafttabs a.on, .gardentabs .tab.on, .chips a.on, .chips button.on, .ccfilter a.on, .sortopts a.on, .book .tabs a.on, .mgtool.on, body[data-area] .tabs a.on {
+  background: var(--area-solid); color: var(--on-fill); font-weight: 800;
+  box-shadow: 0 -2px 0 0 var(--ol), -2px 0 0 0 var(--ol), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol), 2px 4px 0 0 var(--drop), 4px 2px 0 0 var(--drop); }
+.cat, .tag, .gtbadge, .lvbadge, .chip, .rarecat { border-radius: 0; }
+.chip { border: 0; box-shadow: var(--frame-lite); margin: 2px; }
+.placetabs { background: var(--bg); }
+
+/* ---- tiles, choices, tables, folds ---- */
+.gtile, .choice, a.choice, .themeform .thb { border: 0; border-radius: 0; box-shadow: var(--frame-lite); }
+.gtiles { gap: 12px; padding: 2px 4px 4px 2px; }
+.gtile:hover, .gtile:focus-visible { border: 0; background: var(--surface-2); box-shadow: 0 -2px 0 0 var(--area), -2px 0 0 0 var(--area), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol); }
+.choicelist { gap: 10px; padding: 2px; }
+.choice-badge { border-radius: 0; }
+.choice.primary, .choice.is-selected { box-shadow: 0 -2px 0 0 var(--brand), -2px 0 0 0 var(--brand), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol), inset 4px 0 0 0 var(--brand); }
+.themechoice .thb[aria-pressed="true"] { box-shadow: 0 -2px 0 0 var(--brand), -2px 0 0 0 var(--brand), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol); }
+.themeform { gap: 10px; }
+table.grid { border-collapse: separate; border-spacing: 0; box-shadow: var(--frame); margin: 2px 0 8px; }
+table.grid th { background: var(--surface-2); border-bottom: 2px solid var(--line-2); font-weight: 800; }
+table.grid td { border-bottom: 2px solid var(--surface-2); }
+details.fold > summary::before { content: ''; flex: none; width: 0; height: 0; margin: 0 6px 0 2px; border: 6px solid transparent; border-left-color: var(--line-2); border-right: 0; }
+details.fold[open] > summary::before { content: ''; border: 6px solid transparent; border-top-color: var(--line-2); border-bottom: 0; }
+.stats { gap: 14px; }
+
+/* ---- right column ---- */
+@media (min-width: 1200px) {
+  .rail { padding: 4px 6px 8px 4px; gap: 14px; }
+  .rail h3 { color: var(--muted); font-weight: 800; }
+  .rtime, .rgo { border-radius: 0; }
+  .rlist li { border-top: 2px dashed var(--surface-2); }
+  .rbox.rwalk { box-shadow: var(--frame), inset 4px 0 0 0 var(--accent); }
+}
+
+/* ---- popups and toasts ---- */
+.toasts .flash, .toasts .prizebox, .toasts .newpages { box-shadow: var(--shadow-2); }
+
+/* ---- puzzles library cards ---- */
+.pzcard { overflow: visible; }
+.pzthumb { overflow: hidden; }
+.pzgrid { gap: 16px; padding: 2px 4px 4px 2px; }
+/* admin menu is a plain list: no tile frames except the open page */
+body.admin .side a.navtile:not(.on) { box-shadow: none; }
+/* ===== end v2.0.32 Stitched Toy chrome ===== */

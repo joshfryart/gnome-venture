@@ -376,3 +376,14 @@ These bleed by design, so **no sticker halo** and no ground-shadow ellipse. Keep
 
 ### Palette discipline
 All colours must come from Part A, the Part D palette table, or the recipe above. When a subject has no matching family, say which family you borrowed. Never use pure black (`#000000`) or pure white (`#ffffff`) except the single white gloss dot on pale subjects.
+
+## Part C addendum: Stitched Toy site chrome (v2.0.32)
+
+The page frame follows Part D so the layout and the art read as one thing. Rules for new UI:
+- **Colours**: only the tokens in `assets/style.css` section 1. They are all Part A / Part D colours (or the Part D recipe, marked in a comment). No pure black or white, no new hex in components.
+- **Corners and edges**: no `border-radius`, no blurred `box-shadow`. Frame a panel with `box-shadow: var(--frame)` (2 px, lit upper-left `--edge-lt`, dark lower-right `--edge-dk`, 2 px stepped `--drop`, notched corners). Rows inside a panel use `var(--frame-lite)`. Frames take no layout space: leave about 4 px of room around framed things inside scrolling boxes.
+- **Buttons**: `.btn` is a felt toy: lit top, shaded bottom, umber outline, presses down 2 px. Variants set `--b-bg --b-hi --b-lo --b-ink --b-hover` only.
+- **Stitches**: thread lines are hard-stop `repeating-linear-gradient` stripes 4 px on / 2 px off (2 on, 1 off at 2x): `--hem` on umber felt (header, bottom bar, footer, title ribbon), `--st-h` / `--st-v` for an edge-stitched card (prize, event, landing hero). Keep stitches for special cards; ordinary boxes are unstitched.
+- **Felt bars**: header, phone bottom bar and footer are umber felt (`--felt`, tile `img/ui/felt-umber.png`) in both themes, cream text, gold hem.
+- **Pixel images**: `image-rendering: pixelated` (`.pix`) and whole-number scales only. Background tiles are written at 2x (`tests/gen_ui_chrome.lua`) so they show 1:1.
+- Soft scrims (the menu backdrop) and UI focus rings are the only translucent or non-palette-step things; they are UI, not art.

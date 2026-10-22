@@ -3,7 +3,7 @@
 Cosy garden browser game. Grow plants, tend beds, cook, trade, explore roads and regions, and hire help.
 Live: gnomeventure.ca. No monetization.
 
-Current version: **2.0.2** (see [CHANGELOG.md](CHANGELOG.md)).
+Current version: **2.0.32** (see [CHANGELOG.md](CHANGELOG.md)).
 
 ## Screens
 
