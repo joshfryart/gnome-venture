@@ -278,7 +278,7 @@ function npc_portrait(array $npc, string $cls = ''): string
     }
     // v1.5.2: a drawn placeholder (assets/img/ph/npc-{slug}.svg) before the plain red box
     if (($pp = ph_path('npc-' . (string)($npc['slug'] ?? ''))) !== '') {
-        return '<img class="portrait phport ' . e($cls) . '" src="' . e(url($pp)) . '" alt="' . e($npc['name']) . '" width="160" height="200" loading="lazy">';
+        return '<img class="portrait phport ' . e($cls) . (str_ends_with($pp, '.png') ? ' pix' : '') . '" src="' . e(url($pp)) . '" alt="' . e($npc['name']) . '" width="160" height="200" loading="lazy">';
     }
     return '<div class="portrait placeholder ' . e($cls) . '" role="img" aria-label="Portrait coming soon"><span>' . npc_icon((string)($npc['species'] ?? '')) . '</span><small>portrait<br>400×500</small></div>';
 }

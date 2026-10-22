@@ -32,5 +32,7 @@ function chest_stage(): string
             . '<span class="cs-name">' . e($it['name']) . '</span><b class="cs-qty">×' . (int)$qty . '</b></li>';
     }
     $sum = 'The chest holds ' . number_format((int)$r['coins']) . ' ' . setting('currency_name') . ', ' . (int)$r['xp'] . ' XP' . ($names ? ', ' . implode(', ', $names) : '') . '.';
-    return '<div class="chestdata" hidden data-coins="' . (int)$r['coins'] . '" data-xp="' . (int)$r['xp'] . '" data-cur="' . e(setting('currency_name')) . '" data-summary="' . e($sum) . '"><ul>' . $lis . '</ul></div>';
+    $art = pixel_has('assets/img/chest-body.png') && pixel_has('assets/img/chest-lid.png')   // v2.0.31: pixel chest layers (chest.js falls back to its vector chest if absent or failing to load)
+        ? ' data-body="' . e(url('assets/img/chest-body.png')) . '" data-lid="' . e(url('assets/img/chest-lid.png')) . '"' : '';
+    return '<div class="chestdata" hidden' . $art . ' data-coins="' . (int)$r['coins'] . '" data-xp="' . (int)$r['xp'] . '" data-cur="' . e(setting('currency_name')) . '" data-summary="' . e($sum) . '"><ul>' . $lis . '</ul></div>';
 }

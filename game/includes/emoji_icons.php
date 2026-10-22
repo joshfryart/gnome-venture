@@ -66,7 +66,7 @@ function ico_regex(): ?string
 
 function ico_img(array $row): string
 {
-    return '<img class="ico" src="' . e(url('assets/img/ico/' . $row['slug'] . '.svg')) . '" alt="' . ($row['dec'] ? '' : e($row['name'])) . '" width="16" height="16" loading="lazy" decoding="async">';
+    return '<img class="ico pix" src="' . e(art_url('assets/img/ico/' . $row['slug'])) . '" alt="' . ($row['dec'] ? '' : e($row['name'])) . '" width="16" height="16" loading="lazy" decoding="async">';
 }
 
 /** Swap emoji in the text nodes of an HTML string. */

@@ -123,7 +123,7 @@ $IL = null;
     foreach (FLOWER_SHAPES as $sh) $shapes[$sh] = flower_svg_inner($sh);
     $sprigInner = [];
     foreach (FLOWER_SPRIGS as $sp) $sprigInner[$sp] = flower_svg_inner($sp);
-    $data = ['v' => 'vase', 'mouth' => CANVAS_MOUTH_Y, 'slots' => SLOT_POS, 'vessels' => $vessels, 'shapes' => $shapes, 'sprigs' => FLOWER_SPRIGS, 'sprigInner' => $sprigInner,
+    $data = ['v' => 'vase', 'mouth' => CANVAS_MOUTH_Y, 'slots' => SLOT_POS, 'vessels' => $vessels, 'shapes' => $shapes, 'sprigs' => FLOWER_SPRIGS, 'sprigInner' => $sprigInner, 'px' => flower_pixel_data(),
         'preview' => url('arrange.php?t=preview'), 'min' => max(1, (int)setting('arrange_min_stems')), 'flowers' => $flowers];
     $ctxLocal = arrange_ctx($u);
   ?>

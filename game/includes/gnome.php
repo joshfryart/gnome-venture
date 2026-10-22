@@ -534,6 +534,22 @@ function gnome_avatar(array $u, int $size = 96): string
     $tier = calling_tier($u);   // v0.9.1
     $b = (string)($u['beard_color'] ?? '');
     $beard = isset(BEARD_COLORS[$b]) || dye_valid('beard', $b) ? $b : '#f4f1ea';   // v0.9.7: or a beard dye
+    $L = ['shadow', 'body', 'face', 'beard', 'hat'] + ($tier >= 2 ? [5 => 'band'] : []) + ($tier >= 3 ? [6 => 'star'] : []);
+    $px = true;
+    foreach ($L as $l) if (!pixel_has('assets/img/gnome/gnome-' . $l . '.png')) { $px = false; break; }
+    if ($px) {   // v2.0.31: layered pixel art, beard and hat tinted by an SVG filter (filters live inside this svg's <defs> so trek.php / trek_art.php can re-embed the inner markup)
+        require_once __DIR__ . '/pixel_art.php';
+        $bh = pixel_hex($beard);
+        $hh = pixel_hex($hat);
+        $defs = ($hh !== '' ? pixel_tint_filter($hh) : '') . ($bh !== '' && $bh !== $hh ? pixel_tint_filter($bh) : '');
+        $o = '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome">'
+            . ($defs !== '' ? '<defs>' . $defs . '</defs>' : '');
+        foreach ($L as $l) {
+            $o .= '<g data-part="' . ($l === 'beard' || $l === 'hat' || $l === 'band' || $l === 'star' ? $l : 'base') . '">'
+                . pixel_image('assets/img/gnome/gnome-' . $l . '.png', 0, 0, 80, 100, $l === 'beard' ? $beard : ($l === 'hat' ? $hat : '')) . '</g>';
+        }
+        return $o . '</svg>';
+    }
     return '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome">'
         . '<ellipse cx="40" cy="96" rx="26" ry="4" fill="#000" opacity=".12"/>'
         . '<path d="M18 92 Q20 64 40 62 Q60 64 62 92 Z" fill="#6b8f4e"/>'                       // tunic

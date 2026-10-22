@@ -162,7 +162,7 @@ function garden100_items(): void
 {
     foreach (GARDEN_ITEMS as $slug => [$name, $cat, $desc, $price]) {
         if (q_val('SELECT 1 FROM items WHERE slug = ?', [$slug])) continue;
-        $img = is_file(APP_ROOT . '/assets/img/animals/item-' . $slug . '.svg') ? 'assets/img/animals/item-' . $slug . '.svg' : null;
+        $img = pixel_has('assets/img/animals/item-' . $slug . '.png') ? 'assets/img/animals/item-' . $slug . '.png' : (is_file(APP_ROOT . '/assets/img/animals/item-' . $slug . '.svg') ? 'assets/img/animals/item-' . $slug . '.svg' : null);
         db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => $cat, 'description' => $desc, 'rarity' => 1,
             'base_price' => $price, 'image' => $img, 'edible' => 0, 'effects' => null, 'tradable' => 1]);
     }

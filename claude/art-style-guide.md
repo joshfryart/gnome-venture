@@ -338,3 +338,41 @@ For other subjects, take the matching Part A family (moss, water, soil, petal, s
 ## Open items
 - v09's edge stitch partly hides the body gloss on the lit side. Version v10 fixed this by skipping stitches over the gloss patch (x <= 21, y 33 to 46). Use v09 as the reference, and apply that gloss-patch skip when a stitch runs through a gloss.
 - Only the ladybird has been drawn in this style. Check the rules on a creature with a different silhouette, a folk portrait and an icon before treating them as final.
+
+## Part D addenda (from the 20-asset pilot)
+
+These close gaps the pilot agents all hit. They override anything above in Part D where they disagree.
+
+### Ramps for any colour
+Part D only lists red and dusk. For any other family, build the same four steps with the **hue-shift recipe**: take the Part A family colour as the base, then
+- **gloss**: base shifted toward yellow-orange and about 35% lighter (a near-white warm cream for pale subjects),
+- **shade**: base shifted toward red-violet and about 22% darker,
+- **deep**: base shifted further toward violet and about 45% darker,
+- **bounce**: the shade colour shifted warmer and about 8% lighter (one px inside the lower-right edge),
+- **rim** (upper-left, 1 px): gloss colour, kept 10% darker than the gloss.
+Examples: moss `#4f9a45` gives shade `#2f6a3a`, deep `#1f3f3a`; gold `#e8a317` gives shade `#b07a10`, deep `#6a4510`. Pick colours that exist in Part A where one fits. Keep all steps hard pixels.
+
+### Other canvas sizes
+The pixel numbers above are for a 64 px canvas. Scale by `k = shorter side / 64` and round to whole pixels, with these floors: halo growth at least 3 px, outline at least 2 px, stitches and glints always 1 px.
+- 32 to 48 px canvases (map stops): k is about 0.5 to 0.75, keep halo 3 px, outline 2 px.
+- Large scenes: do NOT scale the outline up. Draw on a grid of about 100 px on the shorter side and write it out at 2x nearest-neighbour so line weights stay in proportion.
+- The selective-outline light value `s = (x - cx) + (y - cy)` is measured from the canvas centre and its thresholds scale with k.
+
+### Pale and light subjects (dust, hair, paper, cream, bone)
+Use the **cream-safe** treatment: gloss is a warm near-white (`#fff3c8`, dot `#ffffff`), rim is `#f5b860`, and give the subject an inside outline of `#4a2c1a` (never the lightest outline tone) so it separates from the cream halo. A pale subject needs a 1 px umber outline on all sides, not only the shaded side.
+
+### Heavy-outline halo
+The halo must show at least 2 px of cream beyond the heaviest part of the outline. Grow the halo by 5 px (6 px for `ico-*`) instead of 4, then close with radius 6 and clean nubs. Clip to keep it 3 px inside the frame.
+
+### Scenes, banners, landing art, tiles and busts
+These bleed by design, so **no sticker halo** and no ground-shadow ellipse. Keep everything else: three-tone outline on every object, one crescent per object, bounce line, rim, gloss, hard-edged stepped bands instead of gradients (about 5 bands for a sky or glow), and the stitched-toy seam wherever there is a real join. Banners and landing art may use a thread-gold hem stitch (2 on, 1 off) along the top and bottom edge.
+- **Busts** (`npc-*`, 80 x 100): halo grown 3 px, outline 2 px on the shaded side and 1 px elsewhere, may bleed off the bottom. Locked eyes, scaled down only if the head is under 20 px wide (then 3 x 3 disc, 2 x 2 pupil).
+- **Backgrounds** without objects: stepped colour bands, 1 px dither is still not allowed.
+
+### Variants
+- `broken-*`: the same drawing as the intact item plus visible damage (crack, snapped part, chipped corner, a loose piece on the ground). Do not change the colours.
+- `stage-*` or numbered tiers: same subject, grow or improve one visible feature per step.
+- Names must match the original file name exactly (`<folder>/<name>.png`).
+
+### Palette discipline
+All colours must come from Part A, the Part D palette table, or the recipe above. When a subject has no matching family, say which family you borrowed. Never use pure black (`#000000`) or pure white (`#ffffff`) except the single white gloss dot on pale subjects.

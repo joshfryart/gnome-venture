@@ -47,7 +47,7 @@ function animals140_items(): void
 {
     foreach (ANIMALS140_ITEMS as $slug => [$name, $cat, $desc, $price, $decor]) {
         if (q_val('SELECT 1 FROM items WHERE slug = ?', [$slug])) continue;
-        $img = is_file(APP_ROOT . '/assets/img/animals/item-' . $slug . '.svg') ? 'assets/img/animals/item-' . $slug . '.svg' : null;
+        $img = pixel_has('assets/img/animals/item-' . $slug . '.png') ? 'assets/img/animals/item-' . $slug . '.png' : (is_file(APP_ROOT . '/assets/img/animals/item-' . $slug . '.svg') ? 'assets/img/animals/item-' . $slug . '.svg' : null);
         $fx = null;
         if ($decor) {
             [$type, $w, $h, $icon, $appeal] = $decor;

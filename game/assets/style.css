@@ -1334,7 +1334,7 @@ form.yo { margin: 0; padding: 0; }
 .yobtn:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .yard.editing .yo, .yard.editing .tile { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .yard.editing .tile.fixed { cursor: not-allowed; }
-.yard.editing .tile.fixed::after { content: ''; position: absolute; left: 1px; bottom: 0; width: 13px; height: 13px; background: url(img/ico/ico-pushpin.svg) center / contain no-repeat; }
+.yard.editing .tile.fixed::after { content: ''; position: absolute; left: 1px; bottom: 0; width: 13px; height: 13px; background: url(img/ico/ico-pushpin.png) center / contain no-repeat; }
 .yard .picked { outline: 3px solid var(--sel); outline-offset: -1px; z-index: 2; }
 .yard .dragging { opacity: .75; z-index: 3; cursor: grabbing; }
 .yard .bad { outline: 3px solid #e04a3a !important; background-color: rgba(224, 74, 58, .45) !important; }
@@ -2002,6 +2002,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 /* ===== v0.9.9 part A: flowers (arranging, drying rack, seed packets, show, florists). Art is inline SVG; colours are fixed art colours, the rest uses the tokens. ===== */
 .flsvg { display: inline-block; vertical-align: middle; overflow: visible; }
 .flsvg-sm, .flsvg-md, .flsvg-lg { filter: drop-shadow(0 0 .6px rgba(0, 0, 0, .5)); }
+.flsvg image, .arrcanvas image { image-rendering: pixelated; }   /* v2.0.31 pixel flowers (also set as an attribute on each <image>) */
 .flsvg-full { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
 .iicon .flsvg { display: block; margin: 0 auto; }
 .arrbig { padding: 4px 0; }
@@ -2617,7 +2618,7 @@ ul.rules .rtext b { display: block; font-weight: 600; margin-bottom: 1px; }
 .memboard .card.miss { animation: gvNo .4s ease-in-out .42s; }
 .memboard .card.miss .pk { box-shadow: inset 0 0 0 2px var(--danger), 0 2px 0 rgba(0, 0, 0, .22); }
 .memboard .card.matched .pk { background: #f1f8d8; box-shadow: inset 0 0 0 2px #8cc063, 0 0 10px 1px rgba(124, 196, 84, .65), 0 2px 0 rgba(0, 0, 0, .2); }
-.memboard .card.matched .pk::after { content: ''; left: auto; right: 5%; bottom: 4%; width: 11px; height: 11px; background: url(img/ico/ico-leaf.svg) center / contain no-repeat; opacity: 1; }
+.memboard .card.matched .pk::after { content: ''; left: auto; right: 5%; bottom: 4%; width: 11px; height: 11px; background: url(img/ico/ico-leaf.png) center / contain no-repeat; opacity: 1; }
 .memboard .card.matched.settle { animation: gvSettle .7s ease-out .42s; }
 @keyframes gvPktIn { 0% { transform: perspective(420px) rotateY(-90deg) scale(.94); } 100% { transform: perspective(420px) rotateY(0) scale(1); } }
 @keyframes gvSettle { 0% { transform: scale(1); } 35% { transform: scale(1.14) rotate(-2deg); } 70% { transform: scale(.97); } 100% { transform: scale(1); } }
@@ -2668,6 +2669,9 @@ dialog.chestov::backdrop { background: transparent; }
 .chestov .cs-svg { transform-origin: 50% 90%; }
 .chestov.cs-wobble .cs-svg { animation: cs-wobble 1s ease-in-out; }
 .chestov.cs-opened .cs-lid { transform: translateY(-13px) rotate(-14deg) scaleY(.8); }
+.chestov .cs-svg .cs-img { image-rendering: pixelated; }
+.chestov .cs-px .cs-lid { transform-origin: 32px 30px; }   /* v2.0.31: pixel lid hinges at its back edge */
+.chestov.cs-opened .cs-px .cs-lid { transform: translateY(-9px) rotate(-12deg); }
 .chestov.cs-opened .cs-inside { opacity: 1; }
 .chestov.cs-opened .cs-glow { opacity: .95; animation: cs-glow 1.6s ease-in-out infinite alternate; }
 .chestov .cs-sparks { position: absolute; left: 50%; top: 40%; width: 0; height: 0; pointer-events: none; }
@@ -4671,3 +4675,5 @@ small .ico,.muted .ico{height:1em;width:1em}
 details.fold > summary, .st-later summary, .renamefold > summary, .btbody details.how > summary { gap: .35em; }
 .book .ctile .ci img[src*="/banner-"] { width: 72px; height: auto; max-height: 36px; border-radius: 4px; }
 .book .bpicon img[src*="/banner-"] { width: 140px; height: auto; max-height: 72px; border-radius: 6px; }
+/* v2.0.31: pixel art stays crisp when scaled */
+.pix { image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }

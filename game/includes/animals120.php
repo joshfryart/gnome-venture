@@ -62,7 +62,7 @@ function animals120_items(): void
 {
     foreach (ANIMALS120_ITEMS as $slug => [$name, $cat, $desc, $price, $decor]) {
         if (q_val('SELECT 1 FROM items WHERE slug = ?', [$slug])) continue;
-        $img = is_file(APP_ROOT . '/assets/img/animals/item-' . $slug . '.svg') ? 'assets/img/animals/item-' . $slug . '.svg' : null;
+        $img = pixel_has('assets/img/animals/item-' . $slug . '.png') ? 'assets/img/animals/item-' . $slug . '.png' : (is_file(APP_ROOT . '/assets/img/animals/item-' . $slug . '.svg') ? 'assets/img/animals/item-' . $slug . '.svg' : null);
         $fx = null;
         if ($decor) {
             [$type, $w, $h, $icon, $appeal] = $decor;
@@ -273,7 +273,7 @@ function animals120_neighbours(array $u, array $plot): array
     foreach (ANIMALS120_NEIGHBOURS as $kind => [$name, $icon, $svg]) {
         if (!neighbour120_here($plot, $kind)) continue;
         unlock_entries($uid, 'critter:' . $kind);
-        $img = is_file(APP_ROOT . '/assets/img/animals/' . $svg) ? '<img class="cimg" src="' . e(url('assets/img/animals/' . $svg)) . '" alt="" width="48" height="48" loading="lazy">' : '<span class="oi">' . $icon . '</span>';
+        $img = is_file(APP_ROOT . '/assets/img/animals/' . $svg) ? '<img class="cimg pix" src="' . e(art_url('assets/img/animals/' . preg_replace('/\.svg$/', '', $svg))) . '" alt="" width="48" height="48" loading="lazy">' : '<span class="oi">' . $icon . '</span>';
         $h = '<div class="biddy box neighbour ' . e($kind) . '">' . $img . '<div><b>' . e($name) . ($kind === 'clementine' ? ' is at the fence' : ' is on the shed') . '</b> <small class="muted">'
             . ($kind === 'clementine' ? 'the neighbour’s goat' : 'the post pigeon') . ' · ' . neighbour120_friendship($plotId, $kind) . ' trades so far</small><br>';
         $trade = false;

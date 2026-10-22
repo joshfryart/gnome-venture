@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.30');
+define('APP_VERSION', '2.0.31');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -53,6 +53,7 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/upgrade100.php';   // v1.0.0: guarded upgrade steps
 require_once __DIR__ . '/social.php';   // v1.0.0 wave 3: settings, tables, the welcome-back note
 require_once __DIR__ . '/market100.php';   // v1.0.0 wave 2b: orders, market day, price drift
+require_once __DIR__ . '/pixel_art.php';   // v2.0.31: pixel art helpers
 require_once __DIR__ . '/layout.php';
 require_once __DIR__ . '/progression.php';   // region levels and where you've been (v0.7.43)
 require_once __DIR__ . '/calling_quests.php';   // v0.9.4: calling_event() is called from the hooks on every page

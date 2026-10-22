@@ -30,8 +30,36 @@
   function r(x, d) { var m = Math.pow(10, d); return Math.round(x * m) / m; }
   function bit(seed, k) { return Math.floor(seed / Math.pow(2, k)) % 2; }
 
+  /* v2.0.31 pixel art: mirrors pixel_hex / pixel_image / pixel_tint_filter in includes/pixel_art.php. D.px lists the PNGs that exist (JS cannot stat files);
+     a piece with no PNG falls back to the old inline SVG. */
+  var PX = D.px || {};
+  function pixHex(c) {
+    c = String(c).trim().replace(/^#+/, '');
+    if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+    return /^[0-9a-fA-F]{6}$/.test(c) ? c.toLowerCase() : '';
+  }
+  function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function pixImage(href, x, y, w, h, tint) {
+    var t = tint ? pixHex(tint) : '';
+    return '<image href="' + escAttr(href) + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" image-rendering="pixelated"' + (t ? ' filter="url(#tint-' + t + ')"' : '') + '/>';
+  }
+  function tintDefs(markup) {
+    var re = /filter="url\(#tint-([0-9a-f]{6})\)"/g, seen = {}, m, f = '', gain = PX.gain || 1.25;
+    while ((m = re.exec(markup))) {
+      var h = m[1];
+      if (seen[h]) continue;
+      seen[h] = 1;
+      var c = [0, 2, 4].map(function (i) { return r(parseInt(h.substr(i, 2), 16) / 255 * gain, 4); });
+      f += '<filter id="tint-' + h + '" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="' + c[0] + ' 0 0 0 0  0 ' + c[1] + ' 0 0 0  0 0 ' + c[2] + ' 0 0  0 0 0 1 0"/></filter>';
+    }
+    return f ? '<defs>' + f + '</defs>' : '';
+  }
   function headG(shape, tint, x, y, s, rot) {
-    return '<g transform="translate(' + r(x, 2) + ' ' + r(y, 2) + ') rotate(' + r(rot, 1) + ') scale(' + r(s, 3) + ') translate(-32 -32)" color="' + tint + '">' + (D.shapes[shape] || '') + '</g>';
+    var tr = 'translate(' + r(x, 2) + ' ' + r(y, 2) + ') rotate(' + r(rot, 1) + ') scale(' + r(s, 3) + ') translate(-32 -32)';
+    if (PX.petals && PX.petals[shape] && PX.centre && PX.centre[shape] && pixHex(tint)) {
+      return '<g transform="' + tr + '">' + pixImage(PX.petals[shape], 0, 0, 64, 64, tint) + pixImage(PX.centre[shape], 0, 0, 64, 64) + '</g>';
+    }
+    return '<g transform="' + tr + '" color="' + tint + '">' + (D.shapes[shape] || '') + '</g>';
   }
 
   /* Mirrors arrangement_inner() in includes/flower_art.php */
@@ -40,10 +68,11 @@
     var order = Object.keys(slots).map(Number).sort(function (a, b) { return a - b; });
     order.forEach(function (s) { var f = D.flowers[slots[s]]; keys.push(s + ':' + f.slug + ':' + (f.dried ? 1 : 0)); });
     var seed = crc32(keys.join('|'));
-    out += '<g transform="translate(0 ' + (my - 16) + ')">' + V.back + '</g>';
+    var pxV = PX.back && PX.back[v] && PX.front && PX.front[v];
+    out += '<g transform="translate(0 ' + (my - 16) + ')">' + (pxV ? pixImage(PX.back[v], 0, -30, 200, 150) : V.back) + '</g>';
     [[-1, 36, 1.0], [1, 36, 0.95], [0, 0, 1.12]].forEach(function (p, k) {
       var name = D.sprigs[Math.floor(seed / Math.pow(2, k * 3)) % D.sprigs.length];
-      out += '<g transform="translate(' + (100 + p[0] * V.mouthW * 0.6) + ' ' + (my + 4) + ') rotate(' + (p[0] * p[1]) + ') scale(' + p[2] + ') translate(-32 -96)">' + D.sprigInner[name] + '</g>';
+      out += '<g transform="translate(' + (100 + p[0] * V.mouthW * 0.6) + ' ' + (my + 4) + ') rotate(' + (p[0] * p[1]) + ') scale(' + p[2] + ') translate(-32 -96)">' + (PX.sprig && PX.sprig[name] ? pixImage(PX.sprig[name], 0, 0, 64, 96) : D.sprigInner[name]) + '</g>';
     });
     order.forEach(function (s) {
       var f = D.flowers[slots[s]], P = D.slots[s], cx = P[0], cy = P[1], sc = P[2];
@@ -55,7 +84,8 @@
       }
       heads += headG(f.shape, f.dried ? f.dtint : f.tint, cx, cy, sc * 0.98, (bit(seed, s) ? 6 : -6) * (s ? 1 : 0.5));
     });
-    return out + heads + '<g transform="translate(0 ' + (my - 16) + ')">' + V.front + '</g>';
+    out += heads + '<g transform="translate(0 ' + (my - 16) + ')">' + (pxV ? pixImage(PX.front[v], 0, -30, 200, 150) : V.front) + '</g>';
+    return tintDefs(out) + out;
   }
 
   function count() { return Object.keys(state.slots).length; }
