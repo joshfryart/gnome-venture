@@ -99,7 +99,7 @@ def ico_map():
         if emo not in d['emoji']: d['emoji'].append(emo)
     return res
 
-BREAK = {'about', 'a1', 'b1', 'b4', 'c1', 'c3'}   # sections that start a new page; the rest flow on
+BREAK = {'about', 'a1', 'b1', 'b4', 'c1', 'c3', 'd1'}   # sections that start a new page; the rest flow on
 VEC = {'gnome-hat', 'bee', 'watering-can', 'carrot', 'mushroom', 'coffee'}
 FORBID = ['<script', '<style', 'style=', 'filter', 'xlink', 'href', '<image', '<foreignObject', '<use', 'gradient', '<text']
 def load_icons():
@@ -394,6 +394,75 @@ SPACE_TABLE = ('<table><tr><th>Token</th><th class="num">Value</th><th>Use</th><
  '<tr><td>gaps</td><td class="num">10, 12, 14 px</td><td>Choice list and tabs 10, tiles 12, stat cards 14 (room for the frames)</td></tr>'
  '<tr><td><code>--shadow</code></td><td class="num">2 2 0, no blur</td><td>Hard pixel drop. Popups use <code>--shadow-2</code> (outline + 6 px drop)</td></tr></table>')
 
+# ---------- Part D: Aseprite pixel art ----------
+TREK = os.path.join(GAME, 'assets/img/trek'); IMG = os.path.join(GAME, 'assets/img')
+def swt(c): return '<span style="white-space:nowrap">%s<code>%s</code></span>' % (sw(c), E(c))
+def png_uri(p): return data_uri(p, 'image/png')
+def png_size(p):
+    from PIL import Image
+    return Image.open(p).size
+
+def f_pixpal():
+    rows = [('Border (outside the art only)', ['#000000']), ('Outline, light to dark', ['#74462a', '#4a2c1a', '#2a1a10']),
+            ('Red ramp', ['#ff9158', '#ffc27a', '#f2793a', '#dd3a2a', '#b8452f', '#ae2a2a', '#6b1b2c']),
+            ('Dusk (head)', ['#7b66b4', '#3e2f66', '#291d4a', '#a894dc']), ('Legs (base, lit top)', ['#54447f', '#7b66b4']),
+            ('Spots (base, glint)', ['#35161f', '#5e2a3a']), ('Thread gold (stitch, shade, button holes)', ['#f5cf6a', '#e8a317', '#8a4a1c']),
+            ('Eyes (disc, pupil)', ['#f2e4c0', '#2a1a10'])]
+    note = {'Red ramp': 'gloss, gloss dot, rim, base, bounce, shade, deep', 'Dusk (head)': 'rim, base, shade, gloss', 'Border (outside the art only)': 'the old cream halo #f2e4c0 is retired'}
+    return '<table class="ramp"><tr><th>Use</th><th>Colours</th></tr>' + ''.join('<tr><td>%s%s</td><td>%s</td></tr>' % (E(a), ('<br><span class="muted">%s</span>' % E(note[a])) if a in note else '', ' '.join(swt(c) for c in cs)) for a, cs in rows) + '</table>'
+
+def pxrow(names, cls, scale=1):
+    s = ''
+    for rel in names:
+        p = os.path.join(IMG, rel)
+        if not os.path.isfile(p): continue
+        w, h = png_size(p)
+        s += '<img src="%s" alt="" width="%d" height="%d">' % (png_uri(p), w * scale, h * scale)
+    return '<div class="pxrow %s">%s</div>' % (cls, s)
+
+def f_pixsamples():
+    names = ['ph/tomato.png', 'ph/sunflower.png', 'ph/acai.png', 'ph/creature-giant-bumblebee.png', 'ico/ico-bee.png', 'ico/ico-carrot.png', 'ico/ico-mushroom.png', 'ico/ico-gnome-hat.png', 'animals/frog.png', 'animals/butterfly.png']
+    big = ['ph/tomato.png', 'ico/ico-bee.png', 'animals/frog.png', 'ico/ico-gnome-hat.png']
+    h = '<div class="keep"><b>1x (64 px) on a light chip, then a dark chip</b>' + pxrow(names, 'pxl') + pxrow(names, 'pxd') + '</div>'
+    chips = ''
+    for k, rel in enumerate(big):
+        p = os.path.join(IMG, rel); w, hh = png_size(p)
+        chips += '<div class="pxchip %s"><img src="%s" alt="" width="%d" height="%d"></div>' % ('pxl' if k % 2 == 0 else 'pxd', png_uri(p), w * 2, hh * 2)
+    h += '<div class="keep"><b>2x (128 px)</b><div class="pxrow big">%s</div></div>' % chips
+    h += '<p class="pxcap">Tomato, bee, frog and gnome hat. The 1 px black border is the last pixel ring; the umber outline sits under it. Files: <code>ph/</code>, <code>ico/</code>, <code>animals/</code> PNGs.</p>'
+    return h
+
+def f_trekrings():
+    rings = [('trek-floor-o-*, crystal-o', '#9a6b3f', 'so_base'), ('trek-mud-o-*, mud-u, drained, clay-loose', '#7a4a1f', 'mud_base'), ('trek-roots-o-*', '#7d8a62', 'or_base'), ('trek-blight-o-*', '#4e3a8a', 'du_base'),
+             ('trek-floor-u-*, crystal-u', '#8a5a30', 'su_base'), ('trek-roots-u', '#4a4632', 'ur_base'), ('trek-blight-u', '#3e2f66', 'du_shade'), ('trek-chasm-*', '#143645', 'ch_base'), ('trek-clay-wet', '#944c1f', 'cl_base'),
+             ('wall-o-auto empty side apron', '#9a6b3f', 'floor-o ring'), ('wall-u-auto empty side apron', '#8a5a30', 'floor-u ring'), ('water-auto empty side apron', '#7a4a1f', 'mud ring')]
+    return '<table class="ramp keep"><tr><th>Tile family</th><th>Ring colour (outer 3 px)</th></tr>' + ''.join('<tr><td><code>%s</code></td><td>%s <span class="muted">%s</span></td></tr>' % (E(a), swt(c), E(n)) for a, c, n in rings) + '</table>'
+
+def f_treksamples():
+    names = ['trek-floor-o-1', 'trek-crystal-o', 'trek-blight-o-1', 'trek-floor-u-1', 'trek-chasm-1', 'trek-clay-wet']
+    tiles = ''
+    for n in names:
+        p = os.path.join(TREK, n + '.png')
+        if os.path.isfile(p): tiles += '<img src="%s" alt="" width="84" height="84">' % png_uri(p)
+    fl = os.path.join(TREK, 'trek-floor-o-1.png'); wl = os.path.join(TREK, 'trek-wall-o-auto.png')
+    tiled = '<div class="tile" style="background-image:url(%s);background-size:84px 84px;width:252px;height:168px"></div>' % png_uri(fl) if os.path.isfile(fl) else ''
+    sheet = '<img class="pxchip pxl" src="%s" alt="" width="168" height="252">' % png_uri(wl) if os.path.isfile(wl) else ''
+    return ('<div class="keep"><div class="pxrow pxl big">%s</div><p class="pxcap">42 x 42 tiles at 2x: floor-o-1, crystal-o, blight-o-1, floor-u-1, chasm-1, clay-wet.</p>' % tiles +
+            '<div class="cols2"><div><div class="pxrow pxl">%s</div><p class="pxcap">floor-o-1 repeated 3 x 2 at 2x: no seam.</p></div>' % tiled +
+            '<div>%s<p class="pxcap">wall-o-auto, 84 x 126 at 2x: 4 x 6 quarters of 21 px.</p></div></div></div>' % sheet)
+
+def f_trekpal():
+    rows = [('so (open soil)', '#d9ba7c #c9a96e #9a6b3f #8b5a31 #7a4a1f #3d2a1c'), ('su (underground soil)', '#b88850 #a06c3c #8a5a30 #6e4426 #5c3520 #33221a'), ('mud', '#9a6b3f #8b5a31 #7a4a1f #6e4426 #5c3520 #3d2a1c'),
+            ('or (open roots)', '#b9c58a #a2b076 #7d8a62 #6f7b56 #5f6c4a #3a4530'), ('ur (underground roots)', '#8a8a5c #6e6e48 #4a4632 #403e2c #38352a #272219'), ('mo (moss)', '#c8d77a #a4b86a #7ab55c #6a9a3a #4a8a3e #2f5a2a'),
+            ('sn (stone)', '#c9c5bc #b3b2b0 #8b8f96 #7a7f8a #5b6470 #3c4252'), ('wl (clay rock)', '#e6cf98 #d9bd84 #c9a96e #b08a55 #9a6b3f #7a4a1f'), ('du (blight)', '#a894dc #7b66b4 #4e3a8a #463780 #3e2f66 #291d4a'),
+            ('wa (water)', '#c8ecdc #a9d6ea #3f8fb0 #2f7fa0 #25637d #1c3a5e'), ('ch (chasm)', '#2d6479 #24556b #143645 #112f3d #0e2433 #091623'), ('cl (wet clay)', '#c0662c #a85a28 #944c1f #84451f #6a3820 #3d2a1c'),
+            ('wd (wood)', '#ecc58a #d9a660 #b07a45 #a8582f #8a4f2a #5e2f1e'), ('gd (gold, crystal)', '#fff1c8 #f5cf6a #e8a317 #d0862a #b8661a #7a3a14'), ('rd (red, ember)', '#ff9158 #f2793a #dd3a2a #b8452f #ae2a2a #6b1b2c'),
+            ('skin', '#ffe2a8 #f9d49c #e9b98a #d9885a #c47a52 #8a4234'), ('cr (cream)', '#fff3c8 #f5b860 #f4f0e0 #e2d6b8 #cfc3a2 #a89a78')]
+    return ('<table class="ramp"><tr><th>Ramp</th><th>gloss, rim, base, bounce, shade, deep</th></tr>' + ''.join('<tr><td>%s</td><td>%s</td></tr>' % (E(a), ' '.join(swt(c) for c in cs.split())) for a, cs in rows) + '</table>' +
+            '<p>Outline on raised objects: <code>#74462a</code> lit side, <code>#4a2c1a</code> middle, <code>#2a1a10</code> shaded side. Thread <code>#f5cf6a</code> / <code>#e8a317</code>, button holes <code>#8a4a1c</code>. Game colours kept as is: soil <code>#3d2a1c #7a4a1f #9a6b3f #c9a96e</code>, moss <code>#4f9a45 #2f5a2a</code>, ink <code>#2b2b2b</code>. Never <code>#000000</code> or <code>#ffffff</code> in tiles.</p>')
+
+FILL.update({'PIXPAL': lambda a: f_pixpal(), 'PIXSAMPLES': lambda a: f_pixsamples(), 'TREKSAMPLES': lambda a: f_treksamples(), 'TREKPAL': lambda a: f_trekpal(), 'TREKRINGS': lambda a: f_trekrings()})
+
 # ---------- assemble ----------
 def toc_html(entries, pages):
     out = '<ul class="toc">'
@@ -408,7 +477,7 @@ def page_html(pages, pagecount, shots_ok=True):
     ver = app_version()
     hat = next((i for i in C.icons if i['name'] == 'gnome-hat'), None) or (C.icons[0] if C.icons else None)
     if hat: VEC.add(hat['name'])
-    cover = '<section class="cover">%s<h1>Gnome Venture<br>Style Sheet &amp; Art Guide</h1><p class="sub">Hearthlight art, inline icons and the UI rules</p><div class="meta">Game version %s<br>Built %s<br>%d inline icons &middot; %d colour tokens%s</div><div class="band">Cosy garden game &middot; gnomeventure.ca</div></section>' % (
+    cover = '<section class="cover">%s<h1>Gnome Venture<br>Style Sheet &amp; Art Guide</h1><p class="sub">Hearthlight art, inline icons, the UI rules and Aseprite pixel art</p><div class="meta">Game version %s<br>Built %s<br>%d inline icons &middot; %d colour tokens%s</div><div class="band">Cosy garden game &middot; gnomeventure.ca</div></section>' % (
         use(hat['stem'], 'hat') if hat else '', E(ver), E(when), len(C.icons), C.ntokens, (' &middot; %d pages' % pagecount) if pagecount else '')
     entries = []; body = ''; last = None
     fill = lambda n, a: FILL[n](a) if n in FILL else '<!-- %s? -->' % n

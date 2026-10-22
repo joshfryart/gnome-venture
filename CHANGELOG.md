@@ -5,6 +5,7 @@ Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 ## 2.0.34
 - Trek map drawn from 46 Stitched Toy pixel tiles in `assets/img/trek` (`TK_PIXEL_TILES` switch; the player keeps their own gnome, `TK_PIXEL_ME` false).
 - All sticker, icon and bust art now has no cream halo and a 1 px black border (map tiles and scenes unchanged).
+- Style guide PDF rebuilt with an Aseprite / Stitched Toy section.
 - No schema change.
 
 ## 2.0.33

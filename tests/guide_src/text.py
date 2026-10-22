@@ -1,7 +1,7 @@
 """Text of the Gnome Venture style guide. Edit here, then run: python3 tests/build_guide.py
 Markup (tiny): '## h2', '### h3', '- bullet', '1. step', '> note', '| a | b |' tables (2nd line = separator), ``` code ```,
 **bold**, `code`. A line holding only {{NAME}} or {{NAME:arg}} is filled in by build_guide.py (palette, catalogue, screenshots ...).
-SECTIONS = (id, part, title, body). part: 'front', 'a', 'b', 'c'."""
+SECTIONS = (id, part, title, body). part: 'front', 'a', 'b', 'c', 'd'."""
 
 ABOUT = """
 This is the one reference for how Gnome Venture looks: the Hearthlight art style, the inline icon system, and the UI style sheet.
@@ -11,6 +11,7 @@ It is **rebuilt from the real files**, so the icon pages and colour tables are n
 - **Part A**: the art rules for every picture (placeholders, creatures, folk, nav).
 - **Part B**: inline icons (`ico-*`): how emoji are swapped for our own drawings, and how to add one.
 - **Part C**: the UI style sheet: colours, type, spacing, components, and Joshua’s UI rules.
+- **Part D**: Aseprite pixel art (Stitched Toy): the signature, canvas sizes, the 1 px black border, palettes, the trek map tiles, the Aseprite workflow and a per-asset checklist.
 
 ## Rebuild it
 ```
@@ -24,6 +25,8 @@ Run it whenever an icon, a colour token or a rule changes. Text lives in `tests/
 """
 
 A1 = """
+> **PNG art (v2.0.34):** the Aseprite PNGs of these pictures have **no cream halo**; they carry a 1 px black border instead (Part D). This part describes the SVG files, which still ship as the fallback and keep the halo and the layers below.
+
 Hearthlight is the house style of every placeholder picture, creature, folk portrait, nav icon and inline icon. One look, three layers, drawn on a **64 x 64 grid**. All widths below are in grid units **u** (u = shorter side / 64; so 1 u = 1 px at 64 px). Pen weights below are for large stickers (pictures, creatures, portraits). **Icons (`ico-` names) use heavier pens**: see the icon rules.
 
 *Note: these rules are written from `tests/hearth.py`, `hearth_all.py` and `claude/handoff.md`. Text source for this PDF and for `claude/art-style-guide.md` is this file; no older hand-written guide was found.*
@@ -120,7 +123,7 @@ B2 = """
 Every icon is a **64 x 64** `viewBox` and is drawn as a plain silhouette first. Keep shapes chunky: it must read at **16 px**.
 - Keep the artwork at least **6.5 u** away from the frame. The halo (6.0 u for icons) plus anti-alias must stay inside.
 - One clear shape, 2 or 3 colours from the palette, one crescent of shade. No fine detail under 1 u.
-- Pen weights for icons (the restyle adds them; `ICO_HALO` / `ICO_OUT` in `tests/hearth.py`): **halo 6.0 u, outline 3.4 u**, so the cream ring sits 2.6 u beyond the outline. Large stickers keep 3.2 / 1.9. Icons are drawn as plain shapes: the build adds the pens.
+- Pen weights for icons (the restyle adds them; `ICO_HALO` / `ICO_OUT` in `tests/hearth.py`): **halo 6.0 u, outline 3.4 u**, so the cream ring sits 2.6 u beyond the outline. Large stickers keep 3.2 / 1.9. Icons are drawn as plain shapes: the build adds the pens. (These are the SVG pens; the PNG icons have no halo, see Part D.)
 - Size cap: 4096 bytes per icon. Typical is 1.5 to 3.5 KB.
 
 ## Sizes in the game
@@ -247,6 +250,124 @@ C5 = """
 - Commit the new PDF with the release so Admin can serve it.
 """
 
+D1 = """
+**Stitched Toy** is the Aseprite (pixel) version of Hearthlight. It draws every sticker, icon, bust, scene and map tile as **hard-pixel art** that looks like a hand-stitched felt toy with enamel gloss. The game loads the PNG first and falls back to the SVG (`ph`, `ico`, `animals`, `landing`, `stops`, `gather`). Where Part D and Part A disagree, **Part D wins for pixel art**. Part A still rules palette families, names and the 64 grid.
+
+> Since v2.0.34 stickers, icons and busts have **no cream halo**. They get a 1 px black border instead (see “Outline and border”). The Part A pages describe the SVG files, which still ship as the fallback and keep their halo.
+
+## The signature
+- **Hard pixels only**: no anti-aliasing, no blends, no gradients, no dither. Every pixel is a solid palette colour or fully transparent.
+- **Hue-shifted ramps**: shadows go warmer and deeper, lights go yellow-orange. Never just darken.
+- **Stitched seam**: dashed thread gold `#f5cf6a`, 2 px on and 1 px off, wherever there is a real join (back seam, lid, hem).
+- **Edge stitch**: a 1 px dashed gold ring just inside the body edge, about every third diagonal pixel.
+- **Button**: a 4 x 4 cut-corner gold disc with a darker lower right and two thread holes, at the head of a seam. It must still read at 32 px.
+- **Enamel gloss**: a short comma on the lit upper left (`#ff9158`, dot `#ffc27a`). Spots get a 1 px glint so they look glazed.
+- **Eyes (locked, never redesign)**: 5 x 5 cream `#f2e4c0` disc with cut corners, 3 x 3 umber `#2a1a10` pupil, 1 px cream glint on the pupil’s upper-left pixel. Set wide on the head. No blush patches.
+- **Shape language**: chibi, big head (about 5/6 of the body width), 2 px bent limbs in lavender `#54447f` with a lit top `#7b66b4`, 4 x 4 club tips on antennae, diamond or bean markings.
+
+## Canvas sizes
+| Kind | Canvas | Notes |
+| --- | --- | --- |
+| Sticker, icon (`ico-*`) | 64 x 64 | At least 3 px clear before the border. Icons use chunky shapes, parts 3 px or wider |
+| Bust (`npc-*`) | 80 x 100 | May run off the bottom edge (no border there). Eyes scale down only if the head is under 20 px wide |
+| Map stops, small art | 32 to 48 | Scale pixel numbers by k = shorter side / 64, rounded. Outline stays 2 px, stitches and glints 1 px |
+| Scenes, banners, landing | about 100 px short side, written at 2x | Do NOT scale the outline up. Nearest-neighbour 2x keeps line weights in proportion |
+| Trek map tiles | 42 x 42 (sheets 84 x 126) | No border, see Trek map tiles |
+
+## Outline and border
+- **No cream halo** (changed 2026-10-22). Everything outside the art is transparent.
+- **Last step, 1 px black border**: every transparent pixel **4-adjacent** (plus-shaped, no diagonals) to a non-transparent pixel becomes opaque `#000000`. It goes round the outside and round interior holes. Enclosed cream pockets under 8 px (eyes, glints) are kept. Applies to **stickers, icons and busts**. **Scenes, banners, landing art and map tiles get no border.**
+- **Umber outline under the border**: 2 px grown from the silhouette, plus 1 extra px on the lower right (where `s = (x - cx) + (y - cy)` is above 12). Never pure black.
+- **Selective by light**: `s < -18` is `#74462a`, `s < -2` is `#4a2c1a`, everything else `#2a1a10`. A pale subject (dust, hair, paper, bone) gets an inside outline of `#4a2c1a` on all sides.
+- **Inner contour**: 1 px `#2a1a10` where one big shape overlaps another.
+- **Shading**: one crescent at the lower right, a 1 px bounce line inside its edge, a 1 px rim on the upper left, a 1 px contact shadow under an overlapping part. One light direction everywhere.
+- Scenes and map objects keep the three-tone outline on raised objects, one crescent per object, and stepped bands (about 5) instead of gradients.
+
+## Palette
+{{PIXPAL}}
+For other colours use the **ramp recipe**, starting from the Part A family colour as base: gloss = toward yellow-orange and about 35% lighter; shade = toward red-violet and about 22% darker; deep = further toward violet and about 45% darker; bounce = shade warmed and 8% lighter; rim = gloss 10% darker. Example: moss `#4f9a45` gives shade `#2f6a3a`, deep `#1f3f3a`. Pale subjects use the cream-safe set: gloss `#fff3c8`, dot `#ffffff`, rim `#f5b860`. Never use `#000000` or `#ffffff` except the border and one white dot on a pale subject.
+"""
+
+D2 = """
+Real files from `game/assets/img`, drawn at whole-number scales with nearest-neighbour. Each strip is shown on a light and a dark chip so the black border is checked on both page themes.
+
+## Stickers, icons and animals
+{{PIXSAMPLES}}
+
+## Trek map tiles
+The trek map is drawn from **46 hand-made tiles** in `assets/img/trek/`. Set `TK_PIXEL_TILES` false (before `includes/trek_art.php` loads) for the old code-drawn map. `TK_PIXEL_ME` (default false) swaps the player’s own gnome for the pixel `trek-me` marker. Tiles have **no halo and no border**; one shared palette serves open and underground.
+{{TREKSAMPLES}}
+
+| Group | Tiles |
+| --- | --- |
+| Open ground (10) | `floor-o-1..3`, `mud-o-1..2`, `roots-o-1..2`, `blight-o-1..2`, `crystal-o` |
+| Underground (7) | `floor-u-1..3`, `mud-u`, `roots-u`, `blight-u`, `crystal-u` |
+| Water and clay (7) | `chasm-1..2`, `drained`, `clay-wet`, `clay-loose`, overlays `ripple-pool`, `ripple-high` |
+| Auto-join and walls (9) | sheets `wall-o-auto`, `wall-u-auto`, `water-auto` (84 x 126); `wall-o-deep`, `wall-u-deep` (42 x 42); caps `wallcap-n/s` (42 x 5), `wallcap-e/w` (5 x 42) |
+| Bridge and rails (6) | `bridge-h`, `bridge-v`; rails `rail-n/s` (42 x 4), `rail-e/w` (4 x 42) |
+| Markers (7) | `token-gold`, `token-ember` (34), `me` (38 x 40), `foot-h`, `foot-v` (12), `bang` (24), `flag` (20) |
+
+All files are `trek-<name>.png`. Ground tiles are 42 x 42, opaque and full-bleed.
+
+### Seamless rules
+- The outer **3 px ring** of a ground tile is exactly the terrain’s ring colour (table below). Variants of one terrain (`floor-o-1..3`, `mud-o-1..2` ...) swap with no seam.
+- Details stay at least 3 px from the edges unless designed to cross. A ground tile has **no crescent**: its texture is lit or flat with 1 px accents.
+- Umber outline only on **raised objects** (crystal, planks, rails, stones, wall masses, markers). Ground, water and clay have none.
+- Every asset and variant is drawn separately: no flip, rotate or recolour reuse. Alpha is 0 or 255 only. Must read at 42, 35 and 21 px.
+- Map-key meaning is kept: ripples = high water, two dots = wet clay, cracks = loose clay, diamond = crystal, tuft = roots, dots = mud or blight.
+{{TREKRINGS}}
+
+### Auto-join sheets
+`wall-o-auto`, `wall-u-auto` and `water-auto` are **84 x 126**: 4 columns x 6 rows of 21 x 21 quarters (RPG Maker A2 style). The game composes the 47 neighbour combinations from four quarters, one per quadrant, chosen by the 8 neighbours:
+- both side neighbours are mass: the interior quarter, or the inner-corner quarter if the diagonal is empty;
+- one side is mass: the edge quarter on the empty side;
+- neither: the outer corner quarter.
+Every quarter shares the same skeleton on its four border lines, so any two can sit side by side. On an empty side the first 3 px are the **apron** (the ground ring colour), then a 1 px outline (N `#74462a`, W and E `#4a2c1a`, S `#2a1a10`), a lit rim on N and W or a bounce line on S and E, then the base. The four iso quarters are pixel copies of the sheet’s own corners.
+
+### Trek palette
+Six steps per ramp, but one asset normally uses 8 to 14 colours. Gold thread (2 on, 1 off) only at real joins.
+{{TREKPAL}}
+"""
+
+D3 = """
+## Where the source lives
+`aseprite-source/` in the repo holds the Lua scripts and `.aseprite` files behind every PNG, the `gvlib` helper library with its brief, and the rule files. Edit a script and rerun it; never retouch a PNG by hand. Keep the `.lua` with the art.
+
+## Build one asset
+1. Write a Lua script. Run it in batch mode: `"C:\\Program Files\\Aseprite\\Aseprite.exe" -b --script my.lua` (Aseprite 1.3.18).
+2. `local GV = dofile(".../gvlib/gvlib.lua")` then `local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }`.
+3. Describe the shapes and colours; `c:build{...}` paints back to front. Parts get the base, crescent, bounce, rim, gloss and contours for free.
+4. Add details after the parts: `c:seam`, `c:button`, `c:eye`, `c:spot`, `c:paint`. Draw a part only once.
+5. `c:save("x.aseprite", "x.png")` builds the outline, saves both files and returns the check numbers.
+
+| gvlib mode | Canvas | Border | Use |
+| --- | --- | --- | --- |
+| `sticker` | 64 x 64 | yes | Default: pictures, creatures, items |
+| `icon` | 64 x 64 | yes | `ico-*`: chunky parts, longer gloss |
+| `bust` | 80 x 100 | yes (not at the bottom edge) | `npc-*` folk portraits |
+| `scene` | any, `out=2` for 2x | none | Banners, landing art, backgrounds, stops |
+
+> The shipped art got its black border from a post-pass (`batch.py`). Check whether your copy of `gvlib.lua` still draws the old halo pens before drawing new stickers; if so, add the border pass.
+
+## Check scripts
+- `GV.check` (run by `c:save`): size, margin, `semi` (must be 0), colour count, `bw` (pure black or white pixels: 0 unless the border or a pale dot).
+- `trek-pixel/check.py`: reads `palette.md` and warns on any opaque pixel not in the palette, and above 16 colours.
+- View the PNG at 64, 32 and 16 px (tiles at 42, 35 and 21).
+
+## Checklist for every asset
+- Every pixel solid (alpha 0 or 255), no blends, dither or gradients?
+- Stickers, icons, busts: 1 px `#000000` border on every outside edge (4-adjacent), no cream halo left? Scenes and tiles: no border?
+- 3 px of room inside the frame (64 px canvas) before the border?
+- One crescent, the bounce line and the 1 px contact shadow, and no other shade shapes?
+- Outline selective by light, never pure black under the border?
+- Eyes exactly as locked? Seam, edge stitch and button where the object has a join?
+- Only palette colours (Part A, the Part D table, or the ramp recipe)?
+- Limbs and shafts at least 2 px; stitches and glints 1 px?
+- Readable at 64, 32 and 16 px?
+- Name matches the original file name exactly (`<folder>/<name>.png`)? `broken-*` is the intact drawing plus damage; `stage-*` grows one feature per step.
+- Avoid: dither bands, blush or cheek patches, zipper or double-wide stitching, blobby markings, shading under 2 px limbs.
+"""
+
 SECTIONS = [
     ('about', 'front', 'About this guide', ABOUT),
     ('a1', 'a', 'Hearthlight: the look', A1),
@@ -260,8 +381,11 @@ SECTIONS = [
     ('c3', 'c', 'Components', C3),
     ('c4', 'c', 'Joshua’s UI rules', C4),
     ('c5', 'c', 'Checklist and upkeep', C5),
+    ('d1', 'd', 'Aseprite: Stitched Toy pixel art', D1),
+    ('d2', 'd', 'Pixel samples and trek map tiles', D2),
+    ('d3', 'd', 'Aseprite workflow and checklist', D3),
 ]
-PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline icons', 'c': 'Part C. UI style sheet'}
+PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline icons', 'c': 'Part C. UI style sheet', 'd': 'Part D. Aseprite pixel art'}
 
 DODONT = {
   'icons': (
