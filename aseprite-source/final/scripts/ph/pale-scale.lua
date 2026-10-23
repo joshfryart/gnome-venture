@@ -18,10 +18,10 @@ end
 local ax = math.atan(RY - BY, BX - RX)
 for _, d in ipairs({ -0.62, 0, 0.62 }) do
   local a = ax + d
-  fan:cut(c:ellipse(math.floor(BX + (BR + 0.5) * math.cos(a)) + 0.5, math.floor(BY - (BR + 0.5) * math.sin(a)) + 0.5, 1.5, 1.5))
+  fan:cut(c:ellipse(math.floor(BX + (BR + 1) * math.cos(a)) + 0.5, math.floor(BY - (BR + 1) * math.sin(a)) + 0.5, 2.5, 2.5))
 end
 -- rose root where the scale was set in the skin
-local root = c:ellipse(16.5, 49.5, 3.5, 3.5)
+local root = c:ellipse(16, 49, 5, 5)
 
 local p = c:build{
   { "fan",  fan,  pale, { pale = true, gloss = { 24, 22 } } },
@@ -36,9 +36,14 @@ local function arc(cx, cy, r, a0, a1, col)
   end
   c:fill(c:line(pts, 1):clip(fan:shrink(2)), col)
 end
-for _, r in ipairs({ 12, 20, 28 }) do arc(RX, RY, r, ax - 0.75, ax + 0.75, "#b9acd8") end
+for _, r in ipairs({ 12, 20, 28 }) do arc(RX, RY, r, ax - 0.75, ax + 0.75, r == 20 and "#8f7fc9" or "#b9acd8") end
 -- the seam where the root is sewn onto the scale
-c:seam({ { 16, 45 }, { 21, 50 } }, { free = true })
+local sp = {}
+for i = 0, 10 do
+  local a = ax - 1.3 + 2.6 * i / 10
+  sp[#sp + 1] = { math.floor(16 + 7 * math.cos(a) + 0.5), math.floor(49 - 7 * math.sin(a) + 0.5) }
+end
+c:seam(sp)
 
 local t = c:save(D .. "final/aseprite/ph/pale-scale.aseprite", PNG .. "pale-scale.png")
 print(GV.report(t))

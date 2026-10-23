@@ -1,57 +1,46 @@
--- drum-skin: a torn wedge of old drumhead, the curved hoop edge rolled into a laced hem
+-- drum-skin: a curved wedge torn from an old round drumhead; the hoop edge is a rolled, laced hem
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
-local CX, CY = 32, 12                                     -- centre of the old round drumhead
+local CX, CY, R = 50, 12, 42                               -- the old drumhead: centre off to the upper right
 local parch = GV.ramp("#e2c48c", { shade = "#c4945c", deep = "#8a5a34", bounce = "#cfa064" })
 
--- the scrap: bottom of a big circle, torn ragged across the top
-local circ = c:ellipse(CX, CY, 41, 41)
-local torn = c:poly({ { 7, 27 }, { 11, 21 }, { 15, 24 }, { 20, 15 }, { 25, 19 }, { 30, 11 }, { 35, 16 },
-  { 40, 10 }, { 44, 15 }, { 49, 12 }, { 53, 18 }, { 58, 23 }, { 58, 63 }, { 7, 63 } })
-local skin = circ:copy():clip(torn):clip(c:rect(8, 0, 55, 63))
--- rolled hem along the hoop edge
-local hem = skin:copy():cut(c:ellipse(CX, CY, 36.5, 36.5))
--- upper-right corner peeling back, showing the darker underside
-local flap = c:poly({ { 49, 12 }, { 55, 20 }, { 46, 22 } }):clip(skin:shrink(1))
+-- torn across the middle of the head (ragged diagonal), and ragged at both ends
+local torn = c:poly({ { 0, 0 }, { 16, 3 }, { 19, 9 }, { 24, 8 }, { 27, 14 }, { 32, 14 }, { 34, 20 }, { 39, 21 },
+  { 40, 27 }, { 46, 28 }, { 46, 34 }, { 52, 36 }, { 51, 41 }, { 58, 44 }, { 58, 63 }, { 0, 63 } })
+torn:cut(c:poly({ { 0, 0 }, { 30, 0 }, { 10, 12 }, { 13, 15 }, { 5, 21 }, { 0, 21 } }))       -- top end
+torn:cut(c:poly({ { 63, 40 }, { 63, 63 }, { 40, 63 }, { 45, 55 }, { 49, 56 }, { 51, 49 }, { 56, 48 } })) -- bottom end
+local skin = c:ellipse(CX, CY, R, R):clip(torn):clip(c:rect(7, 7, 56, 56))
+-- rolled hem along the hoop edge, then the peeled corner of the tear
+local hem = skin:copy():cut(c:ellipse(CX, CY, R - 5, R - 5))
 
 c:build{
-  { "skin", skin, parch, { gloss = { 16, 27 }, cres = 5 } },
+  { "skin", skin, parch, { gloss = { 20, 22 }, cres = 5 } },
   { "hem",  hem,  "wood", { gloss = false } },
-  { "flap", flap, GV.ramp("#c4945c", { shade = "#a87a48", deep = "#8a5a34" }), { gloss = false, contact = false } },
 }
 
--- faded painted ring and a diamond mark from the old drum face
-local ring = c:mask()
+-- faded painted band on the drum face, following the hoop
+local band = c:mask()
 skin:each(function(x, y)
   local d = math.sqrt((x - CX) ^ 2 + (y - CY) ^ 2)
-  if d >= 29.5 and d < 31.5 then ring:set(x, y) end
+  if d >= R - 11 and d < R - 9 then band:set(x, y) end
 end)
-c:fill(ring:clip(skin:shrink(3)):cut(hem:grow(1)):cut(flap:grow(1)), "#b8452f")
-c:fill(c:ascii({
-  "..r..",
-  ".rrr.",
-  "rrrrr",
-  ".rrr.",
-  "..r..",
-}, 30, 28), "#b8452f")
-c:px(32, 28, "#dd3a2a"); c:px(31, 29, "#dd3a2a")
+c:fill(band:clip(skin:shrink(3)), "#b8452f")
 
--- laced seam along the hem join, with lacing holes punched below it
-local pts, holes = {}, {}
-for x = 12, 52 do
-  local dx = x - CX
-  pts[#pts + 1] = { x, math.floor(CY + math.sqrt(36.5 ^ 2 - dx ^ 2) + 0.5) }
+-- laced seam along the hem join, lacing holes punched through the hem
+local pts = {}
+for a = 92, 182, 2 do
+  local r = math.rad(a)
+  pts[#pts + 1] = { math.floor(CX + (R - 5) * math.cos(r) + 0.5), math.floor(CY + (R - 5) * math.sin(r) + 0.5) }
 end
 c:seam(pts)
-for x = 16, 48, 6 do
-  local dx = x - CX
-  local y = math.floor(CY + math.sqrt(39 ^ 2 - dx ^ 2) + 0.5)
-  if hem:has(x, y) and hem:has(x + 1, y) then c:px(x, y, "#5e2f1e"); c:px(x + 1, y, "#5e2f1e") end
+for a = 100, 175, 12 do
+  local r = math.rad(a)
+  local x, y = math.floor(CX + (R - 2.5) * math.cos(r) + 0.5), math.floor(CY + (R - 2.5) * math.sin(r) + 0.5)
+  if hem:has(x, y) then c:px(x, y, "#8a4a1c") end
 end
-c:button(10, 39)
 
 local t = c:save(D .. "final/aseprite/ph/drum-skin.aseprite", PNG .. "drum-skin.png")
 print(GV.report(t))

@@ -21,9 +21,9 @@ end
 -- belly: a squat ball that sags to the right
 local belly = c:ellipse(31, 39, 16, 12):add(c:ellipse(36, 42, 14, 9)):closed(2)
 -- neck: short, pinched, leaning left
-local neck = c:poly({ {21, 17}, {35, 16}, {37, 29}, {22, 30} }):closed(1)
+local neck = c:poly({ {19, 18}, {33, 16}, {39, 29}, {23, 30} }):closed(1)
 -- lip: a flared ring, tipped up on the right (lopsided)
-local lip = tilt(28, 17, 13, 5, 10)
+local lip = tilt(27, 17, 13, 5, 13)
 -- foot ring
 local foot = c:rrect(25, 50, 44, 54, 2)
 
@@ -34,12 +34,12 @@ local p = c:build{
   { "lip",   lip,   clay, { gloss = false } },
 }
 -- the mouth: dark tilted opening inside the lip, deeper at the back
-c:fill(tilt(28.5, 17.5, 9, 2.6, 10), "#5e2f1e")
-c:fill(tilt(28.5, 16.5, 7, 1.4, 10), "#2a1a10")
+c:fill(tilt(27.5, 17.5, 9, 2.6, 13), "#5e2f1e")
+c:fill(tilt(27.5, 16.5, 7, 1.4, 13), "#2a1a10")
 -- hand-laid enamel commas (belly, lip)
 c:paint({ "..gg", ".g..", "g...", "g..." }, 19, 31, { g = clay.gloss })
 c:px(21, 33, clay.dot)
-c:paint({ ".gg", "g.." }, 16, 16, { g = clay.gloss })
+c:paint({ ".gg", "g.." }, 15, 17, { g = clay.gloss })
 -- throwing rings: two shallow grooves round the belly, following its sag
 local G = clay.shade
 c:fill(c:line({ {18, 37}, {25, 38}, {33, 38}, {41, 39}, {46, 40} }, 1):clip(belly:shrink(2)), G)
@@ -50,7 +50,7 @@ c:px(41, 31, clay.deep); c:px(42, 31, clay.deep)
 -- foot join: a seam round the plinth lip
 c:seam({ {26, 51}, {43, 51} })
 
-c:ground(34, 55, 15, 1.5)
+c:ground(34, 55, 14, 1.5)
 local t = c:save(D .. "final/aseprite/ph/clay-pot.aseprite", PNG .. "clay-pot.png")
 print(GV.report(t))
 assert(t.semi == 0 and t.bw == 0 and t.margin >= 3)

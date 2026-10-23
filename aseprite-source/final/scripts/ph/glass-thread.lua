@@ -10,7 +10,7 @@ local AX, AY, BX, BY = 17, 42, 43, 20
 local L = math.sqrt((BX - AX) ^ 2 + (BY - AY) ^ 2)
 local ux, uy = (BX - AX) / L, (BY - AY) / L      -- along the axis
 local px, py = -uy, ux                           -- across the axis (points up-left)
-local TURNS, R, r = 2, 11, 6
+local TURNS, R, r = 2, 11, 8
 local T = TURNS * 2 * math.pi
 
 local back, front = c:mask(), c:mask()
@@ -32,10 +32,10 @@ end
 run(cur, curFront and front or back)
 
 -- loose ends: a stray tail curling off the bottom, a free end up top with a bead
-local tail = c:line({ { AX + px * R, AY + py * R }, { 9, 38 }, { 7, 44 }, { 9, 50 }, { 15, 52 }, { 22, 53 } }, 2)
+local tail = c:line({ { AX + px * R, AY + py * R }, { 19, 53 }, { 13, 53 }, { 9, 50 }, { 9, 46 } }, 2)
 local topEnd = { BX + px * R * math.cos(T), BY + py * R * math.cos(T) }
-local loose = c:line({ topEnd, { 46, 12 }, { 50, 9 }, { 54, 10 } }, 2)
-local bead = c:ellipse(54.5, 13, 2.5, 2.5)
+local loose = c:line({ topEnd, { 53, 23 }, { 54, 17 }, { 52, 13 } }, 2)
+local bead = c:ellipse(51, 11, 2.5, 2.5)
 
 local glass = GV.R.glass
 local dim = GV.ramp("#6f98c4", { rim = "#8fb4d6" })
@@ -44,7 +44,7 @@ c:build{
   { "front", front:add(loose), glass, { flat = true, contact = false } },
   { "bead", bead, glass, { gloss = false, cres = 2, deep = 1 } },
 }
-c:px(53, 12, "#f8fcf4")
+c:px(50, 10, "#f8fcf4")
 
 -- glints running along the front strands (1 px, upper-left of each front pass)
 for k = 0, math.floor(TURNS) - 1 do

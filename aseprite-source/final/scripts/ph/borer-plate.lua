@@ -37,9 +37,15 @@ local whole = s1:copy():add(lip)
 local p = c:build{
   { "lip", lip, GV.ramp("#6b4a2c"), { gloss = false } },
   { "s1", s1, body, { light = whole, gloss = { 14, 24 } } },
-  { "s2", s2, body, { light = whole, gloss = false } },
-  { "s3", s3, body, { light = whole, gloss = { 22, 39 } } },
+  { "s2", s2, body, { gloss = false, cres = 3 } },
+  { "s3", s3, body, { gloss = { 22, 39 }, cres = 3 } },
 }
+-- dark 2 px segment gaps where each segment tucks under the one behind (creature's bands)
+local base = R(function(x, y) return y <= 2.5 * (x / 25)^2 - 0.5 end)
+for _, sm in ipairs({ s2, s3 }) do
+  local gap = sm:grow(1):cut(sm):clip(base):clip(p.s1.m:shrink(1))
+  c:fill(gap, "#2a1a10")
+end
 
 -- lavender back sheen arcs on the lit shoulder of the two back segments, as on the creature
 local function sheen(rx, ry, base, a0, a1)
