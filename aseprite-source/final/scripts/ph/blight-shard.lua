@@ -19,29 +19,29 @@ local sickD = "#7a8a52"   -- blight sheen, darker
 -- the shard: a broken crown (tall left prong, middle prong, slanted right break),
 -- straight flanks converging to a low point
 local shard = c:poly({
-  {18, 23}, {21, 6}, {27, 20}, {32, 9}, {37, 18}, {45, 11}, {46, 22},
+  {19, 24}, {22, 6}, {27, 19}, {32, 7}, {37, 18}, {44, 10}, {45, 22},
   {34, 57}, {32, 57},
 })
 -- prism faces: each crown prong tops one face; ridges run from the notches to the tip
-local left  = c:poly({ {10, 4}, {21, 4}, {27, 20}, {28, 33}, {31, 46}, {33, 60}, {10, 60} }):clip(shard)
-local right = c:poly({ {37, 18}, {45, 8}, {55, 8}, {55, 60}, {34, 60}, {35, 46}, {37, 32} }):clip(shard)
+local left  = c:poly({ {10, 4}, {22, 4}, {27, 19}, {28, 33}, {31, 46}, {33, 60}, {10, 60} }):clip(shard)
+local right = c:poly({ {37, 18}, {44, 7}, {55, 7}, {55, 60}, {34, 60}, {35, 46}, {37, 32} }):clip(shard)
 
 c:build{
   { "shard", shard, front, { gloss = false } },
-  { "left",  left,  bevel, { light = shard, contour = false, contact = false, gloss = { 21, 15 } } },
+  { "left",  left,  bevel, { light = shard, contour = false, contact = false, gloss = { 22, 15 } } },
   { "right", right, dark,  { light = shard, contour = false, contact = false, gloss = false } },
 }
 
 -- sickly sheen: a thin vein down the front face, brightest near the crown
 local mid = shard:shrink(2):cut(left:grow(1)):cut(right:grow(1))
-c:fill(c:line({ {32, 14}, {31, 23}, {32, 32}, {31, 42} }, 1):clip(mid), sickD)
-c:fill(c:line({ {32, 14}, {31, 22} }, 1):clip(mid), sick)
+c:fill(c:line({ {32, 13}, {31, 23}, {32, 32}, {31, 42} }, 1):clip(mid), sickD)
+c:fill(c:line({ {32, 13}, {31, 21} }, 1):clip(mid), sick)
 -- violet glint on the dark face
 c:fill(c:line({ {42, 18}, {41, 25} }, 1):clip(right:shrink(1)), "#4a3a7a")
 
 -- hum: one small arc each side of the shard, as if it vibrates
-c:paint({ ".h", "h.", "h.", "h.", ".h" }, 10, 26, { h = sick })
-c:paint({ "h.", ".h", ".h", ".h", "h." }, 52, 28, { h = sick })
+c:paint({ ".h", "h.", "h.", "h.", ".h" }, 11, 27, { h = sick })
+c:paint({ "h.", ".h", ".h", ".h", "h." }, 51, 30, { h = sick })
 
 local t = c:save(D .. "final/aseprite/ph/blight-shard.aseprite", PNG .. "blight-shard.png")
 print(GV.report(t))

@@ -27,7 +27,7 @@ for _, p in ipairs({ {9, 33}, {11, 37}, {14, 41}, {18, 44} }) do wingL:add(c:ell
 local fingL = c:line({ {18, 20}, {18, 9} }, 3):add(c:line({ {15, 21}, {12, 10} }, 3)):add(c:line({ {12, 23}, {8, 14} }, 3)):add(c:line({ {10, 26}, {7, 21} }, 2))
 local wingR, fingR = mx(wingL), mx(fingL)
 -- battle damage: one right primary snapped short
-fingR:cut(c:rect(47, 6, 52, 15))
+fingR:cut(c:rect(47, 6, 52, 13))
 
 local bodyM = c:ellipse(31.5, 41, 10, 8)
 -- white fluffy ruff with a scalloped lower edge
