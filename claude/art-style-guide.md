@@ -453,11 +453,10 @@ The 1 px `#000000` border is for things that **stand on a scene**. A scene itsel
 
 ## Toy miniatures (stage characters)
 
-Fight and stage characters are drawn as **toy miniatures**: little figurines in a 3/4 view standing on a round base, as if set on a diorama table. This fits Stitched Toy (felt and enamel toys). It is still Aseprite pixel art: hard pixels, palette ramps, 1 px black border.
+Fight and stage characters are drawn as **toy miniatures**: little figurines in a 3/4 view standing on a round base, as if set on a diorama table. This fits Stitched Toy (felt and enamel toys). It is Aseprite-only pixel art: hard pixels, palette ramps, 1 px black border.
 
-### Two ways to build one
-- **Quasi-3D (default)**: draw by hand in Aseprite in 3/4 view. Think of the figure as a small solid: a lit top, a lit left face, a shaded right face. One crescent still falls lower right.
-- **True 3D (allowed)**: model in voxels (MagicaVoxel or similar) or a tiny low-poly mesh, render with an orthographic camera, then finish in Aseprite. The render is only a draft. The final file must pass every rule: **re-quantise to the palette, remove all anti-aliasing and blends, rebuild the outline and border with gvlib, hand-fix the face.** Keep the 3D source next to the `.aseprite`. A raw render that was only shrunk is rejected.
+### How to build one
+**Aseprite only.** No 3D software, no voxel tools, no renders, no AI image tools, no imported images. Every pixel is placed in Aseprite (Lua script with `gvlib`, or by hand in the editor). Fake the 3D by hand: draw the figure in 3/4 view as a small solid with a lit top, a lit left face and a shaded right face. One crescent still falls lower right. A miniature that looks traced from a render or a photo is rejected.
 
 ### Camera and pose
 - View: 3/4 from above, elevation about 30 degrees, figure turned so it **faces right and slightly toward the viewer**. Same camera for every miniature so they sit together on a stage. Code flips the sprite for the other side.

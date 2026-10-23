@@ -51,7 +51,7 @@ Rest stops (match existing 48px stop icons in `assets/img/stops/`): `stop-camp`,
 - `fx-ground-shadow.png` 64x16 (umber ellipse, hard-stepped, no transparency blend)
 
 ## P1. Toy miniatures (`game/assets/img/mini/<slug>.png`)
-Quasi-3D by hand, or voxel/3D render finished in Aseprite (Part E rules; a raw render is rejected). Same camera for all.
+**Aseprite only**: drawn by hand as 3/4-view quasi-3D (Part E rules). No 3D software, voxels, renders or imported images. Same camera for all.
 - **Party** (P1): `mini-gnome-body/face/beard/hat` are NOT used; deliver the gnome as layered parts on one 64x80 canvas each in the order of the existing `assets/img/gnome/` files (`gnome-body`, `-face`, `-beard`, hat tinted by code), so skins and tints keep working. Plus the Trek crew: one `mini-crew-<key>.png` per crew member (keys in `includes/trek_data.php`).
 - **Villagers on stage** (P3): `mini-npc-<slug>.png` for each existing `npc-*` bust (69), done last.
 - **Enemies** (P2): `mini-<creature-slug>.png`. Do the 15 most common first (list supplied from `adventure_data.php` by level), then the rest in batches. Missing ones fall back to the sticker on a code-drawn base.

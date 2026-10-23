@@ -50,4 +50,4 @@ Art is done by another AI. Art needs: `claude/art-spec-overhaul.md` (exact files
 - DB change: `locations.map_x/map_y` migration (additive).
 
 ## Update: miniatures on the stage
-`stage.js` draws `assets/img/mini/<slug>.png` (toy miniature on a round base) when present, else the existing sticker on a code-drawn base disc. Party layers (gnome body/face/beard/hat) keep tint support. Rules: guide Part E, "Toy miniatures".
+`stage.js` draws `assets/img/mini/<slug>.png` (Aseprite-only toy miniature on a round base) when present, else the existing sticker on a code-drawn base disc. Party layers (gnome body/face/beard/hat) keep tint support. Rules: guide Part E, "Toy miniatures".
