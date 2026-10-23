@@ -32,61 +32,91 @@ local function glyph(c, g, x, y, s)
 end
 
 -- ===== world =====
+-- ===== cavern glyphs (the Hollow is underground: caverns joined by mycelium paths) =====
+local function shroom(c, x, y, sc, cap) c:fill(c:rect(x, y - 4 * sc, x + 1, y), "#f2e4c0"); c:fill(c:ellipse(x + 0.5, y - 4 * sc, 3 * sc, 2 * sc), cap); c:px(x - 1, y - 4 * sc, "#fff3c8"); c:px(x + 2, y - 4 * sc - 1, "#fff3c8") end
+local function crystalc(c, x, y, h, col) c:fill(c:poly({ { x - 2, y }, { x - 1, y - h * 0.7 }, { x, y - h }, { x + 1, y - h * 0.7 }, { x + 2, y } }), col); c:fill(c:poly({ { x + 2, y }, { x + 3, y - h * 0.5 }, { x + 4, y } }), col); c:px(x, y - h + 2, "#fff3c8") end
+local function stalag(c, x, y, h, a, b) c:fill(c:poly({ { x - 3, y }, { x, y - h }, { x + 3, y } }), a); c:fill(c:poly({ { x, y - h }, { x + 3, y }, { x + 1, y } }), b) end
+local function pool(c, x, y, rx) c:fill(c:ellipse(x, y, rx, rx * 0.45), "#3f8fb0"); c:fill(c:rect(x - rx + 2, y - 1, x - 1, y - 1), "#a9d6ea") end
+local function lava(c, x, y, rx) c:fill(c:ellipse(x, y, rx, rx * 0.45), "#d6322b"); c:fill(c:ellipse(x, y, rx * 0.5, rx * 0.2), "#f08a24"); c:px(x, y, "#f5cf6a") end
+local function coral(c, x, y, h, col) for i = -1, 1 do c:fill(c:poly({ { x + i * 2 - 1, y }, { x + i * 3, y - h + (i == 0 and 0 or 2) }, { x + i * 2 + 1, y } }), col) end end
+local function glowdot(c, x, y) c:px(x, y, "#f5cf6a"); c:px(x - 1, y, "#fff3c8"); c:px(x + 1, y, "#fff3c8") end
+local FEAT = {
+  NA = { { "shroom", "#dd3a2a" }, { "shroom", "#e46a9b" }, { "glow" } }, CA = { { "crystal", "#c3b2ea" }, { "crystal", "#7a5cc0" }, { "glow" } }, CB = { { "pool" }, { "shroom", "#a9d6ea" } },
+  SA = { { "root" }, { "shroom", "#4f9a45" }, { "glow" } }, NWE = { { "stalag", "#8b8f96", "#5b6470" }, { "pool" } }, SE = { { "shroom", "#f5cf6a" }, { "glow" }, { "glow" } },
+  EE = { { "crystal", "#a9d6ea" }, { "crystal", "#eef8f2" } }, MENA = { { "stalag", "#e8a317", "#a8582f" }, { "dune" } }, WCA = { { "shroom", "#7ab55c" }, { "shroom", "#c8d77a" }, { "root" } },
+  ESA = { { "stalag", "#c9a96e", "#9a6b3f" }, { "root" } }, CSA = { { "lava" }, { "stalag", "#a8582f", "#5e2f1e" } }, EA = { { "coral", "#e46a9b" }, { "coral", "#f6b8cf" }, { "glow" } },
+  SEA = { { "pool" }, { "shroom", "#7ab55c" }, { "glow" } }, OC = { { "coral", "#f08a24" }, { "pool" } } }
+local function feat(c, f, x, y, mask)
+  local k = f[1]
+  if k == "shroom" then shroom(c, x, y, 1.3, f[2]) elseif k == "crystal" then crystalc(c, x, y, 9, f[2]) elseif k == "stalag" then stalag(c, x, y, 9, f[2], f[3])
+  elseif k == "pool" then pool(c, x, y, 7) elseif k == "lava" then lava(c, x, y, 7) elseif k == "coral" then coral(c, x, y, 8, f[2]) elseif k == "glow" then glowdot(c, x, y)
+  elseif k == "root" then c:fill(c:rect(x, y - 12, x, y - 2), "#8a4f2a"); c:px(x - 1, y - 8, "#8a4f2a"); c:px(x + 1, y - 5, "#8a4f2a"); c:fill(c:ellipse(x, y - 1, 2, 1), "#8a4f2a")
+  elseif k == "dune" then c:fill(c:rect(x - 5, y, x + 5, y), "#f5cf6a"); c:fill(c:rect(x - 3, y + 2, x + 6, y + 2), "#f5cf6a") end
+end
+
 local function world(mask)
   local c = X.canvas{ mode = "scene", w = 320, h = 180, out = 2, ol = 1, olx = 1 }
   X.layer(c, "sky")
   if mask then c:fill(c:rect(0, 0, 319, 179), "#101010") else
-    c:fill(c:rect(0, 0, 319, 179), "#3f8fb0"); for y = 6, 178, 9 do for x = ((y // 9) % 2) * 11, 319, 22 do c:fill(c:rect(x, y, x + 5, y), "#a9d6ea") end end
-    c:fill(c:rect(0, 0, 319, 2), "#25637d"); c:fill(c:rect(0, 177, 319, 179), "#25637d") end
+    -- solid rock all round: wavy strata bands, pebbles, embedded crystals, a ceiling edge with stalactites, floor stalagmites
+    c:fill(c:rect(0, 0, 319, 179), "#3d2a1c")
+    for y = 0, 179 do for x = 0, 319 do
+      local v = math.floor((y + 4 * math.sin(x / 38 + y / 29) + 3 * math.sin(x / 13)) / 10) % 3
+      if v == 1 then c:px(x, y, "#4a2c1a") elseif v == 2 and (x * 3 + y) % 19 < 2 then c:px(x, y, "#5e2f1e") end
+    end end
+    local rs = 5; local function rr(n) rs = (rs * 1103515245 + 12345) % 2147483648 return rs % n end
+    for i = 1, 90 do local x, y = rr(318), rr(178); c:px(x, y, "#5b6470"); c:px(x + 1, y, "#5b6470") end
+    for i = 1, 14 do local x, y = rr(318), 8 + rr(160); c:px(x, y, "#7a5cc0"); c:px(x, y - 1, "#c3b2ea") end
+    for x = 0, 319, 7 do local h = 5 + (x * 13) % 9; c:fill(c:poly({ { x - 3, 0 }, { x, h }, { x + 3, 0 } }), "#2a1a10") end                 -- ceiling stalactites
+    for x = 3, 319, 11 do local h = 4 + (x * 7) % 7; c:fill(c:poly({ { x - 3, 179 }, { x, 179 - h }, { x + 3, 179 } }), "#2a1a10") end              -- floor stalagmites
+  end
   X.layer(c, "ground")
   local land = c:mask(); local RMASK = {}
   for i, r in ipairs(REG) do
-    local m = blob(c, c:mask(), i, r[2] * 0.32, r[3] * 0.32, r[4] * 0.32 * 0.9)
+    local m = blob(c, c:mask(), i, r[2] * 0.32, r[3] * 0.32, r[4] * 0.32 * 1.1)
     land:add(m); RMASK[i] = m
-    c:fill(m, mask and string.format("#%02x%02x%02x", (i * 61) % 256, (i * 137) % 256, (i * 199) % 256) or r[5])
+    if mask then c:fill(m, string.format("#%02x%02x%02x", (i * 61) % 256, (i * 137) % 256, (i * 199) % 256)) end
   end
-  if not mask then
-    -- Mossbottom hub island
-    local hub = c:ellipse(126, 150, 9, 5); land:add(hub); c:fill(hub, "#7ab55c")
-    X.layer(c, "objects")
-    c:outline(land, { ol = 1, olx = 1 })
-    -- mycelium paths between neighbours (3 px, cream)
-    local links = { { 1, 5 }, { 5, 7 }, { 7, 11 }, { 2, 3 }, { 3, 9 }, { 9, 8 }, { 8, 10 }, { 1, 2 }, { 4, 9 }, { 6, 8 }, { 11, 13 }, { 12, 13 }, { 13, 14 }, { 4, 10 } }
-    for _, l in ipairs(links) do
-      local a, b = REG[l[1]], REG[l[2]]
-      c:fill(c:line({ { a[2] * 0.32, a[3] * 0.32 }, { b[2] * 0.32, b[3] * 0.32 } }, 3), "#f2e4c0")
-    end
-    X.layer(c, "detail")
-    -- coast foam: a dashed pale line two px off every shore
-    land:copy():grow(3):cut(land:copy():grow(1)):each(function(x, y) if (x * 2 + y) % 5 == 0 then c:px(x, y, "#eef8f2") end end)
-    -- ground texture: sparse flecks per region (light on dark regions, dark on light ones)
-    local DARK = { NA = true, SA = true, WCA = true, SEA = true, CSA = true, ESA = true }
-    local ws = 11; local function wrnd(n) ws = (ws * 1103515245 + 12345) % 2147483648 return ws % n end
-    for i, r in ipairs(REG) do
-      local fleck = DARK[r[1]] and "#fff3c8" or "#9a6b3f"
-      for k = 1, 60 do local x, y = wrnd(318), wrnd(178); if RMASK[i]:has(x, y) and land:has(x - 2, y) and c:get(x, y) == r[5] then c:px(x, y, fleck) end end
-    end
-    -- landscape glyphs inside each region (kept 9 px off the pin spot, and off the paths)
-    local gs = 23; local function grnd(n) gs = (gs * 1103515245 + 12345) % 2147483648 return gs % n end
-    for i, r in ipairs(REG) do
-      local px, py = r[2] * 0.32, r[3] * 0.32; local n = 0
-      for try = 1, 80 do
-        if n >= 5 then break end
-        local x, y = math.floor(px - 14 + grnd(29)), math.floor(py - 12 + grnd(25))
-        if RMASK[i]:has(x, y) and RMASK[i]:has(x, y + 3) and RMASK[i]:has(x - 4, y) and RMASK[i]:has(x + 4, y) and (math.abs(x - px) > 9 or math.abs(y - py) > 9) and c:get(x, y) == r[5] then glyph(c, r[6], x, y, 0.75); n = n + 1 end
-      end
-    end
-    -- Mossbottom: a little mushroom on the hub island
-    c:fill(c:rect(125, 144, 127, 150), "#f2e4c0"); c:fill(c:ellipse(126, 143, 5, 3), "#dd3a2a"); c:px(124, 142, "#fff3c8"); c:px(128, 143, "#fff3c8")
-    -- two sailboats and a whale-tail curl in open water
-    for _, b in ipairs({ { 20, 160 }, { 268, 40 }, { 230, 160 } }) do
-      c:fill(c:poly({ { b[1], b[2] }, { b[1] + 10, b[2] }, { b[1] + 8, b[2] + 3 }, { b[1] + 2, b[2] + 3 } }), "#8a4f2a"); c:fill(c:rect(b[1] + 5, b[2] - 10, b[1] + 5, b[2]), "#5e2f1e"); c:fill(c:poly({ { b[1] + 6, b[2] - 9 }, { b[1] + 12, b[2] - 1 }, { b[1] + 6, b[2] - 1 } }), "#f2e4c0")
-    end
-    for i, r in ipairs(REG) do
-      c:fill(c:rect(r[2] * 0.32 - 6, r[3] * 0.32 - 6, r[2] * 0.32 + 5, r[3] * 0.32 + 5), r[5])   -- re-flatten the 12x12 pin spot to the region colour
-    end
-    c:fill(c:rect(0, 0, 0, 0), "#25637d")
+  if mask then return c end
+  -- tunnels first (so caverns open into them): a dark carved passage with a lit edge, then the mycelium thread inside it
+  local links = { { 1, 5 }, { 5, 7 }, { 7, 11 }, { 2, 3 }, { 3, 9 }, { 9, 8 }, { 8, 10 }, { 1, 2 }, { 4, 9 }, { 6, 8 }, { 11, 13 }, { 12, 13 }, { 13, 14 }, { 4, 10 }, { 5, 6 }, { 6, 7 }, { 8, 13 }, { 12, 11 } }
+  local function pts(l) local a, b = REG[l[1]], REG[l[2]]; local x0, y0, x1, y1 = a[2] * 0.32, a[3] * 0.32, b[2] * 0.32, b[3] * 0.32
+    local dx, dy = x1 - x0, y1 - y0; local len = math.sqrt(dx * dx + dy * dy); local nx, ny = -dy / len, dx / len; local off = ((l[1] * 7 + l[2] * 3) % 9 - 4) * 1.6
+    return { { x0, y0 }, { x0 + dx * 0.33 + nx * off, y0 + dy * 0.33 + ny * off }, { x0 + dx * 0.66 - nx * off, y0 + dy * 0.66 - ny * off }, { x1, y1 } } end
+  for _, l in ipairs(links) do c:fill(c:line(pts(l), 7), "#2a1a10") end
+  for _, l in ipairs(links) do c:fill(c:line(pts(l), 5), "#7a4a1f") end
+  for i, r in ipairs(REG) do c:fill(RMASK[i], r[5]) end
+  c:outline(land, { ol = 1, olx = 1 })
+  -- cavern floor texture and a lit inner rim
+  local ws = 11; local function wrnd(n) ws = (ws * 1103515245 + 12345) % 2147483648 return ws % n end
+  local DARK = { NA = true, SA = true, WCA = true, SEA = true, CSA = true, ESA = true }
+  for i, r in ipairs(REG) do
+    local fleck = DARK[r[1]] and "#fff3c8" or "#9a6b3f"
+    for k = 1, 70 do local x, y = wrnd(318), wrnd(178); if RMASK[i]:has(x, y) and c:get(x, y) == r[5] then c:px(x, y, fleck) end end
   end
+  X.layer(c, "objects")
+  -- mycelium: a cream thread with side tendrils, spore dots and glowing nodes along each tunnel
+  for _, l in ipairs(links) do
+    local p = pts(l); c:fill(c:line(p, 3), "#f2e4c0"); c:fill(c:line(p, 1), "#fff3c8")
+    for t = 0.12, 0.9, 0.13 do local i = math.floor(t * 3) + 1; local f = t * 3 - (i - 1); local x = p[i][1] + (p[i + 1][1] - p[i][1]) * f; local y = p[i][2] + (p[i + 1][2] - p[i][2]) * f
+      glowdot(c, math.floor(x), math.floor(y) - 3 + (math.floor(t * 100) % 2) * 6); c:px(math.floor(x) + 1, math.floor(y) - 2, "#f2e4c0"); c:px(math.floor(x) + 2, math.floor(y) - 3, "#f2e4c0") end
+  end
+  -- Mossbottom: the hub grotto, a giant mushroom lit from within, threads reaching out
+  local hub = c:ellipse(126, 150, 10, 6); c:fill(hub, "#4f9a45"); hub:copy():grow(1):cut(hub):each(function(x, y) c:px(x, y, "#2a1a10") end)
+  c:fill(c:rect(125, 142, 127, 150), "#f2e4c0"); c:fill(c:ellipse(126, 141, 6, 4), "#dd3a2a"); c:px(123, 140, "#fff3c8"); c:px(129, 141, "#fff3c8"); c:px(126, 138, "#fff3c8"); glowdot(c, 119, 148); glowdot(c, 133, 148)
+  for _, t in ipairs({ { 126, 144, 150, 120 }, { 126, 144, 96, 130 }, { 126, 144, 166, 110 } }) do c:fill(c:line({ { t[1], t[2] }, { (t[1] + t[3]) / 2, (t[2] + t[4]) / 2 + 6 }, { t[3], t[4] } }, 1), "#f2e4c0") end
+  -- cavern features, kept 9 px off the pin spot
+  X.layer(c, "detail")
+  local gs = 23; local function grnd(n) gs = (gs * 1103515245 + 12345) % 2147483648 return gs % n end
+  for i, r in ipairs(REG) do
+    local px, py = r[2] * 0.32, r[3] * 0.32; local n = 0; local fl = FEAT[r[1]]
+    for try = 1, 120 do
+      if n >= 7 then break end
+      local x, y = math.floor(px - 15 + grnd(31)), math.floor(py - 12 + grnd(25))
+      if RMASK[i]:has(x, y) and RMASK[i]:has(x, y + 3) and RMASK[i]:has(x - 5, y) and RMASK[i]:has(x + 5, y) and (math.abs(x - px) > 9 or math.abs(y - py) > 9) and c:get(x, y) == r[5] then feat(c, fl[n % #fl + 1], x, y); n = n + 1 end
+    end
+  end
+  for i, r in ipairs(REG) do c:fill(c:rect(r[2] * 0.32 - 6, r[3] * 0.32 - 6, r[2] * 0.32 + 5, r[3] * 0.32 + 5), r[5]) end   -- flat 12x12 pin spots
   return c
 end
 local c = world(false); X.save(c, "map-world", "scenes", { w = 640, h = 360, cap = 40 })
