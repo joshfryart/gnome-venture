@@ -112,6 +112,28 @@ local EXTRA = {
     chain(c, 120, 6, 16)
   end,
 }
+
+-- ===== shared set dressing by scene type (third pass) =====
+local function bedroll(c, x, y, col) P(c, c:rrect(x - 8, y - 4, x + 8, y, 2), col, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x - 8, y - 4, x - 6, y), "#f2e4c0") end
+local function pot(c2, x, y) c2:fill(c2:rect(x - 7, y - 12, x - 7, y), "#4a2c1a"); c2:fill(c2:rect(x + 7, y - 12, x + 7, y), "#4a2c1a"); c2:fill(c2:rect(x - 7, y - 12, x + 7, y - 12), "#4a2c1a"); P(c2, c2:ellipse(x, y - 8, 5, 4), RM.dstone, { gloss = false, cres = 2, deep = 0 }) end
+local function crate(c, x, y) P(c, c:rect(x - 5, y - 9, x + 5, y), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x - 5, y - 5, x + 5, y - 5), "#8a4f2a"); c:fill(c:rect(x, y - 9, x, y), "#8a4f2a") end
+local function brazier(c, x, y) c:fill(c:rect(x, y - 10, x, y), "#4a2c1a"); P(c, c:poly({ { x - 4, y - 14 }, { x + 4, y - 14 }, { x + 2, y - 10 }, { x - 2, y - 10 } }), RM.dstone, { gloss = false, flat = true }); c:fill(c:poly({ { x - 3, y - 14 }, { x, y - 22 }, { x + 3, y - 14 } }), "#f08a24"); c:fill(c:poly({ { x - 1, y - 14 }, { x, y - 18 }, { x + 1, y - 14 } }), "#f5cf6a") end
+local function pennants(c, x0, x1, y) for x = x0, x1 do c:px(x, y + math.floor(3 * math.sin((x - x0) / (x1 - x0) * math.pi) + 0.5), "#4a2c1a") end
+  for x = x0 + 3, x1 - 3, 7 do local yy = y + math.floor(3 * math.sin((x - x0) / (x1 - x0) * math.pi) + 0.5); c:fill(c:poly({ { x, yy + 1 }, { x + 4, yy + 1 }, { x + 2, yy + 5 } }), ({ "#dd3a2a", "#f5cf6a", "#3f8fb0" })[(x // 7) % 3 + 1]) end end
+local COMMON = {
+  camp = function(c, k)
+    bedroll(c, 52, 100, RM.red); bedroll(c, 188, 102, RM.vio); pot(c, 136, 100); crate(c, 154, 96); crate(c, 162, 97); P(c, c:rrect(96, 98, 108, 101, 1), RM.wood, { gloss = false, cres = 1, deep = 0 })
+    pennants(c, 70, 172, 70)
+    c:fill(c:rect(66, 78, 66, 92), "#4a2c1a"); c:fill(c:rect(172, 78, 172, 92), "#4a2c1a")
+  end,
+  fight = function(c, k)
+    for i = 0, 15 do local a = i * math.pi / 8; local x, y = 120 + math.cos(a) * 64, 100 + math.sin(a) * 9; c:fill(c:ellipse(x, y, 3, 1.5), (i % 2 == 0) and "#8b8f96" or "#5b6470"); c:px(math.floor(x), math.floor(y) - 1, "#c9c5bc") end
+    for _, px in ipairs({ 36, 204 }) do c:fill(c:rect(px, 70, px, 92), "#4a2c1a"); c:fill(c:poly({ { px + 1, 70 }, { px + 10, 74 }, { px + 1, 79 } }), (px < 100) and "#dd3a2a" or "#3f8fb0") end
+    P(c, c:ellipse(86, 93, 4, 2), RM.stone, { gloss = false, flat = true }); P(c, c:ellipse(158, 94, 3, 2), RM.stone, { gloss = false, flat = true })
+  end,
+  path = function(c, k) for i = 0, 5 do c:fill(c:ellipse(64 + i * 22, 99 + math.floor(3 * math.sin((64 + i * 22) / 13) + 0.5), 3, 1.5), "#8b8f96") end end,
+  boss = function(c, k) brazier(c, 68, 93); brazier(c, 174, 93) end,
+}
 local only = os.getenv("ONLY"); local want = {}
 if only then for k in only:gmatch("[^,]+") do want[k] = true end end
 for _, k in ipairs({ "1", "2", "3", "3b" }) do for _, sc in ipairs({ "path", "fight", "camp", "boss" }) do
@@ -135,7 +157,7 @@ for _, k in ipairs({ "1", "2", "3", "3b" }) do for _, sc in ipairs({ "path", "fi
     if k == "3b" then for _, p in ipairs({ { 30, 14 }, { 80, 18 }, { 150, 12 }, { 200, 16 } }) do c:fill(c:poly({ { p[1] - 3, p[2] }, { p[1], p[2] + 18 }, { p[1] + 3, p[2] } }), "#7a5cc0") end; for x = 10, 230, 20 do c:fill(c:rect(x, 56 + (x % 3) * 4, x + 8, 56 + (x % 3) * 4), "#f5cf6a") end end
     X.layer(c, "ground"); S.ground(c, ch.ground)
     X.layer(c, "objects"); SCENE[sc](k, c, ch)
-    X.layer(c, "detail"); EXTRA[k](c, sc)
+    X.layer(c, "detail"); EXTRA[k](c, sc); COMMON[sc](c, k)
     if k ~= "1" and sc ~= "boss" then crystal(c, 36, 92, 10, k == "2" and RM.clay or (k == "3" and RM.crys or RM.vio)) end
     X.save(c, name, "scenes", { w = 480, h = 270, cap = 32 })
   end

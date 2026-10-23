@@ -95,6 +95,47 @@ B.EA = { sky = SKYB, far = "#f6b8cf", mid = "#a4b86a", g1 = "#7ab55c", g2 = "#c9
 B.SEA = { sky = SKYB, far = "#7ab55c", mid = "#4f9a45", g1 = "#7ab55c", g2 = "#3f8fb0", draw = function(c) for i = 0, 4 do c:fill(c:rect(30 + i * 8, 30 + i * 3, 190 - i * 8, 32 + i * 3), i % 2 == 0 and "#a4b86a" or "#7ab55c") end; house(c, 110, 38, 14, 8, RM.wood, RM.sand); palm(c, 60, 49, 24); palm(c, 190, 49, 20) end }
 B.OC = { sky = SKYB, far = "#3f8fb0", mid = "#3f8fb0", g1 = "#f5cf6a", g2 = "#3f8fb0", draw = function(c) sea(c, 26, 56, "#3f8fb0", "#25637d"); P(c, c:ellipse(60, 42, 20, 4), RM.sand); palm(c, 56, 42, 18); P(c, c:ellipse(180, 44, 16, 3), RM.sand); palm(c, 178, 44, 14); boat(c, 118, 48) end }
 
+local CAT = { grassland = "trees", forest = "trees", mountain = "trees", wetland = "reeds", tundra = "snow", desert = "sand", island = "sea", coast = "sea", rainforest = "trees",
+  village = "roofs", haven = "roofs", wonder = "trees", delve = "rock", lair = "trees", NA = "trees", CA = "sand", CB = "sea", SA = "trees", NWE = "trees", SE = "trees", EE = "trees", MENA = "sand",
+  WCA = "trees", ESA = "trees", CSA = "sand", EA = "trees", SEA = "trees", OC = "sea" }
+-- ===== second-tier decor per banner (props, flora, small life) =====
+local function fence(c, x0, x1, y) for x = x0, x1, 5 do c:fill(c:rect(x, y - 4, x + 1, y), "#8a4f2a") end; c:fill(c:rect(x0, y - 3, x1 + 1, y - 3), "#d9a660"); c:fill(c:rect(x0, y - 1, x1 + 1, y - 1), "#d9a660") end
+local function smoke(c, x, y) c:fill(c:ellipse(x, y, 2, 1), "#f2e4c0"); c:fill(c:ellipse(x + 2, y - 3, 3, 2), "#f2e4c0"); c:fill(c:ellipse(x + 1, y - 7, 3, 2), "#eef8f2") end
+local function barrel(c, x, y) P(c, c:rrect(x - 3, y - 6, x + 3, y, 2), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x - 3, y - 4, x + 3, y - 4), "#8a4f2a") end
+local function well(c, x, y) P(c, c:rect(x - 5, y - 6, x + 5, y), RM.stone, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x - 3, y - 7, x + 3, y - 6), "#3f8fb0"); P(c, c:rect(x - 6, y - 14, x - 5, y - 6), RM.wood, { gloss = false, flat = true }); P(c, c:rect(x + 5, y - 14, x + 6, y - 6), RM.wood, { gloss = false, flat = true }); P(c, c:poly({ { x - 8, y - 14 }, { x, y - 19 }, { x + 8, y - 14 } }), RM.roof, { gloss = false, cres = 2, deep = 0 }) end
+local function lamp(c, x, y) c:fill(c:rect(x, y - 12, x, y), "#4a2c1a"); P(c, c:rrect(x - 2, y - 16, x + 2, y - 12, 1), RM.gold, { gloss = false, flat = true }); c:px(x, y - 14, "#fff3c8") end
+local function crystalp(c, x, y, h, col) c:fill(c:poly({ { x - 2, y }, { x, y - h }, { x + 2, y } }), col); c:px(x, y - h + 2, "#fff3c8") end
+local function butterfly(c, x, y, col) c:fill(c:rect(x, y, x + 1, y + 1), col); c:fill(c:rect(x + 3, y, x + 4, y + 1), col); c:px(x + 2, y + 1, "#4a2c1a") end
+local DEC = {
+  grassland = function(c) for x = 70, 160 do c:fill(c:rect(x, 50 + math.floor(2 * math.sin(x / 9) + 0.5), x, 51 + math.floor(2 * math.sin(x / 9) + 0.5)), "#c9a96e") end; fence(c, 168, 220, 53); butterfly(c, 90, 30, "#f6b8cf"); butterfly(c, 150, 24, "#f5cf6a"); flowers(c, { { 60, 53 }, { 100, 54 }, { 180, 55 } }, "#f2e4c0") end,
+  forest = function(c) for _, m in ipairs({ { 30, 52 }, { 140, 53 }, { 190, 52 } }) do c:fill(c:rect(m[1], m[2] - 3, m[1] + 1, m[2]), "#f2e4c0"); c:fill(c:ellipse(m[1] + 0.5, m[2] - 3, 3, 2), "#dd3a2a") end; P(c, c:rrect(55, 51, 80, 54, 1), RM.wood, { gloss = false, cres = 1, deep = 0 }); c:fill(c:rect(170, 44, 172, 50), "#2f6a3a") end,
+  mountain = function(c) c:fill(c:rect(96, 26, 99, 44), "#a9d6ea"); c:fill(c:rect(97, 26, 97, 44), "#eef8f2"); c:fill(c:ellipse(98, 46, 7, 2), "#eef8f2"); pine(c, 28, 50, 14); pine(c, 214, 50, 12); flowers(c, { { 80, 53 }, { 170, 54 } }, "#f5cf6a") end,
+  wetland = function(c) for _, x in ipairs({ 20, 24, 210, 215 }) do reed(c, x, 47, 15) end; P(c, c:ellipse(150, 43, 5, 2), RM.leaf); c:fill(c:rect(80, 33, 84, 33), "#a9d6ea"); c:fill(c:rect(82, 34, 84, 34), "#3f8fb0"); P(c, c:ellipse(124, 40, 2, 1), RM.petal, { gloss = false, flat = true }) end,
+  tundra = function(c) P(c, c:ellipse(40, 49, 10, 7):cut(c:rect(20, 50, 60, 60)), RM.snow, { gloss = false, cres = 3, deep = 0 }); c:fill(c:rect(37, 46, 43, 49), "#3d2a1c"); for _, p in ipairs({ { 70, 53 }, { 90, 55 }, { 170, 52 }, { 200, 54 } }) do c:paint({ "xx" }, p[1], p[2], { x = "#c8ecdc" }) end; for _, sp in ipairs({ { 60, 22 }, { 180, 18 }, { 120, 12 } }) do c:px(sp[1], sp[2], "#eef8f2"); c:px(sp[1] - 1, sp[2], "#eef8f2"); c:px(sp[1] + 1, sp[2], "#eef8f2") end end,
+  desert = function(c) palm(c, 20, 52, 18); palm(c, 26, 52, 12); c:fill(c:ellipse(22, 52, 9, 2), "#3f8fb0"); butterfly(c, 100, 22, "#f2e4c0"); c:fill(c:rect(60, 30, 68, 30), "#fff3c8"); c:fill(c:rect(160, 28, 170, 28), "#fff3c8") end,
+  island = function(c) c:fill(c:ellipse(30, 50, 3, 2), "#f6b8cf"); for i = 0, 4 do local a = i * 1.2566; c:px(math.floor(210 + math.cos(a) * 3 + 0.5), math.floor(52 + math.sin(a) * 3 + 0.5), "#dd3a2a") end; boat(c, 170, 36); c:fill(c:ellipse(150, 53, 7, 2), "#fff3c8"); c:fill(c:rect(70, 12, 72, 12), "#4a2c1a") end,
+  coast = function(c) boat(c, 40, 34); boat(c, 200, 38); c:fill(c:ellipse(60, 50, 3, 3), "#dd3a2a"); c:fill(c:rect(59, 47, 61, 47), "#f2e4c0"); for _, g in ipairs({ { 80, 12 }, { 96, 8 }, { 110, 14 } }) do c:fill(c:rect(g[1], g[2], g[1] + 2, g[2]), "#f2e4c0"); c:fill(c:rect(g[1] + 3, g[2], g[1] + 5, g[2]), "#f2e4c0"); c:px(g[1] + 2, g[2] - 1, "#f2e4c0") end; P(c, c:rrect(112, 52, 130, 54, 1), RM.wood, { gloss = false, cres = 1, deep = 0 }) end,
+  rainforest = function(c) for _, x in ipairs({ 56, 100, 170 }) do c:fill(c:rect(x, 8, x, 20 + x % 9), "#4f9a45"); c:fill(c:ellipse(x, 21 + x % 9, 2, 2), "#7ab55c") end; P(c, c:poly({ { 70, 50 }, { 84, 38 }, { 96, 50 } }), RM.dleaf); P(c, c:poly({ { 150, 50 }, { 162, 40 }, { 176, 50 } }), RM.dleaf); P(c, c:ellipse(80, 40, 2, 2), RM.red, { gloss = false, flat = true }); c:fill(c:rect(190, 18, 192, 19), "#dd3a2a"); c:px(193, 18, "#f5cf6a") end,
+  village = function(c) barrel(c, 78, 52); barrel(c, 86, 52) end,
+  haven = function(c) P(c, c:rect(200, 44, 238, 47), RM.wood, { gloss = false, cres = 2, deep = 0 }); for x = 204, 236, 8 do P(c, c:rect(x, 47, x + 1, 56), RM.wood, { gloss = false, flat = true }) end; barrel(c, 214, 44); barrel(c, 224, 44); lamp(c, 40, 52); for x = 40, 190, 10 do c:px(x, 12 + math.floor(2 * math.sin(x / 20) + 0.5), "#4a2c1a") end; smoke(c, 134, 22) end,
+  wonder = function(c) for _, p in ipairs({ { 50, 20 }, { 70, 14 }, { 100, 10 }, { 176, 12 }, { 196, 20 }, { 214, 26 } }) do sparkle(c, p[1], p[2]) end; P(c, c:rrect(40, 36, 46, 40, 1), RM.stone, { gloss = false, cres = 1, deep = 0 }); P(c, c:rrect(196, 30, 202, 34, 1), RM.stone, { gloss = false, cres = 1, deep = 0 }); flowers(c, { { 70, 52 }, { 80, 53 }, { 162, 52 }, { 172, 53 } }, "#f6b8cf") end,
+  delve = function(c) crystalp(c, 36, 50, 12, "#a9d6ea"); crystalp(c, 42, 50, 8, "#a9d6ea"); crystalp(c, 206, 50, 12, "#c3b2ea"); crystalp(c, 212, 50, 8, "#c3b2ea"); P(c, c:poly({ { 164, 44 }, { 184, 44 }, { 180, 52 }, { 168, 52 } }), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:ellipse(170, 54, 2, 2), "#2a1a10"); c:fill(c:ellipse(180, 54, 2, 2), "#2a1a10"); lamp(c, 150, 52) end,
+  lair = function(c) for _, e in ipairs({ { 60, 50 }, { 70, 52 }, { 66, 47 } }) do P(c, c:ellipse(e[1], e[2], 4, 5), RM.cream, { gloss = false, cres = 1, deep = 0 }) end; for i = 0, 6 do c:fill(c:ellipse(190 + (i % 3) * 5, 52 - (i // 3) * 3, 2, 1), "#f5cf6a") end; sparkle(c, 140, 26); sparkle(c, 100, 22) end,
+  NA = function(c) fence(c, 20, 50, 53); c:fill(c:poly({ { 190, 50 }, { 196, 42 }, { 202, 50 } }), "#f08a24"); c:fill(c:poly({ { 193, 50 }, { 196, 45 }, { 199, 50 } }), "#f5cf6a"); P(c, c:rect(182, 49, 190, 51), RM.wood, { gloss = false, flat = true }) end,
+  CA = function(c) house(c, 180, 49, 22, 12, RM.sand, RM.clay); for _, x in ipairs({ 34, 44 }) do P(c, c:poly({ { x - 3, 50 }, { x - 4, 44 }, { x + 4, 44 }, { x + 3, 50 } }), RM.clay, { gloss = false, cres = 2, deep = 0 }) end; c:fill(c:ellipse(150, 50, 3, 3), "#9a6b3f") end,
+  CB = function(c) palm(c, 36, 52, 20); palm(c, 220, 52, 18); boat(c, 70, 38); c:fill(c:ellipse(140, 53, 7, 2), "#fff3c8"); P(c, c:ellipse(170, 50, 5, 2), RM.petal, { gloss = false, flat = true }) end,
+  SA = function(c) c:fill(c:rect(168, 24, 171, 40), "#a9d6ea"); c:fill(c:rect(169, 24, 169, 40), "#eef8f2"); for _, p in ipairs({ { 40, 50, 18 }, { 214, 50, 20 } }) do tree(c, p[1], p[2], p[3], RM.dleaf) end; c:fill(c:rect(100, 22, 102, 23), "#dd3a2a"); c:fill(c:rect(104, 26, 106, 27), "#3f8fb0") end,
+  NWE = function(c) for _, f in ipairs({ { 104, 24 }, { 134, 28 } }) do c:fill(c:rect(f[1], f[2] - 6, f[1], f[2]), "#4a2c1a"); c:fill(c:poly({ { f[1] + 1, f[2] - 6 }, { f[1] + 7, f[2] - 4 }, { f[1] + 1, f[2] - 2 } }), "#dd3a2a") end; fence(c, 20, 50, 53); P(c, c:ellipse(80, 50, 6, 3), RM.leaf); c:fill(c:rect(160, 38, 180, 38), "#c9c5bc") end,
+  SE = function(c) for _, x in ipairs({ 140, 160, 180 }) do pine(c, x, 52, 20, RM.dleaf) end; for i = 0, 5 do c:fill(c:rect(30 + i * 6, 44, 31 + i * 6, 50), "#7ab55c"); P(c, c:ellipse(30 + i * 6, 43, 2, 2), RM.dusk, { gloss = false, flat = true }) end end,
+  EE = function(c) for _, x in ipairs({ 30, 54 }) do P(c, c:rect(x, 38, x + 1, 48), RM.snow, { gloss = false, flat = true }); c:fill(c:ellipse(x + 1, 37, 4, 5), "#7ab55c") end; dome(c, 200, 48, 6, RM.petal); P(c, c:rect(194, 48, 206, 52), RM.cream, { gloss = false, flat = true }); c:fill(c:ellipse(160, 52, 8, 2), "#f1ece0") end,
+  MENA = function(c) c:fill(c:ellipse(40, 51, 12, 3), "#3f8fb0"); c:fill(c:rect(30, 50, 40, 50), "#a9d6ea"); dome(c, 186, 46, 8, RM.cream); P(c, c:rect(178, 46, 194, 52), RM.sand, { gloss = false, flat = true }); c:fill(c:rect(150, 46, 150, 40), "#8a4f2a"); c:fill(c:rect(146, 38, 154, 40), "#4f9a45") end,
+  WCA = function(c) for _, x in ipairs({ 40, 190 }) do P(c, c:rect(x, 40, x + 14, 46), RM.wood, { gloss = false, cres = 2, deep = 0 }); P(c, c:poly({ { x - 2, 40 }, { x + 7, 33 }, { x + 16, 40 } }), RM.sand, { gloss = false, cres = 2, deep = 0 }); for dx = 1, 13, 4 do c:fill(c:rect(x + dx, 46, x + dx, 52), "#8a4f2a") end end; P(c, c:ellipse(120, 53, 7, 2), RM.leaf) end,
+  ESA = function(c) llama(c, 100, 50); P(c, c:ellipse(130, 50, 4, 3), RM.dleaf); for i = 0, 3 do c:fill(c:rect(60 + i * 4, 44, 61 + i * 4, 48), "#4f9a45") end; flowers(c, { { 150, 52 }, { 160, 53 } }, "#f6b8cf") end,
+  CSA = function(c) for i = 0, 4 do P(c, c:ellipse(90 + i * 6, 50, 3, 2), ({ RM.red, RM.gold, RM.clay })[i % 3 + 1], { gloss = false, flat = true }) end; lamp(c, 20, 52); lamp(c, 224, 52); for x = 20, 224, 12 do c:px(x, 10 + (x // 12) % 3, "#f5cf6a") end end,
+  EA = function(c) for i = 0, 10 do c:px(30 + i * 18, 14 + (i % 4) * 6, "#f6b8cf"); c:px(31 + i * 18, 15 + (i % 4) * 6, "#f6b8cf") end; P(c, c:poly({ { 160, 50 }, { 166, 44 }, { 184, 44 }, { 190, 50 } }), RM.red, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(168, 44, 169, 50), "#4a2c1a"); c:fill(c:rect(180, 44, 181, 50), "#4a2c1a") end,
+  SEA = function(c) boat(c, 40, 44); c:fill(c:ellipse(150, 51, 6, 2), "#3f8fb0"); P(c, c:ellipse(210, 48, 5, 3), RM.petal, { gloss = false, flat = true }); c:fill(c:rect(80, 20, 82, 21), "#dd3a2a"); c:px(83, 20, "#f5cf6a") end,
+  OC = function(c) boat(c, 30, 52); P(c, c:ellipse(220, 48, 12, 3), RM.sand); palm(c, 218, 48, 12); c:fill(c:ellipse(90, 52, 8, 2), "#fff3c8"); c:fill(c:rect(140, 16, 142, 16), "#4a2c1a") end,
+}
 local ORDER = { "grassland", "forest", "mountain", "wetland", "tundra", "desert", "island", "coast", "rainforest", "village", "haven", "wonder", "delve", "lair",
   "NA", "CA", "CB", "SA", "NWE", "SE", "EE", "MENA", "WCA", "ESA", "CSA", "EA", "SEA", "OC" }
 local only = os.getenv("ONLY"); local want = {}
@@ -108,10 +149,23 @@ for _, key in ipairs(ORDER) do if not only or want[key] then
   X.layer(c, "far")
   for x = 0, W - 1 do c:fill(c:rect(x, 26 + math.floor(3 * math.sin(x / 19 + #key) + 0.5), x, 50), s.far) end
   for x = 0, W - 1 do c:fill(c:rect(x, 33 + math.floor(2.5 * math.sin(x / 11 + 1 + #key) + 0.5), x, 50), s.mid) end
+  local cat = CAT[key]
+  -- far treeline / roofline bumps rising from the mid ridge (same colour, so no new palette entries)
+  if cat == "trees" or cat == "reeds" then for x = 5, W - 1, 11 do local y = 33 + math.floor(2.5 * math.sin(x / 11 + 1 + #key) + 0.5); c:fill(c:ellipse(x, y - 1, 3 + (x // 11) % 2, 3), s.mid); c:fill(c:rect(x, y, x, y + 3), s.mid) end
+  elseif cat == "roofs" then for x = 8, W - 1, 24 do local y = 33 + math.floor(2.5 * math.sin(x / 11 + 1 + #key) + 0.5); c:fill(c:rect(x, y - 4, x + 7, y + 2), s.mid); c:fill(c:poly({ { x - 1, y - 4 }, { x + 3.5, y - 8 }, { x + 9, y - 4 } }), s.mid) end end
   X.layer(c, "ground")
   c:fill(c:rect(0, 44, W - 1, H - 1), s.g1); c:fill(c:rect(0, 51, W - 1, H - 1), s.g2)
+  for i = 0, 17 do local x = 6 + i * 13 + (i * 5) % 7; c:paint({ "x.x", ".x." }, x, 46 + (i % 3), { x = s.g2 }) end   -- tufts on the front ground
   X.layer(c, "objects")
   s.draw(c)
+  if DEC[key] then DEC[key](c) end
+  -- foreground corner props (outside the centre, framing the picture)
+  for _, fx in ipairs({ { 12, 54, 9 }, { 229, 54, 8 } }) do
+    if cat == "trees" or cat == "reeds" then P(c, c:ellipse(fx[1], fx[2], fx[3], 3), RM.leaf, { gloss = false, cres = 2, deep = 0 })
+    elseif cat == "sand" or cat == "sea" or cat == "rock" then rock(c, fx[1], fx[2], fx[3] - 2, 3)
+    elseif cat == "snow" then P(c, c:ellipse(fx[1], fx[2], fx[3], 3), RM.snow, { gloss = false, cres = 2, deep = 0 })
+    else P(c, c:rrect(fx[1] - 5, fx[2] - 5, fx[1] + 5, fx[2] + 2, 1), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(fx[1] - 4, fx[2] - 2, fx[1] + 4, fx[2] - 2), "#8a4f2a") end
+  end
   X.layer(c, "fx")
   c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true }); c:seam({ { 0, H - 2 }, { W - 1, H - 2 } }, { free = true })
   X.save(c, "banner-" .. key, "scenes", { w = 480, h = 120, cap = 24 })
