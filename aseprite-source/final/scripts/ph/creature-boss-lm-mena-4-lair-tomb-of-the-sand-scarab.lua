@@ -13,24 +13,24 @@ local DOOR  = GV.ramp("#3d2a1c")              -- soil family, dark doorway
 local GOLD  = GV.R.gold
 
 -- tomb door (back): sandstone pylon with a lintel, dark doorway
-local tomb = c:poly({ {33,9}, {56,9}, {58,34}, {31,34} })
-local lintel = c:rrect(30, 6, 59, 10, 1)
-local door = c:rect(40, 15, 48, 34)
+local tomb = c:poly({ {35,10}, {54,10}, {56,32}, {33,32} })
+local lintel = c:rrect(32, 6, 57, 10, 1)
+local door = c:rect(41, 14, 48, 32)
 
 -- legs (behind the body), 3 px, bent, feet planted
 local legs = c:line({ {20,44}, {15,49}, {13,54} }, 3)
 legs:add(c:line({ {31,45}, {29,50}, {26,54} }, 3))
 legs:add(c:line({ {43,45}, {47,49}, {48,54} }, 3))
-legs:add(c:line({ {50,43}, {55,47}, {57,53} }, 3))
+legs:add(c:line({ {50,43}, {54,47}, {55,53} }, 3))
 
 -- wing case: big dome, flat underside
-local shell = c:ellipse(39, 36, 17, 12.5):cut(c:rect(0, 46, 63, 63))
-shell:add(c:rrect(25, 40, 55, 47, 3))
+local shell = c:ellipse(39.5, 37, 16.5, 13):cut(c:rect(0, 45, 63, 63))
+shell:add(c:rrect(25, 39, 54, 46, 5))
 -- pronotum (sandy gold shield between head and wings)
 local prono = c:ellipse(24.5, 37, 7.5, 9.5)
 -- head with a toothed clypeus crown
-local head = c:ellipse(14.5, 40, 9.5, 8.5)
-local crown = c:poly({ {6,36}, {6,27}, {9,32}, {11,25}, {14.5,31}, {18,25}, {20,32}, {23,27}, {23,36} })
+local head = c:ellipse(15.5, 40, 9.5, 8.5)
+local crown = c:poly({ {8,35}, {6,25}, {11,30}, {15.5,20}, {20,30}, {25,25}, {23,35} })
 
 local p = c:build{
   { "tomb",   tomb,   SAND, { gloss = false } },
@@ -39,15 +39,15 @@ local p = c:build{
   { "legs",   legs,   "leg", { flat = true } },
   { "shell",  shell,  LAPIS, { gloss = { 30, 28 } } },
   { "prono",  prono,  GOLD, { gloss = { 20, 31 } } },
-  { "crown",  crown,  GOLD, { gloss = false } },
   { "head",   head,   "dusk", { gloss = { 9, 35 } } },
+  { "crown",  crown,  GOLD, { gloss = { 14, 26 } } },
 }
 
 -- glyph on the lintel: eye of the sun
 c:paint({ ".ggg.", "g.u.g", ".ggg." }, 42, 7, { g = "#7a3a14", u = "#2a1a10" })
 -- stone block lines on the pylon
-c:fill(c:rect(33, 20, 38, 20), SAND.shade); c:fill(c:rect(50, 20, 55, 20), SAND.shade)
-c:fill(c:rect(36, 14, 36, 19), SAND.shade); c:fill(c:rect(52, 14, 52, 19), SAND.shade)
+c:fill(c:rect(35, 19, 39, 19), SAND.shade); c:fill(c:rect(50, 19, 54, 19), SAND.shade)
+c:fill(c:rect(37, 13, 37, 18), SAND.shade); c:fill(c:rect(52, 13, 52, 18), SAND.shade)
 
 -- sun-disc sewn on the wing case: gold disc, rays, stitched ring
 c:spot(c:ellipse(41, 34, 4, 4), GOLD.base, GOLD.gloss)
@@ -62,20 +62,17 @@ c:button(27, 42)
 -- seam where the pronotum joins the wing case
 c:seam({ {31, 30}, {31, 42} })
 
--- crown jewel (lapis bead) on the centre tooth gap
-c:fill(c:rect(14, 32, 15, 33), LAPIS.base)
+-- crown jewel (lapis bead) under the centre notch
+c:fill(c:rect(15, 31, 16, 32), LAPIS.base)
 
 -- angry face, eyes wide
-c:eye(7, 39); c:eye(16, 39)
-c:paint({ "uu..", ".uuu" }, 6, 37, { u = "#2a1a10" })
-c:paint({ "..uu", "uuu." }, 17, 37, { u = "#2a1a10" })
-c:paint({ "uuuuu", "u.u.u" }, 10, 45, { u = "#2a1a10" })
+c:eye(8, 39); c:eye(17, 39)
 
 -- stitched scar across the wing case
 c:fill(c:line({ {49,32}, {53,37} }, 1), LAPIS.deep)
 c:px(50, 35, GV.C.gold); c:px(52, 33, GV.C.gold)
 
-c:ground(34, 55, 24, 1.5)
+c:ground(33, 55, 23, 1.5)
 local t = c:save(D .. "final/aseprite/ph/" .. FILE .. ".aseprite", PNG .. FILE .. ".png")
 print(GV.report(t))
 assert(t.semi == 0 and t.bw == 0 and t.margin >= 3)

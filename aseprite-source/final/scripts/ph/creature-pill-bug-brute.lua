@@ -8,7 +8,7 @@ local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
 -- stone family: two alternating plate tones, slate belly, dusk-dark head
 local plateA = GV.R.stone                -- #8b8f96
-local plateB = GV.ramp("#5b6470")        -- stone dark
+local plateB = GV.ramp("#737a84")        -- stone, a step toward stone dark #5b6470
 local bellyR = GV.ramp("#4a5160")
 local headR  = GV.R.dusk
 
@@ -16,8 +16,8 @@ local headR  = GV.R.dusk
 local hump = c:ellipse(36, 27, 19.5, 19):cut(c:rect(0, 40, 63, 63))
 hump:add(c:rrect(19, 33, 54, 41, 6))
 -- plates are bands across the back, fanning slightly from a far hub below
-local HX, HY = 36, 72
-local A0, A1, N = 251, 291, 8
+local HX, HY = 36, 58
+local A0, A1, N = 247, 293, 6
 local function wedge(i)
   local lo, hi = A0 + (A1 - A0) * (i - 1) / N, A0 + (A1 - A0) * i / N
   if i == 1 then lo = 90 end
@@ -32,7 +32,7 @@ local function wedge(i)
 end
 
 -- stubby legs braced under the belly (behind everything)
-for _, x in ipairs({ 24, 30, 36, 42, 48 }) do
+for _, x in ipairs({ 26, 33, 40, 47 }) do
   c:limb({ { x, 41 }, { x - 2, 45 }, { x - 1, 48 } })
 end
 
@@ -55,6 +55,9 @@ c:part(c:rrect(8, 16, 11, 19, 1), headR, { flat = true })
 -- armour hem: seam where the plates meet the belly, button at its head by the tail
 c:seam({ { 22, 38 }, { 48, 38 } })
 c:button(49, 36)
+
+-- battle crack on a back plate (brute scar)
+c:paint({ "x..", ".x.", ".x.", "..x", ".x." }, 43, 12, { x = plateB.deep })
 
 -- brute face: stone brow ridges in a scowl, locked eyes, gritted underbite with fangs
 local brow, browL = "#c9c5bc", plateA.gloss
