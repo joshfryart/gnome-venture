@@ -81,6 +81,8 @@ const UPDATE_NEWS = [
         "The whole Hollow has a fresh coat of felt: new pixel pictures everywhere, and the pages, buttons and menus now look hand-stitched to match. Light and dark both got the new look (switch in the menu)."],
     '2.0.35' => ['🌱 Garden beds fixed',
         "Garden bed pictures were showing as odd text instead of the little bed icons. They look right again."],
+    '2.0.36' => ['🧙 Your gnome looks right on phones',
+        "On phones the Today page showed a plain white-hatted gnome. It now wears your own hat and beard colours. Trek foes also have new pictures."],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */
