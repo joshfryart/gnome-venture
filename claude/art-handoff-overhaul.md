@@ -72,7 +72,7 @@ Check each with the Part E checklist (size exact, alpha, colours under the cap, 
 ## Known gaps (not your problem, so you do not wonder)
 - World and region maps, rest stop interiors, camp and boss scenes and fight effects are not wired into the game yet. Draw them after the test run if asked; they will not show until Claude wires them.
 - Shop types: only `shop-general` is requested until the list of shop types is confirmed.
-- The thread trail, button marker and tier landmarks on the hoop map are drawn by code now and swap to your files automatically (`map/pin.png` is not yet read by the game: tell Claude when it exists).
+- Hoop map: the game already reads `map/landmark-<tier>.png`. It does **not** yet read `hoop.png`, `pin.png` or felt textures (code draws those for now). Tell Claude when they exist and it will wire them.
 
 ## Contacts and process
 - Questions go to Josh. Do not push to the repo; deliver zips. Claude merges and tests.
