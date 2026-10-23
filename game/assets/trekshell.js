@@ -107,4 +107,33 @@
     if (t) { e.preventDefault(); e.stopPropagation(); open(t); }
     else if (drawer && !drawer.hidden) close();   // Map tab: close the drawer, then let the page do its usual in-place load
   }, true);
+
+  /* Story and foe pop-overs sit over the stage instead of the middle of the screen: the figures stay in view and the card lands on the map below them.
+     Falls back to the usual centred place when the stage is off screen. */
+  function place(d) {
+    var st = document.getElementById('trekstage');
+    if (!st) return;
+    var r = st.getBoundingClientRect();
+    if (r.bottom < 40 || r.top > window.innerHeight - 80) return;
+    d.classList.add('onstage');
+    if (d.classList.contains('tkfoe')) {
+      d.style.left = Math.round(r.left + r.width / 2) + 'px';
+      d.style.top = Math.round(r.bottom + 6) + 'px';   // below the figures, over the map
+      return;
+    }
+    var w = Math.min(520, window.innerWidth - 24);
+    var left = Math.max(12, Math.min(window.innerWidth - w - 12, r.left + (r.width - w) / 2));
+    d.style.width = w + 'px';
+    d.style.left = Math.round(left) + 'px';
+    var h = d.getBoundingClientRect().height || 240;
+    var top = Math.min(r.bottom - 36, window.innerHeight - h - 8);
+    d.style.top = Math.round(Math.max(8, top)) + 'px';
+  }
+  function scan() {
+    [].forEach.call(document.querySelectorAll('dialog.tkscene[open]:not(.onstage), dialog.tkfoe[open]:not(.onstage)'), place);
+    [].forEach.call(document.querySelectorAll('dialog.onstage:not([open])'), function (d) {
+      setTimeout(function () { if (!d.open) { d.classList.remove('onstage'); d.style.top = d.style.left = d.style.width = ''; } }, 600);   // after the fade out
+    });
+  }
+  if (window.MutationObserver) new MutationObserver(scan).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
 })();

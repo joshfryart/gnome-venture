@@ -40,5 +40,6 @@ fi
 php -d display_errors=1 "$HERE/trekfight_force.php" "$GAME" 2>&1 | tail -2
 echo "fight page: $(get trek.php) foes=$(grep -c '"side":"f"' $H) hpstage=$(grep -c trekfight $H)"
 if [ -n "$SHOT" ]; then node "$HERE/trekshell_shot.js" "$BASE" x "$SHOT" fight; fi
+if [ -n "$SHOT" ]; then db "SELECT 1" >/dev/null; node "$HERE/trekshell_shot.js" "$BASE" x "$SHOT" story; fi
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"

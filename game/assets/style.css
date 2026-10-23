@@ -5072,3 +5072,31 @@ dialog.tkr::backdrop, dialog.tkscene::backdrop, dialog.tkcamp::backdrop { -webki
 }
 .tkpage .tksmutebtn { min-height: 28px; padding: 2px 10px; font-size: 13px; }
 .tkpage .tksmuterow { margin: 0; line-height: 1; }
+
+/* ===== v2.0.42 softer pop-overs: lighter dimming, no blur, a slow fade in and out, no harsh focus ring ===== */
+dialog.tkscene, dialog.tkcamp, dialog.tkr, dialog.trekplan, dialog.tkfoe {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .4s ease, transform .4s cubic-bezier(.2, .7, .2, 1), overlay .4s allow-discrete, display .4s allow-discrete;
+  outline: none;
+}
+dialog.tkscene[open], dialog.tkcamp[open], dialog.tkr[open], dialog.trekplan[open], dialog.tkfoe[open] { opacity: 1; transform: none; animation: none; }
+@starting-style { dialog.tkscene[open], dialog.tkcamp[open], dialog.tkr[open], dialog.trekplan[open], dialog.tkfoe[open] { opacity: 0; transform: translateY(10px); } }
+dialog.tkfoe { transform: translate(-50%, 10px); }
+dialog.tkfoe[open] { transform: translateX(-50%); }
+@starting-style { dialog.tkfoe[open] { transform: translate(-50%, 10px); } }
+dialog.tkscene::backdrop, dialog.tkcamp::backdrop, dialog.tkr::backdrop, dialog.trekplan::backdrop {
+  background: rgba(42, 26, 16, 0); backdrop-filter: none; -webkit-backdrop-filter: none;
+  transition: background-color .5s ease, overlay .5s allow-discrete, display .5s allow-discrete;
+}
+dialog.tkscene[open]::backdrop, dialog.tkcamp[open]::backdrop, dialog.tkr[open]::backdrop, dialog.trekplan[open]::backdrop { background: rgba(42, 26, 16, .3); }
+@starting-style { dialog.tkscene[open]::backdrop, dialog.tkcamp[open]::backdrop, dialog.tkr[open]::backdrop, dialog.trekplan[open]::backdrop { background: rgba(42, 26, 16, 0); } }
+:root[data-theme="dark"] dialog.tkscene[open]::backdrop, :root[data-theme="dark"] dialog.tkcamp[open]::backdrop { background: rgba(0, 0, 0, .32); }
+dialog.tkscene:focus, dialog.tkscene:focus-visible, dialog.tkcamp:focus, dialog.tkcamp:focus-visible, dialog.tkr:focus, dialog.tkr:focus-visible, .tkscard:focus-visible, .tkrcard:focus-visible { outline: none; box-shadow: var(--shadow-2); }
+.tkscard, .tkccard, .tkrcard { box-shadow: 0 6px 18px rgba(42, 26, 16, .28); }
+dialog.tkscene[open] .tkscard, dialog.tkcamp[open] .tkccard { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.tkscene, dialog.tkcamp, dialog.tkr, dialog.trekplan, dialog.tkfoe { transform: none; transition: opacity .2s ease, overlay .2s allow-discrete, display .2s allow-discrete; }
+  dialog.tkfoe, dialog.tkfoe[open] { transform: translateX(-50%); }
+}
+/* a story or foe pop-over that sits over the Trek stage (placed by assets/trekshell.js) */
+dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
