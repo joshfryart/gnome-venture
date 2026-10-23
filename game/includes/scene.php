@@ -88,3 +88,55 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): 
     if ($other) $units[] = ['id' => 'other', 'side' => 'f', 'name' => $other[1], 'html' => '<span class="gvs-emo">' . emoji_swap(e($other[0])) . '</span>'];
     return scene_stage('stage', $land, $units, 'advstage', $land);
 }
+
+/**
+ * v2.0.46: a banner for a place (location row or region name). Picks the most specific picture that is drawn: its kind (village, haven, wonder, delve, lair, market),
+ * then its region code, then its landscape. Nothing drawn = '' (the page stays as it was; no placeholder strip).
+ */
+function scene_place_banner(array $loc, string $alt = ''): string
+{
+    $keys = [];
+    if (!empty($loc['kind'])) $keys[] = (string)$loc['kind'];
+    $code = '';
+    try {
+        if (!empty($loc['region_id'])) $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [(int)$loc['region_id']]);
+        elseif (!empty($loc['region'])) $code = (string)q_val('SELECT code FROM regions WHERE gnomish_name = ? OR real_name = ?', [(string)$loc['region'], (string)$loc['region']]);
+    } catch (Throwable $e) {
+        $code = '';   // a banner is never worth a broken page
+    }
+    if ($code !== '') $keys[] = $code;
+    if (!empty($loc['landscape'])) $keys[] = (string)$loc['landscape'];
+    foreach ($keys as $k) {
+        if (scene_path('banner', $k) !== '') return '<div class="scene-bannerwrap">' . scene_banner($k, $alt) . '</div>';
+    }
+    return '';
+}
+
+/** A shop's banner/interior: shop-{type} else shop-general. '' if none is drawn. */
+function scene_shop_banner(array $shop): string
+{
+    foreach ([(string)($shop['shop_type'] ?? ''), 'general'] as $k) {
+        if ($k !== '' && scene_path('shop', $k) !== '') return '<div class="scene-bannerwrap">' . scene_banner($k, (string)($shop['name'] ?? ''), 'shop') . '</div>';
+    }
+    return '';
+}
+
+/** Which of the six home interiors a villager has (stable per villager). */
+function npc_home_key(array $npc): string
+{
+    $homes = ['cottage', 'burrow', 'treehouse', 'hut', 'stone', 'boat'];
+    return $homes[abs(crc32((string)($npc['slug'] ?? $npc['id'] ?? '0'))) % count($homes)];
+}
+
+/** The villager at home with you, on the home interior; '' unless that picture is drawn and they are at home. */
+function npc_home_scene(array $u, array $npc, array $now): string
+{
+    $key = npc_home_key($npc);
+    if (empty($now['home']) || scene_path('home', $key) === '') return '';
+    require_once __DIR__ . '/items.php';
+    $ph = ph_path('npc-' . (string)($npc['slug'] ?? ''));
+    return scene_stage('home', $key, [
+        ['id' => 'me', 'side' => 'p', 'name' => gnome_name($u), 'html' => gnome_stage_ico($u)],
+        ['id' => 'npc', 'side' => 'f', 'name' => (string)$npc['name'], 'mini' => 'mini-npc-' . (string)($npc['slug'] ?? ''), 'img' => $ph],
+    ], 'homestage', 'none');
+}

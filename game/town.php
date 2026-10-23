@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/npc_life.php';
 require_once __DIR__ . '/includes/town_social.php';
 require_once __DIR__ . '/includes/journey.php';
+require_once __DIR__ . '/includes/scene.php';   // v2.0.46: place banners
 $u = require_login();
 $uid = (int)$u['id'];
 $hub = !empty($_GET['hub']) || !empty($_POST['hub']);
@@ -99,6 +100,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     ?>
     <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
     <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
+    <?= scene_place_banner($node, $node['name']) ?>
     <?php require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u);   // v1.0.4: carry on along the route ?>
     <nav class="chips">
       <a class="on" href="<?= e(url('town.php')) ?>">🪧 <?= e($node['name']) ?> rest stop</a>
@@ -337,6 +339,7 @@ function town_pickers(int $uid): string
   <p><a class="btn alt" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">← Back to the square</a></p>
 <?php else: ?>
   <h1>🏘️ <?= e($town) ?> Town Square</h1>
+  <?= scene_place_banner(['kind' => 'market', 'region' => $town], $town . ' Town Square') ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
   <?php if ($fest = town_festival($town)): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>

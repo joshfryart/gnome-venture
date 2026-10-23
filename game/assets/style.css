@@ -5132,3 +5132,7 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 }
 .scenecard, .meetcard, .roadresult, .advlatest { box-shadow: 0 4px 12px rgba(42, 26, 16, .22); }
 .fcard.foe, .fcard.you { box-shadow: 0 4px 12px rgba(42, 26, 16, .22); }
+
+/* v2.0.46 place banners */
+.scene-bannerwrap { margin: 6px auto 10px; max-width: 960px; }
+.scene-bannerwrap .scene-banner { margin: 0; image-rendering: pixelated; }

@@ -147,6 +147,7 @@ function villager_panel(array $u, int $nid, string $msg = '', bool $ok = true): 
         $h .= '<p class="help">Not anywhere you can reach right now. Find them in town or knock when they’re home.</p>';
     }
     $h .= '</div></div>';
+    if ($here) $h = str_replace('<div class="npchead">', npc_home_scene($u, $npc, $now) . '<div class="npchead">', $h);   // v2.0.46: at home with you: the home interior
     if ($bday) $h .= '<p class="bday">🎂 It’s ' . e($npc['name']) . '’s birthday today! A gift counts three times as much.</p>';
     if ($npc['bio']) $h .= '<p>' . e($npc['bio']) . '</p>';
     $work = q('SELECT DISTINCT sh.id, sh.name FROM npc_schedules s JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$nid])->fetchAll();
