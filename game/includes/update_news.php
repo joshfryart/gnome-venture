@@ -79,6 +79,8 @@ const UPDATE_NEWS = [
         "The little pictures around the game (menus, buttons, items, messages) are now hand-drawn icons instead of emoji, so everything looks the same on every phone. What you type yourself, like names and notes, stays as you wrote it."],
     '2.0.32' => ['🧵 A new stitched look',
         "The whole Hollow has a fresh coat of felt: new pixel pictures everywhere, and the pages, buttons and menus now look hand-stitched to match. Light and dark both got the new look (switch in the menu)."],
+    '2.0.35' => ['🌱 Garden beds fixed',
+        "Garden bed pictures were showing as odd text instead of the little bed icons. They look right again."],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */
