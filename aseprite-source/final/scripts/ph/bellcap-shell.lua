@@ -48,9 +48,6 @@ local p = c:build{
 -- hollow: deep dusk interior with a lit inner rim on the far (upper) edge of the mouth
 c:fill(mouth, "#1e1438")
 mouth:each(function(x, y) if not mouth:has(x, y - 1) or not mouth:has(x - 1, y - 1) then c:px(x, y, "#3e2f66") end end)
--- a few chips of basalt grit rattling inside (it chimes)
-c:paint({ "gs", "s." }, L2C(3, 1)); c:paint({ "gs" }, L2C(-7, 1))
--- (legend applied below via direct pixels so colours stay on palette)
 
 -- ribs, as on the creature: centre rib and two side ribs following the flare
 local rib = c:mask()
@@ -67,12 +64,6 @@ band:add(c:line({ { b0x, b0y }, { b1x, b1y } }, 1)):clip(p.bell.m:shrink(1)):cut
 c:fill(band, "#a9afba")
 
 -- seam along the lip join, button at its head
-local s = {}
-for i = 0, 12 do
-  local t = math.pi + i * math.pi / 12
-  s[#s+1] = { L2C(18 * math.cos(t), -2.6 + 3.2 * math.sin(t) * -1 + 0) }
-end
-local sx0, sy0 = L2C(-17, -1.5)
 local pts = {}
 for i = 0, 16 do
   local t = math.pi - i * math.pi / 16          -- along the near (lower) half of the lip

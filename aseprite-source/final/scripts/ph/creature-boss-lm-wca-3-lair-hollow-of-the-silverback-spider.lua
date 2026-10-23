@@ -24,26 +24,23 @@ local bone   = GV.ramp("#f1ece0")             -- soil pale (Part A) for fangs
 local SILV   = "#c9c5bc"
 
 -- log end (round cross-section) and its dark hollow
-local CX, CY = 31.5, 33
-local log    = c:ellipse(CX, CY, 20, 19)
-local hollow = c:ellipse(CX, CY + 1, 14, 13)
+local CX, CY = 31.5, 32
+local log    = c:ellipse(CX, CY, 20, 20)
+local hollow = c:ellipse(CX, CY + 1, 16, 15.5)
 -- moss mat draped over the top of the log
-local mossM = c:ellipse(CX, 15.5, 13, 3.5):cut(c:rect(0, 17, 63, 63))
-mossM:add(c:rrect(19, 14, 44, 18, 2))
-mossM:add(c:rrect(22, 17, 25, 20, 1)):add(c:rrect(38, 17, 40, 21, 1))
+local mossM = c:ellipse(CX, 13.5, 11, 3):cut(c:rect(0, 15, 63, 63))
+mossM:add(c:rrect(21, 12, 42, 15, 2))
+mossM:add(c:rrect(23, 15, 25, 17, 1)):add(c:rrect(38, 15, 40, 18, 1))
 
--- spider masks
-local abd  = c:ellipse(CX, 29, 11, 8.5)
-local saddle = c:ellipse(CX, 27, 8, 5):cut(c:rect(0, 31, 63, 63))
-saddle:add(c:rrect(24, 27, 39, 30, 2))
+-- spider masks: big back with the silver saddle, chibi head in front
+local abd  = c:ellipse(CX, 27, 12.5, 9)
+local saddle = c:ellipse(CX, 27, 10, 5):cut(c:ellipse(CX, 19.5, 6, 4))
+saddle:clip(abd:shrink(2))
 local head = c:ellipse(CX, 40, 10.5, 7.5)
-local fangs = c:ascii({ "##..##", "##..##", "##..##", ".#..#." }, 28, 46)
--- silver tufts (spiky boss crest) on the back of the abdomen
-local tufts = c:ascii({
-  "#.....#.....#",
-  "##...###...##",
-  "###.#####.###",
-}, 25, 18)
+local fangs = c:ascii({ "##...##", "##...##", "##...##", ".#...#." }, 27, 46)
+-- silver hair tufts on the shoulders of the back (spiky boss silhouette)
+local tufts = c:ascii({ "#...", "##..", "###.", "####" }, 17, 21)
+tufts:add(c:ascii({ "...#", "..##", ".###", "####" }, 43, 21))
 
 c:build{
   { "log",    log,    wood },
@@ -52,54 +49,52 @@ c:build{
 }
 
 -- growth ring on the cut face, between bark and hollow
-local ring = c:ellipse(CX, CY + 0.5, 17, 16):edge():cut(hollow:grow(1)):cut(mossM:grow(1))
+local ring = c:ellipse(CX, CY + 0.5, 18, 18):edge():cut(hollow:grow(1)):cut(mossM:grow(1))
 c:fill(ring, wood.shade)
-
--- silver web threads across the hollow: 2 on / 1 off "stitches"
-local function thread(pts)
-  local m = c:line(pts, 1):clip(hollow:shrink(1))
-  local i = 0
-  local px = {}
-  m:each(function(x, y) px[#px + 1] = { x, y } end)
-  table.sort(px, function(a, b) if a[2] ~= b[2] then return a[2] < b[2] end return a[1] < b[1] end)
-  for _, p in ipairs(px) do
-    if i % 3 ~= 2 then c:px(p[1], p[2], SILV) end
-    i = i + 1
-  end
-end
-thread({ {CX, 34}, {20, 25} }); thread({ {CX, 34}, {43, 25} })
-thread({ {CX, 34}, {19, 39} }); thread({ {CX, 34}, {44, 39} })
-thread({ {CX, 34}, {22, 45} }); thread({ {CX, 34}, {41, 45} })
 
 -- eight bent legs: knee out over the rim, tip hooked past it
 local L = {
-  { {24,26}, {15,15}, {7,17} },     -- front pair, up and over the top rim
-  { {23,30}, {11,26}, {6,32} },
-  { {23,36}, {11,38}, {7,45} },
-  { {25,42}, {16,49}, {13,56} },    -- rear pair, down past the bottom rim
+  { {24,21}, {16,12}, {9,15} },     -- front pair, up and over the top rim
+  { {21,28}, {10,25}, {8,31} },
+  { {21,36}, {10,40}, {9,46} },
+  { {25,44}, {17,50}, {14,54} },    -- rear pair, down past the bottom rim
 }
-for _, l in ipairs(L) do c:limb(l); c:limb(mir(l)) end
+local legM = c:mask()
+for _, l in ipairs(L) do
+  c:limb(l); c:limb(mir(l))
+  legM:add(c:line(l, 2)):add(c:line(mir(l), 2))
+end
 
 local p = c:build{
   { "tufts",  tufts,  silver, { flat = true } },
   { "abd",    abd,    fur },
-  { "saddle", saddle, silver, { gloss = { 27, 24 } } },
-  { "fangs",  fangs,  bone, { flat = true } },
+  { "saddle", saddle, silver, { gloss = { 25, 25 } } },
   { "head",   head,   fur },
+  { "fangs",  fangs,  bone, { flat = true } },
 }
 
--- dragline: silver thread from the moss down to the back
-c:px(31, 19, SILV); c:px(31, 20, SILV)
+-- silver web threads across the open hollow: 2 on / 1 off "stitches"
+local open = hollow:shrink(1):cut(legM:grow(1)):cut(abd:grow(1)):cut(head:grow(1)):cut(tufts:grow(1))
+local function thread(pts)
+  local m = c:line(pts, 1):clip(open)
+  local px = {}
+  m:each(function(x, y) px[#px + 1] = { x, y } end)
+  table.sort(px, function(a, b) if a[2] ~= b[2] then return a[2] < b[2] end return a[1] < b[1] end)
+  for i, q in ipairs(px) do if i % 3 ~= 0 then c:px(q[1], q[2], SILV) end end
+end
+thread({ {CX, 33}, {17, 44} }); thread({ {CX, 33}, {46, 44} })
+thread({ {CX, 33}, {17, 33} }); thread({ {CX, 33}, {46, 33} })
+thread({ {12, 38}, {18, 47}, {24, 47} }); thread({ {51, 38}, {45, 47}, {39, 47} })
 
--- sewn-on saddle patch: gold seam along its lower hem with a button
-c:seam({ {25, 30}, {38, 30} })
-c:button(30, 28)
+-- sewn-on saddle patch: gold seam down the spine with a button at its head
+c:seam({ {31, 26}, {31, 31} })
+c:button(30, 22)
 
 -- face: wide locked eyes, angry silver brows, scowl
 c:eye(24, 37); c:eye(35, 37)
 c:paint({ "bb....", ".bbbb.", "....bb" }, 22, 34, { b = SILV })
 c:paint({ "....bb", ".bbbb.", "bb...." }, 36, 34, { b = SILV })
-c:paint({ ".uuuu.", "u....u" }, 29, 43, { u = "#a894dc" })
+c:paint({ ".uuu.", "u...u" }, 29, 43, { u = "#a894dc" })
 
 local t = c:save(D .. "final/aseprite/ph/" .. FILE .. ".aseprite", PNG .. FILE .. ".png")
 print(GV.report(t))
