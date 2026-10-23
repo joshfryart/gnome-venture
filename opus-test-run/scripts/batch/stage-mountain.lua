@@ -1,7 +1,7 @@
 -- stage-mountain v2: faceted snow peaks in three depths, pine foothills, a waterfall with mist, alpine meadow, boulders, signpost.
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
 local H = loadfile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/batch/stagelib.lua")(X)
-local S = H.S
+local S = H.S; S.theme = "mountain"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 X.layer(c, "sky"); S.sky(c); S.sun(c, 30, 19); S.cloud(c, 80, 26, 0.9); S.cloud(c, 170, 14, 0.7); S.cloud(c, 214, 34, 0.55)
 X.layer(c, "far")

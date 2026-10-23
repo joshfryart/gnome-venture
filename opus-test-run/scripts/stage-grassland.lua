@@ -1,7 +1,7 @@
 -- stage-grassland: stage backdrop, 240x135 grid -> 480x270 (2x nearest). Part E: opaque, no border, cap 32.
 -- Families: water (sky), gold (sun), cream (clouds), moss + leaf (land, tree), wood (trunk), soil (bank), petal (flowers).
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
-local S = loadfile(X.OUT .. "scripts/shared.lua")(X)
+local S = loadfile(X.OUT .. "scripts/shared.lua")(X); S.theme = "grassland"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 
 X.layer(c, "sky")

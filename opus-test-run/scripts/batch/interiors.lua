@@ -103,7 +103,13 @@ S["shop-craft"] = function(c)
   counterL(c, RM.wood, RM.petal)
 end
 -- ===== rest stops (outdoor scenes keep a left foreground object over y107..134) =====
-local function sky(c, a, b) c:fill(c:rect(0, 0, W - 1, H - 1), b or "#c8ecdc"); c:fill(c:rect(0, 0, W - 1, 34), a or "#a9d6ea"); c:fill(c:rect(0, 35, W - 1, 44), "#eef8f2") end
+local function sky(c, a, b)   -- the Hollow is underground: cave air (amber, or violet for the shrine) under a rock ceiling with stalactites and a glow-crystal
+  local violet = (a == "#c3b2ea"); local air = violet and { "#4e3a8a", "#7a5cc0", "#c3b2ea" } or { "#7a4a1f", "#9a6b3f", "#c9a96e" }
+  c:fill(c:rect(0, 0, W - 1, H - 1), air[3]); c:fill(c:rect(0, 0, W - 1, 30), air[1]); c:fill(c:rect(0, 31, W - 1, 44), air[2])
+  for x = 0, W - 1 do c:fill(c:rect(x, 0, x, 9 + math.floor(2 * math.sin(x / 11) + 0.5)), "#3d2a1c") end
+  for x = 3, W - 1, 9 do local h = 7 + (x * 13) % 13; if (x // 9) % 5 == 0 then h = h + 12 end; c:fill(c:poly({ { x - 4, 11 }, { x, 11 + h }, { x + 4, 11 } }), "#2a1a10"); c:fill(c:poly({ { x - 4, 11 }, { x - 1, 11 + h * 0.65 }, { x - 1, 11 } }), "#4a2c1a") end
+  c:fill(c:ellipse(30, 24, 8, 8), "#f2e4c0"); c:fill(c:poly({ { 26, 22 }, { 29, 17 }, { 33, 22 }, { 32, 31 }, { 28, 31 } }), "#f5cf6a"); c:fill(c:rect(30, 11, 30, 17), "#8a4f2a"); c:px(29, 21, "#fff3c8")
+end
 local function grass(c, a, b) c:fill(c:rect(0, 80, W - 1, H - 1), a or "#7ab55c"); c:fill(c:rect(0, 100, W - 1, H - 1), b or "#4f9a45") end
 local function hedge(c) P(c, c:rrect(-3, 106, 120, H + 2, 6), RM.dleaf, { gloss = false, cres = 4, deep = 0 }); for x = 8, 112, 14 do c:fill(c:rect(x, 114, x + 2, 116), "#7ab55c") end end
 local function crates(c) counterL(c, RM.wood, RM.straw) end

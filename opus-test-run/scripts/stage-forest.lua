@@ -2,7 +2,7 @@
 -- Same sky bands, horizon heights, ground strip and soil bank as stage-grassland (shared.lua) so the lands match.
 -- Families: water (sky), moss + leaf (pines, canopy, floor), soil (back trunks, bank), wood (stump), red + cream (toadstools).
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
-local S = loadfile(X.OUT .. "scripts/shared.lua")(X)
+local S = loadfile(X.OUT .. "scripts/shared.lua")(X); S.theme = "forest"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 local floor, sin = math.floor, math.sin
 

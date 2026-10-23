@@ -143,7 +143,7 @@ for _, k in ipairs({ "1", "2", "3", "3b" }) do for _, sc in ipairs({ "path", "fi
     local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2, ol = 1, olx = 1 }
     X.layer(c, "sky")
     if ch.open then
-      c:fill(c:rect(0, 0, 239, 17), ch.sky[1]); c:fill(c:rect(0, 18, 239, 36), ch.sky[2]); c:fill(c:rect(0, 37, 239, 58), ch.sky[3]); c:fill(c:rect(0, 59, 239, 134), ch.sky[4]); S.sun(c, 200, 22)
+      S.theme = "trek1"; S.sky(c); S.sun(c, 200, 26)
     else
       for i, col in ipairs(ch.wall) do c:fill(c:rect(0, (i - 1) * 18, 239, i * 18 + (i == 5 and 60 or -1)), col) end
     end

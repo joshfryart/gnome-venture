@@ -136,6 +136,12 @@ local DEC = {
   SEA = function(c) boat(c, 40, 44); c:fill(c:ellipse(150, 51, 6, 2), "#3f8fb0"); P(c, c:ellipse(210, 48, 5, 3), RM.petal, { gloss = false, flat = true }); c:fill(c:rect(80, 20, 82, 21), "#dd3a2a"); c:px(83, 20, "#f5cf6a") end,
   OC = function(c) boat(c, 30, 52); P(c, c:ellipse(220, 48, 12, 3), RM.sand); palm(c, 218, 48, 12); c:fill(c:ellipse(90, 52, 8, 2), "#fff3c8"); c:fill(c:rect(140, 16, 142, 16), "#4a2c1a") end,
 }
+-- the Hollow is underground: every banner "sky" is cave air under a rock ceiling with stalactites
+local CAVE = { amber = { "#3d2a1c", "#7a4a1f", "#9a6b3f", "#c9a96e" }, green = { "#3d2a1c", "#2f5a2a", "#4f9a45", "#a4b86a" }, violet = { "#3d2a1c", "#4e3a8a", "#7a5cc0", "#c3b2ea" },
+  blue = { "#3d2a1c", "#25637d", "#3f8fb0", "#a9d6ea" }, ember = { "#3d2a1c", "#a8582f", "#d9885a", "#f5cf6a" }, pink = { "#3d2a1c", "#4e3a8a", "#e46a9b", "#f6b8cf" } }
+local THEME = { grassland = "amber", forest = "green", mountain = "violet", wetland = "blue", tundra = "blue", desert = "ember", island = "blue", coast = "blue", rainforest = "green",
+  village = "amber", haven = "amber", wonder = "violet", delve = "violet", lair = "ember", NA = "green", CA = "ember", CB = "blue", SA = "green", NWE = "violet", SE = "amber", EE = "blue",
+  MENA = "ember", WCA = "green", ESA = "amber", CSA = "ember", EA = "pink", SEA = "green", OC = "blue" }
 local ORDER = { "grassland", "forest", "mountain", "wetland", "tundra", "desert", "island", "coast", "rainforest", "village", "haven", "wonder", "delve", "lair",
   "NA", "CA", "CB", "SA", "NWE", "SE", "EE", "MENA", "WCA", "ESA", "CSA", "EA", "SEA", "OC" }
 local only = os.getenv("ONLY"); local want = {}
@@ -144,7 +150,10 @@ for _, key in ipairs(ORDER) do if not only or want[key] then
   local s = B[key]
   local c = X.canvas{ mode = "scene", w = W, h = H, out = 2, ol = 1, olx = 1 }
   X.layer(c, "sky")
+  local pal = CAVE[THEME[key]]; s.sky = { pal[2], pal[3], pal[4] }
   c:fill(c:rect(0, 0, W - 1, 11), s.sky[1]); c:fill(c:rect(0, 12, W - 1, 23), s.sky[2]); c:fill(c:rect(0, 24, W - 1, H - 1), s.sky[3])
+  for x = 0, W - 1 do c:fill(c:rect(x, 0, x, 4 + math.floor(1.5 * math.sin(x / 7) + 0.5)), "#3d2a1c") end
+  for x = 4, W - 1, 8 do local h = 4 + (x * 7 + #key) % 8; if (x // 8) % 5 == 0 then h = h + 6 end; c:fill(c:poly({ { x - 3, 5 }, { x, 5 + h }, { x + 3, 5 } }), "#2a1a10"); c:fill(c:poly({ { x - 3, 5 }, { x - 1, 5 + h * 0.6 }, { x - 1, 5 } }), "#4a2c1a") end
   for _, cl in ipairs({ { 30 + #key * 7, 6 }, { 140 + #key * 3, 4 }, { 200 - #key * 5, 10 } }) do c:fill(c:ellipse(cl[1], cl[2], 9, 2), s.sky[3]); c:fill(c:ellipse(cl[1] - 4, cl[2] - 1, 5, 2), s.sky[3]) end
   X.layer(c, "far")
   for x = 0, W - 1 do c:fill(c:rect(x, 26 + math.floor(3 * math.sin(x / 19 + #key) + 0.5), x, 50), s.far) end

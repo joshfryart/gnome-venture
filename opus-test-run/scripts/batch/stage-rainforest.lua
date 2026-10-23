@@ -1,7 +1,7 @@
 -- stage-rainforest v2: layered canopy with hanging vines and light shafts, mist trees, buttress-root trunks, monstera leaves, bromeliads, parrots, ferns, mushrooms.
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
 local H = loadfile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/batch/stagelib.lua")(X)
-local S = H.S
+local S = H.S; S.theme = "rainforest"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 
 S.SKY = { "#8fcbd8", "#a9d6ea", "#c8ecdc", "#c8ecdc" }

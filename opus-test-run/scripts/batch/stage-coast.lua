@@ -1,7 +1,7 @@
 -- stage-coast v2: a grassy cliff headland with a striped lighthouse, layered sea with foam, two sailboats, gulls, shingle beach with rocks, driftwood, lobster pots, a rope fence.
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
 local H = loadfile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/batch/stagelib.lua")(X)
-local S = H.S
+local S = H.S; S.theme = "coast"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 
 X.layer(c, "sky"); S.sky(c); S.sun(c, 34, 19); S.cloud(c, 150, 20, 1); S.cloud(c, 90, 34, 0.7); S.cloud(c, 214, 40, 0.5)

@@ -1,7 +1,7 @@
 -- stage-wetland v2: misty far willows, a wide pond with lily pads and glints, reed beds, cattails, a log, stepping stones, a heron, dragonflies.
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
 local H = loadfile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/batch/stagelib.lua")(X)
-local S = H.S
+local S = H.S; S.theme = "wetland"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 
 X.layer(c, "sky"); S.sky(c); S.sun(c, 34, 19); S.cloud(c, 150, 22, 1); S.cloud(c, 214, 38, 0.6); S.cloud(c, 80, 40, 0.5)

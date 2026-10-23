@@ -1,7 +1,7 @@
 -- stage-tundra v2: pale blue sky, faceted ice peaks, rolling snow hills with shaded slopes, a frozen pond, spruces, a small igloo, drifts with grass tufts, sparkles.
 local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
 local H = loadfile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/batch/stagelib.lua")(X)
-local S = H.S
+local S = H.S; S.theme = "tundra"
 local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2 }
 
 S.SKY = { "#a9d6ea", "#c8ecdc", "#c8ecdc", "#f1ece0" }
