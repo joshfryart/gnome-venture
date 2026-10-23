@@ -376,7 +376,7 @@ The 1 px `#000000` border is for things that **stand on a scene**. A scene itsel
 | Piece | Border | Mode (gvlib) | Notes |
 | --- | --- | --- | --- |
 | Stage backdrops, banners, maps, interiors | **none** | `scene`, `out = 2` | Three-tone umber outline on raised objects only |
-| Creatures, enemies, bosses, gnome and crew sprites | **yes** | `sticker` | Transparent outside, border last. Face right |
+| Stage miniatures (party, crew, enemies, bosses): see Toy miniatures | **yes**, all sides | `sticker` | Transparent outside, border last. Face right. Sit on a round base |
 | Villager busts (`npc-*`, `npc-unknown`) | **yes**, not on the bottom edge | `bust` | Stand behind a counter or half-wall so the cut bottom is hidden |
 | Fight effects (`fx-*`) | **none** | `scene` | Short-lived, drawn over a scene. 1 px umber contour only where a shape has an edge |
 | Region mask (`map-world-regions`) | **none** | raw | Flat colours, no outline, no stitches. Never resized |
@@ -408,8 +408,7 @@ The 1 px `#000000` border is for things that **stand on a scene**. A scene itsel
 | World map | 320 x 180 | 640 x 360 | 40 | none |
 | Region map | 240 x 135 | 480 x 270 | 32 | none |
 | Interior | 240 x 135 | 480 x 270 | 32 | none |
-| Creature / crew sprite | 64 x 64 | 64 x 64 | 16 | 1 px |
-| Boss | 96 x 96 (k = 1.5) | 96 x 96 | 20 | 1 px |
+| Miniatures | see Toy miniatures | same | see that table | 1 px |
 | Bust | 80 x 100 | 80 x 100 | 16 | 1 px, not bottom |
 | Fight effect | per spec | per spec | 8 | none |
 
@@ -434,6 +433,41 @@ The 1 px `#000000` border is for things that **stand on a scene**. A scene itsel
 - Source `.lua` and `.aseprite` saved next to the PNG with the same base name?
 """
 
+E2 = """
+Fight and stage characters are drawn as **toy miniatures**: little figurines in a 3/4 view standing on a round base, as if set on a diorama table. This fits Stitched Toy (felt and enamel toys). It is still Aseprite pixel art: hard pixels, palette ramps, 1 px black border.
+
+## Two ways to build one
+- **Quasi-3D (default)**: draw by hand in Aseprite in 3/4 view. Think of the figure as a small solid: a lit top, a lit left face, a shaded right face. One crescent still falls lower right.
+- **True 3D (allowed)**: model in voxels (MagicaVoxel or similar) or a tiny low-poly mesh, render with an orthographic camera, then finish in Aseprite. The render is only a draft. The final file must pass every rule: **re-quantise to the palette, remove all anti-aliasing and blends, rebuild the outline and border with gvlib, hand-fix the face.** Keep the 3D source next to the `.aseprite`. A raw render that was only shrunk is rejected.
+
+## Camera and pose
+- View: 3/4 from above, elevation about 30 degrees, figure turned so it **faces right and slightly toward the viewer**. Same camera for every miniature so they sit together on a stage. Code flips the sprite for the other side.
+- Pose: standing idle, weight even, weapon or item held low. One neutral pose per file.
+- Optional extra frames only as a horizontal strip: `-idle` (2 frames), `-hit` (1), `-ko` (1, lying or sitting on its base).
+- Feet and base sit on the bottom rows. The base counts as part of the figure.
+
+## The base
+- A round disc seen as an ellipse, 2/3 of the sprite width, 6 px thick (top face, side face).
+- Party bases are felt moss `#4f9a45` ramp with a thread-gold edge stitch. Enemy bases are felt soil or stone ramp with no stitching (they are not ours). Bosses get a wider base with a seam and a button.
+- The base replaces the ground-shadow ellipse. No separate shadow.
+- Gold stitch rule still applies: thread gold only on joins and base edges.
+
+## Proportions and detail
+- Chibi: head about 5/6 of the body width, squat body, **locked eyes** (Part D). On a miniature under 24 px tall the eyes scale to 3 x 3 disc, 2 x 2 pupil.
+- Limbs at least 2 px. Accessories (hat, beard, pack, tool) are separate readable shapes.
+- Silhouette must read at 32 px. Every enemy has one clear feature (horns, shell, wings) in the outline.
+- Shading: 3 value planes (top lit, left mid, right shade) per big shape, plus the one crescent, bounce line and rim. No extra shade shapes, no dither.
+
+## Sizes and counts
+| Sprite | Canvas | Max colours | Border |
+| --- | --- | --- | --- |
+| Gnome, crew, villager (battle) | 64 x 80 | 20 | 1 px, all sides (base is at the bottom, so the bottom gets it too) |
+| Small enemy | 56 x 64 | 16 | 1 px |
+| Large enemy | 80 x 80 | 20 | 1 px |
+| Boss | 112 x 112 | 24 | 1 px |
+Existing 64 x 64 creature stickers stay for lists, the Almanac and icons. On the stage the code uses the miniature if the file exists, else the sticker standing on a code-drawn base.
+"""
+
 SECTIONS = [
     ('about', 'front', 'About this guide', ABOUT),
     ('a1', 'a', 'Hearthlight: the look', A1),
@@ -451,6 +485,7 @@ SECTIONS = [
     ('d2', 'd', 'Pixel samples and trek map tiles', D2),
     ('d3', 'd', 'Aseprite workflow and checklist', D3),
     ('e1', 'e', 'Scene art addendum: Aseprite and black border rules', E1),
+    ('e2', 'e', 'Toy miniatures (stage characters)', E2),
 ]
 PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline icons', 'c': 'Part C. UI style sheet', 'd': 'Part D. Aseprite pixel art', 'e': 'Part E. Scene art addendum'}
 

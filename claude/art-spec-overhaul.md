@@ -10,7 +10,7 @@ All files go in new folder `game/assets/img/scenes/` unless stated. Code falls b
 | Banner | **480 x 120** | opaque. Wide header. Key subject centred, edges can crop. |
 | World map | **640 x 360** | opaque, one image. |
 | Region map | **480 x 270** | opaque, one per region. |
-| Sprites | existing sizes | Gnome/crew **80 x 100**, creatures **64 x 64**, bosses **96 x 96**. Transparent, 1 px black border, feet on bottom row, centred, facing right (code flips them). |
+| Sprites | existing sizes | Stage characters are **toy miniatures** (guide Part E, Toy miniatures): gnome/crew/villager **64x80**, small enemy **56x64**, large enemy **80x80**, boss **112x112**. 3/4 view on a round base, transparent, 1 px black border, facing right (code flips). |
 | Drawing grid | half size | Scenes are drawn at 240x135 (banners 240x60, world map 320x180) and exported 2x nearest-neighbour. See Part E table. |
 
 No text in any image. No UI. No characters in backdrops/banners (code adds them), except tiny background life (a bird, a lantern).
@@ -50,13 +50,20 @@ Rest stops (match existing 48px stop icons in `assets/img/stops/`): `stop-camp`,
 - `fx-snack.png` 4 frames 48x48 (a thrown snack arc puff)
 - `fx-ground-shadow.png` 64x16 (umber ellipse, hard-stepped, no transparency blend)
 
+## P1. Toy miniatures (`game/assets/img/mini/<slug>.png`)
+Quasi-3D by hand, or voxel/3D render finished in Aseprite (Part E rules; a raw render is rejected). Same camera for all.
+- **Party** (P1): `mini-gnome-body/face/beard/hat` are NOT used; deliver the gnome as layered parts on one 64x80 canvas each in the order of the existing `assets/img/gnome/` files (`gnome-body`, `-face`, `-beard`, hat tinted by code), so skins and tints keep working. Plus the Trek crew: one `mini-crew-<key>.png` per crew member (keys in `includes/trek_data.php`).
+- **Villagers on stage** (P3): `mini-npc-<slug>.png` for each existing `npc-*` bust (69), done last.
+- **Enemies** (P2): `mini-<creature-slug>.png`. Do the 15 most common first (list supplied from `adventure_data.php` by level), then the rest in batches. Missing ones fall back to the sticker on a code-drawn base.
+- **Bosses** (P2): one per lair and per Trek chapter boss (112x112).
+- Extras only if asked: `-hit` and `-ko` strips.
+
 ## Optional (only if time)
-- 2-frame idle for the 10 most common enemies (64x64, 2x1 sheet = 128x64): `<slug>-idle.png`.
-- Battle poses for gnome (80x100): attack, hurt, KO. Code fakes these by default.
+- 2-frame `-idle` strips for the 10 most common miniatures.
 - Night versions of the 9 stage backdrops.
 
 ## Counts
-Stage 9, Trek 16, World 2, Region 14, Banners 29, Interiors 21, Silhouette 1, FX 6 = **98 files** + optional.
+Stage 9, Trek 16, World 2, Region 14, Banners 29, Interiors 21, Silhouette 1, FX 6 = **98 files**, plus miniatures: gnome parts + crew (about 10), enemies (72, in batches), bosses (about 20), villagers (69, last).
 
 ## Delivery
 Run the Part E checklist on every file. Zip with exact folder paths, like `upload-zips/`. Also put source `.aseprite` in `aseprite-source/final/aseprite/scenes/`.
