@@ -1387,6 +1387,7 @@ function schema_statements(string $driver): array
         ['users', 'banned_until', 'DATETIME NULL'],            // v0.7.27 grow times rescaled (1 = done)
         ['expeditions', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'walk'"],   // v0.7.25 walk or explore
         ['expeditions', 'depth', 'INT NOT NULL DEFAULT 0'],
+        ['expeditions', 'trail', 'TEXT NULL'],   // v2.0.45: the depths walked in order on a wander (the hoop map's thread)
         ['users', 'town_spot_id', 'INT NULL'],                   // v0.7.22 where in town a gnome is (for "gnomes here")
         ['users', 'town_seen', 'DATETIME NULL'],
         ['users', 'town_hidden', 'INT NOT NULL DEFAULT 0'],

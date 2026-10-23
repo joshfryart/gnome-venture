@@ -958,8 +958,11 @@ function hoop_map_html(array $exp, string $mark, bool $active): string
         . '<rect x="' . ($cx - 6) . '" y="' . ($cy - 1) . '" width="12" height="3" fill="#9a6b3f"/>';   // the road, a patch at the middle
     // the thread: a stitched trail from the road out to you, one stitch per step
     $pts = [[$cx, $cy]];
-    for ($d = 1; $d <= $depth; $d++) {
-        $ang = deg2rad(55 + 28 * sin($d * 1.25));   // a gentle meander down and to the right, so the thread reads as a path
+    $trail = json_decode((string)($exp['trail'] ?? ''), true);
+    if (!is_array($trail) || !$trail) $trail = $depth > 0 ? range(1, $depth) : [];   // a walk from before the history was kept: one step per ring
+    foreach ($trail as $n => $d) {
+        $d = max(1, (int)$d);
+        $ang = deg2rad(55 + 28 * sin(($n + 1) * 1.25));   // a gentle meander down and to the right, so the thread reads as a path
         $r = $r0 + ($d - 0.5) * $step;
         $pts[] = [(int)round($cx + cos($ang) * $r), (int)round($cy + sin($ang) * $r)];
     }

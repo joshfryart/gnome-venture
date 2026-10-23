@@ -30,6 +30,7 @@ echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 db "UPDATE users SET energy=100 WHERE username='sprout'" >/dev/null
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" 2>&1 | tail -2
 echo "walk page: $(get adventure.php) stage=$(grep -c 'id="advstage"' $H) script=$(grep -c 'stage.js' $H)"
+get adventure.php >/dev/null; post adventure.php -d do=deeper >/dev/null; echo "trail after one step deeper: $(db "SELECT trail, depth FROM expeditions ORDER BY id DESC LIMIT 1")"
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" walk; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" deep 2>&1 | tail -1
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" deep; fi
