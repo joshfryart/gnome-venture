@@ -19,13 +19,12 @@ local sickD = "#7a8a52"   -- blight sheen, darker
 -- the shard: a broken crown (tall left prong, middle prong, slanted right break),
 -- straight flanks converging to a low point
 local shard = c:poly({
-  {18, 23}, {21, 6}, {27, 20}, {32, 9}, {37, 18}, {45, 11}, {46, 21},
-  {42, 33}, {37, 45}, {34, 57}, {32, 57},
-  {27, 45}, {21, 34},
+  {18, 23}, {21, 6}, {27, 20}, {32, 9}, {37, 18}, {45, 11}, {46, 22},
+  {34, 57}, {32, 57},
 })
 -- prism faces: each crown prong tops one face; ridges run from the notches to the tip
-local left  = c:poly({ {17, 23}, {21, 5}, {27, 20}, {28, 33}, {31, 46}, {33, 58}, {32, 58}, {27, 45}, {21, 34} }):clip(shard)
-local right = c:poly({ {37, 18}, {45, 10}, {47, 21}, {42, 33}, {37, 45}, {34, 58}, {33, 58}, {35, 46}, {37, 32} }):clip(shard)
+local left  = c:poly({ {10, 4}, {21, 4}, {27, 20}, {28, 33}, {31, 46}, {33, 60}, {10, 60} }):clip(shard)
+local right = c:poly({ {37, 18}, {45, 8}, {55, 8}, {55, 60}, {34, 60}, {35, 46}, {37, 32} }):clip(shard)
 
 c:build{
   { "shard", shard, front, { gloss = false } },

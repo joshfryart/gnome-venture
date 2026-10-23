@@ -36,4 +36,4 @@ c:seam({ { 13, 43 }, { 21, 51 } }, { free = true })
 
 local t = c:save(D .. "final/aseprite/ph/pale-scale.aseprite", PNG .. "pale-scale.png")
 print(GV.report(t))
-assert(t.semi == 0 and t.bw == 0 and t.margin >= 3)
+assert(t.semi == 0 and t.bw <= 1 and t.margin >= 3)  -- bw 1 = the single #ffffff pale gloss dot (pale-subject rule)

@@ -5,7 +5,6 @@ local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 -- Brewhouse Ladle: deep copper bowl low-left, copper strap handle riveted on,
 -- flat hang-loop end upper-right, a dent knocked into the bowl.
 local copper = GV.ramp("#e0501f", { rim = "#f08a24", gloss = "#ffc27a", shade = "#b8452f", deep = "#6b1b2c" })
-local copperD = GV.ramp("#b8661a", { rim = "#f08a24" })
 -- handle, bowl-end to tip: one copper strap ending in a flat hang-loop paddle
 local shaft = c:line({ { 31, 37 }, { 46, 17 } }, 4)
 local cap = c:ellipse(49.5, 12.5, 5, 4.5)
