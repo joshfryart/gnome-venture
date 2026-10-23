@@ -27,13 +27,16 @@ end
 local bell = R(function(x, y)
   if y < -19 and (x*x)/(12.5*12.5) + ((y+19)^2)/(10*10) <= 1 then return true end
   if y >= -19.5 and y <= 0 then
-    local hw = 12.5 + 5 * ((y + 19.5) / 19.5)^3  -- flared bell profile
+    local hw = 12.5 + 8.3 * ((y + 19.5) / 19.5)^2.5  -- flared bell profile
     return math.abs(x) <= hw
   end
   return false
 end)
 -- thick lip ring around the mouth (seen a little from below: an ellipse band)
-local lip = R(function(x, y) return (x*x)/(21*21) + (y*y)/(8.5*8.5) <= 1 end)
+local lipE = R(function(x, y) return (x*x)/(21*21) + (y*y)/(8.5*8.5) <= 1 end)
+local farHalf = R(function(x, y) return y < -1.5 end)
+local lip = lipE:copy():cut(farHalf)        -- near half of the lip: its own part
+bell:add(lipE:copy():clip(farHalf))         -- far half belongs to the body (no brim contour)
 -- dark hollow inside the mouth
 local mouth = R(function(x, y) return (x*x)/(14.5*14.5) + ((y+1.2)^2)/(4.2*4.2) <= 1 end)
 -- crown bead
