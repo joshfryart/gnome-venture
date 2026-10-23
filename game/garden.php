@@ -603,7 +603,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
         <?php if ($mulches) echo tool_action_form('mulch', $sel, 'Add mulch', ENERGY_COST['mulch'], item_select($mulches, fn($i) => $i['name'] . ' ×' . $i['qty'], 'mulch')); ?>
       <?php endif; ?>
       </div>
-      <details class="soildet"><summary>Soil details</summary>   <?php /* v1.6.2 */ ?>
+      <details class="soildet"<?= $p ? ' open' : '' ?>><summary>Soil details</summary>   <?php /* v1.6.2 */ ?>
       <table class="kv soil">
         <tr><th>Fertility</th><td><?= e($w['fertility']) ?> <b><?= (int)$sel['fertility'] ?></b>/100</td></tr>
         <tr><th>Soil life</th><td><?= $hasKit ? (int)$sel['soil_life'] . '/100' : e($w['life']) ?></td></tr>

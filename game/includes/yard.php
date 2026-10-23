@@ -527,7 +527,6 @@ function tile_view(array $t, array $plants, bool $owner = true): array
         $label .= ' · grade ' . grade_name($gi) . ($owner && bed_problems($t) ? ' · needs care' : '');
     }
     elseif (($cs = care_stars($t)) > 0) {   // v0.8.7: soil care stars on tilled (or wild) squares
-        $badge = '<b class="grade care">★' . $cs . '</b>';
         $label .= ' · soil care ' . care_star_text($cs);
     }
     if ($owner && !empty($t['pest']) && $t['plant_id'] && ($pd = pest_defs()[(string)$t['pest']] ?? null)) {   // v1.0.0: a pest on the bed
