@@ -80,5 +80,11 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): 
             'html' => $rel === '' ? '<span class="gvs-emo">' . emoji_swap(e((string)($c['icon'] ?? '🐾'))) . '</span>' : '',
             'hp' => max(0, (int)$enc['hp']), 'max' => (int)$enc['max']];
     }
+    // someone or something in front of you who is not a fight: they stand opposite (a villager met on the road, a scene, a puzzle)
+    $other = null;
+    if ($enc && ($enc['type'] ?? '') === 'meet') $other = [(string)($enc['ic'] ?? '🧑'), (string)($enc['n'] ?? '')];
+    elseif ($enc && ($enc['type'] ?? '') === 'choice') { $ch = road_event_get($enc); $other = [(string)($ch['icon'] ?? '❓'), '']; }
+    elseif ($enc && ($enc['type'] ?? '') === 'problem') $other = ['❓', ''];
+    if ($other) $units[] = ['id' => 'other', 'side' => 'f', 'name' => $other[1], 'html' => '<span class="gvs-emo">' . emoji_swap(e($other[0])) . '</span>'];
     return scene_stage('stage', $land, $units, 'advstage', $land);
 }

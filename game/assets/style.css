@@ -5123,3 +5123,12 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 .hoopmap .hr { cursor: pointer; outline: none; }
 .hoopmap .hr:focus-visible circle:last-child { stroke: #fff3c8; }
 .hoopcap { margin: 6px 0 0; text-align: center; font-size: 14px; line-height: 1.35; min-height: 2.7em; }
+
+/* v2.0.45 Adventure cards: fade in when a new one is swapped in; someone met on the road stands on the stage, not under a harsh box */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes advcardin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .encounter > .scenecard, .encounter > .meetcard, .encounter > h3, .encounter > .choicelist, .encounter > .fightgrid, .roadresult, .advlatest { animation: advcardin .35s ease-out both; }
+  .encounter > .choicelist { animation-delay: .08s; }
+}
+.scenecard, .meetcard, .roadresult, .advlatest { box-shadow: 0 4px 12px rgba(42, 26, 16, .22); }
+.fcard.foe, .fcard.you { box-shadow: 0 4px 12px rgba(42, 26, 16, .22); }

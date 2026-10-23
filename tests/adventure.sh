@@ -37,5 +37,8 @@ if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" deep; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 echo "fight page: $(get adventure.php) stage=$(grep -c 'id="advstage"' $H) foe=$(grep -c 'quot;f&quot;\|&quot;side&quot;:&quot;f' $H)"
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" fight; fi
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" meet 2>&1 | tail -1
+echo "meet page: $(get adventure.php) other=$(grep -c 'other' $H)"
+if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" meet; fi
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"

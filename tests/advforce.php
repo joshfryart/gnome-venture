@@ -13,3 +13,8 @@ if (($argv[2] ?? '') === 'fight' && $exp) {
     save_exp($exp);
     echo "fight with {$c['name']}\n";
 }
+if (($argv[2] ?? '') === 'meet' && $exp) {
+    $exp['encounter'] = json_encode(['type' => 'meet', 'ic' => '🧑‍🌾', 'n' => 'Pip Thistle', 's' => 'a farmer', 't' => 'Fine day for a walk, is it not?']);
+    save_exp($exp);
+    echo "meet\n";
+}
