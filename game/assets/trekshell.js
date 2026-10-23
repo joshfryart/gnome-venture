@@ -129,8 +129,15 @@
     var top = Math.min(r.bottom - 36, window.innerHeight - h - 8);
     d.style.top = Math.round(Math.max(8, top)) + 'px';
   }
+  var follow = 0;
   function scan() {
     [].forEach.call(document.querySelectorAll('dialog.tkscene[open]:not(.onstage), dialog.tkfoe[open]:not(.onstage)'), place);
+    // the page can still shift for a moment after a pop-over opens (a bar loads, a banner folds): keep it on the stage while it is open
+    if (!follow && document.querySelector('dialog.onstage[open]')) follow = setInterval(function () {
+      var o = document.querySelectorAll('dialog.onstage[open]');
+      if (!o.length) { clearInterval(follow); follow = 0; return; }
+      [].forEach.call(o, place);
+    }, 200);
     [].forEach.call(document.querySelectorAll('dialog.onstage:not([open])'), function (d) {
       setTimeout(function () { if (!d.open) { d.classList.remove('onstage'); d.style.top = d.style.left = d.style.width = ''; } }, 600);   // after the fade out
     });
