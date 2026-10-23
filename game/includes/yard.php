@@ -496,7 +496,7 @@ function yard_join_inner(array $o, array $info): array
 /** v1.5.2: a bed icon: an emoji (escaped) or a placeholder <img> built by tile_view. */
 function tile_icon_html(string $icon): string
 {
-    return str_starts_with($icon, '<img class="phtile"') ? $icon : e($icon);
+    return str_starts_with($icon, '<img class="phtile') ? $icon : e($icon);
 }
 
 /** How one bed square looks: [classes, icon, label, badge html]. */
