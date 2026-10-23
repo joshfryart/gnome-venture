@@ -5136,3 +5136,5 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 /* v2.0.46 place banners */
 .scene-bannerwrap { margin: 6px auto 10px; max-width: 960px; }
 .scene-bannerwrap .scene-banner { margin: 0; image-rendering: pixelated; }
+.gvs-sp.mini { max-width: none; max-height: none; }
+.gvs-u { overflow: visible; }

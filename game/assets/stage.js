@@ -43,7 +43,7 @@
         var hw = mk('span', 'gvs-html', d);
         hw.innerHTML = u.html;   // markup the server built itself (the gnome drawing, an emoji icon); never player text
       } else if (u.src) {
-        var im = mk('img', 'gvs-sp pix', d);
+        var im = mk('img', 'gvs-sp pix' + (u.mini ? ' mini' : ''), d);   // a miniature keeps its own size (bosses are bigger than a slot)
         im.src = u.src; im.alt = u.name || '';
       } else {
         mk('span', 'gvs-blob', d);
