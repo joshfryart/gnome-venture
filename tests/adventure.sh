@@ -31,6 +31,8 @@ db "UPDATE users SET energy=100 WHERE username='sprout'" >/dev/null
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" 2>&1 | tail -2
 echo "walk page: $(get adventure.php) stage=$(grep -c 'id="advstage"' $H) script=$(grep -c 'stage.js' $H)"
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" walk; fi
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" deep 2>&1 | tail -1
+if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" deep; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 echo "fight page: $(get adventure.php) stage=$(grep -c 'id="advstage"' $H) foe=$(grep -c 'quot;f&quot;\|&quot;side&quot;:&quot;f' $H)"
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" fight; fi

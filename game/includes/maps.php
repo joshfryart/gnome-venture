@@ -820,49 +820,7 @@ function journey_map_svg(array $u, array $exp): string
     $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
     $mark = $enc ? ($enc['type'] === 'creature' ? '⚔️' : '❓') : '';
     $active = ($exp['status'] ?? '') === 'active';
-    if ($kind === 'explore') {
-        require_once __DIR__ . '/explore.php';
-        $depth = (int)$exp['depth'];
-        $rings = max(min(10, (int)setting('explore_deep_from')), $depth + 1);   // v0.7.75: show the rings out to the deep wilds
-        $cx = 110;
-        $cy = 100;
-        $step = 78 / $rings;
-        $tierFill = ['gentle' => '#e3f0cf', 'medium' => '#cfe3a0', 'hard' => '#e8c27a', 'wild' => '#d98b6a', 'deep' => '#b98ab0'];   // v0.7.74: gentle added; v0.7.75: deep wilds
-        $svg = '<svg class="journeymap rings" viewBox="0 0 330 200" role="img" aria-label="' . $depth . ' steps off the road">'
-            . '<rect width="330" height="200" rx="12" fill="#eef3df"/>';
-        for ($i = $rings; $i >= 1; $i--) {
-            $t = explore_tier($i)[1];
-            $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . (int)round(14 + $i * $step) . '" fill="' . ($tierFill[$t] ?? '#ddd') . '" stroke="#ffffff" stroke-width="1.5"/>';
-        }
-        $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="14" fill="#c9a77a"/><text x="' . $cx . '" y="' . ($cy + 5) . '" text-anchor="middle" font-size="14">🛣️</text>';
-        if ($active && $depth > 0) {
-            $ang = deg2rad(35 + ($depth * 47) % 110);
-            $r = 14 + ($depth - 0.5) * $step;
-            $svg .= '<text x="' . (int)round($cx + cos($ang) * $r) . '" y="' . (int)round($cy + sin($ang) * $r + 6) . '" text-anchor="middle" font-size="18">🎩' . $mark . '</text>';
-        } elseif ($active) {
-            $svg .= '<text x="' . ($cx + 22) . '" y="' . ($cy + 6) . '" font-size="16">🎩</text>';
-        }
-        // A little key on the right instead of labels on the rings
-        // v0.7.74: the key follows the settings (gentle, medium, hard, wild); an empty band is left out
-        // v0.7.75: the deep wilds are the last ring, matched to the gnome's own level
-        $warnFrom = (int)setting('explore_warn_from');
-        $wildFrom = (int)setting('explore_wild_from');
-        $deepFrom = (int)setting('explore_deep_from');
-        $span = fn(int $lo, int $hi): string => $lo === $hi ? 'step ' . $lo : 'steps ' . $lo . '–' . $hi;
-        $key = [['gentle', 'Gentle', $span(1, 2)]];
-        if (min($warnFrom, $wildFrom) - 1 >= 3) $key[] = ['medium', 'Medium', $span(3, min($warnFrom, $wildFrom) - 1)];
-        if ($wildFrom - 1 >= max($warnFrom, 3)) $key[] = ['hard', 'Hard', $span(max($warnFrom, 3), $wildFrom - 1)];
-        $key[] = ['wild', 'Wild', $deepFrom > $wildFrom ? $span($wildFrom, $deepFrom - 1) . ' · bosses' : 'step ' . $wildFrom . '+ · bosses'];
-        $key[] = ['deep', 'Deep wilds', 'step ' . $deepFrom . '+ · your level'];
-        foreach ($key as $k => [$t, $lab, $sub]) {
-            $ky = 22 + $k * 32;
-            $svg .= '<rect x="222" y="' . $ky . '" width="14" height="14" rx="3" fill="' . $tierFill[$t] . '" stroke="#8a6a46" stroke-width="1"/>'
-                . '<text x="242" y="' . ($ky + 11) . '" font-size="13" font-weight="bold" fill="#2f2a1f">' . $lab . '</text>'
-                . '<text x="242" y="' . ($ky + 26) . '" font-size="10" fill="#5a4a30">' . $sub . '</text>';
-        }
-        $svg .= '<text x="222" y="190" font-size="11" fill="#2f2a1f">You: step ' . $depth . '</text>';
-        return $svg . '</svg>';
-    }
+    if ($kind === 'explore') return hoop_map_html($exp, $mark, $active);   // v2.0.44: the embroidery hoop
     // A walk: draw the whole road if it's on one, with the current stretch split into its spaces
     $from = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['from_id']]);
     $to = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['to_id']]);
@@ -929,4 +887,97 @@ function journey_map_svg(array $u, array $exp): string
         . '<text x="' . ($W - 14) . '" y="22" text-anchor="end" font-size="13" font-weight="bold" fill="#2f2a1f">' . e(mb_strimwidth($lab($last), 0, 34, '…')) . ' ➡' . ($towardRight ? ' 🎯' : '') . '</text>';
     if ($road) $svg .= '<text x="' . intdiv($W, 2) . '" y="180" text-anchor="middle" font-size="12" fill="#5a4a30">🛣️ ' . e($road['name']) . ' · 🎯 = where you’re heading</text>';
     return str_replace('@@HAT@@', (string)$hatFrac, $svg . '</svg>');
+}
+
+
+/** v2.0.44: tier colours for the hoop (felt rings), light to deep. Palette: moss, gold, ember, dusk (art style guide Part A). */
+const HOOP_FELT = ['gentle' => ['#a4b86a', '#7ab55c'], 'medium' => ['#7ab55c', '#4f9a45'], 'hard' => ['#f5cf6a', '#e8a317'], 'wild' => ['#f08a24', '#d6322b'], 'deep' => ['#7a5cc0', '#4e3a8a']];
+
+/** A tiny pixel landmark for the first ring of a tier, built from squares; assets/img/map/landmark-{tier}.png replaces it when drawn. */
+function hoop_landmark(string $tier, int $x, int $y): string
+{
+    require_once __DIR__ . '/scene.php';
+    if (is_file(APP_ROOT . '/assets/img/map/landmark-' . $tier . '.png')) {
+        return '<image href="' . e(url('assets/img/map/landmark-' . $tier . '.png')) . '" x="' . ($x - 8) . '" y="' . ($y - 16) . '" width="16" height="16" image-rendering="pixelated"/>';
+    }
+    $u = '#2a1a10';
+    return match ($tier) {
+        'medium' => '<g transform="translate(' . ($x - 4) . ',' . ($y - 12) . ')"><rect x="3" y="3" width="2" height="9" fill="' . $u . '"/><rect x="0" y="0" width="8" height="4" fill="#c9a96e" stroke="' . $u . '" stroke-width="1"/></g>',
+        'hard' => '<g transform="translate(' . ($x - 5) . ',' . ($y - 8) . ')"><rect x="1" y="4" width="8" height="4" fill="#8b8f96" stroke="' . $u . '" stroke-width="1"/><rect x="3" y="0" width="4" height="4" fill="#c9c5bc" stroke="' . $u . '" stroke-width="1"/></g>',
+        'wild' => '<g transform="translate(' . ($x - 4) . ',' . ($y - 13) . ')"><rect x="1" y="0" width="2" height="13" fill="' . $u . '"/><rect x="3" y="1" width="6" height="5" fill="#d6322b" stroke="' . $u . '" stroke-width="1"/><rect x="5" y="2" width="1" height="1" fill="#f2e4c0"/><rect x="7" y="2" width="1" height="1" fill="#f2e4c0"/></g>',
+        'deep' => '<g transform="translate(' . ($x - 5) . ',' . ($y - 10) . ')"><rect x="4" y="4" width="2" height="6" fill="#f2e4c0" stroke="' . $u . '" stroke-width="1"/><rect x="0" y="0" width="10" height="5" fill="#a894dc" stroke="' . $u . '" stroke-width="1"/><rect x="3" y="1" width="2" height="2" fill="#f2e4c0"/></g>',
+        default => '',
+    };
+}
+
+/** v2.0.44: the wild as an embroidery hoop: felt rings, thread-gold seams, a thread trail of your steps, a button for you, a landmark at each tier. */
+function hoop_map_html(array $exp, string $mark, bool $active): string
+{
+    require_once __DIR__ . '/explore.php';
+    $depth = (int)$exp['depth'];
+    $rings = max(min(10, (int)setting('explore_deep_from')), $depth + 1);
+    $cx = 120;
+    $cy = 120;
+    $r0 = 16;
+    $step = (104 - $r0) / $rings;
+    $ink = '#2a1a10';
+    $warnFrom = (int)setting('explore_warn_from');
+    $wildFrom = (int)setting('explore_wild_from');
+    $deepFrom = (int)setting('explore_deep_from');
+    $span = fn(int $lo, int $hi): string => $lo === $hi ? 'step ' . $lo : 'steps ' . $lo . '–' . $hi;
+    $tiers = [['gentle', 'Gentle', $span(1, 2), 'Safe to learn the ropes.']];
+    if (min($warnFrom, $wildFrom) - 1 >= 3) $tiers[] = ['medium', 'Medium', $span(3, min($warnFrom, $wildFrom) - 1), 'A little tougher.'];
+    if ($wildFrom - 1 >= max($warnFrom, 3)) $tiers[] = ['hard', 'Hard', $span(max($warnFrom, 3), $wildFrom - 1), 'Only if you feel strong.'];
+    $tiers[] = ['wild', 'Wild', $deepFrom > $wildFrom ? $span($wildFrom, $deepFrom - 1) . ' · bosses roam' : 'step ' . $wildFrom . '+ · bosses roam', 'Dangerous. Great finds.'];
+    $tiers[] = ['deep', 'Deep wilds', 'step ' . $deepFrom . '+ · matched to your level', 'The far edge of the cloth.'];
+    $lab = [];
+    foreach ($tiers as [$t, $name, $sp, $note]) $lab[$t] = $name . ' · ' . $sp . '. ' . $note;
+    $svg = '<svg class="journeymap rings hoopmap" viewBox="0 0 240 240" shape-rendering="crispEdges" role="img" aria-label="' . $depth . ' steps off the road">'
+        . '<circle cx="' . $cx . '" cy="' . $cy . '" r="117" fill="#9a6b3f" stroke="' . $ink . '" stroke-width="2"/>'      // the wooden hoop
+        . '<circle cx="' . $cx . '" cy="' . $cy . '" r="112" fill="none" stroke="#c9a96e" stroke-width="2"/>'
+        . '<circle cx="' . $cx . '" cy="' . $cy . '" r="106" fill="#f1ece0" stroke="' . $ink . '" stroke-width="1"/>';        // the cloth
+    $seen = [];
+    $lm = '';
+    for ($i = $rings; $i >= 1; $i--) {
+        $t = explore_tier($i)[1];
+        $col = HOOP_FELT[$t] ?? ['#ddd', '#bbb'];
+        $r = (int)round($r0 + $i * $step);
+        $svg .= '<g class="hr" data-t="' . e($t) . '" data-lab="' . e($lab[$t] ?? '') . '" tabindex="0">'
+            . '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r . '" fill="' . $col[0] . '"/>'
+            . '<path d="M' . ($cx - $r) . ' ' . $cy . 'A' . $r . ' ' . $r . ' 0 0 0 ' . ($cx + $r) . ' ' . $cy . '" fill="' . $col[1] . '" opacity="0"/>'      // (kept for art overrides)
+            . '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r . '" fill="none" stroke="#f5cf6a" stroke-width="1" stroke-dasharray="2 1"/></g>';
+    }
+    for ($i = 1; $i <= $rings; $i++) {   // the first ring of each tier gets its landmark, along the top
+        $t = explore_tier($i)[1];
+        if ($t === 'gentle' || isset($seen[$t])) continue;
+        $seen[$t] = true;
+        $r = $r0 + ($i - 0.5) * $step;
+        $lm .= hoop_landmark($t, (int)round($cx + cos(deg2rad(-95)) * $r), (int)round($cy + sin(deg2rad(-95)) * $r));
+    }
+    $svg .= $lm . '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r0 . '" fill="#c9a96e" stroke="' . $ink . '" stroke-width="1"/>'
+        . '<rect x="' . ($cx - 6) . '" y="' . ($cy - 1) . '" width="12" height="3" fill="#9a6b3f"/>';   // the road, a patch at the middle
+    // the thread: a stitched trail from the road out to you, one stitch per step
+    $pts = [[$cx, $cy]];
+    for ($d = 1; $d <= $depth; $d++) {
+        $ang = deg2rad(55 + 28 * sin($d * 1.25));   // a gentle meander down and to the right, so the thread reads as a path
+        $r = $r0 + ($d - 0.5) * $step;
+        $pts[] = [(int)round($cx + cos($ang) * $r), (int)round($cy + sin($ang) * $r)];
+    }
+    if (count($pts) > 1) {
+        $svg .= '<polyline points="' . implode(' ', array_map(fn($p) => $p[0] . ',' . $p[1], $pts)) . '" fill="none" stroke="' . $ink . '" stroke-width="3" stroke-linejoin="round"/>'
+            . '<polyline points="' . implode(' ', array_map(fn($p) => $p[0] . ',' . $p[1], $pts)) . '" fill="none" stroke="#f5cf6a" stroke-width="1" stroke-dasharray="3 2" stroke-linejoin="round"/>';
+        foreach (array_slice($pts, 1, -1) as $p) $svg .= '<rect x="' . ($p[0] - 1) . '" y="' . ($p[1] - 1) . '" width="3" height="3" fill="#f5cf6a" stroke="' . $ink . '" stroke-width="1"/>';
+    }
+    // you: a gold button on the thread (or by the road before the first step)
+    $me = count($pts) > 1 ? end($pts) : [$cx + 26, $cy + 2];
+    if ($active) {
+        $mx = $me[0]; $my = $me[1];
+        $svg .= '<g class="hoopme"><circle cx="' . $mx . '" cy="' . $my . '" r="6" fill="' . $ink . '"/><circle cx="' . $mx . '" cy="' . $my . '" r="5" fill="#f5cf6a"/>'
+            . '<circle cx="' . ($mx + 1) . '" cy="' . ($my + 1) . '" r="3" fill="#e8a317"/><rect x="' . ($mx - 2) . '" y="' . ($my - 2) . '" width="1" height="1" fill="#8a4a1c"/><rect x="' . ($mx + 1) . '" y="' . ($my + 1) . '" width="1" height="1" fill="#8a4a1c"/>'
+            . ($mark !== '' ? '<text x="' . ($mx + 8) . '" y="' . ($my - 4) . '" font-size="12">' . $mark . '</text>' : '') . '</g>';
+    }
+    $svg .= '</svg>';
+    $cur = explore_tier(max(1, $depth));
+    $caption = '<p class="hoopcap" aria-live="polite" data-def="' . e('Step ' . $depth . ' · ' . $cur[0] . ' country. Tap a ring to see what it means.') . '">Step ' . $depth . ' · ' . e($cur[0]) . ' country. Tap a ring to see what it means.</p>';
+    return $svg . $caption;
 }

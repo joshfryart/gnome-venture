@@ -58,6 +58,13 @@ Rest stops (match existing 48px stop icons in `assets/img/stops/`): `stop-camp`,
 - **Bosses** (P2): one per lair and per Trek chapter boss (112x112).
 - Extras only if asked: `-hit` and `-ko` strips.
 
+## P2. Hoop map pieces (`game/assets/img/map/`, optional, code draws fallbacks)
+Scene mode, no black border (Part E). Light from upper left.
+- `hoop.png` 240x240: wooden embroidery hoop seen from the front, round, cloth centre left transparent (code draws the felt rings inside). Rim about 12 px, two wood tones, a small brass screw at the top.
+- `pin.png` 16x16: your marker, the gold stitched button with two thread holes (Part D button), black 1 px border allowed (it is a sprite).
+- `landmark-medium.png`, `landmark-hard.png`, `landmark-wild.png`, `landmark-deep.png`, each 16x16, a tiny landmark standing on the cloth: signpost, stone cairn, red skull flag, glowing mushroom. Sprites: 1 px black border.
+- `felt-<tier>.png` 16x16 tileable felt texture for gentle, medium, hard, wild, deep (hard pixels, no dither, subtle weave), optional.
+
 ## Optional (only if time)
 - 2-frame `-idle` strips for the 10 most common miniatures.
 - Night versions of the 9 stage backdrops.
