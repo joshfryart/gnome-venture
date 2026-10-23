@@ -913,7 +913,6 @@ $fat = (int)$run['fatigue'];
   <?= $sceneHtml ?>
   <?= trek_hub_html($run, $u, $party) ?>
 <?php elseif ($tab === 'map'): ?>
-  <?= trek_stage_html($run, $u) ?>
   <?= $replayHtml ?>
   <?= $sceneHtml ?>
   <?php
@@ -936,15 +935,17 @@ $fat = (int)$run['fatigue'];
   ?>
   <?php if ($run['fi']): ?>
     <div class="trekfightcol<?= (int)($run['fi']['round'] ?? 1) <= 1 ? ' tkhold' : '' /* v2.0.14: round 1 waits for the foe pop-over */ ?>">
-    <?= $hud ?>
+    <div class="tkleft"><?= trek_stage_html($run, $u) ?>
     <?php /* v2.0.10: display only (inert, no form); assets/trekfight.js folds it after the pop-up. v2.0.13: drawn on every fight load: desktop shows it in column 1 all fight long (summary hidden), phones only on the first load (.late = hidden below 1000px) */ ?>
-    <details class="tkfmap<?= $fightWalk ? '' : ' late' ?>" open<?= $fightWalk ? ' data-bang="1"' : '' ?>><summary>🗺️ Where it began</summary><div class="tkfmapbox" inert><?= trek_map_html($run, $u, $fightWalk) ?></div></details>
+        <details class="tkfmap<?= $fightWalk ? '' : ' late' ?>" open<?= $fightWalk ? ' data-bang="1"' : '' ?>><summary>🗺️ Where it began</summary><div class="tkfmapbox" inert><?= trek_map_html($run, $u, $fightWalk) ?></div></details></div>
+    <?= $hud ?>
     <?= trek_fight_html($run, $u) ?>
     </div>
   <?php else:
     $latest = trek_latest_html($run, true); ?>
     <?php /* v2.0.13: .trekcolL (map, key, latest lines, Sneak/Camp/Leave) + .trekcolR (everything else). Phones: display:contents, so the old order rules still apply */ ?>
     <div class="trekplay">
+    <?= trek_stage_html($run, $u) ?>
     <div class="trekcol trekcolR">
     <?= $hud ?>
     <?php if ((int)($run['st']['turn'] ?? 0) <= 2): ?><div class="trektext small trektut"><?= trek_text('ch' . (int)$run['chapter'] . '.tut.walk') ?></div><?php endif; ?>

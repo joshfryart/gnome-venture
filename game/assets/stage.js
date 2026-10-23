@@ -19,7 +19,10 @@
     var w = el.clientWidth || W;
     var s = w >= W ? Math.floor(w / W) : w / W;   // whole-number zoom keeps pixels crisp; below 1x scale smoothly
     box.style.transform = 'scale(' + s + ')';
-    el.style.height = Math.round(H * s) + 'px';
+    // on a narrow screen a stage marked data-crop shows only the band the figures stand in (y 60 to 230), so it takes less height
+    var crop = el.hasAttribute('data-crop') && w < 600;
+    box.style.top = crop ? Math.round(-60 * s) + 'px' : '0px';
+    el.style.height = Math.round((crop ? 170 : H) * s) + 'px';
   }
 
   function render(el, data) {

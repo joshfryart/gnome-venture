@@ -5050,3 +5050,25 @@ dialog.tkr::backdrop, dialog.tkscene::backdrop, dialog.tkcamp::backdrop { -webki
 .tkpage nav.tabs { margin-top: 0; }
 .tkpage .tksmuterow { margin: 2px 0; text-align: center; }
 @media (min-width: 900px) { #trekstage { max-width: 480px; } }
+
+/* v2.0.40 trek one-screen layout: the stage sits inside the play grid; on a wide screen the right rail steps aside */
+.trekplay > #trekstage, .trekfightcol > #trekstage { order: -1; width: 100%; max-width: 480px; margin: 0 auto; }
+@media (min-width: 1000px) {
+  .tkpage .rail { display: none; }
+  .tkpage .trekplay { grid-template-columns: 480px minmax(0, 1fr); }
+  .tkpage .trekplay > #trekstage { grid-column: 1; grid-row: 1; order: 0; margin: 0; }
+  .tkpage .trekplay > .trekcolL { grid-column: 1; grid-row: 2; max-width: none; justify-self: stretch; }
+  .tkpage .trekplay > .trekcolR { grid-column: 2; grid-row: 1 / span 2; max-height: calc(100dvh - 190px); overflow-y: auto; }
+  .tkpage .trekfightcol { grid-template-columns: 480px minmax(0, 1fr); }
+  .tkpage .trekfightcol > #trekstage { grid-column: 1; grid-row: 1 / span 2; margin: 0; order: 0; }
+  .tkpage .trekfightcol > details.tkfmap, .tkpage .trekfightcol > details.tkfmap.late { grid-column: 1; grid-row: 3 / span 3; max-width: 480px; justify-self: stretch; }
+}
+.tkleft { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+@media (min-width: 1000px) {
+  .tkpage .trekfightcol > .tkleft { grid-column: 1; grid-row: 1 / span 6; }
+  .tkpage .tkleft > #trekstage { margin: 0; }
+  .tkpage .tkleft > details.tkfmap, .tkpage .tkleft > details.tkfmap.late { display: block; max-width: 480px; }
+  .tkpage .trekmapcol { width: 100%; max-width: 330px; margin-inline: auto; }
+}
+.tkpage .tksmutebtn { min-height: 28px; padding: 2px 10px; font-size: 13px; }
+.tkpage .tksmuterow { margin: 0; line-height: 1; }
