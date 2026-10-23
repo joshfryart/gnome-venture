@@ -64,6 +64,54 @@ local SCENE = {
     end
   end,
 }
+
+-- ===== extra dressing per chapter (second pass: the first backdrops were sparse) =====
+local function scarecrow(c, x, y)
+  P(c, c:rect(x, y - 24, x + 1, y), RM.wood, { gloss = false, flat = true }); P(c, c:rect(x - 9, y - 18, x + 10, y - 17), RM.wood, { gloss = false, flat = true })
+  P(c, c:poly({ { x - 5, y - 18 }, { x + 6, y - 18 }, { x + 7, y - 7 }, { x - 6, y - 7 } }), RM.red, { gloss = false, cres = 2, deep = 0 })
+  P(c, c:ellipse(x + 0.5, y - 24, 4, 4), RM.cream, { gloss = false, flat = true }); P(c, c:poly({ { x - 6, y - 26 }, { x + 7, y - 26 }, { x + 4, y - 33 }, { x - 3, y - 33 } }), RM.dry, { gloss = false, cres = 1, deep = 0 })
+  c:fill(c:rect(x - 3, y - 25, x - 3, y - 25), "#2a1a10"); c:fill(c:rect(x + 3, y - 25, x + 3, y - 25), "#2a1a10"); c:fill(c:rect(x - 11, y - 18, x - 9, y - 12), "#f5cf6a"); c:fill(c:rect(x + 10, y - 18, x + 12, y - 12), "#f5cf6a")
+end
+local function wilted(c, x, y, h)   -- wilted sunflower: bent stem, drooping head
+  c:fill(c:rect(x, y - h, x, y), "#7ab55c"); c:fill(c:rect(x - 1, y - h + 2, x, y - h + 4), "#7ab55c")
+  P(c, c:ellipse(x + 4, y - h + 6, 4, 3), RM.dry, { gloss = false, cres = 1, deep = 0 }); c:fill(c:ellipse(x + 4, y - h + 6, 2, 1), "#7a4a1f")
+end
+local function cart(c, x, y)
+  P(c, c:poly({ { x - 12, y - 12 }, { x + 12, y - 12 }, { x + 9, y - 3 }, { x - 9, y - 3 } }), RM.dstone, { gloss = false, cres = 3, deep = 0 })
+  c:fill(c:rect(x - 12, y - 13, x + 12, y - 12), "#c9c5bc"); for _, dx in ipairs({ -5, 1, 6 }) do c:fill(c:ellipse(x + dx, y - 14, 2, 2), "#2a1a10") end
+  for _, dx in ipairs({ -7, 7 }) do P(c, c:ellipse(x + dx, y - 2, 3, 3), RM.wood, { gloss = false, cres = 1, deep = 0 }); c:fill(c:rect(x + dx, y - 3, x + dx, y - 1), "#2a1a10") end
+end
+local function glowshroom(c, x, y, col) c:fill(c:rect(x, y - 3, x + 1, y), "#f2e4c0"); c:fill(c:ellipse(x + 0.5, y - 4, 3, 2), col); c:px(x, y - 5, "#fff3c8") end
+local function chain(c, x, y0, y1) for y = y0, y1, 2 do c:px(x, y, "#8b8f96") end; lantern(c, x, y1 + 8) end
+local function books(c, x, y) for i, col in ipairs({ "#dd3a2a", "#3f8fb0", "#f5cf6a" }) do c:fill(c:rect(x - 6 + i, y - i * 3, x + 6 - i, y - i * 3 + 2), col) end end
+local function puddle(c, x, y, rx, col) c:fill(c:ellipse(x, y, rx, 2), col); c:fill(c:rect(x - rx + 2, y - 1, x - 1, y - 1), "#a9d6ea") end
+local EXTRA = {
+  ["1"] = function(c, sc)
+    S.cloud(c, 60, 14, 0.9); S.cloud(c, 150, 24, 0.7)
+    for x = 4, 236, 9 do c:fill(c:rect(x, 85, x, 90), "#8a4f2a") end; c:fill(c:rect(0, 86, 239, 86), "#8a4f2a"); c:fill(c:rect(0, 89, 239, 89), "#8a4f2a")   -- far fence
+    for y = 112, 128, 5 do c:fill(c:rect(0, y, 239, y), "#3d2a1c") end                                                      -- furrows
+    if sc ~= "camp" then scarecrow(c, 176, 93) end
+    for _, w in ipairs({ { 30, 96, 16 }, { 40, 98, 12 }, { 206, 97, 14 }, { 218, 96, 18 } }) do wilted(c, w[1], w[2], w[3]) end
+    S.bird(c, 96, 40); S.bird(c, 104, 36)
+  end,
+  ["2"] = function(c, sc)
+    chain(c, 60, 12, 24); chain(c, 180, 12, 20)
+    puddle(c, 56, 120, 12, "#3f8fb0"); puddle(c, 190, 124, 14, "#3f8fb0"); puddle(c, 120, 128, 9, "#3f8fb0")
+    if sc ~= "boss" then pot(c, 80, 93, 1.4); pot(c, 88, 94, 1.1); books(c, 154, 93) end
+  end,
+  ["3"] = function(c, sc)
+    chain(c, 40, 8, 22); chain(c, 200, 8, 18)
+    if sc == "path" or sc == "fight" then cart(c, 162, 94) end
+    for _, p in ipairs({ { 20, 124 }, { 214, 120 } }) do crystal(c, p[1], p[2], 12, RM.crys); crystal(c, p[1] + 5, p[2] + 2, 8, RM.crys) end
+    for _, p in ipairs({ { 70, 4 }, { 104, 6 }, { 144, 3 } }) do c:fill(c:poly({ { p[1] - 3, 0 }, { p[1], 24 + p[2] }, { p[1] + 3, 0 } }), "#3d2a1c") end
+  end,
+  ["3b"] = function(c, sc)
+    for _, g in ipairs({ { 24, 96, "#7a5cc0" }, { 70, 100, "#f5cf6a" }, { 168, 98, "#7a5cc0" }, { 212, 95, "#f5cf6a" } }) do glowshroom(c, g[1], g[2], g[3]) end
+    for _, d in ipairs({ { 60, 40 }, { 100, 56 }, { 150, 36 }, { 196, 64 }, { 30, 70 } }) do c:px(d[1], d[2], "#f5cf6a") end   -- gold dust motes
+    for x = 14, 226, 30 do c:fill(c:rect(x, 118, x + 14, 118), "#f5cf6a") end                                                    -- gold seam in the floor
+    chain(c, 120, 6, 16)
+  end,
+}
 local only = os.getenv("ONLY"); local want = {}
 if only then for k in only:gmatch("[^,]+") do want[k] = true end end
 for _, k in ipairs({ "1", "2", "3", "3b" }) do for _, sc in ipairs({ "path", "fight", "camp", "boss" }) do
@@ -87,7 +135,7 @@ for _, k in ipairs({ "1", "2", "3", "3b" }) do for _, sc in ipairs({ "path", "fi
     if k == "3b" then for _, p in ipairs({ { 30, 14 }, { 80, 18 }, { 150, 12 }, { 200, 16 } }) do c:fill(c:poly({ { p[1] - 3, p[2] }, { p[1], p[2] + 18 }, { p[1] + 3, p[2] } }), "#7a5cc0") end; for x = 10, 230, 20 do c:fill(c:rect(x, 56 + (x % 3) * 4, x + 8, 56 + (x % 3) * 4), "#f5cf6a") end end
     X.layer(c, "ground"); S.ground(c, ch.ground)
     X.layer(c, "objects"); SCENE[sc](k, c, ch)
-    X.layer(c, "detail")
+    X.layer(c, "detail"); EXTRA[k](c, sc)
     if k ~= "1" and sc ~= "boss" then crystal(c, 36, 92, 10, k == "2" and RM.clay or (k == "3" and RM.crys or RM.vio)) end
     X.save(c, name, "scenes", { w = 480, h = 270, cap = 32 })
   end
