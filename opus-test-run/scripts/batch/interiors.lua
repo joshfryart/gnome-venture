@@ -154,6 +154,51 @@ local STOPX = {
   ["stop-shrine"] = function(c) cloud(c, 50, 12, 10); cloud(c, 190, 18, 8); for _, x in ipairs({ 80, 168 }) do P(c, c:rect(x - 3, 82, x + 3, 94), RM.stone, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x - 1, 76, x + 1, 82), "#f5cf6a"); P(c, c:poly({ { x - 5, 76 }, { x, 70 }, { x + 5, 76 } }), RM.stone, { gloss = false, flat = true }) end; for i = 0, 8 do c:px(100 + i * 14, 40 + (i % 3) * 8, "#f6b8cf") end; for x = 104, 144, 3 do c:px(x, 52 + (x % 2), "#f2e4c0") end end,
   ["stop-spring"] = function(c) cloud(c, 50, 14, 10); cloud(c, 180, 20, 9); for _, f in ipairs({ { 100, 94 }, { 190, 98 }, { 110, 110 } }) do P(c, c:poly({ { f[1], f[2] }, { f[1] + 3, f[2] - 9 }, { f[1] + 7, f[2] } }), RM.dleaf, { gloss = false, flat = true }) end; P(c, c:ellipse(200, 96, 7, 4), RM.stone, { gloss = false, cres = 2, deep = 0 }); bloom(c, { { 90, 106 }, { 210, 108 }, { 130, 112 } }, "#f6b8cf"); for i = 0, 2 do c:px(150 + i * 3, 74 - i * 3, "#eef8f2") end end,
 }
+-- ===== second pass: richer homes and shops (wall art, furniture, hanging things, clutter; villager zone x 60..115 stays clear below y 55) =====
+local function frame(c, x, y, w, h, col) P(c, c:rect(x - 2, y - 2, x + w + 2, y + h + 2), RM.dwood, { gloss = false, cres = 1, deep = 0 }); c:fill(c:rect(x, y, x + w, y + h), col or "#a9d6ea") end
+local function rug(c, x, y, rx, ry, a, b) c:fill(c:ellipse(x, y, rx, ry), a); c:fill(c:ellipse(x, y, rx - 4, ry - 2), b); for i = -rx + 3, rx - 3, 3 do c:px(x + i, y - ry, "#f5cf6a") end end
+local function stool(c, x, y) P(c, c:ellipse(x, y - 6, 5, 2), RM.wood, { gloss = false, flat = true }); c:fill(c:rect(x - 4, y - 5, x - 3, y), "#8a4f2a"); c:fill(c:rect(x + 3, y - 5, x + 4, y), "#8a4f2a") end
+local function candle(c, x, y) c:fill(c:rect(x, y - 5, x + 1, y), "#f2e4c0"); c:fill(c:rect(x, y - 7, x + 1, y - 6), "#f08a24"); c:px(x, y - 8, "#f5cf6a") end
+local function pots(c, x, y, n) for i = 0, n - 1 do P(c, c:poly({ { x + i * 8 - 3, y }, { x + i * 8 - 4, y - 6 }, { x + i * 8 + 4, y - 6 }, { x + i * 8 + 3, y } }), RM.clay, { gloss = false, cres = 1, deep = 0 }) end end
+local function hang(c, x, y0, y1, col) c:fill(c:rect(x, y0, x, y1), "#8a4f2a"); P(c, c:ellipse(x, y1 + 3, 3, 4), col, { gloss = false, flat = true }) end
+local function books(c, x, y, n) for i = 0, n - 1 do c:fill(c:rect(x + i * 3, y - 8 + (i % 2), x + i * 3 + 2, y), ({ "#dd3a2a", "#3f8fb0", "#f5cf6a", "#7ab55c", "#c3b2ea" })[i % 5 + 1]) end end
+local function table_(c, x, y, w) P(c, c:rect(x, y - 8, x + w, y - 5), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x + 2, y - 5, x + 3, y), "#8a4f2a"); c:fill(c:rect(x + w - 3, y - 5, x + w - 2, y), "#8a4f2a") end
+local EXTRA = {
+  ["home-burrow"] = function(c) for _, x in ipairs({ 34, 88, 150, 200 }) do c:fill(c:rect(x, 0, x, 12 + x % 9), "#9a6b3f"); c:fill(c:ellipse(x, 14 + x % 9, 2, 2), "#7ab55c") end
+    rug(c, 150, 112, 30, 6, "#a8582f", "#e46a9b"); stool(c, 196, 104); table_(c, 118, 98, 26); for i = 0, 2 do P(c, c:ellipse(124 + i * 7, 88, 3, 3), RM.red, { gloss = false, flat = true }) end
+    frame(c, 44, 22, 18, 14, "#7ab55c"); c:fill(c:rect(50, 26, 52, 32), "#f2e4c0"); pots(c, 214, 94, 2); hang(c, 100, 0, 18, RM.leaf); candle(c, 138, 90); for x = 20, 220, 20 do c:px(x, 8, "#f5cf6a") end end,
+  ["home-treehouse"] = function(c) for x = 6, 236, 12 do c:fill(c:ellipse(x, 8, 7, 5), "#4f9a45") end
+    for x = 20, 230, 22 do c:px(x, 12, "#f5cf6a"); c:px(x + 11, 14, "#e46a9b") end; hang(c, 20, 8, 20, RM.leaf); hang(c, 110, 8, 26, RM.petal); hang(c, 130, 8, 16, RM.leaf)
+    P(c, c:rect(40, 54, 44, 94), RM.wood, { gloss = false, flat = true }); P(c, c:poly({ { 36, 54 }, { 52, 40 }, { 56, 46 }, { 40, 58 } }), RM.stone, { gloss = false, cres = 1, deep = 0 })   -- telescope on a stand
+    table_(c, 190, 98, 30); books(c, 196, 90, 6); rug(c, 140, 114, 28, 5, "#4f9a45", "#a4b86a"); for i = 0, 3 do c:fill(c:rect(104 + i * 4, 32, 104 + i * 4, 38 + (i % 2) * 2), "#c3b2ea") end; c:fill(c:rect(102, 30, 118, 30), "#8a4f2a"); frame(c, 80, 22, 16, 12, "#f6b8cf") end,
+  ["home-hut"] = function(c) for i = 0, 5 do c:fill(c:rect(20 + i * 38, 60, 40 + i * 38, 62), (i % 2 == 0) and "#dd3a2a" or "#4f9a45") end
+    for _, g in ipairs({ { 120, 18 }, { 132, 24 }, { 144, 16 } }) do hang(c, g[1], 14, g[2], RM.straw) end; P(c, c:ellipse(210, 90, 7, 5), RM.clay, { gloss = false, cres = 2, deep = 0 }); c:fill(c:ellipse(210, 85, 5, 1), "#3d2a1c")
+    P(c, c:ellipse(160, 94, 5, 8), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:ellipse(160, 87, 5, 2), "#f2e4c0")   -- drum
+    for i = 0, 5 do c:fill(c:rect(40 + i * 3, 36, 40 + i * 3, 42 + (i % 3)), ({ "#dd3a2a", "#3f8fb0", "#f5cf6a" })[i % 3 + 1]) end; pots(c, 214, 108, 2); candle(c, 130, 94) end,
+  ["home-stone"] = function(c) frame(c, 84, 18, 18, 14, "#7ab55c"); frame(c, 112, 26, 12, 16, "#c3b2ea")
+    P(c, c:rect(70, 14, 72, 38), RM.dwood, { gloss = false, flat = true }); P(c, c:poly({ { 68, 14 }, { 80, 8 }, { 84, 14 } }), RM.stone, { gloss = false, flat = true })   -- hanging axe-head shape
+    for i = 0, 2 do c:fill(c:ellipse(150 + i * 10, 12, 3, 3), "#f5cf6a"); c:fill(c:rect(150 + i * 10, 4, 150 + i * 10, 9), "#4a2c1a") end; c:fill(c:rect(146, 3, 172, 3), "#4a2c1a")   -- candle chandelier
+    rug(c, 130, 114, 34, 6, "#7a5cc0", "#c3b2ea"); table_(c, 196, 98, 30); books(c, 204, 90, 5); candle(c, 222, 90); stool(c, 180, 106); pots(c, 214, 70, 0) end,
+  ["home-boat"] = function(c) for x = 10, 230, 40 do c:fill(c:rect(x, 14, x + 1, 22), "#8b8f96"); c:fill(c:ellipse(x, 25, 3, 3), "#f5cf6a") end   -- hanging buoys / lights
+    P(c, c:ellipse(46, 62, 8, 8), RM.cream, { gloss = false, cres = 2, deep = 0 }); c:fill(c:ellipse(46, 62, 4, 4), "#b07a45"); for i = 0, 3 do c:fill(c:rect(40 + i * 4, 56, 41 + i * 4, 56), "#dd3a2a") end   -- life ring
+    frame(c, 98, 54, 24, 14, "#f2e4c0"); c:fill(c:rect(102, 60, 118, 60), "#3f8fb0"); c:fill(c:rect(104, 63, 112, 63), "#dd3a2a")   -- sea chart
+    for i = 0, 3 do c:fill(c:rect(176 + i * 4, 54, 177 + i * 4, 60 + i), "#a9d6ea") end; c:fill(c:rect(174, 52, 192, 52), "#8a4f2a")                       -- hanging fish rack
+    P(c, c:rrect(196, 94, 214, 100, 3), RM.dwood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:ellipse(205, 96, 6, 2), "#d9a660"); barrel(c, 224, 100)
+    rug(c, 150, 112, 26, 5, "#3f8fb0", "#a9d6ea") end,
+}
+function barrel(c, x, y) P(c, c:rrect(x - 4, y - 8, x + 4, y, 2), RM.wood, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(x - 4, y - 5, x + 4, y - 5), "#8a4f2a") end
+local EXTRA_SHOP = {
+  ["shop-seeds"] = function(c) for i = 0, 3 do hang(c, 40 + i * 16, 6, 14 + i % 2 * 3, i % 2 == 0 and RM.leaf or RM.gold) end; P(c, c:rrect(20, 88, 40, 100, 2), RM.stone, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(24, 92, 36, 92), "#3f8fb0")   -- watering can
+    pots(c, 142, 86, 4); for i = 0, 3 do P(c, c:ellipse(142 + i * 8, 78, 3, 3), RM.leaf, { gloss = false, flat = true }) end; table_(c, 100, 120, 20); c:fill(c:rect(194, 82, 214, 82), "#8a4f2a"); for i = 0, 4 do c:fill(c:rect(196 + i * 4, 76, 198 + i * 4, 81), ({ "#dd3a2a", "#f5cf6a", "#7ab55c" })[i % 3 + 1]) end end,
+  ["shop-bakery"] = function(c) for i = 0, 3 do hang(c, 50 + i * 20, 6, 12 + (i % 2) * 4, RM.straw) end; P(c, c:ellipse(222, 90, 7, 2), RM.stone, { gloss = false, flat = true }); c:fill(c:rect(215, 82, 229, 90), "#f2e4c0"); c:fill(c:ellipse(222, 82, 7, 2), "#f6b8cf"); c:fill(c:rect(220, 78, 221, 80), "#dd3a2a")   -- cake stand
+    P(c, c:rrect(84, 76, 104, 88, 3), RM.wood, { gloss = false, cres = 2, deep = 0 }); for i = 0, 3 do c:fill(c:ellipse(88 + i * 5, 76, 2, 4), "#f5cf6a") end; P(c, c:rect(60, 30, 62, 80), RM.wood, { gloss = false, flat = true }); sack(c, 30, 104, RM.cream); sack(c, 44, 106, RM.cream) end,
+  ["shop-herbs"] = function(c) P(c, c:ellipse(30, 96, 10, 7), RM.stone, { gloss = false, cres = 2, deep = 0 }); c:fill(c:ellipse(30, 91, 8, 2), "#4f9a45"); c:fill(c:rect(20, 86, 40, 88), "#3d2a1c")   -- cauldron
+    P(c, c:rect(60, 40, 62, 60), RM.wood, { gloss = false, flat = true }); P(c, c:rect(120, 40, 122, 60), RM.wood, { gloss = false, flat = true }); c:fill(c:rect(60, 44, 122, 44), "#8a4f2a"); for i = 0, 6 do c:fill(c:rect(64 + i * 8, 45, 64 + i * 8, 52), ({ "#4f9a45", "#7ab55c", "#a4b86a" })[i % 3 + 1]); P(c, c:ellipse(64 + i * 8, 54, 3, 3), RM.leaf, { gloss = false, flat = true }) end   -- drying rack
+    P(c, c:ellipse(196, 90, 6, 4), RM.stone, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(194, 82, 196, 88), "#d9a660"); end,
+  ["shop-craft"] = function(c) for i = 0, 4 do P(c, c:rect(40 + i * 12, 58, 48 + i * 12, 76), ({ RM.red, RM.petal, RM.dusk, RM.gold, RM.leaf })[i + 1], { gloss = false, cres = 1, deep = 0 }) end   -- fabric bolts
+    c:fill(c:rect(36, 56, 100, 56), "#8a4f2a"); P(c, c:ellipse(200, 90, 8, 3), RM.cream, { gloss = false, flat = true }); c:fill(c:rect(190, 82, 210, 88), "#c3b2ea")
+    hang(c, 130, 8, 22, RM.petal); hang(c, 150, 8, 18, RM.gold); hang(c, 170, 8, 24, RM.leaf); P(c, c:rect(16, 70, 18, 100), RM.wood, { gloss = false, flat = true }); P(c, c:ellipse(17, 64, 6, 7), RM.cream, { gloss = false, cres = 2, deep = 0 }); c:fill(c:rect(10, 74, 24, 90), "#7a5cc0") end,   -- mannequin
+}
 local ORDER = { "home-burrow", "home-treehouse", "home-hut", "home-stone", "home-boat", "shop-seeds", "shop-bakery", "shop-herbs", "shop-craft",
   "stop-camp", "stop-ferry", "stop-herb", "stop-inn", "stop-jetty", "stop-market", "stop-mill", "stop-orchard", "stop-shrine", "stop-spring" }
 local only = os.getenv("ONLY"); local want = {}
@@ -163,5 +208,7 @@ for _, name in ipairs(ORDER) do if not only or want[name] then
   local c = X.canvas{ mode = "scene", w = W, h = H, out = 2, ol = 1, olx = 1 }
   X.layer(c, "far"); S[name](c)
   if STOPX[name] then X.layer(c, "objects"); STOPX[name](c) end
+  if EXTRA[name] then X.layer(c, "objects"); EXTRA[name](c) end
+  if EXTRA_SHOP[name] then X.layer(c, "objects"); EXTRA_SHOP[name](c) end
   X.save(c, name, "scenes", { w = 480, h = 270, cap = 32 })
 end end

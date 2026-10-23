@@ -86,29 +86,54 @@ for ri, r in ipairs(REG) do
   local land = c:mask(); for x = 0, 239 do land:rect(x, 6 + math.floor(3 * math.sin(x / 13 + ri) + 0.5), x, 128 - math.floor(3 * math.sin(x / 9 + ri) + 0.5)) end
   land:cut(c:rect(0, 0, 3, 134)):cut(c:rect(236, 0, 239, 134))
   c:fill(land, tint[1])
+  local zm = {}
   for zi = 4, 1, -1 do   -- hardest zone painted first so gentle zones overlap toward the village
     local z = ZONES[zi]; local m = c:mask()
     m:add(c:ellipse(z[1], z[2], z[3], 30)); m:add(c:ellipse(z[1] + 8, z[2] - 14, z[3] * 0.6, 20)); m:clip(land)
-    c:fill(m, tint[zi])
+    c:fill(m, tint[zi]); zm[zi] = m
   end
+  -- grass texture: dashes of the next-darker tint scattered over each zone
+  local ts = ri * 17 + 3; local function trnd(n) ts = (ts * 1103515245 + 12345) % 2147483648 return ts % n end
+  for i = 1, 110 do local x, y = 6 + trnd(228), 10 + trnd(116); if land:has(x, y) then c:paint({ "x.x", ".x." }, x, y, { x = tint[math.min(4, (zm[2] and zm[2]:has(x, y)) and 3 or ((zm[3] and zm[3]:has(x, y)) and 4 or 2))] }) end end
+  -- thread-gold stitched zone borders (embroidery look)
+  for zi = 2, 4 do zm[zi]:edge():each(function(x, y) if (x + y) % 4 < 2 and land:has(x, y) then c:px(x, y, "#f5cf6a") end end) end
+  -- a river from the north coast to the south coast, and a lake
+  local river = c:mask()
+  for t = 0, 1, 0.01 do river:add(c:ellipse(math.floor(150 + 34 * math.sin(t * 4.2 + ri) + 0.5), math.floor(4 + t * 126), 1, 1)) end
+  river:clip(land); c:fill(river, "#3f8fb0")
+  river:each(function(x, y) if (x + y) % 5 == 0 then c:px(x, y, "#a9d6ea") end end)
+  local lk = ({ { 60, 118 }, { 206, 112 }, { 120, 30 }, { 36, 40 } })[(ri % 4) + 1]
+  local lm = c:ellipse(lk[1], lk[2], 11, 5); lm:clip(land); c:fill(lm, "#3f8fb0"); lm:edge():each(function(x, y) c:px(x, y, "#a9d6ea") end); c:fill(c:rect(lk[1] - 4, lk[2] - 1, lk[1] + 2, lk[2] - 1), "#a9d6ea")
   X.layer(c, "objects")
   c:outline(land, { ol = 1, olx = 1 })
   -- roads (3 px) village -> zones (path progression outward)
-  for i = 1, #ZONES - 1 do c:fill(c:line({ { ZONES[i][1], ZONES[i][2] }, { (ZONES[i][1] + ZONES[i + 1][1]) / 2, (ZONES[i][2] + ZONES[i + 1][2]) / 2 - 8 }, { ZONES[i + 1][1], ZONES[i + 1][2] } }, 3), "#f2e4c0") end
-  c:fill(c:line({ { ZONES[2][1], ZONES[2][2] }, { 140, 40 }, { 190, 38 } }, 3), "#f2e4c0")
+  local roadM = c:mask()
+  for i = 1, #ZONES - 1 do roadM:add(c:line({ { ZONES[i][1], ZONES[i][2] }, { (ZONES[i][1] + ZONES[i + 1][1]) / 2, (ZONES[i][2] + ZONES[i + 1][2]) / 2 - 8 }, { ZONES[i + 1][1], ZONES[i + 1][2] } }, 3)) end
+  roadM:add(c:line({ { ZONES[2][1], ZONES[2][2] }, { 140, 40 }, { 190, 38 } }, 3))
+  roadM:add(c:line({ { ZONES[3][1], ZONES[3][2] }, { 170, 120 }, { 120, 118 } }, 3))
+  c:fill(roadM, "#f2e4c0")
+  roadM:each(function(x, y) if (x + y) % 6 == 0 then c:px(x, y, "#d8c49a") end end)      -- worn cart ruts
+  local bridge = roadM:copy():clip(river:copy():grow(1)):grow(1)
+  c:fill(bridge, "#b07a45"); bridge:each(function(x, y) if x % 2 == 0 then c:px(x, y, "#8a4f2a") end end)
   -- market village at the start: three houses (kept clear of the first pin spots by 12 px)
-  for _, h in ipairs({ { 18, 76 }, { 30, 70 }, { 14, 94 } }) do P(c, c:rect(h[1], h[2], h[1] + 9, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:poly({ { h[1] - 1, h[2] }, { h[1] + 4.5, h[2] - 5 }, { h[1] + 10, h[2] } }), ri % 2 == 0 and RM.red or RM.clay, { gloss = false, flat = true }) end
+  local HOUSES = { { 18, 76 }, { 30, 70 }, { 14, 94 }, { 8, 58 }, { 22, 56 }, { 6, 82 } }
+  for _, h in ipairs(HOUSES) do P(c, c:rect(h[1], h[2], h[1] + 9, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:poly({ { h[1] - 1, h[2] }, { h[1] + 4.5, h[2] - 5 }, { h[1] + 10, h[2] } }), ri % 2 == 0 and RM.red or RM.clay, { gloss = false, flat = true }) end
+  for x = 4, 40, 4 do c:px(x, 112, "#8a4f2a") end; c:fill(c:rect(4, 111, 40, 111), "#d9a660")      -- village fence
+  -- market square: two striped stalls
+  for i = 0, 1 do local x = 20 + i * 14; for dx = 0, 8, 2 do c:fill(c:rect(x + dx, 100, x + dx, 104), "#dd3a2a"); c:fill(c:rect(x + dx + 1, 100, x + dx + 1, 104), "#f2e4c0") end; c:fill(c:rect(x, 105, x + 9, 106), "#8a4f2a") end
   -- region glyphs scattered, skipping pin spots (12 px) and roads' middle
   local seed = ri * 31 + 5; local function rnd(n) seed = (seed * 1103515245 + 12345) % 2147483648 return seed % n end
   local placed = 0
-  for try = 1, 80 do
-    if placed >= 24 then break end
+  for try = 1, 220 do
+    if placed >= 34 then break end
     local x, y = 12 + rnd(216), 18 + rnd(100)
     local ok = land:has(x, y) and land:has(x, y + 6)
     for _, p in ipairs(PINS) do if math.abs(x - p[1]) < 12 and math.abs(y - p[2]) < 12 then ok = false end end
-    for _, h in ipairs({ { 18, 76 }, { 30, 70 }, { 14, 94 } }) do if math.abs(x - h[1]) < 14 and math.abs(y - h[2]) < 14 then ok = false end end
+    for _, h in ipairs(HOUSES) do if math.abs(x - h[1]) < 14 and math.abs(y - h[2]) < 14 then ok = false end end; if x < 50 and y > 90 and y < 118 then ok = false end
     if ok and c:get(x, y) ~= "#f2e4c0" then glyph(c, r[6], x, y, 0.8); placed = placed + 1 end
   end
+  -- stone outcrops in the hard zone
+  for i = 1, 8 do local x, y = 160 + trnd(70), 40 + trnd(70); if zm[4]:has(x, y) and c:get(x, y) ~= "#f2e4c0" then local ok = true; for _, p in ipairs(PINS) do if math.abs(x - p[1]) < 12 and math.abs(y - p[2]) < 12 then ok = false end end; if ok then P(c, c:ellipse(x, y, 4, 2), RM.stone, { gloss = false, cres = 1, deep = 0 }) end end end
   X.layer(c, "detail")
   for _, p in ipairs(PINS) do c:fill(c:rect(p[1] - 5, p[2] - 5, p[1] + 4, p[2] + 4), c:get(p[1] - 7, p[2] - 7) or tint[1]) end   -- flat 10x10 pin spots (20x20 exported)
   X.save(c, "map-" .. code, "scenes", { w = 480, h = 270, cap = 32 })
