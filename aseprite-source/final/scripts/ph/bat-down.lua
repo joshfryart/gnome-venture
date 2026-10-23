@@ -4,40 +4,34 @@ local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
--- outer fluff: a fan of soft lobes leaning right, narrowing to a pinch
-local fluff = c:ellipse(31, 31, 12, 11)
-for _, b in ipairs({ {18, 28, 6.5}, {22, 18, 6.5}, {32, 14, 7}, {43, 18, 6.5}, {47, 29, 5.5} }) do
-  fluff:add(c:ellipse(b[1], b[2], b[3], b[3]))
+-- puff: a scalloped cloud of down, upper right, tapering down-left into a short quill
+local puff = c:ellipse(37, 29, 12, 10)
+for _, b in ipairs({ {25, 26, 5}, {28, 18, 5.5}, {37, 15, 6}, {46, 18, 5.5}, {51, 27, 5}, {47, 36, 5}, {38, 39, 4.5} }) do
+  puff:add(c:ellipse(b[1], b[2], b[3], b[3]))
 end
-fluff:add(c:poly({ {21, 36}, {42, 36}, {34, 51}, {29, 51} }))
--- wisp tips curling off the top lobes
-fluff:add(c:line({ {13, 23}, {11, 19}, {12, 16} }, 2))
-fluff:add(c:line({ {37, 8}, {40, 6}, {43, 7} }, 2))
-fluff:add(c:line({ {51, 24}, {54, 21}, {54, 18} }, 2))
-
--- downy core in the bat's mauve inner-ear tone
-local core = c:ellipse(31, 32, 7, 6)
-for _, b in ipairs({ {26, 27, 4}, {32, 23, 4.5}, {37, 28, 4} }) do
-  core:add(c:ellipse(b[1], b[2], b[3], b[3]))
-end
-core:add(c:poly({ {26, 36}, {37, 36}, {32, 45} }))
-
-local quill = c:line({ {31, 50}, {33, 56} }, 3)
+puff:add(c:poly({ {23, 29}, {35, 38}, {22, 47}, {19, 45} }))
+-- two loose wisps lifting off the top
+local wisp1 = c:line({ {30, 12}, {27, 8}, {23, 8} }, 2)
+local wisp2 = c:line({ {54, 22}, {57, 19}, {57, 15} }, 2)
+local quill = c:line({ {14, 54}, {22, 44} }, 3)
 
 local brown = GV.ramp("#6e5646")
-local mauve = GV.ramp("#8a6a7a")
 local p = c:build{
+  { "w1", wisp1, brown, { flat = true } },
+  { "w2", wisp2, brown, { flat = true } },
+  { "puff", puff, brown, { gloss = { 28, 18 } } },
   { "quill", quill, GV.ramp("#4b3a2f"), { flat = true } },
-  { "fluff", fluff, brown, { gloss = { 18, 16 } } },
-  { "core",  core,  mauve, { gloss = { 28, 21 } } },
 }
 
--- soft barb strands fanning out of the core into the fluff (2 px, deep brown)
-local strand = brown.deep
-local function wisp(pts) c:fill(c:line(pts, 2):clip(p.fluff.m:shrink(2):cut(p.core.m)), strand) end
-wisp({ {24, 36}, {19, 33}, {16, 29} })
-wisp({ {40, 35}, {45, 32}, {47, 27} })
-wisp({ {38, 21}, {41, 17}, {41, 13} })
+-- soft barb curls inside the puff (2 px, shade), opening away from the quill
+local curl = brown.deep
+local inner = p.puff.m:shrink(2)
+local function arc(pts) c:fill(c:line(pts, 2):clip(inner), curl) end
+arc({ {33, 22}, {36, 25}, {39, 25}, {42, 22} })
+arc({ {28, 30}, {31, 33}, {34, 33} })
+arc({ {40, 31}, {43, 34}, {47, 33} })
+-- a mauve echo of the bat's inner ear where the down meets the quill
+c:paint({ ".mm", "mm.", "m.." }, 22, 41, { m = "#8a6a7a" })
 
 local t = c:save(D .. "final/aseprite/ph/bat-down.aseprite", PNG .. "bat-down.png")
 print(GV.report(t))

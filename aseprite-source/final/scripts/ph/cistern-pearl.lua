@@ -14,8 +14,8 @@ local pearl = c:ellipse(31.5, 27, 15, 14.5):add(c:ellipse(30, 29, 14, 12))
 pearl:cut(c:rect(31, 12, 32, 13))                        -- small dimple at the crown
 local front = c:ellipse(31.5, 40, 19, 4):cut(c:rect(0, 0, 63, 39))
 front:add(c:poly({ { 13, 40 }, { 51, 40 }, { 46, 53 }, { 17, 53 } }))
-front:add(c:ellipse(31.5, 52, 14.5, 3))
-front:add(c:rrect(21, 53, 42, 57, 1))                     -- squat foot
+front:add(c:ellipse(31.5, 51, 14.5, 3))
+front:add(c:rrect(21, 52, 42, 55, 1))                     -- squat foot
 
 c:build{ { "back", back, stoneR, { gloss = false } } }
 -- stale cistern water inside the cup

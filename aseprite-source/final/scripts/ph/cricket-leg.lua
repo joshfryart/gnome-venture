@@ -54,8 +54,8 @@ c:fill(rid:clip(p.femur.m:shrink(2)):cut(hipm:grow(1)), "#c08048")
 -- clay crust: a glazed bean chip on the femur
 c:spot(c:ellipse(34, 28, 2, 1.5), "#9a6b3f", "#c9a96e")
 -- seam across the hip join, with a button at its head
-c:seam({ { 20, 38 }, { hx + px * 9, hy + py * 9 } })
-c:button(17, 35)
+c:seam({ { 23, 41 }, { hx + px * 9, hy + py * 9 } })
+c:button(20, 38)
 
 local t = c:save(D .. "final/aseprite/ph/cricket-leg.aseprite", PNG .. "cricket-leg.png")
 print(GV.report(t))

@@ -18,9 +18,9 @@ local cap   = c:rrect(43, 14, 55, 18, 1)
 
 -- bottom coil, left end tapering into the tail along the ground
 local coilA = c:ellipse(31, 48, 23, 6.5)
--- tail sweeping round the front of the bottom coil, ember-tipped
-local tail = c:line({ {51, 45}, {47, 50}, {40, 53}, {30, 54} }, 4)
-local tip = c:poly({ {30, 52}, {22, 55}, {30, 57}, {32, 54} })
+-- tail wrapped round the chimney stack, ember tip hanging off the right
+local tail = c:line({ {43, 21}, {49, 24}, {52, 28}, {53, 31} }, 5)
+local tip = c:poly({ {50, 32}, {53, 30}, {57, 32}, {56, 36}, {53, 41}, {51, 36} })
 
 -- upper coil resting on the bottom one, wrapped round the chimney
 local coilB = c:ellipse(33, 38, 18, 6.5)
@@ -64,11 +64,11 @@ local p = c:build{
   { "cap",    cap,    brick, { gloss = { 45, 15 } } },
   { "coilA",  coilA,  coal,  { gloss = { 22, 46 } } },
   { "bellyA", bellyA, ember, { flat = true, contour = false } },
-  { "tail",   tail,   coal,  { gloss = false } },
-  { "tip",    tip,    ember, { flat = true } },
   { "coilB",  coilB,  coal,  { gloss = { 24, 35 }, stitch = { side = "lit" } } },
   { "bellyB", bellyB, ember, { flat = true, contour = false } },
   { "spikes", spikes, ember, { flat = true } },
+  { "tip",    tip,    ember, { flat = true } },
+  { "tail",   tail,   coal,  { gloss = { 45, 22 } } },
   { "neck",   neck,   coal,  { gloss = false, light = neck:copy():add(head) } },
   { "horns",  horns,  "gold", { flat = true } },
   { "maw",    maw,    ember, { gloss = false, contour = false } },
@@ -98,6 +98,7 @@ crack({ "..o", ".g.", "o..", "o.." }, 41, 36)
 crack({ "o...o", ".ggo." }, 28, 46)
 crack({ ".o", "g.", "o." }, 18, 47)
 crack({ "o..", ".go" }, 40, 50)
+crack({ "o.", ".g" }, 49, 25)
 crack({ "o..", ".go" }, 17, 22)
 crack({ "o.", ".g", ".o" }, 10, 34)
 
@@ -111,6 +112,7 @@ c:paint({ "c....c", "c....c" }, 31, 22, { c = "#f1ece0" })   -- upper fangs
 c:paint({ "c", "c" }, 34, 26, { c = "#f1ece0" })               -- lower fang
 c:paint({ "c.c" }, 27, 40, { c = "#f1ece0" })                  -- claws
 c:px(38, 18, "#f08a24")   -- glowing nostril
+c:paint({ ".g.", "gg.", ".g." }, 52, 34, { g = "#f5cf6a" })  -- hot tail-tip core
 
 local t = c:save(D .. "final/aseprite/ph/creature-boss-lm-se-4-lair-forge-of-the-cinder-wyrm.aseprite",
                  PNG .. "creature-boss-lm-se-4-lair-forge-of-the-cinder-wyrm.png")

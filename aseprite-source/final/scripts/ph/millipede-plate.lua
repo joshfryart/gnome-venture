@@ -4,7 +4,7 @@ local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 -- clay tones borrowed from the millipede itself (soil family)
-local light = GV.ramp("#c9ae90")
+local light = GV.ramp("#c9ae90", { gloss = "#f1ece0", dot = "#fff3c8" })
 local dark  = GV.ramp("#7a5442")
 
 -- a half-ring arch (a millipede segment seen end-on), with its thick back edge peeking up-right
