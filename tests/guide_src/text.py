@@ -1,7 +1,7 @@
 """Text of the Gnome Venture style guide. Edit here, then run: python3 tests/build_guide.py
 Markup (tiny): '## h2', '### h3', '- bullet', '1. step', '> note', '| a | b |' tables (2nd line = separator), ``` code ```,
 **bold**, `code`. A line holding only {{NAME}} or {{NAME:arg}} is filled in by build_guide.py (palette, catalogue, screenshots ...).
-SECTIONS = (id, part, title, body). part: 'front', 'a', 'b', 'c', 'd'."""
+SECTIONS = (id, part, title, body). part: 'front', 'a', 'b', 'c', 'd', 'e'."""
 
 ABOUT = """
 This is the one reference for how Gnome Venture looks: the Hearthlight art style, the inline icon system, and the UI style sheet.
@@ -368,6 +368,72 @@ D3 = """
 - Avoid: dither bands, blush or cheek patches, zipper or double-wide stitching, blobby markings, shading under 2 px limbs.
 """
 
+E1 = """
+Rules for the **scene overhaul** art (stage backdrops, banners, maps, interiors, fight effects, battle sprites). It adds to Part D and never replaces it. Where this page and Part D disagree, this page wins for the files named here. The file list, names and counts are in `claude/art-spec-overhaul.md`.
+
+## Which pieces get the black border
+The 1 px `#000000` border is for things that **stand on a scene**. A scene itself has none. The page background and the stage are never bordered.
+| Piece | Border | Mode (gvlib) | Notes |
+| --- | --- | --- | --- |
+| Stage backdrops, banners, maps, interiors | **none** | `scene`, `out = 2` | Three-tone umber outline on raised objects only |
+| Creatures, enemies, bosses, gnome and crew sprites | **yes** | `sticker` | Transparent outside, border last. Face right |
+| Villager busts (`npc-*`, `npc-unknown`) | **yes**, not on the bottom edge | `bust` | Stand behind a counter or half-wall so the cut bottom is hidden |
+| Fight effects (`fx-*`) | **none** | `scene` | Short-lived, drawn over a scene. 1 px umber contour only where a shape has an edge |
+| Region mask (`map-world-regions`) | **none** | raw | Flat colours, no outline, no stitches. Never resized |
+
+## Black border rules (restated for this set)
+- Last step only: every transparent pixel **4-adjacent** (plus-shaped) to an opaque pixel becomes `#000000`. Round the outside and round interior holes. No diagonals.
+- It is added after the umber outline. The umber outline stays under it (2 px, +1 on the lower right). Never use black for the outline, shading or detail.
+- Border is **1 px at any canvas size**. Do not scale it with k. A 96 x 96 boss still gets a 1 px border.
+- No cream halo on anything in this set.
+- Do not border a sprite twice. Border once, on the final cropped sprite, before saving the PNG.
+- Check on a light and a dark chip. If the border vanishes on dark, the umber under it is too dark: lighten the lower-right outline tone one step.
+- Pure black `#000000` is allowed **only** for this border. A black pixel anywhere else is a fail.
+
+## Aseprite rules for this set
+- **Aseprite 1.3.18**, batch mode, driven by a Lua script that uses `gvlib`. Never retouch a PNG by hand. Keep the `.lua` and `.aseprite` with every PNG in `aseprite-source/final/aseprite/scenes/` (scenes) or the matching existing folder (sprites).
+- **Colour mode: RGB**, 8 bits, with a **palette limit** per file (see the table). No indexed-colour tricks that change colours on export.
+- **Hard pixels**: alpha is 0 or 255 only. No blur, smooth, outline-by-brush, gradient tool, dither pattern or layer opacity below 100 on the exported result. Layer blend mode: Normal only.
+- **Layers** (top to bottom, names exactly): `border` (sprites only), `fx`, `detail`, `objects`, `ground`, `far`, `sky`. Merge nothing before the last step so the file stays editable. Hidden helper layers go in a group named `guide` and are never exported.
+- **One frame** per file unless the spec says sheet. Sheets are **horizontal strips**, frames side by side with no gap, no padding, all the same size. Do not use animation tags for the engine; the game reads the strip by frame size.
+- **Scenes are drawn small and exported at 2x**: backdrops on a 240 x 135 grid, banners 240 x 60, world map 320 x 180, region maps 240 x 135. Export with **Nearest-neighbour 200%**. This keeps line weights in proportion; do not draw the outline at the exported size.
+- **Export**: `File > Export` equivalent in the script, `.png`, no trim, no scale beyond the 2x above, no metadata, 32-bit RGBA. Size must match the spec exactly or the file is rejected.
+- **Naming**: lower case, hyphens, exactly the names in the spec. No spaces, no version suffix. Replace a file by overwriting; do not make `-v2`.
+- **Transparency**: sprites and effects have a transparent background. Scenes are fully opaque (alpha 255 everywhere).
+
+| File type | Grid drawn | Exported | Max colours | Border |
+| --- | --- | --- | --- | --- |
+| Stage backdrop | 240 x 135 | 480 x 270 | 32 | none |
+| Banner | 240 x 60 | 480 x 120 | 24 | none |
+| World map | 320 x 180 | 640 x 360 | 40 | none |
+| Region map | 240 x 135 | 480 x 270 | 32 | none |
+| Interior | 240 x 135 | 480 x 270 | 32 | none |
+| Creature / crew sprite | 64 x 64 | 64 x 64 | 16 | 1 px |
+| Boss | 96 x 96 (k = 1.5) | 96 x 96 | 20 | 1 px |
+| Bust | 80 x 100 | 80 x 100 | 16 | 1 px, not bottom |
+| Fight effect | per spec | per spec | 8 | none |
+
+## Scene composition rules
+- **Ground line**: backdrops put the walkable ground between y 190 and 215 (exported pixels). Characters stand with their feet on it. Keep the left and right thirds calm and the centre readable.
+- **Depth by bands**: about 5 hard-edged colour bands for sky and haze, then far, mid and near layers. Each farther layer is lighter and less saturated. No gradients, no dither.
+- **Raised objects** (trees, rocks, furniture, stalls) get the three-tone umber outline, one crescent, a bounce line and a rim. Ground, water, sky and haze get **no outline**.
+- **Light**: always from the upper left. Windows and fires in interiors may add a warm rim, but the crescent stays lower right.
+- **Stitched-toy signature in scenes**: a thread-gold hem stitch (2 on, 1 off) along the top and bottom edge of **banners** only. Seams and buttons only on real joins (a quilt, a sack, a banner cloth). Do not stitch terrain.
+- **No text, no UI, no characters** in backdrops. Small background life (a bird, a lantern flame) is allowed and must be at least 4 px.
+- **Cosy not scary**: even the lair, delve and Trek boss scenes stay warm in value. Danger is shown by shape and colour temperature, never gore or pure dark.
+- **Palette**: only Part A families, the Part D table, or the ramp recipe. State which family you borrowed for a new landscape. Day lighting only (night is a code tint).
+- **Maps**: draw regions as clearly different colour families so they read at 25 percent size. Leave a flat 24 x 24 spot for each pin (world) or 20 x 20 (region). Roads and mycelium paths 3 px wide minimum.
+
+## Checks before a scene file ships
+- Exact size, 32-bit RGBA, alpha 255 everywhere (scenes) or 0/255 only (sprites)?
+- Under the colour cap, every colour from the palette rules, `bw` check shows no black except the sprite border?
+- Scenes: no border, no halo, no gradient, no dither, no text?
+- Sprites: 1 px black border on every outside edge, none on the bottom edge of a bust, facing right, feet on the bottom row?
+- Ground line in the 190 to 215 band, side thirds calm?
+- Viewed at 100 percent and at 50 percent: the subject still reads?
+- Source `.lua` and `.aseprite` saved next to the PNG with the same base name?
+"""
+
 SECTIONS = [
     ('about', 'front', 'About this guide', ABOUT),
     ('a1', 'a', 'Hearthlight: the look', A1),
@@ -384,8 +450,9 @@ SECTIONS = [
     ('d1', 'd', 'Aseprite: Stitched Toy pixel art', D1),
     ('d2', 'd', 'Pixel samples and trek map tiles', D2),
     ('d3', 'd', 'Aseprite workflow and checklist', D3),
+    ('e1', 'e', 'Scene art addendum: Aseprite and black border rules', E1),
 ]
-PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline icons', 'c': 'Part C. UI style sheet', 'd': 'Part D. Aseprite pixel art'}
+PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline icons', 'c': 'Part C. UI style sheet', 'd': 'Part D. Aseprite pixel art', 'e': 'Part E. Scene art addendum'}
 
 DODONT = {
   'icons': (

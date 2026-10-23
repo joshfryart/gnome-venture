@@ -11,6 +11,7 @@ It is **rebuilt from the real files**, so the icon pages and colour tables are n
 - **Part A**: the art rules for every picture (placeholders, creatures, folk, nav).
 - **Part B**: inline icons (`ico-*`): how emoji are swapped for our own drawings, and how to add one.
 - **Part C**: the UI style sheet: colours, type, spacing, components, and Joshua’s UI rules.
+- **Part D**: Aseprite pixel art (Stitched Toy): the signature, canvas sizes, the 1 px black border, palettes, the trek map tiles, the Aseprite workflow and a per-asset checklist.
 
 ### Rebuild it
 ```
@@ -25,6 +26,8 @@ _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Source
 # Part A. Hearthlight art
 
 ## Hearthlight: the look
+
+> **PNG art (v2.0.34):** the Aseprite PNGs of these pictures have **no cream halo**; they carry a 1 px black border instead (Part D). This part describes the SVG files, which still ship as the fallback and keep the halo and the layers below.
 
 Hearthlight is the house style of every placeholder picture, creature, folk portrait, nav icon and inline icon. One look, three layers, drawn on a **64 x 64 grid**. All widths below are in grid units **u** (u = shorter side / 64; so 1 u = 1 px at 64 px). Pen weights below are for large stickers (pictures, creatures, portraits). **Icons (`ico-` names) use heavier pens**: see the icon rules.
 
@@ -133,7 +136,7 @@ Emoji inside JS-built strings, attributes, `<option>`, `<title>` and SVG text st
 Every icon is a **64 x 64** `viewBox` and is drawn as a plain silhouette first. Keep shapes chunky: it must read at **16 px**.
 - Keep the artwork at least **6.5 u** away from the frame. The halo (6.0 u for icons) plus anti-alias must stay inside.
 - One clear shape, 2 or 3 colours from the palette, one crescent of shade. No fine detail under 1 u.
-- Pen weights for icons (the restyle adds them; `ICO_HALO` / `ICO_OUT` in `tests/hearth.py`): **halo 6.0 u, outline 3.4 u**, so the cream ring sits 2.6 u beyond the outline. Large stickers keep 3.2 / 1.9. Icons are drawn as plain shapes: the build adds the pens.
+- Pen weights for icons (the restyle adds them; `ICO_HALO` / `ICO_OUT` in `tests/hearth.py`): **halo 6.0 u, outline 3.4 u**, so the cream ring sits 2.6 u beyond the outline. Large stickers keep 3.2 / 1.9. Icons are drawn as plain shapes: the build adds the pens. (These are the SVG pens; the PNG icons have no halo, see Part D.)
 - Size cap: 4096 bytes per icon. Typical is 1.5 to 3.5 KB.
 
 ### Sizes in the game
@@ -185,6 +188,8 @@ _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Unmapp
 
 All colours are **tokens** in `assets/style.css`, section 1 (`:root`). Components never hard-code a colour; dark mode only changes the tokens. Dark is the default. Dark overrides are always written `:root[data-theme="dark"] X`, never `@media (prefers-color-scheme)`.
 
+Since v2.0.32 (**Stitched Toy chrome**) every token is a colour from the art palette (Part A families, the Part D table, or the Part D hue-shift recipe, marked in a CSS comment): cream and umber felt, moss for the main verb, gold thread for stitches. No pure black or white. The header, phone bottom bar and footer are umber felt (`--felt`) in both themes.
+
 _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Tokens")_
 
 ### Area hues
@@ -200,6 +205,13 @@ _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Type")
 ### Space, shape, touch
 _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Spacing")_
 
+### Pixel frames (v2.0.32)
+- No `border-radius` and no blurred shadows. A panel is framed with `box-shadow: var(--frame)`: 2 px edges, lighter on the lit upper-left (`--edge-lt`), darker lower-right (`--edge-dk`), a 2 px stepped `--drop`, notched corners. Rows inside a panel use `--frame-lite`.
+- Frames take no layout space: give framed things about 4 px of room inside scrolling boxes.
+- Buttons are felt toys: variants only set `--b-bg --b-hi --b-lo --b-ink --b-hover`. Margins are vertical only, so full-width buttons never overflow.
+- Stitches are hard-stop stripes, 4 px on / 2 px off: `--hem` on felt, `--st-h` / `--st-v` for the edge stitch on special cards (prize, event, landing hero). Ordinary boxes stay unstitched.
+- Pixel images use `.pix` (`image-rendering: pixelated`) at whole-number scales only. UI tiles live in `assets/img/ui/` (made by `tests/gen_ui_chrome.lua`, written at 2x).
+
 ### Breakpoints
 - **Phone first**: design for about 412 px wide, dark. Base CSS is the phone.
 - **721 px and up**: tablet and desktop. Gutter 24 px, header 60 px.
@@ -208,7 +220,7 @@ _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Spacin
 
 ## Components
 
-Real markup and the real `style.css`, captured at build time. Each pair: dark (default) on the left, light on the right.
+Real markup and the real `style.css`, captured at build time. Each pair: dark (default) on the left, light on the right. Since v2.0.32 they show the Stitched Toy frames.
 _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Shots")_
 
 ## Joshua’s UI rules
@@ -252,138 +264,190 @@ _(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Dodont
 - New rule from Joshua? Add it to section C4 and to the do / don’t lists.
 - Commit the new PDF with the release so Admin can serve it.
 
-# Part D. Aseprite pixel-art style: "Stitched Toy"
+# Part D. Aseprite pixel art
 
-## What this is
+## Aseprite: Stitched Toy pixel art
 
-The Aseprite version of Hearthlight. Same three layers as Part A (cream halo, umber line, one lower-right cel shade, one light direction), redrawn as **hard-pixel art** with its own signature: things look like **hand-stitched felt toys with enamel gloss**. The reference is the test ladybird, **version v09**, from the third iteration branch (`style-iterations-v14/png/v09.png`, script `style-iterations-v14/scripts/v09.lua`, sources in `scripts/_src/h09.lua` + `engine.lua`, `run.sh 09`). Match it for every new Aseprite asset.
+**Stitched Toy** is the Aseprite (pixel) version of Hearthlight. It draws every sticker, icon, bust, scene and map tile as **hard-pixel art** that looks like a hand-stitched felt toy with enamel gloss. The game loads the PNG first and falls back to the SVG (`ph`, `ico`, `animals`, `landing`, `stops`, `gather`). Where Part D and Part A disagree, **Part D wins for pixel art**. Part A still rules palette families, names and the 64 grid.
 
-Where Part D and Part A disagree, **Part D wins for Aseprite art**. Part A still rules everything else (palette families, names, size on the 64 grid, reads at 16 px).
+> Since v2.0.34 stickers, icons and busts have **no cream halo**. They get a 1 px black border instead (see “Outline and border”). The Part A pages describe the SVG files, which still ship as the fallback and keep their halo.
 
-### How to build one (Aseprite CLI)
-1. Write a Lua script. Run it in batch mode: `"C:\Program Files\Aseprite\Aseprite.exe" -b --script <file>.lua` (Aseprite 1.3.18).
-2. `Sprite(64,64)` (portraits `npc-*` are 80 x 100), transparent background, `Image:putPixel` and your own helpers. Save the `.aseprite` and a 64 px `.png` with `sprite:saveAs`.
-3. Check the PNG at 64, 32 and 16 px. Keep the `.lua` with the art.
+### The signature
+- **Hard pixels only**: no anti-aliasing, no blends, no gradients, no dither. Every pixel is a solid palette colour or fully transparent.
+- **Hue-shifted ramps**: shadows go warmer and deeper, lights go yellow-orange. Never just darken.
+- **Stitched seam**: dashed thread gold `#f5cf6a`, 2 px on and 1 px off, wherever there is a real join (back seam, lid, hem).
+- **Edge stitch**: a 1 px dashed gold ring just inside the body edge, about every third diagonal pixel.
+- **Button**: a 4 x 4 cut-corner gold disc with a darker lower right and two thread holes, at the head of a seam. It must still read at 32 px.
+- **Enamel gloss**: a short comma on the lit upper left (`#ff9158`, dot `#ffc27a`). Spots get a 1 px glint so they look glazed.
+- **Eyes (locked, never redesign)**: 5 x 5 cream `#f2e4c0` disc with cut corners, 3 x 3 umber `#2a1a10` pupil, 1 px cream glint on the pupil’s upper-left pixel. Set wide on the head. No blush patches.
+- **Shape language**: chibi, big head (about 5/6 of the body width), 2 px bent limbs in lavender `#54447f` with a lit top `#7b66b4`, 4 x 4 club tips on antennae, diamond or bean markings.
 
-## Grid and pixels
-- Hard pixels only: **no anti-aliasing, no semi-transparent blends, no gradients**. Every pixel is a solid palette colour or fully transparent.
-- Halo fully inside the frame (at least 3 px margin on a 64 px canvas).
-- Limbs and shafts are at least **2 px** wide. Stitches, glints and highlights are **1 px accents** only.
-- Detail must survive at 32 and 16 px: red body, dark head and eyes still read.
+### Canvas sizes
+| Kind | Canvas | Notes |
+| --- | --- | --- |
+| Sticker, icon (`ico-*`) | 64 x 64 | At least 3 px clear before the border. Icons use chunky shapes, parts 3 px or wider |
+| Bust (`npc-*`) | 80 x 100 | May run off the bottom edge (no border there). Eyes scale down only if the head is under 20 px wide |
+| Map stops, small art | 32 to 48 | Scale pixel numbers by k = shorter side / 64, rounded. Outline stays 2 px, stitches and glints 1 px |
+| Scenes, banners, landing | about 100 px short side, written at 2x | Do NOT scale the outline up. Nearest-neighbour 2x keeps line weights in proportion |
+| Trek map tiles | 42 x 42 (sheets 84 x 126) | No border, see Trek map tiles |
 
-## Halo and outline
-- **Halo**: the silhouette grown 4 px, then a morphological closing of radius 6, so the edge is a round die-cut sticker. Then clean 1 px nubs and notches. Colour `#f2e4c0` only.
-- **Outline**: 2 px umber grown from the silhouette, plus **1 extra px on the lower-right** (where `s = (x-32) + (y-32)` is above 12). Never pure black.
-- **Selective by light** (the outline is lighter toward the light): `s < -18` is `#74462a`, `s < -2` is `#4a2c1a`, everything else `#2a1a10`.
-- Inner contour: 1 px `#2a1a10` where one big shape overlaps another (the head over the body).
+### Outline and border
+- **No cream halo** (changed 2026-10-22). Everything outside the art is transparent.
+- **Last step, 1 px black border**: every transparent pixel **4-adjacent** (plus-shaped, no diagonals) to a non-transparent pixel becomes opaque `#000000`. It goes round the outside and round interior holes. Enclosed cream pockets under 8 px (eyes, glints) are kept. Applies to **stickers, icons and busts**. **Scenes, banners, landing art and map tiles get no border.**
+- **Umber outline under the border**: 2 px grown from the silhouette, plus 1 extra px on the lower right (where `s = (x - cx) + (y - cy)` is above 12). Never pure black.
+- **Selective by light**: `s < -18` is `#74462a`, `s < -2` is `#4a2c1a`, everything else `#2a1a10`. A pale subject (dust, hair, paper, bone) gets an inside outline of `#4a2c1a` on all sides.
+- **Inner contour**: 1 px `#2a1a10` where one big shape overlaps another.
+- **Shading**: one crescent at the lower right, a 1 px bounce line inside its edge, a 1 px rim on the upper left, a 1 px contact shadow under an overlapping part. One light direction everywhere.
+- Scenes and map objects keep the three-tone outline on raised objects, one crescent per object, and stepped bands (about 5) instead of gradients.
 
-## Shading
-- **One crescent** at the lower right, cut from an ellipse shifted (-4, -4). Hard steps only. Keep one light direction everywhere.
-- **Hue-shifted ramps**: shadows go warmer and deeper, lights go orange. Do not just darken. Ramp for red: base `#dd3a2a`, shade `#ae2a2a`, deep `#6b1b2c`.
-- **Bounce line**: a 1 px `#b8452f` just inside the lower-right edge of the shade.
-- **Rim light**: 1 px on the upper-left edge, `#f2793a` on warm colours, `#7b66b4` on dusk-purple parts.
-- **Contact shadow**: a 1 px line of the shade colour (`#ae2a2a`) directly under an overlapping part such as the head. This is the one allowed extra shade shape.
-- Dark parts use the **dusk** family: head `#3e2f66`, shade `#291d4a`, rim `#7b66b4`. Spots `#35161f`.
+### Palette
+_(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Pixpal")_
+For other colours use the **ramp recipe**, starting from the Part A family colour as base: gloss = toward yellow-orange and about 35% lighter; shade = toward red-violet and about 22% darker; deep = further toward violet and about 45% darker; bounce = shade warmed and 8% lighter; rim = gloss 10% darker. Example: moss `#4f9a45` gives shade `#2f6a3a`, deep `#1f3f3a`. Pale subjects use the cream-safe set: gloss `#fff3c8`, dot `#ffffff`, rim `#f5b860`. Never use `#000000` or `#ffffff` except the border and one white dot on a pale subject.
 
-## Gloss (enamel)
-- A short **enamel comma** on the lit upper-left: highlight `#ff9158`, dot `#ffc27a`. On dark heads use a `#a894dc` arc and dot.
-- Spots get a 1 px glint `#5e2a3a` at their upper-left, so they look glazed.
-- Gloss sits on top of the shading and is the brightest thing on the object.
+## Pixel samples and trek map tiles
 
-## Eyes (locked)
-Do not redesign these. 5 x 5 cream `#f2e4c0` disc with cut corners, 3 x 3 umber `#2a1a10` pupil, and a 1 px cream glint on the pupil's upper-left pixel. Set the eyes wide on the head. No blush patches under them.
+Real files from `game/assets/img`, drawn at whole-number scales with nearest-neighbour. Each strip is shown on a light and a dark chip so the black border is checked on both page themes.
 
-## The stitched-toy signature
-This is what makes the look ours. Use the thread gold on seams and joins of any object where it makes sense (a seam down the back, a lid, a hem, a join between halves).
-- **Seam**: a dashed line of thread gold `#f5cf6a`, 2 px on, 1 px off.
-- **Edge stitch**: a 1 px dashed ring just inside the body edge, thread gold, about every third diagonal pixel. It makes the object look sewn. Keep it 1 px and regular.
-- **Button**: a 4 x 4 cut-corner gold disc `#f5cf6a` with a darker lower-right `#e8a317` and two diagonal thread holes `#8a4a1c`, placed at the head of the seam. It should still read as a button at 32 px.
+### Stickers, icons and animals
+_(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Pixsamples")_
 
-## Shape language
-- **Chibi** proportions: big head (about 5/6 of the body width), short squat body, eyes set wide.
-- Bent 2 px limbs in lavender `#54447f` with a lit top edge `#7b66b4`, so they separate from the umber outline.
-- Antennae and similar tips end in a 4 x 4 club.
-- Markings are diamond or bean shaped, evenly varied. Not random blobs.
+### Trek map tiles
+The trek map is drawn from **46 hand-made tiles** in `assets/img/trek/`. Set `TK_PIXEL_TILES` false (before `includes/trek_art.php` loads) for the old code-drawn map. `TK_PIXEL_ME` (default false) swaps the player’s own gnome for the pixel `trek-me` marker. Tiles have **no halo and no border**; one shared palette serves open and underground.
+_(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Treksamples")_
 
-## Palette quick list (all from Part A families, plus the shifts below)
-| use | colour |
+| Group | Tiles |
 | --- | --- |
-| halo | `#f2e4c0` |
-| outline (light to dark) | `#74462a`, `#4a2c1a`, `#2a1a10` |
-| red ramp | `#ff9158` gloss, `#ffc27a` gloss dot, `#f2793a` rim, `#dd3a2a` base, `#b8452f` bounce, `#ae2a2a` shade, `#6b1b2c` deep |
-| dusk (head) | `#7b66b4` rim, `#3e2f66` base, `#291d4a` shade, `#a894dc` gloss |
-| legs | `#54447f`, lit top `#7b66b4` |
-| spots | `#35161f`, glint `#5e2a3a` |
-| thread gold | `#f5cf6a`, shade `#e8a317`, button holes `#8a4a1c` |
+| Open ground (10) | `floor-o-1..3`, `mud-o-1..2`, `roots-o-1..2`, `blight-o-1..2`, `crystal-o` |
+| Underground (7) | `floor-u-1..3`, `mud-u`, `roots-u`, `blight-u`, `crystal-u` |
+| Water and clay (7) | `chasm-1..2`, `drained`, `clay-wet`, `clay-loose`, overlays `ripple-pool`, `ripple-high` |
+| Auto-join and walls (9) | sheets `wall-o-auto`, `wall-u-auto`, `water-auto` (84 x 126); `wall-o-deep`, `wall-u-deep` (42 x 42); caps `wallcap-n/s` (42 x 5), `wallcap-e/w` (5 x 42) |
+| Bridge and rails (6) | `bridge-h`, `bridge-v`; rails `rail-n/s` (42 x 4), `rail-e/w` (4 x 42) |
+| Markers (7) | `token-gold`, `token-ember` (34), `me` (38 x 40), `foot-h`, `foot-v` (12), `bang` (24), `flag` (20) |
 
-For other subjects, take the matching Part A family (moss, water, soil, petal, stone...) and build the same four steps: gloss, base, shade, deep, with the shade shifted warmer and the lights shifted toward yellow-orange.
+All files are `trek-<name>.png`. Ground tiles are 42 x 42, opaque and full-bleed.
 
-## Checks before an Aseprite asset ships
-- Is every pixel solid (no blends, no transparency except outside the halo)?
-- Halo inside the frame, round die-cut, `#f2e4c0` only?
-- One crescent plus the bounce line and the 1 px contact shadow, and no other shade shapes?
-- Outline selective by light, never pure black?
-- Eyes exactly as locked?
-- Stitch seam, edge stitch and button present where the object has a join?
+#### Seamless rules
+- The outer **3 px ring** of a ground tile is exactly the terrain’s ring colour (table below). Variants of one terrain (`floor-o-1..3`, `mud-o-1..2` ...) swap with no seam.
+- Details stay at least 3 px from the edges unless designed to cross. A ground tile has **no crescent**: its texture is lit or flat with 1 px accents.
+- Umber outline only on **raised objects** (crystal, planks, rails, stones, wall masses, markers). Ground, water and clay have none.
+- Every asset and variant is drawn separately: no flip, rotate or recolour reuse. Alpha is 0 or 255 only. Must read at 42, 35 and 21 px.
+- Map-key meaning is kept: ripples = high water, two dots = wet clay, cracks = loose clay, diamond = crystal, tuft = roots, dots = mud or blight.
+_(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Trekrings")_
+
+#### Auto-join sheets
+`wall-o-auto`, `wall-u-auto` and `water-auto` are **84 x 126**: 4 columns x 6 rows of 21 x 21 quarters (RPG Maker A2 style). The game composes the 47 neighbour combinations from four quarters, one per quadrant, chosen by the 8 neighbours:
+- both side neighbours are mass: the interior quarter, or the inner-corner quarter if the diagonal is empty;
+- one side is mass: the edge quarter on the empty side;
+- neither: the outer corner quarter.
+Every quarter shares the same skeleton on its four border lines, so any two can sit side by side. On an empty side the first 3 px are the **apron** (the ground ring colour), then a 1 px outline (N `#74462a`, W and E `#4a2c1a`, S `#2a1a10`), a lit rim on N and W or a bounce line on S and E, then the base. The four iso quarters are pixel copies of the sheet’s own corners.
+
+#### Trek palette
+Six steps per ramp, but one asset normally uses 8 to 14 colours. Gold thread (2 on, 1 off) only at real joins.
+_(table: see `game/assets/guides/Gnome-Venture-Style-Guide.pdf`, section "Trekpal")_
+
+## Aseprite workflow and checklist
+
+### Where the source lives
+`aseprite-source/` in the repo holds the Lua scripts and `.aseprite` files behind every PNG, the `gvlib` helper library with its brief, and the rule files. Edit a script and rerun it; never retouch a PNG by hand. Keep the `.lua` with the art.
+
+### Build one asset
+1. Write a Lua script. Run it in batch mode: `"C:\Program Files\Aseprite\Aseprite.exe" -b --script my.lua` (Aseprite 1.3.18).
+2. `local GV = dofile(".../gvlib/gvlib.lua")` then `local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }`.
+3. Describe the shapes and colours; `c:build{...}` paints back to front. Parts get the base, crescent, bounce, rim, gloss and contours for free.
+4. Add details after the parts: `c:seam`, `c:button`, `c:eye`, `c:spot`, `c:paint`. Draw a part only once.
+5. `c:save("x.aseprite", "x.png")` builds the outline, saves both files and returns the check numbers.
+
+| gvlib mode | Canvas | Border | Use |
+| --- | --- | --- | --- |
+| `sticker` | 64 x 64 | yes | Default: pictures, creatures, items |
+| `icon` | 64 x 64 | yes | `ico-*`: chunky parts, longer gloss |
+| `bust` | 80 x 100 | yes (not at the bottom edge) | `npc-*` folk portraits |
+| `scene` | any, `out=2` for 2x | none | Banners, landing art, backgrounds, stops |
+
+> The shipped art got its black border from a post-pass (`batch.py`). Check whether your copy of `gvlib.lua` still draws the old halo pens before drawing new stickers; if so, add the border pass.
+
+### Check scripts
+- `GV.check` (run by `c:save`): size, margin, `semi` (must be 0), colour count, `bw` (pure black or white pixels: 0 unless the border or a pale dot).
+- `trek-pixel/check.py`: reads `palette.md` and warns on any opaque pixel not in the palette, and above 16 colours.
+- View the PNG at 64, 32 and 16 px (tiles at 42, 35 and 21).
+
+### Checklist for every asset
+- Every pixel solid (alpha 0 or 255), no blends, dither or gradients?
+- Stickers, icons, busts: 1 px `#000000` border on every outside edge (4-adjacent), no cream halo left? Scenes and tiles: no border?
+- 3 px of room inside the frame (64 px canvas) before the border?
+- One crescent, the bounce line and the 1 px contact shadow, and no other shade shapes?
+- Outline selective by light, never pure black under the border?
+- Eyes exactly as locked? Seam, edge stitch and button where the object has a join?
+- Only palette colours (Part A, the Part D table, or the ramp recipe)?
+- Limbs and shafts at least 2 px; stitches and glints 1 px?
 - Readable at 64, 32 and 16 px?
-- Avoid: dither bands, blush or cheek patches, zipper or double-wide stitching, blobby asymmetric markings, shading under 2 px limbs.
+- Name matches the original file name exactly (`<folder>/<name>.png`)? `broken-*` is the intact drawing plus damage; `stage-*` grows one feature per step.
+- Avoid: dither bands, blush or cheek patches, zipper or double-wide stitching, blobby markings, shading under 2 px limbs.
 
-## Deviations from Part A (on purpose)
-- Outline is three tones and heavier on the lower right, instead of one umber line.
-- Four-step hue-shifted ramps instead of one tint at .34 opacity (no blends in pixel art).
-- Rim light, bounce line and a 1 px contact shadow.
-- Gold stitching, seams and the button are an added signature.
-- No ground shadow ellipse on the test subject; add a 1 px-step umber ellipse only if the object stands on the ground.
+# Part E. Scene art addendum
 
-## Open items
-- v09's edge stitch partly hides the body gloss on the lit side. Version v10 fixed this by skipping stitches over the gloss patch (x <= 21, y 33 to 46). Use v09 as the reference, and apply that gloss-patch skip when a stitch runs through a gloss.
-- Only the ladybird has been drawn in this style. Check the rules on a creature with a different silhouette, a folk portrait and an icon before treating them as final.
+## Scene art addendum: Aseprite and black border rules
 
-## Part D addenda (from the 20-asset pilot)
+Rules for the **scene overhaul** art (stage backdrops, banners, maps, interiors, fight effects, battle sprites). It adds to Part D and never replaces it. Where this page and Part D disagree, this page wins for the files named here. The file list, names and counts are in `claude/art-spec-overhaul.md`.
 
-These close gaps the pilot agents all hit. They override anything above in Part D where they disagree.
+### Which pieces get the black border
+The 1 px `#000000` border is for things that **stand on a scene**. A scene itself has none. The page background and the stage are never bordered.
+| Piece | Border | Mode (gvlib) | Notes |
+| --- | --- | --- | --- |
+| Stage backdrops, banners, maps, interiors | **none** | `scene`, `out = 2` | Three-tone umber outline on raised objects only |
+| Creatures, enemies, bosses, gnome and crew sprites | **yes** | `sticker` | Transparent outside, border last. Face right |
+| Villager busts (`npc-*`, `npc-unknown`) | **yes**, not on the bottom edge | `bust` | Stand behind a counter or half-wall so the cut bottom is hidden |
+| Fight effects (`fx-*`) | **none** | `scene` | Short-lived, drawn over a scene. 1 px umber contour only where a shape has an edge |
+| Region mask (`map-world-regions`) | **none** | raw | Flat colours, no outline, no stitches. Never resized |
 
-### Ramps for any colour
-Part D only lists red and dusk. For any other family, build the same four steps with the **hue-shift recipe**: take the Part A family colour as the base, then
-- **gloss**: base shifted toward yellow-orange and about 35% lighter (a near-white warm cream for pale subjects),
-- **shade**: base shifted toward red-violet and about 22% darker,
-- **deep**: base shifted further toward violet and about 45% darker,
-- **bounce**: the shade colour shifted warmer and about 8% lighter (one px inside the lower-right edge),
-- **rim** (upper-left, 1 px): gloss colour, kept 10% darker than the gloss.
-Examples: moss `#4f9a45` gives shade `#2f6a3a`, deep `#1f3f3a`; gold `#e8a317` gives shade `#b07a10`, deep `#6a4510`. Pick colours that exist in Part A where one fits. Keep all steps hard pixels.
+### Black border rules (restated for this set)
+- Last step only: every transparent pixel **4-adjacent** (plus-shaped) to an opaque pixel becomes `#000000`. Round the outside and round interior holes. No diagonals.
+- It is added after the umber outline. The umber outline stays under it (2 px, +1 on the lower right). Never use black for the outline, shading or detail.
+- Border is **1 px at any canvas size**. Do not scale it with k. A 96 x 96 boss still gets a 1 px border.
+- No cream halo on anything in this set.
+- Do not border a sprite twice. Border once, on the final cropped sprite, before saving the PNG.
+- Check on a light and a dark chip. If the border vanishes on dark, the umber under it is too dark: lighten the lower-right outline tone one step.
+- Pure black `#000000` is allowed **only** for this border. A black pixel anywhere else is a fail.
 
-### Other canvas sizes
-The pixel numbers above are for a 64 px canvas. Scale by `k = shorter side / 64` and round to whole pixels, with these floors: halo growth at least 3 px, outline at least 2 px, stitches and glints always 1 px.
-- 32 to 48 px canvases (map stops): k is about 0.5 to 0.75, keep halo 3 px, outline 2 px.
-- Large scenes: do NOT scale the outline up. Draw on a grid of about 100 px on the shorter side and write it out at 2x nearest-neighbour so line weights stay in proportion.
-- The selective-outline light value `s = (x - cx) + (y - cy)` is measured from the canvas centre and its thresholds scale with k.
+### Aseprite rules for this set
+- **Aseprite 1.3.18**, batch mode, driven by a Lua script that uses `gvlib`. Never retouch a PNG by hand. Keep the `.lua` and `.aseprite` with every PNG in `aseprite-source/final/aseprite/scenes/` (scenes) or the matching existing folder (sprites).
+- **Colour mode: RGB**, 8 bits, with a **palette limit** per file (see the table). No indexed-colour tricks that change colours on export.
+- **Hard pixels**: alpha is 0 or 255 only. No blur, smooth, outline-by-brush, gradient tool, dither pattern or layer opacity below 100 on the exported result. Layer blend mode: Normal only.
+- **Layers** (top to bottom, names exactly): `border` (sprites only), `fx`, `detail`, `objects`, `ground`, `far`, `sky`. Merge nothing before the last step so the file stays editable. Hidden helper layers go in a group named `guide` and are never exported.
+- **One frame** per file unless the spec says sheet. Sheets are **horizontal strips**, frames side by side with no gap, no padding, all the same size. Do not use animation tags for the engine; the game reads the strip by frame size.
+- **Scenes are drawn small and exported at 2x**: backdrops on a 240 x 135 grid, banners 240 x 60, world map 320 x 180, region maps 240 x 135. Export with **Nearest-neighbour 200%**. This keeps line weights in proportion; do not draw the outline at the exported size.
+- **Export**: `File > Export` equivalent in the script, `.png`, no trim, no scale beyond the 2x above, no metadata, 32-bit RGBA. Size must match the spec exactly or the file is rejected.
+- **Naming**: lower case, hyphens, exactly the names in the spec. No spaces, no version suffix. Replace a file by overwriting; do not make `-v2`.
+- **Transparency**: sprites and effects have a transparent background. Scenes are fully opaque (alpha 255 everywhere).
 
-### Pale and light subjects (dust, hair, paper, cream, bone)
-Use the **cream-safe** treatment: gloss is a warm near-white (`#fff3c8`, dot `#ffffff`), rim is `#f5b860`, and give the subject an inside outline of `#4a2c1a` (never the lightest outline tone) so it separates from the cream halo. A pale subject needs a 1 px umber outline on all sides, not only the shaded side.
+| File type | Grid drawn | Exported | Max colours | Border |
+| --- | --- | --- | --- | --- |
+| Stage backdrop | 240 x 135 | 480 x 270 | 32 | none |
+| Banner | 240 x 60 | 480 x 120 | 24 | none |
+| World map | 320 x 180 | 640 x 360 | 40 | none |
+| Region map | 240 x 135 | 480 x 270 | 32 | none |
+| Interior | 240 x 135 | 480 x 270 | 32 | none |
+| Creature / crew sprite | 64 x 64 | 64 x 64 | 16 | 1 px |
+| Boss | 96 x 96 (k = 1.5) | 96 x 96 | 20 | 1 px |
+| Bust | 80 x 100 | 80 x 100 | 16 | 1 px, not bottom |
+| Fight effect | per spec | per spec | 8 | none |
 
-### Heavy-outline halo
-The halo must show at least 2 px of cream beyond the heaviest part of the outline. Grow the halo by 5 px (6 px for `ico-*`) instead of 4, then close with radius 6 and clean nubs. Clip to keep it 3 px inside the frame.
+### Scene composition rules
+- **Ground line**: backdrops put the walkable ground between y 190 and 215 (exported pixels). Characters stand with their feet on it. Keep the left and right thirds calm and the centre readable.
+- **Depth by bands**: about 5 hard-edged colour bands for sky and haze, then far, mid and near layers. Each farther layer is lighter and less saturated. No gradients, no dither.
+- **Raised objects** (trees, rocks, furniture, stalls) get the three-tone umber outline, one crescent, a bounce line and a rim. Ground, water, sky and haze get **no outline**.
+- **Light**: always from the upper left. Windows and fires in interiors may add a warm rim, but the crescent stays lower right.
+- **Stitched-toy signature in scenes**: a thread-gold hem stitch (2 on, 1 off) along the top and bottom edge of **banners** only. Seams and buttons only on real joins (a quilt, a sack, a banner cloth). Do not stitch terrain.
+- **No text, no UI, no characters** in backdrops. Small background life (a bird, a lantern flame) is allowed and must be at least 4 px.
+- **Cosy not scary**: even the lair, delve and Trek boss scenes stay warm in value. Danger is shown by shape and colour temperature, never gore or pure dark.
+- **Palette**: only Part A families, the Part D table, or the ramp recipe. State which family you borrowed for a new landscape. Day lighting only (night is a code tint).
+- **Maps**: draw regions as clearly different colour families so they read at 25 percent size. Leave a flat 24 x 24 spot for each pin (world) or 20 x 20 (region). Roads and mycelium paths 3 px wide minimum.
 
-### Scenes, banners, landing art, tiles and busts
-These bleed by design, so **no sticker halo** and no ground-shadow ellipse. Keep everything else: three-tone outline on every object, one crescent per object, bounce line, rim, gloss, hard-edged stepped bands instead of gradients (about 5 bands for a sky or glow), and the stitched-toy seam wherever there is a real join. Banners and landing art may use a thread-gold hem stitch (2 on, 1 off) along the top and bottom edge.
-- **Busts** (`npc-*`, 80 x 100): halo grown 3 px, outline 2 px on the shaded side and 1 px elsewhere, may bleed off the bottom. Locked eyes, scaled down only if the head is under 20 px wide (then 3 x 3 disc, 2 x 2 pupil).
-- **Backgrounds** without objects: stepped colour bands, 1 px dither is still not allowed.
-
-### Variants
-- `broken-*`: the same drawing as the intact item plus visible damage (crack, snapped part, chipped corner, a loose piece on the ground). Do not change the colours.
-- `stage-*` or numbered tiers: same subject, grow or improve one visible feature per step.
-- Names must match the original file name exactly (`<folder>/<name>.png`).
-
-### Palette discipline
-All colours must come from Part A, the Part D palette table, or the recipe above. When a subject has no matching family, say which family you borrowed. Never use pure black (`#000000`) or pure white (`#ffffff`) except the single white gloss dot on pale subjects.
-
-## Part C addendum: Stitched Toy site chrome (v2.0.32)
-
-The page frame follows Part D so the layout and the art read as one thing. Rules for new UI:
-- **Colours**: only the tokens in `assets/style.css` section 1. They are all Part A / Part D colours (or the Part D recipe, marked in a comment). No pure black or white, no new hex in components.
-- **Corners and edges**: no `border-radius`, no blurred `box-shadow`. Frame a panel with `box-shadow: var(--frame)` (2 px, lit upper-left `--edge-lt`, dark lower-right `--edge-dk`, 2 px stepped `--drop`, notched corners). Rows inside a panel use `var(--frame-lite)`. Frames take no layout space: leave about 4 px of room around framed things inside scrolling boxes.
-- **Buttons**: `.btn` is a felt toy: lit top, shaded bottom, umber outline, presses down 2 px. Variants set `--b-bg --b-hi --b-lo --b-ink --b-hover` only.
-- **Stitches**: thread lines are hard-stop `repeating-linear-gradient` stripes 4 px on / 2 px off (2 on, 1 off at 2x): `--hem` on umber felt (header, bottom bar, footer, title ribbon), `--st-h` / `--st-v` for an edge-stitched card (prize, event, landing hero). Keep stitches for special cards; ordinary boxes are unstitched.
-- **Felt bars**: header, phone bottom bar and footer are umber felt (`--felt`, tile `img/ui/felt-umber.png`) in both themes, cream text, gold hem.
-- **Pixel images**: `image-rendering: pixelated` (`.pix`) and whole-number scales only. Background tiles are written at 2x (`tests/gen_ui_chrome.lua`) so they show 1:1.
-- Soft scrims (the menu backdrop) and UI focus rings are the only translucent or non-palette-step things; they are UI, not art.
+### Checks before a scene file ships
+- Exact size, 32-bit RGBA, alpha 255 everywhere (scenes) or 0/255 only (sprites)?
+- Under the colour cap, every colour from the palette rules, `bw` check shows no black except the sprite border?
+- Scenes: no border, no halo, no gradient, no dither, no text?
+- Sprites: 1 px black border on every outside edge, none on the bottom edge of a bust, facing right, feet on the bottom row?
+- Ground line in the 190 to 215 band, side thirds calm?
+- Viewed at 100 percent and at 50 percent: the subject still reads?
+- Source `.lua` and `.aseprite` saved next to the PNG with the same base name?

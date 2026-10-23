@@ -1,6 +1,6 @@
 # Art spec for the overhaul (hand to the art AI)
 
-Style: **Hearthlight**, see `claude/art-style-guide.md` (cream halo, umber `#2a1a10` line, one cel-shade crescent lower right, palette in `game/assets/img/ph/palette.json`). Light from upper left. Pixel art, no anti-aliasing, no blur, no pure black. PNG, transparent where noted.
+Style: **Stitched Toy** (Aseprite). READ FIRST: `claude/art-style-guide.md` Part D, then **Part E (scene art addendum: Aseprite rules and black border rules)**. Summary: hard pixels only, no halo, three-tone umber outline on raised objects, one crescent lower right, light from upper left. **Sprites get a 1 px `#000000` border; scenes, maps, banners, interiors and effects get none.** Black is used for that border only. PNG 32-bit RGBA, transparent where noted. Source `.lua` + `.aseprite` go with every PNG.
 All files go in new folder `game/assets/img/scenes/` unless stated. Code falls back if a file is missing, so deliver in priority order (P1 first).
 
 ## Fixed sizes (native pixels; the game scales by whole numbers 2x/3x)
@@ -10,7 +10,8 @@ All files go in new folder `game/assets/img/scenes/` unless stated. Code falls b
 | Banner | **480 x 120** | opaque. Wide header. Key subject centred, edges can crop. |
 | World map | **640 x 360** | opaque, one image. |
 | Region map | **480 x 270** | opaque, one per region. |
-| Sprites | existing sizes | Gnome/NPC **80 x 100**, creatures **64 x 64**, bosses **128 x 128**. Transparent, feet on bottom edge, centred, facing right (code flips them). |
+| Sprites | existing sizes | Gnome/crew **80 x 100**, creatures **64 x 64**, bosses **96 x 96**. Transparent, 1 px black border, feet on bottom row, centred, facing right (code flips them). |
+| Drawing grid | half size | Scenes are drawn at 240x135 (banners 240x60, world map 320x180) and exported 2x nearest-neighbour. See Part E table. |
 
 No text in any image. No UI. No characters in backdrops/banners (code adds them), except tiny background life (a bird, a lantern).
 
@@ -33,21 +34,21 @@ Codes: `NA CA CB SA NWE SE EE MENA WCA ESA CSA EA SEA OC`. Each region has **4 z
 - Places: `banner-village`, `banner-haven`, `banner-wonder`, `banner-delve`, `banner-lair`, `banner-market`.
 
 ## P2. Interiors, stage size 480x270 (`scenes/home-<key>.png`, `scenes/shop-<key>.png`)
-Villagers' homes, NPC stands left-centre, so keep a clear floor and a warm lit back wall:
+Villagers' homes. The villager (an 80x100 bust, border, bottom cut off) stands left-centre, so **every interior has a counter, half-wall or table across the bottom 55 px (y 215 to 270) on the left** to hide the cut bottom. Warm lit back wall:
 `home-cottage`, `home-burrow`, `home-treehouse`, `home-hut`, `home-stone`, `home-boat` (6).
-Shops with a counter on the right, empty behind it: `shop-general`, `shop-seeds`, `shop-bakery`, `shop-herbs`, `shop-craft` (5).
+Shops (counter on the right, empty behind it, same bottom counter rule): `shop-general`, `shop-seeds`, `shop-bakery`, `shop-herbs`, `shop-craft` (5).
 Rest stops (match existing 48px stop icons in `assets/img/stops/`): `stop-camp`, `stop-ferry`, `stop-herb`, `stop-inn`, `stop-jetty`, `stop-market`, `stop-mill`, `stop-orchard`, `stop-shrine`, `stop-spring` (10).
 
 ## P2. Villager silhouette
-`game/assets/img/ph/npc-unknown.png`, 80x100, flat dark umber silhouette of a gnome with a "?" shape cut out. Used for villagers not yet met.
+`game/assets/img/ph/npc-unknown.png`, 80x100 bust, 1 px black border, flat dark umber silhouette of a gnome with a "?" shape cut out. Used for villagers not yet met.
 
-## P3. Fight effects (`game/assets/img/fx/`, transparent)
+## P3. Fight effects (`game/assets/img/fx/`, transparent, NO black border, max 8 colours)
 - `fx-hit.png` 4 frames in a 4x1 sheet, each 48x48 (impact spark)
 - `fx-heal.png` 4 frames, 48x48 (rising green sparkles)
 - `fx-ko.png` 1 frame 48x48 (circling stars)
 - `fx-shield.png` 1 frame 96x96 (translucent bubble)
 - `fx-snack.png` 4 frames 48x48 (a thrown snack arc puff)
-- `fx-ground-shadow.png` 64x16 (umber ellipse, 42 percent)
+- `fx-ground-shadow.png` 64x16 (umber ellipse, hard-stepped, no transparency blend)
 
 ## Optional (only if time)
 - 2-frame idle for the 10 most common enemies (64x64, 2x1 sheet = 128x64): `<slug>-idle.png`.
@@ -58,4 +59,4 @@ Rest stops (match existing 48px stop icons in `assets/img/stops/`): `stop-camp`,
 Stage 9, Trek 16, World 2, Region 14, Banners 29, Interiors 21, Silhouette 1, FX 6 = **98 files** + optional.
 
 ## Delivery
-Zip with exact folder paths, like `upload-zips/`. Also put source `.aseprite` in `aseprite-source/final/aseprite/scenes/`.
+Run the Part E checklist on every file. Zip with exact folder paths, like `upload-zips/`. Also put source `.aseprite` in `aseprite-source/final/aseprite/scenes/`.
