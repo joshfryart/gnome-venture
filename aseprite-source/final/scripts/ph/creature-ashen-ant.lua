@@ -47,8 +47,8 @@ c:spot(c:ellipse(47, 27, 1.5, 1), pale.base, pale.gloss)
 
 -- face: locked eyes set wide, staring straight at you; flat cold mouth
 c:eye(11, 36); c:eye(21, 36)
-c:paint({ "uu...", "..uuu" }, 10, 33, { u = "#2a1a10" })   -- low fixed brows: a stare
-c:paint({ "...uu", "uuu.." }, 21, 33, { u = "#2a1a10" })
+c:paint({ "uu...", "..uuu" }, 10, 34, { u = "#2a1a10" })   -- low fixed brows: a stare
+c:paint({ "...uu", "uuu.." }, 21, 34, { u = "#2a1a10" })
 c:paint({ "uuuu" }, 16, 45, { u = "#2a1a10" })
 
 c:ground(30, 56, 22, 1.5)

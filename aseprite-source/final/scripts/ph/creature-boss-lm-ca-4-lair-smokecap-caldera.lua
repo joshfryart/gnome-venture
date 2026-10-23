@@ -17,7 +17,7 @@ local wisp = c:line({ {44, 19}, {45, 15} }, 2)
 wisp:add(c:ellipse(42, 11, 3, 2.5)):add(c:ellipse(49, 11, 3, 2.5)):add(c:ellipse(45.5, 9, 4, 3))
 
 -- crater: squat volcano cone with a jagged rim, the sleeper nested in its mouth
-local cone = c:poly({ {11, 42}, {13, 38}, {16, 41}, {19, 39}, {47, 39}, {50, 41}, {52, 37}, {54, 42},
+local cone = c:poly({ {9, 45}, {10, 36}, {13, 41}, {16, 38}, {47, 39}, {50, 41}, {53, 34}, {55, 44},
                       {57, 55}, {6, 55} })
 
 -- lava pool in the crater mouth
@@ -49,7 +49,7 @@ cap:add(c:rrect(30, 25, 49, 29, 2))
 local lip = c:poly({ {8, 49}, {14, 50}, {21, 49}, {29, 50}, {37, 49}, {45, 50}, {53, 49}, {56, 50}, {57, 55}, {6, 55} })
 
 -- front paws hooked over the lip
-local paws = c:ellipse(36.5, 49, 2.5, 2):add(c:ellipse(46.5, 49, 2.5, 2))
+local paws = c:rrect(34, 47, 39, 50, 1):add(c:rrect(44, 47, 49, 50, 1))
 
 local p = c:build{
   { "wisp",   wisp,   puff,  { gloss = false, pale = true } },

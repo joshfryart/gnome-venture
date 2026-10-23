@@ -5,10 +5,10 @@ local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
-local velvet = GV.ramp("#9a6b3f")   -- soil family: hood / pronotum (main colour)
+local velvet = GV.ramp("#7a4a1f")   -- soil family: dark velvet hood / pronotum
 local face   = GV.ramp("#c9a96e")   -- soil family: pale velvet face
 local shovel = GV.ramp("#9a6b3f")   -- soil family: velvet shovel claws, same as the hood
-local earth  = GV.ramp("#7a4a1f")   -- soil family: the mound it breaks through
+local earth  = GV.ramp("#3d2a1c")   -- soil family: the dark earth it breaks through
 local legR   = GV.ramp("#3d2a1c")
 
 local function mir(pts) local r = {} for i, p in ipairs(pts) do r[i] = { 63 - p[1], p[2] } end return r end
@@ -61,10 +61,12 @@ c:button(30, 18)
 -- face: locked eyes under the hood brim, little mandibles
 c:eye(23, 34); c:eye(36, 34)
 c:paint({ "m.....m", ".mm.mm.", ".m...m." }, 28, 41, { m = "#2a1a10" })
--- loose clods of dark earth on the mound
-c:spot(c:ellipse(25.5, 50, 1.5, 1))
-c:spot(c:ellipse(38, 52, 1.5, 1))
-c:spot(c:ellipse(17, 53, 1, 1))
+-- pale horn tips on the digging fingers
+for _, x in ipairs({ 7, 11, 15, 19 }) do c:px(x, 36, "#c9a96e"); c:px(63 - x, 36, "#c9a96e") end
+-- loose clods of earth on the mound
+c:spot(c:ellipse(25.5, 50, 1.5, 1), "#7a4a1f", "#9a6b3f")
+c:spot(c:ellipse(38, 52, 1.5, 1), "#7a4a1f", "#9a6b3f")
+c:spot(c:ellipse(46, 50, 1, 1), "#7a4a1f", "#9a6b3f")
 
 local t = c:save(D .. "final/aseprite/ph/creature-mole-cricket.aseprite", PNG .. "creature-mole-cricket.png")
 print(GV.report(t))
