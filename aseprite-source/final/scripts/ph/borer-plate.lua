@@ -28,7 +28,7 @@ local function seg(rx, ry)
 end
 local s1 = seg(25, 34)
 local s2 = seg(19.5, 24.5)
-local s3 = seg(13.5, 15)
+local s3 = seg(14, 17)
 -- underside lip: the thickness of the plate showing under the hem
 local lip = R(function(x, y) return y > b(x) and y <= b(x) + 4 and E(x, y, 0, 3, 24.5, 34) end)
 s1 = s1:shrink(1):grow(1); lip = lip:shrink(1):grow(1)
@@ -38,8 +38,8 @@ local whole = s1:copy():add(lip)
 local p = c:build{
   { "lip", lip, GV.ramp("#6b4a2c"), { gloss = false } },
   { "s1", s1, body, { light = whole, gloss = { 14, 24 } } },
-  { "s2", s2, body, { gloss = false, cres = 3 } },
-  { "s3", s3, body, { gloss = { 22, 39 }, cres = 3 } },
+  { "s2", s2, body, { light = s2:copy():add(lip), gloss = false } },
+  { "s3", s3, body, { light = s3:copy():add(lip), gloss = { 22, 37 } } },
 }
 -- dark 2 px segment gaps where each segment tucks under the one behind (creature's bands)
 local base = R(function(x, y) return y <= b(x) - 1 end)
