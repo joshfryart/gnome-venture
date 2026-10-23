@@ -62,22 +62,22 @@ for _, r in ipairs({ 6, 10, 14 }) do
     dot(rings, r * math.cos(t), 1 + r * math.sin(t))
   end
 end
-c:fill(rings:clip(exposed:shrink(2)):cut(root:grow(1)), "#74827a")
+c:fill(rings:clip(exposed:shrink(2)):cut(root:grow(1)), "#6e7c74")
 
 -- silvery sheen streak across the lit side of the exposed part
 local sheen = c:mask()
 for k = 0, 30 do
-  local t = 0.55 * math.pi + k / 30 * 0.35 * math.pi
-  dot(sheen, 12 * math.cos(t), 1 + 12 * math.sin(t))
-  dot(sheen, 12 * math.cos(t), 2 + 12 * math.sin(t))
+  local u = -13 + k * 0.6
+  dot(sheen, u, -1 + 0.04 * (u + 4) ^ 2)
+  dot(sheen, u, 0 + 0.04 * (u + 4) ^ 2)
 end
 c:fill(sheen:clip(exposed:shrink(3)), "#b8deee")
 
 -- loach mottle diamonds
-local dia = { ".x.", "xxx", ".x." }
-for _, d in ipairs({ { -6, 4 }, { 6, 6 }, { 11, -1 }, { 0, 12 }, { -12, -1 } }) do
+local dia = { "..x..", ".xxx.", "xxxxx", ".xxx.", "..x.." }
+for _, d in ipairs({ { -4, 6 }, { 7, 3 }, { 2, 13 }, { 12, 10 } }) do
   local q = rot(d[1], d[2])
-  c:spot(c:ascii(dia, math.floor(q[1] + 0.5) - 1, math.floor(q[2] + 0.5) - 1), "#4a5450", "#8d9a90")
+  c:spot(c:ascii(dia, math.floor(q[1] + 0.5) - 2, math.floor(q[2] + 0.5) - 2), "#4a5450", "#8d9a90")
 end
 
 local t = c:save(D .. "final/aseprite/ph/loach-scale.aseprite", PNG .. "loach-scale.png")

@@ -15,7 +15,7 @@ bow:cut(c:ellipse(18.5, 18.5, 3.5, 3.5))
 local shaft = c:line({ {25, 25}, {48, 48} }, 5)
 local collar = c:line({ {24, 32}, {32, 24} }, 3)
 local bit = c:poly({ {40, 40}, {50, 50}, {43, 57}, {33, 47} })
-bit:cut(c:poly({ {36, 50}, {40, 54}, {42, 52}, {38, 48} }))  -- the ward notch
+bit:cut(c:poly({ {42, 49}, {48, 55}, {44, 59}, {38, 53} }))  -- stepped ward: short tooth at the tip
 local whole = bow:copy():add(shaft):add(bit):add(collar)
 
 local iron = GV.ramp("#8b8f96")
@@ -28,7 +28,7 @@ local p = c:build{
 
 -- still warm: a few ember pixels on the lower rim of the bow eye and on the bit
 c:paint({ "..o", ".oe", "oe." }, 21, 21, { o = "#f08a24", e = "#e0501f" })
-c:paint({ ".o", "oe" }, 44, 50, { o = "#f08a24", e = "#e0501f" })
+c:paint({ ".o", "oe" }, 39, 48, { o = "#f08a24", e = "#e0501f" })
 
 local t = c:save(D .. "final/aseprite/ph/cellar-key.aseprite", PNG .. "cellar-key.png")
 print(GV.report(t))

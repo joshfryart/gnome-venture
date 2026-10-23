@@ -7,99 +7,108 @@ local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
-local coal  = GV.ramp("#5b6470")               -- charcoal scales (stone family, darkest base)
-local brick = GV.ramp("#7a4a1f")               -- forge chimney brick (soil family)
-local ember = GV.R.flame                       -- glowing throat and tail tip
-local horn  = GV.R.dusk                        -- dark horns and spikes
+local coal  = GV.ramp("#454955")               -- charcoal scales (stone family, one recipe step down)
+local brick = GV.ramp("#a8582f")               -- forge chimney brick (wood family bounce red)
+local ember = GV.R.flame                       -- glowing maw, belly and tail tip
 
--- forge chimney rising behind the coils, flame spitting from its mouth
-local flame = c:poly({ {41, 13}, {40, 9}, {43, 11}, {44, 6}, {47, 10}, {49, 7}, {50, 13} })
-local stack = c:rect(39, 14, 50, 44)
-local cap   = c:rrect(37, 11, 52, 15, 1)
+-- forge chimney on the right, flame spitting from its mouth
+local flame = c:poly({ {45, 11}, {44, 7}, {47, 9}, {49, 5}, {51, 9}, {54, 6}, {54, 11} })
+local stack = c:rect(45, 13, 53, 42)
+local cap   = c:rrect(43, 10, 55, 14, 1)
 
--- bottom coil: long band, left end tapering into the tail
-local coilA = c:rrect(14, 43, 55, 54, 5)
-coilA:add(c:poly({ {6, 52}, {16, 44}, {16, 55}, {8, 55} }))
--- tail flicking up at the far left
-local tail = c:line({ {8, 52}, {7, 48} }, 3)
-local tip  = c:poly({ {5, 48}, {7, 41}, {10, 48} })
+-- bottom coil, left end tapering into the tail along the ground
+local coilA = c:ellipse(33, 48.5, 22, 6.5)
+coilA:add(c:poly({ {9, 55}, {16, 47}, {18, 55} }))
+local tip = c:poly({ {5, 55}, {9, 50}, {11, 55} })
 
 -- upper coil resting on the bottom one, wrapped round the chimney
-local coilB = c:rrect(16, 33, 52, 45, 6)
+local coilB = c:ellipse(33, 38, 18, 6.5)
 
--- dorsal spikes along the neck back
+-- ember belly glowing under each coil -- (segmented belly scutes, 3 on / 1 off, on the coil undersides)
+local bellyA, bellyB = c:mask(), c:mask()
+for x = 16, 50, 4 do bellyA:add(c:rect(x, 52, x + 2, 53)) end
+for x = 22, 46, 4 do bellyB:add(c:rect(x, 42, x + 2, 42)) end
+bellyA:clip(c:ellipse(33, 48.5, 21, 5.5)); bellyB:clip(c:ellipse(33, 38, 17, 5.5))
+
+-- dorsal spikes down the neck back and along the upper coil
 local spikes = c:mask()
-local function spike(x, y, dx, dy)
-  spikes:add(c:poly({ {x, y}, {x + dx, y + dy}, {x + 4, y + 2} }))
-end
-spike(6, 30, -2, -3); spike(6, 24, -2, -3)
+local function spike(pts) spikes:add(c:poly(pts)) end
+spike({ {9, 27}, {5, 24}, {9, 32} }); spike({ {9, 32}, {6, 31}, {11, 37} })
+for _, x in ipairs({ 27, 33, 39 }) do spike({ {x, 33}, {x + 2, 27}, {x + 5, 33} }) end
 
 -- neck rising from the upper coil's left end
-local neck = c:line({ {16, 40}, {13, 33}, {13, 26} }, 9)
+local neck = c:line({ {16, 40}, {13, 33}, {14, 26} }, 9)
 
--- horns sweeping back from the brow
-local horns = c:poly({ {11, 13}, {7, 6}, {16, 11} })
-horns:add(c:poly({ {20, 11}, {19, 5}, {25, 11} }))
+-- horns sweeping back off the skull
+local horns = c:poly({ {14, 14}, {6, 8}, {9, 8}, {18, 12} })
+horns:add(c:poly({ {20, 12}, {16, 6}, {19, 6}, {25, 11} }))
 
--- big wedge head, snout to the right
-local head = c:ellipse(19.5, 19, 11, 8.5)
-head:add(c:poly({ {24, 15}, {35, 18}, {36, 25}, {24, 27} }))
+-- glowing maw behind the open jaws
+local maw = c:poly({ {26, 20}, {40, 20}, {40, 28}, {26, 28} })
+
+-- big wedge head, jaws open to the right
+local head = c:ellipse(19.5, 19, 10, 8)
+head:add(c:poly({ {25, 13}, {41, 16}, {41, 21}, {25, 23} }))
+local jaw = c:poly({ {21, 25}, {38, 27}, {37, 31}, {20, 30} })
 
 -- ember throat plate down the front of the neck
-local throat = c:line({ {18, 29}, {19, 35} }, 4)
+local throat = c:line({ {19, 29}, {19, 35} }, 4)
 
 -- stubby foreleg clawing at the upper coil
-local leg = c:line({ {22, 32}, {25, 38} }, 4)
-local foot = c:ellipse(26.5, 39, 3, 2)
+local leg = c:line({ {21, 32}, {23, 37}, {26, 38} }, 4)
 
 local p = c:build{
   { "flame",  flame,  ember, { gloss = false, contour = false } },
   { "stack",  stack,  brick, { gloss = false } },
-  { "cap",    cap,    brick, { gloss = { 39, 12 } } },
-  { "coilA",  coilA,  coal,  { gloss = { 20, 47 } } },
-  { "tail",   tail,   coal,  { flat = true } },
+  { "cap",    cap,    brick, { gloss = { 45, 11 } } },
+  { "coilA",  coilA,  coal,  { gloss = { 22, 46 } } },
+  { "bellyA", bellyA, ember, { flat = true, contour = false } },
   { "tip",    tip,    ember, { flat = true } },
-  { "coilB",  coilB,  coal,  { gloss = { 22, 36 }, stitch = { side = "lit" } } },
-  { "spikes", spikes, horn,  { flat = true } },
+  { "coilB",  coilB,  coal,  { gloss = { 24, 35 }, stitch = { side = "lit" } } },
+  { "bellyB", bellyB, ember, { flat = true, contour = false } },
+  { "spikes", spikes, ember, { flat = true } },
   { "neck",   neck,   coal,  { gloss = false, light = neck:copy():add(head) } },
-  { "horns",  horns,  horn,  { flat = true } },
-  { "head",   head,   coal,  { gloss = { 12, 14 } } },
+  { "horns",  horns,  "gold", { flat = true } },
+  { "maw",    maw,    ember, { gloss = false, contour = false } },
+  { "jaw",    jaw,    coal,  { gloss = false } },
+  { "head",   head,   coal,  { gloss = { 13, 14 } } },
   { "throat", throat, ember, { gloss = false, contour = false } },
   { "leg",    leg,    coal,  { flat = true } },
-  { "foot",   foot,   coal,  { flat = true } },
 }
 
--- brick mortar on the chimney
-local mortar = brick.shade
-for _, y in ipairs({ 19, 25, 31 }) do
-  for x = 40, 49 do if c:get(x, y) == brick.base then c:px(x, y, mortar) end end
+-- brick courses on the chimney (staggered joints)
+local mortar = brick.deep
+for i, y in ipairs({ 17, 21, 25, 29 }) do
+  for x = 46, 52 do if c:get(x, y) == brick.base then c:px(x, y, mortar) end end
+  local jx = (i % 2 == 0) and { 48 } or { 50 }
+  for _, x in ipairs(jx) do
+    for yy = y + 1, y + 3 do if c:get(x, yy) == brick.base then c:px(x, yy, mortar) end end
+  end
 end
-for _, b in ipairs({ {44, 16}, {44, 17}, {44, 18}, {41, 20}, {41, 21}, {41, 22}, {41, 23}, {41, 24},
-                     {47, 20}, {47, 21}, {47, 22}, {47, 23}, {47, 24}, {44, 26}, {44, 27}, {44, 28}, {44, 29}, {44, 30} }) do
-  if c:get(b[1], b[2]) == brick.base then c:px(b[1], b[2], mortar) end
-end
--- inner flame core
-c:paint({ "..g..", ".ggg." }, 43, 10, { g = "#f5cf6a" })
+-- hot flame core
+c:paint({ "...g..", "..ggg.", ".ggggg" }, 46, 8, { g = "#f5cf6a" })
 
 -- glowing ember cracks across the charcoal scales
 local hot, core = "#f08a24", "#f5cf6a"
 local function crack(rows, x, y) c:paint(rows, x, y, { o = hot, g = core }) end
-crack({ "o...", ".og.", "...o" }, 27, 38)
-crack({ "..o", ".g.", "o..", "o.." }, 40, 37)
-crack({ "o..o", ".go." }, 32, 48)
-crack({ "..o.", ".g..", "o...", ".o.." }, 45, 47)
-crack({ ".o", "g.", "o." }, 22, 49)
-crack({ "o.", ".o", ".g" }, 9, 31)
-crack({ "o..", ".go" }, 16, 22)
+crack({ "o...", ".og.", "...o" }, 28, 37)
+crack({ "..o", ".g.", "o..", "o.." }, 41, 36)
+crack({ "o...o", ".ggo." }, 30, 47)
+crack({ "..o.", ".g..", "o...", ".o.." }, 44, 46)
+crack({ ".o", "g.", "o." }, 22, 48)
+crack({ "o..", ".go" }, 17, 22)
+crack({ "o.", ".g", ".o" }, 10, 34)
 
--- seam where the ember throat plate is sewn on, button at the chin
-c:seam({ {16, 29}, {16, 37} })
-c:button(18, 26)
+-- seam where the ember throat plate is sewn on, button at its head
+c:seam({ {17, 31}, {17, 37} })
+c:button(17, 27)
 
--- face: wide-set locked eyes, ember-lit jaw with two fangs
-c:eye(14, 14); c:eye(23, 14)
-c:paint({ "mmmmmmmmm.", ".ffffff..m", "..c....c.." }, 25, 23, { m = GV.C.ol3, f = "#f08a24", c = "#f1ece0" })
-c:px(33, 19, "#f08a24")   -- glowing nostril
+-- face: wide-set locked eyes under the horns, fangs over the glowing maw
+c:eye(14, 15); c:eye(23, 15)
+c:paint({ "c....c", "c....c" }, 31, 22, { c = "#f1ece0" })   -- upper fangs
+c:paint({ "c", "c" }, 34, 26, { c = "#f1ece0" })               -- lower fang
+c:paint({ "c.c" }, 27, 40, { c = "#f1ece0" })                  -- claws
+c:px(38, 18, "#f08a24")   -- glowing nostril
 
 local t = c:save(D .. "final/aseprite/ph/creature-boss-lm-se-4-lair-forge-of-the-cinder-wyrm.aseprite",
                  PNG .. "creature-boss-lm-se-4-lair-forge-of-the-cinder-wyrm.png")

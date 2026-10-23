@@ -3,37 +3,59 @@
 -- No ear tufts, no crown (unlike the snow-owl monarch). Fierce gold-ringed eyes under angled brows,
 -- dark flecked barring, and a faint aurora (mint green / violet bands) stitched along the wing edges.
 -- Families: soil palest #f1ece0 (pale cream plumage, cream-safe gloss), gold (eye rings),
--- dusk (beak), stone (rock, flecks); aurora borrowed from water gloss #c8ecdc and dusk rim #a894dc.
+-- dusk (beak), stone (rock, flecks); aurora: water gloss #c8ecdc (mint) and a pale dusk lavender #c3b2ea.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local FILE = "creature-boss-lm-na-4-lair-den-of-the-great-white-owl"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
-local function mir(pts) local o = {} for i, p in ipairs(pts) do o[i] = { 64 - p[1], p[2] } end return o end
-
--- raised wing (left), fingers pointing out to the left; right wing mirrored
-local wingPts = {
-  { 26, 31 }, { 18, 19 }, { 10, 8 }, { 8, 14 }, { 11, 17 }, { 8, 23 }, { 12, 26 },
-  { 9, 32 }, { 13, 35 }, { 11, 41 }, { 16, 42 }, { 16, 47 }, { 25, 45 },
-}
-local wingL = c:poly(wingPts)
-local wingR = c:poly(mir(wingPts))
-
--- aurora bands follow the outer (finger) edge: violet outermost, mint inside
-local function bands(w, dx)
-  local v = w:copy():cut(w:shift(dx * 3, 0))
-  local g = w:copy():cut(w:shift(dx * 6, 0)):cut(v)
-  return v, g
+-- feather: tilted ellipse from base (bx,by) to tip (tx,ty), half-width w; also returns the
+-- aurora bands across its tip (mint from G, violet from V of its length)
+local GB, VB = 0.70, 0.85
+local function feather(bx, by, tx, ty, w)
+  local dx, dy = tx - bx, ty - by
+  local L = math.sqrt(dx * dx + dy * dy)
+  local ux, uy = dx / L, dy / L
+  local cx, cy = (bx + tx) / 2, (by + ty) / 2
+  local f, g, v = c:mask(), c:mask(), c:mask()
+  for y = 0, 63 do for x = 0, 63 do
+    local px, py = x - cx, y - cy
+    local u = px * ux + py * uy
+    local q = -px * uy + py * ux
+    if (u * u) / ((L / 2) ^ 2) + (q * q) / (w * w) <= 1 then
+      f:set(x, y)
+      local t = (u + L / 2) / L
+      if t >= VB then v:set(x, y) elseif t >= GB then g:set(x, y) end
+    end
+  end end
+  return f, g, v, { bx + dx * GB, by + dy * GB }, { bx + dx * 0.5, by + dy * 0.5 }
 end
-local vL, gL = bands(wingL, 1)
-local vR, gR = bands(wingR, -1)
+
+-- raised wings spread like a cape: five primaries fanning from behind each shoulder
+local tips = { { 9, 46 }, { 7, 36 }, { 7, 26 }, { 9, 16 }, { 15, 8 } }   -- bottom to top
+local F = { 21, 38 }
+local wingParts, seamL, seamR, mids = {}, {}, {}, {}
+for i, tp in ipairs(tips) do
+  for side = 1, 2 do
+    local bx, tx = F[1], tp[1]
+    if side == 2 then bx, tx = 63 - bx, 63 - tx end
+    local f, g, v, sp, mid = feather(bx, F[2], tx, tp[2], 2.9)
+    if i == 4 then mids[#mids + 1] = mid end
+    wingParts[#wingParts + 1] = { "f" .. i .. side, f, g, v }
+    if side == 1 then seamL[#seamL + 1] = sp else seamR[#seamR + 1] = sp end
+  end
+end
+
+-- wing coverts: the arm of each wing, laid over the feather roots
+local covL = feather(23, 43, 12, 19, 4.6)
+local covR = feather(40, 43, 51, 19, 4.6)
 
 local rock = c:poly({ { 13, 57 }, { 16, 51 }, { 24, 49 }, { 33, 50 }, { 41, 48 }, { 49, 51 }, { 52, 57 } })
 local body = c:ellipse(31.5, 40, 12, 11)
 local footL = c:rrect(22, 47, 28, 52, 2)
 local footR = c:rrect(35, 47, 41, 52, 2)
-local head = c:ellipse(31.5, 22, 14, 11.5)
+local head = c:ellipse(31.5, 22, 13, 11)
 local ringL = c:ellipse(24, 23, 4.5, 4.5)
 local ringR = c:ellipse(39, 23, 4.5, 4.5)
 local beak = c:poly({ { 29, 26 }, { 35, 26 }, { 33, 32 }, { 31, 32 } })
@@ -41,17 +63,18 @@ local beak = c:poly({ { 29, 26 }, { 35, 26 }, { 33, 32 }, { 31, 32 } })
 local cream  = GV.ramp("#f1ece0", { dot = "#fff3c8" })
 local wingC  = GV.ramp("#e8e0cc", { dot = "#fff3c8" })
 local mint   = GV.ramp("#c8ecdc")
-local violet = GV.ramp("#a894dc")
+local violet = GV.ramp("#c3b2ea")
 local stone  = GV.ramp("#5b6470")
 
+c:part(rock, stone)
+for _, w in ipairs(wingParts) do
+  c:part(w[2], wingC)
+  c:part(w[3], mint,   { light = w[2], contour = false, gloss = false, contact = false, rim = false })
+  c:part(w[4], violet, { light = w[2], contour = false, gloss = false, contact = false, rim = false })
+end
 local p = c:build{
-  { "rock",  rock, stone },
-  { "wingL", wingL, wingC },
-  { "wingR", wingR, wingC },
-  { "gL", gL, mint,   { light = wingL, contour = false, gloss = false, contact = false } },
-  { "vL", vL, violet, { light = wingL, contour = false, gloss = false, contact = false } },
-  { "gR", gR, mint,   { light = wingR, contour = false, gloss = false, contact = false } },
-  { "vR", vR, violet, { light = wingR, contour = false, gloss = false, contact = false } },
+  { "covL", covL, wingC, { gloss = false } },
+  { "covR", covR, wingC, { gloss = false } },
   { "body",  body, cream, { stitch = { side = "lit" } } },
   { "footL", footL, cream, { gloss = false } },
   { "footR", footR, cream, { gloss = false } },
@@ -63,17 +86,17 @@ local p = c:build{
 
 -- dark bean flecks (snowy owl barring), evenly varied
 local fleck, glint = "#5b6470", "#8b8f96"
-for _, f in ipairs({ { 18, 30 }, { 21, 37 }, { 15, 22 }, { 45, 30 }, { 42, 37 }, { 48, 22 } }) do
-  c:spot(c:rect(f[1], f[2], f[1] + 2, f[2] + 1), fleck, glint)
+for _, f in ipairs({ { 15, 24 }, { 18, 31 }, { 48, 24 }, { 45, 31 } }) do
+  local x, y = math.floor(f[1] + 0.5), math.floor(f[2] + 0.5)
+  c:spot(c:rect(x - 1, y, x, y + 1), fleck, glint)
 end
 for _, f in ipairs({ { 27, 40 }, { 35, 40 }, { 31, 45 } }) do
   c:paint({ "b.b", ".b." }, f[1], f[2], { b = fleck })
 end
 
--- stitched aurora join: seam down the inner edge of the mint band
--- (seam lands only on parts)
-c:seam({ { 16, 44 }, { 14, 36 }, { 15, 27 }, { 14, 18 } })
-c:seam({ { 47, 44 }, { 49, 36 }, { 48, 27 }, { 49, 18 } })
+-- stitched aurora join: seam along the mint band where it meets the cream feathers
+local function pts(t) local o = {} for i, p in ipairs(t) do o[i] = { math.floor(p[1] + 0.5), math.floor(p[2] + 0.5) } end return o end
+c:seam(pts(seamL)); c:seam(pts(seamR))
 
 -- fierce brows
 c:paint({ "bbb.....", ".bbbbb..", "....bbbb" }, 19, 16, { b = "#4a2c1a" })

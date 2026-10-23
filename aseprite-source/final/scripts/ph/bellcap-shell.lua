@@ -8,7 +8,7 @@ local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
 -- local (upright) frame: bell axis along -y, origin at the mouth centre; tilt it so the
 -- crown leans up-left and the mouth opens toward the lower right
-local CX, CY, A = 35, 39, math.rad(-28)
+local CX, CY, A = 34, 40, math.rad(-20)
 local ca, sa = math.cos(A), math.sin(A)
 local function R(test) -- mask of canvas pixels whose local coords pass test(lx, ly)
   local m = c:mask()
@@ -27,22 +27,23 @@ end
 local bell = R(function(x, y)
   if y < -19 and (x*x)/(12.5*12.5) + ((y+19)^2)/(10*10) <= 1 then return true end
   if y >= -19.5 and y <= 0 then
-    local hw = 12.5 + 5.5 * ((y + 19.5) / 19.5)^2  -- flared bell profile
+    local hw = 12.5 + 5 * ((y + 19.5) / 19.5)^3  -- flared bell profile
     return math.abs(x) <= hw
   end
   return false
 end)
 -- thick lip ring around the mouth (seen a little from below: an ellipse band)
-local lip = R(function(x, y) return (x*x)/(20.5*20.5) + (y*y)/(5.5*5.5) <= 1 end)
+local lip = R(function(x, y) return (x*x)/(21*21) + (y*y)/(8.5*8.5) <= 1 end)
 -- dark hollow inside the mouth
-local mouth = R(function(x, y) return (x*x)/(15.5*15.5) + ((y-0.5)^2)/(3.2*3.2) <= 1 end)
+local mouth = R(function(x, y) return (x*x)/(14.5*14.5) + ((y+1.2)^2)/(4.2*4.2) <= 1 end)
 -- crown bead
 local bead = R(function(x, y) return x*x + (y+31.5)^2 <= 3.6*3.6 end)
 
+bell = bell:shrink(1):grow(1); lip = lip:shrink(1):grow(1)  -- open: drop rotation nubs
 local whole = bell:copy():add(lip)
 local p = c:build{
   { "bead", bead, "#e8a317" },
-  { "bell", bell, "#4a5160", { light = whole } },
+  { "bell", bell, "#4a5160", { light = whole, gloss = { 22, 16 } } },
   { "lip",  lip,  "#6e7685", { light = whole, gloss = false } },
 }
 -- hollow: deep dusk interior with a lit inner rim on the far (upper) edge of the mouth
@@ -67,10 +68,10 @@ c:fill(band, "#a9afba")
 local pts = {}
 for i = 0, 16 do
   local t = math.pi - i * math.pi / 16          -- along the near (lower) half of the lip
-  pts[#pts+1] = { L2C(18 * math.cos(t), 3.8 * math.sin(t)) }
+  pts[#pts+1] = { L2C(17.5 * math.cos(t), 5.6 * math.sin(t)) }
 end
 c:seam(pts)
-local bx, by = L2C(-18.5, 0)
+local bx, by = L2C(-17.5, 1.5)
 c:button(bx - 1, by - 2)
 
 local t = c:save(D .. "final/aseprite/ph/bellcap-shell.aseprite", PNG .. "bellcap-shell.png")

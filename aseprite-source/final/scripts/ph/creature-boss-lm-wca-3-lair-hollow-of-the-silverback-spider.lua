@@ -38,9 +38,6 @@ local saddle = c:ellipse(CX, 27, 10, 5):cut(c:ellipse(CX, 19.5, 6, 4))
 saddle:clip(abd:shrink(2))
 local head = c:ellipse(CX, 40, 10.5, 7.5)
 local fangs = c:ascii({ "##...##", "##...##", "##...##", ".#...#." }, 27, 46)
--- silver hair tufts on the shoulders of the back (spiky boss silhouette)
-local tufts = c:ascii({ "#...", "##..", "###.", "####" }, 17, 21)
-tufts:add(c:ascii({ "...#", "..##", ".###", "####" }, 43, 21))
 
 c:build{
   { "log",    log,    wood },
@@ -66,15 +63,14 @@ for _, l in ipairs(L) do
 end
 
 local p = c:build{
-  { "tufts",  tufts,  silver, { flat = true } },
   { "abd",    abd,    fur },
-  { "saddle", saddle, silver, { gloss = { 25, 25 } } },
+  { "saddle", saddle, silver, { gloss = { 25, 25 }, pale = false } },
   { "head",   head,   fur },
-  { "fangs",  fangs,  bone, { flat = true } },
+  { "fangs",  fangs,  bone, { flat = true, contour = false, contact = false } },
 }
 
 -- silver web threads across the open hollow: 2 on / 1 off "stitches"
-local open = hollow:shrink(1):cut(legM:grow(1)):cut(abd:grow(1)):cut(head:grow(1)):cut(tufts:grow(1))
+local open = hollow:shrink(1):cut(legM:grow(1)):cut(abd:grow(1)):cut(head:grow(1))
 local function thread(pts)
   local m = c:line(pts, 1):clip(open)
   local px = {}
@@ -89,6 +85,8 @@ thread({ {12, 38}, {18, 47}, {24, 47} }); thread({ {51, 38}, {45, 47}, {39, 47} 
 -- sewn-on saddle patch: gold seam down the spine with a button at its head
 c:seam({ {31, 26}, {31, 31} })
 c:button(30, 22)
+-- old battle scar on the back, sewn shut
+c:seam({ {37, 19}, {41, 23} })
 
 -- face: wide locked eyes, angry silver brows, scowl
 c:eye(24, 37); c:eye(35, 37)

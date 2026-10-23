@@ -10,7 +10,7 @@ local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 -- palettes: toad borrows the stone family shifted cold blue-grey; ice = glass preset;
 -- barrow turf = moss family dulled for tundra
 local toad  = GV.ramp("#7d90a6", { shade = "#5d6890", deep = "#3e4570", bounce = "#6a7898" })
-local throat = GV.ramp("#d6dfe4", { shade = "#a9b6c8", deep = "#7d88a6", bounce = "#bcc6d4" })
+local throat = GV.ramp("#b4c2cc", { shade = "#8e9cb4", deep = "#6a7598", bounce = "#9eabc0" })
 local ice   = "glass"
 local turf  = GV.ramp("#7f9a62", { shade = "#56724e", deep = "#344a3c", bounce = "#62804e" })
 local dark  = GV.ramp("#3e2f66", { shade = "#291d4a", deep = "#1e1538", bounce = "#291d4a" })
@@ -39,16 +39,16 @@ local hfoot = c:ellipse(50, 45, 5, 2)
 local head = c:ellipse(22, 30, 14, 8.5)
 local jaw = head:copy():clip(c:rect(0, 33, 63, 63))
 head:cut(jaw)
-local bumps = c:ellipse(15.5, 21, 5, 5):add(c:ellipse(28.5, 20, 5, 5))
+local bumps = c:ellipse(15.5, 20, 5.5, 5.5):add(c:ellipse(28.5, 19, 5.5, 5.5))
 -- near front leg and splayed toes on the mound
 local fleg = c:rrect(13, 37, 19, 44, 2)
 local ffoot = c:ellipse(15, 45, 5, 2)
 local whole = body:copy():add(head):add(jaw):add(bumps):add(hind)
 
 -- ice crown between the eye bumps
-local crown = c:poly({ {18, 17}, {19, 9}, {23, 17} }):add(c:poly({ {21, 17}, {23, 5}, {26, 17} }))
-  :add(c:poly({ {24, 17}, {28, 9}, {29, 17} }))
-local crownBand = c:rrect(18, 15, 28, 18, 1)
+local crown = c:poly({ {19, 15}, {22, 5}, {26, 15} })
+  :add(c:poly({ {16, 15}, {16, 8}, {21, 15} })):add(c:poly({ {24, 15}, {29, 8}, {29, 15} }))
+local crownBand = c:rrect(16, 14, 28, 16, 1)
 
 c:build{
   { "mound",   mound, turf },
@@ -66,7 +66,7 @@ c:build{
   { "jaw",     jaw, throat, { light = whole, gloss = false } },
   { "fleg",    fleg, toad, { gloss = false } },
   { "ffoot",   ffoot, toad, { gloss = false } },
-  { "crown",   crown, ice, { gloss = false } },
+  { "crown",   crown, ice, { gloss = false, cres = 2, deep = 3 } },
   { "band",    crownBand, "#5a86b8", { gloss = false } },
 }
 
@@ -80,12 +80,12 @@ c:spot(c:ellipse(47, 38, 1, 1.5), "#4e5f9a", "#8fb4d6")
 c:seam({ {11, 50}, {23, 50} })
 c:seam({ {41, 50}, {52, 50} })
 c:button(7, 48)
-c:seam({ {19, 16}, {27, 16} })
+c:seam({ {18, 15}, {27, 15} })
 
 -- face: wide locked eyes on the bumps, heavy frost brows, long downturned mouth
-c:eye(13, 19); c:eye(26, 18)
-c:paint({ "bbb...", "...bb." }, 11, 17, { b = "#2a1a10" })
-c:paint({ "..bbb", ".bb.." }, 26, 16, { b = "#2a1a10" })
+c:eye(13, 18); c:eye(26, 17)
+c:paint({ "bb....", "..bbbb" }, 11, 15, { b = "#2a1a10" })
+c:paint({ "...bb", "bbb.." }, 25, 14, { b = "#2a1a10" })
 -- nostril
 c:px(10, 28, "#3e4570"); c:px(11, 28, "#3e4570")
 -- toe splits
