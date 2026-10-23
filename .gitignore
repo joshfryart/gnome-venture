@@ -26,6 +26,7 @@ dist/
 build/
 tests/out/
 *.zip
+!upload-zips/*.zip
 *.tar
 *.tar.gz
 
