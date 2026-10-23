@@ -4977,3 +4977,42 @@ dialog.tkr::backdrop, dialog.tkscene::backdrop, dialog.tkcamp::backdrop { -webki
 /* ---- generic: any remaining pill in page content is a square tag ---- */
 .tag, .cat, .lvbadge, .gtbadge, .rarecat, .tbadge, .st-tabbadge, .jqtabs a small, .rbadge, .rtime, .rgo, .hollow:not(.st), .tfolk, .gmine, .stbadge { border-radius: 0; }
 /* ===== end v2.0.33 ===== */
+
+/* ===== v2.0.38 scene stage (assets/stage.js) and fallbacks ===== */
+.gvs { position: relative; width: 100%; max-width: 960px; margin: 0 auto; overflow: hidden; border: var(--px, 2px) solid var(--ol, #2a1a10); background: #a9d6ea; }
+.gvs-box { position: absolute; left: 0; top: 0; width: 480px; height: 270px; transform-origin: 0 0; }
+.gvs-bg { position: absolute; left: 0; top: 0; width: 480px; height: 270px; }
+.gvs-u { position: absolute; bottom: 55px; width: 80px; height: 100px; display: flex; align-items: flex-end; justify-content: center; }
+.gvs-p0 { left: 60px; } .gvs-p1 { left: 20px; bottom: 75px; } .gvs-p2 { left: 120px; bottom: 75px; } .gvs-p3 { left: 80px; bottom: 95px; }
+.gvs-f0 { right: 60px; } .gvs-f1 { right: 20px; bottom: 75px; } .gvs-f2 { right: 120px; bottom: 75px; } .gvs-f3 { right: 80px; bottom: 95px; }
+.gvs-sp { position: relative; max-width: 100%; max-height: 100%; }
+.gvs-f0 .gvs-sp, .gvs-f1 .gvs-sp, .gvs-f2 .gvs-sp, .gvs-f3 .gvs-sp { transform: scaleX(-1); }   /* art faces right; foes look left */
+.gvs-blob { width: 40px; height: 40px; border-radius: 50%; background: #7b66b4; border: 2px solid #2a1a10; }
+.gvs-base { position: absolute; bottom: -4px; left: 50%; width: 64px; height: 16px; margin-left: -32px; border-radius: 50%; background: #2a1a10; opacity: .42; }
+.gvs-base.none { display: none; }   /* a miniature draws its own base */
+.gvs-hp { position: absolute; top: -8px; left: 50%; width: 40px; height: 5px; margin-left: -20px; background: #2a1a10; border: 1px solid #2a1a10; }
+.gvs-hp i { display: block; height: 100%; background: #4f9a45; }
+.gvs-u.ko .gvs-sp, .gvs-u.ko .gvs-blob { transform: rotate(80deg) translateY(10px); filter: grayscale(1); }
+.gvs-u.ko .gvs-hp { display: none; }
+.gvs-p0.a-lunge .gvs-sp, .gvs-p1.a-lunge .gvs-sp, .gvs-p2.a-lunge .gvs-sp, .gvs-p3.a-lunge .gvs-sp { animation: gvs-lr .45s steps(6); }
+.gvs-f0.a-lunge .gvs-sp, .gvs-f1.a-lunge .gvs-sp, .gvs-f2.a-lunge .gvs-sp, .gvs-f3.a-lunge .gvs-sp { animation: gvs-ll .45s steps(6); }
+.a-hit .gvs-sp, .a-hit .gvs-blob { animation: gvs-hit .4s steps(4); }
+.a-heal .gvs-sp, .a-heal .gvs-blob { animation: gvs-heal .6s steps(5); }
+.a-cheer .gvs-sp, .a-cheer .gvs-blob { animation: gvs-hop .5s steps(5); }
+.gvs-fl { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font: 700 14px/1 system-ui, sans-serif; color: #fff3c8; text-shadow: 1px 1px 0 #2a1a10, -1px -1px 0 #2a1a10, 1px -1px 0 #2a1a10, -1px 1px 0 #2a1a10; animation: gvs-fl 1s steps(8) forwards; pointer-events: none; }
+.gvs-fl.heal { color: #a4b86a; } .gvs-fl.miss { color: #c9c5bc; }
+@keyframes gvs-lr { 50% { transform: translateX(24px); } }
+@keyframes gvs-ll { 50% { transform: scaleX(-1) translateX(24px); } }
+@keyframes gvs-hit { 0%, 50% { filter: brightness(2.5); } 25%, 75% { transform: translateX(-3px); } }
+@keyframes gvs-heal { 50% { filter: brightness(1.6) saturate(1.5); } }
+@keyframes gvs-hop { 50% { transform: translateY(-10px); } }
+@keyframes gvs-fl { to { transform: translate(-50%, -26px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gvs-sp, .gvs-blob, .gvs-fl { animation: none !important; } }
+/* banners and the stage when the art is missing: hard-stepped colour bands per landscape (no gradients, like the pixel art) */
+.scene-banner { display: block; width: 100%; max-width: 960px; height: auto; aspect-ratio: 4 / 1; margin: 0 auto; border: var(--px, 2px) solid var(--ol, #2a1a10); }
+.scene-fb { background: linear-gradient(#a9d6ea 0 40%, #7ab55c 40% 70%, #4f9a45 70% 100%); }
+.scene-fb-forest, .scene-fb-rainforest { background: linear-gradient(#a4b86a 0 35%, #4f9a45 35% 70%, #2f5a2a 70% 100%); }
+.scene-fb-mountain, .scene-fb-tundra { background: linear-gradient(#c3b2ea 0 30%, #8b8f96 30% 65%, #5b6470 65% 100%); }
+.scene-fb-wetland, .scene-fb-coast, .scene-fb-island { background: linear-gradient(#a9d6ea 0 35%, #3f8fb0 35% 65%, #25637d 65% 100%); }
+.scene-fb-desert { background: linear-gradient(#f5cf6a 0 35%, #e8a317 35% 65%, #c9a96e 65% 100%); }
+.scene-fb-none { background: linear-gradient(#c9a96e 0 50%, #9a6b3f 50% 100%); }
