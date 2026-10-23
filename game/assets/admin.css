@@ -85,3 +85,10 @@ body.admin .side .navtile .ntl { white-space: normal; overflow: visible; text-ov
   body.admin .side .navgroupt > summary h3 { font-size: 12px; margin: 6px 0 2px; }
   body.admin .tablewrap, body.admin .awrap, body.admin table { width: 100%; }
 }
+
+/* Admin → Images: browse pictures */
+.artgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 8px 0; }
+.artcard { margin: 0; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); font-size: 12px; overflow-wrap: anywhere; }
+.artcard.over { border-color: var(--danger); }
+.artcard img { display: block; margin: 0 auto 6px; image-rendering: pixelated; background: repeating-conic-gradient(#0001 0 25%, transparent 0 50%) 0 0 / 12px 12px; }
+.artcard figcaption { text-align: center; }

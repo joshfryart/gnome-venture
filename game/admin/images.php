@@ -7,6 +7,13 @@ $me = require_admin();
 require_once dirname(__DIR__) . '/includes/art_upload.php';
 
 $report = null;
+if (is_post() && ($_POST['do'] ?? '') === 'delete') {   // delete one uploaded picture, back to the same search
+    csrf_check();
+    $rel = (string)($_POST['path'] ?? '');
+    if (art_delete($rel)) { admin_log('image_delete', $rel, ''); flash('Deleted ' . $rel . '. The built-in picture (if any) shows again.'); }
+    else flash('Only uploaded pictures can be deleted.', 'err');
+    redirect('admin/images.php?' . http_build_query(array_filter(['q' => (string)($_POST['q'] ?? ''), 'src' => (string)($_POST['src'] ?? ''), 'page' => (string)($_POST['page'] ?? '')])) . '#browse');
+}
 if (is_post()) {
     csrf_check();
     @set_time_limit(300);
@@ -21,6 +28,12 @@ if (is_post()) {
     admin_log('images_upload', (string)count($report) . ' files', json_encode($cnt));
 }
 $prog = art_progress(25);
+$bq = substr(preg_replace('/[^a-z0-9_\/.-]/', '', strtolower((string)($_GET['q'] ?? ''))), 0, 60);
+$bs = isset(ART_BROWSE[(string)($_GET['src'] ?? '')]) ? (string)$_GET['src'] : '';
+$found = art_browse($bq, $bs);
+$per = 60; $pages = max(1, (int)ceil(count($found) / $per)); $pg = max(1, min($pages, (int)($_GET['page'] ?? 1)));
+$show = array_slice($found, ($pg - 1) * $per, $per);
+$bu = fn(int $n) => 'admin/images.php?' . http_build_query(array_filter(['q' => $bq, 'src' => $bs, 'page' => $n > 1 ? $n : ''])) . '#browse';
 
 page_header('Images', true);
 ?>
@@ -52,6 +65,38 @@ page_header('Images', true);
   </table>
 </div>
 <?php endif; ?>
+<div class="box" id="browse">
+  <h3>Browse pictures</h3>
+  <p class="help">Every picture the game can show. <b>Uploaded</b> ones win over <b>built-in</b> ones with the same name, so an old upload hides newer built-in art: delete it to bring the built-in one back.</p>
+  <form method="get" action="<?= e(url('admin/images.php')) ?>#browse" class="inline">
+    <input type="search" name="q" value="<?= e($bq) ?>" placeholder="Search by file name, e.g. beehive" aria-label="Search pictures">
+    <select name="src" aria-label="Where from"><option value="">All sources</option>
+      <?php foreach (array_keys(ART_BROWSE) as $l): ?><option value="<?= e($l) ?>"<?= $bs === $l ? ' selected' : '' ?>><?= e(ucfirst($l)) ?></option><?php endforeach; ?></select>
+    <button class="btn small">Search</button>
+  </form>
+  <p class="help"><?= count($found) ?> picture<?= count($found) === 1 ? '' : 's' ?><?= $pages > 1 ? ' · page ' . $pg . ' of ' . $pages : '' ?></p>
+  <div class="artgrid">
+  <?php foreach ($show as [$rel, $label, $bytes, $mt, $over]): ?>
+    <figure class="artcard<?= $over ? ' over' : '' ?>">
+      <img src="<?= e(url($rel)) ?>" width="64" height="64" loading="lazy" decoding="async" alt="">
+      <figcaption><code><?= e(substr($rel, (int)strrpos($rel, '/') + 1)) ?></code><br>
+        <span class="tag"><?= e($label) ?></span><?= $over ? ' <span class="tag phtag">hides built-in</span>' : '' ?><br>
+        <span class="muted"><?= round($bytes / 1024, 1) ?> KB<?= $label === 'uploaded' ? ' · ' . e(date('Y-m-d', $mt)) : '' ?></span>
+        <?php if ($label === 'uploaded'): ?>
+          <form method="post" class="inline" data-confirm="Delete this uploaded picture?"><?= csrf_field() ?>
+            <input type="hidden" name="do" value="delete"><input type="hidden" name="path" value="<?= e($rel) ?>">
+            <input type="hidden" name="q" value="<?= e($bq) ?>"><input type="hidden" name="src" value="<?= e($bs) ?>"><input type="hidden" name="page" value="<?= $pg ?>">
+            <button class="btn small danger">Delete</button></form>
+        <?php endif; ?>
+      </figcaption>
+    </figure>
+  <?php endforeach; ?>
+  </div>
+  <?php if (!$show): ?><p class="help">Nothing matches.</p><?php endif; ?>
+  <?php if ($pages > 1): ?><p>
+    <?php if ($pg > 1): ?><a class="btn small alt" href="<?= e(url($bu($pg - 1))) ?>">← Previous</a><?php endif; ?>
+    <?php if ($pg < $pages): ?><a class="btn small alt" href="<?= e(url($bu($pg + 1))) ?>">Next →</a><?php endif; ?></p><?php endif; ?>
+</div>
 <div class="box" id="missing">
   <h3>Missing art</h3>
   <table class="grid">

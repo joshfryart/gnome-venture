@@ -187,3 +187,46 @@ function art_progress(int $top = 25): array
     }
     return ['cats' => $cats, 'missing' => array_slice($miss, 0, $top), 'missing_total' => count($miss)];
 }
+
+/** Folders Admin → Images can browse: label => [folder, extensions]. Uploaded pictures come first and win over built-in ones. */
+const ART_BROWSE = [
+    'uploaded' => ['uploads', ['png', 'jpg', 'jpeg', 'webp']],
+    'built-in' => ['assets/img/ph', ['png']],
+    'placeholder' => ['assets/img/ph', ['svg']],
+    'creature' => ['assets/img/animals', ['png', 'svg']],
+];
+
+/** Every picture in the browsable folders whose name contains $q (a-z, 0-9, - _). Rows: [path, source, bytes, modified, overrides built-in?]. */
+function art_browse(string $q, string $src): array
+{
+    $q = strtolower(trim($q));
+    $rows = [];
+    foreach (ART_BROWSE as $label => [$dir, $exts]) {
+        if ($src !== '' && $src !== $label) continue;
+        $root = APP_ROOT . '/' . $dir;
+        if (!is_dir($root)) continue;
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $f) {
+            if (!$f->isFile()) continue;
+            $ext = strtolower($f->getExtension());
+            if (!in_array($ext, $exts, true)) continue;
+            $rel = $dir . '/' . str_replace('\\', '/', substr($f->getPathname(), strlen($root) + 1));
+            if ($q !== '' && !str_contains(strtolower($rel), $q)) continue;
+            $base = $f->getBasename('.' . $f->getExtension());
+            $over = $label === 'uploaded' && is_file(APP_ROOT . '/assets/img/ph/' . $base . '.png');
+            $rows[] = [$rel, $label, (int)$f->getSize(), (int)$f->getMTime(), $over];
+        }
+    }
+    usort($rows, fn($a, $b) => [array_search($a[1], array_keys(ART_BROWSE)), $a[0]] <=> [array_search($b[1], array_keys(ART_BROWSE)), $b[0]]);
+    return $rows;
+}
+
+/** Delete one uploaded picture (never a built-in one). Returns true when it was removed. */
+function art_delete(string $rel): bool
+{
+    if (!preg_match('#^uploads/(items|creatures|npcs|buildings|skins|nav|yard)/[a-z0-9][a-z0-9_-]{0,100}\.png$#', $rel)) return false;
+    $f = APP_ROOT . '/' . $rel;
+    if (!is_file($f) || !@unlink($f)) return false;
+    item_art_map(true);
+    return true;
+}
