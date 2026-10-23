@@ -1,15 +1,15 @@
--- borer-plate: one curved back plate shed by the Basalt Borer (mole-cricket).
--- Same brown body ramp, dark 2 px segment bands and lavender back sheen as creature-basalt-borer.
--- Drawn as a long, arched roof-tile of armour seen from above the front edge: a domed top
--- crossed by segment bands, a darker underside lip along the bottom, grey basalt grit
--- pressed in from digging, and a seam down the spine where it was sewn to the body.
+-- borer-plate: a curved back plate shed by the Basalt Borer (mole-cricket).
+-- Same brown body ramp, dark segment bands and lavender back sheen as creature-basalt-borer.
+-- Drawn as a telescoping pauldron: three arched segments that nest into each other,
+-- with a dark underside lip along the flat base, grey basalt grit pressed in from digging,
+-- and a seam along the hem of the front segment where it was sewn on.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
--- local frame: plate centre at origin, long axis along x, tilted to rise to the right
-local CX, CY, A = 32, 33, math.rad(-22)
+-- local frame: base centre at origin, y up is negative, tilted so the plate leans right
+local CX, CY, A = 31, 47, math.rad(-12)
 local ca, sa = math.cos(A), math.sin(A)
 local function loc(x, y) local dx, dy = x - CX, y - CY return dx * ca + dy * sa, -dx * sa + dy * ca end
 local function R(test)
@@ -18,63 +18,57 @@ local function R(test)
   return m
 end
 local function L2C(lx, ly) return math.floor(CX + lx * ca - ly * sa + 0.5), math.floor(CY + lx * sa + ly * ca + 0.5) end
+local function E(x, y, cx, cy, rx, ry) return ((x-cx)/rx)^2 + ((y-cy)/ry)^2 <= 1 end
 
-local HL = 22                                            -- half length
-local function topE(x) return -11 + 4 * (x / HL)^2 end   -- domed upper edge
-local function botE(x) return 4 + 3.5 * (x / HL)^2 end   -- arched lower edge (rises in the middle)
-local function inLen(x, y, pad) -- rounded ends: an ellipse cap on each end
-  local ax = math.abs(x)
-  if ax <= HL - 6 then return true end
-  local u = (ax - (HL - 6)) / (6 + pad)
-  return u <= 1 and math.abs(y - (topE(x) + botE(x)) / 2) <= ((botE(x) - topE(x)) / 2 + 1) * math.sqrt(1 - u*u)
+-- segments: back (largest) to front (smallest); each is an arch whose base curls down at the ends
+local function seg(rx, ry, base)
+  return R(function(x, y) return E(x, y, 0, base, rx, ry) and y <= base + 2.5 * (x / rx)^2 + 0.5 end)
 end
-local top = R(function(x, y) return y >= topE(x) and y <= botE(x) and inLen(x, y, 0) end)
-local lip = R(function(x, y) return y > botE(x) and y <= botE(x) + 4 and inLen(x, y - 2, -0.5) end)
-top = top:shrink(1):grow(1); lip = lip:shrink(1):grow(1)
+local s1 = seg(25, 33, 0)
+local s2 = seg(20, 23, 0.5)
+local s3 = seg(14, 13, 1)
+-- underside lip: the thickness of the plate showing along the base
+local lip = R(function(x, y) return math.abs(x) <= 24 and y > 0.5 and y <= 4 + 0 * x and
+  y <= 1 + 2.5 * (x / 25)^2 + 3.5 and y > 2.5 * (x / 25)^2 + 0.5 end)
+s1 = s1:shrink(1):grow(1); lip = lip:shrink(1):grow(1)
 
 local body = GV.ramp("#9a7447")
+local whole = s1:copy():add(lip)
 local p = c:build{
   { "lip", lip, GV.ramp("#6b4a2c"), { gloss = false } },
-  { "top", top, body, { light = top:copy():add(lip), gloss = { 12, 26 } } },
+  { "s1", s1, body, { light = whole, gloss = { 14, 24 } } },
+  { "s2", s2, body, { light = whole, gloss = false } },
+  { "s3", s3, body, { light = whole, gloss = { 22, 39 } } },
 }
 
--- segment bands across the plate, bowed with the dome, each with a lit shingle edge on its left
-local inner = p.top.m:shrink(1)
-for _, sx in ipairs({ -11, 0, 11 }) do
-  local q = {}
-  for ly = -12, 8, 2 do
-    local bow = 1.2 * math.sin((ly + 12) / 20 * math.pi)   -- bands bulge forward over the dome
-    q[#q+1] = { L2C(sx + bow, ly) }
+-- lavender back sheen arcs on the lit shoulder of the two back segments, as on the creature
+local function sheen(rx, ry, base, a0, a1)
+  for i = a0, a1, 2 do
+    local t = math.rad(i)
+    local x, y = L2C(rx * math.cos(t), base - ry * math.sin(t))
+    local q = c:get(x, y)
+    if q == body.base then c:px(x, y, "#8f7fc9") end
   end
-  local g = c:line(q, 2):clip(inner)
-  c:fill(g, "#2a1a10")
-  c:fill(g:shift(-1, 0):cut(g):clip(inner), body.rim)
 end
--- the same bands carry on round the underside lip
-for _, sx in ipairs({ -11, 0, 11 }) do
-  local x0, y0 = L2C(sx, botE(sx) + 1); local x1, y1 = L2C(sx, botE(sx) + 4)
-  c:fill(c:line({ { x0, y0 }, { x1, y1 } }, 2):clip(p.lip.m:shrink(1)), "#2a1a10")
-end
+sheen(21.5, 29.5, 0, 112, 160)
+sheen(16.5, 19.5, 0.5, 118, 160)
 
--- lavender back sheen along the lit upper edge, as on the creature
-for lx = -19, 4 do
-  local x, y = L2C(lx, topE(lx) + 3)
-  if inner:has(x, y) and c:get(x, y) ~= "#2a1a10" and c:get(x, y) ~= body.rim then c:px(x, y, "#8f7fc9") end
-end
-
--- seam down the spine where it was sewn to the body, button at its head (left end)
+-- seam along the hem of the front segment, button at its head
 local pts = {}
-for lx = -16, 19 do pts[#pts+1] = { L2C(lx, (topE(lx) + botE(lx)) / 2 + 1) } end
+for i = 0, 18 do
+  local t = math.rad(165 - i * 150 / 18)
+  pts[#pts+1] = { L2C(11 * math.cos(t), 1 - 10 * math.sin(t)) }
+end
 c:seam(pts)
-local bx, by = L2C(-19, (topE(-19) + botE(-19)) / 2 + 1)
-c:button(bx - 2, by - 2)
+local bx, by = L2C(-11.5, -1.5)
+c:button(bx - 1, by - 2)
 
 -- basalt grit pressed into the felt: small stone-grey diamonds with a pale glint
 local function grit(lx, ly)
   local x, y = L2C(lx, ly)
   c:spot(c:ascii({ ".s.", "sss", ".s." }, x - 1, y - 1), "#5b6470", "#8b8f96")
 end
-grit(-6, -5); grit(6, 3); grit(16, -4)
+grit(4, -28); grit(17, -9); grit(-17, -6)
 
 local t = c:save(D .. "final/aseprite/ph/borer-plate.aseprite", PNG .. "borer-plate.png")
 print(GV.report(t))

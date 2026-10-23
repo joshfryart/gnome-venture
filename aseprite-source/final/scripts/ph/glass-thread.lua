@@ -6,11 +6,11 @@ local PNG = "/home/user/gnome-venture/game/assets/img/ph/"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 
 -- coil axis from lower-left to upper-right
-local AX, AY, BX, BY = 19, 42, 41, 24
+local AX, AY, BX, BY = 17, 42, 43, 20
 local L = math.sqrt((BX - AX) ^ 2 + (BY - AY) ^ 2)
 local ux, uy = (BX - AX) / L, (BY - AY) / L      -- along the axis
 local px, py = -uy, ux                           -- across the axis (points up-left)
-local TURNS, R, r = 2.5, 12, 5
+local TURNS, R, r = 2, 11, 6
 local T = TURNS * 2 * math.pi
 
 local back, front = c:mask(), c:mask()
@@ -47,7 +47,7 @@ c:build{
 c:px(53, 12, "#f8fcf4")
 
 -- glints running along the front strands (1 px, upper-left of each front pass)
-for k = 0, TURNS - 1 do
+for k = 0, math.floor(TURNS) - 1 do
   local t = (k + 0.25) * 2 * math.pi
   local a = L * t / T + r * math.sin(t)
   local x = AX + ux * a + px * R * math.cos(t)

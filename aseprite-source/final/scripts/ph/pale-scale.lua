@@ -7,14 +7,21 @@ local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 local pale = GV.ramp("#e8d8d0")
 local rose = GV.ramp("#c98f8f")
 
--- a rounded fan: wide scalloped top edge at the upper right, tapering to a root at the lower left
-local fan = c:ellipse(35.5, 27.5, 18, 16)
-fan:add(c:poly({ { 15, 47 }, { 20, 24 }, { 40, 42 } }))
-fan:add(c:ellipse(22, 40, 8, 8))
--- scalloped rim: three small notches along the outer edge
-for _, q in ipairs({ { 45, 11 }, { 54, 20 }, { 55, 32 } }) do fan:cut(c:ellipse(q[1], q[2], 1.5, 1.5)) end
+-- a smooth teardrop: broad rounded free end at the upper right, tapering to its root at the lower left
+local RX, RY, BX, BY, BR = 17, 48, 37, 25, 17
+local fan = c:mask()
+for i = 0, 20 do
+  local k = i / 20
+  fan:add(c:ellipse(BX + (RX - BX) * k, BY + (RY - BY) * k, BR + (3 - BR) * k))
+end
+-- scalloped free edge: three small notches round the broad end
+local ax = math.atan(RY - BY, BX - RX)
+for _, d in ipairs({ -0.62, 0, 0.62 }) do
+  local a = ax + d
+  fan:cut(c:ellipse(math.floor(BX + (BR + 0.5) * math.cos(a)) + 0.5, math.floor(BY - (BR + 0.5) * math.sin(a)) + 0.5, 1.5, 1.5))
+end
 -- rose root where the scale was set in the skin
-local root = c:ellipse(15.5, 48.5, 5.5, 5)
+local root = c:ellipse(16.5, 49.5, 3.5, 3.5)
 
 local p = c:build{
   { "fan",  fan,  pale, { pale = true, gloss = { 24, 22 } } },
@@ -29,10 +36,9 @@ local function arc(cx, cy, r, a0, a1, col)
   end
   c:fill(c:line(pts, 1):clip(fan:shrink(2)), col)
 end
-arc(18, 46, 18, -0.05, 1.62, "#b9acd8")
-arc(18, 46, 26, 0.02, 1.52, "#b9acd8")
+for _, r in ipairs({ 12, 20, 28 }) do arc(RX, RY, r, ax - 0.75, ax + 0.75, "#b9acd8") end
 -- the seam where the root is sewn onto the scale
-c:seam({ { 13, 43 }, { 21, 51 } }, { free = true })
+c:seam({ { 16, 45 }, { 21, 50 } }, { free = true })
 
 local t = c:save(D .. "final/aseprite/ph/pale-scale.aseprite", PNG .. "pale-scale.png")
 print(GV.report(t))

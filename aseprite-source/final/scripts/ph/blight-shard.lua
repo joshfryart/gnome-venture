@@ -1,7 +1,7 @@
 -- blight-shard : a jagged black shard that hums and points down.
--- One long crystal splinter hanging tip-down with a broken, jagged crown on top. Three prism
--- faces (lit lavender bevel, dusk front, near-black right face), a sickly green vein-sheen down
--- the front face, and two small hum arcs either side. Dusk family (GV.R.dusk) for the black;
+-- One long crystal splinter hanging tip-down with a broken crown of three prongs. Three prism
+-- faces (lit lavender bevel, dark dusk front, near-black right face), a sickly green vein-sheen
+-- down the front face, and two small hum arcs either side. Dusk family ramps for the black;
 -- blight sheen borrowed from creature-blight-mother (#8f9c7a / #7a8a52).
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
