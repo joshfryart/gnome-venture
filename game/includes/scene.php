@@ -58,3 +58,27 @@ function scene_stage(string $kind, string $key, array $units, string $id = 'stag
     $data = json_encode(['bg' => $bg !== '' ? url($bg) : '', 'units' => $out], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     return '<div class="gvs scene-fb scene-fb-' . e(scene_key($fallback !== '' ? $fallback : $key) ?: 'none') . '" data-crop="1" id="' . e(scene_key($id) ?: 'stage') . '" data-stage="' . e((string)$data) . '"></div>';
 }
+
+/** The player's own gnome as stage markup (the drawing without its size, so the stage can scale it). Falls back to an emoji. */
+function gnome_stage_ico(array $u): string
+{
+    if (!function_exists('gnome_avatar') || !preg_match('~<svg[^>]*>(.*)</svg>\s*$~s', gnome_avatar($u, 24), $m)) return '🧙';
+    return '<svg class="meico" viewBox="0 0 80 100" aria-hidden="true" focusable="false">' . $m[1] . '</svg>';
+}
+
+/** v2.0.43: the Adventure stage: your gnome on the land's scene, and the creature opposite in a fight. */
+function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): string
+{
+    require_once __DIR__ . '/items.php';
+    $land = (string)($scene['land'] ?? 'grassland');
+    $fight = $enc && ($enc['type'] ?? '') === 'creature';
+    $units = [['id' => 'me', 'side' => 'p', 'name' => gnome_name($u), 'html' => gnome_stage_ico($u),
+        'hp' => $fight ? max(0, (int)$exp['hp']) : 0, 'max' => $fight ? (int)$exp['max_hp'] : 0, 'ko' => $fight && (int)$exp['hp'] <= 0]];
+    if ($fight && ($c = encounter_creature($enc))) {
+        $rel = creature_image((string)($c['slug'] ?? ''), true);
+        $units[] = ['id' => 'foe', 'side' => 'f', 'name' => (string)$c['name'], 'mini' => 'mini-' . (string)($c['slug'] ?? ''), 'img' => $rel,
+            'html' => $rel === '' ? '<span class="gvs-emo">' . emoji_swap(e((string)($c['icon'] ?? '🐾'))) . '</span>' : '',
+            'hp' => max(0, (int)$enc['hp']), 'max' => (int)$enc['max']];
+    }
+    return scene_stage('stage', $land, $units, 'advstage', $land);
+}

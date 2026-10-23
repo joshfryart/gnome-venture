@@ -5100,3 +5100,20 @@ dialog.tkscene[open] .tkscard, dialog.tkcamp[open] .tkccard { animation: none; }
 }
 /* a story or foe pop-over that sits over the Trek stage (placed by assets/trekshell.js) */
 dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
+
+/* ===== v2.0.43 Adventure stage and one-screen layout ===== */
+.mapcol > #advstage { margin: 0 auto 8px; max-width: 480px; }
+.advjournal > summary { cursor: pointer; }
+@media (min-width: 1000px) {
+  body:has(.advgrid) .rail { display: none; }
+  .advgrid { display: grid; grid-template-columns: 480px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .advgrid .encounter { max-width: none; max-height: calc(100dvh - 200px); overflow-y: auto; }
+  .advgrid.withrings { grid-template-columns: 480px minmax(0, 1fr); }
+  .advgrid.fighting { display: grid; }
+  .advgrid.fighting .encounter { order: 0; }
+  .advgrid.fighting .mapwrap { max-height: none; }
+}
+@media (max-width: 999px) {
+  .advgrid.fighting > .mapcol { display: contents; }
+  .advgrid.fighting #advstage { order: -2; width: 100%; max-width: 480px; margin: 0 auto 8px; }
+}

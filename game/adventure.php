@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/adventure.php';
+require_once __DIR__ . '/includes/scene.php';   // v2.0.43: the stage
 $u = require_login();
 $uid = (int)$u['id'];
 
@@ -188,6 +189,7 @@ if ($wi): ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?>">
 <div class="mapcol">
+<?php if ($exp): echo adventure_stage_html($u, $exp, $scene, $enc); endif; ?>
 <?php if ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
@@ -398,12 +400,12 @@ if ($resultCard): ?>
 </div>
 <div class="gardenwrap">
 
-<div class="panel box">
-  <h3>Journal</h3>
+<details class="panel box advjournal"<?= $exp ? '' : ' open' ?>>
+  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small></summary>
   <ul class="journal">
     <?php foreach (array_reverse(array_slice($log, -25)) as $line): ?><li><?= e($line) ?></li><?php endforeach; ?>
   </ul>
-</div>
+</details>
 </div>
 <?php if (!in_array($kind, ['delve', 'lair'], true)): ?>
 <details class="fold mapfold"><summary>🗺️ Where this is on the world map</summary>
