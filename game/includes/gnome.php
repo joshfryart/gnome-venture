@@ -541,12 +541,13 @@ function gnome_avatar(array $u, int $size = 96): string
         require_once __DIR__ . '/pixel_art.php';
         $bh = pixel_hex($beard);
         $hh = pixel_hex($hat);
-        $defs = ($hh !== '' ? pixel_tint_filter($hh) : '') . ($bh !== '' && $bh !== $hh ? pixel_tint_filter($bh) : '');
-        $o = '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome">'
+        $uid = '-' . bin2hex(random_bytes(3));   // v2.0.36: unique filter ids per avatar (the phone nav drawer holds a hidden twin of this gnome)
+        $defs = ($hh !== '' ? pixel_tint_filter($hh, 1.25, $uid) : '') . ($bh !== '' && $bh !== $hh ? pixel_tint_filter($bh, 1.25, $uid) : '');
+        $o = '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome" data-tint="' . $uid . '">'
             . ($defs !== '' ? '<defs>' . $defs . '</defs>' : '');
         foreach ($L as $l) {
             $o .= '<g data-part="' . ($l === 'beard' || $l === 'hat' || $l === 'band' || $l === 'star' ? $l : 'base') . '">'
-                . pixel_image('assets/img/gnome/gnome-' . $l . '.png', 0, 0, 80, 100, $l === 'beard' ? $beard : ($l === 'hat' ? $hat : '')) . '</g>';
+                . pixel_image('assets/img/gnome/gnome-' . $l . '.png', 0, 0, 80, 100, $l === 'beard' ? $beard : ($l === 'hat' ? $hat : ''), $uid) . '</g>';
         }
         return $o . '</svg>';
     }

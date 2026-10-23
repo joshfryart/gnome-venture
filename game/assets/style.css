@@ -3849,6 +3849,7 @@ ul.trekrounds.trekLatest li { padding: 1px 0; }
 .trekhealth .hprows { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
 .hprow { display: grid; grid-template-columns: 1.7em minmax(0, 1fr) 84px 3.8em; align-items: center; gap: 8px; font-size: 15px; }
 .hprow .hpico { font-size: 20px; line-height: 1; text-align: center; }
+.hprow .hpico .hpimg { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; }   /* v2.0.36: a foe's pixel art in its health row */
 .hprow .hpname { min-width: 0; overflow-wrap: anywhere; }
 .hprow .hpmk { font-size: 13px; }
 .hprow progress { width: 100%; max-width: none; height: 10px; }

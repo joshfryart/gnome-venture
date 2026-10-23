@@ -571,7 +571,7 @@
       var li = el('li', 'hprow foe'), bar = document.createElement('progress'), num = el('span', 'hpnum'), nm = el('span', 'hpname', base), cnt = el('b', 'hpx');
       bar.className = 'foebar';
       nm.appendChild(cnt);
-      li.appendChild(el('span', 'hpico', x[1])); li.appendChild(nm); li.appendChild(bar); li.appendChild(num);
+      var fi = el('span', 'hpico', x[7] ? null : x[1]); if (x[7]) fi.innerHTML = x[7]; li.appendChild(fi); li.appendChild(nm);   /* x[7]: server-built icon markup (escaped by the server) */ li.appendChild(bar); li.appendChild(num);
       this.fl.appendChild(li);
       g = { li: li, bar: bar, num: num, cnt: cnt, name: base, own: own, members: [] };
       this.groups.push(g);
@@ -597,7 +597,8 @@
     var bar = document.createElement('progress');
     if (side === 'f') bar.className = 'foebar';
     var num = el('span', 'hpnum');
-    var ic = el('span', 'hpico', x[4] && this.d.me ? null : x[1]);
+    var ic = el('span', 'hpico', x[4] && this.d.me ? null : (x[5] ? null : x[1]));
+    if (!(x[4] && this.d.me) && x[5]) ic.innerHTML = x[5];   /* x[5]: server-built icon markup (escaped by the server) */
     if (x[4] && this.d.me) ic.appendChild(this.d.me.cloneNode(true));   /* v1.9.0: the player's gnome, from the server-drawn template */
     li.appendChild(ic); li.appendChild(el('span', 'hpname', x[0])); li.appendChild(bar); li.appendChild(num);
     (side === 'f' ? this.fl : this.pl).appendChild(li);

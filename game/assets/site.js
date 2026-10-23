@@ -85,7 +85,7 @@ document.addEventListener('change', function (ev) {
     var h = String(input.value).replace(/^#/, '').toLowerCase();
     if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
     if (!im || !svg || !/^[0-9a-f]{6}$/.test(h)) return;
-    var NS = 'http://www.w3.org/2000/svg', id = 'tint-' + h;
+    var NS = 'http://www.w3.org/2000/svg', uid = svg.getAttribute('data-tint') || '', id = 'tint-' + h + uid;   /* v2.0.36: ids carry the avatar's own suffix so a hidden twin cannot capture them */
     if (!svg.querySelector('filter[id="' + id + '"]')) {
       var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
       var f = document.createElementNS(NS, 'filter'), m = document.createElementNS(NS, 'feColorMatrix');

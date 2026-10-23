@@ -175,6 +175,8 @@ function trek_replay_stage(array $run, array $u): string
     $r = $_SESSION['trek_replay'] ?? null;
     unset($_SESSION['trek_replay']);
     if (!is_array($r) || (int)($r['run'] ?? 0) !== (int)$run['id'] || time() - (int)($r['t'] ?? 0) > 30 || empty($r['r'])) return '';
+    foreach ($r['r'] as &$rr) $rr['l'] = array_map('emoji_swap', $rr['l']);   // v2.0.36: the log lines are built in JS, so swap their emoji for our icons here
+    unset($rr);
     return '<div class="trekreplay" hidden data-replay="' . e((string)json_encode(['s' => $r['s'], 'r' => $r['r']], JSON_UNESCAPED_UNICODE)) . '"><template class="meico-tpl">' . trek_me_ico($u) . '</template></div>';   // v1.9.0: the player's gnome, drawn by the server, for the replay's party row
 }
 

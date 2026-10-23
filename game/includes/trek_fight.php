@@ -975,14 +975,22 @@ function trek_foe_card(array $f): array
     return ['a' => $rel !== '' ? art_img($rel, 'lg', (string)$f['name'], 'tkfoeimg') : e((string)($f['icon'] ?? '🐾')), 'n' => (string)$f['name'], 't' => $d];
 }
 
+/** v2.0.36: a foe's small row picture as markup: its pixel art if drawn, else our icon for its emoji (the replay builds rows in JS, so the page's emoji swap never sees them). */
+function trek_foe_row_ico(array $f): string
+{
+    $slug = (string)($f['slug'] ?? '');
+    $rel = $slug !== '' ? creature_image($slug, true) : '';
+    return $rel !== '' ? art_img($rel, 'sm', '', 'hpimg') : emoji_swap(e((string)($f['icon'] ?? '🐾')));
+}
+
 /** v1.8.5: foes and party as [name, icon, hp, max] rows, for the Auto replay. $fi may be the fight as it stood (the run's own is gone once it ends). */
 function trek_replay_snap(array &$run, array $u, array $fi, bool $over = false): array
 {
     $names = trek_foe_names($fi);
     $f = [];
-    foreach ($fi['foes'] as $i => $x) $f[] = [$names[$i], (string)$x['icon'], $over && !empty($GLOBALS['trek_won']) ? 0 : max(0, (int)$x['hp']), (int)$x['max'], trek_foe_own($fi, (int)$i) ? 1 : 0, (string)$x['name'], trek_foe_card($x)];   // v1.8.6: [4] own row, [5] plain name (the replay groups foes of one kind); v2.0.10: [6] pop-over card
+    foreach ($fi['foes'] as $i => $x) $f[] = [$names[$i], (string)$x['icon'], $over && !empty($GLOBALS['trek_won']) ? 0 : max(0, (int)$x['hp']), (int)$x['max'], trek_foe_own($fi, (int)$i) ? 1 : 0, (string)$x['name'], trek_foe_card($x), trek_foe_row_ico($x)];   // v1.8.6: [4] own row, [5] plain name (the replay groups foes of one kind); v2.0.10: [6] pop-over card; v2.0.36: [7] row icon markup
     $p = [];
-    foreach (trek_party_stats($run, $u) as $slot => $m) $p[] = [trek_short_name((string)$m['name']), (string)$m['icon'], max(0, (int)$run['party'][$slot]['hp']), (int)$m['max'], (int)$slot === 0 ? 1 : 0];   // v1.9.0: [4] the player's own gnome (its drawing comes from the page)
+    foreach (trek_party_stats($run, $u) as $slot => $m) $p[] = [trek_short_name((string)$m['name']), (string)$m['icon'], max(0, (int)$run['party'][$slot]['hp']), (int)$m['max'], (int)$slot === 0 ? 1 : 0, emoji_swap(e((string)$m['icon']))];   // v1.9.0: [4] the player's own gnome (its drawing comes from the page); v2.0.36: [5] icon markup (our icon for the emoji, as the page would swap it)
     return ['f' => $f, 'p' => $p];
 }
 
