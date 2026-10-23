@@ -41,10 +41,11 @@ function scene_banner(string $key, string $alt = '', string $kind = 'banner'): s
 
 /**
  * The fight/visit stage: a 480x270 backdrop with sprites standing on it. assets/stage.js builds it from the JSON.
- * $units: [['id' => 'me', 'side' => 'p'|'f', 'name' => 'Gnome', 'mini' => 'slug', 'img' => 'fallback sticker path', 'hp' => 10, 'max' => 12], ...]
+ * $units: [['id' => 'me', 'side' => 'p'|'f', 'name' => 'Gnome', 'mini' => 'slug', 'img' => 'fallback sticker path', 'html' => 'server-built markup instead of a picture', 'hp' => 10, 'max' => 12, 'ko' => false], ...]
+ * $fallback: landscape key for the colour bands when the backdrop file is missing.
  * Backdrop key: kind 'stage' (a landscape, e.g. forest) or 'trek' (e.g. 2-camp); a missing file shows the fallback colours.
  */
-function scene_stage(string $kind, string $key, array $units, string $id = 'stage'): string
+function scene_stage(string $kind, string $key, array $units, string $id = 'stage', string $fallback = ''): string
 {
     $bg = scene_path($kind, $key);
     $out = [];
@@ -52,8 +53,8 @@ function scene_stage(string $kind, string $key, array $units, string $id = 'stag
         $mini = mini_path((string)($u['mini'] ?? ''));
         $img = $mini !== '' ? $mini : art_path((string)($u['img'] ?? ''));
         $out[] = ['id' => (string)($u['id'] ?? ''), 'side' => ($u['side'] ?? 'p') === 'f' ? 'f' : 'p', 'name' => (string)($u['name'] ?? ''),
-            'src' => $img !== '' ? url($img) : '', 'mini' => $mini !== '', 'hp' => (int)($u['hp'] ?? 0), 'max' => (int)($u['max'] ?? 0), 'ko' => !empty($u['ko'])];
+            'src' => $img !== '' ? url($img) : '', 'html' => (string)($u['html'] ?? ''), 'mini' => $mini !== '', 'hp' => (int)($u['hp'] ?? 0), 'max' => (int)($u['max'] ?? 0), 'ko' => !empty($u['ko'])];
     }
     $data = json_encode(['bg' => $bg !== '' ? url($bg) : '', 'units' => $out], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-    return '<div class="gvs scene-fb scene-fb-' . e(scene_key($key) ?: 'none') . '" id="' . e(scene_key($id) ?: 'stage') . '" data-stage="' . e((string)$data) . '"></div>';
+    return '<div class="gvs scene-fb scene-fb-' . e(scene_key($fallback !== '' ? $fallback : $key) ?: 'none') . '" id="' . e(scene_key($id) ?: 'stage') . '" data-stage="' . e((string)$data) . '"></div>';
 }

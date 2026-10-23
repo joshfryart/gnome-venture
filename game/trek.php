@@ -4,7 +4,8 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/trek.php';
 require_once __DIR__ . '/includes/trek_minimap.php';   // v2.0.20: the Whole map fold
-require_once __DIR__ . '/includes/trek_art.php';   // v1.8.10: the map art
+require_once __DIR__ . '/includes/trek_art.php';
+require_once __DIR__ . '/includes/trek_stage.php';   // v2.0.40: the party on the chapter's scene   // v1.8.10: the map art
 $u = require_login();
 $uid = (int)$u['id'];
 refresh_energy($u);
@@ -912,6 +913,7 @@ $fat = (int)$run['fatigue'];
   <?= $sceneHtml ?>
   <?= trek_hub_html($run, $u, $party) ?>
 <?php elseif ($tab === 'map'): ?>
+  <?= trek_stage_html($run, $u) ?>
   <?= $replayHtml ?>
   <?= $sceneHtml ?>
   <?php

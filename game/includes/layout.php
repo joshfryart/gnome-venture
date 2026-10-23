@@ -62,6 +62,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js) */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.8: assets/pest.js (Pest Patrol) */ ?>
+<?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/stage.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/trekshell.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* v2.0.40: the stage and the Party/Pack/Log drawers */ ?>
 <?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/trekfight.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.8.4: assets/trekfight.js (the fight plan sheet and turn-by-turn stage) */ ?>
 <?php if (!$admin && $page === 'trek.php'): ?><script src="<?= e(url('assets/trekmap.js?v=' . APP_VERSION)) ?>" defer></script>

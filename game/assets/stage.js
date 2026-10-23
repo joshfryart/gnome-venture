@@ -4,6 +4,7 @@
 (function () {
   'use strict';
   var W = 480, H = 270;
+  var store = {};   // stage id => {unit id: hp} from its last draw
 
   function mk(tag, cls, parent) {
     var n = document.createElement(tag);
@@ -35,7 +36,10 @@
       var d = mk('div', 'gvs-u gvs-' + side + n + (u.ko ? ' ko' : ''), box);
       d.setAttribute('data-id', u.id);
       mk('span', 'gvs-base' + (u.mini ? ' none' : ''), d);
-      if (u.src) {
+      if (u.html) {
+        var hw = mk('span', 'gvs-html', d);
+        hw.innerHTML = u.html;   // markup the server built itself (the gnome drawing, an emoji icon); never player text
+      } else if (u.src) {
         var im = mk('img', 'gvs-sp pix', d);
         im.src = u.src; im.alt = u.name || '';
       } else {
@@ -48,6 +52,16 @@
       }
     });
     fit(el);
+    // a re-drawn stage (after a round): show what changed since the last draw of the same stage
+    var key = el.id || '', prev = key ? (store[key] || null) : null, now = {};
+    (data.units || []).forEach(function (u) { now[u.id] = u.hp; });
+    if (key) store[key] = now;
+    if (prev) (data.units || []).forEach(function (u) {
+      if (prev[u.id] === undefined || u.max <= 0) return;
+      var dlt = u.hp - prev[u.id];
+      if (dlt < 0) { api.act(el, u.id, 'hit'); api.float(el, u.id, String(dlt), 'dmg'); }
+      else if (dlt > 0) { api.act(el, u.id, 'heal'); api.float(el, u.id, '+' + dlt, 'heal'); }
+    });
   }
 
   function unit(el, id) {
@@ -88,8 +102,10 @@
   window.GVStage = api;
 
   function boot() {
-    var list = document.querySelectorAll('.gvs[data-stage]');
+    var list = document.querySelectorAll('.gvs[data-stage]:not([data-ready])');
     for (var i = 0; i < list.length; i++) api.init(list[i]);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  // site.js swaps <main> in place after a click: draw any new stage that shows up
+  if (window.MutationObserver) new MutationObserver(boot).observe(document.querySelector('main') || document.body, { childList: true, subtree: true });
 })();
