@@ -39,10 +39,10 @@ local function world(mask)
     c:fill(c:rect(0, 0, 319, 179), "#3f8fb0"); for y = 6, 178, 9 do for x = ((y // 9) % 2) * 11, 319, 22 do c:fill(c:rect(x, y, x + 5, y), "#a9d6ea") end end
     c:fill(c:rect(0, 0, 319, 2), "#25637d"); c:fill(c:rect(0, 177, 319, 179), "#25637d") end
   X.layer(c, "ground")
-  local land = c:mask()
+  local land = c:mask(); local RMASK = {}
   for i, r in ipairs(REG) do
     local m = blob(c, c:mask(), i, r[2] * 0.32, r[3] * 0.32, r[4] * 0.32 * 0.9)
-    land:add(m)
+    land:add(m); RMASK[i] = m
     c:fill(m, mask and string.format("#%02x%02x%02x", (i * 61) % 256, (i * 137) % 256, (i * 199) % 256) or r[5])
   end
   if not mask then
@@ -57,9 +57,32 @@ local function world(mask)
       c:fill(c:line({ { a[2] * 0.32, a[3] * 0.32 }, { b[2] * 0.32, b[3] * 0.32 } }, 3), "#f2e4c0")
     end
     X.layer(c, "detail")
-    for i, r in ipairs(REG) do   -- pin spot stays flat: glyph sits 11 px off-centre
-      local gx, gy = r[2] * 0.32 + 11, r[3] * 0.32 + 6
-      glyph(c, r[6], gx, gy, 1)
+    -- coast foam: a dashed pale line two px off every shore
+    land:copy():grow(3):cut(land:copy():grow(1)):each(function(x, y) if (x * 2 + y) % 5 == 0 then c:px(x, y, "#eef8f2") end end)
+    -- ground texture: sparse flecks per region (light on dark regions, dark on light ones)
+    local DARK = { NA = true, SA = true, WCA = true, SEA = true, CSA = true, ESA = true }
+    local ws = 11; local function wrnd(n) ws = (ws * 1103515245 + 12345) % 2147483648 return ws % n end
+    for i, r in ipairs(REG) do
+      local fleck = DARK[r[1]] and "#fff3c8" or "#9a6b3f"
+      for k = 1, 60 do local x, y = wrnd(318), wrnd(178); if RMASK[i]:has(x, y) and land:has(x - 2, y) and c:get(x, y) == r[5] then c:px(x, y, fleck) end end
+    end
+    -- landscape glyphs inside each region (kept 9 px off the pin spot, and off the paths)
+    local gs = 23; local function grnd(n) gs = (gs * 1103515245 + 12345) % 2147483648 return gs % n end
+    for i, r in ipairs(REG) do
+      local px, py = r[2] * 0.32, r[3] * 0.32; local n = 0
+      for try = 1, 80 do
+        if n >= 5 then break end
+        local x, y = math.floor(px - 14 + grnd(29)), math.floor(py - 12 + grnd(25))
+        if RMASK[i]:has(x, y) and RMASK[i]:has(x, y + 3) and RMASK[i]:has(x - 4, y) and RMASK[i]:has(x + 4, y) and (math.abs(x - px) > 9 or math.abs(y - py) > 9) and c:get(x, y) == r[5] then glyph(c, r[6], x, y, 0.75); n = n + 1 end
+      end
+    end
+    -- Mossbottom: a little mushroom on the hub island
+    c:fill(c:rect(125, 144, 127, 150), "#f2e4c0"); c:fill(c:ellipse(126, 143, 5, 3), "#dd3a2a"); c:px(124, 142, "#fff3c8"); c:px(128, 143, "#fff3c8")
+    -- two sailboats and a whale-tail curl in open water
+    for _, b in ipairs({ { 20, 160 }, { 268, 40 }, { 230, 160 } }) do
+      c:fill(c:poly({ { b[1], b[2] }, { b[1] + 10, b[2] }, { b[1] + 8, b[2] + 3 }, { b[1] + 2, b[2] + 3 } }), "#8a4f2a"); c:fill(c:rect(b[1] + 5, b[2] - 10, b[1] + 5, b[2]), "#5e2f1e"); c:fill(c:poly({ { b[1] + 6, b[2] - 9 }, { b[1] + 12, b[2] - 1 }, { b[1] + 6, b[2] - 1 } }), "#f2e4c0")
+    end
+    for i, r in ipairs(REG) do
       c:fill(c:rect(r[2] * 0.32 - 6, r[3] * 0.32 - 6, r[2] * 0.32 + 5, r[3] * 0.32 + 5), r[5])   -- re-flatten the 12x12 pin spot to the region colour
     end
     c:fill(c:rect(0, 0, 0, 0), "#25637d")
