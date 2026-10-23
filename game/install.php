@@ -9,6 +9,7 @@ define('APP_ROOT', __DIR__);
 define('APP_VERSION', '2.0.34');
 require __DIR__ . '/includes/db.php';
 require __DIR__ . '/includes/functions.php';
+require __DIR__ . '/includes/pixel_art.php';   // v2.0.31: pixel_has() is called by the item seeders (garden100_items etc.)
 require __DIR__ . '/includes/seed.php';
 
 send_security_headers();
