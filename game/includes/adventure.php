@@ -255,8 +255,8 @@ function exp_log(array &$exp, string $line): void
 
 function save_exp(array $exp): void
 {
-    q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ? WHERE id = ?',
-        [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['id']]);
+    q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ?, trail = ? WHERE id = ?',
+        [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['trail'] ?? null, $exp['id']]);
     if (($exp['status'] ?? 'active') !== 'active' && in_array($exp['kind'] ?? 'walk', ['delve', 'lair'], true)) dm_scene_drop((int)$exp['id']);   // v2.0.6: the map goes when the delve ends
 }
 

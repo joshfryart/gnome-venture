@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/scene.php';   // v2.0.46
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/items.php';
@@ -91,6 +92,7 @@ page_header($shop['name']);
 ?>
 <p class="crumbs">🌍 <a href="<?= e(url('world.php?tab=markets')) ?>">Shops</a> › <b><?= e($shop['name']) ?></b><?= $shopTown ? ' <span class="muted">in ' . e($shopTown['name']) . '</span>' : '' ?></p>
 <h1><?= e($shop['name']) ?></h1>
+<?= scene_shop_banner($shop) ?>
 <p class="shopintro"><?= e($shop['description']) ?></p>
 <p class="status shopintro">
   <?= $staff ? '🧑‍🌾 At the counter: ' . implode(', ', array_map(fn($n) => '<a href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a> the ' . e(strtolower($n['personality']) . ' ' . strtolower($n['species'])), $staff)) . ' <span class="muted">(tap a name to chat)</span>' : '🚪 Nobody is on shift. Come back later.' ?>

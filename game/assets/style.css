@@ -4977,3 +4977,164 @@ dialog.tkr::backdrop, dialog.tkscene::backdrop, dialog.tkcamp::backdrop { -webki
 /* ---- generic: any remaining pill in page content is a square tag ---- */
 .tag, .cat, .lvbadge, .gtbadge, .rarecat, .tbadge, .st-tabbadge, .jqtabs a small, .rbadge, .rtime, .rgo, .hollow:not(.st), .tfolk, .gmine, .stbadge { border-radius: 0; }
 /* ===== end v2.0.33 ===== */
+
+/* ===== v2.0.38 scene stage (assets/stage.js) and fallbacks ===== */
+.gvs { position: relative; width: 100%; max-width: 960px; margin: 0 auto; overflow: hidden; border: var(--px, 2px) solid var(--ol, #2a1a10); background: #a9d6ea; }
+.gvs-box { position: absolute; left: 0; top: 0; width: 480px; height: 270px; transform-origin: 0 0; }
+.gvs-bg { position: absolute; left: 0; top: 0; width: 480px; height: 270px; }
+.gvs-u { position: absolute; bottom: 55px; width: 80px; height: 100px; display: flex; align-items: flex-end; justify-content: center; }
+.gvs-p0 { left: 60px; } .gvs-p1 { left: 20px; bottom: 75px; } .gvs-p2 { left: 120px; bottom: 75px; } .gvs-p3 { left: 80px; bottom: 95px; }
+.gvs-f0 { right: 60px; } .gvs-f1 { right: 20px; bottom: 75px; } .gvs-f2 { right: 120px; bottom: 75px; } .gvs-f3 { right: 80px; bottom: 95px; }
+.gvs-sp { position: relative; max-width: 100%; max-height: 100%; }
+.gvs-f0 .gvs-sp, .gvs-f1 .gvs-sp, .gvs-f2 .gvs-sp, .gvs-f3 .gvs-sp { transform: scaleX(-1); }   /* art faces right; foes look left */
+.gvs-blob { width: 40px; height: 40px; border-radius: 50%; background: #7b66b4; border: 2px solid #2a1a10; }
+.gvs-base { position: absolute; bottom: -4px; left: 50%; width: 64px; height: 16px; margin-left: -32px; border-radius: 50%; background: #2a1a10; opacity: .42; }
+.gvs-base.none { display: none; }   /* a miniature draws its own base */
+.gvs-hp { position: absolute; top: -8px; left: 50%; width: 40px; height: 6px; margin-left: -20px; background: #2a1a10; border: 1px solid #f2e4c0; box-sizing: border-box; }
+.gvs-hp i { display: block; height: 100%; background: #a4b86a; }
+.gvs-f0 .gvs-hp i, .gvs-f1 .gvs-hp i, .gvs-f2 .gvs-hp i, .gvs-f3 .gvs-hp i { background: #e0501f; }
+.gvs-u.ko .gvs-sp, .gvs-u.ko .gvs-blob { transform: rotate(80deg) translateY(10px); filter: grayscale(1); }
+.gvs-u.ko .gvs-hp { display: none; }
+.gvs-p0.a-lunge .gvs-sp, .gvs-p1.a-lunge .gvs-sp, .gvs-p2.a-lunge .gvs-sp, .gvs-p3.a-lunge .gvs-sp { animation: gvs-lr .45s steps(6); }
+.gvs-f0.a-lunge .gvs-sp, .gvs-f1.a-lunge .gvs-sp, .gvs-f2.a-lunge .gvs-sp, .gvs-f3.a-lunge .gvs-sp { animation: gvs-ll .45s steps(6); }
+.a-hit .gvs-sp, .a-hit .gvs-blob { animation: gvs-hit .4s steps(4); }
+.a-heal .gvs-sp, .a-heal .gvs-blob { animation: gvs-heal .6s steps(5); }
+.a-cheer .gvs-sp, .a-cheer .gvs-blob { animation: gvs-hop .5s steps(5); }
+.gvs-fl { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font: 700 14px/1 system-ui, sans-serif; color: #fff3c8; text-shadow: 1px 1px 0 #2a1a10, -1px -1px 0 #2a1a10, 1px -1px 0 #2a1a10, -1px 1px 0 #2a1a10; animation: gvs-fl 1s steps(8) forwards; pointer-events: none; }
+.gvs-fl.heal { color: #a4b86a; } .gvs-fl.miss { color: #c9c5bc; }
+@keyframes gvs-lr { 50% { transform: translateX(24px); } }
+@keyframes gvs-ll { 50% { transform: scaleX(-1) translateX(24px); } }
+@keyframes gvs-hit { 0%, 50% { filter: brightness(2.5); } 25%, 75% { transform: translateX(-3px); } }
+@keyframes gvs-heal { 50% { filter: brightness(1.6) saturate(1.5); } }
+@keyframes gvs-hop { 50% { transform: translateY(-10px); } }
+@keyframes gvs-fl { to { transform: translate(-50%, -26px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gvs-sp, .gvs-blob, .gvs-fl { animation: none !important; } }
+/* banners and the stage when the art is missing: hard-stepped colour bands per landscape (no gradients, like the pixel art) */
+.scene-banner { display: block; width: 100%; max-width: 960px; height: auto; aspect-ratio: 4 / 1; margin: 0 auto; border: var(--px, 2px) solid var(--ol, #2a1a10); }
+.scene-fb { background: linear-gradient(#a9d6ea 0 40%, #7ab55c 40% 70%, #4f9a45 70% 100%); }
+.scene-fb-forest, .scene-fb-rainforest { background: linear-gradient(#a4b86a 0 35%, #4f9a45 35% 70%, #2f5a2a 70% 100%); }
+.scene-fb-mountain, .scene-fb-tundra { background: linear-gradient(#c3b2ea 0 30%, #8b8f96 30% 65%, #5b6470 65% 100%); }
+.scene-fb-wetland, .scene-fb-coast, .scene-fb-island { background: linear-gradient(#a9d6ea 0 35%, #3f8fb0 35% 65%, #25637d 65% 100%); }
+.scene-fb-desert { background: linear-gradient(#f5cf6a 0 35%, #e8a317 35% 65%, #c9a96e 65% 100%); }
+.scene-fb-none { background: linear-gradient(#c9a96e 0 50%, #9a6b3f 50% 100%); }
+
+/* ===== v2.0.39 Villagers page ===== */
+.vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.vcard { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px; text-align: center; text-decoration: none; color: inherit; background: var(--surface); border: var(--px, 2px) solid var(--ol, #2a1a10); border-radius: 6px; }
+.vcard:hover, .vcard:focus-visible { background: var(--bg); }
+.vcard .portrait { width: 80px; height: 100px; object-fit: contain; }
+.vcard.unmet { opacity: .75; }
+.vcard.unmet img { filter: brightness(.35) saturate(.4); width: 64px; height: 64px; }
+.vq { font-size: 40px; line-height: 64px; }
+.vaaround { margin-top: 8px; }
+.vpanel { margin: 8px 0; }
+.vact { display: inline-block; margin: 4px 6px 4px 0; }
+.vmsg { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); }
+.vmsg.ok { background: var(--surface); } .vmsg.err { border-color: #a8241f; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ===== v2.0.40 Trek stage and drawers ===== */
+#trekstage { margin: 6px auto; }
+.gvs-html { display: flex; align-items: flex-end; justify-content: center; }
+.gvs-html .meico { width: 64px; height: 80px; }
+.gvs-emo { font-size: 48px; line-height: 1; }
+.gvs-emo img { width: 48px; height: 48px; }
+.gvs-fl.dmg { color: #f08a24; }
+.tkdrawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 60; width: min(440px, 100vw); display: flex; flex-direction: column; background: var(--bg); border-left: var(--px, 2px) solid var(--ol, #2a1a10); box-shadow: -6px 0 0 rgba(42, 26, 16, .25); }
+.tkdrawer[hidden] { display: none; }
+.tkdhead { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.tkdbody { flex: 1; overflow-y: auto; padding: 8px 12px 24px; -webkit-overflow-scrolling: touch; }
+.tkdrawer form.sending { opacity: .6; }
+@media (max-width: 600px) { .tkdrawer { top: 12vh; border-left: 0; border-top: var(--px, 2px) solid var(--ol, #2a1a10); width: 100vw; } }
+.tkpage main > h1 { display: none; }
+.tkpage nav.tabs { margin-top: 0; }
+.tkpage .tksmuterow { margin: 2px 0; text-align: center; }
+@media (min-width: 900px) { #trekstage { max-width: 480px; } }
+
+/* v2.0.40 trek one-screen layout: the stage sits inside the play grid; on a wide screen the right rail steps aside */
+.trekplay > #trekstage, .trekfightcol > #trekstage { order: -1; width: 100%; max-width: 480px; margin: 0 auto; }
+@media (min-width: 1000px) {
+  .tkpage .rail { display: none; }
+  .tkpage .trekplay { grid-template-columns: 480px minmax(0, 1fr); }
+  .tkpage .trekplay > #trekstage { grid-column: 1; grid-row: 1; order: 0; margin: 0; }
+  .tkpage .trekplay > .trekcolL { grid-column: 1; grid-row: 2; max-width: none; justify-self: stretch; }
+  .tkpage .trekplay > .trekcolR { grid-column: 2; grid-row: 1 / span 2; max-height: calc(100dvh - 190px); overflow-y: auto; }
+  .tkpage .trekfightcol { grid-template-columns: 480px minmax(0, 1fr); }
+  .tkpage .trekfightcol > #trekstage { grid-column: 1; grid-row: 1 / span 2; margin: 0; order: 0; }
+  .tkpage .trekfightcol > details.tkfmap, .tkpage .trekfightcol > details.tkfmap.late { grid-column: 1; grid-row: 3 / span 3; max-width: 480px; justify-self: stretch; }
+}
+.tkleft { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+@media (min-width: 1000px) {
+  .tkpage .trekfightcol > .tkleft { grid-column: 1; grid-row: 1 / span 6; }
+  .tkpage .tkleft > #trekstage { margin: 0; }
+  .tkpage .tkleft > details.tkfmap, .tkpage .tkleft > details.tkfmap.late { display: block; max-width: 480px; }
+  .tkpage .trekmapcol { width: 100%; max-width: 330px; margin-inline: auto; }
+}
+.tkpage .tksmutebtn { min-height: 28px; padding: 2px 10px; font-size: 13px; }
+.tkpage .tksmuterow { margin: 0; line-height: 1; }
+
+/* ===== v2.0.42 softer pop-overs: lighter dimming, no blur, a slow fade in and out, no harsh focus ring ===== */
+dialog.tkscene, dialog.tkcamp, dialog.tkr, dialog.trekplan, dialog.tkfoe {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .4s ease, transform .4s cubic-bezier(.2, .7, .2, 1), overlay .4s allow-discrete, display .4s allow-discrete;
+  outline: none;
+}
+dialog.tkscene[open], dialog.tkcamp[open], dialog.tkr[open], dialog.trekplan[open], dialog.tkfoe[open] { opacity: 1; transform: none; animation: none; }
+@starting-style { dialog.tkscene[open], dialog.tkcamp[open], dialog.tkr[open], dialog.trekplan[open], dialog.tkfoe[open] { opacity: 0; transform: translateY(10px); } }
+dialog.tkfoe { transform: translate(-50%, 10px); }
+dialog.tkfoe[open] { transform: translateX(-50%); }
+@starting-style { dialog.tkfoe[open] { transform: translate(-50%, 10px); } }
+dialog.tkscene::backdrop, dialog.tkcamp::backdrop, dialog.tkr::backdrop, dialog.trekplan::backdrop {
+  background: rgba(42, 26, 16, 0); backdrop-filter: none; -webkit-backdrop-filter: none;
+  transition: background-color .5s ease, overlay .5s allow-discrete, display .5s allow-discrete;
+}
+dialog.tkscene[open]::backdrop, dialog.tkcamp[open]::backdrop, dialog.tkr[open]::backdrop, dialog.trekplan[open]::backdrop { background: rgba(42, 26, 16, .3); }
+@starting-style { dialog.tkscene[open]::backdrop, dialog.tkcamp[open]::backdrop, dialog.tkr[open]::backdrop, dialog.trekplan[open]::backdrop { background: rgba(42, 26, 16, 0); } }
+:root[data-theme="dark"] dialog.tkscene[open]::backdrop, :root[data-theme="dark"] dialog.tkcamp[open]::backdrop { background: rgba(0, 0, 0, .32); }
+dialog.tkscene:focus, dialog.tkscene:focus-visible, dialog.tkcamp:focus, dialog.tkcamp:focus-visible, dialog.tkr:focus, dialog.tkr:focus-visible, .tkscard:focus-visible, .tkrcard:focus-visible { outline: none; box-shadow: var(--shadow-2); }
+.tkscard, .tkccard, .tkrcard { box-shadow: 0 6px 18px rgba(42, 26, 16, .28); }
+dialog.tkscene[open] .tkscard, dialog.tkcamp[open] .tkccard { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.tkscene, dialog.tkcamp, dialog.tkr, dialog.trekplan, dialog.tkfoe { transform: none; transition: opacity .2s ease, overlay .2s allow-discrete, display .2s allow-discrete; }
+  dialog.tkfoe, dialog.tkfoe[open] { transform: translateX(-50%); }
+}
+/* a story or foe pop-over that sits over the Trek stage (placed by assets/trekshell.js) */
+dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
+
+/* ===== v2.0.43 Adventure stage and one-screen layout ===== */
+.mapcol > #advstage { margin: 0 auto 8px; max-width: 480px; }
+.advjournal > summary { cursor: pointer; }
+@media (min-width: 1000px) {
+  body:has(.advgrid) .rail { display: none; }
+  .advgrid { display: grid; grid-template-columns: 480px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .advgrid .encounter { max-width: none; max-height: calc(100dvh - 200px); overflow-y: auto; }
+  .advgrid.withrings { grid-template-columns: 480px minmax(0, 1fr); }
+  .advgrid.fighting { display: grid; }
+  .advgrid.fighting .encounter { order: 0; }
+  .advgrid.fighting .mapwrap { max-height: none; }
+}
+@media (max-width: 999px) {
+  .advgrid.fighting > .mapcol { display: contents; }
+  .advgrid.fighting #advstage { order: -2; width: 100%; max-width: 480px; margin: 0 auto 8px; }
+}
+
+/* ===== v2.0.44 the hoop map ===== */
+.journeymap.rings.hoopmap { max-width: 250px; margin: 0 auto; box-shadow: none; border-radius: 0; background: transparent; }
+.hoopmap .hr { cursor: pointer; outline: none; }
+.hoopmap .hr:focus-visible circle:last-child { stroke: #fff3c8; }
+.hoopcap { margin: 6px 0 0; text-align: center; font-size: 14px; line-height: 1.35; min-height: 2.7em; }
+
+/* v2.0.45 Adventure cards: fade in when a new one is swapped in; someone met on the road stands on the stage, not under a harsh box */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes advcardin { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .encounter > .scenecard, .encounter > .meetcard, .encounter > h3, .encounter > .choicelist, .encounter > .fightgrid, .roadresult, .advlatest { animation: advcardin .35s ease-out both; }
+  .encounter > .choicelist { animation-delay: .08s; }
+}
+.scenecard, .meetcard, .roadresult, .advlatest { box-shadow: 0 4px 12px rgba(42, 26, 16, .22); }
+.fcard.foe, .fcard.you { box-shadow: 0 4px 12px rgba(42, 26, 16, .22); }
+
+/* v2.0.46 place banners */
+.scene-bannerwrap { margin: 6px auto 10px; max-width: 960px; }
+.scene-bannerwrap .scene-banner { margin: 0; image-rendering: pixelated; }
+.gvs-sp.mini { max-width: none; max-height: none; }
+.gvs-u { overflow: visible; }

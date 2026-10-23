@@ -202,6 +202,9 @@ function explore_deeper(array $u, array &$exp, int $delta = 1): void
     $exp['step'] = (int)$exp['depth'];
     $exp['steps_total'] = (int)$exp['depth'];
     $depth = (int)$exp['depth'];
+    $trail = json_decode((string)($exp['trail'] ?? ''), true) ?: [];   // v2.0.45: every step, in order, for the hoop map's thread
+    $trail[] = $depth;
+    $exp['trail'] = json_encode(array_slice($trail, -60));
     calling_event((int)$u['id'], 'depth', '', $depth);   // v0.9.4 N2: how far off the road (highest counts)
     $exp['level'] = explore_level($u, $depth, $exp);
     $pct = outlevel_percent($u, (int)$exp['level']);   // v0.7.75: how much of its XP and Petals this area still gives
