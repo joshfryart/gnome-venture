@@ -20,16 +20,17 @@ end
 local function L2C(lx, ly) return math.floor(CX + lx * ca - ly * sa + 0.5), math.floor(CY + lx * sa + ly * ca + 0.5) end
 local function E(x, y, cx, cy, rx, ry) return ((x-cx)/rx)^2 + ((y-cy)/ry)^2 <= 1 end
 
--- segments: back (largest) to front (smallest); each is an arch whose base curls down at the ends
-local function seg(rx, ry, base)
-  return R(function(x, y) return E(x, y, 0, base, rx, ry) and y <= base + 2.5 * (x / rx)^2 + 0.5 end)
+-- segments: back (largest) to front (smallest); all share one arched hem b(x) that is high
+-- in the middle and curls down at the ends, so the plate reads as a curved shell
+local function b(x) return -4 + 7 * (x / 24)^2 end
+local function seg(rx, ry)
+  return R(function(x, y) return E(x, y, 0, 3, rx, ry) and y <= b(x) end)
 end
-local s1 = seg(25, 33, 0)
-local s2 = seg(20, 23, 0.5)
-local s3 = seg(14, 13, 1)
--- underside lip: the thickness of the plate showing along the base
-local lip = R(function(x, y) return math.abs(x) <= 24 and y > 0.5 and y <= 4 + 0 * x and
-  y <= 1 + 2.5 * (x / 25)^2 + 3.5 and y > 2.5 * (x / 25)^2 + 0.5 end)
+local s1 = seg(25, 34)
+local s2 = seg(19.5, 24.5)
+local s3 = seg(13.5, 15)
+-- underside lip: the thickness of the plate showing under the hem
+local lip = R(function(x, y) return y > b(x) and y <= b(x) + 4 and E(x, y, 0, 3, 24.5, 34) end)
 s1 = s1:shrink(1):grow(1); lip = lip:shrink(1):grow(1)
 
 local body = GV.ramp("#9a7447")
@@ -41,9 +42,9 @@ local p = c:build{
   { "s3", s3, body, { gloss = { 22, 39 }, cres = 3 } },
 }
 -- dark 2 px segment gaps where each segment tucks under the one behind (creature's bands)
-local base = R(function(x, y) return y <= 2.5 * (x / 25)^2 - 0.5 end)
+local base = R(function(x, y) return y <= b(x) - 1 end)
 for _, sm in ipairs({ s2, s3 }) do
-  local gap = sm:grow(1):cut(sm):clip(base):clip(p.s1.m:shrink(1))
+  local gap = sm:grow(2):cut(sm):clip(base):clip(p.s1.m:shrink(1))
   c:fill(gap, "#2a1a10")
 end
 
@@ -56,17 +57,17 @@ local function sheen(rx, ry, base, a0, a1)
     if q == body.base then c:px(x, y, "#8f7fc9") end
   end
 end
-sheen(21.5, 29.5, 0, 112, 160)
-sheen(16.5, 19.5, 0.5, 118, 160)
+sheen(21.5, 30.5, 3, 112, 158)
+sheen(16, 21, 3, 118, 156)
 
 -- seam along the hem of the front segment, button at its head
 local pts = {}
 for i = 0, 18 do
   local t = math.rad(165 - i * 150 / 18)
-  pts[#pts+1] = { L2C(11 * math.cos(t), 1 - 10 * math.sin(t)) }
+  pts[#pts+1] = { L2C(10.5 * math.cos(t), 3 - 12 * math.sin(t)) }
 end
 c:seam(pts)
-local bx, by = L2C(-11.5, -1.5)
+local bx, by = L2C(-10.5, -1)
 c:button(bx - 1, by - 2)
 
 -- basalt grit pressed into the felt: small stone-grey diamonds with a pale glint
@@ -74,7 +75,7 @@ local function grit(lx, ly)
   local x, y = L2C(lx, ly)
   c:spot(c:ascii({ ".s.", "sss", ".s." }, x - 1, y - 1), "#5b6470", "#8b8f96")
 end
-grit(4, -28); grit(17, -9); grit(-17, -6)
+grit(4, -27); grit(18, -6); grit(-15, -15)
 
 local t = c:save(D .. "final/aseprite/ph/borer-plate.aseprite", PNG .. "borer-plate.png")
 print(GV.report(t))

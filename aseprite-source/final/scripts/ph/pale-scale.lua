@@ -20,8 +20,8 @@ for _, d in ipairs({ -0.62, 0, 0.62 }) do
   local a = ax + d
   fan:cut(c:ellipse(math.floor(BX + (BR + 1) * math.cos(a)) + 0.5, math.floor(BY - (BR + 1) * math.sin(a)) + 0.5, 2.5, 2.5))
 end
--- rose root where the scale was set in the skin
-local root = c:ellipse(16, 49, 5, 5)
+-- rose root tip where the scale was set in the skin
+local root = fan:copy():clip(c:ellipse(RX, RY, 7.5, 7.5))
 
 local p = c:build{
   { "fan",  fan,  pale, { pale = true, gloss = { 24, 22 } } },
@@ -36,12 +36,12 @@ local function arc(cx, cy, r, a0, a1, col)
   end
   c:fill(c:line(pts, 1):clip(fan:shrink(2)), col)
 end
-for _, r in ipairs({ 12, 20, 28 }) do arc(RX, RY, r, ax - 0.75, ax + 0.75, r == 20 and "#8f7fc9" or "#b9acd8") end
+for _, r in ipairs({ 14, 21, 28 }) do arc(RX, RY, r, ax - 0.75, ax + 0.75, r == 21 and "#8f7fc9" or "#b9acd8") end
 -- the seam where the root is sewn onto the scale
 local sp = {}
 for i = 0, 10 do
   local a = ax - 1.3 + 2.6 * i / 10
-  sp[#sp + 1] = { math.floor(16 + 7 * math.cos(a) + 0.5), math.floor(49 - 7 * math.sin(a) + 0.5) }
+  sp[#sp + 1] = { math.floor(RX + 9 * math.cos(a) + 0.5), math.floor(RY - 9 * math.sin(a) + 0.5) }
 end
 c:seam(sp)
 
