@@ -47,6 +47,7 @@ refresh_energy($u);
 if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }   // v0.9.1a
 $viewReq = (string)($_GET['view'] ?? '');
 if ($viewReq === 'folk') $viewReq = 'villagers';   // v2.0.4 menu folds: old name of the Villagers tab
+if ($viewReq === 'villagers') redirect('villagers.php' . (isset($_GET['q']) && $_GET['q'] !== '' ? '?q=' . urlencode((string)$_GET['q']) : ''));   // v2.0.39: the Villagers page
 $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2.0.4 menu folds: Passport and Villagers you know (were passport.php, folk.php) work from anywhere

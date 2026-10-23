@@ -10,8 +10,6 @@ $t = function (bool $ok, string $m) use (&$bad) { echo ($ok ? 'ok   ' : 'FAIL ')
 $t(scene_key('../x') === '', 'bad key rejected');
 $t(scene_key('NA') === 'NA', 'region code kept');
 $t(scene_path('stage', 'nope') === '', 'missing scene is empty');
-$t(art_url('ph/nav-villagers') === 'assets/img/ph/nav-villagers.png', 'art_url prefers png');
-$t(art_url('../etc/passwd') === '', 'art_url blocks traversal');
 $t(str_contains(scene_banner('forest', 'A "forest"'), 'scene-fb-forest'), 'banner fallback');
 $h = scene_stage('stage', 'forest', [['id' => 'a', 'side' => 'p', 'name' => '<b>x</b>', 'img' => 'assets/img/ph/nav-villagers.png', 'hp' => 5, 'max' => 10]]);
 $t(!str_contains($h, '<b>') && str_contains($h, 'data-stage='), 'stage escapes and carries data');

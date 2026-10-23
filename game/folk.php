@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/friends.php';
 require_once __DIR__ . '/includes/npc_life.php';
 $u = require_login();
 $uid = (int)$u['id'];
+if (!is_post()) redirect('villagers.php' . (isset($_GET['id']) ? '?id=' . (int)$_GET['id'] : ''));   // v2.0.39: the Villagers page replaces this one
 if (!isset($_GET['id'])) {   // v2.0.4 menu folds: the list of villagers you know lives on Town (town.php?view=villagers); keep the old search/filter links working
     $keep = array_filter(['q' => (string)($_GET['q'] ?? ''), 'f' => (string)($_GET['f'] ?? ''), 'r' => (string)($_GET['r'] ?? '')], fn($v) => $v !== '');
     redirect('town.php?view=villagers&known=1' . ($keep ? '&' . http_build_query($keep) : '') . '#known');

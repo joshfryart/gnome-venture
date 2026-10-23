@@ -624,7 +624,7 @@ function nav_sheet(array $u, string $page): string
     }
     $tile = function (string $file, string $icon, string $label, string $badge = '', string $slug = '') use ($page): string {
         $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
-        if ($page === 'folk.php') $cur = 'town.php';   // v2.0.4 menu folds: a villager's page sits under Town   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
+        if ($page === 'folk.php') $cur = 'villagers.php';   // v2.0.39: villagers have their own page   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
         $on = $cur === $file;
         $bar = in_array($file, ['garden.php', 'world.php', 'inventory.php', 'town.php', 'jobs.php'], true);   // v1.0.0.1: already in the phone's bottom bar, so the phone sheet skips it
         return '<a class="navtile' . ($on ? ' on' : '') . ($bar ? ' inbar' : '') . '" href="' . e(url($file)) . '"' . ($on ? ' aria-current="page"' : '') . '><span class="nti">' . ($slug !== '' ? nav_icon($slug, $icon, 20) : e($icon)) . '</span>'
@@ -635,7 +635,7 @@ function nav_sheet(array $u, string $page): string
     $groups = [
         'You' => [['gnome.php', '🧙', 'My Gnome', '', 'gnome'], ['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
         'Grow' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'], ['arrange.php', '💐', 'Arranging', '', 'arranging']],
-        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '🏘️', 'Town', '', 'town'],
+        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '🏘️', 'Town', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers'],
             ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
         'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Gnome friends', $b['pals'] ?? '', 'friends']],

@@ -12,16 +12,6 @@ function scene_key(string $k): string
     return preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]{0,60}$/', $k) ? $k : '';
 }
 
-/** Relative path of assets/img/{rel}.png (or .svg when no PNG), or '' when neither exists. $rel has no extension. */
-function art_url(string $rel): string
-{
-    if ($rel === '' || str_contains($rel, '..') || !preg_match('#^[A-Za-z0-9_][A-Za-z0-9_/-]*$#', $rel)) return '';
-    foreach (['png', 'svg'] as $ext) {
-        if (is_file(APP_ROOT . '/assets/img/' . $rel . '.' . $ext)) return 'assets/img/' . $rel . '.' . $ext;
-    }
-    return '';
-}
-
 /** Path of a scene picture ('stage', 'banner', 'trek', 'home', 'shop', 'stop', 'map') or ''. */
 function scene_path(string $kind, string $key): string
 {
