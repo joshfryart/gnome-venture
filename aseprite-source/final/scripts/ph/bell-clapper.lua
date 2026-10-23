@@ -9,11 +9,11 @@ local ironL = GV.ramp("#8b8f96")
 local strap = GV.ramp("#a8582f")
 
 -- hanging loop at the upper right (an open ring), stem down to a heavy pear bob at the lower left
-local loop = c:ellipse(45.5, 15.5, 7, 7):cut(c:ellipse(45.5, 15.5, 3, 3))
-local stem = c:line({ { 41, 22 }, { 27, 38 } }, 4)
-local bob  = c:ellipse(21.5, 43.5, 10, 10):add(c:ellipse(25.5, 39.5, 6, 6))
+local loop = c:ellipse(45.5, 15.5, 8, 8):cut(c:ellipse(45.5, 15.5, 4.5, 4.5))
+local stem = c:line({ { 40, 22 }, { 28, 36 } }, 4)
+local bob  = c:ellipse(21, 45, 9.5, 9):add(c:ellipse(25.5, 39.5, 6.5, 6.5)):add(c:ellipse(29.5, 35.5, 3.5, 3.5))
 -- leather tie wrapped round the neck where the loop meets the stem
-local tie  = c:poly({ { 36, 22 }, { 41, 27 }, { 45, 23 }, { 40, 18 } })
+local tie  = c:poly({ { 35, 23 }, { 40, 28 }, { 44, 24 }, { 39, 19 } })
 local whole = loop:copy():add(stem):add(bob)
 
 local p = c:build{
@@ -22,15 +22,12 @@ local p = c:build{
   { "bob",  bob,  ironL, { gloss = { 16, 38 } } },
   { "tie",  tie,  strap, { gloss = false } },
 }
--- the thread binding on the tie: a seam across the wrap, with a button
-c:seam({ { 38, 21 }, { 42, 25 } })
--- a hammered ring round the bob's waist where the stem is set in
-c:fill(c:line({ { 25, 33 }, { 31, 39 } }, 1):clip(bob:shrink(1)), "#3c3f52")
--- worn strike band on the bob, a few hammer dents
-c:spot(c:ellipse(23.5, 47, 1.5, 1), "#3c3f52", "#8b8f96")
-c:spot(c:ellipse(17.5, 46.5, 1, 1), "#3c3f52", "#8b8f96")
+-- the thread binding on the tie: a seam across the wrap
+c:seam({ { 37, 22 }, { 41, 26 } })
+-- a hammered collar line where the stem is set into the bob
+c:fill(c:line({ { 26, 32 }, { 33, 39 } }, 1):clip(bob:shrink(1)), "#3c3f52")
 
-c:ground(26, 56, 13, 1.5)
+c:ground(22, 56, 12, 1.5)
 local t = c:save(D .. "final/aseprite/ph/bell-clapper.aseprite", PNG .. "bell-clapper.png")
 print(GV.report(t))
 assert(t.semi == 0 and t.bw == 0 and t.margin >= 3)

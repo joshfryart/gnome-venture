@@ -22,11 +22,12 @@ femur = femur:closed(2)
 local shin = c:line({ {42, 15}, {45, 29}, {47, 43} }, 4)
 local foot = c:line({ {48, 44}, {50, 48}, {54, 50} }, 2)
 foot:add(c:line({ {52, 50}, {54, 54} }, 2))
--- spines sticking out the back of the shin, pointing down
+-- spines: little wedges sticking out the back of the shin, pointing down
 local spines = c:mask()
-for _, s in ipairs({ { 47, 21 }, { 48, 28 }, { 49, 35 } }) do
-  spines:add(c:line({ { s[1], s[2] }, { s[1] + 3, s[2] + 2 }, { s[1] + 4, s[2] + 4 } }, 2))
+for _, y in ipairs({ 21, 28, 35 }) do
+  spines:add(c:poly({ { 45, y }, { 47, y }, { 51, y + 5 }, { 50, y + 6 }, { 45, y + 3 } }))
 end
+local shinR = GV.ramp("#7a4426")
 -- hip end: a clay-crusted cap cut off the femur across its axis
 local ax, ay = 0.61, -0.79                     -- femur axis (hip -> knee)
 local px, py = -ay, ax                         -- across the axis
@@ -35,9 +36,9 @@ local hip = c:poly({ { hx + px * 14, hy + py * 14 }, { hx - px * 14, hy - py * 1
                      { hx - px * 14 - ax * 16, hy - py * 14 - ay * 16 }, { hx + px * 14 - ax * 16, hy + py * 14 - ay * 16 } })
 
 local p = c:build{
-  { "spines", spines, legR, { flat = true } },
+  { "spines", spines, shinR, { flat = true, rim = false } },
   { "foot",   foot, legR, { flat = true } },
-  { "shin",   shin, GV.ramp("#6a3a22"), { gloss = false, cres = 2, deep = 1 } },
+  { "shin",   shin, shinR, { gloss = false, cres = 2, deep = 1 } },
   { "femur",  femur, brown, { gloss = { 27, 25 } } },
   { "knee",   c:ellipse(41, 14, 3.5, 3.5), legR, { gloss = false } },
 }
@@ -53,8 +54,8 @@ c:fill(rid:clip(p.femur.m:shrink(2)):cut(hipm:grow(1)), "#c08048")
 -- clay crust: a glazed bean chip on the femur
 c:spot(c:ellipse(34, 28, 2, 1.5), "#9a6b3f", "#c9a96e")
 -- seam across the hip join, with a button at its head
-c:seam({ { hx - px * 9 + 1, hy - py * 9 + 1 }, { hx + px * 9, hy + py * 9 } })
-c:button(12, 32)
+c:seam({ { 20, 38 }, { hx + px * 9, hy + py * 9 } })
+c:button(17, 35)
 
 local t = c:save(D .. "final/aseprite/ph/cricket-leg.aseprite", PNG .. "cricket-leg.png")
 print(GV.report(t))

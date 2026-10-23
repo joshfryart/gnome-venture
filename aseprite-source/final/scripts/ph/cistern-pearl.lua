@@ -9,18 +9,20 @@ local pearlR = GV.ramp("#eee8d4", { shade = "#cdc796", deep = "#9e9868", bounce 
 local stoneR = GV.ramp("#8b8f96", { gloss = "#e4e0d6", rim = "#c9c5bc", shade = "#5b6470", deep = "#3c4250", bounce = "#6c7480" })
 
 -- squat stone cup: back rim, then the pearl, then the front wall
-local back  = c:ellipse(31.5, 39, 18, 4)
+local back  = c:ellipse(31.5, 39, 19, 4)
 local pearl = c:ellipse(31.5, 27, 15, 14.5):add(c:ellipse(30, 29, 14, 12))
 pearl:cut(c:rect(31, 12, 32, 13))                        -- small dimple at the crown
-local front = c:ellipse(31.5, 40, 18, 4):cut(c:rect(0, 0, 63, 39))
-front:add(c:rrect(14, 40, 49, 56, 4))
+local front = c:ellipse(31.5, 40, 19, 4):cut(c:rect(0, 0, 63, 39))
+front:add(c:poly({ { 13, 40 }, { 51, 40 }, { 46, 53 }, { 17, 53 } }))
+front:add(c:ellipse(31.5, 52, 14.5, 3))
+front:add(c:rrect(21, 53, 42, 57, 1))                     -- squat foot
 
 c:build{ { "back", back, stoneR, { gloss = false } } }
 -- stale cistern water inside the cup
 c:fill(c:ellipse(31.5, 39, 15, 2.5), "#2f6290")
 c:fill(c:ellipse(30.5, 38.5, 13, 1.5):cut(c:rect(0, 39, 63, 63)), "#3f8fb0")
 c:build{
-  { "pearl", pearl, pearlR, { gloss = { 21, 19 } } },
+  { "pearl", pearl, pearlR, { gloss = { 21, 19 }, cres = 6, deep = 2 } },
   { "front", front, stoneR, { gloss = { 17, 46 } } },
 }
 
@@ -35,10 +37,10 @@ c:fill(c:ellipse(40, 34, 2, 1):clip(pearl:shrink(2)), "#c4be86")
 
 -- carved band round the cup with a thread-gold seam and a button at its head
 c:fill(c:rect(16, 46, 47, 46), "#6c7480")
-c:seam({ { 16, 45 }, { 47, 45 } })
-c:button(14, 43)
+c:seam({ { 19, 45 }, { 47, 45 } })
+c:button(16, 43)
 -- worn grooves on the stone
-c:fill(c:rect(22, 50, 24, 50), "#5b6470"); c:fill(c:rect(37, 51, 39, 51), "#5b6470")
+c:fill(c:rect(23, 50, 25, 50), "#5b6470"); c:fill(c:rect(37, 50, 39, 50), "#5b6470")
 
 local t = c:save(D .. "final/aseprite/ph/cistern-pearl.aseprite", PNG .. "cistern-pearl.png")
 print(GV.report(t))
