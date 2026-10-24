@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.49
+- Mobile adventure layout: travel controls appear below the gnome scene banner, latest activity follows the action, and the route map switches to a compact vertical layout on phones.
+- Destination travel options now start collapsed in a compact summary row and expand on demand.
+
 ## 2.0.48
 - Admin → Routes: add one bulk control to set the travel wait time (minutes) for every route at once. Individual routes remain editable afterwards.
 
