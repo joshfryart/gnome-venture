@@ -1,0 +1,23 @@
+name: Build Gnome Venture 2.0.48 update ZIP
+on:
+  push:
+    branches:
+      - feature/2.0.48-bulk-route-wait-time
+jobs:
+  build-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PHP syntax
+        run: |
+          for f in game/admin/crud.php game/includes/bootstrap.php game/install.php game/index.php; do php -l "$f"; done
+      - name: Build update packages
+        run: bash tests/build_update.sh 2.0.48 2.0.47 "$HOME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GnomeVenture-2.0.48-packages
+          path: |
+            ${{ github.workspace }}/GnomeVenture-2.0.48-web-update.zip
+            ${{ github.workspace }}/GnomeVenture-2.0.48-web-update-FULL.zip
+            ${{ github.workspace }}/GnomeVenture-2.0.48-source.zip
+          if-no-files-found: error
