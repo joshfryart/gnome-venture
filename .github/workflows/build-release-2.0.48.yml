@@ -12,7 +12,7 @@ jobs:
         run: |
           for f in game/admin/crud.php game/includes/bootstrap.php game/install.php game/index.php; do php -l "$f"; done
       - name: Build update packages
-        run: bash tests/build_update.sh 2.0.48 2.0.47 "$HOME"
+        run: bash tests/build_update.sh 2.0.48 2.0.47 "$GITHUB_WORKSPACE"
       - uses: actions/upload-artifact@v4
         with:
           name: GnomeVenture-2.0.48-packages
