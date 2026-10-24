@@ -183,8 +183,10 @@ page_header('On the mycelium');
 <?php require_once __DIR__ . '/includes/maps.php'; require_once __DIR__ . '/includes/destination.php';
 $wi = $exp ? dest_walk_info($u, $exp) : null;   // v0.9.3
 if ($wi): ?>
-<div class="routestrip">🏁 <b><?= e(dest_name($uid, $wi['loc'])) ?></b> · leg <?= (int)$wi['k'] ?> of <?= (int)$wi['n'] ?> · <?= (int)$wi['left'] ?> stop<?= $wi['left'] === 1 ? '' : 's' ?> left
-  <form method="post" class="inline routeopts"><?= csrf_field() ?><input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="adventure.php"><?= dest_opts_html($u) ?> <button class="btn ghost">Save</button></form></div>
+<details class="routestrip routeopts-fold">
+  <summary><span>🏁 <b><?= e(dest_name($uid, $wi['loc'])) ?></b> · leg <?= (int)$wi['k'] ?> of <?= (int)$wi['n'] ?> · <?= (int)$wi['left'] ?> stop<?= $wi['left'] === 1 ? '' : 's' ?> left</span><span class="routeopts-label">Travel options <span aria-hidden="true">▸</span></span></summary>
+  <form method="post" class="inline routeopts"><?= csrf_field() ?><input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="adventure.php"><?= dest_opts_html($u) ?> <button class="btn ghost">Save</button></form>
+</details>
 <?php endif; ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?>">
@@ -194,7 +196,12 @@ if ($wi): ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php else: ?>
-<div class="mapwrap small"><?= in_array($kind, ['delve', 'lair'], true) ? mycelium_track($last) : journey_map_svg($u, $last) ?></div>
+<?php if (in_array($kind, ['delve', 'lair'], true)): ?>
+<div class="mapwrap small"><?= mycelium_track($last) ?></div>
+<?php else: ?>
+<div class="mapwrap small map-horizontal"><?= journey_map_svg($u, $last) ?></div>
+<div class="mapwrap small map-vertical"><?= journey_map_svg_vertical($u, $last) ?></div>
+<?php endif; ?>
 <?php if ($dmScene): ?><p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=map')) ?>">🗺️ Show the map</a></p><?php endif; ?>
 <?php endif; ?>
 <?php // v1.9.3: the last quiet outcome (a solved problem, a choice, a find) as a small card; the Latest strip steps aside while it shows
