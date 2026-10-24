@@ -890,6 +890,70 @@ function journey_map_svg(array $u, array $exp): string
 }
 
 
+
+/** v2.0.49: phone-first vertical version of the road map; the horizontal version remains for desktop. */
+function journey_map_svg_vertical(array $u, array $exp): string
+{
+    $kind = $exp['kind'] ?? 'walk';
+    if (in_array($kind, ['delve', 'lair', 'explore'], true)) return journey_map_svg($u, $exp);
+    $from = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['from_id']]);
+    $to = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['to_id']]);
+    if (!$from || !$to) return '';
+    $route = q_one('SELECT * FROM routes WHERE id = ?', [$exp['route_id']]);
+    $road = null;
+    if ($route && ($route['kind'] ?? '') === 'road' && !empty($route['road_id'])) $road = q_one('SELECT * FROM roads WHERE id = ?', [$route['road_id']]);
+    $stops = [];
+    if ($road) foreach (json_decode((string)$road['nodes'], true) ?: [] as $id) {
+        if ($l = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$id])) $stops[] = $l;
+    }
+    if (!$stops) $stops = [$from, $to];
+    $n = count($stops);
+    $H = max(300, 105 * $n + 50);
+    $xOf = fn(int $i) => $i % 2 === 0 ? 112 : 208;
+    $yOf = fn(int $i) => 55 + $i * 105;
+    $svg = '<svg class="journeymap vertical" viewBox="0 0 320 ' . $H . '" role="img" aria-label="Your journey" style="width:100%;height:auto">';
+    $svg .= '<rect width="320" height="' . $H . '" rx="14" fill="#eef3df"/>';
+    $pts = [];
+    for ($i = 0; $i < $n; $i++) $pts[] = $xOf($i) . ',' . $yOf($i);
+    if (count($pts) > 1) $svg .= '<polyline points="' . implode(' ', $pts) . '" fill="none" stroke="#b79a6e" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 12"/>';
+    $fi = $ti = null;
+    foreach ($stops as $i => $s) {
+        if ((int)$s['id'] === (int)$from['id']) $fi = $i;
+        if ((int)$s['id'] === (int)$to['id']) $ti = $i;
+    }
+    if ($fi !== null && $ti !== null) {
+        $total = max(1, (int)$exp['steps_total']);
+        $step = min((int)$exp['step'], $total);
+        $x1 = $xOf($fi); $y1 = $yOf($fi); $x2 = $xOf($ti); $y2 = $yOf($ti);
+        $svg .= '<line x1="' . $x1 . '" y1="' . $y1 . '" x2="' . $x2 . '" y2="' . $y2 . '" stroke="#d9a520" stroke-width="4" stroke-opacity=".75"/>';
+        for ($k = 1; $k <= $total; $k++) {
+            $f = $k / ($total + 1);
+            $cx = (int)round($x1 + ($x2 - $x1) * $f); $cy = (int)round($y1 + ($y2 - $y1) * $f);
+            $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="6" fill="' . ($k <= $step ? '#d9a520' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
+        }
+        $active = ($exp['status'] ?? '') === 'active';
+        $posx = $active ? (int)round($x1 + ($x2 - $x1) * $step / ($total + 1)) : $x2;
+        $posy = $active ? (int)round($y1 + ($y2 - $y1) * $step / ($total + 1)) : $y2;
+        $svg .= '<text x="' . $posx . '" y="' . ($posy - 12) . '" text-anchor="middle" font-size="22">🎩</text>';
+    }
+    foreach ($stops as $i => $s) {
+        $x = $xOf($i); $y = $yOf($i);
+        $isTown = $s['kind'] === 'market';
+        $seen = $isTown || place_known((int)$u['id'], $s) || $i === $fi;
+        $land = LANDSCAPES[$s['landscape'] ?? ''] ?? ['📍'];
+        $icon = $isTown ? '🏘️' : ($seen ? ($s['kind'] === 'village' ? '🏡' : $land[0]) : '❔');
+        $svg .= '<circle cx="' . $x . '" cy="' . $y . '" r="19" fill="' . ($isTown ? '#e6d3ad' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
+        $svg .= '<text x="' . $x . '" y="' . ($y + 6) . '" text-anchor="middle" font-size="18">' . $icon . '</text>';
+        $anchor = $x < 160 ? 'start' : 'end';
+        $labelX = $x < 160 ? $x + 28 : $x - 28;
+        $label = mb_strimwidth((string)($seen ? $s['name'] : '???'), 0, 23, '…');
+        $svg .= '<text x="' . $labelX . '" y="' . ($y + 5) . '" text-anchor="' . $anchor . '" font-size="12" fill="#2f2a1f">' . e($label) . '</text>';
+    }
+    $lab = fn(array $s) => $s['name'] . ($s['kind'] === 'market' && !str_contains((string)$s['name'], (string)$s['region']) ? ' · ' . $s['region'] : '');
+    $svg .= '<text x="160" y="' . ($H - 18) . '" text-anchor="middle" font-size="11" fill="#5a4a30">' . e(mb_strimwidth($lab($to), 0, 38, '…')) . ' · 🎯 destination</text>';
+    return $svg . '</svg>';
+}
+
 /** v2.0.44: tier colours for the hoop (felt rings), light to deep. Palette: moss, gold, ember, dusk (art style guide Part A). */
 const HOOP_FELT = ['gentle' => ['#a4b86a', '#7ab55c'], 'medium' => ['#7ab55c', '#4f9a45'], 'hard' => ['#f5cf6a', '#e8a317'], 'wild' => ['#f08a24', '#d6322b'], 'deep' => ['#7a5cc0', '#4e3a8a']];
 
