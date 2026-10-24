@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.48
+- Admin → Routes: add one bulk control to set the travel wait time (minutes) for every route at once. Individual routes remain editable afterwards.
+
 Newest first. Condensed. Dates 2026-10-17 to 2026-10-18.
 
 ## 2.0.47

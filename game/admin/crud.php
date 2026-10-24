@@ -190,6 +190,22 @@ if (is_post()) {
     $id = (int)($_POST['id'] ?? 0);
     $do = (string)($_POST['do'] ?? '');
 
+    // v2.0.48: bulk-set every route's travel wait time from the Routes admin section.
+    if ($do === 'bulk_route_minutes') {
+        if ($r !== 'routes') { http_response_code(400); exit('This action is only available for routes.'); }
+        $rawMinutes = trim((string)($_POST['minutes'] ?? ''));
+        if (!preg_match('/^\\d{1,10}$/', $rawMinutes)) {
+            flash('Wait time must be a whole number of minutes (0 or more).', 'err');
+            redirect($base);
+        }
+        $minutes = (int)$rawMinutes;
+        $count = (int)q_val('SELECT COUNT(*) FROM routes');
+        q('UPDATE routes SET minutes = ?', [$minutes]);
+        admin_log('bulk_route_minutes', 'routes', json_encode(['minutes' => $minutes, 'routes' => $count], JSON_UNESCAPED_UNICODE));
+        flash('Set the wait time to ' . $minutes . ' minute' . ($minutes === 1 ? '' : 's') . ' for all ' . $count . ' routes.');
+        redirect($base);
+    }
+
     if ($do === 'fresh_start') {   // v0.9.5.2: admin only (require_admin above), CSRF checked above, typed username required
         $target = $r === 'users' ? q_one('SELECT id, username FROM users WHERE id = ?', [$id]) : null;
         if (!$target) {
@@ -461,6 +477,18 @@ admin_crumbs('r:' . $r);   // v1.6.3
     <?php if ($activeFilters || $qstr !== ''): ?><a href="<?= e(url($base)) ?>">clear</a><?php endif; ?>
   </form>
 </div>
+<?php if ($r === 'routes'): ?>
+  <form method="post" action="<?= e(url($base)) ?>" class="box form" data-confirm="Replace the wait time on every route with the number you entered? Individual route wait times will be overwritten.">
+    <?= csrf_field() ?><input type="hidden" name="do" value="bulk_route_minutes">
+    <h2>All routes: set wait time</h2>
+    <p class="help">Set the travel wait time in real minutes for every route at once. This overwrites each route's current wait time; you can still edit individual routes afterwards. Use 0 for instant travel.</p>
+    <label>Wait time for every route (minutes)
+      <input type="number" name="minutes" min="0" max="2147483647" step="1" required value="<?= e((string)q_val('SELECT minutes FROM routes ORDER BY id LIMIT 1')) ?>">
+    </label>
+    <button class="btn">Apply to all routes</button>
+  </form>
+<?php endif; ?>
+
 <table class="grid">
   <tr><?php foreach ($res['list'] as $c): ?><th><?= e(f_label($c, $fields[$c] ?? [])) ?></th><?php endforeach; ?><th></th></tr>
   <?php foreach ($rows as $row): ?>
