@@ -5138,3 +5138,24 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 .scene-bannerwrap .scene-banner { margin: 0; image-rendering: pixelated; }
 .gvs-sp.mini { max-width: none; max-height: none; }
 .gvs-u { overflow: visible; }
+
+
+/* ===== v2.0.49 compact mobile adventure flow ===== */
+.routeopts-fold { padding: 0; }
+.routeopts-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.3; }
+.routeopts-fold > summary::-webkit-details-marker { display: none; }
+.routeopts-fold .routeopts-label { flex: 0 0 auto; border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 7px; font-weight: 700; white-space: nowrap; }
+.routeopts-fold[open] .routeopts-label span { display: inline-block; transform: rotate(90deg); }
+.routeopts-fold .routeopts { padding: 8px 10px 10px; }
+.map-vertical { display: none; }
+@media (max-width: 899px) {
+  .advgrid { display: flex; flex-direction: column; gap: 8px; }
+  .advgrid > .mapcol { display: contents; }
+  .advgrid #advstage { order: -3; width: 100%; max-width: 480px; margin: 0 auto 4px; }
+  .advgrid > .encounter { order: -2; width: 100%; max-width: none; margin: 0; }
+  .advgrid .advlatest, .advgrid .roadresult { order: -1; }
+  .advgrid .map-horizontal { display: none; }
+  .advgrid .map-vertical { display: block; order: 1; width: 100%; max-width: 340px; margin: 8px auto; overflow: hidden; }
+  .advgrid .map-vertical .journeymap { width: 100%; max-width: 100%; height: auto; }
+  .advgrid .mapwrap::after { content: none; }
+}
