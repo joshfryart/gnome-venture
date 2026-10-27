@@ -691,6 +691,7 @@ gvAdvFold();
         gvMycApply();   // v1.6.0: keep the map filter after an in-place load
         gvMycScroll();   // v1.6.1
         gvMetro();
+        gvRouteFade();   // v2.0.57
         gvGarden();
         gvAlmTabs();
         gvGatherGames();
@@ -1798,3 +1799,16 @@ document.documentElement.classList.add('js');
     ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) hues(n); }); });
   }).observe(document.documentElement, { childList: true, subtree: true });
 })();
+
+/* v2.0.57: on a phone the route info fades out when a fight starts and stays out until the fight ends; later rounds
+   (reloads or in-place swaps) must not replay the fade, so the first fade is remembered for this tab */
+function gvRouteFade() {
+  var g = document.querySelector('.advgrid.fighting'), seen = false;
+  try { seen = sessionStorage.getItem('gvRouteFaded') === '1'; if (!g) sessionStorage.removeItem('gvRouteFaded'); } catch (e) {}
+  if (g && seen) g.classList.add('rf-done');
+}
+gvRouteFade();
+document.addEventListener('animationend', function (ev) {
+  if (ev.animationName !== 'routefade') return;
+  try { sessionStorage.setItem('gvRouteFaded', '1'); } catch (e) {}
+});

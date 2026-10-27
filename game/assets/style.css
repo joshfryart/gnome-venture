@@ -5252,3 +5252,7 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
   .encounter .fightbtns .choice-ico { font-size: 16px; }
   .encounter .fightbtns .choice-title { font-size: 14px; }
 }
+
+/* v2.0.57: after the first fade a fight round keeps the route info gone without replaying the fade */
+.advgrid.fighting.rf-done .routebox, .advgrid.fighting.rf-done .routefold { animation: none !important; display: none; }
+@media (min-width: 721px) { .advgrid.fighting.rf-done .routebox, .advgrid.fighting.rf-done .routefold { display: block; } }
