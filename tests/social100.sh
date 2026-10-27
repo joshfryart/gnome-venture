@@ -192,7 +192,7 @@ php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SE
 dbx "UPDATE users SET tour_step=1 WHERE id=$BID"; get $B garden.php >/dev/null; post $B tour.php -d do=skip >/dev/null
 ok "skipping the tour starts the First Week" "$(db "SELECT fw_start IS NOT NULL FROM users WHERE id=$BID")" 1
 get $A 'book.php?ch=Journey' >/dev/null; has "Journey shows a next step" $H 'class="jnext"'
-get $A index.php >/dev/null; has "Today Journey card shows a next step" $H '👉'
+get $A index.php >/dev/null; has "Today Journey card shows a next step" $H 'class="jhint'   # the 👉 is swapped for a pixel icon on output
 
 echo "== 5. welcome back + the daily card"
 dbx "UPDATE users SET last_seen=datetime('now','-5 days'), away_from=NULL WHERE id=$SID"
@@ -209,7 +209,8 @@ dbx "UPDATE users SET last_seen=datetime('now','-10 days') WHERE id=$SID"; login
 rm -f $A; get $A login.php >/dev/null; has "login after days away goes to the summary" <(curl -s -o /dev/null -w '%{redirect_url}' -c $A -b $A -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=sprout -d 'password=TestPass123!') 'back.php'
 get $A garden.php >/dev/null; ok "login noted the absence" "$(db "SELECT away_from IS NOT NULL FROM users WHERE id=$SID")" 1
 dbx "UPDATE users SET away_from=NULL, last_seen=datetime('now','-1 day') WHERE id=$SID"; get $A index.php >/dev/null; hasnt "one day away: no welcome back" $H 'Welcome back!'
-has "daily card" $H 'htdaily'
+dbx "UPDATE users SET tour_step=0 WHERE id=$SID"   # the tour is over (a gnome mid-tour gets no daily card)
+get $A index.php >/dev/null; has "daily card" $H 'htdaily'
 post $A daily.php >/dev/null; get $A index.php >/dev/null
 ok "daily tick stored" "$(db "SELECT COUNT(*) FROM daily_ticks WHERE user_id=$SID")" 1
 hasnt "ticked card is quiet" $H "Enough for today"

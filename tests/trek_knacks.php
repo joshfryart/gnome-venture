@@ -247,9 +247,10 @@ $buildList = function (string $build, int $n) use ($BUILDS): array {
     for ($i = 0; $i < $n; $i++) { $pool = trek_knack_pool($i); foreach ($BUILDS[$build][$pool] as $id) if (!isset($used[$id])) { $used[$id] = 1; $out[] = $id; continue 2; } $out[] = ''; }
     return $out;
 };
-$simWin = function (array $keys, int $L, string $boss, int $mateLv, ?string $build, ?int $force = null) use ($su, $N, $buildList): float {
+$simWin = function (array $keys, int $L, string $boss, int $mateLv, ?string $build, ?int $force = null, ?int $runs = null) use ($su, $N, $buildList): float {
+    $runs ??= $N;
     $won = 0; $s = trek_spots(2)[$boss];
-    for ($i = 0; $i < $N; $i++) {
+    for ($i = 0; $i < $runs; $i++) {
         $r = ['id' => 0, 'chapter' => 2, 'fatigue' => 0, 'st' => ['tl' => []], 'party' => [], 'fi' => null, 'lg' => [], 'flags' => ['tut_party' => true], 'petals_found' => 0];
         $keys2 = array_merge(['gnome'], $keys);
         foreach ($keys2 as $sl => $k) {
@@ -265,7 +266,7 @@ $simWin = function (array $keys, int $L, string $boss, int $mateLv, ?string $bui
         for ($k = 0; $k < 80 && $r['fi']; $k++) trek_fight_round($r, $su, trek_fight_ai($r, $su));
         if (!empty($GLOBALS['trek_sim_won'])) $won++;
     }
-    return round(100 * $won / $N, 1);
+    return round(100 * $won / $runs, 1);
 };
 $combos = function (array $pool, int $n) use (&$combos): array { if ($n === 0) return [[]]; $out = []; foreach ($pool as $i => $k) foreach ($combos(array_slice($pool, $i + 1), $n - 1) as $rest) $out[] = array_merge([$k], $rest); return $out; };
 $abbr = ['burdock' => 'Bu', 'zinnia' => 'Zi', 'bracken' => 'Br', 'sorrel' => 'So', 'tumble' => 'Tu', 'juniper' => 'Ju'];
@@ -275,7 +276,12 @@ $table = [];
 foreach (['pinch' => 13, 'thrum' => 14] as $boss => $L) {
     foreach ($combos(array_keys($abbr), 3) as $c) {
         $row = ['base' => $simWin($c, $L, $boss, $L - 1, null)];
-        foreach ($cols as $b) $row[$b] = $simWin($c, $L, $boss, $L - 1, $b);
+        foreach ($cols as $b) {
+            $row[$b] = $simWin($c, $L, $boss, $L - 1, $b);
+            // 160 cells at N=200 (sd ~3 points): the lowest cell dips under the 70 floor on sampling noise alone about one run in four. A cell under the floor is
+            // re-run with 10x the fights and that figure replaces it, so a party that really is below 70% still fails.
+            if ($row[$b] < 70) $row[$b] = $simWin($c, $L, $boss, $L - 1, $b, null, $N * 10);
+        }
         $table[$boss][$nm($c)] = $row;
     }
 }

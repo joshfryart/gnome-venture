@@ -69,11 +69,14 @@ foreach (array_keys(stop_types()) as $type) {
 
 echo "== three slots per visit\n";
 cfg(['stop_slots' => 3, 'stop_daily_cap' => 6, 'stop_daily_total' => 15]);
+// The daily offer is a slug-hash pick, so some markets draw several deals (snack/seedswap/gossip); use the first market that draws 3+ plain things.
+$freeOf = fn(array $l) => array_values(array_filter(offered($l), fn($s) => in_array(stop_acts()[$s]['kind'], ['check', 'pick', 'power', 'lore'], true)));
 $loc = stopOfType('market');
+for ($mk = 0; count($freeOf($loc)) < 3; $mk++) { try { $loc = stopOfType('market', $mk); } catch (Throwable $e) { $loc = stopOfType('market'); break; } }
 $u = at($loc);
 q('DELETE FROM stop_log'); 
 $offer = offered($loc);
-$free = array_values(array_filter($offer, fn($s) => in_array(stop_acts()[$s]['kind'], ['check', 'pick', 'power', 'lore'], true)));
+$free = $freeOf($loc);
 ok('the market has 3+ plain things to do', count($free) >= 3, implode(',', $offer));
 $easy = ['chores' => 0];
 [$ok1] = doit($offer[0], ['opt' => 0, 'pick' => 1, 'power' => 1, 'item_id' => 0]); 
@@ -276,7 +279,9 @@ ok('every road stop of a region completes the region set', (bool)q_val("SELECT 1
 $html = stop_passport_html(me());
 ok('passport page renders stamps, kinds and sets', str_contains($html, 'st-stamp has') && str_contains($html, 'st-kinds') && str_contains($html, 'st-sets'));
 ok('stamp art exists for every type', count(glob($argv[1] . '/assets/img/stops/stamp-*.svg')) === 12 && count(glob($argv[1] . '/assets/img/stops/*.svg')) === 24);
-ok('stop_svg draws inline svg', str_contains(stop_svg('mill', 'icon', 'x'), '<svg class="x"') && str_contains(stop_svg('mill', 'stamp'), 'circle'));
+// v2.0.31: a type with a .png gets pixel art as an <img class="x pix">; the svg is the fallback when only the .svg exists.
+$pngIcon = is_file($argv[1] . '/assets/img/stops/mill.png'); $pngStamp = is_file($argv[1] . '/assets/img/stops/stamp-mill.png');
+ok('stop_svg draws pixel art or inline svg', ($pngIcon ? str_contains(stop_svg('mill', 'icon', 'x'), '<img class="x pix"') : str_contains(stop_svg('mill', 'icon', 'x'), '<svg class="x"')) && ($pngStamp ? str_contains(stop_svg('mill', 'stamp'), 'stamp-mill.png') : str_contains(stop_svg('mill', 'stamp'), 'circle')));
 
 echo "== adopt a stop\n";
 q('DELETE FROM stop_adoptions'); cfg(['stop_adopt_limit' => 1, 'stop_adopt_cost' => 300]);

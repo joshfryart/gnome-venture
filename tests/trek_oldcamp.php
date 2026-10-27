@@ -270,6 +270,7 @@ $nT = $rate(12, 2, 'oldtent'); ok('Hush tent 12%: ' . round($nT / 30, 1) . '% (w
 $nB = $rate(12, 2, 'oldbench'); ok('Cistern bench 12%: ' . round($nB / 30, 1) . '% (want 10-14)', $nB / 3000 >= 0.10 && $nB / 3000 <= 0.14);
 $nD = $rate(12, 2, 'olddry'); ok('Dry Ledge 12%: ' . round($nD / 30, 1) . '% (want 10-14)', $nD / 3000 >= 0.10 && $nD / 3000 <= 0.14);
 echo "== a real camp still banks, a site does not\n";
+oc_cfg(['trek_oldcamp_ambush_pct' => 0]);   // $rate left it at 12: a random ambush on the site rest below would put the party in a fight (flaked ~12%)
 $tx(function (&$run, $u) { $run['petals_found'] = 77; return [true, '']; });
 $at(2, 'oldbench', 50); $rest();
 ok('resting at a site leaves the carried Petals carried', (int)$run()['petals_found'] === 77);
