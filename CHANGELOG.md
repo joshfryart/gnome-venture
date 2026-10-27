@@ -1,10 +1,25 @@
 # Changelog
 
-## Unreleased
+## 2.0.62
+- World > Go: the route panel (GPS) and seek chip sit in a right column on very wide screens (1600px+) and above the content on narrower ones.
+- Place header on World and main stops now shows daypart, weather and season chips.
+- Place switcher: three equal buttons on phones, so names are no longer cut.
+- Main-stop tabs (Square, Villagers, Shops, Orders, Stop) wrap three per row on phones.
+- Main-stop Villagers view shows only who is in town now (out and about, at home); the long list is one link to the Villagers page.
+- The art outline on place headers is still a temporary review marker.
+
+## 2.0.61
+- World / Town / Stops consolidation (review build): World tabs are now Go, Map, Gather, Shops (Fast travel is a fold on Go; Seasons and Land moved to each stop's Stop tab; old `?tab=travel`, `?tab=seasons` and `?tab=here` links still land).
+- Main stops: tabs Square, Villagers, Shops, Orders, Stop. The Stop view (`town.php?view=stop`, `view=passport` still works) holds Passport, Orders link, Seasons and Land (land deeds stay village-only).
+- Rest stops: tabs Do, Villagers, Stop; Seasons and Land for sale on the Stop tab.
+- New place switcher (World / Here / Mossbottom) and place header with stop and map art on World, main stop and rest stop pages. The art has a TEMPORARY RED OUTLINE for review (class `newart`, remove after Joshua's review).
+- Phone bottom bar and menu: Town is now Here.
+- Code: World and town helpers moved to `includes/place_ui.php` (no change in behaviour).
 - Puzzles: loose pieces now show a still first frame and only one animated copy of the picture runs, clipped to the solved pieces (whole picture on win). Before, every piece ran its own GIF (150 at the top size).
 - Puzzles: new **Motion** button (remembered; off by default with reduced-motion) switches the animation off. Pixel art stays crisp (`image-rendering: pixelated` on pieces, guide and final picture).
 - New `-still.png` next to each puzzle GIF (generator `tests/gen_puzzle_stills.py`; add one with every new GIF). New suite `tests/puzzles.sh` (locked/open, files exist), added to CI.
 - Removed leftover blob-URL code. No schema change.
+
 
 ## 2.0.60
 - Updater: switches maintenance mode on by itself while installing, keeps a safety copy of every file it replaces, rolls back automatically if a write fails or a file's hash is wrong afterwards, and releases the lock either way. The old "switch on Maintenance first" help text is gone.
