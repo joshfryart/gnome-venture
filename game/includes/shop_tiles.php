@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 /* v2.0.5: ONE tile renderer + ONE sheet (dialog) for every pure buy/sell item list (shop.php, market.php, marketday.php).
-   JS lives in site.js ("shop tiles"), CSS at the end of style.css. */
+   JS lives in site.js ("shop tiles"), CSS at the end of style.css. v2.0.67: the tile is an item square (item_square.php); put tiles in item_grid(). */
+require_once __DIR__ . '/item_square.php';
 
 const SHOP_CATS = ['seed' => '🌱 Seeds', 'produce' => '🥕 Crops', 'flower' => '🌸 Flowers', 'food' => '🍲 Food', 'soil' => '🪱 Soil', 'mulch' => '🍂 Mulch',
     'supply' => '🧪 Supplies', 'tool' => '🧰 Tools', 'guide' => '📗 Guides', 'forage' => '🍄 Finds', 'part' => '🦴 Parts', 'decor' => '🏡 Decor', 'arrangement' => '💐 Arrangements', 'packet' => '📦 Seed packets'];
@@ -42,10 +43,15 @@ function shop_mini(string $html): string
 }
 
 /**
- * One tile + its sheet. Options:
+ * One tile + its sheet. v2.0.67: the tile is an item square (includes/item_square.php, mockup 4); the hooks stay:
+ * div.btile.stile[data-cat data-id data-price data-max data-name] > button.spick[data-sheet] + dialog.isheet (site.js "shop tiles"),
+ * .sel on the .stile from the basket (site.js "shop basket"), .catoff from the category chips. Options:
  *  id (int, form key), item (row with name/category/description/id), price (int each), max (int), priceHtml, mini (html), tags (html[]), info (html),
  *  dim (bool), badge (string), mode ('buy'|'sell'), action (form URL), open (bool: show the form), qtyName ('qty[ID]' default or 'qty'),
  *  fields (name => value hidden inputs, in order), totalLabel (override "Total"/"You get"), each (text after the price, default 'each'), counts (title for the badge), basket (bool: offer "Add to basket"; needs a .basket form in the .shopwrap).
+ *  v2.0.67: coins (?int: the buyer's Petals; a price above it shows "Short N" on stone felt), offNote (words on a dim tile: "Sold out today"),
+ *  flag ('New'), icon (html replacing the item picture on the tile and in the sheet). The mini html is read for ⭐ (wanted) and ↑ / ↓ (price trend);
+ *  any other words in it become a small note chip. A numeric badge is the corner count, '✔' the done badge.
  */
 function shop_tile(array $o): string
 {
@@ -81,12 +87,35 @@ function shop_tile(array $o): string
         . '<p class="sbad" hidden></p>'
         . '<button class="btn sgo">' . $verb . '</button>'
         . (!empty($o['basket']) ? '<button type="button" class="btn ghost sadd">🧺 Add to basket</button>' : '') . '</form>';
-    return '<div class="btile stile' . (!empty($o['dim']) ? ' dim' : '') . '" data-cat="' . shop_cat_of((string)($i['category'] ?? '')) . '" data-id="' . $id . '" data-price="' . $price . '" data-max="' . $max . '" data-name="' . e((string)$i['name']) . '">'
-        . '<button type="button" class="spick" data-sheet aria-haspopup="dialog"><i class="rar r' . $rl . '" role="img" aria-label="' . e($rw) . '" title="' . e($rw) . '">' . $rl . '</i>'
-        . '<span class="iicon" aria-hidden="true">' . item_icon($i) . '</span><span class="iname">' . e((string)$i['name']) . '</span>'
-        . '<span class="sprice">' . $priceHtml . '</span>' . ($mini !== '' ? '<span class="smini">' . $mini . '</span>' : '')
-        . ($badge !== '' ? '<b class="iqty" title="' . e((string)($o['badgeTitle'] ?? ($mode === 'buy' ? 'On the shelf' : 'You have'))) . '">' . e($badge) . '</b>' : '') . '</button>'
+
+    // the square: wanted / trend from the mini marker, count or done from the badge, stone felt when dim or too dear
+    $states = [];
+    $chips = [];
+    $wanted = str_contains($mini, '⭐');
+    if ($wanted) { $states[] = 'want'; $chips[] = ['want', '★ Wanted']; }
+    $trend = str_contains($mini, 'class="up"') ? 'up' : (str_contains($mini, 'class="down"') ? 'down' : '');
+    $rest = trim(str_replace(['⭐', '🌿', '🍂', '↑', '↓'], '', html_entity_decode(strip_tags($mini), ENT_QUOTES, 'UTF-8')));
+    $coins = $o['coins'] ?? null;
+    $short = $mode === 'buy' && $coins !== null && $max > 0 && empty($o['dim']) && $price > (int)$coins ? $price - (int)$coins : 0;
+    if ($short > 0) { $states[] = 'off'; $chips[] = ['short', 'Short ' . number_format($short) . '<span class="vh"> ' . e(setting('currency_name')) . '</span>']; }
+    if (!empty($o['dim'])) {
+        $states[] = 'off';
+        if (($o['offNote'] ?? '') !== '') $chips[] = ['note', e((string)$o['offNote'])];
+    }
+    if ($rest !== '') $chips[] = ['note', e($rest)];
+    if (!empty($o['basket'])) $chips[] = ['inb', '', true];   // "2 in basket", filled by site.js
+    $count = null;
+    if ($badge === '✔') $states[] = 'done';
+    elseif ($badge !== '' && ctype_digit($badge)) $count = (int)$badge;
+    $icon = (string)($o['icon'] ?? '');
+    $sq = item_square(['item' => $i, 'rarity' => $rl, 'icon' => $icon, 'count' => $count,
+        'countLabel' => (string)($o['badgeTitle'] ?? ($mode === 'buy' ? 'On the shelf' : 'You have')),
+        'price' => $price, 'trend' => $trend, 'trendWord' => $trend === '' ? '' : ($mode === 'sell' ? ($trend === 'up' ? ', pays more today' : ', pays less today') : ($trend === 'up' ? ', dearer today' : ', cheaper today')),
+        'chips' => $chips, 'states' => array_values(array_unique($states)), 'flag' => (string)($o['flag'] ?? ''),
+        'class' => 'spick', 'attrs' => ['data-sheet' => true, 'aria-haspopup' => 'dialog']]);
+    return '<div class="btile stile itmcell' . (!empty($o['dim']) ? ' dim' : '') . '" data-cat="' . shop_cat_of((string)($i['category'] ?? '')) . '" data-id="' . $id . '" data-price="' . $price . '" data-max="' . $max . '" data-name="' . e((string)$i['name']) . '">'
+        . $sq
         . '<dialog class="isheet" aria-label="' . e((string)$i['name']) . '"><button type="button" class="sheetx" data-sheetx aria-label="Close">✕</button>'
-        . '<div class="shead"><span class="sico" aria-hidden="true">' . item_icon($i) . '</span><b class="sname">' . e((string)$i['name']) . '</b> <span class="rarword r' . $rl . '">' . e($rw) . '</span></div>'
+        . '<div class="shead"><span class="sico" aria-hidden="true">' . ($icon !== '' ? $icon : item_icon($i)) . '</span><b class="sname">' . e((string)$i['name']) . '</b> <span class="rarword r' . $rl . '">' . e($rw) . '</span></div>'
         . ($tags ? '<p class="stags">' . implode(' ', $tags) . '</p>' : '') . $descH . $info . $form . '</dialog></div>';
 }

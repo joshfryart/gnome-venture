@@ -27,7 +27,7 @@ chk "four flower Almanac pages" "$(db "SELECT COUNT(*) FROM encyclopedia_entries
 
 echo "== art: SVG icons in the Satchel; the files are static"
 get "inventory.php?cat=flower"
-chk "flower icons are inline SVG" "$(grep -c 'class="flsvg flsvg-md"' $T/p.html | awk '{print ($1>5)?"yes":"no"}')" yes
+chk "flower icons are inline SVG" "$(grep -c 'class="flsvg flsvg-\(md\|lg\)"' $T/p.html | awk '{print ($1>5)?"yes":"no"}')" yes
 chk "no script or handlers in svg files" "$(grep -il '<script\|onload\|onclick' $GAME/assets/img/flowers/*.svg | wc -l)" 0
 chk "12 heads + 3 vessels + 3 sprigs + packet" "$(ls $GAME/assets/img/flowers/*.svg | wc -l)" 19
 chk "168 flowers have a look" "$(grep -vc '^#' $GAME/includes/data/flower_looks.txt)" 168
@@ -50,7 +50,7 @@ chk "energy spent" "$(( E0 - $(db "SELECT energy FROM users WHERE id=$SID") ))" 
 chk "player holds it" "$(qty $AID)" 1
 chk "stored score equals preview" "$(db "SELECT effects FROM items WHERE id=$AID" | grep -o '"score":[0-9]*' | head -1)" "$(echo "$P1" | grep -o '"total":[0-9]*' | sed 's/total/score/')"
 get "inventory.php?cat=arrangement"
-chk "arrangement draws as SVG in the satchel" "$(grep -c 'class="flsvg flsvg-md"' $T/p.html | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "arrangement draws as SVG in the satchel" "$(grep -c 'class="flsvg flsvg-\(md\|lg\)"' $T/p.html | awk '{print ($1>0)?"yes":"no"}')" yes
 echo "-- refused cases use nothing"
 post arrange.php -d do=arrange -d v=jar -d "slot[0]=$R" -d "slot[1]=$D"
 chk "2 stems refused" "$(qty $R)" "$(( RQ - 1 ))"

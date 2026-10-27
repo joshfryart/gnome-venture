@@ -49,14 +49,14 @@ if ($wanted) {
   <h3>⭐ Wanted this week</h3>
   <p class="help">These goods fetch more from every shop all week<?= $on ? ', and a little more again today' : ', and a little more again on market day' ?>. Grow or cook a few ahead of time.</p>
   <?php if (!$wantedRows): ?><p class="muted">Nothing is especially wanted this week.</p><?php else: ?>
-  <div class="shopwrap"><div class="satchel shopgrid">
+  <div class="shopwrap"><div class="itmwrap"><div class="itms">
     <?php foreach ($wantedRows as $r): $each = sell_price($r, $u); $have = (int)$r['have'];
         echo shop_tile(['id' => (int)$r['id'], 'item' => $r, 'price' => $each, 'max' => $have, 'priceHtml' => money($each), 'mini' => shop_mini(market_chip($r)), 'tags' => [market_chip($r)],
             'info' => '<p class="help">👜 You have ' . $have . '.</p><p class="help">About ' . money($each) . ' each: the shop works out the exact price.</p>', 'badge' => (string)$have, 'badgeTitle' => 'You have',
             'mode' => 'sell', 'action' => url($self), 'open' => $on && $reach && $have > 0, 'qtyName' => 'qty', 'each' => 'each, about', 'totalLabel' => 'About',
             'fields' => ['item' => (int)$r['id']] + ($hub ? ['hub' => 1] : [])]);
     endforeach; ?>
-  </div></div>
+  </div></div></div>
   <p class="help">Shops pay the same prices, in every town. The ↑ ↓ marks on a shop’s Sell tab show what is up or down.</p>
   <?php endif; ?>
 </div>
@@ -69,14 +69,14 @@ if ($wanted) {
 <?php foreach ($stalls as ['npc' => $n, 'goods' => $goods]): ?>
   <div class="box mkstall">
     <h3><?= npc_icon($n['species']) ?> <a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a>’s stall</h3>
-    <div class="shopwrap"><div class="satchel shopgrid">
+    <div class="shopwrap"><div class="itmwrap"><div class="itms">
     <?php foreach ($goods as $g): $it = $g['item']; $had = market_bought_today($uid, (int)$n['id'], (int)$it['id']); $left = max(0, (int)setting('market_stall_limit') - $had);
         $info = ($had ? '<p class="help">You bought ' . $had . ' today.</p>' : '') . ($left < 1 ? '<p class="help">Sold out for you today.</p>' : '<p class="help">You can buy ' . $left . ' more today.</p>');
         echo shop_tile(['id' => (int)$it['id'], 'item' => $it, 'price' => (int)$g['price'], 'max' => $left, 'mini' => market_is_wanted((int)$it['id']) ? '⭐' : '', 'info' => $info,
-            'badge' => $left > 0 ? (string)$left : '', 'badgeTitle' => 'You can buy', 'dim' => $left < 1, 'mode' => 'buy', 'action' => url($self), 'open' => $reach && $left > 0, 'qtyName' => 'qty',
+            'badge' => $left > 0 ? (string)$left : '', 'badgeTitle' => 'You can buy', 'dim' => $left < 1, 'offNote' => 'Sold out today', 'coins' => $reach ? (int)$u['coins'] : null, 'mode' => 'buy', 'action' => url($self), 'open' => $reach && $left > 0, 'qtyName' => 'qty',
             'fields' => ['npc' => (int)$n['id'], 'item' => (int)$it['id']] + ($hub ? ['hub' => 1] : [])]);
     endforeach; ?>
-    </div></div>
+    </div></div></div>
   </div>
 <?php endforeach; ?>
 </div>

@@ -1450,7 +1450,11 @@ function gvBasketRender(wrap) {
     list.appendChild(b);
     sum += it.n * it.price;
   });
-  wrap.querySelectorAll('.stile').forEach(function (t) { t.classList.toggle('sel', !!items[t.getAttribute('data-id')]); });
+  wrap.querySelectorAll('.stile').forEach(function (t) {
+    var it = items[t.getAttribute('data-id')], inb = t.querySelector('.itm__inb');   // v2.0.67: the item square's "2 in basket" chip
+    t.classList.toggle('sel', !!it);
+    if (inb) { inb.hidden = !it; inb.textContent = it ? it.n + ' in basket' : ''; }
+  });
   bk.hidden = !ids.length;
   tot.textContent = tot.getAttribute('data-lbl') + ' ' + sum.toLocaleString();
   var coinsEl = document.querySelector('.mycoins[data-coins]'), coins = coinsEl ? +coinsEl.getAttribute('data-coins') : -1;

@@ -70,7 +70,7 @@ page_header('Trading Post');
   <?php if (!$rows): ?><p class="muted">Nothing for sale<?= $search !== '' ? ' matching “' . e($search) . '”' : '' ?> yet. Be the first: put something on your stall!</p>
   <?php else: ?>
     <p class="status shopintro">You have <b class="mycoins" data-coins="<?= (int)$u['coins'] ?>"><?= money((int)$u['coins']) ?></b></p>
-    <div class="shopwrap"><div class="satchel shopgrid shopflex">
+    <div class="shopwrap"><div class="itmwrap"><div class="itms">
       <?php foreach ($rows as $r):
           $mineRow = (int)$r['seller_id'] === $uid;
           $it = ['id' => $r['item_id']] + $r;
@@ -78,9 +78,10 @@ page_header('Trading Post');
               . ($mineRow ? '<p class="help">Your own listing. Manage it on My stall.</p>' : '');
           echo shop_tile(['id' => (int)$r['id'], 'item' => $it, 'price' => (int)$r['price'], 'max' => (int)$r['qty'], 'mini' => '<span class="sby">' . e((string)$r['seller']) . '</span>',
               'info' => $info, 'badge' => (string)(int)$r['qty'], 'badgeTitle' => 'Available', 'mode' => 'buy', 'action' => url('market.php?t=buy'),
-              'open' => !$mineRow && !$why, 'qtyName' => 'qty', 'fields' => ['id' => (int)$r['id']], 'dim' => $mineRow]);
+              'open' => !$mineRow && !$why, 'qtyName' => 'qty', 'fields' => ['id' => (int)$r['id']], 'dim' => $mineRow, 'offNote' => $mineRow ? 'Yours' : '',
+              'coins' => !$mineRow && !$why ? (int)$u['coins'] : null]);
       endforeach; ?>
-    </div></div>
+    </div></div></div>
   <?php endif; ?>
 
 <?php elseif ($tab === 'stall'):

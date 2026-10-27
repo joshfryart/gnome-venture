@@ -573,15 +573,15 @@ function landmark_panel(array $u, array $node): string
                 . '<p class="help">Staying the night: +3 ' . e(GNOME_STATS[haven_stat($lm)][0]) . ' for 2 hours and a little energy. Each once a day.</p>'
                 . '<h4>🧺 Today’s pantry</h4>';
             require_once __DIR__ . '/shop_tiles.php';   // v2.0.17: the same picture tiles + sheet as the shops
-            $h .= '<div class="shopwrap"><div class="satchel shopgrid shopflex">';
+            $h .= '<div class="shopwrap"><div class="itmwrap"><div class="itms">';
             foreach (haven_pantry($lm, $uid) as [$it, $price]) {
                 $row = q_one('SELECT * FROM items WHERE id = ?', [(int)$it['id']]) ?: $it;
                 $done = landmark_done_today($uid, $id, 'buy' . (int)$it['id']);
-                $h .= shop_tile(['id' => (int)$it['id'], 'item' => $row, 'price' => $price, 'max' => 1, 'dim' => $done, 'badge' => $done ? '✔' : '', 'badgeTitle' => 'Bought today',
+                $h .= shop_tile(['id' => (int)$it['id'], 'item' => $row, 'price' => $price, 'max' => 1, 'dim' => $done, 'offNote' => $done ? 'Back tomorrow' : '', 'badge' => $done ? '✔' : '', 'badgeTitle' => 'Bought today',
                     'info' => $done ? '<p class="help">Bought today. Back tomorrow.</p>'
                         : shop_oneform(url('landmark.php'), ['do' => 'buy', 'lm' => $id, 'item_id' => (int)$it['id']], money($price), 'Buy')]);
             }
-            $h .= '</div></div><p class="help">One of each a day. Changes daily.</p>';
+            $h .= '</div></div></div><p class="help">One of each a day. Changes daily.</p>';
             break;
         case 'wonder':
             $done = landmark_done_today($uid, $id, 'wonder');

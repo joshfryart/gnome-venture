@@ -576,15 +576,7 @@ a.tile.sending { opacity: .55; }
 .sortpick summary { list-style: none; }
 .sortpick summary::-webkit-details-marker { display: none; }
 .sortopts { margin-top: 6px; }
-.satchel { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
 .itile { position: relative; }
-.itile summary { list-style: none; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 4px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; min-height: 96px; }
-.itile summary::-webkit-details-marker { display: none; }
-.itile summary:hover { border-color: var(--line-2); background: var(--surface-2); }
-.itile[open] summary { border-color: var(--brand); background: var(--brand-soft); }
-.itile .iicon { font-size: 30px; line-height: 1.2; }
-.itile .iname { font-size: 13px; line-height: 1.15; margin-top: 2px; overflow-wrap: anywhere; }
-.itile .iqty { position: absolute; top: 4px; right: 6px; font-size: 12px; background: var(--badge-bg); color: var(--on-fill); border-radius: var(--radius-sm); padding: 0 6px; }
 .itile .ipop { position: absolute; z-index: 20; top: 100%; left: 50%; transform: translateX(-50%); width: 260px; max-width: 80vw; background: var(--surface); border: 1px solid var(--brand); border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow-2); margin-top: 4px; }
 .itile .ipop p { margin: 6px 0; font-size: 14px; }
 .itile .ipop .cat { font-size: 12px; background: none; color: var(--muted); padding: 0; }
@@ -592,14 +584,12 @@ a.tile.sending { opacity: .55; }
 .itile .ipop .ifacts li { margin: 3px 0; }
 .itile .ipop .ipclose { float: right; margin: -6px -6px 0 6px; width: var(--tap); height: var(--tap); background: none; border: 0; font-size: 18px; line-height: 1; cursor: pointer; color: var(--muted); }
 @media (min-width: 721px) { .itile .ipop .ipclose { display: none; } }
-.itile .rar, .btile .rar { position: absolute; top: 4px; left: 6px; font-style: normal; font-weight: 700; font-size: 12px; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 0; color: var(--on-fill); }
 .gcard .rar { position: absolute; top: 3px; left: 3px; font-style: normal; font-weight: 700; font-size: 12px; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 0; color: var(--on-fill); }
 .rar.rC, .rarword.rC { background: var(--r-c); } .rar.rU, .rarword.rU { background: var(--r-u); }
 .rar.rR, .rarword.rR { background: var(--r-r); } .rar.rL, .rarword.rL { background: var(--r-l); }
 .rarword { color: var(--on-fill); border-radius: var(--radius-sm); padding: 0 6px; font-size: 12px; font-weight: 700; }
 @media (max-width: 720px) {
   .itile[open] .ipop { position: fixed; left: 8px; right: 8px; top: auto; bottom: calc(var(--bar) + var(--sab) + 8px); width: auto; max-width: none; max-height: 62vh; overflow-y: auto; transform: none; margin: 0; z-index: 46; box-shadow: var(--shadow-2); }
-  .itile[open] summary { outline: 2px solid var(--brand); }
 }
 /* toolbelt */
 .toolbelt { margin: 20px 0 10px; }
@@ -1353,22 +1343,8 @@ body[data-area] .tabs a.on { background: var(--area-solid); color: var(--on-fill
 .shoprow.rare { background: var(--accent-soft); }
 .crafthead { font-size: 16px; margin: 12px 0 6px; }
 .recipelist .rrow { padding: 6px 2px; border-bottom: 1px solid var(--line); }
-.bgrid { margin-top: 8px; }
 .btile { position: relative; }
-.btile .bpick { width: 100%; font: inherit; color: inherit; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 4px 6px; display: flex; flex-direction: column; align-items: center; min-height: 104px; position: relative; }
-.btile .bpick:hover { border-color: var(--line-2); background: var(--surface-2); }
-.btile.sel .bpick { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
-.btile.dim .bpick { opacity: .85; }
 .btile.catoff { display: none; }
-.btile .iicon { font-size: 30px; line-height: 1.2; }
-.btile .iname { font-size: 13px; line-height: 1.15; margin-top: 2px; overflow-wrap: anywhere; }
-.btile .iqty { position: absolute; top: 4px; right: 6px; font-size: 12px; background: var(--badge-bg); color: var(--on-fill); border-radius: var(--radius-sm); padding: 0 6px; }
-.btile .bprice { font-size: 13px; font-weight: 600; margin-top: 3px; }
-.btile .btags { font-size: 12px; margin-top: 2px; }
-.btile .binb { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: var(--brand-fill); color: var(--on-fill); font-size: 12px; border-radius: var(--pill); padding: 0 8px; white-space: nowrap; }
-.btile .bqty { display: block; font-size: 13px; text-align: center; margin-top: 3px; }
-.btile .bqty input { width: 64px; }
-.basketform.js .bqty { display: none; }
 .basket { position: sticky; top: var(--hdr); z-index: 6; background: var(--surface); border: 1px solid var(--brand); border-radius: var(--radius); padding: 8px 12px; margin: 4px 0 8px; box-shadow: var(--shadow-2); }
 .basket .bsel { font-size: 14px; }
 .basket .bsel p { margin: 4px 0; }
@@ -2049,7 +2025,6 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 /* ===== v1.0.0 wave 2b: orders, market day, price drift ===== */
 .tag.up { background: var(--accent-soft); color: var(--accent-ink); }
 .tag.down { background: var(--info-soft); color: var(--info-ink); }
-.btile .btags .tag { font-size: 11px; padding: 0 6px; }
 .orders .order { align-items: flex-start; flex-wrap: wrap; }
 .orders .order .tag { margin-right: 4px; }
 .orders .order.d3 { border-left: 3px solid var(--accent); padding-left: 8px; }
@@ -3179,22 +3154,6 @@ form.choiceform > .choice + .choice { margin-top: 6px; }
   .th-hdr .thl { display: none; }
 }
 
-/* v1.6.9 shop choice rows */
-.bgrid.satchel { display: flex; flex-direction: column; gap: 6px; }
-.bgrid .btile { border: 0; padding: 0; gap: 0; }
-.bgrid .btile .bpick.choice { min-height: 52px; padding: 6px 12px; flex-direction: row; align-items: center; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--radius); }
-.bgrid .btile .bpick.choice:hover { background: var(--surface-2); }
-.bgrid .btile .bpick .choice-ico { font-size: 26px; }
-.bgrid .btile .bpick .choice-ico img, .bgrid .btile .bpick .choice-ico svg { width: 30px; height: 30px; object-fit: contain; display: block; margin: 0 auto; }
-.bgrid .btile .bpick .choice-sub { display: block; }
-.bgrid .btile .bpick .choice-sub .rar { position: static; display: inline-block; width: 16px; height: 16px; line-height: 16px; font-size: 11px; vertical-align: -2px; }
-.bgrid .btile .bpick .choice-sub .tag, .bgrid .btile .bpick .choice-sub .chip { font-size: 11px; padding: 0 5px; }
-.bgrid .btile .bpick .choice-badge s { font-weight: 400; margin-left: 2px; }
-.bgrid .btile.sel .bpick.choice { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
-:root[data-theme="dark"] .bgrid .btile.sel .bpick.choice { background: var(--brand-line); }
-.bgrid .btile .bpick .binb { position: static; transform: none; flex: none; margin-left: 2px; }
-.bgrid .btile .bqty { text-align: right; margin: 4px 0 0; }
-.bgrid .btile.dim .bpick { opacity: .75; }
 .curiogrid, .dyegrid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
 @media (min-width: 721px) { .curiogrid, .dyegrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 form.curio.choiceform, form.dyeopt.choiceform { display: block; padding: 0; border: 0; background: none; margin: 0; max-width: none; }
@@ -3860,9 +3819,6 @@ dialog.tkr::backdrop { background: rgba(42, 26, 16, .78); backdrop-filter: blur(
 .packhelp { text-align: left; margin: 2px 0 8px; }
 .packhelp summary { justify-content: center; }
 .packnone { margin: 14px 0; }
-.packgrid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); margin: 8px 0; text-align: center; }
-.packgrid .itile summary { min-height: 84px; }
-.packgrid .itile .iicon img { width: 36px; height: 36px; }
 .packbank { text-align: left; margin-top: 10px; }
 .packbank summary { justify-content: center; }
 .hprow .hpx { font-weight: 600; color: var(--danger-ink); font-size: 13px; }
@@ -4117,22 +4073,6 @@ h3.roadline { text-align: center; text-wrap: balance; }
 /* v1.9.8 shop tiles: Buy and Sell lists are Satchel-style picture tiles; a tap opens the item sheet (a <dialog>) */
 .shopwrap { text-align: center; }
 .shopwrap .shopcats { justify-content: center; flex-wrap: wrap; overflow: visible; margin: 4px 0 10px; }
-.shopgrid.satchel { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 4px; }
-.shopgrid .btile { border: 0; padding: 0; gap: 0; display: block; position: relative; }
-.shopgrid .btile.catoff { display: none; }
-.shopgrid .spick { width: 100%; height: 100%; font: inherit; color: inherit; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 4px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 112px; position: relative; min-width: 0; }
-.shopgrid .spick:hover { border-color: var(--line-2); background: var(--surface-2); }
-.shopgrid .spick:focus-visible { outline: 2px solid var(--sel); outline-offset: 1px; }
-.shopgrid .spick .iicon { font-size: 30px; line-height: 1.2; }
-.shopgrid .spick .iicon img, .shopgrid .spick .iicon svg { width: 36px; height: 36px; object-fit: contain; display: block; margin: 0 auto; }
-.shopgrid .spick .iname { font-size: 13px; line-height: 1.15; margin-top: 2px; overflow-wrap: anywhere; }
-.shopgrid .spick .sprice { font-size: 12px; font-weight: 600; margin-top: 3px; color: var(--ink-2); }
-.shopgrid .spick .sprice s { display: none; }
-.shopgrid .spick .smini { font-size: 12px; line-height: 1.2; margin-top: 2px; }
-.shopgrid .spick .smini .up { color: var(--danger); font-weight: 700; }
-.shopgrid .spick .smini .down { color: var(--brand-ink); font-weight: 700; }
-.shopgrid .btile.dim .spick { opacity: .75; }
-.shopgrid .spick .iqty { position: absolute; top: 4px; right: 6px; font-size: 12px; background: var(--badge-bg); color: var(--on-fill); border-radius: var(--radius-sm); padding: 0 6px; }
 /* the sheet: bottom sheet on phones, centred card on desktop */
 dialog.isheet { border: 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-2); overscroll-behavior: contain; text-align: center;
   position: fixed; inset: auto 0 0 0; margin: 0; width: 100%; max-width: none; max-height: 86dvh; overflow-y: auto; border-radius: 0; }
@@ -4156,7 +4096,6 @@ dialog.isheet .sbad { color: var(--danger); margin: 0; }
 dialog.isheet .sgo { width: auto; min-width: 160px; }
 dialog.isheet .sgo:disabled { opacity: .55; cursor: not-allowed; }
 @media (min-width: 721px) {
-  .shopgrid.satchel { grid-template-columns: repeat(auto-fit, 120px); justify-content: center; }
   dialog.isheet { inset: 0; margin: auto; width: min(400px, calc(100% - 32px)); max-height: calc(100dvh - 48px); height: fit-content; border-radius: 0; padding: 16px; }
 }
 @media (prefers-reduced-motion: no-preference) { dialog.isheet[open] { animation: gvsheet .2s ease-out; } }
@@ -4183,10 +4122,7 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .townview > h2, .townview > p, .townview > .help { text-align: center; }
 
 /* v2.0.5 shop tiles: Trading Post + Market day use the same tiles and sheet as shop.php */
-.shopgrid .spick .smini .sby { display: block; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--muted); }
 .marketwanted, .mkstall { text-align: center; }
-.mkstall .shopgrid.satchel, .marketwanted .shopgrid.satchel, .shopgrid.satchel.shopflex { display: flex; flex-wrap: wrap; justify-content: center; }
-.mkstall .shopgrid .btile, .marketwanted .shopgrid .btile, .shopflex .btile { width: 104px; flex: none; }
 .shopintro .mycoins { white-space: nowrap; }
 .shopwrap + .help, .shopwrap + p { margin-top: 10px; }
 .marketwanted h3, .marketwanted .help { text-align: center; }
@@ -4437,11 +4373,9 @@ details.tkfmap.late { display: none; }
 /* v2.0.17 shop tiles 2: Curio Cabinet, Dye Pot and festival stalls use the shop tiles and sheet (confirm button, no quantity) */
 .curios, .dyes, .stall { text-align: center; }
 .curios h2, .dyes h2, .dyes h3, .stall h3, .curios .help, .dyes .help, .stall .help { text-align: center; }
-.stalls .shopwrap .shopgrid { margin-left: auto; margin-right: auto; }
 dialog.isheet .confirmform { margin: 10px 0 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 dialog.isheet .sown { color: var(--muted); font-weight: 600; }
 dialog.isheet .sline b { font-size: 16px; }
-.shopgrid .spick .smini { white-space: nowrap; }
 :root[data-theme="dark"] dialog.isheet .sown { color: var(--muted); }
 :root[data-theme="dark"] .curios, :root[data-theme="dark"] .dyes { color: var(--ink); }
 
@@ -4770,7 +4704,7 @@ body.admin .side a.navtile:not(.on) { box-shadow: none; }
 .pmem, .tkall, .gfield, .gprac, .frounds, .stok {
   border-width: 2px; box-shadow: var(--shadow); }
 /* picture tiles and pick cards: 2 px edge, no drop (they sit in tight grids) */
-.itile summary, .btile .bpick, .pcard, .jcard, .arrtile, .shopgrid .spick, .ptile, .bookwide .mcard { border-width: 2px; }
+.pcard, .jcard, .arrtile, .ptile, .bookwide .mcard { border-width: 2px; }
 .hollow:not(.st), .tfolk, .gmine { border-width: 2px; }
 .plantinfo { border-width: 2px 2px 2px 6px; box-shadow: var(--shadow); }
 /* popover cards: the --shadow-2 frame is their edge */
@@ -5620,7 +5554,176 @@ main a.fbtn, main a.fbtn:hover { color: #2a1a10; text-decoration: none; }
 .gvs[data-dp="night"][data-baked="1"] .gvs-tint { background: rgba(30, 24, 70, .22); }   /* not used today: no baked night art */
 .gvs[data-baked="1"][data-dp="dawn"] .gvs-tint, .gvs[data-baked="1"][data-dp="dusk"] .gvs-tint { display: none; }
 /* v2.0.67: shop basket (bar styles above; tile highlight and sheet button) */
-.shopgrid .btile.sel .spick { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
 dialog.isheet .sadd { width: auto; min-width: 160px; }
 .basket .sbad { color: var(--danger); margin: 4px 0; font-size: 14px; }
 .basket[hidden] { display: none; }
+
+/* ===== 2.0.67: item squares (.itm) ===== */
+/* ===== v2.0.67 item squares, wave 1 (approved mockup 4: claude/art-variants/mockup4/items.css) =====
+   For the lead to append to game/assets/style.css. ONE component (.itm, rendered by item_square() in includes/item_square.php) for
+   every item grid: Satchel, trek pack, shop Buy / Sell and every shop_tile() user (market, market day, festival, village stalls,
+   landmarks, Curio Cabinet, Dye Pot); wave 2 adds crafting ingredients, the gift picker and the garden / town pickers with the same markup.
+   Uses the shared felt base already in style.css (--gx-* tokens, .vh, .pix); nothing of it is repeated here. Classes only, no inline styles.
+   Image urls are relative to assets/style.css: img/items/ (item_art.py from mockup 4), img/acts/ (felt-off, badge-sel/lock/done, the same
+   files as mockup2/art) and img/town/badge-star.png (mockup3/art).
+
+   Anatomy (rows share subgrid tracks, so every window, ribbon and foot in a row lines up whatever wraps):
+     .itm                       the felt square: a <button> (shop tile .spick, pickers) or the <summary> of a Satchel <details>; state badge (::after)
+       .itm__win                framed felt window, 9-slice; the 64 px icon sits centred, never scaled
+         img.itm__ic | .itm__svg | .itm__emo   item_icon(): picture, flower svg, or emoji (the emoji may be swapped for an .ico <img>)
+         i.itm__gem             rarity mark: shape + letter (pebble C, shield U, diamond R, star L)
+         b.itm__n               corner count "×9,999"
+       .itm__rib > .itm__name   ribbon sign, 2 lines max (kind words "Seeds", "Broken" ... are lifted into the foot by the server)
+       .itm__foot               chips: rarity word, kind, price, wanted, in basket, in use, have / need, taste, note
+     .itm__flag                 "New" / "Rare taste!" corner flag
+   Cells: div.btile.stile.itmcell (shop tile: the square + its dialog.isheet; .sel from the basket JS) and details.itile.itmcell (Satchel, trek pack). */
+
+:root {
+  --itm-count-bg: #2a1a10; --itm-count-ink: #fff3c8;
+  --itm-chip: #fff3c8; --itm-chip-line: rgba(42, 26, 16, .55);
+  --itm-ok: #2f5a2a; --itm-ok-ink: #fff3c8; --itm-short: #8e2a1e; --itm-short-ink: #fff3c8;
+  --itm-want: #e0aa48; --itm-halo: #e8a317;
+  --itm-ic-dim: none;
+}
+:root[data-theme="dark"] { --itm-ic-dim: brightness(.9) saturate(.95); --itm-halo: #f5cf6a; }
+
+/* ===== the grid: 3 columns on a phone, then 4 / 5 / 6 by the grid's own width ===== */
+.itmwrap { container-type: inline-size; min-width: 0; }
+.itms { --itm-cols: 3; margin: 0; padding: 14px 0 4px; list-style: none; display: grid; grid-template-columns: repeat(var(--itm-cols), minmax(0, 1fr));
+  grid-auto-rows: auto; gap: 16px 6px; text-align: center; }
+@container (min-width: 520px) { .itms { --itm-cols: 4; gap: 18px 10px; } }
+@container (min-width: 680px) { .itms { --itm-cols: 5; } }
+@container (min-width: 840px) { .itms { --itm-cols: 6; max-width: 1080px; margin-inline: auto; } }
+.itms--flush { margin: 0; }
+.itm-h { margin: 18px 0 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; font: 700 15px/1.3 var(--font); color: var(--ink); }
+.itm-h__sub { font: 500 12px/1.3 var(--font); color: var(--muted); }
+/* a shop tile: the square is the grid item, its <dialog> sheet sits beside it (closed = no box, open = top layer) */
+div.itmcell { display: contents; }
+/* Satchel / trek pack <details class="itile itmcell">: the details spans the row tracks and hands them to its <summary>; the pop-up is out of flow */
+details.itmcell { position: relative; grid-row: span 3; display: grid; grid-template-rows: subgrid; min-width: 0; }
+details.itmcell > summary.itm { grid-row: 1 / span 3; display: grid; justify-content: normal; align-items: stretch; min-height: var(--tap); color: var(--gx-felt-ink); font-size: inherit; }
+details.itmcell > summary.itm.is-off { color: var(--gx-felt-ink-off); }   /* both beat ".helpfold summary" (the trek pack's Banked fold holds a grid) */
+details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
+
+/* ===== the square ===== */
+.itm { position: relative; grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 6px; align-items: stretch; min-width: 0; min-height: var(--tap);
+  margin: 0; padding: 0 0 2px; appearance: none; -webkit-appearance: none; background: none; color: var(--gx-felt-ink); font: inherit; text-align: center; cursor: pointer;
+  list-style: none; border: 12px solid transparent; border-image: url(img/items/felt-c.png) 12 fill / 12px round; image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 var(--gx-card-drop)); transition: transform .06s, filter .06s; -webkit-tap-highlight-color: transparent; }
+.itm::-webkit-details-marker { display: none; }
+.itm::marker { content: ""; }
+.itm > * { image-rendering: auto; }
+.itm--u { border-image-source: url(img/items/felt-u.png); }
+.itm--r { border-image-source: url(img/items/felt-r.png); }
+.itm--l { border-image-source: url(img/items/felt-l.png); }
+
+/* framed window: 9-slice, stretches to any column width; the icon keeps its 64 px */
+.itm__win { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; height: 88px; margin: -4px -4px 0;
+  border: 12px solid transparent; border-image: url(img/items/win-c.png) 12 fill / 12px stretch; image-rendering: pixelated; }
+.itm--u .itm__win { border-image-source: url(img/items/win-u.png); }
+.itm--r .itm__win { border-image-source: url(img/items/win-r.png); }
+.itm--l .itm__win { border-image-source: url(img/items/win-l.png); }
+.itm__ic { display: block; flex: none; width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; filter: var(--itm-ic-dim); }
+.itm__svg { display: block; flex: none; width: 64px; height: 64px; filter: var(--itm-ic-dim); }
+.itm__svg > svg { display: block; width: 64px; height: 64px; }
+.itm__emo { display: flex; align-items: center; justify-content: center; font-size: 38px; line-height: 1; }
+.itm__emo .ico { width: 44px; height: 44px; }   /* emoji_icons.php swaps the emoji for a drawn 16 px icon: show it big */
+.itm__emo > svg { display: block; }
+.itm__gem { position: absolute; left: -9px; bottom: -9px; width: 26px; height: 26px; background: url(img/items/gem-c.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
+.itm--u .itm__gem { width: 26px; height: 28px; background-image: url(img/items/gem-u.png); }
+.itm--r .itm__gem { width: 28px; height: 28px; background-image: url(img/items/gem-r.png); }
+.itm--l .itm__gem { width: 32px; height: 32px; left: -11px; bottom: -11px; background-image: url(img/items/gem-l.png); }
+.itm__n { position: absolute; right: -9px; bottom: -8px; z-index: 2; padding: 2px 4px 1px; background: var(--itm-count-bg); color: var(--itm-count-ink);
+  font: 800 11px/1.15 var(--font); white-space: nowrap; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--itm-count-ink), 0 0 0 4px var(--itm-count-bg); }
+
+/* rare / legendary twinkle: two sprites on the window, out of step; one still frame under reduced motion */
+.itm--r .itm__win::before, .itm--r .itm__win::after, .itm--l .itm__win::before, .itm--l .itm__win::after {
+  content: ""; position: absolute; z-index: 1; width: 32px; height: 32px; pointer-events: none; image-rendering: pixelated;
+  background: url(img/items/spark-r.png) 0 0 / 128px 32px no-repeat; animation: itm-spark .9s steps(4) infinite; }
+.itm--l .itm__win::before, .itm--l .itm__win::after { background-image: url(img/items/spark-l.png); animation-duration: .72s; }
+.itm--r .itm__win::before, .itm--l .itm__win::before { top: -10px; right: -8px; }
+.itm--r .itm__win::after, .itm--l .itm__win::after { top: 18px; left: -10px; animation-delay: -.45s; }
+@keyframes itm-spark { to { background-position: -128px 0; } }
+
+/* ribbon sign: grows with the name */
+.itm__rib { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 34px; margin: 0 -12px; padding: 0;
+  border: 8px solid transparent; border-width: 8px 6px; border-image: url(img/items/rib-idle.png) 8 6 fill / 8px 6px round stretch; image-rendering: pixelated;
+  color: var(--gx-sign-ink); }
+.itm__name { min-width: 0; font: 700 12px/1.2 var(--font); overflow-wrap: break-word; text-wrap: balance; text-shadow: 0 1px 0 rgba(42, 26, 16, .55); image-rendering: auto;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }   /* 2 by design; 3 only as a guard for a wide fallback font */
+.itm--long .itm__name { font-size: 11px; }
+.itm--xlong .itm__name { font-size: 10px; letter-spacing: -.01em; line-height: 1.2; }
+@container (min-width: 520px) { .itm__name { font-size: 13px; } .itm--long .itm__name { font-size: 12px; } .itm--xlong .itm__name { font-size: 11.5px; } }
+
+/* foot chips */
+.itm__foot { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 4px; min-width: 0; font: 700 11px/1.3 var(--font); }
+.itm__foot:empty { display: none; }
+.itm__foot > * { max-width: 100%; padding: 1px 4px; white-space: nowrap; }
+.itm__foot .ico { width: 12px; height: 12px; vertical-align: -2px; }
+.itm__rar { padding: 0 2px; font-weight: 800; letter-spacing: .02em; }
+.itm__price { background: var(--itm-chip); color: var(--gx-felt-ink); box-shadow: 0 0 0 1px var(--itm-chip-line); font-variant-numeric: tabular-nums; }
+.itm__trend { font-weight: 800; }
+.itm__pet { display: inline-block; width: 9px; height: 10px; margin-left: 2px; vertical-align: -1px; background: url(img/items/petal.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
+.itm__kind { padding: 0 2px; font-weight: 700; letter-spacing: .01em; white-space: normal; }
+.itm__want { background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
+.itm__inb, .itm__use, .itm__ok { background: var(--itm-ok); color: var(--itm-ok-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.itm__short { background: var(--itm-short); color: var(--itm-short-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.itm__note { padding: 0 2px; font-weight: 600; white-space: normal; text-wrap: balance; overflow-wrap: break-word; }
+.itm__taste { background: rgba(255, 243, 200, .6); box-shadow: inset 0 0 0 1px rgba(42, 26, 16, .4); }
+.itm__foot > [hidden] { display: none; }
+
+/* corner flag (New, Rare taste): top left, like the place cards */
+.itm__flag { position: absolute; top: -8px; left: -8px; z-index: 3; max-width: calc(100% + 8px); padding: 1px 5px; background: var(--accent); color: #2a1a10;
+  font: 800 10px/1.4 var(--font); white-space: nowrap; box-shadow: 0 0 0 2px var(--ol); image-rendering: auto; }
+.itm__flag--taste { background: #f5cf6a; }
+
+/* state badge, top right (gather-card convention) */
+.itm::after { content: ""; position: absolute; top: -13px; right: -13px; z-index: 3; width: 30px; height: 30px; background: no-repeat 0 0 / 100% 100%; image-rendering: pixelated; pointer-events: none; }
+
+/* picked: the sheet is open, the gift is chosen, the Satchel card is open, or it is in the basket (.sel on the shop tile): gold sign, gold halo, leaf (or basket) badge */
+.itm[aria-pressed="true"], .itm.is-sel, .itmcell[open] > .itm, .itmcell:has(> dialog[open]) > .itm, .stile.sel > .itm {
+  box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--itm-halo); }
+.itm[aria-pressed="true"] .itm__rib, .itm.is-sel .itm__rib, .itmcell[open] > .itm .itm__rib, .itmcell:has(> dialog[open]) > .itm .itm__rib, .stile.sel > .itm .itm__rib {
+  border-image-source: url(img/items/rib-sel.png); color: var(--gx-sign-ink-sel); }
+.itm[aria-pressed="true"] .itm__name, .itm.is-sel .itm__name, .itmcell[open] > .itm .itm__name, .itmcell:has(> dialog[open]) > .itm .itm__name, .stile.sel > .itm .itm__name {
+  text-shadow: 0 1px 0 rgba(255, 243, 200, .5); }
+.itm[aria-pressed="true"]::after, .itm.is-sel::after, .itmcell[open] > .itm::after { background-image: url(img/acts/badge-sel.png); }
+.itm.is-inbasket::after, .stile.sel > .itm::after { background-image: url(img/items/badge-basket.png); }
+
+/* wanted (sell mode: a market-day or shop order) and in use (the tool a job uses) */
+.itm.is-want::after { width: 28px; height: 28px; top: -12px; right: -12px; background-image: url(img/town/badge-star.png); }
+.itm.is-use::after { background-image: url(img/items/badge-use.png); }
+
+/* off: sold out, too dear, broken, can't use: stone felt, pale sign, grey picture; still focusable so its sheet can say why */
+.itm.is-off { color: var(--gx-felt-ink-off); border-image-source: url(img/acts/felt-off.png); filter: drop-shadow(0 2px 0 var(--gx-card-drop)); }
+.itm.is-off .itm__win { border-image-source: url(img/items/win-off.png); }
+.itm.is-off .itm__rib { border-image-source: url(img/items/rib-off.png); color: var(--gx-sign-ink-off); }
+.itm.is-off .itm__name { text-shadow: none; }
+.itm.is-off .itm__ic, .itm.is-off .itm__svg, .itm.is-off .itm__emo { filter: grayscale(1) brightness(.95) opacity(.7); }
+.itm.is-off .itm__win::before, .itm.is-off .itm__win::after { content: none; }
+.itm.is-locked::after { width: 26px; height: 32px; top: -15px; right: -11px; background-image: url(img/acts/badge-lock.png); }
+.itm.is-done::after { background-image: url(img/acts/badge-done.png); }
+
+/* pressed / focus */
+.itm:active, .itm.is-pressed { transform: translateY(2px); filter: drop-shadow(0 1px 0 var(--gx-card-drop)); }
+.itm:focus-visible { outline: 3px solid var(--focus); outline-offset: 8px; }
+.itm:hover .itm__win { filter: brightness(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .itm--r .itm__win::before, .itm--r .itm__win::after, .itm--l .itm__win::before, .itm--l .itm__win::after { animation: none; background-position: -64px 0; }
+  .itm::after { animation: none; }
+  .itm { transition: none; }
+  .itm:active, .itm.is-pressed { transform: none; }
+}
+
+/* ===== the shop basket bar (shop_basket_html: form.basket > .blist + .bfoot) as the mockup's leather strip; still sticky, as before ===== */
+.shopwrap > .basket { color: #fff3c8; background: var(--gx-leather); border: 0; border-radius: 0; padding: 10px 12px 12px;
+  box-shadow: 0 0 0 2px var(--ol), inset 0 3px 0 var(--gx-leather-lt), 3px 3px 0 2px var(--drop); outline: 2px dashed var(--gx-stitch); outline-offset: -6px; }
+.shopwrap > .basket .blist { margin: 0 0 8px; }
+.shopwrap > .basket .bchip { min-height: var(--tap); border: 0; border-radius: 0; background: rgba(255, 243, 200, .14); color: #fff3c8; box-shadow: inset 0 0 0 1px rgba(255, 243, 200, .45); }
+.shopwrap > .basket .btotal { color: #fff3c8; font: 800 15px/1.3 var(--font); }
+.shopwrap > .basket .sbad { color: #ffd2c4; }
+.shopwrap > .basket .btn { min-height: var(--tap); }
+/* the felt button variables (style.css "buttons"): cream Empty, gold Buy all / Sell all in both themes, as in the mockup */
+:root[data-theme] .shopwrap > .basket .btn.bclear { --b-bg: #f2e4c0; --b-hi: #fff3c8; --b-lo: #c9a96e; --b-ink: #2a1a10; --b-hover: #fff3c8; }
+:root[data-theme] .shopwrap > .basket .btn.bgo { --b-bg: #e0aa48; --b-hi: #f5cf6a; --b-lo: #b07a28; --b-ink: #2a1a10; --b-hover: #f5cf6a; }

@@ -68,13 +68,13 @@ page_header($f ? $f['name'] : 'Festivals');
     <div class="stall">
       <h3><?= e($s['icon'] . ' ' . $s['name']) ?></h3>
       <?php if ($s['keeper']): ?><p class="help">Run by <b><?= e($s['keeper']) ?></b> 🏡</p><?php endif; ?>
-      <div class="shopwrap"><div class="satchel shopgrid shopflex">
+      <div class="shopwrap"><div class="itmwrap"><div class="itms">
       <?php foreach ($s['goods'] as $g): $left = $g['limit'] - $g['bought']; ?>
         <?= sink_tile(['id' => (int)$g['item']['id'], 'item' => $g['item'], 'price' => (int)$g['price'], 'action' => url('festival.php'), 'verb' => 'Buy', 'do' => 'buy',
-            'fields' => ['stall' => $s['key'], 'idx' => (int)$g['idx']], 'open' => $left > 0, 'dim' => $left < 1, 'badge' => (string)max(0, $left), 'badgeTitle' => 'Left for you',
-            'note' => 'You have all you can carry', 'mini' => '']) ?>
+            'fields' => ['stall' => $s['key'], 'idx' => (int)$g['idx']], 'open' => $left > 0, 'dim' => $left < 1, 'coins' => (int)$u['coins'], 'badge' => (string)max(0, $left), 'badgeTitle' => 'Left for you',
+            'note' => 'You have all you can carry', 'offNote' => 'Sold out', 'mini' => '']) ?>
       <?php endforeach; ?>
-      </div></div>
+      </div></div></div>
     </div>
   <?php endforeach; ?>
   </div>

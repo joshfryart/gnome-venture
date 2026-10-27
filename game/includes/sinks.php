@@ -418,12 +418,8 @@ function sink_tile(array $o): string
     $o['info'] = $info;
     $o['open'] = false;
     $o['max'] = 1;
-    $html = shop_tile($o);
-    if (!empty($o['icon'])) {
-        $ic = item_icon((array)$o['item']);
-        if ($ic !== '') $html = str_replace($ic, (string)$o['icon'], $html);
-    }
-    return $html;
+    if (!empty($o['dim']) && ($o['note'] ?? '') !== '' && !isset($o['offNote'])) $o['offNote'] = (string)$o['note'];   // v2.0.67: on the tile too
+    return shop_tile($o);   // v2.0.67: shop_tile takes 'icon' itself (tile and sheet)
 }
 
 
@@ -470,34 +466,34 @@ function sink_shop_panel(array $u, array $shop, bool $open): string
         $stock = curio_stock($uid);
         $h .= '<section class="box curios" id="curios"><h2>🗝️ The Curio Cabinet</h2>'
             . '<p class="help">Rare pieces for a fine yard. Changes in <b>' . e(nice_time(curio_reset_in())) . '</b> (Mondays). Up to '
-            . (int)setting('curio_item_limit') . ' of each a week.</p><div class="shopwrap"><div class="satchel shopgrid shopflex">';
+            . (int)setting('curio_item_limit') . ' of each a week.</p><div class="shopwrap"><div class="itmwrap"><div class="itms">';
         foreach ($stock as $r) {
             $it = $r['item'];
             $sold = $r['left'] < 1;
             $it['description'] = trim((string)preg_replace('/ Place it in your yard.*$/', '', (string)$it['description']));
             $h .= sink_tile(['id' => (int)$it['id'], 'item' => $it, 'price' => (int)$r['price'], 'action' => $action, 'verb' => 'Buy', 'do' => 'sink_curio',
-                'fields' => ['slug' => $it['slug']], 'open' => $open && !$sold, 'dim' => $sold, 'badge' => $sold ? '✔' : '', 'badgeTitle' => 'Bought',
-                'note' => $sold ? '✔ Limit bought this week' : '', 'mini' => '🌼+' . (int)$r['def']['appeal'],
+                'fields' => ['slug' => $it['slug']], 'open' => $open && !$sold, 'dim' => $sold, 'coins' => $open ? (int)$u['coins'] : null, 'badge' => $sold ? '✔' : '', 'badgeTitle' => 'Bought',
+                'note' => $sold ? '✔ Limit bought this week' : '', 'offNote' => $sold ? '✔ Bought' : '', 'mini' => '🌼+' . (int)$r['def']['appeal'],
                 'tags' => ['<span class="tag">🌼 +' . (int)$r['def']['appeal'] . ' appeal</span>', '<span class="tag">' . (int)$r['def']['w'] . '×' . (int)$r['def']['h'] . '</span>']]);
         }
         if (!$stock) $h .= '<p class="muted">The cabinet is empty this week.</p>';
-        $h .= '</div></div></section>';
+        $h .= '</div></div></div></section>';
     } else {
         $own = array_fill_keys(q("SELECT ref FROM sink_owned WHERE user_id = ? AND kind = 'dye'", [$uid])->fetchAll(PDO::FETCH_COLUMN), true);
         $h .= '<section class="box dyes" id="dyepots"><h2>🎨 Dye pots</h2>'
             . '<p class="help">Buy a pot once; the colour is yours. Pick it on <a href="' . e(url('gnome.php?dye=1#dyes')) . '">My Gnome</a>.</p>';
         foreach (DYE_TIER_NAMES as $tier => $tname) {
-            $h .= '<h3>' . e($tname) . ' <small class="muted">' . money(dye_price($tier)) . ' a pot</small></h3><div class="shopwrap"><div class="satchel shopgrid shopflex">';
+            $h .= '<h3>' . e($tname) . ' <small class="muted">' . money(dye_price($tier)) . ' a pot</small></h3><div class="shopwrap"><div class="itmwrap"><div class="itms">';
             foreach (['hat' => '🎩 Hat', 'beard' => '🧔 Beard'] as $part => $plabel) {
                 foreach (DYES[$part][$tier] as $c => $name) {
                     $have = isset($own[$part . ':' . $c]);
                     $h .= sink_tile(['id' => 0, 'item' => ['id' => 0, 'slug' => '', 'name' => $name, 'category' => 'other', 'description' => '', 'rarity' => [1 => 1, 2 => 30, 3 => 60][$tier]],
                         'price' => dye_price($tier), 'action' => $action, 'verb' => 'Buy', 'do' => 'sink_dye', 'fields' => ['part' => $part, 'color' => $c],
-                        'open' => $open && !$have, 'dim' => $have, 'badge' => $have ? '✔' : '', 'badgeTitle' => 'Owned', 'note' => $have ? '✔ Owned' : '',
-                        'mini' => mb_substr($plabel, 0, 2), 'tags' => ['<span class="tag">' . e($plabel) . '</span>'], 'icon' => dye_swatch($c, 16)]);
+                        'open' => $open && !$have, 'dim' => $have, 'coins' => $open ? (int)$u['coins'] : null, 'badge' => $have ? '✔' : '', 'badgeTitle' => 'Owned', 'note' => $have ? '✔ Owned' : '',
+                        'mini' => mb_substr($plabel, 0, 2), 'tags' => ['<span class="tag">' . e($plabel) . '</span>'], 'icon' => dye_swatch($c, 24)]);
                 }
             }
-            $h .= '</div></div>';
+            $h .= '</div></div></div>';
         }
         $h .= '</section>';
     }

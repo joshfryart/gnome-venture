@@ -157,7 +157,7 @@ function local_buy_tile(array $u, array $loc, array $a, bool $isDone, bool $lock
     $info = '<p class="help">Buy ' . $qty . ' × ' . e((string)$item['name']) . '. You have ' . $have . '.</p>'
         . ($isDone ? '<p class="help">✔ Done this visit.</p>' : ($locked ? '<p class="help">Come back later.</p>' : shop_oneform('', $fields, money($price) . ' for ' . $qty, 'Buy')));
     return shop_tile(['id' => (int)$a['id'], 'item' => $item, 'price' => $price, 'max' => 1, 'priceHtml' => money($price), 'mini' => '×' . $qty,
-        'dim' => $off, 'badge' => $isDone ? '✔' : ($have > 0 ? (string)$have : ''), 'badgeTitle' => $isDone ? 'Done this visit' : 'You have', 'info' => $info]);
+        'dim' => $off, 'offNote' => $isDone ? 'Done' : ($locked ? 'Later' : ''), 'badge' => $isDone ? '✔' : ($have > 0 ? (string)$have : ''), 'badgeTitle' => $isDone ? 'Done this visit' : 'You have', 'info' => $info]);
 }
 
 /** v2.0.67: the short meta chunks under a Do card's sign (escaped HTML each). Never cut: the row wraps between chunks. */
@@ -388,7 +388,7 @@ function local_panel(array $u, array $loc): string
         foreach ($pool['tiers'] as $a) if ((int)$a['tier'] === $nextTier && !in_array((string)$a['kind'], ['buy', 'snack'], true)) $h .= local_act_card($u, $loc, $a, false, 'Needs tier ' . $nextTier, $folk0);
     }
     $h .= '</div>';
-    if ($shelf !== '') $h .= '<div class="mkstall"><h3 class="st-h">🛒 For sale</h3><div class="shopwrap"><div class="satchel shopgrid shopflex">' . $shelf . '</div></div></div>';
+    if ($shelf !== '') $h .= '<div class="mkstall"><h3 class="st-h">🛒 For sale</h3><div class="shopwrap">' . item_grid($shelf) . '</div></div>';
     if ($pool['later']) {
         $h .= '<details class="st-later"><summary>🕰️ Other times here (' . count($pool['later']) . ')</summary><ul>';
         foreach ($pool['later'] as $a) $h .= '<li>' . e((string)$a['icon']) . ' <b>' . e((string)$a['name']) . '</b> <small class="muted">' . e(stop_cond_text((string)$a['cond'])) . '</small></li>';

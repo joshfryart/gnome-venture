@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/trek.php';
 require_once __DIR__ . '/includes/trek_minimap.php';   // v2.0.20: the Whole map fold
 require_once __DIR__ . '/includes/trek_art.php';
 require_once __DIR__ . '/includes/trek_stage.php';   // v2.0.40: the party on the chapter's scene   // v1.8.10: the map art
+require_once __DIR__ . '/includes/item_square.php';   // v2.0.67: the pack tab's item squares
 $u = require_login();
 $uid = (int)$u['id'];
 refresh_energy($u);
@@ -1041,31 +1042,31 @@ $fat = (int)$run['fatigue'];
     <div class="packchips"><span class="chip">🎒 <?= (int)$run['petals_found'] ?> 🪙 carried</span><span class="chip">🏕️ <?= (int)$run['campkits'] ?>/<?= (int)setting('trek_campkit_max') ?> kits</span><span class="chip">✅ <?= $pb ? $pb . ' 🪙' : $nBank . ' items' ?> banked</span></div>
     <details class="helpfold packhelp"><summary>ℹ️ Bank at camp</summary><p class="help">Rest at a camp to bank: items go straight to your Satchel and Petals to your purse. Carried finds can be lost if the party is knocked out. Quest items are safe.</p></details>
     <?php if (!$carried && !(int)$run['petals_found'] && (int)$run['campkits'] < 1): ?><p class="muted packnone">Nothing yet.</p><?php else: ?>
-    <div class="satchel packgrid">
+    <div class="itmwrap"><div class="itms packgrid">
       <?php if ((int)$run['petals_found']): ?>
-        <details class="itile"><summary><span class="iicon">🪙</span><span class="iname"><?= $cur ?></span><b class="iqty"><?= (int)$run['petals_found'] ?></b></summary>
+        <details class="itile itmcell"><?= item_square(['name' => setting('currency_name'), 'icon' => '🪙', 'tag' => 'summary', 'count' => (int)$run['petals_found'], 'countLabel' => 'Carried']) ?>
           <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= $cur ?></b><p>Found on the trek. Bank it at a camp.</p></div></details>
       <?php endif; ?>
       <?php if ((int)$run['campkits'] > 0): ?>
-        <details class="itile"><summary><span class="iicon">🏕️</span><span class="iname">Camp Kit</span><b class="iqty"><?= (int)$run['campkits'] ?></b></summary>
+        <details class="itile itmcell"><?= item_square(['name' => 'Camp Kit', 'icon' => '🏕️', 'tag' => 'summary', 'count' => (int)$run['campkits'], 'countLabel' => 'Carried']) ?>
           <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b>Camp Kit</b><div class="trektext small"><?= trek_text('item.camp-kit') ?></div></div></details>
       <?php endif; ?>
       <?php foreach ($carried as $r): $quest = trek_is_quest_item((int)$r['item_id']); $note = isset(trek_text_rows()['item.' . $r['slug']]) ? trek_text('item.' . $r['slug']) : ''; ?>
-        <details class="itile"><summary><span class="iicon"><?= item_icon($r) ?></span><span class="iname"><?= e($r['name']) ?></span><b class="iqty"><?= (int)$r['qty'] ?></b></summary>
+        <details class="itile itmcell"><?= item_square(['item' => $r + ['id' => (int)$r['item_id']], 'tag' => 'summary', 'count' => (int)$r['qty'], 'countLabel' => 'Carried', 'chips' => $quest ? [['note', 'Quest']] : []]) ?>
           <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= e($r['name']) ?></b><?= $quest ? ' <span class="cat">quest item</span>' : '' ?>
             <?php if ($note !== ''): ?><div class="trektext small"><?= $note ?></div><?php elseif (trim((string)$r['description']) !== ''): ?><p><?= desc_html((string)$r['description']) ?></p><?php endif; ?></div></details>
       <?php endforeach; ?>
-    </div>
+    </div></div>
     <?php endif; ?>
     <details class="helpfold packbank"><summary>✅ Banked so far (<?= $nBank ?>)</summary>
       <?php if (!$nBank): ?><p class="muted">Nothing banked yet.</p><?php else: ?>
-      <div class="satchel packgrid"><?php /* v1.8.9: banked items as Satchel tiles, like the carried ones */ ?>
-      <?php if ($pb): ?><details class="itile"><summary><span class="iicon">🪙</span><span class="iname"><?= $cur ?></span><b class="iqty"><?= $pb ?></b></summary>
+      <div class="itmwrap"><div class="itms packgrid"><?php /* v1.8.9: banked items as Satchel tiles, like the carried ones; v2.0.67 item squares */ ?>
+      <?php if ($pb): ?><details class="itile itmcell"><?= item_square(['name' => setting('currency_name'), 'icon' => '🪙', 'tag' => 'summary', 'count' => $pb, 'countLabel' => 'Banked']) ?>
         <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= $cur ?></b><p>Already added to your Petals.</p></div></details><?php endif; ?>
       <?php foreach ($banked as $r): ?>
-        <details class="itile"><summary><span class="iicon"><?= item_icon($r) ?></span><span class="iname"><?= e($r['name']) ?></span><b class="iqty"><?= (int)$r['qty'] ?></b></summary>
+        <details class="itile itmcell"><?= item_square(['item' => $r + ['id' => (int)$r['item_id']], 'tag' => 'summary', 'count' => (int)$r['qty'], 'countLabel' => 'Banked']) ?>
           <div class="ipop"><button type="button" class="ipclose" aria-label="Close">✕</button><b><?= e($r['name']) ?></b> <span class="cat">in your Satchel</span><?php if (isset(trek_text_rows()['item.' . $r['slug']])): ?><div class="trektext small"><?= trek_text('item.' . $r['slug']) ?></div><?php elseif (trim((string)($r['description'] ?? '')) !== ''): ?><p><?= desc_html((string)$r['description']) ?></p><?php endif; ?></div></details>
-      <?php endforeach; ?></div>
+      <?php endforeach; ?></div></div>
       <?php endif; ?>
     </details>
   </div>

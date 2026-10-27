@@ -202,11 +202,29 @@ $hid = '<input type="hidden" name="cat" value="' . e($cat) . '"><input type="hid
   <button class="btn small pickgo">Go</button>
 </form>
 <?php if (!$items): ?><p class="muted">Empty. Time to visit the market!</p><?php endif; ?>
-<div class="satchel">
-  <?php foreach ($shown as $i): ?>
-    <?php [$rl, $rw] = item_rarity($i, $IL); ?>
-    <details class="itile" id="i<?= (int)$i['id'] ?>"<?= (int)($_GET['open'] ?? 0) === (int)$i['id'] ? ' open' : '' ?>>
-      <summary><i class="rar r<?= $rl ?>" role="img" aria-label="<?= e($rw) ?>" title="<?= e($rw) ?>"><?= $rl ?></i><span class="iicon"><?= $iconFor($i) ?></span><span class="iname"><?= e($i['name']) ?></span><?= $permFirst($i) ? '<b class="rarefirst" title="Rare first taste: raises a stat for good">rare!</b>' : '' ?><b class="iqty"><?= (int)$i['qty'] ?></b></summary>
+<?php   // v2.0.67: item squares (includes/item_square.php, mockup 4); one grid per type when sorted by type
+require_once __DIR__ . '/includes/item_square.php';
+$inUse = [];   // the tool of each job the gnome uses now
+foreach (array_keys(TOOL_TYPES) as $tt) if ($bt = best_tool($uid, $tt)) $inUse[(int)$bt['id']] = true;
+$newSince = gmdate('Y-m-d H:i:s', time() - 3600);   // "New": got in the last hour
+$openId = (int)($_GET['open'] ?? 0);
+$groups = $sort === 'type' && $cat !== 'untasted' ? [] : ['' => $shown];
+if (!$groups) { foreach ($shown as $i) $groups[$tabOf($i)][] = $i; $groups = array_merge(array_intersect_key(array_flip(array_keys($cats)), $groups), $groups); }   // in the Show list's order
+foreach ($groups as $gk => $list):
+    if ($gk !== ''): ?><h3 class="itm-h"><?= e($cats[$gk] ?? $gk) ?> <span class="itm-h__sub"><?= count($list) ?> kind<?= count($list) === 1 ? '' : 's' ?></span></h3><?php endif; ?>
+<div class="itmwrap"><div class="itms">
+  <?php foreach ($list as $i):
+      [$rl, $rw] = item_rarity($i, $IL);
+      $isTool = $i['category'] === 'tool' && !empty((json_decode((string)$i['effects'], true) ?: [])['tool']);
+      $broken = $i['category'] === 'broken';
+      $st = []; $chips = [];
+      if ($isTool && isset($inUse[(int)$i['id']])) { $st[] = 'use'; $chips[] = ['use', 'In use']; }
+      elseif ($isTool) $chips[] = ['note', 'Spare'];
+      if ($broken) { $st[] = 'off'; $chips[] = ['note', 'Mend it']; }
+      $flag = $permFirst($i) ? 'Rare taste!' : ((string)($i['got_at'] ?? '') >= $newSince ? 'New' : ''); ?>
+    <details class="itile itmcell" id="i<?= (int)$i['id'] ?>"<?= $openId === (int)$i['id'] ? ' open' : '' ?>>
+      <?= item_square(['item' => $i, 'rarity' => $rl, 'tag' => 'summary', 'count' => (int)$i['qty'], 'states' => $st, 'chips' => $chips,
+          'flag' => $flag, 'flagClass' => $permFirst($i) ? 'taste' : '', 'vh' => $permFirst($i) ? '<span class="vh">: eating it raises a stat for good</span>' : '']) ?>
       <div class="ipop">
         <button type="button" class="ipclose" aria-label="Close">✕</button>
         <b><?= e($i['name']) ?></b> <span class="cat"><?= e($cats[$i['category']] ?? ucfirst((string)$i['category'])) ?></span> <span class="rarword r<?= $rl ?>"><?= e($rw) ?></span>
@@ -241,7 +259,8 @@ $hid = '<input type="hidden" name="cat" value="' . e($cat) . '"><input type="hid
       </div>
     </details>
   <?php endforeach; ?>
-</div>
+</div></div>
+<?php endforeach; ?>
 
 <p class="help"><a href="<?= e(url('inventory.php?tab=belt')) ?>">🧰 Your toolbelt →</a></p>
 <?php page_footer();

@@ -34,7 +34,7 @@ curl -s -b $S -c $S $BASE/inventory.php -o $T/sat0.html
 # v1.5.2: items without real art show a red-outlined placeholder (assets/img/ph/), still no real picture
 chk "satchel has no real <img class=aimg> (only placeholders)" "$(grep -o '<img class="aimg[^>]*>' $T/sat0.html | grep -vc 'assets/img/ph/')" 0
 chk "satchel shows placeholders" "$(grep -o '<img class="aimg[^>]*assets/img/ph/' $T/sat0.html | wc -l | awk '{print ($1>3)?"yes":"no"}')" yes
-chk "satchel has icons" "$(grep -c 'class="iicon"' $T/sat0.html | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "satchel has icons" "$(grep -c 'class="itm__win"' $T/sat0.html | awk '{print ($1>0)?"yes":"no"}')" yes   # v2.0.67: item squares
 
 echo "== only admins"
 chk "player POST images.php refused" "$(curl -s -b $S -c $S -X POST $BASE/admin/images.php -F "pics[]=@$T/tomato.png" -o /dev/null -w '%{http_code}')" "$(curl -s -b $S -c $S $BASE/admin/index.php -o /dev/null -w '%{http_code}')"
@@ -71,8 +71,9 @@ chk "carrot has no image" "$(db "SELECT COALESCE(image,'') FROM items WHERE slug
 
 echo "== the pictures show"
 curl -s -b $S -c $S $BASE/inventory.php -o $T/sat1.html
-chk "satchel shows pictures" "$(grep -cE 'class="aimg aimg-md( pix)?" src="[^"]*uploads/items/' $T/sat1.html | awk '{print ($1>=3)?"yes":"no"}')" yes
-chk "img has width/height/lazy/alt" "$(grep -oE '<img class="aimg aimg-md( pix)?"[^>]*uploads/items/tomato.png[^>]*>' $T/sat1.html | head -1 | grep -c 'width="40" height="40" alt="Tomato" loading="lazy" decoding="async"')" 1
+chk "satchel shows pictures" "$(grep -cE 'class="aimg aimg-lg( pix)? itm__ic" src="[^"]*uploads/items/' $T/sat1.html | awk '{print ($1>=3)?"yes":"no"}')" yes
+# v2.0.67: the Satchel square shows the 64 px picture with an empty alt (the name is on the ribbon right under it)
+chk "img has width/height/lazy/alt" "$(grep -oE '<img class="aimg aimg-lg( pix)? itm__ic"[^>]*uploads/items/tomato.png[^>]*>' $T/sat1.html | head -1 | grep -c 'width="64" height="64" alt="" loading="lazy" decoding="async"')" 1
 chk "items without real art show a placeholder (v1.5.2)" "$(grep -o '<img class="aimg[^>]*assets/img/ph/' $T/sat1.html | wc -l | awk '{print ($1>=1)?"yes":"no"}')" yes
 dbx "UPDATE items SET image='../config.php.png' WHERE slug='potato'"; dbx "UPDATE items SET image='uploads/items/nope.png' WHERE slug='apple'"; dbx "UPDATE items SET image='uploads/items/garden-honey.svg' WHERE slug='garden-honey'"
 curl -s -b $S -c $S $BASE/inventory.php -o $T/sat2.html
