@@ -1,0 +1,179 @@
+-- maps.lua : map-world (320x180 grid -> 640x360), map-world-regions (flat-colour mask, same size), 14 region maps (240x135 -> 480x270).
+-- Region positions/colour families follow game/includes/maps.php REGION_MAP (1000x560 -> x0.32). No text, no pins, no labels.
+-- World: a flat 12x12 grid (24x24 exported) is left clear at each region centre for the pin. Regions: 4 zones (gentle, medium, medium, hard) on a path outward from a market village.
+local X = dofile(os.getenv("GV_ROOT") .. "opus-test-run/scripts/gvx.lua")
+local function R(base, shade, rim) return X.ramp(base, { shade = shade, deep = shade, bounce = shade, rim = rim or base, gloss = base, dot = base }) end
+X.ramp("#7ab55c")
+local RM = { wood = R("#b07a45", "#8a4f2a", "#d9a660"), stone = R("#8b8f96", "#5b6470", "#c9c5bc"), cream = R("#f2e4c0", "#d8c49a"), leaf = R("#7ab55c", "#4f9a45"), dleaf = R("#4f9a45", "#2f6a3a"),
+  red = R("#dd3a2a", "#ae2a2a", "#f2793a"), gold = R("#f5cf6a", "#e8a317"), petal = R("#e46a9b", "#b8452f", "#f6b8cf"), clay = R("#e0501f", "#a8582f", "#f08a24"), sand = R("#f5cf6a", "#c9a96e") }
+local OP = { gloss = false, cres = 2, deep = 0 }
+local function P(c, m, r, o) c:part(m, r, o or OP) end
+-- name = { x, y, r (1000x560 space), colour, [glyph] }
+local REG = {
+  { "NA", 215, 140, 70, "#7ab55c", "peak" }, { "CA", 190, 262, 38, "#c9a96e", "cactus" }, { "CB", 318, 238, 30, "#c8ecdc", "palm" }, { "SA", 305, 390, 62, "#4f9a45", "palm" },
+  { "NWE", 462, 112, 42, "#a4b86a", "tower" }, { "SE", 505, 195, 36, "#f5cf6a", "tree" }, { "EE", 612, 105, 48, "#bdd292", "dome" }, { "MENA", 560, 245, 52, "#d9a660", "dome" },
+  { "WCA", 490, 315, 44, "#2f6a3a", "tree" }, { "ESA", 590, 395, 50, "#9a6b3f", "peak" }, { "CSA", 700, 225, 58, "#e0501f", "pagoda" }, { "EA", 830, 170, 55, "#f6b8cf", "pagoda" },
+  { "SEA", 800, 300, 44, "#6a9a3a", "palm" }, { "OC", 885, 440, 52, "#f5cf6a", "palm" } }
+local function blob(c, m, i, cx, cy, r)   -- union of circles around (cx,cy), deterministic from the region index
+  local s = i * 7919 + 13; local function rnd(n) s = (s * 1103515245 + 12345) % 2147483648 return s % n end
+  m:add(c:ellipse(cx, cy, r, r * 0.8))
+  for k = 1, 5 do local a = rnd(628) / 100; local d = r * (0.45 + rnd(40) / 100); m:add(c:ellipse(cx + math.cos(a) * d, cy + math.sin(a) * d * 0.8, r * (0.45 + rnd(25) / 100), r * 0.4)) end
+  return m
+end
+local function glyph(c, g, x, y, s)
+  s = s or 1
+  if g == "peak" then P(c, c:poly({ { x - 6 * s, y }, { x, y - 10 * s }, { x + 6 * s, y } }), RM.stone, { gloss = false, cres = 2, deep = 0 }); c:fill(c:poly({ { x - 2 * s, y - 6 * s }, { x, y - 10 * s }, { x + 2 * s, y - 6 * s } }), "#f2e4c0")
+  elseif g == "cactus" then P(c, c:rrect(x - 1, y - 8 * s, x + 1, y, 1), RM.leaf, { gloss = false, flat = true }); c:fill(c:rect(x - 4, y - 5 * s, x - 2, y - 3 * s), "#7ab55c"); c:fill(c:rect(x + 2, y - 6 * s, x + 4, y - 4 * s), "#7ab55c")
+  elseif g == "palm" then c:fill(c:rect(x, y - 7 * s, x + 1, y), "#8a4f2a"); for _, d in ipairs({ -4, 4 }) do c:fill(c:rect(x + 0.5 + d, y - 8 * s, x + d + 2, y - 7 * s), "#4f9a45") end; c:fill(c:rect(x - 1, y - 9 * s, x + 2, y - 8 * s), "#4f9a45")
+  elseif g == "tower" then P(c, c:rect(x - 3, y - 10 * s, x + 3, y), RM.stone, { gloss = false, flat = true }); c:fill(c:poly({ { x - 4, y - 10 * s }, { x, y - 14 * s }, { x + 4, y - 10 * s } }), "#7a5cc0")
+  elseif g == "tree" then c:fill(c:rect(x, y - 3 * s, x, y), "#8a4f2a"); P(c, c:ellipse(x, y - 6 * s, 4 * s, 3 * s), RM.dleaf, { gloss = false, flat = true })
+  elseif g == "dome" then P(c, c:rect(x - 4, y - 4 * s, x + 4, y), RM.cream, { gloss = false, flat = true }); P(c, c:ellipse(x, y - 4 * s, 4, 4):cut(c:rect(x - 5, y - 4 * s + 1, x + 5, y)), RM.gold, { gloss = false, flat = true })
+  elseif g == "pagoda" then for i = 0, 1 do c:fill(c:rect(x - 3 + i, y - 4 - i * 5, x + 3 - i, y - i * 5), "#f2e4c0"); c:fill(c:rect(x - 5 + i, y - 5 - i * 5, x + 5 - i, y - 4 - i * 5), "#dd3a2a") end end
+end
+
+-- ===== world =====
+local function rockbg(c, w, h)   -- solid rock: wavy strata, pebbles, a few embedded crystals, stalactites above and stalagmites below
+  c:fill(c:rect(0, 0, w - 1, h - 1), "#3d2a1c")
+  for y = 0, h - 1 do for x = 0, w - 1 do
+    local v = math.floor((y + 4 * math.sin(x / 38 + y / 29) + 3 * math.sin(x / 13)) / 10) % 3
+    if v == 1 then c:px(x, y, "#4a2c1a") elseif v == 2 and (x * 3 + y) % 19 < 2 then c:px(x, y, "#5e2f1e") end
+  end end
+  local rs = 5; local function rr(n) rs = (rs * 1103515245 + 12345) % 2147483648 return rs % n end
+  for i = 1, w * h // 640 do local x, y = rr(w - 2), rr(h - 2); c:px(x, y, "#5b6470"); c:px(x + 1, y, "#5b6470") end
+  for i = 1, w * h // 3200 do local x, y = rr(w - 2), 8 + rr(h - 20); c:px(x, y, "#7a5cc0"); c:px(x, y - 1, "#c3b2ea") end
+  for x = 0, w - 1, 7 do local hh = 5 + (x * 13) % 9; c:fill(c:poly({ { x - 3, 0 }, { x, hh }, { x + 3, 0 } }), "#2a1a10") end
+  for x = 3, w - 1, 11 do local hh = 4 + (x * 7) % 7; c:fill(c:poly({ { x - 3, h - 1 }, { x, h - 1 - hh }, { x + 3, h - 1 } }), "#2a1a10") end
+end
+-- ===== cavern glyphs (the Hollow is underground: caverns joined by mycelium paths) =====
+local function shroom(c, x, y, sc, cap) c:fill(c:rect(x, y - 4 * sc, x + 1, y), "#f2e4c0"); c:fill(c:ellipse(x + 0.5, y - 4 * sc, 3 * sc, 2 * sc), cap); c:px(x - 1, y - 4 * sc, "#fff3c8"); c:px(x + 2, y - 4 * sc - 1, "#fff3c8") end
+local function crystalc(c, x, y, h, col) c:fill(c:poly({ { x - 2, y }, { x - 1, y - h * 0.7 }, { x, y - h }, { x + 1, y - h * 0.7 }, { x + 2, y } }), col); c:fill(c:poly({ { x + 2, y }, { x + 3, y - h * 0.5 }, { x + 4, y } }), col); c:px(x, y - h + 2, "#fff3c8") end
+local function stalag(c, x, y, h, a, b) c:fill(c:poly({ { x - 3, y }, { x, y - h }, { x + 3, y } }), a); c:fill(c:poly({ { x, y - h }, { x + 3, y }, { x + 1, y } }), b) end
+local function pool(c, x, y, rx) c:fill(c:ellipse(x, y, rx, rx * 0.45), "#3f8fb0"); c:fill(c:rect(x - rx + 2, y - 1, x - 1, y - 1), "#a9d6ea") end
+local function lava(c, x, y, rx) c:fill(c:ellipse(x, y, rx, rx * 0.45), "#d6322b"); c:fill(c:ellipse(x, y, rx * 0.5, rx * 0.2), "#f08a24"); c:px(x, y, "#f5cf6a") end
+local function coral(c, x, y, h, col) for i = -1, 1 do c:fill(c:poly({ { x + i * 2 - 1, y }, { x + i * 3, y - h + (i == 0 and 0 or 2) }, { x + i * 2 + 1, y } }), col) end end
+local function glowdot(c, x, y) c:px(x, y, "#f5cf6a"); c:px(x - 1, y, "#fff3c8"); c:px(x + 1, y, "#fff3c8") end
+local FEAT = {
+  NA = { { "shroom", "#dd3a2a" }, { "shroom", "#e46a9b" }, { "glow" } }, CA = { { "crystal", "#c3b2ea" }, { "crystal", "#7a5cc0" }, { "glow" } }, CB = { { "pool" }, { "shroom", "#a9d6ea" } },
+  SA = { { "root" }, { "shroom", "#4f9a45" }, { "glow" } }, NWE = { { "stalag", "#8b8f96", "#5b6470" }, { "pool" } }, SE = { { "shroom", "#f5cf6a" }, { "glow" }, { "glow" } },
+  EE = { { "crystal", "#a9d6ea" }, { "crystal", "#eef8f2" } }, MENA = { { "stalag", "#e8a317", "#a8582f" }, { "dune" } }, WCA = { { "shroom", "#7ab55c" }, { "shroom", "#c8d77a" }, { "root" } },
+  ESA = { { "stalag", "#c9a96e", "#9a6b3f" }, { "root" } }, CSA = { { "lava" }, { "stalag", "#a8582f", "#5e2f1e" } }, EA = { { "coral", "#e46a9b" }, { "coral", "#f6b8cf" }, { "glow" } },
+  SEA = { { "pool" }, { "shroom", "#7ab55c" }, { "glow" } }, OC = { { "coral", "#f08a24" }, { "pool" } } }
+local function feat(c, f, x, y, mask)
+  local k = f[1]
+  if k == "shroom" then shroom(c, x, y, 1.3, f[2]) elseif k == "crystal" then crystalc(c, x, y, 9, f[2]) elseif k == "stalag" then stalag(c, x, y, 9, f[2], f[3])
+  elseif k == "pool" then pool(c, x, y, 7) elseif k == "lava" then lava(c, x, y, 7) elseif k == "coral" then coral(c, x, y, 8, f[2]) elseif k == "glow" then glowdot(c, x, y)
+  elseif k == "root" then c:fill(c:rect(x, y - 12, x, y - 2), "#8a4f2a"); c:px(x - 1, y - 8, "#8a4f2a"); c:px(x + 1, y - 5, "#8a4f2a"); c:fill(c:ellipse(x, y - 1, 2, 1), "#8a4f2a")
+  elseif k == "dune" then c:fill(c:rect(x - 5, y, x + 5, y), "#f5cf6a"); c:fill(c:rect(x - 3, y + 2, x + 6, y + 2), "#f5cf6a") end
+end
+-- ===== regions =====
+-- per region: 4 ground tints gentle -> hard, road colour, village roof ramp
+local TINT = {
+  NA = { "#a4b86a", "#7ab55c", "#4f9a45", "#2f5a2a" }, CA = { "#f5cf6a", "#c9a96e", "#9a6b3f", "#7a4a1f" }, CB = { "#f5cf6a", "#c8ecdc", "#7ab55c", "#4f9a45" }, SA = { "#a4b86a", "#4f9a45", "#2f6a3a", "#2f5a2a" },
+  NWE = { "#bdd292", "#a4b86a", "#7ab55c", "#5b6470" }, SE = { "#f5cf6a", "#bdd292", "#a4b86a", "#c9a96e" }, EE = { "#f1ece0", "#bdd292", "#a4b86a", "#5b6470" }, MENA = { "#f5cf6a", "#d9a660", "#c9a96e", "#9a6b3f" },
+  WCA = { "#7ab55c", "#4f9a45", "#2f6a3a", "#2f5a2a" }, ESA = { "#a4b86a", "#c9a96e", "#9a6b3f", "#5b6470" }, CSA = { "#f5cf6a", "#f08a24", "#e0501f", "#a8582f" }, EA = { "#f6b8cf", "#a4b86a", "#7ab55c", "#8b8f96" },
+  SEA = { "#a4b86a", "#6a9a3a", "#4f9a45", "#2f6a3a" }, OC = { "#f5cf6a", "#f2e4c0", "#c8ecdc", "#7ab55c" } }
+local LY = dofile(os.getenv("GV_ROOT") .. "tools/map_layout.lua").regions.CA
+local function H(v) return math.floor(v / 2 + 0.5) end
+local TOWN = { H(LY.town.x), H(LY.town.y) }
+local CLR = {}; for _, k in ipairs(LY.clear) do CLR[#CLR + 1] = { k[1] / 2, k[2] / 2, k[3] / 2 } end
+local STOPS = {}; for _, st in ipairs(LY.stops) do STOPS[#STOPS + 1] = { H(st.x), H(st.y), st.r / 2, st.kind } end
+local ZONES = { { 40, 100, 34 }, { 95, 70, 38 }, { 150, 95, 40 }, { 205, 75, 36 } }
+-- ===== CA upgrade: underground sand cavern, a giant amethyst cluster and village lanterns are the light =====
+do
+  local ri, r = 2, REG[2]
+  local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2, ol = 1, olx = 1 }
+  X.layer(c, "sky"); rockbg(c, 240, 135)
+  X.layer(c, "ground")
+  local land = c:mask(); for x = 0, 239 do land:rect(x, 6 + math.floor(3 * math.sin(x / 13 + ri) + 0.5), x, 128 - math.floor(3 * math.sin(x / 9 + ri) + 0.5)) end
+  land:cut(c:rect(0, 0, 3, 134)):cut(c:rect(236, 0, 239, 134))
+  -- underground stream (same course as the old map), dark water
+  local river = c:mask(); local RP = {}
+  for t = 0, 1, 0.01 do local x, y = math.floor(150 + 34 * math.sin(t * 4.2 + ri) + 0.5), math.floor(4 + t * 126); river:add(c:ellipse(x, y, 1, 1)); RP[#RP + 1] = { x, y } end
+  river:clip(land)
+  local AM = { 168, 42 }   -- giant amethyst cluster: main light
+  local SMALL = { { 93, 21 }, { 100, 101 }, { 168, 101 }, { 214, 76 } }
+  local LANT = { { 63, 52 }, { 93, 64 }, { 153, 55 }, { 101, 86 } }   -- lanterns beside stops (outside clear rings)
+  local SRC = { { TOWN[1], TOWN[2], 58 }, { AM[1], AM[2], 62 } }
+  for _, v in ipairs(LANT) do SRC[#SRC + 1] = { v[1], v[2], 30 } end
+  for _, v in ipairs(SMALL) do SRC[#SRC + 1] = { v[1], v[2], 28 } end
+  local BAND = { { 40, "#f2e4c0" }, { 30, "#f5cf6a" }, { 20, "#c9a96e" }, { 10, "#9a6b3f" }, { 0, "#7a4a1f" }, { -1e9, "#4a2c1a" } }
+  local function band(L, x, y) for i, b in ipairs(BAND) do if L >= b[1] then if L - b[1] < 2.5 and (x + y) % 2 == 0 and BAND[i + 1] then return BAND[i + 1][2] end; return b[2] end end end
+  local light = {}
+  for y = 0, 134 do for x = 0, 239 do if land:has(x, y) then
+    local L = -1e9
+    for _, s in ipairs(SRC) do local dx, dy = x - s[1], (y - s[2]) * 1.4; local v = s[3] - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end
+    local e = math.min(y - 6, 128 - y, x - 4, 235 - x); if e < 14 then L = L - (14 - e) * 1.2 end
+    light[y * 240 + x] = L
+    c:px(x, y, band(L, x, y))
+  end end end
+  -- amethyst-tinted glow ring around the big cluster (dithered)
+  for y = 0, 134 do for x = 0, 239 do if land:has(x, y) then local dx, dy = x - AM[1], (y - AM[2]) * 1.4; local d = math.sqrt(dx * dx + dy * dy); if d < 14 then c:px(x, y, (d > 11 and (x + y) % 2 == 0) and "#f2e4c0" or "#c3b2ea") end end end end
+  -- sand ripples one band darker
+  local DARKER = { ["#f2e4c0"] = "#f5cf6a", ["#f5cf6a"] = "#c9a96e", ["#c9a96e"] = "#9a6b3f", ["#9a6b3f"] = "#7a4a1f", ["#7a4a1f"] = "#4a2c1a" }
+  for y = 10, 124, 5 do for x = 6, 232 do if land:has(x, y) and math.floor(x / 3 + 2 * math.sin(y + x / 9)) % 7 < 2 then local d = DARKER[c:get(x, y + math.floor(math.sin(x / 6)))]; if d then c:px(x, y + math.floor(math.sin(x / 6)), d) end end end end
+  local ZONES = { { TOWN[1], TOWN[2], 34 }, { 95, 45, 34 }, { 150, 75, 40 }, { 200, 85, 36 } }
+  local zm = {}
+  for zi = 4, 1, -1 do local z = ZONES[zi]; local m = c:mask(); m:add(c:ellipse(z[1], z[2], z[3], 30)); m:add(c:ellipse(z[1] + 8, z[2] - 14, z[3] * 0.6, 20)); m:clip(land); zm[zi] = m end
+  for zi = 2, 4 do zm[zi]:edge():each(function(x, y) if (x + y) % 4 < 2 and land:has(x, y) then local L = light[y * 240 + x] or -99; c:px(x, y, L >= 20 and "#7a5cc0" or "#c3b2ea") end end) end
+  c:fill(river, "#25637d"); river:each(function(x, y) local L = light[y * 240 + x] or -99; if L >= 10 and (x + y) % 4 == 0 then c:px(x, y, "#a9d6ea") elseif (x + y) % 4 == 0 then c:px(x, y, "#3f8fb0") end end)
+  local pond = c:ellipse(120, 34, 10, 4); pond:clip(land); c:fill(pond, "#25637d"); c:fill(c:rect(114, 33, 120, 33), "#a9d6ea")
+  X.layer(c, "objects")
+  c:outline(land, { ol = 1, olx = 1 })
+  local roadM, trailM = c:mask(), c:mask()
+  local function hp(pts) local o = {}; for _, q in ipairs(pts) do o[#o + 1] = { q[1] / 2, q[2] / 2 } end; return o end
+  local EXT = { N = { 0, -8 }, S = { 0, 8 }, E = { 8, 0 }, W = { -8, 0 } }
+  for i, rd in ipairs(LY.roads) do local pts = hp(rd.pts); local ex = LY.exits[i]; if ex then local d = EXT[ex.side]; local q = pts[#pts]; pts[#pts + 1] = { q[1] + d[1], q[2] + d[2] } end; roadM:add(c:line(pts, 3)) end
+  for _, tr in ipairs(LY.trails) do trailM:add(c:line(hp(tr), 2)) end
+  local exitM = c:mask(); for _, ex in ipairs(LY.exits) do local d = EXT[ex.side]; exitM:add(c:line({ { ex.x / 2 - d[1] * 1.5, ex.y / 2 - d[2] * 1.5 }, { ex.x / 2 + d[1], ex.y / 2 + d[2] } }, 4)) end
+  local allM = roadM:copy():add(trailM)
+  local onL = function(x, y) return land:has(x, y) or exitM:has(x, y) end
+  allM:copy():grow(1):each(function(x, y) if onL(x, y) and not pond:has(x, y) then c:px(x, y, "#3d2a1c") end end)
+  local function pave(m, lit, mid, dark) m:each(function(x, y) if onL(x, y) and not pond:has(x, y) then local L = light[y * 240 + x] or -99; local a, b = mid[1], mid[2]; if L >= 30 then a, b = lit[1], lit[2] elseif L < 0 then a, b = dark[1], dark[2] end; c:px(x, y, (x + y) % 6 == 0 and b or a) end end) end
+  pave(trailM, { "#d8c49a", "#c9a96e" }, { "#c9a96e", "#9a6b3f" }, { "#5b6470", "#4a2c1a" })
+  pave(roadM, { "#f1ece0", "#d8c49a" }, { "#d8c49a", "#c9a96e" }, { "#8b8f96", "#5b6470" })
+  roadM = allM
+  local bridge = roadM:copy():clip(river:copy():grow(1)):grow(1)
+  c:fill(bridge, "#7a4a1f"); bridge:each(function(x, y) if x % 2 == 0 then c:px(x, y, "#b07a45") end end)
+  -- giant amethyst cluster
+  for _, k in ipairs({ { -9, 12, "#4e3a8a" }, { 8, 13, "#4e3a8a" }, { -4, 20, "#7a5cc0" }, { 4, 17, "#7a5cc0" }, { 0, 24, "#c3b2ea" } }) do
+    local x, y, h = AM[1] + k[1], AM[2] + 6, k[2]
+    c:fill(c:poly({ { x - 3, y }, { x - 2, y - h * 0.75 }, { x, y - h }, { x + 2, y - h * 0.75 }, { x + 3, y } }), k[3]); c:fill(c:rect(x - 1, y - h * 0.7, x - 1, y - 2), "#c3b2ea"); c:px(x, y - h + 2, "#fff3c8")
+  end
+  for _, v in ipairs(SMALL) do crystalc(c, v[1] - 2, v[2] + 4, 9, "#7a5cc0"); crystalc(c, v[1] + 3, v[2] + 4, 6, "#c3b2ea") end
+  -- village: lantern-lit adobe houses
+  -- flat plaza for the pin, then houses ringed around the town point
+  do local pm = c:ellipse(TOWN[1], TOWN[2], 11, 11); local pl = c:ellipse(TOWN[1], TOWN[2], 12, 12):cut(pm); c:fill(pl, "#c9a96e"); c:fill(pm, "#f2e4c0") end
+  local HOUSES = {}; for _, o in ipairs({ { -19, -10 }, { -20, 4 }, { -11, 15 }, { 4, 16 }, { 14, -14 }, { -6, -19 } }) do HOUSES[#HOUSES + 1] = { TOWN[1] + o[1] - 5, TOWN[2] + o[2] - 4 } end
+  for _, h in ipairs(HOUSES) do P(c, c:rect(h[1], h[2], h[1] + 9, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:poly({ { h[1] - 1, h[2] }, { h[1] + 4.5, h[2] - 5 }, { h[1] + 10, h[2] } }), RM.clay, { gloss = false, flat = true }); c:fill(c:rect(h[1] + 3, h[2] + 3, h[1] + 5, h[2] + 5), "#f5cf6a"); c:px(h[1] + 4, h[2] + 4, "#fff3c8") end
+  for i = 0, 1 do local x = TOWN[1] - 30 + i * 46; for dx = 0, 8, 2 do c:fill(c:rect(x + dx, 100, x + dx, 104), "#dd3a2a"); c:fill(c:rect(x + dx + 1, 100, x + dx + 1, 104), "#f2e4c0") end; c:fill(c:rect(x, 105, x + 9, 106), "#8a4f2a"); glowdot(c, x + 4, 98) end
+  for _, v in ipairs(LANT) do c:fill(c:rect(v[1], v[2] - 4, v[1], v[2] + 2), "#8a4f2a"); c:fill(c:rect(v[1] - 1, v[2] - 6, v[1] + 1, v[2] - 5), "#f5cf6a"); c:px(v[1], v[2] - 6, "#fff3c8") end
+  -- cactus-mushrooms in the lit sand, crystals and stalagmites in the dark
+  local function cshroom(x, y) c:fill(c:rect(x, y - 6, x + 1, y), "#4f9a45"); c:fill(c:rect(x - 2, y - 4, x - 1, y - 3), "#4f9a45"); c:fill(c:rect(x + 2, y - 5, x + 3, y - 4), "#4f9a45"); c:fill(c:ellipse(x + 0.5, y - 7, 2.5, 1.5), "#e46a9b"); c:px(x, y - 8, "#f6b8cf") end
+  local seed = ri * 31 + 5; local function rnd(n) seed = (seed * 1103515245 + 12345) % 2147483648 return seed % n end
+  local placed = 0
+  local function free(x, y)
+    if not (land:has(x, y) and land:has(x, y + 6)) then return false end
+    for _, k in ipairs(CLR) do local dx, dy = x - k[1], y - 3 - k[2]; if dx * dx + dy * dy < (k[3] + 5) ^ 2 then return false end end
+    for _, v in ipairs(LANT) do if math.abs(x - v[1]) < 6 and math.abs(y - v[2]) < 8 then return false end end
+    for _, h in ipairs(HOUSES) do if math.abs(x - h[1]) < 14 and math.abs(y - h[2]) < 14 then return false end end
+    if math.abs(x - AM[1]) < 16 and math.abs(y - AM[2]) < 20 then return false end
+    for _, v in ipairs(SMALL) do if math.abs(x - v[1]) < 9 and math.abs(y - v[2]) < 10 then return false end end
+    return not roadM:copy():grow(2):has(x, y) and not roadM:has(x, y - 6) and not river:copy():grow(2):has(x, y) and not pond:has(x, y)
+  end
+  for try = 1, 500 do
+    if placed >= 44 then break end
+    local x, y = 12 + rnd(216), 18 + rnd(100)
+    if free(x, y) then
+      local L = light[y * 240 + x] or -99
+      if L >= 12 then cshroom(x, y)
+      elseif L >= 2 then if placed % 2 == 0 then crystalc(c, x, y, 7, "#7a5cc0") else cshroom(x, y) end
+      else stalag(c, x, y, 9, "#7a4a1f", "#3d2a1c") end
+      placed = placed + 1
+    end
+  end
+  X.layer(c, "detail")
+  local function nearExit(x, side) for _, ex in ipairs(LY.exits) do if ex.side == side and math.abs(x - ex.x / 2) < 8 then return true end end end
+  for x = 2, 239, 6 do if nearExit(x, "N") then goto cn end; local hh = 9 + (x * 13) % 8; c:fill(c:poly({ { x - 3, 0 }, { x, hh }, { x + 3, 0 } }), "#2a1a10"); c:px(x, hh - 2, "#4a2c1a"); ::cn:: end
+  for x = 5, 239, 9 do if nearExit(x, "S") then goto cs end; local hh = 6 + (x * 7) % 6; c:fill(c:poly({ { x - 3, 134 }, { x, 134 - hh }, { x + 3, 134 } }), "#2a1a10"); ::cs:: end
+  X.save(c, "map-CA-fit", "scenes", { w = 480, h = 270, cap = 32 })
+end
