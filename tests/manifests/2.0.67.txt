@@ -4342,7 +4342,7 @@ ca8345e0c55f363c97221071d7b0b7636145a607  assets/img/ui/felt-light.png
 08bd69d1f726376753a53a2b1ca2d6fbf242532b  assets/mushroom.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 12ba36ae1bdb65ecebc123090b01f6ef49f04765  assets/puzzles.css
-336f5c9beeab078ee9a341e831cb4078591a4461  assets/puzzles.js
+45fd51d6a018b5f2994750971c9caed7f6f90459  assets/puzzles.js
 c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
 c6b998c2acf24290a8be80d848301df5c4b66e82  assets/site.js
@@ -4514,7 +4514,7 @@ ed297d75d0c62b1a9ba9ac8ece5b5330f9090717  includes/jobs.php
 8f03a6f8c34ee9103943b3002e5631175f428a8b  includes/journey.php
 0fe4c590ce325a0ce8750a014194faac1c3c1ad4  includes/journey_view.php
 76b3365d1620f2e833e35d069877939dcbc1ff6e  includes/landmarks.php
-056289c774c78a4a80f069820df3a485fd79d760  includes/layout.php
+5362abdd217127bb0a4a4897b2ce83d0adee834e  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
 1277d8b426474e5d61ab23e297a742b82025c611  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php

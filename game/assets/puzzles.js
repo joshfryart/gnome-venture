@@ -94,7 +94,7 @@ function setup(src,nw,nh){
   for(r=0;r<rows;r++) for(c=0;c<cols;c++){
     var el=document.createElement('div'); el.className='piece';
     var cut=document.createElement('div'); cut.className='cut';
-    var img=document.createElement('img'); img.src=curStill||src; img.alt=''; img.draggable=false;
+    var img=document.createElement('img'); img.src=paused?(curStill||src):src; img.alt=''; img.draggable=false;
     var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     var lo=document.createElementNS('http://www.w3.org/2000/svg','path'); lo.setAttribute('class','lo');
     var hi=document.createElementNS('http://www.w3.org/2000/svg','path'); hi.setAttribute('class','hi');
@@ -176,7 +176,7 @@ function layout(first){
     stage.scrollLeft=(fw-sw)/2; stage.scrollTop=tray?0:(fh-sh)/2; laidOnce=true;
   }
 }
-/* v2.0.61: loose pieces carry the still first frame; one animated copy of the picture (#final) is clipped to the locked pieces, so only one GIF runs */
+/* v2.0.68: loose pieces animate too (Motion off = still first frame). v2.0.61: one animated copy of the picture (#final) is clipped to the locked pieces, so only one GIF runs */
 function showAnim(){
   if(!G) return;
   var d='', i, p;
@@ -426,7 +426,7 @@ function setMotionUi(){ $('anim').setAttribute('aria-pressed',paused?'false':'tr
 $('anim').addEventListener('click',function(){
   paused=!paused; setMotionUi();
   try{ localStorage.setItem('jiggy.motion',paused?'0':'1'); }catch(e){}
-  if(G && curUrl) finalImg.src=paused?(curStill||curUrl):curUrl;
+  if(G && curUrl){ finalImg.src=paused?(curStill||curUrl):curUrl; for(var k=0;k<G.pieces.length;k++) G.pieces[k].img.src=paused?(curStill||curUrl):curUrl; }
   for(var i=0;i<thumbs.length;i++) thumbs[i][1].src=paused?thumbs[i][0].still:thumbs[i][0].gif;
 });
 function setZoomUi(){
