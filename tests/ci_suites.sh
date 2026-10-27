@@ -17,9 +17,18 @@ for s in $LIST; do
     grep -q "^installed" "$T/walk.out" || { echo "FAIL $s: walk.sh could not install"; BAD=$((BAD+1)); rm -rf "$T"; continue; }
     PORT=$((PORT+1))
   fi
-  timeout 600 bash "$HERE/$s.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/out" 2>&1; rc=$?
+  : >"$T/.start"; rm -f /tmp/img-php.log   # fixed-name php server log some suites write; clear it so only this suite's lines are shown
+  TMPDIR="$T" timeout 600 bash "$HERE/$s.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/out" 2>&1; rc=$?   # TMPDIR: the suite's own mktemp logs land inside $T
   if [ $rc -ne 0 ] || grep -qE '^\s*FAIL|[0-9]+ FAILED|PHP Fatal|Fatal error' "$T/out"; then
     echo "FAIL $s (exit $rc)"; grep -E '^\s*FAIL|[0-9]+ FAILED|Fatal' "$T/out" | head -8 | sed 's/^/     /'; BAD=$((BAD+1))
+    echo "   --- last 25 lines of $s output"; tail -25 "$T/out" | cut -c1-300 | sed 's/^/   | /'
+    echo "   --- PHP Warning/Notice/Deprecated/Fatal lines in logs (suite output, php server logs, game data/)"
+    { grep -hE 'PHP (Warning|Notice|Deprecated|Fatal|Parse)|^(Warning|Notice|Deprecated|Fatal error|Parse error):|Uncaught' "$T/out"
+      for f in $(find "$T" /tmp -maxdepth 4 \( -name '*.log' -o -name 'error-log.txt*' -o -name 'tmp.*' \) -type f -newer "$T/.start" -not -path '/tmp/claude*' 2>/dev/null); do
+        [ "$f" = "$T/out" ] && continue
+        grep -hE 'PHP (Warning|Notice|Deprecated|Fatal|Parse)|Warning:|Notice:|Deprecated:|Fatal error|Parse error|Uncaught|^[A-Za-z]+(Error|Exception):' "$f" 2>/dev/null | sed "s|^|[${f##*/}] |"
+      done; } | sort -u | head -40 | cut -c1-300 | sed 's/^/   ! /'
+    if [ -s "$T/game/data/error-log.txt" ]; then echo "   --- game/data/error-log.txt (first 25 lines)"; head -25 "$T/game/data/error-log.txt" | cut -c1-300 | sed 's/^/   | /'; fi
   else echo "ok   $s"; fi
   rm -rf "$T"
 done

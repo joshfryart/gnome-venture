@@ -136,6 +136,7 @@ chk "clementine_on=0: no trade" "$(qty goat-milk)" 2
 dbx "REPLACE INTO settings (name,value) VALUES ('clementine_on','1')"
 chk "Clementine page opened" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id=ue.entry_id WHERE ue.user_id=$UID_ AND e.unlock_key='critter:clementine'")" 1
 dbx "UPDATE settings SET value='100' WHERE name='clementine_hair_pct'"; dbx "INSERT OR IGNORE INTO settings (name,value) VALUES ('clementine_hair_pct','100')"
+dbx "DELETE FROM user_items WHERE user_id=$UID_ AND item_id=(SELECT id FROM items WHERE slug='goat-hair')"
 give food-scrap 9; post garden.php "garden.php?an=1" -d do=clementine -d scraps=9
 chk "9 scraps -> 3 more milk" "$(qty goat-milk)" 5
 chk "hair at 100%" "$(qty goat-hair)" 1

@@ -67,12 +67,12 @@ function art_save(string $name, string $bytes): array
     imagealphablending($im, false); imagesavealpha($im, true);
     $dest = APP_ROOT . '/' . $m['dest'];
     $dir = dirname($dest);
-    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { imagedestroy($im); return ['rejected', 'the uploads folder can’t be made']; }
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { unset($im); return ['rejected', 'the uploads folder can’t be made']; }
     art_guard_uploads();
     $existed = is_file($dest);
     $tmp = $dir . '/.up-' . bin2hex(random_bytes(6)) . '.tmp';
     $ok = @imagepng($im, $tmp, 9);   // re-encoded: nothing but pixels survives
-    imagedestroy($im);
+    unset($im);   // GD images are objects since PHP 8.0 and free themselves; imagedestroy() is deprecated in 8.5
     if (!$ok || !@rename($tmp, $dest)) { @unlink($tmp); return ['rejected', 'couldn’t save it (is uploads/ writable?)']; }
     @chmod($dest, 0644);
     if ($m['set']) {

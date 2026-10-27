@@ -349,7 +349,7 @@ if grep -q 'trek_replay' $TMP/sess_$SF; then
     cp $TMP/sess_backup $TMP/sess_$SF; get 'trek.php?t=party' >/dev/null; get trek.php >/dev/null
     assert "a replay is consumed by the first page view (no second showing)" bash -c "! grep -q 'data-replay' $H"
 else
-    bad "no trek_replay in the session after Auto (cannot test the one-shot)"
+    bad "no trek_replay in the session after Auto (cannot test the one-shot)" "session: $(head -c 400 $TMP/sess_$SF | tr '\n' ' '); error log: $(head -c 400 $GAME/data/error-log.txt 2>/dev/null | tr '\n' ' '); server log: $(grep -E 'Warning|Deprecated|Fatal|Notice' $LOG | head -3 | tr '\n' ' ')"
 fi
 th sprout xy 4 15 >/dev/null; th sprout set fatigue=0 >/dev/null
 SID_=$(grep garden_sess $JAR | awk '{print $7}' | head -1)
@@ -369,7 +369,7 @@ NASTY=("' OR 1=1 --" "1; DROP TABLE trek_runs; --" '" onfocus=alert(1) x="' '%00
 TK=$(tokof $JAR); N=0
 for v in "${NASTY[@]}"; do for k in go slot c how ans p1 rule open target mode t item; do c=$(curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d "csrf=$TK" --data-urlencode "$k=$v" -d do=mode -o /dev/null -w '%{http_code}'); N=$((N+1)); [ "$c" = 500 ] && bad "500 for $k=${v:0:20}"; done; for dov in rest go tactics event riddle party; do c=$(curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d "csrf=$TK" -d "do=$dov" --data-urlencode "go=$v" --data-urlencode "c=$v" --data-urlencode "ans=$v" --data-urlencode "slot=$v" --data-urlencode "p1=$v" -o /dev/null -w '%{http_code}'); N=$((N+1)); [ "$c" = 500 ] && bad "500 for do=$dov v=${v:0:20}"; done; done
 assert "$N fuzzed POSTs: all trek tables intact" eq "$(db "SELECT COUNT(*) FROM sqlite_master WHERE name IN ('trek_runs','trek_party','trek_pack','trek_flags','trek_ms','trek_texts')")" 6
-assert "...the run is intact and the error log empty" bash -c "[ '$(errlog)' = 0 ] && [ -n '$(RUNID sprout)' ]"
+assert "...the run is intact and the error log empty" bash -c "[ '$(errlog)' = 0 ] && [ -n '$(RUNID sprout)' ]" || echo "     diag: run id '$(RUNID sprout)'; error log: $(head -c 600 $GAME/data/error-log.txt 2>/dev/null | tr '\n' ' ')"
 
 echo "== 7. CSP and inline code"
 for pg in trek.php 'trek.php?t=party' 'trek.php?t=pack' 'trek.php?t=log' garden.php admin/treks.php; do

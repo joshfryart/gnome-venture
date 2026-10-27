@@ -213,7 +213,9 @@ function clementine_trade(array $u, int $plotId, int $scraps): array
     give_item($uid, $milkId, $milk);
     $friend = neighbour120_friendship($plotId, 'clementine');
     $msg = '🐐 Clementine munches happily and trades you ' . $milk . ' × Goat Milk for ' . $take . ' Food Scraps.';
-    if ($hairId && random_int(1, 100) <= min(80, max(0, (int)setting('clementine_hair_pct')) + 5 * max(0, $friend - 1))) {
+    $hairBase = min(100, max(0, (int)setting('clementine_hair_pct')));
+    // friendship raises the chance up to 80%, but never lowers a base the admin set higher (100 = always)
+    if ($hairId && random_int(1, 100) <= min(max(80, $hairBase), $hairBase + 5 * max(0, $friend - 1))) {
         give_item($uid, $hairId, 1);
         $msg .= ' She leaves a tuft of hair on the fence too.';
     }
