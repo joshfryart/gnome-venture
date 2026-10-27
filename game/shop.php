@@ -121,6 +121,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
                 WHERE st.shop_id = ? AND st.current_stock > 0 ORDER BY i.category, i.name', [$sid])->fetchAll();
     usort($stock, fn($a, $b) => [shop_cat_rank($a), $a['name']] <=> [shop_cat_rank($b), $b['name']]);   // v0.7.83: grouped in chip order ?>
   <div class="shopwrap">
+  <?= $open ? shop_basket_html('buy', url('shop.php?id=' . $sid)) : '' ?>
   <?= shop_chips($stock) ?>
   <div class="satchel shopgrid">
   <?php foreach ($stock as $s):
@@ -148,7 +149,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
           . '<p class="help">' . (int)$s['current_stock'] . ' on the shelf</p>';
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
       echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
-          'tags' => $tags, 'info' => $info, 'dim' => $read, 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open]);
+          'tags' => $tags, 'info' => $info, 'dim' => $read, 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true]);
   endforeach; ?>
   </div>
   </div>
@@ -162,6 +163,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
   <details class="helpfold shophelp"><summary>ℹ️ What sells here</summary><p class="help">Shopkeepers buy crops, flowers, arrangements, food, creature parts and finds. Rarer things fetch much more. Prices drift: ↑ pays more than usual (wanted, out of season), ↓ pays less (in season, or lots sold lately).</p></details>
   <?= $sellBonus ? '<p class="help">🧭 Your Journey project here: ' . $sellBonus . '% extra.</p>' : '' ?>
   <div class="shopwrap">
+  <?= $open ? shop_basket_html('sell', url('shop.php?id=' . $sid . '&tab=sell')) : '' ?>
   <?= shop_chips($sellable) ?>
   <div class="satchel shopgrid">
   <?php foreach ($sellable as $i):
@@ -169,7 +171,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
       $mc = market_chip($i);   // v1.0.0: ↑/↓ and ⭐ wanted
       $info = item_origin_html($i, $IL) . '<p class="help">👜 You have ' . (int)$i['qty'] . '</p>';
       echo shop_tile(['id' => (int)$i['id'], 'item' => $i, 'price' => $p, 'max' => (int)$i['qty'], 'priceHtml' => money($p), 'mini' => shop_mini($mc), 'tags' => $mc !== '' ? [$mc] : [],
-          'info' => $info, 'badge' => (string)(int)$i['qty'], 'mode' => 'sell', 'action' => url('shop.php?id=' . $sid . '&tab=sell'), 'open' => (bool)$open]);
+          'info' => $info, 'badge' => (string)(int)$i['qty'], 'mode' => 'sell', 'action' => url('shop.php?id=' . $sid . '&tab=sell'), 'open' => (bool)$open, 'basket' => true]);
   endforeach; ?>
   </div>
   </div>

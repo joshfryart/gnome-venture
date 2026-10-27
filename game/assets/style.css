@@ -5393,3 +5393,9 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 .dpgobar { margin-top: 10px; }
 .dpset { width: 100%; min-height: 56px; font-size: 1.1rem; font-weight: 800; }
 @media (max-width: 720px) { .dpgobar { position: sticky; bottom: calc(var(--bar) + var(--sab, 0px) + 8px); z-index: 5; } }
+
+/* v2.0.67: shop basket (bar styles above; tile highlight and sheet button) */
+.shopgrid .btile.sel .spick { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
+dialog.isheet .sadd { width: auto; min-width: 160px; }
+.basket .sbad { color: var(--danger); margin: 4px 0; font-size: 14px; }
+.basket[hidden] { display: none; }

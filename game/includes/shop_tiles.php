@@ -20,6 +20,15 @@ function shop_chips(array $rows): string
     return $h . '</nav>';
 }
 
+/** v2.0.67: the basket bar. Sheets add to it (site.js "shop basket"); one post buys or sells everything in it. */
+function shop_basket_html(string $mode, string $action): string
+{
+    return '<form method="post" class="basket" data-mode="' . $mode . '" action="' . e($action) . '" hidden>' . csrf_field()
+        . '<input type="hidden" name="do" value="' . $mode . '"><div class="blist"></div><p class="sbad" hidden></p>'
+        . '<div class="bfoot"><b class="btotal" data-lbl="' . ($mode === 'buy' ? 'Total' : 'You get') . '"></b>'
+        . '<button type="button" class="btn ghost bclear">Empty</button><button class="btn bgo">🧺 ' . ($mode === 'buy' ? 'Buy' : 'Sell') . ' all</button></div></form>';
+}
+
 /** A short marker for the tile: season and price direction only. */
 function shop_mini(string $html): string
 {
@@ -36,7 +45,7 @@ function shop_mini(string $html): string
  * One tile + its sheet. Options:
  *  id (int, form key), item (row with name/category/description/id), price (int each), max (int), priceHtml, mini (html), tags (html[]), info (html),
  *  dim (bool), badge (string), mode ('buy'|'sell'), action (form URL), open (bool: show the form), qtyName ('qty[ID]' default or 'qty'),
- *  fields (name => value hidden inputs, in order), totalLabel (override "Total"/"You get"), each (text after the price, default 'each'), counts (title for the badge).
+ *  fields (name => value hidden inputs, in order), totalLabel (override "Total"/"You get"), each (text after the price, default 'each'), counts (title for the badge), basket (bool: offer "Add to basket"; needs a .basket form in the .shopwrap).
  */
 function shop_tile(array $o): string
 {
@@ -70,7 +79,8 @@ function shop_tile(array $o): string
         . '<button type="button" class="qbtn qmax" data-q="max">All</button></div>'
         . '<p class="sline"><span>' . $priceHtml . ' ' . e((string)($o['each'] ?? 'each')) . '</span> · <b class="stot" data-lbl="' . e($lbl) . '"></b></p>'
         . '<p class="sbad" hidden></p>'
-        . '<button class="btn sgo">' . $verb . '</button></form>';
+        . '<button class="btn sgo">' . $verb . '</button>'
+        . (!empty($o['basket']) ? '<button type="button" class="btn ghost sadd">🧺 Add to basket</button>' : '') . '</form>';
     return '<div class="btile stile' . (!empty($o['dim']) ? ' dim' : '') . '" data-cat="' . shop_cat_of((string)($i['category'] ?? '')) . '" data-id="' . $id . '" data-price="' . $price . '" data-max="' . $max . '" data-name="' . e((string)$i['name']) . '">'
         . '<button type="button" class="spick" data-sheet aria-haspopup="dialog"><i class="rar r' . $rl . '" role="img" aria-label="' . e($rw) . '" title="' . e($rw) . '">' . $rl . '</i>'
         . '<span class="iicon" aria-hidden="true">' . item_icon($i) . '</span><span class="iname">' . e((string)$i['name']) . '</span>'

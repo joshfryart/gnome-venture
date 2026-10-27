@@ -1437,6 +1437,62 @@ document.addEventListener('input', function (ev) {
   if (ev.target.classList && ev.target.classList.contains('qin')) gvSheetTotal(ev.target.closest('form'));
 });
 
+/* v2.0.67: shop basket. "Add to basket" in a sheet stores n of that item; the .basket bar lists them and one post sends qty[id]=n for all. */
+function gvBasketRender(wrap) {
+  var bk = wrap.querySelector('form.basket');
+  if (!bk) return;
+  var items = wrap.gvBasket || {}, ids = Object.keys(items), buy = bk.getAttribute('data-mode') === 'buy', sum = 0;
+  var list = bk.querySelector('.blist'), tot = bk.querySelector('.btotal'), bad = bk.querySelector('.sbad'), go = bk.querySelector('.bgo');
+  list.textContent = '';
+  ids.forEach(function (id) {
+    var it = items[id], b = document.createElement('button');
+    b.type = 'button'; b.className = 'bchip'; b.setAttribute('data-id', id); b.title = 'Remove';
+    b.textContent = it.n + ' × ' + it.name + ' ✕';
+    list.appendChild(b);
+    sum += it.n * it.price;
+  });
+  wrap.querySelectorAll('.stile').forEach(function (t) { t.classList.toggle('sel', !!items[t.getAttribute('data-id')]); });
+  bk.hidden = !ids.length;
+  tot.textContent = tot.getAttribute('data-lbl') + ' ' + sum.toLocaleString();
+  var coinsEl = document.querySelector('.mycoins[data-coins]'), coins = coinsEl ? +coinsEl.getAttribute('data-coins') : -1;
+  var over = buy && coins >= 0 && sum > coins;
+  bad.hidden = !over; bad.textContent = over ? 'You have ' + coins.toLocaleString() + '. Too much.' : '';
+  go.disabled = !ids.length || over;
+}
+document.addEventListener('click', function (ev) {
+  var t = ev.target;
+  if (!t.closest) return;
+  var add = t.closest('.sadd');
+  if (add) {
+    var form = add.closest('form'), tile = add.closest('.stile'), wrap = tile && tile.closest('.shopwrap');
+    if (!wrap) return;
+    var inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 1, n = Math.max(1, Math.min(max, Math.floor(+inp.value || 1)));
+    wrap.gvBasket = wrap.gvBasket || {};
+    wrap.gvBasket[tile.getAttribute('data-id')] = { n: n, name: tile.getAttribute('data-name'), price: +tile.getAttribute('data-price') || 0 };
+    gvBasketRender(wrap);
+    gvCloseDlg(add.closest('dialog'));
+    return;
+  }
+  var chip = t.closest('.basket .bchip'), clr = t.closest('.basket .bclear');
+  if (chip || clr) {
+    var w = t.closest('.shopwrap');
+    if (chip) delete w.gvBasket[chip.getAttribute('data-id')]; else w.gvBasket = {};
+    gvBasketRender(w);
+  }
+});
+document.addEventListener('submit', function (ev) {
+  var bk = ev.target;
+  if (!bk.classList || !bk.classList.contains('basket')) return;
+  var wrap = bk.closest('.shopwrap'), items = (wrap && wrap.gvBasket) || {}, ids = Object.keys(items);
+  if (!ids.length) { ev.preventDefault(); return; }
+  bk.querySelectorAll('input.bq').forEach(function (i) { i.remove(); });
+  ids.forEach(function (id) {
+    var i = document.createElement('input');
+    i.type = 'hidden'; i.className = 'bq'; i.name = 'qty[' + id + ']'; i.value = items[id].n;
+    bk.appendChild(i);
+  });
+});
+
 /* v0.7.61: town actions that use "any seed" or "any food": choose which one first */
 document.addEventListener('submit', function (ev) {
   var form = ev.target;
