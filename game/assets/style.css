@@ -5203,3 +5203,7 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
   .advjournal:not([open]) > summary { flex-wrap: wrap; }
   .advjournal:not([open]) .jpeek { display: block; flex: 1 0 100%; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
 }
+
+/* v2.0.52: the latest result now sits at the top of the action card */
+.encounter > .advlatest, .encounter > .roadresult { margin: 0 0 10px; width: 100%; max-width: none; box-sizing: border-box; }
+.worldlink { text-align: center; margin: 8px 0; }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.53
+- Adventure: the latest result (card or "Latest" strip) now sits at the top of the action card, and is hidden during a fight, which already shows the rounds.
+- Adventure: the world-map fold at the bottom is replaced by a "World map →" link to the Map tab.
+- Tests: scene_smoke's banner check assumed the forest banner had no art; it now tests a key with no art and the drawn-picture case separately.
+
 ## 2.0.52
 - Road walks: the heading, status line, route strip and both route maps are replaced by one route ribbon under the scene: a stitched felt strip with a pin per space, your gnome token, the goal, stops left and danger pips (a thorn pin marks the space where a fight waits). New pixel art in assets/img/route/.
 - New closed Route fold: every stop on the road (visited, next, goal) plus the Travel options (Save still works mid-walk).

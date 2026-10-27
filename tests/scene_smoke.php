@@ -10,7 +10,8 @@ $t = function (bool $ok, string $m) use (&$bad) { echo ($ok ? 'ok   ' : 'FAIL ')
 $t(scene_key('../x') === '', 'bad key rejected');
 $t(scene_key('NA') === 'NA', 'region code kept');
 $t(scene_path('stage', 'nope') === '', 'missing scene is empty');
-$t(str_contains(scene_banner('forest', 'A "forest"'), 'scene-fb-forest'), 'banner fallback');
+$t(str_contains(scene_banner('nopicture', 'A "forest"'), 'scene-fb-nopicture') && !str_contains(scene_banner('nopicture', 'A "forest"'), '<img'), 'banner fallback (no art drawn for the key)');
+$t(scene_path('banner', 'forest') === '' || str_contains(scene_banner('forest', 'A "forest"'), '<img'), 'banner uses the picture once it is drawn');
 $h = scene_stage('stage', 'forest', [['id' => 'a', 'side' => 'p', 'name' => '<b>x</b>', 'img' => 'assets/img/ph/nav-villagers.png', 'hp' => 5, 'max' => 10]]);
 $t(!str_contains($h, '<b>') && str_contains($h, 'data-stage='), 'stage escapes and carries data');
 exit($bad ? 1 : 0);

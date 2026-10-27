@@ -202,7 +202,7 @@ if ($wi && !$isWalk): ?>
 </div>
 <?php if ($dmScene): ?><p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=map')) ?>">🗺️ Show the map</a></p><?php endif; ?>
 <?php endif; ?>
-<?php // v1.9.3: the last quiet outcome (a solved problem, a choice, a find) as a small card; the Latest strip steps aside while it shows
+<?php ob_start();   // v2.0.52: the latest result is built here and shown at the top of the action card
 $rcIcons = array_merge(['✅', '❌', '👉', '✨', '🪙', '🧺', '🌱', '🎁', '👛', '💬', '👋'], road_sight_icons());   // v1.9.4: the sights come from road_events.txt
 $lastLine = $log ? (string)end($log) : '';
 $resultCard = ($exp && !$enc && $lastLine !== '' && !str_contains($lastLine, 'You step onto the mycelium') && in_array(preg_match('/^(\X)\s/us', $lastLine, $rm) ? $rm[1] : '', $rcIcons, true)) ? road_result_parts($lastLine) : null;
@@ -210,13 +210,16 @@ if ($resultCard): ?>
   <div class="roadresult <?= e($resultCard[0]) ?>" aria-live="polite"><span class="rr-ico" aria-hidden="true"><?= e($resultCard[1]) ?></span><span class="rr-body"><b class="rr-title"><?= e($resultCard[2]) ?></b><?php if ($resultCard[3] !== ''): ?><small class="rr-sub"><?= e($resultCard[3]) ?></small><?php endif; ?></span></div>
 <?php elseif ($log && !($enc && in_array($enc['type'] ?? '', ['choice', 'meet'], true))): // v0.7.61: what just happened, right under the map so you don't have to scroll to the journal (v1.9.4: not while the card says the same thing) ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
-<?php endif; ?>
+<?php endif;
+$latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card already shows the rounds
+?>
 <?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>
 </div>
 
 
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>
+<?= $latestHtml ?>
 <?php if (!$exp): ?>
   <?php if ($last['status'] === 'done' && $kind === 'delve'): ?>
     <h3>🪜 You’re back out at <?= e($from['name']) ?>.</h3>
@@ -414,9 +417,6 @@ if ($resultCard): ?>
 </details>
 </div>
 <?php if (!in_array($kind, ['delve', 'lair'], true)): ?>
-<details class="fold mapfold"><summary>🗺️ Where this is on the world map</summary>
-  <div class="mapwrap"><?= world_map_svg($u) ?></div>
-  <p class="help">🎩 you · 🏡 home garden · 🌱 other gardens · 👤 folk you know · ● stops on the roads (grey: not visited yet) · 🏚️ ruins you’ve found.</p>
-</details>
+<p class="tmlinks worldlink"><a href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ World map →</a></p>
 <?php endif; ?>
 <?php page_footer();
