@@ -50,6 +50,7 @@ register_shutdown_function(function () {
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/inventory.php';   // inventory domain (give_item, unlock_entries, starter/home seeds)
 require_once __DIR__ . '/upgrade100.php';   // v1.0.0: guarded upgrade steps
 require_once __DIR__ . '/social.php';   // v1.0.0 wave 3: settings, tables, the welcome-back note
 require_once __DIR__ . '/market100.php';   // v1.0.0 wave 2b: orders, market day, price drift
