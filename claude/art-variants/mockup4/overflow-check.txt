@@ -1,0 +1,91 @@
+Item squares mockup 4: text-fit / tap / contrast / grid check (check.js)
+
+width theme content font        text-els problems
+360   light real    system-ui        309        0
+390   light real    system-ui        309        0
+430   light real    system-ui        309        0
+360   light real    wide             309        7
+390   light real    wide             309        2
+430   light real    wide             309        0
+360   light stress  system-ui        320        0
+390   light stress  system-ui        320        0
+430   light stress  system-ui        320        0
+360   light stress  wide             320       15
+390   light stress  wide             320        5
+430   light stress  wide             320        0
+360   dark  real    system-ui        309        0
+390   dark  real    system-ui        309        0
+430   dark  real    system-ui        309        0
+360   dark  real    wide             309        7
+390   dark  real    wide             309        2
+430   dark  real    wide             309        0
+360   dark  stress  system-ui        320        0
+390   dark  stress  system-ui        320        0
+430   dark  stress  system-ui        320        0
+360   dark  stress  wide             320       15
+390   dark  stress  wide             320        5
+430   dark  stress  wide             320        0
+1400  light real    system-ui          -        0
+
+reduced motion: OK {"no-preference":{"spark":"itm-spark","pos":"0px 0px"},"reduce":{"spark":"none","pos":"-64px 0px"}}
+inline style/script in mock.html: 0
+
+findings: 58 {"lines":58}
+  [lines] 360 light real wide satchel: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 light real wide satchel: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light real wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light real wide shop-sell: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light real wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light real wide gift: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light real wide gift: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 390 light real wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 light real wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light stress wide satchel: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light stress wide satchel: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 light stress wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light stress wide satchel: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light stress wide satchel: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 light stress wide shop-buy: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light stress wide shop-buy: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light stress wide shop-buy: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 light stress wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light stress wide shop-sell: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light stress wide craft: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 light stress wide craft: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 light stress wide gift: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 light stress wide gift: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 light stress wide gift: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 light stress wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 light stress wide shop-buy: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 light stress wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 light stress wide craft: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 light stress wide gift: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark real wide satchel: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 dark real wide satchel: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark real wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark real wide shop-sell: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark real wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark real wide gift: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark real wide gift: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 390 dark real wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 dark real wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide satchel: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide satchel: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide satchel: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide satchel: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide shop-buy: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide shop-buy: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide shop-buy: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide shop-sell: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide craft: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide craft: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide gift: span.itm__name "Goat Cheese and Quail Egg Tart" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide gift: span.itm__name "Cloud Monastery Chili Crisp" 3 lines (design: 2 max)
+  [lines] 360 dark stress wide gift: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 dark stress wide satchel: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 dark stress wide shop-buy: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 dark stress wide shop-sell: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 dark stress wide craft: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)
+  [lines] 390 dark stress wide gift: span.itm__name "Mistmoor Cloudberry Supper" 3 lines (design: 2 max)

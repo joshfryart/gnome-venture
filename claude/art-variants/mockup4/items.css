@@ -1,0 +1,227 @@
+/* Item squares, mockup 4. ONE component (.itm) for every item grid: Satchel, shop Buy / Sell (and every shop_tile user:
+   market, market day, festival, village stalls, landmarks, Curio Cabinet, Dye Pot), crafting ingredients, the gift picker,
+   the garden seed / soil / mulch / cellar pickers, the town bird-seed and picnic pickers, the trek pack, the arrange bench.
+   Loads after ../mockup2/gather.css (tokens, .vh, .pix, .gx-h, .gbtn, .ptabs). Classes only, no inline styles (strict CSP).
+   Art: mockup4/art (item_art.py: felt-{c,u,r,l}, win-*, gem-*, spark-*, badge-basket, badge-use) plus mockup2/art
+   (felt-off, ribbon-{idle,sel,off}, badge-{sel,lock,done}) and mockup3/art/badge-star.png.
+
+   Anatomy (rows share subgrid tracks, so every window, ribbon and foot in a row lines up whatever wraps):
+     .itm                       the felt square, a <button> (or the <summary> of the Satchel <details>): rarity felt, state badge (::after)
+       .itm__win                framed felt window, 9-slice, any width; the 64 px icon sits centred, never scaled
+         img.itm__ic | .itm__emo  item_icon(): the picture (assets/img/ph/{slug}.png or real art) or the emoji fallback
+         i.itm__gem             rarity mark: shape + letter (pebble C, shield U, diamond R, star L)
+         b.itm__n               corner count: how many you have / on the shelf / in the pot ("×9,999")
+       .itm__rib > .itm__name   the ribbon sign: grows with its text, 2 lines max
+       .itm__foot               chips: rarity word, price, wanted, in basket, in use, have / need, taste
+     .itm__flag                 "New" / "Rare taste" corner flag
+   Rarity is felt tint + gem shape + letter + word (U, R, L print the word; C is the plain felt). Rare and legendary twinkle;
+   prefers-reduced-motion shows one still frame.
+
+   Text rules (tested by check.js at 360 / 390 / 430 px, both themes, real and longest real names / counts / prices, Inter and a wider font):
+   - name: wraps on words, 2 lines max. The kind words are lifted off the name into the first foot chip ("Seeds", "Seed packet",
+     "Cutting", "Seedling", "Broken"), the ribbon spans the whole square on 3 px ends, and the server adds .itm--long (> 13 characters)
+     and .itm--xlong (> 19) for a smaller face, so the longest real names fit 2 lines in a 3-column phone grid at 360 px in the system
+     font. A clamp at 3 lines is only a guard (a much wider fallback font): text is never cut.
+   - foot chips: one line each, wrap between chips, never cut.
+   - count: "×" + number_format, up to ×9,999 in the window corner.
+   Columns: 3 on a phone, then 4 / 5 / 6 by the grid's own width (container queries), so the same markup works in a sheet, a card or the page. */
+
+:root {
+  --itm-count-bg: #2a1a10; --itm-count-ink: #fff3c8;
+  --itm-chip: #fff3c8; --itm-chip-line: rgba(42, 26, 16, .55);
+  --itm-ok: #2f5a2a; --itm-ok-ink: #fff3c8; --itm-short: #8e2a1e; --itm-short-ink: #fff3c8;
+  --itm-want: #e0aa48; --itm-halo: #e8a317;
+  --itm-ic-dim: none;
+}
+:root[data-theme="dark"] { --itm-ic-dim: brightness(.9) saturate(.95); --itm-halo: #f5cf6a; }
+
+/* ===== the grid ===== */
+.itmwrap { container-type: inline-size; }
+.itms { --itm-cols: 3; margin: 0 16px; padding: 12px 0 4px; list-style: none; display: grid; grid-template-columns: repeat(var(--itm-cols), minmax(0, 1fr));
+  grid-auto-rows: auto; gap: 16px 6px; }
+@container (min-width: 520px) { .itms { --itm-cols: 4; gap: 18px 10px; } }
+@container (min-width: 680px) { .itms { --itm-cols: 5; } }
+@container (min-width: 840px) { .itms { --itm-cols: 6; max-width: 1080px; margin-inline: auto; } }
+.itms--flush { margin: 0; }
+div.itmcell { display: contents; }   /* a shop tile (.btile): the square is the grid item, its <dialog> sheet sits beside it */
+/* Satchel <details class="itile itmcell">: the details spans the row tracks and hands them to its <summary>; the pop-up (.ipop, absolute) is out of flow */
+details.itmcell { position: relative; grid-row: span 3; display: grid; grid-template-rows: subgrid; min-width: 0; }
+details.itmcell > summary.itm { grid-row: 1 / span 3; }
+details.itmcell::details-content { position: absolute; }
+
+/* ===== the square ===== */
+.itm { position: relative; grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 6px; align-items: stretch; min-width: 0; min-height: var(--tap);
+  margin: 0; padding: 0 0 2px; appearance: none; -webkit-appearance: none; background: none; color: var(--gx-felt-ink); font: inherit; text-align: center; cursor: pointer;
+  list-style: none; border: 12px solid transparent; border-image: url(art/felt-c.png) 12 fill / 12px round; image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 var(--gx-card-drop)); transition: transform .06s, filter .06s; -webkit-tap-highlight-color: transparent; }
+.itm::-webkit-details-marker { display: none; }
+.itm > * { image-rendering: auto; }
+.itm--u { border-image-source: url(art/felt-u.png); }
+.itm--r { border-image-source: url(art/felt-r.png); }
+.itm--l { border-image-source: url(art/felt-l.png); }
+
+/* framed window: 9-slice, stretches to any column width; the icon keeps its 64 px */
+.itm__win { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; height: 88px; margin: -4px -4px 0;
+  border: 12px solid transparent; border-image: url(art/win-c.png) 12 fill / 12px stretch; image-rendering: pixelated; }
+.itm--u .itm__win { border-image-source: url(art/win-u.png); }
+.itm--r .itm__win { border-image-source: url(art/win-r.png); }
+.itm--l .itm__win { border-image-source: url(art/win-l.png); }
+.itm__ic { display: block; flex: none; width: 64px; height: 64px; image-rendering: pixelated; filter: var(--itm-ic-dim); }
+.itm__emo { font-size: 38px; line-height: 1; }
+.itm__gem { position: absolute; left: -9px; bottom: -9px; width: 26px; height: 26px; background: url(art/gem-c.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
+.itm--u .itm__gem { width: 26px; height: 28px; background-image: url(art/gem-u.png); }
+.itm--r .itm__gem { width: 28px; height: 28px; background-image: url(art/gem-r.png); }
+.itm--l .itm__gem { width: 32px; height: 32px; left: -11px; bottom: -11px; background-image: url(art/gem-l.png); }
+.itm__n { position: absolute; right: -9px; bottom: -8px; z-index: 2; padding: 2px 4px 1px; background: var(--itm-count-bg); color: var(--itm-count-ink);
+  font: 800 11px/1.15 var(--font); white-space: nowrap; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--itm-count-ink), 0 0 0 4px var(--itm-count-bg); }
+
+/* rare / legendary twinkle: two sprites on the window, out of step; one still frame under reduced motion */
+.itm--r .itm__win::before, .itm--r .itm__win::after, .itm--l .itm__win::before, .itm--l .itm__win::after {
+  content: ""; position: absolute; z-index: 1; width: 32px; height: 32px; pointer-events: none; image-rendering: pixelated;
+  background: url(art/spark-r.png) 0 0 / 128px 32px no-repeat; animation: itm-spark .9s steps(4) infinite; }
+.itm--l .itm__win::before, .itm--l .itm__win::after { background-image: url(art/spark-l.png); animation-duration: .72s; }
+.itm--r .itm__win::before, .itm--l .itm__win::before { top: -10px; right: -8px; }
+.itm--r .itm__win::after, .itm--l .itm__win::after { top: 18px; left: -10px; animation-delay: -.45s; }
+@keyframes itm-spark { to { background-position: -128px 0; } }
+
+/* ribbon sign: grows with the name */
+.itm__rib { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 34px; margin: 0 -12px; padding: 0;
+  border: 8px solid transparent; border-width: 8px 6px; border-image: url(art/rib-idle.png) 8 6 fill / 8px 6px round stretch; image-rendering: pixelated;
+  color: var(--gx-sign-ink); }
+.itm__name { min-width: 0; font: 700 12px/1.2 var(--font); overflow-wrap: break-word; text-wrap: balance; text-shadow: 0 1px 0 rgba(42, 26, 16, .55); image-rendering: auto;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }   /* 2 by design; 3 only as a guard for a wide fallback font */
+.itm--long .itm__name { font-size: 11px; }
+.itm--xlong .itm__name { font-size: 10px; letter-spacing: -.01em; line-height: 1.2; }
+@container (min-width: 520px) { .itm__name { font-size: 13px; } .itm--long .itm__name { font-size: 12px; } .itm--xlong .itm__name { font-size: 11.5px; } }
+
+/* foot chips */
+.itm__foot { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 4px; min-width: 0; font: 700 11px/1.3 var(--font); }
+.itm__foot:empty { display: none; }
+.itm__foot > * { max-width: 100%; padding: 1px 4px; white-space: nowrap; }
+.itm__rar { padding: 0 2px; font-weight: 800; letter-spacing: .02em; }
+.itm__price { background: var(--itm-chip); box-shadow: 0 0 0 1px var(--itm-chip-line); font-variant-numeric: tabular-nums; }
+.itm__trend { font-weight: 800; }
+.itm__pet { display: inline-block; width: 9px; height: 10px; margin-left: 2px; vertical-align: -1px; background: url(art/petal.png) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
+.itm__kind { padding: 0 2px; font-weight: 700; letter-spacing: .01em; white-space: normal; }
+.itm__want { background: var(--itm-want); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
+.itm__inb, .itm__use, .itm__ok { background: var(--itm-ok); color: var(--itm-ok-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.itm__short { background: var(--itm-short); color: var(--itm-short-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.itm__note { padding: 0 2px; font-weight: 600; white-space: normal; text-wrap: balance; overflow-wrap: break-word; }
+.itm__taste { background: rgba(255, 243, 200, .6); box-shadow: inset 0 0 0 1px rgba(42, 26, 16, .4); }
+
+/* corner flag (New, Rare taste): top left, like the place cards */
+.itm__flag { position: absolute; top: -8px; left: -8px; z-index: 3; max-width: calc(100% + 8px); padding: 1px 5px; background: var(--accent); color: #2a1a10;
+  font: 800 10px/1.4 var(--font); white-space: nowrap; box-shadow: 0 0 0 2px var(--ol); image-rendering: auto; }
+.itm__flag--taste { background: #f5cf6a; }
+
+/* state badge, top right (gather-card convention) */
+.itm::after { content: ""; position: absolute; top: -13px; right: -13px; z-index: 3; width: 30px; height: 30px; background: no-repeat 0 0 / 100% 100%; image-rendering: pixelated; pointer-events: none; }
+
+/* picked: the sheet is open, the gift is chosen, or it is in the basket: gold sign, gold halo, leaf (or basket) badge */
+.itm[aria-pressed="true"], .itm.is-sel, .itmcell[open] > .itm, .itmcell:has(> dialog[open]) > .itm {
+  box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--itm-halo); }
+.itm[aria-pressed="true"] .itm__rib, .itm.is-sel .itm__rib, .itmcell[open] > .itm .itm__rib, .itmcell:has(> dialog[open]) > .itm .itm__rib {
+  border-image-source: url(art/rib-sel.png); color: var(--gx-sign-ink-sel); }
+.itm[aria-pressed="true"] .itm__name, .itm.is-sel .itm__name, .itmcell[open] > .itm .itm__name, .itmcell:has(> dialog[open]) > .itm .itm__name { text-shadow: 0 1px 0 rgba(255, 243, 200, .5); }
+.itm[aria-pressed="true"]::after, .itm.is-sel::after, .itmcell[open] > .itm::after { background-image: url(../mockup2/art/badge-sel.png); }
+.itm.is-inbasket::after { background-image: url(art/badge-basket.png); }
+
+/* wanted (sell mode: a market-day or shop order) and in use (equipped tool) */
+.itm.is-want::after { width: 28px; height: 28px; top: -12px; right: -12px; background-image: url(../mockup3/art/badge-star.png); }
+.itm.is-use::after { background-image: url(art/badge-use.png); }
+
+/* off: sold out, locked, broken, can't use: stone felt, pale sign, grey picture; still focusable so its sheet can say why */
+.itm.is-off { color: var(--gx-felt-ink-off); border-image-source: url(../mockup2/art/felt-off.png); filter: drop-shadow(0 2px 0 var(--gx-card-drop)); }
+.itm.is-off .itm__win { border-image-source: url(art/win-off.png); }
+.itm.is-off .itm__rib { border-image-source: url(art/rib-off.png); color: var(--gx-sign-ink-off); }
+.itm.is-off .itm__name { text-shadow: none; }
+.itm.is-off .itm__ic, .itm.is-off .itm__emo { filter: grayscale(1) brightness(.95) opacity(.7); }
+.itm.is-off .itm__win::before, .itm.is-off .itm__win::after { content: none; }
+.itm.is-locked::after { width: 26px; height: 32px; top: -15px; right: -11px; background-image: url(../mockup2/art/badge-lock.png); }
+.itm.is-done::after { background-image: url(../mockup2/art/badge-done.png); }
+
+/* pressed / focus */
+.itm:active, .itm.is-pressed { transform: translateY(2px); filter: drop-shadow(0 1px 0 var(--gx-card-drop)); }
+.itm:focus-visible { outline: 3px solid var(--focus); outline-offset: 8px; }
+.itm:hover .itm__win { filter: brightness(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .itm--r .itm__win::before, .itm--r .itm__win::after, .itm--l .itm__win::before, .itm--l .itm__win::after { animation: none; background-position: -64px 0; }
+  .itm::after { animation: none; }
+  .itm { transition: none; }
+  .itm:active, .itm.is-pressed { transform: none; }
+}
+
+/* ===================== page pieces around the grids (mock; the live pages keep their own) ===================== */
+.ph { container-type: inline-size; }
+.phones { flex-wrap: wrap; }
+.ph :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.ph .itm:focus-visible { outline-offset: 8px; }
+
+/* page head plate */
+.ihead { margin: 0; padding: 12px 16px 10px; background: var(--surface); box-shadow: inset 0 -2px 0 var(--line); }
+.ihead__kick { margin: 0; font: 700 11px/1.3 var(--font); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.ihead__name { margin: 1px 0 4px; font: 800 19px/1.25 var(--font); color: var(--ink); overflow-wrap: break-word; }
+.ihead__line { margin: 0; font: 500 13px/1.4 var(--font); color: var(--ink-2); text-wrap: pretty; }
+.ihead__purse { font-weight: 800; color: var(--ink); white-space: nowrap; }
+
+/* filter row: two selects (Satchel) or chips (shops) */
+.ifilt { margin: 12px 16px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ifilt label { flex: 1 1 140px; display: flex; flex-direction: column; gap: 2px; font: 700 12px/1.3 var(--font); color: var(--ink-2); }
+.ifilt select { min-height: var(--tap); padding: 6px 8px; border: 0; background: var(--surface); color: var(--ink); font: 600 14px/1.2 var(--font); box-shadow: 0 0 0 2px var(--line-2); border-radius: 0; }
+.ichips { margin: 12px 16px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ichip { min-height: var(--tap); min-width: var(--tap); padding: 4px 10px; border: 0; background: var(--surface); color: var(--ink); font: 700 13px/1.2 var(--font); cursor: pointer;
+  box-shadow: 0 0 0 2px var(--line-2); }
+.ichip.on { background: var(--gx-leather); color: #fff3c8; box-shadow: 0 0 0 2px var(--ol), inset 0 -3px 0 var(--gx-leather-dk); }
+.ichip small { font-weight: 600; }
+
+/* shop basket bar (shop_basket_html: form.basket > .blist + .bfoot): leather strip pinned under the grid */
+.ibasket { position: relative; z-index: 6;   /* live: sticky above the bottom bar, as today */
+  margin: 16px 0 0; padding: 10px 12px 12px; color: #fff3c8; background: var(--gx-leather);
+  box-shadow: 0 -2px 0 var(--ol), inset 0 3px 0 var(--gx-leather-lt); outline: 2px dashed var(--gx-stitch); outline-offset: -6px; }
+.ibasket__list { margin: 0 0 8px; padding: 0 4px; list-style: none; display: grid; gap: 2px; font: 500 13px/1.35 var(--font); }
+.ibasket__row { display: flex; gap: 8px; justify-content: space-between; }
+.ibasket__what { min-width: 0; overflow-wrap: break-word; }
+.ibasket__sum { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ibasket__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 4px; }
+.ibasket__total { flex: 1 1 100%; font: 800 15px/1.3 var(--font); }
+.ibasket .fbtn { flex: 1 1 0; }
+.fbtn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: var(--tap); min-height: var(--tap); padding: 6px 12px; border: 0; cursor: pointer;
+  background: #e0aa48; color: #2a1a10; font: 800 14px/1.2 var(--font); white-space: nowrap;
+  box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #f5cf6a, inset 0 -3px 0 #b07a28, 2px 2px 0 2px rgba(42, 26, 16, .55); }
+.fbtn--ghost { background: #f2e4c0; box-shadow: 0 0 0 2px var(--ol), inset 0 -3px 0 #c9a96e; }
+
+/* crafting recipe card (.ccard): felt board, output row, then the ingredients as item squares */
+.irecipes { margin: 0 12px; display: grid; gap: 16px; }
+.irec { color: var(--gx-felt-ink); border: 12px solid transparent; border-image: url(art/felt-c.png) 12 fill / 12px round; image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 var(--gx-card-drop)); }
+.irec > * { image-rendering: auto; }
+.irec.is-miss { border-image-source: url(../mockup2/art/felt-off.png); }
+.irec__top { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 10px; align-items: center; }
+.irec__win { grid-row: span 2; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; border: 4px solid transparent;
+  border-image: url(art/win-c.png) 12 fill / 4px stretch; }
+.irec__win .itm__ic { width: 64px; height: 64px; }
+.irec__name { margin: 0; font: 800 15px/1.25 var(--font); overflow-wrap: break-word; }
+.irec__sub { margin: 0; font: 500 12px/1.35 var(--font); overflow-wrap: break-word; }
+.irec__tag { display: inline-block; padding: 0 5px; font: 700 11px/1.5 var(--font); background: rgba(255, 243, 200, .6); box-shadow: inset 0 0 0 1px rgba(42, 26, 16, .4); }
+.irec__h { margin: 12px 0 0; font: 800 12px/1.3 var(--font); letter-spacing: .04em; text-transform: uppercase; }
+.irec .itms { margin: 0 -8px; padding-top: 10px; }   /* bleeds into the felt edge: the same 328 px track as the page grid at 360 */
+.irec__go { margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.irec__go .fbtn { flex: 1 1 auto; }
+.irec__meta { flex: 1 1 100%; font: 600 12px/1.35 var(--font); }
+.irec__need { margin: 10px 0 0; font: 700 13px/1.35 var(--font); color: var(--gx-felt-ink); overflow-wrap: break-word; }
+
+/* gift picker sheet (folk.php): a felt-edged sheet over the villager page */
+.isheet { margin: 12px 0 0; padding: 12px 0; background: var(--surface); color: var(--ink); box-shadow: 0 0 0 2px var(--ol), 0 -6px 0 0 var(--gx-leather), 4px 4px 0 2px var(--drop); }
+.isheet__head { display: flex; align-items: flex-start; gap: 8px; padding: 0 16px; }
+.isheet__t { flex: 1; min-width: 0; margin: 0; font: 800 16px/1.3 var(--font); overflow-wrap: break-word; }
+.isheet__x { flex: none; width: var(--tap); height: var(--tap); border: 0; background: var(--surface-2); color: var(--ink); font: 700 18px/1 var(--font); box-shadow: 0 0 0 2px var(--line-2); cursor: pointer; }
+.isheet__hint { margin: 4px 16px 0; font: 500 13px/1.4 var(--font); color: var(--ink-2); text-wrap: pretty; }
+.isheet .itms { margin: 0 16px; }
+.isheet__foot { margin: 14px 16px 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.isheet__sum { flex: 1 1 150px; font: 600 13px/1.35 var(--font); color: var(--ink-2); overflow-wrap: break-word; }
+.isheet__foot .fbtn { flex: 1 1 120px; }
+
+/* mock-only: wide frame for the desktop screenshot */
+html.w1400 { --phone: 1400px; }
+.legend { margin: 14px 16px 0; font: 400 12px/1.45 var(--font); color: var(--muted); text-wrap: pretty; }

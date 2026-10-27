@@ -1,0 +1,798 @@
+{
+  "when": "2026-10-27T22:50:16.135Z",
+  "runs": [
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 309,
+      "problems": 7
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 309,
+      "problems": 2
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 320,
+      "problems": 15
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 320,
+      "problems": 5
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 309,
+      "problems": 7
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 309,
+      "problems": 2
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 309,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 320,
+      "problems": 15
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 320,
+      "problems": 5
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 320,
+      "problems": 0
+    },
+    {
+      "width": 1400,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": "-",
+      "problems": 0
+    }
+  ],
+  "motion": {
+    "no-preference": {
+      "spark": "itm-spark",
+      "pos": "0px 0px"
+    },
+    "reduce": {
+      "spark": "none",
+      "pos": "-64px 0px"
+    }
+  },
+  "inlineStyleOrScript": 0,
+  "findings": [
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "craft",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "craft",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "craft",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "craft",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "craft",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Goat Cheese and Quail Egg Tart\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Cloud Monastery Chili Crisp\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "satchel",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-buy",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "shop-sell",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "craft",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "screen": "gift",
+      "kind": "lines",
+      "el": "span.itm__name \"Mistmoor Cloudberry Supper\"",
+      "detail": "3 lines (design: 2 max)"
+    }
+  ]
+}

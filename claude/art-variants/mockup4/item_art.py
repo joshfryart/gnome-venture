@@ -7,6 +7,8 @@ pipeline, saved 2x with NEAREST) and adds only the new parts:
   gem-{c,u,r,l}.png      rarity mark (shape + letter, so not colour alone): C pebble, U shield, R diamond, L star
   spark-{r,l}.png        4-frame twinkle strip (16x16 frames, 64x16 native) for rare and legendary; CSS steps(4), frame 3 static
   badge-basket.png       in the basket (sell or buy)   badge-use.png  in use / equipped (a belt buckle)
+  rib-{idle,sel,off}.png the gather ribbon redrawn with short 3 px ends (10x12 native, CSS slice 8 6), so a name gets the whole card width
+  petal.png              the Petals mark for price chips (the word stays for screen readers)
 Felt off, ribbons and the sel/lock/done badges are mockup2's files; badge-star is mockup3's. Nothing is copied.
 Usage: python3 claude/art-variants/mockup4/item_art.py   (writes to mockup4/art/)"""
 import os, importlib.util
@@ -108,7 +110,36 @@ def badge3(kind):
     return c.px[0:15, 0:15]
 
 
+def rib9(state):
+    w, h, e = 10, 12, 3
+    base, shade, rim = gb.SIGN[state]
+    px = np.zeros((h, w, 4), np.uint8)
+    put = lambda m, col: px.__setitem__(m, hx(col) + (255,))
+    yy, xx = np.mgrid[0:h, 0:w]
+    depth = np.minimum(np.minimum(yy, h - 1 - yy), 2)        # a shallower notch: 0 at the top/bottom rows, 2 deep in the middle
+    body = (xx >= depth) & (xx <= w - 1 - depth)
+    edge = body & ~((xx >= depth + 1) & (xx <= w - 2 - depth) & (yy >= 1) & (yy <= h - 2))
+    put(body, base)
+    put(body & (yy >= h - 3), shade)
+    put(body & (yy == 1), rim)
+    put(edge & ((yy < h // 2) | (xx < w // 2)), OL[1]); put(edge & (yy >= h // 2) & (xx >= w // 2), OL[2])
+    put(edge & (yy == 0), OL[0])
+    put(((yy == 2) | (yy == h - 4)) & (xx >= e) & (xx <= w - 1 - e) & (xx % 2 == 1), rim)
+    return px
+
+
+def petal():
+    c = C()
+    p = poly([(3, 0), (6, 3), (5, 7), (1, 7), (0, 3)])
+    c.outline(p); c.shaded(p, '#e88aa8', '#b8577a', '#f8c8d8')
+    c.f(rect(3, 2, 3, 5), '#b8577a')
+    return c.px[0:10, 0:9]
+
+
 if __name__ == '__main__':
+    for st in ('idle', 'sel', 'off'):
+        gb.img(rib9(st)).save(os.path.join(OUT, f'rib-{st}.png'), optimize=True)
+    gb.img(petal()).save(os.path.join(OUT, 'petal.png'), optimize=True)
     for k in 'curl':
         gb.img(gb.felt9(k)).save(os.path.join(OUT, f'felt-{k}.png'), optimize=True)
         gb.img(gem(k)).save(os.path.join(OUT, f'gem-{k}.png'), optimize=True)
