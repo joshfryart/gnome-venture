@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.63
+- Treks: Chapter III (The Knock Below) is open to all players by default (`trek_chapters_open` now defaults to 3; a value already saved in Admin > Settings stays as it is).
+- Hush Bell: after the second wrong answer the bell now fails open and a Bell Clapper rolls to the party, so the Strongbox can no longer be missed. The Bellcap Beetle clapper drop stays as a second route.
+- No schema change.
+
 ## 2.0.62
 - World > Go: the route panel (GPS) and seek chip sit in a right column on very wide screens (1600px+) and above the content on narrower ones.
 - Place header on World and main stops now shows daypart, weather and season chips.
