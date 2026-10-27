@@ -1,5 +1,12 @@
 # Gnome Venture: to-do (updated 2026-10-27, after 2.0.67)
 
+## NEXT (after 2.0.67)
+- Style guide: add sections for felt cards, item squares (`.itm`), satchel Gather panel and stage art/weather, then rebuild (`python3 tests/build_guide.py`, needs playwright==1.63.0); check the one TOC entry the build could not find (16/17).
+- Cleanup: dedupe felt PNGs (img/acts vs img/gather), delete dead CSS after grep, add `itemsq` and `shopbasket` to the CI suite list, fix or drop the `reset` and `upgrade_check` harness failures.
+- Art: own vignettes for the 22 special places; rain stage art with the sunny layout for forest and coast (agent offered); decide wind direction; restyle the rest-stop Do/Villagers/Stop tab row to match the town tab strip.
+- Maybe: force-daypart setting to test stage dawn/dusk/night; 'New place' flag (needs visit tracking); player news post for 2.0.67 (Joshua's call); basket polish (sort by added order, re-add adds quantity).
+- Joshua phone check of 2.0.67: Gather (reveal, belt, locked tools), Do tab sheets, town Square/Villagers/Shops/Orders, stage weather/dawn/dusk/night tint, item squares in Satchel/shops/crafting/gifts, basket Buy all/Sell all.
+
 ## NOW: 2.0.60 hardening release (Joshua to upload + test)
 
 Built from an external review. Done and on main: db_migrate index errors no longer silent; give_item rethrows non-duplicate errors (moved to includes/inventory.php); updater auto-maintenance lock + per-file rollback + hash check (tests/updrollback.sh); MIT LICENSE; SECURITY.md; version single source (tools/check_versions.sh); CI workflow; 21 stale suites repaired (all green run one at a time).
@@ -9,7 +16,7 @@ Joshua checks: upload 2.0.60 via Admin -> Update on a BACKED-UP live MySQL site 
 Open from the review: `releases/` stays in git on purpose (Joshua's call); big files (garden.php, trek.php, bootstrap, functions) still to split incrementally (inventory.php is the first cut; next candidates: rewards, migrations); `treks` suite too slow for CI; suites share fixed /tmp files (use mktemp, then CI could parallelise); MySQL race test (12 parallel inserts) in tests/db_errors.php never run on real MySQL.
 
 ## Shipped since 2.0.60 (all on main, see CHANGELOG.md)
-- **2.0.67** (built, Joshua to upload and check on phone) Gather satchel panel, mini-game removed, Do-tab and town felt cards, stage art by weather and time of day, Dye Pot shop art. Leftovers: see the 2.0.67 block in handoff.md.
+- **2.0.67** (on main; zips in releases/; Joshua: runs well) Gather satchel panel, mini-game removed, Do-tab and town felt cards, stage art by weather and time of day, Dye Pot art, shop basket, `.itm` item squares everywhere (crafting, pickers, gifts too). Full notes + leftovers: 2.0.67 block in handoff.md.
 - **2.0.66** GPS route card redesign (`dest_panel`, thread + pinned Set off) and trip strip on every page (`dest_strip_html`, `tests/tripstrip.sh`). **2.0.65** shared villager row (`villager_row_html`), 12 unique rest-stop scenes (`stop_art_file()`, generator `aseprite-source/scenes-pil/stops.py`), redrawn shop art (`shops.py`), felt-sign place headers, unique seed shop names (`SEED_SHOP_NAMES`), red `.newart` outline removed. Consolidation block below is essentially DONE: left = visual pass leftovers and the checks listed there.
 - **2.0.64** pixel-art world + 14 region maps are the default (`map_style` only picks the fallback); fixed region layout `includes/region_layout.php` (dump: `tools/map_layout.php`); zoom controls above the map. **2.0.63** Treks Ch III open by default, Hush Bell fails open. **2.0.62** World Go right column 1600px+, header chips, 3-button switcher, main-stop Villagers = who is in town. **2.0.61** consolidation review build + puzzle stills/Motion button (`tests/puzzles.sh`, new `-still.png` per GIF via `tests/gen_puzzle_stills.py`).
 - Joshua checks still open: 2.0.60 live upload (see below), then 2.0.61-2.0.64 on phone: World tabs Go/Map/Gather/Shops, Stop tab, place switcher, bottom bar "Here", region maps zoom, puzzles Motion.
