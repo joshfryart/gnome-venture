@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.50
+- Mobile adventure layout reworked: gnome scene, action, latest activity, then a compact vertical route map; Travel options collapse under the route strip. Desktop keeps the horizontal map. No schema change.
+
 ## 2.0.49
 - Mobile adventure layout: travel controls appear below the gnome scene banner, latest activity follows the action, and the route map switches to a compact vertical layout on phones.
 - Destination travel options now start collapsed in a compact summary row and expand on demand.

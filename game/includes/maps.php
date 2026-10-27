@@ -891,11 +891,15 @@ function journey_map_svg(array $u, array $exp): string
 
 
 
-/** v2.0.49: phone-first vertical version of the road map; the horizontal version remains for desktop. */
+
+/** v2.0.49: phone-friendly vertical route map, so place names fit without horizontal scrolling. */
 function journey_map_svg_vertical(array $u, array $exp): string
 {
     $kind = $exp['kind'] ?? 'walk';
-    if (in_array($kind, ['delve', 'lair', 'explore'], true)) return journey_map_svg($u, $exp);
+    if (in_array($kind, ['delve', 'lair', 'explore'], true)) return '';
+    $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
+    $mark = $enc ? (($enc['type'] ?? '') === 'creature' ? '⚔️' : '❓') : '';
+    $active = ($exp['status'] ?? '') === 'active';
     $from = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['from_id']]);
     $to = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['to_id']]);
     if (!$from || !$to) return '';
@@ -908,49 +912,43 @@ function journey_map_svg_vertical(array $u, array $exp): string
     }
     if (!$stops) $stops = [$from, $to];
     $n = count($stops);
-    $H = max(300, 105 * $n + 50);
-    $xOf = fn(int $i) => $i % 2 === 0 ? 112 : 208;
-    $yOf = fn(int $i) => 55 + $i * 105;
-    $svg = '<svg class="journeymap vertical" viewBox="0 0 320 ' . $H . '" role="img" aria-label="Your journey" style="width:100%;height:auto">';
-    $svg .= '<rect width="320" height="' . $H . '" rx="14" fill="#eef3df"/>';
-    $pts = [];
-    for ($i = 0; $i < $n; $i++) $pts[] = $xOf($i) . ',' . $yOf($i);
-    if (count($pts) > 1) $svg .= '<polyline points="' . implode(' ', $pts) . '" fill="none" stroke="#b79a6e" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 12"/>';
+    $W = 360; $H = max(300, 95 + ($n - 1) * 58 + 60);
+    $ys = []; $xs = [];
+    foreach ($stops as $i => $stop) { $ys[$i] = (int)round(48 + $i * ($H - 96) / max(1, $n - 1)); $xs[$i] = (int)round(180 + sin($i * 1.35) * 34); }
     $fi = $ti = null;
-    foreach ($stops as $i => $s) {
-        if ((int)$s['id'] === (int)$from['id']) $fi = $i;
-        if ((int)$s['id'] === (int)$to['id']) $ti = $i;
+    foreach ($stops as $i => $stop) { if ((int)$stop['id'] === (int)$from['id']) $fi = $i; if ((int)$stop['id'] === (int)$to['id']) $ti = $i; }
+    $svg = '<svg class="journeymap mobile-vertical" viewBox="0 0 ' . $W . ' ' . $H . '" role="img" aria-label="Your journey, shown vertically">'
+        . '<rect width="' . $W . '" height="' . $H . '" rx="14" fill="#eef3df"/>';
+    // Soft landscape details keep the route map in the game's existing visual style without crowding labels.
+    for ($i = 0; $i < $n + 2; $i++) {
+        $dx = ($i % 2 === 0) ? 28 : 326; $dy = 45 + $i * ($H - 70) / max(1, $n + 1);
+        $svg .= '<g opacity=".62"><rect x="' . ($dx - 5) . '" y="' . ($dy - 8) . '" width="10" height="12" rx="2" fill="#8a6a46"/><circle cx="' . $dx . '" cy="' . ($dy - 10) . '" r="12" fill="#7ab55c"/><circle cx="' . ($dx - 5) . '" cy="' . ($dy - 13) . '" r="7" fill="#a4b86a"/></g>';
     }
+    $pts = []; for ($i = 0; $i < $n; $i++) $pts[] = $xs[$i] . ' ' . $ys[$i];
+    if (count($pts) > 1) $svg .= '<polyline points="' . implode(' ', $pts) . '" stroke="#b79a6e" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="2 11"/>';
     if ($fi !== null && $ti !== null) {
-        $total = max(1, (int)$exp['steps_total']);
-        $step = min((int)$exp['step'], $total);
-        $x1 = $xOf($fi); $y1 = $yOf($fi); $x2 = $xOf($ti); $y2 = $yOf($ti);
-        $svg .= '<line x1="' . $x1 . '" y1="' . $y1 . '" x2="' . $x2 . '" y2="' . $y2 . '" stroke="#d9a520" stroke-width="4" stroke-opacity=".75"/>';
+        $svg .= '<line x1="' . $xs[$fi] . '" y1="' . $ys[$fi] . '" x2="' . $xs[$ti] . '" y2="' . $ys[$ti] . '" stroke="#d9a520" stroke-width="4" stroke-opacity=".65"/>';
+        $total = max(1, (int)$exp['steps_total']); $step = min((int)$exp['step'], $total);
         for ($k = 1; $k <= $total; $k++) {
-            $f = $k / ($total + 1);
-            $cx = (int)round($x1 + ($x2 - $x1) * $f); $cy = (int)round($y1 + ($y2 - $y1) * $f);
-            $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="6" fill="' . ($k <= $step ? '#d9a520' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
+            $x = (int)round($xs[$fi] + ($xs[$ti] - $xs[$fi]) * $k / ($total + 1));
+            $y = (int)round($ys[$fi] + ($ys[$ti] - $ys[$fi]) * $k / ($total + 1));
+            $svg .= '<circle cx="' . $x . '" cy="' . $y . '" r="5" fill="' . ($k <= $step ? '#d9a520' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
         }
-        $active = ($exp['status'] ?? '') === 'active';
-        $posx = $active ? (int)round($x1 + ($x2 - $x1) * $step / ($total + 1)) : $x2;
-        $posy = $active ? (int)round($y1 + ($y2 - $y1) * $step / ($total + 1)) : $y2;
-        $svg .= '<text x="' . $posx . '" y="' . ($posy - 12) . '" text-anchor="middle" font-size="22">🎩</text>';
+        $pos = $active ? $step / ($total + 1) : 1;
+        $hx = (int)round($xs[$fi] + ($xs[$ti] - $xs[$fi]) * $pos); $hy = (int)round($ys[$fi] + ($ys[$ti] - $ys[$fi]) * $pos);
+        $svg .= '<text x="' . $hx . '" y="' . ($hy - 16) . '" text-anchor="middle" font-size="24">🎩' . ($active ? $mark : '') . '</text>';
     }
-    foreach ($stops as $i => $s) {
-        $x = $xOf($i); $y = $yOf($i);
-        $isTown = $s['kind'] === 'market';
-        $seen = $isTown || place_known((int)$u['id'], $s) || $i === $fi;
-        $land = LANDSCAPES[$s['landscape'] ?? ''] ?? ['📍'];
-        $icon = $isTown ? '🏘️' : ($seen ? ($s['kind'] === 'village' ? '🏡' : $land[0]) : '❔');
-        $svg .= '<circle cx="' . $x . '" cy="' . $y . '" r="19" fill="' . ($isTown ? '#e6d3ad' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
-        $svg .= '<text x="' . $x . '" y="' . ($y + 6) . '" text-anchor="middle" font-size="18">' . $icon . '</text>';
-        $anchor = $x < 160 ? 'start' : 'end';
-        $labelX = $x < 160 ? $x + 28 : $x - 28;
-        $label = mb_strimwidth((string)($seen ? $s['name'] : '???'), 0, 23, '…');
-        $svg .= '<text x="' . $labelX . '" y="' . ($y + 5) . '" text-anchor="' . $anchor . '" font-size="12" fill="#2f2a1f">' . e($label) . '</text>';
+    foreach ($stops as $i => $stop) {
+        $x = $xs[$i]; $y = $ys[$i]; $isTown = $stop['kind'] === 'market';
+        $seen = $isTown || place_known((int)$u['id'], $stop) || $i === $fi;
+        $L = LANDSCAPES[$stop['landscape'] ?? ''] ?? ['📍'];
+        $icon = $isTown ? '🏘️' : ($seen ? ($stop['kind'] === 'village' ? '🏡' : $L[0]) : '❔');
+        $svg .= '<circle cx="' . $x . '" cy="' . $y . '" r="19" fill="' . ($isTown ? '#e6d3ad' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>'
+            . '<text x="' . $x . '" y="' . ($y + 7) . '" text-anchor="middle" font-size="19">' . $icon . '</text>';
+        $labelX = $x < 180 ? $x + 29 : $x - 29; $anchor = $x < 180 ? 'start' : 'end';
+        $svg .= '<text x="' . $labelX . '" y="' . ($y + 5) . '" text-anchor="' . $anchor . '" font-size="13" font-weight="bold" fill="#2f2a1f">' . e($seen ? mb_strimwidth($stop['name'], 0, 22, '…') : '???') . '</text>';
     }
-    $lab = fn(array $s) => $s['name'] . ($s['kind'] === 'market' && !str_contains((string)$s['name'], (string)$s['region']) ? ' · ' . $s['region'] : '');
-    $svg .= '<text x="160" y="' . ($H - 18) . '" text-anchor="middle" font-size="11" fill="#5a4a30">' . e(mb_strimwidth($lab($to), 0, 38, '…')) . ' · 🎯 destination</text>';
+    $svg .= '<text x="180" y="' . ($H - 25) . '" text-anchor="middle" font-size="12" fill="#5a4a30">🎯 = where you’re heading</text>';
     return $svg . '</svg>';
 }
 

@@ -1801,6 +1801,11 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 .destopt { display: inline-block; margin: 4px 12px 4px 0; white-space: nowrap; }
 .routestrip { margin: 8px 0; padding: 8px 12px; border: 1px solid var(--brand); background: var(--brand-soft); border-radius: 0; }
 .routestrip .routeopts { display: block; margin-top: 4px; font-size: .9em; }
+.routestrip .routeopts-collapse { margin-top: 6px; text-align: left; }
+.routestrip .routeopts-collapse > summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; min-height: 36px; padding: 4px 10px; border: 1px solid var(--brand); background: var(--panel, rgba(0,0,0,.12)); font-weight: 700; list-style-position: inside; }
+.routestrip .routeopts-collapse[open] { padding-top: 4px; }
+.routestrip .routeopts-collapse .routeopts { padding: 8px; border: 1px solid var(--brand); background: var(--panel, rgba(0,0,0,.10)); }
+
 
 /* ===== Map rework v0.9.3 ===== */
 /* World map: regions only at the first level; individual places appear when zoomed right in */
@@ -5140,22 +5145,22 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 .gvs-u { overflow: visible; }
 
 
-/* ===== v2.0.49 compact mobile adventure flow ===== */
-.routeopts-fold { padding: 0; }
-.routeopts-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.3; }
-.routeopts-fold > summary::-webkit-details-marker { display: none; }
-.routeopts-fold .routeopts-label { flex: 0 0 auto; border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 7px; font-weight: 700; white-space: nowrap; }
-.routeopts-fold[open] .routeopts-label span { display: inline-block; transform: rotate(90deg); }
-.routeopts-fold .routeopts { padding: 8px 10px 10px; }
-.map-vertical { display: none; }
-@media (max-width: 899px) {
-  .advgrid { display: flex; flex-direction: column; gap: 8px; }
-  .advgrid > .mapcol { display: contents; }
-  .advgrid #advstage { order: -3; width: 100%; max-width: 480px; margin: 0 auto 4px; }
-  .advgrid > .encounter { order: -2; width: 100%; max-width: none; margin: 0; }
-  .advgrid .advlatest, .advgrid .roadresult { order: -1; }
-  .advgrid .map-horizontal { display: none; }
-  .advgrid .map-vertical { display: block; order: 1; width: 100%; max-width: 340px; margin: 8px auto; overflow: hidden; }
-  .advgrid .map-vertical .journeymap { width: 100%; max-width: 100%; height: auto; }
-  .advgrid .mapwrap::after { content: none; }
+/* v2.0.49: mobile adventure order — gnome scene, action, latest activity, then a vertical route map. */
+.journeymap.mobile-vertical { display: none; }
+@media (max-width: 720px) {
+  .advgrid:not(.withrings):not(.fighting) { display: flex; flex-direction: column; gap: 8px; }
+  .advgrid:not(.withrings):not(.fighting) .mapcol { display: contents; }
+  .advgrid:not(.withrings):not(.fighting) #advstage { order: 1; width: 100%; max-width: none; margin: 0 0 2px; }
+  .advgrid:not(.withrings):not(.fighting) > .encounter { order: 2; width: 100%; max-width: none; box-sizing: border-box; margin: 0; padding: 10px; text-align: left; }
+  .advgrid:not(.withrings):not(.fighting) .roadline { margin: 2px 0 8px; font-size: 15px; line-height: 1.4; }
+  .advgrid:not(.withrings):not(.fighting) .encounter .choicelist { max-width: none; margin: 0; }
+  .advgrid:not(.withrings):not(.fighting) .encounter .choice { min-height: 56px; padding: 10px 12px; }
+  .advgrid:not(.withrings):not(.fighting) .advlatest,
+  .advgrid:not(.withrings):not(.fighting) .roadresult { order: 3; width: 100%; max-width: none; box-sizing: border-box; margin: 0; text-align: left; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap { order: 4; width: 100%; max-width: none; margin: 0; overflow: visible; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap .desktop-horizontal { display: none; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap .mobile-vertical { display: block; width: min(100%, 300px); max-width: 300px; min-width: 0 !important; height: auto; margin: 0 auto; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap { overflow: hidden; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap .desktop-horizontal { display: none !important; }
+  .advgrid:not(.withrings):not(.fighting) .tmlinks { order: 5; margin: 0; text-align: center; }
 }
