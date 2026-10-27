@@ -3,7 +3,7 @@
 Cosy garden browser game. Grow plants, tend beds, cook, trade, explore roads and regions, and hire help.
 Live: gnomeventure.ca. No monetization.
 
-Current version: **2.0.37** (see [CHANGELOG.md](CHANGELOG.md)).
+Current version: see the top entry of [CHANGELOG.md](CHANGELOG.md). The single source of truth is `APP_VERSION` in `game/includes/bootstrap.php`; docs carry no hardcoded version (`bash tools/check_versions.sh` checks this).
 
 ## Screens
 
@@ -73,7 +73,7 @@ MySQL cannot be tested locally. The live site is the check.
 - Copy from the example/installer on a new host. Keep backups out of git.
 
 ## Release process
-1. Bump `APP_VERSION` in `game/includes/bootstrap.php` AND `game/install.php`. Versions stay numeric.
+1. Bump `APP_VERSION` in `game/includes/bootstrap.php` only (the installer reads it from there). Versions stay numeric. Add a matching top entry in `CHANGELOG.md`, then run `bash tools/check_versions.sh`.
 2. Add player news in `game/includes/update_news.php` (newest first; skip for tiny fixes; do not announce hidden features).
 3. Lint: `for f in game/*.php game/includes/*.php game/admin/*.php; do php -l $f; done`.
 4. Commit. Then from the folder holding `game/` and `tests/`: `bash tests/build_update.sh <new> 1.4.1 <ABSOLUTE outdir>`. Produces manifest, slim update zip, full zip, source zip.

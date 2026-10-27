@@ -6,7 +6,8 @@ declare(strict_types=1);
  * DELETE THIS FILE from your host after installing.
  */
 define('APP_ROOT', __DIR__);
-define('APP_VERSION', '2.0.59');
+// The version lives only in includes/bootstrap.php (bootstrap exits when config.php is missing, so read the constant from it).
+define('APP_VERSION', preg_match("/define\\('APP_VERSION', '([0-9.]+)'\\)/", (string)@file_get_contents(__DIR__ . '/includes/bootstrap.php'), $m_v) ? $m_v[1] : '0');
 require __DIR__ . '/includes/db.php';
 require __DIR__ . '/includes/functions.php';
 require __DIR__ . '/includes/pixel_art.php';   // v2.0.31: pixel_has() is called by the item seeders (garden100_items etc.)

@@ -1,21 +1,25 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Only the latest release is supported with security fixes. Please update to the newest version (see [CHANGELOG.md](CHANGELOG.md)) before reporting, and say which version you tested.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+Please report privately. Do not open a public issue or post details publicly.
 
-Use this section to tell people how to report a vulnerability.
+- Preferred: GitHub private vulnerability reporting, at <https://github.com/joshfryart/gnome-venture/security/advisories/new> (the Security tab of the repository).
+- Or email hello@joshfry.art.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Include what you found, the steps to reproduce it, the version, and the impact you expect. Never include real player data or credentials.
+
+This is a small hobby project run by one person. You can expect:
+- An acknowledgement within about 7 days.
+- A follow-up on whether it is accepted or declined, and a fix in a later release where it is accepted. No fixed timeline is promised, though serious issues are handled first.
+- Credit in the changelog if you want it.
+
+## Scope
+
+In scope: the PHP code in this repository (`game/`), including accounts and sessions, CSRF, XSS, SQL injection, access control, uploads, the admin panel and the in-place updater.
+
+Out of scope: your own host or server configuration, a live install that still has `install.php` or a weak admin password, denial of service by volume, social engineering, and issues that need access to `config.php` or the server already. Please test only on your own install, not on the live site at gnomeventure.ca.
