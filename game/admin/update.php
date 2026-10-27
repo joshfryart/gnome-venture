@@ -111,7 +111,7 @@ page_header('Update the game', true);
       <label>Your admin password (to confirm) <input type="password" name="password" required autocomplete="current-password"></label>
       <button class="btn"<?= $bad ? ' disabled' : '' ?>>⬆️ Back up and install</button></form>
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="cancel"><button class="btn small alt">Cancel and remove the upload</button></form>
-    <p class="help">Tip: switch on Maintenance mode in Game settings first if players are online. The update itself takes a few seconds.</p>
+    <p class="help">Maintenance mode is switched on automatically while installing (and put back after). Failed installs are rolled back automatically.</p>
   </div>
 <?php endif; ?>
 
