@@ -139,7 +139,9 @@ function db_migrate(PDO $pdo, string $driver): array
             $pdo->exec($sql);
             $done[] = $sql;
         } catch (PDOException $e) {
-            // Index already exists — fine.
+            // Only "index already exists" is fine (MySQL 1061, SQLite "already exists"); anything else must not pass silently.
+            if (($e->errorInfo[1] ?? 0) === 1061 || stripos($e->getMessage(), 'already exists') !== false) continue;
+            $errors[] = substr(trim(preg_replace('/\s+/', ' ', $sql)), 0, 60) . ' -> ' . $e->getMessage();
         }
     }
     if ($errors) {

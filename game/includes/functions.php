@@ -782,9 +782,11 @@ function give_item(int $userId, int $itemId, int $qty): bool
     try {
         db_insert('user_items', ['user_id' => $userId, 'item_id' => $itemId, 'qty' => $qty, 'got_at' => now()]);
     } catch (PDOException $e) {
+        // Only a duplicate-key race is expected (SQLSTATE 23000, MySQL 1062, SQLite 19 UNIQUE); rethrow the rest
+        $dup = ($e->errorInfo[1] ?? 0) === 1062 || stripos($e->getMessage(), 'UNIQUE constraint') !== false;
+        if (!$dup) throw $e;
         // Someone else inserted the row a moment ago: add to it instead
-        q('UPDATE user_items SET qty = qty + ?, got_at = ? WHERE user_id = ? AND item_id = ?', [$qty, now(), $userId, $itemId]);
-        return true;
+        return q('UPDATE user_items SET qty = qty + ?, got_at = ? WHERE user_id = ? AND item_id = ?', [$qty, now(), $userId, $itemId])->rowCount() === 1;
     }
     unlock_entries($userId, 'item:' . q_val('SELECT slug FROM items WHERE id = ?', [$itemId]));
     return true;
