@@ -1,0 +1,11 @@
+{
+ "sun": "forest",
+ "cloud": "forest-cloud",
+ "rain": "forest-v3",
+ "storm": "forest-storm",
+ "frost": "forest-frost",
+ "heat": "forest-heat",
+ "wind": "forest-wind",
+ "fog": "forest-fog",
+ "snow": "forest-snow"
+}

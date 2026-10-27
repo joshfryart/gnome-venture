@@ -1,0 +1,11 @@
+{
+ "sun": "grassland",
+ "cloud": "grassland-cloud",
+ "rain": "grassland-v3",
+ "storm": "grassland-storm",
+ "frost": "grassland-frost",
+ "heat": "grassland-heat",
+ "wind": "grassland-wind",
+ "fog": "grassland-fog",
+ "snow": "grassland-snow"
+}

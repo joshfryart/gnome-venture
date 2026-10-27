@@ -1,0 +1,11 @@
+{
+ "sun": "coast",
+ "cloud": "coast-cloud",
+ "rain": "coast-v3",
+ "storm": "coast-storm",
+ "frost": "coast-frost",
+ "heat": "coast-heat",
+ "wind": "coast-wind",
+ "fog": "coast-fog",
+ "snow": "coast-snow"
+}
