@@ -1,0 +1,335 @@
+{
+ "grassland": [
+  {
+   "prop": "butterflies",
+   "tool": "net",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "rocks",
+   "tool": "pick",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "herbs",
+   "tool": "forage",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "berry_bush",
+   "tool": "forage",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "flowers",
+   "tool": "forage",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "forest": [
+  {
+   "prop": "fern",
+   "tool": "forage",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "berry_bush",
+   "tool": "forage",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "mushrooms",
+   "tool": "forage",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "herbs",
+   "tool": "forage",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "log",
+   "tool": "axe",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "coast": [
+  {
+   "prop": "tidepool",
+   "tool": "bucket",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "log",
+   "tool": "axe",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "shells",
+   "tool": "bucket",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "herbs",
+   "tool": "forage",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "rocks",
+   "tool": "pick",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "mountain": [
+  {
+   "prop": "crystals",
+   "tool": "pick",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "fern",
+   "tool": "forage",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "rocks",
+   "tool": "pick",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "pond",
+   "tool": "rod",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "herbs",
+   "tool": "forage",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "wetland": [
+  {
+   "prop": "pond",
+   "tool": "rod",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "log",
+   "tool": "axe",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "reeds",
+   "tool": "rod",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "butterflies",
+   "tool": "net",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "flowers",
+   "tool": "forage",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "desert": [
+  {
+   "prop": "rocks",
+   "tool": "pick",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "herbs",
+   "tool": "forage",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "cactus",
+   "tool": "forage",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "pond",
+   "tool": "rod",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "crystals",
+   "tool": "pick",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "rainforest": [
+  {
+   "prop": "mushrooms",
+   "tool": "forage",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "butterflies",
+   "tool": "net",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "vines",
+   "tool": "forage",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "fern",
+   "tool": "forage",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "pond",
+   "tool": "rod",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "tundra": [
+  {
+   "prop": "crystals",
+   "tool": "pick",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "rocks",
+   "tool": "pick",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "snowdrift",
+   "tool": "pick",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "pond",
+   "tool": "rod",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "herbs",
+   "tool": "forage",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ],
+ "island": [
+  {
+   "prop": "shells",
+   "tool": "bucket",
+   "x": 164,
+   "y": 184,
+   "r": 30
+  },
+  {
+   "prop": "flowers",
+   "tool": "forage",
+   "x": 340,
+   "y": 188,
+   "r": 30
+  },
+  {
+   "prop": "coconut",
+   "tool": "hand",
+   "x": 68,
+   "y": 208,
+   "r": 30
+  },
+  {
+   "prop": "rocks",
+   "tool": "pick",
+   "x": 416,
+   "y": 220,
+   "r": 30
+  },
+  {
+   "prop": "tidepool",
+   "tool": "bucket",
+   "x": 252,
+   "y": 224,
+   "r": 30
+  }
+ ]
+}
