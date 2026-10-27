@@ -30,7 +30,7 @@ echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 SHOP=$(db "SELECT id FROM shops ORDER BY id LIMIT 1")
 echo "== no art drawn: pages unchanged"
 get "town.php?hub=1" >/dev/null; echo "square banner: $(grep -c 'scene-bannerwrap' $H) (want 0)"
-get "shop.php?id=$SHOP" >/dev/null; echo "shop banner: $(grep -c 'scene-bannerwrap' $H) (want 0)"
+get "shop.php?id=$SHOP" >/dev/null; echo "shop art: $(grep -c 'class="ph-art' $H) (want 1: the shipped shop-seeds.png; v2.0.65 shop art sits in the place header)"
 echo "== with dummy art"
 mkdir -p "$GAME/assets/img/scenes"
 python3 - "$GAME/assets/img/scenes" <<'PY'
@@ -44,7 +44,7 @@ for k in ['market', 'village', 'haven', 'general']: png(f'{d}/banner-{k}.png' if
 for k in ['cottage', 'burrow', 'treehouse', 'hut', 'stone', 'boat']: png(f'{d}/home-{k}.png', 480, 270)
 PY
 get "town.php?hub=1" >/dev/null; echo "square banner: $(grep -c scene-bannerwrap $H) (want 1)"; grep -A3 "<h1" $H | head -12 | cut -c1-200
-get "shop.php?id=$SHOP" >/dev/null; echo "shop banner: $(grep -c 'scene-bannerwrap' $H) (want 1)"
+get "shop.php?id=$SHOP" >/dev/null; echo "shop art: $(grep -c 'class="ph-art' $H) (want 1)"
 NID=$(db "SELECT id FROM npcs WHERE active=1 ORDER BY id LIMIT 1")
 db "INSERT OR IGNORE INTO user_npc_met (user_id,npc_id,first_at) SELECT id,$NID,datetime('now') FROM users WHERE username='sprout'" >/dev/null
 for h in 0 3 12 18 23; do
