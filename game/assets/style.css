@@ -5366,3 +5366,30 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 .tripstrip .tskick { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tripstrip .tsline { font-size: .85rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tripstrip .tsbar { width: 100%; height: 8px; accent-color: var(--brand); }
+
+/* v2.0.66: GPS route card (dest_panel): title, pills, route thread, option chips, pinned Set off */
+.destpanel .dphead { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.dpkick { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--brand-ink); }
+.dptitle { margin: 2px 0 0; font-size: 1.4rem; line-height: 1.15; }
+.dpsub { font-size: .85rem; color: var(--muted); }
+.dpforget { margin: 0; }
+.dpx { min-width: 40px; min-height: 40px; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); cursor: pointer; }
+.dppills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.dppill { padding: 3px 9px; border: 1px solid var(--line); background: var(--surface-2); font-size: .85rem; white-space: nowrap; }
+.dptrack { position: relative; margin: 6px 0 10px; }
+.dptrack::before { content: ""; position: absolute; left: 19px; top: 18px; bottom: 18px; border-left: 3px dashed var(--line); }
+.dptrack .rp { position: relative; display: flex; flex-wrap: nowrap; align-items: center; gap: 12px; min-height: 44px; padding: 0; border: 0; }
+.dptrack .rpmark { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--line); font-size: 1.2rem; z-index: 1; }
+.dptrack .rp.next .rpmark { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.dptrack .rp.dest .rpmark { background: var(--brand-soft); border-color: var(--brand); }
+.dptrack .rpname { flex: 1; min-width: 0; font-weight: 700; }
+.dptrack .rpname small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; }
+.dptrack .rplv { flex: none; padding: 2px 7px; border: 1px solid var(--line); font-size: .8rem; }
+.dptrack .rpleg { margin: 0 0 0 52px; min-height: 22px; display: flex; align-items: center; font-size: .8rem; color: var(--muted); }
+.dpopts { display: flex; gap: 6px; margin-top: 8px; }
+.dpopts .destopt { flex: 1; display: flex; align-items: center; gap: 6px; margin: 0; padding: 8px; min-height: 44px; border: 1px solid var(--line); background: var(--surface-2); white-space: normal; font-size: .85rem; }
+.dpfast { margin: 8px 0 0; }
+.dpfast .btn { width: 100%; text-align: center; }
+.dpgobar { margin-top: 10px; }
+.dpset { width: 100%; min-height: 56px; font-size: 1.1rem; font-weight: 800; }
+@media (max-width: 720px) { .dpgobar { position: sticky; bottom: calc(var(--bar) + var(--sab, 0px) + 8px); z-index: 5; } }

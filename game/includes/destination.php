@@ -147,45 +147,52 @@ function dest_panel(array $u, int $toId, bool $continue = false): string
     if (!$to) return '';
     $here = player_node($u);
     $name = dest_name($uid, $to);
-    $h = '<div class="box destpanel" id="gopanel"><h3>' . ($continue ? '🏁 Heading to ' : '🧭 Head to ') . e($name) . ($to['region_name'] ? ' <small class="muted">· ' . e((string)$to['region_name']) . '</small>' : '') . '</h3>';
-    if ((int)$here['id'] === $toId) return $h . '<p>🎩 You’re here!</p></div>';
+    $fromName = e(dest_name($uid, $here));
+    $head = '<div class="dphead"><div><div class="dpkick">🧭 ' . ($continue ? 'Heading to' : 'Head to') . '</div><h3 class="dptitle">' . e($name) . '</h3>'
+        . '<div class="dpsub">' . ($to['region_name'] ? e((string)$to['region_name']) . ' · ' : '') . 'from ' . $fromName . '</div></div>';
+    $forget = '<form method="post" action="' . e(url('adventure.php')) . '" class="inline dpforget">' . csrf_field() . '<input type="hidden" name="do" value="dest_forget"><input type="hidden" name="back" value="world.php"><button class="dpx" title="Forget this route" aria-label="Forget this route">✕</button></form>';
+    if ((int)$here['id'] === $toId) return '<div class="box destpanel" id="gopanel">' . $head . '</div><p>🎩 You’re here!</p></div>';
     $busy = active_expedition($uid) !== null;
     $plan = dest_plan($u, $toId);
-    if ($plan === null) return $h . '<p class="muted">You don’t know a way there from here yet. Explore off the road to find new paths.</p></div>';
+    if ($plan === null) return '<div class="box destpanel" id="gopanel">' . $head . '</div><p class="muted">You don’t know a way there from here yet. Explore off the road to find new paths.</p></div>';
     $stops = $plan['stops'];
     $n = count($stops);
     $steps = $energy = $mins = $quickN = 0;
-    $h .= '<ol class="routeplan">';
+    foreach ($stops as $s) { $steps += $s['steps']; $energy += $s['energy']; $mins += $s['minutes']; $quickN += $s['quick'] ? 1 : 0; }
+    $h = '<div class="box destpanel" id="gopanel">' . $head . $forget . '</div>';
+    $h .= '<p class="dppills"><span class="dppill">' . $n . ' stop' . ($n === 1 ? '' : 's') . '</span><span class="dppill">' . $steps . ' steps</span><span class="dppill">⚡' . $energy . '</span>'
+        . '<span class="dppill">⏱ ' . ($mins > 0 ? nice_time($mins * 60) : 'no time') . '</span>' . ($quickN ? '<span class="dppill">💨 ' . $quickN . ' quick walk' . ($quickN === 1 ? '' : 's') . '</span>' : '') . '</p>';
+    $h .= '<ol class="routeplan dptrack">';
     if ((int)($u['dest_id'] ?? 0) === $toId) {   // v0.9.5: stops already passed on this journey
         $passed = array_values(array_filter(dest_trail($u), fn($id) => $id !== (int)$here['id']));
-        if (count($passed) > 6) { $h .= '<li class="rp done"><span class="rpmark">✅</span> <small class="muted">+ ' . (count($passed) - 6) . ' earlier</small></li>'; $passed = array_slice($passed, -6); }
+        if (count($passed) > 6) { $h .= '<li class="rp done"><span class="rpmark">✅</span><span class="rpname"><small class="muted">+ ' . (count($passed) - 6) . ' earlier</small></span></li>'; $passed = array_slice($passed, -6); }
         foreach ($passed as $pid) {
             if ($pl = q_one('SELECT * FROM locations WHERE id = ?', [$pid])) {
-                $h .= '<li class="rp done"><span class="rpmark">✅</span> <span class="rpicon">' . dest_icon($pl) . '</span> <span class="rpname">' . e(dest_name($uid, $pl)) . '</span> <small class="muted">passed</small></li>';
+                $h .= '<li class="rp done"><span class="rpmark">✅</span><span class="rpname">' . dest_icon($pl) . ' ' . e(dest_name($uid, $pl)) . '<small>passed</small></span></li>';
             }
         }
     }
-    $h .= '<li class="rp here"><span class="rpmark">🎩</span> <span class="rpname">' . e(dest_name($uid, $here)) . '</span> <small class="muted">you are here</small></li>';
-    foreach ($stops as $s) {
-        $steps += $s['steps']; $energy += $s['energy']; $mins += $s['minutes']; $quickN += $s['quick'] ? 1 : 0;
-        $h .= '<li class="rp ahead"><span class="rpmark">○</span> <span class="rpicon">' . dest_icon($s['loc']) . '</span> <span class="rpname">' . e(dest_name($uid, $s['loc'])) . '</span> '
-            . '<small class="muted">' . $s['steps'] . ' steps · ⚡' . $s['energy'] . ' · Lv ' . $s['lo'] . ($s['hi'] > $s['lo'] ? '–' . $s['hi'] : '') . ($s['quick'] ? ' · 💨 quick walk' : '') . '</small></li>';
+    $h .= '<li class="rp here"><span class="rpmark">🎩</span><span class="rpname">' . e(dest_name($uid, $here)) . '<small>you are here</small></span></li>';
+    foreach ($stops as $i => $s) {
+        $last = $i === $n - 1;
+        $h .= '<li class="rpleg">' . $s['steps'] . ' steps · ⚡' . $s['energy'] . ($s['quick'] ? ' · 💨 quick walk' : '') . '</li>';
+        $h .= '<li class="rp ' . ($last ? 'dest' : ($i === 0 ? 'next' : 'ahead')) . '"><span class="rpmark">' . ($last ? '🏁' : dest_icon($s['loc'])) . '</span><span class="rpname">' . e(dest_name($uid, $s['loc']))
+            . '<small>' . ($last ? 'destination' : ($i === 0 ? 'next stop' : '')) . '</small></span><span class="rplv">Lv ' . $s['lo'] . ($s['hi'] > $s['lo'] ? '–' . $s['hi'] : '') . '</span></li>';
     }
     $h .= '</ol>';
-    $h .= '<p class="routetotal">' . $n . ' stop' . ($n === 1 ? '' : 's') . ' · ' . $steps . ' steps · ⚡' . $energy . ' · about ' . ($mins > 0 ? nice_time($mins * 60) : 'no time') . ' of mycelium rides' . ($quickN ? ' (💨 ' . $quickN . ' quick walk' . ($quickN === 1 ? '' : 's') . ' included)' : '') . '</p>';
     // Another region you can fast travel to: say so (the gnome chooses)
     $rid = (int)($to['region_id'] ?? 0);
+    $fast = '';
     if ($rid && $rid !== (int)($here['region_id'] ?? 0) && $n > 1 && can_fast_travel($u, $rid)) {
         require_once __DIR__ . '/seek.php';
-        $h .= '<p class="help">🧭 Or <a href="' . e(url('world.php?tab=travel#fasttravel')) . '">fast travel</a> to ' . e((string)$to['region_name']) . ' first (' . money(seek_travel_cost($u, $rid)) . ') and walk from its town.</p>';
+        $fast = '<p class="dpfast"><a class="btn alt" href="' . e(url('world.php?tab=travel#fasttravel')) . '">🧭 Fast travel to ' . e((string)$to['region_name']) . ' · ' . money(seek_travel_cost($u, $rid)) . '</a></p>';
     }
-    if ($busy) return $h . '<p class="muted">Finish the walk you’re on first.</p></div>';
+    if ($busy) return $h . $fast . '<p class="muted">Finish the walk you’re on first.</p></div>';
     $first = $plan['path'][0];
     $h .= '<form method="post" action="' . e(url('adventure.php')) . '" class="destgo">' . csrf_field()
         . '<input type="hidden" name="do" value="start"><input type="hidden" name="dest" value="' . $toId . '">'
-        . '<button class="btn">▶ Set off</button> ' . dest_opts_html($u)
-        . '<p class="help">First: ' . (int)$first['steps'] . ' steps to ' . e(dest_name($uid, $stops[0]['loc'])) . '. You tap each step; the next leg starts when you arrive.</p></form>';
-    $h .= '<form method="post" action="' . e(url('adventure.php')) . '" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="dest_forget"><input type="hidden" name="back" value="world.php"><button class="btn ghost">✖ Forget</button></form>';
+        . '<div class="dpopts">' . dest_opts_html($u) . '</div>' . $fast
+        . '<div class="dpgobar"><button class="btn dpset">▶ Set off · ' . (int)$first['steps'] . ' steps to ' . e(dest_name($uid, $stops[0]['loc'])) . '</button></div></form>';
     return $h . '</div>';
 }
 
