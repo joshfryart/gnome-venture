@@ -157,10 +157,12 @@ do
   c:fill(plaza, "#d8c49a"); plaza:edge():each(function(x, y) c:px(x, y, "#c9a96e") end)
   -- dome village ringed around the plaza (outside the pin circle, off the roads)
   local function dome(x, y) P(c, c:rect(x - 4, y - 3, x + 4, y + 3), RM.cream, { gloss = false, flat = true }); P(c, c:ellipse(x, y - 3, 4, 4):cut(c:rect(x - 5, y - 2, x + 5, y + 4)), RM.gold, { gloss = false, flat = true }); c:fill(c:rect(x - 1, y, x + 1, y + 3), "#f08a24"); c:px(x, y + 1, "#fff3c8") end
-  local function otherClear(x, y) for i = 2, #CLR do local k = CLR[i]; local dx, dy = x - k[1], y - k[2]; if dx * dx + dy * dy < (k[3] + 5) ^ 2 then return true end end; return false end
-  for a = 0, 350, 25 do
-    local t = math.rad(a); local x, y = math.floor(TX + math.cos(t) * 17 + 0.5), math.floor(TY + math.sin(t) * 14 + 0.5)
-    if not otherClear(x, y) and not (math.abs(x - BRAZ[1]) < 8 and math.abs(y - BRAZ[2]) < 10) and not roadM:has(x, y) and not roadM:has(x, y - 4) and not roadM:has(x - 4, y) and not roadM:has(x + 4, y) then dome(x, y) end
+  local function otherClear(x, y) for i = 2, #CLR do local k = CLR[i]; local dx, dy = x - k[1], y - k[2]; if dx * dx + dy * dy < (k[3] + 1) ^ 2 then return true end end; return false end
+  local placedD = {}
+  for a = 0, 355, 15 do
+    local t = math.rad(a); local x, y = math.floor(TX + math.cos(t) * 16 + 0.5), math.floor(TY + math.sin(t) * 15 + 0.5)
+    local near = false; for _, q in ipairs(placedD) do if math.abs(q[1] - x) < 10 and math.abs(q[2] - y) < 9 then near = true end end
+    if not otherClear(x, y) and not (math.abs(x - BRAZ[1]) < 8 and math.abs(y - BRAZ[2]) < 10) and not roadM:has(x, y) and not roadM:has(x, y - 4) and not roadM:has(x - 4, y) and not roadM:has(x + 4, y) and not near then dome(x, y); placedD[#placedD + 1] = { x, y } end
   end
   -- oil lamps on posts beside each village stop
   for _, l in ipairs(LAMPS) do if not pathM:has(l[1], l[2]) then c:fill(c:rect(l[1], l[2] - 5, l[1], l[2]), "#3d2a1c"); c:fill(c:rect(l[1] - 1, l[2] - 7, l[1] + 1, l[2] - 5), "#f08a24"); c:px(l[1], l[2] - 6, "#fff3c8") end end
