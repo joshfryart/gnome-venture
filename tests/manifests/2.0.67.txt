@@ -4342,7 +4342,7 @@ ca8345e0c55f363c97221071d7b0b7636145a607  assets/img/ui/felt-light.png
 08bd69d1f726376753a53a2b1ca2d6fbf242532b  assets/mushroom.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 12ba36ae1bdb65ecebc123090b01f6ef49f04765  assets/puzzles.css
-1da00eeb588aaf27ee4f06df505d41fe2a453e57  assets/puzzles.js
+336f5c9beeab078ee9a341e831cb4078591a4461  assets/puzzles.js
 c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
 c6b998c2acf24290a8be80d848301df5c4b66e82  assets/site.js
