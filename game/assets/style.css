@@ -5196,6 +5196,23 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
   .advgrid:not(.withrings):not(.fighting) .routefold { order: 5; margin: 0; }
   .advgrid:not(.withrings):not(.fighting) .mapwrap { order: 6; width: 100%; max-width: none; margin: 0; overflow: hidden; }
   .advgrid:not(.withrings):not(.fighting) .tmlinks { order: 7; margin: 0; text-align: center; }
+  /* v2.0.55: a slimmer ribbon on a phone: smaller strip and pieces, goal + stops left + danger on one line */
+  .routebox { padding: 6px 8px 7px; }
+  .routebox .legname { font-size: 14px; margin: 0 0 2px; }
+  .routebox .strip { height: 44px; margin: 6px 0 4px; }
+  .routebox .strip .capl, .routebox .strip .capr { width: 18px; height: 44px; background-size: 18px 44px; }
+  .routebox .strip .band { height: 44px; background-size: 27px 44px; }
+  .routebox .strip .stop { width: 32px; height: 32px; margin-top: -3px; }
+  .routebox .strip .pin { width: 18px; height: 28px; margin-top: -16px; }
+  .routebox .strip .tok { width: 27px; height: 34px; margin-top: -20px; }
+  .routebox .strip .t { height: 9px; background-size: 9px 9px; }
+  .routebox .meta { flex-wrap: nowrap; gap: 6px; font-size: 12px; }
+  .routebox .meta > span { min-width: 0; white-space: nowrap; }
+  .routebox .meta { justify-content: center; }
+  .routebox .meta > span:first-child { flex: 0 1 auto; }
+  .routebox .meta > span:first-child b { overflow: hidden; text-overflow: ellipsis; }
+  .routebox .meta img.flag { width: 14px; height: 18px; flex: none; }
+  .routebox .meta .pips img { width: 9px; height: 9px; }
   /* a fight keeps the ribbon under the scene and the Route fold under the fight card */
   .advgrid.fighting:not(.withrings) .routebox { order: -1; margin: 0; }
   .advgrid.fighting:not(.withrings) .routefold { order: 1; margin: 0; }

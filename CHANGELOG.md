@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.55
+- Phone: the route ribbon is much slimmer (about a third of the height): smaller felt strip and pieces, smaller heading, and the goal, stops left and danger on one line.
+
 ## 2.0.54
 - Phone: during a fight the route ribbon and Route fold fade away (about 1 s) so the fight options get the room. Desktop keeps them. Reduced-motion users get no fade, they just go.
 
