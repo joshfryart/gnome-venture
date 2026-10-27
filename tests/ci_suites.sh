@@ -21,7 +21,7 @@ for s in $LIST; do
   TMPDIR="$T" timeout 600 bash "$HERE/$s.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/out" 2>&1; rc=$?   # TMPDIR: the suite's own mktemp logs land inside $T
   if [ $rc -ne 0 ] || grep -qE '^\s*FAIL|[0-9]+ FAILED|PHP Fatal|Fatal error' "$T/out"; then
     echo "FAIL $s (exit $rc)"; grep -E '^\s*FAIL|[0-9]+ FAILED|Fatal' "$T/out" | head -8 | sed 's/^/     /'; BAD=$((BAD+1))
-    echo "   --- last 25 lines of $s output"; tail -25 "$T/out" | cut -c1-300 | sed 's/^/   | /'
+    echo "   --- last 25 lines of $s output"; { grep -a "diag" "$T/out"; tail -25 "$T/out"; } | cut -c1-300 | sed 's/^/   | /'
     echo "   --- PHP Warning/Notice/Deprecated/Fatal lines in logs (suite output, php server logs, game data/)"
     { grep -hE 'PHP (Warning|Notice|Deprecated|Fatal|Parse)|^(Warning|Notice|Deprecated|Fatal error|Parse error):|Uncaught' "$T/out"
       for f in $(find "$T" /tmp -maxdepth 4 \( -name '*.log' -o -name 'error-log.txt*' -o -name 'tmp.*' \) -type f -newer "$T/.start" -not -path '/tmp/claude*' 2>/dev/null); do

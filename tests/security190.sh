@@ -12,6 +12,7 @@ BASE=http://127.0.0.1:$PORT
 LOG=$(mktemp); TMP=$(mktemp -d)
 PHP_CLI_SERVER_WORKERS=6 php -d session.save_path=$TMP -d display_errors=1 -d error_reporting=-1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!; sleep 1.5
 trap "kill $PID 2>/dev/null" EXIT
+echo "  diag: php $(php -r 'echo PHP_VERSION;') session: $(php -d session.save_path=$TMP -r 'foreach (["session.gc_probability","session.gc_divisor","session.gc_maxlifetime","session.use_strict_mode","session.sid_length","session.cookie_samesite","max_input_vars","output_buffering"] as $k) echo $k,"=",ini_get($k)," ";')"
 H=$TMP/h.html; FAILN=0; JAR=$TMP/jar-x
 ok()  { echo "  ok   $1"; }
 bad() { echo "  FAIL $1${2:+  [$2]}"; FAILN=$((FAILN+1)); }
@@ -27,6 +28,13 @@ nocsrf() { local page=$1; shift; curl -s -c $JAR -b $JAR -X POST "$BASE/$page" "
 db()  { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("PRAGMA busy_timeout=20000"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("PRAGMA busy_timeout=20000"); $p->exec($argv[1]);' "$1"; }
 use() { JAR=$TMP/jar-$1; }
+# diagnostics only (never fails): is the sprout login still good? Prints the cookie, whether its session file exists and how old it is, and the page code. Added to find a CI-only (PHP 8.5) lost-session problem.
+diag_login() {
+    local jar=$TMP/jar-sprout c v f; [ -f "$jar" ] || { echo "  diag[$1]: no sprout jar"; return 0; }
+    v=$(grep garden_sess "$jar" | awk '{print $7}' | head -1); f=$TMP/sess_$v
+    c=$(curl -s -b "$jar" "$BASE/account.php" -o /dev/null -w '%{http_code}')
+    echo "  diag[$1]: sprout account.php=$c; cookie lines=$(grep -c garden_sess "$jar"); sid=${v:0:8}...; session file: $([ -f "$f" ] && echo "yes, $(( $(date +%s) - $(stat -c %Y "$f") ))s old, has uid: $(grep -c 'uid|' "$f")" || echo MISSING); session files in dir: $(ls $TMP | grep -c '^sess_'); elapsed ${SECONDS}s"
+}
 login() { JAR=$TMP/jar-$2; rm -f $JAR; curl -s -c $JAR -b $JAR "$BASE/login.php" -o $H; curl -s -c $JAR -b $JAR -X POST "$BASE/login.php" --data-urlencode "csrf=$(csrf $H)" -d username=$1 --data-urlencode "password=$3" -o /dev/null; }
 
 # ---- the engine helper: php th.php <game> <user> <cmd> args... (runs inside trek_tx, like the game does)
@@ -138,6 +146,7 @@ c=$(curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d 'csrf[]=x' -d do=leave -
 c=$(curl -s -X POST "$BASE/trek.php" -d csrf=x -d do=leave -o /dev/null -w '%{http_code}'); assert "no session at all: refused or sent to log in (never 500)" test "$c" != 500
 assert "the error log is empty" eq "$(errlog)" 0
 
+diag_login "before section, line $LINENO"
 echo "== 2. AuthZ, forged slots / keys / items / tiles, whitelists"
 freshrun sprout; th sprout flag won_fight >/dev/null; th sprout see >/dev/null
 use sprout; th sprout xy 4 15 >/dev/null; th sprout set fatigue=0 >/dev/null
@@ -214,6 +223,7 @@ assert "bloom's actions leave sprout's run, purse and bag untouched" eq "$(snap 
 assert "no trek form carries a run / user id (nothing to forge)" bash -c "! grep -qE 'name=\"(run|run_id|user_id|uid)\"' $GAME/trek.php"
 assert "the error log is empty" eq "$(errlog)" 0
 
+diag_login "before section, line $LINENO"
 echo "== 3. Double-pay / races (two logins of one player firing at once)"
 race() {   # race <user> <jar2> data...: the same POST from two sessions (three requests) at the same moment
     local u=$1 j2=$2; shift 2
@@ -283,6 +293,7 @@ E=$(db "SELECT energy FROM users WHERE id=$SID"); COST=$(db "SELECT COALESCE((SE
 assert "enter x3 at once: energy spent once (100 -> $E, cost $COST)" test "${E:-0}" -ge $((100-COST-2))
 assert "after the races the error log is empty" eq "$(errlog)" 0
 
+diag_login "before section, line $LINENO"
 echo "== 4. XSS: nasty names / item names / story text on every changed page"
 P1='"><img src=x onerror=alert(1)>'; P2='</script><svg onload=alert(2)>'
 RJ=$TMP/jar-evil; rm -f $RJ; JAR=$RJ; get register.php >/dev/null; postp register.php -d username=evil -d email=e@b.local -d password=TestPass123! -d password2=TestPass123! -d rules=1 -d age=1 >/dev/null
@@ -330,6 +341,7 @@ use admin; for pg in admin/treks.php admin/trek_text.php 'admin/trek_text.php?f=
 dbx "UPDATE users SET gnome_name='Bramble', hat_color='#2e7d4f' WHERE username='sprout'; UPDATE items SET name='Beetle Shell' WHERE slug='beetle-shell'"
 dbx "UPDATE trek_texts SET body=NULL, status='todo' WHERE body LIKE '%alert(5)%'"
 
+diag_login "before section, line $LINENO"
 echo "== 5. Session one-shots (trek_replay, trek_walk): same user + run, fresh, capped, cannot be injected"
 freshrun sprout; th sprout flag won_fight >/dev/null; th sprout see >/dev/null; use sprout
 RID=$(RUNID sprout)
@@ -359,6 +371,7 @@ assert "trek_walk with strings in the session: output is ints only" bash -c "[ -
 assert "...and no attribute injection" bash -c "! grep -q 'onmouseover' $H"
 assert "the error log is empty after the session tests" eq "$(errlog)" 0
 
+diag_login "before section, line $LINENO"
 echo "== 6. SQL: bound parameters, portable SQL, fuzzed inputs"
 BAD=$(grep -nE "q(_one|_val)?\(\s*['\"][^'\"]*\\\$|q(_one|_val)?\(\s*['\"][^'\"]*['\"]\s*\.\s*\\\$" $GAME/trek.php $GAME/includes/trek*.php $GAME/admin/treks.php | grep -v 'DELETE FROM \$t' | grep -vE "ENGINE|CREATE")
 assert "no trek query builds SQL from variables (except the whitelisted DELETE table list)" eq "$BAD" ""
@@ -371,6 +384,7 @@ for v in "${NASTY[@]}"; do for k in go slot c how ans p1 rule open target mode t
 assert "$N fuzzed POSTs: all trek tables intact" eq "$(db "SELECT COUNT(*) FROM sqlite_master WHERE name IN ('trek_runs','trek_party','trek_pack','trek_flags','trek_ms','trek_texts')")" 6
 assert "...the run is intact and the error log empty" bash -c "[ '$(errlog)' = 0 ] && [ -n '$(RUNID sprout)' ]" || echo "     diag: run id '$(RUNID sprout)'; error log: $(head -c 600 $GAME/data/error-log.txt 2>/dev/null | tr '\n' ' ')"
 
+diag_login "before section, line $LINENO"
 echo "== 7. CSP and inline code"
 for pg in trek.php 'trek.php?t=party' 'trek.php?t=pack' 'trek.php?t=log' garden.php admin/treks.php; do
     if [ "$pg" = admin/treks.php ]; then use admin; else use sprout; fi
@@ -415,6 +429,7 @@ settings_post() {   # settings_post KEY VALUE: as the current login, with the ad
     curl -s -c $JAR -b $JAR -X POST "$BASE/admin/settings.php" --data-binary @$TMP/set.body --data-urlencode "csrf=$(tokof $JAR)" -o /dev/null -w '%{http_code}'
 }
 
+diag_login "before section, line $LINENO"
 echo "== 8. Admin: who may reach / change the Treks pages and settings"
 for who in anon bloom mona; do
     case $who in anon) JAR=$TMP/jar-anon; rm -f $JAR;; *) use $who;; esac
@@ -440,6 +455,7 @@ assert "admin with a token can change a Trek setting (control)" eq "$(db "SELECT
 settings_post trek_ms_burdock 99999999999 >/dev/null; settings_post trek_event_pct 101 >/dev/null; settings_post trek_event_gap 0 >/dev/null; settings_post trek_ms_burdock 12ab >/dev/null
 assert "admin: out-of-range / junk Trek settings are refused (kept at 151)" eq "$(db "SELECT value FROM settings WHERE name='trek_ms_burdock'")" 151
 
+diag_login "before section, line $LINENO"
 echo "== 9. Abuse: loops of cheap POSTs and long walks cannot beat the caps"
 freshrun sprout; use sprout; th sprout flag won_fight >/dev/null; th sprout see >/dev/null
 dbx "UPDATE users SET coins=500 WHERE id=$SID"
