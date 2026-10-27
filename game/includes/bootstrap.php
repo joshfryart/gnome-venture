@@ -303,6 +303,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 if (is_file(APP_ROOT . '/' . $gone) && is_file(APP_ROOT . '/folk.php')) @unlink(APP_ROOT . '/' . $gone);
             }
         });
+        boot_step('upgrade_2065_seed_shop_names', function () {
+            if (version_compare((string)setting('db_version'), '2.0.65', '<')) { require_once __DIR__ . '/catalog.php'; upgrade_2065_seed_shop_names(); }   // v2.0.65: unique seed shop names
+        });
         boot_step('ensure_shop_food', function () {
             ensure_shop_food();      // shops sell "shop-bought" food worth less than home cooking (v0.7.27)
         });

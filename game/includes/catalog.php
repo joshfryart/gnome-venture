@@ -410,7 +410,7 @@ function import_markets(array $regions, array $regionIds, array $regionById, arr
             ]);
         }
         $shopId = db_insert('shops', [
-            'name' => $gnomish . ' Seed Market', 'slug' => $rslug . '-seed-market', 'location_id' => $locId,
+            'name' => SEED_SHOP_NAMES[$code] ?? $gnomish . ' Seed Market', 'slug' => $rslug . '-seed-market', 'location_id' => $locId,
             'shop_type' => 'seeds',
             'description' => "Seeds and flowers from across $gnomish. Stock changes often, and rare finds turn up now and then.",
             'restock_minutes' => 30,
@@ -444,7 +444,7 @@ function import_markets(array $regions, array $regionIds, array $regionById, arr
             }
             $npcId = db_insert('npcs', ['name' => $name, 'slug' => $slug, 'species' => $species[$i % count($species)],
                 'personality' => $moods[$i % count($moods)], 'home_location_id' => $locId,
-                'bio' => "Works at the $gnomish Seed Market and knows every seed by its first name."]);
+                'bio' => "Works at " . (SEED_SHOP_NAMES[$code] ?? "the $gnomish Seed Market") . " and knows every seed by its first name."]);
             db_insert('npc_schedules', ['npc_id' => $npcId, 'location_id' => $locId, 'shop_id' => $shopId, 'activity' => 'working', 'start_hour' => $s, 'end_hour' => $e]);
             db_insert('npc_schedules', ['npc_id' => $npcId, 'location_id' => $locId, 'shop_id' => null, 'activity' => 'wandering', 'start_hour' => $e, 'end_hour' => ($e + 3) % 24]);
             db_insert('npc_schedules', ['npc_id' => $npcId, 'location_id' => $locId, 'shop_id' => null, 'activity' => 'resting', 'start_hour' => ($e + 3) % 24, 'end_hour' => $s]);
@@ -453,6 +453,27 @@ function import_markets(array $regions, array $regionIds, array $regionById, arr
         $made++;
     }
     return $made;
+}
+
+/** v2.0.65: each region's seed shop has its own name (region names and the "X Market" places stay as they are). */
+const SEED_SHOP_NAMES = ['NA' => 'Maple & Furrow', 'CA' => 'Kernel & Cob', 'CB' => 'Sprinkle Pips', 'SA' => 'Rainroot Seed Store', 'NWE' => 'Peat & Pip',
+    'SE' => 'Olive Whistle Seeds', 'EE' => 'Black Earth Seeds', 'MENA' => 'Dune Seed Stall', 'WCA' => 'Canopy Seed Nook', 'ESA' => 'Thornacre Seed Shed',
+    'CSA' => 'Spicepeak Pods', 'EA' => 'Blossom Seed Parlour', 'SEA' => 'Tangle & Paddy', 'OC' => 'Coral Seed Shop'];
+
+/** v2.0.65: rename the old "<Region> Seed Market" shops (and their staff bios) once; a name an admin changed is left alone. */
+function upgrade_2065_seed_shop_names(): void
+{
+    foreach (catalog_lines('regions.txt') as $row) {
+        if (count($row) < 6) continue;
+        [$code, $gnomish] = $row;
+        $new = SEED_SHOP_NAMES[$code] ?? null;
+        if (!$new) continue;
+        $slug = strtolower($code) . '-seed-market';
+        q('UPDATE shops SET name = ? WHERE slug = ? AND name = ?', [$new, $slug, $gnomish . ' Seed Market']);
+        $sid = (int)q_val('SELECT id FROM shops WHERE slug = ?', [$slug]);
+        if ($sid) q('UPDATE npcs SET bio = ? WHERE bio = ? AND id IN (SELECT npc_id FROM npc_schedules WHERE shop_id = ?)',
+            ["Works at $new and knows every seed by its first name.", "Works at the $gnomish Seed Market and knows every seed by its first name.", $sid]);
+    }
 }
 
 /** Almanac pages + milestones for reaching soil grades C, B, A and S. Adds only what's missing. */
