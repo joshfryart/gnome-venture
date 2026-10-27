@@ -1156,6 +1156,7 @@ function gvGarden() {
       pk.querySelectorAll('.pcard').forEach(function (c) {
         c.hidden = ids.indexOf(c.getAttribute('data-id')) < 0;
         c.classList.toggle('on', c.getAttribute('data-id') === sel.value);
+        if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false');   // v2.0.67: item squares
         c.querySelector('.pccount').hidden = true;
         var btns = c.querySelector('.pcbtns'); if (btns) btns.hidden = true;
       });
@@ -1288,6 +1289,7 @@ function gvGarden() {
           var id = c.getAttribute('data-id'), cn = counts[id] || 0;
           c.hidden = false;
           c.classList.toggle('on', kind === 'seed' ? cn > 0 : choice === id);
+          if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false');   // v2.0.67: item squares
           var badge = c.querySelector('.pccount');
           badge.hidden = !(kind === 'seed' && cn > 0); badge.textContent = cn;
           var btns = c.querySelector('.pcbtns'); if (btns) btns.hidden = !(cn > 0);
@@ -1543,8 +1545,8 @@ document.addEventListener('click', function (ev) {
   var card = t.closest('.gcard');
   if (card) {
     ev.preventDefault();
-    pk.querySelectorAll('.gcard.on').forEach(function (c) { c.classList.remove('on'); });
-    card.classList.add('on');
+    pk.querySelectorAll('.gcard.on').forEach(function (c) { c.classList.remove('on'); c.setAttribute('aria-pressed', 'false'); });
+    card.classList.add('on'); card.setAttribute('aria-pressed', 'true');   // v2.0.67: the item square shows aria-pressed as picked
     var go = pk.querySelector('.giftgo');
     go.querySelector('[name=item_id]').value = card.getAttribute('data-id');
     go.querySelector('.gname').textContent = 'Give ' + card.getAttribute('data-name') + '?';

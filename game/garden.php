@@ -309,20 +309,29 @@ function item_select(array $items, callable $label, string $pick = ''): string
     return '<select name="item_id"' . ($pick !== '' ? ' data-pick="' . e($pick) . '"' : '') . '>' . implode('', array_map(fn($i) => '<option value="' . (int)$i['id'] . '">' . e($label($i)) . '</option>', $items)) . '</select>';
 }
 
-/** A pop-up grid of items to choose from (the Satchel look), used by select mode and by the square panel. */
+/** A pop-up grid of items to choose from (the Satchel look), used by select mode and by the square panel.
+ *  v2.0.67: each choice is an item square (includes/item_square.php); hooks kept: .pcard[data-id][data-qty], .pccount, .pcbtns [data-step], .pickgrid. */
 function picker_html(string $kind, string $title, array $items, callable $icon, callable $info, string $go, ?callable $more = null): string   // v1.6.2: $more = a smaller second line
 {
+    require_once __DIR__ . '/includes/item_square.php';
+    $rows = [];   // the items rows (picture, rarity); the root cellar lists plants, not items
+    $ids = $kind === 'cellar' ? [] : array_values(array_unique(array_map(fn($i) => (int)$i['id'], $items)));
+    if ($ids) foreach (q('SELECT * FROM items WHERE id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')', $ids)->fetchAll() as $r) $rows[(int)$r['id']] = $r;
     $cards = '';
     foreach ($items as $i) {
-        $cards .= '<button type="button" class="pcard" data-id="' . (int)$i['id'] . '" data-qty="' . (int)$i['qty'] . '">'
-            . '<span class="pcicon">' . $icon($i) . '</span><span class="pcname">' . e($i['name']) . '</span><b class="pcqty">×' . (int)$i['qty'] . '</b>'
-            . '<small class="pcinfo">' . $info($i) . '</small>' . ($more && ($mt = $more($i)) !== '' ? '<small class="pcmore">' . $mt . '</small>' : '') . '<span class="pccount" hidden></span>'
-            . ($kind === 'seed' ? '<span class="pcbtns" hidden><i data-step="-1" role="button" aria-label="One fewer">−</i><i data-step="max" role="button" aria-label="Fill the rest">all</i></span>' : '')
-            . '</button>';
+        $row = $rows[(int)$i['id']] ?? null;
+        $chips = [];
+        if (($in = (string)$info($i)) !== '') $chips[] = ['note', $in];
+        if ($more && ($mt = (string)$more($i)) !== '') $chips[] = ['note', '<small class="pcmore">' . $mt . '</small>'];
+        $tail = '<span class="pccount" hidden></span>'
+            . ($kind === 'seed' ? '<span class="pcbtns" hidden><i data-step="-1" role="button" aria-label="One fewer">−</i><i data-step="max" role="button" aria-label="Fill the rest">all</i></span>' : '');
+        $cards .= item_square(['item' => $row ?? [], 'name' => $row ? (string)$row['name'] : (string)$i['name'], 'icon' => $row ? '' : (string)$icon($i), 'rarity' => $row ? '' : 'C',
+            'count' => $kind === 'cellar' ? null : (int)$i['qty'], 'chips' => $chips, 'pressed' => false, 'class' => 'pcard',
+            'attrs' => ['data-id' => (int)$i['id'], 'data-qty' => (int)$i['qty']], 'vh' => $tail]);
     }
     return '<dialog class="picker" data-kind="' . e($kind) . '" aria-label="' . e($title) . '"><div class="pickbox">'
         . '<div class="pickhead"><b>' . e($title) . '</b> <span class="pickhint muted"></span><button type="button" class="pickx" aria-label="Close">✕</button></div>'
-        . ($cards !== '' ? '<div class="pickgrid">' . $cards . '</div>' : '<p class="muted">You don’t have any.</p>')
+        . ($cards !== '' ? item_grid($cards, 'pickgrid') : '<p class="muted">You don’t have any.</p>')
         . '<div class="pickfoot"><span class="picksum muted"></span><button type="button" class="btn" data-go>' . e($go) . '</button></div></div></dialog>';
 }
 

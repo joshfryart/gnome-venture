@@ -37,7 +37,7 @@ $here = npc_here($u, $nid);
 if ($here) { require_once __DIR__ . '/includes/folk_list.php'; npc_meet($uid, [$nid]); }   // v0.7.69
 $today = hollow_date('Y-m-d');   // v0.7.85: same Hollow day as the chat and gift limits
 $work = q('SELECT DISTINCT sh.id, sh.name FROM npc_schedules s JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$nid])->fetchAll();
-$giftable = q("SELECT i.id, i.name, i.category, i.effects, i.rarity, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
+$giftable = q("SELECT i.*, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
                WHERE ui.user_id = ? AND ui.qty > 0 AND i.tradable = 1 AND i.category <> 'tool' ORDER BY i.name", [$uid])->fetchAll();
 $tab = in_array($_GET['tab'] ?? '', ['tastes'], true) ? (string)$_GET['tab'] : 'about';   // v0.7.61: tabs
 $now = npc_now($npc);
@@ -48,27 +48,9 @@ page_header($npc['name']);
 ?>
 <p class="crumbs">👤 <a href="<?= e(url('town.php?view=villagers#known')) ?>">Villagers you know</a> › <b><?= e($npc['name']) ?></b></p>
 <?php
-// v0.7.73: the gift picker — Satchel-style tiles, with the tastes you've found marked
-$known = json_decode((string)($f['known'] ?? '[]'), true) ?: [];
-$T = npc_tastes($npc);
+// v0.7.73: the gift picker; v2.0.67: item squares, shared with the Villagers panel (gift_picker_html in includes/friends.php)
 $bdayNow = npc_birthday_today($npc);
-$giftCards = '';
-if ($here && $f['last_gift'] !== $today && $giftable) {
-    require_once __DIR__ . '/includes/items.php';
-    $IL = item_lookups();
-    foreach ($giftable as $g) {
-        $mark = ''; $score = 0;
-        if ((int)$g['id'] === (int)$T['loved'] && in_array('loved', $known, true)) { $mark = '💛'; $score = 3; }
-        elseif (in_array($g['category'], $T['liked'], true) && in_array('like:' . $g['category'], $known, true)) { $mark = '👍'; $score = 2; }
-        elseif ($g['category'] === $T['disliked'] && in_array('dislike:' . $g['category'], $known, true)) { $mark = '👎'; $score = 0; }
-        else $score = 1;
-        [$rl, $rw] = item_rarity($g, $IL);
-        $giftCards .= '<button type="button" class="pcard gcard" data-id="' . (int)$g['id'] . '" data-score="' . $score . '" data-cat="' . e((string)$g['category']) . '" data-name="' . e($g['name']) . '">'
-            . '<i class="rar r' . $rl . '" title="' . e($rw) . '">' . $rl . '</i><span class="pcicon">' . item_icon($g) . '</span>'
-            . '<span class="pcname">' . e($g['name']) . '</span><b class="pcqty">×' . (int)$g['qty'] . '</b>'
-            . '<span class="pcinfo">' . e(GIFT_CATS[$g['category']] ?? (string)$g['category']) . ($mark ? ' <span class="gmark">' . $mark . '</span>' : '') . '</span></button>';
-    }
-}
+$giftPick = $here && $f['last_gift'] !== $today && $giftable ? gift_picker_html($npc, $f, $giftable, $bdayNow) : '';
 $bar = $lvl['next'] ? max(0, min(100, (int)round(100 * (int)$f['points'] / max(1, (int)$lvl['next'][0])))) : 100;
 ?>
 <div class="npchead box">
@@ -104,16 +86,7 @@ $bar = $lvl['next'] ? max(0, min(100, (int)round(100 * (int)$f['points'] / max(1
   </div>
 </div>
 <?php if ($bdayNow): ?><p class="bday">🎂 It’s <?= e($npc['name']) ?>’s birthday today! A gift counts three times as much.</p><?php endif; ?>
-<?php if ($giftCards !== ''): ?>
-<dialog class="picker giftpick" aria-label="Choose a gift"><div class="pickbox">
-  <div class="pickhead"><b>🎁 A gift for <?= e($npc['name']) ?></b><button type="button" class="pickx" aria-label="Close">✕</button></div>
-  <nav class="chips gsort"><a href="#" class="on" data-gsort="like">They’ll like it</a><a href="#" data-gsort="cat">By kind</a><a href="#" data-gsort="name">A–Z</a></nav>
-  <div class="pickgrid"><?= $giftCards ?></div>
-  <form method="post" class="giftgo" hidden><?= csrf_field() ?><input type="hidden" name="do" value="gift"><input type="hidden" name="item_id" value="0">
-    <span class="gname"></span> <button class="btn">🎁 Give it</button></form>
-  <p class="help">💛 their favourite · 👍 a kind they like · 👎 one they’d rather not get. Marks appear once you’ve found out.<?= $bdayNow ? ' 🎂 Birthday: gifts count triple!' : '' ?></p>
-</div></dialog>
-<?php endif; ?>
+<?= $giftPick ?>
 
 <nav class="tabs">
   <a class="<?= $tab === 'about' ? 'on' : '' ?>" href="<?= $tl('about') ?>">📖 About</a>

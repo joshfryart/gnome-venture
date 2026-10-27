@@ -12,6 +12,8 @@ declare(strict_types=1);
  *   Satchel     <details class="itile itmcell"><summary class="itm">...</summary><div class="ipop">...</div></details>
  *   picker      <button class="itm pcard gcard" data-id=".." aria-pressed="false">...</button>   (wave 2: no wrapper needed)
  * and puts the squares in item_grid(): <div class="itmwrap"><div class="itms">...</div></div> (3 / 4 / 5 / 6 columns by the grid's own width).
+ * Wave 2 users: crafting ingredients (tag 'div', class 'ccing'), gift_picker_html() (friends.php), garden picker_html() (its counter and steps ride in 'vh'),
+ * town_pickers() (place_ui.php), market-day basket picks (tag 'span' inside <label class="mkopt itmcell"> with the checkbox). CSS: claude/build/css-items2.css.
  *
  * Options (all optional except item or name):
  *   item        array   an items row (id, slug, name, category, effects, rarity, image): picture, rarity and name come from it

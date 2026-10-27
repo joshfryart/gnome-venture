@@ -584,7 +584,6 @@ a.tile.sending { opacity: .55; }
 .itile .ipop .ifacts li { margin: 3px 0; }
 .itile .ipop .ipclose { float: right; margin: -6px -6px 0 6px; width: var(--tap); height: var(--tap); background: none; border: 0; font-size: 18px; line-height: 1; cursor: pointer; color: var(--muted); }
 @media (min-width: 721px) { .itile .ipop .ipclose { display: none; } }
-.gcard .rar { position: absolute; top: 3px; left: 3px; font-style: normal; font-weight: 700; font-size: 12px; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 0; color: var(--on-fill); }
 .rar.rC, .rarword.rC { background: var(--r-c); } .rar.rU, .rarword.rU { background: var(--r-u); }
 .rar.rR, .rarword.rR { background: var(--r-r); } .rar.rL, .rarword.rL { background: var(--r-l); }
 .rarword { color: var(--on-fill); border-radius: var(--radius-sm); padding: 0 6px; font-size: 12px; font-weight: 700; }
@@ -1363,24 +1362,10 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 .pickbox { background: var(--surface); border-radius: 0; width: min(560px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: var(--shadow-2); }
 .pickhead { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .pickhead .pickx { margin-left: auto; width: var(--tap); height: var(--tap); border: 0; background: none; font-size: 18px; cursor: pointer; color: var(--ink); }
-.pickgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 10px; overflow-y: auto; }
-.pcard { position: relative; display: grid; grid-template-columns: 30px 1fr auto; gap: 2px 6px; align-items: center; text-align: left; padding: 8px; min-height: var(--tap); border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--surface); cursor: pointer; font: inherit; color: var(--ink); }
-.pcard[hidden] { display: none; }
-.pcard:hover { border-color: var(--brand); }
-.pcard.on { border-color: var(--accent); background: var(--accent-soft); }
-.pcard .pcicon { grid-row: span 2; font-size: 24px; text-align: center; }
-.pcard .pcname { font-weight: 600; font-size: 14px; line-height: 1.2; }
-.pcard .pcqty { font-size: 13px; color: var(--muted); }
-.pcard .pcinfo { grid-column: 2 / 4; color: var(--muted); font-size: 12px; line-height: 1.3; }
-.pcard .pccount { position: absolute; top: -8px; right: -8px; background: var(--accent); color: var(--ink); border-radius: var(--pill); min-width: 22px; padding: 1px 6px; font-weight: 700; text-align: center; }
-.pcard .pcbtns { grid-column: 1 / 4; display: flex; gap: 6px; }
-.pcard .pcbtns[hidden] { display: none; }
-.pcard .pcbtns i { font-style: normal; border: 1px solid var(--line-2); border-radius: var(--radius-sm); padding: 4px 10px; background: var(--surface-2); font-size: 14px; }
 .pickfoot { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); }
 .pickfoot .btn { margin-left: auto; }
 .pickfoot .btn[hidden] { display: none; }
 .giftpick .gsort { padding: 6px 10px 0; margin: 0; }
-.giftpick .gmark { font-size: 18px; }
 .giftpick .giftgo { display: flex; align-items: center; gap: 8px; justify-content: flex-end; padding: 8px 10px; border-top: 1px solid var(--line); background: var(--accent-soft); }
 .giftpick .giftgo[hidden] { display: none; }
 .giftpick .help { padding: 0 10px 8px; margin: 0; }
@@ -1446,11 +1431,6 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 .ccdish { font-size: 30px; line-height: 1; flex: 0 0 auto; }
 .ccname { font-weight: 600; font-size: 14px; line-height: 1.15; }
 .ccsub { font-size: 12px; color: var(--muted); line-height: 1.25; }
-.ccchips { display: flex; flex-wrap: wrap; gap: 4px; }
-.ccchip { font-size: 12px; border-radius: var(--pill); padding: 1px 8px; background: var(--brand-soft); color: var(--brand-ink); max-width: 100%; overflow-wrap: anywhere; }
-.ccchip b { white-space: nowrap; }
-.ccchip.no { background: var(--danger-soft); color: var(--danger-ink); }
-.ccchip.dim { background: var(--surface-2); color: var(--ink-2); }
 .ccneed { font-size: 13px; color: var(--danger-ink); }
 .ccbtns { display: flex; gap: 6px; margin: 0; }
 .ccbtns .btn { flex: 1; padding: 4px 0; }
@@ -1794,7 +1774,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .curio .curioicon { font-size: 30px; line-height: 1; }
 /* v0.9.8: item pictures (sm 24, md 40, lg 64 CSS px; art drawn at 2x) */
 .aimg { display: inline-block; vertical-align: middle; object-fit: contain; max-width: none; }
-.grid .aimg-sm, .offer .aimg-sm, .ccchip .aimg-sm, .chip .aimg-sm { margin-right: 4px; }
+.grid .aimg-sm, .offer .aimg-sm, .chip .aimg-sm { margin-right: 4px; }
 .potdish .aimg, .ccdish .aimg { width: 34px; height: 34px; }
 .curio .curioicon .aimg { display: block; margin: 0 auto 2px; }
 .curio b, .signopt b { overflow-wrap: anywhere; font-size: 16px; line-height: 1.25; }
@@ -2041,8 +2021,6 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .mkitem .qty, .mkstall .qty { width: 58px; }
 .mkstall h3 { margin: 0 0 4px; }
 .mkpick { display: grid; grid-template-columns: 1fr; gap: 4px; max-height: 340px; overflow: auto; margin: 8px 0; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius-sm); }
-.mkopt { display: flex; align-items: center; gap: 8px; min-height: 36px; }
-.mkopt .iicon { width: 28px; text-align: center; }
 @media (min-width: 721px) { .mkgrid, .mkstalls { grid-template-columns: 1fr 1fr; } .mkpick { grid-template-columns: 1fr 1fr; } }
 .rmarket .rhnow { margin: 0 0 4px; }
 .rmarket .rlist li { flex-wrap: wrap; gap: 2px 8px; }
@@ -2947,17 +2925,7 @@ dialog.chestov::backdrop { background: transparent; }
 details.soildet { margin: 8px 0; }
 details.soildet > summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; font-weight: 600; color: var(--ink-2); }
 /* Seed picker cards: size to their content */
-.pickgrid { align-content: start; grid-auto-rows: max-content; }   /* a button as a grid item reports no content height: rows must size to the content */
-.pcard { grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; align-self: start; height: auto; min-height: var(--tap); overflow: visible; }
-.pcard .pcicon { grid-row: 1 / span 3; align-self: center; display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1; }
-.pcard .pcicon img { width: 32px; height: 32px; object-fit: contain; display: block; }
-.pcard .pcname { grid-column: 2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
-.pcard .pcqty { grid-column: 3; align-self: start; }
-.pcard .pcinfo { grid-column: 2 / 4; overflow-wrap: break-word; }
-.pcard .pcmore { grid-column: 2 / 4; display: block; font-size: 11px; line-height: 1.3; color: var(--muted); overflow-wrap: break-word; }
-.pcard .pcbtns { grid-column: 1 / 4; margin-top: 4px; }
-.pcard .pcbtns i { min-height: 40px; min-width: 52px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 12px; }
-@media (max-width: 720px) { .pickgrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } .pickbox { max-height: 84vh; } }
+@media (max-width: 720px) { .pickbox { max-height: 84vh; } }
 /* Garden on a phone: zoom to the beds (1 square of margin), 44px tiles */
 .yardzoom { display: none; margin: 0 0 6px; text-align: center; }
 .yardzoom .yz-b { display: none; }
@@ -3163,10 +3131,6 @@ form.dyeopt.have .choice, form.curio.sold .choice { opacity: .8; }
 form.curio .choice-ico .aimg { display: block; margin: 0 auto; max-width: 36px; height: auto; }
 form.curio .choice-sub { font-size: 12px; }
 /* seed picker: chosen seed reads as selected */
-.pcard:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-.pcard.on { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
-:root[data-theme="dark"] .pcard.on { background: var(--brand-line); }
-.pcard.on .pcname::before { content: "✓ "; color: var(--brand-ink); }
 /* crafting x1 with its energy cost inside */
 .ccbtns .btn .cbcost { font-size: 12px; font-weight: 500; opacity: .9; white-space: nowrap; }
 .ccbtns { flex-wrap: wrap; }
@@ -4704,7 +4668,7 @@ body.admin .side a.navtile:not(.on) { box-shadow: none; }
 .pmem, .tkall, .gfield, .gprac, .frounds, .stok {
   border-width: 2px; box-shadow: var(--shadow); }
 /* picture tiles and pick cards: 2 px edge, no drop (they sit in tight grids) */
-.pcard, .jcard, .arrtile, .ptile, .bookwide .mcard { border-width: 2px; }
+.jcard, .arrtile, .ptile, .bookwide .mcard { border-width: 2px; }
 .hollow:not(.st), .tfolk, .gmine { border-width: 2px; }
 .plantinfo { border-width: 2px 2px 2px 6px; box-shadow: var(--shadow); }
 /* popover cards: the --shadow-2 frame is their edge */
@@ -5375,13 +5339,6 @@ a.scard, .vlcard__who, .ocard__who, .tday__row { color: inherit; }
 .gx-actions .gbtn { text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
 .gx-note--top { margin: 0 0 14px; }
 
-/* the folk.php gift picker uses .pcard.gcard (older class): keep the felt base off it */
-.pcard.gcard { display: grid; grid-row: auto; grid-template-rows: none; row-gap: 2px; padding: 8px; border: 2px solid var(--line-2); border-image: none; background: var(--surface);
-  color: var(--ink); text-align: left; filter: none; transition: none; image-rendering: auto; }
-.pcard.gcard.on { border-color: var(--brand); background: var(--brand-soft); }
-:root[data-theme="dark"] .pcard.gcard.on { background: var(--brand-line); }
-.pcard.gcard::after { content: none; }
-.pcard.gcard:active { transform: none; }
 
 /* ----- rest-stop Do tab: felt cards, each opens a sheet (dialog.isheet, the shop-tile sheet code in site.js) ----- */
 .gcell { display: contents; }
@@ -5727,3 +5684,53 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 /* the felt button variables (style.css "buttons"): cream Empty, gold Buy all / Sell all in both themes, as in the mockup */
 :root[data-theme] .shopwrap > .basket .btn.bclear { --b-bg: #f2e4c0; --b-hi: #fff3c8; --b-lo: #c9a96e; --b-ink: #2a1a10; --b-hover: #fff3c8; }
 :root[data-theme] .shopwrap > .basket .btn.bgo { --b-bg: #e0aa48; --b-hi: #f5cf6a; --b-lo: #b07a28; --b-ink: #2a1a10; --b-hover: #f5cf6a; }
+
+/* ===== 2.0.67: item squares, pickers and crafting ===== */
+/* ===== v2.0.67 item squares, wave 2: crafting ingredients, the gift picker, garden / town pickers, market-day basket =====
+   For the lead to append to game/assets/style.css AFTER the wave 1 block (claude/build/css-items.css). Same .itm markup from item_square();
+   these rules only place the squares in their new homes. Classes only, no inline styles.
+   Removed from style.css in the same change (no markup uses them any more): every .pcard / .pcard.gcard / .pickgrid rule, .giftpick .gmark,
+   .gcard .rar, .ccchip(s), .mkopt. The old classes stay on the squares as JS hooks only (.pcard, .gcard, .pickgrid). */
+
+/* a square that is not a control (crafting ingredients): no hand cursor, no press */
+.itm:is(div, span) { cursor: default; }
+.itm:is(div, span):active { transform: none; filter: drop-shadow(0 3px 0 var(--gx-card-drop)); }
+.itm.is-off:is(div, span):active { filter: drop-shadow(0 2px 0 var(--gx-card-drop)); }
+.itm[hidden] { display: none; }   /* the garden picker hides squares the square panel cannot take (site.js) */
+
+/* ===== crafting (includes/craft_view.php): one recipe card per row on a phone so the ingredients get the 3-column grid ===== */
+.ccgrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+@media (max-width: 520px) { .ccgrid { grid-template-columns: minmax(0, 1fr); } }
+.ccard .ccingh { margin: 4px 0 0; font: 800 12px/1.3 var(--font); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.ccard .itms { padding-top: 12px; }
+
+/* ===== pickers (dialog.picker > .pickbox): the square grid scrolls between the head and the foot ===== */
+.pickbox > .itmwrap { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 14px 12px; }
+.pickbox > .itmwrap > .itms { padding-top: 16px; }
+/* garden seed picker: how many squares get this seed (top left, inside the square) and the − / all steps */
+.itm .pccount:not([hidden]) { position: absolute; top: 2px; left: 2px; z-index: 4; min-width: 26px; padding: 2px 6px; background: var(--itm-want); color: #2a1a10;
+  font: 800 13px/1.2 var(--font); text-align: center; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--ol); }
+.itm .pcbtns:not([hidden]) { flex: 1 1 100%; display: flex; gap: 4px; max-width: none; margin: 2px -8px 0; padding: 0; }
+.itm .pcbtns i { flex: 1 1 0; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; font: 800 14px/1 var(--font);
+  font-style: normal; background: var(--itm-chip); color: #2a1a10; box-shadow: 0 0 0 2px var(--ol), inset 0 -3px 0 #c9a96e; cursor: pointer; }
+.itm .pcbtns i:active { transform: translateY(1px); box-shadow: 0 0 0 2px var(--ol); }
+.itm .pcmore { font-size: 10px; font-weight: 600; }
+/* the gift picker keeps .gcard as its site.js hook: the felt action-card rules for .gcard[aria-pressed] must not swap its felt */
+.itm.gcard[aria-pressed="true"] { border-image-source: url(img/items/felt-c.png); }
+.itm--u.gcard[aria-pressed="true"] { border-image-source: url(img/items/felt-u.png); }
+.itm--r.gcard[aria-pressed="true"] { border-image-source: url(img/items/felt-r.png); }
+.itm--l.gcard[aria-pressed="true"] { border-image-source: url(img/items/felt-l.png); }
+.giftpick .gsort { padding: 8px 14px 0; }
+
+/* ===== market-day basket (marketday.php): label.mkopt.itmcell = a checkbox + its square; checked reads as picked ===== */
+.mkpick { display: block; max-height: 520px; padding: 0 14px 8px; overscroll-behavior: contain; }
+label.itmcell { position: relative; grid-row: span 3; display: grid; grid-template-rows: subgrid; min-width: 0; cursor: pointer; }
+label.itmcell > .itm { grid-row: 1 / span 3; cursor: pointer; }
+label.itmcell > input { position: absolute; top: 0; left: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+label.itmcell:active > .itm { transform: translateY(2px); filter: drop-shadow(0 1px 0 var(--gx-card-drop)); }
+label.itmcell > input:focus-visible + .itm { outline: 3px solid var(--focus); outline-offset: 8px; }
+label.itmcell > input:checked + .itm { box-shadow: 0 0 0 3px var(--ol), 0 0 0 6px var(--itm-halo); }
+label.itmcell > input:checked + .itm .itm__rib { border-image-source: url(img/items/rib-sel.png); color: var(--gx-sign-ink-sel); }
+label.itmcell > input:checked + .itm .itm__name { text-shadow: 0 1px 0 rgba(255, 243, 200, .5); }
+label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -13px; right: -13px; background-image: url(img/acts/badge-sel.png); }
+@media (prefers-reduced-motion: reduce) { label.itmcell:active > .itm { transform: none; } }

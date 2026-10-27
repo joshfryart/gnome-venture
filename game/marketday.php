@@ -95,10 +95,17 @@ if ($wanted) {
     <?php if (!$cand): ?><p class="muted">Your Satchel has no crops, flowers, dishes, finds or arrangements to show.</p>
     <?php elseif ($reach): ?>
       <form method="post" action="<?= e(url($self)) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="basket"><?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
-        <div class="mkpick">
-          <?php foreach ($cand as $c): $q = $c['category'] === 'produce' ? market_stack_q($uid, (int)$c['id'], (int)$c['qty']) : ($c['category'] === 'arrangement' ? (int)basket_item_points($uid, $c) : null); ?>
-            <label class="mkopt"><input type="checkbox" name="items[]" value="<?= (int)$c['id'] ?>"> <span class="iicon"><?= item_icon($c) ?></span> <?= e($c['name']) ?><?= $q !== null ? ' <small class="muted">' . ($c['category'] === 'produce' ? 'grade ' . e(market_grade($q)) . ' · ' : '') . $q . '</small>' : '' ?><?= market_is_wanted((int)$c['id']) ? ' ⭐' : '' ?></label>
-          <?php endforeach; ?>
+        <div class="mkpick"><?php require_once __DIR__ . '/includes/item_square.php';
+          $sq = '';   // v2.0.67: item squares; the checkbox sits in the label with the square (label.mkopt.itmcell), checked = picked
+          foreach ($cand as $c) {
+              $q = $c['category'] === 'produce' ? market_stack_q($uid, (int)$c['id'], (int)$c['qty']) : ($c['category'] === 'arrangement' ? (int)basket_item_points($uid, $c) : null);
+              $want = market_is_wanted((int)$c['id']);
+              $chips = $want ? [['want', '★ Wanted']] : [];
+              if ($q !== null) $chips[] = ['note', e(($c['category'] === 'produce' ? 'grade ' . market_grade($q) . ' · ' : '') . $q)];
+              $sq .= '<label class="mkopt itmcell"><input type="checkbox" name="items[]" value="' . (int)$c['id'] . '">'
+                  . item_square(['item' => $c, 'tag' => 'span', 'count' => (int)$c['qty'], 'chips' => $chips, 'states' => $want ? ['want'] : []]) . '</label>';
+          }
+          echo item_grid($sq); ?>
         </div>
         <p><button class="btn">Show my basket</button></p>
       </form>

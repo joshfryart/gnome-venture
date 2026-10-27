@@ -253,6 +253,40 @@ function known_tastes(array $f, array $npc): array
     return $out;
 }
 
+/**
+ * v2.0.67: the gift picker (approved mockup 4): a <dialog class="picker giftpick"> of item squares, the tastes you have found as chips,
+ * one picked (aria-pressed, site.js "gift picker"), then "Give it". $giftable = items rows + qty. $action / $hidden / $formAttrs: where the
+ * give form posts (folk.php: itself; the Villagers panel: villagers.php with the id and data-vform for the in-place post).
+ */
+function gift_picker_html(array $npc, array $f, array $giftable, bool $bday, string $action = '', string $hidden = '', string $formAttrs = ''): string
+{
+    require_once __DIR__ . '/item_square.php';
+    $known = json_decode((string)($f['known'] ?? '[]'), true) ?: [];
+    $T = npc_tastes($npc);
+    $IL = item_lookups();
+    $cards = '';
+    foreach ($giftable as $g) {
+        $mark = ''; $score = 1;
+        if ((int)$g['id'] === (int)$T['loved'] && in_array('loved', $known, true)) { $mark = '💛'; $score = 3; }
+        elseif (in_array($g['category'], $T['liked'], true) && in_array('like:' . $g['category'], $known, true)) { $mark = '👍'; $score = 2; }
+        elseif ($g['category'] === $T['disliked'] && in_array('dislike:' . $g['category'], $known, true)) { $mark = '👎'; $score = 0; }
+        $taste = ['💛' => 'Loved', '👍' => 'Liked', '👎' => 'Disliked'][$mark] ?? '';
+        $cards .= item_square(['item' => $g, 'rarity' => item_rarity($g, $IL)[0], 'count' => (int)$g['qty'], 'class' => 'pcard gcard', 'pressed' => false,
+            'chips' => $taste !== '' ? [['taste', $mark . ' ' . $taste]] : [],
+            'vh' => '<span class="vh">, ' . e(GIFT_CATS[$g['category']] ?? (string)$g['category']) . '</span>',
+            'attrs' => ['data-id' => (int)$g['id'], 'data-score' => $score, 'data-cat' => (string)$g['category'], 'data-name' => (string)$g['name']]]);
+    }
+    if ($cards === '') return '';
+    return '<dialog class="picker giftpick" aria-label="Choose a gift"><div class="pickbox">'
+        . '<div class="pickhead"><b>🎁 A gift for ' . e($npc['name']) . '</b><button type="button" class="pickx" aria-label="Close">✕</button></div>'
+        . '<nav class="chips gsort"><a href="#" class="on" data-gsort="like">They’ll like it</a><a href="#" data-gsort="cat">By kind</a><a href="#" data-gsort="name">A–Z</a></nav>'
+        . item_grid($cards, 'pickgrid')
+        . '<form method="post"' . ($action !== '' ? ' action="' . e($action) . '"' : '') . ' class="giftgo"' . $formAttrs . ' hidden>' . csrf_field() . $hidden
+        . '<input type="hidden" name="do" value="gift"><input type="hidden" name="item_id" value="0"><span class="gname"></span> <button class="btn">🎁 Give it</button></form>'
+        . '<p class="help">💛 their favourite · 👍 a kind they like · 👎 one they’d rather not get. Marks appear once you’ve found out.' . ($bday ? ' 🎂 Birthday: gifts count triple!' : '') . '</p>'
+        . '</div></dialog>';
+}
+
 function ensure_friends(): void
 {
     if (q_val("SELECT 1 FROM encyclopedia_entries WHERE title = 'Friends in the Hollow' AND chapter = 'General'")) return;

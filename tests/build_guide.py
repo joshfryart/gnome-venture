@@ -354,7 +354,7 @@ def f_shots():
              ('fold', '<code>details.fold</code>: closed by default. Explanations live here.'),
              ('flash', '<code>.flash</code> messages (ok, <code>err</code>) and <code>.box.notice</code> / <code>.box.danger</code>.'),
              ('stitch', 'Special cards only: <code>.prizebox</code> / <code>.eventbox</code> get the gold edge stitch (<code>--st-h</code>, <code>--st-v</code>); <code>hr</code> is a stitched seam with a button knot.'),
-             ('picker', '<code>dialog.picker</code> &gt; <code>.pickbox</code>: head, grid of <code>.pcard</code>, foot with one solid button.'),
+             ('picker', '<code>dialog.picker</code> &gt; <code>.pickbox</code>: head, a grid of item squares (<code>.itm</code> from <code>item_square()</code>, picked = <code>aria-pressed</code>), foot with one solid button.'),
              ('form', '<code>.form</code> labels above inputs, 44 px fields, 16 px text so phones do not zoom.')]
     h = ''.join('<div class="keep"><h3>%s</h3>%s</div>' % (n.capitalize(), fig(n, c)) for n, c in parts if (n, 'dark') in C.shots)
     if ('deskgrid', 'dark') in C.shots:

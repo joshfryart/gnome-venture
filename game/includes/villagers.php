@@ -120,23 +120,26 @@ function villager_panel(array $u, int $nid, string $msg = '', bool $ok = true): 
         $h .= !empty($now['home']) ? '<p class="help">🚪 You knocked, and ' . e($npc['name']) . ' asks you in.</p>' : '';
         $h .= '<form method="post" action="' . e(url('villagers.php')) . '" class="vact" data-vform="1">' . csrf_field() . '<input type="hidden" name="id" value="' . $nid . '"><input type="hidden" name="do" value="talk">'
             . '<button class="btn"' . ($f['last_talk'] === $today ? ' disabled' : '') . '>💬 ' . ($f['last_talk'] === $today ? 'Chatted today' : 'Chat') . '</button></form>';
-        $giftable = $f['last_gift'] === $today ? [] : q("SELECT i.id, i.name, i.category, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
+        $giftable = $f['last_gift'] === $today ? [] : q("SELECT i.*, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
             WHERE ui.user_id = ? AND ui.qty > 0 AND i.tradable = 1 AND i.category <> 'tool' ORDER BY i.name", [$uid])->fetchAll();
         if ($f['last_gift'] === $today) $h .= '<p class="help">🎁 Gift given today.</p>';
         elseif (!$giftable) $h .= '<p class="help">🎁 Nothing in your Satchel to give.</p>';
         else {
             $known = json_decode((string)($f['known'] ?? '[]'), true) ?: [];
             $T = npc_tastes($npc);
-            $h .= '<form method="post" action="' . e(url('villagers.php')) . '" class="vact" data-vform="1">' . csrf_field() . '<input type="hidden" name="id" value="' . $nid . '"><input type="hidden" name="do" value="gift">'
+            $sel = '<form method="post" action="' . e(url('villagers.php')) . '" class="vact" data-vform="1">' . csrf_field() . '<input type="hidden" name="id" value="' . $nid . '"><input type="hidden" name="do" value="gift">'
                 . '<label class="visually-hidden" for="vgift' . $nid . '">Gift</label><select name="item_id" id="vgift' . $nid . '">';
             foreach ($giftable as $g) {
                 $mark = '';
                 if ((int)$g['id'] === (int)$T['loved'] && in_array('loved', $known, true)) $mark = ' 💛';
                 elseif (in_array($g['category'], $T['liked'], true) && in_array('like:' . $g['category'], $known, true)) $mark = ' 👍';
                 elseif ($g['category'] === $T['disliked'] && in_array('dislike:' . $g['category'], $known, true)) $mark = ' 👎';
-                $h .= '<option value="' . (int)$g['id'] . '">' . e($g['name']) . ' ×' . (int)$g['qty'] . $mark . '</option>';
+                $sel .= '<option value="' . (int)$g['id'] . '">' . e($g['name']) . ' ×' . (int)$g['qty'] . $mark . '</option>';
             }
-            $h .= '</select> <button class="btn alt">🎁 Give</button></form>';
+            $sel .= '</select> <button class="btn alt">🎁 Give</button></form>';
+            // v2.0.67: the gift picker of item squares (approved mockup 4); the select stays for no-JS
+            $h .= '<p class="vact"><button type="button" class="btn alt" data-giftopen="1">🎁 Give a gift</button></p><noscript>' . $sel . '</noscript>'
+                . gift_picker_html($npc, $f, $giftable, $bday, url('villagers.php'), '<input type="hidden" name="id" value="' . $nid . '">', ' data-vform="1"');
         }
         if ($npc['traveller'] && ($offer = traveller_offer($npc))) {
             $done = traveller_dealt($uid, $npc);

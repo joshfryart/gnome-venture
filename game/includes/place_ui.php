@@ -255,19 +255,18 @@ function town_favours_box(int $uid, string $town, bool $hub, int $sid): void
 /** v0.7.61: a pop-up of the player's seeds or food to choose from (used by "Feed the birds" and "Have a picnic"). */
 function town_pickers(int $uid): string
 {
-    require_once __DIR__ . '/items.php';
+    require_once __DIR__ . '/item_square.php';   // v2.0.67: the choices are item squares (hooks .pcard[data-id], .pickgrid kept)
     $out = '';
     foreach (['anyseed' => ['seed', 'Which seeds for the birds?'], 'anyfood' => ['food', 'What will you eat? You get its energy, plus 1 for the fresh air.']] as $kind => [$cat, $title]) {
-        $items = q('SELECT i.id, i.name, i.category, i.effects, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
+        $items = q('SELECT i.*, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
                     WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = ? ORDER BY i.base_price, i.name', [$uid, $cat])->fetchAll();
         $cards = '';
         foreach ($items as $i) {
-            $cards .= '<button type="button" class="pcard" data-id="' . (int)$i['id'] . '"><span class="pcicon">' . item_icon($i) . '</span>'
-                . '<span class="pcname">' . e($i['name']) . '</span><b class="pcqty">×' . (int)$i['qty'] . '</b></button>';
+            $cards .= item_square(['item' => $i, 'count' => (int)$i['qty'], 'class' => 'pcard', 'attrs' => ['data-id' => (int)$i['id']]]);
         }
         $out .= '<dialog class="picker townpick" data-kind="' . $kind . '" aria-label="' . e($title) . '"><div class="pickbox">'
             . '<div class="pickhead"><b>' . e($title) . '</b> <span class="muted">cheapest first</span><button type="button" class="pickx" aria-label="Close">✕</button></div>'
-            . ($cards !== '' ? '<div class="pickgrid">' . $cards . '</div>' : '<p class="muted">You don’t have any.</p>')
+            . ($cards !== '' ? item_grid($cards, 'pickgrid') : '<p class="muted">You don’t have any.</p>')
             . '</div></dialog>';
     }
     return $out;

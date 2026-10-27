@@ -46,12 +46,13 @@ require_once __DIR__ . '/gardens.php';
 $kitchen3 = user_building_bonus($uid, 'kitchen')['feasts'];   // v0.7.96: feasts
 // v0.8.5: Design A: recipe cards, two to a row, with ingredient chips and the make buttons on the card. Filter chips pick the list.
 require_once __DIR__ . '/items.php';
+require_once __DIR__ . '/item_square.php';   // v2.0.67: the ingredients are item squares (mockup 4)
 $slugs = [];
 foreach ($recipes as $r) foreach ($r['ings'] as $i) $slugs[$i['slug']] = true;
-$icons = [];
+$icons = [];   // slug => items row
 if ($slugs) {
     $ph = implode(',', array_fill(0, count($slugs), '?'));
-    foreach (q("SELECT * FROM items WHERE slug IN ($ph)", array_keys($slugs))->fetchAll() as $it) $icons[$it['slug']] = item_icon($it, 'sm');
+    foreach (q("SELECT * FROM items WHERE slug IN ($ph)", array_keys($slugs))->fetchAll() as $it) $icons[$it['slug']] = $it;
 }
 $outIcons = [];
 foreach (q('SELECT i.* FROM items i JOIN recipes r ON r.output_item_id = i.id WHERE r.category = ?', [$tab])->fetchAll() as $it) $outIcons[(int)$it['id']] = item_icon($it);
@@ -75,14 +76,23 @@ $card = function (array $r) use ($u, $tab, $stations, $now, $kitchen3, $icons, $
       <div class="cctop"><span class="ccdish"><?= $known ? ($outIcons[(int)$r['output_item_id']] ?? '🍲') : '❔' ?></span>
         <div><div class="ccname"><?= $known ? e($r['name']) : '???' ?><?= $known && $tier ? ' <span class="tag">' . ['snack' => '🥨 snack', 'meal' => '🍲 meal', 'feast' => '🍳 feast', 'preserve' => '🫙 preserve'][$tier] . '</span>' : '' ?><?= !empty($r['new']) ? ' <span class="tag">new!</span>' : '' ?></div>
           <?php if ($known): ?><div class="ccsub"><?= $isPantry ? e('Makes ' . (int)$r['output_qty'] . ' jars · ' . buff_text($r['effects'], $u, true)) : ($tab === 'cooking' ? e(buff_text($r['effects'], $u, true)) : 'Makes ' . (int)$r['output_qty'] . ' × ' . e($r['out_name'])) ?></div><?php endif; ?></div></div>
-      <div class="ccchips">
-        <?php foreach ($r['ings'] as $i):
-            $ok = $i['have'] >= $i['qty'];
-            $ico = $icons[$i['slug']] ?? '•'; ?>
-          <?php if ($known): ?><span class="ccchip<?= $ok ? '' : ' no' ?>"><?= $ico ?> <?= e($i['name']) ?> <b><?= (int)$i['have'] ?>/<?= (int)$i['qty'] ?></b></span><?php // v0.9.0: names, not just icons ?>
-          <?php else: ?><span class="ccchip<?= $i['seen'] ? '' : ' dim' ?>"><?= $i['seen'] ? $ico . ' ' . e($i['name']) . ' ✔' : '❔ ' . e($i['name']) ?></span><?php endif; ?>
-        <?php endforeach; ?>
-      </div>
+      <p class="ccingh">Ingredients</p>
+      <?php $sq = '';   // v2.0.67: one item square per ingredient: the corner count is what you have, the chip says uses N / short N
+        foreach ($r['ings'] as $i) {
+            $it = $icons[$i['slug']] ?? ['name' => $i['name']];
+            $have = (int)$i['have']; $need = (int)$i['qty'];
+            if ($known) {
+                $ok = $have >= $need;
+                $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'count' => $have,
+                    'chips' => [$ok ? ['ok', '✔ uses ' . number_format($need)] : ['short', '✖ short ' . number_format($need - $have)]],
+                    'vh' => '<span class="vh">' . ($ok ? 'enough' : 'not enough') . ': you have ' . $have . ', the recipe needs ' . $need . '</span>']);
+            } elseif ($i['seen']) {
+                $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'states' => ['done'], 'chips' => [['note', 'Found']]]);
+            } else {
+                $sq .= item_square(['item' => $it, 'name' => (string)$i['name'], 'tag' => 'div', 'class' => 'ccing', 'icon' => '❔', 'rarity' => 'C', 'states' => ['off'], 'chips' => [['note', 'Not found yet']]]);
+            }
+        }
+        echo item_grid($sq, 'itms--flush ccings'); ?>
       <?php if (!$known): ?><small class="muted">Collect everything above to discover it.</small>
       <?php elseif ($feast && !$kitchen3): ?><small class="muted">🔒 Needs a level 3 Kitchen.</small>
       <?php elseif (!$r['can']): ?><small class="ccneed">Need <?= e(implode(', ', array_map(fn($i) => ($i['qty'] - $i['have']) . ' ' . $i['name'], array_filter($r['ings'], fn($i) => $i['have'] < $i['qty'])))) ?></small>
