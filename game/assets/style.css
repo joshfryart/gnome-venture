@@ -5228,3 +5228,27 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
 .worldlink { text-align: center; margin: 8px 0; }
 @keyframes routefade { 0% { opacity: 1; max-height: 240px; } 70% { opacity: 0; max-height: 240px; } 100% { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; visibility: hidden; } }
 @media (max-width: 720px) and (prefers-reduced-motion: reduce) { .advgrid.fighting:not(.withrings) .routebox, .advgrid.fighting:not(.withrings) .routefold { animation-duration: .01s; animation-delay: 0s; } }
+
+/* v2.0.56: a tighter fight on a phone so the buttons fit without so much scrolling */
+@media (max-width: 720px) {
+  .encounter:has(.fightbtns) { padding: 8px; }
+  .encounter .fightgrid { gap: 6px; margin-bottom: 4px; }
+  .encounter .fightgrid .fcard { padding: 5px 7px; font-size: 12px; }
+  .encounter .fightgrid .fcard .fname { gap: 4px; flex-wrap: nowrap; }
+  .encounter .fightgrid .fcard .fname b { font-size: 13px; overflow-wrap: anywhere; }
+  .encounter .fightgrid .fcard .fname img, .encounter .fightgrid .fcard .fname svg { max-width: 34px; max-height: 34px; }
+  .encounter .fightgrid .fcard .fbar { margin: 2px 0; }
+  .encounter .fightgrid .fcard progress { width: 46%; height: 8px; }
+  .encounter .fightgrid .fcard small { line-height: 1.25; }
+  .encounter .fodds { margin: 2px 0; font-size: 12px; font-weight: 600; }
+  .encounter .helpfold { margin: 0; font-size: 12px; }
+  .encounter .frounds { margin: 2px 0 4px; padding: 3px 6px; font-size: 12px; }
+  /* buttons: two to a row again (Attack full width), names and odds only; the long how-it-works lines are dropped */
+  .encounter .fightbtns.choicelist { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+  .encounter .fightbtns.choicelist > form:first-child, .encounter .fightbtns.choicelist > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .encounter .fightbtns .choice { min-height: 40px; padding: 4px 8px; gap: 6px; }
+  .encounter .fightbtns .choice-sub { display: none; }
+  .encounter .fightbtns.choicelist > form:first-child .choice-sub { display: block; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .encounter .fightbtns .choice-ico { font-size: 16px; }
+  .encounter .fightbtns .choice-title { font-size: 14px; }
+}
