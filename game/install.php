@@ -6,7 +6,7 @@ declare(strict_types=1);
  * DELETE THIS FILE from your host after installing.
  */
 define('APP_ROOT', __DIR__);
-define('APP_VERSION', '2.0.57');
+define('APP_VERSION', '2.0.58');
 require __DIR__ . '/includes/db.php';
 require __DIR__ . '/includes/functions.php';
 require __DIR__ . '/includes/pixel_art.php';   // v2.0.31: pixel_has() is called by the item seeders (garden100_items etc.)

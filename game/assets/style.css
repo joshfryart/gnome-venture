@@ -5256,3 +5256,10 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
 /* v2.0.57: after the first fade a fight round keeps the route info gone without replaying the fade */
 .advgrid.fighting.rf-done .routebox, .advgrid.fighting.rf-done .routefold { animation: none !important; display: none; }
 @media (min-width: 721px) { .advgrid.fighting.rf-done .routebox, .advgrid.fighting.rf-done .routefold { display: block; } }
+
+/* v2.0.58: on a phone the fight log shows only the last round (2 lines); "Show all" still has the rest */
+@media (max-width: 720px) {
+  .encounter > .frounds li:not(:nth-last-child(-n+2)) { display: none; }
+  .encounter > .frounds { margin: 2px 0 4px; padding: 2px 6px; }
+  .encounter > .frounds li { padding: 0; line-height: 1.3; }
+}

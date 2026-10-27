@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.58
+- Phone fights: the round log under the odds line shows only the last round (2 lines) instead of three rounds. "Show all" still opens the whole fight.
+
 ## 2.0.57
 - Phone fights: the route info fades out once when the fight starts and then stays out for every round, instead of re-fading on each button press. It comes back when the fight ends.
 
