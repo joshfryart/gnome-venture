@@ -1874,6 +1874,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .regionmap.art .rcase, .regionmap.art .tcase { stroke: #2a1a10; }
 .regionmap.art .dot { stroke: #2a1a10; }
 .regionmap.art .halo { fill: #f2e4c0; }
+.regionmap.art .dot.new { fill: #4a3626; stroke: #f2e4c0; }   /* not visited yet: a dark well so the white ❔ reads on the cream halo */
 /* Pixel-art (underground) maps: the picture is dark in both themes, so roads are cream on a dark casing and nothing is dimmed */
 .regionmap.art, .worldmap.art { --map-road: #f2e4c0; }
 .worldmap .mapart { image-rendering: pixelated; }

@@ -594,9 +594,9 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
         $inner = '<title>' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . ($isMe ? ' (you are here)' : '')) . '</title>'
             . '<circle class="hit" r="' . max(22, $r + 8) . '" fill="#ffffff" fill-opacity="0"/>' . $ring
             . ($art !== '' ? '<circle class="halo" r="' . ($r + 2) . '" fill="#f2e4c0"/>' : '')
-            . '<circle class="dot" r="' . $r . '" fill="' . $fillC . '" stroke="' . $strokeC . '" stroke-width="2.5"' . ($seen ? '' : ' stroke-dasharray="4 3"') . '/>'
+            . '<circle class="dot' . ($seen ? '' : ' new') . '" r="' . $r . '" fill="' . $fillC . '" stroke="' . $strokeC . '" stroke-width="2.5"' . ($seen ? '' : ' stroke-dasharray="4 3"') . '/>'
             . ($isFar ? '<text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="#6b4a00" transform="rotate(' . ($sideRot[$it['side']] ?? 0) . ')">➜</text>'
-                : '<text y="' . ($isTown ? 6 : 5) . '" text-anchor="middle" font-size="' . ($isTown ? 16 : ($small ? 11 : 13)) . '"' . ($seen ? '' : ' opacity="0.7"') . '>' . ($isMe ? '🎩' : $icon) . '</text>')
+                : '<text y="' . ($isTown ? 6 : 5) . '" text-anchor="middle" font-size="' . ($isTown ? 16 : ($small ? 11 : 13)) . '"' . ($seen || $art !== '' ? '' : ' opacity="0.7"') . '>' . ($isMe ? '🎩' : $icon) . '</text>')
             . $badge . $ruin . $lab;
         $inner = '<g class="ms">' . $inner . '</g>';
         $g = '<g class="rmp k-' . $k . ($isMe ? ' here' : '') . (isset($onRoute[$id]) && !$isMe ? ' onroute' : '') . ($seen ? '' : ' new') . '" transform="translate(' . $x . ' ' . $y . ')">';
