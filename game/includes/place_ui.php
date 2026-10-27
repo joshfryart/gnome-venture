@@ -304,7 +304,7 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     return $h;
 }
 
-/** Main-stop tabs: Square, Villagers, Shops, Stop. $folkCount badges Villagers (0 = none). */
+/** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). */
 function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount = 0): array
 {
     $q = $hub ? 'hub=1&' : '';
@@ -312,6 +312,7 @@ function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount 
         'square' => ['🏘️ ' . ($inTown ? 'Square' : 'Where you are'), url('town.php' . ($hub ? '?hub=1' : '')), ''],
         'villagers' => ['👥 Villagers', url('town.php?' . $q . 'view=villagers'), $folkCount > 0 ? (string)$folkCount : ''],
         'shops' => ['🏪 Shops', url('world.php?tab=markets'), ''],
+        'orders' => ['📜 Orders', url('jobs.php?t=orders' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
         'stop' => ['🛂 Stop', url('town.php?' . $q . 'view=stop'), ''],
     ];
 }
