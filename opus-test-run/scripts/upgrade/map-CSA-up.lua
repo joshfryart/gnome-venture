@@ -96,7 +96,7 @@ do
   for y = 0, 134 do for x = 0, 239 do if land:has(x, y) then
     local L = -1e9
     for _, s in ipairs(SRC) do local dx, dy = x - s[1], (y - s[2]) * 1.4; local v = s[3] - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end
-    for _, p in ipairs(RP) do local dx, dy = x - p[1], y - p[2]; if math.abs(dx) < 30 and math.abs(dy) < 30 then local v = 26 - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end end
+    for _, p in ipairs(RP) do local dx, dy = x - p[1], y - p[2]; if math.abs(dx) < 30 and math.abs(dy) < 30 then local v = 32 - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end end
     -- edge falloff toward ceiling/floor and side walls
     local e = math.min(y - 6, 128 - y, x - 4, 235 - x); if e < 12 then L = L - (12 - e) end
     light[y * 240 + x] = L
@@ -146,7 +146,7 @@ do
     local x, y = 12 + rnd(216), 18 + rnd(100)
     if free(x, y) then
       local L = light[y * 240 + x] or -99
-      if L >= 18 and placed % 2 == 0 then glyph(c, "pagoda", x, y, 0.8)
+      if L >= 14 and placed % 3 ~= 2 then glyph(c, "pagoda", x, y, 0.8)
       elseif L >= 8 then shroom(c, x, y, 1, placed % 3 == 0 and "#f5cf6a" or "#f08a24")
       elseif L >= 0 then stalag(c, x, y, 8, "#a8582f", "#4a2c1a")
       else if placed % 2 == 0 then crystalc(c, x, y, 7, "#f08a24") else stalag(c, x, y, 9, "#a8582f", "#4a2c1a") end end
@@ -156,7 +156,7 @@ do
   X.layer(c, "detail")
   -- ember sparks over the lava
   for i = 1, 40 do local p = RP[1 + trnd(#RP)]; local x, y = p[1] + trnd(7) - 3, p[2] - 2 - trnd(4); if land:has(x, y) and not roadM:has(x, y) then c:px(x, y, "#f5cf6a") end end
-  for _, p in ipairs(PINS) do c:fill(c:rect(p[1] - 5, p[2] - 5, p[1] + 4, p[2] + 4), c:get(p[1] - 7, p[2] - 7) or "#a8582f") end
+  for _, p in ipairs(PINS) do c:fill(c:rect(p[1] - 5, p[2] - 5, p[1] + 4, p[2] + 4), (function() local L = light[p[2] * 240 + p[1]] or -99; for _, b in ipairs(BAND) do if L >= b[1] then return b[2] end end end)()) end
   -- stalactite ceiling hanging over the cavern edge, stalagmites rising from the floor edge
   for x = 2, 239, 6 do local hh = 9 + (x * 13) % 8; c:fill(c:poly({ { x - 3, 0 }, { x, hh }, { x + 3, 0 } }), "#2a1a10"); c:px(x, hh - 2, "#4a2c1a") end
   for x = 5, 239, 9 do local hh = 6 + (x * 7) % 6; c:fill(c:poly({ { x - 3, 134 }, { x, 134 - hh }, { x + 3, 134 } }), "#2a1a10") end

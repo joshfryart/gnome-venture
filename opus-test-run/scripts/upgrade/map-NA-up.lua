@@ -140,7 +140,7 @@ do
   for i = 1, 8 do local x, y = 160 + trnd(70), 40 + trnd(70); if zm[4]:has(x, y) and c:get(x, y) ~= "#c9a96e" then local ok = true; for _, p in ipairs(PINS) do if math.abs(x - p[1]) < 12 and math.abs(y - p[2]) < 12 then ok = false end end; if ok then stalag(c, x, y, 10, "#5b6470", "#3d2a1c") end end end
   -- stepped light: brighten near sources, darken far away (palette swaps, no alpha)
   local UP = { ["#a4b86a"] = "#c8d77a", ["#7ab55c"] = "#a4b86a", ["#4f9a45"] = "#7ab55c", ["#2f6a3a"] = "#4f9a45", ["#c9a96e"] = "#d9a660", ["#3f8fb0"] = "#a9d6ea" }
-  local DN = { ["#c8d77a"] = "#a4b86a", ["#a4b86a"] = "#7ab55c", ["#7ab55c"] = "#4f9a45", ["#4f9a45"] = "#2f6a3a", ["#2f6a3a"] = "#2f5a2a", ["#c9a96e"] = "#9a6b3f", ["#f2e4c0"] = "#d8c49a", ["#3f8fb0"] = "#2f6a3a" }
+  local DN = { ["#c8d77a"] = "#a4b86a", ["#a4b86a"] = "#7ab55c", ["#7ab55c"] = "#4f9a45", ["#4f9a45"] = "#2f6a3a", ["#2f6a3a"] = "#2f5a2a", ["#c9a96e"] = "#9a6b3f", ["#f2e4c0"] = "#d8c49a" }
   local SRC = { { LIGHT[1], LIGHT[2], 1.0 }, { 22, 80, 0.85 } }
   X.layer(c, "detail")
   local cur = {}; for y = 0, 134 do for x = 0, 239 do cur[y * 240 + x] = c:get(x, y) end end
@@ -148,7 +148,7 @@ do
     local best = 99
     for _, s in ipairs(SRC) do local dx, dy = (x - s[1]) / s[3], (y - s[2]) * 1.6 / s[3]; local d = math.sqrt(dx * dx + dy * dy); if d < best then best = d end end
     local col = cur[y * 240 + x]; local nc
-    if best < 22 then nc = UP[col] elseif best > 120 then nc = DN[col] and (DN[DN[col]] or DN[col]) elseif best > 80 then nc = DN[col] end
+    if best < 22 then nc = UP[col] elseif best > 95 then nc = DN[col] and (DN[DN[col]] or DN[col]) elseif best > 60 then nc = DN[col] end
     if nc and nc ~= col then c:px(x, y, nc) end
   end end end
   -- light source: glow-crystal cluster on a mossy rise
@@ -158,6 +158,8 @@ do
   for _, d in ipairs({ { -10, -6 }, { 11, -4 }, { -3, -14 }, { 7, -12 }, { -12, 2 }, { 13, 3 } }) do c:px(LX + d[1], LY + d[2], "#fff3c8") end
   -- stalactite ceiling fringe over the cavern floor's top edge
   for x = 2, 238, 5 do local hh = 6 + (x * 13) % 8; c:fill(c:poly({ { x - 3, 0 }, { x, hh + 8 }, { x + 3, 0 } }), (x % 2 == 0) and "#4a2c1a" or "#3d2a1c"); c:px(x, hh + 6, "#5e2f1e") end
-  for _, p in ipairs(PINS) do c:fill(c:rect(p[1] - 5, p[2] - 5, p[1] + 4, p[2] + 4), c:get(p[1] - 7, p[2] - 7) or tint[1]) end
+  local G = { ["#c8d77a"] = 1, ["#a4b86a"] = 1, ["#7ab55c"] = 1, ["#4f9a45"] = 1, ["#2f6a3a"] = 1, ["#2f5a2a"] = 1 }
+  local function pick(p) for _, o in ipairs({ { -7, -7 }, { 7, -7 }, { -7, 7 }, { 7, 7 }, { 0, -8 }, { 0, 8 } }) do local g = c:get(p[1] + o[1], p[2] + o[2]); if G[g] then return g end end return tint[2] end
+  for _, p in ipairs(PINS) do c:fill(c:rect(p[1] - 5, p[2] - 5, p[1] + 4, p[2] + 4), pick(p)) end
   X.save(c, "map-" .. code .. "-up", "scenes", { w = 480, h = 270, cap = 32 })
 end
