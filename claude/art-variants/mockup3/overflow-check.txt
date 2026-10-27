@@ -1,0 +1,31 @@
+Town mockup 3: text-fit / tabs / tap / contrast check (check.js)
+
+width theme content font        text-els problems
+360   light real    system-ui        219        0
+390   light real    system-ui        219        0
+430   light real    system-ui        219        0
+360   light real    wide             219        0
+390   light real    wide             219        0
+430   light real    wide             219        0
+360   light stress  system-ui        221        0
+390   light stress  system-ui        221        0
+430   light stress  system-ui        221        0
+360   light stress  wide             221        0
+390   light stress  wide             221        0
+430   light stress  wide             221        0
+360   dark  real    system-ui        219        0
+390   dark  real    system-ui        219        0
+430   dark  real    system-ui        219        0
+360   dark  real    wide             219        0
+390   dark  real    wide             219        0
+430   dark  real    wide             219        0
+360   dark  stress  system-ui        221        0
+390   dark  stress  system-ui        221        0
+430   dark  stress  system-ui        221        0
+360   dark  stress  wide             221        0
+390   dark  stress  wide             221        0
+430   dark  stress  wide             221        0
+
+inline style/script in mock.html: 0
+
+findings: 0 (none)

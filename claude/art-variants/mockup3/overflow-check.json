@@ -1,0 +1,199 @@
+{
+  "when": "2026-10-27T21:45:32.046Z",
+  "runs": [
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 219,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 221,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 221,
+      "problems": 0
+    }
+  ],
+  "inlineStyleOrScript": 0,
+  "findings": []
+}

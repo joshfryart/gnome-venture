@@ -1,0 +1,139 @@
+/* Town (main stop) mockup 3. Loads after ../mockup2/gather.css and reuses its tokens, felt card (.gcard), ribbon, badges,
+   section heads, notes and buttons; this file only adds the town pieces. Classes only, no inline styles (strict CSP).
+   Art: ../mockup2/art (felt, ribbons, sel/lock/done badges) and mockup3/art (town_art.py: vignettes, felt-gold, star/repair badges).
+
+   Text rules (tested by check.js at 360/390/430, both themes, real and longest real copy, Inter and a wide fallback font):
+   - tabs: icon over a one-word label, 5 columns sized to their content (auto tracks share the spare room), never a second row.
+   - place name: the felt sign grows; wraps to 2 lines, then ellipsis (line-clamp) as a last resort (the longest real name fits).
+   - status chip and folk line: wrap between words, never cut (the longest real reason is 4 lines at 360).
+   - villager / shop / order rows: everything wraps, nothing is clamped. */
+
+.phones { flex-wrap: wrap; }
+:where(.ph) a { color: inherit; }
+.ph :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+:root { --tn-todo: #2f5a2a; --tn-todo-ink: #fff3c8; --tn-warn: #a8241f; }
+
+/* ===== place header (place_header_html): the stop-market scene, felt plate under it ===== */
+.dohead--town .dohead__scene { height: 128px; }
+.dohead--town .dohead__scene img { width: 100%; height: 100%; margin: 0; object-fit: cover; object-position: 50% 62%; }
+.dohead__kick { margin: 0 0 1px; font: 700 11px/1.3 var(--font); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+
+/* ===== birthday / notice line ===== */
+.tnote { margin: 12px 16px 0; padding: 8px 10px; font: 500 13px/1.4 var(--font); color: var(--ink); background: var(--surface); box-shadow: 0 0 0 2px var(--accent), 3px 3px 0 2px var(--drop); text-wrap: pretty; }
+.inl { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ===== today at a glance (was .todaybox): gold-stitched felt board, three counts, extra chips ===== */
+.tday { margin: 14px 12px 0; padding: 4px 2px 2px; color: var(--gx-felt-ink);
+  border: 12px solid transparent; border-image: url(art/felt-gold.png) 12 fill / 12px round; image-rendering: pixelated; filter: drop-shadow(0 3px 0 var(--gx-card-drop)); }
+.tday__stats { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tday__stat { min-width: 0; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 4px; align-items: center; }
+.tday__ic { grid-row: 1; font-size: 15px; line-height: 1; }
+.tday__n { grid-row: 1; font: 800 22px/1.1 var(--font); }
+.tday__l { grid-column: 1 / -1; font: 600 12px/1.25 var(--font); overflow-wrap: break-word; text-wrap: balance; }
+.tday__stat + .tday__stat { padding-left: 6px; box-shadow: inset 2px 0 0 rgba(42, 26, 16, .22); }
+.tday__more { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.tday__chip { max-width: 100%; padding: 1px 7px; font: 600 12px/1.5 var(--font); background: rgba(255, 243, 200, .45); box-shadow: 0 0 0 1px rgba(42, 26, 16, .35); overflow-wrap: break-word; }
+.tday__row { display: flex; align-items: center; gap: 6px; min-height: var(--tap); margin: 8px 0 0; padding: 4px 8px; text-decoration: none; font: 500 13px/1.3 var(--font);
+  background: rgba(255, 243, 200, .45); box-shadow: 0 0 0 1px rgba(42, 26, 16, .35); }
+.tday__rowt { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.tday__go { flex: none; font: 800 18px/1 var(--font); }
+
+/* ===== the five tabs (main_stop_tabs): stitched leather strip, icon over label, one row at any width ===== */
+.mtabs { margin: 14px 0 0; display: grid; grid-template-columns: repeat(5, auto); background: var(--gx-leather);
+  box-shadow: inset 0 -3px 0 var(--gx-leather-dk), inset 0 2px 0 var(--gx-leather-lt); padding: 4px 4px 0; gap: 2px; }
+.mtabs__a { position: relative; min-width: var(--tap); min-height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: 4px 3px 5px; color: #f2e4c0; text-decoration: none; font: 600 12px/1.15 var(--font); text-align: center; }
+.mtabs__a.on { background: var(--bg); color: var(--ink); box-shadow: inset 0 3px 0 var(--accent), 0 0 0 2px var(--gx-leather-dk); font-weight: 800; }
+.mtabs__a:not(.on):hover { background: rgba(255, 243, 200, .12); }
+.mtabs__a:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.mtabs__ic { font-size: 19px; line-height: 1.1; }
+.mtabs__t { white-space: nowrap; }
+.mtabs__badge { position: absolute; top: 1px; left: calc(50% + 11px); min-width: 18px; padding: 0 4px; background: var(--accent); color: #2a1a10; font: 800 11px/16px var(--font); text-align: center; box-shadow: 0 0 0 2px var(--ol); }
+
+/* ===== place cards (spotcard): .gcard + .pcard ===== */
+a.gcard { text-decoration: none; }
+.pcard .gcard__meta { gap: 3px 6px; }
+.pchip { max-width: 100%; padding: 1px 6px; font: 700 12px/1.35 var(--font); overflow-wrap: break-word; text-wrap: balance; }
+.pchip--todo { background: var(--tn-todo); color: var(--tn-todo-ink); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.pchip--look { box-shadow: inset 0 0 0 1px rgba(42, 26, 16, .55); }
+.pchip--done { background: rgba(42, 26, 16, .12); }
+.pchip--closed, .pchip--repair { font-weight: 600; padding: 0 2px; }
+.pfolk { max-width: 100%; font: 600 12px/1.35 var(--font); overflow-wrap: break-word; }
+/* found only here: gold-stitched felt, gold sign, star */
+.pcard--gold { border-image-source: url(art/felt-gold.png); }
+.pcard--gold .gcard__ribbon { border-image-source: url(../mockup2/art/ribbon-sel.png); color: var(--gx-sign-ink-sel); }
+.pcard--gold .gcard__label { text-shadow: 0 1px 0 rgba(255, 243, 200, .5); }
+.pcard--gold::after { width: 26px; height: 26px; top: -11px; right: -11px; background-image: url(art/badge-star.png); }
+/* done, closed, repairs: stone felt, grey art; still links (a shut place can still be read) */
+.pcard.is-done, .pcard.is-closed, .pcard.is-repair { color: var(--gx-felt-ink-off); border-image-source: url(../mockup2/art/felt-off.png); filter: drop-shadow(0 2px 0 var(--gx-card-drop)); }
+.pcard.is-done:not(.pcard--gold) .gcard__ribbon, .pcard.is-closed:not(.pcard--gold) .gcard__ribbon, .pcard.is-repair:not(.pcard--gold) .gcard__ribbon { border-image-source: url(../mockup2/art/ribbon-off.png); color: var(--gx-sign-ink-off); }
+.pcard.is-done:not(.pcard--gold) .gcard__label, .pcard.is-closed:not(.pcard--gold) .gcard__label, .pcard.is-repair:not(.pcard--gold) .gcard__label { text-shadow: none; }
+.pcard.is-done .gcard__art img { filter: grayscale(.6) opacity(.85); }
+.pcard.is-closed .gcard__art img, .pcard.is-repair .gcard__art img { filter: grayscale(1) brightness(.92) opacity(.7); }
+.pcard.is-done::after { width: 30px; height: 30px; top: -12px; right: -12px; background-image: url(../mockup2/art/badge-done.png); }
+.pcard.is-closed::after { width: 26px; height: 32px; top: -14px; right: -10px; background-image: url(../mockup2/art/badge-lock.png); }
+.pcard.is-repair::after { width: 30px; height: 30px; top: -12px; right: -12px; background-image: url(art/badge-repair.png); }
+.pcard:active, .scard:active, .vcard__who:active { transform: translateY(2px); }
+
+/* ===== felt rows: villagers, shops, orders ===== */
+.vcards, .scards, .ocards { margin: 0 12px; padding: 0; list-style: none; display: grid; gap: 12px; }
+.vcard, .scard, .ocard { min-width: 0; color: var(--gx-felt-ink);
+  border: 12px solid transparent; border-image: url(../mockup2/art/felt-idle.png) 12 fill / 12px round; image-rendering: pixelated; filter: drop-shadow(0 3px 0 var(--gx-card-drop)); }
+.vcard__ribbon, .scard__ribbon { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; padding: 0 4px; color: var(--gx-sign-ink);
+  border: 8px solid transparent; border-width: 8px 10px; border-image: url(../mockup2/art/ribbon-idle.png) 8 10 fill / 8px 10px round stretch; }
+.vcard__name, .scard__name { min-width: 0; font: 700 14px/1.2 var(--font); overflow-wrap: break-word; text-wrap: balance; text-shadow: 0 1px 0 rgba(42, 26, 16, .55); }
+.vcard__face, .ocard__face { flex: none; display: block; width: 48px; height: 60px; background: #e3c48c; box-shadow: 0 0 0 2px #74462a, inset 0 0 0 2px #c08a52; }
+.vcard__face img, .ocard__face img { display: block; width: 100%; height: 100%; filter: var(--gx-art-dim); }
+
+/* villager row (villager_row_html): face + name sign is one link (to folk.php), then the lines, then the one action */
+.vcard { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "who act" "main main"; gap: 6px 8px; align-items: center; padding: 0 0 2px; }
+.vcard__who { grid-area: who; display: flex; align-items: center; gap: 10px; min-width: 0; min-height: var(--tap); text-decoration: none; }
+.vcard__main { grid-area: main; display: flex; flex-wrap: wrap; gap: 2px 8px; min-width: 0; padding-left: 58px; }
+.vcard__sub { flex: 1 1 100%; min-width: 0; font: 500 13px/1.35 var(--font); overflow-wrap: break-word; }
+.vcard__badge { padding: 0 6px; font: 700 12px/1.5 var(--font); background: var(--accent); color: #2a1a10; box-shadow: 0 0 0 1px var(--ol); }
+.vcard__act { grid-area: act; }
+.fbtn { display: inline-flex; align-items: center; justify-content: center; min-width: var(--tap); min-height: var(--tap); padding: 6px 12px; border: 0; cursor: pointer; text-decoration: none;
+  background: #e0aa48; color: #2a1a10; font: 800 14px/1.2 var(--font); white-space: nowrap;
+  box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #f5cf6a, inset 0 -3px 0 #b07a28, 2px 2px 0 2px rgba(42, 26, 16, .55); }
+.fbtn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #f5cf6a, inset 0 -3px 0 #b07a28; }
+.fbtn:disabled { cursor: not-allowed; background: #d6d0c2; color: #4a2c1a; box-shadow: 0 0 0 2px #74462a, inset 0 -3px 0 #a9a397; }
+
+/* shop card (shop_cards): vignette left, sign, description, who is at the counter; the whole card is the link */
+.scard { display: grid; grid-template-columns: 104px minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 4px 10px; min-height: var(--tap); text-decoration: none; padding: 0 0 2px; }
+.scard__art { grid-row: 1 / span 3; align-self: start; margin: -4px 0 0 -4px; }
+.scard__art img { display: block; width: 100%; height: auto; filter: var(--gx-art-dim); }
+.scard__ribbon { justify-self: start; margin-left: -4px; }
+.scard__desc { font: 400 13px/1.4 var(--font); overflow-wrap: break-word; text-wrap: pretty; }
+.scard__staff { align-self: end; justify-self: start; max-width: 100%; padding: 1px 6px; font: 700 12px/1.35 var(--font); background: rgba(42, 26, 16, .12); overflow-wrap: break-word; }
+.scard { position: relative; }
+.scard::after { content: ""; position: absolute; top: -14px; right: -10px; width: 26px; height: 32px; background: no-repeat 0 0 / 100% 100%; image-rendering: pixelated; pointer-events: none; }
+.scard.is-closed { color: var(--gx-felt-ink-off); border-image-source: url(../mockup2/art/felt-off.png); filter: drop-shadow(0 2px 0 var(--gx-card-drop)); }
+.scard.is-closed .scard__ribbon { border-image-source: url(../mockup2/art/ribbon-off.png); color: var(--gx-sign-ink-off); }
+.scard.is-closed .scard__name { text-shadow: none; }
+.scard.is-closed .scard__art img { filter: grayscale(1) brightness(.92) opacity(.7); }
+.scard.is-closed::after { background-image: url(../mockup2/art/badge-lock.png); }
+.scard:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+
+/* order (orders_board_box): a pinned felt note */
+.ocard { position: relative; display: grid; gap: 6px; padding: 2px 0 2px; }
+.ocard::before { content: ""; position: absolute; top: -10px; left: 50%; width: 8px; height: 8px; margin-left: -4px; background: #c0442e; box-shadow: 0 0 0 2px var(--ol), inset -2px -2px 0 #8e2e1e; }
+.ocard::after { content: ""; position: absolute; top: -12px; right: -12px; width: 30px; height: 30px; background: no-repeat 0 0 / 100% 100%; image-rendering: pixelated; pointer-events: none; }
+.ocard__who { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: var(--tap); text-decoration: none; }
+.ocard__face { width: 40px; height: 50px; }
+.ocard__q { margin: 0; font: 600 14px/1.4 var(--font); overflow-wrap: break-word; text-wrap: pretty; }
+.ocard__tags { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.otag { max-width: 100%; padding: 0 6px; font: 700 12px/1.5 var(--font); background: rgba(255, 243, 200, .5); box-shadow: 0 0 0 1px rgba(42, 26, 16, .4); overflow-wrap: break-word; }
+.otag--stars { letter-spacing: .05em; color: #5c3420; }
+.otag--warn { background: var(--tn-warn); color: #fff3c8; box-shadow: 0 0 0 1px var(--ol); }
+.ocard__rw { margin: 0; font: 500 12px/1.4 var(--font); overflow-wrap: break-word; text-wrap: pretty; }
+.ocard__foot { display: flex; justify-content: flex-end; }
+.ocard__done { font: 800 14px/1.3 var(--font); padding: 4px 0; }
+.ocard.is-done { color: var(--gx-felt-ink-off); border-image-source: url(../mockup2/art/felt-off.png); filter: drop-shadow(0 2px 0 var(--gx-card-drop)); }
+.ocard.is-done .vcard__ribbon { border-image-source: url(../mockup2/art/ribbon-off.png); color: var(--gx-sign-ink-off); }
+.ocard.is-done .vcard__name { text-shadow: none; }
+.ocard.is-done::after { background-image: url(../mockup2/art/badge-done.png); }
+.ocard.is-done .ocard__face img { filter: grayscale(.7); }
+.gx-note--top { margin: 0 16px 14px; }
+.gx-actions .gbtn { text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+
+@media (prefers-reduced-motion: reduce) { .pcard:active, .scard:active, .vcard__who:active, .fbtn:active { transform: none; } }
