@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.59
+- Phone fights: "Show all" under the round log is a small right-aligned tag instead of a full button row.
+
 ## 2.0.58
 - Phone fights: the round log under the odds line shows only the last round (2 lines) instead of three rounds. "Show all" still opens the whole fight.
 
