@@ -1,4 +1,20 @@
-# Gnome Venture: to-do (updated 2026-10-21, after 2.0.27)
+# Gnome Venture: to-do (updated 2026-10-27, after 2.0.59)
+
+## NOW: explore / road-walk layout rework (2.0.50 to 2.0.59, shipped on main; Joshua is testing on phone)
+Plan was reviewed by Opus; phases 1-4 are done. Joshua checks still open: tests/roads.sh, walk.sh, explore.sh not run; a road fight on his phone (fade once, stays out, comes back after); light theme; 10+ stop road; Snack picker / Auto-win rows in the tightened phone fight.
+- 2.0.50: Joshua's web-update zip reconciled into git (a parallel take on the 2.0.49 mobile layout). 2.0.51: phase 1 CSS cleanup. 2.0.52: phases 2-3 (route ribbon = felt strip, Route fold, one route display, phone Journal shows newest line only). 2.0.53: phase 4 (Latest result inside the action card, World map link replaces the fold) + stale scene_smoke banner test fixed. 2.0.54: route info fades out in phone fights. 2.0.55: slimmer ribbon on phone. 2.0.56: tighter phone fight card/buttons. 2.0.57: fade plays once per fight (sessionStorage `gvRouteFaded`, class `rf-done`). 2.0.58: phone fight log = last round only. 2.0.59: compact "Show all" tag.
+- Design chosen: mockup A (felt strip) with C's danger marker (thorn pin on the space where a fight waits). Mockups live in `mockups/route/` and `mockups/page/` (gitignored); Aseprite sources and Lua are in `aseprite-source/route-mockups/`; game sprites in `game/assets/img/route/`.
+- Slim zip rule: build with `bash tests/build_update.sh <v> 2.0.47 /home/user/gnome-venture/releases` (absolute out dir; base manifest must exist, latest is 2.0.47). Zips go in `releases/` (keep latest 4 versions, rest to `releases/archive/`), NOT `upload-zips/` (that is for art).
+
+### Next ideas (not started, ask Joshua)
+1. The phone Journal peek repeats the Latest line (Latest now sits in the action card): drop the peek or the Latest strip on phones?
+2. "After this stop..." arrival help text is still in the action card, not in the Route fold.
+3. Phone fight: the ability / Fight on / Snack description lines are hidden; add a one-line version or a tap-for-info if he misses them.
+4. Explore (hoop map), delve and lair pages still carry the old heading + status line; same ribbon treatment could follow (explore keeps the hoop).
+5. Unused art: `assets/img/scenes/map-world*.png`, `map-*.png` regions and `stop-*.png` have no code using them; natural slot is rest-stop / destination scenes. Map art is an "ask Josh first" item.
+6. Remaining CSS duplication on the adventure page: `.advgrid .encounter` max-width (3 places), `.advlatest` (3), 900-999px double layout, fight rules per breakpoint.
+
+## Older notes (from 2026-10-21)
 
 Built + shipped: **2.0.29** (logged-out homepage + How to play rework). Joshua: check on phone logged out; a logged-in Today page render and Firefox Android were not tested.
 
