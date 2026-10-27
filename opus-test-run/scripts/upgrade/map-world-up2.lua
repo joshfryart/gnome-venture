@@ -74,15 +74,15 @@ local function world(mask)
     -- per-cavern coloured glow: each source has its own tint ramp; falloff is squared so rock between caverns drops to deep dark
     local TINT = {
       warm = { "#2a1a10", "#3d2a1c", "#4a2c1a", "#74462a", "#9a6b3f", "#c9a96e" },
-      hub  = { "#2a1a10", "#3d2a1c", "#74462a", "#9a6b3f", "#e8a317", "#f5b860" },
+      hub  = { "#2a1a10", "#3d2a1c", "#74462a", "#9a6b3f", "#e8a317", "#f5cf6a" },
       lava = { "#2a1a10", "#4a2c1a", "#5e2f1e", "#a8241f", "#e0501f", "#f08a24" },
       cool = { "#2a1a10", "#3d2a1c", "#25637d", "#3f8fb0", "#a9d6ea", "#eef8f2" },
       pink = { "#2a1a10", "#3d2a1c", "#4e3a8a", "#7b66b4", "#e46a9b", "#f6b8cf" },
       violet = { "#2a1a10", "#3d2a1c", "#4e3a8a", "#7b66b4", "#7a5cc0", "#c3b2ea" },
       moss = { "#2a1a10", "#3d2a1c", "#4a2c1a", "#2f6a3a", "#4f9a45", "#7ab55c" } }
     local RT = { CSA = "lava", EE = "cool", CB = "cool", NWE = "cool", EA = "pink", CA = "violet", OC = "hub", SE = "hub", SA = "moss", WCA = "moss", SEA = "moss", MENA = "lava" }
-    local SRC = { { 126, 150, 62, 1.0, "hub" } }
-    for _, r in ipairs(REG) do SRC[#SRC + 1] = { r[2] * 0.32, r[3] * 0.32, r[4] * 0.32 * 1.1 + 22, r[1] == "CSA" and 1.0 or 0.85, RT[r[1]] or "warm" } end
+    local SRC = { { 126, 150, 48, 1.0, "hub" } }
+    for _, r in ipairs(REG) do SRC[#SRC + 1] = { r[2] * 0.32, r[3] * 0.32, r[4] * 0.32 * 1.1 + 36, r[1] == "CSA" and 1.0 or 0.85, RT[r[1]] or "warm" } end
     local function L(x, y)
       local best, tint = 0, "warm"
       for _, s in ipairs(SRC) do local dx, dy = (x - s[1]) / s[3], (y - s[2]) / (s[3] * 0.85); local d = math.sqrt(dx * dx + dy * dy)
@@ -95,7 +95,7 @@ local function world(mask)
       local strata = math.sin(x / 38 + y / 29) * 4 + math.sin(x / 13) * 3
       local band = math.floor((y + strata) / 9) % 4
       local lv, tn = L(x, y); local RAMP = TINT[tn]
-      local l = lv * 6.2 + 1.0 + (band == 1 and 0.25 or (band == 3 and -0.2 or 0))
+      local l = lv * 7.5 + 1.0 + (band == 1 and 0.25 or (band == 3 and -0.2 or 0))
       local i = math.floor(l); local f = l - i
       if f * 16 > B4[y % 4 + 1][x % 4 + 1] then i = i + 1 end
       i = math.max(1, math.min(#RAMP, i)); c:px(x, y, RAMP[i])

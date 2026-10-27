@@ -153,7 +153,7 @@ do
   local RI = {}; for ri2, rp in ipairs(RAMPS) do for i, col in ipairs(rp) do if not RI[col] then RI[col] = { ri2, i } end end end
   RI["#f2e4c0"] = { 4, 4 }; RI["#3d2a1c"] = nil
   local HOME = { [1] = 5, [2] = 4, [3] = 3, [4] = 4, [5] = 3, [6] = 3 }   -- index treated as "neutral" for each ramp
-  local SRC = { { LIGHT[1], LIGHT[2], 120, 1.0 }, { 22, 80, 62, 0.85 }, { 40, 92, 34, 0.7 } }
+  local SRC = { { LIGHT[1], LIGHT[2], 150, 1.0 }, { 22, 80, 62, 0.85 }, { 40, 92, 34, 0.7 } }
   local BY = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 }
   X.layer(c, "detail")
   local cur = {}; for y = 0, 134 do for x = 0, 239 do cur[y * 240 + x] = c:get(x, y) end end
@@ -165,6 +165,9 @@ do
     local col = cur[y * 240 + x]; local e = RI[col]
     if e then local rp = RAMPS[e[1]]; local shift = band - 3; if e[1] == 1 then shift = band - 2 end
       local idx = math.max(1, math.min(#rp, e[2] + shift)); if shift < 0 then idx = math.max(1, math.min(e[2], idx)) end
+      if e[1] == 3 and idx < 2 then idx = 2 end
+      if e[1] == 1 and idx == 1 and band > 0 then idx = 2 end
+      if e[1] == 1 and idx == 1 and (x + y) % 2 == 0 and L > 0.05 then idx = 2 end
       if rp[idx] ~= col then c:px(x, y, rp[idx]) end end
   end end end
   -- hanging roots from the ceiling and glow mushrooms (self-lit, drawn after shading)
