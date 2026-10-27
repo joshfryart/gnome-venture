@@ -73,7 +73,7 @@ body[data-area="community"] { --area: #e46a9b; --area-solid: #6b1b2c; --area-sof
   --r-c: #5b6470; --r-u: #2f5a2a; --r-r: #25637d; --r-l: #7a4a1f;   /* rarity badges carry cream text */
   --map-sea: #1e3a4e; --map-road: #3f2b17;   /* v1.4.2 */
 }
-:root[data-theme="dark"] .regionmap .land, :root[data-theme="dark"] .regionmap .shoal { filter: brightness(.68) saturate(.8); }
+:root[data-theme="dark"] .regionmap:not(.art) .land, :root[data-theme="dark"] .regionmap:not(.art) .shoal { filter: brightness(.68) saturate(.8); }
 /* v1.4.2: the island dims with the page */
 :root[data-theme="dark"] body[data-area="garden"] { --area: #7ab55c; --area-soft: #1f3f3a; --area-ink: #a4b86a; --area-line: #2f6a3a; }
 :root[data-theme="dark"] body[data-area="world"] { --area: #3f8fb0; --area-soft: #1f4a6a; --area-ink: #a9d6ea; --area-line: #25637d; }
@@ -1807,7 +1807,7 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 /* ===== Map rework v0.9.3 ===== */
 /* World map: regions only at the first level; individual places appear when zoomed right in */
 .worldmap .mk.place { display: none; }
-.mapzoom.on .worldmap.z3 .mk.place { display: inline; }
+.mapzoom.on .worldmap.z2 .mk.place, .mapzoom.on .worldmap.z3 .mk.place { display: inline; }   /* road stops from z2 (lod2), names at z3 */
 .worldmap a.region:hover .hit, .worldmap a.region:focus-visible .hit { fill-opacity: .3; }
 .worldmap a.region { outline: none; }
 
@@ -1815,7 +1815,7 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 .regionmapbox { margin: 12px 0; }
 .regionwrap { overflow: visible; }
 .regionwrap::after { display: none !important; }
-.regionmap { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; border-radius: var(--radius); box-shadow: var(--shadow); }
+.regionmap { display: block; width: 100%; max-width: 760px; height: auto; margin: 0 auto; border-radius: var(--radius); box-shadow: var(--shadow); }
 .regionmap a { outline: none; cursor: pointer; }
 .regionmap a:hover .hit, .regionmap a:focus-visible .hit { fill-opacity: .4; }
 .regionmap a:active .hit { fill-opacity: .6; }
@@ -1853,8 +1853,8 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 @media (min-width: 600px) { .mstop { flex-basis: 96px; } .mname { font-size: 13px; } }
 .metroline, .regchips { position: relative; }
 /* v0.9.3: region map zoom */
-.rzoom { position: relative; max-width: 640px; margin: 0 auto; }
-.rzoom .rzctl { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; gap: 6px; }
+.rzoom { position: relative; max-width: 760px; margin: 0 auto; }
+.rzoom .rzctl { display: flex; justify-content: flex-end; gap: 6px; margin: 0 0 6px; }   /* v2.0.61: above the landscape map, not over it */
 .rzoom .rzctl .btn { min-width: var(--tap); padding: 4px 8px; box-shadow: var(--shadow-2); }
 .rzoom.on .regionmap { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .rzoom.on .regionmap.zoomed { touch-action: none; cursor: grab; }
@@ -1864,6 +1864,24 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .regionmap.zoomed .zl { display: inline; }
 .regionmap .sea { fill: var(--map-sea); }
 .regionmap .road, .regionmap .trail { stroke: var(--map-road); }
+/* v2.0.61: region map markers keep a readable size as it zooms (site.js sets --zs); names that had no room show at 2x */
+.regionmap .ms { transform: scale(var(--zs, 1)); }
+.regionmap .zl2 { display: none; }
+.regionmap.z2 .zl2 { display: inline; }
+/* v2.0.61: on the region picture: cream roads on a dark casing, markers with a cream halo and a dark outline */
+.regionmap.art .road { stroke: #f2e4c0; stroke-opacity: 1; }
+.regionmap.art .trail { stroke: #f2e4c0; }
+.regionmap.art .rcase, .regionmap.art .tcase { stroke: #2a1a10; }
+.regionmap.art .dot { stroke: #2a1a10; }
+.regionmap.art .halo { fill: #f2e4c0; }
+/* Pixel-art (underground) maps: the picture is dark in both themes, so roads are cream on a dark casing and nothing is dimmed */
+.regionmap.art, .worldmap.art { --map-road: #f2e4c0; }
+.worldmap .mapart { image-rendering: pixelated; }
+.worldmap.art .road { stroke: #f2e4c0; stroke-dasharray: none; stroke-width: 2.5px; }
+.worldmap.art .roadcase { stroke: #2a1a10; stroke-width: 5.5px; }
+.worldmap.art .lod2 path { stroke: #f2e4c0; }
+.worldmap.art .mk.place circle { stroke: #2a1a10; }
+.worldmap.art .mk.place circle[r="4"] { fill: #b8ab90; stroke-width: 1.5px; filter: drop-shadow(0 0 1.5px #f2e4c0) drop-shadow(0 0 .5px #f2e4c0); }
 .maphelp { margin-bottom: 4px; }
 .maplegend { display: flex; flex-wrap: wrap; gap: 4px 6px; list-style: none; margin: 0 0 8px; padding: 0; }
 .maplegend li { font-size: 12px; line-height: 1.2; padding: 3px 8px; border: 1px solid var(--line); border-radius: var(--pill); background: var(--surface); color: var(--ink-2); white-space: nowrap; }

@@ -133,7 +133,7 @@ local function world(mask)
   local links = {}; for _, p in ipairs(PAIRS) do links[#links + 1] = { IDX[p[1]], IDX[p[2]] } end
   local function bez(l, t) local a, b = REG[l[1]], REG[l[2]]
     local mx, my = (a[2] + b[2]) / 2 + (b[3] - a[3]) * 0.15, (a[3] + b[3]) / 2 - (b[2] - a[2]) * 0.15   -- road_ctrl, 1000x560 space
-    local m = 1 - t; return (m * m * a[2] + 2 * m * t * mx + t * t * b[2]) * 0.32, (m * m * a[3] + 2 * m * t * my + t * t * b[3]) * 0.32 end
+    local m = 1 - t; return (m * m * a[2] + 2 * m * t * mx + t * t * b[2]) * 0.32 - 0.5, (m * m * a[3] + 2 * m * t * my + t * t * b[3]) * 0.32 - 0.5 end   -- -0.5: pixel i covers [i, i+1), so the thread is centred on the road
   local function pts(l) local o = {}; for k = 0, 24 do local x, y = bez(l, k / 24); o[#o + 1] = { x, y } end return o end
   for _, l in ipairs(links) do c:fill(c:line(pts(l), 7), "#2a1a10") end
   for _, l in ipairs(links) do c:fill(c:line(pts(l), 5), "#7a4a1f") end
@@ -160,13 +160,17 @@ local function world(mask)
   for _, t in ipairs({ { 126, 144, 150, 120 }, { 126, 144, 96, 130 }, { 126, 144, 166, 110 } }) do c:fill(c:line({ { t[1], t[2] }, { (t[1] + t[3]) / 2, (t[2] + t[4]) / 2 + 6 }, { t[3], t[4] } }, 1), "#f2e4c0") end
   -- cavern features, kept 9 px off the pin spot
   X.layer(c, "detail")
+  local thr = c:mask(); for _, l in ipairs(links) do thr:add(c:line(pts(l), 9)) end   -- v3: keep scenery off the mycelium threads
+  local function clear(x, y) for _, d in ipairs({ { 0, 0 }, { -5, 0 }, { 5, 0 }, { 0, -5 }, { 0, -10 }, { -3, -8 }, { 3, -8 }, { 0, 2 } }) do if thr:has(x + d[1], y + d[2]) then return false end end return true end
   local gs = 23; local function grnd(n) gs = (gs * 1103515245 + 12345) % 2147483648 return gs % n end
   for i, r in ipairs(REG) do
     local px, py = r[2] * 0.32, r[3] * 0.32; local n = 0; local fl = FEAT[r[1]]
-    for try = 1, 120 do
+    local placed = {}; local function apart(x, y) for _, q in ipairs(placed) do if math.abs(q[1] - x) < 9 and math.abs(q[2] - y) < 11 then return false end end return true end
+    local rr = math.max(15, math.floor(r[4] * 0.32))   -- v3: search the whole cavern (the threads take the middle)
+    for try = 1, 400 do
       if n >= 7 then break end
-      local x, y = math.floor(px - 15 + grnd(31)), math.floor(py - 12 + grnd(25))
-      if RMASK[i]:has(x, y) and RMASK[i]:has(x, y + 3) and RMASK[i]:has(x - 5, y) and RMASK[i]:has(x + 5, y) and (math.abs(x - px) > 9 or math.abs(y - py) > 9) and c:get(x, y) == r[5] then feat(c, fl[n % #fl + 1], x, y); n = n + 1 end
+      local x, y = math.floor(px - rr + grnd(2 * rr + 1)), math.floor(py - rr * 0.8 + grnd(math.floor(rr * 1.6) + 1))
+      if RMASK[i]:has(x, y) and RMASK[i]:has(x, y + 3) and RMASK[i]:has(x - 5, y) and RMASK[i]:has(x + 5, y) and (math.abs(x - px) > 9 or math.abs(y - py) > 9) and c:get(x, y) == r[5] and clear(x, y) and apart(x, y) then feat(c, fl[n % #fl + 1], x, y); n = n + 1; placed[#placed + 1] = { x, y } end
     end
   end
   for i, r in ipairs(REG) do c:fill(c:rect(r[2] * 0.32 - 6, r[3] * 0.32 - 6, r[2] * 0.32 + 5, r[3] * 0.32 + 5), r[5]) end   -- flat 12x12 pin spots

@@ -842,7 +842,7 @@ function gvMaps() {
     }, { passive: false });
 
     var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; moved = 0; pinch = null; });
+    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
     svg.addEventListener('pointermove', function (ev) {
       if (!pts[ev.pointerId]) return;
       var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
@@ -971,10 +971,15 @@ function gvRegionZoom() {
       var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
       v = [cx - w / 2, cy - h / 2, w, h];
       svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
+      // v2.0.61: markers and names shrink on the map as it zooms (so they spread apart) but grow on screen; a narrow phone gets them a little bigger
+      var px = (svg.getBoundingClientRect().width || W) / W;
+      svg.style.setProperty('--zs', (Math.pow(z, -0.75) * Math.min(1.25, Math.max(1, 0.9 / px))).toFixed(3));
       svg.classList.toggle('zoomed', z > 1.02);
+      svg.classList.toggle('z2', z >= 1.9);
     }
     function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
     function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    apply();
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');
       if (!b) return;
@@ -988,7 +993,7 @@ function gvRegionZoom() {
       zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
     }, { passive: false });
     var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; moved = 0; pinch = null; });
+    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
     svg.addEventListener('pointermove', function (ev) {
       if (!pts[ev.pointerId]) return;
       var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();

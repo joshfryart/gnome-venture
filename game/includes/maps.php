@@ -165,6 +165,13 @@ function map_text(string $t, int $y, int $size, array $o = []): string
         . (($o['bold'] ?? true) ? ' font-weight="bold"' : '') . ' fill="' . ($o['fill'] ?? '#2f2a1f') . '" stroke="#fffaf0" stroke-width="3" paint-order="stroke">' . $t . '</text>';
 }
 
+/** The underground world picture (assets/img/scenes/map-world.png, its tunnels drawn along the real roads), or '' if missing. */
+function world_art_path(): string
+{
+    require_once __DIR__ . '/scene.php';
+    return scene_path('map', 'world');
+}
+
 /**
  * The world map (v0.7.53: zoomable). Everything is sent at once in three layers of detail: lod1 (whole world),
  * lod2 (road stops and found places), lod3 (names up close); site.js zooms the view and shows/hides the layers.
@@ -186,14 +193,20 @@ function world_map_svg(array $u, ?int $sel = null): string
     $here = player_node($u);
     $go = [];   // places you can set off to from where you stand: id => [route id, steps]
     if (!$walking) foreach (visible_routes($u, (int)$here['id']) as $r) $go[(int)$r['to']['id']] = [(int)$r['id'], (int)$r['steps']];
-    $svg = '<svg class="worldmap" viewBox="0 0 1000 560" role="img" aria-label="Map of the Hollow">'
-        . '<rect x="-2000" y="-2000" width="5000" height="4560" fill="#a9d3e3"/>';
-    for ($i = 1; $i < 7; $i++) $svg .= '<path d="M0 ' . ($i * 80) . ' Q250 ' . ($i * 80 - 12) . ' 500 ' . ($i * 80) . ' T1000 ' . ($i * 80) . '" stroke="#bfe0ec" stroke-width="2" fill="none"/>';
-    foreach (REGION_MAP as $code => [$x, $y, $fill, $r]) {
-        if (isset($regions[$code])) $svg .= map_blob($code, $x, $y, $r, $fill);
-    }
     [$hx, $hy] = HUB_MAP;
-    $svg .= map_blob('HUB', $hx, $hy, 26, '#9b8a6a');
+    if ($art !== '') {   // the cavern picture (640x360 = 1000x560 units): its caverns, tunnels and Mossbottom replace the drawn sea and islands
+        $svg = '<svg class="worldmap art" viewBox="0 0 1000 560" role="img" aria-label="Map of the Hollow">'
+            . '<rect x="-2000" y="-2000" width="5000" height="4560" fill="#2a1a10"/>'
+            . pixel_image($art, 0, 0, 1000, 560, '', '', 'none', 'mapart');
+    } else {
+        $svg = '<svg class="worldmap" viewBox="0 0 1000 560" role="img" aria-label="Map of the Hollow">'
+            . '<rect x="-2000" y="-2000" width="5000" height="4560" fill="#a9d3e3"/>';
+        for ($i = 1; $i < 7; $i++) $svg .= '<path d="M0 ' . ($i * 80) . ' Q250 ' . ($i * 80 - 12) . ' 500 ' . ($i * 80) . ' T1000 ' . ($i * 80) . '" stroke="#bfe0ec" stroke-width="2" fill="none"/>';
+        foreach (REGION_MAP as $code => [$x, $y, $fill, $r]) {
+            if (isset($regions[$code])) $svg .= map_blob($code, $x, $y, $r, $fill);
+        }
+        $svg .= map_blob('HUB', $hx, $hy, 26, '#9b8a6a');
+    }
     // Roads, drawn from the roads themselves so the stops sit right on them
     $roads = q('SELECT name, nodes FROM roads')->fetchAll();
     foreach ($roads as $rd) {
@@ -202,7 +215,9 @@ function world_map_svg(array $u, ?int $sel = null): string
         $a = $pos[$nodes[0]];
         $b = $pos[end($nodes)];
         [$mx, $my] = road_ctrl($a, $b);
-        $svg .= '<path class="road" d="M' . $a[0] . ' ' . $a[1] . ' Q' . (int)$mx . ' ' . (int)$my . ' ' . $b[0] . ' ' . $b[1] . '" stroke="#8a6a46" stroke-width="3" stroke-dasharray="7 6" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"><title>' . e($rd['name']) . '</title></path>';
+        $d = 'M' . $a[0] . ' ' . $a[1] . ' Q' . (int)$mx . ' ' . (int)$my . ' ' . $b[0] . ' ' . $b[1];
+        if ($art !== '') $svg .= '<path class="roadcase" d="' . $d . '" stroke="#2a1a10" stroke-width="5" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';   // dark casing under the cream road
+        $svg .= '<path class="road" d="' . $d . '" stroke="#8a6a46" stroke-width="3" stroke-dasharray="7 6" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"><title>' . e($rd['name']) . '</title></path>';
     }
     // Which places you've found (same as place_known(), in two queries)
     $keys = array_fill_keys(q('SELECT e.unlock_key FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE ue.user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN), true);
@@ -336,214 +351,108 @@ function map_bez(array $a, array $c, array $b, float $t): array
 }
 
 /**
- * v0.9.3: one region on its own, big enough for fingers. Its town in the middle, each road running out to the edge
- * (where the neighbouring region is named) with its villages along it, and the off-road places you've found.
+ * v0.9.3: one region on its own, big enough for fingers. Its town, each road running out to the edge (where the
+ * neighbouring region is named) with its villages along it, and the off-road places you've found.
  * Every place is a link (world.php?go=ID) with a 44px-ish tap target. No JavaScript needed.
- * v1.4.2: laid out to be read on a phone without zooming: places are spread over the whole frame, pushed apart so
- * no two markers touch, the island is drawn round them, road exits sit on the frame edge, and every label is
- * placed where it fits (below / above / right / left) or left to the tap. Towns, villages, you and the place
- * you're heading to are named; small sites (haven, wonder, delve, lair) are icons, named when zoomed.
+ * v2.0.61: a fixed landscape 480 × 270 layout (region_layout(), region_layout.php): every place has one slot that never
+ * moves, whoever is looking, so the region's map picture (assets/img/scenes/map-CODE.png, drawn from tools/map_layout.php)
+ * lies under it. What you've found only shows / hides / restyles a slot. Labels are placed where they fit (below / above /
+ * right / left), else shown when zoomed; small sites (haven, wonder, delve, lair) are icons, named when zoomed.
+ * Markers sit in a .ms group that site.js scales (--zs) so they stay a readable size as the map zooms.
  * $selId = the place being looked at (world.php?go=ID), always named.
  */
 function region_map_svg(array $u, int $regionId, int $selId = 0): string
 {
+    require_once __DIR__ . '/region_layout.php';
+    require_once __DIR__ . '/scene.php';
     $reg = q_one('SELECT * FROM regions WHERE id = ?', [$regionId]);
     if (!$reg || !isset(REGION_MAP[$reg['code']])) return '';
-    $town = q_one("SELECT id, name, slug, kind, landscape, region FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$regionId]);
-    if (!$town) return '';
+    $L = region_layout((string)$reg['code']);
+    if (!$L) return '';
     $uid = (int)$u['id'];
-    $tid = (int)$town['id'];
+    $tid = (int)$L['town'];
     $hereId = (int)(player_node($u)['id'] ?? 0);
-    [$wx, $wy, $fill] = REGION_MAP[$reg['code']];
+    $fill = REGION_MAP[$reg['code']][2];
     $homeV = (int)($u['home_village_id'] ?? 0);
     $plots = array_fill_keys(array_map('intval', q('SELECT village_id FROM plots WHERE user_id = ? AND village_id IS NOT NULL', [$uid])->fetchAll(PDO::FETCH_COLUMN)), true);
     $kindIcon = ['village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lair' => '🐉', 'delve' => '🕳️'];
     // v1.4.2: one colour per kind of place: [fill, ring]
     $kindCol = ['town' => ['#f1e2c0', '#8a5a2b'], 'far' => ['#fff3c4', '#b08a2a'], 'village' => ['#fdf0c8', '#c9922e'], 'haven' => ['#d9efcf', '#3f8f3f'],
         'wonder' => ['#eadcf7', '#8456c4'], 'lair' => ['#f7d0c6', '#c0463a'], 'delve' => ['#e2dbcf', '#6e6253'], 'new' => ['#e7e3d8', '#8f8470']];
-    $C = [200.0, 150.0];
-    $items = [$tid => ['x' => 200.0, 'y' => 150.0, 'loc' => $town, 'type' => 'town', 'ang' => 0.0, 'idx' => 0, 'k' => 'town']];
-    $onRoad = [$tid => true];
-    $roads = [];   // v1.4.2: [name, [node ids town → exit]] drawn after the layout
-    $usedAng = [];
-    foreach (q('SELECT * FROM roads WHERE a_town = ? OR b_town = ? ORDER BY id', [$tid, $tid])->fetchAll() as $rd) {
-        $nodes = array_map('intval', json_decode((string)$rd['nodes'], true) ?: []);
-        if (count($nodes) < 2) continue;
-        if (end($nodes) === $tid) $nodes = array_reverse($nodes);
-        if ($nodes[0] !== $tid) continue;
-        $n = count($nodes);
-        $far = q_one('SELECT r.code, r.gnomish_name FROM locations l JOIN regions r ON r.id = l.region_id WHERE l.id = ?', [$nodes[$n - 1]]);
-        $fp = REGION_MAP[$far['code'] ?? ''] ?? null;
-        $ang = $fp ? atan2((float)($fp[1] - $wy), (float)($fp[0] - $wx)) : (crc32((string)$rd['name']) % 628) / 100;
-        for ($tries = 0; $tries < 8; $tries++) {   // roads that head the same way fan out
-            $clash = false;
-            foreach ($usedAng as $ua) if (abs(atan2(sin($ang - $ua), cos($ang - $ua))) < 0.8) $clash = true;
-            if (!$clash) break;
-            $ang += 0.85;
-        }
-        $usedAng[] = $ang;
-        $E = [max(42.0, min(358.0, 200 + cos($ang) * 165)), max(44.0, min(256.0, 150 + sin($ang) * 115))];
-        $ctl = road_ctrl($C, $E);
-        $list = [$tid];
-        for ($i = 1; $i < $n; $i++) {
-            $loc = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$nodes[$i]]);
-            if (!$loc) continue;
-            [$px, $py] = map_bez($C, $ctl, $E, $n > 2 ? 0.3 + 0.7 * ($i - 1) / ($n - 2) : 1.0);
-            $onRoad[$nodes[$i]] = true;
-            $items[$nodes[$i]] = ['x' => $px, 'y' => $py, 'loc' => $loc, 'type' => $i === $n - 1 ? 'far' : 'stop', 'ang' => $ang, 'idx' => $i, 'k' => 'village',
-                'farname' => (string)($far['gnomish_name'] ?? $loc['region']), 'seen' => $i === $n - 1 || place_known($uid, $loc)];
-            $list[] = $nodes[$i];
-        }
-        $roads[] = [(string)$rd['name'], $list];
+    // ruins, for this gnome (v0.7.88)
+    $ruins = array_fill_keys(array_map('intval', q("SELECT DISTINCT m.location_id FROM landmarks m JOIN locations l ON l.id = m.location_id WHERE l.region_id = ? AND m.kind IN ('haven', 'wonder', 'delve') AND m.ruined = 1
+        AND NOT EXISTS (SELECT 1 FROM landmark_rebuilds b WHERE b.landmark_id = m.id AND b.user_id = ?)", [$regionId, $uid])->fetchAll(PDO::FETCH_COLUMN)), true);
+    // The slots this gnome sees: the town, every road stop (❔ until visited), the exits, and the off-road places they've found
+    $items = [];
+    foreach ($L['slots'] as $id => $s) {
+        $seen = $s['type'] === 'far' || $s['type'] === 'town' || place_known($uid, $s['loc']);
+        if ($s['type'] === 'off' && !$seen) continue;
+        $items[$id] = ['x' => (float)$s['x'], 'y' => (float)$s['y'], 'r' => $s['r'], 'loc' => $s['loc'], 'type' => $s['type'], 'k' => $s['type'] === 'off' ? $s['kind'] : 'village',
+            'side' => $s['side'], 'farname' => $s['farname'], 'seen' => $seen, 'anchor' => $s['anchor'], 'ruin' => isset($ruins[$id])];
     }
-    // Off-road places you've found: beside the road stop their side path leaves from, else scattered (the same spot every time)
-    $kids = [];
-    foreach (q("SELECT a_id, b_id FROM routes WHERE kind = 'side' ORDER BY id")->fetchAll() as $rt) {
-        [$a, $b] = [(int)$rt['a_id'], (int)$rt['b_id']];
-        if (isset($items[$a]) && !isset($onRoad[$b])) $kids[$a][] = $b;
-        elseif (isset($items[$b]) && !isset($onRoad[$a])) $kids[$b][] = $a;
-    }
-    $kidNo = [];
-    foreach ($kids as $anchor => $list) foreach (array_values(array_unique($list)) as $k => $id) $kidNo[$id] = [$anchor, $k];
-    foreach (q("SELECT l.id, l.name, l.slug, l.kind, l.landscape, l.region, (SELECT kind FROM landmarks WHERE location_id = l.id ORDER BY id LIMIT 1) AS lmkind,
-        (SELECT COUNT(*) FROM landmarks m WHERE m.location_id = l.id AND m.kind IN ('haven', 'wonder', 'delve') AND m.ruined = 1
-           AND NOT EXISTS (SELECT 1 FROM landmark_rebuilds b WHERE b.landmark_id = m.id AND b.user_id = ?)) AS ruin
-        FROM locations l WHERE l.region_id = ? AND l.kind NOT IN ('market', 'hub') ORDER BY l.id", [$uid, $regionId])->fetchAll() as $l) {
-        $id = (int)$l['id'];
-        if (isset($onRoad[$id]) || !place_known($uid, $l)) continue;
-        $h = crc32((string)$l['slug']);
-        if (isset($kidNo[$id])) {
-            [$anchor, $k] = $kidNo[$id];
-            $ring = intdiv($k, 2);
-            $base = ($items[$anchor]['ang'] ?? (($h & 1023) / 1023 * 6.283)) + ($k % 2 ? -1 : 1) * M_PI / 2 + ($ring ? ($ring % 2 ? 0.5 : -0.5) : 0);
-            $d = 46 + $ring * 12;
-            $px = $items[$anchor]['x'] + cos($base) * $d;
-            $py = $items[$anchor]['y'] + sin($base) * $d;
-        } else {
-            $a = ($h & 1023) / 1023 * 6.283;
-            $d = 0.55 + (($h >> 10) & 255) / 255 * 0.4;
-            $px = 200 + cos($a) * $d * 150;
-            $py = 150 + sin($a) * $d * 105;
-        }
-        $lk = (string)($l['lmkind'] ?: $l['kind']);
-        $items[$id] = ['x' => $px, 'y' => $py, 'loc' => $l, 'type' => 'off', 'ang' => 0.0, 'idx' => 0, 'k' => $lk,
-            'ruin' => (int)$l['ruin'] > 0, 'anchor' => $kidNo[$id][0] ?? 0, 'seen' => true];
-    }
+    $W = (int)$L['w']; $H = (int)$L['h'];
+    $art = scene_path('map', (string)$reg['code']);
 
-    // v1.4.2: layout. 1) stretch the rough geography over the whole frame; 2) road exits snap to the nearest frame
-    // edge; 3) a few passes push apart any two markers closer than a marker plus a gap. Same result every load.
-    $W = 400; $H = 430; $pad = 24;
-    $btn = [226.0, 0.0, 400.0, 60.0];   // the zoom buttons (HTML) cover this corner
-    $xs = array_column($items, 'x'); $ys = array_column($items, 'y');
-    $minX = min($xs); $maxX = max($xs); $minY = min($ys); $maxY = max($ys);
-    $sx = $maxX - $minX > 1 ? ($W - 2 * $pad) / ($maxX - $minX) : 0.0;
-    $sy = $maxY - $minY > 1 ? ($H - 2 * $pad) / ($maxY - $minY) : 0.0;
-    foreach ($items as $id => &$it) {
-        $it['x'] = $sx ? $pad + ($it['x'] - $minX) * $sx : $W / 2;
-        $it['y'] = $sy ? $pad + ($it['y'] - $minY) * $sy : $H / 2;
-        $it['r'] = $it['type'] === 'town' ? 17 : ($it['type'] === 'far' ? 13 : 14);
-        $it['mx'] = $it['my'] = 1.0;   // how free it is to move sideways / up and down
-        $it['side'] = '';
-        if ($it['type'] === 'far') {
-            $best = null; $bd = INF;
-            foreach ([[$pad, $it['y'], 'W'], [$W - $pad, $it['y'], 'E'], [$it['x'], $pad, 'N'], [$it['x'], $H - $pad, 'S']] as $c) {
-                if ($c[0] > $btn[0] - 16 && $c[1] < $btn[3] + 16) continue;   // not under the buttons
-                $d = hypot($c[0] - $it['x'], $c[1] - $it['y']);
-                if ($d < $bd) { $bd = $d; $best = $c; }
+    $svg = '<svg class="regionmap' . ($art !== '' ? ' art' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" role="group" aria-label="Map of ' . e($reg['gnomish_name']) . '">';
+    if ($art !== '') {   // v2.0.61: the region's picture, drawn to this layout
+        $svg .= '<rect class="rock" width="' . $W . '" height="' . $H . '" fill="#2a1a10"/>'
+            . '<image class="mapart" href="' . e(url($art)) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" preserveAspectRatio="none" image-rendering="pixelated"/>';
+    } else {   // no picture yet: the drawn island round the fixed slots (convex hull, pushed out, corners rounded)
+        $pts = [];
+        foreach ($L['slots'] as $s) $pts[] = [(float)$s['x'], (float)$s['y']];
+        usort($pts, fn($p, $q) => $p[0] <=> $q[0] ?: $p[1] <=> $q[1]);
+        $cross = fn($o, $p, $q) => ($p[0] - $o[0]) * ($q[1] - $o[1]) - ($p[1] - $o[1]) * ($q[0] - $o[0]);
+        $lower = []; $upper = [];
+        foreach ($pts as $p) { while (count($lower) >= 2 && $cross($lower[count($lower) - 2], $lower[count($lower) - 1], $p) <= 0) array_pop($lower); $lower[] = $p; }
+        foreach (array_reverse($pts) as $p) { while (count($upper) >= 2 && $cross($upper[count($upper) - 2], $upper[count($upper) - 1], $p) <= 0) array_pop($upper); $upper[] = $p; }
+        $hull = array_merge(array_slice($lower, 0, -1), array_slice($upper, 0, -1));
+        $cx = array_sum(array_column($hull, 0)) / max(1, count($hull)); $cy = array_sum(array_column($hull, 1)) / max(1, count($hull));
+        $seed = crc32($reg['code']);
+        $blob = function (float $grow) use ($hull, $cx, $cy, $seed): string {
+            $v = [];
+            foreach ($hull as $i => $p) {
+                $dx = $p[0] - $cx; $dy = $p[1] - $cy; $d = max(1.0, hypot($dx, $dy));
+                $g = $grow + (($seed >> ($i % 10 * 3)) & 7) * 2.0;
+                $v[] = [$p[0] + $dx / $d * $g, $p[1] + $dy / $d * $g];
             }
-            [$it['x'], $it['y'], $it['side']] = $best;
-            if ($it['side'] === 'W' || $it['side'] === 'E') $it['mx'] = 0.0; else $it['my'] = 0.0;   // slides along its edge only
-        }
-    }
-    unset($it);
-    $ids = array_keys($items);
-    $cnt = count($ids);
-    $clamp = function (array &$it) use ($W, $H, $pad, $btn): void {
-        $r = $it['r'];
-        if ($it['mx'] > 0) $it['x'] = max($pad, min($W - $pad, $it['x']));
-        if ($it['my'] > 0) $it['y'] = max($pad, min($H - $pad, $it['y']));
-        if ($it['x'] > $btn[0] - $r && $it['y'] < $btn[3] + $r) {   // out from under the buttons, the shorter way
-            $dx = $it['x'] - ($btn[0] - $r); $dy = $btn[3] + $r - $it['y'];
-            if ($it['my'] > 0 && ($dy <= $dx || $it['mx'] <= 0)) $it['y'] += $dy; else $it['x'] -= $dx;
-        }
-    };
-    foreach ($items as &$it) $clamp($it);
-    unset($it);
-    for ($pass = 0; $pass < 40; $pass++) {
-        $moved = false;
-        for ($i = 0; $i < $cnt; $i++) {
-            for ($j = $i + 1; $j < $cnt; $j++) {
-                $a = &$items[$ids[$i]]; $b = &$items[$ids[$j]];
-                $need = $a['r'] + $b['r'] + 22;   // room for a line of label between two markers
-                $dx = $b['x'] - $a['x']; $dy = $b['y'] - $a['y'];
-                $d = sqrt($dx * $dx + $dy * $dy);
-                if ($d >= $need) { unset($a, $b); continue; }
-                if ($d < 0.5) { $dx = 1.0; $dy = 0.4 * (($i + $j) % 3 - 1); $d = sqrt($dx * $dx + $dy * $dy); }
-                $ux = $dx / $d; $uy = $dy / $d;
-                $fa = $ux * $ux * $a['mx'] + $uy * $uy * $a['my'];   // how much of the push each can take
-                $fb = $ux * $ux * $b['mx'] + $uy * $uy * $b['my'];
-                if ($fa + $fb < 0.01) { unset($a, $b); continue; }
-                $push = ($need - $d) * 1.05;
-                $a['x'] -= $ux * $push * $fa / ($fa + $fb) * $a['mx']; $a['y'] -= $uy * $push * $fa / ($fa + $fb) * $a['my'];
-                $b['x'] += $ux * $push * $fb / ($fa + $fb) * $b['mx']; $b['y'] += $uy * $push * $fb / ($fa + $fb) * $b['my'];
-                $clamp($a); $clamp($b);
-                $moved = true;
-                unset($a, $b);
+            $n = count($v);
+            if ($n < 3) return '';
+            $m = fn($a, $b) => [($a[0] + $b[0]) / 2, ($a[1] + $b[1]) / 2];
+            $d = 'M' . implode(' ', array_map('intval', $m($v[0], $v[1])));
+            for ($i = 1; $i <= $n; $i++) {
+                $p = $v[$i % $n]; $q = $v[($i + 1) % $n];
+                $d .= ' Q' . (int)$p[0] . ' ' . (int)$p[1] . ' ' . implode(' ', array_map('intval', $m($p, $q)));
             }
-        }
-        if (!$moved) break;
+            return $d . ' Z';
+        };
+        $svg .= '<rect class="sea" width="' . $W . '" height="' . $H . '" fill="#a9d3e3"/>'
+            . '<path class="shoal" d="' . $blob(34.0) . '" fill="#cfe6e0" fill-opacity="0.7"/>'
+            . '<path class="land" d="' . $blob(20.0) . '" fill="' . $fill . '" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2"/>';
     }
-    foreach ($items as &$it) { $it['x'] = (float)round($it['x']); $it['y'] = (float)round($it['y']); }
-    unset($it);
-
-    // v1.4.2: the island: a soft shape round the places (convex hull, pushed out, corners rounded)
-    $pts = [];
-    foreach ($items as $it) $pts[] = [$it['x'], $it['y']];
-    foreach ([[-50, -40], [50, -40], [0, 55]] as $o) $pts[] = [$W / 2 + $o[0], $H / 2 + $o[1]];   // so even a straight road gets an island
-    usort($pts, fn($p, $q) => $p[0] <=> $q[0] ?: $p[1] <=> $q[1]);
-    $cross = fn($o, $p, $q) => ($p[0] - $o[0]) * ($q[1] - $o[1]) - ($p[1] - $o[1]) * ($q[0] - $o[0]);
-    $lower = []; $upper = [];
-    foreach ($pts as $p) { while (count($lower) >= 2 && $cross($lower[count($lower) - 2], $lower[count($lower) - 1], $p) <= 0) array_pop($lower); $lower[] = $p; }
-    foreach (array_reverse($pts) as $p) { while (count($upper) >= 2 && $cross($upper[count($upper) - 2], $upper[count($upper) - 1], $p) <= 0) array_pop($upper); $upper[] = $p; }
-    $hull = array_merge(array_slice($lower, 0, -1), array_slice($upper, 0, -1));
-    $cx = array_sum(array_column($hull, 0)) / count($hull); $cy = array_sum(array_column($hull, 1)) / count($hull);
-    $seed = crc32($reg['code']);
-    $blob = function (float $grow) use ($hull, $cx, $cy, $seed): string {
-        $v = [];
-        foreach ($hull as $i => $p) {
-            $dx = $p[0] - $cx; $dy = $p[1] - $cy; $d = max(1.0, hypot($dx, $dy));
-            $g = $grow + (($seed >> ($i % 10 * 3)) & 7) * 2.5;
-            $v[] = [$p[0] + $dx / $d * $g, $p[1] + $dy / $d * $g];
-        }
-        $n = count($v);
-        $m = fn($a, $b) => [($a[0] + $b[0]) / 2, ($a[1] + $b[1]) / 2];
-        $d = 'M' . implode(' ', array_map('intval', $m($v[0], $v[1])));
-        for ($i = 1; $i <= $n; $i++) {
-            $p = $v[$i % $n]; $q = $v[($i + 1) % $n];
-            $d .= ' Q' . (int)$p[0] . ' ' . (int)$p[1] . ' ' . implode(' ', array_map('intval', $m($p, $q)));
-        }
-        return $d . ' Z';
-    };
-    $svg = '<svg class="regionmap" viewBox="0 0 ' . $W . ' ' . $H . '" role="group" aria-label="Map of ' . e($reg['gnomish_name']) . '">'
-        . '<rect class="sea" width="' . $W . '" height="' . $H . '" fill="#a9d3e3"/>'
-        . '<path class="shoal" d="' . $blob(56.0) . '" fill="#cfe6e0" fill-opacity="0.7"/>'
-        . '<path class="land" d="' . $blob(34.0) . '" fill="' . $fill . '" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2"/>';
-    // Side trails, then roads: solid where you've walked (both ends visited), dashed where you haven't
-    foreach ($items as $id => $it) {
-        if ($it['type'] === 'off' && !empty($it['anchor']) && isset($items[$it['anchor']])) {
-            $an = $items[$it['anchor']];
-            $svg .= '<path class="trail" d="M' . (int)$an['x'] . ' ' . (int)$an['y'] . ' L' . (int)$it['x'] . ' ' . (int)$it['y'] . '" stroke="#7a5a3a" stroke-width="2" stroke-dasharray="2 4" stroke-linecap="round" fill="none"/>';
-        }
+    // Side trails to the places you've found, then roads: solid where you've walked (both ends visited), dashed where you haven't.
+    // On the picture each line gets a dark casing under it so it reads over the rock.
+    $line = fn(array $a, array $b): string => 'M' . (int)$a['x'] . ' ' . (int)$a['y'] . ' L' . (int)$b['x'] . ' ' . (int)$b['y'];
+    $case = '';
+    $lines = '';
+    foreach ($items as $it) {
+        if ($it['type'] !== 'off' || empty($it['anchor']) || !isset($items[$it['anchor']])) continue;
+        $d = $line($items[$it['anchor']], $it);
+        if ($art !== '') $case .= '<path class="tcase" d="' . $d . '" stroke="#2a1a10" stroke-width="5" stroke-linecap="round" fill="none"/>';
+        $lines .= '<path class="trail" d="' . $d . '" stroke="#7a5a3a" stroke-width="2" stroke-dasharray="2 4" stroke-linecap="round" fill="none"/>';
     }
-    foreach ($roads as [$rname, $list]) {
+    foreach ($L['roads'] as $rd) {
+        $list = $rd['nodes'];
         for ($i = 1; $i < count($list); $i++) {
             $a = $items[$list[$i - 1]] ?? null; $b = $items[$list[$i]] ?? null;
             if (!$a || !$b) continue;
-            $walked = ($a['seen'] ?? true) && ($b['seen'] ?? true);
-            $svg .= '<path class="road' . ($walked ? '' : ' unwalked') . '" d="M' . (int)$a['x'] . ' ' . (int)$a['y'] . ' L' . (int)$b['x'] . ' ' . (int)$b['y'] . '" stroke="#7a5a3a" stroke-width="5"'
-                . ($walked ? '' : ' stroke-dasharray="7 7" stroke-opacity="0.75"') . ' stroke-linecap="round" fill="none"><title>' . e($rname) . '</title></path>';
+            $walked = $a['seen'] && $b['seen'];
+            $d = $line($a, $b);
+            if ($art !== '') $case .= '<path class="rcase" d="' . $d . '" stroke="#2a1a10" stroke-width="9" stroke-linecap="round" fill="none"/>';
+            $lines .= '<path class="road' . ($walked ? '' : ' unwalked') . '" d="' . $d . '" stroke="#7a5a3a" stroke-width="5"'
+                . ($walked ? '' : ' stroke-dasharray="7 7" stroke-opacity="0.75"') . ' stroke-linecap="round" fill="none"><title>' . e($rd['name']) . '</title></path>';
         }
     }
+    $svg .= $case . $lines;
     // v0.9.5: the route being followed (where the gnome is, on to the destination) lit up along the roads of this region
     require_once __DIR__ . '/destination.php';
     $routeIds = dest_route_ids($u);
@@ -552,18 +461,19 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
         $a = $items[$routeIds[$i - 1]] ?? null;
         $b = $items[$routeIds[$i]] ?? null;
         if (!$a || !$b) continue;
-        $svg .= '<path class="gps" d="M' . (int)$a['x'] . ' ' . (int)$a['y'] . ' L' . (int)$b['x'] . ' ' . (int)$b['y'] . '" stroke="#e8a317" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.85"/>';
+        $svg .= '<path class="gps" d="' . $line($a, $b) . '" stroke="#e8a317" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.85"/>';
     }
 
     // v1.4.2: labels. Each is tried below, above, right, left of its marker (exits: inwards first) and takes the first
-    // spot clear of every marker, every label placed so far, the buttons and the frame; with no spot it's left to the tap.
-    $FS = 11;
+    // spot clear of every marker, every label placed so far and the frame. v2.0.61: one that finds no room is still
+    // drawn below its marker, shown only when zoomed in (markers and labels shrink on the map as it zooms).
+    $FS = 10;
     $lw = function (string $t) use ($FS): float {
         $w = 0.0;
         foreach (mb_str_split($t) as $ch) $w += mb_ord($ch) > 0x2000 ? $FS * 1.15 : (ctype_upper($ch) ? $FS * 0.72 : $FS * 0.58);
         return $w + 4;
     };
-    $boxes = [$btn];
+    $boxes = [];
     foreach ($items as $it) $boxes[] = [$it['x'] - $it['r'] - 1, $it['y'] - $it['r'] - 1, $it['x'] + $it['r'] + 1, $it['y'] + $it['r'] + 1];
     $lboxes = [];   // labels placed so far; $gap = the breathing room kept round them (less on the second, lenient pass)
     $gap = 3;
@@ -613,6 +523,7 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
         if ($it['type'] === 'stop') return $it['seen'] ? 4 : 7;
         return $it['k'] === 'village' ? 5 : 6;
     };
+    $ids = array_keys($items);
     $order = $ids;
     usort($order, fn($a, $b) => $rank($a) <=> $rank($b) ?: $a <=> $b);
     $labels = [];
@@ -627,14 +538,20 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
         $try = ['below', 'above', 'right', 'left', 'below+', 'below-', 'above+', 'above-', 'se', 'sw', 'ne', 'nw'];
         if ($it['type'] === 'far') $try = ['E' => ['left', 'below', 'above', 'below-', 'above-', 'sw', 'nw'], 'W' => ['right', 'below', 'above', 'below+', 'above+', 'se', 'ne'],
             'N' => ['below', 'left', 'right', 'below-', 'below+', 'sw', 'se'], 'S' => ['above', 'left', 'right', 'above-', 'above+', 'nw', 'ne']][$it['side']] ?? $try;
-        if ($p = $place($it, $wrap($txt), $try)) $labels[$id] = [$wrap($txt), $p];
+        if ($p = $place($it, $wrap($txt), $try)) $labels[$id] = [$wrap($txt), $p, false];
         elseif ($it['type'] === 'town') {   // no room by the town itself: name it in a free corner of the frame instead
             $w = $lw('🏘️ ' . $txt);
-            foreach ([[4, 4], [4, $H - $FS - 6], [$W - 4 - $w, $H - $FS - 6]] as [$cx0, $cy0]) {
+            foreach ([[4, 4], [4, $H - $FS - 6], [$W - 4 - $w, $H - $FS - 6], [$W - 4 - $w, 4]] as [$cx0, $cy0]) {
                 $b = [$cx0, $cy0, $cx0 + $w, $cy0 + $FS + 2];
                 if ($free($b)) { $lboxes[] = $b; $caption = ['🏘️ ' . $txt, [$cx0 + $w / 2, $cy0 + $FS, 'middle']]; break; }
             }
         }
+    }
+    foreach ($order as $id) {   // v2.0.61: no room at this size: named below the marker once zoomed in
+        $it = $items[$id];
+        if (isset($labels[$id]) || $it['type'] === 'town' || ($it['type'] === 'stop' && !$it['seen'])) continue;
+        $txt = $it['type'] === 'far' ? $it['farname'] : mb_strimwidth((string)$it['loc']['name'], 0, 28, '…');
+        $labels[$id] = [$wrap($txt), [$it['x'], $it['y'] + $it['r'] + 2 + $FS, 'middle'], true];
     }
 
     // Markers
@@ -646,31 +563,34 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
         $isTown = $type === 'town';
         $isFar = $type === 'far';
         $isMe = $id === $hereId;
-        $seen = $it['seen'] ?? true;
+        $seen = $it['seen'];
         $x = (int)$it['x']; $y = (int)$it['y']; $r = (int)$it['r'];
         $name = $seen ? (string)$l['name'] : '???';
         $k = $isTown ? 'town' : ($isFar ? 'far' : ($seen ? $it['k'] : 'new'));
         [$fillC, $strokeC] = $kindCol[$k] ?? $kindCol['village'];
         $icon = $isTown ? '🏘️' : ($isFar ? '➜' : ($seen ? ($kindIcon[$it['k']] ?? '📍') : '❔'));
         $small = $type === 'off' && $it['k'] !== 'village';   // small sites: icon only until zoomed (or tapped / heading there)
-        $ring = $isMe ? '<circle r="' . ($r + 7) . '" fill="#ffe66b" fill-opacity="0.45" stroke="#d9a520" stroke-width="3"/>'
-            : (isset($onRoute[$id]) ? '<circle r="' . ($r + 5) . '" fill="none" stroke="#e8a317" stroke-width="4"/>' : ($id === $selId ? '<circle r="' . ($r + 5) . '" fill="none" stroke="#2a6fa5" stroke-width="3" stroke-dasharray="4 3"/>' : ''));
-        $badge = isset($plots[$id]) ? '<text x="' . ($r - 2) . '" y="' . (-$r + 5) . '" text-anchor="middle" font-size="11">' . ($id === $homeV ? '🏡' : '🌱') . '</text>' : '';
-        $ruin = !empty($it['ruin']) ? '<text x="' . (-$r + 2) . '" y="' . (-$r + 5) . '" text-anchor="middle" font-size="10">🏚️</text>' : '';
+        $ring = $isMe ? '<circle r="' . ($r + 6) . '" fill="#ffe66b" fill-opacity="0.45" stroke="#d9a520" stroke-width="3"/>'
+            : (isset($onRoute[$id]) ? '<circle r="' . ($r + 4) . '" fill="none" stroke="#e8a317" stroke-width="4"/>' : ($id === $selId ? '<circle r="' . ($r + 4) . '" fill="none" stroke="#2a6fa5" stroke-width="3" stroke-dasharray="4 3"/>' : ''));
+        $badge = isset($plots[$id]) ? '<text x="' . ($r - 2) . '" y="' . (-$r + 5) . '" text-anchor="middle" font-size="10">' . ($id === $homeV ? '🏡' : '🌱') . '</text>' : '';
+        $ruin = !empty($it['ruin']) ? '<text x="' . (-$r + 2) . '" y="' . (-$r + 5) . '" text-anchor="middle" font-size="9">🏚️</text>' : '';
         $lab = '';
         if (isset($labels[$id])) {
-            [$lines, [$lx, $ly, $anc]] = $labels[$id];
-            $lab = '<text class="lbl' . ($small && $id !== $selId && !$isMe ? ' zl' : '') . '" x="' . (int)round($lx - $x) . '" y="' . (int)round($ly - $y) . '" text-anchor="' . $anc . '" font-size="' . $FS . '" font-weight="700"'
+            [$lines, [$lx, $ly, $anc], $late] = $labels[$id];
+            $zl = $late ? ' zl2' : ($small && $id !== $selId && !$isMe ? ' zl' : '');
+            $lab = '<text class="lbl' . $zl . '" x="' . (int)round($lx - $x) . '" y="' . (int)round($ly - $y) . '" text-anchor="' . $anc . '" font-size="' . $FS . '" font-weight="700"'
                 . ' fill="#1f2a1c" stroke="#f6f4ec" stroke-width="3" stroke-linejoin="round" paint-order="stroke">';
             foreach ($lines as $li => $ln) $lab .= $li ? '<tspan x="' . (int)round($lx - $x) . '" dy="' . ($FS + 2) . '">' . e($ln) . '</tspan>' : e($ln);
             $lab .= '</text>';
         }
         $inner = '<title>' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . ($isMe ? ' (you are here)' : '')) . '</title>'
-            . '<circle class="hit" r="' . max(24, $r + 8) . '" fill="#ffffff" fill-opacity="0"/>' . $ring
-            . '<circle r="' . $r . '" fill="' . $fillC . '" stroke="' . $strokeC . '" stroke-width="2.5"' . ($seen ? '' : ' stroke-dasharray="4 3"') . '/>'
-            . ($isFar ? '<text y="5" text-anchor="middle" font-size="15" font-weight="700" fill="#6b4a00" transform="rotate(' . ($sideRot[$it['side']] ?? 0) . ')">➜</text>'
-                : '<text y="' . ($isTown ? 6 : 5) . '" text-anchor="middle" font-size="' . ($isTown ? 17 : 14) . '"' . ($seen ? '' : ' opacity="0.7"') . '>' . ($isMe ? '🎩' : $icon) . '</text>')
+            . '<circle class="hit" r="' . max(22, $r + 8) . '" fill="#ffffff" fill-opacity="0"/>' . $ring
+            . ($art !== '' ? '<circle class="halo" r="' . ($r + 2) . '" fill="#f2e4c0"/>' : '')
+            . '<circle class="dot" r="' . $r . '" fill="' . $fillC . '" stroke="' . $strokeC . '" stroke-width="2.5"' . ($seen ? '' : ' stroke-dasharray="4 3"') . '/>'
+            . ($isFar ? '<text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="#6b4a00" transform="rotate(' . ($sideRot[$it['side']] ?? 0) . ')">➜</text>'
+                : '<text y="' . ($isTown ? 6 : 5) . '" text-anchor="middle" font-size="' . ($isTown ? 16 : ($small ? 11 : 13)) . '"' . ($seen ? '' : ' opacity="0.7"') . '>' . ($isMe ? '🎩' : $icon) . '</text>')
             . $badge . $ruin . $lab;
+        $inner = '<g class="ms">' . $inner . '</g>';
         $g = '<g class="rmp k-' . $k . ($isMe ? ' here' : '') . (isset($onRoute[$id]) && !$isMe ? ' onroute' : '') . ($seen ? '' : ' new') . '" transform="translate(' . $x . ' ' . $y . ')">';
         $g .= $isMe ? '<g aria-current="location">' . $inner . '</g>'
             : '<a href="' . e(url('world.php?go=' . $id . '#gopanel')) . '" aria-label="' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name) . '">' . $inner . '</a>';

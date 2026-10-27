@@ -155,7 +155,7 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
 <?= region_panel($u, $mapRegion) ?>
 <div class="mapfolds">
 <details class="fold mapfold" id="worldmap"<?= $worldOpen ? ' open' : '' ?>><summary>🌍 World map</summary>
-<?php if (myc_on()): ?>
+<?php if (myc_on() && world_art_path() === ''):   // the pixel-art world map is the default whenever its picture is there ?>
   <div class="mapwrap mycwrap"><?= world_map_svg($u, $mapRegion) ?></div>
   <p class="help">Tap a region to open its chamber: its town, roads and villages as big tap targets. 🎩 you · <a href="<?= e(url('town.php?view=villagers')) ?>">👤 villagers</a> · <a href="<?= e(url('world.php?tab=travel')) ?>">🧭 Fast travel</a> costs <?= money($travelBase) ?> (home is free).</p>
 <?php else: ?>
