@@ -347,7 +347,7 @@ freshrun sprout; th sprout flag won_fight >/dev/null; th sprout see >/dev/null; 
 RID=$(RUNID sprout)
 curl -s -c $JAR -b $JAR "$BASE/trek.php?trek_replay[run]=$RID&trek_replay[t]=$(date +%s)&trek_replay[r][]=1&trek_walk[p][0][0]=1" -o $H; assert "client params named trek_replay / trek_walk are ignored" bash -c "! grep -q 'data-replay\|data-walk' $H"
 curl -s -c $JAR -b $JAR -X POST "$BASE/trek.php" -d "csrf=$(tokof $JAR)" -d 'trek_replay[run]=1' -d do=mode -d mode=hunt -o /dev/null; get trek.php >/dev/null; assert "...also as POST fields" bash -c "! grep -q 'data-replay' $H"
-curl -s -c $JAR -b $JAR "$BASE/trek.php" -H 'Cookie: trek_replay=1; trek_walk=1' -o $H; assert "...and as cookies" bash -c "! grep -q 'data-replay\|data-walk' $H"
+SESS_=$(grep garden_sess $JAR | awk '{print $7}' | head -1); curl -s -b "garden_sess=$SESS_; trek_replay=1; trek_walk=1" "$BASE/trek.php" -o $H; assert "...and as cookies" bash -c "! grep -q 'data-replay\|data-walk' $H"
 th sprout fight g >/dev/null; th sprout lowparty >/dev/null; post trek.php -d do=auto >/dev/null
 SF=$(grep garden_sess $JAR | awk '{print $7}' | head -1)
 assert "the session file exists" test -f $TMP/sess_$SF
