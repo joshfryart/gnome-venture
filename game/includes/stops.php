@@ -270,6 +270,14 @@ function stop_type_of(array $loc): string
     return stop_derive_type($loc);
 }
 
+/** Header art for a stop type: scenes/stop-<type>.png, or the market hamlet's picture when that type has no file (e.g. a type added in Admin). '' if neither exists. */
+function stop_art_file(string $type): string
+{
+    $dir = __DIR__ . '/../assets/img/scenes/';
+    if (preg_match('/^[a-z0-9_-]+$/', $type) && is_file($dir . 'stop-' . $type . '.png')) return 'stop-' . $type . '.png';
+    return is_file($dir . 'stop-market.png') ? 'stop-market.png' : '';
+}
+
 /** Fill locations.stop_type for every village that has none, so that neighbours in a zone differ where they can. Returns how many. */
 function stop_assign_all(): int
 {

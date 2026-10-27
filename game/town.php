@@ -94,7 +94,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
     <?= place_switcher_html($node, 'here') ?>
     <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
-      <?= place_header_html('stop-' . $stType . '.png', $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name'], '', [$road ? '🛣️ ' . e($road['name']) : '🌿 Hidden village, off the road']) ?>
+      <?= place_header_html(stop_art_file($stType), $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name'], '', [$road ? '🛣️ ' . e($road['name']) : '🌿 Hidden village, off the road']) ?>
     <?php else: ?>
       <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
       <?= scene_place_banner($node, $node['name']) ?>
