@@ -141,3 +141,134 @@ function land_card_html(array $u, array $node, ?array $nodeRegion): string
 <?php endif; ?>
 <?php return (string)ob_get_clean();
 }
+
+// Town helpers moved from town.php (phase 1b, unchanged)
+/** v2.0.4 menu folds: everyone you've met, where they are now, with search and filters (was the folk.php list). */
+function town_known_html(array $u, bool $hub, bool $title = true): string
+{
+    require_once __DIR__ . '/includes/maps.php';
+    require_once __DIR__ . '/includes/folk_list.php';
+    require_once __DIR__ . '/includes/friends.php';
+    $uid = (int)$u['id'];
+    $all = met_npcs($uid);
+    $qs = trim((string)($_GET['q'] ?? ''));
+    $f = (string)($_GET['f'] ?? '');
+    $reg = (string)($_GET['r'] ?? '');
+    $regions = array_values(array_unique(array_filter(array_map(fn($n) => (string)($n['home']['region'] ?? ''), $all))));
+    sort($regions);
+    $list = array_filter($all, function ($n) use ($qs, $f, $reg, $u) {
+        if ($qs !== '' && stripos($n['name'] . ' ' . $n['species'] . ' ' . $n['personality'], $qs) === false) return false;
+        if ($f === 'here' && !npc_here($u, (int)$n['id'])) return false;
+        if ($reg !== '' && ($n['home']['region'] ?? '') !== $reg) return false;
+        return true;
+    });
+    $byLevel = [];
+    foreach ($list as $n) $byLevel[$n['level']['index']][] = $n;
+    krsort($byLevel);
+    $total = (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1');
+    $h = ($title ? '<h2 id="known">👥 Villagers you know</h2>' : '')
+        . '<p class="help">Everyone you’ve met: ' . count($all) . ' of the Hollow’s ' . $total . ' villagers. You meet people by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Their full pages are in your <a href="' . e(url('book.php?ch=Folk')) . '">Almanac → Villagers</a> too.</p>'
+        . '<form method="get" action="' . e(url('town.php')) . '" class="box folkfilter"><input type="hidden" name="view" value="villagers"><input type="hidden" name="known" value="1">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
+        . '<input type="search" name="q" value="' . e($qs) . '" placeholder="Search by name…" aria-label="Search by name">'
+        . '<select name="r" aria-label="Home region"><option value="">All regions</option>';
+    foreach ($regions as $rg) $h .= '<option' . ($rg === $reg ? ' selected' : '') . '>' . e($rg) . '</option>';
+    $h .= '</select><label><input type="checkbox" name="f" value="here"' . ($f === 'here' ? ' checked' : '') . '> Here now</label>'
+        . '<button class="btn small">Show</button>' . ($qs !== '' || $f !== '' || $reg !== '' ? ' <a href="' . e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers#known')) . '">Clear</a>' : '') . '</form>';
+    if (!$all) $h .= '<div class="box"><p class="muted">Nobody yet. Visit a shop or wander the town square to meet the locals.</p></div>';
+    elseif (!$list) $h .= '<div class="box"><p class="muted">Nobody matches that.</p></div>';
+    foreach ($byLevel as $li => $group) {
+        $h .= '<h3 class="folkgroup">💛 ' . e(FRIEND_LEVELS[$li][1] ?? 'Stranger') . ' <small>' . count($group) . '</small></h3><div class="box">';
+        foreach ($group as $n) {
+            $lnk = e(url('folk.php?id=' . (int)$n['id']));
+            $h .= '<div class="folkrow"><a href="' . $lnk . '">' . npc_portrait($n, 'small') . '</a>'
+                . '<div><a href="' . $lnk . '"><b>' . e($n['name']) . '</b></a> <small class="muted">' . e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : '') . '</small>'
+                . '<br><small>📍 ' . e($n['now']['what']) . (npc_here($u, (int)$n['id']) ? ' · <b class="good">here now</b>' : '') . '</small>'
+                . '<br><small class="muted">🏡 ' . ($n['home'] ? e($n['home']['name'] . ' · ' . $n['home']['region']) : (!empty($n['traveller']) ? 'travels the Hollow' : '—')) . (npc_birthday_today($n) ? ' · 🎂 birthday today!' : '') . '</small></div></div>';
+        }
+        $h .= '</div>';
+    }
+    return $h . '<details class="fold mapfold"><summary>🗺️ On the world map</summary><div class="mapwrap">' . world_map_svg($u) . '</div>'
+        . '<p class="help">👤 marks a town where villagers you know (Acquaintance or better) are right now. 🎩 is you.</p></details>';
+}
+
+/** Who's at a place: little links to each NPC. */
+function npc_faces(array $npcs, bool $names): string
+{
+    $h = '';
+    foreach ($npcs as $n) {
+        $h .= '<a class="npcface" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" title="' . e($n['name']) . '">' . npc_icon($n['species'])
+            . ($names ? ' ' . e($n['name']) . (!empty($n['traveller']) ? ' <small class="tag">traveller</small>' : '') : '') . '</a>';
+    }
+    return $h;
+}
+
+/** One place's things to do. */
+function action_buttons(array $s, array $u, array $uses, string $q): string
+{
+    $closed = spot_closed($s);
+    $h = '<div class="tacts">';
+    foreach (town_actions((int)$s['id']) as $a) {
+        if ($a['kind'] === 'link') {
+            $h .= '<a class="btn act alt" href="' . e(url((string)$a['link'])) . '">' . e($a['label']) . '</a>';
+            continue;
+        }
+        $left = (int)$a['daily'] > 0 ? (int)$a['daily'] - ($uses[(int)$a['id']] ?? 0) : null;
+        $cost = town_cost_label($a);
+        $chance = town_chance($u, $a);
+        // v0.7.61: "any seed" / "any food" costs let you choose which one, in a pop-up of your satchel
+        $pick = in_array($a['cost_item'], ['anyseed', 'anyfood'], true) ? (string)$a['cost_item'] : '';
+        $h .= '<form method="post" class="tact"' . ($pick ? ' data-needpick="' . $pick . '"' : '') . '>' . csrf_field() . '<input type="hidden" name="do" value="act">'
+            . '<input type="hidden" name="action_id" value="' . (int)$a['id'] . '"><input type="hidden" name="spot" value="' . (int)$s['id'] . '">'
+            . ($pick ? '<input type="hidden" name="item_id" value="0">' : '')
+            . ($q !== '' ? '<input type="hidden" name="hub" value="1">' : '')
+            . '<button class="btn act"' . ($closed || $left === 0 ? ' disabled' : '') . '>' . (str_ends_with((string)$a['slug'], '-drink') ? '☕ ' : '') . e($a['label']) . ($cost !== '' ? ' <span class="cost">' . e($cost) . '</span>' : '') . '</button>'
+            . (str_ends_with((string)$a['slug'], '-drink') ? ' <button class="btn act alt" name="togo" value="1"' . ($closed || $left === 0 ? ' disabled' : '') . '>🥤 Take it to go</button>' : '')
+            . '<small class="muted">' . ($left === null ? '' : ($left > 0 ? $left . ' left today' : 'done for today'))
+            . ($chance < 100 ? ' · ' . $chance . '% chance' : '') . '</small></form>';
+    }
+    return $h . '</div>';
+}
+
+/** v0.7.66: the townsfolk's favours (on the Notice Board and in the square's Quests tab). $sid 0 = from the Quests tab. */
+function town_favours_box(int $uid, string $town, bool $hub, int $sid): void
+{
+    if (setting('orders_on') === '1') { orders_board_box($uid, $town, $hub, $sid); return; }   // v1.0.0 wave 2b: orders replace the flat weekly favours (admin can switch back)
+    $folk = town_folk($town); ?>
+    <div class="box favours"><h3>📌 Favours from the townsfolk</h3>
+      <?php $shown = 0; foreach ($folk as $n): $o = favour_offer($uid, $n, $town); if (!$o) continue; $shown++;
+          $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $o['item']['id']]); ?>
+        <div class="favour<?= $o['done'] ? ' done' : '' ?>"><span class="ficon"><?= npc_icon($n['species']) ?></span>
+          <div><b><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “Could you bring me <?= (int)$o['qty'] ?> × <?= e($o['item']['name']) ?>?”
+            <br><small class="muted">Reward: <?= money($o['coins']) ?>, 10 XP and friendship · you have <?= $have ?></small></div>
+          <?php if ($o['done']): ?><span class="muted">✔️ Done this week</span>
+          <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="favour"><input type="hidden" name="npc" value="<?= (int)$n['id'] ?>">
+            <input type="hidden" name="spot" value="<?= $sid ?>"><?php if (!$sid): ?><input type="hidden" name="view" value="quests"><?php endif; ?><?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
+            <button class="btn small" <?= $have < $o['qty'] ? 'disabled' : '' ?>>Deliver</button></form><?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+      <?php if (!$shown): ?><p class="muted">Nothing for you yet. Chat with the townsfolk: once they know you (Acquaintance or better), they’ll pin a favour here each week.</p><?php endif; ?>
+      <?php if ($folk && $shown < count($folk)): ?><p class="help">Townsfolk who don’t know you yet: <?= e(implode(', ', array_map(fn($n) => $n['name'], array_filter($folk, fn($n) => !favour_offer($uid, $n, $town))))) ?>.</p><?php endif; ?>
+    </div>
+<?php
+}
+
+/** v0.7.61: a pop-up of the player's seeds or food to choose from (used by "Feed the birds" and "Have a picnic"). */
+function town_pickers(int $uid): string
+{
+    require_once __DIR__ . '/includes/items.php';
+    $out = '';
+    foreach (['anyseed' => ['seed', 'Which seeds for the birds?'], 'anyfood' => ['food', 'What will you eat? You get its energy, plus 1 for the fresh air.']] as $kind => [$cat, $title]) {
+        $items = q('SELECT i.id, i.name, i.category, i.effects, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
+                    WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = ? ORDER BY i.base_price, i.name', [$uid, $cat])->fetchAll();
+        $cards = '';
+        foreach ($items as $i) {
+            $cards .= '<button type="button" class="pcard" data-id="' . (int)$i['id'] . '"><span class="pcicon">' . item_icon($i) . '</span>'
+                . '<span class="pcname">' . e($i['name']) . '</span><b class="pcqty">×' . (int)$i['qty'] . '</b></button>';
+        }
+        $out .= '<dialog class="picker townpick" data-kind="' . $kind . '" aria-label="' . e($title) . '"><div class="pickbox">'
+            . '<div class="pickhead"><b>' . e($title) . '</b> <span class="muted">cheapest first</span><button type="button" class="pickx" aria-label="Close">✕</button></div>'
+            . ($cards !== '' ? '<div class="pickgrid">' . $cards . '</div>' : '<p class="muted">You don’t have any.</p>')
+            . '</div></dialog>';
+    }
+    return $out;
+}
