@@ -9,7 +9,7 @@ var SUB_DEFAULT = sub.textContent, SUB_BASE = SUB_DEFAULT;
 var ZL=[1,1.25,1.5,2,2.5], zi=0;
 var lift=document.createElement('div'); lift.id='lift'; field.appendChild(lift);
 var paused=false, curStill=null;
-try{ var mv=localStorage.getItem('jiggy.motion'); paused = mv===null ? !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) : mv==='0'; }catch(e){}
+try{ var mv=localStorage.getItem('jiggy.motion'); paused = mv==='0'; }catch(e){}
 var tok=0, curId=null, inGame=false, G=null, curUrl=null, timer=null, drag=null, pan=null, raf=0, laidOnce=false;
 
 
