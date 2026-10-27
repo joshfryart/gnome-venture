@@ -31,7 +31,7 @@ c:fill(c:ellipse(190, 84, 4, 3), "#c9c5bc"); c:fill(c:rect(194, 74, 195, 82), "#
 for _, x in ipairs({ 18, 24, 212, 218 }) do c:fill(c:rect(x, 84, x, 89), "#25637d") end
 -- side-third mushrooms (umber-outlined via part)
 for _, m in ipairs({ { 40, 100 }, { 46, 103 }, { 196, 101 } }) do
-  c:fill(c:rect(m[1], m[2], m[1] + 1, m[2] + 3), "#f2e4c0")
+  c:fill(c:rect(m[1] - 1, m[2] + 1, m[1] + 1, m[2] + 5), "#c9c5bc"); c:fill(c:rect(m[1] - 1, m[2] + 1, m[1] - 1, m[2] + 5), "#8b8f96")
   c:part(c:ellipse(m[1], m[2] - 1, 3, 2), X.ramp("petal", { shade = "#b8452f", deep = "#b8452f", bounce = "#b8452f", gloss = "#e46a9b", dot = "#e46a9b" }), { gloss = false, cres = 1, deep = 0 })
   c:px(m[1] - 1, m[2] - 2, "#fff3c8")
 end
@@ -45,6 +45,7 @@ for _, f in ipairs({ { 2, 40 }, { 6, 30 }, { 11, 36 }, { 15, 22 }, { 226, 34 }, 
   local x, h = f[1], f[2]
   c:fill(c:rect(x, 134 - h, x, 134), "#2f5a2a"); c:fill(c:rect(x + 1, 134 - h + 4, x + 1, 134), "#2f6a3a")
   c:fill(c:rect(x - 2, 134 - h // 2, x - 1, 134 - h // 2), "#2f5a2a")
+  if h > 30 then c:part(c:rrect(x - 1, 134 - h - 7, x + 1, 134 - h, 1), H.WOOD, { gloss = false, flat = true }) end
 end
 for _, f in ipairs({ { 0, 120, 1 }, { 239, 118, -1 } }) do
   for k = 0, 9 do c:fill(c:rect(f[1] + f[3] * k * 2, f[2] - k // 2, f[1] + f[3] * k * 2 + f[3], f[2] - k // 2 + 3 + (k % 2)), k % 3 == 0 and "#4f9a45" or "#2f5a2a") end

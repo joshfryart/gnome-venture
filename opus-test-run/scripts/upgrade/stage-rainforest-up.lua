@@ -37,11 +37,11 @@ local can = c:mask(); for x = 0, 239 do can:rect(x, 0, x, 13 + math.floor(5 * ma
 c:part(can, DL, { gloss = false, cres = 3, deep = 0 })
 for _, v in ipairs({ { 30, 8 }, { 54, 12 }, { 100, 16 }, { 128, 14 }, { 152, 18 }, { 214, 10 } }) do c:fill(c:rect(v[1], v[2], v[1], v[2] + 14 + (v[1] % 11)), "#4f9a45"); c:fill(c:ellipse(v[1], v[2] + 15 + (v[1] % 11), 2, 2), "#7ab55c") end
 -- moss caps and leaf clusters on the trunks
-for _, t in ipairs({ 66, 168 }) do c:fill(c:rect(t - 2, 30, t + 1, 34), "#4f9a45"); c:fill(c:rect(t + 6, 56, t + 10, 59), "#4f9a45"); c:part(c:ellipse(t + 14, 40, 6, 3), DL, { gloss = false, cres = 3, deep = 0 }); c:part(c:ellipse(t - 6, 50, 5, 3), DL, { gloss = false, cres = 3, deep = 0 }) end
+for _, t in ipairs({ 66, 168 }) do c:fill(c:rect(t - 2, 30, t + 1, 34), "#4f9a45"); c:fill(c:rect(t + 6, 56, t + 10, 59), "#4f9a45"); c:part(c:ellipse(t + 14, 40, 6, 3), H.LEAF, { gloss = false, cres = 3, deep = 0 }); c:part(c:ellipse(t - 6, 50, 5, 3), H.LEAF, { gloss = false, cres = 3, deep = 0 }) end
 -- hanging leaf clumps under the canopy (sides)
 for _, h in ipairs({ { 12, 22 }, { 40, 24 }, { 200, 23 }, { 230, 21 } }) do c:part(c:ellipse(h[1], h[2], 7, 4), H.LEAF, { gloss = false, cres = 3, deep = 0 }) end
 -- foreground side plants: big fern fans and a giant leaf at each edge
-local function fern(x, y, d) for i = 0, 4 do local a = -1.2 + i * 0.5; c:part(c:poly({ { x, y }, { x + d * math.cos(a) * 18 - 2, y + math.sin(a) * 18 }, { x + d * math.cos(a) * 18 + 2, y + math.sin(a) * 18 + 2 } }), DL, { gloss = false, cres = 3, deep = 0 }) end end
+local function fern(x, y, d) for i = 0, 3 do local a = -1.3 + i * 0.4; c:part(c:poly({ { x - 2, y }, { x + d * math.cos(a) * 20, y + math.sin(a) * 20 }, { x + 2, y } }), H.LEAF, { gloss = false, cres = 3, deep = 0 }) end end
 fern(6, 134, 1); fern(234, 134, -1); fern(30, 132, 1); fern(212, 132, -1)
 c:part(c:poly({ { 0, 70 }, { 14, 76 }, { 18, 96 }, { 6, 104 }, { 0, 100 } }), H.LEAF, { gloss = false, cres = 3, deep = 0 }); c:fill(c:rect(1, 78, 12, 78), "#4f9a45"); c:fill(c:rect(1, 90, 14, 90), "#4f9a45")
 c:part(c:poly({ { 239, 66 }, { 224, 74 }, { 222, 92 }, { 232, 100 }, { 239, 96 } }), H.LEAF, { gloss = false, cres = 3, deep = 0 }); c:fill(c:rect(226, 80, 238, 80), "#4f9a45"); c:fill(c:rect(225, 88, 238, 88), "#4f9a45")
