@@ -35,7 +35,7 @@ ch3.spot.bell.a2|A hammer
 ch3.spot.bell.a3|A clapper
 ch3.spot.bell.right|The bell shivers, and its tongue drops loose into your palm.\nAn iron clapper, still warm. Someone tied it up to keep the hush.
 ch3.spot.bell.wrong|The bell stays silent. It seems to be listening for a better answer.
-ch3.spot.bell.out|The bell keeps its secret and hangs very still.\nThe Bellcap Beetles in this gallery pick up anything that rings, they say. Perhaps one has a clapper.
+ch3.spot.bell.out|The bell keeps its secret and hangs very still.\nThen something small clinks in the dark. A clapper rolls to your feet, as if the gallery felt sorry for you.
 ch3.spot.bell.after|The bell hangs quiet on its hook.
 ch3.spot.nookC.arrive|Behind the loose rock, a crack just wide enough to squeeze through.\nSomething glints inside.
 ch3.spot.nookC.find|A glowing bead on a thread, and a few Petals tucked in beside it.

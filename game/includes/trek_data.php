@@ -28,7 +28,7 @@ function trek_settings_base(): array
 {
     return [
         'trek_open'           => ['label' => 'Treks: open to every player (off = admins only)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
-        'trek_chapters_open'  => ['label' => 'Treks: deepest chapter players may go down to (admins always can; a player already inside one stays) (v2.0.20)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 20],
+        'trek_chapters_open'  => ['label' => 'Treks: deepest chapter players may go down to (admins always can; a player already inside one stays) (v2.0.20)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 20],
         'trek_base_level'     => ['label' => 'Treks: the level every party member fights at before trek levels (gnome level no longer counts) (v1.9.5)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],
         'trek_level'          => ['label' => 'Treks: gnome level needed', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],
         'trek_entry_energy'   => ['label' => 'Treks: energy to go in (each time)', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 1000],

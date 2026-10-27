@@ -148,7 +148,7 @@ ok('the Strongbox is locked without a Bell Clapper (nothing paid, flag not set)'
 $at('bell');
 $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 1), true, 3);
 $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 2), true, 3);
-ok('the Hush Bell: two wrong answers, no clapper, the bell keeps its secret (it does not open on its own)', !$flag('bell_solved') && $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3), true, 3)[0] === false && (!$cl || trek_pack_qty((int)$run(3)['id'], $cl) === 0));
+ok('the Hush Bell: two wrong answers still give the clapper (failopen), bell_solved set, no third try', $flag('bell_solved') && $tx(fn(&$run, $u) => trek_act_riddle($run, $u, 3), true, 3)[0] === false && (!$cl || trek_pack_qty((int)$run(3)['id'], $cl) === 1));
 $tx(function (&$run, $u) { $run['st']['tries_bell'] = 0; return [true, '']; }, true, 3);
 $right = (int)$sp['bell']['data']['right'];
 $tx(fn(&$run, $u) => trek_act_riddle($run, $u, $right), true, 3);
