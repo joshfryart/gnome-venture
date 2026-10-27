@@ -74,32 +74,6 @@ local TINT = {
   SEA = { "#a4b86a", "#6a9a3a", "#4f9a45", "#2f6a3a" }, OC = { "#f5cf6a", "#f2e4c0", "#c8ecdc", "#7ab55c" } }
 local PINS = { { 40, 100 }, { 70, 70 }, { 95, 100 }, { 120, 65 }, { 140, 98 }, { 165, 70 }, { 185, 100 }, { 205, 65 }, { 212, 100 } }   -- grid px (20x20 exported = 10x10 flat)
 local ZONES = { { 40, 100, 34 }, { 95, 70, 38 }, { 150, 95, 40 }, { 205, 75, 36 } }
-do
-  local ri, r = 11, REG[11]
-  local code = r[1]
-  local c = X.canvas{ mode = "scene", w = 240, h = 135, out = 2, ol = 1, olx = 1 }
-  X.layer(c, "sky"); rockbg(c, 240, 135)
-  X.layer(c, "ground")
-  local land = c:mask(); for x = 0, 239 do land:rect(x, 6 + math.floor(3 * math.sin(x / 13 + ri) + 0.5), x, 128 - math.floor(3 * math.sin(x / 9 + ri) + 0.5)) end
-  land:cut(c:rect(0, 0, 3, 134)):cut(c:rect(236, 0, 239, 134))
-  -- lava river and lava lake (light sources)
-  local river = c:mask(); local RP = {}
-  for t = 0, 1, 0.01 do local x, y = math.floor(150 + 34 * math.sin(t * 4.2 + ri) + 0.5), math.floor(4 + t * 126); river:add(c:ellipse(x, y, 1, 1)); RP[#RP + 1] = { x, y } end
-  river:clip(land)
-  local lk = { 120, 30 }
-  local LAVA = { { 196, 62, 6 }, { 214, 96, 5 }, { 172, 108, 5 }, { 92, 44, 5 } }   -- small vents in the hard/medium zones
-  local SRC = { { 20, 80, 46 }, { lk[1], lk[2], 42 } }   -- village lanterns, lava lake
-  for _, v in ipairs(LAVA) do SRC[#SRC + 1] = { v[1], v[2], 30 } end
-  local BAND = { { 38, "#f5cf6a" }, { 28, "#f08a24" }, { 18, "#e0501f" }, { 8, "#a8582f" }, { -1e9, "#5e2f1e" } }
-  local light = {}
-  for y = 0, 134 do for x = 0, 239 do if land:has(x, y) then
-    local L = -1e9
-    for _, s in ipairs(SRC) do local dx, dy = x - s[1], (y - s[2]) * 1.4; local v = s[3] - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end
-    for _, p in ipairs(RP) do local dx, dy = x - p[1], y - p[2]; if math.abs(dx) < 30 and math.abs(dy) < 30 then local v = 32 - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end end
-    -- edge falloff toward ceiling/floor and side walls
-    local e = math.min(y - 6, 128 - y, x - 4, 235 - x); if e < 12 then L = L - (12 - e) end
-    light[y * 240 + x] = L
-    for _, b in ipairs(BAND) do if L >= b[1] then c:px(x, y, b[2]); break end end
 -- ===== WCA upgrade: underground forest cavern, lit by lime glow mushrooms, a luminous root-tree and village lanterns =====
 do
   local ri, r = 9, REG[9]

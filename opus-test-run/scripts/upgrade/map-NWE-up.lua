@@ -86,7 +86,7 @@ do
   local GC = { { 206, 98 }, { 96, 112 }, { 214, 40 } }   -- glow-crystal clusters (small lights)
   local SRC = { { TW[1], TW[2], 56 }, { 20, 80, 40 } }
   for _, g in ipairs(GC) do SRC[#SRC + 1] = { g[1], g[2], 24 } end
-  local BAND = { { 44, "#bdd292" }, { 32, "#a4b86a" }, { 21, "#7ab55c" }, { 11, "#4f9a45" }, { 2, "#2f6a3a" }, { -1e9, "#2f5a2a" } }
+  local BAND = { { 44, "#bdd292" }, { 32, "#a4b86a" }, { 21, "#7ab55c" }, { 11, "#4f9a45" }, { 2, "#2f6a3a" }, { -9, "#2f5a2a" }, { -1e9, "#4a2c1a" } }
   local function band(L) for _, b in ipairs(BAND) do if L >= b[1] then return b[2] end end end
   local light = {}
   local BAY = { 0, 2, 3, 1 }
@@ -99,7 +99,7 @@ do
   end end end
   local function lt(x, y) return light[y * 240 + x] or -99 end
   local ts = ri * 17 + 3; local function trnd(n) ts = (ts * 1103515245 + 12345) % 2147483648 return ts % n end
-  local DARKER = { ["#bdd292"] = "#a4b86a", ["#a4b86a"] = "#7ab55c", ["#7ab55c"] = "#4f9a45", ["#4f9a45"] = "#2f6a3a", ["#2f6a3a"] = "#2f5a2a", ["#2f5a2a"] = "#2a1a10" }
+  local DARKER = { ["#bdd292"] = "#a4b86a", ["#a4b86a"] = "#7ab55c", ["#7ab55c"] = "#4f9a45", ["#4f9a45"] = "#2f6a3a", ["#2f6a3a"] = "#2f5a2a", ["#2f5a2a"] = "#4a2c1a" }
   for i = 1, 140 do local x, y = 6 + trnd(228), 10 + trnd(116); if land:has(x, y) then local d = DARKER[c:get(x, y)]; if d then c:paint({ "x.x", ".x." }, x, y, { x = d }) end end end
   local zm = {}
   for zi = 4, 1, -1 do local z = ZONES[zi]; local m = c:mask(); m:add(c:ellipse(z[1], z[2], z[3], 30)); m:add(c:ellipse(z[1] + 8, z[2] - 14, z[3] * 0.6, 20)); m:clip(land); zm[zi] = m end

@@ -123,7 +123,7 @@ do
   c:fill(bridge, "#8a4f2a"); bridge:each(function(x, y) if x % 2 == 0 then c:px(x, y, "#b07a45") end end)
   -- dome village: cream walls, gold domes, lit windows
   local HOUSES = { { 18, 76 }, { 30, 70 }, { 14, 94 }, { 8, 58 }, { 22, 56 }, { 6, 82 } }
-  for _, h in ipairs(HOUSES) do P(c, c:rect(h[1], h[2], h[1] + 9, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:ellipse(h[1] + 4.5, h[2], 5, 5):cut(c:rect(h[1] - 2, h[2] + 1, h[1] + 11, h[2] + 8)), RM.gold, { gloss = false, flat = true }); c:fill(c:rect(h[1] + 3, h[2] + 3, h[1] + 5, h[2] + 5), "#f5cf6a"); c:px(h[1] + 4, h[2] + 4, "#fff3c8") end
+  for _, h in ipairs(HOUSES) do P(c, c:rect(h[1], h[2], h[1] + 9, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:ellipse(h[1] + 4.5, h[2], 4, 3):cut(c:rect(h[1] - 2, h[2] + 1, h[1] + 11, h[2] + 8)), RM.gold, { gloss = false, flat = true }); c:fill(c:rect(h[1] + 3, h[2] + 3, h[1] + 5, h[2] + 5), "#f5cf6a"); c:px(h[1] + 4, h[2] + 4, "#fff3c8") end
   for x = 4, 40, 4 do c:px(x, 112, "#8a4f2a") end; c:fill(c:rect(4, 111, 40, 111), "#d9a660")
   for i = 0, 1 do local x = 20 + i * 14; for dx = 0, 8, 2 do c:fill(c:rect(x + dx, 100, x + dx, 104), "#3f8fb0"); c:fill(c:rect(x + dx + 1, 100, x + dx + 1, 104), "#f2e4c0") end; c:fill(c:rect(x, 105, x + 9, 106), "#8a4f2a"); glowdot(c, x + 4, 98) end
   -- the great crystal cluster (light source)
@@ -142,13 +142,13 @@ do
     return not roadM:has(x, y) and not roadM:has(x, y - 3) and not river:has(x, y) and not lm:has(x, y)
   end
   for try = 1, 400 do
-    if placed >= 40 then break end
+    if placed >= 30 then break end
     local x, y = 12 + rnd(216), 18 + rnd(100)
     if free(x, y) then
       local L = light[y * 240 + x] or -99
       if L >= 14 and placed % 3 ~= 2 then glyph(c, "dome", x, y, 0.8)
       elseif L >= 6 then crystalc(c, x, y, 7, placed % 2 == 0 and "#a9d6ea" or "#eef8f2")
-      else stalag(c, x, y, 9, "#5b6470", "#1f3f3a") end
+      elseif placed % 2 == 0 then crystalc(c, x, y, 6, "#3f8fb0") else stalag(c, x, y, 7, "#5b6470", "#2a1a10") end
       placed = placed + 1
     end
   end
