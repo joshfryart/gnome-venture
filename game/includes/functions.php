@@ -525,7 +525,6 @@ function settings_schema(): array
         'upgrade_level_gap'  => ['label' => 'Building upgrades: garden levels above the building’s own level needed for level 2, level 3', 'type' => 'text', 'default' => '2,4'],
         'upgrade_materials_2' => ['label' => 'Building upgrades: materials for level 2 (slug:qty, …)', 'type' => 'text', 'default' => 'building-stone:6,timber-plank:6,rope:3'],
         'upgrade_materials_3' => ['label' => 'Building upgrades: materials for level 3 (slug:qty, …)', 'type' => 'text', 'default' => 'building-stone:15,timber-plank:15,rope:8'],
-        'gather_games_on'    => ['label' => 'Gathering: mini-games (🎯 play for a better find) are on', 'type' => 'bool', 'default' => '1'],
         'favour_pay_percent' => ['label' => 'Townsfolk favours: pay this % of the crops’ base price (120 ≈ twice what a shop pays)', 'type' => 'int', 'default' => '120', 'min' => 0, 'max' => 1000],
         'journey_crate_weeks' => ['label' => 'Wren’s Journey: weekly supply crates keep coming for this many weeks after a chapter is finished (0 = forever)', 'type' => 'int', 'default' => '12', 'min' => 0, 'max' => 1000],
         'guide_price'        => ['label' => 'Gardening guides: base shop price (shops sell them for this to 25% more)', 'type' => 'int', 'default' => '6000', 'min' => 1, 'max' => 100000000],

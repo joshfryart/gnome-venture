@@ -304,17 +304,155 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     return $h;
 }
 
-/** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). */
+/** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). v2.0.67: in town, Shops and Orders are town.php views
+ *  (old world.php?tab=markets and jobs.php?t=orders links still work); labels are one word after the icon (the strip never wraps). */
 function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount = 0): array
 {
     $q = $hub ? 'hub=1&' : '';
     return [
-        'square' => ['🏘️ ' . ($inTown ? 'Square' : 'Where you are'), url('town.php' . ($hub ? '?hub=1' : '')), ''],
+        'square' => ['🏘️ ' . ($inTown ? 'Square' : 'Here'), url('town.php' . ($hub ? '?hub=1' : '')), ''],
         'villagers' => ['👥 Villagers', url('town.php?' . $q . 'view=villagers'), $folkCount > 0 ? (string)$folkCount : ''],
-        'shops' => ['🏪 Shops', url('world.php?tab=markets'), ''],
-        'orders' => ['📜 Orders', url('jobs.php?t=orders' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
+        'shops' => ['🏪 Shops', $inTown ? url('town.php?' . $q . 'view=shops') : url('world.php?tab=markets'), ''],
+        'orders' => ['📜 Orders', $inTown ? url('town.php?' . $q . 'view=orders') : url('jobs.php?t=orders' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
         'stop' => ['🛂 Stop', url('town.php?' . $q . 'view=stop'), ''],
     ];
+}
+
+/** v2.0.67: the main-stop tab strip (mockup3): stitched leather, icon over a one-word label, one row at any width. $tabs from main_stop_tabs(). */
+function main_stop_tabs_html(array $tabs, string $active, string $label = 'Town sections'): string
+{
+    $h = '<nav class="mtabs" aria-label="' . e($label) . '">';
+    foreach ($tabs as $k => [$lab, $href, $badge]) {
+        [$ic, $word] = array_pad(explode(' ', (string)$lab, 2), 2, '');
+        $on = $k === $active;
+        $h .= '<a class="mtabs__a' . ($on ? ' on' : '') . '" href="' . e($href) . '" data-inplace' . ($on ? ' aria-current="page"' : '') . '>'
+            . '<span class="mtabs__ic" aria-hidden="true">' . $ic . '</span><span class="mtabs__t">' . $word . '</span>'
+            . ($badge !== '' ? '<span class="mtabs__badge" aria-hidden="true">' . e($badge) . '</span><span class="vh">, ' . e($badge) . ' in town now</span>' : '') . '</a>';
+    }
+    return $h . '</nav>';
+}
+
+/** v2.0.67: Square card art for a town place: its own picture (a few specials), the kind's, else the signpost fallback. Path from the web root. */
+const TOWN_PLACE_ART_SLUG = ['sp-grind' => 'grind', 'sp-monastery' => 'monastery', 'mm-stones' => 'stones', 'mm-pub' => 'pub'];
+function town_place_art(array $s): string
+{
+    $dir = __DIR__ . '/../assets/img/town/';
+    foreach ([TOWN_PLACE_ART_SLUG[(string)($s['slug'] ?? '')] ?? '', (string)($s['kind'] ?? ''), 'special'] as $n) {
+        if ($n !== '' && preg_match('/^[a-z0-9_-]+$/', $n) && is_file($dir . 'place-' . $n . '.png')) return 'assets/img/town/place-' . $n . '.png';
+    }
+    return '';
+}
+
+/** v2.0.67: Shops card art per shops.shop_type, else the signpost. */
+function town_shop_art(string $type): string
+{
+    $dir = __DIR__ . '/../assets/img/town/';
+    if (preg_match('/^[a-z0-9_-]+$/', $type) && is_file($dir . 'shop-' . $type . '.png')) return 'assets/img/town/shop-' . $type . '.png';
+    return is_file($dir . 'place-special.png') ? 'assets/img/town/place-special.png' : '';
+}
+
+/** A 144x108 felt-card picture (decorative). */
+function felt_art_img(string $path): string
+{
+    return $path !== '' ? '<img class="pix" src="' . e(url($path)) . '" width="144" height="108" alt="" loading="lazy" decoding="async">' : '';
+}
+
+/**
+ * v2.0.67: one Square place card (mockup3): a felt card that links to the place (closed places stay links: a shut place can still be read).
+ * States: idle; all done today (stone felt, tick); closed by the clock (padlock, the hours in words); closed for repairs (barrier);
+ * found only here (kind special: gold stitch, gold sign, star).
+ */
+function town_place_card(array $s, int $uid, array $uses, string $q): string
+{
+    require_once __DIR__ . '/journey.php';
+    $closed = spot_closed($s);
+    $acts = array_filter(town_actions((int)$s['id']), fn($a) => $a['kind'] !== 'link');
+    $todo = 0;
+    foreach ($acts as $a) if ((int)$a['daily'] <= 0 || ($uses[(int)$a['id']] ?? 0) < (int)$a['daily']) $todo++;
+    $jl = journey_lock($uid, 'spot', (string)$s['slug']);
+    $gold = ($s['kind'] ?? '') === 'special';
+    $state = $jl ? ' is-repair' : ($closed ? ' is-closed' : ($acts && !$todo ? ' is-done' : ''));
+    $chip = $jl ? '<span class="pchip pchip--repair">🚧 closed for repairs</span>'
+        : ($closed ? '<span class="pchip pchip--closed">🔒 ' . e($closed) . '</span>'
+        : ($acts ? ($todo ? '<span class="pchip pchip--todo">' . $todo . ' thing' . ($todo === 1 ? '' : 's') . ' to do</span>' : '<span class="pchip pchip--done">✔️ all done today</span>')
+        : '<span class="pchip pchip--look">Have a look</span>'));
+    $folk = '';
+    foreach (npcs_at_spot($s) as $n) $folk .= '<span aria-hidden="true" title="' . e($n['name']) . '">' . npc_icon($n['species']) . '</span><span class="vh">' . e($n['name']) . ' is here.</span>';
+    $gc = gnome_count_at_spot((int)$s['id'], $uid);
+    if ($gc) $folk .= ($folk !== '' ? ' ' : '') . '🧑‍🌾 ' . $gc . ' gnome' . ($gc === 1 ? '' : 's') . ' here';
+    return '<a class="gcard placecard' . ($gold ? ' placecard--gold' : '') . $state . '" href="' . e(url('town.php?' . $q . 'spot=' . (int)$s['id'])) . '">'
+        . '<span class="gcard__art">' . felt_art_img(town_place_art($s)) . '</span>'
+        . '<span class="gcard__ribbon"><span class="gcard__label">' . e($s['name']) . '</span>' . ($gold ? '<span class="vh">, found only here</span>' : '') . '</span>'
+        . '<span class="gcard__meta">' . $chip . ($folk !== '' ? '<span class="pfolk">' . $folk . '</span>' : '') . '</span></a>';
+}
+
+/** v2.0.67: the Shops tab of a main stop (mockup3): this town's shops, then Mossbottom's (reachable from anywhere). Same rules as world.php's Shops tab. */
+function town_shops_html(array $u, string $town): string
+{
+    require_once __DIR__ . '/world.php';
+    $list = fn(string $region): array => q('SELECT s.*, l.name AS loc_name, l.id AS loc_id FROM shops s JOIN locations l ON l.id = s.location_id
+              WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll();
+    $h = '';
+    if ($town !== HUB_REGION) {
+        $shops = $list($town);
+        $h .= '<h3 class="gx-h">🏪 Shops in ' . e($town) . '</h3>' . ($shops ? '<ul class="scards">' . town_shop_cards($shops, $u) . '</ul>' : '<p class="gx-note">No shops here yet.</p>');
+    }
+    $hubShops = $list(HUB_REGION);
+    $h .= '<h3 class="gx-h">🍄 Mossbottom hub <span class="gx-h__sub">reachable from anywhere</span></h3>'
+        . ($hubShops ? '<ul class="scards">' . town_shop_cards($hubShops, $u) . '</ul>' : '<p class="gx-note">No shops here yet.</p>');
+    return $h;
+}
+
+/** Shop cards: vignette per shop type, the name on a sign, the description, who is at the counter. Whole card = the link; closed shops stay links. */
+function town_shop_cards(array $shops, array $u): string
+{
+    $out = '';
+    foreach ($shops as $s) {
+        $staff = staff_on_duty((int)$s['id']);
+        $reach = shop_reachable($u, $s);
+        $inner = '<span class="scard__art">' . felt_art_img(town_shop_art((string)($s['shop_type'] ?? ''))) . '</span>'
+            . '<span class="scard__ribbon"><span class="scard__name">' . e($s['name']) . '</span></span>'
+            . '<span class="scard__desc">' . e((string)$s['description']) . '</span>'
+            . '<span class="scard__staff">' . ($staff ? 'At the counter: ' . e(implode(', ', array_column($staff, 'name'))) : 'Closed — nobody on shift') . '</span>';
+        $cls = 'scard' . ($staff ? '' : ' is-closed');
+        $out .= '<li>' . ($reach
+            ? '<a class="' . $cls . '" href="' . e(url('shop.php?id=' . (int)$s['id'])) . '">' . $inner . '</a>'
+            : '<div class="' . $cls . '">' . $inner . '<a class="scard__walk" href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">🚶 Walk to ' . e((string)$s['loc_name']) . ' to shop here</a></div>') . '</li>';
+    }
+    return $out;
+}
+
+/** v2.0.67: the Orders tab of a main stop (mockup3): each order a pinned felt note. Same data and Deliver POST as orders_board_box (do=order to town.php). */
+function town_orders_html(int $uid, string $town, bool $hub): string
+{
+    if (setting('orders_on') !== '1') { ob_start(); town_favours_box($uid, $town, $hub, 0); return (string)ob_get_clean(); }   // admin switched back to favours
+    require_once __DIR__ . '/friends.php';
+    $board = orders_board($town);
+    $cy = orders_cycle();
+    $next = date('D j M', strtotime(hollow_date_add($cy['end'], 1) . ' UTC'));
+    $h = '<h3 class="gx-h" id="orders">📜 Orders from the townsfolk</h3>'
+        . '<p class="gx-note gx-note--top">Fill an order before its deadline. Harder orders (a higher quality bar) pay more. New orders every ' . (int)$cy['len'] . ' days; next round ' . e($next) . '.</p>';
+    if (!$board) return $h . '<p class="gx-note">No open orders in ' . e($town) . ' right now. The next round is pinned on ' . e($next) . '.</p>';
+    $h .= '<ul class="ocards">';
+    foreach ($board as ['npc' => $n, 'o' => $o]) {
+        $done = order_done($uid, (int)$n['id'], $o['cycle']);
+        $c = $done ? null : order_check($uid, $o);
+        $d = (int)$o['diff'];
+        $tags = '<span class="otag otag--stars" role="img" aria-label="Difficulty: ' . $d . ' of 3" title="Difficulty">' . str_repeat('★', $d) . str_repeat('☆', 3 - $d) . '</span>'
+            . ($o['bar'] ? '<span class="otag">' . e($o['bar']) . '</span>' : '')
+            . '<span class="otag' . ($o['days_left'] <= 1 ? ' otag--warn' : '') . '">⏳ ' . (int)$o['days_left'] . ' day' . ($o['days_left'] === 1 ? '' : 's') . ' left</span>';
+        $rw = 'Reward: ' . money($o['coins']) . ', ' . (int)$o['xp'] . ' XP, +' . (int)$o['friend'] . ' friendship' . ($o['reward_item'] ? ', 🎁 ' . e($o['reward_item']['name']) : '');
+        if ($c) $rw .= ' · you have ' . (int)$c['have'] . ($c['quality'] !== null && ($o['kind'] === 'arrangement' || $o['minq'] > 0) ? ' (' . ($o['kind'] === 'arrangement' ? 'best ' . (int)$c['quality'] : 'grade ' . e(market_grade((int)$c['quality'])) . ', ' . (int)$c['quality']) . ')' : '') . ($c['note'] ? ' · ' . e($c['note']) : '');
+        $foot = $done ? '<span class="ocard__done">✔️ Delivered</span>'
+            : '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="order"><input type="hidden" name="npc" value="' . (int)$n['id'] . '">'
+              . '<input type="hidden" name="spot" value="0"><input type="hidden" name="view" value="orders">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
+              . '<button class="fbtn ocard__act"' . ($c['enough'] ? '' : ' disabled') . '>Deliver</button></form>';
+        $h .= '<li class="ocard' . ($done ? ' is-done' : '') . '">'
+            . '<a class="ocard__who" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '"><span class="ocard__face">' . npc_portrait($n, 'small') . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . e($n['name']) . '</span></span></a>'
+            . '<p class="ocard__q">“' . e($o['text']) . '”</p><p class="ocard__tags">' . $tags . '</p><p class="ocard__rw">' . $rw . '</p>'
+            . '<div class="ocard__foot">' . $foot . '</div></li>';
+    }
+    return $h . '</ul>';
 }
 
 /** v2.0.61: the place switcher bar: World / Here / Mossbottom. $active: 'world', 'here' or 'hub'. */
@@ -351,12 +489,15 @@ function place_chips(array $u): array
     return [e($n['daypart_emoji'] . ' ' . $n['daypart_label']), e($n['weather_emoji'] . ' ' . $n['weather_label']), e($n['season_emoji'] . ' ' . $n['season_label'] . ' ' . $n['season_day'])];
 }
 
-/** v2.0.65: the one villager row (main stop and rest stop). $face and $action are ready HTML; $lines are ready HTML lines; $extra (errands) folds under the row. */
-function villager_row_html(string $face, string $name, array $lines, string $action = '', string $extra = '', string $extraTitle = '', bool $open = false, string $badge = ''): string
+/** v2.0.65: the one villager row (main stop and rest stop). $face and $action are ready HTML; $lines are ready HTML lines; $extra (errands) folds under the row.
+ *  v2.0.67: a felt row (mockup3) as an <li> for a <ul class="vlcards">: face + name sign (one link when $href is given), the lines, one action; $badge = ready HTML. */
+function villager_row_html(string $face, string $name, array $lines, string $action = '', string $extra = '', string $extraTitle = '', bool $open = false, string $badge = '', string $href = ''): string
 {
-    $h = '<div class="vrow"><div class="vtop"><span class="vface">' . $face . '</span><div class="vmain"><b>' . $name . $badge . '</b>';
-    foreach ($lines as $l) if ($l !== '') $h .= '<small class="vsub">' . $l . '</small>';
-    $h .= '</div>' . ($action !== '' ? '<div class="vact">' . $action . '</div>' : '') . '</div>';
-    if ($extra !== '') $h .= '<details class="vfold"' . ($open ? ' open' : '') . '><summary>' . $extraTitle . '</summary>' . $extra . '</details>';
-    return $h . '</div>';
+    $who = '<span class="vlcard__face">' . $face . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . $name . '</span></span>';
+    $h = '<li class="vlcard">' . ($href !== '' ? '<a class="vlcard__who" href="' . e($href) . '">' . $who . '</a>' : '<span class="vlcard__who">' . $who . '</span>');
+    $h .= ($action !== '' ? '<span class="vlcard__act">' . $action . '</span>' : '') . '<span class="vlcard__main">';
+    foreach ($lines as $l) if ($l !== '') $h .= '<span class="vlcard__sub">' . $l . '</span>';
+    $h .= $badge . '</span>';
+    if ($extra !== '') $h .= '<details class="vfold vlcard__fold"' . ($open ? ' open' : '') . '><summary>' . $extraTitle . '</summary>' . $extra . '</details>';
+    return $h . '</li>';
 }

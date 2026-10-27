@@ -354,5 +354,22 @@ ok('a deactivated activity disappears', !in_array('haggle', array_column(stop_po
 q("UPDATE stop_acts SET active = 1 WHERE slug = 'haggle'"); stop_acts(true);
 cfg(['stop_reward_percent' => 200]); ok('stop_reward_percent is a setting', setting('stop_reward_percent') === '200'); cfg(['stop_reward_percent' => 100]);
 q('UPDATE users SET title = NULL WHERE username = ?', ['sprout']);
+echo "== v2.0.67 Do cards: every activity has its card art\n";
+$kinds = [];
+foreach (stops_file_rows('stop_acts.txt') as $r) { if (count($r) < 12) continue; $kinds[$r[6]] = true; $p = stop_act_art($r[6], $r[0]); if ($p === '' || !is_file($argv[1] . '/' . $p)) ok("art for activity {$r[0]} ({$r[6]})", false, $p); }
+foreach (stop_acts() as $a) { $p = stop_act_art((string)$a['kind'], (string)$a['slug']); if ($p === '' || !is_file($argv[1] . '/' . $p)) ok("art for db activity {$a['slug']}", false, $p); }
+ok('every activity row resolves to an art file', true);
+$missing = array_diff(array_keys($kinds), array_keys(STOP_ACT_ART_KIND));
+ok('every kind in stop_acts.txt has its own kind picture (' . count($kinds) . ' kinds)', !$missing, implode(',', $missing));
+foreach (STOP_ACT_ART_KIND + STOP_ACT_ART_SLUG as $k => $n) if (!is_file($argv[1] . '/assets/img/acts/act-' . $n . '.png')) ok("picture act-$n.png for $k", false);
+ok('an unknown kind falls back to the signpost', stop_act_art('no-such-kind') === 'assets/img/acts/act-any.png');
+$u = at(stopOfType('market', 1)); $GLOBALS['st_tab'] = 'do'; $_GET['t'] = 'do';
+$page = local_panel($u, player_node($u));
+ok('Do tab: felt cards, no old text tiles', substr_count($page, 'class="gcard docard"') >= 2 && !str_contains($page, 'class="st-tile'), (string)substr_count($page, 'class="gcard docard"'));
+ok('Do tab: every open card has its sheet, and the sheets post do=local', substr_count($page, 'class="gcard docard" data-sheet') === substr_count($page, '<dialog class="isheet dosheet"') && str_contains($page, 'name="do" value="local"'), substr_count($page, 'data-sheet aria-haspopup="dialog"') . ' cards, ' . substr_count($page, '<dialog class="isheet dosheet"') . ' sheets');
+ok('Do tab: no style attributes (CSP)', !preg_match('/\sstyle=/', $page));
+$_GET['t'] = 'folk'; $page = local_panel($u, player_node($u)); $_GET['t'] = 'do';
+ok('Villagers tab: felt villager rows', substr_count($page, '<li class="vlcard">') >= 1 && str_contains($page, '<ul class="vlcards st-folks">'));
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

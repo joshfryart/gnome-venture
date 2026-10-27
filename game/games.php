@@ -3,13 +3,12 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/games.php';
-require_once __DIR__ . '/includes/gathering.php';   // v1.5.0: the Practice tab
 $u = require_login();
 $uid = (int)$u['id'];
 ensure_race_secret();
 settle_races();
 settle_marrows();
-$tab = in_array($_GET['tab'] ?? '', ['contests', 'practice'], true) ? $_GET['tab'] : 'games';   // v1.5.0: + practice   // v0.8.2: games and contests on their own tabs
+$tab = in_array($_GET['tab'] ?? '', ['contests'], true) ? $_GET['tab'] : 'games';   // v2.0.67: the Practice tab is gone with the tool games   // v0.8.2: games and contests on their own tabs
 require_once __DIR__ . '/includes/contests.php';
 require_once __DIR__ . '/includes/fair.php';
 settle_shows();
@@ -20,7 +19,6 @@ page_header('Games');
 <nav class="tabs">
   <a class="<?= $tab === 'games' ? 'on' : '' ?>" href="<?= e(url('games.php')) ?>">🎲 Games</a>
   <a class="<?= $tab === 'contests' ? 'on' : '' ?>" href="<?= e(url('games.php?tab=contests')) ?>">🏆 Contests</a>
-  <a class="<?= $tab === 'practice' ? 'on' : '' ?>" href="<?= e(url('games.php?tab=practice')) ?>">🎯 Practice</a><?php /* v1.5.0 */ ?>
 </nav>
 <?php if ($tab === 'games'): ?>
 <p class="help">Plays come back at the daily reset (in <?= nice_time(job_period_left('daily')) ?>).</p>
@@ -55,9 +53,6 @@ page_header('Games');
   </div>
   <p class="help">High scores reset every week.</p>
 </details>
-<?php elseif ($tab === 'practice'): /* v1.5.0: the six tool games, for fun: nothing is paid */ ?>
-<h2>🎯 Tool game practice</h2>
-<?= gather_practice_html($u) ?>
 <?php else: ?>
 <?= contests_hub_html($u) ?>
 <p class="help">Contests run on their own: the Village Show enters your best harvest of its crop for you, and the Fair keeps your best of each class until you enter it. Winners get Petals and a 🎀 ribbon on their profile.</p>

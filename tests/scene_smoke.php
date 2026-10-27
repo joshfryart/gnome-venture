@@ -14,4 +14,6 @@ $t(str_contains(scene_banner('nopicture', 'A "forest"'), 'scene-fb-nopicture') &
 $t(scene_path('banner', 'forest') === '' || str_contains(scene_banner('forest', 'A "forest"'), '<img'), 'banner uses the picture once it is drawn');
 $h = scene_stage('stage', 'forest', [['id' => 'a', 'side' => 'p', 'name' => '<b>x</b>', 'img' => 'assets/img/ph/nav-villagers.png', 'hp' => 5, 'max' => 10]]);
 $t(!str_contains($h, '<b>') && str_contains($h, 'data-stage='), 'stage escapes and carries data');
+$t(scene_stage_key('forest', 'storm', 'day') === (scene_path('stage', 'forest-storm') !== '' ? 'forest-storm' : 'forest'), 'stage chooser follows the weather (v2.0.67; full checks in scene_stage.php)');
+$t(scene_stage_key('nowhere', 'sun', 'day') === 'nowhere', 'stage chooser falls back to the land');
 exit($bad ? 1 : 0);

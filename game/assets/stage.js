@@ -32,6 +32,9 @@
       var bg = mk('img', 'gvs-bg pix', box);
       bg.src = data.bg; bg.alt = ''; bg.width = W; bg.height = H;
     }
+    // v2.0.67: time-of-day wash over the backdrop, under the figures. Colours come from CSS on .gvs[data-dp] (none for day or a baked dawn/dusk picture)
+    var dp = el.getAttribute('data-dp');
+    if (dp && dp !== 'day') mk('span', 'gvs-tint', box).setAttribute('aria-hidden', 'true');
     var slots = { p: 0, f: 0 };
     (data.units || []).forEach(function (u) {
       var side = u.side === 'f' ? 'f' : 'p';

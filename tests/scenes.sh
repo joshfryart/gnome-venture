@@ -28,6 +28,9 @@ post welcome.php -d do=place -d village_id=$VID >/dev/null
 get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'garden_name=Test Patch' >/dev/null
 echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 SHOP=$(db "SELECT id FROM shops ORDER BY id LIMIT 1")
+echo "== stage chooser (v2.0.67): every land x weather x daypart, json maps, fallbacks, weather_force"
+php "$HERE/scene_stage.php" >/tmp/gv_stage_$$.txt; echo "standalone: $(grep -c '^ok' /tmp/gv_stage_$$.txt) ok, $(grep -c '^FAIL' /tmp/gv_stage_$$.txt) FAIL (want 0)"; grep '^FAIL' /tmp/gv_stage_$$.txt
+php "$HERE/scene_stage.php" "$GAME" >/tmp/gv_stage_$$.txt 2>&1; echo "installed: $(grep -c '^ok' /tmp/gv_stage_$$.txt) ok, $(grep -c '^FAIL' /tmp/gv_stage_$$.txt) FAIL (want 0)"; grep -v '^ok' /tmp/gv_stage_$$.txt; rm -f /tmp/gv_stage_$$.txt
 echo "== no art drawn: pages unchanged"
 get "town.php?hub=1" >/dev/null; echo "square banner: $(grep -c 'scene-bannerwrap' $H) (want 0)"
 get "shop.php?id=$SHOP" >/dev/null; echo "shop art: $(grep -c 'class="ph-art' $H) (want 1: the shipped shop-seeds.png; v2.0.65 shop art sits in the place header)"

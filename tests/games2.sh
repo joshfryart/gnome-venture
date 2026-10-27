@@ -24,7 +24,7 @@ gp race.php -d snail=4 -d amount=20; gp race.php -d snail=1 -d amount=20; echo "
 echo "-- pretend the race has run"; dbx "UPDATE snail_bets SET race='$(date -u +%Y%m%d%H)'"; RACE=$(db "SELECT race FROM snail_bets LIMIT 1")
 curl -s -b $C $BASE/race.php > /tmp/g.html; db "SELECT 'bet paid='||paid||' winnings='||winnings FROM snail_bets"; grep -oE '📬[^<]*' /tmp/g.html | head -2
 grep -oE '<li class="snail-[a-z]+">[^<]*' /tmp/g.html | head -1
-curl -s -b $C $BASE/games.php > /tmp/g.html; echo "hub cards: $(grep -c '<a class="gtile' /tmp/g.html)"   # v0.8.2/v1.5.0: the hub has tabs (games / contests / practice); one gtile per game on the games tab
+curl -s -b $C $BASE/games.php > /tmp/g.html; echo "hub cards: $(grep -c '<a class="gtile' /tmp/g.html)"   # v0.8.2: the hub has tabs (games / contests; v2.0.67: the tool-game Practice tab is gone); one gtile per game on the games tab
 curl -s -b $C "$BASE/games.php?tab=contests" > /tmp/g.html; echo "contest cards: $(grep -c 'class="box ccard' /tmp/g.html)"
-curl -s -b $C "$BASE/games.php?tab=practice" > /tmp/g.html; echo "practice tab: $(grep -c '🎯 Tool game practice' /tmp/g.html)"
+curl -s -b $C "$BASE/games.php?tab=practice" > /tmp/g.html; grep -q 'Tool game practice\|href="[^"]*games.php?tab=practice"' /tmp/g.html && echo "FAIL the old Practice tab is still there" || echo "ok   no Practice tab (v2.0.67)"
 echo "== php log"; grep -iE 'fatal|warning|notice|deprecated' /tmp/g2-php.log || echo "(none)"

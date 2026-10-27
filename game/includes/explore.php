@@ -148,10 +148,10 @@ function explore_zone_steps(int $zoneNum): string
 }
 
 /** v0.7.80: gather here from a step off the path (a 🧺 button in the Gather here box). Refused on the road itself or mid-encounter. */
-function explore_gather(array $u, array &$exp, string $tool, string $skill = ''): void
+function explore_gather(array $u, array &$exp, string $tool): void
 {
     if ($exp['encounter'] || (int)$exp['depth'] < 1) return;
-    [, $line] = gather_here($u, explore_land($exp), $tool, $skill);
+    [, $line] = gather_here($u, explore_land($exp), $tool);
     exp_log($exp, $line);
 }
 

@@ -1,4 +1,4 @@
-# Gnome Venture: to-do (updated 2026-10-27, after 2.0.66)
+# Gnome Venture: to-do (updated 2026-10-27, after 2.0.67)
 
 ## NOW: 2.0.60 hardening release (Joshua to upload + test)
 
@@ -9,6 +9,7 @@ Joshua checks: upload 2.0.60 via Admin -> Update on a BACKED-UP live MySQL site 
 Open from the review: `releases/` stays in git on purpose (Joshua's call); big files (garden.php, trek.php, bootstrap, functions) still to split incrementally (inventory.php is the first cut; next candidates: rewards, migrations); `treks` suite too slow for CI; suites share fixed /tmp files (use mktemp, then CI could parallelise); MySQL race test (12 parallel inserts) in tests/db_errors.php never run on real MySQL.
 
 ## Shipped since 2.0.60 (all on main, see CHANGELOG.md)
+- **2.0.67** (built, Joshua to upload and check on phone) Gather satchel panel, mini-game removed, Do-tab and town felt cards, stage art by weather and time of day, Dye Pot shop art. Leftovers: see the 2.0.67 block in handoff.md.
 - **2.0.66** GPS route card redesign (`dest_panel`, thread + pinned Set off) and trip strip on every page (`dest_strip_html`, `tests/tripstrip.sh`). **2.0.65** shared villager row (`villager_row_html`), 12 unique rest-stop scenes (`stop_art_file()`, generator `aseprite-source/scenes-pil/stops.py`), redrawn shop art (`shops.py`), felt-sign place headers, unique seed shop names (`SEED_SHOP_NAMES`), red `.newart` outline removed. Consolidation block below is essentially DONE: left = visual pass leftovers and the checks listed there.
 - **2.0.64** pixel-art world + 14 region maps are the default (`map_style` only picks the fallback); fixed region layout `includes/region_layout.php` (dump: `tools/map_layout.php`); zoom controls above the map. **2.0.63** Treks Ch III open by default, Hush Bell fails open. **2.0.62** World Go right column 1600px+, header chips, 3-button switcher, main-stop Villagers = who is in town. **2.0.61** consolidation review build + puzzle stills/Motion button (`tests/puzzles.sh`, new `-still.png` per GIF via `tests/gen_puzzle_stills.py`).
 - Joshua checks still open: 2.0.60 live upload (see below), then 2.0.61-2.0.64 on phone: World tabs Go/Map/Gather/Shops, Stop tab, place switcher, bottom bar "Here", region maps zoom, puzzles Motion.

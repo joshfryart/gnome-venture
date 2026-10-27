@@ -40,6 +40,7 @@ if (is_post()) {
     $spot = (int)($_POST['spot'] ?? 0);
     $stTab = ($do === 'local' && in_array($_POST['t'] ?? '', ['folk', 'stop'], true)) ? 't=' . $_POST['t'] : '';   // v1.3.0: rest-stop forms come back to their tab
     if ($stTab) redirect('town.php?' . $stTab);
+    if (!$spot && ($_POST['view'] ?? '') === 'orders') redirect('town.php?' . ($hub ? 'hub=1&' : '') . 'view=orders');   // v2.0.67: the town's Orders tab
     if (!$spot && ($_POST['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: the order board moved to Tasks
     redirect('town.php?' . ($hub ? 'hub=1&' : '') . ($spot ? 'spot=' . $spot : ''));
 }
@@ -53,13 +54,15 @@ if ($viewReq === 'stop') $viewReq = 'passport';   // v2.0.61: the Stop tab (Pass
 if ($viewReq === 'villagers' && !$hub && !in_array(player_node($u)['kind'], ['market', 'hub'], true)) redirect('villagers.php' . (isset($_GET['q']) && $_GET['q'] !== '' ? '?q=' . urlencode((string)$_GET['q']) : ''));   // v2.0.39: the Villagers page; v2.0.60: main stops (market/hub) show who is in town inline
 $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
+if (!$inTown && $viewReq === 'shops') redirect('world.php?tab=markets');   // v2.0.67: Shops and Orders are town views; away from a town the old pages show them
+if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=orders');
 if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2.0.4 menu folds: Passport and Villagers you know (were passport.php, folk.php) work from anywhere
     require_once __DIR__ . '/includes/stop_pass.php';
     $isPass = $viewReq === 'passport';
     page_header($isPass ? 'Stamp passport' : 'Villagers you know');
     ?>
     <h1>🏘️ Town</h1>
-    <?= place_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers', 'Town sections', 'tabs mst') ?>
+    <?= main_stop_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers') ?>
     <div class="townview">
     <?php if ($isPass): ?>
       <?= stop_tab_html($u, $nodeNow, $hub) ?>
@@ -202,19 +205,22 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <?php endif; ?>
   <p><a class="btn alt" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">← Back to the square</a></p>
 <?php else: ?>
+  <?php // v2.0.67: main-stop page (mockup3): header, gold summary box, five-tab strip, then Square / Villagers / Shops / Orders
+  $view = match ($viewReq) { 'villagers' => 'villagers', 'shops' => 'shops', 'orders' => 'orders', default => 'square' };
+  $glance = in_array($view, ['square', 'villagers'], true); ?>
   <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
   <?= place_header_html('stop-market.png', $town . ' town square', 'Main stop · Town square', $town, '', place_chips($u)) ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
-  <?php if ($fest = town_festival($town)): ?>
+  <?php if ($glance && ($fest = town_festival($town))): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
   <?php endif; ?>
-  <?php if (market_day_on()): ?>
+  <?php if ($glance && market_day_on()): ?>
     <div class="festival marketbanner"><span>🧺</span><div><b>Market day in <?= e($town) ?>!</b> Stalls are up on the square, wanted goods pay extra and the best-basket judging is on.<br><a class="btn small" href="<?= e(url('marketday.php' . ($hub ? '?hub=1' : ''))) ?>">To the market →</a></div></div>
   <?php endif; ?>
-  <?php $bdays = array_filter(town_folk($town), fn($n) => npc_birthday_today($n)); if ($bdays): ?>
-    <p class="bday">🎂 Today is <?= implode(' and ', array_map(fn($n) => '<a href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a>’s', $bdays)) ?> birthday! A gift today means three times as much.</p>
+  <?php $bdays = $glance ? array_filter(town_folk($town), fn($n) => npc_birthday_today($n)) : []; if ($bdays): ?>
+    <p class="bday tnote">🎂 Today is <?= implode(' and ', array_map(fn($n) => '<a class="inl" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a>’s', $bdays)) ?> birthday! A gift today means three times as much.</p>
   <?php endif; ?>
-  <?php // Today at a glance (v0.7.38)
+  <?php // Today at a glance (v0.7.38; v2.0.67 gold felt box)
   $todoAll = 0; $openNow = 0; $gnomesAll = 0;
   foreach (town_spots($town) as $ts) {
       if (!spot_closed($ts)) $openNow++;
@@ -223,18 +229,25 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   }
   $travHere = array_filter(q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1')->fetchAll(), fn($t) => traveller_stop($t)['town'] === $town);
   $favDue = 0;
-  if (setting('orders_on') === '1') $favDue = orders_open_count($uid, $town);   // v1.0.0 wave 2b
-  else foreach (town_folk($town) as $fn) { $fo = favour_offer($uid, $fn, $town); if ($fo && !$fo['done']) $favDue++; } ?>
-  <div class="todaybox">
-    <span>📋 <b><?= $todoAll ?></b> thing<?= $todoAll === 1 ? '' : 's' ?> left to do today</span>
-    <span>🚪 <?= $openNow ?> place<?= $openNow === 1 ? '' : 's' ?> open</span>
-    <?php if ($gnomesAll): ?><span>🧑‍🌾 <?= $gnomesAll ?> gnome<?= $gnomesAll === 1 ? '' : 's' ?> about</span><?php endif; ?>
-    <?php if ($favDue): ?><span>📌 <?= $favDue ?> <?= setting('orders_on') === '1' ? 'order' : 'favour' ?><?= $favDue === 1 ? '' : 's' ?> on the board</span>
-    <?php endif; if (market_day_on()): ?><span>🧺 <b><a href="<?= e(url('marketday.php' . ($hub ? '?hub=1' : ''))) ?>">Market day</a></b>: stalls are up!</span><?php elseif (($md = market_days_until()) > 0 && $md <= 2): ?><span>🧺 Market day in <?= $md ?> day<?= $md === 1 ? '' : 's' ?></span><?php endif; ?>
-    <?php foreach ($travHere as $th): ?><span>🧭 <a href="<?= e(url('folk.php?id=' . (int)$th['id'])) ?>"><?= e($th['name']) ?></a> is visiting</span><?php endforeach; ?>
-  </div>
-  <?php $view = $viewReq === 'villagers' ? 'folk' : 'square';   // v0.7.61 folk, v0.7.66 quests
-  $present = [];
+  $ordersOn = setting('orders_on') === '1';
+  if ($ordersOn) $favDue = orders_open_count($uid, $town);   // v1.0.0 wave 2b
+  else foreach (town_folk($town) as $fn) { $fo = favour_offer($uid, $fn, $town); if ($fo && !$fo['done']) $favDue++; }
+  if ($glance): ?>
+  <section class="tday" aria-label="Today at a glance">
+    <ul class="tday__stats">
+      <li class="tday__stat"><span class="tday__ic" aria-hidden="true">📋</span><b class="tday__n"><?= $todoAll ?></b><span class="tday__l">thing<?= $todoAll === 1 ? '' : 's' ?> left to do today</span></li>
+      <li class="tday__stat"><span class="tday__ic" aria-hidden="true">🚪</span><b class="tday__n"><?= $openNow ?></b><span class="tday__l">place<?= $openNow === 1 ? '' : 's' ?> open</span></li>
+      <li class="tday__stat"><span class="tday__ic" aria-hidden="true">📌</span><b class="tday__n"><?= $favDue ?></b><span class="tday__l"><?= $ordersOn ? 'order' : 'favour' ?><?= $favDue === 1 ? '' : 's' ?> on the board</span></li>
+    </ul>
+    <?php $chips = [];
+    if ($gnomesAll) $chips[] = '🧑‍🌾 ' . $gnomesAll . ' gnome' . ($gnomesAll === 1 ? '' : 's') . ' about';
+    if (market_day_on()) $chips[] = '🧺 <b><a class="inl" href="' . e(url('marketday.php' . ($hub ? '?hub=1' : ''))) . '">Market day</a></b>: stalls are up!';
+    elseif (($md = market_days_until()) > 0 && $md <= 2) $chips[] = '🧺 Market day in ' . $md . ' day' . ($md === 1 ? '' : 's');
+    if ($chips): ?><ul class="tday__more"><?php foreach ($chips as $ch): ?><li class="tday__chip"><?= $ch ?></li><?php endforeach; ?></ul><?php endif; ?>
+    <?php foreach ($travHere as $th): ?><a class="tday__row" href="<?= e(url('folk.php?id=' . (int)$th['id'])) ?>"><span aria-hidden="true">🧭</span><span class="tday__rowt"><b><?= e($th['name']) ?></b> is visiting</span><span class="tday__go" aria-hidden="true">›</span></a><?php endforeach; ?>
+  </section>
+  <?php endif; ?>
+  <?php $present = [];
   foreach (town_spots($town) as $ps) foreach (npcs_at_spot($ps) as $n) $present[(int)$n['id']] = ['n' => $n, 'spot' => $ps];
   require_once __DIR__ . '/includes/friends.php';
   // v0.7.73: the folk who live in this town — at home now, or out
@@ -246,48 +259,43 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       if (!empty($nw['home'])) $homeIn[] = [$rn, $hm];
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
-  <?= place_tabs_html(main_stop_tabs($hub, true, $view === 'folk' ? 'villagers' : 'square', count($present) + count($homeIn)), $view === 'folk' ? 'villagers' : 'square', 'Town sections', 'tabs mst') ?>
-  <?php if ($view === 'folk'): ?>
-    <h2>🚶 Out and about</h2>
-    <div class="box folkabout">
-      <?php if (!$present): ?><p class="muted">Nobody’s out and about in the town’s places right now. Shopkeepers are at their counters.</p><?php endif; ?>
+  <?= main_stop_tabs_html(main_stop_tabs($hub, true, $view, count($present) + count($homeIn)), $view) ?>
+  <?php if ($view === 'villagers'): ?>
+    <h3 class="gx-h">🚶 Out and about</h3>
+    <?php if (!$present): ?><p class="gx-note">Nobody’s out and about in the town’s places right now. Shopkeepers are at their counters.</p><?php else: ?>
+    <ul class="vlcards folkabout">
       <?php foreach ($present as ['n' => $n, 'spot' => $ps]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : ''),
              '📍 <a href="' . e(url('town.php?' . $q . 'spot=' . (int)$ps['id'])) . '">' . e($ps['icon'] . ' ' . $ps['name']) . '</a> · 💛 ' . e($fl['name'])],
-            '<a class="btn small alt" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">Chat</a>', '', '', false, npc_birthday_today($n) ? ' <span class="vbadge">🎂 birthday</span>' : '') ?>
+            '<a class="fbtn" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">Chat</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id'])) ?>
       <?php endforeach; ?>
-    </div>
-    <h2>🏡 At home</h2>
-    <?php if (!$homeIn): ?><div class="box"><p class="muted">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p></div><?php endif; ?>
-    <?php if ($homeIn): ?>
-    <div class="homelist">
+    </ul>
+    <?php endif; ?>
+    <h3 class="gx-h">🏡 At home</h3>
+    <?php if (!$homeIn): ?><p class="gx-note">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p><?php else: ?>
+    <ul class="vlcards homelist">
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))), '🏡 ' . e($hm['name']) . ' · 💛 ' . e($fl['name'])],
-            '<a class="btn small alt" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? ' <span class="vbadge">🎂</span>' : '') ?>
+            '<a class="fbtn" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id'])) ?>
       <?php endforeach; ?>
-    </div>
+    </ul>
     <?php endif; ?>
-    <p class="help">Knock to visit someone at home: you can chat and give a gift there. Tap a name above to see what you know about them.</p>
-    <p class="help">📒 Only people in town right now are shown. <a href="<?= e(url('villagers.php')) ?>">Everyone you know →</a></p>
+    <p class="gx-note">Knock to visit someone at home: you can chat and give a gift there. Tap a name above to see what you know about them.</p>
+    <p class="gx-note">📒 Only people in town right now are shown.</p>
+    <div class="gx-actions"><a class="gbtn alt" href="<?= e(url('villagers.php')) ?>">Everyone you know →</a></div>
+  <?php elseif ($view === 'shops'): ?>
+    <?= town_shops_html($u, $town) ?>
+  <?php elseif ($view === 'orders'): ?>
+    <?= town_orders_html($uid, $town, $hub) ?>
   <?php else: ?>
-  <div class="spotgrid">
-    <?php foreach (town_spots($town) as $s): $closed = spot_closed($s);
-        $acts = array_filter(town_actions((int)$s['id']), fn($a) => $a['kind'] !== 'link');
-        $todo = 0;
-        foreach ($acts as $a) if ((int)$a['daily'] <= 0 || ($uses[(int)$a['id']] ?? 0) < (int)$a['daily']) $todo++; ?>
-      <a class="box spotcard<?= $closed ? ' closed' : '' ?><?= $s['kind'] === 'special' ? ' special' : '' ?>" href="<?= e(url('town.php?' . $q . 'spot=' . (int)$s['id'])) ?>">
-        <span class="spicon"><?= e((string)$s['icon']) ?></span>
-        <b><?= e($s['name']) ?></b>
-        <?php require_once __DIR__ . '/includes/journey.php'; $jl = journey_lock($uid, 'spot', (string)$s['slug']); ?>
-        <small class="muted"><?= $jl ? '🚧 closed for repairs' : ($closed ? '🔒 ' . e($closed) : ($acts ? ($todo ? $todo . ' thing' . ($todo === 1 ? '' : 's') . ' to do' : '✔️ all done today') : 'Have a look')) ?></small>
-        <?php $gc = gnome_count_at_spot((int)$s['id'], $uid); if ($gc): ?><small class="gcount">🧑‍🌾 <?= $gc ?> gnome<?= $gc === 1 ? '' : 's' ?> here</small><?php endif; ?>
-        <?php $who = npcs_at_spot($s); if ($who): ?><span class="faces small"><?php foreach ($who as $n): ?><span title="<?= e($n['name']) ?>"><?= npc_icon($n['species']) ?></span><?php endforeach; ?></span><?php endif; ?>
-      </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; // square view ?>
+    <h3 class="gx-h">🏘️ Places in <?= e($town) ?> <span class="gx-h__sub">tap one to go in</span></h3>
+    <div class="gcards gcards--2 placecards">
+      <?php foreach (town_spots($town) as $s) echo town_place_card($s, $uid, $uses, $q); ?>
+    </div>
+  <?php endif; ?>
+  <?php if ($glance): ?>
   <?php $trav = q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1 ORDER BY name')->fetchAll(); if ($trav): ?>
     <details class="fold box travellers"><summary>🧭 Where the travellers are</summary>
       <?php foreach ($trav as $t): $st = traveller_stop($t); ?>
@@ -300,6 +308,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <?php foreach ($up as [$ft, $ff, $days]): ?><p><?= $ff[1] ?> <b><?= e($ff[0]) ?></b> in <?= e($ft) ?> · <?= $days === 0 ? '<b>today!</b>' : ($days === 1 ? 'tomorrow' : 'in ' . $days . ' days') ?></p><?php endforeach; ?>
       <p class="help">Each town has one festival day a month.</p></details>
   <?php endif; ?>
-  <p class="help">Most things can be done once or a few times a day; the day turns over at midnight Hollow time. ⭐ Gold-edged places are found only in <?= e($town) ?>.</p>
+  <?php endif; ?>
+  <?php if ($view === 'square'): ?><p class="gx-note">Most things can be done once or a few times a day; the day turns over at midnight Hollow time. ⭐ Gold-edged places are found only in <?= e($town) ?>.</p><?php endif; ?>
 <?php endif; ?>
 <?php page_footer();

@@ -278,6 +278,24 @@ function stop_art_file(string $type): string
     return is_file($dir . 'stop-market.png') ? 'stop-market.png' : '';
 }
 
+/** v2.0.67: picture names for the Do-tab felt cards (assets/img/acts/act-<name>.png): one per activity kind, a few activities get a closer one. */
+const STOP_ACT_ART_KIND = ['rest' => 'rest', 'check' => 'hand', 'pick' => 'shells', 'power' => 'ringtoss', 'lore' => 'story', 'gossip' => 'chat',
+    'seedswap' => 'seeds', 'swap' => 'swap', 'buy' => 'basket', 'snack' => 'basket'];
+const STOP_ACT_ART_SLUG = ['firewood' => 'fire', 'signal_fire' => 'fire', 'cast_a_line' => 'rod', 'night_fishing' => 'rod', 'ice_hole' => 'rod', 'oar_ferry' => 'rod',
+    'pick_herbs' => 'forage', 'mushroom_rain' => 'forage', 'moss_tend' => 'forage', 'blossom_walk' => 'forage', 'saw_planks' => 'axe', 'dress_stone' => 'pick',
+    'chores' => 'basket', 'porter' => 'basket', 'drying_day' => 'basket', 'shake_tree' => 'basket', 'notice_riddle' => 'chat', 'toll_talk' => 'chat', 'haggle' => 'chat',
+    'rainy_stories' => 'story', 'wishing_well' => 'bucket', 'make_wish' => 'bucket', 'skim_stones' => 'ringtoss'];
+
+/** Card art for a stop activity: the activity's own picture, else its kind's, else the generic signpost. Returns a path from the web root ('' only if even the fallback is gone). */
+function stop_act_art(string $kind, string $slug = ''): string
+{
+    $dir = __DIR__ . '/../assets/img/acts/';
+    foreach ([STOP_ACT_ART_SLUG[$slug] ?? '', STOP_ACT_ART_KIND[$kind] ?? '', 'any'] as $n) {
+        if ($n !== '' && is_file($dir . 'act-' . $n . '.png')) return 'assets/img/acts/act-' . $n . '.png';
+    }
+    return '';
+}
+
 /** Fill locations.stop_type for every village that has none, so that neighbours in a zone differ where they can. Returns how many. */
 function stop_assign_all(): int
 {

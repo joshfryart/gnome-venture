@@ -18,6 +18,23 @@ act() { # action slug -> posts it, prints prize title/big or flash
 }
 echo "== town page ($HERE)"; curl -s -b $C $BASE/town.php -o /tmp/t.html -w "town.php %{http_code}\n"; grep -oE 'class="box spotcard[^"]*"|<b>[^<]*</b>' /tmp/t.html | head -14 | tr '\n' ' '; echo
 grep -oE '🕰️[^<·]*' /tmp/t.html | head -1
+echo "== v2.0.67 town page (felt cards, tab strip)"   # FAIL lines are counted by ci_suites.sh
+for v in "" "?view=villagers" "?view=shops" "?view=orders" "?view=stop" "?view=folk" "?view=passport"; do
+  code=$(curl -s -b $C -c $C "$BASE/town.php$v" -o /tmp/t.html -w '%{http_code}'); n=$(grep -o 'class="mtabs__a' /tmp/t.html | wc -l)
+  echo "  town.php$v $code tabs=$n"; [ "$code" = 200 ] || echo "FAIL town.php$v -> $code"; [ "$n" -eq 5 ] || echo "FAIL town.php$v tab strip has $n tabs (want 5)"
+  grep -qE '\sstyle=' /tmp/t.html && echo "FAIL town.php$v has a style= attribute (CSP)"
+  grep -q 'class="tabs mst"' /tmp/t.html && echo "FAIL town.php$v still has the old tab row"
+done
+curl -s -b $C "$BASE/town.php" -o /tmp/t.html; P=$(grep -o 'class="gcard placecard' /tmp/t.html | wc -l); echo "  square: place cards=$P gold=$(grep -o 'placecard--gold' /tmp/t.html | wc -l) summary=$(grep -c 'class="tday"' /tmp/t.html) art=$(grep -o 'img/town/place-[a-z]*\.png' /tmp/t.html | sort -u | tr '\n' ' ')"
+[ "$P" -ge 4 ] || echo "FAIL square has $P place cards (want 4+)"; grep -q 'class="tday"' /tmp/t.html || echo "FAIL square has no summary box"
+grep -q 'class="box spotcard' /tmp/t.html && echo "FAIL square still has old spotcards"
+curl -s -b $C "$BASE/town.php?view=shops" -o /tmp/t.html; S=$(grep -o 'class="scard' /tmp/t.html | wc -l); echo "  shops: cards=$S art=$(grep -o 'img/town/shop-[a-z]*\.png' /tmp/t.html | sort -u | tr '\n' ' ')"; [ "$S" -ge 1 ] || echo "FAIL shops tab has no shop cards"
+curl -s -b $C "$BASE/town.php?view=orders" -o /tmp/t.html; O=$(grep -o 'class="ocard' /tmp/t.html | wc -l); echo "  orders: notes=$O"; { [ "$O" -ge 1 ] || grep -q 'No open orders' /tmp/t.html; } || echo "FAIL orders tab shows neither orders nor the empty line"
+NPC=$(grep -o 'name="npc" value="[0-9]*"' /tmp/t.html | head -1 | grep -o '[0-9]*'); if [ -n "$NPC" ]; then
+  loc=$(curl -s -b $C -c $C -X POST $BASE/town.php --data-urlencode "csrf=$(csrf /tmp/t.html)" -d do=order -d npc=$NPC -d spot=0 -d view=orders -o /dev/null -w '%{redirect_url}'); echo "  deliver comes back to: ${loc##*/}"; case "$loc" in *view=orders*) ;; *) echo "FAIL deliver from the Orders tab went to $loc";; esac; fi
+curl -s -b $C "$BASE/town.php?view=villagers" -o /tmp/t.html; echo "  villagers: rows=$(grep -o '<li class="vlcard">' /tmp/t.html | wc -l)"; grep -q 'class="vrow"' /tmp/t.html && echo "FAIL villagers tab still has old rows"
+for u in "world.php?tab=markets" "jobs.php?t=orders"; do echo "  old link $u -> $(curl -s -b $C "$BASE/$u" -o /dev/null -w '%{http_code}')"; done
+echo "  town.php?view=quests -> $(curl -s -b $C "$BASE/town.php?view=quests" -o /dev/null -w '%{http_code} %{redirect_url}' | sed 's#http://[^/]*/##')"
 K=$(db "SELECT lower(code) FROM regions WHERE gnomish_name='$HERE'")
 echo "== shared actions"; act $K-bench; act $K-bench; act $K-birds; act $K-picnic; act $K-drink; act $K-read; act $K-read
 echo "== buff active: $(db "SELECT town_stat, town_amt, town_until > datetime('now') FROM users WHERE username='sprout'")"

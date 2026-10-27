@@ -96,7 +96,7 @@ if (is_post()) {
             elseif ($do === 'back') explore_deeper($u, $exp, -1);
             elseif ($do === 'return') explore_return($u, $exp);
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
-            elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''), gather_game_result((string)($_POST['tool'] ?? '')));   // v0.7.80
+            elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
         } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total']) {
             next_step($u, $exp);

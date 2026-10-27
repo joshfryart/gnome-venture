@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.66');
+define('APP_VERSION', '2.0.67');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -305,6 +305,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         });
         boot_step('upgrade_2065_seed_shop_names', function () {
             if (version_compare((string)setting('db_version'), '2.0.65', '<')) { require_once __DIR__ . '/catalog.php'; upgrade_2065_seed_shop_names(); }   // v2.0.65: unique seed shop names
+        });
+        boot_step('upgrade_2067_drop_gather_games', function () {
+            if (version_compare((string)setting('db_version'), '2.0.67', '<')) q('DELETE FROM settings WHERE name = ?', ['gather_games_on']);   // v2.0.67: the gathering mini-games are gone (Gather tab satchel instead)
         });
         boot_step('ensure_shop_food', function () {
             ensure_shop_food();      // shops sell "shop-bought" food worth less than home cooking (v0.7.27)

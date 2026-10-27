@@ -214,16 +214,15 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
     $gLand = (string)($node['landscape'] ?: 'grassland');
     $cat = seek_catalog((int)$u['id']);
     $sg = seek_current((int)$u['id']);
-    $shifting = ts($u['community_shift_until'] ?? null) > time();
-    if ($sg) $_SESSION['gather_game_last'] = (string)$sg['tool'];   // the game opens on the tool for what you seek ?>
+    $shifting = ts($u['community_shift_until'] ?? null) > time(); ?>
   <?= seek_chip($u) ?>
   <?php if ($shifting): ?><p class="box notice">🧑‍🌾 You’re on a tending shift at the community garden. Finish it before you gather.</p>
   <?php else: ?>
     <?php if ($sg && (in_array('any', $sg['lands'], true) || in_array($gLand, $sg['lands'], true))): ?><p class="flash ok">🎯 <?= e(seek_name($sg)) ?> can be gathered right here.</p><?php endif; ?>
-    <?= gather_here_box($u, $gLand, url('gather.php'), '<input type="hidden" name="back" value="world.php?tab=gather">') ?>
+    <?= gather_scene_html($u, $gLand, url('gather.php'), '<input type="hidden" name="back" value="world.php?tab=gather">', $sg ? (string)$sg['tool'] : '') /* v2.0.67: satchel scene */ ?>
   <?php endif; ?>
   <div class="box seekbox">
-    <h3>🎯 Seek something</h3>
+    <h3>🎯 Seek elsewhere</h3>
     <form method="get" action="<?= e(url('world.php')) ?>" class="seekform"><input type="hidden" name="tab" value="gather">
       <select name="seek" aria-label="What to seek">
         <option value="">Choose what you’re looking for…</option>

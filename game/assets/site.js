@@ -694,7 +694,6 @@ gvAdvFold();
         gvRouteFade();   // v2.0.57
         gvGarden();
         gvAlmTabs();
-        gvGatherGames();
         if (after) after();
       })
       .catch(function () { busy = false; fallback(); });
@@ -1547,19 +1546,6 @@ document.addEventListener('click', function (ev) {
   c.parentNode.querySelectorAll('[data-cat]').forEach(function (b) { b.classList.toggle('on', b === c); });
   form.querySelectorAll('.btile').forEach(function (t) { t.classList.toggle('catoff', cat !== 'all' && t.getAttribute('data-cat') !== cat); });
 });
-
-
-// v0.9.9: gathering mini-games live in assets/gather-games.js, loaded the first time a panel is on the page.
-function gvGatherGames() {
-  var fold = document.querySelector('.mgfold');   // v1.5.0: also the Practice tab's panel (a div)
-  if (!fold) return;
-  if (window.gvGather) { window.gvGather(); return; }
-  if (document.getElementById('gvgathersrc')) return;
-  var sc = document.createElement('script');
-  sc.id = 'gvgathersrc'; sc.src = fold.getAttribute('data-js'); sc.async = true;
-  document.head.appendChild(sc);
-}
-gvGatherGames();
 
 
 // v0.8.3: swipe the menu sheet down to close it (phones)

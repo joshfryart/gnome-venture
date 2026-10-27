@@ -146,7 +146,6 @@ function seek_chip(array $u, ?array $exp = null): string
         $now = explore_land($exp);
         if (in_array('any', $g['lands'], true) || in_array($now, $g['lands'], true)) {
             $line = '<b>It’s right here!</b> Use 🧺 Gather here below.';
-            $_SESSION['gather_game_last'] = (string)$g['tool'];   // the gathering game opens on the right tool
         } elseif ($from) {
             $target = null;
             foreach (seek_stop_lands($from) as [$d, $land]) {

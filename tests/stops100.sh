@@ -36,8 +36,11 @@ dbx "UPDATE settings SET value='' WHERE name IN ('season_force','weather_force',
 dbx "UPDATE users SET energy=50, coins=2000 WHERE username='sprout'"
 VIL=$(db "SELECT l.id FROM locations l WHERE l.kind='village' AND l.stop_type='jetty' ORDER BY l.id LIMIT 1")
 dbx "UPDATE users SET location_id=$VIL, arrived_at='2031-01-01 00:00:09' WHERE username='sprout'"
-get town.php >/dev/null; code=$(get town.php); echo "town.php (a jetty) -> $code  tiles=$(grep -c 'class="st-tile' $H) head=$(grep -c 'class="st-head"' $H) svg=$(grep -c '<svg class="st-ico-lg' $H)"
-get 'town.php?t=folk' >/dev/null; echo "folk tab: folk=$(grep -c 'class="st-folk"' $H) errand-offers=$(grep -c 'class="st-errand"' $H) (v1.3.0: at most stop_errands_offered)"   # v1.3.0: villagers live on the Folk tab
+get town.php >/dev/null; code=$(get town.php); echo "town.php (a jetty) -> $code  cards=$(grep -o 'class="gcard docard"' $H | wc -l) sheets=$(grep -o 'class="isheet dosheet"' $H | wc -l) head=$(grep -c 'class="st-head"' $H) svg=$(grep -c '<svg class="st-ico-lg' $H)"
+[ "$(grep -o 'class="gcard docard"' $H | wc -l)" -ge 1 ] || { echo "FAIL Do tab has no felt cards"; RC=1; }   # v2.0.67
+grep -q 'class="st-tile' $H && { echo "FAIL Do tab still has old st-tile text tiles"; RC=1; }
+grep -qE '\sstyle=' $H && { echo "FAIL Do tab has a style= attribute (CSP)"; RC=1; }
+get 'town.php?t=folk' >/dev/null; echo "folk tab: folk=$(grep -o '<li class="vlcard">' $H | wc -l) errand-offers=$(grep -c 'class="st-errand"' $H) (v1.3.0: at most stop_errands_offered)"   # v1.3.0: villagers live on the Folk tab
 get 'town.php?t=stop' >/dev/null; echo "stop tab: plaque=$(grep -c 'class="st-plaque"' $H)"
 get town.php >/dev/null
 KIND=$(grep -oE 'name="kind" value="[a-z_]+"' $H | sed -n 8p | sed 's/.*value="\(.*\)"/\1/')

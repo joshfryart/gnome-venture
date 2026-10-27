@@ -160,6 +160,95 @@ function local_buy_tile(array $u, array $loc, array $a, bool $isDone, bool $lock
         'dim' => $off, 'badge' => $isDone ? '✔' : ($have > 0 ? (string)$have : ''), 'badgeTitle' => $isDone ? 'Done this visit' : 'You have', 'info' => $info]);
 }
 
+/** v2.0.67: the short meta chunks under a Do card's sign (escaped HTML each). Never cut: the row wraps between chunks. */
+function local_act_meta(array $u, array $loc, array $a, ?array $folk): array
+{
+    $kind = (string)$a['kind'];
+    $spec = (string)$a['spec'];
+    $m = (int)$a['energy'] > 0 ? ['⚡' . (int)$a['energy']] : [];
+    switch ($kind) {
+        case 'check':
+            $best = null; $ways = 0; $stat = '';
+            foreach (explode(';', $spec) as $o) {
+                $pp = array_map('trim', explode(':', $o, 3));
+                if (count($pp) !== 3 || !isset(GNOME_STATS[$pp[0]])) continue;
+                $ways++;
+                $dc = (int)$pp[1];
+                $ch = $dc <= 0 ? 100 : max(5, min(95, (21 - ($dc - eff_mod($u, $pp[0]))) * 5));
+                if ($best === null || $ch > $best) { $best = $ch; $stat = $dc > 0 ? (string)GNOME_STATS[$pp[0]][0] : ''; }
+            }
+            if ($best !== null && $best < 100) $m[] = '<span class="gcard__odds">' . $best . '% · ' . stop_chance_word($best) . '</span>';
+            $m[] = $ways > 1 ? $ways . ' ways' : ($stat !== '' ? e($stat) . ' check' : 'Always works');
+            break;
+        case 'rest':
+            $c = (int)(stop_spec_params($spec)['cost'] ?? 0);
+            $m[] = '🛏️ Rest';
+            $m[] = $c ? e(money_txt($c)) : 'free';
+            break;
+        case 'pick':
+            $m[] = 'Pick 1 of ' . max(2, min(6, (int)(stop_spec_params($spec)['n'] ?? 3)));
+            break;
+        case 'power':
+            $m[] = 'How hard? 1 to ' . max(3, min(7, (int)(stop_spec_params($spec)['n'] ?? 5)));
+            break;
+        case 'swap':
+            [$g, $r] = array_pad(explode('>', $spec), 2, '');
+            [$gs, $gq] = array_pad(explode(':', $g), 2, '1');
+            [, $rq] = array_pad(explode(':', $r), 2, '1');
+            $have = (int)q_val('SELECT qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ?', [(int)$u['id'], $gs]);
+            $m[] = 'Give ' . (int)$gq . ' · get ' . (int)$rq;
+            if ($have < (int)$gq) $m[] = 'you have ' . $have;
+            break;
+        case 'seedswap':
+            $m[] = (int)q_val("SELECT COUNT(*) FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'seed'", [(int)$u['id']]) ? 'A seed for a seed' : 'No seeds to swap';
+            break;
+        case 'gossip':
+            $m[] = 'Sit and listen';
+            break;
+        case 'lore':
+            $m[] = 'Listen to a tale';
+            break;
+    }
+    return $m;
+}
+
+/**
+ * v2.0.67: one felt Do card (mockup2): picture, the name on a hanging sign, short meta. Tapping it opens a sheet with the blurb and the
+ * same forms as before (local_act_buttons: do=local, kind=slug, CSRF, the seed select). States: idle; picked = its sheet is open (CSS);
+ * done = disabled with a tick; locked = aria-disabled (still focusable, says why). $why = the locked reason ('' = not locked).
+ */
+function local_act_card(array $u, array $loc, array $a, bool $isDone, string $why, ?array $folk): string
+{
+    $slug = (string)$a['slug'];
+    $art = stop_act_art((string)$a['kind'], $slug);
+    $img = $art !== '' ? '<img class="pix" src="' . e(url($art)) . '" width="144" height="108" alt="" loading="lazy" decoding="async">' : '';
+    $name = e((string)$a['name']);
+    $flag = !empty($a['now']) ? '<span class="gcard__flag">Right now</span>' : ((int)$a['tier'] > 0 && ($isDone || $why === '') ? '<span class="gcard__flag">Built here</span>' : '');
+    $id = 'dowhy-' . preg_replace('/[^a-z0-9_-]/i', '', $slug);
+    if ($isDone) {
+        $meta = ['✔ Done this visit'];
+        $attr = ' disabled';
+    } elseif ($why !== '') {
+        $meta = ['<span id="' . $id . '">' . e($why) . '</span>'];
+        $attr = ' aria-disabled="true" aria-describedby="' . $id . '"';
+    } else {
+        $meta = local_act_meta($u, $loc, $a, $folk);
+        $attr = ' data-sheet aria-haspopup="dialog"';
+    }
+    $h = '<div class="gcell"><button type="button" class="gcard docard"' . $attr . '>' . $flag
+        . '<span class="gcard__art">' . $img . '</span>'
+        . '<span class="gcard__ribbon"><span class="gcard__label">' . $name . '</span></span>'
+        . '<span class="gcard__meta">' . implode('', array_map(fn($c) => str_starts_with($c, '<span') ? $c : '<span>' . $c . '</span>', $meta)) . '</span></button>';
+    if (!$isDone && $why === '') {
+        $blurb = stop_say((string)$a['blurb'], $loc, $folk);
+        $h .= '<dialog class="isheet dosheet" aria-label="' . $name . '"><button type="button" class="sheetx" data-sheetx aria-label="Close">✕</button>'
+            . '<div class="shead"><span class="sico doart" aria-hidden="true">' . $img . '</span><b class="sname">' . e((string)$a['icon']) . ' ' . $name . '</b></div>'
+            . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
+            . '<div class="doacts">' . local_act_buttons($u, $loc, $a, false) . '</div></dialog>';
+    }
+    return $h . '</div>';
+}
+
 /** One villager card with friendship, chat and the errand. */
 function local_folk_card(array $u, array $loc, array $folk, array $deliver): string
 {
@@ -168,7 +257,7 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
     $lvl = stop_friend_level($pts);
     $talked = (string)q_val('SELECT last_talk FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, (int)$folk['id']]) === hollow_date('Y-m-d');
     $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
-    $act = local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small alt">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
+    $act = local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="fbtn">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
     $h = '';   // errand parts: folded under the shared villager row (v2.0.65)
     foreach ($deliver as $e) {
         if ((int)$e['target_folk_id'] === (int)$folk['id']) {
@@ -277,24 +366,26 @@ function local_panel(array $u, array $loc): string
             }
             $h .= '</ul>';
         }
-        $h .= '<h3 class="st-h">👥 Who’s about</h3><div class="st-folks">';
+        $h .= '<h3 class="st-h gx-h">👥 Who’s about</h3><ul class="vlcards st-folks">';   // v2.0.67: felt villager rows
         foreach ($folk as $f) $h .= local_folk_card($u, $loc, $f, $deliver);
-        return $h . '</div></section>';
+        return $h . '</ul></section>';
     }
 
     // activities
-    $h .= '<h3 class="st-h">🧭 Things to do</h3><div class="st-tiles">';
+    // v2.0.67: felt scene cards (mockup2); each opens a sheet with the blurb and the same forms as before
+    $h .= '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">' . ($capped ? 'enough here today' : $left . ' of ' . $slots . ' left this visit') . '</span></h3><div class="gcards gcards--2 docards">';
     $locked = $capped || $left === 0;
+    $why = $capped ? 'Enough here today' : ($left === 0 ? 'Walk on for more' : '');
     $folk0 = $folk[0] ?? null;
     $shelf = '';
     foreach ($pool['offer'] as $a) {
         $isDone = in_array($a['slug'], $done, true);
         if (in_array((string)$a['kind'], ['buy', 'snack'], true)) { $shelf .= local_buy_tile($u, $loc, $a, $isDone, $locked); continue; }   // v2.0.17: stalls are picture tiles
-        $badge = !empty($a['now']) ? '<span class="st-badge now">Right now</span>' : ((int)$a['tier'] > 0 ? '<span class="st-badge up">Built here</span>' : '');
-        $h .= '<div class="st-tile' . ($isDone ? ' chosen' : ($locked ? ' gone' : '')) . '"><h4>' . e((string)$a['icon']) . ' ' . e((string)$a['name']) . $badge . '</h4><p class="st-blurb" title="' . e(stop_say((string)$a['blurb'], $loc, $folk0)) . '">' . e(stop_say((string)$a['blurb'], $loc, $folk0)) . '</p>';
-        if ($isDone) $h .= '<p class="good"><b>✔ Done this visit</b></p>';
-        elseif (!$locked) $h .= local_act_buttons($u, $loc, $a, false);
-        $h .= '</div>';
+        $h .= local_act_card($u, $loc, $a, $isDone, $why, $folk0);
+    }
+    if ($pool['tiers'] && stop_adopt_limit() > 0) {   // the next adopter tier's activities, locked, saying the tier they need (the Stop tab lists every tier)
+        $nextTier = min(array_map(fn($a) => (int)$a['tier'], $pool['tiers']));
+        foreach ($pool['tiers'] as $a) if ((int)$a['tier'] === $nextTier && !in_array((string)$a['kind'], ['buy', 'snack'], true)) $h .= local_act_card($u, $loc, $a, false, 'Needs tier ' . $nextTier, $folk0);
     }
     $h .= '</div>';
     if ($shelf !== '') $h .= '<div class="mkstall"><h3 class="st-h">🛒 For sale</h3><div class="shopwrap"><div class="satchel shopgrid shopflex">' . $shelf . '</div></div></div>';
