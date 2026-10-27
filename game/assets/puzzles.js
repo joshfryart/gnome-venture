@@ -8,6 +8,8 @@ if(NARROW) sub.textContent = 'Join neighbours. 2 fingers scroll.';
 var SUB_DEFAULT = sub.textContent, SUB_BASE = SUB_DEFAULT;
 var ZL=[1,1.25,1.5,2,2.5], zi=0;
 var lift=document.createElement('div'); lift.id='lift'; field.appendChild(lift);
+var paused=false, curStill=null;
+try{ var mv=localStorage.getItem('jiggy.motion'); paused = mv===null ? !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) : mv==='0'; }catch(e){}
 var tok=0, curId=null, inGame=false, G=null, curUrl=null, timer=null, drag=null, pan=null, raf=0, laidOnce=false;
 
 
@@ -15,7 +17,6 @@ function say(t){ sub.textContent=t; clearTimeout(say.t); say.t=setTimeout(functi
 function fmt(s){ var m=Math.floor(s/60), r=s%60; return m+':'+(r<10?'0':'')+r; }
 function rnd(a,b){ return a+Math.random()*(b-a); }
 
-function gifUrl(uri){ return uri; }   // v2.0.0.1: pictures are files now (CSP has no blob:)
 
 /* ---------- jigsaw edge geometry ---------- */
 function edge(A,dir,nrm,L,s,jk){
@@ -67,7 +68,6 @@ function start(src){
   im.src=src;
 }
 function setup(src,nw,nh){
-  if(curUrl && curUrl!==src){ try{URL.revokeObjectURL(curUrl);}catch(e){} }
   curUrl=src;
   lift.style.transform=''; lift.className='';
   var old=field.querySelectorAll('.piece');
@@ -90,11 +90,11 @@ function setup(src,nw,nh){
       G.vS[r][c]=Math.random()<.5?1:-1; G.vJ[r][c]={j:rnd(-.05,.05),k:rnd(.92,1.08)};
     }
   }
-  ghost.src=src; finalImg.src=src;
+  ghost.src=curStill||src; finalImg.style.clipPath=''; finalImg.src=paused?(curStill||src):src;
   for(r=0;r<rows;r++) for(c=0;c<cols;c++){
     var el=document.createElement('div'); el.className='piece';
     var cut=document.createElement('div'); cut.className='cut';
-    var img=document.createElement('img'); img.src=src; img.alt=''; img.draggable=false;
+    var img=document.createElement('img'); img.src=curStill||src; img.alt=''; img.draggable=false;
     var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     var lo=document.createElementNS('http://www.w3.org/2000/svg','path'); lo.setAttribute('class','lo');
     var hi=document.createElementNS('http://www.w3.org/2000/svg','path'); hi.setAttribute('class','hi');
@@ -152,6 +152,7 @@ function layout(first){
   field.style.width=fw+'px'; field.style.height=fh+'px';
   board.style.cssText='left:'+ox+'px;top:'+oy+'px;width:'+bw+'px;height:'+bh+'px';
   finalImg.style.cssText='left:'+ox+'px;top:'+oy+'px;width:'+bw+'px;height:'+bh+'px';
+  showAnim();
   var sd='';
   for(i=0;i<G.pieces.length;i++) sd+=pathFor(G.pieces[i].r,G.pieces[i].c,true);
   $('slotp').setAttribute('d',sd);
@@ -174,6 +175,14 @@ function layout(first){
   if(first || !laidOnce){
     stage.scrollLeft=(fw-sw)/2; stage.scrollTop=tray?0:(fh-sh)/2; laidOnce=true;
   }
+}
+/* v2.0.61: loose pieces carry the still first frame; one animated copy of the picture (#final) is clipped to the locked pieces, so only one GIF runs */
+function showAnim(){
+  if(!G) return;
+  var d='', i, p;
+  if(!G.won) for(i=0;i<G.pieces.length;i++){ p=G.pieces[i]; if(p.locked) d+=pathFor(p.r,p.c,true); }
+  finalImg.style.clipPath = (G.won||!d) ? '' : "path('"+d+"')";
+  finalImg.classList.toggle('on', G.won || !!d);
 }
 function rimFor(p){
   var g=p.grp, d;
@@ -376,6 +385,7 @@ function lock(g){
   }
   try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
   G.locked+=g.list.length;
+  showAnim();
   updateHud();
   if(G.locked===G.total) solved();
 }
@@ -389,7 +399,7 @@ function solved(){
   G.won=true; G.elapsed=Math.floor((Date.now()-G.t0)/1000);
   clearInterval(timer); timer=null;
   stage.classList.add('won');
-  finalImg.classList.add('on');
+  showAnim();
   $('winText').textContent=G.total+' pieces in '+fmt(G.elapsed)+'.';
   win.hidden=false;
   if(G.tray){ stage.scrollTop=0; stage.scrollLeft=(G.f.w-stage.clientWidth)/2; }
@@ -411,6 +421,13 @@ $('guide').addEventListener('click',function(){
   var on=this.getAttribute('aria-pressed')!=='true';
   this.setAttribute('aria-pressed',on?'true':'false');
   field.classList.toggle('noguide',!on);
+});
+function setMotionUi(){ $('anim').setAttribute('aria-pressed',paused?'false':'true'); }
+$('anim').addEventListener('click',function(){
+  paused=!paused; setMotionUi();
+  try{ localStorage.setItem('jiggy.motion',paused?'0':'1'); }catch(e){}
+  if(G && curUrl) finalImg.src=paused?(curStill||curUrl):curUrl;
+  for(var i=0;i<thumbs.length;i++) thumbs[i][1].src=paused?thumbs[i][0].still:thumbs[i][0].gif;
 });
 function setZoomUi(){
   $('zl').textContent=ZL[zi]+'\u00d7';
@@ -445,7 +462,7 @@ new ResizeObserver(function(){
 }).observe(stage);
 
 /* ---------- library, routing, teardown ---------- */
-var cardSels=[], COUNTS=[24,54,96,150], grid=$('grid'), lib=$('lib'), gameEl=$('game'), libScroll=0;
+var thumbs=[], cardSels=[], COUNTS=[24,54,96,150], grid=$('grid'), lib=$('lib'), gameEl=$('game'), libScroll=0;
 function byId(id){ for(var i=0;i<PUZZLES.length;i++) if(PUZZLES[i].id===id) return PUZZLES[i]; return null; }
 function loadCounts(){ try{ return JSON.parse(localStorage.getItem('jiggy.counts')||'{}')||{}; }catch(e){ return {}; } }
 function saveCount(id,n){ try{ var m=loadCounts(); m[id]=n; localStorage.setItem('jiggy.counts',JSON.stringify(m)); }catch(e){} }
@@ -455,7 +472,7 @@ function buildLibrary(){
   for(i=0;i<PUZZLES.length;i++) (function(pz){
     var li=document.createElement('li'); li.className='pzcard';
     var th=document.createElement('div'); th.className='pzthumb';
-    var im=document.createElement('img'); im.src=pz.gif; im.alt=pz.title+' (animated preview)'; th.appendChild(im);
+    var im=document.createElement('img'); im.src=paused?pz.still:pz.gif; im.alt=pz.title+(paused?' (preview)':' (animated preview)'); th.appendChild(im); thumbs.push([pz,im]);
     var body=document.createElement('div'); body.className='pzbody';
     var h=document.createElement('h2'); h.textContent=pz.title;
     var sel=document.createElement('select'); sel.setAttribute('aria-label','Pieces for '+pz.title);
@@ -497,9 +514,9 @@ function resetStage(){
   var old=field.querySelectorAll('.piece');
   for(var i=0;i<old.length;i++) old[i].remove();
   lift.style.transform=''; lift.className='';
-  if(curUrl){ try{ URL.revokeObjectURL(curUrl); }catch(e){} curUrl=null; }
+  curUrl=null; curStill=null;
   G=null; curId=null; laidOnce=false; lastSW=0; lastSH=0;
-  ghost.removeAttribute('src'); finalImg.removeAttribute('src'); finalImg.classList.remove('on');
+  ghost.removeAttribute('src'); finalImg.removeAttribute('src'); finalImg.classList.remove('on'); finalImg.style.clipPath='';
   win.hidden=true; stage.classList.remove('won'); $('lk').hidden=true;
   $('prog').style.width='0'; hud.textContent='0 / 0';
   sub.textContent=SUB_BASE; SUB_DEFAULT=SUB_BASE;
@@ -515,7 +532,8 @@ function enterGame(pz,n){
   for(var i=0;i<countSel.options.length;i++) countSel.options[i].textContent=countSel.options[i].value+(window.innerWidth<360?' pcs':' pieces');
   countSel.value=String(n); curId=pz.id;
   SUB_DEFAULT=NARROW ? pz.title+' · join neighbours' : pz.title+'. '+SUB_BASE; sub.textContent=SUB_DEFAULT;
-  start(gifUrl(pz.gif));
+  curStill=pz.still||null;
+  start(pz.gif);
 }
 function route(){
   var h=parseHash();
@@ -553,6 +571,7 @@ $('copy2').addEventListener('click',copyLink);
 $('lkx').addEventListener('click',function(){ $('lk').hidden=true; });
 window.addEventListener('popstate',route);
 window.addEventListener('hashchange',route);
+setMotionUi();
 buildLibrary();
 route();
 })();

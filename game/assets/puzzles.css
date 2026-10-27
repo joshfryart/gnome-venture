@@ -45,13 +45,13 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 #field.noguide #slots{opacity:.9}
 #tray{position:absolute; z-index:0; border-radius:0; background:var(--tray); pointer-events:none}
 #tray[hidden]{display:none}
-#ghost{position:absolute; inset:0; width:100%; height:100%; opacity:.2; pointer-events:none}
+#ghost{position:absolute; inset:0; width:100%; height:100%; opacity:.2; pointer-events:none; image-rendering:pixelated}
 #field.noguide #ghost{display:none}
-#final{position:absolute; z-index:3; opacity:0; pointer-events:none; transition:opacity .5s ease}
+#final{position:absolute; z-index:3; opacity:0; pointer-events:none; transition:opacity .5s ease; image-rendering:pixelated}   /* v2.0.61: the one animated picture, clipped to the locked pieces (whole picture once solved) */
 #final.on{opacity:1}
 .piece{position:absolute; pointer-events:none; content-visibility:auto}
 .cut{position:absolute; inset:0; overflow:hidden; pointer-events:auto; cursor:grab; touch-action:none}
-.cut img{position:absolute; max-width:none; pointer-events:none; -webkit-user-drag:none}
+.cut img{position:absolute; max-width:none; pointer-events:none; -webkit-user-drag:none; image-rendering:pixelated}   /* v2.0.61: pixel art stays crisp */
 .cut svg{will-change:transform; position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
 .rim{will-change:transform; position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
 .rim path{fill:none; stroke-linejoin:round}
@@ -107,6 +107,7 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
   @keyframes pzrise2{from{opacity:0; transform:translateY(24px)}}
   #game .bar .btn,#game .bar select{min-height:44px; padding:0 8px; width:100%; min-width:0; grid-row:3}
   #back,#copy{grid-row:1; white-space:nowrap}
+  #anim{grid-column:1 / 3; grid-row:4}
   #copy{padding:0 2px; font-size:13px}
 }
 @media (pointer:coarse){ #game .bar .btn,#game .bar select{min-height:44px} #game .zoom .btn{width:44px} }

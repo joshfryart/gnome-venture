@@ -62,7 +62,7 @@ jobs:
             fresh_hold friends fun games140 games2 garden100 gear help jobs landmarks market100 pest148 rebuild rewards
             roadlife roads roads097 roadtext scenes social tools town trade
             comm cook delvemap flowers gather099 gather150 images mentors120 modr pantry pjobs prog security190
-            sinks097 social100 stops100 trekshell updrollback villagers worms yard
+            sinks097 social100 stops100 trekshell updrollback villagers worms yard puzzles
           PORT_BASE: '8800'
 
   upgrade:
