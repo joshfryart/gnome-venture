@@ -126,7 +126,7 @@ chk "no double charge" "$(coins)" "$((C0 - 800))"
 echo -n "  a colour not on sale: "; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=hat -d color='#123456'
 echo -n "  rare + gilded beard dyes: "; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=beard -d color='#2a9d8f'; postf $A "shop.php?id=$DP" "shop.php?id=$DP" -d do=sink_dye -d part=beard -d color='#d4af37' >/dev/null
 chk "800 + 2500 + 6000 spent" "$((C0 - $(coins)))" 9300
-chk "Dye Pot shows owned" "$(curl -s -b $A "$BASE/shop.php?id=$DP" | grep -o '✔ Owned</p>' | wc -l)" 3
+chk "Dye Pot shows owned" "$(curl -s -b $A "$BASE/shop.php?id=$DP" | grep -o 'async"> Owned</p>' | wc -l)" 3   # v2.0.23: the check mark is an icon <img> now
 echo -n "  wear a dye not owned: "; postf $A gnome.php gnome.php -d do=dye -d hat='#b8325a'
 chk "hat unchanged" "$(db "SELECT COALESCE(hat_dye,'none') FROM users WHERE id=$SID")" none
 echo -n "  wear a made-up colour: "; postf $A gnome.php gnome.php -d do=dye -d beard='#abcdef'
@@ -136,10 +136,11 @@ echo -n "  wear owned hat + beard dyes: "; postf $A gnome.php gnome.php -d do=dy
 chk "hat dye saved" "$(db "SELECT hat_dye FROM users WHERE id=$SID")" "#e75480"
 chk "beard saved" "$(db "SELECT beard_color FROM users WHERE id=$SID")" "#d4af37"
 curl -s -b $A "$BASE/gnome.php" > /tmp/s97.html
-chk "avatars drawn with the hat dye (header, nav, picker: 2 shapes each) and beard dye" "$(grep -o 'fill="#e75480"' /tmp/s97.html | wc -l)|$(grep -o 'fill="#d4af37"' /tmp/s97.html | wc -l)" "7|4"
-chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php" | grep -o 'fill="#e75480"' | wc -l)" 7
+# v2.0.x: avatars are tinted pixel sprites; the dye shows up as one tint filter (id tint-<hex>-<id>) per avatar drawn (header, nav, picker)
+chk "avatars drawn with the hat dye and beard dye (3 avatars)" "$(grep -o 'id="tint-e75480-' /tmp/s97.html | wc -l)|$(grep -o 'id="tint-d4af37-' /tmp/s97.html | wc -l)" "3|3"
+chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php" | grep -o 'id="tint-e75480-' | wc -l)" 3
 dbx "UPDATE users SET calling=NULL WHERE id=$SID"
-chk "other gnomes see the dye (profile)" "$(curl -s -b $B "$BASE/profile.php?id=$SID" | grep -o 'fill="#e75480"' | wc -l)" 2
+chk "other gnomes see the dye (profile)" "$(curl -s -b $B "$BASE/profile.php?id=$SID" | grep -o 'id="tint-e75480-' | wc -l)" 1
 echo -n "  back to no dye + a starter beard colour: "; postf $A gnome.php gnome.php -d do=dye -d hat=none -d beard='#f4f1ea'
 chk "hat dye cleared" "$(db "SELECT COALESCE(hat_dye,'none')||' '||beard_color FROM users WHERE id=$SID")" "none #f4f1ea"
 chk "still owned" "$(db "SELECT COUNT(*) FROM sink_owned WHERE user_id=$SID AND kind='dye'")" 3

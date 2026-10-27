@@ -58,16 +58,40 @@ switch ($type) {
     if ($mode === 'miss') $ev = [];
     break;
   case 'flit':
-    $t = 600; $upto = $mode === 'good' ? 3 : 5;
+    $t = 600;
     if ($mode === 'miss') { for ($i = 0; $i < 10; $i++) $ev[] = [20, 20, $t + $i * 60]; break; }
     $f = function ($b, $tt) { $u = max(0, min(1, ($tt - $b['a']) / $b['life'])); $dx = $b['x1'] - $b['x0']; $dy = $b['y1'] - $b['y0']; $len = max(1, hypot($dx, $dy)); $off = $b['fa'] * sin($b['ff'] * ($tt - $b['a']) + $b['fp']); return [$b['x0'] + $dx * $u - $dy / $len * $off, $b['y0'] + $dy * $u + $dx / $len * $off]; };
     // an honest swipe: from bug to bug, one each second, keeping within a finger's speed
-    $prev = null;
-    for ($k = 0; $k < $upto; $k++) {
-      $tk = 600 + $k * 1000; $p = $f($r['bugs'][$k], $tk);
-      if ($prev) for ($q = 1; $q <= 19; $q++) $ev[] = [(int)round(($prev[0] + ($p[0] - $prev[0]) * $q / 20) * 10), (int)round(($prev[1] + ($p[1] - $prev[1]) * $q / 20) * 10), $tk - 1000 + $q * 50];
-      $ev[] = [(int)round($p[0] * 10), (int)round($p[1] * 10), $tk]; $prev = $p;
-    }
+    $swipe = function (array $pick) use ($r, $f) {
+      $ev = []; $prev = null;
+      foreach ($pick as $k => $bi) {
+        $tk = 600 + $k * 1000; $p = $f($r['bugs'][$bi], $tk);
+        if ($prev) for ($q = 1; $q <= 19; $q++) $ev[] = [(int)round(($prev[0] + ($p[0] - $prev[0]) * $q / 20) * 10), (int)round(($prev[1] + ($p[1] - $prev[1]) * $q / 20) * 10), $tk - 1000 + $q * 50];
+        $ev[] = [(int)round($p[0] * 10), (int)round($p[1] * 10), $tk]; $prev = $p;
+      }
+      return $ev;
+    };
+    // how many bugs the net passes through (the server counts every one on the path, not just the ones aimed at)
+    $caught = function (array $ev) use ($r, $f) {
+      $got = [];
+      for ($j = 1; $j < count($ev); $j++) {
+        [$ax, $ay, $t0] = $ev[$j - 1]; [$bx, $by, $t1] = $ev[$j];
+        for ($t = $t0; $t <= $t1 + 0.001; $t += 25) {
+          $u = $t1 > $t0 ? ($t - $t0) / ($t1 - $t0) : 1.0; $nx = ($ax + ($bx - $ax) * $u) / 10; $ny = ($ay + ($by - $ay) * $u) / 10;
+          foreach ($r['bugs'] as $k => $bg) { if (isset($got[$k]) || $t < $bg['a'] || $t > $bg['a'] + $bg['life']) continue; [$gx, $gy] = $f($bg, $t); if (hypot($gx - $nx, $gy - $ny) <= $r['rad'] - 0.5) $got[$k] = 1; }
+        }
+      }
+      return count($got);
+    };
+    if ($mode === 'good') {
+      // the bugs are random, and a swipe through some also brushes others: pick three bugs whose swipe catches 3 or 4 (the good band)
+      $ev = $swipe([0, 1, 2]);
+      for ($a = 0; $a < 7; $a++) for ($b = 0; $b < 7; $b++) for ($c = 0; $c < 7; $c++) {
+        if ($a == $b || $b == $c || $a == $c) continue;
+        $try = $swipe([$a, $b, $c]); $n = $caught($try);
+        if ($n >= 3 && $n <= 4) { $ev = $try; break 3; }
+      }
+    } else $ev = $swipe([0, 1, 2, 3, 4]);
     if ($mode === 'bad') $ev = [[100, 100, 700], [900, 900, 750]];   // across the field in 50 ms
     break;
   case 'drip':
@@ -92,7 +116,7 @@ page() { curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $T/w.html; }
 round() { page; curl -s -c $C -b $C -X POST $BASE/gather.php --data-urlencode "csrf=$(csrf $T/w.html)" -d do=round -d tool=$1 ${2:+-d rm=$2} ${3:+-d practice=$3} > $T/r-$1.json; }
 field() { php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j[$argv[2]] ?? "";' "$T/r-$1.json" "$2"; }
 submit() { page; curl -s -L -c $C -b $C $BASE/gather.php --data-urlencode "csrf=$(csrf $T/w.html)" -d do=gather -d tool=$1 --data-urlencode "gtok=$2" --data-urlencode "gev=$3" -d back=world.php?tab=gather > $T/out.html; }
-flash1() { grep -oE '<li class="ml (ok|err)[^>]*>[^<]*' $T/out.html | head -1; }
+flash1() { grep -oE '<li class="ml (ok|err)[^>]*>.*' $T/out.html | head -1 | sed 's/<\/li>.*//; s/<img[^>]*ico-target[^>]*>/🎯/g; s/<[^>]*>//g'; }   # emoji are <img> icons now: keep the 🎯 marker, drop the other tags
 line() { flash1 | grep -oE '🎯.*' | head -1; }
 gatherN() { flash1 | grep -oE 'You gather [0-9]+' | head -1 | grep -oE '[0-9]+$'; }
 TOOLS="forage axe pick rod net bucket"

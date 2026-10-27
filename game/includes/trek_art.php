@@ -319,7 +319,7 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     $ly = ($py - $y0) * $C + $C / 2;
     $W = $cols * $C;
     $H = $rows * $C;
-    $o = '<svg class="tkbg' . ($sfx !== '' ? ' tkx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"' . ($pix ? ' style="image-rendering:pixelated"' : '') . '>';
+    $o = '<svg class="tkbg' . ($pix ? ' tkpix' : '') . ($sfx !== '' ? ' tkx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';   // the pixelated look is CSS (.tkpix): the CSP bans inline style attributes
     $o .= '<defs>' . ($pix ? '@@DEFS@@' : '') . '<radialGradient id="tklan' . $sfx . '" cx="' . tk_n($lx) . '" cy="' . tk_n($ly) . '" r="' . ($dark ? 120 : ($under ? 215 : 300)) . '" gradientUnits="userSpaceOnUse">'
         . ($under
             ? '<stop offset="0" stop-color="' . $P['gold300'] . '" stop-opacity=".34"/><stop offset=".3" stop-color="' . $P['ember300'] . '" stop-opacity=".12"/><stop offset=".62" stop-color="' . $P['ember300'] . '" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="' . ($dark ? '.82' : '.3') . '"/>'

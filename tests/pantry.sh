@@ -11,8 +11,8 @@ C=/tmp/pantry-ck; rm -f $C
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
-page() { curl -s -c $C -b $C "$BASE/$1" > /tmp/pk.html; }
-post() { local pg=$1 form=$2; shift 2; page "$form"; curl -s -c $C -b $C -X POST "$BASE/$pg" --data-urlencode "csrf=$(csrf /tmp/pk.html)" "$@" -o /dev/null; page "$form"; grep -oE '<li class="ml (ok|err)[^"]*">[^<]*' /tmp/pk.html | head -1 | sed 's/<li class="ml //'; }
+page() { curl -s -c $C -b $C "$BASE/$1" | sed -E 's#<img class="ico pix" src="[^"]*/ico-jar\.png[^>]*>#🫙#g; s#<img class="ico pix"[^>]*> ?##g' > /tmp/pk.html; }   # v2.0.23: the game swaps emoji for icon images; put the jar emoji back (drop the other icons) so the greps below can match
+post() { local pg=$1 form=$2; shift 2; page "$form"; curl -s -c $C -b $C -X POST "$BASE/$pg" --data-urlencode "csrf=$(csrf /tmp/pk.html)" "$@" -o /dev/null; page "$form"; grep -oE '<li class="ml (ok|err)[^"]*">.*</li>' /tmp/pk.html | head -1 | sed -E 's/<small class="mlwhen">.*//; s/<li class="ml //; s/<[^>]*>//g'; }   # whole message, tags stripped (messages can hold <b> now)
 chk() { if [ "$2" = "$3" ]; then echo "ok   $1 = $2"; else echo "FAIL $1: got '$2' want '$3'"; FAILS=$((FAILS+1)); fi; }
 has() { case "$2" in *"$1"*) echo "ok   $3";; *) echo "FAIL $3: got '$2'"; FAILS=$((FAILS+1));; esac; }
 give() { dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $UID_, id, $2 FROM items WHERE slug='$1'"; }
@@ -131,7 +131,7 @@ TW=$(db "SELECT id FROM shops WHERE slug='twigg-s-seed-emporium'")
 NID=$(php "$HERE/pantry.php" "$GAME" npc 2>/dev/null | tail -1)
 dbx "INSERT INTO npc_schedules (npc_id,location_id,shop_id,activity,start_hour,end_hour,days) SELECT $NID, id, NULL, 'working', 0, 24, 'all' FROM locations WHERE kind='hub' ORDER BY id LIMIT 1"
 dbx "DELETE FROM npc_friends WHERE user_id=$UID_"
-np() { curl -s -c $C -b $C "$BASE/folk.php?id=$NID" > /tmp/pk0.html; curl -s -c $C -b $C -X POST "$BASE/folk.php?id=$NID" --data-urlencode "csrf=$(csrf /tmp/pk0.html)" "$@" -o /dev/null; curl -s -c $C -b $C "$BASE/folk.php?id=$NID" > /tmp/pk.html; grep -oE '<li class="ml (ok|err)[^"]*">[^<]*' /tmp/pk.html | head -1 | sed 's/<li class="ml //'; }
+np() { curl -s -c $C -b $C "$BASE/villagers.php?id=$NID" > /tmp/pk0.html; curl -s -c $C -b $C -X POST "$BASE/folk.php?id=$NID" --data-urlencode "csrf=$(csrf /tmp/pk0.html)" "$@" -o /dev/null; curl -s -c $C -b $C "$BASE/villagers.php?id=$NID" > /tmp/pk.html; grep -oE '<li class="ml (ok|err)[^"]*">.*</li>' /tmp/pk.html | head -1 | sed -E 's/<small class="mlwhen">.*//; s/<li class="ml //; s/<[^>]*>//g'; }   # whole message, tags stripped (messages can hold <b> now)
 echo "npc $NID: $(db "SELECT name FROM npcs WHERE id=$NID")"
 give dill-pickles 2
 m=$(np -d do=gift -d item_id=$(db "SELECT id FROM items WHERE slug='dill-pickles'"))

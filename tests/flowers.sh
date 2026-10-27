@@ -78,7 +78,7 @@ post arrange.php -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slo
 AID=$(db "SELECT id FROM items WHERE category='arrangement' ORDER BY id DESC LIMIT 1")
 get "shop.php?id=$FL"; NPC=$(grep -o 'folk.php?id=[0-9]*' $T/p.html | head -1 | grep -o '[0-9]*$')
 dbx "DELETE FROM npc_friends WHERE user_id=$SID"
-post "folk.php?id=$NPC" -d do=gift -d item_id=$AID
+post "villagers.php?id=$NPC" -d id=$NPC -d do=gift -d item_id=$AID   # v2.0.39: gifts are given on the Villagers page (folk.php only redirects GETs)
 GP=$(db "SELECT points FROM npc_friends WHERE user_id=$SID AND npc_id=$NPC")
 [ "${GP:-0}" -ge 15 ] && echo "ok   arrangement gift = $GP friendship (a plain liked flower is 10)" || echo "FAIL arrangement gift points '$GP'"
 chk "arrangement given" "$(qty $AID)" 0

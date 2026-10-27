@@ -490,5 +490,5 @@ echo "== PHP warnings in the server log"
 W=$(grep -E 'Warning|Notice|Deprecated|Fatal|Parse error' $LOG | grep -v 'Input variables exceeded' | head -8)
 if [ -n "$W" ]; then echo "$W" | sed 's/^/  PHP: /'; bad "PHP warnings / notices were logged"; else ok "no PHP warnings or notices"; fi
 echo
-if [ "$FAILN" = 0 ]; then echo "0 FAILED"; else echo "$FAILN FAILED"; fi
+if [ "$FAILN" = 0 ]; then echo "ALL PASSED (no failures)"; else echo "$FAILN FAILED"; fi
 exit $((FAILN>0))

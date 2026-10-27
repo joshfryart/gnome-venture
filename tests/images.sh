@@ -71,8 +71,8 @@ chk "carrot has no image" "$(db "SELECT COALESCE(image,'') FROM items WHERE slug
 
 echo "== the pictures show"
 curl -s -b $S -c $S $BASE/inventory.php -o $T/sat1.html
-chk "satchel shows pictures" "$(grep -c 'class="aimg aimg-md" src="[^"]*uploads/items/' $T/sat1.html | awk '{print ($1>=3)?"yes":"no"}')" yes
-chk "img has width/height/lazy/alt" "$(grep -oE '<img class="aimg aimg-md"[^>]*uploads/items/tomato.png[^>]*>' $T/sat1.html | head -1 | grep -c 'width="40" height="40" alt="Tomato" loading="lazy" decoding="async"')" 1
+chk "satchel shows pictures" "$(grep -cE 'class="aimg aimg-md( pix)?" src="[^"]*uploads/items/' $T/sat1.html | awk '{print ($1>=3)?"yes":"no"}')" yes
+chk "img has width/height/lazy/alt" "$(grep -oE '<img class="aimg aimg-md( pix)?"[^>]*uploads/items/tomato.png[^>]*>' $T/sat1.html | head -1 | grep -c 'width="40" height="40" alt="Tomato" loading="lazy" decoding="async"')" 1
 chk "items without real art show a placeholder (v1.5.2)" "$(grep -o '<img class="aimg[^>]*assets/img/ph/' $T/sat1.html | wc -l | awk '{print ($1>=1)?"yes":"no"}')" yes
 dbx "UPDATE items SET image='../config.php.png' WHERE slug='potato'"; dbx "UPDATE items SET image='uploads/items/nope.png' WHERE slug='apple'"; dbx "UPDATE items SET image='uploads/items/garden-honey.svg' WHERE slug='garden-honey'"
 curl -s -b $S -c $S $BASE/inventory.php -o $T/sat2.html

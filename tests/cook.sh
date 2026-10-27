@@ -3,21 +3,22 @@
 # Run on a fresh SQLite install that walk.sh made (player "sprout"): cook.sh GAME PORT ROUTER [OLDGAME]
 # OLDGAME (optional) = a COPY of an older game dir (e.g. 0.9.3.1) that walk.sh installed: new code is laid over it and the upgrade is checked.
 GAME=$1; PORT=$2; ROUTER=$3; OLD=${4:-}; BASE=http://127.0.0.1:$PORT
-php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/cook-php.log 2>&1 & PID=$!; sleep 1
-trap "kill $PID 2>/dev/null" EXIT
-C=/tmp/cook-ck; rm -f $C
+TD=$(mktemp -d)   # private scratch files, so suites running side by side do not clobber each other
+php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >$TD/cook-php.log 2>&1 & PID=$!; sleep 1
+trap "kill $PID 2>/dev/null; rm -rf $TD" EXIT
+C=$TD/cook-ck; rm -f $C
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
-page() { curl -s -c $C -b $C "$BASE/$1" > /tmp/ck.html; }
-post() { local pg=$1 form=$2; shift 2; page "$form"; curl -s -c $C -b $C -X POST "$BASE/$pg" --data-urlencode "csrf=$(csrf /tmp/ck.html)" "$@" -o /dev/null; page "$form"; grep -oE '<li class="ml (ok|err)[^"]*">[^<]*' /tmp/ck.html | head -1 | sed 's/<li class="ml //'; }
+page() { curl -s -c $C -b $C "$BASE/$1" > $TD/ck.html; }
+post() { local pg=$1 form=$2; shift 2; page "$form"; curl -s -c $C -b $C -X POST "$BASE/$pg" --data-urlencode "csrf=$(csrf $TD/ck.html)" "$@" -o /dev/null; page "$form"; grep -oE '<li class="ml (ok|err)[^"]*">.*' $TD/ck.html | head -1 | sed 's/<\/li>.*//; s/<li class="ml //; s/^\([a-z]*\)[^>]*">/\1 /; s/<[^>]*>//g'; }   # messages now start with an <img> icon, so strip the tags
 eat() { post inventory.php inventory.php -d do=eat -d item_id=$(db "SELECT id FROM items WHERE slug='$1'"); }
 give() { dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $UID_, id, $2 FROM items WHERE slug='$1'"; }
 qty() { db "SELECT COALESCE((SELECT ui.qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='$1'),0)"; }
 energy() { db "SELECT energy FROM users WHERE id=$UID_"; }
 setE() { dbx "UPDATE users SET energy=$1, energy_updated_at=datetime('now') WHERE id=$UID_"; }
 chk() { if [ "$2" = "$3" ]; then echo "ok   $1 = $2"; else echo "FAIL $1: got '$2' want '$3'"; fi; }
-page login.php; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf /tmp/ck.html)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
+page login.php; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $TD/ck.html)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
 UID_=$(db "SELECT id FROM users WHERE username='sprout'")
 dbx "INSERT OR REPLACE INTO settings (name, value) VALUES ('xp_action_scale_percent', '0')"   # v0.9.7: action XP grows with level; these checks are about the base numbers (roads097.php covers the scaling)
 dbx "UPDATE users SET tour_step=0 WHERE id=$UID_"
@@ -89,21 +90,21 @@ L0=$(qty rich-loam); post $GP $GP -d do=collect -d building=compost_bin; chk "80
 post $GP $GP -d do=heap_out -d out=worm-castings; dbx "UPDATE garden_buildings SET scraps=20 WHERE plot_id=$P AND building='compost_bin'"
 W0=$(qty worm-castings); post $GP $GP -d do=collect -d building=compost_bin; chk "20 scraps -> 1 Worm Castings" "$(qty worm-castings)" $((W0+1))
 post $GP $GP -d do=heap_out -d out=nonsense; chk "bad output refused" "$(db "SELECT heap_out FROM garden_buildings WHERE plot_id=$P AND building='compost_bin'")" worm-castings
-page $GP; echo "bin panel: add-scraps hint present: $(grep -c 'Eat a raw crop to get Food Scraps' /tmp/ck.html)  chooser options: $(grep -o '<option value="[a-z-]*"[^>]*>[A-Za-z ]* ([0-9]* scraps)' /tmp/ck.html | wc -l)"
+page $GP; echo "bin panel: add-scraps hint present: $(grep -c 'Eat a raw crop to get Food Scraps' $TD/ck.html)  chooser options: $(grep -o '<option value="[a-z-]*"[^>]*>[A-Za-z ]* ([0-9]* scraps)' $TD/ck.html | wc -l)"
 
 echo "== too-tired text and energy lines"
 dbx "UPDATE plot_tiles SET plant_id=NULL WHERE plot_id=$P"; setE 0
-page "garden.php?sel=3-3"; curl -s -c $C -b $C -X POST $BASE/garden.php --data-urlencode "csrf=$(csrf /tmp/ck.html)" -d do=till -d x=3 -d y=3 -o /dev/null; page garden.php
-echo "message: $(grep -oE '<li class="ml err[^"]*">[^<]*' /tmp/ck.html | head -1 | cut -c1-200)"
-echo "strip low-energy line: $(grep -c 'class="st lowenergy"' /tmp/ck.html)  strip countdown: $(grep -oE 'Next \+1 in [0-9]+:[0-9]+' /tmp/ck.html | head -1)"
-setE 10; page garden.php; echo "full energy: low line $(grep -c 'class="st lowenergy"' /tmp/ck.html), countdown $(grep -c 'Next +1 in' /tmp/ck.html)"
+page "garden.php?sel=3-3"; curl -s -c $C -b $C -X POST $BASE/garden.php --data-urlencode "csrf=$(csrf $TD/ck.html)" -d do=till -d x=3 -d y=3 -o /dev/null; page garden.php
+echo "message: $(grep -oE '<li class="ml err[^"]*">[^<]*' $TD/ck.html | head -1 | cut -c1-200)"
+echo "strip low-energy line: $(grep -c 'class="st lowenergy"' $TD/ck.html)  strip countdown: $(grep -oE 'Next \+1 in [0-9]+:[0-9]+' $TD/ck.html | head -1)"
+setE 10; page garden.php; echo "full energy: low line $(grep -c 'class="st lowenergy"' $TD/ck.html), countdown $(grep -c 'Next +1 in' $TD/ck.html)"
 
 echo "== tour step 5 is eat; tour-free actions"
 dbx "UPDATE users SET tour_step=5 WHERE id=$UID_"; setE 10; give apple 1
-page inventory.php; echo "tour box: $(grep -oE '<h3>Wren’s tour[^<]*' /tmp/ck.html)"
+page inventory.php; echo "tour box: $(grep -oE '<h3>Wren’s tour[^<]*' $TD/ck.html)"
 eat apple; chk "tour moved on after eating" "$(db "SELECT tour_step FROM users WHERE id=$UID_")" 6
 dbx "UPDATE users SET tour_step=1 WHERE id=$UID_"; setE 0
-page "garden.php?sel=2-2"; curl -s -c $C -b $C -X POST $BASE/garden.php --data-urlencode "csrf=$(csrf /tmp/ck.html)" -d do=till -d x=2 -d y=2 -o /dev/null
+page "garden.php?sel=2-2"; curl -s -c $C -b $C -X POST $BASE/garden.php --data-urlencode "csrf=$(csrf $TD/ck.html)" -d do=till -d x=2 -d y=2 -o /dev/null
 chk "tour till with 0 energy works" "$(db "SELECT tour_step FROM users WHERE id=$UID_")" 2
 dbx "UPDATE users SET tour_step=0 WHERE id=$UID_"
 
@@ -139,9 +140,9 @@ echo "-- timer"
 m=$(post crafting.php $CP -d do=collect_all); has "No pot is ready yet" "$m" "collect all: nothing ready"
 P1=$(db "SELECT id FROM cook_pots WHERE collected_at IS NULL ORDER BY id LIMIT 1")
 m=$(post crafting.php $CP -d do=collect -d pot_id=$P1); has "ready yet" "$m" "single collect before time refused"; chk "pot still there" "$(potsn)" 2
-page "$CP"; echo "pots strip: $(grep -c 'class="potstrip"' /tmp/ck.html) strip, $(grep -c 'data-potleft' /tmp/ck.html) timers, hidden Collect forms: $(grep -c 'class="potcollect" hidden' /tmp/ck.html)"
+page "$CP"; echo "pots strip: $(grep -c 'class="potstrip"' $TD/ck.html) strip, $(grep -c 'data-potleft' $TD/ck.html) timers, hidden Collect forms: $(grep -c 'class="potcollect" hidden' $TD/ck.html)"
 dbx "UPDATE cook_pots SET ready_at=datetime('now','-1 minute') WHERE id=$P1"
-page "garden.php?t=bld"; has "🍳 1 ready" "$(grep -o '🍳 [0-9]* ready' /tmp/ck.html | head -1)" "status badge: 1 ready"
+page "garden.php?t=bld"; has "> 1 ready</a>" "$(grep -o '> [0-9]* ready</a>' $TD/ck.html | head -1)" "status badge: 1 ready"   # the 🍳 is now an <img> icon
 echo "-- collect one"
 X0=$(db "SELECT xp FROM users WHERE id=$UID_"); F0=$(qty food-scrap)
 m=$(post crafting.php $CP -d do=collect -d pot_id=$P1)
@@ -170,7 +171,7 @@ C0=$(db "SELECT coins FROM users WHERE id=$UID_"); setE 10; m=$(cookit feast-har
 has "Cooking 1 × Harvest Home Pie" "$m" "feast started"; chk "feast fee 50 Petals" "$(db "SELECT coins FROM users WHERE id=$UID_")" $((C0-50)); chk "feast energy 2" "$(energy)" 8
 chk "feast pot takes 45 min" "$(db "SELECT CAST((julianday(ready_at)-julianday(started_at))*86400+0.5 AS INTEGER) FROM cook_pots WHERE collected_at IS NULL")" 2700
 dbx "UPDATE users SET coins=30 WHERE id=$UID_"; m=$(cookit feast-harvest-pie 1); has "firewood" "$m" "feast with 30 Petals refused"; chk "nothing taken" "$(db "SELECT coins FROM users WHERE id=$UID_")" 30; chk "one pot" "$(potsn)" 1
-collectall >/dev/null; has "+23 XP" "$(grep -o '+23 XP' /tmp/ck.html | head -1)" "feast XP 15 x1.5 = 23 (Kitchen III)"
+collectall >/dev/null; has "+23 XP" "$(grep -o '+23 XP' $TD/ck.html | head -1)" "feast XP 15 x1.5 = 23 (Kitchen III)"
 dbx "UPDATE users SET coins=1000 WHERE id=$UID_"
 echo "-- ingredients, energy and money are all-or-nothing"
 dbx "DELETE FROM user_items WHERE user_id=$UID_ AND item_id=(SELECT id FROM items WHERE slug='onion')"; setE 60
@@ -202,7 +203,7 @@ dbx "REPLACE INTO settings (name,value) VALUES ('kitchen_pots','0')"; dbx "UPDAT
 m=$(cookit $SOUP 2); has "Made 2 × Green Pea Soup" "$m" "instant: made at once"
 chk "soup +2 at once" "$(qty $SOUP)" $((S0+2)); chk "no pot left waiting" "$(potsn)" 0; chk "energy -2" "$(energy)" 58; chk "job +2" "$(jobp)" $((J0+2))
 m=$(cookit mint-tea 7); chk "instant snack x7" "$(qty mint-tea)" $((M0+7)); chk "instant: still no pots waiting" "$(potsn)" 0
-page "$CP"; chk "no pots strip when pots are off" "$(grep -c 'class="potstrip"' /tmp/ck.html)" 0
+page "$CP"; chk "no pots strip when pots are off" "$(grep -c 'class="potstrip"' $TD/ck.html)" 0
 dbx "DELETE FROM settings WHERE name='kitchen_pots'"
 dbx "UPDATE users SET calling=NULL, calling_chapter=NULL WHERE id=$UID_"
 dbx "UPDATE user_jobs SET status='done' WHERE user_id=$UID_ AND kind='cook'"
@@ -220,30 +221,30 @@ chk "first pot collected opens Pots only" "$(db "SELECT group_concat(e.title) FR
 dbx "DELETE FROM user_items WHERE user_id=$UID_ AND item_id=(SELECT id FROM items WHERE slug='food-scrap')"
 phpq 'give_item('$UID_', (int)q_val("SELECT id FROM items WHERE slug = \"food-scrap\""), 1);'
 chk "first scrap opens Food Scraps" "$(db "SELECT group_concat(e.title) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id=ue.entry_id WHERE e.title IN ('Pots','Food Scraps') AND ue.user_id=$UID_" | tr ',' '\n' | sort | tr '\n' ',')" "Food Scraps,Pots,"
-page book.php; chk "Almanac lists both pages" "$(grep -c 'Food Scraps\|>Pots' /tmp/ck.html | awk '{print ($1>0)?"yes":"no"}')" yes
+page book.php; chk "Almanac lists both pages" "$(grep -c 'Food Scraps\|>Pots' $TD/ck.html | awk '{print ($1>0)?"yes":"no"}')" yes
 # admin recipe editor
-AD=/tmp/ck-adm; rm -f $AD; curl -s -c $AD -b $AD $BASE/login.php > /tmp/ck.html; curl -s -c $AD -b $AD -X POST $BASE/login.php --data-urlencode "csrf=$(csrf /tmp/ck.html)" -d username=admin -d password=TestPassword123 -o /dev/null
+AD=$TD/ck-adm; rm -f $AD; curl -s -c $AD -b $AD $BASE/login.php > $TD/ck.html; curl -s -c $AD -b $AD -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $TD/ck.html)" -d username=admin -d password=TestPassword123 -o /dev/null
 RID=$(db "SELECT id FROM recipes WHERE slug='mint-tea'")
-curl -s -b $AD "$BASE/admin/crud.php?r=recipes&action=edit&id=$RID" > /tmp/ck-ed.html
-chk "editor has tier/cook minutes/batch" "$(grep -o 'name="f\[\(tier\|cook_minutes\|batch_max\)\]"' /tmp/ck-ed.html | sort -u | wc -l | tr -d ' ')" 3
-chk "editor: no 'Not used yet', no skill_required" "$(grep -ci 'not used yet\|skill_required' /tmp/ck-ed.html)" 0
-chk "editor: snack option present" "$(grep -c 'value="snack"' /tmp/ck-ed.html | awk '{print ($1>0)?"yes":"no"}')" yes
+curl -s -b $AD "$BASE/admin/crud.php?r=recipes&action=edit&id=$RID" > $TD/ck-ed.html
+chk "editor has tier/cook minutes/batch" "$(grep -o 'name="f\[\(tier\|cook_minutes\|batch_max\)\]"' $TD/ck-ed.html | sort -u | wc -l | tr -d ' ')" 3
+chk "editor: no 'Not used yet', no skill_required" "$(grep -ci 'not used yet\|skill_required' $TD/ck-ed.html)" 0
+chk "editor: snack option present" "$(grep -c 'value="snack"' $TD/ck-ed.html | awk '{print ($1>0)?"yes":"no"}')" yes
 # route highlight and passed stops
 phpq '$u = q_one("SELECT * FROM users WHERE id = '$UID_'"); $here = player_node($u); $rid = (int)$here["region_id"]; require_once "includes/destination.php";
   $town = (int)q_val("SELECT id FROM locations WHERE region_id = ? AND kind = \"market\" ORDER BY id LIMIT 1", [$rid]);
   $far = $town;
   if ($town === (int)$here["id"] || dest_path('$UID_', (int)$here["id"], $town) === null) { $far = 0; foreach (q("SELECT id FROM locations WHERE region_id = ? AND id <> ? ORDER BY id", [$rid, $here["id"]])->fetchAll(PDO::FETCH_COLUMN) as $c) if (dest_path('$UID_', (int)$here["id"], (int)$c) !== null) { $far = (int)$c; } }
   $near = (int)q_val("SELECT id FROM locations WHERE region_id = ? AND id NOT IN (?, ?) ORDER BY id LIMIT 1", [$rid, $here["id"], $far]);
-  echo $here["id"], " ", $rid, " ", $far, " ", $near, "\n";' > /tmp/ck-route.txt
-read HERE REG FAR NEAR < /tmp/ck-route.txt
+  echo $here["id"], " ", $rid, " ", $far, " ", $near, "\n";' > $TD/ck-route.txt
+read HERE REG FAR NEAR < $TD/ck-route.txt
 dbx "UPDATE users SET dest_id=NULL, dest_trail=NULL WHERE id=$UID_"
-page "world.php?tab=map&r=$REG"; chk "map: no highlight without a route" "$(grep -c 'stroke="#e8a317"' /tmp/ck.html | awk '{print ($1>0)?"lit":"none"}')" none
+page "world.php?tab=map&r=$REG"; chk "map: no highlight without a route" "$(grep -c 'class="mroute\(ing\)\?"' $TD/ck.html | awk '{print ($1>0)?"lit":"none"}')" none
 dbx "UPDATE users SET dest_id=$FAR WHERE id=$UID_"
-page "world.php?tab=map&r=$REG"; chk "map: route lit (path + ringed stops)" "$(grep -o 'stroke="#e8a317" stroke-width="7"' /tmp/ck.html | wc -l | awk '{print ($1>0)?"lit":"none"}')" lit
-chk "map: ringed stops" "$(grep -o 'r="[0-9]*" fill="none" stroke="#e8a317"' /tmp/ck.html | wc -l | awk '{print ($1>0)?"yes":"no"}')" yes
-page world.php; chk "panel: nothing passed yet" "$(grep -c 'class="rp done"' /tmp/ck.html)" 0
+page "world.php?tab=map&r=$REG"; chk "map: route lit (path + ringed stops)" "$(grep -o 'class="mroute"' $TD/ck.html | wc -l | awk '{print ($1>0)?"lit":"none"}')" lit
+chk "map: ringed stops" "$(grep -o 'class="mrouteing"' $TD/ck.html | wc -l | awk '{print ($1>0)?"yes":"no"}')" yes
+page world.php; chk "panel: nothing passed yet" "$(grep -c 'class="rp done"' $TD/ck.html)" 0
 dbx "UPDATE users SET dest_trail='$NEAR'"
-page world.php; echo "  panel with a passed stop: done rows $(grep -o 'class="rp done"' /tmp/ck.html | wc -l) · ticks $(grep -o '✅' /tmp/ck.html | wc -l)"
+page world.php; echo "  panel with a passed stop: done rows $(grep -o 'class="rp done"' $TD/ck.html | wc -l) · ticks $(grep -o '✅' $TD/ck.html | wc -l)"
 dbx "UPDATE users SET dest_id=NULL, dest_trail=NULL WHERE id=$UID_"
 
 if [ -n "$OLD" ]; then
@@ -257,7 +258,7 @@ if [ -n "$OLD" ]; then
   echo "old soup energy: $(odb "SELECT json_extract(effects,'\$.energy') FROM items WHERE slug='garden-vegetable-soup'"), old apple: $(odb "SELECT COALESCE(json_extract(effects,'\$.energy'),'none') FROM items WHERE slug='apple'")"
   rsync -a --exclude data --exclude uploads $GAME/ $OLD/ 2>/dev/null || cp -r $GAME/includes $GAME/*.php $GAME/assets $OLD/
   sed -i "s/define('APP_VERSION', '[^']*')/define('APP_VERSION', '0.9.4')/" $OLD/includes/bootstrap.php
-  php -d session.save_path=/tmp -S 127.0.0.1:$((PORT+1)) -t $OLD $ROUTER >/tmp/cook-old.log 2>&1 & PID2=$!; sleep 1
+  php -d session.save_path=/tmp -S 127.0.0.1:$((PORT+1)) -t $OLD $ROUTER >$TD/cook-old.log 2>&1 & PID2=$!; sleep 1
   curl -s -o /dev/null -w 'first request: %{http_code}\n' http://127.0.0.1:$((PORT+1))/login.php
   kill $PID2 2>/dev/null
   echo "db_version: $(odb "SELECT value FROM settings WHERE name='db_version'")"
@@ -272,11 +273,11 @@ if [ -n "$OLD" ]; then
   chk "bins keep heap_out default" "$(odb "SELECT COUNT(*) FROM pragma_table_info('garden_buildings') WHERE name='heap_out'")" 1
   echo "-- run the migration again (must change nothing)"
   odbx "DELETE FROM settings WHERE name='db_version'"
-  php -d session.save_path=/tmp -S 127.0.0.1:$((PORT+1)) -t $OLD $ROUTER >>/tmp/cook-old.log 2>&1 & PID2=$!; sleep 1
+  php -d session.save_path=/tmp -S 127.0.0.1:$((PORT+1)) -t $OLD $ROUTER >>$TD/cook-old.log 2>&1 & PID2=$!; sleep 1
   curl -s -o /dev/null http://127.0.0.1:$((PORT+1))/login.php; kill $PID2 2>/dev/null
   chk "soup still 11" "$(odb "SELECT json_extract(effects,'\$.energy') FROM items WHERE slug='garden-vegetable-soup'")" 11
   chk "berry tart still 9" "$(odb "SELECT json_extract(effects,'\$.energy') FROM items WHERE slug='berry-tart'")" 9
-  grep -iE 'fatal|warning|notice|deprecated' /tmp/cook-old.log || echo "(no PHP errors on upgrade)"
+  grep -iE 'fatal|warning|notice|deprecated' $TD/cook-old.log || echo "(no PHP errors on upgrade)"
 fi
-echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/cook-php.log || echo "(none)"
+echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' $TD/cook-php.log || echo "(none)"
 [ -s $GAME/data/error-log.txt ] && { echo "FAIL game error log:"; tail -8 $GAME/data/error-log.txt; } || echo "(game error log empty)"

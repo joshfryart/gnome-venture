@@ -71,7 +71,7 @@ ok "sign-up stored an ip hash" "$([ -n "$(db "SELECT reg_ip_hash FROM users WHER
 echo "== 1. the tab, willing mentors"
 get $A 'pals.php?tab=mentor' >/dev/null; has "tab shows" $H 'Willing mentors'; hasnt "nobody listed yet" $H 'Bloom Thistledown'
 get $B 'pals.php?tab=mentor' >/dev/null; has "mentor sees the tick" $H 'Happy to mentor'
-get $A 'pals.php' >/dev/null; has "Mentor tab link" $H '🎓 Gnome mentor'
+get $A 'pals.php' >/dev/null; has "Mentor tab link" $H 'tab=mentor"><img[^>]*> Gnome mentor'
 act $B pm_open 0 -d open=1; ok "bloom ticked" "$(db "SELECT pmentor_open FROM users WHERE username='bloom'")" 1
 dbx "UPDATE users SET pmentor_open=1 WHERE username IN ('thistle','quiet')"
 get $A 'pals.php?tab=mentor' >/dev/null; has "bloom listed" $H 'Bloom Thistledown'

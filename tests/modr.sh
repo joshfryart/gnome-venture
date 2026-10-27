@@ -7,6 +7,7 @@ db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query(
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
 dbx "DELETE FROM users WHERE username='bloom'"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT * FROM users WHERE username=\"sprout\"")->fetch(PDO::FETCH_ASSOC); unset($r["id"]); $r["username"]="bloom"; $r["email"]="bloom@b.local"; $r["gnome_name"]="Bloom Thistledown"; $c=array_keys($r); $p->prepare("INSERT INTO users (".implode(",",$c).") VALUES (".implode(",",array_fill(0,count($c),"?")).")")->execute(array_values($r));'
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('fresh_hold_days','0')"   # brand-new test accounts (fresh_hold.sh tests the hold itself)
 dbx "UPDATE users SET onboarded=1 WHERE username='bloom'"; dbx "UPDATE users SET level=5, coins=500 WHERE username IN ('sprout','bloom')"
 login() { rm -f $1; curl -s -c $1 -b $1 $BASE/login.php > /tmp/m.html; curl -s -c $1 -b $1 -X POST $BASE/login.php --data-urlencode "csrf=$(csrf /tmp/m.html)" -d username=$2 -d "password=$3" -o /dev/null -w "%{redirect_url}"; }
 A=/tmp/mod-a; B=/tmp/mod-b; ADM=/tmp/mod-adm; login $A sprout 'TestPass123!' >/dev/null; login $B bloom 'TestPass123!' >/dev/null; login $ADM admin TestPassword123 >/dev/null

@@ -4089,6 +4089,7 @@ dialog.tkr .tkrcard { max-height: calc(100dvh - 24px); overflow-y: auto; }
 .trekmap.tkart { gap: 0; position: relative; overflow: hidden; background: #000; border: 3px solid #3d2a1c; box-shadow: 0 0 0 2px #7a4a1f; --tk-line: transparent; }
 :root[data-theme="dark"] .trekmap.tkart { background: #000; border-color: #3d2a1c; }
 .trekmap.tkart .tkbg { position: absolute; display: block; max-width: none; pointer-events: none; z-index: 0; left: 0; top: 0; width: 100%; height: 100%; }
+.trekmap.tkart .tkbg.tkpix { image-rendering: pixelated; }
 .trekmap.tkart .tkbg text { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
 .trekmap.tkart .tile { background: none; box-shadow: none; z-index: 1; color: transparent; overflow: visible; }
 .trekmap.tkart .tile:not(:disabled):hover { filter: none; background: rgba(244, 240, 224, .16); }

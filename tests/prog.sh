@@ -9,7 +9,7 @@ C=/tmp/prog-ck; rm -f $C
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 get() { curl -s -c $C -b $C "$BASE/$1" -o /tmp/prog.html -w '%{http_code} %{redirect_url}'; }
 post() { local page=$1; shift; local t; t=$(csrf /tmp/prog.html); curl -s -c $C -b $C -X POST "$BASE/$page" --data-urlencode "csrf=$t" "$@" -o /tmp/prog-post.html -w '%{http_code} %{redirect_url}'; }
-flashes() { grep -oE 'class="flash (ok|err)">[^<]*' /tmp/prog.html | sed 's/class="flash //'; }
+flashes() { grep -oE '<li class="ml (ok|err)[^"]*">.*</li>' /tmp/prog.html | head -3 | sed -E 's/<small class="mlwhen">.*//; s/<li class="ml //; s/<[^>]*>//g'; }   # v2.0.x: flashes show in the message log
 db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
 U="(SELECT id FROM users WHERE username='sprout')"
 db "UPDATE users SET coins=5000, energy=40 WHERE username='sprout'"
@@ -57,4 +57,4 @@ get 'world.php?tab=map' >/dev/null; echo "Lv tags: $(grep -oE '>(🔒 )?Lv [0-9]
 echo "== admin can turn the lock off and change start region"
 db "UPDATE settings SET value='0' WHERE name='travel_needs_visit'"; db "INSERT INTO settings (name,value) SELECT 'travel_needs_visit','0' WHERE NOT EXISTS (SELECT 1 FROM settings WHERE name='travel_needs_visit')"
 echo "travel to NWE (unlocked by setting): $(post world.php -d do=travel -d region_id=$NWE)"; get world.php >/dev/null; flashes
-echo "php log errors:"; grep -iE "fatal|warning|notice|deprecated" /tmp/prog-php.log | head; grep -c . $GAME/data/error-log.txt 2>/dev/null
+echo "php log errors:"; grep -iE "fatal|warning|notice|deprecated" /tmp/prog-php.log | head; if [ -f $GAME/data/error-log.txt ]; then grep -c . $GAME/data/error-log.txt; else echo "0 (no error log)"; fi   # no log file = no errors (grep -c on a missing file exits 2)

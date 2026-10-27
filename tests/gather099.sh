@@ -93,7 +93,7 @@ page() { curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $T/w.html; }
 round() { page; curl -s -c $C -b $C -X POST $BASE/gather.php --data-urlencode "csrf=$(csrf $T/w.html)" -d do=round -d tool=$1 ${2:+-d rm=$2} > $T/r-$1.json; }
 field() { php -r '$j=json_decode(file_get_contents($argv[1]),true); echo $j[$argv[2]] ?? "";' "$T/r-$1.json" "$2"; }
 submit() { page; curl -s -L -c $C -b $C $BASE/gather.php --data-urlencode "csrf=$(csrf $T/w.html)" -d do=gather -d tool=$1 --data-urlencode "gtok=$2" --data-urlencode "gev=$3" -d back=world.php?tab=gather > $T/out.html; }
-flash1() { grep -oE '<li class="ml (ok|err)[^>]*>[^<]*' $T/out.html | head -1; }   # this try's message: the newest line in the message log
+flash1() { grep -oE '<li class="ml (ok|err)[^>]*>.*' $T/out.html | head -1 | sed 's/<\/li>.*//; s/<img[^>]*ico-target[^>]*>/🎯/g; s/<[^>]*>//g'; }   # emoji are <img> icons now: keep the 🎯 marker, drop the other tags   # this try's message: the newest line in the message log
 line() { flash1 | grep -oE '🎯.*' | head -1; }
 gatherN() { flash1 | grep -oE 'You gather [0-9]+' | head -1 | grep -oE '[0-9]+$'; }
 TOOLS="forage axe pick rod net bucket"

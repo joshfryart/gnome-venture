@@ -14,6 +14,7 @@ CAN=$(db "SELECT id FROM items WHERE slug='tin-watering-can'")
 dbx "UPDATE users SET onboarded=1, gnome_name='Taker Tom', level=1, coins=500, energy=100 WHERE id=$AD"
 dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) VALUES ($AD,$CAN,1)"
 dbx "UPDATE users SET level=1, coins=1000 WHERE id=$SP"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('fresh_hold_days','0')"   # brand-new test accounts (fresh_hold.sh tests the hold itself)
 A=/tmp/pa-ck; T=/tmp/pt-ck; login $A sprout 'TestPass123!'; login $T admin TestPassword123
 echo "== level gate"; post $A jobs.php -d do=post -d kind=tend -d plot_id=$P -d days=1 -d wage=120
 dbx "UPDATE users SET level=3 WHERE id IN ($SP,$AD)"
