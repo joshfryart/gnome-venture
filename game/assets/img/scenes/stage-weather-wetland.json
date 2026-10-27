@@ -1,0 +1,11 @@
+{
+ "sun": "wetland",
+ "cloud": "wetland-cloud",
+ "rain": "wetland-v2",
+ "storm": "wetland-storm",
+ "frost": "wetland-frost",
+ "heat": "wetland-heat",
+ "wind": "wetland-wind",
+ "fog": "wetland-fog",
+ "snow": "wetland-snow"
+}

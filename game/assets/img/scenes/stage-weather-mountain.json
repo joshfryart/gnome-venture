@@ -1,0 +1,11 @@
+{
+ "sun": "mountain",
+ "cloud": "mountain-cloud",
+ "rain": "mountain-rain",
+ "storm": "mountain-storm",
+ "frost": "mountain-frost",
+ "heat": "mountain",
+ "wind": "mountain-wind",
+ "fog": "mountain-fog",
+ "snow": "mountain-snow"
+}

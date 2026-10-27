@@ -1,0 +1,11 @@
+{
+ "sun": "desert",
+ "cloud": "desert-cloud",
+ "rain": "desert-rain",
+ "storm": "desert-storm",
+ "frost": "desert-frost",
+ "heat": "desert-heat",
+ "wind": "desert-wind",
+ "fog": "desert-fog",
+ "snow": "desert-frost"
+}
