@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.54
+- Phone: during a fight the route ribbon and Route fold fade away (about 1 s) so the fight options get the room. Desktop keeps them. Reduced-motion users get no fade, they just go.
+
 ## 2.0.53
 - Adventure: the latest result (card or "Latest" strip) now sits at the top of the action card, and is hidden during a fight, which already shows the rounds.
 - Adventure: the world-map fold at the bottom is replaced by a "World map →" link to the Map tab.

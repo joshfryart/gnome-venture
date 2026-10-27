@@ -5199,6 +5199,8 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
   /* a fight keeps the ribbon under the scene and the Route fold under the fight card */
   .advgrid.fighting:not(.withrings) .routebox { order: -1; margin: 0; }
   .advgrid.fighting:not(.withrings) .routefold { order: 1; margin: 0; }
+  /* v2.0.53: in a fight the route info fades away so the fight options get the room */
+  .advgrid.fighting:not(.withrings) .routebox, .advgrid.fighting:not(.withrings) .routefold { overflow: hidden; animation: routefade .7s ease .5s forwards; }
   /* v2.0.51: on a phone the closed Journal shows only the newest line; tap to open the rest */
   .advjournal:not([open]) > summary { flex-wrap: wrap; }
   .advjournal:not([open]) .jpeek { display: block; flex: 1 0 100%; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
@@ -5207,3 +5209,5 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
 /* v2.0.52: the latest result now sits at the top of the action card */
 .encounter > .advlatest, .encounter > .roadresult { margin: 0 0 10px; width: 100%; max-width: none; box-sizing: border-box; }
 .worldlink { text-align: center; margin: 8px 0; }
+@keyframes routefade { 0% { opacity: 1; max-height: 240px; } 70% { opacity: 0; max-height: 240px; } 100% { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; visibility: hidden; } }
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) { .advgrid.fighting:not(.withrings) .routebox, .advgrid.fighting:not(.withrings) .routefold { animation-duration: .01s; animation-delay: 0s; } }
