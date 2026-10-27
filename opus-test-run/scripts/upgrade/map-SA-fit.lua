@@ -124,25 +124,25 @@ do
   for i = 1, 160 do local x, y = 6 + trnd(228), 10 + trnd(116); if land:has(x, y) then local d = DARKER[c:get(x, y)]; if d then c:paint({ "x.x", ".x." }, x, y, { x = d }) end end end
   local zm = {}
   for zi = 4, 1, -1 do local z = ZONES[zi]; local m = c:mask(); m:add(c:ellipse(z[1], z[2], z[3], 30)); m:add(c:ellipse(z[1] + 8, z[2] - 14, z[3] * 0.6, 20)); m:clip(land); zm[zi] = m end
-  for zi = 2, 4 do zm[zi]:edge():each(function(x, y) if (x + y) % 4 < 2 and land:has(x, y) then local L = light[y * 240 + x] or -99; c:px(x, y, L >= 16 and "#f5cf6a" or "#b07a10") end end) end
+  for zi = 5, 4 do zm[zi]:edge():each(function(x, y) if (x + y) % 4 < 2 and land:has(x, y) then local L = light[y * 240 + x] or -99; c:px(x, y, L >= 16 and "#f5cf6a" or "#b07a10") end end) end
   -- dark underground river, lit where it passes light; glowing pool
   river:each(function(x, y) local L = light[y * 240 + x] or -99; c:px(x, y, L >= 16 and "#3f8fb0" or "#25637d"); if (x + y) % 5 == 0 then c:px(x, y, L >= 16 and "#a9d6ea" or "#3f8fb0") end end)
   local lm = c:ellipse(lk[1], lk[2], 11, 5); lm:clip(land); c:fill(lm, "#3f8fb0"); c:fill(c:ellipse(lk[1], lk[2], 7, 3), "#a9d6ea"); lm:edge():each(function(x, y) c:px(x, y, "#25637d") end); c:fill(c:rect(lk[1] - 3, lk[2], lk[1] + 2, lk[2]), "#eef8f2")
   X.layer(c, "objects")
   c:outline(land, { ol = 1, olx = 1 })
   pathM:copy():grow(1):each(function(x, y) if x >= 0 and x < 240 and y >= 0 and y < 135 then c:px(x, y, "#4a2c1a") end end)
-  pathM:each(function(x, y) if x >= 0 and x < 240 and y >= 0 and y < 135 then local L = light[y * 240 + x] or -99; local a, b = "#c9a96e", "#9a6b3f"; if L >= 26 then a, b = "#f2e4c0", "#d8c49a" elseif L < 7 then a, b = "#74462a", "#4a2c1a" end; c:px(x, y, (x + y) % 6 == 0 and b or a) end end)
+  pathM:each(function(x, y) if x >= 0 and x < 240 and y >= 0 and y < 135 then local L = light[y * 240 + x] or -99; local a, b = "#c9a96e", "#9a6b3f"; if L >= 26 then a, b = "#f2e4c0", "#d8c49a" elseif L < 7 then a, b = "#74462a", "#4a2c1a" end; if not roadM:has(x, y) then if a == "#f2e4c0" then a = "#d8c49a" elseif a == "#d8c49a" or a == "#c9a96e" then a = "#9a6b3f" else a = "#74462a" end end; c:px(x, y, (x + y) % 6 == 0 and b or a) end end)
   local bridge = pathM:copy():clip(river:copy():grow(1)):grow(1)
   c:fill(bridge, "#74462a"); bridge:each(function(x, y) if x % 2 == 0 then c:px(x, y, "#9a6b3f") end end)
   local HOUSES = {}
   do local pg = pathM:copy():grow(1)
     local function ok(hx, hy) for yy = hy - 5, hy + 8 do for xx = hx - 1, hx + 10 do
-      if pg:has(xx, yy) or not land:has(xx, yy) then return false end
+      if roadM:has(xx, yy) or trailM:has(xx, yy) or not land:has(xx, yy) then return false end
       local dx, dy = xx - TOWN[1], yy - TOWN[2]; if dx * dx + dy * dy < 12 * 12 then return false end
       for i, q in ipairs(CLR) do if not (math.abs(q[1] - TOWN[1]) < 1 and math.abs(q[2] - TOWN[2]) < 1) then local ex, ey = xx - q[1], yy - q[2]; if ex * ex + ey * ey < q[3] * q[3] then return false end end end
     end end
-    for _, h in ipairs(HOUSES) do if math.abs(h[1] - hx) < 12 and math.abs(h[2] - hy) < 15 then return false end end return true end
-    for rad = 14, 30, 2 do for a = 0, 35 do if #HOUSES >= 7 then break end
+    for _, h in ipairs(HOUSES) do if math.abs(h[1] - hx) < 12 and math.abs(h[2] - hy) < 13 then return false end end return true end
+    for rad = 13, 42, 2 do for a = 0, 35 do if #HOUSES >= 7 then break end
       local hx, hy = math.floor(TOWN[1] + math.cos(a * math.pi / 18) * rad - 4.5), math.floor(TOWN[2] + math.sin(a * math.pi / 18) * rad * 0.8 - 2)
       if ok(hx, hy) then HOUSES[#HOUSES + 1] = { hx, hy } end end end end
   for _, h in ipairs(HOUSES) do P(c, c:rect(h[1], h[2], h[1] + 9, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:poly({ { h[1] - 1, h[2] }, { h[1] + 4.5, h[2] - 5 }, { h[1] + 10, h[2] } }), RM.leaf, { gloss = false, flat = true }); c:fill(c:rect(h[1] + 3, h[2] + 3, h[1] + 5, h[2] + 5), "#f5cf6a"); c:px(h[1] + 4, h[2] + 4, "#fff3c8") end

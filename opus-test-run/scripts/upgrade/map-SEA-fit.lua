@@ -159,11 +159,11 @@ do
   local used = c:mask()
   local function okspot(x, y, m) if inclear(x, y, m) then return false end; if used:has(x, y) or casing:has(x, y) or river:has(x, y) or lm:has(x, y) then return false end; for _, v in ipairs(POOLS) do if math.abs(x - v[1]) < v[3] + 3 and math.abs(y - v[2]) < 5 then return false end end; return land:has(x, y) end
   -- houses ring the town floor (centred on the town point)
-  local hn = 0
-  for _, rad in ipairs({ 15, 20, 25 }) do for k = 0, 47 do local a = k / 48 * 6.283; local hx, hy = T[1] + math.cos(a) * rad, T[2] + 5 + math.sin(a) * rad * 0.75
+  local hn = 0; local roadC = roadM:copy():grow(1)
+  for _, rad in ipairs({ 14, 18, 22, 26 }) do for k = 0, 47 do local a = k / 48 * 6.283; local hx, hy = T[1] + math.cos(a) * rad, T[2] + 5 + math.sin(a) * rad * 0.75
     local okh = true; for dx = -5, 5, 2 do for dy = -11, 1, 2 do local x, y = math.floor(hx + dx), math.floor(hy + dy)
-      if floor:has(x, y) or used:has(x, y) or casing:has(x, y) or not land:has(x, y) then okh = false end
-      for qi = 2, #CL do local q = CL[qi]; if (x - q[1]) ^ 2 + (y - q[2]) ^ 2 < q[3] ^ 2 then okh = false end end end end
+      if floor:has(x, y) or used:has(x, y) or roadC:has(x, y) or not land:has(x, y) then okh = false end
+      for qi = 2, #CL do local q = CL[qi]; if (x - q[1]) ^ 2 + (y - q[2]) ^ 2 < (q[3] - 2) ^ 2 then okh = false end end end end
     if okh and hn < 8 then house(hx, hy); used:add(c:rect(math.floor(hx) - 7, math.floor(hy) - 13, math.floor(hx) + 7, math.floor(hy) + 3)); hn = hn + 1 end end end
   for _, s in ipairs(ST) do
     local n = (s[4] == "exit") and 2 or (s[4] == "town") and 6 or 3
