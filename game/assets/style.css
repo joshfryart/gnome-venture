@@ -5355,8 +5355,7 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
    mockup .vcard -> .vlcard (.vcard is the villagers.php grid card). The mockup .ph / .dohead frame rules are NOT ported:
    .ph is the live place header (place_header_html). */
 
-/* ================= SHARED FELT BASE (verbatim from claude/art-variants/mockup2/gather.css; only url(art/...) re-rooted to url(img/acts/...)) =================
-   The gather agent's css-gather.css carries the same block: keep ONE copy. Site tokens (--bg, --ink, --accent ...) are the real ones and are not repeated. */
+/* ================= SHARED FELT BASE (verbatim from claude/art-variants/mockup2/gather.css; only url(art/...) re-rooted to url(img/acts/...)) ==========   The gather agent's css-gather.css carries the same block: keep ONE copy. Site tokens (--bg, --ink, --accent ...) are the real ones and are not repeated. */
 :root {
   --rg-c: #c9c5bc; --rg-u: #7ab55c; --rg-r: #a9d6ea; --rg-l: #e8a317;   /* rarity glow: the "main/light" colours of the c/ flourishes */
   --gx-leather: #7a4a1f; --gx-leather-dk: #5c3420; --gx-leather-lt: #9a6b3f; --gx-stitch: #f5cf6a;
@@ -5620,3 +5619,8 @@ main a.fbtn, main a.fbtn:hover { color: #2a1a10; text-decoration: none; }
 .gvs[data-dp="night"] .gvs-tint { background: rgba(30, 24, 70, .42); }
 .gvs[data-dp="night"][data-baked="1"] .gvs-tint { background: rgba(30, 24, 70, .22); }   /* not used today: no baked night art */
 .gvs[data-baked="1"][data-dp="dawn"] .gvs-tint, .gvs[data-baked="1"][data-dp="dusk"] .gvs-tint { display: none; }
+/* v2.0.67: shop basket (bar styles above; tile highlight and sheet button) */
+.shopgrid .btile.sel .spick { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand); }
+dialog.isheet .sadd { width: auto; min-width: 160px; }
+.basket .sbad { color: var(--danger); margin: 4px 0; font-size: 14px; }
+.basket[hidden] { display: none; }
