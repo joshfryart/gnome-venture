@@ -1477,9 +1477,6 @@ body[data-area] .tabs a.on { background: var(--area-solid); color: var(--on-fill
 .regionpanel h2 small { font-size: 13px; font-weight: 400; }
 .mapfold > summary { font-weight: 600; }
 .roadline { margin: 8px 0 0; }
-.roadends { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin: 6px 0 -4px; }
-.roadends .rend small { color: var(--muted); }
-.roadends .rend.r { text-align: right; }
 .mapwrap { margin: 8px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .worldmap, .journeymap { width: 100%; height: auto; display: block; border-radius: var(--radius); box-shadow: var(--shadow); }
 .journeymap { max-width: 700px; }
@@ -5157,10 +5154,13 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
   .advgrid:not(.withrings):not(.fighting) .encounter .choice { min-height: 56px; padding: 10px 12px; }
   .advgrid:not(.withrings):not(.fighting) .advlatest,
   .advgrid:not(.withrings):not(.fighting) .roadresult { order: 3; width: 100%; max-width: none; box-sizing: border-box; margin: 0; text-align: left; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap { order: 4; width: 100%; max-width: none; margin: 0; overflow: visible; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap .desktop-horizontal { display: none; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap .mobile-vertical { display: block; width: min(100%, 300px); max-width: 300px; min-width: 0 !important; height: auto; margin: 0 auto; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap { overflow: hidden; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap { order: 4; width: 100%; max-width: none; margin: 0; overflow: hidden; }
   .advgrid:not(.withrings):not(.fighting) .mapwrap .desktop-horizontal { display: none !important; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap .mobile-vertical { display: block; width: min(100%, 300px); max-width: 300px; min-width: 0 !important; height: auto; margin: 0 auto; }
+  /* a fight on a phone keeps the same vertical map instead of the clipped 640px swipe strip; the vertical map never scrolls, so no swipe hint */
+  .advgrid.fighting:not(.withrings) .mapwrap:has(.mobile-vertical) { max-height: none; overflow: hidden; }
+  .advgrid.fighting:not(.withrings) .mapwrap .desktop-horizontal { display: none !important; }
+  .advgrid.fighting:not(.withrings) .mapwrap .mobile-vertical { display: block; width: min(100%, 300px); max-width: 300px; min-width: 0 !important; height: auto; margin: 0 auto; }
+  .advgrid .mapwrap:has(.mobile-vertical)::after { content: none; }
   .advgrid:not(.withrings):not(.fighting) .tmlinks { order: 5; margin: 0; text-align: center; }
 }
