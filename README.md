@@ -103,3 +103,7 @@ Full history: [CHANGELOG.md](CHANGELOG.md).
 - Treks: Chapter II-b balance watch; Chapters III–VI not built.
 - Road: region packs, road text admin editor, 146 villages share 9 descriptions.
 - Ideas parked: growing villages, caravans, Hall of Fame, public region pages, postcards, admin 2FA, CAPTCHA.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Covers the code and the art (pixel art made with Aseprite and AI tooling).
