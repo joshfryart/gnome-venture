@@ -66,7 +66,8 @@ Phone (412px, dark theme):
 3. `bash tests/<suite>.sh COPY PORT2 tests/router.php`. One suite per fresh copy.
 Key suites: `walk.sh`, `treks.sh`, `security190.sh`, `market100.sh`, `games2.sh`, `explore.sh`, `landmarks.sh`.
 Browser checks: Playwright + Chromium at 390/412px (phone) and 900/1400px (desktop). Use `bypassCSP: true` to inject test CSS.
-MySQL cannot be tested locally. The live site is the check.
+MySQL cannot be tested locally. CI (`.github/workflows/ci.yml`) runs lint, the SQLite suites (`tests/ci_suites.sh`, one at a time: they share `/tmp` files), an upgrade-from-older-release check (`tests/upgrade_check.sh`) and a MySQL 8 job. `tests/db_errors.php` covers migration errors and `give_item`. The MySQL job has not been confirmed on GitHub yet; the live site is still the final check.
+The `treks` suite (~335s) is not in CI.
 
 ## Config and secrets
 - `game/config.php` holds DB and SMTP details. Never committed (see `.gitignore`).

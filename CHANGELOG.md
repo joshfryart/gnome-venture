@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.60
+- Updater: switches maintenance mode on by itself while installing, keeps a safety copy of every file it replaces, rolls back automatically if a write fails or a file's hash is wrong afterwards, and releases the lock either way. The old "switch on Maintenance first" help text is gone.
+- Database upgrade: only "index already exists" is ignored; any other index failure is logged and keeps the upgrade coming back (so a failed unique index can no longer pass silently).
+- `give_item()` now rethrows anything that is not a duplicate-key race, and reports false if its fallback update changes no row. The inventory functions moved to `includes/inventory.php`.
+- Trek map: the inline `image-rendering` style (blocked by the page's CSP) is now a CSS class.
+- Install: `install.php` reads the version from `bootstrap.php` (single source).
+- Repo: MIT license, real SECURITY.md, GitHub Actions CI (lint, SQLite suites, upgrade check, MySQL), 21 stale test suites repaired and added to CI.
+
 ## 2.0.59
 - Phone fights: "Show all" under the round log is a small right-aligned tag instead of a full button row.
 

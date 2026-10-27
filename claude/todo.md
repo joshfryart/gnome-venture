@@ -1,6 +1,11 @@
-# Gnome Venture: to-do (updated 2026-10-27, after 2.0.59)
+# Gnome Venture: to-do (updated 2026-10-27, after 2.0.60)
 
-## NOW: explore / road-walk layout rework (2.0.50 to 2.0.59, shipped on main; Joshua is testing on phone)
+## NOW: 2.0.60 hardening release (Joshua to upload + test)
+Built from an external review. Done and on main: db_migrate index errors no longer silent; give_item rethrows non-duplicate errors (moved to includes/inventory.php); updater auto-maintenance lock + per-file rollback + hash check (tests/updrollback.sh); MIT LICENSE; SECURITY.md; version single source (tools/check_versions.sh); CI workflow; 21 stale suites repaired (all green run one at a time).
+Joshua checks: upload 2.0.60 via Admin -> Update on a BACKED-UP live MySQL site (updater changes only apply to the NEXT update after this one, the old updater installs this release); open the Actions tab and fix the first CI run (MySQL job, PHP 8.1 leg, action versions never run); confirm upgrade shows no migrate errors in the error log.
+Open from the review: `releases/` stays in git on purpose (Joshua's call); big files (garden.php, trek.php, bootstrap, functions) still to split incrementally (inventory.php is the first cut; next candidates: rewards, migrations); `treks` suite too slow for CI; suites share fixed /tmp files (use mktemp, then CI could parallelise); MySQL race test (12 parallel inserts) in tests/db_errors.php never run on real MySQL.
+
+## Earlier: explore / road-walk layout rework (2.0.50 to 2.0.59)
 Plan was reviewed by Opus; phases 1-4 are done. Joshua checks still open: tests/roads.sh, walk.sh, explore.sh not run; a road fight on his phone (fade once, stays out, comes back after); light theme; 10+ stop road; Snack picker / Auto-win rows in the tightened phone fight.
 - 2.0.50: Joshua's web-update zip reconciled into git (a parallel take on the 2.0.49 mobile layout). 2.0.51: phase 1 CSS cleanup. 2.0.52: phases 2-3 (route ribbon = felt strip, Route fold, one route display, phone Journal shows newest line only). 2.0.53: phase 4 (Latest result inside the action card, World map link replaces the fold) + stale scene_smoke banner test fixed. 2.0.54: route info fades out in phone fights. 2.0.55: slimmer ribbon on phone. 2.0.56: tighter phone fight card/buttons. 2.0.57: fade plays once per fight (sessionStorage `gvRouteFaded`, class `rf-done`). 2.0.58: phone fight log = last round only. 2.0.59: compact "Show all" tag.
 - Design chosen: mockup A (felt strip) with C's danger marker (thorn pin on the space where a fight waits). Mockups live in `mockups/route/` and `mockups/page/` (gitignored); Aseprite sources and Lua are in `aseprite-source/route-mockups/`; game sprites in `game/assets/img/route/`.
