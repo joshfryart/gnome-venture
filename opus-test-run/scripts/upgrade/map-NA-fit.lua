@@ -118,7 +118,7 @@ do
   for _, ex in ipairs(LAY.exits) do local x, y = H(ex.x), H(ex.y)
     if ex.side == "S" then roadM:add(c:line({ { x, y }, { x, 134 } }, 3)) elseif ex.side == "N" then roadM:add(c:line({ { x, y }, { x, 0 } }, 3))
     elseif ex.side == "E" then roadM:add(c:line({ { x, y }, { 239, y } }, 3)) else roadM:add(c:line({ { x, y }, { 0, y } }, 3)) end end
-  for _, tr in ipairs(LAY.trails) do trailM:add(c:line(hpts(tr), 2)) end
+  for _, tr in ipairs(LAY.trails) do trailM:add(c:line(hpts(tr), 1)) end
   local allP = roadM:copy():add(trailM)
   c:fill(allP:copy():grow(1), "#5e2f1e")
   c:fill(trailM, "#c9a96e"); c:fill(roadM, "#d9a660")
@@ -132,10 +132,12 @@ do
     elseif ex.side == "E" then c:fill(c:rect(234, y - 5, 239, y - 3), "#5b6470"); c:fill(c:rect(234, y + 3, 239, y + 5), "#5b6470") end end
   -- market village: mushroom-cap houses in a ring centred on the town point (inner pin floor left flat)
   local HOUSES = {}
-  for k = 0, 6 do local a = -2.6 + k * 0.92; local rx = PIN[3] + 7; HOUSES[#HOUSES + 1] = { math.floor(TOWN[1] + math.cos(a) * rx * 1.25 - 4.5 + 0.5), math.floor(TOWN[2] + math.sin(a) * rx - 3.5 + 0.5) } end
+  for k = 0, 23 do local a = k * 0.2618; local rx = PIN[3] + 7; HOUSES[#HOUSES + 1] = { math.floor(TOWN[1] + math.cos(a) * rx * 1.2 - 4.5 + 0.5), math.floor(TOWN[2] + math.sin(a) * rx - 3.5 + 0.5) } end
   local function onpath(x0, y0, x1, y1) for y = y0, y1 do for x = x0, x1 do if allP:has(x, y) then return true end end end return false end
   local built = {}
-  for _, h in ipairs(HOUSES) do if not onpath(h[1], h[2] - 3, h[1] + 9, h[2] + 7) then built[#built + 1] = h
+  for _, h in ipairs(HOUSES) do local clash = onpath(h[1] - 1, h[2] - 4, h[1] + 10, h[2] + 8) or not land:has(h[1], h[2] - 4)
+    for _, b in ipairs(built) do if math.abs(b[1] - h[1]) < 12 and math.abs(b[2] - h[2]) < 11 then clash = true end end
+    if not clash then built[#built + 1] = h
     P(c, c:rect(h[1] + 1, h[2], h[1] + 8, h[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:ellipse(h[1] + 4.5, h[2], 6, 3.5):cut(c:rect(h[1] - 3, h[2] + 1, h[1] + 12, h[2] + 5)), RM.red, { gloss = false, flat = true })
     c:px(h[1] + 2, h[2] - 2, "#fff3c8"); c:px(h[1] + 6, h[2] - 1, "#fff3c8"); c:fill(c:rect(h[1] + 3, h[2] + 3, h[1] + 4, h[2] + 4), "#f5cf6a") end end
   -- lantern posts: by the market and beside a few road stops
@@ -174,8 +176,8 @@ do
     { "#4a2c1a", "#9a6b3f", "#d8c49a", "#f2e4c0" }, { "#3d2a1c", "#5b6470", "#8b8f96" }, { "#5e2f1e", "#8a4f2a", "#b07a45" } }
   local RI = {}; for ri2, rp in ipairs(RAMPS) do for i, col in ipairs(rp) do if not RI[col] then RI[col] = { ri2, i } end end end
   RI["#f2e4c0"] = { 4, 4 }; RI["#3d2a1c"] = nil
-  local SRC = { { LIGHT[1], LIGHT[2], 120, 1.0 }, { TOWN[1], TOWN[2], 58, 0.95 }, { LAVA[1], LAVA[2], 44, 0.75 } }
-  for i = 3, #LANT do SRC[#SRC + 1] = { LANT[i][1], LANT[i][2] - 4, 34, 0.7 } end
+  local SRC = { { LIGHT[1], LIGHT[2], 78, 1.0 }, { TOWN[1], TOWN[2], 52, 0.95 }, { LAVA[1], LAVA[2], 40, 0.8 }, { LAKE[1], LAKE[2], 30, 0.6 } }
+  for i = 3, #LANT do SRC[#SRC + 1] = { LANT[i][1], LANT[i][2] - 4, 36, 0.75 } end
   local BY = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 }
   X.layer(c, "detail")
   local cur = {}; for y = 0, 134 do for x = 0, 239 do cur[y * 240 + x] = c:get(x, y) end end
@@ -186,7 +188,7 @@ do
     if band < 0 then band = 0 elseif band > 4 then band = 4 end
     if allP:has(x, y) and band < 1 then band = 1 end   -- paths stay readable to the edge
     local col = cur[y * 240 + x]; local e = RI[col]
-    if e then local rp = RAMPS[e[1]]; local shift = band - 3; if e[1] == 1 then shift = band - 2 end
+    if e then local rp = RAMPS[e[1]]; local shift = band - 3; if e[1] == 1 then shift = band - 3 end
       local idx = math.max(1, math.min(#rp, e[2] + shift)); if shift < 0 then idx = math.max(1, math.min(e[2], idx)) end
       if e[1] == 3 and idx < 2 then idx = 2 end
       if e[1] == 1 and idx == 1 and band > 0 then idx = 2 end
@@ -197,6 +199,7 @@ do
   -- self-lit things after shading
   for _, l in ipairs(LANT) do lantern(l) end
   lava(c, LAVA[1], LAVA[2], 7)
+  c:fill(lm, "#3f8fb0"); lm:edge():each(function(x, y) c:px(x, y, "#a9d6ea") end); c:fill(c:rect(LAKE[1] - 4, LAKE[2] - 1, LAKE[1] + 2, LAKE[2] - 1), "#a9d6ea")
   for x = 9, 232, 13 do local hh = 8 + (x * 7) % 14; c:fill(c:rect(x, 6, x, 6 + hh), "#5e2f1e"); c:px(x + 1, 6 + hh // 2, "#5e2f1e"); c:px(x - 1, 6 + hh - 3, "#8a4f2a") end
   local gl = 0; for i = 1, 200 do if gl >= 14 then break end local x, y = 10 + trnd(220), 22 + trnd(100)
     if okspot(x, y, 2) then gl = gl + 1; c:fill(c:rect(x, y - 2, x, y), "#d8c49a"); c:fill(c:rect(x - 1, y - 3, x + 1, y - 3), "#a9d6ea"); c:px(x, y - 4, "#eef8f2")

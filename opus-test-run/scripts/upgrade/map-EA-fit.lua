@@ -111,7 +111,7 @@ do
   local PAG, COR, used = {}, {}, {}
   local function okspot(x, y, pad)
     if x < 8 or x > 231 or y < 22 or y > 124 or not land:has(x, y) then return false end
-    if clr(x, y, pad) or pathd(x, y) < pad + 1 or river:has(x, y) then return false end
+    if clr(x, y, pad) or clr(x, y - 9, pad) or clr(x, y - 16, 2) or pathd(x, y) < pad + 1 or pathd(x, y - 10, 0) < pad or river:has(x, y) then return false end
     for _, u in ipairs(used) do if math.abs(x - u[1]) < 13 and math.abs(y - u[2]) < 15 then return false end end
     return true
   end
@@ -122,6 +122,9 @@ do
         if okspot(x, y, 6) then used[#used + 1] = { x, y }; if ai % 2 == 1 then PAG[#PAG + 1] = { x, y } else COR[#COR + 1] = { x, y } end; goto nexta end end end
     ::nexta::
   end
+  for ai, a in ipairs(anchors) do if ai > 1 then for k = 0, 23 do local ang = (k * 53 + ai * 29) % 360 * math.pi / 180
+    local x, y = math.floor(a[1] + math.cos(ang) * (a[3] + 10) + 0.5), math.floor(a[2] + math.sin(ang) * (a[3] + 10) * 0.8 + 0.5)
+    if okspot(x, y, 6) then used[#used + 1] = { x, y }; COR[#COR + 1] = { x, y }; break end end end end
   local lk = { 60, 112 }
   for _ = 1, 40 do if okspot(lk[1], lk[2], 9) then break end; lk[1] = lk[1] + 7; if lk[1] > 220 then lk[1] = 30; lk[2] = lk[2] - 6 end end
   local SRC = { { TX, TY - 2, 44 } }
@@ -156,10 +159,10 @@ do
   -- market plaza: flat floor under the pin, ringed by lantern-lit houses
   local plaza = c:ellipse(TX, TY, 11, 10); c:fill(plaza:copy():grow(1), "#9a6b3f"); c:fill(plaza, "#d8c49a")
   local HOUSES = {}
-  for k = 0, 11 do local ang = k * 30 * math.pi / 180; local hx, hy = math.floor(TX + math.cos(ang) * 17 + 0.5) - 4, math.floor(TY + math.sin(ang) * 15 + 0.5) - 3
-    local ok = true; for dx = 0, 9 do for dy = -5, 7 do if pathM:has(hx + dx, hy + dy) or plaza:has(hx + dx, hy + dy) then ok = false end end end
+  for k = 0, 47 do local ang = k * 7.5 * math.pi / 180; local rr = 16 + (k % 3) * 3; local hx, hy = math.floor(TX + math.cos(ang) * rr + 0.5) - 4, math.floor(TY + math.sin(ang) * rr * 0.85 + 0.5) - 3
+    local ok = true; for dx = 0, 9 do for dy = -5, 7 do if casing:has(hx + dx, hy + dy) or plaza:has(hx + dx, hy + dy) then ok = false end end end
     for _, o in ipairs(HOUSES) do if math.abs(o[1] - hx) < 12 and math.abs(o[2] - hy) < 13 then ok = false end end
-    if ok then for _, st in ipairs(LAY.stops) do local dx, dy = hx + 4 - st.x / 2, hy + 2 - st.y / 2; if dx * dx + dy * dy < (st.r / 2 + 6) ^ 2 then ok = false end end end
+    if ok then for _, st in ipairs(LAY.stops) do local dx, dy = hx + 4 - st.x / 2, hy + 2 - st.y / 2; if dx * dx + dy * dy < (st.r / 2 + 6) ^ 2 then ok = false end end; for _, u in ipairs(used) do if math.abs(hx + 4 - u[1]) < 10 and math.abs(hy - u[2]) < 14 then ok = false end end end
     if ok then HOUSES[#HOUSES + 1] = { hx, hy } end end
   for _, hh in ipairs(HOUSES) do P(c, c:rect(hh[1], hh[2], hh[1] + 9, hh[2] + 7), RM.cream, { gloss = false, flat = true }); P(c, c:poly({ { hh[1] - 1, hh[2] }, { hh[1] + 4.5, hh[2] - 5 }, { hh[1] + 10, hh[2] } }), RM.red, { gloss = false, flat = true }); c:fill(c:rect(hh[1] + 3, hh[2] + 3, hh[1] + 5, hh[2] + 5), "#f5cf6a"); c:px(hh[1] + 4, hh[2] + 4, "#fff3c8") end
   local function bigpagoda(x, y)
