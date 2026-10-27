@@ -238,10 +238,10 @@ phpq '$u = q_one("SELECT * FROM users WHERE id = '$UID_'"); $here = player_node(
   echo $here["id"], " ", $rid, " ", $far, " ", $near, "\n";' > $TD/ck-route.txt
 read HERE REG FAR NEAR < $TD/ck-route.txt
 dbx "UPDATE users SET dest_id=NULL, dest_trail=NULL WHERE id=$UID_"
-page "world.php?tab=map&r=$REG"; chk "map: no highlight without a route" "$(grep -c 'class="mroute\(ing\)\?"' $TD/ck.html | awk '{print ($1>0)?"lit":"none"}')" none
+page "world.php?tab=map&r=$REG"; chk "map: no highlight without a route" "$(grep -cE 'class="(mroute|mrouteing|gps|onroute)"' $TD/ck.html | awk '{print ($1>0)?"lit":"none"}')" none
 dbx "UPDATE users SET dest_id=$FAR WHERE id=$UID_"
-page "world.php?tab=map&r=$REG"; chk "map: route lit (path + ringed stops)" "$(grep -o 'class="mroute"' $TD/ck.html | wc -l | awk '{print ($1>0)?"lit":"none"}')" lit
-chk "map: ringed stops" "$(grep -o 'class="mrouteing"' $TD/ck.html | wc -l | awk '{print ($1>0)?"yes":"no"}')" yes
+page "world.php?tab=map&r=$REG"; chk "map: route lit (path + ringed stops)" "$(grep -oE 'class="(mroute|gps)"' $TD/ck.html | wc -l | awk '{print ($1>0)?"lit":"none"}')" lit
+chk "map: ringed stops" "$(grep -oE 'class="(mrouteing|onroute)"' $TD/ck.html | wc -l | awk '{print ($1>0)?"yes":"no"}')" yes
 page world.php; chk "panel: nothing passed yet" "$(grep -c 'class="rp done"' $TD/ck.html)" 0
 dbx "UPDATE users SET dest_trail='$NEAR'"
 page world.php; echo "  panel with a passed stop: done rows $(grep -o 'class="rp done"' $TD/ck.html | wc -l) · ticks $(grep -o '✅' $TD/ck.html | wc -l)"

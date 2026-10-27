@@ -579,7 +579,7 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
         $icon = $isTown ? '🏘️' : ($isFar ? '➜' : ($seen ? ($kindIcon[$it['k']] ?? '📍') : '❔'));
         $small = $type === 'off' && $it['k'] !== 'village';   // small sites: icon only until zoomed (or tapped / heading there)
         $ring = $isMe ? '<circle r="' . ($r + 6) . '" fill="#ffe66b" fill-opacity="0.45" stroke="#d9a520" stroke-width="3"/>'
-            : (isset($onRoute[$id]) ? '<circle r="' . ($r + 4) . '" fill="none" stroke="#e8a317" stroke-width="4"/>' : ($id === $selId ? '<circle r="' . ($r + 4) . '" fill="none" stroke="#2a6fa5" stroke-width="3" stroke-dasharray="4 3"/>' : ''));
+            : (isset($onRoute[$id]) ? '<circle class="onroute" r="' . ($r + 4) . '" fill="none" stroke="#e8a317" stroke-width="4"/>' : ($id === $selId ? '<circle r="' . ($r + 4) . '" fill="none" stroke="#2a6fa5" stroke-width="3" stroke-dasharray="4 3"/>' : ''));
         $badge = isset($plots[$id]) ? '<text x="' . ($r - 2) . '" y="' . (-$r + 5) . '" text-anchor="middle" font-size="10">' . ($id === $homeV ? '🏡' : '🌱') . '</text>' : '';
         $ruin = !empty($it['ruin']) ? '<text x="' . (-$r + 2) . '" y="' . (-$r + 5) . '" text-anchor="middle" font-size="9">🏚️</text>' : '';
         $lab = '';
