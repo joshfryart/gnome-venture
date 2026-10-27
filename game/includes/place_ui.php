@@ -132,7 +132,7 @@ function land_card_html(array $u, array $node, ?array $nodeRegion): string
       🏡 Your garden in <?= e($nodeRegion['gnomish_name'] ?? 'this region') ?>: <b><?= eu($mine['garden_name'] ?: 'Garden') ?></b>.
     <?php elseif ($owned < max_gardens($u)): ?>
       📜 Land for sale: start a garden here for <b><?= money(deed_cost((int)$u['id'])) ?></b>. Native crops grow faster at home.
-      <form method="post" class="inline" data-confirm="Buy a land deed here for <?= number_format(deed_cost((int)$u['id'])) ?>?"><?= csrf_field() ?>
+      <form method="post" action="<?= e(url('world.php')) ?>" class="inline" data-confirm="Buy a land deed here for <?= number_format(deed_cost((int)$u['id'])) ?>?"><?= csrf_field() ?>
         <input type="hidden" name="do" value="deed"><button class="btn small">Buy land deed</button></form>
     <?php else: ?>
       <span class="muted">📜 Land for sale here<?= next_garden_level($u) ? ' (another garden from gnome level ' . next_garden_level($u) . ')' : ' (you tend as many gardens as a gnome can)' ?>.</span>
@@ -271,4 +271,47 @@ function town_pickers(int $uid): string
             . '</div></dialog>';
     }
     return $out;
+}
+
+/** Shared place tabs. $tabs = [key => [label, href, badge text or '']]. $class: 'tabs' or 'tabs st-tabs'. */
+function place_tabs_html(array $tabs, string $active, string $label = 'Place sections', string $class = 'tabs'): string
+{
+    $h = '<nav class="' . e($class) . '" aria-label="' . e($label) . '">';
+    foreach ($tabs as $k => [$lab, $href, $badge]) {
+        $h .= '<a class="' . ($k === $active ? 'on' : '') . '" href="' . e($href) . '">' . $lab
+            . ($badge !== '' ? ' <span class="st-tabbadge" title="' . e($badge) . '">' . e($badge) . '</span>' : '') . '</a>';
+    }
+    return $h . '</nav>';
+}
+
+/** The Stop tab body for any place: Orders link, Passport, Seasons, Land for sale (villages only). */
+function stop_tab_html(array $u, array $node, bool $hub): string
+{
+    require_once __DIR__ . '/stop_pass.php';
+    $uid = (int)$u['id'];
+    foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
+    $nodeRegion = !empty($node['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$node['region_id']]) : null;
+    $h = '<h2>🛂 Stamp passport</h2><p class="muted">Every rest stop gives you a stamp on your first visit. Fill the sets for rewards and titles. Hidden villages you find count too.</p>';
+    $titles = stop_titles($uid);
+    if ($titles) {
+        $h .= '<p>Titles earned: ';
+        foreach ($titles as $t) $h .= '<span class="tag">“' . e($t) . '”</span> ';
+        $h .= '<a href="' . e(url('book.php?ch=Milestones')) . '">Choose yours in the Almanac →</a></p>';
+    }
+    $h .= stop_passport_html($u);
+    $h .= '<p class="help">📜 <a href="' . e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
+    $h .= season_fold_html($u) . land_card_html($u, $node, $nodeRegion);
+    return $h;
+}
+
+/** Main-stop tabs: Square, Villagers, Shops, Stop. $folkCount badges Villagers (0 = none). */
+function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount = 0): array
+{
+    $q = $hub ? 'hub=1&' : '';
+    return [
+        'square' => ['🏘️ ' . ($inTown ? 'Square' : 'Where you are'), url('town.php' . ($hub ? '?hub=1' : '')), ''],
+        'villagers' => ['👥 Villagers', url('town.php?' . $q . 'view=villagers'), $folkCount > 0 ? (string)$folkCount : ''],
+        'shops' => ['🏪 Shops', url('world.php?tab=markets'), ''],
+        'stop' => ['🛂 Stop', url('town.php?' . $q . 'view=stop'), ''],
+    ];
 }

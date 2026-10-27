@@ -48,29 +48,21 @@ if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '
 refresh_energy($u);
 if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }   // v0.9.1a
 $viewReq = (string)($_GET['view'] ?? '');
-if ($viewReq === 'folk') $viewReq = 'villagers';   // v2.0.4 menu folds: old name of the Villagers tab
+if ($viewReq === 'folk') $viewReq = 'villagers';
+if ($viewReq === 'stop') $viewReq = 'passport';   // v2.0.61: the Stop tab (Passport, Orders link, Seasons, Land)   // v2.0.4 menu folds: old name of the Villagers tab
 if ($viewReq === 'villagers' && !$hub && !in_array(player_node($u)['kind'], ['market', 'hub'], true)) redirect('villagers.php' . (isset($_GET['q']) && $_GET['q'] !== '' ? '?q=' . urlencode((string)$_GET['q']) : ''));   // v2.0.39: the Villagers page; v2.0.60: main stops (market/hub) show who is in town inline
 $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2.0.4 menu folds: Passport and Villagers you know (were passport.php, folk.php) work from anywhere
     require_once __DIR__ . '/includes/stop_pass.php';
     $isPass = $viewReq === 'passport';
-    if ($isPass) foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
     page_header($isPass ? 'Stamp passport' : 'Villagers you know');
     ?>
     <h1>🏘️ Town</h1>
-    <nav class="tabs">
-      <a href="<?= e(url('town.php' . ($hub ? '?hub=1' : ''))) ?>">🏘️ <?= $inTown ? 'The square' : 'Where you are' ?></a>
-      <a class="<?= $isPass ? '' : 'on' ?>" href="<?= e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers')) ?>">👥 Villagers</a>
-      <a class="<?= $isPass ? 'on' : '' ?>" href="<?= e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=passport')) ?>">🛂 Passport</a>
-      <a href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) ?>">📜 Orders</a>
-    </nav>
+    <?= place_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers', 'Town sections') ?>
     <div class="townview">
     <?php if ($isPass): ?>
-      <h2>🛂 Stamp passport</h2>
-      <p class="muted">Every rest stop gives you a stamp on your first visit. Fill the sets for rewards and titles. Hidden villages you find count too.</p>
-      <?php $titles = stop_titles($uid); if ($titles): ?><p>Titles earned: <?php foreach ($titles as $t) echo '<span class="tag">“' . e($t) . '”</span> '; ?> <a href="<?= e(url('book.php?ch=Milestones')) ?>">Choose yours in the Almanac →</a></p><?php endif; ?>
-      <?= stop_passport_html($u) ?>
+      <?= stop_tab_html($u, $nodeNow, $hub) ?>
     <?php else: ?>
       <?= town_known_html($u, $hub) ?>
     <?php endif; ?>
@@ -259,12 +251,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       if (!empty($nw['home'])) $homeIn[] = [$rn, $hm];
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
-  <nav class="tabs">
-    <a class="<?= $view === 'square' ? 'on' : '' ?>" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">🏘️ The square</a>
-    <a class="<?= $view === 'folk' ? 'on' : '' ?>" href="<?= e(url('town.php?' . $q . 'view=villagers')) ?>">👥 Villagers <small><?= count($present) + count($homeIn) ?></small></a>
-    <a href="<?= e(url('town.php?' . $q . 'view=passport')) ?>">🛂 Passport</a>
-    <a href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) ?>">📜 Orders</a>
-  </nav>
+  <?= place_tabs_html(main_stop_tabs($hub, true, $view === 'folk' ? 'villagers' : 'square', count($present) + count($homeIn)), $view === 'folk' ? 'villagers' : 'square', 'Town sections') ?>
   <?php if ($view === 'folk'): ?>
     <h2>🚶 Out and about</h2>
     <div class="box folkabout">
