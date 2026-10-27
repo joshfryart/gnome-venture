@@ -1,0 +1,32 @@
+Satchel mockup 2: text-fit / tap / contrast check (check.js)
+
+width theme content font        text-els problems
+360   light real    system-ui         94        0
+390   light real    system-ui         94        0
+430   light real    system-ui         94        0
+360   light real    wide              94        0
+390   light real    wide              94        0
+430   light real    wide              94        0
+360   light stress  system-ui         94        0
+390   light stress  system-ui         94        0
+430   light stress  system-ui         94        0
+360   light stress  wide              94        0
+390   light stress  wide              94        0
+430   light stress  wide              94        0
+360   dark  real    system-ui         94        0
+390   dark  real    system-ui         94        0
+430   dark  real    system-ui         94        0
+360   dark  real    wide              94        0
+390   dark  real    wide              94        0
+430   dark  real    wide              94        0
+360   dark  stress  system-ui         94        0
+390   dark  stress  system-ui         94        0
+430   dark  stress  system-ui         94        0
+360   dark  stress  wide              94        0
+390   dark  stress  wide              94        0
+430   dark  stress  wide              94        0
+
+reduced motion: OK {"no-preference":{"spark":"gx-spark","sparkPos":"0px 0px","item":"gx-pop"},"reduce":{"spark":"none","sparkPos":"-288px 0px","item":"none"}}
+inline style/script in mock.html: 0
+
+findings: 0 (none)

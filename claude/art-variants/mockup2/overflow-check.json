@@ -1,0 +1,211 @@
+{
+  "when": "2026-10-27T21:28:38.597Z",
+  "runs": [
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "real",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "real",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "real",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "stress",
+      "font": "system-ui",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "content": "stress",
+      "font": "wide",
+      "textElements": 94,
+      "problems": 0
+    }
+  ],
+  "motion": {
+    "no-preference": {
+      "spark": "gx-spark",
+      "sparkPos": "0px 0px",
+      "item": "gx-pop"
+    },
+    "reduce": {
+      "spark": "none",
+      "sparkPos": "-288px 0px",
+      "item": "none"
+    }
+  },
+  "inlineStyleOrScript": 0,
+  "findings": []
+}

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" class="w390">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Satchel Gather mockup</title>
+<link rel="stylesheet" href="gather.css">
+</head>
+<body class="mockpage">
+<main class="phones">
+
+<!-- ============================== 1. Gather ============================== -->
+<figure class="mock" id="s-gather">
+<div class="ph" data-screen="gather">
+  <nav class="ptabs" aria-label="Sections">
+    <a href="#"><span class="ptabs__txt">🧭 Go</span></a><a href="#"><span class="ptabs__txt">🗺️ Map</span></a><a href="#" class="on" aria-current="page"><span class="ptabs__txt">🧺 Gather</span></a><a href="#"><span class="ptabs__txt">🛒 Shops</span></a>
+  </nav>
+
+  <div class="gx-hero">
+    <div class="gx-stage">
+      <img class="gx-scene pix" src="art/gather-c-scene.png" width="480" height="270" alt="">
+      <span class="gx-find"><span class="gx-spark gx-spark--legendary"></span><img class="aimg aimg-lg pix gx-item" src="../../../game/assets/img/ph/chanterelle.png" width="64" height="64" alt=""></span>
+      <img class="gx-front pix" src="art/gather-c-satchel-front.png" width="480" height="270" alt="">
+    </div>
+    <ul class="gx-hero__chips"><li class="gx-chip">🌲 Forest</li><li class="gx-chip">⚡ 7 / 20</li></ul>
+  </div>
+  <div class="gx-banner gx-banner--legendary" role="status">
+    <p class="gx-banner__kick">Into your satchel</p>
+    <p class="gx-banner__name">Amber Chanterelle</p>
+    <ul class="gx-banner__meta"><li class="gx-tag">×1</li><li class="gx-tag gx-tag--rar">✦ Legendary</li><li class="gx-tag">Foraging knife</li></ul>
+  </div>
+
+  <h3 class="gx-h">Your tool belt</h3>
+  <ul class="belt">
+    <li class="belt__slot is-active" title="Foraging knife · Sturdy"><img class="pix" src="art/gather-c-slot-forage@2x.png" width="48" height="48" alt=""><span class="vh">Foraging knife, Sturdy, in use</span><span class="belt__pips"><span class="belt__pip on"></span><span class="belt__pip on"></span><span class="belt__pip"></span></span></li>
+    <li class="belt__slot" title="Bug net · Worn"><img class="pix" src="art/gather-c-slot-net@2x.png" width="48" height="48" alt=""><span class="vh">Bug net, Worn</span><span class="belt__pips"><span class="belt__pip on"></span><span class="belt__pip"></span><span class="belt__pip"></span></span></li>
+    <li class="belt__slot" title="Hatchet · Worn"><img class="pix" src="art/gather-c-slot-axe@2x.png" width="48" height="48" alt=""><span class="vh">Hatchet, Worn</span><span class="belt__pips"><span class="belt__pip on"></span><span class="belt__pip"></span><span class="belt__pip"></span></span></li>
+    <li class="belt__slot" title="Gathering pouch · Worn"><img class="pix" src="art/gather-c-slot-basket@2x.png" width="48" height="48" alt=""><span class="vh">Gathering pouch, Worn</span><span class="belt__pips"><span class="belt__pip on"></span><span class="belt__pip"></span><span class="belt__pip"></span></span></li>
+    <li class="belt__slot" title="Rock pick · Worn"><img class="pix" src="art/gather-c-slot-pick@2x.png" width="48" height="48" alt=""><span class="vh">Rock pick, Worn</span><span class="belt__pips"><span class="belt__pip on"></span><span class="belt__pip"></span><span class="belt__pip"></span></span></li>
+    <li class="belt__slot is-missing" title="No fishing rod yet"><img class="pix" src="art/gather-c-slot-locked@2x.png" width="48" height="48" alt=""><span class="vh">No fishing rod yet</span><span class="belt__pips"></span></li>
+    <li class="belt__slot is-missing" title="No tide bucket yet"><img class="pix" src="art/gather-c-slot-locked@2x.png" width="48" height="48" alt=""><span class="vh">No tide bucket yet</span><span class="belt__pips"></span></li>
+  </ul>
+  <p class="belt__now"><b>Foraging knife</b> · Sturdy · 42 uses left</p>
+
+  <h3 class="gx-h">Gather here <span class="gx-h__sub">⚡1 a try</span></h3>
+  <div class="gcards">
+    <button type="button" class="gcard" aria-pressed="true">
+      <span class="gcard__art"><img class="pix" src="art/vig-forage.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Foraging</span></span>
+      <span class="gcard__meta"><span>⚡1</span><span>42 uses left</span></span>
+    </button>
+    <button type="button" class="gcard">
+      <span class="gcard__art"><img class="pix" src="art/vig-net.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Bug catching</span></span>
+      <span class="gcard__meta"><span>⚡1</span><span>8 uses left</span></span>
+    </button>
+    <button type="button" class="gcard" aria-disabled="true" aria-describedby="axe-why">
+      <span class="gcard__art"><img class="pix" src="art/vig-axe.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Logging</span></span>
+      <span class="gcard__meta"><span id="axe-why">Needs Sturdy</span></span>
+    </button>
+  </div>
+
+  <h3 class="gx-h">What’s here <span class="gx-h__sub">Forest</span></h3>
+  <ul class="finds">
+    <li class="find"><img class="aimg aimg-md pix" src="../../../game/assets/img/ph/chanterelle.png" width="40" height="40" alt=""><span class="find__name">Amber Chanterelle</span><span class="find__need ok">Fine ✔</span></li>
+    <li class="find"><img class="aimg aimg-md pix" src="../../../game/assets/img/ph/stag-beetle-shell.png" width="40" height="40" alt=""><span class="find__name">Stag Beetle Shell</span><span class="find__need">needs Sturdy</span></li>
+    <li class="find"><img class="aimg aimg-md pix" src="../../../game/assets/img/ph/wild-strawberries.png" width="40" height="40" alt=""><span class="find__name">Wild Strawberries</span><span class="find__need ok">Worn ✔</span></li>
+    <li class="find"><img class="aimg aimg-md pix" src="../../../game/assets/img/ph/oak-gall.png" width="40" height="40" alt=""><span class="find__name">Oak Gall</span><span class="find__need ok">Sturdy ✔</span></li>
+    <li class="find is-unknown"><img class="aimg aimg-md pix" src="../../../game/assets/img/ph/morel.png" width="40" height="40" alt=""><span class="find__name">???</span><span class="find__need">needs Fine</span></li>
+    <li class="find is-unknown"><img class="aimg aimg-md pix" src="../../../game/assets/img/ph/firefly-glow.png" width="40" height="40" alt=""><span class="find__name">???</span><span class="find__need">needs Fine</span></li>
+  </ul>
+</div>
+<figcaption class="mock__cap">Gather: the find sits inside the open satchel, rarity banner, belt, felt cards (picked / idle / locked)</figcaption>
+</figure>
+
+<!-- ============================== 2. Do ============================== -->
+<figure class="mock" id="s-do">
+<div class="ph" data-screen="do">
+  <nav class="ptabs" aria-label="Rest stop sections">
+    <a href="#" class="on" aria-current="page"><span class="ptabs__txt">🧭 Do</span><span class="ptabs__badge">3</span></a><a href="#"><span class="ptabs__txt">👥 Villagers</span><span class="ptabs__badge">1</span></a><a href="#"><span class="ptabs__txt">🏡 Stop</span></a>
+  </nav>
+  <header class="dohead">
+    <div class="dohead__scene"><img class="pix" src="art/gather-c-scene.png" width="480" height="270" alt=""></div>
+    <div class="dohead__plate">
+      <h2 class="dohead__name">Old mill</h2>
+      <p class="dohead__amb">The great wheel turns and the whole building hums.</p>
+      <ul class="dohead__chips"><li class="dochip">☀️ Day</li><li class="dochip">🌬️ Windy</li><li class="dochip">🍂 Autumn</li><li class="dochip">★ Tier 1</li></ul>
+    </div>
+  </header>
+  <h3 class="gx-h">🧭 Things to do <span class="gx-h__sub">3 of 4 left this visit</span></h3>
+  <div class="gcards gcards--2">
+    <button type="button" class="gcard" aria-pressed="true">
+      <span class="gcard__art"><img class="pix" src="art/vig-rest.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">A hot bath and a soft bed</span></span>
+      <span class="gcard__meta"><span>🛏️ Rest</span><span>14 Petals</span></span>
+    </button>
+    <button type="button" class="gcard">
+      <span class="gcard__art"><img class="pix" src="art/vig-chat.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Riddle on the notice post</span></span>
+      <span class="gcard__meta"><span class="gcard__odds">65% · fair</span><span>Lore check</span></span>
+    </button>
+    <button type="button" class="gcard is-pressed">
+      <span class="gcard__flag">Right now</span>
+      <span class="gcard__art"><img class="pix" src="art/vig-fire.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Collect firewood</span></span>
+      <span class="gcard__meta"><span>⚡1</span><span class="gcard__odds">80% · easy</span></span>
+    </button>
+    <button type="button" class="gcard">
+      <span class="gcard__art"><img class="pix" src="art/vig-rod.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Cast a line</span></span>
+      <span class="gcard__meta"><span>⚡1</span><span class="gcard__odds">55% · fair</span></span>
+    </button>
+    <button type="button" class="gcard" disabled>
+      <span class="gcard__art"><img class="pix" src="art/vig-hand.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Seed swap</span></span>
+      <span class="gcard__meta"><span>✔ Done today</span></span>
+    </button>
+    <button type="button" class="gcard" aria-disabled="true" aria-describedby="stall-why">
+      <span class="gcard__art"><img class="pix" src="art/vig-basket.png" width="144" height="108" alt=""></span>
+      <span class="gcard__ribbon"><span class="gcard__label">Adopters’ stall</span></span>
+      <span class="gcard__meta"><span id="stall-why">Needs tier 2</span></span>
+    </button>
+  </div>
+  <p class="gx-note">States: picked (green felt, gold sign), idle, pressed (third card, sinks 2 px), done (disabled, tick), locked (aria-disabled, padlock, still focusable).</p>
+</div>
+<figcaption class="mock__cap">Do: same felt cards in 2 columns for the long real labels; ribbons in a row line up</figcaption>
+</figure>
+
+<!-- ============================== 3. Reveal, all rarities ============================== -->
+<figure class="mock" id="s-reveal">
+<div class="ph" data-screen="reveal">
+  <nav class="ptabs" aria-label="Sections">
+    <a href="#"><span class="ptabs__txt">🧭 Go</span></a><a href="#"><span class="ptabs__txt">🗺️ Map</span></a><a href="#" class="on" aria-current="page"><span class="ptabs__txt">🧺 Gather</span></a><a href="#"><span class="ptabs__txt">🛒 Shops</span></a>
+  </nav>
+  <h3 class="gx-h">What turned up <span class="gx-h__sub">one reveal per rarity</span></h3>
+  <div class="reveals">
+    <div class="rtile">
+      <div class="rtile__view"><div class="gx-stage gx-stage--crop">
+        <img class="gx-scene pix" src="art/gather-c-scene.png" width="480" height="270" alt="">
+        <span class="gx-find"><span class="gx-spark gx-spark--common"></span><img class="aimg aimg-lg pix gx-item" src="../../../game/assets/img/ph/wild-strawberries.png" width="64" height="64" alt=""></span>
+        <img class="gx-front pix" src="art/gather-c-satchel-front.png" width="480" height="270" alt="">
+      </div></div>
+      <div class="gx-banner gx-banner--common gx-banner--sm">
+        <p class="gx-banner__kick">Common</p><p class="gx-banner__name">Wild Strawberries</p>
+        <ul class="gx-banner__meta"><li class="gx-tag">×2</li><li class="gx-tag gx-tag--rar">● Common</li></ul>
+      </div>
+    </div>
+    <div class="rtile">
+      <div class="rtile__view"><div class="gx-stage gx-stage--crop">
+        <img class="gx-scene pix" src="art/gather-c-scene.png" width="480" height="270" alt="">
+        <span class="gx-find"><span class="gx-spark gx-spark--uncommon"></span><img class="aimg aimg-lg pix gx-item" src="../../../game/assets/img/ph/butterfly-scales.png" width="64" height="64" alt=""></span>
+        <img class="gx-front pix" src="art/gather-c-satchel-front.png" width="480" height="270" alt="">
+      </div></div>
+      <div class="gx-banner gx-banner--uncommon gx-banner--sm">
+        <p class="gx-banner__kick">Uncommon</p><p class="gx-banner__name">Shed Butterfly Scales</p>
+        <ul class="gx-banner__meta"><li class="gx-tag">×1</li><li class="gx-tag gx-tag--rar">◆ Uncommon</li></ul>
+      </div>
+    </div>
+    <div class="rtile">
+      <div class="rtile__view"><div class="gx-stage gx-stage--crop">
+        <img class="gx-scene pix" src="art/gather-c-scene.png" width="480" height="270" alt="">
+        <span class="gx-find"><span class="gx-spark gx-spark--rare"></span><img class="aimg aimg-lg pix gx-item" src="../../../game/assets/img/ph/morel.png" width="64" height="64" alt=""></span>
+        <img class="gx-front pix" src="art/gather-c-satchel-front.png" width="480" height="270" alt="">
+      </div></div>
+      <div class="gx-banner gx-banner--rare gx-banner--sm">
+        <p class="gx-banner__kick">Rare</p><p class="gx-banner__name">Morel</p>
+        <ul class="gx-banner__meta"><li class="gx-tag">×1</li><li class="gx-tag gx-tag--rar">★ Rare</li></ul>
+      </div>
+    </div>
+    <div class="rtile">
+      <div class="rtile__view"><div class="gx-stage gx-stage--crop">
+        <img class="gx-scene pix" src="art/gather-c-scene.png" width="480" height="270" alt="">
+        <span class="gx-find"><span class="gx-spark gx-spark--legendary"></span><img class="aimg aimg-lg pix gx-item" src="../../../game/assets/img/ph/chanterelle.png" width="64" height="64" alt=""></span>
+        <img class="gx-front pix" src="art/gather-c-satchel-front.png" width="480" height="270" alt="">
+      </div></div>
+      <div class="gx-banner gx-banner--legendary gx-banner--sm">
+        <p class="gx-banner__kick">Legendary</p><p class="gx-banner__name">Amber Chanterelle</p>
+        <ul class="gx-banner__meta"><li class="gx-tag">×1</li><li class="gx-tag gx-tag--rar">✦ Legendary</li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="gx-actions"><button type="button" class="gbtn">Gather again · ⚡1</button><button type="button" class="gbtn alt">Open satchel</button></div>
+  <p class="gx-note">Rarity is told three ways: banner colour, the word, and its mark (● ◆ ★ ✦), so it never rests on colour alone.</p>
+</div>
+<figcaption class="mock__cap">Reveal: the same satchel stage, cropped, for Common, Uncommon, Rare and Legendary</figcaption>
+</figure>
+
+</main>
+</body>
+</html>
