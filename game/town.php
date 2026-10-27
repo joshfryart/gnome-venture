@@ -92,14 +92,14 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     page_header($node['name']);
     ?>
     <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
-    <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
-    <?= scene_place_banner($node, $node['name']) ?>
+    <?= place_switcher_html($node, 'here') ?>
+    <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
+      <?= place_header_html('stop-' . $stType . '.png', $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name']) ?>
+    <?php else: ?>
+      <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
+      <?= scene_place_banner($node, $node['name']) ?>
+    <?php endif; ?>
     <?php require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u);   // v1.0.4: carry on along the route ?>
-    <nav class="chips">
-      <a class="on" href="<?= e(url('town.php')) ?>">🪧 <?= e($node['name']) ?> rest stop</a>
-      <a href="<?= e(url('town.php?hub=1')) ?>">🍄 Mossbottom <small>(reachable from anywhere)</small></a>
-      <a href="<?= e(url('world.php')) ?>">🧭 Where to next</a>
-    </nav>
     <?php $eb = $_SESSION['explore_back'] ?? null;
     if ($eb && (int)$eb['place'] === (int)$node['id'] && ($ebFrom = q_one('SELECT name FROM locations WHERE id = ?', [$eb['from']]))): // v0.7.61 ?>
       <div class="box notice comeback">🌿 You found this place while exploring off the path.
@@ -202,8 +202,8 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <?php endif; ?>
   <p><a class="btn alt" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">← Back to the square</a></p>
 <?php else: ?>
-  <h1>🏘️ <?= e($town) ?> Town Square</h1>
-  <?= scene_place_banner(['kind' => 'market', 'region' => $town], $town . ' Town Square') ?>
+  <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
+  <?= place_header_html('stop-market.png', $town . ' Town Square', 'Main stop · ' . $town, '🏘️ ' . $town . ' Town Square') ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
   <?php if ($fest = town_festival($town)): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
@@ -233,11 +233,6 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     <?php endif; if (market_day_on()): ?><span>🧺 <b><a href="<?= e(url('marketday.php' . ($hub ? '?hub=1' : ''))) ?>">Market day</a></b>: stalls are up!</span><?php elseif (($md = market_days_until()) > 0 && $md <= 2): ?><span>🧺 Market day in <?= $md ?> day<?= $md === 1 ? '' : 's' ?></span><?php endif; ?>
     <?php foreach ($travHere as $th): ?><span>🧭 <a href="<?= e(url('folk.php?id=' . (int)$th['id'])) ?>"><?= e($th['name']) ?></a> is visiting</span><?php endforeach; ?>
   </div>
-  <nav class="chips">
-    <a class="<?= $hub ? '' : 'on' ?>" href="<?= e(url('town.php')) ?>">📍 <?= e(player_location($u)) ?></a>
-    <?php if (player_location($u) !== HUB_REGION): ?><a class="<?= $hub ? 'on' : '' ?>" href="<?= e(url('town.php?hub=1')) ?>">🍄 Mossbottom <small>(reachable from anywhere)</small></a><?php endif; ?>
-    <a href="<?= e(url('world.php')) ?>">🏪 Markets &amp; travel</a>
-  </nav>
   <?php $view = $viewReq === 'villagers' ? 'folk' : 'square';   // v0.7.61 folk, v0.7.66 quests
   $present = [];
   foreach (town_spots($town) as $ps) foreach (npcs_at_spot($ps) as $n) $present[(int)$n['id']] = ['n' => $n, 'spot' => $ps];

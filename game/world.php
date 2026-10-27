@@ -98,7 +98,9 @@ $badge = function (int $min, int $max = 0) use ($lvl): string {
 
 page_header('World');
 ?>
-<h1>🌍 World</h1>
+<?= place_switcher_html($node, 'world') ?>
+<?php $mapCode = !empty($node['region_id']) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$node['region_id']]) : ''; ?>
+<?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World') ?>
 <?= place_tabs_html([
     'go' => ['🧭 Go', url('world.php'), ''],
     'map' => ['🗺️ Map', url('world.php?tab=map#regionmap'), ''],

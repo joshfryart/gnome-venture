@@ -316,3 +316,29 @@ function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount 
         'stop' => ['🛂 Stop', url('town.php?' . $q . 'view=stop'), ''],
     ];
 }
+
+/** v2.0.61: the place switcher bar: World / Here / Mossbottom. $active: 'world', 'here' or 'hub'. */
+function place_switcher_html(array $node, string $active): string
+{
+    $items = [
+        'world' => ['🌍 <span>World</span>', url('world.php')],
+        'here' => ['📍 <span>' . e((string)$node['name']) . '</span>', url('town.php')],
+        'hub' => ['🍄 <span>Mossbottom</span>', url('town.php?hub=1')],
+    ];
+    $h = '<nav class="psw" aria-label="Where to">';
+    foreach ($items as $k => [$lab, $href]) $h .= '<a class="' . ($k === $active ? 'on' : '') . '" href="' . e($href) . '"' . ($k === $active ? ' aria-current="page"' : '') . '>' . $lab . '</a>';
+    return $h . '</nav>';
+}
+
+/** Place header: scene art (a file in assets/img/scenes/, temporarily red-outlined for review), kicker line, name, optional line and chips. */
+function place_header_html(string $art, string $alt, string $kicker, string $title, string $line = '', array $chips = []): string
+{
+    $h = '<header class="ph">';
+    if ($art !== '' && is_file(__DIR__ . '/../assets/img/scenes/' . $art)) {
+        $h .= '<figure class="ph-art newart"><img src="' . e(url('assets/img/scenes/' . $art)) . '" alt="' . e($alt) . '" width="480" height="240" decoding="async"></figure>';
+    }
+    $h .= '<div class="ph-body"><p class="ph-kick">' . e($kicker) . '</p><h1>' . e($title) . '</h1>'
+        . ($line !== '' ? '<p class="ph-amb">' . e($line) . '</p>' : '');
+    if ($chips) $h .= '<p class="ph-chips">' . implode('', array_map(fn($c) => '<span class="chip">' . $c . '</span>', $chips)) . '</p>';
+    return $h . '</div></header>';
+}
