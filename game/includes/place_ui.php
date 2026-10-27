@@ -336,7 +336,7 @@ function place_header_html(string $art, string $alt, string $kicker, string $tit
     $hasArt = $art !== '' && is_file(__DIR__ . '/../assets/img/scenes/' . $art);
     $h = '<header class="ph' . ($hasArt ? '' : ' ph-noart') . '">';   // v2.0.65: the name sits on a felt sign under (phone) or beside (desktop) the art
     if ($hasArt) {
-        $h .= '<figure class="ph-art newart"><img src="' . e(url('assets/img/scenes/' . $art)) . '" alt="' . e($alt) . '" width="480" height="240" decoding="async"></figure>';
+        $h .= '<figure class="ph-art"><img src="' . e(url('assets/img/scenes/' . $art)) . '" alt="' . e($alt) . '" width="480" height="240" decoding="async"></figure>';
     }
     $h .= '<div class="ph-body"><p class="ph-kick">' . e($kicker) . '</p><h1>' . e($title) . '</h1>'
         . ($line !== '' ? '<p class="ph-amb">' . e($line) . '</p>' : '');
