@@ -100,7 +100,7 @@ page_header('World');
 ?>
 <?= place_switcher_html($node, 'world') ?>
 <?php $mapCode = !empty($node['region_id']) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$node['region_id']]) : ''; ?>
-<?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World') ?>
+<?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World', '', place_chips($u)) ?>
 <?= place_tabs_html([
     'go' => ['🧭 Go', url('world.php'), ''],
     'map' => ['🗺️ Map', url('world.php?tab=map#regionmap'), ''],
@@ -158,9 +158,12 @@ $nodeIcon = $kindIcons[loc_real_kind($node)] ?? ($L ? $L[0] : '📍');   // v1.2
 $road = road_of((int)$node['id']);
 $onRoad = on_road((int)$node['id']);
 ?>
-<?php if ($goId): echo dest_panel($u, $goId);   // v0.7.98: a stop was tapped
-elseif ($ds = dest_status($u)): echo dest_panel($u, (int)$ds[0]['id'], true); endif; ?>
-<?= seek_chip($u) ?>
+<?php // v2.0.61: GPS (route panel + seek chip) sits in a right column from 1200px wide, above the content on narrower screens
+$gpsHtml = $goId ? dest_panel($u, $goId) : (($ds = dest_status($u)) ? dest_panel($u, (int)$ds[0]['id'], true) : '');   // v0.7.98: a stop was tapped
+$gpsHtml .= seek_chip($u); ?>
+<div class="pcols">
+<?php if (trim($gpsHtml) !== ''): ?><aside class="paside" aria-label="Where you are headed"><?= $gpsHtml ?></aside><?php endif; ?>
+<div class="pmain">
 <?php require_once __DIR__ . '/includes/gathering.php';   // v0.7.80: the land you're standing in, for the card and Gather here
 $gatherLand = (string)($node['landscape'] ?: 'grassland');
 $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
@@ -201,7 +204,8 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
     <?php endforeach; ?>
     </div>
 </details>
-
+</div>
+</div>
 <?php endif; ?>
 
 

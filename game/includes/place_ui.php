@@ -342,3 +342,10 @@ function place_header_html(string $art, string $alt, string $kicker, string $tit
     if ($chips) $h .= '<p class="ph-chips">' . implode('', array_map(fn($c) => '<span class="chip">' . $c . '</span>', $chips)) . '</p>';
     return $h . '</div></header>';
 }
+
+/** Daypart, weather and season chips for a place header (HTML-escaped text, emoji included). */
+function place_chips(array $u): array
+{
+    $n = hollow_now(hollow_user_region($u));
+    return [e($n['daypart_emoji'] . ' ' . $n['daypart_label']), e($n['weather_emoji'] . ' ' . $n['weather_label']), e($n['season_emoji'] . ' ' . $n['season_label'] . ' ' . $n['season_day'])];
+}

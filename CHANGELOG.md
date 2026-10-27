@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.62
+- World > Go: the route panel (GPS) and seek chip sit in a right column on very wide screens (1600px+) and above the content on narrower ones.
+- Place header on World and main stops now shows daypart, weather and season chips.
+- Place switcher: three equal buttons on phones, so names are no longer cut.
+- Main-stop tabs (Square, Villagers, Shops, Orders, Stop) wrap three per row on phones.
+- Main-stop Villagers view shows only who is in town now (out and about, at home); the long list is one link to the Villagers page.
+- The art outline on place headers is still a temporary review marker.
+
 ## 2.0.61
 - World / Town / Stops consolidation (review build): World tabs are now Go, Map, Gather, Shops (Fast travel is a fold on Go; Seasons and Land moved to each stop's Stop tab; old `?tab=travel`, `?tab=seasons` and `?tab=here` links still land).
 - Main stops: tabs Square, Villagers, Shops, Orders, Stop. The Stop view (`town.php?view=stop`, `view=passport` still works) holds Passport, Orders link, Seasons and Land (land deeds stay village-only).

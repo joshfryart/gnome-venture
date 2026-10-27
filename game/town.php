@@ -59,7 +59,7 @@ if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2
     page_header($isPass ? 'Stamp passport' : 'Villagers you know');
     ?>
     <h1>🏘️ Town</h1>
-    <?= place_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers', 'Town sections') ?>
+    <?= place_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers', 'Town sections', 'tabs mst') ?>
     <div class="townview">
     <?php if ($isPass): ?>
       <?= stop_tab_html($u, $nodeNow, $hub) ?>
@@ -203,7 +203,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <p><a class="btn alt" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">← Back to the square</a></p>
 <?php else: ?>
   <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
-  <?= place_header_html('stop-market.png', $town . ' Town Square', 'Main stop · ' . $town, '🏘️ ' . $town . ' Town Square') ?>
+  <?= place_header_html('stop-market.png', $town . ' Town Square', 'Main stop · ' . $town, '🏘️ ' . $town . ' Town Square', '', place_chips($u)) ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
   <?php if ($fest = town_festival($town)): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
@@ -246,7 +246,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       if (!empty($nw['home'])) $homeIn[] = [$rn, $hm];
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
-  <?= place_tabs_html(main_stop_tabs($hub, true, $view === 'folk' ? 'villagers' : 'square', count($present) + count($homeIn)), $view === 'folk' ? 'villagers' : 'square', 'Town sections') ?>
+  <?= place_tabs_html(main_stop_tabs($hub, true, $view === 'folk' ? 'villagers' : 'square', count($present) + count($homeIn)), $view === 'folk' ? 'villagers' : 'square', 'Town sections', 'tabs mst') ?>
   <?php if ($view === 'folk'): ?>
     <h2>🚶 Out and about</h2>
     <div class="box folkabout">
@@ -260,7 +260,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <?php endforeach; ?>
     </div>
     <h2>🏡 At home</h2>
-    <?php if (!$homeIn && !$homeOut): ?><div class="box"><p class="muted">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p></div><?php endif; ?>
+    <?php if (!$homeIn): ?><div class="box"><p class="muted">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p></div><?php endif; ?>
     <?php if ($homeIn): ?>
     <div class="homegrid">
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
@@ -273,21 +273,8 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
-    <?php if ($homeOut): ?>
-    <div class="homegrid">
-      <?php foreach ($homeOut as [$n, $hm, $nw]): ?>
-        <div class="box homecard away">
-          <?= npc_portrait($n, 'small') ?>
-          <b><?= e($n['name']) ?></b>
-          <small class="muted">Out: <?= e($nw['what']) ?></small>
-          <small class="muted">🕰️ Usually home <?= e(npc_home_hours($n)) ?></small>
-        </div>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
     <p class="help">Knock to visit someone at home: you can chat and give a gift there. Tap a name above to see what you know about them.</p>
-    <details class="fold box knownfold" id="known"<?= (isset($_GET['q']) || isset($_GET['f']) || isset($_GET['r']) || isset($_GET['known'])) ? ' open' : '' ?>><summary>📒 Everyone you know</summary>
-      <?= town_known_html($u, $hub, false) ?></details>
+    <p class="help">📒 Only people in town right now are shown. <a href="<?= e(url('villagers.php')) ?>">Everyone you know →</a></p>
   <?php else: ?>
   <div class="spotgrid">
     <?php foreach (town_spots($town) as $s): $closed = spot_closed($s);
