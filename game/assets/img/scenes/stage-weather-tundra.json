@@ -1,0 +1,11 @@
+{
+ "sun": "tundra",
+ "cloud": "tundra-cloud",
+ "rain": "tundra-rain",
+ "storm": "tundra-storm",
+ "frost": "tundra-frost",
+ "heat": "tundra",
+ "wind": "tundra-wind",
+ "fog": "tundra-fog",
+ "snow": "tundra-v3"
+}
