@@ -155,7 +155,7 @@ do
   local lk = { 36, 40 }
   local GLAG = { { 100, 70, 26, 14 } }    -- big central shallows lagoon (pale mint), pin sits on its shore
   local CRY = { { 196, 50 }, { 222, 92 }, { 176, 112 }, { 70, 116 }, { 96, 22 } }   -- glow-crystal clusters
-  local SRC = { { 20, 80, 44 }, { lk[1], lk[2], 36 }, { 100, 70, 46 } }
+  local SRC = { { 22, 80, 52 }, { lk[1], lk[2], 38 }, { 100, 70, 46 } }
   for _, v in ipairs(CRY) do SRC[#SRC + 1] = { v[1], v[2], 24 } end
   local BAND = { { 36, "#c8ecdc" }, { 26, "#a9d6ea" }, { 16, "#3f8fb0" }, { 7, "#25637d" }, { -2, "#1f3f3a" }, { -1e9, "#2a1a10" } }
   local light = {}
@@ -216,7 +216,7 @@ do
     local x, y = 12 + rnd(216), 18 + rnd(100)
     if free(x, y) then
       local L = light[y * 240 + x] or -99
-      if L >= 20 and placed % 2 == 0 then glyph(c, "palm", x, y, 0.8)
+      if L >= 12 and placed % 2 == 0 then glyph(c, "palm", x, y, 0.8)
       elseif L >= 8 then shroom(c, x, y, 1, placed % 3 == 0 and "#c8ecdc" or "#a9d6ea")
       elseif L >= 0 then stalag(c, x, y, 8, "#25637d", "#1f3f3a")
       else stalag(c, x, y, 10, "#3d2a1c", "#2a1a10") end

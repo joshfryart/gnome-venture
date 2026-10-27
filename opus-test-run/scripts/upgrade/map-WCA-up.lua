@@ -129,7 +129,8 @@ do
   local tx, ty = TREE[1], TREE[2]
   for _, d in ipairs({ { -16, 6 }, { -9, 9 }, { 10, 9 }, { 17, 5 }, { 2, 11 } }) do c:fill(c:line({ { tx, ty + 4 }, { tx + d[1] * 0.5, ty + 5 + d[2] * 0.4 }, { tx + d[1], ty + 4 + d[2] } }, 1), "#a4b86a") end
   c:fill(c:rect(tx - 2, ty - 6, tx + 2, ty + 5), "#a4b86a"); c:fill(c:rect(tx - 1, ty - 6, tx, ty + 4), "#c8d77a")
-  P(c, c:ellipse(tx, ty - 10, 13, 7), RM.dleaf, { gloss = false, flat = true })
+  c:fill(c:ellipse(tx, ty - 11, 15, 8), "#2a1a10"); c:fill(c:ellipse(tx, ty - 11, 14, 7), "#2f5a2a"); c:fill(c:ellipse(tx - 1, ty - 13, 11, 5), "#2f6a3a"); c:fill(c:ellipse(tx - 3, ty - 15, 6, 2), "#4f9a45")
+  for _, d in ipairs({ -10, -4, 5, 11 }) do c:fill(c:rect(tx + d, ty - 5, tx + d, ty - 1 + (d % 3)), "#a4b86a") end
   for i = 1, 14 do c:px(tx - 11 + trnd(23), ty - 15 + trnd(10), i % 3 == 0 and "#fff3c8" or "#c8d77a") end
   -- glow mushroom clusters
   for _, g in ipairs(GLOW) do for k = 0, 2 do shroom(c, g[1] - 4 + k * 4, g[2] - (k % 2) * 2, k == 1 and 1.2 or 0.9, k == 1 and "#c8d77a" or "#7ab55c") end end
@@ -148,7 +149,7 @@ do
     local x, y = 12 + rnd(216), 18 + rnd(100)
     if free(x, y) then
       local L = lit(x, y)
-      if L >= 14 and placed % 3 ~= 2 then c:fill(c:rect(x, y - 3, x + 1, y), "#7a4a1f"); P(c, c:ellipse(x, y - 7, 5, 4), RM.dleaf, { gloss = false, flat = true }); c:px(x - 2, y - 9, "#a4b86a")
+      if L >= 14 and placed % 3 ~= 2 then c:fill(c:rect(x, y - 3, x + 1, y), "#7a4a1f"); c:fill(c:ellipse(x, y - 7, 6, 5), "#2a1a10"); c:fill(c:ellipse(x, y - 7, 5, 4), "#2f5a2a"); c:fill(c:ellipse(x - 1, y - 8, 3, 2), "#2f6a3a"); c:px(x - 2, y - 9, "#4f9a45")
       elseif L >= 4 then shroom(c, x, y, 0.9, placed % 2 == 0 and "#c8d77a" or "#7ab55c")
       elseif placed % 2 == 0 then feat(c, { "root" }, x, y) else stalag(c, x, y, 9, "#2f5a2a", "#1f3f3a") end
       placed = placed + 1

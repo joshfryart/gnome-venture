@@ -130,9 +130,9 @@ do
   for i = 0, 1 do local x = 20 + i * 14; for dx = 0, 8, 2 do c:fill(c:rect(x + dx, 100, x + dx, 104), "#dd3a2a"); c:fill(c:rect(x + dx + 1, 100, x + dx + 1, 104), "#f2e4c0") end; c:fill(c:rect(x, 105, x + 9, 106), "#74462a"); glowdot(c, x + 4, 98) end
   -- giant glow mushroom (main light) with glow-vines draping off the cap
   c:fill(c:rect(GS[1] - 2, GS[2] - 4, GS[1] + 2, GS[2] + 8), "#f2e4c0"); c:fill(c:rect(GS[1] + 1, GS[2] - 4, GS[1] + 2, GS[2] + 8), "#d8c49a")
-  c:fill(c:ellipse(GS[1], GS[2] - 6, 14, 6), "#7ab55c"); c:fill(c:ellipse(GS[1] - 2, GS[2] - 8, 10, 3), "#a4b86a"); c:fill(c:rect(GS[1] - 12, GS[2] - 2, GS[1] + 12, GS[2] - 1), "#2f6a3a")
-  for _, d in ipairs({ { -8, -9 }, { -2, -10 }, { 5, -8 }, { 9, -5 }, { -10, -5 } }) do c:px(GS[1] + d[1], GS[2] + d[2], "#fff3c8"); c:px(GS[1] + d[1] + 1, GS[2] + d[2], "#f5cf6a") end
-  for _, vx in ipairs({ -11, -6, 6, 11 }) do local len = 4 + (vx * vx) % 4; c:fill(c:rect(GS[1] + vx, GS[2] - 1, GS[1] + vx, GS[2] - 1 + len), "#4f9a45"); c:px(GS[1] + vx, GS[2] + len, "#f5cf6a") end
+  c:fill(c:ellipse(GS[1], GS[2] - 7, 20, 9), "#4f9a45"); c:fill(c:ellipse(GS[1] - 1, GS[2] - 9, 17, 7), "#7ab55c"); c:fill(c:ellipse(GS[1] - 3, GS[2] - 11, 11, 4), "#a4b86a"); c:fill(c:ellipse(GS[1] - 5, GS[2] - 13, 5, 1), "#fff3c8"); c:fill(c:rect(GS[1] - 18, GS[2] - 1, GS[1] + 18, GS[2]), "#2f6a3a")
+  for _, d in ipairs({ { -12, -8 }, { -4, -6 }, { 6, -11 }, { 13, -6 }, { -15, -4 }, { 2, -3 } }) do c:px(GS[1] + d[1], GS[2] + d[2], "#fff3c8"); c:px(GS[1] + d[1] + 1, GS[2] + d[2], "#f5cf6a") end
+  for _, vx in ipairs({ -17, -12, -6, 6, 12, 17 }) do local len = 4 + (vx * vx) % 4; c:fill(c:rect(GS[1] + vx, GS[2] - 1, GS[1] + vx, GS[2] - 1 + len), "#4f9a45"); c:px(GS[1] + vx, GS[2] + len, "#f5cf6a") end
   for _, v in ipairs(SMALL) do shroom(c, v[1], v[2] + 3, 1.4, "#a4b86a"); glowdot(c, v[1] + 4, v[2] + 4) end
   local seed = ri * 31 + 5; local function rnd(n) seed = (seed * 1103515245 + 12345) % 2147483648 return seed % n end
   local placed = 0
@@ -141,7 +141,7 @@ do
     for _, p in ipairs(PINS) do if math.abs(x - p[1]) < (pad or 12) and math.abs(y - p[2]) < (pad or 12) then return false end end
     for _, h in ipairs(HOUSES) do if math.abs(x - h[1]) < 14 and math.abs(y - h[2]) < 14 then return false end end
     if x < 50 and y > 90 and y < 118 then return false end
-    if math.abs(x - GS[1]) < 18 and y > GS[2] - 16 and y < GS[2] + 14 then return false end
+    if math.abs(x - GS[1]) < 24 and y > GS[2] - 16 and y < GS[2] + 14 then return false end
     for _, v in ipairs(SMALL) do if math.abs(x - v[1]) < 8 and math.abs(y - v[2]) < 8 then return false end end
     if math.abs(x - lk[1]) < 16 and math.abs(y - lk[2]) < 9 then return false end
     return not roadM:copy():grow(1):has(x, y) and not river:copy():grow(2):has(x, y)
