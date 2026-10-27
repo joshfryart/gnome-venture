@@ -65,7 +65,7 @@ function lua_val($v, string $ind = ''): string
     if (is_int($v) || is_float($v)) return (string)$v;
     if (is_string($v)) return '"' . addcslashes($v, "\\\"\n\r") . '"';
     $list = array_is_list($v);
-    $flat = $list && !array_filter($v, 'is_array');
+    $flat = !array_filter($v, 'is_array');   // a row of plain values stays on one line
     $parts = [];
     foreach ($v as $k => $x) $parts[] = ($list ? '' : (preg_match('/^[A-Za-z_]\w*$/', (string)$k) ? $k : '["' . $k . '"]') . ' = ') . lua_val($x, $ind . '  ');
     if ($flat || count($parts) === 0) return '{ ' . implode(', ', $parts) . ' }';
