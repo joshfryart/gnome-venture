@@ -70,8 +70,10 @@ function shop_cards(array $shops, array $u): string
 
 $regionList = all_regions();
 // v0.7.47: "Where you are" and the world map are one page; Markets stays a tab
-$tab = in_array($_GET['tab'] ?? '', ['markets', 'gather', 'travel', 'map'], true) ? (string)$_GET['tab'] : 'here';   // v1.6.3.5: + travel   // v0.7.97: Gather tab; fast travel is a fold beside the map
-$travelOpen = ($_GET['tab'] ?? '') === 'travel';   // old links to the Fast travel tab open the fold
+$tab = in_array($_GET['tab'] ?? '', ['markets', 'gather', 'travel', 'map', 'seasons'], true) ? (string)$_GET['tab'] : 'go';   // v2.0.61: Go / Map / Gather / Shops; old here, travel and seasons links still land
+if ($tab === 'seasons') redirect('town.php?view=stop&tab=seasons#seasons');   // Seasons & weather live on the Stop tab now
+$travelOpen = $tab === 'travel';   // old links to the Fast travel tab open the fold on Go
+if ($tab === 'travel') $tab = 'go';
 require_once __DIR__ . '/includes/seek.php';
 $travelBase = (int)round((int)setting('travel_cost') * (100 - calling_perk($u, 'fast_travel_discount')) / 100);   // v1.2.2: the price after your calling's discount
 if (isset($_GET['seek'])) {   // v0.7.97: choose what to seek (directions only)
@@ -97,14 +99,13 @@ $badge = function (int $min, int $max = 0) use ($lvl): string {
 page_header('World');
 ?>
 <h1>🌍 World</h1>
-<nav class="tabs">
-  <a class="<?= $tab === 'here' ? 'on' : '' ?>" href="<?= e(url('world.php')) ?>">📍 Here</a>
-  <a class="<?= $tab === 'map' ? 'on' : '' ?>" href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ Map</a>
-  <a class="<?= $tab === 'gather' ? 'on' : '' ?>" href="<?= e(url('world.php?tab=gather')) ?>">🧺 Gather</a>
-  <a class="<?= $tab === 'markets' ? 'on' : '' ?>" href="<?= e(url('world.php?tab=markets')) ?>">🏪 Shops</a>
-  <a class="<?= $tab === 'travel' ? 'on' : '' ?>" href="<?= e(url('world.php?tab=travel')) ?>">🧭 Travel</a>
-  <a href="<?= e(url('town.php')) ?>"><?= in_array($node['kind'], ['market', 'hub'], true) ? '🏘️ Town square' : '🪧 Rest stop' ?></a>
-</nav>
+<?= place_tabs_html([
+    'go' => ['🧭 Go', url('world.php'), ''],
+    'map' => ['🗺️ Map', url('world.php?tab=map#regionmap'), ''],
+    'gather' => ['🧺 Gather', url('world.php?tab=gather'), ''],
+    'markets' => ['🏪 Shops', url('world.php?tab=markets'), ''],
+    'here' => [in_array($node['kind'], ['market', 'hub'], true) ? '🏘️ Town square' : '🪧 Rest stop', url('town.php'), ''],
+], $tab, 'World sections') ?>
 
 <?php if (!$home): ?>
   <form method="post" class="box form">
@@ -116,26 +117,6 @@ page_header('World');
   </form>
 <?php endif; ?>
 
-<?php if ($tab === 'travel'):   // v1.6.3.5: Fast travel is its own tab ?>
-<div class="travelfold" id="fasttravel">
-  <p class="help">Hop to any region you’ve walked to: <?= money($travelBase) ?> (home is free).</p>
-  <details class="fold"><summary>Key</summary><p class="help">🍄 Mossbottom is reachable from anywhere. 🏡 home · 📗 guide read · 🔒 walk there first. Lands: 🌾 grassland · 🌲 forest · 🌊 coast · ⛰️ mountain · 🏜️ desert · 🌴 rainforest · 🪷 wetland · ❄️ tundra · 🏝️ island.</p></details>
-    <div class="regionlist">
-    <?php foreach ($regionList as $r):
-        $isHere = $r['gnomish_name'] === $here;
-        $isHome = $home && (int)$home['id'] === (int)$r['id'];
-        $hasGuide = in_array((int)$r['id'], $guidedRegions, true); ?>
-      <div class="rrow<?= $isHere ? ' here' : '' ?>">
-        <a href="<?= e(url('world.php?tab=map&r=' . (int)$r['id'] . '#regionmap')) ?>"><b><?= e($r['gnomish_name']) ?></b></a> <?= $badge(max(1, (int)$r['min_level'])) ?> <?= $isHome ? '🏡' : '' ?><?= $hasGuide ? '📗' : '' ?>
-        <span class="rlands" role="group" aria-label="Lands here" title="Lands here"><?php foreach (region_lands((int)$r['id']) as $rl): $RL = LANDSCAPES[$rl] ?? null; if ($RL): ?><span role="img" aria-label="<?= e($RL[1]) ?>" title="<?= e($RL[1]) ?>"><?= ph_or_emoji('land-' . $rl, $RL[0], 20) /* v1.5.2 */ ?></span><?php endif; endforeach; ?></span>
-        <span class="rgo"><?php if ($isHere): ?><b>🎩 Here</b><?php elseif (!can_fast_travel($u, (int)$r['id'])): ?><span class="muted">🔒 walk there first</span><?php else: ?>
-          <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="travel"><input type="hidden" name="region_id" value="<?= (int)$r['id'] ?>">
-            <button class="btn small">🧭 Travel<?php $tc = seek_travel_cost($u, (int)$r['id']); ?> · <?= $tc > 0 ? money($tc) : 'free' ?></button></form><?php endif; ?></span>
-      </div>
-    <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
 <?php if ($tab === 'map'):   // v1.6.6: region map is its own tab; the world map folds below it
 $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[0]['id'] ?? 0)); ?>
 <?php if (myc_on()): ?>
@@ -167,7 +148,7 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
 </details>
 </div>
 <?php endif; ?>
-<?php if ($tab === 'here'):
+<?php if ($tab === 'go'):
 $nodeRegion = $node['region_id'] ? q_one('SELECT * FROM regions WHERE id = ?', [$node['region_id']]) : null;
 $L = LANDSCAPES[$node['landscape'] ?? ''] ?? null;
 $kindIcons = ['hub' => '🍄', 'market' => '🏘️', 'village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lair' => '🐉', 'delve' => '🕳️'];
@@ -200,9 +181,24 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
 <?php require_once __DIR__ . '/includes/letters.php'; echo letters_box($u);   // v0.8.1: Lost Letters ?>
 <?= landmark_panel($u, $node) ?>
 
-<?= season_fold_html($u) ?>
-
-<?= land_card_html($u, $node, $nodeRegion) ?>
+<details class="fold box travelfold" id="fasttravel"<?= $travelOpen ? ' open' : '' ?>><summary>🧭 Fast travel</summary>
+  <p class="help">Hop to any region you’ve walked to: <?= money($travelBase) ?> (home is free).</p>
+  <details class="fold"><summary>Key</summary><p class="help">🍄 Mossbottom is reachable from anywhere. 🏡 home · 📗 guide read · 🔒 walk there first. Lands: 🌾 grassland · 🌲 forest · 🌊 coast · ⛰️ mountain · 🏜️ desert · 🌴 rainforest · 🪷 wetland · ❄️ tundra · 🏝️ island.</p></details>
+    <div class="regionlist">
+    <?php foreach ($regionList as $r):
+        $isHere = $r['gnomish_name'] === $here;
+        $isHome = $home && (int)$home['id'] === (int)$r['id'];
+        $hasGuide = in_array((int)$r['id'], $guidedRegions, true); ?>
+      <div class="rrow<?= $isHere ? ' here' : '' ?>">
+        <a href="<?= e(url('world.php?tab=map&r=' . (int)$r['id'] . '#regionmap')) ?>"><b><?= e($r['gnomish_name']) ?></b></a> <?= $badge(max(1, (int)$r['min_level'])) ?> <?= $isHome ? '🏡' : '' ?><?= $hasGuide ? '📗' : '' ?>
+        <span class="rlands" role="group" aria-label="Lands here" title="Lands here"><?php foreach (region_lands((int)$r['id']) as $rl): $RL = LANDSCAPES[$rl] ?? null; if ($RL): ?><span role="img" aria-label="<?= e($RL[1]) ?>" title="<?= e($RL[1]) ?>"><?= ph_or_emoji('land-' . $rl, $RL[0], 20) /* v1.5.2 */ ?></span><?php endif; endforeach; ?></span>
+        <span class="rgo"><?php if ($isHere): ?><b>🎩 Here</b><?php elseif (!can_fast_travel($u, (int)$r['id'])): ?><span class="muted">🔒 walk there first</span><?php else: ?>
+          <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="travel"><input type="hidden" name="region_id" value="<?= (int)$r['id'] ?>">
+            <button class="btn small">🧭 Travel<?php $tc = seek_travel_cost($u, (int)$r['id']); ?> · <?= $tc > 0 ? money($tc) : 'free' ?></button></form><?php endif; ?></span>
+      </div>
+    <?php endforeach; ?>
+    </div>
+</details>
 
 <?php endif; ?>
 

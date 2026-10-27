@@ -146,9 +146,9 @@ function land_card_html(array $u, array $node, ?array $nodeRegion): string
 /** v2.0.4 menu folds: everyone you've met, where they are now, with search and filters (was the folk.php list). */
 function town_known_html(array $u, bool $hub, bool $title = true): string
 {
-    require_once __DIR__ . '/includes/maps.php';
-    require_once __DIR__ . '/includes/folk_list.php';
-    require_once __DIR__ . '/includes/friends.php';
+    require_once __DIR__ . '/maps.php';
+    require_once __DIR__ . '/folk_list.php';
+    require_once __DIR__ . '/friends.php';
     $uid = (int)$u['id'];
     $all = met_npcs($uid);
     $qs = trim((string)($_GET['q'] ?? ''));
@@ -255,7 +255,7 @@ function town_favours_box(int $uid, string $town, bool $hub, int $sid): void
 /** v0.7.61: a pop-up of the player's seeds or food to choose from (used by "Feed the birds" and "Have a picnic"). */
 function town_pickers(int $uid): string
 {
-    require_once __DIR__ . '/includes/items.php';
+    require_once __DIR__ . '/items.php';
     $out = '';
     foreach (['anyseed' => ['seed', 'Which seeds for the birds?'], 'anyfood' => ['food', 'What will you eat? You get its energy, plus 1 for the fresh air.']] as $kind => [$cat, $title]) {
         $items = q('SELECT i.id, i.name, i.category, i.effects, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
