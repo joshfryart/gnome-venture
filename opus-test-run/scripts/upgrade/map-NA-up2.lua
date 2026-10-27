@@ -90,6 +90,7 @@ do
     m:add(c:ellipse(z[1], z[2], z[3], 30)); m:add(c:ellipse(z[1] + 8, z[2] - 14, z[3] * 0.6, 20)); m:clip(land)
     c:fill(m, tint[zi]); zm[zi] = m
   end
+  local G0 = { ["#a4b86a"] = 1, ["#7ab55c"] = 1, ["#4f9a45"] = 1, ["#2f6a3a"] = 1 }
   local ts = ri * 17 + 3; local function trnd(n) ts = (ts * 1103515245 + 12345) % 2147483648 return ts % n end
   -- moss tufts
   for i = 1, 110 do local x, y = 6 + trnd(228), 14 + trnd(110); if land:has(x, y) then c:paint({ "x.x", ".x." }, x, y, { x = tint[math.min(4, (zm[2] and zm[2]:has(x, y)) and 3 or ((zm[3] and zm[3]:has(x, y)) and 4 or 2))] }) end end
@@ -138,19 +139,40 @@ do
     end
   end
   for i = 1, 8 do local x, y = 160 + trnd(70), 40 + trnd(70); if zm[4]:has(x, y) and c:get(x, y) ~= "#c9a96e" then local ok = true; for _, p in ipairs(PINS) do if math.abs(x - p[1]) < 12 and math.abs(y - p[2]) < 12 then ok = false end end; if ok then stalag(c, x, y, 10, "#5b6470", "#3d2a1c") end end end
-  -- stepped light: brighten near sources, darken far away (palette swaps, no alpha)
-  local UP = { ["#a4b86a"] = "#c8d77a", ["#7ab55c"] = "#a4b86a", ["#4f9a45"] = "#7ab55c", ["#2f6a3a"] = "#4f9a45", ["#c9a96e"] = "#d9a660", ["#3f8fb0"] = "#a9d6ea" }
-  local DN = { ["#c8d77a"] = "#a4b86a", ["#a4b86a"] = "#7ab55c", ["#7ab55c"] = "#4f9a45", ["#4f9a45"] = "#2f6a3a", ["#2f6a3a"] = "#2f5a2a", ["#c9a96e"] = "#9a6b3f", ["#f2e4c0"] = "#d8c49a" }
-  local SRC = { { LIGHT[1], LIGHT[2], 1.0 }, { 22, 80, 0.85 } }
+  -- extra cavern dressing (drawn before lighting so it falls into shadow too): mycelium seams, stalagmites
+  for k = 1, 7 do local x, y = 20 + trnd(200), 20 + trnd(95)
+    for st = 1, 26 do x = x + (trnd(3) - 1); y = y + (trnd(3) - 1) * 0.5 + ((st % 3 == 0) and 1 or 0); local ix, iy = math.floor(x), math.floor(y)
+      if land:has(ix, iy) and not roadM:has(ix, iy) and not river:has(ix, iy) and G0[c:get(ix, iy)] and st % 2 == 0 then c:px(ix, iy, "#f2e4c0") end end end
+  for i = 1, 14 do local x, y = 8 + trnd(224), 30 + trnd(90); local ok = land:has(x, y) and G0[c:get(x, y)] and not (x < 50 and y > 50)
+    for _, p in ipairs(PINS) do if math.abs(x - p[1]) < 10 and math.abs(y - p[2]) < 10 then ok = false end end
+    if ok then stalag(c, x, y, 6 + trnd(6), "#8b8f96", "#5b6470") end end
+  -- stepped, dithered light bands (palette swaps along ramps, no alpha)
+  local RAMPS = { { "#3d2a1c", "#2f5a2a", "#2f6a3a", "#4f9a45", "#7ab55c", "#a4b86a", "#c8d77a" },
+    { "#3d2a1c", "#5e2f1e", "#9a6b3f", "#c9a96e", "#d9a660", "#f2e4c0" }, { "#3d2a1c", "#5b6470", "#3f8fb0", "#a9d6ea" },
+    { "#4a2c1a", "#9a6b3f", "#d8c49a", "#f2e4c0" }, { "#3d2a1c", "#5b6470", "#8b8f96" }, { "#5e2f1e", "#8a4f2a", "#b07a45" } }
+  local RI = {}; for ri2, rp in ipairs(RAMPS) do for i, col in ipairs(rp) do if not RI[col] then RI[col] = { ri2, i } end end end
+  RI["#f2e4c0"] = { 4, 4 }; RI["#3d2a1c"] = nil
+  local HOME = { [1] = 5, [2] = 4, [3] = 3, [4] = 4, [5] = 3, [6] = 3 }   -- index treated as "neutral" for each ramp
+  local SRC = { { LIGHT[1], LIGHT[2], 120, 1.0 }, { 22, 80, 62, 0.85 }, { 40, 92, 34, 0.7 } }
+  local BY = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 }
   X.layer(c, "detail")
   local cur = {}; for y = 0, 134 do for x = 0, 239 do cur[y * 240 + x] = c:get(x, y) end end
   for y = 0, 134 do for x = 0, 239 do if land:has(x, y) then
-    local best = 99
-    for _, s in ipairs(SRC) do local dx, dy = (x - s[1]) / s[3], (y - s[2]) * 1.6 / s[3]; local d = math.sqrt(dx * dx + dy * dy); if d < best then best = d end end
-    local col = cur[y * 240 + x]; local nc
-    if best < 22 then nc = UP[col] elseif best > 95 then nc = DN[col] and (DN[DN[col]] or DN[col]) elseif best > 60 then nc = DN[col] end
-    if nc and nc ~= col then c:px(x, y, nc) end
+    local L = 0
+    for _, s in ipairs(SRC) do local dx, dy = x - s[1], (y - s[2]) * 1.5; local v = (1 - math.sqrt(dx * dx + dy * dy) / s[3]) * s[4]; if v > L then L = v end end
+    local band = math.floor(L * 5 + (BY[(y % 4) * 4 + x % 4 + 1] / 16 - 0.5) * 0.9)   -- 0..4
+    if band < 0 then band = 0 elseif band > 4 then band = 4 end
+    local col = cur[y * 240 + x]; local e = RI[col]
+    if e then local rp = RAMPS[e[1]]; local shift = band - 3; if e[1] == 1 then shift = band - 2 end
+      local idx = math.max(1, math.min(#rp, e[2] + shift)); if shift < 0 then idx = math.max(1, math.min(e[2], idx)) end
+      if rp[idx] ~= col then c:px(x, y, rp[idx]) end end
   end end end
+  -- hanging roots from the ceiling and glow mushrooms (self-lit, drawn after shading)
+  for x = 9, 232, 13 do local hh = 8 + (x * 7) % 14; c:fill(c:rect(x, 6, x, 6 + hh), "#5e2f1e"); c:px(x + 1, 6 + hh // 2, "#5e2f1e"); c:px(x - 1, 6 + hh - 3, "#8a4f2a") end
+  for i = 1, 16 do local x, y = 60 + trnd(170), 22 + trnd(100); local ok = land:has(x, y) and not roadM:has(x, y) and not river:has(x, y)
+    for _, p in ipairs(PINS) do if math.abs(x - p[1]) < 9 and math.abs(y - p[2]) < 9 then ok = false end end
+    if ok then c:fill(c:rect(x, y - 2, x, y), "#d8c49a"); c:fill(c:rect(x - 1, y - 3, x + 1, y - 3), "#a9d6ea"); c:px(x, y - 4, "#eef8f2")
+      c:px(x - 2, y, "#3f8fb0"); c:px(x + 2, y - 1, "#3f8fb0"); c:px(x - 1, y - 5, "#3f8fb0") end end
   -- light source: glow-crystal cluster on a mossy rise
   local LX, LY = LIGHT[1], LIGHT[2]
   c:fill(c:ellipse(LX, LY + 4, 9, 3), "#4f9a45"); c:fill(c:ellipse(LX, LY + 3, 7, 2), "#7ab55c")
@@ -158,8 +180,8 @@ do
   for _, d in ipairs({ { -10, -6 }, { 11, -4 }, { -3, -14 }, { 7, -12 }, { -12, 2 }, { 13, 3 } }) do c:px(LX + d[1], LY + d[2], "#fff3c8") end
   -- stalactite ceiling fringe over the cavern floor's top edge
   for x = 2, 238, 5 do local hh = 6 + (x * 13) % 8; c:fill(c:poly({ { x - 3, 0 }, { x, hh + 8 }, { x + 3, 0 } }), (x % 2 == 0) and "#4a2c1a" or "#3d2a1c"); c:px(x, hh + 6, "#5e2f1e") end
-  local G = { ["#c8d77a"] = 1, ["#a4b86a"] = 1, ["#7ab55c"] = 1, ["#4f9a45"] = 1, ["#2f6a3a"] = 1, ["#2f5a2a"] = 1 }
+  local G = { ["#3d2a1c"] = 1, ["#c8d77a"] = 1, ["#a4b86a"] = 1, ["#7ab55c"] = 1, ["#4f9a45"] = 1, ["#2f6a3a"] = 1, ["#2f5a2a"] = 1 }
   local function pick(p) for _, o in ipairs({ { -7, -7 }, { 7, -7 }, { -7, 7 }, { 7, 7 }, { 0, -8 }, { 0, 8 } }) do local g = c:get(p[1] + o[1], p[2] + o[2]); if G[g] then return g end end return tint[2] end
   for _, p in ipairs(PINS) do c:fill(c:rect(p[1] - 5, p[2] - 5, p[1] + 4, p[2] + 4), pick(p)) end
-  X.save(c, "map-" .. code .. "-up", "scenes", { w = 480, h = 270, cap = 32 })
+  X.save(c, "map-" .. code .. "-up2", "scenes", { w = 480, h = 270, cap = 32 })
 end

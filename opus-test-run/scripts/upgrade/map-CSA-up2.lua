@@ -89,7 +89,7 @@ do
   river:clip(land)
   local lk = { 120, 30 }
   local LAVA = { { 196, 62, 6 }, { 214, 96, 5 }, { 172, 108, 5 }, { 92, 44, 5 } }   -- small vents in the hard/medium zones
-  local SRC = { { 20, 80, 46 }, { lk[1], lk[2], 42 } }   -- village lanterns, lava lake
+  local SRC = { { 20, 80, 46 }, { lk[1], lk[2], 42 }, { 64, 28, 17 }, { 70, 116, 17 }, { 104, 122, 14 }, { 40, 30, 13 } }   -- village lanterns, lava lake, west lantern posts
   for _, v in ipairs(LAVA) do SRC[#SRC + 1] = { v[1], v[2], 30 } end
   local BAND = { { 38, "#f5cf6a" }, { 28, "#f08a24" }, { 18, "#e0501f" }, { 8, "#a8582f" }, { -1e9, "#5e2f1e" } }
   local light = {}
@@ -99,6 +99,7 @@ do
     for _, p in ipairs(RP) do local dx, dy = x - p[1], y - p[2]; if math.abs(dx) < 30 and math.abs(dy) < 30 then local v = 32 - math.sqrt(dx * dx + dy * dy); if v > L then L = v end end end
     -- edge falloff toward ceiling/floor and side walls
     local e = math.min(y - 6, 128 - y, x - 4, 235 - x); if e < 12 then L = L - (12 - e) end
+    L = L + 3 * math.sin(x / 5 + y / 7) + 2 * math.sin(y / 3 - x / 9) + 1.5 * math.sin((x + 2 * y) / 4)
     light[y * 240 + x] = L
     for _, b in ipairs(BAND) do if L >= b[1] then c:px(x, y, b[2]); break end end
   end end end
@@ -153,6 +154,32 @@ do
       placed = placed + 1
     end
   end
+  -- temples: 3-tier clay pagodas with lantern windows, beside lava and lanterns
+  local function temple(x, y)
+    c:fill(c:rect(x - 7, y - 1, x + 7, y), "#5b6470")
+    for i = 0, 2 do local w = 5 - i; local yb = y - 2 - i * 5
+      c:fill(c:rect(x - w, yb - 3, x + w, yb), "#f2e4c0"); c:fill(c:rect(x - w, yb - 3, x - w, yb), "#d8c49a")
+      c:px(x, yb - 1, "#f5cf6a"); if w >= 4 then c:px(x - 2, yb - 1, "#f5cf6a"); c:px(x + 2, yb - 1, "#f5cf6a") end
+      c:fill(c:rect(x - w - 2, yb - 4, x + w + 2, yb - 4), "#dd3a2a"); c:fill(c:rect(x - w - 1, yb - 5, x + w + 1, yb - 5), "#ae2a2a"); c:px(x - w - 2, yb - 5, "#dd3a2a"); c:px(x + w + 2, yb - 5, "#dd3a2a") end
+    c:fill(c:rect(x, y - 20, x, y - 18), "#e8a317"); glowdot(c, x - 8, y - 6); glowdot(c, x + 8, y - 6)
+  end
+  local TEMPLES = { { 104, 24 }, { 138, 22 }, { 186, 54 }, { 226, 86 }, { 158, 120 }, { 80, 40 }, { 200, 120 }, { 176, 30 }, { 128, 116 }, { 98, 82 } }
+  for _, t in ipairs(TEMPLES) do local ok = false
+    for j = 0, 8 do local x, y = t[1] + (j % 3 - 1) * 6, t[2] + (j // 3 - 1) * 5; if free(x, y, 13) and free(x - 6, y) and free(x + 6, y) then temple(x, y); ok = true; break end end
+  end
+  -- west dark: basalt columns, stalagmites, glow mushrooms, lantern posts
+  local function basalt(x, y, h) for k = 0, 2 do local hh = h - (k == 1 and 0 or 3 + k); c:fill(c:rect(x + k * 3, y - hh, x + k * 3 + 2, y), "#5b6470"); c:fill(c:rect(x + k * 3, y - hh, x + k * 3, y), "#8b8f96"); c:fill(c:rect(x + k * 3, y - hh, x + k * 3 + 2, y - hh), "#c9c5bc") end end
+  local function gshroom(x, y) c:fill(c:rect(x, y - 3, x, y), "#f2e4c0"); c:fill(c:rect(x - 2, y - 4, x + 2, y - 4), "#7a5cc0"); c:fill(c:rect(x - 1, y - 5, x + 1, y - 5), "#c3b2ea"); c:px(x, y - 5, "#fff3c8") end
+  local function lpost(x, y) c:fill(c:rect(x, y - 7, x, y), "#4a2c1a"); c:fill(c:rect(x - 1, y - 9, x + 1, y - 8), "#f5cf6a"); c:px(x, y - 9, "#fff3c8"); c:px(x, y - 10, "#ae2a2a") end
+  for _, l in ipairs({ { 64, 32 }, { 70, 120 }, { 104, 126 }, { 40, 34 } }) do if land:has(l[1], l[2]) then lpost(l[1], l[2]) end end
+  local wseed = 97; local function wr(n) wseed = (wseed * 1103515245 + 12345) % 2147483648 return wseed % n end
+  local wn = 0
+  for try = 1, 600 do if wn >= 34 then break end
+    local x, y = 8 + wr(110), 16 + wr(110)
+    if free(x, y, 11) and free(x + 6, y) then local k = wn % 4
+      if k == 0 then basalt(x, y, 8 + wr(6)) elseif k == 1 then stalag(c, x, y, 10 + wr(5), "#a8582f", "#4a2c1a") elseif k == 2 then gshroom(x, y); gshroom(x + 4, y + 1) else stalag(c, x, y, 7, "#8b8f96", "#5b6470") end
+      wn = wn + 1 end
+  end
   X.layer(c, "detail")
   -- ember sparks over the lava
   for i = 1, 40 do local p = RP[1 + trnd(#RP)]; local x, y = p[1] + trnd(7) - 3, p[2] - 2 - trnd(4); if land:has(x, y) and not roadM:has(x, y) then c:px(x, y, "#f5cf6a") end end
@@ -160,5 +187,5 @@ do
   -- stalactite ceiling hanging over the cavern edge, stalagmites rising from the floor edge
   for x = 2, 239, 6 do local hh = 9 + (x * 13) % 8; c:fill(c:poly({ { x - 3, 0 }, { x, hh }, { x + 3, 0 } }), "#2a1a10"); c:px(x, hh - 2, "#4a2c1a") end
   for x = 5, 239, 9 do local hh = 6 + (x * 7) % 6; c:fill(c:poly({ { x - 3, 134 }, { x, 134 - hh }, { x + 3, 134 } }), "#2a1a10") end
-  X.save(c, "map-CSA-up", "scenes", { w = 480, h = 270, cap = 32 })
+  X.save(c, "map-CSA-up2", "scenes", { w = 480, h = 270, cap = 32 })
 end
