@@ -252,24 +252,20 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     <div class="box folkabout">
       <?php if (!$present): ?><p class="muted">Nobody’s out and about in the town’s places right now. Shopkeepers are at their counters.</p><?php endif; ?>
       <?php foreach ($present as ['n' => $n, 'spot' => $ps]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
-        <div class="folkrow">
-          <?= npc_portrait($n, 'small') ?>
-          <div><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><b><?= e($n['name']) ?></b></a> <small class="muted"><?= e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) ?><?= !empty($n['traveller']) ? ' · traveller' : '' ?></small>
-            <br><small>📍 <a href="<?= e(url('town.php?' . $q . 'spot=' . (int)$ps['id'])) ?>"><?= e($ps['icon'] . ' ' . $ps['name']) ?></a> · 💛 <?= e($fl['name']) ?><?= npc_birthday_today($n) ? ' · 🎂 birthday!' : '' ?></small></div>
-        </div>
+        <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
+            [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : ''),
+             '📍 <a href="' . e(url('town.php?' . $q . 'spot=' . (int)$ps['id'])) . '">' . e($ps['icon'] . ' ' . $ps['name']) . '</a> · 💛 ' . e($fl['name'])],
+            '<a class="btn small alt" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">Chat</a>', '', '', false, npc_birthday_today($n) ? ' <span class="vbadge">🎂 birthday</span>' : '') ?>
       <?php endforeach; ?>
     </div>
     <h2>🏡 At home</h2>
     <?php if (!$homeIn): ?><div class="box"><p class="muted">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p></div><?php endif; ?>
     <?php if ($homeIn): ?>
-    <div class="homegrid">
+    <div class="homelist">
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
-        <div class="box homecard">
-          <?= npc_portrait($n, 'small') ?>
-          <b><?= e($n['name']) ?></b>
-          <small class="muted">🏡 <?= e($hm['name']) ?> · 💛 <?= e($fl['name']) ?><?= npc_birthday_today($n) ? ' · 🎂' : '' ?></small>
-          <a class="btn small" href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>">🚪 Knock</a>
-        </div>
+        <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
+            [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))), '🏡 ' . e($hm['name']) . ' · 💛 ' . e($fl['name'])],
+            '<a class="btn small alt" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? ' <span class="vbadge">🎂</span>' : '') ?>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>

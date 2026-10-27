@@ -349,3 +349,13 @@ function place_chips(array $u): array
     $n = hollow_now(hollow_user_region($u));
     return [e($n['daypart_emoji'] . ' ' . $n['daypart_label']), e($n['weather_emoji'] . ' ' . $n['weather_label']), e($n['season_emoji'] . ' ' . $n['season_label'] . ' ' . $n['season_day'])];
 }
+
+/** v2.0.65: the one villager row (main stop and rest stop). $face and $action are ready HTML; $lines are ready HTML lines; $extra (errands) folds under the row. */
+function villager_row_html(string $face, string $name, array $lines, string $action = '', string $extra = '', string $extraTitle = '', bool $open = false, string $badge = ''): string
+{
+    $h = '<div class="vrow"><div class="vtop"><span class="vface">' . $face . '</span><div class="vmain"><b>' . $name . $badge . '</b>';
+    foreach ($lines as $l) if ($l !== '') $h .= '<small class="vsub">' . $l . '</small>';
+    $h .= '</div>' . ($action !== '' ? '<div class="vact">' . $action . '</div>' : '') . '</div>';
+    if ($extra !== '') $h .= '<details class="vfold"' . ($open ? ' open' : '') . '><summary>' . $extraTitle . '</summary>' . $extra . '</details>';
+    return $h . '</div>';
+}

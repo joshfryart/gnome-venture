@@ -168,10 +168,8 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
     $lvl = stop_friend_level($pts);
     $talked = (string)q_val('SELECT last_talk FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, (int)$folk['id']]) === hollow_date('Y-m-d');
     $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
-    $h = '<div class="st-folk"><div class="st-folk-top"><span class="st-face">' . npc_icon($folk['species']) . '</span><div><b>' . e($folk['name']) . '</b>'
-        . '<br><small class="muted">' . e($folk['role']) . ' · ' . e($folk['species']) . ' · ' . e($folk['personality']) . '</small>'
-        . '<br><small title="' . e($lvl['name']) . '">' . $hearts . ' ' . e($lvl['name']) . ($lvl['next'] !== null ? ' <span class="muted">(' . $pts . '/' . $lvl['next'] . ')</span>' : '') . '</small></div></div>';
-    $h .= local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small alt">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
+    $act = local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small alt">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
+    $h = '';   // errand parts: folded under the shared villager row (v2.0.65)
     foreach ($deliver as $e) {
         if ((int)$e['target_folk_id'] === (int)$folk['id']) {
             $h .= local_form('_deliver', '<input type="hidden" name="errand" value="' . (int)$e['id'] . '"><button class="btn small">' . ($e['kind'] === 'escort' ? '🐾 Hand over your charge' : '📦 Deliver the parcel') . ' from ' . e($e['giver']) . '</button>');
@@ -190,7 +188,10 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
                 . local_form('_errand', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small">' . ($o['kind'] === 'escort' ? 'Take them along' : 'Take it') . '</button>');
         }
     }
-    return $h . '</div>';
+    return villager_row_html(npc_icon($folk['species']), e($folk['name']),
+        [e($folk['role']) . ' · ' . e($folk['species']) . ' · ' . e($folk['personality']),
+         '<span title="' . e($lvl['name']) . '">' . $hearts . ' ' . e($lvl['name']) . ($lvl['next'] !== null ? ' <span class="muted">(' . $pts . '/' . $lvl['next'] . ')</span>' : '') . '</span>'],
+        $act, $h, '📜 Errand', $h !== '');
 }
 
 /** The local page for a village (shown on the Town tab when you're not in a town). */
