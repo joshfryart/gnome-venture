@@ -691,7 +691,6 @@ gvAdvFold();
         gvMycApply();   // v1.6.0: keep the map filter after an in-place load
         gvMycScroll();   // v1.6.1
         gvMetro();
-        gvJourneyScroll();   // v1.6.2
         gvGarden();
         gvAlmTabs();
         gvGatherGames();
@@ -1091,16 +1090,6 @@ function gvMetro() {
   });
 }
 gvMetro();
-/* v1.6.2: on a phone the walk's road strip is full size and scrolls; start with your hat in the middle */
-function gvJourneyScroll() {
-  document.querySelectorAll('svg.journeymap[data-hat]').forEach(function (svg) {
-    var w = svg.parentNode;
-    if (!w || w.getAttribute('data-hs') === svg.getAttribute('data-hat')) return;
-    w.setAttribute('data-hs', svg.getAttribute('data-hat'));
-    if (w.scrollWidth > w.clientWidth) w.scrollLeft = Math.max(0, w.scrollWidth * (+svg.getAttribute('data-hat') / 100) - w.clientWidth / 2);
-  });
-}
-gvJourneyScroll();
 document.addEventListener('toggle', function (ev) {   // lines inside a closed fold have no width until it opens
   if (ev.target && ev.target.open && ev.target.querySelector) { ev.target.querySelectorAll('.metroline').forEach(function (ol) { ol.removeAttribute('data-sc'); }); ev.target.querySelectorAll('.regchips').forEach(function (n) { n.removeAttribute('data-sc'); }); gvMetro(); }
 }, true);

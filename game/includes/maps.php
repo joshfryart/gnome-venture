@@ -821,137 +821,103 @@ function journey_map_svg(array $u, array $exp): string
     $mark = $enc ? ($enc['type'] === 'creature' ? '⚔️' : '❓') : '';
     $active = ($exp['status'] ?? '') === 'active';
     if ($kind === 'explore') return hoop_map_html($exp, $mark, $active);   // v2.0.44: the embroidery hoop
-    // A walk: draw the whole road if it's on one, with the current stretch split into its spaces
-    $from = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['from_id']]);
-    $to = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['to_id']]);
-    if (!$from || !$to) return '';
-    $road = null;
-    $route = q_one('SELECT * FROM routes WHERE id = ?', [$exp['route_id']]);
-    if ($route && ($route['kind'] ?? '') === 'road' && $route['road_id']) {
-        $road = q_one('SELECT * FROM roads WHERE id = ?', [$route['road_id']]);
-    }
-    $stops = [];
-    if ($road) {
-        foreach (json_decode((string)$road['nodes'], true) ?: [] as $id) {
-            if ($l = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$id])) $stops[] = $l;
-        }
-    }
-    if (!$stops) $stops = [$from, $to];
-    $n = count($stops);
-    $W = 640;
-    $xs = [];
-    foreach ($stops as $i => $s) $xs[$i] = (int)round(75 + $i * ($W - 150) / max(1, $n - 1));
-    $yOf = fn(float $x) => (int)round(95 + sin(($x - 50) / 85) * 22);
-    $hatFrac = 50;   // v1.6.2: where the hat is, in %, so a phone's scrolling strip can centre on it (assets/site.js gvJourneyScroll)
-    $svg = '<svg class="journeymap" viewBox="0 0 ' . $W . ' 190" role="img" aria-label="Your journey" data-hat="@@HAT@@">'
-        . '<rect width="' . $W . '" height="190" rx="14" fill="#eef3df"/>';
-    $pts = [];
-    for ($x = 50; $x <= $W - 50; $x += 10) $pts[] = $x . ' ' . $yOf($x);
-    $svg .= '<path d="M' . implode(' L', $pts) . '" stroke="#b79a6e" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="2 10"/>';
-    $fi = $ti = null;
-    foreach ($stops as $i => $s) {
-        if ((int)$s['id'] === (int)$from['id']) $fi = $i;
-        if ((int)$s['id'] === (int)$to['id']) $ti = $i;
-    }
-    // The stretch being walked, split into spaces
-    if ($fi !== null && $ti !== null) {
-        $total = max(1, (int)$exp['steps_total']);
-        $step = min((int)$exp['step'], $total);
-        $x1 = $xs[$fi];
-        $x2 = $xs[$ti];
-        $svg .= '<path d="M' . $x1 . ' ' . $yOf($x1) . ' L' . $x2 . ' ' . $yOf($x2) . '" stroke="#d9a520" stroke-width="4" fill="none" stroke-opacity="0.6"/>';
-        for ($k = 1; $k < $total + 1; $k++) {
-            $x = $x1 + ($x2 - $x1) * $k / ($total + 1);
-            $svg .= '<circle cx="' . (int)$x . '" cy="' . $yOf($x) . '" r="6" fill="' . ($k <= $step ? '#d9a520' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
-        }
-        $pos = $active ? $x1 + ($x2 - $x1) * $step / ($total + 1) : $x2;
-        $hatFrac = (int)round($pos * 100 / $W);
-        $svg .= '<text x="' . (int)$pos . '" y="' . ($yOf($pos) - 14) . '" text-anchor="middle" font-size="26">🎩' . ($active ? $mark : '') . '</text>';
-    }
-    foreach ($stops as $i => $s) {
-        $x = $xs[$i];
-        $isTown = $s['kind'] === 'market';
-        $seen = $isTown || place_known((int)$u['id'], $s) || $i === $fi;
-        $L = LANDSCAPES[$s['landscape'] ?? ''] ?? ['📍'];
-        $icon = $isTown ? '🏘️' : ($seen ? ($s['kind'] === 'village' ? '🏡' : $L[0]) : '❔');
-        $svg .= '<circle cx="' . $x . '" cy="' . $yOf($x) . '" r="17" fill="' . ($isTown ? '#e6d3ad' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>'
-            . '<text x="' . $x . '" y="' . ($yOf($x) + 7) . '" text-anchor="middle" font-size="18">' . $icon . '</text>'
-            . '<text x="' . $x . '" y="' . ($yOf($x) + 38) . '" text-anchor="middle" font-size="12" fill="#2f2a1f">' . e($seen ? mb_strimwidth($s['name'], 0, 16, '…') : '???') . '</text>';
-    }
-    // v0.7.52: name the place at each end, and say which way you're heading
-    $first = $stops[0];
-    $last = $stops[$n - 1];
-    $lab = fn(array $s) => $s['name'] . ($s['kind'] === 'market' && !str_contains((string)$s['name'], (string)$s['region']) ? ' · ' . $s['region'] : '');
-    $towardRight = $fi === null || $ti === null || $ti >= $fi;
-    $svg .= '<text x="14" y="22" font-size="13" font-weight="bold" fill="#2f2a1f">' . ($towardRight ? '' : '🎯 ') . '⬅ ' . e(mb_strimwidth($lab($first), 0, 34, '…')) . '</text>'
-        . '<text x="' . ($W - 14) . '" y="22" text-anchor="end" font-size="13" font-weight="bold" fill="#2f2a1f">' . e(mb_strimwidth($lab($last), 0, 34, '…')) . ' ➡' . ($towardRight ? ' 🎯' : '') . '</text>';
-    if ($road) $svg .= '<text x="' . intdiv($W, 2) . '" y="180" text-anchor="middle" font-size="12" fill="#5a4a30">🛣️ ' . e($road['name']) . ' · 🎯 = where you’re heading</text>';
-    return str_replace('@@HAT@@', (string)$hatFrac, $svg . '</svg>');
+    return '';   // v2.0.51: a walk on the road is shown by route_ribbon_html() and route_fold_html() instead
 }
 
-
-
-
-/** v2.0.49: phone-friendly vertical route map, so place names fit without horizontal scrolling. */
-function journey_map_svg_vertical(array $u, array $exp): string
+/** v2.0.51: the stops of the road being walked, in road order, plus where the leg from/to sit in that list. */
+function journey_stops(array $exp): array
 {
-    $kind = $exp['kind'] ?? 'walk';
-    if (in_array($kind, ['delve', 'lair', 'explore'], true)) return '';
-    $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
-    $mark = $enc ? (($enc['type'] ?? '') === 'creature' ? '⚔️' : '❓') : '';
-    $active = ($exp['status'] ?? '') === 'active';
-    $from = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['from_id']]);
-    $to = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$exp['to_id']]);
-    if (!$from || !$to) return '';
-    $route = q_one('SELECT * FROM routes WHERE id = ?', [$exp['route_id']]);
+    $cols = 'id, name, slug, kind, landscape, region';
+    $from = q_one("SELECT $cols FROM locations WHERE id = ?", [$exp['from_id']]);
+    $to = q_one("SELECT $cols FROM locations WHERE id = ?", [$exp['to_id']]);
+    if (!$from || !$to) return ['stops' => [], 'fi' => null, 'ti' => null];
     $road = null;
+    $route = q_one('SELECT * FROM routes WHERE id = ?', [$exp['route_id']]);
     if ($route && ($route['kind'] ?? '') === 'road' && !empty($route['road_id'])) $road = q_one('SELECT * FROM roads WHERE id = ?', [$route['road_id']]);
     $stops = [];
     if ($road) foreach (json_decode((string)$road['nodes'], true) ?: [] as $id) {
-        if ($l = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$id])) $stops[] = $l;
+        if ($l = q_one("SELECT $cols FROM locations WHERE id = ?", [$id])) $stops[] = $l;
     }
     if (!$stops) $stops = [$from, $to];
-    $n = count($stops);
-    $W = 360; $H = max(300, 95 + ($n - 1) * 58 + 60);
-    $ys = []; $xs = [];
-    foreach ($stops as $i => $stop) { $ys[$i] = (int)round(48 + $i * ($H - 96) / max(1, $n - 1)); $xs[$i] = (int)round(180 + sin($i * 1.35) * 34); }
     $fi = $ti = null;
-    foreach ($stops as $i => $stop) { if ((int)$stop['id'] === (int)$from['id']) $fi = $i; if ((int)$stop['id'] === (int)$to['id']) $ti = $i; }
-    $svg = '<svg class="journeymap mobile-vertical" viewBox="0 0 ' . $W . ' ' . $H . '" role="img" aria-label="Your journey, shown vertically">'
-        . '<rect width="' . $W . '" height="' . $H . '" rx="14" fill="#eef3df"/>';
-    // Soft landscape details keep the route map in the game's existing visual style without crowding labels.
-    for ($i = 0; $i < $n + 2; $i++) {
-        $dx = ($i % 2 === 0) ? 28 : 326; $dy = 45 + $i * ($H - 70) / max(1, $n + 1);
-        $svg .= '<g opacity=".62"><rect x="' . ($dx - 5) . '" y="' . ($dy - 8) . '" width="10" height="12" rx="2" fill="#8a6a46"/><circle cx="' . $dx . '" cy="' . ($dy - 10) . '" r="12" fill="#7ab55c"/><circle cx="' . ($dx - 5) . '" cy="' . ($dy - 13) . '" r="7" fill="#a4b86a"/></g>';
+    foreach ($stops as $i => $st) {
+        if ((int)$st['id'] === (int)$from['id']) $fi = $i;
+        if ((int)$st['id'] === (int)$to['id']) $ti = $i;
     }
-    $pts = []; for ($i = 0; $i < $n; $i++) $pts[] = $xs[$i] . ' ' . $ys[$i];
-    if (count($pts) > 1) $svg .= '<polyline points="' . implode(' ', $pts) . '" stroke="#b79a6e" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="2 11"/>';
-    if ($fi !== null && $ti !== null) {
-        $svg .= '<line x1="' . $xs[$fi] . '" y1="' . $ys[$fi] . '" x2="' . $xs[$ti] . '" y2="' . $ys[$ti] . '" stroke="#d9a520" stroke-width="4" stroke-opacity=".65"/>';
-        $total = max(1, (int)$exp['steps_total']); $step = min((int)$exp['step'], $total);
-        for ($k = 1; $k <= $total; $k++) {
-            $x = (int)round($xs[$fi] + ($xs[$ti] - $xs[$fi]) * $k / ($total + 1));
-            $y = (int)round($ys[$fi] + ($ys[$ti] - $ys[$fi]) * $k / ($total + 1));
-            $svg .= '<circle cx="' . $x . '" cy="' . $y . '" r="5" fill="' . ($k <= $step ? '#d9a520' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>';
-        }
-        $pos = $active ? $step / ($total + 1) : 1;
-        $hx = (int)round($xs[$fi] + ($xs[$ti] - $xs[$fi]) * $pos); $hy = (int)round($ys[$fi] + ($ys[$ti] - $ys[$fi]) * $pos);
-        $svg .= '<text x="' . $hx . '" y="' . ($hy - 16) . '" text-anchor="middle" font-size="24">🎩' . ($active ? $mark : '') . '</text>';
-    }
-    foreach ($stops as $i => $stop) {
-        $x = $xs[$i]; $y = $ys[$i]; $isTown = $stop['kind'] === 'market';
-        $seen = $isTown || place_known((int)$u['id'], $stop) || $i === $fi;
-        $L = LANDSCAPES[$stop['landscape'] ?? ''] ?? ['📍'];
-        $icon = $isTown ? '🏘️' : ($seen ? ($stop['kind'] === 'village' ? '🏡' : $L[0]) : '❔');
-        $svg .= '<circle cx="' . $x . '" cy="' . $y . '" r="19" fill="' . ($isTown ? '#e6d3ad' : '#fffaf0') . '" stroke="#8a6a46" stroke-width="2"/>'
-            . '<text x="' . $x . '" y="' . ($y + 7) . '" text-anchor="middle" font-size="19">' . $icon . '</text>';
-        $labelX = $x < 180 ? $x + 29 : $x - 29; $anchor = $x < 180 ? 'start' : 'end';
-        $svg .= '<text x="' . $labelX . '" y="' . ($y + 5) . '" text-anchor="' . $anchor . '" font-size="13" font-weight="bold" fill="#2f2a1f">' . e($seen ? mb_strimwidth($stop['name'], 0, 22, '…') : '???') . '</text>';
-    }
-    $svg .= '<text x="180" y="' . ($H - 25) . '" text-anchor="middle" font-size="12" fill="#5a4a30">🎯 = where you’re heading</text>';
-    return $svg . '</svg>';
+    return ['stops' => $stops, 'fi' => $fi, 'ti' => $ti, 'from' => $from, 'to' => $to];
 }
 
+/** Small route picture for a place (the rest-stop art; towns get the market, villages the inn). */
+function route_stop_img(array $loc, string $class): string
+{
+    $pic = ($loc['kind'] ?? '') === 'market' ? 'market' : (($loc['kind'] ?? '') === 'village' ? 'inn' : 'camp');
+    return '<img class="' . $class . '" src="' . e(url('assets/img/stops/' . $pic . '.png')) . '" alt="" aria-hidden="true">';
+}
+
+function route_img(string $file, string $class, string $alt = ''): string
+{
+    return '<img class="' . $class . '" src="' . e(url('assets/img/route/' . $file)) . '" alt="' . e($alt) . '"' . ($alt === '' ? ' aria-hidden="true"' : '') . '>';
+}
+
+/** v2.0.51: the one-line route ribbon: the leg being walked as a felt strip (a pin per space), the goal, stops left, danger. */
+function route_ribbon_html(array $u, array $exp, ?array $wi, int $level): string
+{
+    $j = journey_stops($exp);
+    if (empty($j['from'])) return '';
+    $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
+    $fight = $enc && ($enc['type'] ?? '') === 'creature';
+    $active = ($exp['status'] ?? '') === 'active';
+    $total = max(1, (int)$exp['steps_total']);
+    $step = $active ? min((int)$exp['step'], $total) : $total + 1;   // finished: the token stands at the far end
+    $uid = (int)$u['id'];
+    $items = [route_stop_img($j['from'], 'stop')];
+    if ($step === 0) $items[] = 'tok';
+    for ($k = 1; $k <= $total; $k++) {
+        $pin = $k <= $step ? 'a-pin-done.png' : 'a-pin-todo.png';
+        if ($fight && $k === $step + 1) $pin = 'a-pin-danger.png';   // the thorn pin: a fight waits on the next space
+        $items[] = route_img($pin, 'pin');
+        if ($k === $step || ($k === $total && $step > $total)) $items[] = 'tok';
+    }
+    $items[] = route_stop_img($j['to'], 'stop');
+    $tokAt = (int)array_search('tok', $items, true);
+    $band = '';
+    foreach ($items as $i => $it) {
+        $band .= $it === 'tok' ? route_img('gnome-token.png', 'tok', 'You') : $it;
+        if ($i < count($items) - 1) $band .= '<span class="t' . ($i < $tokAt ? '' : ' todo') . '"></span>';
+    }
+    $on = max(1, min(5, (int)ceil($level / 2)));
+    $pips = '';
+    for ($i = 1; $i <= 5; $i++) $pips .= route_img($i <= $on ? 'danger-on.png' : 'danger-off.png', '');
+    $goal = $wi ? '<span>' . route_img('goal-flag.png', 'flag') . ' <b>' . e(dest_name($uid, $wi['loc'])) . '</b></span><span class="sep">·</span><span>' . (int)$wi['left'] . ' stop' . ((int)$wi['left'] === 1 ? '' : 's') . ' left</span><span class="sep">·</span>' : '';
+    return '<section class="routebox" aria-label="Route">'
+        . '<h1 class="legname"><span>' . e($j['from']['name']) . '</span><span class="arrow" aria-hidden="true">→</span><span>' . e($j['to']['name']) . '</span></h1>'
+        . '<div class="strip" role="img" aria-label="Space ' . min((int)$exp['step'], $total) . ' of ' . $total . '"><span class="capl"></span><div class="band">' . $band . '</div><span class="capr"></span></div>'
+        . '<div class="meta">' . $goal . '<span>danger ' . $level . ' <span class="pips" aria-hidden="true">' . $pips . '</span></span></div>'
+        . '</section>';
+}
+
+/** v2.0.51: the closed Route fold: every stop on the road (visited / next / goal) plus the travel options. */
+function route_fold_html(array $u, array $exp, ?array $wi): string
+{
+    $j = journey_stops($exp);
+    if (empty($j['from'])) return '';
+    $uid = (int)$u['id'];
+    $dir = ($j['ti'] !== null && $j['fi'] !== null && $j['ti'] < $j['fi']) ? -1 : 1;
+    $goalId = $wi ? (int)$wi['loc']['id'] : (int)$j['to']['id'];
+    $li = '';
+    foreach ($j['stops'] as $i => $st) {
+        $behind = $j['fi'] !== null && ($i - $j['fi']) * $dir <= 0;
+        $next = (int)$st['id'] === (int)$j['to']['id'];
+        $isGoal = (int)$st['id'] === $goalId;
+        $seen = $behind || $next || $isGoal || ($st['kind'] === 'market') || place_known($uid, $st);
+        $note = $behind ? ((int)$st['id'] === (int)$j['from']['id'] ? 'you left here' : 'visited') : ($next ? 'next stop' : ($isGoal ? 'goal' : ''));
+        $pin = $isGoal ? 'a-pin-stop.png' : ($behind ? 'a-pin-done.png' : 'a-pin-todo.png');
+        $li .= '<li class="' . ($behind ? '' : 'todo') . '">' . route_img($pin, 'pinv') . route_stop_img($st, 'st')
+            . '<span><b>' . e($seen ? (string)$st['name'] : '???') . '</b>' . ($note !== '' ? '<small>' . e($note) . '</small>' : '') . '</span></li>';
+    }
+    $opts = $wi ? '<form method="post" class="inline routeopts">' . csrf_field() . '<input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="adventure.php">' . dest_opts_html($u) . ' <button class="btn ghost">Save</button></form>' : '';
+    return '<details class="routefold"><summary>Route <small>' . count($j['stops']) . ' stops</small></summary><div class="in"><ol class="routelist">' . $li . '</ol>' . $opts . '</div></details>';
+}
 /** v2.0.44: tier colours for the hoop (felt rings), light to deep. Palette: moss, gold, ember, dusk (art style guide Part A). */
 const HOOP_FELT = ['gentle' => ['#a4b86a', '#7ab55c'], 'medium' => ['#7ab55c', '#4f9a45'], 'hard' => ['#f5cf6a', '#e8a317'], 'wild' => ['#f08a24', '#d6322b'], 'deep' => ['#7a5cc0', '#4e3a8a']];
 

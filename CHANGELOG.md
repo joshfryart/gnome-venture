@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.52
+- Road walks: the heading, status line, route strip and both route maps are replaced by one route ribbon under the scene: a stitched felt strip with a pin per space, your gnome token, the goal, stops left and danger pips (a thorn pin marks the space where a fight waits). New pixel art in assets/img/route/.
+- New closed Route fold: every stop on the road (visited, next, goal) plus the Travel options (Save still works mid-walk).
+- Phone: the closed Journal shows only the newest line; tap to open the rest.
+- Removed the swipe-strip road map and its scroll script. Wanders (explore) and delves keep their own maps.
+- No schema change.
+
 ## 2.0.51
 - Adventure page CSS cleanup (no markup change): removed duplicate phone map rules and the unused road-ends styles; a fight on a phone now keeps the vertical route map instead of the clipped swipe strip; the "swipe to see the whole map" hint no longer shows under the vertical map.
 

@@ -4757,6 +4757,7 @@ body[data-area] .wrap { border-top: 0; padding-top: 14px; }
 body[data-area] main h1, main h1 { border-bottom: 0; padding-bottom: 14px;
   background: var(--hem) left 0 bottom 2px / 100% 2px no-repeat, linear-gradient(var(--area), var(--area)) left bottom / 100% 6px no-repeat; }
 body[data-area] main .todayhead h1, main .todayhead h1, body[data-area] main .lp h1, body[data-area] main .lpg h1 { background: none; padding-bottom: 0; }
+body[data-area] main .routebox .legname, main .routebox .legname { background: none; padding-bottom: 0; }
 
 /* ---- side menu ---- */
 .side h3 { color: var(--muted); font-weight: 800; letter-spacing: .08em; }
@@ -5142,25 +5143,63 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 .gvs-u { overflow: visible; }
 
 
-/* v2.0.49: mobile adventure order — gnome scene, action, latest activity, then a vertical route map. */
-.journeymap.mobile-vertical { display: none; }
+/* v2.0.49/2.0.51: mobile adventure order: gnome scene, route ribbon, action, latest activity, Route fold (a delve/lair map goes last). */
+.routebox { margin: 0 0 8px; padding: 10px 12px 12px; border: 1px solid var(--line); background: var(--surface); text-align: center; }
+body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
+.routebox .legname { font-size: 16px; font-weight: 700; margin: 0 0 6px; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 8px; line-height: 1.3; }
+.routebox .legname .arrow { color: var(--muted); font-weight: 400; }
+.routebox img { image-rendering: pixelated; }
+.routebox .strip { position: relative; height: 60px; margin: 10px 0 8px; display: flex; align-items: center; }
+.routebox .strip .capl, .routebox .strip .capr { flex: none; width: 24px; height: 60px; background: url("img/route/a-strip-cap.png") 0 0 / 24px 60px no-repeat; image-rendering: pixelated; }
+.routebox .strip .capr { transform: scaleX(-1); }
+.routebox .strip .band { flex: 1; min-width: 0; height: 60px; display: flex; align-items: center; background: url("img/route/a-strip.png") 0 0 / 36px 60px repeat-x; image-rendering: pixelated; padding: 0 2px; }
+.routebox .strip .t { flex: 1; height: 12px; min-width: 4px; background: url("img/route/a-thread-done.png") 0 0 / 12px 12px repeat-x; image-rendering: pixelated; }
+.routebox .strip .t.todo { background-image: url("img/route/a-thread-todo.png"); }
+.routebox .strip .stop { flex: none; width: 44px; height: 44px; margin-top: -4px; }
+.routebox .strip .pin { flex: none; width: 24px; height: 38px; margin-top: -22px; }
+.routebox .strip .tok { flex: none; width: 36px; height: 46px; margin-top: -28px; }
+.routebox .meta { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 10px; font-size: 14px; }
+.routebox .meta .sep { color: var(--muted); }
+.routebox .meta > span { display: inline-flex; align-items: center; gap: 4px; }
+.routebox .meta img.flag { width: 20px; height: 26px; }
+.routebox .meta .pips { display: inline-flex; }
+.routebox .meta .pips img { width: 13px; height: 13px; }
+.routefold { border: 1px solid var(--line); background: var(--surface); margin: 0 0 8px; }
+.routefold > summary { list-style: none; cursor: pointer; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; padding: 0 16px; }
+.routefold > summary::-webkit-details-marker { display: none; }
+.routefold > summary::before { content: '▸'; color: var(--muted); }
+.routefold[open] > summary::before { content: '▾'; }
+.routefold > summary small { font-weight: 400; color: var(--muted); }
+.routefold > .in { padding: 4px 16px 14px; }
+.routefold .routelist { list-style: none; margin: 4px auto 0; padding: 0; max-width: 360px; text-align: left; }
+.routefold .routelist li { display: grid; grid-template-columns: 28px 48px 1fr; gap: 8px; align-items: center; min-height: 56px; position: relative; }
+.routefold .routelist li img { image-rendering: pixelated; }
+.routefold .routelist .pinv { width: 24px; height: 38px; justify-self: center; }
+.routefold .routelist .st { width: 44px; height: 44px; }
+.routefold .routelist li b { display: block; }
+.routefold .routelist li small { color: var(--muted); }
+.routefold .routelist li + li::before { content: ''; position: absolute; left: 11px; top: -18px; width: 6px; height: 30px; background: url("img/route/a-thread-done-v.png") 0 0 / 6px 6px repeat-y; image-rendering: pixelated; }
+.routefold .routelist li.todo::before { background-image: url("img/route/a-thread-todo-v.png"); }
+.routefold .routeopts { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; align-items: center; margin-top: 10px; font-size: 14px; }
+.advjournal .jpeek { display: none; }
 @media (max-width: 720px) {
   .advgrid:not(.withrings):not(.fighting) { display: flex; flex-direction: column; gap: 8px; }
   .advgrid:not(.withrings):not(.fighting) .mapcol { display: contents; }
   .advgrid:not(.withrings):not(.fighting) #advstage { order: 1; width: 100%; max-width: none; margin: 0 0 2px; }
-  .advgrid:not(.withrings):not(.fighting) > .encounter { order: 2; width: 100%; max-width: none; box-sizing: border-box; margin: 0; padding: 10px; text-align: left; }
+  .advgrid:not(.withrings):not(.fighting) .routebox { order: 2; margin: 0; }
+  .advgrid:not(.withrings):not(.fighting) > .encounter { order: 3; width: 100%; max-width: none; box-sizing: border-box; margin: 0; padding: 10px; text-align: left; }
   .advgrid:not(.withrings):not(.fighting) .roadline { margin: 2px 0 8px; font-size: 15px; line-height: 1.4; }
   .advgrid:not(.withrings):not(.fighting) .encounter .choicelist { max-width: none; margin: 0; }
   .advgrid:not(.withrings):not(.fighting) .encounter .choice { min-height: 56px; padding: 10px 12px; }
   .advgrid:not(.withrings):not(.fighting) .advlatest,
-  .advgrid:not(.withrings):not(.fighting) .roadresult { order: 3; width: 100%; max-width: none; box-sizing: border-box; margin: 0; text-align: left; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap { order: 4; width: 100%; max-width: none; margin: 0; overflow: hidden; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap .desktop-horizontal { display: none !important; }
-  .advgrid:not(.withrings):not(.fighting) .mapwrap .mobile-vertical { display: block; width: min(100%, 300px); max-width: 300px; min-width: 0 !important; height: auto; margin: 0 auto; }
-  /* a fight on a phone keeps the same vertical map instead of the clipped 640px swipe strip; the vertical map never scrolls, so no swipe hint */
-  .advgrid.fighting:not(.withrings) .mapwrap:has(.mobile-vertical) { max-height: none; overflow: hidden; }
-  .advgrid.fighting:not(.withrings) .mapwrap .desktop-horizontal { display: none !important; }
-  .advgrid.fighting:not(.withrings) .mapwrap .mobile-vertical { display: block; width: min(100%, 300px); max-width: 300px; min-width: 0 !important; height: auto; margin: 0 auto; }
-  .advgrid .mapwrap:has(.mobile-vertical)::after { content: none; }
-  .advgrid:not(.withrings):not(.fighting) .tmlinks { order: 5; margin: 0; text-align: center; }
+  .advgrid:not(.withrings):not(.fighting) .roadresult { order: 4; width: 100%; max-width: none; box-sizing: border-box; margin: 0; text-align: left; }
+  .advgrid:not(.withrings):not(.fighting) .routefold { order: 5; margin: 0; }
+  .advgrid:not(.withrings):not(.fighting) .mapwrap { order: 6; width: 100%; max-width: none; margin: 0; overflow: hidden; }
+  .advgrid:not(.withrings):not(.fighting) .tmlinks { order: 7; margin: 0; text-align: center; }
+  /* a fight keeps the ribbon under the scene and the Route fold under the fight card */
+  .advgrid.fighting:not(.withrings) .routebox { order: -1; margin: 0; }
+  .advgrid.fighting:not(.withrings) .routefold { order: 1; margin: 0; }
+  /* v2.0.51: on a phone the closed Journal shows only the newest line; tap to open the rest */
+  .advjournal:not([open]) > summary { flex-wrap: wrap; }
+  .advjournal:not([open]) .jpeek { display: block; flex: 1 0 100%; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
 }

@@ -162,7 +162,7 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
 
 page_header('On the mycelium');
 ?>
-<?php $isExplore = ($last['kind'] ?? 'walk') === 'explore'; $kind = $last['kind'] ?? 'walk'; ?>
+<?php $isExplore = ($last['kind'] ?? 'walk') === 'explore'; $kind = $last['kind'] ?? 'walk'; $isWalk = !in_array($kind, ['delve', 'lair', 'explore'], true);   // v2.0.51: a road walk gets the route ribbon instead of the heading, status line and route strip ?>
 <?php if ($kind === 'delve' || $kind === 'lair'): ?>
 <h1><?= $kind === 'delve' ? '🕳️' : '🐉' ?> <?= e($from['name']) ?></h1>
 <p class="status">
@@ -172,17 +172,12 @@ page_header('On the mycelium');
 <?php require_once __DIR__ . '/includes/seek.php'; echo seek_chip($u, $exp);   // v0.7.97 ?>
 <p class="status">
   <?= $L[0] ?> <?= e($L[1]) ?> · <b><?= (int)$last['depth'] ?></b> step<?= (int)$last['depth'] === 1 ? '' : 's' ?> out · <?= e($tierName) ?> · danger level <?= (int)$last['level'] ?>
-<?php else: ?>
-<h1><?= $L[0] ?> <?= e($from['name']) ?> → <?= e($to['name']) ?></h1>
-<p class="status">
-  <?= e($L[1]) ?> path · danger level <?= (int)$scene['level'] ?>
-  · Space <b><?= min((int)$last['step'], (int)$last['steps_total']) ?></b>/<?= (int)$last['steps_total'] ?>
 <?php endif; ?>
 <?php /* v1.6.3: ❤️/⚡ dropped here: the walk bar, top bar and fight card already show them */ ?>
-</p>
+<?php if (!$isWalk): ?></p><?php endif; ?>
 <?php require_once __DIR__ . '/includes/maps.php'; require_once __DIR__ . '/includes/destination.php';
 $wi = $exp ? dest_walk_info($u, $exp) : null;   // v0.9.3
-if ($wi): ?>
+if ($wi && !$isWalk): ?>
 <div class="routestrip"><div class="routestrip-summary">🏁 <b><?= e(dest_name($uid, $wi['loc'])) ?></b> · leg <?= (int)$wi['k'] ?> of <?= (int)$wi['n'] ?> · <?= (int)$wi['left'] ?> stop<?= (int)$wi['left'] === 1 ? '' : 's' ?> left</div>
   <details class="routeopts-collapse">
     <summary>Travel options</summary>
@@ -197,11 +192,12 @@ if ($wi): ?>
 <?php if ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
+<?php elseif ($isWalk): ?>
+<?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
 <?php else: ?>
 <div class="mapwrap small">
 <?php if (in_array($kind, ['delve', 'lair'], true)): ?><?= mycelium_track($last) ?>
-<?php elseif ($kind === 'explore'): ?><?= journey_map_svg($u, $last) ?>
-<?php else: ?><?= str_replace('class="journeymap"', 'class="journeymap desktop-horizontal"', journey_map_svg($u, $last)) ?><?= journey_map_svg_vertical($u, $last) ?>
+<?php else: ?><?= journey_map_svg($u, $last) ?>
 <?php endif; ?>
 </div>
 <?php if ($dmScene): ?><p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=map')) ?>">🗺️ Show the map</a></p><?php endif; ?>
@@ -215,6 +211,7 @@ if ($resultCard): ?>
 <?php elseif ($log && !($enc && in_array($enc['type'] ?? '', ['choice', 'meet'], true))): // v0.7.61: what just happened, right under the map so you don't have to scroll to the journal (v1.9.4: not while the card says the same thing) ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
 <?php endif; ?>
+<?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>
 </div>
 
 
@@ -410,7 +407,7 @@ if ($resultCard): ?>
 <div class="gardenwrap">
 
 <details class="panel box advjournal"<?= $exp ? '' : ' open' ?>>
-  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small></summary>
+  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small><?php if ($log): ?><span class="jpeek"><?= e((string)end($log)) ?></span><?php endif; ?></summary>
   <ul class="journal">
     <?php foreach (array_reverse(array_slice($log, -25)) as $line): ?><li><?= e($line) ?></li><?php endforeach; ?>
   </ul>
