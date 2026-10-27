@@ -1,6 +1,14 @@
-# Gnome Venture: to-do (updated 2026-10-27, after 2.0.60)
+# Gnome Venture: to-do (updated 2026-10-27, after 2.0.64)
 
-## NOW: 2.0.60 hardening release (Joshua to upload + test)
+## NOW: 2.0.64 pixel-art maps + art passes (built, on main, Joshua to upload + test)
+
+Done: world map and all 14 region maps are underground pixel-art pictures and the default (`world_art_path()`, `region_art_path()` in `includes/maps.php`; old drawing only when a PNG is missing). Region maps use a fixed landscape 480x270 layout (`includes/region_layout.php`, `php tools/map_layout.php` dumps JSON + `tools/map_layout.lua`; re-run it and redraw the art after any change to roads/places). World art tunnels follow the 19 `ROAD_PAIRS`. Zoom/pan/pinch work on both; road stops show from zoom step 2. Route ribbon sprites redrawn (felt strip, threads, pins, gnome token, danger icon, goal flag; same names and sizes). Art scripts and Aseprite sources: `opus-test-run/scripts/upgrade/` (`map-world-up4`, `map-<CODE>-fit`, `route-felt-up`, `route-pins-up`, `stage-<kind>-up`), build with `GV_ROOT=$PWD/ aseprite -b --script <file>` (the repo AppImage runs headless: copy it, chmod +x, run with `--appimage-extract-and-run`).
+
+Joshua checks: world + a few region maps on phone (zoom, tap a stop, names ~9px are small), NWE exit label overlaps the "you are here" ring, route ribbon during a road walk (new gnome token / danger icon / pins), place header from 2.0.62 together with the new map on world.php (merged without conflict, not looked at live). Not tested in a browser: regions CA CB SA SE EE WCA ESA, and a road walk with the new route sprites. Palette checker was not run on the route sprites (skin colour on the gnome token is hand-picked).
+
+Open art: (1) 5 stage backdrops redrawn but NOT installed: `opus-test-run/game/assets/img/scenes/stage-{desert,mountain,rainforest,tundra,wetland}-up.png` (underground fix pending: their "sun" is a glow-crystal that reads as a sun disc; stage-coast/island/grassland/forest not redone). (2) Banners, homes, shops, `stop-*.png` not redone. (3) Fight sprites (`assets/img/mini/`, 201 files) not redone. (4) Region maps are busy around the town (1-4 houses fit) and the world map is at its 40 colour cap. (5) ESA copper seam thin; WCA luminous tree cut at the left edge; NA still the brightest region.
+
+## Earlier: 2.0.60 hardening release (Joshua to upload + test)
 
 Built from an external review. Done and on main: db_migrate index errors no longer silent; give_item rethrows non-duplicate errors (moved to includes/inventory.php); updater auto-maintenance lock + per-file rollback + hash check (tests/updrollback.sh); MIT LICENSE; SECURITY.md; version single source (tools/check_versions.sh); CI workflow; 21 stale suites repaired (all green run one at a time).
 
@@ -28,7 +36,7 @@ Plan was reviewed by Opus; phases 1-4 are done. Joshua checks still open: tests/
 2. "After this stop..." arrival help text is still in the action card, not in the Route fold.
 3. Phone fight: the ability / Fight on / Snack description lines are hidden; add a one-line version or a tap-for-info if he misses them.
 4. Explore (hoop map), delve and lair pages still carry the old heading + status line; same ribbon treatment could follow (explore keeps the hoop).
-5. Unused art: `assets/img/scenes/map-world*.png`, `map-*.png` regions and `stop-*.png` have no code using them; natural slot is rest-stop / destination scenes. Map art is an "ask Josh first" item.
+5. (Done in 2.0.64: world and region maps are wired in. `stop-*.png` art is used by the 2.0.61 place headers.)
 6. Remaining CSS duplication on the adventure page: `.advgrid .encounter` max-width (3 places), `.advlatest` (3), 900-999px double layout, fight rules per breakpoint.
 
 ## Older notes (from 2026-10-21)
