@@ -18,7 +18,8 @@ walkto() { # route id
     curl -s -b $C -c $C $BASE/adventure.php > /tmp/r.html
     T=$(csrf /tmp/r.html); [ -z "$T" ] && break
     if grep -q 'value="auto"' /tmp/r.html; then D="-d do=auto"; elif grep -q 'value="attack"' /tmp/r.html; then D="-d do=attack"
-    elif grep -q 'value="solve"' /tmp/r.html; then D="-d do=solve -d option=0"; elif grep -q 'value="continue"' /tmp/r.html; then D="-d do=continue"
+    elif grep -q 'value="solve"' /tmp/r.html; then D="-d do=solve -d option=0"; elif grep -q 'value="choose"' /tmp/r.html; then D="-d do=choose -d option=0"
+    elif grep -q 'value="continue"' /tmp/r.html; then D="-d do=continue"
     elif grep -q 'is in sight' /tmp/r.html; then dbx "UPDATE expeditions SET arrive_at = datetime('now','-1 minute') WHERE user_id=$SID AND status='active'"; curl -s -b $C -c $C $BASE/adventure.php > /tmp/r.html; D="-d do=arrive"
     else break; fi
     curl -s -b $C -c $C -X POST $BASE/adventure.php --data-urlencode "csrf=$(csrf /tmp/r.html)" $D -o /dev/null
