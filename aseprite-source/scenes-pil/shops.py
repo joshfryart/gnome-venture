@@ -1,4 +1,4 @@
-"""Shop interiors, redrawn 2026-10-27 (second pass): game/assets/img/scenes/shop-{bakery,craft,general,herbs,seeds}.png.
+"""Shop interiors, redrawn 2026-10-27 (second pass): game/assets/img/scenes/shop-{bakery,craft,dyes,general,herbs,seeds}.png.
 
 Usage: python3 aseprite-source/scenes-pil/shops.py [out_dir]   (default: game/assets/img/scenes)
 Drawn on the 240 x 135 scene grid, written at 2x (480 x 270). The place header shows the middle 2:1 band
@@ -711,7 +711,231 @@ def general():
     return cv
 
 
-SHOPS = {'bakery': bakery, 'craft': craft, 'general': general, 'herbs': herbs, 'seeds': seeds}
+def cloth(cv, x, w, yb, rp, dip=None):
+    """A dyed cloth folded over the drying pole: fold on top, two creases, a wavy hem, two drips; dip = a dip-dyed hem band."""
+    body = poly([(x, 18), (x + w, 18), (x + w, yb - 2), (x + 3 * w // 4, yb), (x + w // 2, yb - 2), (x + w // 4, yb), (x, yb - 2)])
+    o = cv.obj()
+    o.part(body, rp, d=2)
+    o.part(rrect(x - 1, 12, x + w + 1, 18, 2), rp, d=1, contour=True)
+    o.draw()
+    low = rp
+    if dip:
+        band = body & rect(0, yb - 12, W, H)
+        cv.fill(band, dip['b'])
+        cv.fill(band & ~shift(band, -2, -2), dip['s'])
+        cv.fill(rect(x, yb - 12, x + w, yb - 12) & body, dip['s'])
+        low = dip
+    for k in (w // 3, 2 * w // 3):
+        cv.fill(rect(x + k, 21, x + k, yb - (13 if dip else 5)), rp['s'])
+        if dip:
+            cv.fill(rect(x + k, yb - 10, x + k, yb - 5), dip['s'])
+    cv.fill(rect(x + 1, 19, x + w - 1, 19), rp['s'])
+    cv.fill(rect(x + 2, 14, x + w - 2, 14), rp['r'])
+    for (dx, dy) in ((4, 3), (w - 5, 6)):
+        cv.fill(rect(x + dx, yb + dy, x + dx, yb + dy + 1), low['s'])
+
+
+def skein(cv, x, yb, rp):
+    """A twisted hank of yarn hung over the pole, tied near the bottom."""
+    o = cv.obj()
+    o.part(rrect(x, 12, x + 9, yb, 3), rp, d=2)
+    o.draw()
+    cv.fill(rect(x, yb - 10, x + 9, yb - 8), '#f2e4c0')
+    cv.fill(rect(x + 7, yb - 10, x + 9, yb - 8) | rect(x, yb - 8, x + 9, yb - 8), '#c9a96e')
+    for y in range(19, yb - 11, 5):
+        cv.fill(line([(x + 1, y), (x + 8, y + 3)]), rp['s'])
+    cv.dots([(x + 2, 15), (x + 3, 14)], rp['r'])
+
+
+def bubbles(cv, pts, col, rim):
+    """Little round bubbles on a dye surface (2 x 2 with a lit pixel)."""
+    for (x, y) in pts:
+        cv.fill(rect(x, y, x + 2, y + 1), col)
+        cv.dots([(x, y)], rim)
+
+
+def dyes():
+    cv = Canvas('#c9c5bc')
+    # whitewashed stone wall, block courses
+    cv.fill(rect(0, 0, W - 1, H - 1), '#c9c5bc')
+    for i, y in enumerate(range(22, 100, 11)):
+        cv.fill(rect(0, y, W - 1, y), '#8b8f96')
+        for x in range(6 + (i % 2) * 11, W, 22):
+            cv.fill(rect(x, y + 1, x, min(y + 10, 99)), '#8b8f96')
+    # flagstone floor, the dye has splashed everywhere
+    cv.fill(rect(0, 100, W - 1, H - 1), '#8b8f96')
+    cv.fill(rect(0, 100, W - 1, 101), '#5b6470')
+    for i, y in enumerate((112, 124)):
+        cv.fill(rect(0, y, W - 1, y), '#5b6470')
+        for x in range(10 + i * 17, W, 34):
+            cv.fill(rect(x, y - 10 if i == 0 else 113, x, y - 1), '#5b6470')
+    for (x0, y0, x1, y1, c) in ((50, 116, 66, 121, '#3f8fb0'), (124, 125, 140, 130, '#d6322b'), (60, 127, 72, 131, '#e8a317'),
+                                (188, 120, 198, 124, '#7a5cc0'), (98, 128, 112, 132, '#3f8fb0'), (166, 129, 182, 133, '#e46a9b'),
+                                (4, 128, 14, 132, '#d6322b'), (216, 128, 230, 132, '#e8a317')):
+        cv.fill(ell(x0, y0, x1, y1), c)
+        cv.dots([(x1 + 2, y0 + 1), (x0 - 2, y1)], c)
+    ceiling(cv)
+
+    # --- left: tall pigment shelf (jars of powder, bowls of heaped colour, paper twists) ---
+    o = cv.obj()
+    o.part(rect(2, 14, 58, 98), DWOOD, d=2)
+    o.draw()
+    cv.fill(rect(6, 18, 54, 96), '#5c3420')
+    o = cv.obj()
+    for y in (42, 68, 94):
+        o.part(rect(4, y, 56, y + 3), WOOD, d=1)
+    o.draw()
+    glass = ramp('#f2e4c0', '#c9a96e', '#fff3c8')
+    for i, rp in enumerate((EMBER, WATER, GOLD)):           # top row: powder jars
+        x = 8 + i * 16
+        o = cv.obj()
+        o.part(rrect(x, 24, x + 13, 41, 2), glass, d=2)
+        o.part(rect(x + 3, 20, x + 10, 24), WOOD, d=1, contour=True)
+        o.draw()
+        cv.fill(rrect(x + 2, 31, x + 11, 39, 1), rp['b'])
+        cv.fill(rect(x + 2, 37, x + 11, 39) & rrect(x + 2, 31, x + 11, 39, 1), rp['s'])
+        cv.fill(rect(x + 2, 31, x + 11, 31), rp['r'])
+        cv.fill(rect(x + 2, 26, x + 3, 29), '#fff3c8')
+    for i, rp in enumerate((DUSK, PETAL, MOSS)):            # middle row: bowls with heaps of powder
+        x = 7 + i * 16
+        o = cv.obj()
+        o.part(ell(x + 1, 50, x + 13, 62) & rect(0, 0, W, 59), rp, d=2)
+        o.part(poly([(x - 1, 59), (x + 15, 59), (x + 12, 67), (x + 2, 67)]), STONE, d=2, contour=True)
+        o.draw()
+        cv.dots([(x + 4, 53), (x + 5, 52)], rp['r'])
+    for i, rp in enumerate((GOLD, EMBER, WATER)):           # bottom row: paper twists of colour
+        x = 8 + i * 16
+        o = cv.obj()
+        o.part(poly([(x, 93), (x + 13, 93), (x + 11, 78), (x + 2, 78)]), ramp('#c9a96e', '#9a6b3f', '#f2e4c0'), d=2)
+        o.part(poly([(x + 2, 78), (x + 11, 78), (x + 9, 74), (x + 4, 74)]), ramp('#c9a96e', '#9a6b3f', '#f2e4c0'), d=1, contour=True)
+        o.draw()
+        cv.fill(rect(x + 3, 83, x + 10, 88), rp['b'])
+        cv.fill(rect(x + 3, 88, x + 10, 88), rp['s'])
+
+    # --- drying pole across the room: dyed cloths and yarn skeins drying ---
+    cv.fill(rect(70, 12, 70, 14) | rect(226, 12, 226, 14), '#4a2c1a')
+    o = cv.obj(); o.part(rect(62, 14, 238, 16), DWOOD, d=1); o.draw()
+    hang = [('c', 64, 20, 50, WATER, None), ('s', 87, 0, 44, GOLD, None), ('c', 99, 22, 46, EMBER, GOLD), ('s', 124, 0, 48, DUSK, None),
+            ('c', 136, 20, 52, GOLD, None), ('s', 159, 0, 42, WATER, None), ('c', 171, 22, 48, DUSK, PETAL), ('s', 196, 0, 46, PETAL, None),
+            ('c', 208, 22, 44, MOSS, WATER)]
+    for (kind, x, w, yb, rp, dip) in hang:
+        if kind == 'c':
+            cloth(cv, x, w, yb, rp, dip)
+        else:
+            skein(cv, x, yb, rp)
+    skein(cv, 232, 40, EMBER)
+
+    # --- centre left: the big wooden indigo vat, a paddle stood in it ---
+    o = cv.obj()
+    body = rect(64, 66, 124, 124) | (ell(64, 112, 124, 128) & rect(0, 120, W, 128))
+    o.part(body, WOOD, d=3)
+    o.part(ell(62, 58, 126, 72), ramp('#c9a96e', '#9a6b3f', '#f2e4c0'), d=1, contour=True)
+    o.draw()
+    for yy in (80, 112):
+        cv.fill(rect(64, yy, 124, yy + 2) & body, '#5b6470')
+        cv.dots([(66, yy)], '#c9c5bc')
+    for xx in range(71, 122, 8):
+        cv.fill(rect(xx, 72, xx, 126) & body & ~rect(0, 80, W, 82) & ~rect(0, 112, W, 114), '#7a4a1f')
+    cv.fill(ell(66, 60, 122, 70), '#3d2a1c')
+    cv.fill(ell(67, 61, 121, 70), '#25637d')
+    cv.fill(ell(76, 62, 112, 68) & ~ell(78, 63, 110, 67), '#3f8fb0')
+    bubbles(cv, ((82, 64), (92, 63), (100, 66), (108, 64), (74, 66), (88, 67)), '#3f8fb0', '#a9d6ea')
+    cv.fill(rect(66, 71, 68, 75) | rect(67, 76, 67, 78), '#25637d')               # a blue drip down the side
+    o = cv.obj()                                              # paddle
+    o.part(line([(104, 66), (118, 22)], 4), WOOD, d=1)
+    o.part(rrect(115, 16, 122, 24, 2), WOOD, d=1, contour=True)
+    o.draw()
+    cv.fill(line([(104, 66), (108, 54)], 4) & ~ell(66, 60, 122, 70), '#25637d')
+    for (x, y) in ((86, 54), (96, 50), (78, 56)):                                  # rising bubbles
+        cv.fill(rect(x, y, x + 2, y + 2) & ~rect(x + 1, y + 1, x + 1, y + 1), '#a9d6ea')
+
+    # --- centre right: copper cauldron of madder red over a stone hearth ---
+    o = cv.obj()
+    o.part(rect(134, 106, 188, 126), STONE, d=2)
+    o.draw()
+    for y in (113, 120):
+        cv.fill(rect(134, y, 188, y), '#5b6470')
+    for (x, y0, y1) in ((146, 107, 112), (166, 107, 112), (140, 114, 119), (178, 114, 119), (152, 121, 125), (172, 121, 125)):
+        cv.fill(rect(x, y0, x, y1), '#5b6470')
+    mouth = ell(148, 108, 174, 130) & rect(0, 0, W, 125)
+    cv.fill(mouth, '#3d2a1c')
+    for (x0, x1, top, col) in ((150, 160, 113, '#d6322b'), (155, 168, 109, '#f08a24'), (163, 172, 114, '#d6322b'),
+                               (157, 165, 114, '#e8a317'), (160, 163, 118, '#f5cf6a')):
+        cv.fill(poly([(x0, 125), (x1, 125), ((x0 + x1) // 2, top)]) & mouth, col)
+    o = cv.obj()
+    o.part(ell(132, 56, 190, 114) & rect(0, 64, W, 114), COPPER, d=4)
+    o.part(ell(130, 58, 192, 72), COPPER, d=1, contour=True)
+    o.draw()
+    cv.fill(rect(128, 74, 133, 78) | rect(189, 74, 194, 78), '#4a2c1a')          # ring handles
+    cv.fill(rect(139, 76, 141, 92) | rect(140, 74, 142, 75), '#f5cf6a')            # a long glint on the lit side
+    pot = ell(132, 56, 190, 114) & rect(0, 64, W, 114)
+    cv.fill(rect(130, 82, 192, 83) & pot, '#a8241f')                              # riveted band
+    cv.dots([(x, 85) for x in range(137, 188, 6) if pot[85, x]], '#a8241f')
+    cv.fill(ell(134, 60, 188, 70), '#3d2a1c')
+    cv.fill(ell(135, 61, 187, 70), '#a8241f')
+    cv.fill(ell(146, 62, 176, 68) & ~ell(148, 63, 174, 67), '#d6322b')
+    bubbles(cv, ((142, 64), (152, 63), (162, 65), (172, 63), (178, 66), (156, 67)), '#d6322b', '#f08a24')
+    for (x, y) in ((150, 52), (164, 47), (174, 54), (158, 56)):                    # bubbles and steam rising
+        cv.fill(rect(x, y, x + 2, y + 2) & ~rect(x + 1, y + 1, x + 1, y + 1), '#f2e4c0')
+
+    # --- right: bench of dye plants (madder, indigo, marigold), a purple dye bucket below ---
+    o = cv.obj()
+    o.part(rect(194, 96, W + 1, 100), WOOD, d=2)
+    o.part(rect(198, 101, 202, 124) | rect(232, 101, 236, 124), WOOD, d=1, contour=True)
+    o.draw()
+    # madder: whorls of narrow leaves, red roots on the bench
+    cv.fill(line([(203, 86), (203, 54)]) | line([(204, 84), (209, 62)]), '#2f6a3a')
+    for (x, y) in ((203, 56), (203, 64), (203, 72), (203, 80), (209, 63), (207, 71)):
+        o = cv.obj(); o.part(ell(x - 7, y, x - 1, y + 2) | ell(x + 1, y, x + 7, y + 2) | ell(x - 1, y - 4, x + 1, y + 1), LEAF, d=1); o.draw()
+    # indigo: taller, oval leaves, pink flower spikes
+    cv.fill(line([(219, 86), (219, 50)]) | line([(219, 70), (225, 58)]), '#2f6a3a')
+    for (x, y, s) in ((219, 54, -1), (219, 62, 1), (219, 70, -1), (219, 78, 1), (225, 60, 1)):
+        o = cv.obj(); o.part(ell(x + (1 if s > 0 else -9), y, x + (9 if s > 0 else -1), y + 5), MOSS, d=1); o.draw()
+    for (x, y) in ((218, 44), (225, 51), (212, 58)):
+        o = cv.obj(); o.part(rect(x, y, x + 2, y + 6), PETAL, d=1); o.draw()
+    # marigold: bushy, big orange heads
+    o = cv.obj(); o.part(ell(224, 66, 242, 88) | ell(228, 58, 243, 78), MOSS, d=2); o.draw()
+    cv.fill(line([(232, 64), (236, 80)]) | line([(228, 74), (232, 84)]), '#2f6a3a')
+    for (x, y, rp) in ((233, 60, COPPER), (239, 70, GOLD), (228, 70, GOLD), (236, 80, COPPER)):
+        flower(cv, x, y, rp, 4)
+    for x in (196, 212, 226):                                  # terracotta pots
+        o = cv.obj()
+        o.part(poly([(x, 86), (x + 14, 86), (x + 12, 95), (x + 2, 95)]) | rect(x - 1, 84, x + 15, 87), BRICK, d=2)
+        o.draw()
+    o = cv.obj()                                              # a bundle of dug madder roots
+    o.part(line([(196, 96), (212, 98)], 2) | line([(198, 99), (213, 95)], 2) | line([(200, 95), (210, 99)], 2), EMBER, d=0)
+    o.part(rect(203, 95, 205, 99), CREAM, d=0, contour=True)
+    o.draw()
+    o = cv.obj()                                              # purple dye bucket under the bench
+    o.part(poly([(206, 108), (230, 108), (228, 128), (208, 128)]), DWOOD, d=2)
+    o.part(ell(204, 104, 232, 112), WOOD, d=1, contour=True)
+    o.draw()
+    cv.fill(rect(206, 116, 230, 117) & poly([(206, 108), (230, 108), (228, 128), (208, 128)]), '#5b6470')
+    cv.fill(ell(206, 105, 230, 111), '#4e3a8a')
+    bubbles(cv, ((212, 107), (220, 106), (225, 108)), '#7a5cc0', '#c3b2ea')
+    o = cv.obj(); o.part(poly([(204, 107), (210, 106), (210, 122), (206, 124), (203, 118)]), PETAL, d=1); o.draw()
+
+    # --- left foreground: a stone basin of marigold yellow, flower heads floating ---
+    o = cv.obj()
+    basin = rect(4, 104, 52, 124) | (ell(4, 116, 52, 128) & rect(0, 120, W, 128))
+    o.part(basin, STONE, d=3)
+    o.part(ell(2, 96, 54, 110), STONE, d=1, contour=True)
+    o.draw()
+    for (x, y0, y1) in ((16, 111, 118), (34, 111, 118), (24, 119, 125), (44, 119, 125)):
+        cv.fill(rect(x, y0, x, y1) & basin, '#5b6470')
+    cv.fill(rect(4, 118, 52, 118) & basin, '#5b6470')
+    cv.fill(ell(5, 98, 51, 108), '#3d2a1c')
+    cv.fill(ell(6, 99, 50, 108), '#e8a317')
+    cv.fill(ell(14, 100, 42, 106) & ~ell(16, 101, 40, 105), '#b07a10')
+    bubbles(cv, ((12, 102), (22, 101), (34, 103), (42, 101)), '#f5cf6a', '#fff3c8')
+    for (x, y) in ((18, 104), (30, 101)):
+        cv.fill(ell(x, y, x + 4, y + 3), '#f08a24')
+    cv.fill(rect(6, 110, 7, 114), '#e8a317')
+    cv.remap({'#fff3c8': '#f2e4c0', '#8a5a30': '#7a4a1f'})
+    return cv
+
+
+SHOPS = {'bakery': bakery, 'craft': craft, 'dyes': dyes, 'general': general, 'herbs': herbs, 'seeds': seeds}
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), '..', '..', 'game', 'assets', 'img', 'scenes')

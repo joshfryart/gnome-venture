@@ -116,7 +116,7 @@ function scene_place_banner(array $loc, string $alt = ''): string
 function scene_shop_key(array $shop): string
 {
     $type = (string)($shop['shop_type'] ?? '');
-    $near = ['food' => 'bakery', 'decor' => 'craft', 'dyes' => 'craft', 'florist' => 'herbs'];   // v2.0.65: shop types have no file of their own name
+    $near = ['food' => 'bakery', 'decor' => 'craft', 'florist' => 'herbs'];   // v2.0.65: shop types have no file of their own name
     foreach ([$type, $near[$type] ?? '', 'general'] as $k) {
         if ($k !== '' && scene_path('shop', $k) !== '') return $k;
     }
