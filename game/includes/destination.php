@@ -310,3 +310,27 @@ function dest_resume_html(array $u): string
         . '<button class="btn small">▶ Set off</button> <a class="small" href="' . e(url('world.php#gopanel')) . '">Route</a></form>';
 }
 
+/**
+ * v2.0.65: the trip strip shown on every page while a route is remembered (walking a leg, or paused at a stop): where to, leg k of n,
+ * what comes next, a progress bar. Tap it for the route card. '' when there is no route.
+ */
+function dest_strip_html(array $u): string
+{
+    $ds = dest_status($u);
+    if (!$ds) return '';
+    $uid = (int)$u['id'];
+    [$goal, $left] = $ds;
+    $exp = active_expedition($uid);
+    $n = max((int)($u['dest_legs'] ?? 0), (int)$left);
+    $dw = $exp ? dest_walk_info($u, $exp) : null;
+    if ($exp && !$dw) return '';   // walking something else (explore, delve, a side path)
+    $k = $dw ? (int)$dw['k'] : max(1, $n - (int)$left + 1);
+    $done = $dw ? $k - 1 : $n - (int)$left;
+    $pct = (int)round(max(0, min($n, $done)) * 100 / max(1, $n));
+    $next = $dw ? ($dw['next'] ?? null) : null;
+    $line = $dw ? 'Leg ' . $k . ' of ' . $n . ($next ? ' · then ' . e(dest_name($uid, $next)) : ' · last leg')
+                : (int)$left . ' stop' . ((int)$left === 1 ? '' : 's') . ' left · paused';
+    return '<a class="tripstrip" href="' . e(url('world.php#gopanel')) . '"><span class="tskick">🧭 ' . ($dw ? 'On the way to ' : 'Heading to ') . '<b>' . e(dest_name($uid, $goal)) . '</b></span>'
+        . '<span class="tsline">' . $line . '</span>'
+        . '<progress class="tsbar" max="100" value="' . $pct . '" aria-label="Trip progress"></progress></a>';
+}
