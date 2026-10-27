@@ -9,7 +9,7 @@ require __DIR__ . '/includes/bootstrap.php';
 $u = require_login();
 if (setting('puzzles_open') !== '1' && !is_admin()) { flash('Puzzles are coming soon.', 'err'); redirect('games.php'); }   // v2.0.2: locked for players for now
 
-/** id => [title, picture file, default piece count] (add a .gif to assets/img/puzzles/ and a row here) */
+/** id => [title, picture file, default piece count] (add a .gif and its -still.png to assets/img/puzzles/ and a row here) */
 const PUZZLES = [
     'sunflower' => ['Swaying Sunflower', 'sunflower.gif', 54],
     'flower' => ['Spinning Flower', 'flower.gif', 54],
@@ -20,7 +20,7 @@ const PUZZLES = [
     'skeleton' => ['Dancing Skeleton', 'skeleton.gif', 54],
 ];
 $list = [];
-foreach (PUZZLES as $id => [$title, $file, $n]) $list[] = ['id' => $id, 'title' => $title, 'pieces' => $n, 'gif' => url('assets/img/puzzles/' . $file)];
+foreach (PUZZLES as $id => [$title, $file, $n]) $list[] = ['id' => $id, 'title' => $title, 'pieces' => $n, 'gif' => url('assets/img/puzzles/' . $file), 'still' => url('assets/img/puzzles/' . preg_replace('/\.gif$/', '-still.png', $file))];   // v2.0.61: still = first frame (tests/gen_puzzle_stills.py)
 page_header('Puzzles');   // assets/puzzles.css and assets/puzzles.js are added by page_header() for this page
 ?>
 <div id="pz">
@@ -46,6 +46,7 @@ page_header('Puzzles');   // assets/puzzles.css and assets/puzzles.js are added 
       <option value="150">150 pieces</option>
     </select>
     <button class="btn ghost" id="guide" aria-pressed="false" type="button">Guide</button>
+    <button class="btn ghost" id="anim" aria-pressed="true" type="button" title="Animate the solved part of the picture (off = still picture)">Motion</button>
     <button class="btn ghost" id="scatter" type="button">Scatter</button>
     <div class="zoom" role="group" aria-label="Zoom"><button class="btn ghost" id="zout" type="button" aria-label="Zoom out">−</button><span id="zl" aria-live="polite">1×</span><button class="btn ghost" id="zin" type="button" aria-label="Zoom in">+</button></div>
     <button class="btn ghost" id="copy" type="button">Copy link</button>
