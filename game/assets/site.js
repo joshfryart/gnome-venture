@@ -1490,7 +1490,7 @@ document.addEventListener('submit', function (ev) {
     i.type = 'hidden'; i.className = 'bq'; i.name = 'qty[' + id + ']'; i.value = items[id].n;
     bk.appendChild(i);
   });
-});
+}, true);   // capture: the qty[] inputs must be in the form before the in-place submit (bubble listener above) reads it
 
 /* v0.7.61: town actions that use "any seed" or "any food": choose which one first */
 document.addEventListener('submit', function (ev) {
