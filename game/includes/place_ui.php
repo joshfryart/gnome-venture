@@ -333,8 +333,9 @@ function place_switcher_html(array $node, string $active): string
 /** Place header: scene art (a file in assets/img/scenes/, temporarily red-outlined for review), kicker line, name, optional line and chips. */
 function place_header_html(string $art, string $alt, string $kicker, string $title, string $line = '', array $chips = []): string
 {
-    $h = '<header class="ph">';
-    if ($art !== '' && is_file(__DIR__ . '/../assets/img/scenes/' . $art)) {
+    $hasArt = $art !== '' && is_file(__DIR__ . '/../assets/img/scenes/' . $art);
+    $h = '<header class="ph' . ($hasArt ? '' : ' ph-noart') . '">';   // v2.0.65: the name sits on a felt sign under (phone) or beside (desktop) the art
+    if ($hasArt) {
         $h .= '<figure class="ph-art newart"><img src="' . e(url('assets/img/scenes/' . $art)) . '" alt="' . e($alt) . '" width="480" height="240" decoding="async"></figure>';
     }
     $h .= '<div class="ph-body"><p class="ph-kick">' . e($kicker) . '</p><h1>' . e($title) . '</h1>'

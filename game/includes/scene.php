@@ -112,13 +112,22 @@ function scene_place_banner(array $loc, string $alt = ''): string
     return '';
 }
 
-/** A shop's banner/interior: shop-{type} else shop-general. '' if none is drawn. */
-function scene_shop_banner(array $shop): string
+/** Which shop interior a shop uses: its own type's picture, else the closest drawn one, else general. Returns the key or ''. */
+function scene_shop_key(array $shop): string
 {
-    foreach ([(string)($shop['shop_type'] ?? ''), 'general'] as $k) {
-        if ($k !== '' && scene_path('shop', $k) !== '') return '<div class="scene-bannerwrap">' . scene_banner($k, (string)($shop['name'] ?? ''), 'shop') . '</div>';
+    $type = (string)($shop['shop_type'] ?? '');
+    $near = ['food' => 'bakery', 'decor' => 'craft', 'dyes' => 'craft', 'florist' => 'herbs'];   // v2.0.65: shop types have no file of their own name
+    foreach ([$type, $near[$type] ?? '', 'general'] as $k) {
+        if ($k !== '' && scene_path('shop', $k) !== '') return $k;
     }
     return '';
+}
+
+/** A shop's banner/interior strip (old 4:1 banner; shop.php now shows the interior in its place header). '' if none is drawn. */
+function scene_shop_banner(array $shop): string
+{
+    $k = scene_shop_key($shop);
+    return $k !== '' ? '<div class="scene-bannerwrap">' . scene_banner($k, (string)($shop['name'] ?? ''), 'shop') . '</div>' : '';
 }
 
 /** Which of the six home interiors a villager has (stable per villager). */

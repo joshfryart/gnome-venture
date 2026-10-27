@@ -91,9 +91,10 @@ $open = $reachable && $staff;
 page_header($shop['name']);
 ?>
 <p class="crumbs">🌍 <a href="<?= e(url('world.php?tab=markets')) ?>">Shops</a> › <b><?= e($shop['name']) ?></b><?= $shopTown ? ' <span class="muted">in ' . e($shopTown['name']) . '</span>' : '' ?></p>
-<h1><?= e($shop['name']) ?></h1>
-<?= scene_shop_banner($shop) ?>
-<p class="shopintro"><?= e($shop['description']) ?></p>
+<?php require_once __DIR__ . '/includes/place_ui.php';   // v2.0.65: the shop gets the same place header as the stops (interior art, kind, name, its line)
+$shopKind = ['seeds' => 'Seed shop', 'food' => 'Kitchen', 'decor' => 'Home & curios', 'dyes' => 'Dye shop', 'florist' => 'Florist'][(string)($shop['shop_type'] ?? '')] ?? 'Shop';
+$shopArt = scene_shop_key($shop); ?>
+<?= place_header_html($shopArt !== '' ? 'shop-' . $shopArt . '.png' : '', 'Inside ' . $shop['name'], $shopKind . ($shopTown ? ' · ' . $shopTown['name'] : ''), (string)$shop['name'], (string)$shop['description']) ?>
 <p class="status shopintro">
   <?= $staff ? '🧑‍🌾 At the counter: ' . implode(', ', array_map(fn($n) => '<a href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a> the ' . e(strtolower($n['personality']) . ' ' . strtolower($n['species'])), $staff)) . ' <span class="muted">(tap a name to chat)</span>' : '🚪 Nobody is on shift. Come back later.' ?>
   · You have <b class="mycoins" data-coins="<?= $fresh ?>"><?= money($fresh) ?></b>

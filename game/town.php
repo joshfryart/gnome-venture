@@ -94,7 +94,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
     <?= place_switcher_html($node, 'here') ?>
     <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
-      <?= place_header_html('stop-' . $stType . '.png', $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name']) ?>
+      <?= place_header_html('stop-' . $stType . '.png', $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name'], '', [$road ? '🛣️ ' . e($road['name']) : '🌿 Hidden village, off the road']) ?>
     <?php else: ?>
       <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
       <?= scene_place_banner($node, $node['name']) ?>
@@ -108,7 +108,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
         <span class="help">Both are free.</span></div>
     <?php endif; ?>
     <?php if ($node['kind'] === 'village'): ?>
-      <p class="muted">🪧 <b>Rest stop</b> · <?= $road ? 'a small village on the road ' . e($road['name']) : 'a hidden village, off the road' ?>. No town square here, but there is always something going on.</p>
+      <?php /* v2.0.65: the "Rest stop · a small village on the road …" line is gone: the place header says rest stop, and the road is a chip there */ ?>
       <?= local_panel($u, $node) ?>
       <?php $mine = q_one('SELECT id, garden_name FROM plots WHERE user_id = ? AND village_id = ?', [$uid, $node['id']]);
       if ($mine): ?><p>🏡 Your garden <a href="<?= e(url('garden.php')) ?>"><b><?= eu($mine['garden_name'] ?: 'Garden') ?></b></a> is here.</p><?php endif; ?>
@@ -203,7 +203,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <p><a class="btn alt" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">← Back to the square</a></p>
 <?php else: ?>
   <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
-  <?= place_header_html('stop-market.png', $town . ' Town Square', 'Main stop · ' . $town, '🏘️ ' . $town . ' Town Square', '', place_chips($u)) ?>
+  <?= place_header_html('stop-market.png', $town . ' town square', 'Main stop · Town square', $town, '', place_chips($u)) ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
   <?php if ($fest = town_festival($town)): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
