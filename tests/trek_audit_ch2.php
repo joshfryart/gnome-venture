@@ -213,6 +213,7 @@ ok('finishing the chapter again (a replayed win, double tap) pays nothing more',
 $T(function (&$run, $u) { trek_hub_arrive($run, $u); return [true, '']; });
 ok('hub: the party is outside, healed, rested; quest items stay in the closed run', (int)$run()['inside'] === 0 && (int)$run()['fatigue'] === 0 && trek_in_hub($run()));
 $gd = $tx(fn(&$run, $u) => trek_godown($run, $u));
+set_setting('trek_chapters_open', '2'); setting('__reload__');
 ok('Chapter III is shut to players (trek_chapters_open 2): Go down refuses, spends no energy (tests/trek_ch3.php covers the gate)', $gd[0] === false && str_contains($gd[1], 'coming soon') && trek_active_ch($uid) === 2);
 $paid = q('SELECT ms_key, xp, done, total FROM trek_ms WHERE user_id = ? ORDER BY paid_at, ms_key', [$uid])->fetchAll();
 echo '  info milestones paid: ' . implode(', ', array_map(fn($m) => str_replace('withering:', '', $m['ms_key']) . ' ' . $m['xp'] . ' (' . $m['done'] . '/' . $m['total'] . ')', $paid)) . "\n";

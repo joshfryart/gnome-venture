@@ -8,6 +8,7 @@ require_once __DIR__ . '/includes/npc_life.php';
 require_once __DIR__ . '/includes/town_social.php';
 require_once __DIR__ . '/includes/journey.php';
 require_once __DIR__ . '/includes/scene.php';   // v2.0.46: place banners
+require_once __DIR__ . '/includes/place_ui.php';   // v2.0.61: town folk / action helpers
 $u = require_login();
 $uid = (int)$u['id'];
 $hub = !empty($_GET['hub']) || !empty($_POST['hub']);
@@ -47,29 +48,21 @@ if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '
 refresh_energy($u);
 if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }   // v0.9.1a
 $viewReq = (string)($_GET['view'] ?? '');
-if ($viewReq === 'folk') $viewReq = 'villagers';   // v2.0.4 menu folds: old name of the Villagers tab
+if ($viewReq === 'folk') $viewReq = 'villagers';
+if ($viewReq === 'stop') $viewReq = 'passport';   // v2.0.61: the Stop tab (Passport, Orders link, Seasons, Land)   // v2.0.4 menu folds: old name of the Villagers tab
 if ($viewReq === 'villagers' && !$hub && !in_array(player_node($u)['kind'], ['market', 'hub'], true)) redirect('villagers.php' . (isset($_GET['q']) && $_GET['q'] !== '' ? '?q=' . urlencode((string)$_GET['q']) : ''));   // v2.0.39: the Villagers page; v2.0.60: main stops (market/hub) show who is in town inline
 $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2.0.4 menu folds: Passport and Villagers you know (were passport.php, folk.php) work from anywhere
     require_once __DIR__ . '/includes/stop_pass.php';
     $isPass = $viewReq === 'passport';
-    if ($isPass) foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
     page_header($isPass ? 'Stamp passport' : 'Villagers you know');
     ?>
     <h1>🏘️ Town</h1>
-    <nav class="tabs">
-      <a href="<?= e(url('town.php' . ($hub ? '?hub=1' : ''))) ?>">🏘️ <?= $inTown ? 'The square' : 'Where you are' ?></a>
-      <a class="<?= $isPass ? '' : 'on' ?>" href="<?= e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers')) ?>">👥 Villagers</a>
-      <a class="<?= $isPass ? 'on' : '' ?>" href="<?= e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=passport')) ?>">🛂 Passport</a>
-      <a href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) ?>">📜 Orders</a>
-    </nav>
+    <?= place_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers', 'Town sections', 'tabs mst') ?>
     <div class="townview">
     <?php if ($isPass): ?>
-      <h2>🛂 Stamp passport</h2>
-      <p class="muted">Every rest stop gives you a stamp on your first visit. Fill the sets for rewards and titles. Hidden villages you find count too.</p>
-      <?php $titles = stop_titles($uid); if ($titles): ?><p>Titles earned: <?php foreach ($titles as $t) echo '<span class="tag">“' . e($t) . '”</span> '; ?> <a href="<?= e(url('book.php?ch=Milestones')) ?>">Choose yours in the Almanac →</a></p><?php endif; ?>
-      <?= stop_passport_html($u) ?>
+      <?= stop_tab_html($u, $nodeNow, $hub) ?>
     <?php else: ?>
       <?= town_known_html($u, $hub) ?>
     <?php endif; ?>
@@ -99,14 +92,14 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     page_header($node['name']);
     ?>
     <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
-    <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
-    <?= scene_place_banner($node, $node['name']) ?>
+    <?= place_switcher_html($node, 'here') ?>
+    <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
+      <?= place_header_html('stop-' . $stType . '.png', $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name']) ?>
+    <?php else: ?>
+      <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
+      <?= scene_place_banner($node, $node['name']) ?>
+    <?php endif; ?>
     <?php require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u);   // v1.0.4: carry on along the route ?>
-    <nav class="chips">
-      <a class="on" href="<?= e(url('town.php')) ?>">🪧 <?= e($node['name']) ?> rest stop</a>
-      <a href="<?= e(url('town.php?hub=1')) ?>">🍄 Mossbottom <small>(reachable from anywhere)</small></a>
-      <a href="<?= e(url('world.php')) ?>">🧭 Where to next</a>
-    </nav>
     <?php $eb = $_SESSION['explore_back'] ?? null;
     if ($eb && (int)$eb['place'] === (int)$node['id'] && ($ebFrom = q_one('SELECT name FROM locations WHERE id = ?', [$eb['from']]))): // v0.7.61 ?>
       <div class="box notice comeback">🌿 You found this place while exploring off the path.
@@ -130,135 +123,6 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
 
 page_header($spot ? $spot['name'] : $town . ' Town Square');
 
-/** v2.0.4 menu folds: everyone you've met, where they are now, with search and filters (was the folk.php list). */
-function town_known_html(array $u, bool $hub, bool $title = true): string
-{
-    require_once __DIR__ . '/includes/maps.php';
-    require_once __DIR__ . '/includes/folk_list.php';
-    require_once __DIR__ . '/includes/friends.php';
-    $uid = (int)$u['id'];
-    $all = met_npcs($uid);
-    $qs = trim((string)($_GET['q'] ?? ''));
-    $f = (string)($_GET['f'] ?? '');
-    $reg = (string)($_GET['r'] ?? '');
-    $regions = array_values(array_unique(array_filter(array_map(fn($n) => (string)($n['home']['region'] ?? ''), $all))));
-    sort($regions);
-    $list = array_filter($all, function ($n) use ($qs, $f, $reg, $u) {
-        if ($qs !== '' && stripos($n['name'] . ' ' . $n['species'] . ' ' . $n['personality'], $qs) === false) return false;
-        if ($f === 'here' && !npc_here($u, (int)$n['id'])) return false;
-        if ($reg !== '' && ($n['home']['region'] ?? '') !== $reg) return false;
-        return true;
-    });
-    $byLevel = [];
-    foreach ($list as $n) $byLevel[$n['level']['index']][] = $n;
-    krsort($byLevel);
-    $total = (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1');
-    $h = ($title ? '<h2 id="known">👥 Villagers you know</h2>' : '')
-        . '<p class="help">Everyone you’ve met: ' . count($all) . ' of the Hollow’s ' . $total . ' villagers. You meet people by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Their full pages are in your <a href="' . e(url('book.php?ch=Folk')) . '">Almanac → Villagers</a> too.</p>'
-        . '<form method="get" action="' . e(url('town.php')) . '" class="box folkfilter"><input type="hidden" name="view" value="villagers"><input type="hidden" name="known" value="1">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
-        . '<input type="search" name="q" value="' . e($qs) . '" placeholder="Search by name…" aria-label="Search by name">'
-        . '<select name="r" aria-label="Home region"><option value="">All regions</option>';
-    foreach ($regions as $rg) $h .= '<option' . ($rg === $reg ? ' selected' : '') . '>' . e($rg) . '</option>';
-    $h .= '</select><label><input type="checkbox" name="f" value="here"' . ($f === 'here' ? ' checked' : '') . '> Here now</label>'
-        . '<button class="btn small">Show</button>' . ($qs !== '' || $f !== '' || $reg !== '' ? ' <a href="' . e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers#known')) . '">Clear</a>' : '') . '</form>';
-    if (!$all) $h .= '<div class="box"><p class="muted">Nobody yet. Visit a shop or wander the town square to meet the locals.</p></div>';
-    elseif (!$list) $h .= '<div class="box"><p class="muted">Nobody matches that.</p></div>';
-    foreach ($byLevel as $li => $group) {
-        $h .= '<h3 class="folkgroup">💛 ' . e(FRIEND_LEVELS[$li][1] ?? 'Stranger') . ' <small>' . count($group) . '</small></h3><div class="box">';
-        foreach ($group as $n) {
-            $lnk = e(url('folk.php?id=' . (int)$n['id']));
-            $h .= '<div class="folkrow"><a href="' . $lnk . '">' . npc_portrait($n, 'small') . '</a>'
-                . '<div><a href="' . $lnk . '"><b>' . e($n['name']) . '</b></a> <small class="muted">' . e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : '') . '</small>'
-                . '<br><small>📍 ' . e($n['now']['what']) . (npc_here($u, (int)$n['id']) ? ' · <b class="good">here now</b>' : '') . '</small>'
-                . '<br><small class="muted">🏡 ' . ($n['home'] ? e($n['home']['name'] . ' · ' . $n['home']['region']) : (!empty($n['traveller']) ? 'travels the Hollow' : '—')) . (npc_birthday_today($n) ? ' · 🎂 birthday today!' : '') . '</small></div></div>';
-        }
-        $h .= '</div>';
-    }
-    return $h . '<details class="fold mapfold"><summary>🗺️ On the world map</summary><div class="mapwrap">' . world_map_svg($u) . '</div>'
-        . '<p class="help">👤 marks a town where villagers you know (Acquaintance or better) are right now. 🎩 is you.</p></details>';
-}
-
-/** Who's at a place: little links to each NPC. */
-function npc_faces(array $npcs, bool $names): string
-{
-    $h = '';
-    foreach ($npcs as $n) {
-        $h .= '<a class="npcface" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" title="' . e($n['name']) . '">' . npc_icon($n['species'])
-            . ($names ? ' ' . e($n['name']) . (!empty($n['traveller']) ? ' <small class="tag">traveller</small>' : '') : '') . '</a>';
-    }
-    return $h;
-}
-
-/** One place's things to do. */
-function action_buttons(array $s, array $u, array $uses, string $q): string
-{
-    $closed = spot_closed($s);
-    $h = '<div class="tacts">';
-    foreach (town_actions((int)$s['id']) as $a) {
-        if ($a['kind'] === 'link') {
-            $h .= '<a class="btn act alt" href="' . e(url((string)$a['link'])) . '">' . e($a['label']) . '</a>';
-            continue;
-        }
-        $left = (int)$a['daily'] > 0 ? (int)$a['daily'] - ($uses[(int)$a['id']] ?? 0) : null;
-        $cost = town_cost_label($a);
-        $chance = town_chance($u, $a);
-        // v0.7.61: "any seed" / "any food" costs let you choose which one, in a pop-up of your satchel
-        $pick = in_array($a['cost_item'], ['anyseed', 'anyfood'], true) ? (string)$a['cost_item'] : '';
-        $h .= '<form method="post" class="tact"' . ($pick ? ' data-needpick="' . $pick . '"' : '') . '>' . csrf_field() . '<input type="hidden" name="do" value="act">'
-            . '<input type="hidden" name="action_id" value="' . (int)$a['id'] . '"><input type="hidden" name="spot" value="' . (int)$s['id'] . '">'
-            . ($pick ? '<input type="hidden" name="item_id" value="0">' : '')
-            . ($q !== '' ? '<input type="hidden" name="hub" value="1">' : '')
-            . '<button class="btn act"' . ($closed || $left === 0 ? ' disabled' : '') . '>' . (str_ends_with((string)$a['slug'], '-drink') ? '☕ ' : '') . e($a['label']) . ($cost !== '' ? ' <span class="cost">' . e($cost) . '</span>' : '') . '</button>'
-            . (str_ends_with((string)$a['slug'], '-drink') ? ' <button class="btn act alt" name="togo" value="1"' . ($closed || $left === 0 ? ' disabled' : '') . '>🥤 Take it to go</button>' : '')
-            . '<small class="muted">' . ($left === null ? '' : ($left > 0 ? $left . ' left today' : 'done for today'))
-            . ($chance < 100 ? ' · ' . $chance . '% chance' : '') . '</small></form>';
-    }
-    return $h . '</div>';
-}
-
-/** v0.7.66: the townsfolk's favours (on the Notice Board and in the square's Quests tab). $sid 0 = from the Quests tab. */
-function town_favours_box(int $uid, string $town, bool $hub, int $sid): void
-{
-    if (setting('orders_on') === '1') { orders_board_box($uid, $town, $hub, $sid); return; }   // v1.0.0 wave 2b: orders replace the flat weekly favours (admin can switch back)
-    $folk = town_folk($town); ?>
-    <div class="box favours"><h3>📌 Favours from the townsfolk</h3>
-      <?php $shown = 0; foreach ($folk as $n): $o = favour_offer($uid, $n, $town); if (!$o) continue; $shown++;
-          $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $o['item']['id']]); ?>
-        <div class="favour<?= $o['done'] ? ' done' : '' ?>"><span class="ficon"><?= npc_icon($n['species']) ?></span>
-          <div><b><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “Could you bring me <?= (int)$o['qty'] ?> × <?= e($o['item']['name']) ?>?”
-            <br><small class="muted">Reward: <?= money($o['coins']) ?>, 10 XP and friendship · you have <?= $have ?></small></div>
-          <?php if ($o['done']): ?><span class="muted">✔️ Done this week</span>
-          <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="favour"><input type="hidden" name="npc" value="<?= (int)$n['id'] ?>">
-            <input type="hidden" name="spot" value="<?= $sid ?>"><?php if (!$sid): ?><input type="hidden" name="view" value="quests"><?php endif; ?><?php if ($hub): ?><input type="hidden" name="hub" value="1"><?php endif; ?>
-            <button class="btn small" <?= $have < $o['qty'] ? 'disabled' : '' ?>>Deliver</button></form><?php endif; ?>
-        </div>
-      <?php endforeach; ?>
-      <?php if (!$shown): ?><p class="muted">Nothing for you yet. Chat with the townsfolk: once they know you (Acquaintance or better), they’ll pin a favour here each week.</p><?php endif; ?>
-      <?php if ($folk && $shown < count($folk)): ?><p class="help">Townsfolk who don’t know you yet: <?= e(implode(', ', array_map(fn($n) => $n['name'], array_filter($folk, fn($n) => !favour_offer($uid, $n, $town))))) ?>.</p><?php endif; ?>
-    </div>
-<?php
-}
-
-/** v0.7.61: a pop-up of the player's seeds or food to choose from (used by "Feed the birds" and "Have a picnic"). */
-function town_pickers(int $uid): string
-{
-    require_once __DIR__ . '/includes/items.php';
-    $out = '';
-    foreach (['anyseed' => ['seed', 'Which seeds for the birds?'], 'anyfood' => ['food', 'What will you eat? You get its energy, plus 1 for the fresh air.']] as $kind => [$cat, $title]) {
-        $items = q('SELECT i.id, i.name, i.category, i.effects, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
-                    WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = ? ORDER BY i.base_price, i.name', [$uid, $cat])->fetchAll();
-        $cards = '';
-        foreach ($items as $i) {
-            $cards .= '<button type="button" class="pcard" data-id="' . (int)$i['id'] . '"><span class="pcicon">' . item_icon($i) . '</span>'
-                . '<span class="pcname">' . e($i['name']) . '</span><b class="pcqty">×' . (int)$i['qty'] . '</b></button>';
-        }
-        $out .= '<dialog class="picker townpick" data-kind="' . $kind . '" aria-label="' . e($title) . '"><div class="pickbox">'
-            . '<div class="pickhead"><b>' . e($title) . '</b> <span class="muted">cheapest first</span><button type="button" class="pickx" aria-label="Close">✕</button></div>'
-            . ($cards !== '' ? '<div class="pickgrid">' . $cards . '</div>' : '<p class="muted">You don’t have any.</p>')
-            . '</div></dialog>';
-    }
-    return $out;
-}
 ?>
 <p class="crumbs"><a href="<?= e(url('world.php')) ?>">🌍 World</a> › <?php if ($spot): ?><a href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>"><?= e($town) ?></a> › <b><?= e($spot['name']) ?></b><?php else: ?><b><?= e($town) ?></b><?php endif; ?></p>
 
@@ -338,8 +202,8 @@ function town_pickers(int $uid): string
   <?php endif; ?>
   <p><a class="btn alt" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">← Back to the square</a></p>
 <?php else: ?>
-  <h1>🏘️ <?= e($town) ?> Town Square</h1>
-  <?= scene_place_banner(['kind' => 'market', 'region' => $town], $town . ' Town Square') ?>
+  <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
+  <?= place_header_html('stop-market.png', $town . ' Town Square', 'Main stop · ' . $town, '🏘️ ' . $town . ' Town Square', '', place_chips($u)) ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
   <?php if ($fest = town_festival($town)): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
@@ -369,11 +233,6 @@ function town_pickers(int $uid): string
     <?php endif; if (market_day_on()): ?><span>🧺 <b><a href="<?= e(url('marketday.php' . ($hub ? '?hub=1' : ''))) ?>">Market day</a></b>: stalls are up!</span><?php elseif (($md = market_days_until()) > 0 && $md <= 2): ?><span>🧺 Market day in <?= $md ?> day<?= $md === 1 ? '' : 's' ?></span><?php endif; ?>
     <?php foreach ($travHere as $th): ?><span>🧭 <a href="<?= e(url('folk.php?id=' . (int)$th['id'])) ?>"><?= e($th['name']) ?></a> is visiting</span><?php endforeach; ?>
   </div>
-  <nav class="chips">
-    <a class="<?= $hub ? '' : 'on' ?>" href="<?= e(url('town.php')) ?>">📍 <?= e(player_location($u)) ?></a>
-    <?php if (player_location($u) !== HUB_REGION): ?><a class="<?= $hub ? 'on' : '' ?>" href="<?= e(url('town.php?hub=1')) ?>">🍄 Mossbottom <small>(reachable from anywhere)</small></a><?php endif; ?>
-    <a href="<?= e(url('world.php')) ?>">🏪 Markets &amp; travel</a>
-  </nav>
   <?php $view = $viewReq === 'villagers' ? 'folk' : 'square';   // v0.7.61 folk, v0.7.66 quests
   $present = [];
   foreach (town_spots($town) as $ps) foreach (npcs_at_spot($ps) as $n) $present[(int)$n['id']] = ['n' => $n, 'spot' => $ps];
@@ -387,12 +246,7 @@ function town_pickers(int $uid): string
       if (!empty($nw['home'])) $homeIn[] = [$rn, $hm];
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
-  <nav class="tabs">
-    <a class="<?= $view === 'square' ? 'on' : '' ?>" href="<?= e(url('town.php?' . rtrim($q, '&'))) ?>">🏘️ The square</a>
-    <a class="<?= $view === 'folk' ? 'on' : '' ?>" href="<?= e(url('town.php?' . $q . 'view=villagers')) ?>">👥 Villagers <small><?= count($present) + count($homeIn) ?></small></a>
-    <a href="<?= e(url('town.php?' . $q . 'view=passport')) ?>">🛂 Passport</a>
-    <a href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) ?>">📜 Orders</a>
-  </nav>
+  <?= place_tabs_html(main_stop_tabs($hub, true, $view === 'folk' ? 'villagers' : 'square', count($present) + count($homeIn)), $view === 'folk' ? 'villagers' : 'square', 'Town sections', 'tabs mst') ?>
   <?php if ($view === 'folk'): ?>
     <h2>🚶 Out and about</h2>
     <div class="box folkabout">
@@ -406,7 +260,7 @@ function town_pickers(int $uid): string
       <?php endforeach; ?>
     </div>
     <h2>🏡 At home</h2>
-    <?php if (!$homeIn && !$homeOut): ?><div class="box"><p class="muted">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p></div><?php endif; ?>
+    <?php if (!$homeIn): ?><div class="box"><p class="muted">Nobody lives here<?= $town === HUB_REGION ? '' : ' that you know of' ?>. Travellers sleep under the stars.</p></div><?php endif; ?>
     <?php if ($homeIn): ?>
     <div class="homegrid">
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
@@ -419,21 +273,8 @@ function town_pickers(int $uid): string
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
-    <?php if ($homeOut): ?>
-    <div class="homegrid">
-      <?php foreach ($homeOut as [$n, $hm, $nw]): ?>
-        <div class="box homecard away">
-          <?= npc_portrait($n, 'small') ?>
-          <b><?= e($n['name']) ?></b>
-          <small class="muted">Out: <?= e($nw['what']) ?></small>
-          <small class="muted">🕰️ Usually home <?= e(npc_home_hours($n)) ?></small>
-        </div>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
     <p class="help">Knock to visit someone at home: you can chat and give a gift there. Tap a name above to see what you know about them.</p>
-    <details class="fold box knownfold" id="known"<?= (isset($_GET['q']) || isset($_GET['f']) || isset($_GET['r']) || isset($_GET['known'])) ? ' open' : '' ?>><summary>📒 Everyone you know</summary>
-      <?= town_known_html($u, $hub, false) ?></details>
+    <p class="help">📒 Only people in town right now are shown. <a href="<?= e(url('villagers.php')) ?>">Everyone you know →</a></p>
   <?php else: ?>
   <div class="spotgrid">
     <?php foreach (town_spots($town) as $s): $closed = spot_closed($s);

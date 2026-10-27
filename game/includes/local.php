@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/place_ui.php';
 /**
  * Local life in the small places. v1.0.0 wave 1 rebuilt this: a village is a rest stop with a TYPE (stops.php), named villagers
  * and errands (stop_folk.php), a stamp for your passport (stop_pass.php) and an adopter (stop_adopt.php). This file is the page
@@ -245,7 +246,7 @@ function local_panel(array $u, array $loc): string
         $o = stop_errand_offer($u, $loc, $f);
         if ($o && !isset($o['taken']) && $o['kind'] === 'fetch' && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$o['item']['id']]) >= (int)$o['qty']) $ready++;
     }
-    $tabs = ['do' => '🧭 Do', 'folk' => '👥 Stop villagers', 'stop' => '🏡 Stop'];
+    $tabs = ['do' => '🧭 Do', 'folk' => '👥 Villagers', 'stop' => '🏡 Stop'];
     $h .= '<nav class="tabs st-tabs" aria-label="Rest stop sections">';
     foreach ($tabs as $k => $lab) {
         $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url('town.php' . ($k === 'do' ? '' : '?t=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . ($k === 'do' && $left > 0 && !$capped ? ' <span class="st-tabbadge soft">' . $left . '</span>' : '') . '</a>';
@@ -261,6 +262,7 @@ function local_panel(array $u, array $loc): string
         }
         $h .= '<p class="help">📖 <a href="' . e(url('town.php?view=passport')) . '">Your stamp passport</a> · ' . count(stop_stamps_of($uid)) . ' stamps</p>';
         $h .= stop_adopt_panel($u, $loc, fn(string $k, string $inner) => local_form($k, $inner));
+        $h .= season_fold_html($u) . land_card_html($u, $loc, !empty($loc['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$loc['region_id']]) : null);   // v2.0.61: Seasons and Land live on the Stop tab
         return $h . '</section>';
     }
     if ($tab === 'folk') {

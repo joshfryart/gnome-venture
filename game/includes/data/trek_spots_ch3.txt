@@ -20,7 +20,7 @@
 3|strongbox|chest|The Warden’s Strongbox|l|sym=Y;needs=bell-clapper;item=camp-kit:2;petals=120;flag=strongbox_open
 3|tally|sign|The Tally Wall|g|sym=T;obj=8;entry=trek:tally
 3|bench2|rest|The Still Pool|g|sym=Q;flag=rest2_used
-3|bell|riddle|The Hush Bell|g|sym=I;pass=1;right=3;tries=2;item=bell-clapper:1;flag=bell_solved
+3|bell|riddle|The Hush Bell|g|sym=I;pass=1;right=3;tries=2;item=bell-clapper:1;flag=bell_solved;failopen=1
 3|nookC|find|A Narrow Nook|g|sym=F;item=glowing-bead:1;petals=100;flag=nookC_found
 3|oldlamp|oldcamp|The Cold Lantern|g|sym=O
 3|tallydoor|riddle|The Tally Door|g|sym=U;obj=9;right=2;tries=2;flag=tallydoor_open;solved=tallydoor_solved;seedkeeper=1;failopen=1

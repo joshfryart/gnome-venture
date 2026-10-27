@@ -1191,6 +1191,13 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
     $ch = (int)$run['chapter'];
     $key = fn(string $part) => 'ch' . $ch . '.spot.' . $s['code'] . '.' . $part;
     $solved = (string)($s['data']['solved'] ?? $s['data']['flag']);
+    $give = function () use (&$run, $s) {   // the prize item, if the riddle has one (a right answer, or failopen after the last wrong one)
+        if (empty($s['data']['item'])) return;
+        [$slug, $qty] = array_pad(explode(':', (string)$s['data']['item'], 2), 2, '1');
+        $iid = trek_item_id($slug);
+        if ($iid) trek_pack_add((int)$run['id'], $iid, (int)$qty);   // TODO: Lanternroot is only an item for now (no crop yet)
+        trek_say($run, '🎁 You receive ' . (int)$qty . ' × ' . trek_item_name($iid) . ' (carried).');
+    };
     if ($how === 'seed') {
         if (empty($s['data']['seedkeeper']) || !trek_has_calling($run, $u, 'seedkeeper')) return [false, 'Nobody in the party can read this.'];
         trek_flag_set($run, $solved);
@@ -1206,16 +1213,14 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
         trek_flag_set($run, $solved);
         trek_flag_set($run, (string)$s['data']['flag']);
         trek_say_text($run, $key('right'));
-        if (!empty($s['data']['item'])) {
-            [$slug, $qty] = array_pad(explode(':', (string)$s['data']['item'], 2), 2, '1');
-            $iid = trek_item_id($slug);
-            if ($iid) trek_pack_add((int)$run['id'], $iid, (int)$qty);   // TODO: Lanternroot is only an item for now (no crop yet)
-            trek_say($run, '🎁 You receive ' . (int)$qty . ' × ' . trek_item_name($iid) . ' (carried).');
-        }
+        $give();
         return [true, ''];
     }
     trek_say_text($run, $key($tries >= $max ? 'out' : 'wrong'));
-    if ($tries >= $max && !empty($s['data']['failopen'])) trek_flag_set($run, (string)$s['data']['flag']);   // the clay gives way
+    if ($tries >= $max && !empty($s['data']['failopen'])) {   // the clay gives way
+        trek_flag_set($run, (string)$s['data']['flag']);
+        $give();
+    }
     return [true, ''];
 }
 

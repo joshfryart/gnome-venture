@@ -98,7 +98,8 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
   #game .gt{display:none}
   #back{grid-column:1; grid-row:1}
   #copy{grid-column:2; grid-row:1}
-  #game .zoom{grid-column:4; grid-row:3}
+  #game .zoom{grid-column:3 / 5; grid-row:4}
+  #game .bar #scatter{grid-column:3 / 5}
   #game .zoom .btn{flex:1; width:auto; min-width:0; font-size:22px}
   #zl{display:none}
   #game .hud{grid-column:3 / 5; grid-row:1; justify-self:end; min-width:0; padding:0; white-space:nowrap}
@@ -106,8 +107,8 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
   #win{left:12px; right:12px; width:auto; max-width:none; transform:none; animation-name:pzrise2}
   @keyframes pzrise2{from{opacity:0; transform:translateY(24px)}}
   #game .bar .btn,#game .bar select{min-height:44px; padding:0 8px; width:100%; min-width:0; grid-row:3}
-  #back,#copy{grid-row:1; white-space:nowrap}
-  #anim{grid-column:1 / 3; grid-row:4}
+  #game .bar #back,#game .bar #copy{grid-row:1; white-space:nowrap}   /* v2.0.61: ids need the bar's specificity or the generic row-3 rule above wins */
+  #game .bar #anim{grid-column:1 / 3; grid-row:4}
   #copy{padding:0 2px; font-size:13px}
 }
 @media (pointer:coarse){ #game .bar .btn,#game .bar select{min-height:44px} #game .zoom .btn{width:44px} }
