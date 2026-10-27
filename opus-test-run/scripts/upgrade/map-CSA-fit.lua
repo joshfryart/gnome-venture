@@ -104,7 +104,7 @@ do
     for dy = -rad, rad, 2 do for dx = -rad - 2, rad + 2, 2 do if pathAll:has(math.floor(x + dx), math.floor(y + dy * 0.5)) then return false end end end
     return land:has(x, y) end
   local LAVA = {}
-  for _, cand in ipairs({ { 30, 40, 10 }, { 200, 115, 7 }, { 95, 120, 6 }, { 60, 112, 6 }, { 175, 20, 6 }, { 210, 40, 6 }, { 150, 115, 6 }, { 30, 100, 6 }, { 112, 18, 5 }, { 185, 60, 5 }, { 30, 62, 5 }, { 100, 100, 5 } }) do
+  for _, cand in ipairs({ { 30, 40, 10 }, { 200, 115, 7 }, { 95, 120, 6 }, { 60, 112, 6 }, { 175, 20, 6 }, { 210, 40, 6 }, { 150, 115, 6 }, }) do
     local done = false
     for j = 0, 24 do if done then break end local x, y = cand[1] + (j % 5 - 2) * 4, cand[2] + (j // 5 - 2) * 3
       if openspot(x, y, cand[3] + 2) then LAVA[#LAVA + 1] = { x, y, cand[3] }; done = true end end
@@ -112,7 +112,7 @@ do
   -- lights: town lanterns (strong), a lantern at each village/road stop, lava
   local SRC = { { TOWN[1], TOWN[2], 46 } }
   for i, s in ipairs(STOPS) do if s[4] ~= "exit" then SRC[#SRC + 1] = { s[1], s[2], (i % 3 == 0) and 24 or 18 } end end
-  for _, v in ipairs(LAVA) do SRC[#SRC + 1] = { v[1], v[2], 18 + v[3] * 2 } end
+  for _, v in ipairs(LAVA) do SRC[#SRC + 1] = { v[1], v[2], 12 + v[3] * 2 } end
   local BAND = { { 38, "#f5cf6a" }, { 28, "#f08a24" }, { 18, "#e0501f" }, { 8, "#a8582f" }, { -1e9, "#5e2f1e" } }
   local light = {}
   for y = 0, 134 do for x = 0, 239 do if land:has(x, y) then

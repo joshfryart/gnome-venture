@@ -114,7 +114,7 @@ do
     return best
   end
   local used = {}
-  local TREE = spot(TOWN[1] + 4, TOWN[2] - 24, 9, used) or { 30, 40 }; used[#used + 1] = { TREE[1], TREE[2], 12 }
+  local TREE = spot(TOWN[1] + 12, TOWN[2] - 20, 8, used) or { 30, 40 }; used[#used + 1] = { TREE[1], TREE[2], 12 }
   local BIG = {}
   for _, t in ipairs({ { 110, 120 }, { 215, 40 } }) do local p = spot(t[1], t[2], 8, used); if p then BIG[#BIG + 1] = p; used[#used + 1] = { p[1], p[2], 10 } end end
   local lk = spot(205, 95, 8, used) or { 205, 95 }; used[#used + 1] = { lk[1], lk[2], 10 }

@@ -144,10 +144,10 @@ do
   -- dome house: cream wall, umber line, gold onion dome, lit window
   local function dome(x, y, s)
     local w = s == 1 and 4 or 3
-    c:fill(c:rect(x - w - 1, y - 5 - (s == 1 and 4 or 3), x + w + 1, y + 1), "#2a1a10")
+    c:fill(c:rect(x - w - 1, y - 5, x + w + 1, y + 1), "#2a1a10")
     c:fill(c:rect(x - w, y - 4, x + w, y), "#f2e4c0"); c:fill(c:rect(x + w - 1, y - 4, x + w, y), "#d8c49a")
     local dh = s == 1 and 4 or 3
-    c:fill(c:ellipse(x, y - 5, w, dh - 1), "#2a1a10"); c:fill(c:ellipse(x, y - 5, w - 1, dh - 2), "#e8a317"); c:px(x - 1, y - 6, "#f5cf6a"); c:px(x, y - 5 - dh, "#2a1a10"); c:px(x, y - 6 - dh, "#e8a317")
+    c:fill(c:ellipse(x, y - 5, w + 0.5, dh), "#2a1a10"); c:fill(c:ellipse(x, y - 5, w - 0.5, dh - 1), "#e8a317"); c:fill(c:rect(x - w, y - 4, x + w, y - 4), "#f2e4c0"); c:px(x - 1, y - 6, "#f5cf6a"); c:px(x, y - 5 - dh, "#2a1a10"); c:px(x, y - 6 - dh, "#e8a317")
     c:fill(c:rect(x - 1, y - 2, x, y), "#f5cf6a"); c:px(x - 1, y - 2, "#fff3c8")
   end
   local placedB = {}

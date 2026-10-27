@@ -106,7 +106,7 @@ do
   river:clip(land)
   for _, k in ipairs(CLR) do river:cut(c:ellipse(k[1], k[2], k[3] - 2, k[3] - 2)) end
   local lk = { 152, 122 }
-  local BRAZ = { TX + 14, TY + 12 }
+  local BRAZ = { TX + 15, TY + 5 }
   local CRYS = { { 196, 30 }, { 222, 70 }, { 60, 18 }, { 12, 40 }, { 175, 100 }, { 70, 70 }, { 132, 22 }, { 22, 88 } }
   local LAMPS = {}
   for _, s in ipairs(STOPS) do if s[4] ~= "exit" then LAMPS[#LAMPS + 1] = { s[1] + 5, s[2] - 4 } end end
@@ -157,9 +157,10 @@ do
   c:fill(plaza, "#d8c49a"); plaza:edge():each(function(x, y) c:px(x, y, "#c9a96e") end)
   -- dome village ringed around the plaza (outside the pin circle, off the roads)
   local function dome(x, y) P(c, c:rect(x - 4, y - 3, x + 4, y + 3), RM.cream, { gloss = false, flat = true }); P(c, c:ellipse(x, y - 3, 4, 4):cut(c:rect(x - 5, y - 2, x + 5, y + 4)), RM.gold, { gloss = false, flat = true }); c:fill(c:rect(x - 1, y, x + 1, y + 3), "#f08a24"); c:px(x, y + 1, "#fff3c8") end
-  for _, a in ipairs({ -100, -60, -20, 40, 75, 110, 250 }) do
+  local function otherClear(x, y) for i = 2, #CLR do local k = CLR[i]; local dx, dy = x - k[1], y - k[2]; if dx * dx + dy * dy < (k[3] + 5) ^ 2 then return true end end; return false end
+  for a = 0, 350, 25 do
     local t = math.rad(a); local x, y = math.floor(TX + math.cos(t) * 17 + 0.5), math.floor(TY + math.sin(t) * 14 + 0.5)
-    if not roadM:has(x, y) and not roadM:has(x, y - 4) and not roadM:has(x - 4, y) and not roadM:has(x + 4, y) then dome(x, y) end
+    if not otherClear(x, y) and not (math.abs(x - BRAZ[1]) < 8 and math.abs(y - BRAZ[2]) < 10) and not roadM:has(x, y) and not roadM:has(x, y - 4) and not roadM:has(x - 4, y) and not roadM:has(x + 4, y) then dome(x, y) end
   end
   -- oil lamps on posts beside each village stop
   for _, l in ipairs(LAMPS) do if not pathM:has(l[1], l[2]) then c:fill(c:rect(l[1], l[2] - 5, l[1], l[2]), "#3d2a1c"); c:fill(c:rect(l[1] - 1, l[2] - 7, l[1] + 1, l[2] - 5), "#f08a24"); c:px(l[1], l[2] - 6, "#fff3c8") end end
