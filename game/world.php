@@ -137,7 +137,7 @@ page_header('World');
 <?php endif; ?>
 <?php if ($tab === 'map'):   // v1.6.6: region map is its own tab; the world map folds below it
 $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[0]['id'] ?? 0)); ?>
-<?php if (myc_on()): ?>
+<?php if (myc_on() && region_art_path($mapRegion) === ''):   // the pixel-art region map is the default whenever its picture is there ?>
   <div class="regionmapbox" id="regionmap">
     <?= region_nav($u, $mapRegion) ?>
     <div class="mapwrap regionwrap mycwrap"><?= myc_region_block($u, $mapRegion, $goId, isset($_GET['full']))   /* v1.6.1: ?full=1 = the whole region */ ?></div>

@@ -6,7 +6,7 @@ declare(strict_types=1);
  * (by level: topsoil, clay, deep rock, bedrock), each region is a lit chamber with its town, road villages, sites and exits
  * joined by glowing mycelium threads. Overlays (folk you know, quest targets, gathering spots) sit on top and are toggled by
  * the filter chips (site.js, data-f on .mycbox). Everything is laid out from the real data (roads, routes, places found), nothing
- * is hand-placed. The old drawn maps (world_map_svg / region_map_svg in maps.php) stay behind the admin setting map_style = classic.
+ * is hand-placed. The old drawn maps (world_map_svg / region_map_svg in maps.php) stay behind the admin setting map_style = classic. Since 2.0.61 the pixel-art pictures (map-world.png, map-CODE.png) win whenever they exist; these drawings are the fallback.
  * No inline styles or scripts: colours are classes (style.css) or SVG attributes.
  */
 

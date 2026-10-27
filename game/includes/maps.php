@@ -172,6 +172,14 @@ function world_art_path(): string
     return scene_path('map', 'world');
 }
 
+/** A region's map picture (assets/img/scenes/map-CODE.png, drawn to its fixed layout), or '' if missing or unknown. */
+function region_art_path(int $regionId): string
+{
+    require_once __DIR__ . '/scene.php';
+    $code = (string)(q_one('SELECT code FROM regions WHERE id = ?', [$regionId])['code'] ?? '');
+    return $code === '' ? '' : scene_path('map', $code);
+}
+
 /**
  * The world map (v0.7.53: zoomable). Everything is sent at once in three layers of detail: lod1 (whole world),
  * lod2 (road stops and found places), lod3 (names up close); site.js zooms the view and shows/hides the layers.
