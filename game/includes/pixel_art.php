@@ -37,8 +37,10 @@ function pixel_tint_filter(string $hex, float $gain = 1.25, string $uid = ''): s
 }
 
 /** One pixel <image> inside an SVG. $tintHex optional (needs pixel_tint_filter() in the same SVG's <defs>). */
-function pixel_image(string $rel, float $x, float $y, float $w, float $h, string $tintHex = '', string $uid = ''): string
+function pixel_image(string $rel, float $x, float $y, float $w, float $h, string $tintHex = '', string $uid = '', string $par = '', string $cls = ''): string
 {
     $f = $tintHex !== '' && pixel_hex($tintHex) !== '' ? ' filter="url(#tint-' . pixel_hex($tintHex) . $uid . ')"' : '';
+    if ($par !== '') $f .= ' preserveAspectRatio="' . e($par) . '"';   // e.g. 'none' to stretch a scene over its box
+    if ($cls !== '') $f .= ' class="' . e($cls) . '"';
     return '<image href="' . e(url($rel)) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"' . $f . '/>';
 }

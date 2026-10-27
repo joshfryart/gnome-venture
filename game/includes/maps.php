@@ -172,7 +172,8 @@ function map_text(string $t, int $y, int $size, array $o = []): string
  */
 function world_map_svg(array $u, ?int $sel = null): string
 {
-    if (myc_on()) return myc_world_svg($u, $sel);   // v1.6.0: mycelium style (map_style = classic keeps the drawing below)
+    $art = world_art_path();   // the underground pixel-art world: the default world map whenever the picture is there
+    if ($art === '' && myc_on()) return myc_world_svg($u, $sel);   // v1.6.0: mycelium style (map_style = classic keeps the drawing below)
     $regions = [];
     foreach (q('SELECT * FROM regions')->fetchAll() as $r) $regions[$r['code']] = $r;
     $uid = (int)$u['id'];
