@@ -12,6 +12,13 @@ ok "locked: player is redirected" "$(curl -s -b /tmp/pz-p -o /dev/null -w '%{htt
 curl -s -b /tmp/pz-p $BASE/games.php > /tmp/pz.html; ok "locked: no Puzzles tile" "$(grep -c 'puzzles.php' /tmp/pz.html)" 0
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('puzzles_open','1')"
 curl -s -b /tmp/pz-p $BASE/gifsaw.php > /tmp/pz.html
+# v2.0.69: logged-out front page demo
+curl -s $BASE/index.php > /tmp/pz-f.html
+ok "front: demo on (3 pictures, puzzles.js, play table)" "$(grep -c 'id="pz-data"' /tmp/pz-f.html)$(grep -c 'assets/puzzles.js' /tmp/pz-f.html)$(grep -c 'id="game"' /tmp/pz-f.html)$(grep -o '"gif"' /tmp/pz-f.html | wc -l | tr -d ' ')" 1113
+ok "front: offers sign-up on the win card" "$(grep -c 'Join the Hollow' /tmp/pz-f.html)" 1
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('puzzles_front','0')"
+ok "front: switched off = no demo" "$(curl -s $BASE/index.php | grep -c 'id="pz-data"')" 0
+dbx "DELETE FROM settings WHERE name='puzzles_front'"
 ok "open: page loads for a player" "$(grep -c 'id="pz-data"' /tmp/pz.html)" 1
 ok "open: puzzles.js wired" "$(grep -c 'assets/puzzles.js' /tmp/pz.html)" 1
 # v2.0.69: hub + redirects

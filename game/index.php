@@ -58,6 +58,9 @@ if ($today) {
 if (!$u) {   // v0.8.8: what search engines and link previews see
     require_once __DIR__ . '/includes/site_text.php';   // v0.8.9: front page words are editable in Admin → Page text
     seo_set(['title' => stext('home.title'), 'jsonld' => seo_game_jsonld(), 'canonical' => 'index.php']);
+    require_once __DIR__ . '/includes/puzzles.php';   // v2.0.69: the front page lets visitors play a GIFsaw (no login, no rewards)
+    $pzFront = setting('puzzles_front') !== '0' && ($pzFrontList = array_slice(array_map('puzzle_js_row', puzzle_pics()), 0, 3)) !== [];
+    if ($pzFront) $GLOBALS['gv_front_demo'] = true;   // layout.php then loads assets/puzzles.css + puzzles.js
 }
 page_header('Home');
 ?>
@@ -205,6 +208,17 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
     </li>
     <?php endforeach; ?>
   </ul>
+  <?php if ($pzFront): $t = null; $pzDemo = true; ?>
+  <h2 class="lp-h2" id="try">Try a puzzle</h2>
+  <div id="pz" class="lp-try">
+    <div id="lib">
+      <p class="lp-sub">The picture moves while you solve it. No sign-up needed.</p>
+      <ul class="pzgrid" id="grid"></ul>
+    </div>
+    <?php require __DIR__ . '/includes/gifsaw_play.php'; ?>
+  </div>
+  <script type="application/json" id="pz-data"><?= json_encode($pzFrontList, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
+  <?php endif; ?>
   <div class="lp-cta lp-end">
     <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.cta')) ?></a>
     <a class="btn ghost lp-big" href="<?= e(url('guide.php')) ?>">📖 How to play</a>

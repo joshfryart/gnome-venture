@@ -58,7 +58,7 @@ function page_header(string $title, bool $admin = false): void
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
-<?php if (!$admin && in_array($page, ['puzzles.php', 'gifsaw.php'], true)): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/' . ($page === 'gifsaw.php' ? 'puzzles' : 'puzzlehub') . '.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php if (!$admin && (in_array($page, ['puzzles.php', 'gifsaw.php'], true) || !empty($GLOBALS['gv_front_demo']))): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/' . ($page === 'puzzles.php' ? 'puzzlehub' : 'puzzles') . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js). v2.0.69: puzzles.js = GIFsaw (gifsaw.php), puzzles.php = hub (puzzlehub.js) */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.8: assets/pest.js (Pest Patrol) */ ?>
