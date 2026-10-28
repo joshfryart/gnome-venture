@@ -15,11 +15,11 @@ body:cut(c:ellipse(32.5, 17, 6, 4.5))
 
 -- left arm: up and out, holding the loot. right arm: bent, fist on the hip
 local arms = c:line({ {20, 26}, {13, 17} }, 5); arms:add(c:ellipse(12, 15, 3, 3))
-arms:add(c:line({ {45, 30}, {53, 34}, {50, 40} }, 5)); arms:add(c:ellipse(49, 40, 3, 3))
+arms:add(c:line({ {45, 29}, {53, 31}, {50, 40} }, 4)); arms:add(c:ellipse(49, 41, 3, 3))
 arms:cut(body:shrink(1))
 
 -- loot: a small piece of Jeff (bright green, one knob) pinched in the raised hand
-local loot = c:rrect(10, 7, 19, 13, 1); loot:add(c:ellipse(20, 10, 3, 2.5))
+local loot = c:rrect(8, 7, 16, 12, 1); loot:add(c:ellipse(17, 9.5, 3, 2.5))
 
 c:build{
   { "arms", arms, GV.ramp("#3c8f4a"), { flat = true } },
@@ -28,12 +28,12 @@ c:build{
 }
 
 -- claw nicks on both hands
-c:paint({ "u.u", ".u." }, 10, 16, { u = "umber" }); c:paint({ "uu", ".u" }, 47, 42, { u = "umber" })
+c:paint({ "u.u", ".u." }, 10, 16, { u = "umber" }); c:paint({ "uu", ".u" }, 47, 43, { u = "umber" })
 
 -- seams on the halves, button at the knob root, and a crooked scar stitch down the knob
 c:seam({ {21, 40}, {27, 40} }); c:seam({ {40, 40}, {45, 40} })
 c:button(32, 44)
-c:seam({ {37, 48}, {35, 52}, {37, 56} })
+c:seam({ {37, 47}, {35, 50}, {37, 53} })
 
 -- face: good eye on the left under a furious brow, patch over the right eye, smirk hooking up on the left
 c:eye(24, 26)
