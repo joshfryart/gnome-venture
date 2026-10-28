@@ -2,8 +2,8 @@
 
 Rule: every placeholder is a white square with a red border and the words THIS IS PLACEHOLDER (`tools/gen_placeholder_art.py`). To finish one: draw the real art, save it over the same file name and size, tick the box. Placeholders must never ship as final.
 
-## FIRST PASS DRAWN (branch claude/art-first-pass; Sonnet high; Joshua to review) 2.0.76
-Ticked = first-pass art drawn over the placeholder, NOT yet approved by Joshua. Sources: `aseprite-source/extras-pixel/scripts/variety-{stage,folk}.lua`, `variety-tier-<kind>.lua`; .aseprite in `extras-pixel/aseprite/`. Run with `AppRun -b --script-param k=v --script X.lua` (params BEFORE --script). Weak spots to redraw if Joshua wants: stage-gather (handle hides contents), folk gecko (frog-like) / shrew (mouse-like) / moth (owl-like), tiers shrine-1, mill-1, inn-2, jetty-2, herb-2, orchard-2/3, ferry-3/4, tower-1 (gate not ladder), tower-3, spring-1/2/3, camp-1. Stage icons are the 64 grid scaled 1.5x (uneven pixels at large size); tiers 1-4 of each kind are 48-grid x2 or native 96. Light/dark variants not made.
+## FIRST PASS DRAWN, merged to main in 2.0.80, APPROVED by Joshua 2026-10-28 ("love the art")
+Ticked = art drawn over the placeholder and approved (a later polish pass is optional). Sources: `aseprite-source/extras-pixel/scripts/variety-{stage,folk}.lua`, `variety-tier-<kind>.lua`; .aseprite in `extras-pixel/aseprite/`. Run with `AppRun -b --script-param k=v --script X.lua` (params BEFORE --script). Weak spots to redraw if Joshua wants: stage-gather (handle hides contents), folk gecko (frog-like) / shrew (mouse-like) / moth (owl-like), tiers shrine-1, mill-1, inn-2, jetty-2, herb-2, orchard-2/3, ferry-3/4, tower-1 (gate not ladder), tower-3, spring-1/2/3, camp-1. Stage icons are the 64 grid scaled 1.5x (uneven pixels at large size); tiers 1-4 of each kind are 48-grid x2 or native 96. Light/dark variants not made.
 
 ## Stage verb icons (2.0.76)
 Build-stage verb icons, shown at 20px on the repair card (stage list + button). 96x96 placeholders; draw as normal `ico` art (64 grid, house outline/halo rules in `claude/art-style-guide.md`), light and dark if the style needs it.

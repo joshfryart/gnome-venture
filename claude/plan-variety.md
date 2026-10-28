@@ -1,6 +1,6 @@
 # Plan: variety across 14 regions (road, stops, claiming/rebuilding)
 
-Status: PLAN ONLY. Nothing built. Written 2026-10-28 after 2.0.75.
+Status (2026-10-28, 2.0.81): layer 1 (road kinds, stop kinds, Road Journal, build plans for 2 regions) and the content waves for stops (810 acts) and roads (25 cards x 14 regions) are BUILT and approved; art first pass drawn. Left: build plans for the other 12 regions and the leftover verbs (see `claude/todo.md`). Original plan below, written after 2.0.75.
 
 ## Why it feels the same (found in code/data)
 Road walks (`road_life.php`, `data/road_events.txt`, `road_lines.txt`, `road_meet.txt`)
