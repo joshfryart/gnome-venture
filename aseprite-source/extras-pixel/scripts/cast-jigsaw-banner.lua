@@ -64,7 +64,7 @@ local function scene(dark)
   local NC, NR = 7, 4
   local cw, ch = (px1 - px0 + 1) / NC, (py1 - py0 + 1) / NR
   local miss = {}   -- {col,row}: the right side is still open, ragged edge, one lone gap at the left
-  for _, g in ipairs({ { 5, 0 }, { 6, 0 }, { 4, 1 }, { 5, 1 }, { 6, 1 }, { 6, 2 }, { 3, 2 }, { 5, 3 }, { 6, 3 }, { 4, 3 }, { 1, 1 } }) do miss[g[2] * NC + g[1] + 1] = true end
+  for _, g in ipairs({ { 4, 0 }, { 5, 0 }, { 6, 0 }, { 5, 1 }, { 6, 1 }, { 6, 2 }, { 3, 2 }, { 5, 3 }, { 6, 3 }, { 4, 3 }, { 0, 3 } }) do miss[g[2] * NC + g[1] + 1] = true end
   local holes = c:mask()
   for j = 0, NR - 1 do for i = 0, NC - 1 do
     if miss[j * NC + i + 1] then
@@ -92,7 +92,13 @@ local function scene(dark)
     cm:cut(disc); cm:add(disc:edge()); for xx = x - 1, x + 1 do cm:del(xx, y) end
   end end
   cm:clip(pic); cm:cut(holes)
-  cm:each(function(x, y) c:px(x, y, cut) end)
+  -- cut lines are the picture's own colour lifted toward cream, so the picture still reads through them
+  local function lift(hex)
+    local r, g, b = tonumber(hex:sub(2, 3), 16), tonumber(hex:sub(4, 5), 16), tonumber(hex:sub(6, 7), 16)
+    local k = dark and 0.3 or 0.45
+    return string.format("#%02x%02x%02x", rnd(r + (255 - r) * k), rnd(g + (243 - g) * k), rnd(b + (200 - b) * k))
+  end
+  cm:each(function(x, y) local h = c:get(x, y); c:px(x, y, h and lift(h) or cut) end)
   -- Jeff waits with a sky-blue piece
   CAST.jeff(c, 152, 23, 0.84, { pose = "hold", piece = "#7fc0de", dark = dark })
   -- Ffej peeks over the table edge at the far right (the table hides the rest of him)

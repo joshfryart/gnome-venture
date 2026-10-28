@@ -123,6 +123,24 @@ for kx, ky, rp, tail in ((132, 14, MAG, 22), (100, 26, SAFF, 18), (180, 40, TEAL
         cv.dots([(kx - 4 + t, ky + 10 + t * 3), (kx - 3 + t, ky + 10 + t * 3)], FLAGS[(t + kx) % 5])
 for bx, by in ((60, 26), (66, 29), (72, 26), (190, 52), (196, 55), (54, 30)):
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
+# pass 1: fill the top-row sky cells: a small puff cloud, a swallow V, and a far little red kite in the rain gap
+for cx, cy, w in ((88, 9, 22),):
+    m = ell(cx - w // 2, cy - 4, cx + w // 2, cy + 4) | ell(cx - w // 4, cy - 8, cx + w // 5, cy + 2)
+    m &= ~rect(0, cy + 3, W, H)
+    cv.fill(m, '#ffffff')
+    cv.fill(m & rect(0, cy + 3, W, cy + 3), '#b8d8d8')
+    cv.fill(m & ~shift(m, -2, -2) & rect(0, cy - 1, W, cy + 2), '#d4ece8')
+for bx, by in ((56, 6), (61, 9), (66, 6), (71, 10), (63, 14)):
+    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
+kx, ky = 182, 12
+o = cv.obj()
+o.part(poly([(kx, ky - 4), (kx + 3, ky), (kx, ky + 4), (kx - 3, ky)]), RED, d=1)
+o.draw()
+cv.fill(line([(kx, ky - 4), (kx, ky + 4)]), RED['s'])
+cv.fill(line([(kx, ky + 4), (kx - 3, ky + 8), (kx + 1, ky + 11), (kx - 2, ky + 15)]), '#4a2c1a')
+cv.dots([(kx - 3, ky + 8), (kx - 2, ky + 8), (kx + 1, ky + 11), (kx, ky + 11)], SAFF['b'])
+for bx, by in ((190, 22), (195, 25)):
+    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
 
 # ---------------------------------------------------------------- far snow peaks
 PEAKS = [(0, 62), (22, 46), (42, 58), (78, 30), (104, 50), (132, 40), (160, 56), (204, 16), (236, 42), (262, 30), (300, 50)]

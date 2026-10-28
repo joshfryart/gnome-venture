@@ -287,16 +287,71 @@ for k in range(110):   # ripples: sky reflections and dark current lines
     rx, ry = r(70, 298), r(116, 198)
     if river[ry, rx] and river[ry, min(W - 1, rx + 6)]:
         ln = 2 + (ry - 110) // 18
-        cv.fill(line([(rx, ry), (rx + ln, ry)]), (WATER['r'], WATER['s'], '#d3eadb')[k % 3])
+        cv.fill(line([(rx, ry), (rx + ln, ry + (1 if ry < 160 and ln > 3 else 0))]), (WATER['r'], '#2f7590', '#d3eadb')[k % 3])
+# rocks with foam, floating leaves and a fish ring in the water
+for k3, (kx, ky, ks) in enumerate(((128, 141, 4), (122, 151, 2), (158, 192, 3), (290, 194, 3), (136, 127, 2))):
+    o = cv.obj()
+    o.part(ell(kx - ks, ky - ks + 1, kx + ks, ky + ks - 1), ramp('#8a8a7a', '#5c5a4a', '#b4b4a0'), d=1)
+    o.draw()
+    cv.fill(line([(kx - ks - 2, ky - 1), (kx - ks - 1, ky + ks - 1)]) | line([(kx - ks, ky + ks), (kx + ks + 2, ky + ks)]), '#eef4e0')
+    cv.dots([(kx - 1, ky - ks + 2)], '#6f8a5a')
+for k3 in range(14):
+    fx_, fy_ = r3(112, 296), r3(130, 196)
+    if er[fy_, fx_] and er[fy_, fx_ + 2]:
+        c_ = ('#7ab55c', ORG['b'], '#d6322b', '#a4c860')[k3 % 4]
+        cv.dots([(fx_, fy_), (fx_ + 1, fy_), (fx_ + 1, fy_ - 1)], c_)
+        cv.dots([(fx_ + 2, fy_ + 1)], WATER['r'])
+cv.fill(ell(136, 156, 146, 160) & ~ell(138, 157, 144, 159), WATER['r'])   # a fish ring
+cv.dots([(141, 157)], '#f0b92b')
 
 # understorey: shrubs, palms and ferns on the forest floor (keeps the mid band busy)
 for ux, uy, w, rp in ((64, 120, 12, G_MID), (86, 126, 10, G_DEEP), (104, 116, 8, G_LIT), (160, 118, 9, G_MID), (176, 126, 10, G_DEEP), (196, 112, 8, G_LIT),
                       (228, 130, 10, G_MID), (252, 132, 12, G_DEEP), (276, 136, 10, G_LIT), (296, 132, 8, G_MID), (240, 146, 8, G_LIT)):
     leafmass(clump(ux, uy, w, 3, 5, 3, 6, rr=r2), rp, d=2, specks=8)
+near_r = dil4(dil4(river))
 for k in range(46):
     fx, fy = r2(0, W - 1), r2(124, 198)
-    if floor[fy, fx] and not river[min(H - 1, fy + 2), fx] and not dil4(dil4(river))[fy, fx]:
-        fern(fx, fy, r2(6, 11), r2(-4, 4), ('#5fa850', '#7aae5a', '#3f8a4a')[k % 3], '#2f6a32')
+    if floor[fy, fx] and not river[min(H - 1, fy + 2), fx] and not near_r[fy, fx]:
+        fern(fx, fy, r2(6, 11), r2(-4, 4), ('#5fa850', '#7aae5a', '#a4c860')[k % 3], '#1f5a3a')
+# understorey between the kapok and the river: a tree fern, a banana plant, ginger flowers and a capybara family on the bank
+for tfx, tfy, th in ((70, 140, 22), (118, 112, 14)):
+    cv.fill(line([(tfx, tfy), (tfx + 1, tfy - th)], 2), '#5c4a3a')
+    for yy in range(tfy - th + 3, tfy, 3):
+        cv.dots([(tfx, yy)], '#3d2a1c')
+    top = (tfx + 1, tfy - th)
+    for dx, dy in ((-12, 4), (-9, -3), (-3, -7), (4, -7), (10, -3), (13, 4), (-6, 7), (7, 7)):
+        tip = (top[0] + dx, top[1] + dy)
+        cv.fill(line([top, ((top[0] + tip[0]) // 2, top[1] + min(dy, 0) - 2), tip]), '#2f7a45')
+        for t in (0.35, 0.6, 0.85):
+            px_, py_ = int(top[0] + dx * t), int(top[1] + dy * t - (2 if dy < 0 else 0) * (1 - t))
+            cv.dots([(px_, py_ - 1), (px_, py_ + 1)], '#7aae5a' if dx < 0 else '#5fa850')
+bnx, bny = 96, 124   # banana plant: broad ragged leaves with a hanging bunch
+o = cv.obj()
+o.part(rect(bnx - 1, bny - 10, bnx + 1, bny + 6), ramp('#6f8a3a', '#4f6a2a', '#8aa04a'), d=1)
+for dx, dy in ((-11, -6), (10, -8), (-7, -14), (6, -15)):
+    o.part(line([(bnx, bny - 10), (bnx + dx, bny + dy)], 4), G_LIT, d=1)
+o.draw()
+for dx, dy in ((-11, -6), (10, -8), (-7, -14), (6, -15)):
+    cv.fill(line([(bnx, bny - 10), (bnx + dx, bny + dy)]), G_MID['s'])
+cv.fill(ell(bnx + 1, bny - 7, bnx + 5, bny - 1), YEL['b'])
+cv.dots([(bnx + 2, bny - 6), (bnx + 4, bny - 4), (bnx + 2, bny - 3)], YEL['s'])
+cv.fill(rect(bnx + 3, bny - 1, bnx + 4, bny + 2), '#7a2a4a')   # banana flower bud
+for gx_, gy_ in ((62, 128), (106, 128), (84, 112)):   # red ginger spikes
+    cv.fill(rect(gx_, gy_ - 6, gx_, gy_), '#2f7a45')
+    for k in range(3):
+        cv.dots([(gx_ - 1, gy_ - 7 + k * 2), (gx_ + 1, gy_ - 6 + k * 2)], RED['b'])
+    cv.dots([(gx_, gy_ - 8)], RED['r'])
+for cbx, cby, s in ((78, 138, 1), (90, 141, 0)):   # capybaras: blocky brown bodies, square snouts
+    bw, bh = (14, 7) if s else (9, 5)
+    o = cv.obj()
+    o.part(rrect(cbx, cby - bh, cbx + bw, cby, 2), ramp('#9a6a3a', '#6e4a2a', '#c28a50'), d=1)
+    o.part(rrect(cbx + bw - 2, cby - bh - 2, cbx + bw + 4 - (0 if s else 1), cby - bh + 3 + s, 1), ramp('#9a6a3a', '#6e4a2a', '#c28a50'), d=1)
+    o.draw()
+    cv.dots([(cbx + bw + 1, cby - bh - 1), (cbx + bw - 1, cby - bh - 3)], UMB)
+    cv.dots([(cbx + bw + 3 - (0 if s else 1), cby - bh + 1)], '#3d2a1c')
+    cv.dots([(cbx + 2, cby + 1), (cbx + bw - 2, cby + 1)], '#3d2a1c')
+cv.dots([(84, 129), (85, 130)], '#f5cf6a')   # a little yellow bird riding on the big capybara
+cv.dots([(83, 129)], UMB)
 for k in range(40):   # reeds and arrowhead leaves along both river banks
     ry_ = r2(116, 196)
     edge = np.nonzero(river[ry_])[0]
@@ -310,7 +365,7 @@ for k in range(40):   # reeds and arrowhead leaves along both river banks
 
 # ---------------------------------------------------------------- shafts of light through the steam (hard-edged, lighten only the far layers)
 LIGHT = {SKY0: '#e6f1d8', SKY1: '#eef4e0', SKY2: '#f6f6dc', MTN['b']: MTN['r'], MTN2: '#a4b8c0', FAR[0]: '#8ebe98', FAR[1]: FAR[0], FAR[2]: '#a4c8a0',
-         '#3f7a5a': FAR[1], TERR[0]: TERR[1], TERR[2]: TERR[0], '#3f7a3a': '#5f9a4a', '#2f6a32': '#3f7a3a', WATER['b']: '#6aa8b0', '#6aa8b0': WATER['r']}
+         '#3f7a5a': FAR[1], TERR[0]: TERR[1], TERR[2]: TERR[0], '#3f7a3a': '#5f9a4a', '#2f6a32': '#3f7a3a'}   # (the water is left out: the shafts striped it)
 shafts = poly([(84, 0), (100, 0), (214, 199), (190, 199)]) | poly([(118, 0), (126, 0), (236, 180), (224, 186)]) | poly([(46, 30), (60, 30), (150, 199), (132, 199)])
 for a, b in LIGHT.items():
     m = shafts & np.all(cv.px == np.array([int(a[i:i + 2], 16) for i in (1, 3, 5)], np.uint8), axis=2)
