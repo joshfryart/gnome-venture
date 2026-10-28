@@ -78,20 +78,19 @@ def heron(cv, x, base):
     o.part(body, FEATHER, d=3)
     wing = ell(x - 18, base - 41, x + 8, base - 27) | poly([(x - 18, base - 34), (x - 28, base - 27), (x - 8, base - 29)])
     o.part(wing & shift(body, 0, 0), WING, d=2, contour=True)
-    neck = line([(x + 8, base - 40), (x + 13, base - 48), (x + 9, base - 56), (x + 12, base - 62)], 5)
+    neck = line([(x + 6, base - 40), (x + 13, base - 48), (x + 9, base - 56), (x + 12, base - 62)], 6)
     o.part(neck, FEATHER, d=2)
     head = ell(x + 8, base - 68, x + 20, base - 60)
     o.part(head, FEATHER, d=2, contour=True)
     o.draw()
     # bill: long dagger toward the satchel
-    cv.fill(poly([(x + 19, base - 66), (x + 34, base - 63), (x + 19, base - 62)]), '#e8a317')
-    cv.fill(rect(x + 20, base - 63, x + 30, base - 63), '#b07a10')
-    cv.fill(rect(x + 20, base - 66, x + 25, base - 66), '#f5cf6a')
-    # black crest plume, eye stripe, eye
-    cv.fill(rect(x + 10, base - 66, x + 18, base - 65), '#5b6470')
-    cv.fill(line([(x + 10, base - 66), (x + 2, base - 64), (x - 2, base - 63)], 1), '#5b6470')
-    cv.fill(rect(x + 15, base - 67, x + 16, base - 66), '#f5cf6a')
-    cv.dots([(x + 16, base - 66)], '#2a1a10')
+    cv.fill(poly([(x + 19, base - 66), (x + 33, base - 63), (x + 19, base - 61)]), '#e8a317')
+    cv.fill(rect(x + 20, base - 62, x + 27, base - 62), '#b07a10')
+    cv.fill(rect(x + 20, base - 65, x + 24, base - 65), '#f5cf6a')
+    # black eye stripe running back into a trailing crest plume, eye
+    cv.fill(rect(x + 10, base - 65, x + 15, base - 65), '#5b6470')
+    cv.fill(line([(x + 10, base - 65), (x + 4, base - 63), (x - 1, base - 62)], 1), '#5b6470')
+    cv.dots([(x + 16, base - 65), (x + 17, base - 65)], '#2a1a10')
     # neck streaks and flight-feather tips
     for k in range(4):
         cv.dots([(x + 12 + (k % 2), base - 56 + k * 3), (x + 12 + (k % 2), base - 55 + k * 3)], '#5b6470')
@@ -112,11 +111,12 @@ def scene():
     for (x, y) in ((86, 10), (98, 14)):
         cv.fill(line([(x, y + 2), (x + 3, y), (x + 5, y + 2), (x + 7, y), (x + 10, y + 2)]), '#8b8f96')
     # far layer: alder and willow line, half eaten by mist
-    far = wave(36, [(3, 47, 0.4), (2, 19, 1.1), (1, 9, 2.0)], bottom=52)
-    cv.fill(far, FAR)
+    for (x, w) in ((-8, 22), (8, 16), (20, 26), (42, 18), (56, 24), (76, 14), (86, 22), (104, 16), (128, 26), (150, 18),
+                   (164, 24), (184, 16), (196, 26), (218, 18), (230, 22)):
+        cv.fill(ell(x, 50 - w * 3 // 4, x + w, 56), FAR)
     snag = line([(118, 52), (120, 34)], 2) | line([(119, 40), (114, 33)], 1) | line([(120, 38), (125, 31)], 1)
     cv.fill(snag, FAR2)
-    near = wave(44, [(2, 31, 2.5), (1, 13, 0.7)], bottom=52)
+    near = wave(45, [(2, 31, 2.5), (1, 13, 0.7)], bottom=52)
     cv.fill(near, FAR2)
     for (x0, x1, y) in ((-4, 70, 39), (100, 150, 37), (178, 244, 41), (30, 120, 45), (150, 230, 47)):
         cv.fill(rrect(x0, y, x1, y + 1, 1), MIST)
@@ -131,11 +131,11 @@ def scene():
     cv.fill(g & ~shift(g, 0, 2), '#7ab55c')
     cv.fill(wave(118, [(2, 70, 1.7), (1, 23, 0.4)]), '#2f6a3a')
     # far-bank reeds standing in the open water (thin, no outline)
-    for x in range(2, 238, 5):
-        if 146 <= x <= 214:
-            continue
-        h = 5 + (x * 7) % 6
-        cv.fill(rect(x, 57 - h, x, 58), '#7a9a7a')
+    for x0 in (20, 30, 62, 92, 122, 222):
+        for k in range(5):
+            x = x0 + k * 2 + (k * 5) % 3
+            h = 3 + (x * 7 + k * 3) % 6
+            cv.fill(rect(x, 57 - h, x, 58), '#7a9a7a')
     # tussock flecks
     for y in range(64, 118, 7):
         for x in range((y * 11) % 19, W, 21):
@@ -148,6 +148,8 @@ def scene():
     pool(cv, pm, rings=(), seed=7)
     pr = ell(196, 108, 244, 126)
     pool(cv, pr, rings=((222, 119, 4),), seed=11)
+    tufts(cv, [(96, 76), (122, 84), (24, 78), (78, 70), (132, 66), (190, 112), (100, 126), (150, 128), (60, 128)], '#2f6a3a')
+    tufts(cv, [(108, 70), (40, 72), (176, 126), (226, 128)], '#a4b86a')
     # small pads in the pools
     pad(cv, 8, 94, 9, flower=True)
     pad(cv, 70, 104, 7)
@@ -171,8 +173,6 @@ def scene():
     for (x, h, ln, c) in ((216, 26, -4, '#4f9a45'), (221, 34, -2, '#a4b86a'), (228, 30, 3, '#4f9a45'),
                           (233, 22, -3, '#a4b86a'), (239, 32, -2, '#4f9a45')):
         blade(cv, x, 110, h, ln, c)
-    tufts(cv, [(96, 76), (122, 84), (24, 78), (78, 70), (132, 66), (190, 112), (100, 126), (150, 128), (60, 128)], '#2f6a3a')
-    tufts(cv, [(108, 70), (40, 72), (176, 126), (226, 128)], '#a4b86a')
     # landing spot: one big flat lily pad, floating free, notch to the lower left
     lp = ell(96, 97, 144, 113) & ~poly([(120, 105), (96, 109), (104, 115)])
     cv.fill(shift(lp, 1, 1) & ~lp & pm, '#1f3f3a')

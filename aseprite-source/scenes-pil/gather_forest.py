@@ -71,20 +71,21 @@ def far_wood(cv):
 
 def canopy(cv):
     """Leaf roof: one flat dark mass (calm in the corners for the UI chips), then outlined clumps hanging lower."""
-    m = rect(0, 0, W - 1, 6)
+    m = rect(0, 0, W - 1, 8)
     r = rnd(3)
     x = -10
     while x < W + 10:
         w = r(16, 26)
-        m |= ell(x, -6, x + w, 10 + r(0, 6))
+        m |= ell(x, -6, x + w, 12 + r(0, 6))
         x += w - r(5, 9)
     cv.fill(m, '#2f6a3a')
+    cv.fill(m & ~shift(m, 0, 2) & rect(40, 0, 200, H), '#1f3f3a')
     r = rnd(12)
     x = 36
     while x < 214:
         w, h = r(22, 32), r(14, 20)
         top = r(2, 8)
-        rp = (OAK, LEAF, OAK)[r(0, 2)]
+        rp = (OAK, DEEP, LEAF, OAK)[r(0, 3)]
         o = cv.obj()
         o.part(ell(x, top, x + w, top + h), rp, d=3)
         if r(0, 1):
@@ -97,7 +98,7 @@ def canopy(cv):
         x += w - r(5, 9)
 
 
-def trunk(cv, x, w, ytop, ybot, roots=True):
+def trunk(cv, x, w, ytop, ybot, roots=True, moss=True):
     o = cv.obj()
     m = rect(x, ytop, x + w, ybot)
     if roots:
@@ -107,8 +108,8 @@ def trunk(cv, x, w, ytop, ybot, roots=True):
     for yy in range(ytop + 4, ybot - 6, 8):
         xx = x + 2 + (yy * 3) % max(2, w - 4)
         cv.fill(rect(xx, yy, xx, yy + 4), BARK['s'])
-    # moss creeping up the shaded foot
-    cv.fill(rect(x + 1, ybot - 7, x + 3, ybot) | rect(x + 1, ybot - 10, x + 1, ybot - 7), '#4f9a45')
+    if moss:  # moss creeping up the shaded foot
+        cv.fill(rect(x + 1, ybot - 7, x + 3, ybot) | rect(x + 1, ybot - 10, x + 1, ybot - 7), '#4f9a45')
 
 
 # ------------------------------------------------------------------ ground
@@ -128,8 +129,9 @@ def floor(cv):
         if x % 7 == 1:
             cv.dots([(x, top + 38), (x, top + 39)], '#2f6a3a')
     # the shafts of light land on the floor as pale pools
-    for (x0, y0, x1, y1) in ((60, 62, 96, 68), (176, 60, 214, 66), (6, 100, 34, 104), (214, 112, 238, 116)):
-        cv.fill(ell(x0, y0, x1, y1), '#a4b86a' if y0 < 90 else '#7ab55c')
+    for (x0, y0, x1) in ((62, 54, 92), (150, 53, 190), (14, 104, 40), (200, 120, 232)):
+        c = '#a4b86a' if y0 < 90 else '#7ab55c'
+        cv.fill(rect(x0, y0, x1, y0 + 1) | rect(x0 + 4, y0 + 2, x1 - 6, y0 + 2), c)
 
 
 def litter(cv, keep_out):
@@ -236,15 +238,16 @@ def fairy_ring(cv):
         if y < 100:            # the back half of the ring stays tiny
             cv.dots([(x, y), (x + 1, y)], '#f2e4c0')
             continue
-        cv.fill(rect(x - 1, y - 1, x + 1, y - 1), '#f2e4c0')
-        cv.dots([(x, y)], '#c9a96e')
-        cv.dots([(x - 1, y - 1)], '#2a1a10' if False else '#f2e4c0')
+        cv.fill(rect(x - 1, y - 2, x + 1, y - 2) | rect(x - 2, y - 1, x + 2, y - 1), '#f2e4c0')
+        cv.dots([(x + 1, y - 1), (x + 2, y - 1)], '#c9a96e')
+        cv.fill(rect(x, y, x, y + 1), '#c9a96e')
+        cv.dots([(x - 2, y), (x + 2, y)], '#2f6a3a')
 
 
 def rustle(cv):
     """The ferns by the right-hand trunk are shaking: tick marks and a leaf shaken loose."""
-    for (x, y) in ((214, 76), (212, 82), (238, 74), (237, 80)):
-        cv.fill(line([(x, y), (x + (2 if x > 225 else -2), y - 2)]), '#2a1a10')
+    for (x, y, s) in ((215, 80, -1), (213, 86, -1), (217, 74, -1)):
+        cv.fill(line([(x, y), (x + 2 * s, y - 2)]) | line([(x + 2 * s, y - 2), (x + 3 * s, y - 2)]), '#f2e4c0')
     for (x, y, c) in ((226, 62, '#e8a317'), (110, 40, '#e8a317'), (70, 30, '#b07a3a'), (134, 52, '#e8a317')):
         cv.fill(rect(x, y, x + 2, y) | rect(x + 1, y - 1, x + 1, y - 1), c)
 
@@ -254,7 +257,7 @@ def scene():
     far_wood(cv)
     floor(cv)
     # tall trunks: a big oak behind the log, one at the far right, two slimmer ones mid-back
-    trunk(cv, 86, 6, 10, 58)
+    trunk(cv, 86, 6, 10, 58, roots=False, moss=False)
     trunk(cv, 40, 13, 4, 74)
     trunk(cv, 222, 16, 4, 98)
     canopy(cv)
@@ -270,7 +273,7 @@ def scene():
     rustle(cv)
     for (x, y) in ((84, 96), (90, 100), (218, 108), (30, 108)):
         acorn(cv, x, y)
-    for (x, y) in ((64, 120), (226, 126), (120, 122)):
+    for (x, y) in ((64, 122), (124, 124)):
         acorn(cv, x, y)
     draw_satchel(cv)
     return cv

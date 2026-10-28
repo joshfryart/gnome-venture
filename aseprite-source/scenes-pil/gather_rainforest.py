@@ -109,7 +109,7 @@ def toucan(cv, x, y):
     o.draw()
     cv.fill(line([(x - 7, y + 4), (x - 1, y + 3)]), GOLD['b'])                    # bill top stripe
     cv.dots([(x - 8, y + 5)], INK['b'])
-    cv.dots([(x + 3, y + 2), (x + 3, y + 1)], '#3f8fb0')
+    cv.dots([(x + 3, y + 2), (x + 3, y + 1), (x + 4, y + 2)], DROP)
     cv.dots([(x + 3, y + 2)], INK['s'])
 
 
@@ -220,24 +220,21 @@ def scene():
     big_leaf(cv, 26, 72, 26, 10, -170, LEAF)
     big_leaf(cv, 24, 74, 30, 11, -20, MOSS)
     big_leaf(cv, 28, 70, 22, 9, -60, LEAF)
-    # the arching flower spike
-    p0, p1, p2 = (26, 66), (34, 8), (88, 34)
-    pts = [bez(p0, p1, p2, k / 40) for k in range(41)]
+    # the arching flower spike: up out of the stump, over and down to the right, blooms hanging under it
+    p0, p1, p2 = (24, 68), (30, -6), (92, 30)
+    pts = [bez(p0, p1, p2, k / 60) for k in range(61)]
     o = cv.obj()
     o.part(line([(round(x), round(y)) for x, y in pts], 2), DEEP, d=0)
     o.draw()
-    for (t, sc) in ((0.42, 1.0), (0.66, 1.0), (0.88, 0.85)):
+    for (t, sc, dy) in ((0.33, 0.8, 9), (0.58, 0.95, 10), (0.82, 0.85, 10)):
         x, y = bez(p0, p1, p2, t)
-        bx, by = round(x), round(y) + 9
-        cv.fill(line([(round(x), round(y)), (bx, by - 9)], 1), DEEP['b'])
+        bx, by = round(x), round(y) + dy
+        cv.fill(line([(round(x), round(y)), (bx, by - 7)], 1), DEEP['b'])
         orchid(cv, bx, by, sc)
-    # a bud at the tip and one low bloom
+        drip(cv, bx + 1, by + round(10 * sc) + 6)
     xt, yt = p2
     o = cv.obj(); o.part(ell(xt - 2, yt, xt + 3, yt + 6), PETAL, d=1); o.draw()
-    orchid(cv, 48, 54, 0.8)
-    cv.fill(line([(48, 44), (40, 34)]), DEEP['b'])
-    drip(cv, 70, 56)
-    drip(cv, 49, 72)
+    drip(cv, xt + 1, yt + 13)
     # small ferns / tufts on the floor
     for (x, y) in ((60, 92), (8, 124), (184, 120), (90, 82), (204, 112)):
         cv.dots([(x, y), (x + 2, y), (x + 1, y - 1), (x - 1, y - 2), (x + 3, y - 2)], LEAF['b'])

@@ -77,6 +77,20 @@ def scene():
                       (170, 116, 18), (196, 128, 22), (86, 70, 16), (100, 82, 12), (14, 124, 12), (216, 74, 14)):
         cv.fill(rect(x, y, x + w, y), SNOW_S)
         cv.fill(rect(x + 3, y + 1, x + w - 3, y + 1), ICE)
+    # long drift crests: a lit snow edge over a cool hollow
+    for (yb, amp, per, ph, x0, x1) in ((64, 1.5, 47, 0.4, 0, 239), (78, 2.0, 61, 2.0, 90, 239), (92, 1.5, 53, 1.1, 0, 30)):
+        for x in range(x0, x1 + 1):
+            if (x // 9) % 4 == 3:
+                continue
+            y = int(round(yb + amp * math.sin(x * 2 * math.pi / per + ph)))
+            cv.dots([(x, y)], SNOW_S)
+            if (x // 3) % 3:
+                cv.dots([(x, y + 1)], ICE)
+    # pebbles poking through
+    for (x, y) in ((228, 84), (104, 66), (196, 120), (84, 128)):
+        cv.fill(rrect(x, y, x + 3, y + 1, 1), '#8b8f96')
+        cv.dots([(x, y)], '#c9c5bc')
+        cv.dots([(x + 3, y + 1)], '#5b6470')
     # lichen and sedge showing through thin snow
     for (x, y, w) in ((92, 90, 8), (40, 114, 10), (176, 122, 9), (220, 96, 8), (124, 70, 6)):
         cv.fill(rrect(x, y, x + w, y + 2, 1), '#a4b86a')
@@ -87,7 +101,7 @@ def scene():
     o.part(rrect(38, 82, 56, 104, 3), STONE, d=2)                      # pedestal stone
     slab = poly([(8, 72), (14, 62), (30, 56), (58, 53), (78, 57), (88, 66), (86, 78), (72, 86), (24, 87), (10, 82)])
     o.part(slab, STONE, d=3, contour=True)
-    lumps = ell(12, 54, 40, 66) | ell(30, 49, 62, 61) | ell(54, 50, 84, 63) | ell(4, 66, 16, 76)
+    lumps = ell(12, 54, 40, 66) | ell(30, 49, 62, 61) | ell(54, 50, 84, 63) | ell(6, 66, 15, 74)
     cap = (lumps & ~slab & rect(0, 0, W, 70)) | (slab & ~shift(slab, 0, 5)) | (ell(5, 68, 14, 78) & slab)
     o.part(cap, SNOWCAP, d=2, contour=True)
     o.draw()

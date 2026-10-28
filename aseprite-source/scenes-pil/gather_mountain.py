@@ -112,10 +112,6 @@ def scene():
     for (x, t, wl, wr, s) in ((34, 22, 36, 34, 7), (100, 6, 56, 52, 12), (176, 18, 40, 44, 8)):
         peak(cv, x, t, wl, wr, 52, '#9f8ad6', '#7a5cc0', '#f1ece0', '#d9d4ee', sh=s, seed=x)
     # steep switchback path climbing the lit face of the big peak
-    sw = [(66, 49), (82, 46), (72, 42), (86, 38), (78, 34), (90, 30)]
-    pm = line(sw)
-    yy, xx = __import__('numpy').mgrid[0:H, 0:W]
-    cv.fill(pm & ((xx + yy) % 3 != 0), '#7a5cc0')
     # a band of hazy pines at the foot of the range
     for x in range(-4, W + 8, 7):
         flat_pine(cv, x, 52 + (x * 5) % 3, 8, 7 + (x * 13) % 7, '#4f7a5a')
@@ -131,11 +127,15 @@ def scene():
         for x in range((y * 7) % 19, W, 27):
             cv.fill(line([(x, y), (x + 5, y), (x + 7, y + 1), (x + 11, y + 1)]), '#5b6470')
             cv.dots([(x + 14, y + 4), (x + 16, y + 3)], '#c9c5bc')
+    for (x, y) in ((44, 60), (120, 62), (70, 58), (150, 118), (196, 120), (10, 132), (112, 126), (60, 130), (226, 64)):
+        cv.fill(rect(x, y, x + 2, y + 1), '#5b6470')
+        cv.dots([(x, y)], '#c9c5bc')
     # ---- the find lands here: a flat old snow patch on the ledge
-    cv.fill(ell(94, 97, 146, 113), '#d9d4ee')
-    cv.fill(ell(98, 98, 142, 110), '#f1ece0')
-    cv.fill(rrect(104, 101, 120, 102, 1), '#fff3c8')
-    cv.fill(ell(94, 97, 146, 113) & ~shift(ell(94, 97, 146, 113), -2, -2) & rect(120, 0, W, H), '#c3b2ea')
+    snow = ell(94, 97, 146, 113)
+    cv.fill(snow, '#c3b2ea')
+    cv.fill(ell(96, 98, 144, 111), '#d9d4ee')
+    cv.fill(ell(99, 99, 141, 109), '#f1ece0')
+    cv.fill(rrect(104, 101, 120, 102, 1) | rect(124, 101, 127, 101), '#fff3c8')
     # ---- left: crag with the quartz cluster bursting from its foot (focal prop)
     o = cv.obj()
     crag = poly([(0, 104), (2, 76), (6, 66), (5, 58), (10, 46), (14, 40), (18, 30), (22, 36), (26, 32), (30, 42),
@@ -174,7 +174,7 @@ def scene():
     for (x, y) in ((70, 117), (76, 116)):
         cv.dots([(x, y + 2), (x + 1, y + 2)], '#5c3420')
     # small stones and edelweiss on the left ledge
-    for (x0, y0, w) in ((14, 112, 14), (30, 122, 9), (84, 86, 8)):
+    for (x0, y0, w) in ((14, 112, 14), (30, 122, 9), (92, 76, 7)):
         o = cv.obj(); o.part(ell(x0, y0, x0 + w, y0 + w * 2 // 3), STONE, d=2); o.draw()
     for (x, y) in ((10, 106), (40, 116), (92, 120), (50, 66), (88, 64)):
         cv.dots([(x, y - 1), (x - 1, y), (x + 1, y), (x, y + 1)], '#f1ece0')

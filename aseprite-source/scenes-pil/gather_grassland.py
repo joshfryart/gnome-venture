@@ -118,16 +118,18 @@ def dandelion_clock(cv):
     o.draw()
     # the clock: a round seed ball with a fine fringe of pappus tips
     ball = ell(cx - r, cy - r, cx + r, cy + r)
-    fringe = blank()
-    for k in range(36):
-        a = k * 2 * math.pi / 36
-        fringe |= line([(cx + (r - 1) * math.cos(a), cy + (r - 1) * math.sin(a)),
-                        (cx + (r + 2) * math.cos(a), cy + (r + 2) * math.sin(a))])
-    bite = ell(cx + 6, cy - 14, cx + 24, cy + 2)
-    puff = (ball | fringe) & ~bite
+    bite = ell(cx + 9, cy - 15, cx + 21, cy - 3)              # a few seeds already gone, upper right
+    puff = ball & ~bite
     o = cv.obj()
     o.part(puff, PUFF, d=3)
     o.draw()
+    # fluffy pappus tips poking out through the outline
+    for k in range(28):
+        a = k * 2 * math.pi / 28
+        x1, y1 = round(cx + (r + 2) * math.cos(a)), round(cy + (r + 2) * math.sin(a))
+        if bite[min(H - 1, y1), x1] or bite[round(cy + (r - 2) * math.sin(a)), round(cx + (r - 2) * math.cos(a))]:
+            continue
+        cv.dots([(x1, y1)], '#f1ece0' if k % 2 else '#fff3c8')
     # seed spokes from the core with parasol dots at their tips
     for k in range(16):
         a = k * 2 * math.pi / 16 + 0.1
