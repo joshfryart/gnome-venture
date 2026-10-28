@@ -12,7 +12,8 @@ HARD COST GUARD: stops itself after --max-minutes (default 90) so a T4 can't bil
 import argparse, subprocess, sys, time, urllib.request
 from pathlib import Path
 
-EXAMPLE = "https://raw.githubusercontent.com/huggingface/diffusers/main/examples/text_to_image/train_text_to_image_lora.py"
+# The example script must match the installed diffusers release (main fails check_min_version).
+EXAMPLE = "https://raw.githubusercontent.com/huggingface/diffusers/v{v}/examples/text_to_image/train_text_to_image_lora.py"
 BASE = "stable-diffusion-v1-5/stable-diffusion-v1-5"
 
 def main():
@@ -25,7 +26,8 @@ def main():
     a = ap.parse_args()
     script = Path("train_text_to_image_lora.py")
     if not script.exists():
-        urllib.request.urlretrieve(EXAMPLE, script)
+        import diffusers
+        urllib.request.urlretrieve(EXAMPLE.format(v=diffusers.__version__), script)
     cmd = [sys.executable, "-m", "accelerate.commands.launch", str(script),
            f"--pretrained_model_name_or_path={a.base}", f"--train_data_dir={a.data}",
            "--caption_column=text", "--resolution=512", "--center_crop",
