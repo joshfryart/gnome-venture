@@ -26,9 +26,9 @@ RED = ramp('#c8302a', '#8a2020', '#e8604a')
 INDIGO = ramp('#3a4a8a', '#25306a', '#6a7ac0')
 WOOD = ramp('#9a6b3f', '#6a4424', '#c08a50')
 GOURD = ramp('#d9a35a', '#a8743a', '#f2cf8a')
-SKIN = ramp('#f2c8a0', '#d9a07a', '#fff0d8')
-SKIN2 = ramp('#a8683e', '#7a4a2a', '#c8885a')
-SKIN3 = ramp('#7a4a2a', '#5a3420', '#a8683e')
+SKIN = ramp('#f2c8a0', '#d9a07a', '#fff4c0')
+SKIN2 = ramp('#a8683e', '#7a4a2a', '#c8784a')
+SKIN3 = ramp('#7a4a2a', '#5c3420', '#a8683e')
 BEARD = ramp('#f1ece0', '#c9c5bc', '#ffffff')
 GOR = ramp('#3a3638', '#24201f', '#5a5456')
 WATER = ramp('#7a9aa8', '#5a7a8a', '#c5d6d4')
@@ -154,9 +154,9 @@ while x < W + 8:
     o.draw()
     x += w - r(3, 7)
 for px, py, h in ((162, 84, 24), (196, 64, 30), (232, 74, 26)):   # oil palms poking above the wall
-    cv.fill(line([(px, py), (px + 2, py - h // 2), (px + 1, py - h)], 2), '#5a5040')
+    cv.fill(line([(px, py), (px + 2, py - h // 2), (px + 1, py - h)], 2), '#625a50')
     for k in range(0, h, 3):
-        cv.dots([(px + 1, py - k)], '#3d3428')
+        cv.dots([(px + 1, py - k)], '#3d2a1c')
     tx, ty = px + 1, py - h
     for dx, dy in ((-12, 4), (-9, -4), (-3, -8), (4, -8), (10, -3), (12, 5), (-6, 7), (7, 7)):
         cv.fill(line([(tx, ty), (tx + dx, ty + dy)], 2), FAR1)
@@ -232,7 +232,7 @@ for k, nx in enumerate((230, 238, 247, 256)):
     o.draw()
     cv.dots([(nx, ny + 9), (nx, ny + 10)], UMB)
     if k % 2:
-        cv.dots([(nx + 3, ny + 7), (nx + 4, ny + 7), (nx + 4, ny + 6)], '#f0d020')   # a yellow weaverbird
+        cv.dots([(nx + 3, ny + 7), (nx + 4, ny + 7), (nx + 4, ny + 6)], '#f5d46a')   # a yellow weaverbird
         cv.dots([(nx + 5, ny + 6)], UMB)
 for cx, cy, rx, ry, rp in ((262, 4, 16, 8, EM), (292, 10, 10, 10, EMD), (244, 0, 14, 6, EMD), (296, 34, 6, 10, EM)):
     foliage(clump(cx, cy, rx, ry, 8, 6, 10), rp, specks=20)
@@ -257,10 +257,14 @@ trunk = ell(-6, 44, 96, 160) | poly([(14, 30), (74, 30), (88, 80), (2, 80)])
 trunk &= ~rect(0, 156, W, H)
 o.part(trunk, BAOB, d=3)
 o.draw()
+winm = blank()
+for wx, wy, s_ in ((14, 92, 12), (64, 82, 12), (36, 58, 11), (70, 112, 8)):
+    winm |= rect(wx - 2, wy - 2, wx + s_ + 2, wy + s_ + 3)
+winm |= rect(0, 66, 36, 90) | ell(50, 38, 64, 52)
 for k in range(26):   # bark folds
     xx = r(4, 88)
     y0 = r(34, 120)
-    seg = line([(xx, y0), (xx + r(-2, 2), y0 + r(12, 26))]) & trunk & ~shift(~trunk, 2, 0) & ~shift(~trunk, -2, 0)
+    seg = line([(xx, y0), (xx + r(-2, 2), y0 + r(7, 15))]) & trunk & ~winm & ~shift(~trunk, 2, 0) & ~shift(~trunk, -2, 0)
     cv.fill(seg, BAOB['s'])
     cv.fill(shift(seg, -1, 0) & trunk, BAOB['r'] if k % 2 else BAOB['b'])
 for bx0, by0, bx1, by1, wdt in ((24, 32, 4, 8, 6), (38, 30, 32, 2, 6), (54, 30, 64, 4, 6), (68, 32, 98, 22, 5), (16, 36, 0, 26, 5)):   # stubby root-like crown
@@ -335,9 +339,9 @@ for i, (vx, vy) in enumerate(vine[1:]):
     cv.dots([(vx + 1, vy), (vx + 2, vy - 1), (vx + 2, vy), (vx + 3, vy - 1)], EM['b'] if i % 2 else LEAF['b'])
     cv.dots([(vx - 2, vy + 4), (vx - 3, vy + 3), (vx - 2, vy + 3)], EM['r'])
 cv.fill(ell(52, 40, 62, 50), UMB)
-cv.fill(ell(54, 43, 60, 50), '#9a7a5a')
+cv.fill(ell(54, 43, 60, 50), '#8a5a3a')
 cv.dots([(55, 45), (58, 45)], '#f5d46a')
-cv.dots([(54, 42), (60, 42)], '#9a7a5a')
+cv.dots([(54, 42), (60, 42)], '#8a5a3a')
 cv.fill(rect(86, 112, 87, 118), UMB)   # lantern under the porch edge
 o = cv.obj()
 o.part(rrect(83, 118, 90, 126, 1), ramp('#f5cf6a', '#e8a317', '#fff4c0'), d=1)
@@ -347,9 +351,9 @@ cv.fill(rect(83, 121, 90, 121), UMB)
 # pass 1: break up the big baobab trunk: deeper curved folds, a woven plate, a pot shelf, drying peppers, moss at the foot
 for k in range(16):
     xx, y0 = r3(6, 86), r3(36, 128)
-    ln = r3(10, 22)
+    ln = r3(6, 13)
     bend = r3(-3, 3)
-    seg = line([(xx, y0), (xx + bend, y0 + ln // 2), (xx + bend // 2, y0 + ln)]) & trunk & ~shift(~trunk, 2, 0) & ~shift(~trunk, -2, 0)
+    seg = line([(xx, y0), (xx + bend, y0 + ln // 2), (xx + bend // 2, y0 + ln)]) & trunk & ~winm & ~shift(~trunk, 2, 0) & ~shift(~trunk, -2, 0)
     cv.fill(seg, BAOB['s'])
     cv.fill(shift(seg, 1, 0) & trunk, BAOB['r'])
 for k in range(10):   # knobbly bark warts
@@ -426,8 +430,8 @@ o.draw()
 cv.fill(rect(bgx + 9, bgy - 16, bgx + 9, bgy - 10) | rect(bgx + 6, bgy - 13, bgx + 13, bgy - 13), RED['b'])
 mkx, mky = int(deck[17][0]), int(deck[17][1]) + 3
 o = cv.obj()
-o.part(line([(mkx, mky - 2), (mkx + 2, mky + 4)], 2), ramp('#3a3030', '#24201f'), d=0)   # tail curled round the deck
-o.part(ell(mkx - 3, mky + 3, mkx + 5, mky + 12), ramp('#3a3030', '#24201f', '#6a6060'), d=2)   # colobus body
+o.part(line([(mkx, mky - 2), (mkx + 2, mky + 4)], 2), ramp('#3a3638', '#24201f'), d=0)   # tail curled round the deck
+o.part(ell(mkx - 3, mky + 3, mkx + 5, mky + 12), ramp('#3a3638', '#24201f', '#6a6060'), d=2)   # colobus body
 o.part(ell(mkx - 2, mky + 11, mkx + 4, mky + 17), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=1)   # white face ruff
 o.draw()
 cv.dots([(mkx, mky + 14), (mkx + 2, mky + 14)], UMB)
@@ -462,7 +466,7 @@ o.part(ell(sgx, sgy + 8, sgx + 30, sgy + 36), GOR, d=3)   # body
 o.part(ell(sgx + 4, sgy, sgx + 20, sgy + 14), GOR, d=2)   # head with crest
 o.part(poly([(sgx + 8, sgy + 2), (sgx + 13, sgy - 3), (sgx + 17, sgy + 2)]), GOR, d=1)
 o.part(rrect(sgx - 2, sgy + 18, sgx + 8, sgy + 36, 2), GOR, d=2)   # arm
-o.part(ell(sgx + 7, sgy + 5, sgx + 17, sgy + 13), ramp('#6a6062', '#4a4446', '#8a8082'), d=1)   # face
+o.part(ell(sgx + 7, sgy + 5, sgx + 17, sgy + 13), ramp('#6a6060', '#5a5456', '#9a9a9e'), d=1)   # face
 o.draw()
 saddle = ell(sgx + 14, sgy + 10, sgx + 30, sgy + 24) & ell(sgx + 1, sgy + 9, sgx + 29, sgy + 35) & ~ell(sgx + 8, sgy + 15, sgx + 26, sgy + 34)
 cv.fill(saddle, '#9a9a9e')   # silver saddle across the back
@@ -471,7 +475,7 @@ cv.dots([(sgx + 10, sgy + 7), (sgx + 14, sgy + 7)], '#f1ece0')
 cv.dots([(sgx + 10, sgy + 8), (sgx + 14, sgy + 8)], UMB)
 cv.fill(rect(sgx + 11, sgy + 11, sgx + 13, sgy + 11), '#24201f')
 o = cv.obj()
-o.part(ell(sgx + 2, sgy + 14, sgx + 9, sgy + 20), ramp('#e8843a', '#b85a14', '#f5b04a'), d=1)   # a forest fruit
+o.part(ell(sgx + 2, sgy + 14, sgx + 9, sgy + 20), ramp('#e8843a', '#c8502a', '#f5d46a'), d=1)   # a forest fruit
 o.draw()
 cv.dots([(sgx + 5, sgy + 13)], EM['b'])
 # youngster tumbling out of the ferns to pat a warden gnome's hat
@@ -481,13 +485,13 @@ o.part(ell(ygx, ygy, ygx + 12, ygy + 12), GOR, d=2)
 o.part(ell(ygx + 2, ygy - 7, ygx + 11, ygy + 2), GOR, d=1)
 o.part(line([(ygx + 1, ygy + 3), (ygx - 6, ygy - 4)], 3), GOR, d=1)   # reaching arm
 o.draw()
-cv.fill(ell(ygx + 4, ygy - 4, ygx + 10, ygy + 1), '#6a6062')
+cv.fill(ell(ygx + 4, ygy - 4, ygx + 10, ygy + 1), '#6a6060')
 cv.dots([(ygx + 5, ygy - 3), (ygx + 8, ygy - 3)], UMB)
 cv.dots([(ygx + 6, ygy - 1), (ygx + 7, ygy - 1)], '#24201f')
 gnome(212, 166, EM, GOLD, SKIN, lean=4, tall=38)   # the warden, standing very still
 
 # ================================================================ market stalls (right of the pavilion, before the glade)
-gnome(164, 128, RED, ramp('#e8843a', '#b85a14', '#f5b04a'), SKIN3, lean=-3, tall=30, shade=False)   # stall keepers behind the counters
+gnome(164, 128, RED, ramp('#e8843a', '#c8502a', '#f5d46a'), SKIN3, lean=-3, tall=30, shade=False)   # stall keepers behind the counters
 gnome(189, 128, GOLD, EM, SKIN, lean=4, tall=30, shade=False)
 cv.fill(rect(158, 116, 160, 118), SKIN3['b'])   # the yam seller holds one up
 cv.fill(rect(195, 117, 197, 119), SKIN['b'])
@@ -522,7 +526,7 @@ for k, (ix, iy, kind) in enumerate(((152, 118, 'yam'), (160, 118, 'yam'), (168, 
         o.draw()
     elif kind == 'melon':
         o = cv.obj()
-        o.part(ell(ix, iy - 1, ix + 6, iy + 4), ramp('#6ab85a', '#2a7a40', '#a4d87a'), d=1)
+        o.part(ell(ix, iy - 1, ix + 6, iy + 4), ramp('#6ab85a', '#2a7a40', '#6cc878'), d=1)
         o.draw()
         cv.dots([(ix + 2, iy), (ix + 4, iy + 2)], '#f1ece0')
     else:
@@ -535,7 +539,7 @@ o = cv.obj()
 PX, PY = -48, 10
 for k in range(3):   # three hearth stones
     o = cv.obj()
-    o.part(ell(158 + k * 6, 144, 163 + k * 6, 149), ramp('#8a8082', '#5a5456', '#aaa092'), d=1)
+    o.part(ell(158 + k * 6, 144, 163 + k * 6, 149), ramp('#8a9096', '#5a5456', '#aaa092'), d=1)
     o.draw()
 o = cv.obj()
 o.part(ell(208 + PX, 126 + PY, 222 + PX, 136 + PY), ramp('#3a3638', '#24201f', '#5a5456'), d=2)
@@ -547,9 +551,9 @@ cv.fill(line([(216 + PX, 127 + PY), (222 + PX, 118 + PY)]), WOOD['b'])   # ladle
 for k, (sx, sy) in enumerate(((212 + PX, 121 + PY), (210 + PX, 116 + PY))):
     pm = ell(sx - 2, sy - 2, sx + 2, sy + 2)
     cv.fill(pm, '#e6ecea')
-    cv.fill(pm & ~shift(pm, -1, -1), '#b8c4c6')
+    cv.fill(pm & ~shift(pm, -1, -1), '#c4c8cc')
 for k in range(3):
-    cv.fill(rect(209 + k * 5 + PX, 137 + PY, 210 + k * 5 + PX, 139 + PY), '#f08a24' if k != 1 else '#e8604a')   # embers
+    cv.fill(rect(209 + k * 5 + PX, 137 + PY, 210 + k * 5 + PX, 139 + PY), '#e8843a' if k != 1 else '#e8604a')   # embers
     cv.dots([(210 + k * 5 + PX, 136 + PY)], '#f5d46a')
 
 # ================================================================ the drum circle pavilion (focal)
@@ -643,16 +647,16 @@ for k in range(3):   # splashy footprints behind
 ttx, tty = 240, 164
 shadow(ttx - 4, tty + 14, ttx + 38, tty + 19, GRASS['s'])
 o = cv.obj()
-o.part(ell(ttx + 26, tty + 4, ttx + 40, tty + 14), ramp('#9a8a5a', '#6a5e3a', '#c4b47a'), d=1)   # head
-o.part(rect(ttx + 2, tty + 12, ttx + 7, tty + 18) | rect(ttx + 24, tty + 12, ttx + 29, tty + 18), ramp('#9a8a5a', '#6a5e3a'), d=1)
+o.part(ell(ttx + 26, tty + 4, ttx + 40, tty + 14), ramp('#a8985a', '#7a6a3a', '#c4a85a'), d=1)   # head
+o.part(rect(ttx + 2, tty + 12, ttx + 7, tty + 18) | rect(ttx + 24, tty + 12, ttx + 29, tty + 18), ramp('#a8985a', '#7a6a3a'), d=1)
 o.part(ell(ttx, tty - 6, ttx + 32, tty + 16) & ~rect(0, tty + 14, W, H), ramp('#7a6a3a', '#4e4428', '#a8985a'), d=3)   # domed shell
 o.draw()
 for hx_, hy_ in ((ttx + 8, tty), (ttx + 16, tty - 3), (ttx + 24, tty), (ttx + 12, tty + 7), (ttx + 20, tty + 7)):
     cv.fill(rrect(hx_ - 3, hy_ - 2, hx_ + 3, hy_ + 2, 1) & ~rect(0, tty + 13, W, H), '#c4a85a')
-    cv.dots([(hx_ - 2, hy_ - 1)], '#e0c87a')
+    cv.dots([(hx_ - 2, hy_ - 1)], '#f2cf8a')
 cv.dots([(ttx + 35, tty + 7)], UMB)
 cv.dots([(ttx + 34, tty + 6), (ttx + 36, tty + 6)], '#f1ece0')   # spectacles glint
-cv.fill(rect(ttx + 33, tty + 6, ttx + 37, tty + 6), '#d9a22a')
+cv.fill(rect(ttx + 33, tty + 6, ttx + 37, tty + 6), '#e8b02a')
 cv.fill(rect(ttx + 37, tty + 11, ttx + 39, tty + 11), UMB)
 for stx in (230,):
     o = cv.obj()
@@ -708,7 +712,7 @@ bigleaf((276, 190), (296, 208), 6, EM)
 # tree frog on the left leaf
 fgx, fgy = 18, 172
 o = cv.obj()
-o.part(ell(fgx, fgy, fgx + 8, fgy + 5), ramp('#7ad04a', '#3a9a2a', '#b8f07a'), d=1)
+o.part(ell(fgx, fgy, fgx + 8, fgy + 5), ramp('#a4b86a', '#5ab05a', '#d0d86a'), d=1)
 o.draw()
 cv.dots([(fgx + 1, fgy), (fgx + 6, fgy)], '#e8604a')
 cv.dots([(fgx + 1, fgy + 1), (fgx + 6, fgy + 1)], UMB)
@@ -716,7 +720,7 @@ cv.dots([(fgx - 1, fgy + 5), (fgx + 9, fgy + 5)], '#e8843a')
 
 # ================================================================ grey parrots and a turaco in the air
 PGR = ramp('#8a9096', '#5a6066', '#c4c8cc')
-for px, py, fl in ((150, 22, -1),):   # one grey parrot flying, wings up, red tail fanned
+for px, py, fl in ((184, 10, -1),):   # one grey parrot flying, wings up, red tail fanned
     o = cv.obj()
     o.part(ell(px, py, px + 12, py + 6), PGR, d=1)
     o.part(poly([(px + 3, py + 2), (px + 9, py + 2), (px + 2, py - 7)]), ramp('#5a6066', '#3a3638'), d=1)   # wing
@@ -764,6 +768,7 @@ for _ in range(36):
         continue
     cv.dots([(x - 1, y - 1), (x + 1, y - 1), (x, y)], '#e6ecea')
 
+print('before fold:', len(np.unique(cv.px.reshape(-1, 3), axis=0)), 'colours')
 # ================================================================ colour cap: fold the rarest colours into their nearest kept neighbour
 _u, _n = np.unique(cv.px.reshape(-1, 3), axis=0, return_counts=True)
 _order = np.argsort(_n)

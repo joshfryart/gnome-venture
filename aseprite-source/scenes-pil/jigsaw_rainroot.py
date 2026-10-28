@@ -222,13 +222,13 @@ cv.fill(poly([(tgx - 3, tgy - 7), (tgx + 3, tgy - 7), (tgx, tgy - 3)]), '#f1ece0
 qx, qy = 289, 90
 o = cv.obj()
 o.part(rrect(qx - 7, qy - 10, qx + 7, qy, 2), STONE, d=2)
-o.part(poly([(qx - 10, qy - 9), (qx + 10, qy - 9), (qx + 1, qy - 21)]), ramp('#d9b45a', '#a8843a', '#f2dc8a'), d=2)
+o.part(poly([(qx - 10, qy - 9), (qx + 10, qy - 9), (qx + 1, qy - 21)]), ramp('#d9a35a', '#9a6b3f', '#f2e4c0'), d=2)
 o.draw()
 for yy in (qy - 7, qy - 4, qy - 1):
     for xx in range(qx - 6 + (yy % 2) * 2, qx + 7, 4):
         cv.dots([(xx, yy)], STONE['s'])
 for k in range(4):   # straw lines on the roof
-    cv.fill(line([(qx + 1, qy - 19 + k), (qx - 7 + k * 5, qy - 10)]), '#a8843a')
+    cv.fill(line([(qx + 1, qy - 19 + k), (qx - 7 + k * 5, qy - 10)]), '#9a6b3f')
 cv.fill(poly([(qx - 2, qy), (qx + 2, qy), (qx + 1, qy - 6), (qx - 1, qy - 6)]), '#4a3a2a')
 cv.fill(line([(276, 96), (299, 98)]), '#5c4a3a')   # drying line with striped cloth
 for k, cx_ in enumerate((279, 286, 293)):
@@ -252,7 +252,7 @@ while x < 210:
         for dx, dy in ((-6, 3), (6, 3), (-4, -2), (5, -2), (0, -4)):
             cv.fill(line([(px, top - 14), (px + dx, top - 14 + dy)]), '#3f7a5a')
     x += w - r(3, 6)
-cv.fill(rect(0, 104, 210, 108), MIST)   # steam band hanging over the forest
+cv.fill((YY >= 103 + np.round(2 * np.sin(XX / 9.0))) & (YY <= 107 + np.round(1.5 * np.sin(XX / 6.0 + 1))) & (XX <= 210), MIST)   # steam band hanging over the forest
 for k in range(18):
     mx = r(0, 205)
     cv.fill(ell(mx, 100 + r(0, 3), mx + r(10, 22), 106 + r(0, 3)), MIST)
@@ -287,11 +287,11 @@ for k in range(110):   # ripples: sky reflections and dark current lines
     rx, ry = r(70, 298), r(116, 198)
     if river[ry, rx] and river[ry, min(W - 1, rx + 6)]:
         ln = 2 + (ry - 110) // 18
-        cv.fill(line([(rx, ry), (rx + ln, ry + (1 if ry < 160 and ln > 3 else 0))]), (WATER['r'], '#2f7590', '#d3eadb')[k % 3])
+        cv.fill(line([(rx, ry), (rx + ln, ry + (1 if ry < 160 and ln > 3 else 0))]), (WATER['r'], WATER['s'], '#d3eadb')[k % 3])
 # rocks with foam, floating leaves and a fish ring in the water
-for k3, (kx, ky, ks) in enumerate(((128, 141, 4), (122, 151, 2), (158, 192, 3), (290, 194, 3), (136, 127, 2))):
+for k3, (kx, ky, ks) in enumerate(((116, 146, 3), (122, 154, 2), (158, 192, 3), (290, 194, 3), (136, 127, 2))):
     o = cv.obj()
-    o.part(ell(kx - ks, ky - ks + 1, kx + ks, ky + ks - 1), ramp('#8a8a7a', '#5c5a4a', '#b4b4a0'), d=1)
+    o.part(ell(kx - ks, ky - ks + 1, kx + ks, ky + ks - 1), ramp('#9a8a6a', '#5c4a3a', '#c9bb98'), d=1)
     o.draw()
     cv.fill(line([(kx - ks - 2, ky - 1), (kx - ks - 1, ky + ks - 1)]) | line([(kx - ks, ky + ks), (kx + ks + 2, ky + ks)]), '#eef4e0')
     cv.dots([(kx - 1, ky - ks + 2)], '#6f8a5a')
@@ -327,7 +327,7 @@ for tfx, tfy, th in ((70, 140, 22), (118, 112, 14)):
             cv.dots([(px_, py_ - 1), (px_, py_ + 1)], '#7aae5a' if dx < 0 else '#5fa850')
 bnx, bny = 96, 124   # banana plant: broad ragged leaves with a hanging bunch
 o = cv.obj()
-o.part(rect(bnx - 1, bny - 10, bnx + 1, bny + 6), ramp('#6f8a3a', '#4f6a2a', '#8aa04a'), d=1)
+o.part(rect(bnx - 1, bny - 10, bnx + 1, bny + 6), ramp('#4f7a2a', '#2f6a32', '#7aae5a'), d=1)
 for dx, dy in ((-11, -6), (10, -8), (-7, -14), (6, -15)):
     o.part(line([(bnx, bny - 10), (bnx + dx, bny + dy)], 4), G_LIT, d=1)
 o.draw()
@@ -335,7 +335,7 @@ for dx, dy in ((-11, -6), (10, -8), (-7, -14), (6, -15)):
     cv.fill(line([(bnx, bny - 10), (bnx + dx, bny + dy)]), G_MID['s'])
 cv.fill(ell(bnx + 1, bny - 7, bnx + 5, bny - 1), YEL['b'])
 cv.dots([(bnx + 2, bny - 6), (bnx + 4, bny - 4), (bnx + 2, bny - 3)], YEL['s'])
-cv.fill(rect(bnx + 3, bny - 1, bnx + 4, bny + 2), '#7a2a4a')   # banana flower bud
+cv.fill(rect(bnx + 3, bny - 1, bnx + 4, bny + 2), PINK['s'])   # banana flower bud
 for gx_, gy_ in ((62, 128), (106, 128), (84, 112)):   # red ginger spikes
     cv.fill(rect(gx_, gy_ - 6, gx_, gy_), '#2f7a45')
     for k in range(3):
@@ -344,12 +344,16 @@ for gx_, gy_ in ((62, 128), (106, 128), (84, 112)):   # red ginger spikes
 for cbx, cby, s in ((78, 138, 1), (90, 141, 0)):   # capybaras: blocky brown bodies, square snouts
     bw, bh = (14, 7) if s else (9, 5)
     o = cv.obj()
-    o.part(rrect(cbx, cby - bh, cbx + bw, cby, 2), ramp('#9a6a3a', '#6e4a2a', '#c28a50'), d=1)
-    o.part(rrect(cbx + bw - 2, cby - bh - 2, cbx + bw + 4 - (0 if s else 1), cby - bh + 3 + s, 1), ramp('#9a6a3a', '#6e4a2a', '#c28a50'), d=1)
+    o.part(rect(cbx + 1, cby - 1, cbx + 2, cby + 2) | rect(cbx + bw - 3, cby - 1, cbx + bw - 2, cby + 2), MUD, d=0)   # stubby legs
+    o.part(rect(cbx + bw - 2, cby - bh - 4, cbx + bw - 1, cby - bh - 2), MUD, d=0)   # little round ear
+    o.part(rrect(cbx, cby - bh, cbx + bw, cby, 2), MUD, d=1)
+    o.part(rrect(cbx + bw - 2, cby - bh - 2, cbx + bw + 4 - (0 if s else 1), cby - bh + 3 + s, 1), MUD, d=1)
     o.draw()
     cv.dots([(cbx + bw + 1, cby - bh - 1), (cbx + bw - 1, cby - bh - 3)], UMB)
     cv.dots([(cbx + bw + 3 - (0 if s else 1), cby - bh + 1)], '#3d2a1c')
-    cv.dots([(cbx + 2, cby + 1), (cbx + bw - 2, cby + 1)], '#3d2a1c')
+    cv.fill(rect(cbx + bw + 2 - (0 if s else 1), cby - bh - 1, cbx + bw + 4 - (0 if s else 1), cby - bh + 3 + s), '#6e3a20')   # dark muzzle
+    cv.dots([(cbx + bw + 3 - (0 if s else 1), cby - bh)], '#3d2a1c')
+    cv.dots([(cbx + 3, cby - bh + 2), (cbx + 6, cby - bh + 3), (cbx + 9, cby - bh + 2)], MUD['s'])   # coarse fur
 cv.dots([(84, 129), (85, 130)], '#f5cf6a')   # a little yellow bird riding on the big capybara
 cv.dots([(83, 129)], UMB)
 for k in range(40):   # reeds and arrowhead leaves along both river banks
@@ -443,20 +447,21 @@ for k in range(22):   # knots and short cross-cracks between the plates
             cv.fill(line([(kx_, ky_), (kx_ + 2, ky_ + 1)]), KAPOK['s'])
 # a climbing philodendron vine spiralling up the trunk, heart leaves on alternate sides
 vine = [(int(34 + 15 * np.sin(yy / 13.0)), yy) for yy in range(150, 4, -2)]
-cv.fill(line(vine) & trunk, '#3f6a2a')
+cv.fill(line(vine) & trunk, '#4f7a2a')
 for i in range(0, len(vine), 4):
     vx_, vy_ = vine[i]
     if not trunk[vy_, vx_]:
         continue
     s = 1 if (i // 4) % 2 else -1
-    o = cv.obj()
-    o.part(ell(vx_ + s * 1 - 2, vy_ - 2, vx_ + s * 4 + 1, vy_ + 2) if s > 0 else ell(vx_ - 5, vy_ - 2, vx_ - 1, vy_ + 2), G_LIT, d=1)
+    o = cv.obj(outline=False)   # pointed heart leaf, no umber ring (it is flat on the bark)
+    o.part(poly([(vx_, vy_), (vx_ + s * 2, vy_ - 2), (vx_ + s * 5, vy_ - 2), (vx_ + s * 6, vy_), (vx_ + s * 3, vy_ + 2)]), G_LIT, d=1)
     o.draw()
+    cv.fill(line([(vx_, vy_), (vx_ + s * 4, vy_ - 1)]), G_MID['b'])
     cv.dots([(vx_ + s * 3, vy_)], G_LIT['s'])
 # bracket fungi stepping up the shadow side
 for k, (fx_, fy_) in enumerate(((50, 66), (52, 72), (49, 78))):
     o = cv.obj()
-    o.part(ell(fx_, fy_ - 2, fx_ + 8 - k, fy_ + 2) & ~rect(0, fy_ + 1, W, H), ramp('#e8a35a', '#b8702a', '#f5d08a'), d=1)
+    o.part(ell(fx_, fy_ - 2, fx_ + 8 - k, fy_ + 2) & ~rect(0, fy_ + 1, W, H), ramp('#f5b04a', '#b85a14', '#f2e4c0'), d=1)
     o.draw()
     cv.fill(rect(fx_ + 1, fy_, fx_ + 6 - k, fy_), '#f2e4c0')
 # gnome door between the fins
@@ -501,8 +506,8 @@ cv.fill(rect(brx - 7, bry + 4, brx + 7, bry + 6), WOOD['s'])
 cv.fill(rect(brx - 7, bry + 4, brx + 7, bry + 4), KAPOK['r'])
 o = cv.obj()
 for dx, dy in ((-9, -3), (-7, -8), (-3, -11), (3, -11), (7, -8), (9, -3)):
-    o.part(line([(brx, bry + 3), (brx + dx, bry + dy)], 3), ramp('#4f9a45', '#2f6a32', '#8ac860'), d=1)
-o.part(ell(brx - 4, bry - 2, brx + 4, bry + 4), ramp('#4f9a45', '#2f6a32', '#8ac860'), d=1)
+    o.part(line([(brx, bry + 3), (brx + dx, bry + dy)], 3), ramp('#4f9a45', '#2f6a32', '#a4c860'), d=1)
+o.part(ell(brx - 4, bry - 2, brx + 4, bry + 4), ramp('#4f9a45', '#2f6a32', '#a4c860'), d=1)
 o.draw()
 for dx, dy in ((-7, -8), (-3, -11), (3, -11), (7, -8)):
     cv.dots([(brx + dx, bry + dy), (brx + dx - (1 if dx < 0 else -1), bry + dy + 1)], RED['b'])   # red leaf tips
@@ -552,10 +557,11 @@ cv.fill(poly([(bgx + 10, deck_y(bgx) - 26), (bgx + 15, deck_y(bgx) - 24), (bgx +
 slx = 166
 sly = deck_y(slx)
 o = cv.obj()   # hangs by all four long limbs, body slung underneath, head turned up to us at the left end
-limbs = (line([(slx - 4, deck_y(slx - 4)), (slx - 2, sly + 8)], 2) | line([(slx + 1, deck_y(slx + 1)), (slx + 1, sly + 8)], 2)
-         | line([(slx + 10, deck_y(slx + 10)), (slx + 10, sly + 8)], 2) | line([(slx + 14, deck_y(slx + 14)), (slx + 13, sly + 8)], 2))
+LIMB_X = (slx - 6, slx - 1, slx + 13, slx + 18)   # splayed: arms reach forward, legs back, so it hangs in a loose V
+limbs = (line([(LIMB_X[0], deck_y(LIMB_X[0])), (slx, sly + 9)], 2) | line([(LIMB_X[1], deck_y(LIMB_X[1])), (slx + 3, sly + 8)], 2)
+         | line([(LIMB_X[2], deck_y(LIMB_X[2])), (slx + 9, sly + 8)], 2) | line([(LIMB_X[3], deck_y(LIMB_X[3])), (slx + 12, sly + 9)], 2))
 o.part(limbs, SLOTH, d=0)
-o.part(ell(slx - 4, sly + 6, slx + 16, sly + 14), SLOTH, d=2)
+o.part(ell(slx - 4, sly + 6, slx + 16, sly + 15) | line([(slx + 1, sly + 15), (slx + 2, sly + 16)]) | line([(slx + 6, sly + 15), (slx + 6, sly + 17)]) | line([(slx + 11, sly + 15), (slx + 12, sly + 16)]), SLOTH, d=2)   # shaggy hem
 o.part(ell(slx - 11, sly + 7, slx - 2, sly + 16), SLOTH, d=1)
 o.part(ell(slx - 10, sly + 9, slx - 3, sly + 15), ramp('#e6dcbc', '#c2b28e', '#fff4d8'), d=0)
 o.draw()
@@ -563,7 +569,7 @@ cv.fill(line([(slx - 9, sly + 11), (slx - 7, sly + 12)]) | line([(slx - 4, sly +
 cv.dots([(slx - 8, sly + 12), (slx - 5, sly + 12)], UMB)
 cv.dots([(slx - 7, sly + 14), (slx - 6, sly + 14)], '#3d2a1c')   # nose
 cv.dots([(slx - 8, sly + 15), (slx - 5, sly + 15)], '#c2b28e')   # smile corners
-for lx_ in (slx - 4, slx + 1, slx + 10, slx + 14):   # hooked claws over the plank
+for lx_ in LIMB_X:   # hooked claws over the plank
     cv.dots([(lx_, deck_y(lx_) - 1), (lx_ + 1, deck_y(lx_) - 2), (lx_ + 2, deck_y(lx_) - 1)], '#3d2a1c')
 for k in range(5):   # shaggy fur strokes and a bit of green algae
     cv.dots([(slx + 1 + k * 3, sly + 12 + k % 2), (slx + 2 + k * 3, sly + 13 + k % 2)], SLOTH['s'])

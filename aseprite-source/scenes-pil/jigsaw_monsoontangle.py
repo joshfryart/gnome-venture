@@ -396,6 +396,56 @@ cv.fill(canal & rect(brx0, 141, brx1, 142), TEAL['s'])   # bridge reflection
 for x in range(brx0 + 4, brx1 - 2, 8):
     cv.dots([(x + 2, 144), (x + 2, 146)], ORG['r'])   # lantern reflections
 
+# ---------------------------------------------------------------- pass 1: the world under the stilt house (was plain sky and plain teal)
+under = rect(0, 103, 99, 150) & ~canal
+backbank = blank()
+x = -4
+while x < 100:
+    w = r3(9, 15)
+    backbank |= ell(x, 110 + r3(0, 6), x + w, 132)
+    x += w - r3(2, 4)
+backbank &= under
+cv.fill(under, TEAL['s'])   # backwater between the stilts
+cv.fill(backbank, '#4f8a76')
+cv.fill(backbank & ~shift(backbank, 2, 2), '#6aa48a')
+cv.fill(backbank & ~shift(backbank, 0, -1) & (yy > 124), '#3f7464')
+for k in range(4):   # far palms behind the house
+    px, py = 6 + k * 26 + r3(-4, 4), 108 + r3(0, 4)
+    cv.fill(line([(px, py), (px + 1, py + 14)]) & under, '#3f7464')
+    for dx, dy in ((-5, 2), (5, 2), (-3, -2), (4, -2)):
+        cv.fill(line([(px, py), (px + dx, py + dy)]) & under, '#3f7464')
+cv.fill(rect(0, 103, 99, 106) & under, DWOOD['s'])   # deep shade right under the deck
+for xx0 in range(3, 99, 9):
+    cv.fill(rect(xx0, 104, xx0 + 4, 104) & under, DWOOD['b'])   # joists
+for k in range(26):   # glints on the backwater
+    wx, wy = r3(0, 96), r3(134, 148)
+    if under[wy, wx]:
+        cv.fill(rect(wx, wy, wx + r3(2, 5), wy) & under, TEAL['b'] if k % 3 else TEAL['r'])
+o = cv.obj()   # a dugout canoe tied up among the stilts
+o.part(poly([(26, 141), (30, 145), (52, 145), (57, 140), (52, 142), (30, 142)]), WOOD, d=1)
+o.draw()
+cv.fill(rect(31, 142, 51, 142), DWOOD['s'])
+cv.fill(line([(54, 141), (57, 132)]), '#5a4a3a')   # mooring rope
+o = cv.obj()   # its paddle and a water jar in it
+o.part(line([(34, 138), (46, 141)], 1) | ell(46, 136, 50, 141), WOOD, d=0)
+o.part(ell(38, 136, 43, 141), ramp('#b8603a', '#8a4024', '#d8805a'), d=1)
+o.draw()
+for fx0, fy0 in ((16, 112), (66, 114)):   # conical fish traps hung from the deck to dry
+    cv.fill(rect(fx0 + 3, 106, fx0 + 3, fy0), '#5a4a3a')
+    o = cv.obj()
+    o.part(poly([(fx0, fy0 + 12), (fx0 + 3, fy0), (fx0 + 6, fy0 + 12)]) | ell(fx0 - 1, fy0 + 10, fx0 + 7, fy0 + 14), THATCH, d=1)
+    o.draw()
+    for yy0 in range(fy0 + 3, fy0 + 13, 3):
+        cv.fill(rect(fx0, yy0, fx0 + 6, yy0) & dil4(poly([(fx0, fy0 + 12), (fx0 + 3, fy0), (fx0 + 6, fy0 + 12)])), THATCH['s'])
+net = blank()   # a fishing net drying between two stilts
+for k in range(0, 14, 3):
+    net |= line([(74 + k, 108), (80 + k, 128)]) | line([(88 - k, 108), (82 - k, 128)])
+net &= rect(73, 108, 89, 128) & ~ell(70, 118, 96, 150)
+cv.fill(net, WHITE['s'])
+cv.fill(rect(73, 108, 89, 108), WHITE['b'])
+for k in range(4):
+    cv.dots([(76 + k * 4, 122 + k % 2 * 2)], ORG['b'])   # floats
+
 # ---------------------------------------------------------------- coconut palm behind the stilt house (top-left)
 o = cv.obj()
 o.part(line([(4, 110), (12, 60), (30, 18)], 4), ramp('#8a7050', '#5e4a34', '#b09a74'), d=1)
@@ -424,8 +474,27 @@ for sx in (8, 22, 38, 56, 72, 88):   # stilts into the water
         cv.fill(rect(sx, yy0, sx + 3, yy0), BAMBOO['s'])
 cv.fill(line([(10, 108), (40, 140)], 1) | line([(40, 108), (74, 140)], 1) | line([(58, 108), (90, 138)], 1), BAMBOO['s'])   # cross braces
 cv.fill(canal & rect(0, 154, 96, 160), TEAL['s'])   # house shadow on the water
-for sx in (8, 22, 38, 56, 72, 88):
-    cv.fill(rect(sx + 1, 157, sx + 2, 164), BAMBOO['s'])   # stilt reflections
+for sx in (8, 22, 38, 56, 72, 88):   # wobbling stilt reflections, broken by ripples
+    for k, yy0 in enumerate(range(157, 169, 2)):
+        off = (0, 1, 0, -1)[k % 4]
+        cv.fill(rect(sx + 1 + off, yy0, sx + 2 + off, yy0) & canal, BAMBOO['s'] if k % 3 else BAMBOO['b'])
+for lx, rp in ((10, PINK), (40, ORG), (72, PINK), (94, RED)):   # lantern glow mirrored in the water
+    cv.dots([(lx, 161), (lx + 1, 161), (lx, 164), (lx + 2, 167)], rp['s'])
+cv.fill(line([(2, 155), (14, 154)]) | line([(44, 156), (54, 155)]) | line([(76, 154), (86, 155)]), TEAL['r'])
+# a mother duck and two ducklings paddling out from under the house
+o = cv.obj()
+o.part(ell(60, 154, 72, 160), WHITE, d=1)
+o.part(ell(68, 150, 73, 155), WHITE, d=1)
+o.part(rect(74, 152, 76, 153), ORG, d=0)
+for dx in (79, 87):
+    o.part(ell(dx, 156, dx + 5, 160) | ell(dx + 3, 154, dx + 6, 157), YEL, d=0)
+o.draw()
+cv.dots([(70, 152)], UMB)
+cv.dots([(85, 155), (93, 155)], UMB)
+cv.dots([(87, 155), (95, 155)], ORG['b'])
+cv.fill(rect(62, 157, 66, 157), WHITE['s'])
+cv.fill(line([(56, 161), (60, 162)]) | line([(74, 162), (78, 162)]), TEAL['r'])   # wake
+keep[148:164, 56:98] = True
 o = cv.obj()
 o.part(rect(0, 98, 98, 103), WOOD, d=1)   # deck
 o.part(rect(10, 70, 82, 98), BAMBOO, d=2)   # woven walls
@@ -510,13 +579,37 @@ for k in range(20):
     mx, my = r(246, 298), r(178, 198)
     if mud[my, mx]:
         cv.dots([(mx, my), (mx + 1, my)], MUD['s'])
+MANG = ramp('#8a6e52', '#5a4434', '#b09474')
 mroots = blank()
-for x0, y0, x1, y1 in ((283, 146, 240, 192), (284, 150, 256, 198), (286, 152, 270, 190), (292, 150, 298, 186), (283, 138, 250, 170), (290, 144, 300, 168), (285, 158, 280, 199), (284, 134, 262, 176)):
-    mroots |= line(bez((x0, y0), (x1 + (x0 - x1) // 3, y0 - 6), (x1, y1), 12), 2)
+mthin = blank()
+knees = []
+for x0, y0, x1, y1, lift in ((282, 146, 240, 192, 22), (283, 150, 256, 198, 14), (285, 154, 270, 190, 10), (293, 150, 298, 186, 8), (282, 138, 250, 172, 18),
+                             (291, 142, 300, 166, 6), (286, 158, 281, 199, 4), (283, 132, 262, 178, 20)):
+    # pass 1: prop roots arch UP out of the trunk and then plunge, thick at the trunk and thin at the tip, each with a little knee
+    mx = (x0 + x1) // 2 + (x0 - x1) // 5
+    pts = bez((x0, y0), (mx, min(y0, y1) - lift), (x1, y1), 16)
+    mroots |= line(pts[:7], 3) | line(pts[6:12], 2)
+    mthin |= line(pts[11:], 1)
+    kx_, ky_ = pts[11]
+    mthin |= line([(kx_, ky_), (kx_ + (2 if x1 > x0 else -2) * -1, ky_ + 5)])   # a split rootlet
+    knees.append(pts[-1])
+trunkm = poly([(283, 110), (290, 110), (292, 138), (297, 160), (278, 160), (282, 138)])
 o = cv.obj()
-o.part(poly([(284, 112), (291, 112), (295, 160), (281, 160)]), ramp('#7a6a58', '#54463a', '#a09080'), d=2)
-o.part(mroots, ramp('#7a6a58', '#54463a', '#a09080'), d=1)
+o.part(trunkm, MANG, d=2)
+o.part(mroots | mthin, MANG, d=1)
 o.draw()
+for bx0 in (284, 286, 289):   # bark furrows
+    cv.fill(line([(bx0, 114), (bx0 + (bx0 - 286) // 2, 156)]) & trunkm & ~shift(trunkm, 1, 0), MANG['s'])
+for k in range(12):   # lichen and moss on the bark
+    lx, ly = r3(281, 294), r3(116, 158)
+    if trunkm[ly, lx]:
+        cv.dots([(lx, ly), (lx + 1, ly)], JADE['b'] if k % 3 else '#c9ddd8')
+cv.fill(mroots & ~shift(mroots, 0, 1) & ~shift(mroots, 1, 0), MANG['r'])   # lit tops of the arches
+for kx_, ky_ in knees:   # rings where the roots enter the water
+    if canal[min(H - 1, ky_), min(W - 1, kx_)] and not mud[min(H - 1, ky_), min(W - 1, kx_)]:
+        ring(kx_, ky_, 3, 1, TEAL['r'])
+for ax in (270, 276, 296):   # thin aerial roots dropping from the canopy
+    cv.fill(line(bez((ax, 120), (ax - 2, 132), (ax + 1, 146), 6)), MANG['s'])
 foliage(clump(282, 116, 18, 8, 10, 6, 9), DJADE, specks=24, alt=JADE['b'])
 for k in range(5):   # propagule pods hanging
     px = 270 + k * 6

@@ -450,21 +450,23 @@ shadow(166, 128, 196, 133)
 # ================================================================ the Sunken Gnome Galleon in the clear shallows (bottom right)
 gal = poly([(240, 199), (238, 190), (242, 184), (249, 183), (253, 178), (259, 180), (264, 175), (271, 176), (276, 171), (282, 173),
             (285, 168), (287, 160), (294, 158), (300, 156), (300, 199)]) & sea   # tilted wreck, ragged broken rail, raised stern on the right
-cv.fill(gal, '#2f9fa8')
+cv.fill(gal, '#4a8a80')   # sea-tinted timber
 gtop = gal & ~shift(gal, 0, 1)
-for k in range(1, 7):   # planks following the broken profile
-    cv.fill(shift(gtop, 0, k * 4) & gal, '#1f7f8f')
-cv.fill(shift(gtop, 0, 1) & gal, '#5fd3cc')   # sunlit rail edge
+for k in range(1, 5):   # planks following the broken profile
+    cv.fill(shift(gtop, 0, k * 6) & gal, '#2f6a68')
+cv.fill(dil4(gtop) & ~gal & sea, '#1a5f6f')   # dark edge where the rail breaks the water
+cv.fill(shift(gtop, 0, 1) & gal, '#8fc8b0')   # sunlit rail
+cv.fill(shift(gtop, 0, 2) & gal, '#6fb0a0')
 x = 240
 while x < 299:   # snapped rail posts sticking up out of the hull line
     x += r3(3, 6)
     col = gal[:, min(x, W - 1)]
     if col.any():
         ty = int(np.argmax(col))
-        cv.fill(rect(x, ty - r3(1, 3), x, ty), '#1f7f8f')
+        cv.fill(rect(x, ty - r3(1, 3), x, ty), '#1a5f6f')
 cv.fill(rect(289, 163, 291, 166) | rect(295, 162, 297, 165), '#1a5f6f')   # stern windows
 cv.dots([(289, 163), (295, 162)], '#8fe6e0')
-for _ in range(14):   # sun ripples over the sunken hull
+for _ in range(7):   # sun ripples over the sunken hull
     cx_, cy_ = r3(240, 296), r3(170, 198)
     if gal[cy_, cx_]:
         cv.fill(rect(cx_, cy_, cx_ + r3(2, 4), cy_) & sea, '#a6ece0' if r3(0, 1) else '#8fe6e0')

@@ -10,6 +10,7 @@ import math
 import sys
 
 from jigsaw_common import *  # noqa: F401,F403
+from pixlib import hx, OL
 
 # ---------------------------------------------------------------- palette (coral pink, aqua, lava orange, deep navy)
 NAVY0, NAVY1, NAVY2 = '#16203f', '#22305a', '#353f74'
@@ -183,7 +184,7 @@ def puff_cloud(x0, y0, w, h, body, rim, under, rr):
 for y0, amp, col in ((18, 2, NAVY1), (34, 2, NAVY2), (48, 2, DUSK0), (58, 2, DUSK1), (66, 1, DUSK2), (72, 1, GLOW)):
     cv.fill(below(wavy(y0, amp, 9 + y0 % 5, y0 * 0.3, 4)), col)
 # streak clouds lit pink from below (thin hard bars, varied lengths so sky cells differ)
-for cx, cy, w in ((22, 40, 30), (150, 30, 38), (236, 44, 34), (100, 54, 26), (200, 58, 40), (286, 60, 22), (60, 14, 24), (176, 12, 18)):
+for cx, cy, w in ((22, 40, 30), (150, 30, 38), (236, 44, 34), (100, 54, 26), (200, 58, 40), (286, 60, 22)):
     m = rrect(cx - w // 2, cy, cx + w // 2, cy + 2, 1) | rrect(cx - w // 4, cy - 2, cx + w // 5, cy, 1)
     cv.fill(m, '#7a5a92' if cy < 30 else '#c87a9a')
     cv.fill(m & rect(0, cy + 2, W, cy + 2), DUSK2 if cy < 50 else GLOW)
@@ -213,7 +214,7 @@ for bx, by in ((112, 20), (124, 26), (284, 44)):
     cv.dots([(bx - 4, by - 1), (bx - 3, by), (bx - 2, by), (bx - 1, by + 1), (bx, by), (bx + 1, by + 1), (bx + 2, by), (bx + 3, by), (bx + 4, by - 1)], DARK)
     cv.dots([(bx, by + 1)], '#d6322b')
 # a breadfruit-leaf kite over the village, tail streaming
-kx, ky = 196, 38
+kx, ky = 186, 11
 o = cv.obj()
 o.part(poly([(kx, ky - 7), (kx + 5, ky), (kx, ky + 8), (kx - 5, ky)]), JUNG, d=1)
 o.draw()
@@ -222,7 +223,52 @@ cv.fill(line([(kx - 4, ky), (kx + 4, ky)]), JUNG['s'])
 for k in range(6):
     tx, ty = kx - 2 - k * 3, ky + 9 + (k % 2) * 2
     cv.dots([(tx, ty), (tx - 1, ty)], (CORAL['b'], LAVA['r'])[k % 2])
-cv.fill(line([(kx + 1, ky + 8), (kx + 2, ky + 20), (kx - 2, ky + 30)]), '#f2e4c0')   # string down to the hut roof
+cv.fill(line([(kx + 1, ky + 8), (kx + 5, ky + 16), (kx + 8, ky + 24)]) | line([(kx + 8, ky + 24), (kx + 8, ky + 30)]), '#f2e4c0')   # string down to the hut roof
+
+# ---- top row of the sky: every 25 px cell gets its own thing (DUP check)
+r3 = rnd(4242)
+# c0: a flying fox crossing the stars, and a low dusk cloud under it
+fx_, fy_ = 13, 9
+wing = poly([(fx_ - 11, fy_ - 2), (fx_ - 7, fy_ - 4), (fx_ - 2, fy_ - 1), (fx_ + 2, fy_ - 1), (fx_ + 7, fy_ - 4), (fx_ + 11, fy_ - 2),
+             (fx_ + 9, fy_ + 2), (fx_ + 7, fy_ + 1), (fx_ + 5, fy_ + 3), (fx_ + 3, fy_ + 2), (fx_ - 3, fy_ + 2), (fx_ - 5, fy_ + 3), (fx_ - 7, fy_ + 1), (fx_ - 9, fy_ + 2)])
+cv.fill(dil4(wing) & ~wing, '#120c1a')
+cv.fill(wing, '#3a2440')
+cv.fill(line([(fx_ - 2, fy_), (fx_ - 7, fy_ - 3)]) | line([(fx_ - 3, fy_ + 1), (fx_ - 7, fy_ + 1)]) | line([(fx_ + 2, fy_), (fx_ + 7, fy_ - 3)]) | line([(fx_ + 3, fy_ + 1), (fx_ + 7, fy_ + 1)]), '#5a3a56')
+cv.fill(ell(fx_ - 2, fy_ - 3, fx_ + 2, fy_ + 3), '#8a5a3a')
+cv.dots([(fx_ - 1, fy_ - 4), (fx_ + 1, fy_ - 4)], '#8a5a3a')
+cv.dots([(fx_ - 1, fy_ - 2)], '#f6c49a')
+puff_cloud(1, 17, 21, 6, '#6a4f88', '#9a7ab4', DUSK1, r3)
+# c3: a big frigatebird under the ash drift, red throat pouch puffed out
+gbx, gby = 87, 16
+fb = line([(gbx - 10, gby - 1), (gbx - 7, gby - 3), (gbx - 4, gby), (gbx - 1, gby + 1), (gbx + 1, gby + 1), (gbx + 4, gby), (gbx + 7, gby - 3), (gbx + 10, gby - 1)], 2)
+cv.fill(dil4(fb) & ~fb, '#120c1a')
+cv.fill(fb, '#2a2030')
+cv.fill(line([(gbx + 1, gby + 2), (gbx + 2, gby + 7), (gbx + 1, gby + 8)]) | line([(gbx - 1, gby + 2), (gbx - 2, gby + 7)]), '#2a2030')
+cv.fill(ell(gbx - 2, gby, gbx + 1, gby + 3), '#d6322b')
+cv.dots([(gbx - 2, gby), (gbx - 4, gby - 1)], '#c8c4d2')
+# c4: a pink-lit cumulus; c5: Matariki (a little cluster) over a lavender bar; c6: a big mauve cloud
+puff_cloud(100, 3, 22, 9, '#8a5a96', '#c88ab4', '#e57f8a', r3)
+for sx, sy in ((134, 6), (137, 4), (139, 7), (142, 5), (136, 9), (141, 10), (144, 8)):
+    cv.dots([(sx, sy), (sx + 1, sy)], '#e8ecff')
+    cv.dots([(sx, sy - 1)], '#8a9ad0')
+puff_cloud(127, 18, 20, 5, '#4a4a82', '#7a7ab4', '#a8608e', r3)
+puff_cloud(150, 7, 22, 10, '#5c4a86', '#8a78b4', '#c87a9a', r3)
+# c8: a skein of white terns over a dark streak; c9: a moonlit cloud
+cv.fill(rrect(201, 1, 224, 4, 1), '#2a3a6a')
+cv.fill(rect(203, 4, 222, 4), '#4a5a92')
+for bx, by in ((204, 11), (209, 8), (214, 10), (219, 7), (223, 12)):
+    cv.dots([(bx - 2, by - 1), (bx - 1, by), (bx, by + 1), (bx + 1, by), (bx + 2, by - 1)], '#f2f0ea')
+puff_cloud(227, 12, 20, 8, '#3a4a82', '#c8d4f2', '#5a6aa4', r3)
+# c10: halo round the moon (stepped ring); c11: a shooting star and a small cloud tuft
+cv.fill(ell(250, -4, 282, 28) & ~ell(251, -3, 281, 27), '#4a5a9a')
+cv.fill(ell(254, 0, 278, 24) & ~ell(255, 1, 277, 23) & ~ell(258, 4, 274, 20), '#2c3a6e')
+for k in range(12):
+    tx, ty = 296 - k * 2, 3 + k
+    cv.dots([(tx, ty)], ('#ffffff', '#fff2b0', '#f6c49a', '#e57f8a', '#a8608e')[min(4, k // 3)])
+    if k < 6:
+        cv.dots([(tx + 1, ty)], '#fff2b0')
+cv.fill(rect(295, 1, 297, 3), '#ffffff')
+puff_cloud(277, 18, 22, 5, '#6a5a96', '#9a88c0', DUSK2, r3)
 
 # ================================================================ far ocean and distant islets
 cv.fill(rect(0, 76, W - 1, WL - 1), '#3a4c84')
@@ -283,15 +329,14 @@ for pts in (((50, 23), (46, 32), (48, 40), (40, 52), (36, 62)), ((54, 23), (60, 
 cv.fill(lava & vol, LAVA['b'])
 cv.fill(lava & vol & ~shift(lava, 1, 0), LAVA['r'])
 cv.fill(dil4(lava) & vol & ~lava, LAVA['s'])
-# smoke: hard puffs rising and drifting right, lava-lit undersides
-for k in range(9):
-    sx, sy = 50 + k * 5 + (k * k) // 3, 14 - k * 4
-    s = 3 + k // 2
-    pm = ell(sx - s, sy - s + 1, sx + s, sy + s - 1)
-    cv.fill(pm, '#6e5a80' if k < 6 else '#7e6a92')
-    cv.fill(pm & ~shift(pm, 1, 1), '#9a88aa')
-    cv.fill(pm & ~shift(pm, 0, -2), '#4a3a60' if k > 2 else LAVA['s'])
-for ex, ey in ((46, 12), (56, 8), (40, 16), (60, 14), (52, 4), (36, 10)):   # embers
+# smoke: a column of hard puffs rising out of the crater, then an ash cloud drifting right along the top
+for k, (sx, sy, sz) in enumerate(((50, 16, 3), (47, 11, 4), (44, 5, 5), (48, 0, 6), (58, -1, 6), (68, 1, 5), (78, 0, 5), (87, 2, 3), (93, 1, 2))):
+    pm = ell(sx - sz - 1, sy - sz + 1, sx + sz + 1, sy + sz - 1)
+    cv.fill(dil4(pm) & ~pm, '#2a2040')
+    cv.fill(pm, '#6e5a80' if k < 4 else '#5a4a70')
+    cv.fill(pm & ~shift(pm, 1, 1), '#9a88aa' if k < 4 else '#7e6a92')
+    cv.fill(pm & ~shift(pm, 0, -2), LAVA['s'] if k < 3 else '#4a3a60')
+for ex, ey in ((40, 12), (56, 8), (38, 18), (60, 12), (54, 10), (34, 8), (72, 8), (64, 9)):   # embers
     cv.dots([(ex, ey)], LAVA['r'] if ex % 2 else LAVA['b'])
 # jungle skirt round the volcano's foot
 jm = blank()
@@ -300,14 +345,45 @@ for _ in range(26):
     s = r(5, 9)
     jm |= ell(cx - s, cy - s * 3 // 4, cx + s, cy + s * 3 // 4)
 jm &= poly([(0, 62), (40, 66), (80, 64), (110, 74), (124, WL), (0, WL)]) & ~rect(0, WL, W, H)
-o = cv.obj()
-o.part(jm, JUNG, d=2)
-o.draw()
+# the canopy: rows of scalloped tree crowns, back rows darker, each lit upper left with a dark seam below (not one blob)
+zone = poly([(0, 60), (20, 63), (40, 66), (62, 63), (80, 64), (100, 70), (112, 76), (124, WL), (0, WL)]) & ~rect(0, WL, W, H)
+CROWNS = (ramp('#245a48', '#173a30', '#3a7a5a'), ramp('#2f8a62', '#1d5e4c', '#5cb07a'), ramp('#4a9a4a', '#2f6a3e', '#8ac46a'), ramp('#2a7a72', '#1a5050', '#5aaa98'))
+canopy = blank()
+for row, y in enumerate(range(62, WL + 4, 5)):
+    x = -6 + r3(0, 5)
+    while x < 128:
+        s_ = r3(4, 7)
+        c = ell(x - s_, y - s_, x + s_, y + s_ // 2 + 2) | ell(x - s_ + 2, y - s_ - 2, x + 1, y) | ell(x, y - s_ - 1, x + s_ - 1, y - 1)
+        c &= zone
+        if c.any():
+            rp = CROWNS[(row + (x // 9)) % 4] if row else CROWNS[0]
+            cv.fill(dil4(c) & ~c & canopy, '#122a22')   # seam over the crowns behind
+            cv.fill(c, rp['b'])
+            cv.fill(c & ~shift(c, -2, -2), rp['s'])
+            cv.fill(c & ~shift(c, 1, 1), rp['r'])
+            for _ in range(3):   # leaf ticks
+                lx, ly = x + r3(-s_ + 2, s_ - 2), y + r3(-s_ + 2, 1)
+                if c[min(H - 1, max(0, ly)), min(W - 1, max(0, lx))]:
+                    cv.dots([(lx, ly), (lx + 1, ly - 1)], rp['r'] if r3(0, 1) else rp['s'])
+            canopy |= c
+        x += s_ + r3(3, 6)
+cv.fill(dil4(canopy) & ~canopy & ~vol & ~rect(0, WL, W, H), OL[2])
+cv.fill(dil4(canopy) & ~canopy & vol & ~shift(canopy, 0, 1), '#1a2a22')
+# a few banana plants with broad split leaves poking out of the canopy
+for bx, by in ((20, 66), (56, 68), (88, 72)):
+    lm = blank()
+    for dx, dy in ((-7, -4), (6, -5), (-2, -8), (8, 0)):
+        lm |= poly([(bx, by), (bx + dx, by + dy - 2), (bx + dx + (2 if dx < 0 else -2), by + dy + 1)])
+    o = cv.obj()
+    o.part(lm, ramp('#6ab84a', '#3a8a3e', '#a8dc7a'), d=1)
+    o.draw()
+    cv.fill(line([(bx, by), (bx - 6, by - 5)]) | line([(bx, by), (bx + 5, by - 6)]), '#3a8a3e')
 ys, xs = np.nonzero(jm)
 for k in range(60):
     i = r(0, len(xs) - 1)
     x, y = int(xs[i]), int(ys[i])
-    cv.dots([(x, y), (x + 1, y)], (JUNG['r'], '#f08ac0', JUNG['s'], YEL['b'])[k % 4] if k % 7 else LAVA['r'])
+    if canopy[y, x] and k % 2:
+        cv.dots([(x, y), (x + 1, y), (x, y - 1)], ('#f08ac0', '#d6322b', YEL['b'], '#ffffff')[k % 4] if k % 7 else LAVA['r'])   # hibiscus and frangipani
 for px, py, h, lean in ((12, 82, 26, 8), (30, 86, 32, -6), (78, 84, 24, 10), (96, 88, 20, -4)):
     palm(px, py, h, lean)
 # little beach and an earth-oven fire at the shore
@@ -408,7 +484,7 @@ o.part(rect(146, 72, 210, 75), WOOD, d=1)
 o.draw()
 for x in range(148, 210, 4):
     cv.dots([(x, 73)], WOOD['s'])
-for hx0, hx1, wy0, rtop in ((150, 174, 58, 42), (182, 206, 60, 46)):
+for hx0, hx1, wy0, rtop in ((150, 174, 54, 37), (182, 206, 56, 41)):
     o = cv.obj()
     o.part(rect(hx0 + 2, wy0, hx1 - 2, 71), WEAVE, d=2)
     o.draw()
@@ -426,15 +502,18 @@ for hx0, hx1, wy0, rtop in ((150, 174, 58, 42), (182, 206, 60, 46)):
             cv.dots([(xx, y), (xx + 1, y + 1)], THATCH['s'])
     cv.fill(rect(dx - 1, rtop - 3, dx + 1, rtop), THATCH['s'])   # ridge knot
     o = cv.obj()
-    o.part(rect(dx - 3, wy0 + 5, dx + 3, 71), ramp('#4a2c1a', '#2a1a10', '#6a4428'), d=0)   # doorway
+    o.part(rect(dx - 3, wy0 + 6, dx + 3, 71), ramp('#4a2c1a', '#2a1a10', '#6a4428'), d=0)   # doorway
     o.draw()
-    cv.fill(rect(dx - 2, wy0 + 6, dx + 2, wy0 + 9), '#f5cf6a')   # lamplight inside
-for k in range(9):   # string of coloured lanterns between the huts
-    lx = 172 + k * 2
-    ly = 52 + int(4 * math.sin(k / 8 * math.pi))
-    cv.dots([(lx, ly)], '#2a1a10')
+    cv.fill(rect(dx - 2, wy0 + 7, dx + 2, wy0 + 10), '#f5cf6a')   # lamplight inside
+    for wx0 in (hx0 + 4, hx1 - 8):   # small shuttered windows
+        cv.fill(rect(wx0, wy0 + 7, wx0 + 3, wy0 + 10), '#f5cf6a')
+        cv.fill(rect(wx0, wy0 + 6, wx0 + 3, wy0 + 6) | rect(wx0, wy0 + 11, wx0 + 3, wy0 + 11), '#6a4428')
+for k in range(15):   # string of coloured lanterns sagging across both hut fronts under the eaves
+    lx = 150 + k * 4
+    ly = 60 + int(3 * math.sin(k / 14 * math.pi))
+    cv.dots([(lx, ly), (lx + 1, ly), (lx + 2, ly), (lx + 3, ly)], '#2a1a10')
     if k % 2 == 0:
-        cv.fill(rect(lx, ly + 1, lx + 1, ly + 2), (CORAL['b'], YEL['b'], AQUA['b'], LAVA['b'], CORAL['r'])[k // 2])
+        cv.fill(rect(lx, ly + 1, lx + 1, ly + 2), (CORAL['b'], YEL['b'], AQUA['b'], LAVA['b'])[(k // 2) % 4])
 # laundry rail with a fishing net hanging off the platform's left end
 cv.fill(rect(146, 76, 148, 86), '#c9a46a')
 for yy in range(77, 86, 2):
@@ -448,23 +527,32 @@ cv.fill(rect(fgx + 18, WL + 2, fgx + 18, 132), '#d8f0ea')
 cv.fill(rect(fgx + 17, WL - 1, fgx + 19, WL), CORAL['b'])   # float
 cv.dots([(fgx + 17, 132), (fgx + 17, 133), (fgx + 18, 134)], '#c8c4d2')   # hook
 # a gnome in the hut doorway with a lantern
-sgnome(164, 71, PURP, CORAL)
-cv.fill(rect(169, 62, 170, 64), '#f5cf6a')
-cv.dots([(169, 61)], DARK)
+sgnome(158, 71, PURP, CORAL)
+cv.fill(rect(162, 64, 163, 66), '#f5cf6a')
+cv.dots([(162, 63)], DARK)
 
 # ================================================================ OUTRIGGER CANOE with the navigator (centre left)
 cx0, cx1, cy = 98, 150, 90
-o = cv.obj()   # mast and crab-claw sail first (behind the hull)
-o.part(line([(122, 88), (100, 46)], 2) | line([(122, 88), (147, 42)], 2), WOOD, d=0)
-o.draw()
-sail = poly([(122, 86), (100, 46), (106, 50), (112, 56), (118, 60), (124, 62), (130, 58), (136, 52), (142, 44), (147, 42)])
+# crab-claw sail: two curved spars from the foot, asymmetric, tips curling in like a claw; woven pandanus with painted bands
+SPAR_B = [(122, 86), (114, 72), (107, 58), (104, 48), (106, 42)]
+SPAR_F = [(122, 86), (130, 72), (138, 58), (143, 46), (141, 38)]
+sail = poly(SPAR_B + [(110, 46), (116, 50), (122, 52), (128, 50), (134, 46), (138, 40)] + SPAR_F[::-1])
 o = cv.obj()
-o.part(sail, CORAL, d=2)
+o.part(sail, WEAVE, d=2)
 o.draw()
-for k in range(1, 4):   # sail seams and woven panels
-    cv.fill(line([(122, 86), (100 + k * 11, 64 - abs(k - 2) * 4)]) & sail, CORAL['s'])
-cv.fill(line([(110, 64), (116, 62)]) & sail, '#f2e4c0')
-cv.fill(line([(132, 66), (138, 60)]) & sail, '#f2e4c0')
+for k in range(3):   # painted coral bands following the claw's inner edge
+    band = sail & ~shift(sail, 0, -(5 + k * 9)) & shift(sail, 0, -(2 + k * 9))
+    cv.fill(band, (CORAL['b'], LAVA['b'], CORAL['b'])[k])
+    cv.fill(band & ~shift(band, 0, 1), (CORAL['s'], LAVA['s'], CORAL['s'])[k])
+ws = sail & ~(shift(sail, 0, -5) & ~shift(sail, 0, -2))
+for yy in range(48, 84, 3):   # woven texture
+    for xx in range(100 + (yy % 2) * 2, 146, 5):
+        if ws[yy, xx] and tuple(cv.px[yy, xx]) == hx(WEAVE['b']):
+            cv.dots([(xx, yy), (xx + 1, yy)], WEAVE['s'])
+o = cv.obj()
+o.part(line(SPAR_B, 2) | line(SPAR_F, 2), WOOD, d=0)
+o.draw()
+cv.fill(line([(106, 42), (101, 70), (104, 86)]) | line([(141, 38), (146, 64), (144, 86)]), '#c9a46a')   # stays
 hull = poly([(cx0, cy - 6), (cx0 + 6, cy - 1), (cx1 - 6, cy - 1), (cx1, cy - 6), (cx1 - 2, cy + 2), (cx0 + 2, cy + 2)])
 o = cv.obj()
 o.part(hull, WOOD, d=2)
@@ -720,7 +808,7 @@ for k in range(11):
 for fx, fy, rp, s, face, st in ((60, 166, TEAL, 5, 1, '#ffffff'), (250, 162, PURP, 5, -1, YEL['b']), (104, 152, CORAL, 4, -1, None), (240, 140, AQUA, 4, -1, '#1f6080'), (180, 146, YEL, 4, 1, '#2a2440'), (214, 132, LAVA, 3, -1, None), (40, 98 + 72, CORAL, 3, 1, None), (150, 120, TEAL, 3, -1, None)):
     fish(fx, fy, rp, s, face, True, st)
 for k in range(8):
-    fish(236 + (k % 3) * 8 + (k // 3) * 3, 128 + (k // 3) * 6, AQUA, 2, -1, False)
+    fish(236 + (k % 3) * 8 + (k // 3) * 3 + (k * 5) % 3, 128 + (k // 3) * 6 + (k % 2), ramp('#e8f2f6', '#7a9ab0', '#ffffff'), 2, -1, False)
 for k in range(5):
     fish(138 + k * 8, 162 + (k % 2) * 4, CORAL, 2, -1, False)
 fish(fgx + 22, 132, ramp('#c8c4d2', '#8a86a0', '#ece8f2'), 3, -1, True)   # a fish eyeing the hook

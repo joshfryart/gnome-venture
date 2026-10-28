@@ -36,6 +36,7 @@ DARK = '#2a1a10'
 cv = new_canvas('#8fbfd6')
 r = rnd(1717)
 r2 = rnd(4242)
+r3 = rnd(5353)   # pass-1 details (so the v0 layout does not shift)
 
 
 def shadow(x0, y0, x1, y1, col=None):
@@ -60,7 +61,7 @@ SX, SY = 70, 90
 import math  # noqa: E402
 for k in range(14):
     a0 = math.pi + k * math.pi / 14
-    a1 = a0 + math.pi / 30
+    a1 = a0 + math.pi / 30 * (0.5 + (k * 7 % 5) / 3.0)   # uneven ray widths
     rays = poly([(SX, SY), (SX + 200 * math.cos(a0), SY + 200 * math.sin(a0)), (SX + 200 * math.cos(a1), SY + 200 * math.sin(a1))])
     cv.fill(rays & rect(0, 30, W, 92) & ~ell(SX - 60, SY - 60, SX + 60, SY + 60) | (rays & ell(SX - 60, SY - 60, SX + 60, SY + 60) & rect(0, 0, W, 92)), '#f8c870' if k % 2 else '#f8d890')
 cv.fill(ell(SX - 26, SY - 26, SX + 26, SY + 26) & ~ell(SX - 24, SY - 24, SX + 24, SY + 24), '#fbe0a0')   # halo ring
@@ -72,8 +73,16 @@ for k, yy in enumerate((76, 80, 84)):   # warm bars across the sun
 
 # streaky clouds with pink-orange bellies
 CLOUDS = ((30, 8, 46), (120, 16, 60), (210, 6, 50), (272, 22, 36), (88, 36, 40), (160, 48, 44), (14, 52, 30), (246, 44, 40), (128, 62, 30), (290, 66, 24), (186, 28, 26))
-for cx, cy, w in CLOUDS:
-    m = ell(cx - w // 2, cy - 3, cx + w // 2, cy + 3) | ell(cx - w // 4, cy - 6, cx + w // 6, cy + 2) | ell(cx + w // 8, cy - 5, cx + w // 2 - 4, cy + 2)
+for ci, (cx, cy, w) in enumerate(CLOUDS):
+    st = (0, 1, 2, 1, 2, 0, 1, 2, 0, 2, 1)[ci]
+    if st == 0:   # flat-bellied puff
+        m = ell(cx - w // 2, cy - 3, cx + w // 2, cy + 3) | ell(cx - w // 4, cy - 6, cx + w // 6, cy + 2) | ell(cx + w // 8, cy - 5, cx + w // 2 - 4, cy + 2)
+    elif st == 1:   # long layered streak with a torn tail
+        m = (ell(cx - w // 2, cy - 2, cx + w // 2, cy + 2) | ell(cx - w // 3 + 4, cy - 4, cx + w // 6 + 4, cy + 1) | ell(cx - w // 2 - 10, cy + 1, cx - 2, cy + 4)
+             | ell(cx + w // 2 + 2, cy - 1, cx + w // 2 + 8, cy + 1))
+    else:   # tall cumulus, flat bottom
+        m = (ell(cx - w // 2, cy - 3, cx + w // 2, cy + 3) | ell(cx - w // 3, cy - 9, cx, cy + 1) | ell(cx - w // 8, cy - 12, cx + w // 4, cy) | ell(cx + w // 6, cy - 7, cx + w // 2 - 2, cy + 1))
+        m &= rect(0, 0, W, cy + 2)
     cv.fill(m, '#fbe6c8')
     cv.fill(m & ~shift(m, 0, -2), '#f0a080')   # warm underside
     cv.fill(m & ~shift(m, 0, -1), '#d9705a')
@@ -82,6 +91,47 @@ for bx, by in ((60, 20), (66, 17), (72, 21), (54, 24), (78, 25), (150, 6), (156,
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#5c3420')
 # a vulture circling high on the right
 cv.fill(line([(270, 6), (276, 9), (280, 8), (284, 9), (290, 6)], 2), '#4a3c36')
+# the fading morning moon (top centre)
+moon = ell(158, 6, 168, 16) & ~ell(161, 4, 171, 14)
+cv.fill(moon, '#fff6e4')
+cv.fill(moon & ~shift(moon, -1, -1), '#e0b0b8')
+
+
+def balloon(bx, by, s, ramp_a, ramp_b):
+    """Safari hot-air balloon: envelope centre (bx, by), half-width s, gores in two colours, basket below."""
+    env = ell(bx - s, by - s - 2, bx + s, by + s) | poly([(bx - s + 1, by + 2), (bx + s - 1, by + 2), (bx + 2, by + s + 4), (bx - 2, by + s + 4)])
+    o = cv.obj()
+    o.part(env, ramp_a, d=2)
+    o.part(rect(bx - 2, by + s + 7, bx + 2, by + s + 9), UMBER, d=0)
+    o.draw()
+    for gx in range(bx - s + 2, bx + s - 1, 4):   # vertical gores
+        g = rect(gx, by - s - 2, gx + 1, by + s + 4) & env & shift(env, 1, 1) & shift(env, -1, -1)
+        cv.fill(g, ramp_b['b'])
+    cv.fill(env & rect(0, by + 1, W, by + 2) & shift(env, 1, 0) & shift(env, -1, 0), '#f5cf6a')   # band
+    cv.dots([(bx - 2, by + s + 5), (bx - 2, by + s + 6), (bx + 2, by + s + 5), (bx + 2, by + s + 6)], DARK)   # ropes
+    cv.dots([(bx - s + 3, by - s + 1), (bx - s + 3, by - s + 2), (bx - s + 4, by - s)], '#fff6e4')   # gloss
+
+
+balloon(112, 34, 8, RED, ramp('#f08a24', '#b85a14'))
+balloon(66, 42, 4, PURP, ramp('#f5cf6a', '#b07a10'))
+
+
+def crane(cx, cy, up):
+    """Grey crowned crane in flight: neck forward (left), legs trailing, wings up or down."""
+    cv.fill(ell(cx - 3, cy - 1, cx + 3, cy + 1), '#8a7a70')
+    cv.fill(line([(cx - 3, cy), (cx - 8, cy - 1)]), '#4a3c36')
+    cv.fill(line([(cx + 3, cy), (cx + 10, cy + 1)]), '#2a1a10')
+    wy = cy - 6 if up else cy + 5
+    wing = poly([(cx - 2, cy), (cx + 2, cy), (cx + 4, wy), (cx - 1, wy + (1 if up else -1))])
+    cv.fill(wing, '#f1ece0')
+    cv.fill(wing & ~shift(wing, 0, 2 if up else -2), '#4a3c36')
+    cv.dots([(cx - 9, cy - 1), (cx - 9, cy - 2), (cx - 8, cy - 3), (cx - 10, cy - 3)], '#f5cf6a')   # golden crown
+    cv.dots([(cx - 9, cy)], '#d6322b')
+
+
+crane(34, 33, True)
+crane(44, 41, False)
+crane(24, 44, False)
 
 # ---------------------------------------------------------------- Snowcrown Peak (right-centre), glowing pink at dawn
 peak = poly([(120, 96), (168, 52), (180, 40), (196, 36), (210, 40), (226, 54), (262, 80), (300, 92), (300, 98), (120, 98)])
@@ -94,6 +144,19 @@ snow |= peak & rect(160, 0, 240, 47)
 cv.fill(snow, '#fbe0d8')
 cv.fill(snow & ~shift(snow, -3, 0) & rect(200, 0, W, H), '#e0b0b8')
 cv.fill(snow & ~shift(snow, 0, 1) & rect(0, 0, 199, H), '#ffffff')
+# sunlit ridges and buttresses down the left face (light from the upper left), each with a shaded right edge
+for ridge, dxs in (([(176, 50), (170, 58), (164, 66), (158, 72), (150, 82), (142, 92), (136, 98)], (2, 3, 5, 6, 7, 8, 9)),
+                   ([(186, 54), (184, 62), (178, 70), (174, 78), (168, 88), (164, 98)], (2, 3, 4, 6, 5, 7)),
+                   ([(166, 62), (160, 68), (156, 76), (150, 86)], (1, 3, 4, 5)),
+                   ([(196, 60), (196, 70), (192, 80), (190, 92), (188, 98)], (1, 2, 4, 3, 5))):
+    right = [(x + d, y) for (x, y), d in zip(ridge, dxs)]
+    face = poly(ridge + right[::-1]) & peak & ~snow
+    cv.fill(face, '#b8909a')
+    cv.fill(line(right) & peak & ~snow, '#7a5c70')
+for _ in range(60):   # scree and rock specks on the slope
+    sx, sy = r3(124, 200), r3(50, 94)
+    if peak[sy, sx] and not snow[sy, sx]:
+        cv.dots([(sx, sy), (sx + 1, sy)], ('#7a5c70', '#b8909a', '#c98a6a')[r3(0, 2)])
 lowhill = poly([(0, 94), (40, 86), (90, 92), (130, 84), (170, 92), (200, 88), (260, 90), (300, 86), (300, 100), (0, 100)])
 cv.fill(lowhill, '#c98a6a')
 cv.fill(lowhill & ~shift(lowhill, 0, 2), '#e0a07a')
@@ -134,6 +197,33 @@ for y in range(108, H):
             cv.dots([(gx, y), (gx, y - 1), (gx, y - 2), (gx + 1, y - 1), (gx - 1, y - 1)], c)
         else:
             cv.dots([(gx, y), (gx, y - 1)], c)
+
+# ---------------------------------------------------------------- the mid herd: bigger wildebeest and zebras trotting through the gaps behind the village
+def mini(x, y, kind, f):
+    """Tiny far animal, feet at y, facing f."""
+    def R(d0, y0, d1, y1, col):
+        cv.fill(rect(min(x + d0 * f, x + d1 * f), y0, max(x + d0 * f, x + d1 * f), y1), col)
+    if kind == 'w':
+        R(-3, y - 6, 2, y - 4, '#4a3c36')
+        R(1, y - 7, 3, y - 5, '#4a3c36')
+        R(4, y - 6, 5, y - 3, '#3d2a1c')
+        cv.dots([(x + 4 * f, y - 7), (x + 6 * f, y - 7)], '#c9c5bc')
+        for d in (-3, -1, 1, 2):
+            R(d, y - 3, d, y - (1 if d % 2 else 0), '#3d2a1c')
+        cv.dots([(x - 4 * f, y - 5), (x - 4 * f, y - 4)], DARK)
+    else:
+        R(-3, y - 6, 2, y - 4, '#f1ece0')
+        R(3, y - 8, 4, y - 5, '#f1ece0')
+        cv.dots([(x - 2 * f, y - 6), (x - 2 * f, y - 5), (x, y - 6), (x, y - 5), (x + 2 * f, y - 5), (x + 5 * f, y - 7), (x + 3 * f, y - 9)], DARK)
+        for d in (-3, -1, 1, 2):
+            R(d, y - 3, d, y - (1 if d % 2 else 0), '#4a3c36')
+
+
+for hx_, hy_, kind, f in ((72, 113, 'w', 1), (80, 116, 'z', 1), (92, 112, 'w', 1), (100, 115, 'w', 1), (108, 112, 'z', 1), (114, 116, 'w', 1),
+                          (128, 112, 'w', 1), (136, 115, 'z', 1), (144, 112, 'w', 1), (174, 113, 'w', 1), (182, 116, 'w', 1), (226, 112, 'z', 1),
+                          (234, 115, 'w', 1), (292, 112, 'w', -1), (298, 116, 'z', -1), (6, 112, 'w', 1)):
+    cv.fill(ell(hx_ - 9, hy_ - 10, hx_ - 1, hy_ - 6), '#f2c88a')   # kicked-up dust behind
+    mini(hx_, hy_, kind, f)
 
 # ---------------------------------------------------------------- red clay path from the front edge up to the village
 path = poly([(150, 156), (168, 156), (164, 166), (154, 176), (150, 186), (156, 199), (124, 199), (126, 186), (136, 174), (146, 164)])

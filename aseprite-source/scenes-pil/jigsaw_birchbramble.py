@@ -17,7 +17,7 @@ DGRASS = ramp('#5fa83a', '#3f8a32', '#8cc84a')
 EARTH = ramp('#4a3424', '#2e2018', '#6a4a30')
 MUD = ramp('#8a6a44', '#6a4e32', '#a8885a')
 LOG = ramp('#a06a38', '#74462a', '#c88a4a')
-SHINGLE = ramp('#8a7a6a', '#5e5248', '#b0a290')
+SHINGLE = ramp('#a8977e', '#7a6a58', '#cdbd9e')
 BIRCH = ramp('#f1ece0', '#c9c5bc', '#ffffff')
 RED = ramp('#d6322b', '#a8241f', '#f0705a')
 BLUE = ramp('#2f62b8', '#1f4282', '#6a9ae0')
@@ -34,6 +34,7 @@ CLAY = ramp('#c8643a', '#9a4424', '#e8905a')
 cv = new_canvas(SKY0)
 r = rnd(4411)
 r2 = rnd(913)
+r3 = rnd(7177)   # pass-1 details (separate so the v0 layout does not shift)
 yy_, xx_ = np.mgrid[0:H, 0:W]
 
 
@@ -50,20 +51,24 @@ def gnome(gx, gy, hat=RED, tunic=BLUE, beard=True, arm=1, hat_lean=-1):
     o.part(rect(gx - 7, gy - 7, gx + 7, gy - 6), ramp('#7a4a1f', '#5c3420'), d=0)
     if beard:
         o.part(poly([(gx - 7, gy - 20), (gx + 7, gy - 20), (gx + 1, gy - 6)]), BEARD, d=1, contour=True)
-    else:   # headscarf granny: rosy round face, grey hair bun under a painted kerchief
-        o.part(rect(gx - 6, gy - 21, gx + 6, gy - 15), BEARD, d=1)
-    o.part(rect(gx - 5, gy - 25, gx + 5, gy - 19), SKIN, d=1)
-    if beard:
+        o.part(rect(gx - 5, gy - 25, gx + 5, gy - 19), SKIN, d=1)
         o.part(poly([(gx - 8, gy - 23), (gx + 8, gy - 23), (gx + 5 * hat_lean, gy - 42)]), hat, d=2, contour=True)
-    else:
-        o.part(poly([(gx - 8, gy - 21), (gx + 8, gy - 21), (gx + 6, gy - 29), (gx - 6, gy - 29)]) | ell(gx - 6, gy - 32, gx + 6, gy - 24), hat, d=2, contour=True)
+    else:   # granny: a painted kerchief wrapped round the face and knotted under the chin, a white apron
+        o.part(poly([(gx - 7, gy - 16), (gx - 8, gy - 25), (gx - 5, gy - 30), (gx + 5, gy - 30), (gx + 8, gy - 25), (gx + 7, gy - 16)]), hat, d=2, contour=True)
+        o.part(rrect(gx - 4, gy - 25, gx + 4, gy - 18, 1), SKIN, d=1)
     o.part(rect(gx + (5 if arm > 0 else -9), gy - 15, gx + (9 if arm > 0 else -5), gy - 12), tunic, d=1)
     o.draw()
     if beard:
         cv.fill(rect(gx - 8, gy - 24, gx + 8, gy - 23), hat['s'])
     else:
-        cv.dots([(gx - 4, gy - 27), (gx, gy - 29), (gx + 4, gy - 27), (gx - 2, gy - 31), (gx + 2, gy - 31)], '#ffffff')   # kerchief dots
-        cv.fill(rect(gx - 2, gy - 15, gx + 2, gy - 15), SKIN['s'])
+        cv.dots([(gx - 5, gy - 27), (gx - 1, gy - 28), (gx + 3, gy - 28), (gx + 6, gy - 24), (gx - 6, gy - 21), (gx + 6, gy - 19), (gx - 6, gy - 18)], '#ffffff')   # kerchief dots
+        cv.dots([(gx + 1, gy - 28), (gx - 6, gy - 24), (gx + 6, gy - 22)], GOLD['b'])
+        cv.fill(rect(gx - 3, gy - 25, gx + 3, gy - 25), '#c9c5bc')   # grey hair under the kerchief edge
+        cv.fill(rect(gx - 2, gy - 17, gx + 1, gy - 15), hat['s'])   # knot under the chin
+        cv.dots([(gx - 3, gy - 14), (gx + 2, gy - 14), (gx - 3, gy - 13)], hat['b'])
+        cv.fill(rect(gx - 4, gy - 13, gx + 4, gy - 4), '#f6efe0')   # apron
+        cv.fill(rect(gx - 4, gy - 4, gx + 4, gy - 4) | rect(gx - 4, gy - 13, gx - 4, gy - 4), '#d8ccb0')
+        cv.dots([(gx - 2, gy - 6), (gx, gy - 6), (gx + 2, gy - 6)], RED['b'])
     cv.dots([(gx - 2, gy - 22), (gx + 2, gy - 22)], '#2a1a10')
     cv.dots([(gx, gy - 21), (gx + 1, gy - 21), (gx, gy - 20), (gx + 1, gy - 20)], '#e0907a')
     cv.dots([(gx - 4, gy - 20), (gx + 4, gy - 20)], '#f0a0a0')
@@ -113,8 +118,21 @@ cv.fill(m & ~shift(m, 3, 3), '#b8d0dc')
 for px, py, w in ((78, 58, 10), (126, 50, 14), (176, 56, 10), (250, 60, 8)):   # snow caps
     cap = m & poly([(px - w, py + w * 2 // 3), (px, py - 1), (px + w, py + w * 2 // 3)]) & ~poly([(px - w, py + w * 2 // 3), (px - w // 2, py + 3), (px, py + w // 2), (px + w // 2, py + 2), (px + w, py + w * 2 // 3)])
     cv.fill(cap, '#eef4f6')
-cv.fill(rect(123, 49, 127, 51) | rect(126, 47, 127, 48) | rect(123, 52, 123, 53) | rect(127, 52, 127, 53), '#5b6470')   # the wolf, nose up, on the snow cap
-cv.dots([(128, 46), (122, 49)], '#5b6470')
+WOLF = ramp('#6e7682', '#4a525c', '#a4acb6')
+o = cv.obj()   # the Grey Wolf King sitting on the peak, muzzle up, howling
+o.part(poly([(132, 51), (141, 49), (143, 51), (133, 53)]), WOLF, d=1)   # bushy tail on the snow
+o.part(ell(125, 41, 135, 52), WOLF, d=2)   # haunch
+o.part(poly([(119, 52), (121, 40), (126, 36), (130, 41), (128, 52)]), WOLF, d=1)   # chest
+o.part(rect(120, 46, 121, 53) | rect(124, 47, 125, 53), WOLF, d=0)   # front legs
+o.part(ell(119, 31, 127, 39), WOLF, d=1)   # head
+o.part(poly([(120, 34), (113, 27), (115, 25), (124, 32)]), WOLF, d=0)   # muzzle raised to the sky
+o.part(poly([(123, 32), (125, 26), (127, 33)]), WOLF, d=0)   # ear
+o.draw()
+cv.fill(poly([(121, 41), (124, 39), (124, 50), (122, 50)]), '#c4ccd4')   # pale ruff and chest
+cv.dots([(121, 33)], '#2a1a10')
+cv.dots([(113, 26), (114, 26)], '#2a1a10')
+for k, (hx0, hy0) in enumerate(((108, 22), (105, 18), (102, 14))):   # the howl: three little arcs
+    cv.fill(line([(hx0 + 2, hy0 - 2 - k), (hx0, hy0), (hx0 + 2 + k, hy0 + 2)]), '#ffffff')
 x = 2
 while x < W - 2:
     x += r2(3, 8)
@@ -227,11 +245,14 @@ o = cv.obj()
 o.part(poly([(ch0 - 6, 88), (36, 70), (ch1 + 6, 88)]), SHINGLE, d=3)   # hall roof
 o.part(poly([(1, 78), (10, 68), (19, 78)]), SHINGLE, d=2)
 o.draw()
-for k in range(4):   # shingle rows
-    y = 74 + k * 4
-    hw = (y - 70) * 42 // 18
-    for tx in range(36 - hw + 2 + (k % 2) * 2, 36 + hw - 1, 4):
-        cv.dots([(tx, y), (tx, y + 1)], SHINGLE['s'])
+roofm = poly([(ch0 - 6, 88), (36, 70), (ch1 + 6, 88)]) | poly([(1, 78), (10, 68), (19, 78)])
+roofin = roofm & shift(roofm, 1, 1) & shift(roofm, -1, -1)
+for k, y in enumerate(range(72, 88, 3)):   # aspen shingle courses: a dark seam, a lit lip, staggered joints with pointed tips
+    cv.fill(roofin & rect(0, y, W, y), '#6a5a48')
+    cv.fill(roofin & rect(0, y + 1, W, y + 1), '#d8caae')
+    for tx in range(2 + (k % 2) * 2, 72, 4):
+        cv.fill(roofin & rect(tx, y - 2, tx, y - 1), '#8a7a66')
+        cv.fill(roofin & rect(tx + 1, y, tx + 2, y), '#8a7a66')
 roofsnow = poly([(ch0 - 4, 87), (14, 82), (20, 84), (26, 80), (30, 83), (22, 87)]) | poly([(48, 79), (56, 83), (ch1 + 4, 87), (52, 87), (46, 84)])
 cv.fill(roofsnow, SNOW['b'])
 cv.fill(roofsnow & ~shift(roofsnow, 0, -1), SNOW['s'])

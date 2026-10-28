@@ -25,11 +25,11 @@ ROSE = ramp('#d06a78', '#a8527e', '#e88a8a')
 CREAM = ramp('#f2e4c0', '#c9a96e', '#fff4d8')
 WOOD = ramp('#b07a3a', '#7a4a1f', '#d9a35a')
 STONE = ramp('#b9a8a2', '#8a7a80', '#d8ccc2')
-BEARD = ramp('#f1ece0', '#c9c5bc', '#ffffff')
-SKIN = ramp('#f2c8a0', '#d9a07a', '#fff0d8')
+BEARD = ramp('#f1ece0', '#d8ccc2', '#fff4d8')
+SKIN = ramp('#f2c8a0', '#d9a07a', '#fff4d8')
 RED = ramp('#d6322b', '#a8241f', '#f08a24')
-SAFF = ramp('#f0b020', '#c98a14', '#f8dc6a')
-HERB = ramp('#6a8a3a', '#4f6a2a', '#8ab060')
+SAFF = ramp('#f0b020', '#c98a14', '#f5cf6a')
+HERB = ramp('#6a8a3a', '#35603f', '#8ab060')
 CLAY = ramp('#c47048', '#8a4a2a', '#e8986a')
 MELON = ramp('#7ab55c', '#4f8a3a', '#a4c86a')
 cv = new_canvas(SKYC[0])
@@ -84,7 +84,7 @@ def awning(x0, x1, y0, y1, ca, cb, w=4):
 def gnome(gx, gy, hat, tunic, hh=19, beard=BEARD):
     """Gnome standing with feet at (gx, gy): boots, tunic, belt, beard, face, tall hat (tip leaning back)."""
     o = cv.obj()
-    o.part(rect(gx - 7, gy - 3, gx - 2, gy) | rect(gx + 1, gy - 3, gx + 6, gy), ramp('#5c3420', '#3d2a1c', '#7a4a1f'), d=1)
+    o.part(rect(gx - 7, gy - 3, gx - 2, gy) | rect(gx + 1, gy - 3, gx + 6, gy), ramp('#5c3a2a', '#3d2a1c', '#7a4a1f'), d=1)
     o.part(rrect(gx - 7, gy - 16, gx + 7, gy - 3, 2), tunic, d=2, contour=True)
     o.part(rect(gx - 7, gy - 7, gx + 7, gy - 6), ramp('#7a4a1f', '#5c3420'), d=0)
     o.part(poly([(gx - 7, gy - 20), (gx + 7, gy - 20), (gx + 1, gy - 6)]), beard, d=1, contour=True)
@@ -93,8 +93,8 @@ def gnome(gx, gy, hat, tunic, hh=19, beard=BEARD):
     o.draw()
     cv.fill(rect(gx - 8, gy - 24, gx + 8, gy - 23), hat['s'])
     cv.dots([(gx - 2, gy - 22), (gx + 2, gy - 22)], '#2a1a10')
-    cv.dots([(gx, gy - 21), (gx + 1, gy - 21), (gx, gy - 20), (gx + 1, gy - 20)], '#e0907a')
-    cv.dots([(gx - 4, gy - 20), (gx + 4, gy - 20)], '#f0a0a0')
+    cv.dots([(gx, gy - 21), (gx + 1, gy - 21), (gx, gy - 20), (gx + 1, gy - 20)], '#d9a07a')
+    cv.dots([(gx - 4, gy - 20), (gx + 4, gy - 20)], '#e88a8a')
     cv.fill(rect(gx - 1, gy - 7, gx + 1, gy - 6), '#f5cf6a')
     cv.dots([(gx - 6, gy - 14), (gx - 6, gy - 13)], tunic['r'])
 
@@ -290,7 +290,7 @@ cv.fill(dune1 & ~shift(dune1, 4, 3), '#a8608a')   # lit crests
 for _ in range(36):   # wind ripples
     px, py = r(44, 296), r(80, 108)
     if dune1[py, px]:
-        cv.fill(line([(px, py), (px + r(4, 8), py + 1)]) & dune1, '#6a3f76')
+        cv.fill(line([(px, py), (px + r(4, 8), py + 1)]) & dune1, '#563a78')
 # library-mosque silhouette with lit arched windows
 mq = rect(140, 82, 192, 104) | ell(148, 66, 172, 92) | rect(158, 60, 160, 66) | rect(184, 48, 190, 104) | rect(182, 60, 192, 62) | ell(183, 43, 191, 51) | rect(174, 74, 182, 84)
 cv.fill(mq, '#4a3366')
@@ -328,7 +328,7 @@ for gx, gy, s in ((206, 90, 7), (214, 87, 9), (224, 91, 6)):
     for fx in (-s, -s // 2, s // 2, s):
         cv.fill(line([(gx + 1, gy), (gx + 1 + fx, gy + 2 + abs(fx) // 3)]), '#3d2a63')
 # second crest ridges on the rose dune, a sharp lit/shade split with a hard step
-for x0, y0, x1, y1, x2, y2 in ((150, 116, 176, 106, 206, 114), (226, 118, 254, 108, 290, 116), (12, 116, 36, 110, 58, 116)):
+for x0, y0, x1, y1, x2, y2 in ((150, 108, 176, 99, 204, 108), (196, 112, 226, 102, 258, 110), (12, 112, 36, 104, 58, 112)):
     rid = poly([(x0, y0), (x1, y1), (x2, y2)])
     cv.fill(rid, '#d9867a')
     cv.fill(rid & poly([(x1, y1), (x2, y2), (x1 + 4, y2)]), '#9a5a64')
@@ -346,7 +346,7 @@ cv.fill(rect(274, 108, 275, 112), '#ffd85a')
 for gx in (255, 300):
     cv.fill(line([(gx, 113), (262 if gx < 270 else 296, 103)]), '#3d2a1c')
 for k in range(8):   # sand wind-curls on the near dune
-    px, py = r3(4, 290), r3(117, 122)
+    px, py = r3(4, 290), r3(104, 113)
     cv.fill(line([(px, py), (px + 3, py - 1), (px + 6, py - 1), (px + 7, py)]), '#f2c08a')
 
 # ================================================================ GROUND: amber sand with ripples, the path in
@@ -362,11 +362,11 @@ for y in range(118, H, 3):
 path = poly([(120, 138), (140, 138), (152, 152), (168, 168), (186, 186), (196, 199), (146, 199), (140, 184), (130, 162), (122, 150)])
 cv.fill(path, '#f2c08a')
 cv.fill(path & ~shift(path, -2, 0), '#e2a273')
-cv.fill(path & ~shift(path, 2, 0), '#f8d8a8')
+cv.fill(path & ~shift(path, 2, 0), '#f2e4c0')
 for k in range(9):   # footprints up the path
     fy = 194 - k * 6
     fx = 166 - k * 3 + (4 if k % 2 else 0)
-    cv.dots([(fx, fy), (fx + 1, fy), (fx, fy - 2)], '#d99068')
+    cv.dots([(fx, fy), (fx + 1, fy), (fx, fy - 2)], '#e2a273')
 
 # ================================================================ THE SOUK: mud-brick houses, wind-catcher, gate, awnings, lanterns
 def house(x0, y0, x1, y1, rp, parapet=True):
@@ -496,12 +496,12 @@ for lx, ln in ((cx0 + 4, 0), (cx0 + 9, 1), (cx0 + 24, 0), (cx0 + 29, 1)):
     legs |= rect(lx, cy0 + 12, lx + 2, cy0 + 34 - ln) | rect(lx - 1, cy0 + 33 - ln, lx + 3, cy0 + 35 - ln)
 o.part(legs, CAMEL, d=1)
 o.part(ell(cx0, cy0, cx0 + 34, cy0 + 18), CAMEL, d=3)
-o.part(ell(cx0 + 8, cy0 - 10, cx0 + 24, cy0 + 8), CAMEL, d=2)
+o.part(ell(cx0 + 5, cy0 - 4, cx0 + 29, cy0 + 8) | ell(cx0 + 10, cy0 - 5, cx0 + 21, cy0 + 1), CAMEL, d=2)
 o.part(line([(cx0 + 32, cy0 + 6), (cx0 + 38, cy0 + 12), (cx0 + 44, cy0 + 20)], 5), CAMEL, d=1)
 o.part(ell(cx0 + 42, cy0 + 17, cx0 + 54, cy0 + 25), CAMEL, d=1)
 o.part(ell(cx0 - 3, cy0 + 4, cx0 + 3, cy0 + 12), CAMEL, d=1)
 o.draw()
-bl = ell(cx0 + 4, cy0 - 4, cx0 + 28, cy0 + 14) & ~rect(0, 0, W, cy0 + 1)
+bl = ell(cx0 + 6, cy0 - 3, cx0 + 28, cy0 + 13) & ~rect(0, 0, W, cy0 + 2)
 cv.fill(bl, RED['b'])
 cv.fill(bl & rect(0, cy0 + 5, W, cy0 + 6), TEAL['b'])
 cv.fill(bl & rect(0, cy0 + 9, W, cy0 + 9), '#f5cf6a')
@@ -513,12 +513,16 @@ cv.dots([(cx0 + 44, cy0 + 17)], CAMEL['s'])
 cv.fill(rect(cx0 + 40, cy0 + 26, cx0 + 58, cy0 + 26), '#e88a62')
 cv.fill(rect(cx0 + 44, cy0 + 28, cx0 + 54, cy0 + 28), '#f2ac5a')   # ripple where it drinks
 # the big palm, right edge (drawn over the pool bank)
-palm(296, 156, 268, 28, ((150, 52, 18), (180, 50, 10), (205, 44, 2), (240, 30, -6), (290, 30, -8), (320, 40, 2), (345, 48, 12), (10, 40, 22), (165, 42, 26), (270, 20, -4)), 3)
+o = cv.obj()   # root flare: the big palm stands on the far bank, not in the water
+o.part(poly([(282, 145), (286, 136), (293, 136), (298, 145)]), TRUNK, d=2)
+o.draw()
+cv.fill(line([(285, 144), (288, 139)]) | line([(294, 144), (292, 139)]), TRUNK['s'])
+palm(290, 138, 268, 28, ((150, 52, 18), (180, 50, 10), (205, 44, 2), (240, 30, -6), (290, 30, -8), (320, 40, 2), (345, 48, 12), (10, 40, 22), (165, 42, 26), (270, 20, -4)), 3)
 # resting camel at the front right, a gnome-sized saddle pack beside it
 rx0, ry0 = 232, 178
 o = cv.obj()
 o.part(ell(rx0, ry0 + 2, rx0 + 46, ry0 + 22), CAMEL, d=3)
-o.part(ell(rx0 + 14, ry0 - 6, rx0 + 32, ry0 + 12), CAMEL, d=2)
+o.part(ell(rx0 + 10, ry0 - 1, rx0 + 36, ry0 + 11) | ell(rx0 + 14, ry0 - 2, rx0 + 26, ry0 + 4), CAMEL, d=2)
 o.part(line([(rx0 + 42, ry0 + 10), (rx0 + 48, ry0), (rx0 + 52, ry0 - 8)], 5), CAMEL, d=1)
 o.part(ell(rx0 + 50, ry0 - 14, rx0 + 63, ry0 - 6), CAMEL, d=1)
 o.part(rect(rx0 + 4, ry0 + 18, rx0 + 16, ry0 + 21) | rect(rx0 + 30, ry0 + 18, rx0 + 42, ry0 + 21), CAMEL, d=1, contour=True)
@@ -527,7 +531,7 @@ cv.dots([(rx0 + 57, ry0 - 12), (rx0 + 58, ry0 - 12)], '#2a1a10')
 cv.dots([(rx0 + 62, ry0 - 9)], '#2a1a10')
 cv.fill(rect(rx0 + 52, ry0 - 16, rx0 + 53, ry0 - 14), CAMEL['s'])   # ear
 cv.fill(line([(rx0, ry0 + 10), (rx0 - 4, ry0 + 16)]), CAMEL['s'])   # tail
-bl = ell(rx0 + 10, ry0 - 2, rx0 + 36, ry0 + 16) & ~rect(0, 0, W, ry0 + 1)
+bl = ell(rx0 + 12, ry0 + 1, rx0 + 34, ry0 + 15) & ~rect(0, 0, W, ry0 + 4)
 cv.fill(bl, TEAL['b'])
 cv.fill(bl & rect(0, ry0 + 5, W, ry0 + 6), ROSE['b'])
 cv.fill(bl & rect(0, ry0 + 10, W, ry0 + 10), '#f5cf6a')
@@ -578,7 +582,7 @@ tgx, tgy = 154, 186
 gnome(tgx, tgy, TEAL, RED, hh=18)
 o = cv.obj()
 o.part(rect(tgx + 7, tgy - 30, tgx + 10, tgy - 14), RED, d=1)   # raised arm
-o.part(ell(tgx + 6, tgy - 40, tgx + 16, tgy - 31) | line([(tgx + 15, tgy - 36), (tgx + 20, tgy - 38)], 2) | rect(tgx + 9, tgy - 42, tgx + 12, tgy - 40), ramp('#d9cfb8', '#9a8f7a', '#ffffff'), d=1)   # teapot
+o.part(ell(tgx + 6, tgy - 40, tgx + 16, tgy - 31) | line([(tgx + 15, tgy - 36), (tgx + 20, tgy - 38)], 2) | rect(tgx + 9, tgy - 42, tgx + 12, tgy - 40), ramp(CREAM['b'], '#c9a96e', '#fff4d8'), d=1)   # teapot
 o.draw()
 cv.fill(rect(tgx + 21, tgy - 37, tgx + 21, tgy - 12), '#e8a317')   # the long golden pour
 cv.dots([(tgx + 20, tgy - 30), (tgx + 22, tgy - 20)], '#f5cf6a')
@@ -620,15 +624,15 @@ for jx, jy, s in ((136, 170, 6), (128, 178, 5), (142, 182, 4)):
     o = cv.obj()
     o.part(ell(jx - s, jy - s, jx + s, jy + s) | rect(jx - 2, jy - s - 3, jx + 2, jy - s) | rect(jx - 3, jy - s - 4, jx + 3, jy - s - 3), CLAY, d=2)
     o.draw()
-    cv.dots([(jx - s // 2, jy - 1), (jx - s // 2 + 1, jy + 2), (jx + 1, jy - 2)], '#a9d6ea')   # sweat beads
+    cv.dots([(jx - s // 2, jy - 1), (jx - s // 2 + 1, jy + 2), (jx + 1, jy - 2)], '#7ac0c8')   # sweat beads
     cv.fill(rect(jx - s + 1, jy, jx + s - 1, jy), CLAY['s'])
 # the friendly sand scarab rolling its ball (front centre-right)
 sbx, sby = 210, 190
 shadow(sbx - 12, sby + 3, sbx + 12, sby + 7)
 o = cv.obj()
-o.part(ell(sbx - 12, sby - 8, sbx - 1, sby + 4), ramp('#c9a96e', '#9a6b3f', SAND['r']), d=2)
-o.part(ell(sbx + 1, sby - 4, sbx + 12, sby + 4), ramp('#3f8fa0', '#25637d', '#a9d6ea'), d=2, contour=True)
-o.part(ell(sbx - 1, sby - 3, sbx + 4, sby + 2), ramp('#2a4a5a', '#2a1a10', '#3f8fa0'), d=1)
+o.part(ell(sbx - 12, sby - 8, sbx - 1, sby + 4), ramp('#c9a96e', '#a8603f', SAND['r']), d=2)
+o.part(ell(sbx + 1, sby - 4, sbx + 12, sby + 4), ramp('#3f8fa0', '#25637d', '#7ac0c8'), d=2, contour=True)
+o.part(ell(sbx - 1, sby - 3, sbx + 4, sby + 2), ramp(DARK, '#2a1a10', '#3f8fa0'), d=1)
 o.draw()
 cv.fill(rect(sbx + 6, sby - 4, sbx + 6, sby + 4), '#25637d')
 cv.dots([(sbx + 4, sby - 2), (sbx + 9, sby - 2)], '#f5cf6a')
@@ -639,7 +643,7 @@ for k in range(5):   # its track in the sand
     cv.dots([(sbx + 16 + k * 4, sby + 4 - (k % 2))], SAND['s'])
 for sx, sy in ((150, 140), (176, 150), (8, 150), (226, 194), (200, 176), (60, 182)):   # desert sage tufts (silver-green)
     for dx, dy in ((0, 0), (-2, -2), (2, -3), (-1, -4), (1, -5), (3, -1), (-3, -1)):
-        cv.dots([(sx + dx, sy + dy)], '#9aaa8a' if (dx + dy) % 2 else '#6a7a6a')
+        cv.dots([(sx + dx, sy + dy)], '#8ab060' if (dx + dy) % 2 else '#5a8a4a')
 for px, py in ((140, 196), (24, 160), (178, 196), (232, 160), (16, 168), (198, 160), (2, 158)):   # pebbles
     o = cv.obj()
     o.part(ell(px, py, px + 5, py + 3), STONE, d=1)

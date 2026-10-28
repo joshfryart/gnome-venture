@@ -396,6 +396,11 @@ for yb in range(44, 60, 4):
 # ---------------------------------------------------------------- the stupa on its knoll (right of centre)
 sx0, sy0 = 228, 88
 shadow(206, sy0 + 2, 252, sy0 + 8, FOOT['s'])
+# prayer-flag strings (pass 1: drawn before the stupa so they pass behind it and leave the painted eyes clear)
+flag_string((67, 41), (sx0, sy0 - 52), 30, seed=0)
+flag_string((sx0, sy0 - 50), (265, 72), 6, seed=2)
+flag_string((0, 30), (mx0 + 25, my0 - 22), 6, seed=4)
+flag_string((sx0, sy0 - 48), (192, 88), 4, gap=3, seed=1)
 o = cv.obj()
 o.part(rect(sx0 - 16, sy0 - 6, sx0 + 16, sy0 + 2), WHITE, d=2)
 o.part(rect(sx0 - 12, sy0 - 11, sx0 + 12, sy0 - 6), WHITE, d=2)
@@ -425,10 +430,6 @@ for xk in range(sx0 - 14, sx0 + 15, 5):
     cv.dots([(xk + 1, sy0 - 2)], SAFF['r'])
 cv.fill(ell(sx0 - 9, sy0 - 26, sx0 - 4, sy0 - 20), WHITE['r'])
 # prayer-flag strings: monastery pole -> stupa spire (long sag across the valley), stupa -> crag, monastery -> left edge, stupa -> knoll foot
-flag_string((67, 41), (sx0, sy0 - 52), 30, seed=0)
-flag_string((sx0, sy0 - 50), (265, 72), 6, seed=2)
-flag_string((0, 30), (mx0 + 25, my0 - 22), 6, seed=4)
-flag_string((sx0, sy0 - 48), (192, 88), 4, gap=3, seed=1)
 
 # ---------------------------------------------------------------- the river: waterfall from the knoll, ripples, banks
 cv.fill(river, WATER['b'])
@@ -629,10 +630,10 @@ gnome(197, 184, 2, MAG, SAFF, face=1)
 o = cv.obj()   # pass 1: a big brass scoop held up high, heaped with saffron threads
 o.part(line([(204, 170), (210, 165)], 2), WOOD, d=0)
 o.part(ell(208, 160, 225, 172) & rect(0, 165, W, H), GOLD, d=2)
-o.part(ell(209, 155, 224, 168) & rect(0, 0, W, 165), ramp('#d8481e', '#a8241f', '#e0702a'), d=1)
+o.part(ell(209, 159, 224, 170) & rect(0, 0, W, 165), ramp('#d8481e', '#a8241f', '#e0702a'), d=1)
 o.draw()
 cv.fill(rect(209, 165, 224, 165), GOLD['r'])
-for dx, dy in ((2, -8), (5, -10), (8, -9), (11, -7), (4, -5), (9, -4), (12, -3), (6, -2)):   # threads
+for dx, dy in ((2, -3), (5, -5), (8, -6), (11, -4), (4, -2), (9, -3), (13, -2), (6, -4), (10, -1)):   # threads
     cv.dots([(209 + dx, 165 + dy), (210 + dx, 164 + dy)], '#f8d060' if dx % 3 else '#a8241f')
 cv.dots([(214, 174), (217, 177), (215, 180), (219, 182)], '#d8481e')   # a few threads falling to the sack
 cv.fill(rect(203, 169, 206, 172), SKIN['b'])
@@ -702,7 +703,9 @@ for px, py in ((26, 160), (72, 134), (120, 122)):
 
 cv.remap({'#c87a7a': '#e0907a', '#7a5a38': '#4a2c1a', '#f08a24': '#e0702a', '#f08a4a': '#e0702a', '#e0c040': '#f0c030', '#f6b8cf': '#ec74ac',
           '#a4c46a': '#a4b86a', '#4f7a2a': '#4f9a45', '#c89a60': '#cfae7a', '#a8301a': '#a8241f', '#6a4a28': '#7a4a1f', '#a07040': '#9a6b3f',
-          '#f8d870': '#f8d060', '#c08010': '#b07a10', '#8e1a20': '#a8241f', '#b8945c': '#9a7a4a', '#c8202a': '#d6322b', '#ece8de': '#f4f0e4'})
+          '#f8d870': '#f8d060', '#c08010': '#b07a10', '#8e1a20': '#a8241f', '#b8945c': '#9a7a4a', '#c8202a': '#d6322b', '#ece8de': '#f4f0e4',
+          '#3a3028': '#2a1a10', '#5a4634': '#4a2c1a', '#9a8a6a': '#8a7a5a', '#7fa060': '#7ab55c', '#3f7a3a': '#2f6a3a', '#3f6a30': '#2f6a3a',
+          '#5f7a3a': '#4f7a3a'})
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

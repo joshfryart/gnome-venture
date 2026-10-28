@@ -570,9 +570,14 @@ o.part(ell(189, 138, 195, 144), WOOD, d=1)
 o.part(line([(194, 139), (200, 134)], 2), WOOD, d=0)
 o.draw()
 cv.dots([(191, 140)], DARK)
-for k in range(3):   # music notes
-    cv.fill(rect(184 - k * 5, 128 - k * 4, 185 - k * 5, 129 - k * 4), DARK)
-    cv.fill(rect(185 - k * 5, 124 - k * 4, 185 - k * 5, 128 - k * 4), DARK)
+for k, (nx, ny) in enumerate(((205, 141), (212, 135), (219, 140))):   # music notes drifting up-right from the guitar
+    c = (DARK, CHILI['s'], '#3a2a48')[k]
+    cv.fill(rect(nx, ny, nx + 2, ny + 1), c)
+    cv.fill(rect(nx + 2, ny - 6, nx + 2, ny), c)
+    if k == 1:   # a beamed pair
+        cv.fill(rect(nx + 4, ny + 1, nx + 6, ny + 2) | rect(nx + 6, ny - 5, nx + 6, ny + 1) | rect(nx + 2, ny - 6, nx + 6, ny - 5), c)
+    else:
+        cv.dots([(nx + 3, ny - 5), (nx + 4, ny - 4), (nx + 4, ny - 3)], c)
 
 # ---------------------------------------------------------------- the path down from the plaza, pots by the path
 path = poly([(150, 146), (184, 146), (190, 160), (196, 178), (200, 199), (146, 199), (150, 180), (146, 162)])
@@ -597,37 +602,96 @@ for px, py, s in ((136, 140, 6), (146, 136, 4), (128, 146, 3)):   # big clay bea
     cv.dots([(px - s // 2, py - s // 2)], TERRA['r'])
 
 # ---------------------------------------------------------------- Cenote of Echoes (front right)
-rim = ell(196, 150, 312, 222)
-hole = ell(208, 160, 298, 222)
-water = ell(214, 178, 292, 222) & hole
+# burn the main generator exactly as the v0 cenote did, so the litter after it keeps its layout
+_rim0, _hole0 = ell(196, 150, 312, 222), ell(208, 160, 298, 222)
+_water0 = ell(214, 178, 292, 222) & _hole0
+for _ in range(30):
+    cx, cy = r(198, 300), r(152, 199)
+    if _rim0[cy, cx] and not _hole0[cy, cx]:
+        r(-3, 3), r(0, 2)
+for _ in range(40):
+    wx, wy = r(216, 290), r(182, 198)
+    if _water0[wy, wx] and _water0[wy, min(W - 1, wx + 5)]:
+        r(2, 5), r(0, 2)
+for vx in (216, 228, 244, 262, 276, 286):
+    r(12, 26), r(-2, 2)
+# limestone rim with a lumpy outer edge, an open shaft with a ragged lip, strata on the far wall, a pool at the bottom
+rim = ell(194, 146, 308, 214)
+for bx_, by_, br in ((200, 160, 8), (214, 150, 7), (246, 145, 6), (276, 148, 8), (300, 162, 7), (198, 186, 6)):
+    rim |= ell(bx_ - br, by_ - br * 2 // 3, bx_ + br, by_ + br * 2 // 3)
+hole = ell(208, 156, 296, 196)
+for k in range(9):   # ragged lip: rocks jutting in, bites taken out
+    ex = 212 + k * 10 + r3(-3, 3)
+    col = np.nonzero(hole[:, min(W - 1, ex)])[0]
+    ey = int(col.min()) if len(col) else 160
+    sz = r3(2, 4)
+    if k % 2:
+        hole &= ~ell(ex - sz - 1, ey - 1, ex + sz + 1, ey + sz)
+    else:
+        hole |= ell(ex - sz, ey - sz, ex + sz, ey + 1)
+for ex, ey in ((207, 176), (297, 172), (210, 186), (294, 184)):   # side bites
+    hole |= ell(ex - 3, ey - 3, ex + 3, ey + 3)
+water = hole & rect(0, 179, W, H)
 o = cv.obj()
 o.part(rim, LIME, d=3)
 o.draw()
-for _ in range(30):   # limestone cracks and moss
-    cx, cy = r(198, 300), r(152, 199)
-    if rim[cy, cx] and not hole[cy, cx]:
-        cv.fill(line([(cx, cy), (cx + r(-3, 3), cy + 2)]), LIME['s'] if r(0, 2) else CORN['r'])
-cv.fill(hole, '#4a3430')
-for k, yy in enumerate(range(164, 200, 5)):   # rock strata on the wall
-    cv.fill(hole & rect(0, yy, W, yy + 1) & ~water, ('#6a4a3a', '#5a3e34')[k % 2])
-cv.fill(hole & ~shift(hole, 0, 3), '#2a1a18')   # shadowed far lip
+for _ in range(34):   # limestone cracks, pits and moss on the rim top
+    cx, cy = r3(196, 306), r3(146, 199)
+    if rim[cy, cx] and not dil4(hole)[cy, cx]:
+        k = r3(0, 3)
+        if k == 0:
+            cv.fill(line([(cx, cy), (cx + r3(-3, 3), cy + 2)]), LIME['s'])
+        elif k == 1:
+            cv.fill(rect(cx, cy, cx + r3(1, 3), cy) & rim, CORN['r'])
+            cv.dots([(cx + 1, cy - 1)], CORN['b'])
+        else:
+            cv.dots([(cx, cy), (cx + 1, cy)], LIME['s'])
+cv.fill(hole, '#5a3e34')
+yy = 158
+for k in range(7):   # far wall strata, uneven thickness, each with a lit upper edge
+    th = r3(2, 4)
+    band = hole & rect(0, yy, W, yy + th - 1) & ~water
+    cv.fill(band, ('#6a4a3a', '#4a3430', '#7a5a44')[k % 3])
+    cv.fill(band & rect(0, yy, W, yy) & (hole & ~shift(hole, 3, 0)), LIME['s'])
+    yy += th
+cv.fill(hole & ~shift(hole, 0, 4), '#2a1a18')   # deep shadow under the overhanging far lip
+cv.fill(hole & ~shift(hole, 0, 1) & dil4(rim & ~hole), DARK)
+cv.fill(dil4(hole) & ~hole & shift(hole, 0, -1) & rim, LIME['r'])   # sunlit edge just above the far lip
 cv.fill(water, WATER['b'])
-cv.fill(water & ~shift(water, 0, 3), WATER['s'])
+cv.fill(water & ~shift(water, 0, 4), WATER['s'])   # shade where the wall meets the pool
+cv.fill(water & rect(0, 179, W, 179), '#1f6a74')
 for _ in range(40):
-    wx, wy = r(216, 290), r(182, 198)
+    wx, wy = r3(214, 292), r3(184, 196)
     if water[wy, wx] and water[wy, min(W - 1, wx + 5)]:
-        cv.fill(line([(wx, wy), (wx + r(2, 5), wy)]), WATER['r'] if r(0, 2) else WATER['s'])
-cv.fill(water & rect(214, 180, 240, 199) & ~shift(water, 6, 0), WATER['r'])   # light shaft on the left of the pool
-for vx in (216, 228, 244, 262, 276, 286):   # hanging vines and roots
-    ln = r(12, 26)
-    cv.fill(line([(vx, 160), (vx + r(-2, 2), 160 + ln)]), CORN['s'])
+        cv.fill(line([(wx, wy), (wx + r3(2, 5), wy)]), WATER['r'] if r3(0, 2) else WATER['s'])
+cv.fill(water & poly([(222, 179), (236, 179), (246, 199), (228, 199)]) & ~rect(0, 0, W, 182), WATER['r'])   # slanting light shaft
+cv.fill(dil4(hole) & ~hole & ~shift(hole, 0, -1) & shift(hole, 0, 2), '#6a4a3a')   # near lip: thin wet ledge
+for x0 in range(210, 296, 7):   # stalactite teeth under the far lip
+    col = np.nonzero(hole[:, x0])[0]
+    if len(col):
+        t0 = int(col.min())
+        cv.fill(poly([(x0 - 1, t0), (x0 + 2, t0), (x0, t0 + r3(3, 5))]), LIME['s'])
+for vx in (216, 232, 249, 264, 278, 290):   # hanging vines and roots from the far lip
+    col = np.nonzero(hole[:, vx])[0]
+    if not len(col):
+        continue
+    v0 = int(col.min())
+    ln = min(r3(10, 22), 178 - v0)
+    cv.fill(line([(vx, v0), (vx + r3(-2, 2), v0 + ln)]), CORN['s'])
     for k in range(2, ln, 3):
-        cv.dots([(vx + (1 if k % 2 else -1), 160 + k)], CORN['b'] if k % 4 else CORN['r'])
+        cv.dots([(vx + (1 if k % 2 else -1), v0 + k)], CORN['b'] if k % 4 else CORN['r'])
     if vx % 3 == 0:
-        cv.dots([(vx, 161 + ln)], PINK['b'])
+        cv.dots([(vx, v0 + ln + 1)], PINK['b'])
+# rope ladder down the left wall into the pool
+for side in (220, 226):
+    cv.fill(line([(side - 3, 162), (side, 186)]), '#d9a35a')
+for k in range(6):
+    yk = 165 + k * 4
+    cv.fill(rect(217 + yk * 3 // 24 - 20 + 1, yk, 223 + yk * 3 // 24 - 20 + 2, yk), WOOD['b'])
+cv.fill(rect(214, 158, 219, 161), WOOD['s'])   # stake on the rim
 # swimming gnome (head and hat) with ripple rings
-sgx, sgy = 256, 192
-cv.fill(ell(sgx - 10, sgy - 1, sgx + 10, sgy + 4) & ~ell(sgx - 8, sgy, sgx + 8, sgy + 3), WATER['r'])
+sgx, sgy = 258, 190
+cv.fill(ell(sgx - 10, sgy - 1, sgx + 10, sgy + 4) & ~ell(sgx - 8, sgy, sgx + 8, sgy + 3) & water, WATER['r'])
 o = cv.obj()
 o.part(rect(sgx - 4, sgy - 5, sgx + 4, sgy + 1), SKIN, d=1)
 o.part(poly([(sgx - 5, sgy - 6), (sgx + 5, sgy - 6), (sgx + 2, sgy - 18)]), MAIZE, d=2, contour=True)
@@ -636,19 +700,19 @@ o.draw()
 cv.dots([(sgx - 2, sgy - 4), (sgx + 2, sgy - 4)], DARK)
 cv.fill(rect(sgx - 5, sgy + 1, sgx + 5, sgy + 1), WATER['s'])
 cv.fill(line([(sgx + 6, sgy - 4), (sgx + 10, sgy - 8)], 2), SKIN['b'])   # waving hand
-# a diving gnome on the rim rock, arms out over the pool
-gnome(234, 160, CHILI, TURQ, arm='side')
-cv.dots([(246, 147), (248, 145), (250, 147)], DARK)   # echo marks
+# a gnome on the far lip, about to jump in
+gnome(240, 153, CHILI, TURQ, arm='up')
+cv.dots([(254, 132), (256, 130), (258, 132), (260, 128), (262, 126), (264, 128)], DARK)   # echo marks
 # pot and flowers on the rim, a hummingbird
 o = cv.obj()
-o.part(ell(280, 152, 292, 162), TERRA, d=2)
-o.part(rect(283, 150, 289, 153), TERRA, d=1)
+o.part(ell(284, 148, 296, 158), TERRA, d=2)
+o.part(rect(287, 146, 293, 149), TERRA, d=1)
 o.draw()
-cv.fill(rect(281, 157, 291, 157), TURQ['b'])
-for fx, fy in ((294, 160), (297, 164), (290, 148), (296, 156)):
+cv.fill(rect(285, 153, 295, 153), TURQ['b'])
+for fx, fy in ((299, 158), (297, 166), (292, 144), (300, 150), (200, 168), (203, 190)):
     cv.fill(rect(fx, fy, fx + 2, fy + 1), PINK['b'])
     cv.dots([(fx + 1, fy)], PINK['r'])
-hbx, hby = 270, 146
+hbx, hby = 272, 142
 cv.fill(ell(hbx, hby, hbx + 5, hby + 3), JADE['b'])
 cv.dots([(hbx - 1, hby + 1), (hbx - 2, hby + 1), (hbx - 3, hby + 2)], DARK)
 cv.fill(line([(hbx + 2, hby), (hbx + 5, hby - 4)]), JADE['r'])

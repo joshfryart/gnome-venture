@@ -135,7 +135,10 @@ if (is_post()) {
         $oneTitle = mb_substr(trim((string)($_POST['title'] ?? '')), 0, 80);
         $made = 0;
         foreach ($files as $f) {
-            if ($f['err'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp'])) { flash($f['name'] . ': the upload failed (too big for the server, or interrupted).', 'err'); continue; }
+            if ($f['err'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp'])) {
+                flash($f['name'] . (in_array($f['err'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? ': too big. Pictures can be up to 3 MB, and this server’s upload limit is ' . ini_get('upload_max_filesize') . '.' : ': the upload failed (interrupted or not saved).'), 'err');
+                continue;
+            }
             [$err, $info] = jigsaw_admin_ingest($f['tmp'], $f['size'], $f['name']);
             if ($err !== '') { flash($err, 'err'); continue; }
             $title = count($files) === 1 && $oneTitle !== '' ? $oneTitle : mb_substr(trim(ucwords(str_replace(['-', '_'], ' ', pathinfo($f['name'], PATHINFO_FILENAME)))) ?: 'Picture', 0, 80);
@@ -283,7 +286,7 @@ admin_crumbs('jigsaw.php');
 <?php elseif ($tab === 'upload'): ?>
 <div class="box">
   <p class="help"><b>Still pictures for Jigsaw, exactly 3:2.</b> JPEG, PNG or WEBP up to 3 MB, at least 1500 × 1000 and at most 3000 × 2000, with a width to height ratio of 3:2 within 1% (no silent cropping: a picture that is off is refused with its numbers).
-    Each is re-saved as a 1800 × 1200 JPEG (metadata stripped) with a 450 × 300 thumbnail. Up to <?= JIGSAW_UP_MAX_FILES ?> at once<?= (int)ini_get('max_file_uploads') && (int)ini_get('max_file_uploads') < JIGSAW_UP_MAX_FILES ? ' (this server allows ' . (int)ini_get('max_file_uploads') . ' per upload)' : '' ?>. New pictures start switched off.
+    Each is re-saved as a 1800 × 1200 JPEG (metadata stripped) with a 450 × 300 thumbnail. The server’s upload limit is <?= e((string)ini_get('upload_max_filesize')) ?> a file. Up to <?= JIGSAW_UP_MAX_FILES ?> at once<?= (int)ini_get('max_file_uploads') && (int)ini_get('max_file_uploads') < JIGSAW_UP_MAX_FILES ? ' (this server allows ' . (int)ini_get('max_file_uploads') . ' per upload)' : '' ?>. New pictures start switched off.
     <?= function_exists('imagecreatefromjpeg') ? '' : ' <b>This server has no GD, so uploads are refused.</b>' ?></p>
   <form method="post" enctype="multipart/form-data" class="stack"><?= csrf_field() ?><input type="hidden" name="do" value="upload">
     <label>Pictures <input type="file" name="pics[]" accept="image/jpeg,image/png,image/webp" multiple required></label>

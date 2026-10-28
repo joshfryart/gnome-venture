@@ -43,8 +43,8 @@ local function scene(dark)
   rays:clip(c:rect(0, 0, W - 1, 70))
   c:fill(rays, dark and "#2f3a72" or "#c4e4ef")
   -- far hills and meadow
-  c:part(c:ellipse(30, 78, 70, 16):clip(c:rect(0, 0, W - 1, 78)), GV.ramp(dark and "#4f7a52" or "#a4cf78"), { gloss = false, outline = false, cres = 5 })
-  c:part(c:ellipse(140, 76, 60, 13):clip(c:rect(0, 0, W - 1, 78)), GV.ramp(dark and "#476f4c" or "#94c46e"), { gloss = false, outline = false, cres = 5 })
+  c:part(c:ellipse(30, 78, 70, 16):clip(c:rect(0, 0, W - 1, 78)), GV.ramp(dark and "#4f7a52" or "#a4cf78"), { gloss = false, outline = false, contour = false, cres = 5 })
+  c:part(c:ellipse(140, 76, 60, 13):clip(c:rect(0, 0, W - 1, 78)), GV.ramp(dark and "#476f4c" or "#94c46e"), { gloss = false, outline = false, contour = false, cres = 5 })
   local mead = c:rect(0, 76, W - 1, H - 1)
   for x = 0, W - 1, 6 do mead:add(c:poly({ { x, 77 }, { x + 3, 73 }, { x + 6, 77 } })) end
   c:part(mead, GV.ramp(dark and "#3f6a48" or "#7ab55c"), { flat = true, rim = false, outline = false, contour = false })
@@ -71,8 +71,8 @@ local function scene(dark)
   c:paint({ "..g..", "..g..", "gg.gg", "..g..", "..g.." }, fx1 - 1, fy0 - 5, { g = "#fff1c8" })
   c:paint({ ".g.", "ggg", ".g." }, fx0 - 4, fy0 - 3, { g = "#f5cf6a" })
   -- the cast: Jeff left (cheering, hand on the corner), Ffej right (both arms up, gripping the other corner)
-  CAST.jeff(c, 26, 67, 0.9, { pose = "cheer", dark = dark })
-  c:ground(26, 86, 15, 2)
+  CAST.jeff(c, 30, 67, 0.9, { pose = "cheer", dark = dark })
+  c:ground(30, 86, 15, 2)
   CAST.ffej(c, 133, 64, 0.9, { dark = dark })
   c:ground(133, 86, 15, 2)
   -- flowers in the front
@@ -86,7 +86,7 @@ local function scene(dark)
   -- scattered spare... no: every piece is in! a few confetti flakes instead
   local CF = { "#dd3a2a", "#f5cf6a", "#3f8fb0", "#e46a9b", "#7ab55c", "#8a5fd0", "#f08a24" }
   local pts = { { 34, 30 }, { 40, 4 }, { 52, 6 }, { 66, 3 }, { 96, 4 }, { 108, 7 }, { 122, 30 }, { 118, 40 }, { 40, 46 }, { 8, 30 }, { 150, 36 },
-    { 4, 50 }, { 156, 60 }, { 30, 4 }, { 128, 4 }, { 44, 60 }, { 118, 60 }, { 80, 60 }, { 92, 66 }, { 64, 64 } }
+    { 4, 50 }, { 156, 60 }, { 30, 4 }, { 128, 4 }, { 40, 58 }, { 120, 56 } }
   for i, p in ipairs(pts) do
     local col = dim(CF[(i - 1) % #CF + 1])
     local m
