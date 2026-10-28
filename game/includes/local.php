@@ -130,10 +130,10 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
             foreach ($ins as [$is, $iq]) {
                 $have = (int)q_val('SELECT COALESCE(SUM(ui.qty), 0) FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ?', [$uid, $is]);
                 if ($have < $iq) $lack = true;
-                $bits[] = $iq . ' × ' . e((string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is)) . ' <small class="muted">(you have ' . $have . ')</small>';
+                $bits[] = $iq . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is) . ' (you have ' . $have . ')';
             }
             $on = (string)(q_val('SELECT name FROM items WHERE slug = ?', [$os]) ?: $os);
-            return local_form($slug, choice_row('🛠️', 'Make ' . (int)$oq . ' × ' . e($on), 'Uses ' . implode(', ', $bits), '', '', ltrim($dis ?: ($lack ? ' disabled' : ''))), 'choiceform');
+            return local_form($slug, choice_row('🛠️', 'Make ' . (int)$oq . ' × ' . $on, 'Uses ' . implode(', ', $bits), '', '', ltrim($dis ?: ($lack ? ' disabled' : ''))), 'choiceform');
         case 'collect':   // v2.0.78
             [$set, $label, $entries, $n] = stop_collect_parts($spec);
             [, $data] = stop_prog_get((int)$u['id'], 0, 'set:' . $set);
@@ -146,7 +146,7 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
             $p = stop_spec_params($spec);
             $steps = max(2, min(6, (int)($p['steps'] ?? 3)));
             [$have] = stop_prog_get((int)$u['id'], (int)$loc['id'], 'tend:' . $slug);
-            return local_form($slug, choice_row('🧑‍🌾', e($p['label'] ?? 'Lend a hand'), 'Step ' . ($have + 1) . ' of ' . $steps . ($have ? ' · you did ' . $have . ' on earlier visits' : ''), '', '', ltrim($dis)), 'choiceform');
+            return local_form($slug, choice_row('🧑‍🌾', (string)($p['label'] ?? 'Lend a hand'), 'Step ' . ($have + 1) . ' of ' . $steps . ($have ? ' · you did ' . $have . ' on earlier visits' : ''), '', '', ltrim($dis)), 'choiceform');
         case 'contest':   // v2.0.78
             $p = stop_spec_params($spec);
             $moves = array_values(array_filter(array_map('trim', explode('/', (string)($p['moves'] ?? 'Quick/Steady/Clever')))));
