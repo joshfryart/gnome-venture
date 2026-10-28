@@ -20,13 +20,26 @@ api = HfApi(token=TOKEN)
 LOG = Path("train.log")
 started = False
 
+def sync():
+    """Push log + whatever LoRA/checkpoints exist to the model repo so nothing is lost when the Space pauses."""
+    try:
+        api.create_repo(MODEL, private=True, exist_ok=True)
+        if LOG.exists(): api.upload_file(path_or_fileobj=str(LOG), path_in_repo="train.log", repo_id=MODEL)
+        if Path("gv-lora").exists(): api.upload_folder(folder_path="gv-lora", repo_id=MODEL, repo_type="model")
+    except Exception as e:
+        LOG.open("a").write(f"sync failed: {e!r}\n")
+
+def syncer():
+    while True:
+        time.sleep(300); sync()
+
 def pause():
     try: api.pause_space(SPACE)
     except Exception as e: LOG.open("a").write(f"pause failed: {e}\n")
 
 def watchdog():
     time.sleep(HARD_CAP_MIN * 60)
-    LOG.open("a").write("HARD CAP: pausing Space\n"); pause()
+    LOG.open("a").write("HARD CAP: pausing Space\n"); sync(); pause()
 
 def job():
     def w(s): LOG.open("a").write(s + "\n")
@@ -37,13 +50,11 @@ def job():
                               "--steps", STEPS, "--max-minutes", str(TRAIN_MIN)],
                              stdout=LOG.open("a"), stderr=subprocess.STDOUT)
         p.wait(); w(f"trainer exit {p.returncode}")
-        api.create_repo(MODEL, private=True, exist_ok=True)
-        api.upload_folder(folder_path="gv-lora", repo_id=MODEL, repo_type="model")
-        w(f"uploaded to {MODEL}")
+        sync(); w(f"uploaded to {MODEL}")
     except Exception as e:
         w(f"ERROR: {e!r}")
     finally:
-        w("pausing Space"); pause()
+        w("pausing Space"); sync(); pause()
 
 def start():
     global started
@@ -51,6 +62,7 @@ def start():
     if started: return "already started"
     started = True
     threading.Thread(target=watchdog, daemon=True).start()
+    threading.Thread(target=syncer, daemon=True).start()
     threading.Thread(target=job, daemon=True).start()
     return "started"
 
