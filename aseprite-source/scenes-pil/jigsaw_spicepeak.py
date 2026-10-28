@@ -185,27 +185,37 @@ while x < W - 3:
     shp = ((0, 0), (1, 0), (0, 1), (1, 1), (-1, 1), (0, -1)) if r2(0, 2) else ((0, 0), (0, 1), (1, 1))
     cv.dots([(x + dx, ty + dy) for dx, dy in shp], FOOT['s'])
     cv.dots([(x, ty - (1 if len(shp) > 3 else 0))], '#82b89a')
-crag = poly([(262, 112), (268, 72), (276, 60), (286, 56), (296, 62), (300, 58), (300, 112)])
+crag = poly([(262, 112), (264, 74), (267, 60), (276, 58), (286, 56), (296, 62), (300, 58), (300, 112)])
 o = cv.obj()
 o.part(crag, ramp('#8b8f96', '#5b6470', '#c9c5bc', '#6a7280'), d=3)
 o.draw()
 for (a, b) in (((272, 74), (282, 80)), ((284, 66), (298, 70)), ((268, 90), (280, 94)), ((282, 86), (296, 92))):
     cv.fill(line([a, b]), '#5b6470')
     cv.fill(line([(a[0], a[1] - 1), (b[0], b[1] - 1)]), '#c9c5bc')
-cv.fill(crag & rect(0, 54, W, 60), SNOW['b'])
+cv.fill(crag & rect(0, 54, W, 61), SNOW['b'])
+cv.fill(crag & rect(0, 62, W, 62) & (xx_g % 5 < 3), SNOW['s'])   # icicle fringe under the ledge snow
 # snow leopard on the ledge, tail curled up
-lx, ly = 278, 52
+lx, ly = 278, 50   # pass 1: crouched on the ledge, head up, paws forward, the thick ringed tail draped down the crag face
+LEOB = ramp('#d8d0bc', '#a8a090', '#f4f0e4')
 o = cv.obj()
-o.part(ell(lx, ly, lx + 15, ly + 7), LEO, d=2)
-o.part(ell(lx - 5, ly - 3, lx + 3, ly + 4), LEO, d=1)
-o.part(rect(lx + 1, ly + 5, lx + 2, ly + 9) | rect(lx + 11, ly + 5, lx + 12, ly + 9), LEO, d=0)
-o.part(line([(lx + 15, ly + 4), (lx + 18, ly + 8), (lx + 18, ly + 13), (lx + 15, ly + 15)], 2), LEO, d=1)
+o.part(line([(lx + 17, ly + 6), (lx + 18, ly + 13), (lx + 15, ly + 19), (lx + 17, ly + 25), (lx + 14, ly + 28)], 4), LEOB, d=1)   # tail
+o.part(ell(lx, ly, lx + 20, ly + 9), LEOB, d=2)   # body
+o.part(rect(lx - 9, ly + 6, lx + 2, ly + 9), LEOB, d=1)   # fore paws
+o.part(ell(lx - 9, ly - 6, lx + 1, ly + 4), LEOB, d=2)   # head
+o.part(poly([(lx - 9, ly - 3), (lx - 8, ly - 9), (lx - 5, ly - 5)]) | poly([(lx - 3, ly - 5), (lx, ly - 9), (lx + 1, ly - 3)]), LEOB, d=0)   # ears
 o.draw()
-cv.dots([(lx - 4, ly - 4), (lx + 1, ly - 4)], LEO['s'])
-cv.dots([(lx - 3, ly), (lx - 1, ly)], '#3a4a5a')
-cv.dots([(lx - 5, ly + 2)], '#c87a7a')
-for sx, sy in ((lx + 4, ly + 2), (lx + 7, ly + 1), (lx + 10, ly + 3), (lx + 6, ly + 5), (lx + 12, ly + 1), (lx + 18, ly + 9), (lx + 17, ly + 13)):
-    cv.dots([(sx, sy), (sx + 1, sy)], '#5a5048')
+cv.dots([(lx - 7, ly - 6), (lx - 1, ly - 6)], '#c87a7a')   # inner ears
+cv.fill(rect(lx - 7, ly - 2, lx - 6, ly - 2) | rect(lx - 3, ly - 2, lx - 2, ly - 2), '#7fa060')   # pale green eyes
+cv.dots([(lx - 6, ly - 2), (lx - 2, ly - 2)], '#2a1a10')
+cv.dots([(lx - 5, ly), (lx - 4, ly)], '#c87a7a')   # nose
+cv.dots([(lx - 5, ly + 1), (lx - 4, ly + 2), (lx - 3, ly + 1)], '#5a5048')
+cv.dots([(lx - 8, ly + 9), (lx - 6, ly + 9), (lx - 2, ly + 9)], '#5a5048')   # toes
+for sx, sy in ((lx + 3, ly + 2), (lx + 8, ly + 1), (lx + 13, ly + 2), (lx + 6, ly + 5), (lx + 11, ly + 5), (lx + 16, ly + 4)):   # rosettes
+    cv.dots([(sx, sy), (sx + 1, sy - 1), (sx + 2, sy), (sx + 1, sy + 1)], '#5a5048')
+cv.dots([(lx - 8, ly - 3), (lx - 1, ly - 3), (lx - 6, ly - 5), (lx - 3, ly - 5)], '#5a5048')
+for k, (sx, sy) in enumerate(((lx + 17, ly + 10), (lx + 17, ly + 15), (lx + 16, ly + 20), (lx + 16, ly + 24))):   # tail rings
+    cv.fill(rect(sx - 2, sy, sx + 1, sy), '#5a5048')
+cv.fill(rect(lx + 13, ly + 27, lx + 16, ly + 29), '#3a3028')   # dark tip
 
 # ---------------------------------------------------------------- the lower valley floor
 cv.fill(rect(0, 104, W - 1, H - 1) & ~crag & ~(rect(0, 0, W, 103)), GRASS['b'])
