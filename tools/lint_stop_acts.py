@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Lint a draft of rest-stop activities (same columns as stop_acts.txt / stop_acts_regional.txt).
-Usage: tools/lint_stop_acts.py DRAFT.txt ITEM_SLUGS.txt [--region]
+Usage: tools/lint_stop_acts.py DRAFT.txt ITEM_SLUGS.txt [--region] [--region-code NA] [--also A.txt,B.txt] [--require market=17,mill=19] [--prefix w2_]
   ITEM_SLUGS.txt = "slug|category|name" lines (dump of the items table).  --region = the 15th column (region codes) is required.
 Checks: column count, unique slug (also against the shipped files), kind, stop types, cond syntax, spec per kind, reward tokens, real item slugs, no '|' in text,
 sensible lengths, curly apostrophes. Prints problems; exit 1 if any."""
@@ -23,12 +23,18 @@ def load(path):
 
 def main():
     draft, slugs = sys.argv[1], sys.argv[2]
-    region = '--region' in sys.argv
+    region = '--region' in sys.argv or '--region-code' in sys.argv
+    def opt(n):
+        return sys.argv[sys.argv.index(n) + 1] if n in sys.argv else ''
+    rcode, prefix = opt('--region-code'), opt('--prefix')
+    require = dict(x.split('=') for x in opt('--require').split(',') if x)
     items = {l.split('|')[0] for l in open(slugs, encoding='utf-8') if l.strip()}
     shipped = set()
     for f in ('stop_acts.txt', 'stop_acts_regional.txt'):
         p = os.path.join(DATA, f)
         if os.path.exists(p): shipped |= {r[0] for r in load(p)}
+    for f in [x for x in opt('--also').split(',') if x]:   # other drafts (for the unique-slug check)
+        shipped |= {r[0] for r in load(f)}
     bad = []
     seen = set()
     rows = load(draft)
@@ -39,6 +45,7 @@ def main():
         slug, name, icon, types, when, tier, kind, energy, spec, win, lose, blurb, lw, ll = r[:14]
         if not re.fullmatch(r'[a-z0-9_]{3,40}', slug): err('slug format')
         if slug in seen: err('duplicate in draft')
+        if prefix and not slug.startswith(prefix): err(f'slug must start with {prefix}')
         seen.add(slug)
         if slug in shipped: err('slug already shipped')
         if not name or len(name) > 40: err('name empty or over 40')
@@ -52,6 +59,7 @@ def main():
         if region:
             rg = [x.strip() for x in r[14].split(',')]
             if not rg or any(x not in REGIONS for x in rg): err(f'bad region {r[14]}')
+            if rcode and rg != [rcode]: err(f'region must be {rcode}')
         for what, rw in (('win', win), ('lose', lose)):
             for tok in [t for t in rw.split(',') if t]:
                 k, _, v = tok.split('@')[0].partition('=')
@@ -96,6 +104,14 @@ def main():
         for t in (name, blurb, lw, ll, spec):
             if "'" in t: err("straight apostrophe, use ’")
         if kind in ('check', 'pick', 'power', 'contest', 'collect') and (not lw or not ll): err('needs win and lose lines')
+    if require:   # how many rows list each stop kind (a row counts for every kind it lists)
+        have = {}
+        for r in rows:
+            if len(r) > 3:
+                for t in {x.strip() for x in r[3].split(',')}: have[t] = have.get(t, 0) + 1
+        for t, n in require.items():
+            if have.get(t, 0) < int(n): bad.append(f'stop kind {t}: {have.get(t, 0)} rows, need at least {n}')
+    if rcode and len(rows) != int(opt('--rows') or len(rows)): bad.append(f'expected {opt("--rows")} rows, got {len(rows)}')
     print(f'{len(rows)} rows, {len(bad)} problems')
     for b in bad: print('  ' + b)
     sys.exit(1 if bad else 0)
