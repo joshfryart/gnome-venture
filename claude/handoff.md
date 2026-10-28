@@ -1,6 +1,8 @@
-# Gnome Venture: handoff (current as of v2.0.81, 2026-10-28)
+# Gnome Venture: handoff (current as of v2.0.84, 2026-10-28)
 
 **START HERE:** read `claude/todo.md` (NOW / NEXT / working notes), then `claude/plan-variety.md` and `claude/todo-art-variety.md`. 2.0.81 is on main and uploaded. Old per-release notes (2.0.60 to 2.0.80) moved to `claude/handoff-archive.md`; old to-do blocks to `claude/todo-archive.md`; open branches listed in `claude/branches.md`.
+
+**2.0.84 (latest):** activity popovers are animated (see `claude/todo.md` NOW for the design, files and generator). Pushed to main on Joshua's word with zips in `releases/`; he tests by uploading. Work by Sonnet agents (code, hand-drawn pilot, bulk generator), planned by an Opus-low Plan agent.
 
 **State (2.0.81):** variety project content is done and approved by Joshua: build plans (CA+CB so far, `data/build_plans.txt`), themed stop upgrades + regional materials, villager overlay, 810 stop activities (kinds craft/collect/tend/contest, `data/stop_acts*.txt`), road card kinds fork/riddle/trade/chain/sketch + Road Journal + 25 new cards in every region (`data/road_events.txt`), first-pass art for all of it (act pictures `game/assets/img/acts/act-<slug>.png`, `stoptiers/`, `folk/`, `steps/`, `roadkinds/`, `journal/`). Next: build plans for the other 12 regions, leftover build verbs, more act kinds.
 
