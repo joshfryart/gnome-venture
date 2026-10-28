@@ -249,19 +249,14 @@ function local_act_card(array $u, array $loc, array $a, bool $isDone, string $wh
     return $h . '</div>';
 }
 
-/** One villager card with friendship, chat and the errand. */
-function local_folk_card(array $u, array $loc, array $folk, array $deliver): string
+/** v2.0.77: the errand parts for one villager (parcels to hand over, a favour on offer). $form(kind, inner) builds a form: the page's own or the overlay's. */
+function local_folk_errands(array $u, array $loc, array $folk, array $deliver, callable $form): string
 {
     $uid = (int)$u['id'];
-    $pts = stop_friend_points($uid, (int)$folk['id']);
-    $lvl = stop_friend_level($pts);
-    $talked = (string)q_val('SELECT last_talk FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, (int)$folk['id']]) === hollow_date('Y-m-d');
-    $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
-    $act = local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="fbtn">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
-    $h = '';   // errand parts: folded under the shared villager row (v2.0.65)
+    $h = '';
     foreach ($deliver as $e) {
         if ((int)$e['target_folk_id'] === (int)$folk['id']) {
-            $h .= local_form('_deliver', '<input type="hidden" name="errand" value="' . (int)$e['id'] . '"><button class="btn small">' . ($e['kind'] === 'escort' ? '🐾 Hand over your charge' : '📦 Deliver the parcel') . ' from ' . e($e['giver']) . '</button>');
+            $h .= $form('_deliver', '<input type="hidden" name="errand" value="' . (int)$e['id'] . '"><button class="btn small">' . ($e['kind'] === 'escort' ? '🐾 Hand over your charge' : '📦 Deliver the parcel') . ' from ' . e($e['giver']) . '</button>');
         }
     }
     $o = stop_errand_offer($u, $loc, $folk);
@@ -271,16 +266,81 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
         if ($o['kind'] === 'fetch') {
             $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$o['item']['id']]);
             $h .= '<p class="st-errand">📌 “Could you bring me ' . (int)$o['qty'] . ' × ' . e($o['item']['name']) . '?” <small class="muted">+' . (int)$o['coins'] . ' ' . e(setting('currency_name')) . ' · you have ' . $have . '</small></p>'
-                . local_form('_errand', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small"' . ($have < (int)$o['qty'] ? ' disabled' : '') . '>Hand over</button>');
+                . $form('_errand', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small"' . ($have < (int)$o['qty'] ? ' disabled' : '') . '>Hand over</button>');
         } else {
-            $h .= '<p class="st-errand">📌 “' . ($o['kind'] === 'escort' ? 'Would you walk ' . e($o['thing']) . ' to ' : 'Could you carry ' . e($o['thing']) . ' to ') . '<b>' . e($o['target']['name']) . '</b> at ' . e($o['target_place']) . '?” <small class="muted">' . (int)$o['dist'] . ' stop' . ((int)$o['dist'] === 1 ? '' : 's') . ' away · +' . (int)$o['coins'] . ' ' . e(setting('currency_name')) . '</small></p>'
-                . local_form('_errand', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small">' . ($o['kind'] === 'escort' ? 'Take them along' : 'Take it') . '</button>');
+            $h .= '<p class="st-errand">📌 “' . ($o['kind'] === 'escort' ? 'Would you walk ' . e($o['thing']) . ' to ' : 'Could you carry ' . e($o['thing']) . ' to ') . '<b>' . e($o['target']['name']) . '</b> at ' . e($o['target_place']) . '?” <small class="muted">+' . (int)$o['coins'] . ' ' . e(setting('currency_name')) . '</small></p>'
+                . $form('_errand', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="btn small">' . ($o['kind'] === 'escort' ? 'Take them along' : 'Take it') . '</button>');
         }
     }
+    return $h;
+}
+
+/** One villager card with friendship, chat and the errand. */
+function local_folk_card(array $u, array $loc, array $folk, array $deliver): string
+{
+    $uid = (int)$u['id'];
+    $pts = stop_friend_points($uid, (int)$folk['id']);
+    $lvl = stop_friend_level($pts);
+    $talked = (string)q_val('SELECT last_talk FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, (int)$folk['id']]) === hollow_date('Y-m-d');
+    $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
+    // v2.0.77: the button opens the overlay (chat, gift, errand without a reload); without JavaScript it is still the old chat form
+    $act = local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="fbtn" data-folk-stop="' . (int)$folk['id'] . '">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
+    $h = local_folk_errands($u, $loc, $folk, $deliver, fn(string $k, string $inner) => local_form($k, $inner));   // errand parts: folded under the shared villager row (v2.0.65)
     return villager_row_html(npc_icon($folk['species']), e($folk['name']),
         [e($folk['role']) . ' · ' . e($folk['species']) . ' · ' . e($folk['personality']),
          '<span title="' . e($lvl['name']) . '">' . $hearts . ' ' . e($lvl['name']) . ($lvl['next'] !== null ? ' <span class="muted">(' . $pts . '/' . $lvl['next'] . ')</span>' : '') . '</span>'],
         $act, $h, '📜 Errand', $h !== '');
+}
+
+/**
+ * v2.0.77: a villager of the stop you are standing in, as the overlay panel: face, hearts, bio, chat, a gift, and the errand.
+ * Every form posts to stopfolk.php (data-sform) and gets the panel back. Returns '' if they are not here.
+ */
+function stop_folk_panel(array $u, array $loc, int $folkId, string $msg = '', bool $ok = true): string
+{
+    $uid = (int)$u['id'];
+    $folk = q_one('SELECT * FROM stop_folk WHERE id = ? AND location_id = ? AND active = 1', [$folkId, (int)$loc['id']]);
+    if (!$folk) return '';
+    $pts = stop_friend_points($uid, $folkId);
+    $lvl = stop_friend_level($pts);
+    $today = hollow_date('Y-m-d');
+    $row = q_one('SELECT last_talk, last_gift FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, $folkId]) ?: ['last_talk' => null, 'last_gift' => null];
+    $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
+    $f = fn(string $k, string $inner) => '<form method="post" action="' . e(url('stopfolk.php')) . '" class="vact" data-sform="1">' . csrf_field() . '<input type="hidden" name="folk" value="' . $folkId . '"><input type="hidden" name="do" value="' . e($k) . '">' . $inner . '</form>';
+    $h = '<div class="vpanel box" data-folk="' . $folkId . '">';
+    if ($msg !== '') $h .= '<p class="vmsg ' . ($ok ? 'ok' : 'err') . '" role="status">' . e($msg) . '</p>';
+    $h .= '<div class="npchead"><div class="npcid"><h2>' . npc_icon($folk['species']) . ' ' . e($folk['name']) . '</h2>'
+        . '<p class="muted">' . e($folk['role']) . ' · ' . e($folk['species']) . ' · ' . e($folk['personality']) . '</p>'
+        . '<p>' . $hearts . ' ' . e($lvl['name']) . ($lvl['next'] !== null ? ' <span class="muted">(' . $pts . '/' . $lvl['next'] . ')</span>' : '') . '</p>'
+        . '<p>📍 ' . e($loc['name']) . '</p></div></div>';
+    if (!empty($folk['bio'])) $h .= '<p>' . e((string)$folk['bio']) . '</p>';
+    $h .= $f('chat', '<button class="btn"' . ($row['last_talk'] === $today ? ' disabled' : '') . '>💬 ' . ($row['last_talk'] === $today ? 'Chatted today' : 'Say hello') . '</button>');
+    if ($row['last_gift'] === $today) {
+        $h .= '<p class="help">🎁 Gift given today.</p>';
+    } elseif (!($giftable = stop_giftable($uid))) {
+        $h .= '<p class="help">🎁 Nothing in your Satchel to give.</p>';
+    } else {
+        require_once __DIR__ . '/friends.php';
+        $fake = ['slug' => 'stop-' . $folkId, 'name' => $folk['name']];   // (no id: npc_tastes would try to store a favourite on the npcs table)
+        $sel = '<select name="item_id" aria-label="Gift">';
+        foreach ($giftable as $g) $sel .= '<option value="' . (int)$g['id'] . '">' . e($g['name']) . ' ×' . (int)$g['qty'] . '</option>';
+        $sel .= '</select>';
+        $h .= '<p class="vact"><button type="button" class="btn alt" data-giftopen="1">🎁 Give a gift</button></p><noscript>' . $f('gift', $sel . ' <button class="btn alt">🎁 Give</button>') . '</noscript>'
+            . gift_picker_html($fake, [], $giftable, false, url('stopfolk.php'), '<input type="hidden" name="folk" value="' . $folkId . '">', ' data-sform="1"');
+    }
+    $deliver = array_filter(stop_errands_active($uid), fn($e) => (int)$e['target_loc'] === (int)$loc['id']);
+    $h .= local_folk_errands($u, $loc, $folk, $deliver, $f);
+    return $h . '</div>';
+}
+
+/** v2.0.77: the overlay's mount point and script, once per page (assets/folkoverlay.js). Buttons with data-folk-npc / data-folk-stop open it. */
+function folk_overlay_html(): string
+{
+    static $done = false;
+    if ($done) return '';
+    $done = true;
+    return '<div id="folkov" hidden data-csrf="' . e(csrf_token()) . '" data-npc="' . e(url('villagers.php')) . '" data-stop="' . e(url('stopfolk.php')) . '"></div>'
+        . '<script src="' . e(url('assets/folkoverlay.js?v=' . APP_VERSION)) . '" defer></script>';
 }
 
 /** The local page for a village (shown on the Town tab when you're not in a town). */
@@ -368,7 +428,7 @@ function local_panel(array $u, array $loc): string
         }
         $h .= '<h3 class="st-h gx-h">👥 Who’s about</h3><ul class="vlcards st-folks">';   // v2.0.67: felt villager rows
         foreach ($folk as $f) $h .= local_folk_card($u, $loc, $f, $deliver);
-        return $h . '</ul></section>';
+        return $h . '</ul>' . folk_overlay_html() . '</section>';
     }
 
     // activities

@@ -490,10 +490,10 @@ function place_chips(array $u): array
 
 /** v2.0.65: the one villager row (main stop and rest stop). $face and $action are ready HTML; $lines are ready HTML lines; $extra (errands) folds under the row.
  *  v2.0.67: a felt row (mockup3) as an <li> for a <ul class="vlcards">: face + name sign (one link when $href is given), the lines, one action; $badge = ready HTML. */
-function villager_row_html(string $face, string $name, array $lines, string $action = '', string $extra = '', string $extraTitle = '', bool $open = false, string $badge = '', string $href = ''): string
+function villager_row_html(string $face, string $name, array $lines, string $action = '', string $extra = '', string $extraTitle = '', bool $open = false, string $badge = '', string $href = '', string $whoAttr = ''): string
 {
     $who = '<span class="vlcard__face">' . $face . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . $name . '</span></span>';
-    $h = '<li class="vlcard">' . ($href !== '' ? '<a class="vlcard__who" href="' . e($href) . '">' . $who . '</a>' : '<span class="vlcard__who">' . $who . '</span>');
+    $h = '<li class="vlcard">' . ($href !== '' ? '<a class="vlcard__who" href="' . e($href) . '"' . $whoAttr . '>' . $who . '</a>' : '<span class="vlcard__who">' . $who . '</span>');
     $h .= ($action !== '' ? '<span class="vlcard__act">' . $action . '</span>' : '') . '<span class="vlcard__main">';
     foreach ($lines as $l) if ($l !== '') $h .= '<span class="vlcard__sub">' . $l . '</span>';
     $h .= $badge . '</span>';

@@ -3510,6 +3510,15 @@ dialog.gvask::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ove
 dialog.gvask .gvmsg { margin: 0 0 14px; overflow-wrap: anywhere; }
 dialog.gvask .gvbtns { display: flex; justify-content: flex-end; gap: 8px; }
 
+/* v2.0.77: villager overlay (assets/folkoverlay.js): a modal with the villager panel, chat/gift/errand in place */
+dialog.folkdlg { width: min(560px, calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; border: 0; padding: 12px 14px 14px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-2); overscroll-behavior: contain; overflow: auto; }
+dialog.folkdlg::backdrop { background: rgba(42, 26, 16, .5); overscroll-behavior: contain; }
+dialog.folkdlg .sheetx { position: absolute; top: 2px; right: 2px; width: var(--tap); height: var(--tap); background: none; border: 0; font-size: 18px; line-height: 1; cursor: pointer; color: var(--muted); }
+dialog.folkdlg .folkbody { padding-top: 6px; }
+dialog.folkdlg .vpanel { border: 0; box-shadow: none; padding: 0; background: none; }
+dialog.folkdlg .folkfoot { margin: 8px 0 0; text-align: right; }
+dialog.folkdlg .folkfoot:empty { display: none; }
+
 /* v1.8.2: soft fade between pages (Chrome/Safari; others ignore it). Off for reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition { navigation: auto; }

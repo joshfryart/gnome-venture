@@ -268,7 +268,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : ''),
              '📍 <a href="' . e(url('town.php?' . $q . 'spot=' . (int)$ps['id'])) . '">' . e($ps['icon'] . ' ' . $ps['name']) . '</a> · 💛 ' . e($fl['name'])],
-            '<a class="fbtn" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">Chat</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id'])) ?>
+            '<a class="fbtn" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '">Chat</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id']), ' data-folk-npc="' . (int)$n['id'] . '"') ?>
       <?php endforeach; ?>
     </ul>
     <?php endif; ?>
@@ -278,11 +278,12 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))), '🏡 ' . e($hm['name']) . ' · 💛 ' . e($fl['name'])],
-            '<a class="fbtn" href="' . e(url('villagers.php?home=1&id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id'])) ?>
+            '<a class="fbtn" href="' . e(url('villagers.php?home=1&id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id']), ' data-folk-npc="' . (int)$n['id'] . '"') ?>
       <?php endforeach; ?>
     </ul>
     <?php endif; ?>
-    <p class="gx-note">Knock to visit someone at home: you can chat and give a gift there. Tap a name above to see what you know about them.</p>
+    <p class="gx-note">Knock to visit someone at home. Tap a name or Chat to talk and give a gift without leaving the page.</p>
+    <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
     <p class="gx-note">📒 Only people in town right now are shown.</p>
     <div class="gx-actions"><a class="gbtn alt" href="<?= e(url('villagers.php')) ?>">Everyone you know →</a></div>
   <?php elseif ($view === 'shops'): ?>

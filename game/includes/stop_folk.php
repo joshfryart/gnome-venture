@@ -163,6 +163,41 @@ function stop_chat(array $u, array $loc, int $folkId, ?string $lineText = null):
     return [true, $line . ' (💛 +' . ($new - $before) . ')'];
 }
 
+/** The things in the satchel a villager would take as a present (not tools or broken things), cheapest first. */
+function stop_giftable(int $uid): array
+{
+    return q("SELECT i.*, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
+              WHERE ui.user_id = ? AND ui.qty > 0 AND i.tradable = 1 AND i.category NOT IN ('tool', 'broken') ORDER BY i.name", [$uid])->fetchAll();
+}
+
+/**
+ * v2.0.77: give a villager at this stop a present: once a day each, +friendship (2 for a plain thing, 4 for food, flowers, produce or
+ * arrangements; a Charm boost like the townsfolk). Returns [ok, message].
+ */
+function stop_gift(array $u, array $loc, int $folkId, int $itemId): array
+{
+    $uid = (int)$u['id'];
+    $folk = q_one('SELECT * FROM stop_folk WHERE id = ? AND location_id = ? AND active = 1', [$folkId, (int)$loc['id']]);
+    if (!$folk) return [false, 'Nobody by that name is here.'];
+    $item = q_one("SELECT * FROM items WHERE id = ? AND tradable = 1 AND category NOT IN ('tool', 'broken')", [$itemId]);
+    if (!$item) return [false, 'Pick something to give.'];
+    $today = hollow_date('Y-m-d');
+    stop_friend_ensure($uid, $folkId);
+    db()->beginTransaction();
+    q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // lock, claim today's gift, then take the item
+    if (q('UPDATE stop_friend SET last_gift = ? WHERE user_id = ? AND folk_id = ? AND (last_gift IS NULL OR last_gift <> ?)', [$today, $uid, $folkId, $today])->rowCount() !== 1) {
+        db()->rollBack();
+        return [false, $folk['name'] . ' has already had a present from you today.'];
+    }
+    if (!give_item($uid, $itemId, -1)) { db()->rollBack(); return [false, 'You don’t have one of those.']; }
+    db()->commit();
+    $pts = in_array($item['category'], ['food', 'flower', 'produce', 'arrangement'], true) ? 4 : 2;
+    $pts = (int)round($pts * (1 + 0.08 * max(0, function_exists('eff_mod') ? eff_mod($u, 'charm') : 0)));
+    $before = stop_friend_points($uid, $folkId);
+    $new = stop_friend_add($uid, $folkId, $pts);
+    return [true, npc_icon($folk['species']) . ' ' . $folk['name'] . ' takes the ' . $item['name'] . ' with a grateful smile. (💛 +' . ($new - $before) . ')'];
+}
+
 // ---------------------------------------------------------------- errands
 
 /** Tidy errands that ran out of days. */

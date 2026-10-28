@@ -165,7 +165,7 @@ function stops100_schema(string $PK, string $ID, string $END): array
         'CREATE INDEX idx_stoperr_target ON stop_errands (target_folk_id)',
         'CREATE UNIQUE INDEX uq_stopsets ON stop_sets (scope, target, need)',   // v1.0.0: the import is check-then-insert; this stops a double run duplicating the sets
     ];
-    $c = [['locations', 'stop_type', 'VARCHAR(20) NULL']];   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
+    $c = [['locations', 'stop_type', 'VARCHAR(20) NULL'], ['stop_friend', 'last_gift', 'VARCHAR(10) NULL']];   // v2.0.77: last_gift = one gift a day per villager   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
     return [$t, $i, $c];
 }
 
