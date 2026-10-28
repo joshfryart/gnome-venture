@@ -138,7 +138,7 @@ def crane(cx, cy, up):
 
 crane(34, 33, True)
 crane(44, 41, False)
-crane(24, 44, False)
+crane(20, 24, True)   # pass 2: lifted clear of the soapstone bird's head
 
 # ---------------------------------------------------------------- Snowcrown Peak (right-centre), glowing pink at dawn
 peak = poly([(120, 96), (168, 52), (180, 40), (196, 36), (210, 40), (226, 54), (262, 80), (300, 92), (300, 98), (120, 98)])
@@ -298,11 +298,11 @@ def giraffe(x, y, f, h=62):
     for lx, is_near, hind in ((-10, True, True), (-6, False, True), (10, True, False), (6, False, False)):
         top = (X(lx), by + 3)
         if hind:   # muscled thigh sloping back to the hock, cannon bone angled forward
-            knee = (X(lx - 3), by + 16)
-            foot = (X(lx - 2 + (1 if is_near else -1)), y)
-        else:      # front legs splay forward a little, knobbly knee
-            knee = (X(lx + 1 - (0 if is_near else 1)), by + 15)
-            foot = (X(lx + (3 if is_near else 0)), y)
+            knee = (X(lx - (4 if is_near else 2)), by + 16)
+            foot = (X(lx + (0 if is_near else -4)), y)
+        else:      # front legs splay (near forward, far back), knobbly knee
+            knee = (X(lx + (2 if is_near else -1)), by + 15)
+            foot = (X(lx + (5 if is_near else -2)), y)
         m = line([top, knee], 4 if hind else 3) | line([knee, foot], 2) | rect(knee[0] - 1, knee[1] - 1, knee[0] + 1, knee[1] + 1)
         m |= rect(min(foot[0], foot[0] + f), y - 1, max(foot[0], foot[0] + f), y)   # hoof
         if is_near:
@@ -328,7 +328,7 @@ def giraffe(x, y, f, h=62):
             pm = rect(px, py, px + 2, py + 2) & ~rect(px + 2, py + 2, px + 2, py + 2) & ~rect(px, py, px, py)
             cv.fill(pm & inner, '#9a5a24')
     legs = near | far
-    for lm, pale, shade in ((near, '#f8d88a', '#c98a2a'), (far, '#e2a93e', '#a8701c')):
+    for lm, pale, shade in ((near, '#f2e4c0', '#d9a35a'), (far, '#e2a93e', '#a8701c')):
         cv.fill(lm & rect(0, by + 5, W, by + 6) & shift(lm, 1, 0), '#9a5a24')   # patches high on the legs
         cv.fill(lm & rect(0, by + 10, W, by + 11) & shift(lm, -1, 0) & shift(lm, 1, 0), '#9a5a24')
         low = lm & rect(0, by + 18, W, y - 2)   # pale lower legs (stockings), shaded on the right edge
@@ -379,16 +379,17 @@ cv.fill(rect(hx + 3, hy + 16, hx + 3, hy + 32), GRANITE['r'])
 SOAP = ramp('#a8ae8c', '#7a8466', '#cdd2ae')   # pale carved soapstone (pass 2: was a dark sage that read as a crow)
 o = cv.obj()
 o.part(rect(hx + 5, hy + 5, hx + 7, hy + 10) | rect(hx + 10, hy + 5, hx + 12, hy + 10), SOAP, d=0, rim=False)   # thick carved legs
-o.part(ell(hx + 4, hy - 7, hx + 13, hy + 7) | poly([(hx + 5, hy + 1), (hx + 2, hy + 10), (hx + 7, hy + 10)]), SOAP, d=2)   # upright body + tail
-o.part(rect(hx + 9, hy - 12, hx + 12, hy - 5), SOAP, d=1)   # long neck
-o.part(ell(hx + 8, hy - 17, hx + 14, hy - 11), SOAP, d=1)   # small head
-o.part(poly([(hx + 13, hy - 16), (hx + 18, hy - 15), (hx + 18, hy - 12), (hx + 16, hy - 13), (hx + 13, hy - 13)]), SOAP, d=0)   # hooked raptor beak
+o.part(ell(hx + 3, hy - 7, hx + 15, hy + 8) | poly([(hx + 5, hy + 1), (hx + 1, hy + 10), (hx + 7, hy + 10)]), SOAP, d=2)   # chest + tail
+o.part(ell(hx + 2, hy - 4, hx + 11, hy + 9), SOAP, d=1, contour=True)   # folded wing, carved off from the chest
+o.part(ell(hx + 7, hy - 16, hx + 16, hy - 6), SOAP, d=1)   # broad eagle head on a short neck
+o.part(poly([(hx + 15, hy - 14), (hx + 20, hy - 13), (hx + 20, hy - 9), (hx + 18, hy - 10), (hx + 15, hy - 9)]), SOAP, d=0)   # hooked beak
 o.draw()
 for k in range(3):   # carved chevrons down the folded wing
-    cv.fill(line([(hx + 5, hy - 4 + k * 4), (hx + 8, hy - 1 + k * 4), (hx + 11, hy - 4 + k * 4)]) & ell(hx + 4, hy - 7, hx + 13, hy + 7), SOAP['s'])
-cv.fill(rect(hx + 9, hy - 9, hx + 12, hy - 9), SOAP['r'])   # carved collar ring
-cv.dots([(hx + 11, hy - 15), (hx + 12, hy - 14), (hx + 10, hy - 14)], SOAP['s'])   # ring-carved eye (no black: stone, not a live bird)
-cv.dots([(hx + 17, hy - 12), (hx + 18, hy - 11)], SOAP['s'])   # beak hook
+    cv.fill(line([(hx + 4, hy - 1 + k * 3), (hx + 6, hy + 1 + k * 3), (hx + 9, hy - 1 + k * 3)]) & ell(hx + 3, hy - 3, hx + 10, hy + 8), SOAP['s'])
+cv.fill(rect(hx + 10, hy - 6, hx + 14, hy - 6), SOAP['r'])   # carved collar ring
+cv.dots([(hx + 11, hy - 13), (hx + 12, hy - 13), (hx + 13, hy - 13)], SOAP['s'])   # heavy brow
+cv.dots([(hx + 12, hy - 11)], '#4a3c36')   # eye
+cv.dots([(hx + 19, hy - 9), (hx + 20, hy - 8)], SOAP['s'])   # beak hook
 cv.dots([(hx + 4, hy + 30), (hx + 6, hy + 31), (hx + 3, hy + 22)], '#a4b05a')   # moss
 # a red-headed agama lizard basking on the middle boulder
 cv.fill(rect(32, 118, 40, 119), '#4f93b8')

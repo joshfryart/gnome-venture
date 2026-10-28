@@ -336,6 +336,13 @@ for rx, ry, c in ((158, 110, RED), (199, 110, RED), (170, 74, BLUE), (188, 74, B
         cv.dots([(rx, ry)], GOLD['b'])
         cv.fill(line([(rx, ry + 4), (rx, ry + 8)]), '#3f8a32')
         cv.dots([(rx - 2, ry + 6), (rx + 2, ry + 6)], '#5fa83a')
+    else:   # pass 2: a painted blue tulip sprig between the windows
+        cv.fill(line([(rx, ry + 2), (rx, ry + 9)]), '#3f8a32')
+        cv.fill(line([(rx, ry + 7), (rx - 3, ry + 5)]) | line([(rx, ry + 6), (rx + 3, ry + 4)]), '#5fa83a')
+        cv.fill(rect(rx - 2, ry - 1, rx + 2, ry + 2) & ~rect(rx - 1, ry - 1, rx - 1, ry - 1) & ~rect(rx + 1, ry - 1, rx + 1, ry - 1), c['b'])
+        cv.dots([(rx, ry - 2), (rx - 2, ry - 2), (rx + 2, ry - 2)], c['b'])
+        cv.dots([(rx - 1, ry + 1), (rx, ry)], c['r'])
+        cv.dots([(rx, ry + 2)], RED['b'])
 for wx, wy in ((158, 72), (198, 72)):   # round windows with blue shutters
     o = cv.obj()
     o.part(ell(wx - 6, wy - 1, wx - 3, wy + 9) | ell(wx + 3, wy - 1, wx + 6, wy + 9), BLUE, d=1)
@@ -418,31 +425,28 @@ for k in range(6):   # steam puffs rising and leaning left
 for cx_ in (215, 219):   # tea glasses in holders
     cv.fill(rect(cx_, 105, cx_ + 2, 108), '#c8643a')
     cv.dots([(cx_, 104), (cx_ + 2, 104)], GOLD['r'])
-hand = gnome(244, 127, hat=ramp('#d6322b', '#a8241f', '#f0705a'), tunic=GREEN_T, beard=False, arm=-1)
-cv.fill(rect(hand[0] - 3, hand[1] - 2, hand[0], hand[1] + 1), '#c8643a')   # cup held out
-cv.dots([(hand[0] - 2, hand[1] - 3)], GOLD['r'])
 
 # ---------------------------------------------------------------- wattle fence with clay pots on the stakes, old sunflower heads
 fence = blank()
 stakes = list(range(122, 160, 7))
 for fx in stakes:
-    fence |= rect(fx, 112, fx + 1, 136)
-fence |= rect(120, 118, 160, 133)
+    fence |= rect(fx, 115, fx + 1, 136)
+fence |= rect(120, 121, 160, 133)   # pass 2: lower, so the black earth shows over it
 o = cv.obj()
 o.part(fence, ramp('#9a7a52', '#6a4e32', '#c4a070'), d=1)
 o.draw()
-for y in range(119, 133, 2):   # woven withies
+for y in range(122, 133, 2):   # woven withies
     for fx in stakes:
         off = 0 if (y // 2 + fx // 7) % 2 else 3
         cv.fill(rect(fx + 2 + off, y, fx + 5 + off, y) & rect(120, 0, 160, H), '#6a4e32')
 for k, fx in enumerate(stakes[::2]):   # pots upside down on the stakes
     o = cv.obj()
-    o.part(poly([(fx - 4, 113), (fx + 5, 113), (fx + 3, 106), (fx - 2, 106)]), [CLAY, BLUE, CLAY, RED][k % 4], d=1)
+    o.part(poly([(fx - 4, 116), (fx + 5, 116), (fx + 3, 109), (fx - 2, 109)]), [CLAY, BLUE, CLAY, RED][k % 4], d=1)
     o.draw()
-    cv.fill(rect(fx - 4, 112, fx + 5, 112), '#9a4424')
-    cv.dots([(fx - 1, 108), (fx + 2, 109)], '#ffffff')
-for sx, top, lean in ((126, 96, -3), (138, 92, 2), (150, 98, -2)):   # sunflowers by the fence: a golden ragged petal ring round a seed disc
-    cv.fill(line([(sx, 118), (sx + lean, top + 4)], 2), '#6a8a3a')
+    cv.fill(rect(fx - 4, 115, fx + 5, 115), '#9a4424')
+    cv.dots([(fx - 1, 111), (fx + 2, 112)], '#ffffff')
+for sx, top, lean in ((126, 103, -3), (139, 99, 2), (152, 105, -2)):   # pass 2: shorter, so they sit against the fence, not over the field   # sunflowers by the fence: a golden ragged petal ring round a seed disc
+    cv.fill(line([(sx, 121), (sx + lean, top + 4)], 2), '#4f8a3a')
     cx, cy = sx + lean, top
     o = cv.obj()
     o.part(poly([(sx, top + 13), (sx - 7, top + 9), (sx - 4, top + 15)]) | poly([(sx + 1, top + 17), (sx + 7, top + 13), (sx + 5, top + 19)]), GREEN_T, d=1)   # leaves
@@ -585,6 +589,10 @@ for sx, sy in ((242, 140), (262, 132), (288, 156), (300 - 12, 128)):   # snow un
     pm = ell(sx - 10, sy - 2, sx + 10, sy + 4)
     cv.fill(pm & ~stream, SNOW['b'])
     cv.fill(pm & ~stream & ~shift(pm, 0, -1), SNOW['s'])
+# the grandmother gnome on the porch (pass 2: drawn after the thicket so the canes do not cross her; a blue sarafan, not green, so she stands off the bramble)
+hand = gnome(244, 127, hat=ramp('#d6322b', '#a8241f', '#f0705a'), tunic=BLUE, beard=False, arm=-1)
+cv.fill(rect(hand[0] - 3, hand[1] - 2, hand[0], hand[1] + 1), '#c8643a')   # cup held out
+cv.dots([(hand[0] - 2, hand[1] - 3)], GOLD['r'])
 for mx, my in ((252, 128), (258, 132), (282, 128), (296, 162), (228, 140)):   # brown-cap mushrooms
     o = cv.obj()
     o.part(ell(mx - 4, my - 5, mx + 4, my), ramp('#8a5a2a', '#5c3420', '#b07a3a'), d=2)
@@ -709,7 +717,7 @@ for gx, gy in ((20, 162), (27, 165), (34, 161), (70, 174), (284, 178), (274, 182
 cv.dots([(20, 196), (22, 196), (40, 194)], '#f4f4ee')   # a few feathers
 
 # ---------------------------------------------------------------- gorodki: the skittle town in a chalk square, a throwing bat in the grass
-sq = rect(8, 138, 40, 154) & ~rect(10, 140, 38, 152)
+sq = rect(8, 138, 40, 154) & ~rect(10, 140, 38, 152) & ((xx_ * 3 + yy_ * 5) % 11 > 1)   # pass 2: a scuffed chalk square, broken in places
 cv.fill(sq, '#f1ece0')
 for k, (px, py) in enumerate(((16, 146), (22, 145), (28, 146), (22, 150), (34, 147))):
     o = cv.obj()
@@ -750,10 +758,14 @@ for sx, sy in ((6, 140), (190, 140), (74, 140), (232, 196), (142, 146)):
 
 # ---------------------------------------------------------------- pass 1 additions (own generator r3): far copse, crane V, far windmill, rooks on the black earth,
 # a woodpile with a cat and straw bee skeps under the chapel, a sledge with a bucket of pussy willow
-for cx_, cy_ in ((86, 60), (91, 59), (96, 61)):   # far copse on the ridge
-    cv.fill(ell(cx_ - 3, cy_ - 4, cx_ + 3, cy_ + 2), '#6f8f8a')
-    cv.dots([(cx_ - 1, cy_ - 3), (cx_ - 2, cy_ - 2)], '#8fb0a8')
-cv.fill(rect(85, 62, 98, 63) & m, '#6f8f8a')
+for k, (tx_, ty_, th) in enumerate(((84, 63, 9), (89, 62, 12), (94, 63, 10), (99, 64, 7))):   # pass 2: far copse of little birches (white stems, a pale green haze), not a blob
+    cv.fill(rect(tx_, ty_ - th + 3, tx_, ty_), '#eef4f6')
+    cv.dots([(tx_, ty_ - th + 5 + 2 * (k % 2)), (tx_, ty_ - 2)], '#4a525c')
+    cr = ell(tx_ - 3, ty_ - th - 1, tx_ + 3, ty_ - th + 5) | ell(tx_ - 2, ty_ - th - 3, tx_ + 2, ty_ - th + 1)
+    cv.fill(cr, '#a4c870')
+    cv.fill(cr & ~shift(cr, -1, -1), '#7aa84a')
+    cv.dots([(tx_ - 1, ty_ - th - 1), (tx_ + 1, ty_ - th + 2)], '#d4f090')
+cv.fill(rect(82, 64, 101, 64) & m, '#7aa84a')
 for k, (bx, by) in enumerate(((84, 50), (88, 52), (92, 54), (80, 52), (76, 54))):   # cranes in a V
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
 wmx, wmy = 236, 62   # far post windmill on the ridge
@@ -791,12 +803,26 @@ o = cv.obj()
 o.part(rect(10, 125, 46, 135), LOG, d=2)
 o.part(rect(8, 122, 48, 124), ramp('#8a7a66', '#6a5a48', '#b0a290'), d=1)
 o.draw()
-for k, yy in enumerate((126, 131)):
-    for xx in range(11 + (k % 2) * 2, 43, 5):
-        lg = ell(xx, yy, xx + 4, yy + 4)
-        cv.fill(lg, '#e0c090')
-        cv.fill(lg & ~shift(lg, -1, -1), '#a8885a')
-        cv.dots([(xx + 2, yy + 2)], '#c4a070' if r3(0, 1) else '#8a6a44')
+r4 = rnd(2207)   # pass-2 details
+cv.fill(rect(11, 126, 45, 134), '#4a2c1a')   # pass 2: an irregular stack of rounds of different sizes and woods (was a honeycomb grid)
+for k, yc in enumerate((128, 132, 130)):
+    xx = 11 + r4(0, 3) + (k == 2) * 2
+    while xx < 44:
+        d = r4(3, 6)
+        if k == 2 and r4(0, 2):   # third pass fills a few gaps only
+            xx += d + r4(2, 5)
+            continue
+        y0 = yc - d // 2 + r4(-1, 1)
+        lg = ell(xx, y0, xx + d - 1, y0 + d - 1) & rect(11, 126, 45, 134)
+        face = ('#e0c090', '#d8b860', '#c88a4a', '#f1ece0')[r4(0, 3)]   # pine, oak, larch, birch rounds
+        cv.fill(lg, '#5c3420' if face != '#f1ece0' else '#5b5450')
+        inner = lg & shift(lg, 1, 1) & shift(lg, -1, 0) & shift(lg, 0, -1)
+        cv.fill(inner, face)
+        if d >= 5:
+            cv.dots([(xx + d // 2, y0 + d // 2)], '#a8885a')
+        if r4(0, 3) == 0:   # a split quarter-log: a wedge cut from the round
+            cv.fill(lg & rect(xx + d // 2, y0, xx + d, y0 + d // 2), '#4a2c1a')
+        xx += d + r4(0, 1)
 ps = poly([(28, 122), (38, 120), (47, 122)])
 cv.fill(ps, SNOW['b'])
 CAT = ramp('#e8841f', '#b0601a', '#f5b060')
@@ -845,6 +871,21 @@ cv.fill(line([(204, 131), (210, 127), (216, 131)]) & ~rect(206, 128, 214, 132), 
 cv.fill(rect(206, 136, 214, 136), '#ffffff')
 cv.dots([(208, 139), (212, 139)], RED['b'])
 cv.dots([(210, 139)], GOLD['b'])
+
+for bx_, by_ in ((58, 5), (150, 3), (230, 4), (62, 9)):   # pass 2: swallows back in the top sky row (each top cell holds something)
+    cv.dots([(bx_ - 2, by_ - 1), (bx_ - 1, by_), (bx_, by_), (bx_ + 1, by_), (bx_ + 2, by_ - 1), (bx_ + 3, by_ - 2), (bx_, by_ + 1), (bx_ - 3, by_ - 2)], '#2a2a30')
+    cv.dots([(bx_, by_ + 2)], '#d6322b')
+
+# pass 2: palette cut by hand to <= 100 colours: fold near-duplicate ramp tones into their neighbours (no chains)
+cv.remap({
+    '#3a3a40': '#2a2a30', '#8b8f96': '#7a8088', '#4a5a6a': '#4a525c', '#a88a70': '#a8977e', '#b0a290': '#a8977e', '#c4ccd4': '#c3d2dc',
+    '#e0907a': '#e8905a', '#fff0d8': '#f6efe0', '#9a6b3f': '#a06a38', '#6a7078': '#6e7682', '#2e2018': '#2a1a10', '#e8e2d2': '#f1ece0',
+    '#8a6a2a': '#8a5a2a', '#a4acb6': '#a8acb0', '#6aa84a': '#7aa84a', '#8a7060': '#8a7a66', '#f6e4b8': '#fff4c0', '#3d2a1c': '#4a2c1a',
+    '#b07a3a': '#a87a48', '#f4f0e8': '#f4f4ee', '#6a4a30': '#6a4e32', '#d8caae': '#d8ccb0', '#eef2f2': '#eef4f6', '#c9c9c0': '#c9c5bc',
+    '#6a8a3a': '#4f8a3a', '#7a4a1f': '#74462a', '#7a5030': '#6a4e32', '#d4d6d8': '#d8d2c2', '#5b6470': '#4a525c', '#6a3a2a': '#5c3420',
+    '#f8dc70': '#f5cf6a', '#f2d88a': '#f5cf6a', '#fff0a0': '#fff4c0', '#c98a14': '#b07a10', '#f0b42a': '#e8a317', '#b0601a': '#c8643a',
+    '#f5b060': '#e8905a', '#a9d6ea': '#b6dbee', '#c9a94a': '#d8b860', '#cdbd9e': '#d8ccb0', '#8fb0a8': '#b8d0dc', '#6f8f8a': '#7e9eb2',
+})
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

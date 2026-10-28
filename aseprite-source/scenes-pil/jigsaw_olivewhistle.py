@@ -197,7 +197,7 @@ def house(x0, by, w, h, wall, roofh=5, door=True, flip=False, style='tile', win=
         cv.fill(rect(dx + 1, by - 6, dx + 1, by), DARK if doorc != '#7a4a1f' else '#5c3420')
 
 
-def goat(gx0, gy0, fc, coat, pcol=None):
+def goat(gx0, gy0, fc, coat, pcol=None, graze=False):
     """A slim goat with feet at gy0: thin legs, upright tail, swept-back horns, beard and bell. fc=+1 faces right."""
     def R(a, y0, b, y1):
         xa, xb = sorted((gx0 + a if fc > 0 else gx0 + 12 - a, gx0 + b if fc > 0 else gx0 + 12 - b))
@@ -209,19 +209,26 @@ def goat(gx0, gy0, fc, coat, pcol=None):
     o = cv.obj()
     o.part(R(1, gy0 - 4, 1, gy0) | R(3, gy0 - 4, 3, gy0) | R(7, gy0 - 4, 7, gy0) | R(9, gy0 - 4, 9, gy0), ramp(coat['s'], DARK), d=0)
     o.part(R(0, gy0 - 8, 10, gy0 - 4), coat, d=1)
-    o.part(R(9, gy0 - 10, 11, gy0 - 6), coat, d=0)
-    o.part(R(10, gy0 - 13, 13, gy0 - 10) | R(13, gy0 - 12, 14, gy0 - 11), coat, d=1)
+    if graze:   # neck down, muzzle in the grass
+        o.part(R(9, gy0 - 8, 11, gy0 - 4), coat, d=0)
+        o.part(R(10, gy0 - 5, 13, gy0 - 2) | R(13, gy0 - 4, 14, gy0 - 2), coat, d=1)
+    else:
+        o.part(R(9, gy0 - 10, 11, gy0 - 6), coat, d=0)
+        o.part(R(10, gy0 - 13, 13, gy0 - 10) | R(13, gy0 - 12, 14, gy0 - 11), coat, d=1)
     o.part(R(-1, gy0 - 11, 0, gy0 - 8), coat, d=0)
     o.draw()
-    cv.dots([(X(10), gy0 - 14), (X(9), gy0 - 15), (X(8), gy0 - 15), (X(7), gy0 - 14)], '#5a4a3c')   # horns
-    cv.dots([(X(9), gy0 - 12), (X(8), gy0 - 11)], coat['s'])   # ear
-    cv.dots([(X(12), gy0 - 12)], DARK)
-    cv.dots([(X(13), gy0 - 9), (X(13), gy0 - 8)], '#e8e0d0' if coat is COATS['black'] or coat is COATS['brown'] else '#7a6a5a')   # beard
+    hy = 8 if graze else 0   # head drop
+    cv.dots([(X(10), gy0 - 14 + hy), (X(9), gy0 - 15 + hy), (X(8), gy0 - 15 + hy), (X(7), gy0 - 14 + hy)], '#5a4a3c')   # horns
+    cv.dots([(X(9), gy0 - 12 + hy), (X(8), gy0 - 11 + hy)], coat['s'])   # ear
+    cv.dots([(X(12), gy0 - 12 + hy)], DARK if coat is not COATS['black'] else '#f0b92b')
+    cv.dots([(X(14), gy0 - 1)] if graze else [(X(13), gy0 - 9), (X(13), gy0 - 8)], '#e8e0d0' if coat is COATS['black'] or coat is COATS['brown'] else '#7a6a5a')   # beard
+    if graze:
+        cv.dots([(X(15), gy0), (X(16), gy0 - 1), (X(15), gy0 - 1)], GREEN['b'])   # the tuft being nibbled
     cv.dots([(X(1), gy0), (X(3), gy0), (X(7), gy0), (X(9), gy0)], DARK)
-    cv.dots([(X(11), gy0 - 6)], '#f0b92b')   # bell
+    cv.dots([(X(11), gy0 - 6 + (1 if graze else 0))], '#f0b92b')   # bell
     if pcol:
         cv.fill(R(3, gy0 - 8, 6, gy0 - 6), pcol)
-        cv.dots([(X(12), gy0 - 13), (X(13), gy0 - 11)], pcol)
+        cv.dots([(X(12), gy0 - 13 + (8 if graze else 0)), (X(13), gy0 - 11 + (8 if graze else 0))], pcol)
 
 
 # ================================================================ SKY (golden hour, sun low at the upper left)
@@ -504,6 +511,24 @@ for k in range(14):
     xs = np.nonzero(hill[yy])[0]
     if len(xs):
         cv.fill(rect(int(xs[0]) - r(3, 6), yy, int(xs[0]) - 1, yy), FOAM)
+# fallen boulders along the cliff foot (both shores), breaking up the long sea-facing edges
+for yy in (76, 88, 101, 112, 122):
+    xs = np.nonzero(hill[yy])[0]
+    if len(xs):
+        bx_ = int(xs[0]) - r4(2, 4)
+        bm = ell(bx_ - 3, yy - 2, bx_ + 2, yy + 2)
+        o = cv.obj()
+        o.part(bm, ramp('#c49660', '#8a5a3a', '#e2b47a'), d=1)
+        o.draw()
+        cv.fill(rect(bx_ - 5, yy + 3, bx_ + 2, yy + 3), FOAM)
+for yy in (67, 77):
+    xs = np.nonzero(head[yy])[0]
+    bx_ = int(xs[-1]) + r4(2, 3)
+    bm = ell(bx_ - 2, yy - 2, bx_ + 3, yy + 2)
+    o = cv.obj()
+    o.part(bm, ramp('#c49660', '#8a5a3a', '#e2b47a'), d=1)
+    o.draw()
+    cv.fill(rect(bx_ - 1, yy + 3, bx_ + 5, yy + 3), FOAM)
 
 # ground texture over the dry hillside
 for _ in range(500):
@@ -571,51 +596,83 @@ for px_, py_ in ((188, 59), (210, 55), (256, 55), (276, 61), (246, 39), (284, 37
 cv.fill(rect(268, 55, 272, 57), '#e8841f')
 cv.dots([(273, 54), (273, 53), (274, 54), (275, 53), (267, 54), (266, 53)], '#e8841f')
 cv.dots([(274, 55)], DARK)
+gnome(192, 53, ramp('#f2d23a', '#c9a414', '#fff08a'), ramp('#3f8fb0', '#25637d', '#a9d6ea'), s=0.45, face=1, arm=1)   # the kite flyer on the roof terrace
 for bx, by in ((214, 14), (240, 6), (204, 24)):
     cv.dots([(bx - 2, by), (bx - 1, by + 1), (bx, by), (bx + 1, by + 1), (bx + 2, by), (bx, by + 1), (bx, by + 2)], '#3a3a4a')
 
 # ================================================================ TERRACES of olive trees
+def toff(x, wy):
+    """Vertical offset of terrace wall wy at column x: the dry-stone walls follow the hill's contour instead of running dead straight."""
+    return int(np.round(2.2 * np.sin(x / 13.0 + wy * 0.9) + 0.8 * np.sin(x / 5.0 + wy)))
+
+
 for wy in (84, 100, 116):
-    wm = hill & rect(0, wy, W, wy + 3) & ~cliff
-    soil = hill & rect(0, wy - 5, W, wy - 1) & ~cliff
+    O = np.round(2.2 * np.sin(XX / 13.0 + wy * 0.9) + 0.8 * np.sin(XX / 5.0 + wy)).astype(int)
+    Yr = YY - O
+    bump = (np.sin(XX / 3.0 + wy * 2) > 0.3).astype(int)   # ragged top of the tilled soil
+    wm = hill & (Yr >= wy) & (Yr <= wy + 3) & ~cliff
+    soil = hill & (Yr >= wy - 5 - bump) & (Yr <= wy - 1) & ~cliff
     cv.fill(soil, TERRA['b'])
     for _ in range(60):
         px = r(130, W - 2)
-        if soil[wy - 3, px]:
-            cv.dots([(px, wy - r(2, 4))], TERRA['s'] if r(0, 1) else TERRA['r'])
+        if soil[wy - 3 + toff(px, wy), px]:
+            cv.dots([(px, wy - r(2, 4) + toff(px, wy))], TERRA['s'] if r(0, 1) else TERRA['r'])
     cv.fill(wm, STONE['b'])
-    cv.fill(wm & rect(0, wy + 3, W, wy + 3), STONE['s'])
-    cv.fill(wm & rect(0, wy, W, wy), STONE['r'])
+    cv.fill(wm & (Yr == wy + 3), STONE['s'])
+    cv.fill(wm & (Yr == wy), STONE['r'])
     x = 120 + (wy % 7)
     while x < W:
-        cv.fill(rect(x, wy + 1, x, wy + 2) & wm, STONE['s'])
+        cv.fill((XX == x) & wm & (Yr >= wy + 1) & (Yr <= wy + 2), STONE['s'])
         x += r(4, 7)
+    # odd big stones in the wall face, a stone stair cut through it, capers trailing over it
+    for _ in range(7):
+        px = r4(150, W - 6)
+        sm = rect(px, wy + 1 + toff(px, wy), px + r4(3, 5), wy + 2 + toff(px, wy)) & wm
+        cv.fill(sm, STONE['r'])
+        cv.fill(sm & ~shift(sm, 0, -1), STONE['s'])
+    sx_ = {84: 212, 100: 272, 116: 182}[wy]
+    for k in range(3):
+        yy = wy - 1 + k * 2 + toff(sx_, wy)
+        cv.fill(rect(sx_ + k, yy, sx_ + 5 + k, yy), STONE['r'])
+        cv.fill(rect(sx_ + k, yy + 1, sx_ + 5 + k, yy + 1), STONE['s'])
+    cv.fill(rect(sx_ + 6, wy - 1 + toff(sx_, wy), sx_ + 8, wy + 4 + toff(sx_, wy)) & hill, '#8a5a3a')
+    for _ in range(3):
+        px = r4(156, W - 8)
+        yy = wy + toff(px, wy)
+        if not hill[yy, px] or cliff[yy, px]:
+            continue
+        cm = rect(px, yy, px + 4, yy + 1) | rect(px + 1, yy + 2, px + 2, yy + r4(4, 6))
+        cv.fill(cm, GREEN['s'])
+        cv.fill(cm & ~shift(cm, 1, 1), GREEN['b'])
+        cv.dots([(px + 3, yy + 1), (px, yy)], '#f6b8cf')
 cv.fill(hill & rect(0, 73, W, 76) & ~cliff, STONE['b'])   # village base wall
 cv.fill(hill & rect(0, 76, W, 76) & ~cliff, STONE['s'])
 for tx, ty, w in ((176, 82, 18), (200, 83, 20), (226, 82, 16), (252, 83, 22), (282, 82, 18),
                   (164, 98, 16), (184, 99, 22), (232, 98, 18), (262, 98, 20), (290, 99, 14),
                   (153, 114, 16), (172, 115, 20), (198, 114, 18), (246, 114, 22), (274, 115, 18)):
-    olive_tree(tx, ty, w)
+    olive_tree(tx, ty + toff(tx, 84 if ty < 90 else 100 if ty < 106 else 116), w)
 # nets under the tree on the middle terrace, a gnome combing it with a little rake
-nm = poly([(204, 98), (230, 98), (236, 101), (200, 101)])
+dn = toff(218, 100)
+nm = poly([(204, 98 + dn), (230, 98 + dn), (236, 101 + dn), (200, 101 + dn)])
 cv.fill(nm, '#f0e4c4')
 for xx in range(201, 236, 3):
-    cv.fill(rect(xx, 98, xx, 101) & nm, '#c9ad7a')
-cv.dots([(206, 99), (212, 100), (218, 99), (224, 100), (228, 99), (215, 99)], '#3a2a3a')
+    cv.fill(rect(xx, 98 + dn, xx, 101 + dn) & nm, '#c9ad7a')
+cv.dots([(206, 99 + dn), (212, 100 + dn), (218, 99 + dn), (224, 100 + dn), (228, 99 + dn), (215, 99 + dn)], '#3a2a3a')
 for k in range(5):
-    cv.dots([(214 + k * 3, 90 + k % 2 * 3)], '#3a2a3a')   # olives falling
-gnome(222, 100, ramp('#3f8fb0', '#25637d', '#a9d6ea'), RED, s=0.62, face=-1, arm=1)
-cv.fill(line([(214, 87), (226, 81)], 1), '#7a4a1f')   # rake pole reaching into the crown
-cv.fill(rect(212, 85, 214, 89), '#4a2c1a')
+    cv.dots([(214 + k * 3, 90 + dn + k % 2 * 3)], '#3a2a3a')   # olives falling
+gnome(222, 100 + dn, ramp('#3f8fb0', '#25637d', '#a9d6ea'), RED, s=0.62, face=-1, arm=1)
+cv.fill(line([(214, 87 + dn), (226, 81 + dn)], 1), '#7a4a1f')   # rake pole reaching into the crown
+cv.fill(rect(212, 85 + dn, 214, 89 + dn), '#4a2c1a')
 # a basket of olives on the top terrace
+db = toff(242, 84)
 o = cv.obj()
-o.part(rrect(238, 78, 246, 83, 1), WOOD, d=1)
+o.part(rrect(238, 78 + db, 246, 83 + db, 1), WOOD, d=1)
 o.draw()
-cv.dots([(239, 77), (241, 77), (243, 77), (240, 76), (244, 77)], '#3a2a3a')
-# bell-goats on the terraces
-goat(170, 97, 1, COATS['brown'], '#ece6d8')
-goat(264, 113, -1, COATS['black'], '#ece6d8')
-goat(208, 113, 1, COATS['white'], '#9a6a3a')
+cv.dots([(239, 77 + db), (241, 77 + db), (243, 77 + db), (240, 76 + db), (244, 77 + db)], '#3a2a3a')
+# bell-goats on the terraces, standing in the gaps between the trunks; the brown and black ones graze head-down, clear of the crowns
+goat(241, 97 + toff(248, 100), 1, COATS['brown'], '#ece6d8', graze=True)
+goat(254, 113 + toff(260, 116), -1, COATS['black'], '#ece6d8', graze=True)
+goat(208, 113 + toff(215, 116), 1, COATS['white'], '#9a6a3a')
 
 # ================================================================ PIAZZA paving
 cv.fill(piazza, '#e2c48e')

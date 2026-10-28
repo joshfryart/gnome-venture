@@ -141,10 +141,13 @@ for k, (xa, xb) in enumerate(((56, 30), (61, 46), (66, 62), (71, 80), (75, 96)))
     cv.fill(poly([(xa, 14), (xa + 2, 14), (xb + 3 + k, 62), (xb, 62)]) & ~gap, '#a3adb9' if k % 2 else '#b0b8c2')
 # a rainbow stub coming down out of the storm cloud onto the far fells (cells 7-8, row 1)
 rb_c = (240, 78)
+r5 = rnd(8080)   # fourth stream (pass 2 additions)
+rbm = blank()   # the rainbow's footprint: kept free of rain streaks
 for k, col in enumerate(('#b0505a', '#d99a4a', '#c9c06a', '#7f9a6a', '#6a7aa8', '#7e6496')):
     ro, ri = 54 - k * 2, 52 - k * 2
     band = ell(rb_c[0] - ro, rb_c[1] - ro, rb_c[0] + ro, rb_c[1] + ro) & ~ell(rb_c[0] - ri, rb_c[1] - ri, rb_c[0] + ri, rb_c[1] + ri)
     cv.fill(band & rect(150, 18, 240, 70), col)
+    rbm |= band & rect(150, 18, 240, 70)
 
 
 def cloud(m, rp, base):
@@ -182,7 +185,7 @@ cv.fill(ell(188, 7, 194, 10) & ~shift(ell(188, 7, 194, 10), 0, 1), CLOUD['s'])
 cloud(ell(220, -6, 262, 20) | ell(228, 8, 256, 26) | ell(214, 4, 236, 22) | ell(248, 0, 270, 16), DCLOUD, 25)
 for k in range(11):
     x0 = 222 + k * 3 + (k * 5) % 3
-    cv.fill(line([(x0, 26), (x0 - 5, 34 + (k * 11) % 17)]), DCLOUD['r'] if k % 2 else '#8b96a4')
+    cv.fill(line([(x0, 26), (x0 - 5, 34 + (k * 11) % 17)]) & ~dil4(rbm), DCLOUD['r'] if k % 2 else '#8b96a4')
 # pale high cloud (cell 10,0) and a small light cumulus (cell 11,0)
 cloud(ell(254, 2, 290, 8) | ell(262, -2, 282, 6), CLOUD, 8)
 cloud(cum(288, 16, 28), CLOUD, 19)
@@ -222,13 +225,27 @@ for k in range(14):   # whitecaps
     cv.dots([(sx, sy), (sx + 1, sy), (sx + 1, sy - 1)], '#c8ced5')
 # the headland: a bold green-topped cliff, the lighthouse planted on it with the keeper's cottage
 head = poly([(0, 38), (6, 36), (14, 37), (22, 40), (28, 46), (32, 54), (36, 62), (30, 66), (0, 68)])
-cliff = poly([(22, 42), (28, 46), (32, 54), (36, 62), (30, 66), (18, 67), (22, 58), (20, 50)])
+cliff = poly([(22, 42), (25, 43), (27, 46), (30, 47), (29, 50), (31, 53), (33, 54), (32, 57), (35, 59), (36, 62), (34, 64), (30, 66),
+              (18, 67), (21, 63), (19, 59), (22, 55), (20, 51), (22, 47)])
 o = cv.obj()
 o.part(head, MOSSF, d=2)
 o.part(cliff, ramp('#6c7284', '#4f5560', '#8c95a6'), d=2)
 o.draw()
-for yy in range(50, 67, 4):   # rock strata in the cliff
-    cv.fill(cliff & line([(18, yy + 1), (36, yy - 1)]), '#4f5560')
+# craggy cliff face: uneven ledges (dark undercut, lit lip), staggered vertical joints, seabirds and thrift on the ledges
+LEDGES = ((46, 21, 29), (50, 20, 30), (54, 21, 33), (58, 19, 35), (62, 20, 36))
+for k, (yy, xa, xb) in enumerate(LEDGES):
+    seg = line([(xa, yy + k % 2), ((xa + xb) // 2 + r5(-2, 2), yy + r5(-1, 1)), (xb, yy + 1 - k % 2)])
+    cv.fill(cliff & seg, '#4f5560')
+    cv.fill(cliff & shift(seg, 0, -1) & ~seg, '#8c95a6')
+    if k < len(LEDGES) - 1:
+        for jx in range(xa + 2 + k % 3, xb - 1, 4 + k % 2):   # joints between this ledge and the next
+            cv.fill(cliff & line([(jx, yy + 2), (jx - 1 + (jx % 2), LEDGES[k + 1][0] - 1)]), '#4f5560')
+for bx_, by_ in ((24, 49), (28, 53), (23, 57), (31, 57), (27, 61)):   # guillemots on the ledges
+    cv.dots([(bx_, by_ - 1)], '#3d2a1e')
+    cv.dots([(bx_, by_), (bx_ + 1, by_)], '#e6e2d6')
+for tx_, ty_ in ((26, 45), (22, 53), (33, 60)):   # tufts of thrift clinging on
+    cv.dots([(tx_, ty_), (tx_ + 1, ty_)], MOSSF['r'])
+    cv.dots([(tx_, ty_ - 1)], '#b07fb2')
 for _ in range(30):   # sheep-bitten turf on the headland slope
     x, y = r3(1, 26), r3(42, 66)
     if head[y, x] and not cliff[y, x]:
@@ -299,17 +316,6 @@ def mist(y0, y1, n, xs=(-20, W + 20), rr=None):
     return mm
 
 
-# a little kirk on the far fell (cell 11,1): nave, tower and a sharp spire
-o = cv.obj()
-o.part(rect(276, 48, 290, 56), ramp('#8c95a6', '#6c7488', '#a3acb7'), d=1)
-o.part(poly([(275, 48), (291, 48), (288, 44), (278, 44)]), ramp('#5f6e7e', '#4f5560'), d=0)
-o.part(rect(285, 36, 291, 50), ramp('#8c95a6', '#6c7488', '#a3acb7'), d=1)
-o.part(poly([(284, 36), (292, 36), (288, 22)]), ramp('#5f6e7e', '#4f5560', '#7b8695'), d=1)
-o.draw()
-cv.dots([(288, 40), (288, 41), (279, 51), (282, 51)], '#f2b84a')
-cv.fill(rect(288, 19, 288, 22) | rect(287, 20, 289, 20), '#4f5560')
-
-
 def mist2(y0, y1, n, xs, rr):
     """Thick lying mist: long ragged lenses with a pale crown, a cool underside and torn wisps trailing off."""
     mm = blank()
@@ -328,6 +334,34 @@ def mist2(y0, y1, n, xs, rr):
 
 mist(64, 70, 9, (60, 300))
 mist2(58, 66, 7, (100, 300), r3)
+# a fell shoulder for the kirk to stand on (it sat on the mist), with a kirkyard wall, a yew and two headstones
+sh_ = poly([(258, 66), (266, 58), (276, 54), (296, 52), (300, 53), (300, 68), (258, 68)])
+cv.fill(sh_, '#7a8396')
+cv.fill(sh_ & ~shift(sh_, 1, 1), '#8c95a6')
+cv.fill(line([(268, 60), (274, 59), (294, 58), (300, 58)]) & sh_, '#6c7488')
+cv.fill(line([(268, 59), (274, 58), (294, 57), (300, 57)]) & sh_, '#a3acb7')
+for x_ in range(270, 300, 3):
+    cv.dots([(x_, 58 + (x_ > 274))], '#6c7488')
+# a little kirk on the far fell (cell 11,1): nave, tower and a sharp spire
+o = cv.obj()
+o.part(rect(276, 48, 290, 56), ramp('#8c95a6', '#6c7488', '#a3acb7'), d=1)
+o.part(poly([(275, 48), (291, 48), (288, 44), (278, 44)]), ramp('#5f6e7e', '#4f5560'), d=0)
+o.part(rect(285, 36, 291, 50), ramp('#8c95a6', '#6c7488', '#a3acb7'), d=1)
+o.part(poly([(284, 36), (292, 36), (288, 22)]), ramp('#5f6e7e', '#4f5560', '#7b8695'), d=1)
+o.draw()
+cv.dots([(288, 40), (288, 41), (279, 51), (282, 51)], '#f2b84a')
+cv.fill(rect(288, 19, 288, 22) | rect(287, 20, 289, 20), '#4f5560')
+o = cv.obj()
+o.part(ell(268, 47, 276, 57), ramp('#55633a', '#5a6450', '#6f7f4a'), d=1)   # dark yew in the kirkyard
+o.draw()
+cv.fill(rect(271, 56, 272, 58), '#3d2a1e')
+for gx_ in (279, 283):
+    cv.fill(rect(gx_, 55, gx_ + 1, 57), '#a3acb7')
+    cv.dots([(gx_ + 1, 57)], '#6c7488')
+for k_ in range(6):   # sheep dots grazing the shoulder
+    sx_, sy_ = r5(260, 296), r5(61, 66)
+    if sh_[sy_, sx_]:
+        cv.dots([(sx_, sy_), (sx_ + 1, sy_)], '#e6e2d6')
 # nearer fell behind the cottage, with field walls drawn as lines
 m3 = poly([(110, 92), (150, 80), (196, 76), (236, 82), (272, 74), (300, 78), (300, 100), (110, 100)])
 cv.fill(m3, MOSSF['b'])
@@ -445,7 +479,7 @@ cv.fill(rect(cx0 + 8, 74, cx0 + 10, 76) | rect(cx0 + 12, 75, cx0 + 13, 76), '#a8
 for _ in range(16):   # (keeps the r2 stream where the old bead-string smoke left it)
     r2(0, 1)
 # peat smoke: a thin column that rises, gets caught by the wind and streams off flat to the left, fraying into torn wisps
-pm = blank()
+puffs = []
 for i in range(0, 41):
     t = i / 40.0
     sx = cx0 + 10 - int(40 * t ** 1.2)
@@ -453,15 +487,19 @@ for i in range(0, 41):
     hw, hh = 1 + int(6 * t) + r3(0, 2), 1 + int(3 * t) + r3(0, 1)
     if t > 0.6 and (i // 3) % 3 == 2:   # breaking up into puffs
         continue
-    pm |= ell(sx - hw, sy - hh, sx + hw, sy + hh)
+    if i % (2 if t < 0.3 else 4):   # separate round puffs, not a smooth ribbon
+        continue
+    puffs.append(ell(sx - hw, sy - hh - 1, sx + hw, sy + hh))
 for k in range(3):   # torn wisps blown ahead of the plume
     wx, wy = 160 - k * 6 + r3(-2, 2), 42 - k * 3 + r3(-1, 1)
-    pm |= ell(wx - 5 - k, wy - 1 - (k % 2), wx + 5, wy + 1)
-pm &= ~rect(cx0 + 4, 75, cx0 + 18, H)
-cv.fill(pm, '#9a9ca4')
-cv.fill(pm & rect(0, 0, 172, H), '#a7a9b0')
-cv.fill(pm & ~shift(pm, 1, 1), '#b3bbc5')
-cv.fill(pm & ~shift(pm, -1, -2), '#8a8c94')
+    puffs.append(ell(wx - 5 - k, wy - 1 - (k % 2), wx + 5, wy + 1))
+pm = blank()
+for e in reversed(puffs):   # far puffs first, so each nearer puff sits on top with its own lit crown and shaded belly
+    e &= ~rect(cx0 + 4, 75, cx0 + 18, H)
+    pm |= e
+    cv.fill(e, '#9a9ca4')
+    cv.fill(e & ~shift(e, 1, 1), '#b3bbc5')
+    cv.fill(e & ~shift(e, -1, -1), '#8a8c94')
 roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
 roof &= ~rect(0, 116, W, H)
 o = cv.obj()
@@ -605,10 +643,39 @@ for sx, sy, w in ((8, 154, 7), (30, 155, 9), (51, 157, 6), (70, 156, 8)):   # st
     cv.fill(rect(sx, sy + 5, sx + w, sy + 5) & face, PEAT['r'])
 for x0, y0, x1, y1 in ((18, 158, 26, 157), (44, 152, 49, 154), (60, 160, 66, 159), (82, 153, 86, 156)):   # bog-oak roots in the peat
     cv.fill(line([(x0, y0), (x1, y1)]) & face, '#94765a')
+# the cut face, worked: spade slices in uneven rows (each turve a slab with a lit top lip), fibre streaks, black wet seeps, a buried stone
+for row, (ya, yb) in enumerate(((151, 155), (156, 159))):
+    xx = 1 + row * 3
+    while xx < 88:
+        wv = r5(5, 9)
+        cv.fill(face & rect(xx, ya, xx, yb), '#33231a' if row else PEAT['s'])
+        cv.fill(face & rect(xx + 1, ya, xx + wv - 2, ya), '#94765a' if r5(0, 2) == 0 else '#7a5a40')
+        xx += wv
+for _ in range(22):   # fibre streaks
+    fx_, fy_ = r5(1, 86), r5(150, 159)
+    cv.fill(face & rect(fx_, fy_, fx_ + r5(1, 3), fy_), '#7a5a40' if r5(0, 1) else '#5e4632')
+for sx_ in (6, 23, 41, 57, 77):   # dark seeps weeping down from the turf
+    cv.fill(face & line([(sx_, 147), (sx_ + 1, 152), (sx_, 158 + sx_ % 3)]), '#33231a')
+    cv.dots([(sx_, 159 + sx_ % 3), (sx_ + 1, 160 + sx_ % 3)], PUD['b'])
+cv.fill(face & ell(33, 151, 38, 154), STONE['s'])
+cv.fill(face & ell(33, 151, 37, 153), STONE['b'])
+cv.dots([(34, 151)], STONE['r'])
 cv.fill(face & ~shift(face, 0, 1), '#33231a')
+cv.fill(line([(0, 161), (30, 162), (60, 163), (90, 165)]) & ~face, PUD['s'])   # wet seep along the foot of the face
+cv.fill(line([(4, 162), (24, 163)]) | line([(44, 164), (58, 164)]), PUD['b'])
 cv.fill(bank_top, MOSS['b'])
-for k, hx_ in enumerate((5, 14, 27, 38, 46, 59, 70, 81)):   # heather overhanging the cut edge
-    heather(hx_, 144 + k // 2 + (k % 3) - 1, 4 + k % 3, 1, n=3, s0=2 + k % 2, s1=4 + k % 2, flowers=5)
+# heather overhanging the cut edge: varied kinds and sizes (ling, cooler far heather, old brown heather, green bilberry)
+OLDH = ramp('#7a5a40', '#5a3e2c', '#94765a')
+BILB = ramp('#6f8040', '#56632f', '#8fa058')
+HROW = ((5, HEATH, 5, 1, 3, 5), (14, OLDH, 3, 1, 2, 3), (27, HEATH, 7, 2, 3, 6), (38, BILB, 4, 1, 2, 4), (46, HEATHF, 5, 1, 2, 4),
+        (59, HEATH, 3, 1, 2, 3), (70, OLDH, 6, 2, 3, 5), (81, HEATHF, 4, 1, 3, 4))
+for k, (hx_, rp_, rx_, ry_, s0_, s1_) in enumerate(HROW):
+    hm_ = heather(hx_, 144 + k // 2 + (k % 3) - 1, rx_, ry_, n=3, s0=s0_, s1=s1_, rp=rp_, flowers=5)
+    ys_, xs_ = np.nonzero(hm_)
+    if rp_ is OLDH:   # purple tips on the old brown heather
+        cv.dots([(int(xs_[i]), int(ys_[i])) for i in (r5(0, len(xs_) - 1) for _ in range(5))], HEATH['r'])
+    if rp_ is BILB:   # blaeberries
+        cv.dots([(int(xs_[i]), int(ys_[i])) for i in (r5(0, len(xs_) - 1) for _ in range(4))], '#4f6a86')
 ys, xs = np.nonzero(floor & ~dil4(dil4(burn)))
 for _ in range(80):
     i = r(0, len(xs) - 1)
