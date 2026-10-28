@@ -65,33 +65,36 @@ end
 for x = 0, W - 1, 3 do local y = math.floor(114 + 3 * math.sin(x / 22 + 1) + 2 * math.sin(x / 8)); c:px(x, y, "#fff3c8") end
 
 -- flamingos wading, with reflections (left): chibi
-local function flamingo(x, y, flip)
-  local f = flip and -1 or 1
-  -- reflection first (a flipped paler copy below the feet)
-  c:fill(c:ellipse(x, y + 8, 7, 4), "#f0aa98")
-  c:fill(c:rect(x - 1, y + 2, x, y + 7), "#e39a86")
-  c:fill(c:rect(x + 3 * f, y + 9, x + 3 * f + 1, y + 16), "#e39a86"); c:fill(c:ellipse(x + 4 * f, y + 18, 3, 2), "#f0aa98")
+local function flamingo(x, y, f)
+  -- reflection (paler, flipped below the feet)
+  c:fill(c:rect(x - 1, y + 1, x, y + 12), "#e39a86"); c:fill(c:rect(x + 2, y + 1, x + 3, y + 12), "#e39a86")
+  c:fill(c:ellipse(x + 1, y + 14, 7, 3), "#f0aa98")
+  c:fill(c:rect(x + 5 * f, y + 16, x + 6 * f, y + 24), "#e39a86")
   -- legs
-  c:fill(c:rect(x - 2, y, x - 1, y - 9), "#e46a9b"); c:fill(c:rect(x + 2, y, x + 3, y - 7), "#e46a9b")
-  c:part(c:ellipse(x, y - 13, 8, 6), GV.ramp("#f08aa8"), { cres = 3, deep = 5 })
-  c:part(c:poly({ {x + 5 * f - 1, y - 14}, {x + 7 * f - 1, y - 24}, {x + 9 * f + 1, y - 24}, {x + 8 * f + 1, y - 14} }), GV.ramp("#f08aa8"), { cres = 2, deep = 3, gloss = false })
-  c:part(c:ellipse(x + 8 * f, y - 26, 5, 4.5), GV.ramp("#f08aa8"), { cres = 2, deep = 3, gloss = false })
-  c:part(c:poly({ {x + 11 * f, y - 28}, {x + 17 * f, y - 25}, {x + 15 * f, y - 22}, {x + 11 * f, y - 24} }), GV.ramp("#2a1a10", { rim = "#5a4a40" }), { flat = true, gloss = false, outline = false })
-  c:fill(c:rect(x + 11 * f - (f < 0 and 5 or 0), y - 26, x + 13 * f - (f < 0 and 5 or 0), y - 25), "#f2e4c0")
-  c:eye(x + 6 * f - 2, y - 29, true)
-  c:part(c:poly({ {x - 7, y - 12}, {x - 13, y - 14}, {x - 9, y - 8} }), GV.ramp("#e46a9b"), { cres = 2, deep = 3, gloss = false })
-  c:fill(c:rect(x - 1, y - 13, x + 3, y - 12), "#ffc27a")
+  c:fill(c:rect(x - 1, y - 14, x, y), "#e46a9b"); c:fill(c:rect(x + 2, y - 14, x + 3, y), "#e46a9b")
+  c:fill(c:rect(x - 3, y, x + 1, y), "#e46a9b"); c:fill(c:rect(x + 1, y, x + 5, y), "#e46a9b")
+  -- tail feathers + body
+  c:part(c:poly({ {x - 8 * f, y - 20}, {x - 14 * f, y - 26}, {x - 11 * f, y - 16} }), GV.ramp("#e46a9b"), { cres = 2, deep = 3, gloss = false })
+  c:part(c:ellipse(x + 1, y - 19, 8, 6), GV.ramp("#f08aa8"), { cres = 3, deep = 5 })
+  c:part(c:ellipse(x - 1, y - 19, 4, 3), GV.ramp("#e46a9b"), { flat = true, gloss = false, outline = false })
+  -- S-neck
+  c:part(c:rect(x + 5 * f - 1, y - 32, x + 7 * f, y - 20), GV.ramp("#f08aa8"), { cres = 2, deep = 3, gloss = false })
+  c:part(c:ellipse(x + 6 * f, y - 35, 6, 5), GV.ramp("#f08aa8"), { cres = 2, deep = 3, gloss = false })
+  -- beak (down-curved, dark tip)
+  c:part(c:rect(x + 9 * f - (f < 0 and 5 or 0), y - 37, x + 14 * f - (f < 0 and 5 or 0), y - 34), GV.ramp("#f2e4c0"), { flat = true, gloss = false })
+  c:fill(c:rect(x + 12 * f - (f < 0 and 3 or 0), y - 36, x + 14 * f - (f < 0 and 3 or 0), y - 34), "#2a1a10")
+  c:eye(x + 4 * f - 1, y - 39, true)
 end
-flamingo(52, 110, false)
-flamingo(78, 106, true)
-flamingo(34, 104, false)
+flamingo(46, 112, 1)
+flamingo(76, 108, -1)
+flamingo(104, 114, 1)
 
 -- the glint: something golden on a little salt island in the shallows, not in the sky
 local gx, gy = 170, 100
-c:part(c:ellipse(gx, gy + 6, 14, 4), GV.ramp("#f1ece0"), { cres = 3, deep = 4, gloss = false, pale = true })
+c:part(c:ellipse(gx, gy + 6, 14, 4), GV.ramp("#f1ece0"), { cres = 3, deep = 4, gloss = false, pale = true, outline = false })
 c:part(c:ellipse(gx, gy + 3, 4, 3), GV.ramp("#e8a317"), { cres = 2, deep = 3, gloss = false })
 c:part(c:rect(gx + 5, gy + 2, gx + 8, gy + 5), GV.ramp("#e8a317"), { flat = true, gloss = false })
-c:part(c:ring and c:ellipse(gx - 7, gy + 5, 3, 2) or c:ellipse(gx - 7, gy + 5, 3, 2), GV.ramp("#e8a317"), { flat = true, gloss = false })
+c:part(c:ellipse(gx - 7, gy + 5, 3, 2), GV.ramp("#e8a317"), { flat = true, gloss = false })
 c:px(gx - 1, gy + 1, "#fff1c8"); c:px(gx, gy + 1, "#fff1c8")
 -- glint star: a 4-point cross
 local function star(x, y, r) c:fill(c:rect(x - r, y, x + r, y), "#fff1c8"); c:fill(c:rect(x, y - r, x, y + r), "#fff1c8"); c:px(x, y, "#f5cf6a") end
