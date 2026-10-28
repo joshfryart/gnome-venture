@@ -179,6 +179,11 @@ def knob(side, style, at, edge, r=4.0, nw=2.6, flip=False, blank_=False):
 
 
 def piece(core, r=4.0, nw=2.6, **sides):
+    return piece_blanks(core, r, nw, **sides)[0]
+
+
+def piece_blanks(core, r=4.0, nw=2.6, **sides):
+    """Like piece() but returns (mask, blanks): blanks = the cut-away knob holes, for Sticker.blank_shade()."""
     """A jigsaw piece mask. core = (x0, y0, x1, y1) inclusive. sides n/e/s/w = 'F' or (kind, style[, offset[, r[, flip]]]) with kind T or B.
     offset moves the knob along the side (pixels, from the side's centre)."""
     x0, y0, x1, y1 = core
@@ -199,7 +204,7 @@ def piece(core, r=4.0, nw=2.6, **sides):
             tabs |= k
         else:
             blanks |= k
-    return (m & ~blanks) | tabs
+    return (m & ~blanks) | tabs, blanks & ~tabs
 
 
 # ---------------------------------------------------------------- the picture (fill source)
@@ -313,6 +318,15 @@ class Sticker:
             if key not in cache:
                 cache[key] = tone(np.array(key, np.uint8), kind)
             self.px[y, x] = cache[key]
+
+    def blank_shade(self, m, blanks, width=2):
+        """Inner shadow round a blank (the hole a neighbour's tab fits in): the body pixels lining the hole get the deep tone of their own
+        fill (1st px) and shade (2nd px), so a blank reads as a cut even on a pale fill."""
+        near = m & dil4(blanks)
+        base = self.px.copy()
+        self._ramp(near, base, 'deep')
+        if width > 1:
+            self._ramp(m & dil4(near) & ~near, base, 'shade')
 
     def paint(self, m, col, solid=False):
         self._put(m, col)

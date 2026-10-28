@@ -68,7 +68,10 @@ def acorn_nip():
     st = Sticker()
     core = (9, 20, 38, 45)
     body = piece(core, n='F', w='F', e=('T', 'round', 1), s=('T', 'round', 5))
-    st.part(body, tex=body_fill(key, body, 9, 20, 30, k=4, passes=2, dx=0.12, dy=0.1))
+    tex = body_fill(key, body, 9, 20, 30, k=4, passes=2, dx=0.12, dy=0.1)
+    tex = remap(tex, body, {'#9a6b3f': '#7ab55c'})                    # birch trunk -> lit grass
+    tex = remap(tex, body & (CY < 39), {'#7a4a1f': '#4f9a45'})         # keep only the tilled-soil hem brown
+    st.part(body, tex=tex)
     st.stitch(body)
     feet(st, [10], 46, w=7)
     shoe = rect(26, 52, 34, 55) & ~rect(26, 52, 26, 52) & ~rect(34, 52, 34, 52)
@@ -94,9 +97,10 @@ def leaf_tuck():
     key = 'mw-leaf-tuck'
     st = Sticker()
     core = (17, 25, 46, 49)
-    body = piece(core, s='F', n=('T', 'round', -1), w=('T', 'round', 2), e=('B', 'round', 1))
+    body, holes = piece_blanks(core, s='F', n=('T', 'round', -1), w=('T', 'round', 2), e=('B', 'round', 1, 4.8))
     st.part(body, tex=body_fill(key, body, 17, 25, 30, k=4, passes=2))
-    st.stitch(body)
+    st.blank_shade(body, holes)
+    st.stitch(body, skip=grow(holes, 3))
     feet(st, [20, 37], 50)
     leaf = leaf_mask(33, 16, 9.5, ang0=-75)
     stem = line([(32, 18), (30, 23)], 2)
@@ -165,8 +169,7 @@ def bark_badger():
     st.paint(rect(25, 26, 27, 36), CREAM)
     st.eye(18, 29, look=(1, 0), socket=None)
     st.eye(29, 29, look=(1, 0), socket=None)
-    st.sprite(['UUU', '.U.'], 25, 36, {'U': UMBER}, solid=False)
-    st.mouth('cat', 24, 39)
+    st.sprite(['UUU', '.U.'], 25, 37, {'U': UMBER}, solid=False)   # nose: 4 clear pixels, no fussy mouth
     return key, st
 
 
@@ -191,7 +194,7 @@ def fourwind_finch():
     st.paint(env & (np.abs(CX - 54.5) < 0.6) & (CY > 8) & (CY < 18), '#25637d')
     st.eye(21, 28, look=(1, 0))
     st.eye(32, 28, look=(1, 0))
-    st.sprite(['.UUU.', 'UOOOU', '.UOU.', '..U..'], 27, 34, {'U': UMBER, 'O': PUMP}, solid=False)
+    st.sprite(['OOOOO', '.OOO.', '..U..'], 27, 34, {'U': UMBER, 'O': PUMP}, solid=False)
     st.button(28, 15)
     return key, st
 
@@ -204,28 +207,29 @@ def samara_spin():
     seed = ellipse(20.5, 37, 11, 10)
     hook = knob('s', 'hook', 22, 46.5, r=3.3)
     body = seed | hook
-    wing = poly([(25, 30), (29, 24), (34, 18), (39, 14), (44, 10), (48, 8), (51, 8), (53, 10), (53, 14), (51, 19), (47, 24), (41, 29), (35, 33),
-                 (30, 35), (27, 34)])
-    # papery wing: the cell's own pixels by brightness on a samara-paper ramp (light, mid, dark)
+    # maple key: straight thick leading edge, broad rounded tip, a trailing edge with notches, veins fanning from the seed
+    wing = poly([(26, 30), (31, 24), (36, 18), (41, 13), (46, 10), (50, 8), (53, 9), (54, 13), (53, 18), (50, 23), (46, 27), (41, 29),
+                 (37, 29), (33, 31), (30, 34), (28, 34)])
+    for nx, ny, rr in ((51.5, 22.5, 2.6), (44.5, 29, 2.8)):   # notches bitten into the trailing edge (big enough to survive the outline)
+        wing &= ~disc(nx, ny, rr)
     lum = pic.sample(col, row, 25, 8, 28).astype(int).sum(-1)
     paper = np.zeros((N, N, 3), np.uint8)
-    paper[:] = hx('#e8841f')
-    paper[lum > 470] = hx('#f5b04a')
-    paper[lum < 330] = hx('#c96a1c')
+    paper[:] = hx('#f5b04a')
+    paper[lum < 330] = hx('#e8a040')
     paper = majority(paper, wing, 2)
     st.part(wing, tex=paper, d=2)
-    for end in ((52, 16), (49, 21), (44, 26), (38, 30), (32, 33)):
-        st.paint(line([(27, 32), ((27 + end[0]) // 2 + 1, (32 + end[1]) // 2 - 2), end]) & shrink(wing, 1), '#b85a14')
-    lead = line([(25, 30), (29, 24), (34, 18), (39, 14), (44, 10), (49, 8)], 2)
-    st.paint(lead & wing, '#8a2c20')
+    for end in ((53, 14), (49, 21), (42, 27), (35, 30)):        # veins fan from the seed to the trailing edge
+        st.paint(line([(28, 32), ((28 + end[0]) // 2 + 1, (32 + end[1]) // 2 - 2), end]) & shrink(wing, 1), '#7a3a1c')
+    lead = line([(28, 31), (33, 25), (38, 19), (43, 14), (48, 11), (51, 10)], 2)   # the thick rib, inset so it reads apart from the outline
+    st.paint(lead & shrink(wing, 1), '#5c3420')
+    st.paint(shift(lead, -1, -1) & ~lead & shrink(wing, 1), '#ffc27a')
     st.part(body, tex=body_fill(key, body, 9, 27, 23, k=4, passes=2), contour=True)
     st.stitch(seed)
-    # propeller beanie: pumpkin cap, stalk, two windmill sails
-    beanie = ellipse(18.5, 28.5, 8, 5) & (CY < 29)
-    st.part(beanie, PUMP, d=2, contour=True)
-    st.part(rect(18, 21, 19, 24), BARK, d=0, contour=True)
-    st.part(ellipse(12.5, 19.5, 5.5, 2) | ellipse(25, 19.5, 5.5, 2), '#efe6d2', d=1)
-    st.part(disc(18.8, 19.8, 2.1), RED, d=1, contour=True)
+    st.paint(line([(26, 31), (29, 34)]) | line([(24, 29), (28, 33)]), '#8a2c20')   # seed-bulb ridges at the wing root
+    # propeller (two windmill sails) on a stalk: 3 clear blocks at 32 px
+    st.part(rect(17, 22, 18, 27), BARK, d=0, contour=True)
+    st.part(rect(8, 18, 15, 20) | rect(20, 18, 27, 20), '#efe6d2', d=1)
+    st.part(rect(16, 17, 19, 21), RED, d=1, contour=True)
     st.eye(13, 32, look=(1, -1))
     st.eye(23, 32, look=(1, -1))
     st.mouth('tooth', 17, 40)
