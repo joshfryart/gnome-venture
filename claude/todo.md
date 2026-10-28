@@ -1,6 +1,6 @@
 # Gnome Venture: to-do (updated 2026-10-28, after 2.0.75; everything below 2.0.68 is on main)
 
-## ART: first pass of the 64 placeholders is DRAWN on branch `claude/art-first-pass` (not pushed; stage icons, 48 stop tiers, 11 folk; see `claude/todo-art-variety.md`). Still open below:
+## ART: first pass of the 64 placeholders is DRAWN on branch `claude/art-first-pass` (not pushed; stage icons, 48 stop tiers, 11 folk; see `claude/todo-art-variety.md`). Act scenes: checklist of all 810 activities in `claude/todo-art-acts.md`. Still open below:
 ## ART FOR A FUTURE AI: one Aseprite scene per stop activity
 Full brief in `claude/todo-art-variety.md` (section "ART TODO FOR A FUTURE AI"). Short version: draw `game/assets/img/acts/act-<slug>.png` (144x108) for every activity in `stop_acts*.txt` and every future wave; `python3 tools/missing_act_art.py` lists what is missing; no code change needed.
 

@@ -330,7 +330,7 @@ const STOP_ACT_ART_SLUG = ['firewood' => 'fire', 'signal_fire' => 'fire', 'cast_
 function stop_act_art(string $kind, string $slug = ''): string
 {
     $dir = __DIR__ . '/../assets/img/acts/';
-    foreach ([STOP_ACT_ART_SLUG[$slug] ?? '', STOP_ACT_ART_KIND[$kind] ?? '', 'any'] as $n) {
+    foreach ([$slug !== '' && preg_match('/^[a-z0-9_]+$/', $slug) ? $slug : '', STOP_ACT_ART_SLUG[$slug] ?? '', STOP_ACT_ART_KIND[$kind] ?? '', 'any'] as $n) {
         if ($n !== '' && is_file($dir . 'act-' . $n . '.png')) return 'assets/img/acts/act-' . $n . '.png';
     }
     return '';
