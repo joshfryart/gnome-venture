@@ -97,7 +97,6 @@ page_header($t ? $t['title'] : 'Puzzles');   // assets/puzzles.css and assets/pu
 <div class="bar">
   <div id="prog" role="presentation"></div>
   <div class="brand">
-    <div id="who" class="pzwho" data-who="jeff" aria-hidden="true"><span class="w-jeff"><?= puzzle_cast('jeff-think', '') ?></span><span class="w-ffej"><?= puzzle_cast('ffej-scatter', '') ?></span><span class="w-wiz"><?= puzzle_cast('wizard-hint', '') ?></span></div>
     <div>
       <div class="gt">🧩 <?= $t ? e($t['title']) : 'Puzzles' ?></div>
       <p class="sub" id="sub">Drop pieces on the outline and neighbours snap together. Drag the empty table to look around.</p>

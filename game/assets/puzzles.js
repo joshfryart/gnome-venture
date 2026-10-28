@@ -20,7 +20,7 @@ var tok=0, curId=null, inGame=false, G=null, curUrl=null, timer=null, drag=null,
 
 
 /* who: jeff (host), ffej (his mischief twin, on Scatter), wiz (the Old Wizard, on the Guide) */
-function say(t,who){ sub.textContent=t; $('who').setAttribute('data-who',who||'jeff'); clearTimeout(say.t); say.t=setTimeout(function(){ sub.textContent=SUB_DEFAULT; $('who').setAttribute('data-who','jeff'); },5000); }
+function say(t,who){ sub.textContent=t; clearTimeout(say.t); say.t=setTimeout(function(){ sub.textContent=SUB_DEFAULT; },5000); }
 function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 function fmt(s){ var m=Math.floor(s/60), r=s%60; return m+':'+(r<10?'0':'')+r; }
 function rnd(a,b){ return a+rand()*(b-a); }

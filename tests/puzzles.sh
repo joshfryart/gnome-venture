@@ -24,7 +24,6 @@ for c in jeff-host tile-puzzles puzzles-banner jeff-cheer win-scene jeff-think f
   [ -s "$GAME/assets/img/puzzles/cast/$c.png" ] || echo "FAIL missing cast art: cast/$c.png"
 done
 ok "Jeff hosts the library" "$(grep -c 'Jeff:</b>' /tmp/pz.html)" 1
-ok "cast faces in the game bar (jeff, ffej, wizard)" "$(grep -c 'class="pzwho"' /tmp/pz.html)" 1
 ok "pictures come from puzzle_pics" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT COUNT(*) FROM puzzle_pics WHERE source=\"builtin\" AND active=1")->fetchColumn();')" 7
 dbx "UPDATE puzzle_pics SET active=0 WHERE slug='pig'"
 curl -s -b /tmp/pz-p $BASE/puzzles.php > /tmp/pz.html

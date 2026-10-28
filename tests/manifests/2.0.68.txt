@@ -4367,8 +4367,8 @@ ca8345e0c55f363c97221071d7b0b7636145a607  assets/img/ui/felt-light.png
 24128fa7f3c8f0ae826e4e0bf9cf0ae41fff984d  assets/memory.js
 08bd69d1f726376753a53a2b1ca2d6fbf242532b  assets/mushroom.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
-2c23d9a9a761f639f6a195196fdd5a6399a5c508  assets/puzzles.css
-8031268048e6722e82ebdbfeb099303babcfbb92  assets/puzzles.js
+23e63414be60e1ba33de337913c3207e53ae27b3  assets/puzzles.css
+6b3e7d256a05acb65416bf12f1aa2b2f5fa5bfe5  assets/puzzles.js
 c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
 c6b998c2acf24290a8be80d848301df5c4b66e82  assets/site.js
@@ -4641,7 +4641,7 @@ fa42c6b99540e775281995dab5b9504430e4431e  page.php
 5e2d39d341fc651b98edec0ae23457370b143187  passport.php
 9213f7c6a5b96ce8b8e7f6d2dd419f8d659b29a7  pest.php
 883fb329bd15b5c2b2e350d930889faaf0a22ce4  profile.php
-48e2c967fca72ed46eb247b5c6b6d003399dbbd3  puzzles.php
+8f34a3f56b82813b587a8af2ed98adb69f6396cb  puzzles.php
 0fd09aba35a2fb7370d9558f3a51f24401d570a9  puzzles_api.php
 131a4e3b47335a33728dd09e3cf06396a111ae70  race.php
 3cee48824a3a41729d6475a47c980fe5ab1bcaa5  register.php
