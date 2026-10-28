@@ -534,7 +534,7 @@ function finishRun(){
   var tk=TOUR.token; TOUR.token=null;
   $('winText').textContent='Checking your time\u2026';
   api({'do':'finish',token:tk,drops:G.drops},function(r){
-    if(r.ok){ $('winText').textContent='Jeff: \u201c'+r.message+' You\u2019re #'+r.rank+' so far!\u201d'; }
+    if(r.ok){ $('winText').textContent='Jeff: \u201c'+r.message+' You\u2019re #'+r.rank+' so far!\u201d'+ppalLine(r); }
     else {
       if(r.rejected){ win.setAttribute('data-res','caught'); $('winHead').textContent='Caught Ffej!'; }
       $('winText').textContent=r.rejected ? 'Ffej has been fiddling with the clock again. '+r.error : r.error;
@@ -546,11 +546,19 @@ function pStart(){
   var ti=tierFor(G.total); if(!MODE.live || !ti) return;
   var g=G; api({'do':'pstart',pic:curId,tier:ti.k},function(r){ if(r.ok && G===g) g.ptok=r.token; });
 }
+/* v2.0.88 Puzzle Pals: what a finished go released or earned (the server sends r.ppal only the first time) */
+function ppalLine(r){
+  var p=r&&r.ppal; if(!p) return '';
+  if(p.trophy) return ' \ud83c\udfc6 An Expert trophy for '+p.title+'! It goes on your profile shelf.';
+  if(p.released) return ' The magic of the jigsaw is loose! '+p.released+' Puzzle Pals from '+p.title+' are somewhere about the Hollow.';
+  return '';
+}
 function pFinish(){
   var g=G, tk=g.ptok; g.ptok=null; if(!tk) return;
   api({'do':'pfinish',token:tk,drops:g.drops},function(r){
     if(r.ok){
-      $('winText').textContent='Jeff: \u201c'+r.message+'\u201d';
+      $('winText').textContent='Jeff: \u201c'+r.message+'\u201d'+ppalLine(r);
+      if(r.ppal&&r.ppal.released){ MODE.pals=MODE.pals||{}; MODE.pals[curId]=[0,r.ppal.released]; }
       if(MODE.bests){ var m=MODE.bests[curId]||(MODE.bests[curId]={}); m[r.tier]=r.best; }
     }
   });
@@ -689,7 +697,10 @@ function buildJigsawLibrary(){
       }
       row.appendChild(tr);
     });
-    body.appendChild(h); body.appendChild(row);
+    body.appendChild(h);
+    var pp=MODE.pals&&MODE.pals[pz.id];   /* v2.0.88: a small pals pip once the picture's pals are released */
+    if(pp){ var pe=document.createElement('p'); pe.className='ppalpip'+(pp[0]>=pp[1]?' full':''); pe.textContent='\ud83e\udde9 pals '+pp[0]+'/'+pp[1]; body.appendChild(pe); }
+    body.appendChild(row);
     li.appendChild(th); li.appendChild(body); grid.appendChild(li);
   })(PUZZLES[i]);
 }

@@ -249,3 +249,55 @@ body.pz-play .lp #game{text-align:left}
 .pztier.resume{box-shadow:inset 0 0 0 2px var(--accent, #2f7d4f)}
 .pzover{flex:none; font:inherit; font-size:12px; min-height:36px; padding:2px 6px; background:none; border:0; color:var(--muted, #6b6b6b); text-decoration:underline; cursor:pointer}
 .pztico{width:20px; height:20px; vertical-align:-4px; image-rendering:pixelated}
+
+/* v2.0.88 Puzzle Pals: a piece of a picture as a crop (the full picture at 1200% x 800% in a clipping box, moved by pcx<col> / pcy<row>; no inline styles), the Pal Book */
+.ppiece{position:relative; display:block; flex:none; overflow:hidden; width:48px; aspect-ratio:1; background:var(--surface-2); box-shadow:0 0 0 2px var(--ol)}
+.ppiece img{position:absolute; max-width:none; width:1200%; height:800%; display:block}
+.ppiece.px img{image-rendering:pixelated}
+.pcx0 img{left:0}
+.pcx1 img{left:-100%}
+.pcx2 img{left:-200%}
+.pcx3 img{left:-300%}
+.pcx4 img{left:-400%}
+.pcx5 img{left:-500%}
+.pcx6 img{left:-600%}
+.pcx7 img{left:-700%}
+.pcx8 img{left:-800%}
+.pcx9 img{left:-900%}
+.pcx10 img{left:-1000%}
+.pcx11 img{left:-1100%}
+.pcy0 img{top:0}
+.pcy1 img{top:-100%}
+.pcy2 img{top:-200%}
+.pcy3 img{top:-300%}
+.pcy4 img{top:-400%}
+.pcy5 img{top:-500%}
+.pcy6 img{top:-600%}
+.pcy7 img{top:-700%}
+.ppalbook #lib{text-align:center}
+.ppalbook .pzhost{text-align:left}
+.ppalsec{margin:12px 0 0}
+.ppalsec h2{margin:0 0 2px; text-align:center; overflow-wrap:anywhere}
+.ppalsec.full{outline:2px solid var(--accent); outline-offset:-2px}
+.ppalgrid{list-style:none; margin:10px 0 0; padding:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
+@media (min-width:640px){ .ppalgrid{grid-template-columns:repeat(6,minmax(0,1fr))} }
+.ppalslot{display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0; padding:8px 4px; text-align:center; background:var(--surface-2); box-shadow:inset 0 0 0 2px var(--pr, var(--line))}
+.ppalslot.miss{opacity:.9}
+.ppalname{font-size:13px; line-height:1.2; overflow-wrap:anywhere}
+.ppalslot small{font-size:11px; line-height:1.25}
+.ppalart{position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px}
+.ppalart .ppiece.ppbig{width:64px}
+.ppalart .ppiece.ppchip{position:absolute; right:-6px; bottom:-4px; width:24px; box-shadow:0 0 0 1px var(--ol)}
+.ppsil{background:var(--slot)}
+.ppsil img{filter:brightness(0) opacity(.35)}
+.ppalq{display:flex; align-items:center; justify-content:center; width:40px; height:40px; flex:none; font:700 24px/1 var(--font); color:var(--ink); background:var(--slot)}
+.ppsil .ppalq{position:absolute; inset:0; width:auto; height:auto; background:none; font-size:28px}
+.ppaltrophychip{display:inline-block; margin-left:6px; padding:0 8px; font-size:.8rem; font-weight:700; background:var(--accent); color:var(--ink)}
+.ppallocked{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:8px}
+.ppallocked li.box{display:flex; flex-direction:column; align-items:center; gap:6px; margin:0; text-align:center}
+.ppalpip{margin:0; font-size:13px; font-weight:700; text-align:center}
+.ppalpip.full{color:var(--brand-ink)}
+.pzhubcard .ppalpip{grid-column:1/-1}
+:root[data-theme="dark"] .ppalpip.full{color:var(--accent)}
+:root[data-theme="dark"] .ppalslot{background:var(--felt)}
+:root[data-theme="dark"] .ppsil img{filter:brightness(0) invert(1) opacity(.25)}

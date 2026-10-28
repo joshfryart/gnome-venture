@@ -47,18 +47,25 @@ const EVENT_RIDDLES = [
 function maybe_random_event(array $u): void
 {
     if (!empty($_SESSION['event_pending']) || !empty($_SESSION['event_box'])) return;
+    if (random_event_roll($u)) return;
+    ppal_lane($u);   // v2.0.88: Puzzle Pals have their own odds, cooldown and daily cap; only when the ordinary roll produced nothing, so never two boxes
+}
+
+/** The ordinary event roll. True = it set an event box or a pending event. */
+function random_event_roll(array $u): bool
+{
     $force = !empty($_SESSION['event_force']);   // the admin's "test an event" button
     if (!$force) {
         $chance = max(2, (int)setting('event_chance'));
-        if (random_int(1, $chance) !== 1) return;
+        if (random_int(1, $chance) !== 1) return false;
         $cool = max(0, (int)setting('event_cooldown_minutes')) * 60;
-        if ($u['event_at'] && strtotime($u['event_at'] . ' UTC') > time() - $cool) return;
+        if ($u['event_at'] && strtotime($u['event_at'] . ' UTC') > time() - $cool) return false;
         $day = hollow_date('Y-m-d');   // v0.7.85: the Hollow's day, not UTC
-        if (($u['event_day'] ?? '') === $day && (int)$u['event_count'] >= (int)setting('event_daily_max')) return;
+        if (($u['event_day'] ?? '') === $day && (int)$u['event_count'] >= (int)setting('event_daily_max')) return false;
     }
     unset($_SESSION['event_force']);
     $ev = pick_event();
-    if (!$ev) return;
+    if (!$ev) return false;
     $day = hollow_date('Y-m-d');
     q('UPDATE users SET event_at = ?, event_count = CASE WHEN event_day = ? THEN event_count + 1 ELSE 1 END, event_day = ? WHERE id = ?',
         [now(), $day, $day, $u['id']]);
@@ -68,6 +75,16 @@ function maybe_random_event(array $u): void
     } else {
         $_SESSION['event_pending'] = ['slug' => $ev['slug'], 'token' => bin2hex(random_bytes(8))];
     }
+    return true;
+}
+
+/** v2.0.88: the Puzzle Pals find lane. Cheap checks first, so a closed feature or a quiet page never loads the pal code. */
+function ppal_lane(array $u): void
+{
+    if (setting('ppal_open') !== '1' && !is_admin()) return;
+    if (!empty($u['guest']) || in_array(basename((string)($_SERVER['SCRIPT_NAME'] ?? '')), PPAL_QUIET_PAGES, true)) return;
+    require_once __DIR__ . '/puzzle_pals.php';
+    ppal_maybe_find($u);
 }
 
 function pick_event(): ?array
@@ -245,6 +262,13 @@ function finish_event(array $u, string $token, string $choice): array
     $pend = $_SESSION['event_pending'] ?? null;
     if (!$pend || !hash_equals((string)$pend['token'], $token)) return [false, 'That moment has passed.'];
     unset($_SESSION['event_pending']);   // one go only
+    if (($pend['slug'] ?? '') === 'ppal') {   // v2.0.88: a Puzzle Pal find (not a random_events row)
+        require_once __DIR__ . '/puzzle_pals.php';
+        [$ok, $box] = ppal_claim($u, (string)($pend['pal'] ?? ''), (int)($pend['pic'] ?? 0), !empty($pend['test']));
+        if (!$ok) return [false, (string)$box];
+        $_SESSION['event_box'] = $box;
+        return [true, ''];
+    }
     $ev = q_one('SELECT * FROM random_events WHERE slug = ?', [$pend['slug']]);
     if (!$ev) return [false, 'That moment has passed.'];
     $uid = (int)$u['id'];
@@ -335,7 +359,8 @@ function event_box_html_core(): string
     if (!empty($_SESSION['event_box'])) {
         $b = $_SESSION['event_box'];
         unset($_SESSION['event_box']);
-        return '<div class="eventbox" role="status"><div class="evicon">' . e($b['icon']) . '</div><div class="evbody">'
+        if (!empty($b['ppal'])) require_once __DIR__ . '/puzzle_pals.php';   // v2.0.88: ppal_img()
+        return '<div class="eventbox' . (!empty($b['ppal']) ? ' ppalgot' : '') . '" role="status">' . (!empty($b['ppal']) ? '<div class="ppalst">' . ppal_img((string)$b['ppal'], '') . '</div>' : '<div class="evicon">' . e($b['icon']) . '</div>') . '<div class="evbody">'
             . '<div class="evkicker">✨ Something has happened!</div><div class="evtitle">' . e($b['title']) . '</div>'
             . ($b['text'] !== '' ? '<p>' . e($b['text']) . '</p>' : '')
             . ($b['lines'] ? '<ul>' . implode('', array_map(fn($l) => '<li>' . e($l) . '</li>', $b['lines'])) . '</ul>' : '')
@@ -343,10 +368,19 @@ function event_box_html_core(): string
     }
     $pend = $_SESSION['event_pending'] ?? null;
     if (!$pend) return '';
-    $ev = q_one('SELECT * FROM random_events WHERE slug = ?', [$pend['slug']]);
-    if (!$ev) { unset($_SESSION['event_pending']); return ''; }
     $back = ltrim((string)preg_replace('~^' . preg_quote(rtrim(url(''), '/'), '~') . '/~', '', (string)($_SERVER['REQUEST_URI'] ?? '')), '/');
     if (!preg_match('~^[a-z0-9_/-]+\.php(\?[A-Za-z0-9=&_.-]*)?$~', $back)) $back = 'index.php';
+    if (($pend['slug'] ?? '') === 'ppal') {   // v2.0.88: the Puzzle Pals find card
+        require_once __DIR__ . '/puzzle_pals.php';
+        return ppal_find_html($pend, function (string $choice, string $label) use ($pend, $back): string {
+            return '<form method="post" action="' . e(url('event.php')) . '">' . csrf_field()
+                . '<input type="hidden" name="token" value="' . e($pend['token']) . '"><input type="hidden" name="choice" value="' . e($choice) . '">'
+                . '<input type="hidden" name="back" value="' . e($back) . '">'
+                . '<button class="btn">' . e($label) . '</button></form>';
+        }) ?: (function () { unset($_SESSION['event_pending']); return ''; })();
+    }
+    $ev = q_one('SELECT * FROM random_events WHERE slug = ?', [$pend['slug']]);
+    if (!$ev) { unset($_SESSION['event_pending']); return ''; }
     $form = function (string $choice, string $label) use ($pend, $back): string {
         return '<form method="post" action="' . e(url('event.php')) . '">' . csrf_field()
             . '<input type="hidden" name="token" value="' . e($pend['token']) . '"><input type="hidden" name="choice" value="' . e($choice) . '">'

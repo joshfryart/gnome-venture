@@ -63,6 +63,11 @@ if (is_post()) {
         flash('Open any game page and a random event will happen.');
         redirect('admin/tools.php');
     }
+    if ($do === 'test_ppal') {   // v2.0.88: the next page that is not a quiet page shows a Puzzle Pal find card (skips the roll, cooldown and cap)
+        $_SESSION['ppal_force'] = 1;
+        flash('Open any game page (not a puzzle page) and a Puzzle Pal find card will appear. With no released roster it comes from the first picture and releases it for you.');
+        redirect('admin/tools.php');
+    }
     if ($do === 'clear_errors') {
         @file_put_contents(APP_ROOT . '/data/error-log.txt', '');
         @unlink(APP_ROOT . '/data/error-log.txt.1');
@@ -101,6 +106,7 @@ page_header('Tools', true);
   <p class="help">Events happen about once every <?= (int)setting('event_chance') ?> page views, at least <?= (int)setting('event_cooldown_minutes') ?> minutes apart,
     at most <?= (int)setting('event_daily_max') ?> a day (change these in Game settings). Edit the events themselves in <a href="<?= e(url('admin/crud.php?r=random_events')) ?>">Random events</a>.</p>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="test_event"><button class="btn small">🎲 Show me one on my next page</button></form>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="test_ppal"><button class="btn small">🧩 Test a pal find</button> <small class="muted">Puzzle Pals: a find card on your next page (not a puzzle page).</small></form>
 </div>
 <div class="box" id="images">
   <h2>Images</h2>

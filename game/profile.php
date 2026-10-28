@@ -97,6 +97,9 @@ $gid = (int)$g['id']; ?>
   <?php require_once __DIR__ . '/includes/puzzles.php'; if (setting('puzzles_tournaments') === '1' && ($pzb = puzzle_badges_html($gid)) !== ''): ?>
   <div class="box"><h3>🧩 Puzzle tournaments</h3><?= $pzb /* v2.0.68: cosmetic trophies and badges */ ?></div>
   <?php endif; ?>
+  <?php require_once __DIR__ . '/includes/puzzle_pals.php'; if (ppal_open() && ($ppb = ppal_badges_html($gid)) !== ''): ?>
+  <div class="box"><h3>🧩 Puzzle Pals</h3><?= $ppb /* v2.0.88: complete-roster frames and Expert trophies */ ?></div>
+  <?php endif; ?>
   <div class="box"><h3>🏆 Garden of the Month</h3>
     <?php if ($wins): ?><ul><?php foreach ($wins as $w): ?><li><?= ['', '🥇 1st', '🥈 2nd', '🥉 3rd'][(int)$w['placed']] ?> in <?= e($w['month']) ?> with <?= eu($w['garden_name'] ?: 'a garden') ?></li><?php endforeach; ?></ul>
     <?php else: ?><p class="muted">No placings yet.</p><?php endif; ?>

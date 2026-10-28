@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # v2.0.88 Puzzle Pals build step 1 (includes/puzzle_pals.php): lint tool, data/generator/art gate/schema (tests/puzzle_pals.php), and the release hooks:
 # an Advanced (96) done solve releases the picture's pals once, Easy releases nothing, Expert (216) earns a trophy once, flag off / rejected / guest / art-not-ready = nothing,
-# free play AND tournament both hook in. Takes a walk.sh-installed copy: puzzle_pals.sh GAME PORT ROUTER.
+# free play AND tournament both hook in. Steps 2 and 3 (v2.0.88): the find lane (caps, cooldown, quiet pages, never two boxes, missing first, token replay, release re-check, guest, flag off) and the Pal Book (counts, silhouettes, locked list, trophies, art fallback, hub card, profile shelf). Takes a walk.sh-installed copy: puzzle_pals.sh GAME PORT ROUTER.
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
 HERE=$(cd "$(dirname "$0")" && pwd)
 php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/ppal-php.log 2>&1 & PID=$!; sleep 1
@@ -114,4 +114,144 @@ ok "guest purge deletes every ppal row of the guest" "$(php -r '$_SERVER["SCRIPT
 setg ppal_open 0;
 R=$(go jig-maplewold advanced)
 ok "flag off again: nothing released" "$(rel $MAP)" 0
+echo "== step 2: the find lane"
+dbx "DELETE FROM ppal_releases; DELETE FROM ppal_found; DELETE FROM ppal_trophies"
+setg ppal_open 1; setg event_chance 5000; setg ppal_chance 2; setg ppal_cooldown_minutes 0; setg ppal_daily_max 100
+rst() { dbx "UPDATE users SET ppal_at=NULL, ppal_day=NULL, ppal_count=0 WHERE id=$UID_"; }
+relmap() { dbx "INSERT OR IGNORE INTO ppal_releases (user_id,pic_id,released_at,src) VALUES ($UID_,$MAP,'$(utc 0)','free')"; }
+fnd() { dbv "SELECT COUNT(*) FROM ppal_found WHERE user_id=$UID_"; }
+# claim whatever box waits in file $1 (cookie jar $2): prints nothing
+claim() { local T; T=$(grep -o 'name="token" value="[a-f0-9]*"' $1 | head -1 | sed 's/.*value="//; s/"//'); curl -s -b $2 -c $2 -X POST $BASE/event.php --data-urlencode "csrf=$(csrf $1)" -d token=$T -d choice=go -d back=garden.php -o /dev/null -w '%{http_code}'; }
+getfind() { local i; for i in $(seq 40); do curl -s -b $W/p -c $W/p $BASE/${2:-garden.php} > $1; grep -q ppalfind $1 && return 0; done; return 1; }
+views() { local n=0 i; for i in $(seq $2); do [ -n "$4" ] && [ "$(fnd)" -ge "$4" ] && break; curl -s -b $W/p -c $W/p $BASE/${3:-garden.php} > $W/v.html; if grep -q 'ppalfind' $W/v.html; then n=$((n+1)); claim $W/v.html $W/p >/dev/null; fi; done; echo $n; }
+ok "flag on, nothing released: no find card on 30 views" "$(views x 30)" 0
+relmap
+getfind $W/f.html
+ok "released + chance 2: a find card shows (ppalfind, rarity frame, Say hello)" "$(grep -c 'eventbox waiting ppalfind ppr-' $W/f.html)/$(grep -c 'Say hello' $W/f.html)" "1/1"
+ok "find card has no inline style and no broken image" "$(grep -c ' style=' $W/f.html)/$(grep -o 'src="[^"]*pals/[^"]*"' $W/f.html | sed 's/src="//; s/"//' | while read u; do curl -s -o /dev/null -w '%{http_code}\n' "$BASE$u"; done | grep -vc 200)" "0/0"
+ok "find card names the picture" "$(grep -o 'Puzzle Pal from The Maplewold' $W/f.html | wc -l | tr -d ' ')" 1
+ok "never two boxes: only one eventbox on the page" "$(grep -o 'class="eventbox' $W/f.html | wc -l | tr -d ' ')" 1
+ok "the page view counted against the lane (ppal_count 1)" "$(dbv "SELECT ppal_count FROM users WHERE id=$UID_")" 1
+ok "claim ok (redirect 302)" "$(claim $W/f.html $W/p)" 302
+curl -s -b $W/p -c $W/p $BASE/garden.php > $W/f2.html
+ok "result box: joins your Puzzle Pals (n/6 from The Maplewold)" "$(grep -c 'joins your Puzzle Pals (1/6 from The Maplewold)' $W/f2.html)" 1
+ok "one found row, on the released picture's roster" "$(fnd)/$(dbv "SELECT COUNT(*) FROM ppal_found WHERE user_id=$UID_ AND pal_key LIKE 'mw-%' AND pic_id=$MAP")" "1/1"
+# missing first: the next 5 finds are 5 different new pals
+rst; V=$(views x 400 garden.php 6)
+ok "missing pals come first: after the roster fills, 6 distinct pals and no duplicate yet" "$(fnd)/$(dbv "SELECT SUM(times) FROM ppal_found WHERE user_id=$UID_")" "6/6"
+ok "...only pals of the released picture" "$(dbv "SELECT COUNT(*) FROM ppal_found WHERE user_id=$UID_ AND pal_key NOT LIKE 'mw-%'")" 0
+dbx "UPDATE users SET ppal_count=0"; getfind $W/d.html
+ok "complete roster: a duplicate find says 'old friend' / Wave back" "$(grep -c 'Wave back' $W/d.html)" 1
+claim $W/d.html $W/p >/dev/null
+ok "...claiming it adds a time, not a row" "$(fnd)/$(dbv "SELECT SUM(times) FROM ppal_found WHERE user_id=$UID_")" "6/7"
+dbx "DELETE FROM ppal_found"
+echo "-- daily cap"
+setg ppal_daily_max 2; rst
+ok "daily max 2 holds over 80 views" "$(views x 80)" 2
+ok "...ppal_count is 2" "$(dbv "SELECT ppal_count FROM users WHERE id=$UID_")" 2
+dbx "UPDATE users SET ppal_day='2000-01-01'"
+ok "a new Hollow day starts the count again" "$(views x 80)" 2
+setg ppal_daily_max 100
+echo "-- cooldown"
+dbx "DELETE FROM ppal_found"; setg ppal_cooldown_minutes 60; rst
+ok "60-minute cooldown: one find in 60 views" "$(views x 60)" 1
+setg ppal_cooldown_minutes 0
+echo "-- quiet pages and admin pages"
+rst; Q=0
+for pg in puzzles.php jigsaw.php gifsaw.php puzzlepals.php trek.php; do Q=$((Q + $(views x 25 $pg))); done
+ok "quiet pages (puzzles, jigsaw, gifsaw, puzzlepals, trek) never show a find card" "$Q" 0
+ok "...and used none of the day's finds" "$(dbv "SELECT ppal_count FROM users WHERE id=$UID_")" 0
+AQ=0; for i in $(seq 15); do curl -s -b $W/a $BASE/admin/index.php | grep -q ppalfind && AQ=$((AQ+1)); done
+ok "admin pages never show a find card" "$AQ" 0
+curl -s -b $W/p -c $W/p -X POST $BASE/garden.php --data-urlencode "csrf=$CS" > $W/post.html
+ok "a POST never shows one (no new pending)" "$(grep -c ppalfind $W/post.html)" 0
+echo "-- never two boxes with the ordinary events on"
+setg event_chance 2; setg event_cooldown_minutes 0; setg event_daily_max 100; rst; dbx "UPDATE users SET event_at=NULL"
+MX=0; PAL=0; for i in $(seq 80); do curl -s -b $W/p -c $W/p $BASE/world.php > $W/v.html; n=$(grep -o 'class="eventbox' $W/v.html | wc -l | tr -d ' '); [ "$n" -gt "$MX" ] && MX=$n; grep -q ppalfind $W/v.html && PAL=$((PAL+1)); grep -q 'class="eventbox waiting' $W/v.html && claim $W/v.html $W/p >/dev/null; done
+ok "80 views, events AND pals on: never more than one box on a page" "$MX" 1
+ok "...and pals still turned up in the gaps" "$([ $PAL -gt 0 ] && echo y)" y
+setg event_chance 5000
+echo "-- claim token, replay, release re-check"
+dbx "DELETE FROM ppal_found"; rst
+getfind $W/t.html
+T=$(grep -o 'name="token" value="[a-f0-9]*"' $W/t.html | head -1 | sed 's/.*value="//; s/"//')
+curl -s -b $W/p -c $W/p -X POST $BASE/event.php --data-urlencode "csrf=$(csrf $W/t.html)" -d token=deadbeefdeadbeef -d choice=go -d back=garden.php -o /dev/null
+ok "wrong token: refused, no row" "$(fnd)" 0
+curl -s -b $W/p -c $W/p -X POST $BASE/event.php --data-urlencode "csrf=$(csrf $W/t.html)" -d token=$T -d choice=go -d back=garden.php -o /dev/null
+ok "right token: one row" "$(fnd)" 1
+curl -s -b $W/p -c $W/p -X POST $BASE/event.php --data-urlencode "csrf=$(csrf $W/t.html)" -d token=$T -d choice=go -d back=garden.php -o /dev/null
+ok "replayed token: refused, still one row, times 1" "$(fnd)/$(dbv "SELECT SUM(times) FROM ppal_found WHERE user_id=$UID_")" "1/1"
+curl -s -b $W/p -c $W/p $BASE/garden.php > /dev/null
+dbx "DELETE FROM ppal_found"; rst
+getfind $W/t.html
+dbx "DELETE FROM ppal_releases WHERE user_id=$UID_"
+claim $W/t.html $W/p >/dev/null
+ok "release revoked after the find: the claim adds nothing" "$(fnd)" 0
+relmap
+echo "-- flag off and guest"
+rst; getfind $W/t.html
+ok "(a find is waiting)" "$(grep -c ppalfind $W/t.html)" 1
+setg ppal_open 0
+ok "flag off: a claim is 403 and adds nothing" "$(claim $W/t.html $W/p)/$(fnd)" "403/0"
+ok "flag off: the book is a 302" "$(curl -s -o /dev/null -w '%{http_code}' -b $W/p $BASE/puzzlepals.php)" 302
+ok "flag off: 80 views show no find card" "$(views x 80)" 0
+ok "flag off: the Puzzles hub has no Puzzle Pals link" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c 'puzzlepals.php')" 0
+setg ppal_open 1; dbx "DELETE FROM login_attempts"
+curl -s -c $W/g -b $W/g $BASE/guest.php > $W/g.html; curl -s -c $W/g -b $W/g -o /dev/null -X POST $BASE/guest.php --data-urlencode "csrf=$(csrf $W/g.html)"
+GID=$(dbv "SELECT id FROM users WHERE guest=1 ORDER BY id DESC LIMIT 1")
+dbx "INSERT OR IGNORE INTO ppal_releases (user_id,pic_id,released_at,src) VALUES ($GID,$MAP,'$(utc 0)','free')"
+GN=0; for i in $(seq 40); do curl -s -b $W/g -c $W/g $BASE/garden.php | grep -q ppalfind && GN=$((GN+1)); done
+ok "guest: 40 views, no find card (even with a release row)" "$GN" 0
+ok "guest: the book is a 302" "$(curl -s -o /dev/null -w '%{http_code}' -b $W/g $BASE/puzzlepals.php)" 302
+ok "guest: the lane never touched the cap columns" "$(dbv "SELECT ppal_count FROM users WHERE id=$GID")" 0
+dbx "DELETE FROM ppal_releases WHERE user_id=$GID"
+
+echo "== step 3: the Pal Book"
+dbx "DELETE FROM ppal_found; DELETE FROM ppal_releases WHERE user_id=$UID_; DELETE FROM ppal_trophies"; rst
+B() { curl -s -b $W/p $BASE/puzzlepals.php; }
+B > $W/b.html
+ok "book, nothing released: empty state, 0 of 0" "$(grep -c 'No pals yet' $W/b.html)/$(grep -c '<b>0</b> of 0 pals found' $W/b.html)" "1/1"
+dbx "INSERT INTO ppal_releases (user_id,pic_id,released_at,src) VALUES ($UID_,$MAP,'$(utc 0)','free'),($UID_,$SUN,'$(utc 0)','free')"
+for k in mw-acorn-nip mw-sap-drip mw-samara-spin; do dbx "INSERT INTO ppal_found (user_id,pal_key,pic_id,found_at,times) VALUES ($UID_,'$k',$MAP,'$(utc 0)',$([ $k = mw-sap-drip ] && echo 3 || echo 1))"; done
+B > $W/b.html
+ok "book: 200 and header counts 3 of 12, 2 pictures" "$(grep -c '<b>3</b> of 12 pals found' $W/b.html)/$(grep -c '<b>2</b> pictures released' $W/b.html)" "1/1"
+ok "book: 12 slots, 3 found stickers, 9 silhouettes with a ?" "$(grep -c 'class="ppalslot' $W/b.html)/$(grep -c 'ppalslot ppr-[a-z]* got' $W/b.html)/$(grep -c 'ppalslot ppr-[a-z]* miss' $W/b.html)/$(grep -c 'class="ppalart ppsil"' $W/b.html)" "12/3/9/9"
+ok "book: section counts '3 of 6 found' and '0 of 6 found'" "$(grep -c '<b>3</b> of 6 found' $W/b.html)/$(grep -c '<b>0</b> of 6 found' $W/b.html)" "1/1"
+ok "book: a found pal shows name, rarity, date and 'met 3×'" "$(grep -o 'Sap Drip</b>' $W/b.html | wc -l | tr -d ' ')/$(grep -c 'met 3×' $W/b.html)/$(grep -c 'found [0-9]* [A-Z][a-z][a-z] 20' $W/b.html)" "1/1/3"
+ok "book: a missing pal's name is hidden" "$(grep -c 'Bark Badger' $W/b.html)" 0
+ok "book: piece chip crops use classes only (no inline style anywhere)" "$(grep -c 'ppiece pcx[0-9]* pcy[0-9]* ppchip' $W/b.html)/$(grep -c ' style=' $W/b.html)" "3/0"
+ok "book: every pal image resolves (no broken images)" "$(grep -o 'src="[^"]*"' $W/b.html | sed 's/src="//; s/"$//' | grep -E 'puzzles/pals|jigsaw' | while read u; do curl -s -o /dev/null -w '%{http_code}\n' "$BASE$u"; done | grep -vc 200)" 0
+ok "book: not locked-listed while unready (Maize has no art)" "$(grep -c 'Solve Maize' $W/b.html)" 0
+for k in mh-husk-hopper mh-cob-scout mh-kernel-knock mh-stitch-crow mh-golden-ring mh-popcorn-moon; do { cat $GAME/assets/img/puzzles/pals/_placeholder.png; printf '%s' "$k"; } > $GAME/assets/img/puzzles/pals/$k.png; done
+dbx "INSERT INTO ppal_trophies (user_id,pic_id,earned_at) VALUES ($UID_,$MAP,'$(utc 0)'),($UID_,$MAIZE,'$(utc 0)')"
+B > $W/b.html
+ok "book: an unreleased art-ready picture is listed 'Solve ... at Advanced to release its pals'" "$(grep -c 'Solve Maizehollow at Advanced to release its pals' $W/b.html)/$(grep -c 'Still locked' $W/b.html)" "1/1"
+ok "book: Expert trophy shows on the released picture AND on the locked one" "$(grep -c 'ppaltrophychip' $W/b.html)" 2
+echo "-- art fallback"
+rm -f $GAME/assets/img/puzzles/pals/mw-acorn-nip.png
+B > $W/b.html
+ok "found pal with no art: shows its piece crop, no img to the missing file" "$(grep -c 'mw-acorn-nip.png' $W/b.html)/$(grep -c 'ppiece pcx[0-9]* pcy[0-9]* ppbig' $W/b.html)" "0/1"
+{ cat $GAME/assets/img/puzzles/pals/_placeholder.png; printf 'mw-acorn-nip'; } > $GAME/assets/img/puzzles/pals/mw-acorn-nip.png
+ok "pixel pictures crop hard-edged, gallery ones smooth (ppal_piece_html)" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; $pl=q_one("SELECT * FROM puzzle_pics WHERE source=\"place\" LIMIT 1"); $g=q_one("SELECT * FROM puzzle_pics WHERE slug=\"jig-maplewold\""); echo (strpos(ppal_piece_html($pl,"7-3"),"ppiece pcx7 pcy3 px")!==false?"px":"no"),"/",(strpos(ppal_piece_html($g,"7-3"),"px")===false?"smooth":"no"),"/",var_export(ppal_piece_html($g,"12-3")==="" && ppal_piece_html($g,"x")==="",true);' $GAME)" "px/smooth/true"
+echo "-- hub card, Jigsaw pip, profile shelf, win card"
+curl -s -b $W/p $BASE/puzzles.php > $W/h.html
+ok "hub: Puzzle Pals card + Jigsaw pip 'pals 3/12'" "$(grep -c 'href="[^"]*puzzlepals.php"' $W/h.html)/$(grep -c 'pals 3/12' $W/h.html)" "1/1"
+curl -s -b $W/p $BASE/jigsaw.php > $W/j.html
+ok "jigsaw page data carries the pips for released pictures" "$(grep -c '"pals":{' $W/j.html)" 1
+ok "puzzles.js: win card line and library pip are wired" "$(grep -c 'The magic of the jigsaw is loose' $GAME/assets/puzzles.js)/$(grep -c 'MODE.pals' $GAME/assets/puzzles.js)" "1/2"
+curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards" > $W/pr.html
+ok "profile: an incomplete roster has no frame, the trophy shows" "$(grep -c 'ppalframe' $W/pr.html)/$(grep -o 'class="ppaltrophy"' $W/pr.html | wc -l | tr -d ' ')" "0/2"
+for k in mw-leaf-tuck mw-bark-badger mw-fourwind-finch; do dbx "INSERT INTO ppal_found (user_id,pal_key,pic_id,found_at) VALUES ($UID_,'$k',$MAP,'$(utc 0)')"; done
+curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards" > $W/pr.html
+ok "profile: a complete roster gets a frame badge" "$(grep -c 'class="ppalframe"' $W/pr.html)" 1
+B > $W/b.html
+ok "book: a complete roster is marked (full) and counts 6 of 6" "$(grep -c 'ppalsec full' $W/b.html)/$(grep -c 'roster complete' $W/b.html)" "1/1"
+setg ppal_open 0
+ok "flag off: profile shelf hidden" "$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards" | grep -c 'ppalbadges')" 0
+setg ppal_open 1
+echo "-- admin tool"
+ok "admin tools page has the 'Test a pal find' button" "$(curl -s -b $W/a $BASE/admin/tools.php | grep -c 'value="test_ppal"')" 1
+ok "...and posting it is accepted (302)" "$(curl -s -b $W/a -c $W/a -o /dev/null -w '%{http_code}' -X POST $BASE/admin/tools.php --data-urlencode "csrf=$(curl -s -b $W/a $BASE/admin/tools.php | grep -o 'name="csrf" value="[^"]*"' | head -1 | sed 's/.*value="\([^"]*\)".*/\1/')" -d do=test_ppal)" 302
+ok "lint still passes" "$(python3 $HERE/../tools/lint_puzzle_pals.py 2>&1 | tail -1 | grep -c ' 0 problems')" 1
+setg ppal_open 0
 ok "PHP log has no warnings" "$(grep -c 'Warning\|Notice\|Fatal\|Deprecated' /tmp/ppal-php.log)" 0

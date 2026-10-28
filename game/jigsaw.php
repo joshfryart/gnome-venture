@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/jigsaw.php';
+require_once __DIR__ . '/includes/puzzle_pals.php';
 $u = require_login();
 if (!jigsaw_open()) { flash('Jigsaw is coming soon.', 'err'); redirect(setting('puzzles_open') === '1' ? 'puzzles.php' : 'games.php'); }
 $tourOn = jigsaw_tournaments_on();
@@ -47,6 +48,7 @@ if ($t) {
     $list = array_map('jigsaw_js_row', jigsaw_pics(true, (int)$u['id']));
     [$plFound, $plTotal] = jigsaw_places_count((int)$u['id']);
     $mode = ['tiers' => jigsaw_js_tiers(), 'api' => url('puzzles_api.php'), 'csrf' => csrf_token(), 'live' => !$guest, 'bests' => $guest ? new stdClass : (jigsaw_bests((int)$u['id']) ?: new stdClass)];
+    if (!$guest && ppal_open() && ($pips = ppal_pips((int)$u['id']))) $mode['pals'] = $pips;   // v2.0.88 Puzzle Pals: slug => [found, total]
     $live = $tourOn && puzzles_ensure() ? q("SELECT t.*, p.title AS pic_title FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.kind = 'still' AND t.status IN ('live', 'settled') AND t.ends_at > ? ORDER BY t.starts_at DESC, t.id LIMIT 12", [gmdate('Y-m-d H:i:s', time() - 7 * 86400)])->fetchAll() : [];
 }
 page_header($t ? $t['title'] : 'Jigsaw');   // assets/puzzles.css and assets/puzzles.js are added by page_header() for this page

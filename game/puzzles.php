@@ -8,6 +8,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/puzzles.php';
 require_once __DIR__ . '/includes/puzzle_games.php';
 require_once __DIR__ . '/includes/jigsaw.php';
+require_once __DIR__ . '/includes/puzzle_pals.php';
 $u = require_login();
 if (setting('puzzles_open') !== '1' && !is_admin()) { flash('Puzzles are coming soon.', 'err'); redirect('games.php'); }
 if (isset($_GET['t']) || isset($_GET['seed'])) {
@@ -17,6 +18,8 @@ if (isset($_GET['t']) || isset($_GET['seed'])) {
 $tourOn = puzzle_tournaments_on();
 $live = $tourOn && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE kind = 'gif' AND status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]);
 $liveJig = jigsaw_tournaments_on() && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE kind = 'still' AND status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]);   // v2.0.87
+$palsOn = ppal_open() && !is_guest($u);   // v2.0.88 Puzzle Pals
+[$palF, $palT] = $palsOn ? ppal_counts((int)$u['id']) : [0, 0];
 page_header('Puzzles');
 ?>
 <div id="pz">
@@ -36,6 +39,15 @@ page_header('Puzzles');
       <b>Jigsaw</b>
       <small>Classic picture jigsaws. Easy, Advanced or Expert.</small>
       <span class="gtbadge"><?= $liveJig ? '🏆 Tournament' : 'Relax' ?></span>
+      <?php if ($palsOn && $palT > 0): ?><span class="ppalpip" title="Puzzle Pals found">🧩 pals <?= $palF ?>/<?= $palT ?></span><?php endif; ?>
+    </a></li>
+    <?php endif; ?>
+    <?php if ($palsOn): ?>
+    <li><a class="box pzhubcard" href="<?= e(url('puzzlepals.php')) ?>">
+      <span class="gticon"><?= puzzle_cast('tile-pals', '', 'gtart') ?: ph_or_emoji('pals', '🧩', 48) ?></span>
+      <b>Puzzle Pals</b>
+      <small>Pals tumble out of solved pictures. Collect all six.</small>
+      <span class="gtbadge"><?= $palT > 0 ? $palF . ' / ' . $palT . ' found' : 'Solve to start' ?></span>
     </a></li>
     <?php endif; ?>
     <li><a class="box pzhubcard" href="<?= e(url('gifsaw.php')) ?>">

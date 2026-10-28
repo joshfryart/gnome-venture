@@ -5874,3 +5874,18 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 
 /* v2.0.87: a unique location's picture joins the gnome's Jigsaw puzzle room (landmark_panel) */
 .lmjig { margin: 6px 0; padding: 6px 10px; border-radius: var(--radius); background: var(--surface-2); }
+
+/* v2.0.88 Puzzle Pals: the find card (any page), shelf badges (profile), rarity chips. The book and the piece crops live in puzzles.css. */
+.ppr-common { --pr: var(--r-c); } .ppr-uncommon { --pr: var(--r-u); } .ppr-rare { --pr: var(--r-r); }
+.ppalst { flex: none; position: relative; display: flex; align-items: center; justify-content: center; width: 84px; height: 84px; background: var(--surface-2); box-shadow: inset 0 0 0 3px var(--pr, var(--line-2)); }
+.ppalimg { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; display: block; }
+.ppalemo { font-size: 40px; line-height: 64px; text-align: center; width: 64px; }
+.eventbox.ppalfind, .eventbox.ppalgot { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.ppalfind .evbody, .ppalgot .evbody { width: 100%; }
+.ppalfind .evbtns { justify-content: center; }
+.ppalgot ul { list-style: none; padding: 0; }
+.ppalrar { display: inline-block; padding: 0 8px; font-size: .75rem; font-weight: 700; line-height: 1.5; letter-spacing: .03em; text-transform: uppercase; background: var(--pr, var(--r-c)); color: var(--on-fill); }
+.ppalbadges .ppalframe { box-shadow: inset 0 0 0 3px var(--accent); padding: 4px 2px; background: var(--surface-2); }
+.ppalbadge { width: 48px; height: 48px; object-fit: contain; image-rendering: pixelated; }
+.ppalbadges .ppaltro { font-size: 32px; line-height: 48px; }
+:root[data-theme="dark"] .ppalst, :root[data-theme="dark"] .ppalbadges .ppalframe { background: var(--felt); }

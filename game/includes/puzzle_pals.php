@@ -319,3 +319,271 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
         return [];
     }
 }
+
+// ---------------- step 2: the find lane (events.php calls ppal_maybe_find after the ordinary event roll found nothing) ----------------
+
+/** A picture row by id (still pictures only). */
+function ppal_pic(int $picId): ?array
+{
+    static $c = [];
+    if (!array_key_exists($picId, $c)) $c[$picId] = q_one("SELECT * FROM puzzle_pics WHERE id = ? AND kind = 'still'", [$picId]) ?: null;
+    return $c[$picId];
+}
+
+/** Pictures this gnome has released: pic_id => released_at. */
+function ppal_releases(int $uid): array
+{
+    if (!ppal_ensure()) return [];
+    try { return q('SELECT pic_id, released_at FROM ppal_releases WHERE user_id = ? ORDER BY released_at, id', [$uid])->fetchAll(PDO::FETCH_KEY_PAIR); } catch (Throwable $e) { return []; }
+}
+
+/** What this gnome has found: pal_key => ['times', 'found_at', 'active', 'pic_id']. */
+function ppal_found_map(int $uid): array
+{
+    if (!ppal_ensure()) return [];
+    $o = [];
+    try { foreach (q('SELECT pal_key, pic_id, found_at, times, active FROM ppal_found WHERE user_id = ?', [$uid])->fetchAll() as $r) $o[$r['pal_key']] = $r; } catch (Throwable $e) {}
+    return $o;
+}
+
+/** A pal row by key inside a picture's roster, or null. */
+function ppal_find_pal(array $pic, string $key): ?array
+{
+    foreach (ppal_roster($pic) as $p) if ($p['key'] === $key) return $p;
+    return null;
+}
+
+/**
+ * Pick the pal a find shows: missing pals of released pictures first (weighted by rarity), duplicates only when every released roster is complete.
+ * $test (the admin's button) with nothing released picks from the first picture that has a roster. Returns ['pal' => row, 'pic' => row, 'test' => bool] or null.
+ */
+function ppal_pick(int $uid, bool $test = false): ?array
+{
+    $rel = ppal_releases($uid);
+    $have = ppal_found_map($uid);
+    $missing = $all = [];
+    foreach (array_keys($rel) as $picId) {
+        $pic = ppal_pic((int)$picId);
+        if (!$pic) continue;
+        foreach (ppal_roster($pic) as $p) {
+            $all[] = [$p, $pic];
+            if (!isset($have[$p['key']])) $missing[] = [$p, $pic];
+        }
+    }
+    $isTest = false;
+    if (!$all && $test && is_admin()) {
+        foreach (q("SELECT * FROM puzzle_pics WHERE kind = 'still' AND active = 1 ORDER BY sort, id")->fetchAll() as $pic) {
+            if (($r = ppal_roster($pic))) { foreach ($r as $p) $all[] = [$p, $pic]; $missing = $all; $isTest = true; break; }
+        }
+    }
+    $pool = $missing ?: $all;
+    if (!$pool) return null;
+    $tot = 0;
+    foreach ($pool as [$p]) $tot += PPAL_RARITIES[$p['rarity']] ?? 10;
+    $roll = random_int(1, max(1, $tot));
+    foreach ($pool as [$p, $pic]) {
+        $roll -= PPAL_RARITIES[$p['rarity']] ?? 10;
+        if ($roll <= 0) return ['pal' => $p, 'pic' => $pic, 'test' => $isTest];
+    }
+    return ['pal' => $pool[0][0], 'pic' => $pool[0][1], 'test' => $isTest];
+}
+
+/**
+ * The second lane of maybe_random_event(): a Puzzle Pal turns up. Own odds, cooldown and daily cap (users.ppal_*), never alongside another box
+ * (the caller runs it only when the ordinary roll produced nothing), never on a quiet page, guests skipped. Sets $_SESSION['event_pending'] (slug 'ppal' + token).
+ * The admin's "test a pal find" ($_SESSION['ppal_force']) skips the roll, cooldown and cap, never the quiet pages.
+ */
+function ppal_maybe_find(array $u): bool
+{
+    try {
+        if (!ppal_open() || is_guest($u) || !ppal_ensure()) return false;
+        if (!empty($_SESSION['event_pending']) || !empty($_SESSION['event_box'])) return false;
+        if (in_array(basename((string)($_SERVER['SCRIPT_NAME'] ?? '')), defined('PPAL_QUIET_PAGES') ? PPAL_QUIET_PAGES : [], true)) return false;   // PPAL_QUIET_PAGES is set in layout.php
+        $uid = (int)$u['id'];
+        $force = !empty($_SESSION['ppal_force']);
+        $day = hollow_date('Y-m-d');
+        if (!$force) {
+            $chance = max(2, (int)setting('ppal_chance'));
+            if (random_int(1, $chance) !== 1) return false;
+            $cool = max(0, (int)setting('ppal_cooldown_minutes')) * 60;
+            if (!empty($u['ppal_at']) && strtotime($u['ppal_at'] . ' UTC') > time() - $cool) return false;
+            if (($u['ppal_day'] ?? '') === $day && (int)($u['ppal_count'] ?? 0) >= (int)setting('ppal_daily_max')) return false;
+        }
+        $pick = ppal_pick($uid, $force);
+        unset($_SESSION['ppal_force']);
+        if (!$pick) return false;
+        q('UPDATE users SET ppal_at = ?, ppal_count = CASE WHEN ppal_day = ? THEN ppal_count + 1 ELSE 1 END, ppal_day = ? WHERE id = ?', [now(), $day, $day, $uid]);
+        $_SESSION['event_pending'] = ['slug' => 'ppal', 'token' => bin2hex(random_bytes(8)), 'pal' => $pick['pal']['key'], 'pic' => (int)$pick['pic']['id'], 'test' => $pick['test'] ? 1 : 0];
+        return true;
+    } catch (Throwable $e) {
+        error_log('ppal_maybe_find: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** The pal's sticker as an <img> (class $cls), the red-bordered placeholder when its art is missing, and a plain emoji when even that is gone. Never a broken image. */
+function ppal_img(string $key, string $alt = '', string $cls = 'ppalimg', int $px = 64): string
+{
+    $url = ppal_art_url($key);
+    if ($url === '' && is_file(APP_ROOT . '/assets/img/puzzles/pals/_placeholder.png')) $url = url('assets/img/puzzles/pals/_placeholder.png');
+    if ($url === '') return '<span class="' . e($cls) . ' ppalemo" role="img" aria-label="' . e($alt) . '">🧩</span>';
+    return '<img class="' . e($cls) . '" src="' . e($url) . '" width="' . $px . '" height="' . $px . '" alt="' . e($alt) . '" loading="lazy" decoding="async">';
+}
+
+/**
+ * One piece of a picture shown as a crop: a clipping box (.ppiece) holding the full picture scaled 1200% x 800% and moved by classes pcx<col> / pcy<row>
+ * (no inline styles under the CSP; assets/puzzles.css). Pixel pictures (Places) stay hard-edged (.px). $piece is 'col-row' on the 12 x 8 Advanced grid.
+ */
+function ppal_piece_html(array $pic, string $piece, string $cls = ''): string
+{
+    if (!preg_match('/^(\d{1,2})-(\d)$/', $piece, $m) || (int)$m[1] > 11 || (int)$m[2] > 7) return '';
+    $file = jigsaw_path($pic);
+    if (!is_file(APP_ROOT . '/' . $file)) return '';
+    return '<span class="ppiece pcx' . (int)$m[1] . ' pcy' . (int)$m[2] . (($pic['source'] ?? '') === 'place' ? ' px' : '') . ($cls !== '' ? ' ' . e($cls) : '') . '" aria-hidden="true"><img src="' . e(url($file)) . '" alt="" loading="lazy" decoding="async"></span>';
+}
+
+/**
+ * Claim a find (from finish_event, which has already matched the token and used it up: one go only). Checks the pal is on the roster of a picture this gnome
+ * has released (the admin's test find skips that), then INSERTs the found row; a pal already found just waves (+1 times). Returns [ok, box|message].
+ * The box is the session event_box array: icon, title, text, lines, plus 'ppal' (the pal key, for the sticker).
+ */
+function ppal_claim(array $u, string $key, int $picId, bool $test = false): array
+{
+    $uid = (int)$u['id'];
+    if (!ppal_open() || is_guest($u) || !ppal_ensure()) return [false, 'That moment has passed.'];
+    $pic = ppal_pic($picId);
+    $pal = $pic ? ppal_find_pal($pic, $key) : null;
+    if (!$pal) return [false, 'That moment has passed.'];
+    $test = $test && is_admin();
+    if (!$test && !ppal_released($uid, $picId)) return [false, 'That moment has passed.'];   // re-check the release (an admin may have revoked it since the find)
+    if ($test && !ppal_released($uid, $picId)) {
+        try { db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => $picId, 'released_at' => now(), 'src' => 'free', 'run_id' => null]); } catch (Throwable $e) {}
+    }
+    $new = true;
+    try {
+        db_insert('ppal_found', ['user_id' => $uid, 'pal_key' => $key, 'pic_id' => $picId, 'found_at' => now(), 'times' => 1, 'active' => 0]);
+    } catch (Throwable $e) {
+        $new = false;
+        q('UPDATE ppal_found SET times = times + 1 WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+    }
+    $have = ppal_found_map($uid);
+    $n = 0;
+    $roster = ppal_roster($pic);
+    foreach ($roster as $p) if (isset($have[$p['key']])) $n++;
+    $title = (string)$pic['title'];
+    if ($new) {
+        $lines = [$pal['name'] . ' joins your Puzzle Pals (' . $n . '/' . count($roster) . ' from ' . $title . ')'];
+        if ($n === count($roster)) $lines[] = 'The roster is complete! See the Pal Book.';
+        $head = 'A new Puzzle Pal!';
+    } else {
+        $t = (int)($have[$key]['times'] ?? 2);
+        $lines = [$pal['name'] . ' waves hello again (met ' . $t . ' times)'];
+        $head = $pal['name'] . ' waves!';
+    }
+    return [true, ['icon' => '🧩', 'title' => $head, 'text' => '', 'lines' => $lines, 'ppal' => $key]];
+}
+
+/** The find card, in the event box's "waiting" shape: sticker, rarity frame, name, picture, one button. $form builds the post form (see event_box_html_core). */
+function ppal_find_html(array $pend, callable $form): string
+{
+    if (!ppal_open()) return '';
+    $pic = ppal_pic((int)($pend['pic'] ?? 0));
+    $pal = $pic ? ppal_find_pal($pic, (string)($pend['pal'] ?? '')) : null;
+    if (!$pal) return '';
+    $have = ppal_found_map((int)(current_user()['id'] ?? 0));
+    $again = isset($have[$pal['key']]);
+    return '<div class="eventbox waiting ppalfind ppr-' . e($pal['rarity']) . '" role="dialog" aria-label="A Puzzle Pal appears">'
+        . '<div class="ppalst">' . ppal_img($pal['key'], $pal['name']) . '</div><div class="evbody">'
+        . '<div class="evkicker">🧩 A Puzzle Pal!</div><div class="evtitle">' . e($pal['name']) . '</div>'
+        . '<p><span class="ppalrar ppr-' . e($pal['rarity']) . '">' . e(ucfirst($pal['rarity'])) . '</span> · ' . ($again ? 'an old friend from ' : 'a Puzzle Pal from ') . e((string)$pic['title']) . '</p>'
+        . '<div class="evbtns">' . $form('go', $again ? 'Wave back' : 'Say hello') . '</div></div></div>';
+}
+
+// ---------------- step 3: the Pal Book, shelf badges ----------------
+
+/**
+ * The book's data for a gnome: ['released' => [section...], 'locked' => [pic rows with a roster, not released yet], 'found', 'total'].
+ * A section = ['pic', 'roster' => [pal rows + 'got' => found row|null], 'n', 'trophy' => earned_at|null, 'at' => released_at].
+ * Players only see pictures whose art is ready (an unready roster releases nothing); the admin sees every roster.
+ */
+function ppal_book(int $uid): array
+{
+    $rel = ppal_releases($uid);
+    $have = ppal_found_map($uid);
+    $tro = ppal_trophies($uid);
+    $out = ['released' => [], 'locked' => [], 'found' => 0, 'total' => 0];
+    $seen = [];
+    foreach ($rel as $picId => $at) {
+        $pic = ppal_pic((int)$picId);
+        if (!$pic) continue;
+        $r = ppal_roster($pic);
+        if (!$r) continue;
+        $seen[(int)$picId] = 1;
+        $n = 0;
+        foreach ($r as $i => $p) { $r[$i]['got'] = $have[$p['key']] ?? null; if ($r[$i]['got']) $n++; }
+        $out['released'][] = ['pic' => $pic, 'roster' => $r, 'n' => $n, 'trophy' => $tro[(int)$picId] ?? null, 'at' => $at];
+        $out['found'] += $n;
+        $out['total'] += count($r);
+    }
+    foreach (jigsaw_pics(true, $uid) as $pic) {
+        if (isset($seen[(int)$pic['id']])) continue;
+        if (!ppal_roster($pic) || (!is_admin() && !ppal_art_ready($pic))) continue;
+        $out['locked'][] = ['pic' => $pic, 'trophy' => $tro[(int)$pic['id']] ?? null];
+    }
+    return $out;
+}
+
+/** [found, total] over the gnome's released rosters, for the pips. */
+function ppal_counts(int $uid): array
+{
+    $f = $t = 0;
+    $have = ppal_found_map($uid);
+    foreach (array_keys(ppal_releases($uid)) as $picId) {
+        $pic = ppal_pic((int)$picId);
+        if (!$pic) continue;
+        foreach (ppal_roster($pic) as $p) { $t++; if (isset($have[$p['key']])) $f++; }
+    }
+    return [$f, $t];
+}
+
+/** Per picture slug [found, total] for pictures released (the Jigsaw library card pip), plus 'done' when the roster is complete. */
+function ppal_pips(int $uid): array
+{
+    $o = [];
+    $have = ppal_found_map($uid);
+    foreach (array_keys(ppal_releases($uid)) as $picId) {
+        $pic = ppal_pic((int)$picId);
+        if (!$pic) continue;
+        $r = ppal_roster($pic);
+        if (!$r) continue;
+        $n = 0;
+        foreach ($r as $p) if (isset($have[$p['key']])) $n++;
+        $o[(string)$pic['slug']] = [$n, count($r)];
+    }
+    return $o;
+}
+
+/** Profile shelf: a framed badge per complete roster, a trophy per Expert picture; '' when there is nothing (or the feature is closed to the viewer). */
+function ppal_badges_html(int $uid): string
+{
+    if (!ppal_open() || !ppal_ensure() || is_guest_uid($uid)) return '';
+    $h = '';
+    $have = ppal_found_map($uid);
+    foreach (array_keys(ppal_releases($uid)) as $picId) {
+        $pic = ppal_pic((int)$picId);
+        $r = $pic ? ppal_roster($pic) : [];
+        if (!$r) continue;
+        $all = true;
+        foreach ($r as $p) if (!isset($have[$p['key']])) { $all = false; break; }
+        if (!$all) continue;
+        $rare = $r[0];
+        foreach ($r as $p) if ($p['rarity'] === 'rare') $rare = $p;
+        $h .= '<li class="ppalframe" title="' . e('Complete roster: ' . $pic['title']) . '">' . ppal_img($rare['key'], $rare['name'], 'ppalbadge', 48) . '<small>' . e((string)$pic['title']) . '</small></li>';
+    }
+    foreach (ppal_trophies($uid) as $picId => $at) {
+        $pic = ppal_pic((int)$picId);
+        if (!$pic) continue;
+        $h .= '<li class="ppaltrophy" title="' . e('Expert trophy: ' . $pic['title']) . '"><span class="ppaltro" aria-hidden="true">🏆</span><small>' . e((string)$pic['title']) . '</small></li>';
+    }
+    return $h === '' ? '' : '<ul class="pzbadges ppalbadges">' . $h . '</ul>';
+}
