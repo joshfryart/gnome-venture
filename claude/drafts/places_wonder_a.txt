@@ -10,33 +10,33 @@ pl-wonder-cedar-sanctuary-ff7cde|pl-wced-6|Branch Meditator|rare|wayfinder|2|2|1
 pl-wonder-cenote-of-echoes-f27683|pl-wcen-1|Mossy Ledge Croaker|common|rootwarden|1|1|1|0|0-2|corner-TT|keyhole|-|A green frog on the pool ledge who croaks hello and waits for the pool to answer.
 pl-wonder-cenote-of-echoes-f27683|pl-wcen-2|Plinking Pebbles|common|seedkeeper|0|2|1|0|8-7|edge-BTB|keyhole|-|Dark smooth stones on the pool floor that plink once, a beat after any drip.
 pl-wonder-cenote-of-echoes-f27683|pl-wcen-3|Chestful of Twinkles|common|brewroot|1|0|1|1|5-6|inner-TBTB|keyhole|-|The sunken treasure chest, lid ajar and sparkling, saved for the one who dives in.
-pl-wonder-cenote-of-echoes-f27683|pl-wcen-4|Slanting Sunbeams|uncommon|thornblade|2|1|1|1|6-2|inner-TTTT|double|-|Four beams of green light that tiptoe down through the water.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-4|Slanting Sunbeams|uncommon|thornblade|2|1|1|1|5-2|inner-TTTT|double|-|Four beams of green light that tiptoe down through the water.
 pl-wonder-cenote-of-echoes-f27683|pl-wcen-5|Ripples Running Late|uncommon|bloomcaller|1|0|2|2|2-2|inner-BBBB|keyhole|-|Rings of ripple that run back across the pool a moment after the shout.
 pl-wonder-cenote-of-echoes-f27683|pl-wcen-6|Chestwatch Goldfish|rare|wayfinder|2|2|1|1|9-6|whimsy-goldfish|keyhole|-|A plump goldfish who guards the sunken chest and fans a fin at the echoes.
 pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-1|Thatchtop Bauble|common|rootwarden|1|1|1|0|2-1|corner-TB|keyhole|-|The little gold ball on the hut’s thatched peak, first to catch the moon.
 pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-2|Bowl of Puffs|common|seedkeeper|0|2|1|0|2-7|edge-TTB|keyhole|-|A bowl of fluffy white snacks by the door, passed round before the second cup.
 pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-3|Grumbling Coals|common|brewroot|1|0|1|1|5-6|inner-TBBB|keyhole|-|A pot on glowing coals that mutters a warm tune while the beans roast.
 pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-4|Cuppa Constellation|uncommon|thornblade|2|1|1|1|9-7|inner-TTTT|double|-|Tiny cups set out like stars, one for waking, one for talking, one for blessing.
-pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-5|Doorway Aglow|uncommon|bloomcaller|1|0|2|2|2-6|inner-BBBB|keyhole|-|The round orange door of the hut, glowing warm and open to any friend.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-5|Doorway Aglow|uncommon|bloomcaller|1|0|2|2|2-6|inner-BBBB|keyhole|-|The round orange door of the hut, lit up warm for whoever walks over.
 pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-6|Headband Pourer|rare|wayfinder|2|2|1|1|7-5|whimsy-host|keyhole|-|A calm host in a striped headband who pours three cups and spills not a drop.
-pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-1|Spotlight Moon|common|rootwarden|1|1|1|0|6-1|corner-BB|keyhole|-|A round moon that shines down on the clearing like a spotlight for the dancing caps.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-1|Moon Spotlight|common|rootwarden|1|1|1|0|6-1|corner-BB|keyhole|-|A round moon that shines down on the clearing like a spotlight for the dancing caps.
 pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-2|Ribboned Gift|common|seedkeeper|0|2|1|0|10-6|edge-TBB|keyhole|-|A small pink present by the little door, tied with a ribbon by very tiny fingers.
 pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-3|Mycelium Twinkles|common|brewroot|1|0|1|1|8-7|inner-TBTB|keyhole|-|Golden sparkles in the soil, the underground threads waving hello.
 pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-4|Redcap Congregation|uncommon|thornblade|2|1|1|1|7-5|inner-TTTT|double|-|Four glowing mushrooms leaning close together to share a secret.
 pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-5|Tiny Door Ajar|uncommon|bloomcaller|1|0|2|2|11-6|inner-BBBB|keyhole|-|A teeny round door in the old stump, open just a crack for a visitor.
 pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-6|Dancing Pinkcap|rare|wayfinder|2|2|1|1|8-6|whimsy-toadstool|keyhole|-|A plump pink mushroom who twirls at the head of the ring and hands round small gifts.
-pl-wonder-flamingo-shallows-707c2a|pl-wfla-1|Peppermint Awning|common|rootwarden|1|1|1|0|4-4|corner-TB|keyhole|-|A red and cream striped awning over a feather stall, sweet as a candy.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-1|Peppermint Awning|common|rootwarden|1|1|1|0|4-4|corner-TB|keyhole|-|A red and cream awning over the feather stall, bright as a boiled sweet.
 pl-wonder-flamingo-shallows-707c2a|pl-wfla-2|Quill Bouquet|common|seedkeeper|0|2|1|0|5-3|edge-TTB|keyhole|-|A fan of pink feathers on the stall counter, tied with twine and ready to trade.
 pl-wonder-flamingo-shallows-707c2a|pl-wfla-3|Faraway Pink Fuzz|common|brewroot|1|0|1|1|8-3|inner-TBTB|keyhole|-|A far flock of flamingos that looks like pink fuzz on the water.
 pl-wonder-flamingo-shallows-707c2a|pl-wfla-4|Long-Neck Lineup|uncommon|thornblade|2|1|1|1|9-6|inner-TTTT|double|-|Four long necks in a row at the stalls, taking turns to peek over the counter.
 pl-wonder-flamingo-shallows-707c2a|pl-wfla-5|Question-Mark Neck|uncommon|bloomcaller|1|0|2|2|2-3|inner-BBBB|keyhole|-|A flamingo whose neck curls into a question mark, wondering what you brought to trade.
 pl-wonder-flamingo-shallows-707c2a|pl-wfla-6|Stallkeeper Plumeling|rare|wayfinder|2|2|1|1|6-6|whimsy-stallbird|keyhole|-|A small flamingo who minds the feather stall and counts every plume twice.
 pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-1|Dangling Dripstone|common|rootwarden|1|1|1|0|4-1|corner-TT|keyhole|-|A purple stalactite with a sparkle at its tip, practising how to stay still.
-pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-2|Wanderlight Trail|common|seedkeeper|0|2|1|0|8-4|edge-TTB|keyhole|-|A trail of loose glow dots that wander off the ceiling and come back.
-pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-3|Hopscotch Stones|common|brewroot|1|0|1|1|8-7|inner-TBTB|keyhole|-|Flat stones across the still pool, ready for a very small game of hopscotch.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-2|Wanderlight Wisps|common|seedkeeper|0|2|1|0|8-4|edge-TTB|keyhole|-|A trail of loose glow dots that wander off the ceiling and come back.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-3|Hopscotch Stones|common|brewroot|1|0|1|1|8-7|inner-TBTB|keyhole|-|Flat dark stones dotted over the pool, just right for a small hop.
 pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-4|Ceiling Constellation|uncommon|thornblade|2|1|1|1|6-0|inner-TTTT|double|-|Four tiny glowing dots on the cave roof, arranged like a star map.
 pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-5|Pool of Quiet|uncommon|bloomcaller|1|0|2|2|1-6|inner-BBBB|keyhole|-|The still round pool, so calm that it hushes anyone who looks in.
-pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-6|Dangling Glowtail|rare|wayfinder|2|2|1|1|6-3|whimsy-glowworm|keyhole|-|A plump glowworm on a silk thread who swings above the pool and hums to the light.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-6|Swinging Glowtail|rare|wayfinder|2|2|1|1|6-3|whimsy-glowworm|keyhole|-|A plump glowworm on a silk thread who swings above the pool and hums to the light.
 pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-1|Terracotta Topknot|common|rootwarden|1|1|1|0|0-1|corner-BB|keyhole|-|The red tiled roof of the farmhouse, warm as toast after a sunny day.
 pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-2|Green Pencil Cypress|common|seedkeeper|0|2|1|0|2-2|edge-TBB|keyhole|-|A tall slim cypress that sways in the breeze like a pencil doodling the sky.
 pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-3|Squishy Grape Crate|common|brewroot|1|0|1|1|1-7|inner-TBTB|keyhole|-|A crate heaped with purple grapes, sticky and waiting for the cart.
@@ -48,21 +48,21 @@ pl-wonder-gorilla-glade-90c244|pl-wgor-2|Peekaboo Pipsqueak|common|seedkeeper|0|
 pl-wonder-gorilla-glade-90c244|pl-wgor-3|Rainbow Fruit Tumble|common|brewroot|1|0|1|1|3-7|inner-TBTB|keyhole|-|A heap of colourful forest fruit in the grass, free to anyone with manners.
 pl-wonder-gorilla-glade-90c244|pl-wgor-4|Sunbeam Staircase|uncommon|thornblade|2|1|1|1|2-2|inner-TTTT|double|-|Slanting beams of sunshine through the trees, like steps for dust motes.
 pl-wonder-gorilla-glade-90c244|pl-wgor-5|Orange Offering|uncommon|bloomcaller|1|0|2|2|6-6|inner-BBBB|keyhole|-|The orange held out in a big gentle hand, an invitation to say please.
-pl-wonder-gorilla-glade-90c244|pl-wgor-6|Frowny Silverback|rare|wayfinder|2|2|1|1|7-4|whimsy-gorilla|keyhole|-|A huge, soft-hearted silverback who looks stern but shares his fruit, one at a time.
+pl-wonder-gorilla-glade-90c244|pl-wgor-6|Frowny Silverback|rare|wayfinder|2|2|1|1|7-3|whimsy-gorilla|keyhole|-|A huge, soft-hearted silverback who looks stern but shares his fruit, one at a time.
 pl-wonder-lantern-festival-river-05dda1|pl-wlfe-1|Upturned Pagoda Eaves|common|rootwarden|1|1|1|0|1-1|corner-TB|keyhole|-|The curly roof of the pagoda on the far shore, smiling up at the night.
-pl-wonder-lantern-festival-river-05dda1|pl-wlfe-2|Butter Moon|common|seedkeeper|0|2|1|0|0-0|edge-TTB|keyhole|-|A round buttery moon that lights the way for lanterns floating by.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-2|Butter Moonlet|common|seedkeeper|0|2|1|0|0-0|edge-TTB|keyhole|-|A round, buttery moon that lights the river for the drifting lanterns.
 pl-wonder-lantern-festival-river-05dda1|pl-wlfe-3|Lollipop Tree|common|brewroot|1|0|1|1|2-4|inner-TBTB|keyhole|-|A little round tree on the bank, dappled with lantern light.
-pl-wonder-lantern-festival-river-05dda1|pl-wlfe-4|Beads on the Bridge|uncommon|thornblade|2|1|1|1|6-3|inner-TTTT|double|-|A string of red lanterns across the bridge, swinging like beads.
-pl-wonder-lantern-festival-river-05dda1|pl-wlfe-5|Roundbelly Lamp|uncommon|bloomcaller|1|0|2|2|11-6|inner-BBBB|keyhole|-|A big round paper lantern bobbing in the shallows, glowing from the inside.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-4|Beads on the Bridge|uncommon|thornblade|2|1|1|1|6-3|inner-TTTT|double|-|Red lanterns hung along the bridge rail, bright as a row of cherries.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-5|Roundbelly Lanternling|uncommon|bloomcaller|1|0|2|2|11-6|inner-BBBB|keyhole|-|A big round paper lantern bobbing in the shallows, glowing from the inside.
 pl-wonder-lantern-festival-river-05dda1|pl-wlfe-6|Candle Boat Pilot|rare|wayfinder|2|2|1|1|6-6|whimsy-wishlight|keyhole|-|A small floating lantern that steers itself along the river, carrying one wish.
 pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-1|Brass Bonnet|common|rootwarden|1|1|1|0|9-0|corner-TT|keyhole|-|The gold cap on the lighthouse lamp room, polished by the sea wind.
-pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-2|Tipsy Crescent|common|seedkeeper|0|2|1|0|0-0|edge-TBT|keyhole|-|A slim crescent moon tilted over the sea, looking a little sleepy.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-2|Tipsy Crescent|common|seedkeeper|0|2|1|0|0-0|edge-TBT|keyhole|-|A slim crescent moon over the sea, leaning like it is about to nod off.
 pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-3|Thimble Sailboat|common|brewroot|1|0|1|1|0-5|inner-TBTB|keyhole|-|A tiny sailboat far out on the water, as small as a thimble.
-pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-4|Sunset Stripe Stack|uncommon|thornblade|2|1|1|1|4-3|inner-TTTT|double|-|Bands of purple, pink and gold over the sea, stacked like a layer cake.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-4|Sunset Layer Cake|uncommon|thornblade|2|1|1|1|4-3|inner-TTTT|double|-|Bands of purple, pink and gold over the sea, stacked like a layer cake.
 pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-5|Wide-Eyed Windows|uncommon|bloomcaller|1|0|2|2|9-3|inner-BBBB|keyhole|-|Two round windows on the lighthouse that look out like surprised eyes.
 pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-6|Candlehead Crab|rare|wayfinder|2|2|1|1|2-6|whimsy-lampcrab|keyhole|-|A crab who holds up a lit candle in each claw so the boats can find the rocks.
 pl-wonder-mud-mosque-library-e5856f|pl-wmud-1|Onion Dome Daydream|common|rootwarden|1|1|1|0|8-2|corner-BB|keyhole|-|A blue-tiled onion dome that daydreams about rain it has never needed.
-pl-wonder-mud-mosque-library-e5856f|pl-wmud-2|Wobbly Book Stack|common|seedkeeper|0|2|1|0|3-7|edge-TTB|keyhole|-|A leaning pile of books by the gate, held up by hope and string.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-2|Wobbly Bookpile|common|seedkeeper|0|2|1|0|3-7|edge-TTB|keyhole|-|A leaning pile of books by the gate, held up by hope and string.
 pl-wonder-mud-mosque-library-e5856f|pl-wmud-3|Candy Minaret|common|brewroot|1|0|1|1|11-3|inner-TBTB|keyhole|-|A banded tower at the edge of the library, striped like a stick of candy.
 pl-wonder-mud-mosque-library-e5856f|pl-wmud-4|Rainbow Spine Shelves|uncommon|thornblade|2|1|1|1|5-4|inner-TTTT|double|-|Shelves of scrolls and books in every colour, stacked up the tall wall.
 pl-wonder-mud-mosque-library-e5856f|pl-wmud-5|Cobalt Peekhole|uncommon|bloomcaller|1|0|2|2|4-2|inner-BBBB|keyhole|-|A round blue-trimmed window high on the wall, just right for peeking.
@@ -73,22 +73,22 @@ pl-wonder-panda-bamboo-grove-564306|pl-wpan-3|Sproutling Patch|common|brewroot|1
 pl-wonder-panda-bamboo-grove-564306|pl-wpan-4|Fuzzy Black Boots|uncommon|thornblade|2|1|1|1|4-7|inner-TTTT|double|-|Four plump black paws planted in the grass, soft as bedroom slippers.
 pl-wonder-panda-bamboo-grove-564306|pl-wpan-5|Dark Eye Patches|uncommon|bloomcaller|1|0|2|2|5-5|inner-BBBB|keyhole|-|Two round dark patches round the panda’s eyes, blinking slowly at you.
 pl-wonder-panda-bamboo-grove-564306|pl-wpan-6|Splinter Paw Panda|rare|wayfinder|2|2|1|1|6-4|whimsy-panda|keyhole|-|A serious panda who holds up one paw to show a splinter, then nibbles shoots like a judge.
-pl-wonder-pearl-diver-cove-680a36|pl-wpea-1|Bobbing Cherry Buoy|common|rootwarden|1|1|1|0|4-3|corner-TB|keyhole|-|A cherry-red buoy that bobs on its rope, marking where the pearls are.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-1|Bobbing Cherry Buoy|common|rootwarden|1|1|1|0|3-2|corner-TB|keyhole|-|A cherry-red buoy that bobs on its rope, marking where the pearls are.
 pl-wonder-pearl-diver-cove-680a36|pl-wpea-2|Marmalade Minnow|common|seedkeeper|0|2|1|0|4-4|edge-TTB|keyhole|-|A little orange fish that darts under the raft and back, just for fun.
-pl-wonder-pearl-diver-cove-680a36|pl-wpea-3|Coral Fingerlings|common|brewroot|1|0|1|1|11-6|inner-TBTB|keyhole|-|Orange coral fingers that wave at passing fish.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-3|Coral Fingerlings|common|brewroot|1|0|1|1|10-6|inner-TBTB|keyhole|-|Orange coral fingers that wave at passing fish.
 pl-wonder-pearl-diver-cove-680a36|pl-wpea-4|Oysterbed Choir|uncommon|thornblade|2|1|1|1|8-6|inner-TTTT|double|-|Oysters in a row on the sand, shut tight and humming a tune.
-pl-wonder-pearl-diver-cove-680a36|pl-wpea-5|Pearl Peekaboo|uncommon|bloomcaller|1|0|2|2|5-6|inner-BBBB|keyhole|-|An oyster that opens a crack to show one shining pearl, then shuts again.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-5|Pearl Peekaboo|uncommon|bloomcaller|1|0|2|2|6-7|inner-BBBB|keyhole|-|An oyster that opens a crack to show one shining pearl, then shuts again.
 pl-wonder-pearl-diver-cove-680a36|pl-wpea-6|Whiskerwatch Diver|rare|wayfinder|2|2|1|1|5-1|whimsy-diver|keyhole|-|A bearded diver on the raft who holds a pearl up to the sun and keeps the rest for later.
 pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-1|Lilypad Parasol|common|rootwarden|1|1|1|0|2-4|corner-BB|keyhole|-|A broad green lily pad that shades the little frogs from the afternoon sun.
 pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-2|Scarlet Chatterbox|common|seedkeeper|0|2|1|0|8-2|edge-TBB|keyhole|-|A scarlet macaw on a perch who yells hello at every dolphin.
 pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-3|Notch-Ladder Trunk|common|brewroot|1|0|1|1|3-1|inner-TBTB|keyhole|-|A tall trunk with little notches and hanging vines, a ladder for small climbers.
 pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-4|Rosy Fin Salute|uncommon|thornblade|2|1|1|1|1-6|inner-TTTT|double|-|A pink fin raised out of the water like a friendly wave.
 pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-5|Parcel on a Pad|uncommon|bloomcaller|1|0|2|2|8-7|inner-BBBB|keyhole|-|A bundle of seeds on a lily pad, delivered by a dolphin’s nose.
-pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-6|Nudging Boto|rare|wayfinder|2|2|1|1|4-6|whimsy-boto|keyhole|-|A chubby pink river dolphin who nudges you toward the next hidden seed.
-pl-wonder-prayer-flag-pass-4260ac|pl-wpry-1|Gilded Nubbin|common|rootwarden|1|1|1|0|6-2|corner-TT|keyhole|-|The gold ball on top of the prayer pole, shiny from many hopeful touches.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-6|Nudging Boto|rare|wayfinder|2|2|1|1|5-6|whimsy-boto|keyhole|-|A chubby pink river dolphin who nudges you toward the next hidden seed.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-1|Gilded Nubbin|common|rootwarden|1|1|1|0|5-2|corner-TT|keyhole|-|The gold ball on top of the prayer pole, shiny from many hopeful touches.
 pl-wonder-prayer-flag-pass-4260ac|pl-wpry-2|Glacier Hat|common|seedkeeper|0|2|1|0|6-0|edge-TBB|keyhole|-|A snowy peak wearing a white hat above the pass.
 pl-wonder-prayer-flag-pass-4260ac|pl-wpry-3|Pilgrim Pebble|common|brewroot|1|0|1|1|3-6|inner-TBTB|keyhole|-|A round pebble by the path, picked up and set down again for luck.
-pl-wonder-prayer-flag-pass-4260ac|pl-wpry-4|Rainbow Bunting Flutter|uncommon|thornblade|2|1|1|1|8-3|inner-TTTT|double|-|Strings of blue, green, red and yellow flags snapping in the wind.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-4|Windtalking Bunting|uncommon|thornblade|2|1|1|1|8-3|inner-TTTT|double|-|Strings of blue, green, red and yellow flags that read the wishes out in the wind.
 pl-wonder-prayer-flag-pass-4260ac|pl-wpry-5|Stone Doughnuts|uncommon|bloomcaller|1|0|2|2|6-5|inner-BBBB|keyhole|-|Round stones stacked in rings at the foot of the pole, topped with a wish.
 pl-wonder-prayer-flag-pass-4260ac|pl-wpry-6|Redsaddle Yak|rare|wayfinder|2|2|1|1|9-6|whimsy-yak|keyhole|-|A shaggy yak in a red saddle who carries the wishes up the pass, one slow step at a time.
 pl-wonder-root-wrapped-temple-83a03a|pl-wroo-1|Mossy Topslab|common|rootwarden|1|1|1|0|5-0|corner-BB|keyhole|-|The mossy slab on top of the temple, a hat for a stone head.
@@ -97,15 +97,15 @@ pl-wonder-root-wrapped-temple-83a03a|pl-wroo-3|Vine Bead Dangle|common|brewroot|
 pl-wonder-root-wrapped-temple-83a03a|pl-wroo-4|Dotted Script Panel|uncommon|thornblade|2|1|1|1|4-5|inner-TTTT|double|-|A little panel carved with rows of dots, a letter written for the moss.
 pl-wonder-root-wrapped-temple-83a03a|pl-wroo-5|Archway Ember|uncommon|bloomcaller|1|0|2|2|6-5|inner-BBBB|keyhole|-|A tiny lantern burning in the arched doorway, left on for any visitor.
 pl-wonder-root-wrapped-temple-83a03a|pl-wroo-6|Grinning Stone Face|rare|wayfinder|2|2|1|1|5-2|whimsy-temple|keyhole|-|A stone face with a kind smile, snug in the arms of the roots.
-pl-wonder-starpath-canoe-a8df46|pl-wsta-1|Dot-to-Dot Sky|common|rootwarden|1|1|1|0|7-0|corner-TB|keyhole|-|Gold dots in the night sky joined by thin lines, a map drawn by the stars.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-1|Dot-to-Dot Sky|common|rootwarden|1|1|1|0|5-1|corner-TB|keyhole|-|Gold dots in the night sky joined by thin lines, a map drawn by the stars.
 pl-wonder-starpath-canoe-a8df46|pl-wsta-2|Hazy Island Nap|common|seedkeeper|0|2|1|0|10-4|edge-TBB|keyhole|-|A far island dozing on the horizon, waiting for the canoe to wake it.
 pl-wonder-starpath-canoe-a8df46|pl-wsta-3|Torchlet Wiggle|common|brewroot|1|0|1|1|11-7|inner-TBTB|keyhole|-|A beach torch that wiggles its flame in the breeze and warms the sand.
-pl-wonder-starpath-canoe-a8df46|pl-wsta-4|Cream Sail Flutter|uncommon|thornblade|2|1|1|1|6-4|inner-TTTT|double|-|A cream sail with a little red mark, catching every breeze.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-4|Cream Sail Billow|uncommon|thornblade|2|1|1|1|6-4|inner-TTTT|double|-|A cream sail with a little red mark, catching every breeze.
 pl-wonder-starpath-canoe-a8df46|pl-wsta-5|Crescent Hull Smile|uncommon|bloomcaller|1|0|2|2|3-7|inner-TTBB|keyhole|-|The curved dark hull of the voyaging canoe, smiling at the sand.
 pl-wonder-starpath-canoe-a8df46|pl-wsta-6|Starwise Cheerer|rare|wayfinder|2|2|1|1|8-6|whimsy-navigator|keyhole|-|A navigator in a bright headband who cheers when the stars line up.
 pl-wonder-stone-head-watchers-88f47d|pl-wsto-1|Cherry Topper|common|rootwarden|1|1|1|0|0-3|corner-TT|keyhole|-|A cherry-red cap on the first stone head, shading its green hair.
 pl-wonder-stone-head-watchers-88f47d|pl-wsto-2|Roll-Away Seed|common|seedkeeper|0|2|1|0|6-7|edge-TBB|keyhole|-|A gold seed that rolls off across the grass, as if the stone had blinked.
-pl-wonder-stone-head-watchers-88f47d|pl-wsto-3|Noon Sun Wink|common|brewroot|1|0|1|1|11-1|inner-TBTB|keyhole|-|A round yellow sun winking over the headland.
-pl-wonder-stone-head-watchers-88f47d|pl-wsto-4|Eyebrow Row|uncommon|thornblade|2|1|1|1|8-5|inner-TTTT|double|-|A row of carved heads on the headland, all raising one stony eyebrow.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-3|Noon Sunwink|common|brewroot|1|0|1|1|11-1|inner-TBTB|keyhole|-|A round yellow sun winking over the headland.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-4|Eyebrow Row|uncommon|thornblade|2|1|1|1|11-5|inner-TTTT|double|-|A row of carved heads on the headland, all raising one stony eyebrow.
 pl-wonder-stone-head-watchers-88f47d|pl-wsto-5|Round-Eyed Peeker|uncommon|bloomcaller|1|0|2|2|1-5|inner-TTBB|keyhole|-|A big carved face with round eyes, peeking round the edge of the picture.
-pl-wonder-stone-head-watchers-88f47d|pl-wsto-6|Blinkseed Stonehead|rare|wayfinder|2|2|1|1|8-4|whimsy-stonehead|keyhole|-|A carved head in a small red cap who blinks once and drops a gold seed for every question.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-6|Blinkseed Stonehead|rare|wayfinder|2|2|1|1|8-5|whimsy-stonehead|keyhole|-|A carved head in a small red cap who blinks once and drops a gold seed for every question.
