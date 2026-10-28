@@ -123,6 +123,37 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
             $opt = '';
             foreach ($seeds as $s) $opt .= '<option value="' . (int)$s['id'] . '">' . e($s['name']) . ' (' . (int)$s['qty'] . ')</option>';
             return $f('<select name="item_id" aria-label="Seed to swap">' . $opt . '</select> <button class="btn small"' . $dis . '>Swap</button>');
+        case 'craft':   // v2.0.78
+            [$ins, [$os, $oq]] = stop_craft_parts($spec);
+            $uid = (int)$u['id'];
+            $lack = false; $bits = [];
+            foreach ($ins as [$is, $iq]) {
+                $have = (int)q_val('SELECT COALESCE(SUM(ui.qty), 0) FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ?', [$uid, $is]);
+                if ($have < $iq) $lack = true;
+                $bits[] = $iq . ' × ' . e((string)(q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is)) . ' <small class="muted">(you have ' . $have . ')</small>';
+            }
+            $on = (string)(q_val('SELECT name FROM items WHERE slug = ?', [$os]) ?: $os);
+            return local_form($slug, choice_row('🛠️', 'Make ' . (int)$oq . ' × ' . e($on), 'Uses ' . implode(', ', $bits), '', '', ltrim($dis ?: ($lack ? ' disabled' : ''))), 'choiceform');
+        case 'collect':   // v2.0.78
+            [$set, $label, $entries, $n] = stop_collect_parts($spec);
+            [, $data] = stop_prog_get((int)$u['id'], 0, 'set:' . $set);
+            $found = count(array_intersect((array)($data['found'] ?? []), $entries));
+            $p = stop_spec_params($spec);
+            $h = '<span class="st-picks">';
+            for ($i = 1; $i <= $n; $i++) $h .= '<button class="btn small alt" name="pick" value="' . $i . '"' . $dis . '>' . e($p['ico'] ?? '🔍') . ' ' . $i . '</button> ';
+            return $f($h . '</span>') . '<span class="help">' . $found . ' of ' . count($entries) . ' ' . e($label) . ' in your journal. Look in one place.</span>';
+        case 'tend':   // v2.0.78
+            $p = stop_spec_params($spec);
+            $steps = max(2, min(6, (int)($p['steps'] ?? 3)));
+            [$have] = stop_prog_get((int)$u['id'], (int)$loc['id'], 'tend:' . $slug);
+            return local_form($slug, choice_row('🧑‍🌾', e($p['label'] ?? 'Lend a hand'), 'Step ' . ($have + 1) . ' of ' . $steps . ($have ? ' · you did ' . $have . ' on earlier visits' : ''), '', '', ltrim($dis)), 'choiceform');
+        case 'contest':   // v2.0.78
+            $p = stop_spec_params($spec);
+            $moves = array_values(array_filter(array_map('trim', explode('/', (string)($p['moves'] ?? 'Quick/Steady/Clever')))));
+            if (count($moves) !== 3) $moves = ['Quick', 'Steady', 'Clever'];
+            $h = '<span class="st-picks">';
+            foreach ($moves as $i => $mv) $h .= '<button class="btn small alt" name="move" value="' . $i . '"' . $dis . '>' . e($mv) . '</button> ';
+            return $f($h . '</span>') . '<span class="help">Each move beats one of the others and loses to the third.</span>';
         case 'gossip':
             return $f('<button class="btn small"' . $dis . '>Sit and listen</button>') . '<span class="help">you might hear of a hidden place</span>';
         case 'lore':
@@ -201,6 +232,24 @@ function local_act_meta(array $u, array $loc, array $a, ?array $folk): array
             break;
         case 'seedswap':
             $m[] = (int)q_val("SELECT COUNT(*) FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'seed'", [(int)$u['id']]) ? 'A seed for a seed' : 'No seeds to swap';
+            break;
+        case 'craft':   // v2.0.78
+            [$ins, [$os, $oq]] = stop_craft_parts($spec);
+            $m[] = 'Make ' . (int)$oq . ' × ' . e((string)(q_val('SELECT name FROM items WHERE slug = ?', [$os]) ?: $os));
+            foreach ($ins as [$is, $iq]) if ((int)q_val('SELECT COALESCE(SUM(ui.qty), 0) FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ?', [(int)$u['id'], $is]) < $iq) { $m[] = 'need more'; break; }
+            break;
+        case 'collect':
+            [$set, $label, $entries, $n] = stop_collect_parts($spec);
+            [, $data] = stop_prog_get((int)$u['id'], 0, 'set:' . $set);
+            $m[] = count(array_intersect((array)($data['found'] ?? []), $entries)) . '/' . count($entries) . ' ' . e($label);
+            break;
+        case 'tend':
+            $steps = max(2, min(6, (int)(stop_spec_params($spec)['steps'] ?? 3)));
+            [$have] = stop_prog_get((int)$u['id'], (int)$loc['id'], 'tend:' . (string)$a['slug']);
+            $m[] = 'Step ' . ($have + 1) . ' of ' . $steps;
+            break;
+        case 'contest':
+            $m[] = 'Pick your move';
             break;
         case 'gossip':
             $m[] = 'Sit and listen';

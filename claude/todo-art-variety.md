@@ -30,6 +30,14 @@ Themed stop upgrade pictures, 96x96 placeholders at `game/assets/img/stoptiers/<
 Rest-stop villagers show a picture of their species in the overlay (72px). Nine species already use our drawn icons (mouse, bee, hedgehog, snail, frog, beetle, butterfly, cricket, ladybird: `assets/img/ico/ico-<species>.png`). These eleven have no art yet and show a red PLACEHOLDER square at `game/assets/img/folk/<species>.png` (draw 64x64 pixel art, same file name; the code uses the file as soon as it is replaced). Ideally later: a few looks per species, and the same pictures on the villager rows.
 - [ ] hare  - [ ] wren  - [ ] mole  - [ ] tortoise  - [ ] moth  - [ ] shrew  - [ ] gecko  - [ ] dragonfly  - [ ] toad  - [ ] grasshopper  - [ ] firefly
 
+## In the game as PLACEHOLDER (2.0.78, new stop activity kinds)
+Do-tab card pictures, 144x108 PNG like the other `assets/img/acts/act-*.png`. One per new kind; any single activity can later get its own closer picture (see `STOP_ACT_ART_SLUG` in `includes/stops.php`).
+- [ ] `game/assets/img/acts/act-craft.png`: making something (hands and a tool, a half-made thing on a bench)
+- [ ] `game/assets/img/acts/act-collect.png`: spotting things (a gnome with a spyglass and a notebook)
+- [ ] `game/assets/img/acts/act-tend.png`: a chore over many days (a gnome with a watering can or rake at a row)
+- [ ] `game/assets/img/acts/act-contest.png`: a friendly contest (two gnomes squaring up, hands out)
+Nice to have: own pictures for the regional ones, and a "Birds of the Maplewold" journal page picture per collection (the checklist shows only as text for now).
+
 ## Wanted soon (not made yet: add a placeholder when the verb ships)
 Build-stage verbs still to come (one icon each, same folder, `stage-<verb>.png`): carry (a parcel with a road), befriend (two gnomes shaking hands), trial (a small trophy or a target), vigil (a moon and a lantern), wait (an hourglass), decorate (a flag or a flower pot), craft_on_site (a hammer on an anvil), fetch_lore (a scroll).
 

@@ -54,6 +54,16 @@ function stops100_schema(string $PK, string $ID, string $END): array
         line_lose TEXT NULL,
         active INT NOT NULL DEFAULT 1
     )$END";
+    // v2.0.78: progress that lasts between visits: a tended chore (per stop) or a collection (location_id 0 = the whole region)
+    $t[] = "CREATE TABLE IF NOT EXISTS stop_prog (
+        user_id $ID NOT NULL,
+        location_id $ID NOT NULL,
+        k VARCHAR(60) NOT NULL,
+        n INT NOT NULL DEFAULT 0,
+        data TEXT NULL,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, location_id, k)
+    )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS stop_log (
         id $PK,
         user_id $ID NOT NULL,
@@ -165,7 +175,7 @@ function stops100_schema(string $PK, string $ID, string $END): array
         'CREATE INDEX idx_stoperr_target ON stop_errands (target_folk_id)',
         'CREATE UNIQUE INDEX uq_stopsets ON stop_sets (scope, target, need)',   // v1.0.0: the import is check-then-insert; this stops a double run duplicating the sets
     ];
-    $c = [['locations', 'stop_type', 'VARCHAR(20) NULL'], ['stop_friend', 'last_gift', 'VARCHAR(10) NULL']];   // v2.0.77: last_gift = one gift a day per villager   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
+    $c = [['locations', 'stop_type', 'VARCHAR(20) NULL'], ['stop_friend', 'last_gift', 'VARCHAR(10) NULL'], ['stop_acts', 'region', 'VARCHAR(80) NULL']];   // v2.0.78: region = comma list of region codes the activity belongs to (blank = anywhere)   // v2.0.77: last_gift = one gift a day per villager   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
     return [$t, $i, $c];
 }
 
@@ -206,6 +216,7 @@ function stops_import_data(): int
         $n++;
     }
     $n += stops_import_themes();
+    $n += stops_import_regional();
     foreach (stops_file_rows('stop_sets.txt') as $r) {
         if (count($r) < 6 || q_val('SELECT 1 FROM stop_sets WHERE scope = ? AND target = ? AND need = ?', [$r[0], $r[1], (int)$r[2]])) continue;
         try { db_insert('stop_sets', ['scope' => $r[0], 'target' => $r[1], 'need' => (int)$r[2], 'reward' => $r[3], 'title' => $r[4] !== '' ? $r[4] : null, 'label' => $r[5]]); $n++; }
@@ -243,6 +254,22 @@ function stops_import_themes(): int
         q("DELETE FROM settings WHERE name = 'stop_themes_v1'");
         db_insert('settings', ['name' => 'stop_themes_v1', 'value' => '1']);
         stop_acts(true);
+    }
+    stop_acts(true);
+    return $n;
+}
+
+/** v2.0.78: the regional activities (stop_acts_regional.txt: same columns as stop_acts.txt plus a region code list). Adds what is missing. */
+function stops_import_regional(): int
+{
+    $n = 0;
+    foreach (stops_file_rows('stop_acts_regional.txt') as $r) {
+        if (count($r) < 12 || q_val('SELECT 1 FROM stop_acts WHERE slug = ?', [$r[0]])) continue;
+        try {
+            db_insert('stop_acts', ['slug' => $r[0], 'name' => $r[1], 'icon' => $r[2], 'types' => $r[3], 'cond' => $r[4], 'tier' => (int)$r[5], 'kind' => $r[6], 'energy' => (int)$r[7],
+                'spec' => $r[8], 'win' => $r[9], 'lose' => $r[10], 'blurb' => $r[11], 'line_win' => $r[12] ?? '', 'line_lose' => $r[13] ?? '', 'region' => ($r[14] ?? '') !== '' ? $r[14] : null]);
+            $n++;
+        } catch (PDOException $e) { /* made by another request */ }
     }
     stop_acts(true);
     return $n;
@@ -320,7 +347,8 @@ function stop_art_file(string $type): string
 
 /** v2.0.67: picture names for the Do-tab felt cards (assets/img/acts/act-<name>.png): one per activity kind, a few activities get a closer one. */
 const STOP_ACT_ART_KIND = ['rest' => 'rest', 'check' => 'hand', 'pick' => 'shells', 'power' => 'ringtoss', 'lore' => 'story', 'gossip' => 'chat',
-    'seedswap' => 'seeds', 'swap' => 'swap', 'buy' => 'basket', 'snack' => 'basket'];
+    'seedswap' => 'seeds', 'swap' => 'swap', 'buy' => 'basket', 'snack' => 'basket',
+    'craft' => 'craft', 'collect' => 'collect', 'tend' => 'tend', 'contest' => 'contest'];   // v2.0.78: PLACEHOLDER pictures until drawn (claude/todo-art-variety.md)
 const STOP_ACT_ART_SLUG = ['firewood' => 'fire', 'signal_fire' => 'fire', 'cast_a_line' => 'rod', 'night_fishing' => 'rod', 'ice_hole' => 'rod', 'oar_ferry' => 'rod',
     'pick_herbs' => 'forage', 'mushroom_rain' => 'forage', 'moss_tend' => 'forage', 'blossom_walk' => 'forage', 'saw_planks' => 'axe', 'dress_stone' => 'pick',
     'chores' => 'basket', 'porter' => 'basket', 'drying_day' => 'basket', 'shake_tree' => 'basket', 'notice_riddle' => 'chat', 'toll_talk' => 'chat', 'haggle' => 'chat',
@@ -409,6 +437,26 @@ function stop_slots(array $loc): int
 }
 
 /**
+ * v2.0.78: take $n from an ordered list, but prefer a kind not yet taken (or in $kinds): the first of each new kind in order, then fill
+ * up from what is left in order. Same ordering rules as before, so nothing is skipped for good: it only avoids two of a kind in a row of picks.
+ */
+function stop_diverse(array $list, int $n, array $kinds): array
+{
+    $out = [];
+    $left = array_values($list);
+    while (count($out) < $n && $left) {
+        $pick = null;
+        foreach ($left as $i => $a) if (!in_array($a['kind'], $kinds, true)) { $pick = $i; break; }
+        if ($pick === null) { $kinds = []; $pick = 0; }   // every kind is used: start over
+        $a = $left[$pick];
+        array_splice($left, $pick, 1);
+        $out[] = $a;
+        $kinds[] = $a['kind'];
+    }
+    return $out;
+}
+
+/**
  * The activities at a stop right now.
  * ['offer' => [act rows, in order, with ['now' => bool special]], 'later' => [act rows that need another time], 'tiers' => [act rows from upgrades still to build]]
  */
@@ -417,6 +465,7 @@ function stop_pool(array $loc, ?array $now = null): array
     require_once __DIR__ . '/stop_adopt.php';
     $now ??= stop_now($loc);
     $type = stop_type_of($loc);
+    $region = stop_region_code($loc);
     $tier = stop_tier((int)$loc['id']);
     $day = hollow_date('Y-m-d');
     $plain = $special = $later = $upgrades = $lockedUp = [];
@@ -424,6 +473,11 @@ function stop_pool(array $loc, ?array $now = null): array
         $ts = array_map('trim', explode(',', (string)$a['types']));
         $explicit = in_array($type, $ts, true);
         if (!$explicit && !in_array('any', $ts, true)) continue;
+        $rg = array_filter(array_map('trim', explode(',', (string)($a['region'] ?? ''))));   // v2.0.78: a regional activity only in its region, and it counts as "of this place" (picked first)
+        if ($rg) {
+            if (!in_array($region, $rg, true)) continue;
+            $explicit = true;
+        }
         $gated = stop_cond_parse((string)$a['cond']) !== [];
         if ((int)$a['tier'] > 0) {
             if ((int)$a['tier'] <= $tier) { if (!$gated || stop_cond_ok((string)$a['cond'], $now)) $upgrades[] = $a; else $later[] = $a; }
@@ -439,10 +493,11 @@ function stop_pool(array $loc, ?array $now = null): array
     }
     // fixed core first (type-specific before "any"), then a daily rotation from the rest
     usort($plain, fn($x, $y) => [$x['explicit'] ? 0 : 1, crc32('core|' . $loc['slug'] . '|' . $x['slug'])] <=> [$y['explicit'] ? 0 : 1, crc32('core|' . $loc['slug'] . '|' . $y['slug'])]);
-    $core = array_slice($plain, 0, max(1, (int)setting('stop_core')));
-    $rest = array_slice($plain, count($core));
+    $core = stop_diverse($plain, max(1, (int)setting('stop_core')), []);   // v2.0.78: different kinds of thing where there are some
+    $used = array_column($core, 'slug');
+    $rest = array_values(array_filter($plain, fn($a) => !in_array($a['slug'], $used, true)));
     usort($rest, fn($x, $y) => crc32('day|' . $day . '|' . $loc['slug'] . '|' . $x['slug']) <=> crc32('day|' . $day . '|' . $loc['slug'] . '|' . $y['slug']));
-    $extra = array_slice($rest, 0, max(0, (int)setting('stop_extra')));
+    $extra = stop_diverse($rest, max(0, (int)setting('stop_extra')), array_column($core, 'kind'));
     usort($special, fn($x, $y) => crc32('sp|' . $day . $loc['slug'] . $x['slug']) <=> crc32('sp|' . $day . $loc['slug'] . $y['slug']));
     $special = array_slice($special, 0, 3);
     return ['offer' => array_merge($special, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp];
@@ -617,6 +672,41 @@ function stop_spec_params(string $spec): array
     return $out;
 }
 
+// ---------------------------------------------------------------- progress that lasts (v2.0.78)
+
+/** One progress row: [n, data array]. $locId 0 = region-wide (a collection). */
+function stop_prog_get(int $uid, int $locId, string $k): array
+{
+    $r = q_one('SELECT n, data FROM stop_prog WHERE user_id = ? AND location_id = ? AND k = ?', [$uid, $locId, $k]);
+    return $r ? [(int)$r['n'], json_decode((string)$r['data'], true) ?: []] : [0, []];
+}
+
+function stop_prog_set(int $uid, int $locId, string $k, int $n, array $data = []): void
+{
+    $json = $data ? json_encode($data, JSON_UNESCAPED_UNICODE) : null;
+    if (q('UPDATE stop_prog SET n = ?, data = ?, updated_at = ? WHERE user_id = ? AND location_id = ? AND k = ?', [$n, $json, now(), $uid, $locId, $k])->rowCount() === 1) return;
+    try { db_insert('stop_prog', ['user_id' => $uid, 'location_id' => $locId, 'k' => $k, 'n' => $n, 'data' => $json, 'updated_at' => now()]); }
+    catch (PDOException $e) { q('UPDATE stop_prog SET n = ?, data = ?, updated_at = ? WHERE user_id = ? AND location_id = ? AND k = ?', [$n, $json, now(), $uid, $locId, $k]); }
+}
+
+/** The parts of a craft spec "a:2,b:1>out:1": [[slug, qty] inputs, [slug, qty] output]. */
+function stop_craft_parts(string $spec): array
+{
+    [$in, $out] = array_pad(explode('>', $spec, 2), 2, '');
+    $ins = [];
+    foreach (array_filter(array_map('trim', explode(',', $in))) as $p) { [$sl, $q] = array_pad(explode(':', $p), 2, '1'); $ins[] = [$sl, max(1, (int)$q)]; }
+    [$os, $oq] = array_pad(explode(':', trim($out)), 2, '1');
+    return [$ins, [$os, max(1, (int)$oq)]];
+}
+
+/** A collection spec: [set slug, label, entries[], spots n, done rewards]. */
+function stop_collect_parts(string $spec): array
+{
+    $p = stop_spec_params($spec);
+    return [(string)($p['set'] ?? 'set'), (string)($p['label'] ?? 'finds'), array_values(array_filter(array_map('trim', explode('/', (string)($p['items'] ?? ''))))),
+            max(2, min(6, (int)($p['n'] ?? 3))), (string)($p['done'] ?? '')];
+}
+
 // ---------------------------------------------------------------- doing things
 
 /** Do one activity. $in = the posted form. Returns [ok, message]. */
@@ -708,6 +798,78 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 $lines = stop_rewards($fresh, $loc, $win, 1.0, $seed);
                 $msg = $icon . ' ' . stop_say($tale, $loc, $folk);
                 $note = 'tale ' . (crc32($seed) % max(1, count($tales)));
+                break;
+            case 'craft':   // v2.0.78: make something from what you carry (no dice)
+                [$ins, [$os, $oq]] = stop_craft_parts($spec);
+                $oid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$os]);
+                if (!$ins || !$oid) throw new UserError('Nothing to make today.');
+                foreach ($ins as [$is, $iq]) {
+                    $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$is]);
+                    if (!$iid || !give_item($uid, $iid, -$iq)) throw new UserError('You don’t have ' . $iq . ' × ' . ((string)q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is) . '.');
+                    $lines[] = '−' . $iq . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]);
+                }
+                give_item($uid, $oid, $oq);
+                $lines[] = '+' . $oq . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$oid]);
+                $lines = array_merge($lines, stop_rewards($fresh, $loc, $win, 1.0, $seed));
+                $msg = $icon . ' ' . ($lineWin !== '' ? $lineWin : 'Made, and well made.');
+                break;
+            case 'collect':   // v2.0.78: spot the local things, one a visit; the checklist is the whole region's
+                [$set, $label, $entries, $n, $doneRw] = stop_collect_parts($spec);
+                $pick = (int)($in['pick'] ?? 0);
+                if (!$entries) throw new UserError('Nothing to spot today.');
+                if ($pick < 1 || $pick > $n) throw new UserError('Pick a spot to look at.');
+                [, $data] = stop_prog_get($uid, 0, 'set:' . $set);
+                $found = array_values(array_filter((array)($data['found'] ?? []), fn($x) => in_array($x, $entries, true)));
+                $unseen = array_values(array_diff($entries, $found));
+                $pickFrom = ($unseen && random_int(1, 100) <= 65) ? $unseen : $entries;   // a new one is likelier, but not certain
+                $see = $pickFrom[random_int(0, count($pickFrom) - 1)];
+                $new = !in_array($see, $found, true);
+                if ($new) $found[] = $see;
+                $data['found'] = $found;
+                $complete = $new && count($found) >= count($entries) && empty($data['done']);
+                if ($complete) $data['done'] = 1;
+                stop_prog_set($uid, 0, 'set:' . $set, count($found), $data);
+                $lines = stop_rewards($fresh, $loc, $new ? $win : $lose, 1.0, $seed);
+                $msg = $icon . ' ' . ($new ? 'A new one: ' . $see . '! ' . ($lineWin !== '' ? $lineWin : '') : 'You spot a ' . $see . ' again. ' . ($lineLose !== '' ? $lineLose : ''))
+                    . ' (' . count($found) . ' of ' . count($entries) . ' ' . $label . ')';
+                if ($complete) {
+                    $msg .= ' 🎉 The whole set!';
+                    $lines = array_merge($lines, stop_rewards($fresh, $loc, $doneRw, 1.0, $seed . '|set'));
+                }
+                $note = $new ? 'new ' . $see : 'seen ' . $see;
+                break;
+            case 'tend':   // v2.0.78: a chore that takes a few visits; each visit is a step, the last pays
+                $p = stop_spec_params($spec);
+                $steps = max(2, min(6, (int)($p['steps'] ?? 3)));
+                [$have] = stop_prog_get($uid, (int)$loc['id'], 'tend:' . $slug);
+                $have++;
+                if ($have >= $steps) {
+                    stop_prog_set($uid, (int)$loc['id'], 'tend:' . $slug, 0);
+                    $lines = stop_rewards($fresh, $loc, $win, 1.0, $seed);
+                    $msg = $icon . ' ' . ($lineWin !== '' ? $lineWin : 'All done, and it shows.') . ' (' . $steps . ' of ' . $steps . ')';
+                    $note = 'done';
+                } else {
+                    stop_prog_set($uid, (int)$loc['id'], 'tend:' . $slug, $have);
+                    $lines = stop_rewards($fresh, $loc, $lose, 1.0, $seed);
+                    $msg = $icon . ' ' . ($lineLose !== '' ? $lineLose : 'A good start.') . ' (step ' . $have . ' of ' . $steps . '; come back to finish)';
+                    $note = 'step ' . $have;
+                }
+                break;
+            case 'contest':   // v2.0.78: a friendly contest with a villager: three moves, each beats one and loses to one
+                $p = stop_spec_params($spec);
+                $moves = array_values(array_filter(array_map('trim', explode('/', (string)($p['moves'] ?? 'Quick/Steady/Clever')))));
+                if (count($moves) !== 3) $moves = ['Quick', 'Steady', 'Clever'];
+                $mine = (int)($in['move'] ?? -1);
+                if ($mine < 0 || $mine > 2) throw new UserError('Pick your move.');
+                $theirs = random_int(0, 2);
+                $res = ($mine - $theirs + 3) % 3;   // 0 = same, 1 = you win, 2 = they win
+                $lucky = $res === 2 && random_int(1, 1000) <= (int)round(luck_percent($fresh) * 10);   // luck: they hesitate and it is thrown again
+                if ($lucky) { $theirs = random_int(0, 2); $res = ($mine - $theirs + 3) % 3; }
+                $who = $folk ? $folk['name'] : 'They';
+                $said = $moves[$mine] . ' against ' . $who . '’s ' . $moves[$theirs] . '. ';
+                if ($res === 1) { $lines = stop_rewards($fresh, $loc, $win, 1.0, $seed); $msg = $icon . ' ' . $said . ($lineWin !== '' ? $lineWin : 'You win!'); $note = 'win'; }
+                elseif ($res === 0) { $lines = stop_rewards($fresh, $loc, $win, 0.35, $seed); $msg = $icon . ' ' . $said . 'A draw! A small prize for both.'; $note = 'draw'; }
+                else { $lines = stop_rewards($fresh, $loc, $lose, 1.0, $seed); $msg = $icon . ' ' . $said . ($lineLose !== '' ? $lineLose : 'They win this one.'); $note = 'miss'; }
                 break;
             case 'rest':
                 $p = stop_spec_params($spec);
