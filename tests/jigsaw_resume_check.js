@@ -15,7 +15,7 @@ window.__solve = (cols, rows) => { for (let i = 0; i < cols * rows; i++) if (!__
 window.__ctr = i => { const r = __pcs[i].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
 window.__loose = (i, fx, fy) => { const b = __bd(); __mv(i, b.left + fx * b.width, b.bottom + fy); };
 window.__locked = () => __pcs.map((e, i) => e.classList.contains('locked') ? i : -1).filter(x => x >= 0);
-window.__cuts = () => __pcs.map(e => e.querySelector('.cut').style.clipPath).join('|');
+window.__cuts = () => { const u = __bd().width / 6 / 100; return __pcs.map(e => (e.querySelector('.cut').style.clipPath.match(/-?[\\d.]+/g) || []).map(v => Math.round(v / u)).join(' ')).join('|'); };   // the table may be sized a little differently after a reload, so cuts are compared in piece units
 window.__rel = i => { const b = __bd(), r = __pcs[i].getBoundingClientRect(); return [(r.left - b.left) / b.width, (r.top - b.top) / b.height]; };
 `;
 (async () => {
@@ -71,7 +71,8 @@ window.__rel = i => { const b = __bd(), r = __pcs[i].getBoundingClientRect(); re
     await p.screenshot({ path: `${shots}/jigsaw-resume-${tag}-library.png` });
     await btn.click(); await ready(p, 24);
     const after = await p.evaluate(() => ({ cuts: __cuts(), locked: __locked(), r10: __rel(10), r12: __rel(12), r13: __rel(13), sub: document.getElementById('sub').textContent, hud: document.getElementById('hud').textContent }));
-    say(after.cuts === before.cuts, `${tag}: same cuts (same seed)` + (after.cuts === before.cuts ? '' : ` ${before.cuts.slice(0,160)} vs ${after.cuts.slice(0,160)}`));
+    const cutDiff = (() => { const A = before.cuts.split(/[| ]/).map(Number), B = after.cuts.split(/[| ]/).map(Number); if (A.length !== B.length) return 1e9; let m = 0; for (let i = 0; i < A.length; i++) m = Math.max(m, Math.abs(A[i] - B[i])); return m; })();
+    say(cutDiff <= 3, `${tag}: same cuts (same seed; biggest difference ${cutDiff} of 100 per piece)`);
     say(JSON.stringify(after.locked) === JSON.stringify(before.locked), `${tag}: same locked pieces (${after.locked})`);
     const near = (a, z) => Math.abs(a[0] - z[0]) < .004 && Math.abs(a[1] - z[1]) < .004;
     say(near(after.r10, before.r10) && near(after.r12, before.r12) && near(after.r13, before.r13), `${tag}: loose pieces are where they were`);
