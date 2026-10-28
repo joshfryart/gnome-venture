@@ -352,6 +352,10 @@ function settings_schema(): array
         'worm_coins_per_point' => ['label' => 'Worm Hunting: currency per point', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 1000],
         'puzzles_open' => ['label' => 'Games: Puzzles (hub + GIFsaw) open to every player (off = admins only) (v2.0.2)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'pz_barrel_open' => ['label' => 'Puzzles: Rain Barrel open to every player (off = admins only; needs Puzzles open) (v2.0.71)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'guest_open' => ['label' => 'Guests: visitors can play a guest garden without an account (v2.0.75)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'guest_max_per_ip_day' => ['label' => 'Guests: new guest gardens per connection per day (v2.0.75)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 50],
+        'guest_max_total' => ['label' => 'Guests: most guest gardens alive at once (v2.0.75)', 'type' => 'int', 'default' => '200', 'min' => 1, 'max' => 5000],
+        'guest_ttl_hours' => ['label' => 'Guests: a guest garden is deleted after this many idle hours (v2.0.75)', 'type' => 'int', 'default' => '24', 'min' => 1, 'max' => 720],
         'pz_beds_open' => ['label' => 'Puzzles: Gnome Beds open to every player (off = admins only; needs Puzzles open) (v2.0.72)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'pz_daily_petals' => ['label' => 'Puzzles: Petals for the first daily win of each puzzle game, once a day (v2.0.71)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 500],
         'puzzles_front' => ['label' => 'Front page: logged-out visitors can play a GIFsaw demo (v2.0.69)', 'type' => 'select', 'default' => '1', 'options' => ['1' => 'On', '0' => 'Off']],
@@ -648,6 +652,16 @@ function load_current_user(): ?array
         unset($_SESSION['uid']);
         return null;
     }
+    if (!empty($u['guest'])) {   // v2.0.75: a guest garden left alone past guest_ttl_hours is gone; others are swept now and then
+        require_once __DIR__ . '/guest.php';
+        if (!empty($u['last_seen']) && strtotime($u['last_seen'] . ' UTC') < time() - max(1, (int)setting('guest_ttl_hours')) * 3600) {
+            guest_purge(true);
+            unset($_SESSION['uid'], $_SESSION['sv']);
+            flash('Your guest garden fell asleep and was tidied away. Start a new one, or join for free to keep a garden for good!', 'err');
+            return null;
+        }
+        guest_purge();
+    }
     // Update "last seen" at most once a minute.
     if (empty($u['last_seen']) || strtotime($u['last_seen'] . ' UTC') < time() - 60) {
         social_note_return($u);   // v1.0.0: a long absence is remembered for the welcome-back page
@@ -664,8 +678,22 @@ function current_user(): ?array
 
 /** v1.0.1: the "fresh gnome hold". '' when this gnome may give Petals or items to other players, else a friendly reason.
  *  Held while the account is younger than fresh_hold_days OR the gnome level is below fresh_hold_level. Admins and mods are exempt. */
+function is_guest(?array $u = null): bool
+{
+    $u ??= current_user();
+    return $u !== null && !empty($u['guest']);
+}
+
+/** v2.0.75: is this user id a guest? (cached per request) */
+function is_guest_uid(int $uid): bool
+{
+    static $m = [];
+    return $m[$uid] ??= (int)q_val('SELECT guest FROM users WHERE id = ?', [$uid]) === 1;
+}
+
 function fresh_hold(array $u): string
 {
+    if (!empty($u['guest'])) return 'Guests can look around but not trade or send gifts. Make your own gnome to join in!';   // v2.0.75
     if (in_array((string)($u['role'] ?? 'player'), ['admin', 'mod'], true)) return '';   // v1.0.1
     $days = max(0, (int)setting('fresh_hold_days'));   // v1.0.1
     $need = max(1, (int)setting('fresh_hold_level'));   // v1.0.1
@@ -704,6 +732,7 @@ function require_login(): array
     if ((int)($u['onboarded'] ?? 1) === 0 && $page !== 'welcome.php' && !$staffPage) {
         redirect('welcome.php');
     }
+    if (!empty($u['guest'])) { require_once __DIR__ . '/guest.php'; guest_gate($page); }   // v2.0.75: guests look around; what touches other players is blocked here
     return $u;
 }
 
@@ -948,7 +977,7 @@ function hollow_dow(): int { return (int)hollow_date('w'); }
  */
 function gnome_in_play_sql(string $alias = 'u'): string
 {
-    return "($alias.banned = 0 AND ($alias.banned_until IS NULL OR $alias.banned_until <= '" . now() . "'))";
+    return "($alias.banned = 0 AND $alias.guest = 0 AND ($alias.banned_until IS NULL OR $alias.banned_until <= '" . now() . "'))";   // v2.0.75: guests are never on a board or in a draw
 }
 
 /** "6 am", "3 pm", "midnight". */

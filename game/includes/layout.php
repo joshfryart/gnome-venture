@@ -108,6 +108,7 @@ function page_header(string $title, bool $admin = false): void
 <?php if ($u && !$admin && !$onboarding) echo status_strip($u); ?>
 </header>
 <?php if ($u && !$admin && !$onboarding) { require_once __DIR__ . '/festival.php'; echo festival_bar_html($page === 'index.php' && helper_slot($u) === 'fest'); }   // v1.0.0: bunting while a festival runs. v1.6.3: the full banner only on Today; elsewhere on a phone it is an icon in the status line ?>
+<?php if ($u && !$admin && !$onboarding && !empty($u['guest'])) { require_once __DIR__ . '/guest.php'; echo guest_strip_html($u); }   // v2.0.75: guest garden strip ?>
 <div class="chrome2"><?php if ($u && !$admin && !$onboarding && $page !== 'adventure.php') echo adventure_topbar($u);
 if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.php'], true)) { require_once __DIR__ . '/destination.php'; echo dest_strip_html($u); }   // v2.0.65: trip strip ?>
 <?= $logTop /* v1.6.3: on a phone the walk bar and the 🔔 share one line (.chrome2) */ ?></div>

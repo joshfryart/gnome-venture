@@ -23,6 +23,7 @@ const SITE_TEXTS = [
     'home.f6' => ['Front page', 'Feature box 6 (first line = title)', "📖 Your Almanac\nA book that fills itself in as you grow, cook, travel and meet folk. {pages} pages to find.", 'text'],
     'home.jeff' => ['Front page', 'Jeff’s hello (speech bubble in the top card)', 'Hi, I’m Jeff, the Puzzler! I’m a jigsaw piece and your host. Want a quick look around before you plant anything?', 'line'],
     'home.tourbtn' => ['Front page', 'Tour button', '👀 Take the tour with Jeff', 'line'],
+    'home.guestbtn' => ['Front page', 'Guest button (shown only while guest gardens are on)', '🧺 Play as a guest', 'line'],
     'home.tour.1' => ['Front page', 'Tour stop 1 (first line = title, second = what Jeff says)', "🌱 Grow a garden\nThis is your garden. Plant, water, wait. Soil gets better the more you look after it.", 'text'],
     'home.tour.2' => ['Front page', 'Tour stop 2 (first line = title, second = what Jeff says)', "🧺 Your satchel\nEverything you grow, cook and find lives here: seeds, tools, dinner.", 'text'],
     'home.tour.3' => ['Front page', 'Tour stop 3 (first line = title, second = what Jeff says)', "🗺️ Walk the world\nFourteen regions, with roads, rest stops and villagers who have lives of their own.", 'text'],

@@ -5745,3 +5745,11 @@ label.itmcell > input:checked + .itm .itm__name { text-shadow: 0 1px 0 rgba(255,
 label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -13px; right: -13px; background-image: url(img/acts/badge-sel.png); }
 @media (prefers-reduced-motion: reduce) { label.itmcell:active > .itm { transform: none; } }
 #homestage { min-height: 200px; }
+
+/* v2.0.75: guest garden strip (under the header while playing as a guest) and the "needs an account" card */
+.gueststrip { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 4px 12px; font-size: 13px; line-height: 1.3; text-align: left; background: var(--accent-soft); color: var(--accent-ink); border-bottom: 2px dashed var(--accent-line); }
+.gueststrip a { color: inherit; font-weight: 700; text-decoration: underline; }
+.gueststripface img { width: 28px; height: 28px; image-rendering: pixelated; }
+.guestcard { text-align: center; }
+.guestcard .lp-jeffface img { width: 96px; height: auto; image-rendering: pixelated; }
+.guestcard .say { text-align: left; }

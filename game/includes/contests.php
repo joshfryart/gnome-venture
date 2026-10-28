@@ -42,6 +42,7 @@ function show_size_text(string $crop, float $size): string
 /** Measure a harvested specimen from the square it grew in. Returns a message if it was entered. */
 function show_measure(int $uid, array $t, array $p, array $u): ?string
 {
+    if (!empty($u['guest'])) return null;   // v2.0.75: guests don't enter contests
     $crop = (string)$p['slug'];
     if ($crop !== show_crop()) return null;
     [$name, , $base] = SHOW_CROPS[$crop];

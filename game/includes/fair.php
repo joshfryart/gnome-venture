@@ -89,6 +89,7 @@ function fair_record(array $u, array $t, array $p): void
 /** Keep the better of this month's score in a class for a gnome. v0.9.8: $label names a Preserves entry (plant_id 0). */
 function fair_keep_best(int $uid, string $cat, int $plantId, int $score, ?string $label = null): void
 {
+    if (is_guest_uid($uid)) return;   // v2.0.75: guests don't enter contests
     $month = job_period_key('monthly');
     $best = q_one('SELECT id, score FROM fair_best WHERE user_id = ? AND month = ? AND cat = ?', [$uid, $month, $cat]);
     if (!$best) {

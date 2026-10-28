@@ -11,6 +11,7 @@ $sent = $_POST['csrf'] ?? '';
 if (!is_string($sent) || !hash_equals(csrf_token(), $sent)) $out(['ok' => false, 'error' => 'Your page expired. Refresh and try again.'], 400);
 $u = current_user();
 if (!$u) $out(['ok' => false, 'error' => 'Please log in first.'], 403);
+if (!empty($u['guest'])) $out(['ok' => false, 'error' => 'Guests can’t enter tournaments. Make your own gnome to join in!'], 403);   // v2.0.75
 if (!puzzle_tournaments_on()) $out(['ok' => false, 'error' => 'Puzzle tournaments aren’t running right now.'], 403);
 $key = 'pzapi:' . (int)$u['id'];
 if (rate_limited($key, 40, 10)) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);

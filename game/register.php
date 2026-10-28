@@ -2,7 +2,8 @@
 declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 
-if (current_user()) {
+$guestUser = current_user() && !empty(current_user()['guest']) ? current_user() : null;   // v2.0.75: a guest may register: the same garden becomes theirs
+if (current_user() && !$guestUser) {
     redirect('index.php');
 }
 
@@ -32,7 +33,18 @@ if ($open && is_post()) {
 
     if (!$errors) {
         record_attempt('register');
-        try {
+        if ($guestUser) {   // v2.0.75: keep this garden: the guest row becomes the account
+            require_once __DIR__ . '/includes/guest.php';
+            $gerr = guest_convert($guestUser, $username, $email, $pass, !empty($_POST['nudges']));
+            if ($gerr !== '') { $errors[] = $gerr; }
+            else {
+                require_once __DIR__ . '/includes/mentors120.php'; mentors120_note_signup((int)$guestUser['id']);
+                try { require_once __DIR__ . '/includes/account.php'; send_verify_email(['id' => (int)$guestUser['id'], 'username' => $username, 'email' => $email]); } catch (Throwable $e) { error_log('Verify mail failed: ' . $e->getMessage()); }
+                flash('🌱 Your garden is yours now! One more step: make your gnome.');
+                redirect('customise.php');
+            }
+        }
+        if (!$errors) try {
             // The account only. The gnome, homeland and first garden are made in the welcome flow.
             $uid = db_insert('users', [
                 'username' => $username, 'email' => $email,
@@ -57,11 +69,12 @@ seo_set(['title' => stext('join.title'), 'desc' => stext('join.desc')]);   // v0
 page_header('Join');
 ?>
 <div class="box narrow">
-  <h2>Claim your plot</h2>
+  <h2><?= $guestUser ? 'Keep this garden' : 'Claim your plot' ?></h2>
   <?php if (!$open): ?>
     <p>Sign-ups are closed right now. Check back soon!</p>
   <?php else: ?>
-    <p>First, an account to log in with. Next you’ll create your gnome and choose where in the world to plant your first garden.</p>
+    <?php if ($guestUser): ?><p>Make an account and your guest garden is yours for good: the plants, the satchel and everything you’ve found. Next you’ll make your own gnome.</p>
+    <?php else: ?><p>First, an account to log in with. Next you’ll create your gnome and choose where in the world to plant your first garden.</p><?php endif; ?>
     <?php foreach ($errors as $err): ?><div class="flash err"><?= e($err) ?></div><?php endforeach; ?>
     <form method="post" class="form">
       <?= csrf_field() ?>
@@ -73,7 +86,7 @@ page_header('Join');
       <label class="check"><input type="checkbox" name="age" value="1"> I am 13 or older</label>
       <label class="check"><input type="checkbox" name="rules" value="1"> <span>I agree to the <a href="<?= e(url('page.php?p=rules')) ?>">rules</a> and <a href="<?= e(url('page.php?p=privacy')) ?>">privacy policy</a></span></label>   <?php /* v1.6.2: one span, so a flex label doesn't drop the spaces */ ?>
       <label class="check"><input type="checkbox" name="nudges" value="1"> <span>Email me when my harvest is ready or I have been away a while (optional, you can stop any time)</span></label>
-      <button class="btn">Next: create your gnome</button>
+      <button class="btn"><?= $guestUser ? 'Keep my garden' : 'Next: create your gnome' ?></button>
     </form>
   <?php endif; ?>
 </div>

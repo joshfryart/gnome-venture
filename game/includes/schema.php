@@ -1267,6 +1267,7 @@ function schema_statements(string $driver): array
         'CREATE INDEX idx_plots_user ON plots (user_id)',
         'CREATE INDEX idx_ency_key ON encyclopedia_entries (unlock_key)',
         'CREATE INDEX idx_users_seen ON users (last_seen)',
+        'CREATE INDEX idx_users_guest ON users (guest, last_seen)',
         'CREATE INDEX idx_users_verify ON users (verify_hash)',
         'CREATE INDEX idx_hires_plot ON garden_hires (plot_id, active)',
         'CREATE INDEX idx_user_jobs ON user_jobs (user_id, status)',
@@ -1334,6 +1335,8 @@ function schema_statements(string $driver): array
         ['users', 'ribbons', 'INT NOT NULL DEFAULT 0'],
         ['users', 'agreed_at', 'DATETIME NULL'],                         // v0.7.16 rules/privacy/13+ agreed at sign-up
         ['users', 'deleted_at', 'DATETIME NULL'],
+        ['users', 'guest', 'INT NOT NULL DEFAULT 0'],                     // v2.0.75: 1 = a guest garden (no email, purged when idle)
+        ['users', 'guest_ip', 'VARCHAR(45) NULL'],
         ['users', 'email_verified_at', 'DATETIME NULL'],                 // v1.7: email verification (NULL = unverified)
         ['users', 'verify_hash', 'VARCHAR(64) NULL'],
         ['users', 'verify_expires', 'DATETIME NULL'],

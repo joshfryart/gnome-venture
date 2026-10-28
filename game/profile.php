@@ -9,7 +9,7 @@ require_once __DIR__ . '/includes/pals.php';   // v1.0.0: gnome friends
 $me = require_login();
 $id = (int)($_GET['id'] ?? $me['id']);
 $g = q_one('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL', [$id]);
-if (!$g || (int)($g['onboarded'] ?? 1) === 0 && (int)$g['id'] !== (int)$me['id']) {
+if (!$g || (int)($g['onboarded'] ?? 1) === 0 && (int)$g['id'] !== (int)$me['id'] || (!empty($g['guest']) && (int)$g['id'] !== (int)$me['id'] && !in_array($me['role'], ['admin', 'mod'], true))) {   // v2.0.75: guest gardens have no public profile
     http_response_code(404);
     page_header('Gnome not found');
     echo '<h1>Gnome not found</h1><p class="muted">There’s no gnome by that number.</p>';

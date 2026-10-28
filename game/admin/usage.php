@@ -12,7 +12,7 @@ $cut_day = gmdate('Y-m-d', $now - $D7);      // day columns (Y-m-d)
 $cut_30 = gmdate('Y-m-d H:i:s', $now - 30 * 86400);
 
 // Players only: no admins, mods or banned. Same rule as Retention.
-$PLAYERS = "SELECT id FROM users WHERE banned = 0 AND role NOT IN ('admin','mod')";
+$PLAYERS = "SELECT id FROM users WHERE banned = 0 AND guest = 0 AND role NOT IN ('admin','mod')";   // v2.0.75: guests are counted on their own line
 
 /**
  * Feature list. [label, table, user column, time column or '', time kind dt|day].
@@ -148,6 +148,8 @@ page_header('Usage', true);
     <tr><th>Signed up</th><th>Seen in 7 days</th><th>Seen in 30 days</th></tr>
     <tr><td><?= number_format($total) ?></td><td><?= number_format($act7) ?> <small class="help"><?= e($pct($act7, $total)) ?></small></td><td><?= number_format($act30) ?> <small class="help"><?= e($pct($act30, $total)) ?></small></td></tr>
   </table>
+  <?php $gMade = (int)setting('guest_made_total'); $gConv = (int)setting('guest_converted_total'); $gLive = (int)q_val('SELECT COUNT(*) FROM users WHERE guest = 1'); ?>
+  <p class="help">Guest gardens (<?= setting('guest_open') === '1' ? 'on' : 'off' ?>): <b><?= number_format($gLive) ?></b> alive now · <b><?= number_format($gMade) ?></b> made in all · <b><?= number_format($gConv) ?></b> turned into accounts<?= $gMade > 0 ? ' (' . round(100 * $gConv / $gMade) . '%)' : '' ?>. Guests are left out of every number on this page.</p>
   <p class="help">With only a few players, a “0” is weak proof. Check again with more people before you delete.</p>
 </div>
 

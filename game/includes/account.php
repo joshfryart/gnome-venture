@@ -18,6 +18,7 @@ function mail_clean(string $v): string
 function send_mail(string $to, string $subject, string $body, array $extra = []): bool
 {
     $to = mail_clean($to); $subject = mail_clean($subject);
+    if (str_ends_with(strtolower($to), '@guest.invalid')) return false;   // v2.0.75: guest gardens have no real address
     $cfg = $GLOBALS['CONFIG'] ?? [];
     $smtp = !empty($cfg['smtp_host']);
     $from = mail_clean($smtp && !empty($cfg['smtp_from']) ? (string)$cfg['smtp_from'] : (setting('mail_from') ?: 'no-reply@' . preg_replace('/[^a-z0-9.-]/i', '', (string)parse_url(site_url(), PHP_URL_HOST) ?: 'localhost')));

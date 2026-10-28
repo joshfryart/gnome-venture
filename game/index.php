@@ -189,6 +189,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
     <div class="lp-cta">
       <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.button')) ?></a>
       <a class="btn ghost lp-big" href="#tour"><?= e(stext('home.tourbtn')) ?></a>
+      <?php if (setting('guest_open') === '1'): ?><a class="btn ghost lp-big" href="<?= e(url('guest.php')) ?>"><?= e(stext('home.guestbtn')) ?></a><?php endif; ?>
       <a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a>
     </div>
     <p class="lp-small"><?= e(stext('home.small')) ?></p>
@@ -222,6 +223,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
   </div>
   <div class="lp-cta lp-end">
     <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.cta')) ?></a>
+    <?php if (setting('guest_open') === '1'): ?><a class="btn ghost lp-big" href="<?= e(url('guest.php')) ?>"><?= e(stext('home.guestbtn')) ?></a><?php endif; ?>
     <a class="btn ghost lp-big" href="<?= e(url('guide.php')) ?>">📖 How to play</a>
     <a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a>
   </div>

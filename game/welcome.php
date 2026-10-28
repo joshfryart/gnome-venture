@@ -10,6 +10,7 @@ require_once __DIR__ . '/includes/adventure_data.php';
 require_once __DIR__ . '/includes/catalog.php';
 require_once __DIR__ . '/includes/world.php';
 require_once __DIR__ . '/includes/items.php';
+require_once __DIR__ . '/includes/onboard.php';   // v2.0.75: village_welcome_pack(), swatch(), onboard_create() (shared with guest.php)
 
 $u = require_login();
 $uid = (int)$u['id'];
@@ -77,24 +78,7 @@ if (is_post()) {
         if ($garden !== '' && blocked_word($garden)) $errors[] = 'Please pick a friendlier garden name.';
         if (!in_array('garden', $reachable($wf), true)) $errors[] = 'A step was skipped. Please go back and finish it.';
         if (!$errors) {
-            db()->beginTransaction();
-            try {
-                // Only once: the WHERE onboarded = 0 stops a double click making two gardens.
-                $claimed = q('UPDATE users SET gnome_name = ?, hat_color = ?, beard_color = ?, region_id = ?, onboarded = 1, tour_step = 1
-                              WHERE id = ? AND onboarded = 0', [$wf['name'], $wf['hat'], $wf['beard'], $wf['region_id'], $uid])->rowCount();
-                if ($claimed === 1) {
-                    setup_new_player($uid, (int)$wf['village_id'], $garden);
-                    foreach (village_welcome_pack((int)$wf['village_id']) as [$itemId, , $qty]) {
-                        give_item($uid, $itemId, $qty);
-                    }
-                    $vslug = (string)q_val('SELECT slug FROM locations WHERE id = ?', [$wf['village_id']]);
-                    unlock_entries($uid, 'village:' . $vslug);
-                }
-                db()->commit();
-            } catch (Throwable $e) {
-                db()->rollBack();
-                throw $e;
-            }
+            onboard_create($uid, $wf['name'], $wf['hat'], $wf['beard'], (int)$wf['region_id'], (int)$wf['village_id'], $garden, 1);
             unset($_SESSION['welcome']);
             flash('🌱 ' . $wf['name'] . ' has arrived! Wren is waiting in your garden to show you around.');
             redirect('garden.php');
@@ -111,32 +95,6 @@ if (!isset($STEPS[$step]) || !in_array($step, $ok, true)) {
 $preview = ['hat_color' => $wf['hat'], 'beard_color' => $wf['beard'], 'gnome_name' => $wf['name'], 'username' => $u['username']];
 $region = $wf['region_id'] ? q_one('SELECT * FROM regions WHERE id = ?', [$wf['region_id']]) : null;
 
-/**
- * A village's welcome basket: both of its landscape's finds, a seed of one of the region's market crops
- * and a local snack. Picked from the village's name, so it's always the same for a village but
- * villages differ. [[item_id, name, qty, kind, label, icon], ...]
- */
-function village_welcome_pack(int $villageId): array
-{
-    $v = q_one("SELECT id, slug, region_id, landscape FROM locations WHERE id = ? AND kind = 'village'", [$villageId]);
-    if (!$v) return [];
-    $pick = fn(array $rows, string $salt) => $rows ? $rows[crc32($v['slug'] . $salt) % count($rows)] : null;
-    $out = [];
-    foreach (LANDSCAPE_FINDS[$v['landscape']] ?? [] as [$name]) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [slugify($name)]);
-        if ($id) $out[] = [$id, $name, 1, 'find', $name, LANDSCAPES[$v['landscape']][0] ?? '✨'];
-    }
-    $seed = $pick(q("SELECT i.id, i.name, p.kind, p.name AS plant FROM plant_regions pr JOIN plants p ON p.id = pr.plant_id
-                     JOIN items i ON i.id = p.seed_item_id WHERE pr.region_id = ? AND pr.tier = 'uncommon' ORDER BY p.id",
-                     [$v['region_id']])->fetchAll(), ':seed');
-    if ($seed) $out[] = [(int)$seed['id'], (string)$seed['name'], 2, (string)$seed['kind'], (string)$seed['name'], null];
-    $snack = $pick(q("SELECT i.id, i.name, p.kind FROM plant_regions pr JOIN plants p ON p.id = pr.plant_id
-                      JOIN items i ON i.id = p.produce_item_id WHERE pr.region_id = ? AND pr.tier IN ('staple','uncommon')
-                      AND i.edible = 1 ORDER BY p.id", [$v['region_id']])->fetchAll(), ':snack');
-    if ($snack) $out[] = [(int)$snack['id'], (string)$snack['name'], 2, (string)$snack['kind'], (string)$snack['name'], '🧺'];
-    return $out;
-}
-
 /** Seed chips: "🫛 Soybean ×2" */
 function seed_chips(array $list): string
 {
@@ -150,12 +108,6 @@ function seed_chips(array $list): string
         $out .= '<span class="chip">' . $icon . ' ' . e($label) . ' <b>×' . (int)$s[2] . '</b></span>';
     }
     return $out;
-}
-
-function swatch(string $color, int $r = 11): string
-{
-    return '<svg width="' . ($r * 2) . '" height="' . ($r * 2) . '" viewBox="0 0 ' . ($r * 2) . ' ' . ($r * 2) . '" aria-hidden="true">'
-        . '<circle cx="' . $r . '" cy="' . $r . '" r="' . ($r - 1) . '" fill="' . e($color) . '" stroke="#4a2c1a" stroke-width="1"/></svg>';
 }
 
 page_header('Welcome to the Hollow');
