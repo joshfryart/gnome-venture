@@ -98,10 +98,10 @@ page_header($t ? $t['title'] : 'Jigsaw');   // assets/puzzles.css and assets/puz
 </div>
 <?php else: ?>
 <div id="lib">
-  <?= puzzle_cast('puzzles-banner', '', 'pzbanner') ?>
+  <?= puzzle_cast('jigsaw-banner', '', 'pzbanner') ?: puzzle_cast('puzzles-banner', '', 'pzbanner') ?>
   <h1>🧩 Jigsaw</h1>
   <div class="pzhost box">
-    <?= puzzle_cast('jeff-host', 'Jeff', 'pzface') ?>
+    <?= puzzle_cast('jeff-piece', 'Jeff holding a jigsaw piece', 'pzface') ?: puzzle_cast('jeff-host', 'Jeff', 'pzface') ?>
     <div>
       <p class="pzline"><b>Jeff:</b> “A proper jigsaw! Pick a picture, then <?= e(implode(', ', array_map(fn($k) => JIGSAW_TIERS[$k][0] . ' (' . jigsaw_pieces($k) . ')', array_keys(JIGSAW_TIERS)))) ?>. Same sizes for everyone, so your times mean something.”</p>
       <p class="help">Stuck? The Old Wizard keeps the Guide. And if the pieces jump about, that’s my twin Ffej.<?= $guest ? ' Guests can play, but only gnomes keep best times.' : '' ?></p>

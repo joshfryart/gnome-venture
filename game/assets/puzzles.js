@@ -640,6 +640,12 @@ function countFor(pz){ var n=loadCounts()[pz.id]; return COUNTS.indexOf(n)>=0 ? 
 /* v2.0.87: Jigsaw library: a card per picture with one button per tier (the best time shows once solved), category chips on top. */
 var jigCat='';
 function ms2t(ms){ var t=Math.floor(ms/1000); return Math.floor(t/60)+':'+('0'+(t%60)).slice(-2); }
+/* v2.0.87: a tier's drawn icon (ico-tier-*) before its label; the emoji if the picture is missing */
+function tierLabel(el,t,txt){
+  el.textContent='';
+  if(t.img){ var im=document.createElement('img'); im.src=t.img; im.alt=''; im.width=20; im.height=20; im.className='pztico'; el.appendChild(im); el.appendChild(document.createTextNode(' '+txt)); }
+  else el.textContent=t.icon+' '+txt;
+}
 function buildJigsawLibrary(){
   if(!grid) return;   /* v2.0.87 B: the tournament page has no grid */
   grid.innerHTML='';
@@ -666,12 +672,12 @@ function buildJigsawLibrary(){
       var b=document.createElement('button'); b.type='button'; b.className='btn pztier'+(mine[t.k]?' done':''); b.setAttribute('data-tier',t.k);
       b.setAttribute('aria-label','Play '+pz.title+' on '+t.label+', '+t.n+' pieces'+(mine[t.k]?', your best '+ms2t(mine[t.k]):''));
       b.innerHTML='<span class="pztn"></span><small></small>';
-      b.firstChild.textContent=t.icon+' '+t.label; b.lastChild.textContent=mine[t.k]?'\u2713 '+ms2t(mine[t.k]):t.n+' pieces';
+      tierLabel(b.firstChild,t,t.label); b.lastChild.textContent=mine[t.k]?'\u2713 '+ms2t(mine[t.k]):t.n+' pieces';
       b.addEventListener('click',function(){ setHash(pz.id,t.n,false); route(); });
       /* v2.0.87 E: a saved go shows Continue + progress, with a small Start over beside it */
       var sv=readSave(pz.id,t.n), tr=document.createElement('div'); tr.className='pztrow';
       if(sv){
-        b.classList.add('resume'); b.firstChild.textContent=t.icon+' Continue'; b.lastChild.textContent='\u25b6 '+sv.done+' / '+t.n;
+        b.classList.add('resume'); tierLabel(b.firstChild,t,'Continue'); b.lastChild.textContent='\u25b6 '+sv.done+' / '+t.n;
         b.setAttribute('aria-label','Continue '+pz.title+' on '+t.label+', '+sv.done+' of '+t.n+' pieces placed');
       }
       tr.appendChild(b);

@@ -1,4 +1,7 @@
-# Gnome Venture: handoff (current as of v2.0.84, 2026-10-28)
+# Gnome Venture: handoff (current as of v2.0.87 on branch claude/eager-thompson-7g0p5p, 2026-10-28; main is 2.0.86)
+
+**2.0.87 (branch, not on main):** Jigsaw (see `claude/todo.md` NOW and `claude/plan-jigsaw.md`). Next planned: 2.0.88 Puzzle Pals + weekly schedule.
+
 
 **START HERE:** read `claude/todo.md` (NOW / NEXT / working notes), then `claude/plan-variety.md` and `claude/todo-art-variety.md`. 2.0.81 is on main and uploaded. Old per-release notes (2.0.60 to 2.0.80) moved to `claude/handoff-archive.md`; old to-do blocks to `claude/todo-archive.md`; open branches listed in `claude/branches.md`.
 

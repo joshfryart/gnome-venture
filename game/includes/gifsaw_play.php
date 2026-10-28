@@ -37,7 +37,7 @@ $pzStill = !empty($pzStill);   // v2.0.87: Jigsaw (jigsaw.php): fixed tiers inst
 </div>
 
 <div id="win" data-res="ok" hidden>
-  <div class="winart"><span class="w-ok"><?= puzzle_cast('win-scene', '', 'pzscene') . puzzle_cast('jeff-cheer', 'Jeff cheering', 'pzface') ?></span><span class="w-caught"><?= puzzle_cast('ffej-caught', 'Ffej, caught', 'pzface') ?></span></div>
+  <div class="winart"><span class="w-ok"><?= ($pzStill ? puzzle_cast('win-scene-jigsaw', '', 'pzscene') : '') ?: puzzle_cast('win-scene', '', 'pzscene') ?><?= puzzle_cast('jeff-cheer', 'Jeff cheering', 'pzface') ?></span><span class="w-caught"><?= puzzle_cast('ffej-caught', 'Ffej, caught', 'pzface') ?></span></div>
   <div class="wintx">
     <strong id="winHead">Solved!</strong>
     <span id="winText"></span>

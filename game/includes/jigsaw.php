@@ -229,7 +229,7 @@ function jigsaw_js_row(array $p): array
 function jigsaw_js_tiers(): array
 {
     $o = [];
-    foreach (JIGSAW_TIERS as $k => $t) $o[] = ['k' => $k, 'label' => $t[0], 'n' => $t[1] * $t[2], 'cols' => $t[1], 'rows' => $t[2], 'icon' => $t[4]];
+    foreach (JIGSAW_TIERS as $k => $t) $o[] = ['k' => $k, 'label' => $t[0], 'n' => $t[1] * $t[2], 'cols' => $t[1], 'rows' => $t[2], 'icon' => $t[4], 'img' => is_file(APP_ROOT . '/assets/img/ico/ico-tier-' . $k . '.png') ? url('assets/img/ico/ico-tier-' . $k . '.png') : ''];
     return $o;
 }
 
