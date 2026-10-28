@@ -20,6 +20,7 @@ function at(array $loc): array {   // go to a stop: a new visit
     q('UPDATE users SET location_id = ?, location = ?, arrived_at = ?, energy = 900, coins = 5000 WHERE username = ?', [$loc['id'], $loc['region'], gmdate('Y-m-d H:i:s', 1700000000 + (++$visitN) * 60), 'sprout']);
     return me();
 }
+$IN = ['opt' => 0, 'pick' => 1, 'power' => 3, 'move' => 0];   // v2.0.78: whatever kind comes up (check, pick, power, contest) can be done with these
 function doit(string $slug, array $in = []): array { $u = me(); return local_do($u, player_node($u), $slug, $in); }
 function offered(array $loc): array { return array_column(stop_pool($loc)['offer'], 'slug'); }
 function today(): string { return hollow_date('Y-m-d'); }
@@ -88,19 +89,19 @@ ok('slots used (some may be refused for lack of input)', $n >= 2, "n=$n ok=" . j
 // fill remaining with whatever works, then a fourth is refused
 q('DELETE FROM stop_log'); q('UPDATE users SET arrived_at = ? WHERE username = ?', ['2030-01-01 00:00:01', 'sprout']);
 foreach ([0, 1, 2] as $i) q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], '2030-01-01 00:00:01', today(), 'fake' . $i, 'check', '', now()]);
-[$okx, $msgx] = doit($offer[0], ['opt' => 0]);
+[$okx, $msgx] = doit($offer[0], $IN);
 ok('a 4th thing on the same visit is refused', !$okx && str_contains($msgx, 'all you can'), $msgx);
 q('DELETE FROM stop_log'); $u = at($loc);
 $slug = $free[0];
-[$o1] = doit($slug, ['opt' => 0]);
-[$o2, $m2] = doit($slug, ['opt' => 0]);
+[$o1] = doit($slug, $IN);
+[$o2, $m2] = doit($slug, $IN);
 ok('the same thing twice on one visit is refused', $o1 && !$o2, $m2);
 ok('energy was spent on a costly thing', true);
 
 echo "== slots setting\n";
 cfg(['stop_slots' => 1]); q('DELETE FROM stop_log'); $u = at($loc);
-doit($free[0], ['opt' => 0]);
-[$o, $m] = doit($free[1], ['opt' => 0]);
+doit($free[0], $IN);
+[$o, $m] = doit($free[1], $IN);
 ok('stop_slots=1 allows just one', !$o && str_contains($m, 'all you can'), $m);
 cfg(['stop_slots' => 3]);
 
@@ -108,10 +109,10 @@ echo "== daily caps\n";
 cfg(['stop_daily_cap' => 4]); q('DELETE FROM stop_log');
 for ($i = 1; $i <= 4; $i++) { at($loc); q('INSERT INTO stop_log (user_id, location_id, visit_key, day, act, kind, note, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$u['id'], $loc['id'], 'old' . $i, today(), 'x', 'check', '', now()]); }
 at($loc);
-[$o, $m] = doit($free[0], ['opt' => 0]);
+[$o, $m] = doit($free[0], $IN);
 ok('per-stop daily cap stops a 5th', !$o && str_contains($m, 'plenty of you today'), $m);
 cfg(['stop_daily_cap' => 6, 'stop_daily_total' => 3]);
-[$o, $m] = doit($free[0], ['opt' => 0]);
+[$o, $m] = doit($free[0], $IN);
 ok('v1.4.9: all-stops daily total is soft (no stop, rewards halved)', $o && !empty($GLOBALS['gv_stop_tired']), $m);
 cfg(['stop_daily_total' => 15, 'stop_daily_cap' => 6]); q('DELETE FROM stop_log');
 
@@ -121,19 +122,20 @@ cfg(['stop_daypart_force' => 'day', 'weather_force' => 'sun', 'season_force' => 
 ok('night fishing is not offered by day', !in_array('night_fishing', offered($jet), true));
 ok('...but is listed under other times', in_array('night_fishing', array_column(stop_pool($jet)['later'], 'slug'), true));
 at($jet);
-[$o, $m] = doit('night_fishing', ['opt' => 0]);
+[$o, $m] = doit('night_fishing', $IN);
 ok('doing it by day is refused', !$o && str_contains($m, 'isn’t on offer'), $m);
 cfg(['stop_daypart_force' => 'night']);
 ok('night fishing is offered at night', in_array('night_fishing', offered($jet), true));
-at($jet); [$o] = doit('night_fishing', ['opt' => 0]);
+at($jet); [$o] = doit('night_fishing', $IN);
 ok('and works at night', $o);
 $inn = stopOfType('inn');
 cfg(['stop_daypart_force' => 'day', 'weather_force' => 'sun']);
 ok('rainy-day stories not in sun', !in_array('rainy_stories', offered($inn), true));
-cfg(['weather_force' => 'rain']);
+cfg(['weather_force' => 'rain', 'stop_core' => 999]);
 ok('rainy-day stories on a rainy day', in_array('rainy_stories', offered($inn), true));
 cfg(['weather_force' => 'snow', 'season_force' => 'winter']);
-ok('winter frost fair at an inn', in_array('frost_fair', offered($inn), true));
+ok('winter frost fair suits an inn in a snowy winter (v2.0.78: at most 3 special activities show at once, so test that it is eligible)', stop_cond_ok((string)stop_acts()['frost_fair']['cond'], stop_now($inn)) && in_array('inn', array_map('trim', explode(',', (string)stop_acts()['frost_fair']['types'])), true));
+cfg(['stop_core' => 3]);
 cfg(['season_force' => 'summer', 'weather_force' => 'sun']);
 ok('no frost fair in summer', !in_array('frost_fair', offered($inn), true));
 cfg(['season_force' => 'autumn']);
@@ -161,7 +163,7 @@ ok('resting when full of energy is refused', !$o4 && str_contains($m4, 'full of 
 
 echo "== stat checks, games, trades\n";
 q('DELETE FROM stop_log'); $mk = stopOfType('market'); at($mk);
-[$o, $m] = doit('chores', ['opt' => 0]); // may not be offered today
+[$o, $m] = doit('chores', $IN); // may not be offered today
 if (!in_array('chores', offered($mk), true)) ok('chores not offered here today (fine)', !$o);
 else { ok('chores always works (difficulty 0) and pays', $o && str_contains($m, 'XP'), $m); }
 q('DELETE FROM stop_log');

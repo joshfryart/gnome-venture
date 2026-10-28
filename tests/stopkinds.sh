@@ -8,9 +8,9 @@ dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]
 phpx() { php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/stops.php"; require_once "'$GAME'/includes/stop_adopt.php"; require_once "'$GAME'/includes/stop_folk.php"; require_once "'$GAME'/includes/local.php"; '"$1"; }
 
 echo "== data"
-chk "14 regional activities imported" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE region IS NOT NULL AND region <> ''" | tr -d ' ')" = 14 ] && echo 1)"
+chk "490 regional activities imported (35 for each of the 14 regions)" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE region IS NOT NULL AND region <> ''" | tr -d ' ')" = 490 ] && [ "$(db "SELECT COUNT(*) FROM (SELECT region FROM stop_acts WHERE region IS NOT NULL AND region <> '' GROUP BY region HAVING COUNT(*) = 35)" | tr -d ' ')" = 14 ] && echo 1)"
 BAD=$(phpx '$bad=[]; foreach (q("SELECT * FROM stop_acts WHERE region IS NOT NULL AND region <> \"\"")->fetchAll() as $a) {
-    if (!in_array($a["kind"], ["craft","collect","tend","contest","check","pick"], true)) $bad[]=$a["slug"]." kind";
+    if (!in_array($a["kind"], ["craft","collect","tend","contest","check","pick","power","lore","rest"], true)) $bad[]=$a["slug"]." kind";
     foreach (array_filter(explode(",", $a["types"])) as $t) if ($t !== "any" && !q_val("SELECT 1 FROM stop_types WHERE slug=?", [$t])) $bad[]=$a["slug"]." type $t";
     foreach (array_filter(explode(",", $a["region"])) as $r) if (!q_val("SELECT 1 FROM regions WHERE code=?", [$r])) $bad[]=$a["slug"]." region $r";
     if ($a["kind"]==="craft") { [$ins,[$os]]=stop_craft_parts($a["spec"]); foreach (array_merge(array_column($ins,0),[$os]) as $sl) if (!q_val("SELECT 1 FROM items WHERE slug=?",[$sl])) $bad[]=$a["slug"]." item $sl"; }
@@ -18,7 +18,7 @@ BAD=$(phpx '$bad=[]; foreach (q("SELECT * FROM stop_acts WHERE region IS NOT NUL
     if ($a["kind"]==="contest" && count(explode("/", stop_spec_params($a["spec"])["moves"] ?? ""))!==3) $bad[]=$a["slug"]." moves";
     if (stop_act_art($a["kind"], $a["slug"]) === "") $bad[]=$a["slug"]." no art";
   } echo $bad ? "BAD: ".implode("; ",$bad) : "clean";')
-chk "wave 1: 50 activities imported, none tied to a region" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE slug LIKE 'w1\_%' ESCAPE '\\' AND (region IS NULL OR region = '')" | tr -d ' ')" = 50 ] && echo 1)"
+chk "waves 1-5: 265 plain activities imported, none tied to a region" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE slug GLOB 'w[1-5]_*' AND (region IS NULL OR region = '')" | tr -d ' ')" = 265 ] && echo 1)"
 chk "every regional activity is well formed (types, regions, items, specs, art)" "$([ "$BAD" = clean ] && echo 1)" "$BAD"
 chk "placeholder art for the four new kinds exists" "$([ -f $GAME/assets/img/acts/act-craft.png ] && [ -f $GAME/assets/img/acts/act-collect.png ] && [ -f $GAME/assets/img/acts/act-tend.png ] && [ -f $GAME/assets/img/acts/act-contest.png ] && echo 1)"
 
@@ -34,7 +34,7 @@ OUT=$(phpx '$SID=(int)'$SID'; $u0=q_one("SELECT * FROM users WHERE id='$SID'"); 
     [$ok,$m] = stop_do($u, $loc, $slug, $in); return [$ok, $m]; };
   // make every regional act offered: put them all in the pool by clearing conditions, and open enough slots
   q("UPDATE stop_acts SET cond=\"-\", types=\"any\" WHERE region IS NOT NULL AND region <> \"\"");
-  stop_acts(true); set_setting("stop_slots", "9"); set_setting("stop_daily_cap", "99"); set_setting("stop_core", "20"); setting("__reload__");
+  stop_acts(true); set_setting("stop_slots", "9"); set_setting("stop_daily_cap", "99"); set_setting("stop_core", "999"); setting("__reload__");
   $iid = fn($s) => (int)q_val("SELECT id FROM items WHERE slug=?", [$s]);
   q("DELETE FROM stop_prog WHERE user_id=?", [$SID]);
   // craft
@@ -63,6 +63,31 @@ chk "collect: the whole set of 8 is found and the prize paid once" "$(echo "$OUT
 chk "collect: a repeat visit is fine and pays no second set prize" "$(echo "$OUT" | grep -q 'collect again ok=1 noSecondSetPrize=1' && echo 1)"
 chk "tend: step 1 and 2 count, the third pays and resets" "$(echo "$OUT" | grep -q 'tend1 ok=1 n=1' && echo "$OUT" | grep -q 'tend2 ok=1 n=2' && echo "$OUT" | grep -q 'tend3 ok=1 n=0' && echo 1)"
 chk "contest plays out with no error and a bad move is refused" "$(echo "$OUT" | grep -q 'contest bad move=0' && ! echo "$OUT" | grep -q 'contest err' && echo 1)"
+
+echo "== 35 for every kind of stop, and every activity runs"
+OUT=$(phpx '$types = array_keys(stop_types()); $bad = [];
+  foreach ($types as $t) { $n = 0; foreach (stop_acts() as $a) { if ((int)$a["tier"] > 0 || !empty($a["region"])) continue; $ts = array_map("trim", explode(",", $a["types"])); if (in_array($t, $ts, true) || in_array("any", $ts, true)) $n++; } if ($n < 35) $bad[] = "$t has $n"; }
+  echo $bad ? "BAD ".implode("; ", $bad) : "kinds ok", "\n";
+  $SID = (int)'$SID'; $errs = 0; $ran = 0; $ok = 0;
+  set_setting("stop_slots", "9"); set_setting("stop_daily_cap", "999"); set_setting("stop_core", "999"); set_setting("stop_rest_daily", "999"); set_setting("stop_daily_total", "9999"); setting("__reload__");
+  q("UPDATE users SET level=12, energy=500, coins=9000 WHERE id=?", [$SID]);
+  foreach (q("SELECT * FROM regions ORDER BY id")->fetchAll() as $rg) {
+    $loc = q_one("SELECT * FROM locations WHERE kind=\"village\" AND region_id=? ORDER BY id LIMIT 1", [$rg["id"]]);
+    foreach ($types as $t) {
+      q("UPDATE locations SET stop_type=? WHERE id=?", [$t, $loc["id"]]); $loc["stop_type"] = $t;
+      foreach (stop_pool($loc)["offer"] as $a) {
+        q("DELETE FROM stop_log WHERE user_id=?", [$SID]);
+        foreach (stop_craft_parts($a["kind"] === "craft" ? $a["spec"] : "x:1>x:1")[0] as [$is, $iq]) { $iid = (int)q_val("SELECT id FROM items WHERE slug=?", [$is]); if ($iid) give_item($SID, $iid, $iq); }
+        $u = q_one("SELECT * FROM users WHERE id=?", [$SID]); $_SESSION["stop_visit"] = null;
+        try { [$o, $m] = stop_do($u, $loc, $a["slug"], ["opt"=>0,"pick"=>1,"power"=>3,"move"=>0,"item_id"=>0]); $ran++; if ($o) $ok++; elseif (!preg_match("/energy|Petals|swap|seeds|stall|nothing|already|isn’t|full of|rested|Pick|have|enough|empty|need/i", $m)) { echo "? {$a["slug"]} ({$rg["code"]}/$t): $m\n"; $errs++; } }
+        catch (Throwable $e) { echo "EXC {$a["slug"]}: ".$e->getMessage()."\n"; $errs++; }
+      }
+    }
+  }
+  echo "ran=$ran ok=$ok errs=$errs\n";')
+echo "$OUT" | tail -12 | sed 's/^/  /'
+chk "every kind of stop has at least 35 plain activities" "$(echo "$OUT" | grep -q '^kinds ok' && echo 1)" "$(echo "$OUT" | grep BAD)"
+chk "every activity on offer runs without a PHP error or an odd refusal (all regions x all stop kinds)" "$(echo "$OUT" | grep -q 'errs=0' && echo 1)"
 
 echo "== regions and variety"
 OUT=$(phpx '$na=q_one("SELECT * FROM locations WHERE id='$LOC'"); $ca=q_one("SELECT l.* FROM locations l JOIN regions r ON r.id=l.region_id WHERE l.kind=\"village\" AND r.code=\"CA\" ORDER BY l.id LIMIT 1");
