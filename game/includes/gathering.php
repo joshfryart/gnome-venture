@@ -257,7 +257,7 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
     $item = $find ? gather_item_img((string)($find['icon'] ?? ''), 64, 'aimg aimg-lg gx-item') : '';
     $max = function_exists('max_energy') ? max_energy($u) : 0;
     $h = '<section class="gx gatherbox" aria-label="Gather here"><div class="gx-hero"><div class="gx-stage">'
-        . gather_ui_img('scene.png', 480, 270, 'gx-scene pix')
+        . gather_ui_img((isset(LANDSCAPES[$land]) && is_file(__DIR__ . '/../assets/img/gather/scene-' . $land . '.png')) ? 'scene-' . $land . '.png' : 'scene.png', 480, 270, 'gx-scene pix')
         . ($item !== '' ? '<span class="gx-find"><span class="gx-spark gx-spark--' . $rar . '"></span>' . $item . '</span>' : '')
         . gather_ui_img('satchel-front.png', 480, 270, 'gx-front pix') . '</div>'
         . '<ul class="gx-hero__chips"><li class="gx-chip">' . $L[0] . ' ' . e($L[1]) . '</li>'
