@@ -970,7 +970,7 @@ cv.dots([(tx - 15, ty - 1)], DARK)
 for k in range(11):
     fx, fy = 150 + (k % 4) * 9 + (k // 4) * 4, 104 + (k // 4) * 6 + (k % 2) * 2
     fish(fx, fy, YEL, 2, 1, False)
-for fx, fy, rp, s, face, st in ((60, 166, TEAL, 5, 1, '#ffffff'), (250, 162, PURP, 5, -1, YEL['b']), (124, 150, CORAL, 4, -1, None), (240, 140, AQUA, 4, -1, '#1f6080'), (180, 146, YEL, 4, 1, '#2a2440'), (214, 132, LAVA, 3, -1, None), (40, 98 + 72, CORAL, 3, 1, None), (150, 120, TEAL, 3, -1, None)):
+for fx, fy, rp, s, face, st in ((60, 166, TEAL, 5, 1, '#ffffff'), (250, 162, PURP, 5, -1, YEL['b']), (140, 149, CORAL, 4, -1, None), (240, 140, AQUA, 4, -1, '#1f6080'), (180, 146, YEL, 4, 1, '#2a2440'), (214, 132, LAVA, 3, -1, None), (40, 98 + 72, CORAL, 3, 1, None), (150, 120, TEAL, 3, -1, None)):
     fish(fx, fy, rp, s, face, True, st)
 for k in range(8):
     fish(236 + (k % 3) * 8 + (k // 3) * 3 + (k * 5) % 3, 128 + (k // 3) * 6 + (k % 2), ramp('#e8f2f6', '#7a9ab0', '#ffffff'), 2, -1, False)
@@ -987,7 +987,7 @@ cv.fill(line([(mix, miy - 6), (mix - 4, miy - 10), (mix - 9, miy - 11)]), '#f2e4
 cv.dots([(mix + 3, miy - 1)], DARK)
 
 # manta ray gliding through the deep middle
-mx_, my_ = 100, 162
+mx_, my_ = 104, 156
 # pass 2: a manta seen from above, heading left: swept-back wings, horn lobes, a whip tail, dark back with pale shoulder chevrons
 MANTA = ramp('#3a4a72', '#28325a', '#6a7aa4')
 manta = poly([(mx_ - 9, my_ - 2), (mx_ - 4, my_ - 6), (mx_ + 1, my_ - 10), (mx_ + 6, my_ - 13), (mx_ + 5, my_ - 8), (mx_ + 8, my_ - 3), (mx_ + 9, my_),
