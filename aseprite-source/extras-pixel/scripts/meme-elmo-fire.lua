@@ -1,23 +1,24 @@
--- puzzles/elmo-fire.gif redraw (pass 2): a red felt puppet, whole body, arms flung up, grinning in front of
+-- puzzles/elmo-fire.gif redraw (pass 3): a red felt puppet, whole body, arms flung up, grinning in front of
 -- roaring flames. 360x246 (source 498x339 aspect), 24 frames x 60 ms, loops forever, solid background.
 -- Drawn on a 180x123 half grid (scene mode, no halo), written at 2x nearest.
--- Flames: a heat field from periodic value noise scrolled upward by whole lattice periods per loop, plus
--- tongue columns with whole-number cycles, so the flicker wraps seamlessly. Look-alike only: no logos/text.
+-- Flames: layered tongue silhouettes (back row tall and dark, front row short and hot) combined by max so
+-- every tongue reads as clean concentric bands; the bed, sway and flicker use whole-number cycles per loop
+-- and the edge wobble scrolls by whole lattice periods, so the loop is seamless. Look-alike only: no logos/text.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local O = D .. "extras-pixel/"
 local G = "/home/user/gnome-venture/game/assets/img/puzzles/"
 local W, H, N = 180, 123, 24
 local TAU = math.pi * 2
-local floor, sin, cos, exp, max, min = math.floor, math.sin, math.cos, math.exp, math.max, math.min
+local floor, sin, cos, exp, max, min, abs = math.floor, math.sin, math.cos, math.exp, math.max, math.min, math.abs
 
 local SKY = { "#1c0d10", "#24101a", "#2e1418", "#3a1a16" }                       -- smoky dark, umber family
 local fur = GV.ramp("#d6322b", { gloss = "#ff9158", dot = "#ffc27a", rim = "#f2793a" }) -- ember base, red family
 local nose = GV.ramp("#f08a24")                                                   -- ember orange
 local eyeR = GV.ramp("#f1ece0")                                                   -- soil cream, pale
 -- heat bands, cool to hot: smoke glow, deep, red, ember, orange, gold, pale gold, cream core
-local HEAT = { { 0.05, "#4a2214" }, { 0.16, "#6b1b2c" }, { 0.26, "#ae2a2a" }, { 0.36, "#e0501f" },
-  { 0.47, "#f08a24" }, { 0.58, "#e8a317" }, { 0.70, "#f5cf6a" }, { 0.83, "#fff1c8" } }
+local HEAT = { { 0.06, "#4a2214" }, { 0.16, "#6b1b2c" }, { 0.27, "#ae2a2a" }, { 0.40, "#e0501f" },
+  { 0.53, "#f08a24" }, { 0.66, "#e8a317" }, { 0.79, "#f5cf6a" }, { 0.91, "#fff1c8" } }
 
 -- deterministic hash in [0,1)
 local function hash(a, b, s)
@@ -37,29 +38,42 @@ local function vnoise(x, y, cw, ch, px, py, s)
   return a + (b - a) * ty
 end
 
--- tall tongue columns: {x, width, height boost, cycles, phase}
+-- tongues: {x, base half-width, height, heat (0..1 at the base), cycles per loop, phase}
 local TONG = {}
-for i = 0, 10 do
-  TONG[#TONG+1] = { x = 8 + i * 16.4 + hash(i, 1, 5) * 8, w = 5 + hash(i, 2, 5) * 6, b = 0.18 + hash(i, 3, 5) * 0.32,
-    k = 1 + floor(hash(i, 4, 5) * 3), p = hash(i, 5, 5) * TAU }
+local function addTongues(n, pitch, w0, w1, h0, h1, heat, seed)
+  for i = 0, n - 1 do
+    TONG[#TONG+1] = { x = pitch * (i + 0.5) + (hash(i, 1, seed) - 0.5) * pitch * 0.6, w = w0 + hash(i, 2, seed) * (w0 and (w1 - w0) or 0),
+      h = h0 + hash(i, 3, seed) * (h1 - h0), heat = heat, k = 1 + floor(hash(i, 4, seed) * 3), p = hash(i, 5, seed) * TAU,
+      amp = 3 + hash(i, 6, seed) * 4 }
+  end
 end
+addTongues(9, 20, 11, 16, 76, 116, 0.84, 21)  -- back row: tall and wide, red/orange
+addTongues(13, 14, 8, 12, 30, 64, 0.98, 23)    -- front row: short, hot
+addTongues(18, 10, 6, 9, 12, 26, 1.0, 25)       -- bed licks: small cream nubs along the bottom
 
 local function heatAt(x, y, f)
   local t = f / N
-  local up = (H - y) / H                                  -- 0 at bottom, 1 at top
-  -- noise scrolls up by exactly one period (or two) per loop
-  local n1 = vnoise(x + 3 * sin(TAU * t + y * 0.06), y + t * 8 * 24, 12, 24, 15, 8, 1)
-  local n2 = vnoise(x, y + t * 2 * 16 * 8, 6, 8, 30, 16, 2)
-  local n3 = vnoise(x, y + t * 3 * 8 * 8, 3, 8, 60, 8, 3)
-  local v = n1 * 0.64 + n2 * 0.28 + n3 * 0.08
-  local col = 0
+  -- edge wobble: scrolls up by whole periods per loop, keeps tongue edges from being perfect contours
+  local wob = (vnoise(x, y + t * 10 * 8, 7, 10, 26, 8, 1) - 0.5) * 0.28
+  local v = 0
   for _, g in ipairs(TONG) do
-    local sway = 4 * sin(TAU * g.k * t + g.p + y * 0.05) * up
-    local d = (x - g.x - sway) / g.w
-    col = col + g.b * (0.75 + 0.25 * sin(TAU * g.k * t + g.p)) * exp(-d * d)
+    local flick = 0.78 + 0.22 * sin(TAU * g.k * t + g.p)
+    local h = g.h * flick
+    local u = (H - 2 - y) / h                               -- 0 at the base, 1 at the tip
+    if u >= 0 and u < 1 then
+      local axis = g.x + g.amp * sin(TAU * g.k * t + g.p + u * 2.6) * u * u
+      local w = g.w * (1 - u) ^ 0.7 + 0.6
+      local d = abs(x - axis) / w + wob * (0.4 + u)
+      if d < 1 then
+        local val = (1 - d * d) * g.heat * (1 - 0.66 * u)
+        if val > v then v = val end
+      end
+    end
   end
-  local core = 0.30 * exp(-((x - 90) / 48) ^ 2) * exp(-((y - 72) / 60) ^ 2)   -- bright heart behind the puppet
-  return v * 0.95 + col + core + 0.18 - up * 0.95
+  -- bed: the fire floor, hard cream at the very bottom fading up through the bands
+  local bed = 1.05 - (H - 1 - y) * 0.045 + wob * 0.5
+  if bed > v then v = bed end
+  return v
 end
 
 local function drawFire(c, f)
@@ -72,15 +86,17 @@ local function drawFire(c, f)
       if col then c:px(x, y, col) end
     end
   end
-  -- detached licks: blobs that break off tongue tips and rise (one rise per loop, whole cycles)
+  -- detached licks: teardrops that break off tongue tips and rise (one rise per loop, whole cycles)
   for i = 0, 6 do
     local ph = (f / N + i / 7) % 1
     local x = floor(12 + i * 25 + hash(i, 9, 7) * 10 + 4 * sin(TAU * ph * 2 + i))
-    local y = floor(50 - ph * 46 - hash(i, 8, 7) * 10)
+    local y = floor(48 - ph * 44 - hash(i, 8, 7) * 10)
     local r = 3.5 * (1 - ph)
     if r >= 1.2 then
-      c:fill(c:ellipse(x, y, r * 0.8, r * 1.3), ph < 0.5 and "#e0501f" or "#ae2a2a")
-      if r >= 2.2 then c:fill(c:ellipse(x, y + 1, r * 0.35, r * 0.6), "#f08a24") end
+      local m = c:ellipse(x, y, r * 0.8, r * 1.2)
+      m:add(c:ellipse(x, y - r * 1.1, r * 0.35, r * 0.8))
+      c:fill(m, ph < 0.45 and "#e0501f" or "#ae2a2a")
+      if r >= 2.2 then c:fill(c:ellipse(x, y + 1, r * 0.35, r * 0.6), ph < 0.25 and "#e8a317" or "#f08a24") end
     end
   end
   -- sparks: rise with a zig-zag and wrap once per loop; some leave a 2 px streak
@@ -170,8 +186,9 @@ local function drawFrame(f)
   local mouth = c:ellipse(ex, 68 + b, 12, 4.5 + mo):cut(c:rect(ex - 13, 60 + b, ex + 13, 65 + b))
   c:fill(mouth, "#35161f")
   c:fill(c:rect(ex - 6, 70 + b + mo, ex + 5, 71 + b + mo):clip(mouth), "#6b1b2c")
-  -- big ping-pong eyes, pupils rolled up; blink on frames 16-18
+  -- big ping-pong eyes, pupils rolled up; blink on frames 16-18 (half, shut, half)
   local blink = (f == 16 or f == 18) and 1 or ((f == 17) and 2 or 0)
+  local inner = head:shrink(2)                                  -- lids are felt: they never cross the head edge
   for s = -1, 1, 2 do
     local cxE = ex + s * 7.5
     local eye = c:ellipse(cxE, 49 + b, 7, 6)
@@ -182,12 +199,18 @@ local function drawFrame(f)
       c:fill(c:rect(px + dart, 46 + b, px + 3 + dart, 49 + b), "#2a1a10")
       if blink == 0 then c:px(px + dart, 46 + b, "#f1ece0") end
     end
-    if blink > 0 then -- felt lid drops over the ball: half on 16/18, nearly shut on 17
-      local ly = (blink == 1) and 47 or 52
-      local lid = eye:copy():clip(c:rect(cxE - 8, 40 + b, cxE + 8, ly + b))
+    if blink == 1 then
+      -- half blink: a felt lid (the same fur as the head, outline ring covered too) drops to the pupil's middle,
+      -- with one shade line for its edge. Nothing bright or dark rings the eye, so it reads as a lid.
+      local ly = 48 + b
+      local lid = eye:grow(3):clip(c:rect(cxE - 11, 38 + b, cxE + 11, ly)):clip(inner)
       c:fill(lid, fur.base)
-      lid:each(function(x, y) if not lid:has(x - 1, y) or not lid:has(x, y - 1) then c:px(x, y, fur.rim) end end)
-      c:fill(c:rect(cxE - 7, ly + 1 + b, cxE + 7, ly + 1 + b):clip(eye), "#4a2c1a")
+      c:fill(c:rect(cxE - 7, ly, cxE + 7, ly):clip(eye), fur.shade)
+    elseif blink == 2 then
+      -- shut: the ball is gone, only a downward lash curve of deep fur shows where the eye is
+      c:fill(eye:grow(3):clip(inner), fur.base)
+      local curve = c:ellipse(cxE, 46 + b, 7, 5):cut(c:ellipse(cxE, 45 + b, 7, 5)):clip(c:rect(cxE - 7, 48 + b, cxE + 7, 52 + b))
+      c:fill(curve, fur.deep)
     end
   end
   -- orange nose

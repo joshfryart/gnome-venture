@@ -1,6 +1,6 @@
--- puzzles/homer-hedge.gif redraw (pass 2): a bald felt-puppet dad backs slowly into a leafy felt hedge.
--- Leaf clumps grow over him from his back and the shirt hem inwards, his eyes go last, then only hedge.
--- 320x240 (source aspect), 22 frames, per-frame ms (hold, sink, empty), loops forever, solid background.
+-- puzzles/homer-hedge.gif redraw (pass 3): a bald felt-puppet dad backs slowly into a leafy felt hedge.
+-- Leaf clumps grow over him from his back and the shirt hem inwards, then only his eyes peek over the
+-- leaves for a held beat and slip down, then only hedge. 320x240, 23 frames, per-frame ms, loops forever.
 -- Drawn on a 160x120 half grid (scene mode), written at 2x nearest. No dither: every leaf is a whole clump.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
@@ -9,12 +9,15 @@ local G = "/home/user/gnome-venture/game/assets/img/puzzles/"
 local W, H = 160, 120
 
 -- timing from the source (29 x 120 ms): a still hold, the slow sink, then the empty hedge
-local SINK = 20
+local SINK = 17
 local FR = { { p = 0, ms = 800 } }
-for i = 1, SINK do FR[#FR+1] = { p = i / SINK, ms = 130 } end
+for i = 1, SINK do FR[#FR+1] = { p = i / SINK, ms = 125 } end
+-- the eyes-over-the-hedge beat: held, then they slip down behind the leaf line
+for _, e in ipairs({ { 0, 420 }, { 0, 260 }, { 2, 170 }, { 5, 140 } }) do FR[#FR+1] = { p = 1, eye = e[1], ms = e[2] } end
 FR[#FR+1] = { p = 2, ms = 700 }
 
 local leaf, moss, wood = GV.R.leaf, GV.R.moss, GV.R.wood
+local dark = GV.ramp("#3f7a3a", { gloss = "#a4b86a", dot = "#c8d77a", rim = "#7ab55c", shade = "#2f5a2a", deep = "#1f3f3a", bounce = "#4a8a3e" }) -- leaf family, shaded clumps
 local yel = GV.ramp("#f2c32e")             -- gold family, cartoon yellow skin
 local muz = GV.ramp("#c9a96e")             -- soil family stubble
 local shirt = GV.ramp("#f1ece0")           -- soil cream, pale
@@ -78,11 +81,18 @@ local dadC, dadM = drawDad()
 -- Clumps that overlap the dad are his "front" clumps: they grow over him, back and hem first, eyes last.
 local HEDGE = {}
 local row = 0
+-- depth: shaded clumps crowd the top (fence shadow) and the bottom rows, lit moss sits in the middle band
+local NROW = 0
+for y = 12, H + 6, 7 do NROW = NROW + 1 end
 for y = 12, H + 6, 7 do
   local off = (row % 2) * 6
   for x = -6 + off, W + 8, 11 do
     local k = R(12)
-    HEDGE[#HEDGE+1] = { x + R(5) - 2, y + R(3) - 1, 5.5 + R(3) * 0.5, k < 2 and moss or leaf, deco = R(3) }
+    local ramp = leaf
+    if row <= 1 then ramp = k < 6 and dark or leaf
+    elseif row >= NROW - 2 then ramp = k < 5 and dark or (k < 7 and moss or leaf)
+    else ramp = k < 3 and moss or (k < 4 and dark or leaf) end
+    HEDGE[#HEDGE+1] = { x + R(5) - 2, y + R(3) - 1, 5.5 + R(3) * 0.5, ramp, deco = R(3) }
   end
   row = row + 1
 end
@@ -108,6 +118,12 @@ for _, h in ipairs(FRONT) do
   m:each(function(x, y) local k = y * W + x if GONE[k] then GONE[k] = math.min(GONE[k], h.t + 0.13) end end)
 end
 
+-- the eyes (with their umber rings) stay until the eye beat
+local EYEBOX = GV.canvas{ w = W, h = H, mode = "scene" }:rrect(72, 19, 78, 25, 2):add(dadC:rrect(79, 20, 85, 26, 2))
+local EYES = dadM:copy():clip(EYEBOX)
+EYES:each(function(x, y) GONE[y * W + x] = 1.5 end)
+local EB1 = EYEBOX:grow(1)
+
 local GROW = 0.16
 local function size(h, p)
   if not h.front then return h[3] end
@@ -115,7 +131,7 @@ local function size(h, p)
   return h[3] * g * g * (3 - 2 * g)
 end
 
-local function drawFrame(p)
+local function drawFrame(p, eye)
   local c = GV.canvas{ w = W, h = H, mode = "scene", out = 2 }
   c:fill(c:rect(0, 0, W - 1, H - 1), GAP)
   -- fence boards along the top, behind the hedge
@@ -153,10 +169,19 @@ local function drawFrame(p)
     local r = size(h, p)
     if r >= 2.5 then clump(c, h[1], h[2], r, h[4], nil, h.deco) end
   end
+  -- the eyes sit on top of the leaves; in the eye beat they slip down behind the leaf line
+  if eye then
+    local em = EYES:shift(0, eye):clip(EYEBOX)
+    em:each(function(x, y) c:px(x, y, dadC:get(x, y - eye)) end)
+    local ring = em:grow(1):cut(em)
+    ring:each(function(x, y) if y <= 27 then c:px(x, y, OL3) end end)
+  elseif p <= 1 then
+    EYES:each(function(x, y) if not vis:has(x, y) then c:px(x, y, dadC:get(x, y)); vis:set(x, y) end end)
+  end
   -- clean edge where the leaves overlap him: 1 px dark rim on the leaf side
-  if vis:count() > 0 then
+  if not eye and vis:count() > 0 then
     local ring = vis:grow(1):cut(vis)
-    ring:each(function(x, y) if dadM:has(x, y) then c:px(x, y, OL3) end end)
+    ring:each(function(x, y) if dadM:has(x, y) or EB1:has(x, y) then c:px(x, y, OL3) end end)
   end
   return c:image()
 end
@@ -166,7 +191,7 @@ local layer = spr.layers[1]
 layer.name = "homer-hedge"
 for f, fr in ipairs(FR) do
   if f > 1 then spr:newEmptyFrame(f) end
-  local img = drawFrame(fr.p)
+  local img = drawFrame(fr.p, fr.eye)
   if f == 1 then spr.cels[1].image = img; img:saveAs(G .. "homer-hedge-still.png") else spr:newCel(layer, f, img) end
   spr.frames[f].duration = fr.ms / 1000
   local t = GV.check(img)
