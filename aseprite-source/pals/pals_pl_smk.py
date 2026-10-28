@@ -242,17 +242,18 @@ def smoke_ringlet():
     key = 'pl-smk-5'
     st = Sticker()
     core = (13, 24, 46, 50)
-    body, holes = piece_blanks(core, n=('B', 'hook', 7, 2.6), e=('B', 'hook', 7, 2.6), s=('B', 'hook', -6, 2.6), w=('B', 'hook', -5, 2.6))
+    # blanks centred on n/s and level on e/w (mirror-symmetric, never offset round the piece: that read as a hooked-cross pinwheel)
+    body, holes = piece_blanks(core, n=('B', 'hook', 0, 2.0), e=('B', 'hook', 4, 2.0), s=('B', 'hook', 0, 2.0), w=('B', 'hook', 4, 2.0))
     st.part(body, tex=fill(key, body, 13, 24, 34, list(ROSE)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#f0aa98', skip=grow(holes, 3))
     smoke_ring(st, 25, 15, 8.5, 4.2)
     smoke_ring(st, 54, 31, 3.6, 3.6)
     st.eye(18, 31, look=(1, 0), lid=2)
-    st.eye(31, 31, look=(1, 0), lid=2)
-    st.paint(line([(30, 28), (33, 27), (36, 28)]), UMBER)
-    st.sprite(['.U.', 'URU', '.U.'], 38, 40, {'U': UMBER, 'R': MOUTH_RED}, solid=False)
-    st.paint(rect(17, 39, 19, 39), BLUSH)
+    st.eye(36, 31, look=(1, 0), lid=2)
+    st.paint(line([(35, 28), (38, 27), (41, 28)]), UMBER)
+    st.sprite(['.U.', 'URU', '.U.'], 33, 39, {'U': UMBER, 'R': MOUTH_RED}, solid=False)
+    st.paint(rect(19, 37, 21, 37), BLUSH)
     return key, st
 
 

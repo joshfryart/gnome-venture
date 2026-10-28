@@ -245,7 +245,8 @@ def dewweb_eye():
     key = 'pl-sbs-5'
     st = Sticker()
     core = (12, 20, 46, 50)
-    body, holes = piece_blanks(core, n=('B', 'hook', 5, 2.6), e=('B', 'hook', 7, 2.6), s=('B', 'hook', -5, 2.6), w=('B', 'hook', 6, 2.6))
+    # blanks centred on n/s and level on e/w (mirror-symmetric, never offset round the piece: that read as a hooked-cross pinwheel)
+    body, holes = piece_blanks(core, n=('B', 'hook', 0, 2.2), e=('B', 'hook', 6, 2.2), s=('B', 'hook', 0, 2.2), w=('B', 'hook', 6, 2.2))
     st.part(body, tex=fill(key, body, 12, 20, 35, list(DEW)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#e8a317', skip=grow(holes, 3))      # uncommon accent: gold
@@ -253,7 +254,7 @@ def dewweb_eye():
     st.eye(33, 30, look=(1, 0), lid=1)
     dew_monocle(st, 35.5, 32.5, 5.6)
     st.paint(line([(17, 30), (22, 31)]), UMBER)
-    mouth_px(st, ['......U', 'U....U.', '.UUUU..'], 23, 42)
+    mouth_px(st, ['......U', 'U....U.', '.UUUU..'], 22, 39)
     return key, st
 
 
