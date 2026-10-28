@@ -10,6 +10,9 @@
 -- Pass 3: felt wall with hem seams and sparse nap flecks (matches the other puzzle GIFs) instead of
 -- the slanted duct; stitch rings on head and jacket, gold hairline seam; bigger pupils, heavier lids
 -- and brow ridges that drop during the hold; longer first/last frames so the loop snap reads as a beat.
+-- Pass 4: one clean brow arc per eye (vertical brow creases and eye-bag creases dropped, brow starts
+-- clear of the hairline); nap flecks dart-thrown at irregular spacing instead of a skewed lattice;
+-- the clipped duct sliver in the top-left corner removed (it read as a glitch).
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local W, H = 166, 121
@@ -57,7 +60,6 @@ local hair  = GV.ramp("#f08a24")   -- ember family
 local skin  = "skin"
 local shirt = GV.ramp("#f1ece0")   -- soil cream
 local wall  = GV.ramp("#5b6f96")   -- stone family nudged to slate blue
-local duct  = GV.ramp("#3e5a7a")
 local UMB = GV.C.umber or "#4a2c1a"
 
 -- world outlines (frame-1 half-grid coords)
@@ -77,6 +79,21 @@ local SPIKES = {
   { { 58, 42 }, { 40, 35 }, { 58, 30 } },
   { { 100, 27 }, { 118, 21 }, { 109, 36 } },
 }
+
+-- felt nap flecks: deterministic dart throwing in world space (irregular, min spacing 6)
+local FLECKS = {}
+do
+  local seed = 12345
+  local function rnd() seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648 end
+  for _ = 1, 4000 do
+    local x, y = -100 + rnd() * 400, -40 + rnd() * 240
+    local ok = true
+    for _, f in ipairs(FLECKS) do
+      if (f[1] - x) ^ 2 + (f[2] - y) ^ 2 < 7.5 ^ 2 then ok = false; break end
+    end
+    if ok and rnd() < 0.8 then FLECKS[#FLECKS + 1] = { math.floor(x), math.floor(y) } end
+  end
+end
 
 local function drawFrame(s)
   local z, ax, ay = cam(s)
@@ -98,18 +115,17 @@ local function drawFrame(s)
     c:fill(poly{ {-200, b[1]}, {400, b[1]}, {400, b[2]}, {-200, b[2]} }, b[3])
   end
   local fleck = { wall.gloss, wall.rim, wall.bounce }
-  for gy = -40, 200, 9 do
-    for gx = -100, 300, 11 do
-      local wx, wy = gx + (gy * 7) % 11 - 5, gy + (gx * 5) % 9 - 4
+  for _, f in ipairs(FLECKS) do
+    local wx, wy = f[1], f[2]
+    if wy ~= 34 and wy ~= 86 then
       local band = wy < 34 and 1 or (wy < 86 and 2 or 3)
-      local hex = band == 1 and fleck[1] or (band == 2 and fleck[2] or fleck[3])
       local x, y = math.floor(X(wx) + 0.5), math.floor(Y(wy) + 0.5)
-      c:px(x, y, hex); if z > 1.4 then c:px(x + 1, y, hex) end
+      if x >= 0 and x < W and y >= 0 and y < H then
+        c:px(x, y, fleck[band]); if z > 1.4 then c:px(x + 1, y, fleck[band]) end
+      end
     end
   end
   for _, yy in ipairs({ 34, 86 }) do c:seam(P{ {-200, yy}, {400, yy} }, { free = true }) end
-  c:part(poly{ {-60, -40}, {240, -40}, {240, -22}, {-60, 12} }, duct, { gloss = false, cres = 3, stitch = true })
-  c:seam(P{ {-60, 10}, {240, -24} }, { free = true })
 
   -- jacket, shirt, neck
   c:part(poly{ {30, 140}, {44, 104}, {66, 96}, {104, 98}, {112, 140} }, "red", { cres = cr(3), stitch = { side = "lit" } })
@@ -135,7 +151,7 @@ local function drawFrame(s)
   local drop = (1 - sq) * 2.5          -- brow ridge sinks onto the lids in the hold
   for _, e in ipairs({ { 82, 62 }, { 101, 61 } }) do
     local ex, ey = e[1], e[2]
-    ink({ { ex - 9, ey - 6 + drop }, { ex - 3, ey - 7.5 + drop }, { ex + 6, ey - 7 + drop } }, 1.3)  -- brow ridge
+    ink({ { ex - 7, ey - 6 + drop }, { ex - 2, ey - 7.5 + drop }, { ex + 6, ey - 7 + drop } }, 1.2)  -- brow ridge
     local slit = c:rrect(math.floor(X(ex - 9)), math.floor(Y(ey - eh / 2)), math.floor(X(ex + 9)),
       math.floor(Y(ey + eh / 2)), math.floor(z))
     c:fill(slit, "#f1ece0")
@@ -148,12 +164,8 @@ local function drawFrame(s)
     pm:clip(slit)
     c:fill(pm, "#2a1a10")
     c:px(math.floor(px - pr / 2), math.floor(Y(ey) - pr / 2), "#f9d49c")
-    ink({ { ex - 6, ey + eh / 2 + 2.6 }, { ex + 4, ey + eh / 2 + 2.2 } }, 0.5)   -- eye bag crease
   end
-  -- brow creases over the lids, cheek-to-nose crease, mouth
-  ink({ { 90, 52 }, { 92, 56 }, { 91, 64 } }, 0.6)
-  ink({ { 76, 55 }, { 75, 60 } }, 0.6)
-  ink({ { 108, 55 }, { 109, 59 } }, 0.6)
+  -- cheek-to-nose crease, mouth
   ink({ { 100, 66 }, { 105, 74 }, { 112, 78 } }, 0.6)
   ink({ { 100, 86 }, { 105, 85.5 }, { 110, 87.5 } }, 0.9)  -- tight downturned mouth
   return c:image()
