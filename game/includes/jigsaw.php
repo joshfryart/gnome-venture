@@ -118,8 +118,8 @@ function jigsaw_ensure(): bool
         $n = 0;
         foreach (JIGSAWS as $slug => [$title, $cat, $file]) {
             $n++;
-            if (isset($have['jig-' . $slug])) {   // stored as 'jig-<slug>'; keep its title in step with this list (placeholder names from early builds)
-                if ($have['jig-' . $slug] !== $title) q('UPDATE puzzle_pics SET title = ? WHERE slug = ?', [$title, 'jig-' . $slug]);
+            if (isset($have['jig-' . $slug])) {   // stored as 'jig-<slug>'; rename an early-build placeholder title; an admin's own title is never touched
+                if (str_ends_with($have['jig-' . $slug], '(placeholder)') && $have['jig-' . $slug] !== $title) q('UPDATE puzzle_pics SET title = ? WHERE slug = ?', [$title, 'jig-' . $slug]);
                 continue;
             }
             $info = @getimagesize(APP_ROOT . '/assets/img/jigsaw/' . $file) ?: [0, 0];

@@ -25,7 +25,7 @@ ok "Jigsaw on: player gets the page" "$(curl -s -b $W/p -o /dev/null -w '%{http_
 curl -s -b $W/p $BASE/puzzles.php > $W/h.html; ok "hub: Jigsaw card shows" "$(grep -c 'href="[^"]*jigsaw.php"' $W/h.html)" 1
 curl -s -b $W/p $BASE/jigsaw.php > $W/j.html
 ok "page: puzzles.js wired" "$(grep -c 'assets/puzzles.js' $W/j.html)" 1
-ok "page: 3 built-in pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/j.html)" 3
+ok "page: 14 built-in pictures (the region scenes)" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/j.html)" 14
 ok "page: three fixed tiers 24/96/216" "$(php -r 'preg_match("#id=\"pz-mode\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo implode(",", array_column(json_decode($m[1], true)["tiers"], "n"));' $W/j.html)" 24,96,216
 ok "page: tier picker has exactly 3 options, no free counts" "$(grep -o '<option value="[0-9]*"' $W/j.html | tr -d '\n')" '<option value="24"<option value="96"<option value="216"'
 ok "page: Motion button hidden" "$(grep -c 'id="anim"[^>]*hidden' $W/j.html)" 1
@@ -33,9 +33,9 @@ ok "page: next-tier button on the win card" "$(grep -c 'id="nexttier"' $W/j.html
 curl -s -b $W/p $BASE/gifsaw.php > $W/g.html
 ok "GIFsaw never lists the stills" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo substr_count($m[1], "img/jigsaw");' $W/g.html)" 0
 ok "GIFsaw still has its own pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/g.html)" 7
-ok "DB: stills tagged" "$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='still' AND source='builtin'")/$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='gif'")" 3/7
+ok "DB: stills tagged" "$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='still' AND source='builtin'")/$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='gif'")" 14/7
 ok "every built-in picture and thumb exists" "$(for f in maplewold maizehollow sunsprinkle; do [ -s $GAME/assets/img/jigsaw/$f.jpg ] && [ -s $GAME/assets/img/jigsaw/$f-thumb.jpg ] && echo y; done | wc -l)" 3
-ok "pictures are 3:2, 1800 x 1200" "$(php -r 'foreach (glob($argv[1]."/assets/img/jigsaw/*[a-z].jpg") as $f) { [$w,$h]=getimagesize($f); if (strpos($f,"thumb")===false) echo ($w==1800&&$h==1200)?"y":"n"; }' $GAME)" yyy
+ok "pictures are 3:2, 1800 x 1200" "$(php -r 'foreach (glob($argv[1]."/assets/img/jigsaw/*[a-z].jpg") as $f) { [$w,$h]=getimagesize($f); if (strpos($f,"thumb")===false) echo ($w==1800&&$h==1200)?"y":"n"; }' $GAME)" yyyyyyyyyyyyyy
 # free play
 CS=$(grep -o '"csrf":"[^"]*"' $W/j.html | head -1 | sed 's/.*:"\(.*\)"/\1/')
 ok "pstart: bad tier refused" "$(api -d do=pstart -d pic=jig-maplewold -d tier=sixty | js ok)" false
@@ -68,7 +68,7 @@ dbx "UPDATE puzzle_pics SET reserved=0 WHERE slug='jig-maizehollow'"
 NP=$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE source='place'")
 ok "places: seeded from the unique locations (more than 40)" "$([ "$NP" -gt 40 ] && echo y || echo n)" y
 ok "places: every seeded picture has its exact 360 x 240 cut (30 / 15 / 10 art pixels a piece)" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $bad=0; foreach($p->query("SELECT file FROM puzzle_pics WHERE source=\"place\"") as $r) { $i=@getimagesize("'$GAME'/assets/img/jigsaw/places/".$r[0]); if(!$i||$i[0]!=360||$i[1]!=240) $bad++; } echo $bad;')" 0
-ok "places: none unlocked yet, library still 3" "$(curl -s -b $W/p $BASE/jigsaw.php | php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", stream_get_contents(STDIN), $m); echo count(json_decode($m[1], true));')" 3
+ok "places: none unlocked yet, library still 14" "$(curl -s -b $W/p $BASE/jigsaw.php | php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", stream_get_contents(STDIN), $m); echo count(json_decode($m[1], true));')" 14
 curl -s -b $W/p $BASE/jigsaw.php | grep -o 'Places: <b>[0-9]*</b> of [0-9]*' > $W/pl.txt
 ok "places: library line says 0 found" "$(sed 's/<[^>]*>//g' $W/pl.txt)" "Places: 0 of $NP"
 UID_=$(dbv "SELECT id FROM users WHERE username='sprout'")
@@ -90,7 +90,7 @@ ok "places: a notification was sent" "$(dbv "SELECT COUNT(*) FROM notices WHERE 
 curl -s -b $W/p $BASE/town.php | grep -c 'New jigsaw!' > $W/w2.txt
 ok "places: a second visit is quiet" "$(cat $W/w2.txt)/$(dbv "SELECT COUNT(*) FROM jigsaw_unlocks WHERE user_id=$UID_")" 0/1
 curl -s -b $W/p $BASE/jigsaw.php > $W/j2.html
-ok "places: library now has 4 pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/j2.html)" 4
+ok "places: library now has 15 pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/j2.html)" 15
 ok "places: the picture is the exact cut and pixel-drawn" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); $r=array_values(array_filter(json_decode($m[1], true), fn($x)=>strpos($x["id"],"pl-")===0))[0]; echo $r["px"].(strpos($r["gif"],"img/jigsaw/places/")!==false?"c":"x");' $W/j2.html)" 1c
 ok "places: library line says 1 found" "$(sed 's/<[^>]*>//g' <(grep -o 'Places: <b>[0-9]*</b> of [0-9]*' $W/j2.html))" "Places: 1 of $NP"
 ok "places: an unlocked place can be played" "$(api -d do=pstart -d pic=$PIC -d tier=advanced | js ok)" true
