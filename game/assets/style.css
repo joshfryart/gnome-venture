@@ -1015,6 +1015,16 @@ a.rend:hover b { text-decoration: underline; }
 .gtile { display: grid; grid-template-columns: 38px 1fr; column-gap: 8px; align-items: center; min-height: 64px; padding: 8px 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
 .gtile:hover, .gtile:focus-visible { border-color: var(--brand); }
 .gticon { grid-row: 1 / span 3; font-size: 30px; line-height: 1; text-align: center; }
+.gticon .pzcast img { width: 38px; height: 38px; object-fit: contain; image-rendering: pixelated; }
+/* v2.0.68: puzzle cast art (includes/puzzles.php puzzle_cast): a light/dark pair, CSS shows one */
+.pzcast { display: inline-block; line-height: 0; }
+.pzcast img { max-width: 100%; height: auto; image-rendering: pixelated; }
+.pzcast .dk, :root[data-theme="dark"] .pzcast.pz2 .lt { display: none; }
+:root[data-theme="dark"] .pzcast.pz2 .dk { display: inline; }
+.pzbadges { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.pzbadges li { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 84px; text-align: center; }
+.pzbadges .pzcast img { width: 48px; height: 48px; object-fit: contain; }
+.pzbadges .pzbem { font-size: 32px; line-height: 48px; }
 .gtile b { font-size: 14px; line-height: 1.15; }
 .gtbadge { justify-self: start; margin-top: 2px; }
 .gtile.done { opacity: .75; }

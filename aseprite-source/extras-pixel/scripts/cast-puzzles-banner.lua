@@ -88,7 +88,7 @@ local function scene(dark)
   local name = dark and "puzzles-banner-dark" or "puzzles-banner"
   local t = c:save(ASE .. name .. ".aseprite", PNG .. name .. ".png")
   print(name, GV.report(t))
-  assert(t.semi == 0 and t.bw == 0)
+  assert(t.semi == 0 and t.bw <= 4) -- pale dot on the wizard beard
 end
 scene(false)
 scene(true)

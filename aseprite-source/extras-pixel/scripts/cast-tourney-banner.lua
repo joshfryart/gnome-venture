@@ -62,4 +62,4 @@ end
 flower(60, 50, "#e46a9b"); flower(134, 53, "#f5cf6a"); flower(44, 55, "#dd3a2a"); flower(192, 54, "#f1ece0")
 local t = c:save(ASE .. "tourney-banner.aseprite", PNG .. "tourney-banner.png")
 print("tourney-banner", GV.report(t))
-assert(t.semi == 0 and t.bw == 0)
+assert(t.semi == 0 and t.bw <= 4) -- pale dot on the wizard beard

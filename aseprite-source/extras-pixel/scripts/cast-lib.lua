@@ -165,6 +165,11 @@ return function(GV)
     piece(c, body, GV.ramp(dim("#e0501f", dark)), { stitch = { side = "lit" }, gloss = { rnd(t.X(20)), rnd(t.Y(30)) } })
     piece(c, beard, GV.ramp(dim("#f4ecd8", dark), { pale = true }), { gloss = { rnd(t.X(26)), rnd(t.Y(41)) } })
     piece(c, hat, GV.ramp(dim("#5a3f9e", dark)), { gloss = { rnd(t.X(29)), rnd(t.Y(10)) } })
+    if pose == "clap" then -- hands meet in front of the beard
+      local hands = t.E(28.5, 46 + dy, 3.5, 3.5):add(t.E(34.5, 45 + dy, 3.5, 3.5))
+      piece(c, hands, GV.ramp(dim("#f08a24", dark)), { gloss = false, cres = 2, deep = 1 })
+      c:px(rnd(t.X(31.5)), rnd(t.Y(45 + dy)), UMB)
+    end
     if pose == "staff" then
       c:fill(c:rect(t.X(50), t.Y(38 + dy - 2), t.X(53), t.Y(40 + dy - 2)), dim("#f08a24", dark))
     end

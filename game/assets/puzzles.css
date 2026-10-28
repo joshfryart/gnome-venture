@@ -25,7 +25,8 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
   background:var(--surface); border-bottom:0; box-shadow:0 2px 0 0 var(--ol);   /* v2.0.33: pixel edge */
 }
 #prog{position:absolute; left:0; bottom:-2px; height:4px; width:0; background:var(--thread-bright); border-radius:0; transition:width .35s ease}
-#game .brand{min-width:0}
+#game .brand{min-width:0; display:flex; align-items:center; gap:10px}
+#game .brand > div:last-child{min-width:0}
 #game .gt{margin:0; font-size:18px; font-weight:600; line-height:1.2; color:var(--ink)}
 #game .sub{margin:2px 0 0; font-size:12.5px; color:var(--muted); line-height:1.35}
 #game .controls{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
@@ -84,6 +85,12 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
   animation:pzrise .45s cubic-bezier(.2,1.2,.4,1);
 }
 @keyframes pzrise{from{opacity:0; transform:translate(-50%,24px)}}
+#win .winart{display:flex; align-items:flex-end; justify-content:center; gap:8px; flex-basis:100%}
+#win .winart:empty,#win .winart > span:empty{display:none}
+#win[data-res="ok"] .w-caught,#win[data-res="caught"] .w-ok{display:none}
+#win .pzscene img{max-height:110px; width:auto}
+#win .pzface img{max-height:96px; width:auto}
+#win .wintx{display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; max-width:420px}
 #win strong{font-size:22px; font-weight:700; color:var(--brand-ink)}
 #win span{font-variant-numeric:tabular-nums}
 #win .row{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
@@ -93,6 +100,8 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 @media (max-width:720px){ #win,#lk{bottom:calc(var(--bar) + var(--sab) + 12px)} }
 
 @media (max-width:560px){
+  #game .brand > div:last-child{display:contents}
+  .pzwho{display:none}
   #game .bar{display:grid; grid-template-columns:1.7fr 1fr 1fr 1fr; gap:6px 8px; padding-block:8px}
   #game .brand,#game .controls{display:contents}
   #game .gt{display:none}
@@ -120,3 +129,34 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
   #back{font-size:12.5px}
 }
 @media (prefers-reduced-motion: reduce){ #final,#prog{transition:none} .piece.pop .cut,.piece.pop .lo,#win{animation:none} }
+
+/* ---- v2.0.68: the cast (Jeff hosts; Ffej on Scatter; the Old Wizard on the Guide), tournaments ---- */
+.pzbanner{display:block; margin:0 0 8px}
+.pzbanner img{display:block; width:100%; max-height:180px; object-fit:contain}
+.pzhost{display:flex; align-items:center; gap:14px}
+.pzhost .pzface img{width:96px; height:auto}
+.pzhost .pzline{margin:0 0 6px; font-size:15px}
+.pzmsg{margin:6px 0 0; font-weight:600; color:var(--accent-ink, var(--ink))}
+.pzmsg[hidden]{display:none}
+@media (max-width:560px){ .pzhost{align-items:flex-start; gap:10px} .pzhost .pzface img{width:64px} }
+.pzwho{flex:none; width:44px; height:44px; display:flex; align-items:center; justify-content:center}
+.pzwho > span{display:none}
+.pzwho > span:empty{display:none !important}
+.pzwho:not(:has(img)){display:none}
+.pzwho[data-who="jeff"] .w-jeff,.pzwho[data-who="ffej"] .w-ffej,.pzwho[data-who="wiz"] .w-wiz{display:block}
+.pzwho img{width:44px; height:44px; object-fit:contain}
+.pztours{list-style:none; margin:8px 0 12px; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px}
+.pztours a{display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; margin:0; color:inherit; text-decoration:none}
+.pztours a:hover,.pztours a:focus-visible{border-color:var(--brand)}
+.pztours small{flex-basis:100%; color:var(--muted)}
+.pzmini img{width:32px; height:32px; object-fit:contain; vertical-align:middle}
+.pzcols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:12px}
+@media (max-width:640px){ .pzcols{grid-template-columns:1fr} }
+.pzthumbbox{display:flex; align-items:center; justify-content:center; background:var(--surface-2)}
+.pzpic{max-width:100%; height:auto; image-rendering:pixelated}
+.pzboard{margin:0; padding-left:28px}
+.pzboard li{display:flex; align-items:center; gap:8px; padding:3px 0; font-variant-numeric:tabular-nums}
+.pzboard li .nm{flex:1; min-width:0; overflow-wrap:anywhere}
+.pzboard li.me{font-weight:700; color:var(--brand-ink)}
+.pzempty{display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px}
+.pzempty .pzcast img{width:120px; height:auto}

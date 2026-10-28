@@ -1,5 +1,11 @@
 (function(){
 var PUZZLES = []; try{ PUZZLES = JSON.parse(document.getElementById('pz-data').textContent) || []; }catch(e){}
+var TOUR = null; try{ var te=document.getElementById('pz-t'); if(te) TOUR = JSON.parse(te.textContent); }catch(e){}
+/* v2.0.68: the scramble (tab sides, jitter, shuffles) comes from a seeded mulberry32: ?seed=N, a tournament's seed, or a fresh random one */
+function mulberry32(a){ return function(){ a=(a+0x6D2B79F5)|0; var t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+var URL_SEED=(function(){ var m=/[?&]seed=(\d{1,10})(&|$)/.exec(location.search); return m?(parseInt(m[1],10)>>>0):null; })();
+var rand=mulberry32((Math.random()*4294967296)>>>0);
+function reseed(s){ rand=mulberry32(s>>>0); }
 var $ = function(id){ return document.getElementById(id); };
 var stage=$('stage'), field=$('field'), board=$('board'), ghost=$('ghost'), finalImg=$('final');
 var hud=$('hud'), sub=$('sub'), win=$('win'), countSel=$('count');
@@ -13,9 +19,11 @@ try{ var mv=localStorage.getItem('jiggy.motion'); paused = mv==='0'; }catch(e){}
 var tok=0, curId=null, inGame=false, G=null, curUrl=null, timer=null, drag=null, pan=null, raf=0, laidOnce=false;
 
 
-function say(t){ sub.textContent=t; clearTimeout(say.t); say.t=setTimeout(function(){ sub.textContent=SUB_DEFAULT; },5000); }
+/* who: jeff (host), ffej (his mischief twin, on Scatter), wiz (the Old Wizard, on the Guide) */
+function say(t,who){ sub.textContent=t; $('who').setAttribute('data-who',who||'jeff'); clearTimeout(say.t); say.t=setTimeout(function(){ sub.textContent=SUB_DEFAULT; $('who').setAttribute('data-who','jeff'); },5000); }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 function fmt(s){ var m=Math.floor(s/60), r=s%60; return m+':'+(r<10?'0':'')+r; }
-function rnd(a,b){ return a+Math.random()*(b-a); }
+function rnd(a,b){ return a+rand()*(b-a); }
 
 
 /* ---------- jigsaw edge geometry ---------- */
@@ -77,17 +85,18 @@ function setup(src,nw,nh){
   drag=null; pan=null; relayoutLater=false; field.style.cursor='';
   win.hidden=true; finalImg.classList.remove('on'); stage.classList.remove('won');
 
+  reseed(TOUR ? TOUR.seed : (URL_SEED!==null ? URL_SEED : (Math.random()*4294967296)>>>0));
   var n=parseInt(countSel.value,10);
   var cols=Math.max(2,Math.round(Math.sqrt(n*nw/nh)));
   var rows=Math.max(2,Math.round(n/cols));
   G={src:src,nw:nw,nh:nh,cols:cols,rows:rows,total:cols*rows,locked:0,z:10,won:false,t0:0,elapsed:0,
-     hS:[],vS:[],hJ:[],vJ:[],pieces:[],groups:[],b:null,f:null};
+     hS:[],vS:[],hJ:[],vJ:[],pieces:[],groups:[],b:null,f:null,drops:0};
   var r,c;
   for(r=0;r<rows;r++){
     G.hS[r]=[];G.hJ[r]=[];G.vS[r]=[];G.vJ[r]=[];
     for(c=0;c<cols;c++){
-      G.hS[r][c]=Math.random()<.5?1:-1; G.hJ[r][c]={j:rnd(-.05,.05),k:rnd(.92,1.08)};
-      G.vS[r][c]=Math.random()<.5?1:-1; G.vJ[r][c]={j:rnd(-.05,.05),k:rnd(.92,1.08)};
+      G.hS[r][c]=rand()<.5?1:-1; G.hJ[r][c]={j:rnd(-.05,.05),k:rnd(.92,1.08)};
+      G.vS[r][c]=rand()<.5?1:-1; G.vJ[r][c]={j:rnd(-.05,.05),k:rnd(.92,1.08)};
     }
   }
   ghost.src=curStill||src; finalImg.style.clipPath=''; finalImg.src=paused?(curStill||src):src;
@@ -114,7 +123,8 @@ function setup(src,nw,nh){
   placeAll();
   setZoomUi();
   updateHud();
-  say(G.total+' pieces. Good luck!');
+  if(TOUR && TOUR.token){ G.t0=Date.now(); timer=setInterval(updateHud,1000); say(G.total+' pieces. The clock is running. You can do it!'); }
+  else say(G.total+' pieces. '+pick(['Edges first, if you like. That\u2019s how I do it!','Happy puzzling!','Take your time. Lovely picture, this one.']));
 }
 
 function layout(first){
@@ -215,7 +225,7 @@ function placeGroup(g){
 }
 function placeAll(){ for(var i=0;i<G.groups.length;i++) placeGroup(G.groups[i]); }
 
-function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(rand()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 /* Deal loose pieces into a jittered grid of free cells (little overlap). On a phone the tray lists edge pieces first. */
 function scatter(list){
   var b=G.b, F=G.f, cells=G.cells.slice(), L=list.slice(), i, k;
@@ -235,13 +245,13 @@ function scatter(list){
       x=cells[i][0]+(b.pw*1.2-b.pw)/2-b.pad+rnd(-jx,jx); y=cells[i][1]+(b.ph*1.2-b.ph)/2-b.pad+rnd(-jy,jy);
     } else {
       for(var t=0;t<80;t++){
-        x=Math.random()*(F.w-w); y=Math.random()*(F.h-h);
+        x=rand()*(F.w-w); y=rand()*(F.h-h);
         if(!(x<b.ox+b.bw && x+w>b.ox && y<b.oy+b.bh && y+h>b.oy)) break;
       }
     }
     g.gx=x-g.c0*b.pw+b.pad; g.gy=y-g.r0*b.ph+b.pad;
     clampG(g); saveFrac(g);
-    setZ(g,10+Math.floor(Math.random()*G.pieces.length));
+    setZ(g,10+Math.floor(rand()*G.pieces.length));
   }
 }
 
@@ -332,6 +342,7 @@ function mergeAround(g,thr){
 function endDrag(e){
   if(!drag||(e&&e.pointerId!==drag.id)) return;
   var g=drag.g, touch=drag.touch; drag=null;
+  G.drops++;
   dropClasses(g);
   var b=G.b, thr=Math.min(b.pw,b.ph)*(touch?.45:.32);
   clampG(g);
@@ -399,10 +410,39 @@ function solved(){
   clearInterval(timer); timer=null;
   stage.classList.add('won');
   showAnim();
-  $('winText').textContent=G.total+' pieces in '+fmt(G.elapsed)+'.';
+  win.setAttribute('data-res','ok'); $('winHead').textContent='Solved!';
+  $('winText').textContent='Jeff: \u201c'+G.total+' pieces in '+fmt(G.elapsed)+'. Lovely work!\u201d';
+  if(TOUR && TOUR.token) finishRun();
   win.hidden=false;
   if(G.tray){ stage.scrollTop=0; stage.scrollLeft=(G.f.w-stage.clientWidth)/2; }
   updateHud();
+}
+
+/* ---------- tournaments (v2.0.68): the server keeps the time; the token is used once ---------- */
+function api(body,cb){
+  var q='csrf='+encodeURIComponent(TOUR.csrf);
+  for(var k in body) q+='&'+k+'='+encodeURIComponent(body[k]);
+  fetch(TOUR.api,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:q})
+    .then(function(r){ return r.json(); }).then(cb,function(){ cb({ok:false,error:'The table wobbled (no connection). Try again.'}); });
+}
+function finishRun(){
+  var tk=TOUR.token; TOUR.token=null;
+  $('winText').textContent='Checking your time\u2026';
+  api({'do':'finish',token:tk,drops:G.drops},function(r){
+    if(r.ok){ $('winText').textContent='Jeff: \u201c'+r.message+' You\u2019re #'+r.rank+' so far!\u201d'; }
+    else {
+      if(r.rejected){ win.setAttribute('data-res','caught'); $('winHead').textContent='Caught Ffej!'; }
+      $('winText').textContent=r.rejected ? 'Ffej has been fiddling with the clock again. '+r.error : r.error;
+    }
+  });
+}
+function startRun(){
+  var m=$('tmsg');
+  api({'do':'start',t:TOUR.id},function(r){
+    if(!r.ok){ if(m){ m.textContent=r.error; m.hidden=false; } if(inGame){ $('winText').textContent=r.error; } return; }
+    TOUR.token=r.token; TOUR.seed=r.seed; TOUR.pieces=r.pieces;
+    enterGame(PUZZLES[0],r.pieces);
+  });
 }
 
 /* ---------- controls ---------- */
@@ -411,15 +451,17 @@ countSel.addEventListener('change',function(){
   saveCount(curId,parseInt(countSel.value,10)); setHash(curId,parseInt(countSel.value,10),true);
   if(curUrl) start(curUrl);
 });
-$('again').addEventListener('click',function(){ if(curUrl) start(curUrl); });
+$('again').addEventListener('click',function(){ if(TOUR){ startRun(); return; } if(curUrl) start(curUrl); });
 $('scatter').addEventListener('click',function(){
   if(!G||G.won) return;
   scatter(freeGroups()); placeAll();
+  say(pick(['Ffej: \u201cOops! Did I bump the table? Hee hee.\u201d','Ffej: \u201cWheee! Pieces everywhere!\u201d','Ffej: \u201cJeff said tidy up. I said no.\u201d']),'ffej');
 });
 $('guide').addEventListener('click',function(){
   var on=this.getAttribute('aria-pressed')!=='true';
   this.setAttribute('aria-pressed',on?'true':'false');
   field.classList.toggle('noguide',!on);
+  say(on?'Old Wizard: \u201cA faint picture lies under the outline now. Match the colours, my dear.\u201d':'Old Wizard: \u201cOff it goes. You have the knack of it now.\u201d','wiz');
 });
 function setMotionUi(){ $('anim').setAttribute('aria-pressed',paused?'false':'true'); }
 $('anim').addEventListener('click',function(){
@@ -545,6 +587,7 @@ function route(){
   enterGame(h.pz,h.n);
 }
 function leave(){
+  if(TOUR){ location.href=TOUR.back; return; }
   var st=null; try{ st=history.state; }catch(e){}
   if(st && st.jg){ try{ history.back(); return; }catch(e){} }
   clearHash(); route();
@@ -568,9 +611,12 @@ $('back2').addEventListener('click',leave);
 $('copy').addEventListener('click',copyLink);
 $('copy2').addEventListener('click',copyLink);
 $('lkx').addEventListener('click',function(){ $('lk').hidden=true; });
-window.addEventListener('popstate',route);
-window.addEventListener('hashchange',route);
 setMotionUi();
-buildLibrary();
-route();
+if(TOUR){ var ts=$('tstart'); if(ts) ts.addEventListener('click',startRun); }
+else {
+  window.addEventListener('popstate',route);
+  window.addEventListener('hashchange',route);
+  buildLibrary();
+  route();
+}
 })();
