@@ -1,4 +1,4 @@
--- puzzles/blinking-guy.gif redraw (pass 2): a felt-puppet close-up doing the slow disbelieving blink,
+-- puzzles/blinking-guy.gif redraw (pass 3: felt nap, fringe shadow, hair strands, 3-depth bokeh, slower blink): a felt-puppet close-up doing the slow disbelieving blink,
 -- eyes shifting, brows climbing, lopsided forced smile, in front of dark felt bokeh. Generic puppet, not a likeness.
 -- Framed like the source: face fills the frame and bleeds off the left and bottom, hair off the top,
 -- jaw, ear and bokeh on the right. 544x640, 22 key frames with per-frame ms, loops forever.
@@ -17,32 +17,41 @@ local white = GV.ramp("#f1ece0")            -- soil cream (pale)
 local iris  = GV.R.water
 local SK = GV.R.skin                        -- skin: base e9b98a, bounce d9885a, shade c47a52, deep 8a4234
 local LASH, UMB = "#2a1a10", "#4a2c1a"
-local BG = { "#1e2a50", "#22305a", "#263562", "#2a3c6c", "#22305a" }
+local BG = { "#121a38", "#16203f", "#1a2648", "#1e2a50", "#16203f", "#121a38" }
 
--- key poses (source: 97 frames x 30 ms). lid 0 open .. 1 shut, gx/gy gaze, br brow lift (-2..7),
--- sk extra lift on his left brow (skeptical), ox/oy head shift, sm forced smile 0..1, ms duration
+-- deterministic hash in [0,1) for felt flecks / tuft fuzz (keyed to face-local coords so it rides with the head)
+local function hash(a, b, s)
+  local h = (a * 374761393 + b * 668265263 + (s or 0) * 2147483647) % 4294967296
+  h = ((h ~ (h >> 13)) * 1274126177) % 4294967296
+  return (h ~ (h >> 16)) % 65536 / 65536
+end
+
+-- key poses (source: 97 frames x 30 ms): a long stare, one slow heavy blink held shut, a slow open into a
+-- sideways glance, one quick second blink, then the brows climb into the disbelieving smile and hold.
+-- lid 0 open .. 1 shut, gx/gy gaze, br brow lift (-2..7), sk extra lift on his left brow, ox/oy head shift,
+-- sm forced smile 0..1, ms duration
 local K = {
-  { lid=0.00, gx= 0.1, gy=0,   br= 0,   sk=0, ox=0, oy=0,  sm=0.15, ms=420 },
-  { lid=0.25, gx= 0.1, gy=0.3, br=-0.5, sk=0, ox=0, oy=0,  sm=0.15, ms=110 },
-  { lid=0.55, gx= 0.0, gy=0.6, br=-1,   sk=0, ox=0, oy=1,  sm=0.10, ms=120 },
-  { lid=0.82, gx= 0.0, gy=0.8, br=-1.5, sk=0, ox=1, oy=1,  sm=0.10, ms=140 },
-  { lid=1.00, gx= 0.0, gy=1,   br=-2,   sk=0, ox=1, oy=2,  sm=0.10, ms=420 },
-  { lid=0.75, gx=-0.3, gy=0.5, br=-0.5, sk=0, ox=1, oy=2,  sm=0.15, ms=90  },
-  { lid=0.40, gx=-0.7, gy=0.2, br=1.5,  sk=0, ox=2, oy=1,  sm=0.20, ms=90  },
-  { lid=0.12, gx=-1.0, gy=0,   br=3,    sk=1, ox=2, oy=0,  sm=0.25, ms=230 },
-  { lid=0.08, gx=-1.0, gy=0,   br=3.5,  sk=1, ox=3, oy=0,  sm=0.25, ms=260 },
-  { lid=0.50, gx=-0.6, gy=0.5, br=2,    sk=1, ox=3, oy=0,  sm=0.25, ms=80  },
-  { lid=0.90, gx=-0.2, gy=0.8, br=0.5,  sk=0, ox=3, oy=1,  sm=0.30, ms=90  },
-  { lid=0.45, gx= 0.3, gy=0.3, br=2.5,  sk=1, ox=3, oy=0,  sm=0.35, ms=80  },
+  { lid=0.00, gx= 0.1, gy=0,   br= 0,   sk=0, ox=0, oy=0,  sm=0.15, ms=640 },
+  { lid=0.20, gx= 0.1, gy=0.3, br=-0.5, sk=0, ox=0, oy=0,  sm=0.15, ms=120 },
+  { lid=0.50, gx= 0.0, gy=0.6, br=-1,   sk=0, ox=0, oy=1,  sm=0.10, ms=130 },
+  { lid=0.82, gx= 0.0, gy=0.8, br=-1.5, sk=0, ox=1, oy=1,  sm=0.10, ms=150 },
+  { lid=1.00, gx= 0.0, gy=1,   br=-2,   sk=0, ox=1, oy=2,  sm=0.10, ms=560 },
+  { lid=0.80, gx=-0.3, gy=0.6, br=-1,   sk=0, ox=1, oy=2,  sm=0.15, ms=130 },
+  { lid=0.45, gx=-0.7, gy=0.2, br=1,    sk=0, ox=2, oy=1,  sm=0.20, ms=130 },
+  { lid=0.12, gx=-1.0, gy=0,   br=3,    sk=1, ox=2, oy=0,  sm=0.25, ms=360 },
+  { lid=0.08, gx=-1.0, gy=0,   br=3.5,  sk=1, ox=3, oy=0,  sm=0.25, ms=360 },
+  { lid=0.60, gx=-0.6, gy=0.5, br=2,    sk=1, ox=3, oy=0,  sm=0.25, ms=80  },
+  { lid=1.00, gx=-0.2, gy=0.8, br=0.5,  sk=0, ox=3, oy=1,  sm=0.30, ms=110 },
+  { lid=0.45, gx= 0.3, gy=0.3, br=2.5,  sk=1, ox=3, oy=0,  sm=0.35, ms=90  },
   { lid=0.10, gx= 0.8, gy=0,   br=4.5,  sk=2, ox=2, oy=0,  sm=0.50, ms=200 },
-  { lid=0.00, gx= 0.6, gy=0,   br=5.5,  sk=2, ox=2, oy=-1, sm=0.70, ms=160 },
-  { lid=0.00, gx= 0.2, gy=0,   br=6.5,  sk=3, ox=1, oy=-1, sm=0.90, ms=200 },
-  { lid=0.00, gx= 0.0, gy=0,   br=7,    sk=3, ox=1, oy=-2, sm=1.00, ms=520 },
-  { lid=0.00, gx=-0.2, gy=0,   br=7,    sk=3, ox=1, oy=-2, sm=1.00, ms=300 },
-  { lid=0.15, gx= 0.0, gy=0,   br=6,    sk=2, ox=1, oy=-1, sm=0.90, ms=130 },
-  { lid=0.00, gx= 0.0, gy=0,   br=4,    sk=1, ox=0, oy=-1, sm=0.65, ms=160 },
-  { lid=0.00, gx= 0.1, gy=0,   br=2,    sk=0, ox=0, oy=0,  sm=0.40, ms=160 },
-  { lid=0.00, gx= 0.1, gy=0,   br=0.5,  sk=0, ox=0, oy=0,  sm=0.20, ms=200 },
+  { lid=0.00, gx= 0.6, gy=0,   br=5.5,  sk=2, ox=2, oy=-1, sm=0.70, ms=180 },
+  { lid=0.00, gx= 0.2, gy=0,   br=6.5,  sk=3, ox=1, oy=-1, sm=0.90, ms=220 },
+  { lid=0.00, gx= 0.0, gy=0,   br=7,    sk=3, ox=1, oy=-2, sm=1.00, ms=700 },
+  { lid=0.00, gx=-0.2, gy=0,   br=7,    sk=3, ox=1, oy=-2, sm=1.00, ms=420 },
+  { lid=0.15, gx= 0.0, gy=0,   br=6,    sk=2, ox=1, oy=-1, sm=0.90, ms=140 },
+  { lid=0.00, gx= 0.0, gy=0,   br=4,    sk=1, ox=0, oy=-1, sm=0.65, ms=180 },
+  { lid=0.00, gx= 0.1, gy=0,   br=2,    sk=0, ox=0, oy=0,  sm=0.40, ms=200 },
+  { lid=0.00, gx= 0.1, gy=0,   br=0.5,  sk=0, ox=0, oy=0,  sm=0.20, ms=260 },
 }
 
 -- column-span mask: f(x) -> y0, y1 (inclusive, floats)
@@ -57,13 +66,26 @@ end
 
 local function drawFrame(p)
   local c = GV.canvas{ w = W, h = H, mode = "scene", out = 2, cx = 100, cy = 140 }
-  c:bands(c:rect(0, 0, W-1, H-1), BG, { dir = "radial", cx = 240, cy = 150, r = 240 })
-  -- felt bokeh discs (fixed), mostly in the strip right of the jaw
-  local bok = { {238, 30, 12, "#8fcbd8"}, {262, 84, 9, "#c8ecdc"}, {232, 120, 10, "#5a86b8"},
-    {258, 160, 14, "#3f8fb0"}, {236, 206, 11, "#8fcbd8"}, {262, 246, 13, "#3f8fb0"},
-    {226, 280, 10, "#f5cf6a"}, {256, 306, 12, "#5a86b8"}, {266, 8, 8, "#f5cf6a"}, {214, 312, 8, "#3f8fb0"} }
-  for _, b in ipairs(bok) do
-    c:part(c:ellipse(b[1], b[2], b[3], b[3]), GV.ramp(b[4]), { cres = 4, outline = false, gloss = false })
+  c:bands(c:rect(0, 0, W-1, H-1), BG, { dir = "radial", cx = 250, cy = 140, r = 260 })
+  -- bokeh in three depths: far dim smudges, mid soft discs with a dim halo ring, near bright discs
+  -- with a halo and a crescent. Fixed, mostly in the strip right of the jaw; the near ones overlap.
+  local far = { {222, 56, 7, "#2a3c6c"}, {250, 110, 6, "#2d4a7a"}, {272, 190, 8, "#2a3c6c"}, {230, 236, 6, "#2d4a7a"},
+    {246, 290, 5, "#2a3c6c"}, {212, 150, 5, "#2d4a7a"}, {262, 22, 6, "#2d4a7a"} }
+  for _, b in ipairs(far) do c:fill(c:ellipse(b[1], b[2], b[3], b[3]), b[4]) end
+  local mid = { {262, 84, 11, "#5a86b8"}, {232, 120, 9, "#3f8fb0"}, {262, 246, 12, "#3f8fb0"},
+    {214, 312, 8, "#5a86b8"}, {244, 180, 7, "#5a86b8"}, {270, 150, 9, "#3f8fb0"} }
+  for _, b in ipairs(mid) do
+    local rr = GV.ramp(b[4])
+    c:fill(c:ellipse(b[1], b[2], b[3] + 3, b[3] + 3), rr.deep)
+    c:part(c:ellipse(b[1], b[2], b[3], b[3]), rr, { cres = 3, outline = false, gloss = false, rim = false, contact = false })
+  end
+  local near = { {238, 30, 13, "#8fcbd8"}, {258, 160, 14, "#c8ecdc"}, {236, 206, 11, "#8fcbd8"},
+    {226, 280, 10, "#f5cf6a"}, {256, 306, 12, "#5a86b8"}, {266, 8, 8, "#f5cf6a"} }
+  for _, b in ipairs(near) do
+    local rr = GV.ramp(b[4])
+    c:fill(c:ellipse(b[1], b[2], b[3] + 3, b[3] + 3), rr.shade)
+    c:part(c:ellipse(b[1], b[2], b[3], b[3]), rr, { cres = 4, outline = false, gloss = false, contact = false })
+    c:px(b[1] - floor(b[3] * 0.4), b[2] - floor(b[3] * 0.4), rr.gloss)
   end
 
   local X, Y = p.ox, p.oy
@@ -77,23 +99,58 @@ local function drawFrame(p)
   local face = c:poly(P{ {-16, -16}, {186, -16}, {193, 40}, {198, 88}, {200, 126}, {199, 160},
     {195, 198}, {189, 236}, {181, 266}, {170, 292}, {158, 316}, {150, 340}, {-16, 340} })
   c:part(face, "skin", { cres = 13, deep = 5, gloss = { 30 + X, 166 + Y } })
+  -- form shading inside the crescent: temple/cheekbone band down the right, a cheek hollow, the jaw turn
+  local inner = face:shrink(3)
+  c:fill(c:poly(P{ {182, 70}, {196, 70}, {200, 126}, {196, 200}, {186, 250}, {172, 294}, {156, 330},
+    {148, 330}, {164, 290}, {178, 246}, {186, 200}, {186, 130} }):clip(inner), SK.shade)
+  c:fill(c:poly(P{ {190, 70}, {196, 70}, {200, 126}, {196, 200}, {192, 216}, {191, 160}, {190, 120} }):clip(inner), SK.deep)
   -- chin pad and jaw shade line: gives the lower face a structure
   c:fill(c:line(P{ {98, 308}, {116, 304}, {136, 306} }, 2), SK.bounce)
-  c:fill(c:line(P{ {176, 196}, {172, 228}, {162, 262} }, 2), SK.bounce)
+  c:fill(c:line(P{ {176, 196}, {172, 228}, {162, 262} }, 2), SK.shade)
+  -- felt nap: sparse flecks one tone down on the lit skin, one tone up in the shade; never on details (done now, before them)
+  face:each(function(x, y)
+    local cur = c:get(x, y)
+    local hv = hash(x - X, y - Y, 7)
+    if hv < 0.018 then
+      if cur == SK.base then c:px(x, y, SK.bounce) elseif cur == SK.shade then c:px(x, y, SK.base) end
+    elseif hv > 0.993 and cur == SK.base and (x - X) + (y - Y) < 200 then c:px(x, y, SK.rim) end
+  end)
 
   -- hair: felt mass off the top, swept fringe of tufts pointing down-left, sideburn over the ear
   local hm = c:poly(P{ {-16, -16}, {232, -16}, {226, 30}, {220, 70}, {216, 112}, {210, 132}, {204, 120},
     {200, 96}, {196, 78}, {190, 70}, {180, 74}, {172, 66}, {160, 60}, {150, 64}, {140, 68}, {128, 60},
     {116, 56}, {106, 62}, {94, 66}, {84, 58}, {70, 52}, {58, 58}, {46, 64}, {36, 56}, {22, 50}, {8, 56}, {-4, 62}, {-16, 62} })
-  c:part(hm, hair, { cres = 14, deep = 6, gloss = { 60 + X, 14 + Y } })
-  -- strands: shade lines from the tuft roots up and to the right
-  local strands = { {4, 54, 40, 18}, {40, 54, 84, 16}, {88, 58, 130, 22}, {136, 60, 176, 28},
-    {176, 66, 204, 34}, {206, 100, 214, 64} }
-  local inner = hm:shrink(2)
-  for _, s in ipairs(strands) do
-    local mx, my = (s[1] + s[3]) / 2 + 4, (s[2] + s[4]) / 2 + 2
-    c:fill(c:line(P{ {s[1], s[2]}, {mx, my}, {s[3], s[4]} }, 2):clip(inner), hair.shade)
+  -- fuzz the fringe edge so the tufts read as felt, not a crown: grow a scatter of px out, nick a few in
+  do
+    local ring = hm:grow(1):cut(hm)
+    ring:each(function(x, y) if y - Y > 40 and hash(x - X, y - Y, 11) < 0.35 then hm:set(x, y) end end)
+    local e = hm:edge()
+    e:each(function(x, y) if y - Y > 40 and hash(x - X, y - Y, 12) < 0.2 then hm:del(x, y) end end)
   end
+  -- fringe cast shadow on the forehead: the hair mask pushed down, clipped to the face
+  c:fill(hm:shift(0, 5):cut(hm):clip(face:shrink(2)), SK.shade)
+  c:fill(hm:shift(0, 2):cut(hm):clip(face:shrink(2)), SK.deep)
+  c:part(hm, hair, { cres = 14, deep = 6, gloss = { 60 + X, 14 + Y } })
+  -- strands: shade lines from the tuft roots up and to the right, deep roots at the fringe, lit strands up top
+  local strands = { {4, 54, 40, 18}, {40, 54, 84, 16}, {88, 58, 130, 22}, {136, 60, 176, 28},
+    {176, 66, 204, 34}, {206, 100, 214, 64}, {22, 50, 60, 24}, {64, 56, 104, 20}, {110, 58, 152, 26}, {158, 62, 190, 36} }
+  local innerH = hm:shrink(2)
+  for i, s in ipairs(strands) do
+    local mx, my = (s[1] + s[3]) / 2 + 4, (s[2] + s[4]) / 2 + 2
+    local w = (i <= 6) and 2 or 1
+    c:fill(c:line(P{ {s[1], s[2]}, {mx, my}, {s[3], s[4]} }, w):clip(innerH), hair.shade)
+  end
+  local roots = { {10, 58, 16, 44}, {50, 60, 56, 46}, {96, 62, 102, 48}, {144, 64, 150, 50}, {184, 70, 190, 56}, {208, 118, 212, 100} }
+  for _, s in ipairs(roots) do c:fill(c:line(P{ {s[1], s[2]}, {s[3], s[4]} }, 2):clip(innerH), hair.deep) end
+  local lit = { {-6, 36, 30, 6}, {36, 34, 76, 2}, {84, 38, 122, 8}, {130, 42, 166, 14}, {172, 48, 200, 24}, {206, 70, 214, 40} }
+  for _, s in ipairs(lit) do c:fill(c:line(P{ {s[1], s[2]}, {s[3], s[4]} }, 1):clip(innerH), hair.rim) end
+  -- felt nap on the hair too
+  hm:each(function(x, y)
+    local cur = c:get(x, y)
+    local hv = hash(x - X, y - Y, 21)
+    if hv < 0.05 and cur == hair.base then c:px(x, y, hair.shade)
+    elseif hv > 0.975 and cur == hair.shade then c:px(x, y, hair.base) end
+  end)
   c:seam(P{ {6, 30}, {50, 32}, {100, 36}, {150, 42}, {196, 52} })
 
   -- eyes: almond whites, iris + pupil + glint, lid that follows the almond down to a closed curve
