@@ -1,7 +1,6 @@
-# Gnome Venture: handoff (current as of v2.0.87 on branch claude/eager-thompson-7g0p5p, 2026-10-28; main is 2.0.86)
+# Gnome Venture: handoff (current as of v2.0.87, 2026-10-28)
 
-**2.0.87 (branch, not on main):** Jigsaw (see `claude/todo.md` NOW and `claude/plan-jigsaw.md`). Next planned: 2.0.88 Puzzle Pals + weekly schedule.
-
+**2.0.87 (latest, on main, zips in `releases/`):** Jigsaw (see `claude/todo.md` NOW and `claude/plan-jigsaw.md`). Built by Sonnet/Opus agents in parallel: PHP/JS steps A to E by Sonnet, the 14 region pictures and cast art/icons by Opus (3-pass method, `claude/jigsaw-art-process.md`). Everything is off for players until Joshua flips `puzzles_open` / `jigsaw_open` / `jigsaw_tournaments`. Next: 2.0.88 Puzzle Pals + weekly schedule (`claude/plan-puzzle-pals.md`). Owner rule reminders from this release: terse replies, only an update at the end when he asks; Opus draws art; Treks have no pals.
 
 **START HERE:** read `claude/todo.md` (NOW / NEXT / working notes), then `claude/plan-variety.md` and `claude/todo-art-variety.md`. 2.0.81 is on main and uploaded. Old per-release notes (2.0.60 to 2.0.80) moved to `claude/handoff-archive.md`; old to-do blocks to `claude/todo-archive.md`; open branches listed in `claude/branches.md`.
 
