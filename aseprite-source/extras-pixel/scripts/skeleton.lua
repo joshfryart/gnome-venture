@@ -4,6 +4,9 @@
 -- 2x nearest. Stitched Toy (Part D + addenda).
 -- Families: bone = cream (pale ivory #efe2b4, cream-safe gloss), gloves = cream, clogs = dusk, jeans = water
 -- deep, porch wood = soil, floor = stone (warm concrete #a8a499), sneaker = stone, boot = wood.
+-- v4: a real neck (3 cervical vertebrae, jaw clear of the cage), bold 2 px rib slots that read at 100 px,
+-- shorter legs on a narrower stance with a longer torso and visible lumbar spine, darker porch planks so the
+-- ivory bones stand off the background, figure taller in the frame.
 -- v3: ribcage is one felt plate with dark rib gaps (reads at 160 px), arms behind it, 4 px leg bones.
 -- v2: separate ribs + spine + pelvis (readable torso), W arms with 3-finger gloves clear of the legs,
 -- clean slot-and-teeth grin (no zipper), dark thread (#e8a317) on bone so seams/edge stitch show,
@@ -20,7 +23,7 @@ local BONE  = GV.ramp("#efe2b4")
 local GLOVE = GV.ramp("cream")
 local CLOG  = GV.ramp("dusk")
 local JEAN  = GV.ramp("#2a3c6c")
-local WOOD  = GV.ramp("#b4a48a")
+local WOOD  = GV.ramp("#8a6446")     -- darker soil-family planks: ivory bone must pop off them
 local FL    = GV.ramp("#a8a499")
 local SNEAK = GV.ramp("#8b8f96")
 local BOOT  = GV.ramp("wood")
@@ -105,11 +108,11 @@ local function frame(i)
   local bob = sw * sw                         -- knee dip lands on each hold (two per loop)
   local pump = cos(ph)                        -- elbows flap through the crossing
   local sx = 15 * sw
-  local P  = { 80 + 0.5 * sx, 85 + 3 * bob }            -- pelvis
-  local Rc = { 80 + 0.8 * sx, P[2] - 19 }               -- ribcage centre
-  local Hc = { R(80 + 14 * hsw), R(41 + 3 * bob) }      -- skull
+  local P  = { 80 + 0.5 * sx, 91 + 3 * bob }            -- pelvis
+  local Rc = { 80 + 0.8 * sx, P[2] - 24 }               -- ribcage centre
+  local Hc = { R(80 + 13 * hsw), R(25 + 3 * bob) }      -- skull (a neck's length above the cage)
   local f = R(2.5 * sw)                                 -- face turns toward the sway
-  local Al, Ar = { 40 - 0.2 * sx, 122 }, { 120 - 0.2 * sx, 122 }  -- feet stay planted (tiny slide)
+  local Al, Ar = { 48 - 0.2 * sx, 119 }, { 112 - 0.2 * sx, 119 }  -- feet stay planted (tiny slide)
 
   -- small contact shadows under the clogs only
   for _, A in ipairs({ Al, Ar }) do c:fill(c:ellipse(R(A[1]), A[2] + 10, 10, 1.5), FL.shade) end
@@ -118,9 +121,9 @@ local function frame(i)
     return c:line({ p, q }, w or 3):add(c:ellipse(R(p[1]), R(p[2]), 2)):add(c:ellipse(R(q[1]), R(q[2]), 2))
   end
   -- legs: bowed knees, deeper on the dip
-  local Hl, Hr = { P[1] - 7, P[2] + 3 }, { P[1] + 7, P[2] + 3 }
-  local Kl = { (Hl[1] + Al[1]) / 2 - 6 - 3 * bob, (Hl[2] + Al[2]) / 2 - 2 }
-  local Kr = { (Hr[1] + Ar[1]) / 2 + 6 + 3 * bob, (Hr[2] + Ar[2]) / 2 - 2 }
+  local Hl, Hr = { P[1] - 8, P[2] + 4 }, { P[1] + 8, P[2] + 4 }
+  local Kl = { (Hl[1] + Al[1]) / 2 - 7 - 3 * bob, (Hl[2] + Al[2]) / 2 - 3 }
+  local Kr = { (Hr[1] + Ar[1]) / 2 + 7 + 3 * bob, (Hr[2] + Ar[2]) / 2 - 3 }
   c:part(bone(Hl, Kl, 4), BONE, { flat = true })
   c:part(bone(Kl, Al, 4), BONE, { flat = true })
   c:part(bone(Hr, Kr, 4), BONE, { flat = true })
@@ -137,38 +140,49 @@ local function frame(i)
   clog(Al, -1); clog(Ar, 1)
   -- spine: a column of vertebrae from the pelvis up to the neck
   local px, py, rx, ry = R(P[1]), R(P[2]), R(Rc[1]), R(Rc[2])
-  local nv = 7
-  for v = 0, nv - 1 do                          -- bottom up, 4 px apart: the outline makes the disc gaps
+  local nv = 5
+  for v = 0, nv - 1 do                          -- lumbar column, 4 px apart: the outline makes the disc gaps
     local t = v / (nv - 1)
-    local vx, vy = R(px + (rx - px) * t), R(py - 1 + (ry - 8 - (py - 1)) * t)
-    c:part(c:rrect(vx - 2, vy - 1, vx + 2, vy + 1, 1), BONE, { flat = true })
+    local vx, vy = R(px + (rx - px) * t), R(py - 1 + (ry + 6 - (py - 1)) * t)
+    c:part(c:rrect(vx - 3, vy - 1, vx + 3, vy + 1, 1), BONE, { flat = true })
+  end
+  -- neck: three cervical vertebrae from the top of the cage up under the jaw (behind cage and skull)
+  local hx, hy = Hc[1], Hc[2]
+  for v = 0, 2 do
+    local t = (v + 0.5) / 3
+    local vx, vy = R(rx + (hx - rx) * t), R(ry - 11 + (hy + 19 - (ry - 11)) * t)
+    c:part(c:rrect(vx - 3, vy - 1, vx + 3, vy + 1, 1), BONE, { flat = true })
   end
   -- pelvis: two hip wings with a notch at the top, over a small bowl
-  c:part(c:ellipse(px - 5, py + 2, 5.5, 4):add(c:ellipse(px + 5, py + 2, 5.5, 4)):add(c:rrect(px - 4, py + 2, px + 4, py + 7, 2)), BONE, { cres = 3, deep = 1, gloss = false })
+  c:part(c:ellipse(px - 6, py + 2, 5.5, 4):add(c:ellipse(px + 6, py + 2, 5.5, 4)):add(c:rrect(px - 4, py + 2, px + 4, py + 7, 2)), BONE, { cres = 3, deep = 1, gloss = false })
   c:fill(c:rect(px, py - 2, px, py + 1), UMB)
   -- upper arms out to the elbows (W pose), drawn before the cage so the shoulders sit behind it
-  local Sl, Sr = { rx - 9, ry - 5 }, { rx + 9, ry - 5 }
+  local Sl, Sr = { rx - 10, ry - 6 }, { rx + 10, ry - 6 }
   local El = { Sl[1] - 15 - 2 * pump, Sl[2] + 9 + 2 * bob }
   local Er = { Sr[1] + 15 - 2 * pump, Sr[2] + 9 + 2 * bob }
   local Wl = { El[1] - 3, El[2] - 13 + 6 * sw }       -- left hand up when swaying left
   local Wr = { Er[1] + 3, Er[2] - 13 - 6 * sw }
   c:part(bone(Sl, El), BONE, { flat = true })
   c:part(bone(Sr, Er), BONE, { flat = true })
-  -- ribcage: one felt plate (wide shoulders, tucked waist) with three dark rib gaps each side
-  local cage = c:ellipse(rx, ry - 3, 12, 8):add(c:rrect(rx - 10, ry - 3, rx + 10, ry + 7, 4))
-  c:part(cage, BONE, { cres = 4, deep = 1, gloss = { rx - 8, ry - 7 } })
+  -- ribcage: one felt plate (wide shoulders, tucked waist) cut by three bold 2 px rib slots each side,
+  -- dusk-dark like the sockets so the ribs read as ribs at 100 px, not as a plain chest
+  local cage = c:ellipse(rx, ry - 3, 13, 8):add(c:rrect(rx - 11, ry - 3, rx + 11, ry + 8, 4))
+  c:part(cage, BONE, { cres = 4, deep = 1, gloss = { rx - 9, ry - 7 } })
+  local inner = cage:shrink(2)
   for j = 0, 2 do
     local y0 = ry - 5 + 5 * j
-    local span = ({ 11, 10, 8 })[j + 1]
-    c:fill(c:line({ { rx - 3, y0 }, { rx - span + 2, y0 + 1 }, { rx - span, y0 + 3 } }, 1), UMB)
-    c:fill(c:line({ { rx + 3, y0 }, { rx + span - 2, y0 + 1 }, { rx + span, y0 + 3 } }, 1), UMB)
+    local span = ({ 11, 11, 9 })[j + 1]
+    for _, d in ipairs({ -1, 1 }) do
+      local slot = c:line({ { rx + 3 * d, y0 }, { rx + (span - 3) * d, y0 + 1 }, { rx + span * d, y0 + 3 } }, 2):clip(inner)
+      c:fill(slot, SOCKD)
+      c:fill(slot:shift(0, -1):cut(slot):clip(inner), BONE.shade)   -- the rib above casts onto the slot top
+    end
   end
   -- sternum plate with the felt seam down it
-  c:part(c:rrect(rx - 2, ry - 7, rx + 2, ry + 6, 2), BONE, { flat = true })
-  bseam(c, { { rx, ry - 1 }, { rx, ry + 6 } })
-  c:button(rx - 2, ry - 6)                       -- collar button at the head of the sternum seam
+  c:part(c:rrect(rx - 2, ry - 8, rx + 2, ry + 7, 2), BONE, { flat = true })
+  bseam(c, { { rx, ry - 2 }, { rx, ry + 7 } })
+  c:button(rx - 2, ry - 7)                       -- collar button at the head of the sternum seam
   -- skull, jaw, face
-  local hx, hy = Hc[1], Hc[2]
   local skull = c:ellipse(hx, hy, 18, 15)
   c:part(skull, BONE, { cres = 5, deep = 2 })
   bstitch(c, skull)
