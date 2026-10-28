@@ -2,56 +2,56 @@
 # pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
 # pic_slug = pl- + the place key cut to 44 chars + - + md5(key)[0:6], as ppal_pic_slug() reads it for source place.
 pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-1|Belfry Ding|common|wayfinder|1|1|1|0|4-1|corner-TT|round|-|Rings the belfry bell at dawn so every monk knows the herbs are ready.
-pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-2|Cowl Hum|common|brewroot|0|2|1|0|3-6|edge-TTB|peg|-|A brown-robed monk who hums to the herbs and never quite finishes the tune.
-pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-3|Lemon Drop|common|bloomcaller|1|0|1|1|8-5|inner-TBTB|round|-|A ripe lemon that rolls off the grove path and rolls straight back up again.
-pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-4|Terrace Steps|uncommon|thornblade|2|1|1|1|10-5|inner-TTTT|round|-|Four lemon terraces step down the hill, each one a little sunnier than the last.
+pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-2|Cowl Hum|common|brewroot|0|2|1|0|10-6|edge-TTB|peg|-|A brown-robed monk who hums to the herbs and never quite finishes the tune.
+pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-3|Jar Jostle|common|bloomcaller|1|0|1|1|8-7|inner-TBTB|round|-|Jars of lemon cordial that clink together on the bench, a little louder whenever a gnome walks by.
+pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-4|Arch Parade|uncommon|thornblade|2|1|1|1|4-4|inner-TTTT|round|-|A row of tall arched windows standing shoulder to shoulder like a choir, humming in the evening light.
 pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-5|Sunset Halo|uncommon|bloomcaller|1|0|2|2|10-3|inner-BBBB|peg|-|A round sun sinking behind the monastery sea, right on time for evening prayers.
-pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-6|Abbot Lemon|rare|wayfinder|2|2|1|1|9-5|whimsy-lemon|round|-|A wise lemon-faced abbot who blesses every fruit and keeps the best one for himself.
-pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-1|Pepper Awning|common|seedkeeper|1|1|1|0|1-3|corner-TB|round|-|A striped awning pulled low so the sun can’t wilt the peppers on the stall.
-pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-2|Flagpole Waver|common|wayfinder|0|2|1|0|4-3|edge-BTB|peg|-|Waves a red pennant from the pole so every shopper finds the cocoa house at last.
-pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-3|Cocoa Steam|common|brewroot|1|0|1|1|10-1|inner-TBTB|round|-|Curls up from the cocoa house chimney and tickles the passing clouds.
-pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-4|Ristra Bundle|uncommon|thornblade|2|1|1|1|0-4|inner-TTTT|peg|-|Four bright red chilies tied on a string, drying in the warm market breeze.
-pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-5|Oven Mouth|uncommon|brewroot|1|0|2|2|9-5|inner-BBBB|round|-|The round dark oven mouth where the cocoa bubbles, kept warm by a sleepy gnome.
+pl-haven-lemon-grove-monastery-c58bd8|pl-lemn-6|Abbot Lemon|rare|wayfinder|2|2|1|1|8-5|whimsy-lemon|round|-|A wise lemon-faced abbot who blesses every fruit and keeps the best one for himself.
+pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-1|Stripe Shade|common|seedkeeper|1|1|1|0|1-3|corner-TB|round|-|A striped awning pulled low so the sun can’t wilt the peppers on the stall.
+pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-2|Pennant Wave|common|wayfinder|0|2|1|0|4-3|edge-BTB|peg|-|Waves a red pennant from the pole so every shopper finds the cocoa house at last.
+pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-3|Cocoa Curl|common|brewroot|1|0|1|1|10-1|inner-TBTB|round|-|Curls up from the cocoa house chimney and tickles the passing clouds.
+pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-4|Chili Cluster|uncommon|thornblade|2|1|1|1|0-4|inner-TTTT|peg|-|A stall full of bright red chilies, piled up and glowing in the warm market light.
+pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-5|Cocoa Cauldron|uncommon|brewroot|1|0|2|2|9-5|inner-BBBB|round|-|A dark round window where the cocoa pot sits warm and bubbling.
 pl-haven-market-of-a-thousand-chilies-ba9373|pl-chil-6|Pepper Prince|rare|thornblade|2|2|1|1|2-4|whimsy-chili|peg|-|A plump red chili in a tiny crown, who sells the spiciest bargains in the whole market.
-pl-haven-northern-lights-sauna-d871cc|pl-aurs-1|Chimney Puff|common|brewroot|1|0|1|1|10-1|corner-BB|round|-|Puffs warm steam from the sauna chimney so the stars know the bath is hot.
-pl-haven-northern-lights-sauna-d871cc|pl-aurs-2|Pine Sentry|common|rootwarden|1|1|1|0|0-5|edge-TBT|peg|-|A tall pine by the frozen lake that keeps watch over the sauna and its towels.
-pl-haven-northern-lights-sauna-d871cc|pl-aurs-3|Dock Plank|common|wayfinder|1|0|1|1|4-6|inner-TBTB|peg|-|A wooden plank of the lake dock that creaks happily under every tiny bare foot.
-pl-haven-northern-lights-sauna-d871cc|pl-aurs-4|Ribbon Lights|uncommon|thornblade|2|1|1|1|4-1|inner-TTTT|round|-|Four green ribbons of aurora ripple across the sky, all of them waving hello.
-pl-haven-northern-lights-sauna-d871cc|pl-aurs-5|Ice Hole|uncommon|bloomcaller|1|0|2|2|5-7|inner-BBBB|peg|-|A round hole cut in the lake ice where the sauna gnomes take a quick cool dip.
-pl-haven-northern-lights-sauna-d871cc|pl-aurs-6|Cabin Snug|rare|wayfinder|2|2|1|1|8-4|whimsy-cabin|round|-|A tiny log cabin that naps under the aurora and steams whenever someone says hello.
-pl-haven-olive-press-piazza-f69430|pl-oliv-1|Garland Swing|common|seedkeeper|1|1|1|0|4-1|corner-TT|round|-|A string of pennants swinging across the piazza, which the wind turns into a dance.
-pl-haven-olive-press-piazza-f69430|pl-oliv-2|Olive Branch|common|rootwarden|0|2|1|0|11-3|edge-TBB|peg|-|A silver-green olive tree that sheds a leaf on the piazza and sweeps it up again.
-pl-haven-olive-press-piazza-f69430|pl-oliv-3|Bread Basket|common|brewroot|1|0|1|1|0-6|inner-TBTB|round|-|A basket of warm bread rolls that everyone swears is only for sharing.
-pl-haven-olive-press-piazza-f69430|pl-oliv-4|Press Beam|uncommon|thornblade|2|1|1|1|5-5|inner-TTTT|peg|-|Four wooden arms of the olive press, each one leaning on the big stone wheel.
-pl-haven-olive-press-piazza-f69430|pl-oliv-5|Millstone Ring|uncommon|bloomcaller|1|0|2|2|5-6|inner-BBBB|round|-|A great round millstone that turns slowly over the olives and grinds out golden oil.
-pl-haven-olive-press-piazza-f69430|pl-oliv-6|Pressed Gold|rare|seedkeeper|2|2|1|1|11-2|whimsy-olive|peg|-|A plump olive that was squeezed into the finest golden oil and is quite proud of it.
+pl-haven-northern-lights-sauna-d871cc|pl-aurs-1|Steam Hello|common|brewroot|1|0|1|1|10-1|corner-BB|round|-|Puffs warm steam from the sauna chimney so the stars know the bath is hot.
+pl-haven-northern-lights-sauna-d871cc|pl-aurs-2|Pine Shiver|common|rootwarden|1|1|1|0|0-5|edge-TBT|peg|-|A tall pine by the frozen lake that shivers happily and keeps an eye on the sauna.
+pl-haven-northern-lights-sauna-d871cc|pl-aurs-3|Dock Creak|common|wayfinder|1|0|1|1|6-6|inner-TBTB|peg|-|A wooden plank of the lake dock that creaks happily under every tiny bare foot.
+pl-haven-northern-lights-sauna-d871cc|pl-aurs-4|Green Ripple|uncommon|thornblade|2|1|1|1|4-1|inner-TTTT|round|-|A swirl of green light that dances over the frozen lake and waves at the sauna gnomes.
+pl-haven-northern-lights-sauna-d871cc|pl-aurs-5|Cool Dip|uncommon|bloomcaller|1|0|2|2|1-7|inner-BBBB|peg|-|A round hole cut in the lake ice where the sauna gnomes take a quick cool dip.
+pl-haven-northern-lights-sauna-d871cc|pl-aurs-6|Towel Bear|rare|wayfinder|2|2|1|1|3-6|whimsy-bear|round|-|A sleepy bear wrapped in a warm towel, who steams happily outside the sauna and waves at the aurora.
+pl-haven-olive-press-piazza-f69430|pl-oliv-1|Pennant Frolic|common|seedkeeper|1|1|1|0|3-1|corner-TT|round|-|A string of pennants swinging across the piazza, which the wind turns into a dance.
+pl-haven-olive-press-piazza-f69430|pl-oliv-2|Leaf Sweep|common|rootwarden|0|2|1|0|11-3|edge-TBB|peg|-|A silver-green olive tree that sheds a leaf on the piazza and sweeps it up again.
+pl-haven-olive-press-piazza-f69430|pl-oliv-3|Loaf Share|common|brewroot|1|0|1|1|0-6|inner-TBTB|round|-|A basket of warm bread rolls that everyone swears is only for sharing.
+pl-haven-olive-press-piazza-f69430|pl-oliv-4|Piazza Chime|uncommon|thornblade|2|1|1|1|4-1|inner-TTTT|peg|-|A tower window with a little golden bell glowing in it, ringing the hour over the piazza.
+pl-haven-olive-press-piazza-f69430|pl-oliv-5|Millstone Turn|uncommon|bloomcaller|1|0|2|2|6-6|inner-BBBB|round|-|A great round millstone that turns slowly over the olives and grinds out golden oil.
+pl-haven-olive-press-piazza-f69430|pl-oliv-6|Pressed Gold|rare|seedkeeper|2|2|1|1|10-3|whimsy-olive|peg|-|A plump olive that was squeezed into the finest golden oil and is quite proud of it.
 pl-haven-painted-egg-house-abccd0|pl-eggs-1|Painted Bough|common|rootwarden|1|1|1|0|1-3|corner-TB|round|-|A little tree dressed in painted eggs that rattle politely when the spring wind passes.
-pl-haven-painted-egg-house-abccd0|pl-eggs-2|Dabbing Brush|common|seedkeeper|0|2|1|0|4-6|edge-TTB|peg|-|The painter’s brush, tucked behind a gnome’s ear, dabbing a fresh stripe on every egg.
-pl-haven-painted-egg-house-abccd0|pl-eggs-3|Spring Chick|common|wayfinder|1|0|1|1|6-7|inner-TBTB|round|-|A fluffy yellow chick that follows the painted eggs around like a little shadow.
-pl-haven-painted-egg-house-abccd0|pl-eggs-4|Fence Eggs|uncommon|thornblade|2|1|1|1|8-7|inner-TTTT|peg|-|Four painted eggs lined up along the fence, each one dressed in a different spring stripe.
-pl-haven-painted-egg-house-abccd0|pl-eggs-5|Roof Egg|uncommon|bloomcaller|1|0|2|2|5-2|inner-BBBB|round|-|A giant painted egg on the gable with red and cream stripes and a bow on top.
-pl-haven-painted-egg-house-abccd0|pl-eggs-6|Stripe Egg|rare|bloomcaller|2|2|1|1|5-3|whimsy-egg|round|-|A chibi painted egg in a red bow, grinning and never once cracking under pressure.
-pl-haven-spice-souk-8d3043|pl-spsk-1|Awning Stripe|common|seedkeeper|1|1|1|0|2-0|corner-TT|round|-|Red and cream stripes hung over the stall so the sun has to take the long way round.
+pl-haven-painted-egg-house-abccd0|pl-eggs-2|Dabbing Painter|common|seedkeeper|0|2|1|0|4-6|edge-TTB|peg|-|A gnome in a red hat who dabs a fresh stripe on every egg and hums while he works.
+pl-haven-painted-egg-house-abccd0|pl-eggs-3|Spring Chick|common|wayfinder|1|0|1|1|7-7|inner-TBTB|round|-|A fluffy yellow chick that follows the painted eggs around like a little shadow.
+pl-haven-painted-egg-house-abccd0|pl-eggs-4|Fence Eggs|uncommon|thornblade|2|1|1|1|9-6|inner-TTTT|peg|-|Painted eggs lined up along the fence, each one dressed in a different spring stripe.
+pl-haven-painted-egg-house-abccd0|pl-eggs-5|Wreath Hollow|uncommon|bloomcaller|1|0|2|2|9-5|inner-BBBB|round|-|A round orange wreath on the wall that frames the garden like a little window.
+pl-haven-painted-egg-house-abccd0|pl-eggs-6|Pink Stripe Egg|rare|bloomcaller|2|2|1|1|2-6|whimsy-egg|round|-|A chibi painted egg in a red bow, grinning and never once cracking under pressure.
+pl-haven-spice-souk-8d3043|pl-spsk-1|Awning Flutter|common|seedkeeper|1|1|1|0|2-0|corner-TT|round|-|Red and cream stripes hung over the stall so the sun has to take the long way round.
 pl-haven-spice-souk-8d3043|pl-spsk-2|Palm Sway|common|bloomcaller|0|2|1|0|0-3|edge-TBT|peg|-|A little palm by the souk gate that sways to the sound of the mint tea kettle.
-pl-haven-spice-souk-8d3043|pl-spsk-3|Souk Lantern|common|brewroot|1|0|1|1|4-1|inner-TBTB|round|-|A hanging lantern that swings above the spice bowls and keeps the mint tea warm.
-pl-haven-spice-souk-8d3043|pl-spsk-4|Spice Cone|uncommon|thornblade|2|1|1|1|5-6|inner-TTTT|peg|-|Four cones of spice in tiny bowls, red and gold and green and purple, all smelling of mint.
-pl-haven-spice-souk-8d3043|pl-spsk-5|Brass Bowl|uncommon|bloomcaller|1|0|2|2|4-6|inner-BBBB|round|-|A round brass bowl that holds the day’s cinnamon sticks and a dusting of gold.
-pl-haven-spice-souk-8d3043|pl-spsk-6|Lantern Sage|rare|wayfinder|2|2|1|1|7-1|whimsy-lantern|peg|-|A wise lantern who lights every spice sack in the covered souk and keeps its secrets.
-pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-1|Smoke Curl|common|brewroot|1|1|1|0|7-0|corner-BB|round|-|A thin curl of kettle smoke from the chimney that winks at the clouds.
-pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-2|Window Box|common|bloomcaller|0|2|1|0|7-6|edge-TTB|peg|-|A window box of pink flowers that the tearoom gnome waters with a tiny teapot.
-pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-3|Round Door|common|seedkeeper|1|0|1|1|5-5|inner-TBTB|round|-|A green round-topped door that opens to any friend who brings a scone.
-pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-4|Scone Tower|uncommon|thornblade|2|1|1|1|9-6|inner-TTTT|peg|-|Four golden scones stacked high with a dollop of jam on top, shared by the whole table.
+pl-haven-spice-souk-8d3043|pl-spsk-3|Lamp Dangle|common|brewroot|1|0|1|1|4-1|inner-TBTB|round|-|A hanging lantern that swings above the spice bowls and keeps the mint tea warm.
+pl-haven-spice-souk-8d3043|pl-spsk-4|Spice Dunes|uncommon|thornblade|2|1|1|1|3-6|inner-TTTT|peg|-|Cones of spice in red, gold and green piled up in the stall, all smelling of mint.
+pl-haven-spice-souk-8d3043|pl-spsk-5|Brass Glimmer|uncommon|bloomcaller|1|0|2|2|0-7|inner-BBBB|round|-|A round brass bowl that holds the day’s cinnamon sticks and a dusting of gold.
+pl-haven-spice-souk-8d3043|pl-spsk-6|Minty Fez Vendor|rare|wayfinder|2|2|1|1|6-4|whimsy-fez|peg|-|A little fez with a friendly face who sells every spice with a wink and a cup of mint tea.
+pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-1|Chimney Wink|common|brewroot|1|1|1|0|8-1|corner-BB|round|-|A chimney on the thatch with a pot on top that winks at the clouds.
+pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-2|Sill Sprinkle|common|bloomcaller|0|2|1|0|3-6|edge-TTB|peg|-|A window box of pink flowers that gets watered with a tiny teapot every morning.
+pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-3|Knock Knock|common|seedkeeper|1|0|1|1|5-5|inner-TBTB|round|-|A green round-topped door that opens to any friend who brings a scone.
+pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-4|Scone Tower|uncommon|thornblade|2|1|1|1|9-6|inner-TTTT|peg|-|Golden scones stacked high with a dollop of jam on top, shared by the whole table.
 pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-5|Gable Eye|uncommon|bloomcaller|1|0|2|2|5-2|inner-BBBB|round|-|A round gable window under the thatch that watches the garden like a sleepy owl.
-pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-6|Teapot Cosy|rare|brewroot|2|2|1|1|4-6|whimsy-teapot|peg|-|A plump teapot in a knitted cosy, who pours for every guest and never runs dry.
-pl-haven-the-sugar-shack-364637|pl-sugr-1|Sap Bucket|common|rootwarden|1|1|1|0|9-6|corner-TT|round|-|A tin bucket hung on a maple, catching sweet sap one slow drip at a time.
-pl-haven-the-sugar-shack-364637|pl-sugr-2|Tapper Hat|common|seedkeeper|0|2|1|0|2-6|edge-BTB|peg|-|A red-hatted tapper gnome who drills each maple just gently enough.
-pl-haven-the-sugar-shack-364637|pl-sugr-3|Sugar Steam|common|brewroot|1|0|1|1|5-2|inner-TBTB|round|-|Sweet steam pours from the cabin chimney and drifts off into the maple wood.
-pl-haven-the-sugar-shack-364637|pl-sugr-4|Maple Leaves|uncommon|thornblade|2|1|1|1|10-4|inner-TTTT|peg|-|Four orange maple leaves that the autumn wind keeps blowing across the shack roof.
-pl-haven-the-sugar-shack-364637|pl-sugr-5|Knothole Nook|uncommon|rootwarden|1|0|2|2|1-4|inner-BBBB|round|-|A round knothole in the maple trunk, handy for stashing a spare tap and a sugary snack.
-pl-haven-the-sugar-shack-364637|pl-sugr-6|Maple Mayor|rare|wayfinder|2|2|1|1|9-3|whimsy-maple|peg|-|A jolly maple-leaf mayor who taps every tree in town and hands out syrup at the door.
-pl-haven-turtle-nesting-beach-ffa682|pl-turt-1|Moon Lamp|common|wayfinder|1|1|1|0|7-1|corner-TB|round|-|A big full moon that lights the whole beach so the hatchlings can find the sea.
+pl-haven-thatchtop-tearoom-0ce3c9|pl-thch-6|Teatime Hedgehog|rare|brewroot|2|2|1|1|4-7|whimsy-hedgehog|peg|-|A round little hedgehog who trots between the tables with a tiny treat and never spills a drop.
+pl-haven-the-sugar-shack-364637|pl-sugr-1|Bucket Plink|common|rootwarden|1|1|1|0|1-6|corner-TT|round|-|A tin bucket hung on a maple, catching sweet sap one slow drip at a time.
+pl-haven-the-sugar-shack-364637|pl-sugr-2|Tapper Tip|common|seedkeeper|0|2|1|0|3-5|edge-BTB|peg|-|A red-hatted tapper gnome who drills each maple just gently enough.
+pl-haven-the-sugar-shack-364637|pl-sugr-3|Sweet Steam Wander|common|brewroot|1|0|1|1|6-1|inner-TBTB|round|-|Sweet steam pours from the cabin chimney and drifts off into the maple wood.
+pl-haven-the-sugar-shack-364637|pl-sugr-4|Maple Quartet|uncommon|thornblade|2|1|1|1|10-4|inner-TTTT|peg|-|Orange maple leaves that the autumn wind keeps blowing across the shack roof.
+pl-haven-the-sugar-shack-364637|pl-sugr-5|Syrup Shine|uncommon|rootwarden|1|0|2|2|7-6|inner-BBBB|round|-|A warm orange window where the syrup bubbles, glowing on cold mornings.
+pl-haven-the-sugar-shack-364637|pl-sugr-6|Maple Mayor|rare|wayfinder|2|2|1|1|2-4|whimsy-maple|peg|-|A jolly maple-leaf mayor who taps every tree in town and hands out syrup at the door.
+pl-haven-turtle-nesting-beach-ffa682|pl-turt-1|Moonlit Beam|common|wayfinder|1|1|1|0|7-1|corner-TB|round|-|A big full moon that lights the whole beach so the hatchlings can find the sea.
 pl-haven-turtle-nesting-beach-ffa682|pl-turt-2|Flipper Dash|common|seedkeeper|0|2|1|0|3-5|edge-TTB|peg|-|The smallest hatchling in the line, who flaps hard and never once looks back.
-pl-haven-turtle-nesting-beach-ffa682|pl-turt-3|Wave Ribbon|common|brewroot|1|0|1|1|5-3|inner-TBTB|round|-|A ribbon of moonlit wave that rolls up the sand and tickles the hatchlings’ toes.
+pl-haven-turtle-nesting-beach-ffa682|pl-turt-3|Wave Ribbon|common|brewroot|1|0|1|1|7-4|inner-TBTB|round|-|A ribbon of moonlit wave that rolls up the sand and tickles the hatchlings’ toes.
 pl-haven-turtle-nesting-beach-ffa682|pl-turt-4|Hatchling Line|uncommon|thornblade|2|1|1|1|4-5|inner-TTTT|peg|-|Four hatchlings in a neat line, each one following the flipper prints in front.
-pl-haven-turtle-nesting-beach-ffa682|pl-turt-5|Mother Shell|uncommon|bloomcaller|1|0|2|2|7-6|inner-BBBB|round|-|A big round turtle shell, mossy green, tucked in a sand nest for a well-earned snooze.
-pl-haven-turtle-nesting-beach-ffa682|pl-turt-6|Lantern Shell|rare|wayfinder|2|2|1|1|8-6|whimsy-turtle|peg|-|A chibi sea turtle with a little lantern on its back, leading the hatchlings home.
+pl-haven-turtle-nesting-beach-ffa682|pl-turt-5|Mama Shell|uncommon|bloomcaller|1|0|2|2|9-5|inner-BBBB|round|-|A big round turtle shell, mossy green, resting on the sand after a long swim.
+pl-haven-turtle-nesting-beach-ffa682|pl-turt-6|Moonshell Hatchling|rare|wayfinder|2|2|1|1|7-5|whimsy-hatchling|peg|-|A chibi hatchling with a moonlit shell, who leads the others down to the water.
