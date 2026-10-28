@@ -62,7 +62,7 @@ for r = 0, 4 do
   end
 end
 -- raised salt lip along the shore edge (a line of tiny pale crests)
-for x = 0, W - 1, 3 do local y = math.floor(114 + 3 * math.sin(x / 22 + 1) + 2 * math.sin(x / 8)); c:px(x, y, "#ffffff" == "" and "#fff" or "#fff3c8") end
+for x = 0, W - 1, 3 do local y = math.floor(114 + 3 * math.sin(x / 22 + 1) + 2 * math.sin(x / 8)); c:px(x, y, "#fff3c8") end
 
 -- flamingos wading, with reflections (left): chibi
 local function flamingo(x, y, flip)
@@ -94,7 +94,7 @@ c:part(c:rect(gx + 5, gy + 2, gx + 8, gy + 5), GV.ramp("#e8a317"), { flat = true
 c:part(c:ring and c:ellipse(gx - 7, gy + 5, 3, 2) or c:ellipse(gx - 7, gy + 5, 3, 2), GV.ramp("#e8a317"), { flat = true, gloss = false })
 c:px(gx - 1, gy + 1, "#fff1c8"); c:px(gx, gy + 1, "#fff1c8")
 -- glint star: a 4-point cross
-local function star(x, y, r) c:fill(c:rect(x - r, y, x + r, y), "#fff1c8"); c:fill(c:rect(x, y - r, x, y + r), "#fff1c8"); c:px(x, y, "#ffffff" == "" and "#fff" or "#f5cf6a") end
+local function star(x, y, r) c:fill(c:rect(x - r, y, x + r, y), "#fff1c8"); c:fill(c:rect(x, y - r, x, y + r), "#fff1c8"); c:px(x, y, "#f5cf6a") end
 star(gx - 1, gy - 5, 4); star(gx + 8, gy - 1, 2); star(gx - 9, gy + 1, 2)
 -- ripples around the island and the flamingos
 for _, r in ipairs({ {gx - 20, gy + 11, 8}, {gx + 14, gy + 12, 6}, {52, 124, 14}, {78, 118, 8} }) do c:fill(c:rect(r[1], r[2], r[1] + r[3], r[2]), "#fff3c8") end
