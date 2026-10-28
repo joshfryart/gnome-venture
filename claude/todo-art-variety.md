@@ -46,6 +46,11 @@ Do-tab card pictures, 144x108 PNG like the other `assets/img/acts/act-*.png`. On
 - [ ] `game/assets/img/acts/act-contest.png`: a friendly contest (two gnomes squaring up, hands out)
 Nice to have: own pictures for the regional ones, and a "Birds of the Maplewold" journal page picture per collection (the checklist shows only as text for now).
 
+## In the game as PLACEHOLDER (2.0.79, road cards and the Road Journal)
+- [ ] Road card kind icons, 24px on the card label, `game/assets/img/roadkinds/<kind>.png`: fork (a signpost with two arrows), riddle (a question mark in a leaf), trade (two hands swapping a basket), chain (linked acorns), sketch (a notebook and pencil)
+- [ ] Road Journal picture per region, 48px beside the region's page, `game/assets/img/journal/<code>.png` (na ca cb sa nwe se ee mena wca esa csa ea sea oc): a small drawing of something typical of the region, as if sketched in a journal
+- Later: a picture per sketch page (6 per region) shown when you stamp it.
+
 ## Wanted soon (not made yet: add a placeholder when the verb ships)
 Build-stage verbs still to come (one icon each, same folder, `stage-<verb>.png`): carry (a parcel with a road), befriend (two gnomes shaking hands), trial (a small trophy or a target), vigil (a moon and a lantern), wait (an hourglass), decorate (a flag or a flower pot), craft_on_site (a hammer on an anvil), fetch_lore (a scroll).
 

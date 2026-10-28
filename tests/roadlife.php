@@ -164,18 +164,19 @@ $ev = road_events(true);
 $E = $ev['ev']; $SI = $ev['sights'];
 $generic = array_filter($E, fn($e) => $e['region'] === ['any']);
 ok('events load: ' . count($E) . ' scenes (' . count($generic) . ' generic)', count($generic) >= 30);
-foreach (['NA', 'NWE', 'EA'] as $rc) ok("region pack $rc has 8 scenes", count(array_filter($E, fn($e) => $e['region'] === [$rc])) === 8);
+foreach (['NWE', 'EA'] as $rc) ok("region pack $rc has 8 scenes", count(array_filter($E, fn($e) => $e['region'] === [$rc])) === 8);
+foreach (['NA', 'CA'] as $rc) ok("region pack $rc has 8 old scenes + 24 of the v2.0.79 kinds", count(array_filter($E, fn($e) => $e['region'] === [$rc])) === ($rc === 'NA' ? 32 : 30), (string)count(array_filter($E, fn($e) => $e['region'] === [$rc])));
 ok('12 sights, all wild-only', count($SI) === 12 && count(array_filter($SI, fn($x) => $x['where'] === 'wild')) === 12);
 ok('first 14 keep the old numbers (bee-log first, carved-boulder 14th)', array_keys($E)[0] === 'bee-log' && array_keys($E)[13] === 'carved-boulder');
 $errs = [];
 $statOk = array_keys(GNOME_STATS);
-$fxKinds = ['xp', 'coins', 'item', 'rand', 'energy', 'buff', 'heal', 'hp', 'pay', 'landmark', 'tip'];
+$fxKinds = ['xp', 'coins', 'item', 'rand', 'energy', 'buff', 'heal', 'hp', 'pay', 'landmark', 'tip', 'take', 'next', 'skip', 'journal'];   // v2.0.79: take next skip journal
 $randOk = ['forage', 'uncommon', 'food', 'soil', 'seed', 'flowerseed', 'treeseed'];
 $newRandOk = ['forage', 'uncommon', 'food'];
 $lintFx = function (string $fx, bool $legacy, string $where) use ($fxKinds, $randOk, $newRandOk): array {
     $e = [];
     if ($fx === '') return $e;
-    $hasPay = false; foreach (explode('+', $fx) as $p) if (str_starts_with($p, 'pay:')) $hasPay = true;
+    $hasPay = false; foreach (explode('+', $fx) as $p) if (str_starts_with($p, 'pay:') || str_starts_with($p, 'take:')) $hasPay = true;   // v2.0.79: handing over goods is a trade too
     foreach (explode('+', $fx) as $part) {
         $chance = null;
         if (preg_match('/^(.*)@(\d{1,3})$/', $part, $m)) { $part = $m[1]; $chance = (int)$m[2]; }
@@ -195,15 +196,15 @@ foreach ($E as $id => $e) {
     $legacy = $e['n'] < ROAD_LEGACY_EVENTS; $n++;
     if (($m = $lintCond($e['cond']))) $errs[] = "$id: $m";
     if (!preg_match('/^[a-z0-9-]+$/', $id)) $errs[] = "$id: id";
-    if (mb_strlen($e['text']) > 160 || mb_strlen($e['text']) < 20) $errs[] = "$id: scene length " . mb_strlen($e['text']);
+    if (mb_strlen($e['text']) > 300 || mb_strlen($e['text']) < 20) $errs[] = "$id: scene length " . mb_strlen($e['text']);
     foreach ($e['lands'] as $l) if ($l !== 'any' && !isset(LANDSCAPES[$l])) $errs[] = "$id: land $l";
     foreach ($e['region'] as $r) if ($r !== 'any' && !in_array($r, $codes, true)) $errs[] = "$id: region $r";
-    if (count($e['opts']) < 2 || count($e['opts']) > 3) $errs[] = "$id: " . count($e['opts']) . ' options';
+    if (count($e['opts']) < (($e['kind'] ?? '') === 'sketch' ? 1 : 2) || count($e['opts']) > 3) $errs[] = "$id: " . count($e['opts']) . ' options';   // v2.0.79: a sketch has one
     foreach ($e['opts'] as $o) {
-        if ($o['stat'] !== '' && !in_array($o['stat'], $statOk, true)) $errs[] = "$id: stat {$o['stat']}";
-        if ($o['stat'] !== '' && ($o['dc'] < 9 || $o['dc'] > 14)) $errs[] = "$id: dc {$o['dc']}";
-        if ($o['stat'] === '' && $o['win'] === '' && $o['wintext'] === '') $errs[] = "$id: empty option";
-        if ($o['wintext'] === '' || mb_strlen($o['wintext']) > 150 || mb_strlen($o['losetext']) > 150 || mb_strlen($o['label']) > 45) $errs[] = "$id: text length ({$o['label']})";
+        if ($o['stat'] !== '' && $o['stat'] !== '!' && !in_array($o['stat'], $statOk, true)) $errs[] = "$id: stat {$o['stat']}";
+        if ($o['stat'] !== '' && $o['stat'] !== '!' && ($o['dc'] < 9 || $o['dc'] > 14)) $errs[] = "$id: dc {$o['dc']}";
+        if ($o['stat'] === '' && $o['win'] === '' && $o['wintext'] === '' && ($e['kind'] ?? '') !== 'trade') $errs[] = "$id: empty option";
+        if (($o['wintext'] === '' && $o['stat'] !== '!') || mb_strlen($o['wintext']) > 150 || mb_strlen($o['losetext']) > 150 || mb_strlen($o['label']) > 45) $errs[] = "$id: text length ({$o['label']})";
         if ($o['stat'] !== '' && $o['losetext'] === '') $errs[] = "$id: no lose text";
         foreach ($lintFx($o['win'], $legacy, $e['where']) as $m) $errs[] = "$id win: $m";
         foreach ($lintFx($o['lose'], $legacy, $e['where']) as $m) $errs[] = "$id lose: $m";
@@ -214,7 +215,7 @@ foreach ($E as $id => $e) {
 foreach ($SI as $id => $x) { if (($m = $lintCond($x['cond']))) $errs[] = "sight $id: $m"; foreach ($lintFx($x['fx'], true, 'wild') as $m) $errs[] = "sight $id: $m"; }
 ok("events + sights lint ($n scenes)" . ($errs ? ' [' . implode('; ', array_slice($errs, 0, 6)) . ']' : ''), !$errs);
 $raw = file(__DIR__ . '/../game/includes/data/road_events.txt', FILE_IGNORE_NEW_LINES) ?: file($argv[1] . '/includes/data/road_events.txt', FILE_IGNORE_NEW_LINES);
-$bad = 0; $rows = 0; foreach (file($argv[1] . '/includes/data/road_events.txt', FILE_IGNORE_NEW_LINES) as $l) { $l = trim($l); if ($l === '' || $l[0] === '#') continue; $rows++; $c = count(explode('|', $l)); if (($l[0] === 'E' || $l[0] === 'O') && $c !== 8 || $l[0] === 'S' && $c !== 9 || !in_array($l[0], ['E', 'O', 'S'], true)) $bad++; }
+$bad = 0; $rows = 0; foreach (file($argv[1] . '/includes/data/road_events.txt', FILE_IGNORE_NEW_LINES) as $l) { $l = trim($l); if ($l === '' || $l[0] === '#') continue; $rows++; $c = count(explode('|', $l)); if (($l[0] === 'O' && $c !== 8) || ($l[0] === 'E' && !in_array($c, [8, 10], true)) || $l[0] === 'S' && $c !== 9 || !in_array($l[0], ['E', 'O', 'S'], true)) $bad++; }
 ok("every row of road_events.txt has the right number of columns ($rows rows)", $bad === 0, "$bad bad");
 
 echo "== choice cards: fit, region packs, anti-repeat\n";
@@ -251,7 +252,7 @@ foreach (['walk', 'explore'] as $kind) foreach ($E as $id => $e) foreach (array_
     $x = $mk($kind); $x['encounter'] = json_encode(['type' => 'choice', 'ev' => $id]);
     try { explore_choose($gu, $x, $oi); } catch (Throwable $t) { $bad[] = "$kind $id/$oi: " . $t->getMessage(); break; }
     $lg = json_decode($x['log'], true);
-    if ($x['encounter'] !== null || count($lg) !== 1 || !preg_match('/^(✅|❌|👉|👛)/u', $lg[0])) { $bad[] = "$kind $id/$oi: " . json_encode($lg); break; }
+    if ($x['encounter'] !== null || count($lg) !== 1 || !preg_match('/^(✅|❌|👉|👛|🎒)/u', $lg[0])) { $bad[] = "$kind $id/$oi: " . json_encode($lg); break; }
     $logs++;
 }
 ok("$logs resolutions, encounter cleared, one journal line each" . ($bad ? ' [' . implode('; ', array_slice($bad, 0, 3)) . ']' : ''), !$bad);
@@ -457,7 +458,7 @@ $evReg = []; $evIds = []; $evBad = [];
 foreach (file($dd . 'road_events.txt', FILE_IGNORE_NEW_LINES) as $i => $l) {
     if ($l === '' || $l[0] === '#') continue;
     $f = explode('|', $l);
-    if ($f[0] === 'E') { if (count($f) !== 8 || isset($evIds[$f[1]])) $evBad[] = $i + 1; $evIds[$f[1]] = 1; $evReg[$f[4]] = ($evReg[$f[4]] ?? 0) + 1; }
+    if ($f[0] === 'E') { if (!in_array(count($f), [8, 10], true) || isset($evIds[$f[1]])) $evBad[] = $i + 1; $evIds[$f[1]] = 1; $evReg[$f[4]] = ($evReg[$f[4]] ?? 0) + 1; }
     elseif ($f[0] === 'O') { if (count($f) !== 8) $evBad[] = $i + 1; foreach ([$f[4], $f[6]] as $fx) foreach (explode('+', $fx) as $part) if (preg_match('/@(\d+)$/', $part, $m) && (int)$m[1] > 20) $evBad[] = $i + 1; }
     if (str_contains($l, '\'')) $evBad[] = $i + 1;
 }
