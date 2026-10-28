@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.0.68 (2026-10-28)
+- Puzzles rework: Jeff/Ffej/Old Wizard cast skin (`puzzle_cast()` light/dark img pairs, art in `assets/img/puzzles/cast/`); `puzzle_pics` table (seeded from `PUZZLES`, now in `includes/puzzles.php`); admin/puzzles.php Library/Upload/Tournaments (GIF checks in `puzzle_check_gif`, frames by `gif_frame_count`); mulberry32 seeded scramble (`?seed=`); tournaments behind `puzzles_tournaments` (`puzzles_api.php` start/finish, server clock, `start_ms` + `place` columns on `puzzle_attempts`, `settle_puzzle_tournaments`, profile badges). tests/router.php serves `uploads/puzzles/`. New tables, no column patches. Suites puzzles, puzzles_upload, puzzles_tourney.
+
 ## 2.0.29
 - Landing (index.php) + guide.php + landing.css reworked by review (claude/landing-review.md); landing SVGs restyled. No schema change.
 

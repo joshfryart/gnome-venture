@@ -134,11 +134,12 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 .pzbanner{display:block; margin:0 0 8px}
 .pzbanner img{display:block; width:100%; max-height:180px; object-fit:contain}
 .pzhost{display:flex; align-items:center; gap:14px}
-.pzhost .pzface img{width:96px; height:auto}
+.pzhost .pzface{flex:none; width:96px}
+.pzhost .pzface img{width:100%; height:auto}
 .pzhost .pzline{margin:0 0 6px; font-size:15px}
 .pzmsg{margin:6px 0 0; font-weight:600; color:var(--accent-ink, var(--ink))}
 .pzmsg[hidden]{display:none}
-@media (max-width:560px){ .pzhost{align-items:flex-start; gap:10px} .pzhost .pzface img{width:64px} }
+@media (max-width:560px){ .pzhost{align-items:flex-start; gap:10px} .pzhost .pzface{width:64px} }
 .pzwho{flex:none; width:44px; height:44px; display:flex; align-items:center; justify-content:center}
 .pzwho > span{display:none}
 .pzwho > span:empty{display:none !important}

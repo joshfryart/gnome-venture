@@ -317,7 +317,7 @@ function puzzle_attempt_finish(array $u, string $token, int $drops): array
     if ($n !== 1) return [false, 'That run was already handed in.', []];
     if ($st === 'rejected') return [false, 'That run didn’t count: ' . $reason . '.', ['rejected' => true]];
     $best = (int)q_val("SELECT MIN(ms) FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND status = 'done'", [(int)$a['tournament_id'], (int)$u['id']]);
-    $rank = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_attempts WHERE tournament_id = ? AND status = 'done' GROUP BY user_id) x WHERE x.b < ?", [(int)$a['tournament_id'], $best]);
+    $rank = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_attempts WHERE tournament_id = ? AND status = 'done' GROUP BY user_id) x WHERE x.b < ? + 0", [(int)$a['tournament_id'], $best]);
     return [true, $ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.', ['ms' => $ms, 'best' => $best, 'rank' => $rank]];
 }
 

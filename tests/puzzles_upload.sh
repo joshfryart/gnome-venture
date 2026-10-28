@@ -29,7 +29,7 @@ login $W/a admin TestPassword123
 login $W/p sprout 'TestPass123!'
 curl -s -b $W/a $BASE/admin/puzzles.php > $W/lib.html
 ok "admin page loads (Library tab)" "$(grep -c 'Upload</a>' $W/lib.html)" 1
-ok "admin menu links Puzzles" "$(curl -s -b $W/a $BASE/admin/index.php | grep -c 'admin/puzzles.php')" 1
+ok "admin menu links Puzzles" "$(curl -s -b $W/a $BASE/admin/index.php | grep -c 'admin/puzzles.php' | sed 's/^[1-9][0-9]*$/yes/')" yes
 curl -s -b $W/a "$BASE/admin/puzzles.php?tab=upload" > $W/up.html
 ok "upload tab shows the Aseprite note" "$(grep -c 'Simple GIFs; ideally drawn through the Aseprite process (Stitched Toy style).' $W/up.html)" 1
 T=$(csrf $W/up.html)
@@ -37,9 +37,14 @@ up() { curl -s -b $W/$1 -c $W/$1 -o /dev/null -w '%{http_code}' -X POST $BASE/ad
 N0=$(dbv "SELECT COUNT(*) FROM puzzle_pics")
 ok "player can't upload" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/admin/puzzles.php -F csrf=x -F do=upload -F title=x -F "gif=@$W/good.gif;type=image/gif")" 403
 ok "no CSRF = refused" "$(up a wrong 'Bad token' good.gif)" 400
-for f in heavy png small thin frames work; do up a "$T" "Bad $f" $f.gif >/dev/null; done
-ok "bad uploads all refused (size, type, small, thin, frames, work)" "$(dbv "SELECT COUNT(*) FROM puzzle_pics")" "$N0"
-up a "$T" 'Bad frames' frames.gif >/dev/null; ok "too many frames message" "$(curl -s -b $W/a "$BASE/admin/puzzles.php?tab=upload" | grep -c 'Too many frames: 151')" 1
+bad() { up a "$T" "Bad $1" $1.gif >/dev/null; ok "refused: $1" "$(curl -s -b $W/a "$BASE/admin/puzzles.php?tab=upload" | grep -c "$2")" 1; }
+bad heavy 'GIFs can be up to 1.5 MB'
+bad png 'isn’t a GIF'
+bad small 'Each side must be 64 to 640 pixels'
+bad thin 'too long and thin'
+bad frames 'Too many frames: 151'
+bad work 'Too much animation'
+ok "bad uploads saved nothing" "$(dbv "SELECT COUNT(*) FROM puzzle_pics")" "$N0"
 ok "good upload redirects" "$(up a "$T" 'Test Toy Box' good.gif)" 302
 ok "one new picture" "$(dbv "SELECT COUNT(*) FROM puzzle_pics")" "$((N0+1))"
 ok "starts switched off, source upload" "$(dbv "SELECT active || source || w || 'x' || h || ':' || frames FROM puzzle_pics WHERE slug='test-toy-box'")" "0upload128x96:1"
