@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.84
+- **Gather no longer reloads the page.** Clicking a gather card or a belt icon now sends the try in the background and swaps only the Gather box (find, belt, uses left) plus the energy and message bars. The scroll stays put. If anything goes wrong it falls back to a normal post. `site.js` (capture-phase handler on `form.gx-form`).
+
 ## 2.0.83
 - **Gather: click a tool on the belt to gather with it.** A belt icon whose tool finds something in this land is now a button (same post and ⚡1 as its card below). Locked slots and tools with nothing to find here stay inert.
 - **Gather: one scene per land.** The satchel scene is now drawn for all nine lands (coast, mountain, forest, desert, rainforest, grassland, wetland, tundra, island): `assets/img/gather/scene-<land>.png`, falling back to `scene.png`. The satchel and its front wall are identical in every scene, so the find still pops out of the bag. Sources: `aseprite-source/scenes-pil/gather_<land>.py` (shared satchel in `gather_common.py`) and `aseprite-source/gather/*.aseprite`.
