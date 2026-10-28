@@ -5382,6 +5382,25 @@ a.scard.is-closed { color: var(--gx-felt-ink-off); }
 .gcell:has(> dialog[open]) > .gcard .gcard__label { text-shadow: 0 1px 0 rgba(255, 243, 200, .5); }
 .gcell:has(> dialog[open]) > .gcard::after { background-image: url(img/acts/badge-sel.png); }
 dialog.isheet.dosheet .doart img { width: 144px; height: auto; max-width: 100%; image-rendering: pixelated; filter: var(--gx-art-dim); }
+/* v2.0.82: popover art motion. Tier A: a slow pixel-snapped bob for the hero scene and small bob / wiggle / blink for the option icons.
+   ONLY inside an open activity popover (dialog.isheet.dosheet), never the page cards, never shop-tile sheets (no .dosheet). Transform only (steps, no filter).
+   Tier B: site.js (gvAnimArt) sets data-animating on an element that plays a drawn strip; the bob is off for that one. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes gv-pop-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes gv-pop-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, 0.98); } }
+  @keyframes gv-pop-hop { 0%, 60%, 100% { transform: translateY(0); } 80% { transform: translateY(-2px); } }
+  @keyframes gv-pop-wiggle { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-8deg); } 86% { transform: rotate(8deg); } 94% { transform: rotate(-4deg); } }
+  @keyframes gv-pop-blink { 0%, 86%, 100% { transform: scale(1, 1); } 90%, 96% { transform: scale(1, 0.15); } }
+  dialog.isheet.dosheet[open] .doart img:not([data-animating]) { animation: gv-pop-bob 2.4s steps(4, end) infinite, gv-pop-breathe 4.8s steps(2, end) infinite; transform-origin: 50% 100%; }
+  dialog.isheet.dosheet[open] .choice-ico .ico:not([data-animating]),
+  dialog.isheet.dosheet[open] .doacts .btn .ico:not([data-animating]) { animation: gv-pop-hop 2.4s steps(3, end) infinite; transform-origin: 50% 100%; }
+  dialog.isheet.dosheet[open] .doacts .choice:nth-child(2n) .choice-ico .ico:not([data-animating]) { animation: gv-pop-wiggle 3s steps(6, end) infinite 0.4s; }
+  dialog.isheet.dosheet[open] .doacts .choice:nth-child(3n) .choice-ico .ico:not([data-animating]) { animation: gv-pop-blink 3.6s steps(1, end) infinite 0.9s; }
+  dialog.isheet.dosheet[open] .doacts .btn:nth-child(2n) .ico:not([data-animating]) { animation: gv-pop-wiggle 3s steps(6, end) infinite 0.3s; }
+  dialog.isheet.dosheet[open] .doacts .btn:nth-child(3n) .ico:not([data-animating]) { animation: gv-pop-blink 3.6s steps(1, end) infinite 0.8s; }
+  dialog.isheet.dosheet[open] .doacts .btn:nth-child(4n+1) .ico:not([data-animating]) { animation-delay: 0.6s; }
+}
+dialog.isheet.dosheet img[data-animating] { image-rendering: pixelated; }
 dialog.isheet.dosheet .st-blurb { max-width: 34em; margin-inline: auto; color: var(--ink-2); }
 dialog.isheet.dosheet .doacts { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 8px; }
 dialog.isheet.dosheet .doacts form.choiceform { width: 100%; max-width: 420px; margin: 0; }

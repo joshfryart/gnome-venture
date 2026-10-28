@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 const ICO_SKIP_TAGS = ['script', 'style', 'textarea', 'option', 'title', 'select', 'svg', 'noscript'];
 const ICO_MAX_BYTES = 3000000;
+require_once __DIR__ . '/pixel_art.php';
 
 function ico_settings(): array
 {
@@ -64,9 +65,11 @@ function ico_regex(): ?string
     return $re = '/(?<!\x{200D})(' . $alt . ')\x{FE0F}?(?![\x{200D}\x{FE0F}\x{20E3}\x{1F3FB}-\x{1F3FF}])/u';
 }
 
-function ico_img(array $row): string
+/** $pop = inside an activity popover (dialog.dosheet): adds data-anim / data-frames when ico/<slug>-anim.png exists (v2.0.82). Never on the page itself. */
+function ico_img(array $row, bool $pop = false): string
 {
-    return '<img class="ico pix" src="' . e(art_url('assets/img/ico/' . $row['slug'])) . '" alt="' . ($row['dec'] ? '' : e($row['name'])) . '" width="16" height="16" loading="lazy" decoding="async">';
+    $anim = $pop ? anim_strip_attrs('assets/img/ico/' . $row['slug'] . '-anim.png') : '';
+    return '<img class="ico pix" src="' . e(art_url('assets/img/ico/' . $row['slug'])) . '" alt="' . ($row['dec'] ? '' : e($row['name'])) . '" width="16" height="16" loading="lazy" decoding="async"' . $anim . '>';
 }
 
 /** Swap emoji in the text nodes of an HTML string. */
@@ -78,17 +81,22 @@ function emoji_swap(string $html): string
     $parts = preg_split('/(<!--.*?-->|<![^>]*>|<\/?[a-zA-Z][a-zA-Z0-9:-]*(?:"[^"]*"|\'[^\']*\'|[^>"\'])*>)/s', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
     if ($parts === false) return $html;
     $skip = 0;
+    $pop = 0;   // depth inside <dialog class="... dosheet ...">
     $out = '';
     foreach ($parts as $i => $p) {
         if ($i % 2 === 1) {   // a tag or comment: copy it as it is, track the skip tags
             if (preg_match('/^<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)/', $p, $m) && in_array(strtolower($m[2]), ICO_SKIP_TAGS, true) && !str_ends_with($p, '/>')) {
                 $skip = $m[1] === '/' ? max(0, $skip - 1) : $skip + 1;
             }
+            if (preg_match('/^<(\/?)dialog[\s>]/i', $p, $m)) {
+                if ($m[1] === '/') $pop = max(0, $pop - 1);
+                elseif ($pop > 0 || preg_match('/class\s*=\s*"[^"]*dosheet/i', $p)) $pop++;
+            }
             $out .= $p;
         } elseif ($skip > 0 || $p === '') {
             $out .= $p;
         } else {
-            $out .= preg_replace_callback($re, fn($m) => isset($rows[$m[1]]) ? ico_img($rows[$m[1]]) : $m[0], $p) ?? $p;
+            $out .= preg_replace_callback($re, fn($m) => isset($rows[$m[1]]) ? ico_img($rows[$m[1]], $pop > 0) : $m[0], $p) ?? $p;
         }
     }
     return $out;

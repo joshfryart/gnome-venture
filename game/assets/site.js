@@ -1402,6 +1402,57 @@ function gvShowToasts(nodes) {
   }
 }
 
+/* v2.0.82: drawn animation strips in activity popovers. An <img data-anim="strip.png" data-frames="N" data-fps="F"> inside dialog.dosheet plays the strip
+   while the popover is open: the strip becomes the picture's src, object-fit none, and object-position steps 0% -> 100% in N-1 steps (= N frames).
+   Reduced motion, a load error or closing = the static src comes back. CSSOM only (no style attribute, no injected <style>: strict CSP). */
+function gvAnimStop(im) {
+  var st = im.__gvAnim;
+  if (!st) return;
+  im.__gvAnim = null;
+  if (st.a) { try { st.a.cancel(); } catch (e) {} }
+  im.removeAttribute('data-animating');
+  im.style.objectFit = ''; im.style.objectPosition = ''; im.style.width = ''; im.style.height = ''; im.style.zoom = ''; im.style.imageRendering = '';
+  if (st.src) im.src = st.src;
+}
+function gvAnimArt(dlg) {
+  if (!dlg || !dlg.querySelectorAll) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var imgs = dlg.querySelectorAll('img[data-anim][data-frames]');
+  for (var i = 0; i < imgs.length; i++) (function (im) {
+    if (im.__gvAnim) return;
+    var n = parseInt(im.getAttribute('data-frames'), 10) || 0, fps = parseFloat(im.getAttribute('data-fps')) || 6, src = im.getAttribute('data-anim');
+    if (n < 2 || !src || !im.animate) return;
+    var probe = new Image();
+    probe.onload = function () {
+      if (!dlg.open || im.__gvAnim) return;
+      var fw = probe.naturalWidth / n, fh = probe.naturalHeight, bw = im.offsetWidth || +im.getAttribute('width') || fw;
+      if (fw < 1 || fw !== Math.round(fw)) return;
+      var st = { src: im.getAttribute('src') };
+      im.__gvAnim = st;
+      im.onerror = function () { im.onerror = null; gvAnimStop(im); };
+      im.src = src;
+      im.style.objectFit = 'none'; im.style.imageRendering = 'pixelated';
+      im.style.width = fw + 'px'; im.style.height = fh + 'px';
+      if (Math.abs(bw - fw) > 0.5) im.style.zoom = String(bw / fw);
+      im.setAttribute('data-animating', '1');
+      st.a = im.animate([{ objectPosition: '0% 0%' }, { objectPosition: '100% 0%' }], { duration: n / fps * 1000, easing: 'steps(' + (n - 1) + ', end)', iterations: Infinity });
+    };
+    probe.onerror = function () { gvAnimStop(im); };
+    probe.src = src;
+  })(imgs[i]);
+}
+function gvAnimStopAll(dlg) {
+  var a = dlg.querySelectorAll('img[data-animating]');
+  for (var i = 0; i < a.length; i++) gvAnimStop(a[i]);
+}
+document.addEventListener('close', function (ev) { if (ev.target && ev.target.classList && ev.target.classList.contains('dosheet')) gvAnimStopAll(ev.target); }, true);
+document.addEventListener('click', function (ev) {   /* after the sheet code below has opened the dialog */
+  var t = ev.target; if (!t || !t.closest) return;
+  var pick = t.closest('[data-sheet]'); if (!pick || !pick.parentNode) return;
+  var dlg = pick.parentNode.querySelector('dialog.dosheet');
+  if (dlg) setTimeout(function () { if (dlg.open) gvAnimArt(dlg); }, 0);
+});
+
 /* v1.9.8: shop tiles. Tap a tile: its sheet (<dialog>) opens with the details and the Buy/Sell form. Delegated, so it survives in-place loads. */
 function gvSheetTotal(form) {
   var inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 0, price = +form.getAttribute('data-price') || 0;

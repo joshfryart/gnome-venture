@@ -271,6 +271,8 @@ function local_act_card(array $u, array $loc, array $a, bool $isDone, string $wh
     $slug = (string)$a['slug'];
     $art = stop_act_art((string)$a['kind'], $slug);
     $img = $art !== '' ? '<img class="pix" src="' . e(url($art)) . '" width="144" height="108" alt="" loading="lazy" decoding="async">' : '';
+    $anim = $art !== '' ? stop_act_anim((string)$a['kind'], $slug) : '';   // v2.0.82: popover only; the card keeps $img
+    $pimg = $art !== '' ? '<img class="pix doart-img" src="' . e(url($art)) . '" width="144" height="108" alt="" decoding="async"' . ($anim !== '' ? anim_strip_attrs($anim, 144) : '') . '>' : '';
     $name = e((string)$a['name']);
     $flag = !empty($a['now']) ? '<span class="gcard__flag">Right now</span>' : ((int)$a['tier'] > 0 && ($isDone || $why === '') ? '<span class="gcard__flag">Built here</span>' : '');
     $id = 'dowhy-' . preg_replace('/[^a-z0-9_-]/i', '', $slug);
@@ -291,7 +293,7 @@ function local_act_card(array $u, array $loc, array $a, bool $isDone, string $wh
     if (!$isDone && $why === '') {
         $blurb = stop_say((string)$a['blurb'], $loc, $folk);
         $h .= '<dialog class="isheet dosheet" aria-label="' . $name . '"><button type="button" class="sheetx" data-sheetx aria-label="Close">✕</button>'
-            . '<div class="shead"><span class="sico doart" aria-hidden="true">' . $img . '</span><b class="sname">' . e((string)$a['icon']) . ' ' . $name . '</b></div>'
+            . '<div class="shead"><span class="sico doart" aria-hidden="true">' . $pimg . '</span><b class="sname">' . e((string)$a['icon']) . ' ' . $name . '</b></div>'
             . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
             . '<div class="doacts">' . local_act_buttons($u, $loc, $a, false) . '</div></dialog>';
     }

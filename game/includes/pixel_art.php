@@ -14,6 +14,30 @@ function art_url(string $relNoExt): string
     return url(is_file(APP_ROOT . '/' . $png) ? $png : $relNoExt . '.svg');
 }
 
+/**
+ * v2.0.82: popover animation strips. $rel = 'assets/img/acts/act-fire-anim.png' (a horizontal strip of N equal-width frames).
+ * Returns ' data-anim="url" data-frames="N" data-fps="F"' or '' when the file is missing / not a usable strip.
+ * Frame count: an optional sidecar <file>.json {"frames":N,"fps":F}, else width / $frameW (or width / height when $frameW is 0).
+ * Fixed 6 fps unless the sidecar says otherwise. Written ONLY on the popover picture, never on a card.
+ */
+function anim_strip_attrs(string $rel, int $frameW = 0): string
+{
+    $f = APP_ROOT . '/' . $rel;
+    if (!is_file($f)) return '';
+    $sz = @getimagesize($f);
+    if (!$sz || $sz[0] < 2 || $sz[1] < 1) return '';
+    $n = 0;
+    $fps = 6;
+    $side = $f . '.json';
+    if (is_file($side) && is_array($j = json_decode((string)@file_get_contents($side), true))) {
+        $n = (int)($j['frames'] ?? 0);
+        if (isset($j['fps'])) $fps = max(1, min(24, (int)$j['fps']));
+    }
+    if ($n < 1) $n = intdiv($sz[0], $frameW > 0 ? $frameW : $sz[1]);
+    if ($n < 2 || $n > 64) return '';
+    return ' data-anim="' . e(url($rel)) . '" data-frames="' . $n . '" data-fps="' . $fps . '"';
+}
+
 function pixel_has(string $rel): bool
 {
     return is_file(APP_ROOT . '/' . $rel);

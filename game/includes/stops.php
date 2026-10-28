@@ -364,6 +364,16 @@ function stop_act_art(string $kind, string $slug = ''): string
     return '';
 }
 
+/** v2.0.82: the popover's animation strip for an activity: act-<name>-anim.png along the same fallback chain as stop_act_art(). '' unless the file exists. */
+function stop_act_anim(string $kind, string $slug = ''): string
+{
+    $dir = __DIR__ . '/../assets/img/acts/';
+    foreach ([preg_match('/^[a-z0-9_]+$/', $slug) ? $slug : '', STOP_ACT_ART_SLUG[$slug] ?? '', STOP_ACT_ART_KIND[$kind] ?? '', 'any'] as $n) {
+        if ($n !== '' && is_file($dir . 'act-' . $n . '-anim.png')) return 'assets/img/acts/act-' . $n . '-anim.png';
+    }
+    return '';
+}
+
 /** Fill locations.stop_type for every village that has none, so that neighbours in a zone differ where they can. Returns how many. */
 function stop_assign_all(): int
 {
