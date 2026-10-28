@@ -43,7 +43,7 @@ if (($argv[2] ?? '') === 'show') {
 echo "== the data\n";
 foreach (['fork' => 4, 'riddle' => 4, 'trade' => 4, 'sketch' => 12, 'chain' => 10] as $k => $n) ok("at least $n $k cards (2 regions)", count($byKind[$k] ?? []) >= $n, count($byKind[$k] ?? []) . '');
 ok('the old cards are untouched: 14 legacy scenes keep their place', array_slice(array_keys($ev), 0, 1) === ['bee-log']);
-ok('Road Journal: 6 pages in the Maplewold, 6 in Maizehollow, none elsewhere', count(road_journal_pages('NA')) === 6 && count(road_journal_pages('CA')) === 6 && count(road_journal_pages('OC')) === 0);
+ok('Road Journal: 6 pages in every region', array_sum(array_map(fn($r) => count(road_journal_pages($r)) === 6 ? 1 : 0, ['NA','CA','CB','SA','NWE','SE','EE','MENA','WCA','ESA','CSA','EA','SEA','OC'])) === 14);
 $bad = [];
 foreach ($ev as $e) foreach ($e['opts'] as $o) foreach ([$o['win'], $o['lose']] as $fx) foreach (array_filter(explode('+', (string)$fx)) as $p) {
     $p = explode('@', $p)[0]; [$k, $a] = array_pad(explode(':', $p), 2, '');
