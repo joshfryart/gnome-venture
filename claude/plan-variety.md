@@ -111,8 +111,8 @@ Totals: roughly 14 x (14 + 6 + 8 + 1 + 6 + 6 + ~30 landmark lines) = ~1,000 cont
 - MySQL: any new table uses `*_schema()` pattern; no new table needed for the first two releases.
 - Content volume: ~1,000 rows needs a style pass so it stays in Gnome Venture voice (use `road_text.php` rules, `’` curly, no `|`).
 
-## Questions for Joshua
-1. Order OK: building/claiming first (2.0.76), then stops, then road? Or road first?
-2. Should plans be hand-written per landmark (~67 rows, more flavour) or generated from pools with overrides (faster)? Recommend generated + hand-tuned for 14 flagship wonders.
-3. Mini-game verbs (`contest`, `beat`, `trial`): OK to reuse existing games as step checks? They are bigger builds.
-4. Region waves: 2 per release OK, or all 14 shallow first then deepen?
+## Decisions (Joshua, 2026-10-28)
+1. Order: building/claiming first (2.0.76), then stops, then road.
+2. Build plans hand-written per landmark (`data/build_plans.txt`, one row per landmark, 4 stages each). No generator. Content cost: ~67 plans, 5 per region wave.
+3. Worm Hunt, Snail Race etc. are full games in the Games section, not mini-games. Do NOT reuse them as step checks. `contest` / `beat` / `trial` become small in-place checks (pick/timing/stat), built new and light. Games stay separate.
+4. Region waves: 2 regions per release.
