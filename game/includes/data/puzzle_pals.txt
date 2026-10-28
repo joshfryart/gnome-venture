@@ -23,3 +23,69 @@ sunsprinkle|ss-tide-tuck|Tide Tuck|common|brewroot|0|1|2|1|3-5|inner-TTTB|round|
 sunsprinkle|ss-coral-cuff|Coral Cuff|uncommon|rootwarden|1|1|2|1|8-3|inner-TTTT|double|-|Four tiny reefs on four small knobs.
 sunsprinkle|ss-lagoon-loop|Lagoon Loop|uncommon|seedkeeper|0|3|1|1|10-6|inner-BBBB|keyhole|-|A hole in the picture where a lagoon winks.
 sunsprinkle|ss-cocopaddle|Cocopaddle|rare|thornblade|2|2|0|2|6-2|whimsy-boat|peg|-|Sails a coconut half across the whole archipelago.
+rainroot|rr-kapok-nook|Kapok Nook|common|seedkeeper|1|1|1|0|1-4|corner-TB|round|-|Naps behind a tiny door in a tree root and calls it a castle.
+rainroot|rr-hammock-hush|Hammock Hush|common|bloomcaller|0|2|1|0|6-3|edge-BTB|keyhole|-|Hangs upside down for hours and calls it thinking.
+rainroot|rr-mate-mumble|Mate Mumble|common|brewroot|1|0|1|1|9-4|inner-TBTB|peg|-|Sips from a gourd all day and hums the rain’s favourite tune.
+rainroot|rr-bromeliad-bolt|Bromeliad Bolt|uncommon|thornblade|2|1|1|1|1-1|inner-TTTT|tri|-|Keeps a cup of rain in its spiky crown and shares it with nobody.
+rainroot|rr-highland-ring|Highland Ring|uncommon|rootwarden|1|0|2|2|9-0|inner-BBBB|round|-|A cloud-cold hoop that claims to be the highest hoop in the world.
+rainroot|rr-glimmer-frog|Glimmer Frog|rare|wayfinder|2|1|1|2|2-5|whimsy-frog|hook|-|Glows a little when it rains and croaks a tune about llamas.
+mistmoor|mm-toadstool-tuck|Toadstool Tuck|common|bloomcaller|1|0|1|1|5-6|corner-BB|round|-|Tucks under the fairy ring and counts to ninety-nine twice.
+mistmoor|mm-skerry-seal|Skerry Seal|common|wayfinder|0|2|1|0|0-1|edge-TBB|keyhole|-|Barks at the lighthouse and waits for a fish to be invented.
+mistmoor|mm-peat-sip|Peat Sip|common|brewroot|1|0|1|1|8-5|inner-TBBB|peg|-|Puffs warm smoke over the cottage roof and hums about tea.
+mistmoor|mm-stone-sentry|Stone Sentry|uncommon|rootwarden|1|0|2|2|2-2|inner-TTTT|tri|-|Stands perfectly still in the drizzle and insists it is a rock.
+mistmoor|mm-kite-knot|Kite Knot|uncommon|thornblade|2|1|0|2|5-0|inner-TTBB|hook|-|Ties its tail in a bow and flies off in a huff.
+mistmoor|mm-gatepost-hoot|Gatepost Hoot|rare|seedkeeper|2|1|1|2|7-4|whimsy-owl|keyhole|-|Watches the lane from the gatepost and hoots at the sheep.
+olivewhistle|ow-net-nudge|Net Nudge|common|wayfinder|1|1|1|0|3-6|corner-TB|round|-|Mends one net a day and nudges the fish towards the quay.
+olivewhistle|ow-olive-pip|Olive Pip|common|bloomcaller|0|2|1|0|8-4|edge-TBT|double|-|Grew up in an olive grove and still thinks every tree is hers.
+olivewhistle|ow-jar-hum|Jar Hum|common|brewroot|1|0|1|1|8-7|inner-TBTB|peg|-|Hums at the oil jars until they hum back.
+olivewhistle|ow-sun-glint|Sun Glint|uncommon|rootwarden|1|0|2|2|2-2|inner-TTTT|tri|-|Winks off the sea at breakfast and keeps going all afternoon.
+olivewhistle|ow-press-ring|Press Ring|uncommon|seedkeeper|0|2|2|1|6-5|inner-BBBB|double|-|A stone hoop that squeezes the most golden oil in town.
+olivewhistle|ow-harbour-leap|Harbour Leap|rare|wayfinder|2|2|0|2|4-4|whimsy-dolphin|hook|-|Leaps the breakwater and lands in the same bay every time.
+birchbramble|bb-slushbelly|Slushbelly|common|seedkeeper|1|1|1|0|8-6|corner-BB|round|-|Melts a little every time somebody is looking.
+birchbramble|bb-gander-gait|Gander Gait|common|wayfinder|0|2|1|0|1-7|edge-TTB|keyhole|-|Marches in a neat line and expects everyone to follow.
+birchbramble|bb-samovar-puff|Samovar Puff|common|brewroot|1|0|1|1|9-4|inner-TBBB|peg|-|Steams up the porch and pours tea nobody asked for.
+birchbramble|bb-catkin-crown|Catkin Crown|uncommon|rootwarden|1|1|2|1|10-1|inner-TTTT|double|-|Wears a crown of catkins and sneezes gold when pleased.
+birchbramble|bb-chimney-nest|Chimney Nest|uncommon|seedkeeper|0|2|2|1|7-1|inner-BBBB|keyhole|-|A stork’s nest on a chimney, and a stork who never moves out.
+birchbramble|bb-homing-stork|Homing Stork|rare|wayfinder|1|3|1|1|6-0|whimsy-stork|tri|-|Knows the way home from anywhere and never asks directions.
+dunewhisper|dw-sherbet-sip|Sherbet Sip|common|brewroot|1|0|1|1|10-3|corner-TT|round|-|Pours mint tea from very high up and hopes nobody spills.
+dunewhisper|dw-scarab-roll|Scarab Roll|common|wayfinder|0|2|1|0|3-7|edge-BTB|keyhole|-|Rolls a tiny ball of sand across the dunes at a steady pace.
+dunewhisper|dw-lantern-lark|Lantern Lark|common|seedkeeper|0|2|1|0|5-2|inner-TBBB|peg|-|Sings to the lantern strings until the sky turns violet.
+dunewhisper|dw-canyon-crown|Canyon Crown|uncommon|rootwarden|1|0|2|2|1-2|inner-TTTT|tri|-|Wears a rose-red crown of cliff and never takes it off.
+dunewhisper|dw-oasis-hoop|Oasis Hoop|uncommon|seedkeeper|0|3|1|1|9-6|inner-BBBB|double|-|Floats in the oasis pool and keeps a date for every friend.
+dunewhisper|dw-mirage-moon|Mirage Moon|rare|wayfinder|2|1|1|2|0-0|whimsy-moon|keyhole|-|Shines over the dunes and makes the camels blink.
+greatcanopy|gc-calabash-cup|Calabash Cup|common|seedkeeper|1|0|1|1|1-5|corner-BB|round|-|A gourd that catches roof rain and passes it along politely.
+greatcanopy|gc-drum-tap|Drum Tap|common|bloomcaller|0|2|1|0|4-3|edge-TBB|double|-|Taps a rhythm on the pavilion and gets the rain to join in.
+greatcanopy|gc-yam-nub|Yam Nub|common|brewroot|1|1|0|1|5-6|inner-TBTB|peg|-|A knobbly root that giggles whenever it is dug up.
+greatcanopy|gc-shellstep|Shellstep|uncommon|rootwarden|2|0|2|1|9-6|inner-TTTT|double|-|Takes a very slow walk to the stall and still arrives on time.
+greatcanopy|gc-canopy-loop|Canopy Loop|uncommon|bloomcaller|1|2|1|1|5-1|inner-BBBB|keyhole|-|Swings from bridge to bridge and says good morning to every parrot.
+greatcanopy|gc-parrot-pennant|Parrot Pennant|rare|thornblade|2|2|1|1|0-6|whimsy-parrot|hook|-|Repeats everything the rain says, then shouts it louder.
+thornacre|th-coffee-crumb|Coffee Crumb|common|brewroot|1|1|1|0|7-7|corner-TT|round|-|Roasts the beans with great care and a very large hat.
+thornacre|th-flamingo-flick|Flamingo Flick|common|bloomcaller|0|2|1|0|3-7|edge-BTB|keyhole|-|Stands on one leg in the waterhole and dares you to try.
+thornacre|th-termite-tower|Termite Tower|common|rootwarden|0|1|2|0|0-6|inner-TBBB|round|-|Builds a red tower one grain at a time and never says sorry.
+thornacre|th-acacia-antler|Acacia Antler|uncommon|rootwarden|2|1|1|1|6-4|inner-TTTT|tri|-|Grows antler-like twigs and hangs weaver nests from every one.
+thornacre|th-kopje-keeper|Kopje Keeper|uncommon|thornblade|1|0|2|2|1-2|inner-TTBB|hook|-|Keeps a stony watch over the savanna and never once blinks.
+thornacre|th-tall-tiptoe|Tall Tiptoe|rare|wayfinder|2|2|1|1|5-3|whimsy-giraffe|double|-|Reaches the top leaves before anybody else is out of bed.
+spicepeak|sp-saffron-snip|Saffron Snip|common|seedkeeper|1|1|1|0|2-6|corner-BB|round|-|Snips saffron threads with tiny scissors and hums while picking.
+spicepeak|sp-yak-yonder|Yak Yonder|common|wayfinder|0|2|1|0|5-5|edge-TTB|double|-|Leads a laden yak across the bridge, because yonder is always further.
+spicepeak|sp-chilli-chime|Chilli Chime|common|brewroot|1|0|1|1|9-6|inner-TBTB|peg|-|Hangs chilli garlands that tinkle whenever the wind comes through.
+spicepeak|sp-stupa-snug|Stupa Snug|uncommon|rootwarden|1|1|2|1|8-2|inner-TTTT|double|-|Sits snug under a white dome and keeps the prayer flags tidy.
+spicepeak|sp-teal-ferry|Teal Ferry|uncommon|thornblade|1|2|1|1|6-6|inner-TTBB|hook|-|Ferries flower boats down the teal river and waves at every fish.
+spicepeak|sp-lofty-kite|Lofty Kite|rare|wayfinder|2|2|1|1|4-0|whimsy-kite|tri|-|Flies high over the ridge and always looks down on everything.
+blossomreach|br-petal-pinch|Petal Pinch|common|bloomcaller|0|2|1|0|1-1|corner-TT|round|-|Pinches one pink petal from every tree and keeps them in a pocket.
+blossomreach|br-koi-kin|Koi Kin|common|seedkeeper|1|1|1|0|2-7|edge-TBT|keyhole|-|Swims round the koi pond with a great many cousins, all orange.
+blossomreach|br-panda-puff|Panda Puff|common|brewroot|1|0|1|1|10-6|inner-TTTB|peg|-|A fluffy bamboo fan who eats one stalk at a time, very slowly.
+blossomreach|br-pagoda-pin|Pagoda Pin|uncommon|rootwarden|2|0|2|1|10-1|inner-TTTT|double|-|Points to the top of the pagoda and says it was up there first.
+blossomreach|br-torii-loop|Torii Loop|uncommon|seedkeeper|0|2|2|1|8-5|inner-BBBB|hook|-|Hops through every red gate on the stairs and comes back for more.
+blossomreach|br-dragon-dart|Dragon Dart|rare|thornblade|2|2|0|2|8-0|whimsy-dragonfly|tri|-|Darts over the koi pond on paper wings and winks at the Long Wall.
+monsoontangle|mt-stilt-stoop|Stilt Stoop|common|seedkeeper|1|1|1|0|0-3|corner-TB|round|-|Lives up on stilts and waves at the canal every morning.
+monsoontangle|mt-seedling-plod|Seedling Plod|common|wayfinder|0|2|1|0|6-4|edge-TBB|peg|-|Plods through the paddy one seedling at a time and sings to each.
+monsoontangle|mt-lotus-lump|Lotus Lump|common|bloomcaller|1|0|1|1|1-6|inner-TBTB|keyhole|-|Floats on the canal and sleeps through the whole downpour.
+monsoontangle|mt-sky-lantern|Sky Lantern|uncommon|rootwarden|1|0|2|2|5-1|inner-TTTT|tri|-|Drifts up at dusk and tells the rain to hurry along.
+monsoontangle|mt-fig-knot|Fig Knot|uncommon|thornblade|2|1|1|1|9-1|inner-TTBB|hook|-|Wraps itself round the temple and never lets go of a secret.
+monsoontangle|mt-bill-brolly|Bill Brolly|rare|wayfinder|2|2|1|1|6-0|whimsy-hornbill|double|-|Carries a giant leaf for an umbrella and shares it with the nearest frog.
+coralscatter|cs-snorkel-snip|Snorkel Snip|common|seedkeeper|1|1|1|0|3-5|corner-BB|round|-|Snorkels the reef with a shell in each hand and no plan at all.
+coralscatter|cs-octo-ogle|Octo Ogle|common|wayfinder|0|2|1|0|11-6|edge-TTB|peg|-|Ogles every shiny thing in the lagoon and then stares some more.
+coralscatter|cs-anemone-nudge|Anemone Nudge|common|seedkeeper|1|0|1|1|5-7|inner-TBTB|double|-|Nudges the clownfish home whenever they wander too far.
+coralscatter|cs-claw-sail|Claw Sail|uncommon|rootwarden|1|0|2|2|4-2|inner-TTTT|tri|-|Sails the outrigger with a crab-claw sail and a very large grin.
+coralscatter|cs-grotto-glim|Grotto Glim|uncommon|seedkeeper|1|2|1|1|0-6|inner-BBBB|keyhole|-|Glows with the glowworms in the cave and whispers ooh.
+coralscatter|cs-keel-drift|Keel Drift|rare|thornblade|2|1|2|1|9-4|whimsy-turtle|hook|-|Glides past the reef with a slow wink and a very old shell.
