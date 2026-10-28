@@ -68,6 +68,7 @@ if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2
       <?= stop_tab_html($u, $nodeNow, $hub) ?>
     <?php else: ?>
       <?= town_known_html($u, $hub) ?>
+      <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
     <?php endif; ?>
     </div>
     <?php
@@ -178,7 +179,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       $snacks = q("SELECT i.id, i.name, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'food' AND i.tradable = 1 ORDER BY i.name", [$uid])->fetchAll(); ?>
   <div class="box">
     <h3>Who’s here</h3>
-    <?php if ($here): ?><p class="faces"><?= npc_faces($here, true) ?></p><p class="help">Tap a townsfolk to say hello. A chat at someone’s favourite place counts double.</p>
+    <?php if ($here): ?><p class="faces"><?= npc_faces($here, true) ?></p><?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?><p class="help">Tap a townsfolk to say hello. A chat at someone’s favourite place counts double.</p>
     <?php else: ?><p class="muted">None of the townsfolk right now.</p><?php endif; ?>
     <?php if (!$gnomes): ?><p class="muted">No other gnomes in the last <?= TOWN_PRESENCE_MINUTES ?> minutes. <?= (int)$u['town_hidden'] ? 'You’re hidden from these lists (Account page).' : 'Others will see you here for a little while.' ?></p>
     <?php else: ?><div class="gnomelist">
@@ -260,6 +261,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
   <?= main_stop_tabs_html(main_stop_tabs($hub, true, $view, count($present) + count($homeIn)), $view) ?>
+  <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
   <?php if ($view === 'villagers'): ?>
     <h3 class="gx-h">🚶 Out and about</h3>
     <?php if (!$present): ?><p class="gx-note">Nobody’s out and about in the town’s places right now. Shopkeepers are at their counters.</p><?php else: ?>
@@ -283,8 +285,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     </ul>
     <?php endif; ?>
     <p class="gx-note">Knock to visit someone at home. Tap a name or Chat to talk and give a gift without leaving the page.</p>
-    <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
-    <p class="gx-note">📒 Only people in town right now are shown.</p>
+        <p class="gx-note">📒 Only people in town right now are shown.</p>
     <div class="gx-actions"><a class="gbtn alt" href="<?= e(url('villagers.php')) ?>">Everyone you know →</a></div>
   <?php elseif ($view === 'shops'): ?>
     <?= town_shops_html($u, $town) ?>

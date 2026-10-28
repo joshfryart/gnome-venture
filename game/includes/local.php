@@ -404,7 +404,7 @@ function folk_overlay_html(): string
     static $done = false;
     if ($done) return '';
     $done = true;
-    return '<div id="folkov" hidden data-csrf="' . e(csrf_token()) . '" data-npc="' . e(url('villagers.php')) . '" data-stop="' . e(url('stopfolk.php')) . '"></div>'
+    return '<div id="folkov" hidden data-csrf="' . e(csrf_token()) . '" data-npc="' . e(url('villagers.php')) . '" data-page="' . e(url('folk.php')) . '" data-stop="' . e(url('stopfolk.php')) . '"></div>'
         . '<script src="' . e(url('assets/folkoverlay.js?v=' . APP_VERSION)) . '" defer></script>';
 }
 

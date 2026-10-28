@@ -180,8 +180,8 @@ function town_known_html(array $u, bool $hub, bool $title = true): string
         $h .= '<h3 class="folkgroup">💛 ' . e(FRIEND_LEVELS[$li][1] ?? 'Stranger') . ' <small>' . count($group) . '</small></h3><div class="box">';
         foreach ($group as $n) {
             $lnk = e(url('folk.php?id=' . (int)$n['id']));
-            $h .= '<div class="folkrow"><a href="' . $lnk . '">' . npc_portrait($n, 'small') . '</a>'
-                . '<div><a href="' . $lnk . '"><b>' . e($n['name']) . '</b></a> <small class="muted">' . e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : '') . '</small>'
+            $h .= '<div class="folkrow"><a href="' . $lnk . '" data-folk-npc="' . (int)$n['id'] . '">' . npc_portrait($n, 'small') . '</a>'
+                . '<div><a href="' . $lnk . '" data-folk-npc="' . (int)$n['id'] . '"><b>' . e($n['name']) . '</b></a> <small class="muted">' . e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : '') . '</small>'
                 . '<br><small>📍 ' . e($n['now']['what']) . (npc_here($u, (int)$n['id']) ? ' · <b class="good">here now</b>' : '') . '</small>'
                 . '<br><small class="muted">🏡 ' . ($n['home'] ? e($n['home']['name'] . ' · ' . $n['home']['region']) : (!empty($n['traveller']) ? 'travels the Hollow' : '—')) . (npc_birthday_today($n) ? ' · 🎂 birthday today!' : '') . '</small></div></div>';
         }
@@ -196,7 +196,7 @@ function npc_faces(array $npcs, bool $names): string
 {
     $h = '';
     foreach ($npcs as $n) {
-        $h .= '<a class="npcface" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" title="' . e($n['name']) . '">' . npc_icon($n['species'])
+        $h .= '<a class="npcface" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '" title="' . e($n['name']) . '">' . npc_icon($n['species'])
             . ($names ? ' ' . e($n['name']) . (!empty($n['traveller']) ? ' <small class="tag">traveller</small>' : '') : '') . '</a>';
     }
     return $h;
@@ -447,7 +447,7 @@ function town_orders_html(int $uid, string $town, bool $hub): string
               . '<input type="hidden" name="spot" value="0"><input type="hidden" name="view" value="orders">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
               . '<button class="fbtn ocard__act"' . ($c['enough'] ? '' : ' disabled') . '>Deliver</button></form>';
         $h .= '<li class="ocard' . ($done ? ' is-done' : '') . '">'
-            . '<a class="ocard__who" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '"><span class="ocard__face">' . npc_portrait($n, 'small') . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . e($n['name']) . '</span></span></a>'
+            . '<a class="ocard__who" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '"><span class="ocard__face">' . npc_portrait($n, 'small') . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . e($n['name']) . '</span></span></a>'
             . '<p class="ocard__q">“' . e($o['text']) . '”</p><p class="ocard__tags">' . $tags . '</p><p class="ocard__rw">' . $rw . '</p>'
             . '<div class="ocard__foot">' . $foot . '</div></li>';
     }

@@ -32,7 +32,7 @@ f57d909ce44120d1309db50d32229995dc322ab4  assets/admin.css
 f47dcf46d5958704047c0dbfdf20de2a031fda49  assets/chest.js
 cdc360d24f0b5dcd5f47a51b9129a32dab3a1332  assets/early.js
 ca5af596cce3765dd3f16c8b92530117778d55a8  assets/fighton.js
-bf6b9a211105e11a81bd3ef91455ac43e5d55eed  assets/folkoverlay.js
+b646ca97609fded656a70ad058fb09c13aaccc46  assets/folkoverlay.js
 eb0c1ef59e0c691eaaa0edf48ce9541264a0651b  assets/gnomebeds.js
 f501a3307e83832e730da850b05286b4bfba1a07  assets/guides/.htaccess
 d73a68e0810458fe3ed3a30c0f416777e5dcebc7  assets/guides/Gnome-Venture-Style-Guide.json
@@ -5480,7 +5480,7 @@ ed297d75d0c62b1a9ba9ac8ece5b5330f9090717  includes/jobs.php
 a24a4e6a12cad68d46fe5b01a9c3c7ffefc44c56  includes/landmarks.php
 861ef9d90c538d4b9989f1268fa87226e83f5d45  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
-9ff5c7e846ca2110d7318f5fba9eef10d784ff6c  includes/local.php
+6719a79f6c308119578d4c3bb20e663c2ccc4a37  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
 a3c685a8492f978ce701c803da18f71e6c5e7995  includes/mail_nudge.php
 1d8ebe1fe40c2cfee352660e97da21387a2ee54a  includes/maps.php
@@ -5496,7 +5496,7 @@ e4c1a9e8ea5d9124b219ab59cf6f461ff10f8b82  includes/mushroom.php
 4bf4e2e1dc47b64a2b07e9030f2b4524713cc5fb  includes/pantry.php
 8b64f42f166fbd6fbf1b7a51fec32695d6aeaebb  includes/pest.php
 e6e43e3ec7e87dadad8c3a15d5e82fc11febebaf  includes/pixel_art.php
-689213509808cdcdb497e02f65b4b9efc313c72a  includes/place_ui.php
+5aaa12726caa8864495b58c3a1a1bdf87cae8d0e  includes/place_ui.php
 b02657ae4d53835b256323da1dfe7c1b1101d4da  includes/player_jobs.php
 2b2720e4c591a08103ce0dbcec56db45b51e2820  includes/progression.php
 7add23ee9458ccbc94441784fee19771fa36e157  includes/puzzle_games.php
@@ -5599,7 +5599,7 @@ af6d764cef312fa17f2ffa5aefb3dab694bacc07  show.php
 484e6ecf35a705dc2c5d967706941d68bfd7d3f1  tend.php
 5d173bbbf6369d61029dd97e128c94e661be27d9  theme.php
 2418e209b75deb27ecec7e072b2dc3862e8bfb2b  tour.php
-84809ea866645531cb776350970df05af19ffa80  town.php
+19a30d2aeb41cb20fedda01f850a3691b66a0dc6  town.php
 e4c88291a07732fcfc76d7549beb33a8613dfd84  trek.php
 c1cb29a78dbd8dd0dd457266037276b80399475f  unsub.php
 4d65df6e2039962ab75745f251fb8a35a38e886c  uploads/.htaccess

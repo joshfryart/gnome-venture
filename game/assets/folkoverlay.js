@@ -6,7 +6,7 @@
   var root = document.getElementById('folkov');
   if (!root) return;
   var csrf = root.getAttribute('data-csrf');
-  var urls = { npc: root.getAttribute('data-npc'), stop: root.getAttribute('data-stop') };
+  var urls = { page: root.getAttribute('data-page'), npc: root.getAttribute('data-npc'), stop: root.getAttribute('data-stop') };
   var dlg, body, foot, kind = 'npc', changed = false;
 
   function build() {
@@ -53,8 +53,8 @@
     foot.innerHTML = '';
     if (k === 'npc') {
       var a = document.createElement('a');
-      a.href = urls.npc + '?id=' + encodeURIComponent(id);
-      a.textContent = 'Full villager page →';
+      a.href = urls.page + '?id=' + encodeURIComponent(id);
+      a.textContent = 'See full details →';
       foot.appendChild(a);
     }
     if (!dlg.open) dlg.showModal();

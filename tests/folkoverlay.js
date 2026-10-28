@@ -18,7 +18,7 @@ const { chromium } = require('playwright');
     await page.waitForSelector('dialog.folkdlg[open] .vpanel, dialog.folkdlg[open] .vmsg');
     if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT });
     if (page.url() !== u0) bad.push('page navigated to ' + page.url());
-    if (!(await page.locator('dialog.folkdlg[open] .folkfoot a[href*="villagers.php?id="]').count())) bad.push('no full-page link');
+    if (!(await page.locator('dialog.folkdlg[open] .folkfoot a[href*="folk.php?id="]').count())) bad.push('no full-page link');
     await page.keyboard.press('Escape');
     if (await page.locator('dialog.folkdlg[open]').count()) bad.push('still open after Esc');
     await b.close();
