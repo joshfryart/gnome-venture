@@ -5368,7 +5368,9 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 main .gx-note { text-wrap: pretty; }
 main a.gcard, main a.scard, main .vlcard__who, main .ocard__who, main .tday__row, main .mtabs__a { text-decoration: none; }
 main a.gcard:hover, main a.scard:hover, main .vlcard__who:hover, main .ocard__who:hover, main .tday__row:hover, main .mtabs__a:hover { text-decoration: none; }
-a.scard, .vlcard__who, .ocard__who, .tday__row { color: inherit; }
+a.scard { color: var(--gx-felt-ink); }   /* v2.0.80: the shop card is felt: dark ink in both themes (it inherited the page's light text on dark) */
+a.scard.is-closed { color: var(--gx-felt-ink-off); }
+.vlcard__who, .ocard__who, .tday__row { color: inherit; }
 .gx-actions .gbtn { text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
 .gx-note--top { margin: 0 0 14px; }
 
