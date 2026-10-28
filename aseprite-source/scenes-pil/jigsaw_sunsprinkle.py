@@ -295,11 +295,18 @@ o.draw()
 cv.fill(rect(84, 114, 94, 114), '#fff4e8')
 cv.fill(line([(85, 113), (89, 109), (93, 113)]), '#4a2c1a')
 cv.fill(ell(99, 121, 104, 125), YEL['b'])
-tp = ell(6, 104, 30, 112)
-cv.fill(tp, SEA_SHAL)
-cv.fill(tp & ~shift(tp, 0, 1), '#c9a46a')
-cv.fill(rect(12, 108, 16, 108) | rect(20, 106, 23, 106), '#a6ece0')
-cv.dots([(25, 109), (24, 108), (26, 108), (24, 110), (26, 110)], CORAL['b'])
+tp = ell(15, 103, 39, 112)   # pass 2: a rock-ringed tide pool, clear of the palm trunk
+cv.fill(dil4(tp), WETSAND)
+cv.fill(tp, SEA_MID)
+cv.fill(tp & ~shift(tp, 0, 2), '#1a7f8f')
+cv.fill(rect(20, 109, 24, 109) | rect(28, 107, 31, 107), '#a6ece0')
+cv.dots([(33, 109), (32, 108), (34, 108), (32, 110), (34, 110), (33, 108)], CORAL['b'])
+cv.fill(rect(25, 110, 26, 111), CORALP['b'])
+cv.dots([(24, 109), (27, 109), (25, 108)], CORALP['r'])
+for rx_, ry_, rw in ((13, 105, 5), (17, 110, 6), (36, 104, 4), (36, 109, 5), (26, 101, 5)):
+    o = cv.obj()
+    o.part(ell(rx_, ry_, rx_ + rw, ry_ + 3), ROCK, d=1)
+    o.draw()
 for xx in range(36, 154, 5):   # deck plank ends
     cv.dots([(xx, 103)], '#8f7a5e')
 cv.fill(rect(32, 105, 154, 105), '#6f5a40')
@@ -363,15 +370,16 @@ for pxp in (153,):
 # the drummer and his steel pans
 gnome(133, 101, RED, TURQ, 0.85)
 for dx in (118, 140):
+    cv.fill(line([(dx + 3, 94), (dx + 10, 101)]) | line([(dx + 9, 94), (dx + 2, 101)]), '#4a2c1a')   # pass 2: cross stand
     o = cv.obj()
-    o.part(ell(dx, 88, dx + 12, 93), STEEL, d=1)
-    o.part(rect(dx + 1, 91, dx + 11, 96), STEEL, d=2)
+    o.part(ell(dx, 87, dx + 12, 92), STEEL, d=1)
+    o.part(ell(dx + 1, 88, dx + 11, 96) & rect(0, 90, W, H), STEEL, d=2)   # rounded skirt, no box
     o.draw()
-    cv.fill(ell(dx + 2, 89, dx + 10, 92), '#8a96a0')
-    cv.dots([(dx + 4, 90), (dx + 7, 91)], '#c9d2d8')
-    cv.fill(rect(dx + 2, 93, dx + 10, 94), CORAL['b'] if dx < 130 else TURQ['b'])   # painted drum band
-    cv.dots([(dx + 3, 93), (dx + 6, 94), (dx + 9, 93)], YEL['b'])
-    cv.fill(line([(dx + 2, 97), (dx, 101)]) | line([(dx + 10, 97), (dx + 12, 101)]), '#4a2c1a')
+    cv.fill(ell(dx + 1, 88, dx + 11, 91), '#8a96a0')   # the dished face
+    for nx_, ny_ in ((dx + 3, 89), (dx + 6, 89), (dx + 8, 90)):   # hammered note dimples
+        cv.dots([(nx_, ny_), (nx_ + 1, ny_)], '#c9d2d8')
+    cv.fill(ell(dx + 1, 92, dx + 11, 96) & rect(0, 93, W, 93), CORAL['b'] if dx < 130 else TURQ['b'])   # painted drum band
+    cv.dots([(dx + 3, 93), (dx + 6, 93), (dx + 9, 93)], YEL['b'])
 cv.fill(line([(126, 84), (122, 89)]) | line([(140, 84), (144, 89)]), '#7a4a1f')   # sticks
 cv.dots([(122, 89), (144, 89)], '#f2827a')
 for k, (bx, by) in enumerate(((110, 84), (114, 82))):
@@ -473,20 +481,53 @@ for _ in range(7):   # sun ripples over the sunken hull
 for px, py in ((258, 186), (274, 182), (288, 177)):   # portholes
     cv.fill(ell(px - 2, py - 2, px + 2, py + 2) & gal, '#1a5f6f')
     cv.dots([(px - 1, py - 1)], '#5fd3cc')
-o = cv.obj()   # broken mast poking out of the water, with yard, crow's nest and a torn sail
-o.part(line([(266, 186), (284, 122)], 3), WOOD, d=1)
-o.part(line([(266, 140), (294, 148)], 2), WOOD, d=1)
-o.part(rrect(278, 126, 290, 131, 1), WOOD, d=1)
+r4 = rnd(5150)   # pass-2 details
+SAILC = ramp('#efe0c0', '#c9b48a', '#fff4d8')
+mtop, mbot = (280, 132), (264, 186)
+for ex_ in ((246, 186), (297, 162)):   # shrouds from the masthead down to bow and stern
+    cv.fill(line([mtop, ex_]) & sea, '#4a2c1a')
+cv.fill(line([(281, 133), (299, 146)]) & sea, '#4a2c1a')
+o = cv.obj()   # pass 2: shorter broken mast, crow's nest, a canted yard and a ragged square sail
+o.part(line([mbot, mtop], 3), WOOD, d=1)
+o.part(rrect(273, 138, 286, 143, 1), WOOD, d=1)
+o.part(line([(260, 149), (296, 158)], 2), WOOD, d=1)
 o.draw()
-torn = poly([(268, 142), (292, 149), (288, 164), (282, 158), (276, 166), (270, 160)])
+for xx in range(275, 286, 3):
+    cv.dots([(xx, 140)], '#7a4a1f')
+torn = poly([(261, 151), (295, 160), (294, 166), (291, 174), (288, 168), (285, 177), (281, 170), (277, 175), (273, 168), (268, 172), (265, 165), (262, 168)])
+torn |= ell(263, 152, 293, 172) & rect(0, 156, W, 171)   # wind-bellied
+torn &= ~poly([(276, 160), (284, 163), (279, 167)])   # a rip the sea shows through
 o = cv.obj()
-o.part(torn, ramp('#efe0c0', '#c9b48a', '#fff4d8'), d=2)
+o.part(torn, SAILC, d=2)
 o.draw()
-cv.fill(rect(276, 150, 282, 154) & torn, CORAL['s'])   # patch
+for k in range(5):   # canvas panel seams following the belly
+    sx_ = 266 + k * 6
+    cv.fill(line([(sx_, 153 + k * 1), (sx_ + 1, 170)]) & torn, SAILC['s'])
+cv.fill(line([(262, 154), (294, 162)]) & torn, SAILC['s'])   # reef band
+hatm = poly([(266, 158), (272, 159), (268, 150)]) & torn   # the gnome-hat emblem, faded
+cv.fill(hatm, CORAL['b'])
+cv.fill(rect(266, 158, 272, 158) & torn, CORAL['s'])
+for k in range(3):   # loose strips flapping from the foot
+    fx_ = 270 + k * 8
+    cv.fill(line([(fx_, 172 - (k % 2) * 2), (fx_ + 2, 177), (fx_ + 1, 180)]) & sea, SAILC['b'])
+o = cv.obj()   # a stray barrel bobbing off the wreck
+o.part(rrect(287, 128, 296, 137, 2), WOOD, d=2)
+o.draw()
+cv.fill(rect(288, 130, 295, 130) | rect(288, 135, 295, 135), '#4a5a6a')
+cv.fill(rect(285, 138, 298, 138), '#ffffff')
+cv.fill(rect(283, 140, 287, 140) | rect(293, 140, 299, 140), '#a6ece0')
+for _ in range(10):   # extra sea-grass and glints in the right-middle sea
+    gx, gy = r4(256, 298), r4(132, 166)
+    if sea[gy, gx] and not gal[gy, gx] and not torn[gy, gx]:
+        cv.fill(line([(gx, gy), (gx + 1, gy - 3)]), '#3fa08a')
+for fx, fy, fc in ((262, 136, '#ffffff'), (296, 150, '#f0b92b')):
+    cv.fill(rect(fx, fy, fx + 3, fy + 1), fc)
+    cv.dots([(fx + 4, fy - 1), (fx + 4, fy + 2)], fc)
+    cv.dots([(fx, fy)], '#2a1a10')
 cv.fill(rect(262, 186, 272, 187) & sea, '#ffffff')   # foam at the waterline
 cv.fill(rect(260, 189, 274, 189) & sea, '#a6ece0')
-cv.dots([(283, 120), (284, 119), (285, 120), (286, 119), (287, 120)], '#ffffff')   # gull on the masthead
-cv.dots([(285, 121)], '#f0b92b')
+cv.dots([(277, 130), (278, 129), (279, 130), (280, 129), (281, 130)], '#ffffff')   # gull on the masthead
+cv.dots([(279, 131)], '#f0b92b')
 o = cv.obj()   # a seed chest half sunk on the bow
 o.part(rrect(240, 186, 252, 195, 1), WOOD, d=2)
 o.draw()
@@ -499,7 +540,7 @@ for cx, cy in ((296, 186), (232, 196), (286, 196)):   # coral heads
     o = cv.obj()
     o.part(m & sea, CORALP, d=1)
     o.draw()
-for fx, fy, fc in ((256, 158, '#f0b92b'), (296, 172, '#f2827a'), (244, 152, '#f0b92b'), (290, 140, '#ffffff'), (222, 134, '#f2827a')):   # reef fish
+for fx, fy, fc in ((256, 158, '#f0b92b'), (296, 172, '#f2827a'), (244, 152, '#f0b92b'), (222, 134, '#f2827a')):   # reef fish
     cv.fill(rect(fx, fy, fx + 3, fy + 1), fc)
     cv.dots([(fx + 4, fy - 1), (fx + 4, fy + 2)], fc)
     cv.dots([(fx, fy)], '#2a1a10')
@@ -509,7 +550,7 @@ for _ in range(12):   # sea-grass in the shallows
         cv.fill(line([(gx, gy), (gx + 1, gy - 4)]), '#3fa08a')
 
 # ================================================================ tall palm (left edge) and the hammock
-palm((10, 176), (30, 30), (2, 100), 5, 3,
+palm((10, 176), (30, 30), (-8, 104), 6, 3,
      [(190, 28, 10), (-20, 30, 10), (250, 18, 4), (100, 22, 14)],
      [(-160, 30, 16), (-40, 30, 14), (20, 34, 18), (160, 26, 18), (60, 24, 14), (-90, 16, 4)], nuts=4)
 post = rect(58, 116, 61, 150)
@@ -573,17 +614,18 @@ for hx_, hy_ in ((tx0 + 10, ty0 + 2), (tx0 + 20, ty0 + 2), (tx0 + 6, ty0 + 9), (
 cv.dots([(tx0 + 37, ty0 + 7)], '#2a1a10')
 cv.dots([(tx0 + 8, ty0 + 1), (tx0 + 9, ty0 + 1), (tx0 + 14, ty0)], SHELL['r'])
 # hatchlings scurrying to the surf, little tracks behind them
+HSHELL = ramp('#4a5a6a', '#2a1a10', '#6a8aa0')   # pass 2: dark slate hatchlings (real ones are near-black), not green tufts
+HSKIN = ramp('#6a8aa0', '#4a6a80')
 HATCH = ((150, 150), (162, 158), (178, 146), (174, 166), (192, 156), (196, 172), (210, 160), (186, 180), (214, 178))
 for hx_, hy_ in HATCH:
     for k in range(1, 4):
         cv.dots([(hx_ - k * 3, hy_ + 1 + k), (hx_ - k * 3, hy_ + 3 + k)], '#c9a46a')
     o = cv.obj()
-    o.part(rect(hx_, hy_ - 1, hx_ + 1, hy_) | rect(hx_ + 4, hy_ - 2, hx_ + 5, hy_ - 1) | rect(hx_, hy_ + 4, hx_ + 1, hy_ + 5) | rect(hx_ + 4, hy_ + 5, hx_ + 5, hy_ + 6), TSKIN, d=0)
-    o.part(ell(hx_, hy_, hx_ + 5, hy_ + 4), SHELL, d=1)
-    o.part(ell(hx_ + 5, hy_ + 1, hx_ + 8, hy_ + 3), TSKIN, d=0)
+    o.part(line([(hx_ + 3, hy_ + 1), (hx_ + 6, hy_ - 2)]) | line([(hx_ + 3, hy_ + 3), (hx_ + 6, hy_ + 6)]) | rect(hx_ - 1, hy_, hx_, hy_) | rect(hx_ - 1, hy_ + 4, hx_, hy_ + 4), HSKIN, d=0)
+    o.part(ell(hx_, hy_, hx_ + 5, hy_ + 4), HSHELL, d=1)
+    o.part(ell(hx_ + 5, hy_ + 1, hx_ + 7, hy_ + 3), HSKIN, d=0)
     o.draw()
-    cv.dots([(hx_ + 2, hy_ + 2), (hx_ + 3, hy_ + 2)], SHELL['s'])
-    cv.dots([(hx_ + 2, hy_ + 1)], SHELL['r'])
+    cv.dots([(hx_ + 2, hy_ + 2), (hx_ + 3, hy_ + 2)], '#6a8aa0')
     cv.dots([(hx_ + 7, hy_ + 2)], '#2a1a10')
 # gnome warden shading them with a palm frond
 wgx, wgy = 166, 186
@@ -641,7 +683,7 @@ for cx_, cy_ in ((130, 196), (146, 192), (228, 186), (40, 172)):   # fallen coco
     o.part(ell(cx_ - 4, cy_ - 4, cx_ + 4, cy_ + 3), COCO, d=2)
     o.draw()
     cv.dots([(cx_ - 1, cy_ - 1), (cx_ + 1, cy_ - 1), (cx_, cy_ + 1)], '#3d2a1c')
-for gx0, gy0 in ((96, 196), (156, 134), (0, 196), (214, 128), (232, 150)):   # sea-grape and beach grass tufts
+for gx0, gy0 in ((96, 196), (156, 134), (0, 196)):   # sea-grape and beach grass tufts
     m = blank()
     for k in range(5):
         m |= ell(gx0 + k * 3 - 2, gy0 - 5 - (k % 2) * 3, gx0 + k * 3 + 3, gy0)
@@ -653,11 +695,19 @@ for rx_, ry_ in ((104, 124), (6, 132), (196, 132)):   # sea-washed rocks
     o = cv.obj()
     o.part(ell(rx_, ry_, rx_ + 9, ry_ + 6), ROCK, d=2)
     o.draw()
-o = cv.obj()   # a little sandcastle with a shell door (front centre)
-o.part(rect(190, 186, 204, 196) | rect(188, 180, 193, 196) | rect(201, 180, 206, 196), SAND, d=2)
+moat = ell(182, 190, 212, 199) & ~ell(186, 192, 208, 197)   # pass 2: a moat ring the waves have filled
+cv.fill(moat, SEA_SHAL)
+cv.fill(moat & ~shift(moat, 0, 1), '#1f8fa8')
+WSAND = ramp('#d9b77a', '#c9a46a', '#f2d9a0')
+o = cv.obj()   # a little sandcastle of wet packed sand with a shell door (front centre)
+o.part(rect(190, 186, 204, 196) | rect(188, 180, 193, 196) | rect(201, 180, 206, 196)
+       | rect(188, 178, 188, 179) | rect(191, 178, 191, 179) | rect(201, 178, 201, 179) | rect(204, 178, 204, 179) | rect(190, 184, 190, 185) | rect(196, 184, 197, 185), WSAND, d=2)
 o.draw()
-cv.dots([(188, 179), (190, 179), (192, 179), (201, 179), (203, 179), (205, 179)], SAND['b'])
-cv.fill(ell(195, 190, 199, 196), '#c9a46a')
+for yy in (184, 189, 193):
+    cv.fill(rect(189, yy, 205, yy) & ~rect(194, 0, 200, H), '#c9a46a')
+cv.dots([(190, 182), (203, 182)], '#4a2c1a')   # arrow slits
+cv.fill(ell(195, 190, 199, 196), '#4a2c1a')
+cv.dots([(196, 191), (197, 191)], '#f6a0b8')
 cv.fill(rect(197, 178, 197, 186), '#4a2c1a')
 cv.fill(poly([(198, 178), (203, 180), (198, 182)]), TURQ['b'])
 

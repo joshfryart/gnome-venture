@@ -118,6 +118,7 @@ cv.fill(m & ~shift(m, 3, 3), '#b8d0dc')
 for px, py, w in ((78, 58, 10), (126, 50, 14), (176, 56, 10), (250, 60, 8)):   # snow caps
     cap = m & poly([(px - w, py + w * 2 // 3), (px, py - 1), (px + w, py + w * 2 // 3)]) & ~poly([(px - w, py + w * 2 // 3), (px - w // 2, py + 3), (px, py + w // 2), (px + w // 2, py + 2), (px + w, py + w * 2 // 3)])
     cv.fill(cap, '#eef4f6')
+cv.fill(m & ~shift(m, 0, 1), '#7e9eb2')   # crest line so the pale snow caps read against the pale sky
 WOLF = ramp('#6e7682', '#4a525c', '#a4acb6')
 o = cv.obj()   # the Grey Wolf King sitting on the peak, muzzle up, howling
 o.part(poly([(130, 51), (136, 50), (137, 52), (130, 53)]), WOLF, d=0)   # bushy tail on the snow
@@ -131,8 +132,6 @@ cv.fill(rect(123, 46, 124, 51), '#c4ccd4')   # pale ruff
 cv.fill(rect(124, 52, 124, 53), '#4a525c')   # leg split
 cv.dots([(123, 41)], '#2a1a10')
 cv.dots([(117, 35)], '#2a1a10')
-for k, (hx0, hy0) in enumerate(((113, 33), (110, 30), (107, 27))):   # the howl: three little arcs
-    cv.fill(line([(hx0 + 1, hy0 - 2 - k), (hx0, hy0), (hx0 + 1 + k, hy0 + 2)]), '#5b6470')
 x = 2
 while x < W - 2:
     x += r2(3, 8)
@@ -747,6 +746,104 @@ for sx, sy in ((6, 140), (190, 140), (74, 140), (232, 196), (142, 146)):
     o = cv.obj()
     o.part(ell(sx, sy, sx + 7, sy + 4), STONE, d=2)
     o.draw()
+
+# ---------------------------------------------------------------- pass 1 additions (own generator r3): far copse, crane V, far windmill, rooks on the black earth,
+# a woodpile with a cat and straw bee skeps under the chapel, a sledge with a bucket of pussy willow
+for cx_, cy_ in ((86, 60), (91, 59), (96, 61)):   # far copse on the ridge
+    cv.fill(ell(cx_ - 3, cy_ - 4, cx_ + 3, cy_ + 2), '#6f8f8a')
+    cv.dots([(cx_ - 1, cy_ - 3), (cx_ - 2, cy_ - 2)], '#8fb0a8')
+cv.fill(rect(85, 62, 98, 63) & m, '#6f8f8a')
+for k, (bx, by) in enumerate(((84, 50), (88, 52), (92, 54), (80, 52), (76, 54))):   # cranes in a V
+    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
+wmx, wmy = 236, 62   # far post windmill on the ridge
+cv.fill(rect(wmx - 1, wmy - 5, wmx + 1, wmy), '#6a5a48')
+cv.fill(rect(wmx - 3, wmy - 12, wmx + 3, wmy - 5), '#8a7060')
+cv.fill(rect(wmx - 3, wmy - 12, wmx - 3, wmy - 5), '#a88a70')
+cv.fill(poly([(wmx - 4, wmy - 12), (wmx, wmy - 16), (wmx + 4, wmy - 12)]), '#6a5a48')
+for dx, dy in ((1, 1), (-1, 1)):
+    cv.fill(line([(wmx - 7 * dx, wmy - 17 - 7 * dy + 7), (wmx + 7 * dx, wmy - 3 + 7 * dy - 7)]), '#e8e2d2')
+cv.dots([(wmx, wmy - 10)], '#3a3a40')
+
+
+def rook(x, y, fly=False):
+    if fly:
+        cv.fill(poly([(x - 5, y - 2), (x, y), (x + 5, y - 2), (x + 2, y + 1), (x - 2, y + 1)]), '#2a2a30')
+        cv.dots([(x - 1, y), (x - 2, y)], '#c9c5bc')
+        return
+    cv.fill(ell(x - 3, y - 2, x + 3, y + 2), '#2a2a30')
+    cv.fill(rect(x + 2, y - 4, x + 4, y - 2), '#2a2a30')
+    cv.dots([(x + 5, y - 3), (x + 6, y - 3)], '#c9c5bc')
+    cv.dots([(x - 1, y - 1), (x, y - 2)], '#4a5a6a')
+    cv.dots([(x - 4, y), (x - 5, y + 1)], '#2a2a30')
+    cv.dots([(x, y + 3), (x + 2, y + 3)], '#5b5450')
+
+
+for rx_, ry_ in ((100, 100), (115, 108), (106, 92)):   # rooks back on the ploughland: first sign of spring
+    rook(rx_, ry_)
+rook(118, 84, fly=True)
+for rx_ in range(96, 120, 2):   # fresh dark furrow turned by the rooks' feet
+    if r3(0, 2) == 0:
+        cv.dots([(rx_, r3(95, 112))], '#2e2018')
+
+# woodpile under the chapel: log ends in rows, a board roof with snow, a ginger cat dozing on it
+o = cv.obj()
+o.part(rect(10, 125, 46, 135), LOG, d=2)
+o.part(rect(8, 122, 48, 124), ramp('#8a7a66', '#6a5a48', '#b0a290'), d=1)
+o.draw()
+for k, yy in enumerate((126, 131)):
+    for xx in range(11 + (k % 2) * 2, 43, 5):
+        lg = ell(xx, yy, xx + 4, yy + 4)
+        cv.fill(lg, '#e0c090')
+        cv.fill(lg & ~shift(lg, -1, -1), '#a8885a')
+        cv.dots([(xx + 2, yy + 2)], '#c4a070' if r3(0, 1) else '#8a6a44')
+ps = poly([(28, 122), (38, 120), (47, 122)])
+cv.fill(ps, SNOW['b'])
+CAT = ramp('#e8841f', '#b0601a', '#f5b060')
+o = cv.obj()
+o.part(ell(12, 116, 22, 122), CAT, d=1)
+o.part(ell(19, 113, 25, 119), CAT, d=1)
+o.part(poly([(20, 114), (20, 111), (22, 113)]) | poly([(23, 113), (25, 111), (25, 114)]), CAT, d=0)
+o.part(line([(12, 121), (8, 121), (7, 119)], 2), CAT, d=0)
+o.draw()
+cv.dots([(14, 118), (16, 119), (18, 118)], '#b0601a')   # stripes
+cv.fill(rect(21, 116, 22, 116) | rect(24, 116, 24, 116), '#2a1a10')   # sleepy eyes
+cv.dots([(23, 117)], '#f0a0a0')
+for k, (sx0, sy0) in enumerate(((51, 135), (59, 135))):   # straw bee skeps on a plank
+    o = cv.obj()
+    o.part(ell(sx0 - 5, sy0 - 13, sx0 + 4, sy0 + 3) & rect(0, 0, W, sy0 - 1), ramp('#d8b860', '#a8883a', '#f2d88a'), d=2)
+    o.draw()
+    for yy in range(sy0 - 11, sy0, 2):
+        cv.fill(ell(sx0 - 5, sy0 - 13, sx0 + 4, sy0 + 3) & rect(0, yy, W, yy) & shift(ell(sx0 - 5, sy0 - 13, sx0 + 4, sy0 + 3), 1, 0) & shift(ell(sx0 - 5, sy0 - 13, sx0 + 4, sy0 + 3), -1, 0), '#a8883a')
+    cv.fill(rect(sx0 - 1, sy0 - 3, sx0, sy0 - 1), '#2a1a10')
+o = cv.obj()
+o.part(rect(45, 135, 63, 136), LOG, d=0)
+o.draw()
+for bx_, by_ in ((47, 122), (55, 120), (61, 125), (52, 127)):   # first bees
+    cv.dots([(bx_, by_), (bx_ + 1, by_)], '#2a1a10')
+    cv.dots([(bx_, by_ - 1)], '#f5cf6a')
+
+# sledge left out in the thaw, a painted bucket of pussy willow on it
+o = cv.obj()
+o.part(rect(200, 143, 221, 145), LOG, d=1)
+o.part(rect(202, 146, 203, 148) | rect(218, 146, 219, 148), LOG, d=0)
+o.draw()
+cv.fill(line([(198, 149), (222, 149), (225, 147), (225, 145)]), '#4a2c1a')
+for x in range(203, 220, 4):
+    cv.fill(rect(x, 143, x, 145), LOG['s'])
+for tx, ty in ((204, 116), (209, 112), (214, 114), (219, 120), (200, 122)):
+    cv.fill(line([(210, 136), (tx, ty)]), '#6a3a2a')
+    for j in (5, 9, 13, 16):
+        px_ = 210 + (tx - 210) * j // 18
+        py_ = 136 + (ty - 136) * j // 18
+        cv.fill(rect(px_ + 1, py_ - 1, px_ + 2, py_), '#f4f0e8')
+        cv.dots([(px_ + 2, py_)], '#b9b2a2')
+o = cv.obj()
+o.part(poly([(204, 132), (216, 132), (214, 142), (206, 142)]), BLUE, d=2)
+o.draw()
+cv.fill(line([(204, 131), (210, 127), (216, 131)]) & ~rect(206, 128, 214, 132), '#5b6470')
+cv.fill(rect(206, 136, 214, 136), '#ffffff')
+cv.dots([(208, 139), (212, 139)], RED['b'])
+cv.dots([(210, 139)], GOLD['b'])
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

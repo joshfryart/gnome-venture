@@ -7,6 +7,7 @@ catching roof-water, Grandmother Tortoise, a loose goat, grey parrots, giant lea
 import sys
 
 from jigsaw_common import *  # noqa: F401,F403
+from pixlib import hx
 
 SKY0, SKY1, SKY2 = '#7f97a6', '#94abb4', '#adc2c4'
 CLOUD = ramp('#c9d4d6', '#8a9aa6', '#e6ecea')
@@ -406,6 +407,87 @@ for k in range(4):
     cv.fill(ell(270 + k % 2 * 3, 52 + k * 3, 273 + k % 2 * 3, 55 + k * 3), '#e8a0d0' if k % 2 else '#f1ece0')
     cv.dots([(271 + k % 2 * 3, 53 + k * 3)], '#c8302a')
 
+# pass 2: give the baobab form (shadowed right flank, pinker bark plates, wrinkle bands) and hang its velvet pods
+r4 = rnd(2207)   # pass-2 details (keeps the earlier layout fixed)
+
+
+def isc(col):
+    return (cv.px == np.array(hx(col), np.uint8)).all(2)
+
+
+BAOP = '#b49482'   # pinker bark plate
+bark = isc(BAOB['b']) & trunk
+cv.fill(bark & ~shift(trunk, -11, 0) & rect(0, 40, W, 156), BAOB['s'])   # right flank in shade (bark pixels only)
+cv.fill(bark & ~shift(trunk, -13, 0) & ~shift(trunk, -11, 0) & rect(0, 40, W, 156), BAOB['s'])
+for k in range(7):   # lumpy pinker plates break up the big pale face
+    bx, by = r4(6, 70), r4(40, 130)
+    pm = (ell(bx, by, bx + r4(10, 16), by + r4(6, 10)) | ell(bx + 4, by + 3, bx + r4(12, 20), by + r4(9, 14))) & isc(BAOB['b'])
+    cv.fill(pm, BAOP)
+    cv.fill(pm & ~shift(pm, 0, -1), BAOB['s'])   # shaded lower lip
+    cv.fill(pm & ~shift(pm, 1, 0), BAOB['r'])   # lit left edge
+for k in range(14):   # elephant-skin wrinkle bands (short curved horizontals)
+    wx, wy = r4(6, 80), r4(42, 150)
+    ln = r4(5, 9)
+    seg = line([(wx, wy), (wx + ln // 2, wy + 1), (wx + ln, wy)]) & (isc(BAOB['b']) | isc(BAOP) | isc(BAOB['r']))
+    cv.fill(seg, BAOB['s'])
+    cv.fill(shift(seg, 0, -1) & (isc(BAOB['b']) | isc(BAOP)), BAOB['r'])
+POD = ramp('#9aa070', '#6a7048', '#c4c890')
+for px_, py_, ln in ((8, 22, 7), (30, 6, 5), (46, 12, 8), (62, 8, 6), (92, 24, 9), (2, 30, 5)):   # baobab fruit pods on strings
+    cv.fill(rect(px_, py_, px_, py_ + ln), '#5c3420')
+    o = cv.obj()
+    o.part(ell(px_ - 2, py_ + ln, px_ + 3, py_ + ln + 8), POD, d=1)
+    o.draw()
+o = cv.obj()   # a woven bird-house hung by the door
+o.part(ell(62, 132, 72, 144), THATCH, d=2)
+o.part(poly([(60, 134), (74, 134), (67, 127)]), WOOD, d=1)
+o.draw()
+cv.fill(ell(65, 137, 69, 141), UMB)
+cv.dots([(66, 138)], '#f5d46a')
+cv.fill(rect(66, 125, 67, 127), '#5c3420')
+cv.dots([(70, 142), (71, 141), (72, 142)], '#f5d46a')   # a yellow sunbird on the perch
+cv.dots([(73, 141)], '#c8302a')
+
+# pass 2: the kapok trunk: long bark ridges, a liana spiralling down, lichen, bracket fungi and surface roots
+ktr = poly([(266, 0), (290, 0), (292, 120), (300, 140), (300, 156), (234, 156), (252, 144), (264, 122)])
+kb = isc(KAPOK['b']) & ktr
+cv.fill(kb & ~shift(ktr, 6, 0) & rect(0, 46, W, 150), KAPOK['r'])   # lit left edge of the column
+for k in range(9):
+    kx, ky = 268 + k * 3 + r4(-1, 1), r4(48, 70)
+    pts = [(kx, ky), (kx + r4(-2, 2), ky + 14), (kx + r4(-1, 3), ky + 28), (kx + r4(-2, 2), ky + r4(36, 70))]
+    seg = line(pts) & ktr & ~rect(256, 0, 266, H)
+    cv.fill(seg & (isc(KAPOK['b']) | isc(KAPOK['r'])), KAPOK['s'])
+    cv.fill(shift(seg, -1, 0) & isc(KAPOK['b']), '#9a9082')
+for k in range(10):   # pale green and rust lichen spots
+    lx_, ly_ = r4(268, 290), r4(50, 146)
+    if isc(KAPOK['b'])[ly_, lx_] or isc('#9a9082')[ly_, lx_]:
+        cv.fill(ell(lx_, ly_, lx_ + r4(2, 4), ly_ + 2), '#a4b86a' if k % 3 else '#c8843a')
+        cv.dots([(lx_ + 1, ly_)], '#d0d86a' if k % 3 else '#e8a070')
+liana = [(290, 46), (272, 62), (288, 80), (270, 98), (286, 116), (272, 132), (282, 150)]
+cv.fill(line(liana, 2) & ktr, '#4a6a2a')
+cv.fill(line([(a - 1, b) for a, b in liana]) & ktr, '#7a9a3a')
+for i in range(len(liana) - 1):
+    (ax, ay), (bx, by) = liana[i], liana[i + 1]
+    for t in (0.3, 0.7):
+        vx, vy = int(ax + (bx - ax) * t), int(ay + (by - ay) * t)
+        side = 1 if (i + int(t * 10)) % 2 else -1
+        lm = ell(vx + side * 2 - 2, vy - 2, vx + side * 2 + 2, vy + 1)
+        cv.fill(lm, LEAF['b'] if i % 2 else EM['b'])
+        cv.dots([(vx + side * 2 - 1, vy - 2)], LEAF['r'])
+        cv.dots([(vx + side * 2 + 1, vy + 1)], LEAF['s'])
+for fx_, fy_, fw in ((252, 146, 8), (286, 136, 7), (244, 152, 6)):   # orange bracket fungi on the buttresses
+    o = cv.obj()
+    o.part(ell(fx_, fy_, fx_ + fw, fy_ + 4) & ~rect(0, fy_ + 3, W, H), ramp('#e8843a', '#c8502a', '#f5d46a'), d=1)
+    o.part(ell(fx_ + 2, fy_ + 3, fx_ + fw - 1, fy_ + 6) & ~rect(0, fy_ + 6, W, H), ramp('#e8843a', '#c8502a', '#f5d46a'), d=1)
+    o.draw()
+for rx0, ry0, rx1, ry1 in ((262, 150, 248, 160), (278, 152, 270, 164), (292, 150, 298, 162)):   # surface roots snaking over the grass
+    o = cv.obj()
+    o.part(line([(rx0, ry0), ((rx0 + rx1) // 2 + 3, (ry0 + ry1) // 2), (rx1, ry1)], 3), KAPOK, d=1)
+    o.draw()
+for k in range(6):   # root creases on the buttress fins
+    bx, by = r4(242, 296), r4(126, 152)
+    seg = line([(bx, by), (bx - 4, by + 6)]) & ktr & isc(KAPOK['b'])
+    cv.fill(seg, KAPOK['s'])
+
 # ================================================================ canopy bridge from the baobab crown to the kapok platform
 deck = sagpts(98, 26, 248, 42, 16)
 rail = sagpts(98, 16, 248, 32, 14)
@@ -677,6 +759,47 @@ cv.dots([(gtx + 19, gty - 3)], UMB)
 cv.dots([(gtx + 15, gty - 8), (gtx + 16, gty - 9), (gtx + 18, gty - 8), (gtx + 19, gty - 9)], '#6a5e3a')   # horns
 cv.dots([(gtx + 21, gty + 3), (gtx + 21, gty + 4)], '#c9c5bc')   # beard
 
+# pass 2: bottom-right corner: a mossy fallen log with mushrooms and a snail, ferns, wildflowers in the foreground grass
+o = cv.obj()
+LOG = ramp('#7a5a3a', '#5c3e24', '#a07850')
+o.part(rrect(246, 187, 284, 196, 2), LOG, d=2)
+o.part(ell(280, 186, 290, 197), ramp('#c8a070', '#9a7048', '#e8c898'), d=1)   # cut end
+o.draw()
+cv.fill(ell(282, 188, 288, 195) & ~ell(284, 190, 286, 193), '#a07850')   # growth rings
+cv.dots([(285, 191)], '#5c3e24')
+cv.fill(rect(247, 186, 280, 188) & rrect(246, 186, 284, 196, 2), EM['s'])   # moss along the top
+for xx in range(248, 280, 3):
+    cv.dots([(xx, 186), (xx + 1, 185 + xx % 2)], EM['r'] if xx % 2 else LEAF['b'])
+for xx in range(250, 280, 6):
+    cv.fill(rect(xx, 191, xx + 3, 191), LOG['s'])   # bark cracks
+for mx_, my_, col in ((254, 184, RED), (262, 185, ramp('#f1ece0', '#c9c5bc', '#ffffff')), (274, 184, RED)):   # toadstools
+    o = cv.obj()
+    o.part(rect(mx_ + 1, my_ + 1, mx_ + 2, my_ + 3), ramp('#f1ece0', '#c9c5bc'), d=0)
+    o.part(ell(mx_ - 2, my_ - 2, mx_ + 5, my_ + 2) & ~rect(0, my_ + 1, W, H), col, d=1)
+    o.draw()
+    if col is RED:
+        cv.dots([(mx_, my_ - 1), (mx_ + 3, my_)], '#f1ece0')
+sx_, sy_ = 268, 198   # snail by the log
+o = cv.obj()
+o.part(rect(sx_ - 4, sy_ - 1, sx_ + 6, sy_), ramp('#c4b09a', '#a08a74'), d=0)
+o.part(ell(sx_ - 2, sy_ - 7, sx_ + 4, sy_ - 1), ramp('#c8843a', '#8a5434', '#e8a070'), d=1)
+o.draw()
+cv.dots([(sx_ + 1, sy_ - 4), (sx_, sy_ - 4)], '#5c3420')
+cv.dots([(sx_ + 6, sy_ - 3), (sx_ + 7, sy_ - 4)], '#a08a74')
+for fx, fy in ((244, 199), (292, 186)):   # fern fronds
+    for dx, dy in ((-8, -5), (-5, -8), (0, -9), (5, -8), (8, -5)):
+        cv.fill(line([(fx, fy), (fx + dx, fy + dy)], 2), EM['s'])
+        cv.fill(line([(fx, fy - 1), (fx + dx, fy + dy - 1)]), EM['b'])
+        cv.dots([(fx + dx // 2 - 1, fy + dy // 2 - 2)], EM['r'])
+FLW = ('#e8604a', '#f5d46a', '#e8a0d0', '#f1ece0')
+grassm = isc(GRASS['b'])
+for k in range(40):   # small wildflower clusters on open grass
+    x, y = r4(4, W - 6), r4(150, H - 4)
+    if grassm[y - 1:y + 3, x - 1:x + 3].all():
+        c = FLW[k % 4]
+        cv.dots([(x, y), (x + 2, y + 1), (x + 1, y + 2)], c)
+        cv.dots([(x + 1, y + 1)], GRASS['s'])
+
 # ================================================================ giant leaves with raindrops in the front corners
 def bigleaf(tip, base, wdt, rp, k=0):
     (tx, ty), (bx, by) = tip, base
@@ -720,15 +843,19 @@ cv.dots([(fgx - 1, fgy + 5), (fgx + 9, fgy + 5)], '#e8843a')
 
 # ================================================================ grey parrots and a turaco in the air
 PGR = ramp('#8a9096', '#5a6066', '#c4c8cc')
-for px, py, fl in ((184, 10, -1),):   # one grey parrot flying, wings up, red tail fanned
-    o = cv.obj()
-    o.part(ell(px, py, px + 12, py + 6), PGR, d=1)
-    o.part(poly([(px + 3, py + 2), (px + 9, py + 2), (px + 2, py - 7)]), ramp('#5a6066', '#3a3638'), d=1)   # wing
-    o.part(poly([(px - 5, py + 1), (px + 1, py + 2), (px + 1, py + 5), (px - 5, py + 6)]), RED, d=1)   # red tail
-    o.draw()
-    cv.fill(ell(px + 9, py + 1, px + 13, py + 5), '#f1ece0')   # white face
-    cv.dots([(px + 14, py + 3), (px + 14, py + 4), (px + 13, py + 4)], UMB)   # hooked beak
-    cv.dots([(px + 11, py + 2)], UMB)
+px, py = 170, 4   # pass 2: the flying grey parrot, bigger: both wings up, red tail fanned
+o = cv.obj()
+o.part(poly([(px + 10, py + 6), (px + 16, py + 6), (px + 18, py - 4), (px + 13, py - 2)]), ramp('#5a6066', '#3a3638'), d=1)   # far wing
+o.part(ell(px, py + 4, px + 22, py + 13), PGR, d=2)   # body
+o.part(poly([(px - 9, py + 6), (px + 2, py + 7), (px + 2, py + 11), (px - 9, py + 13), (px - 7, py + 9)]), RED, d=1)   # red tail
+o.part(poly([(px + 4, py + 7), (px + 14, py + 7), (px + 2, py - 6), (px - 2, py - 4)]), PGR, d=2)   # near wing
+o.draw()
+for k in range(3):   # primary feathers on the near wing
+    cv.fill(line([(px + 1 + k * 3, py - 3 + k), (px + 6 + k * 3, py + 5)]), '#5a6066')
+cv.fill(ell(px + 15, py + 5, px + 22, py + 11), '#f1ece0')   # white face
+cv.dots([(px + 23, py + 7), (px + 23, py + 8), (px + 24, py + 8), (px + 23, py + 9)], UMB)   # hooked beak
+cv.dots([(px + 19, py + 7)], UMB)
+cv.dots([(px + 8, py + 13), (px + 9, py + 14), (px + 13, py + 13), (px + 14, py + 14)], '#3a3638')   # tucked feet
 for px, py in ((74, 16), (252, 23)):   # grey parrots perched against the leaves, facing out
     o = cv.obj()
     o.part(ell(px, py, px + 7, py + 11), PGR, d=1)   # upright body

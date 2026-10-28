@@ -140,11 +140,11 @@ cv.fill(ell(61, 4, 66, 9), '#fff4cc')
 for k, (xa, xb) in enumerate(((56, 30), (61, 46), (66, 62), (71, 80), (75, 96))):   # sun shafts, each a slim wedge
     cv.fill(poly([(xa, 14), (xa + 2, 14), (xb + 3 + k, 62), (xb, 62)]) & ~gap, '#a3adb9' if k % 2 else '#b0b8c2')
 # a rainbow stub coming down out of the storm cloud onto the far fells (cells 7-8, row 1)
-rb_c = (252, 104)
+rb_c = (240, 82)
 for k, col in enumerate(('#b0505a', '#d99a4a', '#c9c06a', '#7f9a6a', '#6a7aa8', '#7e6496')):
-    ro, ri = 78 - k * 2, 76 - k * 2
+    ro, ri = 54 - k * 2, 52 - k * 2
     band = ell(rb_c[0] - ro, rb_c[1] - ro, rb_c[0] + ro, rb_c[1] + ro) & ~ell(rb_c[0] - ri, rb_c[1] - ri, rb_c[0] + ri, rb_c[1] + ri)
-    cv.fill(band & rect(180, 20, 228, 64), col)
+    cv.fill(band & rect(150, 20, 236, 70), col)
 
 
 def cloud(m, rp, base):
@@ -177,8 +177,6 @@ cloud(cum(164, 12, 40) | ell(150, 8, 166, 18), DCLOUD, 17)
 cm = cloud(cum(190, 10, 38) | ell(176, 10, 206, 18), CLOUD, 17)
 cv.fill(ell(188, 7, 194, 10), SKY[1])
 cv.fill(ell(188, 7, 194, 10) & ~shift(ell(188, 7, 194, 10), 0, 1), CLOUD['s'])
-# long flat cloud (cell 8,1)
-cloud(ell(196, 38, 236, 44) | ell(206, 34, 228, 42), CLOUD, 43)
 # the big rain cloud (cell 9,0) with a curtain of rain of uneven lengths (cell 9,1)
 cloud(ell(220, -6, 262, 20) | ell(228, 8, 256, 26) | ell(214, 4, 236, 22) | ell(248, 0, 270, 16), DCLOUD, 25)
 for k in range(11):
@@ -216,13 +214,17 @@ for k in range(14):   # whitecaps
     cv.dots([(sx, sy), (sx + 1, sy), (sx + 1, sy - 1)], '#c8ced5')
 # the headland: a bold green-topped cliff, the lighthouse planted on it with the keeper's cottage
 head = poly([(0, 38), (6, 36), (14, 37), (22, 40), (28, 46), (32, 54), (36, 62), (30, 66), (0, 68)])
-cliff = poly([(18, 44), (26, 44), (32, 54), (36, 62), (30, 66), (0, 68), (0, 56), (12, 52)])
+cliff = poly([(22, 42), (28, 46), (32, 54), (36, 62), (30, 66), (18, 67), (22, 58), (20, 50)])
 o = cv.obj()
 o.part(head, MOSSF, d=2)
 o.part(cliff, ramp('#6c7284', '#4f5560', '#8c95a6'), d=2)
 o.draw()
-for yy in range(50, 67, 3):   # rock strata in the cliff
-    cv.fill(cliff & rect(0, yy, W, yy) & ~shift(cliff, 0, -1) | cliff & line([(4, yy + 1), (34, yy - 1)]), '#4f5560')
+for yy in range(50, 67, 4):   # rock strata in the cliff
+    cv.fill(cliff & line([(18, yy + 1), (36, yy - 1)]), '#4f5560')
+for _ in range(30):   # sheep-bitten turf on the headland slope
+    x, y = r3(1, 26), r3(42, 66)
+    if head[y, x] and not cliff[y, x]:
+        cv.dots([(x, y), (x + 1, y)], MOSSF['s'] if r3(0, 2) else HEATHF['b'])
 cv.fill(head & ~cliff & ~shift(head & ~cliff, 0, 2), MOSSF['r'])
 for x in range(2, 24, 3):   # thrift tufts on the clifftop
     cv.dots([(x, 40 + (x * 7) % 4)], '#b07fb2' if x % 2 else '#e6e2d6')
@@ -242,12 +244,12 @@ cv.fill(rect(12, 37, 13, 40), '#3d2a1e')   # lighthouse door
 cv.dots([(21, 36), (25, 36)], '#d98a2a')
 cv.fill(poly([(17, 15), (44, 8), (44, 12), (17, 17)]), '#c8ced5')   # the lamp's beam, a hard pale wedge out to sea
 cv.fill(poly([(17, 15), (44, 8), (44, 9)]), '#e6e2d6')
-for sx, sy, w in ((36, 72, 18), (56, 71, 12)):   # skerry rocks
+for sx, sy, w in ((34, 64, 16), (50, 66, 10)):   # skerry rocks
     m = ell(sx, sy - 4, sx + w, sy + 3) & ~rect(0, sy + 2, W, H)
     cv.fill(m, '#4f5560')
     cv.fill(m & ~shift(m, 1, 1), '#6c7284')
     cv.fill(rect(sx - 1, sy + 1, sx + w + 1, sy + 1), '#c8ced5')   # surf line
-for sx, sy, fc in ((38, 66, 1), (46, 67, -1), (58, 66, 1)):   # seals hauled out, heads up, pale bellies
+for sx, sy, fc in ((35, 58, 1), (43, 59, -1), (51, 61, 1)):   # seals hauled out, heads up, pale bellies
     cv.fill(ell(sx, sy, sx + 8, sy + 3), '#8b96a4')
     cv.fill(rect(sx + 1, sy + 3, sx + 7, sy + 3), '#c8ced5')
     hx0 = sx + 8 if fc > 0 else sx - 2
@@ -256,10 +258,10 @@ for sx, sy, fc in ((38, 66, 1), (46, 67, -1), (58, 66, 1)):   # seals hauled out
     cv.dots([(sx + 1, sy)], '#a3acb7')
 # a little fishing boat out on the fjord
 o = cv.obj()
-o.part(poly([(48, 56), (62, 56), (60, 59), (50, 59)]), WINE, d=1)
-o.part(poly([(55, 55), (55, 45), (61, 54)]), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.part(poly([(60, 54), (74, 54), (72, 57), (62, 57)]), WINE, d=1)
+o.part(poly([(67, 53), (67, 43), (73, 52)]), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
 o.draw()
-cv.fill(rect(54, 44, 54, 56), '#3d2a1e')
+cv.fill(rect(66, 42, 66, 54), '#3d2a1e')
 
 # ---------------------------------------------------------------- far fells with mist in the folds
 m = poly([(60, 64), (96, 50), (130, 58), (168, 44), (214, 56), (250, 46), (300, 58), (300, 80), (60, 80)])
@@ -436,20 +438,20 @@ for _ in range(16):   # (keeps the r2 stream where the old bead-string smoke lef
     r2(0, 1)
 # peat smoke: a thin column that rises, gets caught by the wind and streams off flat to the left, fraying into torn wisps
 pm = blank()
-for i in range(0, 61):
-    t = i / 60.0
-    sx = cx0 + 10 - int(58 * t ** 1.3) + int(2 * np.sin(t * 11))
-    sy = 74 - int(40 * t ** 0.55) + int(2 * np.sin(t * 7 + 1))
-    hw, hh = 1 + int(5 * t), 1 + int(3 * t)
-    if t > 0.75 and i % 5 in (0, 1):   # breaking up at the end
+for i in range(0, 41):
+    t = i / 40.0
+    sx = cx0 + 10 - int(44 * t ** 1.2)
+    sy = 74 - int(24 * t ** 0.5) + int(1.5 * np.sin(t * 9))
+    hw, hh = 1 + int(8 * t) + r3(0, 2), 1 + int(4 * t) + r3(0, 1)
+    if t > 0.6 and (i // 3) % 3 == 2:   # breaking up into puffs
         continue
     pm |= ell(sx - hw, sy - hh, sx + hw, sy + hh)
-for k in range(5):   # torn streamers blown ahead of the plume
-    wx, wy = 150 - k * 7 + r3(-2, 2), 34 + (k * 5) % 9 - k
-    pm |= ell(wx - 6 - k, wy - 1, wx + 6, wy + 1)
+for k in range(3):   # torn wisps blown ahead of the plume
+    wx, wy = 150 - k * 9 + r3(-2, 2), 50 - k * 2 + r3(-1, 1)
+    pm |= ell(wx - 5 - k, wy - 1 - (k % 2), wx + 5, wy + 1)
 pm &= ~rect(cx0 + 4, 75, cx0 + 18, H)
 cv.fill(pm, '#8a8c94')
-cv.fill(pm & rect(0, 0, W, 50), '#9a9ca4')
+cv.fill(pm & rect(0, 0, 176, H), '#9a9ca4')
 cv.fill(pm & ~shift(pm, 1, 1), '#a7a9b0')
 cv.fill(pm & ~shift(pm, -1, -2), '#6e7078')
 roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
@@ -652,9 +654,11 @@ crown = poly([(16, 108), (22, 102), (32, 98), (46, 96), (58, 96), (68, 99), (74,
 for k in range(7):
     cx_ = 24 + k * 6 + r3(-2, 2)
     crown |= ell(cx_ - 5, 94 + (k % 3) - k // 3, cx_ + 6, 102 + (k % 2))   # lumpy top
-for k in range(5):
-    yy = 98 + k * 2 + r3(0, 1)
-    crown |= rect(68, yy, 76 + r3(0, 6), yy)   # wind-combed tips
+for k, ln in enumerate((7, 12, 9, 14, 5)):
+    yy = 97 + k * 3
+    crown |= line([(66, yy), (66 + ln, yy + 1 + k % 2)])   # wind-combed tips of uneven length
+for k in range(4):   # ragged underside
+    crown &= ~ell(28 + k * 11, 109 + k % 2, 34 + k * 11, 114)
 crown &= ~rect(0, 0, 18, 102)
 o = cv.obj()
 o.part(crown, TURF, d=2)
@@ -669,7 +673,7 @@ for k in range(26):
     cv.dots([(x, y)] + ([(x + 1, y)] if k % 3 == 0 else []), WINE['b'] if k % 2 else ('#c05a50' if k % 3 else TURF['r']))   # haws
 
 # ---------------------------------------------------------------- sheep on the moor
-SHEEP = ((86, 104, 1), (60, 116, 1), (40, 104, -1), (276, 158, -1))
+SHEEP = ((88, 108, 1), (60, 118, 1), (162, 108, -1), (276, 158, -1))
 for shx, shy, fc in SHEEP:
     shadow(shx - 2, shy + 9, shx + 15, shy + 12)
     o = cv.obj()
@@ -774,11 +778,13 @@ cv.fill(rect(X(-1), Y(-15), X(2), Y(-12)), SKIN['b'])
 for dx in (-12, -4, 4, 12):   # drips off the umbrella ribs
     cv.dots([(X(dx), Y(-37)), (X(dx), Y(-35))], RAIN)
 # child puddle-jumping, mid-air above the big puddle, with a splash
-jx, jy = 240, 170
+jx, jy = 240, 168
 cv.fill(ell(jx - 8, 186, jx + 8, 189), PUD['s'])   # the child's shadow on the water, well below the boots
-for k, (dx, top) in enumerate(((-12, 180), (-9, 176), (-6, 179), (-2, 182), (3, 182), (7, 178), (10, 175), (13, 180))):   # splash crown leaping off the puddle
-    cv.fill(rect(jx + dx, top, jx + dx, 186 - k % 2), PUD['r'] if k % 2 else '#e6e2d6')
-    cv.dots([(jx + dx + (-1 if dx < 0 else 1), top - 2)], '#e6e2d6')
+for k, dx in enumerate((-13, -10, -7, 7, 10, 13)):   # splash crown: short droplet arcs flung outward off the rim
+    sgn = -1 if dx < 0 else 1
+    h = 4 + (k % 3)
+    cv.fill(line([(jx + dx, 186), (jx + dx + sgn * 2, 186 - h), (jx + dx + sgn * 4, 186 - h + 1)]), '#e6e2d6' if k % 2 else PUD['r'])
+    cv.dots([(jx + dx + sgn * 5, 186 - h + 3)], '#e6e2d6')
 for dx, dy in ((-16, 177), (17, 176), (-18, 182), (19, 181), (-14, 172), (15, 171)):   # flung droplets
     cv.dots([(jx + dx, dy), (jx + dx, dy + 1)], '#e6e2d6')
 X, Y = gnome(jx, jy, WINE, MUST, f=0.8, tip=-10, boots=MUST)

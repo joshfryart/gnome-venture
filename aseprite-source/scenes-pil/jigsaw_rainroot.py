@@ -205,7 +205,7 @@ for x0, y0, w, h in ((246, 40, 18, 12), (266, 34, 16, 18), (284, 38, 15, 14), (2
     cv.fill(poly([(dx - 2, y0 + h), (dx + 2, y0 + h), (dx + 1, y0 + h - 6), (dx - 1, y0 + h - 6)]), '#4a3a2a')
 cv.fill(poly([(270, 34), (278, 34), (274, 28)]), '#b8502a')   # thatched hut roof on the highest ruin
 cv.fill(rect(273, 26, 274, 28), '#7a4a1f')
-for lx, ly, rp, fr in ((230, 82, WOOL, True), (240, 98, LLAMA_B, False), (262, 74, WOOL, False), (226, 110, WOOL, True), (282, 106, LLAMA_B, True)):
+for lx, ly, rp, fr in ((230, 82, WOOL, True), (240, 98, LLAMA_B, False), (262, 74, WOOL, False), (226, 110, WOOL, True), (288, 122, LLAMA_B, False)):
     llama(lx, ly, rp, fr)
 cv.fill(rect(244, 90, 247, 91), '#d6322b')   # a woven saddle blanket
 cv.dots([(245, 90), (247, 91)], '#f0b92b')
@@ -230,11 +230,24 @@ for yy in (qy - 7, qy - 4, qy - 1):
 for k in range(4):   # straw lines on the roof
     cv.fill(line([(qx + 1, qy - 19 + k), (qx - 7 + k * 5, qy - 10)]), '#9a6b3f')
 cv.fill(poly([(qx - 2, qy), (qx + 2, qy), (qx + 1, qy - 6), (qx - 1, qy - 6)]), '#4a3a2a')
-cv.fill(line([(276, 96), (299, 98)]), '#5c4a3a')   # drying line with striped cloth
-for k, cx_ in enumerate((279, 286, 293)):
-    cy_ = 96 + (cx_ - 276) // 11
-    cv.fill(rect(cx_, cy_ + 1, cx_ + 4, cy_ + 6), (RED['b'], BLUE['b'], ORG['b'])[k])
-    cv.fill(rect(cx_, cy_ + 3, cx_ + 4, cy_ + 3), (YEL['b'], '#f1ece0', RED['s'])[k])
+cv.fill(rect(277, 94, 277, 105) | rect(298, 95, 298, 106), '#5c4a3a')   # drying line on two posts, sagging, with woven cloths draped over it
+cv.dots([(277, 94), (298, 95)], WOOD['r'])
+sagl = [(xx, 95 + (xx - 277) // 21 + int(round(3 * (xx - 277) * (298 - xx) / 110.0))) for xx in range(277, 299)]
+cv.fill(line(sagl), '#5c4a3a')
+for k, (cx_, w_, h_) in enumerate(((279, 5, 7), (285, 6, 9), (292, 4, 6))):
+    ly0, ly1 = dict(sagl)[cx_], dict(sagl)[cx_ + w_]
+    rp_ = (RED, BLUE, ORG)[k]
+    cl = poly([(cx_, ly0), (cx_ + w_, ly1), (cx_ + w_ - (k % 2), ly1 + h_), (cx_ + (1 - k % 2), ly0 + h_ - 1)])
+    o = cv.obj()
+    o.part(cl, rp_, d=1)
+    o.draw()
+    cv.fill(cl & rect(0, min(ly0, ly1), W, max(ly0, ly1)), rp_['s'])   # the fold over the line
+    sy_ = (ly0 + ly1) // 2 + h_ // 2
+    cv.fill(cl & rect(0, sy_, W, sy_), (YEL['b'], '#f1ece0', RED['b'])[k])   # woven band
+    if k == 1:
+        cv.dots([(cx_ + 1 + i, sy_ - 2 + (i % 2)) for i in range(0, w_ - 1, 2)], YEL['b'])   # zigzag
+    for i in range(0, w_ + 1, 2):   # fringe
+        cv.dots([(cx_ + i, max(ly0, ly1) + h_ + (i % 4 == 0))], rp_['s'])
 
 # ---------------------------------------------------------------- far forest canopy with steam
 x = -8
@@ -260,6 +273,30 @@ cv.fill(rect(0, 108, 230, 126), FAR[1])
 for k in range(90):
     fx, fy = r(0, 228), r(108, 125)
     cv.dots([(fx, fy), (fx + 1, fy)], FAR[k % 3] if k % 4 else '#3f7a5a')
+# pass 2: break up the steam band: a shadowed underside, emergent crowns rising through it, trunks below, wisps drifting across
+r4 = rnd(4242)
+mistm = np.all(cv.px == np.array([0xee, 0xf4, 0xe0], np.uint8), axis=2) & (YY >= 96) & (YY <= 112) & (XX <= 212)
+cv.fill(mistm & ~shift(mistm, 0, -1), '#c9dcd6')
+x = 4
+while x < 206:
+    w = r4(7, 12)
+    top = r4(96, 101)
+    col = FAR[r4(0, 2)]
+    m = ell(x, top, x + w, top + w * 2 // 3 + 2)
+    cv.fill(line([(x + w // 2, top + 4), (x + w // 2 + r4(-1, 1), 113)]), '#3f7a5a')   # trunk down into the lowland forest
+    cv.fill(m, col)
+    cv.fill(m & ~shift(m, -1, -1), '#3f7a5a')
+    cv.fill(m & ~shift(m, 1, 1), '#8ebe98')
+    x += w + r4(6, 16)
+for k in range(9):   # wisps in front of the crowns
+    mx = r4(0, 200)
+    my = r4(102, 106)
+    wm = ell(mx, my, mx + r4(8, 16), my + 3)
+    cv.fill(wm, MIST)
+    cv.fill(wm & ~shift(wm, 0, -1), '#c9dcd6')
+for k in range(60):   # small canopy texture on the lowland strip
+    fx, fy = r4(0, 228), r4(110, 125)
+    cv.dots([(fx, fy), (fx + 1, fy), (fx, fy - 1)], '#3f7a5a' if k % 2 else FAR[2])
 
 # ---------------------------------------------------------------- river (winding in from the back) and the forest floor
 river = poly([(126, 112), (146, 112), (151, 119), (147, 128), (146, 138), (154, 148), (174, 158), (208, 168), (236, 177), (262, 186), (284, 189), (300, 191), (300, 199),
@@ -303,6 +340,23 @@ for k3 in range(14):
         cv.dots([(fx_ + 2, fy_ + 1)], WATER['r'])
 cv.fill(ell(136, 156, 146, 160) & ~ell(138, 157, 144, 159), WATER['r'])   # a fish ring
 cv.dots([(141, 157)], '#f0b92b')
+# pass 2: the river is born from a little cascade spilling out of the far forest (so it does not end in a flat-topped pool)
+ROCK = ramp('#9a8a6a', '#5c4a3a', '#c9bb98')
+fall = poly([(129, 100), (143, 100), (145, 113), (127, 113)])
+cv.fill(fall, WATER['b'])
+for k, fxx in enumerate(range(128, 146, 2)):
+    y0_ = 100 + r4(0, 3)
+    cv.fill(rect(fxx, y0_, fxx, 113 - r4(0, 4)) & fall, ('#d3eadb', WATER['r'], MIST)[k % 3])
+cv.fill(rect(128, 100, 144, 101) & fall, WATER['r'])   # lip
+for (a, b_, c_, d_) in ((119, 98, 130, 108), (142, 99, 152, 109), (122, 106, 129, 113), (144, 106, 151, 113)):
+    o = cv.obj()
+    o.part(ell(a, b_, c_, d_), ROCK, d=1)
+    o.draw()
+    cv.dots([(a + 2, b_ + 2), (a + 3, b_ + 1)], '#5f9a4a')   # moss
+for k in range(16):   # foam where it lands
+    fx_, fy_ = r4(126, 146), r4(112, 116)
+    if river[fy_, fx_]:
+        cv.dots([(fx_, fy_), (fx_ + 1, fy_)], MIST if k % 2 else '#d3eadb')
 
 # understorey: shrubs, palms and ferns on the forest floor (keeps the mid band busy)
 for ux, uy, w, rp in ((64, 120, 12, G_MID), (86, 126, 10, G_DEEP), (104, 116, 8, G_LIT), (160, 118, 9, G_MID), (176, 126, 10, G_DEEP), (196, 112, 8, G_LIT),
@@ -565,10 +619,13 @@ o.part(ell(slx - 4, sly + 6, slx + 16, sly + 15) | line([(slx + 1, sly + 15), (s
 o.part(ell(slx - 11, sly + 7, slx - 2, sly + 16), SLOTH, d=1)
 o.part(ell(slx - 10, sly + 9, slx - 3, sly + 15), ramp('#e6dcbc', '#c2b28e', '#fff4d8'), d=0)
 o.draw()
-cv.fill(line([(slx - 9, sly + 11), (slx - 7, sly + 12)]) | line([(slx - 4, sly + 11), (slx - 6, sly + 12)]), '#5c4a3a')   # dark eye masks
+# friendly face: eye masks droop outward-down (the sloth "smile" look), round eyes with a glint, a curved grin and rosy cheeks
+cv.dots([(slx - 8, sly + 11), (slx - 9, sly + 12), (slx - 9, sly + 13), (slx - 5, sly + 11), (slx - 4, sly + 12), (slx - 4, sly + 13)], '#5c4a3a')
 cv.dots([(slx - 8, sly + 12), (slx - 5, sly + 12)], UMB)
-cv.dots([(slx - 7, sly + 14), (slx - 6, sly + 14)], '#3d2a1c')   # nose
-cv.dots([(slx - 8, sly + 15), (slx - 5, sly + 15)], '#c2b28e')   # smile corners
+cv.dots([(slx - 8, sly + 11), (slx - 5, sly + 11)], '#ffffff')
+cv.dots([(slx - 7, sly + 13), (slx - 6, sly + 13)], '#3d2a1c')   # nose
+cv.dots([(slx - 8, sly + 14), (slx - 7, sly + 15), (slx - 6, sly + 15), (slx - 5, sly + 14)], '#5c4a3a')   # grin
+cv.dots([(slx - 10, sly + 14), (slx - 3, sly + 14)], '#f0a0a0')
 for lx_ in LIMB_X:   # hooked claws over the plank
     cv.dots([(lx_, deck_y(lx_) - 1), (lx_ + 1, deck_y(lx_) - 2), (lx_ + 2, deck_y(lx_) - 1)], '#3d2a1c')
 for k in range(5):   # shaggy fur strokes and a bit of green algae
@@ -599,10 +656,19 @@ o = cv.obj()
 o.part(canoe, BARK, d=2)
 o.draw()
 cv.fill(line([(cvx + 2, cvy - 1), (cvx + 48, cvy - 3)]), WOOD['r'])
-cv.fill(rect(cvx + 30, cvy - 9, cvx + 38, cvy - 3), ramp('#c9a96e', '#9a6b3f')['b'])   # bundle of cargo: a sack and bananas
-cv.fill(rect(cvx + 30, cvy - 9, cvx + 38, cvy - 9), '#9a6b3f')
-cv.fill(line([(cvx + 40, cvy - 6), (cvx + 45, cvy - 9)], 2), YEL['b'])
+o = cv.obj()   # cargo: a tied, bulging sack and a hand of bananas
+o.part(ell(cvx + 29, cvy - 10, cvx + 39, cvy - 1) | rect(cvx + 33, cvy - 12, cvx + 35, cvy - 9), ramp('#c9a96e', '#9a6b3f', '#f2e4c0'), d=1)
+o.part(line([(cvx + 40, cvy - 4), (cvx + 42, cvy - 8), (cvx + 46, cvy - 9)], 2), YEL, d=0)
+o.draw()
+cv.fill(rect(cvx + 32, cvy - 9, cvx + 36, cvy - 9), '#9a6b3f')   # cord
+cv.dots([(cvx + 32, cvy - 6), (cvx + 35, cvy - 4)], '#9a6b3f')
 gnome(cvx + 18, cvy - 2, BLUE, ORG, tip=-5)
+# sit the dugout IN the river: water closes over the lower hull, a bright waterline, a broken dark reflection below
+sink = dil4(canoe) & rect(0, cvy + 3, W, cvy + 7)
+cv.fill(sink, WATER['b'])
+cv.fill(rect(cvx + 1, cvy + 3, cvx + 49, cvy + 3) & ~(YY % 7 == 0) & (((XX * 3) % 7) > 1), WATER['r'])
+cv.fill(rect(cvx + 4, cvy + 5, cvx + 46, cvy + 5) & (((XX * 5) % 9) > 2), WATER['s'])
+cv.fill(rect(cvx + 8, cvy + 7, cvx + 40, cvy + 7) & (((XX * 5) % 11) > 6), WATER['s'])
 # the pole: held in both hands across the body, top leaning forward, foot pushing on the riverbed behind the stern
 o = cv.obj()
 o.part(line([(cvx + 46, cvy - 33), (cvx - 2, cvy + 11)], 2), WOOD, d=0)
@@ -616,7 +682,6 @@ cv.fill(ell(cvx - 7, cvy + 9, cvx + 3, cvy + 13) & ~ell(cvx - 5, cvy + 10, cvx +
 for k in range(1, 4):   # wake
     cv.fill(line([(cvx - k * 5, cvy + 1 - k), (cvx - k * 5 + 3, cvy + 2)]), WATER['r'])
     cv.fill(line([(cvx - k * 5, cvy + 5 + k), (cvx - k * 5 + 3, cvy + 4)]), WATER['r'])
-cv.fill(rect(cvx + 2, cvy + 6, cvx + 48, cvy + 6), WATER['s'])
 dfx, dfy = 176, 184   # pink river dolphin arching out of the water
 o = cv.obj()
 o.part(poly([(dfx, dfy + 4), (dfx + 4, dfy - 3), (dfx + 12, dfy - 5), (dfx + 18, dfy - 1), (dfx + 20, dfy + 4), (dfx + 14, dfy + 1), (dfx + 6, dfy + 1)]), PINK, d=2)
@@ -648,6 +713,12 @@ for px, py, s in ((60, 176, 5), (68, 180, 4)):   # red clay pots
     o.part(ell(px - s, py - s, px + s, py + s) | rect(px - s // 2, py - s - 2, px + s // 2, py - s), CLAY, d=2)
     o.draw()
     cv.fill(rect(px - s + 1, py - 1, px + s - 1, py - 1), '#f1ece0')
+for px, py, s in ((52, 194, 2), (58, 190, 1), (20, 197, 2), (30, 196, 1), (66, 192, 2)):   # pass 2: river pebbles on the clay
+    o = cv.obj()
+    o.part(ell(px - s - 1, py - s, px + s + 1, py + s), STONE, d=1)
+    o.draw()
+for fx_, fy_ in ((50, 174), (46, 178), (52, 182), (47, 186)):   # little boot prints from the door to the water
+    cv.dots([(fx_, fy_), (fx_ + 1, fy_), (fx_, fy_ + 1)], CLAY['s'])
 gnome(84, 170, ORG, BLUE, tip=4)   # on the roots by the door, sipping mate
 o = cv.obj()
 o.part(ell(88, 156, 94, 162), ramp('#b8a06a', '#8a7a4a', '#e6dcbc'), d=1)
@@ -686,7 +757,26 @@ for lx, ly, s, flip in ((280, 168, 14, False), (0, 140, 12, True), (296, 188, 12
     cv.fill(line([(lx - s + 2, ly), (lx + s - 2, ly - 1)]) & m, G_LIT['r'])
 
 # ---------------------------------------------------------------- floor litter: toadstools, leafcutter ants, butterflies, ferns along the front
-for sx, sy in ((104, 150), (232, 150), (160, 142), (8, 160), (180, 140)):
+# pass 2: a mossy fallen log on the right bank, hollow end towards the river, a blue poison-dart frog and a cacao pod on it
+o = cv.obj()
+o.part(rrect(164, 134, 190, 141, 2), BARK, d=2)
+o.part(ell(160, 132, 168, 143), WOOD, d=1)
+o.draw()
+cv.fill(ell(162, 134, 166, 141), '#3d2a1c')   # hollow
+cv.fill(ell(161, 133, 167, 142) & ~ell(162, 134, 166, 141) & ~shift(ell(161, 133, 167, 142), 1, 1), WOOD['r'])
+for xx in range(171, 189, 5):
+    cv.fill(line([(xx, 136), (xx + 3, 137)]), BARK['s'])
+cv.fill(rect(169, 134, 186, 134) & (((XX * 3) % 5) > 0), '#5f9a4a')   # moss along the top
+cv.dots([(172, 133), (179, 133), (184, 133)], '#7aae5a')
+cv.fill(rect(176, 131, 179, 133), BLUE['b'])   # dart frog
+cv.dots([(176, 131), (179, 133)], UMB)
+cv.dots([(175, 133), (180, 133)], BLUE['s'])
+o = cv.obj()
+o.part(ell(185, 129, 189, 135), ORG, d=1)   # a cacao pod resting on the log end
+o.draw()
+cv.dots([(187, 130), (187, 132)], ORG['s'])
+cv.fill(rect(188, 136, 189, 140), RED['s'])   # bracket fungus
+for sx, sy in ((104, 150), (232, 150), (157, 148), (8, 160), (194, 148)):
     o = cv.obj()
     o.part(ell(sx - 3, sy - 4, sx + 3, sy), ORG, d=1)
     o.part(rect(sx - 1, sy, sx, sy + 3), ramp('#f2e4c0', '#c9a96e'), d=0)

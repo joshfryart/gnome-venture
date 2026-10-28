@@ -607,17 +607,9 @@ o.part(rrect(238, 78, 246, 83, 1), WOOD, d=1)
 o.draw()
 cv.dots([(239, 77), (241, 77), (243, 77), (240, 76), (244, 77)], '#3a2a3a')
 # bell-goats on the terraces
-for gx0, gy0, fc in ((150, 96, 1), (268, 112, -1), (212, 113, 1)):
-    o = cv.obj()
-    o.part(rect(gx0 + 1, gy0 - 2, gx0 + 2, gy0) | rect(gx0 + 8, gy0 - 2, gx0 + 9, gy0), ramp('#4a3a30', '#2a1a10'), d=0)
-    o.part(rrect(gx0, gy0 - 7, gx0 + 10, gy0 - 2, 1), GOAT, d=1)
-    hx_ = gx0 + 10 if fc > 0 else gx0 - 4
-    o.part(rect(hx_, gy0 - 10, hx_ + 4, gy0 - 6), GOAT, d=1)
-    o.draw()
-    cv.dots([(hx_ + (1 if fc > 0 else 3), gy0 - 11), (hx_ + (0 if fc > 0 else 4), gy0 - 12)], '#6a5a4c')   # horns
-    cv.dots([(hx_ + (3 if fc > 0 else 1), gy0 - 9)], DARK)
-    cv.dots([(hx_ + 2, gy0 - 5), (hx_ + 2, gy0 - 4)], '#f0b92b')   # bell
-    cv.dots([(gx0 + (0 if fc > 0 else 10), gy0 - 7), (gx0 + (-1 if fc > 0 else 11), gy0 - 6)], '#c9bfa8')
+goat(170, 97, 1, COATS['brown'], '#ece6d8')
+goat(264, 113, -1, COATS['black'], '#ece6d8')
+goat(208, 113, 1, COATS['white'], '#9a6a3a')
 
 # ================================================================ PIAZZA paving
 cv.fill(piazza, '#e2c48e')
@@ -703,15 +695,23 @@ for xx in (12, 17, 22):
     cv.fill(rect(xx, 183, xx, 195), '#7a4a1f')
 gnome(17, 184, ramp('#3f8fb0', '#25637d', '#a9d6ea'), ramp('#e8b878', '#c08a4a', '#f6d49a'), s=0.82, face=1, arm=1, legs=False)
 cv.fill(rect(10, 184, 24, 186), ramp('#3f5a7a', '#2a3a52')['b'])   # trousers on the crate
-net = poly([(24, 172), (60, 176), (66, 196), (24, 198)]) & quay
-cv.fill(net, '#9aa0a8')
-for xx in range(24, 68, 3):
-    cv.fill(line([(xx, 172), (xx + 4, 198)]) & net, '#c9c5bc')
-for yy in range(174, 199, 3):
-    cv.fill(rect(0, yy, W, yy) & net, '#6a7078')
-for fx_, fy_ in ((30, 180), (44, 186), (54, 192), (36, 192)):   # floats
-    cv.fill(ell(fx_, fy_, fx_ + 3, fy_ + 2), '#e8841f')
-cv.fill(line([(25, 172), (21, 174)]), '#c9c5bc')
+# a teal fishing net spread out from the fisher's lap: open diamond mesh (the paving shows through), a cork line, a bunched heap
+net = (ell(22, 176, 46, 192) | ell(32, 182, 58, 199) | poly([(24, 178), (30, 186), (24, 199)])) & quay & ~rect(8, 182, 26, 196)
+cv.fill(net & (((XX + YY) % 4 == 0) | ((XX - YY) % 4 == 0)), NET['b'])
+cv.fill(net & (((XX + YY) % 4 == 0) | ((XX - YY) % 4 == 0)) & ~shift(net, -3, -3), NET['s'])
+cv.fill(net & ~(shift(net, 1, 0) & shift(net, -1, 0) & shift(net, 0, 1) & shift(net, 0, -1)), NET['s'])   # edge rope
+for xx in range(26, 58, 5):   # cork floats along the top rope
+    ys = np.nonzero(net[:, xx])[0]
+    if len(ys):
+        cv.fill(rect(xx - 1, int(ys[0]) - 1, xx + 1, int(ys[0])), '#e8841f')
+        cv.dots([(xx - 1, int(ys[0]) - 1)], '#f6b48a')
+heap = ell(52, 186, 66, 199)
+o = cv.obj()
+o.part(heap, NET, d=2)
+o.draw()
+cv.fill(heap & ((XX + 2 * YY) % 5 == 0) & shift(heap, 1, 1) & shift(heap, -1, -1), NET['s'])
+cv.dots([(55, 188), (60, 187), (63, 191)], '#e8841f')
+cv.fill(line([(23, 178), (20, 176)]), NET['b'])
 # rope coil, lobster pot, sardine bucket
 o = cv.obj()
 o.part(ell(68, 180, 80, 188), ramp('#d9b878', '#a8844a', '#f0dca0'), d=1)
@@ -818,7 +818,11 @@ for sx_, sy_ in ((128, 162), (136, 166)):
     cv.fill(rect(sx_ + 2, sy_ - 9, sx_ + 7, sy_ - 9), '#7a4a1f')
 
 # ================================================================ LEMON TREES in big terracotta pots
-for lx, ly, w in ((140, 150, 16), (222, 196, 18)):
+for lx, ly, w in ((144, 149, 16), (222, 196, 18)):
+    shadow(lx - 11, ly + 1, lx + 12, ly + 6, '#c9a46a')
+    o = cv.obj()   # square stone plinth the pot stands on
+    o.part(rect(lx - 9, ly, lx + 9, ly + 3), STONE, d=1)
+    o.draw()
     o = cv.obj()
     o.part(poly([(lx - 7, ly - 10), (lx + 7, ly - 10), (lx + 5, ly), (lx - 5, ly)]), TERRA, d=2)
     o.part(rect(lx - 8, ly - 12, lx + 8, ly - 10), TERRA, d=1)
@@ -839,14 +843,38 @@ o = cv.obj()
 o.part(rect(250, 128, 252, 186) | rect(296, 128, 298, 186), WOOD, d=1)
 o.part(rect(244, 124, 299, 126), WOOD, d=1)
 o.draw()
-for k in range(4):
-    lx = 246 + k * 14
-    cv.fill(rect(lx, 122, lx + 2, 128), WOOD['s'])
-vine = clump(272, 124, 26, 3, 16, 4, 6) | clump(297, 138, 2, 10, 5, 3, 4)
+# the vine: a dark leafy mass, rafters showing through it, then separate lit leaves on top and tendrils hanging down
+vine = blank()
+for k in range(22):
+    cx_, cy_, s_ = r3(246, 299), r3(118, 128), r3(3, 5)
+    vine |= ell(cx_ - s_, cy_ - s_ * 2 // 3, cx_ + s_, cy_ + s_ * 2 // 3)
+vine |= clump(297, 140, 2, 10, 5, 2, 4, r3)
+vine &= ~(rect(244, 124, 299, 129) & (XX % 9 < 3) & (YY > 125))   # gaps where the rafters show
 o = cv.obj()
-o.part(vine, GREEN, d=2)
+o.part(vine, ramp('#2f5a2a', '#244620'), d=0)
 o.draw()
-specks(vine, ['#7ab55c', '#a4b86a'], 30)
+for k in range(6):   # rafters running back, half hidden in the leaves
+    lx = 252 + k * 9
+    cv.fill(rect(lx, 119, lx + 1, 129) & ~shift(vine & (YY < 123), 0, 0), WOOD['b'])
+    cv.dots([(lx, 119)], WOOD['r'])
+for k in range(34):   # individual vine leaves, lit from the upper left
+    ys, xs = np.nonzero(vine)
+    i = r3(0, len(xs) - 1)
+    lx_, ly_ = int(xs[i]), int(ys[i])
+    lm = ell(lx_ - 2, ly_ - 2, lx_ + 2, ly_ + 1) | rect(lx_, ly_ - 3, lx_, ly_ - 3)
+    col = (GREEN, ramp('#7ab55c', '#4f9a45', '#a4c870'), ramp('#6a8a3a', '#4a6a2a', '#9ab45a'))[k % 3]
+    cv.fill(lm, col['b'])
+    cv.fill(lm & ~shift(lm, -1, -1), col['s'])
+    cv.fill(lm & ~shift(lm, 1, 1), col['r'])
+    cv.dots([(lx_, ly_)], col['s'])
+for k in range(9):   # tendrils hanging below the canopy
+    tx_ = r3(250, 296)
+    ys = np.nonzero(vine[:, tx_])[0]
+    if len(ys):
+        ty_ = int(ys[-1]) + 1
+        ln_ = r3(3, 8)
+        cv.fill(rect(tx_, ty_, tx_, ty_ + ln_), '#4f7a35')
+        cv.dots([(tx_ + 1, ty_ + ln_), (tx_ - 1, ty_ + ln_ - 2)], '#7ab55c')
 for gx0, gy0 in ((258, 130), (270, 128), (284, 131), (294, 146), (264, 128)):   # grape bunches
     for dx, dy in ((0, 0), (2, 0), (4, 0), (1, 2), (3, 2), (2, 4)):
         cv.fill(rect(gx0 + dx, gy0 + dy, gx0 + dx + 1, gy0 + dy + 1), PURP['b'])

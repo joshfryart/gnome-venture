@@ -134,6 +134,24 @@ def ring(cx, cy, rx, ry, col):
     cv.fill(m & ~shift(m, 0, 1) | m & ~shift(m, 1, 0) | m & ~shift(m, -1, 0), col)
 
 
+def lotus(px, py, s=1):
+    """Pass 2: an OPEN lotus seen from the side, a cupped bowl of rounded petals (was a pink crown of spikes). (px, py) = bottom centre."""
+    def k(v):
+        return int(round(v * s))
+    o = cv.obj()
+    o.part(ell(px - k(9), py - k(3), px - k(2), py + 1) | ell(px + k(2), py - k(3), px + k(9), py + 1), PINK, d=1)   # outer petals lying open
+    o.part(ell(px - k(6), py - k(7), px - k(1), py), PINK, d=1)   # side petals
+    o.part(ell(px + k(1), py - k(7), px + k(6), py), PINK, d=1)
+    o.part(ell(px - k(3), py - k(9), px + k(3), py - k(1)), PINK, d=1)   # front petal
+    o.draw()
+    cv.fill(ell(px - k(9), py - k(3), px - k(2), py + 1) & ~shift(ell(px - k(9), py - k(3), px - k(2), py + 1), 0, 2), PINK['r'])   # pale petal tops
+    cv.fill(ell(px + k(2), py - k(3), px + k(9), py + 1) & ~shift(ell(px + k(2), py - k(3), px + k(9), py + 1), 0, 2), PINK['r'])
+    cv.fill(line([(px, py - k(8)), (px, py - k(3))]), PINK['r'])   # front petal midrib catches the light
+    cv.dots([(px - k(4), py - k(6)), (px + k(4), py - k(6)), (px, py - k(9))], PINK['s'])   # darker petal tips
+    cv.dots([(px - 2, py - k(7) - 1), (px - 1, py - k(7) - 1), (px + 1, py - k(7) - 1), (px + 2, py - k(7) - 1)], YEL['b'])   # stamens peeping over
+    keep[py - k(10) - 2:py + 3, px - k(10):px + k(10) + 1] = True
+
+
 # ---------------------------------------------------------------- sky: bands, heavy rain clouds, rain curtain
 cv.fill(rect(0, 34, W - 1, 99), SKY1)
 cv.fill(rect(0, 58, W - 1, 99), SKY2)
@@ -186,14 +204,25 @@ for k in range(40):   # spice garden rows on the lower slope
         cv.fill(rect(sx, sy, sx + 3, sy), ('#5a8a5a', '#a86a3a', '#6a9a62')[k % 3])
 # pass 1: break the plain grey cone: a zigzag pilgrim path, a tiny red-roofed shrine, low mist wisps, lava-rock speckle
 path = [(176, 80), (186, 72), (170, 64), (182, 56), (168, 48), (172, 40)]
-pm_ = line(path) & vol
-cv.fill(pm_, '#a8b8b4')
-cv.fill(shift(pm_, 1, 1) & vol & ~pm_, '#6a8a8c')
+pm_ = line(path, 2) & vol   # pass 2: a 2 px earth path with a dark downhill edge and step ticks (was a faint 1 px grey line)
+cv.fill(shift(pm_, 0, 1) & vol & ~pm_, '#5e5040')
+cv.fill(pm_, MUD['r'])
+for (ax_, ay_), (bx_, by_) in zip(path, path[1:]):
+    for t in (0.25, 0.5, 0.75):
+        sx_, sy_ = int(ax_ + (bx_ - ax_) * t), int(ay_ + (by_ - ay_) * t)
+        cv.dots([(sx_, sy_ + 1), (sx_ + 1, sy_ + 1)], MUD['b'])
+for sx_, sy_ in path[1:-1]:   # little stone lanterns at the switchbacks, lit
+    o = cv.obj()
+    o.part(rect(sx_ - 1, sy_ - 5, sx_ + 1, sy_ - 1), STONE, d=0)
+    o.draw()
+    cv.dots([(sx_, sy_ - 3)], YEL['b'])
 o = cv.obj()
+o.part(rect(179, 55, 189, 57), STONE, d=1)   # stone plinth so the shrine sits on the slope
 o.part(rect(181, 51, 187, 55), STONE, d=1)
 o.part(poly([(179, 51), (184, 46), (189, 51)]), RED, d=1)
 o.draw()
 cv.dots([(184, 53), (184, 54)], UMB)
+cv.dots([(183, 53)], YEL['b'])
 for cx0, cy0, w in ((136, 64, 24), (200, 60, 22), (150, 76, 18), (214, 74, 16)):
     mm = ell(cx0 - w // 2, cy0 - 2, cx0 + w // 2, cy0 + 2) | ell(cx0 - w // 4, cy0 - 4, cx0 + w // 5, cy0 + 1)
     cv.fill(mm & vol, CLOUD)
@@ -590,17 +619,15 @@ MANG = ramp('#8a6e52', '#5a4434', '#b09474')
 mroots = blank()
 mthin = blank()
 knees = []
-for x0, y0, x1, y1, lift in ((282, 146, 240, 192, 22), (283, 150, 256, 198, 14), (285, 154, 270, 190, 10), (293, 150, 298, 186, 8), (282, 138, 250, 172, 18),
-                             (291, 142, 300, 166, 6), (286, 158, 281, 199, 4), (283, 132, 262, 178, 20)):
-    # pass 1: prop roots arch UP out of the trunk and then plunge, thick at the trunk and thin at the tip, each with a little knee
+for x0, y0, x1, y1, lift in ((282, 146, 252, 188, 18), (283, 150, 262, 196, 12), (285, 154, 272, 190, 8), (293, 150, 298, 186, 8), (282, 138, 256, 170, 14),
+                             (286, 158, 281, 199, 4)):
+    # pass 2: fewer, stouter prop roots (thick-thick-medium, no 1 px rootlets), shorter reach, so the tree stands on them instead of looking spidery
     mx = (x0 + x1) // 2 + (x0 - x1) // 5
     pts = bez((x0, y0), (mx, min(y0, y1) - lift), (x1, y1), 16)
-    mroots |= line(pts[:7], 3) | line(pts[6:12], 2)
-    mthin |= line(pts[11:], 1)
-    kx_, ky_ = pts[11]
-    mthin |= line([(kx_, ky_), (kx_ + (2 if x1 > x0 else -2) * -1, ky_ + 5)])   # a split rootlet
+    mroots |= line(pts[:8], 4) | line(pts[7:13], 3)
+    mthin |= line(pts[12:], 2)
     knees.append(pts[-1])
-trunkm = poly([(283, 110), (290, 110), (292, 138), (297, 160), (278, 160), (282, 138)])
+trunkm = poly([(281, 110), (291, 110), (294, 136), (299, 160), (275, 160), (279, 136)])
 o = cv.obj()
 o.part(trunkm, MANG, d=2)
 o.part(mroots | mthin, MANG, d=1)
@@ -641,10 +668,21 @@ o.part(line([lh, (fx + 4, 124)], 2), JADE, d=0)
 leaf = poly([(fx - 26, 132), (fx - 18, 120), (fx - 4, 113), (fx + 12, 112), (fx + 26, 118), (fx + 32, 130), (fx + 20, 128), (fx + 4, 126), (fx - 10, 129)])
 o.part(leaf, JADE, d=2)
 o.draw()
+# pass 2: a pleated taro leaf: alternating lit / shaded panels between the ribs, a pale lit rim, a dark curled-under front edge
+ang = np.arctan2(yy - 124, xx - (fx + 4))
+panel = (np.floor((ang + np.pi) / (np.pi / 7)).astype(int)) % 2 == 1
+leafin = leaf & ~(~shift(leaf, 0, 1) | ~shift(leaf, 0, -1) | ~shift(leaf, 1, 0) | ~shift(leaf, -1, 0))
+cv.fill(leafin & panel, PALM['b'])
+cv.fill(leafin & ~panel & (xx < fx + 4), JADE['r'])   # the up-left (sunward) panels are brightest
+cv.fill(leaf & ~shift(leaf, 0, -2) & (yy > 124), DJADE['b'])   # curled-under front edge
+cv.fill(leaf & ~shift(leaf, 0, 1) & (yy < 122), JADE['bo'])   # lit top rim
 cv.fill(line([(fx + 4, 124), (fx - 20, 128)]) & leaf, JADE['s'])
 cv.fill(line([(fx + 4, 124), (fx + 26, 124)]) & leaf, JADE['s'])
 for ax, ay in ((fx - 12, 116), (fx - 2, 114), (fx + 10, 114), (fx + 20, 118)):
     cv.fill(line([(fx + 4, 124), (ax, ay)]) & leaf, JADE['s'])
+for dx_, dy_ in ((-14, 121), (-4, 118), (8, 117), (18, 121), (24, 125), (-20, 125)):   # rain beading on the leaf
+    cv.dots([(fx + dx_, dy_), (fx + dx_ + 1, dy_)], RAIN)
+    cv.dots([(fx + dx_, dy_ + 1)], JADE['s'])
 for dx in (-26, -12, 4, 20, 32):   # drops off the leaf rim
     ex = fx + dx
     cv.dots([(ex, 134), (ex, 137), (ex - 1, 141)], RAIN)
@@ -689,12 +727,19 @@ for px, py, rp in ((112, 157, LIME), (119, 157, ORG), (109, 160, ORG), (116, 160
     o.part(ell(px - 3, py - 2, px + 3, py + 2), rp, d=1)
     o.draw()
     cv.dots([(px - 1, py - 1)], rp['r'])
-for tip in ((120, 146), (123, 150), (122, 154)):   # a fanned hand of bananas on top, one finger at a time
+# pass 2: a curved hand of bananas, crescent fingers growing up from one crown (was a stack of straight yellow bars)
+o = cv.obj()
+o.part(line([(108, 156), (107, 151), (109, 147)], 2), BAMBOO, d=1)   # the cut stalk
+o.draw()
+for k, (cx_, cy_) in enumerate(((116, 146), (117, 149), (116, 152), (115, 155))):
+    fm = ell(cx_ - 7, cy_ - 4, cx_ + 7, cy_ + 3) & ~ell(cx_ - 8, cy_ - 7, cx_ + 6, cy_ + 1) & rect(cx_ - 7, 0, cx_ + 7, H)
     o = cv.obj()
-    o.part(line(bez((109, 154), ((109 + tip[0]) // 2, tip[1] + 4), tip, 8), 2), YEL, d=1)
+    o.part(fm, YEL, d=1)
     o.draw()
-    cv.dots([(tip[0] + 1, tip[1])], DWOOD['b'])
-cv.fill(rect(107, 153, 109, 155), DWOOD['b'])   # crown stalk
+    cv.fill(fm & ~shift(fm, 0, -1), YEL['s'])   # shaded belly of each finger
+    cv.dots([(cx_ - 7, cy_ - 1), (cx_ - 6, cy_)], '#8ab84a')   # green stem ends at the crown
+    cv.dots([(cx_ + 7, cy_ - 2)], DWOOD['b'])   # dark tips
+cv.dots([(113, 148), (118, 154)], DWOOD['s'])   # a couple of sugar spots
 # hull dressing so the two bottom cells differ: a rope fender at the bow half, a painted wave at the stern half
 o = cv.obj()
 o.part(ell(88, 171, 95, 178) & ~ell(90, 173, 93, 176), THATCH, d=1)
@@ -727,22 +772,28 @@ o.draw()
 fh = boat(176, 238, 186, 8, ramp('#3f8fb0', '#25637d', '#a9d6ea'))
 for k in range(16):   # orchids and lotus heaped in the hull
     px, py = 182 + k * 3 + r(-1, 1), 182 - (k % 3) * 2 - r(0, 2)
+    if k >= 14:   # pass 2: keep the heap clear of the paddler's face
+        continue
     rp = (PINK, WHITE, PURP, PINK, ORG)[k % 5]
     o = cv.obj(outline=False)
     o.part(ell(px - 2, py - 2, px + 2, py + 2), rp, d=1)
     o.draw()
     cv.dots([(px, py)], YEL['b'])
-for k, px in enumerate((186, 200, 214)):   # pass 1: tear-drop lotus buds with green sepals (were diamonds)
-    by = 168 + (k % 2) * 2
-    cv.fill(rect(px, by + 4, px, 180), JADE['s'])
+# pass 2: a bundle of lotus for sale: buds of different heights leaning out of a jar, one opened (was three identical pink cones in a row)
+o = cv.obj()
+o.part(rrect(203, 172, 211, 182, 2), ramp('#b8603a', '#8a4024', '#d8805a'), d=1)   # clay jar
+o.draw()
+cv.fill(rect(203, 175, 211, 175), DWOOD['b'])
+for (sx, sy), (tx_, ty_) in (((205, 172), (190, 160)), ((207, 172), (204, 156)), ((209, 172), (218, 164))):
+    cv.fill(line(bez((sx, sy), ((sx + tx_) // 2, sy - 6), (tx_, ty_ + 1))), JADE['s'])
+for bx_, by_, h in ((190, 160, 7), (218, 164, 5)):
     o = cv.obj()
-    o.part(ell(px - 3, by - 2, px + 3, by + 5) | poly([(px - 2, by - 1), (px, by - 6), (px + 2, by - 1)]), PINK, d=1)
-    o.part(poly([(px - 4, by + 5), (px - 1, by + 1), (px, by + 6)]) | poly([(px + 4, by + 5), (px + 1, by + 1), (px, by + 6)]), JADE, d=0)
+    o.part(ell(bx_ - 2, by_ - h, bx_ + 2, by_) | poly([(bx_ - 1, by_ - h + 1), (bx_, by_ - h - 3), (bx_ + 2, by_ - h + 1)]), PINK, d=1)
+    o.part(poly([(bx_ - 3, by_), (bx_, by_ - 3), (bx_, by_ + 1)]), JADE, d=0)
     o.draw()
-    cv.fill(line([(px, by - 4), (px, by + 3)]), PINK['s'])
-    cv.dots([(px - 1, by - 1), (px - 2, by + 1)], PINK['r'])
-    cv.dots([(px, by - 6)], PINK['s'])
-keep[164:200, 176:244] = True
+    cv.dots([(bx_ - 1, by_ - h + 2), (bx_ - 1, by_ - h + 3)], PINK['r'])
+lotus(204, 157, 0.9)
+keep[146:200, 176:244] = True
 
 # ---------------------------------------------------------------- lotus and lily pads, frog, rain rings, dragonflies
 pads = ((6, 172, 9), (24, 184, 11), (2, 192, 7), (44, 190, 9), (52, 172, 7), (160, 186, 8), (150, 196, 7), (66, 196, 6), (34, 162, 6), (254, 150, 7), (240, 160, 6))
@@ -752,16 +803,16 @@ for px, py, s in pads:
     o.part(pm, JADE, d=1)
     o.draw()
     cv.fill(line([(px, py), (px - s + 2, py)]) & pm, JADE['s'])
-for px, py in ((12, 166), (30, 176), (48, 182), (162, 178), (6, 186)):   # lotus flowers on stems
+for px, py, s in ((12, 166, 0.9), (31, 176, 0.75), (48, 182, 1.0), (162, 178, 0.8), (6, 187, 0.7)):   # pass 2: open cupped lotus flowers on stems
     cv.fill(rect(px, py, px, py + 6), JADE['s'])
+    lotus(px, py, s)
+for px, py in ((40, 168), (170, 184)):   # and two closed buds on taller stems
+    cv.fill(line(bez((px + 2, py + 12), (px - 1, py + 6), (px, py))), JADE['s'])
     o = cv.obj()
-    o.part(poly([(px - 5, py - 4), (px - 1, py), (px - 3, py)]) | poly([(px + 5, py - 4), (px + 1, py), (px + 3, py)]), PINK, d=0)
-    o.part(ell(px - 3, py - 5, px + 3, py) | poly([(px - 2, py - 4), (px, py - 9), (px + 2, py - 4)]), PINK, d=1, rim=True)
+    o.part(ell(px - 2, py - 6, px + 2, py) | poly([(px - 1, py - 5), (px + 1, py - 9), (px + 2, py - 5)]), PINK, d=1)
     o.draw()
-    cv.fill(line([(px, py - 7), (px, py - 2)]), PINK['s'])
-    cv.dots([(px - 2, py - 3), (px + 2, py - 3)], PINK['s'])
-    cv.dots([(px - 1, py - 1), (px + 1, py - 1)], YEL['b'])
-    keep[py - 9:py + 7, px - 5:px + 6] = True
+    cv.dots([(px - 1, py - 4), (px - 1, py - 3)], PINK['r'])
+    keep[py - 10:py + 2, px - 3:px + 4] = True
 for px, py in ((58, 164), (170, 194)):   # seed pods
     cv.fill(rect(px, py, px, py + 6), JADE['s'])
     cv.fill(rect(px - 2, py - 2, px + 2, py), '#8ab84a')

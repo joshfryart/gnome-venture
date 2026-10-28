@@ -328,23 +328,22 @@ for gx, gy, s in ((206, 90, 7), (214, 87, 9), (224, 91, 6)):
     for fx in (-s, -s // 2, s // 2, s):
         cv.fill(line([(gx + 1, gy), (gx + 1 + fx, gy + 2 + abs(fx) // 3)]), '#3d2a63')
 # second crest ridges on the rose dune, a sharp lit/shade split with a hard step
-for x0, y0, x1, y1, x2, y2 in ((150, 108, 176, 99, 204, 108), (196, 112, 226, 102, 258, 110), (12, 112, 36, 104, 58, 112)):
+r4 = rnd(9071)   # pass-2 details on their own generator
+for x0, y0, x1, y1, x2, y2 in ((150, 108, 176, 99, 204, 108), (196, 112, 226, 102, 258, 110), (12, 112, 36, 104, 58, 112),
+                               (236, 115, 252, 104, 270, 114), (262, 113, 284, 98, 300, 106)):
+    # bolder pass-2 ridges: an amber lit face, a deep rose shade face with a slightly wavy knife-edge, a bright crest line
+    mid = (x1 + 3, (y1 + y2) // 2 + 1)
     rid = poly([(x0, y0), (x1, y1), (x2, y2)])
-    cv.fill(rid, '#d9867a')
-    cv.fill(rid & poly([(x1, y1), (x2, y2), (x1 + 4, y2)]), '#9a5a64')
+    cv.fill(rid, '#e88a62')
+    cv.fill(rid & poly([(x1, y1), (x2, y2), mid, (x1 + 2, y2)]), '#9a4a52')
+    cv.fill(line([(x1, y1), mid, (x1 + 2, y2)]) & rid, '#8a3a50')
     cv.fill(line([(x0, y0), (x1, y1)]), '#f2ac5a')
-# a Bedouin tent on the far dune: striped black-and-rose goat-hair roof, open front with a glow, guy ropes
-tent = poly([(258, 112), (264, 101), (276, 98), (290, 101), (298, 112)])
-o = cv.obj()
-o.part(tent, ramp('#5e4380', '#3d2a63', '#a8527e'), d=1)
-o.draw()
-for k, ty in enumerate((103, 106, 109)):
-    cv.fill(tent & rect(0, ty, W, ty), ROSE['b'] if k % 2 == 0 else '#3d2a63')
-cv.fill(rect(270, 104, 279, 112), DARK)
-cv.fill(rect(272, 106, 277, 112), '#e8a317')
-cv.fill(rect(274, 108, 275, 112), '#ffd85a')
-for gx in (255, 300):
-    cv.fill(line([(gx, 113), (262 if gx < 270 else 296, 103)]), '#3d2a1c')
+    for k in range(2):   # ripples on the lit face
+        t = 0.35 + 0.3 * k
+        px, py = round(x0 + (x1 - x0) * t), round(y0 + (y1 - y0) * t) + 3
+        cv.fill(line([(px - 3, py + 1), (px + 3, py)]) & rid, '#d9867a')
+for sx, sy in ((246, 112), (291, 108), (258, 104)):   # dry desert shrubs dotting the far dunes
+    cv.dots([(sx, sy), (sx - 1, sy - 1), (sx + 1, sy - 1), (sx - 2, sy), (sx + 2, sy), (sx, sy - 2)], '#563a78')
 for k in range(8):   # sand wind-curls on the near dune
     px, py = r3(4, 290), r3(104, 113)
     cv.fill(line([(px, py), (px + 3, py - 1), (px + 6, py - 1), (px + 7, py)]), '#f2c08a')
@@ -465,6 +464,33 @@ for bx, by in ((206, 146), (212, 140), (290, 144), (270, 140), (300, 154), (236,
 for rx, ry in ((280, 144), (284, 146), (288, 143), (210, 150)):
     cv.fill(rect(rx, ry - 10, rx, ry), PALM['s'])
     cv.fill(rect(rx - 1, ry - 13, rx + 1, ry - 9), '#7a4a1f')
+# a low Bedouin tent on the sand between the gate and the well (moved forward from the far dune in pass 2):
+# striped goat-hair roof, open front with a lamp-lit glow, a rug spilling out, poles and guy ropes
+tent = poly([(172, 136), (176, 123), (184, 118), (196, 117), (206, 121), (210, 136)])
+TENT = ramp('#5e4380', '#3d2a63', '#a8527e')
+for gx, tx in ((168, 176), (214, 207)):   # guy ropes to pegs
+    cv.fill(line([(gx, 136), (tx, 121)]), '#5c3a2a')
+    cv.dots([(gx, 136), (gx, 137)], WOOD['s'])
+o = cv.obj()
+o.part(tent, TENT, d=2)
+o.draw()
+for k, ty in enumerate((121, 125, 129, 133)):   # goat-hair bands, slightly sagging between the poles
+    band = line([(170, ty + 1), (190, ty), (212, ty + 1)]) & tent & ~dil4(~tent)
+    cv.fill(band, (ROSE['b'], CREAM['b'], ROSE['b'], '#3d2a63')[k])
+door = poly([(178, 136), (180, 125), (190, 124), (192, 136)])
+cv.fill(door, DARK)
+cv.fill(poly([(181, 136), (182, 128), (189, 128), (190, 136)]), '#e8a317')
+cv.fill(rect(183, 132, 188, 136), '#c47048')   # cushion inside
+cv.dots([(185, 129), (186, 129), (185, 130), (186, 130)], '#ffd85a')   # hanging lamp
+cv.dots([(185, 128)], '#4a2c1a')
+cv.fill(line([(179, 124), (191, 123)]), CREAM['r'])   # rolled-up door flap
+cv.fill(line([(179, 125), (191, 124)]), CREAM['s'])
+for px in (178, 192):
+    cv.fill(rect(px, 124, px, 136), WOOD['s'])
+cv.fill(poly([(176, 135), (192, 135), (190, 138), (174, 138)]), TEAL['b'])   # rug at the door
+cv.fill(rect(177, 136, 189, 136), RED['b'])
+cv.dots([(176, 139), (179, 139), (182, 139), (185, 139), (188, 139)], '#f2e4c0')
+cv.dots([(200, 120), (203, 126)], TENT['r'])   # patches on the roof
 # the Oasis Well: stone drum, wooden frame and pulley, bucket on a rope
 o = cv.obj()
 o.part(rect(232, 112, 234, 132) | rect(252, 112, 254, 132) | rect(230, 110, 256, 112), WOOD, d=1)

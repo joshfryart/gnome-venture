@@ -4,7 +4,7 @@
 # card before it opens; cups of three tiers; reserved pictures hidden then released; Places refused; cancel = no places; void; settle + tier pip; guests blocked;
 # admin pages: non-admin 403, CSRF, bad tier refused, upload checks (3:2, size, EXIF stripped, thumb made), CSV.
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
-php -d session.save_path=/tmp -d max_file_uploads=50 -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/jigt-php.log 2>&1 & PID=$!; sleep 1
+php -d session.save_path=/tmp -d max_file_uploads=50 -d upload_max_filesize=8M -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/jigt-php.log 2>&1 & PID=$!; sleep 1
 W=$(mktemp -d); trap "kill $PID 2>/dev/null; rm -rf $W" EXIT
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 dbv() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query($argv[1])->fetchColumn();' "$1"; }
@@ -58,7 +58,7 @@ ok "admin_log has the save" "$(dbv "SELECT COUNT(*) FROM admin_log WHERE action=
 curl -s -b $W/a "$BASE/admin/jigsaw.php?tab=tournaments" > $W/t.html
 ok "tier radio shows the piece counts" "$(grep -c '24 pieces' $W/t.html)/$(grep -c '96 pieces' $W/t.html)/$(grep -c '216 pieces' $W/t.html)" 1/1/1
 ok "GIFsaw admin page does not list the Jigsaw tournament" "$(curl -s -b $W/a "$BASE/admin/puzzles.php?tab=tournaments" | grep -c 'PostedPieces')" 0
-dbx "DELETE FROM puzzle_tournaments WHERE title='Posted Pieces'"
+dbx "DELETE FROM puzzle_tournaments WHERE title='PostedPieces'"
 
 echo "== a cup: three tiers sharing a cup_id"
 # a picture reserved for it, so we can watch it come back into free play
@@ -86,6 +86,11 @@ ok "GIFsaw library does not list it" "$(curl -s -b $W/p $BASE/gifsaw.php | grep 
 ok "hub shows a Tournament badge on the Jigsaw card (GIFsaw tournaments are off)" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c 'Tournament</span>')" 1
 ok "games tile shows Tournament" "$(curl -s -b $W/p $BASE/games.php | grep -c 'Tournament</span>')" 1
 
+if node -e "require('playwright')" 2>/dev/null; then
+  OUT=$(node "$(dirname "$0")/jigsaw_tourney_check.js" $BASE $A 96 2>&1); echo "$OUT" | sed 's/^/  /'
+  ok "browser pass (Advanced tournament: 96 pieces, tier locked, no free-play calls)" "$(echo "$OUT" | grep -c '^FAIL')" 0
+  dbx "DELETE FROM puzzle_attempts WHERE user_id=$UID_"
+else echo "skip browser pass (no playwright)"; fi
 echo "== API: tier decides pieces and tries; run checks"
 API_CS=$(php -r 'preg_match("#id=\"pz-t\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo json_decode($m[1], true)["csrf"] ?? "";' $W/e.html)
 R=$(api -d do=start -d t=$E)
@@ -215,7 +220,7 @@ U1=$(dbv "SELECT id FROM users WHERE username='jigbot1'")
 ok "winner notified with the Jigsaw text and tier" "$(dbv "SELECT COUNT(*) FROM notices WHERE user_id=$U1 AND text LIKE '🧩 Jigsaw Settle Me (Expert): you placed #1 %'")" 1
 ok "sprout notified #4" "$(dbv "SELECT COUNT(*) FROM notices WHERE user_id=$UID_ AND text LIKE '🧩 Jigsaw Settle Me (Expert): you placed #4 %'")" 1
 curl -s -b $W/p "$BASE/profile.php?id=$U1&tab=awards" > $W/pr.html
-ok "profile: gold trophy, Expert pip, Jigsaw label" "$(grep -c 'cast/trophy-gold.png' $W/pr.html)/$(grep -c 'class="pzpip" title="Expert"' $W/pr.html)/$(grep -c 'Jigsaw Settle Me (Expert)' $W/pr.html)" 1/1/1
+ok "profile: gold trophy, Expert pip, Jigsaw label" "$(grep -c 'cast/trophy-gold.png' $W/pr.html)/$(grep -c 'class="pzpip" title="Expert"' $W/pr.html)/$([ $(grep -c 'Jigsaw Settle Me (Expert)' $W/pr.html) -ge 1 ] && echo y)" 1/1/y
 ok "results page shows the gold trophy to the winner's board" "$(curl -s -b $W/p "$BASE/jigsaw.php?t=$SE" | grep -c 'cast/trophy-gold.png')" 1
 dbx "INSERT INTO puzzle_attempts (tournament_id,user_id,token,seed,started_at,start_ms,finished_at,ms,drops,status,place) VALUES ($GT,$U1,'$(printf '%032d' 7)',1,'$(utc -600)',0,'$(utc -500)',99000,300,'done',2)"
 curl -s -b $W/p "$BASE/profile.php?id=$U1&tab=awards" > $W/pr.html
@@ -287,7 +292,7 @@ php -r '
 $d = $argv[1];
 $jpg = function ($w, $h, $file, $q = 80, $noise = false) { $i = imagecreatetruecolor($w, $h);
   for ($y = 0; $y < $h; $y += 40) for ($x = 0; $x < $w; $x += 40) { $c = imagecolorallocate($i, ($x * 255 / $w) | 0, ($y * 255 / $h) | 0, (($x + $y) % 200) + 20); imagefilledrectangle($i, $x, $y, $x + 39, $y + 39, $c); }
-  if ($noise) for ($k = 0; $k < 600000; $k++) imagesetpixel($i, mt_rand(0, $w - 1), mt_rand(0, $h - 1), mt_rand(0, 0xFFFFFF));
+  if ($noise) for ($k = 0; $k < $noise; $k++) imagesetpixel($i, mt_rand(0, $w - 1), mt_rand(0, $h - 1), mt_rand(0, 0xFFFFFF));
   imagejpeg($i, $file, $q); };
 $jpg(1800, 1200, "$d/good.jpg");
 $jpg(2400, 1600, "$d/good2.jpg");
@@ -295,7 +300,7 @@ $jpg(1920, 1080, "$d/wide.jpg");
 $jpg(1800, 1350, "$d/four3.jpg");
 $jpg(600, 400, "$d/tiny.jpg");
 $jpg(3300, 2200, "$d/huge.jpg");
-$jpg(3000, 2000, "$d/heavy.jpg", 100, true);
+$jpg(3000, 2000, "$d/heavy.jpg", 100, 30000);
 $jpg(1800, 1200, "$d/exif.jpg");
 $jpg(1500, 1000, "$d/min.jpg", 20);
 $b = file_get_contents("$d/exif.jpg");

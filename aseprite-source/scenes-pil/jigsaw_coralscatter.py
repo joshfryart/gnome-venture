@@ -331,7 +331,19 @@ cv.fill(lava & vol & ~shift(lava, 1, 0), LAVA['r'])
 cv.fill(dil4(lava) & vol & ~lava, LAVA['s'])
 # smoke: a column of hard puffs rising out of the crater, then an ash cloud drifting right along the top
 smk = blank()
-for k, (sx, sy, sz) in enumerate(((50, 17, 3), (46, 12, 4), (43, 6, 5), (52, 4, 5), (61, 6, 5), (70, 4, 5), (79, 6, 4), (87, 4, 3), (93, 6, 2))):
+# pass 2: the rising column is one twisting plume (merged blobs, shaded once), not a stack of discs
+plume = blank()
+for px_, py_, pr_ in ((50, 19, 2), (49, 17, 2), (47, 15, 3), (48, 12, 2), (45, 11, 3), (43, 8, 4), (47, 7, 3), (41, 4, 3), (45, 3, 4)):
+    plume |= ell(px_ - pr_, py_ - pr_ + 1, px_ + pr_, py_ + pr_)
+plume |= line([(50, 20), (48, 16), (46, 13), (44, 9), (43, 5)], 3)
+cv.fill(dil4(plume) & ~plume, '#2a2040')
+cv.fill(plume, '#6e5a80')
+cv.fill(plume & ~shift(plume, -1, -1), '#4a3a60')
+cv.fill(plume & ~shift(plume, 1, 1), '#a898bc')
+cv.fill(plume & rect(0, 13, W, 22) & ~shift(plume, -1, -1), LAVA['s'])   # lava glow on the plume's underside near the crater
+cv.fill(line([(48, 14), (46, 11), (44, 8)]) & plume, '#5e4c74')   # a twist line
+smk |= plume
+for k, (sx, sy, sz) in enumerate(((52, 4, 5), (61, 6, 5), (70, 4, 5), (79, 6, 4), (87, 4, 3), (93, 6, 2)), 3):
     pm = ell(sx - sz - 1, sy - sz, sx + sz + 1, sy + sz)
     cv.fill(dil4(pm) & ~pm & smk, '#4a3a60')   # seam over the older puff
     cv.fill(dil4(pm) & ~pm & ~smk, '#2a2040')
@@ -352,12 +364,22 @@ jm &= poly([(0, 62), (40, 66), (80, 64), (110, 74), (124, WL), (0, WL)]) & ~rect
 zone = poly([(0, 60), (20, 63), (40, 66), (62, 63), (80, 64), (100, 70), (112, 76), (124, WL), (0, WL)]) & ~rect(0, WL, W, H)
 CROWNS = (ramp('#245a48', '#173a30', '#3a7a5a'), ramp('#2f8a62', '#1d5e4c', '#5cb07a'), ramp('#4a9a4a', '#2f6a3e', '#8ac46a'), ramp('#2a7a72', '#1a5050', '#5aaa98'))
 canopy = blank()
+r6 = rnd(9091)   # pass 2: irregular lobed crowns (own generator so the r3 layout stays put)
 for row, y in enumerate(range(62, WL + 4, 5)):
     y += r3(-1, 1)
     x = -6 + r3(0, 7)
     while x < 128:
         s_ = r3(3, 8)
-        c = ell(x - s_, y - s_, x + s_, y + s_ // 2 + 2) | ell(x - s_ + 2, y - s_ - 2, x + 1, y) | ell(x, y - s_ - 1, x + s_ - 1, y - 1)
+        c = ell(x - s_, y - s_ // 2, x + s_, y + s_ // 2 + 2)
+        for _ in range(r6(3, 5)):   # a clump of uneven leaf lobes, not a round scale
+            lx_, ly_, lr_ = x + r6(-s_, s_ - 1), y - r6(1, s_), r6(2, max(2, s_ // 2 + 1))
+            c |= ell(lx_ - lr_, ly_ - lr_ + 1, lx_ + lr_, ly_ + lr_)
+        bx_ = x + r6(-s_, s_)
+        c &= ~ell(bx_, y - s_ - 3, bx_ + 2, y - s_ + r6(0, 2))   # a bite out of the top
+        for _ in range(r6(2, 4)):   # leaf tips poking out of the edge
+            tx_ = x + r6(-s_, s_)
+            ty_ = y - s_ - r6(0, 2)
+            c |= line([(tx_, ty_ + 3), (tx_ + r6(-2, 2), ty_)])
         c &= zone
         if c.any():
             rp = CROWNS[(row + (x // 9)) % 4] if row else CROWNS[0]
@@ -479,10 +501,20 @@ for i, sx in enumerate(STILTS):   # stilts: above water, then down through the l
     o.draw()
     lean_ = (-3, 2, -1, 3, -2)[i]
     bot = (186, 180, 188, 183, 178)[i]
-    post = line([(sx + 1, WL + 2), (sx + 1 + lean_, bot)], 3)
-    cv.fill(post, '#4a6a72')
-    cv.fill(post & ~shift(post, -1, 0), '#2f4a58')
-    cv.fill(post & ~shift(post, 1, 0), '#6a8a8e')
+    post = line([(sx + 1, WL + 2), (sx + 1 + lean_, bot)], 3) | line([(sx + 2, WL + 2), (sx + 2 + lean_, bot)], 3)   # pass 2: stout timber, not a line
+    cv.fill(dil4(post) & ~post, '#1f4a5a')
+    cv.fill(post, '#5a6a5e')
+    cv.fill(post & ~shift(post, -1, 0), '#3a4a48')
+    cv.fill(post & ~shift(post, 1, 0), '#8a9a7a')
+    r7p = rnd(600 + i)
+    for gy in range(WL + 10 + r7p(0, 8), bot - 12, r7p(14, 20)):   # weed fringes and a rope lashing on each post
+        gx = sx + 1 + lean_ * (gy - WL) // (bot - WL)
+        if r7p(0, 1):
+            cv.fill(line([(gx + 4, gy), (gx + 6, gy + 3), (gx + 5, gy + 6)]), '#3f9a5e')
+            cv.fill(line([(gx - 1, gy + 2), (gx - 3, gy + 5)]), '#5cb07a')
+        else:
+            cv.fill(rect(gx - 1, gy, gx + 4, gy + 1), '#c9a46a')
+            cv.dots([(gx, gy + 1), (gx + 2, gy + 1)], '#8a6440')
     for by in range(WL + 8, bot - 2, 9):   # barnacles on the posts
         bxx = sx + 1 + lean_ * (by - WL) // (bot - WL)
         cv.dots([(bxx + (by // 9) % 2, by)], '#e8e0c8')
@@ -546,9 +578,10 @@ cv.dots([(162, 63)], DARK)
 # ================================================================ OUTRIGGER CANOE with the navigator (centre left)
 cx0, cx1, cy = 98, 150, 90
 # crab-claw sail: two curved spars from the foot, asymmetric, tips curling in like a claw; woven pandanus with painted bands
-SPAR_B = [(122, 86), (114, 72), (107, 58), (104, 48), (106, 42)]
-SPAR_F = [(122, 86), (130, 72), (138, 58), (143, 46), (141, 38)]
-sail = poly(SPAR_B + [(110, 44), (116, 46), (122, 47), (128, 45), (134, 42), (138, 38)] + SPAR_F[::-1])
+# pass 2: bowed spars (the after spar swings out low, the fore spar stands tall and curls) so the sail bellies like a claw, not a V
+SPAR_B = [(122, 86), (113, 79), (105, 70), (100, 60), (99, 51), (102, 45), (106, 43)]
+SPAR_F = [(122, 86), (128, 75), (134, 64), (140, 54), (144, 45), (144, 39), (141, 36)]
+sail = poly(SPAR_B + [(110, 47), (115, 52), (120, 54), (126, 53), (132, 49), (137, 43), (139, 38)] + SPAR_F[::-1])
 o = cv.obj()
 o.part(sail, WEAVE, d=2)
 o.draw()
@@ -564,7 +597,9 @@ for yy in range(48, 84, 3):   # woven texture
 o = cv.obj()
 o.part(line(SPAR_B, 2) | line(SPAR_F, 2), WOOD, d=0)
 o.draw()
-cv.fill(line([(106, 42), (101, 70), (104, 86)]) | line([(141, 38), (146, 64), (144, 86)]), '#c9a46a')   # stays
+cv.fill(line([(141, 37), (147, 62), (146, 86)]), '#c9a46a')   # one stay only (pass 2: less clutter round the canoe)
+cv.dots([(103, 46), (104, 45)], '#fbe4b0')   # sun-caught spar tips
+cv.dots([(142, 38), (143, 39)], '#fbe4b0')
 hull = poly([(cx0, cy - 6), (cx0 + 6, cy - 1), (cx1 - 6, cy - 1), (cx1, cy - 6), (cx1 - 2, cy + 2), (cx0 + 2, cy + 2)])
 o = cv.obj()
 o.part(hull, WOOD, d=2)

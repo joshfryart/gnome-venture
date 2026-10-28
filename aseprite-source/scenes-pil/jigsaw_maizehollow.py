@@ -195,9 +195,11 @@ while x < W:   # dusty dots on the far range (shrubs)
 # terraced near hills: stripes of crops and dark terrace walls
 hills = poly([(0, 84), (40, 74), (90, 82), (140, 72), (200, 80), (250, 70), (300, 78), (300, 100), (0, 100)])
 cv.fill(hills, '#7fb07a')
-for yy in range(72, 100, 4):
-    cv.fill(hills & rect(0, yy, W, yy), '#5f9468')
-    cv.fill(hills & rect(0, yy + 2, W, yy + 2) & (rect(0, 0, 90, H) | rect(160, 0, 240, H)), '#a8c47a')
+_top = np.argmax(hills, axis=0)   # terrace walls follow the hill's own contour (not ruler-straight stripes)
+_dy = np.arange(H)[:, None] - _top[None, :] - 3
+_tw = (_dy >= 0) & (_dy % 5 == 0) | (_dy >= 0) & (_dy % 5 == 3) & (np.arange(W)[None, :] // 23 % 3 == 0)
+cv.fill(hills & _tw, '#5f9468')
+cv.fill(hills & (_dy >= 0) & (_dy % 5 == 2) & (rect(0, 0, 90, H) | rect(160, 0, 240, H)), '#a8c47a')
 for hx0, hy0 in ((24, 80), (110, 80), (214, 78), (268, 76), (60, 84)):   # tiny far houses
     cv.fill(rect(hx0, hy0, hx0 + 5, hy0 + 3), '#fff4dc')
     cv.fill(rect(hx0 - 1, hy0 - 2, hx0 + 6, hy0 - 1), TERRA['b'])

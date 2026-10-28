@@ -145,15 +145,15 @@ cv.fill(snow, '#fbe0d8')
 cv.fill(snow & ~shift(snow, -3, 0) & rect(200, 0, W, H), '#e0b0b8')
 cv.fill(snow & ~shift(snow, 0, 1) & rect(0, 0, 199, H), '#ffffff')
 leftface = peak & ~snow & poly([(196, 36), (199, 50), (197, 64), (201, 80), (199, 98), (100, 98), (100, 36)])
-cv.fill(leftface, '#b8909a')   # the sunlit left face
+cv.fill(leftface, '#c49aa4')   # the sunlit left face
 cv.fill(line([(186, 52), (194, 80)]) & leftface, '#9a7a8a')   # (re-cut the old gullies, softer on the lit face)
 cv.fill(line([(200, 60), (204, 88)]) & peak, '#7a5c70')
 # sunlit ridges and buttresses down the left face (light from the upper left), each with a shaded right edge
 for ridge, dxs in (([(176, 50), (170, 58), (164, 66), (158, 72), (150, 82), (142, 92), (136, 98)], (2, 3, 5, 6, 7, 8, 9)),
                    ([(186, 54), (184, 62), (178, 70), (174, 78), (168, 88), (164, 98)], (2, 3, 4, 6, 5, 7)),
                    ([(166, 62), (160, 68), (156, 76), (150, 86)], (1, 3, 4, 5)),
-                   ([(196, 60), (196, 70), (192, 80), (190, 92), (188, 98)], (1, 2, 4, 3, 5))):
-    right = [(x + d, y) for (x, y), d in zip(ridge, dxs)]
+                   ([(178, 76), (174, 84), (170, 98)], (2, 4, 5))):
+    right = [(x + max(1, d // 2), y) for (x, y), d in zip(ridge, dxs)]
     face = poly(ridge + right[::-1]) & peak & ~snow
     cv.fill(line(ridge) & peak & ~snow, '#fbe0d8')   # sun-caught ridge crest
     cv.fill(face, '#9a7a8a')   # shaded side of the ridge
@@ -161,7 +161,7 @@ for ridge, dxs in (([(176, 50), (170, 58), (164, 66), (158, 72), (150, 82), (142
 for _ in range(60):   # scree and rock specks on the slope
     sx, sy = r3(124, 200), r3(50, 94)
     if peak[sy, sx] and not snow[sy, sx]:
-        cv.dots([(sx, sy), (sx + 1, sy)], ('#7a5c70', '#b8909a', '#c98a6a')[r3(0, 2)])
+        cv.dots([(sx, sy), (sx + 1, sy)], ('#7a5c70', '#c49aa4', '#c98a6a')[r3(0, 2)])
 lowhill = poly([(0, 94), (40, 86), (90, 92), (130, 84), (170, 92), (200, 88), (260, 90), (300, 86), (300, 100), (0, 100)])
 cv.fill(lowhill, '#c98a6a')
 cv.fill(lowhill & ~shift(lowhill, 0, 2), '#e0a07a')
@@ -608,7 +608,7 @@ for ci, cx in enumerate((215, 219, 223, 227)):
 # a little basket of popcorn, served with the coffee
 o = cv.obj()
 o.part(ell(190, 183, 202, 190) & rect(0, 185, W, H), THATCH, d=1)
-o.part(ell(191, 181, 201, 187) & rect(0, 0, W, 185), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=0)
+o.part(ell(192, 182, 200, 187) & rect(0, 0, W, 185), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=0)
 o.draw()
 cv.dots([(193, 187), (196, 188), (199, 187), (194, 189), (198, 189)], THATCH['s'])
 cv.dots([(193, 183), (196, 182), (199, 184), (195, 184)], '#f5cf6a')

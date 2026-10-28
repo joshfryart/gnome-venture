@@ -194,6 +194,21 @@ for (a, b) in (((272, 74), (282, 80)), ((284, 66), (298, 70)), ((268, 90), (280,
     cv.fill(line([(a[0], a[1] - 1), (b[0], b[1] - 1)]), '#c9c5bc')
 cv.fill(crag & rect(0, 54, W, 61), SNOW['b'])
 cv.fill(crag & rect(0, 62, W, 62) & (xx_g % 5 < 3), SNOW['s'])   # icicle fringe under the ledge snow
+# pass 2: the crag face gets ledges with moss, orange lichen, fern tufts and a juniper bush so it is no longer one flat grey slab
+for (a, b) in (((266, 100), (276, 104)), ((280, 100), (298, 104)), ((270, 68), (278, 70))):
+    cv.fill(line([a, b]), '#5b6470')
+    cv.fill(line([(a[0], a[1] - 1), (b[0], b[1] - 1)]) & crag, '#4f9a45')
+    cv.fill(line([(a[0] + 1, a[1] - 2), (b[0] - 3, b[1] - 2)]) & crag, '#82b89a')
+for px, py in ((271, 84), (290, 78), (276, 96), (293, 96), (283, 108), (268, 66)):
+    cv.dots([(px, py), (px + 1, py), (px, py + 1)], '#e0702a')
+    cv.dots([(px + 1, py + 1)], '#f0c030')
+for px, py in ((266, 82), (296, 86), (285, 101)):
+    cv.fill(line([(px, py), (px - 2, py - 3)]) | line([(px, py), (px + 2, py - 3)]) | line([(px, py), (px, py - 4)]), '#4f9a45')
+o = cv.obj()
+o.part(line([(268, 84), (265, 90)], 2), DARKW, d=0)
+o.part(ell(261, 76, 274, 85) | ell(264, 72, 273, 80), TEA, d=2)
+o.draw()
+cv.dots([(264, 78), (267, 75), (271, 74), (270, 79)], TEA['r'])
 # snow leopard on the ledge, tail curled up
 lx, ly = 278, 50   # pass 1: crouched on the ledge, head up, paws forward, the thick ringed tail draped down the crag face
 LEOB = ramp('#d8d0bc', '#a8a090', '#f4f0e4')
@@ -281,6 +296,7 @@ cv.fill(dil4(river) & ~river & (yy_g > 100), '#8a7a5a')
 r3 = rnd(777)   # pass 1: second generator for the new jitter so the earlier layout does not shift
 TEA2 = ramp('#4f9a45', '#2f6a3a', '#a4b86a')
 TEA3 = ramp('#5fa84a', '#3f7a3a', '#a4d070')
+r4 = rnd(5150)   # pass 2: extra jitter for the two front tea terraces so they stop reading as a grid
 for k in range(len(TOPS) - 1):   # crops in rows along each terrace
     crop = CROP[k]
     sz = 2 + k // 2
@@ -303,6 +319,9 @@ for k in range(len(TOPS) - 1):   # crops in rows along each terrace
             if cy >= H:
                 continue
             cx = x + rr * (sz + 1)
+            if k >= 6:
+                cx += r4(-3, 3)
+                cy += r4(-2, 2)
             if crop == 'tea':
                 if k >= 4 and r3(0, 9) == 0:   # an odd gap: a picker's basket or a bare patch
                     if r3(0, 1):
@@ -311,11 +330,14 @@ for k in range(len(TOPS) - 1):   # crops in rows along each terrace
                         o.draw()
                         cv.dots([(cx - 2, cy - 4), (cx, cy - 4), (cx + 2, cy - 4)], '#7ab55c')
                     continue
-                s2 = sz + (r3(-1, 1) if k >= 4 else 0)
+                s2 = sz + (r3(-1, 1) if k >= 4 else 0) + (r4(-2, 1) if k >= 6 else 0)
                 cyj = cy + (r3(-1, 1) if k >= 4 else 0)
                 m = ell(cx - s2 - 1 - r3(0, 1), cyj - s2, cx + s2 + 1 + r3(0, 1), cyj + s2 // 2 + 1)
                 if k >= 4:
                     m |= ell(cx - s2 // 2 - 1, cyj - s2 - 1, cx + s2 // 2 + r3(0, 2), cyj)   # lumpy, uneven crowns
+                if k >= 6 and r4(0, 2) == 0:   # a second lobe off to one side: bushes that have grown into each other
+                    sd = r4(0, 1) * 2 - 1
+                    m |= ell(cx + sd * s2 - 3, cyj - s2 + 1, cx + sd * s2 + 3, cyj + 2)
                 rp = (TEA, TEA2, TEA3)[r3(0, 2)] if k >= 4 else TEA
                 o = cv.obj(outline=k >= 4)
                 o.part(m, rp, d=1 if k < 4 else 2)
@@ -341,18 +363,51 @@ for k in range(len(TOPS) - 1):   # crops in rows along each terrace
         if crop in ('crocus', 'chilli'):
             x += 7 + r3(0, 2)
         else:
-            x += sz * 2 + 3 + (rows - 1) * 2 + (r3(0, 3) if k >= 4 else 0)
+            x += sz * 2 + 3 + (rows - 1) * 2 + (r3(0, 3) if k >= 4 else 0) + (r4(-3, 6) if k >= 6 else 0)
 # a stone stair climbing the terraces (the pickers' path up toward the monastery)
-stair = blank()
+# pass 2: it zigzags: each flight leans a different way and a short landing along the terrace joins it to the next, wider as it comes forward
+SX = {1: (104, 2), 2: (97, -3), 3: (103, -4), 4: (91, 3), 5: (99, -5), 6: (86, 4)}
+stair, land = blank(), blank()
+prev = None
 for k in range(1, 7):
-    sxk = 98 - k * 3
-    y0, y1 = tline(k, sxk) - 1, tline(k + 1, sxk) + 1
-    stair |= rect(sxk, y0, sxk + 5, y1)
+    x0, dx = SX[k]
+    w = 3 + k // 2
+    y0, y1 = tline(k, x0) - 1, tline(k + 1, x0 + dx) + 1
+    stair |= poly([(x0, y0), (x0 + w, y0), (x0 + w + dx, y1), (x0 + dx, y1)])
+    if prev is not None:
+        a, b = sorted((prev[0], x0))
+        yl = tline(k, x0)
+        land |= rect(a, yl - 1, b + w, yl + 1)
+    prev = (x0 + dx, w)
 stair &= inner
-cv.fill(stair, WALL['b'])
+land &= inner & ~stair
+cv.fill(stair | land, WALL['b'])
 cv.fill(stair & ((yy_g % 3) == 0), WALL['s'])
 cv.fill(stair & ((yy_g % 3) == 1), WALL['r'])
-cv.fill(dil4(stair) & ~stair & inner, '#4a2c1a')
+cv.fill(land & ~shift(land, 0, 1), WALL['r'])
+cv.fill(land & ((xx_g % 5) == 0), WALL['s'])
+cv.fill(dil4(stair | land) & ~(stair | land) & inner, '#4a2c1a')
+r6 = rnd(3303)   # pass 2: a tiny hamlet on the foothill above the terraces fills the calm centre band, a footpath down to the stair head
+cv.fill(line([(96, 86), (100, 88), (104, 91), (102, 94), (106, 97)], 2), '#c8a878')
+for hx, hy, hw_ in ((86, 86, 10), (99, 82, 9), (112, 87, 11), (124, 84, 8)):
+    hy = min(hy, tline(0, hx) - 1, tline(0, hx + hw_) - 1)
+    o = cv.obj()
+    o.part(poly([(hx, hy), (hx + hw_, hy), (hx + hw_ - 1, hy - 7), (hx + 1, hy - 7)]), WHITE, d=2)
+    o.part(rect(hx, hy - 9, hx + hw_, hy - 8), MAROON, d=1)
+    o.draw()
+    cv.fill(rect(hx + 2, hy - 5, hx + 3, hy - 3), '#2a1a10')
+    cv.fill(rect(hx + hw_ - 4, hy - 4, hx + hw_ - 3, hy), '#2a1a10')
+    cv.dots([(hx + 2, hy - 6), (hx + 3, hy - 6)], SAFF['b'])
+    for k in range(r6(2, 4)):   # firewood and apricots on the flat roof
+        cv.dots([(hx + 1 + r6(0, hw_ - 2), hy - 10)], (WOOD['b'], SAFF['b'], '#e0702a')[r6(0, 2)])
+    cv.dots([(hx + hw_ - 1, hy - 11), (hx + hw_ - 1, hy - 12)], FLAGS[r6(0, 4)])
+for gx_, gy_ in ((134, 86), (80, 90)):   # two little yaks grazing beside the houses
+    o = cv.obj()
+    o.part(ell(gx_, gy_ - 4, gx_ + 7, gy_), YAK, d=1)
+    o.part(ell(gx_ + 6, gy_ - 3, gx_ + 9, gy_ + 1), YAK, d=0)
+    o.draw()
+    cv.dots([(gx_ + 1, gy_ + 1), (gx_ + 5, gy_ + 1)], '#2a1a10')
+    cv.dots([(gx_ + 7, gy_ - 4), (gx_ + 9, gy_ - 4)], '#f1ece0')
 # ---------------------------------------------------------------- the Cloud Monastery on its crag (left), apricots drying on the roof
 mx0, my0 = 10, 56
 o = cv.obj()
@@ -479,12 +534,40 @@ cv.fill(rbank & (yy_g >= 104), GRASS['b'])
 for _ in range(240):
     gx, gy = r(0, W - 1), r(104, H - 1)
     cv.dots([(gx, gy), (gx, gy - 1)], GRASS['r'] if r(0, 2) else GRASS['s'])
-for mx, my, col, dot in ((214, 110, '#c8a878', RED['b']), (238, 106, '#c8a878', SAFF['b']), (250, 116, '#c8a878', '#e0c040')):
+r5 = rnd(2611)   # pass 2: the drying mats get a woven bamboo weave, a bound edge and real heaped produce, plus a rake and a winnowing tray
+for i, (mx, my) in enumerate(((214, 110), (238, 106), (250, 116))):
+    for k in range(14):   # the random draws the old mats made, so later layout stays put
+        r(0, 15), r(0, 5)
+    mm = poly([(mx, my), (mx + 18, my - 2), (mx + 22, my + 6), (mx + 3, my + 8)])
     o = cv.obj()
-    o.part(poly([(mx, my), (mx + 18, my - 2), (mx + 22, my + 6), (mx + 3, my + 8)]), ramp(col, '#9a7a4a', '#ecd6a4'), d=1)
+    o.part(mm, ramp('#c8a878', '#9a7a4a', '#ecd6a4'), d=1)
     o.draw()
-    for k in range(14):
-        cv.dots([(mx + 3 + r(0, 15), my + 1 + r(0, 5))], dot)
+    mi = mm & shift(mm, 1, 0) & shift(mm, -1, 0) & shift(mm, 0, 1) & shift(mm, 0, -1)
+    cv.fill(mi & ((xx_g + 2 * yy_g) % 5 == 0), '#9a7a4a')   # weave
+    mi = mi & shift(mi, 1, 0) & shift(mi, -1, 0) & shift(mi, 0, 1) & shift(mi, 0, -1)
+    ys, xs = np.nonzero(mi)
+    for k in range(20 if i != 1 else 14):
+        j = r5(0, len(xs) - 1)
+        px, py = int(xs[j]), int(ys[j])
+        if i == 0:   # red chillies with green caps
+            cv.dots([(px, py), (px + 1, py), (px + 2, py + 1)], RED['b'] if k % 3 else RED['s'])
+            cv.dots([(px - 1, py)], '#4f9a45')
+        elif i == 1:   # halved apricots
+            cv.fill(rect(px, py, px + 1, py + 1), SAFF['b'])
+            cv.dots([(px, py)], SAFF['r'])
+            cv.dots([(px + 1, py + 1)], '#e0702a')
+        else:   # turmeric fingers
+            cv.dots([(px, py), (px + 1, py), (px + 2, py - 1)], '#f0c030')
+            cv.dots([(px + 1, py + 1)], SAFF['s'])
+# a wooden rake laid across the apricot mat, and a round winnowing tray of cardamom by the turmeric
+cv.fill(line([(236, 101), (250, 112)]), WOOD['s'])
+cv.fill(line([(248, 113), (253, 109)]), DARKW['b'])
+cv.dots([(249, 114), (251, 112), (253, 111)], DARKW['s'])
+o = cv.obj()
+o.part(ell(268, 111, 280, 118), WOOD, d=2)
+o.draw()
+cv.fill(ell(270, 112, 278, 116), '#7aa04a')
+cv.dots([(271, 113), (273, 114), (275, 113), (277, 114), (274, 115)], '#a4b86a')
 gh = poly([(156, 200), (176, 136), (194, 136), (204, 200)])   # ghat: stone steps from the souk down to the water
 gh &= ~river
 # pass 1: real steps: lit tread nosing, tread, dark riser, staggered stone joints, a landing, side walls, wet bottom steps
