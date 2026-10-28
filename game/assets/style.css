@@ -3517,6 +3517,11 @@ dialog.folkdlg .sheetx { position: absolute; top: 2px; right: 2px; width: var(--
 dialog.folkdlg .folkbody { padding-top: 6px; }
 dialog.folkdlg .vpanel { border: 0; box-shadow: none; padding: 0; background: none; }
 dialog.folkdlg .vpanel { text-align: center; }
+dialog.folkdlg .npchead { flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+dialog.folkdlg .npcpic { width: auto; align-items: center; }
+dialog.folkdlg .portrait { width: 96px; height: 120px; }
+dialog.folkdlg .portrait.folkimg { width: 72px; height: 72px; image-rendering: pixelated; object-fit: contain; font-size: 44px; line-height: 72px; text-align: center; }
+dialog.folkdlg .fondbar { text-align: center; }
 dialog.folkdlg .vpanel .vact, dialog.folkdlg .vpanel form.inline { display: inline-block; margin: 4px 4px 0; }
 dialog.folkdlg .folkfoot { margin: 8px 0 0; text-align: right; }
 dialog.folkdlg .folkfoot:empty { display: none; }

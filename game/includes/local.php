@@ -293,6 +293,22 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
 }
 
 /**
+ * v2.0.77: the picture of a rest-stop villager by species: our own pixel icon where one is drawn (assets/img/ico), else a PLACEHOLDER square
+ * (assets/img/folk/<species>.png, red border: real art in claude/todo-art-variety.md), else the species emoji.
+ */
+function stop_folk_img(array $folk): string
+{
+    $sp = strtolower((string)$folk['species']);
+    foreach (['mouse', 'bee', 'hedgehog', 'snail', 'frog', 'beetle', 'butterfly', 'cricket', 'ladybird'] as $k) {
+        if (str_contains($sp, $k) && pixel_has('assets/img/ico/ico-' . $k . '.png')) return '<img class="portrait folkimg pix" src="' . e(url('assets/img/ico/ico-' . $k . '.png')) . '" alt="' . e((string)$folk['species']) . '" width="72" height="72">';
+    }
+    foreach (['hare', 'wren', 'mole', 'tortoise', 'moth', 'shrew', 'gecko', 'dragonfly', 'toad', 'grasshopper', 'firefly'] as $k) {
+        if (str_contains($sp, $k) && pixel_has('assets/img/folk/' . $k . '.png')) return '<img class="portrait folkimg pix" src="' . e(url('assets/img/folk/' . $k . '.png')) . '" alt="' . e((string)$folk['species']) . '" width="72" height="72">';
+    }
+    return '<div class="portrait folkimg">' . npc_icon((string)$folk['species']) . '</div>';
+}
+
+/**
  * v2.0.77: a villager of the stop you are standing in, as the overlay panel: face, hearts, bio, chat, a gift, and the errand.
  * Every form posts to stopfolk.php (data-sform) and gets the panel back. Returns '' if they are not here.
  */
@@ -309,7 +325,7 @@ function stop_folk_panel(array $u, array $loc, int $folkId, string $msg = '', bo
     $f = fn(string $k, string $inner) => '<form method="post" action="' . e(url('stopfolk.php')) . '" class="vact" data-sform="1">' . csrf_field() . '<input type="hidden" name="folk" value="' . $folkId . '"><input type="hidden" name="do" value="' . e($k) . '">' . $inner . '</form>';
     $h = '<div class="vpanel box" data-folk="' . $folkId . '">';
     if ($msg !== '') $h .= '<p class="vmsg ' . ($ok ? 'ok' : 'err') . '" role="status">' . e($msg) . '</p>';
-    $h .= '<div class="npchead"><div class="npcid"><h2>' . npc_icon($folk['species']) . ' ' . e($folk['name']) . '</h2>'
+    $h .= '<div class="npchead"><div class="npcpic">' . stop_folk_img($folk) . '</div><div class="npcid"><h2>' . e($folk['name']) . '</h2>'
         . '<p class="muted">' . e($folk['role']) . ' · ' . e($folk['species']) . ' · ' . e($folk['personality']) . '</p>'
         . '<p>' . $hearts . ' ' . e($lvl['name']) . ($lvl['next'] !== null ? ' <span class="muted">(' . $pts . '/' . $lvl['next'] . ')</span>' : '') . '</p>'
         . '<p>📍 ' . e($loc['name']) . '</p></div></div>';

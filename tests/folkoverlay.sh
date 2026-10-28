@@ -52,6 +52,7 @@ TOOL=$(db "SELECT id FROM items WHERE category='tool' LIMIT 1" | tr -d ' '); giv
 J=$(postj -d do=gift -d folk=$FID -d item_id=$TOOL); chk "a tool is not a gift" "$(echo "$J" | grep -q '"ok":false' && echo 1)"
 chk "bad csrf is refused (400)" "$([ "$(curl -s -o /dev/null -w '%{http_code}' -b $C -c $C -H 'X-Requested-With: fetch' -X POST "$BASE/stopfolk.php" -d csrf=nope -d do=chat -d folk=$FID)" = 400 ] && echo 1)"
 OTHER=$(db "SELECT id FROM stop_folk WHERE location_id<>$VIL LIMIT 1" | tr -d ' ')
+chk "the panel shows a picture (icon, placeholder or emoji frame)" "$(fetchj "stopfolk.php?folk=$FID" | grep -q 'folkimg' && echo 1)"
 chk "a villager of another stop is refused" "$(fetchj "stopfolk.php?folk=$OTHER" | grep -q '"ok":false' && echo 1)"
 
 echo "== townsfolk rows (main stop)"
@@ -68,11 +69,12 @@ chk "villagers.php still answers the panel in JSON" "$(fetchj "villagers.php?id=
 echo "== browser"
 if node -e "require('playwright')" 2>/dev/null; then
   dbx "UPDATE users SET location_id=$VIL WHERE id=$SID"; dbx "UPDATE stop_friend SET last_talk=NULL, last_gift=NULL WHERE user_id=$SID"
+  [ -n "$SHOT_SPECIES" ] && dbx "UPDATE stop_folk SET species='$SHOT_SPECIES' WHERE id=$FID"
   OUT=$(BASE=$BASE FID=$FID node "$(dirname "$0")/folkoverlay.js" 2>&1)
   echo "$OUT" | sed 's/^/  /'
   chk "browser: rest-stop overlay flow passed" "$(echo "$OUT" | grep -q 'OVERLAY OK' && echo 1)"
   dbx "UPDATE users SET location_id=$HUBQ WHERE id=$SID"
-  OUT=$(MODE=npc BASE=$BASE FID=$FID node "$(dirname "$0")/folkoverlay.js" 2>&1); echo "$OUT" | sed 's/^/  /'
+  OUT=$(SHOT=${SHOT_NPC:-} MODE=npc BASE=$BASE FID=$FID node "$(dirname "$0")/folkoverlay.js" 2>&1); echo "$OUT" | sed 's/^/  /'
   chk "browser: townsfolk overlay passed" "$(echo "$OUT" | grep -q 'OVERLAY OK' && echo 1)"
 else echo "  note: Playwright not installed, browser part skipped"; fi
 echo "== php errors"

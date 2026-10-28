@@ -26,6 +26,10 @@ Themed stop upgrade pictures, 96x96 placeholders at `game/assets/img/stoptiers/<
 - [ ] camp: 1 log seats, 2 cookfire ring, 3 storytelling stage, 4 great lodge
 (The files are named by kind and tier, e.g. `mill-1.png`. Not wired yet, nice to have: a stop header picture that changes as tiers are built.)
 
+## In the game as PLACEHOLDER (2.0.77, villager overlay)
+Rest-stop villagers show a picture of their species in the overlay (72px). Nine species already use our drawn icons (mouse, bee, hedgehog, snail, frog, beetle, butterfly, cricket, ladybird: `assets/img/ico/ico-<species>.png`). These eleven have no art yet and show a red PLACEHOLDER square at `game/assets/img/folk/<species>.png` (draw 64x64 pixel art, same file name; the code uses the file as soon as it is replaced). Ideally later: a few looks per species, and the same pictures on the villager rows.
+- [ ] hare  - [ ] wren  - [ ] mole  - [ ] tortoise  - [ ] moth  - [ ] shrew  - [ ] gecko  - [ ] dragonfly  - [ ] toad  - [ ] grasshopper  - [ ] firefly
+
 ## Wanted soon (not made yet: add a placeholder when the verb ships)
 Build-stage verbs still to come (one icon each, same folder, `stage-<verb>.png`): carry (a parcel with a road), befriend (two gnomes shaking hands), trial (a small trophy or a target), vigil (a moon and a lantern), wait (an hourglass), decorate (a flag or a flower pot), craft_on_site (a hammer on an anvil), fetch_lore (a scroll).
 
