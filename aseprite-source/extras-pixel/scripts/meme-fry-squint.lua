@@ -1,0 +1,119 @@
+-- puzzles/fry-squint.gif redraw: an orange-haired felt puppet gives a suspicious side-eye squint
+-- while the camera pushes in on his eyes, then holds as the squint narrows.
+-- Source 498x364, 46 frames x 70 ms (3.22 s). Here: 332x242 (same aspect), 22 frames, per-frame ms
+-- resampled from the source timing, loops forever, solid background.
+-- Drawn on a 166x121 half grid (scene mode), written at 2x nearest.
+-- World coords = frame-1 half-grid coords; every shape goes through the camera T().
+local D = "/home/user/gnome-venture/aseprite-source/"
+local GV = dofile(D .. "gvlib/gvlib.lua")
+local W, H = 166, 121
+local GAME = "/home/user/gnome-venture/game/assets/img/puzzles/"
+
+-- source-frame samples (70 ms each in the source); duration = gap to the next sample
+local SAMPLES = { 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43 }
+local SRC_N, SRC_MS = 46, 70
+
+local E = { 92, 62 }           -- zoom anchor: between the eyes (world)
+local function cam(s)          -- zoom z and the screen spot of the anchor, measured from the source
+  local p = math.max(0, math.min(1, (s - 2) / 18))
+  local e = 1 - (1 - p) ^ 2.2
+  return 1 + 1.4 * e, 92 + 13 * e, 62
+end
+local function squint(s)       -- eye-slit height factor: holds, then narrows a touch in the hold
+  if s < 22 then return 1 end
+  return 1 - 0.3 * math.min(1, (s - 22) / 15)
+end
+
+local hair  = GV.ramp("#f08a24")   -- ember family
+local skin  = "skin"
+local shirt = GV.ramp("#f1ece0")   -- soil cream
+local wall  = GV.ramp("#5b6f96")   -- stone family nudged to slate blue
+local duct  = GV.ramp("#3e5a7a")
+local UMB = GV.C.umber or "#4a2c1a"
+
+local function drawFrame(s)
+  local z, ax, ay = cam(s)
+  local sq = squint(s)
+  local c = GV.canvas{ w = W, h = H, mode = "scene", out = 2 }
+  local function X(u) return ax + (u - E[1]) * z end
+  local function Y(v) return ay + (v - E[2]) * z end
+  local function P(pts) local o = {} for i, p in ipairs(pts) do o[i] = { math.floor(X(p[1]) + 0.5), math.floor(Y(p[2]) + 0.5) } end return o end
+  local function ell(u, v, rx, ry) return c:ellipse(X(u), Y(v), rx * z, (ry or rx) * z) end
+  local function poly(pts) return c:poly(P(pts)) end
+  local function pen(w) return math.max(1, math.floor(w * z + 0.5)) end
+  local function ink(pts, w, hex) c:fill(c:line(P(pts), pen(w or 0.8)), hex or UMB) end
+
+  -- background: slate wall in hard bands, a darker duct panel across the top with a hem seam
+  c:bands(c:rect(0, 0, W-1, H-1), { wall.rim, wall.base, wall.shade }, { dir = "v" })
+  c:part(poly{ {-60, -40}, {240, -40}, {240, -20}, {-60, 70} }, duct, { gloss = false, cres = 3 })
+  c:seam(P{ {-60, 64}, {240, -26} }, { free = true })
+
+  -- jacket, shirt, neck
+  c:part(poly{ {30, 140}, {44, 104}, {66, 96}, {104, 98}, {112, 140} }, "red", { cres = math.floor(4 * z) })
+  c:part(poly{ {64, 140}, {68, 104}, {80, 112}, {96, 104}, {98, 140} }, shirt, { pale = true, gloss = false })
+  c:part(poly{ {70, 112}, {72, 86}, {98, 86}, {94, 112} }, skin, { gloss = false, cres = math.floor(3 * z) })
+  c:seam(P{ {48, 104}, {66, 98}, {74, 106} })
+  c:seam(P{ {98, 104}, {104, 99} })
+
+  -- head: cranium + muzzle with a long nose, then the ear
+  local head = ell(86, 56, 24, 27)
+  head:add(poly{ {94, 46}, {110, 56}, {114, 62}, {109, 68}, {106, 72}, {116, 82}, {118, 87}, {112, 92}, {98, 96}, {80, 90} })
+  c:part(head, skin, { cres = math.floor(5 * z), gloss = { X(80), Y(44) } })
+  c:part(ell(64, 72, 5, 7), skin, { cres = math.floor(2 * z), gloss = false })
+  ink({ {64, 69}, {62, 72}, {64, 76} }, 0.7)
+
+  -- hair: felt mop with two big spikes up, a fringe point, a sideburn sweeping down the left
+  local h = ell(78, 34, 26, 14)
+  h:add(poly{ {64, 30}, {70, 2}, {84, 26} })
+  h:add(poly{ {80, 26}, {104, 6}, {100, 30} })
+  h:add(poly{ {56, 30}, {40, 38}, {58, 40} })
+  h:add(poly{ {54, 34}, {68, 36}, {72, 70}, {66, 62}, {58, 50} })
+  h:add(poly{ {84, 36}, {104, 34}, {106, 44}, {92, 42} })
+  h:cut(poly{ {72, 40}, {90, 43}, {74, 56} })
+  c:part(h, hair, { cres = math.floor(4 * z), stitch = { side = "lit" }, gloss = { X(66), Y(26) } })
+
+  -- the squint: two flat cream slits under heavy lids, pupils parked hard right
+  local eh = 4.2 * sq
+  for _, e in ipairs({ { 82, 62 }, { 101, 61 } }) do
+    local ex, ey = e[1], e[2]
+    local slit = c:rrect(math.floor(X(ex - 9)), math.floor(Y(ey - eh / 2)), math.floor(X(ex + 9)),
+      math.floor(Y(ey + eh / 2)), math.floor(z))
+    c:fill(slit, "#f1ece0")
+    c:fill(c:rect(math.floor(X(ex - 9)), math.floor(Y(ey + eh / 2)) - pen(0.3) + 1, math.floor(X(ex + 9)), math.floor(Y(ey + eh / 2))), "#d8c49a")
+    ink({ { ex - 10, ey - eh / 2 - 0.4 }, { ex + 10, ey - eh / 2 - 0.8 } }, 1.1)  -- upper lid
+    ink({ { ex - 9, ey + eh / 2 + 0.6 }, { ex + 9, ey + eh / 2 + 0.6 } }, 0.7)    -- lower lid
+    local px = X(ex + 4 + (s >= 22 and math.min(1, (s - 22) / 15) or 0))
+    local pr = math.max(2, math.floor(2 * z + 0.5))
+    local pm = c:rect(math.floor(px - pr / 2), math.floor(Y(ey) - pr / 2), math.floor(px - pr / 2) + pr, math.floor(Y(ey) - pr / 2) + pr)
+    pm:clip(slit)
+    c:fill(pm, "#2a1a10")
+    c:px(math.floor(px - pr / 2), math.floor(Y(ey) - pr / 2), "#f9d49c")
+  end
+  -- brow creases over the lids, nose bridge, mouth
+  ink({ { 90, 52 }, { 92, 56 }, { 91, 64 } }, 0.6)
+  ink({ { 75, 56 }, { 74, 61 } }, 0.6)
+  ink({ { 110, 57 }, { 111, 60 } }, 0.6)
+  ink({ { 92, 64 }, { 96, 71 }, { 104, 72 } }, 0.6)
+  ink({ { 102, 86 }, { 110, 85 } }, 0.7)
+  return c:image()
+end
+
+local spr = Sprite(W * 2, H * 2, ColorMode.RGB)
+local layer = spr.layers[1]
+layer.name = "fry-squint"
+for i, s in ipairs(SAMPLES) do
+  if i > 1 then spr:newEmptyFrame(i) end
+  local img = drawFrame(s)
+  if i == 1 then spr.cels[1].image = img; img:saveAs(GAME .. "fry-squint-still.png")
+  else spr:newCel(layer, i, img) end
+  local nxt = SAMPLES[i + 1] or SRC_N
+  spr.frames[i].duration = (nxt - s) * SRC_MS / 1000
+  local t = GV.check(img)
+  if i == 1 or i == #SAMPLES then print("frame " .. i .. ": " .. GV.report(t)) end
+  assert(t.semi == 0 and t.bw == 0)
+end
+pcall(function() app.fs.makeAllDirectories(D .. "extras-pixel/puzzles-gif") end)
+spr:saveAs(D .. "extras-pixel/puzzles-gif/fry-squint.aseprite")
+spr:saveCopyAs(GAME .. "fry-squint.gif")
+spr:close()
+print("saved")
