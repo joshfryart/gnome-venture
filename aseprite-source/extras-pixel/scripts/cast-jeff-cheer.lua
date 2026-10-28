@@ -18,9 +18,10 @@ local armR = c:line({ {44, 34}, {50, 26}, {50, 20} }, 4); armR:add(c:ellipse(51,
 armR:cut(body:grow(1))
 
 -- confetti: small flat bits, red / gold / purple / water
+local function dia(x, y) return c:ascii({ ".x.", "xxx", ".x." }, x, y) end
 local conf = {
-  { c:rect(22, 8, 24, 10), "#dd3a2a" }, { c:rect(38, 10, 40, 12), "#8a5fd0" }, { c:rect(31, 7, 32, 10), "#e8a317" },
-  { c:rect(8, 34, 10, 36), "#e8a317" }, { c:rect(53, 32, 55, 34), "#dd3a2a" }, { c:rect(54, 46, 55, 49), "#3f8fb0" },
+  { dia(19, 9), "#dd3a2a" }, { dia(40, 8), "#8a5fd0" }, { dia(24, 4), "#e8a317" },
+  { dia(5, 27), "#3f8fb0" }, { dia(55, 26), "#e8a317" },
 }
 local parts = {
   { "armL", armL, GV.ramp("#2cc97c"), { flat = true } },

@@ -27,6 +27,7 @@ c:px(37+dx, 25+dy, "#f1ece0")
 c:paint({ ".uuuuu.", "u.....u" }, 33+dx, 18+dy, { u = "umber" })     -- raised, worried brow
 c:paint({ ".uu...uu.", "u..uuu..u" }, 25+dx, 34+dy, { u = "umber" })  -- wobbly mouth
 -- a couple of sweat-free "caught" lines: cream flick marks by the head
-c:paint({ "c..", ".c.", "..c" }, 48+dx, 23+dy, { c = "#f1ece0" })
-c:paint({ "ccc" }, 49+dx, 28+dy, { c = "#f1ece0" })
+c:paint({ "cc.", ".cc", "..c" }, 48+dx, 22+dy, { c = "#f5cf6a" })
+c:paint({ "ccc" }, 49+dx, 28+dy, { c = "#f5cf6a" })
+c:paint({ "..c", ".cc", "cc." }, 48+dx, 32+dy, { c = "#f5cf6a" })
 K.save(c, "ffej-caught")

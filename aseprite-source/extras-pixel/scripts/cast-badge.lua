@@ -12,13 +12,13 @@ local function badge(name, hex, digit)
   disc:add(c:ellipse(15, 42, 4, 4.5)); disc:add(c:ellipse(48, 42, 4, 4.5))  -- tabs
   disc:cut(c:ellipse(31.5, 57, 4.5, 4))                               -- notch bottom
   local ring = disc:shrink(3):cut(disc:shrink(5))
-  local r = GV.ramp(hex)
+  local r = GV.ramp(hex, { dot = "#fff3c8" })   -- no pure white on pale silver
   c:build{
     { "ribL", ribL, "red", { gloss = false } },
     { "ribR", ribR, GV.ramp("#b8452f"), { gloss = false, contour = false } },
     { "disc", disc, r, { gloss = { 22, 33 } } },
   }
-  c:fill(ring:cut(c:rect(0, 0, 63, 33)), r.shade)
+  c:fill(ring:cut(c:rect(0, 0, 63, 30)):cut(c:rect(22, 30, 41, 35)), r.shade)   -- groove all round, skipping the ribbon tip
   c:seam({ {22, 11}, {26, 22} }); c:seam({ {41, 11}, {37, 22} })
   c:paint(digit, 28, 36, { u = "umber", l = r.gloss })
   c:button(29, 30)
@@ -47,5 +47,5 @@ local three = {
   ".uuuuu..",
   "........",
 }
-badge("badge-silver", "#b6bcc6", two)
-badge("badge-bronze", "#c07a40", three)
+badge("badge-silver", "#c9d0da", two)
+badge("badge-bronze", "#b8622a", three)

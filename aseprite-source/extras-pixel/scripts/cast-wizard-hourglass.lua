@@ -24,7 +24,7 @@ c:build{
   { "body",  body,  K.WIZ_BODY, { stitch = { side = "lit" } } },
   { "beard", beard, K.WIZ_BEARD, { gloss = { 26+dx, 41+dy-4 } } },
   { "hat",   hat,   K.WIZ_HAT, { gloss = { 29+dx, 10+dy-4 } } },
-  { "glass", glass, "water", { gloss = { hx+2, hy+5 }, contour = false } },
+  { "glass", glass, GV.ramp("#8fcbd8"), { gloss = { hx+2, hy+5 }, contour = false } },
   { "sandTop", sandTop, "gold", { flat = true } },
   { "sand",  sand,  "gold", { flat = true } },
   { "caps",  caps,  "wood", { flat = true } },

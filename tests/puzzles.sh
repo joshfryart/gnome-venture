@@ -30,7 +30,7 @@ dbx "UPDATE puzzle_pics SET active=0 WHERE slug='pig'"
 curl -s -b /tmp/pz-p $BASE/puzzles.php > /tmp/pz.html
 ok "a switched-off picture leaves the library" "$(grep -c 'pig.gif' /tmp/pz.html)" 0
 dbx "UPDATE puzzle_pics SET active=1 WHERE slug='pig'"
-ok "seeded scramble (mulberry32, ?seed=)" "$(grep -c 'mulberry32' $GAME/assets/puzzles.js)" 2
+ok "seeded scramble (mulberry32, ?seed=)" "$(grep -c 'function mulberry32' $GAME/assets/puzzles.js)$(grep -c 'seed=(' $GAME/assets/puzzles.js)" 11
 ok "no Math.random left in the layout" "$(grep -cE 'rnd\(a,b\)\{ return a\+Math.random|Math.random\(\)<\.5|Math.random\(\)\*\(i\+1\)' $GAME/assets/puzzles.js)" 0
 dbx "DELETE FROM settings WHERE name='puzzles_open'"
 echo "== php log"; grep -iE 'fatal|warning|notice|deprecated' /tmp/pz-php.log || echo "(none)"

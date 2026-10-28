@@ -49,6 +49,11 @@ local function scene(dark)
     c:part(c:rect(bx, 16 - 7 - (b[2] % 2), bx + b[2] - 1, 15), GV.ramp(dim(b[1])), { flat = true, cres = 1, deep = 0 })
     bx = bx + b[2] + 1
   end
+  -- small framed portrait of the meadow between window and lamp
+  local pf = c:rrect(152, 12, 164, 24, 1)
+  c:part(pf, GV.ramp(dim("#d9a660")), { gloss = false, cres = 1, deep = 0 })
+  c:bands(c:rect(154, 14, 162, 18), dark and { "#2a356c", "#334579" } or { "#8fcbd8", "#b5dfe6" }, { dir = "v" })
+  c:fill(c:rect(154, 19, 162, 22), dim("#7ab55c")); c:fill(c:ellipse(158, 18, 2, 1.5):clip(c:rect(154,14,162,22)), dim("#4a8a3e"))
   -- hanging lamp (lit in the dark version)
   local lamp = c:poly({ { 128, 2 }, { 142, 2 }, { 147, 12 }, { 123, 12 } })
   c:part(lamp, GV.ramp(dim("#dd3a2a")), { gloss = { 127, 5 }, cres = 3, deep = 1 })
@@ -61,7 +66,7 @@ local function scene(dark)
   end
   -- wizard (far right) and Jeff (centre) stand behind the table; Ffej sneaks in at the left edge
   CAST.wizard(c, 172, 24, 0.7, { dark = dark })
-  CAST.jeff(c, 100, 25, 0.78, { pose = "hold", dark = dark })
+  CAST.jeff(c, 100, 23, 0.84, { pose = "hold", dark = dark })
   CAST.ffej(c, 20, 34, 0.7, { pose = "sneak", dark = dark })
   -- table: oak top with a lip, front board, hem stitch
   local top = c:rect(0, 42, W - 1, 47)
@@ -76,15 +81,21 @@ local function scene(dark)
   -- scattered pieces on the table (back row then front row)
   local P = {
     { 36, 40, 6, "rB", "#dd3a2a" }, { 60, 41, 6, "tL", "#3f8fb0" }, { 122, 40, 6, "lT", "#f5cf6a" },
-    { 142, 41, 6, "bR", "#7ab55c" }, { 86, 43, 6, "tr", "#e46a9b" }, { 110, 44, 5, "lb", "#8a5fd0" },
-    { 10, 44, 6, "r", "#f08a24" }, { 160, 44, 6, "L", "#c9c5bc" }, { 72, 44, 5, "B", "#f5cf6a" },
+    { 142, 41, 6, "bR", "#7ab55c" }, { 78, 40, 6, "tr", "#e46a9b" }, { 124, 44, 5, "lb", "#8a5fd0" },
+    { 10, 44, 6, "r", "#f08a24" }, { 164, 45, 6, "L", "#c9c5bc" }, { 66, 45, 5, "B", "#f5cf6a" },
   }
+  -- Jeff's half-built jigsaw on a board right in front of him (the focal point)
+  local board = c:rrect(84, 43, 117, 47, 1)
+  c:part(board, GV.ramp(dim("#d9a660")), { gloss = false, cres = 1, deep = 0 })
+  local TC = { "#7fc0de", "#94c46e", "#f5cf6a", "#7ab55c", "#a8d8ea", "#4a8a3e" }
+  for i = 0, 5 do c:part(c:rect(86 + i * 5, 44, 89 + i * 5, 46), GV.ramp(dim(TC[i + 1])), { flat = true, outline = false }) end
+  -- board outline from part
   for _, p in ipairs(P) do CAST.piece(c, p[1], p[2], p[3], p[4], p[5], dark) end
   -- a candle on the table (warm glow at night)
-  c:part(c:rect(188, 36, 190, 44), GV.ramp(dim("#f1ece0"), { pale = true }), { gloss = false, cres = 1, deep = 0 })
-  c:part(c:ellipse(189, 34, 1.5, 2), GV.ramp("#f08a24"), { flat = true })
-  c:px(189, 34, "#fff1c8")
-  if dark then c:fill(c:ellipse(189, 33, 4, 4):cut(c:ellipse(189, 34, 1.5, 2)):clip(c:rect(0, 0, W - 1, 41)), "#6a5a4a") end
+  c:part(c:rect(150, 36, 152, 44), GV.ramp(dim("#f1ece0"), { pale = true }), { gloss = false, cres = 1, deep = 0 })
+  c:part(c:ellipse(151, 34, 1.5, 2), GV.ramp("#f08a24"), { flat = true })
+  c:px(151, 34, "#fff1c8")
+  if dark then c:fill(c:ellipse(189, 33, 4, 4):cut(c:ellipse(151, 34, 1.5, 2)):clip(c:rect(0, 0, W - 1, 41)), "#6a5a4a") end
   local name = dark and "puzzles-banner-dark" or "puzzles-banner"
   local t = c:save(ASE .. name .. ".aseprite", PNG .. name .. ".png")
   print(name, GV.report(t))

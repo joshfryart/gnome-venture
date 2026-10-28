@@ -13,6 +13,14 @@ local c = GV.canvas{ w = W, h = H, mode = "scene", out = 2, ol = 1, olx = 1, cre
 c:bands(c:rect(0, 0, W - 1, 35), { "#7fc0de", "#8ac6e1", "#95cce4", "#a0d2e7", "#abd8ea" }, { dir = "v" })
 c:part(c:ellipse(40, 44, 70, 14):clip(c:rect(0, 0, W - 1, 44)), GV.ramp("#94c46e"), { gloss = false, outline = false, cres = 5 })
 c:part(c:ellipse(170, 42, 80, 12):clip(c:rect(0, 0, W - 1, 44)), GV.ramp("#a4cf78"), { gloss = false, outline = false, cres = 5 })
+-- far marquee tents on the hills (tournament depth)
+local function tent(x, y, col)
+  local m = c:poly({ { x - 7, y + 8 }, { x, y }, { x + 7, y + 8 } })
+  c:part(m, GV.ramp(col), { gloss = false, cres = 2, deep = 1 })
+  c:fill(c:rect(x, y + 4, x, y + 8), "#4a2c1a")
+  c:fill(c:line({ { x, y }, { x, y - 3 } }, 1), "#4a2c1a"); c:px(x + 1, y - 3, "#dd3a2a")
+end
+tent(72, 33, "#f1ece0"); tent(86, 35, "#dd3a2a"); tent(128, 33, "#3f8fb0")
 local mead = c:rect(0, 44, W - 1, H - 1)
 for x = 0, W - 1, 6 do mead:add(c:poly({ { x, 45 }, { x + 3, 41 }, { x + 6, 45 } })) end
 c:part(mead, GV.ramp("#7ab55c"), { flat = true, rim = false, outline = false, contour = false })
@@ -50,8 +58,8 @@ c:ground(168, 51, 18, 2)
 -- Ffej sneaking in from the left, Jeff centre with the stopwatch
 CAST.ffej(c, 18, 36, 0.7, { pose = "sneak" })
 c:ground(18, 52, 14, 2)
-CAST.jeff(c, 100, 30, 0.8, { pose = "watch" })
-c:ground(100, 48, 15, 2)
+CAST.jeff(c, 100, 28, 0.88, { pose = "watch" })
+c:ground(100, 49, 16, 2)
 -- a few flowers in the front
 local function flower(x, y, col)
   c:part(c:line({ { x, y + 8 }, { x, y + 2 } }, 2), GV.ramp("#4a8a3e"), { flat = true, outline = false })
@@ -59,7 +67,7 @@ local function flower(x, y, col)
   c:part(head, GV.ramp(col), { gloss = false, cres = 2, deep = 0 })
   c:px(x, y, "#e8a317"); c:px(x - 1, y - 1, "#f5cf6a")
 end
-flower(60, 50, "#e46a9b"); flower(134, 53, "#f5cf6a"); flower(44, 55, "#dd3a2a"); flower(192, 54, "#f1ece0")
+flower(60, 50, "#e46a9b"); flower(134, 53, "#f5cf6a"); flower(44, 55, "#dd3a2a"); flower(192, 54, "#f1ece0"); flower(80, 54, "#8a5fd0"); flower(120, 55, "#f08a24")
 local t = c:save(ASE .. "tourney-banner.aseprite", PNG .. "tourney-banner.png")
 print("tourney-banner", GV.report(t))
 assert(t.semi == 0 and t.bw <= 4) -- pale dot on the wizard beard

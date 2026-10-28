@@ -17,7 +17,7 @@ local rim     = c:rrect(22, 42, 97, 47, 2)                               -- fron
 local bx, by = 59, 0                                                     -- body centre x, offset
 local body = c:poly({ {bx-15, 24}, {bx+14, 22}, {bx+15, 50}, {bx-13, 50} })
 body:add(c:rrect(bx-5, 13, bx+4, 26, 2)); body:add(c:ellipse(bx-0.5, 11, 7.5, 6))
-local armR = c:line({ {bx+13, 34}, {bx+21, 37}, {bx+25, 40} }, 4); armR:add(c:ellipse(bx+28, 43, 3.5, 3))
+local armR = c:line({ {bx+13, 34}, {bx+19, 37}, {bx+21, 41} }, 4); armR:add(c:ellipse(bx+22, 43, 3.5, 2.5))
 armR:cut(body:grow(1))
 
 c:build{
@@ -32,7 +32,7 @@ c:build{
   { "armR",   armR,   GV.ramp("#2cc97c"), { flat = true } },
 }
 -- fingers over the rim
-c:paint({ "u.u.u" }, bx+26, 44, { u = "umber" })
+c:paint({ "u.u.u" }, bx+20, 44, { u = "umber" })
 -- box label: a cream patch with a little purple puzzle-piece mark and the word "0"
 c:fill(c:rrect(46, 52, 73, 67, 1), "#f1ece0")
 c:outline(c:rrect(46, 52, 73, 67, 1))

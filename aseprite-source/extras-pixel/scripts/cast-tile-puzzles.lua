@@ -15,24 +15,26 @@ body:cut(c:rect(0, 61, 63, 63))
 -- left arm tab, right arm raised holding the piece
 local armL = c:rrect(10, 39, 15, 45, 2); armL:add(c:ellipse(10, 42, 3, 4))
 armL:cut(body:grow(1))
-local armR = c:line({ {40, 35}, {44, 30}, {46, 25} }, 4)
+local armR = c:line({ {40, 35}, {44, 31}, {46, 27} }, 4)
 armR:cut(body:grow(1))
 
 -- big purple puzzle piece held up at the top right (knob up, tab right, notch bottom)
-local piece = c:rrect(38, 12, 52, 26, 2)
-piece:add(c:ellipse(45.5, 10, 4, 3.5)); piece:add(c:ellipse(53, 19.5, 3, 4))
-piece:cut(c:ellipse(45.5, 27, 4, 3.5))
+local piece = c:rrect(40, 11, 53, 24, 2)
+piece:add(c:ellipse(46.5, 9, 3.5, 3)); piece:add(c:ellipse(54, 17.5, 2, 3.5))
+piece:cut(c:ellipse(46.5, 25, 3.5, 3))
+local hand = c:ellipse(46, 27, 3, 2.5)
 
 c:build{
   { "armL",  armL,  GV.ramp("#2cc97c"), { flat = true } },
   { "armR",  armR,  GV.ramp("#2cc97c"), { flat = true } },
   { "body",  body,  GV.ramp("#1fb86b"), { stitch = { side = "lit" } } },
-  { "piece", piece, GV.ramp("#8a5fd0"), { gloss = { 41, 15 }, stitch = { side = "lit" } } },
+  { "piece", piece, GV.ramp("#8a5fd0"), { gloss = { 43, 13 }, stitch = { side = "lit" } } },
+  { "hand",  hand,  GV.ramp("#2cc97c"), { flat = true } },
 }
 c:button(29+dx, 15+dy)
 c:seam({ {21+dx, 47+dy}, {25+dx, 47+dy} }); c:seam({ {39+dx, 47+dy}, {43+dx, 47+dy} })
 -- hand gripping the bottom of the piece
-c:paint({ "aaaa", "aaa." }, 43, 25, { a = "#2cc97c" })
+c:paint({ "u.u" }, 45, 25, { u = "umber" })
 
 -- face
 c:eye(20+dx, 28+dy); c:eye(36+dx, 27+dy)

@@ -24,7 +24,8 @@ c:build{
   { "body", body, GV.ramp("#1fb86b"), { stitch = { side = "lit" } } },
 }
 -- fingers on the waving hand
-c:paint({ "u.u.u" }, 6, 12, { u = "umber" })
+c:paint({ "u.u" }, 7, 12, { u = "umber" })                         -- finger splits
+c:paint({ "g", "g", ".", "g" }, 4, 8, { g = "#f5cf6a" }); c:paint({ "gg" }, 12, 7, { g = "#f5cf6a" })  -- wave ticks
 c:button(29, 15)
 c:seam({ {21, 47}, {25, 47} }); c:seam({ {39, 47}, {43, 47} })
 

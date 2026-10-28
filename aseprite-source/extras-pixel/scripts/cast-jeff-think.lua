@@ -14,9 +14,9 @@ body:cut(c:rect(0, 61, 63, 63))
 -- left arm tab; right arm bent up so the hand rests under the chin
 local armL = c:rrect(10, 37, 15, 43, 2); armL:add(c:ellipse(10, 40, 3, 4))
 armL:cut(body:grow(1))
-local armR = c:line({ {42, 39}, {47, 43}, {45, 46} }, 4)
+local armR = c:line({ {42, 40}, {47, 44}, {43, 48} }, 4)
 armR:cut(body:grow(1))
-armR:add(c:ellipse(41, 47, 4, 3.5))                                  -- fist tucked under the chin, on the body
+armR:add(c:ellipse(37, 47, 3.5, 3))                                  -- fist tucked under the chin, on the body
 
 -- light bulb, top right: gold glass, stone screw base
 local bulb = c:ellipse(49.5, 12, 5.5, 5.5); bulb:add(c:poly({ {46, 14}, {54, 14}, {53, 19}, {47, 19} }))
@@ -44,7 +44,7 @@ c:seam({ {21+dx, 47+dy}, {25+dx, 47+dy} }); c:seam({ {39+dx, 47+dy}, {43+dx, 47+
 c:eye(20+dx, 28+dy); c:eye(36+dx, 27+dy)
 c:paint({ "..uuuu", "uu...." }, 34+dx, 22+dy, { u = "umber" })       -- raised brow
 c:paint({ "uuuu" }, 19+dx, 25+dy, { u = "umber" })                    -- flat brow
-c:paint({ ".....uu", "uuuuu.." }, 26+dx, 40+dy, { u = "umber" })      -- hmm mouth
+c:paint({ "......uu", "uuuuuu.." }, 25+dx, 40+dy, { u = "umber" })      -- hmm mouth
 
 local t = c:save(ASE .. "jeff-think.aseprite", PNG .. "jeff-think.png")
 print("jeff-think", GV.report(t))

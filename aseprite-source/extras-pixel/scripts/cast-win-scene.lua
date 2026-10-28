@@ -37,6 +37,14 @@ local function scene(dark)
   for x = -8, W - 1, 28 do c:fill(c:rect(x + 14, 82, x + 14, H - 1), dim("#8a4f2a")) end
   c:fill(c:rect(0, 90, W - 1, 90), dim("#8a4f2a"))
   c:seam({ { 0, 97 }, { W - 1, 97 } }, { free = true })
+  -- rug under the cast and a small framed window on the wall (depth)
+  c:part(c:ellipse(80, 88, 70, 6), GV.ramp(dim("#dd3a2a")), { gloss = false, cres = 2, deep = 1, outline = false })
+  c:seam({ { 16, 88 }, { 144, 88 } }, { free = true })
+  local wf = c:rrect(124, 16, 150, 38, 1)
+  c:part(wf, GV.ramp(dim("#b07a45")), { gloss = false, cres = 2, deep = 1 })
+  c:bands(c:rect(126, 18, 148, 36), dark and { "#1c1f4a", "#2a356c", "#334579" } or { "#8fcbd8", "#a8d8e2", "#b5dfe6" }, { dir = "v" })
+  c:fill(c:rect(137, 18, 137, 36), dim("#b07a45")); c:fill(c:rect(126, 27, 148, 27), dim("#b07a45"))
+  if dark then c:part(c:ellipse(131, 22, 2, 2), GV.ramp("#f5cf6a"), { flat = true, outline = false }) end
   -- easel: two legs and a tray, picture leaning on it
   local legs = c:line({ { 58, 70 }, { 66, 20 } }, 2):add(c:line({ { 102, 70 }, { 94, 20 } }, 2))
   legs:add(c:line({ { 80, 20 }, { 80, 8 } }, 2))
@@ -75,10 +83,10 @@ local function scene(dark)
   c:fill(c:ellipse(px1 - 2, py0 + 2, 1.5, 1.5), "#f5cf6a")
   c:part(c:poly({ { px1 - 3, py0 + 5 }, { px1 - 1, py0 + 5 }, { px1 + 1, py0 + 12 }, { px1 - 5, py0 + 12 } }), GV.ramp(dim("#dd3a2a")), { flat = true })
   -- the cast on the floor: Jeff cheering (left), Wizard clapping (right)
-  CAST.jeff(c, 32, 56, 0.85, { pose = "cheer", dark = dark })
-  c:ground(32, 76, 14, 2)
+  CAST.jeff(c, 30, 53, 0.95, { pose = "cheer", dark = dark })
+  c:ground(30, 77, 16, 2)
   CAST.wizard(c, 128, 54, 0.85, { pose = "clap", dark = dark })
-  c:ground(128, 76, 15, 2)
+  c:ground(128, 77, 15, 2)
   -- confetti: little felt flakes drifting down
   local CF = { "#dd3a2a", "#f5cf6a", "#3f8fb0", "#e46a9b", "#7ab55c", "#8a5fd0", "#f08a24" }
   local pts = { { 8, 20 }, { 14, 34 }, { 5, 48 }, { 22, 26 }, { 44, 10 }, { 50, 4 }, { 40, 30 }, { 46, 44 }, { 60, 8 }, { 72, 4 },
