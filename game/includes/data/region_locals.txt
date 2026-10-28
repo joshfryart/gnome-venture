@@ -1,0 +1,17 @@
+# Local materials by region (v2.0.77). Themed stop upgrades (stop_tier_themes.txt) ask for {a} and {b}: these two things from the region's own land.
+# Both must be gatherable items (gatherables.txt). A region not listed uses building-stone and rope.
+# region code | {a} item slug | {b} item slug
+NA|birch-log|pine-resin
+CA|red-ochre|laterite-clay
+CB|driftwood|coir-fibre
+SA|palm-trunk|fiddleheads
+NWE|sphagnum|cottongrass
+SE|flint|sea-salt
+EE|birch-log|river-clay
+MENA|red-ochre|desert-sage
+WCA|laterite-clay|palm-trunk
+ESA|flint|red-ochre
+CSA|slate-shard|pine-resin
+EA|pine-log|slate-shard
+SEA|coir-fibre|palm-trunk
+OC|coir-fibre|spiral-shell

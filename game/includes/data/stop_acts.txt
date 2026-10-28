@@ -61,3 +61,53 @@ trader_stall|Adopters’ stall|🛒|any|-|2|buy|0|rope:1:9|en=0||A little stall 
 lantern_post|Lantern-post walk|🏮|any|dp=dusk,night|2|check|0|sense:10:Follow the lights|xp=5:1,buff=sense:1:60|xp=1|The lantern post lights the lane. Nice to walk.|Light and shadow; a peaceful stroll.|You trip over a root.
 wishing_well|The wishing well|⛲|any|-|3|check|0|luck:11:Trust the well;charm:11:Wish for others|buff=luck:2:60,xp=7:1,fp=1|xp=2|The well that adopters built. Throw a Petal and wish.|A ripple spreads… and spreads.|The Petal sinks. Nothing happens.
 long_table|The long table|🍽️|any|-|4|rest|0|cost=0|en=6||The great table in the adopters’ hall. Everyone’s welcome.|You feel marvellous.|
+
+# ---- Themed upgrade activities (v2.0.77): one set of four per kind of stop. They replace the plain bench / stall / well / table (switched off once on upgrade).
+tt_market_1|Shade of the awning|🎪|market|-|1|rest|0|cost=0|en=3||Cool stripes over a crate that is, frankly, a chair.|You feel rested.|
+tt_market_2|Weighing house stall|⚖️|market|-|2|buy|0|rope:1:9|en=0||Spare scales, spare rope, spare everything, at adopters’ prices.|Good stuff.|
+tt_market_3|Toss a Petal in the fountain|⛲|market|-|3|check|0|luck:11:Trust the water;charm:11:Wish for the stalls|buff=luck:2:60,xp=7:1,fp=1|xp=2|The adopters built it for exactly this.|Coins glint, and the day feels luckier.|The Petal sinks without a ripple.
+tt_market_4|Market hall table|🏛️|market|-|4|rest|0|cost=0|en=6||A long table under a proper roof.|You feel marvellous.|
+tt_mill_1|Sit on the sacks|🪢|mill|-|1|rest|0|cost=0|en=3||The softest seat in the valley, if you do not mind a little flour.|Rested and powdery.|
+tt_mill_2|Sluice-keeper’s stall|💧|mill|-|2|buy|0|rope:1:9|en=0||The sluice-keeper sells rope, sacks and good advice.|Good stuff.|
+tt_mill_3|Wish in the flour loft|🌾|mill|-|3|check|0|luck:11:Trust the loft;charm:11:Wish for the bakers|buff=luck:2:60,xp=7:1,fp=1|xp=2|Flour drifts like snow, and wishes drift with it.|Somewhere, a loaf rises early.|A sneeze wins the day.
+tt_mill_4|Bakehouse table|🥖|mill|-|4|rest|0|cost=0|en=6||Warm bread, a long table, and nobody counting.|You feel marvellous.|
+tt_inn_1|Bench by the hearth|🔥|inn|-|1|rest|0|cost=0|en=3||Near enough to the fire to toast a boot.|Toasty and ready.|
+tt_inn_2|Stable-yard stall|🐴|inn|-|2|buy|0|rope:1:9|en=0||The ostler sells rope and honest opinions of the weather.|Good stuff.|
+tt_inn_3|Sing in the singing room|🎶|inn|-|3|check|0|charm:11:Join the chorus;charm:11:Sing for the others|buff=charm:2:60,xp=7:1,fp=1|xp=2|The room was built so a song could carry.|The whole room sings along.|You forget the second verse.
+tt_inn_4|Grand dining table|🍽️|inn|-|4|rest|0|cost=0|en=6||Everyone passes the potatoes, and everyone is welcome.|You feel marvellous.|
+tt_shrine_1|Sit among the lanterns|🏮|shrine|-|1|rest|0|cost=0|en=3||The lanterns burn without any smoke at all.|A deep, quiet breath.|
+tt_shrine_2|Candle and ribbon stall|🔔|shrine|-|2|buy|0|rope:1:9|en=0||Ribbons for the bell, rope for the rest.|Good stuff.|
+tt_shrine_3|Make a wish at the pool|⛲|shrine|-|3|check|0|luck:11:Trust the water;charm:11:Wish for others|buff=luck:2:60,xp=7:1,fp=1|xp=2|The pool holds still, and the moon holds still in it.|A ripple spreads, and spreads.|The Petal sinks. Nothing happens.
+tt_shrine_4|Pilgrims’ hall mat|🏯|shrine|-|4|rest|0|cost=0|en=6||A row of woven mats and a pot of green tea.|You feel marvellous.|
+tt_jetty_1|Sit at the pier end|⚓|jetty|-|1|rest|0|cost=0|en=3||Legs dangling over the water, nothing to do but look.|Rested by the water.|
+tt_jetty_2|Net-rack stall|🕸️|jetty|-|2|buy|0|rope:1:9|en=0||Floats, rope and the fishermen’s favourite knot.|Good stuff.|
+tt_jetty_3|Smoke a catch|🐟|jetty|-|3|check|0|luck:11:Trust the smoke;charm:11:Share the catch|buff=luck:2:60,xp=7:1,fp=1|xp=2|The smokehouse smells good enough to bring the fish to you.|Next cast is going to be lucky.|The smoke goes the wrong way.
+tt_jetty_4|Fish supper table|🍲|jetty|-|4|rest|0|cost=0|en=6||A long table, a fat pot, and a lot of stories.|You feel marvellous.|
+tt_herb_1|Sit by the drying rack|🌿|herb|-|1|rest|0|cost=0|en=3||Thyme and lavender and a bench to match.|Calm and sweet-smelling.|
+tt_herb_2|Seed-shed stall|🌰|herb|-|2|buy|0|rope:1:9|en=0||Seed packets, rope, and a handwritten label on everything.|Good stuff.|
+tt_herb_3|Listen at the hives|🐝|herb|-|3|check|0|luck:11:Trust the bees;charm:11:Share the honey|buff=luck:2:60,xp=7:1,fp=1|xp=2|The hives hum a little louder when you wish.|The bees hum back.|A bee has opinions about your hat.
+tt_herb_4|Tea-house table|🍵|herb|-|4|rest|0|cost=0|en=6||Always a kettle on. Always.|You feel marvellous.|
+tt_workshop_1|Sit at the workbench|🔨|workshop|-|1|rest|0|cost=0|en=3||Every tool on its hook, and a seat for the tired.|Rested between jobs.|
+tt_workshop_2|Forge-corner stall|⚒️|workshop|-|2|buy|0|rope:1:9|en=0||Rope, nails and a lot of opinions on rope.|Good stuff.|
+tt_workshop_3|Lift with the crane|🏗️|workshop|-|3|check|0|luck:11:Trust the pulley;charm:11:Lift for others|buff=luck:2:60,xp=7:1,fp=1|xp=2|Something rises, and so does your mood.|The crane lifts, and so do you.|The rope slips. Nobody saw.
+tt_workshop_4|Makers’ table|🏭|workshop|-|4|rest|0|cost=0|en=6||A big table made out of all the offcuts.|You feel marvellous.|
+tt_orchard_1|Rest under the boughs|🪜|orchard|-|1|rest|0|cost=0|en=3||Dappled shade and a ladder to lean on.|Shaded and rested.|
+tt_orchard_2|Press-house stall|🍎|orchard|-|2|buy|0|rope:1:9|en=0||Baskets, rope and a jar of last year’s cider vinegar.|Good stuff.|
+tt_orchard_3|Graft a branch|🌳|orchard|-|3|check|0|luck:11:Trust the knife;charm:11:Graft for others|buff=luck:2:60,xp=7:1,fp=1|xp=2|Two trees become one, and somehow that feels lucky.|A new branch takes, first time.|The graft slips. Try again next year.
+tt_orchard_4|Harvest barn table|🏚️|orchard|-|4|rest|0|cost=0|en=6||Everyone brings something. Everyone eats well.|You feel marvellous.|
+tt_ferry_1|Wait on the landing steps|🪜|ferry|-|1|rest|0|cost=0|en=3||Smooth stones, lapping water, a boat that is almost here.|Rested and ready to cross.|
+tt_ferry_2|Toll-house stall|🏠|ferry|-|2|buy|0|rope:1:9|en=0||Tickets, rope and mooring posts at friendly prices.|Good stuff.|
+tt_ferry_3|Ride the second boat|⛵|ferry|-|3|check|0|luck:11:Trust the oars;charm:11:Row for others|buff=luck:2:60,xp=7:1,fp=1|xp=2|A second boat doubles the fun and halves the queue.|A smooth crossing and a following wind.|You catch a crab, and not the nice kind.
+tt_ferry_4|Boatmen’s table|🏛️|ferry|-|4|rest|0|cost=0|en=6||The tide waits for nobody, but dinner waits for everybody.|You feel marvellous.|
+tt_tower_1|Rest at the ladder foot|🪜|tower|-|1|rest|0|cost=0|en=3||A sheltered seat where the wind cannot find you.|Rested and steady.|
+tt_tower_2|Spyglass stall|🔥|tower|-|2|buy|0|rope:1:9|en=0||Spyglasses, rope and half-finished maps.|Good stuff.|
+tt_tower_3|Study the map room|🗺️|tower|-|3|check|0|luck:11:Trust the map;charm:11:Read for the others|buff=luck:2:60,xp=7:1,fp=1|xp=2|A map so big you can lose a boot on it.|You spot the right road.|You unroll it upside down.
+tt_tower_4|Watchers’ table|🏰|tower|-|4|rest|0|cost=0|en=6||A good table in a good hall, with a view of three roads.|You feel marvellous.|
+tt_spring_1|Sit on the warm steps|♨️|spring|-|1|rest|0|cost=0|en=3||Warm stone, soft steam, nothing urgent at all.|Warm to your toes.|
+tt_spring_2|Towel and soap stall|🧖|spring|-|2|buy|0|rope:1:9|en=0||Towels, soap, and rope for the washing line.|Good stuff.|
+tt_spring_3|Boil the perfect egg|🥚|spring|-|3|check|0|luck:11:Trust the stones;charm:11:Share the egg|buff=luck:2:60,xp=7:1,fp=1|xp=2|The stones are exactly as hot as they need to be.|The yolk is perfect. Everyone cheers.|Hard as a pebble.
+tt_spring_4|Bathhouse table|🛁|spring|-|4|rest|0|cost=0|en=6||A long table beside the steam, and a kettle on the stones.|You feel marvellous.|
+tt_camp_1|Sit on the log seats|🪵|camp|-|1|rest|0|cost=0|en=3||Logs worn to the shape of a gnome.|Warm and rested.|
+tt_camp_2|Cookfire-ring stall|🍳|camp|-|2|buy|0|rope:1:9|en=0||Kettles, rope and tin mugs, cheap.|Good stuff.|
+tt_camp_3|Tell a tale on the stage|🎭|camp|-|3|check|0|charm:11:Tell it well;charm:11:Listen well|buff=charm:2:60,xp=7:1,fp=1|xp=2|A stage of planks and a whole lot of imagination.|The whole fire goes quiet to listen.|You forget the ending.
+tt_camp_4|Great lodge table|🛖|camp|-|4|rest|0|cost=0|en=6||Big enough for every wanderer’s story.|You feel marvellous.|

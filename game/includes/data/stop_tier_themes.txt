@@ -1,0 +1,53 @@
+# Themed upgrades for adopted stops (v2.0.77). Admin can edit these in Admin > Stop upgrades (by kind of stop).
+# A stop uses its kind's row for a tier, else the plain upgrade in stop_tiers.txt. Four tiers each: the same unlocks as the plain ones
+# (tier 1 a rest, 2 a stall, 3 a special thing, 4 a hall + one more activity slot), so only the names, needs and words change.
+# type | tier | name | icon | needs | what it gives everybody | plaque line
+# needs: item-slug:qty, coins:N, meal:N, fine:N, and {a} {b} = two local materials of the stop's region (region_locals.txt).
+market|1|Striped awning|🎪|timber-plank:3,rope:3,{a}:3,coins:200|A shady spot to rest (+3 energy) and the adopter’s welcome.|A striped awning over the best bench in the market.
+market|2|Weighing house|⚖️|timber-plank:6,building-stone:4,{b}:3,coins:400|A little stall of building bits, cheaper than at the shops.|A weighing house with a brass scale.
+market|3|Fountain square|⛲|building-stone:10,rope:4,fine:2,coins:700|A fountain that brings luck to anyone who tosses in a Petal.|A stone fountain in the middle of the square.
+market|4|Market hall|🏛️|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A great hall (+6 energy, once a day) and one more thing to do on every visit.|A hall roofed against any weather.
+mill|1|Sack hoist|🪢|timber-plank:4,rope:4,{a}:3,coins:200|A flour-sack bench to rest on (+3 energy).|A hoist, and sacks to sit on.
+mill|2|Mill sluice|💧|timber-plank:6,building-stone:4,{b}:3,coins:400|A stall with cheap rope and sacks.|A sluice gate that keeps the wheel turning.
+mill|3|Flour loft|🌾|timber-plank:8,building-stone:6,fine:2,coins:700|A loft where a wish tastes of warm bread.|A loft full of sweet-smelling flour.
+mill|4|Bakehouse hall|🥖|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A long bakers’ table (+6 energy, once a day) and one more thing to do on every visit.|A bakehouse with a table for everyone.
+inn|1|Hearth bench|🔥|timber-plank:4,building-stone:4,{a}:3,coins:200|A warm bench by the fire (+3 energy).|A bench so close to the fire it needs a name.
+inn|2|Stable yard|🐴|timber-plank:6,rope:3,{b}:3,coins:400|A stall with cheap rope and horse blankets.|A yard with room for every traveller’s pony.
+inn|3|Singing room|🎶|timber-plank:8,building-stone:6,fine:2,coins:700|A room where a song can grant a wish.|A room built for songs.
+inn|4|Grand dining hall|🍽️|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A grand table (+6 energy, once a day) and one more thing to do on every visit.|A hall with a table longer than the road outside.
+shrine|1|Stone lantern path|🏮|building-stone:4,timber-plank:3,{a}:3,coins:200|A quiet bench among the lanterns (+3 energy).|A path of stone lanterns to the shrine.
+shrine|2|Prayer bell|🔔|building-stone:4,timber-plank:4,rope:3,{b}:3,coins:400|A stall of candles and ribbons, cheap.|A bell that rings once for every kind word.
+shrine|3|Wishing pool|⛲|building-stone:10,rope:3,fine:2,coins:700|A still pool that brings luck to anyone who makes a wish.|A pool so still it holds the moon.
+shrine|4|Pilgrims’ hall|🏯|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A hall of long mats (+6 energy, once a day) and one more thing to do on every visit.|A hall where the last pilgrim is welcome.
+jetty|1|Plank pier|⚓|timber-plank:6,rope:3,{a}:3,coins:200|A pier end to sit on (+3 energy).|A pier with a good view of nothing happening.
+jetty|2|Net racks|🕸️|timber-plank:6,rope:4,{b}:3,coins:400|A stall with cheap rope and floats.|Racks for nets, and for gossip.
+jetty|3|Smokehouse|🐟|building-stone:8,timber-plank:6,fine:2,coins:700|A smokehouse that brings luck to the next cast.|A smokehouse you can smell from the bend in the road.
+jetty|4|Fish supper hall|🍲|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A fisher’s table (+6 energy, once a day) and one more thing to do on every visit.|A hall where every catch is a feast.
+herb|1|Drying rack|🌿|timber-plank:4,rope:3,{a}:3,coins:200|A sweet-smelling bench (+3 energy).|A rack heavy with herb bundles.
+herb|2|Seed shed|🌰|timber-plank:6,building-stone:3,{b}:3,coins:400|A stall with cheap rope and seed packets.|A shed of labelled drawers.
+herb|3|Hive row|🐝|timber-plank:8,building-stone:6,fine:2,coins:700|A row of hives where a wish hums back.|A row of hives, humming.
+herb|4|Tea house|🍵|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A tea table (+6 energy, once a day) and one more thing to do on every visit.|A tea house with a kettle always on.
+workshop|1|Workbench|🔨|timber-plank:4,building-stone:3,rope:2,{a}:3,coins:200|A tidy bench to rest on (+3 energy).|A workbench with every tool on its hook.
+workshop|2|Forge corner|⚒️|building-stone:8,timber-plank:4,{b}:3,coins:400|A stall with cheap rope and stone.|A forge corner, warm as toast.
+workshop|3|Crane and pulley|🏗️|building-stone:8,timber-plank:6,rope:4,fine:2,coins:700|A crane that lifts a wish a little higher.|A crane with a very proud operator.
+workshop|4|Makers’ hall|🏭|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A makers’ table (+6 energy, once a day) and one more thing to do on every visit.|A hall full of half-finished brilliant things.
+orchard|1|Picking ladders|🪜|timber-plank:4,rope:3,{a}:3,coins:200|A shady bench under the boughs (+3 energy).|Ladders, always one short.
+orchard|2|Cider press|🍎|timber-plank:6,building-stone:4,{b}:3,coins:400|A stall with cheap rope and baskets.|A press that smells of autumn.
+orchard|3|Grafting bench|🌳|timber-plank:8,building-stone:5,fine:2,coins:700|A bench where a wish can take root.|A bench of grafting knives and patient hands.
+orchard|4|Harvest barn|🏚️|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A harvest table (+6 energy, once a day) and one more thing to do on every visit.|A barn with room for the whole harvest and everyone who brought it in.
+ferry|1|Landing steps|🪜|building-stone:5,timber-plank:3,{a}:3,coins:200|A landing bench to wait on (+3 energy).|Steps down to the water, worn smooth.
+ferry|2|Toll house|🏠|timber-plank:6,building-stone:4,rope:3,{b}:3,coins:400|A stall with cheap rope and tickets.|A toll house with a very friendly toll-keeper.
+ferry|3|Second boat|⛵|timber-plank:10,rope:6,fine:2,coins:700|A second boat, and a wish for fair crossings.|A second ferry, named after the adopter.
+ferry|4|Boatmen’s hall|🏛️|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A boatmen’s table (+6 energy, once a day) and one more thing to do on every visit.|A hall where the tide never hurries anyone.
+tower|1|Sturdy ladder|🪜|timber-plank:5,rope:3,{a}:3,coins:200|A sheltered seat at the foot (+3 energy).|A ladder that does not wobble. Much.
+tower|2|Signal beacon|🔥|building-stone:6,timber-plank:4,{b}:3,coins:400|A stall of spyglasses and rope, cheap.|A beacon that can be seen from two roads away.
+tower|3|Map room|🗺️|building-stone:8,timber-plank:6,fine:2,coins:700|A room where a wish finds its way.|A map room with a very large table.
+tower|4|Watchers’ hall|🏰|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A watchers’ table (+6 energy, once a day) and one more thing to do on every visit.|A hall at the foot of the tower, with its own kettle.
+spring|1|Stone steps and rail|♨️|building-stone:6,rope:3,{a}:3,coins:200|A warm seat by the pools (+3 energy).|Steps down to the water, and a rail to hold.
+spring|2|Changing house|🧖|timber-plank:6,building-stone:3,{b}:3,coins:400|A stall of towels and soap, cheap.|A little house with hooks for every hat.
+spring|3|Egg-boiling stones|🥚|building-stone:8,timber-plank:4,fine:2,coins:700|Hot stones where a wish comes out just right.|Stones hot enough for the perfect egg.
+spring|4|Bathhouse hall|🛁|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A long bath-side table (+6 energy, once a day) and one more thing to do on every visit.|A hall that smells of steam and cedar.
+camp|1|Log seats|🪵|timber-plank:3,rope:3,{a}:3,coins:200|Log seats round the fire (+3 energy).|Logs, in a ring, worn to the shape of a gnome.
+camp|2|Cookfire ring|🍳|building-stone:5,timber-plank:4,{b}:3,coins:400|A stall with cheap rope and kettles.|A ring of stones for a very good fire.
+camp|3|Storytelling stage|🎭|timber-plank:8,rope:4,fine:2,coins:700|A little stage where a wish can be a tale.|A stage made of planks and imagination.
+camp|4|Great lodge|🛖|timber-plank:12,building-stone:8,{a}:6,meal:4,coins:1200|A great table (+6 energy, once a day) and one more thing to do on every visit.|A lodge big enough for every wanderer’s story.

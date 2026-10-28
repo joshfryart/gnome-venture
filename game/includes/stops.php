@@ -136,6 +136,17 @@ function stops100_schema(string $PK, string $ID, string $END): array
         gives TEXT NULL,
         plaque VARCHAR(190) NULL
     )$END";
+    $t[] = "CREATE TABLE IF NOT EXISTS stop_tier_themes (
+        id $PK,
+        stop_type VARCHAR(20) NOT NULL,
+        tier INT NOT NULL,
+        name VARCHAR(60) NOT NULL,
+        icon VARCHAR(12) NOT NULL DEFAULT '🪑',
+        needs VARCHAR(190) NOT NULL DEFAULT '',
+        gives TEXT NULL,
+        plaque VARCHAR(190) NULL,
+        UNIQUE (stop_type, tier)
+    )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS stop_adoptions (
         id $PK,
         location_id $ID NOT NULL UNIQUE,
@@ -194,6 +205,7 @@ function stops_import_data(): int
         db_insert('stop_tiers', ['tier' => (int)$r[0], 'name' => $r[1], 'icon' => $r[2], 'needs' => $r[3], 'gives' => $r[4], 'plaque' => $r[5]]);
         $n++;
     }
+    $n += stops_import_themes();
     foreach (stops_file_rows('stop_sets.txt') as $r) {
         if (count($r) < 6 || q_val('SELECT 1 FROM stop_sets WHERE scope = ? AND target = ? AND need = ?', [$r[0], $r[1], (int)$r[2]])) continue;
         try { db_insert('stop_sets', ['scope' => $r[0], 'target' => $r[1], 'need' => (int)$r[2], 'reward' => $r[3], 'title' => $r[4] !== '' ? $r[4] : null, 'label' => $r[5]]); $n++; }
@@ -205,6 +217,34 @@ function stops_import_data(): int
         try { db_insert('stop_sets', ['scope' => 'region', 'target' => $rg['code'], 'need' => 0, 'reward' => 'c=250,xp=40,item=rope:2', 'title' => 'Rambler of ' . $rg['gnomish_name'], 'label' => 'Every rest stop in ' . $rg['gnomish_name']]); $n++; }
         catch (PDOException $e) { /* made by another request */ }
     }
+    return $n;
+}
+
+/**
+ * v2.0.77: the themed upgrades (stop_tier_themes.txt + the tt_ activities in stop_acts.txt). Adds what is missing, then (once) switches
+ * off the plain bench / stall / well / table. Runs on fresh installs (stops_import_data) and once on upgrade (boot step stop_themes).
+ */
+function stops_import_themes(): int
+{
+    $n = 0;
+    foreach (stops_file_rows('stop_acts.txt') as $r) {
+        if (!str_starts_with($r[0], 'tt_') || count($r) < 12 || q_val('SELECT 1 FROM stop_acts WHERE slug = ?', [$r[0]])) continue;
+        db_insert('stop_acts', ['slug' => $r[0], 'name' => $r[1], 'icon' => $r[2], 'types' => $r[3], 'cond' => $r[4], 'tier' => (int)$r[5], 'kind' => $r[6], 'energy' => (int)$r[7],
+            'spec' => $r[8], 'win' => $r[9], 'lose' => $r[10], 'blurb' => $r[11], 'line_win' => $r[12] ?? '', 'line_lose' => $r[13] ?? '']);
+        $n++;
+    }
+    foreach (stops_file_rows('stop_tier_themes.txt') as $r) {   // v2.0.77 themed upgrades per kind of stop
+        if (count($r) < 7 || q_val('SELECT 1 FROM stop_tier_themes WHERE stop_type = ? AND tier = ?', [$r[0], (int)$r[1]])) continue;
+        try { db_insert('stop_tier_themes', ['stop_type' => $r[0], 'tier' => (int)$r[1], 'name' => $r[2], 'icon' => $r[3], 'needs' => $r[4], 'gives' => $r[5], 'plaque' => $r[6]]); $n++; }
+        catch (PDOException $e) { /* made by another request */ }
+    }
+    if (setting('stop_themes_v1') !== '1') {   // v2.0.77: the plain bench / stall / well / table give way to the themed ones (once; an admin can switch them back on)
+        q("UPDATE stop_acts SET active = 0 WHERE slug IN ('bench_rest', 'trader_stall', 'wishing_well', 'long_table')");
+        q("DELETE FROM settings WHERE name = 'stop_themes_v1'");
+        db_insert('settings', ['name' => 'stop_themes_v1', 'value' => '1']);
+        stop_acts(true);
+    }
+    stop_acts(true);
     return $n;
 }
 

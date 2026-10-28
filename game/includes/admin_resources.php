@@ -680,6 +680,20 @@ function admin_resources(): array
                 'plaque' => ['type' => 'text', 'max' => 190],
             ],
         ],
+        'stop_tier_themes' => [   // v2.0.77
+            'table' => 'stop_tier_themes', 'label' => 'Themed stop upgrades', 'title_col' => 'name',
+            'list' => ['id', 'stop_type', 'tier', 'icon', 'name', 'needs'], 'order' => 'stop_type, tier',
+            'search' => ['stop_type', 'name'], 'filters' => ['stop_type', 'tier'],
+            'fields' => [
+                'stop_type' => ['type' => 'text', 'required' => true, 'max' => 20, 'help' => 'Kind of stop (market, mill, inn, shrine, jetty, herb, workshop, orchard, ferry, tower, spring, camp)'],
+                'tier' => ['type' => 'int', 'min' => 1, 'max' => 9, 'required' => true],
+                'icon' => ['type' => 'text', 'max' => 12, 'default' => '🪑'],
+                'name' => ['type' => 'text', 'required' => true, 'max' => 60],
+                'needs' => ['type' => 'text', 'max' => 190, 'help' => 'item-slug:qty comma list, plus coins:N, meal:N, fine:N. {a} and {b} become the two local materials of the stop’s region (data/region_locals.txt).'],
+                'gives' => ['type' => 'textarea', 'help' => 'What it gives everybody (shown to players). Same unlocks as the plain upgrade of that tier.'],
+                'plaque' => ['type' => 'text', 'max' => 190],
+            ],
+        ],
         'stop_sets' => [
             'table' => 'stop_sets', 'label' => 'Passport rewards', 'title_col' => 'label',
             'list' => ['id', 'scope', 'target', 'need', 'reward', 'title', 'active'],

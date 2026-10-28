@@ -45,6 +45,7 @@ function admin_menu_def(): array
             ['r:stop_acts', '🎲', null, 'Activities at a stop', 't:stop_acts'],
             ['r:stop_folk', '🙋', null, 'Villagers who join a stop', 't:stop_folk'],
             ['r:stop_tiers', '🔨', null, 'Upgrade steps for adopted stops', 't:stop_tiers'],
+            ['r:stop_tier_themes', '🏗️', null, 'Themed upgrades by kind of stop', 't:stop_tier_themes'],
             ['r:stop_sets', '🎫', null, 'Passport rewards', 't:stop_sets'],
             ['r:stop_adoptions', '🏡', null, 'Which player looks after which stop', 't:stop_adoptions'],
         ]],

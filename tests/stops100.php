@@ -56,7 +56,7 @@ foreach (stop_acts() as $a) {
 }
 ok('every item in the activity data exists', !$missing, implode(',', array_unique($missing)));
 foreach (q('SELECT * FROM stop_tiers')->fetchAll() as $t) foreach (stop_tier_needs($t) as [$k]) if (!in_array($k, ['coins', 'meal', 'fine'], true) && !q_val('SELECT 1 FROM items WHERE slug = ?', [$k])) { ok('tier item exists: ' . $k, false); }
-$ids = upgrade_100_stops(); ok('upgrade is idempotent', (int)q_val('SELECT COUNT(*) FROM stop_types') === 12 && (int)q_val('SELECT COUNT(*) FROM stop_acts') === count(stop_acts()));
+$ids = upgrade_100_stops(); ok('upgrade is idempotent', (int)q_val('SELECT COUNT(*) FROM stop_types') === 12 && (int)q_val('SELECT COUNT(*) FROM stop_tier_themes') === 48 && (int)q_val('SELECT COUNT(*) FROM stop_acts WHERE active = 1') === count(stop_acts()));
 ok('Almanac pages made once', (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE title IN ('Rest stops', 'Stamp passport')") === 2);
 
 echo "== each type offers enough to do (day, sun)\n";
@@ -310,26 +310,32 @@ $oid = (int)q_val("SELECT id FROM users WHERE username = 'other'"); q('INSERT IN
 $other = q_one('SELECT * FROM users WHERE id = ?', [$oid]);
 [$o, $m] = stop_adopt($other, $stop); ok('an adopted stop can’t be adopted by another', !$o && str_contains($m, 'already looks after'), $m);
 [$o, $m] = stop_contribute($other, $stop, 'coins', 10); ok('only the adopter can build', !$o);
-// build tier 1: stone 4, plank 4, coins 200
-$tiers = stop_tiers(); ok('4 tiers', count($tiers) === 4);
-give_item($uid, (int)q_val("SELECT id FROM items WHERE slug = 'building-stone'"), 10);
-give_item($uid, (int)q_val("SELECT id FROM items WHERE slug = 'timber-plank'"), 10);
-give_item($uid, (int)q_val("SELECT id FROM items WHERE slug = 'rope'"), 10);
+// build tier 1 (v2.0.77: the themed upgrade of this stop's kind, so read its needs rather than assuming stone and planks)
+$tiers = stop_tiers_for($stop); ok('4 tiers', count($tiers) === 4);
+$t1 = $tiers[1]; $needs1 = stop_tier_needs($t1);
+$items1 = array_values(array_filter($needs1, fn($n) => !in_array($n[0], ['coins', 'meal', 'fine'], true)));
+$coins1 = 0; foreach ($needs1 as [$k, $q]) if ($k === 'coins') $coins1 = $q;
+foreach ($items1 as [$k]) give_item($uid, (int)q_val('SELECT id FROM items WHERE slug = ?', [$k]), 50);
+give_item($uid, (int)q_val("SELECT id FROM items WHERE slug = 'beeswax'"), 5);   // something no tier-1 upgrade asks for
 q('UPDATE users SET coins = 5000 WHERE username = ?', ['sprout']);
 $u = me();
-ok('tier starts at 0 and no bench is offered', stop_tier((int)$stop['id']) === 0 && !in_array('bench_rest', offered($stop), true));
-[$o, $m] = stop_contribute($u, $stop, 'building-stone', 2); ok('a partial hand-in', $o && !str_contains($m, 'now has'), $m);
-$stoneBefore = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = (SELECT id FROM items WHERE slug = ?)', [$uid, 'building-stone']);
-[$o, $m] = stop_contribute(me(), $stop, 'building-stone', 99); ok('over-asking only hands in what is left (2 of 4)', $o && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = (SELECT id FROM items WHERE slug = ?)', [$uid, 'building-stone']) === $stoneBefore - 2, $m);
-[$o, $m] = stop_contribute(me(), $stop, 'building-stone', 1); ok('a finished need can’t be overfilled', !$o);
-[$o, $m] = stop_contribute(me(), $stop, 'timber-plank', 4); [$o, $m] = stop_contribute(me(), $stop, 'rope', 1); ok('a need the tier doesn’t ask for is refused', !$o);
-[$o, $m] = stop_contribute(me(), $stop, 'coins', 200);
+$act1 = 'tt_' . stop_type_of($stop) . '_1'; $act3 = 'tt_' . stop_type_of($stop) . '_3'; $act4 = 'tt_' . stop_type_of($stop) . '_4';
+ok('tier starts at 0 and no tier-1 activity is offered', stop_tier((int)$stop['id']) === 0 && !in_array($act1, offered($stop), true));
+[$k1, $q1] = $items1[0];
+[$o, $m] = stop_contribute($u, $stop, $k1, 1); ok('a partial hand-in', $o && !str_contains($m, 'now has'), $m);
+$have = fn(string $slug) => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = (SELECT id FROM items WHERE slug = ?)', [$uid, $slug]);
+$before = $have($k1);
+[$o, $m] = stop_contribute(me(), $stop, $k1, 99); ok('over-asking only hands in what is left (' . ($q1 - 1) . ' of ' . $q1 . ')', $o && $have($k1) === $before - ($q1 - 1), $m);
+[$o, $m] = stop_contribute(me(), $stop, $k1, 1); ok('a finished need can’t be overfilled', !$o);
+[$o, $m] = stop_contribute(me(), $stop, 'beeswax', 1); ok('a need the tier doesn’t ask for is refused', !$o);
+foreach (array_slice($items1, 1) as [$k, $q]) stop_contribute(me(), $stop, $k, $q);
+[$o, $m] = stop_contribute(me(), $stop, 'coins', $coins1);
 ok('the last need raises the tier for everyone', $o && str_contains($m, 'now has') && stop_tier((int)$stop['id']) === 1, $m);
-ok('tier-1 activity unlocks: the bench', in_array('bench_rest', offered($stop), true));
-$otherStop = $road[2]; ok('...but only at this stop', !in_array('bench_rest', offered($otherStop), true));
-ok('the plaque lists the bench', str_contains(stop_plaque($stop), 'Bench'));
-// the other gnome sees the bench too
-ok('upgrades are for everyone (the pool does not depend on who is looking)', in_array('bench_rest', array_column(stop_pool($stop)['offer'], 'slug'), true));
+ok('tier-1 activity unlocks: ' . $t1['name'], in_array($act1, offered($stop), true));
+$otherStop = $road[2]; ok('...but only at this stop', !in_array($act1, offered($otherStop), true));
+ok('the plaque lists ' . $t1['name'], str_contains(stop_plaque($stop), $t1['name']));
+// the other gnome sees it too
+ok('upgrades are for everyone (the pool does not depend on who is looking)', in_array($act1, array_column(stop_pool($stop)['offer'], 'slug'), true));
 // perk
 [$o, $m] = doit('_perk'); ok('adopter gets a daily welcome', $o, $m);
 [$o, $m] = doit('_perk'); ok('...once a day', !$o && str_contains($m, 'already'), $m);
@@ -338,7 +344,7 @@ ok('pool reset after a tier', $tr['pool'] === '{}');
 // slots: tier 4 gives +1
 q('UPDATE stop_adoptions SET tier = 4 WHERE location_id = ?', [$stop['id']]);
 ok('tier 4 gives one more slot', stop_slots($stop) === 4);
-ok('tier-4 long table offered', in_array('long_table', offered($stop), true) && in_array('wishing_well', offered($stop), true));
+ok('tier-4 hall and tier-3 special offered', in_array($act4, offered($stop), true) && in_array($act3, offered($stop), true));
 q('UPDATE stop_adoptions SET tier = 1 WHERE location_id = ?', [$stop['id']]);
 // release keeps the tier; next adopter carries on
 [$o, $m] = doit('_release'); ok('releasing', $o, $m);

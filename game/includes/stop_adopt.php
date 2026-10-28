@@ -21,6 +21,49 @@ function stop_tiers(): array
     return $cache;
 }
 
+/** v2.0.77: the two local materials of a region ({a}, {b}), from data/region_locals.txt; a region not listed uses stone and rope. */
+function region_locals(string $code): array
+{
+    static $map = null;
+    if ($map === null) {
+        $map = [];
+        $f = __DIR__ . '/data/region_locals.txt';
+        foreach (is_file($f) ? file($f, FILE_IGNORE_NEW_LINES) : [] as $line) {
+            $x = array_map('trim', explode('|', trim($line)));
+            if (count($x) >= 3 && $x[0] !== '' && $x[0][0] !== '#') $map[strtoupper($x[0])] = [$x[1], $x[2]];
+        }
+    }
+    return $map[strtoupper($code)] ?? ['building-stone', 'rope'];
+}
+
+/**
+ * v2.0.77: the upgrade tiers of THIS stop: the plain ones (stop_tiers) with the themed row for its kind of stop laid over each tier, and
+ * {a} {b} in the needs turned into the region's own materials. @return array<int, array> tier rows by number
+ */
+function stop_tiers_for(array $loc): array
+{
+    static $themes = null;
+    if ($themes === null) {
+        $themes = [];
+        foreach (q('SELECT * FROM stop_tier_themes ORDER BY tier')->fetchAll() as $r) $themes[(string)$r['stop_type']][(int)$r['tier']] = $r;
+    }
+    require_once __DIR__ . '/stops.php';
+    $out = stop_tiers();
+    $over = $themes[stop_type_of($loc)] ?? [];
+    foreach ($out as $n => $row) if (isset($over[$n])) $out[$n] = array_merge($row, array_intersect_key($over[$n], array_flip(['name', 'icon', 'needs', 'gives', 'plaque'])));
+    [$a, $b] = region_locals(stop_region_code($loc));
+    foreach ($out as $n => $row) $out[$n]['needs'] = str_replace(['{a}', '{b}'], [$a, $b], (string)$row['needs']);
+    return $out;
+}
+
+/** v2.0.77: the picture of a themed upgrade (assets/img/stoptiers/<kind>-<tier>.png: PLACEHOLDER art for now, see claude/todo-art-variety.md), else its emoji. */
+function stop_tier_img(array $loc, int $n, array $t): string
+{
+    $rel = 'assets/img/stoptiers/' . stop_type_of($loc) . '-' . $n . '.png';
+    if (!pixel_has($rel)) return e((string)$t['icon']);
+    return '<img class="ico pix tierimg" src="' . e(url($rel)) . '" alt="" width="24" height="24" loading="lazy" decoding="async">';
+}
+
 function stop_adoption(int $locId): ?array
 {
     return q_one('SELECT a.*, u.gnome_name, u.username, f.gnome_name AS founder_name, f.username AS founder_user
@@ -157,7 +200,7 @@ function stop_contribute(array $u, array $loc, string $key, int $qty): array
         q('UPDATE stop_adoptions SET id = id WHERE id = ?', [$aid]);
         $a = stop_adoption((int)$loc['id']);
         if (!$a || (int)$a['user_id'] !== $uid) { db()->rollBack(); return [false, 'Only the stop’s adopter can build here.']; }
-        $tiers = stop_tiers();
+        $tiers = stop_tiers_for($loc);
         $next = (int)$a['tier'] + 1;
         if (!isset($tiers[$next])) { db()->rollBack(); return [false, 'This stop has everything. It’s a wonderful place!']; }
         $needs = stop_tier_needs($tiers[$next]);
@@ -222,9 +265,9 @@ function stop_plaque(array $loc): string
 {
     $a = stop_adoption((int)$loc['id']);
     if (!$a) return '';
-    $tiers = stop_tiers();
+    $tiers = stop_tiers_for($loc);
     $built = [];
-    for ($t = 1; $t <= (int)$a['tier']; $t++) if (isset($tiers[$t])) $built[] = e((string)$tiers[$t]['icon']) . ' ' . e((string)$tiers[$t]['name']);
+    for ($t = 1; $t <= (int)$a['tier']; $t++) if (isset($tiers[$t])) $built[] = stop_tier_img($loc, $t, $tiers[$t]) . ' ' . e((string)$tiers[$t]['name']);
     $who = $a['user_id'] ? 'Looked after by <b>' . e(stop_gnome_label($a)) . '</b>' : 'Waiting for someone to look after it';
     $founder = $a['founder_id'] && (int)$a['founder_id'] !== (int)$a['user_id'] ? ' · founded by <b>' . e((string)($a['founder_name'] ?: $a['founder_user'])) . '</b>' : '';
     return '<div class="st-plaque"><span class="st-plaque-t">🪧 Plaque</span> ' . $who . $founder . ($built ? '<br><small>' . implode(' · ', $built) . '</small>' : '') . '</div>';
@@ -236,7 +279,7 @@ function stop_adopt_panel(array $u, array $loc, callable $form): string
     $uid = (int)$u['id'];
     $a = stop_adoption((int)$loc['id']);
     $mine = $a && (int)$a['user_id'] === $uid;
-    $tiers = stop_tiers();
+    $tiers = stop_tiers_for($loc);
     $limit = stop_adopt_limit();
     if ($limit < 1 && !$a) return '';
     $h = '<details class="box st-adopt"' . ($mine ? ' open' : '') . '><summary><b>🏡 ' . ($mine ? 'You look after this stop' : ($a && $a['user_id'] ? 'Adopted by ' . e(stop_gnome_label($a)) : 'Adopt this stop')) . '</b></summary>';
@@ -255,7 +298,7 @@ function stop_adopt_panel(array $u, array $loc, callable $form): string
         $next = (int)$a['tier'] + 1;
         $h .= '<ol class="st-tiers">';
         foreach ($tiers as $n => $t) {
-            $h .= '<li class="' . ($n <= (int)$a['tier'] ? 'done' : ($n === $next ? 'now' : '')) . '">' . ($n <= (int)$a['tier'] ? '✅ ' : '') . e((string)$t['icon']) . ' <b>' . e((string)$t['name']) . '</b><small class="muted"> · ' . e((string)$t['gives']) . '</small></li>';
+            $h .= '<li class="' . ($n <= (int)$a['tier'] ? 'done' : ($n === $next ? 'now' : '')) . '">' . ($n <= (int)$a['tier'] ? '✅ ' : '') . stop_tier_img($loc, (int)$n, $t) . ' <b>' . e((string)$t['name']) . '</b><small class="muted"> · ' . e((string)$t['gives']) . '</small></li>';
         }
         $h .= '</ol>';
         if (isset($tiers[$next])) {
