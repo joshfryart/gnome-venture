@@ -42,6 +42,7 @@ UMB = '#2a1a10'
 cv = new_canvas(SKY0)
 r = rnd(1717)
 r2 = rnd(303)
+r3 = rnd(9091)   # pass-1 additions only, so the earlier layout does not shift
 
 
 def clump(cx, cy, rx, ry, n, s0=5, s1=9, rr=r):
@@ -175,18 +176,21 @@ for cx, cy, sp in ((214, 12, 9), (232, 24, 7), (176, 16, 6), (262, 46, 5)):
 # ---------------------------------------------------------------- the Sky City ruins on the ridge and the potato terraces with llamas
 terr = poly([(200, 70), (240, 54), (300, 44), (300, 126), (186, 126)])
 bands = []
-for k, y0 in enumerate(range(52, 126, 8)):
-    band = terr & rect(0, y0, W, y0 + 7)
+YY, XX = np.mgrid[0:H, 0:W]
+T_OFF = np.round(3 * np.sin((XX - 186) / 13.0) + 2 * np.sin((XX - 186) / 5.3) * (XX > 250) - (XX - 240) * 0.08).astype(int)   # contour terraces
+TV = YY - T_OFF
+for k, y0 in enumerate(range(44, 136, 8)):
+    band = terr & (TV >= y0) & (TV <= y0 + 7)
     cv.fill(band, TERR[k % 3])
-    cv.fill(terr & rect(0, y0 + 6, W, y0 + 7), STONE['b'])   # dry-stone wall face
-    cv.fill(terr & rect(0, y0 + 7, W, y0 + 7), STONE['s'])
-    for xx in range(186 + (k % 2) * 3, 300, 5):
-        cv.dots([(xx, y0 + 6)], STONE['s'])
+    wall = terr & (TV >= y0 + 6) & (TV <= y0 + 7)
+    cv.fill(wall, STONE['b'])   # dry-stone wall face
+    cv.fill(terr & (TV == y0 + 7), STONE['s'])
+    cv.fill(terr & (TV == y0 + 6) & (((XX * 7 + k * 5) % 11) < 2), STONE['s'])   # irregular stone joints
     bands.append(y0)
 cv.fill(terr & ~shift(terr, 2, 0) & ~shift(terr, 0, 2), '#6a9a58')
 for k in range(60):   # potato rows: little dark mounds with a green leaf on top
     px, py = r(204, 298), r(56, 122)
-    if terr[py, px] and terr[py, min(W - 1, px + 3)] and (py - 52) % 8 in (2, 3, 4):
+    if terr[py, px] and terr[py, min(W - 1, px + 3)] and (TV[py, px] - 44) % 8 in (2, 3, 4):
         cv.dots([(px, py), (px + 1, py)], '#5c7a3a')
         cv.dots([(px, py - 1)], ('#4f9a45', '#e46a9b', '#f5cf6a')[k % 3])   # potato flowers in three colours
 # ruins: stone walls and trapezoid doors
@@ -214,6 +218,23 @@ o.part(poly([(tgx - 4, tgy - 9), (tgx + 4, tgy - 9), (tgx - 1, tgy - 17)]), ORG,
 o.part(ell(tgx + 3, tgy - 6, tgx + 9, tgy), ramp('#c9a96e', '#9a6b3f', '#f2e4c0'), d=1)
 o.draw()
 cv.fill(poly([(tgx - 3, tgy - 7), (tgx + 3, tgy - 7), (tgx, tgy - 3)]), '#f1ece0')
+# a round stone storehouse (qollqa) with a straw cone roof and woven cloth drying beside it, on the right edge of the terraces
+qx, qy = 289, 90
+o = cv.obj()
+o.part(rrect(qx - 7, qy - 10, qx + 7, qy, 2), STONE, d=2)
+o.part(poly([(qx - 10, qy - 9), (qx + 10, qy - 9), (qx + 1, qy - 21)]), ramp('#d9b45a', '#a8843a', '#f2dc8a'), d=2)
+o.draw()
+for yy in (qy - 7, qy - 4, qy - 1):
+    for xx in range(qx - 6 + (yy % 2) * 2, qx + 7, 4):
+        cv.dots([(xx, yy)], STONE['s'])
+for k in range(4):   # straw lines on the roof
+    cv.fill(line([(qx + 1, qy - 19 + k), (qx - 7 + k * 5, qy - 10)]), '#a8843a')
+cv.fill(poly([(qx - 2, qy), (qx + 2, qy), (qx + 1, qy - 6), (qx - 1, qy - 6)]), '#4a3a2a')
+cv.fill(line([(276, 96), (299, 98)]), '#5c4a3a')   # drying line with striped cloth
+for k, cx_ in enumerate((279, 286, 293)):
+    cy_ = 96 + (cx_ - 276) // 11
+    cv.fill(rect(cx_, cy_ + 1, cx_ + 4, cy_ + 6), (RED['b'], BLUE['b'], ORG['b'])[k])
+    cv.fill(rect(cx_, cy_ + 3, cx_ + 4, cy_ + 3), (YEL['b'], '#f1ece0', RED['s'])[k])
 
 # ---------------------------------------------------------------- far forest canopy with steam
 x = -8
@@ -241,7 +262,8 @@ for k in range(90):
     cv.dots([(fx, fy), (fx + 1, fy)], FAR[k % 3] if k % 4 else '#3f7a5a')
 
 # ---------------------------------------------------------------- river (winding in from the back) and the forest floor
-river = poly([(128, 112), (146, 112), (160, 124), (184, 138), (210, 152), (240, 168), (268, 184), (300, 192), (300, 199), (64, 199), (74, 184), (92, 166), (108, 148), (116, 132), (122, 120)])
+river = poly([(126, 112), (146, 112), (151, 119), (147, 128), (146, 138), (154, 148), (174, 158), (208, 168), (236, 177), (262, 186), (284, 189), (300, 191), (300, 199),
+              (72, 199), (84, 189), (98, 180), (108, 168), (112, 156), (107, 146), (108, 134), (116, 124), (120, 117)])   # a meander: bends left, then sweeps out right
 floor = rect(0, 120, W - 1, H - 1) & ~river
 cv.fill(floor & rect(0, 120, W, 140), '#3f7a3a')
 cv.fill(floor & rect(0, 140, W, H), '#2f6a32')
@@ -250,7 +272,15 @@ for k in range(260):   # ferns and undergrowth tufts on the floor
     if floor[fy, fx]:
         cv.dots([(fx, fy), (fx - 1, fy - 1), (fx + 1, fy - 1), (fx, fy - 2)], ('#5fa850', '#1f5a3a', '#7aae5a')[k % 3])
 cv.fill(river, WATER['b'])
-cv.fill(river & rect(0, 112, W, 128), '#6aa8b0')
+er = river & shift(river, 4, 0) & shift(river, -4, 0) & shift(river, 0, 2) & shift(river, 0, -2)
+cv.fill(river & ~er, '#6aa8b0')   # pale shallows following both banks
+chan = []
+for yy in range(114, H):
+    xs_ = np.nonzero(river[yy])[0]
+    if len(xs_):
+        chan.append((int((xs_[0] + xs_[-1]) / 2 + 4 * np.sin(yy / 8.0) + (yy - 150) * 0.25), yy))
+cv.fill(line(chan, 5) & shift(er, 0, 0) & er & shift(er, 3, 0) & shift(er, -3, 0), WATER['s'])   # deep channel winding down the middle
+cv.fill(river & rect(0, 112, W, 124), '#6aa8b0')
 cv.fill(dil4(dil4(river)) & ~river & floor, MUD['b'])   # muddy banks
 cv.fill(dil4(river) & ~river, MUD['s'])
 for k in range(110):   # ripples: sky reflections and dark current lines

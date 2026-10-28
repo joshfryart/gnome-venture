@@ -63,12 +63,14 @@ local function scene(dark)
   -- 7 x 4 grid; the gaps still to fill show the cardboard tray (shadowed on the top and left)
   local NC, NR = 7, 4
   local cw, ch = (px1 - px0 + 1) / NC, (py1 - py0 + 1) / NR
-  local miss = { [6] = true, [7] = true, [14] = true, [12] = true, [13] = true, [20] = true, [21] = true, [19] = true, [27] = true, [28] = true, [26] = true, [5] = true }
+  local miss = {}   -- {col,row}: the right side is still open, ragged edge, one lone gap at the left
+  for _, g in ipairs({ { 5, 0 }, { 6, 0 }, { 4, 1 }, { 5, 1 }, { 6, 1 }, { 6, 2 }, { 3, 2 }, { 5, 3 }, { 6, 3 }, { 4, 3 }, { 1, 1 } }) do miss[g[2] * NC + g[1] + 1] = true end
+  local holes = c:mask()
   for j = 0, NR - 1 do for i = 0, NC - 1 do
     if miss[j * NC + i + 1] then
       local x0, y0 = rnd(px0 + i * cw), rnd(py0 + j * ch)
       local x1, y1 = rnd(px0 + (i + 1) * cw) - 1, rnd(py0 + (j + 1) * ch) - 1
-      c:fill(c:rect(x0, y0, x1, y1), dim("#c9a878"))
+      c:fill(c:rect(x0, y0, x1, y1), dim("#c9a878")); holes:add(c:rect(x0, y0, x1, y1))
       c:fill(c:rect(x0, y0, x1, y0), dim("#8a6a4a")); c:fill(c:rect(x0, y0, x0, y1), dim("#8a6a4a"))
     end
   end end
@@ -79,22 +81,29 @@ local function scene(dark)
   for j = 1, NR - 1 do local y = rnd(py0 + j * ch) for x = px0, px1 do cm:set(x, y) end end
   for i = 1, NC - 1 do for j = 0, NR - 1 do
     local x, y = rnd(px0 + i * cw), rnd(py0 + (j + 0.5) * ch)
-    cm:add(c:ellipse(x + (((i + j) % 2 == 0) and 1.5 or -1.5), y, 1.5, 1.5):edge())
+    local kx = x + (((i + j) % 2 == 0) and 2 or -2)
+    local disc = c:ellipse(kx, y, 2, 2)
+    cm:cut(disc); cm:add(disc:edge()); for yy = y - 1, y + 1 do cm:del(x, yy) end
   end end
-  cm:clip(pic)
+  for j = 1, NR - 1 do for i = 0, NC - 1 do
+    local x, y = rnd(px0 + (i + 0.5) * cw), rnd(py0 + j * ch)
+    local ky = y + (((i + j) % 2 == 0) and 2 or -2)
+    local disc = c:ellipse(x, ky, 2, 2)
+    cm:cut(disc); cm:add(disc:edge()); for xx = x - 1, x + 1 do cm:del(xx, y) end
+  end end
+  cm:clip(pic); cm:cut(holes)
   cm:each(function(x, y) c:px(x, y, cut) end)
   -- Jeff waits with a sky-blue piece
   CAST.jeff(c, 152, 23, 0.84, { pose = "hold", piece = "#7fc0de", dark = dark })
   -- Ffej peeks over the table edge at the far right (the table hides the rest of him)
-  CAST.ffej(c, 186, 40, 0.66, { dark = dark })
+  CAST.ffej(c, 183, 37, 0.66, { dark = dark })
   -- table: oak top, green felt mat, front with drawers and gold knobs
   local top = c:rect(0, 42, W - 1, 47)
   c:part(top, GV.ramp(dim("#d9a660")), { gloss = false, cres = 2, deep = 1, outline = false })
   c:fill(c:rect(0, 42, W - 1, 42), dim("#ecc58a"))
   c:outline(top, { ol = 1, olx = 0 })
   local mat = c:rect(4, 43, 170, 46)
-  c:part(mat, GV.ramp(dim("#4f9a45")), { flat = true, outline = false })
-  c:seam({ { 5, 45 }, { 169, 45 } })
+  c:part(mat, GV.ramp(dim("#2f6a3a")), { flat = true, outline = false })
   local front = c:rect(0, 48, W - 1, H - 1)
   c:bands(front, { dim("#b07a45"), dim("#a8703e"), dim("#9c6638"), dim("#8a4f2a") }, { dir = "v" })
   c:fill(c:rect(0, 48, W - 1, 48), "#4a2c1a")

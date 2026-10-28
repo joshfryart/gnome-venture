@@ -1,5 +1,5 @@
 -- ico-tier-advanced: tier badge 2 of 3 (Advanced, 96 pieces). TWO gold pieces locked side by side:
--- the left piece's tab sits in the right piece's socket; one outer tab up (left piece), one down (right piece).
+-- the left piece's tab sits in the right piece's socket; each piece has one outer tab up, tones gold and copper.
 -- Run: python3 aseprite-source/tools/aseshim.py aseprite-source/final/scripts/ico/ico-tier-advanced.lua
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
@@ -7,14 +7,14 @@ local PNG = "/home/user/gnome-venture/game/assets/img/ico/"
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 
 -- two 22x22 cells: left x 8..29, right x 30..51, y 20..41
-local knob = c:ellipse(34, 30.5, 5):add(c:rect(30, 28, 31, 33))           -- joint tab, left -> right
-local L = c:rect(8, 20, 29, 41):add(knob)
-L:add(c:ellipse(18.5, 13, 5)):add(c:rect(16, 15, 21, 20))                 -- outer tab up
-local R = c:rect(30, 20, 51, 41):cut(knob)
-R:add(c:ellipse(41.5, 48, 5)):add(c:rect(39, 41, 44, 46))                 -- outer tab down
+local knob = c:ellipse(34, 35.5, 5):add(c:rect(30, 33, 31, 38))           -- joint tab, left -> right
+local L = c:rect(8, 24, 29, 47):add(knob)
+L:add(c:ellipse(18.5, 17, 5.5)):add(c:rect(16, 19, 21, 24))               -- outer tab up
+local R = c:rect(30, 24, 51, 47):cut(knob)
+R:add(c:ellipse(41.5, 17, 5.5)):add(c:rect(39, 19, 44, 24))               -- outer tab up
 c:build{
-  { "left",  L, "gold", { gloss = { 11, 23 } } },
-  { "right", R, GV.ramp("#d0862a", { shade = "#a8541c", rim = "#f0a94e" }), { gloss = { 34, 23 }, light = L:copy():add(R) } },
+  { "left",  L, "gold", { gloss = { 11, 27 } } },
+  { "right", R, GV.ramp("#c0682a", { shade = "#8e4420", deep = "#5e2a1a", rim = "#e8944a" }), { gloss = { 34, 27 }, light = L:copy():add(R) } },
 }
 -- the cut line: right-piece pixels that touch the left piece go umber
 local cut = c:mask()

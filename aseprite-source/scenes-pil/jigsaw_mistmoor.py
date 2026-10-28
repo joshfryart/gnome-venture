@@ -623,6 +623,12 @@ for k in range(520):
         continue
     cv.dots([(x, y), (x - 1, y + 1)] + ([(x - 2, y + 2)] if y < 100 else []), RAIN)
 
+# fold rare one-off tones into their neighbours to stay under ~100 colours
+cv.remap({'#d9a35a': '#d9b85a', '#f0c862': '#e8c862', '#d9a23a': '#c9a23a', '#a87a24': '#9a7a24', '#6c7284': '#6c7488', '#7d7690': '#7a6286',
+          '#e6d2aa': '#e6e2d6', '#9a8060': '#94765a', '#c9b08a': '#b4a88c', '#a88a6a': '#a87a50', '#8a6a4a': '#8a6040', '#6a4c34': '#6a5444',
+          '#b8c070': '#c8c27a', '#a85a4a': '#a85a2c', '#d06a50': '#c05a50', '#8a2c2a': '#742a2c', '#f5dc8a': '#ffe08a', '#4f5d6c': '#4f5560',
+          '#5f6278': '#6e7186', '#3e4654': '#4f5560', '#c9c5bc': '#bdb8ac', '#fff0d8': '#f6f4ee'})
+
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None
     n = save_pic(cv, 'mistmoor', out)
