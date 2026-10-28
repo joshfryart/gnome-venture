@@ -4,6 +4,7 @@
 -- 2x nearest. Stitched Toy (Part D + addenda).
 -- Families: bone = cream (pale ivory #efe2b4, cream-safe gloss), gloves = cream, clogs = dusk, jeans = water
 -- deep, porch wood = soil, floor = stone (warm concrete #a8a499), sneaker = stone, boot = wood.
+-- v3: ribcage is one felt plate with dark rib gaps (reads at 160 px), arms behind it, 4 px leg bones.
 -- v2: separate ribs + spine + pelvis (readable torso), W arms with 3-finger gloves clear of the legs,
 -- clean slot-and-teeth grin (no zipper), dark thread (#e8a317) on bone so seams/edge stitch show,
 -- eased sway that holds on each side with the knee dip on the hold, head follow-through, no big ground ellipse.
@@ -120,11 +121,11 @@ local function frame(i)
   local Hl, Hr = { P[1] - 7, P[2] + 3 }, { P[1] + 7, P[2] + 3 }
   local Kl = { (Hl[1] + Al[1]) / 2 - 6 - 3 * bob, (Hl[2] + Al[2]) / 2 - 2 }
   local Kr = { (Hr[1] + Ar[1]) / 2 + 6 + 3 * bob, (Hr[2] + Ar[2]) / 2 - 2 }
-  c:part(bone(Hl, Kl), BONE, { flat = true })
-  c:part(bone(Kl, Al), BONE, { flat = true })
-  c:part(bone(Hr, Kr), BONE, { flat = true })
-  c:part(bone(Kr, Ar), BONE, { flat = true })
-  for _, K in ipairs({ Kl, Kr }) do c:part(c:ellipse(R(K[1]), R(K[2]), 2.5), BONE, { flat = true }) end  -- kneecaps
+  c:part(bone(Hl, Kl, 4), BONE, { flat = true })
+  c:part(bone(Kl, Al, 4), BONE, { flat = true })
+  c:part(bone(Hr, Kr, 4), BONE, { flat = true })
+  c:part(bone(Kr, Ar, 4), BONE, { flat = true })
+  for _, K in ipairs({ Kl, Kr }) do c:part(c:ellipse(R(K[1]), R(K[2]), 3), BONE, { flat = true }) end  -- kneecaps
   -- clogs, toes out, with a gold sole seam and two vent holes
   local function clog(A, dir)
     local x, y = R(A[1]), R(A[2])
@@ -145,25 +146,27 @@ local function frame(i)
   -- pelvis: two hip wings with a notch at the top, over a small bowl
   c:part(c:ellipse(px - 5, py + 2, 5.5, 4):add(c:ellipse(px + 5, py + 2, 5.5, 4)):add(c:rrect(px - 4, py + 2, px + 4, py + 7, 2)), BONE, { cres = 3, deep = 1, gloss = false })
   c:fill(c:rect(px, py - 2, px, py + 1), UMB)
-  -- ribs: three curved pairs, each its own outlined bone so the gaps read
-  for j = 0, 2 do
-    local y0 = ry - 6 + 5 * j
-    local span = ({ 9, 10, 8 })[j + 1]
-    c:part(c:line({ { rx - 1, y0 }, { rx - span + 3, y0 - 1 }, { rx - span, y0 + 2 }, { rx - span + 1, y0 + 4 } }, 3), BONE, { flat = true })
-    c:part(c:line({ { rx + 1, y0 }, { rx + span - 3, y0 - 1 }, { rx + span, y0 + 2 }, { rx + span - 1, y0 + 4 } }, 3), BONE, { flat = true })
-  end
-  -- sternum plate with the felt seam down it
-  local st = c:part(c:rrect(rx - 2, ry - 8, rx + 2, ry + 4, 2), BONE, { flat = true })
-  bseam(c, { { rx, ry + 1 }, { rx, ry + 4 } })
-  c:button(rx - 2, ry - 4)                       -- collar button at the head of the sternum seam
-  -- upper arms out to the elbows (W pose), elbows flap a little
-  local Sl, Sr = { rx - 9, ry - 6 }, { rx + 9, ry - 6 }
-  local El = { Sl[1] - 15 - 2 * pump, Sl[2] + 8 + 2 * bob }
-  local Er = { Sr[1] + 15 - 2 * pump, Sr[2] + 8 + 2 * bob }
+  -- upper arms out to the elbows (W pose), drawn before the cage so the shoulders sit behind it
+  local Sl, Sr = { rx - 9, ry - 5 }, { rx + 9, ry - 5 }
+  local El = { Sl[1] - 15 - 2 * pump, Sl[2] + 9 + 2 * bob }
+  local Er = { Sr[1] + 15 - 2 * pump, Sr[2] + 9 + 2 * bob }
   local Wl = { El[1] - 3, El[2] - 13 + 6 * sw }       -- left hand up when swaying left
   local Wr = { Er[1] + 3, Er[2] - 13 - 6 * sw }
   c:part(bone(Sl, El), BONE, { flat = true })
   c:part(bone(Sr, Er), BONE, { flat = true })
+  -- ribcage: one felt plate (wide shoulders, tucked waist) with three dark rib gaps each side
+  local cage = c:ellipse(rx, ry - 3, 12, 8):add(c:rrect(rx - 10, ry - 3, rx + 10, ry + 7, 4))
+  c:part(cage, BONE, { cres = 4, deep = 1, gloss = { rx - 8, ry - 7 } })
+  for j = 0, 2 do
+    local y0 = ry - 5 + 5 * j
+    local span = ({ 11, 10, 8 })[j + 1]
+    c:fill(c:line({ { rx - 3, y0 }, { rx - span + 2, y0 + 1 }, { rx - span, y0 + 3 } }, 1), UMB)
+    c:fill(c:line({ { rx + 3, y0 }, { rx + span - 2, y0 + 1 }, { rx + span, y0 + 3 } }, 1), UMB)
+  end
+  -- sternum plate with the felt seam down it
+  c:part(c:rrect(rx - 2, ry - 7, rx + 2, ry + 6, 2), BONE, { flat = true })
+  bseam(c, { { rx, ry - 1 }, { rx, ry + 6 } })
+  c:button(rx - 2, ry - 6)                       -- collar button at the head of the sternum seam
   -- skull, jaw, face
   local hx, hy = Hc[1], Hc[2]
   local skull = c:ellipse(hx, hy, 18, 15)
