@@ -78,19 +78,21 @@ def heron(cv, x, base):
     o.part(body, FEATHER, d=3)
     wing = ell(x - 18, base - 41, x + 8, base - 27) | poly([(x - 18, base - 34), (x - 28, base - 27), (x - 8, base - 29)])
     o.part(wing & shift(body, 0, 0), WING, d=2, contour=True)
-    neck = line([(x + 6, base - 40), (x + 13, base - 48), (x + 9, base - 56), (x + 12, base - 62)], 6)
+    neck = line([(x + 6, base - 40), (x + 12, base - 47), (x + 10, base - 54), (x + 12, base - 62)], 6)
     o.part(neck, FEATHER, d=2)
     head = ell(x + 8, base - 68, x + 20, base - 60)
-    o.part(head, FEATHER, d=2, contour=True)
+    o.part(head, FEATHER, d=1)
     o.draw()
     # bill: long dagger toward the satchel
     cv.fill(poly([(x + 19, base - 66), (x + 33, base - 63), (x + 19, base - 61)]), '#e8a317')
     cv.fill(rect(x + 20, base - 62, x + 27, base - 62), '#b07a10')
     cv.fill(rect(x + 20, base - 65, x + 24, base - 65), '#f5cf6a')
     # black eye stripe running back into a trailing crest plume, eye
-    cv.fill(rect(x + 10, base - 65, x + 15, base - 65), '#5b6470')
+    cv.fill(rect(x + 10, base - 65, x + 14, base - 65), '#5b6470')
+    cv.fill(rect(x + 14, base - 66, x + 17, base - 66), '#5b6470')
     cv.fill(line([(x + 10, base - 65), (x + 4, base - 63), (x - 1, base - 62)], 1), '#5b6470')
-    cv.dots([(x + 16, base - 65), (x + 17, base - 65)], '#2a1a10')
+    cv.dots([(x + 16, base - 66)], '#2a1a10')
+    cv.dots([(x + 15, base - 66)], '#f5cf6a')
     # neck streaks and flight-feather tips
     for k in range(4):
         cv.dots([(x + 12 + (k % 2), base - 56 + k * 3), (x + 12 + (k % 2), base - 55 + k * 3)], '#5b6470')

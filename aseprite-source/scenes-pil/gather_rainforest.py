@@ -154,6 +154,11 @@ def scene():
             c = MOSS['b'] if y < 112 else DEEP['b']
             cv.fill(rect(x, y, x + 2, y), c)
             cv.dots([(x + 1, y - 1)], c)
+    # fallen leaves scattered on the floor (small flat ovals with a rib)
+    for (x, y, c) in ((50, 120, LEAF['s']), (78, 100, GOLD['b']), (16, 128, GOLD['b']), (160, 116, LEAF['s']), (196, 108, GOLD['b']),
+                      (94, 76, LEAF['s']), (134, 70, GOLD['b']), (176, 66, LEAF['s']), (64, 70, LEAF['s']), (120, 126, LEAF['s'])):
+        cv.fill(ell(x, y, x + 6, y + 3), c)
+        cv.fill(rect(x + 1, y + 1, x + 4, y + 1), DEEP['s'] if c == LEAF['s'] else BARK['b'])
     for (x, y) in ((70, 96), (88, 118), (60, 124), (150, 112), (226, 126), (36, 116), (196, 118)):
         cv.fill(rect(x, y, x + 1, y), PETAL['b'])
         cv.dots([(x, y - 1)], PETAL['r'])
@@ -221,12 +226,12 @@ def scene():
     big_leaf(cv, 24, 74, 30, 11, -20, MOSS)
     big_leaf(cv, 28, 70, 22, 9, -60, LEAF)
     # the arching flower spike: up out of the stump, over and down to the right, blooms hanging under it
-    p0, p1, p2 = (24, 68), (30, -6), (92, 30)
+    p0, p1, p2 = (24, 68), (36, 4), (96, 40)
     pts = [bez(p0, p1, p2, k / 60) for k in range(61)]
     o = cv.obj()
     o.part(line([(round(x), round(y)) for x, y in pts], 2), DEEP, d=0)
     o.draw()
-    for (t, sc, dy) in ((0.33, 0.8, 9), (0.58, 0.95, 10), (0.82, 0.85, 10)):
+    for (t, sc, dy) in ((0.30, 0.95, 10), (0.58, 1.05, 10), (0.86, 0.9, 10)):
         x, y = bez(p0, p1, p2, t)
         bx, by = round(x), round(y) + dy
         cv.fill(line([(round(x), round(y)), (bx, by - 7)], 1), DEEP['b'])

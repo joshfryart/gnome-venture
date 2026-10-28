@@ -79,7 +79,7 @@ def canopy(cv):
         m |= ell(x, -6, x + w, 12 + r(0, 6))
         x += w - r(5, 9)
     cv.fill(m, '#2f6a3a')
-    cv.fill(m & ~shift(m, 0, 2) & rect(40, 0, 200, H), '#1f3f3a')
+    cv.fill(m & ~shift(m, 0, -2) & ~rect(0, 0, 40, 14) & ~rect(200, 0, W, 14), '#1f3f3a')
     r = rnd(12)
     x = 36
     while x < 214:
@@ -246,8 +246,8 @@ def fairy_ring(cv):
 
 def rustle(cv):
     """The ferns by the right-hand trunk are shaking: tick marks and a leaf shaken loose."""
-    for (x, y, s) in ((215, 80, -1), (213, 86, -1), (217, 74, -1)):
-        cv.fill(line([(x, y), (x + 2 * s, y - 2)]) | line([(x + 2 * s, y - 2), (x + 3 * s, y - 2)]), '#f2e4c0')
+    for (x, y, s) in ((221, 82, -1), (219, 88, -1), (236, 80, 1), (238, 86, 1)):
+        cv.fill(line([(x, y), (x + 2 * s, y - 2)]), '#f2e4c0')
     for (x, y, c) in ((226, 62, '#e8a317'), (110, 40, '#e8a317'), (70, 30, '#b07a3a'), (134, 52, '#e8a317')):
         cv.fill(rect(x, y, x + 2, y) | rect(x + 1, y - 1, x + 1, y - 1), c)
 
@@ -267,7 +267,7 @@ def scene():
     hollow_log(cv)
     # ferns: a clump at the log's foot, the rustling pair at far right, a front corner one
     fern(cv, 8, 104, 0.9, OAK)
-    fern(cv, 226, 100, 1.0, OAK)
+    fern(cv, 227, 100, 1.15, OAK)
     fern(cv, 234, 104, 0.8, LEAF)
     fern(cv, 10, 134, 1.0, LEAF)
     rustle(cv)

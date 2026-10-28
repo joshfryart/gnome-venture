@@ -105,9 +105,10 @@ def dandelion_clock(cv):
         n = math.hypot(dx, dy)
         px, py = -dy / n * 5, dx / n * 5
         m = poly([(bx, by), (bx + dx * 0.5 + px, by + dy * 0.5 + py), (tx, ty), (bx + dx * 0.5 - px, by + dy * 0.5 - py)])
-        for t in (0.3, 0.55, 0.78):                       # saw-tooth bites along both edges
+        up = 1 if py < 0 else -1                           # bite the upper edge only
+        for t in (0.35, 0.62):                             # saw-tooth bites
             nx, ny = bx + dx * t, by + dy * t
-            for sg in (1, -1):
+            for sg in (up,):
                 ex, ey = nx + sg * px * 0.9, ny + sg * py * 0.9
                 m &= ~poly([(ex, ey), (ex + dx / n * 4 - sg * px * 0.5, ey + dy / n * 4 - sg * py * 0.5), (ex + dx / n * 5, ey + dy / n * 5)])
         o.part(m, rp, d=2)
@@ -201,9 +202,9 @@ def props(cv):
     o.part(ell(54, 100, 70, 112) & rect(0, 0, W, 108), STONE, d=2)
     o.draw()
     # far right: tall blades and a nodding barley stalk, a red poppy low down
-    o = cv.obj(outline=False)
-    for (x, h, lean) in ((216, 44, -6), (224, 54, 4), (230, 38, 6), (220, 30, 9)):
-        o.part(blade(x, 112, h, lean, 3), MOSS, d=1)
+    o = cv.obj()
+    for (x, h, lean) in ((217, 40, -3), (224, 50, 5), (231, 34, 4)):
+        o.part(blade(x, 114, h, lean, 4), MOSS, d=1)
     o.draw()
     barley(cv, 226, 112, 62, -4)
     o = cv.obj()

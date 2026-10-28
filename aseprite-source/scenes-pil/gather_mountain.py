@@ -127,7 +127,15 @@ def scene():
         for x in range((y * 7) % 19, W, 27):
             cv.fill(line([(x, y), (x + 5, y), (x + 7, y + 1), (x + 11, y + 1)]), '#5b6470')
             cv.dots([(x + 14, y + 4), (x + 16, y + 3)], '#c9c5bc')
-    for (x, y) in ((44, 60), (120, 62), (70, 58), (150, 118), (196, 120), (10, 132), (112, 126), (60, 130), (226, 64)):
+    # near ledge edge: a darker stepped band of slate at the very bottom
+    import math
+    near = rect(0, 0, W - 1, H - 1) & ~rect(0, 0, W - 1, 127)
+    for x in range(W):
+        t = 127 + round(1.5 * math.sin(x / 9.0) + math.sin(x / 4.0 + 1))
+        near[t:, x] = True
+    cv.fill(near, '#5b6470')
+    cv.fill(near & ~shift(near, 0, 1), '#c9c5bc')
+    for (x, y) in ((44, 60), (120, 62), (70, 58), (150, 118), (196, 120), (112, 122), (226, 64)):
         cv.fill(rect(x, y, x + 2, y + 1), '#5b6470')
         cv.dots([(x, y)], '#c9c5bc')
     # ---- the find lands here: a flat old snow patch on the ledge
