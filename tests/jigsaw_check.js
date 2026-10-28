@@ -15,7 +15,8 @@ const { chromium } = require('playwright');
     await p.fill('input[name="username"]', 'sprout'); await p.fill('input[name="password"]', 'TestPass123!');
     await Promise.all([p.waitForNavigation({ waitUntil: 'load' }), p.press('input[name="password"]', 'Enter')]);
     await p.goto(base + '/jigsaw.php');
-    say(await p.locator('#grid .pzcard').count() === 3, `${tag}: 3 picture cards`);
+    const cards = await p.locator('#grid .pzcard').count();
+    say(cards >= 3, `${tag}: picture cards (${cards})`);
     say(await p.locator('#grid .pzcard').first().locator('button.pztier').count() === 3, `${tag}: a card has 3 tier buttons`);
     say(await p.locator('#grid select').count() === 0, `${tag}: no piece-count picker on a card`);
     for (const [k, n] of [['easy', 24], ['advanced', 96], ['expert', 216]]) {

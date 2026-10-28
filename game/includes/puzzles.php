@@ -46,6 +46,7 @@ function puzzles_schema(string $PK, string $ID, string $END): array
         cat VARCHAR(24) NULL,
         thumb VARCHAR(120) NULL,
         reserved INT NOT NULL DEFAULT 0,
+        unlock_key VARCHAR(100) NULL,
         created_by $ID NULL,
         created_at DATETIME NOT NULL
     )$END", "CREATE TABLE IF NOT EXISTS puzzle_tournaments (
@@ -91,6 +92,12 @@ function puzzles_schema(string $PK, string $ID, string $END): array
         hints INT NOT NULL DEFAULT 0,
         pic_id $ID NULL,
         status VARCHAR(8) NOT NULL DEFAULT 'open'
+    )$END", "CREATE TABLE IF NOT EXISTS jigsaw_unlocks (
+        id $PK,
+        user_id $ID NOT NULL,
+        pic_id $ID NOT NULL,
+        unlocked_at DATETIME NOT NULL,
+        UNIQUE (user_id, pic_id)
     )$END", "CREATE TABLE IF NOT EXISTS puzzle_wins (
         id $PK,
         game VARCHAR(16) NOT NULL,
@@ -107,7 +114,7 @@ function puzzles_schema(string $PK, string $ID, string $END): array
           'CREATE INDEX idx_puzzle_tour_status ON puzzle_tournaments (status, ends_at)',
           'CREATE INDEX idx_puzzle_tour_kind ON puzzle_tournaments (kind, status, ends_at)'];
     // v2.0.87: Jigsaw (still pictures) shares these tables; existing databases get the new columns here (and puzzles_ensure() adds them if the upgrade has not run)
-    $c = [['puzzle_pics', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'gif'"], ['puzzle_pics', 'cat', 'VARCHAR(24) NULL'], ['puzzle_pics', 'thumb', 'VARCHAR(120) NULL'], ['puzzle_pics', 'reserved', 'INT NOT NULL DEFAULT 0'],
+    $c = [['puzzle_pics', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'gif'"], ['puzzle_pics', 'cat', 'VARCHAR(24) NULL'], ['puzzle_pics', 'thumb', 'VARCHAR(120) NULL'], ['puzzle_pics', 'reserved', 'INT NOT NULL DEFAULT 0'], ['puzzle_pics', 'unlock_key', 'VARCHAR(100) NULL'],
           ['puzzle_tournaments', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'gif'"], ['puzzle_tournaments', 'tier', 'VARCHAR(8) NULL'], ['puzzle_tournaments', 'cup_id', "$ID NULL"],
           ['puzzle_runs', 'pic_id', "$ID NULL"]];
     return [$t, $i, $c];
@@ -157,6 +164,10 @@ function puzzles_add_columns(): void
     $done = true;
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        try { q('SELECT 1 FROM jigsaw_unlocks LIMIT 1'); } catch (Throwable $e) {   // the Places unlock table (2.0.87)
+            [$t] = puzzles_schema($s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', $s ? 'INTEGER' : 'INT UNSIGNED', $s ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+            foreach ($t as $sql) if (str_contains($sql, 'jigsaw_unlocks')) db()->exec($sql);
+        }
         foreach (puzzles_schema('', $s ? 'INTEGER' : 'INT UNSIGNED', '')[2] as [$tb, $col, $def]) {
             try { q("SELECT $col FROM $tb LIMIT 1"); } catch (Throwable $e) { db()->exec("ALTER TABLE $tb ADD COLUMN $col $def"); }
         }

@@ -13,7 +13,9 @@ if (!jigsaw_open()) { flash('Jigsaw is coming soon.', 'err'); redirect(setting('
 if ((int)($_GET['t'] ?? 0) > 0) redirect('jigsaw.php');   // tournaments: next step
 $guest = !empty($u['guest']);
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
-$list = array_map('jigsaw_js_row', jigsaw_pics());
+jigsaw_backfill_places((int)$u['id']);
+$list = array_map('jigsaw_js_row', jigsaw_pics(true, (int)$u['id']));
+[$plFound, $plTotal] = jigsaw_places_count((int)$u['id']);
 $mode = ['tiers' => jigsaw_js_tiers(), 'api' => url('puzzles_api.php'), 'csrf' => csrf_token(), 'live' => !$guest, 'bests' => $guest ? new stdClass : (jigsaw_bests((int)$u['id']) ?: new stdClass)];
 $t = null; $pzStill = true;   // $t: the play table is shared with GIFsaw tournaments
 page_header('Jigsaw');   // assets/puzzles.css and assets/puzzles.js are added by page_header() for this page
@@ -31,6 +33,7 @@ page_header('Jigsaw');   // assets/puzzles.css and assets/puzzles.js are added b
   </div>
   <?php if (!$list): ?><div class="pzempty box"><?= puzzle_cast('empty-box', '') ?><p><b>Jeff:</b> “The puzzle box is empty! New pictures are on their way.”</p></div><?php endif; ?>
   <div class="pzchips" id="cats"></div>
+  <?php if ($plTotal > 0): ?><p class="help pzplaces">🗺️ Places: <b><?= $plFound ?></b> of <?= $plTotal ?> found. Visit a haven, wonder, delve or lair and its picture joins your puzzle room.</p><?php endif; ?>
   <ul class="pzgrid" id="grid"></ul>
   <p><a href="<?= e(url('puzzles.php')) ?>">← All puzzles</a></p>
 </div>

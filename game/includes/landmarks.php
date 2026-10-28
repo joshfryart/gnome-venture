@@ -556,12 +556,15 @@ function landmark_panel(array $u, array $node): string
     require_once __DIR__ . '/journey.php';
     if ($jc = journey_lock($uid, 'place', (string)$node['slug'])) return journey_lock_note($jc, (string)$lm['name']);   // v0.7.66
     $id = (int)$lm['id'];
+    require_once __DIR__ . '/jigsaw.php';   // v2.0.87: the first visit puts this place's picture in the gnome's puzzle room
+    $newJig = jigsaw_unlock_place($uid, $lm);
     $form = fn(string $do, string $label, string $extra = '', bool $disabled = false, string $cls = 'btn act', string $fcls = 'inline') => '<form method="post" action="' . e(url('landmark.php')) . '" class="' . $fcls . '">'
         . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="lm" value="' . $id . '">' . $extra
         . '<button class="' . $cls . '"' . ($disabled ? ' disabled' : '') . '>' . $label . '</button></form> ';
     $cleared = (int)q_val('SELECT clears FROM landmark_clears WHERE user_id = ? AND landmark_id = ?', [$uid, $id]);
     $h = '<div class="box lmpanel lm-' . e($lm['kind']) . '">'
-        . landmark_scene($lm, in_array($lm['kind'], ['haven', 'wonder', 'delve'], true) && !landmark_rebuilt_by($lm, $uid) && !empty($lm['ruined']));   // v2.0.86
+        . landmark_scene($lm, in_array($lm['kind'], ['haven', 'wonder', 'delve'], true) && !landmark_rebuilt_by($lm, $uid) && !empty($lm['ruined']))   // v2.0.86
+        . ($newJig !== null && jigsaw_open() ? '<p class="lmjig">🧩 New jigsaw! <b>' . e($newJig) . '</b> is in your <a href="' . e(url('jigsaw.php')) . '">puzzle room</a>.</p>' : '');
     if (in_array($lm['kind'], ['haven', 'wonder', 'delve'], true)) {
         require_once __DIR__ . '/rebuild.php';
         if (landmark_rebuilt_by($lm, $uid)) {   // v0.7.88: you made it safe: the plaque and your own extras

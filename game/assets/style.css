@@ -5869,3 +5869,6 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 /* v2.0.86: unique-location scene art on the landmark panel (assets/img/wonders/, 480x270 pixel art) */
 .lmscene { display: block; width: 100%; max-width: 480px; height: auto; aspect-ratio: 16 / 9; margin: 0 auto 10px; box-shadow: var(--frame); background: var(--surface-2); }
 .lmscene-ruin { filter: saturate(.35) brightness(.85); }
+
+/* v2.0.87: a unique location's picture joins the gnome's Jigsaw puzzle room (landmark_panel) */
+.lmjig { margin: 6px 0; padding: 6px 10px; border-radius: var(--radius); background: var(--surface-2); }

@@ -234,3 +234,8 @@ body.pz-play .lp #game{text-align:left}
 .pztier{display:flex; justify-content:space-between; align-items:center; gap:8px; width:100%; text-align:left}
 .pztier small{opacity:.85; font-size:12px; white-space:nowrap}
 .pztier.done{box-shadow:inset 0 0 0 2px var(--accent, #2f7d4f)}
+#pz.jig .pzthumb{aspect-ratio:3/2; background:var(--surface-2)}
+#pz.jig .pzthumb img{object-fit:cover}
+#pz.jig .pzthumb img.px, #pz.jig #field.pxpic img{image-rendering:pixelated}
+#pz.jig #field.crop img{object-fit:cover}
+.pzplaces{margin:6px 0 0}

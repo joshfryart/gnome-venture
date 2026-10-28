@@ -33,7 +33,7 @@ ok "page: next-tier button on the win card" "$(grep -c 'id="nexttier"' $W/j.html
 curl -s -b $W/p $BASE/gifsaw.php > $W/g.html
 ok "GIFsaw never lists the stills" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo substr_count($m[1], "img/jigsaw");' $W/g.html)" 0
 ok "GIFsaw still has its own pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/g.html)" 7
-ok "DB: stills tagged" "$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='still'")/$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='gif'")" 3/7
+ok "DB: stills tagged" "$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='still' AND source='builtin'")/$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE kind='gif'")" 3/7
 ok "every built-in picture and thumb exists" "$(for f in maplewold maizehollow sunsprinkle; do [ -s $GAME/assets/img/jigsaw/$f.jpg ] && [ -s $GAME/assets/img/jigsaw/$f-thumb.jpg ] && echo y; done | wc -l)" 3
 ok "pictures are 3:2, 1800 x 1200" "$(php -r 'foreach (glob($argv[1]."/assets/img/jigsaw/*[a-z].jpg") as $f) { [$w,$h]=getimagesize($f); if (strpos($f,"thumb")===false) echo ($w==1800&&$h==1200)?"y":"n"; }' $GAME)" yyy
 # free play
@@ -64,6 +64,41 @@ ok "Jigsaw off: pstart refused" "$(api -d do=pstart -d pic=jig-maplewold -d tier
 setg jigsaw_open 1
 ok "a reserved picture is hidden from the library and from play" "$(dbx "UPDATE puzzle_pics SET reserved=1 WHERE slug='jig-maizehollow'"; curl -s -b $W/p $BASE/jigsaw.php | grep -c 'maizehollow-thumb')/$(api -d do=pstart -d pic=jig-maizehollow -d tier=easy | js ok)" 0/false
 dbx "UPDATE puzzle_pics SET reserved=0 WHERE slug='jig-maizehollow'"
+# Places: a picture for every unique location with scene art, unlocked on the first visit
+NP=$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE source='place'")
+ok "places: seeded from the unique locations (more than 40)" "$([ "$NP" -gt 40 ] && echo y || echo n)" y
+ok "places: every seeded picture has its scene file" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $bad=0; foreach($p->query("SELECT file FROM puzzle_pics WHERE source=\"place\"") as $r) if(!is_file("'$GAME'/assets/img/wonders/".$r[0])) $bad++; echo $bad;')" 0
+ok "places: none unlocked yet, library still 3" "$(curl -s -b $W/p $BASE/jigsaw.php | php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", stream_get_contents(STDIN), $m); echo count(json_decode($m[1], true));')" 3
+curl -s -b $W/p $BASE/jigsaw.php | grep -o 'Places: <b>[0-9]*</b> of [0-9]*' > $W/pl.txt
+ok "places: library line says 0 found" "$(sed 's/<[^>]*>//g' $W/pl.txt)" "Places: 0 of $NP"
+UID_=$(dbv "SELECT id FROM users WHERE username='sprout'")
+# the first haven whose panel is not locked behind a story chapter (the Sugar Shack is, early on)
+HV=; for cand in $(dbv "SELECT group_concat(l.id) FROM (SELECT l.id FROM landmarks m JOIN locations l ON l.id=m.location_id WHERE m.kind='haven' ORDER BY m.id LIMIT 12) l" | tr ',' ' '); do
+  dbx "UPDATE users SET location_id=$cand WHERE id=$UID_"
+  if curl -s -b $W/p $BASE/town.php | grep -q 'class="box lmpanel'; then HV=$cand; break; fi
+  dbx "DELETE FROM jigsaw_unlocks WHERE user_id=$UID_"
+done
+ok "places: found a haven that is open to the player" "$([ -n "$HV" ] && echo y || echo n)" y
+dbx "DELETE FROM jigsaw_unlocks WHERE user_id=$UID_; DELETE FROM notices WHERE user_id=$UID_"
+HVN=$(dbv "SELECT name FROM landmarks WHERE kind='haven' AND location_id=$HV")
+PIC=$(dbv "SELECT slug FROM puzzle_pics WHERE source='place' AND title=\"$HVN\"")
+ok "places: a locked place cannot be played" "$(api -d do=pstart -d pic=$PIC -d tier=easy | js ok)" false
+curl -s -b $W/p $BASE/town.php > $W/w.html
+ok "places: first visit unlocks one picture" "$(dbv "SELECT COUNT(*) FROM jigsaw_unlocks WHERE user_id=$UID_")" 1
+ok "places: the place panel says so" "$(grep -c 'New jigsaw!' $W/w.html)" 1
+ok "places: a notification was sent" "$(dbv "SELECT COUNT(*) FROM notices WHERE user_id=$UID_ AND text LIKE '%New jigsaw in your puzzle room%'")" 1
+curl -s -b $W/p $BASE/town.php | grep -c 'New jigsaw!' > $W/w2.txt
+ok "places: a second visit is quiet" "$(cat $W/w2.txt)/$(dbv "SELECT COUNT(*) FROM jigsaw_unlocks WHERE user_id=$UID_")" 0/1
+curl -s -b $W/p $BASE/jigsaw.php > $W/j2.html
+ok "places: library now has 4 pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/j2.html)" 4
+ok "places: the picture is cropped 3:2 and pixel-drawn" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); $r=array_values(array_filter(json_decode($m[1], true), fn($x)=>strpos($x["id"],"pl-")===0))[0]; echo $r["crop"].$r["px"].(strpos($r["gif"],"img/wonders/")!==false?"w":"x");' $W/j2.html)" 11w
+ok "places: library line says 1 found" "$(sed 's/<[^>]*>//g' <(grep -o 'Places: <b>[0-9]*</b> of [0-9]*' $W/j2.html))" "Places: 1 of $NP"
+ok "places: an unlocked place can be played" "$(api -d do=pstart -d pic=$PIC -d tier=advanced | js ok)" true
+# earlier visits (cleared before 2.0.87) are unlocked the first time Jigsaw opens
+LM2=$(dbv "SELECT id FROM landmarks WHERE kind IN ('wonder','delve','lair') ORDER BY id LIMIT 1")
+dbx "INSERT INTO landmark_clears (user_id, landmark_id, clears, first_at, last_at) VALUES ($UID_, $LM2, 1, datetime('now'), datetime('now'))"
+curl -s -b $W/p -o /dev/null $BASE/jigsaw.php
+ok "places: a place you cleared before is unlocked" "$(dbv "SELECT COUNT(*) FROM jigsaw_unlocks WHERE user_id=$UID_")" 2
 # old database: the new columns are added by the first request
 dbx "ALTER TABLE puzzle_runs DROP COLUMN pic_id"; dbx "ALTER TABLE puzzle_pics DROP COLUMN reserved"
 curl -s -b $W/p -o /dev/null $BASE/gifsaw.php
