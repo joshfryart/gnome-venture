@@ -19,5 +19,18 @@ N=0; for f in $(php -r '$j=preg_match("#id=\"pz-data\">(.*?)</script>#s", file_g
   N=$((N+1)); [ -s "$GAME/assets/img/puzzles/$f" ] || echo "FAIL missing picture file: $f"
 done
 ok "pictures listed (7 gifs + 7 stills)" "$N" 14
+# v2.0.68: the cast. Every cast picture exists (a -dark twin is optional), and the page shows the host and the hint/scatter faces
+for c in jeff-host tile-puzzles puzzles-banner jeff-cheer win-scene jeff-think ffej-scatter wizard-hint empty-box tourney-banner trophy-gold badge-silver badge-bronze badge-entered wizard-hourglass ffej-caught; do
+  [ -s "$GAME/assets/img/puzzles/cast/$c.png" ] || echo "FAIL missing cast art: cast/$c.png"
+done
+ok "Jeff hosts the library" "$(grep -c 'Jeff:</b>' /tmp/pz.html)" 1
+ok "cast faces in the game bar (jeff, ffej, wizard)" "$(grep -c 'class="pzwho"' /tmp/pz.html)" 1
+ok "pictures come from puzzle_pics" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT COUNT(*) FROM puzzle_pics WHERE source=\"builtin\" AND active=1")->fetchColumn();')" 7
+dbx "UPDATE puzzle_pics SET active=0 WHERE slug='pig'"
+curl -s -b /tmp/pz-p $BASE/puzzles.php > /tmp/pz.html
+ok "a switched-off picture leaves the library" "$(grep -c 'pig.gif' /tmp/pz.html)" 0
+dbx "UPDATE puzzle_pics SET active=1 WHERE slug='pig'"
+ok "seeded scramble (mulberry32, ?seed=)" "$(grep -c 'mulberry32' $GAME/assets/puzzles.js)" 2
+ok "no Math.random left in the layout" "$(grep -cE 'rnd\(a,b\)\{ return a\+Math.random|Math.random\(\)<\.5|Math.random\(\)\*\(i\+1\)' $GAME/assets/puzzles.js)" 0
 dbx "DELETE FROM settings WHERE name='puzzles_open'"
 echo "== php log"; grep -iE 'fatal|warning|notice|deprecated' /tmp/pz-php.log || echo "(none)"
