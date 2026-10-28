@@ -18,7 +18,7 @@ const JIGSAW_TIERS = [
 const JIGSAW_PRACTICE_STARTS = 120;
 /** Built-in pictures: slug => [title, category, file in assets/img/jigsaw/ (thumb = <slug>-thumb.jpg)]. Placeholders until the real art lands (same names). */
 const JIGSAWS = [
-    'maplewold' => ['Maplewold (placeholder)', 'Regions', 'maplewold.jpg'],
+    'maplewold' => ['Maplewold', 'Regions', 'maplewold.jpg'],
     'maizehollow' => ['Maizehollow (placeholder)', 'Regions', 'maizehollow.jpg'],
     'sunsprinkle' => ['Sunsprinkle Isles (placeholder)', 'Regions', 'sunsprinkle.jpg'],
 ];
