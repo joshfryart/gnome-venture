@@ -20,7 +20,7 @@ local p1 = K.miniPiece(c, 46, 25)
 local p2 = K.miniPiece(c, 46, 37)
 local p3 = K.miniPiece(c, 40, 44)
 local p4 = c:rrect(50, 48, 55, 52, 1); p4:add(c:ellipse(52.5, 46, 2, 2))
-local p5 = c:rrect(38, 54, 43, 58, 1); p5:add(c:ellipse(44, 56, 2, 2))   -- a flat one on the floor
+local p5 = c:rrect(36, 52, 41, 55, 1); p5:add(c:ellipse(42, 53.5, 2, 1.5))   -- a flat one on the floor
 
 c:build{
   { "arms", arms, K.FFEJ_ARM, { flat = true } },

@@ -37,10 +37,11 @@ page_header('Games');
   </a>
 <?php endforeach; ?>
 <?php if (setting('puzzles_open') === '1' || is_admin()): ?>
-  <a class="gtile ok" href="<?= e(url('puzzles.php')) ?>" title="Animated jigsaw puzzles. Just for fun: no prizes, no daily limit."><?php /* v2.0.0.1 */ ?>
-    <span class="gticon">🧩</span>
+  <?php require_once __DIR__ . '/includes/puzzles.php'; ?>
+  <a class="gtile ok" href="<?= e(url('puzzles.php')) ?>" title="Animated jigsaws with Jeff. Just for fun, no daily limit."><?php /* v2.0.0.1; v2.0.68 tile art */ ?>
+    <span class="gticon"><?= puzzle_cast('tile-puzzles', '', 'gtart') ?: '🧩' ?></span>
     <b>Puzzles</b>
-    <span class="gtbadge">Relax</span>
+    <span class="gtbadge"><?= puzzle_tournaments_on() && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]) ? '🏆 Tournament' : 'Relax' ?></span>
   </a>
 <?php endif;   // v2.0.2: Puzzles locked for players (setting puzzles_open) ?>
 </div>

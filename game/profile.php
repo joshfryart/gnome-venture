@@ -94,6 +94,9 @@ $gid = (int)$g['id']; ?>
              WHERE um.user_id = ? ORDER BY um.achieved_at DESC', [$gid])->fetchAll(); ?>
   <div class="box"><h3>🎀 Ribbons: <?= (int)$g['ribbons'] ?></h3><p class="help">Won at the Village Show, the Grand Harvest Fair and in contests.</p>
     <?php require_once __DIR__ . '/includes/fair.php'; echo fair_ribbons_html((int)$g['id']);   // v0.8.1 ?></div>
+  <?php require_once __DIR__ . '/includes/puzzles.php'; if (setting('puzzles_tournaments') === '1' && ($pzb = puzzle_badges_html($gid)) !== ''): ?>
+  <div class="box"><h3>🧩 Puzzle tournaments</h3><?= $pzb /* v2.0.68: cosmetic trophies and badges */ ?></div>
+  <?php endif; ?>
   <div class="box"><h3>🏆 Garden of the Month</h3>
     <?php if ($wins): ?><ul><?php foreach ($wins as $w): ?><li><?= ['', '🥇 1st', '🥈 2nd', '🥉 3rd'][(int)$w['placed']] ?> in <?= e($w['month']) ?> with <?= eu($w['garden_name'] ?: 'a garden') ?></li><?php endforeach; ?></ul>
     <?php else: ?><p class="muted">No placings yet.</p><?php endif; ?>
