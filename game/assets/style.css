@@ -5865,3 +5865,7 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .dpplan > summary, .dpoptsfold > summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; font-size: .9rem; color: var(--muted); }
 .dpoptsfold .dpopts { margin-top: 2px; }
 .dpset { min-height: 48px; font-size: 1rem; }
+
+/* v2.0.86: unique-location scene art on the landmark panel (assets/img/wonders/, 480x270 pixel art) */
+.lmscene { display: block; width: 100%; max-width: 480px; height: auto; aspect-ratio: 16 / 9; margin: 0 auto 10px; box-shadow: var(--frame); background: var(--surface-2); }
+.lmscene-ruin { filter: saturate(.35) brightness(.85); }
