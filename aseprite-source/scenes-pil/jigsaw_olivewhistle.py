@@ -191,6 +191,34 @@ for k in range(6):   # thin smoke curl drifting left
     cv.fill(pm, '#e6dccf' if k < 4 else '#f0e8dc')
     cv.fill(pm & ~shift(pm, -1, -1), '#c9b8aa')
 cv.fill(rect(0, HZ - 1, W, HZ - 1) & ~cat & ~volc, '#f8dc8a')
+# the Labyrinth Isle: a low island with a hedge maze and a white fountain
+lab = ell(60, 64, 84, 78) & rect(0, 0, W, HZ - 1)
+cv.fill(lab, '#7a8a52')
+cv.fill(lab & ~shift(lab, 2, 2), '#9aa86a')
+for yy in (67, 70):
+    cv.fill(rect(64, yy, 80, yy) & lab, '#e8dcc0')
+cv.fill(rect(72, 66, 72, 70) & lab, '#e8dcc0')
+cv.dots([(72, 65), (71, 66), (73, 66)], '#ffffff')
+# a kite flown from the village, tail streaming
+kx, ky = 162, 38
+km = poly([(kx, ky - 7), (kx + 5, ky), (kx, ky + 7), (kx - 5, ky)])
+o = cv.obj()
+o.part(km, ramp('#d6322b', '#a8241f', '#f08a5a'), d=1)
+o.draw()
+cv.fill(km & rect(kx - 5, ky - 7, kx, ky), '#f2d23a')
+cv.fill(rect(kx, ky - 6, kx, ky + 6) & km, '#4a2c1a')
+cv.fill(line([(kx, ky + 7), (kx - 3, ky + 12), (kx + 1, ky + 17), (kx - 2, ky + 22)]), '#4a2c1a')
+for tx, ty, c in ((kx - 3, ky + 12, '#3f8fb0'), (kx + 1, ky + 17, '#f2d23a'), (kx - 2, ky + 22, '#d6322b')):
+    cv.fill(rect(tx - 1, ty, tx + 1, ty + 1), c)
+cv.fill(line([(kx + 1, ky + 6), (200, 56)]), '#8a7a6a')
+# a big gull gliding close, and a far flight of three
+gbx, gby = 40, 34
+cv.fill(poly([(gbx - 9, gby - 3), (gbx - 2, gby + 1), (gbx, gby + 3), (gbx + 2, gby + 1), (gbx + 9, gby - 3), (gbx + 2, gby - 1), (gbx, gby), (gbx - 2, gby - 1)]), '#ffffff')
+cv.dots([(gbx - 9, gby - 3), (gbx - 8, gby - 3), (gbx + 9, gby - 3), (gbx + 8, gby - 3)], '#3a3a4a')
+cv.fill(rect(gbx - 1, gby + 1, gbx + 1, gby + 3), '#c9c5bc')
+cv.dots([(gbx, gby + 4)], '#f0b92b')
+for bx, by in ((10, 26), (16, 29), (6, 30), (118, 36), (122, 38)):
+    cv.dots([(bx - 1, by - 1), (bx, by), (bx + 1, by - 1)], '#5a4a4a')
 
 # ================================================================ LAND MASKS
 hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (186, 50), (172, 62), (160, 76), (156, 82), (153, 88), (149, 92), (147, 98), (142, 102), (140, 108), (135, 112), (133, 118), (128, 122), (126, 128), (120, 132), (300, 132)])
