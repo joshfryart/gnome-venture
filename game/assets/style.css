@@ -5238,6 +5238,11 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 .gx .gcard__meta { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 0 6px; min-width: 0; font: 600 11px/1.35 var(--font); }
 .gx .gcard__meta > span { max-width: 100%; overflow-wrap: break-word; text-wrap: balance; }
 .gx .gcard::after { content: ""; position: absolute; top: -12px; right: -12px; width: 30px; height: 30px; background: no-repeat 0 0 / 100% 100%; image-rendering: pixelated; pointer-events: none; }
+/* v2.0.80: rest-stop activity cards, three across (two on very narrow phones) */
+.docards { gap: 10px 8px; }
+.docards .gcard__label { font-size: 12px; }
+.docards .gcard__meta { font-size: 11px; }
+@media (max-width: 399px) { .docards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 /* picked: green felt, gold sign, gold leaf */
 .gx .gcard[aria-pressed="true"] { border-image-source: url("img/gather/felt-sel.png"); }
 .gx .gcard[aria-pressed="true"] .gcard__ribbon { border-image-source: url("img/gather/ribbon-sel.png"); color: var(--gx-sign-ink-sel); }

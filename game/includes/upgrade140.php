@@ -7,6 +7,7 @@ const UPGRADE_140_STEPS = [
     'animals' => 'More garden animals: Butterfly Bush and Snail Jar (items, critter kinds, crafts, Almanac pages)',
     'crafts' => 'Soil amendment crafts make more (only recipes still at their old shipped amounts)',
     'stopsoft' => 'Rest stops: the daily total becomes a soft limit of 100 (only if it was still the old 15)',   // v1.4.9
+    'stopcap8' => 'Rest stops: most things per day at one stop becomes 8 (only if it was still the old 6)',   // v2.0.80: visits are 4 things now
     'gamesnolimit' => 'Games: no daily cap on the energy from playing (only if it was still the old 10)',   // v1.6.2: games_energy_cap 100 = no limit
 ];
 
@@ -22,6 +23,7 @@ function upgrade_140_run(): array
                 if ($name === 'animals') { require_once __DIR__ . '/animals140.php'; animals140_upgrade(); }
                 if ($name === 'crafts') upgrade_140_crafts();
                 if ($name === 'stopsoft') q("UPDATE settings SET value = '100' WHERE name = 'stop_daily_total' AND value = '15'");
+                if ($name === 'stopcap8') q("UPDATE settings SET value = '8' WHERE name = 'stop_daily_cap' AND value = '6'");
                 if ($name === 'gamesnolimit') q("UPDATE settings SET value = '100' WHERE name = 'games_energy_cap' AND value = '10'");   // v1.6.2:
             });
             set_setting($flag, '1');

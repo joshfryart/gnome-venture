@@ -5301,7 +5301,7 @@ c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 c6b998c2acf24290a8be80d848301df5c4b66e82  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-3681e6640f274e1b8ddb947e0ace2a8281ba02dc  assets/style.css
+baa20d22d2472371930b35edb6c68be7929f8177  assets/style.css
 7caa4d9d42a2d06b9526e57cbf1ff6c096af7f3a  assets/tilemap.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
 21f8f690992ec0560260662de62adf8aedd0a48e  assets/trekfight.js
@@ -5456,7 +5456,7 @@ b4c09b7112b65c41faacf8f9ee91d3a18f818b1c  includes/first_week.php
 bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 7021ac3cc44e66b2e9115dace1ccd53f291494aa  includes/fresh_start.php
 99110fc778d8b37055135c27a5f9cd203c2482a5  includes/friends.php
-5310de0e4307dbb9073110fe62f01d6a672cdf25  includes/functions.php
+e2dd1b47fa82e476f7369bea49573caacb30d237  includes/functions.php
 07f23e29351f55e9f1977e463961633075474333  includes/games.php
 a9fbcab82e35bb8e8c57cc79f053fe83f73ed42c  includes/garden_critters.php
 26b6b870c76eb1eab2f25da9eafe2a6beec400c9  includes/garden_fx.php
@@ -5480,7 +5480,7 @@ ed297d75d0c62b1a9ba9ac8ece5b5330f9090717  includes/jobs.php
 a24a4e6a12cad68d46fe5b01a9c3c7ffefc44c56  includes/landmarks.php
 861ef9d90c538d4b9989f1268fa87226e83f5d45  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
-3b6d25bd74e252f1a13b6dab56904d827d3297e9  includes/local.php
+621a7ba179e3462c591e03d237828ac725ec0b7f  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
 a3c685a8492f978ce701c803da18f71e6c5e7995  includes/mail_nudge.php
 1d8ebe1fe40c2cfee352660e97da21387a2ee54a  includes/maps.php
@@ -5551,7 +5551,7 @@ b864b2f229cdd84ad203e92e3375b69c46e47697  includes/update_news.php
 46532daa3ff13c87820a3d523e887c36439ec70c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
 b5cc400bb2ceff85e588cb7b407c16470d78e72c  includes/upgrade120.php
-34514a194fa757bc7b011f6b17774c4c75f21f06  includes/upgrade140.php
+8e2a44de4442a9794e6b0df31483d2d57321ac27  includes/upgrade140.php
 54dfaf7bccdb4932dbf1960cc61eae96e64eec2c  includes/upgrade163.php
 2e16af0b50ac3686d523e8f12ac05256e511c68a  includes/upgrade170.php
 eb5fdc82a19422ed6f2e1d822e0f01465cd73357  includes/upgrade193.php

@@ -326,7 +326,7 @@ function settings_schema(): array
         'daypart_night'      => ['label' => 'Time of day: night starts at hour', 'type' => 'int', 'default' => '21', 'min' => 0, 'max' => 23],
         'map_style'          => ['label' => 'Maps: fallback style when a map picture is missing (the world and region maps are the underground pixel-art pictures whenever assets/img/scenes/map-world.png / map-CODE.png are there)', 'type' => 'select', 'default' => 'mycelium', 'options' => ['mycelium' => 'Mycelium cross-section (regions at their depth, with folk, quests and gathering overlays)', 'classic' => 'Classic (islands on a sea; the old maps)']],   // v1.6.0
         'stop_slots'         => ['label' => 'Rest stops: things to do on one visit (a visit starts when you arrive)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 9],
-        'stop_daily_cap'     => ['label' => 'Rest stops: most things per day at one stop', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 50],
+        'stop_daily_cap'     => ['label' => 'Rest stops: most things per day at one stop', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 50],
         'stop_daily_total'   => ['label' => 'Rest stops: after this many things in a day (all stops), Petals and XP are halved (no hard limit)', 'type' => 'int', 'default' => '100', 'min' => 1, 'max' => 1000],   // v1.4.9: was a hard cap of 15
         'stop_rest_daily'    => ['label' => 'Rest stops: most resting activities (baths, benches, kettles) per day', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 20],
         'stop_core'          => ['label' => 'Rest stops: always-there activities at each stop', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 8],

@@ -498,22 +498,24 @@ function local_panel(array $u, array $loc): string
 
     // activities
     // v2.0.67: felt scene cards (mockup2); each opens a sheet with the blurb and the same forms as before
-    $h .= '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">' . ($capped ? 'enough here today' : $left . ' of ' . $slots . ' left this visit') . '</span></h3><div class="gcards gcards--2 docards">';
+    $head = '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">' . ($capped ? 'enough here today' : $left . ' of ' . $slots . ' left this visit') . '</span></h3><div class="gcards docards">';
     $locked = $capped || $left === 0;
     $why = $capped ? 'Enough here today' : ($left === 0 ? 'Walk on for more' : '');
     $folk0 = $folk[0] ?? null;
     $shelf = '';
+    $acts = '';   // v2.0.80: the stall goes above the activity cards, so the cards are collected first
     foreach ($pool['offer'] as $a) {
         $isDone = in_array($a['slug'], $done, true);
         if (in_array((string)$a['kind'], ['buy', 'snack'], true)) { $shelf .= local_buy_tile($u, $loc, $a, $isDone, $locked); continue; }   // v2.0.17: stalls are picture tiles
-        $h .= local_act_card($u, $loc, $a, $isDone, $why, $folk0);
+        $acts .= local_act_card($u, $loc, $a, $isDone, $why, $folk0);
     }
     if ($pool['tiers'] && stop_adopt_limit() > 0) {   // the next adopter tier's activities, locked, saying the tier they need (the Stop tab lists every tier)
         $nextTier = min(array_map(fn($a) => (int)$a['tier'], $pool['tiers']));
-        foreach ($pool['tiers'] as $a) if ((int)$a['tier'] === $nextTier && !in_array((string)$a['kind'], ['buy', 'snack'], true)) $h .= local_act_card($u, $loc, $a, false, 'Needs tier ' . $nextTier, $folk0);
+        foreach ($pool['tiers'] as $a) if ((int)$a['tier'] === $nextTier && !in_array((string)$a['kind'], ['buy', 'snack'], true)) $acts .= local_act_card($u, $loc, $a, false, 'Needs tier ' . $nextTier, $folk0);
     }
-    $h .= '</div>';
+    $acts .= '</div>';
     if ($shelf !== '') $h .= '<div class="mkstall"><h3 class="st-h">🛒 For sale</h3><div class="shopwrap">' . item_grid($shelf) . '</div></div>';
+    $h .= $head . $acts;
     if ($pool['later']) {
         $h .= '<details class="st-later"><summary>🕰️ Other times here (' . count($pool['later']) . ')</summary><ul>';
         foreach ($pool['later'] as $a) $h .= '<li>' . e((string)$a['icon']) . ' <b>' . e((string)$a['name']) . '</b> <small class="muted">' . e(stop_cond_text((string)$a['cond'])) . '</small></li>';
