@@ -3,7 +3,7 @@ local REPO = "/home/user/gnome-venture/"
 local L = dofile(REPO .. "aseprite-source/final/scripts/wonders/lmlib.lua")
 local GV, c, W, H = L.GV, L.new(), L.W, L.H
 local SLUG = "wonder-stork-chimney-village"
-local STW = GV.ramp("#f6f2e8", { dot = "#fffaf0", gloss = "#fffaf0", rim = "#fffaf0", shade = "#c5c9d8", deep = "#9a9fb8", bounce = "#d8d4e0" })
+local STW = GV.ramp("#f6f2e8", { dot = "#fffaf0", gloss = "#fffaf0", rim = "#fffaf0", shade = "#d8d4e0", deep = "#c5c9d8", bounce = "#d8d4e0" })
 
 c:bands(c:rect(0, 0, W - 1, 84), { "#5a6aa8", "#7a7ab8", "#a48ac0", "#d49ab8", "#f0aa98", "#f8c890", "#fbe0a8" }, { dir = "v" })
 L.cloud(c, 40, 24, 18, "#d49ab8", "#a48ac0"); L.cloud(c, 130, 36, 20, "#f0aa98", "#d49ab8"); L.cloud(c, 210, 52, 14, "#f8c890", "#f0aa98")
