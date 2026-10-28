@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Lint the Puzzle Pals data (game/includes/data/puzzle_pals.txt and puzzle_pal_names.txt).
-Usage: tools/lint_puzzle_pals.py [PALS.txt] [--names NAMES.txt] [--pics slug1,slug2] [--npcs NPC_NAMES.txt]
+Usage: tools/lint_puzzle_pals.py [PALS.txt [DRAFT.txt ...]] [--names NAMES.txt] [--pics slug1,slug2] [--npcs NPC_NAMES.txt]
   --pics  extra picture slugs that exist (uploads); built-in slugs are read from game/includes/jigsaw.php (JIGSAWS), and slugs starting pl- are Places.
+  DRAFT.txt  extra draft files in the same format, checked together with PALS.txt (keys, names and rosters are unique across all); slugs starting pl- are Places pictures.
   --npcs  one NPC name per line; a pal may not share a name with one.
 Checks: 14 columns, unique key (<= 48 chars, a-z 0-9 - _), picture exists, rarity, calling, stats 0-3 and the rarity's total band (common 3-4, uncommon 5, rare 6),
 piece 0-11 x 0-7, shape + knob valid, perk valid, whole roster: at most 6 pals, 3/2/1 mix when it has 6, no shared shape+knob, unique names across ALL pictures,
@@ -35,13 +36,19 @@ def main():
     bad = []
     def err(ln, m): bad.append('%s: %s' % (ln, m))
     keys, seen_names, roster = {}, {}, {}
-    for n, l in enumerate(open(path, encoding='utf-8'), 1):
+    files = [path] + args[1:]
+    multi = len(files) > 1
+    def rows_of():
+        for f in files:
+            for n, l in enumerate(open(f, encoding='utf-8'), 1):
+                yield ('%s:%d' % (os.path.basename(f), n) if multi else 'line %d' % n), l
+    for n, l in rows_of():
         l = l.rstrip('\n')
         if not l.strip() or l.startswith('#'): continue
-        c = l.split('|'); ln = 'line %d' % n
+        c = l.split('|'); ln = n
         if len(c) != 14: err(ln, '%d columns, want 14' % len(c)); continue
         pic, key, name, rar, call, g, ni, h, lu, piece, shape, knob, perk, blurb = c
-        if key in keys: err(ln, 'duplicate key %s (line %d)' % (key, keys[key]))
+        if key in keys: err(ln, 'duplicate key %s (%s)' % (key, keys[key]))
         keys[key] = n
         if not re.fullmatch(r'[a-z0-9_-]{2,48}', key): err(ln, 'bad key %r' % key)
         if pic not in pics and not pic.startswith('pl-'): err(ln, 'unknown picture %r' % pic)
@@ -62,7 +69,7 @@ def main():
         if not name.strip() or len(name) > 30: err(ln, 'name empty or over 30 chars')
         if not blurb.strip() or len(blurb) > 120: err(ln, 'blurb empty or over 120 chars')
         if "'" in name + blurb: err(ln, 'straight apostrophe: use ’')
-        if name.lower() in seen_names: err(ln, 'name %r already used (line %d)' % (name, seen_names[name.lower()]))
+        if name.lower() in seen_names: err(ln, 'name %r already used (%s)' % (name, seen_names[name.lower()]))
         seen_names[name.lower()] = n
         if name.lower() in npcs: err(ln, 'name %r is an existing NPC' % name)
         roster.setdefault(pic, []).append((n, rar, shape, knob))
@@ -74,7 +81,7 @@ def main():
                 if got != want: err(pic, 'roster has %d %s, want %d' % (got, r, want))
         seen = {}
         for n, rar, shape, knob in rows:
-            if (shape, knob) in seen: err('line %d' % n, '%s: shape+knob %s/%s also on line %d' % (pic, shape, knob, seen[(shape, knob)]))
+            if (shape, knob) in seen: err(n, '%s: shape+knob %s/%s also on %s' % (pic, shape, knob, seen[(shape, knob)]))
             seen[(shape, knob)] = n
     # name banks
     bank = {'first': {}, 'epithet': {}}
