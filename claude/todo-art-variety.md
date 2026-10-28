@@ -61,8 +61,6 @@ Build-stage verbs still to come (one icon each, same folder, `stage-<verb>.png`)
 ## Nice to have (larger pieces, ask Joshua)
 - [ ] Before/after pictures for the nine pilot places: Market of a Thousand Chilies, The Stepped Seed Temple, Cenote of Echoes, Jaguar Root Caves, Driftwood Tavern, Sunken Gnome Galleon, The Singing Waterfall, Mangrove Root Maze, Turtle Nesting Beach (ruined / mended, to sit on the repair card). Not wired yet.
 - [ ] A small "progress" picture for a clear stage (cleared in stages: 1/3, 2/3, 3/3).
-- [ ] Road Journal page art (14 regions) for release 2.0.79.
-- [ ] New stop act kinds and road card kinds each get one small icon (2.0.78 / 2.0.79).
 
 ## 2.0.79 road cards and Road Journal: first pass DRAWN (branch claude/art-first-pass, not yet approved)
 - [x] Road card kind icons `game/assets/img/roadkinds/{fork,riddle,trade,chain,sketch}.png` (96x96). Weakest: trade (reads as a basket with sleeves), chain (zigzag at 24px). Script `aseprite-source/extras-pixel/scripts/variety-roadkinds.lua`.
