@@ -36,7 +36,7 @@ Files: `jigsaw.php` (library + tournament page, copy of `gifsaw.php` shape), `in
 - **Play table**: `#count` select becomes a read-only tier label in still mode; Motion button hidden; Guide, Scatter (Ffej), zoom, Copy link (`jigsaw.php?p=slug&k=easy&seed=N`) stay. Tournament: no link, tier locked, as GIFsaw.
 - **Free-play timing**: logged-in non-guest runs call `puzzles_api.php` `do=pstart` / `do=pfinish` (new, practice only, same CSRF/rate limit/min-time rules, no tournament gate, needs `jigsaw_open`). Guests: client-only, nothing saved (mirrors GIFsaw).
 - **Win card**: time, tier, personal-best line, "Next tier" button (Easy -> Advanced -> Expert), "Another picture".
-- **Save and resume** (recommended, Expert takes 30+ min): `localStorage` per pic+tier+seed with group positions; "Continue" chip on the card. Try/catch every access (site rule). Not in tournaments (clock is server-side). Cut it first if 2.0.87 gets too big.
+- **Save and resume (IN 2.0.87, Joshua said yes)** (Expert takes 30+ min): `localStorage` per pic+tier+seed with group positions; "Continue" chip on the card. Try/catch every access (site rule). Not in tournaments (clock is server-side).
 - **Tournaments (player)**: reuse GIFsaw tournament page copy: phase line (soon/open/closing/settled), start button, daily tries left, leaderboard, your best, place + cast badge. A cup (3 tiers) shows three tabs. Before start the picture is a "mystery" card (no thumb printed). Reserved pictures stay out of free play until settled, then release into the library (fairness: no pre-practice). File names are random hex.
 - **Rewards**: cosmetic only, same as GIFsaw: trophy/badge on the profile shelf (`puzzle_badges_html`, add a small tier pip next to each badge, CSS-composed from the tier icons, so no per-tier trophy art). Notify on place. News item when a tournament opens, only once players can see Jigsaw.
 - **Trust** (as GIFsaw): server clock, single-use token, `PUZZLE_MIN_MS_PER_PIECE`, `drops >= total-1`, grace 10 min, top-3-under-a-third-of-median flag, admin void. Known limit: a solver bot is not stoppable by design, same as GIFsaw (picture is public to the player).
@@ -50,7 +50,7 @@ Tabs:
 1. **Library**: thumb, title, category, on/off, reserved, order, soft-delete, plus counts (free-play solves per tier, tournaments used). Edit title/category/order/active/reserved.
 2. **Upload**: multi-file (up to 25). Accept JPEG/PNG/WEBP up to 3 MB. Require 4:3 within 1%, min 1200 x 900, max 2400 x 1800 (else refuse with the numbers; no silent crop). GD re-encodes to 1600 x 1200 JPEG q85 (strips EXIF) + 400 x 300 thumb into `uploads/jigsaw/{hex}.jpg` / `-thumb.jpg`. Category + "reserve for a tournament" at upload. No GD = clear message, like GIFsaw.
 3. **Tournaments**: list with kind/tier/status filters. Form: title, picture, **tier radio showing piece count**, start/end in Hollow time (`puzzle_to_utc`), status draft/live. Buttons: "Make all three tiers" (creates a cup: 3 rows sharing `cup_id`, times and title suffix), Duplicate, Cancel (void all, no places, no notify), Settle now. Detail: live leaderboard, flagged top-3, recent runs with Void + reason (`admin_log`), CSV of results.
-4. **Schedule** (stretch, can slip to 2.0.88): weekly cup template (weekday, hour, tier set, pick next unreserved picture in a category). Created lazily by `settle_puzzle_tournaments()` so no cron needed.
+4. **Schedule (MOVED TO 2.0.88, Joshua said yes; not built in 2.0.87)**: weekly cup template (weekday, hour, tier set, pick next unreserved picture in a category). Created lazily by `settle_puzzle_tournaments()` so no cron needed.
 5. **Settings** link card to the four settings above.
 Each save: `csrf_check()`, `admin_log()`, validate tier against `JIGSAW_TIERS`, pieces from tier.
 
@@ -94,18 +94,14 @@ Tiers: posted piece count ignored/rejected; grid = 24/96/216 exactly for 4:3. Up
 | B | Tournaments on `jigsaw.php` (tier, cup tabs, mystery card, reserve) + profile tier pip + settle/notify | M |
 | C | `admin/jigsaw.php` (Library, Upload, Tournaments) + shared UI refactor + menu | M |
 | D | `tests/jigsaw.sh` + Playwright Expert perf pass + CHANGELOG/handoff/todo + `tools/check_versions.sh` + zips/manifest | S/M |
-| E (slip if tight) | Save and resume; Schedule tab; Tidy button (rows) | M |
+| E | Save and resume (in 2.0.87); Tidy button (rows, optional). Schedule tab = 2.0.88 | M |
 Who: Sonnet agents code A to D; Haiku for placeholder art + bulk checks; Opus reviews once at the end (look at the screenshots, run suites vs pristine). Plan then pause for Joshua before B if A looks wrong.
 
-## 10. Joshua's calls (defaults in bold)
-1. Tier sizes **24 / 96 / 216** (alt 48 / 150 / 300 if you want bigger).
-2. Expert tries per day **5** (others 10).
-3. Launch pictures **14 region scenes + 3 placeholders**; you generate them.
-4. Reserved tournament pictures hidden from free play until settled: **yes**.
-5. One shared trophy shelf for GIFsaw + Jigsaw with a tier pip: **yes**.
-6. Save and resume inside 2.0.87: **yes if time, else 2.0.88**.
-7. Cups (3 tiers at once) in 2.0.87: **yes**. Weekly Schedule tab: **2.0.88**.
-8. Players see Jigsaw only when you flip `jigsaw_open` (admins see it now): **yes**.
+## 10. Joshua's calls (decided 2026-10-28)
+1. Tier sizes **24 / 96 / 216**: OK.
+2. Save and resume in 2.0.87: **yes**.
+3. Weekly Schedule tab: **2.0.88**.
+Still on defaults (shout if wrong): Expert 5 tries/day (others 10); launch 14 region pictures + 3 placeholders; reserved tournament pictures hidden until settled; one shared trophy shelf with tier pip; cups (3 tiers) in 2.0.87; players see Jigsaw only when `jigsaw_open` is flipped.
 
 ## 11. Not now
 Daily jigsaw (the `puzzle_daily` plan in `plan-puzzle-games.md` covers other games), seasonal champion points, portrait/other aspect ratios, player-uploaded pictures, rotating pieces, co-op/shared tables.
