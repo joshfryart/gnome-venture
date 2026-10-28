@@ -18,11 +18,12 @@ FAM = {"soil": "3d2a1c 7a4a1f 9a6b3f c9a96e f1ece0", "moss": "2f5a2a 4f9a45 7ab5
 UMBER = np.array([0x3d, 0x2a, 0x1c], np.uint8)
 rgb = lambda h: np.array([int(h[i:i + 2], 16) for i in (0, 2, 4)], float)
 
-def palette():
+def palette(rich=True):
     F = {k: [rgb(h) for h in v.split()] for k, v in FAM.items()}
     P = [c for v in F.values() for c in v]
     for v in F.values():
         P += [(a + b) / 2 for a, b in zip(v, v[1:])]
+    if not rich: return np.unique(np.array(P).round(), axis=0)
     for a, b in [("soil", "gold"), ("soil", "stone"), ("moss", "soil"), ("water", "stone"), ("gold", "moss"), ("soil", "ember")]:
         P += [(x + y) / 2 for x in F[a] for y in F[b]]
     return np.unique(np.array(P).round(), axis=0)
@@ -64,7 +65,10 @@ def main():
     ap.add_argument("--dur", type=float, default=2.4); ap.add_argument("--fps", type=float, default=10)
     ap.add_argument("--grid", type=int, default=240, help="grid width; GIF is 2x"); ap.add_argument("--out", default=HERE)
     ap.add_argument("--outline", action=argparse.BooleanOptionalAction, default=True)
-    ap.add_argument("--smooth", type=int, default=1, help="median passes for flat felt look (0=off)")
+    ap.add_argument("--smooth", type=int, default=2, help="median passes for flat felt look (0=off)")
+    ap.add_argument("--dither", type=float, default=0, help="ordered-dither strength (0=flat cel)")
+    ap.add_argument("--rich", action="store_true", help="add cross-family blend colours (photo-like)")
+    ap.add_argument("--despeckle", type=int, default=3, help="majority-filter passes on colour regions")
     ap.add_argument("--ase"); a = ap.parse_args()
     name = a.name or os.path.splitext(os.path.basename(a.video))[0]
     os.makedirs(a.out, exist_ok=True); ase = find_ase(a.ase)
@@ -73,18 +77,24 @@ def main():
         subprocess.run(["ffmpeg", "-v", "error", "-ss", str(a.start), "-t", str(a.dur), "-i", a.video, "-vf",
                         f"fps={a.fps},scale={a.grid}:-2:flags=area", os.path.join(raw, "f%03d.png")], check=True)
         files = sorted(glob.glob(raw + "/*.png")); assert files, "no frames (check --start/--dur)"
-        pal = palette(); pl = lab(pal)
+        pal = palette(a.rich); pl = lab(pal)
         B = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16 - .5
         for f in files:
             im = Image.open(f).convert("RGB")
             for _ in range(a.smooth): im = im.filter(ImageFilter.MedianFilter(3))
-            x = 255 * (np.asarray(im, float) / 255) ** 0.8
-            h, w, _ = x.shape; d = np.tile(B, (h // 4 + 1, w // 4 + 1))[:h, :w, None] * 14
+            x = 255 * (np.asarray(im, float) / 255) ** 0.7
+            h, w, _ = x.shape; d = np.tile(B, (h // 4 + 1, w // 4 + 1))[:h, :w, None] * a.dither
             i = ((lab(np.clip(x + d, 0, 255))[:, :, None, :] - pl[None, None]) ** 2).sum(3).argmin(2)
+            for _ in range(a.despeckle):  # 3x3 majority vote -> flat felt patches, no salt-and-pepper
+                n = len(pal); cnt = np.zeros((h, w, n), np.int16); P = np.pad(i, 1, mode="edge")
+                for dy in range(3):
+                    for dx in range(3): np.add.at(cnt, (np.arange(h)[:, None], np.arange(w)[None, :], P[dy:dy + h, dx:dx + w]), 1)
+                i = cnt.argmax(2)
             o = pal[i].astype(np.uint8)
-            if a.outline:  # umber line where neighbouring cells jump a lot in luma (flat 1px toy edge)
+            if a.outline:  # 1px umber line on region borders, drawn inside the darker patch (toy seam)
                 L = lab(o.astype(float))[..., 0]; e = np.zeros(L.shape, bool)
-                e[:-1] |= np.abs(L[:-1] - L[1:]) > 38; e[:, :-1] |= np.abs(L[:, :-1] - L[:, 1:]) > 38
+                dv = (i[:-1] != i[1:]) & (np.abs(L[:-1] - L[1:]) > 14); e[:-1] |= dv & (L[:-1] <= L[1:]); e[1:] |= dv & (L[1:] < L[:-1])
+                dh = (i[:, :-1] != i[:, 1:]) & (np.abs(L[:, :-1] - L[:, 1:]) > 14); e[:, :-1] |= dh & (L[:, :-1] <= L[:, 1:]); e[:, 1:] |= dh & (L[:, 1:] < L[:, :-1])
                 o[e] = UMBER
             Image.fromarray(o).save(os.path.join(px, os.path.basename(f)))
         lua = os.path.join(t, "mk.lua"); open(lua, "w").write(LUA)
