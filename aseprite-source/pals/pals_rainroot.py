@@ -199,7 +199,7 @@ def glimmer_frog():
     bumps = disc(22, 29, 5.6) | disc(39, 29, 5.6)
     legs = ellipse(15, 45, 5, 4.5) | ellipse(47, 45, 5, 4.5)
     toes = disc(11, 49.5, 1.8) | disc(16, 50, 1.8) | disc(25, 49.5, 1.8) | disc(37, 49.5, 1.8) | disc(46, 50, 1.8) | disc(51, 49.5, 1.8)
-    hook = knob("w", "hook", 34, 17, r=4.6, nw=2.9)
+    hook = knob("w", "hook", 34, 19, r=4.4, nw=2.9)
     body = bodym | bumps | legs | toes | hook
     st.part(body, tex=relight(body_fill(key, body, 11, 22, 40, k=3, passes=3), body, [FROG_D, '#3f8a4a', FROG]), contour=True)
     st.paint(hook & ~bodym, FROG)
