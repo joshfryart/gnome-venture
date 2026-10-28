@@ -285,8 +285,13 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
         $pips = '';
         for ($i = 1; $i <= 3; $i++) $pips .= '<span class="belt__pip' . ($i <= $tier ? ' on' : '') . '"></span>';
         $on = $t === $active;
-        $slots['own'] .= '<li class="belt__slot' . ($on ? ' is-active' : '') . '" title="' . e($name . ' · ' . $tierName) . '">' . gather_ui_img('slot-' . $t . '.png', 48, 48)
-            . '<span class="vh">' . e($name . ', ' . $tierName . ($on ? ', in use' : '')) . '</span><span class="belt__pips">' . $pips . '</span></li>';
+        $inner = gather_ui_img('slot-' . $t . '.png', 48, 48)
+            . '<span class="vh">' . e($name . ', ' . $tierName . ($on ? ', in use' : '')) . '</span><span class="belt__pips">' . $pips . '</span>';
+        // a tool that finds something here is a button: a click gathers with it (same post as its felt card below)
+        if (in_array($t, $usableIds, true)) {
+            $inner = '<button type="submit" form="gx-gather-form" class="belt__btn" name="tool" value="' . e($t) . '" title="' . e('Gather with ' . $name . ' · ⚡1') . '">' . $inner . '</button>';
+        }
+        $slots['own'] .= '<li class="belt__slot' . ($on ? ' is-active' : '') . '" title="' . e($name . ' · ' . $tierName) . '">' . $inner . '</li>';
     }
     $h .= '<h3 class="gx-h">Your tool belt</h3><ul class="belt">' . $slots['own'] . $slots['miss'] . '</ul>';
     if ($active !== '' && ($best = best_tool($uid, $active))) {
@@ -309,7 +314,7 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
         }
     }
     $h .= '<h3 class="gx-h">Gather here <span class="gx-h__sub">⚡1 a try</span></h3>'
-        . '<form method="post" action="' . e($action) . '" class="gx-form">' . csrf_field() . '<input type="hidden" name="do" value="gather">' . $hiddenHtml
+        . '<form method="post" action="' . e($action) . '" class="gx-form" id="gx-gather-form">' . csrf_field() . '<input type="hidden" name="do" value="gather">' . $hiddenHtml
         . '<div class="gcards">' . $cards . '</div></form>';
 
     // what's here: every find in this land, ??? until it is in the Almanac
