@@ -5,18 +5,6 @@ Live: gnomeventure.ca. No monetization.
 
 Current version: see the top entry of [CHANGELOG.md](CHANGELOG.md). The single source of truth is `APP_VERSION` in `game/includes/bootstrap.php`; docs carry no hardcoded version (`bash tools/check_versions.sh` checks this).
 
-## Screens
-
-<p align="center">
-  <img src="game/assets/img/landing/hero.svg" alt="A gnome in a red hat standing in a sunny garden" width="360">
-  <img src="game/assets/img/landing/garden.svg" alt="A 4x4 garden bed with sprouts, a tomato and a carrot" width="360">
-  <img src="game/assets/img/landing/roads.svg" alt="Glowing mycelium roads at dusk linking mushroom houses" width="360">
-  <img src="game/assets/img/landing/cook.svg" alt="A cooking pot with steam beside a tomato and a carrot" width="360">
-  <img src="game/assets/img/landing/almanac.svg" alt="An open almanac with a sprout and a mushroom on its pages" width="360">
-  <img src="game/assets/img/landing/games.svg" alt="A snail racing past a rolling die" width="360">
-  <img src="game/assets/img/landing/stats.svg" alt="A gnome with four stat bars and an apple" width="360">
-</p>
-
 ### Current build (demo account, regenerate with `bash tests/readme_shots.sh`)
 
 Desktop (1400px):
