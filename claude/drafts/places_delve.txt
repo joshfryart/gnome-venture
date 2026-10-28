@@ -1,0 +1,87 @@
+# Puzzle Pals drafts: the 14 DELVE places (2026-10-28), 6 pals each = 3 common, 2 uncommon, 1 rare. Not yet merged into puzzle_pals.txt.
+# pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
+# pic_slug = pl- + the place key cut to 44 chars + - + md5(key)[0:6], as ppal_pic_slug() reads it for source place.
+pl-delve-anaconda-hollows-734b93|pl-ana-1|Tailtip Tickle|common|rootwarden|1|1|1|0|6-7|corner-TT|peg|-|The tip of the anaconda’s tail, which pokes out of the creek to tickle any toe it finds.
+pl-delve-anaconda-hollows-734b93|pl-ana-2|Tongue Taster|common|bloomcaller|0|2|1|0|3-5|edge-TBT|tri|-|Tastes every breeze with a forked tongue and reports back to nobody.
+pl-delve-anaconda-hollows-734b93|pl-ana-3|Creek Sipper|common|brewroot|1|0|1|1|6-5|inner-TBTB|round|-|Sips the jungle creek one ripple at a time and burps out a bubble.
+pl-delve-anaconda-hollows-734b93|pl-ana-4|Scale Diamonds|uncommon|thornblade|2|1|1|1|4-7|inner-TTTT|double|-|Four diamond markings off the anaconda’s back that shine like wet creek pebbles.
+pl-delve-anaconda-hollows-734b93|pl-ana-5|Coil Nest|uncommon|bloomcaller|1|0|2|2|7-6|inner-BBBB|peg|-|The warm ring the anaconda curls into, with just enough room in the middle for a gnome nap.
+pl-delve-anaconda-hollows-734b93|pl-ana-6|Big Grin Anaconda|rare|wayfinder|2|2|1|1|3-4|whimsy-anaconda|round|-|A huge anaconda coiled in the hollows creek, grinning from ear to ear, who only ever wants a hug.
+pl-delve-beaverdam-tunnels-a12bc9|pl-bvd-1|Willow Chew|common|rootwarden|1|1|1|0|4-5|corner-BB|round|-|Chews one stick every morning and calls it breakfast in the lodge.
+pl-delve-beaverdam-tunnels-a12bc9|pl-bvd-2|Paddletail Slap|common|seedkeeper|0|2|1|0|2-5|edge-TTB|peg|-|Slaps the pond with a flat tail to say hello, goodbye and dinner time.
+pl-delve-beaverdam-tunnels-a12bc9|pl-bvd-3|Tunnel Trickle|common|brewroot|1|0|1|1|2-7|inner-TBTB|tri|-|A trickle that runs the flooded tunnels under the lodge and never takes a wrong turn.
+pl-delve-beaverdam-tunnels-a12bc9|pl-bvd-4|Damwall Logs|uncommon|thornblade|2|1|1|1|1-5|inner-TTTT|double|-|Four stubby logs off the dam, piled crooked, that creak when a beaver leans on them.
+pl-delve-beaverdam-tunnels-a12bc9|pl-bvd-5|Lodge Door|uncommon|bloomcaller|1|0|2|2|8-5|inner-BBBB|round|-|The low round door of the lodge at the waterline, always open to a friend who can swim.
+pl-delve-beaverdam-tunnels-a12bc9|pl-bvd-6|Dam Captain|rare|wayfinder|2|1|1|2|3-4|whimsy-beaver|double|-|A beaver captain whose flat tail keeps time for the whole dam while it chews.
+pl-delve-firefly-caves-dfbe7c|pl-ffy-1|Glowtail Dot|common|seedkeeper|1|1|1|0|1-3|corner-TT|round|-|A firefly dot with a glowing tail that blinks on and off on purpose.
+pl-delve-firefly-caves-dfbe7c|pl-ffy-2|Canoe Glimmer|common|bloomcaller|0|2|1|0|2-6|edge-BTB|tri|-|The little lamp on the outrigger canoe, which the fireflies think is a long-lost aunt.
+pl-delve-firefly-caves-dfbe7c|pl-ffy-3|Lake Twinkle|common|brewroot|1|0|1|1|6-6|inner-TBTB|peg|-|A firefly’s reflection that fell into the cave lake and keeps blinking from underneath.
+pl-delve-firefly-caves-dfbe7c|pl-ffy-4|Spare Wings|uncommon|thornblade|2|1|1|1|2-2|inner-TTTT|double|-|Four spare firefly wings in a neat stack, all of them fluttering at once.
+pl-delve-firefly-caves-dfbe7c|pl-ffy-5|Night Archway|uncommon|seedkeeper|1|0|2|2|6-4|inner-BBBB|tri|-|The round far mouth of the cave, where the moonlit night peeks in to count the fireflies.
+pl-delve-firefly-caves-dfbe7c|pl-ffy-6|Firefly Lamplighter|rare|wayfinder|2|2|1|1|11-4|whimsy-firefly|round|-|A big chibi firefly who lights the cave one blink at a time and calls itself a star.
+pl-delve-fynbos-fire-trails-06ba6d|pl-fyn-1|Firelily Flicker|common|rootwarden|1|1|1|0|1-6|corner-TB|round|-|A fire lily that pops up orange from the ash, as if the flames left a present behind.
+pl-delve-fynbos-fire-trails-06ba6d|pl-fyn-2|Ash Sprout|common|seedkeeper|0|2|1|0|2-7|edge-TBB|peg|-|A green sprout that pops up through the ash the week after the fire.
+pl-delve-fynbos-fire-trails-06ba6d|pl-fyn-3|Charcoal Twiglet|common|brewroot|1|0|1|1|6-5|inner-TBTB|tri|-|A charred fynbos twig with one ember still glowing at its tip, like a sleepy candle.
+pl-delve-fynbos-fire-trails-06ba6d|pl-fyn-4|Protea Petals|uncommon|thornblade|2|1|1|1|8-6|inner-TTTT|double|-|A king protea as big as a dassie’s head, with pink petals pointing every way at once.
+pl-delve-fynbos-fire-trails-06ba6d|pl-fyn-5|Sunset Gap|uncommon|bloomcaller|1|0|2|2|1-4|inner-BBBB|round|-|A gap in the smoke where the dusk sun peeks over the ridge before bed.
+pl-delve-fynbos-fire-trails-06ba6d|pl-fyn-6|Trail Dassie|rare|wayfinder|2|2|1|1|4-6|whimsy-dassie|double|-|A chibi rock dassie sitting on the ash trail, sniffing a protea as if it were cake.
+pl-delve-jaguar-root-caves-0a418b|pl-jrc-1|Rosette Nub|common|rootwarden|1|1|1|0|6-6|corner-BB|round|-|A spotty rosette the jaguar lost in the root tangle, still purring.
+pl-delve-jaguar-root-caves-0a418b|pl-jrc-2|Rootlet Swing|common|seedkeeper|0|2|1|0|3-3|edge-TBB|peg|-|Swings from a hanging root over the cave path and drops onto the jaguar’s nose for fun.
+pl-delve-jaguar-root-caves-0a418b|pl-jrc-3|Glowcap Nibble|common|brewroot|1|0|1|1|0-6|inner-TBTB|tri|-|A glow mushroom from the twisty side tunnel that lights the jaguar’s way to bed.
+pl-delve-jaguar-root-caves-0a418b|pl-jrc-4|Softpad Prints|uncommon|thornblade|2|1|1|1|3-7|inner-TTTT|double|-|Four soft paw prints pressed into the root path, all pointing at the sunny cave mouth.
+pl-delve-jaguar-root-caves-0a418b|pl-jrc-5|Sunspill Arch|uncommon|bloomcaller|1|0|2|2|10-4|inner-BBBB|round|-|The round sunlit mouth of the cave, where the jaguar sits to warm its whiskers.
+pl-delve-jaguar-root-caves-0a418b|pl-jrc-6|Boulder Jaguar|rare|wayfinder|2|2|1|1|5-5|whimsy-jaguar|peg|-|A chibi jaguar curled on its mossy boulder, guarding the twisty path with a very serious purr.
+pl-delve-mangrove-root-maze-195d16|pl-mgr-1|Tidewater Toes|common|rootwarden|1|1|1|0|1-6|corner-TB|round|-|Dips its toes off the stilt roots at low tide and calls it a bath.
+pl-delve-mangrove-root-maze-195d16|pl-mgr-2|Frog Peeper|common|wayfinder|0|2|1|0|5-6|edge-TTB|peg|-|Peeks out from the mossy log between the roots and blinks at every bug.
+pl-delve-mangrove-root-maze-195d16|pl-mgr-3|Jarlight Twig|common|seedkeeper|1|0|1|1|7-5|inner-TBTB|tri|-|A firefly in a glass jar on a twig, held up high so the frog never loses the way.
+pl-delve-mangrove-root-maze-195d16|pl-mgr-4|Stiltroot Prance|uncommon|thornblade|2|1|1|1|9-5|inner-TTTT|double|-|Four knobbly stilt roots that hold up the whole tree and still dance with the tide.
+pl-delve-mangrove-root-maze-195d16|pl-mgr-5|Tangle Gap|uncommon|bloomcaller|1|0|2|2|7-4|inner-BBBB|round|-|The round gap in the tangled roots where the warm sky shows through; only a frog fits.
+pl-delve-mangrove-root-maze-195d16|pl-mgr-6|Mazeroot Mangrove|rare|seedkeeper|2|2|1|1|11-5|whimsy-mangrove|tri|-|A little mangrove that grew its roots into a maze over the dark water and forgot the way out.
+pl-delve-pirate-gull-grottoes-0265f9|pl-pgg-1|Hat Brim|common|thornblade|1|1|1|0|4-4|corner-TB|round|-|Tips a tiny pirate hat at every passing wave and never once falls off.
+pl-delve-pirate-gull-grottoes-0265f9|pl-pgg-2|Squawk Shanty|common|seedkeeper|0|2|1|0|5-5|edge-TTB|tri|-|Sings sea shanties in a squawk so loud the fish come up to listen.
+pl-delve-pirate-gull-grottoes-0265f9|pl-pgg-3|Stalactite Tap|common|brewroot|1|0|1|1|7-1|inner-TBTB|peg|-|Taps the grotto stalactites in a rhythm the whole sunny cove can dance to.
+pl-delve-pirate-gull-grottoes-0265f9|pl-pgg-4|Loot Heap|uncommon|thornblade|2|1|1|1|1-5|inner-TTTT|double|-|A heap of pinched gold coins that clinks four ways whenever a gull sits on it.
+pl-delve-pirate-gull-grottoes-0265f9|pl-pgg-5|Pinched Pearls|uncommon|bloomcaller|1|0|2|2|3-7|inner-BBBB|tri|-|A stolen pearl necklace looped round and round, which the gulls take turns wearing.
+pl-delve-pirate-gull-grottoes-0265f9|pl-pgg-6|Quartermaster Gull|rare|thornblade|2|2|1|1|4-5|whimsy-gull|peg|-|A pirate gull in a tricorn hat who counts the loot twice and the fish three times.
+pl-delve-rose-red-canyon-city-5571a1|pl-rrc-1|Bunting Flag|common|rootwarden|1|1|1|0|3-2|corner-TB|round|-|One flag off the bunting strung across the gorge, snapping in the warm wind.
+pl-delve-rose-red-canyon-city-5571a1|pl-rrc-2|Window Peek|common|seedkeeper|0|2|1|0|1-3|edge-TTB|peg|-|A little lamp-lit window carved in the canyon wall, peeking out at the camel.
+pl-delve-rose-red-canyon-city-5571a1|pl-rrc-3|Rosestone Pillar|common|brewroot|1|0|1|1|4-5|inner-TBTB|tri|-|A rose-pink column on the carved facade that hums whenever a breeze plays across it.
+pl-delve-rose-red-canyon-city-5571a1|pl-rrc-4|Saddle Stripes|uncommon|thornblade|2|1|1|1|7-7|inner-TTTT|double|-|Four bright stripes off the camel’s woven saddle blanket, each one a different sunset.
+pl-delve-rose-red-canyon-city-5571a1|pl-rrc-5|Lamplit Doorway|uncommon|bloomcaller|1|0|2|2|5-5|inner-TTBB|round|-|The dark carved doorway of the canyon city, with one lamp left on for late visitors.
+pl-delve-rose-red-canyon-city-5571a1|pl-rrc-6|Rose Canyon Camel|rare|wayfinder|2|2|1|1|8-5|whimsy-camel|round|-|A chibi camel resting on the warm canyon sand in its striped blanket, in no hurry at all.
+pl-delve-salt-mine-galleries-228a12|pl-smg-1|Brass Hardhat|common|rootwarden|1|1|1|0|5-4|corner-BB|peg|-|A tiny lamp helmet that clinks against the salt ceiling every time it nods.
+pl-delve-salt-mine-galleries-228a12|pl-smg-2|Salt Lick|common|seedkeeper|0|2|1|0|2-7|edge-TBB|tri|-|Licks the salty walls and claims they taste like soup.
+pl-delve-salt-mine-galleries-228a12|pl-smg-3|Crystal Pendant|common|brewroot|1|0|1|1|6-2|inner-TBTB|round|-|A carved salt crystal off the chandelier that tinkles whenever a cart goes by.
+pl-delve-salt-mine-galleries-228a12|pl-smg-4|Railtrack Rattle|uncommon|thornblade|2|1|1|1|3-7|inner-TTTT|double|-|Four iron rail ends that rattle like a drum roll as the cart rolls past.
+pl-delve-salt-mine-galleries-228a12|pl-smg-5|Salthall Roundel|uncommon|bloomcaller|1|0|2|2|1-4|inner-BBBB|peg|-|The round lit window of a carved gnome hall, warm as a bun from the oven.
+pl-delve-salt-mine-galleries-228a12|pl-smg-6|Saltblock Minecart|rare|wayfinder|2|2|1|1|8-6|whimsy-minecart|tri|-|A little mine cart piled with salt blocks that rumbles down the galleries and sings at every bend.
+pl-delve-sea-cave-smugglers-run-588ce7|pl-scg-1|Clifftop Lamp|common|rootwarden|1|1|1|0|11-0|corner-BB|round|-|The little hut light on the clifftop that blinks once for all clear.
+pl-delve-sea-cave-smugglers-run-588ce7|pl-scg-2|Sack Snooze|common|wayfinder|0|2|1|0|2-6|edge-TBT|peg|-|A lumpy sack aboard the rowboat that snores through every wave.
+pl-delve-sea-cave-smugglers-run-588ce7|pl-scg-3|Lantern Wink|common|brewroot|1|0|1|1|3-5|inner-TBTB|tri|-|A hooded lantern that winks at the coast guard and then at the cave.
+pl-delve-sea-cave-smugglers-run-588ce7|pl-scg-4|Tide Notches|uncommon|thornblade|2|1|1|1|4-5|inner-TTTT|double|-|Four notches on the tide pole that tell the rowboat when the sea cave is safe to enter.
+pl-delve-sea-cave-smugglers-run-588ce7|pl-scg-5|Deepcave Glow|uncommon|bloomcaller|1|0|2|2|7-5|inner-BBBB|round|-|The warm round glow deep in the sea cave, where the lantern light waits for the boat.
+pl-delve-sea-cave-smugglers-run-588ce7|pl-scg-6|Moonlit Keg|rare|thornblade|2|2|1|1|9-5|whimsy-barrel|hook|-|A keg on the tide ledge that hides a moonbeam and sneaks it past the coast guard.
+pl-delve-snowleopard-ledges-9a49a1|pl-sll-1|Cairn Stack|common|rootwarden|1|1|1|0|6-6|corner-TT|round|-|A tower of grey stones under the wool pennants that wobbles but never quite falls over.
+pl-delve-snowleopard-ledges-9a49a1|pl-sll-2|Ledge Hop|common|seedkeeper|0|2|1|0|1-6|edge-BTB|peg|-|Hops up the switchback ledges on tiny paws and never looks down.
+pl-delve-snowleopard-ledges-9a49a1|pl-sll-3|Ichu Whisker|common|brewroot|1|0|1|1|4-5|inner-TBTB|tri|-|A tuft of golden ichu grass on the cliff that tickles the leopard’s nose.
+pl-delve-snowleopard-ledges-9a49a1|pl-sll-4|Woolly Pennants|uncommon|thornblade|2|1|1|1|6-5|inner-TTTT|double|-|Four woven wool pennants on the cairn pole, flapping in four mountain colours.
+pl-delve-snowleopard-ledges-9a49a1|pl-sll-5|Snowcap Scoop|uncommon|bloomcaller|1|0|2|2|8-2|inner-TTBB|round|-|The snowy tip of the far peak, which the leopard swears is a giant scoop of ice cream.
+pl-delve-snowleopard-ledges-9a49a1|pl-sll-6|Fluffytail Snow Leopard|rare|wayfinder|2|2|1|1|9-5|whimsy-fluffytail|peg|-|A fluffy snow leopard curled up in its own long tail on the ledge, purring like a little avalanche.
+pl-delve-the-canopy-bridges-073a0a|pl-tcb-1|Dawnleaf Drift|common|rootwarden|1|1|1|0|6-4|corner-TT|round|-|An orange walnut leaf that drifts off the canopy and lands on the same plank every dawn.
+pl-delve-the-canopy-bridges-073a0a|pl-tcb-2|Plank Skipper|common|seedkeeper|0|2|1|0|6-5|edge-TTB|tri|-|Skips every other plank of the high rope bridge and waves to the sheep below.
+pl-delve-the-canopy-bridges-073a0a|pl-tcb-3|Yurt Kettle|common|brewroot|1|0|1|1|10-6|inner-TBTB|peg|-|A kettle in the tiny valley yurt that whistles whenever the bridge creaks.
+pl-delve-the-canopy-bridges-073a0a|pl-tcb-4|Bridge Knots|uncommon|thornblade|2|1|1|1|2-5|inner-TTTT|double|-|Four fat rope knots tying the bridge to the trunks, each one tied by a different marmot.
+pl-delve-the-canopy-bridges-073a0a|pl-tcb-5|Treetop Porch|uncommon|bloomcaller|1|0|2|2|11-4|inner-BBBB|round|-|A round platform on the trunk where the wind sits down for a rest.
+pl-delve-the-canopy-bridges-073a0a|pl-tcb-6|Bridgewalk Marmot|rare|wayfinder|2|2|1|1|4-4|whimsy-marmot|tri|-|A chibi marmot crossing the high rope bridge with a walnut held up like a prize.
+pl-delve-the-long-wall-walk-7eadc6|pl-lwp-1|Sentry Straw|common|rootwarden|1|1|1|0|3-3|corner-BB|round|-|A straw hat tied on with red cord that keeps watch on the wall and never blows away.
+pl-delve-the-long-wall-walk-7eadc6|pl-lwp-2|Brick Counter|common|seedkeeper|0|2|1|0|6-7|edge-TBB|peg|-|Counts every brick on the long wall, then starts again to be sure.
+pl-delve-the-long-wall-walk-7eadc6|pl-lwp-3|Autumn Flutter|common|brewroot|1|0|1|1|1-2|inner-TBTB|tri|-|An autumn leaf riding the gale along the wall, never once touching the stones.
+pl-delve-the-long-wall-walk-7eadc6|pl-lwp-4|Battlement Whistle|uncommon|thornblade|2|1|1|1|5-5|inner-TTTT|double|-|Four stubby battlements in a row that the wind plays like a flute.
+pl-delve-the-long-wall-walk-7eadc6|pl-lwp-5|Galeswing Lantern|uncommon|bloomcaller|1|0|2|2|10-4|inner-BBBB|peg|-|A round red lantern on the watchtower that swings sideways in the gale and never goes out.
+pl-delve-the-long-wall-walk-7eadc6|pl-lwp-6|Lookout Turret|rare|wayfinder|2|2|1|1|11-2|whimsy-watchtower|hook|-|A pocket watchtower that keeps the wall honest and the birds good company.
+pl-delve-the-red-rock-songlines-c16ad4|pl-rrs-1|Dotted Trail|common|rootwarden|1|1|1|0|6-6|corner-BB|round|-|A trail of painted dots that sings the kangaroo the way home.
+pl-delve-the-red-rock-songlines-c16ad4|pl-rrs-2|Galah Chatter|common|seedkeeper|0|2|1|0|2-1|edge-TTB|peg|-|A pink galah that chatters all the way across the desert and never runs out of gossip.
+pl-delve-the-red-rock-songlines-c16ad4|pl-rrs-3|Hummed Note|common|brewroot|1|0|1|1|7-5|inner-TBTB|tri|-|A little gold song note that floats off the songline and hums until it finds its place again.
+pl-delve-the-red-rock-songlines-c16ad4|pl-rrs-4|Dotcircle Painting|uncommon|thornblade|2|1|1|1|10-7|inner-TTTT|double|-|Rings of painted dots on the boulder that tell the story of the whole songline.
+pl-delve-the-red-rock-songlines-c16ad4|pl-rrs-5|Monolith Hidey|uncommon|bloomcaller|1|0|2|2|5-4|inner-TTBB|round|-|A small cave in the side of the great red rock where the kangaroo hides from the noon sun.
+pl-delve-the-red-rock-songlines-c16ad4|pl-rrs-6|Songline Kangaroo|rare|seedkeeper|2|2|1|1|1-6|whimsy-kangaroo|tri|-|A little kangaroo wayfarer who points a paw along the song and hops the whole way home.
