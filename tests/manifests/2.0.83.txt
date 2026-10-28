@@ -5339,7 +5339,7 @@ a8bff74fd0bd42c1e521acd615ef98f1a104a03a  assets/puzzles.css
 c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 666aedf59738eacfc535eab531f07397593a5862  assets/rainbarrel.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
-c2e9d34accb9bfccf8325d2f917f410dccde1684  assets/site.js
+b3805f883df9f7c411ad8fe540bc8cdb236189ab  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
 bd5d0b81e8853aa987f5c3b704d9c06500d55da3  assets/style.css
