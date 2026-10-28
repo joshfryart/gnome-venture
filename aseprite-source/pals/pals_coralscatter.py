@@ -102,7 +102,7 @@ def octo_ogle():
     st = Sticker()
     core = (14, 20, 46, 44)
     body, holes = piece_blanks(core, s='F', w=('T', 'peg', 2), n=('T', 'peg', -4), e=('B', 'peg', 5))
-    st.part(body, tex=body_fill(key, body, 14, 20, 33, k=3, passes=3, dx=0.1))
+    st.part(body, tex=body_fill(key, body, 14, 20, 33, k=3, passes=5, dx=0.1))
     st.blank_shade(body, holes)
     st.stitch(body, skip=grow(holes, 3))
     # tentacles: four stalks, each curling outward at the toe, sucker dots
@@ -124,7 +124,7 @@ def anemone_nudge():
     st = Sticker()
     core = (16, 22, 46, 46)
     body, holes = piece_blanks(core, n=('T', 'double'), s=('T', 'double'), e=('B', 'double', 3, 3.3), w=('B', 'double', 3, 3.3))
-    t = body_fill(key, body, 16, 22, 31, k=3, passes=3, dy=0.3, swap={'#f27a2a': '#e8c48a', '#ffc94a': '#fbe4b0'})   # calm the orange coral: sand reads under a face
+    t = body_fill(key, body, 16, 22, 31, k=3, passes=5, dy=0.3, swap={'#f27a2a': '#e8c48a', '#ffc94a': '#fbe4b0'})   # calm the orange coral: sand reads under a face
     st.part(body, tex=t)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, skip=grow(holes, 3))
@@ -157,7 +157,7 @@ def claw_sail():
     st = Sticker()
     core = (15, 21, 42, 46)
     body = piece(core, n=('T', 'tri', -2), e=('T', 'tri'), s=('T', 'tri'), w=('T', 'tri'))
-    t = body_fill(key, body, 15, 21, 28, k=3, passes=3, dy=-0.25, swap={'#f27a2a': '#ef6f78'})   # the sail's stripes, calmed to coral + weave
+    t = body_fill(key, body, 15, 21, 28, k=3, passes=5, dy=-0.25, swap={'#f27a2a': '#ef6f78'})   # the sail's stripes, calmed to coral + weave
     st.part(body, tex=t)
     st.stitch(body, col=LAVA)
     # mast + crab-claw sail (two horns, concave top) off the top right

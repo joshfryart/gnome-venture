@@ -80,7 +80,7 @@ def toadstool_tuck():
     st = Sticker()
     core = (10, 22, 46, 50)
     body, holes = piece_blanks(core, s='F', w='F', n=('B', 'round', 7), e=('B', 'round', 4))
-    st.part(body, tex=body_fill(key, body, 10, 22, 37, k=3, passes=3))
+    st.part(body, tex=calm(body_fill(key, body, 10, 22, 37, k=3, passes=3), body, '#6f8a4e', warm=40))
     st.blank_shade(body, holes)
     st.stitch(body, skip=grow(holes, 3))
     feet(st, [13, 33], 51)
@@ -144,7 +144,7 @@ def peat_sip():
     st.part(disc(41.5, 9.5, 2.2), MIST, d=1, contour=True)
     st.eye(17, 29, look=(0, -1), lid=1)
     st.eye(31, 29, look=(0, -1), lid=1)
-    st.mouth('o', 25, 37)
+    st.sprite(['.U.', 'U.U', '.U.'], 24, 36, {'U': UMBER}, solid=False)   # hummed o
     return key, st
 
 
@@ -172,7 +172,7 @@ def kite_knot():
     key = 'mm-kite-knot'
     st = Sticker()
     core = (17, 17, 44, 43)
-    body, holes = piece_blanks(core, n=('T', 'hook', 0), w=('T', 'hook', 0, 4.0, True), e=('B', 'hook', 5), s=('B', 'hook', -4))
+    body, holes = piece_blanks(core, n=('T', 'hook', 0), w=('T', 'hook', 0), e=('B', 'hook', 5), s=('B', 'hook', -4))
     # tail behind the body: a wavy string from the lower right corner with three bows
     tail = line([(42, 41), (47, 45), (45, 49), (51, 51), (53, 54)], 2)
     st.part(tail, UMBER2, d=0, contour=True)
@@ -200,7 +200,7 @@ def gatepost_hoot():
     tufts = poly([(18, 22), (19, 9), (27, 17)]) | poly([(45, 22), (44, 9), (36, 17)])
     wings = knob('w', 'keyhole', 33, 18.5, r=3.6) | knob('e', 'keyhole', 33, 44.5, r=3.6)
     body = (owl | tufts | wings) & (CY < 46)
-    st.part(body, tex=tint(body_fill(key, body, 14, 12, 36, k=3, passes=3), body, OWL, 0.55), contour=True)
+    st.part(body, tex=tint(body_fill(key, body, 14, 12, 36, k=3, passes=3), body, OWL, 0.35), contour=True)
     st.stitch(body, skip=grow(tufts, 1) | (YY < 36))
     # facial discs, eyes, wedge beak, chest chevrons, talons on the post
     st.part(disc(25.5, 26.5, 6.2) | disc(37.5, 26.5, 6.2), WOOL, d=1)

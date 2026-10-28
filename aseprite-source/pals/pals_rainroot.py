@@ -85,8 +85,7 @@ def kapok_nook():
     st.blank_shade(body, holes)
     st.stitch(body, skip=grow(holes, 3))
     feet(st, [13, 33], 49)
-    flower(st, 16, 22, 3.0)
-    st.part(line([(20, 25), (22, 28)], 1), LEAF_D, d=0)
+    flower(st, 40, 25, 3.0)
     st.eye(16, 29, lid=2)
     st.eye(29, 29, lid=2)
     st.mouth('smile', 22, 38)
@@ -146,8 +145,6 @@ def bromeliad_bolt():
     st = Sticker()
     core = (19, 22, 44, 46)
     body = piece(core, n=('T', 'tri'), e=('T', 'tri'), s=('T', 'tri'), w=('T', 'tri'))
-    st.part(body, tex=body_fill(key, body, 19, 22, 26, k=3, passes=3))
-    st.stitch(body, col=ORG)
     # crown: strap leaves fanning up from the top corners of the core, red heart, a blue cup of rain
     lv = poly([(22, 23), (12, 9), (19, 12), (26, 20)]) | poly([(42, 23), (52, 9), (45, 12), (38, 20)]) | \
         poly([(25, 22), (21, 6), (28, 14), (30, 21)]) | poly([(39, 22), (43, 6), (36, 14), (34, 21)])
@@ -155,6 +152,8 @@ def bromeliad_bolt():
     st.paint(line([(22, 22), (14, 11)]) | line([(42, 22), (50, 11)]), LEAF_D)
     red = poly([(27, 22), (24, 13), (30, 18)]) | poly([(37, 22), (40, 13), (34, 18)])
     st.part(red, RED, d=1, contour=True)
+    st.part(body, tex=body_fill(key, body, 19, 22, 26, k=3, passes=3))   # body over the crown so the top knob tip reads
+    st.stitch(body, col=ORG)
     st.eye(23, 29, look=(0, 0))
     st.eye(35, 29, look=(0, 0))
     st.mouth('smirk', 30, 38)
@@ -168,7 +167,7 @@ def highland_ring():
     core = (10, 17, 50, 52)
     body, holes = piece_blanks(core, n=('B', 'round', 9, 3.8), e=('B', 'round', 2, 3.8), s=('B', 'round', 0, 3.8),
                                w=('B', 'round', 6, 3.8))
-    st.part(body, tex=body_fill(key, body, 10, 17, 41, k=3, passes=3))
+    st.part(body, tex=relight(body_fill(key, body, 10, 17, 41, k=3, passes=3), body, ['#1d4a3a', '#256650', '#2f7a5c']))   # no pale sky patch
     st.blank_shade(body, holes)
     st.stitch(body, col=BLUE_L, skip=grow(holes, 3))
     # chullo: knitted red cone over the top-left corner, one yellow zigzag band, an ear flap with a tassel, a wool pom
@@ -200,7 +199,7 @@ def glimmer_frog():
     bumps = disc(22, 29, 5.6) | disc(39, 29, 5.6)
     legs = ellipse(15, 45, 5, 4.5) | ellipse(47, 45, 5, 4.5)
     toes = disc(11, 49.5, 1.8) | disc(16, 50, 1.8) | disc(25, 49.5, 1.8) | disc(37, 49.5, 1.8) | disc(46, 50, 1.8) | disc(51, 49.5, 1.8)
-    hook = knob('w', 'hook', 33, 17, r=3.6, nw=2.2)
+    hook = knob("w", "hook", 34, 17, r=4.6, nw=2.9)
     body = bodym | bumps | legs | toes | hook
     st.part(body, tex=relight(body_fill(key, body, 11, 22, 40, k=3, passes=3), body, [FROG_D, '#3f8a4a', FROG]), contour=True)
     st.paint(hook & ~bodym, FROG)

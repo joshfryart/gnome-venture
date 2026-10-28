@@ -127,7 +127,7 @@ def panda_puff():
     st = Sticker()
     core = (16, 20, 43, 45)
     body, holes = piece_blanks(core, n=('T', 'peg'), e=('T', 'peg', 1), w=('T', 'peg', 1), s=('B', 'peg', 0, 4.2))
-    st.part(body, tex=body_fill(key, body, 16, 20, 28, k=3, passes=3, swap={'#3a3440': '#cfcac0'}))   # calm the fur: white + grey + bamboo
+    st.part(body, tex=body_fill(key, body, 16, 20, 28, k=3, passes=3, swap={'#3a3440': '#dcd8ce', '#8cc45a': '#f6f4ee'}))   # calm the fur: white + soft grey, bamboo stays on the stalk
     st.blank_shade(body, holes)
     st.stitch(body, skip=grow(holes, 3))
     # panda markings: dark ear patches on the top corners, slanted eye patches
@@ -175,7 +175,7 @@ def torii_loop():
     core = (10, 12, 50, 50)
     body, holes = piece_blanks(core, n=('B', 'hook', 0, 3.6), e=('B', 'hook', 0, 3.6), s=('B', 'hook', 0, 3.6), w=('B', 'hook', 0, 3.6))
     st.part(body, tex=body_fill(key, body, 10, 12, 41, k=2, passes=6,
-                                swap={'#2a1a10': '#d8d2c2', '#a52a1e': '#d8432e'}))   # calm: the cell's stone steps, red posts as stripes
+                                swap={'#2a1a10': '#e8664a', '#a52a1e': '#d8432e'}))   # calm: one vermilion lacquer with soft light patches
     st.blank_shade(body, holes)
     st.stitch(body, col=BAMBOO_D, skip=grow(holes, 3))
     st.paint(body & rect(41, 41, 53, 54), '#d8d2c2')                  # the stone steps seen through the gate, so the red gate reads

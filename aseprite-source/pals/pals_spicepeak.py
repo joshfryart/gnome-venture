@@ -154,7 +154,10 @@ def teal_ferry():
     st = Sticker()
     core = (14, 20, 45, 46)
     body, holes = piece_blanks(core, n=('T', 'hook', -2), e=('T', 'hook', -3), s=('B', 'hook', 5, 4.2), w=('B', 'hook', 6, 4.2))
-    st.part(body, tex=body_fill(key, body, 14, 20, 32, k=3, passes=3, swap={'#c9c5bc': '#7fd0c8'}))   # ghat stone -> river foam
+    t = body_fill(key, body, 14, 20, 32, k=3, passes=4)
+    lum = {c: hx(c).astype(int).sum() for c in fill_cols(t, body)}
+    t = remap(t, body, {c: (TEAL_D if v < 330 else TEAL if v < 520 else TEAL_L) for c, v in lum.items()})   # ghats/boats -> one calm river family
+    st.part(body, tex=t)
     st.blank_shade(body, holes)
     st.stitch(body, col=MAG, skip=grow(holes, 3))
     feet(st, [16, 41], 47, w=6, h=4)

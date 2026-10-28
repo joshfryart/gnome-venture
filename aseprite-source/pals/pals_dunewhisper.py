@@ -82,12 +82,12 @@ def sherbet_sip():
     st.part(pot, LANT, d=2, contour=True)
     st.part(rect(15, 7, 17, 9), LANT_D, d=0, contour=True)
     st.paint(rect(11, 18, 21, 18) & pot, TEAL)                          # enamel band
-    st.part(body, tex=body_fill(key, body, 16, 24, 29, k=3, passes=3), contour=True)
+    st.part(body, tex=calm(body_fill(key, body, 16, 24, 29, k=3, passes=3), body, 2), contour=True)
     st.stitch(body)
     feet(st, [19, 35], 51)
     st.eye(21, 31, look=(-1, -1))
     st.eye(33, 31, look=(-1, -1))
-    st.mouth('o', 28, 40)
+    st.mouth('grin', 27, 39)
     return key, st
 
 
@@ -97,7 +97,7 @@ def scarab_roll():
     st = Sticker()
     core = (9, 22, 39, 49)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', -2), w=('B', 'keyhole', -3), e=('B', 'keyhole', -5))
-    st.part(body, tex=body_fill(key, body, 9, 22, 31, k=3, passes=4, dy=-0.15))
+    st.part(body, tex=calm(body_fill(key, body, 9, 22, 31, k=3, passes=4, dy=-0.15), body, 2))
     st.blank_shade(body, holes)
     st.stitch(body, skip=grow(holes, 3))
     feet(st, [12, 28], 50)
@@ -118,7 +118,7 @@ def lantern_lark():
     st = Sticker()
     core = (12, 21, 45, 48)
     body, holes = piece_blanks(core, n=('T', 'peg', 0), e=('B', 'peg', 5, 3.4), s=('B', 'peg', 0, 3.4), w=('B', 'peg', 5, 3.4))
-    st.part(body, tex=body_fill(key, body, 12, 21, 34, k=3, passes=3, dx=0.1, swap={'#4a3366': '#7a4580'}))   # calm the minaret column
+    st.part(body, tex=calm(body_fill(key, body, 12, 21, 34, k=3, passes=3, dx=0.1, swap={'#4a3366': '#7a4580'}), body, 2))   # calm the minaret column
     st.blank_shade(body, holes)
     st.stitch(body, skip=grow(holes, 3))
     feet(st, [14, 37], 49)

@@ -139,7 +139,9 @@ def jar_hum():
     st.dots([(46, 40), (45, 41)], TERRA_L)
     st.eye(14, 23, look=(1, 0), lid=1)
     st.eye(26, 23, look=(1, 0), lid=1)
-    st.mouth('o', 22, 32)
+    st.paint(body & (CY > 40) & (CY < 43), '#b07a3a')                 # glazed rim band + olive dots so the fill isn't plain
+    st.dots([(15, 37), (21, 37), (27, 37), (33, 37)], '#8a9a52')
+    st.mouth('smile', 22, 32)
     return key, st
 
 
@@ -155,8 +157,8 @@ def sun_glint():
     st.stitch(body, col=SEA_D)
     # kerchief: a knotted band with a point, cream stripe
     kf = (rect(18, 39, 44, 41) | poly([(25, 41), (37, 41), (31, 47)])) & body
-    st.part(kf, SEA, d=1, contour=True)
-    st.paint(kf & (CY > 43) & (CY < 44) & shrink(kf, 1), '#f0e4c4')
+    st.part(kf, '#c8402e', d=1, contour=True)                            # red fisher's kerchief: contrasts the blue sea fill
+    st.paint(kf & (CY > 40) & (CY < 41.5) & shrink(kf, 1), '#f0e4c4')
     st.eye(22, 26, look=(1, 0))
     st.sprite(['.UUU.', 'U...U', 'U...U'], 35, 27, {'U': UMBER}, solid=False)   # the wink
     st.mouth('smirk', 28, 34)
@@ -174,7 +176,7 @@ def press_ring():
     st.paint(line([(50, 13), (52, 15)], 2) & beam, '#5b6470')
     body, holes = piece_blanks(core, n=('B', 'double', 0, 3.8), e=('B', 'double', 0, 3.8), s=('B', 'double', 0, 3.8),
                                w=('B', 'double', 0, 3.8))
-    st.part(body, tex=body_fill(key, body, 10, 14, 40, k=3, passes=3), contour=True)
+    st.part(body, tex=body_fill(key, body, 10, 14, 40, k=3, passes=3, pre={'#4a2c1a': '#8d7e71', '#2a1a10': '#7e6c65', '#38140d': '#8d7e71', '#290807': '#8d7e71'}), contour=True)
     st.blank_shade(body, holes)
     st.stitch(body, col=OLIVE_L, skip=grow(holes, 3))
     st.eye(21, 27, look=(0, 1))
@@ -202,7 +204,7 @@ def harbour_leap():
     flukes = poly([T(9, 44), T(3, 44), T(5, 51), T(10, 49)]) | poly([T(11, 44), T(9, 53), T(14, 57), T(14, 47)])
     dorsal = poly([T(24, 21), T(26, 11), T(34, 19)])
     hx_, hy_ = T(36, 33)
-    flip = knob('s', 'hook', hx_, hy_, r=3.0, flip=True)
+    flip = knob('s', 'hook', hx_, hy_, r=3.4, flip=True)
     body = m | flukes | dorsal | flip
     # signature accessory first (behind the head top): red knit gnome cap with a cream pompom
     cap = poly([T(37, 21), T(50, 21), T(48, 11), T(43, 8)])
@@ -218,7 +220,7 @@ def harbour_leap():
     st.paint(band, '#f0e4c4')
     belly = m & ~shift(m, 0, -3) & (CX > 18) & (CX < 50)
     st.paint(belly & ~flip, DOLPH_L)
-    st.stitch(m & (CX > 14))
+    st.stitch(m & (CX > 14), skip=grow(flip, 2))
     st.eye(33, 25, look=(1, 0))
     st.eye(41, 25, look=(1, 0))
     st.sprite(['U...', '.UUU'], 44, 32, {'U': UMBER}, solid=False)   # dolphin smile toward the snout

@@ -67,12 +67,13 @@ def calabash_cup():
     core = (11, 22, 44, 49)
     body, holes = piece_blanks(core, s='F', w='F', n=('B', 'round', 6), e=('B', 'round', 4))
     st.part(body, tex=body_fill(key, body, 11, 22, 34, k=3, passes=3))
-    st.blank_shade(body, holes)
+    st.blank_shade(body, holes, width=1)                               # one-px lining: the 2-px ramp smeared over the pale fill
     st.stitch(body, skip=grow(holes, 3))
     feet(st, [14, 32], 50)
     # calabash half (bowl, rim up) worn as a cap on the flat top-left corner, a raindrop falling in
     bowl = ellipse(21, 16, 11, 9) & (CY > 15)
     st.part(bowl, GOURD_L, d=2, contour=True)
+    st.paint(bowl & shrink(bowl, 1) & (CY > 22), GOURD)                 # rounded belly: a mid tone under the carved band
     st.paint(ellipse(21, 16, 9, 1.6) & bowl, WOOD_D)                   # the rim opening, dark inside
     zig = bowl & shrink(bowl, 1) & (np.abs(CY - (20.5 + ((CX.astype(int) // 2) % 2))) < 0.6)
     st.paint(zig, GOURD_D)                                               # carved zigzag band
@@ -113,7 +114,7 @@ def yam_nub():
     key = 'gc-yam-nub'
     st = Sticker()
     core = (17, 22, 44, 45)
-    body, holes = piece_blanks(core, n=('T', 'peg', 0, 3.4), s=('T', 'peg', 0, 3.4), e=('B', 'peg', 2), w=('B', 'peg', 2))
+    body, holes = piece_blanks(core, n=('T', 'peg', 0, 3.4), s=('T', 'peg', 0, 3.4), e=('B', 'peg', 3, 3.0), w=('B', 'peg', 3, 3.0))  # blanks low, clear of the eyes
     tex = body_fill(key, body, 17, 22, 28, k=2, passes=3, dy=-0.12, swap={'#2a1a10': '#b8532e'})
     tex = remap(tex, body & (CY < 38), {'#3a9a50': '#b8532e'})          # a laterite yam root over a grass hem: the face reads on one colour
     st.part(body, tex=tex)
@@ -125,8 +126,8 @@ def yam_nub():
     lf = poly([(30, 12), (25, 7), (20, 8), (21, 13), (26, 14)]) | poly([(32, 11), (37, 6), (43, 7), (42, 12), (37, 13)])
     st.part(lf, LEAF, d=2, contour=True)
     st.paint(line([(29, 12), (23, 9)]) | line([(33, 11), (40, 8)]), LEAF_D)
-    st.eye(21, 28, look=(0, 1))
-    st.eye(34, 28, look=(0, 1))
+    st.eye(21, 27, look=(0, 1))
+    st.eye(34, 27, look=(0, 1))
     st.mouth('tooth', 27, 37)                                              # giggles when dug up
     return key, st
 

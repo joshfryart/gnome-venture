@@ -77,7 +77,7 @@ def stilt_stoop():
     key = 'mt-stilt-stoop'
     st = Sticker()
     core = (13, 18, 42, 41)
-    body, holes = piece_blanks(core, s='F', w='F', n=('T', 'round', -3), e=('B', 'round', 1, 4.0))
+    body, holes = piece_blanks(core, s='F', w='F', n=('T', 'round', -3), e=('B', 'round', 6, 4.0))
     # two bamboo stilts under the flat foot, with node bands, and felt boots at the bottom
     for x in (17, 34):
         pole = rect(x, 40, x + 2, 52)
@@ -164,7 +164,7 @@ def fig_knot():
     st = Sticker()
     core = (14, 19, 44, 45)
     body, holes = piece_blanks(core, n=('T', 'hook', -2), e=('T', 'hook', 2), s=('B', 'hook', 0, 4.0), w=('B', 'hook', 1, 4.0))
-    t = lift(body_fill(key, body, 14, 19, 31, k=2, passes=4, dy=-0.3), body, JADE, 300)
+    t = lift(body_fill(key, body, 14, 19, 31, k=2, passes=4, dy=-0.3), body, JADE, 380)
     st.part(body, tex=t, contour=True)
     st.blank_shade(body, holes)
     st.stitch(body, col=PINK, skip=grow(holes, 3))

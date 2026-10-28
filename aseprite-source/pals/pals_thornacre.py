@@ -195,15 +195,15 @@ def kopje_keeper():
     st.blank_shade(body, holes)
     st.stitch(body, col=LICHEN, skip=grow(holes, 3))
     st.dots([(40, 40), (41, 40), (40, 41), (22, 41), (23, 41)], LICHEN)
-    # spyglass tucked over the left shoulder, pointing up-left at the plain
-    st.eye(21, 28, look=(0, 0))
-    st.eye(32, 28, look=(1, 0))
+    st.eye(20, 28, look=(0, 0))
+    st.eye(30, 28, look=(1, 0))
     # brass spyglass held up to the right eye, pointing out over the plain
-    tube = rect(39, 28, 46, 32) | rect(47, 27, 54, 33)
+    tube = rect(38, 28, 45, 32) | rect(46, 27, 53, 33)
     st.part(tube, BRASS, d=1, contour=True)
-    st.paint(rect(46, 27, 46, 33) | rect(42, 28, 42, 32), BRASS_D)
-    st.paint(rect(54, 28, 54, 32), UMBER2)
-    st.mouth('flat', 30, 38)
+    st.paint(rect(45, 27, 45, 33) | rect(41, 28, 41, 32), BRASS_D)
+    st.paint(rect(38, 29, 45, 29), BRASS_L)
+    st.paint(rect(53, 28, 53, 32), UMBER2)
+    st.mouth('flat', 26, 38)
     return key, st
 
 
