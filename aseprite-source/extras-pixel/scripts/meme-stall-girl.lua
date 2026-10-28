@@ -1,12 +1,12 @@
--- puzzles/stall-girl.gif redraw (pass 3): a felt schoolgirl calls out at a little food stall, then turns to us, mouth open.
+-- puzzles/stall-girl.gif redraw (pass 4): a felt schoolgirl calls out at a little food stall, then turns to us, mouth open.
 -- 300x298 (source 498x494 aspect), 23 frames x 100 ms, loops forever, solid background.
 -- Drawn on a 150x149 half grid (scene mode, no halo), written at 2x nearest.
 -- Off-palette families borrowed: teal mist from water (#3f8fb0 / gloss #c8ecdc), top from ember 300 + petal
 -- (coral #e8735a), dark brown hair from soil (#3d2a1c / #7a4a1f / #9a6b3f).
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
-local O = D .. "extras-pixel/"
-local OUT = "/home/user/gnome-venture/game/assets/img/puzzles/"
+local O = os.getenv("STALL_ASE") or (D .. "extras-pixel/")
+local OUT = os.getenv("STALL_OUT") or "/home/user/gnome-venture/game/assets/img/puzzles/"
 local W, H, N = 150, 149, 23
 
 local hair  = GV.ramp("#5e3a22", { gloss = "#9a6b3f", dot = "#c9a96e", rim = "#7a4a1f", shade = "#3d2a1c",
@@ -34,40 +34,46 @@ local SWAY = { [8] = 1, [9] = 2, [10] = 2, [11] = 2, [12] = 1, [13] = -1 }
 
 local function stall(c, f)
   -- red header beam with a cream plaque
-  c:part(c:rect(80, -3, 152, 13), "red", { cres = 4, gloss = { 86, 1 } })
-  c:part(c:rrect(104, 1, 132, 9, 2), cloth, { flat = true })
-  c:fill(c:rect(109, 4, 114, 5), INK); c:fill(c:rect(117, 4, 120, 5), INK); c:fill(c:rect(123, 4, 128, 5), INK)
-  -- left post
-  c:part(c:rect(80, 12, 88, 152), "red", { cres = 3, gloss = false })
-  -- back window
-  c:part(c:rect(93, 18, 114, 58), glass, { cres = 4, gloss = false })
-  c:fill(c:rect(103, 18, 104, 58), "#6f98c4"); c:fill(c:rect(93, 37, 114, 38), "#6f98c4")
-  -- vendor: robe, bald head, kind face
-  c:part(c:rrect(112, 50, 148, 80, 7), robe, { cres = 5 })
-  c:seam({ { 130, 54 }, { 130, 78 } })
-  c:part(c:ellipse(130, 39, 9.5, 10.5), "skin", { cres = 4, gloss = { 124, 32 } })
-    if f == 18 then
-    c:fill(c:rect(124, 40, 126, 40), U); c:fill(c:rect(133, 40, 135, 40), U)
+  c:part(c:rect(84, -3, 152, 13), "red", { cres = 4, gloss = { 90, 1 } })
+  c:part(c:rrect(108, 1, 136, 9, 2), cloth, { flat = true })
+  c:fill(c:rect(113, 4, 118, 5), INK); c:fill(c:rect(121, 4, 124, 5), INK); c:fill(c:rect(127, 4, 132, 5), INK)
+  -- left post (set back past the girl's elbow)
+  c:part(c:rect(86, 12, 93, 152), "red", { cres = 3, gloss = false })
+  -- small back window, tucked to the left so the vendor has room
+  c:part(c:rect(97, 17, 110, 46), glass, { cres = 4, gloss = false })
+  c:fill(c:rect(103, 17, 104, 46), "#6f98c4"); c:fill(c:rect(97, 31, 110, 32), "#6f98c4")
+  -- vendor: robe, bald head with ears, a grey tuft, round glasses, kind smile
+  c:part(c:rrect(109, 50, 152, 84, 8), robe, { cres = 5 })
+  c:seam({ { 129, 55 }, { 129, 80 } })
+  c:part(c:ellipse(116.5, 38, 2.5, 3.5), "skin", { flat = true })
+  c:part(c:ellipse(140.5, 38, 2.5, 3.5), "skin", { flat = true })
+  c:part(c:ellipse(128.5, 35, 11, 13), "skin", { cres = 4, gloss = { 122, 27 } })
+  c:fill(c:rect(128, 19, 129, 21), "#c9c5bc"); c:px(127, 20, "#c9c5bc"); c:px(130, 19, "#c9c5bc")
+  c:fill(c:rect(121, 32, 125, 32), "#c9c5bc"); c:fill(c:rect(132, 32, 136, 32), "#c9c5bc") -- white brows
+  -- glasses: two 7x6 rims and a bridge
+  local function rim(x) c:fill(c:rect(x, 34, x + 6, 34), INK); c:fill(c:rect(x, 39, x + 6, 39), INK)
+    c:fill(c:rect(x, 35, x, 38), INK); c:fill(c:rect(x + 6, 35, x + 6, 38), INK) end
+  rim(120); rim(131); c:fill(c:rect(127, 35, 130, 35), INK)
+  if f == 18 then
+    c:fill(c:rect(122, 37, 124, 37), U); c:fill(c:rect(133, 37, 135, 37), U)
   else
-    c:eye(124, 38, true); c:eye(133, 38, true)
+    c:eye(122, 35, true); c:eye(133, 35, true)
   end
-  c:fill(c:rect(123, 36, 126, 36), "#c9c5bc"); c:fill(c:rect(133, 36, 136, 36), "#c9c5bc") -- white brows
-  c:paint({ "u...u", ".uuu." }, 128, 45, { u = "#8a4234" })
-  -- a row of red sweet bags on the counter
-  for i, x in ipairs({ 92, 103, 114, 125, 136 }) do
-    local y = (i % 2 == 0) and 64 or 67
-    c:part(c:rrect(x, y, x + 10, 84, 3), "red", { cres = 3, gloss = { x + 2, y + 3 } })
-    c:fill(c:rect(x + 3, y - 2, x + 7, y - 1), "#8a4f2a")
-    c:paint({ "..c..", ".c.c.", "..c.." }, x + 3, y + 8, { c = "#ffc27a" })
+  c:paint({ "u.....u", ".uuuuu." }, 125, 43, { u = "#8a4234" })
+  -- four red sweet bags on the counter
+  for i, x in ipairs({ 96, 110, 124, 138 }) do
+    local y = (i % 2 == 0) and 63 or 66
+    c:part(c:rrect(x, y, x + 12, 86, 3), "red", { cres = 3, gloss = { x + 2, y + 3 } })
+    c:fill(c:rect(x + 4, y - 2, x + 8, y - 1), "#8a4f2a")
+    c:paint({ "..c..", ".c.c.", "..c.." }, x + 4, y + 9, { c = "#ffc27a" })
   end
   -- grey curtain with a cream hanging sign: simple brush strokes, no lettering
-  c:part(c:rect(88, 86, 152, 152), curtain, { cres = 6, gloss = false })
-  for x = 92, 148, 11 do c:seam({ { x, 89 }, { x, 146 } }) end
-  c:part(c:rrect(100, 89, 128, 152, 2), cloth, { cres = 4, gloss = false, stitch = true })
-  -- brush-stroke marks: short dashes of varied length, read as writing from afar
-  local rows = { { 106, 121, 96, INK }, { 109, 118, 99, INK }, { 106, 122, 106, INK }, { 108, 120, 109, INK },
-                 { 106, 116, 116, INK }, { 110, 121, 119, INK }, { 107, 121, 128, R }, { 109, 119, 131, R },
-                 { 107, 121, 138, R } }
+  c:part(c:rect(93, 88, 152, 152), curtain, { cres = 6, gloss = false })
+  for x = 97, 148, 12 do c:seam({ { x, 91 }, { x, 146 } }) end
+  c:part(c:rrect(106, 91, 132, 152, 2), cloth, { cres = 4, gloss = false, stitch = true })
+  local rows = { { 111, 126, 98, INK }, { 114, 123, 101, INK }, { 111, 127, 108, INK }, { 113, 125, 111, INK },
+                 { 111, 121, 118, INK }, { 115, 126, 121, INK }, { 112, 126, 130, R }, { 114, 124, 133, R },
+                 { 112, 126, 140, R } }
   for _, r in ipairs(rows) do
     c:fill(c:rect(r[1], r[3], r[2], r[3] + 1), r[4])
   end
@@ -76,7 +82,7 @@ end
 local function girl(c, f)
   local t, mo, sw = turnOf(f), MOUTH[f], SWAY[f] or 0
   local by = (mo == 2) and 0 or 1 -- tiny bob with each call
-  local hx, hy = 50, 50 + by
+  local hx, hy = 45, 50 + by
   local fx = rd(lerp(hx + 8, hx, t))
   -- back hair: long, straight, pointed tips (sits further left in profile)
   local bx = hx - rd(lerp(6, 0, t))
@@ -87,16 +93,24 @@ local function girl(c, f)
   end
   back:add(c:poly(pts))
   c:part(back, hair, { cres = 7, gloss = false })
-  -- arms, neck, top
-  local nar = rd(lerp(4, 0, t)) -- body a touch narrower in profile
-  c:part(c:rrect(24 + nar, 88, 33 + nar, 152, 4), "skin", { cres = 3, gloss = false })
-  c:part(c:rrect(67 - nar, 88, 76 - nar, 152, 4), "skin", { cres = 3, gloss = false })
+  -- body: shoulders, a hanging left arm, the right hand set on the hip (elbow out), neck, top
+  local nar = rd(lerp(3, 0, t)) -- body a touch narrower in profile
+  local L0, R0 = hx - 18 + nar, hx + 17 - nar -- top's side edges
+  local la = c:ellipse(L0 - 1, 94, 5, 6):add(c:poly({ { L0 - 6, 94 }, { L0 + 4, 94 }, { L0 + 2, 152 }, { L0 - 8, 152 } }))
+  c:part(la, "skin", { cres = 3, gloss = false })
   c:part(c:rect(hx - 4, 64, hx + 3, 86), "skin", { cres = 3, gloss = false })
-  -- top stops at the arms' inner edge and the armholes reach past it, so no spike of felt is left at a shoulder
-  local d = c:rrect(32 + nar, 83, 66 - nar, 152, 6):cut(c:ellipse(hx, 82, 7, 5))
-  d:cut(c:ellipse(26 + nar, 87, 6, 6)):cut(c:ellipse(72 - nar, 87, 6, 6)) -- sleeveless armholes
-  c:part(d, top, { cres = 8, stitch = { side = "lit" }, gloss = { 39, 96 } })
+  local d = c:rrect(L0, 83, R0, 152, 6):cut(c:ellipse(hx, 82, 7, 5))
+  d:cut(c:ellipse(L0 - 6, 87, 6, 6)):cut(c:ellipse(R0 + 6, 87, 6, 6)) -- sleeveless armholes
+  c:part(d, top, { cres = 8, stitch = { side = "lit" }, gloss = { L0 + 6, 96 } })
   c:seam({ { hx - 9, 86 }, { hx - 4, 89 }, { hx + 4, 89 }, { hx + 9, 86 } })
+  -- right arm: round shoulder, upper arm out to the elbow, forearm back in to a fist on the hip
+  local ex, ey0 = R0 + 12, 121
+  local ra = c:ellipse(R0 + 1, 94, 5, 6)
+  ra:add(c:poly({ { R0 - 3, 94 }, { R0 + 6, 92 }, { ex + 3, ey0 - 2 }, { ex - 4, ey0 + 4 } }))
+  ra:add(c:ellipse(ex - 1, ey0, 4, 4))
+  ra:add(c:poly({ { ex + 2, ey0 + 1 }, { R0 + 1, 139 }, { R0 - 4, 134 }, { ex - 4, ey0 - 3 } }))
+  c:part(ra, "skin", { cres = 3, gloss = false })
+  c:part(c:ellipse(R0 - 2.5, 137, 3, 3), "skin", { cres = 2, gloss = false }) -- fist on the hip
   -- face (with a small nose bump in profile)
   local frx = rd(lerp(15, 18, t))
   local face = c:ellipse(fx, hy, frx, 19)
@@ -115,8 +129,8 @@ local function girl(c, f)
   local edge = rd(lerp(hx - 1, hx - 16, t)) -- back of the head covers the face in profile
   fr:add(c:poly({ { bx - 22, hy - 10 }, { edge, hy - 10 }, { edge, hy + 30 }, { edge - 3, hy + 48 }, { bx - 22, hy + 50 } }))
   if t >= 0.6 then
-    local rx0 = rd(lerp(hx + 22, hx + 16, (t - 0.6) / 0.4))
-    fr:add(c:poly({ { rx0, hy - 10 }, { hx + 23, hy - 10 }, { hx + 23, hy + 50 }, { rx0 + 3, hy + 48 }, { rx0, hy + 30 } }))
+    local rx0 = rd(lerp(hx + 21, hx + 16, (t - 0.6) / 0.4))
+    fr:add(c:poly({ { rx0, hy - 10 }, { hx + 22, hy - 10 }, { hx + 20, hy + 38 }, { rx0 + 2, hy + 42 }, { rx0, hy + 30 } }))
   end
   c:part(fr, hair, { cres = 5, gloss = { hx - 10, hy - 19 } })
   -- eyes with a bold upper lid
