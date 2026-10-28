@@ -1,0 +1,111 @@
+# Puzzle Pals drafts: 18 WONDER places (2026-10-28, group 3), 6 pals each = 3 common, 2 uncommon, 1 rare. Not yet merged into puzzle_pals.txt.
+# pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
+# pic_slug = pl- + the place key cut to 44 chars + - + md5(key)[0:6], as ppal_pic_slug() reads it for source place.
+pl-wonder-cedar-sanctuary-ff7cde|pl-wced-1|Ring Stone|common|rootwarden|1|1|1|0|4-7|corner-BB|keyhole|-|Sits on the mossy stone ring every misty morning and never gets up before the sun does.
+pl-wonder-cedar-sanctuary-ff7cde|pl-wced-2|Ember Seed|common|seedkeeper|0|2|1|0|5-5|edge-TBB|keyhole|-|A little ember off the ring fire that drifts down from the cedars and settles on whoever sits still.
+pl-wonder-cedar-sanctuary-ff7cde|pl-wced-3|Cedar Totem|common|brewroot|1|0|1|1|2-2|inner-TBTB|keyhole|-|A carved face on the cedar trunk that hums a low tune whenever the morning fog rolls in.
+pl-wonder-cedar-sanctuary-ff7cde|pl-wced-4|Toadstool Cap|uncommon|thornblade|2|1|1|1|0-6|inner-TTTT|double|-|Four toadstool caps by the stone path, each one holding a bead of dew that catches the first light.
+pl-wonder-cedar-sanctuary-ff7cde|pl-wced-5|Cedar Hollow|uncommon|bloomcaller|1|0|2|2|5-6|inner-BBBB|keyhole|-|The round hollow in the stone ring, just big enough to sit in and breathe the cedar smell.
+pl-wonder-cedar-sanctuary-ff7cde|pl-wced-6|Cedar Elder|rare|wayfinder|2|2|1|1|10-3|whimsy-cedar|keyhole|-|A chubby cedar with a snowy crown who keeps watch over the stone ring and never misses a seed.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-1|Lip Ripple|common|rootwarden|1|1|1|0|2-2|corner-TT|keyhole|-|A ring of ripples on the cenote rim that rolls back a moment late, as if the pool is clearing its throat.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-2|Fin Flicker|common|seedkeeper|0|2|1|0|2-5|edge-BTB|keyhole|-|A little orange fish that flicks past the round pool wall and waves a fin at every echo.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-3|Chest Glint|common|brewroot|1|0|1|1|5-6|inner-TBTB|keyhole|-|A glint off the sunken treasure chest at the bottom of the pool, saved for the diver who turns up.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-4|Echo Rings|uncommon|thornblade|2|1|1|1|2-3|inner-TTTT|double|-|Four rings of ripple that go out and come back late, one after another, like a shout round the cave.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-5|Cenote Mouth|uncommon|bloomcaller|1|0|2|2|4-6|inner-BBBB|keyhole|-|The round mouth the pool drops into, deep and green, with the light going down a long way.
+pl-wonder-cenote-of-echoes-f27683|pl-wcen-6|Pool Koi|rare|wayfinder|2|2|1|1|5-3|whimsy-koi|keyhole|-|A plump koi that circles the round pool twice a day to check on the echoes and the treasure.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-1|Thatch Crown|common|rootwarden|1|1|1|0|2-1|corner-TB|keyhole|-|The thatched cap of the round hut, which keeps the coffee smell in all night long.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-2|Cup Saucer|common|seedkeeper|0|2|1|0|8-6|edge-TTB|keyhole|-|Three small cups on a saucer, each one ready for a blessing: wake, talk and bless.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-3|Woven Rug|common|brewroot|1|0|1|1|3-7|inner-TBBB|keyhole|-|A red and gold striped rug where the host kneels to pour, and never once spills a drop.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-4|Bean Tray|uncommon|thornblade|2|1|1|1|1-7|inner-TTTT|double|-|Four pale coffee beans on a tray, one for each guest who sits down on the rug and asks for a cup.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-5|Glow Doorway|uncommon|bloomcaller|1|0|2|2|2-5|inner-BBBB|keyhole|-|The round glowing door of the hut, open just wide enough for a friend who brings a cup.
+pl-wonder-coffee-ceremony-hut-e84613|pl-wcof-6|Ceremony Pot|rare|wayfinder|2|2|1|1|7-4|whimsy-jebena|keyhole|-|A round jebena coffee pot with a long neck that pours three blessings and never runs dry.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-1|Cap Step|common|rootwarden|1|1|1|0|0-6|corner-BB|keyhole|-|The first mushroom in the ring, a stepping cap that gives a little hop to anyone arriving at night.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-2|Moon Speck|common|seedkeeper|0|2|1|0|5-1|edge-TBB|keyhole|-|A pale moon speck that drops into the clearing and glows on the forest floor until dawn.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-3|Glimmer Dust|common|brewroot|1|0|1|1|4-3|inner-TBTB|keyhole|-|A pinch of glowing dust drifting between the trunks, blown there by a wind with good manners.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-4|Cap Circle|uncommon|thornblade|2|1|1|1|3-6|inner-TTTT|double|-|Four toadstool caps in a ring, each glowing faintly, all leaning in to hear what you say.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-5|Stump Door|uncommon|bloomcaller|1|0|2|2|10-5|inner-BBBB|keyhole|-|A tiny round door in the old stump, which opens with a little hand and a gift for the guest.
+pl-wonder-fairy-ring-clearing-8e1394|pl-wfri-6|Ring Keeper|rare|wayfinder|2|2|1|1|1-6|whimsy-toadstool|keyhole|-|A chubby toadstool that keeps the fairy ring tidy and hands out one small gift to each guest.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-1|Stall Awning|common|rootwarden|1|1|1|0|4-5|corner-TB|keyhole|-|A striped awning over a feather stall, bright enough to see from the far side of the lake.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-2|Plume Tuft|common|seedkeeper|0|2|1|0|1-5|edge-TTB|keyhole|-|A pink plume the flamingos left behind, which a crafter wraps in twine and sells at the stall.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-3|Shallows Splash|common|brewroot|1|0|1|1|6-6|inner-TBTB|keyhole|-|Small splashes at the lake edge where the flamingos wade in a line, one leg up to keep dry.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-4|Flamingo Line|uncommon|thornblade|2|1|1|1|8-6|inner-TTTT|double|-|Four flamingos standing on one leg each, waiting their turn at the feather stalls.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-5|Lake Bowl|uncommon|bloomcaller|1|0|2|2|6-5|inner-BBBB|keyhole|-|A round bowl of lake water where flamingos dip their beaks to check their reflections.
+pl-wonder-flamingo-shallows-707c2a|pl-wfla-6|Wader Crest|rare|wayfinder|2|2|1|1|10-4|whimsy-flamingo|keyhole|-|A tall flamingo with a feather crest like a crown, who wades the shallows and trades for shiny plumes.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-1|Cave Tooth|common|rootwarden|1|1|1|0|1-1|corner-TT|keyhole|-|A stone tooth off the grotto ceiling that drips once an hour, politely, into the still pool.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-2|Glow String|common|seedkeeper|0|2|1|0|5-2|edge-TTB|keyhole|-|A string of glowworms that lights the way down to the still pool, one bright dot at a time.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-3|Step Stone|common|brewroot|1|0|1|1|3-6|inner-TBTB|keyhole|-|A flat stone across the still pool, which never gets wet no matter how far you jump.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-4|Ceiling Lamps|uncommon|thornblade|2|1|1|1|6-1|inner-TTTT|double|-|Four clusters of glowworms on the ceiling, blinking in turn like lamps down a long hall.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-5|Niche Hollow|uncommon|bloomcaller|1|0|2|2|0-6|inner-BBBB|keyhole|-|A round wall niche holding a find no one has taken yet, dry and quiet in the cool stone.
+pl-wonder-glowworm-grotto-c58e7b|pl-wgwo-6|Grotto Glimmer|rare|wayfinder|2|2|1|1|5-3|whimsy-glowworm|keyhole|-|A plump glowworm with a glowing tail who dangles from the ceiling and sings to the pool.
+pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-1|Grape Pail|common|rootwarden|1|1|1|0|0-6|corner-BB|keyhole|-|A pail of ripe purple grapes at the end of a terrace row, sticky and waiting for the cart.
+pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-2|Goat Lookout|common|seedkeeper|0|2|1|0|7-2|edge-TBB|keyhole|-|A goat on the stone wall, supervising the harvest and taking one grape for its trouble.
+pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-3|Terrace Vine|common|brewroot|1|0|1|1|4-5|inner-TBTB|keyhole|-|A green vine climbing the steep terrace, tied up tight with twine that never once snaps.
+pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-4|Picker Hats|uncommon|thornblade|2|1|1|1|6-5|inner-TTTT|double|-|Four pointed hats bobbing down the rows, one for each picker with a basket on the back.
+pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-5|Farmhouse Door|uncommon|bloomcaller|1|0|2|2|1-2|inner-BBBB|keyhole|-|The round arched door of the farmhouse at the top of the path, left open for a late guest.
+pl-wonder-goat-path-vineyards-19fd4a|pl-wgoa-6|Hillside Goat|rare|wayfinder|2|2|1|1|7-3|whimsy-goat|keyhole|-|A goat with a bell and a neat beard who climbs the terraces faster than anyone and never misses a grape.
+pl-wonder-gorilla-glade-90c244|pl-wgor-1|Fruit Heap|common|rootwarden|1|1|1|0|3-6|corner-TT|keyhole|-|A heap of forest fruit left out in the glade in a neat pile, for anyone with good manners.
+pl-wonder-gorilla-glade-90c244|pl-wgor-2|Silverback Nod|common|seedkeeper|0|2|1|0|6-3|edge-TTB|keyhole|-|A huge silver-backed nod that means you may take one fruit, and only one.
+pl-wonder-gorilla-glade-90c244|pl-wgor-3|Glade Tree|common|brewroot|1|0|1|1|5-1|inner-TBTB|keyhole|-|A round-headed tree heavy with orange fruit, where the sunbeams come down to read the labels.
+pl-wonder-gorilla-glade-90c244|pl-wgor-4|Flower Posy|uncommon|thornblade|2|1|1|1|2-7|inner-TTTT|double|-|Four pink and purple flowers tucked into the grass, ready to pass along to a gorilla friend.
+pl-wonder-gorilla-glade-90c244|pl-wgor-5|Sunbeam Arch|uncommon|bloomcaller|1|0|2|2|4-1|inner-BBBB|keyhole|-|A round gap in the trees where the sunbeam pours onto the moss, the gorillas’ favourite seat.
+pl-wonder-gorilla-glade-90c244|pl-wgor-6|Glade Giant|rare|wayfinder|2|2|1|1|7-5|whimsy-gorilla|keyhole|-|A round, quiet gorilla with a fruit in each hand, who shares the glade and waits for your manners.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-1|Bridge Garland|common|rootwarden|1|1|1|0|6-3|corner-TB|keyhole|-|A garland of little red lanterns across the bridge, swinging over the river with a shy creak.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-2|River Float|common|seedkeeper|0|2|1|0|4-6|edge-TTB|keyhole|-|A paper boat of candle light set adrift on the dark water, carrying one wish to the far bank.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-3|Pathside Lamp|common|brewroot|1|0|1|1|0-5|inner-TBTB|keyhole|-|A little lamp on a stick at the edge of the path, with a paper cap that keeps the rain off.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-4|Wish Cluster|uncommon|thornblade|2|1|1|1|5-5|inner-TTTT|double|-|Four lanterns bobbing together on the water, each one with a wish folded inside its paper.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-5|Moon Hoop|uncommon|bloomcaller|1|0|2|2|0-0|inner-BBBB|keyhole|-|A round moon hung over the pagoda, which tells the lanterns to come home by dawn.
+pl-wonder-lantern-festival-river-05dda1|pl-wlfe-6|Sky Lantern|rare|wayfinder|2|2|1|1|10-6|whimsy-lantern|keyhole|-|A round sky lantern, big as a melon, that floats up the river with a grin and a wish.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-1|Beacon Cap|common|rootwarden|1|1|1|0|9-1|corner-TT|keyhole|-|The little roof cap on the lighthouse, which keeps the lamp dry through every storm that rolls in.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-2|Crab Candle|common|seedkeeper|0|2|1|0|4-4|edge-TBT|keyhole|-|A crab holding a lit candle high in one claw, so the boats can see it come round the rocks.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-3|Tower Stripe|common|brewroot|1|0|1|1|9-4|inner-TBTB|keyhole|-|A red and white band on the tower wall, painted fresh each spring so ships know it is home.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-4|Boat Quartet|uncommon|thornblade|2|1|1|1|1-6|inner-TTTT|double|-|Four little rowboats bobbing off the rocks, each one with a lamp ready to hand to the crab.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-5|Lamp Window|uncommon|bloomcaller|1|0|2|2|9-2|inner-BBBB|keyhole|-|A round lamp window high on the lighthouse, where the lost lantern used to shine.
+pl-wonder-lighthouse-of-the-lost-lantern-390d6d|pl-wlig-6|Keeper Tower|rare|wayfinder|2|2|1|1|9-5|whimsy-lighthouse|keyhole|-|A chubby striped lighthouse that waits by the sea for the lost lantern and hums to the gulls.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-1|Dome Cap|common|rootwarden|1|1|1|0|2-2|corner-BB|keyhole|-|A blue-tiled dome on the library roof that sheds the rain without a single drip.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-2|Scroll Stack|common|seedkeeper|0|2|1|0|2-6|edge-TTB|keyhole|-|A stack of farming scrolls tied with string and sorted by season, ready for the next lesson.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-3|Arch Window|common|brewroot|1|0|1|1|4-2|inner-TBTB|keyhole|-|An arched window in the mud-brick wall, cool and dim, where the afternoon light sits down to read.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-4|Shelf Rows|uncommon|thornblade|2|1|1|1|5-4|inner-TTTT|double|-|Four shelves of old scrolls stacked up the tall wall, each one smelling faintly of rain and paper.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-5|Spectacle Ring|uncommon|bloomcaller|1|0|2|2|5-6|inner-BBBB|keyhole|-|The round spectacles on the old tortoise guide, which let him read every scroll twice over.
+pl-wonder-mud-mosque-library-e5856f|pl-wmud-6|Scholar Tortoise|rare|wayfinder|2|2|1|1|6-6|whimsy-tortoise|keyhole|-|A tortoise in spectacles who guides you through the scrolls at a dignified pace and never hurries.
+pl-wonder-panda-bamboo-grove-564306|pl-wpan-1|Bamboo Pole|common|rootwarden|1|1|1|0|1-1|corner-TT|keyhole|-|A tall green stalk that creaks in the breeze, knocking softly so the cubs can follow it home.
+pl-wonder-panda-bamboo-grove-564306|pl-wpan-2|Cub Bowl|common|seedkeeper|0|2|1|0|0-6|edge-TBB|keyhole|-|A bamboo bowl with a sleepy cub in it, munching shoots and dropping only a few.
+pl-wonder-panda-bamboo-grove-564306|pl-wpan-3|Splinter Pick|common|brewroot|1|0|1|1|7-4|inner-TBBB|keyhole|-|A tiny splinter the panda holds up, which the gnome takes out with a very small needle.
+pl-wonder-panda-bamboo-grove-564306|pl-wpan-4|Shoot Quartet|uncommon|thornblade|2|1|1|1|2-7|inner-TTTT|double|-|Four green shoots poking up through the grass, each one tasty and each one a little crunchy.
+pl-wonder-panda-bamboo-grove-564306|pl-wpan-5|Panda Belly|uncommon|bloomcaller|1|0|2|2|4-4|inner-BBBB|keyhole|-|The round white belly of the panda, which gives a happy pat whenever someone brings a shoot.
+pl-wonder-panda-bamboo-grove-564306|pl-wpan-6|Grove Guard|rare|wayfinder|2|2|1|1|5-3|whimsy-panda|keyhole|-|A serious panda who holds up one paw to show a splinter, then munches bamboo like a judge.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-1|Float Rope|common|rootwarden|1|1|1|0|3-1|corner-TB|keyhole|-|A red float on the end of a rope, bobbing where the diver can find it when the pearls are in.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-2|Oyster Lid|common|seedkeeper|0|2|1|0|2-5|edge-TTB|keyhole|-|A grey oyster shell that opens an inch when the rope taps it, then shuts tight again.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-3|Reef Fish|common|brewroot|1|0|1|1|7-4|inner-TBTB|keyhole|-|A small orange fish that swims past the raft and looks up as if asking for a pearl.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-4|Shell Row|uncommon|thornblade|2|1|1|1|5-6|inner-TTTT|double|-|Four oysters lined up on the sand, each one waiting patiently for a diver to come by.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-5|Pearl Hollow|uncommon|bloomcaller|1|0|2|2|6-6|inner-BBBB|keyhole|-|The round open mouth of a shell with a pearl inside it, shining like a little moon.
+pl-wonder-pearl-diver-cove-680a36|pl-wpea-6|Raft Captain|rare|wayfinder|2|2|1|1|5-2|whimsy-diver|keyhole|-|A bearded diver on a raft who holds one pearl up to the sun and keeps the rest for later.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-1|Lily Pad|common|rootwarden|1|1|1|0|8-6|corner-BB|keyhole|-|A flat green lily pad with a seed bundle on top, pushed over by a dolphin’s nose.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-2|Vine Swing|common|seedkeeper|0|2|1|0|7-1|edge-TBB|keyhole|-|A green vine swing over the water, where a bright parrot sits and yells hello at the dolphins.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-3|Dolphin Nudge|common|brewroot|1|0|1|1|4-6|inner-TBTB|keyhole|-|A friendly dolphin rolling against the pool edge to nudge a seed bundle toward you.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-4|Fin Quartet|uncommon|thornblade|2|1|1|1|2-6|inner-TTTT|double|-|Four pink fins breaking the pool at once, the dolphins’ way of saying good morning to the trees.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-5|Pool Ring|uncommon|bloomcaller|1|0|2|2|4-7|inner-BBBB|keyhole|-|A round pool ringed by trees, where the dolphins roll in the shade and the water stays warm.
+pl-wonder-pink-river-dolphin-pools-29137e|pl-wdol-6|Seed Guide|rare|wayfinder|2|2|1|1|9-3|whimsy-dolphin|keyhole|-|A chubby pink dolphin who knows where every hidden seed is and nudges you toward the next one.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-1|Wish Strand|common|rootwarden|1|1|1|0|2-2|corner-TT|keyhole|-|One strand of wish flags strung across the pass, snapping in the wind and reading itself out loud.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-2|Prayer Pole|common|seedkeeper|0|2|1|0|5-3|edge-TBB|keyhole|-|A tall pole on a stone base, with a bundle of flags that hums every time it turns.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-3|Pilgrim Stack|common|brewroot|1|0|1|1|4-6|inner-TBTB|keyhole|-|A stack of stones at the foot of the pole, where pilgrims add one more and sit down to rest.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-4|Knot Quartet|uncommon|thornblade|2|1|1|1|1-3|inner-TTTT|double|-|Four flags tied in a knot, each one carrying a different wish for the traveller on the pass.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-5|Stone Basin|uncommon|bloomcaller|1|0|2|2|5-6|inner-BBBB|keyhole|-|The round stone basin at the foot of the pole, catching rain and wishes in equal measure.
+pl-wonder-prayer-flag-pass-4260ac|pl-wpry-6|Pass Yak|rare|wayfinder|2|2|1|1|9-6|whimsy-yak|keyhole|-|A chubby yak in a red saddle who carries the wishes up the pass one slow, steady step at a time.
+pl-wonder-root-wrapped-temple-83a03a|pl-wroo-1|Root Loop|common|rootwarden|1|1|1|0|1-1|corner-BB|keyhole|-|A knobbly root wrapped round the temple gate, holding the stone walls the way a hand holds a cup.
+pl-wonder-root-wrapped-temple-83a03a|pl-wroo-2|Face Block|common|seedkeeper|0|2|1|0|5-2|edge-TTB|keyhole|-|A grey stone face with a crooked smile, watching the path through the knuckles of the wood.
+pl-wonder-root-wrapped-temple-83a03a|pl-wroo-3|Door Glow|common|brewroot|1|0|1|1|5-5|inner-TBTB|keyhole|-|A little lantern glow in the arched doorway, left burning for any gnome who knocks.
+pl-wonder-root-wrapped-temple-83a03a|pl-wroo-4|Vine Quartet|uncommon|thornblade|2|1|1|1|3-0|inner-TTTT|double|-|Four hanging vines dangling from the canopy, handy to climb when the temple stairs are too steep.
+pl-wonder-root-wrapped-temple-83a03a|pl-wroo-5|Arch Doorway|uncommon|bloomcaller|1|0|2|2|5-4|inner-BBBB|keyhole|-|The round stone arch of the temple door, where the root stairs meet the warm lamp light.
+pl-wonder-root-wrapped-temple-83a03a|pl-wroo-6|Knuckle Shrine|rare|wayfinder|2|2|1|1|6-3|whimsy-temple|keyhole|-|A chubby stone shrine with a kind face and a lantern door, held in wooden arms that hug it tight.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-1|Star Dots|common|rootwarden|1|1|1|0|6-1|corner-TB|keyhole|-|A line of gold dots across the night sky, showing the way home to any navigator who can read them.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-2|Hull Plank|common|seedkeeper|0|2|1|0|3-6|edge-TBB|keyhole|-|A plank of the voyaging canoe, scrubbed clean and tied tight, with sand still stuck to one edge.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-3|Star Reader|common|brewroot|1|0|1|1|8-5|inner-TBTB|keyhole|-|A navigator with a lantern held high, reading the stars one at a time and never getting lost.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-4|Star Quartet|uncommon|thornblade|2|1|1|1|6-2|inner-TTTT|double|-|Four gold stars strung along the path, each one a stop on the long voyage out.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-5|Sail Corner|uncommon|bloomcaller|1|0|2|2|5-3|inner-TTBB|keyhole|-|The top corner of the striped sail, which catches every breeze that blows past the star path.
+pl-wonder-starpath-canoe-a8df46|pl-wsta-6|Outrigger Sprite|rare|wayfinder|2|2|1|1|4-4|whimsy-canoe|keyhole|-|A tiny outrigger canoe with a float on one side, which sails straight to any star you point at.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-1|Cap Stone|common|rootwarden|1|1|1|0|0-3|corner-TT|keyhole|-|A red capstone on top of the first head, keeping the sun off its carved brow.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-2|Gold Seed|common|seedkeeper|0|2|1|0|5-6|edge-TBB|keyhole|-|A gold seed that rolls off the lip of a carved head, as if the stone itself had blinked.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-3|Watcher Face|common|brewroot|1|0|1|1|8-4|inner-TBTB|keyhole|-|A grey stone face with flat ears and a stern mouth that softens whenever a seed is near.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-4|Head Row|uncommon|thornblade|2|1|1|1|4-5|inner-TTTT|double|-|Four carved heads standing shoulder to shoulder on the headland, each with its own answer ready.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-5|Sun Rim|uncommon|bloomcaller|1|0|2|2|10-0|inner-TTBB|keyhole|-|The round sun low over the headland, giving every carved head a little gold light.
+pl-wonder-stone-head-watchers-88f47d|pl-wsto-6|Answer Stone|rare|wayfinder|2|2|1|1|11-4|whimsy-stonehead|keyhole|-|A chubby carved head with a red cap who blinks once and drops a gold seed for every question.
