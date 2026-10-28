@@ -54,10 +54,10 @@ ok "still made with GD" "$(php -r 'echo getimagesize($argv[1])["mime"] ?? "";' $
 ok "gif is served" "$(curl -s -o /dev/null -w '%{http_code}' $BASE/uploads/puzzles/$F)" 200
 ok "admin log row" "$(dbv "SELECT COUNT(*) FROM admin_log WHERE action='puzzle_upload'")" 1
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('puzzles_open','1')"
-ok "off: not in the player library" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c "$F")" 0
+ok "off: not in the player library" "$(curl -s -b $W/p $BASE/gifsaw.php | grep -c "$F")" 0
 ID=$(dbv "SELECT id FROM puzzle_pics WHERE slug='test-toy-box'")
 curl -s -b $W/a -o /dev/null -X POST $BASE/admin/puzzles.php --data-urlencode "csrf=$T" -d do=pic_save -d id=$ID -d title='Test Toy Box' -d pieces_default=24 -d sort=1 -d active=1
-ok "switched on: in the player library" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c "$F")" 1
+ok "switched on: in the player library" "$(curl -s -b $W/p $BASE/gifsaw.php | grep -c "$F")" 1
 up a "$T" 'Test Toy Box' good.gif >/dev/null
 ok "same title gets its own slug" "$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE slug='test-toy-box-2'")" 1
 dbx "DELETE FROM settings WHERE name='puzzles_open'"

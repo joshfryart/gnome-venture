@@ -21,13 +21,13 @@ curl -s -b $W/a -o /dev/null -X POST $BASE/admin/puzzles.php --data-urlencode "c
 TID=$(dbv "SELECT id FROM puzzle_tournaments WHERE title='Sunflower Sprint'")
 ok "admin made a live tournament" "$(dbv "SELECT status FROM puzzle_tournaments WHERE id=$TID")" live
 ok "bad times refused" "$(curl -s -b $W/a -o /dev/null -w '%{http_code}' -X POST $BASE/admin/puzzles.php --data-urlencode "csrf=$T" -d do=tour_save -d id=0 -d title=Backwards -d pic_id=$PIC -d pieces=24 -d "starts_at=$(hol 3600)" -d "ends_at=$(hol -3600)" -d status=live; dbv "SELECT COUNT(*) FROM puzzle_tournaments WHERE title='Backwards'")" 3020
-ok "setting off: page redirects" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' "$BASE/puzzles.php?t=$TID")" 302
+ok "setting off: page redirects" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' "$BASE/gifsaw.php?t=$TID")" 302
 setg puzzles_open 0; setg puzzles_tournaments 1
-ok "puzzles closed: page redirects" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' "$BASE/puzzles.php?t=$TID")" 302
+ok "puzzles closed: page redirects" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' "$BASE/gifsaw.php?t=$TID")" 302
 setg puzzles_open 1
-curl -s -b $W/p "$BASE/puzzles.php?t=$TID" > $W/pt.html
+curl -s -b $W/p "$BASE/gifsaw.php?t=$TID" > $W/pt.html
 ok "player sees the tournament card" "$(grep -c 'id="tstart"' $W/pt.html)" 1
-ok "library lists it" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c "puzzles.php?t=$TID")" 1
+ok "library lists it" "$(curl -s -b $W/p $BASE/gifsaw.php | grep -c "gifsaw.php?t=$TID")" 1
 ok "tournament banner art" "$(grep -c 'cast/tourney-banner.png' $W/pt.html)" 1
 C=$(php -r 'preg_match("#id=\"pz-t\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo json_decode($m[1], true)["csrf"] ?? "";' $W/pt.html)
 api() { curl -s -b $W/p -X POST $BASE/puzzles_api.php --data-urlencode "csrf=$C" "$@"; }
@@ -50,7 +50,7 @@ ok "rank 1" "$(echo "$R" | js rank)" 1
 ok "time is the server's (~90 s)" "$(dbv "SELECT ms BETWEEN 90000 AND 95000 FROM puzzle_attempts WHERE token='$TK'")" 1
 TK2=$(api -d do=start -d t=$TID | js token | tr -d "'"); TK3=$(api -d do=start -d t=$TID | js token | tr -d "'")
 ok "a new start voids the open one" "$(dbv "SELECT status || reason FROM puzzle_attempts WHERE token='$TK2'")" voidrestarted
-ok "leaderboard shows the best" "$(curl -s -b $W/p "$BASE/puzzles.php?t=$TID" | grep -c '1:3[0-9]\.')" 2
+ok "leaderboard shows the best" "$(curl -s -b $W/p "$BASE/gifsaw.php?t=$TID" | grep -c '1:3[0-9]\.')" 2
 # other gnomes, slower: sprout's 1:30 is under a third of the median, so the admin sees a flag
 for k in 1 2 3 4; do
   dbx "INSERT INTO users (username,email,password_hash,created_at,gnome_name) VALUES ('pzbot$k','pz$k@b.local','x','2026-01-01 00:00:00','Bot $k')"
@@ -74,7 +74,7 @@ dbx "UPDATE puzzle_attempts SET start_ms = start_ms - 90000 WHERE token='$TK'"
 dbx "UPDATE puzzle_tournaments SET ends_at='$(php -r 'echo gmdate("Y-m-d H:i:s", time() - 660);')' WHERE id=$TID"
 ok "late finish rejected" "$(api -d do=finish -d token=$TK -d drops=$TOTAL | js error | grep -c 'closed')" 1
 # settling (any puzzles page settles): places and badges
-curl -s -b $W/p "$BASE/puzzles.php?t=$TID" > $W/res.html
+curl -s -b $W/p "$BASE/gifsaw.php?t=$TID" > $W/res.html
 ok "settled" "$(dbv "SELECT status FROM puzzle_tournaments WHERE id=$TID")" settled
 ok "places 1-4" "$(dbv "SELECT GROUP_CONCAT(place, ',') FROM (SELECT place FROM puzzle_attempts WHERE tournament_id=$TID AND place IS NOT NULL ORDER BY place)")" "1,2,3,4"
 ok "voided run got no place" "$(dbv "SELECT COUNT(*) FROM puzzle_attempts WHERE tournament_id=$TID AND place IS NOT NULL AND user_id=(SELECT id FROM users WHERE username='sprout')")" 0

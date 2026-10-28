@@ -99,7 +99,7 @@ function admin_menu_def(): array
         ['art', '🖼️', 'Images & art', [
             ['images.php', '🖼️', 'Images', 'Upload pictures and see which are still missing', 'img'],
             ['artguide.php', '🎨', 'Art & style guide', 'Download the style sheet and icon guide as a PDF', ''],
-            ['puzzles.php', '🧩', 'Puzzles', 'Puzzle pictures, GIF uploads and tournaments', ''],   // v2.0.68
+            ['puzzles.php', '🧩', 'GIFsaw', 'GIF pictures, uploads and tournaments', ''],   // v2.0.68; v2.0.69 renamed GIFsaw
         ]],
     ];
 }

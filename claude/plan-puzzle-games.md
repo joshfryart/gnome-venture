@@ -1,0 +1,8 @@
+# Puzzle games plan (Opus high, 2026-10-28)
+Hub `puzzles.php`; jigsaw = GIFsaw (`gifsaw.php`, 2.0.69 done). Master gate `puzzles_open`; add per-game `pz_<game>_open` (default 0) + `puzzle_game_open($k)`.
+Games, build order: 1 **Rain Barrel** (pipes, tap tiles, S), 2 **Gnome Beds** (queens-style, regions, unique solution, S/M), 3 **Snail Trail** (zip-style drag path through numbered stones, M). Reserve: Seed Picross (needs pixel pictures).
+Daily puzzle same for all (seed crc32("pz|game|".game_day()), PHP mulberry32 port) + unranked practice. Score = server time + hint penalty. Trust: server builds puzzle, client never gets answer; start = single-use token; finish = moves, server re-checks, own clock, min-time reject.
+Shared (`includes/puzzle_games.php`): PUZZLE_GAMES registry; tables `puzzle_daily(game,day UNIQUE,data)`, `puzzle_runs(token UNIQUE,user,game,day,mode,start_ms,ms,hints,status)`, `puzzle_wins(game,day,user UNIQUE)` (reward only if insert wins). Do NOT reuse `puzzle_attempts`. Generic start/finish API. Reuse win card, `puzzle_cast()`, `game_energy()`, rules tabs.
+Cast: Jeff hosts, Wizard hint (+20s), Ffej lines only.
+Releases: 2.0.69 hub + GIFsaw move (done); 2.0.70 shared + Rain Barrel (+suite puzzles_daily.sh: same puzzle for 2 users, wrong answer, reused token, too fast, parallel double finish pays once, practice pays nothing, 365 seeds valid); 2.0.71 Gnome Beds (200 seeds exactly one answer); 2.0.72 Snail Trail. News only when players can open it.
+Joshua's calls (defaults): open Puzzles to players after Rain Barrel ships; daily reward game_petals(15) once/game/day + 1 energy + streak badges; Hollow-midnight reset.

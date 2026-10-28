@@ -97,7 +97,7 @@ admin_crumbs('puzzles.php');
 ?>
 <h1>🧩 Puzzles</h1>
 <p class="help">Puzzles for players: <b><?= setting('puzzles_open') === '1' ? 'open' : 'admins only' ?></b> · tournaments: <b><?= setting('puzzles_tournaments') === '1' ? 'on' : 'off' ?></b>
-  (change both in <a href="<?= e(url('admin/settings.php')) ?>">Game settings</a>; tournaments only show while Puzzles are open). <a href="<?= e(url('puzzles.php')) ?>">Open Puzzles</a>.</p>
+  (change both in <a href="<?= e(url('admin/settings.php')) ?>">Game settings</a>; tournaments only show while Puzzles are open). <a href="<?= e(url('gifsaw.php')) ?>">Open GIFsaw</a> · <a href="<?= e(url('puzzles.php')) ?>">Puzzles hub</a>.</p>
 <nav class="tabs">
   <a class="tab<?= $tab === 'library' ? ' on' : '' ?>" href="<?= e(url('admin/puzzles.php')) ?>">🖼️ Library</a>
   <a class="tab<?= $tab === 'upload' ? ' on' : '' ?>" href="<?= e(url('admin/puzzles.php?tab=upload')) ?>">⬆️ Upload</a>

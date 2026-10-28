@@ -8,12 +8,19 @@ login() { rm -f $1; curl -s -c $1 -b $1 $BASE/login.php > /tmp/pz.html; curl -s 
 ok() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1 (got '$2', want '$3')"; fi; }
 login /tmp/pz-p 'sprout' 'TestPass123!'
 dbx "DELETE FROM settings WHERE name='puzzles_open'"
-ok "locked: player is redirected" "$(curl -s -b /tmp/pz-p -o /dev/null -w '%{http_code}' $BASE/puzzles.php)" 302
+ok "locked: player is redirected" "$(curl -s -b /tmp/pz-p -o /dev/null -w '%{http_code}' $BASE/gifsaw.php)" 302
 curl -s -b /tmp/pz-p $BASE/games.php > /tmp/pz.html; ok "locked: no Puzzles tile" "$(grep -c 'puzzles.php' /tmp/pz.html)" 0
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('puzzles_open','1')"
-curl -s -b /tmp/pz-p $BASE/puzzles.php > /tmp/pz.html
+curl -s -b /tmp/pz-p $BASE/gifsaw.php > /tmp/pz.html
 ok "open: page loads for a player" "$(grep -c 'id="pz-data"' /tmp/pz.html)" 1
 ok "open: puzzles.js wired" "$(grep -c 'assets/puzzles.js' /tmp/pz.html)" 1
+# v2.0.69: hub + redirects
+ok "hub: player redirect when closed handled above; hub loads" "$(curl -s -b /tmp/pz-p -o /dev/null -w '%{http_code}' $BASE/puzzles.php)" 200
+curl -s -b /tmp/pz-p $BASE/puzzles.php > /tmp/pz.html
+ok "hub: puzzlehub.js wired, puzzles.js not" "$(grep -c 'assets/puzzlehub.js' /tmp/pz.html)$(grep -c 'assets/puzzles.js' /tmp/pz.html)" 10
+ok "hub: links GIFsaw + 3 coming soon" "$(grep -c 'gifsaw.php' /tmp/pz.html)$(grep -c 'Coming soon' /tmp/pz.html)" 13
+ok "old ?t link redirects to gifsaw" "$(curl -s -b /tmp/pz-p -o /dev/null -w '%{http_code} %{redirect_url}' "$BASE/puzzles.php?t=5&seed=9&x=1" | sed 's#http://[^/]*##')" "302 /gifsaw.php?t=5&seed=9"
+curl -s -b /tmp/pz-p $BASE/gifsaw.php > /tmp/pz.html
 ok "open: Motion button" "$(grep -c 'id="anim"' /tmp/pz.html)" 1
 N=0; for f in $(php -r '$j=preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents("/tmp/pz.html"), $m) ? json_decode($m[1], true) : []; foreach ($j as $p) echo basename(strtok($p["gif"], "?")), " ", basename(strtok($p["still"], "?")), "\n";' | tr ' ' '\n'); do
   N=$((N+1)); [ -s "$GAME/assets/img/puzzles/$f" ] || echo "FAIL missing picture file: $f"
@@ -26,7 +33,7 @@ done
 ok "Jeff hosts the library" "$(grep -c 'Jeff:</b>' /tmp/pz.html)" 1
 ok "pictures come from puzzle_pics" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT COUNT(*) FROM puzzle_pics WHERE source=\"builtin\" AND active=1")->fetchColumn();')" 7
 dbx "UPDATE puzzle_pics SET active=0 WHERE slug='pig'"
-curl -s -b /tmp/pz-p $BASE/puzzles.php > /tmp/pz.html
+curl -s -b /tmp/pz-p $BASE/gifsaw.php > /tmp/pz.html
 ok "a switched-off picture leaves the library" "$(grep -c 'pig.gif' /tmp/pz.html)" 0
 dbx "UPDATE puzzle_pics SET active=1 WHERE slug='pig'"
 ok "seeded scramble (mulberry32, ?seed=)" "$(grep -c 'function mulberry32' $GAME/assets/puzzles.js)$(grep -c 'seed=(' $GAME/assets/puzzles.js)" 11

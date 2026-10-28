@@ -154,3 +154,13 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 .pzboard li.me{font-weight:700; color:var(--brand-ink)}
 .pzempty{display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px}
 .pzempty .pzcast img{width:120px; height:auto}
+
+/* ---- v2.0.69: Puzzles hub (puzzles.php) ---- */
+.pzhub{list-style:none; margin:12px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px}
+.pzhubcard{display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; padding:14px 10px; height:100%; box-sizing:border-box; color:var(--ink); text-decoration:none}
+.pzhubcard .gticon{grid-row:auto; font-size:40px; line-height:1; display:block; min-height:64px}
+.pzhubcard .gticon img{width:64px; height:64px; image-rendering:pixelated}
+.pzhubcard small{color:var(--muted); font-size:13px; line-height:1.35}
+.pzhubcard .gtbadge{margin-top:auto; justify-self:center}
+.pzsoon{opacity:.6}
+@media (max-width:560px){ .pzhub{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px} }
