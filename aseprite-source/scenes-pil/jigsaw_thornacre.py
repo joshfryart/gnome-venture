@@ -278,27 +278,43 @@ acacia(120, 122, 58, 34, nests=5)
 def giraffe(x, y, f, h=62):
     """Giraffe with feet at y, facing f (+1 right / -1 left)."""
     by = y - 30
-    body = ell(x - 14, by - 7, x + 14, by + 7)
-    legs = blank()
-    for lx, sp in ((-11, -1), (-7, 1), (6, -1), (10, 1)):
-        legs |= line([(x + lx * f, by + 2), (x + (lx + sp) * f, y)], 2)
-    neck = poly([(x + 8 * f, by - 4), (x + 13 * f, by - 2), (x + 22 * f, by - h + 34), (x + 17 * f, by - h + 32)])
+
+    def X(d):
+        return x + d * f
+    body = ell(x - 14, by - 6, x + 14, by + 7) | ell(min(X(0), X(15)), by - 10, max(X(0), X(15)), by + 5)   # sloping back, high withers
+    near, far = blank(), blank()
+    for lx, is_near, hind in ((-10, True, True), (-6, False, True), (10, True, False), (6, False, False)):
+        top = (X(lx), by + 3)
+        knee = (X(lx - 2 if hind else lx + (0 if is_near else -1)), by + 15)   # hind legs bend back at the hock
+        foot = (X(lx + (0 if hind else 1) + (1 if is_near else -1)), y)
+        m = line([top, knee], 3) | line([knee, foot], 2) | rect(knee[0] - 1, knee[1] - 1, knee[0] + 1, knee[1])
+        m |= rect(min(foot[0], foot[0] + f), y - 1, max(foot[0], foot[0] + f), y)   # hoof
+        if is_near:
+            near |= m
+        else:
+            far |= m
+    neck = poly([(x + 8 * f, by - 6), (x + 14 * f, by - 2), (x + 22 * f, by - h + 34), (x + 17 * f, by - h + 32)])
     head = ell(min(x + 16 * f, x + 30 * f), by - h + 26, max(x + 16 * f, x + 30 * f), by - h + 33)
     o = cv.obj()
-    o.part(legs, GIR, d=1)
+    o.part(far, ramp('#c98a2a', '#a8701c'), d=0, rim=False)
+    o.draw()
+    o = cv.obj()
+    o.part(near, GIR, d=0, rim=False)
     o.part(body | neck, GIR, d=2)
     o.part(head, GIR, d=1)
-    o.part(line([(x - 14 * f, by - 2), (x - 18 * f, by + 10)]), GIR, d=0)
+    o.part(line([(x - 14 * f, by - 2), (x - 18 * f, by + 10)]), GIR, d=0, rim=False)
     o.draw()
     blob = body | neck
-    ys, xs = np.nonzero(blob & ~shift(blob, 0, 0) | blob)
-    for k in range(26):   # patches
-        i = r2(0, len(xs) - 1)
-        px, py = int(xs[i]), int(ys[i])
-        pm = rect(px, py, px + 2, py + 1) | rect(px + 1, py + 2, px + 2, py + 2)
-        cv.fill(pm & blob & ~shift(~blob, 1, 1) & ~shift(~blob, -1, -1), '#9a5a24')
+    inner = blob & shift(blob, 1, 1) & shift(blob, -1, -1) & shift(blob, 1, -1) & shift(blob, -1, 1)
+    for gy in range(by - h + 30, by + 9, 4):   # reticulated patches: a jittered grid of rounded tiles with thin pale lines between
+        for gx in range(x - 34, x + 34, 4):
+            px, py = gx + (2 if (gy // 4) % 2 else 0) + r2(0, 1), gy + r2(0, 1)
+            pm = rect(px, py, px + 2, py + 2) & ~rect(px + 2, py + 2, px + 2, py + 2) & ~rect(px, py, px, py)
+            cv.fill(pm & inner, '#9a5a24')
+    legs = near | far
+    for lm in (near, far):   # a few small patches high on the legs, dark hooves
+        cv.fill(lm & rect(0, by + 5, W, by + 6) & shift(lm, 1, 0), '#9a5a24')
     cv.fill(legs & rect(0, y - 1, W, y), DARK)
-    cv.fill(legs & rect(0, by + 12, W, by + 12), GIR['s'])   # knees
     hx0 = x + 22 * f
     cv.fill(rect(hx0 - 1, by - h + 22, hx0 - 1, by - h + 26) | rect(hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 22, hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 26), '#7a4a1f')   # ossicones
     cv.dots([(hx0 - 1, by - h + 21), (hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 21)], DARK)
@@ -327,23 +343,32 @@ for k in range(50):   # lichen and specks
     lx, ly = r(0, 70), r(96, 164)
     if kop[ly, lx]:
         cv.dots([(lx, ly), (lx + 1, ly)], ('#e8a317', '#dccab0', '#8a7464', '#a4b05a', '#f08a24')[k % 5])
-# the watcher: a tall carved head looking out over the plain
+# the watcher: a carved soapstone bird on a chevron-cut pillar, looking out over the plain
 hx, hy = 14, 60
+SOAP = ramp('#8a9a7a', '#66755a', '#b4c09a')
 o = cv.obj()
 o.part(rect(hx - 4, hy + 34, hx + 22, hy + 40), GRANITE, d=1)   # plinth
-o.part(rrect(hx, hy + 4, hx + 16, hy + 34, 2), GRANITE, d=3)   # long face
-o.part(rect(hx - 1, hy, hx + 17, hy + 6), GRANITE, d=1)   # flat cap
-o.part(poly([(hx + 16, hy + 12), (hx + 21, hy + 22), (hx + 16, hy + 24)]), GRANITE, d=1)   # nose
+o.part(rrect(hx + 2, hy + 14, hx + 14, hy + 34, 1), GRANITE, d=2)   # pillar
+o.part(rect(hx, hy + 11, hx + 16, hy + 14), GRANITE, d=1)   # cap
 o.draw()
-cv.fill(rect(hx + 8, hy + 12, hx + 14, hy + 12), GRANITE['s'])   # brow
-cv.fill(rect(hx + 10, hy + 14, hx + 13, hy + 15), '#5c4a3c')   # deep eye
-cv.fill(rect(hx + 10, hy + 27, hx + 16, hy + 28), '#6a5444')   # mouth
-cv.fill(rect(hx + 1, hy + 10, hx + 2, hy + 24), GRANITE['r'])
-for yy in (hy + 2, hy + 4):
-    cv.fill(rect(hx, yy, hx + 16, yy) & ~rect(hx + 3, yy, hx + 4, yy), GRANITE['s'])
-cv.dots([(hx + 4, hy + 30), (hx + 6, hy + 31), (hx + 3, hy + 18)], '#a4b05a')   # moss
-cv.fill(rect(hx + 3, hy + 2, hx + 6, hy + 3), '#f5d020')   # a weaver bird perched on top
-cv.dots([(hx + 7, hy + 2)], '#3d2a1c')
+for yy in range(hy + 17, hy + 32, 5):   # carved chevrons
+    for xx in range(hx + 4, hx + 13):
+        cv.dots([(xx, yy + abs(xx - (hx + 8)) // 2)], GRANITE['s'])
+cv.fill(rect(hx + 3, hy + 16, hx + 3, hy + 32), GRANITE['r'])
+o = cv.obj()
+o.part(rect(hx + 6, hy + 6, hx + 7, hy + 10) | rect(hx + 10, hy + 6, hx + 11, hy + 10), SOAP, d=0, rim=False)   # legs
+o.part(ell(hx + 3, hy - 6, hx + 14, hy + 8) | poly([(hx + 5, hy + 2), (hx + 1, hy + 10), (hx + 6, hy + 10)]), SOAP, d=2)   # body + tail
+o.part(ell(hx + 8, hy - 13, hx + 15, hy - 5) | poly([(hx + 15, hy - 11), (hx + 19, hy - 8), (hx + 15, hy - 7)]), SOAP, d=1)   # head + beak
+o.draw()
+for k in range(3):   # folded wing feathers
+    cv.fill(line([(hx + 5, hy - 2 + k * 3), (hx + 10, hy + 3 + k * 2)]) & ell(hx + 3, hy - 6, hx + 14, hy + 8), SOAP['s'])
+cv.dots([(hx + 12, hy - 10)], DARK)
+cv.dots([(hx + 4, hy + 30), (hx + 6, hy + 31), (hx + 3, hy + 22)], '#a4b05a')   # moss
+# a red-headed agama lizard basking on the middle boulder
+cv.fill(rect(32, 118, 40, 119), '#4f93b8')
+cv.fill(rect(41, 117, 43, 119), '#f08a24')
+cv.fill(line([(31, 119), (27, 120), (24, 122)]), '#4f93b8')
+cv.dots([(33, 120), (38, 120), (34, 117), (39, 117), (43, 118)], DARK)
 
 
 def gnome(gx, gy, tunic, hat, lean=-5, s=1.0, arm=None):
@@ -386,6 +411,20 @@ o.part(bt, BARK, d=4)
 o.draw()
 for xx in range(244, 284, 6):   # vertical bark folds
     cv.fill(line([(xx, 72 + (xx % 5)), (xx + (xx % 3) - 1, 150)]) & bt & ~shift(bt, 3, 0), BARK['s'])
+    if xx < 266:   # sunlit ridge beside each fold on the left half
+        cv.fill(line([(xx - 2, 74 + (xx % 5)), (xx + (xx % 3) - 3, 148)]) & bt & ~shift(bt, 3, 0), BARK['r'])
+lit = blank()   # lit left flank, a ragged band 2-5 px wide just inside the outline
+for yy in range(66, 156):
+    xs_ = np.nonzero(bt[yy])[0]
+    if len(xs_):
+        x0_ = int(xs_[0]) + 1
+        lit |= rect(x0_, yy, x0_ + 1 + (yy * 7 // 3) % 4, yy)
+cv.fill(lit, BARK['r'])
+for _ in range(26):   # wrinkle arcs across the trunk
+    wx, wy = r3(242, 280), r3(70, 120)
+    wr = line([(wx, wy), (wx + 3, wy + 1), (wx + 6, wy)]) & bt & ~shift(bt, 3, 0)
+    cv.fill(wr, BARK['s'])
+    cv.fill(shift(wr, 0, -1) & bt & ~shift(bt, 3, 0) & rect(0, 0, 266, H), BARK['r'])
 for cx, cy in ((226, 44), (230, 34), (246, 32), (266, 28), (282, 32), (296, 38), (300, 46)):   # sparse leaf tufts
     o = cv.obj(outline=False)
     o.part(ell(cx - 5, cy - 3, cx + 5, cy + 3), LEAF, d=1)
@@ -502,9 +541,14 @@ for fx in list(range(84, 122, 4)) + list(range(172, 238, 4)):
 cv.fill(line([(84, 147), (121, 147)]) | line([(172, 143), (237, 146)]), UMBER['b'])
 
 # ---------------------------------------------------------------- coffee ceremony in front of the hut: grass mat, pot, cups, roasting gnome
-mat = ell(156, 160, 226, 182)
+mat = ell(154, 158, 234, 190)
 cv.fill(mat, '#6a9a3a')
 cv.fill(mat & ~shift(mat, 0, -2), '#4f7a2a')
+for _ in range(50):   # strands over the wider mat
+    mx, my = r3(154, 234), r3(158, 190)
+    if mat[my, mx]:
+        cv.fill(line([(mx, my), (mx + r3(-2, 2), my - 1)]), ('#8ab84a', '#4f7a2a', '#a4c86a')[r3(0, 2)])
+mat = ell(156, 160, 226, 182)   # (v0 mask: keeps the v0 random sequence)
 for _ in range(70):
     mx, my = r(156, 226), r(160, 182)
     if mat[my, mx]:
@@ -527,43 +571,74 @@ cv.fill(rect(175, 165, 177, 168), SKIN['b'])   # hand
 cv.dots([(160, 164), (162, 164), (164, 165), (161, 165), (166, 164)], '#3d2a1c')   # beans
 for k in range(4):   # bean smoke curling up from the pan
     cv.fill(ell(160 + k * 2 - 2, 154 - k * 5, 160 + k * 2 + 3, 157 - k * 5), '#f2e4c0')
-# clay jebena pot on the mat
-jx, jy = 204, 166
-POT = ramp('#3d2a1c', '#2a1a10', '#7a4a1f')
+# clay jebena pot on a woven straw ring: round belly, tall neck, spout, loop handle
+jx, jy = 207, 168
+POT = ramp('#b8502a', '#8a3a1f', '#d9764a')
 o = cv.obj()
-o.part(ell(jx - 6, jy - 2, jx + 6, jy + 10), POT, d=2)
-o.part(rect(jx - 1, jy - 10, jx + 1, jy - 1), POT, d=0)
-o.part(line([(jx + 5, jy + 2), (jx + 10, jy - 3)], 2), POT, d=0)
-o.part(line([(jx - 4, jy - 6), (jx - 7, jy - 2), (jx - 5, jy + 2)]), POT, d=0)
+o.part(ell(jx - 8, jy + 8, jx + 8, jy + 13), THATCH, d=1)   # straw ring
 o.draw()
-cv.dots([(jx - 3, jy + 1), (jx - 3, jy + 2), (jx - 2, jy)], '#9a6b3f')
-cv.fill(rect(jx - 1, jy - 12, jx + 1, jy - 11), '#d6322b')   # straw stopper
-# low tray with three little cups
+cv.dots([(xx, jy + 10 + (xx % 2)) for xx in range(jx - 6, jx + 7, 2)], THATCH['s'])
 o = cv.obj()
-o.part(rect(212, 176, 226, 178), UMBER, d=1)
+o.part(line([(jx - 1, jy - 8), (jx - 6, jy - 7), (jx - 8, jy - 2), (jx - 6, jy + 2)]), POT, d=0, rim=False)   # handle
+o.part(line([(jx + 5, jy + 3), (jx + 9, jy - 1), (jx + 11, jy - 5)], 2), POT, d=0, rim=False)   # spout
+o.part(rect(jx - 1, jy - 10, jx + 1, jy - 1), POT, d=1)   # neck
+o.part(rect(jx - 2, jy - 11, jx + 2, jy - 10), POT, d=0)   # lip
+o.part(ell(jx - 7, jy - 3, jx + 7, jy + 10), POT, d=3)   # belly
 o.draw()
-for cx in (213, 218, 223):
+cv.dots([(xx, jy + 4) for xx in range(jx - 5, jx + 6, 2)] + [(xx, jy + 5) for xx in range(jx - 4, jx + 6, 2)], '#f2e4c0')   # painted zigzag band
+cv.dots([(jx - 4, jy - 1), (jx - 3, jy - 1), (jx - 4, jy)], '#f2cf8a')   # gloss
+cv.fill(rect(jx - 1, jy - 13, jx + 1, jy - 12), '#f2cf8a')   # straw stopper
+cv.dots([(jx + 12, jy - 7), (jx + 13, jy - 9), (jx + 12, jy - 11)], '#f2e4c0')   # steam from the spout
+# low carved table (rekebot) with four little handleless cups
+o = cv.obj()
+o.part(rect(214, 180, 232, 182), UMBER, d=1)
+o.part(rect(215, 183, 216, 187) | rect(230, 183, 231, 187), UMBER, d=0)
+o.draw()
+for ci, cx in enumerate((215, 219, 223, 227)):
     o = cv.obj()
-    o.part(rect(cx, 172, cx + 2, 175), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=1)
+    o.part(rect(cx, 176, cx + 2, 179), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=1)
     o.draw()
-    cv.dots([(cx + 1, 172)], '#5c3420')
-cv.fill(line([(228, 168), (226, 162), (229, 156), (227, 150)]), '#f2e4c0')   # incense wisp
+    cv.dots([(cx + 1, 176)], '#5c3420')
+    cv.dots([(cx, 178), (cx + 2, 178)], ('#4f93b8', '#d6322b')[ci % 2])
+# a little basket of popcorn, served with the coffee
+o = cv.obj()
+o.part(ell(190, 183, 202, 190) & rect(0, 185, W, H), THATCH, d=1)
+o.part(ell(191, 181, 201, 187) & rect(0, 0, W, 185), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=0)
+o.draw()
+cv.dots([(193, 187), (196, 188), (199, 187), (194, 189), (198, 189)], THATCH['s'])
+cv.dots([(193, 183), (196, 182), (199, 184), (195, 184)], '#f5cf6a')
+# incense burner with a curling wisp
+o = cv.obj()
+o.part(rect(226, 170, 230, 172) | rect(227, 173, 229, 174), CLAY, d=0)
+o.draw()
+cv.fill(line([(228, 169), (226, 163), (229, 157), (227, 151)]), '#f2e4c0')
 
 # ---------------------------------------------------------------- termite mounds (front left)
 for mx, mtop, mw in ((14, 132, 12), (34, 152, 9), (52, 166, 7)):
     base = 192 if mx < 30 else 188 + (mx - 30) // 8
-    m = poly([(mx - mw, base), (mx - mw + 3, mtop + 22), (mx - 3, mtop + 6), (mx - 1, mtop), (mx + 2, mtop + 2), (mx + 3, mtop + 12), (mx + mw - 2, mtop + 26), (mx + mw, base)])
-    m |= poly([(mx + 2, mtop + 14), (mx + mw + 3, mtop + 10), (mx + mw, mtop + 24)])   # side chimney
+    ht = base - mtop
+    # lumpy rounded mound: a broad skirt, a swelling body, a rounded main turret and a smaller side turret
+    m = ell(mx - mw - 2, base - ht // 4, mx + mw + 2, base + 4) & rect(0, 0, W, base)
+    m |= ell(mx - mw * 3 // 4, mtop + ht // 3, mx + mw * 3 // 4, base - 2)
+    m |= ell(mx - mw // 2 - 1, mtop, mx + mw // 3 + 1, mtop + ht // 2 + 2)
+    m |= ell(mx + mw // 4, mtop + ht // 4, mx + mw - 1, mtop + ht // 2 + 4)
+    m |= ell(mx - mw + 1, mtop + ht // 2, mx - 2, mtop + ht // 2 + ht // 4)
     shadow(mx - mw - 2, base - 2, mx + mw + 8, base + 3, DGRASS['s'])
     o = cv.obj()
     o.part(m, CLAY, d=3)
     o.draw()
-    for k in range(10):
-        yy = r(mtop + 6, base - 4)
-        xx = mx + r(-mw // 2, mw // 2)
-        if m[yy, xx]:
-            cv.fill(rect(xx, yy, xx, yy + 2), CLAY['s'])
-    cv.dots([(mx - 1, mtop + 8), (mx, mtop + 9)], DARK)   # vent
+    for k in range(10):   # (v0 sequence kept)
+        r(0, 1)
+        r(0, 1)
+    inner = m & shift(m, 2, 0) & shift(m, -2, 0) & shift(m, 0, 2)
+    for yy in range(mtop + 5, base - 1, 4):   # baked mud courses: short curved ridges, lit above, shaded below
+        for xx in range(mx - mw, mx + mw, 5):
+            x0_ = xx + (yy // 4) % 3
+            rg = line([(x0_, yy + 1), (x0_ + 1, yy), (x0_ + 3, yy), (x0_ + 4, yy + 1)]) & inner
+            cv.fill(rg, CLAY['s'])
+            cv.fill(shift(rg, 0, -1) & inner & rect(0, 0, mx, H), CLAY['r'])
+    cv.fill(ell(mx - 2, mtop + 6, mx + 1, mtop + 9), DARK)   # vents
+    cv.fill(ell(mx + mw // 2, mtop + ht // 4 + 4, mx + mw // 2 + 2, mtop + ht // 4 + 6) & m, DARK)
 # a gnome with an ear to the big mound
 gnome(32, 196, GREENT, ramp('#f08a24', '#b85a14', '#f5b04a'), lean=6, s=0.9)
 # a guineafowl pecking

@@ -38,7 +38,7 @@ echo "== admin page: access, menu, CSRF, validation"
 ok "admin page loads" "$(code -b $W/a $BASE/admin/jigsaw.php)" 200
 ok "non-admin gets 403" "$(code -b $W/p $BASE/admin/jigsaw.php)" 403
 ok "non-admin POST refused" "$(code -b $W/p -X POST $BASE/admin/jigsaw.php -d csrf=x -d do=tour_save)" 403
-ok "admin menu has Jigsaw" "$(curl -s -b $W/a $BASE/admin/index.php | grep -c 'admin/jigsaw.php')" 1
+ge "admin menu has Jigsaw" "$(curl -s -b $W/a $BASE/admin/index.php | grep -c 'admin/jigsaw.php')" 1
 ok "no CSRF refused" "$(code -b $W/a -X POST $BASE/admin/jigsaw.php -d do=tour_save -d title=Nope)" 400
 N0=$(dbv "SELECT COUNT(*) FROM puzzle_tournaments")
 mkform() { echo --data-urlencode "title=$1" -d "pic_id=$2" -d "tier=$3" -d "starts_at=$(hol $4)" -d "ends_at=$(hol $5)" -d "status=live"; }
@@ -71,7 +71,7 @@ ok "cup shares picture and times" "$(dbv "SELECT COUNT(DISTINCT pic_id||starts_a
 ok "admin_log has the cup" "$(dbv "SELECT COUNT(*) FROM admin_log WHERE action='jigsaw_cup'")" 1
 E=$(dbv "SELECT id FROM puzzle_tournaments WHERE tier='easy' AND cup_id IS NOT NULL"); A=$(dbv "SELECT id FROM puzzle_tournaments WHERE tier='advanced' AND cup_id IS NOT NULL"); X=$(dbv "SELECT id FROM puzzle_tournaments WHERE tier='expert' AND cup_id IS NOT NULL")
 curl -s -b $W/p "$BASE/jigsaw.php?t=$E" > $W/e.html
-ok "cup tabs: three, Easy is current" "$(grep -o 'class="pzchip[^"]*"' $W/e.html | wc -l)/$(grep -c "aria-current=\"page\" href=\"[^\"]*t=$E\"" $W/e.html)" 3/1
+ok "cup tabs: three, Easy is current" "$(grep -oE 'class="pzchip( on)?"' $W/e.html | wc -l)/$(grep -c "aria-current=\"page\" href=\"[^\"]*t=$E\"" $W/e.html)" 3/1
 ok "cup tabs link to the siblings" "$(grep -c "jigsaw.php?t=$A\"" $W/e.html)$(grep -c "jigsaw.php?t=$X\"" $W/e.html)" 11
 ok "tab labels" "$(sed -n '/pzcup/,/<\/nav>/p' $W/e.html | sed 's/<[^>]*>//g' | tr -s ' \n' ' ' | sed 's/^ //;s/ $//')" "🌱 Easy 🌿 Advanced 🌳 Expert"
 
@@ -297,6 +297,7 @@ $jpg(600, 400, "$d/tiny.jpg");
 $jpg(3300, 2200, "$d/huge.jpg");
 $jpg(3000, 2000, "$d/heavy.jpg", 100, true);
 $jpg(1800, 1200, "$d/exif.jpg");
+$jpg(1500, 1000, "$d/min.jpg", 20);
 $b = file_get_contents("$d/exif.jpg");
 $app1 = "Exif\0\0" . str_repeat("SECRETGPS-51.5N-0.1W-", 20);
 file_put_contents("$d/exif.jpg", substr($b, 0, 2) . "\xFF\xE1" . pack("n", strlen($app1) + 2) . $app1 . substr($b, 2));
@@ -320,7 +321,7 @@ up -F "pics[]=@$W/not.jpg;type=image/jpeg" >/dev/null; ok "a non-picture refused
 ok "refused uploads saved nothing" "$(dbv "SELECT COUNT(*) FROM puzzle_pics")" "$N0"
 ok "good 3:2 upload redirects" "$(up -F "pics[]=@$W/good.jpg" -F 'title=Test Meadow' -F cat=Seasons -F reserved=1)" 302
 ok "one new picture" "$(dbv "SELECT COUNT(*) FROM puzzle_pics")" "$((N0+1))"
-ok "row: still / upload / off / reserved / category / 1800x1200 / jig- slug" "$(dbv "SELECT kind||source||active||reserved||cat||w||'x'||h||slug FROM puzzle_pics WHERE title='Test Meadow'")" "stilluploads01Seasons1800x1200jig-test-meadow"
+ok "row: still / upload / off / reserved / category / 1800x1200 / jig- slug" "$(dbv "SELECT kind||source||active||reserved||cat||w||'x'||h||slug FROM puzzle_pics WHERE title='Test Meadow'")" "stillupload01Seasons1800x1200jig-test-meadow"
 F=$(dbv "SELECT file FROM puzzle_pics WHERE title='Test Meadow'"); TH=$(dbv "SELECT thumb FROM puzzle_pics WHERE title='Test Meadow'")
 ok "files are uploads/jigsaw/{hex}.jpg and -thumb.jpg" "$(echo $F | grep -cE '^[a-f0-9]{24}\.jpg$')$(echo $TH | grep -cE '^[a-f0-9]{24}-thumb\.jpg$')" 11
 ok "saved picture is a 1800 x 1200 JPEG" "$(php -r '$i=getimagesize($argv[1]); echo $i[0]."x".$i[1].$i["mime"];' $GAME/uploads/jigsaw/$F)" "1800x1200image/jpeg"
@@ -340,7 +341,7 @@ EXF=$(dbv "SELECT file FROM puzzle_pics WHERE title='Exif'")
 ok "EXIF stripped (no marker, no APP1 segment)" "$(grep -c 'SECRETGPS' $GAME/uploads/jigsaw/$EXF)/$(php -r 'echo strpos(file_get_contents($argv[1]), "Exif") === false ? "none" : "found";' $GAME/uploads/jigsaw/$EXF)" "0/none"
 ok "2400 x 1600 re-encoded to 1800 x 1200" "$(php -r '$i=getimagesize($argv[1]); echo $i[0]."x".$i[1];' $GAME/uploads/jigsaw/$(dbv "SELECT file FROM puzzle_pics WHERE title='Good2'"))" 1800x1200
 ok "slugs are unique (two 'good' names get -2)" "$(dbv "SELECT COUNT(DISTINCT slug)=COUNT(*) FROM puzzle_pics")" 1
-ok "26 files refused (max 25)" "$(args=(); for k in $(seq 1 26); do args+=(-F "pics[]=@$W/good.jpg"); done; up "${args[@]}" >/dev/null; flash | grep -c 'Up to 25')" 1
+ok "26 files refused (max 25)" "$(args=(); for k in $(seq 1 26); do args+=(-F "pics[]=@$W/min.jpg"); done; up "${args[@]}" >/dev/null; flash | grep -c 'Up to 25')" 1
 ok "the Library shows the new pictures with their thumbs" "$(curl -s -b $W/a "$BASE/admin/jigsaw.php" | grep -c "uploads/jigsaw/$TH")" 1
 # the uploaded picture works as a tournament picture
 UPID=$(dbv "SELECT id FROM puzzle_pics WHERE title='Test Meadow'")

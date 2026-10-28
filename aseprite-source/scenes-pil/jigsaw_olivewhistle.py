@@ -38,9 +38,17 @@ DONK = ramp('#9a8a7a', '#6a5a4c', '#c3b4a2')
 GOAT = ramp('#f1ece0', '#c9bfa8', '#ffffff')
 DARK = '#2a1a10'
 
+WALL3 = ramp('#f0c4aa', '#c98a72', '#ffe2d0')    # rose plaster
+WALL4 = ramp('#e2ebe2', '#a8b8ae', '#ffffff')    # cool limewash
+NET = ramp('#3f8a7a', '#2a5a50', '#6ab0a0')
+COATS = {'brown': ramp('#9a6a3a', '#6a4424', '#c08a5a'), 'black': ramp('#4a3e3a', '#2a2220', '#6e625a'),
+         'white': ramp('#ece6d8', '#bfb39a', '#ffffff'), 'tan': ramp('#c9a060', '#94703a', '#e2c084')}
+
 cv = new_canvas('#93c3d8')
 r = rnd(1907)
 r2 = rnd(311)
+r3 = rnd(733)   # pass-1 details (headland, pergola leaves, net): keeps the r / r2 layout stable
+YY, XX = np.mgrid[0:H, 0:W]
 
 
 def shadow(x0, y0, x1, y1, col='#a6843f'):

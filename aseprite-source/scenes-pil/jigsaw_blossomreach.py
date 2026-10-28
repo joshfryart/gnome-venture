@@ -42,6 +42,7 @@ cv = new_canvas(SKY0)
 r = rnd(4417)
 r2 = rnd(91)   # second stream for later details
 r3 = rnd(2026)   # third stream (pass 1 details), so earlier layout does not shift
+r4 = rnd(777)   # fourth stream (pass 2 details)
 yy_, xx_ = np.mgrid[0:H, 0:W]
 
 
@@ -374,7 +375,7 @@ def torii(cx, by, w, h):
         cv.fill(rect(xl, by - h + 1, xl, by - 2), VERM['r'])
 
 
-for gy in (76, 90, 108, 130, 156):   # fewer, spaced gates so the climbing stair shows between them
+for gy in (89, 101, 115, 133, 156):   # the top gate sits clear below the pagoda terrace   # fewer, spaced gates so the climbing stair shows between them
     cx, w = path_at(gy)
     gw = int(w + 4 + w * 0.15)
     torii(int(cx), gy, gw, int(gw * 1.15))
@@ -468,13 +469,24 @@ o.part(line([(ctx, cty - 1), (ctx - 4, cty + 3)], 2), ramp('#e89a4a', '#b86a2a',
 o.draw()
 cv.dots([(ctx + 3, cty - 4), (ctx + 5, cty - 4), (ctx + 4, cty - 2)], '#b86a2a')   # stripes
 cv.fill(rect(ctx + 9, cty - 5, ctx + 10, cty - 5) | rect(ctx + 11, cty - 5, ctx + 12, cty - 5), INK)   # sleepy eyes
-for sx, sy in ((114, tby - 59), (119, tby - 60)):
+SPAR = ramp('#b08a62', '#7a5638', '#d8b88a')
+for sx, sy, f in ((113, tby - 58, 1), (149, 59, -1)):   # two sparrows (ridge, and the carp-pole finial): buff belly, chestnut cap, white cheek, black bib, cocked tail
+    def X(v, sx=sx, f=f):
+        return sx + f * v
     o = cv.obj()
-    o.part(ell(sx, sy - 3, sx + 4, sy), ramp('#9a6b3f', '#6a4a2a', '#c9a96e'), d=1)
+    o.part(poly([(X(-1), sy - 3), (X(-5), sy - 7), (X(-3), sy - 7), (X(1), sy - 5)]), ramp('#7a5638', '#4a3020', '#9a7450'), d=0)   # tail
+    o.part(ell(min(X(0), X(7)), sy - 6, max(X(0), X(7)), sy - 1), SPAR, d=1)   # body
+    o.part(ell(min(X(4), X(9)), sy - 10, max(X(4), X(9)), sy - 5), SPAR, d=1)   # head
     o.draw()
-    cv.dots([(sx + 4, sy - 2)], GOLD['s'])
-    cv.dots([(sx + 3, sy - 2)], INK)
-    cv.dots([(sx + 1, sy - 1)], '#f2e4c0')
+    cv.dots([(X(1), sy - 3), (X(2), sy - 2), (X(3), sy - 2), (X(4), sy - 2)], '#f2e4c0')   # belly
+    cv.dots([(X(1), sy - 5), (X(3), sy - 5), (X(2), sy - 4)], '#4a3020')   # wing bars
+    cv.dots([(X(2), sy - 4)], '#ffffff')
+    cv.dots([(X(5), sy - 10), (X(6), sy - 10), (X(7), sy - 10), (X(5), sy - 9)], '#8a3a1e')   # chestnut cap
+    cv.dots([(X(6), sy - 7), (X(7), sy - 7)], '#ffffff')   # cheek
+    cv.dots([(X(7), sy - 8)], INK)   # eye
+    cv.dots([(X(8), sy - 6), (X(7), sy - 5)], INK)   # bib
+    cv.dots([(X(10), sy - 7)], GOLD['s'])   # beak
+    cv.dots([(X(3), sy), (X(5), sy)], '#7a4a1f')   # feet
 for k, (px_, py_) in enumerate(((78, tby - 46), (100, tby - 40), (126, tby - 47), (110, tby - 50))):   # petals settled on the tiles
     cv.dots([(px_, py_), (px_ + 1, py_)], (PINK['b'], '#ffffff', PINK2['b'], ROSE['b'])[k])
 # gnome on the veranda whisking tea at a low table
@@ -602,16 +614,19 @@ for x in range(bx0, bx1 + 1):
     rail[y - 9:y - 7, x] = True
     if (x - bx0) % 9 == 0:
         posts[y - 10:y, x:x + 2] = True
-    ry = bcy + 6 + (bcy - y) // 2
+    ry = bcy + 5 + (bcy - y) * 2 // 5   # a squashed mirror arc so it fits above the bottom edge
     if 0 <= ry < H:
-        refl[ry:min(H, ry + 4), x] = True
+        refl[ry:min(H, ry + 3), x] = True
     if (x - bx0) % 9 == 0:   # post reflections hang below the deck's reflection
-        refl[min(H - 1, ry + 4):min(H, ry + 8), x:x + 2] = True
-cv.fill(refl & pond, '#b8584a')
-cv.fill(refl & pond & ~shift(refl, 0, 1), '#d87a62')
-for x in range(bx0 + 3, bx1, 7):   # ripples break the reflection into stitched dashes
-    yy = bcy + 6 + (bcy - arc_y(x)) // 2 + 1
-    cv.fill(rect(x, yy, x + 2, yy) & pond, WATER['b'])
+        refl[min(H - 1, ry + 3):min(H, ry + 7), x:x + 2] = True
+    if x % 3 and ry + 5 < H:   # the hand-rail's broken reflection
+        refl[ry + 5, x] = True
+cv.fill(refl & pond, '#c8483a')
+cv.fill(refl & pond & ~shift(refl, 0, 1), '#e8806a')
+cv.fill(refl & pond & ~shift(refl, 0, -1), '#9a3a2e')
+for x in range(bx0 + 5, bx1, 11):   # a few ripples break the reflection into stitched dashes
+    yy = bcy + 5 + (bcy - arc_y(x)) * 2 // 5 + 1
+    cv.fill(rect(x, yy, x + 1, yy) & pond, WATER['r'])
 o = cv.obj()
 o.part(deck, VERM, d=2)
 o.part(rail | posts, VERM, d=1)
@@ -645,7 +660,7 @@ for fx, fy in ((43, 168), (142, 178)):
 gbx = int(bmid) + 4
 hx3, hy3 = gnome(gbx, arc_y(gbx) - 1, hat=VERM, tunic=TEAL, s=0.95, lean=-1)
 # jade dragon-fly over the water
-jx, jy = 138, 160
+jx, jy = 118, 163
 cv.fill(rect(jx, jy, jx + 7, jy), '#1f9a6a')
 cv.dots([(jx + 8, jy), (jx + 8, jy - 1)], '#1f7a50')
 cv.dots([(jx + 2, jy - 2), (jx + 3, jy - 2), (jx + 4, jy - 1), (jx + 2, jy + 2), (jx + 3, jy + 2), (jx + 4, jy + 1)], '#c8ecd8')
@@ -777,6 +792,78 @@ for _ in range(70):
     else:
         cv.dots([(lx, ly), (lx + 1, ly)], GOLD['b'])
         cv.dots([(lx, ly + 1)], DGRASS['s'])
+
+# ---------------------------------------------------------------- pass 2 details (own generator r4)
+# an egret wading in a paddy left of the steps
+ex_ = 207
+ey_ = int(edges[4][ex_]) - 1
+o = cv.obj()
+o.part(ell(ex_ - 3, ey_ - 7, ex_ + 3, ey_ - 3), WHITE, d=1)
+o.part(line([(ex_ + 2, ey_ - 6), (ex_ + 4, ey_ - 11)], 2), WHITE, d=0)
+o.part(ell(ex_ + 3, ey_ - 13, ex_ + 6, ey_ - 10), WHITE, d=0)
+o.draw()
+cv.fill(line([(ex_ + 6, ey_ - 12), (ex_ + 9, ey_ - 11)]), GOLD['b'])
+cv.dots([(ex_ + 4, ey_ - 12)], INK)
+cv.fill(rect(ex_ - 1, ey_ - 2, ex_ - 1, ey_) | rect(ex_ + 1, ey_ - 2, ex_ + 1, ey_), '#3a3440')
+cv.fill(rect(ex_ - 3, ey_ + 1, ex_ + 3, ey_ + 1) & ~steps, PADDY['r'])
+# a white rabbit and toadstools on the left lawn, behind the cherry trunk
+rbx, rby = 4, 128
+o = cv.obj()
+o.part(ell(rbx, rby - 6, rbx + 8, rby), WHITE, d=1)
+o.part(ell(rbx + 6, rby - 9, rbx + 11, rby - 4), WHITE, d=1)
+o.part(rect(rbx + 7, rby - 14, rbx + 8, rby - 9) | rect(rbx + 10, rby - 13, rbx + 11, rby - 9), WHITE, d=0)
+o.draw()
+cv.dots([(rbx + 7, rby - 12), (rbx + 10, rby - 11)], '#f0a0b8')
+cv.dots([(rbx + 9, rby - 7)], INK)
+cv.dots([(rbx + 11, rby - 6)], ROSE['b'])
+cv.dots([(rbx - 1, rby - 4), (rbx, rby - 5)], '#ffffff')
+for mx, my in ((56, 128), (60, 130)):
+    o = cv.obj()
+    o.part(rect(mx, my - 3, mx + 1, my), PAPER, d=0)
+    o.part(ell(mx - 2, my - 6, mx + 3, my - 3), VERM, d=1)
+    o.draw()
+    cv.dots([(mx - 1, my - 5), (mx + 2, my - 5)], '#ffffff')
+# the lawn right of the steps: an iris bed, a stone water basin with a bamboo spout, a snail, clover
+o = cv.obj()   # tsukubai: low round basin on a stone
+tbx, tby_ = 213, 150
+shadow(tbx - 7, tby_ - 1, tbx + 9, tby_ + 2)
+o.part(ell(tbx - 6, tby_ - 6, tbx + 6, tby_), STONE, d=2)
+o.draw()
+cv.fill(ell(tbx - 4, tby_ - 6, tbx + 4, tby_ - 4), WATER['b'])
+cv.dots([(tbx - 2, tby_ - 5)], WATER['r'])
+o = cv.obj()
+o.part(rect(tbx + 7, tby_ - 12, tbx + 8, tby_ - 1), BAMBOO, d=0)
+o.part(rect(tbx + 2, tby_ - 12, tbx + 8, tby_ - 11), BAMBOO, d=0)
+o.draw()
+cv.dots([(tbx + 2, tby_ - 9), (tbx + 2, tby_ - 7)], WATER['r'])
+cv.dots([(tbx + 3, tby_ - 6)], '#ffffff')
+for k, (ix, iy) in enumerate(((199, 197), (204, 195), (209, 198), (202, 190), (207, 191))):   # irises
+    cv.fill(line([(ix, iy), (ix - 2, iy - 7)]) | line([(ix + 1, iy), (ix + 3, iy - 6)]), DGRASS['s'])
+    cv.fill(rect(ix, iy - 7, ix, iy), BAMBOO['s'])
+    c = (ramp('#8a6ac8', '#5a3e98', '#c0a8e8'), ramp('#6a7ad0', '#3e4a98', '#a8b8f0'))[k % 2]
+    o = cv.obj()
+    o.part(poly([(ix - 2, iy - 9), (ix, iy - 13), (ix + 2, iy - 9), (ix, iy - 7)]), c, d=1)
+    o.draw()
+    cv.dots([(ix, iy - 9)], GOLD['b'])
+snx, sny = 206, 170   # snail
+o = cv.obj()
+o.part(rect(snx - 3, sny - 1, snx + 4, sny), ramp('#c8b890', '#9a8a68', '#e8dcb8'), d=0)
+o.part(ell(snx - 2, sny - 6, snx + 3, sny - 1), ramp('#d9944a', '#9a5a2a', '#f0c07a'), d=1)
+o.draw()
+cv.dots([(snx, sny - 4), (snx + 1, sny - 3), (snx, sny - 3)], '#9a5a2a')
+cv.dots([(snx + 5, sny - 3), (snx + 5, sny - 2)], '#9a8a68')
+for _ in range(60):
+    lx, ly = r4(198, 240), r4(140, 198)
+    if not lawn[ly, lx] or steps[ly, lx]:
+        continue
+    k = r4(0, 3)
+    if k == 0:
+        cv.dots([(lx, ly), (lx + 2, ly), (lx + 1, ly - 1), (lx + 1, ly + 1)], DGRASS['r'])
+    elif k == 1:
+        cv.dots([(lx, ly), (lx - 1, ly), (lx + 1, ly), (lx, ly - 1)], (PINK2['b'], '#ffffff')[r4(0, 1)])
+        cv.dots([(lx, ly)], GOLD['b'])
+    else:
+        cv.dots([(lx, ly), (lx, ly - 1), (lx + 1, ly - 2), (lx - 1, ly - 2)], DGRASS['s'])
 
 # fold the rarest colours into their nearest neighbours to stay under the colour cap
 cols, cnt = np.unique(cv.px.reshape(-1, 3), axis=0, return_counts=True)

@@ -178,8 +178,8 @@ for gx0, gl in ((150, 0), (166, 6), (184, 2), (200, 8), (218, 4)):   # gullies o
 crater = poly([(177 + VX, 39), (181 + VX, 37), (183 + VX, 37), (187 + VX, 40), (191 + VX, 37), (194 + VX, 39), (193 + VX, 41), (178 + VX, 41)])
 cv.fill(crater, '#f08a24')   # glowing, notched crater lip
 cv.fill(crater & ~shift(crater, 0, -1), '#f5b04a')
-cv.fill(line([(185 + VX, 41), (184 + VX, 46), (186 + VX, 50), (184 + VX, 55)]) & vol, '#f08a24')   # thin lava trickle down a gully
-cv.dots([(186 + VX, 50), (184 + VX, 44)], '#f5b04a')
+cv.fill(line([(185 + VX, 41), (184 + VX, 49)], 2) & vol, '#f08a24')   # short lava tongue below the notch
+cv.dots([(184 + VX, 43), (184 + VX, 45)], '#f5b04a')
 for k, (sx, sy, rr) in enumerate(((187 + VX, 31, 4), (183 + VX, 25, 5), (189 + VX, 20, 6), (181 + VX, 14, 7), (191 + VX, 9, 6), (178 + VX, 5, 7), (195 + VX, 3, 5))):   # puffy plume from the crater
     pm = ell(sx - rr, sy - rr + 1, sx + rr, sy + rr - 1)
     cv.fill(pm, '#efe2d4' if k % 3 else '#e2d2c8')
@@ -318,25 +318,30 @@ for (x0, x1, y0, y1), mx0 in zip(tiers[:4], (84, 80, 70, 66)):   # moss creeping
     for k in range(3):
         mx_ = mx0 + r3(0, max(1, x1 - mx0 - 6))
         mw = r3(4, 9)
-        mm = rect(mx_, y0, mx_ + mw, y0 + 1) | rect(mx_ + 1, y0 + 2, mx_ + mw - 2, y0 + 2 + r3(1, 3))
+        mm = rect(mx_, y0, mx_ + mw, y0 + 1) | rect(mx_ + 1, y0 + 2, mx_ + 1, y0 + 2 + r3(1, 4)) | rect(mx_ + mw - 2, y0 + 2, mx_ + mw - 2, y0 + 1 + r3(1, 3))
         cv.fill(mm & ~stair, CORN['s'])
         cv.fill(mm & rect(0, y0, W, y0) & ~stair, CORN['r'])
 # feathered-serpent head at the foot of the stair (right side only)
 o = cv.obj()
-o.part(rect(73, 117, 84, 125), SAND, d=2)
-o.part(rect(73, 113, 79, 117), SAND, d=1)   # brow
+o.part(rrect(73, 115, 88, 126, 1), JADE, d=2)
+o.part(rrect(73, 111, 81, 116, 1), JADE, d=1)   # brow
 o.draw()
-cv.fill(rect(80, 121, 84, 122), '#5a3a3a')   # open jaw
-cv.dots([(81, 121), (83, 121)], '#fff4dc')   # fangs
-cv.fill(rect(76, 118, 77, 119), TURQ['b'])   # eye
-cv.dots([(76, 118)], DARK)
-for k in range(3):   # feather crest
-    cv.fill(rect(73 + k * 2, 110 - k % 2, 73 + k * 2, 112), (CORN['b'], TURQ['b'], CHILI['b'])[k])
+cv.fill(rect(80, 121, 88, 123), '#5a3a3a')   # open jaw
+cv.dots([(81, 121), (83, 121), (85, 121), (82, 123), (84, 123)], '#fff4dc')   # fangs
+cv.fill(rect(87, 119, 92, 120), CHILI['b'])   # forked tongue
+cv.dots([(93, 118), (93, 121)], CHILI['b'])
+cv.fill(rect(76, 117, 78, 119), MAIZE['b'])   # eye
+cv.dots([(77, 118)], DARK)
+cv.fill(rect(74, 124, 79, 124), TURQ['b'])   # painted scales
+cv.dots([(75, 122), (77, 122)], TURQ['b'])
+for k in range(4):   # feather crest
+    cv.fill(rect(73 + k * 2, 107 - k % 2, 73 + k * 2, 110), (CORN['b'], TURQ['b'], CHILI['b'], MAIZE['b'])[k])
 # a sapling growing out of the top-left terrace
-cv.fill(rect(43, 59, 43, 70), WOOD['s'])
 o = cv.obj()
-o.part(clump(43, 56, 4, 2, 0) | ell(38, 53, 45, 59) | ell(42, 51, 49, 58), CORN, d=1)
+o.part(rect(40, 61, 41, 70), WOOD, d=0)
+o.part(ell(33, 55, 42, 63) | ell(37, 52, 46, 61), CORN, d=1)
 o.draw()
+cv.dots([(36, 57), (40, 54), (43, 57)], CHILI['b'])   # red berries
 # iguana basking on a ledge
 ix, iy = 88, 98
 o = cv.obj()
@@ -433,7 +438,8 @@ cv.fill(ell(229, 111, 232, 113), SQUASH['r'])
 # ---------------------------------------------------------------- the Pinata fig tree (right)
 shadow(236, 142, 300, 152)
 o = cv.obj()
-o.part(poly([(244, 148), (256, 136), (260, 70), (282, 70), (286, 136), (300, 146), (300, 150), (242, 150)]), ramp('#9a7a5a', '#6a5038', '#c4a47a'), d=3)
+trunk = poly([(244, 148), (256, 136), (260, 70), (282, 70), (286, 136), (300, 146), (300, 150), (242, 150)])
+o.part(trunk, ramp('#9a7a5a', '#6a5038', '#c4a47a'), d=3)
 o.part(line([(266, 84), (212, 60)], 4) | line([(272, 78), (256, 30)], 4) | line([(280, 82), (300, 50)], 5) | line([(262, 100), (240, 88)], 3), ramp('#9a7a5a', '#6a5038', '#c4a47a'), d=2)
 o.draw()
 for yy in range(80, 140, 7):   # fig bark: hanging aerial roots
@@ -466,6 +472,37 @@ for k, c in enumerate((MAIZE['b'], TURQ['b'], SQUASH['b'], '#fff4dc')):   # frin
     cv.fill(rect(px0 + 1, py0 + 1 + k * 2, px0 + 15, py0 + 1 + k * 2), c)
 cv.dots([(px0 - 4, py0 - 3)], DARK)
 cv.fill(rect(px0 + 17, py0 + 1, px0 + 19, py0 + 5), MAIZE['b'])   # tail tassel
+for _ in range(26):   # fig bark: fissures, lit ridges and moss so the trunk is not a plain block
+    bx_, by_ = r3(256, 296), r3(82, 146)
+    k = r3(0, 3)
+    if k < 2:
+        ln = r3(3, 8)
+        cv.fill(line([(bx_, by_), (bx_ + r3(-1, 1), by_ + ln)]) & trunk, '#6a5038')
+        cv.fill(line([(bx_ + 1, by_), (bx_ + 1, by_ + ln - 1)]) & trunk, '#c4a47a')
+    elif k == 2:
+        cv.fill(rect(bx_, by_, bx_ + r3(2, 4), by_ + 1) & trunk, CORN['s'])
+    else:
+        cv.dots([(bx_, by_), (bx_ + 1, by_ + 1)], '#6a5038')
+cv.fill(ell(263, 82, 275, 98), '#6a5038')   # knot hole with a little owl peeping out
+cv.fill(ell(264, 83, 274, 97), '#2a1a10')
+o = cv.obj()
+o.part(ell(265, 87, 273, 97), ramp('#c49a6a', '#9a7048', '#e8c898'), d=1)
+o.draw()
+cv.fill(rect(266, 89, 268, 91) | rect(270, 89, 272, 91), '#fff4dc')
+cv.dots([(267, 90), (271, 90)], DARK)
+cv.dots([(269, 92)], SQUASH['b'])
+cv.dots([(266, 87), (272, 87)], '#9a7048')   # ear tufts
+cv.fill(rect(262, 98, 276, 99), '#c4a47a')   # lit sill of the hole
+cv.fill(rect(250, 92, 250, 100), '#4a2c1a')   # tin lantern hanging from the low branch
+o = cv.obj()
+o.part(rect(247, 101, 253, 108), MAIZE, d=1)
+o.part(rect(246, 100, 254, 101) | rect(248, 109, 252, 110), ramp('#7a6a6a', '#4a3a3a'), d=0)
+o.draw()
+cv.fill(rect(249, 103, 251, 106), '#fff4c8')
+o = cv.obj()   # leaves at the tip of the long branch
+o.part(ell(205, 54, 216, 62) | ell(210, 50, 220, 58), JADE, d=1)
+o.draw()
+cv.dots([(209, 56), (214, 53)], '#9a3a5a')
 # quetzal on the long branch, tail hanging; toucan on the right branch
 qx, qy = 240, 64
 o = cv.obj()
@@ -592,6 +629,38 @@ for _ in range(40):   # corn kernels and beans spilt on the path
     px, py = r(146, 198), r(146, 199)
     if path[py, px]:
         cv.dots([(px, py)], MAIZE['b'] if r(0, 2) else '#5a3a3a')
+for _ in range(70):   # gravel, wheel ruts and footprints so the path is not a plain sand strip
+    px, py = r3(146, 200), r3(147, 199)
+    if not path[py, px] or cv.px[py, px].tolist() != [232, 200, 144]:
+        continue
+    k = r3(0, 4)
+    if k < 2:
+        cv.dots([(px, py), (px + 1, py)], '#c8a070')
+    elif k == 2:
+        cv.dots([(px, py)], '#f6e0b0')
+    elif k == 3:
+        cv.dots([(px, py), (px, py + 1), (px + 2, py + 2), (px + 2, py + 3)], '#d4b07a')   # little footprints
+    else:
+        cv.dots([(px, py), (px + 1, py), (px, py + 1)], LIME['s'])
+# a speckled hen and her chicks crossing the path
+hx0, hy0 = 184, 170
+shadow(hx0 - 1, hy0 + 6, hx0 + 12, hy0 + 8)
+o = cv.obj()
+o.part(poly([(hx0 + 8, hy0 + 2), (hx0 + 13, hy0 - 4), (hx0 + 12, hy0 + 3)]), ramp('#7a4a2a', '#5a3420'), d=0)   # tail
+o.part(ell(hx0, hy0, hx0 + 12, hy0 + 7), ramp('#c8783a', '#9a5428', '#e8a060'), d=1)
+o.part(ell(hx0 - 2, hy0 - 4, hx0 + 4, hy0 + 2), ramp('#c8783a', '#9a5428', '#e8a060'), d=1)   # head
+o.draw()
+cv.dots([(hx0 - 1, hy0 - 5), (hx0, hy0 - 6), (hx0 + 1, hy0 - 5), (hx0 - 2, hy0 + 2)], CHILI['b'])   # comb, wattle
+cv.dots([(hx0 - 3, hy0 - 1), (hx0 - 4, hy0 - 1)], MAIZE['s'])   # beak
+cv.dots([(hx0, hy0 - 2)], DARK)
+cv.dots([(hx0 + 4, hy0 + 3), (hx0 + 7, hy0 + 2), (hx0 + 9, hy0 + 4), (hx0 + 6, hy0 + 5)], '#fff4dc')   # speckles
+cv.dots([(hx0 + 4, hy0 + 8), (hx0 + 4, hy0 + 9), (hx0 + 8, hy0 + 8), (hx0 + 8, hy0 + 9)], MAIZE['s'])   # legs
+for cx_, cy_ in ((174, 183), (168, 178), (190, 186)):
+    o = cv.obj()
+    o.part(ell(cx_, cy_, cx_ + 4, cy_ + 3) | rect(cx_ - 1, cy_ - 2, cx_ + 1, cy_), MAIZE, d=0)
+    o.draw()
+    cv.dots([(cx_ - 1, cy_ - 1)], DARK)
+    cv.dots([(cx_ - 2, cy_ - 1)], SQUASH['b'])
 for px, py, s in ((136, 140, 6), (146, 136, 4), (128, 146, 3)):   # big clay bean pots by the plaza edge
     shadow(px - s - 1, py + s - 1, px + s + 3, py + s + 2)
     o = cv.obj()
@@ -635,9 +704,10 @@ water = hole & rect(0, 179, W, H)
 o = cv.obj()
 o.part(rim, LIME, d=3)
 o.draw()
+hole_d = dil4(dil4(hole))
 for _ in range(34):   # limestone cracks, pits and moss on the rim top
-    cx, cy = r3(196, 306), r3(146, 199)
-    if rim[cy, cx] and not dil4(hole)[cy, cx]:
+    cx, cy = min(W - 2, r3(196, 306)), r3(146, 199)
+    if rim[cy, cx] and not hole_d[cy, cx]:
         k = r3(0, 3)
         if k == 0:
             cv.fill(line([(cx, cy), (cx + r3(-3, 3), cy + 2)]), LIME['s'])
@@ -687,7 +757,8 @@ for side in (220, 226):
     cv.fill(line([(side - 3, 162), (side, 186)]), '#d9a35a')
 for k in range(6):
     yk = 165 + k * 4
-    cv.fill(rect(217 + yk * 3 // 24 - 20 + 1, yk, 223 + yk * 3 // 24 - 20 + 2, yk), WOOD['b'])
+    xk = 217 + (yk - 162) * 3 // 24
+    cv.fill(rect(xk + 1, yk, xk + 6, yk), WOOD['b'])
 cv.fill(rect(214, 158, 219, 161), WOOD['s'])   # stake on the rim
 # swimming gnome (head and hat) with ripple rings
 sgx, sgy = 258, 190
@@ -756,12 +827,14 @@ o.part(ag, ramp('#7aa8a0', '#4f7a74', '#a8d0c4'), d=1)
 o.draw()
 
 # ---------------------------------------------------------------- litter: dry grass tufts, marigolds, pebbles
-keep = rect(140, 100, 260, 152) | rect(0, 22, 124, 128) | soil | path | rim | rect(196, 120, 240, 162) | rect(240, 60, 300, 152)
+keep = rect(140, 100, 260, 152) | rect(0, 22, 124, 128) | soil | path | _rim0 | rect(196, 120, 240, 162) | rect(240, 60, 300, 152)
 for _ in range(220):
     lx, ly = r(0, W - 3), r(100, H - 3)
     if keep[ly, lx]:
         continue
     k = r(0, 5)
+    if rim[ly, lx]:
+        continue
     if k < 3:
         cv.dots([(lx, ly), (lx, ly - 1), (lx + 1, ly - 2), (lx - 1, ly - 1)], '#b8a050' if k else '#8a9a4a')
     elif k == 3:

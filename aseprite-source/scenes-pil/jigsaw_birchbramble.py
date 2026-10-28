@@ -120,19 +120,19 @@ for px, py, w in ((78, 58, 10), (126, 50, 14), (176, 56, 10), (250, 60, 8)):   #
     cv.fill(cap, '#eef4f6')
 WOLF = ramp('#6e7682', '#4a525c', '#a4acb6')
 o = cv.obj()   # the Grey Wolf King sitting on the peak, muzzle up, howling
-o.part(poly([(132, 51), (141, 49), (143, 51), (133, 53)]), WOLF, d=1)   # bushy tail on the snow
-o.part(ell(125, 41, 135, 52), WOLF, d=2)   # haunch
-o.part(poly([(119, 52), (121, 40), (126, 36), (130, 41), (128, 52)]), WOLF, d=1)   # chest
-o.part(rect(120, 46, 121, 53) | rect(124, 47, 125, 53), WOLF, d=0)   # front legs
-o.part(ell(119, 31, 127, 39), WOLF, d=1)   # head
-o.part(poly([(120, 34), (113, 27), (115, 25), (124, 32)]), WOLF, d=0)   # muzzle raised to the sky
-o.part(poly([(123, 32), (125, 26), (127, 33)]), WOLF, d=0)   # ear
+o.part(poly([(130, 51), (136, 50), (137, 52), (130, 53)]), WOLF, d=0)   # bushy tail on the snow
+o.part(ell(126, 46, 132, 53), WOLF, d=1)   # haunch
+o.part(poly([(121, 53), (122, 45), (125, 43), (128, 46), (127, 53)]), WOLF, d=1)   # chest and forelegs
+o.part(ell(121, 39, 127, 45), WOLF, d=1)   # head
+o.part(poly([(122, 42), (117, 36), (119, 35), (125, 41)]), WOLF, d=0)   # muzzle raised to the sky
+o.part(poly([(124, 40), (126, 35), (127, 41)]), WOLF, d=0)   # ear
 o.draw()
-cv.fill(poly([(121, 41), (124, 39), (124, 50), (122, 50)]), '#c4ccd4')   # pale ruff and chest
-cv.dots([(121, 33)], '#2a1a10')
-cv.dots([(113, 26), (114, 26)], '#2a1a10')
-for k, (hx0, hy0) in enumerate(((108, 22), (105, 18), (102, 14))):   # the howl: three little arcs
-    cv.fill(line([(hx0 + 2, hy0 - 2 - k), (hx0, hy0), (hx0 + 2 + k, hy0 + 2)]), '#ffffff')
+cv.fill(rect(123, 46, 124, 51), '#c4ccd4')   # pale ruff
+cv.fill(rect(124, 52, 124, 53), '#4a525c')   # leg split
+cv.dots([(123, 41)], '#2a1a10')
+cv.dots([(117, 35)], '#2a1a10')
+for k, (hx0, hy0) in enumerate(((113, 33), (110, 30), (107, 27))):   # the howl: three little arcs
+    cv.fill(line([(hx0 + 1, hy0 - 2 - k), (hx0, hy0), (hx0 + 1 + k, hy0 + 2)]), '#5b6470')
 x = 2
 while x < W - 2:
     x += r2(3, 8)
@@ -441,51 +441,138 @@ for k, fx in enumerate(stakes[::2]):   # pots upside down on the stakes
     o.draw()
     cv.fill(rect(fx - 4, 112, fx + 5, 112), '#9a4424')
     cv.dots([(fx - 1, 108), (fx + 2, 109)], '#ffffff')
-for sx, top, lean in ((126, 96, -3), (138, 92, 2), (150, 98, -2)):   # last year's sunflowers drooping over the fence
-    cv.fill(line([(sx, 118), (sx + lean, top + 4)], 2), '#7a6a3a')
+for sx, top, lean in ((126, 96, -3), (138, 92, 2), (150, 98, -2)):   # sunflowers by the fence: a golden ragged petal ring round a seed disc
+    cv.fill(line([(sx, 118), (sx + lean, top + 4)], 2), '#6a8a3a')
+    cx, cy = sx + lean, top
     o = cv.obj()
-    o.part(ell(sx + lean - 5, top - 4, sx + lean + 5, top + 5), ramp('#6a4a30', '#3d2a1c', '#8a6a44'), d=2)
+    o.part(poly([(sx, top + 13), (sx - 7, top + 9), (sx - 4, top + 15)]) | poly([(sx + 1, top + 17), (sx + 7, top + 13), (sx + 5, top + 19)]), GREEN_T, d=1)   # leaves
     o.draw()
-    head = ell(sx + lean - 5, top - 4, sx + lean + 5, top + 5)
-    cv.fill(dil4(head) & ~head & ~rect(0, top + 3, W, H), '#e8a317')   # faded petals
-    for t in range(-5, 6, 3):
-        cv.dots([(sx + lean + t, top - 6 + abs(t) // 2)], '#c98a14')
-    cv.dots([(sx + lean - 1, top - 1), (sx + lean + 1, top + 1), (sx + lean - 2, top + 2)], '#c9a96e')
-    cv.fill(line([(sx, top + 12), (sx - 5, top + 9)]), '#7a8a3a')
+    petals = blank()
+    for a in range(0, 360, 30):
+        if r3(0, 5) == 0:
+            continue   # a gap where a petal fell
+        t = np.radians(a + r3(-6, 6))
+        rr = 8 if np.sin(t) > 0.3 else 7
+        petals |= line([(cx + round(3 * np.cos(t)), cy + round(3 * np.sin(t))), (cx + round(rr * np.cos(t)), cy + round(rr * np.sin(t)) + (1 if np.sin(t) > 0.3 else 0))], 2)
+    disc = ell(cx - 4, cy - 4, cx + 4, cy + 4)
+    o = cv.obj()
+    o.part(petals, ramp('#f0b42a', '#c98a14', '#f8dc70'), d=1)
+    o.part(disc, ramp('#7a5030', '#4a3424', '#a87a48'), d=2)
+    o.draw()
+    seeds = disc & ((xx_ + yy_) % 2 == 0) & ~shift(disc, -1, -1)
+    cv.fill(seeds & ell(cx - 3, cy - 3, cx + 3, cy + 3), '#4a3424')
+    cv.fill(rect(cx - 1, cy - 1, cx, cy), '#a87a48')
 
 # ---------------------------------------------------------------- birch wood (right), early spring: bare white trunks, a mist of catkins
-def birch(bx, top, bot, w, crown=True):
+rb = rnd(5521)   # the birch wood's own generator
+LEAF = ramp('#a8d860', '#7ab848', '#d4f090')
+
+
+def birch(m, bot):
+    """A birch trunk from a mask: white bark, ragged black lenticels at uneven spacing, knot 'eyes', a dark ragged foot."""
     o = cv.obj()
-    o.part(rect(bx, top, bx + w, bot), BIRCH, d=2)
+    o.part(m, BIRCH, d=2)
     o.draw()
-    for y in range(top + 3, bot - 1, 4):   # black lenticels and scars
-        ln = r(1, max(1, w - 1))
-        cv.fill(rect(bx + 1, y, bx + ln, y), '#2a2a30')
-        if r(0, 2) == 0:
-            cv.fill(rect(bx + w - 2, y + 2, bx + w - 1, y + 2), '#2a2a30')
-    cv.fill(rect(bx, bot - 5, bx + w, bot), '#5b5450')   # dark base bark
-    cv.dots([(bx + 1, bot - 6), (bx + w - 1, bot - 7)], '#5b5450')
-    if not crown:
-        return
-    for k in range(7):   # twiggy branches fanning up and out
-        y0 = top + r(0, 18)
-        t = -1 if k % 2 else 1
-        ex, ey = bx + w // 2 + t * r(8, 20), y0 - r(8, 18)
-        cv.fill(line([(bx + w // 2, y0), (ex, ey)]), '#7a5a4a')
-        cv.fill(line([(ex, ey), (ex + t * r(2, 6), ey - r(3, 6))]), '#9a7a6a')
-        for _ in range(9):   # young-leaf flecks and dangling catkins
-            lx, ly = ex + r(-8, 8), ey + r(-6, 8)
-            if r(0, 3):
-                cv.dots([(lx, ly), (lx + 1, ly), (lx, ly + 1)], ('#b8e070', '#8cc84a', '#d8f0a0')[r(0, 2)])
-            else:
-                cv.dots([(lx, ly), (lx, ly + 1), (lx, ly + 2)], '#c9a94a')
+    ys = np.nonzero(m.any(axis=1))[0]
+    y = int(ys.min()) + rb(1, 4)
+    while y < bot - 8:
+        xs = np.nonzero(m[y])[0]
+        x0, x1 = int(xs.min()), int(xs.max())
+        wd = x1 - x0 + 1
+        ln = rb(1, max(1, wd - 1))
+        st = x0 if rb(0, 2) else x1 - ln + 1   # most marks touch one edge
+        cv.fill(rect(st, y, st + ln - 1, y) & m, '#2a2a30')
+        if rb(0, 3) == 0 and wd > 3:   # a knot eye: dark wedge with a pale centre
+            kx = x0 + wd // 2
+            cv.fill(rect(kx - 1, y + 2, kx + 1, y + 3) & m, '#2a2a30')
+            cv.dots([(kx, y + 2)], '#8a8474')
+            cv.fill(line([(kx - 2, y + 4), (kx - 1, y + 3)]) & m, '#5b5450')
+        elif rb(0, 2) == 0:
+            cv.fill(rect(st, y + 1, st + max(0, ln - 2), y + 1) & m, '#5b5450')
+        y += rb(3, 8)
+    xs = np.nonzero(m[min(H - 1, bot)] | m[bot - 1])[0]
+    for x in range(int(xs.min()), int(xs.max()) + 1):   # ragged dark bark at the foot
+        cv.fill(rect(x, bot - rb(3, 9), x, bot) & m, '#5b5450')
+        if rb(0, 2) == 0:
+            cv.fill(rect(x, bot - rb(10, 13), x, bot - 10) & m, '#2a2a30')
 
 
-for bx, top, bot, w in ((262, 22, 118, 3), (284, 14, 124, 3), (278, 30, 112, 2)):   # back row
-    birch(bx, top, bot, w)
-for bx, top, bot, w in ((254, 6, 134, 5), (270, 0, 142, 6), (293, -4, 150, 6)):   # front row
+def trunk(x0, bot, w, x1, top):
+    """Trunk mask leaning from (x0, bot) to (x1, top), w wide, slightly tapering."""
+    return poly([(x0, bot), (x0 + w, bot), (x1 + max(1, w - 2), top), (x1, top)])
+
+
+for bx, top, bot, w, tx in ((259, 30, 116, 2, 257), (266, 16, 120, 3, 268), (284, 8, 122, 4, 281)):   # back row, uneven spacing, gentle leans
+    birch(trunk(bx, bot, w, tx, top), bot)
+birch(trunk(276, 118, 3, 296, 0), 118)   # a young birch leaning out over the stream
+bram = blank()   # bramble thicket at the wood's edge
+for cx_, cy_, w_ in ((250, 120, 12), (262, 117, 14), (276, 119, 12), (290, 116, 12), (299, 120, 8)):
+    bram |= ell(cx_ - w_, cy_ - 7, cx_ + w_, cy_ + 6)
+bram &= rect(0, 0, W, 125)
+o = cv.obj()
+o.part(bram, ramp('#4f8a3a', '#2f5a2a', '#7ab848'), d=2)
+o.draw()
+for k in range(9):   # arching red canes with thorns and fresh leaves
+    x0 = rb(244, 296)
+    xm, ym = x0 + rb(-8, 8), rb(104, 110)
+    x1 = xm + (xm - x0)
+    cane = line([(x0, 124), (x0 + (xm - x0) // 2, ym + 3), (xm, ym), (x1 - (x1 - xm) // 2, ym + 3), (x1, 122)])
+    cv.fill(cane, '#8a2e3e')
+    ys_, xs_ = np.nonzero(cane)
+    for i in range(0, len(xs_), 3):
+        if rb(0, 2) == 0:
+            cv.dots([(int(xs_[i]), int(ys_[i]) - 1)], '#c06070')
+        elif rb(0, 1):
+            lx, ly = int(xs_[i]), int(ys_[i])
+            cv.dots([(lx, ly - 1), (lx + 1, ly - 1), (lx + 1, ly - 2)], ('#8cc84a', '#b8e070')[rb(0, 1)])
+for _ in range(14):   # dark gaps and leaf flecks inside the thicket
+    lx, ly = rb(242, 298), rb(112, 123)
+    if bram[ly, lx]:
+        cv.dots([(lx, ly), (lx + 1, ly)], '#2f5a2a' if rb(0, 1) else '#a8d860')
+for bx, top, bot, w, tx in ((254, 6, 134, 5, 252), (271, 0, 142, 7, 273), (292, 0, 150, 6, 291)):   # front row
     shadow(bx - 6, bot - 2, bx + w + 10, bot + 3, '#5fa83a')
-    birch(bx, max(0, top), bot, w)
+    birch(trunk(bx, bot, w, tx, top), bot)
+# the early-spring crown: a haze of young leaves in clumps with sky holes, drooping catkin strands, twigs showing through
+crown = blank()
+for cx_, cy_, rw, rh in ((262, 4, 16, 10), (284, 2, 18, 12), (300, 14, 10, 12), (250, 16, 10, 7), (270, 20, 12, 8), (290, 28, 12, 8), (258, 30, 7, 5), (244, 6, 8, 6)):
+    crown |= ell(cx_ - rw, cy_ - rh, cx_ + rw, cy_ + rh)
+for _ in range(8):   # bites out of the lower edge so it is not a smooth blob
+    hx0 = rb(240, 299)
+    col = crown[:, hx0]
+    if col.any():
+        hy0 = int(np.nonzero(col)[0].max())
+        crown &= ~ell(hx0 - 3, hy0 - 3, hx0 + 3, hy0 + 2)
+holes = blank()
+for _ in range(12):
+    hx0, hy0 = rb(244, 298), rb(0, 30)
+    holes |= ell(hx0, hy0, hx0 + rb(2, 4), hy0 + rb(1, 3))
+holes &= shift(crown, 2, 2) & shift(crown, -2, -2)
+o = cv.obj()
+o.part(crown, LEAF, d=2)
+o.draw()
+cv.fill(holes, SKY1)
+cv.fill(holes & ~shift(holes, 0, 1), '#7ab848')
+for bx, y0, y1, tx in ((256, 34, 8, 246), (274, 30, 4, 262), (274, 26, 10, 290), (294, 36, 12, 300), (266, 22, 6, 278)):   # twigs through the crown
+    cv.fill(line([(bx, y0), ((bx + tx) // 2, (y0 + y1) // 2 + 2), (tx, y1)]), '#7a5a4a')
+for _ in range(90):   # leaf texture and catkins
+    lx, ly = rb(238, 299), rb(0, 44)
+    if not crown[ly, lx]:
+        continue
+    k = rb(0, 4)
+    if k < 2:
+        cv.dots([(lx, ly), (lx + 1, ly), (lx, ly + 1)], ('#d4f090', '#7ab848')[k])
+    else:
+        cv.dots([(lx, ly), (lx, ly + 1), (lx, ly + 2)], ('#c9a94a', '#a8883a', '#8a6a2a')[k - 2])
+for _ in range(16):   # weeping strands hanging below the crown edge
+    lx = rb(240, 299)
+    col = crown[:, lx]
+    if not col.any():
+        continue
+    ly = int(np.nonzero(col)[0].max())
+    ln = rb(4, 12)
+    cv.fill(line([(lx, ly), (lx + rb(-1, 1), ly + ln)]), '#7a5a4a')
+    for j in range(2, ln, 3):
+        cv.dots([(lx + (j % 2), ly + j)], '#a8d860' if rb(0, 2) else '#c9a94a')
 sbx = 272   # birch-sap bucket hung on a spout
 cv.fill(rect(sbx - 4, 112, sbx, 112), '#8b8f96')
 cv.dots([(sbx - 5, 113)], WATER['r'])

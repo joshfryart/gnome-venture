@@ -129,51 +129,137 @@ def gnome(gx, gy, hat, coat, f=1.0, tip=-5, boots=BOOT):
 cv.fill(rect(0, 12, W - 1, H - 1), SKY[1])
 cv.fill(rect(0, 28, W - 1, H - 1), SKY[2])
 cv.fill(rect(0, 44, W - 1, H - 1), SKY[3])
-for cx, cy, w, rp in ((36, 10, 52, CLOUD), (118, 6, 40, DCLOUD), (196, 14, 60, CLOUD), (262, 8, 44, DCLOUD), (82, 28, 46, CLOUD),
-                      (150, 34, 40, DCLOUD), (232, 36, 54, CLOUD), (70, 42, 26, DCLOUD), (290, 26, 30, CLOUD), (176, 48, 36, CLOUD), (60, 46, 30, DCLOUD)):
-    m = ell(cx - w // 2, cy - 5, cx + w // 2, cy + 5) | ell(cx - w // 4, cy - 10, cx + w // 6, cy + 3) | ell(cx, cy - 8, cx + w // 2 - 6, cy + 4)
-    m &= ~rect(0, cy + 4, W, H)
+r3 = rnd(4242)   # third stream (pass 1 additions)
+# a break in the cloud over the sea (cell 2,0): pale sky, a watery sun, hard light shafts slanting down to the water
+gap = ell(44, -6, 84, 24)
+cv.fill(gap, '#b3bbc5')
+cv.fill(ell(50, -2, 78, 19), '#c8ced5')
+cv.fill(ell(56, 1, 72, 15), '#dcd8bc')
+cv.fill(ell(59, 3, 69, 13), '#f2e6b4')
+cv.fill(ell(61, 4, 66, 9), '#fff4cc')
+for k, (xa, xb) in enumerate(((56, 30), (61, 46), (66, 62), (71, 80), (75, 96))):   # sun shafts, each a slim wedge
+    cv.fill(poly([(xa, 14), (xa + 2, 14), (xb + 3 + k, 62), (xb, 62)]) & ~gap, '#a3adb9' if k % 2 else '#b0b8c2')
+# a rainbow stub coming down out of the storm cloud onto the far fells (cells 7-8, row 1)
+rb_c = (252, 104)
+for k, col in enumerate(('#b0505a', '#d99a4a', '#c9c06a', '#7f9a6a', '#6a7aa8', '#7e6496')):
+    ro, ri = 78 - k * 2, 76 - k * 2
+    band = ell(rb_c[0] - ro, rb_c[1] - ro, rb_c[0] + ro, rb_c[1] + ro) & ~ell(rb_c[0] - ri, rb_c[1] - ri, rb_c[0] + ri, rb_c[1] + ri)
+    cv.fill(band & rect(180, 20, 228, 64), col)
+
+
+def cloud(m, rp, base):
+    """A cloud mask lit from the upper left, flat shaded underside at `base`."""
+    m = m & ~rect(0, base + 1, W, H)
     cv.fill(m, rp['b'])
-    cv.fill(m & ~shift(m, -2, -2) & rect(0, cy - 1, W, cy + 4), rp['s'])
+    cv.fill(m & ~shift(m, -2, -2) & rect(0, base - 4, W, base), rp['s'])
     cv.fill(m & ~shift(m, 1, 1), rp['r'])
-    cv.fill(m & rect(0, cy + 4, W, cy + 4), rp['s'])
-for k in range(10):   # rain curtain under the dark cloud on the right
-    x0 = 248 + k * 3
-    cv.fill(line([(x0, 13), (x0 - 4, 30 + (k % 3) * 3)]), DCLOUD['r'])
-for k in range(7):
-    x0 = 108 + k * 4
-    cv.fill(line([(x0, 11), (x0 - 3, 22 + (k % 2) * 3)]), DCLOUD['r'])
-for bx, by in ((150, 18), (156, 21), (162, 24), (144, 21), (138, 24), (132, 27)):   # skein of geese heading home
-    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3e4654')
-for bx, by in ((214, 26), (222, 30), (40, 22)):   # gulls
+    cv.fill(m & rect(0, base, W, base), rp['s'])
+    return m
+
+
+def cum(cx, cy, w):
+    return ell(cx - w // 2, cy - 5, cx + w // 2, cy + 5) | ell(cx - w // 4, cy - 10, cx + w // 6, cy + 3) | ell(cx, cy - 8, cx + w // 2 - 6, cy + 4)
+
+
+# storm cloud over the headland (cells 1-2,0) with a ragged rain curtain hanging to the sea
+cloud(ell(14, -8, 50, 12) | ell(30, -4, 58, 14) | ell(20, 2, 40, 16) | ell(-6, -10, 22, 6), DCLOUD, 15)
+for k in range(13):
+    x0 = 20 + k * 3 + (k % 4)
+    cv.fill(line([(x0, 16), (x0 - 6 - k % 3, 30 + (k * 7) % 13)]), DCLOUD['r'] if k % 3 else DCLOUD['s'])
+# tall billowing tower (cell 3,0) over a flat dark streak (cell 3,1)
+cloud(ell(76, 12, 108, 24) | ell(80, 2, 100, 18) | ell(86, -6, 104, 10) | ell(94, 6, 112, 22), CLOUD, 23)
+cloud(ell(70, 34, 116, 39) | ell(82, 31, 104, 38), DCLOUD, 38)
+# a high thin streak (cell 4,0) and a puff below the geese (cell 4,1)
+cloud(ell(98, 3, 136, 7) | ell(108, 1, 126, 6), CLOUD, 6)
+cloud(cum(114, 44, 24), CLOUD, 47)
+# dark lumpy cloud (cell 6,0) and a lit cumulus with a hole of sky (cell 7,0)
+cloud(cum(164, 12, 40) | ell(150, 8, 166, 18), DCLOUD, 17)
+cm = cloud(cum(190, 10, 38) | ell(176, 10, 206, 18), CLOUD, 17)
+cv.fill(ell(188, 7, 194, 10), SKY[1])
+cv.fill(ell(188, 7, 194, 10) & ~shift(ell(188, 7, 194, 10), 0, 1), CLOUD['s'])
+# long flat cloud (cell 8,1)
+cloud(ell(196, 38, 236, 44) | ell(206, 34, 228, 42), CLOUD, 43)
+# the big rain cloud (cell 9,0) with a curtain of rain of uneven lengths (cell 9,1)
+cloud(ell(220, -6, 262, 20) | ell(228, 8, 256, 26) | ell(214, 4, 236, 22) | ell(248, 0, 270, 16), DCLOUD, 25)
+for k in range(11):
+    x0 = 222 + k * 3 + (k * 5) % 3
+    cv.fill(line([(x0, 26), (x0 - 5, 34 + (k * 11) % 17)]), DCLOUD['r'] if k % 2 else '#8b96a4')
+# pale high cloud (cell 10,0) and a small light cumulus (cell 11,0)
+cloud(ell(254, 2, 290, 8) | ell(262, -2, 282, 6), CLOUD, 8)
+cloud(cum(288, 16, 28), CLOUD, 19)
+# skein of geese heading home (cell 4,0-1), bigger, in a proper V
+for k, (bx, by) in enumerate(((120, 16), (114, 19), (108, 22), (102, 25), (126, 19), (132, 22), (138, 25), (144, 28))):
+    cv.dots([(bx - 2, by), (bx - 1, by - 1), (bx, by), (bx + 1, by - 1), (bx + 2, by), (bx, by + 1)], '#3e4654')
+# gulls over the sea (cell 1,1) and over the fells (cell 10,0)
+for bx, by in ((30, 38), (40, 42), (258, 14), (268, 18)):
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#e6e2d6')
     cv.dots([(bx + 2, by + 1)], '#566170')
+# a murmuration of starlings wheeling over the fells (cell 10,1)
+mm_ = ell(252, 30, 274, 40) | ell(262, 26, 280, 34)
+for _ in range(44):
+    sx, sy = r3(252, 280), r3(26, 40)
+    if mm_[sy, sx]:
+        cv.dots([(sx, sy), (sx + 1, sy)] if r3(0, 2) else [(sx, sy)], '#3e4654')
+# a curlew over the far moor (cell 11,0)
+cv.dots([(276, 4), (277, 3), (278, 4), (279, 4), (280, 3), (281, 4), (279, 5), (282, 5), (283, 6)], '#3e4654')
 
 # ---------------------------------------------------------------- fjord glimpse (left): headland, lighthouse, skerry with seals
-sea = rect(0, 54, 110, 70)
+sea = rect(0, 50, 110, 74)
 cv.fill(sea, '#5f6e7e')
+cv.fill(rect(0, 50, 110, 52), '#6c7b8a')   # paler far water under the sun shafts
+cv.fill(poly([(34, 52), (70, 52), (90, 70), (50, 70)]), '#6f7e8d')   # sunlit path on the sea
 for k in range(26):
     sx, sy = r(2, 104), r(56, 68)
     cv.fill(rect(sx, sy, sx + r(2, 6), sy), '#8796a4' if k % 3 else '#4f5d6c')
-head = poly([(0, 50), (8, 47), (18, 49), (26, 55), (30, 60), (24, 63), (0, 66)])
-cv.fill(head, MOSSF['s'])
-cv.fill(head & ~shift(head, 1, 1), MOSSF['b'])
-cv.fill(head & ~shift(head, 0, -2), '#4f5560')   # cliff foot
+for k in range(14):   # whitecaps
+    sx, sy = r3(30, 104), r3(53, 70)
+    cv.dots([(sx, sy), (sx + 1, sy), (sx + 1, sy - 1)], '#c8ced5')
+# the headland: a bold green-topped cliff, the lighthouse planted on it with the keeper's cottage
+head = poly([(0, 38), (6, 36), (14, 37), (22, 40), (28, 46), (32, 54), (36, 62), (30, 66), (0, 68)])
+cliff = poly([(18, 44), (26, 44), (32, 54), (36, 62), (30, 66), (0, 68), (0, 56), (12, 52)])
 o = cv.obj()
-o.part(rect(8, 36, 12, 48), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
-o.part(rect(7, 33, 13, 35), ramp('#f5dc8a', '#d9b85a'), d=0)
-o.part(poly([(6, 33), (14, 33), (10, 29)]), ramp('#5e4030', '#3d2a1e'), d=0)
+o.part(head, MOSSF, d=2)
+o.part(cliff, ramp('#6c7284', '#4f5560', '#8c95a6'), d=2)
 o.draw()
-cv.fill(rect(8, 39, 12, 40) | rect(8, 44, 12, 45), WINE['b'])
-cv.dots([(9, 37), (9, 42)], '#bdb8ac')
-for sx, sy, w in ((30, 70, 12), (44, 72, 8)):   # skerry rocks
-    m = ell(sx, sy - 3, sx + w, sy + 3) & ~rect(0, sy + 2, W, H)
+for yy in range(50, 67, 3):   # rock strata in the cliff
+    cv.fill(cliff & rect(0, yy, W, yy) & ~shift(cliff, 0, -1) | cliff & line([(4, yy + 1), (34, yy - 1)]), '#4f5560')
+cv.fill(head & ~cliff & ~shift(head & ~cliff, 0, 2), MOSSF['r'])
+for x in range(2, 24, 3):   # thrift tufts on the clifftop
+    cv.dots([(x, 40 + (x * 7) % 4)], '#b07fb2' if x % 2 else '#e6e2d6')
+o = cv.obj()
+o.part(poly([(8, 40), (17, 40), (16, 22), (9, 22)]), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.part(rect(7, 20, 18, 21), ramp('#5e4030', '#3d2a1e'), d=0)
+o.part(rect(9, 14, 16, 19), ramp('#f5dc8a', '#d9b85a'), d=0)
+o.part(poly([(8, 14), (17, 14), (12, 9)]), ramp('#9a3a3a', '#742a2c', '#c05a50'), d=0)
+o.part(rect(19, 34, 27, 40), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)   # keeper's cottage
+o.part(poly([(18, 34), (28, 34), (25, 30), (21, 30)]), ramp('#5e4030', '#3d2a1e'), d=0)
+o.draw()
+cv.fill(rect(8, 25, 16, 27) | rect(9, 32, 16, 34), WINE['b'])
+cv.dots([(10, 23), (10, 24), (10, 28), (10, 29)], '#bdb8ac')
+cv.fill(rect(10, 15, 15, 18), '#ffe08a')
+cv.fill(rect(12, 15, 12, 18), '#3d2a1e')
+cv.fill(rect(12, 37, 13, 40), '#3d2a1e')   # lighthouse door
+cv.dots([(21, 36), (25, 36)], '#d98a2a')
+cv.fill(poly([(17, 15), (44, 8), (44, 12), (17, 17)]), '#c8ced5')   # the lamp's beam, a hard pale wedge out to sea
+cv.fill(poly([(17, 15), (44, 8), (44, 9)]), '#e6e2d6')
+for sx, sy, w in ((36, 72, 18), (56, 71, 12)):   # skerry rocks
+    m = ell(sx, sy - 4, sx + w, sy + 3) & ~rect(0, sy + 2, W, H)
     cv.fill(m, '#4f5560')
     cv.fill(m & ~shift(m, 1, 1), '#6c7284')
-for sx, sy in ((32, 67), (38, 68), (46, 69)):   # seals hauled out, heads up
-    cv.fill(ell(sx, sy, sx + 5, sy + 2), '#7b8695')
-    cv.dots([(sx + 5, sy - 1), (sx + 6, sy - 1), (sx + 5, sy)], '#7b8695')
-    cv.dots([(sx + 6, sy - 1)], UMBER)
+    cv.fill(rect(sx - 1, sy + 1, sx + w + 1, sy + 1), '#c8ced5')   # surf line
+for sx, sy, fc in ((38, 66, 1), (46, 67, -1), (58, 66, 1)):   # seals hauled out, heads up, pale bellies
+    cv.fill(ell(sx, sy, sx + 8, sy + 3), '#8b96a4')
+    cv.fill(rect(sx + 1, sy + 3, sx + 7, sy + 3), '#c8ced5')
+    hx0 = sx + 8 if fc > 0 else sx - 2
+    cv.fill(rect(hx0, sy - 2, hx0 + 2, sy + 1), '#8b96a4')
+    cv.dots([(hx0 + (2 if fc > 0 else 0), sy - 1)], UMBER)
+    cv.dots([(sx + 1, sy)], '#a3acb7')
+# a little fishing boat out on the fjord
+o = cv.obj()
+o.part(poly([(48, 56), (62, 56), (60, 59), (50, 59)]), WINE, d=1)
+o.part(poly([(55, 55), (55, 45), (61, 54)]), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.draw()
+cv.fill(rect(54, 44, 54, 56), '#3d2a1e')
 
 # ---------------------------------------------------------------- far fells with mist in the folds
 m = poly([(60, 64), (96, 50), (130, 58), (168, 44), (214, 56), (250, 46), (300, 58), (300, 80), (60, 80)])
@@ -203,7 +289,35 @@ def mist(y0, y1, n, xs=(-20, W + 20), rr=None):
     return mm
 
 
+# a little kirk on the far fell (cell 11,1): nave, tower and a sharp spire
+o = cv.obj()
+o.part(rect(276, 48, 290, 56), ramp('#8c95a6', '#6c7488', '#a3acb7'), d=1)
+o.part(poly([(275, 48), (291, 48), (288, 44), (278, 44)]), ramp('#5f6e7e', '#4f5560'), d=0)
+o.part(rect(285, 36, 291, 50), ramp('#8c95a6', '#6c7488', '#a3acb7'), d=1)
+o.part(poly([(284, 36), (292, 36), (288, 22)]), ramp('#5f6e7e', '#4f5560', '#7b8695'), d=1)
+o.draw()
+cv.dots([(288, 40), (288, 41), (279, 51), (282, 51)], '#f2b84a')
+cv.fill(rect(288, 19, 288, 22) | rect(287, 20, 289, 20), '#4f5560')
+
+
+def mist2(y0, y1, n, xs, rr):
+    """Thick lying mist: long ragged lenses with a pale crown, a cool underside and torn wisps trailing off."""
+    mm = blank()
+    for _ in range(n):
+        x, hw = rr(*xs), rr(18, 46)
+        yy = rr(y0, y1)
+        mm |= ell(x - hw, yy - rr(2, 4), x + hw, yy + rr(2, 4))
+    for _ in range(n):   # wisps
+        x, yy = rr(*xs), rr(y0 - 2, y1 + 2)
+        mm |= rect(x, yy, x + rr(8, 22), yy)
+    cv.fill(mm, MIST[0])
+    cv.fill(mm & ~shift(mm, 0, 2), '#d3d8dd')
+    cv.fill(mm & ~shift(mm, 0, -2), MIST[1])
+    return mm
+
+
 mist(64, 70, 9, (60, 300))
+mist2(58, 66, 7, (100, 300), r3)
 # nearer fell behind the cottage, with field walls drawn as lines
 m3 = poly([(110, 92), (150, 80), (196, 76), (236, 82), (272, 74), (300, 78), (300, 100), (110, 100)])
 cv.fill(m3, MOSSF['b'])
@@ -215,6 +329,7 @@ for _ in range(50):
     if m3[y, x] and m3[max(0, y - 2), x]:
         cv.dots([(x, y), (x + 1, y)], HEATHF['b'] if r(0, 1) else RUST['s'])
 mist(78, 84, 8, (100, 300))
+mist2(84, 92, 6, (130, 300), r3)
 
 # ---------------------------------------------------------------- knoll with the Standing Stones (left)
 knoll = poly([(0, 88), (20, 80), (48, 68), (76, 66), (100, 72), (116, 82), (124, 100), (0, 104)])
@@ -317,12 +432,26 @@ for xx in range(cx0 + 7, cx0 + 15, 4):
     cv.fill(rect(xx - 1, 92, xx + 1, 92), STONE['s'])
 cv.fill(rect(cx0 + 5, 76, cx0 + 16, 78), STONED)   # chimney cap
 cv.fill(rect(cx0 + 8, 74, cx0 + 10, 76) | rect(cx0 + 12, 75, cx0 + 13, 76), '#a85a2c')   # two clay pots
-for k in range(8):   # peat smoke, drifting left on the wind
-    sx, sy = cx0 + 8 - k * 6 - r2(0, 3), 70 - k * 5 + r2(0, 2)
-    pm = ell(sx - 4 - k // 2, sy - 3 - k // 3, sx + 4 + k // 2, sy + 3 + k // 3)
-    cv.fill(pm, '#8a8c94' if k < 5 else '#9a9ca4')
-    cv.fill(pm & ~shift(pm, 1, 1), '#a7a9b0')
-    cv.fill(pm & ~shift(pm, -1, -1), '#6e7078')
+for _ in range(16):   # (keeps the r2 stream where the old bead-string smoke left it)
+    r2(0, 1)
+# peat smoke: a thin column that rises, gets caught by the wind and streams off flat to the left, fraying into torn wisps
+pm = blank()
+for i in range(0, 61):
+    t = i / 60.0
+    sx = cx0 + 10 - int(58 * t ** 1.3) + int(2 * np.sin(t * 11))
+    sy = 74 - int(40 * t ** 0.55) + int(2 * np.sin(t * 7 + 1))
+    hw, hh = 1 + int(5 * t), 1 + int(3 * t)
+    if t > 0.75 and i % 5 in (0, 1):   # breaking up at the end
+        continue
+    pm |= ell(sx - hw, sy - hh, sx + hw, sy + hh)
+for k in range(5):   # torn streamers blown ahead of the plume
+    wx, wy = 150 - k * 7 + r3(-2, 2), 34 + (k * 5) % 9 - k
+    pm |= ell(wx - 6 - k, wy - 1, wx + 6, wy + 1)
+pm &= ~rect(cx0 + 4, 75, cx0 + 18, H)
+cv.fill(pm, '#8a8c94')
+cv.fill(pm & rect(0, 0, W, 50), '#9a9ca4')
+cv.fill(pm & ~shift(pm, 1, 1), '#a7a9b0')
+cv.fill(pm & ~shift(pm, -1, -2), '#6e7078')
 roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
 roof &= ~rect(0, 116, W, H)
 o = cv.obj()
@@ -455,10 +584,17 @@ face = poly([(0, 146), (88, 150), (90, 164), (0, 160)])
 floor = poly([(0, 160), (90, 164), (94, 174), (80, 199), (0, 199)])
 cv.fill(floor & ~burn & ~dil4(dil4(burn)), PEAT['r'])
 cv.fill(face, PEAT['b'])
-for yy in range(149, 164, 3):   # layers in the cut face
-    cv.fill(face & rect(0, yy, W, yy), PEAT['s'] if yy % 2 else '#4a3424')
-for xx in range(6, 88, 17):   # spade marks
-    cv.fill(face & rect(xx, 0, xx, H) & rect(0, 152, W, 157), '#33231a')
+cv.fill(face & rect(0, 0, W, 151), '#7a5a40')   # fibrous light top layer under the turf
+for k, yy in enumerate((152, 156, 159)):   # wavy layers in the cut face
+    pts = [(x, yy + int(1.4 * np.sin(x / (5.0 + k) + k * 2))) for x in range(0, 92, 3)]
+    cv.fill(face & line(pts), PEAT['s'] if k != 1 else '#4a3424')
+for sx, sy, w in ((8, 154, 7), (30, 155, 9), (51, 157, 6), (70, 156, 8)):   # stepped cuts where turves came out
+    st = rect(sx, sy, sx + w, sy + 4) & face
+    cv.fill(st, '#33231a')
+    cv.fill(st & ~shift(st, 0, 1), '#4a3424')
+    cv.fill(rect(sx, sy + 5, sx + w, sy + 5) & face, PEAT['r'])
+for x0, y0, x1, y1 in ((18, 158, 26, 157), (44, 152, 49, 154), (60, 160, 66, 159), (82, 153, 86, 156)):   # bog-oak roots in the peat
+    cv.fill(line([(x0, y0), (x1, y1)]) & face, '#94765a')
 cv.fill(face & ~shift(face, 0, 1), '#33231a')
 cv.fill(bank_top, MOSS['b'])
 for k, hx_ in enumerate((5, 14, 27, 38, 46, 59, 70, 81)):   # heather overhanging the cut edge
@@ -467,13 +603,22 @@ ys, xs = np.nonzero(floor & ~dil4(dil4(burn)))
 for _ in range(80):
     i = r(0, len(xs) - 1)
     cv.dots([(int(xs[i]), int(ys[i]))], PEAT['b'] if r(0, 1) else MUD['s'])
-for sx, sy in ((10, 178), (26, 182), (44, 178), (14, 196)):   # turves stacked in fours, leaning like little houses
+TURVE = ramp('#7a5a40', '#5a3e2c', '#94765a')
+for si, (sx, sy) in enumerate(((10, 178), (26, 182), (44, 178), (14, 196))):   # drying stacks: brick-like turves piled in a little pyramid
     o = cv.obj()
-    o.part(poly([(sx - 6, sy), (sx - 1, sy - 11), (sx, sy)]), PEAT, d=1)
-    o.part(poly([(sx + 6, sy), (sx + 1, sy - 11), (sx, sy)]), PEAT, d=1)
-    o.part(rect(sx - 3, sy - 13, sx + 3, sy - 11), PEAT, d=1)
+    rows = ((-8, 4), (-6, 3), (-4, 2)) if si != 1 else ((-8, 4), (-6, 3))
+    bricks = []
+    for ri, (x0, n) in enumerate(rows):
+        for b in range(n):
+            bx_, by_ = sx + x0 + b * 4 + (si % 2), sy - ri * 4
+            bricks.append((bx_, by_))
+            o.part(rect(bx_, by_ - 3, bx_ + 3, by_), TURVE, d=1)
     o.draw()
-    cv.dots([(sx - 3, sy - 4), (sx + 3, sy - 6)], PEAT['r'])
+    for k, (bx_, by_) in enumerate(bricks):
+        cv.fill(rect(bx_, by_ - 3, bx_ + 3, by_ - 3), TURVE['r'] if k % 3 else '#a87a50')   # lit top of each turve
+        cv.fill(rect(bx_ + 3, by_ - 2, bx_ + 3, by_), PEAT['s'])                          # shaded end
+        cv.dots([(bx_ + 1 + k % 2, by_ - 1)], PEAT['b'])                                   # fibrous fleck
+    cv.dots([(sx - 9, sy + 1), (sx + 9, sy + 1)], '#3d2a1e')
 puddle(56, 186, 76, 191, rings=1)
 # the peat cutter, with a long flat spade cutting into the face
 X, Y = gnome(66, 176, RUST, MOSS, f=0.9, tip=-8)
@@ -493,19 +638,35 @@ for k in range(4):
     cv.dots([(36 + k * 4, 160)], PEAT['r'])
 
 # ---------------------------------------------------------------- a bent hawthorn on the knoll's foot (wind-shaped, leaning away from the sea)
+for _ in range(114):   # (keeps the r stream where the old pom-pom crown left it)
+    r(0, 1)
+# trunk: low, thick and twisted, bowed hard over to leeward; a few bare snags on the windward side
 o = cv.obj()
-o.part(poly([(14, 140), (20, 140), (22, 126), (30, 114), (40, 106), (36, 104), (26, 110), (16, 124)]), WOOD, d=2)
-o.part(line([(26, 114), (14, 106)], 2) | line([(34, 108), (50, 100)], 2), WOOD, d=1)
+o.part(poly([(10, 140), (20, 140), (21, 132), (26, 122), (36, 114), (50, 108), (60, 106), (58, 103), (44, 104), (30, 110), (18, 120), (13, 130)]), WOOD, d=2)
+o.part(line([(24, 124), (34, 120), (44, 118)], 2) | line([(38, 110), (52, 112)], 1), WOOD, d=1)
 o.draw()
-for cx, cy, rx, ry in ((44, 98, 10, 3), (14, 102, 6, 3), (30, 104, 8, 3)):
-    m = blobs(cx, cy, rx, ry, 6, 3, 5)
-    o = cv.obj()
-    o.part(m, TURF, d=2)
-    o.draw()
-    ys, xs = np.nonzero(m)
-    for _ in range(10):
-        i = r(0, len(xs) - 1)
-        cv.dots([(int(xs[i]), int(ys[i]))], WINE['b'] if r(0, 1) else TURF['r'])   # haws
+cv.fill(line([(14, 134), (19, 128), (24, 122)]), WOOD['s'])   # bark twist
+cv.fill(line([(15, 126), (9, 118), (6, 116)]) | line([(9, 118), (8, 112)]) | line([(22, 118), (18, 110), (14, 108)]), '#5e4030')
+# crown: one low wind-combed mass, thin and clipped on the sea side, streaming out long to the right
+crown = poly([(16, 108), (22, 102), (32, 98), (46, 96), (62, 96), (76, 99), (84, 103), (74, 106), (58, 108), (44, 110), (30, 112), (20, 112)])
+for k in range(7):
+    cx_ = 26 + k * 8 + r3(-2, 2)
+    crown |= ell(cx_ - 5, 94 + (k % 3) - k // 3, cx_ + 6, 102 + (k % 2))   # lumpy top
+for k in range(5):
+    yy = 98 + k * 2 + r3(0, 1)
+    crown |= rect(76, yy, 86 + r3(0, 6), yy)   # wind-combed tips
+crown &= ~rect(0, 0, 18, 102)
+o = cv.obj()
+o.part(crown, TURF, d=2)
+o.draw()
+for k in range(5):   # combed streaks inside the crown
+    yy = 100 + k * 2
+    cv.fill(line([(30 + k * 6, yy), (52 + k * 6, yy - 1)]) & crown & ~shift(crown, 0, 2), TURF['s'])
+ys, xs = np.nonzero(crown)
+for k in range(26):
+    i = r3(0, len(xs) - 1)
+    x, y = int(xs[i]), int(ys[i])
+    cv.dots([(x, y)] + ([(x + 1, y)] if k % 3 == 0 else []), WINE['b'] if k % 2 else ('#c05a50' if k % 3 else TURF['r']))   # haws
 
 # ---------------------------------------------------------------- sheep on the moor
 SHEEP = ((84, 102, 1), (164, 104, -1), (50, 104, -1), (276, 158, -1))

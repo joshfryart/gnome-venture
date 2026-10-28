@@ -266,6 +266,9 @@ for ax in (tx - 21, tx - 15, tx - 9, tx + 11, tx + 17, tx + 23, tx + 31, tx + 35
     cv.fill(rect(ax, ay, ax, ay + ln), FIGW['s'])
     cv.fill(rect(ax - 1, ay, ax - 1, ay + ln // 2), FIGW['r'])
     cv.dots([(ax, ay + ln + 1)], FIGW['b'])
+o = cv.obj()   # limbs reaching out under the canopy to the side clumps
+o.part(line([(tx + 3, 40), (tx + 12, 43), (tx + 22, 41)], 2) | line([(tx - 1, 40), (tx - 9, 41), (tx - 14, 38)], 2), FIGW, d=1)
+o.draw()
 roots = poly([(tx - 4, 44), (tx - 1, 36), (tx - 2, 28), (tx + 4, 28), (tx + 3, 36), (tx + 7, 44)])   # the fig's own flared trunk sits in the top shrine
 for pts in (((tx + 3, 40), (tx + 7, 50), (tx + 12, 52), (tx + 13, 61), (tx + 18, 63), (tx + 18, 72), (tx + 22, 75), (tx + 21, 86)),   # roots creep down the steps,
             ((tx - 1, 40), (tx - 6, 51), (tx - 12, 53), (tx - 11, 62), (tx - 17, 64), (tx - 16, 73), (tx - 21, 76), (tx - 22, 86)),   # hugging each ledge
@@ -430,17 +433,19 @@ o = cv.obj()   # its paddle and a water jar in it
 o.part(line([(34, 138), (46, 141)], 1) | ell(46, 136, 50, 141), WOOD, d=0)
 o.part(ell(38, 136, 43, 141), ramp('#b8603a', '#8a4024', '#d8805a'), d=1)
 o.draw()
-for fx0, fy0 in ((16, 112), (66, 114)):   # conical fish traps hung from the deck to dry
-    cv.fill(rect(fx0 + 3, 106, fx0 + 3, fy0), '#5a4a3a')
-    o = cv.obj()
-    o.part(poly([(fx0, fy0 + 12), (fx0 + 3, fy0), (fx0 + 6, fy0 + 12)]) | ell(fx0 - 1, fy0 + 10, fx0 + 7, fy0 + 14), THATCH, d=1)
-    o.draw()
-    for yy0 in range(fy0 + 3, fy0 + 13, 3):
-        cv.fill(rect(fx0, yy0, fx0 + 6, yy0) & dil4(poly([(fx0, fy0 + 12), (fx0 + 3, fy0), (fx0 + 6, fy0 + 12)])), THATCH['s'])
+FISH = ramp('#b8d6ce', '#7a9e9e', '#e2eeea')
+for cx0, cx1 in ((11, 37), (59, 72)):   # strings of fish drying between the stilts
+    cord = bez((cx0, 108), ((cx0 + cx1) // 2, 114), (cx1, 108), 8)
+    cv.fill(line(cord), '#5a4a3a')
+    for px, py in cord[2:-1:2]:
+        o = cv.obj()
+        o.part(ell(px - 1, py + 1, px + 2, py + 9) | poly([(px - 2, py + 12), (px + 1, py + 8), (px + 3, py + 12)]), FISH, d=1)
+        o.draw()
+        cv.dots([(px, py + 2)], UMB)
 net = blank()   # a fishing net drying between two stilts
-for k in range(0, 14, 3):
-    net |= line([(74 + k, 108), (80 + k, 128)]) | line([(88 - k, 108), (82 - k, 128)])
-net &= rect(73, 108, 89, 128) & ~ell(70, 118, 96, 150)
+for k in range(-16, 18, 4):
+    net |= line([(74 + k, 108), (94 + k, 128)]) | line([(88 - k, 108), (68 - k, 128)])
+net &= poly([(73, 108), (89, 108), (88, 120), (81, 127), (74, 120)])
 cv.fill(net, WHITE['s'])
 cv.fill(rect(73, 108, 89, 108), WHITE['b'])
 for k in range(4):
@@ -483,18 +488,20 @@ for lx, rp in ((10, PINK), (40, ORG), (72, PINK), (94, RED)):   # lantern glow m
 cv.fill(line([(2, 155), (14, 154)]) | line([(44, 156), (54, 155)]) | line([(76, 154), (86, 155)]), TEAL['r'])
 # a mother duck and two ducklings paddling out from under the house
 o = cv.obj()
-o.part(ell(60, 154, 72, 160), WHITE, d=1)
-o.part(ell(68, 150, 73, 155), WHITE, d=1)
-o.part(rect(74, 152, 76, 153), ORG, d=0)
-for dx in (79, 87):
-    o.part(ell(dx, 156, dx + 5, 160) | ell(dx + 3, 154, dx + 6, 157), YEL, d=0)
+o.part(ell(44, 152, 56, 158), WHITE, d=1)
+o.part(ell(52, 148, 57, 153), WHITE, d=1)
+o.part(rect(58, 150, 60, 151), ORG, d=0)
 o.draw()
-cv.dots([(70, 152)], UMB)
-cv.dots([(85, 155), (93, 155)], UMB)
-cv.dots([(87, 155), (95, 155)], ORG['b'])
-cv.fill(rect(62, 157, 66, 157), WHITE['s'])
-cv.fill(line([(56, 161), (60, 162)]) | line([(74, 162), (78, 162)]), TEAL['r'])   # wake
-keep[148:164, 56:98] = True
+for dx in (24, 33):   # ducklings follow behind her
+    o = cv.obj()
+    o.part(ell(dx, 154, dx + 5, 158) | ell(dx + 3, 152, dx + 6, 155), YEL, d=1)
+    o.draw()
+    cv.dots([(dx + 5, 153)], UMB)
+    cv.dots([(dx + 7, 153)], ORG['b'])
+cv.dots([(54, 150)], UMB)
+cv.fill(rect(46, 155, 50, 155), WHITE['s'])
+cv.fill(line([(18, 159), (22, 160)]) | line([(40, 160), (44, 160)]), TEAL['r'])   # wake
+keep[146:162, 18:62] = True
 o = cv.obj()
 o.part(rect(0, 98, 98, 103), WOOD, d=1)   # deck
 o.part(rect(10, 70, 82, 98), BAMBOO, d=2)   # woven walls
@@ -643,19 +650,69 @@ for dx in (-26, -12, 4, 20, 32):   # drops off the leaf rim
     cv.dots([(ex, 134), (ex, 137), (ex - 1, 141)], RAIN)
 keep[110:136, fx - 28:fx + 34] = True
 hull = boat(fbx0, fbx1, fby, 9)
-for px, py, s, rp in ((78, 162, 4, ramp('#a8c84a', '#7a9a2a', '#d0e87a')), (86, 160, 5, ramp('#a8c84a', '#7a9a2a', '#d0e87a')), (95, 163, 4, PURP), (102, 160, 4, PURP),
-                      (110, 162, 4, RED), (116, 164, 3, RED), (92, 156, 4, YEL), (84, 155, 3, ORG), (106, 155, 4, ramp('#8a9a3a', '#5a6a2a', '#b0c060'))):
+# pass 1: smaller, varied market fruit in two woven baskets (was a heap of big round balls)
+LIME = ramp('#a8c84a', '#7a9a2a', '#d0e87a')
+
+
+def basket(x0, y0, x1, y1):
     o = cv.obj()
-    o.part(ell(px - s, py - s, px + s, py + s), rp, d=1)
+    o.part(rrect(x0, y0, x1, y1, 2), THATCH, d=2)
     o.draw()
-for px, py in ((110, 159), (116, 161), (113, 157)):   # rambutan hairs
-    cv.dots([(px - 1, py - 2), (px + 2, py - 1), (px, py + 3)], RED['r'])
-cv.dots([(102, 156), (95, 159)], JADE['s'])   # mangosteen caps
-for k in range(5):   # durian spikes
-    cv.dots([(103 + k % 3 * 2, 152 + k // 3 * 2)], '#5a6a2a')
-o = cv.obj()   # starfruit
-o.part(poly([(120, 160), (126, 157), (128, 164), (122, 166)]), YEL, d=1)
+    for yy0 in range(y0 + 2, y1, 3):
+        cv.fill(rect(x0 + 1, yy0, x1 - 1, yy0), THATCH['s'])
+    for xx0 in range(x0 + 2, x1 - 1, 3):
+        cv.dots([(xx0 + (xx0 // 3) % 2, y0 + 3), (xx0, y0 + 6)], THATCH['r'])
+    cv.fill(rect(x0, y0, x1, y0), DWOOD['b'])   # rim
+
+
+basket(77, 161, 95, 169)
+for row in (((86, 152),), ((82, 156), (86, 156), (90, 156)), ((80, 160), (84, 160), (88, 160), (92, 160))):
+    for k, (px, py) in enumerate(row):
+        rp = (PURP, RED)[(px // 4 + py) % 2]
+        o = cv.obj()
+        o.part(ell(px - 2, py - 2, px + 2, py + 2), rp, d=1)
+        o.draw()
+        if rp is PURP:   # mangosteen with its green cap
+            cv.dots([(px - 1, py - 2), (px, py - 2), (px + 1, py - 2)], JADE['s'])
+        else:   # hairy rambutan
+            cv.dots([(px - 3, py), (px + 3, py - 1), (px, py - 3)], RED['r'])
+o = cv.obj()   # a pineapple standing between the baskets
+o.part(line([(100, 155), (97, 147)], 1) | line([(100, 155), (100, 144)], 1) | line([(101, 155), (104, 147)], 1) | line([(100, 155), (106, 150)], 1), PALM, d=0)
+o.part(ell(96, 154, 104, 168), ORG, d=2)
 o.draw()
+for yy0 in range(156, 167, 3):
+    for xx0 in range(97 + (yy0 // 3) % 2 * 2, 104, 4):
+        cv.dots([(xx0, yy0), (xx0 + 1, yy0 + 1)], ORG['s'])
+basket(106, 162, 124, 169)
+for px, py, rp in ((112, 157, LIME), (119, 157, ORG), (109, 160, ORG), (116, 160, YEL), (122, 160, LIME)):   # mangoes
+    o = cv.obj()
+    o.part(ell(px - 3, py - 2, px + 3, py + 2), rp, d=1)
+    o.draw()
+    cv.dots([(px - 1, py - 1)], rp['r'])
+for tip in ((120, 146), (123, 150), (122, 154)):   # a fanned hand of bananas on top, one finger at a time
+    o = cv.obj()
+    o.part(line(bez((109, 154), ((109 + tip[0]) // 2, tip[1] + 4), tip, 8), 2), YEL, d=1)
+    o.draw()
+    cv.dots([(tip[0] + 1, tip[1])], DWOOD['b'])
+cv.fill(rect(107, 153, 109, 155), DWOOD['b'])   # crown stalk
+# hull dressing so the two bottom cells differ: a rope fender at the bow half, a painted wave at the stern half
+o = cv.obj()
+o.part(ell(88, 171, 95, 178) & ~ell(90, 173, 93, 176), THATCH, d=1)
+o.draw()
+cv.fill(line([(91, 168), (91, 171)]), THATCH['s'])
+for k, xx0 in enumerate(range(104, 140, 2)):
+    cv.dots([(xx0, 175 + k % 2)], (ORG['b'], YEL['b'])[k // 4 % 2])
+o = cv.obj()   # an orange koi under the bow and a dropped hibiscus floating by the stern
+o.part(ell(80, 189, 90, 193) | poly([(90, 191), (95, 188), (95, 194)]), ORG, d=1)
+o.draw()
+cv.fill(rect(83, 190, 85, 191), WHITE['b'])
+cv.dots([(81, 190)], UMB)
+for dx, dy in ((0, -2), (2, 0), (0, 2), (-2, 0)):
+    o = cv.obj(outline=False)
+    o.part(ell(118 + dx - 1, 192 + dy - 1, 118 + dx + 1, 192 + dy + 1), RED, d=0)
+    o.draw()
+cv.dots([(118, 192)], YEL['b'])
+keep[186:197, 78:122] = True
 cv.fill(rect(70, 160, 76, 168), THATCH['s'])   # rope coil at the prow
 cv.dots([(71, 162), (73, 162), (75, 164), (72, 166)], THATCH['r'])
 keep[148:182, 68:152] = True
@@ -675,11 +732,16 @@ for k in range(16):   # orchids and lotus heaped in the hull
     o.part(ell(px - 2, py - 2, px + 2, py + 2), rp, d=1)
     o.draw()
     cv.dots([(px, py)], YEL['b'])
-for px in (186, 200, 214):
-    cv.fill(rect(px, 172, px, 180), JADE['s'])
+for k, px in enumerate((186, 200, 214)):   # pass 1: tear-drop lotus buds with green sepals (were diamonds)
+    by = 168 + (k % 2) * 2
+    cv.fill(rect(px, by + 4, px, 180), JADE['s'])
     o = cv.obj()
-    o.part(poly([(px - 3, 172), (px, 166), (px + 3, 172), (px, 174)]), PINK, d=1)
+    o.part(ell(px - 3, by - 2, px + 3, by + 5) | poly([(px - 2, by - 1), (px, by - 6), (px + 2, by - 1)]), PINK, d=1)
+    o.part(poly([(px - 4, by + 5), (px - 1, by + 1), (px, by + 6)]) | poly([(px + 4, by + 5), (px + 1, by + 1), (px, by + 6)]), JADE, d=0)
     o.draw()
+    cv.fill(line([(px, by - 4), (px, by + 3)]), PINK['s'])
+    cv.dots([(px - 1, by - 1), (px - 2, by + 1)], PINK['r'])
+    cv.dots([(px, by - 6)], PINK['s'])
 keep[164:200, 176:244] = True
 
 # ---------------------------------------------------------------- lotus and lily pads, frog, rain rings, dragonflies

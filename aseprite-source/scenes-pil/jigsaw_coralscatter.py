@@ -10,7 +10,7 @@ import math
 import sys
 
 from jigsaw_common import *  # noqa: F401,F403
-from pixlib import hx, OL
+from pixlib import hx as hexrgb, OL
 
 # ---------------------------------------------------------------- palette (coral pink, aqua, lava orange, deep navy)
 NAVY0, NAVY1, NAVY2 = '#16203f', '#22305a', '#353f74'
@@ -330,12 +330,15 @@ cv.fill(lava & vol, LAVA['b'])
 cv.fill(lava & vol & ~shift(lava, 1, 0), LAVA['r'])
 cv.fill(dil4(lava) & vol & ~lava, LAVA['s'])
 # smoke: a column of hard puffs rising out of the crater, then an ash cloud drifting right along the top
-for k, (sx, sy, sz) in enumerate(((50, 16, 3), (47, 11, 4), (44, 5, 5), (48, 0, 6), (58, -1, 6), (68, 1, 5), (78, 0, 5), (87, 2, 3), (93, 1, 2))):
-    pm = ell(sx - sz - 1, sy - sz + 1, sx + sz + 1, sy + sz - 1)
-    cv.fill(dil4(pm) & ~pm, '#2a2040')
-    cv.fill(pm, '#6e5a80' if k < 4 else '#5a4a70')
-    cv.fill(pm & ~shift(pm, 1, 1), '#9a88aa' if k < 4 else '#7e6a92')
-    cv.fill(pm & ~shift(pm, 0, -2), LAVA['s'] if k < 3 else '#4a3a60')
+smk = blank()
+for k, (sx, sy, sz) in enumerate(((50, 17, 3), (46, 12, 4), (43, 6, 5), (52, 4, 5), (61, 6, 5), (70, 4, 5), (79, 6, 4), (87, 4, 3), (93, 6, 2))):
+    pm = ell(sx - sz - 1, sy - sz, sx + sz + 1, sy + sz)
+    cv.fill(dil4(pm) & ~pm & smk, '#4a3a60')   # seam over the older puff
+    cv.fill(dil4(pm) & ~pm & ~smk, '#2a2040')
+    cv.fill(pm, '#6e5a80' if k < 5 else '#5e4c74')
+    cv.fill(pm & ~shift(pm, -2, -2), '#4a3a60' if k > 2 else LAVA['s'])
+    cv.fill(pm & ~shift(pm, 1, 1), '#a898bc')
+    smk |= pm
 for ex, ey in ((40, 12), (56, 8), (38, 18), (60, 12), (54, 10), (34, 8), (72, 8), (64, 9)):   # embers
     cv.dots([(ex, ey)], LAVA['r'] if ex % 2 else LAVA['b'])
 # jungle skirt round the volcano's foot
@@ -350,9 +353,10 @@ zone = poly([(0, 60), (20, 63), (40, 66), (62, 63), (80, 64), (100, 70), (112, 7
 CROWNS = (ramp('#245a48', '#173a30', '#3a7a5a'), ramp('#2f8a62', '#1d5e4c', '#5cb07a'), ramp('#4a9a4a', '#2f6a3e', '#8ac46a'), ramp('#2a7a72', '#1a5050', '#5aaa98'))
 canopy = blank()
 for row, y in enumerate(range(62, WL + 4, 5)):
-    x = -6 + r3(0, 5)
+    y += r3(-1, 1)
+    x = -6 + r3(0, 7)
     while x < 128:
-        s_ = r3(4, 7)
+        s_ = r3(3, 8)
         c = ell(x - s_, y - s_, x + s_, y + s_ // 2 + 2) | ell(x - s_ + 2, y - s_ - 2, x + 1, y) | ell(x, y - s_ - 1, x + s_ - 1, y - 1)
         c &= zone
         if c.any():
@@ -469,15 +473,23 @@ cv.dots([(219, 89), (218, 88)], LAVA['s'])
 
 # ================================================================ TIDE-POOL VILLAGE ON STILTS (centre right)
 STILTS = (152, 164, 176, 188, 200)
-for sx in STILTS:   # stilts: above water, then down through the lagoon to the reef
+for i, sx in enumerate(STILTS):   # stilts: above water, then down through the lagoon to the reef (each leans and ends a bit differently)
     o = cv.obj()
     o.part(rect(sx, 74, sx + 2, WL - 1), WOOD, d=1)
     o.draw()
-    cv.fill(rect(sx, WL + 2, sx + 2, 186), '#4a6a72')
-    cv.fill(rect(sx + 2, WL + 2, sx + 2, 186), '#2f4a58')
-    for by in range(WL + 8, 184, 9):   # barnacles and weed on the posts
-        cv.dots([(sx + (by // 9) % 3, by)], '#e8e0c8')
-    cv.fill(line([(sx + 1, 186), (sx - 2, 176), (sx + 1, 168), (sx - 1, 160)]), '#3f9a5e')
+    lean_ = (-3, 2, -1, 3, -2)[i]
+    bot = (186, 180, 188, 183, 178)[i]
+    post = line([(sx + 1, WL + 2), (sx + 1 + lean_, bot)], 3)
+    cv.fill(post, '#4a6a72')
+    cv.fill(post & ~shift(post, -1, 0), '#2f4a58')
+    cv.fill(post & ~shift(post, 1, 0), '#6a8a8e')
+    for by in range(WL + 8, bot - 2, 9):   # barnacles on the posts
+        bxx = sx + 1 + lean_ * (by - WL) // (bot - WL)
+        cv.dots([(bxx + (by // 9) % 2, by)], '#e8e0c8')
+    bxx = sx + 1 + lean_
+    cv.fill(ell(bxx - 3, bot - 8 - i, bxx + 3, bot - 2 - i), (CORAL['b'], PURP['b'], LAVA['b'], AQUA['s'], YEL['s'])[i])   # sponge growth near the foot
+    cv.dots([(bxx - 2, bot - 7 - i), (bxx - 1, bot - 8 - i)], '#ffffff')
+    cv.fill(line([(bxx, bot), (bxx - 3, bot - 10), (bxx, bot - 18), (bxx - 2, bot - 26 + i * 2)]), '#3f9a5e')
 cv.fill(line([(152, 80), (164, 90)]) | line([(176, 80), (188, 90)]) | line([(188, 80), (200, 90)]), WOOD['s'])   # cross braces
 o = cv.obj()
 o.part(rect(146, 72, 210, 75), WOOD, d=1)
@@ -536,18 +548,18 @@ cx0, cx1, cy = 98, 150, 90
 # crab-claw sail: two curved spars from the foot, asymmetric, tips curling in like a claw; woven pandanus with painted bands
 SPAR_B = [(122, 86), (114, 72), (107, 58), (104, 48), (106, 42)]
 SPAR_F = [(122, 86), (130, 72), (138, 58), (143, 46), (141, 38)]
-sail = poly(SPAR_B + [(110, 46), (116, 50), (122, 52), (128, 50), (134, 46), (138, 40)] + SPAR_F[::-1])
+sail = poly(SPAR_B + [(110, 44), (116, 46), (122, 47), (128, 45), (134, 42), (138, 38)] + SPAR_F[::-1])
 o = cv.obj()
 o.part(sail, WEAVE, d=2)
 o.draw()
-for k in range(3):   # painted coral bands following the claw's inner edge
-    band = sail & ~shift(sail, 0, -(5 + k * 9)) & shift(sail, 0, -(2 + k * 9))
-    cv.fill(band, (CORAL['b'], LAVA['b'], CORAL['b'])[k])
-    cv.fill(band & ~shift(band, 0, 1), (CORAL['s'], LAVA['s'], CORAL['s'])[k])
-ws = sail & ~(shift(sail, 0, -5) & ~shift(sail, 0, -2))
+for k in range(4):   # painted panels running up along the forward spar
+    band = sail & poly([(118 + k * 7, 90), (122 + k * 7, 90), (106 + k * 9, 30), (101 + k * 9, 30)])
+    cv.fill(band, (CORAL['b'], LAVA['b'], CORAL['b'], LAVA['b'])[k])
+    cv.fill(band & ~shift(band, -1, 0), (CORAL['s'], LAVA['s'], CORAL['s'], LAVA['s'])[k])
+ws = sail
 for yy in range(48, 84, 3):   # woven texture
     for xx in range(100 + (yy % 2) * 2, 146, 5):
-        if ws[yy, xx] and tuple(cv.px[yy, xx]) == hx(WEAVE['b']):
+        if ws[yy, xx] and tuple(cv.px[yy, xx]) == hexrgb(WEAVE['b']):
             cv.dots([(xx, yy), (xx + 1, yy)], WEAVE['s'])
 o = cv.obj()
 o.part(line(SPAR_B, 2) | line(SPAR_F, 2), WOOD, d=0)
@@ -598,6 +610,40 @@ for k in range(46):   # glowworm ceiling: blue-green dots, a few with dangling t
             cv.fill(rect(gx, gy + 1, gx, gy + 3), '#2a5a6a')
 cv.fill(ell(10, 150, 26, 160) & cave, '#1c2a48')   # glowing pool on the cave floor
 cv.dots([(14, 154), (19, 156), (22, 153)], '#7af0c8')
+# rock texture on the flank: boulders with lit tops and dark seams, tube sponges, sea whips, barnacle clusters
+r4 = rnd(777)
+rockzone = flank & ~dil4(dil4(cave))
+for k in range(26):
+    x0, y0 = r4(-2, 56), r4(WL + 3, 196)
+    w_, h_ = r4(6, 13), r4(4, 8)
+    b = ell(x0, y0, x0 + w_, y0 + h_) & rockzone
+    if b.sum() < 12:
+        continue
+    cv.fill(dil4(b) & ~b & rockzone, '#2a1a34')
+    cv.fill(b, (VOLC['b'], '#4a3050', '#664462')[k % 3])
+    cv.fill(b & ~shift(b, 1, 1), VOLC['r'])
+    cv.fill(b & ~shift(b, -2, -2), VOLC['s'])
+for k in range(7):   # vase sponges: rounded tubes with a dark open mouth, leaning a little
+    x0, y0 = r4(4, 50), r4(100, 196)
+    if rockzone[y0, x0] and rockzone[max(0, y0 - 8), x0]:
+        col = (YEL, LAVA, PURP)[k % 3]
+        for j, (hh, dx) in enumerate(((5 + k % 3, -1), (7, 1))):
+            bx_ = x0 + j * 4
+            t = poly([(bx_ - 1, y0), (bx_ + 2, y0), (bx_ + 3 + dx, y0 - hh), (bx_ + dx - 1, y0 - hh)])
+            cv.fill(dil4(t) & ~t, '#2a1a34')
+            cv.fill(t, col['b'])
+            cv.fill(t & ~shift(t, -1, 0), col['s'])
+            cv.fill(t & ~shift(t, 1, 0), col['r'])
+            cv.fill(rect(bx_ + dx, y0 - hh, bx_ + dx + 2, y0 - hh), '#2a1a34')
+for k in range(7):   # sea whips
+    x0, y0 = r4(2, 54), r4(100, 196)
+    if rockzone[y0, x0]:
+        cv.fill(line([(x0, y0), (x0 + r4(-3, 3), y0 - 6), (x0 + r4(-4, 4), y0 - 12)]), ('#e8506a', '#f2c43a', '#b88ad0')[k % 3])
+for k in range(10):   # barnacle clusters
+    x0, y0 = r4(2, 56), r4(98, 196)
+    if rockzone[y0, x0]:
+        cv.dots([(x0, y0), (x0 + 2, y0 + 1), (x0 + 1, y0 + 2), (x0 + 3, y0 - 1)], '#e8e0c8')
+        cv.dots([(x0, y0 + 1), (x0 + 2, y0 + 2)], '#8a86a0')
 for _ in range(60):   # coral tufts on the rock
     x0, y0 = r(30, 70), r(96, 190)
     if flank[y0, x0] and not flank[y0, min(W - 1, x0 + 4)]:
@@ -640,6 +686,46 @@ for k in range(16):
             cv.fill(line([(x0 + 2, y0), (x0 + 3, y0 - 5)]), '#5cb07a')
         else:
             cv.fill(ell(x0 - 2, y0 - 2, x0 + 2, y0 + 1), (CORAL['b'], PURP['b'])[x0 % 2])
+# texture on the sand slope and the rock foot: rippled sand, rock blocks, shells, garden eels, a sea cucumber
+r5 = rnd(31337)
+foot = slope & poly([(266, WL), (300, WL), (300, 130), (284, 122), (272, 108)])
+sandz = slope & ~foot
+for k in range(40):   # sand ripples: short wavy hard lines
+    x0, y0 = r5(238, 296), r5(98, 197)
+    rp_ = [(x0 + i * 2, y0 + (i % 2)) for i in range(r5(3, 6))]
+    cv.fill(line(rp_) & sandz, '#9a8458')
+    cv.fill(shift(line(rp_), 0, -1) & sandz & ~shift(line(rp_), 0, 0), '#e8d4a0')
+for k in range(9):
+    x0, y0 = r5(266, 298), r5(WL + 2, 126)
+    b = ell(x0, y0, x0 + r5(6, 11), y0 + r5(4, 7)) & foot
+    if b.sum() < 10:
+        continue
+    cv.fill(dil4(b) & ~b & foot, '#1a2244')
+    cv.fill(b, (UROCK['b'], '#46567e')[k % 2])
+    cv.fill(b & ~shift(b, 1, 1), UROCK['r'])
+    cv.fill(b & ~shift(b, -2, -2), UROCK['s'])
+for ax, ay, col in ((272, 112, CORAL['b']), (288, 100, YEL['b']), (294, 118, PURP['r'])):   # little anemones on the rock foot
+    if foot[ay, ax]:
+        for dx in (-2, -1, 0, 1, 2):
+            cv.dots([(ax + dx, ay - 2 - (abs(dx) + 1) % 2), (ax + dx, ay - 1)], col)
+        cv.fill(rect(ax - 1, ay, ax + 1, ay + 1), '#5e3a80')
+for ex, ey in ((256, 128), (260, 131), (265, 127)):   # garden eels poking out of their burrows
+    cv.fill(line([(ex, ey), (ex + 1, ey - 5), (ex, ey - 9)], 2), '#f2ecd8')
+    cv.dots([(ex - 1, ey - 9)], DARK)
+    cv.fill(rect(ex - 1, ey, ex + 2, ey), '#6a5a3a')
+    cv.dots([(ex + 1, ey - 3), (ex, ey - 6)], '#2a2440')
+o = cv.obj()   # conch shell
+o.part(poly([(244, 112), (252, 108), (256, 110), (254, 114), (246, 115)]), ramp('#f2b8a0', '#c9786a', '#ffe0d0'), d=1)
+o.draw()
+cv.dots([(250, 110), (252, 111), (254, 112)], '#c9786a')
+cv.fill(rect(247, 113, 251, 113), '#ff9a9a')
+o = cv.obj()   # sea cucumber
+o.part(rrect(268, 176, 280, 181, 2), ramp('#9a5a3a', '#6a3a28', '#c88a5a'), d=1)
+o.draw()
+cv.dots([(270, 177), (273, 178), (276, 177), (279, 178)], '#f2c43a')
+for x0, y0 in ((248, 150), (258, 166), (252, 186), (282, 186)):   # cowries and pebbles
+    cv.fill(ell(x0, y0, x0 + 4, y0 + 2), ('#f2ecd8', '#c8c4d2', '#e8a070', '#8a86a0')[(x0 // 3) % 4])
+    cv.dots([(x0 + 1, y0)], '#ffffff')
 # octopus peeking from the rock foot
 ox, oy = 286, 154
 o = cv.obj()
