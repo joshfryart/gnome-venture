@@ -592,3 +592,155 @@ E|ca-pumice-skipping|-|mountain|CA|road|🪨|A still crater pool on the Smokecap
 O|Show her how it is done|luck|12|xp:5+coins:{c}|Your stone does not skip at all, it just floats away like a little boat. She shrieks with joy and pays you in marbles.|xp:1|Plop. It floats. Hers floats too. You agree it is a fine day for floating.
 O|Explain why the stones float|lore|11|xp:5|Volcano stone, full of tiny bubbles. She builds a pebble fleet at once.|xp:1|You explain it wrong, confidently. She believes every word.
 
+# ---------------------------------------------------------------- v2.0.80 wave 1: Dunewhisper (MENA) and Blossomreach (EA), 25 cards each
+# ---------------------------------------------------------------- v2.0.79 new kinds: The Dunewhisper (MENA), 25 cards
+E|mena-fork-dune-crest|-|desert|MENA|road|🏜️|The road winds the long way round the foot of a great dune. Its crest runs straight as a knife edge towards the next village, and the sand up there hums a low note whenever the wind slides over it.|fork|
+O|Walk the singing crest|nimble|12|skip:1+xp:4|One foot in front of the other along the edge, humming along. You come down the far side in giant sliding steps.|hp:-3|The edge crumbles. You slither to the bottom in a hissing river of sand, and empty your boots twice.
+O|Keep to the road round the foot||0|xp:2|A long, warm walk. A beetle crosses ahead of you, stitching tiny tracks in the sand.||
+O|Give a drover 2 dates for a lift||0|take:date:2+skip:1+xp:3|His camel kneels with a groan, rises with another, and sways you over the dune like a slow, grumbling boat.||
+E|mena-fork-reed-marsh|-|wetland|MENA|road|🛶|The road bends far around the great reed marshes. A girl in a slim reed canoe leans on her pole by the bank. “Through the channels is quicker,” she says. “The buffalo do not mind. Mostly.”|fork|
+O|Ride through the reeds (4 Petals)||0|pay:4+skip:1+xp:4|She poles you down green corridors of reed, past a great arched reed house and a buffalo who blows bubbles at you.||
+O|Walk the long way round||0|xp:2|Reeds, birdsong and a heron who keeps pace with you the whole way and pretends not to.||
+O|Ask to take a turn at the pole|grit|12|skip:1+xp:5|Push, glide, push. She declares you nearly a marsh gnome, which is high praise.|hp:-2|The pole sticks in the mud and you stay with it, briefly, while the canoe goes on. She fishes you out, laughing.
+E|mena-turtle-hatchling|dp=dusk,night|coast|MENA|road|🐢|On a moonlit beach, a turtle hatchling no bigger than a coin is flippering hard up the sand, away from the sea, straight towards the lights of a fishing village. It looks very determined and very lost.|chain|
+O|Turn it gently round||0|xp:2+next:chain-mena-turtle-nest|It sets off seaward at once. Behind you, the sand starts to wriggle.||
+O|Shade the village lights with your hat|sense|11|xp:4|In the dark it finds the pale shine of the sea on its own, and scrambles off towards it.|xp:1+next:chain-mena-turtle-nest|Your hat is too small to hide a whole village. You turn it round by hand, and behind you the sand starts to wriggle.
+E|chain-mena-turtle-nest|-|coast|MENA|road|🥚|The wriggle is a whole nest hatching at once: dozens of hatchlings bubbling up out of the sand, every one of them turning the wrong way, towards the village lights. A ranger in a cap jogs over from the dunes.|chain|
+O|Hold your coat up as a wall||0|xp:3+next:chain-mena-turtle-surf|You and the ranger make a wall of coats, and the little ones turn towards the moonlit water, one after another.||
+O|Herd them with a palm frond|nimble|12|xp:4+next:chain-mena-turtle-surf|Sweep, sweep, gently, gently. Not one goes astray.|hp:-2+next:chain-mena-turtle-surf|You trip over the frond and land nose-first in the sand. The hatchlings politely go round you, the right way.
+E|chain-mena-turtle-surf|-|coast|MENA|road|🌊|At the water’s edge the hatchlings tumble into the foam and are gone, little dark specks riding out along the moon’s silver path. The ranger lets out a long breath. “Every one,” she says. “That is a good night.”|chain|
+O|Watch until the last speck is gone||0|xp:9+heal:4+item:spiral-shell:1@20|The sea takes them out to grow. By your boot lies a spiral shell, as if left in thanks.||
+O|Help her log the nest||0|xp:8+coins:{c}|She lets you write the count in her notebook in your very best hand, and pays you from the ranger tin.||
+E|mena-oven-ember|dp=dawn|desert,grassland,mountain|MENA|road|🔥|By a village wall, a grandmother kneels at a round clay oven sunk in the ground. Dough waits on a cloth beside her. “The fire went out in the night,” she sighs, “and the whole lane is waiting for bread.”|chain|
+O|Offer to fetch fire for her||0|xp:2+next:chain-mena-oven-smith|“Try the coppersmith at the end of the lane,” she says. “His fire never sleeps.”||
+O|Try to wake the ashes yourself|luck|13|xp:5+coins:{c}|One spark, one puff, and the oven roars back to life. She claps the flour off her hands and presses a coin on you.|xp:1+next:chain-mena-oven-smith|Cold, every last ash. “The coppersmith,” she says. “End of the lane.”
+E|chain-mena-oven-smith|-|desert,grassland,mountain|MENA|road|⚒️|At the end of the lane, a coppersmith taps patterns into a tray beside a glowing little forge. “Fire for the bread? Of course.” He tips a red ember into a clay pot. “Hurry, but do not run. Embers hate running.”|chain|
+O|Carry it slow and steady||0|xp:3+next:chain-mena-oven-wind|You walk the way you would carry a full glass of tea, and the ember glows contentedly.||
+O|Ask him to show you his patterns|lore|11|xp:5+next:chain-mena-oven-wind|Stars inside stars inside stars. He lets you tap one tiny one yourself, then shoos you off with the pot.|xp:1+next:chain-mena-oven-wind|You nod along to the geometry and follow none of it. He shoos you off kindly with the pot.
+E|chain-mena-oven-wind|-|desert,grassland,mountain|MENA|road|💨|Halfway back, a gust comes rattling down the lane, flapping awnings and lifting dust. The ember in your pot flickers, dims, and starts to look worried.|chain|
+O|Cup it close and blow softly|hardiness|11|xp:4+next:chain-mena-oven-bake|You shield it with your whole body, eyes full of dust. It brightens again, cheeky as ever.|hp:-2+next:chain-mena-oven-bake|Dust up your nose and down your collar, but the ember lives. Just.
+O|Duck into a doorway till it passes||0|xp:3+next:chain-mena-oven-bake|A woman in the doorway shelters you both and adds a pinch of dry palm fibre to the pot. It glows happily.||
+E|chain-mena-oven-bake|-|desert,grassland,mountain|MENA|road|🫓|The grandmother tips your ember into the oven, and soon flat rounds of dough are slapped onto its hot clay walls, puffing and blistering. Children appear from every door in the lane, as if by magic.|chain|
+O|Slap a round onto the oven wall|nimble|11|xp:9+coins:{c}+item:herb-flatbread:1@20|It sticks first time. She peels it off golden, puts it straight into your hands, and a few Petals after it.|xp:6+item:herb-flatbread:1@20|Yours slides down into the coals. She fishes it out, calls it “the oven’s share”, and gives you one of hers.
+O|Hand out bread along the lane||0|xp:8+coins:{c}+energy:2|Every child says thank you with a full mouth. The grandmother insists on paying you, and on feeding you twice.||
+E|mena-riddle-footprints|-|desert|MENA|road|🐾|A jerboa on long springy legs blocks the path, its tail ending in a little tassel. “Riddle!” it squeaks. “The more of me you make, the more you leave behind. By morning the wind has tidied me all away. What am I?”|riddle|
+O|“Footprints”||0|xp:6+coins:{c}|“Correct!” It hops a delighted circle, leaving a little ring of them, and drops a few Petals at your feet.||
+O|“Dates”|!|0|||xp:1|“Dates are for eating, not for leaving behind,” says the jerboa, quite shocked.
+O|“A caravan”|!|0|||xp:1|“A caravan takes its camels with it,” it says, and thumps its tail, unimpressed.
+E|mena-riddle-caravan-legs|-|desert,grassland|MENA|road|🐪|A drover resting by a well grins at you. “In my caravan, the camels and the gnomes together have ten heads and twenty-eight legs. Every camel has four, every gnome has two. How many camels?”|riddle|
+O|“Four camels”||0|xp:6+coins:{c}|“Four camels and six gnomes. You count like a market weigher!” He pours you a cup of water and pays you for the pleasure.||
+O|“Six camels”|!|0|||xp:1|“Six camels and four gnomes makes thirty-two legs. Somebody would have to be hopping.” He chuckles.
+O|“Seven camels”|!|0|||xp:1|“Seven camels and three gnomes: thirty-four legs. My camels are tall, but not that leggy.”
+E|mena-trade-saffron|!se=autumn|grassland,mountain|MENA|road|🌸|A hillside has turned purple with crocus flowers, and pickers move along the rows, nipping each bloom into baskets. One stops to stretch. “Got any wheat?” she asks. “The flowers are lovely, but you cannot make bread from them.”|trade|
+O|Swap 3 wheat for saffron||0|take:wheat:3+item:saffron:1|She tips a few red threads into a twist of paper. “A whole morning’s picking,” she says. “Use it kindly.”||
+O|Swap 2 onions for saffron corms||0|take:onion:2+item:saffron-seed:1|“Plant them in summer, wait for autumn, then pick very, very early.” She yawns to show you how early.||
+O|Decline||0||She goes back down the purple row, nipping and humming.||
+E|mena-trade-olive-press|-|grassland,coast|MENA|road|🫒|An old stone olive press creaks round in a farmyard, turned by a patient donkey in a straw hat. The miller wipes green oil from his hands. “I have olives coming out of my ears,” he says. “Anything else, I will swap for.”|trade|
+O|Swap 2 figs for olives||0|take:fig:2+item:olive:1|He pops a fig in his mouth whole and hands over a scoop of glossy olives. The donkey eyes the other fig.||
+O|Swap 3 chickpeas for an olive pit||0|take:chickpea:3+item:olive-seed:1|“Plant it for your grandchildren,” he says. “Olive trees are in no hurry at all.”||
+O|Decline||0||The donkey sighs and walks on round. So does the press.||
+E|mena-heat-afternoon-rest|!we=heat|desert,grassland|MENA|road|☀️|The midday heat presses down like a warm lid. Shutters are closed, the lane is empty, and a shopkeeper dozing under a striped awning opens one eye and pats the bench beside him.|choice|
+O|Sit in the awning’s shade||0|heal:6+xp:2|He passes you a cup of cool water without a word. You doze side by side in perfect friendship.||
+O|Push on while it is quiet|hardiness|12|xp:6|You walk the empty lanes like the only gnome in the world, and arrive hot but proud.|hp:-3|Halfway down the lane the heat wins. You trudge back to the bench, and he has kept your place.
+E|mena-wind-dust-veil|!we=wind|desert|MENA|road|🌬️|A dry wind comes up out of the deep desert, lifting a fine yellow veil of dust that turns the sun into a pale coin. A drover ahead winds his scarf over his nose and mouth, and waves at you to do the same.|choice|
+O|Wrap up and walk on|hardiness|11|xp:5+buff:hardiness:1:60|Scarf up, head down, step by step. When it clears you are golden all over, and tougher for it.|hp:-2|Your scarf comes loose and you swallow a spoonful of desert.
+O|Shelter behind his kneeling camel||0|heal:3+xp:2|The camel closes its long lashes and its nostrils, and so do you. The dust hisses past.||
+E|mena-salt-lake-float|-|desert,wetland|MENA|road|🧂|The road runs beside a lake so salty its shore is crusted white. A gnome bobs on the water like a cork, reading a book with no effort at all. “Come in!” he calls. “You cannot sink. Just do not splash your eyes.”|choice|
+O|Float like a cork||0|heal:7+xp:2|You lie back and simply stay up, like a leaf on a puddle. Even your toes float.||
+O|Gather a few salt crystals|sense|11|xp:4+item:sea-salt:1@20|You find a clump of perfect white cubes, clean and sparkling as sugar.|xp:1|The prettiest crust crumbles to dust between your fingers.
+E|mena-fennec-ears|dp=dusk,night|desert|MENA|road|🦊|A fennec fox sits on a dune, its ears so big it is mostly ears with a small fox attached. They swivel towards you, then away, then back. It is listening to something under the sand.|choice|
+O|Keep still and listen with it||0|xp:4+buff:sense:1:30|You hold your breath. Somewhere below, a beetle shuffles. The fox pounces, and looks pleased with you both.||
+O|Wiggle your own ears at it|charm|11|xp:5|It stares, then wiggles back, enormously. You have made a friend.|xp:1|Your ears are far too small to count, it seems. It goes back to listening.
+E|mena-carpet-loom|-|mountain|MENA|road|🧶|In a mountain village, a weaver sits at an upright loom outside her door, knotting wool dyed saffron yellow, madder red and indigo. “Hold this ball for me,” she says. “And tell me: what colour next?”|choice|
+O|Hold the wool steady||0|xp:4+heal:2|You sit on her step holding the ball while her fingers fly. It is the most peaceful hour of your walk.||
+O|Pick the next colour|sense|11|xp:5+coins:{c}|“Indigo here, then a little red.” She nods slowly. “Yes. That is what it wanted.” She pays you for your eye.|xp:1|You pick pink. She smiles, and ties one tiny pink knot in the corner, just for you.
+E|mena-dhow-yard|-|coast|MENA|road|⛵|On a beach of pale sand, shipwrights are building a great wooden dhow with no plans at all, only eyes, hands and the memory of a hundred boats before. Its curved ribs stand against the sky like a whale’s.|choice|
+O|Help bend a plank into place|grit|12|xp:6+coins:{c}|You lean, they hammer, and the plank settles in with a happy creak. The foreman pays you in Petals and a nod.|hp:-2|The plank springs back and boops you on the nose. Everyone is very kind about it.
+O|Share their cardamom coffee||0|heal:4+xp:3|Tiny cups from a long-spouted pot. When you have had enough, you give your cup a little shake, as they show you.||
+E|mena-sketch-argan-goats|-|grassland,desert|MENA|road|🐐|An argan tree by the road is full of goats. Not under it: in it. Seven of them stand on the twisty branches, chewing thoughtfully, balanced like fruit that has decided to be goats instead.|sketch|Goats in the Argan
+O|Sketch it in your journal||0|xp:2+journal:mena-sketch-argan-goats|The top goat holds perfectly still for you, then leans down and eats the corner of your page.||
+E|mena-sketch-dragon-blood|-|island,mountain|MENA|road|🌳|On a windy island plateau stand trees shaped like umbrellas blown inside out: dragon’s blood trees, dense green tops on a crowd of bare branches. Where the bark is nicked, a deep red sap beads.|sketch|Dragon’s Blood Trees
+O|Sketch it in your journal||0|xp:2+journal:mena-sketch-dragon-blood|You draw each top as one thick green lid, and add a dab of red from your very best crayon.||
+E|mena-sketch-flamingos|se=winter,spring|wetland,coast|MENA|road|🦩|A shallow salt lake has gone pink at the edges, and the pink is moving: a thousand flamingos, each on one leg, heads upside down in the water, grumbling softly to each other.|sketch|Flamingos on the Salt Lake
+O|Sketch it in your journal||0|xp:2+journal:mena-sketch-flamingos|You draw them all on one leg, then try it yourself. Not for long, it turns out.||
+E|mena-sketch-windcatchers|se=summer|desert|MENA|road|🏰|A mud-brick town rises out of the sand, its rooftops crowded with tall square towers slotted at the top. Windcatchers: they scoop up any passing breeze and pour it down into the rooms below.|sketch|Town of Windcatchers
+O|Sketch it in your journal||0|xp:2+journal:mena-sketch-windcatchers|Standing in a doorway beneath one tower, you feel cool air fall on your head like a gift.||
+E|mena-sketch-rose-canyon|dp=dusk|mountain,desert|MENA|road|🏜️|Across the valley, the Rose-red Canyon City glows as the sun goes down: tall doorways carved into cliffs of pink, cream and rust, striped like a slice of layered cake.|sketch|Rose-red at Sundown
+O|Sketch it in your journal||0|xp:2+journal:mena-sketch-rose-canyon|You use every pink you own and invent two more by smudging.||
+E|mena-sketch-cedars-snow|se=winter|mountain,forest|MENA|road|🌲|In the Cedar Sanctuary, snow lies on the old cedars’ wide flat branches in neat white shelves, one above another, like a library someone has tidied very carefully.|sketch|Cedars in Snow
+O|Sketch it in your journal||0|xp:2+journal:mena-sketch-cedars-snow|You draw shelf after shelf. A clump of snow slides off the top one and lands, softly, on your page.||
+# ---------------------------------------------------------------- v2.0.79 new kinds: Blossomreach (EA), 25 cards
+E|ea-fork-tortoise-stones|-|wetland,grassland|EA|road|🐢|The road wanders off upstream to find a bridge. Straight ahead, a line of flat stepping stones crosses the shallow river, each one carved into the shape of a tortoise, all swimming the same way.|fork|
+O|Hop across on the stone tortoises|nimble|11|skip:1+xp:3|Shell, shell, shell, shell. You land on the far bank and pat the last tortoise on the head.|hp:-3|One tortoise is mossier than the others. You sit down in the river beside it.
+O|Walk up to the bridge||0|xp:2|A long riverside stroll. A heron fishes with you, then without you.||
+E|ea-fork-singing-dune|-|desert|EA|road|🏜️|The caravan track bends a long way round a great dune in the Gobi Wastes. The near side drops steep and golden, and when the wind brushes it, the sand hums a low note like a giant cello.|fork|
+O|Slide down the singing side|nimble|11|skip:1+xp:4|You whoosh down on your bottom, and the whole dune sings with you. You arrive humming.|hp:-3|You tumble the last half and arrive with sand in places sand should never be.
+O|Plod round the foot of the dune||0|xp:2|Slow, sandy, and the dune hums to itself the whole way.||
+O|Give a camel 2 millet for a ride over||0|take:millet:2+skip:1+xp:3|The camel eats the millet, kneels with a groan, and carries you over the top like a sultan of very small size.||
+E|ea-buns-for-sister|-|grassland|EA|road|🥟|At the foot of the Ricestep Terraces, an old cook pushes a steaming bamboo basket into your arms. “Buns for my sister at the top terrace,” she says. “Go now, before they get cold, and do not count them.”|chain|
+O|Hurry up the terraces with the basket||0|xp:2+next:chain-ea-buns-buffalo|The basket is warm against your chest and smells of ginger and sesame.||
+O|Say sorry, you are going the other way||0|xp:1|She waves you off and flags down a passing goose instead.||
+E|chain-ea-buns-buffalo|-|grassland|EA|road|🐃|Halfway up, a water buffalo is lying right across the narrow path between two paddies, chewing slowly. It has no plans to move today, or possibly this week.|chain|
+O|Scratch it behind the ears|charm|11|xp:4+next:chain-ea-buns-top|It groans with joy, heaves itself up, and lets you by with a long, damp sniff at the basket.|xp:1+next:chain-ea-buns-top|It enjoys the scratch enormously and still does not move. You climb round through the mud.
+O|Tiptoe along the paddy wall|nimble|12|xp:4+next:chain-ea-buns-top|You edge past on the slim mud wall, basket held high, and do not wobble once.|hp:-2+next:chain-ea-buns-top|One foot in the paddy, then the other. The buns stay dry. You do not.
+E|chain-ea-buns-top|-|grassland|EA|road|🍵|On the very top terrace, a second old cook, with the same face and a different apron, is waiting by a kettle. She lifts the lid, sees the steam still rising, and beams at you.|chain|
+O|Share the buns with her||0|xp:9+coins:{c}+item:jujube:1@20|You eat one each, looking down at a whole staircase of green paddies. She sends you off with Petals and a pocket of jujubes.||
+O|Tell her her sister said not to count them||0|xp:8+coins:{c}|She counts them anyway. “One missing,” she says. “Hers. She always eats one.” She laughs and pays you handsomely.||
+E|ea-runaway-lid|-|mountain,forest|EA|road|🫖|A small teapot lid comes rolling down the mountain path, rattling on every stone. From far above, a thin voice calls, “Stop that lid! It is the only one I have!”|chain|
+O|Chase after it||0|xp:2+next:chain-ea-lid-panda|It bounces off a root and rolls away into the bamboo. You follow the rattling.||
+O|Shout that you will keep an eye out||0|xp:1|“Thank you!” calls the voice, and then, much more quietly, “Oh dear.”||
+E|chain-ea-lid-panda|-|forest|EA|road|🐼|In a clearing in the Bamboo Whisperwood, a giant panda sits with its legs stuck out in front, using the teapot lid as a little plate for its lunch. It looks very pleased with the arrangement.|chain|
+O|Offer it a bamboo shoot for the lid||0|take:bamboo-shoot:1+xp:4+next:chain-ea-lid-steps|The panda considers the shoot, then the lid, then the shoot, and hands the lid over with great dignity.||
+O|Ask nicely for it back|charm|12|xp:4+next:chain-ea-lid-steps|The panda licks the lid clean, very thoroughly, and passes it to you.|xp:1+next:chain-ea-lid-steps|It finishes lunch first, all of it, slowly. Then it gives you the lid and falls asleep.
+E|chain-ea-lid-steps|-|mountain|EA|road|⛰️|Stone steps climb the mountain into a sea of cloud, with crooked pines clinging to the rocks on either side. Somewhere above the cloud, a kettle is whistling impatiently.|chain|
+O|Climb without stopping|grit|12|xp:4+next:chain-ea-lid-hermit|Up through the cloud and out into the sunshine on top, lid held high like a prize.|hp:-2+next:chain-ea-lid-hermit|You stop on every tenth step, then every fifth. You get there, wheezing gently.
+O|Climb slowly and enjoy the pines||0|xp:3+heal:3+next:chain-ea-lid-hermit|Each pine has its own shape, like an old friend waving. The kettle can wait a little.||
+E|chain-ea-lid-hermit|-|mountain|EA|road|🏠|A tiny hut perches on the peak. A gnome so old her eyebrows reach her chin takes the lid, sets it on her teapot with a happy clink, and pours two cups.|chain|
+O|Drink tea with her above the clouds||0|xp:10+coins:{c}+item:tea:1@20|The tea is pale and sweet and tastes faintly of pine. She gives you Petals and a twist of leaves for the road.||
+O|Ask how the lid got loose||0|xp:9+coins:{c}|“I sneezed,” she says, with great seriousness. She pays you, and makes you promise not to tell the panda.||
+E|ea-riddle-kite-maker|-|grassland|EA|road|🪁|A kite-maker splitting bamboo by the road looks up. “I fly, but I have no feathers. I pull, but I have no hands. And I only climb while someone holds me back. What am I?”|riddle|
+O|“A kite”||0|xp:5+coins:{c}|“Of course,” he says, and lets you fly his newest, a carp with silver scales, all the way up the terrace.||
+O|“A swallow”|!|0|||xp:1|“Swallows have plenty of feathers,” he says, “and nobody holds them back. Try again next spring.”
+O|“A cloud”|!|0|||xp:1|“Who holds a cloud?” he asks. You look at the sky. Nobody, it seems.
+E|ea-riddle-mooncakes|se=autumn|grassland|EA|road|🥮|For the moon festival, a baker has nine mooncakes that look the same, but one has no egg yolk inside and is a little lighter. “With my balance scale,” she asks, “how few weighings will always find it?”|riddle|
+O|“Two weighings”||0|xp:6+coins:{c}|Three cakes against three: the lighter side, or the ones left off, hold it. Then one against one. She claps and gives you the light one to keep.||
+O|“Three weighings”|!|0|||xp:1|“It works,” she says, “but I can do it with fewer, and so could you.”
+O|“Four weighings”|!|0|||xp:1|“By then,” she says, “the moon will have gone to bed.”
+E|ea-trade-tea-picker|-|mountain,grassland|EA|road|🍃|On a steep hill striped with tea bushes, a picker with a basket on her back nips off only the top two leaves and a bud of each sprig. “Tired of tea,” she says. “Got anything I can cook?”|trade|
+O|Swap 2 rice for a bundle of tea||0|take:rice:2+item:tea:1|She tips a soft green handful into a paper twist. It smells like rain on grass.||
+O|Swap 2 ginger for tea seeds||0|take:ginger:2+item:tea-seed:1|“Plant them on a slope,” she says, “and talk to them about mist.”||
+O|Decline||0||She goes back to picking, two leaves and a bud, two leaves and a bud.||
+E|ea-trade-shore-diver|-|coast|EA|road|🤿|A grandmother diver sits on the black rocks of Pearlwave Shore in her wetsuit, wringing out her hair. Beside her, a net bag drips with kelp. “Something sweet,” she says, “and you can have your pick.”|trade|
+O|Swap 2 persimmons for kelp||0|take:persimmon:2+item:kelp-frond:1|She eats one persimmon at once, sighs happily, and hands over a long, glossy frond.||
+O|Swap 3 sweet potatoes for a seed pearl||0|take:sweet-potato:3+item:seed-pearl:1|“Roasted, these are better than pearls,” she says, and gives you one anyway.||
+O|Decline||0||She whistles out across the water, and a friend far out on the waves whistles back.||
+E|ea-sketch-cranes-snow|se=winter|wetland|EA|road|🦢|On a snowy marsh, two red-crowned cranes face each other and dance: bowing, leaping, flinging their wings wide, little red caps bright against all the white.|sketch|Cranes Dancing in Snow
+O|Sketch it in your journal||0|xp:2+journal:ea-sketch-cranes-snow|You save your red pencil for just the two little caps. They bow to each other as you finish.||
+E|ea-sketch-long-wall|-|mountain|EA|road|🧱|Far off, the Long Wall rides the ridges in the morning mist, up and down and up again, its watchtowers fading one by one into the grey like a row of sleepy sentries.|sketch|The Long Wall in Mist
+O|Sketch it in your journal||0|xp:2+journal:ea-sketch-long-wall|You draw it across both pages and still have to leave a little arrow saying “keeps going”.||
+E|ea-sketch-red-panda|-|forest|EA|road|🦊|A red panda is asleep in the fork of a tree, draped over the branch like a russet scarf, its striped tail hanging down and swinging gently in the breeze.|sketch|Red Panda Napping
+O|Sketch it in your journal||0|xp:2+journal:ea-sketch-red-panda|You count the tail rings twice to be sure. It snores, very faintly, the whole time.||
+E|ea-sketch-camel-caravan|dp=dusk|desert|EA|road|🐫|A caravan of shaggy two-humped camels crosses the top of a dune at dusk, each one roped to the next, their long shadows stretching all the way down to you.|sketch|Two-Humped Caravan
+O|Sketch it in your journal||0|xp:2+journal:ea-sketch-camel-caravan|You draw the humps against the orange sky, two by two, like a row of little hills on the move.||
+E|ea-sketch-lotus-pond|se=summer|wetland|EA|road|🪷|A pond is crowded with lotus leaves as big as umbrellas, held up high on their stalks. After a shower, a single raindrop rolls round one leaf like a ball of silver.|sketch|Lotus Leaves in Summer
+O|Sketch it in your journal||0|xp:2+journal:ea-sketch-lotus-pond|You try to draw the raindrop, and it rolls off the leaf just as you finish, plop.||
+E|ea-sketch-squid-boats|!dp=night|coast|EA|road|🚤|Out past Pearlwave Shore, the fishing boats have hung strings of bright lamps over the dark water, and they sit on the sea like a second row of stars, laid out in a line.|sketch|Lamp-Boats at Night
+O|Sketch it in your journal||0|xp:2+journal:ea-sketch-squid-boats|Dot, dot, dot along the bottom of the page, and the real stars above. You cannot say which row is brighter.||
+E|ea-umbrella-maker|!we=rain|grassland|EA|road|☂️|An umbrella-maker had set out her new oiled-paper umbrellas to dry along the lane, every one painted with plum blossom, and now it is raining on all of them. She is laughing.|choice|
+O|Help her fold them in|nimble|11|xp:5+coins:{c}|Snap, snap, snap. A whole lane of umbrellas folded in a minute. She pays you in Petals and thanks.|xp:1|One umbrella opens again every time you close it. She takes it from you, still laughing.
+O|Shelter under one with her||0|heal:5+xp:2|“They are rain umbrellas,” she says. “They were bound to meet the rain sooner or later.” It drums on the paper overhead.||
+E|ea-snow-bamboo|!we=snow|forest|EA|road|🎋|Snow has piled on the bamboo until the tall stems bow right over the road, making a white tunnel. Now and then, one shrugs off its load and springs back up with a whoosh.|choice|
+O|Give a stem a shake to free it|grit|11|xp:5+buff:grit:1:30|The stem flings its snow off and leaps upright, quivering. You feel very strong indeed.|hp:-2|The stem lets go of its snow all at once, all over you.
+O|Walk softly through the white tunnel||0|xp:3+heal:3|The tunnel is hushed and blue inside. Every step squeaks.||
+E|ea-water-calligraphy|dp=dawn,day|grassland|EA|road|🖌️|In a village square, an old gnome writes on the paving stones with a brush as long as a broom, dipped only in water. Each word shines for a moment, then dries away behind him.|choice|
+O|Ask to try a stroke|nimble|12|xp:5+buff:lore:1:30|Your stroke comes out bold and even. He nods, and you both watch it fade, quite content.|xp:1|Your stroke looks rather like a worm. It dries away kindly, as if it never happened.
+O|Watch the words come and go||0|heal:5+xp:3|He writes a poem about spring. By the last line, the first has gone. He does not seem to mind at all.||
+E|ea-night-market|dp=dusk,night|grassland|EA|road|🍢|A night market is waking up by the road, lantern by lantern. Stalls hiss and steam with dumplings, skewers and red fruit dipped in shiny sugar, and everyone is calling out at once.|choice|
+O|Buy a sugared fruit stick (3 Petals)||0|pay:3+energy:2+xp:2|Crack goes the sugar, and the fruit inside is sour and sweet at once. Perfect.||
+O|Help a stallholder fold dumplings|nimble|12|xp:6+rand:food@20|You pinch twelve neat pleats. She puts one of yours in a bag for you to take.|xp:1|Your dumpling looks like a tiny hat. She cooks it anyway, and it is delicious.
+E|ea-mudskipper-flats|-|coast,wetland|EA|road|🦎|At low tide the shore turns into miles of shiny grey mud, and mudskippers are doing push-ups on it to impress each other, flicking their fins and leaping like springs.|choice|
+O|Try their push-up challenge|grit|11|xp:5+buff:hardiness:1:30|Ten push-ups in the mud. The mudskippers raise their fins in respect.|xp:1|You manage three and sink in up to the elbows. The mudskippers carry on, unbothered.
+O|Dig for clams with the flat walkers|sense|12|xp:4+rand:forage@15|A grandfather with a little rake shows you the tiny breathing holes. You find a fat one first try.|xp:1|You dig up a lot of mud and one very surprised crab, and put it back.
+E|ea-steppe-horses|we=wind|grassland,desert|EA|road|🐎|At the edge of the steppe, a herd of stocky wild horses with dark manes and pale noses has come to drink at a pool. The wind blows their manes all one way.|choice|
+O|Sing them a long, slow song|charm|11|xp:5+buff:charm:1:30|You hold each note as long as the steppe is wide. One horse lifts its head and listens to the end.|xp:1|Your song comes out short and wobbly. The horses go back to drinking, politely.
+O|Stand very still and watch||0|heal:4+xp:3|They drink, shake their manes and trot off over the grass, and the wind goes with them.||
