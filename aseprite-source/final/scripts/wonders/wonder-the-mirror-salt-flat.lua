@@ -91,10 +91,10 @@ flamingo(104, 114, 1)
 
 -- the glint: something golden on a little salt island in the shallows, not in the sky
 local gx, gy = 170, 100
-c:part(c:ellipse(gx, gy + 6, 14, 4), GV.ramp("#f1ece0"), { cres = 3, deep = 4, gloss = false, pale = true, outline = false })
-c:part(c:ellipse(gx, gy + 3, 4, 3), GV.ramp("#e8a317"), { cres = 2, deep = 3, gloss = false })
-c:part(c:rect(gx + 5, gy + 2, gx + 8, gy + 5), GV.ramp("#e8a317"), { flat = true, gloss = false })
-c:part(c:ellipse(gx - 7, gy + 5, 3, 2), GV.ramp("#e8a317"), { flat = true, gloss = false })
+c:part(c:ellipse(gx, gy + 6, 18, 5), GV.ramp("#f1ece0"), { cres = 3, deep = 4, gloss = false, pale = true, outline = false })
+c:part(c:ellipse(gx, gy + 2, 7, 5), GV.ramp("#e8a317"), { cres = 2, deep = 3, gloss = false })
+c:part(c:rect(gx + 7, gy + 1, gx + 12, gy + 6), GV.ramp("#e8a317"), { flat = true, gloss = false })
+c:part(c:ellipse(gx - 10, gy + 5, 4, 3), GV.ramp("#e8a317"), { flat = true, gloss = false })
 c:px(gx - 1, gy + 1, "#fff1c8"); c:px(gx, gy + 1, "#fff1c8")
 -- glint star: a 4-point cross
 local function star(x, y, r) c:fill(c:rect(x - r, y, x + r, y), "#fff1c8"); c:fill(c:rect(x, y - r, x, y + r), "#fff1c8"); c:px(x, y, "#f5cf6a") end

@@ -22,7 +22,7 @@ local function stork(x, y, s, item, d)
   -- tail
   c:part(c:poly({ {x - d * 5 * s, y - 6 * s}, {x - d * 10 * s, y - 9 * s}, {x - d * 9 * s, y - 4 * s} }), GV.ramp("#2a2230"), { flat = true, gloss = false, outline = false })
   -- body
-  c:part(E(x, y - 7 * s, 6, 5), STW, { cres = 2 * s, deep = 3 * s, gloss = false, outline = (s >= 1.4) })
+  c:part(E(x, y - 7 * s, 6, 5), STW, { cres = 1 * s, deep = 1.5 * s, gloss = false, outline = (s >= 1.4) })
   -- wing (black tips)
   c:part(E(x - d * 3 * s, y - 5 * s, 3, 2), GV.ramp("#2a2230", { rim = "#5a5a6a" }), { flat = true, gloss = false, outline = false })
   -- neck + head

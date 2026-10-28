@@ -59,7 +59,7 @@ local function picker(x, y, s, robe)
   c:part(c:ellipse(x, y - r - hr + 1, hr, hr), GV.ramp("#e9b98a"), { cres = 2, deep = 3, gloss = false })
   c:part(c:ellipse(x, y - r + 1, hr - 1, 2), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false, outline = false })
   c:part(c:poly({ {x - hr - 4, y - r - hr + 1}, {x + hr + 4, y - r - hr + 1}, {x, y - r - hr - 6} }), GV.ramp("#e2c88a", { rim = "#f9e8b0" }), { cres = 2, deep = 3, gloss = false })
-  if s >= 0.9 then c:px(x - 2, y - r - hr + 1, "#2a1a10"); c:px(x + 2, y - r - hr + 1, "#2a1a10") end
+  if s >= 0.8 then c:px(x - 2, y - r - hr + 1, "#2a1a10"); c:px(x + 2, y - r - hr + 1, "#2a1a10") end
 end
 picker(80, 78, 0.6, "#d6322b"); picker(94, 80, 0.6, "#3f8fb0"); picker(108, 79, 0.6, "#e46a9b")
 picker(150, 89, 0.8, "#7b66b4"); picker(166, 91, 0.8, "#f08a24"); picker(182, 90, 0.8, "#d6322b")
@@ -73,7 +73,7 @@ c:part(c:rect(bx - 6, by - 4, bx + 6, by + 3), GV.ramp("#f2e4c0", { dot = "#fff3
 c:seam({ {bx - 6, by + 3}, {bx + 6, by + 3} }, { free = true })
 c:part(c:ellipse(bx, by - 15, 10, 9), GV.ramp("#e9b98a"), { cres = 3, deep = 5 })
 c:part(c:ellipse(bx, by - 9, 7, 5):clip(c:rect(0, by - 9, W, H)), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false, outline = false })
-c:eye(bx - 8, by - 19); c:eye(bx + 2, by - 19)
+c:eye(bx - 6, by - 18); c:eye(bx + 3, by - 18)
 c:part(c:poly({ {bx - 16, by - 20}, {bx + 16, by - 20}, {bx, by - 40} }), GV.ramp("#e2c88a", { rim = "#f9e8b0" }), { cres = 4, deep = 6 })
 c:seam({ {bx - 12, by - 22}, {bx + 12, by - 22} }, { free = true })
 -- raised hand holding the best two leaves and a bud
@@ -93,8 +93,9 @@ for y = ky - 2, ky + 6, 4 do c:fill(c:rect(kx - 12, y, kx + 12, y), "#8a4f2a") e
 for x = kx - 8, kx + 10, 6 do c:fill(c:rect(x, ky - 6, x, ky + 7), "#8a4f2a") end
 for _, l in ipairs({ {-8,-10},{0,-12},{8,-10},{-4,-8} }) do c:part(c:ellipse(kx + l[1], ky + l[2], 3, 2), GV.ramp("#a4b86a"), { flat = true, gloss = false, outline = false }) end
 local cx2, cy2 = 90, 124
-c:part(c:ellipse(cx2, cy2, 6, 5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { cres = 2, deep = 3 })
-c:fill(c:ellipse(cx2, cy2 - 3, 4, 1.5), "#a8582f")
+c:part(c:ellipse(cx2 + 8, cy2, 3, 3), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false })
+c:part(c:poly({ {cx2 - 8, cy2 - 4}, {cx2 + 8, cy2 - 4}, {cx2 + 5, cy2 + 5}, {cx2 - 5, cy2 + 5} }), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { cres = 2, deep = 3, gloss = false })
+c:fill(c:ellipse(cx2, cy2 - 4, 6, 1.5), "#4f9a45")
 c:px(cx2 - 1, cy2 - 8, "#f0f4e4"); c:px(cx2, cy2 - 10, "#f0f4e4"); c:px(cx2 - 1, cy2 - 12, "#f0f4e4")
 
 L.finish(c, "wonder-tea-garden-slopes")
