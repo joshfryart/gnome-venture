@@ -329,7 +329,7 @@ for k in range(46):   # sun glitter column
         cv.fill(rect(gx, gy, gx + ln, gy) & sea, GLIT if k % 3 else '#f8dc6a')
 
 # far sailboat with an ochre sail
-fbx, fby = 136, 86
+fbx, fby = 84, 86
 cv.fill(poly([(fbx - 7, fby), (fbx + 7, fby), (fbx + 5, fby + 3), (fbx - 5, fby + 3)]), '#7a4a1f')
 cv.fill(poly([(fbx, fby - 13), (fbx, fby - 1), (fbx + 8, fby - 1)]), '#f0cc80')
 cv.fill(poly([(fbx - 1, fby - 10), (fbx - 1, fby - 1), (fbx - 6, fby - 1)]), '#e88a5a')
@@ -705,7 +705,7 @@ for xx in range(26, 58, 5):   # cork floats along the top rope
     if len(ys):
         cv.fill(rect(xx - 1, int(ys[0]) - 1, xx + 1, int(ys[0])), '#e8841f')
         cv.dots([(xx - 1, int(ys[0]) - 1)], '#f6b48a')
-heap = ell(52, 186, 66, 199)
+heap = ell(48, 191, 68, 199) | ell(53, 186, 61, 195) | ell(59, 189, 66, 196)
 o = cv.obj()
 o.part(heap, NET, d=2)
 o.draw()

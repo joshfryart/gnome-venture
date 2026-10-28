@@ -205,7 +205,7 @@ for x0, y0, w, h in ((246, 40, 18, 12), (266, 34, 16, 18), (284, 38, 15, 14), (2
     cv.fill(poly([(dx - 2, y0 + h), (dx + 2, y0 + h), (dx + 1, y0 + h - 6), (dx - 1, y0 + h - 6)]), '#4a3a2a')
 cv.fill(poly([(270, 34), (278, 34), (274, 28)]), '#b8502a')   # thatched hut roof on the highest ruin
 cv.fill(rect(273, 26, 274, 28), '#7a4a1f')
-for lx, ly, rp, fr in ((230, 82, WOOL, True), (240, 98, LLAMA_B, False), (262, 74, WOOL, False), (226, 110, WOOL, True), (288, 122, LLAMA_B, False)):
+for lx, ly, rp, fr in ((230, 82, WOOL, True), (240, 98, LLAMA_B, False), (262, 74, WOOL, False), (226, 110, WOOL, True), (279, 125, LLAMA_B, True)):
     llama(lx, ly, rp, fr)
 cv.fill(rect(244, 90, 247, 91), '#d6322b')   # a woven saddle blanket
 cv.dots([(245, 90), (247, 91)], '#f0b92b')
@@ -234,7 +234,7 @@ cv.fill(rect(277, 94, 277, 105) | rect(298, 95, 298, 106), '#5c4a3a')   # drying
 cv.dots([(277, 94), (298, 95)], WOOD['r'])
 sagl = [(xx, 95 + (xx - 277) // 21 + int(round(3 * (xx - 277) * (298 - xx) / 110.0))) for xx in range(277, 299)]
 cv.fill(line(sagl), '#5c4a3a')
-for k, (cx_, w_, h_) in enumerate(((279, 5, 7), (285, 6, 9), (292, 4, 6))):
+for k, (cx_, w_, h_) in enumerate(((279, 5, 7), (285, 6, 7), (292, 4, 6))):
     ly0, ly1 = dict(sagl)[cx_], dict(sagl)[cx_ + w_]
     rp_ = (RED, BLUE, ORG)[k]
     cl = poly([(cx_, ly0), (cx_ + w_, ly1), (cx_ + w_ - (k % 2), ly1 + h_), (cx_ + (1 - k % 2), ly0 + h_ - 1)])
@@ -667,8 +667,10 @@ gnome(cvx + 18, cvy - 2, BLUE, ORG, tip=-5)
 sink = dil4(canoe) & rect(0, cvy + 3, W, cvy + 7)
 cv.fill(sink, WATER['b'])
 cv.fill(rect(cvx + 1, cvy + 3, cvx + 49, cvy + 3) & ~(YY % 7 == 0) & (((XX * 3) % 7) > 1), WATER['r'])
-cv.fill(rect(cvx + 4, cvy + 5, cvx + 46, cvy + 5) & (((XX * 5) % 9) > 2), WATER['s'])
-cv.fill(rect(cvx + 8, cvy + 7, cvx + 40, cvy + 7) & (((XX * 5) % 11) > 6), WATER['s'])
+for k in range(7):   # broken hull reflection, irregular dashes
+    rx0 = cvx + 4 + k * 6 + r4(0, 2)
+    ry0 = cvy + 5 + (k % 3 == 1) * 2
+    cv.fill(rect(rx0, ry0, rx0 + r4(1, 4), ry0), WATER['s'] if k % 3 else '#5c4a3a')
 # the pole: held in both hands across the body, top leaning forward, foot pushing on the riverbed behind the stern
 o = cv.obj()
 o.part(line([(cvx + 46, cvy - 33), (cvx - 2, cvy + 11)], 2), WOOD, d=0)
@@ -717,7 +719,7 @@ for px, py, s in ((52, 194, 2), (58, 190, 1), (20, 197, 2), (30, 196, 1), (66, 1
     o = cv.obj()
     o.part(ell(px - s - 1, py - s, px + s + 1, py + s), STONE, d=1)
     o.draw()
-for fx_, fy_ in ((50, 174), (46, 178), (52, 182), (47, 186)):   # little boot prints from the door to the water
+for fx_, fy_ in ((48, 179), (52, 182), (48, 186), (53, 189)):   # little boot prints from the door to the water
     cv.dots([(fx_, fy_), (fx_ + 1, fy_), (fx_, fy_ + 1)], CLAY['s'])
 gnome(84, 170, ORG, BLUE, tip=4)   # on the roots by the door, sipping mate
 o = cv.obj()
@@ -800,7 +802,8 @@ for fx in range(70, 300, 9):   # foreground fern fronds along the bottom edge of
     cv.fill(rect(fx, fy - 10, fx, fy), '#2f7a45')
 
 cv.remap({'#a4b8c0': '#94acb4', '#6f8a5a': '#8aa078', '#7f9a6a': '#8aa078', '#a89070': KAPOK['b'], MUD['r']: CLAY['r'], '#6a9a58': TERR[2],
-          '#4f7a5a': '#3f7a5a', '#5c7a3a': '#4f7a2a', '#9a7a52': '#9a8a6a'})   # fold near-duplicates to stay under ~100 colours
+          '#4f7a5a': '#3f7a5a', '#5c7a3a': '#4f7a2a', '#9a7a52': '#9a8a6a',
+          '#8ac860': '#a4c860', '#7ab55c': '#7aae5a', '#fff4d8': '#fff4c0', '#5c2a1a': '#5c3420'})   # fold near-duplicates (pass 2 adds four) to stay under ~100 colours
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

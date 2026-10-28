@@ -140,11 +140,11 @@ cv.fill(ell(61, 4, 66, 9), '#fff4cc')
 for k, (xa, xb) in enumerate(((56, 30), (61, 46), (66, 62), (71, 80), (75, 96))):   # sun shafts, each a slim wedge
     cv.fill(poly([(xa, 14), (xa + 2, 14), (xb + 3 + k, 62), (xb, 62)]) & ~gap, '#a3adb9' if k % 2 else '#b0b8c2')
 # a rainbow stub coming down out of the storm cloud onto the far fells (cells 7-8, row 1)
-rb_c = (240, 82)
+rb_c = (240, 78)
 for k, col in enumerate(('#b0505a', '#d99a4a', '#c9c06a', '#7f9a6a', '#6a7aa8', '#7e6496')):
     ro, ri = 54 - k * 2, 52 - k * 2
     band = ell(rb_c[0] - ro, rb_c[1] - ro, rb_c[0] + ro, rb_c[1] + ro) & ~ell(rb_c[0] - ri, rb_c[1] - ri, rb_c[0] + ri, rb_c[1] + ri)
-    cv.fill(band & rect(150, 20, 236, 70), col)
+    cv.fill(band & rect(150, 18, 240, 70), col)
 
 
 def cloud(m, rp, base):
@@ -172,6 +172,7 @@ cloud(ell(70, 34, 116, 39) | ell(82, 31, 104, 38), DCLOUD, 38)
 # a high thin streak (cell 4,0) and a puff below the geese (cell 4,1)
 cloud(ell(98, 3, 136, 7) | ell(108, 1, 126, 6), CLOUD, 6)
 cloud(cum(114, 44, 24), CLOUD, 47)
+cloud(cum(160, 44, 26) | ell(148, 40, 166, 47), DCLOUD, 47)   # low dark scud (cell 6,1)
 # dark lumpy cloud (cell 6,0) and a lit cumulus with a hole of sky (cell 7,0)
 cloud(cum(164, 12, 40) | ell(150, 8, 166, 18), DCLOUD, 17)
 cm = cloud(cum(190, 10, 38) | ell(176, 10, 206, 18), CLOUD, 17)
@@ -193,11 +194,18 @@ for bx, by in ((30, 38), (40, 42), (258, 14), (268, 18)):
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#e6e2d6')
     cv.dots([(bx + 2, by + 1)], '#566170')
 # a murmuration of starlings wheeling over the fells (cell 10,1)
-mm_ = ell(252, 30, 274, 40) | ell(262, 26, 280, 34)
-for _ in range(44):
-    sx, sy = r3(252, 280), r3(26, 40)
+mm_ = ell(250, 28, 274, 46) | ell(260, 24, 282, 36) | ell(244, 38, 258, 46)
+for _ in range(120):
+    sx, sy = r3(244, 282), r3(24, 46)
     if mm_[sy, sx]:
         cv.dots([(sx, sy), (sx + 1, sy)] if r3(0, 2) else [(sx, sy)], '#3e4654')
+# a grey heron flapping slowly home (cell 7,1)
+hxh, hyh = 186, 36
+cv.fill(poly([(hxh - 9, hyh - 6), (hxh, hyh), (hxh + 9, hyh - 7), (hxh + 6, hyh - 2), (hxh, hyh + 2), (hxh - 6, hyh - 1)]), '#566170')
+cv.fill(line([(hxh - 8, hyh - 4), (hxh - 3, hyh - 1)]) | line([(hxh + 8, hyh - 5), (hxh + 4, hyh - 1)]), '#4f5560')
+cv.fill(rect(hxh - 3, hyh, hxh + 4, hyh + 2), '#a3acb7')
+cv.dots([(hxh - 4, hyh + 1), (hxh - 5, hyh + 1), (hxh - 6, hyh + 2), (hxh - 7, hyh + 2)], '#c9a23a')   # bill, neck tucked
+cv.fill(rect(hxh + 5, hyh + 1, hxh + 9, hyh + 1), '#4f5560')   # trailing legs
 # a curlew over the far moor (cell 11,0)
 cv.dots([(276, 4), (277, 3), (278, 4), (279, 4), (280, 3), (281, 4), (279, 5), (282, 5), (283, 6)], '#3e4654')
 
@@ -440,20 +448,20 @@ for _ in range(16):   # (keeps the r2 stream where the old bead-string smoke lef
 pm = blank()
 for i in range(0, 41):
     t = i / 40.0
-    sx = cx0 + 10 - int(44 * t ** 1.2)
-    sy = 74 - int(24 * t ** 0.5) + int(1.5 * np.sin(t * 9))
-    hw, hh = 1 + int(8 * t) + r3(0, 2), 1 + int(4 * t) + r3(0, 1)
+    sx = cx0 + 10 - int(40 * t ** 1.2)
+    sy = 74 - int(28 * t ** 0.5) + int(1.5 * np.sin(t * 9))
+    hw, hh = 1 + int(6 * t) + r3(0, 2), 1 + int(3 * t) + r3(0, 1)
     if t > 0.6 and (i // 3) % 3 == 2:   # breaking up into puffs
         continue
     pm |= ell(sx - hw, sy - hh, sx + hw, sy + hh)
 for k in range(3):   # torn wisps blown ahead of the plume
-    wx, wy = 150 - k * 9 + r3(-2, 2), 50 - k * 2 + r3(-1, 1)
+    wx, wy = 160 - k * 6 + r3(-2, 2), 42 - k * 3 + r3(-1, 1)
     pm |= ell(wx - 5 - k, wy - 1 - (k % 2), wx + 5, wy + 1)
 pm &= ~rect(cx0 + 4, 75, cx0 + 18, H)
-cv.fill(pm, '#8a8c94')
-cv.fill(pm & rect(0, 0, 176, H), '#9a9ca4')
-cv.fill(pm & ~shift(pm, 1, 1), '#a7a9b0')
-cv.fill(pm & ~shift(pm, -1, -2), '#6e7078')
+cv.fill(pm, '#9a9ca4')
+cv.fill(pm & rect(0, 0, 172, H), '#a7a9b0')
+cv.fill(pm & ~shift(pm, 1, 1), '#b3bbc5')
+cv.fill(pm & ~shift(pm, -1, -2), '#8a8c94')
 roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
 roof &= ~rect(0, 116, W, H)
 o = cv.obj()
@@ -654,9 +662,6 @@ crown = poly([(16, 108), (22, 102), (32, 98), (46, 96), (58, 96), (68, 99), (74,
 for k in range(7):
     cx_ = 24 + k * 6 + r3(-2, 2)
     crown |= ell(cx_ - 5, 94 + (k % 3) - k // 3, cx_ + 6, 102 + (k % 2))   # lumpy top
-for k, ln in enumerate((7, 12, 9, 14, 5)):
-    yy = 97 + k * 3
-    crown |= line([(66, yy), (66 + ln, yy + 1 + k % 2)])   # wind-combed tips of uneven length
 for k in range(4):   # ragged underside
     crown &= ~ell(28 + k * 11, 109 + k % 2, 34 + k * 11, 114)
 crown &= ~rect(0, 0, 18, 102)
@@ -673,7 +678,7 @@ for k in range(26):
     cv.dots([(x, y)] + ([(x + 1, y)] if k % 3 == 0 else []), WINE['b'] if k % 2 else ('#c05a50' if k % 3 else TURF['r']))   # haws
 
 # ---------------------------------------------------------------- sheep on the moor
-SHEEP = ((88, 108, 1), (60, 118, 1), (162, 108, -1), (276, 158, -1))
+SHEEP = ((88, 108, 1), (60, 118, 1), (184, 162, -1), (276, 158, -1))
 for shx, shy, fc in SHEEP:
     shadow(shx - 2, shy + 9, shx + 15, shy + 12)
     o = cv.obj()

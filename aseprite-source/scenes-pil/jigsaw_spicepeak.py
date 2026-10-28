@@ -401,13 +401,16 @@ for hx, hy, hw_ in ((86, 86, 10), (99, 82, 9), (112, 87, 11), (124, 84, 8)):
     for k in range(r6(2, 4)):   # firewood and apricots on the flat roof
         cv.dots([(hx + 1 + r6(0, hw_ - 2), hy - 10)], (WOOD['b'], SAFF['b'], '#e0702a')[r6(0, 2)])
     cv.dots([(hx + hw_ - 1, hy - 11), (hx + hw_ - 1, hy - 12)], FLAGS[r6(0, 4)])
-for gx_, gy_ in ((134, 86), (80, 90)):   # two little yaks grazing beside the houses
+for gx_, gy_ in ((136, 85), (152, 88)):   # two little yaks grazing beside the houses
     o = cv.obj()
-    o.part(ell(gx_, gy_ - 4, gx_ + 7, gy_), YAK, d=1)
-    o.part(ell(gx_ + 6, gy_ - 3, gx_ + 9, gy_ + 1), YAK, d=0)
+    o.part(rect(gx_ + 1, gy_ - 2, gx_ + 2, gy_ + 2) | rect(gx_ + 6, gy_ - 2, gx_ + 7, gy_ + 2), YAK, d=0)
+    o.part(ell(gx_, gy_ - 6, gx_ + 9, gy_), YAK, d=1)
+    o.part(ell(gx_ + 8, gy_ - 3, gx_ + 12, gy_ + 1), YAK, d=0)   # head down, grazing
     o.draw()
-    cv.dots([(gx_ + 1, gy_ + 1), (gx_ + 5, gy_ + 1)], '#2a1a10')
-    cv.dots([(gx_ + 7, gy_ - 4), (gx_ + 9, gy_ - 4)], '#f1ece0')
+    cv.dots([(gx_ + 8, gy_ - 4), (gx_ + 8, gy_ - 5), (gx_ + 9, gy_ - 6), (gx_ + 12, gy_ - 4), (gx_ + 12, gy_ - 5), (gx_ + 11, gy_ - 6)], '#f1ece0')   # horns
+    cv.fill(rect(gx_ + 9, gy_ - 1, gx_ + 11, gy_), '#f1ece0')   # white muzzle
+    cv.dots([(gx_ + 2, gy_ - 5), (gx_ + 4, gy_ - 6)], YAK['r'])
+    cv.dots([(gx_ - 1, gy_ - 4), (gx_ - 2, gy_ - 3)], YAK['b'])   # tail
 # ---------------------------------------------------------------- the Cloud Monastery on its crag (left), apricots drying on the roof
 mx0, my0 = 10, 56
 o = cv.obj()
@@ -801,7 +804,7 @@ for bx, by in ((92, 120), (40, 132), (150, 96)):   # butterflies after the rain
     cv.dots([(bx + 1, by)], '#2a1a10')
 
 # rain puddles and drops on the leaves (the monsoon just passed)
-for px, py in ((26, 160), (72, 134), (120, 122)):
+for px, py in ((26, 160), (72, 134), (44, 121)):
     if not river[py, px]:
         cv.fill(ell(px, py, px + 7, py + 2), '#a8dbd3')
         cv.dots([(px + 2, py + 1)], '#ffffff')

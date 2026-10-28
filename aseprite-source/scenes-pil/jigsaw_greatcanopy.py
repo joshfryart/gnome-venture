@@ -415,12 +415,14 @@ def isc(col):
     return (cv.px == np.array(hx(col), np.uint8)).all(2)
 
 
-BAOP = '#b49482'   # pinker bark plate
+BAOP = '#b8927a'   # pinker bark plate
 bark = isc(BAOB['b']) & trunk
 cv.fill(bark & ~shift(trunk, -11, 0) & rect(0, 40, W, 156), BAOB['s'])   # right flank in shade (bark pixels only)
-cv.fill(bark & ~shift(trunk, -13, 0) & ~shift(trunk, -11, 0) & rect(0, 40, W, 156), BAOB['s'])
-for k in range(7):   # lumpy pinker plates break up the big pale face
-    bx, by = r4(6, 70), r4(40, 130)
+_yy, _xx = np.mgrid[0:H, 0:W]
+BAOM = '#8c7662'   # mid-shade: the turned-away half of the trunk, with a wavy terminator
+cv.fill(bark & (_xx > 58 + 5 * np.sin(_yy / 7.0) + (_yy - 40) // 8) & ~shift(trunk, -11, 0), BAOM)
+for k in range(12):   # lumpy pinker plates break up the big pale face
+    bx, by = r4(4, 52), r4(40, 132)
     pm = (ell(bx, by, bx + r4(10, 16), by + r4(6, 10)) | ell(bx + 4, by + 3, bx + r4(12, 20), by + r4(9, 14))) & isc(BAOB['b'])
     cv.fill(pm, BAOP)
     cv.fill(pm & ~shift(pm, 0, -1), BAOB['s'])   # shaded lower lip
@@ -428,7 +430,7 @@ for k in range(7):   # lumpy pinker plates break up the big pale face
 for k in range(14):   # elephant-skin wrinkle bands (short curved horizontals)
     wx, wy = r4(6, 80), r4(42, 150)
     ln = r4(5, 9)
-    seg = line([(wx, wy), (wx + ln // 2, wy + 1), (wx + ln, wy)]) & (isc(BAOB['b']) | isc(BAOP) | isc(BAOB['r']))
+    seg = line([(wx, wy), (wx + ln // 2, wy + 1), (wx + ln, wy)]) & (isc(BAOB['b']) | isc(BAOP) | isc(BAOB['r']) | isc(BAOM))
     cv.fill(seg, BAOB['s'])
     cv.fill(shift(seg, 0, -1) & (isc(BAOB['b']) | isc(BAOP)), BAOB['r'])
 POD = ramp('#9aa070', '#6a7048', '#c4c890')
@@ -454,8 +456,9 @@ cv.fill(kb & ~shift(ktr, 6, 0) & rect(0, 46, W, 150), KAPOK['r'])   # lit left e
 for k in range(9):
     kx, ky = 268 + k * 3 + r4(-1, 1), r4(48, 70)
     pts = [(kx, ky), (kx + r4(-2, 2), ky + 14), (kx + r4(-1, 3), ky + 28), (kx + r4(-2, 2), ky + r4(36, 70))]
-    seg = line(pts) & ktr & ~rect(256, 0, 266, H)
+    seg = line(pts, 1 + k % 2) & ktr & ~rect(256, 0, 266, H)
     cv.fill(seg & (isc(KAPOK['b']) | isc(KAPOK['r'])), KAPOK['s'])
+    cv.fill(seg & shift(seg, -1, 0) & isc(KAPOK['s']) & rect(0, 60, W, 150), UMB if k % 3 == 0 else KAPOK['s'])   # deepest furrows
     cv.fill(shift(seg, -1, 0) & isc(KAPOK['b']), '#9a9082')
 for k in range(10):   # pale green and rust lichen spots
     lx_, ly_ = r4(268, 290), r4(50, 146)
@@ -479,7 +482,7 @@ for fx_, fy_, fw in ((252, 146, 8), (286, 136, 7), (244, 152, 6)):   # orange br
     o.part(ell(fx_, fy_, fx_ + fw, fy_ + 4) & ~rect(0, fy_ + 3, W, H), ramp('#e8843a', '#c8502a', '#f5d46a'), d=1)
     o.part(ell(fx_ + 2, fy_ + 3, fx_ + fw - 1, fy_ + 6) & ~rect(0, fy_ + 6, W, H), ramp('#e8843a', '#c8502a', '#f5d46a'), d=1)
     o.draw()
-for rx0, ry0, rx1, ry1 in ((262, 150, 248, 160), (278, 152, 270, 164), (292, 150, 298, 162)):   # surface roots snaking over the grass
+for rx0, ry0, rx1, ry1 in ((262, 150, 248, 160), (292, 150, 298, 162)):   # surface roots snaking over the grass
     o = cv.obj()
     o.part(line([(rx0, ry0), ((rx0 + rx1) // 2 + 3, (ry0 + ry1) // 2), (rx1, ry1)], 3), KAPOK, d=1)
     o.draw()

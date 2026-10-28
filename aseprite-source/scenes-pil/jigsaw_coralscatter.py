@@ -730,6 +730,17 @@ for k in range(40):   # sand ripples: short wavy hard lines
     rp_ = [(x0 + i * 2, y0 + (i % 2)) for i in range(r5(3, 6))]
     cv.fill(line(rp_) & sandz, '#9a8458')
     cv.fill(shift(line(rp_), 0, -1) & sandz & ~shift(line(rp_), 0, 0), '#e8d4a0')
+r8 = rnd(2718)   # pass 2: clear ripple bands following the slope (staggered, each a dark trough under a lit crest)
+sandz = sandz & np.all(cv.px == np.array(hexrgb('#c9b07a')), axis=2)   # only on bare sand, never over stones or weed
+for row_y in range(104, 198, 7):
+    x = 236 + r8(0, 5)
+    while x < 298:
+        ln_ = r8(6, 12)
+        pts_ = [(x + i, row_y + r8(-1, 0) + int(round(1.5 * math.sin((x + i) / 3.0)))) for i in range(0, ln_, 2)]
+        rl = line(pts_)
+        cv.fill(rl & sandz, '#8a7448')
+        cv.fill(shift(rl, 0, -1) & sandz & ~rl, '#fbe4b0')
+        x += ln_ + r8(3, 7)
 for k in range(9):
     x0, y0 = r5(266, 298), r5(WL + 2, 126)
     b = ell(x0, y0, x0 + r5(6, 11), y0 + r5(4, 7)) & foot
@@ -783,6 +794,39 @@ for _ in range(60):
     x0, y0 = r(34, 298), r(182, 199)
     if floor[y0, x0]:
         cv.fill(line([(x0, y0), (x0 + r(2, 4), y0)]), SAND['s'])
+# pass 2: the reef sand gets its own life between the corals: ripple arcs, rubble, shell bits, sand dollars, worm casts, a few
+# dark algae patches (drawn before the corals, so the corals sit on top)
+r9 = rnd(4711)
+for row_y in range(186, 200, 5):
+    x = 34 + r9(0, 6)
+    while x < 298:
+        ln_ = r9(5, 10)
+        rl = line([(x + i, row_y + (1 if (i // 2) % 2 else 0)) for i in range(0, ln_, 2)])
+        cv.fill(rl & floor, SAND['s'])
+        cv.fill(shift(rl, 0, -1) & floor & ~rl, SAND['r'])
+        x += ln_ + r9(6, 12)
+for k in range(34):
+    x0, y0 = r9(36, 296), r9(186, 197)
+    if not floor[y0, x0]:
+        continue
+    kind = k % 6
+    if kind == 0:   # sand dollar
+        cv.fill(ell(x0 - 2, y0 - 1, x0 + 2, y0 + 2), '#e8d4c8')
+        cv.dots([(x0, y0), (x0 - 1, y0 + 1), (x0 + 1, y0 + 1)], '#b8a090')
+    elif kind == 1:   # rubble bits of old coral
+        cv.dots([(x0, y0), (x0 + 1, y0), (x0 + 3, y0 + 1), (x0 + 2, y0 - 1)], '#fff0e0')
+        cv.dots([(x0, y0 + 1), (x0 + 3, y0 + 2)], '#c9a46a')
+    elif kind == 2:   # cone shell
+        cv.fill(poly([(x0, y0 - 2), (x0 + 3, y0 + 1), (x0 - 1, y0 + 1)]), CORAL['r'])
+        cv.dots([(x0, y0), (x0 + 1, y0 + 1)], CORAL['s'])
+    elif kind == 3:   # worm cast curl
+        cv.dots([(x0, y0), (x0 + 1, y0 - 1), (x0 + 2, y0), (x0 + 1, y0 + 1), (x0 + 3, y0 + 1)], '#a88a5a')
+    elif kind == 4:   # pebbles
+        cv.fill(ell(x0, y0, x0 + 3, y0 + 2), ('#8a86a0', '#6a6680', '#c8c4d2')[x0 % 3])
+        cv.dots([(x0 + 1, y0)], '#ece8f2')
+    else:   # a tuft of red algae
+        cv.fill(line([(x0, y0 + 1), (x0 - 1, y0 - 3)]) | line([(x0 + 1, y0 + 1), (x0 + 2, y0 - 2)]) | line([(x0, y0 + 1), (x0, y0 - 4)]), '#c84a6a')
+        cv.dots([(x0, y0 - 4), (x0 - 1, y0 - 3)], '#f08ac0')
 
 
 def branch_coral(x, y, rp, h=16, spread=8):
@@ -944,13 +988,18 @@ cv.dots([(mix + 3, miy - 1)], DARK)
 
 # manta ray gliding through the deep middle
 mx_, my_ = 98, 160
-manta = poly([(mx_ - 16, my_ + 2), (mx_ - 4, my_ - 4), (mx_ + 6, my_ - 4), (mx_ + 16, my_ + 3), (mx_ + 4, my_ + 4), (mx_ - 4, my_ + 4)])
+# pass 2: a gliding manta seen three-quarter, heading left: horned head, one wing raised and swept back, the far wing dipping, a whip tail
+manta = poly([(mx_ - 13, my_ - 1), (mx_ - 8, my_ - 3), (mx_ - 2, my_ - 6), (mx_ + 6, my_ - 12), (mx_ + 9, my_ - 12), (mx_ + 7, my_ - 6),
+              (mx_ + 11, my_ - 1), (mx_ + 8, my_ + 2), (mx_ + 10, my_ + 7), (mx_ + 6, my_ + 7), (mx_ - 2, my_ + 3), (mx_ - 9, my_ + 2)])
+horns = line([(mx_ - 12, my_ - 2), (mx_ - 16, my_ - 4)]) | line([(mx_ - 12, my_ + 1), (mx_ - 16, my_ + 2)])
 o = cv.obj()
-o.part(manta, TEAL, d=2)
-o.part(line([(mx_ + 1, my_ + 4), (mx_ + 3, my_ + 14)]), TEAL, d=0)
+o.part(manta | horns, TEAL, d=2)
+o.part(line([(mx_ + 10, my_), (mx_ + 17, my_ + 1), (mx_ + 23, my_ - 1)]), TEAL, d=0)
 o.draw()
-cv.fill(rect(mx_ - 4, my_ - 2, mx_ + 4, my_ - 2), TEAL['r'])
-cv.dots([(mx_ - 5, my_ - 4), (mx_ + 6, my_ - 4)], DARK)
+cv.fill(line([(mx_ - 8, my_ + 1), (mx_ + 6, my_ + 5)]) & manta, '#e8f2f6')   # pale belly edge
+cv.fill(line([(mx_ - 2, my_ - 5), (mx_ + 6, my_ - 10)]) & manta, TEAL['r'])   # lit leading edge of the raised wing
+cv.dots([(mx_ - 9, my_ - 2)], DARK)
+cv.dots([(mx_ - 1, my_ - 1), (mx_ + 2, my_)], TEAL['s'])
 
 
 def fold_rare(cv, keep=96):

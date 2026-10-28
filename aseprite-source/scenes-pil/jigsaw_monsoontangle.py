@@ -185,6 +185,8 @@ o.part(rect(hbx - 3, hby - 2, hbx + 1, hby), ORG, d=0)
 o.draw()
 cv.dots([(hbx + 2, hby + 2)], '#ffffff')
 cv.fill(rect(hbx + 18, hby + 2, hbx + 21, hby + 2), '#202020')
+for sx_, sy_ in ((72, 8), (80, 5), (86, 11), (93, 7), (100, 13)):   # pass 2: swifts darting in the rain (top band was two look-alike cloud cells)
+    cv.dots([(sx_ - 2, sy_ - 1), (sx_ - 1, sy_), (sx_, sy_), (sx_ + 1, sy_), (sx_ + 2, sy_ - 1)], '#3e3e4a')
 
 # ---------------------------------------------------------------- the volcano with its plume and the spice gardens on its foot
 vol = poly([(98, 96), (150, 40), (160, 30), (176, 30), (186, 40), (244, 96)])
@@ -205,17 +207,15 @@ for k in range(40):   # spice garden rows on the lower slope
 # pass 1: break the plain grey cone: a zigzag pilgrim path, a tiny red-roofed shrine, low mist wisps, lava-rock speckle
 path = [(176, 80), (186, 72), (170, 64), (182, 56), (168, 48), (172, 40)]
 pm_ = line(path, 2) & vol   # pass 2: a 2 px earth path with a dark downhill edge and step ticks (was a faint 1 px grey line)
-cv.fill(shift(pm_, 0, 1) & vol & ~pm_, '#5e5040')
-cv.fill(pm_, MUD['r'])
+cv.fill(shift(pm_, 0, 1) & vol & ~pm_, '#6a7e70')
+cv.fill(pm_, '#b0a084')
 for (ax_, ay_), (bx_, by_) in zip(path, path[1:]):
     for t in (0.25, 0.5, 0.75):
         sx_, sy_ = int(ax_ + (bx_ - ax_) * t), int(ay_ + (by_ - ay_) * t)
-        cv.dots([(sx_, sy_ + 1), (sx_ + 1, sy_ + 1)], MUD['b'])
-for sx_, sy_ in path[1:-1]:   # little stone lanterns at the switchbacks, lit
-    o = cv.obj()
-    o.part(rect(sx_ - 1, sy_ - 5, sx_ + 1, sy_ - 1), STONE, d=0)
-    o.draw()
-    cv.dots([(sx_, sy_ - 3)], YEL['b'])
+        cv.dots([(sx_, sy_), (sx_ + 1, sy_)], MUD['r'])
+for sx_, sy_ in path[1:-1]:   # tiny lit stone lanterns at the switchbacks
+    cv.dots([(sx_ + 2, sy_ - 2), (sx_ + 2, sy_ - 1)], '#5e5040')
+    cv.dots([(sx_ + 2, sy_ - 3)], YEL['b'])
 o = cv.obj()
 o.part(rect(179, 55, 189, 57), STONE, d=1)   # stone plinth so the shrine sits on the slope
 o.part(rect(181, 51, 187, 55), STONE, d=1)
@@ -560,6 +560,29 @@ for k in range(30):
     sx, sy = r(4, 98), r(34, 70)
     if roof[sy, sx] and roof[min(H - 1, sy + 2), sx]:
         cv.dots([(sx, sy), (sx, sy + 1)], THATCH['r'] if k % 2 else THATCH['s'])
+# pass 2: break the even thatch: fresh-straw repair patches, a smoke vent under the ridge, moss along the wet eave, tied ridge bundles
+for px_, py_, w_ in ((14, 54, 12), (62, 44, 10), (80, 58, 14), (34, 62, 10)):
+    pm2 = (ell(px_ - w_ // 2, py_ - 2, px_ + w_ // 2, py_ + 3) | ell(px_ - w_ // 4, py_ - 4, px_ + w_ // 3, py_ + 1)) & roof
+    cv.fill(pm2, THATCH['r'])
+    for yy0 in range(py_ - 3, py_ + 4, 2):   # straw strokes, combed downhill
+        cv.fill(pm2 & rect(0, yy0, W, yy0) & ((xx * 2 + yy0) % 7 < 3), THATCH['b'])
+    cv.fill(pm2 & ~shift(pm2, 0, -1), THATCH['s'])
+    cv.dots([(px_ - w_ // 2 + 1, py_), (px_ + w_ // 2 - 1, py_ - 1)], DWOOD['b'])   # stitched-on ties
+o = cv.obj()
+o.part(poly([(42, 40), (48, 33), (54, 40)]), DWOOD, d=1)   # smoke vent
+o.draw()
+cv.fill(rect(46, 37, 50, 39), '#3a2414')
+cv.dots([(48, 36)], ORG['b'])
+for k in range(3):
+    cv.fill(ell(50 + k * 4, 24 - k * 5, 54 + k * 5, 27 - k * 5), CLOUDL)
+for k in range(14):   # moss tufts on the wet lower thatch
+    mx_ = 6 + k * 7 + r3(-2, 2)
+    my_ = 68 if 8 < mx_ < 92 else 70
+    if roof[my_, mx_]:
+        cv.dots([(mx_, my_), (mx_ + 1, my_), (mx_, my_ - 1)], JADE['b'] if k % 2 else DJADE['b'])
+for bx_ in (26, 36, 60, 70):   # tied ridge bundles
+    by_ = 36 - (bx_ - 20) * 12 // 28 if bx_ < 48 else 24 + (bx_ - 48) * 12 // 28
+    cv.fill(rect(bx_, by_ - 1, bx_ + 1, by_ + 2), DWOOD['s'])
 cv.fill(line([(4, 46), (-2, 38)], 2) | line([(92, 46), (100, 38)], 2), DWOOD['b'])   # upturned gable horns
 cv.fill(line([(20, 36), (48, 24), (76, 36)], 2), DWOOD['b'])   # ridge beam
 for dx in range(4, 100, 4):   # drips off the eaves
@@ -624,7 +647,7 @@ for x0, y0, x1, y1, lift in ((282, 146, 252, 188, 18), (283, 150, 262, 196, 12),
     # pass 2: fewer, stouter prop roots (thick-thick-medium, no 1 px rootlets), shorter reach, so the tree stands on them instead of looking spidery
     mx = (x0 + x1) // 2 + (x0 - x1) // 5
     pts = bez((x0, y0), (mx, min(y0, y1) - lift), (x1, y1), 16)
-    mroots |= line(pts[:8], 4) | line(pts[7:13], 3)
+    mroots |= line(pts[:8], 3) | line(pts[7:13], 3)
     mthin |= line(pts[12:], 2)
     knees.append(pts[-1])
 trunkm = poly([(281, 110), (291, 110), (294, 136), (299, 160), (275, 160), (279, 136)])
@@ -645,6 +668,11 @@ for kx_, ky_ in knees:   # rings where the roots enter the water
 for ax in (270, 276, 296):   # thin aerial roots dropping from the canopy
     cv.fill(line(bez((ax, 120), (ax - 2, 132), (ax + 1, 146), 6)), MANG['s'])
 foliage(clump(282, 116, 18, 8, 10, 6, 9), DJADE, specks=24, alt=JADE['b'])
+for kx_, ky_ in knees:   # pass 2: little mud collars where roots bed into the bank
+    if mud[min(H - 1, ky_), min(W - 1, kx_)]:
+        o = cv.obj()
+        o.part(ell(kx_ - 3, ky_ - 1, kx_ + 3, ky_ + 2), MUD, d=1)
+        o.draw()
 for k in range(5):   # propagule pods hanging
     px = 270 + k * 6
     cv.fill(rect(px, 124 + k % 2 * 3, px, 130 + k % 2 * 3), JADE['s'])

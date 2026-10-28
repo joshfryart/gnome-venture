@@ -521,21 +521,38 @@ legs = blank()
 for lx, ln in ((cx0 + 4, 0), (cx0 + 9, 1), (cx0 + 24, 0), (cx0 + 29, 1)):
     legs |= rect(lx, cy0 + 12, lx + 2, cy0 + 34 - ln) | rect(lx - 1, cy0 + 33 - ln, lx + 3, cy0 + 35 - ln)
 o.part(legs, CAMEL, d=1)
-o.part(ell(cx0, cy0, cx0 + 34, cy0 + 18), CAMEL, d=3)
-o.part(ell(cx0 + 5, cy0 - 4, cx0 + 29, cy0 + 8) | ell(cx0 + 10, cy0 - 5, cx0 + 21, cy0 + 1), CAMEL, d=2)
+# pass 2: a longer, flatter barrel with a deep belly line and one tall peaked hump (was a round ball)
+body = ell(cx0 - 1, cy0 + 3, cx0 + 35, cy0 + 16) | rect(cx0 + 4, cy0 + 4, cx0 + 30, cy0 + 12)
+hump = ell(cx0 + 9, cy0 - 5, cx0 + 27, cy0 + 9) | ell(cx0 + 13, cy0 - 8, cx0 + 22, cy0 + 1)
+o.part(body, CAMEL, d=3)
+o.part(hump, CAMEL, d=2)
 o.part(line([(cx0 + 32, cy0 + 6), (cx0 + 38, cy0 + 12), (cx0 + 44, cy0 + 20)], 5), CAMEL, d=1)
 o.part(ell(cx0 + 42, cy0 + 17, cx0 + 54, cy0 + 25), CAMEL, d=1)
-o.part(ell(cx0 - 3, cy0 + 4, cx0 + 3, cy0 + 12), CAMEL, d=1)
 o.draw()
-bl = ell(cx0 + 6, cy0 - 3, cx0 + 28, cy0 + 13) & ~rect(0, 0, W, cy0 + 2)
+cv.fill(line([(cx0 - 1, cy0 + 7), (cx0 - 3, cy0 + 12), (cx0 - 3, cy0 + 16)]), CAMEL['s'])   # thin tail with a dark tuft
+cv.dots([(cx0 - 4, cy0 + 16), (cx0 - 3, cy0 + 17), (cx0 - 2, cy0 + 16)], '#5c3a2a')
+cv.fill(line([(cx0 + 6, cy0 + 14), (cx0 + 28, cy0 + 14)]), CAMEL['s'])   # belly fold
+for lx in (cx0 + 4, cx0 + 9, cx0 + 24, cx0 + 29):   # knobbly knees
+    cv.fill(rect(lx, cy0 + 23, lx + 2, cy0 + 24), CAMEL['s'])
+# a saddle cloth draped over the hump (not wrapping the whole body), zigzag hem and tassels, a wooden saddle on top
+bl = (body | hump) & rect(cx0 + 10, cy0 + 1, cx0 + 25, cy0 + 11) & ~dil4(~(body | hump))
 cv.fill(bl, RED['b'])
-cv.fill(bl & rect(0, cy0 + 5, W, cy0 + 6), TEAL['b'])
-cv.fill(bl & rect(0, cy0 + 9, W, cy0 + 9), '#f5cf6a')
+cv.fill(bl & rect(0, cy0 + 4, W, cy0 + 5), TEAL['b'])
+cv.fill(bl & rect(0, cy0 + 8, W, cy0 + 8), '#f5cf6a')
 cv.fill(bl & ~shift(bl, 0, -1), RED['s'])
-for fx in range(cx0 + 8, cx0 + 26, 3):
-    cv.dots([(fx, cy0 + 12)], '#f5cf6a')
+for fx in range(cx0 + 10, cx0 + 25, 3):   # zigzag hem
+    cv.dots([(fx, cy0 + 12), (fx + 1, cy0 + 12), (fx, cy0 + 13)], RED['s'])
+for tx in (cx0 + 10, cx0 + 25):   # tassels
+    cv.fill(rect(tx, cy0 + 12, tx, cy0 + 15), '#f5cf6a')
+    cv.dots([(tx, cy0 + 16)], RED['b'])
+o = cv.obj()
+o.part(rect(cx0 + 13, cy0 - 2, cx0 + 23, cy0) | rect(cx0 + 13, cy0 - 5, cx0 + 14, cy0 - 2) | rect(cx0 + 22, cy0 - 5, cx0 + 23, cy0 - 2), WOOD, d=1)
+o.draw()
+cv.fill(rect(cx0 + 15, cy0 - 1, cx0 + 21, cy0 - 1), TEAL['b'])
 cv.dots([(cx0 + 47, cy0 + 19), (cx0 + 53, cy0 + 23)], '#2a1a10')
 cv.dots([(cx0 + 44, cy0 + 17)], CAMEL['s'])
+cv.fill(line([(cx0 + 45, cy0 + 16), (cx0 + 43, cy0 + 14)]), CAMEL['s'])   # ear
+cv.fill(line([(cx0 + 50, cy0 + 19), (cx0 + 44, cy0 + 22), (cx0 + 38, cy0 + 16)]), RED['b'])   # halter
 cv.fill(rect(cx0 + 40, cy0 + 26, cx0 + 58, cy0 + 26), '#e88a62')
 cv.fill(rect(cx0 + 44, cy0 + 28, cx0 + 54, cy0 + 28), '#f2ac5a')   # ripple where it drinks
 # the big palm, right edge (drawn over the pool bank)
@@ -547,8 +564,10 @@ palm(290, 138, 268, 28, ((150, 52, 18), (180, 50, 10), (205, 44, 2), (240, 30, -
 # resting camel at the front right, a gnome-sized saddle pack beside it
 rx0, ry0 = 232, 178
 o = cv.obj()
-o.part(ell(rx0, ry0 + 2, rx0 + 46, ry0 + 22), CAMEL, d=3)
-o.part(ell(rx0 + 10, ry0 - 1, rx0 + 36, ry0 + 11) | ell(rx0 + 14, ry0 - 2, rx0 + 26, ry0 + 4), CAMEL, d=2)
+rbody = ell(rx0, ry0 + 6, rx0 + 46, ry0 + 22) | rect(rx0 + 6, ry0 + 8, rx0 + 40, ry0 + 20)
+rhump = ell(rx0 + 13, ry0 - 2, rx0 + 33, ry0 + 13) | ell(rx0 + 17, ry0 - 5, rx0 + 27, ry0 + 3)
+o.part(rbody, CAMEL, d=3)
+o.part(rhump, CAMEL, d=2)
 o.part(line([(rx0 + 42, ry0 + 10), (rx0 + 48, ry0), (rx0 + 52, ry0 - 8)], 5), CAMEL, d=1)
 o.part(ell(rx0 + 50, ry0 - 14, rx0 + 63, ry0 - 6), CAMEL, d=1)
 o.part(rect(rx0 + 4, ry0 + 18, rx0 + 16, ry0 + 21) | rect(rx0 + 30, ry0 + 18, rx0 + 42, ry0 + 21), CAMEL, d=1, contour=True)
@@ -557,13 +576,21 @@ cv.dots([(rx0 + 57, ry0 - 12), (rx0 + 58, ry0 - 12)], '#2a1a10')
 cv.dots([(rx0 + 62, ry0 - 9)], '#2a1a10')
 cv.fill(rect(rx0 + 52, ry0 - 16, rx0 + 53, ry0 - 14), CAMEL['s'])   # ear
 cv.fill(line([(rx0, ry0 + 10), (rx0 - 4, ry0 + 16)]), CAMEL['s'])   # tail
-bl = ell(rx0 + 12, ry0 + 1, rx0 + 34, ry0 + 15) & ~rect(0, 0, W, ry0 + 4)
+bl = (rbody | rhump) & rect(rx0 + 14, ry0 + 3, rx0 + 32, ry0 + 15) & ~dil4(~(rbody | rhump))   # draped cloth, not a wrap
 cv.fill(bl, TEAL['b'])
-cv.fill(bl & rect(0, ry0 + 5, W, ry0 + 6), ROSE['b'])
-cv.fill(bl & rect(0, ry0 + 10, W, ry0 + 10), '#f5cf6a')
-for fx in range(rx0 + 12, rx0 + 36, 3):
-    cv.dots([(fx, ry0 + 16)], '#f2e4c0')
-cv.dots([(rx0 + 18, ry0 + 3), (rx0 + 28, ry0 + 3)], '#2a1a10')   # pompoms
+cv.fill(bl & rect(0, ry0 + 6, W, ry0 + 7), ROSE['b'])
+cv.fill(bl & rect(0, ry0 + 11, W, ry0 + 11), '#f5cf6a')
+cv.fill(bl & ~shift(bl, 0, -1), TEAL['s'])
+for fx in range(rx0 + 14, rx0 + 33, 3):   # fringe
+    cv.dots([(fx, ry0 + 16), (fx, ry0 + 17)], '#f2e4c0')
+for tx in (rx0 + 14, rx0 + 32):   # tassels at the corners
+    cv.fill(rect(tx, ry0 + 15, tx, ry0 + 18), ROSE['b'])
+cv.fill(line([(rx0 + 8, ry0 + 19), (rx0 + 38, ry0 + 19)]), CAMEL['s'])   # belly fold over the tucked legs
+o = cv.obj()   # saddle-bag pack slung at the camel's flank, two pouches with flaps
+o.part(rrect(rx0 + 2, ry0 + 9, rx0 + 11, ry0 + 18, 2), CLAY, d=2)
+o.draw()
+cv.fill(rect(rx0 + 3, ry0 + 10, rx0 + 10, ry0 + 12), CLAY['s'])
+cv.dots([(rx0 + 6, ry0 + 13), (rx0 + 7, ry0 + 13)], '#f5cf6a')
 
 # ================================================================ THE SPICE STALL (centre-left foreground)
 gnome(92, 152, SAFF, ROSE, hh=12)   # merchant behind the counter
@@ -608,13 +635,21 @@ tgx, tgy = 154, 186
 gnome(tgx, tgy, TEAL, RED, hh=18)
 o = cv.obj()
 o.part(rect(tgx + 7, tgy - 30, tgx + 10, tgy - 14), RED, d=1)   # raised arm
-o.part(ell(tgx + 6, tgy - 40, tgx + 16, tgy - 31) | line([(tgx + 15, tgy - 36), (tgx + 20, tgy - 38)], 2) | rect(tgx + 9, tgy - 42, tgx + 12, tgy - 40), ramp(CREAM['b'], '#c9a96e', '#fff4d8'), d=1)   # teapot
+# pass 2: a proper silver Moroccan teapot (pear body, domed lid, knob, long S-spout) instead of a white blob
+SILV = ramp('#d8ccc2', '#8a7a80', '#fff4d8')
+pot = ell(tgx + 5, tgy - 38, tgx + 15, tgy - 30) | rect(tgx + 7, tgy - 40, tgx + 13, tgy - 37)
+o.part(pot, SILV, d=2)
+o.part(ell(tgx + 7, tgy - 44, tgx + 13, tgy - 39), SILV, d=1)
+o.part(line([(tgx + 14, tgy - 33), (tgx + 17, tgy - 35), (tgx + 18, tgy - 38), (tgx + 20, tgy - 39)], 2), SILV, d=1)
 o.draw()
+cv.fill(rect(tgx + 6, tgy - 34, tgx + 14, tgy - 34) & pot, '#e8a317')   # brass band
+cv.dots([(tgx + 10, tgy - 45), (tgx + 10, tgy - 46)], '#e8a317')   # knob
+cv.fill(line([(tgx + 6, tgy - 37), (tgx + 3, tgy - 36), (tgx + 3, tgy - 33), (tgx + 6, tgy - 32)]), '#8a7a80')   # handle
 cv.fill(rect(tgx + 21, tgy - 37, tgx + 21, tgy - 12), '#e8a317')   # the long golden pour
 cv.dots([(tgx + 20, tgy - 30), (tgx + 22, tgy - 20)], '#f5cf6a')
-o = cv.obj()
+o = cv.obj()   # brass tray on a low folding stand (two splayed legs), not a pole
 o.part(ell(tgx + 12, tgy - 9, tgx + 32, tgy - 5), ramp('#e8a317', '#b07a10', '#f5cf6a'), d=1)
-o.part(rect(tgx + 20, tgy - 5, tgx + 22, tgy), WOOD, d=1)
+o.part(line([(tgx + 16, tgy - 5), (tgx + 27, tgy)]) | line([(tgx + 28, tgy - 5), (tgx + 17, tgy)]), WOOD, d=1)
 o.draw()
 for gx2 in (tgx + 15, tgx + 20, tgx + 26):
     cv.fill(rect(gx2, tgy - 12, gx2 + 2, tgy - 8), '#c47048')
@@ -670,7 +705,7 @@ for k in range(5):   # its track in the sand
 for sx, sy in ((150, 140), (176, 150), (8, 150), (226, 194), (200, 176), (60, 182)):   # desert sage tufts (silver-green)
     for dx, dy in ((0, 0), (-2, -2), (2, -3), (-1, -4), (1, -5), (3, -1), (-3, -1)):
         cv.dots([(sx + dx, sy + dy)], '#8ab060' if (dx + dy) % 2 else '#5a8a4a')
-for px, py in ((140, 196), (24, 160), (178, 196), (232, 160), (16, 168), (198, 160), (2, 158)):   # pebbles
+for px, py in ((140, 196), (178, 196), (198, 160), (2, 158)):   # pebbles
     o = cv.obj()
     o.part(ell(px, py, px + 5, py + 3), STONE, d=1)
     o.draw()
@@ -688,6 +723,38 @@ o = cv.obj()
 o.part(ell(92, 180, 104, 186) | line([(103, 182), (108, 179)], 2) | rect(96, 177, 99, 180), ramp('#e8a317', '#b07a10', '#f5cf6a'), d=1)
 o.draw()
 cv.dots([(109, 178), (110, 177)], '#fff4c0')
+# a fennec fox sitting by the first house (fills the calm left-middle sand): huge ears, black-tipped tail
+FEN = ramp('#f2d4a0', '#c9a06e', '#fff4d8')
+shadow(10, 164, 34, 168)
+o = cv.obj()
+o.part(ell(8, 156, 20, 166), FEN, d=1)   # tail curled round the front
+o.part(ell(16, 151, 30, 167), FEN, d=2)
+o.part(ell(22, 143, 33, 153) | poly([(31, 147), (36, 149), (31, 151)]), FEN, d=1)
+o.part(poly([(23, 146), (22, 134), (28, 144)]) | poly([(28, 144), (33, 133), (32, 146)]), FEN, d=1)
+o.draw()
+cv.fill(poly([(24, 144), (23, 137), (26, 143)]) | poly([(29, 143), (32, 136), (31, 144)]), '#e88a8a')   # pink inner ears
+cv.fill(ell(8, 160, 12, 165), '#4a2c1a')   # black tail tip
+cv.dots([(29, 147), (30, 147)], '#2a1a10')
+cv.dots([(36, 149)], '#2a1a10')
+cv.fill(rect(19, 162, 21, 166) | rect(24, 162, 26, 166), FEN['s'])   # front paws
+cv.fill(ell(19, 153, 26, 160), FEN['r'])   # pale chest
+# lily pads with pink flowers on the pool (breaks up the dark water at right)
+for lx, ly in ((252, 154), (268, 150), (244, 167), (290, 160)):
+    pad = ell(lx - 4, ly - 2, lx + 4, ly + 2) & ~poly([(lx, ly), (lx + 5, ly - 3), (lx + 5, ly)])
+    o = cv.obj()
+    o.part(pad, PALM, d=1)
+    o.draw()
+    if (lx + ly) % 2 == 0:
+        cv.dots([(lx - 1, ly - 1), (lx - 2, ly - 2), (lx, ly - 2), (lx - 1, ly - 3)], ROSE['r'])
+        cv.dots([(lx - 1, ly - 2)], '#f5cf6a')
+# top sky row: give the plainer strips one small thing each (an owl-shaped wisp, a bat pair, a falling star)
+for bx, by in ((172, 6), (178, 4), (286, 14)):   # bats
+    cv.dots([(bx, by), (bx - 1, by - 1), (bx - 2, by), (bx + 1, by - 1), (bx + 2, by), (bx, by + 1)], SKYC[0] if by < 10 else '#2a1d4a')
+cv.fill(line([(280, 2), (292, 7)]), '#c3b2ea')   # second shooting star, top right
+cv.dots([(293, 8), (294, 8), (293, 7)], '#fff4c0')
+m = rrect(2, 6, 16, 8, 1) | rrect(5, 4, 12, 6, 1)   # a high wisp in the top-left corner
+cv.fill(m, SKYC[2])
+cv.fill(m & ~shift(m, 0, 1), '#7a4580')
 for _ in range(40):   # wind-blown sand specks
     px, py = r(0, W - 2), r(130, H - 2)
     if path[py, px] or tuple(cv.px[py, px]) != P.hx(SAND['b']):

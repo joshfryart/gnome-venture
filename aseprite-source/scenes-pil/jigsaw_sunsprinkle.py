@@ -489,11 +489,12 @@ for ex_ in ((246, 186), (297, 162)):   # shrouds from the masthead down to bow a
 cv.fill(line([(281, 133), (299, 146)]) & sea, '#4a2c1a')
 o = cv.obj()   # pass 2: shorter broken mast, crow's nest, a canted yard and a ragged square sail
 o.part(line([mbot, mtop], 3), WOOD, d=1)
-o.part(rrect(273, 138, 286, 143, 1), WOOD, d=1)
+o.part(rrect(275, 135, 285, 143, 1), WOOD, d=1)
 o.part(line([(260, 149), (296, 158)], 2), WOOD, d=1)
 o.draw()
-for xx in range(275, 286, 3):
-    cv.dots([(xx, 140)], '#7a4a1f')
+for xx in range(277, 284, 2):   # basket slats of the crow's nest
+    cv.fill(rect(xx, 137, xx, 142), '#7a4a1f')
+cv.fill(rect(276, 136, 284, 136), WOOD['r'])
 torn = poly([(261, 151), (295, 160), (294, 166), (291, 174), (288, 168), (285, 177), (281, 170), (277, 175), (273, 168), (268, 172), (265, 165), (262, 168)])
 torn |= ell(263, 152, 293, 172) & rect(0, 156, W, 171)   # wind-bellied
 torn &= ~poly([(276, 160), (284, 163), (279, 167)])   # a rip the sea shows through
@@ -511,16 +512,16 @@ for k in range(3):   # loose strips flapping from the foot
     fx_ = 270 + k * 8
     cv.fill(line([(fx_, 172 - (k % 2) * 2), (fx_ + 2, 177), (fx_ + 1, 180)]) & sea, SAILC['b'])
 o = cv.obj()   # a stray barrel bobbing off the wreck
-o.part(rrect(287, 128, 296, 137, 2), WOOD, d=2)
+o.part(rrect(246, 136, 255, 145, 2), WOOD, d=2)
 o.draw()
-cv.fill(rect(288, 130, 295, 130) | rect(288, 135, 295, 135), '#4a5a6a')
-cv.fill(rect(285, 138, 298, 138), '#ffffff')
-cv.fill(rect(283, 140, 287, 140) | rect(293, 140, 299, 140), '#a6ece0')
+cv.fill(rect(247, 138, 254, 138) | rect(247, 143, 254, 143), '#4a5a6a')
+cv.fill(rect(244, 146, 257, 146), '#ffffff')
+cv.fill(rect(242, 148, 246, 148) | rect(252, 148, 258, 148), '#a6ece0')
 for _ in range(10):   # extra sea-grass and glints in the right-middle sea
     gx, gy = r4(256, 298), r4(132, 166)
     if sea[gy, gx] and not gal[gy, gx] and not torn[gy, gx]:
         cv.fill(line([(gx, gy), (gx + 1, gy - 3)]), '#3fa08a')
-for fx, fy, fc in ((262, 136, '#ffffff'), (296, 150, '#f0b92b')):
+for fx, fy, fc in ((262, 136, '#ffffff'), (290, 134, '#f0b92b'), (288, 146, '#f2827a')):
     cv.fill(rect(fx, fy, fx + 3, fy + 1), fc)
     cv.dots([(fx + 4, fy - 1), (fx + 4, fy + 2)], fc)
     cv.dots([(fx, fy)], '#2a1a10')
@@ -614,18 +615,18 @@ for hx_, hy_ in ((tx0 + 10, ty0 + 2), (tx0 + 20, ty0 + 2), (tx0 + 6, ty0 + 9), (
 cv.dots([(tx0 + 37, ty0 + 7)], '#2a1a10')
 cv.dots([(tx0 + 8, ty0 + 1), (tx0 + 9, ty0 + 1), (tx0 + 14, ty0)], SHELL['r'])
 # hatchlings scurrying to the surf, little tracks behind them
-HSHELL = ramp('#4a5a6a', '#2a1a10', '#6a8aa0')   # pass 2: dark slate hatchlings (real ones are near-black), not green tufts
-HSKIN = ramp('#6a8aa0', '#4a6a80')
+HSHELL = ramp('#4a6028', '#2a1a10', '#6f8a3a')   # pass 2: small dark copies of mother's shell with clear side flippers, not green tufts
+HSKIN = ramp('#9aa86a', '#6a7a48')
 HATCH = ((150, 150), (162, 158), (178, 146), (174, 166), (192, 156), (196, 172), (210, 160), (186, 180), (214, 178))
 for hx_, hy_ in HATCH:
     for k in range(1, 4):
         cv.dots([(hx_ - k * 3, hy_ + 1 + k), (hx_ - k * 3, hy_ + 3 + k)], '#c9a46a')
     o = cv.obj()
-    o.part(line([(hx_ + 3, hy_ + 1), (hx_ + 6, hy_ - 2)]) | line([(hx_ + 3, hy_ + 3), (hx_ + 6, hy_ + 6)]) | rect(hx_ - 1, hy_, hx_, hy_) | rect(hx_ - 1, hy_ + 4, hx_, hy_ + 4), HSKIN, d=0)
+    o.part(line([(hx_ + 4, hy_), (hx_ + 3, hy_ - 3)]) | line([(hx_ + 4, hy_ + 4), (hx_ + 3, hy_ + 7)]) | rect(hx_, hy_ - 1, hx_, hy_ - 1) | rect(hx_, hy_ + 5, hx_, hy_ + 5), HSKIN, d=0)
     o.part(ell(hx_, hy_, hx_ + 5, hy_ + 4), HSHELL, d=1)
-    o.part(ell(hx_ + 5, hy_ + 1, hx_ + 7, hy_ + 3), HSKIN, d=0)
+    o.part(ell(hx_ + 5, hy_ + 1, hx_ + 8, hy_ + 3), HSKIN, d=0)
     o.draw()
-    cv.dots([(hx_ + 2, hy_ + 2), (hx_ + 3, hy_ + 2)], '#6a8aa0')
+    cv.dots([(hx_ + 2, hy_ + 1), (hx_ + 3, hy_ + 3)], '#9ab05a')
     cv.dots([(hx_ + 7, hy_ + 2)], '#2a1a10')
 # gnome warden shading them with a palm frond
 wgx, wgy = 166, 186

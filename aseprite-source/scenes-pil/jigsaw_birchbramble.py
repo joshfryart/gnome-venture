@@ -120,18 +120,21 @@ for px, py, w in ((78, 58, 10), (126, 50, 14), (176, 56, 10), (250, 60, 8)):   #
     cv.fill(cap, '#eef4f6')
 cv.fill(m & ~shift(m, 0, 1), '#7e9eb2')   # crest line so the pale snow caps read against the pale sky
 WOLF = ramp('#6e7682', '#4a525c', '#a4acb6')
+wy = 4   # the wolf sits a little down into the snow of the peak so it does not float
 o = cv.obj()   # the Grey Wolf King sitting on the peak, muzzle up, howling
-o.part(poly([(130, 51), (136, 50), (137, 52), (130, 53)]), WOLF, d=0)   # bushy tail on the snow
-o.part(ell(126, 46, 132, 53), WOLF, d=1)   # haunch
-o.part(poly([(121, 53), (122, 45), (125, 43), (128, 46), (127, 53)]), WOLF, d=1)   # chest and forelegs
-o.part(ell(121, 39, 127, 45), WOLF, d=1)   # head
-o.part(poly([(122, 42), (117, 36), (119, 35), (125, 41)]), WOLF, d=0)   # muzzle raised to the sky
-o.part(poly([(124, 40), (126, 35), (127, 41)]), WOLF, d=0)   # ear
+o.part(poly([(130, 51 + wy), (136, 50 + wy), (137, 52 + wy), (130, 53 + wy)]), WOLF, d=0)   # bushy tail on the snow
+o.part(ell(126, 46 + wy, 132, 53 + wy), WOLF, d=1)   # haunch
+o.part(poly([(121, 53 + wy), (122, 45 + wy), (125, 43 + wy), (128, 46 + wy), (127, 53 + wy)]), WOLF, d=1)   # chest and forelegs
+o.part(ell(121, 39 + wy, 127, 45 + wy), WOLF, d=1)   # head
+o.part(poly([(122, 42 + wy), (117, 36 + wy), (119, 35 + wy), (125, 41 + wy)]), WOLF, d=0)   # muzzle raised to the sky
+o.part(poly([(124, 40 + wy), (126, 35 + wy), (127, 41 + wy)]), WOLF, d=0)   # ear
 o.draw()
-cv.fill(rect(123, 46, 124, 51), '#c4ccd4')   # pale ruff
-cv.fill(rect(124, 52, 124, 53), '#4a525c')   # leg split
-cv.dots([(123, 41)], '#2a1a10')
-cv.dots([(117, 35)], '#2a1a10')
+cv.fill(rect(123, 46 + wy, 124, 51 + wy), '#c4ccd4')   # pale ruff
+cv.fill(rect(124, 52 + wy, 124, 53 + wy), '#4a525c')   # leg split
+cv.dots([(123, 41 + wy), (117, 35 + wy)], '#2a1a10')
+drift = ell(116, 54 + wy, 142, 60 + wy) & m   # snow drift round its feet
+cv.fill(drift & ~rect(0, 0, W, 54 + wy), '#eef4f6')
+cv.fill(drift & ~rect(0, 0, W, 54 + wy) & ~shift(drift, 0, -1), '#c9dbe6')
 x = 2
 while x < W - 2:
     x += r2(3, 8)

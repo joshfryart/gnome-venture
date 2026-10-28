@@ -31,6 +31,7 @@ cv = new_canvas(SKY[0])
 r = rnd(1521)
 r2 = rnd(88)
 r3 = rnd(4417)   # pass-1 details (keeps r and r2 layouts unchanged)
+r5 = rnd(6151)   # pass-2 details (cenote rim and teeth)
 
 
 def shadow(x0, y0, x1, y1):
@@ -324,11 +325,17 @@ for (x0, x1, y0, y1), mx0 in zip(tiers[:4], (84, 80, 70, 66)):   # moss creeping
         cv.fill(mm & ~stair, CORN['s'])
         cv.fill(mm & rect(0, y0, W, y0) & ~stair, CORN['r'])
 # a sapling growing out of the top-left terrace
-o = cv.obj()
-o.part(rect(40, 61, 41, 70), WOOD, d=0)
-o.part(ell(33, 55, 42, 63) | ell(37, 52, 46, 61), CORN, d=1)
+o = cv.obj()   # a leaning, windswept little tree: crooked trunk, a side branch, three uneven leaf clumps
+o.part(line([(42, 70), (41, 66), (38, 62), (37, 58)], 2) | line([(39, 63), (44, 59)]) | line([(42, 70), (45, 70)]) | line([(41, 70), (38, 70)]), WOOD, d=1)
+o.part(ell(29, 52, 38, 59) | ell(33, 48, 41, 56) | ell(36, 53, 42, 58), CORN, d=1)
+o.part(ell(41, 54, 49, 60) | ell(43, 52, 47, 56), JADE, d=1)
 o.draw()
-cv.dots([(36, 57), (40, 54), (43, 57)], CHILI['b'])   # red berries
+cv.dots([(31, 54), (34, 50), (36, 51)], CORN['r'])   # lit leaf tips upper left
+cv.dots([(44, 53), (42, 55)], JADE['r'])
+cv.dots([(31, 59), (37, 59), (35, 52)], CORN['s'])   # leaf notches
+for bx_, by_ in ((32, 56), (37, 54), (39, 57), (45, 57), (47, 55), (35, 59)):   # berries in pairs and singles
+    cv.dots([(bx_, by_)], CHILI['b'])
+cv.dots([(38, 54), (46, 58)], CHILI['s'])
 # iguana basking on a ledge
 ix, iy = 88, 98
 o = cv.obj()
@@ -537,10 +544,15 @@ def corn(x, base, h, ear=True):
     cv.dots([(x + 3, base - h * 2 // 3)], PINK['r'])   # bean flower
 
 
-for x in range(4, 112, 11):
-    corn(x, 146 + x // 20, 30)
-for x in range(8, 124, 12):
-    corn(x, 172 + x // 25, 38)
+r4 = rnd(9203)   # pass-2: uneven corn spacing and heights
+x = 3
+while x < 110:
+    corn(x, 146 + x // 20 + r4(-1, 1), r4(26, 33))
+    x += r4(8, 14)
+x = 7
+while x < 124:
+    corn(x, 172 + x // 25 + r4(-1, 2), r4(34, 41))
+    x += r4(9, 15)
 for x, sq in ((10, 1), (36, 0), (60, 1), (82, 0)):   # squash vines and fruit in the gaps
     lf = ell(x - 6, 178, x + 2, 184) | ell(x + 4, 180, x + 12, 186)
     o = cv.obj()
@@ -562,8 +574,8 @@ for x, y in ((24, 152), (70, 154), (98, 158)):   # flat squash flowers in the ba
 # kite-flying gnome between the rows
 kgx, kgy = 104, 194
 gnome(kgx, kgy, TURQ, TERRA, arm='up')
-for x in (4, 18, 32, 46, 60, 74, 128):   # front row (gap left for the gnome)
-    corn(x, 199, 44 if x % 3 else 40, ear=x % 4 != 0)
+for x, h in ((3, 43), (16, 46), (31, 39), (47, 44), (58, 41), (76, 46), (128, 40)):   # front row, uneven (gap left for the gnome)
+    corn(x, 199, h, ear=x % 4 != 0)
 ks = [(kgx + 11 + (96 - kgx - 11) * t + 9 * np.sin(np.pi * t), kgy - 31 + (39 - kgy + 31) * t) for t in np.linspace(0, 1, 30)]
 ksm = line(ks)   # kite string: a gentle bowed curve, cream over dark corn and leaves, umber over the light stone and sky
 lum = cv.px[..., 0].astype(int) * 3 + cv.px[..., 1].astype(int) * 6 + cv.px[..., 2].astype(int)
@@ -642,12 +654,20 @@ cv.dots([(hx0 - 3, hy0 - 1), (hx0 - 4, hy0 - 1)], MAIZE['s'])   # beak
 cv.dots([(hx0, hy0 - 2)], DARK)
 cv.dots([(hx0 + 4, hy0 + 3), (hx0 + 7, hy0 + 2), (hx0 + 9, hy0 + 4), (hx0 + 6, hy0 + 5)], '#fff4dc')   # speckles
 cv.dots([(hx0 + 4, hy0 + 8), (hx0 + 4, hy0 + 9), (hx0 + 8, hy0 + 8), (hx0 + 8, hy0 + 9)], MAIZE['s'])   # legs
-for cx_, cy_ in ((174, 183), (168, 178), (190, 186)):
+for cx_, cy_, peck in ((158, 177, False), (169, 183, False), (187, 185, True)):   # three fluffy chicks trailing the hen
+    hy_ = cy_ - 1 if peck else cy_ - 4
+    shadow(cx_ - 1, cy_ + 5, cx_ + 7, cy_ + 6)
     o = cv.obj()
-    o.part(ell(cx_, cy_, cx_ + 4, cy_ + 3) | rect(cx_ - 1, cy_ - 2, cx_ + 1, cy_), MAIZE, d=0)
+    o.part(ell(cx_, cy_, cx_ + 7, cy_ + 5), MAIZE, d=1)
+    o.part(ell(cx_ - 2, hy_, cx_ + 3, hy_ + 4), MAIZE, d=1)
     o.draw()
-    cv.dots([(cx_ - 1, cy_ - 1)], DARK)
-    cv.dots([(cx_ - 2, cy_ - 1)], SQUASH['b'])
+    cv.fill(ell(cx_ + 3, cy_ + 1, cx_ + 6, cy_ + 3), MAIZE['s'])   # little wing
+    cv.dots([(cx_ + 7, cy_ + 1)], MAIZE['s'])   # tail tuft
+    cv.dots([(cx_ - 1, hy_ + 1)], MAIZE['r'])
+    cv.dots([(cx_ - 1, hy_ + 2)], DARK)   # eye
+    cv.dots([(cx_ - 3, hy_ + 2), (cx_ - 4, hy_ + 3 if peck else hy_ + 2)], SQUASH['b'])   # beak
+    cv.dots([(cx_ + 2, cy_ + 6), (cx_ + 4, cy_ + 6)], SQUASH['s'])   # legs
+cv.dots([(183, 189), (185, 190)], MAIZE['b'])   # the grain it is pecking
 for px, py, s in ((136, 140, 6), (146, 136, 4), (128, 146, 3)):   # big clay bean pots by the plaza edge
     shadow(px - s - 1, py + s - 1, px + s + 3, py + s + 2)
     o = cv.obj()
@@ -673,7 +693,8 @@ for vx in (216, 228, 244, 262, 276, 286):
     r(12, 26), r(-2, 2)
 # limestone rim with a lumpy outer edge, an open shaft with a ragged lip, strata on the far wall, a pool at the bottom
 rim = ell(194, 146, 308, 214)
-for bx_, by_, br in ((200, 160, 8), (214, 150, 7), (246, 145, 6), (276, 148, 8), (300, 162, 7), (198, 186, 6)):
+rim &= ~ell(186, 140, 214, 166)   # trim the heavy upper-left shoulder
+for bx_, by_, br in ((207, 155, 4), (226, 148, 4), (248, 145, 5), (270, 147, 4), (290, 152, 5), (303, 166, 5), (197, 182, 4)):   # small, uneven bulges
     rim |= ell(bx_ - br, by_ - br * 2 // 3, bx_ + br, by_ + br * 2 // 3)
 hole = ell(208, 156, 296, 196)
 for k in range(9):   # ragged lip: rocks jutting in, bites taken out
@@ -703,6 +724,21 @@ for _ in range(34):   # limestone cracks, pits and moss on the rim top
             cv.dots([(cx + 1, cy - 1)], CORN['b'])
         else:
             cv.dots([(cx, cy), (cx + 1, cy)], LIME['s'])
+for _ in range(16):   # pass-2: limestone slab joints, sandy patches and tufts so the rim is not one pale lump
+    cx, cy = r5(198, 297), r5(147, 199)
+    if not rim[cy, cx] or hole_d[cy, cx]:
+        continue
+    k = r5(0, 3)
+    if k < 2:
+        j = line([(cx, cy), (cx + r5(2, 5), cy + r5(-1, 1)), (cx + r5(5, 9), cy + r5(0, 2))]) & rim & ~hole_d
+        cv.fill(j, LIME['s'])
+        cv.fill(shift(j, 0, -1) & rim & ~hole_d & ~j, LIME['r'])
+    elif k == 2:
+        sp = ell(cx, cy, cx + r5(4, 7), cy + r5(2, 3)) & rim & ~hole_d
+        cv.fill(sp, SAND['b'])
+        cv.fill(sp & ~shift(sp, -1, -1), SAND['s'])
+    else:
+        cv.dots([(cx, cy), (cx + 1, cy - 1), (cx + 2, cy), (cx + 3, cy - 2), (cx + 4, cy)], CORN['b'])
 cv.fill(hole, '#5a3e34')
 yy = 158
 for k in range(7):   # far wall strata, uneven thickness, each with a lit upper edge
@@ -723,11 +759,18 @@ for _ in range(40):
         cv.fill(line([(wx, wy), (wx + r3(2, 5), wy)]), WATER['r'] if r3(0, 2) else WATER['s'])
 cv.fill(water & poly([(222, 179), (236, 179), (246, 199), (228, 199)]) & ~rect(0, 0, W, 182), WATER['r'])   # slanting light shaft
 cv.fill(dil4(hole) & ~hole & ~shift(hole, 0, -1) & shift(hole, 0, 2), '#6a4a3a')   # near lip: thin wet ledge
-for x0 in range(210, 296, 7):   # stalactite teeth under the far lip
+# irregular stalactites, uneven gaps, widths and lengths, some in clusters
+x0 = 210
+while x0 < 296:
     col = np.nonzero(hole[:, x0])[0]
     if len(col):
         t0 = int(col.min())
-        cv.fill(poly([(x0 - 1, t0), (x0 + 2, t0), (x0, t0 + r3(3, 5))]), LIME['s'])
+        wd, ln = r5(0, 2), r5(2, 8)
+        tooth = poly([(x0 - wd, t0), (x0 + 1 + wd, t0), (x0 + r5(0, 1), t0 + ln)]) & hole
+        cv.fill(tooth, LIME['s'])
+        cv.fill(tooth & ~shift(tooth, 1, 0), LIME['b'])   # lit left side
+        cv.dots([(x0, t0 + ln + 1)] if r5(0, 2) == 0 else [], WATER['r'])   # a drip
+    x0 += r5(3, 11)
 for vx in (216, 232, 249, 264, 278, 290):   # hanging vines and roots from the far lip
     col = np.nonzero(hole[:, vx])[0]
     if not len(col):
