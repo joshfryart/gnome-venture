@@ -27,7 +27,7 @@ local function cutline(a, b, hex)
 end
 cutline(BL, BR, "#2a1a10"); cutline(BL, T, "#4a2c1a"); cutline(BR, T, "#2a1a10")
 -- gold star stud on the top piece: the prize tier
-c:paint({ "...s...", "..sss..", "sssssss", ".sssss.", "..sss..", ".ss.ss." }, 27, 15, { s = "#f5cf6a" })
-c:paint({ "...h...", "..h...." }, 27, 15, { h = "#fff1c8" })
+c:paint({ "...s...", "..sss..", "sssssss", ".sssss.", "..sss..", ".ss.ss." }, 27, 15, { s = "#fff1c8" })
+c:paint({ "......", "....g..", "......g", ".....g.", "....g..", "...g.g." }, 27, 15, { g = "#e8a317" })
 local t = c:save(D .. "final/aseprite/ico/ico-tier-expert.aseprite", PNG .. "ico-tier-expert.png")
 print("ico-tier-expert", GV.report(t))

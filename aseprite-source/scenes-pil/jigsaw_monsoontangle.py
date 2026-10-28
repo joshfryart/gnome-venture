@@ -119,6 +119,15 @@ def boat(x0, x1, y0, h, rp=WOOD):
     return hull
 
 
+def bez(p0, p1, p2, n=10):
+    """Points along a quadratic curve (for roots that arch)."""
+    out = []
+    for i in range(n + 1):
+        t = i / n
+        out.append((int(round((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0])), int(round((1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]))))
+    return out
+
+
 def ring(cx, cy, rx, ry, col):
     m = ell(cx - rx, cy - ry, cx + rx, cy + ry)
     cv.fill(m & ~shift(m, 0, 1) | m & ~shift(m, 1, 0) | m & ~shift(m, -1, 0), col)
@@ -147,7 +156,7 @@ for k in range(4):
     cv.dots([(kx - 2 + k * 3, ky + 10 + k * 3), (kx - 1 + k * 3, ky + 11 + k * 3)], (PINK['b'], YEL['b'])[k % 2])
 cv.fill(line([(kx - 1, ky + 8), (76, 84)]), '#5a4a3a')
 # hornbill flying left over the palm (black body, white tail band, big orange casque)
-hbx, hby = 66, 26
+hbx, hby = 74, 34
 o = cv.obj()
 o.part(ell(hbx, hby, hbx + 14, hby + 6), ramp('#3a3a3a', '#202020', '#5a5a5a'), d=1)
 o.part(poly([(hbx + 3, hby + 1), (hbx + 12, hby + 1), (hbx + 16, hby - 9), (hbx + 6, hby - 6)]), ramp('#3a3a3a', '#202020', '#5a5a5a'), d=1)   # raised wing
@@ -157,10 +166,6 @@ o.part(rect(hbx - 3, hby - 2, hbx + 1, hby), ORG, d=0)
 o.draw()
 cv.dots([(hbx + 2, hby + 2)], '#ffffff')
 cv.fill(rect(hbx + 18, hby + 2, hbx + 21, hby + 2), '#202020')
-# a few paper lanterns rising from last night's festival
-for lx, ly, rp in ((206, 34, ORG), (222, 18, PINK), (190, 10, YEL), (176, 44, ORG)):
-    lantern(lx, ly, rp, string=False)
-    cv.dots([(lx + 1, ly + 8), (lx + 3, ly + 8)], ORG['r'])
 
 # ---------------------------------------------------------------- the volcano with its plume and the spice gardens on its foot
 vol = poly([(98, 96), (150, 40), (160, 30), (176, 30), (186, 40), (244, 96)])
@@ -178,6 +183,11 @@ for k in range(40):   # spice garden rows on the lower slope
     sx, sy = r(116, 228), r(72, 92)
     if vol[sy, sx] and vol[sy, min(W - 1, sx + 4)]:
         cv.fill(rect(sx, sy, sx + 3, sy), ('#5a8a5a', '#a86a3a', '#6a9a62')[k % 3])
+
+# a few paper lanterns rising from last night's festival
+for lx, ly, rp in ((206, 40, ORG), (196, 52, PINK), (218, 28, YEL), (138, 50, ORG), (226, 46, PINK)):
+    lantern(lx, ly, rp, string=False)
+    cv.dots([(lx + 1, ly + 8), (lx + 3, ly + 8)], ORG['r'])
 
 # ---------------------------------------------------------------- far jungle band behind the hill
 jung = poly([(0, 100), (0, 86), (300, 78), (300, 100)])
@@ -209,15 +219,16 @@ for hw, y0 in ((22, 72), (16, 62), (11, 52), (6, 42)):   # stone courses with st
 cv.fill(ell(tx - 5, 74, tx + 5, 90) & rect(0, 0, W, 86), UMB)   # dark doorway
 cv.fill(rect(tx - 14, 64, tx - 12, 69) | rect(tx + 12, 64, tx + 14, 69), '#4a5a50')   # niches
 cv.dots([(tx - 1, 78), (tx + 1, 78)], YEL['b'])   # candle glow inside
+foliage(clump(tx + 2, 26, 24, 7, 13, 7, 11), DJADE, specks=30, alt=JADE['b'])
+foliage(clump(tx + 26, 36, 8, 5, 5, 6, 8), JADE, specks=12)
 roots = blank()
-for pts in (((tx + 8, 30), (tx + 14, 44), (tx + 10, 58), (tx + 18, 72), (tx + 22, 86)), ((tx - 2, 32), (tx - 8, 46), (tx - 4, 60), (tx - 14, 72), (tx - 20, 86)),
-            ((tx + 4, 34), (tx + 2, 52), (tx + 8, 66), (tx + 6, 74)), ((tx + 12, 40), (tx + 24, 56), (tx + 26, 70), (tx + 32, 86)), ((tx - 6, 36), (tx - 16, 50), (tx - 22, 64), (tx - 30, 86))):
-    roots |= line(list(pts), 2)
+for p0, p1, p2 in (((tx + 4, 34), (tx + 18, 50), (tx + 21, 86)), ((tx - 2, 34), (tx - 16, 52), (tx - 22, 86)), ((tx + 2, 36), (tx - 6, 60), (tx - 9, 76)),
+                   ((tx + 6, 36), (tx + 4, 58), (tx + 12, 74)), ((tx + 10, 36), (tx + 22, 44), (tx + 16, 66)), ((tx - 4, 36), (tx - 14, 40), (tx - 13, 64))):
+    roots |= line(bez(p0, p1, p2), 2)
+roots &= ~(ell(tx - 5, 74, tx + 5, 90) & rect(0, 0, W, 86))
 o = cv.obj()
 o.part(roots, ramp('#8a7a62', '#5e5040', '#b0a084'), d=1)
 o.draw()
-foliage(clump(tx + 4, 24, 26, 10, 12, 7, 11), DJADE, specks=30, alt=JADE['b'])
-foliage(clump(tx + 30, 40, 10, 8, 5, 6, 9), JADE, specks=12)
 
 # ---------------------------------------------------------------- rice terraces stepping down the hill, reflecting the sky
 yy, xx = np.mgrid[0:H, 0:W]
@@ -263,17 +274,18 @@ o.part(rrect(166, 101, 174, 106, 1), THATCH, d=1)
 o.draw()
 cv.dots([(168, 100), (170, 99), (172, 100), (169, 99)], JADE['bo'])
 # water buffalo wading, egret on its back
-bfx, bfy = 214, 108
+bfx, bfy = 256, 102
 cv.fill(rect(bfx - 2, bfy + 7, bfx + 26, bfy + 8), PADDY['s'])
 o = cv.obj()
 o.part(rect(bfx + 3, bfy + 4, bfx + 6, bfy + 8) | rect(bfx + 18, bfy + 4, bfx + 21, bfy + 8), BUFF, d=0)
 o.part(ell(bfx, bfy - 6, bfx + 24, bfy + 6), BUFF, d=2)
-o.part(ell(bfx - 7, bfy - 4, bfx + 3, bfy + 5), BUFF, d=1, contour=True)
-o.part(line([(bfx - 6, bfy - 4), (bfx - 12, bfy - 8), (bfx - 10, bfy - 11)], 2) | line([(bfx + 1, bfy - 4), (bfx + 6, bfy - 8), (bfx + 4, bfy - 11)], 2), ramp('#d8ccb0', '#a89a80', '#f0e8d8'), d=0)
+o.part(line([(bfx - 4, bfy - 4), (bfx - 11, bfy - 6), (bfx - 13, bfy - 10)]) | line([(bfx - 1, bfy - 4), (bfx + 5, bfy - 7), (bfx + 6, bfy - 10)]), ramp('#d8ccb0', '#a89a80', '#f0e8d8'), d=0)
+o.part(ell(bfx - 9, bfy - 5, bfx + 2, bfy + 6), BUFF, d=1, contour=True)
 o.draw()
-cv.dots([(bfx - 4, bfy - 1)], '#f4f0e8')
-cv.dots([(bfx - 4, bfy)], UMB)
-cv.dots([(bfx - 6, bfy + 3), (bfx - 5, bfy + 3)], '#3a2a2a')
+cv.dots([(bfx - 6, bfy - 1), (bfx - 1, bfy - 1)], UMB)
+cv.dots([(bfx - 6, bfy - 2), (bfx - 1, bfy - 2)], '#f4f0e8')
+cv.fill(rect(bfx - 6, bfy + 3, bfx - 2, bfy + 5), '#82828e')
+cv.dots([(bfx - 5, bfy + 4), (bfx - 3, bfy + 4)], UMB)
 cv.fill(rect(bfx + 24, bfy - 3, bfx + 25, bfy + 3), BUFF['s'])   # tail
 o = cv.obj()   # egret
 o.part(ell(bfx + 10, bfy - 12, bfx + 16, bfy - 7) | rect(bfx + 10, bfy - 16, bfx + 11, bfy - 11), WHITE, d=1)
@@ -337,20 +349,19 @@ for x in range(brx0 + 4, brx1 - 2, 8):
 
 # ---------------------------------------------------------------- coconut palm behind the stilt house (top-left)
 o = cv.obj()
-o.part(line([(10, 110), (16, 70), (26, 34)], 4), ramp('#8a7050', '#5e4a34', '#b09a74'), d=1)
+o.part(line([(4, 110), (12, 60), (30, 18)], 4), ramp('#8a7050', '#5e4a34', '#b09a74'), d=1)
 o.draw()
-for yy0 in range(40, 108, 5):
-    cv.fill(rect(10 + (108 - yy0) // 5, yy0, 14 + (108 - yy0) // 5, yy0), '#5e4a34')
+
 fr = blank()
-for dx, dy in ((-24, 8), (-18, -8), (-4, -18), (14, -16), (26, -2), (24, 14), (-10, 16), (8, 18)):
-    fr |= line([(26, 32), (26 + dx // 2, 32 + dy // 2 - 3), (26 + dx, 32 + dy)], 3)
+for dx, dy in ((-24, 8), (-18, -8), (-4, -14), (14, -12), (26, -2), (24, 14), (-10, 16), (8, 18)):
+    fr |= line([(30, 16), (30 + dx // 2, 16 + dy // 2 - 3), (30 + dx, 16 + dy)], 3)
 o = cv.obj()
 o.part(fr, PALM, d=1)
 o.draw()
-for dx, dy in ((-24, 8), (-18, -8), (-4, -18), (14, -16), (26, -2), (24, 14), (-10, 16), (8, 18)):   # frond fingers
-    ex, ey = 26 + dx, 32 + dy
+for dx, dy in ((-24, 8), (-18, -8), (-4, -14), (14, -12), (26, -2), (24, 14), (-10, 16), (8, 18)):   # frond fingers
+    ex, ey = 30 + dx, 16 + dy
     cv.dots([(ex, ey + 2), (ex - 1, ey + 3), (ex + 1, ey + 3)], PALM['s'])
-for cx0, cy0 in ((23, 34), (28, 35), (25, 38)):   # coconuts
+for cx0, cy0 in ((27, 18), (32, 19), (29, 22)):   # coconuts
     o = cv.obj()
     o.part(ell(cx0, cy0, cx0 + 4, cy0 + 4), ramp('#6a8a3a', '#4a6a2a', '#9ab85a'), d=1)
     o.draw()
@@ -451,10 +462,10 @@ for k in range(20):
     if mud[my, mx]:
         cv.dots([(mx, my), (mx + 1, my)], MUD['s'])
 mroots = blank()
-for x0, y0, x1, y1 in ((284, 140, 244, 196), (286, 142, 258, 190), (288, 144, 272, 188), (290, 146, 296, 186), (282, 132, 232, 176), (292, 140, 300, 172), (280, 150, 252, 200)):
-    mroots |= line([(x0, y0), ((x0 + x1) // 2 - 4, min(y0, y1) + 4), (x1, y1)], 2)
+for x0, y0, x1, y1 in ((283, 146, 240, 192), (284, 150, 256, 198), (286, 152, 270, 190), (292, 150, 298, 186), (283, 138, 250, 170), (290, 144, 300, 168), (285, 158, 280, 199), (284, 134, 262, 176)):
+    mroots |= line(bez((x0, y0), (x1 + (x0 - x1) // 3, y0 - 6), (x1, y1), 12), 2)
 o = cv.obj()
-o.part(rect(282, 112, 292, 152), ramp('#7a6a58', '#54463a', '#a09080'), d=2)
+o.part(poly([(284, 112), (291, 112), (295, 160), (281, 160)]), ramp('#7a6a58', '#54463a', '#a09080'), d=2)
 o.part(mroots, ramp('#7a6a58', '#54463a', '#a09080'), d=1)
 o.draw()
 foliage(clump(282, 116, 18, 8, 10, 6, 9), DJADE, specks=24, alt=JADE['b'])
@@ -540,9 +551,11 @@ for px, py, s in pads:
 for px, py in ((12, 166), (30, 176), (48, 182), (162, 178), (6, 186)):   # lotus flowers on stems
     cv.fill(rect(px, py, px, py + 6), JADE['s'])
     o = cv.obj()
-    o.part(poly([(px - 4, py), (px - 2, py - 5), (px, py - 8), (px + 2, py - 5), (px + 4, py)]), PINK, d=1, rim=True)
+    o.part(poly([(px - 5, py - 4), (px - 1, py), (px - 3, py)]) | poly([(px + 5, py - 4), (px + 1, py), (px + 3, py)]), PINK, d=0)
+    o.part(ell(px - 3, py - 5, px + 3, py) | poly([(px - 2, py - 4), (px, py - 9), (px + 2, py - 4)]), PINK, d=1, rim=True)
     o.draw()
-    cv.fill(line([(px, py - 6), (px, py - 1)]), PINK['s'])
+    cv.fill(line([(px, py - 7), (px, py - 2)]), PINK['s'])
+    cv.dots([(px - 2, py - 3), (px + 2, py - 3)], PINK['s'])
     cv.dots([(px - 1, py - 1), (px + 1, py - 1)], YEL['b'])
     keep[py - 9:py + 7, px - 5:px + 6] = True
 for px, py in ((58, 164), (170, 194)):   # seed pods
@@ -567,10 +580,10 @@ for dx0, dy0, rp in ((176, 158, BLUE), (60, 136, RED), (246, 166, ORG), (140, 96
     keep[dy0 - 3:dy0 + 4, dx0 - 1:dx0 + 8] = True
 
 # ---------------------------------------------------------------- rain: slanting silver streaks over the whole frame
-for k in range(420):
+for k in range(300):
     x0, y0 = r(0, W + 20), r(-4, H - 2)
-    ln = 5 if y0 < 100 else 7
-    m = line([(x0, y0), (x0 - 2, y0 + ln)]) & ~keep
+    ln = 3 if y0 < 100 else 4
+    m = line([(x0, y0), (x0 - 1, y0 + ln)]) & ~keep
     cv.fill(m, RAIN if k % 3 else RAIN2)
 
 if __name__ == '__main__':

@@ -31,7 +31,7 @@ RED = ramp('#d6322b', '#a8241f', '#f08a24')
 SAFF = ramp('#f0b020', '#c98a14', '#f8dc6a')
 HERB = ramp('#6a8a3a', '#4f6a2a', '#8ab060')
 CLAY = ramp('#c47048', '#8a4a2a', '#e8986a')
-MELON = ramp('#4f8a3a', '#2f5a2a', '#7ab55c')
+MELON = ramp('#7ab55c', '#4f8a3a', '#a4c86a')
 cv = new_canvas(SKYC[0])
 r = rnd(1999)
 r2 = rnd(313)
@@ -144,7 +144,7 @@ def palm(bx, by, cx, cy, fronds, seed):
     ys, xs = np.nonzero(m & shift(m, 1, 0))
     for _ in range(len(xs) // 14):
         i = rp(0, len(xs) - 1)
-        cv.dots([(int(xs[i]), int(ys[i]))], PALM['r'] if rp(0, 2) else '#9ab868')
+        cv.dots([(int(xs[i]), int(ys[i]))], PALM['r'] if rp(0, 2) else PALM['r'])
     for k in range(3):   # date clusters under the crown
         ddx = (-5, 2, 7)[k]
         for j in range(6):
@@ -382,51 +382,53 @@ for lx, ln in ((cx0 + 4, 0), (cx0 + 9, 1), (cx0 + 24, 0), (cx0 + 29, 1)):
 o.part(legs, CAMEL, d=1)
 o.part(ell(cx0, cy0, cx0 + 34, cy0 + 18), CAMEL, d=3)
 o.part(ell(cx0 + 8, cy0 - 10, cx0 + 24, cy0 + 8), CAMEL, d=2)
-o.part(line([(cx0 + 32, cy0 + 6), (cx0 + 38, cy0 + 14), (cx0 + 40, cy0 + 22)], 5), CAMEL, d=1)
-o.part(ell(cx0 + 36, cy0 + 20, cx0 + 48, cy0 + 28), CAMEL, d=1)
+o.part(line([(cx0 + 32, cy0 + 6), (cx0 + 38, cy0 + 12), (cx0 + 44, cy0 + 20)], 5), CAMEL, d=1)
+o.part(ell(cx0 + 42, cy0 + 17, cx0 + 54, cy0 + 25), CAMEL, d=1)
 o.part(ell(cx0 - 3, cy0 + 4, cx0 + 3, cy0 + 12), CAMEL, d=1)
 o.draw()
-bl = (ell(cx0 + 6, cy0 - 4, cx0 + 26, cy0 + 12)) & ~rect(0, 0, W, cy0 - 2)
+bl = ell(cx0 + 4, cy0 - 4, cx0 + 28, cy0 + 14) & ~rect(0, 0, W, cy0 + 1)
 cv.fill(bl, RED['b'])
-cv.fill(bl & rect(0, cy0 + 2, W, cy0 + 3), TEAL['b'])
-cv.fill(bl & rect(0, cy0 + 7, W, cy0 + 8), '#f5cf6a')
+cv.fill(bl & rect(0, cy0 + 5, W, cy0 + 6), TEAL['b'])
+cv.fill(bl & rect(0, cy0 + 9, W, cy0 + 9), '#f5cf6a')
 cv.fill(bl & ~shift(bl, 0, -1), RED['s'])
 for fx in range(cx0 + 8, cx0 + 26, 3):
     cv.dots([(fx, cy0 + 12)], '#f5cf6a')
-cv.dots([(cx0 + 42, cy0 + 22), (cx0 + 46, cy0 + 26)], '#2a1a10')
-cv.dots([(cx0 + 38, cy0 + 21)], CAMEL['s'])
-cv.fill(rect(cx0 + 40, cy0 + 29, cx0 + 50, cy0 + 29), '#e88a62')   # ripple where it drinks
+cv.dots([(cx0 + 47, cy0 + 19), (cx0 + 53, cy0 + 23)], '#2a1a10')
+cv.dots([(cx0 + 44, cy0 + 17)], CAMEL['s'])
+cv.fill(rect(cx0 + 40, cy0 + 26, cx0 + 58, cy0 + 26), '#e88a62')
+cv.fill(rect(cx0 + 44, cy0 + 28, cx0 + 54, cy0 + 28), '#f2ac5a')   # ripple where it drinks
 # the big palm, right edge (drawn over the pool bank)
-palm(292, 186, 268, 28, ((150, 52, 18), (180, 50, 10), (205, 44, 2), (240, 30, -6), (290, 30, -8), (320, 40, 2), (345, 48, 12), (10, 40, 22), (165, 42, 26), (270, 20, -4)), 3)
+palm(296, 156, 268, 28, ((150, 52, 18), (180, 50, 10), (205, 44, 2), (240, 30, -6), (290, 30, -8), (320, 40, 2), (345, 48, 12), (10, 40, 22), (165, 42, 26), (270, 20, -4)), 3)
 # resting camel at the front right, a gnome-sized saddle pack beside it
-rx0, ry0 = 238, 178
+rx0, ry0 = 232, 178
 o = cv.obj()
 o.part(ell(rx0, ry0 + 2, rx0 + 46, ry0 + 22), CAMEL, d=3)
 o.part(ell(rx0 + 14, ry0 - 6, rx0 + 32, ry0 + 12), CAMEL, d=2)
-o.part(line([(rx0 + 4, ry0 + 10), (rx0 - 2, ry0), (rx0 - 4, ry0 - 8)], 5), CAMEL, d=1)
-o.part(ell(rx0 - 12, ry0 - 13, rx0, ry0 - 5), CAMEL, d=1)
-o.part(rect(rx0 + 4, ry0 + 18, rx0 + 14, ry0 + 21) | rect(rx0 + 30, ry0 + 18, rx0 + 42, ry0 + 21), CAMEL, d=1, contour=True)
+o.part(line([(rx0 + 42, ry0 + 10), (rx0 + 48, ry0), (rx0 + 52, ry0 - 8)], 5), CAMEL, d=1)
+o.part(ell(rx0 + 50, ry0 - 14, rx0 + 63, ry0 - 6), CAMEL, d=1)
+o.part(rect(rx0 + 4, ry0 + 18, rx0 + 16, ry0 + 21) | rect(rx0 + 30, ry0 + 18, rx0 + 42, ry0 + 21), CAMEL, d=1, contour=True)
 o.draw()
-cv.dots([(rx0 - 9, ry0 - 11), (rx0 - 10, ry0 - 11)], '#2a1a10')
-cv.dots([(rx0 - 12, ry0 - 8)], '#2a1a10')
-cv.fill(rect(rx0 - 4, ry0 - 15, rx0 - 3, ry0 - 13), CAMEL['s'])   # ear
-bl = ell(rx0 + 12, ry0 - 2, rx0 + 34, ry0 + 14) & ~rect(0, 0, W, ry0)
+cv.dots([(rx0 + 57, ry0 - 12), (rx0 + 58, ry0 - 12)], '#2a1a10')
+cv.dots([(rx0 + 62, ry0 - 9)], '#2a1a10')
+cv.fill(rect(rx0 + 52, ry0 - 16, rx0 + 53, ry0 - 14), CAMEL['s'])   # ear
+cv.fill(line([(rx0, ry0 + 10), (rx0 - 4, ry0 + 16)]), CAMEL['s'])   # tail
+bl = ell(rx0 + 10, ry0 - 2, rx0 + 36, ry0 + 16) & ~rect(0, 0, W, ry0 + 1)
 cv.fill(bl, TEAL['b'])
-cv.fill(bl & rect(0, ry0 + 4, W, ry0 + 5), ROSE['b'])
-cv.fill(bl & rect(0, ry0 + 9, W, ry0 + 10), '#f5cf6a')
-for fx in range(rx0 + 14, rx0 + 34, 3):
-    cv.dots([(fx, ry0 + 14)], '#f2e4c0')
-cv.dots([(rx0 + 20, ry0 + 6), (rx0 + 26, ry0 + 6)], '#2a1a10')   # pompoms
-cv.fill(rect(rx0 + 30, ry0 + 14, rx0 + 44, ry0 + 15), CAMEL['s'])
+cv.fill(bl & rect(0, ry0 + 5, W, ry0 + 6), ROSE['b'])
+cv.fill(bl & rect(0, ry0 + 10, W, ry0 + 10), '#f5cf6a')
+for fx in range(rx0 + 12, rx0 + 36, 3):
+    cv.dots([(fx, ry0 + 16)], '#f2e4c0')
+cv.dots([(rx0 + 18, ry0 + 3), (rx0 + 28, ry0 + 3)], '#2a1a10')   # pompoms
 
 # ================================================================ THE SPICE STALL (centre-left foreground)
-gnome(84, 160, SAFF, ROSE, hh=14)   # merchant behind the counter
-cv.fill(rect(92, 144, 95, 146), SKIN['b'])
+gnome(92, 152, SAFF, ROSE, hh=12)   # merchant behind the counter
+cv.fill(rect(100, 138, 103, 141), SKIN['b'])
+cv.fill(rect(100, 134, 101, 138), '#c9a96e')   # holding up a scoop
 o = cv.obj()
 o.part(rect(44, 122, 46, 172) | rect(122, 122, 124, 172), WOOD, d=1)
 o.draw()
 awning(42, 126, 110, 122, RED, CREAM, w=5)
-for k, hx in enumerate(range(52, 120, 9)):   # strings of dried limes, chillies and garlic under the awning
+for k, hx in enumerate(x for x in range(52, 124, 9) if abs(x - 92) > 11):   # strings of dried limes, chillies and garlic under the awning
     for j in range(3):
         cv.dots([(hx, 126 + j * 3), (hx + 1, 126 + j * 3), (hx, 127 + j * 3)], (SAFF['b'], RED['b'], '#f2e4c0', HERB['b'])[(k + j) % 4])
     cv.fill(rect(hx, 124, hx, 125), '#3d2a1c')
@@ -440,7 +442,7 @@ for tx in range(48, 124, 8):   # tiled front panel: little eight-point stars
         cv.dots([(tx, ty), (tx - 1, ty), (tx + 1, ty), (tx, ty - 1), (tx, ty + 1)], '#f5cf6a')
         cv.dots([(tx - 2, ty - 2), (tx + 2, ty - 2), (tx - 2, ty + 2), (tx + 2, ty + 2)], TEAL['r'])
 cv.fill(rect(44, 160, 124, 160), TEAL['s'])
-for k, (sx, sp) in enumerate(((50, RED), (62, SAFF), (74, HERB), (100, CLAY), (112, ROSE), (124, SAFF))):   # spice cones in brass bowls
+for k, (sx, sp) in enumerate(((50, RED), (62, SAFF), (74, HERB), (112, ROSE), (124, CLAY))):   # spice cones in brass bowls
     if sx > 120:
         continue
     o = cv.obj()
@@ -448,10 +450,6 @@ for k, (sx, sp) in enumerate(((50, RED), (62, SAFF), (74, HERB), (100, CLAY), (1
     o.part(ell(sx - 7, 142, sx + 7, 148) & rect(0, 144, W, H), ramp('#e8a317', '#b07a10', '#f5cf6a'), d=1)
     o.draw()
     cv.dots([(sx - 1, 137 + (k % 2) * 2), (sx - 2, 139 + (k % 2) * 2)], sp['r'])
-o = cv.obj()   # scale on the counter
-o.part(rect(88, 136, 89, 145) | rect(80, 136, 97, 137), ramp('#e8a317', '#b07a10', '#f5cf6a'), d=0)
-o.part(ell(78, 141, 84, 144) | ell(93, 141, 99, 144), ramp('#e8a317', '#b07a10', '#f5cf6a'), d=1)
-o.draw()
 # open sacks in front of the counter
 for sx, sp in ((50, SAFF), (66, RED), (108, HERB), (122, CLAY)):
     o = cv.obj()
@@ -484,7 +482,7 @@ for mx, my, s in ((6, 186, 9), (20, 190, 8), (12, 176, 8), (28, 180, 7), (2, 196
     o.part(ell(mx - s, my - s * 2 // 3, mx + s, my + s * 2 // 3), MELON, d=2)
     o.draw()
     for k in (-s // 2, 0, s // 2):
-        cv.fill(line([(mx + k, my - s * 2 // 3 + 1), (mx + k + 1, my + s * 2 // 3 - 1)]) & ell(mx - s + 1, my - s * 2 // 3 + 1, mx + s - 1, my + s * 2 // 3 - 1), MELON['s'])
+        cv.fill(line([(mx + k, my - s * 2 // 3 + 1), (mx + k + 1, my + s * 2 // 3 - 1)]) & ell(mx - s + 1, my - s * 2 // 3 + 1, mx + s - 1, my + s * 2 // 3 - 1), '#2f5a2a')
     cv.dots([(mx - s // 2, my - s // 3)], MELON['r'])
 o = cv.obj()   # one cut melon showing red
 o.part(ell(36, 168, 48, 176) & rect(0, 172, W, H), MELON, d=1)
@@ -513,15 +511,15 @@ for jx, jy, s in ((136, 170, 6), (128, 178, 5), (142, 182, 4)):
 sbx, sby = 210, 190
 shadow(sbx - 12, sby + 3, sbx + 12, sby + 7)
 o = cv.obj()
-o.part(ell(sbx - 12, sby - 8, sbx - 1, sby + 4), ramp('#c9a96e', '#9a6b3f', '#e8c88a'), d=2)
+o.part(ell(sbx - 12, sby - 8, sbx - 1, sby + 4), ramp('#c9a96e', '#9a6b3f', SAND['r']), d=2)
 o.part(ell(sbx + 1, sby - 4, sbx + 12, sby + 4), ramp('#3f8fa0', '#25637d', '#a9d6ea'), d=2, contour=True)
-o.part(ell(sbx - 1, sby - 3, sbx + 4, sby + 2), ramp('#2a4a5a', '#1a2a3a', '#3f8fa0'), d=1)
+o.part(ell(sbx - 1, sby - 3, sbx + 4, sby + 2), ramp('#2a4a5a', '#2a1a10', '#3f8fa0'), d=1)
 o.draw()
 cv.fill(rect(sbx + 6, sby - 4, sbx + 6, sby + 4), '#25637d')
 cv.dots([(sbx + 4, sby - 2), (sbx + 9, sby - 2)], '#f5cf6a')
 for lx in (sbx + 2, sbx + 6, sbx + 10):
-    cv.dots([(lx, sby + 5), (lx + 1, sby + 6)], '#1a2a3a')
-cv.dots([(sbx - 9, sby - 5), (sbx - 8, sby - 6)], '#e8c88a')
+    cv.dots([(lx, sby + 5), (lx + 1, sby + 6)], '#2a1a10')
+cv.dots([(sbx - 9, sby - 5), (sbx - 8, sby - 6)], SAND['r'])
 for k in range(5):   # its track in the sand
     cv.dots([(sbx + 16 + k * 4, sby + 4 - (k % 2))], SAND['s'])
 for sx, sy in ((150, 140), (176, 150), (8, 150), (226, 194), (200, 176), (60, 182)):   # desert sage tufts (silver-green)
@@ -531,12 +529,16 @@ for px, py in ((140, 196), (24, 160), (178, 196), (232, 160), (16, 168), (198, 1
     o = cv.obj()
     o.part(ell(px, py, px + 5, py + 3), STONE, d=1)
     o.draw()
-# small sleeping cat on the souk step + a brass lamp on the carpet (bits of detail)
+# a tall amphora and a basket of oranges by the first house, a brass lamp on the carpet
 o = cv.obj()
-o.part(ell(4, 136, 16, 143) | ell(13, 133, 19, 139), ramp('#e8986a', '#c47048', '#f2c08a'), d=1)
+o.part(ell(4, 128, 14, 142) | rect(7, 124, 11, 128) | rect(6, 123, 12, 124), CLAY, d=2)
+o.part(rrect(16, 136, 28, 143, 1), WOOD, d=1)
 o.draw()
-cv.dots([(15, 133), (18, 133)], '#c47048')
-cv.fill(rect(2, 141, 6, 141), '#c47048')
+for ox in (17, 20, 23, 26):
+    cv.fill(rect(ox, 133 + ox % 2, ox + 2, 135 + ox % 2), '#f08a24')
+for xx in range(17, 28, 2):
+    cv.fill(rect(xx, 137, xx, 142), WOOD['s'])
+cv.fill(rect(5, 133, 13, 133), TEAL['b'])
 o = cv.obj()
 o.part(ell(92, 180, 104, 186) | line([(103, 182), (108, 179)], 2) | rect(96, 177, 99, 180), ramp('#e8a317', '#b07a10', '#f5cf6a'), d=1)
 o.draw()

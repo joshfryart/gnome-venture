@@ -83,14 +83,17 @@ def cloud(cx, cy, w):
 
 def stork_fly(sx, sy, k=1):
     """A flying stork, wings spread, heading left (k=1) or right (k=-1)."""
-    cv.fill(rect(sx - 3, sy, sx + 3, sy + 1), '#ffffff')   # body
-    cv.fill(line([(sx - 3 * k, sy), (sx - 7 * k, sy - 1)]), '#ffffff')   # neck
-    cv.dots([(sx - 8 * k, sy - 1), (sx - 9 * k, sy - 1), (sx - 10 * k, sy)], '#d6322b')   # beak
-    cv.fill(line([(sx + 3 * k, sy + 1), (sx + 8 * k, sy + 2)]), '#d6322b')   # legs trailing
-    for t in (-1, 1):   # wings: white inner, black tips
-        cv.fill(line([(sx, sy), (sx + 2 * k, sy + 6 * t)]), '#ffffff')
-        cv.fill(line([(sx + 2 * k, sy + 6 * t), (sx + 4 * k, sy + 9 * t)]), '#2a2a30')
-    cv.dots([(sx - 1, sy + 1), (sx + 1, sy + 1)], '#c9dbe6')
+    far = poly([(sx - 2 * k, sy), (sx + 3 * k, sy), (sx + 6 * k, sy + 4), (sx + 2 * k, sy + 3)])   # lower wing (behind)
+    cv.fill(far, '#c9dbe6')
+    cv.fill(far & rect(min(sx + 4 * k, sx + 6 * k), 0, max(sx + 4 * k, sx + 6 * k), H), '#2a2a30')
+    cv.fill(rect(min(sx - 4 * k, sx + 4 * k), sy, max(sx - 4 * k, sx + 4 * k), sy + 1), '#ffffff')   # body
+    cv.fill(line([(sx - 4 * k, sy), (sx - 8 * k, sy - 1)]), '#ffffff')   # neck stretched forward
+    cv.dots([(sx - 9 * k, sy - 1), (sx - 10 * k, sy - 1), (sx - 11 * k, sy)], '#d6322b')   # beak
+    cv.fill(line([(sx + 4 * k, sy + 1), (sx + 9 * k, sy + 2)]), '#d6322b')   # legs trailing
+    near = poly([(sx - 2 * k, sy), (sx + 3 * k, sy), (sx + 5 * k, sy - 5), (sx + 1 * k, sy - 8), (sx - 1 * k, sy - 5)])   # raised near wing
+    cv.fill(near, '#ffffff')
+    cv.fill(near & rect(0, 0, W, sy - 5), '#2a2a30')   # black flight feathers at the tip
+    cv.fill(near & ~shift(near, -k, -1) & rect(0, sy - 4, W, sy), '#c9dbe6')
 
 
 # ---------------------------------------------------------------- sky, clouds, storks
@@ -110,8 +113,8 @@ cv.fill(m & ~shift(m, 3, 3), '#b8d0dc')
 for px, py, w in ((78, 58, 10), (126, 50, 14), (176, 56, 10), (250, 60, 8)):   # snow caps
     cap = m & poly([(px - w, py + w * 2 // 3), (px, py - 1), (px + w, py + w * 2 // 3)]) & ~poly([(px - w, py + w * 2 // 3), (px - w // 2, py + 3), (px, py + w // 2), (px + w // 2, py + 2), (px + w, py + w * 2 // 3)])
     cv.fill(cap, '#eef4f6')
-cv.fill(rect(124, 46, 128, 48) | rect(127, 44, 128, 45) | rect(124, 49, 124, 49) | rect(128, 49, 128, 49), '#5b6470')   # the wolf, nose up
-cv.dots([(129, 43)], '#5b6470')
+cv.fill(rect(123, 49, 127, 51) | rect(126, 47, 127, 48) | rect(123, 52, 123, 53) | rect(127, 52, 127, 53), '#5b6470')   # the wolf, nose up, on the snow cap
+cv.dots([(128, 46), (122, 49)], '#5b6470')
 x = 2
 while x < W - 2:
     x += r2(3, 8)
@@ -121,7 +124,7 @@ while x < W - 2:
         cv.dots([(x, ty), (x + 1, ty), (x, ty - 1)], '#7e9eb2')
 
 # ---------------------------------------------------------------- far field strips (flat steppe), a far hamlet
-bands = (('#7aa84a', 76), ('#4a3424', 78), ('#a4c870', 80), ('#eef4f6', 81), ('#6a4a30', 83), ('#8cc84a', 85))
+bands = (('#7aa84a', 76), ('#4a3424', 78), ('#a4c870', 80), ('#6a4a30', 83), ('#8cc84a', 85))
 for col, y in bands:
     cv.fill(rect(0, y, W - 1, 88), col)
 for _ in range(26):   # broken patches so the strips are a patchwork, not stripes
@@ -130,8 +133,6 @@ for _ in range(26):   # broken patches so the strips are a patchwork, not stripe
 for hx0 in (96, 104, 112, 208, 216):   # far hamlet: tiny white houses with red roofs
     cv.fill(rect(hx0, 73, hx0 + 4, 76), '#f6efe0')
     cv.fill(poly([(hx0 - 1, 73), (hx0 + 2, 70), (hx0 + 5, 73)]), '#a8241f')
-cv.fill(rect(122, 66, 123, 76), '#f6efe0')   # far belfry
-cv.fill(ell(120, 63, 125, 68), BLUE['b'])
 
 # ---------------------------------------------------------------- mid fields: left green wheat, centre black earth with green rows
 cv.fill(rect(0, 88, W - 1, 124), GRASS['b'])
@@ -396,36 +397,38 @@ for k in range(6):   # steam puffs rising and leaning left
 for cx_ in (215, 219):   # tea glasses in holders
     cv.fill(rect(cx_, 105, cx_ + 2, 108), '#c8643a')
     cv.dots([(cx_, 104), (cx_ + 2, 104)], GOLD['r'])
-hand = gnome(244, 126, hat=ramp('#d6322b', '#a8241f', '#f0705a'), tunic=GREEN_T, beard=False, arm=-1)
+hand = gnome(244, 127, hat=ramp('#d6322b', '#a8241f', '#f0705a'), tunic=GREEN_T, beard=False, arm=-1)
 cv.fill(rect(hand[0] - 3, hand[1] - 2, hand[0], hand[1] + 1), '#c8643a')   # cup held out
 cv.dots([(hand[0] - 2, hand[1] - 3)], GOLD['r'])
 
 # ---------------------------------------------------------------- wattle fence with clay pots on the stakes, old sunflower heads
 fence = blank()
-stakes = list(range(100, 156, 7))
+stakes = list(range(122, 160, 7))
 for fx in stakes:
     fence |= rect(fx, 112, fx + 1, 136)
-fence |= rect(98, 118, 158, 133)
+fence |= rect(120, 118, 160, 133)
 o = cv.obj()
 o.part(fence, ramp('#9a7a52', '#6a4e32', '#c4a070'), d=1)
 o.draw()
 for y in range(119, 133, 2):   # woven withies
     for fx in stakes:
         off = 0 if (y // 2 + fx // 7) % 2 else 3
-        cv.fill(rect(fx + 2 + off, y, fx + 5 + off, y) & rect(98, 0, 158, H), '#6a4e32')
+        cv.fill(rect(fx + 2 + off, y, fx + 5 + off, y) & rect(120, 0, 160, H), '#6a4e32')
 for k, fx in enumerate(stakes[::2]):   # pots upside down on the stakes
     o = cv.obj()
     o.part(poly([(fx - 4, 113), (fx + 5, 113), (fx + 3, 106), (fx - 2, 106)]), [CLAY, BLUE, CLAY, RED][k % 4], d=1)
     o.draw()
     cv.fill(rect(fx - 4, 112, fx + 5, 112), '#9a4424')
     cv.dots([(fx - 1, 108), (fx + 2, 109)], '#ffffff')
-for sx, top, lean in ((104, 96, -3), (118, 92, 2), (132, 98, -2), (148, 94, 3)):   # last year's sunflowers drooping over the fence
+for sx, top, lean in ((126, 96, -3), (138, 92, 2), (150, 98, -2)):   # last year's sunflowers drooping over the fence
     cv.fill(line([(sx, 118), (sx + lean, top + 4)], 2), '#7a6a3a')
     o = cv.obj()
     o.part(ell(sx + lean - 5, top - 4, sx + lean + 5, top + 5), ramp('#6a4a30', '#3d2a1c', '#8a6a44'), d=2)
     o.draw()
-    for t in range(-5, 6, 2):
-        cv.dots([(sx + lean + t, top - 5 + abs(t) // 2)], '#c98a14')
+    head = ell(sx + lean - 5, top - 4, sx + lean + 5, top + 5)
+    cv.fill(dil4(head) & ~head & ~rect(0, top + 3, W, H), '#e8a317')   # faded petals
+    for t in range(-5, 6, 3):
+        cv.dots([(sx + lean + t, top - 6 + abs(t) // 2)], '#c98a14')
     cv.dots([(sx + lean - 1, top - 1), (sx + lean + 1, top + 1), (sx + lean - 2, top + 2)], '#c9a96e')
     cv.fill(line([(sx, top + 12), (sx - 5, top + 9)]), '#7a8a3a')
 
@@ -457,9 +460,9 @@ def birch(bx, top, bot, w, crown=True):
                 cv.dots([(lx, ly), (lx, ly + 1), (lx, ly + 2)], '#c9a94a')
 
 
-for bx, top, bot, w in ((262, 22, 118, 3), (290, 14, 124, 3), (276, 30, 112, 2), (248, 40, 108, 2)):   # back row
+for bx, top, bot, w in ((262, 22, 118, 3), (284, 14, 124, 3), (278, 30, 112, 2)):   # back row
     birch(bx, top, bot, w)
-for bx, top, bot, w in ((236, 6, 132, 5), (270, 0, 140, 6), (294, -4, 150, 6)):   # front row
+for bx, top, bot, w in ((254, 6, 134, 5), (270, 0, 142, 6), (293, -4, 150, 6)):   # front row
     shadow(bx - 6, bot - 2, bx + w + 10, bot + 3, '#5fa83a')
     birch(bx, max(0, top), bot, w)
 sbx = 272   # birch-sap bucket hung on a spout
@@ -485,22 +488,22 @@ for mx, my in ((252, 128), (258, 132), (282, 128), (296, 162), (228, 140)):   # 
 wbx0, wby0 = 96, 146
 shadow(wbx0 - 4, wby0 + 12, wbx0 + 24, wby0 + 18)
 o = cv.obj()
-o.part(rect(64, 66, 67, 160), LOG, d=1)   # the tall post
+o.part(rect(64, 67, 67, 160), LOG, d=1)   # the tall post
 o.draw()
 cv.fill(line([(63, 66), (61, 60)]) | line([(68, 66), (70, 60)]), LOG['s'])   # fork
-pole = line([(28, 98), (112, 40)], 2)   # sweep pole: heavy end down-left, tip up over the well
+pole = line([(50, 56), (112, 98)], 2)   # sweep pole: weighted end up in the air, tip dipped over the well
 o = cv.obj()
 o.part(pole, LOG, d=1)
-o.part(rrect(22, 94, 34, 104, 2), STONE, d=2)   # counterweight stone lashed on
+o.part(rrect(44, 50, 55, 60, 2), STONE, d=2)   # counterweight stone lashed on
 o.draw()
-cv.fill(line([(25, 99), (31, 97)]), '#5c3420')
-cv.fill(rect(65, 62, 66, 64), '#2a1a10')   # pivot pin
+cv.fill(line([(45, 53), (54, 57)]), '#5c3420')
+cv.fill(rect(65, 65, 66, 67), '#2a1a10')   # pivot pin
 o = cv.obj()
-o.part(rect(110, 41, 111, 124), ramp('#9a7a52', '#6a4e32'), d=0)   # hanging pole down to the bucket
-o.part(rrect(106, 124, 115, 133, 1), LOG, d=2)   # bucket half way up
+o.part(rect(110, 99, 111, 130), ramp('#9a7a52', '#6a4e32'), d=0)   # hanging pole down to the bucket
+o.part(rrect(105, 130, 116, 139, 1), LOG, d=2)   # bucket coming up over the rim
 o.draw()
-cv.fill(rect(106, 126, 115, 126) | rect(106, 131, 115, 131), '#5b6470')
-cv.dots([(108, 134), (112, 135), (110, 137)], WATER['r'])   # drips
+cv.fill(rect(105, 132, 116, 132) | rect(105, 137, 116, 137), '#5b6470')
+cv.dots([(107, 140), (113, 141), (110, 142)], WATER['r'])   # drips
 o = cv.obj()
 o.part(rect(wbx0, wby0, wbx0 + 20, wby0 + 14), LOG, d=2)   # well box
 o.part(rect(wbx0 - 2, wby0 - 3, wbx0 + 22, wby0), LOG, d=1)   # rim log
@@ -511,7 +514,7 @@ cv.fill(rect(wbx0 + 2, wby0 - 2, wbx0 + 18, wby0 - 2), '#2a1a10')
 for x in range(wbx0, wbx0 + 21, 5):
     cv.dots([(x, wby0 + 1), (x + 1, wby0 + 1)], RED['b'])   # painted rim
 hand = gnome(126, 160, hat=BLUE, tunic=RED, arm=-1, hat_lean=1)
-cv.fill(line([(hand[0], hand[1]), (111, 128)]), '#9a7a52')   # rope to the bucket
+cv.fill(line([(hand[0], hand[1]), (110, 118)]), '#9a7a52')   # hauling on the pole
 # ---------------------------------------------------------------- gnome child carrying a basket of painted eggs up the track
 hand = gnome(160, 194, hat=RED, tunic=BLUE, arm=1, hat_lean=-1)
 o = cv.obj()
@@ -569,8 +572,21 @@ for gx, gy, hd in ((10, 178, False), (30, 186, False), (48, 176, True), (60, 190
 goose(286, 192, -1)
 cv.dots([(20, 196), (22, 196), (40, 194)], '#f4f4ee')   # a few feathers
 
+# ---------------------------------------------------------------- gorodki: the skittle town in a chalk square, a throwing bat in the grass
+sq = rect(8, 138, 40, 154) & ~rect(10, 140, 38, 152)
+cv.fill(sq, '#f1ece0')
+for k, (px, py) in enumerate(((16, 146), (22, 145), (28, 146), (22, 150), (34, 147))):
+    o = cv.obj()
+    o.part(rect(px, py - 7, px + 2, py), ramp('#e0c090', '#a8885a', '#f6e4b8'), d=1)
+    o.draw()
+    cv.dots([(px + 1, py - 6)], RED['b'] if k % 2 else BLUE['b'])
+o = cv.obj()
+o.part(line([(42, 156), (56, 146)], 3), LOG, d=1)
+o.draw()
+cv.fill(rect(30, 154, 33, 156), '#e0c090')   # a knocked-over pin
+
 # ---------------------------------------------------------------- spring litter: snow patches, snowdrops, crocuses, stones, tufts
-keep = rect(0, 160, 72, 199) | rect(112, 112, 140, 162) | rect(148, 150, 176, 199) | rect(198, 150, 232, 194) | rect(200, 90, 256, 128) | puddle | track | stream
+keep = rect(0, 160, 72, 199) | rect(4, 132, 56, 158) | rect(112, 112, 140, 162) | rect(148, 150, 176, 199) | rect(198, 150, 232, 194) | rect(200, 90, 256, 128) | puddle | track | stream
 for _ in range(10):
     sx, sy = r(0, W - 20), r(130, 196)
     pm = ell(sx, sy, sx + r(8, 18), sy + r(3, 5))

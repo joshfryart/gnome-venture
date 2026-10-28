@@ -63,7 +63,7 @@ return function(GV)
     if pose == "hold" then
       local mini = t.R(47, 33, 53, 40, 1)
       mini:add(t.E(50, 31, 2.5, 2.5)); mini:add(t.E(54, 36.5, 2, 2)); mini:cut(t.E(50, 41, 2, 2))
-      piece(c, mini, GV.ramp(dim("#8a5fd0", dark)), { gloss = { rnd(t.X(48)), rnd(t.Y(35)) } })
+      piece(c, mini, GV.ramp(dim(o.piece or "#8a5fd0", dark)), { gloss = { rnd(t.X(48)), rnd(t.Y(35)) } })
     elseif pose == "watch" then
       -- stopwatch: silver disc on a short stem, gold button, umber hand
       local wx, wy = t.X(52), t.Y(16)

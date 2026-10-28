@@ -181,12 +181,12 @@ o = cv.obj()
 o.part(ell(lx, ly, lx + 15, ly + 7), LEO, d=2)
 o.part(ell(lx - 5, ly - 3, lx + 3, ly + 4), LEO, d=1)
 o.part(rect(lx + 1, ly + 5, lx + 2, ly + 9) | rect(lx + 11, ly + 5, lx + 12, ly + 9), LEO, d=0)
-o.part(line([(lx + 15, ly + 4), (lx + 20, ly + 2), (lx + 21, ly - 4), (lx + 18, ly - 7)], 2), LEO, d=1)
+o.part(line([(lx + 15, ly + 4), (lx + 18, ly + 8), (lx + 18, ly + 13), (lx + 15, ly + 15)], 2), LEO, d=1)
 o.draw()
 cv.dots([(lx - 4, ly - 4), (lx + 1, ly - 4)], LEO['s'])
 cv.dots([(lx - 3, ly), (lx - 1, ly)], '#3a4a5a')
 cv.dots([(lx - 5, ly + 2)], '#c87a7a')
-for sx, sy in ((lx + 4, ly + 2), (lx + 7, ly + 1), (lx + 10, ly + 3), (lx + 6, ly + 5), (lx + 12, ly + 1), (lx + 19, ly - 1), (lx + 20, ly - 5)):
+for sx, sy in ((lx + 4, ly + 2), (lx + 7, ly + 1), (lx + 10, ly + 3), (lx + 6, ly + 5), (lx + 12, ly + 1), (lx + 18, ly + 9), (lx + 17, ly + 13)):
     cv.dots([(sx, sy), (sx + 1, sy)], '#5a5048')
 
 # ---------------------------------------------------------------- the lower valley floor
@@ -285,15 +285,6 @@ for k in range(len(TOPS) - 1):   # crops in rows along each terrace
                 cv.fill(line([(cx, cy + 1), (cx - 2, cy - 3)]) | line([(cx, cy + 1), (cx + 2, cy - 3)]) | line([(cx, cy + 1), (cx, cy - 4)]), '#a4b86a')
                 cv.dots([(cx, cy + 1), (cx + 1, cy + 1)], SAFF['b'])
         x += sz * 2 + 3 + (rows - 1) * 2
-# a stone stair up the terraces
-for k in range(len(TOPS) - 2):
-    sx = 92 - k * 6
-    y0 = tline(k + 1, sx) - 4 - k // 3
-    if y0 < H:
-        o = cv.obj()
-        o.part(rect(sx, y0, sx + 6 + k // 2, y0 + 3 + k // 3), WALL, d=1)
-        o.draw()
-
 # ---------------------------------------------------------------- the Cloud Monastery on its crag (left), apricots drying on the roof
 mx0, my0 = 10, 56
 o = cv.obj()
@@ -405,6 +396,16 @@ for yk in range(138, 200, 5):
     cv.fill(gh & rect(0, yk + 1, W, yk + 1), WALL['r'])
 cv.fill(gh & ~shift(gh, 2, 0), '#d8c4a0')
 
+for i, (cx, cy, w) in enumerate(((134, 112, 10), (135, 107, 8), (136, 103, 6), (137, 100, 4))):   # a cairn at the bridge foot (follow the cairns)
+    o = cv.obj()
+    o.part(ell(cx, cy, cx + w, cy + 4), STONE, d=1)
+    o.draw()
+cv.fill(rect(139, 92, 139, 100), '#4a2c1a')
+cv.fill(rect(140, 92, 144, 95), FLAGS[2])
+for sx, sy in ((195, 95), (210, 94)):   # rocks round the spring
+    o = cv.obj()
+    o.part(ell(sx, sy, sx + 6, sy + 5), ramp('#8b8f96', '#5b6470', '#c9c5bc'), d=1)
+    o.draw()
 # ---------------------------------------------------------------- the rope bridge across the river, a gnome leading a laden yak over it
 bl, br = (148, 118), (204, 122)
 deck = sag(bl, br, 7)
@@ -517,11 +518,13 @@ for i, (sx, sy, w, sp) in enumerate(((218, 176, 16, 1), (238, 174, 18, 0), (260,
         cv.dots([(sx + 18, sy - 9)], GOLD['r'])
 # the spice seller: big gnome by the sacks, holding up a scoop of saffron
 gnome(197, 184, 2, MAG, SAFF, face=1)
-cv.fill(rect(204, 166, 206, 169), SKIN['b'])
-cv.fill(line([(205, 166), (210, 160)], 2), WOOD['b'])
-cv.fill(ell(207, 154, 215, 161), GOLD['b'])
-cv.fill(ell(208, 154, 214, 158), '#d8481e')
-cv.dots([(209, 155), (211, 154)], '#f08a4a')
+cv.fill(line([(205, 172), (211, 175)], 2), WOOD['b'])
+o = cv.obj()
+o.part(ell(209, 170, 219, 178), GOLD, d=1)
+o.draw()
+cv.fill(ell(210, 169, 218, 174) & rect(0, 0, W, 173), '#d8481e')
+cv.dots([(212, 170), (214, 169)], '#f08a4a')
+cv.fill(rect(204, 170, 206, 173), SKIN['b'])
 # stone mortars of the spice grinders on the ghat
 for mx, my in ((168, 150), (180, 176)):
     o = cv.obj()
@@ -565,15 +568,16 @@ for fx, fy in ((6, 196), (22, 184), (40, 198), (96, 194), (110, 198), (84, 186),
     for dx, dy in ((-2, -1), (1, -2), (2, 1)):
         cv.fill(rect(fx + dx, fy + dy, fx + dx + 1, fy + dy + 1), SAFF['b'])
         cv.dots([(fx + dx, fy + dy)], SAFF['r'])
-tmx, tmy = 120, 140   # the Tiger Moth
+tmx, tmy = 122, 134   # the Tiger Moth: saffron forewings with umber spots, magenta hindwings
 o = cv.obj()
-o.part(poly([(tmx, tmy), (tmx - 10, tmy - 7), (tmx - 12, tmy + 1)]) | poly([(tmx, tmy), (tmx + 10, tmy - 7), (tmx + 12, tmy + 1)]), SAFF, d=1)
-o.part(poly([(tmx, tmy + 1), (tmx - 8, tmy + 7), (tmx - 3, tmy + 8)]) | poly([(tmx, tmy + 1), (tmx + 8, tmy + 7), (tmx + 3, tmy + 8)]), MAG, d=1)
-o.part(rect(tmx - 1, tmy - 3, tmx, tmy + 6), YAK, d=0)
+o.part(ell(tmx - 12, tmy - 8, tmx - 1, tmy + 1) | ell(tmx + 1, tmy - 8, tmx + 12, tmy + 1), SAFF, d=2)
+o.part(ell(tmx - 9, tmy, tmx - 1, tmy + 7) | ell(tmx + 1, tmy, tmx + 9, tmy + 7), MAG, d=1)
+o.part(rect(tmx - 1, tmy - 6, tmx, tmy + 7), YAK, d=0)
 o.draw()
-for dx, dy in ((-7, -3), (-9, -1), (7, -3), (9, -1), (-4, -2), (4, -2)):
-    cv.dots([(tmx + dx, tmy + dy)], '#2a1a10')
-cv.dots([(tmx - 2, tmy - 5), (tmx - 3, tmy - 6), (tmx + 1, tmy - 5), (tmx + 2, tmy - 6)], '#2a1a10')
+for dx, dy in ((-9, -5), (-6, -3), (-9, -2), (-4, -6), (8, -5), (5, -3), (8, -2), (3, -6)):
+    cv.dots([(tmx + dx, tmy + dy), (tmx + dx + 1, tmy + dy)], '#2a1a10')
+cv.dots([(tmx - 6, tmy + 3), (tmx + 5, tmy + 3)], '#2a1a10')
+cv.dots([(tmx - 2, tmy - 8), (tmx - 3, tmy - 9), (tmx + 1, tmy - 8), (tmx + 2, tmy - 9)], '#2a1a10')
 for bx, by in ((92, 120), (40, 132), (150, 96)):   # butterflies after the rain
     cv.dots([(bx, by), (bx + 2, by), (bx + 1, by + 1)], MAG['r'])
     cv.dots([(bx + 1, by)], '#2a1a10')
@@ -583,6 +587,10 @@ for px, py in ((26, 160), (72, 134), (120, 122)):
     if not river[py, px]:
         cv.fill(ell(px, py, px + 7, py + 2), '#a8dbd3')
         cv.dots([(px + 2, py + 1)], '#ffffff')
+
+cv.remap({'#c87a7a': '#e0907a', '#7a5a38': '#4a2c1a', '#f08a24': '#e0702a', '#f08a4a': '#e0702a', '#e0c040': '#f0c030', '#f6b8cf': '#ec74ac',
+          '#a4c46a': '#a4b86a', '#4f7a2a': '#4f9a45', '#c89a60': '#cfae7a', '#a8301a': '#a8241f', '#6a4a28': '#7a4a1f', '#a07040': '#9a6b3f',
+          '#f8d870': '#f8d060', '#c08010': '#b07a10', '#8e1a20': '#a8241f', '#b8945c': '#9a7a4a', '#c8202a': '#d6322b', '#ece8de': '#f4f0e4'})
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

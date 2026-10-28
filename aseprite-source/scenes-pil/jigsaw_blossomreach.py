@@ -356,6 +356,9 @@ for sx, sy in ((214, 84), (196, 100), (230, 76)):   # stone lanterns up the step
     o.draw()
     cv.dots([(sx + 1, sy - 4)], '#f5cf6a')
 
+# kite string from the bridge gnome's hand (79, 150), drawn before the teahouse so it passes behind it
+cv.fill(line([(79, 150), (110, 120), (140, 80), (dkx, dky + 12)]), '#f6eedc')
+
 # ---------------------------------------------------------------- the Cherry Blossom Teahouse (centre-left)
 tx0, tx1, tby = 64, 140, 132
 shadow(tx0 - 2, tby - 2, tx1 + 4, tby + 4)
@@ -564,7 +567,6 @@ for fx, fy in ((47, 172), (142, 178)):
 # gnome on the bridge top flying the dragon-fly kite
 gbx = int(bmid) + 4
 hx3, hy3 = gnome(gbx, arc_y(gbx) - 1, hat=VERM, tunic=TEAL, s=0.95, lean=-1)
-cv.fill(line([(hx3, hy3), (110, 120), (140, 80), (dkx, dky + 12)]), '#f6eedc')
 # jade dragon-fly over the water
 jx, jy = 138, 160
 cv.fill(rect(jx, jy, jx + 7, jy), '#1f9a6a')
@@ -607,7 +609,7 @@ shadow(pnx - 16, pny - 2, pnx + 18, pny + 3)
 o = cv.obj()
 o.part(ell(pnx - 14, pny - 26, pnx + 14, pny), WHITE, d=3)   # body
 o.part(ell(pnx - 15, pny - 8, pnx - 5, pny + 1) | ell(pnx + 5, pny - 8, pnx + 15, pny + 1), ramp('#3a3440', '#1f1a24', '#5a5468'), d=1)   # feet
-o.part(rect(pnx - 14, pny - 20, pnx + 14, pny - 13), ramp('#3a3440', '#1f1a24', '#5a5468'), d=1)   # shoulders/arms band
+o.part(ell(pnx - 15, pny - 24, pnx - 3, pny - 13) | ell(pnx + 3, pny - 24, pnx + 15, pny - 13), ramp('#3a3440', '#1f1a24', '#5a5468'), d=1)   # arms
 o.part(ell(pnx - 11, pny - 44, pnx + 11, pny - 22), WHITE, d=2)   # head
 o.part(ell(pnx - 12, pny - 47, pnx - 5, pny - 40) | ell(pnx + 5, pny - 47, pnx + 12, pny - 40), ramp('#3a3440', '#1f1a24', '#5a5468'), d=1)   # ears
 o.draw()
@@ -669,6 +671,18 @@ for sx, sy in ((172, 194), (184, 172), (226, 150), (104, 136)):   # stepping sto
     o = cv.obj()
     o.part(ell(sx, sy, sx + 7, sy + 4), STONE, d=1)
     o.draw()
+
+# fold the rarest colours into their nearest neighbours to stay under the colour cap
+cols, cnt = np.unique(cv.px.reshape(-1, 3), axis=0, return_counts=True)
+cols, cnt = cols.astype(int), list(cnt)
+alive = list(range(len(cols)))
+while len(alive) > 96:
+    i = min(alive, key=lambda j: cnt[j])
+    alive.remove(i)
+    j = min(alive, key=lambda k: int(((cols[k] - cols[i]) ** 2).sum()))
+    cnt[j] += cnt[i]
+    cv.remap({'#%02x%02x%02x' % tuple(cols[i]): '#%02x%02x%02x' % tuple(cols[j])})
+    cols[i] = cols[j]
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

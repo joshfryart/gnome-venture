@@ -1,0 +1,628 @@
+"""Jigsaw picture: MISTMOOR (v2.0.87): game/assets/img/jigsaw/mistmoor.jpg (+ -thumb). Usage: python3 -B aseprite-source/scenes-pil/jigsaw_mistmoor.py [outdir]
+Soft grey drizzle over the moor: layered slate clouds, a glimpse of the fjord with a lighthouse and seals on the skerry, far fells with mist lying in
+the folds, the Standing Stones on a knoll with a gnome flying a kite, a brown burn winding down under a humped stone bridge (a gnome with an umbrella
+crossing it), a low turf-roofed stone cottage (the Crooked Kettle) with peat smoke and one amber lantern, drystone walls with an owl on the gatepost,
+sheep, a peat bank with a gnome cutting turves and leaning stacks, a fairy ring of toadstools, heather, bracken, cottongrass and puddles everywhere,
+a gnome child puddle-jumping on the muddy track.
+"""
+import sys
+
+from jigsaw_common import *  # noqa: F401,F403
+
+# ---- palette: slate sky, heather purple, moss olive, peat/rust brown; one warm lantern amber
+SKY = ('#6c7888', '#7b8797', '#8b96a4', '#9ca6b2')
+CLOUD = ramp('#b3bbc5', '#98a2ae', '#c8ced5')
+DCLOUD = ramp('#66717f', '#566170', '#7b8695')
+MIST = ('#c3c9d0', '#b0b8c1')
+RAIN = '#c3c9d0'
+HEATH = ramp('#8a5a8e', '#64406c', '#b07fb2')
+HEATHF = ramp('#7a6286', '#665674', '#8e7898')   # far heather (cooler, flatter)
+MOSS = ramp('#6f7f4a', '#55633a', '#8a9a5a')
+MOSSF = ramp('#67715a', '#5a6450', '#7a846a')    # far moor
+RUST = ramp('#a85a2c', '#7c3e22', '#c97a3e')
+PEAT = ramp('#5a3e2c', '#3d2a1e', '#7a5a40')
+MUD = ramp('#7a5e44', '#5e4632', '#94765a')
+STONE = ramp('#9c9d97', '#74766f', '#bfc0b8')
+STONED = '#5c5e58'
+WATER = ramp('#6a4c34', '#4e3626', '#9a8a7a')     # peaty burn
+PUD = ramp('#8994a2', '#6c7888', '#bfc7ce')
+TURF = ramp('#6f8040', '#56632f', '#8fa058')
+WOOD = ramp('#8a6040', '#5e4030', '#a87a50')
+DOOR = ramp('#4a6a6a', '#344c4c', '#6a8a88')
+WARM = ramp('#f2b84a', '#d98a2a', '#ffe08a')
+WOOL = ramp('#e6e2d6', '#bdb8ac', '#f6f4ee')
+SKIN = ramp('#f2c8a0', '#d9a07a', '#fff0d8')
+BEARD = ramp('#f1ece0', '#c9c5bc', '#f6f4ee')
+WINE = ramp('#9a3a3a', '#742a2c', '#c05a50')
+SLATEC = ramp('#4f6a86', '#3a5068', '#7a94ac')   # oilskin coat
+MUST = ramp('#c9a23a', '#9a7a24', '#e8c862')     # child's mac and wellies
+BOOT = ramp('#4a3a30', '#2a1a10', '#6a5848')
+BELT = ramp('#5e4030', '#3d2a1e')
+UMB = ramp('#64406c', '#4a2c52', '#8a5a8e')
+UMBER = '#2a1a10'
+
+cv = new_canvas(SKY[0])
+r = rnd(1717)
+r2 = rnd(53)   # second stream for later details, so the layout drawn with r stays put
+
+
+def shadow(x0, y0, x1, y1, col=None):
+    cv.fill(ell(x0, y0, x1, y1), col or MOSS['s'])
+
+
+def blobs(cx, cy, rx, ry, n, s0, s1, rr=None):
+    rr = rr or r
+    m = blank()
+    for _ in range(n):
+        ex, ey, s = cx + rr(-rx, rx), cy + rr(-ry, ry), rr(s0, s1)
+        m |= ell(ex - s, ey - s * 2 // 3, ex + s, ey + s * 2 // 3)
+    return m
+
+
+def heather(cx, cy, rx, ry, n=6, s0=3, s1=6, outline=True, rp=HEATH, flowers=8):
+    m = blobs(cx, cy, rx, ry, n, s0, s1)
+    o = cv.obj(outline=outline)
+    o.part(m, rp, d=2)
+    o.draw()
+    ys, xs = np.nonzero(m)
+    for _ in range(flowers):   # flower spikes: light dots, plus a few stem flecks
+        i = r(0, len(xs) - 1)
+        x, y = int(xs[i]), int(ys[i])
+        cv.dots([(x, y), (x, y - 1)], rp['r'])
+    for _ in range(flowers // 3):
+        i = r(0, len(xs) - 1)
+        cv.dots([(int(xs[i]), int(ys[i]))], MOSS['s'])
+    return m
+
+
+def bracken(x, y, s=1.0, col=RUST):
+    h = int(7 * s)
+    cv.fill(line([(x, y), (x + 1, y - h)]), col['s'])
+    for k in range(1, h, 2):
+        cv.dots([(x - 1 - k // 3, y - k + 1), (x - 2 - k // 3, y - k + 2), (x + 2 + k // 3, y - k + 1), (x + 3 + k // 3, y - k + 2)], col['b'] if k % 4 else col['r'])
+
+
+def cottongrass(x, y, h=6):
+    cv.fill(rect(x, y - h, x, y), MOSS['s'])
+    cv.dots([(x - 1, y - h - 1), (x, y - h - 1), (x, y - h - 2), (x + 1, y - h - 1), (x, y - h)], '#f6f4ee')
+    cv.dots([(x + 1, y - h)], '#bdb8ac')
+
+
+def puddle(x0, y0, x1, y1, rings=1, rr=None):
+    rr = rr or r
+    m = ell(x0, y0, x1, y1)
+    cv.fill(dil4(m) & ~m, PEAT['s'])
+    cv.fill(m, PUD['b'])
+    cv.fill(m & ~shift(m, 0, 2), PUD['s'])
+    cy = (y0 + y1) // 2
+    cv.fill(m & rect(x0 + 3, cy, x0 + (x1 - x0) * 2 // 3, cy), PUD['r'])
+    for _ in range(rings):   # raindrop rings
+        px, py = rr(x0 + 3, x1 - 4), rr(y0 + 1, y1 - 1)
+        ring = ell(px - 3, py - 1, px + 3, py + 1)
+        cv.fill(ring & ~shift(ring, 1, 0) & m | ring & ~shift(ring, -1, 0) & m, PUD['r'])
+    return m
+
+
+def gnome(gx, gy, hat, coat, f=1.0, tip=-5, boots=BOOT):
+    def X(v):
+        return gx + int(round(v * f))
+
+    def Y(v):
+        return gy + int(round(v * f))
+    o = cv.obj()
+    o.part(rect(X(-7), Y(-3), X(-2), gy) | rect(X(1), Y(-3), X(6), gy), boots, d=1)
+    o.part(rrect(X(-7), Y(-16), X(7), Y(-3), 2), coat, d=2, contour=True)
+    o.part(rect(X(-7), Y(-7), X(7), Y(-6)), BELT, d=0)
+    o.part(poly([(X(-7), Y(-20)), (X(7), Y(-20)), (X(1), Y(-6))]), BEARD, d=1, contour=True)
+    o.part(rect(X(-5), Y(-25), X(5), Y(-19)), SKIN, d=1)
+    o.part(poly([(X(-8), Y(-23)), (X(8), Y(-23)), (X(tip), Y(-42))]), hat, d=2, contour=True)
+    o.draw()
+    cv.fill(rect(X(-8), Y(-24), X(8), Y(-23)), hat['s'])
+    cv.dots([(X(-2), Y(-22)), (X(2), Y(-22))], UMBER)
+    cv.dots([(X(0), Y(-21)), (X(1), Y(-21))], '#e0907a')
+    if f >= 0.8:
+        cv.dots([(X(-4), Y(-20)), (X(4), Y(-20))], '#f0a0a0')
+    return X, Y
+
+
+# ---------------------------------------------------------------- sky: slate bands, layered clouds, a rain curtain, geese, gulls
+cv.fill(rect(0, 12, W - 1, H - 1), SKY[1])
+cv.fill(rect(0, 28, W - 1, H - 1), SKY[2])
+cv.fill(rect(0, 44, W - 1, H - 1), SKY[3])
+for cx, cy, w, rp in ((36, 10, 52, CLOUD), (118, 6, 40, DCLOUD), (196, 14, 60, CLOUD), (262, 8, 44, DCLOUD), (82, 28, 46, CLOUD),
+                      (150, 34, 40, DCLOUD), (232, 36, 54, CLOUD), (10, 34, 30, DCLOUD), (290, 26, 30, CLOUD), (176, 48, 36, CLOUD), (60, 46, 30, DCLOUD)):
+    m = ell(cx - w // 2, cy - 5, cx + w // 2, cy + 5) | ell(cx - w // 4, cy - 10, cx + w // 6, cy + 3) | ell(cx, cy - 8, cx + w // 2 - 6, cy + 4)
+    m &= ~rect(0, cy + 4, W, H)
+    cv.fill(m, rp['b'])
+    cv.fill(m & ~shift(m, -2, -2) & rect(0, cy - 1, W, cy + 4), rp['s'])
+    cv.fill(m & ~shift(m, 1, 1), rp['r'])
+    cv.fill(m & rect(0, cy + 4, W, cy + 4), rp['s'])
+for k in range(10):   # rain curtain under the dark cloud on the right
+    x0 = 248 + k * 3
+    cv.fill(line([(x0, 13), (x0 - 4, 30 + (k % 3) * 3)]), DCLOUD['r'])
+for k in range(7):
+    x0 = 108 + k * 4
+    cv.fill(line([(x0, 11), (x0 - 3, 22 + (k % 2) * 3)]), DCLOUD['r'])
+for bx, by in ((150, 18), (156, 21), (162, 24), (144, 21), (138, 24), (132, 27)):   # skein of geese heading home
+    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3e4654')
+for bx, by in ((214, 26), (222, 30), (40, 22)):   # gulls
+    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#e6e2d6')
+    cv.dots([(bx + 2, by + 1)], '#566170')
+
+# ---------------------------------------------------------------- fjord glimpse (left): headland, lighthouse, skerry with seals
+sea = rect(0, 54, 110, 70)
+cv.fill(sea, '#5f6e7e')
+for k in range(26):
+    sx, sy = r(2, 104), r(56, 68)
+    cv.fill(rect(sx, sy, sx + r(2, 6), sy), '#8796a4' if k % 3 else '#4f5d6c')
+head = poly([(0, 46), (10, 44), (22, 46), (34, 52), (44, 58), (40, 62), (0, 64)])
+cv.fill(head, '#565b6a')
+cv.fill(head & ~shift(head, 1, 1), '#6c7284')
+o = cv.obj()
+o.part(rect(16, 32, 20, 45), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.part(rect(15, 29, 21, 31), ramp('#f5dc8a', '#d9b85a'), d=0)
+o.part(poly([(14, 29), (22, 29), (18, 25)]), ramp('#5e4030', '#3d2a1e'), d=0)
+o.draw()
+cv.fill(rect(16, 36, 20, 37) | rect(16, 41, 20, 42), WINE['b'])
+cv.dots([(17, 34), (17, 39)], '#bdb8ac')
+for sx, sy, w in ((52, 63, 12), (66, 65, 8)):   # skerry rocks
+    m = ell(sx, sy - 3, sx + w, sy + 3) & ~rect(0, sy + 2, W, H)
+    cv.fill(m, '#4f5560')
+    cv.fill(m & ~shift(m, 1, 1), '#6c7284')
+for sx, sy in ((54, 60), (60, 61), (68, 62)):   # seals hauled out, heads up
+    cv.fill(ell(sx, sy, sx + 5, sy + 2), '#7b8695')
+    cv.dots([(sx + 5, sy - 1), (sx + 6, sy - 1), (sx + 5, sy)], '#7b8695')
+    cv.dots([(sx + 6, sy - 1)], UMBER)
+
+# ---------------------------------------------------------------- far fells with mist in the folds
+m = poly([(60, 64), (96, 50), (130, 58), (168, 44), (214, 56), (250, 46), (300, 58), (300, 80), (60, 80)])
+cv.fill(m, '#7a8396')
+cv.fill(m & ~shift(m, 2, 2), '#8c95a6')
+for _ in range(60):   # far boulders and heather freckles
+    x, y = r(64, 298), r(50, 78)
+    if m[y, x] and m[max(0, y - 3), x]:
+        cv.dots([(x, y), (x + 1, y)], '#6c7488' if r(0, 1) else '#7d7690')
+m2 = poly([(84, 76), (120, 62), (160, 70), (200, 60), (244, 70), (276, 62), (300, 68), (300, 90), (84, 90)])
+cv.fill(m2, '#6e7186')
+cv.fill(m2 & ~shift(m2, 2, 2), '#7f8296')
+for _ in range(70):
+    x, y = r(86, 298), r(62, 88)
+    if m2[y, x] and m2[max(0, y - 2), x]:
+        cv.dots([(x, y), (x + 1, y), (x, y + 1)], HEATHF['b'] if r(0, 2) else '#5f6278')
+
+
+def mist(y0, y1, n, xs=(-20, W + 20), rr=None):
+    rr = rr or r
+    mm = blank()
+    for _ in range(n):
+        x = rr(*xs)
+        mm |= ell(x - rr(14, 34), y0 + rr(-2, 2), x + rr(14, 34), y1 + rr(-1, 2))
+    cv.fill(mm, MIST[0])
+    cv.fill(mm & ~shift(mm, 0, -2), MIST[1])   # cooler underside
+    return mm
+
+
+mist(64, 70, 9, (60, 300))
+# nearer fell behind the cottage, with field walls drawn as lines
+m3 = poly([(110, 92), (150, 80), (196, 76), (236, 82), (272, 74), (300, 78), (300, 100), (110, 100)])
+cv.fill(m3, MOSSF['b'])
+cv.fill(m3 & ~shift(m3, 2, 2), MOSSF['r'])
+for pts in (((160, 84), (196, 90), (230, 86)), ((236, 82), (250, 92), (290, 88)), ((200, 79), (214, 92))):
+    cv.fill(line(list(pts)) & m3, MOSSF['s'])
+for _ in range(50):
+    x, y = r(112, 298), r(76, 98)
+    if m3[y, x] and m3[max(0, y - 2), x]:
+        cv.dots([(x, y), (x + 1, y)], HEATHF['b'] if r(0, 1) else RUST['s'])
+mist(78, 84, 8, (100, 300))
+
+# ---------------------------------------------------------------- knoll with the Standing Stones (left)
+knoll = poly([(0, 72), (16, 64), (44, 60), (74, 62), (98, 70), (116, 82), (124, 100), (0, 104)])
+cv.fill(knoll, MOSSF['b'])
+cv.fill(knoll & ~shift(knoll, 2, 2), MOSSF['r'])
+for _ in range(14):
+    hx_, hy_ = r(4, 116), r(70, 100)
+    if knoll[hy_, hx_]:
+        heather(hx_, hy_, 6, 2, n=3, s0=2, s1=4, outline=False, rp=HEATHF, flowers=4)
+for _ in range(40):
+    x, y = r(2, 120), r(64, 102)
+    if knoll[y, x]:
+        cv.dots([(x, y), (x, y - 1)], MOSS['b'] if r(0, 1) else RUST['s'])
+STONES = ((22, 72, 6, 11), (42, 68, 6, 13), (64, 68, 6, 12), (86, 74, 5, 10), (12, 84, 8, 16), (34, 88, 9, 19), (60, 88, 8, 17), (82, 86, 8, 14))
+for sx, sb, w, h in STONES:
+    shadow(sx - 2, sb - 1, sx + w + 4, sb + 2, MOSSF['s'])
+    o = cv.obj()
+    o.part(poly([(sx, sb), (sx + w, sb), (sx + w - 1, sb - h + 2), (sx + w - 3, sb - h), (sx + 1, sb - h + 1)]), STONE, d=2)
+    o.draw()
+    cv.dots([(sx + 2, sb - h + 2), (sx + 3, sb - h + 2), (sx + 2, sb - h + 3)], MOSS['b'])   # moss cap
+    cv.dots([(sx + 1 + r(0, w - 3), sb - r(3, h - 4)) for _ in range(2)], '#c8c27a')       # map lichen
+    cv.fill(line([(sx + w // 2, sb - h + 4), (sx + w // 2 + 1, sb - h // 2)]), STONED)     # crack
+cv.dots([(37, 69), (38, 69)], '#d9b85a')   # a lucky coin on the tallest stone
+cv.dots([(63, 71)], '#d9b85a')
+mist(96, 101, 7, (-20, 130))
+
+# ---------------------------------------------------------------- the moor (mid and fore ground)
+moor = poly([(0, 102), (60, 100), (124, 98), (160, 94), (220, 96), (300, 94), (300, 199), (0, 199)])
+cv.fill(moor, MOSS['b'])
+cv.fill(moor & rect(0, 150, W, H), '#64733f')
+for y in range(100, H, 2):   # grass flecks, denser lower down
+    for _ in range(3 if y < 140 else 5):
+        gx = r(0, W - 1)
+        if moor[y, gx]:
+            cv.dots([(gx, y), (gx, y - 1)], MOSS['r'] if r(0, 2) else MOSS['s'])
+
+# ---------------------------------------------------------------- the burn: from the fell down under the bridge to the front edge
+burn_pts = [(168, 94), (158, 102), (146, 112), (136, 122), (130, 132), (124, 144), (112, 158), (102, 172), (96, 186), (100, 199)]
+burn = blank()
+for i in range(len(burn_pts) - 1):
+    w = 2 + i * 3
+    burn |= line([burn_pts[i], burn_pts[i + 1]], w)
+    burn |= ell(burn_pts[i + 1][0] - w // 2, burn_pts[i + 1][1] - w // 2, burn_pts[i + 1][0] + w // 2, burn_pts[i + 1][1] + w // 2)
+cv.fill(dil4(dil4(burn)) & ~burn, PEAT['b'])      # dark peaty banks
+cv.fill(dil4(burn) & ~burn, PEAT['s'])
+cv.fill(burn, WATER['b'])
+cv.fill(burn & ~shift(burn, 0, 3), WATER['s'])
+for _ in range(70):   # ripples and sky glints
+    x, y = r(90, 170), r(96, 199)
+    if burn[y, x] and burn[y, min(W - 1, x + 4)]:
+        cv.fill(rect(x, y, x + r(2, 5), y), WATER['r'] if r(0, 2) else '#8a6a4a')
+for sx, sy in ((104, 178), (118, 156), (92, 192), (140, 118)):   # stones in the burn, with foam
+    o = cv.obj()
+    o.part(ell(sx, sy, sx + 6, sy + 4), STONE, d=1)
+    o.draw()
+    cv.dots([(sx - 1, sy + 4), (sx + 7, sy + 3), (sx + 8, sy + 4)], '#e6e2d6')
+
+# ---------------------------------------------------------------- the humped stone bridge
+bx0, bx1, btop = 104, 160, 120
+deck = poly([(bx0, 136), (bx0 + 8, 128), (bx0 + 20, btop + 2), (bx0 + 36, btop + 2), (bx1 - 8, 128), (bx1, 136), (bx1, 140), (bx0, 140)])
+arch = ell(118, 128, 146, 152) & ~rect(0, 141, W, H)
+shadow(bx0 - 4, 138, bx1 + 4, 144, PEAT['s'])
+o = cv.obj()
+o.part(deck & ~arch, STONE, d=2)
+o.draw()
+cv.fill(arch & rect(0, 0, W, 140), '#2e2620')   # dark under the arch
+cv.fill(arch & rect(0, 137, W, 140), WATER['s'])
+cv.fill(rect(122, 139, 142, 139) & arch, WATER['r'])
+# stone courses and voussoirs
+for k in range(14):
+    a = k / 13.0
+    x = 118 + int(a * 28)
+    yy = int(140 - 12 * (1 - (2 * a - 1) ** 2))
+    cv.dots([(x, yy - 1), (x, yy - 2)], STONED)
+for yy in range(126, 139, 4):
+    for xx in range(bx0 + 2 + (yy % 8), bx1 - 2, 7):
+        if deck[yy, xx] and not arch[yy, xx] and not arch[yy + 1, xx]:
+            cv.dots([(xx, yy), (xx + 1, yy), (xx + 2, yy)], STONED)
+            cv.dots([(xx + 3, yy - 1)], STONE['r'])
+par = poly([(bx0 + 1, 133), (bx0 + 9, 125), (bx0 + 20, btop - 1), (bx0 + 36, btop - 1), (bx1 - 9, 125), (bx1 - 1, 133), (bx1 - 1, 135), (bx0 + 1, 135)]) & ~deck
+cv.fill(par, STONE['r'])   # lit coping stones along the top
+for xx in range(bx0 + 4, bx1 - 3, 5):
+    cv.fill(rect(xx, 0, xx, H) & par, STONE['s'])
+cv.dots([(x, 120 + r(0, 1)) for x in range(126, 138, 4)], MOSS['b'])   # moss on the coping
+
+# ---------------------------------------------------------------- the cottage: low rubble walls, thick turf roof, peat smoke, one lantern
+cx0, cx1 = 196, 280
+shadow(cx0 - 6, 138, cx1 + 10, 145)
+o = cv.obj()
+o.part(rect(cx0, 110, cx1, 140), STONE, d=3)
+o.part(rect(cx0 + 6, 78, cx0 + 15, 104), STONE, d=2)   # chimney at the gable end
+o.draw()
+for yy in range(113, 140, 4):   # rubble courses
+    off = (yy // 4) % 2 * 4
+    cv.fill(rect(cx0 + 1, yy, cx1 - 1, yy), STONE['s'])
+    for xx in range(cx0 + 2 + off, cx1 - 1, 8 + (yy % 3)):
+        cv.fill(rect(xx, yy - 3, xx, yy), STONE['s'])
+        cv.dots([(xx + 1, yy - 3), (xx + 2, yy - 3)], STONE['r'])
+for xx in range(cx0 + 7, cx0 + 15, 4):
+    cv.fill(rect(xx, 84, xx + 2, 84), STONE['s'])
+    cv.fill(rect(xx - 1, 92, xx + 1, 92), STONE['s'])
+cv.fill(rect(cx0 + 5, 76, cx0 + 16, 78), STONED)   # chimney cap
+cv.fill(rect(cx0 + 8, 74, cx0 + 10, 76) | rect(cx0 + 12, 75, cx0 + 13, 76), '#a85a2c')   # two clay pots
+for k in range(8):   # peat smoke, drifting left on the wind
+    sx, sy = cx0 + 8 - k * 6, 70 - k * 5
+    pm = ell(sx - 3 - k // 2, sy - 2 - k // 3, sx + 3 + k // 2, sy + 2 + k // 3)
+    cv.fill(pm, '#a7afba' if k < 5 else '#b6bec7')
+    cv.fill(pm & ~shift(pm, 1, 1), '#c3c9d0')
+    cv.fill(pm & ~shift(pm, -1, -1), '#8d97a4')
+roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
+roof &= ~rect(0, 116, W, H)
+o = cv.obj()
+o.part(roof, TURF, d=3)
+o.draw()
+cv.fill(rect(cx0 - 5, 114, cx1 + 7, 115), PEAT['b'])   # birch-bark layer under the turf
+cv.fill(rect(cx0 - 5, 115, cx1 + 7, 115), PEAT['s'])
+ys, xs = np.nonzero(roof)
+for k in range(60):   # grass, heather and cottongrass growing on the roof
+    i = r(0, len(xs) - 1)
+    x, y = int(xs[i]), int(ys[i])
+    if y > 112:
+        continue
+    c = (TURF['r'], TURF['s'], HEATH['b'], HEATH['r'], MOSS['r'])[k % 5]
+    cv.dots([(x, y), (x, y - 1)], c)
+for x in range(cx0 - 4, cx1 + 7, 5):   # drips off the eaves
+    cv.dots([(x, 117 + (x % 3)), (x, 118 + (x % 3))], RAIN)
+# door with a lit lantern beside it
+o = cv.obj()
+o.part(rrect(232, 118, 245, 140, 3), DOOR, d=2)
+o.draw()
+cv.fill(rect(238, 120, 239, 139), DOOR['s'])
+cv.dots([(243, 130)], '#d9b85a')
+cv.fill(rect(231, 140, 246, 141), STONE['r'])   # doorstep
+glow = ell(244, 112, 258, 128) & ~rrect(232, 118, 245, 140, 3)
+cv.fill(glow & rect(cx0, 110, cx1, 140), '#b4a88c')   # warm wash on the wall (hard pixel halo)
+cv.fill(rect(250, 112, 252, 114), UMBER)   # bracket
+o = cv.obj()
+o.part(rect(248, 115, 254, 123), WARM, d=1)
+o.draw()
+cv.fill(rect(248, 115, 254, 115) | rect(248, 123, 254, 123) | rect(251, 115, 251, 123), '#3d2a1e')
+cv.dots([(249, 117), (249, 118)], WARM['r'])
+for wx0, wx1 in ((206, 220), (258, 272)):   # deep-set windows, amber light inside
+    o = cv.obj()
+    o.part(rect(wx0, 119, wx1, 130), WARM, d=2)
+    o.draw()
+    cv.fill(rect((wx0 + wx1) // 2, 119, (wx0 + wx1) // 2, 130) | rect(wx0, 124, wx1, 124), '#3d2a1e')
+    cv.fill(rect(wx0 - 1, 131, wx1 + 1, 132), STONE['r'])
+    cv.dots([(wx0 + 2, 121), (wx0 + 2, 122)], WARM['r'])
+cv.fill(rect(260, 126, 262, 129) | rect(261, 125, 261, 125), UMBER)   # the house cat in the window
+cv.dots([(260, 125), (262, 125)], UMBER)
+cv.fill(rect(208, 127, 211, 129), MOSS['s'])   # a pot of something green
+cv.dots([(209, 126), (210, 125)], MOSS['r'])
+# water butt and peat stack against the gable
+o = cv.obj()
+o.part(rrect(282, 124, 292, 140, 2), WOOD, d=2)
+o.draw()
+cv.fill(rect(282, 128, 292, 128) | rect(282, 136, 292, 136), '#3d2a1e')
+cv.fill(rect(283, 124, 291, 124), PUD['b'])
+for k in range(5):
+    cv.fill(rect(294, 110 + k * 6, 299, 112 + k * 6), PEAT['b'])
+    cv.fill(rect(294, 113 + k * 6, 299, 113 + k * 6), PEAT['s'])
+    cv.dots([(295 + k % 3, 111 + k * 6)], PEAT['r'])
+cv.fill(rect(293, 108, 299, 109), TURF['s'])
+# pub sign of the Crooked Kettle: post, arm, a board with a kettle on it (no words)
+o = cv.obj()
+o.part(rect(186, 104, 188, 142), WOOD, d=1)
+o.part(rect(174, 104, 188, 105), WOOD, d=0)
+o.part(rect(174, 108, 186, 120), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.draw()
+cv.dots([(176, 106), (176, 107), (184, 106), (184, 107)], UMBER)
+cv.fill(ell(177, 112, 183, 118), '#3d2a1e')
+cv.fill(rect(184, 113, 185, 113), '#3d2a1e')
+cv.fill(rect(179, 111, 181, 111), '#3d2a1e')
+cv.dots([(185, 112), (178, 110), (176, 109)], '#bdb8ac')
+
+# ---------------------------------------------------------------- the muddy track from the door to the front edge, with puddles
+track = poly([(230, 142), (248, 142), (256, 156), (266, 170), (282, 186), (292, 199), (216, 199), (222, 182), (228, 166), (230, 154)])
+cv.fill(track, MUD['b'])
+cv.fill(track & ~shift(track, 2, 0), MUD['r'])
+cv.fill(track & ~shift(track, -2, 0), MUD['s'])
+for pts in (((236, 146), (236, 166), (232, 186), (230, 199)), ((244, 146), (252, 166), (264, 186), (272, 199))):   # cart ruts
+    cv.fill(line(list(pts)) & track, MUD['s'])
+for _ in range(40):
+    px, py = r(218, 290), r(144, 199)
+    if track[py, px]:
+        cv.dots([(px, py)], MUD['r'] if r(0, 1) else STONE['b'])
+TRACK_PUDDLES = ((234, 152, 248, 156), (244, 166, 262, 171), (226, 184, 252, 192))
+for p in TRACK_PUDDLES:
+    puddle(*p, rings=2)
+
+# ---------------------------------------------------------------- drystone walls (bridge to cottage, and along the front of the garden)
+
+
+def drystone(pts, th=7):
+    band = blank()
+    for i in range(len(pts) - 1):
+        (xa, ya), (xb, yb) = pts[i], pts[i + 1]
+        band |= poly([(xa, ya - th), (xb, yb - th), (xb, yb), (xa, ya)])
+    o = cv.obj()
+    o.part(band, STONE, d=1)
+    o.draw()
+    ys_, xs_ = np.nonzero(band)
+    for k in range(len(xs_) // 14):
+        i = r2(0, len(xs_) - 1)
+        x, y = int(xs_[i]), int(ys_[i])
+        st = ell(x - 2, y - 1, x + 2, y + 1) & band
+        cv.fill(st, (STONE['b'], STONE['r'], '#8a8c86')[k % 3])
+        cv.fill(st & ~shift(st, -1, -1), STONED)
+    tops = band & ~shift(band, 0, 1)
+    ty, tx = np.nonzero(tops)
+    for i in range(0, len(tx), 3):   # upright coping stones
+        cv.dots([(int(tx[i]), int(ty[i]) - 1)], STONE['s'] if i % 2 else STONE['b'])
+    return band
+
+
+wall1 = drystone([(160, 136), (176, 137), (192, 140)], 6)
+wall2 = drystone([(150, 158), (190, 152), (226, 150)], 7)
+wall3 = drystone([(254, 150), (276, 151), (300, 149)], 7)
+for gpx in (226, 252):   # gateposts
+    o = cv.obj()
+    o.part(rect(gpx, 136, gpx + 4, 152), STONE, d=2)
+    o.draw()
+    cv.dots([(gpx + 1, 138), (gpx + 2, 144)], '#c8c27a')
+# Professor Hoot on the right gatepost
+ox, oy = 254, 135
+o = cv.obj()
+o.part(ell(ox - 5, oy - 9, ox + 5, oy + 1), ramp('#8a6a4a', '#6a4c34', '#a88a6a'), d=2)
+o.part(rect(ox - 4, oy - 11, ox - 3, oy - 9) | rect(ox + 3, oy - 11, ox + 4, oy - 9), ramp('#6a4c34', '#4e3626'), d=0)
+o.draw()
+cv.fill(ell(ox - 4, oy - 8, ox - 1, oy - 5) | ell(ox + 1, oy - 8, ox + 4, oy - 5), '#e6e2d6')
+cv.dots([(ox - 2, oy - 6), (ox + 2, oy - 6)], UMBER)
+cv.dots([(ox, oy - 5), (ox, oy - 4)], '#d9a35a')
+cv.dots([(ox - 2, oy - 2), (ox, oy - 1), (ox + 2, oy - 2)], '#e6e2d6')
+
+# ---------------------------------------------------------------- the peat bank (front left): cut face, wet floor, leaning stacks
+bank_top = poly([(0, 136), (40, 138), (84, 144), (88, 150), (0, 146)])
+face = poly([(0, 146), (88, 150), (90, 164), (0, 160)])
+floor = poly([(0, 160), (90, 164), (94, 174), (80, 199), (0, 199)])
+cv.fill(floor & ~burn & ~dil4(dil4(burn)), PEAT['r'])
+cv.fill(face, PEAT['b'])
+for yy in range(149, 164, 3):   # layers in the cut face
+    cv.fill(face & rect(0, yy, W, yy), PEAT['s'] if yy % 2 else '#4a3424')
+for xx in range(4, 88, 9):   # spade marks
+    cv.fill(face & rect(xx, 0, xx, H) & rect(0, 150 + xx // 40, W, 162), '#33231a')
+cv.fill(face & ~shift(face, 0, 1), '#33231a')
+cv.fill(bank_top, MOSS['b'])
+for k in range(9):   # heather overhanging the cut edge
+    heather(6 + k * 10, 145 + k // 2, 5, 1, n=3, s0=3, s1=4, flowers=5)
+ys, xs = np.nonzero(floor & ~dil4(dil4(burn)))
+for _ in range(80):
+    i = r(0, len(xs) - 1)
+    cv.dots([(int(xs[i]), int(ys[i]))], PEAT['b'] if r(0, 1) else MUD['s'])
+for sx, sy in ((10, 178), (26, 182), (44, 178), (14, 196)):   # turves stacked in fours, leaning like little houses
+    o = cv.obj()
+    o.part(poly([(sx - 6, sy), (sx - 1, sy - 11), (sx, sy)]), PEAT, d=1)
+    o.part(poly([(sx + 6, sy), (sx + 1, sy - 11), (sx, sy)]), PEAT, d=1)
+    o.part(rect(sx - 3, sy - 13, sx + 3, sy - 11), PEAT, d=1)
+    o.draw()
+    cv.dots([(sx - 3, sy - 4), (sx + 3, sy - 6)], PEAT['r'])
+puddle(56, 186, 76, 191, rings=1)
+# the peat cutter, with a long flat spade cutting into the face
+X, Y = gnome(66, 176, RUST, MOSS, f=0.9, tip=-8)
+o = cv.obj()
+o.part(line([(X(8), Y(-15)), (82, 156)], 2), WOOD, d=1)
+o.part(poly([(80, 154), (86, 158), (84, 163), (78, 159)]), STONE, d=1)
+o.draw()
+cv.fill(rect(X(6), Y(-15), X(9), Y(-12)), SKIN['b'])
+cv.fill(rect(X(-10), Y(-4), X(-8), Y(0)), WOOD['s'])   # a wheelbarrow handle peeking
+# a barrow of cut turves
+o = cv.obj()
+o.part(poly([(34, 164), (54, 164), (51, 171), (37, 171)]), WOOD, d=2)
+o.part(ell(38, 169, 44, 175), BOOT, d=1, contour=True)
+o.draw()
+for k in range(4):
+    cv.fill(rect(36 + k * 4, 160, 39 + k * 4, 163), PEAT['b'])
+    cv.dots([(36 + k * 4, 160)], PEAT['r'])
+
+# ---------------------------------------------------------------- a bent hawthorn on the knoll's foot (wind-shaped, leaning away from the sea)
+o = cv.obj()
+o.part(poly([(14, 140), (20, 140), (22, 126), (30, 114), (40, 106), (36, 104), (26, 110), (16, 124)]), WOOD, d=2)
+o.part(line([(26, 114), (14, 106)], 2) | line([(34, 108), (50, 100)], 2), WOOD, d=1)
+o.draw()
+for cx, cy, rx, ry in ((44, 98, 10, 3), (14, 102, 6, 3), (30, 104, 8, 3)):
+    m = blobs(cx, cy, rx, ry, 6, 3, 5)
+    o = cv.obj()
+    o.part(m, TURF, d=2)
+    o.draw()
+    ys, xs = np.nonzero(m)
+    for _ in range(10):
+        i = r(0, len(xs) - 1)
+        cv.dots([(int(xs[i]), int(ys[i]))], WINE['b'] if r(0, 1) else TURF['r'])   # haws
+
+# ---------------------------------------------------------------- sheep on the moor
+SHEEP = ((70, 96, 1), (160, 104, 1), (178, 116, -1), (100, 124, 1))
+for shx, shy, fc in SHEEP:
+    shadow(shx - 2, shy + 9, shx + 15, shy + 12)
+    o = cv.obj()
+    o.part(rect(shx + 2, shy + 6, shx + 3, shy + 10) | rect(shx + 10, shy + 6, shx + 11, shy + 10), BOOT, d=0)
+    o.part(blobs(shx + 7, shy + 3, 3, 1, 6, 3, 4, r2) | ell(shx + 1, shy, shx + 14, shy + 8), WOOL, d=2)
+    hx0 = shx - 5 if fc > 0 else shx + 13
+    o.part(ell(hx0, shy + 2, hx0 + 6, shy + 8), BOOT, d=1)
+    o.draw()
+    cv.dots([(hx0 + (1 if fc > 0 else 4), shy + 4)], '#e6e2d6')
+    for k in range(4):
+        cv.dots([(shx + 4 + r2(0, 8), shy + 1 + r2(0, 4))], WOOL['s'])
+
+# ---------------------------------------------------------------- moor plants: heather drifts, bracken, cottongrass, sphagnum
+for hx_, hy_, rx, ry, n in ((150, 118, 8, 2, 4), (196, 146, 10, 2, 5), (78, 116, 8, 2, 4), (40, 124, 10, 3, 5), (62, 134, 9, 2, 4),
+                            (178, 128, 6, 2, 3), (288, 160, 10, 3, 5), (140, 150, 8, 2, 4), (206, 168, 10, 3, 5), (160, 176, 10, 3, 5),
+                            (296, 178, 6, 3, 4), (186, 190, 10, 3, 6), (136, 194, 12, 3, 6), (210, 196, 8, 2, 4), (118, 106, 6, 2, 3)):
+    heather(hx_, hy_, rx, ry, n=n, s0=3, s1=6, flowers=10)
+for bx, by, s in ((90, 112, 0.8), (96, 110, 0.7), (190, 132, 0.8), (124, 166, 1.0), (150, 186, 1.1), (276, 192, 1.1), (212, 158, 1.0),
+                  (284, 170, 1.0), (54, 128, 0.8), (32, 132, 0.9), (166, 140, 0.9), (174, 196, 1.2), (122, 186, 1.1), (6, 128, 0.8)):
+    bracken(bx, by, s)
+for cx, cy in ((84, 128), (92, 132), (146, 136), (152, 132), (198, 160), (204, 186), (170, 162), (178, 168), (140, 170),
+               (268, 158), (276, 184), (296, 192), (118, 196), (130, 178), (24, 132), (156, 196), (190, 172)):
+    cottongrass(cx, cy, r(4, 7))
+for sx, sy in ((150, 166), (190, 180), (272, 196)):   # sphagnum cushions, green and red
+    m = blobs(sx, sy, 5, 1, 4, 2, 3)
+    cv.fill(m, '#8fa058')
+    ys, xs = np.nonzero(m)
+    for _ in range(8):
+        i = r(0, len(xs) - 1)
+        cv.dots([(int(xs[i]), int(ys[i]))], '#a85a4a' if r(0, 1) else '#b8c070')
+puddle(160, 142, 176, 146, rings=1)
+puddle(176, 154, 192, 158, rings=1)
+puddle(260, 176, 270, 179, rings=1)
+
+# ---------------------------------------------------------------- fairy ring of toadstools (front centre-right of the burn)
+TOADS = ((132, 172, 'fly'), (142, 168, 'par'), (154, 170, 'ink'), (162, 176, 'fly'), (164, 186, 'puff'), (156, 192, 'cha'), (142, 194, 'fly'), (132, 186, 'par'))
+for tx, ty, kind in TOADS:
+    if kind == 'fly':
+        cap, stem = ramp('#b8483a', '#8a2c2a', '#d06a50'), WOOL
+    elif kind == 'par':
+        cap, stem = ramp('#c9b08a', '#9a8060', '#e6d2aa'), WOOL
+    elif kind == 'ink':
+        cap, stem = ramp('#7b8695', '#566170', '#a3acb7'), WOOL
+    elif kind == 'cha':
+        cap, stem = ramp('#d9a23a', '#a87a24', '#f0c862'), ramp('#d9a23a', '#a87a24')
+    else:
+        cap, stem = WOOL, WOOL
+    o = cv.obj()
+    if kind == 'puff':
+        o.part(ell(tx - 3, ty - 5, tx + 3, ty), cap, d=2)
+    else:
+        o.part(ell(tx - 4, ty - 7, tx + 4, ty - 2) & ~rect(0, ty - 3, W, H), cap, d=2)
+        o.part(rect(tx - 1, ty - 3, tx + 1, ty), stem, d=1)
+    o.draw()
+    if kind == 'fly':
+        cv.dots([(tx - 2, ty - 5), (tx + 1, ty - 6), (tx + 2, ty - 4)], '#f6f4ee')
+# a frog on a stone by the burn
+fx, fy = 112, 190
+o = cv.obj()
+o.part(ell(fx - 6, fy, fx + 6, fy + 5), STONE, d=1)
+o.part(ell(fx - 4, fy - 4, fx + 3, fy + 1), MOSS, d=1)
+o.draw()
+cv.dots([(fx - 3, fy - 4), (fx + 1, fy - 4)], '#f6f4ee')
+cv.dots([(fx - 3, fy - 3), (fx + 1, fy - 3)], UMBER)
+cv.fill(rect(fx - 2, fy - 1, fx + 1, fy - 1), MOSS['s'])
+
+# ---------------------------------------------------------------- gnomes: kite flyer at the stones, umbrella on the bridge, puddle-jumper on the track
+kx, ky = 104, 98
+X, Y = gnome(kx, ky, WINE, HEATH, f=0.6, tip=-3)
+kite = poly([(146, 20), (152, 26), (146, 34), (140, 26)])
+o = cv.obj()
+o.part(kite, HEATH, d=1)
+o.draw()
+cv.fill(kite & rect(146, 0, W, H), MUST['b'])
+cv.fill(line([(146, 20), (146, 34)]) | line([(140, 26), (152, 26)]), '#3d2a1e')
+cv.fill(line([(X(6), Y(-12)), (124, 70), (146, 34)]), '#3d2a1e')   # a sagging string
+for k, (tx, ty) in enumerate(((146, 37), (144, 41), (146, 45), (148, 49))):   # tail bows
+    cv.dots([(tx - 1, ty), (tx + 1, ty), (tx, ty)], MUST['b'] if k % 2 else HEATH['r'])
+cv.fill(line([(146, 34), (145, 38), (147, 44), (147, 50)]), '#3d2a1e')
+# umbrella gnome crossing the bridge
+ux, uy = 136, 121
+X, Y = gnome(ux, uy, WINE, SLATEC, f=0.75, tip=-2)
+canopy = ell(X(-17), Y(-52), X(17), Y(-30)) & ~rect(0, Y(-40) + 1, W, H)
+for k in range(5):
+    bx = X(-17) + k * int(34 * 0.75) // 4
+    canopy &= ~ell(bx - 3, Y(-40) - 1, bx + 3, Y(-40) + 3)
+o = cv.obj()
+o.part(canopy, UMB, d=2)
+o.draw()
+for k in (-1, 1):
+    cv.fill(line([(X(0), Y(-52)), (X(9 * k), Y(-41))]) & canopy, UMB['r'])
+cv.fill(rect(X(0), Y(-55), X(0), Y(-52)), UMBER)
+cv.fill(line([(X(0), Y(-40)), (X(0), Y(-14))]), '#3d2a1e')
+cv.fill(rect(X(-1), Y(-15), X(2), Y(-12)), SKIN['b'])
+for dx in (-12, -4, 4, 12):   # drips off the umbrella ribs
+    cv.dots([(X(dx), Y(-37)), (X(dx), Y(-35))], RAIN)
+# child puddle-jumping, mid-air above the big puddle, with a splash
+jx, jy = 240, 180
+X, Y = gnome(jx, jy, WINE, MUST, f=0.8, tip=-10, boots=MUST)
+for k, (dx, dy) in enumerate(((-16, 8), (-12, 4), (-9, 2), (12, 2), (15, 5), (18, 9), (-14, 0), (16, 0), (-4, 6), (6, 6))):
+    cv.dots([(jx + dx, jy + dy), (jx + dx, jy + dy - 1)], PUD['r'] if k % 2 else '#e6e2d6')
+cv.fill(rect(X(-11), Y(-15), X(-8), Y(-12)) | rect(X(8), Y(-15), X(11), Y(-12)), MUST['b'])   # arms flung up
+cv.dots([(X(-11), Y(-17)), (X(-10), Y(-17)), (X(10), Y(-17)), (X(11), Y(-17))], SKIN['b'])
+cv.fill(ell(jx - 7, jy + 6, jx + 9, jy + 9), PUD['s'])   # shadow on the water
+KEEP = rect(jx - 20, jy - 36, jx + 20, jy + 12) | rect(ux - 16, uy - 46, ux + 16, uy + 2) | rect(kx - 8, ky - 28, kx + 8, ky + 2) | \
+    rect(48, 140, 92, 178) | rect(ox - 7, oy - 12, ox + 7, oy + 2) | rect(174, 104, 188, 120) | rect(204, 116, 274, 134)
+
+# ---------------------------------------------------------------- drizzle over everything (short slanting streaks)
+for k in range(520):
+    x, y = r2(2, W - 1), r2(0, H - 3)
+    if KEEP[y, x] or (y > 100 and k % 2):
+        continue
+    cv.dots([(x, y), (x - 1, y + 1)] + ([(x - 2, y + 2)] if y < 100 else []), RAIN)
+
+if __name__ == '__main__':
+    out = sys.argv[1] if len(sys.argv) > 1 else None
+    n = save_pic(cv, 'mistmoor', out)
+    print('mistmoor:', n, 'colours')

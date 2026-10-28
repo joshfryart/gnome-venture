@@ -190,8 +190,8 @@ def giraffe(x, y, f, h=62):
     by = y - 30
     body = ell(x - 14, by - 7, x + 14, by + 7)
     legs = blank()
-    for lx in (-11, -6, 6, 11):
-        legs |= rect(x + lx * f - 1, by + 2, x + lx * f + 1, y)
+    for lx, sp in ((-11, -1), (-7, 1), (6, -1), (10, 1)):
+        legs |= line([(x + lx * f, by + 2), (x + (lx + sp) * f, y)], 2)
     neck = poly([(x + 8 * f, by - 4), (x + 13 * f, by - 2), (x + 22 * f, by - h + 34), (x + 17 * f, by - h + 32)])
     head = ell(min(x + 16 * f, x + 30 * f), by - h + 26, max(x + 16 * f, x + 30 * f), by - h + 33)
     o = cv.obj()
@@ -207,8 +207,8 @@ def giraffe(x, y, f, h=62):
         px, py = int(xs[i]), int(ys[i])
         pm = rect(px, py, px + 2, py + 1) | rect(px + 1, py + 2, px + 2, py + 2)
         cv.fill(pm & blob & ~shift(~blob, 1, 1) & ~shift(~blob, -1, -1), '#9a5a24')
-    for lx in (-11, -6, 6, 11):
-        cv.fill(rect(x + lx * f - 1, y - 1, x + lx * f + 1, y), DARK)
+    cv.fill(legs & rect(0, y - 1, W, y), DARK)
+    cv.fill(legs & rect(0, by + 12, W, by + 12), GIR['s'])   # knees
     hx0 = x + 22 * f
     cv.fill(rect(hx0 - 1, by - h + 22, hx0 - 1, by - h + 26) | rect(hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 22, hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 26), '#7a4a1f')   # ossicones
     cv.dots([(hx0 - 1, by - h + 21), (hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 21)], DARK)
@@ -306,11 +306,24 @@ for px, py in ((236, 54), (258, 46), (284, 54), (270, 38)):   # hanging velvet p
     o = cv.obj()
     o.part(ell(px - 2, py + 3, px + 2, py + 11), ramp('#a4b05a', '#7a8a3a', '#c9d08a'), d=1)
     o.draw()
-o = cv.obj()   # arched door, open, warm light
-o.part(ell(252, 124, 272, 160) & rect(0, 0, W, 154), ramp('#f5cf6a', '#e8a317', '#fff4c0'), d=2)
+o = cv.obj()   # arched doorway: a smile-shaped gap in the bark, lit from inside
+door = ell(252, 126, 272, 162) & rect(0, 0, W, 154)
+o.part(door, ramp('#4a2c1a', '#2a1a10', '#74462a'), d=2)
 o.draw()
-cv.fill(rect(252, 150, 272, 154) & ell(252, 124, 272, 160), '#e8a317')
-cv.fill(rect(261, 128, 263, 154), '#b07a10')   # doorway post
+cv.fill(ell(255, 132, 269, 160) & rect(0, 0, W, 152), '#e8a317')
+cv.fill(ell(257, 134, 267, 158) & rect(0, 0, W, 146), '#f5cf6a')
+cv.fill(rect(256, 146, 268, 147), '#b07a10')   # a table inside
+cv.fill(rect(258, 148, 258, 152) | rect(266, 148, 266, 152), '#7a4a1f')
+cv.dots([(259, 145), (260, 145), (264, 145)], '#f1ece0')   # cups
+cv.fill(line([(252, 154), (272, 154)]), BARK['s'])   # sill
+o = cv.obj()   # bench outside
+o.part(rect(270, 148, 284, 149), UMBER, d=0)
+o.part(rect(271, 150, 272, 154) | rect(282, 150, 283, 154), UMBER, d=0)
+o.draw()
+for k in range(40):   # bark knots and speckle
+    tx, ty = r(240, 288), r(70, 150)
+    if bt[ty, tx] and not door[ty, tx]:
+        cv.dots([(tx, ty), (tx + 1, ty)], BARK['r'] if k % 3 == 0 else BARK['s'])
 o = cv.obj()   # round window up the trunk
 o.part(ell(256, 88, 268, 100), ramp('#f5cf6a', '#e8a317', '#fff4c0'), d=1)
 o.draw()
@@ -337,10 +350,16 @@ def hut(x0, x1, wy0, wy1, apex, door=True, deco=0):
     o = cv.obj()
     o.part(rrect(x0, wy0, x1, wy1, 3), MUD, d=3)
     o.draw()
-    for k in range(3):   # painted wall band (ochre zigzag)
-        yy = wy0 + 8
-        for xx in range(x0 + 3, x1 - 3, 4):
-            cv.dots([(xx, yy + (xx // 4) % 2)], (CLAY['b'], '#f2e4c0', CLAY['s'])[deco % 3])
+    wall = rrect(x0, wy0, x1, wy1, 3)
+    for k in range((x1 - x0) * (wy1 - wy0) // 30):   # daub texture: little lit and shaded smears
+        tx, ty = r(x0 + 2, x1 - 3), r(wy0 + 2, wy1 - 2)
+        if wall[ty, tx] and wall[ty, tx + 1]:
+            cv.dots([(tx, ty), (tx + 1, ty)], MUD['r'] if k % 2 else MUD['s'])
+    yy = wy0 + 10
+    band = rect(x0 + 2, yy - 1, x1 - 2, yy + 3) & wall
+    cv.fill(band, (CLAY['b'], '#f2e4c0', CLAY['s'])[deco % 3])
+    for xx in range(x0 + 2, x1 - 2, 4):   # zigzag on the band
+        cv.dots([(xx, yy + (xx // 4) % 2 * 2), (xx + 1, yy + 1), (xx + 2, yy + 2 - (xx // 4) % 2 * 2)], ('#f2e4c0', CLAY['s'], '#f2e4c0')[deco % 3])
     if door:
         o = cv.obj()
         o.part(rrect(cx - 4, wy1 - 14, cx + 4, wy1, 2), ramp('#4a2c1a', '#2a1a10', '#74462a'), d=1)
@@ -580,7 +599,25 @@ for ax, ay in ((6, 172), (70, 150), (124, 176), (214, 150), (300 - 8, 162)):   #
     cv.fill(rect(ax, ay - 14, ax, ay - 8), '#55652a')
     cv.dots([(ax, ay - 15), (ax, ay - 14)], '#f08a24')
 
+# fold rare near-duplicate colours into their neighbours (keeps the picture under ~100 colours)
+cv.remap({'#a9d6ea': '#8cc4dc', '#6a6a7a': '#8a7a70', '#2a2a3a': '#2a1a10', '#4a4a5a': '#4a3c36', '#3f8fb0': '#4f93b8', '#25637d': '#2f6f92',
+          '#5c4a3c': '#5c3420', '#6a5444': '#6a4e3c', '#a4c86a': '#a4b05a', '#2f6a3a': '#4f7a2a', '#8ab84a': '#a4b05a', '#fff4c0': '#fff4c8',
+          '#f2d46a': '#f5cf6a', '#6a4a3a': '#6a4e3c', '#6a5a3a': '#6a4e3c', '#f5b04a': '#f5b46a', '#c9a96e': '#d9a35a', '#f2c86a': '#f5cf6a',
+          '#a8241f': '#8a3a1f', '#c9d08a': '#a4b05a', '#f8c860': '#f8c870', '#e0907a': '#d9a07a', '#f0a0a0': '#f08aa0', '#fff0d8': '#fff4c8',
+          '#d9c0a0': '#dccab0', '#f2dcc0': '#f6dcb0', '#e2a87a': '#e0a07a'})
+
+
+def palette_report():
+    px = cv.px.reshape(-1, 3)
+    u, c = np.unique(px, axis=0, return_counts=True)
+    for col, n in sorted(zip(map(tuple, u), c), key=lambda t: t[1]):
+        print('#%02x%02x%02x' % col, n)
+
+
 if __name__ == '__main__':
+    if '--pal' in sys.argv:
+        palette_report()
+        sys.exit()
     out = sys.argv[1] if len(sys.argv) > 1 else None
     n = save_pic(cv, 'thornacre', out)
     print('thornacre:', n, 'colours')

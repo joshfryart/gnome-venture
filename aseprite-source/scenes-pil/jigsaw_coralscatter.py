@@ -81,6 +81,24 @@ def gnome(gx, gy, tunic, hat, arm=None, flip=False):
         cv.fill(rect(gx + 12, gy - 24, gx + 13, gy - 22), SKIN['b'])
 
 
+def sgnome(gx, gy, tunic, hat, arm=None, flip=False):
+    """A small gnome (village and canoe scale, ~22 px with hat), feet at (gx, gy)."""
+    o = cv.obj()
+    o.part(rect(gx - 3, gy - 1, gx - 1, gy) | rect(gx + 1, gy - 1, gx + 3, gy), ramp('#5c3420', '#3d2a1c', '#7a4a1f'), d=0)
+    o.part(rrect(gx - 3, gy - 8, gx + 3, gy - 1, 1), tunic, d=1, contour=True)
+    o.part(poly([(gx - 3, gy - 10), (gx + 3, gy - 10), (gx, gy - 4)]), BEARD, d=1, contour=True)
+    o.part(rect(gx - 3, gy - 13, gx + 3, gy - 10), SKIN, d=1)
+    tip = (gx - 3, gy - 23) if not flip else (gx + 3, gy - 23)
+    o.part(poly([(gx - 4, gy - 12), (gx + 4, gy - 12), tip]), hat, d=1, contour=True)
+    if arm == 'up':
+        o.part(line([(gx + 3, gy - 7), (gx + 6, gy - 11), (gx + 8, gy - 15)], 2), tunic, d=0)
+    o.draw()
+    cv.dots([(gx - 1, gy - 11), (gx + 1, gy - 11)], DARK)
+    cv.dots([(gx, gy - 10)], '#e0907a')
+    if arm == 'up':
+        cv.dots([(gx + 8, gy - 16), (gx + 9, gy - 17)], SKIN['b'])
+
+
 def fish(x, y, rp, s=4, face=1, outline=True, stripe=None):
     """A fish centred at (x, y), facing right (face=1) or left (-1)."""
     body = ell(x - s, y - s // 2 - 1, x + s, y + s // 2 + 1)
@@ -122,10 +140,15 @@ def palm(x, y, h, lean, fronds=7):
     cx, cy = pts[-1]
     m = blank()
     for k in range(fronds):
-        a = math.pi * (0.9 + 1.2 * k / (fronds - 1))
-        ex, ey = cx + int(15 * math.cos(a)), cy + int(8 * math.sin(a)) + 7
-        mx, my = cx + int(9 * math.cos(a)), cy + int(8 * math.sin(a)) - 2
-        m |= line([(cx, cy), (mx, my), (ex, ey)], 3)
+        a = math.pi * (0.95 + 1.1 * k / (fronds - 1))   # spread from left round over the top to the right
+        L = 13 if k % 2 else 11
+        fp = []
+        for i in range(0, 6):
+            t = i / 5
+            fp.append((cx + int(L * t * math.cos(a)), cy + int(L * t * math.sin(a) * 0.7 + 7 * t * t)))
+        m |= line(fp, 2)
+        for i, (px, py) in enumerate(fp[1:]):
+            m |= line([(px, py), (px + (1 if math.cos(a) > 0 else -1), py + 3)])
     o = cv.obj()
     o.part(m, PALM, d=1)
     o.draw()
@@ -267,7 +290,7 @@ cv.dots([(69, 85)], LAVA['r'])
 cv.dots([(70, 80), (71, 77), (70, 74)], '#9a88aa')
 
 # ================================================================ STONE HEAD WATCHERS on the bluff (right)
-bluff = poly([(240, WL), (244, 78), (252, 66), (262, 60), (300, 58), (300, WL)])
+bluff = poly([(248, WL), (250, 78), (256, 66), (264, 60), (300, 58), (300, WL)])
 o = cv.obj()
 o.part(bluff, VOLC, d=3)
 o.draw()
@@ -276,10 +299,10 @@ cv.fill(top, GRASS['b'])
 cv.fill(top & ~shift(top, 0, -2), GRASS['s'])
 cv.fill(top & ~shift(top, 0, 1), GRASS['r'])
 for k in range(14):
-    x0, y0 = r(246, 298), r(70, 90)
+    x0, y0 = r(252, 298), r(70, 90)
     if bluff[y0, x0]:
         cv.fill(line([(x0, y0), (x0 + r(2, 5), y0)]), VOLC['s'])
-for hx, hb, hh, topknot in ((256, 70, 22, False), (272, 66, 28, True), (290, 64, 24, False)):
+for hx, hb, hh, topknot in ((262, 68, 20, False), (276, 64, 26, True), (291, 62, 22, False)):
     w = hh * 2 // 5
     head = poly([(hx - w // 2, hb), (hx - w // 2 - 1, hb - hh + 6), (hx - w // 2 + 1, hb - hh), (hx + w // 2, hb - hh), (hx + w // 2 + 1, hb - hh + 6), (hx + w // 2, hb)])
     o = cv.obj()
@@ -301,15 +324,15 @@ for hx, hb, hh, topknot in ((256, 70, 22, False), (272, 66, 28, True), (290, 64,
 palm(296, 62, 34, -14, 8)
 
 # ================================================================ BEACH between village and bluff: kangaroo and kiwi
-beach = poly([(196, WL), (206, 86), (226, 82), (244, 80), (246, WL)])
+beach = poly([(212, WL), (220, 86), (234, 82), (248, 80), (250, WL)])
 cv.fill(beach, SAND['b'])
 cv.fill(beach & ~shift(beach, 0, 1), SAND['r'])
 for _ in range(14):
-    bx, by = r(204, 240), r(84, 90)
+    bx, by = r(214, 248), r(84, 90)
     if beach[by, bx]:
         cv.dots([(bx, by)], SAND['s'])
 # kangaroo (standing on its tail, facing left)
-kx, ky = 228, 88
+kx, ky = 240, 88
 o = cv.obj()
 o.part(line([(kx + 4, ky - 2), (kx + 10, ky), (kx + 14, ky)], 3), ROO, d=1)       # tail
 o.part(ell(kx - 3, ky - 14, kx + 6, ky - 1), ROO, d=2)                              # body
@@ -323,7 +346,7 @@ cv.dots([(kx - 3, ky - 19)], DARK)
 cv.dots([(kx - 8, ky - 18)], DARK)
 cv.dots([(kx - 3, ky - 11), (kx - 4, ky - 10)], ROO['s'])  # little forepaws
 # kiwi (round, long beak probing the sand)
-wx, wy = 212, 89
+wx, wy = 228, 89
 o = cv.obj()
 o.part(ell(wx - 5, wy - 8, wx + 5, wy - 1), KIWI, d=2)
 o.part(rect(wx - 2, wy - 1, wx - 2, wy) | rect(wx + 2, wy - 1, wx + 2, wy), ramp('#d9a35a', '#a8702e'), d=0)
@@ -333,9 +356,9 @@ cv.dots([(wx - 3, wy - 6)], DARK)
 for k in range(4):
     cv.dots([(wx - 2 + k * 2, wy - 4 + (k % 2))], KIWI['s'])
 # hermit crab in a spiral shell
-cv.fill(ell(238, 85, 243, 89), CORAL['r'])
-cv.dots([(240, 87), (241, 86)], CORAL['s'])
-cv.dots([(237, 89), (236, 88)], LAVA['s'])
+cv.fill(ell(220, 86, 224, 89), CORAL['r'])
+cv.dots([(222, 87), (223, 86)], CORAL['s'])
+cv.dots([(219, 89), (218, 88)], LAVA['s'])
 
 # ================================================================ TIDE-POOL VILLAGE ON STILTS (centre right)
 STILTS = (152, 164, 176, 188, 200)
@@ -404,21 +427,21 @@ cv.fill(rect(fgx + 18, WL + 2, fgx + 18, 132), '#d8f0ea')
 cv.fill(rect(fgx + 17, WL - 1, fgx + 19, WL), CORAL['b'])   # float
 cv.dots([(fgx + 17, 132), (fgx + 17, 133), (fgx + 18, 134)], '#c8c4d2')   # hook
 # a gnome in the hut doorway with a lantern
-gnome(162, 71, PURP, CORAL)
-cv.fill(rect(169, 58, 171, 61), '#f5cf6a')
-cv.dots([(170, 57)], DARK)
+sgnome(164, 71, PURP, CORAL)
+cv.fill(rect(169, 62, 170, 64), '#f5cf6a')
+cv.dots([(169, 61)], DARK)
 
 # ================================================================ OUTRIGGER CANOE with the navigator (centre left)
 cx0, cx1, cy = 98, 150, 90
 o = cv.obj()   # mast and crab-claw sail first (behind the hull)
-o.part(rect(122, 46, 123, 88), WOOD, d=0)
+o.part(line([(122, 88), (100, 46)], 2) | line([(122, 88), (147, 42)], 2), WOOD, d=0)
 o.draw()
-sail = poly([(123, 86), (104, 48), (110, 46), (124, 70), (142, 50), (146, 54)])
+sail = poly([(122, 86), (100, 46), (106, 50), (112, 56), (118, 60), (124, 62), (130, 58), (136, 52), (142, 44), (147, 42)])
 o = cv.obj()
 o.part(sail, CORAL, d=2)
 o.draw()
 for k in range(1, 4):   # sail seams and woven panels
-    cv.fill(line([(123, 86), (106 + k * 9, 48 + k)]) & sail, CORAL['s'])
+    cv.fill(line([(122, 86), (100 + k * 11, 64 - abs(k - 2) * 4)]) & sail, CORAL['s'])
 cv.fill(line([(110, 64), (116, 62)]) & sail, '#f2e4c0')
 cv.fill(line([(132, 66), (138, 60)]) & sail, '#f2e4c0')
 hull = poly([(cx0, cy - 6), (cx0 + 6, cy - 1), (cx1 - 6, cy - 1), (cx1, cy - 6), (cx1 - 2, cy + 2), (cx0 + 2, cy + 2)])
@@ -430,10 +453,10 @@ o.draw()
 cv.fill(hull & rect(0, cy - 1, W, cy), LAVA['b'])   # painted band
 for x in range(cx0 + 8, cx1 - 6, 6):
     cv.dots([(x, cy - 1), (x + 1, cy)], '#f2e4c0')
-gnome(130, cy - 2, AQUA, LAVA, arm='up')        # the navigator points up the star path
-gnome(108, cy - 2, YEL, PURP, flip=True)        # paddler at the stern
+sgnome(132, cy - 2, AQUA, LAVA, arm='up')        # the navigator points up the star path
+sgnome(110, cy - 2, YEL, PURP, flip=True)        # paddler at the stern
 o = cv.obj()
-o.part(line([(102, cy - 12), (96, WL + 2)], 2), WOOD, d=0)
+o.part(line([(106, cy - 8), (98, WL + 2)], 2), WOOD, d=0)
 o.part(ell(93, WL, 99, WL + 5), WOOD, d=1)
 o.draw()
 # outrigger booms and the float riding just in front, half under the line
@@ -447,31 +470,31 @@ cv.fill(ell(cx0 + 4, WL + 1, cx1 - 4, WL + 6) & ~rect(0, 0, W, WL + 1), '#2f6878
 cv.fill(rect(cx0 + 10, WL + 6, cx1 - 10, WL + 6), '#5cb0b8')
 
 # ================================================================ UNDERWATER: volcano flank and the glowworm grotto (left)
-flank = poly([(0, WL + 1), (118, WL + 1), (108, 106), (92, 124), (80, 142), (66, 158), (58, 178), (54, 199), (0, 199)])
+flank = poly([(0, WL + 1), (66, WL + 1), (60, 106), (52, 122), (46, 140), (40, 160), (36, 180), (34, 199), (0, 199)])
 o = cv.obj()
-o.part(flank, UROCK, d=3)
+o.part(flank, VOLC, d=3)
 o.draw()
 for k in range(30):
-    x0, y0 = r(2, 100), r(WL + 4, 196)
+    x0, y0 = r(2, 60), r(WL + 4, 196)
     if flank[y0, x0] and flank[y0, min(W - 1, x0 + 6)]:
-        cv.fill(line([(x0, y0), (x0 + r(3, 6), y0 + r(-1, 1))]), UROCK['s'] if k % 3 else UROCK['r'])
-cave = ell(10, 126, 50, 166) & ~rect(0, 160, W, H) | rect(14, 156, 46, 162)
+        cv.fill(line([(x0, y0), (x0 + r(3, 6), y0 + r(-1, 1))]), VOLC['s'] if k % 3 else VOLC['r'])
+cave = ell(4, 128, 34, 164) & ~rect(0, 158, W, H) | rect(8, 154, 30, 160)
 cv.fill(dil4(cave) & ~cave, '#1a1a3a')
 cv.fill(cave, '#121834')
 for k in range(46):   # glowworm ceiling: blue-green dots, a few with dangling threads
-    gx, gy = r(14, 46), r(128, 158)
+    gx, gy = r(6, 32), r(130, 158)
     if cave[gy, gx]:
         cv.dots([(gx, gy)], ('#7af0c8', '#bfffe0', '#4ac0c8')[k % 3])
         if k % 5 == 0:
             cv.fill(rect(gx, gy + 1, gx, gy + 3), '#2a5a6a')
-cv.fill(ell(22, 150, 38, 160) & cave, '#1c2a48')   # glowing pool on the cave floor
-cv.dots([(26, 154), (31, 156), (34, 153)], '#7af0c8')
-for _ in range(10):   # coral tufts on the rock
-    x0, y0 = r(60, 110), r(100, 150)
+cv.fill(ell(10, 150, 26, 160) & cave, '#1c2a48')   # glowing pool on the cave floor
+cv.dots([(14, 154), (19, 156), (22, 153)], '#7af0c8')
+for _ in range(60):   # coral tufts on the rock
+    x0, y0 = r(30, 70), r(96, 190)
     if flank[y0, x0] and not flank[y0, min(W - 1, x0 + 4)]:
         cv.fill(ell(x0 - 3, y0 - 3, x0 + 2, y0 + 2), (CORAL['b'], PURP['b'], LAVA['b'])[x0 % 3])
         cv.dots([(x0 - 2, y0 - 2)], '#ffffff')
-for sx, sy in ((6, 106), (40, 110), (70, 104), (8, 184), (34, 176), (50, 190), (90, 112)):   # sea stars and anemones on the flank
+for sx, sy in ((6, 106), (40, 100), (24, 112), (8, 184), (24, 174), (14, 196), (50, 98)):   # sea stars and anemones on the flank
     if flank[sy, sx]:
         cv.dots([(sx, sy), (sx - 1, sy), (sx + 1, sy), (sx, sy - 1), (sx, sy + 1), (sx - 2, sy + 1), (sx + 2, sy + 1)], CORAL['b'] if sx % 2 else LAVA['b'])
         cv.dots([(sx, sy)], LAVA['r'])
@@ -486,18 +509,18 @@ for dx in (-4, -2, 2, 4):
     cv.dots([(cbx + dx, cby + 3)], RED['s'])
 
 # ================================================================ sand slope under the beach and bluff (right)
-slope = poly([(196, WL + 1), (300, WL + 1), (300, 199), (230, 199), (244, 170), (260, 140), (250, 120), (222, 100)])
+slope = poly([(236, WL + 1), (300, WL + 1), (300, 199), (264, 199), (268, 172), (276, 146), (266, 120), (250, 104)])
 o = cv.obj()
 o.part(slope, ramp('#c9b07a', '#9a8458', '#e8d4a0'), d=2)
 o.draw()
-cv.fill(slope & poly([(260, WL), (300, WL), (300, 150), (276, 140), (262, 116)]), UROCK['b'])   # the bluff's rock foot
-cv.fill(slope & poly([(260, WL), (300, WL), (300, 150), (276, 140), (262, 116)]) & ~shift(slope & poly([(260, WL), (300, WL), (300, 150), (276, 140), (262, 116)]), -2, -2), UROCK['s'])
+cv.fill(slope & poly([(266, WL), (300, WL), (300, 130), (284, 122), (272, 108)]), UROCK['b'])   # the bluff's rock foot
+cv.fill(slope & poly([(266, WL), (300, WL), (300, 130), (284, 122), (272, 108)]) & ~shift(slope & poly([(266, WL), (300, WL), (300, 130), (284, 122), (272, 108)]), -2, -2), UROCK['s'])
 for k in range(30):
-    x0, y0 = r(226, 298), r(100, 196)
+    x0, y0 = r(240, 298), r(100, 196)
     if slope[y0, x0]:
         cv.dots([(x0, y0), (x0 + 1, y0)], ('#9a8458', '#e8d4a0', '#fbe4b0')[k % 3])
 # octopus peeking from the rock foot
-ox, oy = 280, 150
+ox, oy = 286, 154
 o = cv.obj()
 o.part(ell(ox - 7, oy - 12, ox + 7, oy + 2), CORAL, d=2)
 for k in range(5):
@@ -511,11 +534,11 @@ for sx, sy in ((ox - 4, oy - 9), (ox + 3, oy - 10), (ox, oy - 3)):
     cv.dots([(sx, sy)], CORAL['r'])
 
 # ================================================================ REEF FLOOR (bottom band across)
-floor = below(wavy(182, 3, 8, 0.7, 3)) & rect(52, 0, W - 1, H - 1) & ~flank
+floor = below(wavy(182, 3, 8, 0.7, 3)) & rect(30, 0, W - 1, H - 1) & ~flank
 cv.fill(floor, SAND['b'])
 cv.fill(floor & ~shift(floor, 0, 1), SAND['r'])
 for _ in range(60):
-    x0, y0 = r(56, 298), r(182, 199)
+    x0, y0 = r(34, 298), r(182, 199)
     if floor[y0, x0]:
         cv.fill(line([(x0, y0), (x0 + r(2, 4), y0)]), SAND['s'])
 
@@ -562,11 +585,11 @@ def seagrass(x, y, n, rr):
         cv.fill(line([(bx, y), (bx + rr(-2, 2), y - h // 2), (bx + rr(-3, 3), y - h)], 1), ('#3f9a5e', '#5cb07a', '#2f7a5a')[k % 3])
 
 
-seagrass(58, 196, 4, r)
+seagrass(40, 196, 4, r)
 seagrass(206, 190, 5, r)
 seagrass(292, 194, 3, r)
 seagrass(124, 194, 3, r)
-branch_coral(72, 188, CORAL, 20, 12)
+branch_coral(60, 188, CORAL, 20, 12)
 brain_coral(96, 192, 10, LAVA)
 sea_fan(118, 186, PURP, 22)
 branch_coral(146, 194, LAVA, 16, 10)
@@ -647,7 +670,7 @@ bubbles(34, 124, 5, r2)
 bubbles(280, 136, 5, r2)
 bubbles(196, 170, 6, r2)
 # sea turtle gliding left
-tx, ty = 236, 118
+tx, ty = 222, 116
 o = cv.obj()
 o.part(poly([(tx - 4, ty + 2), (tx - 14, ty + 8), (tx - 6, ty + 6)]) | poly([(tx + 6, ty + 3), (tx + 12, ty + 9), (tx + 9, ty + 3)]), TURT, d=1)   # flippers
 o.part(ell(tx - 18, ty - 3, tx - 10, ty + 3), TURT, d=1)   # head
@@ -661,7 +684,7 @@ cv.dots([(tx - 15, ty - 1)], DARK)
 for k in range(11):
     fx, fy = 150 + (k % 4) * 9 + (k // 4) * 4, 104 + (k // 4) * 6 + (k % 2) * 2
     fish(fx, fy, YEL, 2, 1, False)
-for fx, fy, rp, s, face, st in ((60, 166, TEAL, 5, 1, '#ffffff'), (232, 150, PURP, 5, -1, YEL['b']), (104, 152, CORAL, 4, -1, None), (256, 104, AQUA, 4, -1, '#1f6080'), (180, 146, YEL, 4, 1, '#2a2440'), (214, 132, LAVA, 3, -1, None), (40, 98 + 72, CORAL, 3, 1, None), (150, 120, TEAL, 3, -1, None)):
+for fx, fy, rp, s, face, st in ((60, 166, TEAL, 5, 1, '#ffffff'), (250, 162, PURP, 5, -1, YEL['b']), (104, 152, CORAL, 4, -1, None), (240, 140, AQUA, 4, -1, '#1f6080'), (180, 146, YEL, 4, 1, '#2a2440'), (214, 132, LAVA, 3, -1, None), (40, 98 + 72, CORAL, 3, 1, None), (150, 120, TEAL, 3, -1, None)):
     fish(fx, fy, rp, s, face, True, st)
 fish(fgx + 22, 132, ramp('#c8c4d2', '#8a86a0', '#ece8f2'), 3, -1, True)   # a fish eyeing the hook
 # a moorish idol with its long streamer
@@ -672,6 +695,34 @@ o.draw()
 cv.fill(rect(mix - 1, miy - 5, mix, miy + 4), DARK)
 cv.fill(line([(mix, miy - 6), (mix - 4, miy - 10), (mix - 9, miy - 11)]), '#f2e4c0')
 cv.dots([(mix + 3, miy - 1)], DARK)
+
+# manta ray gliding through the deep middle
+mx_, my_ = 98, 160
+manta = poly([(mx_ - 16, my_ + 2), (mx_ - 4, my_ - 4), (mx_ + 6, my_ - 4), (mx_ + 16, my_ + 3), (mx_ + 4, my_ + 4), (mx_ - 4, my_ + 4)])
+o = cv.obj()
+o.part(manta, UROCK, d=2)
+o.part(line([(mx_ + 1, my_ + 4), (mx_ + 3, my_ + 14)]), UROCK, d=0)
+o.draw()
+cv.fill(rect(mx_ - 4, my_ - 2, mx_ + 4, my_ - 2), UROCK['r'])
+cv.dots([(mx_ - 5, my_ - 4), (mx_ + 6, my_ - 4)], DARK)
+
+
+def fold_rare(cv, keep=96):
+    """Fold the least-used colours into their nearest kept colour (stays under the ~100 colour cap)."""
+    flat = cv.px.reshape(-1, 3).astype(int)
+    key = flat[:, 0] * 65536 + flat[:, 1] * 256 + flat[:, 2]
+    u, inv, cnt = np.unique(key, return_inverse=True, return_counts=True)
+    if len(u) <= keep:
+        return
+    order = np.argsort(-cnt, kind='stable')
+    kept = order[:keep]
+    cols = np.stack([u // 65536, (u // 256) % 256, u % 256], 1)
+    d = ((cols[:, None, :] - cols[None, kept, :]) ** 2).sum(2)
+    tgt = kept[np.argmin(d, 1)]
+    cv.px[:] = cols[tgt][inv].reshape(cv.px.shape).astype(np.uint8)
+
+
+fold_rare(cv)
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

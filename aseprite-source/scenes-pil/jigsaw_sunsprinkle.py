@@ -387,7 +387,7 @@ for k in range(3):
 cv.fill(poly([(227, 60), (234, 62), (227, 64)]), YEL['b'])
 cv.fill(line([(206, 104), (212, 108)]), '#4a2c1a')   # mooring line
 # kite gnome at the pier end
-kgx, kgy = 192, 101
+kgx, kgy = 170, 101
 gnome(kgx, kgy, YEL, CORAL, 0.9, arm=(8, -24))
 kx, ky = 128, 24   # the trade-wind kite
 cv.fill(line([(kgx + 8, kgy - 24), (160, 52), (kx + 6, ky + 14)]), '#4a5a6a')
@@ -602,6 +602,85 @@ cv.dots([(188, 179), (190, 179), (192, 179), (201, 179), (203, 179), (205, 179)]
 cv.fill(ell(195, 190, 199, 196), '#c9a46a')
 cv.fill(rect(197, 178, 197, 186), '#4a2c1a')
 cv.fill(poly([(198, 178), (203, 180), (198, 182)]), TURQ['b'])
+
+# ================================================================ second-stream details: beached dinghy, wicker fish pot, drift log, crabs
+o = cv.obj()   # an upturned dinghy hauled up on the left sand
+dhull = poly([(22, 160), (70, 158), (64, 172), (30, 173)])
+o.part(dhull, TURQ, d=2)
+o.part(rect(24, 157, 70, 159), ramp('#fff4e8', '#d9cfb8', '#ffffff'), d=1)
+o.draw()
+for xx in range(30, 66, 8):
+    cv.fill(line([(xx, 161), (xx + 1, 171)]) & dhull, TURQ['s'])
+cv.fill(line([(30, 175), (36, 168)], 2) | line([(36, 168), (60, 150)], 2), WOOD['b'])   # oar leaning on it
+cv.fill(ell(58, 146, 64, 152), WOOD['s'])
+o = cv.obj()   # wicker fish pot by the pier steps
+o.part(ell(144, 124, 162, 138), ramp('#c9a46a', '#8a6a3a', '#e6c88a'), d=2)
+o.draw()
+for xx in range(146, 162, 3):
+    cv.fill(line([(xx, 125), (xx + 1, 137)]) & ell(144, 124, 162, 138), '#8a6a3a')
+cv.fill(ell(150, 124, 156, 128), '#4a2c1a')
+cv.fill(line([(162, 130), (176, 122), (182, 110)]), '#74462a')   # its rope up to the pier
+o = cv.obj()   # drift log
+o.part(rrect(84, 130, 116, 136, 2), DRIFT, d=2)
+o.part(line([(104, 130), (110, 124)], 2), DRIFT, d=1)
+o.draw()
+cv.fill(ell(84, 130, 88, 136), '#e6d6b8')
+cv.dots([(86, 133)], '#8f7a5e')
+for cx_, cy_ in ((128, 140), (220, 196), (138, 172)):   # little red crabs sidling about
+    o = cv.obj()
+    o.part(ell(cx_, cy_, cx_ + 6, cy_ + 4), CORAL, d=1)
+    o.draw()
+    cv.dots([(cx_ - 1, cy_ - 1), (cx_ + 7, cy_ - 1), (cx_ - 1, cy_ + 5), (cx_ + 7, cy_ + 5), (cx_ + 2, cy_ - 1), (cx_ + 4, cy_ - 1)], '#c8504f')
+    cv.dots([(cx_ + 2, cy_ + 1), (cx_ + 4, cy_ + 1)], '#2a1a10')
+# kite duel: a second kite flown from the sloop's deck, and a pelican gliding past
+gnome(238, 104, CORALP, YEL, 0.75, arm=(6, -16))
+k2x, k2y = 178, 4
+cv.fill(line([(244, 88), (214, 50), (k2x + 5, k2y + 12)]), '#4a5a6a')
+kite2 = poly([(k2x + 5, k2y), (k2x + 11, k2y + 6), (k2x + 5, k2y + 13), (k2x - 1, k2y + 6)])
+o = cv.obj()
+o.part(kite2, TURQ, d=1)
+o.draw()
+cv.fill(kite2 & rect(0, k2y + 6, k2x + 4, H), '#ffffff')
+cv.fill(kite2 & rect(k2x + 6, k2y + 7, W, H), CORAL['b'])
+cv.fill(line([(k2x + 5, k2y + 1), (k2x + 5, k2y + 12)]), '#4a2c1a')
+t2 = [(k2x + 5, k2y + 13), (k2x + 9, k2y + 18), (k2x + 6, k2y + 23)]
+cv.fill(line(t2), '#4a2c1a')
+for k, (tx, ty) in enumerate(t2[1:]):
+    cv.dots([(tx - 1, ty), (tx + 1, ty), (tx, ty)], (YEL['b'], CORALP['b'])[k])
+pex, pey = 146, 14
+pel = ell(pex, pey, pex + 12, pey + 4) | poly([(pex + 2, pey + 1), (pex + 6, pey - 6), (pex + 9, pey + 1)]) | poly([(pex + 3, pey + 3), (pex + 8, pey + 3), (pex + 4, pey + 9)])
+o = cv.obj()
+o.part(pel, ramp('#fff4e8', '#c9d2d8', '#ffffff'), d=1)
+o.draw()
+cv.fill(rect(pex + 12, pey + 1, pex + 17, pey + 2), '#f0b92b')
+cv.dots([(pex + 11, pey + 1)], '#2a1a10')
+cv.fill(rect(pex - 3, pey + 1, pex - 1, pey + 2), '#8a96a0')
+# dolphins arching in the open water, a buoy, a gnome fishing from a rowboat
+for dx_, dy_ in ((256, 86), (278, 92)):
+    dm = ell(dx_, dy_, dx_ + 16, dy_ + 10) & ~ell(dx_ + 3, dy_ + 4, dx_ + 13, dy_ + 14) & ~rect(0, dy_ + 8, W, H)
+    dm |= poly([(dx_ + 7, dy_ - 1), (dx_ + 10, dy_ - 4), (dx_ + 10, dy_ + 1)])
+    o = cv.obj()
+    o.part(dm, ramp('#6a8aa0', '#4a6a80', '#a9c6d6'), d=1)
+    o.draw()
+    cv.dots([(dx_ + 13, dy_ + 4)], '#2a1a10')
+    cv.fill(rect(dx_ - 1, dy_ + 9, dx_ + 3, dy_ + 9) | rect(dx_ + 13, dy_ + 9, dx_ + 18, dy_ + 9), '#ffffff')
+o = cv.obj()
+o.part(poly([(288, 104), (296, 104), (294, 112), (290, 112)]), CORAL, d=1)
+o.part(rect(291, 98, 293, 104), YEL, d=1)
+o.draw()
+cv.fill(rect(286, 113, 298, 113), '#ffffff')
+rbx, rby = 258, 120
+o = cv.obj()
+o.part(poly([(rbx, rby), (rbx + 22, rby), (rbx + 18, rby + 6), (rbx + 4, rby + 6)]), WOOD, d=2)
+o.draw()
+cv.fill(rect(rbx + 1, rby + 1, rbx + 21, rby + 1), YEL['b'])
+cv.fill(rect(rbx - 2, rby + 7, rbx + 24, rby + 7), '#ffffff')
+gnome(rbx + 10, rby + 1, TURQ, CORAL, 0.6, arm=(6, -8))
+cv.fill(line([(rbx + 16, rby - 7), (rbx + 30, rby - 16)]), '#7a4a1f')
+cv.fill(line([(rbx + 30, rby - 16), (rbx + 34, rby + 4)]), '#ffffff')
+cv.remap({'#5a7a90': '#4a5a6a', '#3a5a70': '#4a5a6a', '#a8504a': '#c8504f', '#a8957a': '#8f7a5e', '#2f6a50': '#3f8068', '#3f6a50': '#3f8068',
+          '#c9c5bc': '#d9cfb8', '#c9c3b5': '#d9cfb8', '#fff0d8': '#fff4e8', '#fff4d8': '#fff4e8', '#fff4c0': '#fff4b0', '#f8dc6a': '#ffe46a',
+          '#6a6a50': '#6a7a48', '#2a2a20': '#2a1a10', '#4a7a70': '#1f7f8f', '#a8844a': '#c9a46a', '#a8b5a5': '#c9d2d8'})
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None
