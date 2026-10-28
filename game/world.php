@@ -172,14 +172,18 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
     <span class="bigicon"><?= $nodeIcon ?></span>
     <div>
       <h2><?= e($node['name']) ?></h2>
-      <p class="where">🎩 You are here · <?= e((string)$node['region']) ?><?= $nodeRegion ? ' ' . $badge(max(1, (int)$nodeRegion['min_level'])) : '' ?>
-        · <?= $GL[0] ?> <?= e($GL[1]) ?><?php if ($onRoad && $node['kind'] === 'village' && ($NL = LANDSCAPES[stop_near_land($node)] ?? null)): ?> (2 steps out: <?= $NL[0] ?> <?= e($NL[1]) ?>)<?php endif; ?>
-        <?= $road && $node['kind'] !== 'market' ? ' · on the road ' . e($road['name']) : (!$onRoad && $node['kind'] !== 'hub' && $node['kind'] !== 'market' ? ' · 🌿 off the road' : '') ?></p>
+      <p class="where">🎩 You are here · <?= e((string)$node['region']) ?><?= $nodeRegion ? ' ' . $badge(max(1, (int)$nodeRegion['min_level'])) : '' ?></p>
+      <p class="where wherechips"><span class="pchip">📍 <?= $GL[0] ?> <?= e($GL[1]) ?><?php if ($onRoad && $node['kind'] === 'village' && ($NL = LANDSCAPES[stop_near_land($node)] ?? null)): ?> <small class="muted">(2 steps out: <?= $NL[0] ?> <?= e($NL[1]) ?>)</small><?php endif; ?></span>
+        <?= $road && $node['kind'] !== 'market' ? '<span class="pchip">🛣️ ' . e($road['name']) . '</span>' : (!$onRoad && $node['kind'] !== 'hub' && $node['kind'] !== 'market' ? '<span class="pchip">🌿 off the road</span>' : '') ?></p>
     </div>
   </div>
-  <?php if ($road && $node['kind'] !== 'market') echo road_board($u, $road['stops'], (int)$node['id']);   // the road you're on, town to town ?>
   <?php if (($blurb = village_blurb($node)) !== ''): ?><p class="muted placedesc"><?= e($blurb) ?></p><?php endif; ?>
 </div>
+
+<?php $goMap = go_map_html($u, $node, $goId); echo $goMap; ?>
+<?php if ($road && $node['kind'] !== 'market'): ?>
+<details class="fold box roadfold"><summary>🛣️ The road: <?= e($road['name']) ?></summary><?= road_board($u, $road['stops'], (int)$node['id']) ?></details>
+<?php endif; ?>
 
 <?= go_panel_html($u, $node, $here, $badge, $kindIcons, $GL, $onRoad) ?>
 

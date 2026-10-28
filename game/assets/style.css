@@ -5808,3 +5808,46 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .roadkindimg { width: 24px; height: 24px; vertical-align: -7px; }
 .roadjournal .rjimg { width: 48px; height: 48px; float: left; margin: 0 8px 0 0; }
 .roadjournal .rj-list li { overflow: hidden; }
+
+/* ===== v2.0.84: World > Go tab: header chips, pick-a-place map, felt route cards ===== */
+:root { --rc-ok: #2f5a2a; --rc-warn: #8a5a10; --rc-bad: #a8241f; }
+.youare .wherechips { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 6px; }
+.youare .wherechips .pchip { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); color: var(--ink); }
+.gomap { padding-bottom: 8px; }
+.gomap h3 { margin: 0 0 2px; }
+.gomaphead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gomap > .help { margin: 2px 0 8px; }
+.gomap .regionmapbox, .gomap .mycbox { margin: 0; }
+.roadfold > summary { cursor: pointer; font-weight: 700; }
+.rcards { list-style: none; margin: 12px 0 0; padding: 0 4px; display: grid; gap: 14px 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 721px) { .rcards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rcards > li { min-width: 0; }
+.rcards .goform { margin: 0; }
+.rcard { position: relative; width: 100%; display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; grid-template-areas: "art ribbon ribbon" "art kind kind" "meta meta go"; gap: 4px 10px; align-items: start; min-height: var(--tap);
+  margin: 0; padding: 0 0 2px; appearance: none; -webkit-appearance: none; background: none; color: var(--gx-felt-ink); font: inherit; text-align: left; cursor: pointer;
+  border: 12px solid transparent; border-image: url(img/acts/felt-idle.png) 12 fill / 12px round; image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 var(--gx-card-drop)); transition: transform .06s, filter .06s; -webkit-tap-highlight-color: transparent; }
+.rcard > * { image-rendering: auto; }
+.rcard--side { border-image-source: url(img/acts/felt-off.png); }
+.rcard:active { transform: translateY(2px); filter: drop-shadow(0 1px 0 var(--gx-card-drop)); }
+.rcard:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.rcard__art { grid-area: art; align-self: stretch; margin: -4px 0 0 -4px; min-height: 64px; overflow: hidden; background: #e3c48c; box-shadow: 0 0 0 2px #74462a; }
+.rcard__art img { display: block; width: 100%; height: 100%; min-height: 72px; object-fit: cover; object-position: 38% 50%; filter: var(--gx-art-dim); image-rendering: pixelated; }
+.rcard__ribbon { grid-area: ribbon; justify-self: start; display: inline-flex; align-items: center; min-width: 0; max-width: 100%; margin-left: -4px; padding: 0 4px; color: var(--gx-sign-ink);
+  border: 8px solid transparent; border-width: 8px 10px; border-image: url(img/acts/ribbon-idle.png) 8 10 fill / 8px 10px round stretch; image-rendering: pixelated; }
+.rcard__name { min-width: 0; font: 700 15px/1.2 var(--font); overflow-wrap: break-word; text-wrap: balance; text-shadow: 0 1px 0 rgba(42, 26, 16, .55); }
+.rcard__flag { position: absolute; top: -14px; right: -6px; z-index: 2; padding: 1px 6px; background: var(--accent); color: #2a1a10; font: 800 11px/1.4 var(--font); box-shadow: 0 0 0 2px var(--ol); }
+.rcard__kind { grid-area: kind; font: 600 12px/1.35 var(--font); color: var(--gx-felt-ink-off); overflow-wrap: break-word; }
+.rcard__meta { grid-area: meta; display: flex; flex-wrap: wrap; gap: 3px 5px; min-width: 0; align-self: end; }
+.rcard__meta .pchip { background: rgba(255, 243, 200, .55); box-shadow: inset 0 0 0 1px rgba(42, 26, 16, .4); color: var(--gx-felt-ink); }
+.rcard__meta .rchip--ok { background: var(--rc-ok); color: #fff3c8; box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.rcard__meta .rchip--warn { background: var(--rc-warn); color: #fff3c8; box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.rcard__meta .rchip--bad { background: var(--rc-bad); color: #fff3c8; box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+.rcard__go { grid-area: go; align-self: end; padding: 4px 10px; background: #e0aa48; color: #2a1a10; font: 800 14px/1.2 var(--font);
+  box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #f5cf6a, inset 0 -3px 0 #b07a28; }
+@media (max-width: 380px) { .rcard { grid-template-columns: 76px minmax(0, 1fr) auto; } }
+.gopanel .gx-actions.goextra { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.gopanel .goextra .gotileform { display: contents; }
+.gopanel .goextra .gbtn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; text-decoration: none; }
+.gopanel .goextra .gbtn small { font-weight: 400; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .rcard { transition: none; } }

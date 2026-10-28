@@ -1025,6 +1025,8 @@ function gvRegionZoom() {
     }
     function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
     function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    var fo = (svg.getAttribute('data-focus') || '').split(' ').map(Number);   // v2.0.84: the Go tab opens zoomed in on you
+    if (fo.length === 3 && fo[2] > 1) v = [fo[0] - W / fo[2] / 2, fo[1] - H / fo[2] / 2, W / fo[2], H / fo[2]];
     apply();
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');

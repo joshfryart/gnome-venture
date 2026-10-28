@@ -369,7 +369,7 @@ function map_bez(array $a, array $c, array $b, float $t): array
  * Markers sit in a .ms group that site.js scales (--zs) so they stay a readable size as the map zooms.
  * $selId = the place being looked at (world.php?go=ID), always named.
  */
-function region_map_svg(array $u, int $regionId, int $selId = 0): string
+function region_map_svg(array $u, int $regionId, int $selId = 0, bool $focus = false): string
 {
     require_once __DIR__ . '/region_layout.php';
     require_once __DIR__ . '/scene.php';
@@ -401,7 +401,8 @@ function region_map_svg(array $u, int $regionId, int $selId = 0): string
     $W = (int)$L['w']; $H = (int)$L['h'];
     $art = scene_path('map', (string)$reg['code']);
 
-    $svg = '<svg class="regionmap' . ($art !== '' ? ' art' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" role="group" aria-label="Map of ' . e($reg['gnomish_name']) . '">';
+    $hereIt = $items[$hereId] ?? null;   // v2.0.84: $focus opens zoomed in on where you stand (site.js reads data-focus: x y zoom)
+    $svg = '<svg class="regionmap' . ($art !== '' ? ' art' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '"' . ($focus && $hereIt ? ' data-focus="' . (int)$hereIt['x'] . ' ' . (int)$hereIt['y'] . ' 2.2"' : '') . ' role="group" aria-label="Map of ' . e($reg['gnomish_name']) . '">';
     if ($art !== '') {   // v2.0.61: the region's picture, drawn to this layout
         $svg .= '<rect class="rock" width="' . $W . '" height="' . $H . '" fill="#2a1a10"/>'
             . '<image class="mapart" href="' . e(url($art)) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" preserveAspectRatio="none" image-rendering="pixelated"/>';

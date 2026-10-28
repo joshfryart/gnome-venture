@@ -2,12 +2,47 @@
 declare(strict_types=1);
 // v2.0.61: shared place UI pieces (World / Town / Stops consolidation, phase 1: moved out of world.php unchanged)
 
+/** v2.0.84: felt card picture for a route's destination: its kind's banner, else its land's, else the village's (cropped square-ish by CSS). */
+function go_route_art(array $to): string
+{
+    $dir = __DIR__ . '/../assets/img/scenes/';
+    foreach ([loc_real_kind($to), (string)($to['landscape'] ?? ''), 'village'] as $n) {
+        if ($n !== '' && preg_match('/^[a-z0-9_-]+$/', $n) && is_file($dir . 'banner-' . $n . '.png')) {
+            return '<img class="pix" src="' . e(url('assets/img/scenes/banner-' . $n . '.png')) . '" width="144" height="108" alt="" loading="lazy" decoding="async">';
+        }
+    }
+    return '';
+}
+
+/** v2.0.84: the danger chip on a route card: green fine for you, amber a bit high, red too high. */
+function go_level_chip(int $lvl, int $min, int $max = 0): string
+{
+    $max = max($min, $max);
+    [$cls, $word] = $min <= $lvl ? ['ok', 'fine for you'] : ($min <= $lvl + 4 ? ['warn', 'a bit high'] : ['bad', 'too high']);
+    return '<span class="pchip rchip rchip--' . $cls . '" title="Danger level">Lv ' . $min . ($max > $min ? '–' . $max : '') . ' · ' . $word . '</span>';
+}
+
+/** The pick-a-place map for the Go tab: the region map opened zoomed in on you (＋ − ⤢ and drag still work), places are tap targets. '' when this region has no map. */
+function go_map_html(array $u, array $node, int $goId): string
+{
+    $rid = (int)($node['region_id'] ?? 0);
+    if (!$rid) return '';
+    if (myc_on() && region_art_path($rid) === '') $map = '<div class="mapwrap regionwrap mycwrap">' . myc_region_block($u, $rid, $goId) . '</div>';
+    else {
+        $svg = region_map_svg($u, $rid, $goId, true);
+        $map = $svg === '' ? '' : '<div class="mapwrap regionwrap"><div class="rzoom"><div class="rzctl" hidden><button type="button" class="btn small" data-z="in" aria-label="Zoom in">＋</button><button type="button" class="btn small" data-z="out" aria-label="Zoom out">−</button><button type="button" class="btn small" data-z="fit" aria-label="Whole region">⤢</button></div>' . $svg . '</div></div>';
+    }
+    if ($map === '') return '';
+    return '<section class="box gomap" aria-label="Places near you"><div class="gomaphead"><h3>🗺️ Pick a place</h3><a class="btn small alt" href="' . e(url('world.php?tab=map&r=' . $rid . '#regionmap')) . '">🌍 Full map</a></div>'
+        . '<p class="help">Tap a place to see the way there, or pick a card below. ⤢ shows the whole region.</p>' . $map . '</section>';
+}
+
 /** Where to next: route cards, Wander, Fast travel, Gather, how-it-works fold. */
 function go_panel_html(array $u, array $node, string $here, callable $badge, array $kindIcons, array $GL, bool $onRoad): string
 {
     ob_start(); ?>
-<?php $routes = visible_routes($u, (int)$node['id']); ?>
-<div class="box">
+<?php $routes = visible_routes($u, (int)$node['id']); $lvl = (int)$u['level']; ?>
+<div class="box gopanel">
   <h3>🧭 Where to next?</h3>
   <?php $shiftLeft = ts($u['community_shift_until'] ?? null) - time();
   if ($shiftLeft > 0):   // v0.7.48: say so instead of offering walks that would be refused ?>
@@ -15,7 +50,7 @@ function go_panel_html(array $u, array $node, string $here, callable $badge, arr
       <form method="post" action="<?= e(url('community.php')) ?>" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="end_shift"><button class="btn small alt">End shift</button></form>
       <a class="btn small" href="<?= e(url('community.php')) ?>">Back to the garden →</a></p>
   <?php elseif ($routes): ?>
-    <div class="gogrid">
+    <ul class="rcards">
       <?php foreach ($routes as $r):
           $to = $r['to'];
           $tL = LANDSCAPES[$to['landscape'] ?? ''] ?? null;
@@ -24,40 +59,42 @@ function go_panel_html(array $u, array $node, string $here, callable $badge, arr
           $isRoad = ($r['kind'] ?? '') === 'road';
           $kindWord = $to['kind'] === 'market' ? 'Town' : ucfirst(loc_real_kind($to));   // v1.2.2
           $dir = compass_between((int)$node['id'], (int)$to['id']);   // v1.7.6: one short meta line
-          $meta = [];
-          if ($dir) $meta[] = '🧭 ' . e($dir);
-          $meta[] = (int)$r['steps'] . ' steps';
-          $meta[] = '⚡' . route_energy($u, $r);
-          if (!empty($r['quick'])) $meta[] = '💨 ' . nice_time((int)$r['walk_min'] * 60);
-          if ($to['kind'] === 'market' && $to['region'] !== $node['region']) $meta[] = 'in ' . e($to['region']);
-          $metaLine = ($isRoad ? '' : '🌿 ') . implode(' · ', $meta); ?>
-        <form method="post" action="<?= e(url('adventure.php')) ?>" class="goform"><?= csrf_field() ?>
+          $far = $to['kind'] === 'market' && $to['region'] !== $node['region']; ?>
+        <li><form method="post" action="<?= e(url('adventure.php')) ?>" class="goform"><?= csrf_field() ?>
           <input type="hidden" name="do" value="start"><input type="hidden" name="route_id" value="<?= (int)$r['id'] ?>">
-          <button class="gocard" title="<?= e($kindWord . ' · ' . ($isRoad ? 'Road' : 'Side path')) ?>" aria-label="<?= e('Go to ' . $to['name'] . ' (' . $kindWord . ', ' . ($isRoad ? 'road' : 'side path') . ')') ?>">
-            <span class="goicon"><?= $kindIcons[loc_real_kind($to)] ?? ($tL ? $tL[0] : '📍') ?></span>
-            <span class="gotext"><span class="goname"><b><?= e($to['name']) ?></b><?= $seen ? '' : ' <span class="tag">new</span>' ?></span>
-              <small><?= $metaLine ?></small></span>
-            <span class="goside"><?= $badge($dMin, $dMax) ?><span class="goarrow" aria-hidden="true">›</span><span class="gosr">Go</span></span>
+          <button class="rcard<?= $isRoad ? '' : ' rcard--side' ?>" aria-label="<?= e('Go to ' . $to['name'] . ' (' . $kindWord . ', ' . ($isRoad ? 'road' : 'side path') . ')') ?>">
+            <span class="rcard__art"><?= go_route_art($to) ?></span>
+            <span class="rcard__ribbon"><span class="rcard__name"><?= e($to['name']) ?></span></span>
+            <?php if (!$seen): ?><span class="rcard__flag">new</span><?php endif; ?>
+            <span class="rcard__kind"><?= $kindIcons[loc_real_kind($to)] ?? ($tL ? $tL[0] : '📍') ?> <?= e($kindWord) ?> · <?= $isRoad ? '🛣️ road' : '🌿 side path' ?><?= $far ? ' · in ' . e((string)$to['region']) : '' ?></span>
+            <span class="rcard__meta">
+              <?php if ($dir): ?><span class="pchip">🧭 <?= e($dir) ?></span><?php endif; ?>
+              <span class="pchip"><?= (int)$r['steps'] ?> steps</span>
+              <span class="pchip">⚡<?= (int)route_energy($u, $r) ?></span>
+              <?php if (!empty($r['quick'])): ?><span class="pchip">💨 <?= e(nice_time((int)$r['walk_min'] * 60)) ?></span><?php endif; ?>
+              <?= go_level_chip($lvl, $dMin, $dMax) ?>
+            </span>
+            <span class="rcard__go" aria-hidden="true">Go ›</span>
           </button>
-        </form>
+        </form></li>
       <?php endforeach; ?>
-    </div>
+    </ul>
   <?php else: ?>
     <p class="muted">No paths lead from here yet.</p>
   <?php endif; ?>
-  <div class="goextra">
+  <div class="gx-actions goextra">
     <?php if ($onRoad && $shiftLeft <= 0): ?>
       <form method="post" action="<?= e(url('adventure.php')) ?>" class="gotileform"><?= csrf_field() ?><input type="hidden" name="do" value="explore">
-        <button class="btn alt gotile" title="Wander off the path"><span class="gtic">🌿</span><span>Wander <span class="cost">⚡1</span></span></button></form>
+        <button class="gbtn alt" title="Wander off the path">🌿 Wander <span class="cost">⚡1</span></button></form>
     <?php endif; ?>
     <?php if (in_array($node['kind'], ['market', 'hub'], true)): ?>
-      <a class="btn alt gotile" href="<?= e(url('town.php')) ?>" title="<?= e($here . ' town square') ?>"><span class="gtic">🏘️</span><span>Town square</span></a>
+      <a class="gbtn alt" href="<?= e(url('town.php')) ?>" title="<?= e($here . ' town square') ?>">🏘️ Town square</a>
     <?php elseif ($node['kind'] === 'village'): ?>
-      <a class="btn alt gotile" href="<?= e(url('town.php')) ?>" title="<?= e($node['name'] . ' rest stop') ?>"><span class="gtic">🪧</span><span>Rest stop</span></a>
+      <a class="gbtn alt" href="<?= e(url('town.php')) ?>" title="<?= e($node['name'] . ' rest stop') ?>">🪧 Rest stop</a>
     <?php endif; ?>
-    <a class="btn alt gotile" href="<?= e(url('world.php?tab=travel#fasttravel')) ?>"><span class="gtic">🧭</span><span>Fast travel</span></a>
+    <a class="gbtn alt" href="<?= e(url('world.php?tab=travel#fasttravel')) ?>">🧭 Fast travel</a>
     <?php if ($shiftLeft <= 0): // v0.7.97: gathering has its own tab ?>
-      <a class="btn alt gotile" href="<?= e(url('world.php?tab=gather')) ?>" title="Gather here, or seek something on the Gather tab"><span class="gtic">🧺</span><span>Gather <small><?= $GL[0] ?> <?= e($GL[1]) ?></small></span></a>
+      <a class="gbtn alt" href="<?= e(url('world.php?tab=gather')) ?>" title="Gather here, or seek something on the Gather tab">🧺 Gather <small><?= $GL[0] ?> <?= e($GL[1]) ?></small></a>
     <?php endif; ?>
   </div>
   <?php if ($next = next_region_suggestion($u)): ?>
