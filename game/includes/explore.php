@@ -337,6 +337,8 @@ function explore_choose(array $u, array &$exp, int $option): void
         $total = d(20) + eff_mod($u, $stat) + calling_perk($u, 'wonder_bonus');   // v0.9.1: Seedkeepers read puzzles better
         $win = $total >= $dc;
         $rollText = ' (' . GNOME_STATS[$stat][0] . ' ' . $total . ' vs ' . $dc . ')';
+    } elseif ($stat === '!') {
+        $win = false;   // v2.0.79: a wrong answer to a riddle: no roll, it simply is not right
     }
     $fx = $win ? $o['win'] : $o['lose'];
     $text = $win ? $o['wintext'] : $o['losetext'];
@@ -359,6 +361,27 @@ function explore_choose(array $u, array &$exp, int $option): void
         } elseif ($p[0] === 'hp') {
             $exp['hp'] = max(1, (int)$exp['hp'] + (int)($p[1] ?? 0));
             $lines[] = (int)($p[1] ?? 0) . ' ❤️';
+        } elseif ($p[0] === 'take') {   // v2.0.79: hand over goods (a trade, a toll in kind): take:slug:qty
+            $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [(string)($p[1] ?? '')]);
+            $tq = max(1, (int)($p[2] ?? 1));
+            if (!$tid || !give_item($uid, $tid, -$tq)) {
+                $exp['encounter'] = null;
+                exp_log($exp, '🎒 You haven’t got ' . $tq . ' × ' . ((string)q_val('SELECT name FROM items WHERE slug = ?', [(string)($p[1] ?? '')]) ?: (string)($p[1] ?? '')) . ' on you. You wander on.');
+                return;
+            }
+            $lines[] = '−' . $tq . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$tid]);
+        } elseif ($p[0] === 'next') {   // v2.0.79: a chain: this card leads to another on the next space
+            if ($road && isset(road_events()['ev'][(string)($p[1] ?? '')])) $exp['chain'] = (string)$p[1];
+        } elseif ($p[0] === 'skip') {   // v2.0.79: a short way: the next spaces pass without a card (walks only)
+            if (!$road) continue;
+            $sk = max(1, min(3, (int)($p[1] ?? 1)));
+            $before = (int)$exp['step'];
+            $exp['step'] = min((int)$exp['steps_total'], $before + $sk);
+            if ((int)$exp['step'] > $before) $lines[] = '⏩ ' . ((int)$exp['step'] - $before) . ' space' . ((int)$exp['step'] - $before === 1 ? '' : 's') . ' saved';
+        } elseif ($p[0] === 'journal') {   // v2.0.79: a page of the Road Journal
+            require_once __DIR__ . '/stops.php';
+            $sc = exp_scene($exp);
+            if ($jl = road_journal_add($uid, (string)($p[1] ?? ''), stop_region_code((array)($sc['to'] ?? [])))) $lines[] = $jl;
         } elseif ($p[0] === 'heal') {
             $before = (int)$exp['hp'];
             $exp['hp'] = min((int)$exp['max_hp'], $before + (int)($p[1] ?? 0));

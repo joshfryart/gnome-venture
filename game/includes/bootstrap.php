@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.77');
+define('APP_VERSION', '2.0.79');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -387,10 +387,11 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         boot_step('upgrade_097_roads', function () {
             if ((string)setting('db_version') !== '' && version_compare((string)setting('db_version'), '0.9.7', '<')) upgrade_097_roads();   // v0.9.7 part A: easy roads switch, new creatures for regions 23-35 (roads.php is loaded above)
         });
-        boot_step('stop_themes', function () {   // v2.0.77: themed upgrades for adopted stops (the 1.0.0 stops step only runs once)
-            if (version_compare((string)setting('db_version'), '2.0.77', '<') && (string)setting('db_version') !== '' && setting('upg100_stops') === '1') {
+        boot_step('stop_themes', function () {   // v2.0.77 themed upgrades, v2.0.78 regional activities: the 1.0.0 stops step only runs once, so new data is added here
+            if (version_compare((string)setting('db_version'), '2.0.78', '<') && (string)setting('db_version') !== '' && setting('upg100_stops') === '1') {
                 require_once __DIR__ . '/stops.php';
                 stops_import_themes();
+                stops_import_regional();
             }
         });
         boot_step('ensure_ruins', function () {

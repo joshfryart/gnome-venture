@@ -203,5 +203,6 @@ function stop_passport_html(array $u): string
         foreach ($list as $s) $h .= stop_stamp_tile($s, $stamps[(int)$s['id']] ?? null);
         $h .= '</div></details>';
     }
-    return $h . '</div>';
+    require_once __DIR__ . '/road_life.php';
+    return $h . '</div>' . road_journal_html($uid);   // v2.0.79: the Road Journal sits under the passport
 }

@@ -5771,3 +5771,11 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .guestcard { text-align: center; }
 .guestcard .lp-jeffface img { width: 96px; height: auto; image-rendering: pixelated; }
 .guestcard .say { text-align: left; }
+
+/* v2.0.79: road card kind label and the Road Journal list */
+.roadkind { font-weight: 700; margin: 0 0 4px; }
+.roadjournal .rj-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.roadjournal .rj-got { font-weight: 700; } .roadjournal .rj-miss { color: var(--muted); }
+.roadkindimg { width: 24px; height: 24px; vertical-align: -7px; }
+.roadjournal .rjimg { width: 48px; height: 48px; float: left; margin: 0 8px 0 0; }
+.roadjournal .rj-list li { overflow: hidden; }

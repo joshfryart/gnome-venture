@@ -18,6 +18,15 @@
 #
 # The first 14 scenes keep their order: walks that were saved before v1.9.4 point at them by number. Add new ones at the end.
 #
+#
+# v2.0.79: two optional columns on an E row: E|id|cond|lands|region|where|icon|text|KIND|NAME
+#   KIND: choice (default) | fork (two or three ways on: a short way, a long way) | riddle (one answer is right, the rest have stat "!") |
+#         trade (offer goods for goods) | chain (a card that leads on to the next) | sketch (a page of your Road Journal)
+#   NAME: sketch only: the name of the journal page.
+#   stat "!" on an O row = no roll, always the "lose" side (a wrong riddle answer). stat blank = no roll, always "win".
+#   new effects: take:slug:N (hand over goods; the option is off if you have fewer)  next:ID (the next space is that card; give a chain's second and later
+#   cards an id that starts with chain- so they are never drawn alone)  skip:N (a short way: N spaces pass without a card, walks only)
+#   journal:ID (stamp a Road Journal page; ID is the sketch card's own id).   Lint a draft: python3 tools/lint_road_events.py DRAFT.txt ITEM_SLUGS.txt
 # ---------------------------------------------------------------- the original 14
 E|bee-log|-|any|any|both|🐝|A hollow log hums with wild bees. Honey glistens inside.
 O|Reach in for honey|nimble|12|item:garden-honey:1|Sticky fingers, sweet reward!|hp:-4|Ouch! Stung, twice.
@@ -425,3 +434,161 @@ S|cold-spring|-|any|any|wild|💧|A clear, cold spring. You drink deep.|energy:2
 S|empty-nest|-|any|any|wild|🪺|An empty nest with a striped feather in it.|item:pretty-feather:1
 S|scratched-map|-|any|any|wild|📜|A stone scratched with an old map.|landmark
 S|giant-snail|-|any|any|wild|🐌|A giant snail trundles past and leaves a trail of shiny things.|rand:forage+coins:{c}
+# ---------------------------------------------------------------- v2.0.79 new kinds: The Maplewold (NA), 24 cards
+E|na-fork-beaver-tunnel|-|forest,wetland|NA|road|🦫|The road bends a long way round a beaver pond. In the bank, a neat round tunnel has a sign scratched beside it: “Beaverdam Tunnels. Staff Only. (Mostly.)”|fork|
+O|Squeeze through the tunnel|nimble|11|skip:1+xp:3|Damp, dark and quick. You pop out on the far side smelling faintly of pond.|hp:-3|You stick at the hips, and a beaver has to push you back out the way you came.
+O|Walk the long way round||0|xp:2|A pleasant mile of reeds, dragonflies and one very bossy heron.||
+O|Tip the staff 2 oats||0|take:oats:2+skip:1+xp:2|A beaver pockets the oats, puts on a very serious face and leads you through by the light of a jar of fireflies.||
+E|na-fork-frozen-lake|-|tundra|NA|road|🧊|The road skirts a great frozen lake, and the far shore looks close enough to touch. The ice creaks and booms like a giant turning over in bed.|fork|
+O|Slide straight across|nimble|12|skip:1+xp:4|You glide the whole way on your boot soles, arms out like wings.|hp:-4|Whump! You spin, sit down hard, and shuffle back to shore with your dignity mislaid.
+O|Keep to the shore road||0|xp:2|Longer, but the ground does not talk back.||
+O|Read the ice like an old hand|lore|13|skip:1+xp:5|Clear black ice is strong, milky white is weak: you pick a dark path all the way over.|xp:1|You cannot tell one ice from another, and sensibly take the shore after all.
+E|na-lost-lantern|dp=dusk,night|coast|NA|road|🏮|The Lighthouse of the Lost Lantern stands dark. Its keeper, a stout gnome in a knitted cap, paces the rocks. “Wandered off again,” she sighs. Down the shore, a small light is bobbing away.|chain|
+O|Follow the bobbing light||0|xp:2+next:chain-na-lantern-shore|You pick your way over the wet rocks after it.||
+O|Hold your own light up for her|luck|11|xp:4+coins:{c}|A passing boat blinks back its thanks. The keeper is touched and pays you for your trouble.|xp:1|Your little light is not much against the whole dark sea. She pats your arm anyway.
+E|chain-na-lantern-shore|-|coast|NA|road|🦭|Behind a rock, a seal pup has the lighthouse lantern balanced on its nose and is rolling its eyes up at it, enormously pleased with itself.|chain|
+O|Clap until it takes a bow|charm|11|xp:8+coins:{c}+item:sea-glass:1@20|It bows, drops the lantern into your arms and claps back. The keeper hugs you both and fills your pockets.|xp:3+coins:{c}|It keeps the lantern a while, gets bored and rolls it to you. The keeper still pays you.
+O|Offer it a mackerel||0|take:mackerel:1+xp:9+coins:{c}+item:sea-glass:1|A fair swap, says the pup. The lighthouse blazes up again, and the keeper insists on paying you twice.||
+E|na-owl-letter|-|tundra,forest|NA|road|✉️|A letter flutters out of a white sky and lands at your feet, sealed with a single snowy feather. It is addressed “To the Den, North. Kindly Hurry.”|chain|
+O|Deliver it yourself||0|xp:2+next:chain-na-owl-raven|You tuck it in your coat and turn north.||
+O|Hold it up for the wind to take|luck|12|xp:3|A gust takes it politely and carries it on its way.|xp:1+next:chain-na-owl-raven|The wind drops it back on your head. Hint taken: north you go.
+E|chain-na-owl-raven|-|tundra,forest|NA|road|🐦‍⬛|The path splits at a cairn of three stones. A raven sits on top, eyeing your letter. “I know the way to the Den,” it says. “I also like shiny things.”|chain|
+O|Pay the raven a shiny quartz||0|take:shiny-quartz:1+xp:4+next:chain-na-owl-den|It tucks the quartz under a wing and flaps ahead, tutting at your speed.||
+O|Follow the owl feathers instead|sense|12|xp:4+next:chain-na-owl-den|Every few steps, a white feather on a twig, like a trail of breadcrumbs.|hp:-2+next:chain-na-owl-den|You follow one feather straight into a snowdrift, then find the trail again.
+E|chain-na-owl-den|-|tundra,forest|NA|road|🦉|In a hollow spruce as wide as a cottage blink two great golden eyes: the Great White Owl herself. She reads the letter and gives a soft, delighted hoot. “From my cousin in the south! I thought she had forgotten me.”|chain|
+O|Hand over the letter and bow||0|xp:8+coins:{c}+item:pretty-feather:1@20|She presses a feather and a few Petals on you, and reads the letter twice more, very slowly.||
+O|Stay while she writes a reply||0|xp:9+item:hot-cocoa:1@20|She writes three pages, then sends you off with a flask of cocoa for the road, and the reply to post.||
+E|na-riddle-berry-sacks|-|grassland,forest|NA|road|🫐|A berry seller has three sacks marked Blueberries, Cranberries and Mixed. “Every label is wrong,” she grins. “Pull one berry from one sack, no peeking, then name all three.” Which sack do you pick from?|riddle|
+O|The sack marked Mixed||0|xp:6+coins:{c}|It cannot be mixed, so your one berry tells you what it really holds, and the other two fall into place. She laughs and pays up.||
+O|The sack marked Blueberries|!|0|||xp:1|Out comes a cranberry. Is this the cranberry sack or the mixed one? You stand there, holding one berry, unsure.
+O|The sack marked Cranberries|!|0|||xp:1|Out comes a blueberry, and you are no wiser. The seller eats it for you, kindly.
+E|na-riddle-hare-tracks|se=winter|tundra,forest|NA|road|🐾|A tiny knitted mitten lies by a line of hare tracks: pairs of big prints and pairs of small ones. A wren on a branch chirps, “A hare’s big back feet land ahead of its little front ones.” Which way did the owner go?|riddle|
+O|Toward the big prints||0|xp:6+coins:{c}|At the end of the line, a hare shivers in one mitten. It hops for joy, and pays you from a pocket you did not know hares had.||
+O|Toward the little prints|!|0|||xp:1|You follow the hare’s whole route backwards and arrive where it had breakfast.
+O|Up. It clearly flew.|!|0|||hp:-2|You stare at the sky for clues and walk into a spruce. Snow slides off it, onto you.
+E|na-trade-cranberry-bog|se=autumn|coast,wetland|NA|road|🔴|A bog has been flooded, and floating cranberries have turned it into a crimson lake. A gnome in waders leans on her rake. “Fancy a swap? I am sick of the colour red.”|trade|
+O|Swap 3 oats for cranberries||0|take:oats:3+item:cranberry:1|She scoops a dripping handful into your bag and admires the oats, which are lovely and beige.||
+O|Swap 2 apples for cranberry seeds||0|take:apple:2+item:cranberry-seed:1|“Grow your own bog,” she says. “Bring wellies.”||
+O|Decline||0||She goes back to raking the red sea, humming.||
+E|na-trade-hop-yard|-|grassland|NA|road|🌿|By a prairie farmhouse, hop bines climb strings taller than the barn, and a gnome on stilts picks the papery cones. “Got any beans?” he calls down. “I am making a chili the size of a bathtub.”|trade|
+O|Hand up 3 kidney beans||0|take:kidney-bean:3+item:hops:1|He drops a bundle of hop cones into your arms. They smell of pine and lemon.||
+O|Hand up 3 lentils||0|take:lentil:3+item:hops-seed:1|“Lentils in chili? Bold.” He tosses down a knobbly hop root anyway.||
+O|Decline||0||He wobbles off on his stilts to ask the cows.||
+E|na-fog-foghorn|!we=fog|coast|NA|road|📯|Fog rolls in off Foghorn Shallows, so thick you could lean on it. Every minute the horn at the point goes BWAAAMP, and the gulls go quiet out of respect.|choice|
+O|Walk toward the horn|sense|11|xp:5+rand:forage@15|You keep your bearings between blasts, and stumble onto a beach strewn with washed-up treasures.|hp:-3|You walk into a stack of lobster pots. Several lobsters are unimpressed.
+O|Sit tight and count blasts||0|heal:5+xp:1|You count horn blasts like sheep. The fog lifts at forty-one.||
+O|Hum along with the horn|charm|10|buff:charm:1:30+xp:3|You find its note exactly. Somewhere in the fog, someone hums back.|xp:1|You are a little flat, and the horn seems to notice.
+E|na-prairie-wind|!we=wind|grassland|NA|road|🌾|A big prairie wind sets the grass rolling in waves, a green sea with no shore at all, and lifts your hat clean off your head.|choice|
+O|Chase the hat|nimble|11|xp:4+coins:{c}|You catch it a field away. It has picked up a few Petals on its travels.|hp:-2|You trip in a gopher hole and the hat waves goodbye from the horizon.
+O|Let the wind have it||0|xp:2+buff:hardiness:1:30|Bare-headed, the wind combs your hair into something heroic.||
+O|Lie flat in the grass and listen||0|heal:4+xp:2|The whole prairie hisses and sighs over you like the sea.||
+E|na-sketch-aurora|!dp=night|tundra|NA|road|🌌|Above Aurora Camp, green light ripples across the sky like a curtain someone is shaking out very slowly. Even the snow at your feet glows faintly green.|sketch|Aurora over the Camp
+O|Sketch it in your journal||0|xp:2+journal:na-sketch-aurora|You wear your green pencil to a stub, and the sky changes before you finish, every time.||
+E|na-sketch-thousand-rings|-|forest|NA|road|🪵|The Thousand Rings Stump is wide enough to hold a dance on. Someone has stuck pins in a few rings with tiny flags: “Big frost”, “Good apples”, “Grandad’s wedding”.|sketch|The Thousand Rings
+O|Sketch it in your journal||0|xp:2+journal:na-sketch-thousand-rings|You draw the rings from the middle out, and run out of page somewhere around the year of the good apples.||
+E|na-sketch-monarchs|se=summer|grassland|NA|road|🦋|A milkweed patch on the prairie is crowded with orange-and-black butterflies, all opening and closing their wings out of time, like slow applause.|sketch|Monarchs on Milkweed
+O|Sketch it in your journal||0|xp:2+journal:na-sketch-monarchs|One lands on your pencil and stays for three whole wingbeats, as if checking your work.||
+E|na-sketch-bison|dp=dawn|grassland|NA|road|🦬|A bison stands chest-deep in the prairie grass, steaming gently in the cold morning, shaggy as a hearthrug and quite unbothered by you.|sketch|Bison at Dawn
+O|Sketch it in your journal||0|xp:2+journal:na-sketch-bison|You draw the great dark hump against the pink sky. It chews, and blinks, and lets you.||
+E|na-sketch-puffins|-|coast|NA|road|🐧|On a sea stack off the shallows, a row of puffins stands in their best black coats, beaks striped like boiled sweets, all facing into the wind.|sketch|Puffins on the Stack
+O|Sketch it in your journal||0|xp:2+journal:na-sketch-puffins|You give each one a slightly different worried eyebrow, which is true to life.||
+E|na-sketch-maple-blaze|!se=autumn|forest|NA|road|🍁|Old Maplewood is on fire without a wisp of smoke: every leaf scarlet, orange or gold. One drifts down and settles on your open journal.|sketch|Maplewood in Scarlet
+O|Sketch it in your journal||0|xp:2+journal:na-sketch-maple-blaze|You trace round the leaf that landed and press it between the pages, still warm from the sun.||
+E|na-pancake-flip|-|forest|NA|road|🥞|At the Sugar Shack, the cook flips pancakes so high they brush the rafters. One is coming down rather near you.|choice|
+O|Hold out your plate|nimble|11|xp:4+energy:2+item:pancakes:1@20|Plop! Dead centre. The whole shack cheers.|xp:1|It lands on your head. Warm, at least, and it smells wonderful.
+O|Ask for extra syrup|charm|10|heal:5+xp:3|She pours until it runs off the plate and into your boots. Worth it.|xp:1|She gives you exactly one drop, and a look.
+E|na-moose-weed|-|wetland,forest|NA|road|🫎|A moose stands in a pond with a dripping crown of waterweed caught on its antlers, like the world’s soggiest wig. It has not noticed.|choice|
+O|Tell it, kindly|charm|12|xp:6+buff:charm:1:30|It shakes its head, flings the weed into the reeds, and gives you a long, grateful look.|hp:-2|It shakes its head, and the weed lands on you. Now you are wearing the wig.
+O|Wait for it to cross||0|xp:2+heal:3|It wades past at the speed of a slow afternoon. You are in no rush either.||
+E|na-prairie-dogs|-|grassland|NA|road|🐿️|A prairie dog town: a hundred little mounds, a sentry standing straight on each. One yips, flings its arms up and topples over backwards, and the whole town copies it.|choice|
+O|Try the jump-yip yourself|nimble|10|xp:5+buff:luck:1:30|Arms up, yip, bottom down. The whole town approves.|xp:1|You forget to yip. They watch you in puzzled silence.
+O|Count the sentries|sense|12|xp:5+rand:forage@15|Eighty-seven, and a shiny something by burrow number forty.|xp:1|They keep ducking down. You lose count at eleven.
+E|na-ice-fishing|-|tundra|NA|road|🎣|A tiny hut sits out on the frozen lake, its stovepipe puffing. Inside, a gnome in three scarves holds a line through a hole in the ice. “Caught a kettle Tuesday,” he says. “Very good kettle.”|choice|
+O|Take a turn on the line|luck|12|xp:5+item:arctic-char:1@20|A tug! A silver-pink char flips onto the ice. He is thrilled for you, and only a little jealous.|xp:1|Nothing bites. You do catch a deep, cold-nosed sort of calm.
+O|Warm up by his stove||0|heal:6+xp:2|He shares his cocoa and the story of the one that got away. It grows a foot with every telling.||
+E|na-canoe-portage|-|forest,wetland|NA|road|🛶|An upside-down canoe is walking along the road on twelve little legs. Underneath, a family of chipmunks is carrying it from one lake to the next.|choice|
+O|Lend a shoulder|grit|11|xp:6+coins:{c}|With you at the front, they reach the next lake before lunch and tip you a few Petals from a tin.|hp:-2|The canoe tips, and you all end up under it in a giggling heap.
+O|Walk ahead and call out roots||0|xp:4|“Root! Rock! Very big root!” Nobody trips, and the chipmunks sing your praises.||
+# ---------------------------------------------------------------- v2.0.79 new kinds: Maizehollow (CA), 24 cards
+# ---------------------------------------------------------------- Maizehollow (CA): road cards v2.0.79
+# forks
+E|ca-fork-cornrow-shortcut|-|grassland|CA|road|🌽|The road bends politely round a cornfield, but the rows run straight towards the next village like a green comb. A crow on a fencepost watches you weigh it up.|fork|
+O|Slip straight through the rows|sense|11|skip:1+xp:3|You keep the sun on your left cheek and pop out right where the road comes back.|xp:1+hp:-2|Every row looks like every other row. You come out, eventually, covered in corn silk.
+O|Follow the road round the edge||0|xp:2|A long, rustling walk. The corn whispers the whole way.||
+O|Pay the crow a cob to lead you||0|take:corn:1+skip:1+xp:4|The crow hops ahead row by row, cawing at every turn. It eats the cob in one victorious go.||
+E|ca-fork-lava-crust|-|mountain|CA|road|🌋|An old lava flow has cooled across the path into black crust that crunches like burnt toast. The switchback trail climbs patiently around it.|fork|
+O|Crunch straight across the crust|hardiness|12|skip:1+xp:4|Crackle, crackle, done. Your boots smell faintly of a bonfire.|hp:-4|A crust bubble gives way under your heel. You hop the rest of the way, stinging.
+O|Take the switchbacks||0|xp:3|Up, round, up, round. A pleasant lizard keeps you company for three bends.||
+# chain A (2 cards)
+E|ca-hummingbird-letter|-|rainforest|CA|road|🐦|A hummingbird zips past and drops a leaf-wrapped letter at your feet, too heavy for it by half. It is addressed, in very small writing, to “The Echo, Cenote, Maizehollow”.|chain|
+O|Carry the letter on to the cenote||0|xp:2+next:chain-ca-cenote-letter|The hummingbird hovers, chirps twice and zips off, much relieved.||
+O|Prop it on a leaf for the next bird||0|xp:2|You leave it where the light will find it. Someone will fly by.||
+E|chain-ca-cenote-letter|-|rainforest|CA|road|🕳️|The road skirts the Cenote of Echoes, a round blue pool far below a ring of hanging roots. Whatever you whisper comes back a moment later, a little kinder.|chain|
+O|Read the letter aloud into the cenote|lore|11|xp:8+coins:{c}+item:echo-stone:1@20|“Dear Echo, thank you for always answering.” The cenote repeats every word, then adds a soft “you’re welcome.” A smooth stone rolls to your boot.|xp:6+coins:{c}|The handwriting is tiny and you stumble over it. The echo kindly reads it back properly.
+O|Drop it gently into the water||0|xp:6+coins:{c}|The letter sails down in slow spirals. From far below comes a single delighted “oh!”||
+# chain B (3 cards)
+E|ca-temple-tortoise|-|grassland|CA|road|🐢|An old tortoise plods along with a single amaranth seed balanced on her shell. “It goes on the top step of the Seed Temple,” she says. “I set off in spring.”|chain|
+O|Walk along with her||0|xp:2+next:chain-ca-tortoise-steps|You slow your stride to tortoise speed. It is surprisingly restful.||
+O|Wish her a speedy journey||0|xp:2|“Speedy,” she says, and laughs for quite a long time.||
+E|chain-ca-tortoise-steps|-|grassland|CA|road|🏛️|The Stepped Seed Temple rises ahead, each broad step lined with clay pots of sleeping seeds. The steps are very tall for a tortoise, and quite tall for a gnome.|chain|
+O|Carry her up the steps|grit|12|xp:3+next:chain-ca-tortoise-top|She is heavier than a sack of beans and much chattier. You reach the top puffing.|hp:-3+next:chain-ca-tortoise-top|You slip on step forty and bruise a knee, but she insists you are doing marvellously.
+O|Lay a ramp of woven husk mats||0|xp:3+next:chain-ca-tortoise-top|She trundles up the ramp like royalty, nodding to every pot she passes.||
+E|chain-ca-tortoise-top|-|grassland|CA|road|🌱|On the top step one pot stands empty, waiting. The tortoise tips her seed in, pats the soil with a foot, and sighs the sigh of a job done after a whole year.|chain|
+O|Plant a maize seed beside hers||0|take:corn:1+xp:10+coins:{c}+item:amaranth-seed:1|“Good neighbours,” she says, and gives you a pinch of seed from her own pocket for the road.||
+O|Watch the valley with her a while||0|xp:8+coins:{c}+item:amaranth:1@20|The whole of Maizehollow lies below, gold and green. She shares her lunch and calls you a fine walker.||
+# riddles
+E|ca-riddle-crow-ear|-|grassland|CA|road|🐦‍⬛|A grandmother crow on a scarecrow’s hat blocks the gate. “Green coat, silk hair, rows and rows of yellow teeth, and an ear that cannot hear,” she caws. “Name me, and pass.”|riddle|
+O|“An ear of maize”||0|xp:5+coins:{c}|“Hah! Clever sprout.” She drops a kernel-shaped token in your palm and flaps aside.||
+O|“A very quiet parrot”|!|0|||xp:1|“Parrots hear everything,” she says. “Especially rude guesses.”
+O|“A chili pepper in a hat”|!|0|||xp:1|“Chilies have no teeth, only opinions.” She does not move an inch.
+E|ca-riddle-gecko-gourds|-|desert|CA|road|🦎|A gecko guards three gourds; one holds cool water. “The full gourd’s label tells the truth. The others fib.” Red says “Not the blue.” Blue says “Me!” Yellow says “It is the red.”|riddle|
+O|Lift the blue gourd||0|xp:6+energy:2|Cool, sweet water. The gecko clicks its tongue in approval and lets you finish it.||
+O|Lift the red gourd|!|0|||hp:-2|Sand. Hot sand, all down your front. The gecko chirps with glee.
+O|Lift the yellow gourd|!|0|||xp:1|Empty, except for a very surprised beetle who would like you to put the lid back.
+# trades
+E|ca-trade-coati-cacao|-|rainforest|CA|road|🦝|A coati with a basket on its back and its striped tail held high like a flag sniffs your pack. “Chilies?” it asks hopefully. “I have cacao. Lots of cacao.”|trade|
+O|Swap three chilies for a cacao pod||0|take:chili-pepper:3+item:cacao:1|The coati bites one chili, goes bright pink, and is overjoyed.||
+O|Swap two papayas for a cacao pod||0|take:papaya:2+item:cacao:1|“Not spicy, but juicy,” says the coati, and shakes on it.||
+O|Decline||0||You keep your goods. The coati shrugs its whole tail.||
+E|ca-trade-packrat-glass|-|desert|CA|road|🐀|A packrat sits on a mound of treasures in the Barrens: bottle tops, a spoon, a perfect sliver of sand-glass. It wants something green. Desperately green.|trade|
+O|Offer an avocado for the sand-glass||0|take:avocado:1+item:desert-glass:1|It hugs the avocado like a long-lost friend and hands over the glass without looking.||
+O|Offer three tomatillos for a desert rose||0|take:tomatillo:3+item:desert-rose-stone:1|It lines the tomatillos up by size and nods. A petal-shaped stone is yours.||
+O|Decline||0||The packrat goes back to rearranging its spoon.||
+# weather
+E|ca-heat-rolled-leaves|!we=heat|grassland|CA|road|☀️|It is so hot that the corn has rolled its leaves up tight to save water, and the whole field looks like rows of green umbrellas folded for later. A seedling by the road droops.|choice|
+O|Share your water with the seedling||0|xp:5+buff:charm:1:60|It perks up before you can screw the lid back on. The field rustles, grateful.||
+O|Rest in the stripe of shade by the stalks||0|heal:6+xp:1|A thin shade, but a cool one. You doze for exactly one minute.||
+O|Push on through the heat|hardiness|12|xp:6|Hot, dusty, done. You feel like toasted bread, in a good way.|hp:-3|Dry spells do not forgive. You stop, panting, and sip far too fast.
+E|ca-wind-dust-devil|!we=wind|desert|CA|road|🌪️|A dust devil spins across the Cactusbristle Barrens, picking up tumbleweeds, a lost straw hat and a very annoyed beetle, and is heading your way at a jaunty angle.|choice|
+O|Snatch the hat as it spins past|nimble|12|xp:5+coins:{c}|Got it! Inside the brim, someone has tucked a few Petals for safekeeping.|hp:-2|The devil swats you with a tumbleweed and dances off with the hat.
+O|Crouch behind a barrel cactus||0|xp:2+heal:2|It whirls past, sprinkling you lightly with sand and beetle.||
+# sketches
+E|ca-sketch-quetzal|-|rainforest|CA|road|🦜|High in the Quetzal Tangle, a bird of shining green and scarlet sits on a branch, and its tail feathers stream down three times as long as the bird itself.|sketch|Long-Tailed Quetzal
+O|Sketch it in your journal||0|xp:2+journal:ca-sketch-quetzal|It flies, and the tail follows like a green ribbon waved goodbye.||
+E|ca-sketch-seed-temple-dawn|dp=dawn|grassland|CA|road|🏛️|The first sun climbs the Stepped Seed Temple one step at a time, lighting each row of clay seed pots in turn, as if waking them.|sketch|Temple at Sunrise
+O|Sketch it in your journal||0|xp:2+journal:ca-sketch-seed-temple-dawn|By the time your pencil reaches the top step, the whole temple glows like a loaf.||
+E|ca-sketch-moon-cactus|!dp=night|desert|CA|road|🌵|A ragged cactus that looks dead by day has opened one enormous white flower for the night, and a moth the size of your hand is drinking from it.|sketch|Night-Blooming Cactus
+O|Sketch it in your journal||0|xp:2+journal:ca-sketch-moon-cactus|Pale as a plate, scented like vanilla. By dawn it will have closed for a year.||
+E|ca-sketch-caldera-glow|dp=dusk|mountain|CA|road|🌋|At dusk the rim of the Smokecap Caldera glows a sleepy orange, and its plume of smoke turns pink, gold and then lavender against the sky.|sketch|Caldera at Dusk
+O|Sketch it in your journal||0|xp:2+journal:ca-sketch-caldera-glow|You need every crayon you own, and still the sky has one colour more.||
+E|ca-sketch-butterfly-roost|se=winter|mountain|CA|road|🦋|A grove of firs on the Smokecap slopes is not orange with leaves, you realise, but with butterflies, thousands, hung in heavy clusters to wait out the cold.|sketch|Butterfly Winter Roost
+O|Sketch it in your journal||0|xp:2+journal:ca-sketch-butterfly-roost|The sun touches one branch and it bursts into a slow orange snowfall upwards.||
+E|ca-sketch-amaranth-plumes|se=summer,autumn|grassland|CA|road|🌾|A field of amaranth on Cornrow Flats has gone to plume, crimson tassels nodding taller than any gnome, every one heavy with seeds as fine as sand.|sketch|Crimson Amaranth
+O|Sketch it in your journal||0|xp:2+journal:ca-sketch-amaranth-plumes|You run out of red long before you run out of field.||
+# ordinary choices
+E|ca-chili-ristra|-|grassland|CA|road|🌶️|A long string of red chilies has slipped off a porch hook and lies coiled on the step like a sleepy dragon. The house is quiet; the cat on the windowsill is watching.|choice|
+O|Hang it back on its hook|nimble|10|xp:4+coins:{c}|Back up it goes. A voice inside calls “thank you!” and a coin rolls out under the door.|xp:1|You hang it upside down. The cat sighs heavily.
+O|Take a good sniff|hardiness|11|buff:hardiness:1:60+xp:2|Your eyes water, your nose roars, and you feel fearless.|hp:-2|The sneeze knocks your hat off and sends the cat running.
+E|ca-agouti-gardener|-|rainforest|CA|road|🐾|An agouti is burying avocado seeds all along the roadside, one per hole, then forgetting each one immediately. Behind it, little avocado trees mark last year’s work.|choice|
+O|Help it dig a few holes||0|xp:4+heal:2|You plant a whole row. Somewhere, in twenty years, someone will thank you both.||
+O|Find one it forgot to bury|sense|12|xp:3+item:avocado:1@20|A ripe avocado, still whole. The agouti looks at it, then at you, and gives up its claim.|xp:1|You find only holes, and the agouti, looking very busy.
+E|ca-roadrunner-dare|-|desert|CA|road|🐦|A roadrunner skids to a halt in front of you, looks you up and down, and taps the dirt twice with one foot. In roadrunner, this is a formal challenge.|choice|
+O|Race it to the next cactus|nimble|13|xp:7+buff:nimble:1:60|You tie. The roadrunner is astonished and bows deeply.|xp:1|It is at the cactus before you have finished saying “go”.
+O|Politely decline the challenge|charm|10|xp:3|It respects your honesty and runs off to frighten a tumbleweed.|xp:1|It runs three circles round you anyway, just to make a point.
+E|ca-jaguar-root-breath|-|rainforest|CA|road|🐆|A cave mouth yawns beside the road, its roots dappled gold and black like a big cat’s coat. Cool air breathes out of the Jaguar Root Caves with a sound remarkably like a purr.|choice|
+O|Stand in the cool breath||0|heal:6+xp:2|The heat of the day lifts off you like a coat. Something deep inside purrs on.||
+O|Follow the spotted roots inside|lore|12|xp:6+rand:forage@20|The spots spell out a path, if you know how to read them. It leads to a little hoard by the wall.|hp:-2|The roots all look like spots after a while. You bump your head and back out.
+E|ca-pumice-skipping|-|mountain|CA|road|🪨|A still crater pool on the Smokecap slopes is ringed with grey pebbles so light they barely feel real. A small gnome is trying to skip one and is getting very cross.|choice|
+O|Show her how it is done|luck|12|xp:5+coins:{c}|Your stone does not skip at all, it just floats away like a little boat. She shrieks with joy and pays you in marbles.|xp:1|Plop. It floats. Hers floats too. You agree it is a fine day for floating.
+O|Explain why the stones float|lore|11|xp:5|Volcano stone, full of tiny bubbles. She builds a pebble fleet at once.|xp:1|You explain it wrong, confidently. She believes every word.
+

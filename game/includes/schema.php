@@ -675,6 +675,15 @@ function schema_statements(string $driver): array
         UNIQUE (user_id, landmark_id)
     )$END";
 
+    // Road Journal (v2.0.79): the sights a gnome has sketched on the roads, per region; '_done' = the full-page prize was paid
+    $t[] = "CREATE TABLE IF NOT EXISTS road_journal (
+        user_id $ID NOT NULL,
+        region VARCHAR(8) NOT NULL,
+        entry VARCHAR(40) NOT NULL,
+        at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, region, entry)
+    )$END";
+
     // Roads between towns (v0.7.24): town → 3 villages → town; stops kept in order as a JSON list of location ids
     $t[] = "CREATE TABLE IF NOT EXISTS roads (
         id $PK,
@@ -1393,6 +1402,7 @@ function schema_statements(string $driver): array
         ['users', 'banned_until', 'DATETIME NULL'],            // v0.7.27 grow times rescaled (1 = done)
         ['expeditions', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'walk'"],   // v0.7.25 walk or explore
         ['expeditions', 'depth', 'INT NOT NULL DEFAULT 0'],
+        ['expeditions', 'chain', 'VARCHAR(40) NULL'],   // v2.0.79: the road card that follows on the next space (a chain)
         ['expeditions', 'trail', 'TEXT NULL'],   // v2.0.45: the depths walked in order on a wander (the hoop map's thread)
         ['users', 'town_spot_id', 'INT NULL'],                   // v0.7.22 where in town a gnome is (for "gnomes here")
         ['users', 'town_seen', 'DATETIME NULL'],
