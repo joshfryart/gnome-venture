@@ -66,8 +66,78 @@ function K.miniPiece(c, x, y)
   return m
 end
 
+-- Jeff (jeff-v2): leaning body, knob up, notch at the bottom, shifted by dx, dy. Arms are per pose.
+K.JEFF_BODY, K.JEFF_ARM = GV.ramp("#1fb86b"), GV.ramp("#2cc97c")
+function K.jeffBody(c, dx, dy)
+  dx, dy = dx or 0, dy or 0
+  local body = c:poly({ {16+dx, 25+dy}, {45+dx, 22+dy}, {46+dx, 50+dy}, {18+dx, 52+dy} })
+  body:add(c:rrect(26+dx, 14+dy, 35+dx, 26+dy, 2)); body:add(c:ellipse(30.5+dx, 12+dy, 7.5, 6))
+  body:cut(c:ellipse(32+dx, 53+dy, 6, 4.5))
+  body:cut(c:rect(0, 61, 63, 63))
+  return body
+end
+-- Jeff parts: arm tab (flat) and body (lit-side stitch) entries for c:build
+function K.jeffArm(name, m) return { name, m, K.JEFF_ARM, { flat = true } } end
+function K.jeffBodyPart(m) return { "body", m, K.JEFF_BODY, { stitch = { side = "lit" } } } end
+-- Jeff button + seams + face (call after c:build). mood: grin (host) | hmm (think) | shout (cheer) draw the
+-- approved faces exactly; mood "custom" takes o.eyes (open|happy|shut|wince|right|none), o.brows
+-- (raised|up|worried), o.mouth (any JMOUTH key). o.nobutton skips the knob button (e.g. under a hat).
+local JMOUTH = {
+  grin  = { { "u.........u", ".u.......u.", ".uccccccc u", "..uuuuuuu.." }, 25, 38 },
+  hmm   = { { "......uu", "uuuuuu.." }, 25, 40 },
+  shout = { { ".uuuuuuuuu.", "ucccccccccu", "udddddddddu", "udddddddddu", ".uddddddddu", "..uuuuuuu.." }, 25, 38 },
+  -- new-pose mouths (o.mouth)
+  smile   = { { "u.........u", ".uu.....uu.", "...uuuuu..." }, 25, 38 },
+  open    = { { ".uuuuuuuuu.", ".ucccccccu.", "..udddddu..", "...uuuuu..." }, 25, 38 },
+  o       = { { ".uu.", "uddu", "uddu", ".uu." }, 29, 39 },
+  grimace = { { "uuuuuuuuuuu", "ucucucucucu", "ucucucucucu", "uuuuuuuuuuu" }, 25, 38 },
+}
+K.JMOUTH = JMOUTH
+-- new-pose eyes (o.eyes), drawn at the jeff-v2 eye spots (20,28) and (36,27)
+local JEYES = {
+  happy = { { "..u..", ".uuu.", "uu.uu", "u...u" }, { "..u..", ".uuu.", "uu.uu", "u...u" }, 1 },
+  shut  = { { "u...u", "uu.uu", ".uuu." }, { "u...u", "uu.uu", ".uuu." }, 2 },
+  wince = { { "u....", "uuu..", "..uuu", "uuu..", "u...." }, { "....u", "..uuu", "uuu..", "..uuu", "....u" }, 0 },
+  right = { { ".hhh.", "hhhuu", "hhuuu", "hhuuu", ".hhh." }, { ".hhh.", "hhhuu", "hhuuu", "hhuuu", ".hhh." }, 0 },
+}
+-- new-pose brows (o.brows): {left rows, right rows}, left at (19,25) right at (36,24)
+local JBROWS = {
+  raised  = { nil, { "uuuu" } },
+  up      = { { "uuuu" }, { "uuuu" } },
+  worried = { { "..uu", "uu.." }, { "uu..", "..uu" } },
+}
+function K.jeffFace(c, dx, dy, mood, o)
+  dx, dy, o = dx or 0, dy or 0, o or {}
+  local U = { u = "umber", c = "#f1ece0", d = "#6b1b2c", h = "halo" }
+  if not o.nobutton then c:button(29+dx, 15+dy) end
+  c:seam({ {21+dx, 47+dy}, {25+dx, 47+dy} }); c:seam({ {39+dx, 47+dy}, {43+dx, 47+dy} })
+  if mood == "grin" then
+    c:eye(20+dx, 28+dy); c:eye(36+dx, 27+dy)
+    c:paint({ "uuuu" }, 36+dx, 24+dy, U)
+  elseif mood == "hmm" then
+    c:eye(20+dx, 28+dy); c:eye(36+dx, 27+dy)
+    c:paint({ "..uuuu", "uu...." }, 34+dx, 22+dy, U)
+    c:paint({ "uuuu" }, 19+dx, 25+dy, U)
+  elseif mood == "shout" then
+    c:eye(20+dx, 28+dy); c:eye(36+dx, 27+dy)
+    c:paint({ "uuuu" }, 19+dx, 24+dy, U); c:paint({ "uuuu" }, 36+dx, 23+dy, U)
+  else -- new poses: o.eyes, o.brows, o.mouth (keys of JEYES / JBROWS / JMOUTH; eyes default "open")
+    local e = JEYES[o.eyes]
+    if e then c:paint(e[1], 20+dx, 28+dy+e[3], U); c:paint(e[2], 36+dx, 27+dy+e[3], U)
+    elseif o.eyes ~= "none" then c:eye(20+dx, 28+dy); c:eye(36+dx, 27+dy) end
+    local b = JBROWS[o.brows]
+    if b and b[1] then c:paint(b[1], 19+dx, 25+dy, U) end
+    if b and b[2] then c:paint(b[2], 36+dx, 24+dy, U) end
+    mood = o.mouth
+  end
+  local m = JMOUTH[mood]
+  if m then c:paint(m[1], m[2]+dx, m[3]+dy, U) end
+end
+
 function K.save(c, name)
-  local t = c:save(K.ASE .. name .. ".aseprite", K.PNG .. name .. ".png")
+  -- --script-param out=<dir>/ and ase=<dir>/ redirect the PNG / .aseprite (staging, re-render checks)
+  local P = app.params or {}
+  local t = c:save((P.ase or K.ASE) .. name .. ".aseprite", (P.out or K.PNG) .. name .. ".png")
   print(name, GV.report(t))
   assert(t.semi == 0 and t.bw == 0 and t.margin >= 3, name .. " failed checks")
   return t
