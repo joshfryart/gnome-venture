@@ -15,7 +15,7 @@ foreach (['ppal_releases', 'ppal_found', 'ppal_trophies'] as $t) ok("guest purge
 ok('no function named pal_* was added by Puzzle Pals', !function_exists('pal_on_solve') && function_exists('ppal_on_solve'));
 echo "== authored rosters\n";
 $d = ppal_data();
-ok('3 authored pictures', array_keys($d) === ['maplewold', 'maizehollow', 'sunsprinkle'], implode(',', array_keys($d)));
+ok('42 authored pictures (14 gallery + 14 lair + 14 delve), 252 pals', count($d) === 42 && array_sum(array_map('count', $d)) === 252 && isset($d['maplewold'], $d['maizehollow'], $d['sunsprinkle']), count($d) . ' pictures');
 foreach ($d as $slug => $rows) {
     $m = array_count_values(array_column($rows, 'rarity'));
     ok("$slug: 6 pals = 3 common / 2 uncommon / 1 rare", count($rows) === 6 && ($m['common'] ?? 0) === 3 && ($m['uncommon'] ?? 0) === 2 && ($m['rare'] ?? 0) === 1);
@@ -24,7 +24,9 @@ $map = q_one("SELECT * FROM puzzle_pics WHERE slug = 'jig-maplewold'");
 ok('ppal_pic_slug strips jig-', ppal_pic_slug($map) === 'maplewold');
 ok('ppal_roster(maplewold) = authored 6', count(ppal_roster($map)) === 6 && ppal_roster($map)[0]['key'] === 'mw-acorn-nip');
 ok('perk "-" falls back to the calling', ppal_roster($map)[0]['perk'] === 'tinker');
-ok('a built-in picture with no authored row has no roster yet', ppal_roster(q_one("SELECT * FROM puzzle_pics WHERE slug = 'jig-mistmoor'")) === []);
+ok('every built-in gallery picture has an authored roster', (function () use ($d) { $n = 0; foreach (q("SELECT * FROM puzzle_pics WHERE source = 'builtin' AND kind = 'still'")->fetchAll() as $b) { if (!isset($d[ppal_pic_slug($b)])) return false; $n++; } return $n === 14; })());
+ok('a built-in picture with no authored row has no roster', ppal_roster(['slug' => 'jig-nowhere', 'source' => 'builtin', 'kind' => 'still']) === []);
+ok('a picture with no authored row and source place/upload gets a generated roster', count(ppal_roster(['slug' => 'pl-haven-zzz-abc123', 'source' => 'place', 'kind' => 'still', 'unlock_key' => 'haven-zzz', 'title' => 'Z'])) === 6 && count(ppal_roster(['slug' => 'upload-zzz', 'source' => 'upload', 'kind' => 'still', 'title' => 'Z'])) === 6);
 ok('a GIFsaw picture has no roster', ppal_roster(['slug' => 'sunflower', 'source' => 'builtin', 'kind' => 'gif']) === []);
 echo "== generator\n";
 $kinds = ['haven', 'wonder', 'delve', 'lair'];
@@ -50,7 +52,7 @@ foreach ($kinds as $k) {
         foreach ($nm as $n) $allNames[$n] = 1;
     }
 }
-ok('48 generated rosters: 6 each, 3/2/1, stats in band, unique names and shape+knob, same every time', $fails === 0);
+ok('48 generated rosters (pictures with no authored row): 6 each, 3/2/1, stats in band, unique names and shape+knob, same every time', $fails === 0);
 ok('different places draw different pals', ppal_place_roster(['slug' => 'pl-a', 'source' => 'place', 'unlock_key' => 'haven-a', 'title' => 'A']) !== ppal_place_roster(['slug' => 'pl-b', 'source' => 'place', 'unlock_key' => 'haven-b', 'title' => 'B']));
 ok('names vary across places (not one roster for all)', count($allNames) > 120, (string)count($allNames));
 $pic = ['slug' => 'pl-lair-x-abc', 'source' => 'place', 'kind' => 'still', 'unlock_key' => 'lair-x', 'title' => 'X'];

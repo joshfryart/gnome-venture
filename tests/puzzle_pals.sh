@@ -46,10 +46,11 @@ UID_=$(dbv "SELECT id FROM users WHERE username='sprout'")
 setg puzzles_open 1; setg jigsaw_open 1; dbx "DELETE FROM settings WHERE name IN ('ppal_open','ppal_party')"
 MAP=$(dbv "SELECT id FROM puzzle_pics WHERE slug='jig-maplewold'"); MAIZE=$(dbv "SELECT id FROM puzzle_pics WHERE slug='jig-maizehollow'"); SUN=$(dbv "SELECT id FROM puzzle_pics WHERE slug='jig-sunsprinkle'")
 curl -s -b $W/p $BASE/jigsaw.php > $W/j.html; CS=$(grep -o '"csrf":"[^"]*"' $W/j.html | head -1 | sed 's/.*:"\(.*\)"/\1/')
-# real (non-placeholder) art for maplewold and sunsprinkle only; maizehollow stays without art
+# every authored roster ships real art now; the test COPY moves maizehollow's pal PNGs aside so it plays the "art not ready" picture (the repo is untouched)
 mkdir -p $GAME/assets/img/puzzles/pals
 for k in mw-acorn-nip mw-leaf-tuck mw-sap-drip mw-bark-badger mw-fourwind-finch mw-samara-spin ss-shell-skip ss-palm-fidget ss-tide-tuck ss-coral-cuff ss-lagoon-loop ss-cocopaddle; do
   { cat $GAME/assets/img/puzzles/pals/_placeholder.png; printf '%s' "$k"; } > $GAME/assets/img/puzzles/pals/$k.png; done
+mkdir -p $W/mh-aside; for k in $(grep '^maizehollow|' $GAME/includes/data/puzzle_pals.txt | cut -d'|' -f2); do mv $GAME/assets/img/puzzles/pals/$k.png $W/mh-aside/ 2>/dev/null; done
 R=$(go jig-maplewold advanced)
 ok "ppal_open off: an Advanced solve counts but releases nothing" "$(echo "$R" | js ok)/$(rel $MAP)/$(echo "$R" | js ppal)" "true/0/NULL"
 setg ppal_open 1
@@ -222,7 +223,7 @@ ok "book: a missing pal's name is hidden" "$(grep -c 'Bark Badger' $W/b.html)" 0
 ok "book: piece chip crops use classes only (no inline style anywhere)" "$(grep -c 'ppiece pcx[0-9]* pcy[0-9]* ppchip' $W/b.html)/$(grep -c ' style=' $W/b.html)" "3/0"
 ok "book: every pal image resolves (no broken images)" "$(grep -o 'src="[^"]*"' $W/b.html | sed 's/src="//; s/"$//' | grep -E 'puzzles/pals|jigsaw' | while read u; do curl -s -o /dev/null -w '%{http_code}\n' "$BASE$u"; done | grep -vc 200)" 0
 ok "book: not locked-listed while unready (Maize has no art)" "$(grep -c 'Solve Maize' $W/b.html)" 0
-for k in mh-husk-hopper mh-cob-scout mh-kernel-knock mh-stitch-crow mh-golden-ring mh-popcorn-moon; do { cat $GAME/assets/img/puzzles/pals/_placeholder.png; printf '%s' "$k"; } > $GAME/assets/img/puzzles/pals/$k.png; done
+for k in $(grep '^maizehollow|' $GAME/includes/data/puzzle_pals.txt | cut -d'|' -f2); do { cat $GAME/assets/img/puzzles/pals/_placeholder.png; printf '%s' "$k"; } > $GAME/assets/img/puzzles/pals/$k.png; done
 dbx "INSERT INTO ppal_trophies (user_id,pic_id,earned_at) VALUES ($UID_,$MAP,'$(utc 0)'),($UID_,$MAIZE,'$(utc 0)')"
 B > $W/b.html
 ok "book: an unreleased art-ready picture is listed 'Solve ... at Advanced to release its pals'" "$(grep -c 'Solve Maizehollow at Advanced to release its pals' $W/b.html)/$(grep -c 'Still locked' $W/b.html)" "1/1"
