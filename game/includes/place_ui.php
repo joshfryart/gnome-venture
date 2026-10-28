@@ -80,10 +80,6 @@ function go_panel_html(array $u, array $node, string $here, callable $badge, arr
     <p class="muted">No paths lead from here yet.</p>
   <?php endif; ?>
   <div class="gx-actions goextra">
-    <?php if ($onRoad && $shiftLeft <= 0): ?>
-      <form method="post" action="<?= e(url('adventure.php')) ?>" class="gotileform"><?= csrf_field() ?><input type="hidden" name="do" value="explore">
-        <button class="gbtn alt" title="Wander off the path">🌿 Wander <span class="cost">⚡1</span></button></form>
-    <?php endif; ?>
     <?php if (in_array($node['kind'], ['market', 'hub'], true)): ?>
       <a class="gbtn alt" href="<?= e(url('town.php')) ?>" title="<?= e($here . ' town square') ?>">🏘️ Town square</a>
     <?php elseif ($node['kind'] === 'village'): ?>
@@ -311,6 +307,10 @@ function place_tabs_html(array $tabs, string $active, string $label = 'Place sec
 {
     $h = '<nav class="' . e($class) . '" aria-label="' . e($label) . '">';
     foreach ($tabs as $k => [$lab, $href, $badge]) {
+        if (is_array($href)) {   // a tab that submits a form elsewhere on the page: ['form' => form id]
+            $h .= '<button type="submit" form="' . e((string)$href['form']) . '"' . (isset($href['title']) ? ' title="' . e((string)$href['title']) . '"' : '') . '>' . $lab . '</button>';
+            continue;
+        }
         $h .= '<a class="' . ($k === $active ? 'on' : '') . '" href="' . e($href) . '">' . $lab
             . ($badge !== '' ? ' <span class="st-tabbadge" title="' . e($badge) . '">' . e($badge) . '</span>' : '') . '</a>';
     }

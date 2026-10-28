@@ -101,11 +101,14 @@ page_header('World');
 <?= place_switcher_html($node, 'world') ?>
 <?php $mapCode = !empty($node['region_id']) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$node['region_id']]) : ''; ?>
 <?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World', '', place_chips($u)) ?>
+<?php $canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.0.x: Wander is a tab, not a Go-panel button ?>
+<?php if ($canWander): ?><form method="post" action="<?= e(url('adventure.php')) ?>" id="wanderform" hidden><?= csrf_field() ?><input type="hidden" name="do" value="explore"></form><?php endif; ?>
 <?= place_tabs_html([
     'go' => ['🧭 Go', url('world.php'), ''],
     'map' => ['🗺️ Map', url('world.php?tab=map#regionmap'), ''],
     'gather' => ['🧺 Gather', url('world.php?tab=gather'), ''],
     'markets' => ['🏪 Shops', url('world.php?tab=markets'), ''],
+] + ($canWander ? ['wander' => ['🌿 Wander <span class="cost">⚡1</span>', ['form' => 'wanderform', 'title' => 'Wander off the path'], '']] : []) + [
     'here' => [in_array($node['kind'], ['market', 'hub'], true) ? '🏘️ Town square' : '🪧 Rest stop', url('town.php'), ''],
 ], $tab, 'World sections') ?>
 

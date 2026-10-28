@@ -363,11 +363,11 @@ meter { height: 10px; }
 .tabs, .crafttabs, .gardentabs, .ccfilter, .sortopts, .book .tabs, .chips:has(> a, > button) { display: flex; flex-wrap: nowrap; gap: 8px; margin: 8px 0 12px; padding: 4px 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
 .tabs::-webkit-scrollbar, .crafttabs::-webkit-scrollbar, .gardentabs::-webkit-scrollbar, .chips::-webkit-scrollbar, .ccfilter::-webkit-scrollbar, .sortopts::-webkit-scrollbar { display: none; }
-.tabs a, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .sortpick summary {
+.tabs a, .tabs button, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .sortpick summary {
   position: relative; flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 6px 14px; background: var(--surface-2); color: var(--ink);
   border: 1px solid transparent; border-radius: var(--pill); font: 500 14px/1.2 var(--font); text-decoration: none; white-space: nowrap; cursor: pointer; }
 .tabs a::after, .crafttabs a::after, .gardentabs .tab::after, .chips a::after, .chips button::after, .ccfilter a::after, .sortopts a::after, .book .tabs a::after { content: ''; position: absolute; inset: -4px -2px; }
-.tabs a:hover, .crafttabs a:hover, .gardentabs .tab:hover, .chips a:hover, .chips button:hover, .ccfilter a:hover, .sortopts a:hover, .book .tabs a:hover { background: var(--line); color: var(--ink); text-decoration: none; }
+.tabs a:hover, .tabs button:hover, .crafttabs a:hover, .gardentabs .tab:hover, .chips a:hover, .chips button:hover, .ccfilter a:hover, .sortopts a:hover, .book .tabs a:hover { background: var(--line); color: var(--ink); text-decoration: none; }
 .tabs a.on, .crafttabs a.on, .gardentabs .tab.on, .chips a.on, .chips button.on, .ccfilter a.on, .sortopts a.on, .book .tabs a.on { background: var(--brand-fill); color: var(--on-fill); font-weight: 600; }
 .tabs a.shut { opacity: .85; }
 .chips small { opacity: .8; }
@@ -3008,9 +3008,9 @@ body.yardwhole .yardzoom .yz-b { display: inline; }
 @media (max-width: 720px) {
   .tabs, .crafttabs, .gardentabs, .ccfilter, .sortopts, .book .tabs, .chips:has(> a, > button), .placetabs, nav.tabs.almtabs { flex-wrap: wrap; overflow: visible; gap: 6px; padding: 2px 0; }
   .placetabs { position: static; }
-  .tabs a, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .almtabs a { padding: 4px 10px; font-size: 13px; min-height: 40px; gap: 3px; white-space: normal; text-align: center; justify-content: center; line-height: 1.15; }
+  .tabs a, .tabs button, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .almtabs a { padding: 4px 10px; font-size: 13px; min-height: 40px; gap: 3px; white-space: normal; text-align: center; justify-content: center; line-height: 1.15; }
   :is(nav.tabs, .crafttabs, nav.ccfilter, .sortopts, nav.chips, .placetabs):has(> :nth-child(5)) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  :is(nav.tabs, .crafttabs, nav.ccfilter, .sortopts, nav.chips, .placetabs):has(> :nth-child(5)) > a, :is(nav.tabs, .crafttabs, nav.ccfilter, .sortopts, nav.chips, .placetabs):has(> :nth-child(5)) > button { width: auto; min-width: 0; }
+  :is(nav.tabs, .crafttabs, nav.ccfilter, .sortopts, nav.chips, .placetabs):has(> :nth-child(5)) > a, :is(nav.tabs):has(> :nth-child(5)) > button, :is(nav.tabs, .crafttabs, nav.ccfilter, .sortopts, nav.chips, .placetabs):has(> :nth-child(5)) > button { width: auto; min-width: 0; }
   .tabs .tbadge, .tabs small, .ccfilter small, .chips small { font-size: 11px; }
   nav.tabs.gardentabnav { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }   /* v1.6.2: garden's icon tabs fit one row (v1.6.3.4: 4 or 5) */
   nav.tabs.gardentabnav > a { padding: 4px 2px; }
@@ -3087,7 +3087,7 @@ form.choiceform > .choice + .choice { margin-top: 6px; }
 /* v1.6.3.4: phones: page tab rows with up to 5 tabs sit in ONE row of equal columns (like the garden tabs) */
 @media (max-width: 720px) {
   nav.tabs:not(:has(> :nth-child(6))) { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; gap: 4px; }
-  nav.tabs:not(:has(> :nth-child(6))) > a { min-width: 0; width: auto; padding: 4px 3px; font-size: 12px; line-height: 1.15; white-space: normal; text-align: center; justify-content: center; min-height: 44px; }
+  nav.tabs:not(:has(> :nth-child(6))) > a, nav.tabs:not(:has(> :nth-child(6))) > button { min-width: 0; width: auto; padding: 4px 3px; font-size: 12px; line-height: 1.15; white-space: normal; text-align: center; justify-content: center; min-height: 44px; }
 }
 
 /* v1.6.4: map names */
@@ -4639,9 +4639,9 @@ progress::-webkit-progress-value { border-radius: 0; background: var(--fill); }
 
 /* ---- tabs and chips: felt tags; the open one is the area colour ---- */
 .tabs, .crafttabs, .gardentabs, .ccfilter, .sortopts, .book .tabs, .chips:has(> a, > button) { gap: 10px; padding: 4px 6px 8px 4px; }
-.tabs a, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .sortpick summary {
+.tabs a, .tabs button, .crafttabs a, .gardentabs .tab, .chips a, .chips button, .ccfilter a, .sortopts a, .book .tabs a, .sortpick summary {
   border: 0; border-radius: 0; background: var(--surface); box-shadow: var(--frame-lite); font-weight: 600; }
-.tabs a:hover, .crafttabs a:hover, .gardentabs .tab:hover, .chips a:hover, .chips button:hover, .ccfilter a:hover, .sortopts a:hover, .book .tabs a:hover { background: var(--surface-2); }
+.tabs a:hover, .tabs button:hover, .crafttabs a:hover, .gardentabs .tab:hover, .chips a:hover, .chips button:hover, .ccfilter a:hover, .sortopts a:hover, .book .tabs a:hover { background: var(--surface-2); }
 .tabs a.on, .crafttabs a.on, .gardentabs .tab.on, .chips a.on, .chips button.on, .ccfilter a.on, .sortopts a.on, .book .tabs a.on, body[data-area] .tabs a.on {
   background: var(--area-solid); color: var(--on-fill); font-weight: 800;
   box-shadow: 0 -2px 0 0 var(--ol), -2px 0 0 0 var(--ol), 0 2px 0 0 var(--ol), 2px 0 0 0 var(--ol), 2px 4px 0 0 var(--drop), 4px 2px 0 0 var(--drop); }
