@@ -1,4 +1,4 @@
-torch==2.5.1
+torch==2.8.0
 diffusers
 transformers
 accelerate
