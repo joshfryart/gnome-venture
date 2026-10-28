@@ -75,8 +75,13 @@ c:px(CX, 51, "#d6322b"); c:px(CX - 6, 51, "#3f8fb0"); c:px(CX + 6, 51, "#3f8fb0"
 for _, p in ipairs({ {CX - 10, 43}, {CX, 40}, {CX + 10, 43} }) do c:px(p[1], p[2], "#fff1c8"); c:px(p[1] + 1, p[2], "#fff1c8") end
 -- small pack wolves watching on the ridge
 local function pup(x, y)
-  c:part(c:ellipse(x, y, 6, 4), GV.ramp("#6a7280"), { flat = true }); c:part(c:ellipse(x + 5, y - 3, 3, 3), GV.ramp("#6a7280"), { flat = true })
-  c:px(x + 5, y - 6, "#2a1a10"); c:px(x + 7, y - 6, "#2a1a10"); c:px(x + 6, y - 3, "#f5cf6a")
+  c:part(c:line({ {x - 6, y}, {x - 10, y - 5} }, 2), GV.ramp("#6a7280"), { flat = true })
+  c:part(c:ellipse(x, y, 7, 4), GV.ramp("#6a7280"), { flat = true })
+  c:part(c:poly({ {x + 3, y - 6}, {x + 4, y - 12}, {x + 6, y - 7} }), GV.ramp("#6a7280"), { flat = true })
+  c:part(c:poly({ {x + 7, y - 7}, {x + 9, y - 12}, {x + 10, y - 6} }), GV.ramp("#6a7280"), { flat = true })
+  c:part(c:ellipse(x + 6, y - 4, 4, 3.5), GV.ramp("#6a7280"), { flat = true })
+  c:part(c:ellipse(x + 9, y - 2, 2.5, 1.5), GV.ramp("#eef0f8"), { flat = true, outline = false })
+  c:px(x + 4, y - 5, "#2a1a10"); c:px(x + 7, y - 5, "#2a1a10"); c:px(x + 11, y - 2, "#2a1a10")
 end
 pup(30, 112); pup(214, 112)
 -- snow drifts and flakes

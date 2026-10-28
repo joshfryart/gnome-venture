@@ -63,7 +63,7 @@ local function mush(x, y, s, cap, spot)
 end
 -- glow on grass under ring
 local cx, cy, rx, ry = 120, 108, 88, 10
-c:fill(c:ellipse(cx, cy, rx, ry):cut(c:ellipse(cx, cy, rx - 6, ry - 3)), "#a4e8c8")
+c:fill(c:ellipse(cx, cy, rx + 3, ry + 2):cut(c:ellipse(cx, cy, rx - 12, ry - 5)), "#a4e8c8")
 -- ring of mushrooms, back to front
 local ms = {}
 for i = 0, 11 do

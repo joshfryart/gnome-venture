@@ -51,10 +51,9 @@ local door = c:rrect(108, 92, 132, 114, 8)
 door:add(c:rect(108, 100, 132, 114))
 c:part(door, GV.ramp("#f5b860"), { outline = false, gloss = false, cres = 2, deep = 3, contour = "#2a1a10", rim = false })
 c:fill(c:rect(110, 104, 130, 114), "#f0a848")
-c:part(c:rrect(110, 105, 124, 112, 2), GV.ramp("#d6322b"), { flat = true, gloss = false, outline = false })
-c:part(c:rrect(110, 102, 115, 108, 2), GV.ramp("#f2e4c0"), { flat = true, gloss = false, outline = false })
+c:fill(c:rect(110, 111, 124, 112), "#d6322b")
 c:fill(c:rect(126, 108, 130, 114), "#7a4a1f")
-c:fill(c:rect(121, 94, 121, 97), "#2a1a10"); c:part(c:ellipse(121, 99, 2.5, 3), GV.ramp("#fff1c8"), { flat = true, gloss = false, outline = false })
+c:fill(c:rect(121, 94, 121, 97), "#2a1a10"); c:part(c:ellipse(121, 99, 1.5, 1.5), GV.ramp("#fff1c8"), { flat = true, gloss = false, outline = false })
 c:part(c:rect(104, 114, 136, 117), GV.ramp("#7a4a1f"), { gloss = false, cres = 2, deep = 3 })
 -- round windows, lit
 for _, w in ipairs({ { 110, 70 }, { 130, 70 } }) do

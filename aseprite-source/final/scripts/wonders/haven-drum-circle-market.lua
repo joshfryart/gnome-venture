@@ -56,11 +56,12 @@ c:part(c:line({ {140, 100}, {128, 88} }, 2), GV.ramp("#d9a660"), { flat = true, 
 
 -- drums
 local function drum(x, y, wood)
-  c:part(c:poly({ {x - 7, y - 9}, {x + 7, y - 9}, {x + 3, y - 4}, {x + 5, y}, {x - 5, y}, {x - 3, y - 4} }), GV.ramp(wood or "#a8582f"), { cres = 3, deep = 5, gloss = false })
-  c:seam({ {x - 5, y - 7}, {x - 2, y - 4}, {x + 1, y - 7}, {x + 4, y - 4} }, { free = true, on = 2, off = 0, gap = "#f2e4c0" })
-  c:part(c:ellipse(x, y - 9, 7, 2.5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false })
-  c:part(c:ellipse(x - 4, y - 10, 2, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
-  c:part(c:ellipse(x + 4, y - 10, 2, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
+  y = y + 3
+  c:part(c:poly({ {x - 10, y - 14}, {x + 10, y - 14}, {x + 5, y - 6}, {x + 7, y}, {x - 7, y}, {x - 5, y - 6} }), GV.ramp(wood or "#a8582f"), { cres = 3, deep = 5, gloss = false })
+  c:seam({ {x - 7, y - 11}, {x - 3, y - 6}, {x + 1, y - 11}, {x + 5, y - 6} }, { free = true, on = 2, off = 0, gap = "#f2e4c0" })
+  c:part(c:ellipse(x, y - 14, 10, 3.5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false })
+  c:part(c:ellipse(x - 5, y - 15, 2.5, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
+  c:part(c:ellipse(x + 5, y - 15, 2.5, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
 end
 -- back row drummers + dancer
 H.folk(c, 68, 108, { cloth = "#7ab55c", hat = "#f08a24", sit = true }); drum(68, 113)

@@ -87,12 +87,19 @@ for i, col in ipairs({ "#d6322b", "#f5cf6a", "#6aa04a", "#e0709a", "#4e8a9a" }) 
   c:fill(c:rect(18 + i * 4, 104 + (i % 2) * 2, 18 + i * 4 + 1, 106 + (i % 2) * 2), "#f2e4c0")
 end
 -- chibi hedgehog guest on the path
-local hx, hy = 100, 118
-c:part(c:ellipse(hx, hy, 9, 7), GV.ramp("#6a4a30"), { cres = 4, deep = 6, gloss = false })
-for k = 0, 5 do c:px(hx - 8 + k * 3, hy - 7 + (k % 2), "#2a1a10") end
-c:part(c:ellipse(hx + 6, hy + 1, 5, 4), GV.ramp("#e8c8a0"), { cres = 3, deep = 4, gloss = false })
-c:eye(hx + 4, hy - 3, true); c:px(hx + 10, hy + 2, "#2a1a10")
-c:part(c:ellipse(hx + 5, hy - 5, 4, 2), GV.ramp("#e0709a"), { flat = true, gloss = false, outline = false })   -- bonnet
+local hx, hy = 98, 117
+-- spiky back: a zigzag crown of quills so it reads as a hedgehog, not a round lump
+local back = c:ellipse(hx - 2, hy, 10, 8)
+for k = 0, 6 do local sx = hx - 12 + k * 3; back:add(c:poly({ {sx, hy - 4 + math.abs(k - 3)}, {sx + 2, hy - 11 + math.abs(k - 3)}, {sx + 4, hy - 4 + math.abs(k - 3)} })) end
+c:part(back, GV.ramp("#6a4a30"), { cres = 4, deep = 6, gloss = false })
+for k = 0, 5 do c:fill(c:rect(hx - 9 + k * 3, hy - 4 + (k % 2) * 2, hx - 9 + k * 3, hy - 1 + (k % 2) * 2), "#4a3020") end
+-- pale face and pointed snout
+c:part(c:ellipse(hx + 7, hy + 2, 6, 5), GV.ramp("#e8c8a0"), { cres = 3, deep = 4, gloss = false })
+c:part(c:poly({ {hx + 11, hy}, {hx + 16, hy + 3}, {hx + 11, hy + 6} }), GV.ramp("#e8c8a0"), { flat = true, gloss = false, outline = false })
+c:fill(c:rect(hx + 15, hy + 2, hx + 16, hy + 3), "#2a1a10")   -- nose
+c:eye(hx + 8, hy, true)
+c:px(hx + 6, hy + 4, "#e0709a")   -- blush
+c:part(c:ellipse(hx + 4, hy - 8, 4, 2), GV.ramp("#e0709a"), { flat = true, gloss = false, outline = false })   -- bonnet
 c:ground(hx, hy + 8, 10, 2)
 c:ground(172, 128, 24, 2)
 L.finish(c, "haven-thatchtop-tearoom")

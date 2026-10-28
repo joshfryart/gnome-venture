@@ -33,23 +33,23 @@ c:fill(c:ellipse(120, CY + 3, 30, 5), "#f08a24")
 for _, x in ipairs({ 92, 104, 146, 154, 84 }) do c:px(x, CY + 2 + (x % 3), "#fbd078"); c:px(x + 1, CY + 3 + (x % 3), "#fbd078") end
 -- salamander sleeping curled in the lava bowl
 local SX, SY = 114, CY - 2
-c:part(c:ellipse(SX, SY + 2, 28, 11), GV.ramp("#e0501f"), { cres = 5, deep = 7 })
+c:part(c:ellipse(SX, SY + 2, 28, 11), GV.ramp("#6b1b2c"), { cres = 5, deep = 7 })
 local tail = c:line({ {SX + 22, SY + 8}, {SX + 8, SY + 12}, {SX - 10, SY + 12}, {SX - 24, SY + 8}, {SX - 30, SY + 2} }, 5)
-c:part(tail, GV.ramp("#e0501f"), { cres = 2, deep = 3, gloss = false })
+c:part(tail, GV.ramp("#6b1b2c"), { cres = 2, deep = 3, gloss = false })
 c:part(c:ellipse(SX - 31, SY, 2.5, 2.5), GV.ramp("#fbd078"), { flat = true, outline = false })
-for _, p in ipairs({ {-16,-2},{-6,-6},{6,-5},{16,-2},{-22,4},{0,2},{-12,6} }) do c:part(c:ellipse(SX + p[1], SY + p[2], 2.5, 2), GV.ramp("#f5cf6a"), { flat = true, gloss = false, outline = false }) end
+for _, p in ipairs({ {-16,-2},{-6,-6},{6,-5},{16,-2},{-22,4},{0,2},{-12,6} }) do c:part(c:ellipse(SX + p[1], SY + p[2], 3, 2.5), GV.ramp("#f5cf6a"), { flat = true, gloss = false, outline = false }) end
 -- stubby front paw
-c:part(c:ellipse(SX + 24, SY + 12, 5, 3), GV.ramp("#e0501f"), { flat = true })
+c:part(c:ellipse(SX + 24, SY + 12, 5, 3), GV.ramp("#6b1b2c"), { flat = true })
 -- head resting on the front lip (right), fire frills
 local hx, hy = SX + 34, SY + 5
 c:part(c:poly({ {hx-6,hy-14},{hx,hy-6},{hx-10,hy-6} }), GV.ramp("#f5cf6a"), { flat = true, outline = false })
 c:part(c:poly({ {hx+4,hy-15},{hx+10,hy-6},{hx-2,hy-6} }), GV.ramp("#f08a24"), { flat = true, outline = false })
 c:part(c:poly({ {hx+12,hy-12},{hx+16,hy-4},{hx+8,hy-5} }), GV.ramp("#f5cf6a"), { flat = true, outline = false })
-c:part(c:ellipse(hx, hy + 1, 14, 10), GV.ramp("#e0501f"), { cres = 4, deep = 7 })
+c:part(c:ellipse(hx, hy + 1, 14, 10), GV.ramp("#6b1b2c"), { cres = 4, deep = 7 })
 for _, ex in ipairs({ hx - 8, hx + 3 }) do
-  c:px(ex, hy - 1, "#2a1a10"); c:px(ex + 1, hy, "#2a1a10"); c:px(ex + 2, hy, "#2a1a10"); c:px(ex + 3, hy, "#2a1a10"); c:px(ex + 4, hy - 1, "#2a1a10")
+  c:px(ex, hy - 1, "#fbd078"); c:px(ex + 1, hy, "#fbd078"); c:px(ex + 2, hy, "#fbd078"); c:px(ex + 3, hy, "#fbd078"); c:px(ex + 4, hy - 1, "#fbd078")
 end
-c:px(hx - 3, hy + 6, "#2a1a10"); c:px(hx - 2, hy + 6, "#2a1a10"); c:px(hx - 1, hy + 6, "#2a1a10"); c:px(hx, hy + 6, "#2a1a10")
+c:px(hx - 3, hy + 6, "#fbd078"); c:px(hx - 2, hy + 6, "#fbd078"); c:px(hx - 1, hy + 6, "#fbd078"); c:px(hx, hy + 6, "#fbd078")
 c:px(hx + 9, hy + 3, "#6b1b2c"); c:px(hx + 9, hy + 4, "#6b1b2c")
 -- front rim lip covers the lower body
 local lip = c:ellipse(120, CY + 6, 49, 13); lip:cut(c:ellipse(120, CY + 1, 46, 11)); lip:clip(c:rect(0, CY + 8, W, CY + 30))

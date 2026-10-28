@@ -110,9 +110,10 @@ c:part(c:ellipse(JX, JY + 3, 7, 7):clip(c:rect(0, JY + 1, W, H)), GV.ramp("#f2e4
 -- front paws
 for _, dx in ipairs({ -8, 4 }) do c:part(c:ellipse(JX + dx + 2, JY + 11, 4, 3), J, { cres = 2, deep = 3, gloss = false }) end
 -- spots (rosettes: dark bean + glint)
-for _, s in ipairs({ {-11,-4},{-9,4},{10,-3},{11,5},{-3,-9},{4,-8} }) do
-  c:fill(c:rect(JX + s[1], JY + s[2], JX + s[1] + 2, JY + s[2] + 1), "#35161f"); c:px(JX + s[1], JY + s[2], "#5e2a3a")
+local function rosette(x, y)
+  c:fill(c:rect(x, y, x + 3, y + 2), "#35161f"); c:fill(c:rect(x + 1, y + 1, x + 2, y + 1), "#c47a30")
 end
+for _, s in ipairs({ {-12,-3},{-10,4},{9,-3},{10,4},{-6,6},{5,6} }) do rosette(JX + s[1], JY + s[2]) end
 -- head (big)
 c:part(c:ellipse(JX, JY - 15, 13, 10), J, { cres = 4, deep = 7 })
 -- ears
@@ -126,6 +127,7 @@ c:fill(c:rect(JX - 1, JY - 13, JX + 1, JY - 12), "#d9885a")
 c:px(JX, JY - 11, "#2a1a10"); c:px(JX - 2, JY - 9, "#2a1a10"); c:px(JX + 2, JY - 9, "#2a1a10"); c:px(JX - 1, JY - 9, "#2a1a10"); c:px(JX + 1, JY - 9, "#2a1a10")
 -- forehead rosettes
 c:px(JX - 3, JY - 23, "#35161f"); c:px(JX - 2, JY - 23, "#35161f"); c:px(JX + 2, JY - 23, "#35161f"); c:px(JX + 3, JY - 23, "#35161f"); c:px(JX, JY - 24, "#35161f")
+for _, s in ipairs({ {-11,-15},{8,-15},{-7,-21},{4,-21} }) do rosette(JX + s[1], JY + s[2]) end
 -- eyes
 c:eye(JX - 9, JY - 20); c:eye(JX + 4, JY - 20)
 c:ground(JX, JY + 24, 24, 2)
