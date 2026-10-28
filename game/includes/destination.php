@@ -148,8 +148,9 @@ function dest_panel(array $u, int $toId, bool $continue = false): string
     $here = player_node($u);
     $name = dest_name($uid, $to);
     $fromName = e(dest_name($uid, $here));
-    $head = '<div class="dphead"><div><div class="dpkick">🧭 ' . ($continue ? 'Heading to' : 'Head to') . '</div><h3 class="dptitle">' . e($name) . '</h3>'
-        . '<div class="dpsub">' . ($to['region_name'] ? e((string)$to['region_name']) . ' · ' : '') . 'from ' . $fromName . '</div></div>';
+    // v2.0.84: slimmer card: one title row (kicker, name, where from, forget), one line of facts, the stop list and the walking options folded, one Set off button
+    $head = '<div class="dphead"><div class="dpwho"><span class="dpkick">🧭 ' . ($continue ? 'Heading to' : 'Head to') . '</span> <b class="dptitle">' . e($name) . '</b>'
+        . '<span class="dpsub">' . ($to['region_name'] ? e((string)$to['region_name']) . ' · ' : '') . 'from ' . $fromName . '</span></div>';
     $forget = '<form method="post" action="' . e(url('adventure.php')) . '" class="inline dpforget">' . csrf_field() . '<input type="hidden" name="do" value="dest_forget"><input type="hidden" name="back" value="world.php"><button class="dpx" title="Forget this route" aria-label="Forget this route">✕</button></form>';
     if ((int)$here['id'] === $toId) return '<div class="box destpanel" id="gopanel">' . $head . '</div><p>🎩 You’re here!</p></div>';
     $busy = active_expedition($uid) !== null;
@@ -160,26 +161,29 @@ function dest_panel(array $u, int $toId, bool $continue = false): string
     $steps = $energy = $mins = $quickN = 0;
     foreach ($stops as $s) { $steps += $s['steps']; $energy += $s['energy']; $mins += $s['minutes']; $quickN += $s['quick'] ? 1 : 0; }
     $h = '<div class="box destpanel" id="gopanel">' . $head . $forget . '</div>';
-    $h .= '<p class="dppills"><span class="dppill">' . $n . ' stop' . ($n === 1 ? '' : 's') . '</span><span class="dppill">' . $steps . ' steps</span><span class="dppill">⚡' . $energy . '</span>'
+    $h .= '<p class="dppills"><span class="dppill">' . $steps . ' steps</span><span class="dppill">⚡' . $energy . '</span>'
         . '<span class="dppill">⏱ ' . ($mins > 0 ? nice_time($mins * 60) : 'no time') . '</span>' . ($quickN ? '<span class="dppill">💨 ' . $quickN . ' quick walk' . ($quickN === 1 ? '' : 's') . '</span>' : '') . '</p>';
-    $h .= '<ol class="routeplan dptrack">';
-    if ((int)($u['dest_id'] ?? 0) === $toId) {   // v0.9.5: stops already passed on this journey
-        $passed = array_values(array_filter(dest_trail($u), fn($id) => $id !== (int)$here['id']));
+    $passed = [];
+    if ((int)($u['dest_id'] ?? 0) === $toId) $passed = array_values(array_filter(dest_trail($u), fn($id) => $id !== (int)$here['id']));   // v0.9.5: stops already passed on this journey
+    if ($n > 1 || $passed) {   // a single hop has nothing to list
+        $h .= '<details class="dpplan"><summary>🛣️ ' . $n . ' stop' . ($n === 1 ? '' : 's') . ' on the way</summary><ol class="routeplan dptrack">';
         if (count($passed) > 6) { $h .= '<li class="rp done"><span class="rpmark">✅</span><span class="rpname"><small class="muted">+ ' . (count($passed) - 6) . ' earlier</small></span></li>'; $passed = array_slice($passed, -6); }
         foreach ($passed as $pid) {
             if ($pl = q_one('SELECT * FROM locations WHERE id = ?', [$pid])) {
                 $h .= '<li class="rp done"><span class="rpmark">✅</span><span class="rpname">' . dest_icon($pl) . ' ' . e(dest_name($uid, $pl)) . '<small>passed</small></span></li>';
             }
         }
+        $h .= '<li class="rp here"><span class="rpmark">🎩</span><span class="rpname">' . e(dest_name($uid, $here)) . '<small>you are here</small></span></li>';
+        foreach ($stops as $i => $s) {
+            $last = $i === $n - 1;
+            $h .= '<li class="rpleg">' . $s['steps'] . ' steps · ⚡' . $s['energy'] . ($s['quick'] ? ' · 💨 quick walk' : '') . '</li>';
+            $h .= '<li class="rp ' . ($last ? 'dest' : ($i === 0 ? 'next' : 'ahead')) . '"><span class="rpmark">' . ($last ? '🏁' : dest_icon($s['loc'])) . '</span><span class="rpname">' . e(dest_name($uid, $s['loc']))
+                . '<small>' . ($last ? 'destination' : ($i === 0 ? 'next stop' : '')) . '</small></span><span class="rplv">Lv ' . $s['lo'] . ($s['hi'] > $s['lo'] ? '–' . $s['hi'] : '') . '</span></li>';
+        }
+        $h .= '</ol></details>';
+    } else {   // one hop: the level badge is the only thing the list would have added
+        $h .= '<p class="dpone"><span class="rplv">Lv ' . $stops[0]['lo'] . ($stops[0]['hi'] > $stops[0]['lo'] ? '–' . $stops[0]['hi'] : '') . '</span></p>';
     }
-    $h .= '<li class="rp here"><span class="rpmark">🎩</span><span class="rpname">' . e(dest_name($uid, $here)) . '<small>you are here</small></span></li>';
-    foreach ($stops as $i => $s) {
-        $last = $i === $n - 1;
-        $h .= '<li class="rpleg">' . $s['steps'] . ' steps · ⚡' . $s['energy'] . ($s['quick'] ? ' · 💨 quick walk' : '') . '</li>';
-        $h .= '<li class="rp ' . ($last ? 'dest' : ($i === 0 ? 'next' : 'ahead')) . '"><span class="rpmark">' . ($last ? '🏁' : dest_icon($s['loc'])) . '</span><span class="rpname">' . e(dest_name($uid, $s['loc']))
-            . '<small>' . ($last ? 'destination' : ($i === 0 ? 'next stop' : '')) . '</small></span><span class="rplv">Lv ' . $s['lo'] . ($s['hi'] > $s['lo'] ? '–' . $s['hi'] : '') . '</span></li>';
-    }
-    $h .= '</ol>';
     // Another region you can fast travel to: say so (the gnome chooses)
     $rid = (int)($to['region_id'] ?? 0);
     $fast = '';
@@ -191,7 +195,7 @@ function dest_panel(array $u, int $toId, bool $continue = false): string
     $first = $plan['path'][0];
     $h .= '<form method="post" action="' . e(url('adventure.php')) . '" class="destgo">' . csrf_field()
         . '<input type="hidden" name="do" value="start"><input type="hidden" name="dest" value="' . $toId . '">'
-        . '<div class="dpopts">' . dest_opts_html($u) . '</div>' . $fast
+        . '<details class="dpoptsfold"><summary>⚙️ Walking options</summary><div class="dpopts">' . dest_opts_html($u) . '</div></details>' . $fast
         . '<div class="dpgobar"><button class="btn dpset">▶ Set off · ' . (int)$first['steps'] . ' steps to ' . e(dest_name($uid, $stops[0]['loc'])) . '</button></div></form>';
     return $h . '</div>';
 }

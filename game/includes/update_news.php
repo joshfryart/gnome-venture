@@ -556,6 +556,8 @@ function post_update_news(string $from): void
         "The shop, the Trading Post stalls and Market Day now show your goods as picture tiles. Tap one to pick how many, and see the total before you buy."],
     '2.0.6' => ['🕯️ Delves and lairs have maps',
         "Going down a delve or into a lair? You now walk it on a little cave map. Tap a lit tile to walk there, find the rooms in any order, and open the chest once the other rooms are cleared. Walking costs no energy. Prefer the old way? Tap [b]Use the simple list[/b]."],
+    '2.0.86' => ['🏞️ Every special place has its own picture',
+        "Havens, wonders, delves and lairs now show a painted scene when you arrive: a crab keeper at the dark lighthouse, a silverback in the glade, a spider in her hollow, and 78 more. Look for them on the World and Town pages."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

@@ -527,6 +527,25 @@ function ensure_lair_bosses(): void
     }
 }
 
+// ---------------- v2.0.86: the scene picture of a unique location ----------------
+
+/** File slug of a landmark's scene art: kind + slugified name, apostrophes dropped, no doubled kind ("lair-of-the-grey-wolf-king" stays "lair-of-the-grey-wolf-king"). */
+function landmark_scene_slug(string $kind, string $name): string
+{
+    $slug = slugify(str_replace(["'", '’'], '', $name));
+    return str_starts_with($slug, $kind . '-') ? $slug : $kind . '-' . $slug;
+}
+
+/** assets/img/wonders/{kind}-{slug}.png (480x270 pixel scene) for this landmark as <img>, or '' when none is drawn (the panel then looks as it always did). */
+function landmark_scene(array $lm, bool $ruined = false): string
+{
+    $kind = (string)($lm['kind'] ?? '');
+    if (!in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) return '';
+    $rel = art_path('assets/img/wonders/' . landmark_scene_slug($kind, (string)$lm['name']) . '.png');
+    if ($rel === '') return '';
+    return '<img class="lmscene pix' . ($ruined ? ' lmscene-ruin' : '') . '" src="' . e(url($rel)) . '" width="480" height="270" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
+}
+
 // ---------------- The panel on the World page ----------------
 
 function landmark_panel(array $u, array $node): string
@@ -541,7 +560,8 @@ function landmark_panel(array $u, array $node): string
         . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="lm" value="' . $id . '">' . $extra
         . '<button class="' . $cls . '"' . ($disabled ? ' disabled' : '') . '>' . $label . '</button></form> ';
     $cleared = (int)q_val('SELECT clears FROM landmark_clears WHERE user_id = ? AND landmark_id = ?', [$uid, $id]);
-    $h = '<div class="box lmpanel lm-' . e($lm['kind']) . '">';
+    $h = '<div class="box lmpanel lm-' . e($lm['kind']) . '">'
+        . landmark_scene($lm, in_array($lm['kind'], ['haven', 'wonder', 'delve'], true) && !landmark_rebuilt_by($lm, $uid) && !empty($lm['ruined']));   // v2.0.86
     if (in_array($lm['kind'], ['haven', 'wonder', 'delve'], true)) {
         require_once __DIR__ . '/rebuild.php';
         if (landmark_rebuilt_by($lm, $uid)) {   // v0.7.88: you made it safe: the plaque and your own extras
