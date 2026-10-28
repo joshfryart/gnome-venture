@@ -1,0 +1,25 @@
+# Puzzle Pals (v2.0.88 build step 1). One row per pal; a picture's roster is 6 = 3 common, 2 uncommon, 1 rare. Checked by tools/lint_puzzle_pals.py.
+# pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
+# pic_slug = the built-in slug without "jig-" (maplewold), or a Places / upload picture slug (those get a generated roster when no row is authored here).
+# rarity: common (stats total 3-4), uncommon (5), rare (6). calling: rootwarden bloomcaller thornblade seedkeeper wayfinder brewroot. Stats 0-3 each.
+# piece = col-row on the 12x8 Advanced grid (0-11, 0-7): the cell of the picture that fills the pal's body. shape: corner-TT corner-TB corner-BB edge-TTB edge-TBB edge-TBT edge-BTB
+#   inner-TTTT inner-BBBB inner-TBTB inner-TTBB inner-TTTB inner-TBBB or whimsy-<thing>. knob: round keyhole peg tri double hook.
+# perk: gather road finder tinker bloom shine, or - for the calling's default. No | and curly apostrophes in text. No two pals in a roster share shape+knob.
+maplewold|mw-acorn-nip|Acorn Nip|common|seedkeeper|1|1|1|0|1-5|corner-TT|round|-|Hides acorns in its knob and forgets where.
+maplewold|mw-leaf-tuck|Leaf Tuck|common|bloomcaller|0|2|1|0|4-2|edge-TTB|round|-|Folds itself into the nearest red leaf pile.
+maplewold|mw-sap-drip|Sap Drip|common|brewroot|1|0|1|1|8-4|inner-TBTB|peg|-|Sticky, sweet and always a little late.
+maplewold|mw-bark-badger|Bark Badger|uncommon|rootwarden|2|0|3|0|6-6|inner-TTBB|peg|-|Wears a tree’s coat and shares it.
+maplewold|mw-fourwind-finch|Fourwind Finch|uncommon|wayfinder|1|3|0|1|10-1|inner-TTTT|tri|-|Points four ways and is right about two.
+maplewold|mw-samara-spin|Samara Spin|rare|thornblade|2|1|1|2|5-3|whimsy-leaf|hook|-|A maple key that learned to fly on purpose.
+maizehollow|mh-husk-hopper|Husk Hopper|common|bloomcaller|0|2|1|1|2-6|corner-TB|round|-|Pops out of a husk and says nothing at all.
+maizehollow|mh-cob-scout|Cob Scout|common|wayfinder|1|1|1|0|7-1|edge-TBB|peg|-|Counts rows of kernels to keep from getting lost.
+maizehollow|mh-kernel-knock|Kernel Knock|common|seedkeeper|1|0|1|1|9-5|inner-TBBB|round|-|Knocks twice, then pops with excitement.
+maizehollow|mh-stitch-crow|Stitch Crow|uncommon|thornblade|2|1|2|0|3-3|inner-TTBB|hook|-|A scarecrow’s apprentice, very serious about hats.
+maizehollow|mh-golden-ring|Golden Ring|uncommon|rootwarden|1|0|2|2|6-4|inner-BBBB|round|-|A hole shaped like a good harvest.
+maizehollow|mh-popcorn-moon|Popcorn Moon|rare|brewroot|1|2|1|2|11-2|whimsy-moon|double|-|Rises over the field and goes pop at midnight.
+sunsprinkle|ss-shell-skip|Shell Skip|common|wayfinder|0|2|1|1|0-4|corner-BB|keyhole|-|Skips along the tideline, collecting small things.
+sunsprinkle|ss-palm-fidget|Palm Fidget|common|bloomcaller|1|2|1|0|5-0|edge-BTB|keyhole|-|Cannot sit still when the breeze is fresh.
+sunsprinkle|ss-tide-tuck|Tide Tuck|common|brewroot|0|1|2|1|3-5|inner-TTTB|round|-|Tucks itself into the sand just before a wave.
+sunsprinkle|ss-coral-cuff|Coral Cuff|uncommon|rootwarden|1|1|2|1|8-3|inner-TTTT|double|-|Four tiny reefs on four small knobs.
+sunsprinkle|ss-lagoon-loop|Lagoon Loop|uncommon|seedkeeper|0|3|1|1|10-6|inner-BBBB|keyhole|-|A hole in the picture where a lagoon winks.
+sunsprinkle|ss-cocopaddle|Cocopaddle|rare|thornblade|2|2|0|2|6-2|whimsy-boat|peg|-|Sails a coconut half across the whole archipelago.

@@ -365,6 +365,13 @@ function settings_schema(): array
         'jigsaw_tries_advanced' => ['label' => 'Jigsaw tournaments: timed goes per day, Advanced (v2.0.87)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 50],
         'jigsaw_tries_expert' => ['label' => 'Jigsaw tournaments: timed goes per day, Expert (v2.0.87)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 50],
         'jigsaw_reserve_days' => ['label' => 'Jigsaw tournaments: days a settled tournament’s picture waits before it joins free play (0 = at once) (v2.0.87)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 60],
+        'ppal_open' => ['label' => 'Puzzle Pals: pals released by an Advanced Jigsaw solve, found on pages (needs Jigsaw open; off = admins only) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'ppal_chance' => ['label' => 'Puzzle Pals: a find on a page view is 1 in this many (v2.0.88)', 'type' => 'int', 'default' => '60', 'min' => 5, 'max' => 5000],
+        'ppal_cooldown_minutes' => ['label' => 'Puzzle Pals: minutes between finds (v2.0.88)', 'type' => 'int', 'default' => '30', 'min' => 0, 'max' => 1440],
+        'ppal_daily_max' => ['label' => 'Puzzle Pals: most finds per gnome per day (v2.0.88)', 'type' => 'int', 'default' => '4', 'min' => 0, 'max' => 100],
+        'ppal_party' => ['label' => 'Puzzle Pals: gnomes level 15+ can take pals along (perks, shown beside the gnome; the Expert trophy adds +1 unit) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'ppal_party_max' => ['label' => 'Puzzle Pals: pals a gnome can take along (v2.0.88)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 3],
+        'ppal_roster_size' => ['label' => 'Puzzle Pals: pals per picture (6 = 3 common, 2 uncommon, 1 rare; authored rosters are cut to this) (v2.0.88)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 6],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'games_petals_percent' => ['label' => 'Games: Petals paid, % of the normal payout (Worms, Memory, Spit, Mushroom, Pest Patrol, Letters)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 300],   // v1.7.6: games out-earned the garden
         'memory_plays_per_day' => ['label' => 'Seed Memory: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],

@@ -279,5 +279,10 @@ function jigsaw_practice_finish(array $u, string $token, int $drops): array
     if ($st === 'rejected') return [false, 'That one didn’t count: too quick for a gnome.', ['rejected' => true]];
     $best = (int)q_val("SELECT MIN(ms) FROM puzzle_runs WHERE user_id = ? AND game = 'jigsaw' AND pic_id = ? AND size = ? AND status = 'done'", [(int)$u['id'], (int)$r['pic_id'], $total]);
     $new = $ms <= $best;
-    return [true, $new ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is ' . puzzle_ms_text($best) . '.', ['ms' => $ms, 'best' => $best, 'new' => $new, 'tier' => jigsaw_tier_for($total)]];
+    $x = ['ms' => $ms, 'best' => $best, 'new' => $new, 'tier' => jigsaw_tier_for($total)];
+    if (!is_guest($u)) {   // v2.0.88 Puzzle Pals: Advanced releases the picture's pals, Expert earns its trophy (guests skipped)
+        require_once __DIR__ . '/puzzle_pals.php';
+        if ($pp = ppal_on_solve((int)$u['id'], (int)$r['pic_id'], $x['tier'], 'free', (int)$r['id'])) $x['ppal'] = $pp;
+    }
+    return [true, $new ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is ' . puzzle_ms_text($best) . '.', $x];
 }

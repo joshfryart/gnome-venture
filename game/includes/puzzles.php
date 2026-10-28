@@ -395,7 +395,12 @@ function puzzle_attempt_finish(array $u, string $token, int $drops): array
     if ($st === 'rejected') return [false, 'That run didn’t count: ' . $reason . '.', ['rejected' => true] + $x];
     $best = (int)q_val("SELECT MIN(ms) FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND status = 'done'", [(int)$a['tournament_id'], (int)$u['id']]);
     $rank = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_attempts WHERE tournament_id = ? AND status = 'done' GROUP BY user_id) x WHERE x.b < ? + 0", [(int)$a['tournament_id'], $best]);
-    return [true, $ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.', ['ms' => $ms, 'best' => $best, 'rank' => $rank] + $x];
+    $x += ['ms' => $ms, 'best' => $best, 'rank' => $rank];
+    if ($t && $x['kind'] === 'still' && !is_guest($u)) {   // v2.0.88 Puzzle Pals: Advanced releases the picture's pals, Expert earns its trophy (guests skipped)
+        require_once __DIR__ . '/puzzle_pals.php';
+        if ($pp = ppal_on_solve((int)$u['id'], (int)$t['pic_id'], $x['tier'], 'tourney', (int)$a['id'])) $x['ppal'] = $pp;
+    }
+    return [true, $ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.', $x];
 }
 
 /** Settle one tournament row (status 'live'): places, notes, then free the picture of a Jigsaw. Returns false if somebody else settled it first. */
