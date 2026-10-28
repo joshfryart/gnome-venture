@@ -383,6 +383,59 @@ for bx, by, c in ((132, 112, RED), (36, 116, LEMON)):
     o.draw()
     cv.fill(rect(bx - 1, by + 5, bx + 6, by + 5), FOAM)
 
+# ================================================================ WEST HEADLAND with the windmill
+cv.fill(head, DRY['b'])
+hcl = head & ~shift(head, -7, 0) & rect(0, 50, W, H)   # east-facing cliff, away from the sun
+cv.fill(hcl, '#a87a4a')
+cv.fill(hcl & ~shift(hcl, 1, 0), '#c49660')
+for yy in range(54, 124, 4):   # rock strata
+    xs = np.nonzero(hcl[yy])[0]
+    if len(xs):
+        x0_ = int(xs[0]) + r3(1, 3)
+        cv.fill(rect(x0_, yy, x0_ + r3(2, 4), yy) & hcl, '#7a4a2a')
+for _ in range(90):
+    px, py = r3(0, 34), r3(40, 122)
+    if head[py, px] and not hcl[py, px]:
+        cv.dots([(px, py), (px + 1, py)], DRY['s'] if r3(0, 2) else DRY['r'])
+cv.fill(line([(13, 46), (7, 56), (17, 66), (9, 78), (21, 90), (13, 104), (24, 118)], 2) & head & ~hcl, '#f0e4c4')   # goat path
+cv.fill(dil4(head) & ~head & rect(0, 50, W, 126) & ~mole, FOAM)
+for yy in (70, 88, 100, 114):
+    xs = np.nonzero(head[yy])[0]
+    cv.fill(rect(int(xs[-1]) + 2, yy, int(xs[-1]) + r3(4, 7), yy), FOAM)
+for bx_, by_, k in ((4, 64, 0), (22, 80, 1), (4, 104, 2), (16, 116, 0), (26, 98, 1)):   # rosemary, broom, rockrose
+    bm = clump(bx_, by_, 2, 1, 3, 2, 3, r3)
+    cv.fill(bm, OLIVE['b'] if k != 1 else CYP['b'])
+    cv.fill(bm & ~shift(bm, -1, -1), OLIVE['s'])
+    cv.dots([(bx_ - 1, by_ - 1), (bx_ + 1, by_)], ('#f2d23a', '#f6b8cf', '#c3b2ea')[k])
+cypress(22, 62, 14, 3)
+goat(1, 92, 1, COATS['tan'], '#6a4424')
+# windmill: whitewashed drum, thatch cap, four cloth sails
+o = cv.obj()
+o.part(poly([(4, 46), (18, 46), (16, 26), (6, 26)]), WALL, d=2)
+o.part(poly([(4, 27), (18, 27), (11, 18)]), ramp('#b07f3a', '#7a5428', '#d9a855'), d=1)
+o.draw()
+cv.fill(rrect(9, 39, 12, 46, 1), '#3f8fb0')
+cv.fill(rect(10, 31, 11, 33), '#4a2c1a')
+cv.fill(rect(4, 45, 18, 46), WALL['s'])
+hbx, hby = 12, 23
+sail = blank()
+for (ex, ey), (fx, fy) in (((1, 12), (5, 9)), ((23, 12), (26, 16)), ((23, 34), (19, 37)), ((1, 34), (-2, 30))):
+    sail |= poly([(hbx, hby), (ex, ey), (fx, fy)])
+o = cv.obj()
+o.part(sail, ramp('#f6ecd0', '#c9b890', '#ffffff'), d=1)
+o.draw()
+for ex, ey in ((1, 12), (23, 12), (23, 34), (1, 34)):
+    cv.fill(line([(hbx, hby), (ex, ey)]), '#5c3420')
+cv.fill(rect(hbx - 1, hby - 1, hbx + 1, hby + 1), DARK)
+# a sea stack in the hillside's cove, a cormorant drying its wings on top
+stk = poly([(134, 104), (135, 95), (138, 90), (141, 92), (143, 98), (144, 104)])
+o = cv.obj()
+o.part(stk, GREY, d=2)
+o.draw()
+cv.fill(rect(135, 97, 137, 97) | rect(139, 100, 142, 100), GREY['s'])
+cv.fill(rect(131, 105, 147, 105) | rect(133, 106, 136, 106), FOAM)
+cv.dots([(137, 89), (138, 88), (139, 89), (136, 88), (140, 88), (138, 87)], '#2a2a32')
+
 # ================================================================ BREAKWATER and the harbour light
 cv.fill(mole, GREY['s'])
 for k in range(26):
@@ -392,7 +445,7 @@ for k in range(26):
         o.part(ell(bx - 4, by - 3, bx + 4, by + 3) & dil4(mole), GREY, d=2)
         o.draw()
 cv.fill(dil4(mole) & ~mole & sea & ~shift(mole, 0, -3), FOAM)
-lhx, lhy = 30, 126
+lhx, lhy = 40, 130
 o = cv.obj()
 o.part(poly([(lhx - 6, lhy), (lhx + 6, lhy), (lhx + 4, lhy - 26), (lhx - 4, lhy - 26)]), WALL, d=2)
 o.part(rect(lhx - 6, lhy - 34, lhx + 6, lhy - 27), ramp('#3f8fb0', '#25637d', '#a9d6ea'), d=1)
@@ -405,7 +458,7 @@ cv.fill(rect(lhx - 1, lhy - 8, lhx + 1, lhy), '#4a2c1a')   # door
 cv.fill(rect(lhx - 1, lhy - 23, lhx, lhy - 21), '#4a2c1a')
 cv.dots([(lhx, lhy - 41)], DARK)
 for k in range(3):   # beams
-    cv.fill(line([(lhx - 8, lhy - 31 - k), (lhx - 18, lhy - 34 - k * 3)]), '#fff2b0')
+    cv.fill(line([(lhx + 8, lhy - 31 - k), (lhx + 18, lhy - 34 - k * 3)]), '#fff2b0')
 gx_, gy_ = 18, 120   # a gull perched on the breakwater
 cv.fill(ell(gx_, gy_ - 4, gx_ + 7, gy_), '#ffffff')
 cv.fill(rect(gx_ + 1, gy_ - 3, gx_ + 6, gy_ - 2), '#c9c5bc')
@@ -415,9 +468,16 @@ cv.dots([(gx_ + 7, gy_ - 6)], DARK)
 
 # ================================================================ HILLSIDE: dry ground, cliff edge, terraces
 cv.fill(hill, DRY['b'])
-cliff = hill & ~shift(hill, -7, 0) & rect(0, 60, W, 132)
+cliff = hill & ~shift(hill, 12, 0) & rect(0, 60, W, 132)   # the sea-facing (west, sunlit) cliff band
 cv.fill(cliff, '#c49660')
 cv.fill(cliff & ~shift(cliff, 2, 0), '#e2b47a')
+for yy in range(63, 132, 4):   # sandstone strata with undercut ledges
+    xs = np.nonzero(cliff[yy])[0]
+    if len(xs):
+        a_ = int(xs[0]) + r3(1, 4)
+        cv.fill(rect(a_, yy, a_ + r3(4, 8), yy) & cliff, '#a87a4a')
+        cv.fill(rect(a_ + 1, yy + 1, a_ + r3(2, 5), yy + 1) & cliff, '#8a5a3a')
+cv.fill(cliff & ~shift(cliff, -1, 0) & shift(hill, -1, 0), '#a87a4a')   # inner edge where the cliff meets the slope top
 for k in range(40):   # cliff crevices
     cy = r(64, 128)
     xs = np.nonzero(cliff[cy])[0]
@@ -457,8 +517,9 @@ for k in range(26):
 for cx, by, h in ((262, 26, 18), (296, 22, 14), (208, 62, 20), (180, 70, 16), (290, 70, 14)):
     cypress(cx, by, h, 3)
 # back row
-for x0, by, w, h, wl in ((246, 32, 16, 12, WALL), (264, 30, 18, 14, WALL2), (284, 26, 16, 12, WALL)):
-    house(x0, by, w, h, wl, door=False)
+house(246, 32, 16, 12, WALL, door=False, style='flat', win='round')
+house(264, 30, 18, 14, WALL2, door=False, style='gable')
+house(284, 26, 16, 12, WALL3, door=False, win='arch')
 # bell tower
 btx, bty = 226, 58
 o = cv.obj()
@@ -481,11 +542,16 @@ cv.fill(rect(btx + 5, bty - 14, btx + 7, bty - 10), '#4a2c1a')
 for k in range(3):   # the evening bell ringing
     cv.dots([(btx - 3 - k * 2, bty - 39 + k), (btx + 15 + k * 2, bty - 39 + k)], '#fff4dc')
 # middle row
-for x0, by, w, h, wl in ((198, 50, 18, 14, WALL), (242, 50, 20, 16, WALL2), (264, 48, 16, 14, WALL), (282, 48, 18, 16, WALL2)):
-    house(x0, by, w, h, wl, flip=wl is WALL)
+house(198, 50, 18, 14, WALL, flip=True, win='arch', doorc='#3f8fb0')
+house(242, 50, 20, 16, WALL2, style='flat', balcony=True)
+house(264, 48, 16, 14, WALL4, flip=True, style='dome', win='arch', doorc='#4a2c1a')   # the little chapel
+house(282, 48, 18, 16, WALL3, style='gable', win='round')
 # front row
-for x0, by, w, h, wl in ((184, 72, 20, 16, WALL2), (206, 70, 16, 18, WALL), (226, 72, 22, 14, WALL2), (252, 70, 18, 18, WALL), (272, 72, 16, 14, WALL2)):
-    house(x0, by, w, h, wl)
+house(184, 72, 20, 16, WALL2, style='flat', win='arch', stair=True, doorc='#4f7a45')
+house(206, 70, 16, 18, WALL, style='gable', roofh=4, doorc='#3f8fb0')
+house(226, 72, 22, 14, WALL3, roofh=4, balcony=True)
+house(252, 70, 18, 18, WALL4, style='flat', win='round', doorc='#c8643a')
+house(272, 72, 16, 14, WALL2, roofh=6, win='arch')
 # washing line between two front houses, pots of geraniums on the sills
 cv.fill(line([(222, 56), (252, 58)]), '#4a2c1a')
 for k, c in enumerate(('#d6322b', '#ffffff', '#3f8fb0', '#f2d23a', '#ffffff')):
@@ -521,8 +587,8 @@ for wy in (84, 100, 116):
 cv.fill(hill & rect(0, 73, W, 76) & ~cliff, STONE['b'])   # village base wall
 cv.fill(hill & rect(0, 76, W, 76) & ~cliff, STONE['s'])
 for tx, ty, w in ((176, 82, 18), (200, 83, 20), (226, 82, 16), (252, 83, 22), (282, 82, 18),
-                  (160, 98, 16), (184, 99, 22), (232, 98, 18), (262, 98, 20), (290, 99, 14),
-                  (148, 114, 16), (172, 115, 20), (198, 114, 18), (246, 114, 22), (274, 115, 18)):
+                  (164, 98, 16), (184, 99, 22), (232, 98, 18), (262, 98, 20), (290, 99, 14),
+                  (153, 114, 16), (172, 115, 20), (198, 114, 18), (246, 114, 22), (274, 115, 18)):
     olive_tree(tx, ty, w)
 # nets under the tree on the middle terrace, a gnome combing it with a little rake
 nm = poly([(204, 98), (230, 98), (236, 101), (200, 101)])

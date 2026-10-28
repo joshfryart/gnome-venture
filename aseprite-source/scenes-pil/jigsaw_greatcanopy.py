@@ -497,21 +497,21 @@ cv.fill(rect(158, 116, 160, 118), SKIN3['b'])   # the yam seller holds one up
 cv.fill(rect(195, 117, 197, 119), SKIN['b'])
 for sx0, cloth in ((150, 'k'), (176, 'i')):
     o = cv.obj()
-    o.part(rect(sx0 + 1, 104, sx0 + 2, 132) | rect(sx0 + 22, 104, sx0 + 23, 132), WOOD, d=1)   # posts
+    o.part(rect(sx0 + 1, 95, sx0 + 2, 132) | rect(sx0 + 22, 95, sx0 + 23, 132), WOOD, d=1)   # posts (pass 2: awnings raised so the keepers' hats show)
     o.part(rect(sx0, 122, sx0 + 24, 132), WOOD, d=2)   # counter
     o.draw()
-    aw = poly([(sx0 - 3, 102), (sx0 + 27, 102), (sx0 + 25, 96), (sx0 - 1, 96)])
+    aw = poly([(sx0 - 3, 93), (sx0 + 27, 93), (sx0 + 25, 87), (sx0 - 1, 87)])
     o = cv.obj()
     o.part(aw, GOLD, d=1)
     o.draw()
     if cloth == 'k':
-        kente(aw & ~shift(~aw, 0, 1), sx0 - 3, 96)
+        kente(aw & ~shift(~aw, 0, 1), sx0 - 3, 87)
     else:
         cv.fill(aw & ~shift(~aw, 0, 1), INDIGO['b'])
         for xx in range(sx0, sx0 + 26, 4):
-            cv.dots([(xx, 98), (xx + 1, 99)], '#f1ece0')
+            cv.dots([(xx, 89), (xx + 1, 90)], '#f1ece0')
     for xx in range(sx0 - 2, sx0 + 26, 4):   # scalloped valance
-        cv.fill(ell(xx, 101, xx + 3, 104), RED['b'] if cloth == 'k' else INDIGO['s'])
+        cv.fill(ell(xx, 92, xx + 3, 95), RED['b'] if cloth == 'k' else INDIGO['s'])
     for xx in range(sx0 + 1, sx0 + 24, 2):
         cv.dots([(xx, 127)], WOOD['s'])
 # goods: yams, gourds, egusi melons, folded cloth

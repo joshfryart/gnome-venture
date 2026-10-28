@@ -321,21 +321,6 @@ for (x0, x1, y0, y1), mx0 in zip(tiers[:4], (84, 80, 70, 66)):   # moss creeping
         mm = rect(mx_, y0, mx_ + mw, y0 + 1) | rect(mx_ + 1, y0 + 2, mx_ + 1, y0 + 2 + r3(1, 4)) | rect(mx_ + mw - 2, y0 + 2, mx_ + mw - 2, y0 + 1 + r3(1, 3))
         cv.fill(mm & ~stair, CORN['s'])
         cv.fill(mm & rect(0, y0, W, y0) & ~stair, CORN['r'])
-# feathered-serpent head at the foot of the stair (right side only)
-o = cv.obj()
-o.part(rrect(73, 115, 88, 126, 1), JADE, d=2)
-o.part(rrect(73, 111, 81, 116, 1), JADE, d=1)   # brow
-o.draw()
-cv.fill(rect(80, 121, 88, 123), '#5a3a3a')   # open jaw
-cv.dots([(81, 121), (83, 121), (85, 121), (82, 123), (84, 123)], '#fff4dc')   # fangs
-cv.fill(rect(87, 119, 92, 120), CHILI['b'])   # forked tongue
-cv.dots([(93, 118), (93, 121)], CHILI['b'])
-cv.fill(rect(76, 117, 78, 119), MAIZE['b'])   # eye
-cv.dots([(77, 118)], DARK)
-cv.fill(rect(74, 124, 79, 124), TURQ['b'])   # painted scales
-cv.dots([(75, 122), (77, 122)], TURQ['b'])
-for k in range(4):   # feather crest
-    cv.fill(rect(73 + k * 2, 107 - k % 2, 73 + k * 2, 110), (CORN['b'], TURQ['b'], CHILI['b'], MAIZE['b'])[k])
 # a sapling growing out of the top-left terrace
 o = cv.obj()
 o.part(rect(40, 61, 41, 70), WOOD, d=0)

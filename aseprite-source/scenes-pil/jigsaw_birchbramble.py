@@ -654,30 +654,58 @@ melt = ell(smx0 - 16, smy0 + 10, smx0 + 16, smy0 + 16) & ~ell(smx0 - 12, smy0 + 
 cv.fill(melt, WATER['r'])
 
 # ---------------------------------------------------------------- geese marching across the front (to the puddle)
-def goose(gx, gy, k=1, head_down=False):
+GREYGOOSE = ramp('#a8acb0', '#7a8088', '#d4d6d8')
+GOSL = ramp('#f5d64a', '#d8a830', '#fff0a0')
+
+
+def goose(gx, gy, k=1, head_down=False, col=GOOSE, flap=False, bow=None):
     shadow(gx - 6, gy + 5, gx + 8, gy + 8, '#3f8a32')
     o = cv.obj()
-    o.part(ell(gx - 6, gy - 4, gx + 7, gy + 5), GOOSE, d=2)
+    if flap:   # one wing raised and spread, flapping
+        o.part(poly([(gx - 4 * k, gy - 1), (gx + 2 * k, gy - 2), (gx - 3 * k, gy - 13), (gx - 7 * k, gy - 11), (gx - 9 * k, gy - 7)]), col, d=1)
+    o.part(ell(gx - 6, gy - 4, gx + 7, gy + 5), col, d=2)
     if head_down:
-        o.part(line([(gx + 5 * k, gy - 1), (gx + 9 * k, gy + 3)], 2), GOOSE, d=0)
-        o.part(rect(min(gx + 8 * k, gx + 10 * k), gy + 2, max(gx + 8 * k, gx + 10 * k), gy + 4), GOOSE, d=0)
+        o.part(line([(gx + 5 * k, gy - 1), (gx + 9 * k, gy + 3)], 2), col, d=0)
+        o.part(rect(min(gx + 8 * k, gx + 10 * k), gy + 2, max(gx + 8 * k, gx + 10 * k), gy + 4), col, d=0)
     else:
-        o.part(rect(min(gx + 4 * k, gx + 5 * k), gy - 11, max(gx + 4 * k, gx + 5 * k), gy - 2), GOOSE, d=1)
-        o.part(ell(gx + 3 * k - 2, gy - 14, gx + 3 * k + 3, gy - 10), GOOSE, d=1)
+        o.part(rect(min(gx + 4 * k, gx + 5 * k), gy - 11, max(gx + 4 * k, gx + 5 * k), gy - 2), col, d=1)
+        o.part(ell(gx + 3 * k - 2, gy - 14, gx + 3 * k + 3, gy - 10), col, d=1)
     o.draw()
+    if flap:
+        for j in range(3):   # flight-feather notches
+            cv.dots([(gx - (4 + 2 * j) * k, gy - 10 + j * 2)], col['s'])
     if head_down:
         cv.dots([(gx + 11 * k, gy + 3), (gx + 11 * k, gy + 4)], '#e8841f')
     else:
         cv.dots([(gx + 6 * k, gy - 12), (gx + 7 * k, gy - 12), (gx + 6 * k, gy - 11)], '#e8841f')
         cv.dots([(gx + 4 * k, gy - 13)], '#2a1a10')
-    cv.fill(line([(gx - 4 * k, gy - 1), (gx + 2 * k, gy + 1)]), GOOSE['s'])   # wing line
-    cv.dots([(gx - 7 * k, gy - 2), (gx - 8 * k, gy - 3)], GOOSE['b'])   # tail tip
+    cv.fill(line([(gx - 4 * k, gy - 1), (gx + 2 * k, gy + 1)]), col['s'])   # wing line
+    if col is GREYGOOSE:   # barred grey back
+        cv.fill(line([(gx - 3 * k, gy - 3), (gx + 3 * k, gy - 2)]) | line([(gx - 5 * k, gy + 1), (gx - 1 * k, gy + 2)]), '#6a7078')
+    cv.dots([(gx - 7 * k, gy - 2), (gx - 8 * k, gy - 3)], col['b'])   # tail tip
     cv.dots([(gx - 1, gy + 6), (gx - 1, gy + 7), (gx + 2, gy + 6), (gx + 2, gy + 7)], '#e8841f')
+    if bow and not head_down:   # a ribbon bow on the neck
+        bx_ = min(gx + 4 * k, gx + 5 * k)
+        cv.fill(rect(bx_ - 2, gy - 7, bx_ + 3, gy - 6), bow['b'])
+        cv.dots([(bx_ - 2, gy - 5), (bx_ + 3, gy - 5), (bx_ - 3, gy - 8), (bx_ + 4, gy - 8)], bow['s'])
 
 
-for gx, gy, hd in ((10, 178, False), (30, 186, False), (48, 176, True), (60, 190, False), (126, 186, True)):
-    goose(gx, gy, 1, hd)
-goose(286, 192, -1)
+def gosling(gx, gy, k=1):
+    o = cv.obj()
+    o.part(ell(gx - 3, gy - 2, gx + 3, gy + 2), GOSL, d=1)
+    o.part(ell(gx + 2 * k - 2, gy - 5, gx + 2 * k + 1, gy - 2), GOSL, d=0)
+    o.draw()
+    cv.dots([(gx + 2 * k + (2 if k > 0 else -3), gy - 4)], '#e8841f')
+    cv.dots([(gx + 2 * k, gy - 4)], '#2a1a10')
+    cv.dots([(gx - 1, gy + 3), (gx + 1, gy + 3)], '#e8841f')
+
+
+for gx, gy, hd, col, fl, bw in ((10, 178, False, GOOSE, False, RED), (30, 186, False, GREYGOOSE, False, None), (48, 176, True, GOOSE, False, None),
+                                (60, 190, False, GOOSE, True, BLUE), (126, 186, True, GREYGOOSE, False, None)):
+    goose(gx, gy, 1, hd, col, fl, bw)
+goose(286, 192, -1, bow=BLUE)
+for gx, gy in ((20, 162), (27, 165), (34, 161), (70, 174), (284, 178), (274, 182)):   # goslings trotting after
+    gosling(gx, gy, -1 if gx > 200 else 1)
 cv.dots([(20, 196), (22, 196), (40, 194)], '#f4f4ee')   # a few feathers
 
 # ---------------------------------------------------------------- gorodki: the skittle town in a chalk square, a throwing bat in the grass

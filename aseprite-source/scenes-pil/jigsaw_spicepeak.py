@@ -395,40 +395,44 @@ for yb in range(44, 60, 4):
 
 # ---------------------------------------------------------------- the stupa on its knoll (right of centre)
 sx0, sy0 = 228, 88
-shadow(206, sy0 + 2, 252, sy0 + 8, FOOT['s'])
+shadow(204, sy0 + 2, 254, sy0 + 8, FOOT['s'])
 # prayer-flag strings (pass 1: drawn before the stupa so they pass behind it and leave the painted eyes clear)
-flag_string((67, 41), (sx0, sy0 - 52), 30, seed=0)
-flag_string((sx0, sy0 - 50), (265, 72), 6, seed=2)
+flag_string((67, 41), (sx0, sy0 - 60), 30, seed=0)
+flag_string((sx0, sy0 - 58), (265, 72), 6, seed=2)
 flag_string((0, 30), (mx0 + 25, my0 - 22), 6, seed=4)
-flag_string((sx0, sy0 - 48), (192, 88), 4, gap=3, seed=1)
-o = cv.obj()
-o.part(rect(sx0 - 16, sy0 - 6, sx0 + 16, sy0 + 2), WHITE, d=2)
-o.part(rect(sx0 - 12, sy0 - 11, sx0 + 12, sy0 - 6), WHITE, d=2)
-o.part(ell(sx0 - 12, sy0 - 30, sx0 + 12, sy0 - 4) & rect(0, 0, W, sy0 - 11), WHITE, d=3)
-o.part(rect(sx0 - 7, sy0 - 38, sx0 + 7, sy0 - 28), WHITE, d=1, contour=True)   # pass 1: wider white harmika carrying the big painted eyes
-o.part(rect(sx0 - 8, sy0 - 40, sx0 + 8, sy0 - 39), GOLD, d=1, contour=True)
-o.part(poly([(sx0 - 5, sy0 - 40), (sx0 + 5, sy0 - 40), (sx0, sy0 - 54)]), GOLD, d=2, contour=True)
+flag_string((sx0, sy0 - 56), (192, 88), 4, gap=3, seed=1)
+o = cv.obj()   # pass 2: a broad, tall whitewashed dome on two plinth steps, so the eye block sits ON it rather than towering over it
+o.part(rect(sx0 - 18, sy0 - 5, sx0 + 18, sy0 + 2), WHITE, d=2)
+o.part(rect(sx0 - 15, sy0 - 10, sx0 + 15, sy0 - 5), WHITE, d=2)
+dome = ell(sx0 - 16, sy0 - 38, sx0 + 16, sy0 - 2) & rect(0, 0, W, sy0 - 10)
+o.part(dome, WHITE, d=3)
+o.part(rect(sx0 - 7, sy0 - 46, sx0 + 7, sy0 - 37), WHITE, d=1, contour=True)   # harmika carrying the big painted eyes
+o.part(rect(sx0 - 8, sy0 - 48, sx0 + 8, sy0 - 47), GOLD, d=1, contour=True)
+o.part(poly([(sx0 - 5, sy0 - 48), (sx0 + 5, sy0 - 48), (sx0, sy0 - 62)]), GOLD, d=2, contour=True)
 o.draw()
 for k in range(4):   # spire rings
-    yk = sy0 - 40 - k * 4
+    yk = sy0 - 48 - k * 4
     hw = 3 - k * 3 // 4
     cv.fill(rect(sx0 - hw, yk, sx0 + hw, yk), GOLD['s'])
-cv.fill(ell(sx0 - 4, sy0 - 59, sx0 + 4, sy0 - 54) & rect(0, 0, W, sy0 - 56), GOLD['b'])   # parasol
-cv.dots([(sx0 - 3, sy0 - 57)], GOLD['r'])
+cv.fill(ell(sx0 - 4, sy0 - 67, sx0 + 4, sy0 - 62) & rect(0, 0, W, sy0 - 64), GOLD['b'])   # parasol
+cv.dots([(sx0 - 3, sy0 - 65)], GOLD['r'])
 for e in (-1, 1):   # the painted eyes: heavy brow, almond eye with a dark pupil
     ex = sx0 + 4 * e
-    cv.fill(rect(ex - 2, sy0 - 36, ex + 2, sy0 - 36), '#2a1a10')
-    cv.dots([(ex - 3 * e, sy0 - 35)], '#2a1a10')
-    cv.fill(rect(ex - 2, sy0 - 34, ex + 2, sy0 - 34), '#25637d')
-    cv.fill(rect(ex - 1, sy0 - 33, ex + 1, sy0 - 33), '#25637d')
-    cv.fill(rect(ex - 1, sy0 - 34, ex, sy0 - 33), '#2a1a10')
-cv.dots([(sx0, sy0 - 36)], RED['b'])   # third eye
-cv.dots([(sx0, sy0 - 33), (sx0 + 1, sy0 - 32), (sx0, sy0 - 31), (sx0, sy0 - 30)], '#25637d')   # the curl nose
-cv.fill(rect(sx0 - 12, sy0 - 12, sx0 + 12, sy0 - 12), SAFF['b'])   # saffron band
-for xk in range(sx0 - 14, sx0 + 15, 5):
+    cv.fill(rect(ex - 2, sy0 - 44, ex + 2, sy0 - 44), '#2a1a10')
+    cv.dots([(ex - 3 * e, sy0 - 43)], '#2a1a10')
+    cv.fill(rect(ex - 2, sy0 - 42, ex + 2, sy0 - 42), '#25637d')
+    cv.fill(rect(ex - 1, sy0 - 41, ex + 1, sy0 - 41), '#25637d')
+    cv.fill(rect(ex - 1, sy0 - 42, ex, sy0 - 41), '#2a1a10')
+cv.dots([(sx0, sy0 - 44)], RED['b'])   # third eye
+cv.dots([(sx0, sy0 - 41), (sx0 + 1, sy0 - 40), (sx0, sy0 - 39), (sx0, sy0 - 38)], '#25637d')   # the curl nose
+cv.fill(rect(sx0 - 15, sy0 - 10, sx0 + 15, sy0 - 10), SAFF['b'])   # saffron band
+for xk in range(sx0 - 14, sx0 + 9, 7):   # painted saffron swags round the dome
+    cv.fill(line([(xk, sy0 - 17), (xk + 3, sy0 - 14), (xk + 7, sy0 - 17)]) & dome, SAFF['b'])
+    cv.dots([(xk + 3, sy0 - 13)], MAG['b'])
+for xk in range(sx0 - 16, sx0 + 16, 5):
     cv.fill(rect(xk, sy0 - 3, xk + 2, sy0), '#2a1a10')   # niches
     cv.dots([(xk + 1, sy0 - 2)], SAFF['r'])
-cv.fill(ell(sx0 - 9, sy0 - 26, sx0 - 4, sy0 - 20), WHITE['r'])
+cv.fill(ell(sx0 - 12, sy0 - 32, sx0 - 6, sy0 - 24) & dome, WHITE['r'])
 # prayer-flag strings: monastery pole -> stupa spire (long sag across the valley), stupa -> crag, monastery -> left edge, stupa -> knoll foot
 
 # ---------------------------------------------------------------- the river: waterfall from the knoll, ripples, banks
@@ -681,16 +685,34 @@ for fx, fy in ((6, 196), (22, 184), (40, 198), (96, 194), (110, 198), (84, 186),
     for dx, dy in ((-2, -1), (1, -2), (2, 1)):
         cv.fill(rect(fx + dx, fy + dy, fx + dx + 1, fy + dy + 1), SAFF['b'])
         cv.dots([(fx + dx, fy + dy)], SAFF['r'])
-tmx, tmy = 122, 134   # the Tiger Moth: saffron forewings with umber spots, magenta hindwings
+tmx, tmy = 122, 132   # pass 2: the Tiger Moth seen from above: swept-back umber forewings with cream zigzags, orange hindwings with black spots,
+# a striped saffron body and feathery antennae, its little shadow on the terrace below
+cv.fill(ell(tmx - 8, tmy + 14, tmx + 8, tmy + 16), '#2f6a3a')
+
+
+def mirror(pts):
+    return [(2 * tmx - x, y) for x, y in pts]
+
+
+FW = [(tmx - 1, tmy - 5), (tmx - 6, tmy - 9), (tmx - 15, tmy - 10), (tmx - 14, tmy - 5), (tmx - 9, tmy - 1), (tmx - 1, tmy + 1)]
+HW = [(tmx - 1, tmy - 1), (tmx - 8, tmy), (tmx - 11, tmy + 4), (tmx - 7, tmy + 8), (tmx - 1, tmy + 5)]
+fw = poly(FW) | poly(mirror(FW))
+hw = poly(HW) | poly(mirror(HW))
 o = cv.obj()
-o.part(ell(tmx - 12, tmy - 8, tmx - 1, tmy + 1) | ell(tmx + 1, tmy - 8, tmx + 12, tmy + 1), SAFF, d=2)
-o.part(ell(tmx - 9, tmy, tmx - 1, tmy + 7) | ell(tmx + 1, tmy, tmx + 9, tmy + 7), MAG, d=1)
-o.part(rect(tmx - 1, tmy - 6, tmx, tmy + 7), YAK, d=0)
+o.part(hw, ramp('#e0702a', '#a8241f', '#f0a020'), d=1)
+o.part(fw, DARKW, d=2)
+o.part(ell(tmx - 2, tmy - 7, tmx + 2, tmy + 8), SAFF, d=1)
 o.draw()
-for dx, dy in ((-9, -5), (-6, -3), (-9, -2), (-4, -6), (8, -5), (5, -3), (8, -2), (3, -6)):
-    cv.dots([(tmx + dx, tmy + dy), (tmx + dx + 1, tmy + dy)], '#2a1a10')
-cv.dots([(tmx - 6, tmy + 3), (tmx + 5, tmy + 3)], '#2a1a10')
-cv.dots([(tmx - 2, tmy - 8), (tmx - 3, tmy - 9), (tmx + 1, tmy - 8), (tmx + 2, tmy - 9)], '#2a1a10')
+for e in (-1, 1):
+    zig = [(tmx + e * x, y) for x, y in ((3, tmy - 6), (6, tmy - 4), (8, tmy - 8), (11, tmy - 5), (13, tmy - 9))]
+    cv.fill(line(zig) & fw, '#f4f0e4')
+    cv.fill(line([(tmx + e * 4, tmy - 1), (tmx + e * 9, tmy - 2)]) & fw, '#f4f0e4')
+    cv.dots([(tmx + e * 7, tmy + 3), (tmx + e * 8, tmy + 3), (tmx + e * 5, tmy + 6), (tmx + e * 9, tmy + 5)], '#2a1a10')
+    cv.fill(line([(tmx + e, tmy - 7), (tmx + e * 4, tmy - 12), (tmx + e * 6, tmy - 12)]), '#2a1a10')   # antennae
+    cv.dots([(tmx + e * 3, tmy - 12), (tmx + e * 5, tmy - 13)], '#4a2c1a')
+for yk in (tmy - 3, tmy, tmy + 3, tmy + 6):
+    cv.fill(rect(tmx - 1, yk, tmx + 1, yk), '#2a1a10')
+cv.dots([(tmx, tmy - 6)], '#2a1a10')
 for bx, by in ((92, 120), (40, 132), (150, 96)):   # butterflies after the rain
     cv.dots([(bx, by), (bx + 2, by), (bx + 1, by + 1)], MAG['r'])
     cv.dots([(bx + 1, by)], '#2a1a10')

@@ -144,6 +144,10 @@ snow |= peak & rect(160, 0, 240, 47)
 cv.fill(snow, '#fbe0d8')
 cv.fill(snow & ~shift(snow, -3, 0) & rect(200, 0, W, H), '#e0b0b8')
 cv.fill(snow & ~shift(snow, 0, 1) & rect(0, 0, 199, H), '#ffffff')
+leftface = peak & ~snow & poly([(196, 36), (199, 50), (197, 64), (201, 80), (199, 98), (100, 98), (100, 36)])
+cv.fill(leftface, '#b8909a')   # the sunlit left face
+cv.fill(line([(186, 52), (194, 80)]) & leftface, '#9a7a8a')   # (re-cut the old gullies, softer on the lit face)
+cv.fill(line([(200, 60), (204, 88)]) & peak, '#7a5c70')
 # sunlit ridges and buttresses down the left face (light from the upper left), each with a shaded right edge
 for ridge, dxs in (([(176, 50), (170, 58), (164, 66), (158, 72), (150, 82), (142, 92), (136, 98)], (2, 3, 5, 6, 7, 8, 9)),
                    ([(186, 54), (184, 62), (178, 70), (174, 78), (168, 88), (164, 98)], (2, 3, 4, 6, 5, 7)),
@@ -151,7 +155,8 @@ for ridge, dxs in (([(176, 50), (170, 58), (164, 66), (158, 72), (150, 82), (142
                    ([(196, 60), (196, 70), (192, 80), (190, 92), (188, 98)], (1, 2, 4, 3, 5))):
     right = [(x + d, y) for (x, y), d in zip(ridge, dxs)]
     face = poly(ridge + right[::-1]) & peak & ~snow
-    cv.fill(face, '#b8909a')
+    cv.fill(line(ridge) & peak & ~snow, '#fbe0d8')   # sun-caught ridge crest
+    cv.fill(face, '#9a7a8a')   # shaded side of the ridge
     cv.fill(line(right) & peak & ~snow, '#7a5c70')
 for _ in range(60):   # scree and rock specks on the slope
     sx, sy = r3(124, 200), r3(50, 94)

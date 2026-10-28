@@ -751,8 +751,14 @@ cv.fill(line([(137, 32), (134, 36), (138, 41), (135, 46), (139, 50)]), '#3d2a1e'
 for k, (tx, ty) in enumerate(((135, 35), (137, 39), (136, 44), (138, 48))):   # tail bows
     cv.dots([(tx - 1, ty - 1), (tx + 1, ty - 1), (tx, ty), (tx - 1, ty + 1), (tx + 1, ty + 1)], MUST['b'] if k % 2 else WINE['r'])
 # umbrella gnome crossing the bridge
-ux, uy = 136, 121
+ux, uy = 132, 125   # walking along the deck behind the parapet (boots hidden by the coping)
 X, Y = gnome(ux, uy, WINE, SLATEC, f=0.75, tip=-2)
+hide = (deck | par) & rect(ux - 8, uy - 4, ux + 8, uy + 1)
+cv.fill(hide, STONE['b'])
+cv.fill(par & hide, STONE['r'])
+for xx in range(bx0 + 4, bx1 - 3, 5):
+    cv.fill(rect(xx, 0, xx, H) & par & hide, STONE['s'])
+cv.fill(rect(ux - 8, uy - 4, ux + 8, uy + 1) & dil4(par) & ~par & ~deck, UMBER)
 canopy = ell(X(-17), Y(-52), X(17), Y(-30)) & ~rect(0, Y(-40) + 1, W, H)
 for k in range(5):
     bx = X(-17) + k * int(34 * 0.75) // 4
@@ -768,14 +774,19 @@ cv.fill(rect(X(-1), Y(-15), X(2), Y(-12)), SKIN['b'])
 for dx in (-12, -4, 4, 12):   # drips off the umbrella ribs
     cv.dots([(X(dx), Y(-37)), (X(dx), Y(-35))], RAIN)
 # child puddle-jumping, mid-air above the big puddle, with a splash
-jx, jy = 240, 180
+jx, jy = 240, 170
+cv.fill(ell(jx - 8, 186, jx + 8, 189), PUD['s'])   # the child's shadow on the water, well below the boots
+for k, (dx, top) in enumerate(((-12, 180), (-9, 176), (-6, 179), (-2, 182), (3, 182), (7, 178), (10, 175), (13, 180))):   # splash crown leaping off the puddle
+    cv.fill(rect(jx + dx, top, jx + dx, 186 - k % 2), PUD['r'] if k % 2 else '#e6e2d6')
+    cv.dots([(jx + dx + (-1 if dx < 0 else 1), top - 2)], '#e6e2d6')
+for dx, dy in ((-16, 177), (17, 176), (-18, 182), (19, 181), (-14, 172), (15, 171)):   # flung droplets
+    cv.dots([(jx + dx, dy), (jx + dx, dy + 1)], '#e6e2d6')
 X, Y = gnome(jx, jy, WINE, MUST, f=0.8, tip=-10, boots=MUST)
-for k, (dx, dy) in enumerate(((-16, 8), (-12, 4), (-9, 2), (12, 2), (15, 5), (18, 9), (-14, 0), (16, 0), (-4, 6), (6, 6))):
-    cv.dots([(jx + dx, jy + dy), (jx + dx, jy + dy - 1)], PUD['r'] if k % 2 else '#e6e2d6')
+for dx in (-4, 0, 3):   # speed lines under the boots: he is in the air
+    cv.fill(rect(jx + dx, jy + 3, jx + dx, jy + 6 + (dx % 2)), '#bfc7ce')
 cv.fill(rect(X(-11), Y(-15), X(-8), Y(-12)) | rect(X(8), Y(-15), X(11), Y(-12)), MUST['b'])   # arms flung up
 cv.dots([(X(-11), Y(-17)), (X(-10), Y(-17)), (X(10), Y(-17)), (X(11), Y(-17))], SKIN['b'])
-cv.fill(ell(jx - 7, jy + 6, jx + 9, jy + 9), PUD['s'])   # shadow on the water
-KEEP = rect(jx - 20, jy - 36, jx + 20, jy + 12) | rect(ux - 16, uy - 46, ux + 16, uy + 2) | rect(kx - 8, ky - 28, kx + 8, ky + 2) | \
+KEEP = rect(jx - 20, jy - 36, jx + 20, jy + 22) | rect(ux - 16, uy - 46, ux + 16, uy + 2) | rect(kx - 8, ky - 28, kx + 8, ky + 2) | rect(0, 6, 46, 68) | \
     rect(48, 140, 92, 178) | rect(ox - 7, oy - 12, ox + 7, oy + 2) | rect(174, 104, 188, 120) | rect(204, 116, 274, 134)
 
 # ---------------------------------------------------------------- drizzle over everything (short slanting streaks)
