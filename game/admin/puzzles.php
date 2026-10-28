@@ -17,7 +17,7 @@ if (is_post()) {
         $id = (int)($_POST['id'] ?? 0);
         $title = mb_substr(trim((string)($_POST['title'] ?? '')), 0, 80);
         $n = (int)($_POST['pieces_default'] ?? 54);
-        if (!q_val('SELECT 1 FROM puzzle_pics WHERE id = ?', [$id]) || $title === '' || !in_array($n, PUZZLE_COUNTS, true)) { flash('Check the title and piece count.', 'err'); redirect($back('library')); }
+        if (!q_val("SELECT 1 FROM puzzle_pics WHERE id = ? AND kind = 'gif'", [$id]) || $title === '' || !in_array($n, PUZZLE_COUNTS, true)) { flash('Check the title and piece count.', 'err'); redirect($back('library')); }
         $act = !empty($_POST['active']) ? 1 : 0;
         q('UPDATE puzzle_pics SET title = ?, pieces_default = ?, sort = ?, active = ? WHERE id = ?', [$title, $n, max(-9999, min(9999, (int)($_POST['sort'] ?? 0))), $act, $id]);
         admin_log('puzzle_pic', 'puzzle_pics#' . $id, "active=$act pieces=$n");
@@ -53,7 +53,7 @@ if (is_post()) {
     }
     if ($do === 'tour_save') {
         $id = (int)($_POST['id'] ?? 0);
-        $old = $id ? q_one('SELECT * FROM puzzle_tournaments WHERE id = ?', [$id]) : null;
+        $old = $id ? q_one("SELECT * FROM puzzle_tournaments WHERE id = ? AND kind = 'gif'", [$id]) : null;
         $ret = $back('tournaments', $id ? '&id=' . $id : '');
         if ($id && !$old) { flash('Unknown tournament.', 'err'); redirect($back('tournaments')); }
         if ($old && $old['status'] === 'settled') { flash('That tournament is settled and can’t be changed.', 'err'); redirect($ret); }
@@ -63,12 +63,12 @@ if (is_post()) {
         $s = puzzle_to_utc((string)($_POST['starts_at'] ?? ''));
         $e = puzzle_to_utc((string)($_POST['ends_at'] ?? ''));
         $st = ($_POST['status'] ?? '') === 'live' ? 'live' : 'draft';
-        $err = $title === '' ? 'Give it a title.' : (!q_val('SELECT 1 FROM puzzle_pics WHERE id = ?', [$pic]) ? 'Pick a picture.' : (!in_array($n, PUZZLE_COUNTS, true) ? 'Pick a piece count.'
+        $err = $title === '' ? 'Give it a title.' : (!q_val("SELECT 1 FROM puzzle_pics WHERE id = ? AND kind = 'gif'", [$pic]) ? 'Pick a picture.' : (!in_array($n, PUZZLE_COUNTS, true) ? 'Pick a piece count.'
              : (!$s || !$e ? 'Fill in both times.' : ($e <= $s ? 'It must end after it starts.' : (strtotime($e . ' UTC') - strtotime($s . ' UTC') > 60 * 86400 ? 'Keep it to 60 days at most.' : '')))));
         $runs = $old ? (int)q_val('SELECT COUNT(*) FROM puzzle_attempts WHERE tournament_id = ?', [$id]) : 0;
         if ($err === '' && $runs && ((int)$old['pic_id'] !== $pic || (int)$old['pieces'] !== $n)) $err = 'Players have already had goes: the picture and piece count can’t change now.';
         if ($err !== '') { flash($err, 'err'); redirect($ret); }
-        $row = ['title' => $title, 'pic_id' => $pic, 'pieces' => $n, 'starts_at' => $s, 'ends_at' => $e, 'status' => $st];
+        $row = ['title' => $title, 'pic_id' => $pic, 'pieces' => $n, 'starts_at' => $s, 'ends_at' => $e, 'status' => $st, 'kind' => 'gif'];
         if ($old) db_update('puzzle_tournaments', $row, 'id = ?', [$id]);
         else $id = db_insert('puzzle_tournaments', $row + ['created_by' => (int)$me['id'], 'created_at' => now()]);
         admin_log('puzzle_tourney', 'puzzle_tournaments#' . $id, "$st $s to $e, pic $pic, $n pieces");
@@ -135,8 +135,8 @@ admin_crumbs('puzzles.php');
 
 <?php else:
     $tid = (int)($_GET['id'] ?? 0);
-    $cur = $tid ? q_one('SELECT * FROM puzzle_tournaments WHERE id = ?', [$tid]) : null;
-    $all = q('SELECT t.*, p.title AS pic_title, (SELECT COUNT(DISTINCT user_id) FROM puzzle_attempts a WHERE a.tournament_id = t.id) AS players FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id ORDER BY t.starts_at DESC LIMIT 50')->fetchAll();
+    $cur = $tid ? q_one("SELECT * FROM puzzle_tournaments WHERE id = ? AND kind = 'gif'", [$tid]) : null;
+    $all = q('SELECT t.*, p.title AS pic_title, (SELECT COUNT(DISTINCT user_id) FROM puzzle_attempts a WHERE a.tournament_id = t.id) AS players FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.kind = \'gif\' ORDER BY t.starts_at DESC LIMIT 50')->fetchAll();
     $f = $cur ?: ['id' => 0, 'title' => '', 'pic_id' => 0, 'pieces' => 54, 'starts_at' => gmdate('Y-m-d H:00:00', time() + 3600), 'ends_at' => gmdate('Y-m-d H:00:00', time() + 7 * 86400), 'status' => 'draft']; ?>
 <table class="grid">
   <tr><th>Tournament</th><th>Picture</th><th>Pieces</th><th>When (Hollow time)</th><th>Status</th><th>Players</th></tr>

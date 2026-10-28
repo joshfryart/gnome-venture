@@ -18,6 +18,7 @@ if ($tid > 0) {
     if (!$tourOn) { flash('Puzzle tournaments aren’t running right now.', 'err'); redirect('gifsaw.php'); }
     $t = puzzle_tourney($tid);
     if (!$t || $t['status'] === 'draft') { flash('That tournament wasn’t found.', 'err'); redirect('gifsaw.php'); }
+    if ($t['kind'] === 'still') redirect('jigsaw.php?t=' . $tid);   // v2.0.87: Jigsaw tournaments live on jigsaw.php
 }
 if ($t) {
     $list = [puzzle_js_row(['slug' => $t['slug'], 'title' => $t['pic_title'], 'pieces_default' => $t['pieces'], 'source' => $t['source'], 'file' => $t['file'], 'still' => $t['still']])];
@@ -29,7 +30,7 @@ if ($t) {
     $tdata = ['id' => $tid, 'pieces' => (int)$t['pieces'], 'seed' => puzzle_tourney_seed($tid), 'api' => url('puzzles_api.php'), 'csrf' => csrf_token(), 'back' => url('gifsaw.php?t=' . $tid)];
 } else {
     $list = array_map('puzzle_js_row', puzzle_pics());
-    $live = $tourOn && puzzles_ensure() ? q("SELECT t.*, p.title AS pic_title FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.status IN ('live', 'settled') AND t.ends_at > ? ORDER BY t.starts_at LIMIT 6", [gmdate('Y-m-d H:i:s', time() - 7 * 86400)])->fetchAll() : [];
+    $live = $tourOn && puzzles_ensure() ? q("SELECT t.*, p.title AS pic_title FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.kind = 'gif' AND t.status IN ('live', 'settled') AND t.ends_at > ? ORDER BY t.starts_at LIMIT 6", [gmdate('Y-m-d H:i:s', time() - 7 * 86400)])->fetchAll() : [];
 }
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 page_header($t ? $t['title'] : 'GIFsaw');   // assets/puzzles.css and assets/puzzles.js are added by page_header() for this page

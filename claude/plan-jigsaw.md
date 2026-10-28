@@ -1,5 +1,5 @@
 # Jigsaw plan: classic picture jigsaws, fixed tiers, tournaments, admin (Opus high 5.5, 2026-10-28)
-Target release: **2.0.87** (one number, everything behind flags, off for players). Status: plan only, nothing built.
+Target release: **2.0.87** (one number, everything behind flags, off for players). Status: **step A built (2026-10-28)**: schema, tiers, library page, still mode in `puzzles.js`, free-play timing, hub card, settings, placeholders, `tests/jigsaw.sh` (+browser pass). B to E not started.
 Git check (2026-10-28): main tip is 2.0.84 (`9c13cd26`). No 2.0.85 or 2.0.86 branch/tag is visible; 2.0.86 is building elsewhere. So: do not touch `bootstrap.php` APP_VERSION / `CHANGELOG.md` / `handoff.md` / `todo.md` until 2.0.86 lands; then `git fetch`, merge main, bump to 2.0.87 last (`tools/check_versions.sh`). Never rebuild a zip under an installed number.
 
 ## 1. What and why
@@ -7,7 +7,7 @@ GIFsaw (`gifsaw.php`) = animated GIF jigsaws, free piece count (24/54/96/150), t
 Differences from GIFsaw: still JPEG, no Motion button, **no free piece choice**: three fixed tiers, tournaments per tier, own admin area.
 
 ## 2. Tiers (fixed, server-owned)
-All pictures are exactly **4:3**, so the grid is exact (no rounding like `puzzle_grid_total`).
+All pictures are exactly **3:2** (1800 x 1200), so the grids 6x4 / 12x8 / 18x12 are exact with square pieces (no rounding like `puzzle_grid_total`). (First draft said 4:3: wrong, 6x4 is 3:2. Caught by the browser test in step A.)
 | Tier | Grid | Pieces | Tries/day in tournaments | Min believable time (400 ms/piece) |
 |---|---|---|---|---|
 | Easy | 6 x 4 | 24 | 10 | 9.6 s |
@@ -48,7 +48,7 @@ Files: `jigsaw.php` (library + tournament page, copy of `gifsaw.php` shape), `in
 Shared tournament form/leaderboard/runs markup moves from `admin/puzzles.php` into `includes/admin_puzzle_ui.php` and both pages call it (refactor, behaviour identical for GIFsaw, covered by `tests/puzzles_tourney.sh`).
 Tabs:
 1. **Library**: thumb, title, category, on/off, reserved, order, soft-delete, plus counts (free-play solves per tier, tournaments used). Edit title/category/order/active/reserved.
-2. **Upload**: multi-file (up to 25). Accept JPEG/PNG/WEBP up to 3 MB. Require 4:3 within 1%, min 1200 x 900, max 2400 x 1800 (else refuse with the numbers; no silent crop). GD re-encodes to 1600 x 1200 JPEG q85 (strips EXIF) + 400 x 300 thumb into `uploads/jigsaw/{hex}.jpg` / `-thumb.jpg`. Category + "reserve for a tournament" at upload. No GD = clear message, like GIFsaw.
+2. **Upload**: multi-file (up to 25). Accept JPEG/PNG/WEBP up to 3 MB. Require 3:2 within 1%, min 1500 x 1000, max 3000 x 2000 (else refuse with the numbers; no silent crop). GD re-encodes to 1800 x 1200 JPEG q85 (strips EXIF) + 450 x 300 thumb into `uploads/jigsaw/{hex}.jpg` / `-thumb.jpg`. Category + "reserve for a tournament" at upload. No GD = clear message, like GIFsaw.
 3. **Tournaments**: list with kind/tier/status filters. Form: title, picture, **tier radio showing piece count**, start/end in Hollow time (`puzzle_to_utc`), status draft/live. Buttons: "Make all three tiers" (creates a cup: 3 rows sharing `cup_id`, times and title suffix), Duplicate, Cancel (void all, no places, no notify), Settle now. Detail: live leaderboard, flagged top-3, recent runs with Void + reason (`admin_log`), CSV of results.
 4. **Schedule (MOVED TO 2.0.88, Joshua said yes; not built in 2.0.87)**: weekly cup template (weekday, hour, tier set, pick next unreserved picture in a category). Created lazily by `settle_puzzle_tournaments()` so no cron needed.
 5. **Settings** link card to the four settings above.
@@ -78,14 +78,14 @@ Each save: `csrf_check()`, `admin_log()`, validate tier against `JIGSAW_TIERS`, 
 | `ico-cup` | multi-tier cup in lists |
 | `ico-box` | Library / "put back in box" |
 **Pictures (our own generated images, not Aseprite)**
-- Master 1600 x 1200 (4:3), shipped JPEG q85 + 400 x 300 thumb, no text, no logo, no frame. Name `<slug>.jpg`, `<slug>-thumb.jpg`, folder `assets/img/jigsaw/`.
+- Master 1800 x 1200 (3:2, landscape), shipped JPEG q85 + 450 x 300 thumb, no text, no logo, no frame. Name `<slug>.jpg`, `<slug>-thumb.jpg`, folder `assets/img/jigsaw/`.
 - Content rules: detail across the whole frame (flat sky/water kills a 216-piece puzzle); varied colour regions so pieces can be told apart; no repeating wallpaper patterns; avoid a symmetric centre; no tiny text.
 - Launch set: **14**, one per region (Maplewold, Maizehollow, Dunewhisper, Blossomreach, Sunsprinkle Isles, Rainroot Reaches, Mistmoor, Olivewhistle Shore, Birchbramble Steppe, Greatcanopy, Thornacre Savanna, Spicepeak, Monsoon Tangle, Coralscatter) + 3 placeholders to build against. Later drops: seasons, the cast, kitchen/garden scenes, tournament-reserved pictures (about 1 per tournament).
 - Categories (admin tags): Regions, Seasons, Critters, Cosy rooms.
 **Existing art touched**: none changed. `puzzle_cast()` returns '' for missing art, so every new file can land late without breaking a page.
 
 ## 8. Tests (new `tests/jigsaw.sh`, added to CI; extend `tests/puzzles.sh` only for the kind filter)
-Tiers: posted piece count ignored/rejected; grid = 24/96/216 exactly for 4:3. Upload: 4:3 ok, 16:9 refused, tiny refused, EXIF stripped, thumb made, no-GD message. Kind isolation: GIFsaw library never lists stills and the reverse; cross-kind `?t=` redirect; hub/games badge. Free play: `pstart/pfinish` records best, pays nothing, too-fast and too-few-drops rejected, guest blocked, flag off = 403. Tournament per tier: lifecycle soon/open/closing/settled, tries 10/10/5, void, cup of 3, reserved picture hidden then released, settle places + tier pip on profile, cancel gives no places. Admin: CSRF, non-admin 403, bad tier refused, `admin_log` rows. Browser (Playwright, `bypassCSP`): 24/96/216 piece DOM counts, Easy solvable by scripted drag, Expert on a 360 px viewport (no horizontal scroll, tray works) and a frame-time budget; dark theme cast art swap. Run all existing puzzle suites against pristine first.
+Tiers: posted piece count ignored/rejected; grid = 24/96/216 exactly for 3:2. Upload: 3:2 ok, 16:9 and 4:3 refused, tiny refused, EXIF stripped, thumb made, no-GD message. Kind isolation: GIFsaw library never lists stills and the reverse; cross-kind `?t=` redirect; hub/games badge. Free play: `pstart/pfinish` records best, pays nothing, too-fast and too-few-drops rejected, guest blocked, flag off = 403. Tournament per tier: lifecycle soon/open/closing/settled, tries 10/10/5, void, cup of 3, reserved picture hidden then released, settle places + tier pip on profile, cancel gives no places. Admin: CSRF, non-admin 403, bad tier refused, `admin_log` rows. Browser (Playwright, `bypassCSP`): 24/96/216 piece DOM counts, Easy solvable by scripted drag, Expert on a 360 px viewport (no horizontal scroll, tray works) and a frame-time budget; dark theme cast art swap. Run all existing puzzle suites against pristine first.
 
 ## 9. Build order (all in 2.0.87; each step shippable behind flags)
 | Step | Work | Size |

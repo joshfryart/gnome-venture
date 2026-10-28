@@ -7,6 +7,7 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/puzzles.php';
 require_once __DIR__ . '/includes/puzzle_games.php';
+require_once __DIR__ . '/includes/jigsaw.php';
 $u = require_login();
 if (setting('puzzles_open') !== '1' && !is_admin()) { flash('Puzzles are coming soon.', 'err'); redirect('games.php'); }
 if (isset($_GET['t']) || isset($_GET['seed'])) {
@@ -28,6 +29,14 @@ page_header('Puzzles');
     </div>
   </div>
   <ul class="pzhub">
+    <?php if (jigsaw_open()): ?>
+    <li><a class="box pzhubcard" href="<?= e(url('jigsaw.php')) ?>">
+      <span class="gticon"><?= puzzle_cast('tile-jigsaw', '', 'gtart') ?: '🧩' ?></span>
+      <b>Jigsaw</b>
+      <small>Classic picture jigsaws. Easy, Advanced or Expert.</small>
+      <span class="gtbadge">Relax</span>
+    </a></li>
+    <?php endif; ?>
     <li><a class="box pzhubcard" href="<?= e(url('gifsaw.php')) ?>">
       <span class="gticon"><?= puzzle_cast('tile-puzzles', '', 'gtart') ?: '🧩' ?></span>
       <b>GIFsaw</b>

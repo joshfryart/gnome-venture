@@ -1,24 +1,26 @@
 <?php
 /* v2.0.69: the GIFsaw play table (game bar, stage, win card, link box). Shared by gifsaw.php and the logged-out front page (index.php, $pzDemo = true).
    Needs $t (tournament row or null); $pzDemo optional. Driven by assets/puzzles.js. */
-$pzDemo = !empty($pzDemo); ?>
+$pzDemo = !empty($pzDemo);
+$pzStill = !empty($pzStill);   // v2.0.87: Jigsaw (jigsaw.php): fixed tiers instead of a piece count, no Motion button, a "next tier" button on the win card ?>
 <div id="game" hidden>
 <div class="bar">
   <div id="prog" role="presentation"></div>
   <div class="brand">
     <div>
-      <div class="gt">🧩 <?= $t ? e($t['title']) : 'GIFsaw' ?></div>
+      <div class="gt">🧩 <?= $t ? e($t['title']) : ($pzStill ? 'Jigsaw' : 'GIFsaw') ?></div>
       <p class="sub" id="sub">Drop pieces on the outline and neighbours snap together. Drag the empty table to look around.</p>
     </div>
   </div>
   <div class="controls">
     <button class="btn ghost" id="back" type="button">&larr; <?= $t ? 'Tournament' : 'Library' ?></button>
     <select id="count" aria-label="Number of pieces"<?= $t ? ' disabled' : '' ?>>
-      <?php foreach (PUZZLE_COUNTS as $n): ?><option value="<?= $n ?>"><?= $n ?> pieces</option><?php endforeach; ?>
-      <?php if ($t && !in_array((int)$t['pieces'], PUZZLE_COUNTS, true)): ?><option value="<?= (int)$t['pieces'] ?>"><?= (int)$t['pieces'] ?> pieces</option><?php endif; ?>
+      <?php if ($pzStill): foreach (JIGSAW_TIERS as $tk => $tt): $tn = $tt[1] * $tt[2]; ?><option value="<?= $tn ?>"><?= e($tt[0]) ?> · <?= $tn ?></option><?php endforeach;
+      else: foreach (PUZZLE_COUNTS as $n): ?><option value="<?= $n ?>"><?= $n ?> pieces</option><?php endforeach; endif; ?>
+      <?php if (!$pzStill && $t && !in_array((int)$t['pieces'], PUZZLE_COUNTS, true)): ?><option value="<?= (int)$t['pieces'] ?>"><?= (int)$t['pieces'] ?> pieces</option><?php endif; ?>
     </select>
     <button class="btn ghost" id="guide" aria-pressed="false" type="button" title="The Old Wizard shows a faint picture under the outline">Guide</button>
-    <button class="btn ghost" id="anim" aria-pressed="true" type="button" title="Animate the solved part of the picture (off = still picture)">Motion</button>
+    <button class="btn ghost" id="anim" aria-pressed="true" type="button" title="Animate the solved part of the picture (off = still picture)"<?= $pzStill ? ' hidden' : '' ?>>Motion</button>
     <button class="btn ghost" id="scatter" type="button" title="Ffej tips the loose pieces about">Scatter</button>
     <div class="zoom" role="group" aria-label="Zoom"><button class="btn ghost" id="zout" type="button" aria-label="Zoom out">−</button><span id="zl" aria-live="polite">1×</span><button class="btn ghost" id="zin" type="button" aria-label="Zoom in">+</button></div>
     <button class="btn ghost" id="copy" type="button"<?= $t ? ' hidden' : '' ?>>Copy link</button>
@@ -41,6 +43,7 @@ $pzDemo = !empty($pzDemo); ?>
     <span id="winText"></span>
   </div>
   <div class="row">
+    <button class="btn" id="nexttier" type="button" hidden></button>
     <button class="btn" id="again" type="button"><?= $t ? 'Another go' : 'Play again' ?></button>
     <button class="btn ghost" id="copy2" type="button"<?= $t ? ' hidden' : '' ?>>Copy link</button>
     <button class="btn ghost" id="back2" type="button"><?= $t ? 'See the times' : 'Back to library' ?></button>

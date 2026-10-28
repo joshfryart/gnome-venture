@@ -1,6 +1,10 @@
 (function(){
 var PUZZLES = []; try{ PUZZLES = JSON.parse(document.getElementById('pz-data').textContent) || []; }catch(e){}
 var TOUR = null; try{ var te=document.getElementById('pz-t'); if(te) TOUR = JSON.parse(te.textContent); }catch(e){}
+/* v2.0.87: Jigsaw (jigsaw.php) = still pictures in three fixed tiers: MODE = {tiers:[{k,label,n,cols,rows,icon}], api, csrf, live, bests}. No MODE = GIFsaw as before. */
+var MODE = null; try{ var mde=document.getElementById('pz-mode'); if(mde) MODE = JSON.parse(mde.textContent); }catch(e){}
+function tierFor(n){ if(MODE) for(var i=0;i<MODE.tiers.length;i++) if(MODE.tiers[i].n===n) return MODE.tiers[i]; return null; }
+function pcsText(v){ var n=parseInt(v,10), t=tierFor(n); return t ? t.label+' \u00b7 '+n : n+(window.innerWidth<360?' pcs':' pieces'); }
 /* v2.0.68: the scramble (tab sides, jitter, shuffles) comes from a seeded mulberry32: ?seed=N, a tournament's seed, or a fresh random one */
 function mulberry32(a){ return function(){ a=(a+0x6D2B79F5)|0; var t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
 var URL_SEED=(function(){ var m=/[?&]seed=(\d{1,10})(&|$)/.exec(location.search); return m?(parseInt(m[1],10)>>>0):null; })();
@@ -89,6 +93,8 @@ function setup(src,nw,nh){
   var n=parseInt(countSel.value,10);
   var cols=Math.max(2,Math.round(Math.sqrt(n*nw/nh)));
   var rows=Math.max(2,Math.round(n/cols));
+  var TI=tierFor(n);   /* Jigsaw: the tier fixes the grid (pictures are 3:2, so it is exact) */
+  if(TI && Math.abs(nw/nh-TI.cols/TI.rows)<0.05){ cols=TI.cols; rows=TI.rows; }
   G={src:src,nw:nw,nh:nh,cols:cols,rows:rows,total:cols*rows,locked:0,z:10,won:false,t0:0,elapsed:0,
      hS:[],vS:[],hJ:[],vJ:[],pieces:[],groups:[],b:null,f:null,drops:0};
   var r,c;
@@ -117,7 +123,7 @@ function setup(src,nw,nh){
     p.grp={list:[p],locked:false,gx:0,gy:0,fx:0,fy:0,c0:c,c1:c,r0:r,r1:r};
     el._p=p; G.pieces.push(p); G.groups.push(p.grp);
   }
-  var so=countSel.options[countSel.selectedIndex]; so.textContent=G.total+(window.innerWidth<360?' pcs':' pieces');
+  var so=countSel.options[countSel.selectedIndex]; so.textContent=MODE?pcsText(G.total):G.total+(window.innerWidth<360?' pcs':' pieces');
   layout(true);
   scatter(G.groups);
   placeAll();
@@ -288,7 +294,7 @@ field.addEventListener('pointerdown',function(e){
   /* the held group rides in one raised layer that is moved with a single transform (cheap even for 50 animated pieces) */
   lift.className=g.list.length>1?'multi':'';
   for(gi=0;gi<g.list.length;gi++){ lift.appendChild(g.list[gi].el); g.list[gi].el.classList.add('drag'); }
-  if(!G.t0){ G.t0=Date.now(); timer=setInterval(updateHud,1000); }
+  if(!G.t0){ G.t0=Date.now(); timer=setInterval(updateHud,1000); if(MODE && !TOUR) pStart(); }
   if(touch) moveDrag();   /* lift the piece above the thumb */
   if(!raf) raf=requestAnimationFrame(tick);
 });
@@ -413,6 +419,8 @@ function solved(){
   win.setAttribute('data-res','ok'); $('winHead').textContent='Solved!';
   $('winText').textContent='Jeff: \u201c'+G.total+' pieces in '+fmt(G.elapsed)+'. Lovely work!\u201d';
   if(TOUR && TOUR.token) finishRun();
+  else if(MODE) pFinish();
+  winExtras();
   win.hidden=false;
   if(G.tray){ stage.scrollTop=0; stage.scrollLeft=(G.f.w-stage.clientWidth)/2; }
   updateHud();
@@ -420,9 +428,9 @@ function solved(){
 
 /* ---------- tournaments (v2.0.68): the server keeps the time; the token is used once ---------- */
 function api(body,cb){
-  var q='csrf='+encodeURIComponent(TOUR.csrf);
+  var cfg=TOUR||MODE, q='csrf='+encodeURIComponent(cfg.csrf);
   for(var k in body) q+='&'+k+'='+encodeURIComponent(body[k]);
-  fetch(TOUR.api,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:q})
+  fetch(cfg.api,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:q})
     .then(function(r){ return r.json(); }).then(cb,function(){ cb({ok:false,error:'The table wobbled (no connection). Try again.'}); });
 }
 function finishRun(){
@@ -435,6 +443,27 @@ function finishRun(){
       $('winText').textContent=r.rejected ? 'Ffej has been fiddling with the clock again. '+r.error : r.error;
     }
   });
+}
+/* v2.0.87: Jigsaw free play. The server times the go from the first grab (personal bests, pays nothing); a guest or a failed call just plays on. */
+function pStart(){
+  var ti=tierFor(G.total); if(!MODE.live || !ti) return;
+  var g=G; api({'do':'pstart',pic:curId,tier:ti.k},function(r){ if(r.ok && G===g) g.ptok=r.token; });
+}
+function pFinish(){
+  var g=G, tk=g.ptok; g.ptok=null; if(!tk) return;
+  api({'do':'pfinish',token:tk,drops:g.drops},function(r){
+    if(r.ok){
+      $('winText').textContent='Jeff: \u201c'+r.message+'\u201d';
+      if(MODE.bests){ var m=MODE.bests[curId]||(MODE.bests[curId]={}); m[r.tier]=r.best; }
+    }
+  });
+}
+/* the win card's "next tier" button */
+function winExtras(){
+  var nb=$('nexttier'); if(!nb||!MODE) return;
+  var ti=tierFor(G.total), nx=null;
+  for(var i=0;i<MODE.tiers.length-1;i++) if(MODE.tiers[i]===ti) nx=MODE.tiers[i+1];
+  nb.hidden=!nx; nb.setAttribute('data-n',nx?nx.n:''); nb.textContent=nx?'Try '+nx.label+' ('+nx.n+')':'';
 }
 function startRun(){
   var m=$('tmsg');
@@ -451,6 +480,7 @@ countSel.addEventListener('change',function(){
   saveCount(curId,parseInt(countSel.value,10)); setHash(curId,parseInt(countSel.value,10),true);
   if(curUrl) start(curUrl);
 });
+if($('nexttier')) $('nexttier').addEventListener('click',function(){ var n=parseInt(this.getAttribute('data-n'),10); if(n&&curId){ setHash(curId,n,false); route(); } });
 $('again').addEventListener('click',function(){ if(TOUR){ startRun(); return; } if(curUrl) start(curUrl); });
 $('scatter').addEventListener('click',function(){
   if(!G||G.won) return;
@@ -503,12 +533,49 @@ new ResizeObserver(function(){
 }).observe(stage);
 
 /* ---------- library, routing, teardown ---------- */
-var thumbs=[], cardSels=[], COUNTS=[24,54,96,150], grid=$('grid'), lib=$('lib'), gameEl=$('game'), libScroll=0;
+var thumbs=[], cardSels=[], COUNTS=MODE?MODE.tiers.map(function(t){ return t.n; }):[24,54,96,150], grid=$('grid'), lib=$('lib'), gameEl=$('game'), libScroll=0;
 function byId(id){ for(var i=0;i<PUZZLES.length;i++) if(PUZZLES[i].id===id) return PUZZLES[i]; return null; }
 function loadCounts(){ try{ return JSON.parse(localStorage.getItem('jiggy.counts')||'{}')||{}; }catch(e){ return {}; } }
 function saveCount(id,n){ try{ var m=loadCounts(); m[id]=n; localStorage.setItem('jiggy.counts',JSON.stringify(m)); }catch(e){} }
 function countFor(pz){ var n=loadCounts()[pz.id]; return COUNTS.indexOf(n)>=0 ? n : pz.pieces; }
+/* v2.0.87: Jigsaw library: a card per picture with one button per tier (the best time shows once solved), category chips on top. */
+var jigCat='';
+function ms2t(ms){ var t=Math.floor(ms/1000); return Math.floor(t/60)+':'+('0'+(t%60)).slice(-2); }
+function buildJigsawLibrary(){
+  grid.innerHTML='';
+  var cats=[], i, k, bar=$('cats');
+  for(i=0;i<PUZZLES.length;i++) if(PUZZLES[i].cat && cats.indexOf(PUZZLES[i].cat)<0) cats.push(PUZZLES[i].cat);
+  if(bar){
+    bar.innerHTML='';
+    if(cats.length>1) ['All'].concat(cats).forEach(function(c){
+      var b=document.createElement('button'); b.type='button'; b.className='pzchip'+((c==='All'?'':c)===jigCat?' on':''); b.textContent=c;
+      b.addEventListener('click',function(){ jigCat=c==='All'?'':c; buildJigsawLibrary(); });
+      bar.appendChild(b);
+    });
+  }
+  for(i=0;i<PUZZLES.length;i++) (function(pz){
+    if(jigCat && pz.cat!==jigCat) return;
+    var li=document.createElement('li'); li.className='pzcard';
+    var th=document.createElement('div'); th.className='pzthumb';
+    var im=document.createElement('img'); im.src=pz.thumb||pz.still; im.alt=pz.title; im.loading='lazy'; th.appendChild(im);
+    var body=document.createElement('div'); body.className='pzbody';
+    var h=document.createElement('h2'); h.textContent=pz.title;
+    var row=document.createElement('div'); row.className='pztiers';
+    var mine=(MODE.bests&&MODE.bests[pz.id])||{};
+    MODE.tiers.forEach(function(t){
+      var b=document.createElement('button'); b.type='button'; b.className='btn pztier'+(mine[t.k]?' done':''); b.setAttribute('data-tier',t.k);
+      b.setAttribute('aria-label','Play '+pz.title+' on '+t.label+', '+t.n+' pieces'+(mine[t.k]?', your best '+ms2t(mine[t.k]):''));
+      b.innerHTML='<span class="pztn"></span><small></small>';
+      b.firstChild.textContent=t.icon+' '+t.label; b.lastChild.textContent=mine[t.k]?'\u2713 '+ms2t(mine[t.k]):t.n+' pieces';
+      b.addEventListener('click',function(){ setHash(pz.id,t.n,false); route(); });
+      row.appendChild(b);
+    });
+    body.appendChild(h); body.appendChild(row);
+    li.appendChild(th); li.appendChild(body); grid.appendChild(li);
+  })(PUZZLES[i]);
+}
 function buildLibrary(){
+  if(MODE){ buildJigsawLibrary(); return; }
   var i;
   for(i=0;i<PUZZLES.length;i++) (function(pz){
     var li=document.createElement('li'); li.className='pzcard';
@@ -565,12 +632,13 @@ function resetStage(){
 function showLibrary(){
   if(inGame){ resetStage(); inGame=false; }
   for(var i=0;i<cardSels.length;i++) cardSels[i][1].value=String(countFor(cardSels[i][0]));
+  if(MODE) buildJigsawLibrary();
   gameEl.hidden=true; lib.hidden=false; document.body.classList.remove('pz-play'); window.scrollTo(0,libScroll);
 }
 function enterGame(pz,n){
   resetStage(); inGame=true;
   libScroll=window.pageYOffset||0; lib.hidden=true; gameEl.hidden=false; document.body.classList.add('pz-play'); window.scrollTo(0,0);
-  for(var i=0;i<countSel.options.length;i++) countSel.options[i].textContent=countSel.options[i].value+(window.innerWidth<360?' pcs':' pieces');
+  for(var i=0;i<countSel.options.length;i++) countSel.options[i].textContent=MODE?pcsText(countSel.options[i].value):countSel.options[i].value+(window.innerWidth<360?' pcs':' pieces');
   countSel.value=String(n); curId=pz.id;
   SUB_DEFAULT=NARROW ? pz.title+' · join neighbours' : pz.title+'. '+SUB_BASE; sub.textContent=SUB_DEFAULT;
   curStill=pz.still||null;

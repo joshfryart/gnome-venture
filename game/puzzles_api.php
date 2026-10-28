@@ -12,11 +12,22 @@ if (!is_string($sent) || !hash_equals(csrf_token(), $sent)) $out(['ok' => false,
 $u = current_user();
 if (!$u) $out(['ok' => false, 'error' => 'Please log in first.'], 403);
 if (!empty($u['guest'])) $out(['ok' => false, 'error' => 'Guests can’t enter tournaments. Make your own gnome to join in!'], 403);   // v2.0.75
-if (!puzzle_tournaments_on()) $out(['ok' => false, 'error' => 'Puzzle tournaments aren’t running right now.'], 403);
+$do = (string)($_POST['do'] ?? '');
+$free = in_array($do, ['pstart', 'pfinish'], true);   // v2.0.87: Jigsaw free play (timed on the server for personal bests, pays nothing)
+require_once __DIR__ . '/includes/jigsaw.php';
+if ($free) { if (!jigsaw_open()) $out(['ok' => false, 'error' => 'Jigsaw isn’t open right now.'], 403); }
+elseif (!puzzle_tournaments_on() && !jigsaw_tournaments_on()) $out(['ok' => false, 'error' => 'Puzzle tournaments aren’t running right now.'], 403);
 $key = 'pzapi:' . (int)$u['id'];
 if (rate_limited($key, 40, 10)) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
 record_attempt($key);
-$do = (string)($_POST['do'] ?? '');
+if ($do === 'pstart') {
+    [$ok, $msg, $x] = jigsaw_practice_start($u, (string)($_POST['pic'] ?? ''), (string)($_POST['tier'] ?? ''));
+    $out($ok ? ['ok' => true, 'token' => $msg] + $x : ['ok' => false, 'error' => $msg]);
+}
+if ($do === 'pfinish') {
+    [$ok, $msg, $x] = jigsaw_practice_finish($u, (string)($_POST['token'] ?? ''), (int)($_POST['drops'] ?? 0));
+    $out(['ok' => $ok, ($ok ? 'message' : 'error') => $msg] + $x);
+}
 if ($do === 'start') {
     [$ok, $msg, $x] = puzzle_attempt_start($u, (int)($_POST['t'] ?? 0));
     $out($ok ? ['ok' => true, 'token' => $msg] + $x : ['ok' => false, 'error' => $msg]);

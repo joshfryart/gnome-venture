@@ -42,6 +42,10 @@ function puzzles_schema(string $PK, string $ID, string $END): array
         source VARCHAR(8) NOT NULL DEFAULT 'builtin',
         active INT NOT NULL DEFAULT 1,
         sort INT NOT NULL DEFAULT 0,
+        kind VARCHAR(8) NOT NULL DEFAULT 'gif',
+        cat VARCHAR(24) NULL,
+        thumb VARCHAR(120) NULL,
+        reserved INT NOT NULL DEFAULT 0,
         created_by $ID NULL,
         created_at DATETIME NOT NULL
     )$END", "CREATE TABLE IF NOT EXISTS puzzle_tournaments (
@@ -52,6 +56,9 @@ function puzzles_schema(string $PK, string $ID, string $END): array
         starts_at DATETIME NOT NULL,
         ends_at DATETIME NOT NULL,
         status VARCHAR(8) NOT NULL DEFAULT 'draft',
+        kind VARCHAR(8) NOT NULL DEFAULT 'gif',
+        tier VARCHAR(8) NULL,
+        cup_id $ID NULL,
         created_by $ID NULL,
         created_at DATETIME NOT NULL,
         settled_at DATETIME NULL
@@ -82,6 +89,7 @@ function puzzles_schema(string $PK, string $ID, string $END): array
         started_at DATETIME NOT NULL,
         ms INT NULL,
         hints INT NOT NULL DEFAULT 0,
+        pic_id $ID NULL,
         status VARCHAR(8) NOT NULL DEFAULT 'open'
     )$END", "CREATE TABLE IF NOT EXISTS puzzle_wins (
         id $PK,
@@ -96,8 +104,13 @@ function puzzles_schema(string $PK, string $ID, string $END): array
           'CREATE INDEX idx_puzzle_runs_board ON puzzle_runs (game, day, mode, status)',
           'CREATE INDEX idx_puzzle_att_tu ON puzzle_attempts (tournament_id, user_id, status)',
           'CREATE INDEX idx_puzzle_att_user ON puzzle_attempts (user_id, started_at)',
-          'CREATE INDEX idx_puzzle_tour_status ON puzzle_tournaments (status, ends_at)'];
-    return [$t, $i, []];
+          'CREATE INDEX idx_puzzle_tour_status ON puzzle_tournaments (status, ends_at)',
+          'CREATE INDEX idx_puzzle_tour_kind ON puzzle_tournaments (kind, status, ends_at)'];
+    // v2.0.87: Jigsaw (still pictures) shares these tables; existing databases get the new columns here (and puzzles_ensure() adds them if the upgrade has not run)
+    $c = [['puzzle_pics', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'gif'"], ['puzzle_pics', 'cat', 'VARCHAR(24) NULL'], ['puzzle_pics', 'thumb', 'VARCHAR(120) NULL'], ['puzzle_pics', 'reserved', 'INT NOT NULL DEFAULT 0'],
+          ['puzzle_tournaments', 'kind', "VARCHAR(8) NOT NULL DEFAULT 'gif'"], ['puzzle_tournaments', 'tier', 'VARCHAR(8) NULL'], ['puzzle_tournaments', 'cup_id', "$ID NULL"],
+          ['puzzle_runs', 'pic_id', "$ID NULL"]];
+    return [$t, $i, $c];
 }
 
 /** Make the tables if the upgrade has not run yet, and add any missing built-in picture. False = no table (callers fall back to PUZZLES). */
@@ -118,6 +131,7 @@ function puzzles_ensure(): bool
             return $ok = false;
         }
     }
+    puzzles_add_columns();
     try {
         $have = array_flip(q("SELECT slug FROM puzzle_pics WHERE source = 'builtin'")->fetchAll(PDO::FETCH_COLUMN));
         $n = 0;
@@ -135,16 +149,33 @@ function puzzles_ensure(): bool
     return $ok;
 }
 
+/** v2.0.87: add the Jigsaw columns to tables made before 2.0.87 (the upgrade does the same; this covers a request that comes first). One probe query when nothing is missing. */
+function puzzles_add_columns(): void
+{
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    try {
+        $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        foreach (puzzles_schema('', $s ? 'INTEGER' : 'INT UNSIGNED', '')[2] as [$tb, $col, $def]) {
+            try { q("SELECT $col FROM $tb LIMIT 1"); } catch (Throwable $e) { db()->exec("ALTER TABLE $tb ADD COLUMN $col $def"); }
+        }
+        try { db()->exec('CREATE INDEX idx_puzzle_tour_kind ON puzzle_tournaments (kind, status, ends_at)'); } catch (Throwable $e) {}
+    } catch (Throwable $e) {
+        error_log('puzzles_add_columns: ' . $e->getMessage());
+    }
+}
+
 function puzzle_pic_path(array $p, bool $still = false): string
 {
     return ($p['source'] === 'upload' ? 'uploads/puzzles/' : 'assets/img/puzzles/') . ($still ? $p['still'] : $p['file']);
 }
 
-/** Pictures for the library: rows from puzzle_pics, or the PUZZLES constant when the table is missing. */
+/** GIFsaw pictures for the library (kind 'gif'; Jigsaw stills are jigsaw_pics()): rows from puzzle_pics, or the PUZZLES constant when the table is missing. */
 function puzzle_pics(bool $activeOnly = true): array
 {
     if (puzzles_ensure()) {
-        try { return q('SELECT * FROM puzzle_pics' . ($activeOnly ? ' WHERE active = 1' : '') . ' ORDER BY sort, id')->fetchAll(); } catch (Throwable $e) {}
+        try { return q("SELECT * FROM puzzle_pics WHERE kind = 'gif'" . ($activeOnly ? ' AND active = 1' : '') . ' ORDER BY sort, id')->fetchAll(); } catch (Throwable $e) {}
     }
     $out = [];
     foreach (PUZZLES as $slug => [$title, $file, $n]) $out[] = ['id' => 0, 'slug' => $slug, 'title' => $title, 'file' => $file, 'still' => preg_replace('/\.gif$/', '-still.png', $file), 'pieces_default' => $n, 'source' => 'builtin', 'active' => 1, 'w' => 0, 'h' => 0];

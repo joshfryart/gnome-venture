@@ -359,6 +359,11 @@ function settings_schema(): array
         'pz_beds_open' => ['label' => 'Puzzles: Gnome Beds open to every player (off = admins only; needs Puzzles open) (v2.0.72)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'pz_daily_petals' => ['label' => 'Puzzles: Petals for the first daily win of each puzzle game, once a day (v2.0.71)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 500],
         'puzzles_front' => ['label' => 'Front page: logged-out visitors can play a GIFsaw demo (v2.0.69)', 'type' => 'select', 'default' => '1', 'options' => ['1' => 'On', '0' => 'Off']],
+        'jigsaw_open' => ['label' => 'Puzzles: Jigsaw (classic still-picture jigsaws, Easy / Advanced / Expert) open to every player (off = admins only; needs Puzzles open) (v2.0.87)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'jigsaw_tournaments' => ['label' => 'Puzzles: Jigsaw tournaments (needs Jigsaw open) (v2.0.87)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'jigsaw_tries_easy' => ['label' => 'Jigsaw tournaments: timed goes per day, Easy (v2.0.87)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 50],
+        'jigsaw_tries_advanced' => ['label' => 'Jigsaw tournaments: timed goes per day, Advanced (v2.0.87)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 50],
+        'jigsaw_tries_expert' => ['label' => 'Jigsaw tournaments: timed goes per day, Expert (v2.0.87)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 50],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'games_petals_percent' => ['label' => 'Games: Petals paid, % of the normal payout (Worms, Memory, Spit, Mushroom, Pest Patrol, Letters)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 300],   // v1.7.6: games out-earned the garden
         'memory_plays_per_day' => ['label' => 'Seed Memory: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],

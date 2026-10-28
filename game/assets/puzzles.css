@@ -224,3 +224,13 @@ body.pz-play .lp #game{text-align:left}
 .rbface[hidden]{display:none}
 .rbmsgrow{display:flex; align-items:center; justify-content:center; gap:8px; min-height:8px}
 .rbmsgrow .pzmsg{margin:6px 0 0}
+
+/* v2.0.87: Jigsaw (jigsaw.php): real pictures, so smooth scaling; category chips; one button per tier on a card */
+#pz.jig img, #pz.jig .pzthumb img{image-rendering:auto}
+.pzchips{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0}
+.pzchip{font:inherit; font-size:14px; min-height:36px; padding:4px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink); cursor:pointer}
+.pzchip.on{background:var(--accent, #2f7d4f); color:#fff; border-color:transparent}
+.pztiers{display:flex; flex-direction:column; gap:6px}
+.pztier{display:flex; justify-content:space-between; align-items:center; gap:8px; width:100%; text-align:left}
+.pztier small{opacity:.85; font-size:12px; white-space:nowrap}
+.pztier.done{box-shadow:inset 0 0 0 2px var(--accent, #2f7d4f)}
