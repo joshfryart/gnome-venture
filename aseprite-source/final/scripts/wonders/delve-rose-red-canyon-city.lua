@@ -10,6 +10,7 @@ local FL = { gloss = false, rim = false, bounce = false, outline = false }
 local function fl(t) local r = {}; for k, v in pairs(FL) do r[k] = v end; for k, v in pairs(t or {}) do r[k] = v end; return r end
 local ROSE = GV.ramp("#c4685a", { gloss = "#f0a890", rim = "#e8907a", shade = "#a04a50", deep = "#6a2a40" })
 
+c:fill(c:rect(0, 0, W - 1, H - 1), "#c89080")
 -- narrow sky strip high above (warm, hazy)
 c:bands(c:rect(0, 0, W - 1, 60), { "#8fc4e2", "#a4d0e8", "#c8dcd8", "#f0dcb8", "#f8cc98" }, { dir = "v" })
 L.cloud(c, 120, 20, 14, "#fff1d8", "#f0d0b0")
@@ -95,31 +96,30 @@ for _, f in ipairs({ { {15,98},{6,94},{2,100} }, { {15,98},{24,93},{30,99} }, { 
 end
 c:px(14, 99, "#e8a317"); c:px(16, 100, "#e8a317")
 
--- the camel: chibi dromedary resting, with a striped saddle blanket
-local KX, KY = 148, 110
+-- the camel: chibi dromedary resting, facing right, with a striped saddle blanket
+local KX, KY = 138, 112
 local C = GV.ramp("#d9a660", { gloss = "#f5d89a", shade = "#a8743a", deep = "#6a4020" })
--- tail and back legs
-for _, dx in ipairs({ -18, -8 }) do c:part(c:ellipse(KX + dx, KY + 11, 4, 3), C, { cres = 2, deep = 3, gloss = false }) end
-for _, dx in ipairs({ 8, 18 }) do c:part(c:ellipse(KX + dx, KY + 11, 4, 3), C, { cres = 2, deep = 3, gloss = false }) end
+-- legs (folded: short stubs)
+for _, dx in ipairs({ -14, -6, 6, 14 }) do c:part(c:ellipse(KX + dx, KY + 11, 4, 3), C, { cres = 2, deep = 3, gloss = false }) end
+-- neck and head
+c:part(c:poly({ {KX + 8, KY}, {KX + 14, KY - 22}, {KX + 22, KY - 22}, {KX + 24, KY} }), C, { cres = 3, deep = 5, gloss = false })
 -- body
-c:part(c:ellipse(KX, KY + 2, 22, 10), C, { cres = 5, deep = 8 })
+c:part(c:ellipse(KX, KY + 2, 20, 10), C, { cres = 5, deep = 8 })
 -- hump
-c:part(c:ellipse(KX - 2, KY - 9, 8, 7), C, { cres = 3, deep = 5 })
+c:part(c:ellipse(KX - 6, KY - 9, 7, 6), C, { cres = 3, deep = 5 })
 -- saddle blanket (woven stripes)
-c:part(c:rect(KX - 12, KY - 6, KX + 8, KY + 8), GV.ramp("#d6322b"), { cres = 2, deep = 4, gloss = false, outline = false, contour = "#2a1a10" })
-for i, col in ipairs({ "#e8a317", "#4e8a9a", "#e8a317" }) do c:fill(c:rect(KX - 12, KY - 3 + i * 3, KX + 8, KY - 3 + i * 3), col) end
-for x = KX - 11, KX + 7, 3 do c:px(x, KY + 9, "#e8a317") end
--- neck and head, facing left
-c:part(c:poly({ {KX + 14, KY - 4}, {KX + 22, KY - 20}, {KX + 30, KY - 22}, {KX + 28, KY - 4} }), C, { cres = 3, deep = 5, gloss = false })
-c:part(c:ellipse(KX + 28, KY - 18, 11, 9), C, { cres = 4, deep = 6 })
-c:part(c:ellipse(KX + 36, KY - 14, 5, 4), GV.ramp("#f2d8a8", { dot = "#fff3c8" }), { flat = true, gloss = false, outline = false })
-c:px(KX + 38, KY - 15, "#2a1a10"); c:px(KX + 38, KY - 13, "#2a1a10")
-for _, p in ipairs({ {32,-12},{33,-11},{34,-11},{35,-11} }) do c:px(KX + p[1] + 3, KY + p[2] + 3, "#2a1a10") end
-c:part(c:ellipse(KX + 22, KY - 28, 3, 3), C, { cres = 1, deep = 2, gloss = false }); c:part(c:ellipse(KX + 32, KY - 28, 3, 3), C, { cres = 1, deep = 2, gloss = false })
-c:eye(KX + 25, KY - 22)
--- tassel on the bridle
-c:px(KX + 36, KY - 8, "#d6322b"); c:px(KX + 36, KY - 7, "#d6322b"); c:px(KX + 36, KY - 6, "#e8a317")
-c:ground(KX, KY + 14, 26, 2)
+c:part(c:rect(KX - 12, KY - 4, KX + 4, KY + 8), GV.ramp("#d6322b"), { cres = 2, deep = 4, gloss = false, outline = false, contour = "#2a1a10" })
+for i, col in ipairs({ "#e8a317", "#4e8a9a", "#e8a317" }) do c:fill(c:rect(KX - 12, KY - 4 + i * 3, KX + 4, KY - 4 + i * 3), col) end
+for x = KX - 11, KX + 3, 3 do c:px(x, KY + 9, "#e8a317") end
+-- head
+c:part(c:ellipse(KX + 20, KY - 24, 11, 9), C, { cres = 4, deep = 6 })
+c:part(c:ellipse(KX + 28, KY - 20, 5, 4), GV.ramp("#f2d8a8", { dot = "#fff3c8" }), { flat = true, gloss = false, outline = false })
+c:px(KX + 30, KY - 21, "#2a1a10"); c:px(KX + 30, KY - 19, "#2a1a10")
+for _, p in ipairs({ {26,-17},{27,-16},{28,-16},{29,-17} }) do c:px(KX + p[1], KY + p[2], "#2a1a10") end
+c:part(c:ellipse(KX + 14, KY - 33, 3, 3), C, { cres = 1, deep = 2, gloss = false }); c:part(c:ellipse(KX + 24, KY - 33, 3, 3), C, { cres = 1, deep = 2, gloss = false })
+c:eye(KX + 15, KY - 28)
+c:px(KX + 26, KY - 28, "#d6322b"); c:px(KX + 26, KY - 27, "#e8a317")
+c:ground(KX, KY + 14, 24, 2)
 
 -- floating dust motes in the light shaft
 for _, p in ipairs({ {96,70},{120,40},{104,90},{136,76},{86,56} }) do c:px(p[1], p[2], "#fff1c8") end

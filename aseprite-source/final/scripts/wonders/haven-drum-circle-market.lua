@@ -56,20 +56,20 @@ c:part(c:line({ {140, 100}, {128, 88} }, 2), GV.ramp("#d9a660"), { flat = true, 
 
 -- drums
 local function drum(x, y, wood)
-  c:part(c:poly({ {x - 7, y - 12}, {x + 7, y - 12}, {x + 3, y - 5}, {x + 5, y}, {x - 5, y}, {x - 3, y - 5} }), GV.ramp(wood or "#a8582f"), { cres = 3, deep = 5, gloss = false })
-  c:seam({ {x - 5, y - 10}, {x - 2, y - 6}, {x + 1, y - 10}, {x + 4, y - 6} }, { free = true, on = 2, off = 0, gap = "#f2e4c0" })
-  c:part(c:ellipse(x, y - 12, 7, 2.5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false })
-  c:part(c:ellipse(x - 4, y - 13, 2, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
-  c:part(c:ellipse(x + 4, y - 13, 2, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
+  c:part(c:poly({ {x - 7, y - 9}, {x + 7, y - 9}, {x + 3, y - 4}, {x + 5, y}, {x - 5, y}, {x - 3, y - 4} }), GV.ramp(wood or "#a8582f"), { cres = 3, deep = 5, gloss = false })
+  c:seam({ {x - 5, y - 7}, {x - 2, y - 4}, {x + 1, y - 7}, {x + 4, y - 4} }, { free = true, on = 2, off = 0, gap = "#f2e4c0" })
+  c:part(c:ellipse(x, y - 9, 7, 2.5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false })
+  c:part(c:ellipse(x - 4, y - 10, 2, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
+  c:part(c:ellipse(x + 4, y - 10, 2, 1.5), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
 end
 -- back row drummers + dancer
-H.folk(c, 68, 108, { cloth = "#7ab55c", hat = "#f08a24", sit = true }); drum(68, 114)
-H.folk(c, 174, 108, { cloth = "#4e8a9a", hat = "#e46a9b", sit = true }); drum(174, 114)
+H.folk(c, 68, 108, { cloth = "#7ab55c", hat = "#f08a24", sit = true }); drum(68, 113)
+H.folk(c, 174, 108, { cloth = "#4e8a9a", hat = "#e46a9b", sit = true }); drum(174, 113)
 H.folk(c, 96, 102, { cloth = "#e8a317", hat = "#d6322b", lean = -4 })
 c:part(c:line({ {91, 94}, {86, 84} }, 2), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false }); c:part(c:line({ {101, 94}, {106, 84} }, 2), GV.ramp("#e9b98a"), { flat = true, gloss = false, outline = false })
 -- front drummers (big)
-H.folk(c, 56, 122, { cloth = "#e46a9b", hat = "#4e8a9a", sit = true, big = true, beard = "#f2e4c0" }); drum(56, 128, "#8a4f2a")
-H.folk(c, 186, 122, { cloth = "#6a4fa8", hat = "#f5cf6a", sit = true, big = true }); drum(186, 128, "#8a4f2a")
+H.folk(c, 56, 119, { cloth = "#e46a9b", hat = "#4e8a9a", sit = true, big = true, beard = "#f2e4c0" }); drum(56, 124, "#8a4f2a")
+H.folk(c, 186, 119, { cloth = "#6a4fa8", hat = "#f5cf6a", sit = true, big = true }); drum(186, 124, "#8a4f2a")
 -- talking drum (hourglass) in the middle front
 H.folk(c, 92, 124, { cloth = "#d6322b", hat = "#7ab55c", sit = true }); 
 c:part(c:poly({ {85, 118}, {99, 118}, {95, 124}, {99, 130}, {85, 130}, {89, 124} }), GV.ramp("#d9a660"), { cres = 2, deep = 4, gloss = false })
