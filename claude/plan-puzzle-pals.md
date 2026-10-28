@@ -90,7 +90,7 @@ Placeholders first for the shared items (`tools/gen_placeholder_art.py --many`, 
 | Page-refresh farming | lane needs a 1-in-60 roll AND 30 min cooldown AND 4 finds/day; a refresh loop gains at most 4/day; 1-in-50 `rate_limited` not needed |
 | Multiple accounts | nothing crosses accounts: **not tradeable, not giftable, no Petals, no items** (default; call 5) |
 | Guests | lane skipped, claims refused, no release rows, tables purged |
-| Pay-to-win | nothing is sold; rare pals ~ a Trailmate, never above; `ppal_party` stays 0 until the sim passes |
+| Pay-to-win | nothing is sold; perks are capped small (section 4) and off until reviewed (`ppal_party` = 0) |
 | Duplicates as currency | none: a duplicate only bumps `times` (and never fires while a roster is incomplete) |
 | Too-fast solves | the existing 400 ms/piece and drops rules decide `done`; a rejected run releases nothing; an admin void after release does not revoke (logged) |
 | Event spam | own cap 4/day, only after the ordinary roll missed, never two boxes, quiet pages list |
@@ -102,7 +102,7 @@ Expected pace: with 6 per roster and 4 finds/day max at 1 in 60 views, an active
 | 1 | `includes/puzzle_pals.php` data + generator + lint + `puzzle_pals.txt` (3 builtin rosters authored, places generated) + schema + settings + `ppal_on_solve` hooks + placeholders | M |
 | 2 | Find lane in `events.php` + find box + claim + quiet pages + admin test button | S/M |
 | 3 | `puzzlepals.php` book + hub card + win-card line + profile shelf + CSS | M |
-| 4 | Party (P1 perks; P2 only on Joshua's word): take-along UI + perk table + road/lair/delve strip; `ppal_party` stays 0 until reviewed | M |
+| 4 | Equip (max 2, level 15+) + passive perks + `gnome_avatar_pals` at the display sites; `ppal_party` stays 0 until reviewed | M |
 | 5 | `admin/jigsaw.php` Pals tab; 14 gallery rosters authored; `tests/puzzle_pals.sh`; CHANGELOG/handoff/todo; `tools/check_versions.sh`; zips | S/M |
 | 6 (stretch) | follower sticker in the top bar | S |
 Who: Sonnet codes 1-5, Haiku drafts rosters and placeholders, Opus reviews once (sim output, screenshots, suites vs pristine). Pause for Joshua after step 3 on phone before step 4.
