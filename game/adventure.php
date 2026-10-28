@@ -271,15 +271,18 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   </div>
 
 <?php elseif ($enc && $enc['type'] === 'choice'):
-    $ch = road_event_get($enc) ?? road_events()['ev'][array_key_first(road_events()['ev'])]; ?>
+    $ch = road_event_get($enc) ?? road_events()['ev'][array_key_first(road_events()['ev'])];
+    $kindLabel = ROAD_KIND_LABEL[$ch['kind'] ?? 'choice'] ?? '';   // v2.0.79: fork / riddle / trade / chain / sketch
+    $order = isset($enc['ord']) && count((array)$enc['ord']) === count($ch['opts']) ? array_map('intval', (array)$enc['ord']) : array_keys($ch['opts']); ?>
   <div class="scenecard">
+  <?php if ($kindLabel !== ''): $kimg = 'assets/img/roadkinds/' . ($ch['kind'] ?? '') . '.png'; ?><p class="help roadkind"><?= pixel_has($kimg) ? '<img class="ico pix roadkindimg" src="' . e(url($kimg)) . '" alt="" width="24" height="24"> ' : '' ?><?= e($kindLabel) ?></p><?php endif; ?>
   <h3><span class="bigfoe"><?= e($ch['icon']) ?></span> <?= e($ch['text']) ?></h3>
-  <p class="help">What do you do?</p>
+  <p class="help"><?= ($ch['kind'] ?? '') === 'riddle' ? 'Which answer is right?' : (($ch['kind'] ?? '') === 'trade' ? 'Will you trade?' : 'What do you do?') ?></p>
   </div>
   <div class="choicelist">
-  <?php foreach ($ch['opts'] as $i => $o):   // v1.9.3: .choice rows with the odds badge, like the fight and the problems
+  <?php foreach ($order as $i): $o = $ch['opts'][$i];   // v1.9.3: .choice rows with the odds badge, like the fight and the problems
       $rolls = $o['stat'] !== '' && isset(GNOME_STATS[$o['stat']]);
-      $icon = '👉'; $sub = 'No roll needed'; $badge = '';
+      $icon = '👉'; $sub = 'No roll needed'; $badge = ''; $off = '';
       if ($rolls) {
           $dc = (int)$o['dc'] + intdiv(max(1, (int)$exp['depth']) - 1, 2);
           $mod = eff_mod($u, $o['stat']);
@@ -287,8 +290,18 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
           $icon = GNOME_STATS[$o['stat']][1];
           $sub = GNOME_STATS[$o['stat']][0] . ' ' . ($mod >= 0 ? '+' : '') . $mod . ' vs ' . $dc;
           $badge = [$chance . '%', choice_odds_class($chance)];
+      } elseif ($o['stat'] === '!') { $sub = ''; }
+      foreach (explode('+', (string)$o['win']) as $part) {   // v2.0.79: a trade or a toll shows its price and is off when you cannot pay it
+          $pp = explode(':', trim($part));
+          if ($pp[0] === 'pay' && (int)($pp[1] ?? 0) > 0) { $sub .= ($sub !== '' ? ' · ' : '') . 'costs ' . money((int)$pp[1]); if ((int)$u['coins'] < (int)$pp[1]) $off = ' disabled'; }
+          if ($pp[0] === 'take' && isset($pp[1])) {
+              $need = max(1, (int)($pp[2] ?? 1));
+              $haveN = (int)q_val('SELECT COALESCE(SUM(ui.qty), 0) FROM user_items ui JOIN items it ON it.id = ui.item_id WHERE ui.user_id = ? AND it.slug = ?', [(int)$u['id'], $pp[1]]);
+              $sub .= ($sub !== '' ? ' · ' : '') . 'give ' . $need . ' × ' . (string)(q_val('SELECT name FROM items WHERE slug = ?', [$pp[1]]) ?: $pp[1]) . ' (you have ' . $haveN . ')';
+              if ($haveN < $need) $off = ' disabled';
+          }
       } ?>
-    <?= act_choice('choose', $icon, (string)$o['label'], $sub, $badge, '', '<input type="hidden" name="option" value="' . (int)$i . '">') ?>
+    <?= act_choice('choose', $icon, (string)$o['label'], $sub, $badge, '', '<input type="hidden" name="option" value="' . (int)$i . '">', $off) ?>
   <?php endforeach; ?>
   </div>
 

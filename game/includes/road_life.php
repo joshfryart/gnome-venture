@@ -308,6 +308,9 @@ function road_roll_bands(): array
     return ['creature' => $w['creature'], 'problem' => $w['creature'] + $w['problem'], 'choice' => $w['creature'] + $w['problem'] + $w['choice'], 'total' => $total];
 }
 const ROAD_ITEM_CAP = 20;      // an item or find from a road event happens at most this often (percent)
+/** v2.0.79: the shapes of a road card. choice = today's; fork = two ways on; riddle = one answer is right; trade = swap goods; chain = leads to the next card; sketch = a journal page. */
+const ROAD_EVENT_KINDS = ['choice', 'fork', 'riddle', 'trade', 'chain', 'sketch'];
+const ROAD_KIND_LABEL = ['choice' => '', 'fork' => '🔀 A fork in the road', 'riddle' => '🧩 A riddle', 'trade' => '🤝 A trade', 'chain' => '🔗 The story goes on', 'sketch' => '📓 For your road journal'];
 const ROAD_LEGACY_EVENTS = 14; // the first 14 scenes keep their order: walks saved before v1.9.4 point at them by number
 
 /** The land / region / where columns: "any" or a comma list (lands lower case, regions upper case). */
@@ -340,7 +343,8 @@ function road_events(bool $reload = false): array
         if ($t === 'E' && count($f) >= 8 && $f[1] !== '' && $f[7] !== '') {
             $cur = $f[1];
             $data['ev'][$cur] = ['id' => $cur, 'cond' => $f[2] === '' ? '-' : $f[2], 'lands' => road_event_list($f[3], false), 'region' => road_event_list($f[4], true),
-                'where' => in_array($f[5], ['road', 'wild'], true) ? $f[5] : 'both', 'icon' => $f[6], 'text' => road_text_apply('road.event.' . $cur, $f[7]), 'opts' => [], 'n' => count($data['ev'])];
+                'where' => in_array($f[5], ['road', 'wild'], true) ? $f[5] : 'both', 'icon' => $f[6], 'text' => road_text_apply('road.event.' . $cur, $f[7]), 'opts' => [], 'n' => count($data['ev']),
+                'kind' => in_array($f[8] ?? '', ROAD_EVENT_KINDS, true) ? $f[8] : 'choice', 'name' => (string)($f[9] ?? '')];   // v2.0.79: kind + journal name (columns 9 and 10, optional)
         } elseif ($t === 'O' && $cur !== null && count($f) >= 8) {
             $ok = 'road.event.' . $cur . '.' . road_text_hash($f[1]) . '.';   // v2.0.4: only the words can be overridden, never stat/dc/effects
             $data['ev'][$cur]['opts'][] = ['label' => road_text_apply($ok . 'label', $f[1]), 'stat' => $f[2], 'dc' => (int)$f[3], 'win' => $f[4], 'wintext' => $f[5] === '' ? '' : road_text_apply($ok . 'win', $f[5]),
@@ -389,8 +393,73 @@ function road_event_weight(array $r): float
 /** A choice card for this place, or null if nothing fits (a "!" cond that fails rules a card out). Not one of the last few shown. */
 function road_event_pick(array $scene, string $where, array $ctx = []): ?array
 {
-    $pool = road_event_fit(road_events()['ev'], $scene, $where);
-    return road_pick($pool, 'oc', 'id', $ctx + ['weight' => 'road_event_weight']);
+    // v2.0.79: a card that only exists as the second half of a chain is never drawn alone (its id starts with chain-), and the same shape never comes twice running
+    $pool = array_filter(road_event_fit(road_events()['ev'], $scene, $where), fn($e) => !str_starts_with($e['id'], 'chain-'));
+    $s = &road_state();
+    $lastKind = (string)(array_slice($s['ring']['ek'] ?? [], -1)[0] ?? '');
+    $w = fn($r) => road_event_weight($r) * (($r['kind'] ?? 'choice') !== 'choice' && road_token('k|' . ($r['kind'] ?? '')) === $lastKind ? 0.15 : 1);
+    $ev = road_pick($pool, 'oc', 'id', $ctx + ['weight' => $w]);
+    if ($ev && $s['bound'] && ($ctx['record'] ?? true)) {
+        $s['ring']['ek'] = array_slice(array_merge($s['ring']['ek'] ?? [], [road_token('k|' . ($ev['kind'] ?? 'choice'))]), -ROAD_RING_SIZE);
+        $s['dirty'] = true;
+    }
+    return $ev;
+}
+
+/** v2.0.79: the card a chain left for the next space (expeditions.chain = an event id), or null. */
+function road_chain_event(array $exp): ?array
+{
+    $id = trim((string)($exp['chain'] ?? ''));
+    return $id !== '' ? (road_events()['ev'][$id] ?? null) : null;
+}
+
+/** v2.0.79: how many pages of the Road Journal there are in a region (code), and the entries: [id => name]. */
+function road_journal_pages(string $code): array
+{
+    $out = [];
+    foreach (road_events()['ev'] as $e) if (($e['kind'] ?? '') === 'sketch' && $e['name'] !== '' && in_array(strtoupper($code), $e['region'], true)) $out[$e['id']] = $e['name'];
+    return $out;
+}
+
+/** v2.0.79: stamp a page of the Road Journal. Returns a line to log ('' when you already had it). The whole set pays once. */
+function road_journal_add(int $uid, string $entryId, string $regionCode): string
+{
+    $pages = road_journal_pages($regionCode);
+    if (!isset($pages[$entryId])) return '';
+    try { db_insert('road_journal', ['user_id' => $uid, 'region' => strtoupper($regionCode), 'entry' => $entryId, 'at' => now()]); }
+    catch (PDOException $e) { return ''; }
+    $have = (int)q_val("SELECT COUNT(*) FROM road_journal WHERE user_id = ? AND region = ? AND entry <> '_done'", [$uid, strtoupper($regionCode)]);
+    $line = '📓 Journal: ' . $pages[$entryId] . ' (' . $have . ' of ' . count($pages) . ')';
+    if ($have >= count($pages)) {
+        try {
+            db_insert('road_journal', ['user_id' => $uid, 'region' => strtoupper($regionCode), 'entry' => '_done', 'at' => now()]);
+            require_once __DIR__ . '/rewards.php';
+            give_petals($uid, 80 + 10 * (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]), 'road_journal');
+            $b = (int)q_val("SELECT id FROM items WHERE slug = 'beeswax'");
+            if ($b) give_item($uid, $b, 2);
+            $line .= ' 🎉 A full page! You are paid for it.';
+        } catch (PDOException $e) { /* paid already */ }
+    }
+    return $line;
+}
+
+/** v2.0.79: the Road Journal as HTML (for the passport): each region with pages found, names of the pages you have. */
+function road_journal_html(int $uid): string
+{
+    $got = [];
+    foreach (q("SELECT region, entry FROM road_journal WHERE user_id = ? AND entry <> '_done'", [$uid])->fetchAll() as $r) $got[$r['region']][$r['entry']] = true;
+    $h = '';
+    foreach (q('SELECT code, gnomish_name FROM regions ORDER BY id')->fetchAll() as $rg) {
+        $pages = road_journal_pages((string)$rg['code']);
+        if (!$pages) continue;
+        $n = count(array_intersect_key($pages, $got[$rg['code']] ?? []));
+        $jimg = 'assets/img/journal/' . strtolower((string)$rg['code']) . '.png';   // PLACEHOLDER art until drawn (claude/todo-art-variety.md)
+        $h .= '<li>' . (pixel_has($jimg) ? '<img class="ico pix rjimg" src="' . e(url($jimg)) . '" alt="" width="48" height="48"> ' : '') . '<b>' . e((string)$rg['gnomish_name']) . '</b> <small class="muted">' . $n . ' of ' . count($pages) . '</small>';
+        $names = [];
+        foreach ($pages as $id => $nm) $names[] = isset($got[$rg['code']][$id]) ? '<span class="rj-got">' . e($nm) . '</span>' : '<span class="rj-miss">?</span>';
+        $h .= '<br><small>' . implode(' · ', $names) . '</small></li>';
+    }
+    return $h === '' ? '' : '<section class="box roadjournal"><h3>📓 Road Journal</h3><p class="help">Sketch the sights you meet on the roads. A full page pays.</p><ul class="rj-list">' . $h . '</ul></section>';
 }
 
 /** A strange sight (wilds). */

@@ -255,8 +255,8 @@ function exp_log(array &$exp, string $line): void
 
 function save_exp(array $exp): void
 {
-    q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ?, trail = ? WHERE id = ?',
-        [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['trail'] ?? null, $exp['id']]);
+    q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ?, trail = ?, chain = ? WHERE id = ?',
+        [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['trail'] ?? null, ($exp['chain'] ?? '') !== '' ? $exp['chain'] : null, $exp['id']]);
     if (($exp['status'] ?? 'active') !== 'active' && in_array($exp['kind'] ?? 'walk', ['delve', 'lair'], true)) dm_scene_drop((int)$exp['id']);   // v2.0.6: the map goes when the delve ends
 }
 
@@ -386,6 +386,14 @@ function give_find(array $u, array $scene): string
     return $hint . '🪙 You find ' . $coins . ' ' . setting('currency_name') . ' glinting in the dirt.';
 }
 
+/** v2.0.79: the order a riddle's answers are shown in (a list of option numbers, shuffled once when the card is drawn). */
+function road_shuffled_order(int $n): array
+{
+    $o = range(0, max(0, $n - 1));
+    shuffle($o);
+    return $o;
+}
+
 /** Move to the next step and set up what happens there. */
 function next_step(array $u, array &$exp): void
 {
@@ -393,6 +401,14 @@ function next_step(array $u, array &$exp): void
     $exp['step'] = (int)$exp['step'] + 1;
     // v1.9.3: one ambient line a space, before whatever happens (the page shows the same line above the button; same seed)
     if ($line = road_line($scene, ['seed' => road_line_seed($exp, (int)$exp['step'])])) exp_log($exp, '🍃 ' . $line);
+    // v2.0.79: a chain leaves its next card for this space (before anything else); the card order of a riddle is shuffled once and kept
+    if (($ch = road_chain_event($exp)) && ($exp['kind'] ?? 'walk') === 'walk') {
+        $exp['chain'] = null;
+        $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ch['id']] + ($ch['kind'] === 'riddle' ? ['ord' => road_shuffled_order(count($ch['opts']))] : []));
+        exp_log($exp, $ch['icon'] . ' ' . $ch['text']);
+        return;
+    }
+    $exp['chain'] = null;
     $roll = random_int(1, 100);
     $cap = exp_easy_cap($u, $exp);   // v0.9.7
     $rb = road_roll_bands();   // v2.0.16: the split is a setting (defaults 40 / 22 / 14 / 24)
@@ -405,7 +421,7 @@ function next_step(array $u, array &$exp): void
         $exp['encounter'] = json_encode(['type' => 'problem', 'id' => (int)$p['id']]);
         exp_log($exp, '❓ ' . $p['text']);
     } elseif ($rr > $rb['problem'] * 100 && $rr <= $rb['choice'] * 100 && ($ev = road_event_pick($scene, 'road'))) {   // ... and a little choice card takes 14 (finds 30 -> 24): no new reward layer
-        $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ev['id']]);
+        $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ev['id']] + ($ev['kind'] === 'riddle' ? ['ord' => road_shuffled_order(count($ev['opts']))] : []));
         exp_log($exp, $ev['icon'] . ' ' . $ev['text']);
     } elseif ($rr > $rb['choice'] * 100 && ($exp['kind'] ?? 'walk') === 'walk' && ($mt = road_meet_pick($scene, road_state()['ts'])) && random_int(1, 100) <= ROAD_MEET_PCT) {
         road_meet_start($u, $exp, $mt);   // v1.9.4: somebody on the road (a chat card; the only pay is the usual once-a-day chat)

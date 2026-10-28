@@ -18,6 +18,15 @@
 #
 # The first 14 scenes keep their order: walks that were saved before v1.9.4 point at them by number. Add new ones at the end.
 #
+#
+# v2.0.79: two optional columns on an E row: E|id|cond|lands|region|where|icon|text|KIND|NAME
+#   KIND: choice (default) | fork (two or three ways on: a short way, a long way) | riddle (one answer is right, the rest have stat "!") |
+#         trade (offer goods for goods) | chain (a card that leads on to the next) | sketch (a page of your Road Journal)
+#   NAME: sketch only: the name of the journal page.
+#   stat "!" on an O row = no roll, always the "lose" side (a wrong riddle answer). stat blank = no roll, always "win".
+#   new effects: take:slug:N (hand over goods; the option is off if you have fewer)  next:ID (the next space is that card; give a chain's second and later
+#   cards an id that starts with chain- so they are never drawn alone)  skip:N (a short way: N spaces pass without a card, walks only)
+#   journal:ID (stamp a Road Journal page; ID is the sketch card's own id).   Lint a draft: python3 tools/lint_road_events.py DRAFT.txt ITEM_SLUGS.txt
 # ---------------------------------------------------------------- the original 14
 E|bee-log|-|any|any|both|🐝|A hollow log hums with wild bees. Honey glistens inside.
 O|Reach in for honey|nimble|12|item:garden-honey:1|Sticky fingers, sweet reward!|hp:-4|Ouch! Stung, twice.
