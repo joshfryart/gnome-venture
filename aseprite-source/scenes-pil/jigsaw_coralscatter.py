@@ -239,10 +239,18 @@ vol = poly([(0, 58), (16, 46), (34, 28), (42, 22), (58, 22), (66, 28), (86, 50),
 o = cv.obj()
 o.part(vol, VOLC, d=3)
 o.draw()
-for k in range(26):   # rock strata ledges
+for k in range(90):   # rock strata ledges
     x0, y0 = r(4, 96), r(28, 70)
     if vol[y0, x0] and vol[y0, min(W - 1, x0 + 6)]:
         cv.fill(line([(x0, y0), (x0 + r(3, 7), y0 + 1)]), VOLC['s'] if k % 3 else VOLC['r'])
+for k in range(14):   # boulders and tufts on the slope
+    x0, y0 = r(6, 100), r(34, 66)
+    if vol[y0, x0] and vol[max(0, y0 - 4), x0] and vol[y0, min(W - 1, x0 + 6)]:
+        if k % 2:
+            cv.fill(ell(x0, y0, x0 + 4, y0 + 3), VOLC['r'])
+            cv.fill(rect(x0 + 1, y0 + 3, x0 + 4, y0 + 3), VOLC['s'])
+        else:
+            cv.dots([(x0, y0), (x0 + 1, y0 - 1), (x0 + 2, y0), (x0 + 1, y0)], JUNG['b'])
 crater = ell(42, 18, 58, 26) & ~rect(0, 23, W, H)
 cv.fill(ell(43, 19, 57, 25), LAVA['b'])
 cv.fill(ell(46, 20, 54, 24), LAVA['r'])
@@ -409,19 +417,9 @@ cv.fill(rect(146, 76, 148, 86), '#c9a46a')
 for yy in range(77, 86, 2):
     cv.dots([(146, yy), (148, yy + 1)], '#8a6440')
 # gnome sitting on the platform edge, fishing; line runs down into the lagoon
-fgx, fgy = 206, 72
-o = cv.obj()
-o.part(rrect(fgx - 4, fgy - 9, fgx + 4, fgy, 2), TEAL, d=2, contour=True)
-o.part(poly([(fgx - 4, fgy - 12), (fgx + 4, fgy - 12), (fgx, fgy - 3)]), BEARD, d=1, contour=True)
-o.part(rect(fgx - 3, fgy - 16, fgx + 3, fgy - 11), SKIN, d=1)
-o.part(poly([(fgx - 5, fgy - 14), (fgx + 5, fgy - 14), (fgx + 6, fgy - 26)]), CORAL, d=2, contour=True)
-o.part(rect(fgx + 1, fgy + 1, fgx + 3, fgy + 7), TEAL, d=1)   # dangling legs
-o.draw()
-cv.fill(rect(fgx - 5, fgy - 15, fgx + 5, fgy - 14), CORAL['s'])
-cv.dots([(fgx - 1, fgy - 13), (fgx + 2, fgy - 13)], DARK)
-cv.dots([(fgx + 1, fgy - 12)], '#e0907a')
-cv.fill(rect(fgx + 1, fgy + 8, fgx + 4, fgy + 9), '#5c3420')
-cv.fill(line([(fgx + 3, fgy - 6), (fgx + 16, fgy - 18)], 1), '#6a4428')   # rod
+fgx, fgy = 206, 71
+sgnome(fgx, fgy, TEAL, CORAL, flip=True)
+cv.fill(line([(fgx + 3, fgy - 5), (fgx + 16, fgy - 18)], 1), '#6a4428')   # rod
 cv.fill(line([(fgx + 16, fgy - 18), (fgx + 18, WL - 1)]) & ~below(np.full(W, WL)), '#e8e4d8')
 cv.fill(rect(fgx + 18, WL + 2, fgx + 18, 132), '#d8f0ea')
 cv.fill(rect(fgx + 17, WL - 1, fgx + 19, WL), CORAL['b'])   # float
@@ -519,6 +517,18 @@ for k in range(30):
     x0, y0 = r(240, 298), r(100, 196)
     if slope[y0, x0]:
         cv.dots([(x0, y0), (x0 + 1, y0)], ('#9a8458', '#e8d4a0', '#fbe4b0')[k % 3])
+for k in range(16):
+    x0, y0 = r(244, 298), r(98, 196)
+    if slope[y0, x0] and slope[y0, min(W - 1, x0 + 5)]:
+        if k % 3 == 0:
+            o = cv.obj()
+            o.part(ell(x0, y0, x0 + 6, y0 + 4), STONE, d=1)
+            o.draw()
+        elif k % 3 == 1:
+            cv.fill(line([(x0, y0), (x0 + 1, y0 - 6), (x0 - 1, y0 - 10)]), '#3f9a5e')
+            cv.fill(line([(x0 + 2, y0), (x0 + 3, y0 - 5)]), '#5cb07a')
+        else:
+            cv.fill(ell(x0 - 2, y0 - 2, x0 + 2, y0 + 1), (CORAL['b'], PURP['b'])[x0 % 2])
 # octopus peeking from the rock foot
 ox, oy = 286, 154
 o = cv.obj()
@@ -686,6 +696,10 @@ for k in range(11):
     fish(fx, fy, YEL, 2, 1, False)
 for fx, fy, rp, s, face, st in ((60, 166, TEAL, 5, 1, '#ffffff'), (250, 162, PURP, 5, -1, YEL['b']), (104, 152, CORAL, 4, -1, None), (240, 140, AQUA, 4, -1, '#1f6080'), (180, 146, YEL, 4, 1, '#2a2440'), (214, 132, LAVA, 3, -1, None), (40, 98 + 72, CORAL, 3, 1, None), (150, 120, TEAL, 3, -1, None)):
     fish(fx, fy, rp, s, face, True, st)
+for k in range(8):
+    fish(236 + (k % 3) * 8 + (k // 3) * 3, 128 + (k // 3) * 6, AQUA, 2, -1, False)
+for k in range(5):
+    fish(138 + k * 8, 162 + (k % 2) * 4, CORAL, 2, -1, False)
 fish(fgx + 22, 132, ramp('#c8c4d2', '#8a86a0', '#ece8f2'), 3, -1, True)   # a fish eyeing the hook
 # a moorish idol with its long streamer
 mix, miy = 108, 112
@@ -700,10 +714,10 @@ cv.dots([(mix + 3, miy - 1)], DARK)
 mx_, my_ = 98, 160
 manta = poly([(mx_ - 16, my_ + 2), (mx_ - 4, my_ - 4), (mx_ + 6, my_ - 4), (mx_ + 16, my_ + 3), (mx_ + 4, my_ + 4), (mx_ - 4, my_ + 4)])
 o = cv.obj()
-o.part(manta, UROCK, d=2)
-o.part(line([(mx_ + 1, my_ + 4), (mx_ + 3, my_ + 14)]), UROCK, d=0)
+o.part(manta, TEAL, d=2)
+o.part(line([(mx_ + 1, my_ + 4), (mx_ + 3, my_ + 14)]), TEAL, d=0)
 o.draw()
-cv.fill(rect(mx_ - 4, my_ - 2, mx_ + 4, my_ - 2), UROCK['r'])
+cv.fill(rect(mx_ - 4, my_ - 2, mx_ + 4, my_ - 2), TEAL['r'])
 cv.dots([(mx_ - 5, my_ - 4), (mx_ + 6, my_ - 4)], DARK)
 
 

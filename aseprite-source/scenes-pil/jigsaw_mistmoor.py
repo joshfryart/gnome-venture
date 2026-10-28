@@ -24,7 +24,7 @@ PEAT = ramp('#5a3e2c', '#3d2a1e', '#7a5a40')
 MUD = ramp('#7a5e44', '#5e4632', '#94765a')
 STONE = ramp('#9c9d97', '#74766f', '#bfc0b8')
 STONED = '#5c5e58'
-WATER = ramp('#6a4c34', '#4e3626', '#9a8a7a')     # peaty burn
+WATER = ramp('#6a5444', '#4e3a2e', '#a3acb7')     # peaty burn
 PUD = ramp('#8994a2', '#6c7888', '#bfc7ce')
 TURF = ramp('#6f8040', '#56632f', '#8fa058')
 WOOD = ramp('#8a6040', '#5e4030', '#a87a50')
@@ -155,21 +155,21 @@ cv.fill(sea, '#5f6e7e')
 for k in range(26):
     sx, sy = r(2, 104), r(56, 68)
     cv.fill(rect(sx, sy, sx + r(2, 6), sy), '#8796a4' if k % 3 else '#4f5d6c')
-head = poly([(0, 46), (10, 44), (22, 46), (34, 52), (44, 58), (40, 62), (0, 64)])
+head = poly([(0, 50), (8, 47), (18, 49), (26, 55), (30, 60), (24, 63), (0, 66)])
 cv.fill(head, '#565b6a')
 cv.fill(head & ~shift(head, 1, 1), '#6c7284')
 o = cv.obj()
-o.part(rect(16, 32, 20, 45), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
-o.part(rect(15, 29, 21, 31), ramp('#f5dc8a', '#d9b85a'), d=0)
-o.part(poly([(14, 29), (22, 29), (18, 25)]), ramp('#5e4030', '#3d2a1e'), d=0)
+o.part(rect(8, 36, 12, 48), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.part(rect(7, 33, 13, 35), ramp('#f5dc8a', '#d9b85a'), d=0)
+o.part(poly([(6, 33), (14, 33), (10, 29)]), ramp('#5e4030', '#3d2a1e'), d=0)
 o.draw()
-cv.fill(rect(16, 36, 20, 37) | rect(16, 41, 20, 42), WINE['b'])
-cv.dots([(17, 34), (17, 39)], '#bdb8ac')
-for sx, sy, w in ((52, 63, 12), (66, 65, 8)):   # skerry rocks
+cv.fill(rect(8, 39, 12, 40) | rect(8, 44, 12, 45), WINE['b'])
+cv.dots([(9, 37), (9, 42)], '#bdb8ac')
+for sx, sy, w in ((30, 70, 12), (44, 72, 8)):   # skerry rocks
     m = ell(sx, sy - 3, sx + w, sy + 3) & ~rect(0, sy + 2, W, H)
     cv.fill(m, '#4f5560')
     cv.fill(m & ~shift(m, 1, 1), '#6c7284')
-for sx, sy in ((54, 60), (60, 61), (68, 62)):   # seals hauled out, heads up
+for sx, sy in ((32, 67), (38, 68), (46, 69)):   # seals hauled out, heads up
     cv.fill(ell(sx, sy, sx + 5, sy + 2), '#7b8695')
     cv.dots([(sx + 5, sy - 1), (sx + 6, sy - 1), (sx + 5, sy)], '#7b8695')
     cv.dots([(sx + 6, sy - 1)], UMBER)
@@ -216,7 +216,7 @@ for _ in range(50):
 mist(78, 84, 8, (100, 300))
 
 # ---------------------------------------------------------------- knoll with the Standing Stones (left)
-knoll = poly([(0, 72), (16, 64), (44, 60), (74, 62), (98, 70), (116, 82), (124, 100), (0, 104)])
+knoll = poly([(0, 88), (20, 80), (48, 68), (76, 66), (100, 72), (116, 82), (124, 100), (0, 104)])
 cv.fill(knoll, MOSSF['b'])
 cv.fill(knoll & ~shift(knoll, 2, 2), MOSSF['r'])
 for _ in range(14):
@@ -227,7 +227,7 @@ for _ in range(40):
     x, y = r(2, 120), r(64, 102)
     if knoll[y, x]:
         cv.dots([(x, y), (x, y - 1)], MOSS['b'] if r(0, 1) else RUST['s'])
-STONES = ((22, 72, 6, 11), (42, 68, 6, 13), (64, 68, 6, 12), (86, 74, 5, 10), (12, 84, 8, 16), (34, 88, 9, 19), (60, 88, 8, 17), (82, 86, 8, 14))
+STONES = ((32, 80, 5, 10), (50, 73, 6, 12), (70, 71, 6, 12), (90, 76, 5, 10), (18, 93, 8, 14), (38, 94, 9, 19), (62, 92, 8, 17), (84, 90, 8, 14))
 for sx, sb, w, h in STONES:
     shadow(sx - 2, sb - 1, sx + w + 4, sb + 2, MOSSF['s'])
     o = cv.obj()
@@ -236,9 +236,9 @@ for sx, sb, w, h in STONES:
     cv.dots([(sx + 2, sb - h + 2), (sx + 3, sb - h + 2), (sx + 2, sb - h + 3)], MOSS['b'])   # moss cap
     cv.dots([(sx + 1 + r(0, w - 3), sb - r(3, h - 4)) for _ in range(2)], '#c8c27a')       # map lichen
     cv.fill(line([(sx + w // 2, sb - h + 4), (sx + w // 2 + 1, sb - h // 2)]), STONED)     # crack
-cv.dots([(37, 69), (38, 69)], '#d9b85a')   # a lucky coin on the tallest stone
-cv.dots([(63, 71)], '#d9b85a')
-mist(96, 101, 7, (-20, 130))
+cv.dots([(41, 75), (42, 75)], '#d9b85a')   # a lucky coin on the tallest stone
+cv.dots([(65, 75)], '#d9b85a')
+mist(64, 68, 5, (40, 140))
 
 # ---------------------------------------------------------------- the moor (mid and fore ground)
 moor = poly([(0, 102), (60, 100), (124, 98), (160, 94), (220, 96), (300, 94), (300, 199), (0, 199)])
@@ -254,17 +254,17 @@ for y in range(100, H, 2):   # grass flecks, denser lower down
 burn_pts = [(168, 94), (158, 102), (146, 112), (136, 122), (130, 132), (124, 144), (112, 158), (102, 172), (96, 186), (100, 199)]
 burn = blank()
 for i in range(len(burn_pts) - 1):
-    w = 2 + i * 3
+    w = 4 + i * 3
     burn |= line([burn_pts[i], burn_pts[i + 1]], w)
     burn |= ell(burn_pts[i + 1][0] - w // 2, burn_pts[i + 1][1] - w // 2, burn_pts[i + 1][0] + w // 2, burn_pts[i + 1][1] + w // 2)
 cv.fill(dil4(dil4(burn)) & ~burn, PEAT['b'])      # dark peaty banks
 cv.fill(dil4(burn) & ~burn, PEAT['s'])
 cv.fill(burn, WATER['b'])
 cv.fill(burn & ~shift(burn, 0, 3), WATER['s'])
-for _ in range(70):   # ripples and sky glints
+for _ in range(160):   # ripples and sky glints
     x, y = r(90, 170), r(96, 199)
     if burn[y, x] and burn[y, min(W - 1, x + 4)]:
-        cv.fill(rect(x, y, x + r(2, 5), y), WATER['r'] if r(0, 2) else '#8a6a4a')
+        cv.fill(rect(x, y, x + r(2, 5), y), WATER['r'] if r(0, 2) else PUD['b'])
 for sx, sy in ((104, 178), (118, 156), (92, 192), (140, 118)):   # stones in the burn, with foam
     o = cv.obj()
     o.part(ell(sx, sy, sx + 6, sy + 4), STONE, d=1)
@@ -319,10 +319,10 @@ cv.fill(rect(cx0 + 5, 76, cx0 + 16, 78), STONED)   # chimney cap
 cv.fill(rect(cx0 + 8, 74, cx0 + 10, 76) | rect(cx0 + 12, 75, cx0 + 13, 76), '#a85a2c')   # two clay pots
 for k in range(8):   # peat smoke, drifting left on the wind
     sx, sy = cx0 + 8 - k * 6, 70 - k * 5
-    pm = ell(sx - 3 - k // 2, sy - 2 - k // 3, sx + 3 + k // 2, sy + 2 + k // 3)
-    cv.fill(pm, '#a7afba' if k < 5 else '#b6bec7')
-    cv.fill(pm & ~shift(pm, 1, 1), '#c3c9d0')
-    cv.fill(pm & ~shift(pm, -1, -1), '#8d97a4')
+    pm = ell(sx - 4 - k // 2, sy - 3 - k // 3, sx + 4 + k // 2, sy + 3 + k // 3)
+    cv.fill(pm, '#8a8c94' if k < 5 else '#9a9ca4')
+    cv.fill(pm & ~shift(pm, 1, 1), '#a7a9b0')
+    cv.fill(pm & ~shift(pm, -1, -1), '#6e7078')
 roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
 roof &= ~rect(0, 116, W, H)
 o = cv.obj()
@@ -381,13 +381,14 @@ cv.fill(rect(293, 108, 299, 109), TURF['s'])
 o = cv.obj()
 o.part(rect(186, 104, 188, 142), WOOD, d=1)
 o.part(rect(174, 104, 188, 105), WOOD, d=0)
-o.part(rect(174, 108, 186, 120), ramp('#e6e2d6', '#bdb8ac', '#f6f4ee'), d=1)
+o.part(rect(174, 108, 186, 120), PEAT, d=1)
 o.draw()
 cv.dots([(176, 106), (176, 107), (184, 106), (184, 107)], UMBER)
-cv.fill(ell(177, 112, 183, 118), '#3d2a1e')
-cv.fill(rect(184, 113, 185, 113), '#3d2a1e')
-cv.fill(rect(179, 111, 181, 111), '#3d2a1e')
-cv.dots([(185, 112), (178, 110), (176, 109)], '#bdb8ac')
+cv.fill(ell(177, 113, 183, 118), '#e6e2d6')
+cv.fill(line([(183, 115), (185, 112)]), '#e6e2d6')
+cv.fill(ell(178, 110, 182, 114) & ~ell(179, 111, 181, 113) & rect(0, 0, W, 112), '#e6e2d6')
+cv.dots([(186 - 1, 111), (184, 110)], '#bdb8ac')
+cv.dots([(178, 115)], '#f6f4ee')
 
 # ---------------------------------------------------------------- the muddy track from the door to the front edge, with puddles
 track = poly([(230, 142), (248, 142), (256, 156), (266, 170), (282, 186), (292, 199), (216, 199), (222, 182), (228, 166), (230, 154)])
@@ -456,8 +457,8 @@ cv.fill(floor & ~burn & ~dil4(dil4(burn)), PEAT['r'])
 cv.fill(face, PEAT['b'])
 for yy in range(149, 164, 3):   # layers in the cut face
     cv.fill(face & rect(0, yy, W, yy), PEAT['s'] if yy % 2 else '#4a3424')
-for xx in range(4, 88, 9):   # spade marks
-    cv.fill(face & rect(xx, 0, xx, H) & rect(0, 150 + xx // 40, W, 162), '#33231a')
+for xx in range(6, 88, 17):   # spade marks
+    cv.fill(face & rect(xx, 0, xx, H) & rect(0, 152, W, 157), '#33231a')
 cv.fill(face & ~shift(face, 0, 1), '#33231a')
 cv.fill(bank_top, MOSS['b'])
 for k in range(9):   # heather overhanging the cut edge
@@ -507,7 +508,7 @@ for cx, cy, rx, ry in ((44, 98, 10, 3), (14, 102, 6, 3), (30, 104, 8, 3)):
         cv.dots([(int(xs[i]), int(ys[i]))], WINE['b'] if r(0, 1) else TURF['r'])   # haws
 
 # ---------------------------------------------------------------- sheep on the moor
-SHEEP = ((70, 96, 1), (160, 104, 1), (178, 116, -1), (100, 124, 1))
+SHEEP = ((96, 100, 1), (162, 102, 1), (64, 114, -1), (276, 160, -1))
 for shx, shy, fc in SHEEP:
     shadow(shx - 2, shy + 9, shx + 15, shy + 12)
     o = cv.obj()
@@ -521,7 +522,7 @@ for shx, shy, fc in SHEEP:
         cv.dots([(shx + 4 + r2(0, 8), shy + 1 + r2(0, 4))], WOOL['s'])
 
 # ---------------------------------------------------------------- moor plants: heather drifts, bracken, cottongrass, sphagnum
-for hx_, hy_, rx, ry, n in ((150, 118, 8, 2, 4), (196, 146, 10, 2, 5), (78, 116, 8, 2, 4), (40, 124, 10, 3, 5), (62, 134, 9, 2, 4),
+for hx_, hy_, rx, ry, n in ((196, 146, 10, 2, 5), (78, 116, 8, 2, 4), (40, 124, 10, 3, 5), (62, 134, 9, 2, 4),
                             (178, 128, 6, 2, 3), (288, 160, 10, 3, 5), (140, 150, 8, 2, 4), (206, 168, 10, 3, 5), (160, 176, 10, 3, 5),
                             (296, 178, 6, 3, 4), (186, 190, 10, 3, 6), (136, 194, 12, 3, 6), (210, 196, 8, 2, 4), (118, 106, 6, 2, 3)):
     heather(hx_, hy_, rx, ry, n=n, s0=3, s1=6, flowers=10)

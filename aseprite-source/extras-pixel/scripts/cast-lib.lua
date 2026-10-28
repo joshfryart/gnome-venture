@@ -232,5 +232,37 @@ return function(GV)
     return cup
   end
 
+  -- the Jigsaw picture (meadow, sun, cloud, red-cap cottage, round tree) filling x0..x1, y0..y1.
+  -- Flat scene paint (no outline) so jigsaw cut lines can go over it. Returns the picture mask.
+  function M.picture(c, x0, y0, x1, y1, dark)
+    local w, h = x1 - x0, y1 - y0
+    local X = function(f) return x0 + w * f end
+    local Y = function(f) return y0 + h * f end
+    local pic = c:rect(x0, y0, x1, y1)
+    c:bands(c:rect(x0, y0, x1, rnd(Y(0.62))), dark and { "#2a356c", "#334579", "#3d5386" } or { "#7fc0de", "#92cce4", "#a8d8ea" }, { dir = "v" })
+    if dark then
+      c:part(c:ellipse(X(0.82), Y(0.2), h * 0.11, h * 0.11), GV.ramp("#f1ece0", { pale = true }), { outline = false, gloss = false, cres = 1, deep = 0 })
+      for _, f in ipairs({ { 0.1, 0.12 }, { 0.3, 0.3 }, { 0.55, 0.1 }, { 0.68, 0.32 } }) do c:px(rnd(X(f[1])), rnd(Y(f[2])), "#f5cf6a") end
+    else
+      c:part(c:ellipse(X(0.82), Y(0.2), h * 0.12, h * 0.12), GV.ramp("#f5cf6a"), { outline = false, gloss = false, cres = 1, deep = 0 })
+      local cl = c:ellipse(X(0.18), Y(0.24), w * 0.05, h * 0.07):add(c:ellipse(X(0.25), Y(0.18), w * 0.055, h * 0.1)):add(c:ellipse(X(0.31), Y(0.25), w * 0.045, h * 0.065))
+      c:part(cl:clip(pic), GV.ramp("#f1ece0", { pale = true }), { outline = false, gloss = false, cres = 1, deep = 0 })
+    end
+    c:part(c:ellipse(X(0.25), Y(1.02), w * 0.5, h * 0.5):clip(pic), GV.ramp(dim("#94c46e", dark)), { gloss = false, outline = false, cres = 2, deep = 1 })
+    c:part(c:ellipse(X(0.85), Y(1.08), w * 0.42, h * 0.45):clip(pic), GV.ramp(dim("#7ab55c", dark)), { gloss = false, outline = false, cres = 2, deep = 1 })
+    -- path winding down from the cottage
+    c:fill(c:line({ { X(0.36), Y(0.74) }, { X(0.42), Y(0.86) }, { X(0.36), Y(1.0) } }, max(1, rnd(w * 0.03))):clip(pic), dim("#e8d6b2", dark))
+    -- round tree on the right hill
+    c:part(c:rect(rnd(X(0.7)), rnd(Y(0.5)), rnd(X(0.7)) + 1, rnd(Y(0.7))), GV.ramp(dim("#8a4f2a", dark)), { flat = true, outline = false })
+    c:part(c:ellipse(X(0.705), Y(0.44), w * 0.07, h * 0.15), GV.ramp(dim("#4a8a3e", dark)), { outline = false, gloss = false, cres = 2, deep = 1 })
+    -- red-cap cottage
+    local hx, hy, hw = X(0.36), Y(0.6), max(4, rnd(w * 0.1))
+    c:part(c:rect(rnd(hx - hw / 2), rnd(hy), rnd(hx + hw / 2), rnd(hy + h * 0.16)), GV.ramp(dim("#f1ece0", dark), { pale = true }), { outline = false, gloss = false, cres = 1, deep = 0 })
+    c:part(c:ellipse(hx, hy, hw * 0.75, h * 0.11):clip(c:rect(0, 0, 9999, rnd(hy))), GV.ramp(dim("#dd3a2a", dark)), { outline = false, gloss = false, cres = 1, deep = 0 })
+    c:px(rnd(hx - hw * 0.3), rnd(hy - h * 0.05), dim("#f1ece0", dark))
+    c:fill(c:rect(rnd(hx), rnd(hy + h * 0.06), rnd(hx), rnd(hy + h * 0.16)), dark and "#f5cf6a" or "#8a4f2a")
+    return pic
+  end
+
   return M
 end

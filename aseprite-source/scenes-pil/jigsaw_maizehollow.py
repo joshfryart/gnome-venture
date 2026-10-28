@@ -115,16 +115,20 @@ for cx, cy, w in ((76, 10, 40), (150, 30, 50), (196, 8, 34), (40, 50, 36), (120,
     cv.fill(m & rect(0, cy + 3, W, cy + 3), '#e8a888')   # warm underside
 for bx, by in ((60, 34), (66, 30), (72, 34), (250, 6), (256, 9), (110, 70)):
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#5a3a4a')
-# scarlet macaw flying left
-mx, my = 158, 14
+# scarlet macaw flying left, long tail streaming behind
+mx, my = 122, 42
 o = cv.obj()
-o.part(ell(mx, my, mx + 10, my + 5), CHILI, d=1)
-o.part(poly([(mx + 3, my + 1), (mx + 9, my - 9), (mx + 12, my - 7), (mx + 8, my + 2)]), ramp('#3f6fc0', '#2a4a8a', '#7aa0e0'), d=1)
-o.part(poly([(mx + 9, my + 3), (mx + 22, my + 8), (mx + 21, my + 10), (mx + 9, my + 5)]), CHILI, d=1)
+o.part(poly([(mx + 10, my + 3), (mx + 26, my + 10), (mx + 25, my + 12), (mx + 9, my + 6)]), CHILI, d=1)   # tail
+o.part(ell(mx, my, mx + 13, my + 6), CHILI, d=1)
+o.part(ell(mx - 4, my - 1, mx + 3, my + 5), CHILI, d=1)   # head
+o.part(poly([(mx + 3, my + 2), (mx + 6, my - 10), (mx + 14, my - 13), (mx + 11, my + 2)]), CHILI, d=1)   # raised wing
 o.draw()
-cv.fill(line([(mx + 5, my - 2), (mx + 9, my - 7)]), MAIZE['b'])
-cv.dots([(mx + 1, my + 1)], '#ffffff')
-cv.dots([(mx - 1, my + 2), (mx - 1, my + 3)], DARK)
+cv.fill(poly([(mx + 6, my - 9), (mx + 14, my - 13), (mx + 13, my - 8), (mx + 8, my - 6)]), TURQ['s'])   # blue wingtips
+cv.fill(line([(mx + 5, my - 3), (mx + 11, my - 4)]), MAIZE['b'])   # gold band
+cv.fill(rect(mx + 20, my + 9, mx + 25, my + 10), TURQ['b'])
+cv.dots([(mx - 2, my + 1), (mx - 1, my + 1)], '#ffffff')
+cv.dots([(mx - 2, my + 1)], DARK)
+cv.dots([(mx - 5, my + 2), (mx - 6, my + 3), (mx - 5, my + 4)], '#fff4dc')   # pale beak
 # butterfly kite (string drawn later, from the gnome in the corn)
 kx, ky = 96, 26
 o = cv.obj()
@@ -153,11 +157,11 @@ for gx0 in (150, 168, 184, 200, 222):   # gullies
     cv.fill(line([(gx0 + 10, 50), (gx0 + 4, 90)]) & vol, '#86688a')
 cv.fill(rect(177, 37, 195, 38), '#f08a24')   # glowing crater lip
 cv.fill(rect(181, 36, 191, 36), '#f5b04a')
-for k in range(9):   # plume drifting up and left
-    sx, sy = 184 - k * 5, 30 - k * 4
-    pm = ell(sx - 4 - k // 2, sy - 3 - k // 3, sx + 4 + k // 2, sy + 3 + k // 3)
+for k, (sx, sy, rr) in enumerate(((187, 31, 4), (183, 25, 5), (189, 20, 6), (181, 14, 7), (191, 9, 6), (178, 5, 7), (195, 3, 5))):   # puffy plume from the crater
+    pm = ell(sx - rr, sy - rr + 1, sx + rr, sy + rr - 1)
     cv.fill(pm, '#efe2d4' if k % 3 else '#e2d2c8')
     cv.fill(pm & ~shift(pm, -1, -1), '#c4b0b0')
+    cv.fill(pm & ~shift(pm, 1, 1), '#fff3dc')
 x = 0
 while x < W:   # dusty dots on the far range (shrubs)
     x += r2(3, 8)
@@ -467,6 +471,34 @@ for x in (4, 18, 32, 46, 60, 74, 128):   # front row (gap left for the gnome)
     corn(x, 199, 44 if x % 3 else 40, ear=x % 4 != 0)
 cv.fill(line([(kgx + 11, kgy - 31), (100, 120), (97, 70), (96, 39)]), '#4a2c1a')   # kite string
 
+# fountain where the musicians tune up, with a gnome on guitar and two doves
+fx0, fy0 = 156, 124
+o = cv.obj()
+o.part(ell(fx0, fy0 + 6, fx0 + 28, fy0 + 20), LIME, d=2)
+o.part(rect(fx0 + 12, fy0 - 6, fx0 + 16, fy0 + 10), LIME, d=1)
+o.part(ell(fx0 + 8, fy0 - 9, fx0 + 20, fy0 - 4), LIME, d=1)
+o.draw()
+cv.fill(ell(fx0 + 3, fy0 + 8, fx0 + 25, fy0 + 14), WATER['b'])
+cv.fill(ell(fx0 + 3, fy0 + 8, fx0 + 25, fy0 + 14) & ~shift(ell(fx0 + 3, fy0 + 8, fx0 + 25, fy0 + 14), 0, 2), WATER['s'])
+cv.fill(rect(fx0 + 12, fy0 - 6, fx0 + 16, fy0 + 10) & rect(0, fy0 + 8, W, fy0 + 12), LIME['b'])
+for dx in (-1, 1):   # water arcs
+    cv.fill(line([(fx0 + 14, fy0 - 10), (fx0 + 14 + dx * 6, fy0 - 9), (fx0 + 14 + dx * 9, fy0 + 7)]), WATER['r'])
+cv.fill(rect(fx0 + 2, fy0 + 15, fx0 + 26, fy0 + 15), TURQ['b'])   # painted tiles on the basin
+for xx in range(fx0 + 3, fx0 + 26, 4):
+    cv.dots([(xx, fy0 + 17)], TERRA['b'])
+for dvx, dvy in ((fx0 + 4, fy0 + 5), (fx0 + 22, fy0 + 4)):
+    cv.fill(ell(dvx, dvy, dvx + 4, dvy + 3), '#fff4dc')
+    cv.dots([(dvx, dvy), (dvx - 1, dvy + 1)], LIME['s'])
+gnome(198, 148, PINK, MAIZE, arm='out', small=True)
+o = cv.obj()   # little guitar
+o.part(ell(189, 138, 195, 144), WOOD, d=1)
+o.part(line([(194, 139), (200, 134)], 2), WOOD, d=0)
+o.draw()
+cv.dots([(191, 140)], DARK)
+for k in range(3):   # music notes
+    cv.fill(rect(184 - k * 5, 128 - k * 4, 185 - k * 5, 129 - k * 4), DARK)
+    cv.fill(rect(185 - k * 5, 124 - k * 4, 185 - k * 5, 128 - k * 4), DARK)
+
 # ---------------------------------------------------------------- the path down from the plaza, pots by the path
 path = poly([(150, 146), (184, 146), (190, 160), (196, 178), (200, 199), (146, 199), (150, 180), (146, 162)])
 cv.fill(path, '#e8c890')
@@ -530,8 +562,8 @@ cv.dots([(sgx - 2, sgy - 4), (sgx + 2, sgy - 4)], DARK)
 cv.fill(rect(sgx - 5, sgy + 1, sgx + 5, sgy + 1), WATER['s'])
 cv.fill(line([(sgx + 6, sgy - 4), (sgx + 10, sgy - 8)], 2), SKIN['b'])   # waving hand
 # a diving gnome on the rim rock, arms out over the pool
-gnome(212, 160, CHILI, TURQ, arm='side')
-cv.dots([(222, 147), (224, 145), (226, 147)], DARK)   # echo marks
+gnome(234, 160, CHILI, TURQ, arm='side')
+cv.dots([(246, 147), (248, 145), (250, 147)], DARK)   # echo marks
 # pot and flowers on the rim, a hummingbird
 o = cv.obj()
 o.part(ell(280, 152, 292, 162), TERRA, d=2)
@@ -563,7 +595,7 @@ def pear(x, y, pads):
         cv.dots([(x + dx + w // 2, y + dy - 1), (x + dx + w // 2 + 1, y + dy - 1)], CHILI['b'])   # tuna fruit
 
 
-pear(186, 128, ((6, 8, 10, 14), (0, 0, 9, 11), (12, 0, 9, 12), (4, -8, 8, 10)))
+pear(256, 122, ((6, 8, 10, 14), (0, 0, 9, 11), (12, 0, 9, 12), (4, -8, 8, 10)))
 o = cv.obj()   # tall columnar cactus at the far right
 o.part(rect(288, 100, 294, 146) | rect(280, 112, 284, 128) | rect(282, 126, 288, 129) | rect(296, 106, 299, 122), CACT, d=2)
 o.draw()
@@ -604,6 +636,11 @@ for fx in range(2, 300, 9):   # marigolds along the plaza back edge, loosely spa
         continue
     cv.dots([(fx, fy), (fx - 1, fy + 1), (fx + 1, fy + 1)], SQUASH['b'])
     cv.dots([(fx, fy + 1)], MAIZE['s'])
+
+cv.remap({'#f0a0a0': '#f6b8cf', '#2a8a4a': '#2a7050', '#8ae09a': '#8ad09a', '#e8607a': '#e46a9b', '#5a4a48': '#3a2a28', '#f2e4c0': '#fff4dc',
+          '#8a9a4a': '#5a9a3a', '#ecc488': '#f2d8a8', '#c9c5bc': '#b8a888', '#fff0d8': '#fff4dc', '#f5cf6a': '#f8dc7a', '#f08a6a': '#e8905a',
+          '#a8d0c4': '#8adcd0', '#4f7a74': '#24807e', '#a8869e': '#9a7a96', '#d9a07a': '#d9a35a', '#3d2a1c': '#3a2a28', '#6a3a22': '#5c3420',
+          '#e2d2c8': '#efe2d4', '#2a1a18': DARK, '#8ae0d8': '#8adcd0', '#9ad08a': '#8ad09a', '#5a3e34': '#5a3a3a', '#d8905a': '#e8905a'})
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

@@ -193,7 +193,7 @@ for k in range(6):   # thin smoke curl drifting left
 cv.fill(rect(0, HZ - 1, W, HZ - 1) & ~cat & ~volc, '#f8dc8a')
 
 # ================================================================ LAND MASKS
-hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (186, 50), (172, 62), (160, 76), (150, 90), (140, 104), (130, 118), (120, 132), (300, 132)])
+hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (186, 50), (172, 62), (160, 76), (156, 82), (153, 88), (149, 92), (147, 98), (142, 102), (140, 108), (135, 112), (133, 118), (128, 122), (126, 128), (120, 132), (300, 132)])
 piazza = poly([(124, 126), (300, 126), (300, 200), (134, 200), (128, 176)])
 steps = poly([(106, 130), (126, 130), (110, 178), (84, 172)])
 pwall = poly([(124, 128), (134, 128), (136, 200), (106, 200), (110, 176)]) & ~piazza
@@ -338,6 +338,14 @@ for _ in range(500):
     if hill[py, px] and not cliff[py, px]:
         cv.dots([(px, py), (px, py - 1)], DRY['s'] if r(0, 2) else DRY['r'])
 
+# maquis scrub on the open slope below the village: rosemary, yellow broom, rockrose
+for k in range(26):
+    px, py = r2(150, 236), r2(30, 72)
+    if hill[py, px] and hill[py, px - 6] and not cliff[py, px]:
+        bm = clump(px, py, 2, 1, 3, 2, 3, r2)
+        cv.fill(bm, OLIVE['b'] if k % 3 else CYP['b'])
+        cv.fill(bm & ~shift(bm, -1, -1), OLIVE['s'])
+        cv.dots([(px - 1, py - 1), (px + 1, py)], ('#f2d23a', '#f6b8cf', '#c3b2ea')[k % 3])
 # ================================================================ VILLAGE (top right): back row, bell tower, middle row, front row
 for cx, by, h in ((262, 26, 18), (296, 22, 14), (208, 62, 20), (180, 70, 16), (290, 70, 14)):
     cypress(cx, by, h, 3)
@@ -417,7 +425,7 @@ for xx in range(201, 236, 3):
 cv.dots([(206, 99), (212, 100), (218, 99), (224, 100), (228, 99), (215, 99)], '#3a2a3a')
 for k in range(5):
     cv.dots([(214 + k * 3, 90 + k % 2 * 3)], '#3a2a3a')   # olives falling
-gnome(222, 100, ramp('#3f8fb0', '#25637d', '#a9d6ea'), RED, s=0.62, face=-1, arm=-1)
+gnome(222, 100, ramp('#3f8fb0', '#25637d', '#a9d6ea'), RED, s=0.62, face=-1, arm=1)
 cv.fill(line([(214, 87), (226, 81)], 1), '#7a4a1f')   # rake pole reaching into the crown
 cv.fill(rect(212, 85, 214, 89), '#4a2c1a')
 # a basket of olives on the top terrace
@@ -572,7 +580,7 @@ cv.fill(rect(pgx + 12, pgy - 8, pgx + 15, pgy - 7), '#c9c5bc')   # the sardine
 cv.dots([(pgx + 2, pgy + 1), (pgx + 5, pgy + 1)], '#f0b92b')
 
 # ================================================================ DONKEY with lemon panniers on the steps, a gnome leading it
-dkx, dky = 98, 158
+dkx, dky = 90, 168
 shadow(dkx - 2, dky - 1, dkx + 20, dky + 2, '#a8946e')
 o = cv.obj()
 o.part(rect(dkx + 2, dky - 7, dkx + 3, dky) | rect(dkx + 14, dky - 7, dkx + 15, dky), DONK, d=0)
@@ -589,8 +597,7 @@ for lx, ly in ((dkx + 3, dky - 19), (dkx + 6, dky - 18), (dkx + 11, dky - 19), (
     cv.fill(rect(lx, ly, lx + 2, ly + 2), LEMON['b'])
     cv.dots([(lx, ly)], LEMON['r'])
 cv.dots([(dkx + 5, dky - 21), (dkx + 12, dky - 21)], GREEN['b'])
-cv.fill(line([(dkx + 26, dky - 16), (dkx + 32, dky - 22)]), '#7a4a1f')   # lead rope
-gnome(dkx + 34, dky - 16, RED, ramp('#4f9a45', '#2f6a3a', '#7ab55c'), s=0.72, face=-1, arm=-1)
+gnome(dkx - 6, dky + 14, RED, ramp('#4f9a45', '#2f6a3a', '#7ab55c'), s=0.72, face=1, arm=1)   # a gnome shoving the donkey up the steps
 
 # ================================================================ OLIVE PRESS (piazza centre)
 px0 = 176
@@ -605,7 +612,7 @@ specks(mash, ['#8a9a52', '#3a2a3a', '#b8a03a'], 30)
 cv.fill(ell(146, 146, 208, 170) & ~ell(148, 147, 206, 169) & rect(0, 140, W, 158), GREY['r'])
 o = cv.obj()   # central post and the beam out to the right
 o.part(rect(px0 - 2, 128, px0 + 2, 160), WOOD, d=1)
-o.part(line([(px0, 136), (236, 146)], 3), WOOD, d=1)
+o.part(line([(px0, 136), (231, 151)], 3), WOOD, d=1)
 o.draw()
 o = cv.obj()   # the great millstone wheel standing on edge
 o.part(ell(156, 128, 182, 162), GREY, d=3)
@@ -628,8 +635,7 @@ for jx, jy, jh, col in ((196, 190, 16, TERRA), (210, 194, 18, ramp('#d9a855', '#
     cv.fill(rect(jx - 4, jy - jh // 2 - 3, jx + 4, jy - jh // 2 - 3), col['s'])
 cv.fill(rect(200, 174, 203, 175), '#f2c93a')   # oil pooling in the first jar's mouth
 # gnome pushing the beam
-gnome(240, 166, ramp('#e8b878', '#c08a4a', '#f6d49a'), BLUE, s=1.0, face=-1, arm=-1)
-cv.fill(rect(228, 147, 232, 150), SKIN['b'])
+gnome(240, 166, ramp('#e8b878', '#c08a4a', '#f6d49a'), BLUE, s=1.0, face=-1, arm=1)
 # sacks of olives by the press
 for sx_, sy_ in ((128, 162), (136, 166)):
     o = cv.obj()
@@ -675,7 +681,7 @@ for gx0, gy0 in ((258, 130), (270, 128), (284, 131), (294, 146), (264, 128)):   
     cv.dots([(gx0 + 2, gy0 - 1)], GREEN['s'])
 # the two diners (drawn first so the table hides their legs)
 gnome(266, 168, RED, ramp('#e8b878', '#c08a4a', '#f6d49a'), s=0.86, face=1, legs=False)
-gnome(288, 168, ramp('#3f8fb0', '#25637d', '#a9d6ea'), ramp('#f0e0b8', '#c9ad7a', '#fff4d8'), s=0.86, face=-1, arm=-1, legs=False)
+gnome(288, 168, ramp('#3f8fb0', '#25637d', '#a9d6ea'), ramp('#f0e0b8', '#c9ad7a', '#fff4d8'), s=0.86, face=-1, arm=1, legs=False)
 o = cv.obj()
 o.part(rect(254, 164, 299, 170), ramp('#f0f0e8', '#c9c5bc', '#ffffff'), d=1)
 o.part(rect(258, 171, 260, 184) | rect(292, 171, 294, 184), WOOD, d=0)
@@ -732,6 +738,20 @@ for _ in range(40):   # olive leaves and petals blown across the piazza
     px, py = r2(130, W - 3), r2(132, 198)
     if piazza[py, px]:
         cv.dots([(px, py), (px + 1, py)], ('#8a9a52', '#b8c48a', '#f6b8cf')[r2(0, 2)])
+
+
+def fold_colours(cap=96):
+    """Fold the rarest colours into their nearest kept colour, to stay under the cap (vectorised, no per-pixel loop)."""
+    flat = cv.px.reshape(-1, 3)
+    cols, inv, cnt = np.unique(flat, axis=0, return_inverse=True, return_counts=True)
+    if len(cols) <= cap:
+        return
+    keep = np.argsort(-cnt)[:cap]
+    d = ((cols[:, None, :].astype(int) - cols[keep][None, :, :].astype(int)) ** 2).sum(2)
+    cv.px[:] = cols[keep][d.argmin(1)][inv.reshape(-1)].reshape(cv.px.shape)
+
+
+fold_colours()
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None

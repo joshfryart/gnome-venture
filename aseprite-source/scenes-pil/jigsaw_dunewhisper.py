@@ -171,6 +171,32 @@ for _ in range(110):   # stars, thinner toward the glow
 for sx, sy in ((92, 8), (150, 20), (204, 6), (128, 34), (60, 30), (236, 32), (178, 42), (18, 44), (110, 14)):   # bright twinkles
     cv.dots([(sx, sy), (sx - 1, sy), (sx + 1, sy), (sx, sy - 1), (sx, sy + 1)], '#fff4c0')
     cv.dots([(sx - 2, sy), (sx + 2, sy), (sx, sy - 2), (sx, sy + 2)], '#c3b2ea')
+# top-row sky pieces each get their own thing (wisps, a shooting star, a flying carpet, a constellation, a sky lantern)
+for cx, cy, w in ((84, 6, 30), (190, 14, 34), (140, 2, 22), (232, 10, 26)):   # high violet wisps
+    m = rrect(cx - w // 2, cy, cx + w // 2, cy + 2, 1) | rrect(cx - w // 4, cy - 2, cx + w // 5, cy, 1)
+    cv.fill(m, SKYC[2])
+    cv.fill(m & ~shift(m, 0, 1), '#7a4580')
+cv.fill(line([(54, 4), (72, 13)]), '#f5cf6a')   # shooting star
+cv.fill(line([(54, 3), (66, 9)]), '#fff4c0')
+cv.dots([(73, 14), (74, 14), (73, 15), (72, 14)], '#fff4c0')
+fc = poly([(104, 14), (124, 12), (126, 17), (106, 19)])   # a flying carpet with a tiny gnome passenger
+o = cv.obj()
+o.part(fc, RED, d=1)
+o.part(rect(112, 7, 116, 13), TEAL, d=1)
+o.part(poly([(111, 8), (117, 8), (112, 1)]), SAFF, d=1)
+o.draw()
+cv.fill(fc & ~dil4(~fc) & ~shift(fc, 0, 1), '#f5cf6a')
+cv.dots([(113, 9), (115, 9)], '#f1ece0')
+for tx in (103, 105, 125, 127):
+    cv.dots([(tx, 19 if tx < 110 else 17), (tx, 20 if tx < 110 else 18)], '#f2e4c0')
+for (ax, ay), (bx, by) in (((140, 14), (150, 9)), ((150, 9), (160, 16)), ((160, 16), (172, 12)), ((150, 9), (156, 2))):   # constellation
+    cv.fill(line([(ax, ay), (bx, by)]), '#563a78')
+    cv.dots([(ax, ay), (bx, by)], '#fff4c0')
+o = cv.obj()   # a sky lantern drifting up
+o.part(rrect(204, 16, 212, 26, 2), LANT, d=1)
+o.draw()
+cv.fill(rect(206, 25, 210, 26), '#e8a317')
+cv.dots([(208, 28), (207, 30)], '#e8a317')
 moon = ell(20, 6, 40, 26) & ~ell(26, 2, 46, 22)   # crescent moon (upper left = the light)
 cv.fill(dil4(dil4(moon)) & ~moon, SKYC[1])
 cv.fill(moon, '#fff0c0')

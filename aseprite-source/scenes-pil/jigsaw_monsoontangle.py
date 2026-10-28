@@ -156,7 +156,7 @@ for k in range(4):
     cv.dots([(kx - 2 + k * 3, ky + 10 + k * 3), (kx - 1 + k * 3, ky + 11 + k * 3)], (PINK['b'], YEL['b'])[k % 2])
 cv.fill(line([(kx - 1, ky + 8), (76, 84)]), '#5a4a3a')
 # hornbill flying left over the palm (black body, white tail band, big orange casque)
-hbx, hby = 74, 34
+hbx, hby = 88, 6
 o = cv.obj()
 o.part(ell(hbx, hby, hbx + 14, hby + 6), ramp('#3a3a3a', '#202020', '#5a5a5a'), d=1)
 o.part(poly([(hbx + 3, hby + 1), (hbx + 12, hby + 1), (hbx + 16, hby - 9), (hbx + 6, hby - 6)]), ramp('#3a3a3a', '#202020', '#5a5a5a'), d=1)   # raised wing
@@ -221,10 +221,13 @@ cv.fill(rect(tx - 14, 64, tx - 12, 69) | rect(tx + 12, 64, tx + 14, 69), '#4a5a5
 cv.dots([(tx - 1, 78), (tx + 1, 78)], YEL['b'])   # candle glow inside
 foliage(clump(tx + 2, 26, 24, 7, 13, 7, 11), DJADE, specks=30, alt=JADE['b'])
 foliage(clump(tx + 26, 36, 8, 5, 5, 6, 8), JADE, specks=12)
-roots = blank()
-for p0, p1, p2 in (((tx + 4, 34), (tx + 18, 50), (tx + 21, 86)), ((tx - 2, 34), (tx - 16, 52), (tx - 22, 86)), ((tx + 2, 36), (tx - 6, 60), (tx - 9, 76)),
-                   ((tx + 6, 36), (tx + 4, 58), (tx + 12, 74)), ((tx + 10, 36), (tx + 22, 44), (tx + 16, 66)), ((tx - 4, 36), (tx - 14, 40), (tx - 13, 64))):
-    roots |= line(bez(p0, p1, p2), 2)
+roots = rect(tx - 1, 30, tx + 3, 42)   # the fig's own trunk sits in the top shrine
+for pts in (((tx + 3, 40), (tx + 7, 50), (tx + 12, 52), (tx + 13, 61), (tx + 18, 63), (tx + 18, 72), (tx + 22, 75), (tx + 21, 86)),   # roots creep down the steps,
+            ((tx - 1, 40), (tx - 6, 51), (tx - 12, 53), (tx - 11, 62), (tx - 17, 64), (tx - 16, 73), (tx - 21, 76), (tx - 22, 86)),   # hugging each ledge
+            ((tx + 1, 42), (tx - 2, 54), (tx + 3, 62), (tx - 7, 70), (tx - 8, 78)),
+            ((tx + 2, 42), (tx + 5, 56), (tx + 9, 64), (tx + 8, 73), (tx + 13, 80)),
+            ((tx + 12, 53), (tx + 6, 58)), ((tx - 12, 54), (tx - 15, 58)), ((tx + 18, 66), (tx + 13, 69)), ((tx - 17, 66), (tx - 12, 70))):
+    roots |= line(list(pts), 2 if len(pts) > 2 else 1)
 roots &= ~(ell(tx - 5, 74, tx + 5, 90) & rect(0, 0, W, 86))
 o = cv.obj()
 o.part(roots, ramp('#8a7a62', '#5e5040', '#b0a084'), d=1)
@@ -585,6 +588,12 @@ for k in range(300):
     ln = 3 if y0 < 100 else 4
     m = line([(x0, y0), (x0 - 1, y0 + ln)]) & ~keep
     cv.fill(m, RAIN if k % 3 else RAIN2)
+
+# fold rare one-off tones into their neighbours (scene colour cap ~100)
+cv.remap({'#5a8a2a': '#2f8a4f', '#d8ccb0': '#f4f0e8', '#fff0d8': '#ffffff', '#6a9a62': '#6aa48a', '#c9c5bc': '#d0ccc4', '#f0e08a': '#f8e078', '#5a8a5a': '#4f8a76',
+          '#b0c060': '#a8c84a', '#d0e87a': '#dede8a', '#4a9a2a': '#2f8a4f', '#a8e07a': '#8fd07a', '#7a9a2a': '#86862e', '#f0e8d8': '#f4f0e8', '#5a6a2a': '#4a6a2a',
+          '#b4c4b0': '#b8d6ce', '#5a5a5a': '#5e5e6a', '#9ab85a': '#a8c84a', '#6a8a3a': '#86862e', '#a86a3a': '#9a5a2a', '#4a5a50': '#5e5040', '#5e4a34': '#5e5040',
+          '#b09a74': '#b0a084'})
 
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else None
