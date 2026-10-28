@@ -21,6 +21,16 @@ const SITE_TEXTS = [
     'home.f4' => ['Front page', 'Feature box 4 (first line = title)', "🏘️ Towns that live\nShopkeepers keep their own hours, travellers wander from town to town, and friendships grow with chats and gifts.", 'text'],
     'home.f5' => ['Front page', 'Feature box 5 (first line = title)', "🎲 Games and contests\nSeven daily games, from Mushroom Sweeper to Guess the Weight, plus a weekly Village Show and a monthly Grand Harvest Fair.", 'text'],
     'home.f6' => ['Front page', 'Feature box 6 (first line = title)', "📖 Your Almanac\nA book that fills itself in as you grow, cook, travel and meet folk. {pages} pages to find.", 'text'],
+    'home.jeff' => ['Front page', 'Jeff’s hello (speech bubble in the top card)', 'Hi, I’m Jeff, the Puzzler! I’m a jigsaw piece and your host. Want a quick look around before you plant anything?', 'line'],
+    'home.tourbtn' => ['Front page', 'Tour button', '👀 Take the tour with Jeff', 'line'],
+    'home.tour.1' => ['Front page', 'Tour stop 1 (first line = title, second = what Jeff says)', "🌱 Grow a garden\nThis is your garden. Plant, water, wait. Soil gets better the more you look after it.", 'text'],
+    'home.tour.2' => ['Front page', 'Tour stop 2 (first line = title, second = what Jeff says)', "🧺 Your satchel\nEverything you grow, cook and find lives here: seeds, tools, dinner.", 'text'],
+    'home.tour.3' => ['Front page', 'Tour stop 3 (first line = title, second = what Jeff says)', "🗺️ Walk the world\nFourteen regions, with roads, rest stops and villagers who have lives of their own.", 'text'],
+    'home.tour.4' => ['Front page', 'Tour stop 4 (first line = title, second = what Jeff says)', "🏘️ Visit the town\nShops, orders and neighbours. Bring a few Petals.", 'text'],
+    'home.tour.5' => ['Front page', 'Tour stop 5 (first line = title, second = what Jeff says)', "🎲 Little games\nQuick daily games, and my favourites: the puzzles. Jigsaws that move, gutters, gnome beds.", 'text'],
+    'home.tour.6' => ['Front page', 'Tour stop 6 (first line = title, second = what Jeff says)', "📖 Fill your Almanac\nA book that fills in as you play. It knows more than I do. Mostly.", 'text'],
+    'home.try' => ['Front page', 'Jeff’s line above the puzzle demo', 'Go on, try one. No sign-up. The picture moves while you solve it.', 'line'],
+    'home.gate' => ['Front page', 'Jeff’s line before the last button', 'Ready to make your own gnome? It’s free, and it takes a minute.', 'line'],
     'home.cta' => ['Front page', 'Bottom button', '🌱 Start growing', 'line'],
 
     // ---- How to play (guide.php)

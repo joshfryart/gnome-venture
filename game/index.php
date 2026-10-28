@@ -179,46 +179,47 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
 </div>
 <?php elseif (!$u): ?>
 <?php // v0.8.6: a front page that says what the game is, for visitors who've never played ?>
-<section class="lp"><?php // v1.6.3: short, phone-first front page. v2.0.29: Hearthlight look: warm hero card, one solid button per block, centred picture tiles ?>
-  <div class="lp-hero">
-    <img class="lp-scene pix" src="<?= e(art_url('assets/img/landing/hero')) ?>" alt="" width="360" height="170" fetchpriority="high">
+<section class="lp"><?php // v1.6.3: short, phone-first front page. v2.0.29: Hearthlight look. v2.0.73: Jeff the Puzzler shows visitors around with screenshots of the current game (tests/shots.sh) ?>
+  <div class="lp-hero lp-jeff">
+    <?= puzzle_cast('jeff-host', 'Jeff the Puzzler', 'lp-jeffface') ?>
+    <p class="lp-bubble"><b>Jeff:</b> “<?= e(stext('home.jeff')) ?>”</p>
     <h1><?= e(setting('site_name')) ?><?= is_admin() ? ' <a class="small" href="' . e(url('admin/texts.php?page=' . urlencode('Front page'))) . '">✏️ Edit</a>' : '' ?></h1>
     <p class="lp-pitch"><?= e(stext('home.headline')) ?></p>
     <p class="lp-sub">A free, cosy garden game about gnomes.</p>
     <div class="lp-cta">
       <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.button')) ?></a>
+      <a class="btn ghost lp-big" href="#tour"><?= e(stext('home.tourbtn')) ?></a>
       <a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a>
     </div>
     <p class="lp-small"><?= e(stext('home.small')) ?></p>
   </div>
-  <h2 class="lp-h2">What you do here</h2>
-  <ul class="lp-cards">
-    <?php foreach ([
-        ['garden', 'Grow a garden', 'A 4×4 plot to start. Buy more land as you go.'],
-        ['cook', 'Cook, craft, trade', 'Harvests become meals, tools and Petals.'],
-        ['stats', 'Eat well, grow strong', 'Food and rare plants change your gnome’s stats.'],
-        ['roads', 'Walk the roads', 'Villages and townsfolk with lives of their own.'],
-        ['games', 'Little games', 'Quick daily games, at your own pace.'],
-        ['almanac', 'Fill your Almanac', 'A book that fills in as you play.'],
-    ] as [$img, $ttl, $line]): ?>
-    <li class="lp-card">
-      <img class="pix" src="<?= e(art_url('assets/img/landing/' . $img)) ?>" alt="" width="240" height="160" loading="lazy">
+  <h2 class="lp-h2" id="tour">The tour</h2>
+  <ol class="lp-stops">
+    <?php $tourPose = [5 => 'jeff-cheer', 6 => 'jeff-think']; $tourKey = [1 => 'garden', 2 => 'satchel', 3 => 'world', 4 => 'town', 5 => 'games', 6 => 'almanac'];
+    foreach ($tourKey as $n => $shot): [$ttl, $say] = array_pad(explode("\n", stext('home.tour.' . $n), 2), 2, ''); ?>
+    <li class="lp-stop">
+      <p class="lp-step">Stop <?= $n ?> of 6</p>
       <h3><?= e($ttl) ?></h3>
-      <p><?= e($line) ?></p>
+      <div class="lp-frame"><img class="lt" src="<?= e(url('assets/img/landing/shot-' . $shot . '.png?v=' . APP_VERSION)) ?>" alt="<?= e(trim(preg_replace('/^\P{L}+/u', '', $ttl))) ?> in the game" width="412" height="560" loading="lazy"><img class="dk" src="<?= e(url('assets/img/landing/shot-' . $shot . '-dark.png?v=' . APP_VERSION)) ?>" alt="" width="412" height="560" loading="lazy"></div>
+      <div class="lp-say"><?= puzzle_cast($tourPose[$n] ?? 'jeff-host', 'Jeff', 'lp-sayface') ?><p class="lp-bubble"><?= e($say) ?></p></div>
     </li>
     <?php endforeach; ?>
-  </ul>
+  </ol>
   <?php if ($pzFront): $t = null; $pzDemo = true; ?>
   <h2 class="lp-h2" id="try">Try a puzzle</h2>
+  <div class="lp-say lp-sayrow"><?= puzzle_cast('jeff-cheer', 'Jeff', 'lp-sayface') ?><p class="lp-bubble"><?= e(stext('home.try')) ?></p></div>
   <div id="pz" class="lp-try">
     <div id="lib">
-      <p class="lp-sub">The picture moves while you solve it. No sign-up needed.</p>
       <ul class="pzgrid" id="grid"></ul>
     </div>
     <?php require __DIR__ . '/includes/gifsaw_play.php'; ?>
   </div>
   <script type="application/json" id="pz-data"><?= json_encode($pzFrontList, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
   <?php endif; ?>
+  <div class="lp-hero lp-jeff lp-gate">
+    <?= puzzle_cast('jeff-host', 'Jeff', 'lp-jeffface') ?>
+    <p class="lp-bubble"><b>Jeff:</b> “<?= e(stext('home.gate')) ?>”</p>
+  </div>
   <div class="lp-cta lp-end">
     <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.cta')) ?></a>
     <a class="btn ghost lp-big" href="<?= e(url('guide.php')) ?>">📖 How to play</a>

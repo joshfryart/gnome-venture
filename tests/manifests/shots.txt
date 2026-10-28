@@ -1,0 +1,13 @@
+version 2.0.73
+shot-almanac-dark.png 824x1120 37801
+shot-almanac.png 824x1120 38377
+shot-games-dark.png 824x1120 32878
+shot-games.png 824x1120 33512
+shot-garden-dark.png 824x1120 32974
+shot-garden.png 824x1120 33842
+shot-satchel-dark.png 824x1120 31950
+shot-satchel.png 824x1120 32081
+shot-town-dark.png 824x1120 32843
+shot-town.png 824x1120 32617
+shot-world-dark.png 824x1120 34152
+shot-world.png 824x1120 34012

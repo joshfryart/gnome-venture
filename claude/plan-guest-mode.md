@@ -25,7 +25,7 @@ A shared demo would need a write-block layer under garden.php, inventory, world,
 - New poses: point, wave (Aseprite cast-*.lua + darken.py); fallback host/think/cheer.
 - Pipeline: `tests/shots.sh` (walk.sh install, `tests/shot_seed.php` seed: grown plants, items, jobs, a road trip), `tests/shots.js` (Playwright 412x900, dark then light, deviceScaleFactor 2, animations disabled, bypassCSP hide chrome), output `game/assets/img/landing/shot-<stop>[-dark].png` quantised <= 60 KB. `tests/shots_stale.sh` fails on missing, > 80 KB, wrong size, or `tests/manifests/shots.txt` version != APP_VERSION.
 
-## Releases
+## Releases (renumbered 2026-10-28: Rain Barrel 2.0.71, Gnome Beds 2.0.72, tour front page + screenshots 2.0.73 DONE; guest core = 2.0.74, guest nudges + open = 2.0.75)
 - 2.0.71 Rain Barrel (claude/plan-puzzle-games.md).
 - 2.0.72 mockup of tour page (scratchpad, phone dark+light) for Joshua; then pipeline + stale test + front page + stext rows + `tests/landing.sh`.
 - 2.0.73 guest core, `guest_open` 0: schema, guest.php, guest_block, fresh_hold hook, leaderboard filters, purge, convert; `tests/guest.sh` (cap per IP, blocked POSTs, no rows in trades/gifts/contest/puzzle_attempts/community, $PLAYERS excludes guests, purge leaves 0 orphans, convert keeps plot, CSRF, guest row not loginable).
