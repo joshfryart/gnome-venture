@@ -3516,6 +3516,8 @@ dialog.folkdlg::backdrop { background: rgba(42, 26, 16, .5); overscroll-behavior
 dialog.folkdlg .sheetx { position: absolute; top: 2px; right: 2px; width: var(--tap); height: var(--tap); background: none; border: 0; font-size: 18px; line-height: 1; cursor: pointer; color: var(--muted); }
 dialog.folkdlg .folkbody { padding-top: 6px; }
 dialog.folkdlg .vpanel { border: 0; box-shadow: none; padding: 0; background: none; }
+dialog.folkdlg .vpanel { text-align: center; }
+dialog.folkdlg .vpanel .vact, dialog.folkdlg .vpanel form.inline { display: inline-block; margin: 4px 4px 0; }
 dialog.folkdlg .folkfoot { margin: 8px 0 0; text-align: right; }
 dialog.folkdlg .folkfoot:empty { display: none; }
 
