@@ -470,8 +470,8 @@ o.draw()
 cv.dots([(ctx + 3, cty - 4), (ctx + 5, cty - 4), (ctx + 4, cty - 2)], '#b86a2a')   # stripes
 cv.fill(rect(ctx + 9, cty - 5, ctx + 10, cty - 5) | rect(ctx + 11, cty - 5, ctx + 12, cty - 5), INK)   # sleepy eyes
 SPAR = ramp('#b08a62', '#7a5638', '#d8b88a')
-for sx, sy, f in ((113, tby - 58, 1), (149, 59, -1)):   # two sparrows (ridge, and the carp-pole finial): buff belly, chestnut cap, white cheek, black bib, cocked tail
-    def X(v, sx=sx, f=f):
+def sparrow(sx, sy, f):   # buff belly, chestnut cap, white cheek, black bib, cocked tail
+    def X(v):
         return sx + f * v
     o = cv.obj()
     o.part(poly([(X(-1), sy - 3), (X(-5), sy - 7), (X(-3), sy - 7), (X(1), sy - 5)]), ramp('#7a5638', '#4a3020', '#9a7450'), d=0)   # tail
@@ -487,6 +487,9 @@ for sx, sy, f in ((113, tby - 58, 1), (149, 59, -1)):   # two sparrows (ridge, a
     cv.dots([(X(8), sy - 6), (X(7), sy - 5)], INK)   # bib
     cv.dots([(X(10), sy - 7)], GOLD['s'])   # beak
     cv.dots([(X(3), sy), (X(5), sy)], '#7a4a1f')   # feet
+
+
+sparrow(113, tby - 58, 1)   # one on the roof ridge; the other perches on the carp pole (drawn after it)
 for k, (px_, py_) in enumerate(((78, tby - 46), (100, tby - 40), (126, tby - 47), (110, tby - 50))):   # petals settled on the tiles
     cv.dots([(px_, py_), (px_ + 1, py_)], (PINK['b'], '#ffffff', PINK2['b'], ROSE['b'])[k])
 # gnome on the veranda whisking tea at a low table
@@ -519,6 +522,7 @@ for k, (rp, ln) in enumerate(((VERM, 20), (TEAL, 17), (ROSE, 14))):
         cv.fill(ell(sx, fy + 1, sx + 3, fy + 4) & body, rp['r'])
     cv.fill(ell(cpx + 3, fy + 1, cpx + 6, fy + 4), '#ffffff')
     cv.dots([(cpx + 4, fy + 2)], INK)
+sparrow(cpx + 5, 59, -1)
 
 # ---------------------------------------------------------------- the gnarled cherry tree (top-left)
 shadow(4, 128, 64, 136)

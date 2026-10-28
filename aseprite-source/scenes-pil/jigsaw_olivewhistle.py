@@ -133,27 +133,95 @@ def cypress(cx, by, h, w=5):
         cv.dots([(cx - 2 + (yy % 3), yy), (cx - 1 + (yy % 3), yy + 1)], CYP['r'])
 
 
-def house(x0, by, w, h, wall, roofh=5, door=True, flip=False):
-    """Cubic Mediterranean house, walls from by-h to by, low terracotta roof on top, blue shutters."""
+def house(x0, by, w, h, wall, roofh=5, door=True, flip=False, style='tile', win='sq', balcony=False, doorc='#7a4a1f', stair=False):
+    """Mediterranean house, walls from by-h to by. style: tile (hipped terracotta), gable, flat (parapet roof terrace), dome (chapel).
+    win: sq (blue shutters), arch, round. balcony: a railed balcony with geraniums under the first window. stair: outside stone stair."""
+    top = by - h
     o = cv.obj()
-    o.part(rect(x0, by - h, x0 + w, by), wall, d=2)
-    o.part(poly([(x0 - 2, by - h), (x0 + w + 2, by - h), (x0 + w - 2, by - h - roofh), (x0 + 2, by - h - roofh)]), ROOF, d=2)
+    o.part(rect(x0, top, x0 + w, by), wall, d=2)
+    rm = None
+    if style == 'tile':
+        rm = poly([(x0 - 2, top), (x0 + w + 2, top), (x0 + w - 2, top - roofh), (x0 + 2, top - roofh)])
+    elif style == 'gable':
+        rm = poly([(x0 - 2, top), (x0 + w + 2, top), (x0 + w // 2, top - roofh - 4)])
+    if rm is not None:
+        o.part(rm, ROOF, d=2)
+    elif style == 'flat':
+        o.part(rect(x0 - 1, top - 3, x0 + w + 1, top), wall, d=1)
+    elif style == 'dome':
+        o.part(ell(x0 + 2, top - roofh * 2, x0 + w - 2, top + roofh * 2) & rect(0, 0, W, top), SHUT, d=2)
+    if stair:
+        o.part(poly([(x0 - 9, by), (x0, by), (x0, by - 10), (x0 - 2, by - 10)]), STONE, d=1)
     o.draw()
-    for yy in range(by - h - roofh + 2, by - h, 2):   # roof tile ridges
-        for xx in range(x0 + 1 + (yy % 4) // 2, x0 + w, 3):
-            cv.dots([(xx, yy)], ROOF['s'])
+    if rm is not None:   # roof tile ridges
+        cv.fill(rm & shift(rm, 0, 1) & (YY % 2 == 0) & ((XX + (YY % 4) // 2) % 3 == 0), ROOF['s'])
+    if style == 'flat':
+        cv.fill(rect(x0, top + 1, x0 + w, top + 1), wall['s'])          # cornice shadow
+        cv.fill(rect(x0 + 2, top - 6, x0 + 4, top - 4), TERRA['b'])     # rooftop pot with a sprig
+        cv.dots([(x0 + 2, top - 7), (x0 + 3, top - 8), (x0 + 4, top - 7)], GREEN['b'])
+        cv.fill(rect(x0 + w - 5, top - 7, x0 + w - 2, top - 4), '#8b8f96')   # water tank
+        cv.fill(rect(x0 + w - 5, top - 7, x0 + w - 2, top - 7), '#c9c5bc')
+    if style == 'dome':
+        cx = x0 + w // 2
+        cv.dots([(cx, top - roofh * 2 - 1), (cx, top - roofh * 2 - 2), (cx, top - roofh * 2 - 3), (cx - 1, top - roofh * 2 - 2), (cx + 1, top - roofh * 2 - 2)], '#f2d23a')
+        cv.dots([(x0 + 5, top - roofh * 2 + 3), (x0 + 6, top - roofh * 2 + 2)], '#ffffff')
+    if stair:
+        for k in range(5):
+            cv.fill(rect(x0 - 8 + k * 2, by - k * 2, x0, by - k * 2), STONE['s'])
+        cv.fill(line([(x0 - 9, by - 1), (x0 - 1, by - 11)]), '#4a2c1a')   # rail
     nwin = max(1, (w - 4) // 8)
     for k in range(nwin):
         wx = x0 + 3 + k * ((w - 6) // nwin) + (2 if flip else 0)
-        wy = by - h + 3
+        wy = top + 3
         if wy + 4 < by - 6 or not door:
-            cv.fill(rect(wx, wy, wx + 2, wy + 3), '#4a2c1a')
-            cv.fill(rect(wx - 1, wy, wx - 1, wy + 3) | rect(wx + 3, wy, wx + 3, wy + 3), SHUT['b'])
-            cv.dots([(wx + 1, wy)], '#f5cf6a')
+            if win == 'arch':
+                cv.fill(rect(wx, wy + 1, wx + 2, wy + 4), '#4a2c1a')
+                cv.dots([(wx + 1, wy)], '#4a2c1a')
+                cv.fill(rect(wx - 1, wy + 5, wx + 3, wy + 5), wall['s'])
+                cv.dots([(wx + 1, wy + 2)], '#f5cf6a')
+            elif win == 'round':
+                cv.fill(rrect(wx, wy, wx + 3, wy + 3, 1), '#4a2c1a')
+                cv.dots([(wx + 1, wy + 1)], '#7fc0d8')
+            else:
+                cv.fill(rect(wx, wy, wx + 2, wy + 3), '#4a2c1a')
+                cv.fill(rect(wx - 1, wy, wx - 1, wy + 3) | rect(wx + 3, wy, wx + 3, wy + 3), SHUT['b'])
+                cv.dots([(wx + 1, wy)], '#f5cf6a')
+            if balcony and k == 0:
+                cv.fill(rect(wx - 2, wy + 5, wx + 5, wy + 5), '#4a2c1a')
+                cv.dots([(wx - 2, wy + 6), (wx + 1, wy + 6), (wx + 4, wy + 6), (wx + 5, wy + 6)], '#4a2c1a')
+                cv.dots([(wx - 1, wy + 4), (wx + 3, wy + 4), (wx + 5, wy + 4)], '#d6322b')
+                cv.dots([(wx, wy + 4), (wx + 4, wy + 4)], GREEN['b'])
     if door and h >= 12:
         dx = x0 + (w * 2 // 3 if not flip else w // 4)
-        cv.fill(rrect(dx, by - 7, dx + 3, by, 1), '#7a4a1f')
-        cv.fill(rect(dx + 1, by - 6, dx + 1, by), '#5c3420')
+        cv.fill(rrect(dx, by - 7, dx + 3, by, 1 if win != 'arch' else 2), doorc)
+        cv.fill(rect(dx + 1, by - 6, dx + 1, by), DARK if doorc != '#7a4a1f' else '#5c3420')
+
+
+def goat(gx0, gy0, fc, coat, pcol=None):
+    """A slim goat with feet at gy0: thin legs, upright tail, swept-back horns, beard and bell. fc=+1 faces right."""
+    def R(a, y0, b, y1):
+        xa, xb = sorted((gx0 + a if fc > 0 else gx0 + 12 - a, gx0 + b if fc > 0 else gx0 + 12 - b))
+        return rect(xa, y0, xb, y1)
+
+    def X(v):
+        return gx0 + v if fc > 0 else gx0 + 12 - v
+    shadow(gx0 - 1, gy0 - 1, gx0 + 13, gy0 + 1, '#9a4426')
+    o = cv.obj()
+    o.part(R(1, gy0 - 4, 1, gy0) | R(3, gy0 - 4, 3, gy0) | R(7, gy0 - 4, 7, gy0) | R(9, gy0 - 4, 9, gy0), ramp(coat['s'], DARK), d=0)
+    o.part(R(0, gy0 - 8, 10, gy0 - 4), coat, d=1)
+    o.part(R(9, gy0 - 10, 11, gy0 - 6), coat, d=0)
+    o.part(R(10, gy0 - 13, 13, gy0 - 10) | R(13, gy0 - 12, 14, gy0 - 11), coat, d=1)
+    o.part(R(-1, gy0 - 11, 0, gy0 - 8), coat, d=0)
+    o.draw()
+    cv.dots([(X(10), gy0 - 14), (X(9), gy0 - 15), (X(8), gy0 - 15), (X(7), gy0 - 14)], '#5a4a3c')   # horns
+    cv.dots([(X(9), gy0 - 12), (X(8), gy0 - 11)], coat['s'])   # ear
+    cv.dots([(X(12), gy0 - 12)], DARK)
+    cv.dots([(X(13), gy0 - 9), (X(13), gy0 - 8)], '#e8e0d0' if coat is COATS['black'] or coat is COATS['brown'] else '#7a6a5a')   # beard
+    cv.dots([(X(1), gy0), (X(3), gy0), (X(7), gy0), (X(9), gy0)], DARK)
+    cv.dots([(X(11), gy0 - 6)], '#f0b92b')   # bell
+    if pcol:
+        cv.fill(R(3, gy0 - 8, 6, gy0 - 6), pcol)
+        cv.dots([(X(12), gy0 - 13), (X(13), gy0 - 11)], pcol)
 
 
 # ================================================================ SKY (golden hour, sun low at the upper left)
@@ -183,11 +251,11 @@ for bx, by in ((92, 22), (98, 25), (104, 22), (140, 12), (146, 15), (30, 40), (3
 
 # ================================================================ FAR: horizon islands and Cinderpeak
 HZ = 72
-cat = ell(0, 64, 30, 80) | poly([(20, 66), (22, 60), (25, 65)]) | poly([(26, 67), (29, 61), (31, 68)]) | ell(24, 64, 34, 76)   # sleeping-cat isle
+cat = ell(34, 64, 64, 80) | poly([(54, 66), (56, 60), (59, 65)]) | poly([(60, 67), (63, 61), (65, 68)]) | ell(58, 64, 68, 76)   # sleeping-cat isle, under the sun
 cat &= rect(0, 0, W, HZ)
 cv.fill(cat, '#c99a7a')
 cv.fill(cat & ~shift(cat, 2, 2), '#e2b896')
-cv.fill(line([(4, 70), (10, 67), (16, 70)]), '#a87a62')   # curled tail
+cv.fill(line([(38, 70), (44, 67), (50, 70)]), '#a87a62')   # curled tail
 volc = poly([(84, HZ), (104, 54), (112, 52), (118, 55), (142, HZ)])
 cv.fill(volc, '#b88a7a')
 cv.fill(volc & ~shift(volc, 3, 2), '#d6a890')
@@ -200,13 +268,13 @@ for k in range(6):   # thin smoke curl drifting left
     cv.fill(pm & ~shift(pm, -1, -1), '#c9b8aa')
 cv.fill(rect(0, HZ - 1, W, HZ - 1) & ~cat & ~volc, '#f8dc8a')
 # the Labyrinth Isle: a low island with a hedge maze and a white fountain
-lab = ell(60, 64, 84, 78) & rect(0, 0, W, HZ - 1)
+lab = ell(140, 64, 164, 78) & rect(0, 0, W, HZ - 1)
 cv.fill(lab, '#7a8a52')
 cv.fill(lab & ~shift(lab, 2, 2), '#9aa86a')
 for yy in (67, 70):
-    cv.fill(rect(64, yy, 80, yy) & lab, '#e8dcc0')
-cv.fill(rect(72, 66, 72, 70) & lab, '#e8dcc0')
-cv.dots([(72, 65), (71, 66), (73, 66)], '#ffffff')
+    cv.fill(rect(144, yy, 160, yy) & lab, '#e8dcc0')
+cv.fill(rect(152, 66, 152, 70) & lab, '#e8dcc0')
+cv.dots([(152, 65), (151, 66), (153, 66)], '#ffffff')
 # a kite flown from the village, tail streaming
 kx, ky = 162, 38
 km = poly([(kx, ky - 7), (kx + 5, ky), (kx, ky + 7), (kx - 5, ky)])
@@ -229,13 +297,16 @@ for bx, by in ((10, 26), (16, 29), (6, 30), (118, 36), (122, 38)):
     cv.dots([(bx - 1, by - 1), (bx, by), (bx + 1, by - 1)], '#5a4a4a')
 
 # ================================================================ LAND MASKS
-hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (186, 50), (172, 62), (160, 76), (156, 82), (153, 88), (149, 92), (147, 98), (142, 102), (140, 108), (135, 112), (133, 118), (128, 122), (126, 128), (120, 132), (300, 132)])
+hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (188, 48), (178, 56), (172, 64), (162, 70), (165, 76), (157, 81), (147, 84), (144, 90), (151, 96), (150, 103),
+             (141, 106), (134, 111), (137, 117), (128, 121), (122, 126), (116, 132), (300, 132)])
+# the west headland: a whitewashed windmill on top, a goat path down to the breakwater (frames the harbour as a cove)
+head = poly([(0, 40), (6, 38), (13, 39), (19, 44), (23, 52), (25, 62), (29, 72), (28, 82), (33, 92), (31, 102), (36, 110), (35, 118), (28, 123), (0, 124)])
 piazza = poly([(124, 126), (300, 126), (300, 200), (134, 200), (128, 176)])
 steps = poly([(106, 130), (126, 130), (110, 178), (84, 172)])
 pwall = poly([(124, 128), (134, 128), (136, 200), (106, 200), (110, 176)]) & ~piazza
 quay = poly([(0, 168), (86, 166), (108, 178), (110, 200), (0, 200)])
 mole = poly([(0, 126), (24, 122), (44, 124), (50, 132), (44, 138), (18, 140), (0, 142)])
-land = hill | piazza | steps | pwall | quay | mole
+land = hill | piazza | steps | pwall | quay | mole | head
 
 # ================================================================ SEA
 sea = rect(0, HZ, W - 1, H - 1) & ~land
@@ -258,7 +329,7 @@ for k in range(46):   # sun glitter column
         cv.fill(rect(gx, gy, gx + ln, gy) & sea, GLIT if k % 3 else '#f8dc6a')
 
 # far sailboat with an ochre sail
-fbx, fby = 150, 80
+fbx, fby = 136, 86
 cv.fill(poly([(fbx - 7, fby), (fbx + 7, fby), (fbx + 5, fby + 3), (fbx - 5, fby + 3)]), '#7a4a1f')
 cv.fill(poly([(fbx, fby - 13), (fbx, fby - 1), (fbx + 8, fby - 1)]), '#f0cc80')
 cv.fill(poly([(fbx - 1, fby - 10), (fbx - 1, fby - 1), (fbx - 6, fby - 1)]), '#e88a5a')
@@ -281,7 +352,7 @@ for k in range(3):
     cv.fill(ell(ffx + 20 + k * 3, ffy - 12 - k * 4, ffx + 24 + k * 4, ffy - 9 - k * 4), '#f0e8dc')
 cv.fill(rect(ffx - 6, ffy + 6, ffx + 2, ffy + 6) | rect(ffx - 3, ffy + 4, ffx, ffy + 4), FOAM)
 # leaping dolphin
-dlx, dly = 10, 98
+dlx, dly = 100, 112
 o = cv.obj()
 o.part(poly([(dlx, dly + 8), (dlx + 4, dly), (dlx + 12, dly - 3), (dlx + 18, dly + 1), (dlx + 14, dly), (dlx + 6, dly + 3), (dlx + 3, dly + 9)]), ramp('#7a8fa8', '#4f6a84', '#b0c4d6'), d=1)
 o.part(poly([(dlx + 9, dly - 2), (dlx + 10, dly - 6), (dlx + 12, dly - 2)]), ramp('#7a8fa8', '#4f6a84'), d=0)

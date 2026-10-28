@@ -73,7 +73,7 @@ E=$(dbv "SELECT id FROM puzzle_tournaments WHERE tier='easy' AND cup_id IS NOT N
 curl -s -b $W/p "$BASE/jigsaw.php?t=$E" > $W/e.html
 ok "cup tabs: three, Easy is current" "$(grep -oE 'class="pzchip( on)?"' $W/e.html | wc -l)/$(grep -c "aria-current=\"page\" href=\"[^\"]*t=$E\"" $W/e.html)" 3/1
 ok "cup tabs link to the siblings" "$(grep -c "jigsaw.php?t=$A\"" $W/e.html)$(grep -c "jigsaw.php?t=$X\"" $W/e.html)" 11
-ok "tab labels" "$(sed -n '/pzcup/,/<\/nav>/p' $W/e.html | sed 's/<[^>]*>//g' | tr -s ' \n' ' ' | sed 's/^ //;s/ $//')" "🌱 Easy 🌿 Advanced 🌳 Expert"
+ok "tab labels" "$(sed -n '/pzcup/,/<\/nav>/p' $W/e.html | sed 's/<[^>]*>//g' | tr -s ' \n' ' ' | sed 's/^ //;s/ $//')" "Easy Advanced Expert"
 
 echo "== the page: open phase, tier locked, data blocks"
 ok "open: start button + tries left (10 for Easy)" "$(grep -c 'id="tstart"' $W/e.html)/$(grep -o '[0-9]* left today' $W/e.html)" "1/10 left today"
@@ -83,8 +83,8 @@ ok "pz-t has the tier's pieces (24), no free-play flag" "$(php -r 'preg_match("#
 ge "the picture is shown while open" "$(grep -c 'maplewold-thumb.jpg' $W/e.html)" 1
 ok "page is in the player library" "$(curl -s -b $W/p $BASE/jigsaw.php | grep -c "jigsaw.php?t=$E")" 1
 ok "GIFsaw library does not list it" "$(curl -s -b $W/p $BASE/gifsaw.php | grep -c "t=$E\"")" 0
-ok "hub shows a Tournament badge on the Jigsaw card (GIFsaw tournaments are off)" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c '🏆 Tournament')" 1
-ok "games tile shows Tournament" "$(curl -s -b $W/p $BASE/games.php | grep -c '🏆 Tournament')" 1
+ok "hub shows a Tournament badge on the Jigsaw card (GIFsaw tournaments are off)" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c 'Tournament</span>')" 1
+ok "games tile shows Tournament" "$(curl -s -b $W/p $BASE/games.php | grep -c 'Tournament</span>')" 1
 
 echo "== API: tier decides pieces and tries; run checks"
 API_CS=$(php -r 'preg_match("#id=\"pz-t\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo json_decode($m[1], true)["csrf"] ?? "";' $W/e.html)
@@ -215,7 +215,7 @@ U1=$(dbv "SELECT id FROM users WHERE username='jigbot1'")
 ok "winner notified with the Jigsaw text and tier" "$(dbv "SELECT COUNT(*) FROM notices WHERE user_id=$U1 AND text LIKE '🧩 Jigsaw Settle Me (Expert): you placed #1 %'")" 1
 ok "sprout notified #4" "$(dbv "SELECT COUNT(*) FROM notices WHERE user_id=$UID_ AND text LIKE '🧩 Jigsaw Settle Me (Expert): you placed #4 %'")" 1
 curl -s -b $W/p "$BASE/profile.php?id=$U1&tab=awards" > $W/pr.html
-ok "profile: gold trophy, Expert pip, Jigsaw label" "$(grep -c 'cast/trophy-gold.png' $W/pr.html)/$(grep -c 'class="pzpip" title="Expert">🌳' $W/pr.html)/$(grep -c 'Jigsaw Settle Me (Expert)' $W/pr.html)" 1/1/1
+ok "profile: gold trophy, Expert pip, Jigsaw label" "$(grep -c 'cast/trophy-gold.png' $W/pr.html)/$(grep -c 'class="pzpip" title="Expert"' $W/pr.html)/$(grep -c 'Jigsaw Settle Me (Expert)' $W/pr.html)" 1/1/1
 ok "results page shows the gold trophy to the winner's board" "$(curl -s -b $W/p "$BASE/jigsaw.php?t=$SE" | grep -c 'cast/trophy-gold.png')" 1
 dbx "INSERT INTO puzzle_attempts (tournament_id,user_id,token,seed,started_at,start_ms,finished_at,ms,drops,status,place) VALUES ($GT,$U1,'$(printf '%032d' 7)',1,'$(utc -600)',0,'$(utc -500)',99000,300,'done',2)"
 curl -s -b $W/p "$BASE/profile.php?id=$U1&tab=awards" > $W/pr.html

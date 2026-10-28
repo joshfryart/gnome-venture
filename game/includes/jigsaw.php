@@ -107,7 +107,7 @@ function jigsaw_ensure(): bool
         $n = 0;
         foreach (JIGSAWS as $slug => [$title, $cat, $file]) {
             $n++;
-            if (isset($have[$slug])) continue;
+            if (isset($have['jig-' . $slug])) continue;   // stored as 'jig-<slug>'
             $info = @getimagesize(APP_ROOT . '/assets/img/jigsaw/' . $file) ?: [0, 0];
             db_insert('puzzle_pics', ['slug' => 'jig-' . $slug, 'title' => $title, 'file' => $file, 'still' => $file, 'thumb' => preg_replace('/\.jpg$/', '-thumb.jpg', $file),
                 'cat' => $cat, 'kind' => 'still', 'reserved' => 0, 'w' => (int)$info[0], 'h' => (int)$info[1], 'frames' => 0, 'bytes' => (int)@filesize(APP_ROOT . '/assets/img/jigsaw/' . $file),

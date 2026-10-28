@@ -222,7 +222,7 @@ def mini(x, y, kind, f):
 for hx_, hy_, kind, f in ((72, 113, 'w', 1), (80, 116, 'z', 1), (92, 112, 'w', 1), (100, 115, 'w', 1), (108, 112, 'z', 1), (114, 116, 'w', 1),
                           (128, 112, 'w', 1), (136, 115, 'z', 1), (144, 112, 'w', 1), (174, 113, 'w', 1), (182, 116, 'w', 1), (226, 112, 'z', 1),
                           (234, 115, 'w', 1), (292, 112, 'w', -1), (298, 116, 'z', -1), (6, 112, 'w', 1)):
-    cv.fill(ell(hx_ - 9, hy_ - 10, hx_ - 1, hy_ - 6), '#f2c88a')   # kicked-up dust behind
+    cv.fill(ell(min(hx_ - 9 * f, hx_ - f), hy_ - 10, max(hx_ - 9 * f, hx_ - f), hy_ - 6), '#f2c88a')   # kicked-up dust behind
     mini(hx_, hy_, kind, f)
 
 # ---------------------------------------------------------------- red clay path from the front edge up to the village
@@ -677,52 +677,110 @@ for rx, ry in ((68, 172), (122, 176), (70, 190), (118, 192), (64, 182)):   # ree
     cv.fill(line([(rx + 1, ry), (rx + 3, ry - h + 2)]), '#6a8a3a')
 
 # ---------------------------------------------------------------- the near migration crossing the front right: zebras and wildebeest
-def zebra(x, y, f):
-    by = y - 15
-    body = ell(x - 12, by - 6, x + 12, by + 5)
-    legs = blank()
-    for lx, sp in ((-9, -1), (-6, 1), (6, -1), (9, 1)):
-        legs |= line([(x + lx * f, by + 2), (x + (lx + sp) * f, y)])
-    neck = poly([(x + 7 * f, by - 3), (x + 12 * f, by), (x + 17 * f, by - 11), (x + 12 * f, by - 14)])
-    head = poly([(x + 12 * f, by - 15), (x + 17 * f, by - 15), (x + 23 * f, by - 6), (x + 20 * f, by - 4)])
+def _mirror(x, f):
+    def X(d):
+        return x + d * f
+
+    def E(d0, y0, d1, y1):
+        return ell(min(X(d0), X(d1)), y0, max(X(d0), X(d1)), y1)
+    return X, E
+
+
+def _legs(x, by, y, f, specs, w_up, w_lo):
+    """specs: (dx, hind, near). Hind legs bend back at the hock, front legs have a knee bump. Returns (near, far) masks."""
+    X = lambda d: x + d * f   # noqa: E731
+    near, far = blank(), blank()
+    ky = by + (y - by) * 9 // 20
+    for dx, hind, is_near in specs:
+        top = (X(dx), by + 2)
+        knee = (X(dx - 2 if hind else dx), ky)
+        foot = (X(dx + (0 if hind else 1) + (0 if is_near else -1)), y)
+        m = line([top, knee], w_up) | line([knee, foot], w_lo)
+        if not hind:
+            m |= rect(knee[0] - 1, knee[1], knee[0] + 1, knee[1] + 1)
+        if is_near:
+            near |= m
+        else:
+            far |= m
+    return near, far
+
+
+def zebra(x, y, f, graze=False):
+    by = y - 16
+    X, E = _mirror(x, f)
+    body = E(-14, by - 6, -3, by + 4) | E(-9, by - 5, 8, by + 5) | E(3, by - 7, 12, by + 4)   # rump, barrel, chest
+    if graze:   # head down to the grass
+        neck = poly([(X(6), by - 5), (X(11), by - 2), (X(18), by + 9), (X(14), by + 11)])
+        head = poly([(X(14), by + 6), (X(18), by + 5), (X(21), by + 15), (X(17), by + 16)])
+    else:
+        neck = poly([(X(6), by - 5), (X(12), by + 1), (X(17), by - 10), (X(12), by - 14)])
+        head = poly([(X(12), by - 15), (X(17), by - 16), (X(23), by - 6), (X(19), by - 3)])
+    near, far = _legs(x, by, y, f, ((-11, True, True), (-8, True, False), (8, False, True), (5, False, False)), 3, 2)
     o = cv.obj()
-    o.part(legs, ZEB, d=0)
+    o.part(far, ramp('#c9c5bc', '#8a7a70'), d=0, rim=False)
+    o.draw()
+    o = cv.obj()
+    o.part(near, ZEB, d=0, rim=False)
     o.part(body | neck, ZEB, d=2)
     o.part(head, ZEB, d=1)
     o.draw()
-    for k in range(-10, 9, 4):   # curved body stripes
-        cv.fill(line([(x + k, by - 6), (x + k + 1, by - 1), (x + k - 1, by + 4)]) & body, '#2a1a10')
-    cv.fill(line([(x - 12 * f, by - 2), (x - 5 * f, by - 4)]) & body, '#2a1a10')
-    for k in range(3):
-        cv.fill(line([(x + (9 + k * 2) * f, by - 3 - k * 4), (x + (14 + k * 2) * f, by - 1 - k * 4)]) & neck, '#2a1a10')
-    cv.fill(legs & (rect(0, by + 7, W, by + 7) | rect(0, by + 11, W, by + 11)), '#2a1a10')
-    cv.fill(legs & rect(0, y - 1, W, y), DARK)   # hooves
-    cv.fill(line([(x + 12 * f, by - 16), (x + 7 * f, by - 4)]), DARK)   # mane
-    cv.fill(line([(x + 21 * f, by - 7), (x + 22 * f, by - 5)]), DARK)   # muzzle
-    cv.dots([(x + 16 * f, by - 12)], DARK)
-    cv.dots([(x + 13 * f, by - 17), (x + 15 * f, by - 17)], ZEB['s'])   # ears
-    cv.fill(line([(x - 12 * f, by - 2), (x - 14 * f, by + 6)]), DARK)
+    inb = body & shift(body, 0, 1) & shift(body, 0, -1)
+    for k in range(-12, 12, 3):   # body stripes: curved verticals, bending back over the rump
+        bend = -2 if k < -5 else 1
+        cv.fill(line([(X(k), by - 8), (X(k + bend), by - 2), (X(k), by + 3), (X(k - 1), by + 6)]) & inb, DARK)
+    for k in range(3):   # rump chevrons
+        cv.fill(line([(X(-15), by - 3 + k * 3), (X(-10), by - 5 + k * 3)]) & inb, DARK)
+    for k in range(-2, 18, 3):   # neck stripes, across the neck
+        cv.fill(line([(X(4), by + k - 10), (X(20), by + k - 18 + (12 if graze else 0))]) & neck & shift(neck, 0, 1), DARK)
+    legs = near | far
+    for yy in range(by + 7, y - 2, 3):
+        cv.fill(legs & rect(0, yy, W, yy), DARK)
+    cv.fill(legs & rect(0, y - 1, W, y), DARK)
+    hd = head & shift(head, 0, 1)
+    if graze:
+        cv.fill(hd & rect(0, by + 12, W, H), DARK)   # muzzle
+        cv.dots([(X(17), by + 9)], DARK)
+        mane = line([(X(6), by - 6), (X(13), by + 2), (X(16), by + 7)])
+    else:
+        cv.fill(hd & (rect(min(X(20), X(24)), 0, max(X(20), X(24)), H)), DARK)
+        cv.dots([(X(16), by - 12)], DARK)
+        mane = line([(X(6), by - 6), (X(10), by - 11), (X(12), by - 16)])
+    cv.fill(mane, DARK)
+    cv.fill(shift(mane, -f, -1) & ~body & ~neck & ~head, DARK)   # stand-up mane
+    ear = (X(13), by - 17) if not graze else (X(15), by + 4)
+    cv.dots([ear, (ear[0], ear[1] - 1), (ear[0] + f, ear[1] - 1)], ZEB['s'])
+    cv.fill(line([(X(-14), by - 3), (X(-16), by + 6)]), DARK)   # tail
+    cv.dots([(X(-16), by + 7), (X(-17), by + 7), (X(-16), by + 8)], DARK)
 
 
 def wildebeest(x, y, f):
-    by = y - 14
-    body = poly([(x - 12 * f, by - 2), (x - 6 * f, by - 6), (x + 6 * f, by - 9), (x + 10 * f, by - 6), (x + 10 * f, by + 4), (x - 12 * f, by + 4)])
-    legs = blank()
-    for lx, sp in ((-10, 0), (-7, 1), (5, -1), (8, 0)):
-        legs |= line([(x + lx * f, by + 3), (x + (lx + sp) * f, y)])
-    head = poly([(x + 8 * f, by - 8), (x + 13 * f, by - 8), (x + 18 * f, by + 2), (x + 14 * f, by + 4)])
+    by = y - 15
+    X, E = _mirror(x, f)
+    hump = E(-2, by - 10, 10, by + 3)
+    body = hump | E(-12, by - 5, 4, by + 4) | E(-14, by - 4, -6, by + 2)
+    neck = poly([(X(6), by - 9), (X(11), by - 8), (X(14), by + 0), (X(8), by + 2)])
+    head = poly([(X(10), by - 8), (X(15), by - 8), (X(19), by + 4), (X(14), by + 5)])
+    near, far = _legs(x, by, y, f, ((-11, True, True), (-8, True, False), (6, False, True), (3, False, False)), 2, 1)
     o = cv.obj()
-    o.part(legs, WILD, d=0)
-    o.part(body, WILD, d=2)
-    o.part(head, ramp('#4a3c36', '#3d2a1c', '#6a5a52'), d=1)
+    o.part(far, ramp('#4a3c36', '#3d2a1c'), d=0, rim=False)
     o.draw()
-    cv.fill(line([(x + 9 * f, by - 9), (x + 7 * f, by - 12), (x + 5 * f, by - 11)]) | line([(x + 12 * f, by - 9), (x + 14 * f, by - 12), (x + 16 * f, by - 11)]), '#f1ece0')   # horns
-    cv.fill(line([(x + 13 * f, by + 3), (x + 12 * f, by + 7)], 2), '#2a1a10')   # beard
-    cv.fill(line([(x + 8 * f, by - 9), (x - 4 * f, by - 6)]), '#2a1a10')   # mane along the hump
-    for k in range(-8, 6, 3):
-        cv.fill(rect(x + k, by - 2, x + k, by + 2) & body, WILD['s'])   # faint body stripes
-    cv.fill(line([(x - 12 * f, by - 1), (x - 14 * f, by + 6)]), DARK)
-    cv.dots([(x + 13 * f, by - 5)], '#f1ece0')
+    o = cv.obj()
+    o.part(near, WILD, d=0, rim=False)
+    o.part(body | neck, WILD, d=2)
+    o.part(head, ramp('#4a3c36', '#3d2a1c', '#6a5a52'), d=1)
+    o.part(line([(X(11), by - 8), (X(8), by - 10), (X(9), by - 13)]) | line([(X(14), by - 8), (X(17), by - 10), (X(16), by - 13)]), ramp('#c9c5bc', '#8a7a70', '#f1ece0'), d=0)   # horns
+    o.draw()
+    for k in range(-2, 9, 2):   # brindle bands over the shoulders
+        cv.fill(line([(X(k), by - 9), (X(k - 1), by + 2)]) & hump & shift(hump, 0, 1), WILD['s'])
+    cv.fill(head & shift(head, 0, 1) & rect(0, by - 6, W, by + 1), '#3d2a1c')   # dark face
+    cv.fill(line([(X(12), by + 2), (X(11), by + 8)], 2), DARK)   # beard
+    mane = line([(X(10), by - 10), (X(4), by - 11), (X(-1), by - 9)])
+    cv.fill(mane, DARK)
+    cv.dots([(X(k), by - 12) for k in (1, 4, 7)], DARK)
+    cv.fill((near | far) & rect(0, y - 1, W, y), DARK)
+    cv.dots([(X(13), by - 5)], '#f1ece0')   # eye glint
+    cv.fill(line([(X(-14), by - 3), (X(-17), by + 4), (X(-16), by + 9)]), DARK)   # long black tail
+    cv.dots([(X(-17), by + 9), (X(-15), by + 10)], DARK)
 
 
 for dx, dy in ((232, 198), (262, 184), (292, 196), (300, 170), (244, 172)):   # dust clouds behind them
@@ -733,11 +791,11 @@ wildebeest(254, 176, -1)
 shadow(276, 182, 300, 186)
 zebra(290, 184, -1)
 shadow(232, 196, 262, 199)
-zebra(246, 199, -1)
+zebra(246, 199, -1, graze=True)
 shadow(286, 197, 300, 199)
 wildebeest(296, 200, -1)
-cv.dots([(244, 175), (245, 174), (246, 175)], '#5c3420')   # oxpecker on the zebra
-cv.fill(rect(243, 174, 244, 175), '#d6322b')
+cv.fill(rect(285, 160, 288, 161), '#5c3420')   # oxpecker riding the zebra
+cv.dots([(284, 160), (288, 159)], '#d6322b')
 
 # ---------------------------------------------------------------- litter: grass seed heads, stones, aloe and flowers across the meadow
 keep = (rect(150, 140, 232, 199) | rect(14, 150, 46, 199) | rect(176, 160, 300, 199) | rect(40, 84, 70, 106) | rect(56, 40, 110, 121)

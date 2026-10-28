@@ -175,11 +175,11 @@ cv.fill(vol, '#9a7a96')
 cv.fill(vol & poly([(120 + VX, 92), (176 + VX, 36), (186 + VX, 36), (172 + VX, 92)]), '#b892a8')   # lit left flank
 for gx0, gl in ((150, 0), (166, 6), (184, 2), (200, 8), (218, 4)):   # gullies of uneven length
     cv.fill(line([(gx0 + VX + 10, 50 + gl), (gx0 + VX + 6, 70 + gl), (gx0 + VX + 3, 90)]) & vol, '#86688a')
-crater = poly([(177 + VX, 39), (181 + VX, 37), (183 + VX, 37), (187 + VX, 40), (191 + VX, 37), (194 + VX, 39), (193 + VX, 41), (178 + VX, 41)])
-cv.fill(crater, '#f08a24')   # glowing, notched crater lip
-cv.fill(crater & ~shift(crater, 0, -1), '#f5b04a')
-cv.fill(line([(185 + VX, 41), (184 + VX, 49)], 2) & vol, '#f08a24')   # short lava tongue below the notch
-cv.dots([(184 + VX, 43), (184 + VX, 45)], '#f5b04a')
+crater = poly([(178 + VX, 40), (183 + VX, 36), (187 + VX, 40), (191 + VX, 35), (195 + VX, 39), (190 + VX, 44), (182 + VX, 44)]) & vol
+cv.fill(crater, '#6a4a5a')   # dark notched crater mouth
+cv.fill(crater & ~shift(crater, 0, -1), '#f08a24')   # molten glow at its floor
+cv.fill(crater & ~shift(crater, 0, -2) & shift(crater, 0, -1), '#f5b04a')
+cv.dots([(185 + VX, 45), (186 + VX, 46), (185 + VX, 48)], '#f08a24')   # a few glowing drips
 for k, (sx, sy, rr) in enumerate(((187 + VX, 31, 4), (183 + VX, 25, 5), (189 + VX, 20, 6), (181 + VX, 14, 7), (191 + VX, 9, 6), (178 + VX, 5, 7), (195 + VX, 3, 5))):   # puffy plume from the crater
     pm = ell(sx - rr, sy - rr + 1, sx + rr, sy + rr - 1)
     cv.fill(pm, '#efe2d4' if k % 3 else '#e2d2c8')
@@ -849,7 +849,7 @@ for fx in range(2, 300, 9):   # marigolds along the plaza back edge, loosely spa
     cv.dots([(fx, fy), (fx - 1, fy + 1), (fx + 1, fy + 1)], SQUASH['b'])
     cv.dots([(fx, fy + 1)], MAIZE['s'])
 
-cv.remap({'#f0a0a0': '#f6b8cf', '#2a8a4a': '#2a7050', '#8ae09a': '#8ad09a', '#e8607a': '#e46a9b', '#5a4a48': '#3a2a28', '#f2e4c0': '#fff4dc',
+cv.remap({'#c49a6a': '#c8a070', '#9a7048': '#a8825a', '#f0a0a0': '#f6b8cf', '#2a8a4a': '#2a7050', '#8ae09a': '#8ad09a', '#e8607a': '#e46a9b', '#5a4a48': '#3a2a28', '#f2e4c0': '#fff4dc',
           '#8a9a4a': '#5a9a3a', '#ecc488': '#f2d8a8', '#c9c5bc': '#b8a888', '#fff0d8': '#fff4dc', '#f5cf6a': '#f8dc7a', '#f08a6a': '#e8905a',
           '#a8d0c4': '#8adcd0', '#4f7a74': '#24807e', '#a8869e': '#9a7a96', '#d9a07a': '#d9a35a', '#3d2a1c': '#3a2a28', '#6a3a22': '#5c3420',
           '#e2d2c8': '#efe2d4', '#2a1a18': DARK, '#8ae0d8': '#8adcd0', '#9ad08a': '#8ad09a', '#5a3e34': '#5a3a3a', '#d8905a': '#e8905a'})

@@ -188,7 +188,7 @@ for k in range(11):
 cloud(ell(254, 2, 290, 8) | ell(262, -2, 282, 6), CLOUD, 8)
 cloud(cum(288, 16, 28), CLOUD, 19)
 # skein of geese heading home (cell 4,0-1), bigger, in a proper V
-for k, (bx, by) in enumerate(((120, 16), (114, 19), (108, 22), (102, 25), (126, 19), (132, 22), (138, 25), (144, 28))):
+for k, (bx, by) in enumerate(((114, 12), (109, 15), (104, 18), (100, 21), (119, 15), (123, 18), (110, 26), (116, 29))):
     cv.dots([(bx - 2, by), (bx - 1, by - 1), (bx, by), (bx + 1, by - 1), (bx + 2, by), (bx, by + 1)], '#3e4654')
 # gulls over the sea (cell 1,1) and over the fells (cell 10,0)
 for bx, by in ((30, 38), (40, 42), (258, 14), (268, 18)):
@@ -648,20 +648,20 @@ o.draw()
 cv.fill(line([(14, 134), (19, 128), (24, 122)]), WOOD['s'])   # bark twist
 cv.fill(line([(15, 126), (9, 118), (6, 116)]) | line([(9, 118), (8, 112)]) | line([(22, 118), (18, 110), (14, 108)]), '#5e4030')
 # crown: one low wind-combed mass, thin and clipped on the sea side, streaming out long to the right
-crown = poly([(16, 108), (22, 102), (32, 98), (46, 96), (62, 96), (76, 99), (84, 103), (74, 106), (58, 108), (44, 110), (30, 112), (20, 112)])
+crown = poly([(16, 108), (22, 102), (32, 98), (46, 96), (58, 96), (68, 99), (74, 103), (64, 106), (54, 108), (44, 110), (30, 112), (20, 112)])
 for k in range(7):
-    cx_ = 26 + k * 8 + r3(-2, 2)
+    cx_ = 24 + k * 6 + r3(-2, 2)
     crown |= ell(cx_ - 5, 94 + (k % 3) - k // 3, cx_ + 6, 102 + (k % 2))   # lumpy top
 for k in range(5):
     yy = 98 + k * 2 + r3(0, 1)
-    crown |= rect(76, yy, 86 + r3(0, 6), yy)   # wind-combed tips
+    crown |= rect(68, yy, 76 + r3(0, 6), yy)   # wind-combed tips
 crown &= ~rect(0, 0, 18, 102)
 o = cv.obj()
 o.part(crown, TURF, d=2)
 o.draw()
 for k in range(5):   # combed streaks inside the crown
     yy = 100 + k * 2
-    cv.fill(line([(30 + k * 6, yy), (52 + k * 6, yy - 1)]) & crown & ~shift(crown, 0, 2), TURF['s'])
+    cv.fill(line([(28 + k * 5, yy), (46 + k * 5, yy - 1)]) & crown & ~shift(crown, 0, 2), TURF['s'])
 ys, xs = np.nonzero(crown)
 for k in range(26):
     i = r3(0, len(xs) - 1)
@@ -669,7 +669,7 @@ for k in range(26):
     cv.dots([(x, y)] + ([(x + 1, y)] if k % 3 == 0 else []), WINE['b'] if k % 2 else ('#c05a50' if k % 3 else TURF['r']))   # haws
 
 # ---------------------------------------------------------------- sheep on the moor
-SHEEP = ((84, 102, 1), (164, 104, -1), (50, 104, -1), (276, 158, -1))
+SHEEP = ((86, 104, 1), (60, 116, 1), (40, 104, -1), (276, 158, -1))
 for shx, shy, fc in SHEEP:
     shadow(shx - 2, shy + 9, shx + 15, shy + 12)
     o = cv.obj()
@@ -739,16 +739,17 @@ cv.fill(rect(fx - 2, fy - 1, fx + 1, fy - 1), MOSS['s'])
 # ---------------------------------------------------------------- gnomes: kite flyer at the stones, umbrella on the bridge, puddle-jumper on the track
 kx, ky = 112, 100
 X, Y = gnome(kx, ky, WINE, HEATH, f=0.6, tip=-3)
-kite = poly([(146, 20), (152, 26), (146, 34), (140, 26)])
+kite = poly([(137, 12), (145, 21), (137, 32), (129, 21)])
 o = cv.obj()
 o.part(kite, HEATH, d=1)
 o.draw()
-cv.fill(kite & rect(146, 0, W, H), MUST['b'])
-cv.fill(line([(146, 20), (146, 34)]) | line([(140, 26), (152, 26)]), '#3d2a1e')
-cv.fill(line([(X(6), Y(-12)), (124, 70), (146, 34)]), '#3d2a1e')   # a sagging string
-for k, (tx, ty) in enumerate(((146, 37), (144, 41), (146, 45), (148, 49))):   # tail bows
-    cv.dots([(tx - 1, ty), (tx + 1, ty), (tx, ty)], MUST['b'] if k % 2 else HEATH['r'])
-cv.fill(line([(146, 34), (145, 38), (147, 44), (147, 50)]), '#3d2a1e')
+cv.fill(kite & rect(137, 0, W, 21), MUST['b'])
+cv.fill(kite & rect(0, 21, 137, H), MUST['b'])
+cv.fill(line([(137, 12), (137, 32)]) | line([(129, 21), (145, 21)]), '#3d2a1e')
+cv.fill(line([(X(6), Y(-12)), (126, 66), (137, 32)]), '#3d2a1e')   # a sagging string
+cv.fill(line([(137, 32), (134, 36), (138, 41), (135, 46), (139, 50)]), '#3d2a1e')
+for k, (tx, ty) in enumerate(((135, 35), (137, 39), (136, 44), (138, 48))):   # tail bows
+    cv.dots([(tx - 1, ty - 1), (tx + 1, ty - 1), (tx, ty), (tx - 1, ty + 1), (tx + 1, ty + 1)], MUST['b'] if k % 2 else WINE['r'])
 # umbrella gnome crossing the bridge
 ux, uy = 136, 121
 X, Y = gnome(ux, uy, WINE, SLATEC, f=0.75, tip=-2)
