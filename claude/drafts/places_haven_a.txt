@@ -1,0 +1,57 @@
+# Puzzle Pals drafts: 9 HAVEN places (2026-10-28), 6 pals each = 3 common, 2 uncommon, 1 rare. Not yet merged into puzzle_pals.txt.
+# pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
+# pic_slug = pl- + the place key cut to 44 chars + - + md5(key)[0:6], as ppal_pic_slug() reads it for source place.
+pl-haven-aurora-camp-fdffc1|pl-aurc-1|Tent Flap|common|rootwarden|1|1|1|0|3-5|corner-TB|round|-|The red flag on top of the tent, waving at the aurora to say the camp is open for the night.
+pl-haven-aurora-camp-fdffc1|pl-aurc-2|Campfire Spark|common|seedkeeper|0|2|1|0|6-6|edge-TTB|peg|-|Pops off the campfire and drifts up to join the aurora for a little dance before bed.
+pl-haven-aurora-camp-fdffc1|pl-aurc-3|Pine Watch|common|brewroot|1|0|1|1|0-5|inner-TBTB|round|-|A pine tree at the edge of camp that keeps watch through the snowy night and never nods off.
+pl-haven-aurora-camp-fdffc1|pl-aurc-4|Aurora Band|uncommon|thornblade|2|1|1|1|4-1|inner-TTTT|peg|-|A green ribbon of aurora that rolls over the snowy mountains and drapes itself across the sky.
+pl-haven-aurora-camp-fdffc1|pl-aurc-5|Sky Window|uncommon|bloomcaller|1|0|2|2|9-1|inner-BBBB|round|-|A round gap in the aurora where the stars peek through to say good night to the campers.
+pl-haven-aurora-camp-fdffc1|pl-aurc-6|Tent Keeper|rare|wayfinder|2|2|1|1|2-6|whimsy-tent|peg|-|A little tent with a red flag and a warm glow inside, who keeps the camp cosy and never blows away.
+pl-haven-baobab-inn-9e5f82|pl-baob-1|Clay Pot|common|rootwarden|1|1|1|0|3-7|corner-TB|round|-|A clay pot of stew on the step, kept warm for whichever traveller comes in late.
+pl-haven-baobab-inn-9e5f82|pl-baob-2|Branch Bird|common|seedkeeper|0|2|1|0|3-1|edge-TTB|peg|-|A bird on the baobab branch that sings every guest awake before the sun is up.
+pl-haven-baobab-inn-9e5f82|pl-baob-3|Sunset Disc|common|brewroot|1|0|1|1|1-2|inner-TBTB|round|-|The savanna sun sinking behind the baobab, which the guests treat as the signal for supper.
+pl-haven-baobab-inn-9e5f82|pl-baob-4|Leaf Cluster|uncommon|thornblade|2|1|1|1|2-0|inner-TTTT|peg|-|A bushy knot of baobab leaves that rustles whenever a guest comes up the path.
+pl-haven-baobab-inn-9e5f82|pl-baob-5|Trunk Window|uncommon|bloomcaller|1|0|2|2|5-4|inner-BBBB|round|-|A round window in the trunk, glowing warm for anyone still out on the savanna.
+pl-haven-baobab-inn-9e5f82|pl-baob-6|Baobab Guest|rare|wayfinder|2|2|1|1|6-3|whimsy-baobab|peg|-|A baobab-shaped guest with a glowing door who welcomes every traveller with a friendly rustle.
+pl-haven-cherry-blossom-teahouse-ad6328|pl-cblo-1|Tea Table|common|rootwarden|1|1|1|0|3-7|corner-TB|round|-|A small tea table on the grass where every cup gets a bow before the first sip.
+pl-haven-cherry-blossom-teahouse-ad6328|pl-cblo-2|Blossom Puff|common|seedkeeper|0|2|1|0|1-3|edge-TTB|peg|-|A pink puff of sakura that drops one petal into every cup of tea served on the hill.
+pl-haven-cherry-blossom-teahouse-ad6328|pl-cblo-3|Fuji Slope|common|brewroot|1|0|1|1|4-2|inner-TBTB|round|-|The snowy mountain across the valley, which the gnomes greet with a bow every dawn.
+pl-haven-cherry-blossom-teahouse-ad6328|pl-cblo-4|Lantern Glow|uncommon|thornblade|2|1|1|1|7-4|inner-TTTT|peg|-|A round lantern under the eaves, glowing for every guest climbing the hill path.
+pl-haven-cherry-blossom-teahouse-ad6328|pl-cblo-5|Roof Medallion|uncommon|bloomcaller|1|0|2|2|9-2|inner-BBBB|round|-|The round gold medallion on the teahouse roof, which catches the dawn sun before anything else.
+pl-haven-cherry-blossom-teahouse-ad6328|pl-cblo-6|Pagoda Gnome|rare|wayfinder|2|2|1|1|8-4|whimsy-teahouse|peg|-|A little teahouse with curly eaves and a lantern glow, who waves at everyone on the hill path.
+pl-haven-driftwood-tavern-c9dacd|pl-drft-1|Pan Lid|common|rootwarden|1|1|1|0|4-5|corner-TB|round|-|The round steel pan on its stand, which rings a bright tune whenever the wind taps it.
+pl-haven-driftwood-tavern-c9dacd|pl-drft-2|Palm Frond|common|seedkeeper|0|2|1|0|0-2|edge-TTB|peg|-|Palm fronds on the left of the bar that nod along to the steel-pan music.
+pl-haven-driftwood-tavern-c9dacd|pl-drft-3|Sunset Waves|common|brewroot|1|0|1|1|6-4|inner-TBTB|round|-|Waves at sunset that roll up the sand and tickle the bar’s toes between songs.
+pl-haven-driftwood-tavern-c9dacd|pl-drft-4|Thatch Ridge|uncommon|thornblade|2|1|1|1|8-2|inner-TTTT|peg|-|The thatched roof of the beach bar, rippling in the breeze over the coconut cups.
+pl-haven-driftwood-tavern-c9dacd|pl-drft-5|Porthole Glow|uncommon|bloomcaller|1|0|2|2|9-3|inner-BBBB|round|-|A round porthole on the bar wall, glowing pink for guests who want a view of the sea.
+pl-haven-driftwood-tavern-c9dacd|pl-drft-6|Steel Drummer|rare|wayfinder|2|2|1|1|3-3|whimsy-drum|peg|-|A chibi gnome in a purple hat who drums out the beach-bar tune until the sun drops into the sea.
+pl-haven-drum-circle-market-1b1e7c|pl-drmc-1|Stew Pot|common|rootwarden|1|1|1|0|5-5|corner-TB|round|-|A groundnut stew bubbling in the big black pot, stirred by whichever gnome is hungriest.
+pl-haven-drum-circle-market-1b1e7c|pl-drmc-2|Crescent Moon|common|seedkeeper|0|2|1|0|0-1|edge-TTB|peg|-|A crescent moon over the market that hums along with the drums until the night is over.
+pl-haven-drum-circle-market-1b1e7c|pl-drmc-3|Clap Along|common|brewroot|1|0|1|1|2-6|inner-TBTB|round|-|A gnome in a striped hat who claps along to every beat of the drum circle, a bit off the rhythm.
+pl-haven-drum-circle-market-1b1e7c|pl-drmc-4|Acacia Crown|uncommon|thornblade|2|1|1|1|4-1|inner-TTTT|peg|-|A flat acacia tree over the market, its crown spread out like a shady umbrella for the drummers.
+pl-haven-drum-circle-market-1b1e7c|pl-drmc-5|Fire Ring|uncommon|bloomcaller|1|0|2|2|6-6|inner-BBBB|round|-|The ring of gnomes round the fire, with the warm glow in the middle where the stew simmers.
+pl-haven-drum-circle-market-1b1e7c|pl-drmc-6|Hut Dweller|rare|wayfinder|2|2|1|1|2-4|whimsy-hut|peg|-|A round mud hut with a thatched roof and a lit doorway, who opens up for every late drummer.
+pl-haven-floating-flower-market-da20bd|pl-flfm-1|Flower Barge|common|rootwarden|1|1|1|0|1-5|corner-TB|round|-|A barge heaped with pink and orange blooms that drifts slowly along the lake each morning.
+pl-haven-floating-flower-market-da20bd|pl-flfm-2|Marigold Float|common|seedkeeper|0|2|1|0|4-6|edge-TTB|peg|-|A ring of marigolds floating on the water, bobbing gently and waiting to be strung into garlands.
+pl-haven-floating-flower-market-da20bd|pl-flfm-3|Snowline Peak|common|brewroot|1|0|1|1|3-0|inner-TBTB|round|-|The snowy mountain at the far end of the lake, which the flower boats face at sunrise.
+pl-haven-floating-flower-market-da20bd|pl-flfm-4|Blossom Heap|uncommon|thornblade|2|1|1|1|10-5|inner-TTTT|peg|-|A heap of pale flowers piled high in the boat, ready for the next garland order.
+pl-haven-floating-flower-market-da20bd|pl-flfm-5|Temple Arch|uncommon|bloomcaller|1|0|2|2|5-3|inner-BBBB|round|-|The arched doorway of the lakeside dome, where morning light spills out across the water.
+pl-haven-floating-flower-market-da20bd|pl-flfm-6|Flower Boatman|rare|wayfinder|2|2|1|1|6-6|whimsy-boat|peg|-|A little shikara boat with a gnome florist aboard, who sells garlands to every passing boat.
+pl-haven-floating-market-f899c8|pl-flmk-1|Noodle Awning|common|rootwarden|1|1|1|0|4-5|corner-TB|round|-|A red and white awning over the noodle boat, shading the bowls and flapping in every breeze.
+pl-haven-floating-market-f899c8|pl-flmk-2|Stilt House|common|seedkeeper|0|2|1|0|1-2|edge-TTB|peg|-|A wooden house on tall stilts above the canal, its shutters open to the morning market.
+pl-haven-floating-market-f899c8|pl-flmk-3|Noodle Pot|common|brewroot|1|0|1|1|4-6|inner-TBTB|round|-|A steaming pot the gnome cook stirs with one hand while waving at the canal with the other.
+pl-haven-floating-market-f899c8|pl-flmk-4|Palm Crown|uncommon|thornblade|2|1|1|1|6-1|inner-TTTT|peg|-|The palm that leans over the canal, dropping coconuts only when the boats are looking away.
+pl-haven-floating-market-f899c8|pl-flmk-5|Fruit Basket|uncommon|bloomcaller|1|0|2|2|10-6|inner-BBBB|round|-|A round basket of melons and fruit on the right-hand boat, rocking gently on the canal.
+pl-haven-floating-market-f899c8|pl-flmk-6|Canal Noodler|rare|wayfinder|2|2|1|1|8-5|whimsy-boat|round|-|A chibi gnome in a red hat who sells noodles from a little boat and always has one more bowl.
+pl-haven-gaucho-gnome-ranch-3c3ac8|pl-gaun-1|Farm Roof|common|rootwarden|1|1|1|0|2-3|corner-TB|round|-|The red roof of the ranch house, where the gauchos sit out to share a mate after supper.
+pl-haven-gaucho-gnome-ranch-3c3ac8|pl-gaun-2|Fence Rail|common|seedkeeper|0|2|1|0|5-5|edge-TTB|peg|-|A long fence rail across the pampas, where the cows lean in for a scratch.
+pl-haven-gaucho-gnome-ranch-3c3ac8|pl-gaun-3|Mate Gourd|common|brewroot|1|0|1|1|5-6|inner-TBTB|round|-|A yerba-mate gourd on the stump, passed round the fire until the whole ranch has had a sip.
+pl-haven-gaucho-gnome-ranch-3c3ac8|pl-gaun-4|Windmill Vane|uncommon|thornblade|2|1|1|1|11-2|inner-TTTT|peg|-|A windmill vane that turns in the pampas breeze and pumps water for the horses.
+pl-haven-gaucho-gnome-ranch-3c3ac8|pl-gaun-5|Round Tree|uncommon|bloomcaller|1|0|2|2|3-3|inner-BBBB|round|-|A round tree on the pampas, its crown shading the riders at noon.
+pl-haven-gaucho-gnome-ranch-3c3ac8|pl-gaun-6|Pampas Rider|rare|wayfinder|2|2|1|1|7-5|whimsy-horse|round|-|A chibi gaucho gnome riding his chibi horse across the pampas, tipping his hat to every cow.
+pl-haven-kava-circle-fb178e|pl-kava-1|Moon Sliver|common|rootwarden|1|1|1|0|10-0|corner-TB|round|-|A thin moon over the sea that rises just in time for the kava circle to start.
+pl-haven-kava-circle-fb178e|pl-kava-2|Palm Lean|common|seedkeeper|0|2|1|0|10-3|edge-TTB|peg|-|A palm tree leaning over the circle to listen in, dropping a leaf whenever it laughs.
+pl-haven-kava-circle-fb178e|pl-kava-3|Circle Sitter|common|brewroot|1|0|1|1|2-6|inner-TBTB|round|-|A gnome in a red hat who sits in the ring and sips quietly while the evening lamps glow.
+pl-haven-kava-circle-fb178e|pl-kava-4|Hut Dome|uncommon|thornblade|2|1|1|1|4-3|inner-TTTT|peg|-|The round thatched roof over the kava circle, keeping the sea breeze out and the gnomes cosy.
+pl-haven-kava-circle-fb178e|pl-kava-5|Kava Bowl|uncommon|bloomcaller|1|0|2|2|5-6|inner-BBBB|round|-|The wooden tanoa bowl passed round the circle, one shared cup at a time.
+pl-haven-kava-circle-fb178e|pl-kava-6|Crescent Friend|rare|wayfinder|2|2|1|1|10-1|whimsy-moon|peg|-|A chibi crescent moon with a sleepy face, who keeps the kava circle company until the sea goes dark.
