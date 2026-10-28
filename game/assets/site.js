@@ -622,6 +622,53 @@ gvAdvFold();
   joinAll();
 })();
 
+// v2.0.84: the Gather scene (card or belt-icon click) swaps only its own box: no page swap, the scroll stays, the rest of the page is untouched.
+// Runs in the capture phase so the general in-place handler below never sees these forms. Any failure falls back to a normal post.
+(function () {
+  if (!window.fetch || !window.DOMParser) return;
+  var busy = false;
+  document.addEventListener('submit', function (ev) {
+    var form = ev.target;
+    if (!form.classList || !form.classList.contains('gx-form') || ev.defaultPrevented || form.hasAttribute('data-noajax')) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (busy) return;
+    busy = true;
+    var sub = ev.submitter, fd = new FormData(form), y = window.scrollY;
+    if (sub && sub.name && !fd.has(sub.name)) fd.append(sub.name, sub.value);
+    var box = form.closest('section.gx');
+    if (box) box.classList.add('sending');
+    var fallback = function () {
+      busy = false;
+      form.setAttribute('data-noajax', '1');
+      form.requestSubmit ? form.requestSubmit(sub || undefined) : form.submit();
+    };
+    fetch(new URL(form.getAttribute('action') || location.href, location.href).href,
+      { method: 'POST', body: new URLSearchParams(fd), credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+      .then(function (r) {
+        if (!r.ok || new URL(r.url).pathname !== location.pathname) throw new Error('page');
+        return r.text();
+      })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var fresh = doc.querySelector('section.gx'), cur = document.querySelector('section.gx');
+        if (!fresh || !cur) throw new Error('box');
+        cur.replaceWith(fresh);
+        ['.statusstrip', '.userbar', '.advbar', '.railsrv', '.msglog.mlside', '.msglog.top'].forEach(function (sel) {
+          var a = document.querySelector(sel), b = doc.querySelector(sel);
+          if (a && b) a.innerHTML = b.innerHTML;
+        });
+        window.scrollTo(0, y);
+        busy = false;
+        if (window.gvRailFit) window.gvRailFit();
+        var log = window.gvVisibleLog ? gvVisibleLog() : null;
+        var news = log ? log.querySelectorAll('li.ml.new') : [];
+        if (news.length && window.gvShowToasts && !gvInView(news[0])) gvShowToasts(Array.prototype.slice.call(news).map(gvToastNode));
+      })
+      .catch(fallback);
+  }, true);
+})();
+
 // In-place updates (v0.7.39): on game and adventure pages, buttons send their form in the background and only the
 // page's content is swapped, so you keep your place instead of reloading and scrolling. Anything unusual (another
 // page, an error, an old browser) falls back to a normal page load.
@@ -978,6 +1025,8 @@ function gvRegionZoom() {
     }
     function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
     function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    var fo = (svg.getAttribute('data-focus') || '').split(' ').map(Number);   // v2.0.84: the Go tab opens zoomed in on you
+    if (fo.length === 3 && fo[2] > 1) v = [fo[0] - W / fo[2] / 2, fo[1] - H / fo[2] / 2, W / fo[2], H / fo[2]];
     apply();
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');
