@@ -1,43 +1,43 @@
 # Puzzle Pals drafts: the 14 LAIR places (2026-10-28), 6 pals each = 3 common, 2 uncommon, 1 rare. Not yet merged into puzzle_pals.txt.
 # pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
 # pic_slug = pl- + the place key cut to 44 chars + - + md5(key)[0:6], as ppal_pic_slug() reads it for source place.
-pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-1|Rimewart Crumb|common|rootwarden|1|0|1|1|0-1|corner-TT|peg|-|A crumb of frost the toad coughed up, still croaking softly.
+pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-1|Rime Crumb|common|rootwarden|1|0|1|1|4-5|corner-TT|peg|-|A crumb of frost the toad coughed up, still croaking softly.
 pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-2|Puddle Croak|common|seedkeeper|0|2|1|0|7-5|edge-TTB|hook|-|Sits in a cold puddle and hums a lullaby for toads.
 pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-3|Thawdrop Pip|common|brewroot|1|1|0|1|9-3|inner-TBTB|tri|-|A drop of spring meltwater saved from the toad’s last yawn.
-pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-4|Icicle Crown|uncommon|thornblade|2|1|1|1|8-2|inner-TTTT|double|-|Four icicles that once sat on the toad’s very own head.
-pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-5|Thaw Halo|uncommon|rootwarden|1|0|2|2|10-6|inner-BBBB|hook|-|A round hole in the ice that peeks at spring.
-pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-6|Barrow Toadstone|rare|thornblade|2|1|1|2|6-4|whimsy-toad|hook|-|The toad’s cold little stone, still warm from sitting on it.
-pl-lair-condors-crag-c1d06d|pl-cnd-1|Crag Quill|common|thornblade|1|1|1|0|6-1|corner-TB|hook|-|A bronze quill the condor dropped, and it thinks it is a spear.
+pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-4|Frostwart Bumps|uncommon|thornblade|2|1|1|1|10-6|inner-TTTT|double|-|Four frosty warts off the toad’s back that go bump in the cold.
+pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-5|Barrow Peephole|uncommon|rootwarden|1|0|2|2|2-6|inner-BBBB|hook|-|A peephole in the old barrow door, frosty round the edges.
+pl-lair-barrow-of-the-frost-toad-c2f07b|pl-frt-6|Barrow Icecrown|rare|thornblade|2|1|1|2|8-3|whimsy-icecrown|hook|-|The frost toad’s spare crown of ice, still croaking when nobody looks.
+pl-lair-condors-crag-c1d06d|pl-cnd-1|Crag Quill|common|thornblade|1|1|1|0|2-3|corner-TB|hook|-|A bronze quill the condor dropped, and it thinks it is a spear.
 pl-lair-condors-crag-c1d06d|pl-cnd-2|Ledge Feather|common|wayfinder|0|2|1|0|3-2|edge-BTB|tri|-|Drifts off every ledge and always finds its way back.
-pl-lair-condors-crag-c1d06d|pl-cnd-3|Updraft Tuft|common|seedkeeper|1|1|0|1|8-2|inner-TBTB|peg|-|A puff of cream fluff that rides the wind to see the view.
-pl-lair-condors-crag-c1d06d|pl-cnd-4|Talon Knot|uncommon|rootwarden|2|1|1|1|5-6|inner-TTTT|double|-|Four curled talons that grip the crag and never let go.
-pl-lair-condors-crag-c1d06d|pl-cnd-5|Nest Wobble|uncommon|bloomcaller|1|0|2|2|3-6|inner-TTBB|hook|-|A twiggy ring that sways in the wind and never quite falls out.
-pl-lair-condors-crag-c1d06d|pl-cnd-6|Last Condor Plume|rare|thornblade|2|2|1|1|6-3|whimsy-condor|peg|-|The biggest feather the condor ever dropped, and it still floats.
+pl-lair-condors-crag-c1d06d|pl-cnd-3|Updraft Fluff|common|seedkeeper|1|1|0|1|6-3|inner-TBTB|peg|-|A puff of cream neck fluff that rides the wind to see the view.
+pl-lair-condors-crag-c1d06d|pl-cnd-4|Talon Clutch|uncommon|rootwarden|2|1|1|1|6-4|inner-TTTT|double|-|Four curled talons that grip the crag and never let go.
+pl-lair-condors-crag-c1d06d|pl-cnd-5|Nest Wobble|uncommon|bloomcaller|1|0|2|2|3-6|inner-TTBB|hook|-|A twiggy nest on a cloud that sways in the wind and never quite falls off.
+pl-lair-condors-crag-c1d06d|pl-cnd-6|Grand Condor Plume|rare|thornblade|2|2|1|1|6-2|whimsy-condor|peg|-|The biggest feather the Grand Condor ever dropped, and it still floats.
 pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-1|Pinfeather Hush|common|seedkeeper|1|1|1|0|4-4|corner-TT|peg|-|A soft brown feather that hushes anything trying to hoot.
-pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-2|Nightglow Crumb|common|wayfinder|0|2|1|0|11-1|edge-BTB|hook|-|A chip of moon the owl dropped on the way home.
+pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-2|Nightglow Fleck|common|wayfinder|0|2|1|0|11-1|edge-BTB|hook|-|A fleck of moon the owl dropped on the way home.
 pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-3|Aurora Thread|common|bloomcaller|1|0|1|1|2-2|inner-TBTB|tri|-|A green and purple thread the owl wears like a scarf.
-pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-4|Lantern Hoot|uncommon|thornblade|2|1|1|1|7-6|inner-TTTT|double|-|A little yellow lantern that goes hoot when it is bored.
-pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-5|Hollowtree Ring|uncommon|rootwarden|1|0|2|2|6-7|inner-BBBB|peg|-|A round hole where the owl naps while the moon peeks in.
-pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-6|Great White Hoot|rare|wayfinder|2|1|1|2|5-3|whimsy-owl|hook|-|A tiny carved owl the great white owl kept for practice.
+pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-4|Owlet Peep|uncommon|thornblade|2|1|1|1|5-7|inner-TTTT|double|-|A sleepy owlet in the den who peeps when it is bored.
+pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-5|Snowcrag Halo|uncommon|rootwarden|1|0|2|2|6-6|inner-BBBB|peg|-|A round snowy hollow where the owlets nap under the aurora.
+pl-lair-den-of-the-great-white-owl-34dfad|pl-owl-6|Great White Plumelet|rare|wayfinder|2|1|1|2|6-3|whimsy-feather|hook|-|The great white owl’s finest feather, dipped in aurora light.
 pl-lair-dragonlizard-den-418047|pl-dlz-1|Scalecrust Tot|common|rootwarden|1|1|1|0|4-6|corner-TB|hook|-|A tiny scale that flakes off every time it laughs.
-pl-lair-dragonlizard-den-418047|pl-dlz-2|Frill Flicker|common|bloomcaller|0|2|1|0|9-4|edge-TBT|tri|-|A green frill that flicks at flies and misses on purpose.
-pl-lair-dragonlizard-den-418047|pl-dlz-3|Tail Tick|common|seedkeeper|1|0|1|1|6-5|inner-TBTB|double|-|Ticks its tail against every rock on the path just to hear it.
-pl-lair-dragonlizard-den-418047|pl-dlz-4|Crest Spur|uncommon|thornblade|2|1|1|1|10-5|inner-TTTT|hook|-|Spiky bits that stick up like a lizard’s very proud hairdo.
-pl-lair-dragonlizard-den-418047|pl-dlz-5|Dragonlizard Coil|uncommon|rootwarden|1|0|2|2|5-4|inner-TTBB|peg|-|A coil of old den scale that wraps around itself for warmth.
-pl-lair-dragonlizard-den-418047|pl-dlz-6|Scaleback Glint|rare|thornblade|2|2|1|1|1-5|whimsy-lizard|double|-|A glint off the den’s oldest lizard, polished by a hundred naps.
+pl-lair-dragonlizard-den-418047|pl-dlz-2|Tongue Flicker|common|bloomcaller|0|2|1|0|0-6|edge-TBT|tri|-|A forked red tongue that flicks at flies and misses on purpose.
+pl-lair-dragonlizard-den-418047|pl-dlz-3|Tail Tick|common|seedkeeper|1|0|1|1|10-6|inner-TBTB|double|-|Ticks its tail against every rock on the path just to hear it.
+pl-lair-dragonlizard-den-418047|pl-dlz-4|Diamond Spur|uncommon|thornblade|2|1|1|1|6-5|inner-TTTT|hook|-|Four diamond bumps off the lizard’s back, very proud of their pattern.
+pl-lair-dragonlizard-den-418047|pl-dlz-5|Karst Yawn|uncommon|rootwarden|1|0|2|2|5-4|inner-TTBB|peg|-|A scrap of the dark den mouth that yawns whenever the lizard does.
+pl-lair-dragonlizard-den-418047|pl-dlz-6|Mossback Monitor|rare|thornblade|2|2|1|1|1-5|whimsy-lizard|double|-|A pocket-sized monitor lizard, polished by a hundred jungle naps.
 pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-1|Ember Flake|common|thornblade|1|1|1|0|11-7|corner-BB|hook|-|A cinder that drifted off the wyrm’s back and stayed warm.
-pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-2|Slag Drip|common|seedkeeper|0|2|1|0|6-6|edge-TBB|tri|-|A thick glowing drip that takes its time falling off the forge.
+pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-2|Slag Drip|common|seedkeeper|0|2|1|0|3-7|edge-TBB|tri|-|A thick glowing drip that takes its time falling off the forge.
 pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-3|Scorch Sliver|common|rootwarden|1|0|1|1|9-5|inner-TBBB|peg|-|A sharp red sliver that still smells faintly of smoke.
 pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-4|Spine Spark|uncommon|thornblade|2|1|1|1|4-3|inner-TTTT|double|-|Four little spikes that pop like sparklers when stepped on.
-pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-5|Ash Ring|uncommon|rootwarden|1|0|2|2|6-0|inner-BBBB|hook|-|A hollow loop of cool grey ash that still hopes for a fire.
-pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-6|Wyrm Smoke Coil|rare|wayfinder|2|2|1|1|4-5|whimsy-wyrm|tri|-|The wyrm’s last curl of smoke, set hard into a tiny dragon.
-pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-1|Silkthread Tuft|common|seedkeeper|1|0|1|1|2-3|corner-TT|peg|-|Spun from the spider’s worries and still a little bit sticky.
-pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-2|Web Snag|common|wayfinder|0|2|1|0|7-3|edge-BTB|hook|-|A loose thread of web that catches the brave and the bold.
-pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-3|Tangle Knot|common|rootwarden|1|1|0|1|9-5|inner-TBTB|tri|-|A knot of silk that never lets go of a good hiding spot.
+pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-5|Ash Wreath|uncommon|rootwarden|1|0|2|2|6-1|inner-BBBB|hook|-|A hollow wreath of cool grey ash that still hopes for a fire.
+pl-lair-forge-of-the-cinder-wyrm-db3da4|pl-cwy-6|Last Forge Flame|rare|wayfinder|2|2|1|1|9-4|whimsy-flame|tri|-|The wyrm’s last little flame from the forge, curled up and dreaming of dragons.
+pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-1|Silkthread Tuft|common|seedkeeper|1|0|1|1|4-2|corner-TT|peg|-|Spun from the spider’s worries and still a little bit sticky.
+pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-2|Web Snag|common|wayfinder|0|2|1|0|8-2|edge-BTB|hook|-|A loose thread of web that snags hats, then hands them back.
+pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-3|Buttress Tangle|common|rootwarden|1|1|0|1|2-6|inner-TBTB|tri|-|A knot of silk tucked in the buttress roots, guarding a good hiding spot.
 pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-4|Eightlegs Clasp|uncommon|thornblade|2|1|1|1|4-5|inner-TTTT|double|-|Eight spider legs that hold on tight and wiggle.
-pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-5|Dew Web Ring|uncommon|bloomcaller|1|0|2|2|1-1|inner-BBBB|hook|-|A silver ring of morning dew that sparkles on the web.
-pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-6|Silverback Spool|rare|seedkeeper|2|1|1|2|7-4|whimsy-spider|peg|-|The big spider’s spare spool, still humming its old web song.
-pl-lair-of-the-grey-wolf-king-d7db5e|pl-gwk-1|Fang Chip|common|thornblade|1|1|1|0|5-5|corner-TT|hook|-|A chipped wolf fang that only growls when the moon is out.
+pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-5|Dewweb Eye|uncommon|bloomcaller|1|0|2|2|7-2|inner-BBBB|hook|-|A round gap in the web, ringed with morning dew that sparkles.
+pl-lair-hollow-of-the-silverback-spider-65e1ea|pl-sbs-6|Silverback Spool|rare|seedkeeper|2|1|1|2|6-3|whimsy-spider|peg|-|The big spider’s spare spool, still humming its old web song.
+pl-lair-of-the-grey-wolf-king-d7db5e|pl-gwk-1|Fang Chip|common|thornblade|1|1|1|0|6-4|corner-TT|hook|-|A chipped wolf fang that only growls when the moon is out.
 pl-lair-of-the-grey-wolf-king-d7db5e|pl-gwk-2|Pawprint Cuff|common|rootwarden|0|2|1|0|5-7|edge-TTB|double|-|A soft snow cuff with one perfect pawprint pressed into it.
 pl-lair-of-the-grey-wolf-king-d7db5e|pl-gwk-3|Moonpale Mantle|common|seedkeeper|1|0|1|1|6-1|inner-TBTB|peg|-|A pale scrap of mantle that only glows under the full moon.
 pl-lair-of-the-grey-wolf-king-d7db5e|pl-gwk-4|Crown Points|uncommon|thornblade|2|1|1|1|6-2|inner-TTTT|tri|-|Four little golden points from the king’s old crown.
@@ -46,42 +46,42 @@ pl-lair-of-the-grey-wolf-king-d7db5e|pl-gwk-6|Grey Wolf Whistle|rare|wayfinder|2
 pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-1|Lightning Pinch|common|thornblade|1|1|1|0|11-2|corner-BB|hook|-|A little claw of lightning that snaps at anyone who sneezes.
 pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-2|Shell Splinter|common|rootwarden|0|2|1|0|5-4|edge-TBB|peg|-|A bit of orange shell that rattles whenever the wind blows.
 pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-3|Gust Ribbon|common|seedkeeper|1|0|1|1|7-2|inner-TBTB|double|-|A leaf ribbon that flutters around in a little circle.
-pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-4|Whirl Pincer|uncommon|thornblade|2|1|1|1|6-5|inner-TTTT|tri|-|Four pincers spun into a whirl and stuck together.
+pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-4|Whirl Pincer|uncommon|thornblade|2|1|1|1|11-4|inner-TTTT|tri|-|Four pincers spun into a whirl and stuck together.
 pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-5|Eye of the Storm|uncommon|bloomcaller|1|0|2|2|4-1|inner-BBBB|hook|-|A calm round hole in the middle of a very loud wind.
-pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-6|Gale Hermit|rare|wayfinder|2|2|1|1|4-5|whimsy-crab|peg|-|The old crab’s shell, spun by a storm until it learned to whistle.
+pl-lair-of-the-hurricane-crab-9f245a|pl-hcr-6|Gale Islander|rare|wayfinder|2|2|1|1|5-2|whimsy-crab|peg|-|A pocket crab with a whole tiny island on its back, palm trees and all.
 pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-1|Wing Jot|common|thornblade|1|1|1|0|2-2|corner-TT|tri|-|A jade flake that falls off a wing and hums while it drifts.
-pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-2|Reedleg Clasp|common|seedkeeper|0|2|1|0|3-7|edge-TBT|hook|-|Holds onto the reeds with six tiny legs and will not let go.
-pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-3|Jade Dust|common|rootwarden|1|1|0|1|3-1|inner-TBBB|peg|-|A sparkly green powder that gets everywhere on sunny days.
-pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-4|Jadewing Quartet|uncommon|thornblade|2|1|1|1|6-3|inner-TTTT|double|-|Four little wing bits that all want to go first.
-pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-5|Lantern Eye Pair|uncommon|rootwarden|1|0|2|2|4-1|inner-TTBB|tri|-|A pair of orange eyes that glow whenever the dragonfly flies.
-pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-6|Jade Dragonfly Brooch|rare|bloomcaller|2|2|1|1|6-4|whimsy-dragonfly|hook|-|A tiny pinned dragonfly that somebody left on the den door.
+pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-2|Reedleg Cling|common|seedkeeper|0|2|1|0|11-5|edge-TBT|hook|-|Holds onto the reeds with six tiny legs and will not let go.
+pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-3|Jade Shimmer|common|rootwarden|1|1|0|1|6-5|inner-TBBB|peg|-|A sparkly green shimmer that gets everywhere on sunny days.
+pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-4|Jadewing Quartet|uncommon|thornblade|2|1|1|1|4-3|inner-TTTT|double|-|Four little wing bits that all want to go first.
+pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-5|Lantern Eye Pair|uncommon|rootwarden|1|0|2|2|5-2|inner-TTBB|tri|-|A pair of orange eyes that glow whenever the dragonfly flies.
+pl-lair-of-the-jade-dragon-fly-88201f|pl-jdf-6|Lotus Perch|rare|bloomcaller|2|2|1|1|8-7|whimsy-lotus|hook|-|A pink lotus where the jade dragon-fly naps, humming with its wingbeat.
 pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-1|Tentacle Wisp|common|seedkeeper|1|1|1|0|5-5|corner-TB|peg|-|A pink tentacle curl that sways to music nobody else can hear.
-pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-2|Reef Nub|common|rootwarden|0|2|1|0|1-6|edge-TTB|tri|-|A bumpy coral knob that wobbles like a very shy jelly.
+pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-2|Clownfish Peek|common|rootwarden|0|2|1|0|3-5|edge-TTB|tri|-|A little striped fish that peeks out of the coral, then hides again.
 pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-3|Bell Bead|common|bloomcaller|1|0|1|1|6-2|inner-TBTB|hook|-|A tiny blue bell that only rings when the queen is near.
-pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-4|Gold Spike Crown|uncommon|thornblade|2|1|1|1|6-0|inner-TTTT|double|-|Four gold spikes from a crown that is mostly bubbles.
-pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-5|Jellybell Hoop|uncommon|rootwarden|1|0|2|2|4-2|inner-BBBB|peg|-|A see-through hoop that is still the queen’s favourite ring.
+pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-4|Gold Spike Tiara|uncommon|thornblade|2|1|1|1|6-0|inner-TTTT|double|-|Four gold spikes from a crown that is mostly bubbles.
+pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-5|Jellybell Porthole|uncommon|rootwarden|1|0|2|2|4-2|inner-BBBB|peg|-|A see-through porthole in the queen’s bell, her favourite window.
 pl-lair-reef-of-the-box-jelly-queen-6c4091|pl-bjq-6|Little Box Queen|rare|seedkeeper|2|2|1|1|7-3|whimsy-jelly|tri|-|A box jelly as square as a cube who insists she is the queen.
-pl-lair-smokecap-caldera-32490a|pl-smk-1|Ash Puff|common|seedkeeper|1|1|1|0|3-1|corner-TT|hook|-|A puff of ash that drifts off looking for a warmer hat.
-pl-lair-smokecap-caldera-32490a|pl-smk-2|Gill Crumb|common|rootwarden|0|2|1|0|5-6|edge-TBT|tri|-|A flaky bit of mushroom gill that smells faintly of rain.
-pl-lair-smokecap-caldera-32490a|pl-smk-3|Spore Dust|common|bloomcaller|1|0|1|1|8-4|inner-TBBB|peg|-|A sparkly speck of spore that sneezes whenever it is touched.
-pl-lair-smokecap-caldera-32490a|pl-smk-4|Smokecap Crown|uncommon|thornblade|2|1|1|1|6-3|inner-TTTT|double|-|Four spotted caps from the very top of the caldera.
-pl-lair-smokecap-caldera-32490a|pl-smk-5|Smoke Hoop|uncommon|rootwarden|1|0|2|2|9-1|inner-BBBB|hook|-|A round hole of smoke that the wind keeps trying to fill.
-pl-lair-smokecap-caldera-32490a|pl-smk-6|Tiny Smokecap|rare|bloomcaller|2|2|1|1|7-4|whimsy-mushroom|peg|-|A baby smokecap that puffs whenever it has a big thought.
-pl-lair-snowcrown-peak-52d64c|pl-snw-1|Frost Nibble|common|thornblade|1|1|1|0|11-7|corner-BB|hook|-|A sliver of snow that nibbles at the tip of your nose.
-pl-lair-snowcrown-peak-52d64c|pl-snw-2|Pine Shard|common|wayfinder|0|2|1|0|0-5|edge-BTB|peg|-|A green pine splinter that always points toward the top.
-pl-lair-snowcrown-peak-52d64c|pl-snw-3|Icicle Pip|common|seedkeeper|1|0|1|1|7-1|inner-TBTB|tri|-|A tiny icicle that drips whenever it hears a yeti giggle.
-pl-lair-snowcrown-peak-52d64c|pl-snw-4|Snowcrown Spurs|uncommon|thornblade|2|1|1|1|6-1|inner-TTTT|double|-|Four icicle spurs that jab up from the very top of the peak.
-pl-lair-snowcrown-peak-52d64c|pl-snw-5|Yeti Paw Pair|uncommon|rootwarden|1|0|2|2|5-6|inner-TTBB|hook|-|A pair of furry paw bits that never stop waving hello.
-pl-lair-snowcrown-peak-52d64c|pl-snw-6|Snowcrown Yeti Tuft|rare|seedkeeper|2|2|1|1|5-3|whimsy-yeti|peg|-|A tuft of the peak’s shaggy beast that hums when the wind blows.
+pl-lair-smokecap-caldera-32490a|pl-smk-1|Ashpuff Drifter|common|seedkeeper|1|1|1|0|9-0|corner-TT|hook|-|A puff of crater smoke that drifts off looking for a warmer hat.
+pl-lair-smokecap-caldera-32490a|pl-smk-2|Smokecap Button|common|rootwarden|0|2|1|0|5-7|edge-TBT|tri|-|A little grey mushroom from the crater’s edge that smells faintly of rain.
+pl-lair-smokecap-caldera-32490a|pl-smk-3|Ember Speckle|common|bloomcaller|1|0|1|1|5-3|inner-TBBB|peg|-|A yellow spot that slid off the sleeping salamander and still glows.
+pl-lair-smokecap-caldera-32490a|pl-smk-4|Caldera Prongs|uncommon|thornblade|2|1|1|1|6-4|inner-TTTT|double|-|Four warm rock prongs from the crater rim where the salamander curls up.
+pl-lair-smokecap-caldera-32490a|pl-smk-5|Smoke Ringlet|uncommon|rootwarden|1|0|2|2|8-2|inner-BBBB|hook|-|A round hole of smoke that the wind keeps trying to fill.
+pl-lair-smokecap-caldera-32490a|pl-smk-6|Sleepy Salamander|rare|bloomcaller|2|2|1|1|8-3|whimsy-salamander|peg|-|A pocket fire salamander that snores little smoke puffs in its sleep.
+pl-lair-snowcrown-peak-52d64c|pl-snw-1|Frost Nibble|common|thornblade|1|1|1|0|5-1|corner-BB|hook|-|A sliver of snow that nibbles at the tip of your nose.
+pl-lair-snowcrown-peak-52d64c|pl-snw-2|Acacia Sprig|common|wayfinder|0|2|1|0|1-6|edge-BTB|peg|-|A flat-top acacia sprig that always points toward the peak.
+pl-lair-snowcrown-peak-52d64c|pl-snw-3|Snowmelt Trickle|common|seedkeeper|1|0|1|1|8-3|inner-TBTB|tri|-|A tiny trickle off the snowcrown that giggles all the way down.
+pl-lair-snowcrown-peak-52d64c|pl-snw-4|Snowcrown Peaks|uncommon|thornblade|2|1|1|1|6-1|inner-TTTT|double|-|Four snowy points that poke up like the top of the mountain.
+pl-lair-snowcrown-peak-52d64c|pl-snw-5|Lion Paw Pair|uncommon|rootwarden|1|0|2|2|5-7|inner-TTBB|hook|-|A pair of big soft lion paws that never stop waving hello.
+pl-lair-snowcrown-peak-52d64c|pl-snw-6|Snowpeak Cub|rare|seedkeeper|2|2|1|1|6-4|whimsy-lion|peg|-|A pocket mountain lion with a mane as fluffy as the peak’s snow.
 pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-1|Tiger Dust|common|thornblade|1|1|1|0|1-4|corner-TB|hook|-|A dusting of orange wing powder that tickles the nose.
-pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-2|Lantern Slip|common|wayfinder|0|2|1|0|10-6|edge-TTB|double|-|A red paper lantern scrap that glows only when it feels nervous.
+pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-2|Prayerflag Slip|common|wayfinder|0|2|1|0|7-1|edge-TTB|double|-|A bright prayer flag scrap that flutters only when it feels nervous.
 pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-3|Temple Chip|common|rootwarden|1|1|0|1|7-5|inner-TBBB|peg|-|A grey stone flake from the temple steps that loves being counted.
 pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-4|Tiger Wing Quad|uncommon|thornblade|2|1|1|1|2-3|inner-TTTT|tri|-|Four orange and black wing bits that flap in four directions.
 pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-5|Moonhoop|uncommon|bloomcaller|1|0|2|2|11-1|inner-BBBB|double|-|A round moon hole the moth flutters through at night.
-pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-6|Tiger Moth Locket|rare|bloomcaller|2|2|1|1|1-2|whimsy-moth|hook|-|A spare locket of wing dust that glows like a lantern.
-pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-1|Sandgrit Crumb|common|thornblade|1|1|1|0|0-6|corner-BB|hook|-|A tan speck of tomb dust that wants to be a tiny pyramid.
+pl-lair-temple-of-the-tiger-moth-b3f761|pl-tgm-6|Tiger Moth Locket|rare|bloomcaller|2|2|1|1|4-5|whimsy-moth|hook|-|A wing eyespot kept like a locket, glowing softly like a lantern.
+pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-1|Pyramid Speck|common|thornblade|1|1|1|0|1-4|corner-BB|hook|-|A tan speck of tomb dust that wants to be a tiny pyramid.
 pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-2|Scarab Glint|common|rootwarden|0|2|1|0|3-5|edge-TBB|peg|-|A teal shell chip with gold lines that catches the desert sun.
-pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-3|Dune Tick|common|brewroot|1|0|1|1|10-6|inner-TBTB|double|-|A grain of sand that ticks like a clock and never tells the time.
-pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-4|Scarab Leg Quartet|uncommon|thornblade|2|1|1|1|3-7|inner-TTTT|tri|-|Four skinny legs that march back to the tomb each night.
-pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-5|Sundisk Ring|uncommon|bloomcaller|1|0|2|2|10-2|inner-BBBB|hook|-|A little golden sun ring that the scarab rolls across the sand.
-pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-6|Sandlit Scarab Charm|rare|wayfinder|2|2|1|1|4-5|whimsy-scarab|double|-|A charm that rolls itself back to the tomb every single night.
+pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-3|Dune Ticktock|common|brewroot|1|0|1|1|0-5|inner-TBTB|double|-|A grain of dune sand that ticks like a clock and never tells the time.
+pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-4|Scarab Leg March|uncommon|thornblade|2|1|1|1|3-7|inner-TTTT|tri|-|Four skinny legs that march back to the tomb each night.
+pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-5|Sundisk Window|uncommon|bloomcaller|1|0|2|2|9-4|inner-BBBB|hook|-|A golden disk over the tomb door, with a hole for peeking at noon.
+pl-lair-tomb-of-the-sand-scarab-c727bc|pl-scr-6|Sandlit Scarab Charm|rare|wayfinder|2|2|1|1|4-5|whimsy-scarab|double|-|A cart-sized beetle shrunk to a charm, its red jewel still blinking.
