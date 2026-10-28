@@ -56,6 +56,40 @@ function jigsaw_tournaments_on(): bool
     return setting('puzzles_open') === '1' && setting('jigsaw_open') === '1' && setting('jigsaw_tournaments') === '1';
 }
 
+/** Is the tournament switch on for this kind of tournament ('gif' = GIFsaw, 'still' = Jigsaw)? puzzles_api.php gates every tournament call on the tournament's OWN kind. */
+function puzzle_kind_tournaments_on(string $kind): bool
+{
+    return $kind === 'still' ? jigsaw_tournaments_on() : puzzle_tournaments_on();
+}
+
+/** Days a settled tournament's picture waits before it joins free play (setting jigsaw_reserve_days, 0 to 60; 0 = at once). */
+function jigsaw_reserve_days(): int
+{
+    $v = setting('jigsaw_reserve_days');
+    return $v === '' ? 0 : max(0, min(60, (int)$v));
+}
+
+/**
+ * Let reserved pictures into free play once their tournaments are all settled (and jigsaw_reserve_days have passed). With $picIds (a settle just ran for them)
+ * it looks only at those; without, it sweeps every reserved picture, which only does anything when a wait is set. Places pictures are never reserved.
+ */
+function jigsaw_release_reserved(?array $picIds = null): void
+{
+    $days = jigsaw_reserve_days();
+    if ($picIds === null && $days === 0) return;
+    if ($picIds !== null && !$picIds) return;
+    $cut = gmdate('Y-m-d H:i:s', time() - $days * 86400);
+    $w = $picIds !== null ? ' AND id IN (' . implode(',', array_map('intval', $picIds)) . ')' : '';
+    try {
+        q("UPDATE puzzle_pics SET reserved = 0 WHERE kind = 'still' AND reserved = 1 AND source <> 'place'$w
+           AND EXISTS (SELECT 1 FROM puzzle_tournaments t WHERE t.pic_id = puzzle_pics.id)
+           AND NOT EXISTS (SELECT 1 FROM puzzle_tournaments t WHERE t.pic_id = puzzle_pics.id AND t.status <> 'settled')
+           AND (SELECT MAX(t.settled_at) FROM puzzle_tournaments t WHERE t.pic_id = puzzle_pics.id) <= ?", [$cut]);
+    } catch (Throwable $e) {
+        error_log('jigsaw_release_reserved: ' . $e->getMessage());
+    }
+}
+
 function jigsaw_path(array $p, bool $thumb = false): string
 {
     if ($p['source'] === 'place') return 'assets/img/jigsaw/places/' . $p['file'];   // the scene's exact 3:2 window, 360 x 240 = 180 x 120 art pixels (tools/gen_place_crops.py)

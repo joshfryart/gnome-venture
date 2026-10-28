@@ -5,6 +5,7 @@ require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';
 $me = require_admin();
 require_once dirname(__DIR__) . '/includes/puzzles.php';
+require_once dirname(__DIR__) . '/includes/admin_puzzle_ui.php';
 puzzles_ensure();
 settle_puzzle_tournaments();
 $tab = in_array($_GET['tab'] ?? '', ['upload', 'tournaments'], true) ? (string)$_GET['tab'] : 'library';
@@ -75,18 +76,7 @@ if (is_post()) {
         flash('Saved' . ($st === 'live' && setting('puzzles_tournaments') !== '1' ? '. Players won’t see it until Puzzle tournaments are on in Game settings' : '') . '.');
         redirect($back('tournaments', '&id=' . $id));
     }
-    if ($do === 'void') {
-        $aid = (int)($_POST['attempt'] ?? 0);
-        $reason = mb_substr(trim((string)($_POST['reason'] ?? '')), 0, 150);
-        $a = q_one('SELECT a.*, t.status AS tstatus FROM puzzle_attempts a JOIN puzzle_tournaments t ON t.id = a.tournament_id WHERE a.id = ?', [$aid]);
-        $ret = $back('tournaments', $a ? '&id=' . (int)$a['tournament_id'] : '');
-        if (!$a || $reason === '') { flash('Give a reason to void a run.', 'err'); redirect($ret); }
-        if ($a['tstatus'] === 'settled') { flash('That tournament is already settled.', 'err'); redirect($ret); }
-        q("UPDATE puzzle_attempts SET status = 'void', reason = ? WHERE id = ?", ['admin: ' . $reason, $aid]);
-        admin_log('puzzle_void', 'puzzle_attempts#' . $aid, 'user ' . (int)$a['user_id'] . ': ' . $reason);
-        flash('Run voided.');
-        redirect($ret);
-    }
+    if ($do === 'void') admin_puzzle_ui_void(fn(string $extra) => $back('tournaments', $extra), 'gif');   // v2.0.87: shared with admin/jigsaw.php
     redirect($back($tab));
 }
 
@@ -138,56 +128,17 @@ admin_crumbs('puzzles.php');
     $cur = $tid ? q_one("SELECT * FROM puzzle_tournaments WHERE id = ? AND kind = 'gif'", [$tid]) : null;
     $all = q('SELECT t.*, p.title AS pic_title, (SELECT COUNT(DISTINCT user_id) FROM puzzle_attempts a WHERE a.tournament_id = t.id) AS players FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.kind = \'gif\' ORDER BY t.starts_at DESC LIMIT 50')->fetchAll();
     $f = $cur ?: ['id' => 0, 'title' => '', 'pic_id' => 0, 'pieces' => 54, 'starts_at' => gmdate('Y-m-d H:00:00', time() + 3600), 'ends_at' => gmdate('Y-m-d H:00:00', time() + 7 * 86400), 'status' => 'draft']; ?>
-<table class="grid">
-  <tr><th>Tournament</th><th>Picture</th><th>Pieces</th><th>When (Hollow time)</th><th>Status</th><th>Players</th></tr>
-  <?php foreach ($all as $r): ?>
-  <tr<?= (int)$r['id'] === $tid ? ' class="on"' : '' ?>><td><a href="<?= e(url('admin/puzzles.php?tab=tournaments&id=' . (int)$r['id'])) ?>"><?= e($r['title']) ?></a></td><td><?= e($r['pic_title']) ?></td><td><?= (int)$r['pieces'] ?></td>
-    <td><small><?= e(puzzle_local($r['starts_at'])) ?> to <?= e(puzzle_local($r['ends_at'])) ?></small></td><td><?= e($r['status']) ?> <small class="muted">(<?= e(puzzle_tourney_phase($r)) ?>)</small></td><td><?= (int)$r['players'] ?></td></tr>
-  <?php endforeach; ?>
-</table>
-<?php if (!$all): ?><p>No tournaments yet.</p><?php endif; ?>
-<p><a class="btn small" href="<?= e(url('admin/puzzles.php?tab=tournaments')) ?>">＋ New tournament</a></p>
+<?php admin_puzzle_ui_tour_list($all, $tid, 'admin/puzzles.php'); ?>
 
-<div class="box">
-  <h2><?= $cur ? 'Edit: ' . e($cur['title']) : 'New tournament' ?></h2>
-  <?php if ($cur && $cur['status'] === 'settled'): ?><p class="help">Settled <?= e(puzzle_local((string)$cur['settled_at'])) ?>. Places and badges have been given out.</p>
-  <?php else: ?>
-  <form method="post" class="stack"><?= csrf_field() ?><input type="hidden" name="do" value="tour_save"><input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
-    <label>Title <input type="text" name="title" maxlength="80" value="<?= e($f['title']) ?>" required></label>
-    <label>Picture <select name="pic_id"><?php foreach ($pics as $p): ?><option value="<?= (int)$p['id'] ?>"<?= (int)$p['id'] === (int)$f['pic_id'] ? ' selected' : '' ?>><?= e($p['title']) ?><?= (int)$p['active'] ? '' : ' (off in the library)' ?></option><?php endforeach; ?></select></label>
+<?php
+    ob_start(); ?>
     <label>Pieces <select name="pieces"><?php foreach (PUZZLE_COUNTS as $n): ?><option value="<?= $n ?>"<?= (int)$f['pieces'] === $n ? ' selected' : '' ?>><?= $n ?></option><?php endforeach; ?></select></label>
-    <label>Starts (Hollow time) <input type="datetime-local" name="starts_at" value="<?= e($local($f['starts_at'])) ?>" required></label>
-    <label>Ends (Hollow time) <input type="datetime-local" name="ends_at" value="<?= e($local($f['ends_at'])) ?>" required></label>
-    <label>Status <select name="status"><option value="draft"<?= $f['status'] === 'draft' ? ' selected' : '' ?>>Draft (hidden)</option><option value="live"<?= $f['status'] === 'live' ? ' selected' : '' ?>>Live</option></select></label>
+<?php $piecesField = (string)ob_get_clean();
+    ob_start(); ?>
     <p class="help">Everyone gets the same scramble. Best time counts; up to <?= PUZZLE_DAILY_TRIES ?> goes a day. A run handed in faster than <?= PUZZLE_MIN_MS_PER_PIECE / 1000 ?> s a piece, with fewer drops than pieces − 1, or more than <?= PUZZLE_GRACE_S / 60 ?> minutes after the end is rejected. Results are settled <?= PUZZLE_GRACE_S / 60 ?> minutes after the end: 🏆 gold, silver, bronze and an “entered” badge (cosmetic only).</p>
-    <button class="btn">Save</button>
-  </form>
-  <?php endif; ?>
-</div>
+<?php $helpHtml = (string)ob_get_clean();
+    admin_puzzle_ui_tour_form($f, $cur, $pics, $piecesField, '<input type="hidden" name="do" value="tour_save"><input type="hidden" name="id" value="' . (int)$f['id'] . '">', '<button class="btn">Save</button>', $helpHtml); ?>
 
-<?php if ($cur):
-    $board = puzzle_board($tid, 100);
-    $flags = puzzle_flags($tid);
-    $runs = q('SELECT a.*, COALESCE(u.gnome_name, u.username) AS name FROM puzzle_attempts a JOIN users u ON u.id = a.user_id WHERE a.tournament_id = ? ORDER BY a.id DESC LIMIT 60', [$tid])->fetchAll(); ?>
-<div class="box">
-  <h2>Leaderboard</h2>
-  <?php if ($board): ?>
-  <table class="grid"><tr><th>#</th><th>Gnome</th><th>Best</th><th>Finished goes</th><th></th></tr>
-    <?php foreach ($board as $k => $r): ?><tr><td><?= $k + 1 ?></td><td><?= eu((string)$r['name']) ?></td><td><?= e(puzzle_ms_text((int)$r['best'])) ?></td><td><?= (int)$r['runs'] ?></td>
-      <td><?= isset($flags[(int)$r['user_id']]) ? '<b class="bad">⚠ under a third of the median: check</b>' : '' ?></td></tr><?php endforeach; ?>
-  </table>
-  <?php else: ?><p class="muted">No finished runs yet.</p><?php endif; ?>
-</div>
-<div class="box">
-  <h2>Recent runs</h2>
-  <?php if ($runs): ?>
-  <table class="grid"><tr><th>Gnome</th><th>Started</th><th>Time</th><th>Drops</th><th>Status</th><th>Void</th></tr>
-    <?php foreach ($runs as $r): ?><tr><td><?= eu((string)$r['name']) ?></td><td><small><?= e(puzzle_local($r['started_at'])) ?></small></td><td><?= $r['ms'] !== null ? e(puzzle_ms_text((int)$r['ms'])) : '–' ?></td><td><?= $r['drops'] !== null ? (int)$r['drops'] : '–' ?></td>
-      <td><?= e($r['status']) ?><?= $r['reason'] ? '<br><small class="muted">' . e($r['reason']) . '</small>' : '' ?></td>
-      <td><?php if (in_array($r['status'], ['done', 'open'], true) && $cur['status'] !== 'settled'): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="void"><input type="hidden" name="attempt" value="<?= (int)$r['id'] ?>"><input type="text" name="reason" maxlength="150" placeholder="Reason" required> <button class="btn small danger">Void</button></form><?php endif; ?></td></tr><?php endforeach; ?>
-  </table>
-  <?php else: ?><p class="muted">No runs yet.</p><?php endif; ?>
-</div>
-<?php endif; ?>
+<?php if ($cur) admin_puzzle_ui_detail($cur); ?>
 <?php endif; ?>
 <?php page_footer();

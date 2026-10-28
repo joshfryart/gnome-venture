@@ -460,13 +460,14 @@ function pFinish(){
 }
 /* the win card's "next tier" button */
 function winExtras(){
-  var nb=$('nexttier'); if(!nb||!MODE) return;
+  var nb=$('nexttier'); if(!nb||!MODE||TOUR) return;   /* v2.0.87 B: no "next tier" in a tournament (one tier each) */
   var ti=tierFor(G.total), nx=null;
   for(var i=0;i<MODE.tiers.length-1;i++) if(MODE.tiers[i]===ti) nx=MODE.tiers[i+1];
   nb.hidden=!nx; nb.setAttribute('data-n',nx?nx.n:''); nb.textContent=nx?'Try '+nx.label+' ('+nx.n+')':'';
 }
 function startRun(){
   var m=$('tmsg');
+  if(!PUZZLES[0]){ location.reload(); return; }   /* v2.0.87 B: a Jigsaw tournament page opened while the picture was still a mystery */
   api({'do':'start',t:TOUR.id},function(r){
     if(!r.ok){ if(m){ m.textContent=r.error; m.hidden=false; } if(inGame){ $('winText').textContent=r.error; } return; }
     TOUR.token=r.token; TOUR.seed=r.seed; TOUR.pieces=r.pieces;
@@ -542,6 +543,7 @@ function countFor(pz){ var n=loadCounts()[pz.id]; return COUNTS.indexOf(n)>=0 ? 
 var jigCat='';
 function ms2t(ms){ var t=Math.floor(ms/1000); return Math.floor(t/60)+':'+('0'+(t%60)).slice(-2); }
 function buildJigsawLibrary(){
+  if(!grid) return;   /* v2.0.87 B: the tournament page has no grid */
   grid.innerHTML='';
   var cats=[], i, k, bar=$('cats');
   for(i=0;i<PUZZLES.length;i++) if(PUZZLES[i].cat && cats.indexOf(PUZZLES[i].cat)<0) cats.push(PUZZLES[i].cat);

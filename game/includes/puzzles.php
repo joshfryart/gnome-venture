@@ -303,7 +303,7 @@ function puzzle_tourney_seed(int $tid): int
 function puzzle_tourney(int $id): ?array
 {
     if (!puzzles_ensure()) return null;
-    return q_one('SELECT t.*, p.slug, p.title AS pic_title, p.file, p.still, p.source, p.w, p.h, p.pieces_default FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.id = ?', [$id]);
+    return q_one('SELECT t.*, p.slug, p.title AS pic_title, p.file, p.still, p.source, p.w, p.h, p.pieces_default, p.thumb, p.cat, p.reserved FROM puzzle_tournaments t JOIN puzzle_pics p ON p.id = t.pic_id WHERE t.id = ?', [$id]);
 }
 
 /** 'soon' | 'open' | 'closing' (grace for finishing) | 'ended' | 'draft' | 'settled'. */
@@ -345,21 +345,30 @@ function puzzle_ms_text(int $ms): string
     return intdiv($s, 60) . ':' . str_pad((string)($s % 60), 2, '0', STR_PAD_LEFT) . '.' . str_pad((string)intdiv($ms % 1000, 10), 2, '0', STR_PAD_LEFT);
 }
 
-/** Start an attempt. Returns [ok, message or token, extra]. */
+/** Start an attempt. Returns [ok, message or token, extra]. v2.0.87: a Jigsaw ('still') tournament takes its pieces and daily tries from its tier, never from a posted count. */
 function puzzle_attempt_start(array $u, int $tid): array
 {
     $t = puzzle_tourney($tid);
     if (!$t || $t['status'] !== 'live') return [false, 'That tournament isn’t running.', []];
     if (puzzle_tourney_phase($t) !== 'open') return [false, puzzle_tourney_phase($t) === 'soon' ? 'It hasn’t started yet.' : 'This tournament has closed.', []];
+    $still = ($t['kind'] ?? 'gif') === 'still';
+    $tries = PUZZLE_DAILY_TRIES;
+    $pieces = (int)$t['pieces'];
+    if ($still) {
+        require_once __DIR__ . '/jigsaw.php';
+        if (!isset(JIGSAW_TIERS[(string)$t['tier']]) || $t['source'] === 'place') return [false, 'That tournament isn’t running.', []];   // Places pictures can never be a tournament
+        $tries = jigsaw_tries((string)$t['tier']);
+        $pieces = jigsaw_pieces((string)$t['tier']);
+    }
     $uid = (int)$u['id'];
     $day = gmdate('Y-m-d 00:00:00');
-    if ((int)q_val('SELECT COUNT(*) FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND started_at >= ?', [$tid, $uid, $day]) >= PUZZLE_DAILY_TRIES)
-        return [false, 'That’s ' . PUZZLE_DAILY_TRIES . ' tries today. Come back tomorrow for more!', []];
+    if ((int)q_val('SELECT COUNT(*) FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND started_at >= ?', [$tid, $uid, $day]) >= $tries)
+        return [false, 'That’s ' . $tries . ' tries today. Come back tomorrow for more!', []];
     q("UPDATE puzzle_attempts SET status = 'void', reason = 'restarted' WHERE tournament_id = ? AND user_id = ? AND status = 'open'", [$tid, $uid]);
     $token = bin2hex(random_bytes(16));
     $seed = puzzle_tourney_seed($tid);
     db_insert('puzzle_attempts', ['tournament_id' => $tid, 'user_id' => $uid, 'token' => $token, 'seed' => $seed, 'started_at' => now(), 'start_ms' => (int)floor(microtime(true) * 1000), 'status' => 'open']);
-    return [true, $token, ['seed' => $seed, 'pieces' => (int)$t['pieces']]];
+    return [true, $token, ['seed' => $seed, 'pieces' => $pieces]];
 }
 
 /** Finish an attempt. Returns [ok, message, extra]. The time is the server's, never the browser's. */
@@ -374,17 +383,40 @@ function puzzle_attempt_finish(array $u, string $token, int $drops): array
     $reason = '';
     if (!$t || $t['status'] !== 'live' || time() > strtotime($t['ends_at'] . ' UTC') + PUZZLE_GRACE_S) $reason = 'finished after the tournament closed';
     else {
-        $total = puzzle_grid_total((int)$t['pieces'], (int)$t['w'], (int)$t['h']);
+        if (($t['kind'] ?? 'gif') === 'still') { require_once __DIR__ . '/jigsaw.php'; $total = jigsaw_pieces((string)$t['tier']); }   // v2.0.87: the tier's real cols x rows
+        else $total = puzzle_grid_total((int)$t['pieces'], (int)$t['w'], (int)$t['h']);
         if ($ms < $total * PUZZLE_MIN_MS_PER_PIECE) $reason = 'faster than a gnome can place pieces';
         elseif ($drops < $total - 1) $reason = 'too few pieces moved';
     }
     $st = $reason === '' ? 'done' : 'rejected';
     $n = q("UPDATE puzzle_attempts SET status = ?, finished_at = ?, ms = ?, drops = ?, reason = ? WHERE id = ? AND status = 'open'", [$st, now(), $ms, max(0, $drops), $reason === '' ? null : $reason, (int)$a['id']])->rowCount();
     if ($n !== 1) return [false, 'That run was already handed in.', []];
-    if ($st === 'rejected') return [false, 'That run didn’t count: ' . $reason . '.', ['rejected' => true]];
+    $x = ['tier' => $t ? (string)($t['tier'] ?? '') : '', 'kind' => $t ? (string)($t['kind'] ?? 'gif') : 'gif'];   // v2.0.87: for Puzzle Pals (2.0.88) and the page
+    if ($st === 'rejected') return [false, 'That run didn’t count: ' . $reason . '.', ['rejected' => true] + $x];
     $best = (int)q_val("SELECT MIN(ms) FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND status = 'done'", [(int)$a['tournament_id'], (int)$u['id']]);
     $rank = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_attempts WHERE tournament_id = ? AND status = 'done' GROUP BY user_id) x WHERE x.b < ? + 0", [(int)$a['tournament_id'], $best]);
-    return [true, $ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.', ['ms' => $ms, 'best' => $best, 'rank' => $rank]];
+    return [true, $ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.', ['ms' => $ms, 'best' => $best, 'rank' => $rank] + $x];
+}
+
+/** Settle one tournament row (status 'live'): places, notes, then free the picture of a Jigsaw. Returns false if somebody else settled it first. */
+function puzzle_settle_one(array $t): bool
+{
+    if (q("UPDATE puzzle_tournaments SET status = 'settled', settled_at = ? WHERE id = ? AND status = 'live'", [now(), $t['id']])->rowCount() !== 1) return false;
+    q("UPDATE puzzle_attempts SET status = 'void', reason = 'never finished' WHERE tournament_id = ? AND status = 'open'", [$t['id']]);
+    $still = ($t['kind'] ?? 'gif') === 'still';
+    $lead = '🧩 ';
+    if ($still) { require_once __DIR__ . '/jigsaw.php'; $lead = '🧩 Jigsaw '; }
+    $tag = $still && isset(JIGSAW_TIERS[(string)$t['tier']]) ? ' (' . JIGSAW_TIERS[(string)$t['tier']][0] . ')' : '';
+    $rank = 0;
+    foreach (puzzle_board((int)$t['id'], 100000) as $r) {
+        $rank++;
+        $aid = q_val("SELECT id FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND status = 'done' ORDER BY ms, finished_at LIMIT 1", [$t['id'], $r['user_id']]);
+        q('UPDATE puzzle_attempts SET place = ? WHERE id = ?', [$rank, $aid]);
+        [, $label] = PUZZLE_PLACES[$rank <= 3 ? $rank : 0];
+        notify((int)$r['user_id'], $lead . $t['title'] . $tag . ': you placed #' . $rank . ' with ' . puzzle_ms_text((int)$r['best']) . '. ' . $label . ' for your shelf!');
+    }
+    if ($still) jigsaw_release_reserved([(int)$t['pic_id']]);
+    return true;
 }
 
 /** Hand out places for tournaments past their finishing window. Cosmetic only (a trophy or badge and a note). Safe to call often. */
@@ -393,31 +425,24 @@ function settle_puzzle_tournaments(): void
     if (!puzzles_ensure()) return;
     $cut = gmdate('Y-m-d H:i:s', time() - PUZZLE_GRACE_S);
     require_once __DIR__ . '/trade.php';
-    foreach (q("SELECT * FROM puzzle_tournaments WHERE status = 'live' AND ends_at < ?", [$cut])->fetchAll() as $t) {
-        if (q("UPDATE puzzle_tournaments SET status = 'settled', settled_at = ? WHERE id = ? AND status = 'live'", [now(), $t['id']])->rowCount() !== 1) continue;
-        q("UPDATE puzzle_attempts SET status = 'void', reason = 'never finished' WHERE tournament_id = ? AND status = 'open'", [$t['id']]);
-        $rank = 0;
-        foreach (puzzle_board((int)$t['id'], 100000) as $r) {
-            $rank++;
-            $aid = q_val("SELECT id FROM puzzle_attempts WHERE tournament_id = ? AND user_id = ? AND status = 'done' ORDER BY ms, finished_at LIMIT 1", [$t['id'], $r['user_id']]);
-            q('UPDATE puzzle_attempts SET place = ? WHERE id = ?', [$rank, $aid]);
-            [, $label] = PUZZLE_PLACES[$rank <= 3 ? $rank : 0];
-            notify((int)$r['user_id'], '🧩 ' . $t['title'] . ': you placed #' . $rank . ' with ' . puzzle_ms_text((int)$r['best']) . '. ' . $label . ' for your shelf!');
-        }
-    }
+    foreach (q("SELECT * FROM puzzle_tournaments WHERE status = 'live' AND ends_at < ?", [$cut])->fetchAll() as $t) puzzle_settle_one($t);
 }
 
 /** A gnome's puzzle trophies and badges (profile), '' if none. */
 function puzzle_badges_html(int $uid): string
 {
     if (!puzzles_ensure()) return '';
-    $rows = q("SELECT a.place, a.ms, t.title, t.id FROM puzzle_attempts a JOIN puzzle_tournaments t ON t.id = a.tournament_id WHERE a.user_id = ? AND a.place IS NOT NULL ORDER BY t.ends_at DESC LIMIT 24", [$uid])->fetchAll();
+    $rows = q("SELECT a.place, a.ms, t.title, t.id, t.kind, t.tier FROM puzzle_attempts a JOIN puzzle_tournaments t ON t.id = a.tournament_id WHERE a.user_id = ? AND a.place IS NOT NULL ORDER BY t.ends_at DESC LIMIT 24", [$uid])->fetchAll();
     if (!$rows) return '';
     $h = '<ul class="pzbadges">';
     foreach ($rows as $r) {
+        $tt = null;
         $p = (int)$r['place'];
         [$img, $label] = PUZZLE_PLACES[$p <= 3 ? $p : 0];
-        $h .= '<li title="' . e($label . ': ' . $r['title']) . '">' . (puzzle_cast($img, $label) ?: '<span class="pzbem">' . ($p >= 1 && $p <= 3 ? ['', '🏆', '🥈', '🥉'][$p] : '🧩') . '</span>')
+        $still = ($r['kind'] ?? 'gif') === 'still';   // v2.0.87: a Jigsaw badge says so and carries a small tier pip (the tier's icon)
+        $pip = '';
+        if ($still) { require_once __DIR__ . '/jigsaw.php'; $tt = JIGSAW_TIERS[(string)$r['tier']] ?? null; if ($tt) $pip = '<span class="pzpip" title="' . e($tt[0]) . '">' . $tt[4] . '</span>'; }
+        $h .= '<li title="' . e($label . ': ' . ($still ? 'Jigsaw ' : '') . $r['title'] . ($still && !empty($tt) ? ' (' . $tt[0] . ')' : '')) . '">' . (puzzle_cast($img, $label) ?: '<span class="pzbem">' . ($p >= 1 && $p <= 3 ? ['', '🏆', '🥈', '🥉'][$p] : '🧩') . '</span>') . $pip
             . '<small>#' . $p . ' ' . e($r['title']) . '</small></li>';
     }
     return $h . '</ul>';

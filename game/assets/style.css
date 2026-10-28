@@ -1026,6 +1026,8 @@ a.rend:hover b { text-decoration: underline; }
 .pzbadges { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .pzbadges li { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 84px; text-align: center; }
 .pzbadges .pzcast img { width: 48px; height: 48px; object-fit: contain; }
+.pzbadges li { position: relative; }
+.pzbadges .pzpip { position: absolute; top: -2px; right: 6px; font-size: 14px; line-height: 1; }   /* v2.0.87: Jigsaw tier pip */
 .pzbadges .pzbem { font-size: 32px; line-height: 48px; }
 .gtile b { font-size: 14px; line-height: 1.15; }
 .gtbadge { justify-self: start; margin-top: 2px; }

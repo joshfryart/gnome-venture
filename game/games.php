@@ -41,7 +41,7 @@ page_header('Games');
   <a class="gtile ok" href="<?= e(url('puzzles.php')) ?>" title="Puzzle games with Jeff: GIFsaw moving jigsaws and more. Just for fun, no daily limit."><?php /* v2.0.0.1; v2.0.68 tile art */ ?>
     <span class="gticon"><?= puzzle_cast('tile-puzzles', '', 'gtart') ?: '🧩' ?></span>
     <b>Puzzles</b>
-    <span class="gtbadge"><?= puzzle_tournaments_on() && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]) ? '🏆 Tournament' : 'Relax' ?></span>
+    <span class="gtbadge"><?php require_once __DIR__ . '/includes/jigsaw.php'; $gk = array_keys(array_filter(['gif' => puzzle_tournaments_on(), 'still' => jigsaw_tournaments_on()])); ?><?= $gk && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE kind IN ('" . implode("','", $gk) . "') AND status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]) ? '🏆 Tournament' : 'Relax' ?></span>
   </a>
 <?php endif;   // v2.0.2: Puzzles locked for players (setting puzzles_open) ?>
 </div>

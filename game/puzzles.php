@@ -15,7 +15,8 @@ if (isset($_GET['t']) || isset($_GET['seed'])) {
     redirect('gifsaw.php?' . http_build_query($qs));
 }
 $tourOn = puzzle_tournaments_on();
-$live = $tourOn && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]);
+$live = $tourOn && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE kind = 'gif' AND status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]);
+$liveJig = jigsaw_tournaments_on() && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE kind = 'still' AND status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]);   // v2.0.87
 page_header('Puzzles');
 ?>
 <div id="pz">
@@ -34,7 +35,7 @@ page_header('Puzzles');
       <span class="gticon"><?= puzzle_cast('tile-jigsaw', '', 'gtart') ?: '🧩' ?></span>
       <b>Jigsaw</b>
       <small>Classic picture jigsaws. Easy, Advanced or Expert.</small>
-      <span class="gtbadge">Relax</span>
+      <span class="gtbadge"><?= $liveJig ? '🏆 Tournament' : 'Relax' ?></span>
     </a></li>
     <?php endif; ?>
     <li><a class="box pzhubcard" href="<?= e(url('gifsaw.php')) ?>">

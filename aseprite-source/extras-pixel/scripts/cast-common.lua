@@ -91,6 +91,7 @@ local JMOUTH = {
   open    = { { ".uuuuuuuuu.", ".ucccccccu.", "..udddddu..", "...uuuuu..." }, 25, 38 },
   o       = { { ".uu.", "uddu", "uddu", ".uu." }, 29, 39 },
   grimace = { { "uuuuuuuuuuu", "ucucucucucu", "ucucucucucu", "uuuuuuuuuuu" }, 25, 38 },
+  focus   = { { "uuuuuuu..", "......udu", ".......u." }, 26, 40 },   -- tight line, tongue out the corner
 }
 K.JMOUTH = JMOUTH
 -- new-pose eyes (o.eyes), drawn at the jeff-v2 eye spots (20,28) and (36,27)

@@ -23,7 +23,7 @@ function guest_gate(string $page): void
         || ($post && in_array($page, GUEST_POST_BLOCKED_PAGES, true))
         || ($page === 'jobs.php' && (($post && in_array((string)($_POST['do'] ?? ''), ['post', 'cancel', 'take_player'], true)) || (($_GET['p'] ?? '') === 'post')))
         || ($page === 'marketday.php' && $post && (string)($_POST['do'] ?? '') === 'basket')
-        || ($page === 'gifsaw.php' && (int)($_GET['t'] ?? 0) > 0);
+        || (in_array($page, ['gifsaw.php', 'jigsaw.php'], true) && (int)($_GET['t'] ?? 0) > 0);   // v2.0.87: jigsaw.php?t= too
     if (!$block) return;
     if ($post) { flash('Guests can look around, but making your own gnome is needed for that.', 'err'); redirect($page === 'puzzles_api.php' ? 'puzzles.php' : $page); }
     guest_block_page();

@@ -364,6 +364,7 @@ function settings_schema(): array
         'jigsaw_tries_easy' => ['label' => 'Jigsaw tournaments: timed goes per day, Easy (v2.0.87)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 50],
         'jigsaw_tries_advanced' => ['label' => 'Jigsaw tournaments: timed goes per day, Advanced (v2.0.87)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 50],
         'jigsaw_tries_expert' => ['label' => 'Jigsaw tournaments: timed goes per day, Expert (v2.0.87)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 50],
+        'jigsaw_reserve_days' => ['label' => 'Jigsaw tournaments: days a settled tournament’s picture waits before it joins free play (0 = at once) (v2.0.87)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 60],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'games_petals_percent' => ['label' => 'Games: Petals paid, % of the normal payout (Worms, Memory, Spit, Mushroom, Pest Patrol, Letters)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 300],   // v1.7.6: games out-earned the garden
         'memory_plays_per_day' => ['label' => 'Seed Memory: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
