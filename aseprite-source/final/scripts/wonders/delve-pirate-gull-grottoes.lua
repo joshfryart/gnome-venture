@@ -64,12 +64,12 @@ local function gull(x, y, kind, lookdir)
   c:fill(c:rect(x - 5, y - 2, x - 4, y), "#f08a24"); c:fill(c:rect(x + 3, y - 2, x + 4, y), "#f08a24")
   c:fill(c:rect(x - 7, y, x - 3, y), "#f08a24"); c:fill(c:rect(x + 2, y, x + 6, y), "#f08a24")
   c:part(c:poly({ {x - 15, y - 4}, {x - 8, y - 14}, {x - 4, y - 12}, {x - 4, y - 4} }), GV.ramp("#cfd6e8"), { flat = true, gloss = false, outline = false, contour = "#4a2c1a" })  -- tail feathers
-  c:part(c:ellipse(x, y - 11, 11, 9), GV.ramp("#e6ecf2", { dot = "#fff3c8", gloss = "#fff3c8" }), { cres = 4, deep = 6, pale = true })
+  c:part(c:ellipse(x, y - 11, 11, 9), GV.ramp("#e6ecf2", { dot = "#fff3c8", gloss = "#fff3c8", shade = "#bcc4d4", deep = "#929ab0", bounce = "#cdd4e0", rim = "#f5e8c8" }), { cres = 4, deep = 6, pale = true })
   c:part(c:ellipse(x - 2, y - 11, 6, 5), GV.ramp("#8b8f96"), { flat = true, gloss = false, outline = false })  -- wing
-  c:part(c:ellipse(x + 3, y - 24, 10, 9), GV.ramp("#e6ecf2", { dot = "#fff3c8", gloss = "#fff3c8" }), { cres = 4, deep = 6, pale = true })
+  c:part(c:ellipse(x + 3, y - 24, 10, 9), GV.ramp("#e6ecf2", { dot = "#fff3c8", gloss = "#fff3c8", shade = "#bcc4d4", deep = "#929ab0", bounce = "#cdd4e0", rim = "#f5e8c8" }), { cres = 4, deep = 6, pale = true })
   c:eye(x - 4, y - 28); c:eye(x + 4, y - 28)
-  c:part(c:poly({ {x + 5, y - 22}, {x + 13, y - 21}, {x + 5, y - 17} }), GV.ramp("#e8a317"), { flat = true, gloss = false, outline = false })
-  c:px(x + 7, y - 21, "#b8661a")
+  c:part(c:poly({ {x + 8, y - 24}, {x + 18, y - 21}, {x + 8, y - 15} }), GV.ramp("#e8a317"), { flat = true, gloss = false, outline = false })
+  c:px(x + 10, y - 21, "#b8661a")
   if kind == "tricorn" then
     c:part(c:poly({ {x - 9, y - 31}, {x + 3, y - 40}, {x + 15, y - 31} }), GV.ramp("#291d4a"), { cres = 3, deep = 4, gloss = false })
     c:fill(c:rect(x - 10, y - 32, x + 16, y - 31), "#3e2f66"); c:fill(c:rect(x + 2, y - 37, x + 4, y - 36), "#f5cf6a")

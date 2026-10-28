@@ -38,7 +38,7 @@ L.cloud(c, 40, 20, 16); L.cloud(c, 150, 12, 18); L.cloud(c, 214, 30, 12); L.clou
 c:part(c:poly({ {0,HOR+4},{0,56},{60,48},{110,56},{150,HOR+4} }), GV.ramp("#6a9a3a"), { cres = 5, gloss = false, rim = false, outline = false })
 c:part(c:poly({ {120,HOR+4},{170,52},{240,46},{240,HOR+4} }), GV.ramp("#7ab55c"), { cres = 5, gloss = false, rim = false, outline = false })
 -- church
-c:part(c:rect(190, 36, 204, 54), GV.ramp("#f2e4c0", { dot = "#fff3c8", gloss = "#fff3c8" }), { cres = 3, deep = 5, pale = true, gloss = false })
+c:part(c:rect(190, 36, 204, 64), GV.ramp("#f2e4c0", { dot = "#fff3c8", gloss = "#fff3c8" }), { cres = 3, deep = 5, pale = true, gloss = false })
 c:part(c:ellipse(197, 30, 6, 7), GV.ramp("#3f8fb0", { rim = "#8fcbd8" }), { cres = 3, deep = 4, gloss = false })
 c:part(c:poly({ {193,27},{197,16},{201,27} }), GV.ramp("#3f8fb0", { rim = "#8fcbd8" }), { cres = 2, gloss = false })
 c:fill(c:rect(197, 8, 197, 15), "#e8a317"); c:fill(c:rect(195, 10, 199, 10), "#e8a317")

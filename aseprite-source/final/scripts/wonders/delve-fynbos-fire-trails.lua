@@ -23,6 +23,7 @@ L.cloud(c, 120, 50, 26, "#b8808a", "#8a5a6a")
 -- ember lines on the far slopes
 for _, l in ipairs({ {{80,74},{96,70},{112,76}}, {{150,70},{170,74},{186,72}}, {{98,84},{118,82}} }) do c:seam(l, { free = true, on = 2, off = 1, gap = "#d6703a" }) end
 
+c:fill(c:rect(0, 84, W - 1, H - 1), "#5a3a3a")
 -- distant ridges (ash grey-brown) 
 c:part(L.below(c, function(x) return 92 - math.abs(math.sin(x / 15)) * 8 end):clip(c:rect(0, 70, W, 106)), GV.ramp("#5a3a3a"), fl({ cres = 4, deep = 6 }))
 
@@ -62,8 +63,8 @@ local function protea(x, y, r)
   c:part(c:ellipse(x - 5, y + 9, 4, 2), GV.ramp("#7ab55c"), { flat = true, gloss = false })
   c:part(c:ellipse(x + 6, y + 6, 4, 2), GV.ramp("#7ab55c"), { flat = true, gloss = false })
   c:part(c:ellipse(x, y, r, r), GV.ramp("#e46a9b"), { cres = 3, deep = 5, gloss = false })
-  c:part(c:ellipse(x, y, r - 3, r - 3), GV.ramp("#f6b8cf"), { cres = 2, deep = 3, gloss = false })
-  c:part(c:ellipse(x, y + 1, r - 5, r - 5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false })
+  c:part(c:ellipse(x, y, r - 3, r - 3), GV.ramp("#f6b8cf"), { cres = 2, deep = 3, gloss = false, outline = false })
+  c:part(c:ellipse(x, y + 1, r - 5, r - 5), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { flat = true, gloss = false, outline = false })
   for dx = -(r - 2), r - 2, 3 do c:px(x + dx, y - r + 1, "#e46a9b") end
 end
 protea(26, 100, 10); protea(214, 98, 8); protea(166, 108, 6)
