@@ -37,6 +37,7 @@ cv = new_canvas('#8fbfd6')
 r = rnd(1717)
 r2 = rnd(4242)
 r3 = rnd(5353)   # pass-1 details (so the v0 layout does not shift)
+r4 = rnd(6464)   # pass-2 details
 
 
 def shadow(x0, y0, x1, y1, col=None):
@@ -118,15 +119,21 @@ balloon(66, 42, 4, PURP, ramp('#f5cf6a', '#b07a10'))
 
 def crane(cx, cy, up):
     """Grey crowned crane in flight: neck forward (left), legs trailing, wings up or down."""
-    cv.fill(ell(cx - 3, cy - 1, cx + 3, cy + 1), '#8a7a70')
-    cv.fill(line([(cx - 3, cy), (cx - 8, cy - 1)]), '#4a3c36')
-    cv.fill(line([(cx + 3, cy), (cx + 10, cy + 1)]), '#2a1a10')
-    wy = cy - 6 if up else cy + 5
-    wing = poly([(cx - 2, cy), (cx + 2, cy), (cx + 4, wy), (cx - 1, wy + (1 if up else -1))])
-    cv.fill(wing, '#f1ece0')
-    cv.fill(wing & ~shift(wing, 0, 2 if up else -2), '#4a3c36')
-    cv.dots([(cx - 9, cy - 1), (cx - 9, cy - 2), (cx - 8, cy - 3), (cx - 10, cy - 3)], '#f5cf6a')   # golden crown
-    cv.dots([(cx - 9, cy)], '#d6322b')
+    cv.fill(line([(cx + 3, cy), (cx + 11, cy + 2)]), '#2a1a10')   # trailing legs
+    wy = cy - 7 if up else cy + 6
+    wing = poly([(cx - 3, cy), (cx + 3, cy), (cx + 6, wy), (cx - 1, wy + (1 if up else -1))])
+    GREY = ramp('#8a7a70', '#6a5a52')
+    o = cv.obj()
+    o.part(wing, ramp('#f1ece0', '#c9c5bc'), d=1, rim=False)
+    o.part(ell(cx - 4, cy - 2, cx + 4, cy + 1), GREY, d=1, rim=False)
+    o.part(line([(cx - 3, cy - 1), (cx - 9, cy - 2)], 2), GREY, d=0)   # a proper 2-px neck
+    o.part(rect(cx - 12, cy - 3, cx - 9, cy - 1), ramp('#2a1a10', '#2a1a10'), d=0)   # black head
+    o.draw()
+    cv.fill(wing & ~shift(wing, 0, 2 if up else -2), '#4a3c36')   # dark flight feathers
+    cv.dots([(cx - 13, cy - 2), (cx - 14, cy - 1)], '#4a3c36')   # beak
+    cv.dots([(cx - 10, cy - 2)], '#ffffff')   # white cheek
+    cv.dots([(cx - 11, cy - 4), (cx - 12, cy - 5), (cx - 10, cy - 5), (cx - 11, cy - 6), (cx - 13, cy - 5)], '#f5cf6a')   # golden crown
+    cv.dots([(cx - 11, cy)], '#d6322b')   # red wattle
 
 
 crane(34, 33, True)
@@ -290,9 +297,13 @@ def giraffe(x, y, f, h=62):
     near, far = blank(), blank()
     for lx, is_near, hind in ((-10, True, True), (-6, False, True), (10, True, False), (6, False, False)):
         top = (X(lx), by + 3)
-        knee = (X(lx - 2 if hind else lx + (0 if is_near else -1)), by + 15)   # hind legs bend back at the hock
-        foot = (X(lx + (0 if hind else 1) + (1 if is_near else -1)), y)
-        m = line([top, knee], 3) | line([knee, foot], 2) | rect(knee[0] - 1, knee[1] - 1, knee[0] + 1, knee[1])
+        if hind:   # muscled thigh sloping back to the hock, cannon bone angled forward
+            knee = (X(lx - 3), by + 16)
+            foot = (X(lx - 2 + (1 if is_near else -1)), y)
+        else:      # front legs splay forward a little, knobbly knee
+            knee = (X(lx + 1 - (0 if is_near else 1)), by + 15)
+            foot = (X(lx + (3 if is_near else 0)), y)
+        m = line([top, knee], 4 if hind else 3) | line([knee, foot], 2) | rect(knee[0] - 1, knee[1] - 1, knee[0] + 1, knee[1] + 1)
         m |= rect(min(foot[0], foot[0] + f), y - 1, max(foot[0], foot[0] + f), y)   # hoof
         if is_near:
             near |= m
@@ -317,8 +328,13 @@ def giraffe(x, y, f, h=62):
             pm = rect(px, py, px + 2, py + 2) & ~rect(px + 2, py + 2, px + 2, py + 2) & ~rect(px, py, px, py)
             cv.fill(pm & inner, '#9a5a24')
     legs = near | far
-    for lm in (near, far):   # a few small patches high on the legs, dark hooves
-        cv.fill(lm & rect(0, by + 5, W, by + 6) & shift(lm, 1, 0), '#9a5a24')
+    for lm, pale, shade in ((near, '#f8d88a', '#c98a2a'), (far, '#e2a93e', '#a8701c')):
+        cv.fill(lm & rect(0, by + 5, W, by + 6) & shift(lm, 1, 0), '#9a5a24')   # patches high on the legs
+        cv.fill(lm & rect(0, by + 10, W, by + 11) & shift(lm, -1, 0) & shift(lm, 1, 0), '#9a5a24')
+        low = lm & rect(0, by + 18, W, y - 2)   # pale lower legs (stockings), shaded on the right edge
+        cv.fill(low, pale)
+        cv.fill(low & ~shift(lm, -1, 0), shade)
+        cv.fill(lm & rect(0, by + 14, W, by + 16) & ~shift(lm, -1, 0), '#9a5a24')   # knee / hock knob shadow
     cv.fill(legs & rect(0, y - 1, W, y), DARK)
     hx0 = x + 22 * f
     cv.fill(rect(hx0 - 1, by - h + 22, hx0 - 1, by - h + 26) | rect(hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 22, hx0 + 2 * f - 1 + (f < 0) * 2, by - h + 26), '#7a4a1f')   # ossicones
@@ -360,20 +376,44 @@ for yy in range(hy + 17, hy + 32, 5):   # carved chevrons
     for xx in range(hx + 4, hx + 13):
         cv.dots([(xx, yy + abs(xx - (hx + 8)) // 2)], GRANITE['s'])
 cv.fill(rect(hx + 3, hy + 16, hx + 3, hy + 32), GRANITE['r'])
+SOAP = ramp('#a8ae8c', '#7a8466', '#cdd2ae')   # pale carved soapstone (pass 2: was a dark sage that read as a crow)
 o = cv.obj()
-o.part(rect(hx + 6, hy + 6, hx + 7, hy + 10) | rect(hx + 10, hy + 6, hx + 11, hy + 10), SOAP, d=0, rim=False)   # legs
-o.part(ell(hx + 3, hy - 6, hx + 14, hy + 8) | poly([(hx + 5, hy + 2), (hx + 1, hy + 10), (hx + 6, hy + 10)]), SOAP, d=2)   # body + tail
-o.part(ell(hx + 8, hy - 13, hx + 15, hy - 5) | poly([(hx + 15, hy - 11), (hx + 19, hy - 8), (hx + 15, hy - 7)]), SOAP, d=1)   # head + beak
+o.part(rect(hx + 5, hy + 5, hx + 7, hy + 10) | rect(hx + 10, hy + 5, hx + 12, hy + 10), SOAP, d=0, rim=False)   # thick carved legs
+o.part(ell(hx + 4, hy - 7, hx + 13, hy + 7) | poly([(hx + 5, hy + 1), (hx + 2, hy + 10), (hx + 7, hy + 10)]), SOAP, d=2)   # upright body + tail
+o.part(rect(hx + 9, hy - 12, hx + 12, hy - 5), SOAP, d=1)   # long neck
+o.part(ell(hx + 8, hy - 17, hx + 14, hy - 11), SOAP, d=1)   # small head
+o.part(poly([(hx + 13, hy - 16), (hx + 18, hy - 15), (hx + 18, hy - 12), (hx + 16, hy - 13), (hx + 13, hy - 13)]), SOAP, d=0)   # hooked raptor beak
 o.draw()
-for k in range(3):   # folded wing feathers
-    cv.fill(line([(hx + 5, hy - 2 + k * 3), (hx + 10, hy + 3 + k * 2)]) & ell(hx + 3, hy - 6, hx + 14, hy + 8), SOAP['s'])
-cv.dots([(hx + 12, hy - 10)], DARK)
+for k in range(3):   # carved chevrons down the folded wing
+    cv.fill(line([(hx + 5, hy - 4 + k * 4), (hx + 8, hy - 1 + k * 4), (hx + 11, hy - 4 + k * 4)]) & ell(hx + 4, hy - 7, hx + 13, hy + 7), SOAP['s'])
+cv.fill(rect(hx + 9, hy - 9, hx + 12, hy - 9), SOAP['r'])   # carved collar ring
+cv.dots([(hx + 11, hy - 15), (hx + 12, hy - 14), (hx + 10, hy - 14)], SOAP['s'])   # ring-carved eye (no black: stone, not a live bird)
+cv.dots([(hx + 17, hy - 12), (hx + 18, hy - 11)], SOAP['s'])   # beak hook
 cv.dots([(hx + 4, hy + 30), (hx + 6, hy + 31), (hx + 3, hy + 22)], '#a4b05a')   # moss
 # a red-headed agama lizard basking on the middle boulder
 cv.fill(rect(32, 118, 40, 119), '#4f93b8')
 cv.fill(rect(41, 117, 43, 119), '#f08a24')
 cv.fill(line([(31, 119), (27, 120), (24, 122)]), '#4f93b8')
 cv.dots([(33, 120), (38, 120), (34, 117), (39, 117), (43, 118)], DARK)
+# pass 2: lichen rosettes, crevice grass and a rock hyrax so the big granite domes are not flat
+pillar_zone = rect(hx - 6, hy - 20, hx + 24, hy + 42)
+for k in range(26):
+    lx, ly = r4(2, 68), r4(98, 160)
+    if kop[ly, lx] and kop[ly + 2, lx + 2] and not pillar_zone[ly, lx]:
+        col = ('#e8a317', '#f08a24', '#a4b05a', '#dccab0')[k % 4]
+        cv.dots([(lx, ly), (lx + 1, ly), (lx, ly + 1), (lx + 1, ly + 1), (lx + 2, ly), (lx - 1, ly + 1)], col)
+        cv.dots([(lx + 1, ly + 2)], GRANITE['s'])
+for gx, gy in ((10, 128), (30, 113), (60, 134), (22, 150)):   # grass tufts in the cracks
+    if kop[gy, gx]:
+        cv.fill(line([(gx, gy), (gx - 2, gy - 4)]) | line([(gx, gy), (gx, gy - 5)]) | line([(gx, gy), (gx + 2, gy - 4)]), '#55652a')
+        cv.dots([(gx - 2, gy - 5), (gx + 2, gy - 5)], '#a4b05a')
+o = cv.obj()   # rock hyrax sunning itself on the small boulder
+o.part(ell(40, 132, 52, 139), BARK, d=1)
+o.part(ell(48, 129, 55, 136), BARK, d=1)
+o.part(rect(42, 138, 43, 140) | rect(48, 138, 49, 140), BARK, d=0, rim=False)
+o.draw()
+cv.dots([(52, 131), (54, 133), (49, 128)], DARK)   # eye, nose, ear
+cv.dots([(44, 134), (46, 133)], BARK['r'])
 
 
 def gnome(gx, gy, tunic, hat, lean=-5, s=1.0, arm=None):
@@ -440,6 +480,18 @@ for px, py in ((236, 54), (258, 46), (284, 54), (270, 38)):   # hanging velvet p
     o = cv.obj()
     o.part(ell(px - 2, py + 3, px + 2, py + 11), ramp('#a4b05a', '#7a8a3a', '#c9d08a'), d=1)
     o.draw()
+# pass 2: a yellow-billed hornbill perched on the right-hand branch, facing into the picture
+o = cv.obj()
+o.part(poly([(292, 46), (295, 46), (297, 55), (294, 55)]), ramp('#3d2a1c', '#2a1a10'), d=0)   # long tail
+o.part(ell(287, 40, 295, 49), ramp('#4a3c36', '#2a1a10', '#8a7a70'), d=1)   # body
+o.part(ell(285, 35, 291, 41), ramp('#4a3c36', '#2a1a10', '#8a7a70'), d=1)   # head
+o.part(poly([(286, 37), (280, 39), (277, 43), (281, 42), (286, 40)]), ramp('#f5cf6a', '#e8a317', '#fff4c8'), d=0)   # big curved bill
+o.draw()
+cv.fill(ell(288, 43, 292, 48), '#f1ece0')   # white belly
+cv.dots([(290, 44), (292, 45), (289, 46)], '#ffffff')   # wing spots
+cv.dots([(287, 37)], '#f1ece0')
+cv.dots([(287, 38)], DARK)   # eye
+cv.dots([(290, 50), (292, 50)], '#4a3c36')   # feet on the branch
 o = cv.obj()   # arched doorway: a smile-shaped gap in the bark, lit from inside
 door = ell(252, 126, 272, 162) & rect(0, 0, W, 154)
 o.part(door, ramp('#4a2c1a', '#2a1a10', '#74462a'), d=2)
@@ -533,10 +585,9 @@ hut(122, 170, 124, 156, 84, deco=0)
 cv.fill(rect(138, 140, 154, 156) & rrect(138, 140, 154, 156, 3), '#4a2c1a')   # wide doorway, glowing coals inside
 cv.fill(rect(142, 150, 150, 153), '#e0501f')
 cv.dots([(144, 149), (147, 148), (149, 150)], '#f5cf6a')
-for k in range(6):   # roasting smoke drifting right from the top
-    sx, sy = 146 + k * 5, 78 - k * 6
-    pm = ell(sx - 3 - k // 2, sy - 3, sx + 3 + k // 2, sy + 2)
-    cv.fill(pm, '#f6ecdc' if k < 4 else '#f2dcc0')
+for k, (sx, sy, rw) in enumerate(((147, 77, 2), (144, 72, 3), (140, 67, 3))):   # roasting smoke: a short wisp curling LEFT, clear of the giraffe's chest
+    pm = ell(sx - rw, sy - 2, sx + rw, sy + 2)
+    cv.fill(pm, '#f6ecdc' if k < 2 else '#f2dcc0')
     cv.fill(pm & ~shift(pm, -1, -1), '#d9c0a0')
 # boma: a low thorn-stick fence round the village
 for fx in list(range(84, 122, 4)) + list(range(172, 238, 4)):
@@ -606,12 +657,24 @@ for ci, cx in enumerate((215, 219, 223, 227)):
     cv.dots([(cx + 1, 176)], '#5c3420')
     cv.dots([(cx, 178), (cx + 2, 178)], ('#4f93b8', '#d6322b')[ci % 2])
 # a little basket of popcorn, served with the coffee
+bx0, by0 = 188, 179   # pass 2: a bigger woven basket heaped with lumpy popcorn (was small and read as rice)
+shadow(bx0 + 1, by0 + 14, bx0 + 21, by0 + 18, '#4f7a2a')
+pop = blank()
+for ox, oy in ((1, 5), (4, 2), (7, 0), (10, 1), (13, 3), (16, 5), (5, 5), (9, 4), (12, 6), (3, 7), (15, 8)):
+    pop |= ell(bx0 + ox, by0 + oy, bx0 + ox + 3, by0 + oy + 3)
+basket = (ell(bx0, by0 + 3, bx0 + 20, by0 + 16) & rect(0, by0 + 8, W, H)) | rect(bx0 + 1, by0 + 8, bx0 + 19, by0 + 9)
 o = cv.obj()
-o.part(ell(190, 183, 202, 190) & rect(0, 185, W, H), THATCH, d=1)
-o.part(ell(192, 182, 200, 187) & rect(0, 0, W, 185), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=0)
+o.part(pop & rect(0, 0, W, by0 + 8), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=1)
+o.part(basket, THATCH, d=1)
 o.draw()
-cv.dots([(193, 187), (196, 188), (199, 187), (194, 189), (198, 189)], THATCH['s'])
-cv.dots([(193, 183), (196, 182), (199, 184), (195, 184)], '#f5cf6a')
+for ox, oy in ((4, 3), (7, 1), (10, 2), (13, 4), (6, 6), (9, 5), (12, 7), (2, 6), (16, 6)):   # kernel creases split the heap into puffs
+    cv.dots([(bx0 + ox, by0 + oy + 1), (bx0 + ox + 1, by0 + oy + 2)], '#c9c5bc')
+cv.dots([(bx0 + 3, by0 + 5), (bx0 + 8, by0 + 2), (bx0 + 14, by0 + 4), (bx0 + 11, by0 + 6)], '#f5cf6a')   # buttery kernels
+for yy in (by0 + 10, by0 + 12, by0 + 14):   # weave
+    for xx in range(bx0 + 2 + (yy % 4), bx0 + 19, 4):
+        cv.dots([(xx, yy), (xx + 1, yy + 1)], THATCH['s'])
+cv.fill(rect(bx0 + 1, by0 + 8, bx0 + 19, by0 + 8) & basket, THATCH['r'])   # rim
+cv.dots([(bx0 + 22, by0 + 14), (bx0 + 24, by0 + 13), (bx0 - 2, by0 + 15)], '#f1ece0')   # a few spilled kernels
 # incense burner with a curling wisp
 o = cv.obj()
 o.part(rect(226, 170, 230, 172) | rect(227, 173, 229, 174), CLAY, d=0)
@@ -788,19 +851,20 @@ def wildebeest(x, y, f):
     cv.dots([(X(-17), by + 9), (X(-15), by + 10)], DARK)
 
 
-for dx, dy in ((232, 198), (262, 184), (292, 196), (300, 170), (244, 172)):   # dust clouds behind them
+for dx, dy in ((232, 198), (262, 184), (288, 196), (294, 170), (244, 172)):   # dust clouds behind them
     cv.fill(ell(dx - 10, dy - 6, dx + 10, dy), '#f0c890')
     cv.fill(ell(dx - 6, dy - 9, dx + 4, dy - 3), '#f6dcb0')
+# pass 2: the two right-hand animals are pulled in so their tails stay inside the frame edge
 shadow(240, 174, 266, 178)
 wildebeest(254, 176, -1)
-shadow(276, 182, 300, 186)
-zebra(290, 184, -1)
+shadow(266, 182, 296, 186)
+zebra(282, 184, -1)
 shadow(232, 196, 262, 199)
 zebra(246, 199, -1, graze=True)
-shadow(286, 197, 300, 199)
-wildebeest(296, 200, -1)
-cv.fill(rect(285, 160, 288, 161), '#5c3420')   # oxpecker riding the zebra
-cv.dots([(284, 160), (288, 159)], '#d6322b')
+shadow(266, 196, 298, 199)
+wildebeest(281, 199, -1)
+cv.fill(rect(277, 160, 280, 161), '#5c3420')   # oxpecker riding the zebra
+cv.dots([(276, 160), (280, 159)], '#d6322b')
 
 # ---------------------------------------------------------------- litter: grass seed heads, stones, aloe and flowers across the meadow
 keep = (rect(150, 140, 232, 199) | rect(14, 150, 46, 199) | rect(176, 160, 300, 199) | rect(40, 84, 70, 106) | rect(56, 40, 110, 121)

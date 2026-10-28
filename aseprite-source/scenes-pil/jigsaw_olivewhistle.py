@@ -251,11 +251,15 @@ for bx, by in ((92, 22), (98, 25), (104, 22), (140, 12), (146, 15), (30, 40), (3
 
 # ================================================================ FAR: horizon islands and Cinderpeak
 HZ = 72
-cat = ell(34, 64, 64, 80) | poly([(54, 66), (56, 60), (59, 65)]) | poly([(60, 67), (63, 61), (65, 68)]) | ell(58, 64, 68, 76)   # sleeping-cat isle, under the sun
+cat = ell(32, 61, 62, 83) | poly([(56, 64), (58, 56), (62, 63)]) | poly([(63, 64), (67, 56), (69, 65)]) | ell(56, 60, 72, 78)   # sleeping-cat isle, under the sun
 cat &= rect(0, 0, W, HZ)
-cv.fill(cat, '#c99a7a')
-cv.fill(cat & ~shift(cat, 2, 2), '#e2b896')
-cv.fill(line([(38, 70), (44, 67), (50, 70)]), '#a87a62')   # curled tail
+cv.fill(cat, '#7a5a66')   # dusky violet silhouette so it reads against the sun's halo
+cv.fill(cat & ~shift(cat, 2, 2), '#a07478')
+cv.fill(cat & ~shift(cat, 0, 1), '#c48a80')   # warm rim of evening light
+cv.fill(line([(30, 71), (34, 67), (40, 66), (46, 68)]), '#7a5a66')   # curled tail lying on the water
+cv.fill(line([(60, 67), (62, 68)]) | line([(65, 68), (67, 67)]), '#4a3442')   # closed sleepy eyes
+cv.dots([(64, 70)], '#4a3442')
+r4 = rnd(4242)   # pass-2 details: keeps the r / r2 / r3 layout stable
 volc = poly([(84, HZ), (104, 54), (112, 52), (118, 55), (142, HZ)])
 cv.fill(volc, '#b88a7a')
 cv.fill(volc & ~shift(volc, 3, 2), '#d6a890')
@@ -286,7 +290,7 @@ cv.fill(rect(kx, ky - 6, kx, ky + 6) & km, '#4a2c1a')
 cv.fill(line([(kx, ky + 7), (kx - 3, ky + 12), (kx + 1, ky + 17), (kx - 2, ky + 22)]), '#4a2c1a')
 for tx, ty, c in ((kx - 3, ky + 12, '#3f8fb0'), (kx + 1, ky + 17, '#f2d23a'), (kx - 2, ky + 22, '#d6322b')):
     cv.fill(rect(tx - 1, ty, tx + 1, ty + 1), c)
-cv.fill(line([(kx + 1, ky + 6), (200, 56)]), '#8a7a6a')
+cv.fill(line([(kx + 1, ky + 6), (196, 47)]), '#8a7a6a')   # string down to the gnome on the roof terrace
 # a big gull gliding close, and a far flight of three
 gbx, gby = 40, 34
 cv.fill(poly([(gbx - 9, gby - 3), (gbx - 2, gby + 1), (gbx, gby + 3), (gbx + 2, gby + 1), (gbx + 9, gby - 3), (gbx + 2, gby - 1), (gbx, gby), (gbx - 2, gby - 1)]), '#ffffff')
@@ -297,13 +301,15 @@ for bx, by in ((10, 26), (16, 29), (6, 30), (118, 36), (122, 38)):
     cv.dots([(bx - 1, by - 1), (bx, by), (bx + 1, by - 1)], '#5a4a4a')
 
 # ================================================================ LAND MASKS
-hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (188, 48), (178, 56), (172, 64), (162, 70), (165, 76), (157, 81), (147, 84), (144, 90), (151, 96), (150, 103),
-             (141, 106), (134, 111), (137, 117), (128, 121), (122, 126), (116, 132), (300, 132)])
+hill = poly([(300, 2), (272, 8), (246, 16), (222, 26), (202, 38), (188, 48), (178, 56), (172, 64), (165, 66), (162, 70), (167, 73), (165, 77), (157, 81), (151, 82), (147, 86),
+             (144, 90), (149, 92), (151, 96), (146, 99), (150, 103), (141, 106), (136, 108), (134, 111), (139, 114), (137, 117), (130, 118), (128, 121), (122, 126), (118, 128),
+             (116, 132), (300, 132)])
 # the west headland: a whitewashed windmill on top, a goat path down to the breakwater (frames the harbour as a cove)
-head = poly([(0, 40), (6, 38), (13, 39), (19, 44), (23, 52), (25, 62), (29, 72), (28, 82), (33, 92), (31, 102), (36, 110), (35, 118), (28, 123), (0, 124)])
-piazza = poly([(124, 126), (300, 126), (300, 200), (134, 200), (128, 176)])
+head = poly([(0, 40), (6, 38), (13, 39), (19, 44), (23, 52), (25, 60), (31, 64), (27, 69), (29, 72), (28, 80), (37, 84), (33, 88), (34, 92), (29, 97), (31, 102), (36, 106), (36, 110),
+             (40, 114), (35, 118), (28, 123), (0, 124)])
+piazza = poly([(129, 126), (300, 126), (300, 200), (138, 200), (133, 176)])
 steps = poly([(106, 130), (126, 130), (110, 178), (84, 172)])
-pwall = poly([(124, 128), (134, 128), (136, 200), (106, 200), (110, 176)]) & ~piazza
+pwall = poly([(116, 126), (138, 126), (140, 200), (106, 200), (110, 176), (126, 130)]) & ~piazza
 quay = poly([(0, 168), (86, 166), (108, 178), (110, 200), (0, 200)])
 mole = poly([(0, 126), (24, 122), (44, 124), (50, 132), (44, 138), (18, 140), (0, 142)])
 land = hill | piazza | steps | pwall | quay | mole | head

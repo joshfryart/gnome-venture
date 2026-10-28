@@ -120,21 +120,19 @@ for px, py, w in ((78, 58, 10), (126, 50, 14), (176, 56, 10), (250, 60, 8)):   #
     cv.fill(cap, '#eef4f6')
 cv.fill(m & ~shift(m, 0, 1), '#7e9eb2')   # crest line so the pale snow caps read against the pale sky
 WOLF = ramp('#6e7682', '#4a525c', '#a4acb6')
-wy = 4   # the wolf sits a little down into the snow of the peak so it does not float
-o = cv.obj()   # the Grey Wolf King sitting on the peak, muzzle up, howling
-o.part(poly([(130, 51 + wy), (136, 50 + wy), (137, 52 + wy), (130, 53 + wy)]), WOLF, d=0)   # bushy tail on the snow
-o.part(ell(126, 46 + wy, 132, 53 + wy), WOLF, d=1)   # haunch
-o.part(poly([(121, 53 + wy), (122, 45 + wy), (125, 43 + wy), (128, 46 + wy), (127, 53 + wy)]), WOLF, d=1)   # chest and forelegs
-o.part(ell(121, 39 + wy, 127, 45 + wy), WOLF, d=1)   # head
-o.part(poly([(122, 42 + wy), (117, 36 + wy), (119, 35 + wy), (125, 41 + wy)]), WOLF, d=0)   # muzzle raised to the sky
-o.part(poly([(124, 40 + wy), (126, 35 + wy), (127, 41 + wy)]), WOLF, d=0)   # ear
-o.draw()
-cv.fill(rect(123, 46 + wy, 124, 51 + wy), '#c4ccd4')   # pale ruff
-cv.fill(rect(124, 52 + wy, 124, 53 + wy), '#4a525c')   # leg split
-cv.dots([(123, 41 + wy), (117, 35 + wy)], '#2a1a10')
-drift = ell(116, 54 + wy, 142, 60 + wy) & m   # snow drift round its feet
-cv.fill(drift & ~rect(0, 0, W, 54 + wy), '#eef4f6')
-cv.fill(drift & ~rect(0, 0, W, 54 + wy) & ~shift(drift, 0, -1), '#c9dbe6')
+bx, by = 126, 55   # pass 2: the Grey Wolf King is far away, so small (about 11 px), a silhouette sitting on the peak, muzzle up, howling
+wolf = (ell(bx, by - 5, bx + 5, by) | poly([(bx - 3, by), (bx - 2, by - 6), (bx + 1, by - 8), (bx + 3, by - 5), (bx + 2, by)])
+        | ell(bx - 4, by - 11, bx, by - 7) | line([(bx - 3, by - 10), (bx - 6, by - 13)], 2) | rect(bx - 1, by - 13, bx - 1, by - 11)
+        | line([(bx + 5, by), (bx + 9, by - 1)], 2))
+cv.fill(dil4(wolf) & ~wolf, '#4a525c')   # thin dark edge (far: no umber outline)
+cv.fill(wolf, WOLF['b'])
+cv.fill(wolf & ~shift(wolf, -1, -1), WOLF['s'])
+cv.fill(wolf & ~shift(wolf, 1, 1), '#a8acb0')
+cv.fill(rect(bx - 2, by - 6, bx - 1, by - 3), '#d8d2c2')   # pale ruff
+cv.dots([(bx - 2, by - 10)], '#2a1a10')
+drift = ell(bx - 8, by - 1, bx + 13, by + 3) & m   # snow drift round its feet
+cv.fill(drift & ~rect(0, 0, W, by), '#eef4f6')
+cv.fill(drift & ~rect(0, 0, W, by) & ~shift(drift, 0, -1), '#c9dbe6')
 x = 2
 while x < W - 2:
     x += r2(3, 8)
@@ -156,9 +154,9 @@ for hx0 in (96, 104, 112, 208, 216):   # far hamlet: tiny white houses with red 
 
 # ---------------------------------------------------------------- mid fields: left green wheat, centre black earth with green rows
 cv.fill(rect(0, 88, W - 1, 124), GRASS['b'])
-earth = poly([(92, 88), (236, 88), (250, 124), (78, 124)])
+earth = poly([(92, 88), (236, 88), (250, 124), (78, 124)]) | poly([(0, 88), (W - 1, 88), (W - 1, 97), (0, 99)])   # pass 2: the black earth runs right across the steppe behind the yard
 cv.fill(earth, EARTH['b'])
-for i in range(-9, 10):   # sprout rows converging to the horizon
+for i in range(-22, 23):   # sprout rows converging to the horizon
     xa, xb = 164 + i * 8, 164 + i * 19
     cv.fill(line([(xa, 89), (xb, 124)]) & earth, '#7aa84a')
     cv.fill(line([(xa + 1, 89), (xb + 2, 124)]) & earth & rect(0, 104, W, 124), '#4f8a3a')
