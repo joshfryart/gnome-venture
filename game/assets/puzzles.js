@@ -20,7 +20,6 @@ var ZL=[1,1.25,1.5,2,2.5], zi=0;
 var lift=document.createElement('div'); lift.id='lift'; field.appendChild(lift);
 var paused=false, curStill=null;
 try{ var mv=localStorage.getItem('jiggy.motion'); paused = mv==='0'; }catch(e){}
-var curCrop=false;   /* Jigsaw Places: a 16:9 scene played as its centre 3:2 (img object-fit: cover) */
 var tok=0, curId=null, inGame=false, G=null, curUrl=null, timer=null, drag=null, pan=null, raf=0, laidOnce=false;
 
 
@@ -76,7 +75,7 @@ function pathFor(r,c,abs,mask){
 /* ---------- setup ---------- */
 function start(src){
   var im=new Image(), t=tok;
-  im.onload=function(){ if(t!==tok||!inGame) return; setup(src, curCrop?300:(im.naturalWidth||320), curCrop?200:(im.naturalHeight||288)); };
+  im.onload=function(){ if(t!==tok||!inGame) return; setup(src, im.naturalWidth||320, im.naturalHeight||288); };
   im.onerror=function(){ say('The picture did not load.'); };
   im.src=src;
 }
@@ -643,7 +642,7 @@ function enterGame(pz,n){
   countSel.value=String(n); curId=pz.id;
   SUB_DEFAULT=NARROW ? pz.title+' · join neighbours' : pz.title+'. '+SUB_BASE; sub.textContent=SUB_DEFAULT;
   curStill=pz.still||null;
-  curCrop=!!pz.crop; field.classList.toggle('crop',curCrop); field.classList.toggle('pxpic',!!pz.px);
+  field.classList.toggle('pxpic',!!pz.px);
   start(pz.gif);
 }
 function route(){

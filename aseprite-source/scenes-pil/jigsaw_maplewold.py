@@ -30,6 +30,7 @@ SOIL = ramp('#7a4a1f', '#5c3420', '#9a6b3f')
 FOLIAGE = [RED, ORG, YEL, ORG, RED, GOLD]
 cv = new_canvas(SKY0)
 r = rnd(2024)
+r2 = rnd(77)   # second stream for pass-2 details, so the approved layout drawn with r stays put
 
 
 def shadow(x0, y0, x1, y1):
@@ -51,10 +52,16 @@ def foliage(m, rp, d=3, specks=10):
     o.part(m, rp, d=d)
     o.draw()
     ys, xs = np.nonzero(m)
-    for _ in range(specks):   # leaf flecks: rim tone upper left, shade tone lower right
+    inner = m & shift(m, 2, 0) & shift(m, -2, 0) & shift(m, 0, 2) & shift(m, 0, -2)
+    others = [f for f in FOLIAGE if f['b'] != rp['b']]
+    for _ in range(specks):   # leaf flecks: LIGHT tones only (rim or a neighbouring leaf colour), never a dark that reads as a hole
         i = r(0, len(xs) - 1)
+        k = r(0, 1)
         x, y = int(xs[i]), int(ys[i])
-        cv.dots([(x, y), (x + 1, y)], rp['r'] if r(0, 1) else rp['s'])
+        if not inner[y, x]:
+            continue
+        col = rp['r'] if k else others[r2(0, len(others) - 1)]['b']
+        cv.dots([(x, y), (x + 1, y), (x + 1, y - 1)], col)
 
 
 # ---------------------------------------------------------------- sky, clouds, birds
@@ -68,18 +75,36 @@ for cx, cy, w in ((40, 14, 44), (150, 26, 56), (240, 12, 40), (96, 44, 36), (214
     cv.fill(m & rect(0, cy + 3, W, cy + 3), '#c3d2e6')   # cool underside line
 for bx, by in ((172, 10), (178, 13), (184, 16), (166, 13), (160, 16), (70, 50), (84, 56)):   # a V of geese + two strays
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
+blx, bly = 200, 26   # a patchwork hot-air balloon drifting over the valley
+env = ell(blx - 7, bly - 9, blx + 7, bly + 7) | poly([(blx - 5, bly + 4), (blx + 5, bly + 4), (blx + 2, bly + 10), (blx - 2, bly + 10)])
+o = cv.obj()
+o.part(env, RED, d=2)
+o.part(rect(blx - 3, bly + 15, blx + 3, bly + 19), WOOD, d=1)
+o.draw()
+cv.fill(env & ~shift(env, 1, 1) & ~shift(env, -1, -1) & (rect(blx - 3, 0, blx - 2, H) | rect(blx + 2, 0, blx + 3, H)), YEL['b'])
+cv.fill(env & rect(blx - 7, bly - 1, blx + 7, bly) & ~(dil4(~env)), '#3f8fb0')   # teal band
+cv.dots([(blx - 4, bly - 6), (blx - 5, bly - 4)], '#f5b04a')   # glint
+for t in (-1, 1):
+    cv.fill(line([(blx + t * 2, bly + 10), (blx + t * 3, bly + 15)]), '#4a2c1a')
+cv.fill(rect(blx - 2, bly + 16, blx + 2, bly + 16), '#7a4a1f')
 
 # ---------------------------------------------------------------- far hills with tree dots and a windmill
 m = poly([(0, 82), (30, 62), (70, 74), (120, 54), (180, 72), (230, 56), (300, 76), (300, 90), (0, 90)])
 cv.fill(m, HILL0)
 cv.fill(m & ~shift(m, 3, 3), '#a9c4d6')
-for x in range(2, W, 4):   # hedgerow dots along the far slopes
+x = 2
+while x < W - 2:   # far copses: irregular little clumps in loose groups, with open gaps (no regular stripes)
+    x = min(W - 2, x + r2(2, 7))
+    if r2(0, 4) == 0:
+        x += r2(6, 14)
+        continue
     col = m[:, x]
     if col.any():
-        ty = int(np.argmax(col)) + 5 + (x * 7) % 6
-        cv.dots([(x, ty), (x, ty + 1), (x + 1, ty + 1)], '#6f93ab')
-for fy in (78, 84):   # field strips
-    cv.fill(m & rect(0, fy, W, fy), '#9cbccf')
+        ty = int(np.argmax(col)) + r2(4, 12)
+        shp = ((0, 0), (1, 0), (0, 1), (1, 1), (-1, 1)) if r2(0, 2) else ((0, 0), (0, 1), (1, 1))
+        cv.dots([(x + dx, ty + dy) for dx, dy in shp], '#6f93ab')
+for fx0, fy0, fw in ((14, 80, 22), (150, 76, 26), (236, 72, 18)):   # a few pale stubble fields
+    cv.fill(m & poly([(fx0, fy0), (fx0 + fw, fy0 - 3), (fx0 + fw + 4, fy0 + 4), (fx0 + 3, fy0 + 7)]), '#9cbccf')
 wx, wy = 120, 54   # windmill on the far peak
 cv.fill(poly([(wx - 3, wy + 4), (wx + 3, wy + 4), (wx + 2, wy - 6), (wx - 2, wy - 6)]), '#d8d2c2')
 cv.fill(rect(wx + 1, wy - 5, wx + 2, wy + 4), '#b9b2a2')
@@ -88,10 +113,12 @@ for dx, dy in ((1, 1), (-1, 1), (1, -1), (-1, -1)):
     cv.fill(line([(wx, wy - 6), (wx + dx * 6, wy - 6 + dy * 6)]), '#6a6a7a')
 m = poly([(0, 90), (50, 74), (110, 86), (170, 70), (240, 84), (300, 72), (300, 100), (0, 100)])
 cv.fill(m, HILL1)
-for x in range(1, W, 3):
+x = 1
+while x < W - 2:
+    x = min(W - 2, x + r2(2, 6))
     col = m[:, x]
-    ty = int(np.argmax(col)) + 3 + (x * 5) % 7
-    cv.dots([(x, ty), (x, ty - 1)], '#6a8fa8')
+    ty = int(np.argmax(col)) + r2(2, 9)
+    cv.dots([(x, ty), (x, ty - 1)] + ([(x + 1, ty)] if r2(0, 1) else []), '#6a8fa8')
 
 # ---------------------------------------------------------------- far maple ridge
 x = -6
@@ -223,18 +250,18 @@ for lx, ly in logs:
     cv.dots([(lx + 2, ly + 2), (lx + 3, ly + 3)], '#7a4a1f')
 # fence (outlined, with a gap for the door path)
 fence = blank()
-for fx in list(range(bx0 - 18, bx0 + 20, 6)) + list(range(bx0 + 40, bx0 + 60, 6)):
+for fx in list(range(bx0 - 8, bx0 + 20, 6)) + list(range(bx0 + 40, bx0 + 60, 6)):
     fence |= rect(fx, by0 + 40, fx + 2, by0 + 52)
-fence |= rect(bx0 - 18, by0 + 43, bx0 + 21, by0 + 44) | rect(bx0 - 18, by0 + 48, bx0 + 21, by0 + 49)
+fence |= rect(bx0 - 8, by0 + 43, bx0 + 21, by0 + 44) | rect(bx0 - 8, by0 + 48, bx0 + 21, by0 + 49)
 fence |= rect(bx0 + 40, by0 + 43, bx0 + 60, by0 + 44) | rect(bx0 + 40, by0 + 48, bx0 + 60, by0 + 49)
 o = cv.obj()
 o.part(fence, WOOD, d=1)
 o.draw()
-for fx in list(range(bx0 - 18, bx0 + 20, 6)) + list(range(bx0 + 40, bx0 + 60, 6)):
+for fx in list(range(bx0 - 8, bx0 + 20, 6)) + list(range(bx0 + 40, bx0 + 60, 6)):
     cv.dots([(fx + 1, by0 + 40)], WOOD['r'])
 
 # ---------------------------------------------------------------- scarecrow at the back of the patch
-sx = 96
+sx = 78   # clear of the fence and the cottage corner, standing in the plot
 o = cv.obj()
 o.part(rect(sx - 1, 124, sx + 1, 156), WOOD, d=1)
 o.part(rect(sx - 12, 134, sx + 12, 135), WOOD, d=1)
@@ -270,7 +297,7 @@ cv.fill(line([(4, 160), (22, 158), (34, 170), (52, 166), (72, 180), (92, 174)]),
 cv.fill(line([(14, 180), (30, 178), (40, 190), (64, 186)]), '#4f9a45')
 
 # ---------------------------------------------------------------- beaver pond (front right): lodge, beaver, duck, dam
-pond = ell(182, 148, 304, 198) | rect(250, 168, 299, 190)
+pond = (ell(182, 148, 304, 198) | rect(250, 168, 299, 190)) & ~ell(248, 134, 314, 164)   # bank bites round the maple roots
 cv.fill(pond, WATER['b'])
 cv.fill(pond & ~shift(pond, 0, 3), WATER['s'])
 cv.fill(dil4(pond) & ~pond, '#c9a96e')   # muddy bank line
@@ -278,25 +305,25 @@ for _ in range(80):
     rx, ry = r(184, 298), r(152, 196)
     if pond[ry, rx] and pond[ry, min(W - 1, rx + 6)]:
         cv.fill(line([(rx, ry), (rx + r(3, 6), ry)]), '#8cc4dc' if r(0, 2) else '#3f7fa4')
-for lx, ly in ((196, 174), (288, 160), (212, 188)):   # lily pads
+for lx, ly in ((196, 174), (284, 166), (212, 188)):   # lily pads
     cv.fill(ell(lx, ly, lx + 8, ly + 3), '#4f9a45')
     cv.dots([(lx + 7, ly + 1)], WATER['b'])
     cv.dots([(lx + 3, ly - 1), (lx + 4, ly - 1)], '#f08ac0')
-lodge = ell(224, 152, 270, 188)
+lodge = ell(226, 160, 266, 200) & ~rect(0, 187, W, H)   # a domed stick lodge sitting on the water
 o = cv.obj()
 o.part(lodge, BARK, d=3)
 o.draw()
 for k in range(40):   # criss-cross sticks
-    sx, sy = r(228, 266), r(155, 182)
+    sx, sy = r(228, 264), r(162, 185)
     if lodge[sy, sx]:
         dx = r(-7, 7)
         cv.fill(line([(sx, sy), (sx + dx, sy + r(-2, 2))]) & lodge, ('#9a6b3f', '#5c3420', '#b07a3a', '#3d2a1c')[k % 4])
-for sx, sy, dx, dy in ((226, 160, -6, -4), (244, 152, -2, -6), (262, 156, 5, -5), (268, 168, 6, -2), (234, 154, -5, -6)):   # stick ends poking out
+for sx, sy, dx, dy in ((229, 168, -6, -4), (244, 161, -2, -6), (258, 164, 5, -5), (264, 176, 6, -2), (235, 163, -5, -6)):   # stick ends poking out
     cv.fill(line([(sx, sy), (sx + dx, sy + dy)], 2), '#5c3420')
     cv.dots([(sx + dx, sy + dy)], '#d9a35a')
-cv.fill(ell(242, 176, 254, 192) & lodge, '#2a1a10')   # doorway at the waterline
-cv.fill(lodge & rect(0, 184, W, 188), WATER['s'])
-cv.fill(lodge & rect(0, 184, W, 184), '#8cc4dc')
+cv.fill(ell(240, 177, 252, 194) & lodge, '#2a1a10')   # doorway at the waterline
+cv.fill(rect(228, 188, 264, 188) & pond, WATER['s'])   # reflection line under the dome
+cv.fill(rect(232, 187, 238, 187) | rect(254, 187, 260, 187), '#8cc4dc')
 # beaver swimming with a wake
 bvx, bvy = 202, 164
 for k in range(1, 4):
@@ -336,7 +363,7 @@ for tx in (222, 247, 271, 290):
     cv.fill(rect(tx, 189, tx, 199), '#8cc4dc')
     cv.fill(rect(tx + 1, 191, tx + 1, 199), WATER['b'])
 # reeds and cattails round the bank
-for rx, ry in ((186, 160), (190, 164), (194, 158), (276, 156), (283, 158), (296, 152), (188, 182), (200, 186)):
+for rx, ry in ((186, 160), (190, 164), (184, 172), (276, 156), (283, 158), (296, 152), (188, 182), (200, 186)):
     h = r(9, 14)
     cv.fill(rect(rx, ry - h, rx, ry), '#4f6a2a')
     cv.fill(line([(rx + 1, ry), (rx + 3, ry - h + 3)]), '#6a8a3a')
@@ -373,26 +400,52 @@ ys, xs = np.nonzero(pile)
 for k in range(40):
     i = r(0, len(xs) - 1)
     cv.dots([(int(xs[i]), int(ys[i]))], FOLIAGE[k % 6]['b' if k % 3 else 'r'])
-gx, gy = 196, 142   # the gnome (feet at gx, gy)
-shadow(gx - 6, gy - 1, gx + 8, gy + 2)
-cv.fill(line([(gx + 3, gy - 16), (gx + 14, gy - 1)], 1), '#7a4a1f')   # rake handle
-o = cv.obj()
-o.part(rect(gx + 12, gy - 1, gx + 18, gy), WOOD, d=0)
+gx, gy = 204, 146   # the gnome (feet at gx, gy), drawn big enough to read in the thumbnail
+shadow(gx - 9, gy - 1, gx + 10, gy + 2)
+o = cv.obj()   # rake: handle from his hands down to the head at the foot of the leaf pile
+o.part(line([(gx + 1, gy - 26), (gx + 19, gy - 1)], 2), WOOD, d=1)
+o.part(rect(gx + 14, gy - 2, gx + 26, gy), WOOD, d=1)
 o.draw()
-for tx in range(gx + 12, gx + 19, 2):
+for tx in range(gx + 15, gx + 27, 2):
     cv.dots([(tx, gy + 1)], '#4a2c1a')
 o = cv.obj()
-o.part(rect(gx - 4, gy - 2, gx - 1, gy) | rect(gx + 1, gy - 2, gx + 4, gy), ramp('#5c3420', '#3d2a1c'), d=0)
-o.part(rrect(gx - 4, gy - 10, gx + 4, gy - 3, 1), BLUE, d=2, contour=True)
-o.part(rect(gx - 4, gy - 5, gx + 4, gy - 5), ramp('#7a4a1f', '#5c3420'), d=0)
-o.part(poly([(gx - 4, gy - 12), (gx + 4, gy - 12), (gx, gy - 4)]), BEARD, d=1, contour=True)
-o.part(rect(gx - 3, gy - 15, gx + 3, gy - 12), SKIN, d=1)
-o.part(poly([(gx - 5, gy - 14), (gx + 5, gy - 14), (gx - 3, gy - 26)]), RED, d=2, contour=True)
+o.part(rect(gx - 7, gy - 3, gx - 2, gy) | rect(gx + 1, gy - 3, gx + 6, gy), ramp('#5c3420', '#3d2a1c', '#7a4a1f'), d=1)   # boots
+o.part(rrect(gx - 7, gy - 16, gx + 7, gy - 3, 2), BLUE, d=2, contour=True)   # tunic
+o.part(rect(gx - 7, gy - 7, gx + 7, gy - 6), ramp('#7a4a1f', '#5c3420'), d=0)   # belt
+o.part(poly([(gx - 7, gy - 20), (gx + 7, gy - 20), (gx + 1, gy - 6)]), BEARD, d=1, contour=True)
+o.part(rect(gx - 5, gy - 25, gx + 5, gy - 19), SKIN, d=1)
+o.part(poly([(gx - 8, gy - 23), (gx + 8, gy - 23), (gx - 5, gy - 42)]), RED, d=2, contour=True)   # tall hat, tip leaning back
+o.part(rect(gx + 5, gy - 15, gx + 9, gy - 12), BLUE, d=1)   # sleeve reaching for the rake
 o.draw()
-cv.dots([(gx - 1, gy - 14), (gx + 2, gy - 14)], '#2a1a10')
-cv.dots([(gx + 1, gy - 13), (gx, gy - 13)], '#e0907a')
-cv.fill(rect(gx + 2, gy - 9, gx + 4, gy - 8), SKIN['b'])   # hands on the rake
-cv.dots([(gx + 1, gy - 5)], '#f5cf6a')   # belt buckle
+cv.fill(rect(gx - 8, gy - 24, gx + 8, gy - 23), RED['s'])   # hat brim
+cv.dots([(gx - 2, gy - 22), (gx + 2, gy - 22)], '#2a1a10')
+cv.dots([(gx, gy - 21), (gx + 1, gy - 21), (gx, gy - 20), (gx + 1, gy - 20)], '#e0907a')   # nose
+cv.dots([(gx - 4, gy - 20), (gx + 4, gy - 20)], '#f0a0a0')   # rosy cheeks
+cv.fill(rect(gx + 8, gy - 16, gx + 10, gy - 13), SKIN['b'])   # hand on the rake
+cv.fill(rect(gx - 1, gy - 7, gx + 1, gy - 6), '#f5cf6a')   # belt buckle
+cv.dots([(gx - 6, gy - 14), (gx - 6, gy - 13)], BLUE['r'])
+# hay bales stacked by the woodpile (fills the meadow between cottage and maple)
+for hx0, hy0, hx1, hy1 in ((177, 112, 194, 122), (180, 104, 192, 111)):
+    o = cv.obj()
+    o.part(rrect(hx0, hy0, hx1, hy1, 1), ramp('#e8c45a', '#b8902a', '#f8e08a'), d=2)
+    o.draw()
+    for xx in (hx0 + 4, hx1 - 4):
+        cv.fill(rect(xx, hy0 + 1, xx, hy1 - 1), '#9a6b3f')   # twine
+    for k in range(4):
+        cv.dots([(hx0 + 2 + r2(0, hx1 - hx0 - 4), hy0 + 2 + r2(0, hy1 - hy0 - 4))], '#c99a34')
+cv.dots([(176, 123), (195, 122), (179, 103), (193, 110)], '#f5d08a')   # loose straw
+# a woolly sheep grazing under the maple
+shx, shy = 246, 110
+shadow(shx - 2, shy + 11, shx + 17, shy + 14)
+o = cv.obj()
+o.part(rect(shx + 2, shy + 7, shx + 3, shy + 12) | rect(shx + 12, shy + 7, shx + 13, shy + 12), ramp('#3d2a1c', '#2a1a10'), d=0)
+o.part(clump(shx + 9, shy + 4, 4, 2, 7, 3, 4) | ell(shx + 3, shy, shx + 16, shy + 9), ramp('#f1ece0', '#c9c5bc', '#ffffff'), d=2)
+o.part(ell(shx - 3, shy + 3, shx + 4, shy + 10), ramp('#4a3a30', '#2a1a10', '#6a5848'), d=1)
+o.draw()
+cv.dots([(shx - 1, shy + 5)], '#f1ece0')
+cv.dots([(shx + 3, shy + 3), (shx + 4, shy + 3)], '#4a3a30')   # ear
+for k in range(5):
+    cv.dots([(shx + 6 + r2(0, 8), shy + 2 + r2(0, 4))], '#c9c5bc')
 wbx, wby = 220, 112   # wheelbarrow of pumpkins in the upper meadow
 shadow(wbx - 2, wby + 9, wbx + 22, wby + 12)
 o = cv.obj()
@@ -418,10 +471,12 @@ for ax, ay in ((bkx + 2, bky), (bkx + 5, bky - 1), (bkx + 8, bky), (bkx + 4, bky
     cv.dots([(ax, ay)], '#f08a24')
 cv.fill(rect(bkx + 15, bky + 8, bkx + 17, bky + 10), '#d6322b')   # one rolled away
 
+# characters and props the litter must not speckle (keeps faces readable)
+keep = rect(gx - 10, gy - 43, gx + 12, gy + 1) | rect(shx - 5, shy - 2, shx + 18, shy + 14) | rect(175, 102, 197, 124) | rect(68, 113, 88, 148)
 # ---------------------------------------------------------------- leaf litter (small two-tone leaves), stones, toadstools
 for _ in range(170):
     lx, ly = r(0, W - 3), r(106, H - 3)
-    if pond[ly, lx] or path[ly, lx] or soil[ly, lx] or ly > 186 and lx > 196:
+    if pond[ly, lx] or path[ly, lx] or soil[ly, lx] or keep[ly, lx] or ly > 186 and lx > 196:
         continue
     rp = FOLIAGE[r(0, 5)]
     cv.dots([(lx, ly), (lx + 1, ly), (lx + 1, ly + 1)], rp['b'])
@@ -431,15 +486,19 @@ for sx, sy in ((114, 136), (180, 140), (184, 190), (172, 150), (160, 124)):   # 
     o.part(ell(sx, sy, sx + 8, sy + 5), STONE, d=2)
     o.draw()
     cv.dots([(sx + 2, sy + 1)], STONE['r'])
-for sx, sy in ((186, 124), (178, 130), (190, 182), (182, 194), (4, 136), (74, 132), (44, 140)):   # toadstools
+for sx, sy in ((186, 124), (178, 130), (190, 182), (182, 194), (4, 136), (56, 136), (44, 140)):   # toadstools
     o = cv.obj()
     o.part(ell(sx - 4, sy - 5, sx + 4, sy), RED, d=2)
     o.part(rect(sx - 1, sy - 1, sx + 1, sy + 4), PLAST, d=1)
     o.draw()
     cv.dots([(sx - 2, sy - 3), (sx + 1, sy - 4)], '#ffffff')
-for fx in range(2, W, 7):   # tiny wildflowers along the far meadow
+fx = 0
+while fx < W - 3:   # tiny wildflowers along the far meadow, loosely spaced
+    fx += r2(4, 11)
     fy = r(108, 126)
-    c = ('#f0b92b', '#f08ac0', '#ffffff')[fx % 3]
+    c = ('#f0b92b', '#f08ac0', '#ffffff')[r2(0, 2)]
+    if fx >= W - 1 or keep[fy, fx] or keep[fy + 1, fx]:
+        continue
     cv.dots([(fx, fy), (fx - 1, fy + 1), (fx + 1, fy + 1)], c)
     cv.dots([(fx, fy + 1)], '#c98a14')
 

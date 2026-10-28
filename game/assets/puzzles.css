@@ -237,5 +237,4 @@ body.pz-play .lp #game{text-align:left}
 #pz.jig .pzthumb{aspect-ratio:3/2; background:var(--surface-2)}
 #pz.jig .pzthumb img{object-fit:cover}
 #pz.jig .pzthumb img.px, #pz.jig #field.pxpic img{image-rendering:pixelated}
-#pz.jig #field.crop img{object-fit:cover}
 .pzplaces{margin:6px 0 0}

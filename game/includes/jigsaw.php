@@ -58,7 +58,7 @@ function jigsaw_tournaments_on(): bool
 
 function jigsaw_path(array $p, bool $thumb = false): string
 {
-    if ($p['source'] === 'place') return 'assets/img/wonders/' . $p['file'];   // the unique-location scene itself (480 x 270), used for the card and the puzzle
+    if ($p['source'] === 'place') return 'assets/img/jigsaw/places/' . $p['file'];   // the scene's exact 3:2 window, 360 x 240 = 180 x 120 art pixels (tools/gen_place_crops.py)
     return ($p['source'] === 'upload' ? 'uploads/jigsaw/' : 'assets/img/jigsaw/') . ($thumb ? $p['thumb'] : $p['file']);
 }
 
@@ -88,7 +88,7 @@ function jigsaw_ensure(): bool
 
 const JIGSAW_PLACE_KINDS = ['haven', 'wonder', 'delve', 'lair'];
 
-/** A picture for every unique location that has scene art (assets/img/wonders/<kind>-<name>.png, v2.0.86). Source 'place': hidden from a gnome until they first visit (jigsaw_unlock_place). */
+/** A picture for every unique location that has scene art (assets/img/wonders/<kind>-<name>.png, v2.0.86) AND its cut (assets/img/jigsaw/places/<key>.png from tools/gen_place_crops.py). Source 'place': hidden from a gnome until they first visit (jigsaw_unlock_place). */
 function jigsaw_seed_places(): void
 {
     try {
@@ -98,10 +98,10 @@ function jigsaw_seed_places(): void
         foreach (q("SELECT kind, name FROM landmarks WHERE kind IN ('haven','wonder','delve','lair') ORDER BY region_id, sort_order, id")->fetchAll() as $lm) {
             $n++;
             $key = landmark_scene_slug((string)$lm['kind'], (string)$lm['name']);
-            if (isset($have[$key]) || !is_file(APP_ROOT . '/assets/img/wonders/' . $key . '.png')) continue;
+            if (isset($have[$key]) || !is_file(APP_ROOT . '/assets/img/jigsaw/places/' . $key . '.png')) continue;
             $have[$key] = 1;
             db_insert('puzzle_pics', ['slug' => 'pl-' . substr($key, 0, 44) . '-' . substr(md5($key), 0, 6), 'title' => mb_substr((string)$lm['name'], 0, 80), 'file' => $key . '.png', 'still' => $key . '.png', 'thumb' => $key . '.png',
-                'cat' => 'Places', 'kind' => 'still', 'reserved' => 0, 'unlock_key' => $key, 'w' => 480, 'h' => 270, 'frames' => 0, 'bytes' => (int)@filesize(APP_ROOT . '/assets/img/wonders/' . $key . '.png'),
+                'cat' => 'Places', 'kind' => 'still', 'reserved' => 0, 'unlock_key' => $key, 'w' => 360, 'h' => 240, 'frames' => 0, 'bytes' => (int)@filesize(APP_ROOT . '/assets/img/jigsaw/places/' . $key . '.png'),
                 'pieces_default' => 96, 'source' => 'place', 'active' => 1, 'sort' => 1000 + $n, 'created_by' => null, 'created_at' => now()]);
         }
     } catch (Throwable $e) {
@@ -173,7 +173,7 @@ function jigsaw_js_row(array $p): array
 {
     $u = url(jigsaw_path($p));
     $row = ['id' => (string)$p['slug'], 'title' => (string)$p['title'], 'cat' => (string)($p['cat'] ?? ''), 'pieces' => 96, 'gif' => $u, 'still' => $u, 'thumb' => url(jigsaw_path($p, true))];
-    if ($p['source'] === 'place') $row += ['crop' => 1, 'px' => 1];   // 16:9 pixel scene: the puzzle is its centre 3:2, drawn with hard pixels
+    if ($p['source'] === 'place') $row += ['px' => 1];   // a pixel scene: drawn with hard pixels
     return $row;
 }
 

@@ -105,3 +105,6 @@ Still on defaults (shout if wrong): Expert 5 tries/day (others 10); launch 14 re
 
 ## 11. Not now
 Daily jigsaw (the `puzzle_daily` plan in `plan-puzzle-games.md` covers other games), seasonal champion points, portrait/other aspect ratios, player-uploaded pictures, rotating pieces, co-op/shared tables.
+
+## 12. Addendum (2026-10-28): Places pictures, exact cuts
+Unique-location scenes (81, `assets/img/wonders/`, 480 x 270 = 240 x 135 art px) unlock into a gnome's puzzle room on the first visit (`jigsaw_unlock_place`, hook in `landmark_panel`; earlier clears/uses/repairs are backfilled when Jigsaw first opens; admins see all; tournaments use gallery pictures only). **Size issue found by the pals plan (Advanced piece = 33.75 px on a 405 x 270 window) is fixed:** each scene is cut to a 360 x 240 window = **180 x 120 art px**, the biggest 3:2 window where every tier cuts on whole art pixels (Easy 30 x 30, Advanced 15 x 15, Expert 10 x 10 art px; 60 / 30 / 20 file px). Cuts live in `assets/img/jigsaw/places/<key>.png` (81 files, 0.65 MB), made by `tools/gen_place_crops.py` (re-runnable; `--sheet` contact sheet; per-picture window offsets in `includes/data/place_crops.txt`, default centred x 30, y 8 art px). Costs 25% of the scene's width; offsets let a picture keep its subject.

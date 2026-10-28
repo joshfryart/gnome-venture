@@ -32,6 +32,13 @@ const { chromium } = require('playwright');
       say(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `${tag}: ${k}: no sideways scroll`);
       if (k === 'expert' || k === 'easy') await p.screenshot({ path: `${shots}/jigsaw-${tag}-${k}.png` });
     }
+    if (cards > 3) {   // a Places picture (exact 360 x 240 cut): Advanced is 96 pieces too
+      await p.goto(base + '/jigsaw.php');
+      await p.locator('#grid .pzcard').last().locator('button[data-tier="advanced"]').click();
+      await p.waitForFunction(() => document.querySelectorAll('#field .piece').length === 96, null, { timeout: 15000 }).catch(() => {});
+      say(await p.locator('#field .piece').count() === 96, `${tag}: a Places picture has 96 pieces on Advanced`);
+      await p.screenshot({ path: `${shots}/jigsaw-${tag}-place.png` });
+    }
     say(errs.length === 0, `${tag}: no script errors ${errs.join(' | ')}`);
     await c.close();
   }

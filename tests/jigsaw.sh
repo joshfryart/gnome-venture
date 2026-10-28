@@ -67,7 +67,7 @@ dbx "UPDATE puzzle_pics SET reserved=0 WHERE slug='jig-maizehollow'"
 # Places: a picture for every unique location with scene art, unlocked on the first visit
 NP=$(dbv "SELECT COUNT(*) FROM puzzle_pics WHERE source='place'")
 ok "places: seeded from the unique locations (more than 40)" "$([ "$NP" -gt 40 ] && echo y || echo n)" y
-ok "places: every seeded picture has its scene file" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $bad=0; foreach($p->query("SELECT file FROM puzzle_pics WHERE source=\"place\"") as $r) if(!is_file("'$GAME'/assets/img/wonders/".$r[0])) $bad++; echo $bad;')" 0
+ok "places: every seeded picture has its exact 360 x 240 cut (30 / 15 / 10 art pixels a piece)" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $bad=0; foreach($p->query("SELECT file FROM puzzle_pics WHERE source=\"place\"") as $r) { $i=@getimagesize("'$GAME'/assets/img/jigsaw/places/".$r[0]); if(!$i||$i[0]!=360||$i[1]!=240) $bad++; } echo $bad;')" 0
 ok "places: none unlocked yet, library still 3" "$(curl -s -b $W/p $BASE/jigsaw.php | php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", stream_get_contents(STDIN), $m); echo count(json_decode($m[1], true));')" 3
 curl -s -b $W/p $BASE/jigsaw.php | grep -o 'Places: <b>[0-9]*</b> of [0-9]*' > $W/pl.txt
 ok "places: library line says 0 found" "$(sed 's/<[^>]*>//g' $W/pl.txt)" "Places: 0 of $NP"
@@ -91,7 +91,7 @@ curl -s -b $W/p $BASE/town.php | grep -c 'New jigsaw!' > $W/w2.txt
 ok "places: a second visit is quiet" "$(cat $W/w2.txt)/$(dbv "SELECT COUNT(*) FROM jigsaw_unlocks WHERE user_id=$UID_")" 0/1
 curl -s -b $W/p $BASE/jigsaw.php > $W/j2.html
 ok "places: library now has 4 pictures" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); echo count(json_decode($m[1], true));' $W/j2.html)" 4
-ok "places: the picture is cropped 3:2 and pixel-drawn" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); $r=array_values(array_filter(json_decode($m[1], true), fn($x)=>strpos($x["id"],"pl-")===0))[0]; echo $r["crop"].$r["px"].(strpos($r["gif"],"img/wonders/")!==false?"w":"x");' $W/j2.html)" 11w
+ok "places: the picture is the exact cut and pixel-drawn" "$(php -r 'preg_match("#id=\"pz-data\">(.*?)</script>#s", file_get_contents($argv[1]), $m); $r=array_values(array_filter(json_decode($m[1], true), fn($x)=>strpos($x["id"],"pl-")===0))[0]; echo $r["px"].(strpos($r["gif"],"img/jigsaw/places/")!==false?"c":"x");' $W/j2.html)" 1c
 ok "places: library line says 1 found" "$(sed 's/<[^>]*>//g' <(grep -o 'Places: <b>[0-9]*</b> of [0-9]*' $W/j2.html))" "Places: 1 of $NP"
 ok "places: an unlocked place can be played" "$(api -d do=pstart -d pic=$PIC -d tier=advanced | js ok)" true
 # earlier visits (cleared before 2.0.87) are unlocked the first time Jigsaw opens
