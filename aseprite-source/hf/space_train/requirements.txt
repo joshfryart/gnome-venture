@@ -1,0 +1,9 @@
+torch
+diffusers
+transformers
+accelerate
+peft
+datasets
+huggingface_hub
+pillow
+gradio

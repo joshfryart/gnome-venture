@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LoRA fine-tune on the gvstyle dataset. Run on the HF GPU (T4), NOT locally.
+"""LoRA fine-tune on the gvstyle dataset. Run on the HF GPU (T4) via space_train/app.py, NOT locally.
 
 Wraps diffusers' official train_dreambooth_lora example:
   pip install diffusers transformers accelerate peft datasets bitsandbytes
