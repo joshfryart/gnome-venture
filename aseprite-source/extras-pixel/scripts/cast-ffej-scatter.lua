@@ -18,8 +18,8 @@ local lid = c:poly({ {40, 7}, {52, 7}, {55, 11}, {43, 11} })
 -- spilled pieces tumbling down the right side
 local p1 = K.miniPiece(c, 46, 25)
 local p2 = K.miniPiece(c, 46, 37)
-local p3 = K.miniPiece(c, 39, 46)
-local p4 = K.miniPiece(c, 48, 48)
+local p3 = K.miniPiece(c, 37, 47)
+local p4 = K.miniPiece(c, 46, 48)
 
 c:build{
   { "arms", arms, K.FFEJ_ARM, { flat = true } },
@@ -28,8 +28,8 @@ c:build{
   { "lid",  lid,  GV.ramp("#8a4f2a"), { flat = true } },
   { "p1", p1, GV.ramp("#8a5fd0"), { gloss = { 47, 28 } } },
   { "p2", p2, "gold", { gloss = { 47, 40 } } },
-  { "p3", p3, GV.ramp("#8a5fd0"), { gloss = { 40, 49 } } },
-  { "p4", p4, "gold", { gloss = { 49, 51 } } },
+  { "p3", p3, GV.ramp("#8a5fd0"), { gloss = { 38, 50 } } },
+  { "p4", p4, "gold", { gloss = { 47, 51 } } },
 }
 c:paint({ "u.u", ".u." }, 11+dx, 13+dy, { u = "umber" })                 -- left claw
 c:paint({ "aaa", "aaa" }, 44, 15, { a = "#3c8f4a" })                      -- fingers over the box

@@ -20,8 +20,8 @@ armR:cut(body:grow(1))
 -- confetti: small flat bits, red / gold / purple / water
 local function dia(x, y) return c:ascii({ ".x.", "xxx", ".x." }, x, y) end
 local conf = {
-  { dia(19, 9), "#dd3a2a" }, { dia(40, 8), "#8a5fd0" }, { dia(24, 4), "#e8a317" },
-  { dia(5, 27), "#3f8fb0" }, { dia(55, 26), "#e8a317" },
+  { dia(18, 8), "#dd3a2a" }, { dia(43, 7), "#8a5fd0" },
+  { dia(6, 27), "#3f8fb0" }, { dia(54, 26), "#e8a317" },
 }
 local parts = {
   { "armL", armL, GV.ramp("#2cc97c"), { flat = true } },
