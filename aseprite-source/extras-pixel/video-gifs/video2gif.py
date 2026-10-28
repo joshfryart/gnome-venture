@@ -34,6 +34,18 @@ def lab(c):
     x = c @ M.T / np.array([.9505, 1, 1.089]); f = np.where(x > .008856, np.cbrt(x), 7.787 * x + 16 / 116)
     return np.stack([116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])], -1)
 
+_SESS = []
+def subject_mask(im):
+    """subject cut-out with rembg (u2netp, ~4 MB model, CPU). None if rembg/scipy are missing."""
+    try:
+        from rembg import new_session, remove
+        from scipy import ndimage as nd
+    except ImportError: return None
+    if not _SESS: _SESS.append(new_session("u2netp"))
+    big = im.resize((im.width * 2, im.height * 2), Image.BILINEAR)
+    m = np.asarray(remove(big, session=_SESS[0], only_mask=True).resize(im.size, Image.NEAREST)) > 110
+    return nd.binary_fill_holes(nd.binary_dilation(nd.binary_closing(m, iterations=2), iterations=1))
+
 def find_ase(a):
     p = a or os.environ.get("ASEPRITE")
     if p: return p
@@ -70,6 +82,7 @@ def main():
     ap.add_argument("--rich", action="store_true", help="add cross-family blend colours (photo-like)")
     ap.add_argument("--despeckle", type=int, default=3, help="majority-filter passes on colour regions")
     ap.add_argument("--stitch", action=argparse.BooleanOptionalAction, default=True, help="dashed stitch beside seams")
+    ap.add_argument("--subject", action=argparse.BooleanOptionalAction, default=True, help="heavy outline + bright stitches on the warm-fur subject only (needs rembg + scipy: pip install rembg onnxruntime scipy; u2netp.onnx into ~/.u2net)")
     ap.add_argument("--ase"); a = ap.parse_args()
     name = a.name or os.path.splitext(os.path.basename(a.video))[0]
     os.makedirs(a.out, exist_ok=True); ase = find_ase(a.ase)
@@ -92,15 +105,24 @@ def main():
                     for dx in range(3): np.add.at(cnt, (np.arange(h)[:, None], np.arange(w)[None, :], P[dy:dy + h, dx:dx + w]), 1)
                 i = cnt.argmax(2)
             o = pal[i].astype(np.uint8)
+            sm = subject_mask(im) if a.subject else None
             if a.outline:  # 1px umber line on region borders, drawn inside the darker patch (toy seam)
                 L = lab(o.astype(float))[..., 0]; e = np.zeros(L.shape, bool)
                 dv = (i[:-1] != i[1:]) & (np.abs(L[:-1] - L[1:]) > 14); e[:-1] |= dv & (L[:-1] <= L[1:]); e[1:] |= dv & (L[1:] < L[:-1])
                 dh = (i[:, :-1] != i[:, 1:]) & (np.abs(L[:, :-1] - L[:, 1:]) > 14); e[:, :-1] |= dh & (L[:, :-1] <= L[:, 1:]); e[:, 1:] |= dh & (L[:, 1:] < L[:, :-1])
-                if a.stitch:  # dashed stitch 1px inside the lit side of each seam: 2 on / 2 off
+                if a.stitch and sm is None:  # dashed stitch 1px inside the lit side of each seam: 2 on / 2 off
                     nb = np.zeros_like(e); nb[1:] |= e[:-1]; nb[:-1] |= e[1:]; nb[:, 1:] |= e[:, :-1]; nb[:, :-1] |= e[:, 1:]
                     yy, xx = np.mgrid[:h, :w]; st = nb & ~e & (((xx + yy) // 2) % 2 == 0)
                     o[st] = (o[st] * .45 + np.array([0xf2, 0xe4, 0xc0]) * .55).astype(np.uint8)
                 o[e] = UMBER
+            if sm is not None:
+                from scipy import ndimage as nd
+                inn1, inn2 = nd.binary_erosion(sm), nd.binary_erosion(sm, iterations=3)
+                ring_out = nd.binary_dilation(sm) & ~sm            # 1px umber outline, outside the fur
+                yy, xx = np.mgrid[:h, :w]
+                st = inn1 & ~inn2 & (((xx + yy) % 6) < 4)   # bright 2px dashed stitch just inside the edge (4 on / 2 off)
+                o[st] = (o[st] * .2 + np.array([0xff, 0xf3, 0xc8]) * .8).astype(np.uint8)
+                o[ring_out] = UMBER
             Image.fromarray(o).save(os.path.join(px, os.path.basename(f)))
         lua = os.path.join(t, "mk.lua"); open(lua, "w").write(LUA)
         env = dict(os.environ, GV_S=px, GV_OUT=os.path.join(a.out, name), GV_N=str(len(files)), GV_W=str(w), GV_H=str(h), GV_MS=str(round(1000 / a.fps)))

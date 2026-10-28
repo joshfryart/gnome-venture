@@ -8,3 +8,7 @@ Give Claude a video; it runs this flow.
 3. Verify: `convert NAME.gif -coalesce f_%02d.png`, montage first/mid/last frames, view. Check size (puzzle GIFs are small; shrink with `--grid 160` or fewer `--dur`/`--fps` if >~600 KB).
 4. Style knobs: `--smooth 2` = flatter felt, `--smooth 0` = raw; `--grid` smaller = chunkier pixels. Palette = Part A families + midpoints (`art-style-guide.md`).
 5. Report: path, frames, KB, caveats (not a hand-drawn scene; loop jump). Commit/push only if asked (branch rules in session prompt).
+
+## Subject stitching (default on)
+`--subject` cuts the subject out with rembg (u2netp) and draws a 1 px umber outline plus a bright 2 px dashed stitch on it; the background gets flat cel seams only. Needs: `pip install rembg onnxruntime scipy` and `u2netp.onnx` in `~/.u2net/` (from github.com/danielgatis/rembg releases v0.0.0). Without them it is skipped, and `--no-subject` turns it off. Other flags: `--rich` (blend palette), `--dither N`, `--despeckle N`, `--smooth N`, `--grid W`.
+Test run: `video2gif.py VIDEO --name X --rich --smooth 1 --despeckle 2 --grid 200` (pomeranian-stream-v5).
