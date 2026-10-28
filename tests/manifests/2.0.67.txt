@@ -4348,7 +4348,7 @@ c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 c6b998c2acf24290a8be80d848301df5c4b66e82  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-8db48fa33cafee4bd3656a58156dbd2857448464  assets/style.css
+14711c8fe7ce029a68d5d71dda949f50159e11b9  assets/style.css
 7caa4d9d42a2d06b9526e57cbf1ff6c096af7f3a  assets/tilemap.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
 21f8f690992ec0560260662de62adf8aedd0a48e  assets/trekfight.js
@@ -4369,7 +4369,7 @@ a7376298ce10881795525b7bfd7046c295a699cc  carve.php
 5cd4221e377f00677727f8af85a979dd3f9db608  feedback.php
 6b7db0769e7eafb92eca4e261ca19e1d8731b0ea  festival.php
 07c1234bfd4e760e2a29604f2f99ea509e6994d7  firstweek.php
-b7abd643a71a28f6b3867fd3c8199c1d957740e3  folk.php
+3080bd0a3e541fc02705016d3dc89944c6556555  folk.php
 24016be29efa27d23af89b501709fffbf44b2361  forgot.php
 05aeb73a156d26ffb0e73c67b7698090e74cbe8e  games.php
 73424ff265b0a5e7fef7d69435e03ed31181d9bb  garden.php
@@ -4628,13 +4628,13 @@ af6d764cef312fa17f2ffa5aefb3dab694bacc07  show.php
 484e6ecf35a705dc2c5d967706941d68bfd7d3f1  tend.php
 5d173bbbf6369d61029dd97e128c94e661be27d9  theme.php
 2418e209b75deb27ecec7e072b2dc3862e8bfb2b  tour.php
-b9bbd42ce79da514339b50e8cc7e892c556cf42d  town.php
+07f031da7a8b86a000a8aec5ece48863fcb8646a  town.php
 e4c88291a07732fcfc76d7549beb33a8613dfd84  trek.php
 c1cb29a78dbd8dd0dd457266037276b80399475f  unsub.php
 4d65df6e2039962ab75745f251fb8a35a38e886c  uploads/.htaccess
 da39a3ee5e6b4b0d3255bfef95601890afd80709  uploads/.keep
 de93fa92e757bc06782fb5e173845e6c0d39b924  verify.php
-ab43f1c569faa11aeade2790b2016567cc6cddba  villagers.php
+4753ca54dfc93b7dbc0d8d9d01edce21d3ad5840  villagers.php
 eff8d9f9ad3ac673d2d1e06ea42b9f87df068dbc  visit.php
 1e12e3ecd8e45c1a2aa34c45aa9e8f8e41ef2ae8  welcome.php
 03120702c7aead8d1f6ce92252f87b6de7ee3735  world.php

@@ -278,7 +278,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))), '🏡 ' . e($hm['name']) . ' · 💛 ' . e($fl['name'])],
-            '<a class="fbtn" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id'])) ?>
+            '<a class="fbtn" href="' . e(url('villagers.php?home=1&id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id'])) ?>
       <?php endforeach; ?>
     </ul>
     <?php endif; ?>

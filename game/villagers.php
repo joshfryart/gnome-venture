@@ -30,13 +30,17 @@ if ($ajax && isset($_GET['id'])) {   // the panel on its own, for the in-page op
 }
 
 $open = isset($_GET['id']) ? villager_panel($u, (int)$_GET['id']) : '';
-$all = villagers_all($u);
-page_header('Villagers');
+require_once __DIR__ . '/includes/npc_life.php';
+$visit = $open !== '' && isset($_GET['home']) && str_contains($open, 'id="homestage"');   // v2.0.68: Knock = a visit, the home is the page
+$hn = $visit ? q_one('SELECT * FROM npcs WHERE id = ?', [(int)$_GET['id']]) : null;
+$hm = $hn ? npc_home($hn) : null;
+page_header($visit ? 'Visiting ' . $hn['name'] : 'Villagers');
 ?>
-<h1>👥 Villagers</h1>
+<h1><?= $visit ? '🏡 ' . e($hm['name'] ?? ($hn['name'] . '’s home')) : '👥 Villagers' ?></h1>
 <div id="vshell" data-csrf="<?= e(csrf_token()) ?>" data-url="<?= e(url('villagers.php')) ?>">
   <div id="vpanel" aria-live="polite"><?= $open ?></div>
-  <div id="vlist"><?= villagers_grid($u, $all, $_GET) ?></div>
+  <?php if ($visit): ?><p class="gx-actions"><a class="gbtn alt" href="<?= e(url('town.php?view=villagers' . ($hm && $hm['region'] === HUB_REGION ? '&hub=1' : ''))) ?>">← Back to town</a> <a class="gbtn alt" href="<?= e(url('villagers.php')) ?>">All villagers</a></p>
+  <?php else: ?><div id="vlist"><?= villagers_grid($u, villagers_all($u), $_GET) ?></div><?php endif; ?>
 </div>
 <script src="<?= e(url('assets/villagers.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php page_footer();
