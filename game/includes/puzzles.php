@@ -69,8 +69,32 @@ function puzzles_schema(string $PK, string $ID, string $END): array
         status VARCHAR(8) NOT NULL DEFAULT 'open',
         reason VARCHAR(190) NULL,
         place INT NULL
+    )$END", "CREATE TABLE IF NOT EXISTS puzzle_runs (
+        id $PK,
+        token CHAR(32) NOT NULL UNIQUE,
+        user_id $ID NOT NULL,
+        game VARCHAR(16) NOT NULL,
+        day VARCHAR(10) NOT NULL,
+        mode VARCHAR(8) NOT NULL,
+        size INT NOT NULL DEFAULT 0,
+        seed BIGINT NOT NULL DEFAULT 0,
+        start_ms BIGINT NOT NULL DEFAULT 0,
+        started_at DATETIME NOT NULL,
+        ms INT NULL,
+        hints INT NOT NULL DEFAULT 0,
+        status VARCHAR(8) NOT NULL DEFAULT 'open'
+    )$END", "CREATE TABLE IF NOT EXISTS puzzle_wins (
+        id $PK,
+        game VARCHAR(16) NOT NULL,
+        day VARCHAR(10) NOT NULL,
+        user_id $ID NOT NULL,
+        ms INT NOT NULL DEFAULT 0,
+        created_at DATETIME NOT NULL,
+        UNIQUE (game, day, user_id)
     )$END"];
-    $i = ['CREATE INDEX idx_puzzle_att_tu ON puzzle_attempts (tournament_id, user_id, status)',
+    $i = ['CREATE INDEX idx_puzzle_runs_user ON puzzle_runs (user_id, game, day, status)',
+          'CREATE INDEX idx_puzzle_runs_board ON puzzle_runs (game, day, mode, status)',
+          'CREATE INDEX idx_puzzle_att_tu ON puzzle_attempts (tournament_id, user_id, status)',
           'CREATE INDEX idx_puzzle_att_user ON puzzle_attempts (user_id, started_at)',
           'CREATE INDEX idx_puzzle_tour_status ON puzzle_tournaments (status, ends_at)'];
     return [$t, $i, []];

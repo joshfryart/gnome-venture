@@ -6,6 +6,7 @@ declare(strict_types=1);
  */
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/puzzles.php';
+require_once __DIR__ . '/includes/puzzle_games.php';
 $u = require_login();
 if (setting('puzzles_open') !== '1' && !is_admin()) { flash('Puzzles are coming soon.', 'err'); redirect('games.php'); }
 if (isset($_GET['t']) || isset($_GET['seed'])) {
@@ -33,7 +34,15 @@ page_header('Puzzles');
       <small>Moving jigsaws. The picture plays while you solve it.</small>
       <span class="gtbadge"><?= $live ? '🏆 Tournament' : 'Relax' ?></span>
     </a></li>
-    <?php foreach ([['🚰', 'Rain Barrel', 'Turn the gutters so the water reaches every sprout.'], ['🛏️', 'Gnome Beds', 'One gnome in every row, column and bed.'], ['🐌', 'Snail Trail', 'Draw one slimy trail through every square.']] as [$ic, $nm, $bl]): ?>
+    <?php if (puzzle_game_open('barrel')): $bd = pz_done_today((int)$u['id'], 'barrel'); ?>
+    <li><a class="box pzhubcard" href="<?= e(url('rainbarrel.php')) ?>">
+      <span class="gticon">🚰</span>
+      <b>Rain Barrel</b>
+      <small>Turn the gutters so the water reaches every sprout.</small>
+      <span class="gtbadge"><?= $bd !== null ? 'Daily done ✓' : 'Daily ready' ?></span>
+    </a></li>
+    <?php endif; ?>
+    <?php foreach (array_filter([puzzle_game_open('barrel') ? null : ['🚰', 'Rain Barrel', 'Turn the gutters so the water reaches every sprout.'], ['🛏️', 'Gnome Beds', 'One gnome in every row, column and bed.'], ['🐌', 'Snail Trail', 'Draw one slimy trail through every square.']]) as [$ic, $nm, $bl]): ?>
     <li><div class="box pzhubcard pzsoon" aria-disabled="true">
       <span class="gticon"><?= $ic ?></span>
       <b><?= e($nm) ?></b>

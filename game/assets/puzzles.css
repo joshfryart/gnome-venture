@@ -172,3 +172,30 @@ body.pz-play #game{position:fixed; left:0; right:0; top:var(--hdr); bottom:0; z-
 @media (max-width:560px){ .lp-try .pzgrid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 body.pz-play .lp #game{text-align:left}
 @media (max-width:720px){ body.pz-play .lp #game{bottom:0} }   /* logged out: no phone bottom bar */
+
+/* ---- v2.0.71: Rain Barrel (rainbarrel.php). Art tokens for the water live here like the pieces' tokens above. ---- */
+#pz.rb{--rbwet:#3d8fd1; --rbdry:#8a7a64; --rbwood:#9a6a3a; --rbleaf:#4f9a45; text-align:center}
+:root[data-theme="dark"] #pz.rb{--rbwet:#5fb0f0; --rbdry:#b8a688; --rbwood:#c28a50; --rbleaf:#78c46a}
+.rb .pzhost{text-align:left}
+.rb .pzrow{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; margin:10px 0}
+.rb .pzprac{display:inline-flex; gap:6px; align-items:center}
+.rb .fold{margin:4px 0 0; text-align:left}
+#rbplay[hidden],#rbwin[hidden]{display:none}
+.rbbar{display:flex; align-items:center; justify-content:center; gap:12px; margin:6px 0; font:700 15px var(--font); font-variant-numeric:tabular-nums}
+#rbgrid{display:grid; gap:2px; width:min(100%,440px); margin:0 auto; padding:2px; background:var(--line); box-sizing:border-box}
+#rbgrid.rbn5{grid-template-columns:repeat(5,minmax(0,1fr))}
+#rbgrid.rbn6{grid-template-columns:repeat(6,minmax(0,1fr))}
+#rbgrid.rbn8{grid-template-columns:repeat(8,minmax(0,1fr))}
+.rbcell{display:block; padding:0; margin:0; border:0; background:var(--surface); aspect-ratio:1; cursor:pointer; min-height:0; min-width:0; -webkit-tap-highlight-color:transparent; touch-action:manipulation}
+.rbcell:focus-visible{outline:3px solid var(--brand); outline-offset:-3px}
+.rbcell svg{display:block; width:100%; height:100%}
+.rbbg{fill:var(--well)}
+.rbpipe{stroke:var(--rbdry); stroke-width:2.4; stroke-linecap:round}
+.rbpipe.wet{stroke:var(--rbwet)}
+.rbhub{fill:var(--rbdry)} .rbhub.wet{fill:var(--rbwet)}
+.rbbarrel{fill:var(--rbwood); stroke:var(--ink); stroke-width:.5}
+.rbhoop{stroke:var(--ink); stroke-width:.5}
+.rbsprout{fill:var(--rbdry)} .rbsprout.wet{fill:var(--rbleaf)}
+.rbleaf{fill:none; stroke:var(--ink); stroke-width:.5; stroke-linecap:round}
+#rbwin{margin:12px auto; max-width:440px}
+#rbwin .pzface img{max-height:96px; width:auto}
