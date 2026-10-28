@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""video -> Stitched Toy pixel GIF via Aseprite.
+"""video -> Stitched Toy pixel GIF via Aseprite (the one house flow).
 usage: python3 video2gif.py VIDEO [--name N] [--start S] [--dur D] [--fps F] [--grid W] [--out DIR]
-         [--outline | --no-outline] [--smooth N] [--ase PATH]
-Pipeline: ffmpeg (trim, fps, area-downscale to W-wide grid) -> game palette (Lab nearest + 4x4 ordered
-dither, same every frame) -> flat-felt smoothing + umber edge line -> Aseprite headless builds the
-layered .aseprite and the 2x nearest GIF. Outputs: DIR/NAME.gif and DIR/NAME.aseprite (DIR default: this folder).
+       python3 video2gif.py --setup            # one-time: pip rembg/onnxruntime/scipy + u2netp model
+Pipeline: ffmpeg (trim, fps, area-downscale to W-wide grid) -> median smooth (flat felt) -> Lab-nearest to the game
+palette (Part A + blends, no dither) -> 3x3 majority despeckle -> umber seams on region borders -> subject cut-out
+(rembg u2netp, majority-smoothed over 3 frames): 1px umber outline + bright 2px dashed stitch on the subject only
+-> Aseprite headless builds the layered .aseprite and the 2x nearest GIF.
+Defaults = the approved v5 look (grid 200, 10 fps, 2.4 s). Flags: --no-subject --no-outline --no-rich --dither N
+--smooth N --despeckle N --no-stitch (background seam stitches, only used when there is no subject).
+Outputs DIR/NAME.gif + DIR/NAME.aseprite (DIR default: this folder).
 Aseprite: $ASEPRITE, --ase, else extracts ../../Aseprite_*.AppImage once into $GV_CACHE (default ~/.cache/gv-aseprite)."""
 import argparse, glob, os, shutil, subprocess, sys, tempfile
 import numpy as np
@@ -46,6 +50,14 @@ def subject_mask(im):
     m = np.asarray(remove(big, session=_SESS[0], only_mask=True).resize(im.size, Image.NEAREST)) > 110
     return nd.binary_fill_holes(nd.binary_dilation(nd.binary_closing(m, iterations=2), iterations=1))
 
+def setup():
+    """install subject-cut-out deps and fetch the 4 MB u2netp model (needs pip + github reachable)."""
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "numpy", "pillow", "scipy", "rembg", "onnxruntime"], check=True)
+    d = os.path.expanduser("~/.u2net"); os.makedirs(d, exist_ok=True)
+    subprocess.run(["curl", "-fsSL", "-o", os.path.join(d, "u2netp.onnx"),
+                    "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx"], check=True)
+    print("setup ok")
+
 def find_ase(a):
     p = a or os.environ.get("ASEPRITE")
     if p: return p
@@ -73,17 +85,19 @@ app.command.SaveFileCopyAs{ ui = false, filename = OUT .. ".gif", resizeScale = 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("video"); ap.add_argument("--name"); ap.add_argument("--start", type=float, default=0)
+    ap.add_argument("video", nargs="?"); ap.add_argument("--setup", action="store_true"); ap.add_argument("--name"); ap.add_argument("--start", type=float, default=0)
     ap.add_argument("--dur", type=float, default=2.4); ap.add_argument("--fps", type=float, default=10)
-    ap.add_argument("--grid", type=int, default=240, help="grid width; GIF is 2x"); ap.add_argument("--out", default=HERE)
+    ap.add_argument("--grid", type=int, default=200, help="grid width; GIF is 2x"); ap.add_argument("--out", default=HERE)
     ap.add_argument("--outline", action=argparse.BooleanOptionalAction, default=True)
-    ap.add_argument("--smooth", type=int, default=2, help="median passes for flat felt look (0=off)")
+    ap.add_argument("--smooth", type=int, default=1, help="median passes for flat felt look (0=off)")
     ap.add_argument("--dither", type=float, default=0, help="ordered-dither strength (0=flat cel)")
-    ap.add_argument("--rich", action="store_true", help="add cross-family blend colours (photo-like)")
-    ap.add_argument("--despeckle", type=int, default=3, help="majority-filter passes on colour regions")
+    ap.add_argument("--rich", action=argparse.BooleanOptionalAction, default=True, help="cross-family blend colours in the palette")
+    ap.add_argument("--despeckle", type=int, default=2, help="majority-filter passes on colour regions")
     ap.add_argument("--stitch", action=argparse.BooleanOptionalAction, default=True, help="dashed stitch beside seams")
     ap.add_argument("--subject", action=argparse.BooleanOptionalAction, default=True, help="heavy outline + bright stitches on the warm-fur subject only (needs rembg + scipy: pip install rembg onnxruntime scipy; u2netp.onnx into ~/.u2net)")
     ap.add_argument("--ase"); a = ap.parse_args()
+    if a.setup: return setup()
+    if not a.video: ap.error("give a VIDEO (or --setup)")
     name = a.name or os.path.splitext(os.path.basename(a.video))[0]
     os.makedirs(a.out, exist_ok=True); ase = find_ase(a.ase)
     with tempfile.TemporaryDirectory() as t:
@@ -93,9 +107,16 @@ def main():
         files = sorted(glob.glob(raw + "/*.png")); assert files, "no frames (check --start/--dur)"
         pal = palette(a.rich); pl = lab(pal)
         B = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16 - .5
+        ims = []
         for f in files:
             im = Image.open(f).convert("RGB")
             for _ in range(a.smooth): im = im.filter(ImageFilter.MedianFilter(3))
+            ims.append(im)
+        masks = [subject_mask(im) if a.subject else None for im in ims]
+        if a.subject and masks[0] is None: print("note: rembg/scipy missing -> no subject stitching (run --setup)", file=sys.stderr)
+        elif a.subject and len(masks) > 2:  # 3-frame majority: kills edge jitter
+            masks = [(masks[max(k - 1, 0)].astype(int) + masks[k] + masks[min(k + 1, len(masks) - 1)]) >= 2 for k in range(len(masks))]
+        for f, im, sm in zip(files, ims, masks):
             x = 255 * (np.asarray(im, float) / 255) ** 0.7
             h, w, _ = x.shape; d = np.tile(B, (h // 4 + 1, w // 4 + 1))[:h, :w, None] * a.dither
             i = ((lab(np.clip(x + d, 0, 255))[:, :, None, :] - pl[None, None]) ** 2).sum(3).argmin(2)
@@ -105,7 +126,6 @@ def main():
                     for dx in range(3): np.add.at(cnt, (np.arange(h)[:, None], np.arange(w)[None, :], P[dy:dy + h, dx:dx + w]), 1)
                 i = cnt.argmax(2)
             o = pal[i].astype(np.uint8)
-            sm = subject_mask(im) if a.subject else None
             if a.outline:  # 1px umber line on region borders, drawn inside the darker patch (toy seam)
                 L = lab(o.astype(float))[..., 0]; e = np.zeros(L.shape, bool)
                 dv = (i[:-1] != i[1:]) & (np.abs(L[:-1] - L[1:]) > 14); e[:-1] |= dv & (L[:-1] <= L[1:]); e[1:] |= dv & (L[1:] < L[:-1])
