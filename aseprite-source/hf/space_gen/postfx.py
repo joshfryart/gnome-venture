@@ -33,14 +33,31 @@ def snap(rgb, pal):
 def run(im, pal, size=64):
     im = im.convert("RGB")
     big = im.size[0]
-    # background mask at full res, before any blending
+    # background = magenta/pink/purple pixels connected to the image edge (flood fill), so items with
+    # purple parts inside (plums, berries) keep them. Tolerant: the model draws many magenta shades.
+    ip = im.load()
+    def bgish(x, y):
+        r, g, b = ip[x, y]
+        mx, mn = max(r, g, b), min(r, g, b)
+        if mx < 90 or mx == mn: return False
+        sat = (mx - mn) / mx
+        if sat < 0.30: return False
+        if mx == r: h = ((g - b) / (mx - mn)) % 6
+        elif mx == g: h = (b - r) / (mx - mn) + 2
+        else: h = (r - g) / (mx - mn) + 4
+        h *= 60
+        return 265 <= h <= 350
     keyed = Image.new("L", im.size, 255)
-    kp, ip = keyed.load(), im.load()
-    for y in range(big):
-        for x in range(big):
-            r, g, b = ip[x, y]
-            if r > 170 and b > 170 and g < 110 and abs(r - b) < 90:
-                kp[x, y] = 0
+    kp = keyed.load()
+    stack = [(x, y) for x in range(big) for y in (0, big - 1)] + [(x, y) for y in range(big) for x in (0, big - 1)]
+    seen = set()
+    while stack:
+        x, y = stack.pop()
+        if (x, y) in seen or not (0 <= x < big and 0 <= y < big): continue
+        seen.add((x, y))
+        if not bgish(x, y): continue
+        kp[x, y] = 0
+        stack += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
     rgb = im.resize((size, size), Image.BOX)
     a = keyed.resize((size, size), Image.BOX)
     px = {}
