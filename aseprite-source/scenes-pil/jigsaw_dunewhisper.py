@@ -523,7 +523,7 @@ for lx, ln in ((cx0 + 4, 0), (cx0 + 9, 1), (cx0 + 24, 0), (cx0 + 29, 1)):
 o.part(legs, CAMEL, d=1)
 # pass 2: a longer, flatter barrel with a deep belly line and one tall peaked hump (was a round ball)
 body = ell(cx0 - 1, cy0 + 3, cx0 + 35, cy0 + 16) | rect(cx0 + 4, cy0 + 4, cx0 + 30, cy0 + 12)
-hump = ell(cx0 + 9, cy0 - 5, cx0 + 27, cy0 + 9) | ell(cx0 + 13, cy0 - 8, cx0 + 22, cy0 + 1)
+hump = ell(cx0 + 8, cy0 - 4, cx0 + 28, cy0 + 10) | ell(cx0 + 11, cy0 - 6, cx0 + 24, cy0 + 2)
 o.part(body, CAMEL, d=3)
 o.part(hump, CAMEL, d=2)
 o.part(line([(cx0 + 32, cy0 + 6), (cx0 + 38, cy0 + 12), (cx0 + 44, cy0 + 20)], 5), CAMEL, d=1)
@@ -545,10 +545,6 @@ for fx in range(cx0 + 10, cx0 + 25, 3):   # zigzag hem
 for tx in (cx0 + 10, cx0 + 25):   # tassels
     cv.fill(rect(tx, cy0 + 12, tx, cy0 + 15), '#f5cf6a')
     cv.dots([(tx, cy0 + 16)], RED['b'])
-o = cv.obj()
-o.part(rect(cx0 + 13, cy0 - 2, cx0 + 23, cy0) | rect(cx0 + 13, cy0 - 5, cx0 + 14, cy0 - 2) | rect(cx0 + 22, cy0 - 5, cx0 + 23, cy0 - 2), WOOD, d=1)
-o.draw()
-cv.fill(rect(cx0 + 15, cy0 - 1, cx0 + 21, cy0 - 1), TEAL['b'])
 cv.dots([(cx0 + 47, cy0 + 19), (cx0 + 53, cy0 + 23)], '#2a1a10')
 cv.dots([(cx0 + 44, cy0 + 17)], CAMEL['s'])
 cv.fill(line([(cx0 + 45, cy0 + 16), (cx0 + 43, cy0 + 14)]), CAMEL['s'])   # ear
@@ -565,7 +561,7 @@ palm(290, 138, 268, 28, ((150, 52, 18), (180, 50, 10), (205, 44, 2), (240, 30, -
 rx0, ry0 = 232, 178
 o = cv.obj()
 rbody = ell(rx0, ry0 + 6, rx0 + 46, ry0 + 22) | rect(rx0 + 6, ry0 + 8, rx0 + 40, ry0 + 20)
-rhump = ell(rx0 + 13, ry0 - 2, rx0 + 33, ry0 + 13) | ell(rx0 + 17, ry0 - 5, rx0 + 27, ry0 + 3)
+rhump = ell(rx0 + 11, ry0 + 1, rx0 + 35, ry0 + 15) | ell(rx0 + 15, ry0 - 1, rx0 + 31, ry0 + 6)
 o.part(rbody, CAMEL, d=3)
 o.part(rhump, CAMEL, d=2)
 o.part(line([(rx0 + 42, ry0 + 10), (rx0 + 48, ry0), (rx0 + 52, ry0 - 8)], 5), CAMEL, d=1)
@@ -724,22 +720,23 @@ o.part(ell(92, 180, 104, 186) | line([(103, 182), (108, 179)], 2) | rect(96, 177
 o.draw()
 cv.dots([(109, 178), (110, 177)], '#fff4c0')
 # a fennec fox sitting by the first house (fills the calm left-middle sand): huge ears, black-tipped tail
-FEN = ramp('#f2d4a0', '#c9a06e', '#fff4d8')
-shadow(10, 164, 34, 168)
+FEN = ramp('#e8b07a', '#c98a5a', '#f2d4a0')
+shadow(6, 164, 34, 168)
 o = cv.obj()
-o.part(ell(8, 156, 20, 166), FEN, d=1)   # tail curled round the front
-o.part(ell(16, 151, 30, 167), FEN, d=2)
-o.part(ell(22, 143, 33, 153) | poly([(31, 147), (36, 149), (31, 151)]), FEN, d=1)
-o.part(poly([(23, 146), (22, 134), (28, 144)]) | poly([(28, 144), (33, 133), (32, 146)]), FEN, d=1)
+o.part(ell(2, 155, 18, 164) | ell(4, 158, 14, 166), FEN, d=1)   # bushy tail sweeping out behind
+o.part(ell(14, 151, 29, 167), FEN, d=2)
+o.part(ell(21, 144, 31, 153) | poly([(29, 147), (37, 150), (29, 152)]), FEN, d=1)   # head with a pointed snout
+o.part(poly([(21, 147), (17, 134), (26, 145)]) | poly([(27, 145), (34, 133), (31, 148)]), FEN, d=1)   # big flared ears
 o.draw()
-cv.fill(poly([(24, 144), (23, 137), (26, 143)]) | poly([(29, 143), (32, 136), (31, 144)]), '#e88a8a')   # pink inner ears
-cv.fill(ell(8, 160, 12, 165), '#4a2c1a')   # black tail tip
-cv.dots([(29, 147), (30, 147)], '#2a1a10')
-cv.dots([(36, 149)], '#2a1a10')
-cv.fill(rect(19, 162, 21, 166) | rect(24, 162, 26, 166), FEN['s'])   # front paws
-cv.fill(ell(19, 153, 26, 160), FEN['r'])   # pale chest
+cv.fill(poly([(22, 145), (19, 138), (24, 144)]) | poly([(28, 144), (32, 137), (30, 146)]), '#e88a8a')   # pink inner ears
+cv.fill(ell(1, 157, 6, 163), '#4a2c1a')   # black tail tip
+cv.dots([(28, 147), (29, 147)], '#2a1a10')
+cv.dots([(37, 150), (36, 150)], '#2a1a10')
+cv.fill(rect(30, 151, 34, 151), FEN['r'])   # pale muzzle
+cv.fill(ell(19, 153, 25, 162), '#f2e4c0')   # cream chest
+cv.fill(rect(19, 163, 21, 166) | rect(24, 163, 26, 166), FEN['s'])   # front paws
 # lily pads with pink flowers on the pool (breaks up the dark water at right)
-for lx, ly in ((252, 154), (268, 150), (244, 167), (290, 160)):
+for lx, ly in ((252, 154), (268, 150), (244, 167), (262, 161)):
     pad = ell(lx - 4, ly - 2, lx + 4, ly + 2) & ~poly([(lx, ly), (lx + 5, ly - 3), (lx + 5, ly)])
     o = cv.obj()
     o.part(pad, PALM, d=1)

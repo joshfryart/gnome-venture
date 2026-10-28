@@ -653,7 +653,9 @@ for x0, y0, x1, y1, lift in ((282, 146, 252, 188, 18), (283, 150, 262, 196, 12),
 trunkm = poly([(281, 110), (291, 110), (294, 136), (299, 160), (275, 160), (279, 136)])
 o = cv.obj()
 o.part(trunkm, MANG, d=2)
-o.part(mroots | mthin, MANG, d=1)
+rm_ = mroots | mthin
+rm_ |= (shift(rm_, 1, 0) & shift(rm_, -1, 0)) | (shift(rm_, 0, 1) & shift(rm_, 0, -1)) | (shift(rm_, 1, 1) & shift(rm_, -1, -1)) | (shift(rm_, 1, -1) & shift(rm_, -1, 1))   # pass 2: close the joint gaps of the wide polylines (they outlined as ladder rungs)
+o.part(rm_, MANG, d=1)
 o.draw()
 for bx0 in (284, 286, 289):   # bark furrows
     cv.fill(line([(bx0, 114), (bx0 + (bx0 - 286) // 2, 156)]) & trunkm & ~shift(trunkm, 1, 0), MANG['s'])

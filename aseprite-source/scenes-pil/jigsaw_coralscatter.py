@@ -579,9 +579,9 @@ cv.dots([(162, 63)], DARK)
 cx0, cx1, cy = 98, 150, 90
 # crab-claw sail: two curved spars from the foot, asymmetric, tips curling in like a claw; woven pandanus with painted bands
 # pass 2: bowed spars (the after spar swings out low, the fore spar stands tall and curls) so the sail bellies like a claw, not a V
-SPAR_B = [(122, 86), (113, 79), (105, 70), (100, 60), (99, 51), (102, 45), (106, 43)]
+SPAR_B = [(122, 86), (115, 78), (108, 68), (104, 58), (103, 50), (105, 44), (109, 41)]
 SPAR_F = [(122, 86), (128, 75), (134, 64), (140, 54), (144, 45), (144, 39), (141, 36)]
-sail = poly(SPAR_B + [(110, 47), (115, 52), (120, 54), (126, 53), (132, 49), (137, 43), (139, 38)] + SPAR_F[::-1])
+sail = poly(SPAR_B + [(113, 43), (118, 46), (124, 47), (130, 45), (135, 41), (139, 37)] + SPAR_F[::-1])
 o = cv.obj()
 o.part(sail, WEAVE, d=2)
 o.draw()
@@ -598,7 +598,7 @@ o = cv.obj()
 o.part(line(SPAR_B, 2) | line(SPAR_F, 2), WOOD, d=0)
 o.draw()
 cv.fill(line([(141, 37), (147, 62), (146, 86)]), '#c9a46a')   # one stay only (pass 2: less clutter round the canoe)
-cv.dots([(103, 46), (104, 45)], '#fbe4b0')   # sun-caught spar tips
+cv.dots([(108, 41), (109, 41)], '#fbe4b0')   # sun-caught spar tips
 cv.dots([(142, 38), (143, 39)], '#fbe4b0')
 hull = poly([(cx0, cy - 6), (cx0 + 6, cy - 1), (cx1 - 6, cy - 1), (cx1, cy - 6), (cx1 - 2, cy + 2), (cx0 + 2, cy + 2)])
 o = cv.obj()
