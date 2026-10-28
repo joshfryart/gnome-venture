@@ -7,6 +7,9 @@
 -- Pass 2: push-in capped at 1.75x so brow, hairline, nose and mouth stay in frame; head, hair and
 -- ear are smooth Catmull-Rom outlines sampled in float world coords (no per-frame vertex rounding),
 -- so the silhouette stays the same shape at every zoom; slimmer crescents (no nose slab).
+-- Pass 3: felt wall with hem seams and sparse nap flecks (matches the other puzzle GIFs) instead of
+-- the slanted duct; stitch rings on head and jacket, gold hairline seam; bigger pupils, heavier lids
+-- and brow ridges that drop during the hold; longer first/last frames so the loop snap reads as a beat.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local W, H = 166, 121
@@ -88,20 +91,35 @@ local function drawFrame(s)
   local function ink(pts, w, hex) c:fill(c:line(P(pts), pen(w or 0.8)), hex or UMB) end
   local function cr(n) return math.max(2, math.floor(n * z + 0.5)) end
 
-  -- background: slate wall in hard bands, a darker duct panel across the top with a hem seam
-  c:bands(c:rect(0, 0, W-1, H-1), { wall.rim, wall.base, wall.shade }, { dir = "v" })
-  c:part(poly{ {-60, -40}, {240, -40}, {240, -20}, {-60, 70} }, duct, { gloss = false, cres = 3 })
-  c:seam(P{ {-60, 64}, {240, -26} }, { free = true })
+  -- background: three felt wall panels (world-space bands so they zoom with the face), a hem seam
+  -- on each join and sparse nap flecks so the wall reads as fabric like the other puzzle GIFs
+  local BANDS = { { -200, 34, wall.rim }, { 34, 86, wall.base }, { 86, 300, wall.shade } }
+  for _, b in ipairs(BANDS) do
+    c:fill(poly{ {-200, b[1]}, {400, b[1]}, {400, b[2]}, {-200, b[2]} }, b[3])
+  end
+  local fleck = { wall.gloss, wall.rim, wall.bounce }
+  for gy = -40, 200, 9 do
+    for gx = -100, 300, 11 do
+      local wx, wy = gx + (gy * 7) % 11 - 5, gy + (gx * 5) % 9 - 4
+      local band = wy < 34 and 1 or (wy < 86 and 2 or 3)
+      local hex = band == 1 and fleck[1] or (band == 2 and fleck[2] or fleck[3])
+      local x, y = math.floor(X(wx) + 0.5), math.floor(Y(wy) + 0.5)
+      c:px(x, y, hex); if z > 1.4 then c:px(x + 1, y, hex) end
+    end
+  end
+  for _, yy in ipairs({ 34, 86 }) do c:seam(P{ {-200, yy}, {400, yy} }, { free = true }) end
+  c:part(poly{ {-60, -40}, {240, -40}, {240, -22}, {-60, 12} }, duct, { gloss = false, cres = 3, stitch = true })
+  c:seam(P{ {-60, 10}, {240, -24} }, { free = true })
 
   -- jacket, shirt, neck
-  c:part(poly{ {30, 140}, {44, 104}, {66, 96}, {104, 98}, {112, 140} }, "red", { cres = cr(3) })
+  c:part(poly{ {30, 140}, {44, 104}, {66, 96}, {104, 98}, {112, 140} }, "red", { cres = cr(3), stitch = { side = "lit" } })
   c:part(poly{ {64, 140}, {68, 104}, {80, 112}, {96, 104}, {98, 140} }, shirt, { pale = true, gloss = false })
   c:part(poly{ {72, 112}, {74, 88}, {98, 88}, {94, 112} }, skin, { gloss = false, cres = cr(2) })
   c:seam(P{ {48, 104}, {66, 98}, {74, 106} })
   c:seam(P{ {98, 104}, {104, 99} })
 
   -- head: one smooth outline (cranium, long nose, lips, chin), then the ear
-  c:part(poly(HEAD), skin, { cres = cr(3), deep = cr(1), gloss = { X(84), Y(46) } })
+  c:part(poly(HEAD), skin, { cres = cr(3), deep = cr(1), gloss = { X(84), Y(46) }, stitch = { side = "lit" } })
   c:part(poly(EAR), skin, { cres = cr(1.5), deep = 1, gloss = false })
   ink({ { 67, 69 }, { 64, 71 }, { 64, 75 }, { 66, 77 } }, 0.7)
 
@@ -109,30 +127,35 @@ local function drawFrame(s)
   local h = poly(HAIR)
   for _, sp in ipairs(SPIKES) do h:add(poly(sp)) end
   c:part(h, hair, { cres = cr(3), deep = cr(1), stitch = { side = "lit" }, gloss = { X(70), Y(28) } })
+  -- gold hairline seam where the felt mop is sewn to the head
+  c:seam(P{ { 108, 37 }, { 98, 41 }, { 86, 44 }, { 77, 48 }, { 72, 54 }, { 70, 62 } }, { free = true })
 
   -- the squint: two flat cream slits under heavy lids, pupils parked hard right
-  local eh = 4.2 * sq
+  local eh = 4.4 * sq
+  local drop = (1 - sq) * 2.5          -- brow ridge sinks onto the lids in the hold
   for _, e in ipairs({ { 82, 62 }, { 101, 61 } }) do
     local ex, ey = e[1], e[2]
+    ink({ { ex - 9, ey - 6 + drop }, { ex - 3, ey - 7.5 + drop }, { ex + 6, ey - 7 + drop } }, 1.3)  -- brow ridge
     local slit = c:rrect(math.floor(X(ex - 9)), math.floor(Y(ey - eh / 2)), math.floor(X(ex + 9)),
       math.floor(Y(ey + eh / 2)), math.floor(z))
     c:fill(slit, "#f1ece0")
     c:fill(c:rect(math.floor(X(ex - 9)), math.floor(Y(ey + eh / 2)) - pen(0.3) + 1, math.floor(X(ex + 9)), math.floor(Y(ey + eh / 2))), "#d8c49a")
-    ink({ { ex - 10, ey - eh / 2 - 0.4 }, { ex + 10, ey - eh / 2 - 0.8 } }, 1.1)  -- upper lid
+    ink({ { ex - 10, ey - eh / 2 - 0.4 }, { ex + 10, ey - eh / 2 - 0.8 } }, 1.5)  -- upper lid, heavy
     ink({ { ex - 9, ey + eh / 2 + 0.6 }, { ex + 9, ey + eh / 2 + 0.6 } }, 0.7)    -- lower lid
     local px = X(ex + 4 + (s >= 22 and math.min(1, (s - 22) / 15) or 0))
-    local pr = math.max(2, math.floor(2 * z + 0.5))
+    local pr = math.max(3, math.floor(3 * z + 0.5))
     local pm = c:rect(math.floor(px - pr / 2), math.floor(Y(ey) - pr / 2), math.floor(px - pr / 2) + pr, math.floor(Y(ey) - pr / 2) + pr)
     pm:clip(slit)
     c:fill(pm, "#2a1a10")
     c:px(math.floor(px - pr / 2), math.floor(Y(ey) - pr / 2), "#f9d49c")
+    ink({ { ex - 6, ey + eh / 2 + 2.6 }, { ex + 4, ey + eh / 2 + 2.2 } }, 0.5)   -- eye bag crease
   end
   -- brow creases over the lids, cheek-to-nose crease, mouth
   ink({ { 90, 52 }, { 92, 56 }, { 91, 64 } }, 0.6)
   ink({ { 76, 55 }, { 75, 60 } }, 0.6)
   ink({ { 108, 55 }, { 109, 59 } }, 0.6)
   ink({ { 100, 66 }, { 105, 74 }, { 112, 78 } }, 0.6)
-  ink({ { 101, 87 }, { 106, 86 }, { 111, 87 } }, 0.7)
+  ink({ { 100, 86 }, { 105, 85.5 }, { 110, 87.5 } }, 0.9)  -- tight downturned mouth
   return c:image()
 end
 
@@ -145,7 +168,9 @@ for i, s in ipairs(SAMPLES) do
   if i == 1 then spr.cels[1].image = img; img:saveAs(GAME .. "fry-squint-still.png")
   else spr:newCel(layer, i, img) end
   local nxt = SAMPLES[i + 1] or SRC_N
-  spr.frames[i].duration = (nxt - s) * SRC_MS / 1000
+  local ms = (nxt - s) * SRC_MS
+  if i == 1 then ms = 260 elseif i == #SAMPLES then ms = 480 end   -- a beat before and after the push
+  spr.frames[i].duration = ms / 1000
   local t = GV.check(img)
   if i == 1 or i == #SAMPLES then print("frame " .. i .. ": " .. GV.report(t)) end
   assert(t.semi == 0 and t.bw == 0)
