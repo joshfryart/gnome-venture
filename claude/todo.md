@@ -1,5 +1,10 @@
 # Gnome Venture: to-do (updated 2026-10-28, after 2.0.75; everything below 2.0.68 is on main)
 
+## VARIETY PROJECT (started 2.0.76): plan `claude/plan-variety.md`, art list `claude/todo-art-variety.md`
+**2.0.76 built (build plans, pilot CA + CB; not yet released as a zip, not yet checked by Joshua).** Joshua checks: upload, then on phone take on a repair at e.g. Cenote of Echoes (needs the place in ruins: Admin > Places or wait for `ensure_ruins`; ruins are 1 in 3 by name, never in the start region NA) and walk the 4 stages: gather, clear (Work here today, 2 days), haul, gather + Petals. The five verb icons are PLACEHOLDER (red border): real art listed in `claude/todo-art-variety.md`.
+**Decisions (Joshua):** building first, then stops, then road; plans hand-written per landmark; Worm Hunt / Snail Race are full games, NOT reused as step checks; 2 regions per release.
+**Next:** 2.0.77 adopt tiers per stop type (+ regional materials); 2.0.78 stop act kinds + `region` column + kind-diversity; 2.0.79 road kinds + Road Journal; 2.0.80+ content waves of 2 regions (plans for the other 12 regions: MENA, ESA, WCA, SE, NWE, EE, CSA, EA, SEA, OC, SA, NA). Left over from 2.0.76: verbs `befriend` (landmark places have no stop folk yet: needs folk at landmarks), `carry`, `trial`, `vigil`, `wait`, `decorate`; an Admin > Build plans page (read-only list first); before/after pictures per place; plan tests for new regions are covered by the data lint in `tests/buildplans.sh`.
+
 ## NOW (2026-10-28, after 2.0.75): Joshua checks + what is next
 **On main, not yet uploaded/checked by Joshua: 2.0.69 to 2.0.75** (slim zips in `releases/`, each needs 2.0.47+; upload the latest, 2.0.75 covers all). Back up first. Everything new is OFF for players until he flips a setting:
 1. **Puzzles:** `puzzles_open` + `pz_barrel_open` (Rain Barrel) + `pz_beds_open` (Gnome Beds) in Admin > Game settings. Play a daily on phone light + dark: reward lands once (`pz_daily_petals` 15), hints +20s, board, sleep/oops Jeff beside status/errors. Look at the new tables on MySQL (`puzzle_runs`, `puzzle_wins`) and that `data/pzcache` is writable (Gnome Beds caches built gardens there).

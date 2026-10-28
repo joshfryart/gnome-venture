@@ -34,6 +34,7 @@ $repair = (int)($_POST['repair'] ?? 0);
     'lair' => lair_start($u, $lm),
     'repair_start' => repair_start($u, $lm),       // v0.7.77
     'repair_hand' => repair_hand($u, $repair),
+    'repair_work' => repair_work($u, $repair),     // v2.0.76
     'repair_drop' => repair_drop($u, $repair),
     default => [false, 'Unknown action.'],
 };

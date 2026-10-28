@@ -548,11 +548,11 @@ function landmark_panel(array $u, array $node): string
             $h .= '<p class="restored">' . e(restored_line($lm)) . ' ' . ['haven' => 'Its fire is warmer and its pantry fuller.', 'wonder' => 'It gives up its secrets a little more easily.', 'delve' => 'Its chest holds more.'][$lm['kind']] . '</p>';
         } elseif (!empty($lm['ruined'])) {   // v0.7.88: ruins are per gnome: closed for you until you make it safe
             if ($note = landmark_safe_note($lm)) $h .= '<p class="help">' . e($note) . '</p>';
-            if ($mine = q_one('SELECT id, stage FROM landmark_repairs WHERE user_id = ? AND landmark_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$uid, $id])) {   // v0.7.77 your own repair here
+            if ($mine = q_one('SELECT id, stage, plan, prog, prog_day FROM landmark_repairs WHERE user_id = ? AND landmark_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$uid, $id])) {   // v0.7.77 your own repair here
                 $h .= '<p class="ruin">🏚️ This place has fallen into ruin. You’re making it safe for yourself:</p>'
                     . repair_box($u, $mine + ['landmark_id' => $id, 'name' => $lm['name'], 'region_id' => $lm['region_id']], 'world.php');
             } else {   // v0.7.77 repairs replace the monthly rebuild job
-                $h .= '<p class="ruin">🏚️ This place has fallen into ruin. Clear your path in and shore it up to use it: four stages of building materials, meals and fine finds.</p>';
+                $h .= '<p class="ruin">🏚️ This place has fallen into ruin. Clear your path in and shore it up to use it: four stages' . (build_plan_of($lm) ? ' of hauling, gathering, cooking and hard work.' : ' of building materials, meals and fine finds.') . '</p>';
                 if (($why = repair_can_start($u, $lm)) === null) {
                     [$rCoins, $rXp] = repair_rewards($lm);
                     $h .= $form('repair_start', '🔨 Take on the repair') . '<p class="help">Each stage pays ' . money($rCoins) . ' and ' . $rXp . ' XP.</p>';

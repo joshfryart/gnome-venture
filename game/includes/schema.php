@@ -1380,6 +1380,9 @@ function schema_statements(string $driver): array
         ['plot_tiles', 'bonus_yield', 'INT NOT NULL DEFAULT 0'],
         ['landmarks', 'restored_at', 'DATETIME NULL'],               // v0.7.29 rebuilt landmarks
         ['landmark_repairs', 'dropped_at', 'DATETIME NULL'],          // v0.7.85 a given-up repair is kept (no re-paying stage 1); taking it on again resumes
+        ['landmark_repairs', 'plan', 'VARCHAR(8) NULL'],              // v2.0.76 'v1' = began on the place's own build plan (empty = the old four stages)
+        ['landmark_repairs', 'prog', 'INT NOT NULL DEFAULT 0'],      // v2.0.76 days worked on a clear stage
+        ['landmark_repairs', 'prog_day', 'VARCHAR(10) NULL'],        // v2.0.76 last Hollow day that counted
         ['npcs', 'loved_item_id', 'INT NULL'],                       // v0.7.85 an NPC's favourite gift, fixed once chosen
         ['user_items', 'wear', 'INT NOT NULL DEFAULT 0'],              // v0.7.86 tool wear: uses (gathering) or days (garden) on the working copy
         ['user_items', 'wear_day', 'VARCHAR(10) NULL'],

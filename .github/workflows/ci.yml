@@ -59,7 +59,7 @@ jobs:
         env:
           DEFAULT_SUITES: >-
             adventure animals120 animals140 beds breeding110 calling clock contest craft eggs110 events explore fix100
-            fresh_hold friends fun games140 games2 garden100 gear help jobs landmarks market100 pest148 rebuild rewards
+            fresh_hold friends fun games140 games2 garden100 gear help jobs landmarks market100 pest148 rebuild buildplans rewards
             roadlife roads roads097 roadtext scenes social tools town trade
             comm cook delvemap flowers gather099 gather150 images mentors120 modr pantry pjobs prog security190
             sinks097 social100 stops100 trekshell updrollback villagers worms yard puzzles puzzles_upload puzzles_tourney puzzles_daily landing

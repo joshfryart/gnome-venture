@@ -966,6 +966,7 @@ a.rend:hover b { text-decoration: underline; }
 .rebuild .stages { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; list-style: none; margin: 0 0 8px; }
 .rebuild .stages li { padding: 3px 10px; border-radius: var(--pill); background: var(--line); font-size: 13px; }
 .rebuild .stages li.now { background: var(--brand-fill); color: var(--on-fill); font-weight: 600; }
+.rebuild .stages li .buildverb, .rebuild .btn .buildverb { width: 20px; height: 20px; vertical-align: -5px; margin-right: 2px; }
 .rebuild .stages li.done { background: var(--brand-soft); color: var(--brand-ink); }
 .rebuild li.good { color: var(--brand-ink); } .rebuild li.bad { color: var(--danger); }
 .probe { background: var(--info-soft); border-left: 4px solid #3f8fb0; padding: 6px 10px; border-radius: var(--radius-sm); color: var(--info-ink); }

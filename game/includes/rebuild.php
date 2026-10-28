@@ -95,15 +95,19 @@ function rebuild_supply(int $uid, array $need): array
     return q("SELECT i.id, i.name, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND $where ORDER BY i.base_price, i.name", [$uid])->fetchAll();
 }
 
-/** What a stage needs, with how much this gnome has: [[label, need, have], …]. */
-function rebuild_stage_status(array $u, int $stage): array
+/** v2.0.76: what a list of needs asks for, with how much this gnome has: [[label, need, have], …]. $prog = days worked, for a `days` need. */
+function rebuild_need_rows(array $u, array $needs, int $prog = 0): array
 {
     $out = [];
-    foreach (REBUILD_STAGES[$stage][1] ?? [] as $need) {
+    foreach ($needs as $need) {
         [$type, $slug, $qty] = $need;
+        if ($type === 'days') {
+            $out[] = ['days of clearing (' . (int)$slug . '⚡ each)', $qty, min($prog, $qty)];
+            continue;
+        }
         $have = $type === 'coins' ? (int)$u['coins'] : array_sum(array_column(rebuild_supply((int)$u['id'], $need), 'qty'));
         $label = match ($type) {
-            'item' => BUILDING_ITEMS[$slug][0] ?? $slug,
+            'item' => BUILDING_ITEMS[$slug][0] ?? ((string)q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug),
             'meal' => 'home-cooked meals or feasts (not snacks)',
             'fine' => 'uncommon or rare finds (any)',
             'coins' => setting('currency_name'),
@@ -111,6 +115,12 @@ function rebuild_stage_status(array $u, int $stage): array
         $out[] = [$label, $qty, $have];
     }
     return $out;
+}
+
+/** What a stage of the OLD fixed list needs, with how much this gnome has: [[label, need, have], …]. */
+function rebuild_stage_status(array $u, int $stage): array
+{
+    return rebuild_need_rows($u, REBUILD_STAGES[$stage][1] ?? []);
 }
 
 /** Hand in the next stage's materials. */
@@ -206,6 +216,95 @@ function landmark_safe_note(array $lm): string
     return $n ? $n . ' gnome' . ($n === 1 ? ' has' : 's have') . ' already made it safe; ' . founder_line($lm) : '';
 }
 
+// ---------------- Build plans (v2.0.76) ----------------
+// Each ruined place can have its own four stages (data/build_plans.txt) instead of the one fixed list. A repair remembers which it
+// started on (landmark_repairs.plan = 'v1' or empty), so a repair begun before a plan was written keeps the old stages.
+
+const BUILD_VERBS = [
+    'haul' => 'Haul', 'gather' => 'Gather', 'feed' => 'Feed the crew', 'light' => 'Light up', 'clear' => 'Clear',
+];
+
+/** Parse a needs string ("item:rope:3,coins:250,meal:4,fine:2,days:3:3") into need tuples. Bad parts are dropped. */
+function build_parse_needs(string $s): array
+{
+    $out = [];
+    foreach (array_filter(array_map('trim', explode(',', $s))) as $part) {
+        $f = explode(':', $part);
+        $qty = (int)($f[count($f) - 1] ?? 0);
+        $out[] = match ($f[0]) {
+            'item' => count($f) === 3 && $f[1] !== '' && $qty > 0 ? ['item', $f[1], $qty] : null,
+            'coins', 'meal', 'fine' => count($f) === 2 && $qty > 0 ? [$f[0], '', $qty] : null,
+            'days' => count($f) === 3 && (int)$f[1] > 0 && (int)$f[2] > 0 ? ['days', (string)(int)$f[2], (int)$f[1]] : null,   // [days, energy each, days needed]
+            default => null,
+        };
+    }
+    return array_values(array_filter($out));
+}
+
+/** @return array<string, array<int, array{name:string, verb:string, needs:array, text:string}>> plans by lower-case landmark name */
+function build_plans(bool $reload = false): array
+{
+    static $cache = null;
+    if ($cache !== null && !$reload) return $cache;
+    $cache = [];
+    $file = __DIR__ . '/data/build_plans.txt';
+    foreach (is_file($file) ? file($file, FILE_IGNORE_NEW_LINES) : [] as $line) {
+        $f = array_map('trim', explode('|', trim($line)));
+        if (($f[0] ?? '') !== 'P' || count($f) < 7) continue;
+        $n = (int)$f[2];
+        $verb = isset(BUILD_VERBS[$f[3]]) ? $f[3] : 'haul';
+        $needs = build_parse_needs($f[5]);
+        if ($n < 1 || $n > 4 || !$needs) continue;
+        $cache[strtolower($f[1])][$n] = ['name' => $f[4], 'verb' => $verb, 'needs' => $needs, 'text' => $f[6]];
+    }
+    foreach ($cache as $k => $st) {   // a plan is only used whole: all four stages
+        ksort($st);
+        if (array_keys($st) !== [1, 2, 3, 4]) unset($cache[$k]); else $cache[$k] = $st;
+    }
+    return $cache;
+}
+
+/** Does this landmark have its own build plan? */
+function build_plan_of(array $lm): ?array
+{
+    return build_plans()[strtolower((string)($lm['name'] ?? ''))] ?? null;
+}
+
+/** The four stages a repair works through: its plan if it began on one, else the old fixed list. Same shape as a plan. */
+function repair_stages(array $repair): array
+{
+    if (($repair['plan'] ?? '') === 'v1' && ($p = build_plan_of($repair))) return $p;
+    $out = [];
+    foreach (REBUILD_STAGES as $n => [$name, $needs]) {
+        $out[$n] = ['name' => $name, 'verb' => 'haul', 'needs' => $needs, 'text' => ''];
+    }
+    return $out;
+}
+
+/** A repair row with the plan columns filled in (list rows and panel rows may not carry them). */
+function repair_full(array $repair): array
+{
+    if (array_key_exists('plan', $repair) && array_key_exists('prog', $repair)) return $repair;
+    return $repair + (q_one('SELECT plan, prog, prog_day FROM landmark_repairs WHERE id = ?', [(int)($repair['id'] ?? 0)]) ?: ['plan' => null, 'prog' => 0, 'prog_day' => null]);
+}
+
+/** The current stage of a repair: [stage number, stage def]. */
+function repair_current(array $repair): array
+{
+    $repair = repair_full($repair);
+    $n = (int)$repair['stage'] + 1;
+    return [$n, repair_stages($repair)[$n] ?? null];
+}
+
+/** Can the gnome hand in the current stage right now? A `clear` stage is never handed in: it finishes by itself on its last day. */
+function repair_ready(array $u, array $repair): bool
+{
+    $repair = repair_full($repair);
+    [, $st] = repair_current($repair);
+    if (!$st || ($st['needs'][0][0] ?? '') === 'days') return false;
+    return !array_filter(rebuild_need_rows($u, $st['needs']), fn($x) => $x[2] < $x[1]);
+}
+
 // ---------------- Repairs (v0.7.77) ----------------
 // A gnome makes a ruined haven, wonder or delve safe for themselves, at the place itself. Four stages, handed in one at a time
 // (the same materials as the old job). Each stage pays Petals and XP. v0.7.88: ruins are per gnome; the first to finish is the Founder.
@@ -254,35 +353,56 @@ function repair_start(array $u, int $lmId): array
         if (q('UPDATE landmark_repairs SET dropped_at = NULL WHERE id = ? AND user_id = ? AND done_at IS NULL AND dropped_at IS NOT NULL', [(int)$old['id'], $uid])->rowCount() !== 1) {
             return [false, 'You’re already repairing this.'];
         }
-        return [true, '🔨 You pick up making ' . $lm['name'] . ' safe where you left off (' . (int)$old['stage'] . ' of ' . count(REBUILD_STAGES) . ' stages done).'];
+        return [true, '🔨 You pick up making ' . $lm['name'] . ' safe where you left off (' . (int)$old['stage'] . ' of 4 stages done).'];
     }
     try {
-        db_insert('landmark_repairs', ['user_id' => $uid, 'landmark_id' => $lmId, 'stage' => 0, 'started_at' => now()]);
+        db_insert('landmark_repairs', ['user_id' => $uid, 'landmark_id' => $lmId, 'stage' => 0, 'started_at' => now(), 'plan' => build_plan_of($lm) ? 'v1' : null]);
     } catch (PDOException $e) {
         return [false, 'You’re already repairing this.'];   // a double click
     }
     return [true, '🔨 You start making ' . $lm['name'] . ' safe for yourself: clearing your own path in, shoring up your corner, earning the keeper’s trust. Hand in each stage when you have the materials, here, from the Job Board or from a town square’s Quests tab. Each one pays ' . money($coins) . ' and ' . $xp . ' XP.'];
 }
 
+/**
+ * Pay for finishing a stage (inside the caller's transaction): Petals, XP, stage + 1, and the last stage restores the place.
+ * $stage is the stage being finished (1-4); the update only goes through if the repair is still on the stage before it.
+ */
+function repair_advance(array $fresh, array $r, array $lm, int $stage, array $def): array
+{
+    require_once __DIR__ . '/gnome.php';   // add_xp
+    $uid = (int)$fresh['id'];
+    if (q('UPDATE landmark_repairs SET stage = stage + 1, prog = 0 WHERE id = ? AND user_id = ? AND stage = ? AND done_at IS NULL AND dropped_at IS NULL', [(int)$r['id'], $uid, $stage - 1])->rowCount() !== 1) {
+        return [false, 'That stage is already done.'];
+    }
+    [$coins, $xp] = repair_rewards($lm);
+    q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
+    add_xp($uid, $xp, 'Repairs');   // v0.9.1: named source for the XP log
+    $msg = '🧱 ' . $def['name'] . ': done! +' . money($coins) . ', +' . $xp . ' XP.';
+    if ($stage === 4) {
+        q('UPDATE landmark_repairs SET done_at = ? WHERE id = ? AND user_id = ? AND dropped_at IS NULL', [now(), (int)$r['id'], $uid]);
+        $msg .= ' ' . rebuild_restore($fresh, (int)$lm['id']);
+    }
+    return [true, $msg];
+}
+
 /** Hand in the next stage of a repair. Returns [ok, message]. */
 function repair_hand(array $u, int $repairId): array
 {
-    require_once __DIR__ . '/gnome.php';   // add_xp
     $uid = (int)$u['id'];
     $r = q_one('SELECT * FROM landmark_repairs WHERE id = ? AND user_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$repairId, $uid]);
     if (!$r) return [false, 'That repair is finished or gone.'];
     $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
     if (!$lm) return [false, 'That repair is gone.'];
     // v0.7.88: ruins are per gnome, so your repair stays yours to finish even after others have made the place safe
-    $stage = (int)$r['stage'] + 1;
-    if (!isset(REBUILD_STAGES[$stage])) return [false, 'This repair is finished.'];
+    [$stage, $def] = repair_current($r + ['name' => $lm['name']]);
+    if (!$def) return [false, 'This repair is finished.'];
+    if (($def['needs'][0][0] ?? '') === 'days') return [false, 'This stage is done by working here on different days: use “Work here today”.'];
     $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
-    foreach (rebuild_stage_status($fresh, $stage) as [$label, $need, $have]) {
+    foreach (rebuild_need_rows($fresh, $def['needs']) as [$label, $need, $have]) {
         if ($have < $need) return [false, 'Stage ' . $stage . ' needs ' . $need . ' ' . $label . ' (you have ' . $have . ').'];
     }
-    [$coins, $xp] = repair_rewards($lm);
     db()->beginTransaction();
-    foreach (REBUILD_STAGES[$stage][1] as $need) {
+    foreach ($def['needs'] as $need) {
         [$type, , $qty] = $need;
         if ($type === 'coins') {
             if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$qty, $uid, $qty])->rowCount() !== 1) { db()->rollBack(); return [false, 'You need ' . money($qty) . '.']; }
@@ -297,19 +417,46 @@ function repair_hand(array $u, int $repairId): array
         }
         if ($left > 0) { db()->rollBack(); return [false, 'You don’t have enough for this stage.']; }
     }
-    if (q('UPDATE landmark_repairs SET stage = stage + 1 WHERE id = ? AND user_id = ? AND stage = ? AND done_at IS NULL AND dropped_at IS NULL', [$repairId, $uid, $stage - 1])->rowCount() !== 1) {
-        db()->rollBack();
-        return [false, 'That stage is already done.'];
-    }
-    q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
-    add_xp($uid, $xp, 'Repairs');   // v0.9.1: named source for the XP log
-    $msg = '🧱 ' . REBUILD_STAGES[$stage][0] . ': done! +' . money($coins) . ', +' . $xp . ' XP.';
-    if ($stage === count(REBUILD_STAGES)) {
-        q('UPDATE landmark_repairs SET done_at = ? WHERE id = ? AND user_id = ? AND dropped_at IS NULL', [now(), $repairId, $uid]);
-        $msg .= ' ' . rebuild_restore($fresh, (int)$lm['id']);
-    }
+    [$ok, $msg] = repair_advance($fresh, $r, $lm, $stage, $def);
+    if (!$ok) { db()->rollBack(); return [false, $msg]; }
     db()->commit();
     return [true, $msg];
+}
+
+/**
+ * v2.0.76: one day of work on a `clear` stage, at the place itself. Counts once per Hollow day, costs the stage's energy,
+ * and finishes the stage on the last day. Returns [ok, message].
+ */
+function repair_work(array $u, int $repairId): array
+{
+    $uid = (int)$u['id'];
+    $r = q_one('SELECT * FROM landmark_repairs WHERE id = ? AND user_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$repairId, $uid]);
+    if (!$r) return [false, 'That repair is finished or gone.'];
+    $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
+    if (!$lm) return [false, 'That repair is gone.'];
+    [$stage, $def] = repair_current($r + ['name' => $lm['name']]);
+    if (!$def || ($def['needs'][0][0] ?? '') !== 'days') return [false, 'This stage is not done by working here.'];
+    if ((int)$u['location_id'] !== (int)$lm['location_id']) return [false, 'You need to be there to work on it.'];
+    [, $energy, $days] = $def['needs'][0];
+    $energy = (int)$energy;
+    $today = hollow_date('Y-m-d');
+    $fresh = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]);
+    db()->beginTransaction();
+    if (q('UPDATE landmark_repairs SET prog = prog + 1, prog_day = ? WHERE id = ? AND user_id = ? AND stage = ? AND (prog_day IS NULL OR prog_day <> ?) AND done_at IS NULL AND dropped_at IS NULL',
+          [$today, $repairId, $uid, $stage - 1, $today])->rowCount() !== 1) {
+        db()->rollBack();
+        return [false, 'You’ve already worked here today. Come back tomorrow.'];
+    }
+    if (!spend_energy($uid, $energy)) { db()->rollBack(); return [false, 'Working here takes ' . $energy . '⚡.']; }
+    $prog = (int)q_val('SELECT prog FROM landmark_repairs WHERE id = ?', [$repairId]);
+    if ($prog < $days) {
+        db()->commit();
+        return [true, '🪓 A good day’s work: ' . $prog . ' of ' . $days . ' days done on “' . $def['name'] . '”. Come back tomorrow.'];
+    }
+    [$ok, $msg] = repair_advance($fresh, $r, $lm, $stage, $def);
+    if (!$ok) { db()->rollBack(); return [false, $msg]; }
+    db()->commit();
+    return [true, '🪓 ' . $msg];
 }
 
 /** Give up an unfinished repair. Materials already handed in are not returned. Returns [ok, message]. */
@@ -325,7 +472,7 @@ function repair_drop(array $u, int $repairId): array
 /** This gnome's unfinished repairs, oldest first (including ones others have already made safe: this gnome can still finish). */
 function repair_list(int $uid): array
 {
-    return q('SELECT r.id, r.landmark_id, r.stage, r.started_at, m.name, m.kind, m.region_id, m.location_id, l.slug AS loc_slug, l.name AS loc_name
+    return q('SELECT r.id, r.landmark_id, r.stage, r.plan, r.prog, r.prog_day, r.started_at, m.name, m.kind, m.region_id, m.location_id, l.slug AS loc_slug, l.name AS loc_name
               FROM landmark_repairs r JOIN landmarks m ON m.id = r.landmark_id JOIN locations l ON l.id = m.location_id
               WHERE r.user_id = ? AND r.done_at IS NULL AND r.dropped_at IS NULL ORDER BY r.started_at, r.id', [$uid])->fetchAll();
 }
@@ -333,25 +480,43 @@ function repair_list(int $uid): array
 /** One repair as a box: the four stages, what the current one needs, and the buttons. $repair is a repair_list row. */
 function repair_box(array $u, array $repair, string $back): string
 {
-    $stage = (int)$repair['stage'] + 1;
-    $st = rebuild_stage_status($u, $stage);
-    $ready = !array_filter($st, fn($x) => $x[2] < $x[1]);
+    $repair = repair_full($repair);
+    $stages = repair_stages($repair);
+    [$stage, $def] = repair_current($repair);
+    if (!$def) return '';
+    $isClear = ($def['needs'][0][0] ?? '') === 'days';
+    $st = rebuild_need_rows($u, $def['needs'], (int)$repair['prog']);
+    $ready = repair_ready($u, $repair);
+    $today = hollow_date('Y-m-d');
+    $workedToday = $isClear && (string)($repair['prog_day'] ?? '') === $today;
     [$coins, $xp] = repair_rewards($repair);
     $hidden = '<input type="hidden" name="lm" value="' . (int)$repair['landmark_id'] . '"><input type="hidden" name="repair" value="' . (int)$repair['id'] . '"><input type="hidden" name="back" value="' . e($back) . '">';
     $h = '<div class="rebuild repair"><h3>🔨 ' . e((string)$repair['name']) . '</h3><ol class="stages">';
-    foreach (REBUILD_STAGES as $n => [$sname]) {
-        $h .= '<li class="' . ($n < $stage ? 'done' : ($n === $stage ? 'now' : '')) . '">' . ($n < $stage ? '✅ ' : '') . e($sname) . '</li>';
+    foreach ($stages as $n => $s) {
+        $h .= '<li class="' . ($n < $stage ? 'done' : ($n === $stage ? 'now' : '')) . '">' . ($n < $stage ? '✅ ' : build_verb_img($s['verb'])) . e($s['name']) . '</li>';
     }
     $h .= '</ol>';
-    $h .= '<p><b>Stage ' . $stage . ': ' . e(REBUILD_STAGES[$stage][0]) . '</b> needs:</p><ul>';
+    $h .= '<p><b>Stage ' . $stage . ': ' . e($def['name']) . '</b> needs:</p>';
+    if ($def['text'] !== '') $h .= '<p class="help">' . e($def['text']) . '</p>';
+    $h .= '<ul>';
     foreach ($st as [$lbl, $need, $have]) {
-        $h .= '<li class="' . ($have >= $need ? 'good' : 'bad') . '">' . $need . ' ' . e((string)$lbl) . ' <small class="muted">(you have ' . number_format($have) . ')</small></li>';
+        $h .= '<li class="' . ($have >= $need ? 'good' : 'bad') . '">' . $need . ' ' . e((string)$lbl) . ' <small class="muted">(' . ($isClear ? 'done so far: ' : 'you have ') . number_format($have) . ')</small></li>';
     }
-    $h .= '</ul><p class="help">Each stage pays ' . money($coins) . ' and ' . $xp . ' XP.</p>'
-        . '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_hand">' . $hidden
-        . '<button class="btn small"' . ($ready ? '' : ' disabled') . '>🧱 Hand in stage ' . $stage . '</button></form> '
-        . '<a class="btn small alt" href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft materials →</a> '
-        . '<form method="post" class="inline" action="' . e(url('landmark.php')) . '" data-confirm="Give up this repair? The materials you’ve handed in are not returned.">' . csrf_field() . '<input type="hidden" name="do" value="repair_drop">' . $hidden
+    $h .= '</ul><p class="help">Each stage pays ' . money($coins) . ' and ' . $xp . ' XP.</p>';
+    $h .= $isClear
+        ? '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_work">' . $hidden
+            . '<button class="btn small"' . ($workedToday ? ' disabled' : '') . '>' . build_verb_img('clear') . 'Work here today <span class="cost">' . (int)$def['needs'][0][1] . '⚡</span></button></form> '
+        : '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_hand">' . $hidden
+            . '<button class="btn small"' . ($ready ? '' : ' disabled') . '>' . build_verb_img($def['verb']) . 'Hand in stage ' . $stage . '</button></form> ';
+    if (!$isClear && $def['verb'] === 'haul') $h .= '<a class="btn small alt" href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft materials →</a> ';
+    $h .= '<form method="post" class="inline" action="' . e(url('landmark.php')) . '" data-confirm="Give up this repair? The materials you’ve handed in are not returned.">' . csrf_field() . '<input type="hidden" name="do" value="repair_drop">' . $hidden
         . '<button class="btn small alt">Give up</button></form></div>';
     return $h;
+}
+
+/** v2.0.76: the little picture for a stage verb. PLACEHOLDER art until the real icons are drawn (see claude/todo-art-variety.md). */
+function build_verb_img(string $verb): string
+{
+    $verb = isset(BUILD_VERBS[$verb]) ? $verb : 'haul';
+    return '<img class="ico pix buildverb" src="' . e(art_url('assets/img/steps/stage-' . $verb)) . '" alt="' . e(BUILD_VERBS[$verb]) . '" title="' . e(BUILD_VERBS[$verb]) . '" width="20" height="20" loading="lazy" decoding="async"> ';
 }

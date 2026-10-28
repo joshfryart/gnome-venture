@@ -74,7 +74,7 @@ function tasks_counts(array $u, bool $hub = false): array
         require_once __DIR__ . '/journey.php';
         foreach (journey_chapters() as $ch) if (journey_ready($u, journey_status($u, $ch)) !== '') $c['quests']++;
         require_once __DIR__ . '/rebuild.php';
-        foreach (repair_list($uid) as $rp) if (!array_filter(rebuild_stage_status($u, (int)$rp['stage'] + 1), fn($x) => $x[2] < $x[1])) $c['quests']++;
+        foreach (repair_list($uid) as $rp) if (repair_ready($u, $rp)) $c['quests']++;
         require_once __DIR__ . '/stop_folk.php';
         $c['errands'] = count(stop_errands_active($uid));
         if (setting('orders_on') === '1' && tasks_in_town($u, $hub)) {

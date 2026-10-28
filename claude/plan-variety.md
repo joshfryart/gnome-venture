@@ -111,6 +111,11 @@ Totals: roughly 14 x (14 + 6 + 8 + 1 + 6 + 6 + ~30 landmark lines) = ~1,000 cont
 - MySQL: any new table uses `*_schema()` pattern; no new table needed for the first two releases.
 - Content volume: ~1,000 rows needs a style pass so it stays in Gnome Venture voice (use `road_text.php` rules, `’` curly, no `|`).
 
+## Build notes (2.0.76)
+- Pilot regions are CA + CB, not NA: the Maplewold is the start region and never has ruins. NA plans come with the last wave (they only matter if the start region changes).
+- `befriend` is deferred: landmark places have no stop folk. Verbs built: haul, gather, feed, light, clear. A `clear` stage is days-only and finishes itself.
+- Art: placeholders in `game/assets/img/steps/` (not `build/`, which is gitignored). List: `claude/todo-art-variety.md`.
+
 ## Decisions (Joshua, 2026-10-28)
 1. Order: building/claiming first (2.0.76), then stops, then road.
 2. Build plans hand-written per landmark (`data/build_plans.txt`, one row per landmark, 4 stages each). No generator. Content cost: ~67 plans, 5 per region wave.

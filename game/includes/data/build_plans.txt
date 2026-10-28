@@ -1,0 +1,48 @@
+# Build plans (v2.0.76): how each ruined haven, wonder or delve is made safe. Four stages per place, handed in one at a time.
+# A place with no plan here uses the old four stages (stone + Petals, timber + rope, meals, fine finds + Petals).
+# P|Landmark name|stage 1-4|verb|Stage title|needs|a line of story for the card
+# Names must match landmarks.txt exactly. Text must not contain the | character. Use ’ (curly) for apostrophes.
+# verbs (the icon and the button; the needs do the work):
+#   haul    hand in building materials          gather  hand in things found on the road or in the wild
+#   feed    hand in cooked food for the crew     light   hand in what lights the place (wax, lanterns)
+#   clear   work here on different days (spends energy; one day counts once)
+# needs, comma list:  item:slug:qty   coins:N   meal:N (home-cooked meals or feasts)   fine:N (uncommon or rare finds)
+#   days:N:E   clear only: N different days, E energy each. A clear stage has only this need (it finishes by itself on the last day).
+# ------------------------------------------------------------ Maizehollow (CA)
+P|Market of a Thousand Chilies|1|haul|Mend the awnings|item:rope:3,item:timber-plank:4|Half the striped awnings hang in rags. The stallholders hold up the ladder and look hopeful.
+P|Market of a Thousand Chilies|2|gather|Fill the spice sacks|item:chili-pepper:6,item:cacao:3|Not one sack on the shelf has anything in it. Fill them, and the smell alone will bring the crowds back.
+P|Market of a Thousand Chilies|3|feed|Feed the stallholders|item:hot-cocoa:3,item:cornbread:3|A market runs on cocoa and cornbread. Hungry stallholders will not haggle.
+P|Market of a Thousand Chilies|4|light|Hang the lantern strings|item:beeswax:2,coins:250|Dusk is the best hour for a market, if there is something to see by.
+P|The Stepped Seed Temple|1|clear|Clear the terraces|days:3:3|Roots and vines have crept over every step. Work a little each day and the old gnome stones show through.
+P|The Stepped Seed Temple|2|haul|Reset the steps|item:building-stone:8|Whole steps have slid down the hill. Dressed stone, set back where they belong.
+P|The Stepped Seed Temple|3|gather|Colour the carvings|item:red-ochre:3,item:laterite-clay:3|The riddles carved in the stone were once painted red. The keeper wants the old colours back.
+P|The Stepped Seed Temple|4|feed|A feast for the keepers|item:feast-maizehollow-mole:1|The temple keepers have not had a proper feast since the roof fell in.
+P|Cenote of Echoes|1|gather|Rig the descent|item:rope:4,item:coir-fibre:4|You cannot dive what you cannot climb down to. Strong rope and woven coir, and a good knot.
+P|Cenote of Echoes|2|clear|Clear the cave mouth|days:2:4|Fallen rock blocks the way to the water. It will take a couple of days of hard work.
+P|Cenote of Echoes|3|haul|Build the diving platform|item:timber-plank:6|A flat place to stand, a place to hang the lantern, and a plank to jump from.
+P|Cenote of Echoes|4|gather|Echo offerings|fine:2,coins:300|The cenote likes a small gift: something rare from the road, and a few Petals thrown in to ring on the way down.
+P|Jaguar Root Caves|1|haul|Prop up the roof|item:timber-plank:8|Roots hold the roof up, mostly. Mostly is not enough.
+P|Jaguar Root Caves|2|clear|Clear the tunnels|days:4:2|Loose earth and snapped roots. A little digging each day, and the first passage opens.
+P|Jaguar Root Caves|3|light|Light the way through|item:beeswax:3|Candles in the wall niches, one every ten paces, so nobody is lost for ever.
+P|Jaguar Root Caves|4|feed|Feed the diggers|meal:3,coins:300|Tunnel work is hungry work. A hot meal for the crew, and a few Petals for the tools.
+# ------------------------------------------------------------ The Sunsprinkle Isles (CB)
+P|Driftwood Tavern|1|gather|Gather the driftwood|item:driftwood:6|The tavern is built from what the sea gives back. The sea has given nothing back for a while.
+P|Driftwood Tavern|2|haul|Fix the roof and rail|item:rope:3,item:timber-plank:3|The roof sags, the rail wobbles, and a seagull has moved into the rafters.
+P|Driftwood Tavern|3|feed|Stock the kitchen|item:tropical-fruit-bowl:3,item:coconut-curry:1|A tavern with nothing cooking is just a shed. Bring the first meal and the cook will do the rest.
+P|Driftwood Tavern|4|light|Hang the glass lanterns|item:beeswax:2,coins:250|Soft light on the water. The band tunes up.
+P|Sunken Gnome Galleon|1|gather|Scrape the barnacles|item:spiral-shell:4,item:sea-salt:4|Crusty with barnacles and coral. Scrape, scour, and bring the shells for the diving bell’s weights.
+P|Sunken Gnome Galleon|2|haul|Raise a new mast|item:timber-plank:6,item:rope:4|The old mast is long gone. A new one gives the divers something to tie to.
+P|Sunken Gnome Galleon|3|clear|Dive and clear the hold|days:3:3|Sand, silt and a very surprised crab. Clear the hold a little each day.
+P|Sunken Gnome Galleon|4|gather|Salvage the seed chests|fine:2,coins:300|Treasure that was meant for a garden. Bring something fine to trade for the lock-keeper’s blessing.
+P|The Singing Waterfall|1|clear|Clear the climbing path|days:2:3|The path behind the falls is slick with moss. Cut it back, a bit each day.
+P|The Singing Waterfall|2|haul|Fix the steps|item:rope:4,item:building-stone:4|Stone steps and a rope rail, so a gnome can climb behind the falls without a bath.
+P|The Singing Waterfall|3|gather|Plant the ledges|item:fiddleheads:4,item:bromeliad-seeds:2|Ferns and bromeliads on every ledge. The rare flowers follow where the green goes.
+P|The Singing Waterfall|4|feed|A thank-you feast|item:feast-isles-ackee-pot:1|The valley folk want to thank you for the path. They bring the pot.
+P|Mangrove Root Maze|1|gather|Cut through the roots|item:mangrove-root:6|Roots upon roots. A few cleared make a path; the rest make good building.
+P|Mangrove Root Maze|2|haul|Lay the boardwalks|item:timber-plank:6|Planks across the dark water. Handrails if you can spare the wood.
+P|Mangrove Root Maze|3|clear|Clear the channels|days:4:2|Silt and leaves have choked the water. A little clearing each day, and it runs again.
+P|Mangrove Root Maze|4|light|Light the way out|item:beeswax:2,coins:300|Lanterns on the posts, so nobody is lost among the roots at dusk.
+P|Turtle Nesting Beach|1|clear|Clear the nesting sand|days:3:2|Driftwood, tangled weed and the odd boot. The sand must be smooth and warm for the nests.
+P|Turtle Nesting Beach|2|haul|Build the hatchling fence|item:timber-plank:4,item:rope:2|A low fence keeps the gulls off and the hatchlings in the right direction.
+P|Turtle Nesting Beach|3|gather|Snacks for the volunteers|item:sea-grapes:4,item:samphire:3|The beach keepers watch all night. They will not say no to something fresh to nibble.
+P|Turtle Nesting Beach|4|feed|A beach supper|item:coconut-curry:1,item:tropical-fruit-bowl:2|Everyone who helped brings something to share. Eat on the warm sand, and wait for the hatching.
