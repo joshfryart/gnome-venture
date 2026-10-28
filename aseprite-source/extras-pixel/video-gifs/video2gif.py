@@ -69,6 +69,7 @@ def main():
     ap.add_argument("--dither", type=float, default=0, help="ordered-dither strength (0=flat cel)")
     ap.add_argument("--rich", action="store_true", help="add cross-family blend colours (photo-like)")
     ap.add_argument("--despeckle", type=int, default=3, help="majority-filter passes on colour regions")
+    ap.add_argument("--stitch", action=argparse.BooleanOptionalAction, default=True, help="dashed stitch beside seams")
     ap.add_argument("--ase"); a = ap.parse_args()
     name = a.name or os.path.splitext(os.path.basename(a.video))[0]
     os.makedirs(a.out, exist_ok=True); ase = find_ase(a.ase)
@@ -95,6 +96,10 @@ def main():
                 L = lab(o.astype(float))[..., 0]; e = np.zeros(L.shape, bool)
                 dv = (i[:-1] != i[1:]) & (np.abs(L[:-1] - L[1:]) > 14); e[:-1] |= dv & (L[:-1] <= L[1:]); e[1:] |= dv & (L[1:] < L[:-1])
                 dh = (i[:, :-1] != i[:, 1:]) & (np.abs(L[:, :-1] - L[:, 1:]) > 14); e[:, :-1] |= dh & (L[:, :-1] <= L[:, 1:]); e[:, 1:] |= dh & (L[:, 1:] < L[:, :-1])
+                if a.stitch:  # dashed stitch 1px inside the lit side of each seam: 2 on / 2 off
+                    nb = np.zeros_like(e); nb[1:] |= e[:-1]; nb[:-1] |= e[1:]; nb[:, 1:] |= e[:, :-1]; nb[:, :-1] |= e[:, 1:]
+                    yy, xx = np.mgrid[:h, :w]; st = nb & ~e & (((xx + yy) // 2) % 2 == 0)
+                    o[st] = (o[st] * .45 + np.array([0xf2, 0xe4, 0xc0]) * .55).astype(np.uint8)
                 o[e] = UMBER
             Image.fromarray(o).save(os.path.join(px, os.path.basename(f)))
         lua = os.path.join(t, "mk.lua"); open(lua, "w").write(LUA)
