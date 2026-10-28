@@ -12,8 +12,8 @@ arms:add(c:line({ {45+dx, 25+dy}, {52+dx, 17+dy} }, 5)); arms:add(c:ellipse(53+d
 arms:cut(body:shrink(1))
 
 -- box tilted up-right, lid open, in the right hand (x ~44..58, y ~8..20)
-local box = c:poly({ {41, 12}, {53, 8}, {56, 16}, {44, 21} })
-local lid = c:poly({ {39, 9}, {50, 6}, {52, 9}, {41, 12} })
+local box = c:rrect(43, 11, 55, 20, 1)
+local lid = c:poly({ {40, 7}, {52, 7}, {55, 11}, {43, 11} })
 
 -- spilled pieces tumbling down the right side
 local p1 = K.miniPiece(c, 46, 25)
@@ -25,7 +25,7 @@ local p5 = c:rrect(36, 52, 41, 55, 1); p5:add(c:ellipse(42, 53.5, 2, 1.5))   -- 
 c:build{
   { "arms", arms, K.FFEJ_ARM, { flat = true } },
   { "body", body, K.FFEJ_BODY, { stitch = { side = "lit" } } },
-  { "box",  box,  "wood", { gloss = { 44, 13 } } },
+  { "box",  box,  "wood", { gloss = { 45, 13 } } },
   { "lid",  lid,  GV.ramp("#8a4f2a"), { flat = true } },
   { "p1", p1, GV.ramp("#8a5fd0"), { gloss = { 47, 28 } } },
   { "p2", p2, "gold", { gloss = { 47, 40 } } },
@@ -34,7 +34,9 @@ c:build{
   { "p5", p5, GV.ramp("#8a5fd0"), { flat = true } },
 }
 c:paint({ "u.u", ".u." }, 11+dx, 13+dy, { u = "umber" })                 -- left claw
-c:paint({ "aaa", "aaa" }, 45, 14, { a = "#3c8f4a" })                      -- fingers over the box
+c:paint({ "aaa", "aaa" }, 44, 15, { a = "#3c8f4a" })                      -- fingers over the box
+c:fill(c:rect(45, 12, 53, 12), "#5e2f1e")                                 -- dark mouth of the box
+c:seam({ {45, 18}, {53, 18} })
 K.ffejSeams(c, dx, dy)
 K.ffejPatch(c, dx, dy)
 c:eye(35+dx, 24+dy)

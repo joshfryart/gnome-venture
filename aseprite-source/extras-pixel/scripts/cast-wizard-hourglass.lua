@@ -11,10 +11,11 @@ local ball = c:ellipse(52.5, 12, 3, 3)
 local hx, hy = 6, 20                                                 -- top-left of the top cap
 local caps = c:rrect(hx, hy, hx+11, hy+2, 1); caps:add(c:rrect(hx, hy+21, hx+11, hy+23, 1))
 local glass = c:poly({ {hx+1, hy+3}, {hx+11, hy+3}, {hx+7, hy+11}, {hx+7, hy+13}, {hx+11, hy+21}, {hx+1, hy+21}, {hx+5, hy+13}, {hx+5, hy+11} })
-local sand = c:poly({ {hx+3, hy+18}, {hx+9, hy+18}, {hx+10, hy+21}, {hx+2, hy+21} })
+glass:cut(c:poly({ {hx+1, hy+8}, {hx+4, hy+8}, {hx+5, hy+11}, {hx+5, hy+13}, {hx+4, hy+16}, {hx+1, hy+16} }))
+glass:cut(c:poly({ {hx+8, hy+8}, {hx+11, hy+8}, {hx+11, hy+16}, {hx+8, hy+16}, {hx+7, hy+13}, {hx+7, hy+11} }))
+local sand = c:poly({ {hx+4, hy+18}, {hx+8, hy+18}, {hx+10, hy+21}, {hx+2, hy+21} })
 sand:add(c:rect(hx+5, hy+14, hx+6, hy+18))
-local sandTop = c:poly({ {hx+2, hy+4}, {hx+10, hy+4}, {hx+8, hy+8}, {hx+4, hy+8} })
-local posts = c:rect(hx, hy+3, hx, hy+20); posts:add(c:rect(hx+11, hy+3, hx+11, hy+20))
+local sandTop = c:poly({ {hx+3, hy+4}, {hx+9, hy+4}, {hx+7, hy+7}, {hx+5, hy+7} })
 
 c:build{
   { "staff", staff, "wood", { flat = true } },
@@ -23,7 +24,6 @@ c:build{
   { "body",  body,  K.WIZ_BODY, { stitch = { side = "lit" } } },
   { "beard", beard, K.WIZ_BEARD, { gloss = { 26+dx, 41+dy-4 } } },
   { "hat",   hat,   K.WIZ_HAT, { gloss = { 29+dx, 10+dy-4 } } },
-  { "posts", posts, "wood", { flat = true } },
   { "glass", glass, "water", { gloss = { hx+2, hy+5 }, contour = false } },
   { "sandTop", sandTop, "gold", { flat = true } },
   { "sand",  sand,  "gold", { flat = true } },
