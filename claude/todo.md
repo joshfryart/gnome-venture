@@ -1,5 +1,8 @@
 # Gnome Venture: to-do (updated 2026-10-28, after 2.0.75; everything below 2.0.68 is on main)
 
+## ART FOR A FUTURE AI: one Aseprite scene per stop activity
+Full brief in `claude/todo-art-variety.md` (section "ART TODO FOR A FUTURE AI"). Short version: draw `game/assets/img/acts/act-<slug>.png` (144x108) for every activity in `stop_acts*.txt` and every future wave; `python3 tools/missing_act_art.py` lists what is missing; no code change needed.
+
 ## VARIETY PROJECT (started 2.0.76): plan `claude/plan-variety.md`, art list `claude/todo-art-variety.md`
 **2.0.76 built (build plans, pilot CA + CB; not yet released as a zip, not yet checked by Joshua).** Joshua checks: upload, then on phone take on a repair at e.g. Cenote of Echoes (needs the place in ruins: Admin > Places or wait for `ensure_ruins`; ruins are 1 in 3 by name, never in the start region NA) and walk the 4 stages: gather, clear (Work here today, 2 days), haul, gather + Petals. The five verb icons are PLACEHOLDER (red border): real art listed in `claude/todo-art-variety.md`.
 **Decisions (Joshua):** building first, then stops, then road; plans hand-written per landmark; Worm Hunt / Snail Race are full games, NOT reused as step checks; 2 regions per release.

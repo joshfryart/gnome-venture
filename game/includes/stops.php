@@ -259,11 +259,11 @@ function stops_import_themes(): int
     return $n;
 }
 
-/** v2.0.78: the regional activities (stop_acts_regional.txt: same columns as stop_acts.txt plus a region code list). Adds what is missing. */
+/** v2.0.78: the regional activities (stop_acts_regional.txt) and the content waves (stop_acts_waves.txt): same columns as stop_acts.txt plus a region code list (blank = any region). Adds what is missing. */
 function stops_import_regional(): int
 {
     $n = 0;
-    foreach (stops_file_rows('stop_acts_regional.txt') as $r) {
+    foreach (array_merge(stops_file_rows('stop_acts_regional.txt'), stops_file_rows('stop_acts_waves.txt')) as $r) {
         if (count($r) < 12 || q_val('SELECT 1 FROM stop_acts WHERE slug = ?', [$r[0]])) continue;
         try {
             db_insert('stop_acts', ['slug' => $r[0], 'name' => $r[1], 'icon' => $r[2], 'types' => $r[3], 'cond' => $r[4], 'tier' => (int)$r[5], 'kind' => $r[6], 'energy' => (int)$r[7],
@@ -358,7 +358,7 @@ const STOP_ACT_ART_SLUG = ['firewood' => 'fire', 'signal_fire' => 'fire', 'cast_
 function stop_act_art(string $kind, string $slug = ''): string
 {
     $dir = __DIR__ . '/../assets/img/acts/';
-    foreach ([STOP_ACT_ART_SLUG[$slug] ?? '', STOP_ACT_ART_KIND[$kind] ?? '', 'any'] as $n) {
+    foreach ([preg_match('/^[a-z0-9_]+$/', $slug) ? $slug : '', STOP_ACT_ART_SLUG[$slug] ?? '', STOP_ACT_ART_KIND[$kind] ?? '', 'any'] as $n) {   // v2.0.78: an activity's own picture is act-<slug>.png, drop it in and it is used
         if ($n !== '' && is_file($dir . 'act-' . $n . '.png')) return 'assets/img/acts/act-' . $n . '.png';
     }
     return '';

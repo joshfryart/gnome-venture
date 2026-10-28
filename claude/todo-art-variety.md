@@ -10,6 +10,14 @@ Build-stage verb icons, shown at 20px on the repair card (stage list + button). 
 - [ ] `game/assets/img/steps/stage-light.png`: lighting the place (a lantern or a candle)
 - [ ] `game/assets/img/steps/stage-clear.png`: clearing (an axe or a spade, or a broom)
 
+## ART TODO FOR A FUTURE AI: a picture for every stop activity (Aseprite)
+**Do this:** draw one small scene per rest-stop activity in Aseprite and save it as `game/assets/img/acts/act-<slug>.png` (144x108 PNG, same size and look as the existing `act-*.png` Do-tab cards). No code change: `stop_act_art()` in `includes/stops.php` uses a file named for the activity's slug first, then the old slug map, then the kind card (`act-craft.png` etc.), then `act-any.png`.
+- **Which:** every activity in `includes/data/stop_acts.txt`, `stop_acts_regional.txt` and `stop_acts_waves.txt` (skip `tt_*`, those are upgrade acts), and every activity added in future waves. Run `python3 tools/missing_act_art.py` for the list that still has no picture (slug, name, stop kind, kind, blurb = the brief). Wave 1 (50, `w1_*`) and the 14 regional ones (`na_*`, `ca_*`) first; the older ~50 mostly share kind cards and can follow.
+- **Each scene:** the blurb's moment in one glance. A red-hatted gnome doing the thing (mending a net, staring down a gull), the stop kind's props behind, daylight unless the activity has a `when` (night, rain, winter, dawn: show it). Simple shapes, few colours, no text, nothing that needs the name to be understood. Variety matters: different poses, props, framing.
+- **How:** follow `aseprite-source/HANDOFF.md`, `claude/art-style-guide.md` Part D (Stitched Toy: 1 px black border, palettes, canvas rules) and the library `aseprite-source/gvlib`. Look at `game/assets/img/acts/act-hand.png`, `act-rod.png`, `act-fire.png` for the target look. Keep the `.aseprite` source and the Lua script with the other act sources in `aseprite-source/`.
+- **Also still placeholder (red border, THIS IS PLACEHOLDER):** the four kind cards `act-craft.png`, `act-collect.png`, `act-tend.png`, `act-contest.png`. Do those first; they show for any craft/collect/tend/contest without its own picture.
+- **Ask Joshua before drawing at scale** (his rule: cost estimate and a first batch for approval, Opus draws, one contact sheet to review).
+
 ## In the game as PLACEHOLDER (2.0.77)
 Themed stop upgrade pictures, 96x96 placeholders at `game/assets/img/stoptiers/<kind>-<tier>.png`, shown at 24px beside each upgrade on the adopt panel and the plaque. 12 kinds x 4 tiers. Draw as small `ico`-style art, one per upgrade (name in brackets); replace the file, tick the box.
 - [ ] market: 1 striped awning, 2 weighing house, 3 fountain square, 4 market hall

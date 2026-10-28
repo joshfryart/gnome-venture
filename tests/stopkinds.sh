@@ -18,6 +18,7 @@ BAD=$(phpx '$bad=[]; foreach (q("SELECT * FROM stop_acts WHERE region IS NOT NUL
     if ($a["kind"]==="contest" && count(explode("/", stop_spec_params($a["spec"])["moves"] ?? ""))!==3) $bad[]=$a["slug"]." moves";
     if (stop_act_art($a["kind"], $a["slug"]) === "") $bad[]=$a["slug"]." no art";
   } echo $bad ? "BAD: ".implode("; ",$bad) : "clean";')
+chk "wave 1: 50 activities imported, none tied to a region" "$([ "$(db "SELECT COUNT(*) FROM stop_acts WHERE slug LIKE 'w1\_%' ESCAPE '\\' AND (region IS NULL OR region = '')" | tr -d ' ')" = 50 ] && echo 1)"
 chk "every regional activity is well formed (types, regions, items, specs, art)" "$([ "$BAD" = clean ] && echo 1)" "$BAD"
 chk "placeholder art for the four new kinds exists" "$([ -f $GAME/assets/img/acts/act-craft.png ] && [ -f $GAME/assets/img/acts/act-collect.png ] && [ -f $GAME/assets/img/acts/act-tend.png ] && [ -f $GAME/assets/img/acts/act-contest.png ] && echo 1)"
 
