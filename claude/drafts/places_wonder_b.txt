@@ -1,12 +1,12 @@
 # Puzzle Pals drafts: 17 WONDER places (2026-10-28), 6 pals each = 3 common, 2 uncommon, 1 rare. Not yet merged into puzzle_pals.txt.
 # pic_slug|key|name|rarity|calling|grit|nimble|hardiness|luck|piece|shape|knob|perk|blurb
 # pic_slug = pl- + the place key cut to 44 chars + - + md5(key)[0:6], as ppal_pic_slug() reads it for source place.
-pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-1|Nestcap Wobble|common|wayfinder|1|1|1|0|2-3|corner-TB|keyhole|-|The straw nest on a chimney top, which wobbles happily whenever a stork lands for tea.
-pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-2|Airmail Dangle|common|seedkeeper|0|2|1|0|5-0|edge-BTB|keyhole|-|A little parcel swinging from a flying stork’s beak, bound for a chimney it knows by heart.
+pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-1|Pink Dusk Lullaby|common|wayfinder|1|1|1|0|9-2|corner-TB|keyhole|-|The pink evening sky above the rooftops, so soft that the storks lower their voices.
+pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-2|Airmail Parcel Sway|common|seedkeeper|0|2|1|0|5-0|edge-BTB|keyhole|-|A little parcel swinging from a flying stork’s beak, bound for a chimney it knows by heart.
 pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-3|Sunflower Nodder|common|bloomcaller|1|0|1|1|8-6|inner-TBTB|keyhole|-|A sunflower by the village green that nods hello to every stork going home.
 pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-4|Bowtie Bundle|uncommon|seedkeeper|2|1|1|1|4-6|inner-TTTT|keyhole|-|A gift parcel with a big red bow, tied so neatly that the stork is rather proud.
 pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-5|Lamplit Shutters|uncommon|wayfinder|1|0|2|2|2-4|inner-BBBB|double|-|A warm lit window with blue shutters, left glowing for the storks coming home.
-pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-6|Rooftop Courier|rare|wayfinder|2|2|1|1|7-2|whimsy-whitestork|keyhole|-|A chibi white stork on a chimney nest, parcel ready, waiting for the evening delivery round.
+pl-wonder-stork-chimney-village-fd6bb4|pl-stkv-6|Rooftop Courier|rare|wayfinder|2|2|1|1|7-2|whimsy-whitestork|keyhole|-|A chibi white stork on a rooftop perch, parcel ready, waiting for the evening delivery round.
 pl-wonder-sunken-gnome-galleon-1c85cc|pl-sung-1|Sunnyfin Shoal|common|bloomcaller|1|1|1|0|1-3|corner-TT|keyhole|-|A shoal of yellow fish who circle the old galleon, each one sure it found the wreck first.
 pl-wonder-sunken-gnome-galleon-1c85cc|pl-sung-2|Chestful Snore|common|wayfinder|0|2|1|0|9-6|edge-TBT|keyhole|-|A treasure chest on the sandy floor, snoring softly as the bubbles drift past.
 pl-wonder-sunken-gnome-galleon-1c85cc|pl-sung-3|Bubble Bop|common|seedkeeper|1|0|1|1|9-1|inner-TBTB|keyhole|-|A square little bubble that rises from the wreck and goes pop on the way up.
@@ -17,12 +17,12 @@ pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-1|Heapsy Basket|common|bloomcaller|1|
 pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-2|Magenta Muffler|common|wayfinder|0|2|1|0|5-6|edge-TTB|keyhole|-|A picker’s bright magenta scarf, bobbing along between the tea rows.
 pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-3|Steeping Cuppa|common|seedkeeper|1|0|1|1|4-7|inner-TBTB|keyhole|-|A little cup of tea steaming at the edge of the slope, the reward for the climb.
 pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-4|Conehat Cluster|uncommon|seedkeeper|2|1|1|1|4-4|inner-TTTT|keyhole|-|Three straw hats in a row, nodding along as the pickers chat down the terrace.
-pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-5|Buttermilk Sun|uncommon|wayfinder|1|0|2|2|10-0|inner-BBBB|double|-|A pale round sun over the misty ridge, rising just in time for the first pick.
-pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-6|Beaming Headpicker|rare|wayfinder|2|2|1|1|10-5|whimsy-picker|keyhole|-|A chibi head picker in a big straw cone hat, grinning proudly at the best tea of the slope.
+pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-5|Buttermilk Daybreak|uncommon|wayfinder|1|0|2|2|10-0|inner-BBBB|double|-|A pale round sun over the misty ridge, rising just in time for the first pick.
+pl-wonder-tea-garden-slopes-eb52f5|pl-tegr-6|Beaming Headpicker|rare|wayfinder|2|2|1|1|11-5|whimsy-picker|keyhole|-|A chibi head picker in a big straw cone hat, grinning proudly at the best tea of the slope.
 pl-wonder-the-amber-woods-f02aa5|pl-ambr-1|Sapdrop Bead|common|wayfinder|1|1|1|0|8-2|corner-BB|keyhole|-|A bead of golden sap sliding down a birch trunk, slow as a sleepy snail.
 pl-wonder-the-amber-woods-f02aa5|pl-ambr-2|Barkband Ladder|common|seedkeeper|0|2|1|0|4-1|edge-TBB|keyhole|-|Black bands up a white birch trunk, like tiny rungs for any beetle that fancies a climb.
 pl-wonder-the-amber-woods-f02aa5|pl-ambr-3|Redcap Pips|common|bloomcaller|1|0|1|1|2-7|inner-TBTB|keyhole|-|Two red-capped toadstools in the leaf litter, sharing a very small secret.
-pl-wonder-the-amber-woods-f02aa5|pl-ambr-4|Pinetop Parade|uncommon|seedkeeper|2|1|1|1|3-3|inner-TTTT|keyhole|-|A row of dark pine tops, marching past the low golden sun.
+pl-wonder-the-amber-woods-f02aa5|pl-ambr-4|Pinetop Procession|uncommon|seedkeeper|2|1|1|1|3-3|inner-TTTT|keyhole|-|A row of dark pine tops, marching past the low golden sun.
 pl-wonder-the-amber-woods-f02aa5|pl-ambr-5|Sprout Nook|uncommon|wayfinder|1|0|2|2|6-6|inner-BBBB|double|-|A dark little hollow in the big amber, with a green sprout peeking out of it.
 pl-wonder-the-amber-woods-f02aa5|pl-ambr-6|Plumetail Digger|rare|wayfinder|2|2|1|1|10-4|whimsy-redsquirrel|keyhole|-|A chibi red squirrel with a great plume of tail, perched on a crate beside the glowing amber.
 pl-wonder-the-great-migration-764397|pl-migr-1|Powderpuff Dust|common|seedkeeper|1|1|1|0|3-4|corner-TT|keyhole|-|A soft puff of savanna dust that the herd kicked up and forgot to put away.
@@ -35,25 +35,25 @@ pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-1|Fruit Tray Tumble|common|way
 pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-2|Leaning Palm Fringe|common|seedkeeper|0|2|1|0|3-1|edge-TTB|keyhole|-|A palm that leans over the ruin to see the garden, fringe fluttering in the breeze.
 pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-3|Brimful Pool|common|bloomcaller|1|0|1|1|5-6|inner-TBTB|keyhole|-|The little blue pool at the foot of the terraces, always full to the brim.
 pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-4|Berrybush Bobbles|uncommon|wayfinder|2|1|1|1|4-4|inner-TTTT|keyhole|-|Round green bushes bobbing with red berries, row after row on a stone step.
-pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-5|Vine Curtain Arch|uncommon|seedkeeper|1|0|2|2|5-1|inner-BBBB|double|-|A pair of green vines dangling under the old stone arch, swaying like a curtain.
+pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-5|Vine Curtain Gateway|uncommon|seedkeeper|1|0|2|2|5-1|inner-BBBB|double|-|A pair of green vines dangling under the old stone arch, swaying like a curtain.
 pl-wonder-the-hanging-garden-ruins-f5f93d|pl-hang-6|Swallow Swoop|rare|wayfinder|2|2|1|1|2-1|whimsy-swallow|keyhole|-|A chibi swallow swooping round the ruin, wings tucked and tail flicked, delivering seeds to the terraces.
 pl-wonder-the-labyrinth-isle-1eea49|pl-labi-1|Cypress Candle|common|wayfinder|1|1|1|0|11-5|corner-TT|keyhole|-|A dark cypress standing at the edge of the island like a green candle.
 pl-wonder-the-labyrinth-isle-1eea49|pl-labi-2|Creamsail Dawdle|common|seedkeeper|0|2|1|0|2-2|edge-TBT|keyhole|-|A cream sail drifting round the island, in no hurry to land.
-pl-wonder-the-labyrinth-isle-1eea49|pl-labi-3|Gatepost Glow|common|bloomcaller|1|0|1|1|5-7|inner-TBTB|keyhole|-|Two gateposts with orange lamps at the maze entrance, lit for any visitor who dares.
+pl-wonder-the-labyrinth-isle-1eea49|pl-labi-3|Gatepost Lampshine|common|bloomcaller|1|0|1|1|5-7|inner-TBTB|keyhole|-|Two gateposts with orange lamps at the maze entrance, lit for any visitor who dares.
 pl-wonder-the-labyrinth-isle-1eea49|pl-labi-4|Hedgerow Swirls|uncommon|wayfinder|2|1|1|1|3-5|inner-TTTT|keyhole|-|Hedge lanes curling round and round, every turn a little greener than the last.
 pl-wonder-the-labyrinth-isle-1eea49|pl-labi-5|Questionmark Bubble|uncommon|seedkeeper|1|0|2|2|7-2|inner-BBBB|double|-|A round speech bubble with a big question mark, floating over the maze.
 pl-wonder-the-labyrinth-isle-1eea49|pl-labi-6|Plinth Riddler|rare|wayfinder|2|2|1|1|5-4|whimsy-stonegnome|keyhole|-|A chibi stone gnome in a grey pointy hat, who asks the same riddle and waits very patiently.
 pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-1|Nugget Nap|common|bloomcaller|1|1|1|0|9-6|corner-TB|keyhole|-|A heap of golden nuggets dozing on the salt, sparkling now and then in its sleep.
-pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-2|Pinklegs Tiptoe|common|wayfinder|0|2|1|0|1-7|edge-TTB|keyhole|-|Long pink flamingo legs tiptoeing across the flat without a single splash.
+pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-2|Pinklegs Strut|common|wayfinder|0|2|1|0|1-7|edge-TTB|keyhole|-|Long pink flamingo legs tiptoeing across the flat without a single splash.
 pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-3|Saltcrack Smile|common|seedkeeper|1|0|1|1|7-7|inner-TBTB|keyhole|-|Cracks in the salt crust that curl up like a row of tiny smiles.
 pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-4|Fluffy Pinkbelly|uncommon|wayfinder|2|1|1|1|3-5|inner-TTTT|keyhole|-|A round pink flamingo tummy, fluffed up and very proud of it.
 pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-5|Peach Dawn Coin|uncommon|seedkeeper|1|0|2|2|8-3|inner-BBBB|double|-|A round peach sun just above the mountains, as if the sky had dropped a coin.
 pl-wonder-the-mirror-salt-flat-712d75|pl-mirr-6|Puddle Dancer|rare|wayfinder|2|2|1|1|1-4|whimsy-saltflamingo|keyhole|-|A chibi flamingo twirling on the wet salt, drawing a pink reflection with every step.
 pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-1|Awning Flop|common|bloomcaller|1|1|1|0|9-4|corner-BB|keyhole|-|An orange awning that flaps over a sleepy doorway, tired from being moved.
 pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-2|Frond Fanfare|common|wayfinder|0|2|1|0|9-2|edge-TBB|keyhole|-|Green palm fronds spread like a fan, rustling a welcome to the new village.
-pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-3|Plum Window Peep|common|seedkeeper|1|0|1|1|1-5|inner-TBTB|keyhole|-|A plum-dark window in a sandstone wall, peeking out at the morning’s surprise.
+pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-3|Plum Window Blink|common|seedkeeper|1|0|1|1|1-5|inner-TBTB|keyhole|-|A plum-dark window in a sandstone wall, peeking out at the morning’s surprise.
 pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-4|Goldbead Dates|uncommon|wayfinder|2|1|1|1|3-3|inner-TTTT|keyhole|-|Golden dates hanging in bunches from a palm, each one round as a bead.
-pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-5|Rimmed Pool Moon|uncommon|seedkeeper|1|0|2|2|5-6|inner-BBBB|double|-|The little blue pool with its green rim, round as a moon in the sand.
+pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-5|Rimmed Pool Saucer|uncommon|seedkeeper|1|0|2|2|5-6|inner-BBBB|double|-|The little blue pool with its green rim, round as a moon in the sand.
 pl-wonder-the-oasis-that-moves-dd37ca|pl-oasi-6|Twinhump Stroller|rare|wayfinder|2|2|1|1|9-6|whimsy-bactrian|keyhole|-|A chibi two-humped camel in a red saddle blanket, strolling in with the oasis every morning.
 pl-wonder-the-silk-road-caravanserai-f002ba|pl-silk-1|Potstack Teeter|common|bloomcaller|1|1|1|0|2-6|corner-TT|keyhole|-|Pots stacked in the courtyard, teetering a little and giggling about it.
 pl-wonder-the-silk-road-caravanserai-f002ba|pl-silk-2|Doorlamp Dozer|common|wayfinder|0|2|1|0|1-5|edge-TTB|keyhole|-|A golden lamp by a courtyard door, dozing until the caravans come in.
@@ -62,22 +62,22 @@ pl-wonder-the-silk-road-caravanserai-f002ba|pl-silk-4|Starry Tilework|uncommon|w
 pl-wonder-the-silk-road-caravanserai-f002ba|pl-silk-5|Basin Splashback|uncommon|seedkeeper|1|0|2|2|6-7|inner-BBBB|double|-|The rim of the courtyard fountain, where the splashes always come home.
 pl-wonder-the-silk-road-caravanserai-f002ba|pl-silk-6|Purplehat Haggler|rare|wayfinder|2|2|1|1|8-6|whimsy-merchant|keyhole|-|A chibi travelling gnome in a purple cone hat, swapping seeds with a dozen lands at once.
 pl-wonder-the-singing-waterfall-c23710|pl-sing-1|Hummed Quaver|common|wayfinder|1|1|1|0|2-2|corner-TB|keyhole|-|A cream music note drifting off the cliff, humming along with the waterfall.
-pl-wonder-the-singing-waterfall-c23710|pl-sing-2|Prism Ribbon|common|seedkeeper|0|2|1|0|1-4|edge-TBT|keyhole|-|A rainbow ribbon curving off the cliff, there when the spray meets the sun.
+pl-wonder-the-singing-waterfall-c23710|pl-sing-2|Prism Streamer|common|seedkeeper|0|2|1|0|1-4|edge-TBT|keyhole|-|A rainbow ribbon curving off the cliff, there when the spray meets the sun.
 pl-wonder-the-singing-waterfall-c23710|pl-sing-3|Misty Foamcap|common|bloomcaller|1|0|1|1|5-6|inner-TBTB|keyhole|-|A white puff of foam at the foot of the fall, bobbing on the cool pool.
-pl-wonder-the-singing-waterfall-c23710|pl-sing-4|Stepstone Hopscotch|uncommon|seedkeeper|2|1|1|1|4-7|inner-TTTT|keyhole|-|Flat stones in the pool, set just right for hopping to the flowers.
-pl-wonder-the-singing-waterfall-c23710|pl-sing-5|Tuckaway Ledge|uncommon|wayfinder|1|0|2|2|8-4|inner-BBBB|double|-|The dark ledge behind the curtain of water, where the rarest flowers are tucked away.
-pl-wonder-the-singing-waterfall-c23710|pl-sing-6|Hollowhome Bluebird|rare|wayfinder|2|2|1|1|3-4|whimsy-bluebird|keyhole|-|A chibi bluebird peeking from a round hollow in the green cliff, singing along to the fall.
+pl-wonder-the-singing-waterfall-c23710|pl-sing-4|Pondrock Islets|uncommon|seedkeeper|2|1|1|1|4-7|inner-TTTT|keyhole|-|Grey rocks in the pool below the fall, each one a tiny island for a flower hunter’s boots.
+pl-wonder-the-singing-waterfall-c23710|pl-sing-5|Tuckaway Ledge|uncommon|wayfinder|1|0|2|2|7-4|inner-BBBB|double|-|The dark ledge behind the curtain of water, where the rarest flowers are tucked away.
+pl-wonder-the-singing-waterfall-c23710|pl-sing-6|Hollowhome Bluebird|rare|wayfinder|2|2|1|1|4-4|whimsy-bluebird|keyhole|-|A chibi bluebird peeking from a round hollow in the green cliff, singing along to the fall.
 pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-1|Cloudstep Climb|common|wayfinder|1|1|1|0|10-1|corner-BB|keyhole|-|A stone staircase that climbs off the ruins and just keeps going up.
 pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-2|Pinkpad Float|common|seedkeeper|0|2|1|0|3-7|edge-TBB|keyhole|-|A big pink floating pad, drifting by the cliff like a tiny raft of cloud.
 pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-3|Apricot Sunbun|common|bloomcaller|1|0|1|1|2-3|inner-TBTB|keyhole|-|A soft round sun sinking behind the mountain, warm as a fresh bun.
-pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-4|Stonestep Stripes|uncommon|wayfinder|2|1|1|1|9-5|inner-TTTT|keyhole|-|Long stone steps cut into the green hillside, like a staircase for giants.
+pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-4|Stonestep Benches|uncommon|wayfinder|2|1|1|1|9-5|inner-TTTT|keyhole|-|Long stone steps cut into the green hillside, like a staircase for giants.
 pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-5|Amberlit Window|uncommon|seedkeeper|1|0|2|2|8-2|inner-BBBB|double|-|A tall window in the ruin wall, glowing amber from the sunset behind it.
 pl-wonder-the-sky-city-ruins-5b061c|pl-skyc-6|Trailpack Cubbie|rare|wayfinder|2|2|1|1|0-4|whimsy-bearcub|keyhole|-|A chibi brown cub with a red pack, perched on the cliff edge and gazing out at the sky.
 pl-wonder-the-standing-stones-f29dd4|pl-stnd-1|Spiral Scribble|common|seedkeeper|1|1|1|0|2-6|corner-TT|keyhole|-|A swirly spiral carved into a stone, drawn so long ago nobody remembers.
 pl-wonder-the-standing-stones-f29dd4|pl-stnd-2|Goldtip Twinkle|common|bloomcaller|0|2|1|0|9-5|edge-TBB|keyhole|-|A little gold knob on top of a mossy stone, twinkling in the moonlight.
 pl-wonder-the-standing-stones-f29dd4|pl-stnd-3|Lilac Sprinkle|common|wayfinder|1|0|1|1|7-7|inner-TBTB|keyhole|-|Lilac flecks sprinkled over the grass ring, as if the night had spilled some stars.
 pl-wonder-the-standing-stones-f29dd4|pl-stnd-4|Mosscap Toppers|uncommon|seedkeeper|2|1|1|1|2-5|inner-TTTT|keyhole|-|Green mossy caps sitting on the tall stones like cosy woolly hats.
-pl-wonder-the-standing-stones-f29dd4|pl-stnd-5|Buttercream Moon|uncommon|wayfinder|1|0|2|2|11-1|inner-BBBB|double|-|A round buttercream moon over the hill, which the stones all turn to face.
+pl-wonder-the-standing-stones-f29dd4|pl-stnd-5|Buttercream Moonlight|uncommon|wayfinder|1|0|2|2|11-1|inner-BBBB|double|-|A round buttercream moon over the hill, which the stones all turn to face.
 pl-wonder-the-standing-stones-f29dd4|pl-stnd-6|Hollowtop Menhir|rare|wayfinder|2|2|1|1|6-5|whimsy-menhir|keyhole|-|A chibi standing stone with a mossy cap and a little dark hollow on top, humming softly at dusk.
 pl-wonder-the-stepped-seed-temple-fd002d|pl-step-1|Grumpy Mossmask|common|bloomcaller|1|1|1|0|2-5|corner-BB|keyhole|-|A round carved face with leafy ears and big round eyes, grumbling kindly at climbers.
 pl-wonder-the-stepped-seed-temple-fd002d|pl-step-2|Glyph Doodle|common|wayfinder|0|2|1|0|3-5|edge-TBB|keyhole|-|Little triangles and squares carved along the terrace, the temple’s old doodles.
@@ -86,20 +86,20 @@ pl-wonder-the-stepped-seed-temple-fd002d|pl-step-4|Ziggurat Zigzag|uncommon|seed
 pl-wonder-the-stepped-seed-temple-fd002d|pl-step-5|Goldseal Gleam|uncommon|wayfinder|1|0|2|2|6-2|inner-BBBB|double|-|A round gold medallion on the temple roof, shining over the whole climb.
 pl-wonder-the-stepped-seed-temple-fd002d|pl-step-6|Scarlet Riddlecaller|rare|wayfinder|2|2|1|1|10-3|whimsy-macaw|keyhole|-|A chibi scarlet macaw on the top terrace, calling every riddle out loud for the climbers.
 pl-wonder-the-thousand-gates-147003|pl-gate-1|Lollipop Maple|common|wayfinder|1|1|1|0|4-3|corner-TB|keyhole|-|A round red maple on the hillside, like a lollipop stuck in the grass.
-pl-wonder-the-thousand-gates-147003|pl-gate-2|Hilltop Bowl Glint|common|seedkeeper|0|2|1|0|8-3|edge-TTB|keyhole|-|A little gold bowl on the hilltop shrine, catching the first rays of the sun.
+pl-wonder-the-thousand-gates-147003|pl-gate-2|Hilltop Bowl Shimmer|common|seedkeeper|0|2|1|0|8-3|edge-TTB|keyhole|-|A little gold bowl on the hilltop shrine, catching the first rays of the sun.
 pl-wonder-the-thousand-gates-147003|pl-gate-3|Torii Tophat|common|bloomcaller|1|0|1|1|0-2|inner-TBTB|keyhole|-|The dark roof of the nearest red gate, tipped like a great black hat.
 pl-wonder-the-thousand-gates-147003|pl-gate-4|Redgate Staircase|uncommon|wayfinder|2|1|1|1|5-5|inner-TTTT|keyhole|-|Red gates stepping up the hillside one after another, each a little smaller.
-pl-wonder-the-thousand-gates-147003|pl-gate-5|Dawnglow Sun|uncommon|seedkeeper|1|0|2|2|8-2|inner-BBBB|double|-|A big pale sun rising over the hill, its light spilling onto every gate.
+pl-wonder-the-thousand-gates-147003|pl-gate-5|Dawnglow Pearl|uncommon|seedkeeper|1|0|2|2|8-2|inner-BBBB|double|-|A big pale sun rising over the hill, its light spilling onto every gate.
 pl-wonder-the-thousand-gates-147003|pl-gate-6|Whisker Sentinel|rare|wayfinder|2|2|1|1|11-6|whimsy-gatecat|keyhole|-|A chibi shrine cat with a red collar, sitting very still beside the path and watching every climber.
 pl-wonder-thousand-rings-stump-668470|pl-trng-1|Redcap Speck|common|bloomcaller|1|1|1|0|11-3|corner-TT|keyhole|-|A tiny red mushroom with white spots on the stump’s edge, proud as can be.
 pl-wonder-thousand-rings-stump-668470|pl-trng-2|Leaf Raft|common|wayfinder|0|2|1|0|9-6|edge-TBB|keyhole|-|A green leaf lying on the rings like a little raft on a wooden pond.
-pl-wonder-thousand-rings-stump-668470|pl-trng-3|Cellar Apple Glow|common|seedkeeper|1|0|1|1|6-7|inner-TBTB|keyhole|-|A red apple tucked in a doorway under the stump, glowing in the dark.
+pl-wonder-thousand-rings-stump-668470|pl-trng-3|Cellar Apple Gleam|common|seedkeeper|1|0|1|1|6-7|inner-TBTB|keyhole|-|A red apple tucked in a doorway under the stump, glowing in the dark.
 pl-wonder-thousand-rings-stump-668470|pl-trng-4|Looking Glass Sparkle|uncommon|wayfinder|2|1|1|1|1-5|inner-TTTT|keyhole|-|A golden magnifying glass left on the rings, ready to count every year.
 pl-wonder-thousand-rings-stump-668470|pl-trng-5|Velvet Hollow|uncommon|seedkeeper|1|0|2|2|6-4|inner-BBBB|double|-|The dark hollow in the middle of the stump, soft as velvet and full of tiny glints.
 pl-wonder-thousand-rings-stump-668470|pl-trng-6|Tuftear Chipmunk|rare|wayfinder|2|2|1|1|2-4|whimsy-chipmunk|keyhole|-|A chibi chipmunk with big tufty ears and purple socks, holding a little white orb on top of the stump.
-pl-wonder-volcano-spice-gardens-174315|pl-volc-1|Smoke Bubble Hop|common|wayfinder|1|1|1|0|4-1|corner-BB|keyhole|-|Round smoke puffs hopping up from the crater, smelling faintly of cinnamon.
+pl-wonder-volcano-spice-gardens-174315|pl-volc-1|Cinnamon Puff Bounce|common|wayfinder|1|1|1|0|4-1|corner-BB|keyhole|-|Round grey puffs bouncing up from the crater, scented like warm cinnamon buns.
 pl-wonder-volcano-spice-gardens-174315|pl-volc-2|Spiced Bun Snooze|common|seedkeeper|0|2|1|0|1-7|edge-TTB|keyhole|-|A warm spiced bun on the market ground, snoozing in the sun.
 pl-wonder-volcano-spice-gardens-174315|pl-volc-3|Podtree Wiggle|common|bloomcaller|1|0|1|1|1-6|inner-TBTB|keyhole|-|A tall pod-covered spice tree, wiggling its red-dotted branches in the breeze.
-pl-wonder-volcano-spice-gardens-174315|pl-volc-4|Pinkpetal Stripes|uncommon|seedkeeper|2|1|1|1|4-5|inner-TTTT|keyhole|-|Rows of pink flowers striping the terrace, planted one tidy stripe at a time.
-pl-wonder-volcano-spice-gardens-174315|pl-volc-5|Cratermouth Glow|uncommon|wayfinder|1|0|2|2|4-2|inner-BBBB|double|-|The warm orange glow of the crater, snug as a hearth on top of the mountain.
+pl-wonder-volcano-spice-gardens-174315|pl-volc-4|Pinkpetal Rows|uncommon|seedkeeper|2|1|1|1|4-5|inner-TTTT|keyhole|-|Rows of pink flowers striping the terrace, planted one tidy stripe at a time.
+pl-wonder-volcano-spice-gardens-174315|pl-volc-5|Cratermouth Hearth|uncommon|wayfinder|1|0|2|2|4-2|inner-BBBB|double|-|The warm orange glow of the crater, snug as a hearth on top of the mountain.
 pl-wonder-volcano-spice-gardens-174315|pl-volc-6|Sunhat Spicer|rare|wayfinder|2|2|1|1|5-6|whimsy-spicegnome|keyhole|-|A chibi gnome with a straw cone hat and a brown beard, gathering spice for the market below.
