@@ -206,7 +206,7 @@ for k in range(40):   # spice garden rows on the lower slope
         cv.fill(rect(sx, sy, sx + 3, sy), ('#5a8a5a', '#a86a3a', '#6a9a62')[k % 3])
 # pass 1: break the plain grey cone: a zigzag pilgrim path, a tiny red-roofed shrine, low mist wisps, lava-rock speckle
 path = [(176, 80), (186, 72), (170, 64), (182, 56), (168, 48), (172, 40)]
-pm_ = line(path, 2) & vol   # pass 2: a 2 px earth path with a dark downhill edge and step ticks (was a faint 1 px grey line)
+pm_ = (line(path, 2) | shift(line(path, 2), 1, 0)) & vol   # pass 2: a 2 px earth path with a dark downhill edge and step ticks (was a faint 1 px grey line)
 cv.fill(shift(pm_, 0, 1) & vol & ~pm_, '#6a7e70')
 cv.fill(pm_, '#b0a084')
 for (ax_, ay_), (bx_, by_) in zip(path, path[1:]):
@@ -661,7 +661,9 @@ for k in range(12):   # lichen and moss on the bark
     lx, ly = r3(281, 294), r3(116, 158)
     if trunkm[ly, lx]:
         cv.dots([(lx, ly), (lx + 1, ly)], JADE['b'] if k % 3 else '#c9ddd8')
-cv.fill(mroots & ~shift(mroots, 0, 1) & ~shift(mroots, 1, 0), MANG['r'])   # lit tops of the arches
+for x0, y0, x1, y1, lift in ((282, 146, 252, 188, 18), (282, 138, 256, 170, 14), (283, 150, 262, 196, 12)):   # pass 2: one clean lit stroke along each big arch (the old per-pixel rim made rungs)
+    mx = (x0 + x1) // 2 + (x0 - x1) // 5
+    cv.fill(line(bez((x0, y0), (mx, min(y0, y1) - lift), (x1, y1), 16)[2:11]) & mroots & shift(mroots, 0, 1), MANG['r'])
 for kx_, ky_ in knees:   # rings where the roots enter the water
     if canal[min(H - 1, ky_), min(W - 1, kx_)] and not mud[min(H - 1, ky_), min(W - 1, kx_)]:
         ring(kx_, ky_, 3, 1, TEAL['r'])

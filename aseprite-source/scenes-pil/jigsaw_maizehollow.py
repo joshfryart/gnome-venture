@@ -693,7 +693,6 @@ for vx in (216, 228, 244, 262, 276, 286):
     r(12, 26), r(-2, 2)
 # limestone rim with a lumpy outer edge, an open shaft with a ragged lip, strata on the far wall, a pool at the bottom
 rim = ell(194, 146, 308, 214)
-rim &= ~ell(186, 140, 214, 166)   # trim the heavy upper-left shoulder
 for bx_, by_, br in ((207, 155, 4), (226, 148, 4), (248, 145, 5), (270, 147, 4), (290, 152, 5), (303, 166, 5), (197, 182, 4)):   # small, uneven bulges
     rim |= ell(bx_ - br, by_ - br * 2 // 3, bx_ + br, by_ + br * 2 // 3)
 hole = ell(208, 156, 296, 196)
@@ -709,6 +708,8 @@ for k in range(9):   # ragged lip: rocks jutting in, bites taken out
 for ex, ey in ((207, 176), (297, 172), (210, 186), (294, 184)):   # side bites
     hole |= ell(ex - 3, ey - 3, ex + 3, ey + 3)
 water = hole & rect(0, 179, W, H)
+_hk = dil4(dil4(dil4(dil4(dil4(hole)))))
+rim &= ~(ell(184, 138, 214, 168) & ~_hk) | _hk   # trim the heavy upper-left shoulder but keep a 5 px lip round the shaft
 o = cv.obj()
 o.part(rim, LIME, d=3)
 o.draw()

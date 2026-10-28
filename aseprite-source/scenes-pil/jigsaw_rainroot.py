@@ -205,7 +205,7 @@ for x0, y0, w, h in ((246, 40, 18, 12), (266, 34, 16, 18), (284, 38, 15, 14), (2
     cv.fill(poly([(dx - 2, y0 + h), (dx + 2, y0 + h), (dx + 1, y0 + h - 6), (dx - 1, y0 + h - 6)]), '#4a3a2a')
 cv.fill(poly([(270, 34), (278, 34), (274, 28)]), '#b8502a')   # thatched hut roof on the highest ruin
 cv.fill(rect(273, 26, 274, 28), '#7a4a1f')
-for lx, ly, rp, fr in ((230, 82, WOOL, True), (240, 98, LLAMA_B, False), (262, 74, WOOL, False), (226, 110, WOOL, True), (279, 125, LLAMA_B, True)):
+for lx, ly, rp, fr in ((230, 82, WOOL, True), (240, 98, LLAMA_B, False), (262, 74, WOOL, False), (226, 110, WOOL, True), (250, 119, LLAMA_B, True)):
     llama(lx, ly, rp, fr)
 cv.fill(rect(244, 90, 247, 91), '#d6322b')   # a woven saddle blanket
 cv.dots([(245, 90), (247, 91)], '#f0b92b')
