@@ -1452,5 +1452,7 @@ function schema_statements(string $driver): array
     [$rtt, $rti, $rtc] = road_text_schema($PK, $ID, $END);
     require_once __DIR__ . '/delve_map.php';   // v2.0.6: the delve / lair map view (walk_scene)
     [$wst, $wsi, $wsc] = walk_scene_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc)];
+    require_once __DIR__ . '/puzzles.php';   // v2.0.68: puzzle pictures, tournaments, attempts
+    [$pzt, $pzi, $pzc] = puzzles_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc)];
 }

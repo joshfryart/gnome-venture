@@ -8,7 +8,7 @@ if (preg_match('~(^|/)(includes|data)(/|$)|(^|/)config\.php$|(^|/)\.~i', $path))
     exit('Forbidden');
 }
 // Uploaded images (v0.9.8: and the pictures Admin → Images saves in subfolders): only image files are served from uploads/, nothing else (never scripts)
-if (preg_match('~(^|/)uploads/~i', $path) && !preg_match('~(^|/)uploads/([a-f0-9]{24}\.(png|jpg|gif|webp)|(items|creatures|npcs|buildings|skins|yard)/[a-z0-9_{}-]+\.png)$~', $path)) {
+if (preg_match('~(^|/)uploads/~i', $path) && !preg_match('~(^|/)uploads/([a-f0-9]{24}\.(png|jpg|gif|webp)|(items|creatures|npcs|buildings|skins|yard)/[a-z0-9_{}-]+\.png|puzzles/[a-f0-9]{24}(\.gif|-still\.png))$~', $path)) {
     http_response_code(403);
     exit('Forbidden');
 }

@@ -351,6 +351,7 @@ function settings_schema(): array
         'worm_count'         => ['label' => 'Worm Hunting: worms hidden in each dig', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 20],
         'worm_coins_per_point' => ['label' => 'Worm Hunting: currency per point', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 1000],
         'puzzles_open' => ['label' => 'Games: Puzzles open to every player (off = admins only) (v2.0.2)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'games_petals_percent' => ['label' => 'Games: Petals paid, % of the normal payout (Worms, Memory, Spit, Mushroom, Pest Patrol, Letters)', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 300],   // v1.7.6: games out-earned the garden
         'memory_plays_per_day' => ['label' => 'Seed Memory: games per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'spit_plays_per_day' => ['label' => 'Seed Spitting: goes per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
