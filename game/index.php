@@ -195,7 +195,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
   </div>
   <h2 class="lp-h2" id="tour">The tour</h2>
   <ol class="lp-stops">
-    <?php $tourPose = [5 => 'jeff-cheer', 6 => 'jeff-think']; $tourKey = [1 => 'garden', 2 => 'satchel', 3 => 'world', 4 => 'town', 5 => 'games', 6 => 'almanac'];
+    <?php $tourPose = [1 => 'jeff-point', 2 => 'jeff-point', 3 => 'jeff-point', 4 => 'jeff-point', 5 => 'jeff-cheer', 6 => 'jeff-think']; $tourKey = [1 => 'garden', 2 => 'satchel', 3 => 'world', 4 => 'town', 5 => 'games', 6 => 'almanac'];
     foreach ($tourKey as $n => $shot): [$ttl, $say] = array_pad(explode("\n", stext('home.tour.' . $n), 2), 2, ''); ?>
     <li class="lp-stop">
       <p class="lp-step">Stop <?= $n ?> of 6</p>
@@ -217,7 +217,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
   <script type="application/json" id="pz-data"><?= json_encode($pzFrontList, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
   <?php endif; ?>
   <div class="lp-hero lp-jeff lp-gate">
-    <?= puzzle_cast('jeff-host', 'Jeff', 'lp-jeffface') ?>
+    <?= puzzle_cast('jeff-key', 'Jeff with a key', 'lp-jeffface') ?>
     <p class="lp-bubble"><b>Jeff:</b> “<?= e(stext('home.gate')) ?>”</p>
   </div>
   <div class="lp-cta lp-end">

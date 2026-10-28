@@ -217,3 +217,10 @@ body.pz-play .lp #game{text-align:left}
 .gbhat{fill:var(--gbhat); stroke:var(--gbline); stroke-width:.4}
 .gbface{fill:#f6d9b8; stroke:var(--gbline); stroke-width:.4}
 .gbbeard{fill:#f4f0e6; stroke:var(--gbline); stroke-width:.4}
+
+/* ---- v2.0.74: small Jeff beside a status or error line (Rain Barrel, Gnome Beds) ---- */
+.rbface{display:inline-flex; vertical-align:middle}
+.rbface img{width:40px; height:40px; image-rendering:pixelated}
+.rbface[hidden]{display:none}
+.rbmsgrow{display:flex; align-items:center; justify-content:center; gap:8px; min-height:8px}
+.rbmsgrow .pzmsg{margin:6px 0 0}

@@ -21,7 +21,7 @@ page_header('Rain Barrel');
 <div id="pz" class="rb">
   <h1>🚰 Rain Barrel</h1>
   <div class="pzhost box">
-    <?= puzzle_cast('jeff-host', 'Jeff', 'pzface') ?>
+    <?= puzzle_cast('jeff-water', 'Jeff with a watering can', 'pzface') ?>
     <div>
       <p class="pzline"><b>Jeff:</b> “Tip the barrel and turn the gutters until water reaches every sprout. Leaks are bad. Today’s barrel is the same for every gnome.”</p>
       <details class="fold"><summary>How to play</summary>
@@ -36,13 +36,13 @@ page_header('Rain Barrel');
     <button class="btn ghost" id="rbprac" type="button">Practice</button></span>
   </div>
   <p class="help" id="rbstat" aria-live="polite">
-    <?php if ($done !== null): ?>Today: done ✓ best <b><?= e(puzzle_ms_text((int)$best)) ?></b>.<?php else: ?>Today’s barrel is waiting.<?php endif; ?>
+    <?php if ($done !== null): ?><span class="rbface rbsleep"><?= puzzle_cast('jeff-sleep', 'Jeff asleep') ?></span> Today: done ✓ best <b><?= e(puzzle_ms_text((int)$best)) ?></b>.<?php else: ?>Today’s barrel is waiting.<?php endif; ?>
     <?= $streak > 0 ? ' Streak: <b>' . $streak . '</b> day' . ($streak === 1 ? '' : 's') . '.' : '' ?>
   </p>
   <div id="rbplay" hidden>
     <div class="rbbar"><span id="rbclock" aria-live="off">0:00</span><span id="rbhints"></span><button class="btn ghost" id="rbhint" type="button" title="The Old Wizard fixes one tile (+<?= intdiv(PZ_HINT_MS, 1000) ?>s)">Hint</button></div>
     <div id="rbgrid" role="group" aria-label="Gutters"></div>
-    <p id="rbmsg" class="pzmsg" aria-live="polite"></p>
+    <div class="rbmsgrow"><span id="rboops" class="rbface" hidden><?= puzzle_cast('jeff-oops', 'Jeff, oops') ?></span><p id="rbmsg" class="pzmsg" aria-live="polite"></p></div>
   </div>
   <div id="rbwin" class="box" hidden>
     <span class="pzcast-wrap"><?= puzzle_cast('jeff-cheer', 'Jeff cheering', 'pzface') ?></span>

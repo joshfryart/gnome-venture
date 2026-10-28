@@ -43,9 +43,9 @@ page_header('Puzzles');
       <span class="gtbadge"><?= $bd !== null ? 'Daily done ✓' : 'Daily ready' ?></span>
     </a></li>
     <?php endforeach; ?>
-    <?php foreach ($soon as [$ic, $nm, $bl]): ?>
+    <?php foreach ($soon as $sk => [$ic, $nm, $bl]): ?>
     <li><div class="box pzhubcard pzsoon" aria-disabled="true">
-      <span class="gticon"><?= $ic ?></span>
+      <span class="gticon"><?= $sk === 'snail' ? (puzzle_cast('jeff-snail', 'Jeff with a snail', 'gtart') ?: $ic) : $ic ?></span>
       <b><?= e($nm) ?></b>
       <small><?= e($bl) ?></small>
       <span class="gtbadge">Coming soon</span>

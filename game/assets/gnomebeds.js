@@ -13,7 +13,7 @@ function post(fields,cb){
   fetch(D.api,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:q})
     .then(function(r){ return r.json(); }).then(cb).catch(function(){ cb({ok:false,error:'Couldn’t reach the garden. Try again.'}); });
 }
-function say(t){ $('rbmsg').textContent=t||''; }
+function say(t,err){ $('rbmsg').textContent=t||''; var o=$('rboops'); if(o) o.hidden=!(err&&t); }   // v2.0.74: Jeff looks sheepish next to an error
 function gnomes(){ var a=[],i; for(i=0;i<G.st.length;i++) if(G.st[i]===2) a.push(i); return a; }
 function bad(){   // cells that break a rule: same row, column or bed as another gnome, or touching one
   var n=G.n, gs=gnomes(), out={}, i, j;
@@ -64,7 +64,7 @@ function clock(){
 function start(mode,size){
   say('Raking the beds…');
   post({g:'beds','do':'start',mode:mode,size:size},function(r){
-    if(!r.ok){ say(r.error||'Couldn’t start.'); return; }
+    if(!r.ok){ say(r.error||'Couldn’t start.',true); return; }
     if(G&&G.timer) clearInterval(G.timer);
     G={token:r.token,n:r.n,reg:r.reg,st:r.reg.map(function(){return 0;}),t0:Date.now(),hints:0,over:false,mode:r.mode};
     $('rbwin').hidden=true; $('rbplay').hidden=false; $('rbhints').textContent=''; $('rbhint').disabled=false;
@@ -78,8 +78,8 @@ function finish(){
   say('Counting the gnomes…');
   post({g:'beds','do':'finish',token:G.token,r:JSON.stringify(cols())},function(r){
     if(!r.ok){
-      if(r.retry){ G.over=false; G.timer=setInterval(clock,500); say(r.error); return; }
-      say(r.error||'That didn’t count.'); return;
+      if(r.retry){ G.over=false; G.timer=setInterval(clock,500); say(r.error,true); return; }
+      say(r.error||'That didn’t count.',true); return;
     }
     say(''); $('rbwintx').textContent=r.message; $('rbwin').hidden=false;
     $('rbstat').textContent='Done ✓ '+(r.best?'best today '+Math.floor(r.best/60000)+':'+('0'+Math.floor(r.best/1000)%60).slice(-2)+'.':'')+' Reload for the board.';

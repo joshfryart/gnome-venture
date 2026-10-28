@@ -34,7 +34,7 @@ N=0; for f in $(php -r '$j=preg_match("#id=\"pz-data\">(.*?)</script>#s", file_g
 done
 ok "pictures listed (7 gifs + 7 stills)" "$N" 14
 # v2.0.68: the cast. Every cast picture exists (a -dark twin is optional), and the page shows the host and the hint/scatter faces
-for c in jeff-host tile-puzzles puzzles-banner jeff-cheer win-scene jeff-think ffej-scatter wizard-hint empty-box tourney-banner trophy-gold badge-silver badge-bronze badge-entered wizard-hourglass ffej-caught; do
+for c in jeff-point jeff-key jeff-sleep jeff-oops jeff-gnomehat jeff-water jeff-snail jeff-trophy jeff-point-dark jeff-key-dark jeff-sleep-dark jeff-oops-dark jeff-gnomehat-dark jeff-water-dark jeff-snail-dark jeff-trophy-dark jeff-host tile-puzzles puzzles-banner jeff-cheer win-scene jeff-think ffej-scatter wizard-hint empty-box tourney-banner trophy-gold badge-silver badge-bronze badge-entered wizard-hourglass ffej-caught; do
   [ -s "$GAME/assets/img/puzzles/cast/$c.png" ] || echo "FAIL missing cast art: cast/$c.png"
 done
 ok "Jeff hosts the library" "$(grep -c 'Jeff:</b>' /tmp/pz.html)" 1

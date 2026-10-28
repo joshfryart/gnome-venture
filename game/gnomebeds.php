@@ -21,7 +21,7 @@ page_header('Gnome Beds');
 <div id="pz" class="rb gb">
   <h1>🛏️ Gnome Beds</h1>
   <div class="pzhost box">
-    <?= puzzle_cast('jeff-host', 'Jeff', 'pzface') ?>
+    <?= puzzle_cast('jeff-gnomehat', 'Jeff in a gnome hat', 'pzface') ?>
     <div>
       <p class="pzline"><b>Jeff:</b> “Every flower bed needs one sleepy gnome. One per row, one per column, one per bed, and they don’t like touching. Today’s garden is the same for every gnome.”</p>
       <details class="fold"><summary>How to play</summary>
@@ -36,13 +36,13 @@ page_header('Gnome Beds');
     <button class="btn ghost" id="rbprac" type="button">Practice</button></span>
   </div>
   <p class="help" id="rbstat" aria-live="polite">
-    <?php if ($done !== null): ?>Today: done ✓ best <b><?= e(puzzle_ms_text((int)$best)) ?></b>.<?php else: ?>Today’s garden is waiting.<?php endif; ?>
+    <?php if ($done !== null): ?><span class="rbface rbsleep"><?= puzzle_cast('jeff-sleep', 'Jeff asleep') ?></span> Today: done ✓ best <b><?= e(puzzle_ms_text((int)$best)) ?></b>.<?php else: ?>Today’s garden is waiting.<?php endif; ?>
     <?= $streak > 0 ? ' Streak: <b>' . $streak . '</b> day' . ($streak === 1 ? '' : 's') . '.' : '' ?>
   </p>
   <div id="rbplay" hidden>
     <div class="rbbar"><span id="rbclock" aria-live="off">0:00</span><span id="rbhints"></span><button class="btn ghost" id="rbhint" type="button" title="The Old Wizard places one gnome (+<?= intdiv(PZ_HINT_MS, 1000) ?>s)">Hint</button></div>
     <div id="rbgrid" role="group" aria-label="Flower beds"></div>
-    <p id="rbmsg" class="pzmsg" aria-live="polite"></p>
+    <div class="rbmsgrow"><span id="rboops" class="rbface" hidden><?= puzzle_cast('jeff-oops', 'Jeff, oops') ?></span><p id="rbmsg" class="pzmsg" aria-live="polite"></p></div>
   </div>
   <div id="rbwin" class="box" hidden>
     <span class="pzcast-wrap"><?= puzzle_cast('jeff-cheer', 'Jeff cheering', 'pzface') ?></span>

@@ -40,11 +40,13 @@ page_header($t ? $t['title'] : 'GIFsaw');   // assets/puzzles.css and assets/puz
   <?= puzzle_cast('tourney-banner', '', 'pzbanner') ?>
   <h1>🏆 <?= e($t['title']) ?></h1>
   <div class="pzhost box">
-    <?= puzzle_cast(in_array($phase, ['soon', 'ended', 'settled'], true) ? 'wizard-hourglass' : 'jeff-host', in_array($phase, ['soon', 'ended', 'settled'], true) ? 'The Old Wizard' : 'Jeff', 'pzface') ?>
+    <?php $gold = $phase === 'settled' && (int)$myPlace === 1;   // v2.0.74: Jeff hugs a trophy for the winner ?>
+    <?= $gold ? puzzle_cast('jeff-trophy', 'Jeff with a trophy', 'pzface') : puzzle_cast(in_array($phase, ['soon', 'ended', 'settled'], true) ? 'wizard-hourglass' : 'jeff-host', in_array($phase, ['soon', 'ended', 'settled'], true) ? 'The Old Wizard' : 'Jeff', 'pzface') ?>
     <div>
       <p class="pzline"><?php if ($phase === 'soon'): ?><b>The Old Wizard:</b> “Patience, young one. The sands say this one opens <?= e(puzzle_local($t['starts_at'])) ?>.”
       <?php elseif ($phase === 'open'): ?><b>Jeff:</b> “Same picture, same pieces, same scramble for everyone. Your best time counts, so have as many goes as you like (up to <?= PUZZLE_DAILY_TRIES ?> a day). Ready when you are!”
       <?php elseif ($phase === 'closing'): ?><b>Jeff:</b> “Time’s up for starting new goes. If you’re mid-puzzle, finish it: you have a few minutes.”
+      <?php elseif ($gold): ?><b>Jeff:</b> “You won! First place, and a gold trophy for your shelf. I’m not crying, you’re crying.”
       <?php else: ?><b>The Old Wizard:</b> “The sands have run out on this one. Here is how it ended.”<?php endif; ?></p>
       <p class="help"><?= e($t['pic_title']) ?> · <?= (int)$t['pieces'] ?> pieces · <?= e(puzzle_local($t['starts_at'])) ?> to <?= e(puzzle_local($t['ends_at'])) ?> (Hollow time). Prizes are just for show: a trophy or badge on your profile.</p>
       <?php if ($phase === 'open'): ?><p><button class="btn" id="tstart" type="button">Start a timed go</button> <small class="muted"><?= max(0, PUZZLE_DAILY_TRIES - $triesToday) ?> left today</small></p><?php endif; ?>

@@ -15,7 +15,7 @@ function post(fields,cb){
   fetch(D.api,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:q})
     .then(function(r){ return r.json(); }).then(cb).catch(function(){ cb({ok:false,error:'Couldn’t reach the garden. Try again.'}); });
 }
-function say(t){ $('rbmsg').textContent=t||''; }
+function say(t,err){ $('rbmsg').textContent=t||''; var o=$('rboops'); if(o) o.hidden=!(err&&t); }   // v2.0.74: Jeff looks sheepish next to an error
 function wet(){   // flood from the barrel through mutually open sides
   var n=G.n, seen={}, st=[G.src]; seen[G.src]=true;
   while(st.length){
@@ -77,7 +77,7 @@ function clock(){
 function start(mode,size){
   say('Tipping the barrel…');
   post({g:'barrel','do':'start',mode:mode,size:size},function(r){
-    if(!r.ok){ say(r.error||'Couldn’t start.'); return; }
+    if(!r.ok){ say(r.error||'Couldn’t start.',true); return; }
     if(G&&G.timer) clearInterval(G.timer);
     G={token:r.token,n:r.n,tiles:r.tiles,r:r.tiles.map(function(){return 0;}),src:r.src,t0:Date.now(),hints:0,over:false,mode:r.mode};
     $('rbwin').hidden=true; $('rbplay').hidden=false; $('rbhints').textContent=''; $('rbhint').disabled=false;
@@ -91,8 +91,8 @@ function finish(){
   say('Counting the drops…');
   post({g:'barrel','do':'finish',token:G.token,r:JSON.stringify(G.r)},function(r){
     if(!r.ok){
-      if(r.retry){ G.over=false; G.timer=setInterval(clock,500); say(r.error); return; }
-      say(r.error||'That didn’t count.'); return;
+      if(r.retry){ G.over=false; G.timer=setInterval(clock,500); say(r.error,true); return; }
+      say(r.error||'That didn’t count.',true); return;
     }
     say(''); $('rbwintx').textContent=r.message; $('rbwin').hidden=false;
     $('rbstat').textContent='Done ✓ '+(r.best?'best today '+Math.floor(r.best/60000)+':'+('0'+Math.floor(r.best/1000)%60).slice(-2)+'.':'')+' Reload for the board.';
