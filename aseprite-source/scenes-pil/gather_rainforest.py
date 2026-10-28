@@ -171,6 +171,9 @@ def scene():
     can = blank()
     for (x0, x1, y1) in ((36, 58, 12), (52, 74, 16), (70, 92, 11), (150, 176, 10), (172, 200, 13)):
         can |= ell(x0, -10, x1, y1)
+        for lx in range(x0 + 4, x1 - 3, 6):            # pointed leaf tips hanging off the clump
+            ly = y1 - 2 - abs(lx - (x0 + x1) // 2) // 3
+            can |= poly([(lx - 2, ly - 1), (lx + 2, ly - 1), (lx + 1, ly + 4)])
     o = cv.obj()
     o.part(can, DEEP, d=2)
     o.draw()
@@ -189,9 +192,9 @@ def scene():
     vine(cv, 230, 2, 36, 1.1, BARK['s'], LEAF['s'])
     toucan(cv, 222, 22)
     cv.fill(line([(208, 22), (206, 20)]) | line([(208, 26), (205, 26)]) | line([(208, 30), (206, 32)]), '#f2e4c0')  # its call
-    big_leaf(cv, 236, 122, 34, 16, -120, MOSS, slits=3)
-    big_leaf(cv, 242, 112, 28, 14, -150, LEAF, slits=2)
-    _, tip = big_leaf(cv, 230, 128, 26, 12, -80, MOSS, slits=2)
+    big_leaf(cv, 244, 116, 30, 15, -150, LEAF, slits=2)
+    big_leaf(cv, 240, 134, 34, 16, -118, MOSS, slits=3)
+    _, tip = big_leaf(cv, 226, 136, 24, 12, -72, LEAF, slits=2)
     drip(cv, tip[0], tip[1] + 6)
     hx0 = 220
     cv.fill(rect(hx0, 74, hx0 + 1, 112), DEEP['b'])

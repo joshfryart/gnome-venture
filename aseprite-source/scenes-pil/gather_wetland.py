@@ -146,7 +146,7 @@ def scene():
     # pools: the heron's pool (left), the landing pool, a little one bottom right
     pl = ell(4, 84, 92, 112) | ell(20, 98, 70, 120)
     pool(cv, pl, rings=((24, 104, 5),), seed=3)
-    pm = ell(84, 92, 156, 120)
+    pm = ell(84, 92, 150, 120)
     pool(cv, pm, rings=(), seed=7)
     pr = ell(196, 108, 244, 126)
     pool(cv, pr, rings=((222, 119, 4),), seed=11)
@@ -181,8 +181,7 @@ def scene():
     cv.fill(lp, '#4f9a45')
     cv.fill(lp & ~shift(lp, 1, 1), '#7ab55c')
     cv.fill(lp & ~shift(lp, -1, -1), '#2f6a3a')
-    for (a, b) in (((120, 105), (110, 99)), ((120, 105), (134, 99)), ((120, 105), (141, 106)), ((120, 105), (128, 111))):
-        cv.fill(line([a, b]) & ~(ell(108, 101, 132, 109)) & shift(lp, 0, 0) & ~(lp & ~shift(lp, -1, -1)), '#2f6a3a')
+    cv.fill(line([(120, 105), (131, 100)]) & lp & shift(lp, -1, -1), '#2f6a3a')
     cv.dots([(141, 100), (139, 99)], '#e46a9b')
     cv.dots([(140, 98)], '#f6b8cf')
     draw_satchel(cv)
