@@ -2,16 +2,13 @@
 declare(strict_types=1);
 // v2.0.61: shared place UI pieces (World / Town / Stops consolidation, phase 1: moved out of world.php unchanged)
 
-/** v2.0.84: felt card picture for a route's destination: its kind's banner, else its land's, else the village's (cropped square-ish by CSS). */
+/** v2.0.84: felt card picture for a route's destination: one drawn vignette per place kind (assets/img/town/route-KIND.png), the village's when a kind has none. */
 function go_route_art(array $to): string
 {
-    $dir = __DIR__ . '/../assets/img/scenes/';
-    foreach ([loc_real_kind($to), (string)($to['landscape'] ?? ''), 'village'] as $n) {
-        if ($n !== '' && preg_match('/^[a-z0-9_-]+$/', $n) && is_file($dir . 'banner-' . $n . '.png')) {
-            return '<img class="pix" src="' . e(url('assets/img/scenes/banner-' . $n . '.png')) . '" width="144" height="108" alt="" loading="lazy" decoding="async">';
-        }
-    }
-    return '';
+    $dir = __DIR__ . '/../assets/img/town/';
+    $k = loc_real_kind($to);
+    if (!is_file($dir . 'route-' . $k . '.png')) $k = 'village';
+    return is_file($dir . 'route-' . $k . '.png') ? felt_art_img('assets/img/town/route-' . $k . '.png') : '';
 }
 
 /** v2.0.84: the danger chip on a route card: green fine for you, amber a bit high, red too high. */
@@ -23,7 +20,7 @@ function go_level_chip(int $lvl, int $min, int $max = 0): string
 }
 
 /** The pick-a-place map for the Go tab: the region map opened zoomed in on you (＋ − ⤢ and drag still work), places are tap targets. '' when this region has no map. */
-function go_map_html(array $u, array $node, int $goId): string
+function go_map_html(array $u, array $node, int $goId, string $destHtml = ''): string
 {
     $rid = (int)($node['region_id'] ?? 0);
     if (!$rid) return '';
@@ -34,7 +31,7 @@ function go_map_html(array $u, array $node, int $goId): string
     }
     if ($map === '') return '';
     return '<section class="box gomap" aria-label="Places near you"><div class="gomaphead"><h3>🗺️ Pick a place</h3><a class="btn small alt" href="' . e(url('world.php?tab=map&r=' . $rid . '#regionmap')) . '">🌍 Full map</a></div>'
-        . '<p class="help">Tap a place to see the way there, or pick a card below. ⤢ shows the whole region.</p>' . $map . '</section>';
+        . '<p class="help">Tap a place to see the way there, or pick a card below. ⤢ shows the whole region.</p>' . $map . $destHtml . '</section>';
 }
 
 /** Where to next: route cards, Wander, Fast travel, Gather, how-it-works fold. */

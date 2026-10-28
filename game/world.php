@@ -159,8 +159,9 @@ $road = road_of((int)$node['id']);
 $onRoad = on_road((int)$node['id']);
 ?>
 <?php // v2.0.61: GPS (route panel + seek chip) sits in a right column from 1200px wide, above the content on narrower screens
-$gpsHtml = $goId ? dest_panel($u, $goId) : (($ds = dest_status($u)) ? dest_panel($u, (int)$ds[0]['id'], true) : '');   // v0.7.98: a stop was tapped
-$gpsHtml .= seek_chip($u); ?>
+$destHtml = $goId ? dest_panel($u, $goId) : (($ds = dest_status($u)) ? dest_panel($u, (int)$ds[0]['id'], true) : '');   // v0.7.98: a stop was tapped
+$goMap = go_map_html($u, $node, $goId, $destHtml);   // v2.0.84: the route panel sits under the map; with no map it stays in the side column
+$gpsHtml = ($goMap === '' ? $destHtml : '') . seek_chip($u); ?>
 <div class="pcols">
 <?php if (trim($gpsHtml) !== ''): ?><aside class="paside" aria-label="Where you are headed"><?= $gpsHtml ?></aside><?php endif; ?>
 <div class="pmain">
@@ -180,7 +181,7 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
   <?php if (($blurb = village_blurb($node)) !== ''): ?><p class="muted placedesc"><?= e($blurb) ?></p><?php endif; ?>
 </div>
 
-<?php $goMap = go_map_html($u, $node, $goId); echo $goMap; ?>
+<?= $goMap ?>
 <?php if ($road && $node['kind'] !== 'market'): ?>
 <details class="fold box roadfold"><summary>🛣️ The road: <?= e($road['name']) ?></summary><?= road_board($u, $road['stops'], (int)$node['id']) ?></details>
 <?php endif; ?>

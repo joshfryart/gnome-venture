@@ -5823,7 +5823,7 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 @media (min-width: 721px) { .rcards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .rcards > li { min-width: 0; }
 .rcards .goform { margin: 0; }
-.rcard { position: relative; width: 100%; display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; grid-template-areas: "art ribbon ribbon" "art kind kind" "meta meta go"; gap: 4px 10px; align-items: start; min-height: var(--tap);
+.rcard { position: relative; width: 100%; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; grid-template-areas: "art ribbon ribbon" "art kind kind" "meta meta go"; gap: 4px 10px; align-items: start; min-height: var(--tap);
   margin: 0; padding: 0 0 2px; appearance: none; -webkit-appearance: none; background: none; color: var(--gx-felt-ink); font: inherit; text-align: left; cursor: pointer;
   border: 12px solid transparent; border-image: url(img/acts/felt-idle.png) 12 fill / 12px round; image-rendering: pixelated;
   filter: drop-shadow(0 3px 0 var(--gx-card-drop)); transition: transform .06s, filter .06s; -webkit-tap-highlight-color: transparent; }
@@ -5831,8 +5831,8 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .rcard--side { border-image-source: url(img/acts/felt-off.png); }
 .rcard:active { transform: translateY(2px); filter: drop-shadow(0 1px 0 var(--gx-card-drop)); }
 .rcard:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
-.rcard__art { grid-area: art; align-self: stretch; margin: -4px 0 0 -4px; min-height: 64px; overflow: hidden; background: #e3c48c; box-shadow: 0 0 0 2px #74462a; }
-.rcard__art img { display: block; width: 100%; height: 100%; min-height: 72px; object-fit: cover; object-position: 38% 50%; filter: var(--gx-art-dim); image-rendering: pixelated; }
+.rcard__art { grid-area: art; align-self: start; margin: -4px 0 0 -4px; min-width: 0; }
+.rcard__art img { display: block; width: 100%; height: auto; filter: var(--gx-art-dim); image-rendering: pixelated; }
 .rcard__ribbon { grid-area: ribbon; justify-self: start; display: inline-flex; align-items: center; min-width: 0; max-width: 100%; margin-left: -4px; padding: 0 4px; color: var(--gx-sign-ink);
   border: 8px solid transparent; border-width: 8px 10px; border-image: url(img/acts/ribbon-idle.png) 8 10 fill / 8px 10px round stretch; image-rendering: pixelated; }
 .rcard__name { min-width: 0; font: 700 15px/1.2 var(--font); overflow-wrap: break-word; text-wrap: balance; text-shadow: 0 1px 0 rgba(42, 26, 16, .55); }
@@ -5851,3 +5851,17 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .gopanel .goextra .gbtn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; text-decoration: none; }
 .gopanel .goextra .gbtn small { font-weight: 400; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .rcard { transition: none; } }
+
+/* v2.0.84: slim GPS card (dest_panel): title on one row, facts on one line, stop list and options folded */
+.destpanel .dpwho { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; min-width: 0; }
+.destpanel .dptitle { font-size: 1.15rem; line-height: 1.2; }
+.destpanel .dpsub { flex: 1 1 100%; font-size: .8rem; color: var(--muted); }
+.destpanel .dpx { min-width: 36px; min-height: 36px; }
+.dppills { margin: 6px 0; gap: 4px; }
+.dppill { padding: 1px 7px; font-size: .8rem; }
+.dpone { margin: 0 0 6px; }
+.dpone .rplv { padding: 1px 7px; border: 1px solid var(--line); font-size: .8rem; }
+.dpplan, .dpoptsfold { margin: 4px 0; }
+.dpplan > summary, .dpoptsfold > summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; font-size: .9rem; color: var(--muted); }
+.dpoptsfold .dpopts { margin-top: 2px; }
+.dpset { min-height: 48px; font-size: 1rem; }
