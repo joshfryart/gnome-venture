@@ -5,7 +5,7 @@ Give Claude a video ("make this a GIF"). It runs `video2gif.py` and sends back t
 ```bash
 python3 -I aseprite-source/extras-pixel/video-gifs/video2gif.py VIDEO --name NAME --start S --dur D
 ```
-Defaults are the approved look: 200-wide grid (GIF is 2x nearest = 400 wide), 10 fps, 2.4 s, flat cel, game palette, no dither.
+Defaults are the approved look: 200-wide grid (GIF is 2x nearest = 400 wide), 10 fps, 2.4 s, flat cel, no dither. Palette: Part A + all 50% blends, pruned to the 72 most-used colours per clip (`--colours N`), saturation x1.3 (`--sat`).
 
 ## What it does
 1. ffmpeg trims, resamples fps, area-downscales to the grid.

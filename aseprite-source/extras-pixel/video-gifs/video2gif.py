@@ -23,13 +23,14 @@ UMBER = np.array([0x3d, 0x2a, 0x1c], np.uint8)
 rgb = lambda h: np.array([int(h[i:i + 2], 16) for i in (0, 2, 4)], float)
 
 def palette(rich=True):
+    """Part A colours + in-family midpoints; rich = also every 50% blend of two base colours (pruned per clip)."""
     F = {k: [rgb(h) for h in v.split()] for k, v in FAM.items()}
     P = [c for v in F.values() for c in v]
     for v in F.values():
         P += [(a + b) / 2 for a, b in zip(v, v[1:])]
-    if not rich: return np.unique(np.array(P).round(), axis=0)
-    for a, b in [("soil", "gold"), ("soil", "stone"), ("moss", "soil"), ("water", "stone"), ("gold", "moss"), ("soil", "ember")]:
-        P += [(x + y) / 2 for x in F[a] for y in F[b]]
+    if rich:
+        base = [c for v in F.values() for c in v]
+        P += [(x + y) / 2 for i, x in enumerate(base) for y in base[i + 1:]]
     return np.unique(np.array(P).round(), axis=0)
 
 def lab(c):
@@ -57,6 +58,11 @@ def setup():
     subprocess.run(["curl", "-fsSL", "-o", os.path.join(d, "u2netp.onnx"),
                     "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx"], check=True)
     print("setup ok")
+
+def prep(im, sat):
+    x = 255 * (np.asarray(im, float) / 255) ** 0.7
+    g = x.mean(2, keepdims=True)
+    return np.clip(g + (x - g) * sat, 0, 255)
 
 def find_ase(a):
     p = a or os.environ.get("ASEPRITE")
@@ -95,6 +101,8 @@ def main():
     ap.add_argument("--despeckle", type=int, default=2, help="majority-filter passes on colour regions")
     ap.add_argument("--stitch", action=argparse.BooleanOptionalAction, default=True, help="dashed stitch beside seams")
     ap.add_argument("--subject", action=argparse.BooleanOptionalAction, default=True, help="heavy outline + bright stitches on the warm-fur subject only (needs rembg + scipy: pip install rembg onnxruntime scipy; u2netp.onnx into ~/.u2net)")
+    ap.add_argument("--colours", type=int, default=72, help="keep the N most-used palette colours per clip (rich palette)")
+    ap.add_argument("--sat", type=float, default=1.3, help="saturation boost before palette match")
     ap.add_argument("--ase"); a = ap.parse_args()
     if a.setup: return setup()
     if not a.video: ap.error("give a VIDEO (or --setup)")
@@ -116,8 +124,14 @@ def main():
         if a.subject and masks[0] is None: print("note: rembg/scipy missing -> no subject stitching (run --setup)", file=sys.stderr)
         elif a.subject and len(masks) > 2:  # 3-frame majority: kills edge jitter
             masks = [(masks[max(k - 1, 0)].astype(int) + masks[k] + masks[min(k + 1, len(masks) - 1)]) >= 2 for k in range(len(masks))]
+        if a.rich and a.colours:  # per-clip palette: the N game-palette colours this footage actually lands on
+            use = np.zeros(len(pal))
+            for im in ims:
+                x = prep(im, a.sat)
+                use += np.bincount(((lab(x)[:, :, None, :] - pl[None, None]) ** 2).sum(3).argmin(2).ravel(), minlength=len(pal))
+            keep = np.argsort(-use)[:a.colours]; pal, pl = pal[keep], pl[keep]
         for f, im, sm in zip(files, ims, masks):
-            x = 255 * (np.asarray(im, float) / 255) ** 0.7
+            x = prep(im, a.sat)
             h, w, _ = x.shape; d = np.tile(B, (h // 4 + 1, w // 4 + 1))[:h, :w, None] * a.dither
             i = ((lab(np.clip(x + d, 0, 255))[:, :, None, :] - pl[None, None]) ** 2).sum(3).argmin(2)
             for _ in range(a.despeckle):  # 3x3 majority vote -> flat felt patches, no salt-and-pepper
