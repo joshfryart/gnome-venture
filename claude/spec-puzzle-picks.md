@@ -61,7 +61,7 @@ Follow the coin under the cups (hats).
 - Rounds: easy 3 hats / 5 swaps, normal 4 / 8 / faster, hard 5 / 12 / fastest. Daily = 5 rounds, rising speed.
 - Gen: server produces the full swap sequence per round up front from the seed. The coin start position and final answer are NOT sent. The client gets only the swap list and animates it.
 - Cheat problem: the client animation reveals nothing if it never knows which hat has the coin. Show the coin lifted at the start via a one-off `reveal` token: client calls `reveal` -> server returns the starting hat index and stores that reveal time. Then the swap list animates locally. Client sends the final pick; server derives the answer from start + swaps. Reject any pick sooner than the animation length.
-- Score: rounds correct first, then total time. Wrong pick ends the run (daily) or loses the round (practice).
+- Lives: 3. Wrong pick costs a life; run ends at 0 lives. Score: rounds cleared, then total time, then lives left (daily and practice alike).
 - No timer pressure in the animation itself; speed is the difficulty.
 - Accessibility: reduced-motion setting uses hat glow instead of fast motion, and doubles swap duration.
 
@@ -175,6 +175,7 @@ Tests: `tests/alchemy.sh` - known combo works and returns ingredients on fail, o
 
 ## Build order (suggested)
 
+0. F0 daily framework (unblocks everything, and retrofits Rain Barrel).
 1. 2.0.71 shared layer + S1 Lantern Lights Out (smallest rules, proves the daily/run/token flow; replaces Rain Barrel as first, or ships beside it).
 2. S2 Gnome Slide, S3 Word Scramble, S4 Hat Shuffle (one release each or two together).
 3. A1 Sokoban Mines (level pack + offline solver tool).
@@ -183,9 +184,35 @@ Tests: `tests/alchemy.sh` - known combo works and returns ingredients on fail, o
 6. A5 Chess/Checkers tactics, then full AI games (largest; own plan doc when started).
 7. F1 Alchemy Mixing as its own release, independent of the puzzle work.
 
-## Open questions for Joshua
+## Decisions (Joshua, 2026-10-28)
 
-- Rain Barrel / Gnome Beds / Snail Trail from the earlier plan: keep them ahead of these, or replace?
-- Chess art: gnome-themed pieces (needs Aseprite pass) or standard glyphs first?
-- Alchemy: should failed mixes cost energy (spec) or be free?
-- Hat Shuffle: ranked daily with a one-miss end, or forgiving three-lives?
+1. Rain Barrel shipped and works. Earlier-plan games (Gnome Beds, Snail Trail) stay in the queue; these picks follow. NEW first item: daily-puzzle framework (section F0 below).
+2. Chess/checkers use gnome-themed garden pieces. New art is plotted and drawn in Aseprite (see Chess art below).
+3. Alchemy: failed mix costs energy (as specced).
+4. Hat Shuffle: 3 lives per run. A wrong pick costs a life; run ends at 0. Score = rounds cleared, then time, then lives left. Update S4 accordingly.
+
+---
+
+## F0. Daily puzzle framework (build before more games)
+
+Goal: any puzzle game can produce a fresh daily with no repeats, with near-zero per-game work.
+
+- Per-game contract: `gen(seed, level) -> puzzle` plus `fingerprint(puzzle) -> string` (canonical form: same puzzle = same string, incl. rotations/reflections/recolours where the game treats them as equal).
+- Table `puzzle_daily(game, day UNIQUE per game, level, seed, fp CHAR(40), data)` plus `puzzle_seen(game, fp UNIQUE)` (all fingerprints ever served, practice excluded).
+- Pick: for day D, seed = crc32("pz|game|D"), then `gen`. If `fp` is in `puzzle_seen`, bump seed by +1 and retry (cap 50, then log + fail loud to admin). First write wins (insert-or-ignore) so two requests on the same day agree.
+- Curated-pack games (Sokoban, chess tactics, words, cipher lines): pack index shuffled once per cycle by a seeded permutation; each item used once before any repeats. Admin warning when fewer than 30 unused remain.
+- Pre-generate: cron/lazy job builds the next 7 days per game so players never wait and admin can preview/swap. Admin > Puzzles gets a Daily tab: calendar, preview, regenerate a future day, mark a puzzle banned.
+- Difficulty ramp: optional weekday curve (Mon easy ... Sun hard) in registry, off by default.
+- Generator quality gate in the shared test: 365 consecutive days per game, zero fingerprint collisions, every puzzle passes `check` with the stored solution.
+- Hollow-midnight reset (from the plan) is the day boundary: `game_day()`.
+
+## Chess art (Aseprite plan)
+
+Garden-themed sets, one per game, two colour sides (light = daisy/cream, dark = mushroom/umber). 32x32 base, same pixel style as `aseprite-source/art-style-guide.md`; each piece a single frame plus a 2-frame idle for the selected piece.
+- Chess: pawn = sprout, knight = snail (or garden hare), bishop = mushroom, rook = watering can / stone well, queen = sunflower, king = gnome with crown hat.
+- Checkers: man = acorn / flower pot, king = stacked pot with a crown.
+- Board: moss and soil tiles (light/dark squares), plus a felt frame; highlight sprites for selected, legal-move dot, last move, check.
+- Needs: 12 chess + 4 checkers piece sprites (x2 sides where tinted by recolour), 2 board tiles, 4 highlight sprites; light and dark theme versions of the board.
+- Files: sources `aseprite-source/extras-pixel/chess/*.aseprite`, exports to `game/assets/img/puzzles/chess/`. Use the existing export path used for the cast art.
+- Art is done before the chess UI ships; the rules/AI code can be built and tested first with text glyphs.
+

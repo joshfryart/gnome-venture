@@ -8,6 +8,12 @@ Joshua checks: upload 2.0.60 via Admin -> Update on a BACKED-UP live MySQL site 
 
 Open from the review: `releases/` stays in git on purpose (Joshua's call); big files (garden.php, trek.php, bootstrap, functions) still to split incrementally (inventory.php is the first cut; next candidates: rewards, migrations); `treks` suite too slow for CI; suites share fixed /tmp files (use mktemp, then CI could parallelise); MySQL race test (12 parallel inserts) in tests/db_errors.php never run on real MySQL.
 
+## NEXT: puzzles
+- Rain Barrel shipped, works (Joshua 2026-10-28).
+- **Build a daily-puzzle framework for ALL puzzle games**: generate a new daily easily, never repeat (fingerprint table `puzzle_seen`, seed bump on collision, shuffled-pack cycling for curated games, 7-day pregeneration, admin Daily tab, 365-day test per game). Spec: `claude/spec-puzzle-picks.md` section F0. Retrofit Rain Barrel.
+- Then per `claude/spec-puzzle-picks.md`: Lantern Lights Out, Gnome Slide, Word Scramble, Hat Shuffle (3 lives), Sokoban Mines, Laser Mirrors, Gear Train, Circuit Logic, Cipher Vault, chess + checkers, Alchemy Mixing (site feature, Craft tab).
+- Chess/checkers art: garden-themed pieces and boards drawn in Aseprite (plan in spec, "Chess art").
+
 ## Shipped since 2.0.60 (all on main, see CHANGELOG.md)
 - **2.0.70** (branch ccr-145c0fb2-ynig5u, not on main) logged-out front page "Try a puzzle" GIFsaw demo (`puzzles_front`, default on; `includes/gifsaw_play.php` shared). Next: Rain Barrel becomes 2.0.71.
 - **2.0.69** (branch ccr-145c0fb2-ynig5u, not on main) Puzzles hub + jigsaw moved to GIFsaw (`gifsaw.php`), 3 coming-soon cards. NEXT: 2.0.70 shared pieces + Rain Barrel per `claude/plan-puzzle-games.md`. 2.0.68 is live and OK (Joshua 2026-10-28).
