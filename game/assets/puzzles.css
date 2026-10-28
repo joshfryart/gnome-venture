@@ -199,3 +199,21 @@ body.pz-play .lp #game{text-align:left}
 .rbleaf{fill:none; stroke:var(--ink); stroke-width:.5; stroke-linecap:round}
 #rbwin{margin:12px auto; max-width:440px}
 #rbwin .pzface img{max-height:96px; width:auto}
+
+/* ---- v2.0.72: Gnome Beds (gnomebeds.php). Nine bed colours (each bed also has its own corner mark, so colour is never the only clue). ---- */
+#pz.gb{--gb0:#e8b4b4; --gb1:#f2d08a; --gb2:#b5d89a; --gb3:#9cc9e3; --gb4:#c9b0e3; --gb5:#f0b98e; --gb6:#98d6c4; --gb7:#e3a9cf; --gb8:#cfcf8a; --gbhat:#c0392b; --gbline:#3a2818}
+:root[data-theme="dark"] #pz.gb{--gb0:#8a4a4a; --gb1:#8a7230; --gb2:#4f7a3e; --gb3:#3f6f8f; --gb4:#6c4f8f; --gb5:#8f5f36; --gb6:#2f7f6a; --gb7:#8a4570; --gb8:#6f6f2f; --gbhat:#e0594a; --gbline:#f2e4c0}
+.gbgrid{gap:0; padding:0; background:var(--gbline)}
+.gbcell{position:relative; display:block; padding:0; margin:0; aspect-ratio:1; min-width:0; min-height:0; cursor:pointer; border:0; box-sizing:border-box; color:var(--ink); touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  border-style:solid; border-color:var(--gbline); border-width:1px; font:inherit}
+.gbcell.bt{border-top-width:3px} .gbcell.br{border-right-width:3px} .gbcell.bb{border-bottom-width:3px} .gbcell.bl{border-left-width:3px}
+.gbr0{background:var(--gb0)} .gbr1{background:var(--gb1)} .gbr2{background:var(--gb2)} .gbr3{background:var(--gb3)} .gbr4{background:var(--gb4)}
+.gbr5{background:var(--gb5)} .gbr6{background:var(--gb6)} .gbr7{background:var(--gb7)} .gbr8{background:var(--gb8)}
+.gbcell:focus-visible{outline:3px solid var(--brand); outline-offset:-3px; z-index:1}
+.gbcell.bad{box-shadow:inset 0 0 0 3px #d6372b}
+.gbtag{position:absolute; left:3px; top:1px; font:700 9px/1 var(--font); font-style:normal; opacity:.65; pointer-events:none}
+.gbx{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font:700 clamp(14px,4.5vw,22px) var(--font); opacity:.7; pointer-events:none}
+.gbgnome{position:absolute; inset:12%; width:76%; height:76%; pointer-events:none}
+.gbhat{fill:var(--gbhat); stroke:var(--gbline); stroke-width:.4}
+.gbface{fill:#f6d9b8; stroke:var(--gbline); stroke-width:.4}
+.gbbeard{fill:#f4f0e6; stroke:var(--gbline); stroke-width:.4}

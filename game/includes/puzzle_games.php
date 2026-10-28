@@ -14,12 +14,14 @@ require_once __DIR__ . '/rewards.php';
 
 const PUZZLE_GAMES = [
     'barrel' => ['Rain Barrel', '🚰', 'rainbarrel.php', 'Turn the gutters so the water reaches every sprout.', 'pz_barrel_open'],
+    'beds' => ['Gnome Beds', '🛏️', 'gnomebeds.php', 'One gnome in every row, column and bed.', 'pz_beds_open'],
 ];
 const PZ_HINT_MS = 20000;
 const PZ_MAX_HINTS = 3;
 const PZ_DAILY_STARTS = 20;
 const PZ_PRACTICE_STARTS = 60;
 const PZ_BARREL_SIZES = [6 => 6000, 8 => 11000, 5 => 4000];   // size => fastest believable solve (ms)
+const PZ_BEDS_SIZES = [8 => 9000, 6 => 5000, 7 => 7000, 9 => 11000];
 
 /** Make the run tables if the upgrade hasn't yet. */
 function pzgames_ensure(): bool
@@ -157,6 +159,173 @@ function rb_apply(array $scr, array $r): ?array
     return $out;
 }
 
+// ---------------- Gnome Beds: one gnome per row, column and bed, none touching ----------------
+// A grid n x n of n coloured beds (regions). Cells are row*n+col. A placement is a list of n columns, one per row (-1 = none yet).
+
+/** Solutions (up to $limit) of a bed layout; each is a list of n columns. */
+function gb_solutions(array $reg, int $n, int $limit = 2): array
+{
+    $out = [];
+    $cols = array_fill(0, $n, -1);
+    $rec = function (int $r, int $usedC, int $usedR) use (&$rec, &$out, &$cols, $reg, $n, $limit) {
+        if (count($out) >= $limit) return;
+        if ($r === $n) { $out[] = $cols; return; }
+        for ($c = 0; $c < $n; $c++) {
+            if ($usedC & (1 << $c)) continue;
+            $g = $reg[$r * $n + $c];
+            if ($usedR & (1 << $g)) continue;
+            if ($r > 0 && abs($c - $cols[$r - 1]) <= 1) continue;
+            $cols[$r] = $c;
+            $rec($r + 1, $usedC | (1 << $c), $usedR | (1 << $g));
+            $cols[$r] = -1;
+            if (count($out) >= $limit) return;
+        }
+    };
+    $rec(0, 0, 0);
+    return $out;
+}
+
+/** Is region $a still one connected piece once cell $x is taken out of it? */
+function gb_connected_without(array $reg, int $n, int $a, int $x): bool
+{
+    $cells = [];
+    foreach ($reg as $c => $g) if ($g === $a && $c !== $x) $cells[] = $c;
+    if (!$cells) return false;
+    $seen = [$cells[0] => true]; $st = [$cells[0]];
+    while ($st) {
+        $c = array_pop($st); $cx = $c % $n; $cy = intdiv($c, $n);
+        foreach ([[0, -1], [1, 0], [0, 1], [-1, 0]] as [$dx, $dy]) {
+            $nx = $cx + $dx; $ny = $cy + $dy;
+            if ($nx < 0 || $ny < 0 || $nx >= $n || $ny >= $n) continue;
+            $d = $ny * $n + $nx;
+            if (($reg[$d] ?? -1) === $a && $d !== $x && !isset($seen[$d])) { $seen[$d] = true; $st[] = $d; }
+        }
+    }
+    return count($seen) === count($cells);
+}
+
+/** The puzzle for a seed: ['n', 'reg' (bed index per cell), 'sol' (columns per row)]. The layout has exactly one solution:
+ *  beds grow from a legal placement, then any other solution is broken by moving a border cell into a neighbouring bed. */
+function gb_make(int $seed, int $n): array
+{
+    $rnd = pz_rng($seed);
+    $shuffle = function (array $a) use ($rnd): array { for ($i = count($a) - 1; $i > 0; $i--) { $j = (int)floor($rnd() * ($i + 1)); [$a[$i], $a[$j]] = [$a[$j], $a[$i]]; } return $a; };
+    $dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+    $best = null;
+    for ($outer = 0; $outer < 12; $outer++) {
+        $cols = array_fill(0, $n, -1);
+        $place = function (int $r, int $used) use (&$place, &$cols, $n, $shuffle): bool {
+            if ($r === $n) return true;
+            foreach ($shuffle(range(0, $n - 1)) as $c) {
+                if ($used & (1 << $c)) continue;
+                if ($r > 0 && abs($c - $cols[$r - 1]) <= 1) continue;
+                $cols[$r] = $c;
+                if ($place($r + 1, $used | (1 << $c))) return true;
+                $cols[$r] = -1;
+            }
+            return false;
+        };
+        if (!$place(0, 0)) continue;
+        $gn = []; foreach ($cols as $r => $c) $gn[$r * $n + $c] = $r;   // gnome cell => bed
+        $reg = array_fill(0, $n * $n, -1);
+        $front = [];
+        $push = function (int $c, int $g) use (&$front, $n, &$reg, $dirs) {
+            $x = $c % $n; $y = intdiv($c, $n);
+            foreach ($dirs as [$dx, $dy]) {
+                $nx = $x + $dx; $ny = $y + $dy;
+                if ($nx >= 0 && $ny >= 0 && $nx < $n && $ny < $n && $reg[$ny * $n + $nx] < 0) $front[] = [$ny * $n + $nx, $g];
+            }
+        };
+        foreach ($gn as $c => $g) $reg[$c] = $g;
+        foreach ($gn as $c => $g) $push($c, $g);
+        while ($front) {
+            $k = (int)floor($rnd() * count($front));
+            [$c, $g] = $front[$k];
+            $front[$k] = $front[count($front) - 1]; array_pop($front);
+            if ($reg[$c] >= 0) continue;
+            $reg[$c] = $g;
+            $push($c, $g);
+        }
+        for ($it = 0; $it < 400; $it++) {
+            $sols = gb_solutions($reg, $n, 6);
+            if (count($sols) === 1) return ['n' => $n, 'reg' => $reg, 'sol' => $sols[0]];
+            if ($best === null || count($sols) < $best[0]) $best = [count($sols), ['n' => $n, 'reg' => $reg, 'sol' => $cols]];
+            $alt = null;
+            foreach ($sols as $sl) if ($sl !== $cols) { $alt = $sl; break; }
+            if ($alt === null) break;
+            // moves that kill this other solution: take one of its gnomes' cells (not our own gnome) into a bed it already uses elsewhere
+            $moves = []; $other = [];
+            foreach ($shuffle(array_keys($alt)) as $r) {
+                $x = $r * $n + $alt[$r];
+                if (isset($gn[$x])) continue;
+                $a = $reg[$x];
+                $xc = $x % $n; $xr = intdiv($x, $n);
+                foreach ($shuffle($dirs) as [$dx, $dy]) {
+                    $nx = $xc + $dx; $ny = $xr + $dy;
+                    if ($nx < 0 || $ny < 0 || $nx >= $n || $ny >= $n) continue;
+                    $b = $reg[$ny * $n + $nx];
+                    if ($b === $a || !gb_connected_without($reg, $n, $a, $x)) continue;
+                    $used = false;
+                    foreach ($alt as $r2 => $c2) if ($r2 !== $r && $reg[$r2 * $n + $c2] === $b) { $used = true; break; }
+                    if ($used) $moves[] = [$x, $b]; else $other[] = [$x, $b];
+                }
+            }
+            $pick = $moves ?: $other;
+            if (!$pick || $rnd() < 0.08) {   // stuck (the other answer sits inside a bed) or a little noise: move any border cell that isn't a gnome's
+                $pick = [];
+                foreach ($shuffle(range(0, $n * $n - 1)) as $x) {
+                    if (isset($gn[$x])) continue;
+                    $xc = $x % $n; $xr = intdiv($x, $n);
+                    foreach ($shuffle($dirs) as [$dx, $dy]) {
+                        $nx = $xc + $dx; $ny = $xr + $dy;
+                        if ($nx < 0 || $ny < 0 || $nx >= $n || $ny >= $n) continue;
+                        $b = $reg[$ny * $n + $nx];
+                        if ($b !== $reg[$x] && gb_connected_without($reg, $n, $reg[$x], $x)) { $pick[] = [$x, $b]; break 2; }
+                    }
+                }
+                if (!$pick) break;
+            }
+            [$x, $b] = $pick[(int)floor($rnd() * count($pick))];
+            $reg[$x] = $b;
+        }
+    }
+    return $best[1] ?? ['n' => $n, 'reg' => [], 'sol' => []];   // not reached for sizes 5 to 9 in practice (tests check)
+}
+
+/** gb_make() with a small file cache (data/pzcache): a garden can take a second to build and start, hint and finish all need it. */
+function gb_get(int $seed, int $n): array
+{
+    static $mem = [];
+    $k = $seed . '-' . $n;
+    if (isset($mem[$k])) return $mem[$k];
+    $dir = APP_ROOT . '/data/pzcache';
+    $f = $dir . '/beds-' . $k . '.json';
+    $j = is_file($f) ? json_decode((string)@file_get_contents($f), true) : null;
+    if (is_array($j) && isset($j['reg'], $j['sol'])) return $mem[$k] = $j;
+    $p = gb_make($seed, $n);
+    if (@is_dir($dir) || @mkdir($dir, 0775, true)) {
+        $tmp = $f . '.' . bin2hex(random_bytes(4));
+        if (@file_put_contents($tmp, json_encode($p)) !== false) @rename($tmp, $f);
+        if (random_int(1, 30) === 1) foreach (glob($dir . '/beds-*.json') ?: [] as $old) if (@filemtime($old) < time() - 3 * 86400) @unlink($old);
+    }
+    return $mem[$k] = $p;
+}
+
+/** True when $g (n columns, -1 = empty) is a full legal placement: every row, column and bed once, no gnomes touching. */
+function gb_valid(array $g, array $reg, int $n): bool
+{
+    if (count($g) !== $n) return false;
+    $uc = $ur = 0;
+    foreach ($g as $r => $c) {
+        if (!is_int($c) || $c < 0 || $c >= $n) return false;
+        $b = $reg[$r * $n + $c];
+        if (($uc & (1 << $c)) || ($ur & (1 << $b))) return false;
+        $uc |= 1 << $c; $ur |= 1 << $b;
+        if ($r > 0 && abs($c - $g[$r - 1]) <= 1) return false;
+    }
+    return true;
+}
+
 // ---------------- runs ----------------
 
 function pzr_row(array $u, string $token): ?array
@@ -165,31 +334,90 @@ function pzr_row(array $u, string $token): ?array
     return q_one('SELECT * FROM puzzle_runs WHERE token = ? AND user_id = ?', [$token, (int)$u['id']]) ?: null;
 }
 
-/** Start a run. Returns [ok, message, data]. mode: daily | practice. */
-function pz_barrel_start(array $u, string $mode, int $size): array
+/** Open a run for any game: caps, voids the open one, picks the seed (daily = same for everyone). [ok, token or message, seed, size, mode] */
+function pz_run_start(array $u, string $game, string $mode, int $size, array $sizes, int $dailySize): array
 {
-    if (!pzgames_ensure()) return [false, 'Puzzles aren’t ready yet.', []];
+    if (!pzgames_ensure()) return [false, 'Puzzles aren’t ready yet.', 0, 0, ''];
     $uid = (int)$u['id'];
     $day = game_day();
     if (random_int(1, 50) === 1) q('DELETE FROM puzzle_runs WHERE started_at < ?', [gmdate('Y-m-d H:i:s', time() - 14 * 86400)]);   // old runs (the daily wins and streaks live in puzzle_wins)
-    if ($mode !== 'practice') { $mode = 'daily'; $size = 6; }
-    if (!isset(PZ_BARREL_SIZES[$size])) $size = 6;
-    $since = q_val("SELECT COUNT(*) FROM puzzle_runs WHERE user_id = ? AND game = 'barrel' AND day = ? AND mode = ?", [$uid, $day, $mode]);
-    if ((int)$since >= ($mode === 'daily' ? PZ_DAILY_STARTS : PZ_PRACTICE_STARTS)) return [false, 'That’s enough for today. Come back tomorrow!', []];
-    q("UPDATE puzzle_runs SET status = 'void' WHERE user_id = ? AND game = 'barrel' AND status = 'open'", [$uid]);
-    $seed = $mode === 'daily' ? pz_daily_seed('barrel', $day, $size) : random_int(1, 2147483646);
+    if ($mode !== 'practice') { $mode = 'daily'; $size = $dailySize; }
+    if (!isset($sizes[$size])) $size = $dailySize;
+    $n = (int)q_val("SELECT COUNT(*) FROM puzzle_runs WHERE user_id = ? AND game = ? AND day = ? AND mode = ?", [$uid, $game, $day, $mode]);
+    if ($n >= ($mode === 'daily' ? PZ_DAILY_STARTS : PZ_PRACTICE_STARTS)) return [false, 'That’s enough for today. Come back tomorrow!', 0, 0, ''];
+    q("UPDATE puzzle_runs SET status = 'void' WHERE user_id = ? AND game = ? AND status = 'open'", [$uid, $game]);
+    $seed = $mode === 'daily' ? pz_daily_seed($game, $day, $size) : random_int(1, 2147483646);
     $token = bin2hex(random_bytes(16));
-    db_insert('puzzle_runs', ['token' => $token, 'user_id' => $uid, 'game' => 'barrel', 'day' => $day, 'mode' => $mode, 'size' => $size, 'seed' => $seed,
+    db_insert('puzzle_runs', ['token' => $token, 'user_id' => $uid, 'game' => $game, 'day' => $day, 'mode' => $mode, 'size' => $size, 'seed' => $seed,
         'start_ms' => (int)floor(microtime(true) * 1000), 'started_at' => now(), 'status' => 'open']);
-    $p = rb_make($seed, $size);
-    return [true, $token, ['n' => $size, 'tiles' => $p['scr'], 'src' => $p['src'], 'mode' => $mode]];
+    return [true, $token, $seed, $size, $mode];
 }
 
-/** A hint: the first tile (by position) that is wrong against the dealt answer, with its turns. +20 s each, 3 at most. [ok, message, data] */
-function pz_barrel_hint(array $u, string $token, array $r): array
+/** An open run of this game for the user, or [null, message]. */
+function pz_run_open(array $u, string $game, string $token): array
 {
     $run = pzr_row($u, $token);
-    if (!$run || $run['status'] !== 'open' || $run['game'] !== 'barrel') return [false, 'That run isn’t open.', []];
+    if (!$run || $run['game'] !== $game) return [null, 'That run wasn’t found.'];
+    if ($run['status'] !== 'open') return [null, 'That run was already handed in.'];
+    return [$run, ''];
+}
+
+/** Take a hint on a run: +20 s each, 3 at most. True if counted. */
+function pz_run_hint(array $run): bool
+{
+    return q("UPDATE puzzle_runs SET hints = hints + 1 WHERE id = ? AND status = 'open' AND hints < " . PZ_MAX_HINTS, [(int)$run['id']])->rowCount() === 1;
+}
+
+/** Close a SOLVED run: refuse impossibly fast ones, add hint time, pay the daily reward once. [ok, message, data] */
+function pz_run_finish(array $u, array $run, int $minMs, string $winText): array
+{
+    $real = (int)floor(microtime(true) * 1000) - (int)$run['start_ms'];
+    if ($real < $minMs) {
+        q("UPDATE puzzle_runs SET status = 'reject', ms = ? WHERE id = ? AND status = 'open'", [$real, (int)$run['id']]);
+        return [false, 'That was faster than a gnome can manage. It didn’t count.', ['rejected' => true]];
+    }
+    $ms = $real + (int)$run['hints'] * PZ_HINT_MS;
+    if (q("UPDATE puzzle_runs SET status = 'done', ms = ? WHERE id = ? AND status = 'open'", [$ms, (int)$run['id']])->rowCount() !== 1) return [false, 'That run was already handed in.', []];
+    $uid = (int)$u['id'];
+    $game = (string)$run['game'];
+    $extra = ['ms' => $ms, 'text' => puzzle_ms_text($ms)];
+    $msg = $winText . ' ' . puzzle_ms_text($ms) . '!';
+    if ($run['mode'] === 'daily') {
+        $best = (int)q_val("SELECT MIN(ms) FROM puzzle_runs WHERE user_id = ? AND game = ? AND day = ? AND mode = 'daily' AND status = 'done'", [$uid, $game, $run['day']]);
+        $extra['best'] = $best;
+        $first = false;
+        try { db_insert('puzzle_wins', ['game' => $game, 'day' => $run['day'], 'user_id' => $uid, 'ms' => $ms, 'created_at' => now()]); $first = true; } catch (Throwable $e) {}
+        if ($first) {
+            $pet = game_petals((int)setting('pz_daily_petals'));
+            if ($pet > 0) give_petals($uid, $pet, 'puzzle ' . $game . ' daily');
+            $en = game_energy($uid, true);
+            $msg .= ' Daily reward: ' . ($pet > 0 ? money($pet) : 'a pat on the back') . $en . '.';
+            $extra['reward'] = $pet;
+        } else {
+            $msg .= $ms <= $best ? ' A new best for today!' : ' Your best today is ' . puzzle_ms_text($best) . '.';
+        }
+        $extra['rank'] = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_runs WHERE game = ? AND day = ? AND mode = 'daily' AND status = 'done' GROUP BY user_id) x WHERE x.b < ?", [$game, $run['day'], $best]);
+    } else {
+        $msg .= ' Practice pays nothing but it’s good for you.';
+    }
+    return [true, $msg, $extra];
+}
+
+// ---------------- Rain Barrel runs ----------------
+
+function pz_barrel_start(array $u, string $mode, int $size): array
+{
+    [$ok, $tok, $seed, $n, $m] = pz_run_start($u, 'barrel', $mode, $size, PZ_BARREL_SIZES, 6);
+    if (!$ok) return [false, $tok, []];
+    $p = rb_make($seed, $n);
+    return [true, $tok, ['n' => $n, 'tiles' => $p['scr'], 'src' => $p['src'], 'mode' => $m]];
+}
+
+/** A hint: the first tile (by position) that is wrong against the dealt answer, with its turns. [ok, message, data] */
+function pz_barrel_hint(array $u, string $token, array $r): array
+{
+    [$run, $err] = pz_run_open($u, 'barrel', $token);
+    if (!$run) return [false, $err, []];
     if ((int)$run['hints'] >= PZ_MAX_HINTS) return [false, 'The Old Wizard has no more hints for this one.', []];
     $p = rb_make((int)$run['seed'], (int)$run['size']);
     $cur = rb_apply($p['scr'], $r);
@@ -197,51 +425,58 @@ function pz_barrel_hint(array $u, string $token, array $r): array
     foreach ($p['sol'] as $i => $want) {
         if ($cur[$i] === $want) continue;
         for ($t = 0; $t < 4; $t++) if (rb_rot($p['scr'][$i], $t) === $want) break;
-        if (q("UPDATE puzzle_runs SET hints = hints + 1 WHERE id = ? AND status = 'open' AND hints < " . PZ_MAX_HINTS, [(int)$run['id']])->rowCount() !== 1) return [false, 'No more hints.', []];
+        if (!pz_run_hint($run)) return [false, 'No more hints.', []];
         return [true, 'Try this one.', ['cell' => $i, 'r' => $t, 'hints' => (int)$run['hints'] + 1]];
     }
     return [false, 'Nothing is wrong that I can see.', []];
 }
 
-/** Hand in a run. [ok, message, data]. The time is the server's; each hint adds 20 s. The daily reward is paid once per day. */
 function pz_barrel_finish(array $u, string $token, array $r): array
 {
-    $run = pzr_row($u, $token);
-    if (!$run || $run['game'] !== 'barrel') return [false, 'That run wasn’t found.', []];
-    if ($run['status'] !== 'open') return [false, 'That run was already handed in.', []];
+    [$run, $err] = pz_run_open($u, 'barrel', $token);
+    if (!$run) return [false, $err, []];
     $n = (int)$run['size'];
     $p = rb_make((int)$run['seed'], $n);
     $fin = rb_apply($p['scr'], $r);
     if ($fin === null || !rb_valid($fin, $n)) return [false, 'Still leaking. Keep turning!', ['retry' => true]];
-    $real = (int)floor(microtime(true) * 1000) - (int)$run['start_ms'];
-    if ($real < (PZ_BARREL_SIZES[$n] ?? 6000)) {
-        q("UPDATE puzzle_runs SET status = 'reject', ms = ? WHERE id = ? AND status = 'open'", [$real, (int)$run['id']]);
-        return [false, 'That was faster than a gnome can turn gutters. It didn’t count.', ['rejected' => true]];
+    return pz_run_finish($u, $run, PZ_BARREL_SIZES[$n] ?? 6000, 'Every sprout is watered in');
+}
+
+// ---------------- Gnome Beds runs ----------------
+
+function pz_beds_start(array $u, string $mode, int $size): array
+{
+    [$ok, $tok, $seed, $n, $m] = pz_run_start($u, 'beds', $mode, $size, PZ_BEDS_SIZES, 8);
+    if (!$ok) return [false, $tok, []];
+    $p = gb_get($seed, $n);
+    return [true, $tok, ['n' => $n, 'reg' => $p['reg'], 'mode' => $m]];
+}
+
+/** $g = the player's columns per row (-1 = empty). Hint = a row that is not on the answer yet. */
+function pz_beds_hint(array $u, string $token, array $g): array
+{
+    [$run, $err] = pz_run_open($u, 'beds', $token);
+    if (!$run) return [false, $err, []];
+    if ((int)$run['hints'] >= PZ_MAX_HINTS) return [false, 'The Old Wizard has no more hints for this one.', []];
+    $n = (int)$run['size'];
+    $p = gb_get((int)$run['seed'], $n);
+    if (count($g) !== $n) return [false, 'Something went wrong. Refresh and try again.', []];
+    foreach ($p['sol'] as $r => $c) {
+        if (($g[$r] ?? -1) === $c) continue;
+        if (!pz_run_hint($run)) return [false, 'No more hints.', []];
+        return [true, 'A gnome belongs here.', ['row' => $r, 'col' => $c, 'hints' => (int)$run['hints'] + 1]];
     }
-    $ms = $real + (int)$run['hints'] * PZ_HINT_MS;
-    if (q("UPDATE puzzle_runs SET status = 'done', ms = ? WHERE id = ? AND status = 'open'", [$ms, (int)$run['id']])->rowCount() !== 1) return [false, 'That run was already handed in.', []];
-    $uid = (int)$u['id'];
-    $extra = ['ms' => $ms, 'text' => puzzle_ms_text($ms)];
-    $msg = 'Every sprout is watered in ' . puzzle_ms_text($ms) . '!';
-    if ($run['mode'] === 'daily') {
-        $best = (int)q_val("SELECT MIN(ms) FROM puzzle_runs WHERE user_id = ? AND game = 'barrel' AND day = ? AND mode = 'daily' AND status = 'done'", [$uid, $run['day']]);
-        $extra['best'] = $best;
-        $first = false;
-        try { db_insert('puzzle_wins', ['game' => 'barrel', 'day' => $run['day'], 'user_id' => $uid, 'ms' => $ms, 'created_at' => now()]); $first = true; } catch (Throwable $e) {}
-        if ($first) {
-            $pet = game_petals((int)setting('pz_daily_petals'));
-            if ($pet > 0) give_petals($uid, $pet, 'puzzle barrel daily');
-            $en = game_energy($uid, true);
-            $msg .= ' Daily reward: ' . ($pet > 0 ? money($pet) : 'a pat on the back') . $en . '.';
-            $extra['reward'] = $pet;
-        } else {
-            $msg .= $ms <= $best ? ' A new best for today!' : ' Your best today is ' . puzzle_ms_text($best) . '.';
-        }
-        $extra['rank'] = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_runs WHERE game = 'barrel' AND day = ? AND mode = 'daily' AND status = 'done' GROUP BY user_id) x WHERE x.b < ?", [$run['day'], $best]);
-    } else {
-        $msg .= ' Practice pays nothing but it’s good for you.';
-    }
-    return [true, $msg, $extra];
+    return [false, 'Nothing is wrong that I can see.', []];
+}
+
+function pz_beds_finish(array $u, string $token, array $g): array
+{
+    [$run, $err] = pz_run_open($u, 'beds', $token);
+    if (!$run) return [false, $err, []];
+    $n = (int)$run['size'];
+    $p = gb_get((int)$run['seed'], $n);
+    if (!gb_valid(array_values($g), $p['reg'], $n)) return [false, 'Not quite. A row, column or bed is doubled, or two gnomes touch.', ['retry' => true]];
+    return pz_run_finish($u, $run, PZ_BEDS_SIZES[$n] ?? 8000, 'Every bed has its gnome in');
 }
 
 /** Today's fastest for a game: rows of [user_id, name, best]. */

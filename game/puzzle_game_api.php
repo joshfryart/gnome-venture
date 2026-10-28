@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-// v2.0.71: puzzle game runs (Rain Barrel). POST only, CSRF, JSON. g=barrel; do=start (mode, size) / hint (token, r) / finish (token, r).
+// v2.0.71: puzzle game runs (Rain Barrel; v2.0.72 Gnome Beds). POST only, CSRF, JSON. g=barrel|beds; do=start (mode, size) / hint (token, r) / finish (token, r).
 // The server deals the puzzle from a seed and never sends the answer; the time is the server's clock; the daily reward is paid once a day.
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/puzzle_games.php';
@@ -21,16 +21,18 @@ $do = (string)($_POST['do'] ?? '');
 $token = (string)($_POST['token'] ?? '');
 $r = json_decode((string)($_POST['r'] ?? '[]'), true);
 if (!is_array($r) || count($r) > 400) $r = [];
+foreach ($r as $v) if (!is_int($v)) { $r = []; break; }
+$fn = ['barrel' => ['pz_barrel_start', 'pz_barrel_hint', 'pz_barrel_finish'], 'beds' => ['pz_beds_start', 'pz_beds_hint', 'pz_beds_finish']][$g];
 if ($do === 'start') {
-    [$ok, $msg, $x] = pz_barrel_start($u, (string)($_POST['mode'] ?? 'daily'), (int)($_POST['size'] ?? 6));
+    [$ok, $msg, $x] = $fn[0]($u, (string)($_POST['mode'] ?? 'daily'), (int)($_POST['size'] ?? 0));
     $out($ok ? ['ok' => true, 'token' => $msg] + $x : ['ok' => false, 'error' => $msg]);
 }
 if ($do === 'hint') {
-    [$ok, $msg, $x] = pz_barrel_hint($u, $token, $r);
+    [$ok, $msg, $x] = $fn[1]($u, $token, $r);
     $out(['ok' => $ok, ($ok ? 'message' : 'error') => $msg] + $x);
 }
 if ($do === 'finish') {
-    [$ok, $msg, $x] = pz_barrel_finish($u, $token, $r);
+    [$ok, $msg, $x] = $fn[2]($u, $token, $r);
     $out(['ok' => $ok, ($ok ? 'message' : 'error') => $msg] + $x);
 }
 $out(['ok' => false, 'error' => 'Unknown request.'], 400);

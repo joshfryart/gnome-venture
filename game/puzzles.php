@@ -34,15 +34,16 @@ page_header('Puzzles');
       <small>Moving jigsaws. The picture plays while you solve it.</small>
       <span class="gtbadge"><?= $live ? '🏆 Tournament' : 'Relax' ?></span>
     </a></li>
-    <?php if (puzzle_game_open('barrel')): $bd = pz_done_today((int)$u['id'], 'barrel'); ?>
-    <li><a class="box pzhubcard" href="<?= e(url('rainbarrel.php')) ?>">
-      <span class="gticon">🚰</span>
-      <b>Rain Barrel</b>
-      <small>Turn the gutters so the water reaches every sprout.</small>
+    <?php $soon = ['snail' => ['🐌', 'Snail Trail', 'Draw one slimy trail through every square.']];
+    foreach (PUZZLE_GAMES as $k => [$nm, $ic, $pg, $bl]): if (!puzzle_game_open($k)) { $soon = [$k => [$ic, $nm, $bl]] + $soon; continue; } $bd = pz_done_today((int)$u['id'], $k); ?>
+    <li><a class="box pzhubcard" href="<?= e(url($pg)) ?>">
+      <span class="gticon"><?= $ic ?></span>
+      <b><?= e($nm) ?></b>
+      <small><?= e($bl) ?></small>
       <span class="gtbadge"><?= $bd !== null ? 'Daily done ✓' : 'Daily ready' ?></span>
     </a></li>
-    <?php endif; ?>
-    <?php foreach (array_filter([puzzle_game_open('barrel') ? null : ['🚰', 'Rain Barrel', 'Turn the gutters so the water reaches every sprout.'], ['🛏️', 'Gnome Beds', 'One gnome in every row, column and bed.'], ['🐌', 'Snail Trail', 'Draw one slimy trail through every square.']]) as [$ic, $nm, $bl]): ?>
+    <?php endforeach; ?>
+    <?php foreach ($soon as [$ic, $nm, $bl]): ?>
     <li><div class="box pzhubcard pzsoon" aria-disabled="true">
       <span class="gticon"><?= $ic ?></span>
       <b><?= e($nm) ?></b>

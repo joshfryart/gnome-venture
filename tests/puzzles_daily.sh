@@ -10,6 +10,7 @@ login() { rm -f $1; curl -s -c $1 -b $1 $BASE/login.php > $W/l.html; curl -s -c 
 ok() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1 (got '$2', want '$3')"; fi; }
 js() { php -r '$j=json_decode(stream_get_contents(STDIN), true); echo is_array($j) ? var_export($j[$argv[1]] ?? null, true) : "nojson";' "$1"; }
 setg() { dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('$1','$2')"; }
+php "$HERE/pz_beds.php" $GAME   # Gnome Beds generator: exactly one answer per garden
 php "$HERE/pz_barrel.php" $GAME   # generator: 1095 puzzles valid, trees, same seed same puzzle
 login $W/p sprout 'TestPass123!'
 curl -s -b $W/p $BASE/index.php > $W/i.html; C=$(csrf $W/i.html); [ -n "$C" ] || { curl -s -b $W/p $BASE/games.php > $W/i.html; C=$(csrf $W/i.html); }
@@ -94,4 +95,45 @@ ok "someone else's token refused" "$(curl -s -b $W/p -X POST $BASE/puzzle_game_a
 dbx "UPDATE puzzle_runs SET day = day"  # no-op keeps sqlite happy
 for i in $(seq 1 20); do api -d do=start -d mode=daily >/dev/null; done
 ok "daily starts are capped" "$(api -d do=start -d mode=daily | js ok)" false
-setg puzzles_open 0; setg pz_barrel_open 0
+# ---- Gnome Beds (v2.0.72) ----
+setg puzzles_open 1; setg pz_beds_open 0
+apib() { curl -s -b $W/p -X POST $BASE/puzzle_game_api.php --data-urlencode "csrf=$C" -d g=beds "$@"; }
+ok "beds closed: page redirects" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/gnomebeds.php)" 302
+ok "beds closed: api refuses" "$(apib -d do=start -d mode=daily | js ok)" false
+setg pz_beds_open 1
+ok "beds open: page loads, js wired" "$(curl -s -b $W/p $BASE/gnomebeds.php | grep -c 'assets/gnomebeds.js')" 1
+ok "hub lists Gnome Beds" "$(curl -s -b $W/p $BASE/puzzles.php | grep -c 'gnomebeds.php')" 1
+dbx "DELETE FROM puzzle_wins"; dbx "DELETE FROM puzzle_runs"
+C0=$(coins)
+apib -d do=start -d mode=daily > $W/b1.json; B1=$(js token < $W/b1.json | tr -d "'")
+ok "beds daily start" "$(js ok < $W/b1.json)" true
+ok "8x8 dealt: 64 cells" "$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo count($j["reg"]) . "/" . $j["n"];' $W/b1.json)" 64/8
+ok "beds: the answer is not sent" "$(grep -c '"sol"' $W/b1.json)" 0
+BSEED=$(dbv "SELECT seed FROM puzzle_runs WHERE token = '$B1'")
+BSOL=$(php "$HERE/pz_beds_solve.php" $GAME $BSEED 8)
+EMPTY=$(php -r 'echo json_encode(array_fill(0,8,-1));')
+ok "beds: empty garden refused" "$(apib -d do=finish -d token=$B1 --data-urlencode "r=$EMPTY" | js retry)" true
+TOUCH=$(php -r '$s=json_decode($argv[1]); $s[1]=$s[0]+($s[0]<7?1:-1); echo json_encode($s);' "$BSOL")
+ok "beds: touching gnomes refused" "$(apib -d do=finish -d token=$B1 --data-urlencode "r=$TOUCH" | js retry)" true
+ok "beds: too fast refused" "$(apib -d do=finish -d token=$B1 --data-urlencode "r=$BSOL" | js rejected)" true
+ok "beds: no reward when too fast" "$(coins)" $C0
+apib -d do=start -d mode=daily > $W/b2.json; B2=$(js token < $W/b2.json | tr -d "'")
+dbx "UPDATE puzzle_runs SET start_ms = start_ms - 90000 WHERE token = '$B2'"
+ok "beds: floats in r refused" "$(apib -d do=finish -d token=$B2 --data-urlencode 'r=[1.5,2,3,4,5,6,7,0]' | js ok)" false
+apib -d do=finish -d token=$B2 --data-urlencode "r=$BSOL" > $W/bf.json
+ok "beds: solved counts" "$(js ok < $W/bf.json)" true
+ok "beds: daily reward paid once" "$(dbv "SELECT COUNT(*) FROM puzzle_wins WHERE game = 'beds'")" 1
+ok "beds: reused token refused" "$(apib -d do=finish -d token=$B2 --data-urlencode "r=$BSOL" | js ok)" false
+ok "beds: barrel and beds wins are separate" "$(dbv "SELECT COUNT(*) FROM puzzle_wins")" 1
+apib -d do=start -d mode=daily > $W/b3.json; B3=$(js token < $W/b3.json | tr -d "'")
+apib -d do=hint -d token=$B3 --data-urlencode "r=$EMPTY" > $W/bh.json
+ok "beds: hint names a square on the answer" "$(php -r '$h=json_decode(file_get_contents($argv[1]),true); $s=json_decode($argv[2]); echo ($h["ok"] && $s[$h["row"]]===$h["col"]) ? "yes" : "no";' $W/bh.json "$BSOL")" yes
+ok "beds: hint counted" "$(dbv "SELECT hints FROM puzzle_runs WHERE token = '$B3'")" 1
+apib -d do=start -d mode=practice -d size=6 > $W/b4.json; B4=$(js token < $W/b4.json | tr -d "'")
+ok "beds practice 6x6 dealt" "$(php -r '$j=json_decode(file_get_contents($argv[1]),true); echo count($j["reg"]);' $W/b4.json)" 36
+BS4=$(dbv "SELECT seed FROM puzzle_runs WHERE token = '$B4'")
+dbx "UPDATE puzzle_runs SET start_ms = start_ms - 90000 WHERE token = '$B4'"
+CB=$(coins)
+ok "beds practice solved" "$(apib -d do=finish -d token=$B4 --data-urlencode "r=$(php $HERE/pz_beds_solve.php $GAME $BS4 6)" | js ok)" true
+ok "beds practice pays nothing" "$(coins)" $CB
+setg puzzles_open 0; setg pz_barrel_open 0; setg pz_beds_open 0

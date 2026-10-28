@@ -352,6 +352,7 @@ function settings_schema(): array
         'worm_coins_per_point' => ['label' => 'Worm Hunting: currency per point', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 1000],
         'puzzles_open' => ['label' => 'Games: Puzzles (hub + GIFsaw) open to every player (off = admins only) (v2.0.2)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'pz_barrel_open' => ['label' => 'Puzzles: Rain Barrel open to every player (off = admins only; needs Puzzles open) (v2.0.71)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'pz_beds_open' => ['label' => 'Puzzles: Gnome Beds open to every player (off = admins only; needs Puzzles open) (v2.0.72)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'pz_daily_petals' => ['label' => 'Puzzles: Petals for the first daily win of each puzzle game, once a day (v2.0.71)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 500],
         'puzzles_front' => ['label' => 'Front page: logged-out visitors can play a GIFsaw demo (v2.0.69)', 'type' => 'select', 'default' => '1', 'options' => ['1' => 'On', '0' => 'Off']],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
