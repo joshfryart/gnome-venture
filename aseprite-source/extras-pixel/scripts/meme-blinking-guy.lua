@@ -1,7 +1,7 @@
--- puzzles/blinking-guy.gif redraw (pass 3: felt nap, fringe shadow, hair strands, 3-depth bokeh, slower blink): a felt-puppet close-up doing the slow disbelieving blink,
+-- puzzles/blinking-guy.gif redraw (pass 4: tapered felt-tuft fringe, stepped cheek ramp; pass 3: felt nap, 3-depth bokeh, slower blink): a felt-puppet close-up doing the slow disbelieving blink,
 -- eyes shifting, brows climbing, lopsided forced smile, in front of dark felt bokeh. Generic puppet, not a likeness.
 -- Framed like the source: face fills the frame and bleeds off the left and bottom, hair off the top,
--- jaw, ear and bokeh on the right. 544x640, 22 key frames with per-frame ms, loops forever.
+-- jaw, ear and bokeh on the right. 544x640, 21 key frames with per-frame ms, loops forever.
 -- Drawn on a 272x320 half grid (scene mode, no halo), written at 2x nearest.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
@@ -17,6 +17,7 @@ local white = GV.ramp("#f1ece0")            -- soil cream (pale)
 local iris  = GV.R.water
 local SK = GV.R.skin                        -- skin: base e9b98a, bounce d9885a, shade c47a52, deep 8a4234
 local LASH, UMB = "#2a1a10", "#4a2c1a"
+local CHEEK = { "#d69a6e", "#a85e43" }      -- in-between skin steps: base>mid>shade, shade>dark>deep
 local BG = { "#121a38", "#16203f", "#1a2648", "#1e2a50", "#16203f", "#121a38" }
 
 -- deterministic hash in [0,1) for felt flecks / tuft fuzz (keyed to face-local coords so it rides with the head)
@@ -99,56 +100,100 @@ local function drawFrame(p)
   local face = c:poly(P{ {-16, -16}, {186, -16}, {193, 40}, {198, 88}, {200, 126}, {199, 160},
     {195, 198}, {189, 236}, {181, 266}, {170, 292}, {158, 316}, {150, 340}, {-16, 340} })
   c:part(face, "skin", { cres = 13, deep = 5, gloss = { 30 + X, 166 + Y } })
-  -- form shading inside the crescent: temple/cheekbone band down the right, a cheek hollow, the jaw turn
-  local inner = face:shrink(3)
-  c:fill(c:poly(P{ {182, 70}, {196, 70}, {200, 126}, {196, 200}, {186, 250}, {172, 294}, {156, 330},
-    {148, 330}, {164, 290}, {178, 246}, {186, 200}, {186, 130} }):clip(inner), SK.shade)
-  c:fill(c:poly(P{ {190, 70}, {196, 70}, {200, 126}, {196, 200}, {192, 216}, {191, 160}, {190, 120} }):clip(inner), SK.deep)
-  -- chin pad and jaw shade line: gives the lower face a structure
+  -- cheek form: stepped ramp bands (base > mid > shade > dark > deep) measured in from the right silhouette,
+  -- widest over the cheekbone and narrowing to the temple and jaw, so each band boundary follows the cheek
+  do
+    local WK = { {30, 8}, {80, 12}, {140, 26}, {195, 34}, {245, 26}, {295, 17}, {350, 13} }
+    local function cw(y)
+      if y <= WK[1][1] then return WK[1][2] end
+      for i = 1, #WK - 1 do
+        local a, b = WK[i], WK[i + 1]
+        if y <= b[1] then local t = (y - a[1]) / (b[1] - a[1]) t = (1 - math.cos(t * math.pi)) / 2
+          return a[2] + (b[2] - a[2]) * t end
+      end
+      return WK[#WK][2]
+    end
+    local repaint = { [SK.base] = true, [SK.shade] = true, [SK.deep] = true }
+    for y = 0, H - 1 do
+      local xr
+      for x = W - 1, 0, -1 do if face:has(x, y) then xr = x break end end
+      if xr then
+        local w = cw(y - Y)
+        for x = xr - floor(w), xr do
+          local cur = c:get(x, y)
+          if repaint[cur] or cur == CHEEK[1] then
+            local d = xr - x
+            local col
+            if d < max(2, w * 0.13) then col = SK.deep
+            elseif d < w * 0.32 then col = CHEEK[2]
+            elseif d < w * 0.62 then col = SK.shade
+            else col = CHEEK[1] end
+            c:px(x, y, col)
+          end
+        end
+      end
+    end
+  end
+  -- chin pad: gives the lower face a structure
   c:fill(c:line(P{ {98, 308}, {116, 304}, {136, 306} }, 2), SK.bounce)
-  c:fill(c:line(P{ {176, 196}, {172, 228}, {162, 262} }, 2), SK.shade)
   -- felt nap: sparse flecks one tone down on the lit skin, one tone up in the shade; never on details (done now, before them)
   face:each(function(x, y)
     local cur = c:get(x, y)
     local hv = hash(x - X, y - Y, 7)
     if hv < 0.018 then
-      if cur == SK.base then c:px(x, y, SK.bounce) elseif cur == SK.shade then c:px(x, y, SK.base) end
+      if cur == SK.base then c:px(x, y, SK.bounce) elseif cur == SK.shade then c:px(x, y, CHEEK[1])
+      elseif cur == CHEEK[1] then c:px(x, y, SK.base) end
     elseif hv > 0.993 and cur == SK.base and (x - X) + (y - Y) < 200 then c:px(x, y, SK.rim) end
   end)
 
-  -- hair: felt mass off the top, swept fringe of tufts pointing down-left, sideburn over the ear
-  local hm = c:poly(P{ {-16, -16}, {232, -16}, {226, 30}, {220, 70}, {216, 112}, {210, 132}, {204, 120},
-    {200, 96}, {196, 78}, {190, 70}, {180, 74}, {172, 66}, {160, 60}, {150, 64}, {140, 68}, {128, 60},
-    {116, 56}, {106, 62}, {94, 66}, {84, 58}, {70, 52}, {58, 58}, {46, 64}, {36, 56}, {22, 50}, {8, 56}, {-4, 62}, {-16, 62} })
-  -- fuzz the fringe edge so the tufts read as felt, not a crown: grow a scatter of px out, nick a few in
-  do
-    local ring = hm:grow(1):cut(hm)
-    ring:each(function(x, y) if y - Y > 40 and hash(x - X, y - Y, 11) < 0.35 then hm:set(x, y) end end)
-    local e = hm:edge()
-    e:each(function(x, y) if y - Y > 40 and hash(x - X, y - Y, 12) < 0.2 then hm:del(x, y) end end)
+  -- hair: felt mass off the top with a smooth hairline, then a fringe of tapered felt tufts of varied
+  -- length hanging down-left from it (each a fat root, a belly and a rounded tip), sideburn tuft over the ear
+  local hm = c:poly(P{ {-16, -16}, {232, -16}, {226, 30}, {220, 70}, {216, 104}, {210, 118}, {204, 110},
+    {200, 92}, {194, 74}, {186, 62}, {170, 54}, {140, 48}, {100, 44}, {60, 42}, {20, 42}, {-16, 44} })
+  -- root x,y / tip x,y / root radius
+  local TUFTS = { {0, 34, -14, 66, 14}, {26, 36, 8, 74, 15}, {44, 40, 30, 64, 9}, {66, 38, 46, 78, 15},
+    {90, 40, 74, 66, 10}, {112, 40, 94, 80, 15}, {132, 44, 118, 66, 9}, {152, 46, 136, 76, 13},
+    {172, 50, 158, 70, 9}, {190, 56, 178, 84, 11}, {204, 70, 198, 96, 9}, {214, 96, 208, 134, 8} }
+  local function bez(t, tf)
+    local x0, y0, x2, y2 = tf[1], tf[2], tf[3], tf[4]
+    local x1, y1 = x0 + (x2 - x0) * 0.15 + 4, y0 + (y2 - y0) * 0.65
+    local u = 1 - t
+    return u * u * x0 + 2 * u * t * x1 + t * t * x2 + X, u * u * y0 + 2 * u * t * y1 + t * t * y2 + Y
   end
-  -- fringe cast shadow on the forehead: the hair mask pushed down, clipped to the face
-  c:fill(hm:shift(0, 5):cut(hm):clip(face:shrink(2)), SK.shade)
-  c:fill(hm:shift(0, 2):cut(hm):clip(face:shrink(2)), SK.deep)
-  c:part(hm, hair, { cres = 14, deep = 6, gloss = { 60 + X, 14 + Y } })
-  -- strands: shade lines from the tuft roots up and to the right, deep roots at the fringe, lit strands up top
-  local strands = { {4, 54, 40, 18}, {40, 54, 84, 16}, {88, 58, 130, 22}, {136, 60, 176, 28},
-    {176, 66, 204, 34}, {206, 100, 214, 64}, {22, 50, 60, 24}, {64, 56, 104, 20}, {110, 58, 152, 26}, {158, 62, 190, 36} }
-  local innerH = hm:shrink(2)
-  for i, s in ipairs(strands) do
-    local mx, my = (s[1] + s[3]) / 2 + 4, (s[2] + s[4]) / 2 + 2
-    local w = (i <= 6) and 2 or 1
-    c:fill(c:line(P{ {s[1], s[2]}, {mx, my}, {s[3], s[4]} }, w):clip(innerH), hair.shade)
+  local function rad(t, tf) return tf[5] * (1 - t) ^ 0.9 + 4 * t end
+  for _, tf in ipairs(TUFTS) do
+    for k = 0, 24 do local t = k / 24 local bx, by = bez(t, tf) local rr = rad(t, tf)
+      hm:add(c:ellipse(bx, by, rr, rr)) end
   end
-  local roots = { {10, 58, 16, 44}, {50, 60, 56, 46}, {96, 62, 102, 48}, {144, 64, 150, 50}, {184, 70, 190, 56}, {208, 118, 212, 100} }
-  for _, s in ipairs(roots) do c:fill(c:line(P{ {s[1], s[2]}, {s[3], s[4]} }, 2):clip(innerH), hair.deep) end
-  local lit = { {-6, 36, 30, 6}, {36, 34, 76, 2}, {84, 38, 122, 8}, {130, 42, 166, 14}, {172, 48, 200, 24}, {206, 70, 214, 40} }
+  -- fringe cast shadow on the forehead: the hair mask pushed down-right (light from the upper left)
+  c:fill(hm:shift(2, 5):cut(hm):clip(face:shrink(2)), SK.shade)
+  c:fill(hm:shift(1, 2):cut(hm):clip(face:shrink(2)), SK.deep)
+  c:part(hm, hair, { cres = 7, deep = 3, gloss = { 60 + X, 14 + Y } })
+  -- per tuft: a shade groove down its right side (the split from its neighbour, deep at the tip), a lit
+  -- streak down its left side, and the groove carried up into the mass toward the crown
+  local innerH = hm:shrink(1)
+  local function path(tf, t0, t1, off)
+    local o = {}
+    for k = 0, 6 do local t = t0 + (t1 - t0) * k / 6 local bx, by = bez(t, tf)
+      o[#o + 1] = { r(bx + rad(t, tf) * off), r(by) } end
+    return o
+  end
+  for i, tf in ipairs(TUFTS) do
+    c:fill(c:line(path(tf, 0.2, 0.92, 0.5), 2):clip(innerH), hair.shade)
+    c:fill(c:line(path(tf, 0.55, 0.9, 0.62), 1):clip(innerH), hair.deep)
+    c:fill(c:line(path(tf, 0.05, 0.7, -0.4), 1):clip(innerH), hair.rim)
+    local bx, by = bez(0, tf)
+    if i % 2 == 0 then
+      c:fill(c:line({ { r(bx + tf[5] * 0.5), r(by + 6) }, { r(bx + tf[5] * 0.5 + 10), r(by - 10) }, { r(bx + tf[5] * 0.5 + 28), r(by - 30) } }, 1):clip(innerH), hair.shade)
+    end
+  end
+  local lit = { {-6, 30, 30, 2}, {40, 28, 76, -2}, {88, 30, 122, 2}, {134, 32, 168, 6}, {178, 40, 206, 14} }
   for _, s in ipairs(lit) do c:fill(c:line(P{ {s[1], s[2]}, {s[3], s[4]} }, 1):clip(innerH), hair.rim) end
   -- felt nap on the hair too
   hm:each(function(x, y)
     local cur = c:get(x, y)
     local hv = hash(x - X, y - Y, 21)
-    if hv < 0.05 and cur == hair.base then c:px(x, y, hair.shade)
+    if hv < 0.03 and cur == hair.base then c:px(x, y, hair.shade)
     elseif hv > 0.975 and cur == hair.shade then c:px(x, y, hair.base) end
   end)
   c:seam(P{ {6, 30}, {50, 32}, {100, 36}, {150, 42}, {196, 52} })
@@ -187,7 +232,15 @@ local function drawFrame(p)
       end
     end
     edge[#edge + 1] = { r(ex + rx), r(top(ex + rx) or ey) }
-    if p.lid > 0 then c:fill(lm, p.lid > 0.6 and SK.rim or SK.base) end
+    if p.lid > 0 then
+      -- lid is plain skin with a lit top and a soft bounce fold just above the lash line (not a pale patch)
+      c:fill(lm, SK.base)
+      if p.lid > 0.3 then
+        local fold = {}
+        for i, q in ipairs(edge) do fold[i] = { q[1], q[2] - 3 } end
+        c:fill(c:line(fold, 2):clip(lm), SK.bounce)
+      end
+    end
     -- lower lid line under the white
     local lo = {}
     for k = -6, 6 do local u = k / 7 local x = ex + u * rx
