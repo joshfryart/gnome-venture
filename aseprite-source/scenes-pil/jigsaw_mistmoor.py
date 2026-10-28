@@ -141,7 +141,8 @@ for k, (xa, xb) in enumerate(((56, 30), (61, 46), (66, 62), (71, 80), (75, 96)))
     cv.fill(poly([(xa, 14), (xa + 2, 14), (xb + 3 + k, 62), (xb, 62)]) & ~gap, '#a3adb9' if k % 2 else '#b0b8c2')
 # a rainbow stub coming down out of the storm cloud onto the far fells (cells 7-8, row 1)
 rb_c = (240, 78)
-r5 = rnd(8080)   # fourth stream (pass 2 additions)
+r5 = rnd(8080)
+r4 = rnd(31337)   # drizzle stream   # fourth stream (pass 2 additions)
 rbm = blank()   # the rainbow's footprint: kept free of rain streaks
 for k, col in enumerate(('#b0505a', '#d99a4a', '#c9c06a', '#7f9a6a', '#6a7aa8', '#7e6496')):
     ro, ri = 54 - k * 2, 52 - k * 2
@@ -352,9 +353,9 @@ o.draw()
 cv.dots([(288, 40), (288, 41), (279, 51), (282, 51)], '#f2b84a')
 cv.fill(rect(288, 19, 288, 22) | rect(287, 20, 289, 20), '#4f5560')
 o = cv.obj()
-o.part(ell(268, 47, 276, 57), ramp('#55633a', '#5a6450', '#6f7f4a'), d=1)   # dark yew in the kirkyard
+o.part(ell(264, 48, 272, 58), ramp('#55633a', '#5a6450', '#6f7f4a'), d=1)   # dark yew in the kirkyard
 o.draw()
-cv.fill(rect(271, 56, 272, 58), '#3d2a1e')
+cv.fill(rect(267, 57, 268, 59), '#3d2a1e')
 for gx_ in (279, 283):
     cv.fill(rect(gx_, 55, gx_ + 1, 57), '#a3acb7')
     cv.dots([(gx_ + 1, 57)], '#6c7488')
@@ -487,9 +488,10 @@ for i in range(0, 41):
     hw, hh = 1 + int(6 * t) + r3(0, 2), 1 + int(3 * t) + r3(0, 1)
     if t > 0.6 and (i // 3) % 3 == 2:   # breaking up into puffs
         continue
-    if i % (2 if t < 0.3 else 4):   # separate round puffs, not a smooth ribbon
+    if i % (2 if t < 0.25 else 3):   # separate round puffs, not a smooth ribbon
         continue
-    puffs.append(ell(sx - hw, sy - hh - 1, sx + hw, sy + hh))
+    jy, jw = r5(-2, 2) if t > 0.25 else 0, r5(0, 3) if t > 0.25 else 0
+    puffs.append(ell(sx - hw - jw, sy - hh - 1 - jw // 2 + jy, sx + hw + jw // 2, sy + hh + jy))
 for k in range(3):   # torn wisps blown ahead of the plume
     wx, wy = 160 - k * 6 + r3(-2, 2), 42 - k * 3 + r3(-1, 1)
     puffs.append(ell(wx - 5 - k, wy - 1 - (k % 2), wx + 5, wy + 1))
@@ -497,9 +499,9 @@ pm = blank()
 for e in reversed(puffs):   # far puffs first, so each nearer puff sits on top with its own lit crown and shaded belly
     e &= ~rect(cx0 + 4, 75, cx0 + 18, H)
     pm |= e
-    cv.fill(e, '#9a9ca4')
-    cv.fill(e & ~shift(e, 1, 1), '#b3bbc5')
-    cv.fill(e & ~shift(e, -1, -1), '#8a8c94')
+    cv.fill(e, '#8a8c94')   # peat smoke: a touch darker and browner than the clouds behind it
+    cv.fill(e & ~shift(e, 0, 1) & ~shift(e, 1, 0), '#9a9ca4')
+    cv.fill(e & ~shift(e, 0, -1), '#7b8695')
 roof = poly([(cx0 - 6, 114), (cx0 + 4, 98), (cx1 - 4, 96), (cx1 + 8, 114)]) | blobs((cx0 + cx1) // 2, 98, 38, 2, 14, 4, 7)
 roof &= ~rect(0, 116, W, H)
 o = cv.obj()
@@ -714,6 +716,27 @@ for k in range(4):
     cv.fill(rect(36 + k * 4, 160, 39 + k * 4, 163), PEAT['b'])
     cv.dots([(36 + k * 4, 160)], PEAT['r'])
 
+# a wicker creel of turves on the peat floor, a spare tushkar stuck upright, sedge tufts in the wet
+o = cv.obj()
+o.part(rrect(33, 187, 47, 197, 2), ramp('#a87a50', '#8a6040', '#c9a23a'), d=2)
+o.draw()
+for yy in (189, 192, 195):
+    cv.fill(rect(34, yy, 46, yy), WOOD['s'])
+for xx in range(35, 46, 3):
+    cv.fill(rect(xx, 188, xx, 196), '#8a6040')
+for k in range(3):
+    cv.fill(rect(34 + k * 4, 183, 37 + k * 4, 186), PEAT['b'])
+    cv.fill(rect(34 + k * 4, 183, 37 + k * 4, 183), '#94765a')
+cv.fill(line([(33, 187), (36, 181), (44, 181), (47, 187)]), WOOD['s'])   # handle
+o = cv.obj()
+o.part(rect(84, 168, 85, 182), WOOD, d=1)
+o.part(poly([(82, 182), (88, 182), (87, 188), (83, 188)]), STONE, d=1)
+o.part(rect(81, 166, 88, 167), WOOD, d=0)
+o.draw()
+for tx_, ty_ in ((3, 168), (24, 170), (52, 198), (62, 197), (77, 194), (2, 188), (29, 199), (90, 172)):
+    for dx_, h_ in ((-1, 3), (0, 5), (1, 4), (2, 2)):
+        cv.fill(rect(tx_ + dx_, ty_ - h_ + 1, tx_ + dx_, ty_), MOSS['r'] if dx_ % 2 else MOSS['s'])
+
 # ---------------------------------------------------------------- a bent hawthorn on the knoll's foot (wind-shaped, leaning away from the sea)
 for _ in range(114):   # (keeps the r stream where the old pom-pom crown left it)
     r(0, 1)
@@ -745,8 +768,10 @@ for k in range(26):
     cv.dots([(x, y)] + ([(x + 1, y)] if k % 3 == 0 else []), WINE['b'] if k % 2 else ('#c05a50' if k % 3 else TURF['r']))   # haws
 
 # ---------------------------------------------------------------- sheep on the moor
-SHEEP = ((88, 108, 1), (60, 118, 1), (184, 162, -1), (276, 158, -1))
-for shx, shy, fc in SHEEP:
+SHEEP = ((88, 108, 1), (60, 118, 1), (276, 158, -1))
+
+
+def sheep(shx, shy, fc):
     shadow(shx - 2, shy + 9, shx + 15, shy + 12)
     o = cv.obj()
     o.part(rect(shx + 2, shy + 6, shx + 3, shy + 10) | rect(shx + 10, shy + 6, shx + 11, shy + 10), BOOT, d=0)
@@ -758,11 +783,25 @@ for shx, shy, fc in SHEEP:
     for k in range(4):
         cv.dots([(shx + 4 + r2(0, 8), shy + 1 + r2(0, 4))], WOOL['s'])
 
+
+for shx, shy, fc in SHEEP:
+    sheep(shx, shy, fc)
+
 # ---------------------------------------------------------------- moor plants: heather drifts, bracken, cottongrass, sphagnum
 for hx_, hy_, rx, ry, n in ((196, 146, 10, 2, 5), (78, 116, 8, 2, 4), (40, 124, 10, 3, 5), (62, 134, 9, 2, 4),
                             (178, 128, 6, 2, 3), (140, 150, 8, 2, 4), (206, 168, 10, 3, 5), (160, 176, 10, 3, 5),
                             (296, 178, 6, 3, 4), (186, 190, 10, 3, 6), (136, 194, 12, 3, 6), (210, 196, 8, 2, 4), (118, 106, 6, 2, 3)):
-    heather(hx_, hy_, rx, ry, n=n, s0=3, s1=6, flowers=10)
+    # left-middle clumps each their own kind and size (a low far-heather mat, a tall tight bush, an old brown clump)
+    rp_, s0_, s1_ = {(78, 116): (HEATHF, 2, 4), (40, 124): (HEATH, 4, 7), (62, 134): (OLDH, 2, 5), (118, 106): (HEATHF, 3, 5)}.get((hx_, hy_), (HEATH, 3, 6))
+    if (hx_, hy_) == (78, 116):
+        rx, ry = 12, 1
+    if (hx_, hy_) == (40, 124):
+        rx, ry = 6, 3
+    hm_ = heather(hx_, hy_, rx, ry, n=n, s0=s0_, s1=s1_, rp=rp_, flowers=10)
+    if rp_ is OLDH:
+        ys_, xs_ = np.nonzero(hm_)
+        cv.dots([(int(xs_[i]), int(ys_[i]) - 1) for i in (r5(0, len(xs_) - 1) for _ in range(10))], HEATH['r'])
+        cv.dots([(int(xs_[i]), int(ys_[i])) for i in (r5(0, len(xs_) - 1) for _ in range(10))], HEATH['b'])
 for bx, by, s in ((90, 112, 0.8), (96, 110, 0.7), (190, 132, 0.8), (124, 166, 1.0), (150, 186, 1.1), (276, 192, 1.1), (212, 158, 1.0),
                   (284, 170, 1.0), (54, 128, 0.8), (32, 132, 0.9), (166, 140, 0.9), (174, 196, 1.2), (122, 186, 1.1), (6, 128, 0.8)):
     bracken(bx, by, s)
@@ -776,6 +815,7 @@ for sx, sy in ((150, 166), (190, 180), (272, 196)):   # sphagnum cushions, green
     for _ in range(8):
         i = r(0, len(xs) - 1)
         cv.dots([(int(xs[i]), int(ys[i]))], '#a85a4a' if r(0, 1) else '#b8c070')
+sheep(182, 160, -1)   # front-centre sheep, now in front of the heather drift
 puddle(160, 142, 176, 146, rings=1)
 puddle(176, 154, 192, 158, rings=1)
 puddle(260, 176, 270, 179, rings=1)
@@ -867,12 +907,18 @@ cv.dots([(X(-11), Y(-17)), (X(-10), Y(-17)), (X(10), Y(-17)), (X(11), Y(-17))], 
 KEEP = rect(jx - 20, jy - 36, jx + 20, jy + 22) | rect(ux - 16, uy - 46, ux + 16, uy + 2) | rect(kx - 8, ky - 28, kx + 8, ky + 2) | rect(0, 6, 46, 68) | \
     rect(48, 140, 92, 178) | rect(ox - 7, oy - 12, ox + 7, oy + 2) | rect(174, 104, 188, 120) | rect(204, 116, 274, 134)
 
-# ---------------------------------------------------------------- drizzle over everything (short slanting streaks)
-for k in range(520):
-    x, y = r2(2, W - 1), r2(0, H - 3)
-    if KEEP[y, x] or (y > 100 and k % 2):
+# ---------------------------------------------------------------- drizzle: heavy under the rain clouds, light elsewhere, dry where the sun breaks through
+SHOWER = poly([(0, 14), (60, 14), (30, 120), (-30, 120)]) | poly([(214, 26), (272, 26), (254, 96), (190, 96)]) | poly([(96, 120), (150, 120), (130, 199), (80, 199)])
+DRY = ell(40, -10, 110, 70) | dil4(dil4(rbm)) | ell(150, 60, 196, 96) | ell(4, 100, 70, 140) | ell(240, 150, 300, 199) | ell(150, 176, 206, 199)
+for k in range(900):
+    x, y = r4(2, W - 1), r4(0, H - 3)
+    if KEEP[y, x] or DRY[y, x]:
         continue
-    cv.dots([(x, y), (x - 1, y + 1)] + ([(x - 2, y + 2)] if y < 100 else []), RAIN)
+    heavy = SHOWER[y, x]
+    if not heavy and r4(0, 9) < (6 if y < 100 else 8):
+        continue
+    ln = 3 if heavy and y < 120 else 2
+    cv.dots([(x - i, y + i) for i in range(ln)], RAIN)
 
 # fold rare one-off tones into their neighbours to stay under ~100 colours
 cv.remap({'#d9a35a': '#d9b85a', '#f0c862': '#e8c862', '#d9a23a': '#c9a23a', '#a87a24': '#9a7a24', '#6c7284': '#6c7488', '#7d7690': '#7a6286',

@@ -66,9 +66,11 @@ def gnome(gx, gy, hat=RED, tunic=BLUE, beard=True, arm=1, hat_lean=-1):
         cv.fill(rect(gx - 3, gy - 25, gx + 3, gy - 25), '#c9c5bc')   # grey hair under the kerchief edge
         cv.fill(rect(gx - 2, gy - 17, gx + 1, gy - 15), hat['s'])   # knot under the chin
         cv.dots([(gx - 3, gy - 14), (gx + 2, gy - 14), (gx - 3, gy - 13)], hat['b'])
-        cv.fill(rect(gx - 4, gy - 13, gx + 4, gy - 4), '#f6efe0')   # apron
-        cv.fill(rect(gx - 4, gy - 4, gx + 4, gy - 4) | rect(gx - 4, gy - 13, gx - 4, gy - 4), '#d8ccb0')
-        cv.dots([(gx - 2, gy - 6), (gx, gy - 6), (gx + 2, gy - 6)], RED['b'])
+        cv.fill(rect(gx - 3, gy - 11, gx + 3, gy - 4), '#f6efe0')   # apron (pass 2: narrower, an embroidered hem, so it is not a white sign)
+        cv.fill(rect(gx - 3, gy - 11, gx - 3, gy - 4), '#d8ccb0')
+        cv.fill(rect(gx - 3, gy - 5, gx + 3, gy - 4), RED['b'])
+        cv.dots([(gx - 2, gy - 4), (gx, gy - 4), (gx + 2, gy - 4), (gx - 1, gy - 8), (gx + 1, gy - 8), (gx, gy - 9), (gx, gy - 7)], RED['s'])
+        cv.dots([(gx, gy - 8)], GOLD['b'])
     cv.dots([(gx - 2, gy - 22), (gx + 2, gy - 22)], '#2a1a10')
     cv.dots([(gx, gy - 21), (gx + 1, gy - 21), (gx, gy - 20), (gx + 1, gy - 20)], '#e0907a')
     cv.dots([(gx - 4, gy - 20), (gx + 4, gy - 20)], '#f0a0a0')
@@ -106,7 +108,7 @@ cv.fill(rect(0, 22, W - 1, 80), SKY1)
 cv.fill(rect(0, 46, W - 1, 80), SKY2)
 for cx, cy, w in ((26, 12, 40), (98, 20, 50), (176, 8, 38), (250, 18, 34), (140, 40, 30), (60, 44, 26), (214, 42, 34), (288, 40, 22), (10, 38, 24), (90, 42, 28), (164, 32, 24), (244, 40, 26)):
     cloud(cx, cy, w)
-for sx, sy, k in ((128, 14, 1), (142, 24, 1), (66, 28, 1), (226, 30, -1), (112, 38, 1)):
+for sx, sy, k in ((128, 14, 1), (142, 24, 1), (66, 28, 1), (226, 30, -1), (104, 36, 1)):
     stork_fly(sx, sy, k)
 for bx, by in ((40, 30), (46, 33), (200, 6), (206, 9), (270, 6)):   # small far birds (larks)
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
@@ -758,15 +760,14 @@ for sx, sy in ((6, 140), (190, 140), (74, 140), (232, 196), (142, 146)):
 
 # ---------------------------------------------------------------- pass 1 additions (own generator r3): far copse, crane V, far windmill, rooks on the black earth,
 # a woodpile with a cat and straw bee skeps under the chapel, a sledge with a bucket of pussy willow
-for k, (tx_, ty_, th) in enumerate(((84, 63, 9), (89, 62, 12), (94, 63, 10), (99, 64, 7))):   # pass 2: far copse of little birches (white stems, a pale green haze), not a blob
+for k, (tx_, ty_, th) in enumerate(((85, 64, 5), (89, 63, 7), (93, 64, 6), (97, 65, 4))):   # pass 2: far copse of little birches (white stems, a pale green haze), not a blob
     cv.fill(rect(tx_, ty_ - th + 3, tx_, ty_), '#eef4f6')
-    cv.dots([(tx_, ty_ - th + 5 + 2 * (k % 2)), (tx_, ty_ - 2)], '#4a525c')
-    cr = ell(tx_ - 3, ty_ - th - 1, tx_ + 3, ty_ - th + 5) | ell(tx_ - 2, ty_ - th - 3, tx_ + 2, ty_ - th + 1)
+    cv.dots([(tx_, ty_ - 1 - (k % 2))], '#4a525c')
+    cr = ell(tx_ - 2, ty_ - th - 2, tx_ + 2, ty_ - th + 3)
     cv.fill(cr, '#a4c870')
     cv.fill(cr & ~shift(cr, -1, -1), '#7aa84a')
-    cv.dots([(tx_ - 1, ty_ - th - 1), (tx_ + 1, ty_ - th + 2)], '#d4f090')
-cv.fill(rect(82, 64, 101, 64) & m, '#7aa84a')
-for k, (bx, by) in enumerate(((84, 50), (88, 52), (92, 54), (80, 52), (76, 54))):   # cranes in a V
+    cv.dots([(tx_ - 1, ty_ - th - 1)], '#d4f090')
+for k, (bx, by) in enumerate(((84, 44), (88, 46), (92, 48), (80, 46), (76, 48))):   # cranes in a V
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], '#3a4a5a')
 wmx, wmy = 236, 62   # far post windmill on the ridge
 cv.fill(rect(wmx - 1, wmy - 5, wmx + 1, wmy), '#6a5a48')
@@ -808,19 +809,18 @@ cv.fill(rect(11, 126, 45, 134), '#4a2c1a')   # pass 2: an irregular stack of rou
 for k, yc in enumerate((128, 132, 130)):
     xx = 11 + r4(0, 3) + (k == 2) * 2
     while xx < 44:
-        d = r4(3, 6)
+        d = r4(4, 6)
         if k == 2 and r4(0, 2):   # third pass fills a few gaps only
             xx += d + r4(2, 5)
             continue
         y0 = yc - d // 2 + r4(-1, 1)
         lg = ell(xx, y0, xx + d - 1, y0 + d - 1) & rect(11, 126, 45, 134)
         face = ('#e0c090', '#d8b860', '#c88a4a', '#f1ece0')[r4(0, 3)]   # pine, oak, larch, birch rounds
-        cv.fill(lg, '#5c3420' if face != '#f1ece0' else '#5b5450')
-        inner = lg & shift(lg, 1, 1) & shift(lg, -1, 0) & shift(lg, 0, -1)
-        cv.fill(inner, face)
+        cv.fill(lg, face)
+        cv.fill(lg & ~shift(lg, -1, -1), '#74462a' if face != '#f1ece0' else '#5b5450')   # bark crescent at the lower right
         if d >= 5:
             cv.dots([(xx + d // 2, y0 + d // 2)], '#a8885a')
-        if r4(0, 3) == 0:   # a split quarter-log: a wedge cut from the round
+        if d >= 5 and r4(0, 3) == 0:   # a split quarter-log: a wedge cut from the round
             cv.fill(lg & rect(xx + d // 2, y0, xx + d, y0 + d // 2), '#4a2c1a')
         xx += d + r4(0, 1)
 ps = poly([(28, 122), (38, 120), (47, 122)])
@@ -873,8 +873,7 @@ cv.dots([(208, 139), (212, 139)], RED['b'])
 cv.dots([(210, 139)], GOLD['b'])
 
 for bx_, by_ in ((58, 5), (150, 3), (230, 4), (62, 9)):   # pass 2: swallows back in the top sky row (each top cell holds something)
-    cv.dots([(bx_ - 2, by_ - 1), (bx_ - 1, by_), (bx_, by_), (bx_ + 1, by_), (bx_ + 2, by_ - 1), (bx_ + 3, by_ - 2), (bx_, by_ + 1), (bx_ - 3, by_ - 2)], '#2a2a30')
-    cv.dots([(bx_, by_ + 2)], '#d6322b')
+    cv.dots([(bx_ - 3, by_ - 2), (bx_ - 2, by_ - 1), (bx_ - 1, by_), (bx_, by_), (bx_ + 1, by_), (bx_ + 2, by_ - 1), (bx_ + 3, by_ - 2), (bx_ - 1, by_ + 1), (bx_ + 1, by_ + 1)], '#2a2a30')
 
 # pass 2: palette cut by hand to <= 100 colours: fold near-duplicate ramp tones into their neighbours (no chains)
 cv.remap({

@@ -89,14 +89,18 @@ function setup(src,nw,nh){
   drag=null; pan=null; relayoutLater=false; field.style.cursor='';
   win.hidden=true; finalImg.classList.remove('on'); stage.classList.remove('won');
 
-  reseed(TOUR ? TOUR.seed : (URL_SEED!==null ? URL_SEED : (Math.random()*4294967296)>>>0));
   var n=parseInt(countSel.value,10);
+  /* v2.0.87 E: a Jigsaw free-play save for this picture + tier brings its own seed back, so the cuts come out the same */
+  var RS=null; if(MODE && !TOUR){ if(skipResume) clearSave(curId,n); else RS=readSave(curId,n); } skipResume=false;
+  var seed=TOUR ? TOUR.seed : (RS ? RS.seed : (URL_SEED!==null ? URL_SEED : (Math.random()*4294967296)>>>0));
+  reseed(seed);
   var cols=Math.max(2,Math.round(Math.sqrt(n*nw/nh)));
   var rows=Math.max(2,Math.round(n/cols));
   var TI=tierFor(n);   /* Jigsaw: the tier fixes the grid (pictures are 3:2, so it is exact) */
   if(TI && Math.abs(nw/nh-TI.cols/TI.rows)<0.05){ cols=TI.cols; rows=TI.rows; }
   G={src:src,nw:nw,nh:nh,cols:cols,rows:rows,total:cols*rows,locked:0,z:10,won:false,t0:0,elapsed:0,
-     hS:[],vS:[],hJ:[],vJ:[],pieces:[],groups:[],b:null,f:null,drops:0};
+     hS:[],vS:[],hJ:[],vJ:[],pieces:[],groups:[],b:null,f:null,drops:0,
+     seed:seed,base:0,started:false,resumed:false,dirty:false};   /* v2.0.87 E: seed, base (ms of earlier active time), started/resumed/dirty */
   var r,c;
   for(r=0;r<rows;r++){
     G.hS[r]=[];G.hJ[r]=[];G.vS[r]=[];G.vJ[r]=[];
@@ -129,7 +133,8 @@ function setup(src,nw,nh){
   placeAll();
   setZoomUi();
   updateHud();
-  if(TOUR && TOUR.token){ G.t0=Date.now(); timer=setInterval(updateHud,1000); say(G.total+' pieces. The clock is running. You can do it!'); }
+  if(RS && applySave(RS)){ updateHud(); say('Welcome back! Picking up where you left off.'); }   /* v2.0.87 E */
+  else if(TOUR && TOUR.token){ G.t0=Date.now(); timer=setInterval(updateHud,1000); say(G.total+' pieces. The clock is running. You can do it!'); }
   else say(G.total+' pieces. '+pick(['Edges first, if you like. That\u2019s how I do it!','Happy puzzling!','Take your time. Lovely picture, this one.']));
 }
 
@@ -261,6 +266,94 @@ function scatter(list){
   }
 }
 
+/* ---------- v2.0.87 E: save and resume (Jigsaw free play only; never in a tournament, whose clock is server-side) ----------
+   localStorage 'jiggy.save.<pic>.<pieces>' = {v:1, pic, n, seed, t (ms of active time), tr (tray layout), savedAt, grps:[[1,[idx..]] locked | [0,u,v,[idx..]] loose]}.
+   idx = row*cols+col. u,v = the group's origin as a fraction of the board (so any screen size maps back). Every access is in try/catch. */
+var skipResume=false, saveT=0, SAVE_V=1, SAVE_DAYS=30;
+function saveKey(id,n){ return 'jiggy.save.'+id+'.'+n; }
+function clearSave(id,n){ try{ localStorage.removeItem(saveKey(id,n)); }catch(e){} }
+/* a valid save or null (a stale, foreign, damaged or other-version one is removed). done = pieces already locked. */
+function readSave(id,n){
+  var raw=null, s, i, k, seen, done=0;
+  try{ raw=localStorage.getItem(saveKey(id,n)); }catch(e){ return null; }
+  if(!raw) return null;
+  try{
+    s=JSON.parse(raw);
+    if(!s || s.v!==SAVE_V || s.pic!==id || s.n!==n || !tierFor(n)) throw 0;
+    if(typeof s.seed!=='number' || !isFinite(s.seed) || typeof s.t!=='number' || !(s.t>=0) || typeof s.savedAt!=='number') throw 0;
+    if(Date.now()-s.savedAt>SAVE_DAYS*864e5) throw 0;
+    if(!Array.isArray(s.grps)) throw 0;
+    seen=new Array(n);
+    for(i=0;i<s.grps.length;i++){
+      var g=s.grps[i], L;
+      if(!Array.isArray(g)) throw 0;
+      if(g[0]===1) L=g[1]; else if(g[0]===0){ if(typeof g[1]!=='number'||typeof g[2]!=='number'||!isFinite(g[1])||!isFinite(g[2])) throw 0; L=g[3]; } else throw 0;
+      if(!Array.isArray(L) || !L.length) throw 0;
+      for(k=0;k<L.length;k++){ var ix=L[k]; if(typeof ix!=='number' || ix%1 || ix<0 || ix>=n || seen[ix]) throw 0; seen[ix]=1; }
+      if(g[0]===1) done+=L.length;
+    }
+    for(i=0;i<n;i++) if(!seen[i]) throw 0;
+    if(done>=n) throw 0;
+    s.done=done; return s;
+  }catch(e){ clearSave(id,n); return null; }
+}
+function activeMs(){ return G ? (G.base||0)+(G.t0 ? Date.now()-G.t0 : 0) : 0; }
+function saveable(){ return !!(MODE && !TOUR && G && curId && !G.won && G.b); }
+function scheduleSave(){
+  if(!saveable()) return;
+  G.dirty=true; clearTimeout(saveT); saveT=setTimeout(saveNow,400);
+}
+function saveNow(){
+  clearTimeout(saveT); saveT=0;
+  if(!saveable() || !G.dirty) return;
+  try{
+    var b=G.b, grps=[], i, k, g, L;
+    for(i=0;i<G.groups.length;i++){
+      g=G.groups[i]; L=[];
+      for(k=0;k<g.list.length;k++) L.push(g.list[k].r*G.cols+g.list[k].c);
+      if(g.locked) grps.push([1,L]);
+      else grps.push([0,Math.round((g.gx-b.ox)/b.bw*10000)/10000,Math.round((g.gy-b.oy)/b.bh*10000)/10000,L]);
+    }
+    localStorage.setItem(saveKey(curId,G.total),JSON.stringify({v:SAVE_V,pic:curId,n:G.total,seed:G.seed,t:Math.round(activeMs()),tr:G.tray?1:0,savedAt:Date.now(),grps:grps}));
+  }catch(e){}
+}
+/* rebuild the saved groups on the freshly cut table (the seed gave the same cuts); returns true when applied */
+function applySave(s){
+  var i, k, g, a, p, L;
+  if(s.n!==G.total) return false;
+  var order=0;
+  for(i=0;i<s.grps.length;i++){
+    g=s.grps[i]; L=(g[0]===1?g[1]:g[3]);
+    a=G.pieces[L[0]].grp;
+    for(k=1;k<L.length;k++) a=join(a,G.pieces[L[k]].grp);
+    for(k=0;k<a.list.length;k++){ a.list[k].el.classList.remove('pop','joined'); if(a.list.length>1) a.list[k].el.classList.add('joined'); }
+    if(g[0]===1){
+      a.locked=true; putG(a);
+      for(k=0;k<a.list.length;k++){ p=a.list[k]; p.locked=true; p.el.style.zIndex=1; p.el.classList.add('locked'); }
+      G.locked+=a.list.length;
+    } else {
+      a.gx=G.b.ox+g[1]*G.b.bw; a.gy=G.b.oy+g[2]*G.b.bh; clampG(a); saveFrac(a); setZ(a,10+(order++));
+    }
+  }
+  G.z=10+G.groups.length+order;
+  if(!!s.tr!==!!G.tray) scatter(freeGroups());   /* saved on the other layout (desk vs phone tray): deal the loose ones afresh */
+  placeAll(); showAnim();
+  G.base=Math.round(s.t); G.resumed=true;
+  return true;
+}
+/* active time only: stop the clock when the tab is hidden, restart it when the player is back */
+function holdClock(){
+  if(!saveable()) return;
+  if(G.t0){ G.base+=Date.now()-G.t0; G.t0=0; clearInterval(timer); timer=null; G.held=true; }
+  saveNow();
+}
+function wakeClock(){
+  if(G && G.held && !G.won){ G.held=false; G.t0=Date.now(); clearInterval(timer); timer=setInterval(updateHud,1000); updateHud(); }
+}
+document.addEventListener('visibilitychange',function(){ if(document.hidden) holdClock(); else wakeClock(); });
+window.addEventListener('pagehide',holdClock);
+window.addEventListener('pageshow',function(e){ if(e.persisted) wakeClock(); });
+
 /* ---------- dragging ---------- */
 var relayoutLater=false;
 field.addEventListener('contextmenu',function(e){ e.preventDefault(); });
@@ -294,7 +387,7 @@ field.addEventListener('pointerdown',function(e){
   /* the held group rides in one raised layer that is moved with a single transform (cheap even for 50 animated pieces) */
   lift.className=g.list.length>1?'multi':'';
   for(gi=0;gi<g.list.length;gi++){ lift.appendChild(g.list[gi].el); g.list[gi].el.classList.add('drag'); }
-  if(!G.t0){ G.t0=Date.now(); timer=setInterval(updateHud,1000); if(MODE && !TOUR) pStart(); }
+  if(!G.t0 && !G.started){ G.started=true; G.t0=Date.now(); timer=setInterval(updateHud,1000); if(MODE && !TOUR && !G.resumed) pStart(); }   /* v2.0.87 E: a resumed go is never timed on the server */
   if(touch) moveDrag();   /* lift the piece above the thumb */
   if(!raf) raf=requestAnimationFrame(tick);
 });
@@ -360,6 +453,7 @@ function endDrag(e){
     else { putG(g); saveFrac(g); setZ(g,++G.z); }
   }
   if(relayoutLater){ relayoutLater=false; layout(false); }
+  scheduleSave();   /* v2.0.87 E */
 }
 function endPan(e){
   if(pan&&e.pointerId===pan.id){ pan=null; field.style.cursor=''; }
@@ -407,19 +501,22 @@ function lock(g){
 }
 function updateHud(){
   if(!G){ hud.textContent='0 / 0'; return; }
-  var t = G.won ? G.elapsed : (G.t0 ? Math.floor((Date.now()-G.t0)/1000) : 0);
+  var t = G.won ? G.elapsed : Math.floor(activeMs()/1000);   /* v2.0.87 E: base = active time from earlier visits */
   $('prog').style.width=(G.total?100*G.locked/G.total:0)+'%';
   hud.textContent=G.locked+' / '+G.total+' \u00b7 '+fmt(t);
 }
 function solved(){
-  G.won=true; G.elapsed=Math.floor((Date.now()-G.t0)/1000);
+  G.won=true; G.elapsed=Math.floor(activeMs()/1000);
   clearInterval(timer); timer=null;
   stage.classList.add('won');
   showAnim();
   win.setAttribute('data-res','ok'); $('winHead').textContent='Solved!';
   $('winText').textContent='Jeff: \u201c'+G.total+' pieces in '+fmt(G.elapsed)+'. Lovely work!\u201d';
   if(TOUR && TOUR.token) finishRun();
-  else if(MODE) pFinish();
+  else if(MODE){
+    clearSave(curId,G.total); clearTimeout(saveT);   /* v2.0.87 E */
+    if(G.resumed) $('winText').textContent+=' Resumed goes don\'t set bests.'; else pFinish();
+  }
   winExtras();
   win.hidden=false;
   if(G.tray){ stage.scrollTop=0; stage.scrollLeft=(G.f.w-stage.clientWidth)/2; }
@@ -479,13 +576,14 @@ function startRun(){
 countSel.addEventListener('change',function(){
   if(!curId) return;
   saveCount(curId,parseInt(countSel.value,10)); setHash(curId,parseInt(countSel.value,10),true);
+  if(MODE && !TOUR){ clearSave(curId,G?G.total:0); clearSave(curId,parseInt(countSel.value,10)); skipResume=true; }   /* v2.0.87 E: a new tier starts fresh */
   if(curUrl) start(curUrl);
 });
 if($('nexttier')) $('nexttier').addEventListener('click',function(){ var n=parseInt(this.getAttribute('data-n'),10); if(n&&curId){ setHash(curId,n,false); route(); } });
-$('again').addEventListener('click',function(){ if(TOUR){ startRun(); return; } if(curUrl) start(curUrl); });
+$('again').addEventListener('click',function(){ if(TOUR){ startRun(); return; } if(MODE && curId){ clearSave(curId,G?G.total:0); skipResume=true; } if(curUrl) start(curUrl); });   /* v2.0.87 E */
 $('scatter').addEventListener('click',function(){
   if(!G||G.won) return;
-  scatter(freeGroups()); placeAll();
+  scatter(freeGroups()); placeAll(); scheduleSave();
   say(pick(['Ffej: \u201cOops! Did I bump the table? Hee hee.\u201d','Ffej: \u201cWheee! Pieces everywhere!\u201d','Ffej: \u201cJeff said tidy up. I said no.\u201d']),'ffej');
 });
 $('guide').addEventListener('click',function(){
@@ -570,7 +668,20 @@ function buildJigsawLibrary(){
       b.innerHTML='<span class="pztn"></span><small></small>';
       b.firstChild.textContent=t.icon+' '+t.label; b.lastChild.textContent=mine[t.k]?'\u2713 '+ms2t(mine[t.k]):t.n+' pieces';
       b.addEventListener('click',function(){ setHash(pz.id,t.n,false); route(); });
-      row.appendChild(b);
+      /* v2.0.87 E: a saved go shows Continue + progress, with a small Start over beside it */
+      var sv=readSave(pz.id,t.n), tr=document.createElement('div'); tr.className='pztrow';
+      if(sv){
+        b.classList.add('resume'); b.firstChild.textContent=t.icon+' Continue'; b.lastChild.textContent='\u25b6 '+sv.done+' / '+t.n;
+        b.setAttribute('aria-label','Continue '+pz.title+' on '+t.label+', '+sv.done+' of '+t.n+' pieces placed');
+      }
+      tr.appendChild(b);
+      if(sv){
+        var so=document.createElement('button'); so.type='button'; so.className='pzover'; so.textContent='Start over';
+        so.setAttribute('aria-label','Start '+pz.title+' over on '+t.label+' (forget the saved go)');
+        so.addEventListener('click',function(){ clearSave(pz.id,t.n); setHash(pz.id,t.n,false); route(); });
+        tr.appendChild(so);
+      }
+      row.appendChild(tr);
     });
     body.appendChild(h); body.appendChild(row);
     li.appendChild(th); li.appendChild(body); grid.appendChild(li);
@@ -616,6 +727,7 @@ function setHash(id,n,replace){
 }
 function clearHash(){ try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){ try{ location.hash=''; }catch(e2){} } }
 function resetStage(){
+  if(G) saveNow();   /* v2.0.87 E: leaving the table (Library button, another picture) keeps the go */
   tok++;
   clearInterval(timer); timer=null; clearTimeout(say.t); clearTimeout(rt);
   if(raf){ cancelAnimationFrame(raf); raf=0; }

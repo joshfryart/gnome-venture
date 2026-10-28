@@ -297,7 +297,7 @@ cv.fill(rect(kx, ky - 6, kx, ky + 6) & km, '#4a2c1a')
 cv.fill(line([(kx, ky + 7), (kx - 3, ky + 12), (kx + 1, ky + 17), (kx - 2, ky + 22)]), '#4a2c1a')
 for tx, ty, c in ((kx - 3, ky + 12, '#3f8fb0'), (kx + 1, ky + 17, '#f2d23a'), (kx - 2, ky + 22, '#d6322b')):
     cv.fill(rect(tx - 1, ty, tx + 1, ty + 1), c)
-cv.fill(line([(kx + 1, ky + 6), (196, 47)]), '#8a7a6a')   # string down to the gnome on the roof terrace
+cv.fill(line([(kx + 1, ky + 6), (198, 44)]), '#8a7a6a')   # string down to the gnome on the roof terrace
 # a big gull gliding close, and a far flight of three
 gbx, gby = 40, 34
 cv.fill(poly([(gbx - 9, gby - 3), (gbx - 2, gby + 1), (gbx, gby + 3), (gbx + 2, gby + 1), (gbx + 9, gby - 3), (gbx + 2, gby - 1), (gbx, gby), (gbx - 2, gby - 1)]), '#ffffff')
@@ -512,21 +512,21 @@ for k in range(14):
     if len(xs):
         cv.fill(rect(int(xs[0]) - r(3, 6), yy, int(xs[0]) - 1, yy), FOAM)
 # fallen boulders along the cliff foot (both shores), breaking up the long sea-facing edges
-for yy in (76, 88, 101, 112, 122):
+for yy in (88, 112, 123):
     xs = np.nonzero(hill[yy])[0]
     if len(xs):
-        bx_ = int(xs[0]) - r4(2, 4)
-        bm = ell(bx_ - 3, yy - 2, bx_ + 2, yy + 2)
+        bx_ = int(xs[0]) - r4(1, 2)
+        bm = ell(bx_ - 5, yy - 1, bx_ + 2, yy + 2) | ell(bx_ - 2, yy - 3, bx_ + 2, yy + 1)
         o = cv.obj()
-        o.part(bm, ramp('#c49660', '#8a5a3a', '#e2b47a'), d=1)
+        o.part(bm, GREY, d=1)
         o.draw()
-        cv.fill(rect(bx_ - 5, yy + 3, bx_ + 2, yy + 3), FOAM)
+        cv.fill(rect(bx_ - 7, yy + 3, bx_, yy + 3), FOAM)
 for yy in (67, 77):
     xs = np.nonzero(head[yy])[0]
-    bx_ = int(xs[-1]) + r4(2, 3)
-    bm = ell(bx_ - 2, yy - 2, bx_ + 3, yy + 2)
+    bx_ = int(xs[-1]) + r4(0, 1)
+    bm = ell(bx_ - 2, yy - 1, bx_ + 4, yy + 2)
     o = cv.obj()
-    o.part(bm, ramp('#c49660', '#8a5a3a', '#e2b47a'), d=1)
+    o.part(bm, GREY, d=1)
     o.draw()
     cv.fill(rect(bx_ - 1, yy + 3, bx_ + 5, yy + 3), FOAM)
 
@@ -596,7 +596,7 @@ for px_, py_ in ((188, 59), (210, 55), (256, 55), (276, 61), (246, 39), (284, 37
 cv.fill(rect(268, 55, 272, 57), '#e8841f')
 cv.dots([(273, 54), (273, 53), (274, 54), (275, 53), (267, 54), (266, 53)], '#e8841f')
 cv.dots([(274, 55)], DARK)
-gnome(192, 53, ramp('#f2d23a', '#c9a414', '#fff08a'), ramp('#3f8fb0', '#25637d', '#a9d6ea'), s=0.45, face=1, arm=1)   # the kite flyer on the roof terrace
+gnome(192, 53, ramp('#f2d23a', '#c9a414', '#fff08a'), ramp('#3f8fb0', '#25637d', '#a9d6ea'), s=0.6, face=1, arm=1)   # the kite flyer on the roof terrace
 for bx, by in ((214, 14), (240, 6), (204, 24)):
     cv.dots([(bx - 2, by), (bx - 1, by + 1), (bx, by), (bx + 1, by + 1), (bx + 2, by), (bx, by + 1), (bx, by + 2)], '#3a3a4a')
 
@@ -670,7 +670,7 @@ o.part(rrect(238, 78 + db, 246, 83 + db, 1), WOOD, d=1)
 o.draw()
 cv.dots([(239, 77 + db), (241, 77 + db), (243, 77 + db), (240, 76 + db), (244, 77 + db)], '#3a2a3a')
 # bell-goats on the terraces, standing in the gaps between the trunks; the brown and black ones graze head-down, clear of the crowns
-goat(241, 97 + toff(248, 100), 1, COATS['brown'], '#ece6d8', graze=True)
+goat(237, 97 + toff(244, 100), 1, COATS['brown'], '#ece6d8', graze=True)
 goat(254, 113 + toff(260, 116), -1, COATS['black'], '#ece6d8', graze=True)
 goat(208, 113 + toff(215, 116), 1, COATS['white'], '#9a6a3a')
 
@@ -696,13 +696,36 @@ cv.fill(bw & rect(0, 131, W, 131), STONE['s'])
 cv.fill(bw & rect(0, 126, W, 126), STONE['r'])
 for xx in range(128, W, 7):
     cv.fill(rect(xx, 127, xx, 130) & bw, STONE['s'])
-# retaining wall face beside the steps
+# the lower hillside cliff beside the steps: rough sandstone like the cliff above (strata, crevices, a caper bush, a wayside niche)
 cv.fill(pwall, '#c49660')
-for yy in range(132, 200, 5):
-    cv.fill(pwall & rect(0, yy, W, yy), '#a87a4a')
-    for xx in range(100 + (yy // 5) % 2 * 3, 140, 6):
-        cv.fill(pwall & rect(xx, yy + 1, xx, yy + 4), '#a87a4a')
+yy = 130
+while yy < 199:
+    xs = np.nonzero(pwall[yy])[0]
+    if len(xs):
+        a_ = int(xs[0]) + r4(1, max(1, len(xs) // 2))
+        cv.fill(rect(a_, yy, a_ + r4(3, 8), yy) & pwall, '#a87a4a')
+        cv.fill(rect(a_ + 1, yy + 1, a_ + r4(2, 4), yy + 1) & pwall, '#8a5a3a')
+    yy += r4(4, 8)
+for _ in range(16):
+    cy = r4(130, 198)
+    xs = np.nonzero(pwall[cy])[0]
+    if len(xs):
+        cx = int(xs[r4(0, len(xs) - 1)])
+        cv.fill(rect(cx, cy, cx + r4(1, 2), cy) & pwall, '#e2b47a' if r4(0, 1) else '#8a5a3a')
 cv.fill(pwall & ~shift(pwall, 2, 0), '#e2b47a')
+cv.fill(pwall & ~shift(pwall, -1, 0), '#8a5a3a')   # shaded edge against the piazza
+niche = rrect(122, 150, 127, 158, 2)   # wayside niche with a little oil lamp
+cv.fill(niche & pwall, '#5c3420')
+cv.fill(rect(121, 159, 128, 159) & pwall, STONE['r'])
+cv.fill(rect(123, 156, 126, 158), TERRA['b'])
+cv.dots([(124, 155), (125, 155)], '#f2d23a')
+cv.dots([(124, 154)], '#fff2b0')
+bm = ell(114, 136, 122, 142) | ell(118, 139, 125, 145)   # caper bush sprouting from a crack
+cv.fill(bm, GREEN['b'])
+cv.fill(bm & ~shift(bm, -1, -1), GREEN['s'])
+cv.fill(bm & ~shift(bm, 1, 1), '#7ab55c')
+cv.dots([(116, 138), (120, 141), (123, 143), (118, 142)], '#f6b8cf')
+cv.dots([(117, 138), (121, 141)], '#c3b2ea')
 
 # ================================================================ STEPS down to the harbour
 cv.fill(steps, STONE['b'])
@@ -873,12 +896,28 @@ cv.fill(rect(200, 174, 203, 175), '#f2c93a')   # oil pooling in the first jar's 
 # gnome pushing the beam
 gnome(240, 166, ramp('#e8b878', '#c08a4a', '#f6d49a'), BLUE, s=1.0, face=-1, arm=1)
 # sacks of olives by the press
-for sx_, sy_ in ((128, 162), (136, 166)):
+for sx_, sy_ in ((132, 162), (140, 166)):
     o = cv.obj()
     o.part(rrect(sx_, sy_ - 10, sx_ + 9, sy_, 2) | poly([(sx_ + 2, sy_ - 10), (sx_ + 7, sy_ - 10), (sx_ + 5, sy_ - 13)]), ramp('#d8c6a0', '#a8946e', '#f0e4c4'), d=2)
     o.draw()
     cv.dots([(sx_ + 3, sy_ - 11), (sx_ + 5, sy_ - 11), (sx_ + 4, sy_ - 12)], '#3a2a3a')
     cv.fill(rect(sx_ + 2, sy_ - 9, sx_ + 7, sy_ - 9), '#7a4a1f')
+
+# two hens pecking up spilled olives beside the press
+for hx_, hy_, fc_, hc in ((208, 161, 1, ('#f1ece0', '#c9bfa8')), (227, 160, -1, ('#c8743a', '#8a4a22'))):
+    def HX(v):
+        return hx_ + v * fc_
+    hm = ell(min(HX(0), HX(7)), hy_ - 6, max(HX(0), HX(7)), hy_ - 2) | rect(min(HX(-1), HX(0)), hy_ - 8, max(HX(-1), HX(0)), hy_ - 5)
+    o = cv.obj()
+    o.part(hm, ramp(hc[0], hc[1]), d=1)
+    o.part(ell(min(HX(6), HX(9)), hy_ - 4, max(HX(6), HX(9)), hy_ - 1), ramp(hc[0], hc[1]), d=1)   # head down, pecking
+    o.draw()
+    cv.dots([(HX(7), hy_ - 5), (HX(8), hy_ - 5)], '#d6322b')   # comb
+    cv.dots([(HX(10), hy_ - 2)], '#f0b92b')
+    cv.dots([(HX(8), hy_ - 3)], DARK)
+    cv.dots([(HX(2), hy_ - 1), (HX(2), hy_), (HX(4), hy_ - 1), (HX(4), hy_)], '#f0b92b')
+    cv.fill(rect(min(HX(2), HX(5)), hy_ - 5, max(HX(2), HX(5)), hy_ - 4), hc[1])   # wing
+cv.dots([(213, 161), (218, 160), (215, 162), (221, 161), (231, 158)], '#3a2a3a')
 
 # ================================================================ LEMON TREES in big terracotta pots
 for lx, ly, w in ((144, 149, 16), (222, 196, 18)):
