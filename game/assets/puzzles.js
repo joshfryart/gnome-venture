@@ -161,8 +161,7 @@ function layout(first){
   var w=pw+2*pad, h=ph+2*pad, sz=Math.round(w)+'px '+Math.round(h)+'px';
   for(i=0;i<G.pieces.length;i++){
     var p=G.pieces[i], X0=p.c*pw-pad, Y0=p.r*ph-pad;
-    p.el.style.width=w+'px'; p.el.style.height=h+'px'; p.el.style.containIntrinsicSize=sz;
-    p.img.style.left=(-X0)+'px'; p.img.style.top=(-Y0)+'px';
+    p.el.style.width=w+'px'; p.el.style.height=h+'px';    p.img.style.left=(-X0)+'px'; p.img.style.top=(-Y0)+'px';
     p.img.style.width=bw+'px'; p.img.style.height=bh+'px';
     var d=pathFor(p.r,p.c);
     p.cut.style.clipPath="path('"+d+"')";
