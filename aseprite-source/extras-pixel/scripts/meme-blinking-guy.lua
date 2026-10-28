@@ -1,0 +1,344 @@
+-- puzzles/blinking-guy.gif redraw (pass 4: tapered felt-tuft fringe, stepped cheek ramp; pass 3: felt nap, 3-depth bokeh, slower blink): a felt-puppet close-up doing the slow disbelieving blink,
+-- eyes shifting, brows climbing, lopsided forced smile, in front of dark felt bokeh. Generic puppet, not a likeness.
+-- Framed like the source: face fills the frame and bleeds off the left and bottom, hair off the top,
+-- jaw, ear and bokeh on the right. 544x640, 21 key frames with per-frame ms, loops forever.
+-- Drawn on a 272x320 half grid (scene mode, no halo), written at 2x nearest.
+local D = "/home/user/gnome-venture/aseprite-source/"
+local GV = dofile(D .. "gvlib/gvlib.lua")
+local O = D .. "extras-pixel/"
+local G = "/home/user/gnome-venture/game/assets/img/puzzles/"
+local W, H = 272, 320
+local floor, sqrt, max, min = math.floor, math.sqrt, math.max, math.min
+local function r(v) return floor(v + 0.5) end
+
+local hair  = GV.ramp("#e0b25a")            -- gold family, lighter base for blond felt
+local brow  = GV.ramp("#b07a45")            -- wood base, darker blond brows
+local white = GV.ramp("#f1ece0")            -- soil cream (pale)
+local iris  = GV.R.water
+local SK = GV.R.skin                        -- skin: base e9b98a, bounce d9885a, shade c47a52, deep 8a4234
+local LASH, UMB = "#2a1a10", "#4a2c1a"
+local CHEEK = { "#d69a6e", "#a85e43" }      -- in-between skin steps: base>mid>shade, shade>dark>deep
+local BG = { "#121a38", "#16203f", "#1a2648", "#1e2a50", "#16203f", "#121a38" }
+
+-- deterministic hash in [0,1) for felt flecks / tuft fuzz (keyed to face-local coords so it rides with the head)
+local function hash(a, b, s)
+  local h = (a * 374761393 + b * 668265263 + (s or 0) * 2147483647) % 4294967296
+  h = ((h ~ (h >> 13)) * 1274126177) % 4294967296
+  return (h ~ (h >> 16)) % 65536 / 65536
+end
+
+-- key poses (source: 97 frames x 30 ms): a long stare, one slow heavy blink held shut, a slow open into a
+-- sideways glance, one quick second blink, then the brows climb into the disbelieving smile and hold.
+-- lid 0 open .. 1 shut, gx/gy gaze, br brow lift (-2..7), sk extra lift on his left brow, ox/oy head shift,
+-- sm forced smile 0..1, ms duration
+local K = {
+  { lid=0.00, gx= 0.1, gy=0,   br= 0,   sk=0, ox=0, oy=0,  sm=0.15, ms=640 },
+  { lid=0.20, gx= 0.1, gy=0.3, br=-0.5, sk=0, ox=0, oy=0,  sm=0.15, ms=120 },
+  { lid=0.50, gx= 0.0, gy=0.6, br=-1,   sk=0, ox=0, oy=1,  sm=0.10, ms=130 },
+  { lid=0.82, gx= 0.0, gy=0.8, br=-1.5, sk=0, ox=1, oy=1,  sm=0.10, ms=150 },
+  { lid=1.00, gx= 0.0, gy=1,   br=-2,   sk=0, ox=1, oy=2,  sm=0.10, ms=560 },
+  { lid=0.80, gx=-0.3, gy=0.6, br=-1,   sk=0, ox=1, oy=2,  sm=0.15, ms=130 },
+  { lid=0.45, gx=-0.7, gy=0.2, br=1,    sk=0, ox=2, oy=1,  sm=0.20, ms=130 },
+  { lid=0.12, gx=-1.0, gy=0,   br=3,    sk=1, ox=2, oy=0,  sm=0.25, ms=360 },
+  { lid=0.08, gx=-1.0, gy=0,   br=3.5,  sk=1, ox=3, oy=0,  sm=0.25, ms=360 },
+  { lid=0.60, gx=-0.6, gy=0.5, br=2,    sk=1, ox=3, oy=0,  sm=0.25, ms=80  },
+  { lid=1.00, gx=-0.2, gy=0.8, br=0.5,  sk=0, ox=3, oy=1,  sm=0.30, ms=110 },
+  { lid=0.45, gx= 0.3, gy=0.3, br=2.5,  sk=1, ox=3, oy=0,  sm=0.35, ms=90  },
+  { lid=0.10, gx= 0.8, gy=0,   br=4.5,  sk=2, ox=2, oy=0,  sm=0.50, ms=200 },
+  { lid=0.00, gx= 0.6, gy=0,   br=5.5,  sk=2, ox=2, oy=-1, sm=0.70, ms=180 },
+  { lid=0.00, gx= 0.2, gy=0,   br=6.5,  sk=3, ox=1, oy=-1, sm=0.90, ms=220 },
+  { lid=0.00, gx= 0.0, gy=0,   br=7,    sk=3, ox=1, oy=-2, sm=1.00, ms=700 },
+  { lid=0.00, gx=-0.2, gy=0,   br=7,    sk=3, ox=1, oy=-2, sm=1.00, ms=420 },
+  { lid=0.15, gx= 0.0, gy=0,   br=6,    sk=2, ox=1, oy=-1, sm=0.90, ms=140 },
+  { lid=0.00, gx= 0.0, gy=0,   br=4,    sk=1, ox=0, oy=-1, sm=0.65, ms=180 },
+  { lid=0.00, gx= 0.1, gy=0,   br=2,    sk=0, ox=0, oy=0,  sm=0.40, ms=200 },
+  { lid=0.00, gx= 0.1, gy=0,   br=0.5,  sk=0, ox=0, oy=0,  sm=0.20, ms=260 },
+}
+
+-- column-span mask: f(x) -> y0, y1 (inclusive, floats)
+local function spans(c, x0, x1, f)
+  local m = c:mask()
+  for x = floor(x0), math.ceil(x1) do
+    local a, b = f(x)
+    if a then for y = math.ceil(a - 0.5), floor(b + 0.5) do m:set(x, y) end end
+  end
+  return m
+end
+
+local function drawFrame(p)
+  local c = GV.canvas{ w = W, h = H, mode = "scene", out = 2, cx = 100, cy = 140 }
+  c:bands(c:rect(0, 0, W-1, H-1), BG, { dir = "radial", cx = 250, cy = 140, r = 260 })
+  -- bokeh in three depths: far dim smudges, mid soft discs with a dim halo ring, near bright discs
+  -- with a halo and a crescent. Fixed, mostly in the strip right of the jaw; the near ones overlap.
+  local far = { {222, 56, 7, "#2a3c6c"}, {250, 110, 6, "#2d4a7a"}, {272, 190, 8, "#2a3c6c"}, {230, 236, 6, "#2d4a7a"},
+    {246, 290, 5, "#2a3c6c"}, {212, 150, 5, "#2d4a7a"}, {262, 22, 6, "#2d4a7a"} }
+  for _, b in ipairs(far) do c:fill(c:ellipse(b[1], b[2], b[3], b[3]), b[4]) end
+  local mid = { {262, 84, 11, "#5a86b8"}, {232, 120, 9, "#3f8fb0"}, {262, 246, 12, "#3f8fb0"},
+    {214, 312, 8, "#5a86b8"}, {244, 180, 7, "#5a86b8"}, {270, 150, 9, "#3f8fb0"} }
+  for _, b in ipairs(mid) do
+    local rr = GV.ramp(b[4])
+    c:fill(c:ellipse(b[1], b[2], b[3] + 3, b[3] + 3), rr.deep)
+    c:part(c:ellipse(b[1], b[2], b[3], b[3]), rr, { cres = 3, outline = false, gloss = false, rim = false, contact = false })
+  end
+  local near = { {238, 30, 13, "#8fcbd8"}, {258, 160, 14, "#c8ecdc"}, {236, 206, 11, "#8fcbd8"},
+    {226, 280, 10, "#f5cf6a"}, {256, 306, 12, "#5a86b8"}, {266, 8, 8, "#f5cf6a"} }
+  for _, b in ipairs(near) do
+    local rr = GV.ramp(b[4])
+    c:fill(c:ellipse(b[1], b[2], b[3] + 3, b[3] + 3), rr.shade)
+    c:part(c:ellipse(b[1], b[2], b[3], b[3]), rr, { cres = 4, outline = false, gloss = false, contact = false })
+    c:px(b[1] - floor(b[3] * 0.4), b[2] - floor(b[3] * 0.4), rr.gloss)
+  end
+
+  local X, Y = p.ox, p.oy
+  local function P(pts) local o = {} for i, q in ipairs(pts) do o[i] = { q[1] + X, q[2] + Y } end return o end
+
+  -- ear (peeks out behind the cheek, under the sideburn)
+  c:part(c:ellipse(204 + X, 150 + Y, 11, 22), "skin", { cres = 5, gloss = false })
+  c:fill(c:line(P{ {206, 136}, {210, 146}, {209, 160}, {204, 166} }, 2), SK.shade)
+
+  -- head: bleeds off left and bottom; temple, cheekbone, jaw angle and chin on the right
+  local face = c:poly(P{ {-16, -16}, {186, -16}, {193, 40}, {198, 88}, {200, 126}, {199, 160},
+    {195, 198}, {189, 236}, {181, 266}, {170, 292}, {158, 316}, {150, 340}, {-16, 340} })
+  c:part(face, "skin", { cres = 13, deep = 5, gloss = { 30 + X, 166 + Y } })
+  -- cheek form: stepped ramp bands (base > mid > shade > dark > deep) measured in from the right silhouette,
+  -- widest over the cheekbone and narrowing to the temple and jaw, so each band boundary follows the cheek
+  do
+    local WK = { {30, 8}, {80, 12}, {140, 26}, {195, 34}, {245, 26}, {295, 17}, {350, 13} }
+    local function cw(y)
+      if y <= WK[1][1] then return WK[1][2] end
+      for i = 1, #WK - 1 do
+        local a, b = WK[i], WK[i + 1]
+        if y <= b[1] then local t = (y - a[1]) / (b[1] - a[1]) t = (1 - math.cos(t * math.pi)) / 2
+          return a[2] + (b[2] - a[2]) * t end
+      end
+      return WK[#WK][2]
+    end
+    local repaint = { [SK.base] = true, [SK.shade] = true, [SK.deep] = true }
+    for y = 0, H - 1 do
+      local xr
+      for x = W - 1, 0, -1 do if face:has(x, y) then xr = x break end end
+      if xr then
+        local w = cw(y - Y)
+        for x = xr - floor(w), xr do
+          local cur = c:get(x, y)
+          if repaint[cur] or cur == CHEEK[1] then
+            local d = xr - x
+            local col
+            if d < max(2, w * 0.13) then col = SK.deep
+            elseif d < w * 0.32 then col = CHEEK[2]
+            elseif d < w * 0.62 then col = SK.shade
+            else col = CHEEK[1] end
+            c:px(x, y, col)
+          end
+        end
+      end
+    end
+  end
+  -- chin pad: gives the lower face a structure
+  c:fill(c:line(P{ {98, 308}, {116, 304}, {136, 306} }, 2), SK.bounce)
+  -- felt nap: sparse flecks one tone down on the lit skin, one tone up in the shade; never on details (done now, before them)
+  face:each(function(x, y)
+    local cur = c:get(x, y)
+    local hv = hash(x - X, y - Y, 7)
+    if hv < 0.018 then
+      if cur == SK.base then c:px(x, y, SK.bounce) elseif cur == SK.shade then c:px(x, y, CHEEK[1])
+      elseif cur == CHEEK[1] then c:px(x, y, SK.base) end
+    elseif hv > 0.993 and cur == SK.base and (x - X) + (y - Y) < 200 then c:px(x, y, SK.rim) end
+  end)
+
+  -- hair: felt mass off the top with a smooth hairline, then a fringe of tapered felt tufts of varied
+  -- length hanging down-left from it (each a fat root, a belly and a rounded tip), sideburn tuft over the ear
+  local hm = c:poly(P{ {-16, -16}, {232, -16}, {226, 30}, {220, 70}, {216, 104}, {210, 118}, {204, 110},
+    {200, 92}, {194, 74}, {186, 62}, {170, 54}, {140, 48}, {100, 44}, {60, 42}, {20, 42}, {-16, 44} })
+  -- root x,y / tip x,y / root radius
+  local TUFTS = { {0, 34, -14, 66, 14}, {26, 36, 8, 74, 15}, {44, 40, 30, 64, 9}, {66, 38, 46, 78, 15},
+    {90, 40, 74, 66, 10}, {112, 40, 94, 80, 15}, {132, 44, 118, 66, 9}, {152, 46, 136, 76, 13},
+    {172, 50, 158, 70, 9}, {190, 56, 178, 84, 11}, {204, 70, 198, 96, 9}, {214, 96, 208, 134, 8} }
+  local function bez(t, tf)
+    local x0, y0, x2, y2 = tf[1], tf[2], tf[3], tf[4]
+    local x1, y1 = x0 + (x2 - x0) * 0.15 + 4, y0 + (y2 - y0) * 0.65
+    local u = 1 - t
+    return u * u * x0 + 2 * u * t * x1 + t * t * x2 + X, u * u * y0 + 2 * u * t * y1 + t * t * y2 + Y
+  end
+  local function rad(t, tf) return tf[5] * (1 - t) ^ 0.9 + 4 * t end
+  for _, tf in ipairs(TUFTS) do
+    for k = 0, 24 do local t = k / 24 local bx, by = bez(t, tf) local rr = rad(t, tf)
+      hm:add(c:ellipse(bx, by, rr, rr)) end
+  end
+  -- fringe cast shadow on the forehead: the hair mask pushed down-right (light from the upper left)
+  c:fill(hm:shift(2, 5):cut(hm):clip(face:shrink(2)), SK.shade)
+  c:fill(hm:shift(1, 2):cut(hm):clip(face:shrink(2)), SK.deep)
+  c:part(hm, hair, { cres = 7, deep = 3, gloss = { 60 + X, 14 + Y } })
+  -- per tuft: a shade groove down its right side (the split from its neighbour, deep at the tip), a lit
+  -- streak down its left side, and the groove carried up into the mass toward the crown
+  local innerH = hm:shrink(1)
+  local function path(tf, t0, t1, off)
+    local o = {}
+    for k = 0, 6 do local t = t0 + (t1 - t0) * k / 6 local bx, by = bez(t, tf)
+      o[#o + 1] = { r(bx + rad(t, tf) * off), r(by) } end
+    return o
+  end
+  for i, tf in ipairs(TUFTS) do
+    c:fill(c:line(path(tf, 0.2, 0.92, 0.5), 2):clip(innerH), hair.shade)
+    c:fill(c:line(path(tf, 0.55, 0.9, 0.62), 1):clip(innerH), hair.deep)
+    c:fill(c:line(path(tf, 0.05, 0.7, -0.4), 1):clip(innerH), hair.rim)
+    local bx, by = bez(0, tf)
+    if i % 2 == 0 then
+      c:fill(c:line({ { r(bx + tf[5] * 0.5), r(by + 6) }, { r(bx + tf[5] * 0.5 + 10), r(by - 10) }, { r(bx + tf[5] * 0.5 + 28), r(by - 30) } }, 1):clip(innerH), hair.shade)
+    end
+  end
+  local lit = { {-6, 30, 30, 2}, {40, 28, 76, -2}, {88, 30, 122, 2}, {134, 32, 168, 6}, {178, 40, 206, 14} }
+  for _, s in ipairs(lit) do c:fill(c:line(P{ {s[1], s[2]}, {s[3], s[4]} }, 1):clip(innerH), hair.rim) end
+  -- felt nap on the hair too
+  hm:each(function(x, y)
+    local cur = c:get(x, y)
+    local hv = hash(x - X, y - Y, 21)
+    if hv < 0.03 and cur == hair.base then c:px(x, y, hair.shade)
+    elseif hv > 0.975 and cur == hair.shade then c:px(x, y, hair.base) end
+  end)
+  c:seam(P{ {6, 30}, {50, 32}, {100, 36}, {150, 42}, {196, 52} })
+
+  -- eyes: almond whites, iris + pupil + glint, lid that follows the almond down to a closed curve
+  local EYES = { { ex = 60, ey = 140, rx = 24, ry = 13, side = -1 }, { ex = 152, ey = 133, rx = 21, ry = 12, side = 1 } }
+  for _, e in ipairs(EYES) do
+    local ex, ey, rx, ry = e.ex + X, e.ey + Y, e.rx, e.ry
+    local function top(x) local u = (x - ex) / rx if math.abs(u) > 1 then return nil end
+      return ey - ry * (1 - u * u) ^ 0.55 - 1.5 * u * e.side end
+    local function bot(x) local u = (x - ex) / rx if math.abs(u) > 1 then return nil end
+      return ey + ry * 0.7 * (1 - u * u) ^ 0.75 - 1.5 * u * e.side end
+    local wm = spans(c, ex - rx, ex + rx, function(x) local a = top(x) if a then return a, bot(x) end end)
+    -- socket: upper lid crease rides with the brow; lower lid line pushes up with the smile
+    local crease = {}
+    for k = -6, 6 do local u = k / 7 local x = ex + u * (rx + 1)
+      crease[#crease + 1] = { r(x), r(top(x) - 6 - max(0, p.br) * 0.35 - (1 - p.lid) * 1) } end
+    c:fill(c:line(crease, 2), SK.shade)
+    c:part(wm, white, { flat = true, rim = false, outline = false, contour = false, contact = false })
+    local ix, iy = ex + p.gx * (rx - 11), ey + 1 + p.gy * 2
+    c:fill(c:ellipse(ix, iy, 10, 10):clip(wm), iris.base)
+    c:fill(c:ellipse(ix, iy, 10, 10):cut(c:ellipse(ix - 2, iy - 2, 10, 10)):clip(wm), iris.deep)
+    c:fill(c:ellipse(ix - 2, iy - 3, 6, 3):clip(c:ellipse(ix, iy, 8, 8)):clip(wm), iris.rim)
+    c:fill(c:ellipse(ix, iy, 4.5, 4.5):clip(wm), LASH)
+    c:fill(c:rect(ix - 5, iy - 5, ix - 3, iy - 3):clip(wm), "#fff3c8")
+    -- upper lid
+    local edge, cl = {}, p.lid >= 0.99
+    local lm = c:mask()
+    for x = floor(ex - rx), math.ceil(ex + rx) do
+      local a = top(x)
+      if a then
+        local b = bot(x) + 1
+        local yy = a + (b - a) * p.lid
+        for y = math.ceil(a - 0.5) - 1, floor(yy + 0.5) do lm:set(x, y) end
+        if (x - ex) % 3 == 0 or x == floor(ex - rx) then edge[#edge + 1] = { x, r(yy) } end
+      end
+    end
+    edge[#edge + 1] = { r(ex + rx), r(top(ex + rx) or ey) }
+    if p.lid > 0 then
+      -- lid is plain skin with a lit top and a soft bounce fold just above the lash line (not a pale patch)
+      c:fill(lm, SK.base)
+      if p.lid > 0.3 then
+        local fold = {}
+        for i, q in ipairs(edge) do fold[i] = { q[1], q[2] - 3 } end
+        c:fill(c:line(fold, 2):clip(lm), SK.bounce)
+      end
+    end
+    -- lower lid line under the white
+    local lo = {}
+    for k = -6, 6 do local u = k / 7 local x = ex + u * rx
+      lo[#lo + 1] = { r(x), r(bot(x) + 2 - p.sm * 1.5) } end
+    c:fill(c:line(lo, 2), SK.bounce)
+    c:fill(c:line(edge, 3), LASH)
+    if cl then -- closed: little lash flicks at the outer end
+      local ox = ex + e.side * (rx - 3)
+      local by = bot(ox) + 1
+      c:fill(c:line({ { r(ox), r(by) }, { r(ox + e.side * 4), r(by + 3) } }, 2), LASH)
+      local ox2 = ex + e.side * (rx - 10)
+      c:fill(c:line({ { r(ox2), r(bot(ox2) + 2) }, { r(ox2 + e.side * 2), r(bot(ox2) + 5) } }, 2), LASH)
+    end
+    -- brow: thick inner end, tapering outer end; inner end climbs more (disbelief), his left brow more again
+    local lift = p.br + (e.side > 0 and p.sk or 0)
+    local inX, outX = ex - e.side * 28, ex + e.side * 28
+    local by = ey - 22
+    local b1 = { r(inX), r(by + 4 - lift * 1.6) }
+    local b2 = { r(ex - e.side * 4), r(by - 3 - lift * 1.3) }
+    local b3 = { r(outX), r(by + 1 - lift * 0.8) }
+    local bm = c:line({ b1, b2 }, 9):add(c:line({ b2, { r((b2[1] + b3[1]) / 2), r((b2[2] + b3[2]) / 2 - 1) } }, 8))
+    bm:add(c:line({ { r((b2[1] + b3[1]) / 2), r((b2[2] + b3[2]) / 2 - 1) }, b3 }, 5))
+    c:part(bm, brow, { flat = true, outline = false, contact = false })
+    -- worry crease between the brows when they climb
+    if e.side < 0 and p.br >= 4 then
+      c:fill(c:line(P{ {104, 104 - floor(p.br)}, {106, 112 - floor(p.br)} }, 2), SK.shade)
+    end
+  end
+
+  -- nose: bridge shade on the dark side, wings, round felt tip, nostrils
+  c:fill(c:line(P{ {120, 132}, {126, 150}, {132, 172}, {134, 184} }, 3), SK.shade)
+  c:fill(c:line(P{ {104, 136}, {100, 160}, {98, 180} }, 2), SK.bounce)
+  local wings = c:ellipse(100 + X, 201 + Y, 8, 6):add(c:ellipse(136 + X, 199 + Y, 9, 7))
+  c:part(wings, "skin", { cres = 5, gloss = false, outline = false, contour = SK.shade, contact = false })
+  c:part(c:ellipse(118 + X, 192 + Y, 18, 13), "skin", { cres = 8, deep = 3, outline = false, contour = SK.shade, gloss = { 108 + X, 184 + Y } })
+  c:fill(c:ellipse(104 + X, 206 + Y, 4, 1.5), SK.deep); c:fill(c:ellipse(132 + X, 205 + Y, 5, 1.5), SK.deep)
+  c:fill(c:line(P{ {98, 210}, {116, 212}, {140, 209} }, 2), SK.shade)
+  c:fill(c:line(P{ {112, 220}, {111, 232} }, 2), SK.bounce)      -- philtrum
+
+  -- lopsided forced smile: lips pressed, his left corner (viewer right) hauled up, cheek fold deepens
+  local s = p.sm
+  local mid = {}
+  local N = 12
+  local function mouthY(u)
+    local liftR = (u > 0) and (u ^ 2) * (6 + 16 * s) or 0
+    local liftL = (u < 0) and (u * u) * (-2 + 4 * s) or 0
+    return 250 - liftR - liftL + 2.5 * s * (1 - u * u) - 3 * u
+  end
+  local function mouthX(u) return 116 + u * (44 + (u > 0 and 4 * s or 2 * s)) end
+  for k = -N, N do local u = k / N mid[#mid + 1] = { r(mouthX(u) + X), r(mouthY(u) + Y) } end
+  -- lips: thin upper lip, fuller lower lip, both narrower than the mouth line
+  local up = spans(c, mouthX(-0.82) + X, mouthX(0.8) + X, function(x)
+    local u = (x - X - 116) / 46 if math.abs(u) > 1 then return nil end
+    local yy = mouthY(math.max(-1, math.min(1, u))) + Y
+    local bow = (math.abs(u + 0.02) < 0.12) and 1 or 0
+    return yy - 4.5 * (1 - u * u) ^ 0.6 - 1 + bow, yy end)
+  c:fill(up, SK.shade)
+  local lo = spans(c, mouthX(-0.75) + X, mouthX(0.7) + X, function(x)
+    local u = (x - X - 116) / 46 if math.abs(u) > 1 then return nil end
+    local yy = mouthY(math.max(-1, math.min(1, u))) + Y
+    return yy, yy + 2 + 8 * (1 - u * u) ^ 0.7 - 2 * s end)
+  c:part(lo, GV.ramp("#d9885a"), { cres = 4, deep = 0, outline = false, contour = false, contact = false, gloss = false })
+  c:fill(c:line({ { r(mouthX(-0.25) + X), r(mouthY(-0.25) + Y + 4) }, { r(mouthX(0.05) + X), r(mouthY(0.05) + Y + 4) } }, 2), SK.gloss)
+  c:fill(c:line(mid, 3), UMB)
+  -- corners: a hard tuck on his left, a soft dot on his right
+  local R1 = mid[#mid]
+  c:fill(c:line({ { R1[1] - 1, R1[2] + 1 }, { R1[1] + 3, R1[2] - 2 } }, 2), UMB)
+  c:fill(c:line({ { R1[1] + 3, R1[2] - 6 }, { R1[1] + 6, R1[2] - 1 }, { R1[1] + 5, R1[2] + 5 } }, 2), SK.shade)
+  local L1 = mid[1]
+  c:fill(c:line({ { L1[1] - 2, L1[2] }, { L1[1], L1[2] } }, 2), SK.shade)
+  -- cheek folds (nasolabial): the right one swings out and up with the smile
+  local fo = {}
+  for k = 0, 6 do local t = k / 6
+    fo[#fo + 1] = { r(150 + X + t * (16 + 8 * s) + math.sin(t * 3.1) * (4 + 6 * s)), r(204 + Y + t * (40 - 10 * s)) } end
+  c:fill(c:line(fo, 2), SK.shade)
+  if s > 0.35 then
+    c:fill(c:line(P{ {84, 214}, {76, 232}, {74, 246 - floor(s * 6)} }, 2), SK.bounce)
+  end
+  -- under-lip shadow
+  c:fill(c:line(P{ {104, 276 - floor(2 * s)}, {118, 278 - floor(2 * s)}, {134, 275 - floor(3 * s)} }, 2), SK.bounce)
+  return c:image()
+end
+
+local spr = Sprite(W * 2, H * 2, ColorMode.RGB)
+local layer = spr.layers[1]
+layer.name = "blinking-guy"
+for f, p in ipairs(K) do
+  if f > 1 then spr:newEmptyFrame(f) end
+  local img = drawFrame(p)
+  if f == 1 then spr.cels[1].image = img else spr:newCel(layer, f, img) end
+  spr.frames[f].duration = p.ms / 1000
+  local t = GV.check(img)
+  if f == 1 or f == 5 then print("frame " .. f .. ": " .. GV.report(t)) end
+  assert(t.semi == 0 and t.bw == 0)
+  if f == 1 then img:saveAs(G .. "blinking-guy-still.png") end
+end
+pcall(function() app.fs.makeAllDirectories(O .. "puzzles-gif") end)
+spr:saveAs(O .. "puzzles-gif/blinking-guy.aseprite")
+spr:saveCopyAs(G .. "blinking-guy.gif")
+spr:close()
+print("saved")
