@@ -1,4 +1,4 @@
-# Guest mode + Jeff tour plan (Fable low, 2026-10-28, planned on 2.0.70)
+# BUILT in 2.0.75 (core + convert + strip; nudges folded in). Guest mode + Jeff tour plan (Fable low, 2026-10-28, planned on 2.0.70)
 Not built. Owner ask: logged-out experience = Jeff the Puzzler shows them around, real current-build screenshots replace old landing images; guests can explore most features but need an account to create their own gnome.
 
 ## Findings
