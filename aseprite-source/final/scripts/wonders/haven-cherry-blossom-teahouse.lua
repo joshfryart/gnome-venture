@@ -88,7 +88,6 @@ c:part(c:rrect(158, 98, 190, 105, 2), GV.ramp("#8a4f2a"), { cres = 2, deep = 3, 
 c:part(c:ellipse(170, 94, 5, 4), GV.ramp("#4e8a9a", { rim = "#8fcbd8" }), { cres = 2, deep = 3, gloss = false })
 c:fill(c:rect(175, 92, 180, 93), "#4e8a9a"); c:fill(c:rect(165, 88, 175, 89), "#4e8a9a")
 for _, x in ipairs({ 180, 185 }) do c:part(c:rect(x, 95, x + 3, 98), GV.ramp("#f2e4c0"), { flat = true, gloss = false, outline = false, contour = "#74462a" }) end
-c:px(170, 85, "#f4f0e0"); c:px(171, 83, "#fff"); c:px(170, 81, "#f4f0e0")
 c:px(171, 83, "#e8e4e0")
 gnome(206, 108, "#f08a24", "#3f8fb0")
 -- teacup raised

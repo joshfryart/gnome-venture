@@ -74,7 +74,7 @@ for _, y in ipairs({ 64, 70, 76 }) do c:fill(c:rect(115, y, 125, y), "#d8c496") 
 c:part(c:ellipse(120, 46, 10, 9), GV.ramp("#f2e4c0", { dot = "#fff3c8" }), { cres = 3, deep = 5 })
 c:eye(111, 42); c:eye(124, 42)
 -- feathery antennae
-c:fill(c:line({ {115,38},{108,26},{100,18} }, 2), "#c3b8ec"); c:fill(c:line({ {125,38},{132,26},{140,18} }, 2), "#c3b8ec")
+c:fill(c:line({ {115,38},{108,26},{100,18} }, 2), "#2a1a10"); c:fill(c:line({ {125,38},{132,26},{140,18} }, 2), "#2a1a10")
 for k = 0, 3 do c:px(106 - k, 26 - k * 2 - 1, "#c3b8ec"); c:px(134 + k, 26 - k * 2 - 1, "#c3b8ec") end
 c:part(c:ellipse(99, 17, 2.5, 2.5), GV.ramp("#f5cf6a"), { flat = true }); c:part(c:ellipse(141, 17, 2.5, 2.5), GV.ramp("#f5cf6a"), { flat = true })
 -- fireflies and ferns
