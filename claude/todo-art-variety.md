@@ -2,13 +2,16 @@
 
 Rule: every placeholder is a white square with a red border and the words THIS IS PLACEHOLDER (`tools/gen_placeholder_art.py`). To finish one: draw the real art, save it over the same file name and size, tick the box. Placeholders must never ship as final.
 
-## In the game now as PLACEHOLDER (2.0.76)
+## FIRST PASS DRAWN (branch claude/art-first-pass; Sonnet high; Joshua to review) 2.0.76
+Ticked = first-pass art drawn over the placeholder, NOT yet approved by Joshua. Sources: `aseprite-source/extras-pixel/scripts/variety-{stage,folk}.lua`, `variety-tier-<kind>.lua`; .aseprite in `extras-pixel/aseprite/`. Run with `AppRun -b --script-param k=v --script X.lua` (params BEFORE --script). Weak spots to redraw if Joshua wants: stage-gather (handle hides contents), folk gecko (frog-like) / shrew (mouse-like) / moth (owl-like), tiers shrine-1, mill-1, inn-2, jetty-2, herb-2, orchard-2/3, ferry-3/4, tower-1 (gate not ladder), tower-3, spring-1/2/3, camp-1. Stage icons are the 64 grid scaled 1.5x (uneven pixels at large size); tiers 1-4 of each kind are 48-grid x2 or native 96. Light/dark variants not made.
+
+## Stage verb icons (2.0.76)
 Build-stage verb icons, shown at 20px on the repair card (stage list + button). 96x96 placeholders; draw as normal `ico` art (64 grid, house outline/halo rules in `claude/art-style-guide.md`), light and dark if the style needs it.
-- [ ] `game/assets/img/steps/stage-haul.png`: hauling building materials (a sack, a block, a plank bundle)
-- [ ] `game/assets/img/steps/stage-gather.png`: gathering finds (a basket with shells, ferns, roots)
-- [ ] `game/assets/img/steps/stage-feed.png`: feed the crew (a steaming pot or a bowl)
-- [ ] `game/assets/img/steps/stage-light.png`: lighting the place (a lantern or a candle)
-- [ ] `game/assets/img/steps/stage-clear.png`: clearing (an axe or a spade, or a broom)
+- [x] `game/assets/img/steps/stage-haul.png`: hauling building materials (a sack, a block, a plank bundle)
+- [x] `game/assets/img/steps/stage-gather.png`: gathering finds (a basket with shells, ferns, roots)
+- [x] `game/assets/img/steps/stage-feed.png`: feed the crew (a steaming pot or a bowl)
+- [x] `game/assets/img/steps/stage-light.png`: lighting the place (a lantern or a candle)
+- [x] `game/assets/img/steps/stage-clear.png`: clearing (an axe or a spade, or a broom)
 
 ## ART TODO FOR A FUTURE AI: a picture for every stop activity (Aseprite)
 **Do this:** draw one small scene per rest-stop activity in Aseprite and save it as `game/assets/img/acts/act-<slug>.png` (144x108 PNG, same size and look as the existing `act-*.png` Do-tab cards). No further code change once 2.0.78 is released (`stop_act_art()` there looks for the slug file first; `tools/missing_act_art.py` also ships with 2.0.78): `stop_act_art()` in `includes/stops.php` uses a file named for the activity's slug first, then the old slug map, then the kind card (`act-craft.png` etc.), then `act-any.png`.
@@ -18,25 +21,25 @@ Build-stage verb icons, shown at 20px on the repair card (stage list + button). 
 - **Also still placeholder (red border, THIS IS PLACEHOLDER):** the four kind cards `act-craft.png`, `act-collect.png`, `act-tend.png`, `act-contest.png`. Do those first; they show for any craft/collect/tend/contest without its own picture.
 - **Ask Joshua before drawing at scale** (his rule: cost estimate and a first batch for approval, Opus draws, one contact sheet to review).
 
-## In the game as PLACEHOLDER (2.0.77)
+## Stop upgrade pictures (2.0.77; first pass drawn)
 Themed stop upgrade pictures, 96x96 placeholders at `game/assets/img/stoptiers/<kind>-<tier>.png`, shown at 24px beside each upgrade on the adopt panel and the plaque. 12 kinds x 4 tiers. Draw as small `ico`-style art, one per upgrade (name in brackets); replace the file, tick the box.
-- [ ] market: 1 striped awning, 2 weighing house, 3 fountain square, 4 market hall
-- [ ] mill: 1 sack hoist, 2 mill sluice, 3 flour loft, 4 bakehouse hall
-- [ ] inn: 1 hearth bench, 2 stable yard, 3 singing room, 4 grand dining hall
-- [ ] shrine: 1 stone lantern path, 2 prayer bell, 3 wishing pool, 4 pilgrims' hall
-- [ ] jetty: 1 plank pier, 2 net racks, 3 smokehouse, 4 fish supper hall
-- [ ] herb: 1 drying rack, 2 seed shed, 3 hive row, 4 tea house
-- [ ] workshop: 1 workbench, 2 forge corner, 3 crane and pulley, 4 makers' hall
-- [ ] orchard: 1 picking ladders, 2 cider press, 3 grafting bench, 4 harvest barn
-- [ ] ferry: 1 landing steps, 2 toll house, 3 second boat, 4 boatmen's hall
-- [ ] tower: 1 sturdy ladder, 2 signal beacon, 3 map room, 4 watchers' hall
-- [ ] spring: 1 stone steps and rail, 2 changing house, 3 egg-boiling stones, 4 bathhouse hall
-- [ ] camp: 1 log seats, 2 cookfire ring, 3 storytelling stage, 4 great lodge
-(The files are named by kind and tier, e.g. `mill-1.png`. Not wired yet, nice to have: a stop header picture that changes as tiers are built.)
+- [x] market: 1 striped awning, 2 weighing house, 3 fountain square, 4 market hall
+- [x] mill: 1 sack hoist, 2 mill sluice, 3 flour loft, 4 bakehouse hall
+- [x] inn: 1 hearth bench, 2 stable yard, 3 singing room, 4 grand dining hall
+- [x] shrine: 1 stone lantern path, 2 prayer bell, 3 wishing pool, 4 pilgrims' hall
+- [x] jetty: 1 plank pier, 2 net racks, 3 smokehouse, 4 fish supper hall
+- [x] herb: 1 drying rack, 2 seed shed, 3 hive row, 4 tea house
+- [x] workshop: 1 workbench, 2 forge corner, 3 crane and pulley, 4 makers' hall
+- [x] orchard: 1 picking ladders, 2 cider press, 3 grafting bench, 4 harvest barn
+- [x] ferry: 1 landing steps, 2 toll house, 3 second boat, 4 boatmen's hall
+- [x] tower: 1 sturdy ladder, 2 signal beacon, 3 map room, 4 watchers' hall
+- [x] spring: 1 stone steps and rail, 2 changing house, 3 egg-boiling stones, 4 bathhouse hall
+- [x] camp: 1 log seats, 2 cookfire ring, 3 storytelling stage, 4 great lodge
+(Still nice to have: a stop header picture that changes per tier; the files are named by kind and tier, e.g. `mill-1.png`. Not wired yet, nice to have: a stop header picture that changes as tiers are built.)
 
-## In the game as PLACEHOLDER (2.0.77, villager overlay)
+## Villager species pictures (2.0.77 villager overlay; first pass drawn)
 Rest-stop villagers show a picture of their species in the overlay (72px). Nine species already use our drawn icons (mouse, bee, hedgehog, snail, frog, beetle, butterfly, cricket, ladybird: `assets/img/ico/ico-<species>.png`). These eleven have no art yet and show a red PLACEHOLDER square at `game/assets/img/folk/<species>.png` (draw 64x64 pixel art, same file name; the code uses the file as soon as it is replaced). Ideally later: a few looks per species, and the same pictures on the villager rows.
-- [ ] hare  - [ ] wren  - [ ] mole  - [ ] tortoise  - [ ] moth  - [ ] shrew  - [ ] gecko  - [ ] dragonfly  - [ ] toad  - [ ] grasshopper  - [ ] firefly
+- [x] hare  - [x] wren  - [x] mole  - [x] tortoise  - [x] moth  - [x] shrew  - [x] gecko  - [x] dragonfly  - [x] toad  - [x] grasshopper  - [x] firefly
 
 ## In the game as PLACEHOLDER (2.0.78, new stop activity kinds)
 Do-tab card pictures, 144x108 PNG like the other `assets/img/acts/act-*.png`. One per new kind; any single activity can later get its own closer picture (see `STOP_ACT_ART_SLUG` in `includes/stops.php`).
