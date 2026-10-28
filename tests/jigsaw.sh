@@ -108,4 +108,7 @@ if node -e "require('playwright')" 2>/dev/null; then
   mkdir -p ${SHOTS:-/tmp/jig-shots}
   OUT=$(node "$(dirname "$0")/jigsaw_check.js" $BASE "${SHOTS:-/tmp/jig-shots}" 2>&1); echo "$OUT" | sed 's/^/  /'
   ok "browser pass" "$(echo "$OUT" | grep -c '^FAIL')" 0
+  # v2.0.87 E: save and resume (same guard)
+  OUT=$(node "$(dirname "$0")/jigsaw_resume_check.js" $BASE "${SHOTS:-/tmp/jig-shots}" 2>&1); echo "$OUT" | sed 's/^/  /'
+  ok "save and resume browser pass" "$(echo "$OUT" | grep -c '^FAIL')" 0
 else echo "skip browser pass (no playwright)"; fi

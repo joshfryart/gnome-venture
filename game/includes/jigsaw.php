@@ -16,11 +16,22 @@ const JIGSAW_TIERS = [
 ];
 /** Free-play practice goes started per gnome per day (a looser cap than a tournament; stops a token flood). */
 const JIGSAW_PRACTICE_STARTS = 120;
-/** Built-in pictures: slug => [title, category, file in assets/img/jigsaw/ (thumb = <slug>-thumb.jpg)]. Placeholders until the real art lands (same names). */
-const JIGSAWS = [
-    'maplewold' => ['Maplewold', 'Regions', 'maplewold.jpg'],
-    'maizehollow' => ['Maizehollow (placeholder)', 'Regions', 'maizehollow.jpg'],
-    'sunsprinkle' => ['Sunsprinkle Isles (placeholder)', 'Regions', 'sunsprinkle.jpg'],
+/** Built-in pictures: slug => [title, category, file in assets/img/jigsaw/ (thumb = <slug>-thumb.jpg)]. */
+const JIGSAWS = [   // the 14 region scenes, made with the 3-pass method (claude/jigsaw-art-process.md); scripts aseprite-source/scenes-pil/jigsaw_<slug>.py
+    'maplewold' => ['The Maplewold', 'Regions', 'maplewold.jpg'],
+    'maizehollow' => ['Maizehollow', 'Regions', 'maizehollow.jpg'],
+    'sunsprinkle' => ['The Sunsprinkle Isles', 'Regions', 'sunsprinkle.jpg'],
+    'rainroot' => ['The Rainroot Reaches', 'Regions', 'rainroot.jpg'],
+    'mistmoor' => ['Mistmoor', 'Regions', 'mistmoor.jpg'],
+    'olivewhistle' => ['Olivewhistle Shore', 'Regions', 'olivewhistle.jpg'],
+    'birchbramble' => ['Birchbramble Steppe', 'Regions', 'birchbramble.jpg'],
+    'dunewhisper' => ['The Dunewhisper', 'Regions', 'dunewhisper.jpg'],
+    'greatcanopy' => ['The Greatcanopy', 'Regions', 'greatcanopy.jpg'],
+    'thornacre' => ['Thornacre Savanna', 'Regions', 'thornacre.jpg'],
+    'spicepeak' => ['Spicepeak', 'Regions', 'spicepeak.jpg'],
+    'blossomreach' => ['Blossomreach', 'Regions', 'blossomreach.jpg'],
+    'monsoontangle' => ['The Monsoon Tangle', 'Regions', 'monsoontangle.jpg'],
+    'coralscatter' => ['The Coralscatter', 'Regions', 'coralscatter.jpg'],
 ];
 const JIGSAW_CATS = ['Regions', 'Seasons', 'Critters', 'Cosy rooms'];
 const JIGSAW_W = 1800;
@@ -103,11 +114,14 @@ function jigsaw_ensure(): bool
     if ($ok !== null) return $ok;
     if (!puzzles_ensure()) return $ok = false;
     try {
-        $have = array_flip(q("SELECT slug FROM puzzle_pics WHERE kind = 'still' AND source = 'builtin'")->fetchAll(PDO::FETCH_COLUMN));
+        $have = q("SELECT slug, title FROM puzzle_pics WHERE kind = 'still' AND source = 'builtin'")->fetchAll(PDO::FETCH_KEY_PAIR);
         $n = 0;
         foreach (JIGSAWS as $slug => [$title, $cat, $file]) {
             $n++;
-            if (isset($have['jig-' . $slug])) continue;   // stored as 'jig-<slug>'
+            if (isset($have['jig-' . $slug])) {   // stored as 'jig-<slug>'; keep its title in step with this list (placeholder names from early builds)
+                if ($have['jig-' . $slug] !== $title) q('UPDATE puzzle_pics SET title = ? WHERE slug = ?', [$title, 'jig-' . $slug]);
+                continue;
+            }
             $info = @getimagesize(APP_ROOT . '/assets/img/jigsaw/' . $file) ?: [0, 0];
             db_insert('puzzle_pics', ['slug' => 'jig-' . $slug, 'title' => $title, 'file' => $file, 'still' => $file, 'thumb' => preg_replace('/\.jpg$/', '-thumb.jpg', $file),
                 'cat' => $cat, 'kind' => 'still', 'reserved' => 0, 'w' => (int)$info[0], 'h' => (int)$info[1], 'frames' => 0, 'bytes' => (int)@filesize(APP_ROOT . '/assets/img/jigsaw/' . $file),
