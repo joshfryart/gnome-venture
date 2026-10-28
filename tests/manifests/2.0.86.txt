@@ -6244,7 +6244,7 @@ c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 633db91aa8226672715c144a7b7993c9e693882a  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-082e50093963ded77339c4f909fb541e5cba4878  assets/style.css
+a5136b63ac048b5a8d3125164ad2f874b8530d19  assets/style.css
 7caa4d9d42a2d06b9526e57cbf1ff6c096af7f3a  assets/tilemap.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
 21f8f690992ec0560260662de62adf8aedd0a48e  assets/trekfight.js
@@ -6420,7 +6420,7 @@ d469a92b39a09e205fa6988e921d52d0e3bdb8ec  includes/items.php
 ed297d75d0c62b1a9ba9ac8ece5b5330f9090717  includes/jobs.php
 8f03a6f8c34ee9103943b3002e5631175f428a8b  includes/journey.php
 0fe4c590ce325a0ce8750a014194faac1c3c1ad4  includes/journey_view.php
-a24a4e6a12cad68d46fe5b01a9c3c7ffefc44c56  includes/landmarks.php
+4234f3d4fde97fa494c2321086ae651a3909540c  includes/landmarks.php
 861ef9d90c538d4b9989f1268fa87226e83f5d45  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
 efa9c0a4a871eb187e42bd6d43d212e92b2b3eb1  includes/local.php
@@ -6489,7 +6489,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-b864b2f229cdd84ad203e92e3375b69c46e47697  includes/update_news.php
+f51dce0ca090bd4ab39d56908b3e27b292b328d4  includes/update_news.php
 66ef47580112917eaecfee11f6bb531a0cc97bc4  includes/updater.php
 46532daa3ff13c87820a3d523e887c36439ec70c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
