@@ -30,6 +30,7 @@ EARTH, EARTH_S, EARTH_R = '#d8a464', '#b8804a', '#ecc488'
 cv = new_canvas(SKY[0])
 r = rnd(1521)
 r2 = rnd(88)
+r3 = rnd(4417)   # pass-1 details (keeps r and r2 layouts unchanged)
 
 
 def shadow(x0, y0, x1, y1):
@@ -129,6 +130,23 @@ cv.fill(rect(mx + 20, my + 9, mx + 25, my + 10), TURQ['b'])
 cv.dots([(mx - 2, my + 1), (mx - 1, my + 1)], '#ffffff')
 cv.dots([(mx - 2, my + 1)], DARK)
 cv.dots([(mx - 5, my + 2), (mx - 6, my + 3), (mx - 5, my + 4)], '#fff4dc')   # pale beak
+# a small papel-striped hot-air balloon and a pair of swallows in the high calm sky
+bx0, by0 = 156, 4
+bal = ell(bx0, by0, bx0 + 13, by0 + 15) | poly([(bx0 + 2, by0 + 11), (bx0 + 11, by0 + 11), (bx0 + 9, by0 + 17), (bx0 + 4, by0 + 17)])
+o = cv.obj()
+o.part(bal, SQUASH, d=1)
+o.draw()
+for k, c in enumerate((PINK['b'], TURQ['b'], MAIZE['b'])):   # gores
+    cv.fill(bal & rect(bx0 + 2 + k * 4, 0, bx0 + 3 + k * 4, H) & ~rect(0, by0 + 15, W, H), c)
+cv.fill(bal & rect(0, by0 + 9, W, by0 + 9), '#fff4dc')
+cv.fill(line([(bx0 + 4, by0 + 18), (bx0 + 5, by0 + 21)]) | line([(bx0 + 9, by0 + 18), (bx0 + 8, by0 + 21)]), '#4a2c1a')
+o = cv.obj()
+o.part(rect(bx0 + 4, by0 + 21, bx0 + 9, by0 + 24), WOOD, d=1)
+o.draw()
+for sx, sy in ((132, 10), (141, 16)):   # swallows: forked tails
+    cv.dots([(sx - 3, sy - 2), (sx - 2, sy - 1), (sx - 1, sy), (sx, sy), (sx + 1, sy), (sx + 2, sy - 1), (sx + 3, sy - 2),
+             (sx, sy + 1), (sx - 1, sy + 2), (sx + 1, sy + 2)], '#3a2a48')
+    cv.dots([(sx, sy)], CHILI['b'])
 # butterfly kite (string drawn later, from the gnome in the corn)
 kx, ky = 96, 26
 o = cv.obj()
@@ -150,14 +168,19 @@ for k in range(6):   # zigzag tail with bows
 m = poly([(0, 70), (40, 56), (80, 66), (130, 52), (160, 62), (300, 58), (300, 96), (0, 96)])
 cv.fill(m, '#c49ab0')
 cv.fill(m & ~shift(m, 3, 3), '#d8b4c0')
-vol = poly([(120, 92), (176, 38), (196, 38), (262, 92)])
+VX = 12   # the cone sits right of the bell tower so its crater shows
+vol = poly([(120 + VX, 92), (150 + VX, 64), (164 + VX, 50), (172 + VX, 40), (176 + VX, 37), (179 + VX, 40), (183 + VX, 35), (187 + VX, 39),
+            (191 + VX, 34), (195 + VX, 38), (200 + VX, 43), (214 + VX, 58), (240 + VX, 80), (256 + VX, 92)])
 cv.fill(vol, '#9a7a96')
-cv.fill(vol & poly([(120, 92), (176, 38), (186, 38), (176, 92)]), '#b892a8')   # lit left flank
-for gx0 in (150, 168, 184, 200, 222):   # gullies
-    cv.fill(line([(gx0 + 10, 50), (gx0 + 4, 90)]) & vol, '#86688a')
-cv.fill(rect(177, 37, 195, 38), '#f08a24')   # glowing crater lip
-cv.fill(rect(181, 36, 191, 36), '#f5b04a')
-for k, (sx, sy, rr) in enumerate(((187, 31, 4), (183, 25, 5), (189, 20, 6), (181, 14, 7), (191, 9, 6), (178, 5, 7), (195, 3, 5))):   # puffy plume from the crater
+cv.fill(vol & poly([(120 + VX, 92), (176 + VX, 36), (186 + VX, 36), (172 + VX, 92)]), '#b892a8')   # lit left flank
+for gx0, gl in ((150, 0), (166, 6), (184, 2), (200, 8), (218, 4)):   # gullies of uneven length
+    cv.fill(line([(gx0 + VX + 10, 50 + gl), (gx0 + VX + 6, 70 + gl), (gx0 + VX + 3, 90)]) & vol, '#86688a')
+crater = poly([(177 + VX, 39), (181 + VX, 37), (183 + VX, 37), (187 + VX, 40), (191 + VX, 37), (194 + VX, 39), (193 + VX, 41), (178 + VX, 41)])
+cv.fill(crater, '#f08a24')   # glowing, notched crater lip
+cv.fill(crater & ~shift(crater, 0, -1), '#f5b04a')
+cv.fill(line([(185 + VX, 41), (184 + VX, 46), (186 + VX, 50), (184 + VX, 55)]) & vol, '#f08a24')   # thin lava trickle down a gully
+cv.dots([(186 + VX, 50), (184 + VX, 44)], '#f5b04a')
+for k, (sx, sy, rr) in enumerate(((187 + VX, 31, 4), (183 + VX, 25, 5), (189 + VX, 20, 6), (181 + VX, 14, 7), (191 + VX, 9, 6), (178 + VX, 5, 7), (195 + VX, 3, 5))):   # puffy plume from the crater
     pm = ell(sx - rr, sy - rr + 1, sx + rr, sy + rr - 1)
     cv.fill(pm, '#efe2d4' if k % 3 else '#e2d2c8')
     cv.fill(pm & ~shift(pm, -1, -1), '#c4b0b0')
@@ -188,6 +211,18 @@ for yy in range(114, 152, 5):   # paving courses with staggered joints
     cv.fill(plaza & rect(0, yy, W, yy), '#d4b07a')
     for xx in range(110 + (yy // 5 % 2) * 4, 262, 8):
         cv.dots([(xx, yy + 1), (xx, yy + 2), (xx, yy + 3)], '#d4b07a')
+for yy in range(114, 152, 5):   # odd flagstones: warm terracotta tiles, pale worn ones, inset turquoise diamonds, cracks
+    for xx in range(110 + (yy // 5 % 2) * 4, 262, 8):
+        k = r3(0, 9)
+        cell = rect(xx + 1, yy + 1, xx + 7, yy + 4) & plaza
+        if k < 2:
+            cv.fill(cell, '#e0a878')
+        elif k < 4:
+            cv.fill(cell, '#f6e2b8')
+        elif k == 4:
+            cv.fill(cell & poly([(xx + 4, yy + 1), (xx + 7, yy + 2.5), (xx + 4, yy + 4), (xx + 1, yy + 2.5)]), TURQ['b'])
+        elif k == 5:
+            cv.fill(line([(xx + 2, yy + 1), (xx + 4, yy + 3), (xx + 6, yy + 4)]) & plaza, '#d4b07a')
 for y in range(100, H, 2):
     for _ in range(3):
         gx = r(0, W - 2)
@@ -233,6 +268,14 @@ for (x0, x1, y0, y1) in tiers:   # stone courses, staggered joints, lit ledge
         for xx in range(x0 + 3 + (yy // 4 % 2) * 4, x1 - 1, 8):
             cv.dots([(xx, yy + 1), (xx, yy + 2)] if not stair[yy + 1, xx] else [], SAND['s'])
     cv.fill(rect(x0, y0, x1, y0) & ~stair, SAND['r'])
+for (x0, x1, y0, y1) in tiers:   # weathered stones: some blocks paler or darker so the courses are not uniform
+    for yy in range(y0 + 4, y1 - 2, 4):
+        for xx in range(x0 + 3 + (yy // 4 % 2) * 4, x1 - 8, 8):
+            k = r3(0, 6)
+            if k < 2:
+                cv.fill(rect(xx + 1, yy + 1, xx + 7, yy + 3) & ~stair, ('#c49a6a', SAND['r'])[k])
+            elif k == 2 and xx > 60:
+                cv.dots([(xx + 2, yy + 2), (xx + 3, yy + 3), (xx + 4, yy + 3)], SAND['s'])   # crack
 for yy in range(58, 126, 3):   # stair treads
     cv.fill(stair & rect(0, yy, W, yy), '#a8825a')
     cv.fill(stair & rect(0, yy + 1, W, yy + 1), '#e8c898')
@@ -244,9 +287,14 @@ for (x0, x1, y0, y1), panels in zip(tiers, (4, 3, 2, 2, 1)):   # carved turquois
             px = x0 + 4 + p * 10 if side == 0 else x1 - 11 - p * 10
             if stair[y0 + 4, px] or stair[y0 + 4, px + 7] or px + 7 >= 46 and px <= 76:
                 continue
-            cv.fill(rect(px, y0 + 3, px + 6, y0 + 9), TURQ['s'])
-            cv.fill(rect(px + 1, y0 + 4, px + 5, y0 + 8), TURQ['b'])
-            cv.fill(rect(px + 2, y0 + 5, px + 3, y0 + 6) | rect(px + 3, y0 + 6, px + 4, y0 + 7), TURQ['s'])   # spiral
+            pc = TERRA if side == 1 and (p + y0) % 2 else TURQ   # right face mixes in terracotta maize glyphs
+            cv.fill(rect(px, y0 + 3, px + 6, y0 + 9), pc['s'])
+            cv.fill(rect(px + 1, y0 + 4, px + 5, y0 + 8), pc['b'])
+            if pc is TURQ:
+                cv.fill(rect(px + 2, y0 + 5, px + 3, y0 + 6) | rect(px + 3, y0 + 6, px + 4, y0 + 7), TURQ['s'])   # spiral
+            else:
+                cv.fill(rect(px + 3, y0 + 4, px + 3, y0 + 7), MAIZE['b'])   # maize ear glyph
+                cv.dots([(px + 2, y0 + 6), (px + 4, y0 + 6), (px + 2, y0 + 7), (px + 4, y0 + 7)], CORN['r'])
 cv.fill(rect(55, 42, 67, 56), '#3a2a28')   # shrine doorway
 cv.fill(rect(57, 44, 65, 56) & ~rect(58, 45, 64, 56), TURQ['b'])
 cv.fill(ell(59, 49, 63, 53), MAIZE['b'])   # golden ear in the shrine
@@ -266,6 +314,29 @@ for vx, vy, ln in ((6, 113, 10), (108, 102, 8), (24, 87, 8), (100, 74, 9)):   # 
     cv.fill(line([(vx, vy), (vx + 1, vy + ln)]), CORN['s'])
     for k in range(0, ln, 3):
         cv.dots([(vx + 2 - (k % 2) * 3, vy + k)], CORN['r'])
+for (x0, x1, y0, y1), mx0 in zip(tiers[:4], (84, 80, 70, 66)):   # moss creeping over the right-hand ledges only
+    for k in range(3):
+        mx_ = mx0 + r3(0, max(1, x1 - mx0 - 6))
+        mw = r3(4, 9)
+        mm = rect(mx_, y0, mx_ + mw, y0 + 1) | rect(mx_ + 1, y0 + 2, mx_ + mw - 2, y0 + 2 + r3(1, 3))
+        cv.fill(mm & ~stair, CORN['s'])
+        cv.fill(mm & rect(0, y0, W, y0) & ~stair, CORN['r'])
+# feathered-serpent head at the foot of the stair (right side only)
+o = cv.obj()
+o.part(rect(73, 117, 84, 125), SAND, d=2)
+o.part(rect(73, 113, 79, 117), SAND, d=1)   # brow
+o.draw()
+cv.fill(rect(80, 121, 84, 122), '#5a3a3a')   # open jaw
+cv.dots([(81, 121), (83, 121)], '#fff4dc')   # fangs
+cv.fill(rect(76, 118, 77, 119), TURQ['b'])   # eye
+cv.dots([(76, 118)], DARK)
+for k in range(3):   # feather crest
+    cv.fill(rect(73 + k * 2, 110 - k % 2, 73 + k * 2, 112), (CORN['b'], TURQ['b'], CHILI['b'])[k])
+# a sapling growing out of the top-left terrace
+cv.fill(rect(43, 59, 43, 70), WOOD['s'])
+o = cv.obj()
+o.part(clump(43, 56, 4, 2, 0) | ell(38, 53, 45, 59) | ell(42, 51, 49, 58), CORN, d=1)
+o.draw()
 # iguana basking on a ledge
 ix, iy = 88, 98
 o = cv.obj()
@@ -368,7 +439,7 @@ o.draw()
 for yy in range(80, 140, 7):   # fig bark: hanging aerial roots
     cv.fill(line([(262 + yy % 5, yy), (263 + yy % 5, yy + 6)]), '#6a5038')
     cv.fill(line([(276 + yy % 4, yy + 3), (277 + yy % 4, yy + 8)]), '#6a5038')
-for cx, cy, rx, ry in ((282, 12, 18, 10), (246, 18, 16, 10), (224, 44, 14, 8), (266, 44, 18, 12), (294, 40, 8, 12), (238, 66, 10, 5), (290, 72, 10, 6)):
+for cx, cy, rx, ry in ((282, 12, 18, 10), (246, 18, 16, 10), (234, 46, 12, 8), (266, 44, 18, 12), (294, 40, 8, 12), (238, 66, 10, 5), (290, 72, 10, 6)):
     o = cv.obj()
     m = clump(cx, cy, rx, ry, 9, 6, 10)
     o.part(m, JADE if (cx // 10) % 2 else ramp('#4fa870', '#2a7050', '#8ad09a'), d=3)
@@ -469,7 +540,11 @@ kgx, kgy = 104, 194
 gnome(kgx, kgy, TURQ, TERRA, arm='up')
 for x in (4, 18, 32, 46, 60, 74, 128):   # front row (gap left for the gnome)
     corn(x, 199, 44 if x % 3 else 40, ear=x % 4 != 0)
-cv.fill(line([(kgx + 11, kgy - 31), (100, 120), (97, 70), (96, 39)]), '#4a2c1a')   # kite string
+ks = [(kgx + 11 + (96 - kgx - 11) * t + 9 * np.sin(np.pi * t), kgy - 31 + (39 - kgy + 31) * t) for t in np.linspace(0, 1, 30)]
+ksm = line(ks)   # kite string: a gentle bowed curve, cream over dark corn and leaves, umber over the light stone and sky
+lum = cv.px[..., 0].astype(int) * 3 + cv.px[..., 1].astype(int) * 6 + cv.px[..., 2].astype(int)
+cv.fill(ksm & (lum < 1500), '#fff4dc')
+cv.fill(ksm & (lum >= 1500), '#4a2c1a')
 
 # fountain where the musicians tune up, with a gnome on guitar and two doves
 fx0, fy0 = 156, 124

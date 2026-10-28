@@ -74,31 +74,7 @@ local function scene(dark)
       c:fill(c:rect(x0, y0, x1, y0), dim("#8a6a4a")); c:fill(c:rect(x0, y0, x0, y1), dim("#8a6a4a"))
     end
   end end
-  -- jigsaw cut lines with knobs (light tone), over the whole picture
-  local cut = dark and "#8a86b0" or "#fff3c8"
-  local cm = c:mask()
-  for i = 1, NC - 1 do local x = rnd(px0 + i * cw) for y = py0, py1 do cm:set(x, y) end end
-  for j = 1, NR - 1 do local y = rnd(py0 + j * ch) for x = px0, px1 do cm:set(x, y) end end
-  for i = 1, NC - 1 do for j = 0, NR - 1 do
-    local x, y = rnd(px0 + i * cw), rnd(py0 + (j + 0.5) * ch)
-    local kx = x + (((i + j) % 2 == 0) and 2 or -2)
-    local disc = c:ellipse(kx, y, 2, 2)
-    cm:cut(disc); cm:add(disc:edge()); for yy = y - 1, y + 1 do cm:del(x, yy) end
-  end end
-  for j = 1, NR - 1 do for i = 0, NC - 1 do
-    local x, y = rnd(px0 + (i + 0.5) * cw), rnd(py0 + j * ch)
-    local ky = y + (((i + j) % 2 == 0) and 2 or -2)
-    local disc = c:ellipse(x, ky, 2, 2)
-    cm:cut(disc); cm:add(disc:edge()); for xx = x - 1, x + 1 do cm:del(xx, y) end
-  end end
-  cm:clip(pic); cm:cut(holes)
-  -- cut lines are the picture's own colour lifted toward cream, so the picture still reads through them
-  local function lift(hex)
-    local r, g, b = tonumber(hex:sub(2, 3), 16), tonumber(hex:sub(4, 5), 16), tonumber(hex:sub(6, 7), 16)
-    local k = dark and 0.3 or 0.45
-    return string.format("#%02x%02x%02x", rnd(r + (255 - r) * k), rnd(g + (243 - g) * k), rnd(b + (200 - b) * k))
-  end
-  cm:each(function(x, y) local h = c:get(x, y); c:px(x, y, h and lift(h) or cut) end)
+  CAST.cuts(c, pic, px0, py0, px1, py1, NC, NR, holes, dark)
   -- Jeff waits with a sky-blue piece
   CAST.jeff(c, 152, 23, 0.84, { pose = "hold", piece = "#7fc0de", dark = dark })
   -- Ffej peeks over the table edge at the far right (the table hides the rest of him)

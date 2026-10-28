@@ -380,6 +380,23 @@ o.draw()
 for yy in range(46, 136, 7):
     cv.fill(line([(211, yy), (213, yy + 4)]), BARK['s'])
     cv.fill(line([(217, yy + 3), (218, yy + 6)]), BARK['r'])
+t2 = poly([(200, 150), (206, 138), (208, 40), (220, 40), (222, 138), (232, 150), (224, 148), (214, 142), (206, 148)])
+for k, y0 in enumerate(range(84, 146, 15)):   # liana wrapping the trunk, with leaves and moss pads
+    cv.fill(line([(206, y0), (214, y0 - 4), (223, y0 - 9)], 2) & t2, '#4f7a2a')
+    cv.dots([(207, y0 - 1), (215, y0 - 5)], '#7aae5a')
+    o = cv.obj()
+    o.part(ell(220 - (k % 2) * 13, y0 - 8, 224 - (k % 2) * 13, y0 - 5), G_LIT, d=1)
+    o.draw()
+for my_ in (60, 96, 128):
+    cv.fill(rect(208, my_, 210, my_ + 3) & t2, '#5f9a4a')
+    cv.dots([(208, my_)], '#8ac860')
+o = cv.obj()   # a hollow with a little owl peeking out
+o.part(ell(211, 104, 218, 114), ramp('#3d2a1c', '#2a1a10'), d=0)
+o.draw()
+cv.fill(ell(212, 107, 217, 113), '#9a7a52')
+cv.dots([(213, 108), (216, 108)], '#f5cf6a')
+cv.dots([(213, 109), (216, 109)], UMB)
+cv.dots([(214, 110), (215, 110)], ORG['s'])
 cv.fill(rect(198, 70, 228, 73), WOOD['s'])   # platform where the bridge lands
 cv.fill(rect(198, 70, 228, 70), WOOD['r'])
 for xx in range(198, 229, 4):
@@ -409,6 +426,39 @@ for k in range(30):   # lichen patches and moss on the kapok
     if trunk[ly_, lx_] and trunk[ly_, lx_ + 3]:
         cv.fill(rect(lx_, ly_, lx_ + r2(1, 3), ly_), ('#8aa078', KAPOK['r'], '#6f8a5a')[k % 3])
         cv.dots([(lx_ + 1, ly_ + 1)], KAPOK['s'])
+# bark plates: long wavy furrows with a lit lip, so the big trunk is not one plain grey area
+tk = trunk | roots
+for c0 in (22, 29, 36, 43, 49):
+    pts = [(int(c0 + 1.6 * np.sin(yy / 7.0 + c0) + (yy > 118) * (c0 - 36) * (yy - 118) / 30), yy) for yy in range(0, 172, 3)]
+    fur = line(pts) & tk & shift(tk, 2, 0) & shift(tk, -2, 0)
+    cv.fill(fur, KAPOK['s'])
+    cv.fill(shift(fur, -1, 0) & ~fur & tk & (((YY // 5) + c0) % 3 == 0), KAPOK['r'])
+for k in range(22):   # knots and short cross-cracks between the plates
+    kx_, ky_ = r3(20, 50), r3(6, 140)
+    if trunk[ky_, kx_] and trunk[ky_, kx_ + 4]:
+        if k % 3 == 0:
+            cv.fill(ell(kx_, ky_, kx_ + 3, ky_ + 4), KAPOK['s'])
+            cv.dots([(kx_ + 1, ky_ + 1)], '#5c4a3a')
+        else:
+            cv.fill(line([(kx_, ky_), (kx_ + 2, ky_ + 1)]), KAPOK['s'])
+# a climbing philodendron vine spiralling up the trunk, heart leaves on alternate sides
+vine = [(int(34 + 15 * np.sin(yy / 13.0)), yy) for yy in range(150, 4, -2)]
+cv.fill(line(vine) & trunk, '#3f6a2a')
+for i in range(0, len(vine), 4):
+    vx_, vy_ = vine[i]
+    if not trunk[vy_, vx_]:
+        continue
+    s = 1 if (i // 4) % 2 else -1
+    o = cv.obj()
+    o.part(ell(vx_ + s * 1 - 2, vy_ - 2, vx_ + s * 4 + 1, vy_ + 2) if s > 0 else ell(vx_ - 5, vy_ - 2, vx_ - 1, vy_ + 2), G_LIT, d=1)
+    o.draw()
+    cv.dots([(vx_ + s * 3, vy_)], G_LIT['s'])
+# bracket fungi stepping up the shadow side
+for k, (fx_, fy_) in enumerate(((50, 66), (52, 72), (49, 78))):
+    o = cv.obj()
+    o.part(ell(fx_, fy_ - 2, fx_ + 8 - k, fy_ + 2) & ~rect(0, fy_ + 1, W, H), ramp('#e8a35a', '#b8702a', '#f5d08a'), d=1)
+    o.draw()
+    cv.fill(rect(fx_ + 1, fy_, fx_ + 6 - k, fy_), '#f2e4c0')
 # gnome door between the fins
 o = cv.obj()
 o.part(ell(26, 142, 46, 172) & ~rect(0, 168, W, H) | rect(26, 157, 46, 168), WOOD, d=3, contour=True)
@@ -446,13 +496,21 @@ for ox, oy, rp in ((14, 60, PINK), (48, 96, PINK), (20, 126, PINK), (54, 40, PIN
         cv.fill(rect(ox + dx - 1, oy + dy - 1, ox + dx + 1, oy + dy + 1), rp['b'])
         cv.dots([(ox + dx, oy + dy)], rp['r'] if k != 1 else '#ffffff')
         cv.dots([(ox + dx + 1, oy + dy + 1)], rp['s'])
-brx, bry = 18, 40
+brx, bry = 18, 40   # bromeliad: a rosette of green strap leaves on a bark ledge, red heart, a frog in its little pool
+cv.fill(rect(brx - 7, bry + 4, brx + 7, bry + 6), WOOD['s'])
+cv.fill(rect(brx - 7, bry + 4, brx + 7, bry + 4), KAPOK['r'])
 o = cv.obj()
-o.part(poly([(brx - 8, bry - 6), (brx - 2, bry + 4), (brx + 2, bry + 4), (brx + 8, bry - 7), (brx + 2, bry), (brx, bry - 9), (brx - 2, bry)]), ramp('#d6322b', '#a8241f', '#f08a24'), d=1)
+for dx, dy in ((-9, -3), (-7, -8), (-3, -11), (3, -11), (7, -8), (9, -3)):
+    o.part(line([(brx, bry + 3), (brx + dx, bry + dy)], 3), ramp('#4f9a45', '#2f6a32', '#8ac860'), d=1)
+o.part(ell(brx - 4, bry - 2, brx + 4, bry + 4), ramp('#4f9a45', '#2f6a32', '#8ac860'), d=1)
 o.draw()
-cv.fill(rect(brx - 2, bry - 1, brx + 2, bry), WATER['b'])
-cv.dots([(brx - 1, bry - 2), (brx, bry - 2), (brx + 1, bry - 2), (brx - 1, bry - 3), (brx + 1, bry - 3)], '#5fd06a')   # glossy frog
-cv.dots([(brx - 1, bry - 3), (brx + 1, bry - 3)], UMB)
+for dx, dy in ((-7, -8), (-3, -11), (3, -11), (7, -8)):
+    cv.dots([(brx + dx, bry + dy), (brx + dx - (1 if dx < 0 else -1), bry + dy + 1)], RED['b'])   # red leaf tips
+cv.fill(poly([(brx - 2, bry + 1), (brx + 2, bry + 1), (brx, bry - 6)]), RED['b'])   # red flower spike in the heart
+cv.dots([(brx - 1, bry - 1), (brx, bry - 4)], RED['r'])
+cv.fill(rect(brx - 3, bry + 1, brx + 3, bry + 2), WATER['b'])
+cv.dots([(brx + 2, bry), (brx + 3, bry), (brx + 2, bry + 1), (brx + 3, bry + 1), (brx + 4, bry + 1)], '#5fd06a')   # glossy frog
+cv.dots([(brx + 2, bry - 1), (brx + 4, bry)], UMB)
 # the kapok crown
 for cx, cy, rx, ry, rp in ((30, 8, 26, 8, G_MID), (78, 12, 20, 8, G_DEEP), (110, 4, 12, 5, G_MID), (8, 26, 10, 8, G_DEEP), (58, 30, 12, 6, G_LIT), (96, 30, 10, 5, G_MID)):
     leafmass(clump(cx, cy, rx, ry, 10, 6, 11), rp, specks=26)
@@ -493,17 +551,23 @@ cv.fill(poly([(bgx + 10, deck_y(bgx) - 26), (bgx + 15, deck_y(bgx) - 24), (bgx +
 # the sloth, hanging upside down from the bridge
 slx = 166
 sly = deck_y(slx)
-o = cv.obj()
-o.part(line([(slx - 3, sly), (slx - 2, sly + 6)], 2) | line([(slx + 5, sly), (slx + 4, sly + 6)], 2), SLOTH, d=0)
-o.part(ell(slx - 5, sly + 4, slx + 8, sly + 16), SLOTH, d=2)
-o.part(ell(slx - 3, sly + 13, slx + 5, sly + 20), ramp('#e6dcbc', '#c2b28e', '#fff4d8'), d=1)
+o = cv.obj()   # hangs by all four long limbs, body slung underneath, head turned up to us at the left end
+limbs = (line([(slx - 4, deck_y(slx - 4)), (slx - 2, sly + 8)], 2) | line([(slx + 1, deck_y(slx + 1)), (slx + 1, sly + 8)], 2)
+         | line([(slx + 10, deck_y(slx + 10)), (slx + 10, sly + 8)], 2) | line([(slx + 14, deck_y(slx + 14)), (slx + 13, sly + 8)], 2))
+o.part(limbs, SLOTH, d=0)
+o.part(ell(slx - 4, sly + 6, slx + 16, sly + 14), SLOTH, d=2)
+o.part(ell(slx - 11, sly + 7, slx - 2, sly + 16), SLOTH, d=1)
+o.part(ell(slx - 10, sly + 9, slx - 3, sly + 15), ramp('#e6dcbc', '#c2b28e', '#fff4d8'), d=0)
 o.draw()
-cv.dots([(slx - 1, sly + 16), (slx, sly + 16), (slx + 2, sly + 16), (slx + 3, sly + 16)], '#5c4a3a')   # eye stripes
-cv.dots([(slx, sly + 16), (slx + 2, sly + 16)], UMB)
-cv.dots([(slx + 1, sly + 18)], UMB)
-cv.dots([(slx - 3, sly), (slx - 2, sly), (slx + 4, sly), (slx + 5, sly)], '#3d2a1c')   # claws
-for k in range(4):
-    cv.dots([(slx - 3 + k * 3, sly + 7 + k % 2)], '#7f9a6a')   # a bit of green algae in the fur
+cv.fill(line([(slx - 9, sly + 11), (slx - 7, sly + 12)]) | line([(slx - 4, sly + 11), (slx - 6, sly + 12)]), '#5c4a3a')   # dark eye masks
+cv.dots([(slx - 8, sly + 12), (slx - 5, sly + 12)], UMB)
+cv.dots([(slx - 7, sly + 14), (slx - 6, sly + 14)], '#3d2a1c')   # nose
+cv.dots([(slx - 8, sly + 15), (slx - 5, sly + 15)], '#c2b28e')   # smile corners
+for lx_ in (slx - 4, slx + 1, slx + 10, slx + 14):   # hooked claws over the plank
+    cv.dots([(lx_, deck_y(lx_) - 1), (lx_ + 1, deck_y(lx_) - 2), (lx_ + 2, deck_y(lx_) - 1)], '#3d2a1c')
+for k in range(5):   # shaggy fur strokes and a bit of green algae
+    cv.dots([(slx + 1 + k * 3, sly + 12 + k % 2), (slx + 2 + k * 3, sly + 13 + k % 2)], SLOTH['s'])
+    cv.dots([(slx + k * 3, sly + 8 + (k + 1) % 2)], '#7f9a6a')
 
 # ---------------------------------------------------------------- macaws: a pair perched on the kapok limb, two flying over the peaks
 macaw(70, 40, RED, BLUE)
@@ -533,8 +597,16 @@ cv.fill(rect(cvx + 30, cvy - 9, cvx + 38, cvy - 3), ramp('#c9a96e', '#9a6b3f')['
 cv.fill(rect(cvx + 30, cvy - 9, cvx + 38, cvy - 9), '#9a6b3f')
 cv.fill(line([(cvx + 40, cvy - 6), (cvx + 45, cvy - 9)], 2), YEL['b'])
 gnome(cvx + 18, cvy - 2, BLUE, ORG, tip=-5)
-cv.fill(line([(cvx + 22, cvy - 26), (cvx + 8, cvy + 14)], 2), WOOD['s'])   # the pole
-cv.fill(rect(cvx + 21, cvy - 14, cvx + 23, cvy - 12), SKIN['b'])
+# the pole: held in both hands across the body, top leaning forward, foot pushing on the riverbed behind the stern
+o = cv.obj()
+o.part(line([(cvx + 46, cvy - 33), (cvx - 2, cvy + 11)], 2), WOOD, d=0)
+o.draw()
+cv.fill(line([(cvx + 21, cvy - 12), (cvx + 27, cvy - 16)], 2), ORG['b'])   # arm reaching forward along the pole
+cv.dots([(cvx + 22, cvy - 11), (cvx + 25, cvy - 13)], ORG['s'])
+for hx_, hy_ in ((cvx + 22, cvy - 11), (cvx + 28, cvy - 16)):
+    cv.fill(rect(hx_ - 1, hy_ - 1, hx_ + 1, hy_ + 1), SKIN['b'])
+    cv.dots([(hx_ + 1, hy_ + 1)], SKIN['s'])
+cv.fill(ell(cvx - 7, cvy + 9, cvx + 3, cvy + 13) & ~ell(cvx - 5, cvy + 10, cvx + 1, cvy + 12), WATER['r'])   # ring where it meets the water
 for k in range(1, 4):   # wake
     cv.fill(line([(cvx - k * 5, cvy + 1 - k), (cvx - k * 5 + 3, cvy + 2)]), WATER['r'])
     cv.fill(line([(cvx - k * 5, cvy + 5 + k), (cvx - k * 5 + 3, cvy + 4)]), WATER['r'])
@@ -608,14 +680,14 @@ for lx, ly, s, flip in ((280, 168, 14, False), (0, 140, 12, True), (296, 188, 12
     cv.fill(line([(lx - s + 2, ly), (lx + s - 2, ly - 1)]) & m, G_LIT['r'])
 
 # ---------------------------------------------------------------- floor litter: toadstools, leafcutter ants, butterflies, ferns along the front
-for sx, sy in ((104, 150), (232, 150), (96, 196), (8, 160), (180, 140)):
+for sx, sy in ((104, 150), (232, 150), (160, 142), (8, 160), (180, 140)):
     o = cv.obj()
     o.part(ell(sx - 3, sy - 4, sx + 3, sy), ORG, d=1)
     o.part(rect(sx - 1, sy, sx, sy + 3), ramp('#f2e4c0', '#c9a96e'), d=0)
     o.draw()
     cv.dots([(sx - 1, sy - 3)], '#fff4c0')
 ax = 100
-while ax < 120:   # leafcutter ant line carrying green leaf bits along the bank
+while ax < 112:   # leafcutter ant line carrying green leaf bits along the bank
     ay = 158 + (ax - 100) // 3
     cv.dots([(ax, ay), (ax + 1, ay)], '#5c2a1a')
     cv.dots([(ax, ay - 1), (ax + 1, ay - 2)], '#7ab55c')

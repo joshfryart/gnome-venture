@@ -122,29 +122,39 @@ def palm(bx, by, cx, cy, fronds, seed):
             cv.fill(line([(round(x - 2), round(y)), (round(x + 2), round(y + 1))]) & trunk, TRUNK['s'])
         else:
             cv.dots([(round(x - 2), round(y))], TRUNK['r'])
-    m = blank()
-    for ang, ln, droop in fronds:
-        import math
+    import math
+    # clean drooping leaves: each frond is one tapered leaf that arches up then hangs, its lower edge cut into a few
+    # slanted leaflet notches, a darker midrib; back fronds (pointing up) first, the hanging ones last so they overlap
+    order = sorted(fronds, key=lambda f: math.sin(math.radians(f[0])))
+    for ang, ln, droop in order:
         dx, dy = math.cos(math.radians(ang)), math.sin(math.radians(ang))
-        p1 = (cx + dx * ln * 0.5, cy + dy * ln * 0.45 - 2)
-        p2 = (cx + dx * ln, cy + dy * ln * 0.45 + droop)
-        m |= line([(cx, cy), (round(p1[0]), round(p1[1])), (round(p2[0]), round(p2[1]))], 2)
-        for k in range(2, 9):   # leaflets hanging off the rib
-            t = k / 9
-            if t < 0.5:
-                px, py = cx + (p1[0] - cx) * t * 2, cy + (p1[1] - cy) * t * 2
-            else:
-                px, py = p1[0] + (p2[0] - p1[0]) * (t - 0.5) * 2, p1[1] + (p2[1] - p1[1]) * (t - 0.5) * 2
-            lx = 3 if dx >= 0 else -3
-            m |= line([(round(px), round(py)), (round(px + lx * 0.6), round(py + 4 + t * 3))])
-            m |= line([(round(px), round(py)), (round(px - lx * 0.7), round(py + 3 + t * 2))])
-    o = cv.obj()
-    o.part(m, PALM, d=1)
-    o.draw()
-    ys, xs = np.nonzero(m & shift(m, 1, 0))
-    for _ in range(len(xs) // 14):
-        i = rp(0, len(xs) - 1)
-        cv.dots([(int(xs[i]), int(ys[i]))], PALM['r'] if rp(0, 2) else PALM['r'])
+        a = ln * 0.3
+
+        def at(t):
+            return (cx + dx * ln * t, cy + dy * ln * 0.45 * t - a * t + (a + droop) * t * t)
+        wmax = 2.2 + ln / 16
+        n = 14
+        rib = [at(i / n) for i in range(n + 1)]
+        up, lo = [], []
+        for i, (px, py) in enumerate(rib):
+            t = i / n
+            qx, qy = rib[min(n, i + 1)][0] - rib[max(0, i - 1)][0], rib[min(n, i + 1)][1] - rib[max(0, i - 1)][1]
+            L = math.hypot(qx, qy) or 1
+            nx, ny = -qy / L, qx / L
+            if ny < 0:
+                nx, ny = -nx, -ny   # normal pointing down (the hanging side)
+            w = wmax * (4 * t * (1 - t)) ** 0.7 if 0 < t < 1 else 0
+            up.append((px - nx * w * 0.45, py - ny * w * 0.45))
+            lo.append((px + nx * w, py + ny * w))
+        leaf = poly([(round(x), round(y)) for x, y in up + lo[::-1]])
+        for i in range(3, n - 1, 2):   # leaflet notches along the lower edge
+            (lx, ly), (bx2, by2) = lo[i], rib[i]
+            ex, ey = lo[i + 1]
+            leaf &= ~poly([(round(lx), round(ly + 1)), (round(ex), round(ey + 1)), (round(bx2 + (lx - bx2) * 0.35 + (ex - lx) * 0.2), round(by2 + (ly - by2) * 0.35))])
+        o = cv.obj()
+        o.part(leaf, PALM, d=1)
+        o.draw()
+        cv.fill(line([(round(x), round(y)) for x, y in rib[1:-1]]) & leaf, PALM['s'])
     for k in range(3):   # date clusters under the crown
         ddx = (-5, 2, 7)[k]
         for j in range(6):
@@ -209,6 +219,51 @@ for cx, cy, w in ((70, 50, 46), (150, 58, 60), (232, 46, 40), (26, 64, 34), (198
     cv.fill(m & ~shift(m, 0, -1), '#8a4a7a')  # violet underside
 for bx, by in ((120, 44), (126, 41), (132, 45), (214, 26), (220, 29), (58, 70), (260, 50), (266, 47)):   # swifts
     cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by), (bx + 3, by - 1), (bx + 4, by)], SKYC[0])
+# second sky row: each piece gets its own thing (bird flock, kite, balloon, stork, minaret tip (FAR), sky lanterns)
+m = rrect(1, 41, 23, 44, 1) | rrect(5, 38, 17, 41, 1)   # a low rose cloud bank under the moon, with a skein of birds
+cv.fill(m, '#e88a8a')
+cv.fill(m & ~shift(m, 0, 1), '#f5b06a')
+cv.fill(m & ~shift(m, 0, -1), '#8a4a7a')
+for bx, by in ((3, 30), (10, 27), (17, 31), (8, 35), (20, 36)):
+    cv.dots([(bx, by), (bx + 1, by - 1), (bx + 2, by - 1), (bx + 3, by), (bx + 4, by - 1), (bx + 5, by - 1), (bx + 6, by), (bx + 3, by + 1)], SKYC[0])
+kite = poly([(38, 27), (45, 35), (38, 44), (31, 35)])   # a kite flown from the wind-catcher roof
+o = cv.obj()
+o.part(kite, TEAL, d=1)
+o.draw()
+cv.fill(kite & poly([(38, 27), (45, 35), (38, 35)]), SAFF['b'])
+cv.fill(kite & poly([(31, 35), (38, 35), (38, 44)]), SAFF['b'])
+cv.fill(line([(38, 28), (38, 43)]) & kite, RED['b'])
+cv.fill(line([(32, 35), (44, 35)]) & kite, RED['b'])
+cv.fill(line([(38, 45), (36, 48), (39, 51), (37, 54)]), '#f2e4c0')
+cv.dots([(35, 47), (37, 47), (38, 50), (40, 50), (36, 53), (38, 53)], ROSE['b'])
+cv.fill(line([(37, 40), (28, 46), (18, 50)]), '#c9a96e')
+env = ell(78, 26, 96, 42) | poly([(80, 37), (94, 37), (89, 45), (85, 45)])   # a striped hot-air balloon
+o = cv.obj()
+o.part(env, RED, d=2)
+o.part(rect(84, 48, 90, 51), WOOD, d=1)
+o.draw()
+cv.fill(env & (ell(84, 25, 90, 46) | ~ell(80, 24, 94, 47)), SAFF['b'])
+cv.fill(env & ~shift(env, -2, -2), RED['s'])
+cv.fill(env & ~shift(env, 1, 1) & shift(env, -2, -2) & rect(0, 0, 87, 34), '#f5cf6a')
+cv.fill(line([(85, 45), (85, 48)]) | line([(89, 45), (89, 48)]), '#4a2c1a')
+cv.dots([(86, 47), (88, 47)], '#f5cf6a')
+cv.fill(rect(85, 49, 89, 49), WOOD['s'])
+o = cv.obj()   # a stork flying home, neck out, legs trailing
+o.part(poly([(108, 36), (101, 28), (104, 28), (113, 35)]) | poly([(110, 37), (104, 44), (107, 44), (115, 38)]), CREAM, d=1)
+o.part(ell(106, 35, 118, 40), CREAM, d=1)
+o.part(line([(117, 37), (121, 35), (123, 35)], 2), CREAM, d=1)
+o.draw()
+cv.fill(poly([(101, 28), (104, 28), (105, 31), (102, 31)]) | poly([(104, 44), (107, 44), (107, 42), (105, 42)]), '#2a1a10')
+cv.fill(line([(124, 35), (127, 36)]), RED['b'])
+cv.fill(line([(106, 39), (100, 41)]), RED['b'])
+cv.dots([(122, 34)], '#2a1a10')
+for k, (lx, ly) in enumerate(((154, 31), (162, 39), (170, 28), (158, 45))):   # sky lanterns drifting up from the souk
+    o = cv.obj()
+    o.part(rrect(lx - 3, ly - 4, lx + 3, ly + 4, 2), LANT if k != 2 else ROSE, d=1)
+    o.draw()
+    cv.fill(rect(lx - 1, ly + 3, lx + 1, ly + 4), '#e8a317')
+    cv.dots([(lx, ly - 1)], '#fff4c0')
+    cv.dots([(lx, ly + 6)], '#f5cf6a')
 
 # ================================================================ FAR: rose-red canyon city (left), dunes, library-mosque, caravan
 cliff = poly([(0, 52), (14, 50), (22, 56), (40, 54), (52, 62), (60, 76), (66, 104), (0, 104)])
@@ -245,6 +300,13 @@ for wx in (144, 152, 160, 168, 176):
     cv.fill(rect(wx, 90, wx + 3, 96) | rect(wx + 1, 89, wx + 2, 89), '#ffd85a')
 cv.fill(rect(186, 66, 188, 72), '#ffd85a')
 cv.fill(rect(186, 54, 188, 56), '#e8a317')
+mn = rect(131, 38, 136, 104) | rect(129, 47, 138, 49) | ell(130, 29, 137, 39) | rect(133, 26, 134, 29)   # a second, slimmer minaret over the souk
+cv.fill(mn, '#4a3366')
+cv.fill(mn & ~shift(mn, -1, 0), '#5e4380')
+cv.fill(rect(133, 54, 134, 59) | rect(133, 70, 134, 74), '#ffd85a')
+cv.dots([(130, 46), (133, 46), (136, 46)], '#f5cf6a')
+cv.dots([(133, 25), (134, 24), (132, 24)], '#f5cf6a')
+cv.fill(rect(130, 50, 137, 50), '#3d2a63')
 for cx in range(242, 300, 13):   # camel caravan silhouette on the crest
     cy = 84 + (cx % 3)
     cam = ell(cx, cy, cx + 8, cy + 4) | ell(cx + 2, cy - 2, cx + 6, cy + 2) | line([(cx + 8, cy + 1), (cx + 10, cy - 3)], 2)
@@ -259,6 +321,33 @@ for _ in range(30):
     px, py = r(2, 296), r(98, 120)
     if dune2[py, px]:
         cv.fill(line([(px, py), (px + r(4, 9), py + 1)]) & dune2, '#9a5a64')
+r3 = rnd(4242)   # pass-1 details on their own generator
+# far palm grove silhouette on the violet dune, behind the oasis
+for gx, gy, s in ((206, 90, 7), (214, 87, 9), (224, 91, 6)):
+    cv.fill(line([(gx, gy + 10), (gx + 1, gy)], 1), '#3d2a63')
+    for fx in (-s, -s // 2, s // 2, s):
+        cv.fill(line([(gx + 1, gy), (gx + 1 + fx, gy + 2 + abs(fx) // 3)]), '#3d2a63')
+# second crest ridges on the rose dune, a sharp lit/shade split with a hard step
+for x0, y0, x1, y1, x2, y2 in ((150, 116, 176, 106, 206, 114), (226, 118, 254, 108, 290, 116), (12, 116, 36, 110, 58, 116)):
+    rid = poly([(x0, y0), (x1, y1), (x2, y2)])
+    cv.fill(rid, '#d9867a')
+    cv.fill(rid & poly([(x1, y1), (x2, y2), (x1 + 4, y2)]), '#9a5a64')
+    cv.fill(line([(x0, y0), (x1, y1)]), '#f2ac5a')
+# a Bedouin tent on the far dune: striped black-and-rose goat-hair roof, open front with a glow, guy ropes
+tent = poly([(258, 112), (264, 101), (276, 98), (290, 101), (298, 112)])
+o = cv.obj()
+o.part(tent, ramp('#5e4380', '#3d2a63', '#a8527e'), d=1)
+o.draw()
+for k, ty in enumerate((103, 106, 109)):
+    cv.fill(tent & rect(0, ty, W, ty), ROSE['b'] if k % 2 == 0 else '#3d2a63')
+cv.fill(rect(270, 104, 279, 112), DARK)
+cv.fill(rect(272, 106, 277, 112), '#e8a317')
+cv.fill(rect(274, 108, 275, 112), '#ffd85a')
+for gx in (255, 300):
+    cv.fill(line([(gx, 113), (262 if gx < 270 else 296, 103)]), '#3d2a1c')
+for k in range(8):   # sand wind-curls on the near dune
+    px, py = r3(4, 290), r3(117, 122)
+    cv.fill(line([(px, py), (px + 3, py - 1), (px + 6, py - 1), (px + 7, py)]), '#f2c08a')
 
 # ================================================================ GROUND: amber sand with ripples, the path in
 ground = rect(0, 116, W - 1, H - 1)

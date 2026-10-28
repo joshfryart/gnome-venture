@@ -38,6 +38,7 @@ UMB = '#2a1a10'
 cv = new_canvas(SKY0)
 r = rnd(1907)
 r2 = rnd(53)
+r3 = rnd(2207)   # pass-1 details: a separate generator so the v0 layout does not shift
 keep = blank()   # faces and small props the rain must not speckle
 
 
@@ -156,7 +157,7 @@ for k in range(4):
     cv.dots([(kx - 2 + k * 3, ky + 10 + k * 3), (kx - 1 + k * 3, ky + 11 + k * 3)], (PINK['b'], YEL['b'])[k % 2])
 cv.fill(line([(kx - 1, ky + 8), (76, 84)]), '#5a4a3a')
 # hornbill flying left over the palm (black body, white tail band, big orange casque)
-hbx, hby = 88, 6
+hbx, hby = 147, 13   # clear of the top edge and of the kite, over the empty sky band left of the plume
 o = cv.obj()
 o.part(ell(hbx, hby, hbx + 14, hby + 6), ramp('#3a3a3a', '#202020', '#5a5a5a'), d=1)
 o.part(poly([(hbx + 3, hby + 1), (hbx + 12, hby + 1), (hbx + 16, hby - 9), (hbx + 6, hby - 6)]), ramp('#3a3a3a', '#202020', '#5a5a5a'), d=1)   # raised wing
@@ -183,6 +184,24 @@ for k in range(40):   # spice garden rows on the lower slope
     sx, sy = r(116, 228), r(72, 92)
     if vol[sy, sx] and vol[sy, min(W - 1, sx + 4)]:
         cv.fill(rect(sx, sy, sx + 3, sy), ('#5a8a5a', '#a86a3a', '#6a9a62')[k % 3])
+# pass 1: break the plain grey cone: a zigzag pilgrim path, a tiny red-roofed shrine, low mist wisps, lava-rock speckle
+path = [(176, 80), (186, 72), (170, 64), (182, 56), (168, 48), (172, 40)]
+pm_ = line(path) & vol
+cv.fill(pm_, '#a8b8b4')
+cv.fill(shift(pm_, 1, 1) & vol & ~pm_, '#6a8a8c')
+o = cv.obj()
+o.part(rect(181, 51, 187, 55), STONE, d=1)
+o.part(poly([(179, 51), (184, 46), (189, 51)]), RED, d=1)
+o.draw()
+cv.dots([(184, 53), (184, 54)], UMB)
+for cx0, cy0, w in ((136, 64, 24), (200, 60, 22), (150, 76, 18), (214, 74, 16)):
+    mm = ell(cx0 - w // 2, cy0 - 2, cx0 + w // 2, cy0 + 2) | ell(cx0 - w // 4, cy0 - 4, cx0 + w // 5, cy0 + 1)
+    cv.fill(mm & vol, CLOUD)
+    cv.fill(mm & vol & ~shift(mm, 0, 1), CLOUDL)
+for k in range(45):
+    sx, sy = r3(126, 216), r3(38, 70)
+    if vol[sy, sx] and not pm_[sy, sx]:
+        cv.dots([(sx, sy), (sx + 1, sy)], '#6a8a8c' if k % 3 else '#94b4b0')
 
 # a few paper lanterns rising from last night's festival
 for lx, ly, rp in ((206, 40, ORG), (196, 52, PINK), (218, 28, YEL), (138, 50, ORG), (226, 46, PINK)):
@@ -219,9 +238,35 @@ for hw, y0 in ((22, 72), (16, 62), (11, 52), (6, 42)):   # stone courses with st
 cv.fill(ell(tx - 5, 74, tx + 5, 90) & rect(0, 0, W, 86), UMB)   # dark doorway
 cv.fill(rect(tx - 14, 64, tx - 12, 69) | rect(tx + 12, 64, tx + 14, 69), '#4a5a50')   # niches
 cv.dots([(tx - 1, 78), (tx + 1, 78)], YEL['b'])   # candle glow inside
-foliage(clump(tx + 2, 26, 24, 7, 13, 7, 11), DJADE, specks=30, alt=JADE['b'])
-foliage(clump(tx + 26, 36, 8, 5, 5, 6, 8), JADE, specks=12)
-roots = rect(tx - 1, 30, tx + 3, 42)   # the fig's own trunk sits in the top shrine
+FIGW = ramp('#8a7a62', '#5e5040', '#b0a084')
+c1 = clump(tx + 2, 26, 24, 7, 13, 7, 11)
+o = cv.obj()   # pass 1: thick limbs fan out of the shrine top, so the crown is held up, not floating
+o.part(line([(tx + 1, 42), (tx - 2, 30), (tx - 16, 22)], 3) | line([(tx + 2, 40), (tx + 6, 30), (tx + 18, 24)], 3)
+       | line([(tx + 3, 40), (tx + 14, 36), (tx + 25, 37)], 3) | line([(tx - 1, 38), (tx - 12, 34), (tx - 20, 33)], 2), FIGW, d=1)
+o.draw()
+foliage(c1, DJADE, specks=30, alt=JADE['b'])
+c2 = clump(tx + 26, 36, 8, 5, 5, 6, 8)
+foliage(c2, JADE, specks=12)
+crown = c1 | c2
+cv.fill(crown & ~shift(crown, 0, -2), DJADE['s'])   # dark underside of the canopy
+cinner = crown & shift(crown, 4, 0) & shift(crown, -4, 0) & shift(crown, 0, 3) & shift(crown, 0, -3)
+cys, cxs = np.nonzero(cinner)
+for k in range(16):   # leaf-cluster scallops break the cloud shape inside the crown
+    i = r3(0, len(cxs) - 1)
+    x0, y0 = int(cxs[i]), int(cys[i])
+    sc = ell(x0 - 4, y0 - 2, x0 + 4, y0 + 2)
+    cv.fill(sc & ~shift(sc, 0, -1) & crown, DJADE['s'] if k % 2 else JADE['s'])
+    cv.dots([(x0 - 1, y0 - 2), (x0, y0 - 2)], JADE['r'])
+for ax in (tx - 21, tx - 15, tx - 9, tx + 11, tx + 17, tx + 23, tx + 31, tx + 35):   # aerial roots hanging from the canopy
+    col = crown[:, ax]
+    if not col.any():
+        continue
+    ay = int(np.nonzero(col)[0].max()) + 1
+    ln = r3(6, 18)
+    cv.fill(rect(ax, ay, ax, ay + ln), FIGW['s'])
+    cv.fill(rect(ax - 1, ay, ax - 1, ay + ln // 2), FIGW['r'])
+    cv.dots([(ax, ay + ln + 1)], FIGW['b'])
+roots = poly([(tx - 4, 44), (tx - 1, 36), (tx - 2, 28), (tx + 4, 28), (tx + 3, 36), (tx + 7, 44)])   # the fig's own flared trunk sits in the top shrine
 for pts in (((tx + 3, 40), (tx + 7, 50), (tx + 12, 52), (tx + 13, 61), (tx + 18, 63), (tx + 18, 72), (tx + 22, 75), (tx + 21, 86)),   # roots creep down the steps,
             ((tx - 1, 40), (tx - 6, 51), (tx - 12, 53), (tx - 11, 62), (tx - 17, 64), (tx - 16, 73), (tx - 21, 76), (tx - 22, 86)),   # hugging each ledge
             ((tx + 1, 42), (tx - 2, 54), (tx + 3, 62), (tx - 7, 70), (tx - 8, 78)),
@@ -229,6 +274,7 @@ for pts in (((tx + 3, 40), (tx + 7, 50), (tx + 12, 52), (tx + 13, 61), (tx + 18,
             ((tx + 12, 53), (tx + 6, 58)), ((tx - 12, 54), (tx - 15, 58)), ((tx + 18, 66), (tx + 13, 69)), ((tx - 17, 66), (tx - 12, 70))):
     roots |= line(list(pts), 2 if len(pts) > 2 else 1)
 roots &= ~(ell(tx - 5, 74, tx + 5, 90) & rect(0, 0, W, 86))
+roots &= ~(crown & shift(crown, 0, -3))   # trunk shows only below the canopy
 o = cv.obj()
 o.part(roots, ramp('#8a7a62', '#5e5040', '#b0a084'), d=1)
 o.draw()

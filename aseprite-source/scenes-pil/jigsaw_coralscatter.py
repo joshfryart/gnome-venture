@@ -82,21 +82,21 @@ def gnome(gx, gy, tunic, hat, arm=None, flip=False):
 
 
 def sgnome(gx, gy, tunic, hat, arm=None, flip=False):
-    """A small gnome (village and canoe scale, ~22 px with hat), feet at (gx, gy)."""
+    """A small gnome (village and canoe scale, ~18 px with hat), feet at (gx, gy)."""
     o = cv.obj()
     o.part(rect(gx - 3, gy - 1, gx - 1, gy) | rect(gx + 1, gy - 1, gx + 3, gy), ramp('#5c3420', '#3d2a1c', '#7a4a1f'), d=0)
-    o.part(rrect(gx - 3, gy - 8, gx + 3, gy - 1, 1), tunic, d=1, contour=True)
-    o.part(poly([(gx - 3, gy - 10), (gx + 3, gy - 10), (gx, gy - 4)]), BEARD, d=1, contour=True)
-    o.part(rect(gx - 3, gy - 13, gx + 3, gy - 10), SKIN, d=1)
-    tip = (gx - 3, gy - 23) if not flip else (gx + 3, gy - 23)
-    o.part(poly([(gx - 4, gy - 12), (gx + 4, gy - 12), tip]), hat, d=1, contour=True)
+    o.part(rrect(gx - 3, gy - 6, gx + 3, gy - 1, 1), tunic, d=1, contour=True)
+    o.part(poly([(gx - 3, gy - 8), (gx + 3, gy - 8), (gx, gy - 3)]), BEARD, d=1, contour=True)
+    o.part(rect(gx - 2, gy - 10, gx + 2, gy - 8), SKIN, d=1)
+    tip = (gx - 3, gy - 18) if not flip else (gx + 3, gy - 18)
+    o.part(poly([(gx - 4, gy - 9), (gx + 4, gy - 9), tip]), hat, d=1, contour=True)
     if arm == 'up':
-        o.part(line([(gx + 3, gy - 7), (gx + 6, gy - 11), (gx + 8, gy - 15)], 2), tunic, d=0)
+        o.part(line([(gx + 3, gy - 5), (gx + 5, gy - 8), (gx + 7, gy - 12)], 1), tunic, d=0)
     o.draw()
-    cv.dots([(gx - 1, gy - 11), (gx + 1, gy - 11)], DARK)
-    cv.dots([(gx, gy - 10)], '#e0907a')
+    cv.dots([(gx - 1, gy - 9), (gx + 1, gy - 9)], DARK)
+    cv.dots([(gx, gy - 8)], '#e0907a')
     if arm == 'up':
-        cv.dots([(gx + 8, gy - 16), (gx + 9, gy - 17)], SKIN['b'])
+        cv.dots([(gx + 7, gy - 13), (gx + 8, gy - 14)], SKIN['b'])
 
 
 def fish(x, y, rp, s=4, face=1, outline=True, stripe=None):
@@ -126,7 +126,7 @@ def bubbles(x, y, n, rr):
 
 
 def palm(x, y, h, lean, fronds=7):
-    """Curved trunk from (x, y) up h px leaning by `lean`, then a crown of drooping fronds."""
+    """Curved ringed trunk from (x, y) up h px leaning by `lean`, then a crown of arching fronds with hanging leaflets."""
     pts = []
     for k in range(0, h + 1, 3):
         t = k / h
@@ -138,22 +138,45 @@ def palm(x, y, h, lean, fronds=7):
         if i % 2 == 0:
             cv.dots([(px - 1, py), (px, py), (px + 1, py)], TRUNK['s'])
     cx, cy = pts[-1]
-    m = blank()
+    m, ribs = blank(), blank()
     for k in range(fronds):
         a = math.pi * (0.95 + 1.1 * k / (fronds - 1))   # spread from left round over the top to the right
-        L = 13 if k % 2 else 11
+        L = 15 if k % 2 else 12
         fp = []
-        for i in range(0, 6):
-            t = i / 5
-            fp.append((cx + int(L * t * math.cos(a)), cy + int(L * t * math.sin(a) * 0.7 + 7 * t * t)))
+        for i in range(0, 9):
+            t = i / 8
+            fp.append((cx + int(round(L * t * math.cos(a))), cy + int(round(L * t * math.sin(a) * 0.75 + 9 * t * t))))
+        ribs |= line(fp, 1)
         m |= line(fp, 2)
-        for i, (px, py) in enumerate(fp[1:]):
-            m |= line([(px, py), (px + (1 if math.cos(a) > 0 else -1), py + 3)])
+        side = 1 if math.cos(a) > 0 else -1
+        for i, (px, py) in enumerate(fp[2:], 2):
+            ln = 2 + (3 if 3 <= i <= 6 else 1)
+            m |= line([(px, py), (px + side, py + ln)])
+            if i % 2 == 0:
+                m |= line([(px, py), (px - side, py + ln - 1)])
     o = cv.obj()
     o.part(m, PALM, d=1)
     o.draw()
+    cv.fill(ribs & shift(m, 0, 1) & ~shift(m, 0, -1), PALM['s'])
+    cv.fill(ribs & ~shift(m, 0, 1), PALM['r'])
     cv.fill(ell(cx - 3, cy, cx + 1, cy + 4), '#6a4428')   # coconuts
-    cv.dots([(cx - 2, cy + 1)], '#9a6a3f')
+    cv.fill(ell(cx, cy + 1, cx + 3, cy + 4), '#7a5030')
+    cv.dots([(cx - 2, cy + 1), (cx + 1, cy + 2)], '#9a6a3f')
+
+
+def puff_cloud(x0, y0, w, h, body, rim, under, rr):
+    """A hard-edged cumulus: a flat bottom with a row of round bumps on top, rim lit upper left, a coloured underside."""
+    m = rrect(x0, y0 + h // 2, x0 + w, y0 + h, 1)
+    bx = x0 + 2
+    while bx < x0 + w - 2:
+        s = rr(max(2, h // 3), max(3, h // 2 + 1))
+        m |= ell(bx - s, y0 + h // 2 - s + rr(0, 2), bx + s, y0 + h // 2 + s)
+        bx += s + rr(1, 3)
+    m &= ~rect(0, y0 + h + 1, W, H)
+    cv.fill(m, body)
+    cv.fill(m & ~shift(m, 1, 1), rim)
+    cv.fill(m & ~shift(m, 0, -2), under)
+    return m
 
 
 # ================================================================ SKY (dusk: deep navy to coral at the horizon)

@@ -264,5 +264,31 @@ return function(GV)
     return pic
   end
 
+  -- jigsaw cut lines with round knobs over a picture: NC x NR grid; holes = mask left uncut (gaps).
+  -- Lines are the picture's own colour lifted toward cream, so the picture still reads through them.
+  function M.cuts(c, pic, px0, py0, px1, py1, NC, NR, holes, dark)
+    local cw, ch = (px1 - px0 + 1) / NC, (py1 - py0 + 1) / NR
+    local cm = c:mask()
+    for i = 1, NC - 1 do local x = rnd(px0 + i * cw) for y = py0, py1 do cm:set(x, y) end end
+    for j = 1, NR - 1 do local y = rnd(py0 + j * ch) for x = px0, px1 do cm:set(x, y) end end
+    for i = 1, NC - 1 do for j = 0, NR - 1 do
+      local x, y = rnd(px0 + i * cw), rnd(py0 + (j + 0.5) * ch)
+      local disc = c:ellipse(x + (((i + j) % 2 == 0) and 2 or -2), y, 2, 2)
+      cm:cut(disc); cm:add(disc:edge()); for yy = y - 1, y + 1 do cm:del(x, yy) end
+    end end
+    for j = 1, NR - 1 do for i = 0, NC - 1 do
+      local x, y = rnd(px0 + (i + 0.5) * cw), rnd(py0 + j * ch)
+      local disc = c:ellipse(x, y + (((i + j) % 2 == 0) and 2 or -2), 2, 2)
+      cm:cut(disc); cm:add(disc:edge()); for xx = x - 1, x + 1 do cm:del(xx, y) end
+    end end
+    cm:clip(pic); if holes then cm:cut(holes) end
+    local k = dark and 0.3 or 0.45
+    cm:each(function(x, y)
+      local h = c:get(x, y) or "#f1ece0"
+      local r, g, b = tonumber(h:sub(2, 3), 16), tonumber(h:sub(4, 5), 16), tonumber(h:sub(6, 7), 16)
+      c:px(x, y, string.format("#%02x%02x%02x", rnd(r + (255 - r) * k), rnd(g + (243 - g) * k), rnd(b + (200 - b) * k)))
+    end)
+  end
+
   return M
 end

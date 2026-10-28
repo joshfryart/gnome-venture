@@ -261,8 +261,11 @@ for k in range(len(TOPS) - 1):
     bands.append(band)
     wall = band & (yy_g >= tl[k + 1][None, :] - 3 - k // 3)
     field = band & ~wall
-    cv.fill(field, TEA['b'] if CROP[k] == 'tea' else ('#8a7a4a' if CROP[k] != 'turmeric' else '#7a9a3a'))
+    fcol = {'tea': TEA['b'], 'crocus': '#6e8a4a', 'chilli': '#4f7a3a', 'turmeric': '#7a9a3a'}[CROP[k]]
+    cv.fill(field, fcol)
     cv.fill(field & ~shift(field, 0, 1), TEA['r'] if CROP[k] == 'tea' else '#a4b86a')
+    if CROP[k] in ('crocus', 'chilli'):   # pass 1: furrow lines so the field is not a flat brown band
+        cv.fill(field & ((xx_g + yy_g * 2) % 7 == 0) & shift(field, 0, 1), '#5f7a3a' if CROP[k] == 'crocus' else '#3f6a30')
     cv.fill(wall, WALL['b'])
     cv.fill(wall & ~shift(wall, 0, 1), WALL['r'])
     cv.fill(wall & ~shift(wall, 0, -1), WALL['s'])
@@ -275,6 +278,9 @@ for k in range(len(TOPS) - 1):
                 cv.fill(rect(xj, y0 + 1, xj, y0 + 1 + k // 3), WALL['s'])
 cv.fill(dil4(river) & ~river & (yy_g > 100), '#8a7a5a')
 
+r3 = rnd(777)   # pass 1: second generator for the new jitter so the earlier layout does not shift
+TEA2 = ramp('#4f9a45', '#2f6a3a', '#a4b86a')
+TEA3 = ramp('#5fa84a', '#3f7a3a', '#a4d070')
 for k in range(len(TOPS) - 1):   # crops in rows along each terrace
     crop = CROP[k]
     sz = 2 + k // 2
@@ -290,29 +296,63 @@ for k in range(len(TOPS) - 1):   # crops in rows along each terrace
         if y0 >= H:
             break
         rows = 1 if k < 5 else 2
+        if crop in ('crocus', 'chilli'):
+            rows = 2
         for rr in range(rows):
             cy = y0 + (y1 - y0) * (rr + 1) // (rows + 1) + 1
             if cy >= H:
                 continue
             cx = x + rr * (sz + 1)
             if crop == 'tea':
-                m = ell(cx - sz - 1, cy - sz, cx + sz + 1, cy + sz // 2 + 1)
+                if k >= 4 and r3(0, 9) == 0:   # an odd gap: a picker's basket or a bare patch
+                    if r3(0, 1):
+                        o = cv.obj()
+                        o.part(rrect(cx - 3, cy - 3, cx + 3, cy + 2, 1), WOOD, d=1)
+                        o.draw()
+                        cv.dots([(cx - 2, cy - 4), (cx, cy - 4), (cx + 2, cy - 4)], '#7ab55c')
+                    continue
+                s2 = sz + (r3(-1, 1) if k >= 4 else 0)
+                cyj = cy + (r3(-1, 1) if k >= 4 else 0)
+                m = ell(cx - s2 - 1 - r3(0, 1), cyj - s2, cx + s2 + 1 + r3(0, 1), cyj + s2 // 2 + 1)
+                if k >= 4:
+                    m |= ell(cx - s2 // 2 - 1, cyj - s2 - 1, cx + s2 // 2 + r3(0, 2), cyj)   # lumpy, uneven crowns
+                rp = (TEA, TEA2, TEA3)[r3(0, 2)] if k >= 4 else TEA
                 o = cv.obj(outline=k >= 4)
-                o.part(m, TEA, d=1 if k < 4 else 2)
+                o.part(m, rp, d=1 if k < 4 else 2)
                 o.draw()
                 if k >= 4:
-                    cv.dots([(cx - 1, cy - sz + 1), (cx + 1, cy - sz + 2), (cx - sz + 1, cy)], '#a4d070')
+                    for _ in range(r3(2, 4)):   # fresh pale flush tips
+                        cv.dots([(cx + r3(-s2, s2), cyj - s2 + r3(0, 2))], '#a4d070')
             elif crop == 'crocus':
-                cv.dots([(cx, cy), (cx, cy + 1)], '#4f9a45')
-                cv.dots([(cx - 1, cy - 1), (cx + 1, cy - 1), (cx, cy - 2)], '#9a7ac8')
-                cv.dots([(cx, cy - 1)], '#e0483a')
+                for dx in (0, 3):
+                    ccx, ccy = cx + dx, cy + r3(-1, 1)
+                    cv.dots([(ccx, ccy), (ccx, ccy + 1)], '#4f9a45')
+                    cv.dots([(ccx - 1, ccy - 1), (ccx + 1, ccy - 1), (ccx, ccy - 2)], ('#9a7ac8', '#8a5aa8')[r3(0, 1)])
+                    cv.dots([(ccx, ccy - 1)], '#e0483a')
             elif crop == 'chilli':
-                cv.fill(ell(cx - 2, cy - 2, cx + 2, cy + 1), '#4f9a45')
-                cv.dots([(cx - 1, cy), (cx + 2, cy - 1), (cx, cy + 1)], RED['b'])
+                cyj = cy + r3(-1, 0)
+                cv.fill(ell(cx - 3, cyj - 2, cx + 3, cyj + 2), '#4f9a45')
+                cv.dots([(cx - 2, cyj - 2), (cx + 1, cyj - 2)], '#7ab55c')
+                cv.dots([(cx - 1, cyj), (cx + 2, cyj - 1), (cx, cyj + 1), (cx - 2, cyj + 1)], RED['b'])
+                cv.dots([(cx + 2, cyj), (cx - 1, cyj + 1)], RED['s'])
             else:
                 cv.fill(line([(cx, cy + 1), (cx - 2, cy - 3)]) | line([(cx, cy + 1), (cx + 2, cy - 3)]) | line([(cx, cy + 1), (cx, cy - 4)]), '#a4b86a')
                 cv.dots([(cx, cy + 1), (cx + 1, cy + 1)], SAFF['b'])
-        x += sz * 2 + 3 + (rows - 1) * 2
+        if crop in ('crocus', 'chilli'):
+            x += 7 + r3(0, 2)
+        else:
+            x += sz * 2 + 3 + (rows - 1) * 2 + (r3(0, 3) if k >= 4 else 0)
+# a stone stair climbing the terraces (the pickers' path up toward the monastery)
+stair = blank()
+for k in range(1, 7):
+    sxk = 98 - k * 3
+    y0, y1 = tline(k, sxk) - 1, tline(k + 1, sxk) + 1
+    stair |= rect(sxk, y0, sxk + 5, y1)
+stair &= inner
+cv.fill(stair, WALL['b'])
+cv.fill(stair & ((yy_g % 3) == 0), WALL['s'])
+cv.fill(stair & ((yy_g % 3) == 1), WALL['r'])
+cv.fill(dil4(stair) & ~stair & inner, '#4a2c1a')
 # ---------------------------------------------------------------- the Cloud Monastery on its crag (left), apricots drying on the roof
 mx0, my0 = 10, 56
 o = cv.obj()
@@ -360,8 +400,9 @@ o = cv.obj()
 o.part(rect(sx0 - 16, sy0 - 6, sx0 + 16, sy0 + 2), WHITE, d=2)
 o.part(rect(sx0 - 12, sy0 - 11, sx0 + 12, sy0 - 6), WHITE, d=2)
 o.part(ell(sx0 - 12, sy0 - 30, sx0 + 12, sy0 - 4) & rect(0, 0, W, sy0 - 11), WHITE, d=3)
-o.part(rect(sx0 - 4, sy0 - 37, sx0 + 4, sy0 - 29), GOLD, d=1, contour=True)
-o.part(poly([(sx0 - 4, sy0 - 37), (sx0 + 4, sy0 - 37), (sx0, sy0 - 54)]), GOLD, d=2, contour=True)
+o.part(rect(sx0 - 7, sy0 - 38, sx0 + 7, sy0 - 28), WHITE, d=1, contour=True)   # pass 1: wider white harmika carrying the big painted eyes
+o.part(rect(sx0 - 8, sy0 - 40, sx0 + 8, sy0 - 39), GOLD, d=1, contour=True)
+o.part(poly([(sx0 - 5, sy0 - 40), (sx0 + 5, sy0 - 40), (sx0, sy0 - 54)]), GOLD, d=2, contour=True)
 o.draw()
 for k in range(4):   # spire rings
     yk = sy0 - 40 - k * 4
@@ -369,9 +410,15 @@ for k in range(4):   # spire rings
     cv.fill(rect(sx0 - hw, yk, sx0 + hw, yk), GOLD['s'])
 cv.fill(ell(sx0 - 4, sy0 - 59, sx0 + 4, sy0 - 54) & rect(0, 0, W, sy0 - 56), GOLD['b'])   # parasol
 cv.dots([(sx0 - 3, sy0 - 57)], GOLD['r'])
-cv.dots([(sx0 - 3, sy0 - 34), (sx0 - 2, sy0 - 34), (sx0 + 2, sy0 - 34), (sx0 + 3, sy0 - 34)], '#25637d')   # the painted eyes
-cv.dots([(sx0 - 2, sy0 - 33), (sx0 + 2, sy0 - 33)], '#2a1a10')
-cv.dots([(sx0, sy0 - 32), (sx0, sy0 - 31)], '#25637d')
+for e in (-1, 1):   # the painted eyes: heavy brow, almond eye with a dark pupil
+    ex = sx0 + 4 * e
+    cv.fill(rect(ex - 2, sy0 - 36, ex + 2, sy0 - 36), '#2a1a10')
+    cv.dots([(ex - 3 * e, sy0 - 35)], '#2a1a10')
+    cv.fill(rect(ex - 2, sy0 - 34, ex + 2, sy0 - 34), '#25637d')
+    cv.fill(rect(ex - 1, sy0 - 33, ex + 1, sy0 - 33), '#25637d')
+    cv.fill(rect(ex - 1, sy0 - 34, ex, sy0 - 33), '#2a1a10')
+cv.dots([(sx0, sy0 - 36)], RED['b'])   # third eye
+cv.dots([(sx0, sy0 - 33), (sx0 + 1, sy0 - 32), (sx0, sy0 - 31), (sx0, sy0 - 30)], '#25637d')   # the curl nose
 cv.fill(rect(sx0 - 12, sy0 - 12, sx0 + 12, sy0 - 12), SAFF['b'])   # saffron band
 for xk in range(sx0 - 14, sx0 + 15, 5):
     cv.fill(rect(xk, sy0 - 3, xk + 2, sy0), '#2a1a10')   # niches
@@ -379,9 +426,9 @@ for xk in range(sx0 - 14, sx0 + 15, 5):
 cv.fill(ell(sx0 - 9, sy0 - 26, sx0 - 4, sy0 - 20), WHITE['r'])
 # prayer-flag strings: monastery pole -> stupa spire (long sag across the valley), stupa -> crag, monastery -> left edge, stupa -> knoll foot
 flag_string((67, 41), (sx0, sy0 - 52), 30, seed=0)
-flag_string((sx0, sy0 - 50), (300, 64), 10, seed=2)
+flag_string((sx0, sy0 - 50), (265, 72), 6, seed=2)
 flag_string((0, 30), (mx0 + 25, my0 - 22), 6, seed=4)
-flag_string((sx0, sy0 - 48), (198, 98), 4, gap=3, seed=1)
+flag_string((sx0, sy0 - 48), (192, 88), 4, gap=3, seed=1)
 
 # ---------------------------------------------------------------- the river: waterfall from the knoll, ripples, banks
 cv.fill(river, WATER['b'])
@@ -393,11 +440,28 @@ for k in range(110):
     ln = 2 + y // 50
     if river[y, max(0, x - 1)] and river[y, min(W - 1, x + ln + 1)]:
         cv.fill(rect(x, y, x + ln, y), WATER['r'] if r(0, 2) else WATER['s'])
-fall = rect(202, 90, 209, 100)
+# pass 1: the spring now pours out of a rock cleft in the knoll into a plunge pool that IS the head of the river
+GREYR = ramp('#8b8f96', '#5b6470', '#c9c5bc')
+o = cv.obj()
+o.part(poly([(190, 101), (191, 92), (196, 86), (201, 85), (201, 101)]), GREYR, d=2)   # left cheek of the cleft
+o.part(poly([(209, 101), (209, 85), (214, 86), (218, 91), (219, 101)]), GREYR, d=2)   # right cheek
+o.draw()
+cv.fill(rect(201, 85, 208, 100), '#5b6470')   # the dark cleft behind the water
+cv.fill(line([(194, 92), (198, 97)]) | line([(213, 90), (216, 96)]), '#5b6470')   # cracks
+cv.dots([(192, 92), (193, 90), (211, 87), (212, 87)], '#c9c5bc')
+cv.dots([(195, 85), (196, 84), (198, 84), (213, 85), (215, 85), (216, 84)], GRASS['s'])   # tufts on top
+cv.dots([(196, 83), (214, 83)], GRASS['b'])
+pool = ell(192, 98, 218, 106) & (yy_g >= 99)
+cv.fill(pool, WATER['b'])
+cv.fill(pool & ~shift(pool, 0, -1), WATER['s'])
+fall = rect(202, 86, 207, 101)
 cv.fill(fall, '#e8f6f2')
-cv.fill(rect(203, 90, 203, 100) | rect(207, 92, 207, 100), '#7fd0c8')
-cv.fill(ell(198, 98, 213, 104), '#e8f6f2')
-cv.dots([(197, 99), (214, 100), (200, 96), (212, 95)], '#ffffff')
+cv.fill(rect(203, 87, 203, 100) | rect(206, 89, 206, 100), '#7fd0c8')
+cv.dots([(202, 86), (204, 86), (207, 86)], '#7fd0c8')
+cv.fill(ell(198, 99, 211, 103), '#e8f6f2')   # foam
+cv.dots([(196, 99), (213, 100), (199, 97), (210, 97), (201, 104), (208, 104)], '#ffffff')
+for xk in (195, 200, 211, 215):
+    cv.fill(rect(xk, 104, xk + 2, 104) & pool, WATER['r'])
 for sx, sy in ((186, 112), (196, 108), (160, 150), (176, 140), (132, 186), (157, 172)):   # river stones
     o = cv.obj()
     o.part(ell(sx, sy, sx + 6, sy + 4), STONE, d=1)
@@ -418,11 +482,31 @@ for mx, my, col, dot in ((214, 110, '#c8a878', RED['b']), (238, 106, '#c8a878', 
         cv.dots([(mx + 3 + r(0, 15), my + 1 + r(0, 5))], dot)
 gh = poly([(156, 200), (176, 136), (194, 136), (204, 200)])   # ghat: stone steps from the souk down to the water
 gh &= ~river
+# pass 1: real steps: lit tread nosing, tread, dark riser, staggered stone joints, a landing, side walls, wet bottom steps
+ph = (yy_g - 136) % 7
 cv.fill(gh, WALL['b'])
-for yk in range(138, 200, 5):
-    cv.fill(gh & rect(0, yk, W, yk), WALL['s'])
-    cv.fill(gh & rect(0, yk + 1, W, yk + 1), WALL['r'])
-cv.fill(gh & ~shift(gh, 2, 0), '#d8c4a0')
+cv.fill(gh & (ph == 0), WALL['r'])
+cv.fill(gh & (ph >= 5), WALL['s'])
+for yk in range(136, 200, 7):
+    for xj in range(150 + (yk // 7 % 2) * 5, 210, 9):
+        cv.fill(gh & rect(xj, yk + 5, xj, yk + 6), '#5a4634')
+        cv.fill(gh & rect(xj + 4, yk + 2, xj + 4, yk + 3), WALL['s'])
+land = gh & rect(0, 164, W, 170)   # a wide landing halfway down
+cv.fill(land, WALL['b'])
+cv.fill(land & rect(0, 164, W, 164), WALL['r'])
+cv.fill(land & ((xx_g + yy_g) % 6 == 0), WALL['s'])
+sidew = gh & ~shift(gh, -3, 0)   # right-hand retaining wall (lit top)
+cv.fill(sidew, '#8b8f96')
+cv.fill(sidew & ((yy_g % 4) == 0), '#5b6470')
+cv.fill(sidew & ~shift(sidew, -1, 0), '#c9c5bc')
+cv.fill(dil4(gh) & ~gh & ~river & (xx_g > 170), '#4a2c1a')
+cv.fill(gh & ~shift(gh, 2, 0), '#c9c5bc')   # river-side edge stones
+wet = gh & (yy_g >= 190)
+cv.fill(wet & (ph < 5), '#9a8a6a')
+for lx_, ly_ in ((172, 142), (166, 163), (186, 156), (162, 184)):   # little brass oil lamps on the step edges
+    cv.dots([(lx_, ly_), (lx_ + 1, ly_)], GOLD['s'])
+    cv.dots([(lx_, ly_ - 1)], SAFF['r'])
+    cv.dots([(lx_, ly_ - 2)], '#f8d060')
 
 for i, (cx, cy, w) in enumerate(((134, 112, 10), (135, 107, 8), (136, 103, 6), (137, 100, 4))):   # a cairn at the bridge foot (follow the cairns)
     o = cv.obj()
@@ -430,10 +514,6 @@ for i, (cx, cy, w) in enumerate(((134, 112, 10), (135, 107, 8), (136, 103, 6), (
     o.draw()
 cv.fill(rect(139, 92, 139, 100), '#4a2c1a')
 cv.fill(rect(140, 92, 144, 95), FLAGS[2])
-for sx, sy in ((195, 95), (210, 94)):   # rocks round the spring
-    o = cv.obj()
-    o.part(ell(sx, sy, sx + 6, sy + 5), ramp('#8b8f96', '#5b6470', '#c9c5bc'), d=1)
-    o.draw()
 # ---------------------------------------------------------------- the rope bridge across the river, a gnome leading a laden yak over it
 bl, br = (148, 118), (204, 122)
 deck = sag(bl, br, 7)
@@ -546,13 +626,17 @@ for i, (sx, sy, w, sp) in enumerate(((218, 176, 16, 1), (238, 174, 18, 0), (260,
         cv.dots([(sx + 18, sy - 9)], GOLD['r'])
 # the spice seller: big gnome by the sacks, holding up a scoop of saffron
 gnome(197, 184, 2, MAG, SAFF, face=1)
-cv.fill(line([(205, 172), (211, 175)], 2), WOOD['b'])
-o = cv.obj()
-o.part(ell(209, 170, 219, 178), GOLD, d=1)
+o = cv.obj()   # pass 1: a big brass scoop held up high, heaped with saffron threads
+o.part(line([(204, 170), (210, 165)], 2), WOOD, d=0)
+o.part(ell(208, 160, 225, 172) & rect(0, 165, W, H), GOLD, d=2)
+o.part(ell(209, 155, 224, 168) & rect(0, 0, W, 165), ramp('#d8481e', '#a8241f', '#e0702a'), d=1)
 o.draw()
-cv.fill(ell(210, 169, 218, 174) & rect(0, 0, W, 173), '#d8481e')
-cv.dots([(212, 170), (214, 169)], '#f08a4a')
-cv.fill(rect(204, 170, 206, 173), SKIN['b'])
+cv.fill(rect(209, 165, 224, 165), GOLD['r'])
+for dx, dy in ((2, -8), (5, -10), (8, -9), (11, -7), (4, -5), (9, -4), (12, -3), (6, -2)):   # threads
+    cv.dots([(209 + dx, 165 + dy), (210 + dx, 164 + dy)], '#f8d060' if dx % 3 else '#a8241f')
+cv.dots([(214, 174), (217, 177), (215, 180), (219, 182)], '#d8481e')   # a few threads falling to the sack
+cv.fill(rect(203, 169, 206, 172), SKIN['b'])
+cv.dots([(203, 172), (206, 172)], SKIN['s'])
 # stone mortars of the spice grinders on the ghat
 for mx, my in ((168, 150), (180, 176)):
     o = cv.obj()
