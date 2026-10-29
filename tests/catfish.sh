@@ -447,6 +447,65 @@ ok "bunting: +3 each in the festival jar (9)" "$(dbv "SELECT amount FROM hollow_
 dbx "UPDATE catfish_state SET yarn=12, meta='{\"extra\":2,\"ys\":12}' WHERE user_id=$UID_"
 cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
 setg festivals_on 0
+
+# 4g. Rod Tune-up, Catnip Hour, Mood Treat, Cat bio, Collar tint, Seasonal room
+dbx "UPDATE catfish_state SET yarn=200, active_cat_id=$CID1, naps=3, upgrades='{\"string\":8}', meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfreset; ok "no tune-up yet: 8 Longer string levels have no milestone double" "$(cfapi -d do=tick | jp view.ups.4.mult)" 1
+cfpost -d do=tune -d branch=rod >/dev/null
+ok "Rod Tune-up costs 4 Yarn: ys=4, rod, this run" "$(mget ys),$(mget tune.branch),$(mget tune.naps)" "4,rod,3"
+cfreset; ok "tuned: 8 Longer string levels double" "$(cfapi -d do=tick | jp view.ups.4.mult)" 2
+cfpost -d do=tune -d branch=fish >/dev/null; ok "a second tune-up in the same run is refused: ys stays 4" "$(mget ys)" 4
+cfpost -d do=tune -d branch=nonsense >/dev/null; ok "tune-up with an unknown branch refused: ys stays 4" "$(mget ys)" 4
+dbx "UPDATE catfish_state SET naps=4 WHERE user_id=$UID_"
+cfreset; ok "after the next Nap the tune-up is over" "$(cfapi -d do=tick | jp view.ups.4.mult)" 1
+ok "tuned kph is higher than untuned kph for the same levels" "$(cfx none 'catfish_kph(["string" => 8], ["tune" => "rod"], true) > catfish_kph(["string" => 8], [], true) ? "y" : "n"')" y
+cfpost -d do=tune -d branch=fish >/dev/null; ok "a new run can be tuned again: ys=8" "$(mget ys)" 8
+
+dbx "UPDATE catfish_state SET yarn=200, upgrades='{\"fish\":50}', meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfreset; V0=$(cfapi -d do=tick | jp view.play.v)
+cfpost -d do=catnip >/dev/null; ok "Catnip Hour costs 1 Yarn: ys=1" "$(mget ys)" 1
+cfreset; V1=$(cfapi -d do=tick | jp view.play.v)
+ok "Catnip Hour: a tap pays double (plain $V0, catnip $V1)" "$([ "$V1" -eq $((V0 * 2)) ] && echo y || echo n)" y
+cfpost -d do=catnip >/dev/null; ok "a second Catnip Hour the same day is refused" "$(mget ys)" 1
+dbx "UPDATE catfish_state SET meta=json_set(meta,'$.catnip.until',$(( $(date +%s) - 5 ))) WHERE user_id=$UID_"
+cfreset; ok "when the hour is up, taps pay the plain value again" "$(cfapi -d do=tick | jp view.play.v)" "$V0"
+
+dbx "UPDATE catfish_state SET yarn=200, upgrades='{\"fish\":50}', meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfreset; MOOD=$(cfapi -d do=tick | jp view.cat.mood); KB2=$(cfapi -d do=tick | jp view.kph)
+case $MOOD in greedy) PICK=hyper;; *) PICK=greedy;; esac
+cfpost -d do=treat -d mood=dreamy >/dev/null; ok "Mood Treat with Dreamy refused: ys stays 0" "$(mget ys)" 0
+cfpost -d do=treat -d mood=$MOOD >/dev/null; ok "Mood Treat with the cat's own mood refused: ys stays 0" "$(mget ys)" 0
+cfpost -d do=treat -d mood=$PICK >/dev/null; ok "Mood Treat costs 2 Yarn: ys=2, second mood $PICK" "$(mget ys),$(mget treat.mood)" "2,$PICK"
+cfreset; KA2=$(cfapi -d do=tick | jp view.kph)
+if [ "$MOOD" = lazy ] || [ "$MOOD" = sneaky ] || [ "$MOOD" = dreamy ] || [ "$MOOD" = greedy ] || [ "$MOOD" = hyper ]; then ok "a second greedy or hyper mood raises Kibble per hour (before $KB2, after $KA2)" "$(php -r 'echo '$KA2' > '$KB2' ? "y" : "n";')" y; fi
+cfpost -d do=treat -d mood=lazy >/dev/null; ok "one Mood Treat a day: ys stays 2" "$(mget ys)" 2
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"; dbx "UPDATE cats SET bio='', collar='' WHERE user_id=$UID_"
+cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Loves boxes" >/dev/null
+ok "first bio costs 1 Yarn: ys=1, saved" "$(mget ys),$(dbv "SELECT bio FROM cats WHERE id=$CID1")" "1,Loves boxes"
+cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Hates Mondays" >/dev/null
+ok "changing a bio is free: ys stays 1" "$(mget ys),$(dbv "SELECT bio FROM cats WHERE id=$CID1")" "1,Hates Mondays"
+cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=<b>Tiny</b> & $(printf 'x%.0s' $(seq 1 80))" >/dev/null
+ok "a bio is cleaned and cut to 60 characters" "$(dbv "SELECT LENGTH(bio) FROM cats WHERE id=$CID1")$(dbv "SELECT bio LIKE '%<%' FROM cats WHERE id=$CID1")" "600"
+cfpost -d do=bio -d cat=999999 --data-urlencode "bio=Not mine" >/dev/null; ok "a bio for a cat that is not yours is refused: ys stays 1" "$(mget ys)" 1
+cfpost -d do=bio -d cat=$CID2 --data-urlencode "bio=Sleepy" >/dev/null; ok "the second cat's first bio costs 1 more: ys=2" "$(mget ys)" 2
+pagew3; cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Loves boxes" >/dev/null; pagew3; ok "the bio shows on the page" "$([ "$(grep -c 'Loves boxes' $W/w3.html)" -ge 1 ] && echo y || echo n)" y
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=collar -d cat=$CID1 -d key=rose >/dev/null
+ok "a collar costs 2 Yarn for that cat: ys=2, worn" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,rose"
+pagew3; ok "the collar class is on the page" "$([ "$(grep -c 'cfcol-rose' $W/w3.html)" -ge 1 ] && echo y || echo n)" y
+cfpost -d do=collar -d cat=$CID1 -d key= >/dev/null; ok "collar off is free" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,"
+cfpost -d do=collar -d cat=$CID1 -d key=rose >/dev/null; ok "wearing an owned collar again is free: ys stays 2" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,rose"
+cfpost -d do=collar -d cat=$CID1 -d key=gold >/dev/null; ok "a second colour costs 2 more: ys=4" "$(mget ys)" 4
+cfpost -d do=collar -d cat=$CID2 -d key=rose >/dev/null; ok "the same colour on another cat costs again: ys=6" "$(mget ys)" 6
+cfpost -d do=collar -d cat=$CID1 -d key=plaid >/dev/null; ok "unknown collar colour refused: ys stays 6" "$(mget ys)" 6
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=season -d code=wi >/dev/null; ok "a season costs 3 Yarn: ys=3, owned" "$(mget ys),$(mget seasons.0)" "3,wi"
+cfpost -d do=season -d code=wi >/dev/null; ok "the same season twice refused: ys stays 3" "$(mget ys)" 3
+cfpost -d do=season -d code=xx >/dev/null; ok "unknown season refused: ys stays 3" "$(mget ys)" 3
+dbx "UPDATE cats SET bio='', collar='' WHERE user_id=$UID_"
 dbx "UPDATE users SET title=NULLIF('$TITLE0','') WHERE id=$UID_"
 dbx "UPDATE catfish_state SET yarn=${CF0%%|*}, meta='$(echo "$CF0" | cut -d'|' -f2)', upgrades='$(echo "$CF0" | cut -d'|' -f3)' WHERE user_id=$UID_"
 

@@ -255,6 +255,24 @@
 .cfball-mint .cfyarn img { filter: sepia(1) saturate(4) hue-rotate(90deg); }
 .cfball-violet .cfyarn img { filter: sepia(1) saturate(5) hue-rotate(215deg); }
 .cfball-gold .cfyarn img { filter: sepia(1) saturate(6) hue-rotate(-8deg) brightness(1.1); }
+/* Collar tint (a ring around the cat), Cat bio, and the seasonal room (eight CSS bits falling or drifting; none under reduced motion). */
+.cfcol-rose { box-shadow: 0 0 0 2px #e8799b; border-radius: 12px; } .cfcol-mint { box-shadow: 0 0 0 2px #5fc9a0; border-radius: 12px; }
+.cfcol-sky { box-shadow: 0 0 0 2px #5aa7e0; border-radius: 12px; } .cfcol-gold { box-shadow: 0 0 0 2px #e0a526; border-radius: 12px; }
+.cfcol-violet { box-shadow: 0 0 0 2px #9a6fd0; border-radius: 12px; } .cfcol-red { box-shadow: 0 0 0 2px #c0392b; border-radius: 12px; }
+.cfcat.cfcol-rose, .cfcat.cfcol-mint, .cfcat.cfcol-sky, .cfcat.cfcol-gold, .cfcat.cfcol-violet, .cfcat.cfcol-red { border-radius: 50%; }
+.cfbio { font-style: italic; }
+.cfbioin { width: 14rem; }
+.cfseason { position: absolute; left: 0; top: 0; width: 320px; height: 200px; overflow: hidden; pointer-events: none; }
+.cfseason i { position: absolute; top: 0; width: 3px; height: 3px; animation: cfsfall 9s steps(24, end) infinite; }
+.cfs-sp i { background: #f4a6c0; border-radius: 50% 0; --sx: 26px; } .cfs-au i { background: #d9772b; width: 4px; height: 3px; --sx: -30px; }
+.cfs-wi i { background: #fff; width: 2px; height: 2px; --sx: 12px; } .cfs-su i { background: #ffe66b; width: 2px; height: 2px; top: 60px; --sx: 14px; animation-name: cfsglow; animation-duration: 6s; animation-timing-function: steps(6, end); animation-direction: alternate; }
+.cfseason i:nth-child(1) { left: 14px; } .cfseason i:nth-child(2) { left: 52px; animation-duration: 11s; animation-delay: -3s; } .cfseason i:nth-child(3) { left: 96px; animation-duration: 8s; animation-delay: -6s; }
+.cfseason i:nth-child(4) { left: 140px; animation-duration: 12s; animation-delay: -2s; } .cfseason i:nth-child(5) { left: 186px; animation-duration: 10s; animation-delay: -8s; }
+.cfseason i:nth-child(6) { left: 228px; animation-duration: 9s; animation-delay: -5s; } .cfseason i:nth-child(7) { left: 268px; animation-duration: 13s; animation-delay: -9s; } .cfseason i:nth-child(8) { left: 302px; animation-duration: 8s; animation-delay: -1s; }
+.cfs-su i:nth-child(2n) { top: 110px; } .cfs-su i:nth-child(3n) { top: 150px; }
+@keyframes cfsfall { 0% { translate: 0 -8px; } 100% { translate: var(--sx) 206px; } }
+@keyframes cfsglow { 0% { translate: 0 0; opacity: .2; } 100% { translate: var(--sx) -14px; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cfseason { display: none; } }
 /* 2.1.06 room life. Window bird (cf-bird-1..3, 12 x 10 drawn at 2x = 24 x 20 on the perch, room-layout.json "bird" x -2, y 44: the perched frame covers the robin of cf-room-window.png exactly).
    catfish.js adds .is-bird on the stage (JS on, motion allowed) which hides the window overlay (its only pixels are the robin) and shows the sprite; class f1/f2/f3 picks the frame. */
 .cfbird { display: none; position: absolute; left: -2px; top: 44px; width: 24px; height: 20px; pointer-events: none; }
@@ -327,3 +345,6 @@
 .cfballs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 .5rem; }
 .cfballbtn[aria-pressed="true"] { outline: 2px solid var(--accent, #e8a317); }
 .cfshelftitle { margin: .5rem 0 0; }
+.cfgroup { margin: .5rem 0; }
+.cfgroup > summary { padding: .35rem .2rem; }
+.cfgroup > .cfup, .cfgroup > .cfballs { margin-top: .5rem; }
