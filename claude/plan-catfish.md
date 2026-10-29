@@ -23,6 +23,7 @@ Fish (+fish x3, silk tail, catnip stuffing), Rod (longer string, spring, motor, 
 ## Tables
 `cats` (id, user_id, seed, name, adopted_at), `catfish_state` (user_id, kibble, yarn, upgrades JSON, active_cat_id, last_tick, naps), `cat_book` (user_id, pattern, colour). Created lazily by `catfish_ensure()` (same pattern as `puzzles_ensure()`).
 
+## Art: see `claude/catfish-art-brief.md` (the art todo, about 80 sprites). Original estimate below.
 ## Art (~63 sprites, layered and tinted in code)
 Grayscale body 8 frames, pattern overlays 6 x 4 key frames, eyes 2, ear/tail variants 4, fish / rod / room / UI ~15, badges and ribbons ~10. Week 1 uses CSS and emoji placeholders.
 

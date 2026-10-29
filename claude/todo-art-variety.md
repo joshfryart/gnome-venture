@@ -1,5 +1,7 @@
 # Art wanted for the variety project (2.0.76 on)
 
+> Cat Fish (2.0.92) has its own art todo: `claude/catfish-art-brief.md`.
+
 Rule: every placeholder is a white square with a red border and the words THIS IS PLACEHOLDER (`tools/gen_placeholder_art.py`). To finish one: draw the real art, save it over the same file name and size, tick the box. Placeholders must never ship as final.
 
 ## FIRST PASS DRAWN, merged to main in 2.0.80, APPROVED by Joshua 2026-10-28 ("love the art")

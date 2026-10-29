@@ -1,5 +1,7 @@
 # Act scenes: one picture per stop activity (checklist)
 
+> Cat Fish (2.0.92) has its own art todo: `claude/catfish-art-brief.md`.
+
 **810 of 810 drawn.** Animated popover strips (`act-<slug>-anim.png`) exist for all of them since 2.0.84 (15 hand-made, 814 from `aseprite-source/anim/scripts/bulk.py`); redrawing a still means re-running the generator for that slug.
 Generated from the three activity data files; tick = `game/assets/img/acts/act-<slug>.png` exists in the repo (first pass drawn, not approved by Joshua). Brief for each = its blurb: `python3 tools/missing_act_art.py` (or open the data row). Scene rules and how-to: `claude/todo-art-variety.md` section "ART TODO FOR A FUTURE AI". `tt_*` upgrade acts are skipped.
 The wave + regional data comes with release 2.0.78 (branch `ccr-7e2dadf5-mxypd7`, 2e7c5e67, not on main when this list was made). Regenerate this list after merging.
