@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.03
+- **Cat Fish: the fishing lines now reach their fish; the string length follows each fish picture.** Every fish PNG has transparent rows above its body, so the strings stopped short of the fish. Each drop now carries its fish kind (`cfk-N`, from `catfish_fish_kinds`) and `catfish.css` adds `--cfn` per kind (8, 7, 4, 11, 11 px: the first opaque row in the string columns) to the string height. `room-layout.json` nose of fish 2 corrected to 7. Test: `tests/catfish.sh` recomputes `--cfn` from the PNGs.
+
 ## 2.1.02
 - **Cat Fish room is one play scene** (`catfish_stage_html`): a centred 320 x 200 stage holds the room (base and owned overlays), the toy rod hung from the ceiling hook, a line to three swaying fish, your cat in the centre play zone and up to three other cats at the side spots (nap, idle, bored). Coordinates come from `aseprite-source/catfish/room-layout.json`; positions are CSS classes (`.cfpos-x128-y120`, `.cfsdrop.sd1`), no inline style. Without `cf-room.png` the old rod box, cat card and room stay as before.
 - **Animated active cat** (`assets/catfish.js`, decorative only): all 8 frame groups are in the page and one class (`fr-<frame>`, mirrored in `data-frame`) shows one. idleA/idleB blink, every 6-9 s a play loop (wiggle, stalk, pounce, catch), sometimes bored, nap after a Nap. `prefers-reduced-motion`: idleA only, no sway. The Kibble tick and sync are unchanged.

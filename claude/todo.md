@@ -1,4 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.02 (Cat Fish play scene; main 2.1.01 merged))
+# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.03 (Cat Fish line fix; main 2.1.01 merged))
+
+## NOW (2.1.03, 2026-10-29): hotfix, Cat Fish fishing lines now reach the fish (`cfk-N` + `--cfn` per fish kind). If a fish PNG changes, update `--cfn` (test fails otherwise). Slim zip in `releases/`.
 
 ## NOW (2.1.02, 2026-10-29): Cat Fish room is one play scene. Built on branch claude/cat-fish-game-art-2c5q76 (main 2.1.01 merged), slim zip in `releases/`.
 - **In it:** `catfish_stage_html` (centred 320x200 stage: room, wand on the ceiling hook, 3 swaying fish, active cat with 8 frame groups, up to 3 side cats), `assets/catfish.js` frame state machine (decorative, reduced-motion aware), centred layout, idleB/wiggle/bored now have patterns/ears/tails (614 PNGs). Coordinates: `aseprite-source/catfish/room-layout.json` (test checks CSS/PHP against it).
