@@ -154,7 +154,7 @@ do
   local function blade(bx, tx, ty, bend, w)
     local my = (22 + ty) / 2
     local mx = (bx + tx) / 2 + bend
-    return c:poly({ { bx - w, 22 }, { mx - w * 0.7, my }, { tx, ty }, { tx + 1, ty }, { mx + w * 0.7 + 1, my }, { bx + w + 1, 22 } })
+    return c:poly({ { bx - w, 21 }, { mx - w * 0.7, my }, { tx, ty }, { tx + 1, ty }, { mx + w * 0.7 + 1, my }, { bx + w + 1, 21 } })
   end
   local BL = {
     -- bx, tx, ty, bend, back?
@@ -164,6 +164,7 @@ do
   }
   -- every blade is its own felt part (back to front: olive blades, then straw blades from the sides in),
   -- so each keeps its rim, crescent and an umber contour against its neighbour
+  local SAGE = felt("#a4ac4a", { gloss = "#e6e6a0", rim = "#c8c870", shade = "#6e7a30" })
   local STRAW2 = felt("#e6b850", { gloss = "#fff1c8", rim = "#f8dc84", shade = "#b8822e" })
   local list, order = {}, {}
   for _, b in ipairs(BL) do if b[5] then order[#order + 1] = b end end
@@ -172,18 +173,22 @@ do
   table.sort(fr, function(p, q) return math.abs(p[1] - 18.5) > math.abs(q[1] - 18.5) end)
   for _, b in ipairs(fr) do order[#order + 1] = b end
   for i, b in ipairs(order) do
-    local ramp = b[5] and OLIVE or ((i % 2 == 0) and STRAW or STRAW2)
+    local ramp = b[5] and OLIVE or ((i % 3 == 0) and SAGE or ((i % 2 == 0) and STRAW or STRAW2))
     list[#list + 1] = { "b" .. i, blade(b[1], b[2], b[3], b[4], 1.6), ramp, { cres = 1, gloss = false, bounce = false, contact = false } }
   end
-  local basket = c:ellipse(18.5, 22.5, 15.5, 3)
+  -- low coiled sisal basket: a rim ellipse over a short tapered bowl
+  local basket = c:ellipse(18.5, 19.5, 14.5, 2):add(c:poly({ { 4, 19 }, { 34, 19 }, { 31, 26 }, { 7, 26 } })):closed(1)
   list[#list + 1] = { "basket", basket, SISAL, { cres = 2, gloss = { 6, 21 } } }
   c:build(list)
   -- coiled sisal groove under the bead band
   basket:each(function(x, y)
     local k = c:key(x, y)
-    if y == 24 and not c.gl.s[k] and not c.shd[k] then c:px(x, y, SISAL.shade) end
+    if (y == 20 or y == 24) and not c.gl.s[k] then c:px(x, y, c.shd[k] and "#9a7440" or SISAL.shade) end
   end)
-  beadrow(c, hrow(4, 33, 22), 1)
+  local x0, _, x1 = basket:bbox()
+  local row = {}
+  for x = x0 + 1, x1 - 1 do if basket:has(x - 1, 22) and basket:has(x + 1, 22) then row[#row + 1] = { x, 22 } end end
+  beadrow(c, row, 1)
   save(c, "grass_tuft")
 end
 

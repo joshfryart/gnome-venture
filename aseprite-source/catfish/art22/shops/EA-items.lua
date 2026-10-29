@@ -26,7 +26,7 @@ local RED   = felt("#dd3a2a", { gloss = "#ff9158", dot = "#ffc27a", rim = "#f279
 local PAPER = felt("#f1e2bc", { shade = "#d8b884", rim = "#fff3c8", gloss = "#fff3c8", dot = "#ffffff", pale = true })
 local PINK  = felt("#f08fb4", { gloss = "#ffd6e2", rim = "#f6b8cf", shade = "#c85a8c" })
 local JADE  = felt("#5fae8a", { gloss = "#c8ecc0", rim = "#9ad2a6", shade = "#3c7f6e" })
-local LEAF  = felt("#4f9a45", { gloss = "#c8d77a", rim = "#a4b86a", shade = "#2f6a3a" })
+local LEAF  = felt("#7ab55c", { gloss = "#c8d77a", rim = "#a4b86a", shade = "#4a8a3e" })   -- moss: lifts off the green window frame
 local INDIGO= felt("#3e4f8f", { gloss = "#a8b8ec", rim = "#6f82c4", shade = "#2a3266" })
 local LAC   = felt("#5e2f1e", { gloss = "#d9a660", rim = "#8a4f2a", shade = "#3d2016" })   -- dark lacquered wood
 local GOLD  = felt("#e8a317", { gloss = "#fff1c8", rim = "#f5cf6a", shade = "#b8661a" })
@@ -125,7 +125,7 @@ do
   lantern(7.5, cy(7) + 4, 4, 5, RED)
   lantern(40.5, cy(40) + 4, 4, 5, RED)
   lantern(24, cy(24) + 4, 6, 7, PAPER, function(x, y)
-    c:paint({ ".p.p.", "ppppp", ".pyp.", "ppppp", ".p.p." }, x - 2, y - 2, { p = PINK.base, y = GOLD.base })
+    c:paint({ ".p.p.", "ppppp", ".pyp.", "ppppp", ".p.p." }, x - 2, y - 2, { p = "#e46a9b", y = GOLD.base })
   end)
   c:finish()
   for _, x in ipairs({ 7, 8, 40, 41, 24 }) do for y = cy(x) + 1, cy(x) + 3 do c:px(x, y, C.ol3) end end
@@ -172,8 +172,8 @@ do
     "................",
     "....WcqrrR..qR..",
     "..gWceeqrrRsrR..",
-    "..GWceecccccgR..",
-    "..GWccccqrRcrR..",
+    "..GWceecccccgq..",
+    "..GWccccqrRcr...",
     "..hWcccqrRRsqR..",
     "....sssssss.qR..",
     "......qR........",

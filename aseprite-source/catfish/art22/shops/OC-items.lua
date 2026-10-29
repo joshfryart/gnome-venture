@@ -93,13 +93,16 @@ do
   c:paint({ ".w", "w.", "w.", ".w", ".w", "w." }, 5, 13, { w = SEAW.base })
   c:paint({ "w", "w", "w" }, 7, 16, { w = SEAW.shade })
   -- starfish on the sand
-  c:paint({ ".o.", "ooo", "o.o" }, 11, 16, { o = "#f08a24" })
-  c:px(12, 16, "#ffc27a")
+  c:paint({ "..o..", "ooooo", ".ooo.", ".o.o." }, 10, 15, { o = "#f08a24" })
+  c:px(12, 15, "#ffc27a"); c:px(12, 17, "#e0501f")
+  -- two air bubbles
+  c:px(12, 12, glass.gloss); c:px(14, 13, glass.gloss)
   -- glass gloss stripe, upper left
   c:paint({ "g", "g", "g", ".", "g" }, 3, 9, { g = glass.gloss })
   -- twine round the neck + bow ends
-  for x = 4, 14 do c:px(x, 6, (x % 3 == 0) and CORAL.shade or CORAL.rim) end
-  c:seam({ { 4, 4 }, { 14, 4 } }, { gap = CORAL.base })
+  for x = 5, 13 do c:px(x, 7, (x % 2 == 0) and DRIFT.rim or DRIFT.shade) end   -- twisted twine at the neck
+  c:paint({ "aa", "ab", ".b" }, 14, 7, { a = DRIFT.rim, b = DRIFT.shade })          -- knot and loose end
+  c:seam({ { 4, 5 }, { 14, 5 } }, { gap = CORAL.base })                             -- hem of the felt cap
   save(c, "tide_pool_jar")
 end
 
@@ -157,16 +160,17 @@ do
   local c = GV.canvas{ w = 48, h = 34, mode = "sticker", ol = 1, olx = 1, margin = 0 }
   local T = {}
   local bar = c:rrect(4, 5, 43, 7, 1)
-  local STAR7 = { "...x...", "..xxx..", "xxxxxxx", ".xxxxx.", "..xxx..", ".xx.xx.", "xx...xx" }
-  local STAR5 = { "..x..", ".xxx.", "xxxxx", ".x.x.", "x...x" }
+  local STAR9 = { "....x....", "...xxx...", "...xxx...", "xxxxxxxxx", ".xxxxxxx.", "..xxxxx..", "..xxxxx..",
+                  ".xxx.xxx.", ".xx...xx." }
+  local STAR7 = { "...x...", "..xxx..", "xxxxxxx", ".xxxxx.", "..xxx..", ".xx.xx.", ".x...x." }
   -- crux: Gacrux top, Acrux bottom, Mimosa left, Delta right, Epsilon small, lower right of centre
   -- {name, x, y, shape, thread x, thread top y}; Acrux hangs on a thread from under Gacrux (a chained mobile)
   local stars = {
-    { "gac", 20, 11, STAR7, 23, 8 },
-    { "mim", 5,  17, STAR7, 8, 8 },
-    { "del", 35, 14, STAR7, 38, 8 },
-    { "eps", 29, 22, STAR5, 31, 8 },
-    { "acr", 20, 26, STAR7, 23, 16 },
+    { "gac", 19, 10, STAR9, 23, 8 },
+    { "mim", 3,  15, STAR9, 7, 8 },
+    { "del", 36, 13, STAR9, 40, 8 },
+    { "eps", 29, 22, STAR7, 32, 8 },
+    { "acr", 19, 24, STAR9, 23, 17 },
   }
   local parts = { { "bar", bar, DRIFT, { cres = 1, gloss = false } } }
   for _, s in ipairs(stars) do
@@ -184,7 +188,10 @@ do
     if s[3] - s[6] >= 5 then c:px(tx, by, TEAL.rim); c:px(tx, by + 1, TEAL.shade) end
   end
   -- star glints
-  for _, s in ipairs(stars) do c:px(s[2] + (#s[4][1] == 7 and 2 or 1), s[3] + 2, STAR.gloss) end
+  for _, s in ipairs(stars) do
+    if #s[4][1] == 9 then c:px(s[2] + 3, s[3] + 3, STAR.gloss); c:px(s[2] + 4, s[3] + 2, STAR.gloss); c:px(s[2] + 2, s[3] + 4, STAR.gloss)
+    else c:px(s[2] + 2, s[3] + 2, STAR.gloss) end
+  end
   save(c, "southern_cross_mobile", T)
 end
 

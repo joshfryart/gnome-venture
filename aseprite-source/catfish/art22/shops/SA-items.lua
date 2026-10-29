@@ -111,12 +111,11 @@ do
   local SNOUT = felt("#6e4030", { rim = "#8a5636" })
   local body = c:ellipse(16, 17, 13, 8):cut(c:rect(0, 24, 37, 27))
   local head = c:rrect(21, 7, 34, 20, 4)
-  local ear = c:ellipse(25, 6, 1.5, 1.5)
+  local ear = c:rrect(22, 4, 25, 8, 1)
   local snout = c:rrect(31, 11, 34, 17, 1)
   local pawF = c:rrect(26, 20, 30, 23, 1)
   local pawB = c:rrect(4, 20, 8, 23, 1)
   local blanket = c:poly({ { 7, 9 }, { 19, 9 }, { 21, 20 }, { 6, 20 } }):clip(c:ellipse(16, 17, 14, 9.5))
-  local leafM = c:poly({ { 26, 3 }, { 31, 1 }, { 30, 5 } }):grow(0)
   local p = c:build{
     { "ear", ear, CAPY, { flat = true } },
     { "body", body, CAPY, { cres = 3, deep = 0, gloss = false } },
@@ -125,7 +124,7 @@ do
     { "snout", snout, SNOUT, { flat = true } },
     { "pawF", pawF, SNOUT, { flat = true } },
     { "blanket", blanket, WEAVE, { cres = 2, deep = 0, gloss = false } },
-    { "leaf", c:line({ { 26, 4 }, { 30, 2 } }, 2), LEAF, { flat = true } },
+    { "leaf", c:line({ { 28, 5 }, { 32, 3 } }, 2):add(c:rect(31, 2, 32, 2)), LEAF, { flat = true } },
   }
   -- woven stripes across the blanket (vertical bands as it drapes), lit top row kept red
   local inner = blanket:copy():shrink(1)
@@ -135,6 +134,7 @@ do
   end)
   for x = 7, 20, 2 do c:px(x, 21, GOLD) end                                -- fringe
   c:eye(28, 10, true)
+  c:px(23, 6, CAPY.shade)                                                  -- inner ear
   c:px(33, 12, GV.C.ol3)                                                   -- nostril
   c:paint({ "u", "u" }, 32, 15, { u = "ol2" })                             -- mouth
   c:seam({ { 21, 11 }, { 21, 18 } }, { gap = CAPY.shade })                  -- head seam
@@ -258,6 +258,8 @@ do
     local bottom = 30 - math.floor(i * 1.8 + 0.5)
     c:paint({ "ss" }, x + 1, bottom - 2, { s = CANE.shade })            -- bamboo node ring near the end
   end
+  for y = 13, 18 do c:px(10, y, CANE.gloss) end                             -- enamel gloss on the long tube
+  c:px(10, 19, "#fff8e0")
   -- woven zigzag on the band
   for x = 7, 41 do
     local y = 9 + ((x % 4 < 2) and 0 or -1)

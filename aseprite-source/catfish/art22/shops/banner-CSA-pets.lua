@@ -83,52 +83,37 @@ local function bunting(x0, y0, x1, y1, sag, phase)
     k = k + 1
   end
 end
-bunting(2, 14, 92, 9, 6, 0)
-bunting(148, 9, 238, 14, 6, 2)
+bunting(0, 21, 97, 9, 5, 0)
+bunting(143, 9, 239, 21, 5, 2)
 
----------------------------------------------------------------- left houses (midground)
--- house A: cream wall, flat wood roof, stall awning and spice heaps
-part(c:rect(2, 22, 36, 50), CREAM, { gloss = false })
-part(c:rrect(0, 19, 38, 22, 1), WOOD, { gloss = false })
-part(c:rect(8, 26, 14, 31), TEAL, { flat = true })
-part(c:rect(24, 26, 30, 31), TEAL, { flat = true })
-local awnA = c:poly({ { 0, 34 }, { 39, 34 }, { 41, 39 }, { -2, 39 } })
-part(awnA, RED, { gloss = false })
-awnA:each(function(x, y) if (x // 4) % 2 == 1 and y < 38 then c:px(x, y, "#f1ece0") end end)
-part(c:rect(2, 44, 36, 50), WOOD, { gloss = false })
-for i, col in ipairs({ RED, GOLD, ORNG, GOLD }) do
-  local x = 4 + (i - 1) * 8
-  part(c:poly({ { x, 44 }, { x + 3, 40 }, { x + 4, 40 }, { x + 7, 44 } }), col, { flat = true })
+---------------------------------------------------------------- neighbour houses (midground, kept low and calm)
+local function stallHouse(x0, x1, awnR, stripe, heaps)
+  part(c:rect(x0 + 2, 28, x1 - 2, 50), CREAM, { gloss = false })
+  part(c:rrect(x0, 25, x1, 28, 1), WOOD, { gloss = false })
+  part(c:rect(x0 + 8, 31, x0 + 14, 34), TEAL, { flat = true })
+  part(c:rect(x1 - 14, 31, x1 - 8, 34), TEAL, { flat = true })
+  local awn = c:poly({ { x0, 37 }, { x1 + 1, 37 }, { x1 + 3, 42 }, { x0 - 2, 42 } })
+  part(awn, awnR, { gloss = false })
+  awn:each(function(x, y) if (x // 4) % 2 == stripe and y < 41 then c:px(x, y, "#f1ece0") end end)
+  part(c:rect(x0 + 2, 45, x1 - 2, 50), WOOD, { gloss = false })
+  for i, col in ipairs(heaps) do
+    local x = x0 + 4 + (i - 1) * 8
+    part(c:poly({ { x, 45 }, { x + 3, 42 }, { x + 4, 42 }, { x + 7, 45 } }), col, { flat = true })
+  end
 end
--- house B: taller, sloped wood roof, carved balcony
-part(c:rect(42, 20, 72, 50), CREAM, { gloss = false })
-part(c:poly({ { 38, 21 }, { 76, 21 }, { 68, 13 }, { 46, 13 } }), WOOD, { gloss = false })
-part(c:rect(48, 25, 54, 31), TEAL, { flat = true })
-part(c:rect(60, 25, 66, 31), TEAL, { flat = true })
-part(c:rrect(44, 33, 70, 36, 0), DWOOD, { flat = true })
-for x = 46, 68, 3 do c:px(x, 34, "#d9a660") end
-part(c:rect(51, 39, 63, 50), TEAL, { gloss = false })   -- door
-
----------------------------------------------------------------- right houses (midground)
-part(c:rect(168, 20, 200, 50), CREAM, { gloss = false })
-part(c:poly({ { 164, 21 }, { 204, 21 }, { 196, 13 }, { 172, 13 } }), WOOD, { gloss = false })
-part(c:rect(174, 25, 180, 31), TEAL, { flat = true })
-part(c:rect(188, 25, 194, 31), TEAL, { flat = true })
-part(c:rrect(170, 33, 198, 36, 0), DWOOD, { flat = true })
-for x = 172, 196, 3 do c:px(x, 34, "#d9a660") end
-part(c:rect(177, 39, 189, 50), TEAL, { gloss = false })
-part(c:rect(204, 23, 238, 50), CREAM, { gloss = false })
-part(c:rrect(202, 20, 240, 23, 1), WOOD, { gloss = false })
-part(c:rect(210, 27, 216, 32), TEAL, { flat = true })
-part(c:rect(226, 27, 232, 32), TEAL, { flat = true })
-local awnD = c:poly({ { 201, 35 }, { 240, 35 }, { 242, 40 }, { 199, 40 } })
-part(awnD, GOLD, { gloss = false })
-awnD:each(function(x, y) if (x // 4) % 2 == 0 and y < 39 then c:px(x, y, "#f1ece0") end end)
-part(c:rect(204, 44, 238, 50), WOOD, { gloss = false })
-for i, col in ipairs({ ORNG, RED, GOLD, RED }) do
-  local x = 206 + (i - 1) * 8
-  part(c:poly({ { x, 44 }, { x + 3, 40 }, { x + 4, 40 }, { x + 7, 44 } }), col, { flat = true })
+local function balconyHouse(x0, x1)
+  part(c:rect(x0 + 4, 27, x1 - 4, 50), CREAM, { gloss = false })
+  part(c:poly({ { x0, 28 }, { x1, 28 }, { x1 - 8, 21 }, { x0 + 8, 21 } }), WOOD, { gloss = false })
+  part(c:rect(x0 + 10, 31, x0 + 16, 35), TEAL, { flat = true })
+  part(c:rect(x1 - 16, 31, x1 - 10, 35), TEAL, { flat = true })
+  part(c:rect(x0 + 6, 37, x1 - 6, 39), DWOOD, { flat = true })
+  for x = x0 + 8, x1 - 8, 3 do c:px(x, 38, "#d9a660") end
+  part(c:rect(x0 + 13, 41, x1 - 13, 50), DWOOD, { gloss = false })
 end
+stallHouse(0, 38, RED, 1, { RED, GOLD, ORNG, GOLD })
+balconyHouse(38, 76)
+balconyHouse(164, 202)
+stallHouse(202, 240, GOLD, 0, { ORNG, RED, GOLD, RED })
 
 ---------------------------------------------------------------- the pet shop (focal)
 -- upper roof with cat-ear ridge ends

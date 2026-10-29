@@ -21,7 +21,7 @@ local UMB = "#2a1a10"
 -- shapes -----------------------------------------------------------------------------------------------------------
 local disc = c:ellipse(40, 50, 36)
 -- cocked wren tail behind the right shoulder
-local tail = c:poly({ { 55, 48 }, { 61, 26 }, { 66, 20 }, { 74, 20 }, { 76, 26 }, { 71, 42 }, { 63, 56 } })
+local tail = c:line({ { 58, 50 }, { 63, 23 } }, 4):add(c:line({ { 60, 50 }, { 69, 23 } }, 4)):add(c:line({ { 62, 52 }, { 74, 29 } }, 4))
 -- body (brown feathers) and cream shawl over the shoulders
 local body = c:ellipse(39.5, 99, 33, 22):clip(c:rect(0, 76, 79, 99))
 local shawl = c:ellipse(39.5, 101, 34, 23):clip(c:rect(0, 78, 79, 99))
@@ -36,10 +36,10 @@ scarf:cut(face)
 local knot = c:ellipse(40, 77, 4, 3)
 local tails = c:poly({ { 37, 78 }, { 31, 90 }, { 36, 91 }, { 40, 80 } }):add(c:poly({ { 41, 79 }, { 44, 92 }, { 49, 90 }, { 43, 78 } }))
 -- felt fish toy held up in her right wing (viewer's right)
-local fish = c:ellipse(55, 80, 10, 6)
-local ftail = c:poly({ { 62, 80 }, { 73, 72 }, { 71, 80 }, { 73, 89 } })
-local fin = c:poly({ { 50, 74 }, { 56, 70 }, { 59, 75 } })
-local wing = c:poly({ { 44, 92 }, { 50, 84 }, { 60, 83 }, { 64, 87 }, { 58, 92 } })
+local fish = c:ellipse(59, 80, 9, 6)
+local ftail = c:poly({ { 65, 80 }, { 75, 72 }, { 73, 80 }, { 75, 89 } })
+local fin = c:poly({ { 54, 74 }, { 60, 70 }, { 63, 75 } })
+local wing = c:poly({ { 49, 93 }, { 54, 85 }, { 64, 84 }, { 68, 88 }, { 62, 93 } })
 
 local p = c:build{
   { "disc", disc, GV.ramp("#8fcbd8", { shade = "#6fa8c4", deep = "#5a86b8", bounce = "#6fa8c4", rim = "#c8ecdc", gloss = "#c8ecdc" }), { solid = false, gloss = false } },
@@ -53,23 +53,23 @@ local p = c:build{
   { "knot", knot, scarfR, { gloss = false } },
   { "ftail", ftail, fishB, { gloss = false } },
   { "fin", fin, fishB, { flat = true } },
-  { "fish", fish, fishB, { gloss = { 49, 77 }, stitch = { side = "lit" } } },
+  { "fish", fish, fishB, { gloss = { 54, 77 }, stitch = { side = "lit" } } },
   { "wing", wing, dkbrown, { gloss = false } },
 }
 
 -- wren tail barring: short dark bars across the tail
 for i = 0, 4 do
   local y = 24 + i * 5
-  for x = 56, 78 do
+  for x = 54, 78 do
     if p.tail.m:has(x, y) and p.tail.m:has(x - 1, y) and p.tail.m:has(x + 1, y) and not p.head.m:has(x, y) and not p.scarf.m:has(x, y) then c:px(x, y, dkbrown.shade) end
   end
 end
 -- fish toy details: cream eye with umber pupil, gold seam where the tail is sewn on, red felt mouth
-c:fill(c:rect(47, 78, 49, 80), "#f2e4c0"); c:fill(c:rect(48, 79, 49, 80), UMB)
-c:seam({ { 62, 76 }, { 62, 85 } }, { on = 2, off = 1 })
-c:px(45, 81, "#dd3a2a"); c:px(45, 82, "#dd3a2a")
+c:fill(c:rect(52, 78, 54, 80), "#f2e4c0"); c:fill(c:rect(53, 79, 54, 80), UMB)
+c:seam({ { 66, 76 }, { 66, 85 } }, { on = 2, off = 1 })
+c:px(50, 81, "#dd3a2a"); c:px(50, 82, "#dd3a2a")
 -- wing-tip feather notches
-c:px(52, 88, dkbrown.deep); c:px(55, 88, dkbrown.deep); c:px(58, 88, dkbrown.deep)
+c:px(56, 89, dkbrown.deep); c:px(59, 89, dkbrown.deep); c:px(62, 89, dkbrown.deep)
 -- headscarf: cream five-dot flowers with a gold heart, and a gold hem stitch round the face opening
 local flowers = { { 22, 32 }, { 33, 25 }, { 47, 25 }, { 58, 33 }, { 40, 30 }, { 19, 45 }, { 61, 46 }, { 22, 62 }, { 58, 62 }, { 28, 38 }, { 52, 38 } }
 for _, f in ipairs(flowers) do
@@ -92,13 +92,15 @@ for i = 0, 5 do
   local xr = math.floor(49 + 14 * t + 0.5) + 3; local yr = yl
   for _, q in ipairs({ { xl, yl }, { xr, yr } }) do
     local x, y = q[1], q[2]
-    if p.shawl.m:has(x, y) then
+    local free = true
+    for _, n in ipairs({ "fish", "ftail", "wing", "tails" }) do for _, d in ipairs({ {0,0},{1,0},{-1,0},{0,1},{0,-1},{2,0},{-2,0},{0,2},{0,-2} }) do if p[n].m:has(x + d[1], y + d[2]) then free = false end end end
+    if free and p.shawl.m:has(x, y) then
       c:px(x, y - 1, "#dd3a2a"); c:px(x - 1, y, "#dd3a2a"); c:px(x + 1, y, "#dd3a2a"); c:px(x, y + 1, "#dd3a2a"); c:px(x, y, "#f5cf6a")
     end
   end
 end
 c:seam({ { 9, 92 }, { 20, 85 }, { 31, 81 } }, {})
-c:seam({ { 49, 81 }, { 60, 85 }, { 71, 92 } }, {})
+c:seam({ { 64, 94 }, { 71, 92 } }, {})
 c:button(38, 93)
 
 -- face: eyes, round gold spectacles, wren beak, smile

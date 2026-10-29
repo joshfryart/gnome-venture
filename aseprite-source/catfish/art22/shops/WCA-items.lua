@@ -87,13 +87,13 @@ do
     { "rimL", rimL, KR, { cres = 2, gloss = false } },
     { "head", head, felt("#efd9a6", { gloss = "#fff3c8", rim = "#fff3c8", dot = "#fff1c8" }), { cres = 2, gloss = { 4, 6 } } },
     { "sash", sash, KG, { cres = 2, gloss = false } },
-    { "stick", stick, felt("#d9a660", { rim = "#ecc58a" }), { flat = true } },
+    { "stick", stick, felt("#efd9a6", { rim = "#fff3c8" }), { flat = true } },
   }
   -- tension cords: 4 lengthwise cords following the hourglass, between the rims (tan on lit, wood in shade)
   for _, t in ipairs({ -0.8, -0.35, 0.35, 0.8 }) do
     for x = 9, 29 do
       local y = math.floor(CY + t * hh(x) + 0.5)
-      if onPart(c, p.body, x, y) then c:px(x, y, shaded(c, x, y) and "#b07a45" or "#d9a660") end
+      if onPart(c, p.body, x, y) then c:px(x, y, shaded(c, x, y) and "#5e2f1e" or "#b07a45") end
     end
   end
   -- kente sash: green and red block rows across the gold
@@ -206,25 +206,25 @@ do
 end
 
 -- ========== 4. Weaver-bird Nest (sill, 30x26) ==========
+-- A carved perch stand (foot + post + arm) with the woven nest hanging from the arm and the yellow weaver
+-- clinging to its side by the nest, the way weavers hang on their nests.
 do
   local c = GV.canvas{ w = 30, h = 26, mode = "sticker", margin = 0 }
   local GRASS = felt("#8fae4a", { gloss = "#e0e8a0", rim = "#c8d77a" })
   local BIRD = felt("#f2c418", { gloss = "#fff1c8", rim = "#ffe27a" })
-  local log = c:rrect(3, 19, 16, 21, 1)
-  local branch = c:line({ { 6, 19 }, { 7, 15 }, { 10, 11 }, { 16, 9 }, { 26, 8 } }, 2)
-  local leaf = c:ellipse(25.5, 5.5, 2, 1.5)
-  local nest = c:ellipse(21.5, 14, 4.5, 5.5):add(c:rrect(19, 17, 22, 21, 1))
-  local tail = c:poly({ { 4, 5 }, { 8, 5 }, { 8, 8 }, { 5, 9 } })
-  local body = c:ellipse(11, 6.5, 3.5, 2.5)
-  local head = c:ellipse(14.5, 4.5, 2, 2)
+  local foot = c:rrect(2, 19, 11, 21, 1)
+  local post = c:rect(5, 6, 6, 18):add(c:line({ { 5, 6 }, { 17, 5 } }, 2))
+  local nest = c:ellipse(13.5, 12.5, 5, 5):add(c:rrect(12, 15, 15, 21, 1))
+  local tail = c:poly({ { 21, 15 }, { 25, 15 }, { 24, 20 }, { 22, 20 } })
+  local body = c:ellipse(22.5, 12, 3, 3.5)
+  local head = c:ellipse(21.5, 7.5, 2.5, 2.5)
   local p = c:build{
-    { "log", log, MAH, { cres = 2, gloss = false } },
-    { "branch", branch, MAH, { flat = true } },
-    { "leaf", leaf, KN, { flat = true } },
-    { "nest", nest, GRASS, { cres = 3, gloss = { 19, 10 } } },
+    { "foot", foot, MAH, { cres = 2, gloss = false } },
+    { "post", post, MAH, { flat = true } },
+    { "nest", nest, GRASS, { cres = 3, gloss = { 11, 9 } } },
     { "tail", tail, felt("#8a7a2a"), { flat = true } },
-    { "body", body, BIRD, { cres = 2, gloss = { 10, 5 } } },
-    { "head", head, BIRD, { flat = true, contour = false } },
+    { "body", body, BIRD, { cres = 2, gloss = { 21, 10 } } },
+    { "head", head, BIRD, { flat = true } },
   }
   -- woven grass: short over-under strands, a few straw-gold strands woven in
   p.nest.m:each(function(x, y)
@@ -234,18 +234,18 @@ do
       elseif (x + y) % 7 == 0 and not shaded(c, x, y) then c:px(x, y, "#d9c46a") end
     end
   end)
-  c:px(20, 21, DK); c:px(21, 21, DK); c:px(20, 20, DK)                -- entrance at the tube's foot
-  c:px(19, 9, GRASS.rim); c:px(24, 9, GRASS.rim)                      -- grass ends at the hanging knot
-  -- weaver face: dark mask on the face (facing the nest), red eye in it, pale beak
-  c:paint({ ".mm", "mmm", "mm." }, 14, 4, { m = DK })
-  c:px(15, 4, "#e0501f")
-  c:px(17, 5, "#c9a96e"); c:px(17, 6, "#c9a96e")
-  c:paint({ "s.s" }, 10, 8, { s = BIRD.shade })                       -- wing feathering
-  c:px(10, 9, DK); c:px(12, 9, DK)                                     -- feet on the branch
-  -- carved zigzag on the log
-  for x = 4, 15 do
+  c:px(13, 21, DK); c:px(14, 21, DK); c:px(13, 20, DK)                -- entrance at the tube's foot
+  c:px(11, 7, GRASS.rim); c:px(16, 7, GRASS.rim)                      -- grass ends at the hanging knot
+  -- weaver face (looking at the nest): dark mask, red eye in it, pale beak; wing bars; foot on the nest
+  c:paint({ "mm..", "mmm.", ".mm." }, 19, 6, { m = DK })
+  c:px(20, 7, "#e0501f")
+  c:px(18, 8, "#c9a96e"); c:px(18, 9, "#c9a96e")
+  c:paint({ "s..", ".s.", "s.." }, 23, 11, { s = BIRD.shade })
+  c:px(19, 14, DK); c:px(19, 15, DK)
+  -- carved zigzag on the foot
+  for x = 3, 10 do
     local y = 20 + (x % 2)
-    if onPart(c, p.log, x, y) then c:px(x, y, MAH.rim) end
+    if onPart(c, p.foot, x, y) then c:px(x, y, MAH.rim) end
   end
   save(c, "weaver_bird_nest")
 end
