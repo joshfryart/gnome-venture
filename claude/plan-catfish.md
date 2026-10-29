@@ -59,7 +59,9 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] Adopt posts the shelter cat's seed, so a stale form or a changed shelter cannot adopt the wrong cat
 - [x] Petal milestones (one-time, `give_petals`, weekly cap = setting `catfish_petal_cap`, default 100, 0 = off; milestones that do not fit wait for next week)
 - [x] Tests for week 3 (138 checks)
-- [ ] Opus mid-week review
+- [x] Opus mid-week review. Fixed: a milestone bigger than the cap could never pay (now capped), claim ran before shelter cats entered the Book, yesterday's-shelter fallback only in the first hour after the UTC reset, claim exits early once all 6 are paid, slots reuse loaded state, Rare label and Swap aria-labels. Not changed: seedless adopt posts still use the slot's current cat (the page always posts a seed).
+- Open decision for the owner: Rare Shelter 2 plus 3 swaps a day makes a legendary show on about 42% of days (4.4% with no upgrades). Cats cannot be deleted and only 4 fit, so left as is. Tighten by lowering CATFISH_REROLL_MAX if wanted.
+
 **Week 4:** Cat Show, garden bed cat, Pals bonus, final art, balance, CHANGELOG, Opus end review.
 
 ## Rules
