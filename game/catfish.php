@@ -18,6 +18,7 @@ if (is_post()) {
     $r = [false, 'Unknown action.'];
     if ($do === 'adopt') $r = catfish_adopt($uid, (int)($_POST['slot'] ?? -1), (string)($_POST['name'] ?? ''), '', (int)($_POST['seed'] ?? 0));
     elseif ($do === 'buy') $r = catfish_buy($uid, (string)($_POST['key'] ?? ''));
+    elseif ($do === 'show') $r = catfish_show_enter($uid, (int)($_POST['cat'] ?? 0));
     elseif ($do === 'reroll') $r = catfish_reroll($uid, (int)($_POST['slot'] ?? -1));
     elseif ($do === 'bigger') $r = catfish_buy_slot($uid);
     elseif ($do === 'rare') $r = catfish_buy_rare($uid);
@@ -27,6 +28,8 @@ if (is_post()) {
     flash($r[1], $r[0] ? 'ok' : 'err');
     redirect('catfish.php');
 }
+$newRibbon = catfish_show_settle($uid);   // a finished week's entry gets judged before anything is shown
+if ($newRibbon) { [$ri, $rl] = catfish_ribbon_face((string)$newRibbon['tier']); flash($ri . ' ' . $rl . ' for ' . $newRibbon['cat_name'] . ' (' . $newRibbon['theme'] . ')!', 'ok'); }
 $v = catfish_view($uid);
 $st = catfish_state($uid); $meta = $st['meta'];
 $cats = catfish_cats($uid);
@@ -63,7 +66,7 @@ page_header('Cat Fish');
 <?php foreach ($v['ups'] as $up): if ($up['branch'] !== $bk) continue; ?>
   <form method="post" class="cfup" data-key="<?= e($up['key']) ?>">
     <?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="key" value="<?= e($up['key']) ?>">
-    <span class="cficon" aria-hidden="true"><?= $up['icon'] ?></span>
+    <span class="cficon"><?= catfish_img('up-' . $up['key'], $up['icon'], '', 48) ?></span>
     <span class="cfinfo"><b><?= e($up['name']) ?></b> <small class="muted">×<?= (int)$up['owned'] ?></small><br><small class="cfgives"><?= e($up['gives']) ?><?= $up['mult'] > 1 ? ' · ×' . (int)$up['mult'] . ' bonus' : '' ?></small></span>
     <button class="btn" type="submit"<?= $up['can'] ? '' : ' disabled' ?> data-cost="<?= (int)$up['cost'] ?>">Buy · <?= number_format($up['cost']) ?></button>
   </form>
@@ -119,6 +122,22 @@ if ($capWk > 0): ?>
 </details>
 <?php endif; endif; ?>
 
+<?php if ($owned > 0): $week = catfish_show_week(); $theme = catfish_show_theme($week); $entry = $meta['show'] ?? null; $entered = is_array($entry) && ($entry['week'] ?? '') === $week ? $entry : null; $myRibbons = catfish_ribbons($uid, 6);
+$judged = (bool)q_val('SELECT 1 FROM cat_ribbons WHERE user_id = ? AND week = ?', [$uid, $week]); ?>
+<details class="fold box"><summary>🎀 Cat Show · <?= e($theme['label']) ?></summary>
+  <p class="help">A new show every week (Monday to Sunday). Enter one cat. Three judges look at it when the week ends; a cat that fits the theme and a rarer cat score higher. Kibble and Yarn do not count. Prizes are ribbons on your profile.</p>
+  <?php if ($judged): ?><p>This week is judged already. Come back on Monday.</p>
+  <?php else: ?>
+  <?php if ($entered): foreach ($cats as $c) if ($c['id'] === (int)$entered['cat']): ?><p>Entered: <b><?= e($c['name']) ?></b><?= ($c[$theme['trait']] ?? '') === $theme['value'] ? ' (fits the theme!)' : '' ?></p><?php endif; endif; ?>
+  <form method="post" class="cfshowform"><?= csrf_field() ?><input type="hidden" name="do" value="show">
+    <label for="cf-showcat">Cat</label>
+    <select id="cf-showcat" name="cat"><?php foreach ($cats as $c): ?><option value="<?= (int)$c['id'] ?>"<?= $entered && (int)$entered['cat'] === $c['id'] ? ' selected' : '' ?>><?= e($c['name']) ?> (<?= e($c['colour'] . ' ' . $c['pattern']) ?>)</option><?php endforeach; ?></select>
+    <button class="btn" type="submit"><?= $entered ? 'Swap entry' : 'Enter' ?></button></form>
+  <?php endif; ?>
+  <?php if ($myRibbons): ?><ul class="cfms"><?php foreach ($myRibbons as $rb): [$ri, $rl] = catfish_ribbon_face((string)$rb['tier']); ?><li><?= $ri ?> <?= e($rl) ?> · <?= e($rb['cat_name']) ?> <small class="muted">· <?= e($rb['theme']) ?> (<?= e($rb['week']) ?>)</small></li><?php endforeach; ?></ul><?php endif; ?>
+</details>
+<?php endif; ?>
+
 <?php if ($owned > 0): ?>
 <details class="fold box"><summary>🐾 Your cats (<?= $owned ?>)</summary>
 <?php foreach ($cats as $c): $on = $cat && $c['id'] === $cat['id']; ?>
@@ -142,7 +161,7 @@ if ($capWk > 0): ?>
     <?php endforeach; ?></div>
   <?php endforeach; ?>
   </div>
-<?php if ($bg = catfish_badges($uid)): ?><p class="cfbadgeline"><?php foreach ($bg as [$bi, $bl2]): ?><span class="cfbadge" title="<?= e($bl2) ?>"><?= $bi ?> <?= e($bl2) ?></span> <?php endforeach; ?></p><?php endif; ?>
+<?php if ($bg = catfish_badges($uid)): ?><p class="cfbadgeline"><?php foreach ($bg as $bk2 => [$bi, $bl2]): ?><span class="cfbadge" title="<?= e($bl2) ?>"><?= catfish_img('badge-' . $bk2, $bi, '', 24) ?> <?= e($bl2) ?></span> <?php endforeach; ?></p><?php endif; ?>
 </details>
 <?php endif; ?>
 <script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null], $J) ?></script>

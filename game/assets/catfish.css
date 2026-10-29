@@ -33,3 +33,10 @@
 .cfbcell.none { background: transparent; border: 1px dashed var(--line, #ccc); color: var(--muted, #999); }
 .cfbadge { display: inline-block; padding: .1rem .5rem; border: 1px solid var(--line, #ddd); border-radius: 999px; font-size: .85rem; }
 .cfbcell.got:not(:empty) { outline: 2px solid var(--line, #888); }
+.cfgarden { margin: .25rem 0; display: flex; gap: .4rem; align-items: center; }
+.cfgarden .cfcat { font-size: 1.4rem; }
+.cfms { margin: .4rem 0 0; padding-left: 1.1rem; }
+.cfshowform { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.cfshowform select { max-width: 100%; }
+.cfribbon small { white-space: normal; }
+.cfimg { image-rendering: pixelated; vertical-align: middle; max-width: 100%; height: auto; }

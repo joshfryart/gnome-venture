@@ -337,11 +337,13 @@ function picker_html(string $kind, string $title, array $items, callable $icon, 
 
 page_header('My Garden');
 ?>
+<?php require_once __DIR__ . '/includes/catfish.php'; $cfGarden = empty($u['guest']) ? catfish_garden_html((int)$u['id']) : '';   // Cat Fish: the active cat naps in the garden ?>
 <div class="ghead"><h1><?= eu($plot['garden_name'] ?: gnome_name($u) . '’s Garden') ?></h1>
   <details class="renamefold"><summary aria-label="Rename this garden">✏️ Rename</summary>
     <form method="post" class="inline renamer"><?= csrf_field() ?><input type="hidden" name="do" value="rename"><input type="hidden" name="t" value="<?= e($tab) ?>">
       <label>Garden name <input name="name" value="<?= e($plot['garden_name'] ?? '') ?>" maxlength="40"></label>
       <button class="btn small">Rename</button></form></details></div>
+<?= $cfGarden /* Cat Fish: the active cat */ ?>
 <?php if (count($gardens) > 1): ?>
   <nav class="gardentabs">
     <?php foreach ($gardens as $g): ?>

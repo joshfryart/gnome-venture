@@ -46,7 +46,7 @@ page_header('Games');
 <?php endif;   // v2.0.2: Puzzles locked for players (setting puzzles_open) ?>
 <?php require_once __DIR__ . '/includes/catfish.php'; if (catfish_open()): ?>
   <a class="gtile ok" href="<?= e(url('catfish.php')) ?>" title="Adopt a cat and dangle a toy fishing rod. Upgrade it and the cat keeps catching fish, even while you are away.">
-    <span class="gticon">🐱</span>
+    <span class="gticon"><?= catfish_img('tile', '🐱', '', 64) ?></span>
     <b>Cat Fish</b>
     <span class="gtbadge">Relax</span>
   </a>

@@ -63,6 +63,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
 <?php if (!$admin && (in_array($page, ['puzzles.php', 'gifsaw.php', 'jigsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'puzzlepals.php'], true) || !empty($GLOBALS['gv_front_demo']))): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><?php if ($page !== 'puzzlepals.php'): ?><script src="<?= e(url('assets/' . (['puzzles.php' => 'puzzlehub', 'rainbarrel.php' => 'rainbarrel', 'gnomebeds.php' => 'gnomebeds'][$page] ?? 'puzzles') . '.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js). v2.0.69: puzzles.js = GIFsaw (gifsaw.php), puzzles.php = hub (puzzlehub.js) */ ?>
+<?php if (!$admin && $page === 'garden.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
+<?php endif; /* Cat Fish: the garden cat uses catfish.css */ ?>
 <?php if (!$admin && $page === 'catfish.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/catfish.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* Cat Fish: assets/catfish.css + assets/catfish.js */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>

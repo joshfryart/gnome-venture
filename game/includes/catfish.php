@@ -75,26 +75,30 @@ const CATFISH_NAMES = ['Biscuit', 'Pickle', 'Mochi', 'Nutmeg', 'Clover', 'Pebble
 /** Rarity bands on the summed -log2(probability) of a cat's traits (tuned by tests/catfish.sh's distribution check). */
 const CATFISH_RARITY = ['common' => 0.0, 'uncommon' => 10.8, 'rare' => 12.6, 'legendary' => 16.3];   // about 50 / 30 / 18.5 / 1.5 percent of cats
 
+/** A Cat Fish picture: the real PNG (assets/img/catfish/cf-<name>.png) when it exists, else the emoji placeholder. See claude/catfish-art-brief.md for the names. */
+function catfish_img(string $name, string $fallback, string $alt = '', int $px = 48): string
+{
+    static $have = [];
+    if (!preg_match('/^[a-z0-9_-]+$/', $name)) return '<span aria-hidden="true">' . $fallback . '</span>';
+    $file = 'assets/img/catfish/cf-' . $name . '.png';
+    $have[$name] ??= is_file(APP_ROOT . '/' . $file);
+    if (!$have[$name]) return '<span aria-hidden="true">' . $fallback . '</span>';
+    return '<img class="cfimg" src="' . e(url($file . '?v=' . APP_VERSION)) . '" alt="' . e($alt) . '" width="' . $px . '" height="' . $px . '">';
+}
+
 /** Is Cat Fish open to this viewer? (Admins always; players need the catfish_open setting.) */
 function catfish_open(): bool
 {
     return is_admin() || setting('catfish_open') === '1';
 }
 
-/** Create the three tables the first time they're needed (same lazy pattern as puzzles_ensure()). */
+/** Create the tables the first time they're needed, and patch columns on databases made by earlier builds (same lazy pattern as puzzles_ensure()). */
 function catfish_ensure(): bool
 {
     static $ok = null;
     if ($ok !== null) return $ok;
     if (PHP_INT_SIZE < 8) return $ok = false;   // seeds and the RNG need 64-bit integers
-    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
-    try {   // week-1 test databases: the Nap columns arrive on an existing table
-        q('SELECT 1 FROM catfish_state LIMIT 1');
-        foreach (['run_kibble', 'total_kibble'] as $col) { try { q('SELECT ' . $col . ' FROM catfish_state LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE catfish_state ADD COLUMN ' . $col . ' BIGINT NOT NULL DEFAULT 0'); } }
-        try { q('SELECT meta FROM catfish_state LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE catfish_state ADD COLUMN meta TEXT NULL'); }
-        try { q('SELECT adopted FROM cat_book LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE cat_book ADD COLUMN adopted INT NOT NULL DEFAULT 0'); }
-        return $ok = true;
-    } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         $PK = $s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY';
@@ -112,6 +116,13 @@ function catfish_ensure(): bool
             user_id $ID NOT NULL, pattern VARCHAR(12) NOT NULL, colour VARCHAR(12) NOT NULL, adopted $ID NOT NULL DEFAULT 0, found_at DATETIME NOT NULL,
             PRIMARY KEY (user_id, pattern, colour)
         )$END");
+        db()->exec("CREATE TABLE IF NOT EXISTS cat_ribbons (
+            id $PK, user_id $ID NOT NULL, week VARCHAR(8) NOT NULL, theme VARCHAR(60) NOT NULL, cat_name VARCHAR(30) NOT NULL, tier VARCHAR(10) NOT NULL, score $ID NOT NULL DEFAULT 0, created_at DATETIME NOT NULL,
+            UNIQUE (user_id, week)
+        )$END");
+        foreach ([['catfish_state', 'run_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'total_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'meta', 'TEXT NULL'], ['cat_book', 'adopted', 'INT NOT NULL DEFAULT 0']] as [$t, $col, $def]) {
+            try { q('SELECT ' . $col . ' FROM ' . $t . ' LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE ' . $t . ' ADD COLUMN ' . $col . ' ' . $def); }
+        }
         return $ok = true;
     } catch (Throwable $e) {
         error_log('catfish_ensure: ' . $e->getMessage());
@@ -262,6 +273,32 @@ function catfish_milestone_mult(int $owned): int
     return $m;
 }
 
+const CATFISH_PAL_STEP = 0.02;          // Puzzle Pals: +2% Kibble per pal found (needs Puzzle Pals open and gnome level 15)
+const CATFISH_PAL_MAX = 10;             // ...for up to this many pals (+20%)
+const CATFISH_PAL_LEVEL = 15;
+
+/** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (gnome level 15+, ppal_open). 1.0 when none. One cheap count per call, cached per request. */
+function catfish_extra_mult(int $uid): float
+{
+    static $cache = [];
+    if (isset($cache[$uid])) return $cache[$uid];
+    $m = 1.0;
+    try {
+        require_once __DIR__ . '/puzzle_pals.php';
+        if (ppal_open() && ppal_ensure() && (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]) >= CATFISH_PAL_LEVEL) {
+            $found = (int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ?', [$uid]);
+            $m += CATFISH_PAL_STEP * min($found, CATFISH_PAL_MAX);
+        }
+    } catch (Throwable $e) {}
+    return $cache[$uid] = $m;
+}
+
+/** 2 while a festival is running (Yarn from a Nap doubles), else 1. */
+function catfish_festival_mult(): int
+{
+    try { require_once __DIR__ . '/festival.php'; return festival_active() ? 2 : 1; } catch (Throwable $e) { return 1; }
+}
+
 /** Kibble multiplier from Yarn. */
 function catfish_yarn_mult(int $yarn): float
 {
@@ -269,7 +306,7 @@ function catfish_yarn_mult(int $yarn): float
 }
 
 /** Kibble per hour for these owned levels and this cat (null = no cat yet). */
-function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $yarn = 0): float
+function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $yarn = 0, float $extra = 1.0): float
 {
     $add = CATFISH_BASE_KPH; $pct = 0.0;
     foreach (CATFISH_UPGRADES as $key => [, , , $a, $p]) {
@@ -279,7 +316,7 @@ function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $
         $add += $a * $n * $mm;
         $pct += $p * $n * $mm;
     }
-    $kph = $add * (1 + $pct) * catfish_yarn_mult($yarn);
+    $kph = $add * (1 + $pct) * catfish_yarn_mult($yarn) * max(1.0, $extra);
     $mood = $cat['mood'] ?? '';
     if ($mood === 'greedy') $kph *= 1.10;
     if ($mood === 'hyper' && $present) $kph *= 1.15;
@@ -314,7 +351,7 @@ function catfish_tick(int $uid): array
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
         $secs = $away ? min($gap, catfish_offline_cap($cat)) : $gap;
-        $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn']) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
+        $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
         $base = (int)floor(min($eff * $secs / 3600, PHP_INT_MAX >> 4));
         if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
         $gain = $base + (($cat['mood'] ?? '') === 'sneaky' ? catfish_rare_fish($eff, $secs, mt_rand() / (mt_getrandmax() + 1)) : 0);
@@ -494,7 +531,7 @@ function catfish_nap(int $uid): array
     return catfish_locked($uid, function () use ($uid) {
         $s = catfish_tick($uid);
         $cat = catfish_active($uid, $s);
-        $y = catfish_nap_yarn((int)$s['run_kibble'], $cat);
+        $y = catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult();
         if ($y < 1) return [false, 'Not enough Kibble earned this run to nap yet.'];
         $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ? WHERE user_id = ? AND run_kibble = ?', [$y, '{}', time(), $uid, (int)$s['run_kibble']])->rowCount();
         if ($done === 1) catfish_claim_petals($uid);
@@ -543,7 +580,7 @@ function catfish_view(int $uid): array
             'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n)];
     }
     return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
-        'kph' => $cat ? round(catfish_kph($s['up'], $cat, true, (int)$s['yarn']), 1) : 0, 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
+        'kph' => $cat ? round(catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)), 1) : 0, 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
 
 /** Badges, worked out from what the gnome has (nothing stored): [key => [icon, label]]. */
@@ -583,11 +620,118 @@ function catfish_book(int $uid): array
     return array_map(fn($r) => [$r['pattern'], $r['colour'], (int)$r['adopted']], q('SELECT pattern, colour, adopted FROM cat_book WHERE user_id = ?', [$uid])->fetchAll());
 }
 
+// ---------- Cat Show (weekly, cosmetic ribbons) ----------
+
+/** Ribbon tiers: tier => [min score, icon, label]. Highest first. A cat that scores under the last one still gets "Took part". */
+const CATFISH_RIBBONS = ['best' => [40, '🏆', 'Best in Show'], 'blue' => [32, '🥇', 'Blue ribbon'], 'red' => [25, '🥈', 'Red ribbon'], 'white' => [18, '🥉', 'White ribbon']];
+const CATFISH_RIBBON_PART = ['part', '🎗️', 'Took part'];
+const CATFISH_SHOW_THEME_MATCH = 12;   // score for a cat that fits the week's theme
+const CATFISH_SHOW_RARITY = ['common' => 0, 'uncommon' => 3, 'rare' => 6, 'legendary' => 10];
+
+/** ISO week key like '2026-W44' (UTC): the show runs Monday to Sunday. */
+function catfish_show_week(?int $ts = null): string
+{
+    return gmdate('o-\\WW', $ts ?? time());
+}
+
+/** This week's theme: ['trait' => 'pattern', 'value' => 'tabby', 'label' => 'Best tabby coat']. Only fairly common values, so every gnome can hope to match. */
+function catfish_show_theme(string $week): array
+{
+    $traits = ['pattern' => 'Best %s coat', 'colour' => 'Best %s cat', 'eyes' => 'Best %s eyes', 'mood' => 'Most %s cat'];
+    $rng = catfish_rng(crc32('show|' . $week));
+    $keys = array_keys($traits);
+    $trait = $keys[(int)floor($rng() * count($keys))];
+    $values = array_keys(array_filter(CATFISH_TRAITS[$trait], fn($w) => $w >= 8));
+    $value = $values[(int)floor($rng() * count($values))];
+    return ['trait' => $trait, 'value' => $value, 'label' => sprintf($traits[$trait], $value)];
+}
+
+/**
+ * Three judges (0 to 10 each, seeded by gnome, week and cat so a refresh cannot re-roll them) plus the theme and rarity bonuses.
+ * Kibble, Yarn and play time are not part of it. Pure: returns ['score' => n, 'tier' => 'blue', 'judges' => [..]].
+ */
+function catfish_show_judge(int $uid, string $week, array $cat, array $theme): array
+{
+    $rng = catfish_rng(crc32('judge|' . $uid . '|' . $week . '|' . $cat['seed']));
+    $judges = [(int)floor($rng() * 11), (int)floor($rng() * 11), (int)floor($rng() * 11)];
+    $score = array_sum($judges) + (($cat[$theme['trait']] ?? '') === $theme['value'] ? CATFISH_SHOW_THEME_MATCH : 0) + (CATFISH_SHOW_RARITY[$cat['rarity']] ?? 0);
+    $tier = CATFISH_RIBBON_PART[0];
+    foreach (CATFISH_RIBBONS as $t => [$min]) if ($score >= $min) { $tier = $t; break; }
+    return ['score' => $score, 'tier' => $tier, 'judges' => $judges];
+}
+
+/** Enter (or swap) a cat for this week's show. One entry per gnome per week. */
+function catfish_show_enter(int $uid, int $catId): array
+{
+    $row = q_one('SELECT id FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid]);
+    if (!$row) return [false, 'No such cat.'];
+    return catfish_locked($uid, function () use ($uid, $catId) {
+        catfish_show_settle($uid);   // an old entry gets its ribbon before a new one replaces it
+        $s = catfish_state($uid); $meta = $s['meta'];
+        $week = catfish_show_week();
+        if (q_val('SELECT 1 FROM cat_ribbons WHERE user_id = ? AND week = ?', [$uid, $week])) return [false, 'This week is already judged.'];
+        $meta['show'] = ['week' => $week, 'cat' => $catId];
+        catfish_meta_save($uid, $meta);
+        return [true, 'Entered. The judges decide when the week ends.'];
+    });
+}
+
+/** Judge an entry from a finished week and hand out its ribbon (one row per gnome and week; the unique key is the claim). Returns the ribbon row or null. Safe to call often. */
+function catfish_show_settle(int $uid): ?array
+{
+    $seen = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+    $e = is_array($seen) ? ($seen['show'] ?? null) : null;
+    if (!is_array($e) || ($e['week'] ?? '') >= catfish_show_week()) return null;   // nothing entered, or the week is still running
+    return catfish_locked($uid, function () use ($uid) {
+        $s = catfish_state($uid); $meta = $s['meta'];
+        $e = $meta['show'] ?? null;
+        if (!is_array($e) || ($e['week'] ?? '') >= catfish_show_week()) return null;
+        unset($meta['show']);
+        $row = q_one('SELECT * FROM cats WHERE id = ? AND user_id = ?', [(int)$e['cat'], $uid]);
+        catfish_meta_save($uid, $meta);
+        if (!$row) return null;
+        $cat = catfish_cat((int)$row['seed']);
+        $theme = catfish_show_theme((string)$e['week']);
+        $j = catfish_show_judge($uid, (string)$e['week'], $cat, $theme);
+        $r = ['user_id' => $uid, 'week' => (string)$e['week'], 'theme' => $theme['label'], 'cat_name' => (string)$row['name'], 'tier' => $j['tier'], 'score' => $j['score'], 'created_at' => now()];
+        try { db_insert('cat_ribbons', $r); } catch (Throwable $ex) { return null; }   // already judged
+        return $r;
+    });
+}
+
+/** A gnome's ribbons, newest first. */
+function catfish_ribbons(int $uid, int $limit = 20): array
+{
+    if (!catfish_ensure()) return [];
+    return q('SELECT * FROM cat_ribbons WHERE user_id = ? ORDER BY week DESC LIMIT ' . (int)$limit, [$uid])->fetchAll();
+}
+
+/** [icon, label] for a ribbon tier. */
+function catfish_ribbon_face(string $tier): array
+{
+    return isset(CATFISH_RIBBONS[$tier]) ? [CATFISH_RIBBONS[$tier][1], CATFISH_RIBBONS[$tier][2]] : [CATFISH_RIBBON_PART[1], CATFISH_RIBBON_PART[2]];
+}
+
+/** The active cat on the garden page: a small tinted block and a line of flavour from its personality. '' when there is no cat or Cat Fish is closed. */
+function catfish_garden_html(int $uid): string
+{
+    if (!catfish_open() || !catfish_ensure()) return '';
+    $s = q_one('SELECT active_cat_id FROM catfish_state WHERE user_id = ?', [$uid]);   // read only: just visiting the garden must not create a Cat Fish row
+    $cat = $s ? catfish_active($uid, $s) : null;
+    if (!$cat) return '';
+    $spot = ['lazy' => 'dozing on a warm bed', 'hyper' => 'zooming between the beds', 'sneaky' => 'hiding in the leaves', 'greedy' => 'guarding the harvest basket', 'dreamy' => 'watching the clouds'][$cat['mood']] ?? 'sitting in the garden';
+    return '<p class="cfgarden"><span class="cfcat c-' . e($cat['colour']) . ' p-' . e($cat['pattern']) . '" aria-hidden="true">🐱</span> <small>' . e($cat['name']) . ' is ' . e($spot) . '. <a href="' . e(url('catfish.php')) . '">Cat Fish</a></small></p>';
+}
+
 /** Profile block: a gnome's Cat Fish badges as a list, '' if none or Cat Fish is closed. */
 function catfish_badges_html(int $uid): string
 {
     if (!catfish_open()) return '';
     $h = '';
-    foreach (catfish_badges($uid) as [$icon, $label]) $h .= '<li class="cfbadge" title="' . e($label) . '"><span aria-hidden="true">' . $icon . '</span><small>' . e($label) . '</small></li>';
+    foreach (catfish_badges($uid) as $key => [$icon, $label]) $h .= '<li class="cfbadge" title="' . e($label) . '">' . catfish_img('badge-' . $key, $icon, '', 32) . '<small>' . e($label) . '</small></li>';
+    foreach (catfish_ribbons($uid, 8) as $r) {
+        [$icon, $label] = catfish_ribbon_face((string)$r['tier']);
+        $h .= '<li class="cfbadge cfribbon" title="' . e($r['theme'] . ' · ' . $r['cat_name']) . '">' . catfish_img('ribbon-' . $r['tier'], $icon, '', 32) . '<small>' . e($label . ': ' . $r['cat_name']) . '</small></li>';
+    }
     return $h === '' ? '' : '<ul class="pzbadges cfbadges">' . $h . '</ul>';
 }

@@ -26,6 +26,7 @@ dbx "DELETE FROM settings WHERE name IN ('catfish_open')"
 # gate
 ok "gate off: player is sent away" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 302
 curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: no Cat Fish link while off" "$(grep -c 'href="[^"]*catfish.php"' $W/h.html)" 0
+setg festivals_on 0   # a running festival doubles Yarn from a Nap; keep the checks date-independent
 setg catfish_open 1
 ok "gate on: player gets the page" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
 curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish link shows" "$(grep -c 'href="[^"]*catfish.php"' $W/h.html)" 1
