@@ -1,8 +1,12 @@
 -- cf_overlays.lua : Cat Fish cat overlay layers (step 3 of claude/catfish-art-brief.md), Stitched Toy via gvlib.
 -- Run: AppRun -b --script cf_overlays.lua       Reads test/cf-cat-grey-<frame>.png, writes into test/:
---   A. eyes   cf-eyes-ring-<f>.png (placeholder 'eye_ring' hex) + cf-eyes-<amber|green|blue|hazel>-<f>.png, 5 frames
---   B. marks  cf-pat-<tabby|tuxedo|calico|pointed|spotted>-grey-<f>.png on idleA, pounce, catch, nap
+--   A. eyes   cf-eyes-ring-<f>.png (placeholder 'eye_ring' hex) + cf-eyes-<amber|green|blue|hazel>-<f>.png, all 8
+--             frames (idleA, pounce, catch, nap, stalk, and wiggle, bored, idleB from cf_frames2.lua)
+--   B. marks  cf-pat-<tabby|tuxedo|calico|pointed|spotted>-grey-<f>.png on idleA, pounce, catch, nap, stalk
 --   C. parts  cf-ears-folded-<f>.png + cf-ears-mask-<f>.png, cf-tail-bobtail-<f>.png + cf-tail-mask-<f>.png
+--             on the same 5 frames
+-- Step 5b added stalk to B and C (its frame code is copied below and checked like the others) and the eyes of
+-- wiggle, bored, idleB to A; every file the script wrote before is unchanged byte for byte.
 --   plus cf-overlays-<f>.aseprite (one layer per overlay, hidden, over the base cat) to look at in Aseprite.
 --
 -- LAYER ORDER (renderer): body, pattern, ears, tail, eyes. A replacement part works in two steps: clear the
@@ -38,16 +42,21 @@
 -- EYES (approved decision): the locked disc stays. The 1 px ring inside the disc is the 12 cream px round the
 -- 3x3 pupil; tinting all 12 hid the cream completely, so the iris is the ring minus its upper-left 3 px
 -- (the lit side keeps a cream crescent, like a glint on the eye's glaze): 9 tinted px per eye.
+-- Half-lidded eyes (bored): the lid hides disc rows 0-1, so the iris is the 6 ring px below the lash (IRIS minus
+-- the 3 px under the lid and the topmost lit px (0,2), kept cream): the colour still shows on a drowsy eye.
 -- Closed eyes (catch happy squint, nap sleep arcs) show no iris: their eye files are written but EMPTY
 -- (fully transparent) so the renderer can stack 5 eye layers for every frame without special cases.
 -- Odd-eyed cats: the renderer takes the left eye from one colour's file and the right from another
 -- (left eye x < 25 + ox, right eye x >= 25 + ox; ox per frame below).
 --
--- GEOMETRY. The frame drawing code below is a copy of cf_test.lua pass 6 (idleA, pounce, catch, nap) with
+-- GEOMETRY. The frame drawing code below is a copy of cf_test.lua pass 6 (idleA, pounce, catch, nap, stalk) with
 -- switches for the ears (orig / none / fold) and tail (orig / none / bob). The script re-renders each base
 -- frame and asserts it matches the committed cf-cat-grey PNG pixel for pixel, so a later cf_test edit that
 -- moves the cat makes this script stop with an error instead of writing overlays that no longer line up.
--- Frame offsets (head, eyes): idleA 0,0  pounce 16,0  catch 0,0  nap 0,18  stalk 15,20.
+-- wiggle, bored and idleB are only read from their PNGs (eyes only; the eye asserts check the disc positions).
+-- Frame offsets (head, eyes): idleA 0,0  pounce 16,0  catch 0,0  nap 0,18  stalk 15,20  wiggle 15,19  bored -1,3
+-- idleB 1,1. Stalk bobtail sits on the rump's upper-left tip (STALK_BOB); the chest is under the chin there, so
+-- the tuxedo/calico bib barely shows and the muzzle and paws carry the white.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../gvlib/gvlib.lua")
 local OUT = here .. "/test/"
@@ -169,6 +178,7 @@ local function build(c, list)
   for n, P in pairs(p) do c.names[P] = n end
   return p
 end
+local STALK_BOB = { 13.5, 20.5 }
 local function bobEntry(c, m) return { "bob", m, coat(GREY), { cres = 2, gloss = false } } end
 
 -- each frame: o.ears = orig|none|fold, o.tail = orig|none|bob. Returns the canvas (not finished) and info.
@@ -279,12 +289,39 @@ FR.nap = function(o)
   catFace(c, OX, OY, head, "sleep", o.ears)
   return c, { ox = OX, oy = OY, tpts = tpts, p = p }
 end
+FR.stalk = function(o)
+  local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }; c.names = {}
+  local g = coat(GREY)
+  local OX, OY = 15, 20
+  local H, head = catHead(c, OX, OY, o.ears)
+  local A = 0.9
+  local body = rell(c, 25, 32, 15, 7.5, A)
+  local thigh = rell(c, 17.5, 39, 7.5, 10, -0.35)
+  local tpts = { {18, 22}, {13, 23}, {9, 21}, {8, 16}, {10, 11} }
+  local tail = c:line(tpts, 5)
+  local list = {}
+  if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(STALK_BOB[1], STALK_BOB[2], 4, 3.5)) end
+  list[#list + 1] = { "body", body, g, { gloss = { 18, 24 } } }
+  list[#list + 1] = { "thigh", thigh, g, { cres = 2, gloss = { 13, 33 } } }
+  for _, e in ipairs(H) do list[#list + 1] = e end
+  local p = build(c, list)
+  if o.tail == "orig" then tailTip(c, tail, c:rect(4, 4, 15, 14), { { 6, 15 }, { 10, 15 } }) end
+  paw(c, 19.5, 53)
+  paw(c, 34.5, 53); paw(c, 45.5, 53)
+  edgeStitch(c, body, p.body, { lit = LIT })
+  catFace(c, OX, OY, head, "open", o.ears)
+  return c, { ox = OX, oy = OY, tpts = tpts, p = p, A = A }
+end
 -- ================================================ end of copy =================================================
 
-local KEY = { "idleA", "pounce", "catch", "nap" }
-local ALL = { "idleA", "pounce", "catch", "nap", "stalk" }
-local OFF = { idleA = { 0, 0 }, pounce = { 16, 0 }, catch = { 0, 0 }, nap = { 0, 18 }, stalk = { 15, 20 } }
+local KEY = { "idleA", "pounce", "catch", "nap", "stalk" }
+local EXTRA = { "wiggle", "bored", "idleB" } -- drawn by cf_frames2.lua: eyes only (read from their PNGs)
+local ALL = { "idleA", "pounce", "catch", "nap", "stalk", "wiggle", "bored", "idleB" }
+local OFF = { idleA = { 0, 0 }, pounce = { 16, 0 }, catch = { 0, 0 }, nap = { 0, 18 }, stalk = { 15, 20 },
+  wiggle = { 15, 19 }, bored = { -1, 3 }, idleB = { 1, 1 } }
 local CLOSED = { catch = true, nap = true }
+local HALF = { bored = true }
 
 -- ---------- pixel tables: [y*64+x] = "#hex" ----------
 local function hex(v) return string.format("#%02x%02x%02x", pc.rgbaR(v), pc.rgbaG(v), pc.rgbaB(v)) end
@@ -341,18 +378,22 @@ for _, f in ipairs(KEY) do
   end
   BASE[f], INFO[f], CAN[f] = file, info, c
 end
-BASE.stalk = loadPNG(OUT .. "cf-cat-grey-stalk.png")
+for _, f in ipairs(EXTRA) do BASE[f] = loadPNG(OUT .. "cf-cat-grey-" .. f .. ".png") end
 
 -- ================================ A. eyes ================================
 -- iris = the 12 cream px round the pupil minus the upper-left 3 (kept cream, lit side)
 local IRIS = { {3, 0}, {4, 1}, {4, 2}, {4, 3}, {1, 4}, {2, 4}, {3, 4}, {0, 3}, {0, 2} }
+-- half-lidded (bored): the lid covers disc rows 0-1 (felt row + umber lash), so only the lower ring shows. The
+-- iris is the IRIS pixels below the lash minus its topmost lit pixel (0,2), kept cream as the glint the lid hid:
+-- 6 tinted px per eye, so a half-closed eye still shows its colour (and odd eyes still read).
+local IRIS_HALF = { {4, 2}, {4, 3}, {1, 4}, {2, 4}, {3, 4}, {0, 3} }
 for _, f in ipairs(ALL) do
   local ox, oy = OFF[f][1], OFF[f][2]
   local function eyes(col)
     local t = {}
     if CLOSED[f] then return t end
     for _, ex in ipairs({ 14, 32 }) do
-      for _, d in ipairs(IRIS) do
+      for _, d in ipairs(HALF[f] and IRIS_HALF or IRIS) do
         local x, y = ex + ox + d[1], 19 + oy + d[2]
         assert(BASE[f][y * 64 + x] == GV.C.halo, f .. ": eye ring px is not cream at " .. x .. "," .. y)
         t[y * 64 + x] = col
@@ -525,6 +566,9 @@ local function tabby(f)
   elseif f == "nap" then -- loaf from the side: stripes down over the back and round the haunch
     st = stripes(f, 46, 42, 0, { -4, 1, 6 }, 3, -11, -1, -4)
     st:add(lines(f, { { {41, 39}, {44, 42}, {45, 46} }, { {47, 37}, {50, 41}, {51, 45} } }, 2))
+  elseif f == "stalk" then -- play bow: stripes across the sloping back, arcs round the egg haunch
+    st = stripes(f, 25, 32, I.A, { -9, -4, 1, 6 }, 3, -8, 1, -2)
+    st:add(lines(f, { { {14, 31}, {11, 35}, {11, 40} }, { {18, 35}, {15, 39}, {15, 44} } }, 2))
   end
   L[#L + 1] = { st:clip(body), "dark2" }
   return marks(f, L)
@@ -554,6 +598,8 @@ local function bib(f, big)
     return big and rell(c, 32, 41, 13, 4.5, INFO[f].A) or rell(c, 36, 40, 7, 3.5, INFO[f].A)
   elseif f == "nap" then
     return big and c:rect(14, 47, 40, 53):add(c:ellipse(46, 50, 7, 3)) or c:rect(14, 47, 38, 53)
+  elseif f == "stalk" then -- chest is under the chin: only the strip between haunch and head shows
+    return big and c:ellipse(26, 45, 5, 7) or c:ellipse(26, 46, 3, 5)
   end
 end
 local function tuxedo(f)
@@ -586,6 +632,8 @@ local function calico(f)
     bp = c:poly({ {14, 34}, {27, 26}, {32, 30}, {29, 38}, {18, 42} }):add(c:poly({ {36, 28}, {45, 30}, {48, 38}, {39, 37} }))
   elseif f == "nap" then
     bp = c:poly({ {38, 30}, {53, 30}, {57, 39}, {50, 46}, {41, 43} }):add(c:poly({ {16, 37}, {26, 33}, {28, 40}, {18, 44} }))
+  elseif f == "stalk" then
+    bp = c:poly({ {13, 18}, {25, 21}, {29, 30}, {21, 31}, {15, 26} }):add(c:poly({ {9, 41}, {18, 39}, {23, 47}, {15, 52}, {9, 49} }))
   end
   L[#L + 1] = { bp:clip(body), "dark2" }
   local tail = partMask(f, S{ "tail" })
