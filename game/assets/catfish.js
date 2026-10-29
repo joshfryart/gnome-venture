@@ -87,7 +87,7 @@
 
 /* Play scene (decorative only): the active cat in the stage (.cfactive, see catfish_stage_html) swaps its frame group by moving one class (fr-<frame>)
    and mirrors it in data-frame (data-anim-state: rest, play, nap or bored). It never touches Kibble: the counter above and the server tick stay the only authority.
-   Frames: the page carries 8 groups (idleA, idleB, wiggle, stalk, pounce, catch, nap, bored). The others (swatA, swatB, blink, jump, happy, tailflick, eartwitch) are built
+   Frames: the page carries 8 groups (idleA, idleB, wiggle, stalk, pounce, catch, nap, bored). The others (swatA, swatB, blink, jump, happy, tailflick, eartwitch, yawn, stretch, washA, washB) are built
    from the manifest block #cf-frames (frame -> layer files, already resolved to the base frame's files for alias frames) after the first interaction or 2 s; until a
    frame's pictures have loaded a close frame stands in (swatA stalk, swatB and jump pounce, the rest idleA). Same-origin pictures, no inline script.
    Idle: idleA <-> idleB every 2.4-4.2 s (head tilt); idleA blinks for 120 ms every 3-6 s; every 5-12 s a tailflick (400 ms) or an eartwitch (300 ms); never during a play loop.
@@ -97,7 +97,9 @@
    A combo of 5, or the top fish tapped twice within 1.5 s: jump (5 whole-pixel steps, class is-jump, 500 ms) then the catch and happy. A glitter fish (cfk-4) and combo 10
    show 3 sparkles over the fish (200 ms). The cat reacts at most once per 700 ms, faces the fish (class flip when the fish is left of room x 150) and wakes if napping.
    Side cats (.cfside) alternate idleA <-> idleB every 4-8 s from a seeded offset, and the nearest one stalks 800 ms when the active cat swats (swatB) or pounces.
-   prefers-reduced-motion: idleA only, nothing moves, no z, no sparkles; the tapped fish only shows its outline (is-hit) for 300 ms.
+   2.1.06: every 15-30 s of idle a yawn (900 ms), a stretch (900 ms) or a wash (washA, washB, washA, washB, 600 ms each); the window bird (owned 'window') hops (150 ms) or spreads its wings (200 ms) every 6-14 s;
+   a swat (swatB) or pounce rolls the yarn ball 8 px and back (1.2 s, CATFISH_YARN_ROLL) and wobbles the rug 1 px. Dust motes are CSS only. ?cffast=1 makes the variety and bird waits ten times shorter (tests).
+   prefers-reduced-motion: idleA only, nothing moves, no z, no sparkles, no bird, no yarn, no wobble; the tapped fish only shows its outline (is-hit) for 300 ms.
    The random numbers come from each cat's seed, so a page load plays the same sequence every time. */
 (function () {
   var cat = document.querySelector('.cfactive'); if (!cat) return;
@@ -114,7 +116,7 @@
   function reduced() { return !!(mq && mq.matches); }
   var zEl = stage.querySelector('.cfz-a'), spark = stage.querySelector('.cfspark');
   var man = null; try { var me = document.getElementById('cf-frames'); if (me) man = JSON.parse(me.textContent); } catch (e) { man = null; }
-  var FB = { swatA: 'stalk', swatB: 'pounce', jump: 'pounce', happy: 'idleA', blink: 'idleA', tailflick: 'idleA', eartwitch: 'idleA' };
+  var FB = { swatA: 'stalk', swatB: 'pounce', jump: 'pounce', happy: 'idleA', blink: 'idleA', tailflick: 'idleA', eartwitch: 'idleA', yawn: 'idleA', stretch: 'idleA', washA: 'idleA', washB: 'idleA' };
   function build(f) {
     if (have[f] || !man || !man.frames || !man.frames[f]) return;
     var g = document.createElement('span'), art = document.createElement('span');
@@ -161,10 +163,11 @@
   function back() { rest = 'idleA'; setMode('rest'); show('idleA'); }
   function play(i) {
     if (i >= PLAY.length) { back(); return later(between(1200, 2400), idle); }
-    setMode('play'); show(PLAY[i][0]); if (PLAY[i][0] === 'pounce') sideStalk();
+    setMode('play'); show(PLAY[i][0]); if (PLAY[i][0] === 'pounce') { sideStalk(); landed(); }
     later(PLAY[i][1], function () { play(i + 1); });
   }
   function idle() {
+    if (varying && mode === 'rest') return later(300, idle);
     if (napping) { setMode('nap'); show('nap'); return later(1000, idle); }
     setMode('rest');
     if (idled >= nextPlay) {
@@ -188,6 +191,28 @@
     clearTimeout(et);
     et = setTimeout(function () { var tail = rnd() < 0.5; schedExtra(flick(tail ? 'tailflick' : 'eartwitch', tail ? 400 : 300) ? 0 : 500); }, wait || between(5000, 12000));
   }
+  /* idle variety (2.1.06): every 15-30 s a yawn (900 ms), a stretch (900 ms) or a wash (washA, washB, washA, washB, 600 ms each) from idleA; never during a play loop, a nap or boredom.
+     A tap or a play loop cancels it at once (vtok). ?cffast=1 on the page URL makes the waits and the bird ten times shorter (test hook; nothing else reads it). */
+  var FAST = /[?&]cffast=1(&|$)/.test(location.search), vt = 0, vtok = 0, varying = false;
+  function vwait() { return between(15000, 30000) * (FAST ? 0.1 : 1); }
+  function vend(tok) { if (tok !== vtok) return; varying = false; put(mode === 'rest' ? 'idleA' : cur); }
+  function vstep(seq, i, tok) {
+    if (tok !== vtok) return;
+    if (i >= seq.length) return vend(tok);
+    put(seq[i][0]); setTimeout(function () { vstep(seq, i + 1, tok); }, seq[i][1]);
+  }
+  function schedVariety(wait) {
+    clearTimeout(vt);
+    vt = setTimeout(function () {
+      if (mode !== 'rest' || cur !== 'idleA' || varying) return schedVariety(500);
+      var r = rnd(), seq = r < 0.34 ? [['yawn', 900]] : r < 0.67 ? [['stretch', 900]] : [['washA', 600], ['washB', 600], ['washA', 600], ['washB', 600]];
+      seq.forEach(function (st) { build(st[0]); });
+      if (!seq.every(function (st) { return ready(st[0]); })) return schedVariety(500);
+      varying = true; vtok++; vstep(seq, 0, vtok);
+      schedVariety();
+    }, wait || vwait());
+  }
+  function vcancel() { vtok++; varying = false; }
   /* side cats */
   var sides = [].map.call(stage.querySelectorAll('.cfside'), function (el) {
     var s = { el: el, cur: el.getAttribute('data-frame'), base: 'idleA', busy: false, t: 0, r: mk((parseInt(el.getAttribute('data-seed'), 10) || 1) + 977) };
@@ -214,11 +239,44 @@
     best.busy = true; sideShow(best, 'stalk');
     setTimeout(function () { best.busy = false; sideShow(best, best.base); }, 800);
   }
+  /* window bird (owned 'window'): the cf-room-window robin is swapped for the 12 x 10 sprite drawn at 2x on the perch; f1 perched, f2 hop (150 ms), f3 wings (200 ms), every 6-14 s.
+     Without JS, or under reduced motion, the overlay with the robin stays. */
+  var bird = stage.querySelector('.cfbird'), bt2 = 0, birdOn = false, br = mk(seed + 4242), birdTries = 0;
+  function birdOk() { return [].every.call(bird.querySelectorAll('img'), function (im) { return im.complete && im.naturalWidth > 0; }); }
+  function birdFrame(n) { bird.className = 'cfbird f' + n; }
+  function birdNext() {
+    clearTimeout(bt2);
+    bt2 = setTimeout(function () {
+      var hop = br() < 0.5; birdFrame(hop ? 2 : 3);
+      setTimeout(function () { birdFrame(1); birdNext(); }, hop ? 150 : 200);
+    }, (6000 + br() * 8000) * (FAST ? 0.1 : 1));
+  }
+  function birdStop() { clearTimeout(bt2); if (bird) { birdFrame(1); stage.classList.remove('is-bird'); } birdOn = false; }
+  function birdStart() {
+    if (!bird) return;
+    clearTimeout(bt2); birdOn = false; stage.classList.remove('is-bird'); birdFrame(1);
+    if (reduced()) return;
+    if (!birdOk()) { if (birdTries++ < 20) bt2 = setTimeout(birdStart, 500); return; }
+    birdOn = true; stage.classList.add('is-bird'); birdNext();
+  }
+  /* yarn roll (the ball at the left of the floor): when the cat swats (swatB) or pounces the ball rolls 8 px right and back in 1.2 s (8 steps of 150 ms), then the base ball is shown again.
+     Set CATFISH_YARN_ROLL to false to turn it off. */
+  var CATFISH_YARN_ROLL = true, yarn = stage.querySelector('.cfyarn'), yarnT = 0, rug = stage.querySelector('.cfl-rug'), rugT = 0;
+  function landed() {
+    if (reduced()) return;
+    if (CATFISH_YARN_ROLL && yarn && !yarn.classList.contains('is-roll')) {
+      yarn.classList.add('is-roll'); clearTimeout(yarnT); yarnT = setTimeout(function () { yarn.classList.remove('is-roll'); }, 1250);
+    }
+    if (rug) {   // rug wobble: 1 px right, back, 1 px, back (4 steps of 60 ms)
+      rug.classList.remove('is-wobble'); void rug.offsetWidth; rug.classList.add('is-wobble');
+      clearTimeout(rugT); rugT = setTimeout(function () { rug.classList.remove('is-wobble'); }, 300);
+    }
+  }
   function start() {
-    clearTimeout(timer); clearTimeout(bt); clearTimeout(et); sideStop(); cat.classList.remove('is-jump');
-    if (reduced()) { setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); return; }
+    clearTimeout(timer); clearTimeout(bt); clearTimeout(et); clearTimeout(vt); vcancel(); sideStop(); cat.classList.remove('is-jump');
+    if (reduced()) { birdStop(); setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); return; }
     rest = 'idleA'; setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); later(between(1200, 2400), idle);
-    schedBlink(); schedExtra(); sideStart();
+    schedBlink(); schedExtra(); schedVariety(); sideStart(); birdStart();
   }
   cat.setAttribute('data-anim-state', mode);
   start();
@@ -243,7 +301,7 @@
   function finish() { cat.classList.remove('flip', 'is-jump'); idled = 0; back(); later(between(1200, 2400), idle); }
   function react(b, jump) {
     var now = Date.now(); if (now - lastReact < 700) return false; lastReact = now;
-    clearTimeout(timer); napping = false; cat.classList.remove('is-jump'); setMode('play'); preload();
+    clearTimeout(timer); vcancel(); napping = false; cat.classList.remove('is-jump'); setMode('play'); preload();
     cat.classList.toggle('flip', b.offsetLeft + 24 < 150);
     function land() { show('catch'); caught(b); later(600, function () { show('happy'); later(500, finish); }); }
     if (jump) {
@@ -251,7 +309,7 @@
       later(250, function () { hit(b); later(250, function () { cat.classList.remove('is-jump'); land(); }); });
     } else {
       show('swatA');
-      later(120, function () { show('swatB'); hit(b); sideStalk(); later(200, land); });
+      later(120, function () { show('swatB'); hit(b); sideStalk(); landed(); later(200, land); });
     }
     return true;
   }
@@ -264,7 +322,7 @@
     if (!react(b, jump)) hit(b);
   });
   var nf = document.getElementById('cf-napform');
-  if (nf) nf.addEventListener('submit', function () { napping = true; setMode('nap'); show('nap'); });
+  if (nf) nf.addEventListener('submit', function () { napping = true; vcancel(); setMode('nap'); show('nap'); });
   var run = document.getElementById('cf-run');
   if (run && window.MutationObserver) new MutationObserver(function () {
     if (parseInt(run.textContent.replace(/\D/g, ''), 10) > 0) {

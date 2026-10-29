@@ -229,3 +229,37 @@
 .cfcard .cfhold { justify-content: center; }
 .cfcard .cfinfo { flex: 1 1 100%; text-align: center; }
 .cfcard .cfmain { flex: 1 1 100%; }
+/* 2.1.06 room life. Window bird (cf-bird-1..3, 12 x 10 drawn at 2x = 24 x 20 on the perch, room-layout.json "bird" x -2, y 44: the perched frame covers the robin of cf-room-window.png exactly).
+   catfish.js adds .is-bird on the stage (JS on, motion allowed) which hides the window overlay (its only pixels are the robin) and shows the sprite; class f1/f2/f3 picks the frame. */
+.cfbird { display: none; position: absolute; left: -2px; top: 44px; width: 24px; height: 20px; pointer-events: none; }
+.cfstage.is-bird .cfbird { display: block; }
+.cfstage.is-bird .cfl-window { display: none; }
+.cfbird img { display: none; position: absolute; left: 0; top: 0; width: 24px; height: 20px; }
+.cfbird.f1 .b1, .cfbird.f2 .b2, .cfbird.f3 .b3 { display: block; }
+/* Yarn roll (room-layout.json "yarn": box 40,178 38 x 20; the rolling sprites 16 x 16 start at 58,178 = centred on the ball). Idle: nothing shows (the ball is part of the room base). is-roll (1.2 s): the patch
+   clears the ball and a sprite rolls 8 px right and back in 8 steps of 150 ms (offsets 0 2 4 6 8 6 4 2, frames 1 2 3 4 4 3 2 1). Under the cats, like the ball itself. */
+.cfyarn { position: absolute; left: 40px; top: 178px; width: 38px; height: 20px; pointer-events: none; }
+.cfyarn .yp { display: none; position: absolute; left: 0; top: 0; width: 38px; height: 20px; }
+.cfyarn .yb { display: none; position: absolute; left: 18px; top: 0; width: 16px; height: 16px; }
+.cfyarn img { image-rendering: pixelated; }
+.cfyarn .yb img { position: absolute; left: 0; top: 0; width: 16px; height: 16px; visibility: hidden; }
+.cfyarn.is-roll .yp, .cfyarn.is-roll .yb { display: block; }
+.cfyarn.is-roll .yb { animation: cfyroll 1200ms steps(1, end) 1 forwards; }
+.cfyarn.is-roll .yb img { animation-duration: 1200ms; animation-timing-function: steps(1, end); animation-iteration-count: 1; animation-fill-mode: forwards; }
+.cfyarn.is-roll .y1 { animation-name: cfyf1; } .cfyarn.is-roll .y2 { animation-name: cfyf2; } .cfyarn.is-roll .y3 { animation-name: cfyf3; } .cfyarn.is-roll .y4 { animation-name: cfyf4; }
+@keyframes cfyroll { 0% { translate: 0 0; } 12.5% { translate: 2px 0; } 25% { translate: 4px 0; } 37.5% { translate: 6px 0; } 50% { translate: 8px 0; } 62.5% { translate: 6px 0; } 75% { translate: 4px 0; } 87.5%, 100% { translate: 2px 0; } }
+@keyframes cfyf1 { 0% { visibility: visible; } 12.5% { visibility: hidden; } 87.5% { visibility: visible; } 100% { visibility: visible; } }
+@keyframes cfyf2 { 0%, 12.4% { visibility: hidden; } 12.5% { visibility: visible; } 25% { visibility: hidden; } 75% { visibility: visible; } 87.5%, 100% { visibility: hidden; } }
+@keyframes cfyf3 { 0%, 24.9% { visibility: hidden; } 25% { visibility: visible; } 37.5% { visibility: hidden; } 62.5% { visibility: visible; } 75%, 100% { visibility: hidden; } }
+@keyframes cfyf4 { 0%, 37.4% { visibility: hidden; } 37.5% { visibility: visible; } 62.5%, 100% { visibility: hidden; } }
+/* Rug wobble: the rug overlay shifts 1 px right and back, twice (4 steps of 60 ms), when the cat pounces or swats */
+.cfl-rug.is-wobble { animation: cfrug 240ms steps(1, end) 1; }
+@keyframes cfrug { 0% { translate: 1px 0; } 25% { translate: 0 0; } 50% { translate: 1px 0; } 75%, 100% { translate: 0 0; } }
+/* Dust motes in the sunbeam (owned 'sunbeam'): six 1 to 2 px specks drift a few whole pixels in 6 steps */
+.cfdust { position: absolute; left: 0; top: 0; width: 320px; height: 200px; pointer-events: none; }
+.cfdust i { position: absolute; width: 2px; height: 2px; background: #fffbe6; box-shadow: 0 0 0 1px rgba(140, 100, 40, .35); animation: cfmote 9s steps(6, end) infinite alternate; }
+.cfdust .m1 { left: 112px; top: 96px; --dx: 10px; --dy: -6px; } .cfdust .m2 { left: 150px; top: 130px; width: 1px; height: 1px; --dx: -8px; --dy: -10px; animation-duration: 11s; animation-delay: -3s; }
+.cfdust .m3 { left: 188px; top: 108px; --dx: 6px; --dy: 12px; animation-duration: 8s; animation-delay: -5s; } .cfdust .m4 { left: 220px; top: 146px; width: 1px; height: 1px; --dx: -12px; --dy: -8px; animation-duration: 12s; animation-delay: -7s; }
+.cfdust .m5 { left: 132px; top: 150px; --dx: 8px; --dy: -12px; animation-duration: 10s; animation-delay: -2s; } .cfdust .m6 { left: 170px; top: 88px; width: 1px; height: 1px; --dx: -6px; --dy: 10px; animation-duration: 13s; animation-delay: -9s; }
+@keyframes cfmote { 0% { translate: 0 0; } 100% { translate: var(--dx) var(--dy); } }
+@media (prefers-reduced-motion: reduce) { .cfdust { display: none; } .cfbird { display: none !important; } .cfstage.is-bird .cfl-window { display: block; } .cfyarn.is-roll .yp, .cfyarn.is-roll .yb { display: none; } .cfl-rug.is-wobble { animation: none; } }

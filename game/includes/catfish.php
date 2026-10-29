@@ -151,9 +151,34 @@ function catfish_room_base_html(array $owned): string
 {
     $h = '<img class="cfroom-bg" src="' . e(catfish_art_url('cf-room.png')) . '" alt="" width="320" height="200">';
     foreach (CATFISH_ROOM_LAYERS as $key) {
-        if ((int)($owned[$key] ?? 0) > 0 && catfish_art_has("cf-room-$key.png")) $h .= '<img class="cfroom-layer" src="' . e(catfish_art_url("cf-room-$key.png")) . '" alt="" width="320" height="200">';
+        if ((int)($owned[$key] ?? 0) > 0 && catfish_art_has("cf-room-$key.png")) $h .= '<img class="cfroom-layer cfl-' . $key . '" src="' . e(catfish_art_url("cf-room-$key.png")) . '" alt="" width="320" height="200">';
     }
     return $h;
+}
+
+/**
+ * 2.1.06 room extras of the play scene, drawn right after the room base (under every cat): the window bird (cf-bird-1..3, 12 x 10 shown at 2x on the perch of
+ * room-layout.json "bird"; catfish.js swaps the window overlay's robin for it, so without JS or with reduced motion the static cf-room-window.png stays) and the yarn ball roll
+ * (the patch cf-room-yarnpatch.png, 38 x 20, clears the ball at room-layout.json "yarn"; the rolling cf-yarn-1..4, 16 x 16, are shown only while it rolls). Hidden by CSS until catfish.js starts them.
+ */
+function catfish_room_extras_html(array $owned): string
+{
+    $h = '';
+    if ((int)($owned['window'] ?? 0) > 0 && catfish_art_has('cf-room-window.png') && catfish_art_has('cf-room-window-nobird.png') && catfish_art_has('cf-bird-1.png') && catfish_art_has('cf-bird-2.png') && catfish_art_has('cf-bird-3.png')) {
+        $h .= '<span class="cfbird f1" aria-hidden="true">' . implode('', array_map(fn($n) => '<img class="b' . $n . '" src="' . e(catfish_art_url("cf-bird-$n.png")) . '" alt="" width="24" height="20">', [1, 2, 3])) . '</span>';
+    }
+    if (catfish_art_has('cf-room-yarnpatch.png') && catfish_art_has('cf-yarn-1.png') && catfish_art_has('cf-yarn-2.png') && catfish_art_has('cf-yarn-3.png') && catfish_art_has('cf-yarn-4.png')) {
+        $h .= '<span class="cfyarn" aria-hidden="true"><img class="yp" src="' . e(catfish_art_url('cf-room-yarnpatch.png')) . '" alt="" width="38" height="20"><span class="yb">'
+            . implode('', array_map(fn($n) => '<img class="y' . $n . '" src="' . e(catfish_art_url("cf-yarn-$n.png")) . '" alt="" width="16" height="16">', [1, 2, 3, 4])) . '</span></span>';
+    }
+    return $h;
+}
+
+/** 2.1.06 code-only ambience over the scene: six dust motes drifting in the sunbeam (only with the owned Room upgrade 'sunbeam'; CSS steps animation, none under reduced motion). */
+function catfish_ambience_html(array $owned): string
+{
+    if ((int)($owned['sunbeam'] ?? 0) < 1 || !catfish_art_has('cf-room-sunbeam.png')) return '';
+    return '<span class="cfdust" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i><i class="m4"></i><i class="m5"></i><i class="m6"></i></span>';
 }
 
 /**
@@ -175,6 +200,7 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
 {
     if (!catfish_art_has('cf-room.png')) return '';
     $h = '<div class="cfstagewrap"><div class="cfstage" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
+    $h .= catfish_room_extras_html($owned);
     $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
     foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<button type="button" class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '" data-fish="' . ($i + 1) . '" aria-label="Bat the plush fish (' . ($i + 1) . ' of 3)"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</button>';
     $others = [];
@@ -211,6 +237,7 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
     $man = catfish_frame_manifest($active);
     if ($man['frames']) $h .= '<script type="application/json" id="cf-frames">' . json_encode($man, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
     if (catfish_art_has('cf-sparkle-1.png')) $h .= '<span class="cfspark" aria-hidden="true">' . implode('', array_map(fn($n) => '<img class="sp' . $n . '" src="' . e(catfish_art_url("cf-sparkle-$n.png")) . '" alt="" width="8" height="8">', [1, 2, 3])) . '</span>';
+    $h .= catfish_ambience_html($owned);
     $h .= '<span class="cfpop p1" aria-hidden="true"></span><span class="cfpop p2" aria-hidden="true"></span><span class="cfpop p3" aria-hidden="true"></span><span id="cf-combo" class="cfcombo" aria-hidden="true"></span>';
     if ($hint) $h .= '<span class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!</span>';
     return $h . '<span id="cf-playlive" class="cfsr" aria-live="polite"></span></div></div>';
@@ -253,10 +280,10 @@ function catfish_art_has(string $file): bool
  * aseprite-source/catfish/frames-alias-s2.json and frames-alias-s3.json (tests/catfish.sh checks they are equal, so they cannot drift). Role names: body, pat-<pattern>,
  * ears-folded, ears-mask, tail-bobtail, tail-mask, eyes-<colour> ('eyes' alone owns all four colours).
  * CATFISH_FRAMES_LAZY are the ones the play scene animates now: catfish.js creates their layers on first need from the manifest block (catfish_frame_manifest);
- * yawn, stretch, washA and washB are installed for 2.1.06.
+ * 2.1.06 adds yawn, stretch, washA and washB (full frames, the idle variety).
  */
 const CATFISH_FRAMES_EXTRA = ['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch', 'yawn', 'stretch', 'washA', 'washB'];
-const CATFISH_FRAMES_LAZY = ['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch'];
+const CATFISH_FRAMES_LAZY = ['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch', 'yawn', 'stretch', 'washA', 'washB'];
 const CATFISH_FRAME_BASE = ['blink' => 'idleA', 'tailflick' => 'idleA', 'eartwitch' => 'idleA'];
 const CATFISH_FRAME_OWN = [
     'blink' => ['body', 'eyes'],
