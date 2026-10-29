@@ -5,6 +5,7 @@
   "patch_white":       { "hex": "#e6dfd2", "derive": "fixed", "use": "tuxedo/calico white patch: felt" },
   "patch_white_shade": { "hex": "#bab0c0", "derive": "fixed", "use": "tuxedo/calico white patch: crescent, toe lines" },
   "patch_white_deep":  { "hex": "#8d829a", "derive": "fixed", "use": "tuxedo/calico white patch: deep crescent, contact shadow" },
+  "patch_white_edge":  { "hex": "#463e5e", "derive": "coat_deep", "use": "tuxedo/calico white patch: 1 px rim where the patch meets coat felt, so white holds its shape on pale coats" },
   "eye_ring":          { "hex": "#ff00ff", "derive": "eye_ring", "use": "iris ring placeholder in cf-eyes-ring-<frame>.png" },
   "eye_amber":         { "hex": "#e0902a", "derive": "fixed", "use": "tinted iris, cf-eyes-amber-*" },
   "eye_green":         { "hex": "#7cb342", "derive": "fixed", "use": "tinted iris, cf-eyes-green-*" },

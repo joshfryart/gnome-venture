@@ -15,13 +15,21 @@
 -- COLOURS. Overlays use the grey template's own tones so tools/catfish_recolor.py derives them per coat:
 --   template (tones.json): shade #57516f  base #8a859b  light #cdc9d3  gloss #f1ebe3
 --   extra roles (tones_overlays.json): coat_deep #3d3654 (a dark mark over the crescent), patch_white family
---   (fixed white felt, tuxedo and calico), eye_ring (placeholder for the iris ring; the 4 finals are tinted).
+--   (fixed white felt, tuxedo and calico), patch_white_edge #463e5e (derive coat_deep: the 1 px rim of a white
+--   patch against coat felt), eye_ring (placeholder for the iris ring; the 4 finals are tinted).
+-- Pass 2 (16 px read): tabby stripes, spots and calico patches are 'dark2' (two tones down) and a size bigger
+-- (tabby 3 px body stripes and 2 px head strokes, solid 4 px beans, calico patches over ears and flanks), white
+-- patches carry patch_white_edge. Base frames are unchanged (the pixel check below still passes).
 -- A MARK never paints new shapes of shading: it steps the tone of each coat pixel under it, so the base cat's
 -- crescent, rim, bounce and contact shadows stay where they are:
 --   dark  = one tone down  (gloss rim -> light, light -> base, base -> shade, shade -> deep); the enamel comma
 --           itself is left alone so the gloss still reads on a stripe.
 --   light = one tone up    (shade -> base, base -> light, light -> gloss).
+--   dark2 = two tones down (light -> shade, base -> deep): the bold marks (tabby, spotted, calico patches) that
+--           must still read at 16 px; one tone down faded to a grey smudge there.
 --   white = patch_white by role: rim/comma -> pw_gloss, felt -> pw, crescent -> pw_shade, deep -> pw_deep.
+--           Every white pixel 4-adjacent to visible coat felt then becomes patch_white_edge, a 1 px coat-deep
+--           rim, so a white patch keeps its shape on a pale coat (cream, white) where pw ~ the coat's light.
 --   Roles come from the part's ramp: body/legs/tail/ears use coat (rim light, felt base, crescent shade); head
 --   and paws use coatHi (rim gloss, felt light, crescent base, deep shade).
 -- Marks only touch coat-tone pixels of cat parts, so they never cover eyes, nose, inner ears, stitches, the
@@ -48,6 +56,7 @@ local pc = app.pixelColor
 local GREY = { shade = "#57516f", base = "#8a859b", light = "#cdc9d3", gloss = "#f1ebe3" }
 local DEEP = "#3d3654"
 local PW = { gloss = "#fbf6ec", base = "#e6dfd2", shade = "#bab0c0", deep = "#8d829a" }
+local PW_EDGE = "#463e5e" -- patch_white_edge: 1 px rim of a white patch where it meets coat (derive coat_deep)
 local EYE_RING = "#ff00ff" -- placeholder: the recolour script swaps it for the eye colour
 local EYES = { amber = "#e0902a", green = "#7cb342", blue = "#4f9fe0", hazel = "#a89436" }
 local TONE = { [DEEP] = 0, [GREY.shade] = 1, [GREY.base] = 2, [GREY.light] = 3, [GREY.gloss] = 4 }
@@ -378,8 +387,12 @@ local function marks(f, list)
       local role = tn - (HI[name] and 1 or 0) -- 3 rim, 2 felt, 1 crescent, 0 deep (coat: light rim)
       if o == "dark" then
         if not comma then new = BYTONE[math.max(0, tn - 1)] end
+      elseif o == "dark2" then
+        if not comma then new = BYTONE[math.max(0, tn - 2)] end
       elseif o == "darkLit" then -- rings on a 5 px tail: the crescent stays clean so the rings do not plaid
         if not comma and role >= 2 then new = BYTONE[tn - 1] end
+      elseif o == "dark2Lit" then
+        if not comma and role >= 2 then new = BYTONE[math.max(0, tn - 2)] end
       elseif o == "light" then
         new = BYTONE[math.min(4, tn + 1)]
       elseif o == "white" then
@@ -389,6 +402,20 @@ local function marks(f, list)
       if new and new ~= h then out[i] = new end
     end
   end
+  -- white patch edge: a white pixel whose 4-neighbour shows coat (a coat tone after the marks) gets the edge
+  local isW = { [PW.gloss] = true, [PW.base] = true, [PW.shade] = true, [PW.deep] = true }
+  local edge = {}
+  for i, v in pairs(out) do
+    if isW[v] then
+      local x, y = i % 64, i // 64
+      for _, d in ipairs({ {1, 0}, {-1, 0}, {0, 1}, {0, -1} }) do
+        local j = (y + d[2]) * 64 + x + d[1]
+        local nv = out[j] or base[j]
+        if nv and TONE[nv] and TONE[nv] >= 1 then edge[i] = true; break end
+      end
+    end
+  end
+  for i in pairs(edge) do out[i] = PW_EDGE end
   return out
 end
 local function partMask(f, names)
@@ -455,50 +482,51 @@ local function lines(f, list, w)
 end
 
 -- --- head marks shared by all frames (idleA coords) ---
-local TABBY_HEAD = { -- forehead "M", eye-corner lines and cheek stripes; x0 = 10, y0 = 11, mirror about x 25
-  "..............xxx..............",
+local TABBY_HEAD = { -- forehead "M", eye-corner and cheek stripes, 2 px strokes (16 px read); x0 = 10, y0 = 11,
+  -- mirror about x 25
+  ".........xx...xxx...xx.........",
+  ".........xxx..xxx..xxx.........",
   "..........xx..xxx..xx..........",
+  "..........xxx.xxx.xxx..........",
   "...........xx..x..xx...........",
-  "............x..x..x............",
-  "............xx.x.xx............",
-  ".............x...x.............",
+  "...............x...............",
   "...............................",
   "...............................",
   "...............................",
   "...............................",
+  "xxx.........................xxx",
   "xx...........................xx",
   "...............................",
+  "xxxx.......................xxxx",
+  ".xxxx.....................xxxx.",
   "...............................",
-  ".xxx.......................xxx.",
-  "...xx.....................xx...",
-  "...............................",
-  ".xxx.......................xxx.",
-  "...xx.....................xx...",
+  "xxxx.......................xxxx",
+  ".xxxx.....................xxxx.",
 }
 local function tabby(f)
   local I = INFO[f]
   local L = {}
-  L[#L + 1] = { headAscii(f, TABBY_HEAD, 10, 11), "dark" }
+  L[#L + 1] = { headAscii(f, TABBY_HEAD, 10, 11), "dark2" }
   local tail = partMask(f, S{ "tail" })
-  L[#L + 1] = { rings(f, I.tpts, tail, 3, 6, 3, nil), "darkLit" }
-  L[#L + 1] = { rings(f, I.tpts, tail, 1e9, 1, 0, 4), "dark" } -- dark tip
+  L[#L + 1] = { rings(f, I.tpts, tail, 3, 6, 3, nil), "dark2Lit" }
+  L[#L + 1] = { rings(f, I.tpts, tail, 1e9, 1, 0, 4), "dark2" } -- dark tip
   local body = partMask(f, S{ "body", "thigh", "legB", "legF", "legH", "legN" })
   local st
   if f == "idleA" or f == "catch" then -- front view: short stripes curling in from both flanks
     local L2 = {}
-    for _, y in ipairs({ 37, 42, 47 }) do -- 2 px lines; mirror of x for a 2 px pen is 49 - x
+    for _, y in ipairs({ 37, 42, 47 }) do -- 3 px lines (3 on, 2 off); mirror of x for a 3 px pen is 50 - x
       L2[#L2 + 1] = { {10, y}, {14, y}, {18, y + 3} }
-      L2[#L2 + 1] = { {39, y}, {35, y}, {31, y + 3} }
+      L2[#L2 + 1] = { {40, y}, {36, y}, {32, y + 3} }
     end
-    st = lines(f, L2, 2)
+    st = lines(f, L2, 3)
   elseif f == "pounce" then -- side view: stripes across the back, tapering toward the belly
-    st = stripes(f, 28, 37, I.A, { -11, -6, -1, 4, 9 }, 2, -8, 1, -2)
+    st = stripes(f, 28, 37, I.A, { -11, -6, -1, 4, 9 }, 3, -8, 1, -2)
     st:add(lines(f, { { {20, 44}, {18, 47} }, { {41, 40}, {42, 43} }, { {44, 34}, {45, 37} } }, 2))
   elseif f == "nap" then -- loaf from the side: stripes down over the back and round the haunch
-    st = stripes(f, 46, 42, 0, { -4, 1, 6 }, 2, -11, -1, -4)
-    st:add(lines(f, { { {41, 39}, {44, 42}, {45, 46} }, { {46, 37}, {49, 41}, {50, 45} } }, 1))
+    st = stripes(f, 46, 42, 0, { -4, 1, 6 }, 3, -11, -1, -4)
+    st:add(lines(f, { { {41, 39}, {44, 42}, {45, 46} }, { {47, 37}, {50, 41}, {51, 45} } }, 2))
   end
-  L[#L + 1] = { st:clip(body), "dark" }
+  L[#L + 1] = { st:clip(body), "dark2" }
   return marks(f, L)
 end
 
@@ -541,9 +569,10 @@ local function calico(f)
   local ox, oy = I.ox, I.oy
   local L = {}
   -- dark patch over the left ear and forehead corner, one at the right cheek's back edge
-  local hp = c:poly({ {6, 4}, {22, 9}, {22, 14}, {18, 17}, {12, 19}, {7, 17} }):shift(ox, oy)
-  hp:add(c:poly({ {30, 6}, {40, 6}, {42, 16}, {37, 14}, {33, 11} }):shift(ox, oy))
-  L[#L + 1] = { hp:clip(partMask(f, S{ "head", "earL", "earR" })), "dark" }
+  -- (pass 2: two tones down and bigger, so the patches hold at 16 px)
+  local hp = c:poly({ {5, 3}, {24, 8}, {24, 15}, {19, 19}, {12, 21}, {6, 19} }):shift(ox, oy)
+  hp:add(c:poly({ {29, 4}, {42, 4}, {43, 19}, {37, 17}, {31, 12} }):shift(ox, oy))
+  L[#L + 1] = { hp:clip(partMask(f, S{ "head", "earL", "earR" })), "dark2" }
   -- white: muzzle, a big bib and paws
   L[#L + 1] = { headAscii(f, MUZZLE, 19, 18), "white" }
   L[#L + 1] = { bib(f, true):clip(partMask(f, S{ "body" })), "white" }
@@ -552,15 +581,15 @@ local function calico(f)
   local body = partMask(f, S{ "body", "thigh", "legB", "legF", "legH", "legN" })
   local bp
   if f == "idleA" or f == "catch" then
-    bp = c:poly({ {28, 30}, {41, 33}, {42, 44}, {35, 43}, {31, 37} }):add(c:poly({ {8, 47}, {14, 44}, {17, 49}, {14, 56}, {8, 56} }))
+    bp = c:poly({ {27, 30}, {42, 31}, {43, 50}, {37, 47}, {33, 40}, {29, 37} }):add(c:poly({ {7, 40}, {15, 38}, {18, 45}, {16, 57}, {7, 57} }))
   elseif f == "pounce" then
-    bp = c:poly({ {17, 33}, {27, 28}, {31, 31}, {28, 37}, {20, 39} }):add(c:poly({ {37, 30}, {44, 32}, {46, 37}, {40, 36} }))
+    bp = c:poly({ {14, 34}, {27, 26}, {32, 30}, {29, 38}, {18, 42} }):add(c:poly({ {36, 28}, {45, 30}, {48, 38}, {39, 37} }))
   elseif f == "nap" then
-    bp = c:poly({ {40, 31}, {52, 31}, {56, 38}, {50, 44}, {43, 41} })
+    bp = c:poly({ {38, 30}, {53, 30}, {57, 39}, {50, 46}, {41, 43} }):add(c:poly({ {16, 37}, {26, 33}, {28, 40}, {18, 44} }))
   end
-  L[#L + 1] = { bp:clip(body), "dark" }
+  L[#L + 1] = { bp:clip(body), "dark2" }
   local tail = partMask(f, S{ "tail" })
-  L[#L + 1] = { rings(f, I.tpts, tail, 7, 100, 7, nil), "dark" }
+  L[#L + 1] = { rings(f, I.tpts, tail, 7, 100, 9, nil), "dark2" }
   return marks(f, L)
 end
 
@@ -586,10 +615,12 @@ end
 -- commas round a coat-colour centre); a stamp is kept only where it sits wholly inside the cat parts named
 -- (shrunk by 1, so no spot touches an edge or a contour). Open 1 px rings read as bubbles, a plain grid of
 -- squares read as polka dots and 4-corner rosettes read as little window frames: all tried and dropped.
+-- Pass 2 (16 px read): solid beans and diamonds a size up, two tones down; the open rosette dissolved into
+-- single pixels at 16 px and is dropped.
 local ROS = {
-  { ".xxx", "xxxx", "xxx." },           -- bean
-  { "xx..", "x...", "...x", "..xx" },   -- open rosette: two commas facing each other round a coat centre
-  { ".x.", "xxx", ".x." },              -- small diamond
+  { ".xxx", "xxxx", "xxxx", "xxx." },   -- round bean
+  { ".xx.", "xxxx", ".xx." },           -- flat diamond
+  { "xx..", "xxx.", ".xxx", "..xx" },   -- slanted bean
   { "xxx.", "xxxx", ".xxx" },           -- bean, turned
 }
 local function spotted(f)
@@ -618,15 +649,15 @@ local function spotted(f)
   m:add(stampAll({ "legB", "legF", "legH", "legN" }, 5, 0, 0))
   -- tail: broken rings (a ring with every third pixel row left out) and a dark tip
   local tail = partMask(f, S{ "tail" })
-  local tr = rings(f, I.tpts, tail, 3, 6, 2, 3)
-  L[#L + 1] = { m, "dark" }
-  L[#L + 1] = { tr, "darkLit" }
+  local tr = rings(f, I.tpts, tail, 3, 6, 3, 3)
+  L[#L + 1] = { m, "dark2" }
+  L[#L + 1] = { tr, "dark2Lit" }
   -- head: a few dots on the forehead and cheeks
   L[#L + 1] = { headAscii(f, { -- x0 = 10, y0 = 12, mirror about x 25
-    "............xx...xx............",
+    "...........xx.....xx...........",
+    "...........xx.....xx...........",
     "...............................",
-    "...............x...............",
-    "...............x...............",
+    "...............................",
     "...............................",
     "...............................",
     "...............................",
@@ -635,10 +666,11 @@ local function spotted(f)
     "...............................",
     "...............................",
     "xx...........................xx",
-    "x.............................x",
+    "xx...........................xx",
     "...............................",
     ".xx.........................xx.",
-  }, 10, 12), "dark" }
+    ".xx.........................xx.",
+  }, 10, 12), "dark2" }
   return marks(f, L)
 end
 
@@ -711,6 +743,7 @@ local J = {
   '  "patch_white":       { "hex": "' .. PW.base .. '", "derive": "fixed", "use": "tuxedo/calico white patch: felt" },',
   '  "patch_white_shade": { "hex": "' .. PW.shade .. '", "derive": "fixed", "use": "tuxedo/calico white patch: crescent, toe lines" },',
   '  "patch_white_deep":  { "hex": "' .. PW.deep .. '", "derive": "fixed", "use": "tuxedo/calico white patch: deep crescent, contact shadow" },',
+  '  "patch_white_edge":  { "hex": "' .. PW_EDGE .. '", "derive": "coat_deep", "use": "tuxedo/calico white patch: 1 px rim where the patch meets coat felt, so white holds its shape on pale coats" },',
   '  "eye_ring":          { "hex": "' .. EYE_RING .. '", "derive": "eye_ring", "use": "iris ring placeholder in cf-eyes-ring-<frame>.png" },',
   '  "eye_amber":         { "hex": "' .. EYES.amber .. '", "derive": "fixed", "use": "tinted iris, cf-eyes-amber-*" },',
   '  "eye_green":         { "hex": "' .. EYES.green .. '", "derive": "fixed", "use": "tinted iris, cf-eyes-green-*" },',
