@@ -22,3 +22,8 @@ if (($argv[2] ?? '') === 'wander' && $exp) {   // v2.1.11: a step 7 wander with 
     $exp['depth'] = 7; $exp['level'] = 16; $exp['trail'] = json_encode([1, 2, 3, 4, 5, 6, 7]); $exp['encounter'] = null; save_exp($exp);
     echo "wander\n";
 }
+if (($argv[2] ?? '') === 'choice' && $exp) {   // v2.1.12: a road-event choice card (the loon, the cart ...)
+    $evs = road_events()['ev']; $ev = $evs[array_key_first($evs)];
+    $exp['depth'] = 9; $exp['level'] = 18; $exp['trail'] = json_encode([1, 2, 3, 4, 5, 6, 7, 8, 9]); $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ev['id']]); save_exp($exp);
+    echo "choice\n";
+}

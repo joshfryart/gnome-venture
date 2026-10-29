@@ -6077,8 +6077,13 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .advgrid.wander .hoopcap { margin: 2px 0 0; min-height: 0; font-size: 11px; }
   .advgrid.wander .hoopcap-tip, .advgrid.wander .tmlinks { display: none; }
   .advgrid.wander .wanderinfo { display: block; grid-column: 2; font-size: 13px; line-height: 1.35; text-align: left; }
-  .advgrid.wander .roadresult, .advgrid.wander .advlatest, .advgrid.wander .roadline { grid-column: 2; margin: 0; text-align: left; font-size: 13px; line-height: 1.35; }
-  .advgrid.wander > .encounter > :not(.roadresult):not(.advlatest):not(.roadline) { grid-column: 1 / -1; }
+  .advgrid.wander .roadresult, .advgrid.wander .advlatest, .advgrid.wander .roadline, .advgrid.wander .scenecard, .advgrid.wander .meetcard { grid-column: 2; margin: 0; text-align: left; font-size: 13px; line-height: 1.35; }
+  .advgrid.wander > .encounter > :not(.roadresult):not(.advlatest):not(.roadline):not(.scenecard):not(.meetcard) { grid-column: 1 / -1; }
+  .advgrid.wander .scenecard, .advgrid.wander .meetcard { padding: 0; box-shadow: none; background: none; border: 0; }   /* v2.1.12: an event card sits beside the map */
+  .advgrid.wander .scenecard h3, .advgrid.wander .meetcard .meet-says { margin: 0; font-size: 14px; line-height: 1.35; text-align: left; }
+  .advgrid.wander .scenecard .help, .advgrid.wander .scenecard .roadkind { margin: 2px 0 0; font-size: 12px; text-align: left; }
+  .advgrid.wander .scenecard .bigfoe, .advgrid.wander .meetcard .bigfoe { font-size: 20px; }
+  .advgrid.wander .meetcard .meet-who { justify-content: flex-start; gap: 6px; }
   .advgrid.wander .choicelist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0; margin: 0; }
   .advgrid.wander .choicelist .choice { position: relative; min-height: 44px; padding: 5px 6px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; text-align: left; }
   .advgrid.wander .choicelist .choice::after { content: none; }

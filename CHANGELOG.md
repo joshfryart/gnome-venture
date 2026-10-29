@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.12
+- **Phone: event cards use the compact wander layout too.** A road event (a choice, someone met on the road, a problem) used to fall back to the tall layout (banner, big map, then the card), so the answers sat below the first screen. They now get the same layout as the wander screen: ring map left, place line and the event text on its right, the answers as a 2-column grid below. A problem card keeps its full-width answers. Fights are unchanged.
+- Tests: `tests/advforce.php choice` and a `choice` shot in `tests/adventure.sh`.
+
 ## 2.1.11
 - **Phone: the wander screen fits on one screen.** Off the path, up to 720 px wide: no stage banner on top; one row with the ring map (112 px, centred in its space) on the left and, on its right, the place and tier line, the latest result and the story line; the four actions below as a 2 by 2 grid (energy cost as a corner badge); then two folds, closed by default: **Gather here** (the scene picture at 82% width, the tool belt right under it on one line with no heading, felt cards, What's here; it opens by itself when a find has just come in) and **More** (the country notes and the knocked-out reminder). The heading, status line and the "swipe to see the whole map" hint are hidden there. Fights, other adventure cards and desktop are unchanged (the folds start open on a larger screen).
 - Action labels shortened everywhere: Go deeper, Keep exploring, Step back, Head to the road (the cost is already in the badge).

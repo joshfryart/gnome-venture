@@ -185,7 +185,7 @@ if ($wi && !$isWalk): ?>
   </details>
 </div>
 <?php endif; ?>
-<?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$enc;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold) ?>
+<?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
 <?php if ($exp): echo adventure_stage_html($u, $exp, $scene, $enc); endif; ?>
