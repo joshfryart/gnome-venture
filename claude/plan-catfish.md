@@ -41,7 +41,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] `catfish.php` page, `catfish_open` setting, Games hub tile
 - [ ] Version bump + CHANGELOG entry (only at release; feature stays hidden behind `catfish_open`)
 - [x] Placeholder art, no inline script or style (CSP)
-- [ ] `tests/catfish.sh` and a ci_suites entry
+- [x] `tests/catfish.sh` and CI entry (38 checks)
 - [ ] Opus mid-week review
 
 **Week 2:** full 16-node tree, Nap + Yarn, personalities, Cat Book + badges, test growth, Opus end-of-week review.
