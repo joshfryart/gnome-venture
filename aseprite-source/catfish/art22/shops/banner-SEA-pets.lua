@@ -155,10 +155,8 @@ local function fish(x, y, col)
   c:paint({ "..sss..s" }, x, y + 4, { s = col.shade })
   c:px(x + 2, y + 1, "#2a1a10")
 end
-rattan(89, 31); rattan(95, 31); rattan(101, 31); rattan(107, 31)
--- plush fish dangling from the awning on threads
-c:fill(c:rect(138, 28, 138, 29):add(c:rect(149, 28, 149, 30)), "#8a4f2a")
-fish(135, 30, RED); fish(146, 31, TEAL)
+rattan(88, 31); rattan(93, 31)
+fish(99, 29, RED)
 -- left of the cat: a jar of kibble
 local jar = c:rrect(92, 35, 102, 40, 2)
 c:part(jar, TEAL, { flat = true, outline = false }); edge1(jar, "#5e2f1e")
@@ -166,11 +164,14 @@ c:fill(c:rect(93, 35, 101, 35), "#dd3a2a")
 c:px(93, 36, "#c8ecdc"); c:px(93, 37, "#c8ecdc")
 for _, p in ipairs({ { 96, 38 }, { 98, 37 }, { 100, 38 }, { 97, 39 }, { 99, 39 } }) do c:px(p[1], p[2], "#8a4f2a") end
 -- right of the cat: kitten asleep in an upturned paddy-hat bed
-local kit = c:ellipse(144.5, 37.5, 5, 3)
-kit:add(c:poly({ { 140, 37 }, { 140, 32 }, { 144, 35 } })):add(c:poly({ { 145, 35 }, { 149, 32 }, { 149, 37 } }))
+local kit = c:ellipse(145, 35.5, 6, 4)
+kit:add(c:poly({ { 139, 35 }, { 140, 29 }, { 144, 32 } })):add(c:poly({ { 146, 32 }, { 150, 29 }, { 151, 35 } }))
 c:part(kit, CREAM, { flat = true, outline = false }); edge1(kit, "#8a4f2a")
-c:paint({ "aa...aa", ".......", "..n.n.." }, 141, 36, { a = "#4a2c1a", n = "#b07a45" })
-c:px(141, 34, "#f2793a"); c:px(148, 34, "#f2793a")
+c:paint({ "aa...aa", ".......", "...n..." }, 142, 35, { a = "#4a2c1a", n = "#dd3a2a" })
+c:paint({ "a.a" }, 144, 38, { a = "#b07a45" })
+c:px(141, 32, "#f2793a"); c:px(141, 33, "#f2793a"); c:px(149, 32, "#f2793a"); c:px(149, 33, "#f2793a")
+-- grey tabby stripes on the kitten's crown
+c:fill(c:rect(144, 31, 144, 32):add(c:rect(146, 31, 146, 32)), "#d9a660")
 local hat = c:poly({ { 133, 39 }, { 157, 39 }, { 153, 42 }, { 137, 42 } }):add(c:rect(134, 38, 156, 39))
 c:part(hat, GOLD, { flat = true, outline = false }); edge1(hat, "#8a4f2a")
 for x = 136, 154, 3 do c:px(x, 40, "#b8661a"); c:px(x + 1, 41, "#b8661a") end
@@ -202,18 +203,19 @@ c:fill(c:poly({ { 128, 9 }, { 133, 6 }, { 133, 10 } }), "#f2e4c0")
 c:fill(c:line({ { 80, 16 }, { 86, 12 } }, 1), "#f2793a"); c:px(84, 14, "#f5cf6a"); c:px(85, 13, "#f5cf6a")
 -- woven attap gable
 c:part(gable, CREAM, { gloss = false, outline = false, flat = true })
-gable:each(function(x, y) if (x + y) % 4 == 0 or (x - y) % 4 == 0 then c:px(x, y, "#d9a660") end end)
+gable:each(function(x, y) if y % 3 == 0 or (y % 3 ~= 0 and (x + (y // 3) * 2) % 4 == 0) then c:px(x, y, "#d9a660") end end)
 edge1(gable, "#ae2a2a")
 -- gold emblem: cat head (no text)
-local disc = c:ellipse(CX + 0.5, 17, 4.5, 4.5)
+local disc = c:ellipse(CX, 17, 5, 5)
 c:part(disc, GOLD, { gloss = false, outline = false, flat = true }); edge1(disc)
 c:paint({
-  "s....s",
-  "ss..ss",
-  "ssssss",
-  "s.ss.s",
-  ".ssss.",
-}, CX - 2, 15, { s = "#5e2f1e" })
+  "s.....s",
+  "ss...ss",
+  "sssssss",
+  "s.sss.s",
+  "sssssss",
+  ".sssss.",
+}, CX - 3, 14, { s = "#5e2f1e" })
 -- gold seam along the eaves (a real join between tiles and trim)
 c:seam({ { 67, 21 }, { CX, 6 } }, {})
 c:seam({ { CX + 1, 6 }, { 174, 21 } }, {})

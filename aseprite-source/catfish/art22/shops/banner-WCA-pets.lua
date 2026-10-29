@@ -140,21 +140,18 @@ for x = 90, 150, 6 do
   if not (x > 108 and x < 130) then c:paint({ ".m.", "mmm" }, x, 45, { m = K.u1 }) end
 end
 
--- door: tall arch, warm glowing inside
-local door = c:rect(111, 37, 128, 48):add(c:ellipse(119.5, 37, 9, 7))
+-- door: tall arch, warm glowing inside, umber doorway frame
+local door = c:rect(112, 37, 127, 48):add(c:ellipse(119.5, 37, 8, 6))
 local frame = door:grow(2):cut(door):cut(c:rect(0, 49, W, H))
 c:part(frame, WOOD, { cres = 2, deep = 0, gloss = false })
 c:fill(door, K.sand)
 c:fill(door:copy():cut(door:shrink(1)):cut(c:rect(0, 48, W, H)), K.goldB)
--- inside: a shelf of calabash treat bowls, a fish hanging, a cat bed on the floor
-c:fill(c:rect(112, 40, 127, 40), K.wood)
-c:part(c:ellipse(115.5, 38, 2.5, 1.5):cut(c:rect(0, 0, W, 37)), CALA, { flat = true, outline = false })
-c:part(c:ellipse(121.5, 38, 2.5, 1.5):cut(c:rect(0, 0, W, 37)), RED, { flat = true, outline = false })
-c:fill(c:rect(125, 38, 126, 39), K.goldS)
-c:fill(c:rect(119, 31, 119, 32), K.wood)
-c:paint({ ".ff.f", "fffff", ".ff.f" }, 117, 33, { f = K.u1 })   -- dried-fish treat silhouette
-c:part(c:ellipse(119.5, 46, 6, 2), RED, { flat = true, outline = false })
-c:fill(c:rect(114, 45, 125, 45), K.ginger)
+c:fill(c:rect(114, 41, 125, 41), K.goldB)                           -- glowing floor line inside
+-- inside: one dried-fish treat hanging, a round red cat bed
+c:fill(c:rect(119, 32, 119, 34), K.u1)
+c:paint({ "f..f", "ffff", "ffff", ".ff.", "f..f" }, 118, 35, { f = K.u1 })
+c:part(c:ellipse(119.5, 46, 5.5, 2), RED, { flat = true, outline = false })
+c:fill(c:rect(115, 45, 124, 45), K.ginger)
 
 -- round windows with warm glow, a cream kitten peeking in the right one
 local function window(cx)
@@ -178,7 +175,7 @@ do
   local n = 0
   for i = 3, #pts - 3, 5 do
     local x, y = pts[i][1], pts[i][2]
-    do
+    if not (x > 109 and x < 130) then
       n = n + 1
       local col = cols[(n - 1) % 3 + 1]
       c:fill(c:poly({ { x - 1, y + 1 }, { x + 3, y + 1 }, { x + 1, y + 5 } }), col)
@@ -207,47 +204,47 @@ local function drum(x0, y0, h)
   for x = x0 + 1, x0 + 6, 2 do c:fill(c:rect(x, y0 + 1, x, y0 + h - 1):clip(m), K.sand) end   -- tension cords
   return m
 end
-drum(99, 38, 10)
+drum(99, 40, 9)
 -- grey-cream cat sitting on the left drum, tail hanging
-local sitB = c:ellipse(103, 34, 3.5, 2.5)
-local sitH = c:ellipse(102.5, 29, 3.5, 3):add(c:poly({ { 99, 28 }, { 99, 24 }, { 102, 26 } })):add(c:poly({ { 103, 26 }, { 106, 24 }, { 106, 28 } }))
-local sitT = c:line({ { 106, 36 }, { 108, 37 }, { 108, 43 } }, 2)
+local sitB = c:ellipse(103, 36, 3.5, 2.5)
+local sitH = c:ellipse(102.5, 31, 3.5, 3):add(c:poly({ { 99, 30 }, { 99, 26 }, { 102, 28 } })):add(c:poly({ { 103, 28 }, { 106, 26 }, { 106, 30 } }))
+local sitT = c:line({ { 106, 38 }, { 108, 39 }, { 108, 45 } }, 2)
 c:build{
   { "stail", sitT, CAT, { flat = true } },
   { "sbody", sitB, CAT, { cres = 2, deep = 1, gloss = false } },
   { "shead", sitH, CAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:px(101, 29, K.u3); c:px(104, 29, K.u3)
-c:px(102, 30, K.redS)
-c:paint({ "s.s" }, 101, 27, { s = K.goldS })
+c:px(101, 31, K.u3); c:px(104, 31, K.u3)
+c:px(102, 32, K.redS)
+c:paint({ "s.s" }, 101, 29, { s = K.goldS })
 
--- stacked calabash bowls on a low bench (right of the door)
-c:part(c:rect(140, 46, 152, 47), WOOD, { flat = true })
-c:fill(c:rect(141, 48, 141, 49), K.u2); c:fill(c:rect(151, 48, 151, 49), K.u2)
-c:part(c:ellipse(145, 44, 4, 2.5):cut(c:rect(0, 0, W, 42)), CALA, { cres = 1, deep = 0, gloss = false })
-c:part(c:ellipse(149.5, 44, 2.5, 2):cut(c:rect(0, 0, W, 43)), CALA, { cres = 1, deep = 0, gloss = false })
-c:fill(c:rect(142, 43, 147, 43), K.goldS)
-c:paint({ "z.z.z" }, 143, 44, { z = K.u1 })                       -- carved zigzag
+-- stacked calabash bowls on a low bench (right of the door, under the window)
+c:part(c:rect(133, 47, 151, 48), WOOD, { flat = true })
+c:fill(c:rect(134, 49, 134, 50), K.u2); c:fill(c:rect(150, 49, 150, 50), K.u2)
+c:part(c:ellipse(138, 44, 4.5, 3):cut(c:rect(0, 0, W, 43)), CALA, { cres = 1, deep = 0, gloss = { 135, 44 } })
+c:part(c:ellipse(146.5, 45, 3.5, 2):cut(c:rect(0, 0, W, 44)), CALA, { cres = 1, deep = 0, gloss = false })
+c:part(c:ellipse(138, 41, 3, 1.5):cut(c:rect(0, 0, W, 40)), CALA, { flat = true })   -- small bowl stacked on top
+c:paint({ "z.z.z" }, 136, 45, { z = K.u1 })                       -- carved zigzag
 
 ----------------------------------------------------------------- front: woven mat and a ginger cat napping
-local mat = c:poly({ { 106, 50 }, { 134, 50 }, { 137, 56 }, { 103, 56 } })
+local mat = c:poly({ { 125, 51 }, { 150, 51 }, { 153, 57 }, { 122, 57 } })
 c:part(mat, THATCH, { cres = 2, deep = 0, gloss = false, outline = false })
 c:fill(mat:copy():cut(mat:shrink(1)), K.red)
-for y = 52, 54, 2 do c:fill(c:rect(104, y, 136, y):clip(mat:shrink(1)), K.goldS) end
-for x = 108, 133, 6 do c:fill(c:rect(x, 51, x + 1, 55):clip(mat:shrink(1)), K.moss) end
+for y = 53, 55, 2 do c:fill(c:rect(122, y, 153, y):clip(mat:shrink(1)), K.goldS) end
+for x = 127, 150, 6 do c:fill(c:rect(x, 52, x + 1, 56):clip(mat:shrink(1)), K.moss) end
 c:outline(mat)
 -- napping ginger cat (loaf, closed eyes)
-local catB = c:ellipse(124.5, 51, 6, 3)
-local catH = c:ellipse(117, 50, 3.5, 3):add(c:poly({ { 114, 50 }, { 114, 45 }, { 117, 47 } })):add(c:poly({ { 118, 47 }, { 121, 45 }, { 121, 50 } }))
-local tail = c:line({ { 130, 53 }, { 132, 51 }, { 131, 49 } }, 2)
+local catB = c:ellipse(141.5, 52, 6, 3)
+local catH = c:ellipse(134, 51, 3.5, 3):add(c:poly({ { 131, 51 }, { 131, 46 }, { 134, 48 } })):add(c:poly({ { 135, 48 }, { 138, 46 }, { 138, 51 } }))
+local tail = c:line({ { 147, 54 }, { 149, 52 }, { 148, 50 } }, 2)
 c:build{
   { "tail", tail, CAT, { flat = true } },
   { "body", catB, CAT, { cres = 2, deep = 1 } },
   { "head", catH, CAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:paint({ "u..u" }, 115, 50, { u = K.u3 })
-c:px(117, 51, K.redS)
-c:paint({ "s.s.s" }, 122, 48, { s = K.goldS })
+c:paint({ "u..u" }, 132, 51, { u = K.u3 })
+c:px(134, 52, K.redS)
+c:paint({ "s.s.s" }, 139, 49, { s = K.goldS })
 
 ----------------------------------------------------------------- hem stitch
 c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true })

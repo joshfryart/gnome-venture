@@ -244,8 +244,8 @@ do
   c:px(13, 21, DK); c:px(14, 21, DK); c:px(13, 20, DK)                -- entrance at the tube's foot
   c:px(10, 7, GRASS.rim); c:px(15, 7, GRASS.rim)                      -- grass ends at the hanging knot
   -- weaver face (looking at the nest): dark mask, red eye in it, pale beak; wing bars; foot on the nest
-  c:paint({ "mm..", "mmm.", ".mm." }, 18, 5, { m = DK })
-  c:px(19, 6, "#e0501f")
+  c:paint({ "mm..", "mmm.", ".m.." }, 18, 6, { m = DK })
+  c:px(19, 7, "#e0501f")
   c:px(17, 7, "#c9a96e"); c:px(17, 8, "#c9a96e")
   c:paint({ "s..", ".s.", "s.." }, 22, 10, { s = BIRD.shade })
   c:px(18, 13, DK); c:px(18, 14, DK)

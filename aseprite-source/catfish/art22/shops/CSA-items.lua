@@ -303,17 +303,15 @@ do
   part(c, field, R.teal, { cres = 0, rim = false })
   -- counter strip
   part(c, c:rect(6, 21, 28, 24), R.wood, { cres = 1, contour = false })
-  -- tall chai kettle: bail handle over the top, knob lid, spout low on the right
-  for _, p in ipairs({ { 9, 11 }, { 9, 10 }, { 10, 9 }, { 11, 8 }, { 12, 8 }, { 13, 8 }, { 14, 8 }, { 15, 9 }, { 16, 10 }, { 16, 11 } }) do
-    P(c, p[1], p[2], OL2)
-  end
-  part(c, c:line({ { 17, 18 }, { 18, 16 }, { 19, 14 } }, 2), R.brass, { cres = 1 })
-  local pot = c:rrect(9, 12, 16, 20, 2)
-  part(c, pot, R.brass, { cres = 2, deep = true, gloss = { { 10, 14 }, { 10, 15 }, { 11, 14 } } })
-  for x = 10, 15 do c:px(x, 13, (x < 13) and R.brass.shade or R.brass.deep) end   -- lid seam
-  part(c, c:rect(12, 10, 13, 11), R.brass, { cres = 1 })                            -- knob
+  -- round chai kettle: side handle, belly, lid + knob, then the spout in front reaching up to the right
+  part(c, c:line({ { 8, 14 }, { 7, 16 }, { 8, 18 } }, 2), R.brass, { cres = 1 })
+  local pot = c:ellipse(12.5, 16.5, 3.5, 3.5)
+  part(c, pot, R.brass, { cres = 2, deep = true, gloss = { { 10, 15 }, { 10, 16 }, { 11, 14 } } })
+  part(c, c:rrect(10, 11, 15, 13, 1), R.brass, { cres = 1, gloss = { { 11, 11 } } })
+  part(c, c:rect(12, 9, 13, 10), R.brass, { cres = 1 })
+  part(c, c:line({ { 16, 18 }, { 17, 16 }, { 18, 14 }, { 19, 13 } }, 2), R.brass, { cres = 1 })
   -- chai pouring into the kulhad
-  P(c, 21, 14, R.terra.rim); P(c, 21, 15, R.terra.rim); P(c, 22, 16, R.terra.rim)
+  P(c, 21, 13, R.terra.rim); P(c, 21, 14, R.terra.rim); P(c, 22, 15, R.terra.rim); P(c, 22, 16, R.terra.rim)
   -- clay kulhad cups
   part(c, c:rect(20, 17, 24, 17):add(c:rect(21, 18, 23, 20)), R.terra, { cres = 1 })
   part(c, c:rect(25, 18, 27, 18):add(c:rect(25, 19, 27, 20)), R.terra, { cres = 1 })
