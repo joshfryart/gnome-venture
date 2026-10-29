@@ -894,8 +894,8 @@ function fight_replay_stage(int $expId): string
         . '<meter min="0" max="' . $max . '" low="' . (int)ceil($max / 3) . '" value="' . $v . '"></meter> <span class="fo-n">❤️ ' . $v . '/' . $max . '</span></div>';
     $data = ['f0' => $r['f0'], 'fmax' => $r['fmax'], 'm0' => $r['m0'], 'mmax' => $r['mmax'], 'rounds' => $r['rounds']];
     return '<div class="fostage' . (!empty($r['end']) ? ' fo-end' : '') . '" hidden data-replay="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '">'
+        . $side('me', '🧙', (string)$r['me'], (int)$r['m0'], (int)$r['mmax'])   // you first, on the left like your gnome on the stage
         . $side('foe', (string)$r['ico'], $r['foe'] . ' (lv ' . (int)$r['lv'] . ')', (int)$r['f0'], (int)$r['fmax'])
-        . $side('me', '🧙', (string)$r['me'], (int)$r['m0'], (int)$r['mmax'])
         . '<ul class="fo-lines" aria-hidden="true"></ul><p class="fo-hint">Tap to skip</p></div>';
 }
 

@@ -242,19 +242,19 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
     fight_prep($enc, $c);   // v1.3.0: show the eased health
     $sure = fight_certainty($u, $exp, $c, $enc);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES['']; ?>
-  <?php // v0.7.61: the foe on the left, you on the right, in one box ?>
+  <?php // v0.7.61: one box; reversed in 2.2.1 so you are on the left, under your gnome on the stage, and the foe on the right under theirs ?>
   <div class="fightgrid">
-    <div class="fcard foe">
-      <div class="fname"><span class="bigfoe"><?php require_once __DIR__ . '/includes/items.php'; $cim = creature_image((string)($c['slug'] ?? ''), true);   // v1.5.2: or its placeholder echo $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], (string)$c['size']); ?></span> <b><?= e($c['name']) ?></b></div>
-      <small class="muted"><?= e($c['size']) ?> · level <?= (int)$c['level'] ?></small>
-      <div class="fbar">❤️ <progress max="<?= (int)$enc['max'] ?>" value="<?= max(0, (int)$enc['hp']) ?>"></progress> <?= max(0, (int)$enc['hp']) ?>/<?= (int)$enc['max'] ?></div>
-      <small>⚔️ +<?= (int)$c['attack'] ?> · 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
-    </div>
     <div class="fcard you">
       <div class="fname"><?= gnome_avatar_pals($u, 30) ?> <b><?= e(gnome_name($u)) ?></b></div>
       <small class="muted">gnome level <?= (int)$u['level'] ?></small>
       <div class="fbar">❤️ <progress max="<?= (int)$exp['max_hp'] ?>" value="<?= max(0, (int)$exp['hp']) ?>"></progress> <?= max(0, (int)$exp['hp']) ?>/<?= (int)$exp['max_hp'] ?></div>
       <small>⚡ <?= (int)$u['energy'] ?> · ⚔️ +<?= $gc['atk'] ?> · 🛡️ <?= $gc['ac'] ?> · 🎲 d<?= $gc['dmg_die'] ?>+<?= $gc['dmg_bonus'] ?><?= $enc['bark'] ? ' · 🌳 ' . (int)$enc['bark'] : '' ?></small>
+    </div>
+    <div class="fcard foe">
+      <div class="fname"><span class="bigfoe"><?php require_once __DIR__ . '/includes/items.php'; $cim = creature_image((string)($c['slug'] ?? ''), true);   // v1.5.2: or its placeholder echo $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], (string)$c['size']); ?></span> <b><?= e($c['name']) ?></b></div>
+      <small class="muted"><?= e($c['size']) ?> · level <?= (int)$c['level'] ?></small>
+      <div class="fbar">❤️ <progress max="<?= (int)$enc['max'] ?>" value="<?= max(0, (int)$enc['hp']) ?>"></progress> <?= max(0, (int)$enc['hp']) ?>/<?= (int)$enc['max'] ?></div>
+      <small>⚔️ +<?= (int)$c['attack'] ?> · 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
     </div>
   </div>
   <details class="helpfold"><summary>About the <?= e($c['name']) ?></summary><p><i><?= e($c['description']) ?></i></p></details>
