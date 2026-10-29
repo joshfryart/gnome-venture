@@ -234,13 +234,14 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
         $spots[] = [$y, '<span class="cfspot cfpos-x' . $x . '-y' . $y . '">' . catfish_cat_html($c, 64, $f, false) . ($f === 'nap' ? $zimg : '') . '</span>'];
     }
     [$ax, $ay] = CATFISH_STAGE_ACTIVE;
-    $start = $napping ? 'nap' : 'idleA';
-    $groups = '';
+    $groups = ''; $hasNap = false;
     foreach (CATFISH_FRAMES as $f) {
         $g = catfish_cat_html($active, 64, $f, false);
         if (str_contains($g, 'class="cfcat ')) { if ($f === 'idleA') $groups .= '<span class="cfframe ff-idleA" data-f="idleA">' . $g . '</span>'; continue; }   // no art for this coat or frame
         $groups .= '<span class="cfframe ff-' . $f . '" data-f="' . $f . '">' . $g . '</span>';
+        if ($f === 'nap') $hasNap = true;
     }
+    $start = $napping && $hasNap ? 'nap' : 'idleA';   // no nap art for this coat: start on a frame that is there
     $spots[] = [$ay, '<span class="cfactive cfpos-x' . $ax . '-y' . $ay . ' fr-' . $start . '" data-frame="' . $start . '" data-seed="' . (int)($active['seed'] ?? 0) . '"' . ($napping ? ' data-nap="1"' : '') . '>' . $groups . '</span>'];
     usort($spots, fn($a, $b) => $a[0] <=> $b[0]);   // lower on the floor is drawn in front
     foreach ($spots as $sp) $h .= $sp[1];
@@ -451,6 +452,12 @@ function catfish_ensure(): bool
         foreach ([['catfish_state', 'run_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'total_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'meta', 'TEXT NULL'], ['cat_book', 'adopted', 'INT NOT NULL DEFAULT 0']] as [$t, $col, $def]) {
             try { q('SELECT ' . $col . ' FROM ' . $t . ' LIMIT 1'); } catch (Throwable $e) { try { db()->exec('ALTER TABLE ' . $t . ' ADD COLUMN ' . $col . ' ' . $def); } catch (Throwable $e2) {} }   // a second first request may have added it already
         }
+        try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); }
+        catch (Throwable $e) {   // an ALTER above failed for a reason other than a racing request: say so (bootstrap.php then keeps retrying the upgrade)
+            error_log('catfish_ensure: ' . $e->getMessage());
+            $GLOBALS['gv_migrate_errors'][] = 'catfish_ensure -> ' . $e->getMessage();
+            return $ok = false;
+        }
         return $ok = true;
     } catch (Throwable $e) {
         error_log('catfish_ensure: ' . $e->getMessage());
@@ -577,9 +584,10 @@ function catfish_state(int $uid): array
 {
     $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?', [$uid]);
     if (!$s) {
-        try { db_insert('catfish_state', ['user_id' => $uid, 'kibble' => 0, 'yarn' => 0, 'upgrades' => '{}', 'active_cat_id' => null, 'last_tick' => time(), 'naps' => 0, 'run_kibble' => 0, 'total_kibble' => 0, 'meta' => '{}', 'created_at' => now()]); }
-        catch (Throwable $e) {}   // a second tab created it first
-        $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?', [$uid]);
+        $lite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        q(($lite ? 'INSERT OR IGNORE' : 'INSERT IGNORE') . " INTO catfish_state (user_id, kibble, yarn, upgrades, active_cat_id, last_tick, naps, run_kibble, total_kibble, meta, created_at) VALUES (?, 0, 0, '{}', NULL, ?, 0, 0, 0, '{}', ?)", [$uid, time(), now()]);   // a second tab may have created it first
+        $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?' . ($lite ? '' : ' FOR UPDATE'), [$uid]);   // a locking read sees the other tab's committed row, not this transaction's older snapshot
+        if (!$s) throw new RuntimeException('catfish_state: no row for user ' . $uid);
     }
     $up = json_decode((string)($s['upgrades'] ?? ''), true);
     $s['up'] = is_array($up) ? array_map('intval', $up) : [];
@@ -681,8 +689,9 @@ function catfish_tick(int $uid): array
         $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
         $base = (int)floor(min($eff * $secs / 3600, PHP_INT_MAX >> 4));
         if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
-        $gain = $base + (($cat['mood'] ?? '') === 'sneaky' ? catfish_rare_fish($eff, $secs, mt_rand() / (mt_getrandmax() + 1)) : 0);
         $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)ceil($base * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
+        $paidSecs = min($secs, $tick - (int)$s['last_tick']);   // the rare fish rolls on the seconds paid now, so the kept fraction is not rolled twice
+        $gain = $base + (($cat['mood'] ?? '') === 'sneaky' ? catfish_rare_fish($eff, $paidSecs, mt_rand() / (mt_getrandmax() + 1)) : 0);
         $claim = q('UPDATE catfish_state SET kibble = kibble + ?, run_kibble = run_kibble + ?, total_kibble = total_kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $gain, $gain, $tick, $uid, (int)$s['last_tick']])->rowCount();
         if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['run_kibble'] = (int)$s['run_kibble'] + $gain; $s['last_tick'] = $tick; $s['gained'] = $gain; }
         return $s;
@@ -745,11 +754,22 @@ function catfish_play_view(array $s, ?array $cat, float $kph, int $got = 0, int 
     return ['v' => $cat ? catfish_play_value($kph, $pc + 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
 }
 
-/** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. $r is a roll in [0, 1); pure, so the tests can pin it. */
+/** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. The expected count for $secs is paid as its whole part plus one roll for the
+ *  fractional rest. $r is a roll in [0, 1); pure, so the tests can pin it. */
 function catfish_rare_fish(float $effKph, int $secs, float $r): int
 {
-    $chance = min(0.9, CATFISH_RARE_PER_HOUR * $secs / 3600);
-    return $r < $chance ? (int)floor($effKph / 10) : 0;
+    $n = CATFISH_RARE_PER_HOUR * max(0, $secs) / 3600;
+    $fish = floor($n) + ($r < $n - floor($n) ? 1 : 0);
+    return (int)floor(min($fish * floor($effKph / 10), PHP_INT_MAX >> 4));   // same ceiling as the tick's base pay
+}
+
+/** The cat whose mood counts for this run's Nap: the active cat only if it has been active for the whole run (meta.rc, kept by catfish_switch and
+ *  catfish_nap; no key = a run from before it was kept, trusted). Else null, so switching to a Dreamy cat just before a Nap adds nothing. */
+function catfish_run_cat(array $s, ?array $cat): ?array
+{
+    if (!$cat) return null;
+    $rc = $s['meta']['rc'] ?? null;
+    return ($rc === null || (int)$rc === (int)($cat['id'] ?? 0)) ? $cat : null;
 }
 
 /** Yarn a Nap would give for this run's Kibble (Dreamy cats add 10% before rounding down). 0 means the run is too short. */
@@ -794,7 +814,10 @@ function catfish_adopt(int $uid, int $slot, string $name, string $day = '', int 
         if ($seed > 0 && $cat['seed'] !== $seed) {
             // a form from before midnight still adopts the cat it showed, but only in the first hour of the new day
             if ((int)hollow_date('G') >= 1) return [false, 'The shelter changed. Reload the page and try again.'];
-            $old = catfish_shelter($uid, catfish_yesterday(), [], (int)($s['meta']['rare'] ?? 0))[$slot];
+            $m = $s['meta']; $yd = catfish_yesterday();
+            if (($m['roll_prev']['day'] ?? '') === $yd) { $rolls = (array)($m['roll_prev']['n'] ?? []); $rare = (int)($m['roll_prev']['rare'] ?? 0); }   // the shelter changed today: yesterday's end state was kept
+            else { $rolls = ($m['roll']['day'] ?? '') === $yd ? (array)($m['roll']['n'] ?? []) : []; $rare = (int)($m['rare'] ?? 0); }   // no change yet today: meta still holds it
+            $old = catfish_shelter($uid, $yd, $rolls, $rare)[$slot];   // only the cat still on show at midnight, not one rerolled away
             if ($old['seed'] !== $seed) return [false, 'The shelter changed. Reload the page and try again.'];
             $cat = $old;
         }
@@ -838,10 +861,20 @@ function catfish_yarn_spend(int $uid, callable $fn): array
     });
 }
 
+/** Before the first shelter change of a Hollow day (a reroll or a Rare Shelter level), keep how yesterday's shelter ended in meta.roll_prev
+ *  (day, rerolls, Rare level), so catfish_adopt can rebuild what a form from before midnight really showed. */
+function catfish_roll_keep(array &$meta): void
+{
+    $yd = catfish_yesterday();
+    if (($meta['roll_prev']['day'] ?? '') === $yd) return;   // already kept today
+    $meta['roll_prev'] = ['day' => $yd, 'n' => ($meta['roll']['day'] ?? '') === $yd ? (array)($meta['roll']['n'] ?? []) : [], 'rare' => (int)($meta['rare'] ?? 0)];
+}
+
 function catfish_reroll(int $uid, int $slot): array
 {
     if ($slot < 0 || $slot >= CATFISH_SHELTER) return [false, 'No such cat.'];
     return catfish_yarn_spend($uid, function (&$meta) use ($slot) {
+        catfish_roll_keep($meta);
         $today = catfish_today();
         $n = ($meta['roll']['day'] ?? '') === $today ? (array)($meta['roll']['n'] ?? []) : [];
         $n = array_replace([0, 0, 0], $n);
@@ -867,6 +900,7 @@ function catfish_buy_rare(int $uid): array
     return catfish_yarn_spend($uid, function (&$meta) {
         $lvl = (int)($meta['rare'] ?? 0);
         if ($lvl >= count(CATFISH_RARE_COSTS)) return [false, 'The shelter already sends its best.'];
+        catfish_roll_keep($meta);
         $meta['rare'] = $lvl + 1;
         return [CATFISH_RARE_COSTS[$lvl], 'The shelter will show better cats.'];
     });
@@ -914,9 +948,10 @@ function catfish_nap(int $uid): array
     return catfish_locked($uid, function () use ($uid) {
         $s = catfish_tick($uid);
         $cat = catfish_active($uid, $s);
-        $y = catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult();
+        $y = catfish_nap_yarn((int)$s['run_kibble'], catfish_run_cat($s, $cat)) * catfish_festival_mult();   // Dreamy counts only for a cat that was active the whole run
         if ($y < 1) return [false, 'Not enough Kibble earned this run to nap yet.'];
-        $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ? WHERE user_id = ? AND run_kibble = ?', [$y, '{}', time(), $uid, (int)$s['run_kibble']])->rowCount();
+        $meta = $s['meta']; $meta['rc'] = (int)($s['active_cat_id'] ?? 0);   // the new run starts with this cat
+        $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ?, meta = ? WHERE user_id = ? AND run_kibble = ?', [$y, '{}', time(), json_encode($meta), $uid, (int)$s['run_kibble']])->rowCount();
         if ($done === 1) catfish_claim_petals($uid);
         return $done === 1 ? [true, 'Nap time! +' . $y . ' Yarn.'] : [false, 'Try that again.'];
     });
@@ -926,8 +961,11 @@ function catfish_switch(int $uid, int $catId): array
 {
     return catfish_locked($uid, function () use ($uid, $catId) {
         if (!q_val('SELECT 1 FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid])) return [false, 'No such cat.'];
-        catfish_tick($uid);   // pay the old cat first
-        q('UPDATE catfish_state SET active_cat_id = ?, last_tick = ? WHERE user_id = ?', [$catId, time(), $uid]);
+        $s = catfish_tick($uid);   // pay the old cat first
+        $meta = $s['meta'];
+        // meta.rc: the cat active for the whole run so far (0 = the run had more than one), see catfish_run_cat. A switch before any Kibble is earned starts the run afresh.
+        $meta['rc'] = ((int)$s['run_kibble'] === 0 || (int)($meta['rc'] ?? $s['active_cat_id'] ?? 0) === $catId) ? $catId : 0;
+        q('UPDATE catfish_state SET active_cat_id = ?, last_tick = ?, meta = ? WHERE user_id = ?', [$catId, time(), json_encode($meta), $uid]);
         return [true, 'Switched.'];
     });
 }
@@ -964,7 +1002,7 @@ function catfish_view(int $uid, int $got = 0, int $paid = 0): array
     }
     $kphNow = $cat ? catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)) : 0.0;
     return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
-        'kph' => $cat ? round($kphNow, 1) : 0, 'play' => catfish_play_view($s, $cat, $kphNow, $got, $paid), 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
+        'kph' => $cat ? round($kphNow, 1) : 0, 'play' => catfish_play_view($s, $cat, $kphNow, $got, $paid), 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], catfish_run_cat($s, $cat)) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
 
 /** Badges, worked out from what the gnome has (nothing stored): [key => [icon, label]]. */
@@ -1052,13 +1090,13 @@ function catfish_show_tier(int $score): string
 /** Enter (or swap) a cat for this week's show. One entry per gnome per week. */
 function catfish_show_enter(int $uid, int $catId): array
 {
-    $row = q_one('SELECT id FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid]);
+    $row = q_one('SELECT id, name FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid]);
     if (!$row) return [false, 'No such cat.'];
-    return catfish_locked($uid, function () use ($uid, $catId) {
+    return catfish_locked($uid, function () use ($uid, $catId, $row) {
         catfish_show_settle($uid);   // an old entry gets its ribbon before a new one replaces it
         $s = catfish_state($uid); $meta = $s['meta'];
         $week = catfish_show_week();
-        $meta['show'] = ['week' => $week, 'cat' => $catId];
+        $meta['show'] = ['week' => $week, 'cat' => $catId, 'name' => (string)$row['name']];   // the ribbon keeps the name the cat was entered under
         catfish_meta_save($uid, $meta);
         return [true, 'Entered. The judges decide when the week ends.'];
     });
@@ -1081,8 +1119,12 @@ function catfish_show_settle(int $uid): ?array
         $cat = catfish_cat((int)$row['seed']);
         $theme = catfish_show_theme((string)$e['week']);
         $j = catfish_show_judge($uid, (string)$e['week'], $cat, $theme);
-        $r = ['user_id' => $uid, 'week' => (string)$e['week'], 'theme' => $theme['label'], 'cat_name' => (string)$row['name'], 'tier' => $j['tier'], 'score' => $j['score'], 'created_at' => now()];
-        try { db_insert('cat_ribbons', $r); } catch (Throwable $ex) { return null; }   // already judged
+        $r = ['user_id' => $uid, 'week' => (string)$e['week'], 'theme' => $theme['label'], 'cat_name' => (string)($e['name'] ?? $row['name']), 'tier' => $j['tier'], 'score' => $j['score'], 'created_at' => now()];
+        try { db_insert('cat_ribbons', $r); }
+        catch (PDOException $ex) {   // only the unique key (already judged) is fine; anything else rolls the transaction back
+            if (($ex->errorInfo[0] ?? $ex->getCode()) === '23000' || ($ex->errorInfo[1] ?? 0) === 19) return null;
+            throw $ex;
+        }
         return $r;
     });
 }
