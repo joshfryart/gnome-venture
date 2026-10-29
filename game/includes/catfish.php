@@ -273,11 +273,10 @@ function catfish_milestone_mult(int $owned): int
     return $m;
 }
 
-const CATFISH_PAL_STEP = 0.02;          // Puzzle Pals: +2% Kibble per pal found (needs Puzzle Pals open and gnome level 15)
+const CATFISH_PAL_STEP = 0.02;          // Puzzle Pals: +2% Kibble per pal found (needs Puzzle Pals open; the gnome level follows PPAL_PARTY_LEVEL)
 const CATFISH_PAL_MAX = 10;             // ...for up to this many pals (+20%)
-const CATFISH_PAL_LEVEL = 15;
 
-/** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (gnome level 15+, ppal_open). 1.0 when none. One cheap count per call, cached per request. */
+/** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (ppal_open, gnome level PPAL_PARTY_LEVEL or more). 1.0 when none. One cheap count per call, cached per request. */
 function catfish_extra_mult(int $uid): float
 {
     static $cache = [];
@@ -285,7 +284,7 @@ function catfish_extra_mult(int $uid): float
     $m = 1.0;
     try {
         require_once __DIR__ . '/puzzle_pals.php';
-        if (ppal_open() && ppal_ensure() && (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]) >= CATFISH_PAL_LEVEL) {
+        if (ppal_open() && ppal_ensure() && (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]) >= PPAL_PARTY_LEVEL) {
             $found = (int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ?', [$uid]);
             $m += CATFISH_PAL_STEP * min($found, CATFISH_PAL_MAX);
         }

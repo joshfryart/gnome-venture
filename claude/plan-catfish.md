@@ -65,7 +65,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 **Week 4**
 - [x] Weekly Cat Show (themed, seeded judges + theme/rarity bonus, ribbons on profile, no Kibble/Yarn influence)
 - [x] Active cat on the garden page (read only, no row created by visiting)
-- [x] Puzzle Pals +2% Kibble each (level 15, max 10), festival doubles Nap Yarn
+- [x] Puzzle Pals +2% Kibble each (follows PPAL_PARTY_LEVEL, max 10), festival doubles Nap Yarn
 - [x] Art todo (`claude/catfish-art-brief.md`) + `catfish_img()` PNG-or-emoji helper
 - [x] Version 2.0.89, CHANGELOG, README line. Feature stays off for players (`catfish_open`)
 - [x] Tests (about 190 checks); security190, prog, events, puzzles, games2, garden100, puzzle_pals, jigsaw and upgrade_check from 2.0.88 pass (jigsaw failed once inside a long multi-suite run, passed on 3 reruns)

@@ -5900,3 +5900,116 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 @keyframes gpalbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6%); } }
 .gshine { filter: drop-shadow(0 0 3px var(--accent)); }
 @media (prefers-reduced-motion: reduce) { .gpal { animation: none; } }
+
+/* v2.0.89: My Gnome tabs (gnome.php): tab rail, pals strip and picker, stats chart, foods menu, villagers wall, gardens */
+.gvrow { display: flex; gap: 14px; align-items: flex-start; margin-top: 10px; }
+.gvmain { flex: 1 1 0; min-width: 0; }
+.gvtabs { flex: 0 0 150px; display: flex; flex-direction: column; gap: 8px; }
+.gvtabs a { display: flex; align-items: center; gap: 6px; min-height: var(--tap); padding: 6px 10px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; box-shadow: var(--frame-lite); }
+.gvtabs a:hover { background: var(--surface-2); }
+.gvtabs a.on { background: var(--brand); color: var(--on-fill, #f2e4c0); font-weight: 800; }
+.gvbadge { background: var(--accent, #f5cf6a); color: #2a1a10; padding: 0 6px; font-size: 12px; box-shadow: 0 0 0 2px #2a1a10; }
+.gvbadge.big { font-size: 14px; padding: 2px 10px; }
+@media (max-width: 720px) {
+  .gvrow { flex-direction: column; }
+  .gvtabs { flex: none; flex-direction: row; overflow-x: auto; width: 100%; padding-bottom: 4px; }
+  .gvtabs a { flex: none; }
+}
+.palstrip { margin: 10px 0; }
+.palhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.palhead h2 { margin: 0; }
+.palslots { display: flex; gap: 10px; margin-top: 6px; }
+.palslot { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 6px 10px 6px 6px; background: var(--surface-2); color: var(--ink); text-decoration: none; font-size: 13px; line-height: 1.25; box-shadow: var(--frame-lite); }
+.palslot:hover, .palslot.on { background: var(--surface); }
+.palslot.on { box-shadow: 0 0 0 3px var(--brand-line); }
+.palstk { width: 44px; height: 44px; flex: none; image-rendering: pixelated; }
+.palstk-ph { display: inline-flex; align-items: center; justify-content: center; font-size: 22px; background: var(--surface); box-shadow: var(--frame-lite); }
+.palpick { margin-top: 8px; }
+.palnow, .palrow { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.palnow { border-top: 0; }
+.palrow form { margin: 0; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.perkbox { background: var(--brand-soft); padding: 8px 12px; margin: 8px 0; box-shadow: 0 0 0 2px var(--brand-line); }
+.rar.r-common { background: var(--r-c); } .rar.r-uncommon { background: var(--r-u); } .rar.r-rare { background: var(--r-r); }
+/* stats chart */
+.statsplit { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.radar { width: 260px; max-width: 100%; flex: none; }
+.radar .r20 { fill: var(--surface-2); stroke: var(--line-2); stroke-width: 2; }
+.radar .r15 { fill: none; stroke: var(--line); }
+.radar .r10 { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.radar .rax { stroke: var(--line); fill: none; }
+.radar .rnow { fill: var(--brand); fill-opacity: .35; stroke: var(--brand); stroke-width: 2.5; }
+.radar .rlab { font-size: 11px; fill: var(--ink); }
+.radar .rlab.on { font-weight: 800; text-decoration: underline; }
+.statlist { list-style: none; margin: 0; padding: 0; flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.statlist li { display: flex; align-items: center; gap: 8px; background: var(--surface-2); padding: 2px 8px; box-shadow: var(--frame-lite); }
+.statlist li.on { background: var(--surface); box-shadow: 0 0 0 2px var(--brand); }
+.statlist li a { flex: 1; min-height: var(--tap); display: flex; align-items: center; gap: 6px; color: var(--ink); text-decoration: none; }
+.statlist .sc { margin-left: auto; font-size: 20px; font-weight: 700; }
+.statlist form { margin: 0; }
+.statsel { background: var(--surface-2); padding: 8px 12px; margin: 6px 0; font-size: 14px; box-shadow: inset 4px 0 0 0 var(--brand); }
+/* foods menu */
+.menucard { max-width: 520px; margin: 8px auto; padding: 18px 24px; background: var(--surface-2); text-align: center; font-family: Georgia, 'Times New Roman', serif; box-shadow: var(--frame-lite); }
+.menucard .mtitle { margin: 0; font-size: 26px; font-weight: 700; }
+.menucard .msub { margin: 0; font-style: italic; color: var(--muted); }
+.menucard .orn { color: var(--line-2); letter-spacing: .3em; margin: 6px 0; }
+.menucard .course { margin: 14px 0 4px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--brand-ink); border-bottom: 2px dotted var(--line-2); text-align: left; }
+.menucard .dish { display: flex; align-items: baseline; gap: 6px; text-align: left; padding: 2px 0; }
+.menucard .dish.un { opacity: .55; }
+.menucard .dish .lead { flex: 1; border-bottom: 1px dotted var(--line-2); transform: translateY(-3px); }
+.menucard .dish small { color: var(--muted); font-family: system-ui, sans-serif; }
+.menucard .chk { width: 1em; color: var(--brand-ink); }
+.menucard .mfoot { font-size: 12.5px; font-style: italic; color: var(--muted); margin: 0; }
+/* villagers wall */
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 16px 12px; padding: 10px 4px; }
+.polaroid { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 8px 10px; background: #fffdf6; color: #2a1a10; text-decoration: none; text-align: center; box-shadow: 2px 3px 0 0 var(--line); }
+.polaroid.r0 { transform: rotate(-2deg); } .polaroid.r1 { transform: rotate(1.5deg); } .polaroid.r2 { transform: rotate(-1deg); } .polaroid.r3 { transform: rotate(2deg); } .polaroid.r4 { transform: rotate(-1.5deg); }
+.polaroid:hover, .polaroid.on { transform: none; box-shadow: 0 0 0 3px var(--brand-line), 2px 3px 0 0 var(--line); z-index: 1; }
+.polaroid .portrait { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+.polaroid .tape { position: absolute; top: -8px; left: 50%; width: 46px; height: 14px; margin-left: -23px; background: rgba(245, 207, 106, .75); }
+.polaroid .hand { font-family: 'Segoe Print', 'Bradley Hand', cursive; font-size: 15px; }
+.polaroid .muted { color: #74462a; font-size: 11px; }
+.polaroid.unmet { background: var(--surface-2); color: var(--muted); }
+.qp { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 4 / 5; font-size: 40px; font-weight: 700; color: var(--line-2); background: var(--surface); }
+.hearts { color: #b03a2e; letter-spacing: 1px; }
+.folkcard { display: flex; gap: 14px; align-items: flex-start; padding: 10px; margin: 6px 0 10px; background: var(--surface-2); box-shadow: var(--frame-lite); }
+.folkcard .polaroid.big { width: 130px; flex: none; transform: none; }
+.folkcard h3 { margin: 0; }
+.folkcard p { margin: 4px 0; }
+/* gardens */
+.gardgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 8px; }
+.gardcard { padding: 10px; background: var(--surface-2); box-shadow: var(--frame-lite); }
+.gardcard.on { box-shadow: 0 0 0 2px var(--brand); }
+.gardcard.empty { background: transparent; border: 2px dashed var(--line); box-shadow: none; }
+/* right rail: Today */
+.rtoday p { margin: 0 0 6px; font-size: 13px; }
+
+/* v2.0.90: centre everything on My Gnome */
+.gvpage { text-align: center; }
+.gvpage .gnomehead { justify-content: center; align-items: center; text-align: center; }
+.gvpage .palhead { justify-content: center; text-align: center; }
+.gvpage .palhead h2, .gvpage h2, .gvpage h3 { text-align: center; }
+.gvpage .palslots, .gvpage .gvtabs, .gvpage .wall, .gvpage .gardgrid { justify-content: center; }
+.gvpage .gvtabs a, .gvpage .palslot, .gvpage .palrow, .gvpage .palnow, .gvpage .statlist li, .gvpage .statlist li a { justify-content: center; text-align: center; }
+.gvpage .palrow .grow, .gvpage .folkcard .grow { text-align: center; }
+.gvpage .folkcard { flex-direction: column; align-items: center; text-align: center; }
+.gvpage .statsplit { justify-content: center; }
+.gvpage .statsel, .gvpage .effects, .gvpage .perkbox { text-align: center; }
+.gvpage .effects { list-style: none; padding: 0; }
+.gvpage .menucard, .gvpage .menucard .course { text-align: center; }
+.gvpage .menucard .dish { justify-content: center; }
+.gvpage .menucard .dish .lead { flex: 0 1 60px; }
+.gvpage table.grid { margin: 0 auto; }
+.gvpage .calling, .gvpage .ctiers { text-align: center; }
+.gvpage .ctiers { list-style-position: inside; padding-left: 0; }
+@media (max-width: 720px) { .gvpage .gvtabs { justify-content: flex-start; } }
+
+/* v2.0.91: how to get pals */
+.palhowto { margin: 10px 0; padding: 10px 14px; text-align: left; background: var(--surface-2); box-shadow: inset 4px 0 0 0 var(--brand); }
+.palhowto ol { margin: 6px 0; padding-left: 20px; }
+.palhowto li { margin: 4px 0; }
+.palhowto small { color: var(--muted); }
+
+.almpals { list-style: none; margin: 6px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.almpals li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--surface-2); box-shadow: var(--frame-lite); flex-wrap: wrap; }
+.almpals li.miss { opacity: .6; }

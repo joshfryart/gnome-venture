@@ -591,7 +591,7 @@ function ppal_badges_html(int $uid): string
 
 // ---------------- step 4: take pals along (equip), passive perks, the avatar companions ----------------
 
-const PPAL_PARTY_LEVEL = 15;   // gnome level needed to take pals along
+const PPAL_PARTY_LEVEL = 1;   // gnome level needed to take pals along (v2.0.91: every gnome; was 15)
 /** Perk units by rarity, and the caps: the units a kind adds up to (a pal's own units + the Expert trophy's +1 for its picture), then what they are worth. */
 const PPAL_UNITS = ['common' => 1, 'uncommon' => 2, 'rare' => 3];
 const PPAL_PERK_RATE = ['gather' => 1, 'finder' => 5, 'tinker' => 1, 'bloom' => 1];   // percent per unit
@@ -626,7 +626,7 @@ function ppal_user(int|array $u): array
     return $c[$u] ??= (q_one('SELECT id, level, guest FROM users WHERE id = ?', [$u]) ?: ['id' => $u, 'level' => 0, 'guest' => 1]);
 }
 
-/** Can this gnome take pals along? Party on, not a guest, level 15+. */
+/** Can this gnome take pals along? Party on, not a guest (any gnome level since v2.0.91). */
 function ppal_can_party(int|array $u): bool
 {
     if (!ppal_party_on()) return false;
@@ -643,7 +643,7 @@ function ppal_party_reset(): void
 
 /**
  * The pals this gnome has taken along, in the order taken: list of ['pal' => roster row, 'pic' => picture row, 'units' => perk units (rarity + the Expert trophy's +1)].
- * [] when take-along is off, the gnome is under level 15, or a pal's picture / roster row is gone (an unknown key plays as nothing, never an error). One query, cached per request.
+ * [] when take-along is off, a guest, or a pal's picture / roster row is gone (an unknown key plays as nothing, never an error). One query, cached per request.
  */
 function ppal_equipped(int|array $u, bool $reset = false): array
 {
@@ -762,4 +762,22 @@ function ppal_avatar(array $u, int $size, string $svg): string
     foreach ($eq as $i => $e) $h .= ppal_companion($e['pal']['key'], $i % 2 === 0 ? 'l' : 'r', $px);
     if ($h === '') return $svg;
     return '<span class="gpw' . (ppal_perks($u)['shine'] ? ' gshine' : '') . '">' . $svg . $h . '</span>';
+}
+
+/** v2.0.91: how to get pals, for a gnome that has none yet (My Gnome strip and picker, the Pal Book). Plain markup, no style attributes (CSP). */
+function ppal_howto_html(): string
+{
+    $jig = jigsaw_open() ? '<a href="' . e(url('jigsaw.php')) . '">Jigsaw</a>' : 'Jigsaw';
+    return '<div class="palhowto"><b>How to meet your first pals</b><ol>'
+        . '<li>Play a ' . $jig . ' picture and finish it at <b>Advanced</b> size (or Expert). That sets the picture’s six pals free.</li>'
+        . '<li>Then keep going about your day. A freed pal now and then turns up on an ordinary page, in a little box. Tap it to catch it.</li>'
+        . '<li>Caught pals live in your <a href="' . e(url('puzzlepals.php')) . '">Pal Book</a>. Pick up to ' . ppal_party_max() . ' to take along here on My Gnome.</li></ol>'
+        . '<small>Each new picture you finish at Advanced frees six more pals.</small></div>';
+}
+
+/** v2.0.91: a pal's sticker as an img (or a paw when its art is not there), px square. Used by My Gnome and the Almanac. */
+function ppal_sticker_html(string $key, int $px = 44): string
+{
+    $f = 'assets/img/puzzles/pals/' . preg_replace('/[^a-z0-9_-]/i', '', $key) . '.png';
+    return is_file(APP_ROOT . '/' . $f) ? '<img class="palstk" src="' . e(url($f)) . '" alt="" width="' . $px . '" height="' . $px . '" loading="lazy">' : '<span class="palstk palstk-ph" aria-hidden="true">🐾</span>';
 }

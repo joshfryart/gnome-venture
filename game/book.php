@@ -46,7 +46,10 @@ uksort($chapters, fn($a, $b) => (array_search($a, $order, true) === false ? 99 :
 
 // v0.7.61: tabs are Milestones, Guides, the chapters, then the Glossary. Milestones is the default page.
 $tab = (string)($_GET['ch'] ?? 'Contents');   // v0.7.72: a front page first
-if (!in_array($tab, ['Contents', 'Milestones', 'Journey', 'Guides', 'Folk', 'Glossary'], true) && !isset($chapters[$tab])) {
+require_once __DIR__ . '/includes/puzzle_pals.php';
+$palsOk = ppal_open() && !is_guest($u);   // v2.0.91: the Pal Book chapter shows only while Puzzle Pals are open
+if ($tab === 'Pals' && !$palsOk) $tab = 'Contents';
+if (!in_array($tab, ['Contents', 'Milestones', 'Journey', 'Guides', 'Folk', 'Glossary', 'Pals'], true) && !isset($chapters[$tab])) {
     $tab = 'Contents';
 }
 // v0.7.72: seven sections, each with its chapters as chips
@@ -55,11 +58,11 @@ const ALMANAC_SECTIONS = [
     'journey' => ['🧭', 'Journey', ['Journey', 'Callings', 'Treks', 'Milestones']],
     'growing' => ['🌱', 'Growing', ['Plants', 'Flowers', 'Guides']],
     'world' => ['🗺️', 'World', ['Regions', 'Towns', 'Villages', 'Landmarks']],
-    'wild' => ['🐾', 'Wild', ['Creatures', 'Gathering']],
+    'wild' => ['🐾', 'Wild', ['Creatures', 'Gathering', 'Pals']],
     'folk' => ['👥', 'Villagers & Recipes', ['Folk', 'Recipes']],
     'help' => ['📚', 'How to play', ['General', 'Glossary']],
 ];
-$chapterLabel = fn(string $c) => ['General' => 'How to play', 'Towns' => 'Town lore', 'Contents' => 'Contents', 'Journey' => 'Wren’s Journey', 'Milestones' => 'Milestones',
+$chapterLabel = fn(string $c) => ['Pals' => 'Pal Book', 'General' => 'How to play', 'Towns' => 'Town lore', 'Contents' => 'Contents', 'Journey' => 'Wren’s Journey', 'Milestones' => 'Milestones',
     'Guides' => 'Guides', 'Folk' => 'Villagers', 'Glossary' => 'Glossary'][$c] ?? $c;
 $section = 'contents';
 foreach (ALMANAC_SECTIONS as $sk => [, , $chs]) if (in_array($tab, $chs, true)) $section = $sk;
@@ -109,7 +112,7 @@ page_header('My Almanac');
   <?php $chipCount = function (string $c) use ($chapters, $guidesRead, $guides, $metN, $unread): string {
       $n = $unread[$c] ?? 0;
       $base = match ($c) { 'Guides' => $guidesRead . '/' . count($guides), 'Folk' => $metN . '/' . (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1'),
-          'Contents', 'Journey', 'Milestones', 'Glossary' => '', default => isset($chapters[$c]) ? (int)$chapters[$c]['have'] . '/' . (int)$chapters[$c]['total'] : '' };
+          'Contents', 'Journey', 'Milestones', 'Glossary', 'Pals' => '', default => isset($chapters[$c]) ? (int)$chapters[$c]['have'] . '/' . (int)$chapters[$c]['total'] : '' };
       return ($base !== '' ? ' <small>' . $base . '</small>' : '') . ($n ? ' <b class="newdot" role="img" aria-label="' . $n . ' new" title="' . $n . ' new">✨' . $n . '</b>' : '');
   };
   $secNew = function (array $chs) use ($unread): int { $n = 0; foreach ($chs as $c) $n += $unread[$c] ?? 0; return $n; }; ?>
@@ -123,7 +126,7 @@ page_header('My Almanac');
     <?php if (count(ALMANAC_SECTIONS[$section][2]) > 1): ?>
     <form method="get" action="<?= e(url('book.php')) ?>" class="pickform">
       <label>Chapter <select name="ch" data-autosubmit>
-        <?php foreach (ALMANAC_SECTIONS[$section][2] as $c): if (!in_array($c, ['Milestones', 'Journey', 'Guides', 'Folk', 'Glossary'], true) && !isset($chapters[$c])) continue; ?><option value="<?= e($c) ?>"<?= $c === $tab ? ' selected' : '' ?>><?= e($chapterLabel($c)) ?><?= ($pc = trim(html_entity_decode(strip_tags($chipCount($c))))) !== '' ? ' (' . e($pc) . ')' : '' ?></option><?php endforeach; ?>
+        <?php foreach (ALMANAC_SECTIONS[$section][2] as $c): if ($c === 'Pals' && !$palsOk) continue; if (!in_array($c, ['Milestones', 'Journey', 'Guides', 'Folk', 'Glossary', 'Pals'], true) && !isset($chapters[$c])) continue; ?><option value="<?= e($c) ?>"<?= $c === $tab ? ' selected' : '' ?>><?= e($chapterLabel($c)) ?><?= ($pc = trim(html_entity_decode(strip_tags($chipCount($c))))) !== '' ? ' (' . e($pc) . ')' : '' ?></option><?php endforeach; ?>
       </select></label><button class="btn small pickgo">Go</button>
     </form>
     <?php endif; ?>
@@ -198,6 +201,11 @@ page_header('My Almanac');
           <p><?= e($label) ?><br><progress max="<?= $nd ?>" value="<?= $h ?>"></progress> <small><?= $h ?>/<?= $nd ?> crops grown</small></p>
         <?php endforeach; ?><p class="help">Medals come from growing a region’s crops: every staple (bronze), then every uncommon (silver), then every treasure and flower (gold).</p>
         <?php else: ?><p class="muted">Visit a region and grow its crops to start on its medals.</p><?php endif; ?></div>
+      <?php require_once __DIR__ . '/includes/puzzle_pals.php'; if (ppal_open() && !is_guest($u)): [$palF, $palT] = ppal_counts($uid); ?>
+      <div class="box ccard"><h3>🐾 Pal Book <small><?= $palT > 0 ? $palF . '/' . $palT : '' ?></small></h3>
+        <p><?= $palT > 0 ? 'You have found ' . $palF . ' of ' . $palT . ' puzzle pals so far.' : 'Solve a jigsaw on Advanced to start your collection.' ?></p>
+        <p><a href="<?= e(url('book.php?ch=Pals')) ?>">Open the Pal Book →</a></p></div>
+      <?php endif; ?>
     </div>
     <div class="secgrid">
       <?php foreach (ALMANAC_SECTIONS as $sk => [$ic, $label, $chs]): if ($sk === 'contents') continue;
@@ -209,11 +217,28 @@ page_header('My Almanac');
           $sn = $secNew($chs); ?>
         <a class="box seccard" href="<?= e(url('book.php?ch=' . urlencode($chs[0]))) ?>">
           <span class="secicon"><?= $ic ?></span><b><?= e($label) ?></b>
-          <small class="muted"><?= e(implode(' · ', array_map($chapterLabel, $chs))) ?></small>
+          <small class="muted"><?= e(implode(' · ', array_map($chapterLabel, array_values(array_filter($chs, fn($c) => $c !== 'Pals' || $palsOk))))) ?></small>
           <?php if ($tt): ?><progress max="<?= $tt ?>" value="<?= $h ?>"></progress><small><?= $h ?> of <?= $tt ?><?= $sk === 'journey' ? ' chapters' : '' ?><?= $sn ? ' · ✨ ' . $sn . ' new' : '' ?></small><?php endif; ?>
         </a>
       <?php endforeach; ?>
     </div>
+  </div>
+
+<?php elseif ($tab === 'Pals'):   // v2.0.91: the Pal Book, inside the Almanac
+    $pb = ppal_book($uid); ?>
+  <div class="box">
+    <h2>🐾 Pal Book <small class="muted"><?= (int)$pb['found'] ?> of <?= (int)$pb['total'] ?> found</small></h2>
+    <?php if ((int)$pb['found'] === 0) echo ppal_howto_html(); ?>
+    <?php foreach ($pb['released'] as $sec): ?>
+      <h3><?= e((string)($sec['pic']['title'] ?? $sec['pic']['slug'])) ?> <small class="muted"><?= (int)$sec['n'] ?>/<?= count($sec['roster']) ?></small></h3>
+      <ul class="almpals">
+        <?php foreach ($sec['roster'] as $p): ?>
+          <li class="<?= $p['got'] ? 'got' : 'miss' ?>"><?php if ($p['got']): ?><?= ppal_sticker_html($p['key'], 48) ?><b><?= e($p['name']) ?></b><small class="rar r-<?= e($p['rarity']) ?>"><?= e($p['rarity']) ?></small>
+            <?php else: ?><span class="palstk palstk-ph" aria-hidden="true">?</span><b>Not found yet</b><?php endif; ?></li>
+        <?php endforeach; ?>
+      </ul>
+    <?php endforeach; ?>
+    <p><a href="<?= e(url('puzzlepals.php')) ?>">Open the full Pal Book to take pals along →</a></p>
   </div>
 
 <?php elseif ($tab === 'Milestones'):

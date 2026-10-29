@@ -33,11 +33,11 @@ echo "== engine (tests/roads097.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/roads097.php" "$GAME" 2>&1; RC=$?
 [ $RC -ne 0 ] && FAIL=1
 echo "== pages: My Gnome toggle, route cards"
-get gnome.php >/dev/null; grep -q 'name="easy_roads"' $H && echo "  ok   toggle shown" || { echo "  FAIL toggle"; FAIL=1; }
+get account.php >/dev/null; grep -q 'name="easy_roads"' $H && echo "  ok   toggle shown" || { echo "  FAIL toggle"; FAIL=1; }
 chk "easy roads is on for a new gnome" "$(db "SELECT easy_roads FROM users WHERE username='sprout'")" 1
-echo "switch off -> $(post gnome.php -d do=easy_roads)"; chk "off saved" "$(db "SELECT easy_roads FROM users WHERE username='sprout'")" 0
-get gnome.php >/dev/null; grep -q 'Easy roads are off' $H && echo "  ok   flash" || { grep -oE 'flash (ok|err)">[^<]*' $H | head -2; echo "  FAIL flash"; FAIL=1; }
-post gnome.php -d do=easy_roads -d easy_roads=1 >/dev/null; chk "on saved" "$(db "SELECT easy_roads FROM users WHERE username='sprout'")" 1
+echo "switch off -> $(post account.php -d do=easy_roads)"; chk "off saved" "$(db "SELECT easy_roads FROM users WHERE username='sprout'")" 0
+get account.php >/dev/null; grep -q 'Easy roads are off' $H && echo "  ok   flash" || { grep -oE 'flash (ok|err)">[^<]*' $H | head -2; echo "  FAIL flash"; FAIL=1; }
+post account.php -d do=easy_roads -d easy_roads=1 >/dev/null; chk "on saved" "$(db "SELECT easy_roads FROM users WHERE username='sprout'")" 1
 echo "== a far road is a quick walk on the World page and the route plan"
 dbx "UPDATE users SET level=28, easy_roads=0, energy=200, tour_step=0 WHERE username='sprout'"
 FAR=$(db "SELECT r.id||'|'||r.a_id||'|'||r.b_id FROM routes r JOIN locations a ON a.id=r.a_id JOIN locations b ON b.id=r.b_id WHERE r.kind='road' AND a.kind='village' AND b.kind='village' AND r.a_id<>$VID AND r.b_id<>$VID ORDER BY r.id LIMIT 1")

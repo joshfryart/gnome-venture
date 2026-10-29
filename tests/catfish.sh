@@ -504,10 +504,10 @@ ok "admin never opened Cat Fish: no catfish_state row before" "$(dbv "SELECT COU
 curl -s -b $W/a -o /dev/null $BASE/garden.php
 ok "garden visit by a fresh gnome: no catfish_state row created" "$(dbv "SELECT COUNT(*) FROM catfish_state WHERE user_id=$ADM")" 0
 
-# Puzzle Pals bonus through view.kph: 2% per pal, 10 pals max (+20%), gnome level 15 and ppal_open only
+# Puzzle Pals bonus through view.kph: 2% per pal, 10 pals max (+20%), ppal_open and gnome level PPAL_PARTY_LEVEL (1) or more
 LV=$(dbv "SELECT level FROM users WHERE id=$UID_")
 setg puzzles_open 1; setg jigsaw_open 1; setg ppal_open 1
-dbx "UPDATE users SET level=15 WHERE id=$UID_"
+dbx "UPDATE users SET level=1 WHERE id=$UID_"
 cfreset; cfapi -d do=tick >/dev/null   # the first Puzzle Pals read creates its tables
 ppal_fill() { dbx "DELETE FROM ppal_found WHERE user_id=$UID_; $(for i in $(seq 1 $1); do printf "INSERT INTO ppal_found (user_id,pal_key,pic_id,found_at) VALUES ($UID_,'t-pal-$i',1,'%s');" "$(date -u +'%Y-%m-%d %H:%M:%S')"; done)"; }
 kp() { cfreset; cfapi -d do=tick | jp view.kph; }
@@ -520,8 +520,8 @@ KC=$(kp)
 ok "ppal_open on, 5 pals: view.kph is x1.10 (within 0.2)" "$(kp_eq $KC $(awk "BEGIN{print $KA*1.10}"))" y
 ppal_fill 15; KD=$(kp)
 ok "ppal_open on, 15 pals: view.kph is capped at x1.20 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.20}"))" y
-dbx "UPDATE users SET level=14 WHERE id=$UID_"; KE=$(kp)
-ok "gnome level 14: 15 pals give no bonus (within 0.2)" "$(kp_eq $KE $KA)" y
+dbx "UPDATE users SET level=0 WHERE id=$UID_"; KE=$(kp)
+ok "gnome level 0 (below PPAL_PARTY_LEVEL): 15 pals give no bonus (within 0.2)" "$(kp_eq $KE $KA)" y
 dbx "UPDATE users SET level=$LV WHERE id=$UID_; DELETE FROM ppal_found WHERE user_id=$UID_"
 setg ppal_open 0; dbx "DELETE FROM settings WHERE name IN ('ppal_open','puzzles_open','jigsaw_open')"
 

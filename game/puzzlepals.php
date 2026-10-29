@@ -13,7 +13,7 @@ require_once __DIR__ . '/includes/puzzle_pals.php';
 $u = require_login();
 if (!ppal_open() || is_guest($u)) { flash(is_guest($u) ? 'Puzzle Pals are for gnomes with a home. Sign up to start a collection.' : 'Puzzle Pals are coming soon.', 'err'); redirect(setting('puzzles_open') === '1' ? 'puzzles.php' : 'games.php'); }
 $uid = (int)$u['id'];
-$party = ppal_party_on();   // step 4: take along (needs ppal_party; equipping also needs gnome level 15)
+$party = ppal_party_on();   // step 4: take along (needs ppal_party; any gnome level)
 $canParty = $party && ppal_can_party($u);
 if (is_post() && $party) {   // Take along / Send home (one pal at a time; a full party sends one home first)
     csrf_check();
@@ -39,6 +39,7 @@ page_header('Puzzle Pals');
     <?= puzzle_cast('jeff-magic', 'Jeff', 'pzface') ?: puzzle_cast('jeff-host', 'Jeff', 'pzface') ?>
     <div>
       <p class="pzline"><b>Jeff:</b> “Finish a picture at Advanced and its pals tumble loose. They turn up on any page, so keep your eyes open!”</p>
+      <?php if ((int)$book['found'] === 0) echo ppal_howto_html(); ?>
       <p class="help"><b><?= (int)$book['found'] ?></b> of <?= (int)$book['total'] ?> pals found · <b><?= count($book['released']) ?></b> picture<?= count($book['released']) === 1 ? '' : 's' ?> released</p>
     </div>
   </div>
@@ -47,7 +48,7 @@ page_header('Puzzle Pals');
   <section class="box ppalparty" aria-label="Your party">
     <h2>Your party</h2>
     <?php if (!$canParty): ?>
-      <p class="help">Take pals along from gnome level <?= (int)PPAL_PARTY_LEVEL ?>. Until then you can still find and collect them.</p>
+      <p class="help">Pals cannot come along just yet. You can still find and collect them.</p>
     <?php else: ?>
     <ul class="ppalslots">
       <li class="ppalme"><?= gnome_avatar($u, 48) ?><small>You</small></li>

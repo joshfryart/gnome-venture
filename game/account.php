@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/account.php';
+require_once __DIR__ . '/includes/adventure.php';   // easy_roads_on()
 $u = require_login();
 
 if (is_post()) {
@@ -21,6 +22,10 @@ if (is_post()) {
         'nudges' => (function () use ($u) {
             q('UPDATE users SET email_nudges = ? WHERE id = ?', [empty($_POST['email_nudges']) ? 0 : 1, $u['id']]);
             return [true, 'Saved.'];
+        })(),
+        'easy_roads' => (function () use ($u) {   // v2.0.89: moved here from My Gnome
+            q('UPDATE users SET easy_roads = ? WHERE id = ?', [empty($_POST['easy_roads']) ? 0 : 1, $u['id']]);
+            return [true, empty($_POST['easy_roads']) ? 'Easy roads are off: roads next to home match your level and can be tough.' : 'Easy roads are on: roads next to home stay a few levels below you, with no legendary creatures.'];
         })(),
         'resend' => (function () use ($u) {
             if (!empty($u['email_verified_at'])) return [true, 'Your email is already confirmed.'];
@@ -70,6 +75,13 @@ page_header('Account');
   <h2>Look</h2>
   <?= theme_choice() /* v1.6.5 */ ?>
   <p class="help">Dark is the default. “Match my phone” follows your phone’s own setting.</p>
+</div>
+<div class="box narrow" id="easyroads">
+  <h2>🛣️ Easy roads</h2>
+  <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="do" value="easy_roads">
+    <label class="check"><input type="checkbox" name="easy_roads" value="1" <?= easy_roads_on($u) ? 'checked' : '' ?>> Keep the roads next to home easy</label>
+    <p class="help"><?= easy_roads_on($u) ? 'On: on the roads next to your home, towns and gardens, creatures stay at most ' . (int)setting('easy_roads_gap') . ' levels below you (level ' . easy_road_cap($u) . ' or lower) and legendary creatures stay away.' : 'Off: on the roads next to your home, towns and gardens, creatures match your level (level ' . max(1, (int)$u['level']) . '), and the ones you meet can be tough.' ?> Roads further out and off the path are not changed.</p>
+    <button class="btn small">Save</button></form>
 </div>
 <div class="box narrow">
   <h2>Being seen</h2>
