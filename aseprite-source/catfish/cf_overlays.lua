@@ -7,6 +7,10 @@
 --             on the same 5 frames
 -- Step 5b added stalk to B and C (its frame code is copied below and checked like the others) and the eyes of
 -- wiggle, bored, idleB to A; every file the script wrote before is unchanged byte for byte.
+-- Step 5c added idleB, wiggle, bored to B and C (cf_frames2.lua's frame code is copied below and checked the same
+-- way). Their marks continue the neighbouring frames': idleB reuses idleA's body marks (same body, head marks ride
+-- the 1,1 head offset), bored uses idleA's shifted BODY_DY down, wiggle follows stalk's back stripes and patches;
+-- calico's ear patches and the folded flaps ride with their ear (idleB tilt, bored droop). Key-frame files unchanged.
 --   plus cf-overlays-<f>.aseprite (one layer per overlay, hidden, over the base cat) to look at in Aseprite.
 --
 -- LAYER ORDER (renderer): body, pattern, ears, tail, eyes. A replacement part works in two steps: clear the
@@ -107,11 +111,14 @@ end
 -- folded ear (Scottish fold), idleA coords, left side; the right one is its mirror about x = 25.
 -- The flap is folded forward and down over the head's top corner, so the silhouette shows a low round cap
 -- instead of a point. Built after the head (sits on it): gets the inner contour and a contact shadow.
-local function foldMask(c, ox, oy)
+-- dL, dR (optional, step 5c): extra {dx, dy} per flap, for frames whose ears sit off the head offset (idleB tilt,
+-- bored droop); nil on the 5 key frames.
+local function foldMask(c, ox, oy, dL, dR)
   local L = c:poly({ {11, 13}, {14, 9}, {19, 8.5}, {22.5, 11}, {21, 14}, {16, 16}, {12, 16} })
   local R = c:mask()
   L:each(function(x, y) R:set(50 - x, y) end)
-  return L:shift(ox, oy), R:shift(ox, oy)
+  dL, dR = dL or { 0, 0 }, dR or { 0, 0 }
+  return L:shift(ox + dL[1], oy + dL[2]), R:shift(ox + dR[1], oy + dR[2])
 end
 local function catHead(c, ox, oy, ears)
   local g, h = coat(GREY), coatHi(GREY)
@@ -319,8 +326,150 @@ FR.stalk = function(o)
 end
 -- ================================================ end of copy =================================================
 
+-- ======== copy of cf_frames2.lua (idleB, bored, wiggle; step 5c: keep in step; checked like the key frames) ========
+-- Same switches (o.ears orig|none|fold, o.tail orig|none|bob). cf_frames2's head takes per-ear offsets eL, eR (idleB
+-- tilt, bored droop); a folded flap follows its ear at FOLD[f] (defaults to the ear offset).
+local Z = { 0, 0 }
+local function catHead2(c, ox, oy, eL, eR, ears, fL, fR)
+  eL, eR = eL or Z, eR or Z
+  local g, h = coat(GREY), coatHi(GREY)
+  local head = c:ellipse(25 + ox, 20.5 + oy, 15, 9.5):add(c:ellipse(25 + ox, 24.5 + oy, 15.5, 7.5))
+  local a, b = ox + eL[1], oy + eL[2]
+  local earL = c:poly({ {10 + a, 21 + b}, {12 + a, 7 + b}, {23 + a, 13 + b} }):grow(1)
+  a, b = ox + eR[1], oy + eR[2]
+  local earR = c:poly({ {27 + a, 13 + b}, {38 + a, 7 + b}, {40 + a, 21 + b} }):grow(1)
+  local list = {}
+  if ears == "orig" then
+    list[#list + 1] = { "earL", earL, g, { cres = 2, gloss = false } }
+    list[#list + 1] = { "earR", earR, g, { cres = 2, gloss = false } }
+  end
+  list[#list + 1] = { "head", head, h, { gloss = { 14 + ox, 15 + oy } } }
+  if ears == "fold" then
+    local mL, mR = foldMask(c, ox, oy, fL, fR)
+    list[#list + 1] = { "foldL", mL, g, { cres = 2, gloss = false } }
+    list[#list + 1] = { "foldR", mR, g, { cres = 2, gloss = false } }
+  end
+  return list, head
+end
+local function catEye2(c, x, y, mode)
+  if mode == "half" then
+    eyeRing(c, x, y); c:eye(x, y)
+    c:paint({ ".bbbbb.", "bLLLLLb", "uuuuuuu" }, x - 1, y - 1, { b = GREY.base, L = GREY.light, u = "umber" })
+  else catEye(c, x, y, mode) end
+end
+local function catFace2(c, ox, oy, head, eyes, eL, eR, ears, fL, fR)
+  eL, eR = eL or Z, eR or Z
+  if ears == "orig" then
+    local a, b = ox + eL[1], oy + eL[2]
+    c:fill(c:poly({ {13 + a, 18 + b}, {13 + a, 9 + b}, {21 + a, 14 + b} }):cut(head), PINK)
+    a, b = ox + eR[1], oy + eR[2]
+    c:fill(c:poly({ {29 + a, 14 + b}, {37 + a, 9 + b}, {37 + a, 18 + b} }):cut(head), PINK)
+  elseif ears == "fold" then
+    local mL, mR = foldMask(c, ox, oy, fL, fR)
+    fL, fR = fL or Z, fR or Z
+    local function crease(m, d, pts)
+      for _, p in ipairs(pts) do
+        local x, y = p[1] + ox + d[1], p[2] + oy + d[2]
+        if m:has(x, y) and c:get(x, y) ~= GREY.shade then c:px(x, y, GREY.shade) end
+      end
+    end
+    crease(mL, fL, { {13, 12}, {14, 12}, {15, 11}, {16, 11}, {17, 11}, {18, 11} })
+    crease(mR, fR, { {37, 12}, {36, 12}, {35, 11}, {34, 11}, {33, 11}, {32, 11} })
+  end
+  c:fill(c:ellipse(25 + ox, 27 + oy, 3, 1.5), GREY.gloss)
+  c:paint({ "ppp", ".q." }, 24 + ox, 25 + oy, { p = PINK, q = PINKS })
+  c:paint({ "u.u" }, 24 + ox, 27 + oy, { u = "ol2" })
+  catEye2(c, 14 + ox, 19 + oy, eyes); catEye2(c, 32 + ox, 19 + oy, eyes)
+end
+local FOLD = { -- folded flap offsets (from the head offset) per frame: L, R
+  idleB = { { -1, 1 }, { 0, -1 } }, -- the tilt: left flap dips with its ear
+  bored = { { -1, 2 }, { 1, 2 } },  -- drooped: a flap sinks with the slumped head, half the ears' sideways splay
+}
+local BOB = { idleB = { 44.5, 50.5 }, bored = { 44.5, 51.5 }, wiggle = { 14.5, 14.5 } } -- wiggle: a nub standing up off the hiked rump
+FR.idleB = function(o)
+  local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }; c.names = {}
+  local g = coat(GREY)
+  local OX, OY = 1, 1
+  local EL, ER = { -1, 1 }, { 0, -1 }
+  local fL, fR = FOLD.idleB[1], FOLD.idleB[2]
+  local H, head = catHead2(c, OX, OY, EL, ER, o.ears, fL, fR)
+  local body = c:ellipse(25, 46.5, 15, 8.5):add(c:ellipse(25, 41, 12, 8))
+  local tpts = { {38, 52}, {45, 52}, {50, 49}, {52, 44}, {52, 39}, {50, 34}, {47, 32} }
+  local tail = c:line(tpts, 5)
+  local list = {}
+  if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(BOB.idleB[1], BOB.idleB[2], 4, 3.5)) end
+  list[#list + 1] = { "body", body, g, { gloss = { 15, 40 } } }
+  for _, e in ipairs(H) do list[#list + 1] = e end
+  local p = build(c, list)
+  if o.tail == "orig" then tailTip(c, tail, c:rect(40, 26, 56, 34), { { 49, 35 }, { 54, 35 } }) end
+  paw(c, 19.5, 53); paw(c, 30.5, 53)
+  edgeStitch(c, body, p.body, { cy = 45, lit = LIT })
+  catFace2(c, OX, OY, head, "open", EL, ER, o.ears, fL, fR)
+  return c, { ox = OX, oy = OY, tpts = tpts, p = p, fL = fL, fR = fR, eL = EL, eR = ER }
+end
+FR.bored = function(o)
+  local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }; c.names = {}
+  local g = coat(GREY)
+  local OX, OY = -1, 3
+  local EL, ER = { -2, 2 }, { 2, 2 }
+  local fL, fR = FOLD.bored[1], FOLD.bored[2]
+  local H, head = catHead2(c, OX, OY, EL, ER, o.ears, fL, fR)
+  local body = c:ellipse(25, 47.5, 16, 8):add(c:ellipse(25, 43, 12, 7))
+  local tpts = { {38, 53}, {47, 54}, {51, 52}, {53, 48}, {53, 45} }
+  local tail = c:line(tpts, 5)
+  local apts = { {31, 47}, {33, 41}, {33, 37} }
+  local arm = c:line(apts, 5)
+  local list = {}
+  if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(BOB.bored[1], BOB.bored[2], 4, 3.5)) end
+  list[#list + 1] = { "body", body, g, { gloss = { 15, 41 } } }
+  for _, e in ipairs(H) do list[#list + 1] = e end
+  local p = build(c, list)
+  if o.tail == "orig" then tailTip(c, tail, c:rect(49, 38, 60, 47), { { 50, 48 }, { 56, 48 } }) end
+  paw(c, 18.5, 54)
+  paw(c, 29.5, 54.5, true, 4, 2)
+  edgeStitch(c, body, p.body, { cy = 46, lit = LIT })
+  catFace2(c, OX, OY, head, "half", EL, ER, o.ears, fL, fR)
+  local A = c:part(arm, g, { cres = 2, gloss = false }); c.names[A] = "legN" -- the raised foreleg
+  paw(c, 32, 33, false, 4, 3.5)
+  c:paint({ "s", ".", "s" }, 29, 32, { s = GREY.base })
+  c:paint({ "pp", "qp" }, 27, 31, { p = PINK, q = PINKS })
+  return c, { ox = OX, oy = OY, tpts = tpts, p = p, fL = fL, fR = fR, eL = EL, eR = ER, apts = apts }
+end
+FR.wiggle = function(o)
+  local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }; c.names = {}
+  local g = coat(GREY)
+  local OX, OY = 15, 19
+  local H, head = catHead2(c, OX, OY, nil, nil, o.ears)
+  local A = 0.95
+  local body = rell(c, 22, 31, 16, 9.5, A)
+  local hpts, bpts = { {14, 31}, {15, 42}, {17, 50} }, { {22, 37}, {24, 44}, {25, 50} }
+  local legH = c:line(hpts, 6)
+  local legB = c:line(bpts, 4)
+  local tpts = { {16, 22}, {14, 16}, {14, 12}, {16, 9}, {19, 9} }
+  local tail = c:line(tpts, 5)
+  local list = {
+    { "legB", legB, g, { cres = 2, gloss = false } },
+    { "legH", legH, g, { cres = 2, gloss = false } },
+  }
+  if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(BOB.wiggle[1], BOB.wiggle[2], 4, 3.5)) end
+  list[#list + 1] = { "body", body, g, { gloss = { 14, 24 } } }
+  for _, e in ipairs(H) do list[#list + 1] = e end
+  local p = build(c, list)
+  if o.tail == "orig" then tailTip(c, tail, c:rect(8, 2, 24, 11), { { 11, 12 }, { 17, 12 } }) end
+  paw(c, 25.5, 53); paw(c, 17.5, 53)
+  paw(c, 34.5, 53); paw(c, 45.5, 53)
+  edgeStitch(c, body, p.body, { lit = LIT })
+  catFace2(c, OX, OY, head, "open", nil, nil, o.ears)
+  return c, { ox = OX, oy = OY, tpts = tpts, p = p, A = A, hpts = hpts, bpts = bpts }
+end
+-- ============================================ end of cf_frames2 copy ============================================
+
 local KEY = { "idleA", "pounce", "catch", "nap", "stalk" }
-local EXTRA = { "wiggle", "bored", "idleB" } -- drawn by cf_frames2.lua: eyes only (read from their PNGs)
+local NEW = { "idleB", "wiggle", "bored" } -- step 5c: drawn by cf_frames2.lua, copied above, now get B and C too
+local DRAWN = { "idleA", "pounce", "catch", "nap", "stalk", "idleB", "wiggle", "bored" }
 local ALL = { "idleA", "pounce", "catch", "nap", "stalk", "wiggle", "bored", "idleB" }
 local OFF = { idleA = { 0, 0 }, pounce = { 16, 0 }, catch = { 0, 0 }, nap = { 0, 18 }, stalk = { 15, 20 },
   wiggle = { 15, 19 }, bored = { -1, 3 }, idleB = { 1, 1 } }
@@ -373,16 +522,15 @@ end
 
 -- ---------- base frames: re-render, compare with the committed PNG ----------
 local BASE, INFO, CAN = {}, {}, {}
-for _, f in ipairs(KEY) do
+for _, f in ipairs(DRAWN) do
   local c, info = FR[f]({ ears = "orig", tail = "orig" })
   local file = loadPNG(OUT .. "cf-cat-grey-" .. f .. ".png")
   local mine = pixOf(c)
   for i = 0, 4095 do
-    if file[i] ~= mine[i] then error(string.format("%s: re-render differs from cf-cat-grey PNG at %d,%d (%s vs %s): copy is out of step with cf_cats.lua", f, i % 64, i // 64, tostring(file[i]), tostring(mine[i]))) end
+    if file[i] ~= mine[i] then error(string.format("%s: re-render differs from cf-cat-grey PNG at %d,%d (%s vs %s): copy is out of step with cf_cats.lua / cf_frames2.lua", f, i % 64, i // 64, tostring(file[i]), tostring(mine[i]))) end
   end
   BASE[f], INFO[f], CAN[f] = file, info, c
 end
-for _, f in ipairs(EXTRA) do BASE[f] = loadPNG(OUT .. "cf-cat-grey-" .. f .. ".png") end
 
 -- ================================ A. eyes ================================
 -- iris = the 12 cream px round the pupil minus the upper-left 2 (kept cream, lit side). Pass 7: was minus 3;
@@ -412,6 +560,7 @@ end
 
 -- ================================ B. pattern marks ================================
 local HI = { head = true, paw = true }
+local BODY_DY = 2 -- step 5c: bored's slumped body sits about 2 px below idleA's (its top 3 px, its bottom 1 px)
 local CATPART = { head = true, paw = true, body = true, tail = true, earL = true, earR = true, thigh = true,
   legB = true, legF = true, legH = true, legN = true }
 -- apply a list of {mask, op} (later entries win) to frame f, return the overlay pixel table
@@ -558,13 +707,21 @@ local function tabby(f)
   L[#L + 1] = { rings(f, I.tpts, tail, 1e9, 1, 0, 4), "dark2" } -- dark tip
   local body = partMask(f, S{ "body", "thigh", "legB", "legF", "legH", "legN" })
   local st
-  if f == "idleA" or f == "catch" then -- front view: short stripes curling in from both flanks
+  if f == "idleA" or f == "catch" or f == "idleB" or f == "bored" then -- front view: short stripes curling in from both flanks
     local L2 = {}
     for _, y in ipairs({ 37, 42, 47 }) do -- 3 px lines (3 on, 2 off); mirror of x for a 3 px pen is 50 - x
       L2[#L2 + 1] = { {10, y}, {14, y}, {18, y + 3} }
       L2[#L2 + 1] = { {40, y}, {36, y}, {32, y + 3} }
     end
     st = lines(f, L2, 3)
+    if f == "bored" then -- step 5c: the slumped body sits BODY_DY lower; the raised foreleg gets two bands
+      st = st:shift(0, BODY_DY)
+      st:add(rings(f, I.apts, partMask(f, S{ "legN" }), 3, 5, 2, nil))
+    end
+  elseif f == "wiggle" then -- step 5c: the stalk's back stripes on the hiked back, bands down the hind legs
+    st = stripes(f, 22, 31, I.A, { -9, -4, 1, 6 }, 3, -8, 1, -2)
+    st:add(rings(f, I.hpts, partMask(f, S{ "legH" }), 2, 5, 2, nil))
+    st:add(rings(f, I.bpts, partMask(f, S{ "legB" }), 4, 5, 2, nil))
   elseif f == "pounce" then -- side view: stripes across the back, tapering toward the belly
     st = stripes(f, 27, 33.5, I.A, { -12, -7, -2, 3, 8 }, 3, -8, 1, -2)
     st:add(lines(f, { { {17, 37}, {16, 40} }, { {40, 38}, {40, 41} }, { {45, 33}, {45, 36} } }, 2))
@@ -605,6 +762,10 @@ local function bib(f, big)
     return big and c:rect(14, 47, 40, 53):add(c:ellipse(46, 50, 7, 3)) or c:rect(14, 47, 38, 53)
   elseif f == "stalk" then -- the chest lobe that peeks out between haunch and chin (pass 7)
     return big and c:ellipse(25, 45, 7, 9) or c:ellipse(25.5, 46.5, 5, 7)
+  elseif f == "idleB" then return bib("idleA", big) -- step 5c: idleB's body is idleA's
+  elseif f == "bored" then return bib("idleA", big):shift(0, BODY_DY)
+  elseif f == "wiggle" then -- the strip of chest between the near hind leg and the chin
+    return big and c:ellipse(27, 45, 5, 7) or c:ellipse(27.5, 46, 3, 6)
   end
 end
 local function tuxedo(f)
@@ -621,9 +782,14 @@ local function calico(f)
   local L = {}
   -- dark patch over the left ear and forehead corner, one at the right cheek's back edge
   -- (pass 2: two tones down and bigger, so the patches hold at 16 px)
-  local hp = c:poly({ {5, 3}, {24, 8}, {24, 15}, {19, 19}, {12, 21}, {6, 19} }):shift(ox, oy)
-  hp:add(c:poly({ {29, 4}, {42, 4}, {43, 19}, {37, 17}, {31, 12} }):shift(ox, oy))
-  L[#L + 1] = { hp:clip(partMask(f, S{ "head", "earL", "earR" })), "dark2" }
+  local pL = c:poly({ {5, 3}, {24, 8}, {24, 15}, {19, 19}, {12, 21}, {6, 19} })
+  local pR = c:poly({ {29, 4}, {42, 4}, {43, 19}, {37, 17}, {31, 12} })
+  local hp = pL:shift(ox, oy):add(pR:shift(ox, oy)):clip(partMask(f, S{ "head" }))
+  -- step 5c: the ear half of each patch rides with its ear (idleB tilt, bored droop; same shift on key frames)
+  local eL, eR = I.eL or { 0, 0 }, I.eR or { 0, 0 }
+  hp:add(pL:shift(ox + eL[1], oy + eL[2]):clip(partMask(f, S{ "earL" })))
+  hp:add(pR:shift(ox + eR[1], oy + eR[2]):clip(partMask(f, S{ "earR" })))
+  L[#L + 1] = { hp, "dark2" }
   -- white: muzzle, a big bib and paws
   L[#L + 1] = { headAscii(f, MUZZLE, 19, 18), "white" }
   L[#L + 1] = { bib(f, true):clip(partMask(f, S{ "body" })), "white" }
@@ -639,6 +805,13 @@ local function calico(f)
     bp = c:poly({ {38, 30}, {53, 30}, {57, 39}, {50, 46}, {41, 43} }):add(c:poly({ {16, 37}, {26, 33}, {28, 40}, {18, 44} }))
   elseif f == "stalk" then
     bp = c:poly({ {12, 19}, {24, 21}, {28, 30}, {20, 31}, {14, 26} }):add(c:poly({ {7, 40}, {16, 37}, {22, 45}, {15, 52}, {7, 50} }))
+  elseif f == "idleB" then -- step 5c: idleA's patches (same body), bored's sit BODY_DY lower
+    bp = c:poly({ {27, 30}, {42, 31}, {43, 50}, {37, 47}, {33, 40}, {29, 37} }):add(c:poly({ {7, 40}, {15, 38}, {18, 45}, {16, 57}, {7, 57} }))
+  elseif f == "bored" then
+    bp = c:poly({ {27, 30}, {42, 31}, {43, 50}, {37, 47}, {33, 40}, {29, 37} }):add(c:poly({ {7, 40}, {15, 38}, {18, 45}, {16, 57}, {7, 57} })):shift(0, BODY_DY)
+    bp:add(partMask(f, S{ "legN" })) -- the raised foreleg comes off the dark flank: dark all along (it was split)
+  elseif f == "wiggle" then -- stalk's back patch (body centre 2 px up-left), its haunch patch on the hind legs' top
+    bp = c:poly({ {10, 17}, {22, 19}, {26, 28}, {18, 29}, {12, 24} }):add(c:poly({ {7, 30}, {18, 29}, {21, 38}, {16, 45}, {8, 42} }))
   end
   L[#L + 1] = { bp:clip(body), "dark2" }
   local tail = partMask(f, S{ "tail" })
@@ -658,7 +831,7 @@ local function pointed(f)
   -- pass 7: the whole tail is a point (it was dark from 45 % along), so a bobtail, which keeps the tail
   -- root's marks, is dark too; and the head under a folded flap is dark, so folded ears read as points
   L[#L + 1] = { partMask(f, S{ "tail" }), "dark" }
-  local fL, fR = foldMask(c, I.ox, I.oy)
+  local fL, fR = foldMask(c, I.ox, I.oy, I.fL, I.fR)
   L[#L + 1] = { fL:add(fR):clip(partMask(f, S{ "head" })), "dark2" } -- head light -> shade, like the ears
   -- dark lower legs in the pounce (socks up to the knee)
   if f == "pounce" then L[#L + 1] = { lines(f, { { {45, 35}, {49, 34} }, { {40, 40}, {44, 39} }, { {13, 33}, {11, 32} }, { {16, 39}, {13, 40} } }, 4):clip(partMask(f, S{ "legB", "legF", "legH", "legN" })), "dark" } end
@@ -680,14 +853,15 @@ local ROS = {
 local function spotted(f)
   local c, I = CAN[f], INFO[f]
   local L = {}
-  local function stampAll(names, step, ox0, oy0, shrink)
+  local function stampAll(names, step, ox0, oy0, shrink, dy)
+    dy = dy or 0 -- step 5c: shift the whole grid (hash included) down dy px, so bored's lower body keeps idleA's spots
     local pm = partMask(f, S(names)):shrink(shrink or 1)
     local m = c:mask()
     local row = 0
-    for y = oy0, 60, step - 1 do
+    for y = oy0 + dy, 60, step - 1 do
       row = row + 1
       for x = ox0 + ((row % 2) * (step // 2)), 60, step do
-        local hsh = (x * 73 + y * 151 + row * 31) % 97
+        local hsh = (x * 73 + (y - dy) * 151 + row * 31) % 97
         local jx, jy = (hsh % 3) - 1, ((hsh // 3) % 3) - 1
         local r = ROS[(hsh % 4) + 1]
         local st = c:ascii(r, x + jx, y + jy)
@@ -698,9 +872,9 @@ local function spotted(f)
     end
     return m
   end
-  local front = f == "idleA" or f == "catch" -- slim side-view bodies (pounce, nap) let spots reach the edge
+  local front = f == "idleA" or f == "catch" or f == "idleB" or f == "bored" -- slim side-view bodies (pounce, nap) let spots reach the edge
   -- pass 7: one step tighter (front 7 -> 6, side 6 -> 5) so the coat still reads spotted at 16 px
-  local m = stampAll({ "body", "thigh" }, front and 6 or 5, 1, 1, front and 1 or 0)
+  local m = stampAll({ "body", "thigh" }, front and 6 or 5, 1, 1, front and 1 or 0, f == "bored" and BODY_DY or 0)
   m:add(stampAll({ "legB", "legF", "legH", "legN" }, 5, 0, 0))
   -- tail: broken rings (a ring with every third pixel row left out) and a dark tip
   local tail = partMask(f, S{ "tail" })
@@ -730,7 +904,7 @@ local function spotted(f)
 end
 
 local PAT = { tabby = tabby, tuxedo = tuxedo, calico = calico, pointed = pointed, spotted = spotted }
-for _, f in ipairs(KEY) do
+for _, f in ipairs(DRAWN) do
   for _, name in ipairs({ "tabby", "tuxedo", "calico", "pointed", "spotted" }) do
     emit("cf-pat-" .. name .. "-grey-" .. f, PAT[name](f), "pat")
   end
@@ -738,7 +912,7 @@ end
 
 -- ================================ C. replacement parts ================================
 local function diff(a, b) local m = {} for i = 0, 4095 do if a[i] ~= b[i] then m[i] = true end end return m end
-for _, f in ipairs(KEY) do
+for _, f in ipairs(DRAWN) do
   for _, slot in ipairs({ { "ears", "folded", "fold" }, { "tail", "bobtail", "bob" } }) do
     local o0 = { ears = "orig", tail = "orig" }
     local oN = { ears = "orig", tail = "orig" }; oN[slot[1]] = "none"
