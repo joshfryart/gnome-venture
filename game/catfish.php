@@ -123,18 +123,15 @@ if ($capWk > 0): ?>
 <?php endif; endif; ?>
 
 <?php if ($owned > 0): $week = catfish_show_week(); $theme = catfish_show_theme($week); $entry = $meta['show'] ?? null; $entered = is_array($entry) && ($entry['week'] ?? '') === $week ? $entry : null; $myRibbons = catfish_ribbons($uid, 6);
-$judged = (bool)q_val('SELECT 1 FROM cat_ribbons WHERE user_id = ? AND week = ?', [$uid, $week]); ?>
+?>
 <details class="fold box"><summary>🎀 Cat Show · <?= e($theme['label']) ?></summary>
   <p class="help">A new show every week (Monday to Sunday). Enter one cat. Three judges look at it when the week ends; a cat that fits the theme and a rarer cat score higher. Kibble and Yarn do not count. Prizes are ribbons on your profile.</p>
-  <?php if ($judged): ?><p>This week is judged already. Come back on Monday.</p>
-  <?php else: ?>
   <?php if ($entered): foreach ($cats as $c) if ($c['id'] === (int)$entered['cat']): ?><p>Entered: <b><?= e($c['name']) ?></b><?= ($c[$theme['trait']] ?? '') === $theme['value'] ? ' (fits the theme!)' : '' ?></p><?php endif; endif; ?>
   <form method="post" class="cfshowform"><?= csrf_field() ?><input type="hidden" name="do" value="show">
     <label for="cf-showcat">Cat</label>
     <select id="cf-showcat" name="cat"><?php foreach ($cats as $c): ?><option value="<?= (int)$c['id'] ?>"<?= $entered && (int)$entered['cat'] === $c['id'] ? ' selected' : '' ?>><?= e($c['name']) ?> (<?= e($c['colour'] . ' ' . $c['pattern']) ?>)</option><?php endforeach; ?></select>
     <button class="btn" type="submit"><?= $entered ? 'Swap entry' : 'Enter' ?></button></form>
-  <?php endif; ?>
-  <?php if ($myRibbons): ?><ul class="cfms"><?php foreach ($myRibbons as $rb): [$ri, $rl] = catfish_ribbon_face((string)$rb['tier']); ?><li><?= $ri ?> <?= e($rl) ?> · <?= e($rb['cat_name']) ?> <small class="muted">· <?= e($rb['theme']) ?> (<?= e($rb['week']) ?>)</small></li><?php endforeach; ?></ul><?php endif; ?>
+  <?php if ($myRibbons): ?><ul class="cfms"><?php foreach ($myRibbons as $rb): [$ri, $rl] = catfish_ribbon_face((string)$rb['tier']); ?><li><?= catfish_img('ribbon-' . $rb['tier'], $ri, '', 24) ?> <?= e($rl) ?> · <?= e($rb['cat_name']) ?> <small class="muted">· <?= e($rb['theme']) ?> (<?= e($rb['week']) ?>)</small></li><?php endforeach; ?></ul><?php endif; ?>
 </details>
 <?php endif; ?>
 

@@ -121,7 +121,7 @@ function catfish_ensure(): bool
             UNIQUE (user_id, week)
         )$END");
         foreach ([['catfish_state', 'run_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'total_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'meta', 'TEXT NULL'], ['cat_book', 'adopted', 'INT NOT NULL DEFAULT 0']] as [$t, $col, $def]) {
-            try { q('SELECT ' . $col . ' FROM ' . $t . ' LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE ' . $t . ' ADD COLUMN ' . $col . ' ' . $def); }
+            try { q('SELECT ' . $col . ' FROM ' . $t . ' LIMIT 1'); } catch (Throwable $e) { try { db()->exec('ALTER TABLE ' . $t . ' ADD COLUMN ' . $col . ' ' . $def); } catch (Throwable $e2) {} }   // a second first request may have added it already
         }
         return $ok = true;
     } catch (Throwable $e) {
@@ -273,10 +273,10 @@ function catfish_milestone_mult(int $owned): int
     return $m;
 }
 
-const CATFISH_PAL_STEP = 0.02;          // Puzzle Pals: +2% Kibble per pal found (needs Puzzle Pals open; the gnome level follows PPAL_PARTY_LEVEL)
+const CATFISH_PAL_STEP = 0.02;          // Puzzle Pals: +2% Kibble per pal found (needs Puzzle Pals open; no gnome level, as Pals themselves need none since 2.0.91)
 const CATFISH_PAL_MAX = 10;             // ...for up to this many pals (+20%)
 
-/** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (ppal_open, gnome level PPAL_PARTY_LEVEL or more). 1.0 when none. One cheap count per call, cached per request. */
+/** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (ppal_open). 1.0 when none. One cheap count per call, cached per request. */
 function catfish_extra_mult(int $uid): float
 {
     static $cache = [];
@@ -284,7 +284,7 @@ function catfish_extra_mult(int $uid): float
     $m = 1.0;
     try {
         require_once __DIR__ . '/puzzle_pals.php';
-        if (ppal_open() && ppal_ensure() && (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]) >= PPAL_PARTY_LEVEL) {
+        if (ppal_open()) {   // no ppal_ensure() here: this runs inside the tick lock, and creating tables there would end the transaction. A missing table is caught below.
             $found = (int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ?', [$uid]);
             $m += CATFISH_PAL_STEP * min($found, CATFISH_PAL_MAX);
         }
@@ -673,7 +673,6 @@ function catfish_show_enter(int $uid, int $catId): array
         catfish_show_settle($uid);   // an old entry gets its ribbon before a new one replaces it
         $s = catfish_state($uid); $meta = $s['meta'];
         $week = catfish_show_week();
-        if (q_val('SELECT 1 FROM cat_ribbons WHERE user_id = ? AND week = ?', [$uid, $week])) return [false, 'This week is already judged.'];
         $meta['show'] = ['week' => $week, 'cat' => $catId];
         catfish_meta_save($uid, $meta);
         return [true, 'Entered. The judges decide when the week ends.'];

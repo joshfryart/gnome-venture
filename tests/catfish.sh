@@ -521,7 +521,7 @@ ok "ppal_open on, 5 pals: view.kph is x1.10 (within 0.2)" "$(kp_eq $KC $(awk "BE
 ppal_fill 15; KD=$(kp)
 ok "ppal_open on, 15 pals: view.kph is capped at x1.20 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.20}"))" y
 dbx "UPDATE users SET level=0 WHERE id=$UID_"; KE=$(kp)
-ok "gnome level 0 (below PPAL_PARTY_LEVEL): 15 pals give no bonus (within 0.2)" "$(kp_eq $KE $KA)" y
+ok "the Pals bonus needs no gnome level (level 0 still x1.20, within 0.2)" "$(kp_eq $KE $(awk "BEGIN{print $KA*1.20}"))" y
 dbx "UPDATE users SET level=$LV WHERE id=$UID_; DELETE FROM ppal_found WHERE user_id=$UID_"
 setg ppal_open 0; dbx "DELETE FROM settings WHERE name IN ('ppal_open','puzzles_open','jigsaw_open')"
 
