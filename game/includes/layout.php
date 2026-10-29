@@ -376,7 +376,7 @@ function page_footer(): void
   <button type="button" class="menubtn more" aria-controls="sidenav" aria-expanded="false"><span aria-hidden="true">☰</span>More</button>
 </nav>
 <?php endif; ?>
-<footer>&copy; <?= gmdate('Y') ?> <?= e(setting('site_name')) ?> · v<?= e(APP_VERSION) ?> · <a href="<?= e(url('guide.php')) ?>">How to play</a> · <a href="<?= e(url('page.php?p=rules')) ?>">Rules</a> · <a href="<?= e(url('page.php?p=privacy')) ?>">Privacy</a><?php if (!$u || $inAdmin) echo ' ' . theme_toggle('th-foot');   // v1.6.5: logged-out pages and admin get the switch here (players have it in the menu) ?></footer>
+<footer>&copy; <?= gmdate('Y') ?> <?= e(setting('site_name')) ?> · v<?= e(APP_VERSION) ?> · <a href="<?= e(url('guide.php')) ?>">How to play</a> · <a href="<?= e(url('page.php?p=rules')) ?>">Rules</a> · <a href="<?= e(url('page.php?p=privacy')) ?>">Privacy</a><?php if (preg_match('~^https://~i', setting('vote_url'))) echo ' · <a href="' . e(setting('vote_url')) . '" target="_blank" rel="noopener">Vote for us</a>'; ?><?php if (!$u || $inAdmin) echo ' ' . theme_toggle('th-foot');   // v1.6.5: logged-out pages and admin get the switch here (players have it in the menu) ?></footer>
 </body>
 </html>
 <?php
