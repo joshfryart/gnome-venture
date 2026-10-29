@@ -447,7 +447,7 @@
   var ups = document.getElementById('cf-ups');
   if (ups) tabs(ups, [].map.call(ups.querySelectorAll('.cfbranch'), function (el) {
     return { id: el.getAttribute('data-branch'), el: el, attr: ['data-branch', el.getAttribute('data-branch')], label: el.getAttribute('data-label'), badge: true };
-  }), 'Upgrade branches', 'upt', 'cftabs');
+  }), 'Upgrade branches', 'upt', 'cftabs cftabs4');
   var hub = document.getElementById('cf-hub');
   if (hub) {
     var ps = [].slice.call(hub.querySelectorAll(':scope > .cfpanel')), bar = document.createElement('div'), cur = mem('hub');

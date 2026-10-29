@@ -435,7 +435,7 @@ dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user
 cfpost -d do=scarfset -d key=blue >/dev/null; ok "scarf colour before buying: refused" "$(mget scarf)" 0
 cfpost -d do=scarfbuy >/dev/null; ok "the scarf costs 12 Yarn: ys=12, red to start" "$(mget ys),$(mget scarf)" "12,red"
 PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"')" -ge 1 ] && echo y || echo n)" y
-cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
+cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e\|tint-2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
 cfpost -d do=scarfset -d key=nonsense >/dev/null; ok "unknown scarf colour refused: still blue" "$(mget scarf)" blue
 cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf off: gone from the profile" "$(echo "$PRF" | grep -c 'data-part="scarf"')" 0
 cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
@@ -494,7 +494,7 @@ pagew3; cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Loves boxes" >/dev/n
 dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
 cfpost -d do=collar -d cat=$CID1 -d key=rose >/dev/null
 ok "a collar costs 2 Yarn for that cat: ys=2, worn" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,rose"
-pagew3; ok "the collar class is on the page" "$([ "$(grep -c 'cfcol-rose' $W/w3.html)" -ge 1 ] && echo y || echo n)" y
+pagew3; ok "the collar class is on the page" "$([ "$(grep -c 'cfcol-rose\|cf-collar-rose-idleA.png' $W/w3.html)" -ge 1 ] && echo y || echo n)" y
 cfpost -d do=collar -d cat=$CID1 -d key= >/dev/null; ok "collar off is free" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,"
 cfpost -d do=collar -d cat=$CID1 -d key=rose >/dev/null; ok "wearing an owned collar again is free: ys stays 2" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,rose"
 cfpost -d do=collar -d cat=$CID1 -d key=gold >/dev/null; ok "a second colour costs 2 more: ys=4" "$(mget ys)" 4
@@ -1246,6 +1246,66 @@ done
 ok "2.1.08 scene: with all four Rod upgrades the stage has cfrs cfrsp cfrmo cfrdb and a second wand (hidden from screen readers)" "$(echo "$SH" | grep -c 'class="cfstage cfrs cfrsp cfrmo cfrdb"')/$(echo "$SH" | grep -c 'class="cfswand cfswand2" aria-hidden="true"')" "1/1"
 cfreset
 cfreset
+# 2.2.x art wired: gnome scarf layer, collar band, season sprites, coloured yarn balls, redrawn bird/yarn frames, Yarn panel icons, 4 upgrade tabs that fit
+CSS22=$GAME/assets/catfish.css
+ok "2.2.x scarf art: gnome-scarf.png is 80 x 100, alpha 0/255, grey only (tintable); gnome.php draws it with pixel_image and tints it, the red placeholder only without the PNG" "$(python3 -I - "$GAME/assets/img/gnome/gnome-scarf.png" <<'P'
+import sys, numpy as np
+from PIL import Image
+a = np.array(Image.open(sys.argv[1]).convert('RGBA')); op = a[a[..., 3] > 0][:, :3].astype(int)
+print(a.shape[:2] == (100, 80), set(np.unique(a[..., 3])) <= {0, 255}, bool((op.max(1) - op.min(1) <= 2).all()))
+P
+)$(grep -c "pixel_image('assets/img/gnome/gnome-scarf.png'" $GAME/includes/gnome.php)$(grep -c 'data-placeholder="1"' $GAME/includes/gnome.php)" "True True True10"
+COLCAT='["colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"upright","tail"=>"long","seed"=>5,"collar"=>"rose"]'
+H=$(cfx $FULL "catfish_cat_html($COLCAT, 64, 'idleA')")
+ok "2.2.x collar art: the layered cat has the rose band layer above body and pattern and no CSS ring on the cat" "$(echo "$H" | grep -o 'cf-[a-z]*-[a-z-]*idleA.png\|cf-collar-rose-idleA.png' | sed 's/cf-eyes.*/eyes/' | tr '\n' ' ')$(echo "$H" | grep -c 'cfcol-')" "cf-cat-orange-idleA.png cf-pat-tabby-orange-idleA.png cf-collar-rose-idleA.png eyes 0"
+ok "2.2.x collar art: frames pounce, catch, nap and the idleA aliases (blink) have the band; stalk (no art) has none" "$(for f in pounce catch nap blink stalk; do cfx $FULL "catfish_cat_html($COLCAT, 64, '$f')" | grep -c "cf-collar-rose-"; done | tr -d '\n')" "11110"
+mkdir -p $W/art9; cp $FULL/cf-cat-orange-idleA.png $W/art9/
+ok "2.2.x collar fallback: no collar PNGs = the CSS ring class stays on the cat" "$(cfx $W/art9 "catfish_cat_html($COLCAT, 64, 'idleA')" | grep -c 'cfart cf-s64 cfcol-rose')" 1
+ok "2.2.x collar: the 6 colours come from catfish.css, only the 4 grey tones move (umber outline, #000000 and bell are identical in all)" "$(python3 -I - "$FULL" "$CSS22" <<'P'
+import sys, re, numpy as np
+from PIL import Image
+d, css = sys.argv[1:]; css = open(css).read(); bad = []
+grey = {}
+for f in ('idleA', 'pounce', 'catch', 'nap'):
+    g = np.array(Image.open('/home/user/gnome-venture/aseprite-source/catfish/art22/out/cf-collar-%s.png' % f).convert('RGBA'))
+    for c in ('rose', 'mint', 'sky', 'gold', 'violet', 'red'):
+        o = np.array(Image.open('%s/cf-collar-%s-%s.png' % (d, c, f)).convert('RGBA'))
+        if o.shape != (64, 64, 4) or (o[..., 3] != g[..., 3]).any(): bad.append('%s %s alpha/size' % (c, f)); continue
+        fixed = {(0x4a, 0x2c, 0x1a), (0x2a, 0x1a, 0x10), (0, 0, 0), (0xf5, 0xcf, 0x6a), (0xe8, 0xa3, 0x17), (0xe3, 0x81, 0x11), (0xff, 0xf1, 0xc8)}
+        for y, x in zip(*np.nonzero(g[..., 3])):
+            if tuple(g[y, x, :3]) in fixed and tuple(o[y, x, :3]) != tuple(g[y, x, :3]): bad.append('%s %s fixed pixel moved' % (c, f)); break
+        if not (o[..., :3] != g[..., :3]).any(): bad.append('%s %s not recoloured' % (c, f))
+        m = re.search(r'\.cfcol-%s \{ box-shadow: 0 0 0 2px (#[0-9a-f]{6})' % c, css)
+        mk = (g[..., 0] == 0x8a) & (g[..., 1] == 0x85) & (g[..., 2] == 0x9b)
+        base = '#%02x%02x%02x' % tuple(o[mk][0][:3]) if mk.any() else ''
+        if not m or base != m.group(1): bad.append('%s base tone %s != css ring %s' % (c, base, m and m.group(1)))
+print('ok' if not bad else ';'.join(bad[:4]))
+P
+)" ok
+ok "2.2.x seasons: art gives class cfsart on the bits, 8 sprite files installed with their sizes, css has the sprite rules for all four seasons, reduced motion still hides them" "$(cfx $FULL 'catfish_season_art() ? 1 : 0')$(cfx $W/art9 'catfish_season_art() ? 1 : 0')$(for w in 'cf-season-petal.png' 'cf-season-petal-b.png' 'cf-season-firefly.png' 'cf-season-firefly-b.png' 'cf-season-leaf.png' 'cf-season-leaf-b.png' 'cf-season-flake.png' 'cf-season-flake-small.png' '@media (prefers-reduced-motion: reduce) { .cfseason { display: none; } }'; do grep -c -F "$w" $CSS22 | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(grep -c 'style=' $CSS22)" "10yyyyyyyyy0"
+ok "2.2.x yarn balls: the CSS colour filter is gone (no sepia/hue-rotate/filter in catfish.css)" "$(grep -c 'sepia\|hue-rotate\|filter' $CSS22)" 0
+ok "2.2.x yarn balls: 4 colours x 4 rolling frames are 16 x 16 and differ from the grey frame" "$(python3 -I - "$FULL" <<'P'
+import sys, numpy as np
+from PIL import Image
+d = sys.argv[1]; bad = []
+for n in range(1, 5):
+    g = np.array(Image.open('%s/cf-yarn-%d.png' % (d, n)).convert('RGBA'))
+    for c in ('rose', 'mint', 'violet', 'gold'):
+        o = np.array(Image.open('%s/cf-yarn-%d-%s.png' % (d, n, c)).convert('RGBA'))
+        if o.shape != (16, 16, 4) or (o == g).all() or (o[..., 3] != g[..., 3]).any(): bad.append('%d %s' % (n, c))
+print('ok' if not bad else ' '.join(bad))
+P
+)" ok
+CFMETA0=$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_")
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0,\"ball\":\"mint\",\"balls\":[\"mint\"]}' WHERE user_id=$UID_"
+pagew3; ok "2.2.x yarn balls: the mint ball rolls with cf-yarn-1..4-mint.png (4 images), none of the grey ones" "$(grep -o 'cf-yarn-[1-4]-mint.png' $W/w3.html | sort -u | wc -l | tr -d ' ')$(grep -o 'cf-yarn-[1-4].png' $W/w3.html | wc -l | tr -d ' ')" "40"
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+pagew3; ok "2.2.x yarn balls: the plain ball keeps the grey frames" "$(grep -o 'cf-yarn-[1-4].png' $W/w3.html | sort -u | wc -l | tr -d ' ')$(grep -c 'cf-yarn-[1-4]-' $W/w3.html)" "40"
+dbx "UPDATE catfish_state SET meta='$CFMETA0' WHERE user_id=$UID_"
+pagew3; ok "2.2.x Yarn panel icons: cf-yi-<key>.png (48 px, same cficon cell as the upgrade rows) replace the emoji" "$(grep -o 'cf-yi-[a-z0-9]*.png' $W/w3.html | sort -u | tr '\n' ' ')" "cf-yi-balls.png cf-yi-buddy.png cf-yi-catnip.png cf-yi-keepsake.png cf-yi-scarf.png cf-yi-season.png cf-yi-show2.png cf-yi-stake.png cf-yi-titles.png cf-yi-treat.png cf-yi-tune.png "
+ok "2.2.x Yarn panel icons: no icon without art keeps the emoji (cfx, no art folder)" "$(cfx none "catfish_img('yi-stake', '🔭', '', 48)")" '<span aria-hidden="true">🔭</span>'
+ok "2.2.x upgrade tabs: the four tabs share the width (flex 1 1 0, no scroll) with the count pip on the corner; js passes the class" "$(grep -c '^\.cftabs4 button { flex: 1 1 0; min-width: 0;' $CSS22)$(grep -c '^\.cftabs4 { overflow: visible' $CSS22)$(grep -c "'cftabs cftabs4'" $GAME/assets/catfish.js)" 111
+
 # the animation machine in a real browser (tests/catfish_anim.js; skipped without playwright): a home of 4 cats (patterned folded-ear bobtail active cat, lazy cat on the cushion, an awake side cat, a bored one)
 if node -e "require('playwright')" 2>/dev/null; then
   dbx "DELETE FROM cats WHERE user_id=$UID_"

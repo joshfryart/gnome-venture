@@ -4,6 +4,7 @@
 Usage: python3 tools/catfish_build_art.py [--in DIR] [--out DIR] [--check] [--install [DIR]] [--verify DIR]
 
   --in DIR       source art (default aseprite-source/catfish/test)
+  --art22 DIR    2.2.x finished art (default aseprite-source/catfish/art22/out): redrawn cf-bird/cf-yarn, coloured yarn balls, season bits, Yarn icons, grey collars (recoloured to 6)
   --out DIR      where the set is built (default: a new temp dir; printed at the end). Nothing in game/ is touched.
   --check        validate every output file (RGBA, alpha 0/255 only, size per kind from claude/catfish-art-brief.md, names against the brief's
                  naming list, every required file present, no stray file); exit 1 on any failure
@@ -23,6 +24,7 @@ from PIL import Image
 import catfish_recolor as R
 
 SRC = os.path.join(R.CF, 'test')
+ART22 = os.path.join(R.CF, 'art22', 'out')   # 2.2.x art (finished): copied after the test art, so the same name (cf-bird-1..3, cf-yarn-1..4) takes the redrawn file
 DEST = os.path.join(ROOT, 'game', 'assets', 'img', 'catfish')
 BRIEF = os.path.join(ROOT, 'claude', 'catfish-art-brief.md')
 # Full frames: body, 5 patterns, folded ears + mask, bobtail + mask, eye files. The first 8 are CATFISH_FRAMES in game/includes/catfish.php (inline set); the next 8 are
@@ -36,8 +38,15 @@ for _f in sorted(glob.glob(os.path.join(R.CF, 'frames-alias-s*.json'))):
         if isinstance(_v, dict) and _v.get('kind') == 'alias': ALIAS[_k] = _v
 EYES = sorted(R.EYES)
 COATS = list(R.COATS)
+COLLARS = list(R.COLLARS)
+COLLAR_FRAMES = ['idleA', 'pounce', 'catch', 'nap']
+BALLS = ['rose', 'mint', 'violet', 'gold']
+SEASON_BITS = {'petal': (6, 6), 'petal-b': (6, 6), 'firefly': (5, 6), 'firefly-b': (5, 6), 'leaf': (9, 9), 'leaf-b': (9, 9), 'flake': (6, 6), 'flake-small': (3, 3)}   # name -> (w, h)
+YI_KEYS = ['hold', 'stake', 'show2', 'buddy', 'keepsake', 'tune', 'catnip', 'treat', 'bio', 'collar', 'season', 'scarf', 'bunting', 'balls', 'titles']
 HAND = ['cf-z.png', 'cf-sparkle-[1-3].png', 'cf-bird-[1-3].png', 'cf-yarn-[1-4].png', 'cf-fish-[1-5].png', 'cf-rod.png', 'cf-ico-*.png', 'cf-up-*.png', 'cf-badge-*.png', 'cf-ribbon-*.png', 'cf-tile.png', 'cf-banner.png',
         'cf-room.png', 'cf-room-*.png', 'cf-bookhead-unknown.png']
+# 2.2.x hand pieces from ART22 (art22/out): season bits, coloured yarn balls, Yarn panel icons; the redrawn bird and grey yarn frames come from HAND_22 too
+HAND_22 = ['cf-bird-[1-3].png', 'cf-yarn-[1-4].png', 'cf-yarn-[1-4]-*.png', 'cf-season-*.png', 'cf-yi-*.png']
 # recolour passes: (glob in --in, what it makes)
 RECOLOR = ['cf-cat-grey-*.png', 'cf-pat-*-grey-*.png', 'cf-ears-folded-*.png', 'cf-tail-bobtail-*.png', 'cf-bookhead-grey.png', 'cf-eyes-[!r]*.png', 'cf-*-mask-*.png']
 
@@ -92,14 +101,20 @@ def expected():
     e['cf-room-yarnpatch.png'] = (38, 20)
     e['cf-z.png'] = (8, 8)
     for n in range(1, 4): e['cf-sparkle-%d.png' % n] = (8, 8); e['cf-bird-%d.png' % n] = (12, 10)
-    for n in range(1, 5): e['cf-yarn-%d.png' % n] = (16, 16)
+    for n in range(1, 5):
+        e['cf-yarn-%d.png' % n] = (16, 16)
+        for c in BALLS: e['cf-yarn-%d-%s.png' % (n, c)] = (16, 16)
+    for c in COLLARS:
+        for f in COLLAR_FRAMES: e['cf-collar-%s-%s.png' % (c, f)] = (64, 64)
+    for b, wh in SEASON_BITS.items(): e['cf-season-%s.png' % b] = wh
+    for k in YI_KEYS: e['cf-yi-%s.png' % k] = (64, 64)
     return e
 
 
 def category(name):
     for p, c in (('cf-cat-', 'cat bodies'), ('cf-pat-', 'patterns'), ('cf-ears-mask', 'masks'), ('cf-tail-mask', 'masks'), ('cf-ears-folded', 'folded ears'),
                  ('cf-tail-bobtail', 'bobtails'), ('cf-eyes-', 'eyes'), ('cf-fish-', 'fish'), ('cf-rod', 'rod'), ('cf-ico-', 'icons'), ('cf-up-', 'upgrade icons'),
-                 ('cf-z', 'sprites'), ('cf-sparkle-', 'sprites'), ('cf-bird-', 'sprites'), ('cf-yarn-', 'sprites'), ('cf-badge-', 'badges'), ('cf-ribbon-', 'ribbons'), ('cf-tile', 'tile'), ('cf-banner', 'banner'), ('cf-room', 'room'), ('cf-bookhead-', 'book heads')):
+                 ('cf-z', 'sprites'), ('cf-season-', 'season bits'), ('cf-collar-', 'collars'), ('cf-yi-', 'Yarn icons'), ('cf-sparkle-', 'sprites'), ('cf-bird-', 'sprites'), ('cf-yarn-', 'sprites'), ('cf-badge-', 'badges'), ('cf-ribbon-', 'ribbons'), ('cf-tile', 'tile'), ('cf-banner', 'banner'), ('cf-room', 'room'), ('cf-bookhead-', 'book heads')):
         if name.startswith(p): return c
     return 'other'
 
@@ -122,10 +137,17 @@ def check_dir(d):
     return bad
 
 
-def build(src, out):
+def build(src, out, art22=ART22):
     os.makedirs(out, exist_ok=True)
     for pat in HAND:
         for f in sorted(glob.glob(os.path.join(src, pat))): shutil.copyfile(f, os.path.join(out, os.path.basename(f)))
+    for pat in HAND_22:   # 2.2.x: finished art wins over the test art of the same name
+        if not glob.glob(os.path.join(art22, pat)): sys.exit('no 2.2.x art for %s in %s' % (pat, art22))
+        for f in sorted(glob.glob(os.path.join(art22, pat))): shutil.copyfile(f, os.path.join(out, os.path.basename(f)))
+    buf = io.StringIO(); old = sys.stdout; sys.stdout = buf   # collars: grey neck band -> 6 colours (catfish_recolor.py)
+    try: rc = R.main(['--in', art22, '--out', out, '--glob', 'cf-collar-*.png', '--check'])
+    finally: sys.stdout = old
+    if rc: sys.exit('collar recolour failed:\n' + buf.getvalue())
     for g in RECOLOR:
         if not glob.glob(os.path.join(src, g)): sys.exit('no source art for ' + g)
         buf = io.StringIO(); old = sys.stdout; sys.stdout = buf
@@ -147,6 +169,7 @@ def manifest(out):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--in', dest='src', default=SRC)
+    ap.add_argument('--art22', default=ART22, help='2.2.x finished art folder (default aseprite-source/catfish/art22/out)')
     ap.add_argument('--out')
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--install', nargs='?', const=DEST, metavar='DIR')
@@ -158,7 +181,7 @@ def main(argv=None):
         print('verify %s: %s' % (a.verify, 'FAILED (%d problems)' % len(bad) if bad else 'ok'))
         return 1 if bad else 0
     out = a.out or tempfile.mkdtemp(prefix='catfish-art-')
-    build(a.src, out)
+    build(a.src, out, a.art22)
     rows = manifest(out)
     counts = {}
     for r in rows: counts[category(r['file'])] = counts.get(category(r['file']), 0) + 1

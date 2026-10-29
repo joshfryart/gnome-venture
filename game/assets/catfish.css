@@ -250,12 +250,8 @@
 .cfcard .cfhold { justify-content: center; }
 .cfcard .cfinfo { flex: 1 1 100%; text-align: center; }
 .cfcard .cfmain { flex: 1 1 100%; }
-/* Yarn ball colours (grey-blue ball sprite): a sepia base, then a hue and saturation per colour */
-.cfball-rose .cfyarn img { filter: sepia(1) saturate(5) hue-rotate(-35deg); }
-.cfball-mint .cfyarn img { filter: sepia(1) saturate(4) hue-rotate(90deg); }
-.cfball-violet .cfyarn img { filter: sepia(1) saturate(5) hue-rotate(215deg); }
-.cfball-gold .cfyarn img { filter: sepia(1) saturate(6) hue-rotate(-8deg) brightness(1.1); }
-/* Collar tint (a ring around the cat), Cat bio, and the seasonal room (eight CSS bits falling or drifting; none under reduced motion). */
+/* Yarn ball colours: recoloured sprites cf-yarn-<1..4>-<colour>.png chosen in catfish_room_extras_html (2.2.x; the old CSS colour filter is gone) */
+/* Collar tint (the ring `.cfcol-*` is the fallback; with cf-collar-*.png the cat wears a neck-band layer instead), Cat bio, and the seasonal room (eight CSS bits falling or drifting; none under reduced motion). */
 .cfcol-rose { box-shadow: 0 0 0 2px #e8799b; border-radius: 12px; } .cfcol-mint { box-shadow: 0 0 0 2px #5fc9a0; border-radius: 12px; }
 .cfcol-sky { box-shadow: 0 0 0 2px #5aa7e0; border-radius: 12px; } .cfcol-gold { box-shadow: 0 0 0 2px #e0a526; border-radius: 12px; }
 .cfcol-violet { box-shadow: 0 0 0 2px #9a6fd0; border-radius: 12px; } .cfcol-red { box-shadow: 0 0 0 2px #c0392b; border-radius: 12px; }
@@ -270,6 +266,18 @@
 .cfseason i:nth-child(4) { left: 140px; animation-duration: 12s; animation-delay: -2s; } .cfseason i:nth-child(5) { left: 186px; animation-duration: 10s; animation-delay: -8s; }
 .cfseason i:nth-child(6) { left: 228px; animation-duration: 9s; animation-delay: -5s; } .cfseason i:nth-child(7) { left: 268px; animation-duration: 13s; animation-delay: -9s; } .cfseason i:nth-child(8) { left: 302px; animation-duration: 8s; animation-delay: -1s; }
 .cfs-su i:nth-child(2n) { top: 110px; } .cfs-su i:nth-child(3n) { top: 150px; }
+/* 2.2.x pixel sprites (class cfsart, all 8 cf-season-*.png installed): spring petal/petal-b, summer firefly/firefly-b, autumn leaf/leaf-b, winter flake (6 px) and flake-small (3 px, slower, for depth).
+   A bit shows frame A as its own background and frame B on ::after, which flips on and off in whole steps (petals 1.6 s, fireflies blink 1.2 s). Same fall/glow motion as the dots. */
+.cfseason.cfsart i { background-color: transparent; background-repeat: no-repeat; background-size: 100% 100%; border-radius: 0; image-rendering: pixelated; }
+.cfseason.cfsart i::after { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-repeat: no-repeat; background-size: 100% 100%; image-rendering: pixelated; animation: cfsflip 1600ms steps(1, end) infinite; }
+.cfs-sp.cfsart i { width: 6px; height: 6px; background-image: url(img/catfish/cf-season-petal.png); } .cfs-sp.cfsart i::after { background-image: url(img/catfish/cf-season-petal-b.png); }
+.cfs-sp.cfsart i:nth-child(2n) { background-image: url(img/catfish/cf-season-petal-b.png); } .cfs-sp.cfsart i:nth-child(2n)::after { background-image: url(img/catfish/cf-season-petal.png); }
+.cfs-su.cfsart i { width: 5px; height: 6px; background-image: url(img/catfish/cf-season-firefly.png); } .cfs-su.cfsart i::after { background-image: url(img/catfish/cf-season-firefly-b.png); animation-duration: 1200ms; }
+.cfs-au.cfsart i { width: 9px; height: 9px; background-image: url(img/catfish/cf-season-leaf.png); } .cfs-au.cfsart i::after { background-image: url(img/catfish/cf-season-leaf-b.png); animation-duration: 2000ms; }
+.cfs-au.cfsart i:nth-child(2n) { background-image: url(img/catfish/cf-season-leaf-b.png); } .cfs-au.cfsart i:nth-child(2n)::after { background-image: url(img/catfish/cf-season-leaf.png); }
+.cfs-wi.cfsart i { width: 6px; height: 6px; background-image: url(img/catfish/cf-season-flake.png); } .cfs-wi.cfsart i::after { display: none; }
+.cfs-wi.cfsart i:nth-child(2n) { width: 3px; height: 3px; background-image: url(img/catfish/cf-season-flake-small.png); animation-duration: 14s; }
+@keyframes cfsflip { 0% { opacity: 0; } 50%, 100% { opacity: 1; } }
 @keyframes cfsfall { 0% { translate: 0 -8px; } 100% { translate: var(--sx) 206px; } }
 @keyframes cfsglow { 0% { translate: 0 0; opacity: .2; } 100% { translate: var(--sx) -14px; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .cfseason { display: none; } }
@@ -313,6 +321,10 @@
 .cftabs button { flex: 1 0 auto; font: inherit; font-size: .9rem; padding: .4rem .7rem; border: 1px solid var(--line, #ddd); border-radius: 8px; background: transparent; color: inherit; white-space: nowrap; }
 .cftabs button.on { background: var(--brand-fill, #e8a317); border-color: var(--brand-fill, #e8a317); color: var(--on-fill, #2a1a10); font-weight: 700; }
 .cftabs small { opacity: .8; }
+/* The four upgrade tabs (Fish, Rod, Room, Cat) share the width equally and never scroll: tight padding, label centred, the buyable-count pip sits on the corner (phone 390 px used to cut the 4th tab off). */
+.cftabs4 { overflow: visible; padding-top: 6px; }
+.cftabs4 button { flex: 1 1 0; min-width: 0; position: relative; padding: .4rem .1rem; font-size: .85rem; text-align: center; overflow-wrap: anywhere; }
+.cftabs4 .cfbdg { position: absolute; top: -6px; right: -2px; margin: 0; min-width: 1.05rem; padding: 0 .25rem; font-size: .68rem; line-height: 1.25; }
 .cfbdg { display: inline-block; min-width: 1.15rem; padding: 0 .3rem; border-radius: 999px; background: var(--accent, #e8a317); color: #2a1a10; font-size: .7rem; font-weight: 700; text-align: center; margin-left: .2rem; }
 .cftabs .on .cfbdg { background: #2a1a10; color: #fff3c8; }
 .cfupwrap.js .cfbranch > h3, .cfhubwrap.js .cfh3js { display: none; }

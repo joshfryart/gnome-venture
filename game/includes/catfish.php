@@ -30,7 +30,7 @@ const CATFISH_BUDDY_COST = 12;          // Yarn to unlock a Buddy cat
 const CATFISH_BUDDY_PCT = 0.10;         // Kibble bonus while a Buddy (an owned cat other than the playing one) keeps the main cat company
 const CATFISH_KEEP_COSTS = [10, 20, 40];   // Keepsake levels: a Nap keeps this many levels of the first upgrade in each branch
 const CATFISH_KEEP_UPS = ['fish', 'string', 'sunbeam', 'bowl'];
-const CATFISH_BALL_COST = 1;            // Yarn per ball colour (one-off). key => [label, CSS filter id used by catfish.css as .cfball-<key>]
+const CATFISH_BALL_COST = 1;            // Yarn per ball colour (one-off). key => label. The coloured sprites are cf-yarn-<1..4>-<key>.png (2.2.x; no CSS filter any more)
 const CATFISH_BALLS = ['rose' => 'Rose', 'mint' => 'Mint', 'violet' => 'Violet', 'gold' => 'Gold'];
 const CATFISH_BUNTING_COST = 1;         // Yarn per bunting hung in the festival jar while a festival runs
 const CATFISH_BUNTING_ADD = 3;          // jar points per bunting
@@ -205,15 +205,30 @@ function catfish_room_base_html(array $owned): string
  */
 function catfish_room_extras_html(array $owned): string
 {
-    $h = '';
+    $h = ''; $ball = catfish_ball_key();
     if ((int)($owned['window'] ?? 0) > 0 && catfish_art_has('cf-room-window.png') && catfish_art_has('cf-room-window-nobird.png') && catfish_art_has('cf-bird-1.png') && catfish_art_has('cf-bird-2.png') && catfish_art_has('cf-bird-3.png')) {
         $h .= '<span class="cfbird f1" aria-hidden="true">' . implode('', array_map(fn($n) => '<img class="b' . $n . '" src="' . e(catfish_art_url("cf-bird-$n.png")) . '" alt="" width="24" height="20">', [1, 2, 3])) . '</span>';
     }
     if (catfish_art_has('cf-room-yarnpatch.png') && catfish_art_has('cf-yarn-1.png') && catfish_art_has('cf-yarn-2.png') && catfish_art_has('cf-yarn-3.png') && catfish_art_has('cf-yarn-4.png')) {
         $h .= '<span class="cfyarn" aria-hidden="true"><img class="yp" src="' . e(catfish_art_url('cf-room-yarnpatch.png')) . '" alt="" width="38" height="20"><span class="yb">'
-            . implode('', array_map(fn($n) => '<img class="y' . $n . '" src="' . e(catfish_art_url("cf-yarn-$n.png")) . '" alt="" width="16" height="16">', [1, 2, 3, 4])) . '</span></span>';
+            . implode('', array_map(fn($n) => '<img class="y' . $n . '" src="' . e(catfish_art_url($ball !== '' ? "cf-yarn-$n-$ball.png" : "cf-yarn-$n.png")) . '" alt="" width="16" height="16">', [1, 2, 3, 4])) . '</span></span>';
     }
     return $h;
+}
+
+/** The yarn ball colour the viewer picked ('' = plain, or no coloured art): only when all 4 rolling frames of that colour exist (cf-yarn-<1..4>-<key>.png). Read-only. */
+function catfish_ball_key(): string
+{
+    $u = function_exists('current_user') ? current_user() : null;
+    $uid = (int)($u['id'] ?? 0);
+    if ($uid < 1) return '';
+    try {
+        $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+    } catch (Throwable $e) { return ''; }
+    $k = is_array($meta) ? (string)($meta['ball'] ?? '') : '';
+    if (!isset(CATFISH_BALLS[$k])) return '';
+    foreach ([1, 2, 3, 4] as $n) if (!catfish_art_has("cf-yarn-$n-$k.png")) return '';
+    return $k;
 }
 
 /** 2.1.06 code-only ambience over the scene: six dust motes drifting in the sunbeam (only with the owned Room upgrade 'sunbeam'; CSS steps animation, none under reduced motion). */
@@ -224,7 +239,14 @@ function catfish_ambience_html(array $owned): string
     return $h . catfish_season_html();
 }
 
-/** Seasonal room: eight CSS-only bits (petals, fireflies, leaves, snow) while the gnome owns the current season. '' otherwise. Read-only, cached per request. */
+/** Do all 8 seasonal sprites exist (cf-season-*.png)? Then the bits are pixel sprites (class cfsart), else the old CSS dots. */
+function catfish_season_art(): bool
+{
+    foreach (['petal', 'petal-b', 'firefly', 'firefly-b', 'leaf', 'leaf-b', 'flake', 'flake-small'] as $b) if (!catfish_art_has("cf-season-$b.png")) return false;
+    return true;
+}
+
+/** Seasonal room: eight bits (petal, firefly, leaf and flake sprites; CSS dots without the art) while the gnome owns the current season. '' otherwise. Read-only, cached per request. */
 function catfish_season_html(): string
 {
     static $cache = [];
@@ -239,7 +261,7 @@ function catfish_season_html(): string
             if (is_array($meta) && isset(CATFISH_SEASONS[$code]) && in_array($code, (array)($meta['seasons'] ?? []), true)) $cache[$uid] = $code;
         } catch (Throwable $e) {}
     }
-    return $cache[$uid] === '' ? '' : '<span class="cfseason cfs-' . $cache[$uid] . '" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>';
+    return $cache[$uid] === '' ? '' : '<span class="cfseason cfs-' . $cache[$uid] . (catfish_season_art() ? ' cfsart' : '') . '" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>';
 }
 
 /**
@@ -380,6 +402,26 @@ function catfish_role_frame(string $frame, string $role): string
     $own = CATFISH_FRAME_OWN[$frame] ?? [];
     return (in_array($role, $own, true) || (str_starts_with($role, 'eyes-') && in_array('eyes', $own, true))) ? $frame : $base;
 }
+/** Frames that have collar art (cf-collar-<colour>-<frame>.png, 64 x 64): the 4 key frames; blink, tailflick and eartwitch are idleA, so they use its band. */
+const CATFISH_COLLAR_FRAMES = ['idleA', 'pounce', 'catch', 'nap'];
+/** The collar PNG of a cat's collar colour for a frame, or '' (no collar, or no art for that frame). */
+function catfish_collar_file(array $cat, string $frame): string
+{
+    $c = (string)($cat['collar'] ?? '');
+    if (!isset(CATFISH_COLLARS[$c])) return '';
+    $f = CATFISH_FRAME_BASE[$frame] ?? $frame;
+    return in_array($f, CATFISH_COLLAR_FRAMES, true) && catfish_art_has("cf-collar-$c-$f.png") ? "cf-collar-$c-$f.png" : '';
+}
+/** Is the collar art installed (all 6 colours x 4 frames)? Then the layered cat shows the band and the CSS ring `.cfcol-*` is only the fallback for cats with no art. */
+function catfish_collar_art(): bool
+{
+    static $r = null;
+    if ($r === null) {
+        $r = true;
+        foreach (array_keys(CATFISH_COLLARS) as $c) foreach (CATFISH_COLLAR_FRAMES as $f) if (!catfish_art_has("cf-collar-$c-$f.png")) $r = false;
+    }
+    return $r;
+}
 /**
  * The layer list of one cat frame, bottom to top: [file, masks, clip]. masks = names of the cfmk groups that wrap the layer (ears, tail), clip = 'L-<frame>' / 'R-<frame>'
  * for an odd-eyed half. null = no art for this coat and frame (the emoji fallback). A layer with a missing file, or a part with no mask, is left out.
@@ -402,6 +444,8 @@ function catfish_cat_layers(array $cat, string $frame): ?array
         $pf = catfish_role_frame($frame, "pat-$pat");
         if (catfish_art_has("cf-pat-$pat-$coat-$pf.png")) $out[] = ["cf-pat-$pat-$coat-$pf.png", $masks, ''];
     }
+    $cl = catfish_collar_file($cat, $frame);
+    if ($cl !== '') $out[] = [$cl, [], ''];   // 2.2.x collar: neck band above body and pattern, under the eyes (the band never covers them)
     $eye = (string)($cat['eyes'] ?? 'amber');
     if ($eye === 'odd') {   // left and right halves, two different colours, chosen by the seed
         $sd = (int)($cat['seed'] ?? 0); $l = CATFISH_EYE_COLOURS[$sd % 4]; $r = CATFISH_EYE_COLOURS[($sd % 4 + 1 + intdiv($sd, 4) % 3) % 4];
@@ -430,7 +474,7 @@ function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', b
         $h .= $inner;
     }
     $s = $size >= 192 ? 192 : ($size >= 128 ? 128 : 64);
-    return '<span class="cfart cf-s' . $s . $col . '" aria-hidden="true">' . $h . '</span>';
+    return '<span class="cfart cf-s' . $s . (catfish_collar_art() ? '' : $col) . '" aria-hidden="true">' . $h . '</span>';
 }
 /**
  * Manifest of the lazily built frames of one cat for catfish.js: url prefix p and suffix s (cache-busting version), and frame => [[file, masks, clip], ...] as
