@@ -8,9 +8,11 @@
 -- run bronze -> silver -> gold; first_cat and nap1 bronze, odd_eyed and nap5 silver, full_house and legendary gold).
 --   first_cat  orange tabby cat face on teal              full_house  red-roofed house, a cat in each lit window
 --   odd_eyed   white cat face, one blue and one amber eye legendary   grey cat with a gold crown and gold sparkles
---   nap1       curled sleeping cream cat + one z         nap5        the same sleeping cat + five tiny stars
---   book12     open book, 12 pips (6 a page)             book_half   left page of coat swatches filled, right empty
+--   nap1       curled sleeping cream cat, one big gold moon + a z     nap5   the same cat under five chunky gold dots
+--   book12     open book, bottom row of swatches filled (4 of 12)     book_half   whole left page filled, right empty
 --   book_full  every swatch filled, gold clasp and corners, gold glow round the book
+-- At 16 px the count (1 moon vs 5 dots) and the fill amount (a strip, a page, both pages) must read without the rim:
+-- filled swatches are solid blocks (no cream gaps between them inside a page), emblems are 4 px or bigger.
 -- Cat faces reuse the cat template look: head felt one tone lighter than the ears, locked 5x5 eyes with the umber
 -- ring, pink nose, muzzle; odd_eyed tints the iris exactly like cf_overlays.lua (ring minus its upper-left 3 px).
 --
@@ -182,6 +184,12 @@ local NAVY = felt("#2a3c6c", "#1e2a50", "#3f5a8c")
 BADGE.nap1 = function()
   local c = badgeBase("bronze", NAVY)
   sleeper(c, CAT.cream)
+  -- one big gold crescent moon on the upper left: the "1" of the pair, a single bright blob at 16 px
+  local G = METAL.gold
+  local moon = c:ellipse(22, 20, 5):cut(c:ellipse(25, 18, 4))
+  c:fill(moon:grow(1):cut(moon), C.ol3)
+  c:fill(moon, G.base)
+  c:paint({ "g", "g" }, 18, 19, { g = G.gloss })
   -- one z, 2 px strokes, cream with a hand umber outline (a part's inner contour ate the thin diagonal)
   local z = c:ascii({ "zzzzzzz", "zzzzzzz", "....zz.", "...zz..", "..zz...", ".zz....", "zzzzzzz", "zzzzzzz" }, 36, 15)
   c:fill(z:grow(1):cut(z), C.ol3)
@@ -193,7 +201,12 @@ BADGE.nap5 = function()
   local c = badgeBase("silver", NAVY)
   sleeper(c, CAT.cream)
   local G = METAL.gold
-  for _, p in ipairs({ { 18, 25 }, { 24, 19 }, { 31, 16 }, { 38, 19 }, { 44, 25 } }) do star3(c, p[1], p[2], G.rim, G.gloss) end
+  -- five chunky 4 x 4 cut-corner gold dots in an arc: five separate specks at 16 px (nap1 has one big moon)
+  for _, p in ipairs({ { 18, 22 }, { 24, 17 }, { 31, 15 }, { 38, 17 }, { 44, 22 } }) do
+    c:paint({ ".uuuu.", "uggggu", "uggggu", "uggggu", "uggggu", ".uuuu." }, p[1] - 3, p[2] - 3, { u = C.ol3, g = G.base })
+    c:paint({ ".gg.", "gggg", "gggs", ".ss." }, p[1] - 2, p[2] - 2, { g = G.base, s = G.shade })
+    c:px(p[1] - 1, p[2] - 1, G.gloss)
+  end
   return c
 end
 
@@ -220,20 +233,37 @@ local function cells(f)
   end
 end
 local RED = felt("#dd3a2a", "#ae2a2a", "#f2793a")
+-- coat swatches use colours already on the badge (ginger, grey, umber black, brown, red, green): no new colours.
+-- A filled cell also paints the 1 px gap to its right / below when that neighbour is filled too, so a filled run is
+-- one solid block of colour (reads as "filled" at 16 px); a 1 px glint on each swatch keeps the cells countable.
+local FILL = {}
+local function swatch(c, x, y, col, i)
+  local col2, row = (i - 1) % 2, math.floor(((i - 1) % 6) / 2)
+  local w = (col2 == 0 and FILL[i + 1]) and 5 or 4
+  local h = (row < 2 and FILL[i + 2]) and 5 or 4
+  for yy = 0, h - 1 do for xx = 0, w - 1 do c:px(x + xx, y + yy, col) end end
+  if w == 5 and h == 5 and FILL[i + 3] then c:px(x + 4, y + 4, col) end
+  c:px(x, y, PAGE.gloss)
+end
+local function empty(c, x, y) c:paint({ "dddd", "d..d", "d..d", "dddd" }, x, y, { d = PAGE.shade }) end
+local function fillBook(c, S, filled)
+  FILL = {}
+  for i = 1, 12 do FILL[i] = filled(i) end
+  cells(function(x, y, i) if FILL[i] then swatch(c, x, y, S[i], i) else empty(c, x, y) end end)
+end
 BADGE.book12 = function()
   local c = badgeBase("bronze", GREEN)
   book(c, RED)
-  cells(function(x, y) c:paint({ ".uu.", "uuuu", "uuuu", ".uu." }, x, y, { u = "umber" }) end)
+  -- first 12 coats: the bottom row of each page filled (4 of 12 cells), the rest empty
+  local S = { 0, 0, 0, 0, "#e8a317", METAL.bronze.shade, 0, 0, 0, 0, C.ol3, RED.base }
+  fillBook(c, S, function(i) return i == 5 or i == 6 or i == 11 or i == 12 end)
   return c
 end
--- coat swatches use colours already on the badge (ginger, grey, umber black, brown, red, green): no new colours
-local function swatch(c, x, y, col) c:paint({ "ssss", "ssss", "ssss", "ssss" }, x, y, { s = col }); c:px(x, y, PAGE.gloss) end
-local function empty(c, x, y) c:paint({ "dddd", "d..d", "d..d", "dddd" }, x, y, { d = PAGE.shade }) end
 BADGE.book_half = function()
   local c = badgeBase("silver", GREEN)
   book(c, RED)
   local S = { "#e8a317", METAL.silver.shade, C.ol3, C.ol1, RED.base, GREEN.base }
-  cells(function(x, y, i) if i <= 6 then swatch(c, x, y, S[i]) else empty(c, x, y) end end)
+  fillBook(c, S, function(i) return i <= 6 end)
   return c
 end
 BADGE.book_full = function()
@@ -245,7 +275,7 @@ BADGE.book_full = function()
   c:fill(cov:grow(1):clip(face:shrink(3)), G.rim)
   book(c, RED)
   local S = { "#e8a317", G.shade, C.ol3, C.ol1, RED.base, GREEN.base, "#e8a317", C.ol1, C.ol3, G.shade, GREEN.base, RED.base }
-  cells(function(x, y, i) swatch(c, x, y, S[i]) end)
+  fillBook(c, S, function() return true end)
   -- gold clasp: corner caps on the cover and a strap with a stud on the right edge
   c:paint({ "gg", "g." }, 17, 22, { g = G.rim }); c:paint({ "gg", ".g" }, 44, 22, { g = G.rim })
   c:paint({ "g.", "gg" }, 17, 41, { g = G.base }); c:paint({ ".g", "gg" }, 44, 41, { g = G.base })
