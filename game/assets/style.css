@@ -6017,7 +6017,9 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 /* My Gnome, phones only: tighter header, slim pal slots, smaller web. Desktop untouched. */
 @media (max-width: 720px) {
   .gvpage .gnomehead { justify-content: flex-start; text-align: left; gap: 10px; padding: 6px 8px; }
-  .gvpage .gnomehead > :first-child, .gvpage .gnomehead svg, .gvpage .gnomehead img { width: 56px; height: 56px; flex: none; }
+  .gvpage .gnomehead svg.gnomeart { width: 56px; height: 70px; flex: none; }
+  .gvpage .gnomehead .status { padding: 0; border: 0; background: none; box-shadow: none; }
+  .gvpage .gnomehead .status img, .gvpage .gnomehead .help img { width: 16px; height: 16px; vertical-align: -3px; }
   .gvpage .gnomehead h1 { font-size: 18px; line-height: 1.15; }
   .gvpage .gnomehead p { margin: 1px 0; font-size: 13px; }
   .gvpage .gnomehead .help { font-size: 12px; }
@@ -6035,7 +6037,7 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .gvpage .box { padding: 8px; }
   /* stats: web smaller but labels stay legible; all seven stats listed full width */
   .gvpage .statsplit { flex-direction: column; gap: 6px; margin: 4px 0; }
-  .radar { width: 210px; }
+  .radar { width: 230px; overflow: visible; margin: 0 14px; }
   .radar .rlab { font-size: 14px; }
   .gvpage .statlist { flex: none; width: 100%; gap: 4px; }
   .gvpage .statlist li { padding: 0 8px; }
