@@ -557,6 +557,107 @@ ok "clock: 23:30 Halifax on Oct 28 (02:30 UTC Oct 29) is still Oct 28; 00:30 Hal
 ok "clock: the only gmdate left in includes/catfish.php is the calendar arithmetic in catfish_yesterday" "$(grep -c 'gmdate' $GAME/includes/catfish.php)" 1
 ok "clock: catfish.php and catfish_api.php use no gmdate or UTC day maths" "$(grep -c 'gmdate\|% 86400' $GAME/catfish.php $GAME/catfish_api.php | awk -F: '{s+=$2} END{print s}')" 0
 
+# ---------- 2.1.04 active play: tap a dangling fish, a little extra Kibble, validated on the server (catfish_play) ----------
+# One accepted tap pays max(1, floor(present kph x 5 / 3600 x tier)); tiers by Hollow day: taps 1-120 x1, 121-240 x0.5, 241-360 x0.25, then 0.
+# Token bucket: 15 tokens, +1 per 2 s, accepted = min(n, whole tokens, taps left today); n must be an integer 0..40 (more = the whole batch refused); a repeated or lower seq pays 0.
+setg catfish_open 1; setg ppal_open 0; setg festivals_on 0
+TODAY=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1]; echo catfish_today();' "$GAME/includes/catfish.php")
+dbx "UPDATE catfish_state SET active_cat_id=(SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1) WHERE user_id=$UID_ AND active_cat_id IS NULL"
+# pbase [UPGRADES-JSON]: no Yarn, no Kibble, upgrades as given (none by default), the idle clock at now
+pbase() { local up="${1:-{\}}"; dbx "UPDATE catfish_state SET upgrades='$up', yarn=0, kibble=0, run_kibble=0, total_kibble=0, last_tick=$(date +%s) WHERE user_id=$UID_"; }
+# pset PC PB AGE PQ: today's taps, tokens in the bucket, seconds since the bucket was last touched, last batch id (lifetime taps cleared)
+pset() { mset '$m["pd"]="'$TODAY'"; $m["pc"]='$1'; $m["pb"]='$2'; $m["pt"]='$(( $(date +%s) - $3 ))'; $m["pq"]='$4'; unset($m["pe"]);'; }
+cplay() { cfapi -d do=tick -d play="$1" -d seq="$2"; }
+pm() { mjson | jp "$1"; }
+KT() { dbv "SELECT kibble||'/'||run_kibble||'/'||total_kibble FROM catfish_state WHERE user_id=$UID_"; }
+cfreset; pbase; pset 0 15 0 0; mset '$m["keep"]=7;'
+R=$(cfapi -d do=tick)
+ok "play view: a plain tick pays no play (got 0, paid 0, left 360, ever 0)" "$(echo "$R" | jp view.play.got)/$(echo "$R" | jp view.play.paid)/$(echo "$R" | jp view.play.left)/$(echo "$R" | jp view.play.ever)" "0/0/360/0"
+ok "play view: at base income one tap is worth 1 Kibble (max(1, floor(kph x 5 / 3600)))" "$(echo "$R" | jp view.play.v)" 1
+ok "play: a plain tick leaves the batch id alone" "$(pm pq)" 0
+# n = 15 after 30 s of quiet: fully accepted, 1 Kibble each, into kibble, run_kibble and total_kibble
+pbase; pset 0 0 30 0
+R=$(cplay 15 100)
+ok "play: 15 taps after 30 s are all accepted (bucket refilled to 15)" "$(echo "$R" | jp view.play.got)" 15
+ok "play: 15 taps at tier 1 and base income pay 15" "$(echo "$R" | jp view.play.paid)" 15
+ok "play: the Kibble lands in kibble, run_kibble and total_kibble together" "$(KT)" "15/15/15"
+ok "play: left 345 and ever 15 afterwards; meta pc 15, pe 15, pq 100" "$(echo "$R" | jp view.play.left)/$(echo "$R" | jp view.play.ever)/$(pm pc)/$(pm pe)/$(pm pq)" "345/15/15/15/100"
+ok "play: other meta keys survive" "$(pm keep)" 7
+# the cap: 40 taps with a full bucket pay 15; more than 40 in one batch pays nothing; bad counts pay nothing
+pbase; pset 0 15 0 0
+ok "play: n=40 with a full bucket is capped at 15" "$(cplay 40 200 | jp view.play.got)" 15
+pbase; pset 0 15 0 0
+R=$(cplay 100 300)
+ok "play: n=100 (over 40) accepts 0 and pays 0" "$(echo "$R" | jp view.play.got)/$(echo "$R" | jp view.play.paid)/$(KT)" "0/0/0/0/0"
+for bad in -5 abc 3.5 1e3 ''; do pbase; pset 0 15 0 0; ok "play: n='$bad' pays 0" "$(cplay "$bad" 301 | jp view.play.got)$(KT)" "00/0/0"; done
+pbase; pset 0 15 0 0
+ok "play: n as an array pays 0, no error" "$(cfapi -d do=tick --data-urlencode 'play[]=5' -d seq=302 | jp view.play.got)" 0
+ok "play: n=0 is an accepted empty batch" "$(cplay 0 303 | jp ok)" true
+# seq: a replay pays nothing (safe retries), so does a lower one; a higher one pays
+pbase; pset 0 15 0 500
+ok "play: seq above the last batch pays" "$(cplay 3 501 | jp view.play.got)" 3
+ok "play: the same seq again pays 0 (a retry of a lost reply)" "$(cplay 3 501 | jp view.play.got)" 0
+ok "play: a lower seq pays 0" "$(cplay 3 400 | jp view.play.got)" 0
+ok "play: a missing seq pays 0" "$(cfapi -d do=tick -d play=3 | jp view.play.got)" 0
+ok "play: after the replays the Kibble is still just the 3 taps" "$(KT)" "3/3/3"
+ok "play: the next seq pays again" "$(cplay 4 502 | jp view.play.got)" 4
+# tiers by Hollow day
+cfreset; pbase '{"fish":50}'; pset 119 15 0 0
+KP=$(cfapi -d do=tick | jp view.kph)
+V1=$(awk "BEGIN{v=int($KP*5/3600); print (v<1)?1:v}"); VH=$(awk "BEGIN{v=int($KP*5/3600*0.5); print (v<1)?1:v}"); VQ=$(awk "BEGIN{v=int($KP*5/3600*0.25); print (v<1)?1:v}")
+ok "tier: with 50 Plushie fish a tap is worth more than 1, and the tiers differ" "$([ "$V1" -gt "$VH" ] && [ "$VH" -gt "$VQ" ] && [ "$VQ" -gt 1 ] && echo y || echo n)" y
+R=$(cplay 5 600)
+ok "tier: pc=119 plus 5 taps = 1 at full pay and 4 at half" "$(echo "$R" | jp view.play.got)/$(echo "$R" | jp view.play.paid)/$(pm pc)" "5/$(( V1 + 4 * VH ))/124"
+pbase '{"fish":50}'; pset 239 15 0 0
+ok "tier: pc=239 plus 2 taps = 1 half and 1 quarter" "$(cplay 2 601 | jp view.play.paid)" "$(( VH + VQ ))"
+pbase '{"fish":50}'; pset 359 15 0 0
+R=$(cplay 3 602)
+ok "tier: pc=359 plus 3 taps: only the 360th is accepted, at a quarter; none left, next tap worth 0" "$(echo "$R" | jp view.play.got)/$(echo "$R" | jp view.play.paid)/$(pm pc)/$(echo "$R" | jp view.play.left)/$(echo "$R" | jp view.play.v)" "1/$VQ/360/0/0"
+R=$(cplay 3 603)
+ok "tier: after 360 taps nothing more is accepted or paid" "$(echo "$R" | jp view.play.got)/$(echo "$R" | jp view.play.paid)/$(pm pc)" "0/0/360"
+ok "tier: a full day (120 full + 120 half + 120 quarter) is at most 17.5 minutes of income (+1 per tap rounding)" "$(awk "BEGIN{m=120*$V1+120*$VH+120*$VQ; print (m <= $KP*17.5/60 + 360) ? \"y\" : \"n\"}")" y
+# Hollow day rollover: a new day starts the count again
+pbase; pset 300 15 0 0; mset '$m["pd"]="2000-01-01";'
+R=$(cplay 2 700)
+ok "day rollover: an old day's count (300) is dropped: 2 accepted, pc=2, pd=today, 358 left" "$(echo "$R" | jp view.play.got)/$(pm pc)/$(pm pd)/$(echo "$R" | jp view.play.left)" "2/2/$TODAY/358"
+# tokens never pile up past the cap, however long the gnome was away
+pbase; pset 0 0 3600 0
+ok "bucket: an hour idle still gives 15 tokens, not 1800 (n=40 -> 15)" "$(cplay 40 800 | jp view.play.got)" 15
+pbase; pset 0 0 3600 0
+cplay 1 801 >/dev/null
+ok "bucket: after 1 tap an hour-idle bucket holds at most 14 tokens (never above 15)" "$(php -r '$m=json_decode($argv[1],true); echo ($m["pb"] <= 14.001 && $m["pb"] > 13) ? "y" : "n";' "$(mjson)")" y
+pbase; pset 0 0 4 0
+ok "bucket: an empty bucket after 4 s holds 2 tokens (1 per 2 s)" "$(cplay 10 802 | jp view.play.got)" 2
+# no cat: nothing paid
+pbase; pset 0 15 0 0; dbx "UPDATE catfish_state SET active_cat_id=NULL WHERE user_id=$UID_"
+R=$(cplay 5 900)
+ok "no cat yet: play accepts 0 and pays 0" "$(echo "$R" | jp view.play.got)/$(echo "$R" | jp view.play.paid)/$(KT)" "0/0/0/0/0"
+dbx "UPDATE catfish_state SET active_cat_id=(SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1) WHERE user_id=$UID_"
+# guard rails: no CSRF, guests
+ok "play without csrf: 400" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/catfish_api.php -d do=tick -d play=5 -d seq=1000)" 400
+setg guest_open 1; dbx "DELETE FROM login_attempts"
+curl -s -c $W/g -b $W/g $BASE/guest.php > $W/gp.html; curl -s -c $W/g -b $W/g -o /dev/null -X POST $BASE/guest.php --data-urlencode "csrf=$(csrf $W/gp.html)"
+curl -s -b $W/g $BASE/games.php > $W/gp.html
+ok "play as a guest: 403" "$(curl -s -b $W/g -o /dev/null -w '%{http_code}' -X POST $BASE/catfish_api.php --data-urlencode "csrf=$(csrf $W/gp.html)" -d do=tick -d play=5 -d seq=1000)" 403
+setg guest_open 0; cfreset
+# a Nap resets the run and base income comes back: a tap is worth the base 1 again (no Yarn exploit)
+pbase '{"fish":50}'; pset 0 15 0 0; dbx "UPDATE catfish_state SET run_kibble=32000, kibble=500 WHERE user_id=$UID_"
+VB=$(cfapi -d do=tick | jp view.play.v)
+cfpost -d do=nap >/dev/null
+VA=$(cfapi -d do=tick | jp view.play.v)
+ok "nap: a tap was worth more than 1 before (50 Plushie fish) and is back to the base value after" "$([ "$VB" -gt 1 ] && echo y || echo n)/$(echo $VA | cut -c1-3)" "y/1"
+# two requests at once never pay the same tokens twice (the lock): 15 tokens, three batches of 15 -> 15 accepted in all.
+# php -S is one process by default; a second server on the same files with workers makes the requests really overlap.
+cfreset
+PW=$((PORT + 1)); PHP_CLI_SERVER_WORKERS=4 php -d session.save_path=/tmp -S 127.0.0.1:$PW -t $GAME $ROUTER >/tmp/catfish-php2.log 2>&1 & PID2=$!; sleep 1
+cfapi2() { curl -s -b $W/p -X POST http://127.0.0.1:$PW/catfish_api.php --data-urlencode "csrf=$CS" "$@"; }
+cfapi2 -d do=tick >/dev/null
+pbase; pset 0 15 0 0
+( cfapi2 -d do=tick -d play=15 -d seq=1100 -o $W/par1 & cfapi2 -d do=tick -d play=15 -d seq=1101 -o $W/par2 & cfapi2 -d do=tick -d play=15 -d seq=1102 -o $W/par3 & wait ) >/dev/null 2>&1
+kill $PID2 2>/dev/null
+ok "parallel: three overlapping batches of 15 on a full bucket accept 15 in all (pc=15, Kibble 15)" "$(pm pc)/$(KT | cut -d/ -f3)" "15/15"
+cfreset
+
 # layered cat renderer (catfish_cat_html): layers generated by tools/catfish_recolor.py into a temp art dir (CATFISH_ART_DIR); never touches game/assets
 mkdir -p $W/art; PYTHONDONTWRITEBYTECODE=1 python3 tools/catfish_recolor.py --out $W/art >/dev/null 2>&1; rm -rf tools/__pycache__
 # lay: HTML of one cat. args: artdir(or none) json-cat size frame. prints the html
@@ -647,6 +748,14 @@ ok "stage: two cats = the active one and one at the cushion (nap frame)" "$(echo
 SH3=$(cfx $FULL "catfish_stage_html([$SC[0]], $SC[0], [], true)")
 ok "stage: a lone cat has no side spots; a napping one starts on the nap frame (data-nap)" "$(echo "$SH3" | grep -c 'cfspot')$(echo "$SH3" | grep -c 'fr-nap" data-frame="nap" data-seed="11" data-nap="1"')" "01"
 ok "stage: no inline style, no script, no event handler; every img has an empty alt except none" "$(echo "$SH" | grep -c 'style=\|<script\|on[a-z]*=')" 0
+# 2.1.04 markup: each fish is a button (a group, not an image, holds buttons), the pop, combo, hint and live line are plain classed elements
+ok "stage play: each fish is a type=button with its cfsdrop/sdI/cfk-N classes, data-fish and an aria-label 'Bat the plush fish (I of 3)'" "$(echo "$SH" | grep -o '<button type="button" class="cfsdrop sd[1-3] cfk-[1-5]" data-fish="[1-3]" aria-label="Bat the plush fish ([1-3] of 3)">' | sed 's/.*sd\([1-3]\) cfk-\([1-5]\)" data-fish="\([1-3]\)" aria-label="Bat the plush fish (\([1-3]\) of 3)">/\1\2\3\4/' | tr '\n' ' ')" "1111 2222 3133 "
+ok "stage play: three buttons close again, no span left for a fish" "$(echo "$SH" | grep -o '</button>' | wc -l | tr -d ' ')$(echo "$SH" | grep -c '<span class="cfsdrop')" "30"
+ok "stage play: the stage is role=group with the same aria-label (not role=img), data-play-pending and data-combo for tests" "$(echo "$SH" | grep -c 'class="cfstage" role="group" aria-label="Pip plays under the toy rod at home, with 4 other cats" data-play-pending="0" data-combo="0"')$(echo "$SH" | grep -c 'role="img" aria-label="Pip')" "10"
+ok "stage play: three pops p1..p3, the combo counter and a polite live line, all by class or id only" "$(echo "$SH" | grep -o 'cfpop p[1-3]"\|id="cf-combo"\|id="cf-playlive" class="cfsr" aria-live="polite"' | tr '\n' ' ')" 'cfpop p1" cfpop p2" cfpop p3" id="cf-combo" id="cf-playlive" class="cfsr" aria-live="polite" '
+ok "stage play: no hint bubble by default; stage_html(..., hint) adds 'Tap a fish to play!'" "$(echo "$SH" | grep -c 'cfhint')$(cfx $FULL "catfish_stage_html($SC, $SC[0], [], false, true)" | grep -o 'class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!<' | wc -l | tr -d ' ')" "01"
+ok "css play: button reset, focus ring, hit area, cfbounce, is-caught flip and a reduced-motion rule for .is-hit" "$(grep -c '^\.cfstage \.cfsdrop { display: block; padding: 0; margin: 0; border: 0; background: none;' $GAME/assets/catfish.css)$(grep -c '^\.cfsdrop:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }' $GAME/assets/catfish.css)$(grep -c '@keyframes cfbounce' $GAME/assets/catfish.css)$(grep -c 'cursor: pointer' $GAME/assets/catfish.css)$(grep -c '\.cfsdrop\.is-caught \.cfimg { animation: cfflip 240ms' $GAME/assets/catfish.css)$(sed -n '/prefers-reduced-motion: reduce) {$/,/^}/p' $GAME/assets/catfish.css | grep -c 'is-hit')" "111112"
+ok "js play: untrusted events ignored, 600 ms per-fish cooldown, pending capped at 40, sendBeacon on pagehide, cftap drives the animation, reaction at most every 700 ms" "$(grep -c 'isTrusted' $GAME/assets/catfish.js)$(grep -c 'now - cool\[f\] < 600' $GAME/assets/catfish.js)$(grep -c 'pending < 40' $GAME/assets/catfish.js)$(grep -c "addEventListener('pagehide'" $GAME/assets/catfish.js)$(grep -c 'navigator.sendBeacon(d.api' $GAME/assets/catfish.js)$(grep -c "now - lastReact < 700" $GAME/assets/catfish.js)" "111111"
 ok "stage: the page's catfish_room_html is unchanged (still its own markup)" "$(cfx $FULL "catfish_room_html($CATS3, [])" | grep -c 'class="cfroom"')" 1
 # positions and sizes in catfish.css come from room-layout.json; the PHP spots too
 python3 -I - "aseprite-source/catfish/room-layout.json" "$GAME/assets/catfish.css" "$GAME/includes/catfish.php" <<'P'
@@ -697,7 +806,7 @@ for n in range(1, 6):
     r = re.search(r'\.cfk-%d \{ --cfn: (\d+)px; \}' % n, css)
     if not r: bad.append('fish %d: no --cfn' % n); continue
     if tops[0] is None or tops[0] != tops[1] or int(r.group(1)) != tops[0]: bad.append('fish %d: css %s, art %s' % (n, r.group(1), tops))
-drops = re.findall(r'class="cfsdrop sd(\d) cfk-(\d)"><i class="cfstr"></i><img[^>]*cf-fish-(\d)\.png', html)
+drops = re.findall(r'<button type="button" class="cfsdrop sd(\d) cfk-(\d)" data-fish="\d" aria-label="[^"]*"><i class="cfstr"></i><img[^>]*cf-fish-(\d)\.png[^>]*></button>', html)
 if len(drops) != 3 or any(k != f for _, k, f in drops): bad.append('drop classes %s' % drops)
 print('ok   fishing lines: --cfn of fish 1-5 equals the first opaque string row of each PNG, and every drop carries its fish kind (cfk-N)' if not bad else 'FAIL fishing lines: ' + '; '.join(bad))
 P
@@ -744,6 +853,10 @@ ok "page with art: the active cat has 8 frame groups and data-frame, the other c
 ok "page with art: the cat card (name, traits, Kibble) sits under the stage and has no second sprite" "$(grep -c 'class="cfscene cfcard box"' $W/art.html)$(awk '/class="cfscene cfcard box"/{f=1} f&&/id="cf-kibble"/{print "k"; exit}' $W/art.html)$(sed -n '/class="cfscene cfcard box"/,$p' $W/art.html | sed '1s/.*class="cfscene cfcard box"//' | awk '/id="cf-kibble"/{exit} /class="cfart/{print "x"; exit}' | wc -c | tr -d ' ')" "1k0"
 ok "page with art: the page is wrapped in .cfpage (centred headings) and stays one script block plus the json" "$(grep -c 'class="cfpage"' $W/art.html)$(grep -c 'type="application/json" id="cf-data"' $W/art.html)" "11"
 ok "page with art: Cat Book cells use heads, unknown cells use the question head" "$([ "$(grep -c 'cf-bookhead-' $W/art.html)" -ge 1 ] && echo y)$([ "$(grep -o 'cf-bookhead-unknown.png' $W/art.html | wc -l)" -ge 10 ] && echo y)" "yy"
+ok "page with art: three fish buttons, role=group, and no first-visit hint once the gnome has played (lifetime taps > 0)" "$(grep -o '<button type="button" class="cfsdrop sd[123] cfk-[1-5]"' $W/art.html | wc -l | tr -d ' ')$(grep -c 'class="cfstage" role="group"' $W/art.html)$(grep -c 'class="cfhint"' $W/art.html)" "310"
+mset '$m["pe"]=0;'
+curl -s -b $W/p $BASE/catfish.php > $W/art2.html
+ok "page with art: the hint 'Tap a fish to play!' shows while lifetime taps are 0" "$(grep -c 'class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!<' $W/art2.html)" 1
 ok "page with art: no inline style and no inline script besides the JSON block" "$(grep -c ' style=\|<script>' $W/art.html)" 0
 rm -rf "${GAME:?}/assets/img/catfish"
 curl -s -b $W/p $BASE/catfish.php > $W/noart.html
