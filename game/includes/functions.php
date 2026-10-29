@@ -284,7 +284,7 @@ function settings_schema(): array
     require_once __DIR__ . '/emoji_icons.php';   // v2.0.23: emoji to icons
     return $schema = [
         'site_name'          => ['label' => 'Site: name', 'type' => 'text', 'default' => 'Gnome Venture'],
-        'vote_url'           => ['label' => 'Site: vote link (footer; blank hides it)', 'type' => 'text', 'default' => ''],
+        'vote_url'           => ['label' => 'Site: vote link (footer; blank hides it)', 'type' => 'text', 'default' => 'https://vibetoplist.com/listing/gnome-venture'],
         'site_tagline'       => ['label' => 'Site: tagline', 'type' => 'text', 'default' => 'Grow, tend, trade, explore.'],
         'motd'               => ['label' => 'Site: message of the day (home page)', 'type' => 'textarea', 'default' => 'Welcome, new gardener! Open your Almanac to begin.'],
         'registration_open'  => ['label' => 'Sign-ups: allow new sign-ups', 'type' => 'bool', 'default' => '1'],
