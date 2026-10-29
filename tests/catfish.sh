@@ -1038,6 +1038,21 @@ CUR=$(echo "$R" | jp scene); R=$(cfapi -d do=tick -d scene=$CUR)
 ok "2.1.07 scene: a tick with the current key gets no markup; a tick without a key (older page) gets none either" "$(echo "$R" | grep -c stage_html)/$(cfapi -d do=tick | grep -c stage_html)" "0/0"
 R=$(cfapi -d do=buy -d key=rug)
 ok "2.1.07 scene: a buy without a scene key always gets the markup (the safe default)" "$(echo "$R" | jp stage_html | grep -c 'cfl-rug')" 1
+# 2.1.08: the Cat upgrades draw in the room (bowl, toy box, cat tree, cat flap) and the Rod upgrades show on the stage (classes), each buy answers with the new stage
+dbx "UPDATE catfish_state SET kibble=50000000 WHERE user_id=$UID_"; R=$(cfapi -d do=tick); SKB=$(echo "$R" | jp scene)
+for k in bowl toybox cattree catflap; do
+  R=$(cfapi -d do=buy -d key=$k -d scene=$SKB); SH=$(echo "$R" | jp stage_html); SKB=$(echo "$R" | jp scene)
+  ok "2.1.08 scene: buying $k answers with its overlay (cfl-$k, cf-room-$k.png) in the stage" "$(echo "$R" | jp ok)/$(echo "$SH" | grep -c "cfl-$k")/$(echo "$SH" | grep -c "cf-room-$k.png")" "true/1/1"
+done
+ok "2.1.08 scene: the overlays stack back to front window, sunbeam, rug, catflap, cattree, scratch, toybox, bowl (the stage here owns all but the scratch post)" "$(echo "$SH" | grep -o 'cfl-[a-z]*' | sort -u | tr '\n' ' ')" "cfl-bowl cfl-catflap cfl-cattree cfl-rug cfl-sunbeam cfl-toybox cfl-window "
+ok "2.1.08 scene: the room markup keeps the stacking order in the page" "$(echo "$SH" | grep -o 'cfl-[a-z]*' | tr '\n' ' ')" "cfl-window cfl-sunbeam cfl-rug cfl-catflap cfl-cattree cfl-toybox cfl-bowl "
+ok "2.1.08 scene: no Rod upgrade yet, so the stage has no rod classes and one wand" "$(echo "$SH" | grep -c 'class="cfstage" role="group"')/$(echo "$SH" | grep -c 'cfswand2')" "1/0"
+for k in string spring motor double; do
+  R=$(cfapi -d do=buy -d key=$k -d scene=$SKB); SH=$(echo "$R" | jp stage_html); SKB=$(echo "$R" | jp scene)
+  ok "2.1.08 scene: buying $k answers with a new scene key and a stage that carries its rod class" "$(echo "$R" | jp ok)/$(echo "$SH" | grep -c 'class="cfstage[a-z ]* cf[a-z]*"')" "true/1"
+done
+ok "2.1.08 scene: with all four Rod upgrades the stage has cfrs cfrsp cfrmo cfrdb and a second wand (hidden from screen readers)" "$(echo "$SH" | grep -c 'class="cfstage cfrs cfrsp cfrmo cfrdb"')/$(echo "$SH" | grep -c 'class="cfswand cfswand2" aria-hidden="true"')" "1/1"
+cfreset
 cfreset
 # the animation machine in a real browser (tests/catfish_anim.js; skipped without playwright): a home of 4 cats (patterned folded-ear bobtail active cat, lazy cat on the cushion, an awake side cat, a bored one)
 if node -e "require('playwright')" 2>/dev/null; then

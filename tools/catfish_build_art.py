@@ -88,7 +88,7 @@ def expected():
     for t in k['ribbon']: e['cf-ribbon-%s.png' % t] = (64, 64)
     e['cf-tile.png'] = (64, 64); e['cf-banner.png'] = (480, 120)
     e['cf-room.png'] = (320, 200)
-    for o in ('sunbeam', 'rug', 'scratch', 'window', 'window-nobird'): e['cf-room-%s.png' % o] = (320, 200)
+    for o in ('sunbeam', 'rug', 'scratch', 'window', 'window-nobird', 'bowl', 'toybox', 'cattree', 'catflap'): e['cf-room-%s.png' % o] = (320, 200)
     e['cf-room-yarnpatch.png'] = (38, 20)
     e['cf-z.png'] = (8, 8)
     for n in range(1, 4): e['cf-sparkle-%d.png' % n] = (8, 8); e['cf-bird-%d.png' % n] = (12, 10)

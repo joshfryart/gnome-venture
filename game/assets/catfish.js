@@ -45,15 +45,16 @@
   function say(text, bad) { var m = document.getElementById('cf-msg'); if (!m) return; m.textContent = text || ''; m.className = bad ? 'flash err' : 'flash ok'; }
   /* 2.1.07 live scene: the API sends stage_html (the markup catfish.php prints) when the scene key changed, e.g. after a buy that adds a room overlay or a new fish kind.
      It is parsed with DOMParser (nothing in it runs), the .cfstagewrap is replaced, and the animation block below is told ('cfscene') to bind to the new nodes. */
-  function swapScene(html) {
+  function swapScene(html, fresh) {
     var old = document.querySelector('.cfstagewrap'); if (!old || !old.parentNode) return false;
     var nu = new DOMParser().parseFromString(html, 'text/html').querySelector('.cfstagewrap'); if (!nu) return false;
     old.parentNode.replaceChild(document.importNode(nu, true), old);
     setPending(); setCombo(); playView(play);   // taps in flight stay counted on the new nodes
     document.dispatchEvent(new CustomEvent('cfscene'));
+    if (fresh) { var ns = st(); if (ns) { ns.classList.add('is-new'); setTimeout(function () { var t = st(); if (t) t.classList.remove('is-new'); }, 700); } }   // 2.1.08: a quick flash when a buy changes the room
     return true;
   }
-  function newScene(r) { if (r.stage_html) swapScene(r.stage_html); if (r.scene) d.scene = r.scene; }
+  function newScene(r, fresh) { if (r.stage_html) swapScene(r.stage_html, fresh); if (r.scene) d.scene = r.scene; }
   function spendPop(n) {   // the small '-N' by the Kibble counter
     var el = document.getElementById('cf-spend'); if (!el || n < 1) return;
     el.textContent = '\u2212' + n.toLocaleString(); el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
@@ -119,7 +120,7 @@
         delete buying[key]; free();
         if (r.view) {
           if (sentN) { pending = Math.max(0, pending - sentN); pendV = Math.max(0, pendV - sentV); seq = 0; setPending(); }
-          apply(r.view); newScene(r);
+          apply(r.view); newScene(r, true);
         } else { shown += cost; draw(); }
         say(r.message || r.error, !r.ok);
       }, function () { delete buying[key]; free(); shown += cost; draw(); say('Could not reach the game. Try again.', true); });

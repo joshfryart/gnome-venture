@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.08
+- **Cat Fish: what you buy now shows in the room.** The four Cat upgrades had no picture in the scene; they do now, each drawn over the room (`cf-room-bowl|toybox|cattree|catflap.png`, 320 x 200, made by `aseprite-source/catfish/cf_room_cat.py`): Fancy bowl (a gold-rimmed bowl on a felt mat, in place of the plain one), Toy box (a crate with a teddy and balls, on the end of the rug), Cat tree (a two-level tree beside the fish) and Cat flap (a hatch in the wainscot). Stack order back to front: window, sunbeam, rug, cat flap, cat tree, scratch post, toy box, bowl. No PNG = nothing drawn, as before.
+- **Rod upgrades show too** (classes on `.cfstage` from `catfish_rod_classes`, in the scene key so a buy redraws): Longer string lowers the fish on longer strings, Springy rod makes the fish bob, Rod motor turns the wand, Double rod hangs a second wand at the end of the line. `steps()` only; none under reduced motion.
+- **A quick flash on a buy that changes the room** (`.is-new`, 0.6 s, none under reduced motion), so the new piece is noticed.
+- **Phone:** the fight / wander scroll now brings the whole stage banner (`#advstage`, where the fight animations play) into view, with the fight card right under it; before it lined up the card and the banner scrolled off the top.
+- Art: `tools/catfish_build_art.py` knows the four new overlays; `claude/catfish-art-brief.md` updated.
+- Tests: `tests/catfish.sh` (each Cat buy answers with its overlay, stack order, Rod classes, second wand).
+
 ## 2.1.07
 - **Cat Fish buy flow fixed** ("pressing buy doesn't update the Kibble, I have to reload"). Root cause: the server buy was right, but the page only changed the Kibble number when the reply arrived, counted unconfirmed fish-tap Kibble as spendable although the buy request did not carry those taps (so the server could refuse and the number jumped back), and never redrew the scene, so new room overlays, fish kinds and the bird or dust only showed after a reload.
 - **Optimistic buy** (`catfish.js`): the cost leaves the counter at once, the pressed button stays off until the reply, a small `-N` rises by the counter (class `cfspend`, reduced motion = fade only). The request carries the pending taps (`play`, `seq`, as in the 30 s tick; one request at a time so the same batch is never in two), the reply replaces the guess with the server view (Kibble, rate, rows, run). A refused buy puts the number right and says why; a lost reply gives the cost back and keeps the taps and `seq` for the next tick.

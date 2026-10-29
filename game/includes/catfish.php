@@ -131,7 +131,17 @@ function catfish_rod_html(array $owned, ?array $cat = null): string
 }
 
 /** Room upgrades that have an overlay, in stacking order (back to front). */
-const CATFISH_ROOM_LAYERS = ['window', 'sunbeam', 'rug', 'scratch'];
+const CATFISH_ROOM_LAYERS = ['window', 'sunbeam', 'rug', 'catflap', 'cattree', 'scratch', 'toybox', 'bowl'];
+/** 2.1.08 Rod upgrades that show on the stage: upgrade key => class on .cfstage (string: longer strings, spring: the fish bob, motor: the wand turns, double: a second wand). */
+const CATFISH_ROD_CLASSES = ['string' => 'cfrs', 'spring' => 'cfrsp', 'motor' => 'cfrmo', 'double' => 'cfrdb'];
+
+/** The stage classes (with a leading space, '' with none) for the owned Rod upgrades. */
+function catfish_rod_classes(array $owned): string
+{
+    $h = '';
+    foreach (CATFISH_ROD_CLASSES as $key => $cls) if ((int)($owned[$key] ?? 0) > 0) $h .= ' ' . $cls;
+    return $h;
+}
 
 /**
  * The room: cf-room (320 x 200) with an overlay for each owned Room upgrade, and the home's cats (up to 4, 64 x 64) standing on the floor band.
@@ -199,9 +209,10 @@ const CATFISH_SIDE_FRAMES = ['idleA' => ['idleA', 'idleB', 'stalk']];
 function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false): string
 {
     if (!catfish_art_has('cf-room.png')) return '';
-    $h = '<div class="cfstagewrap"><div class="cfstage" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
+    $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
     $h .= catfish_room_extras_html($owned);
     $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
+    if ((int)($owned['double'] ?? 0) > 0) $h .= '<span class="cfswand cfswand2" aria-hidden="true">' . catfish_img('rod', '🎣', '', 48, 64) . '</span>';   // 2.1.08 Double rod: a second wand at the right end of the line
     foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<button type="button" class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '" data-fish="' . ($i + 1) . '" aria-label="Bat the plush fish (' . ($i + 1) . ' of 3)"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</button>';
     $others = [];
     foreach ($cats as $c) if (($c['id'] ?? null) !== ($active['id'] ?? null)) $others[] = $c;
@@ -250,7 +261,7 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
  */
 function catfish_scene_key(array $cats, ?array $active, array $owned): string
 {
-    return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active))
+    return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active)) . '|' . catfish_rod_classes($owned)
         . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats))), 0, 12);
 }
 

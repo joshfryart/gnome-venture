@@ -166,6 +166,20 @@
 .cfactive.fr-idleA .ff-idleA, .cfactive.fr-idleB .ff-idleB, .cfactive.fr-wiggle .ff-wiggle, .cfactive.fr-stalk .ff-stalk,
 .cfactive.fr-pounce .ff-pounce, .cfactive.fr-catch .ff-catch, .cfactive.fr-nap .ff-nap, .cfactive.fr-bored .ff-bored { display: block; }
 @media (prefers-reduced-motion: reduce) { .cfsdrop { animation: none; } }
+/* 2.1.08 Rod upgrades on the stage (classes from catfish_rod_classes): longer strings, bobbing fish, a turning wand, a second wand. steps() only; none under reduced motion. */
+.cfrs .cfsdrop { top: 21px; } .cfrs .cfsdrop .cfstr { top: -6px; height: calc(var(--cfl, 20px) + var(--cfn, 0px) + 6px); }
+@keyframes cfbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.cfrsp .cfsdrop .cfimg { animation: cfbob 1.2s steps(3, end) infinite; }
+.cfrsp .cfsdrop.sd2 .cfimg { animation-delay: -.4s; } .cfrsp .cfsdrop.sd3 .cfimg { animation-delay: -.8s; }
+@keyframes cfturn { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+.cfrmo .cfswand:not(.cfswand2) { transform-origin: 35px 4px; animation: cfturn 2.4s steps(6, end) infinite; }
+.cfswand2 { left: 229px; transform: scaleX(-1); transform-origin: 24px 0; pointer-events: none; }
+.cfrdb .cfsline { width: 176px; }
+.cfrmo .cfswand2 { animation: cfturn2 2.4s steps(6, end) infinite; }
+@keyframes cfturn2 { 0%, 100% { transform: scaleX(-1) rotate(-4deg); } 50% { transform: scaleX(-1) rotate(4deg); } }
+.cfstage.is-new::after { content: ''; position: absolute; left: 0; top: 0; width: 320px; height: 200px; background: #fff; opacity: 0; pointer-events: none; animation: cfnewflash 600ms steps(4, end) 1; }
+@keyframes cfnewflash { 0% { opacity: .6; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cfrsp .cfsdrop .cfimg, .cfrmo .cfswand, .cfrmo .cfswand2, .cfstage.is-new::after { animation: none; } }
 /* 2.1.05: frames beyond the inline eight are built by catfish.js from the manifest block (#cf-frames) and use the same .cfframe groups. */
 .cfactive.fr-swatA .ff-swatA, .cfactive.fr-swatB .ff-swatB, .cfactive.fr-blink .ff-blink, .cfactive.fr-jump .ff-jump, .cfactive.fr-happy .ff-happy,
 .cfactive.fr-tailflick .ff-tailflick, .cfactive.fr-eartwitch .ff-eartwitch, .cfactive.fr-yawn .ff-yawn, .cfactive.fr-stretch .ff-stretch,

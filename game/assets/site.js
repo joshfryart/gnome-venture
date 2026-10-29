@@ -981,12 +981,15 @@ if (!window.gvMycBound) {
     gvMycApply();
   });
 }
-/* On a phone, keep the fight / wander card (.encounter on adventure.php) in view: after a page load or an in-place update, if its top has
-   drifted off screen (or its bottom is cut off), put its top just under the header. No smooth scroll, so no animation is missed. */
+/* On a phone, keep the fight / wander scene in view: the stage banner (#advstage, where the fight animations play) sits above the .encounter card, so
+   after a page load or an in-place update, if the whole banner is not on screen, put its top just under the header; the card follows below it. With
+   no banner, the card itself is the target. No smooth scroll, so no animation is missed. */
 function gvFightScroll() {
   if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
-  var box = document.querySelector('.panel.encounter');
-  if (!box || !box.getClientRects().length) return;
+  var card = document.querySelector('.panel.encounter');
+  if (!card || !card.getClientRects().length) return;
+  var box = document.getElementById('advstage');
+  if (!box || !box.getClientRects().length) box = card;
   var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
   var r = box.getBoundingClientRect(), H = window.innerHeight;
   if (r.top >= hdr && r.top < H * 0.35 && (r.bottom <= H || r.top <= hdr + 12)) return;   // already well placed
