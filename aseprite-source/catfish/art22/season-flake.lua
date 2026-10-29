@@ -24,7 +24,7 @@ draw("cf-season-flake", {
   "..L...",
   "L.LNB.",
   ".LLB.N",
-  "L.BNS.",
+  "L.BSS.",
   ".NSN.N",
   "...N..",
 })

@@ -61,21 +61,23 @@ local ring = c:ellipse(ringC[1], ringC[2], 6.5)
 local hole = c:ellipse(ringC[1] + 0.5, ringC[2] + 0.5, 1.6)
 local wrench = head:add(handle):add(ring):cut(hole)
 local yarn = band(11, 18, -5.5, 5.5)
-local big = star(c, 12, 13, 7.5, 2.4, 0)
-local small = star(c, 52, 32, 4, 1.4, 0)
+local tailY = c:line({ P(15, -5.5), {29, 49}, {27, 52}, {29, 54}, {33, 54} }, 2)
+local big = star(c, 12, 13, 8, 2.6, 0)
+local small = star(c, 52, 29, 4.5, 1.6, 0)
 local p = c:build{
   { "stick", stick, WOOD, { cres = 2, deep = 0, gloss = false } },
   { "bead", bead, GOLD, { cres = 2, gloss = false, bounce = false } },
   { "grip", grip, RED, { cres = 3, gloss = false } },
   { "nut", nut, GOLD, { cres = 2, gloss = false } },
   { "wrench", wrench, TEAL, { cres = 4, gloss = false } },
+  { "tailY", tailY, ROSE, { flat = true, contact = false } },
   { "yarn", yarn, ROSE, { cres = 3, gloss = false } },
   { "small", small, GOLD, { flat = true, contact = false } },
-  { "big", big, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } },
+  { "big", big, GOLD, { flat = true, contact = false } },
 }
 c:fill(c:ellipse(HX + 0.5, HY + 0.5, 1.5), GOLD.shade)                   -- nut bore
 -- yarn wrap strands: shade grooves across the band, every 2nd px along u
-for _, t in ipairs({ 12.5, 14.8, 17.1 }) do
+for _, t in ipairs({ 13.3, 16.2 }) do
   local a, b2 = P(t, -6), P(t, 6)
   local n = 16
   for i = 0, n do
@@ -87,10 +89,14 @@ end
 -- gold seam down the handle middle (stitched felt spanner)
 do local a, b2 = P(5.5, 0), P(10, 0) c:seam({ { math.floor(a[1]), math.floor(a[2]) }, { math.floor(b2[1]), math.floor(b2[2]) } }, { gap = TEAL.shade }) end
 -- grip wraps
-c:seam({ { 9, 47 }, { 15, 41 } }, { gap = RED.shade })
+for _, q in ipairs({ { 11, 45 }, { 14, 48 } }) do                           -- grip wraps
+  for i = 0, 6 do local x, y = q[1] - 3 + i, q[2] - 3 + i
+    if c.own[c:key(x, y)] == p.grip and not c.shd[c:key(x, y)] then c:px(x, y, RED.shade) end end
+end
 -- enamel commas and glints
 c:paint({ "..gg", ".g..", "g...", "g..." }, 19, 30, { g = TEAL.gloss })
 c:paint({ "gg", "g." }, 44, 10, { g = GOLD.gloss })
+c:paint({ "...g", "..g.", ".g.." }, 37, 37, { g = TEAL.gloss })
 c:paint({ "..g", ".g.", "g.." }, 9, 48, { g = RED.rim })
 c:px(12, 13, GOLD.gloss); c:px(11, 12, GOLD.gloss)
 local t = c:save(OUT .. "cf-yi-tune.aseprite", OUT .. "cf-yi-tune.png")

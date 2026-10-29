@@ -55,12 +55,24 @@ local GLASS = felt("#a9d6ea", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#d4ec
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local cx = 23.5
-local leafL = rell(c, 16, 10, 8, 3.8, -0.7)
-local leafR = rell(c, 31, 10, 8, 3.8, 0.7)
-local sprout = c:rect(23, 9, 24, 14)
-for _, lf in ipairs({ leafL, leafR }) do                                  -- toothed outer edge
-  lf:edge():each(function(x, y) if ((x + 2 * y) % 5 == 0) and y < 11 then lf:del(x, y) end end)
+-- almond leaf from base (bx,by) to tip (tx,ty), half width w, as a polygon
+local function leaf(bx, by, tx, ty, w)
+  local dx, dy = tx - bx, ty - by
+  local L = math.sqrt(dx * dx + dy * dy)
+  local nx, ny = -dy / L, dx / L
+  local a, b = {}, {}
+  for i = 0, 10 do
+    local t = i / 10
+    local h = w * math.sin(math.pi * t) ^ 0.8
+    a[#a + 1] = { bx + dx * t + nx * h + 0.5, by + dy * t + ny * h + 0.5 }
+    b[#b + 1] = { bx + dx * t - nx * h + 0.5, by + dy * t - ny * h + 0.5 }
+  end
+  for i = #b, 1, -1 do a[#a + 1] = b[i] end
+  return c:poly(a)
 end
+local leafL = leaf(22, 14, 7, 7, 4.2)
+local leafR = leaf(25, 14, 40, 7, 4.2)
+local sprout = c:rect(23, 8, 24, 14)
 local glass = c:ellipse(cx, 22, 12, 11):clip(c:rect(0, 18, 63, 33))
 glass:add(c:rect(21, 30, 26, 37))
 glass:add(c:ellipse(cx, 47, 12, 11):clip(c:rect(0, 36, 63, 51)))
@@ -73,7 +85,7 @@ local stream = c:rect(23, 33, 24, 46)
 local yarn = c:rrect(18, 31, 29, 36, 2)
 local loose = c:line({ {29, 35}, {32, 38}, {33, 42}, {31, 44} }, 2)
 local big = star(c, 48, 15, 7, 2.5, 0)
-local small = star(c, 48, 32, 5.5, 1.7, 0)
+local small = star(c, 48, 32, 5.5, 1.3, 0)
 
 local p = c:build{
   { "sprout", sprout, LEAF, { flat = true, contact = false } },
@@ -101,8 +113,8 @@ c:paint({ "r.", ".r" }, 17, 27, { r = LEAF.rim })
 for _, x in ipairs({ 21, 24, 27 }) do onPart(c, c:line({ {x, 32}, {x + 1, 35} }, 1), p.yarn, PINK.shade) end
 c:px(19, 32, PINK.rim); c:px(20, 32, PINK.rim)
 -- leaf midribs, cap seams
-c:seam({ { 21, 13 }, { 16, 10 }, { 12, 6 } }, { gap = LEAF.shade })
-c:seam({ { 26, 13 }, { 31, 10 }, { 35, 6 } }, { gap = LEAF.shade })
+c:seam({ { 20, 13 }, { 15, 10 }, { 10, 8 } }, { gap = LEAF.shade })
+c:seam({ { 27, 13 }, { 32, 10 }, { 37, 8 } }, { gap = LEAF.shade })
 c:seam({ { 11, 17 }, { 36, 17 } }, { gap = WOOD.shade })
 c:seam({ { 11, 53 }, { 36, 53 } }, { gap = WOOD.shade })
 -- star glints

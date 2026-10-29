@@ -127,8 +127,7 @@ local FRAMES = {
             end },
   pounce = { dir = "h", from = 28, to = 46,
              at = function(x) if x <= 29 then return 30 elseif x <= 33 then return 31 else return 32 end end,
-             cres = 5, bell = { 38, 36 },
-             skip = function(x, y, cat) return x >= 46 and y >= 32 and y <= 36 and cat[y * 64 + x] ~= GREY.shade and false end },
+             cres = 5, bell = { 38, 36 } },
   nap = { dir = "v", from = 30, to = 49, at = function(y) return 40 end, cres = 5, bell = { 38, 49 } },
 }
 

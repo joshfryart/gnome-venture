@@ -59,29 +59,29 @@ local function tail(x0, y0, x1, y1, w)
   return m
 end
 
-local A = { x = 19, y = 19, R = 11 }       -- back rosette (upper left)
-local B = { x = 41, y = 24, R = 13 }       -- front rosette (right)
+local A = { x = 18, y = 19, R = 10 }       -- back rosette (upper left)
+local B = { x = 43, y = 22, R = 11 }       -- front rosette (right)
 local outA, outB = pleats(A.x, A.y, A.R, 14), pleats(B.x, B.y, B.R, 16)
-local inA, inB = c:ellipse(A.x, A.y, 7), c:ellipse(B.x, B.y, 9)
-local btnA = c:ellipse(A.x, A.y, 4)
+local inA, inB = c:ellipse(A.x, A.y, 6), c:ellipse(B.x, B.y, 8)
+local btnA = c:ellipse(A.x, A.y, 3.5)
 -- cat head button on B: round cream face plus two ears
 local head = c:ellipse(B.x, B.y + 1, 6, 5)
 head:add(c:poly({ { B.x - 6, B.y + 1 }, { B.x - 6, B.y - 7 }, { B.x - 1, B.y - 3 } }))
 head:add(c:poly({ { B.x + 2, B.y - 3 }, { B.x + 7, B.y - 7 }, { B.x + 7, B.y + 1 } }))
 -- the two inner tails cross and are tied with a pink yarn bow (both entries go in together)
-local KX, KY = 30, 42
+local KX, KY = 31, 38
 local loopL = c:poly({ { KX, KY }, { KX - 8, KY - 4 }, { KX - 8, KY + 4 } }):grow(1)
 local loopR = c:poly({ { KX + 1, KY }, { KX + 9, KY - 4 }, { KX + 9, KY + 4 } }):grow(1)
 local knot = c:ellipse(KX + 0.5, KY, 3)
 
 local p = c:build{
-  { "tA1", tail(A.x - 2, A.y + 2, 12, 46, 5), TEAL, { cres = 2, gloss = false } },
-  { "tA2", tail(A.x + 2, A.y + 2, 36, 51, 5), TEAL, { cres = 2, gloss = false } },
+  { "tA1", tail(A.x - 2, A.y + 2, 10, 47, 5), TEAL, { cres = 2, gloss = false } },
+  { "tA2", tail(A.x + 2, A.y + 5, 42, 51, 5), TEAL, { cres = 2, gloss = false } },
   { "outA", outA, TEAL, { cres = 4, gloss = { A.x - A.R + 3, A.y - A.R + 5 } } },
   { "inA", inA, TEAL, { cres = 3, gloss = false } },
   { "btnA", btnA, GOLD, { cres = 2, gloss = false } },
-  { "tB2", tail(B.x + 3, B.y + 2, 50, 50, 5), TEAL, { cres = 2, gloss = false } },
-  { "tB1", tail(B.x - 3, B.y + 4, 24, 52, 5), TEAL, { cres = 2, gloss = false } },
+  { "tB2", tail(B.x + 3, B.y + 2, 53, 48, 5), TEAL, { cres = 2, gloss = false } },
+  { "tB1", tail(B.x - 2, B.y + 4, 21, 52, 5), TEAL, { cres = 2, gloss = false } },
   { "outB", outB, TEAL, { cres = 4, gloss = { B.x - B.R + 3, B.y - B.R + 5 } } },
   { "inB", inB, TEAL, { cres = 3, gloss = false } },
   { "head", head, CREAM, { cres = 2, gloss = false } },
@@ -101,9 +101,9 @@ local function folds(P, cx, cy, r0, r1, off, k)
     end
   end
 end
-folds(p.outA, A.x, A.y, 9, A.R + 1, 0.5, 14)
-folds(p.outB, B.x, B.y, 11, B.R + 1, 0.5, 16)
-folds(p.inA, A.x, A.y, 5, 6, 0, 10)
+folds(p.outA, A.x, A.y, 8, A.R + 1, 0.5, 14)
+folds(p.outB, B.x, B.y, 10, B.R + 1, 0.5, 16)
+folds(p.inA, A.x, A.y, 4.5, 5, 0, 10)
 c:stitch(inA)
 -- button A: two thread holes
 c:px(A.x - 1, A.y - 1, C.hole); c:px(A.x + 1, A.y + 1, C.hole)

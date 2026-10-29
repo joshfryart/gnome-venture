@@ -28,23 +28,23 @@ end
 local ROSE = felt("#c8406e", { gloss = "#ffb8c8", dot = "#ffb8c8", rim = "#e8789c", shade = "#8e2a5a" })
 local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
-local PINK = felt("#f08cb4", { gloss = "#ffe0ec", dot = "#ffe0ec", rim = "#ffb8d0", shade = "#c85a8e" })
-local MINT = felt("#4fb88a", { gloss = "#c8f0d8", dot = "#c8f0d8", rim = "#86d8b0", shade = "#2f8a6a" })
-local SKY = felt("#4f8fd8", { gloss = "#c8e4ff", dot = "#c8e4ff", rim = "#8cbcf0", shade = "#3a5fae" })
+local PINK = felt("#f08cb4", { gloss = "#ffe0ec", dot = "#ffe0ec", rim = "#ffb8c8", shade = "#c85a8e" })
+local MINT = felt("#4fb88a", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#fff1c8", shade = "#2f8a6a" })
+local SKY = felt("#4f8fd8", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#fff1c8", shade = "#3a5fae" })
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local CX = 31.5
-local band = c:ellipse(CX, 25, 25, 16):cut(c:ellipse(CX, 22, 17.5, 8.5))
-local buckle = c:rrect(49, 22, 58, 31, 2)
-local tag = c:rrect(29, 40, 34, 46, 2)
-local bell = c:ellipse(CX, 52, 6.5, 6)
-local loopL = c:poly({ {15, 38}, {6, 31}, {6, 45} }):grow(1)
+local band = c:ellipse(CX, 25, 24, 16):cut(c:ellipse(CX, 22, 16.5, 8.5))
+local buckle = c:rrect(48, 21, 56, 30, 2)
+local tag = c:rrect(29, 39, 34, 45, 2):cut(c:rect(31, 41, 32, 42))
+local bell = c:ellipse(CX, 50.5, 7, 5.5)
+local loopL = c:poly({ {15, 38}, {8, 31}, {8, 45} }):grow(1)
 local loopR = c:poly({ {16, 38}, {25, 31}, {25, 45} }):grow(1)
 local knot = c:rrect(13, 35, 18, 41, 2)
 local endA = c:line({ {14, 41}, {12, 48}, {13, 52} }, 3)
 local endB = c:line({ {17, 41}, {20, 49} }, 3)
-local sw2 = c:rrect(47, 41, 56, 50, 2)
-local sw1 = c:rrect(41, 47, 50, 56, 2)
+local sw2 = c:rrect(47, 40, 55, 48, 2)
+local sw1 = c:rrect(41, 46, 49, 55, 2)
 local p = c:build{
   { "band", band, ROSE, { cres = 4, gloss = { 13, 20 } } },
   { "buckle", buckle, GOLD, { cres = 2, gloss = false, bounce = false } },
@@ -55,8 +55,8 @@ local p = c:build{
   { "loopL", loopL, PINK, { cres = 2, gloss = false } },
   { "loopR", loopR, PINK, { cres = 2, gloss = false } },
   { "knot", knot, PINK, { cres = 2, gloss = false } },
-  { "sw2", sw2, SKY, { cres = 2, gloss = false } },
-  { "sw1", sw1, MINT, { cres = 2, gloss = false } },
+  { "sw2", sw2, SKY, { cres = 2, gloss = false, rim = false } },
+  { "sw1", sw1, MINT, { cres = 2, gloss = false, rim = false } },
 }
 -- gold stitch seam along the middle of the band, round from the buckle and back to it
 local pts = {}
@@ -66,28 +66,28 @@ for i = 0, 28 do
 end
 c:seam(pts, { gap = ROSE.shade })
 -- buckle: frame window showing the band, prong across it
-c:fill(c:rect(52, 25, 55, 28), ROSE.shade)
-c:fill(c:rect(52, 26, 55, 27), ROSE.base)
-c:paint({ "gggg" }, 52, 26, { g = GOLD.rim })
-c:paint({ "gg", "g." }, 50, 23, { g = GOLD.gloss })
+c:fill(c:rect(51, 24, 53, 27), ROSE.shade)
+c:fill(c:rect(51, 25, 53, 26), ROSE.base)
+c:paint({ "ggg" }, 51, 25, { g = GOLD.rim })
+c:paint({ "gg", "g." }, 49, 22, { g = GOLD.gloss })
 -- bell: slot across the middle, sound hole with a slit, glint
-c:paint({ "ssssssssss" }, 27, 52, { s = GOLD.shade })
-c:paint({ "hh", "hh", ".h" }, 31, 54, { h = C.hole })
-c:paint({ "gg", "g." }, 28, 48, { g = GOLD.gloss })
+c:paint({ "ssssssssssss" }, 26, 50, { s = GOLD.shade })
+c:paint({ "hh", "hh" }, 31, 52, { h = C.hole })
+c:paint({ "ggg", "g.." }, 27, 46, { g = GOLD.gloss })
 -- wound yarn strands on the bow loops, knot glint
-c:paint({ "s..", ".s.", "..s" }, 8, 34, { s = PINK.shade })
-c:paint({ "s..", ".s.", "..s" }, 8, 39, { s = PINK.shade })
+c:paint({ "s..", ".s.", "..s" }, 10, 34, { s = PINK.shade })
+c:paint({ "s..", ".s.", "..s" }, 10, 39, { s = PINK.shade })
 c:paint({ "..s", ".s.", "s.." }, 21, 34, { s = PINK.shade })
 c:paint({ "..s", ".s.", "s.." }, 21, 39, { s = PINK.shade })
-c:paint({ "gg", "g." }, 7, 32, { g = PINK.gloss })
+c:paint({ "gg", "g." }, 9, 33, { g = PINK.gloss })
 c:px(14, 37, PINK.gloss)
 -- swatches: two stitched felt squares, fanned
-c:seam({ { 43, 53 }, { 48, 53 } }, { gap = MINT.shade })
-c:seam({ { 53, 43 }, { 53, 47 } }, { gap = SKY.shade })
-c:paint({ "gg", "g." }, 43, 49, { g = MINT.gloss })
-c:paint({ "gg", "g." }, 49, 43, { g = SKY.gloss })
+c:seam({ { 43, 52 }, { 47, 52 } }, { gap = MINT.shade })
+c:seam({ { 53, 42 }, { 53, 45 } }, { gap = SKY.shade })
+c:paint({ "gg", "g." }, 43, 48, { g = MINT.gloss })
+c:paint({ "gg", "g." }, 49, 42, { g = SKY.gloss })
 
 local name = "cf-yi-collar"
 local t = c:save(OUT .. name .. ".aseprite", OUT .. name .. ".png")
 print(GV.report(t))
-assert(t.semi == 0 and t.margin >= 3 and t.colours <= 24 and t.bw == 0, "check failed")
+assert(t.semi == 0 and t.margin >= 3 and t.colours <= 20 and t.bw == 0, "check failed")

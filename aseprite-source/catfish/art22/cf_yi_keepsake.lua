@@ -50,9 +50,9 @@ local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local body = c:ellipse(31.5, 39, 16, 17)
 local face = c:ellipse(31.5, 39, 11, 12)
 local bail = c:ellipse(31.5, 19.5, 4.5, 4)
-local loopL = c:poly({ {29, 11}, {20, 5}, {14, 7}, {13, 13}, {16, 18}, {29, 15} }):closed(2)
-local loopR = c:poly({ {35, 11}, {44, 5}, {50, 7}, {51, 13}, {48, 18}, {35, 15} }):closed(2)
-local knot = c:rrect(28, 8, 35, 16, 2)
+local loopL = c:poly({ {29, 12}, {20, 5}, {14, 7}, {13, 13}, {16, 18}, {29, 15} }):closed(2)
+local loopR = c:poly({ {35, 12}, {44, 5}, {50, 7}, {51, 13}, {48, 18}, {35, 15} }):closed(2)
+local knot = c:rrect(28, 9, 35, 16, 2)
 local p = c:build{
   { "bail", bail, GOLD, { cres = 2, gloss = false, bounce = false } },
   { "body", body, GOLD, { cres = 4, gloss = false } },
@@ -63,8 +63,8 @@ local p = c:build{
 }
 c:fill(c:rect(30, 19, 33, 20), GOLD.shade)                                            -- ring hole
 -- fold: the inside of each loop near the knot is in shadow
-c:fill(c:poly({ {28, 10}, {22, 8}, {22, 15}, {28, 15} }):clip(loopL), ROSE.shade)
-c:fill(c:poly({ {36, 10}, {42, 8}, {42, 15}, {36, 15} }):clip(loopR), ROSE.shade)
+c:fill(c:poly({ {29, 9}, {23, 9}, {23, 16}, {29, 16} }):clip(loopL), ROSE.shade)
+c:fill(c:poly({ {35, 9}, {41, 9}, {41, 16}, {35, 16} }):clip(loopR), ROSE.shade)
 -- yarn strands on the bow loops (curved grooves) and the knot wrap
 local on = set(ROSE.base, ROSE.rim)
 trace(c, { {15, 11}, {18, 9}, {21, 10} }, ROSE.shade, on)

@@ -18,18 +18,18 @@ local KEY = { o = "#b8466e", s = "#f29abb", b = "#fbdce6", l = "#f6b8cf", h = "#
 
 local FRAMES = {
   ["cf-season-petal"] = { -- A: wide tip to the upper right, pointed base lower left, curl along the lower right
-    "...ooo",
-    "..ohbo",
+    "..oooo",
     ".ohbbo",
-    "olbsso",
+    "ohbbso",
+    "olbso.",
     "osso..",
     "oo....",
   },
-  ["cf-season-petal-b"] = { -- B: A turned a quarter clockwise (point upper left, wide tip lower right), relit
-    "oo....",
-    "ohoo..",
+  ["cf-season-petal-b"] = { -- B: A turned a quarter clockwise (wide tip upper left, point lower right), relit
+    "oooo..",
     "ohbbo.",
-    ".olbso",
+    "olbbso",
+    ".obbso",
     "..osso",
     "...ooo",
   },

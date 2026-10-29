@@ -53,8 +53,8 @@ local function onPart(c, m, P, hex, litOnly)
 end
 
 local PAPER = felt("#ecd6a4", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#fff0c8", shade = "#c49a60" })
-local ROLL = felt("#e0c088", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#f5dca8", shade = "#b07e48" })
-local ROSE = felt("#e46a9b")                                                         -- the cf-ico-yarn pink
+local ROLL = felt("#e0c088", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#fff0c8", shade = "#c49a60" })
+local ROSE = felt("#e46a9b", { gloss = "#ffc8dc", dot = "#ffc8dc", rim = "#f29abb" })  -- PINK of cf_icons
 local TEAL = felt("#3aa59a", { gloss = "#c8f0d8", dot = "#c8f0d8", rim = "#7ccfb4", shade = "#2a6f80" })
 local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
@@ -86,7 +86,7 @@ for _, f in ipairs({ 0.42, 0.66 }) do                                           
   feather:cut(c:poly({ Q(u - 1.2, 6), Q(u + 2.2, 6), Q(u - 1.8, 2.2) }))
 end
 local shaft = c:line({ {34, 41}, {39, 33} }, 3)
-local nib = c:poly({ {29, 47}, {32, 37}, {38, 41} })
+local nib = c:poly({ {27, 48}, {31, 36}, {39, 40} })
 local yarn = c:ellipse(48, 49, 7)
 local p = c:build{
   { "sheet", sheet, PAPER, { cres = 4, gloss = false } },
@@ -115,7 +115,7 @@ for _, f in ipairs({ 0.3, 0.54, 0.78 }) do
   trace(c, { Q(u, 1), Q(u - 2.5, 3.5) }, TEAL.shade, set(TEAL.base, TEAL.rim))
 end
 c:paint({ ".g", "g." }, 47, 13, { g = TEAL.gloss })
-c:px(32, 42, GOLD.shade); c:px(31, 44, GOLD.shade)                                       -- nib slit
+c:px(32, 42, GOLD.shade); c:px(31, 43, GOLD.shade)                                       -- nib slit
 -- roll seams and the stamp's face
 c:seam({ { 9, 11 }, { 41, 11 } }, { gap = ROLL.shade })
 c:seam({ { 9, 51 }, { 41, 51 } }, { gap = ROLL.shade })
@@ -140,4 +140,4 @@ do                                                                              
 end
 local t = c:save(OUT .. "cf-yi-bio.aseprite", OUT .. "cf-yi-bio.png")
 print("bio " .. GV.report(t))
-assert(t.semi == 0 and t.margin >= 3 and t.colours <= 22 and t.bw == 0, "check failed")
+assert(t.semi == 0 and t.margin >= 3 and t.colours <= 20 and t.bw == 0, "check failed")
