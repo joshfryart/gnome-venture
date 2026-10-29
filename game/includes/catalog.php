@@ -317,6 +317,7 @@ function import_catalog(): array
 
         // ----- Gardening guides (one per region) + regional markets, zones, landmarks
         $stats['markets'] = import_markets($regions, $regionIds, $regionById, $regionTiers, $regionFlowers, $stats);
+        ensure_staple_stock();   // v2.0.99
 
         // ----- Living soil: Almanac pages and milestones for no-till soil grades
         ensure_soil_content($stats);
@@ -474,6 +475,24 @@ function upgrade_2065_seed_shop_names(): void
         if ($sid) q('UPDATE npcs SET bio = ? WHERE bio = ? AND id IN (SELECT npc_id FROM npc_schedules WHERE shop_id = ?)',
             ["Works at $new and knows every seed by its first name.", "Works at the $gnomish Seed Market and knows every seed by its first name.", $sid]);
     }
+}
+
+/** v2.0.99: every regional seed market also sells its region's staple seeds, well stocked. Adds only what's missing. */
+function ensure_staple_stock(): int
+{
+    $n = 0;
+    $rows = q("SELECT DISTINCT s.id AS shop_id, i.id AS item_id, i.base_price FROM shops s JOIN locations l ON l.id = s.location_id
+               JOIN plant_regions pr ON pr.region_id = l.region_id AND pr.tier = 'staple' JOIN plants p ON p.id = pr.plant_id
+               JOIN items i ON i.id = p.seed_item_id WHERE s.shop_type = 'seeds' AND l.region_id IS NOT NULL AND p.common = 0")->fetchAll();
+    foreach ($rows as $r) {
+        if (q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$r['shop_id'], $r['item_id']])) continue;
+        $p = max(1, (int)$r['base_price']);
+        db_insert('shop_stock', ['shop_id' => $r['shop_id'], 'item_id' => $r['item_id'],
+            'price_min' => max(1, (int)floor($p * 0.9)), 'price_max' => (int)ceil($p * 1.2),
+            'max_stock' => 20, 'restock_chance' => 90, 'current_stock' => 10, 'current_price' => $p]);
+        $n++;
+    }
+    return $n;
 }
 
 /** Almanac pages + milestones for reaching soil grades C, B, A and S. Adds only what's missing. */

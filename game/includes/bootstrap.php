@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.0.93');
+define('APP_VERSION', '2.0.99');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -302,6 +302,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             foreach (['npc.php', 'mod.php'] as $gone) {   // v0.7.50: pages renamed in v0.7.44 (folk.php, modtools.php)
                 if (is_file(APP_ROOT . '/' . $gone) && is_file(APP_ROOT . '/folk.php')) @unlink(APP_ROOT . '/' . $gone);
             }
+        });
+        boot_step('ensure_staple_stock', function () {
+            if (setting('staple_stock_v') !== '1') { require_once __DIR__ . '/catalog.php'; ensure_staple_stock(); set_setting('staple_stock_v', '1'); }   // v2.0.99: staple seeds in regional markets (once, even on a site already on 2.0.99)
         });
         boot_step('upgrade_2065_seed_shop_names', function () {
             if (version_compare((string)setting('db_version'), '2.0.65', '<')) { require_once __DIR__ . '/catalog.php'; upgrade_2065_seed_shop_names(); }   // v2.0.65: unique seed shop names

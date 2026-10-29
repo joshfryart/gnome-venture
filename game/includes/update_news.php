@@ -566,6 +566,14 @@ function post_update_news(string $from): void
         . "[*][b]Foods eaten[/b] is now a tasting menu, and [b]Villagers[/b] is a wall of snapshots of everyone you know.\n"
         . "[*][b]Easy roads[/b] moved to Account.\n"
         . "[*]A new [b]Today[/b] link sits in the side rail on every page.[/list]"],
+    '2.0.94' => ['🏠 My Gnome is your home page',
+        "[list][*]When you log in, you now land on [b]My Gnome[/b]. The old Today page is still one tap away on the [b]Today[/b] link.\n"
+        . "[*]My Gnome tabs now open in place, with no page reload.[/list]"],
+    '2.0.95' => ['📱 My Gnome on phones',
+        "[list][*]My Gnome is tighter on phones: a smaller header, slimmer pal slots and a smaller skill web, with every stat still listed.\n"
+        . "[*]Computers look the same as before.[/list]"],
+    '2.0.96' => ['🕸️ Stat web on Overview',
+        "[list][*]The Stats box on My Gnome Overview now shows your stat web. Tap a label to open that stat.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

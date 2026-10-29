@@ -1,0 +1,62 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>My Gnome mobile – 3 options</title>
+<style>
+:root{--bg:#efe4c8;--s:#f8f0da;--s2:#eadcb8;--ink:#2a1a10;--mut:#7a6650;--br:#7a4a22;--bl:#d9b98a;--ac:#f5cf6a}
+*{box-sizing:border-box}body{margin:0;background:#cfc3a6;font:14px/1.3 system-ui,sans-serif;color:var(--ink)}
+h1.t{text-align:center;font-size:16px;margin:12px}
+.row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;padding:8px 8px 24px}
+.col{width:390px}.col h2{text-align:center;font-size:14px;margin:0 0 6px}
+.ph{width:390px;background:var(--bg);border:3px solid var(--ink);padding:8px;text-align:center}
+.box{background:var(--s);box-shadow:0 0 0 2px var(--ink);padding:6px 8px;margin-bottom:6px}
+.av{background:var(--br);color:#fff;display:grid;place-items:center;flex:none}
+.pill{flex:none;padding:4px 9px;min-height:36px;display:flex;align-items:center;gap:4px;background:var(--s);box-shadow:0 0 0 2px var(--ink);font-weight:600;font-size:13px;white-space:nowrap}
+.pill.on{background:var(--br);color:#f2e4c0}
+.scr{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 6px}
+small{font-size:11px;color:var(--mut)}
+.fl{display:flex;align-items:center;gap:8px}
+svg text{font-size:10px;fill:var(--ink)}
+.li{display:flex;align-items:center;gap:4px;background:var(--s2);padding:1px 6px;min-height:34px;font-size:13px;text-align:left}
+.li b{flex:1}.li i{font-style:normal;font-weight:700;font-size:16px}
+.f{background:var(--s);box-shadow:0 0 0 2px var(--ink);padding:4px 2px;display:flex;flex-direction:column;align-items:center;font-size:12px}
+.f b{font-size:14px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:6px}
+.bar{height:6px;background:var(--s2);box-shadow:0 0 0 1px var(--ink)}.bar i{display:block;height:100%;width:62%;background:var(--br)}
+.slot{flex:1;display:flex;gap:4px;align-items:center;background:var(--s2);padding:3px 5px;font-size:12px;min-height:40px;text-align:left}
+.dot{width:30px;height:30px;background:var(--bl);flex:none}
+details summary{min-height:36px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.bot{display:flex;box-shadow:0 0 0 2px var(--ink);background:var(--s);margin-bottom:6px}
+.bot a{flex:1;text-align:center;padding:4px 0;font-size:10px;min-height:44px}.bot a.on{background:var(--br);color:#f2e4c0}.bot span{display:block;font-size:17px}
+</style>
+<h1 class=t>My Gnome · mobile only (≤720px) · desktop untouched</h1>
+<div class=row>
+
+<div class=col><h2>A · Compact stack</h2><div class=ph>
+ <div class="box fl" style="text-align:left"><div class=av style="width:56px;height:56px">🧙</div><div><b style="font-size:17px">Pip Mossfoot</b><br><small>Garden gnome of Hollowby</small><br><small>Lv <b>12</b> · 🏡 2/3 · ⚡ 40/60</small></div></div>
+ <div class=fl style="margin-bottom:6px"><div class=slot><div class=dot></div><span><b>Moth</b><br><small>+4% finds</small></span></div><div class=slot><div class=dot></div><span><b>Choose a pal</b></span></div></div>
+ <div class=scr><span class="pill on">🧙 Overview</span><span class=pill>🐾 Pals</span><span class=pill>💪 Stats <b style="background:var(--ac);padding:0 4px">2</b></span><span class=pill>🎩 Calling</span><span class=pill>🍴 Foods</span></div>
+ <div class=box><b>💪 Stats</b>
+  <div class=fl style="margin-top:4px"><svg width=150 height=146 viewBox="0 0 260 256"><polygon points="130,36 218,100 184,200 76,200 42,100" fill="#eadcb8" stroke="#7a4a22" stroke-width="2"/><polygon points="130,82 175,114 158,166 102,166 85,114" fill="#7a4a2255" stroke="#7a4a22" stroke-width="3"/><text x=130 y=22 text-anchor=middle>💪 Str</text><text x=236 y=100 text-anchor=middle>🧠 Wit</text><text x=200 y=222 text-anchor=middle>🍀 Luck</text><text x=60 y=222 text-anchor=middle>🌿 Gr</text><text x=24 y=100 text-anchor=middle>🗣 Cha</text></svg>
+  <div style="flex:1;display:flex;flex-direction:column;gap:3px"><div class=li><b>💪 Str</b><i>12</i><small>+1</small></div><div class=li><b>🧠 Wit</b><i>10</i><small>0</small></div><div class=li><b>🍀 Luck</b><i>9</i><small>0.9%</small></div></div></div></div>
+</div><p style="font-size:12px;text-align:center">Smaller avatar, 2 slim pal slots, pill tabs, web 150px beside list.</p></div>
+
+<div class=col><h2>B · Dashboard + bottom tab bar</h2><div class=ph>
+ <div class="box" style="text-align:left"><div class=fl><div class=av style="width:44px;height:44px;font-size:22px">🧙</div><div style="flex:1"><b style="font-size:16px">Pip Mossfoot</b> <small>· Hollowby</small><div class=bar style="margin:4px 0 2px"><i></i></div><small>Lv 12 · 620/1000 XP</small></div></div>
+  <div class=fl style="margin-top:6px;justify-content:space-between"><small>🏡 2/3</small><small>⚡ 40/60</small><small>🐾 Moth + 1 free</small></div></div>
+ <div class=scr><div class=f style="flex:none;width:84px"><span>🍴</span><b>41</b>foods</div><div class=f style="flex:none;width:84px"><span>🎩</span><b>Cook</b>calling</div><div class=f style="flex:none;width:84px"><span>💛</span><b>9</b>folk</div><div class=f style="flex:none;width:84px"><span>🏡</span><b>2/3</b>gardens</div></div>
+ <div class=box><b>💪 Stats</b> <small>2 points to spend</small>
+  <div class=fl style="justify-content:center"><svg width=130 height=126 viewBox="0 0 260 256"><polygon points="130,36 218,100 184,200 76,200 42,100" fill="#eadcb8" stroke="#7a4a22" stroke-width="2"/><polygon points="130,82 175,114 158,166 102,166 85,114" fill="#7a4a2255" stroke="#7a4a22" stroke-width="3"/></svg></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><div class=li><b>💪 Str</b><i>12</i></div><div class=li><b>🧠 Wit</b><i>10</i></div><div class=li><b>🍀 Luck</b><i>9</i></div><div class=li><b>🌿 Gr</b><i>11</i></div></div></div>
+ <div class=bot><a class=on><span>🧙</span>Home</a><a><span>🐾</span>Pals</a><a><span>💪</span>Stats</a><a><span>🎩</span>Call</a><a><span>🍴</span>Food</a><a><span>💛</span>Folk</a></div>
+</div><p style="font-size:12px;text-align:center">XP bar header, facts as swipe strip, web 130px, thumb-reach bottom bar (fixed).</p></div>
+
+<div class=col><h2>C · Accordion</h2><div class=ph>
+ <div class="box fl" style="text-align:left"><div class=av style="width:48px;height:48px">🧙</div><div style="flex:1"><b style="font-size:16px">Pip Mossfoot</b><br><small>Lv 12 · 🏡 2/3 · ⚡ 40/60</small></div><small>👤</small></div>
+ <div class="box" style="display:flex;justify-content:space-between;align-items:center"><b>Section: 💪 Stats</b><span>▾ switch</span></div>
+ <details class=box><summary>🐾 Pals along · 1 of 2</summary><div class=fl><div class=slot><div class=dot></div><b>Moth</b></div><div class=slot><b>+ Choose</b></div></div></details>
+ <details class=box open><summary>💪 Stats · ✨ 2 points</summary>
+  <div class=fl><svg width=140 height=136 viewBox="0 0 260 256"><polygon points="130,36 218,100 184,200 76,200 42,100" fill="#eadcb8" stroke="#7a4a22" stroke-width="2"/><polygon points="130,82 175,114 158,166 102,166 85,114" fill="#7a4a2255" stroke="#7a4a22" stroke-width="3"/></svg>
+  <div style="flex:1;display:flex;flex-direction:column;gap:3px"><div class=li><b>💪 Str</b><i>12</i><span class=pill style="min-height:28px;padding:0 6px">+1</span></div><div class=li><b>🧠 Wit</b><i>10</i></div><div class=li><b>🍀 Luck</b><i>9</i></div></div></div></details>
+ <details class=box><summary>✨ Active effects</summary></details>
+ <details class=box><summary>🎨 Dyes</summary></details>
+</div><p style="font-size:12px;text-align:center">Tabs become a one-line section switcher; pals, effects, dyes fold. Shortest page.</p></div>
+
+</div>

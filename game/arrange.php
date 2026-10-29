@@ -175,7 +175,7 @@ $IL = null;
     <?php if ($racks): ?>
     <ul class="arrlist">
       <?php foreach ($racks as $r): ?>
-        <li><span class="iicon"><?= item_icon($r, 'md') ?></span> <b><?= (int)$r['qty'] ?> × <?= e($r['name']) ?></b>
+        <li><span class="iicon"><?= item_icon(['id' => $r['item_id']] + $r, 'md') ?></span> <b><?= (int)$r['qty'] ?> × <?= e($r['name']) ?></b>
           <?php if ($r['left'] > 0): ?><span class="muted">⏳ <?= e(nice_time((int)$r['left'])) ?> to go</span>
           <?php else: ?>
             <form method="post" action="<?= e(url('arrange.php')) ?>" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="dry_collect"><input type="hidden" name="rack" value="<?= (int)$r['id'] ?>"><button class="btn small">🌾 Collect</button></form>
