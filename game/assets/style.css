@@ -6013,3 +6013,33 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .almpals { list-style: none; margin: 6px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .almpals li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--surface-2); box-shadow: var(--frame-lite); flex-wrap: wrap; }
 .almpals li.miss { opacity: .6; }
+
+/* My Gnome, phones only: tighter header, slim pal slots, smaller web. Desktop untouched. */
+@media (max-width: 720px) {
+  .gvpage .gnomehead { justify-content: flex-start; text-align: left; gap: 10px; padding: 6px 8px; }
+  .gvpage .gnomehead > :first-child, .gvpage .gnomehead svg, .gvpage .gnomehead img { width: 56px; height: 56px; flex: none; }
+  .gvpage .gnomehead h1 { font-size: 18px; line-height: 1.15; }
+  .gvpage .gnomehead p { margin: 1px 0; font-size: 13px; }
+  .gvpage .gnomehead .help { font-size: 12px; }
+  .gvpage .palstrip { margin: 6px 0; }
+  .gvpage .palhead b { font-size: 13px; }
+  .gvpage .palslots { gap: 6px; margin-top: 4px; }
+  .gvpage .palslot { min-height: 40px; padding: 3px 6px 3px 4px; gap: 5px; font-size: 12px; }
+  .gvpage .palslot img, .gvpage .palslot svg, .gvpage .palslot .palstk { width: 30px; height: 30px; }
+  .gvtabs { gap: 6px; }
+  .gvtabs a { min-height: 36px; padding: 4px 9px; font-size: 13px; white-space: nowrap; }
+  .gvpage .factrow { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin: 6px 0; }
+  .gvpage .fact { padding: 4px 2px; }
+  .gvpage .fact span { font-size: 18px; }
+  .gvpage .fact small { font-size: 11px; }
+  .gvpage .box { padding: 8px; }
+  /* stats: web smaller but labels stay legible; all seven stats listed full width */
+  .gvpage .statsplit { flex-direction: column; gap: 6px; margin: 4px 0; }
+  .radar { width: 210px; }
+  .radar .rlab { font-size: 14px; }
+  .gvpage .statlist { flex: none; width: 100%; gap: 4px; }
+  .gvpage .statlist li { padding: 0 8px; }
+  .gvpage .statlist li a { min-height: 40px; justify-content: flex-start; text-align: left; font-size: 15px; }
+  .gvpage .statlist .sc { font-size: 18px; }
+  .gvpage .statsel { font-size: 13px; padding: 6px 10px; }
+}
