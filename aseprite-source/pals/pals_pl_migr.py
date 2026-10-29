@@ -83,7 +83,7 @@ def powderpuff_dust():
 def faraway_dashes():
     key = 'pl-migr-2'
     st = Sticker()
-    core = (13, 24, 47, 55)
+    core = (15, 24, 48, 55)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), w=('T', 'keyhole', 3, 3.6), e=('B', 'keyhole', 3, 3.0))
     st.part(body, tex=fill(key, body, 13, 12, 40, list(HORIZON)), contour=True)
     st.blank_shade(body, holes, width=1)
@@ -100,19 +100,19 @@ def faraway_dashes():
 def acacia_umbrella():
     key = 'pl-migr-3'
     st = Sticker()
-    core = (14, 20, 49, 50)
+    core = (14, 16, 49, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 10, 40, list(ACACIA)), contour=True)
     st.blank_shade(body, holes, width=1)
-    canopy = ellipse(31.5, 17, 15, 3.6)
+    canopy = ellipse(31.5, 13, 15, 3.6)
     st.part(canopy, '#3a6e28', d=1, contour=True)
-    st.paint(canopy & (CY < 15) & shrink(canopy, 1) & ((XX // 2) % 2 == 0), '#88bc56')
-    st.paint(rect(31, 36, 32, 46) & body & ~grow(holes, 1), BARK[0])
-    st.paint(line([(31, 40), (27, 37)]) | line([(32, 40), (36, 37)]), BARK[0])
-    happy_eye(st, 21, 27)
-    happy_eye(st, 38, 27)
-    st.mouth('cat', 29, 31)
+    st.paint(canopy & (CY < 11) & shrink(canopy, 1) & ((XX // 2) % 2 == 0), '#88bc56')
+    st.paint(rect(31, 32, 32, 42) & body & ~grow(holes, 1), BARK[0])
+    st.paint(line([(31, 36), (27, 33)]) | line([(32, 36), (36, 33)]), BARK[0])
+    happy_eye(st, 21, 23)
+    happy_eye(st, 38, 23)
+    st.mouth("cat", 29, 27)
     return key, st
 
 

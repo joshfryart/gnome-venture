@@ -114,7 +114,7 @@ def chestful_snore():
 def bubble_bop():
     key = 'pl-sung-3'
     st = Sticker()
-    core = (14, 14, 48, 46)
+    core = (14, 16, 48, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 6, 44, list(AQUA)), contour=True)
@@ -183,7 +183,7 @@ def hullmate_octopus():
     key = 'pl-sung-6'
     st = Sticker()
     head = ellipse(32, 25, 14, 13)
-    tab = knob('n', 'keyhole', 32, 13, r=3.0)
+    tab = knob('n', 'keyhole', 32, 15, r=3.0)
     arms = blank()
     for (x0, x1, x2) in ((22, 17, 13), (27, 25, 21), (37, 39, 43), (42, 47, 51)):
         arms |= line([(x0, 34), (x1, 46), (x2, 50)], w=3)

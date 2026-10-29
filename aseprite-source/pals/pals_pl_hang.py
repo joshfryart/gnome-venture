@@ -109,12 +109,12 @@ def palm_fringe():
     st.stitch(body, col='#5a3a1e', skip=grow(holes, 3))
     # leaning palm crown: fronds fanning from the top knob, leaning right
     hub = (31, 20)
-    for tip in ((16, 16), (21, 10), (31, 8), (42, 10), (50, 16), (45, 22)):
+    for tip in ((16, 16), (21, 11), (31, 10), (42, 11), (50, 16), (45, 22)):
         f = line([hub, ((hub[0] + tip[0]) / 2, min(hub[1], tip[1]) - 2), tip], w=2)
         st.part(f, LEAF[0], d=1, contour=True)
         st.paint(line([hub, tip], w=1) & f, LEAF[1])
     st.part(disc(31, 21, 2.5), TRUNK[0], d=1, contour=True)
-    for x, y in ((6, 20), (9, 18), (55, 28)):
+    for x, y in ((9, 22), (11, 19), (55, 28)):
         dot(st, x, y, LEAF[1])
     st.paint(rect(20, 38, 24, 38) | rect(20, 37, 20, 37) | rect(24, 37, 24, 37), UMBER)    # wink
     st.eye(37, 35)
@@ -127,23 +127,23 @@ def palm_fringe():
 def brimful_pool():
     key = 'pl-hang-3'
     st = Sticker()
-    core = (15, 19, 47, 46)
+    core = (15, 17, 47, 44)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 15, 19, 33, list(POOL)), contour=True)
+    st.part(body, tex=fill(key, body, 15, 17, 33, list(POOL)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col=WATER[0], skip=grow(holes, 3))
     # ripple rings across the brim + splash droplets
-    st.paint(ellipse(31, 24, 9, 1.6) & ~ellipse(31, 24, 7, 0.8), WATER[0], solid=True)
-    for x, y in ((22, 9), (40, 9), (31, 5), (10, 14), (53, 14)):
+    st.paint(ellipse(31, 22, 9, 1.6) & ~ellipse(31, 22, 7, 0.8), WATER[0], solid=True)
+    for x, y in ((22, 8), (40, 8), (31, 4), (10, 12), (53, 12)):
         st.paint(disc(x, y, 1.3), WATER[0], solid=True)
         dot(st, x, y, WATER[1])
-    st.eye(20, 29)
-    st.eye(36, 29)
-    dot(st, 21, 30, WATER[1])
-    dot(st, 37, 30, WATER[1])
-    st.mouth('o', 30, 40)
-    st.paint(rect(17, 37, 19, 37) | rect(42, 37, 44, 37), BLUSH)
+    st.eye(20, 27)
+    st.eye(36, 27)
+    dot(st, 21, 28, WATER[1])
+    dot(st, 37, 28, WATER[1])
+    st.mouth('o', 30, 37)
+    st.paint(rect(17, 34, 19, 34) | rect(42, 34, 44, 34), BLUSH)
     return key, st
 
 

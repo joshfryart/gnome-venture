@@ -170,9 +170,9 @@ def starwise_cheerer():
     st = Sticker()
     for sx in (-1, 1):                                                   # arms cheering up
         x0 = 32 + sx * 15
-        arm = line([(32 + sx * 11, 36), (x0, 26), (x0 + sx * 2, 20)], w=3)
+        arm = line([(32 + sx * 11, 36), (x0, 26), (x0 + sx * 2, 21)], w=3)
         st.part(arm, NAV[1], d=1, contour=True)
-        st.part(disc(x0 + sx * 2, 18, 2.8), NAV[1], d=1, contour=True)
+        st.part(disc(x0 + sx * 2, 19, 2.6), NAV[1], d=1, contour=True)
     tab = knob('s', 'keyhole', 32, 48, r=3.0)
     head = disc(32, 26, 11)
     torso = ellipse(32, 41, 11, 7)
@@ -183,8 +183,8 @@ def starwise_cheerer():
     st.part(head & (CY < 20), '#2a1a18', d=1, contour=True)              # hair
     st.part(rect(21, 19, 43, 21) & grow(head, 1), REDM[0], d=1, contour=True)   # bright headband
     st.paint(rect(22, 20, 42, 20) & head, REDM[1])
-    st.part(disc(32, 10, 2.6) | poly([(32, 6), (35, 10), (32, 14), (29, 10)]), GOLDC[0], d=1, contour=True)   # the star
-    st.dots([(31, 9)], GOLDC[2])
+    st.part(disc(32, 11, 2.4) | poly([(32, 8), (35, 11), (32, 14), (29, 11)]), GOLDC[0], d=1, contour=True)   # the star
+    st.dots([(31, 10)], GOLDC[2])
     st.eye(25, 24, look=(0, -1))
     st.eye(34, 24, look=(0, -1))
     st.paint(line([(25, 22), (29, 22)]) | line([(34, 22), (38, 22)]), UMBER)

@@ -54,10 +54,10 @@ def cypress_candle():
     body, holes = piece_blanks(core, s='F', w='F', n=('T', 'keyhole', -6, 3.6), e=('T', 'keyhole', 2, 3.6))
     st.part(body, tex=fill(key, body, 12, 14, 40, list(CYPRESS)), contour=True)
     st.stitch(body, col='#7aa86a')
-    hat = poly([(17, 25), (22, 4), (27, 25)])
+    hat = poly([(17, 25), (22, 8), (27, 25)])
     st.part(hat, '#3e6234', d=1, contour=True)
-    st.paint(line([(22, 8), (20, 22)]), '#5a8a48')
-    st.paint(rect(21, 4, 22, 6), GOLD)
+    st.paint(line([(22, 12), (20, 22)]), '#5a8a48')
+    st.paint(rect(21, 8, 22, 10), GOLD)
     st.eye(18, 34, lid=2)
     st.eye(31, 34, lid=2)
     st.mouth('smile', 24, 44)
@@ -69,15 +69,15 @@ def cypress_candle():
 def creamsail_dawdle():
     key = 'pl-labi-2'
     st = Sticker()
-    core = (15, 20, 47, 46)
+    core = (15, 22, 47, 46)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), w=('T', 'keyhole', 0, 3.6))
     st.part(body, tex=fill(key, body, 15, 10, 36, list(SAILC)), contour=True)
     st.blank_shade(body, holes, width=1)
     hull = poly([(10, 47), (54, 47), (48, 55), (16, 55)])
     st.part(hull, HULL, d=1, contour=True)
     st.paint(rect(14, 48, 50, 48) & hull, '#e8705a')
-    st.part(rect(31, 4, 32, 9), '#7a4a1f', d=0, contour=True, shade=False)
-    st.part(poly([(33, 4), (39, 6), (33, 8)]), HULL, d=0, contour=True, shade=False)
+    st.part(rect(31, 7, 32, 12), '#7a4a1f', d=0, contour=True, shade=False)
+    st.part(poly([(33, 7), (39, 9), (33, 11)]), HULL, d=0, contour=True, shade=False)
     st.eye(22, 27, look=(-1, 0))
     st.eye(35, 27, look=(-1, 0))
     st.mouth('cat', 29, 37)
@@ -88,7 +88,7 @@ def creamsail_dawdle():
 def gatepost_lampshine():
     key = 'pl-labi-3'
     st = Sticker()
-    core = (15, 20, 48, 48)
+    core = (15, 20, 48, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 15, 12, 34, list(LAMPO)), contour=True)
@@ -146,25 +146,25 @@ def questionmark_bubble():
 def plinth_riddler():
     key = 'pl-labi-6'
     st = Sticker()
-    head = ellipse(31.5, 32, 12, 10)
-    hat = poly([(18, 27), (31.5, 5), (45, 27)])
-    plinth = rect(18, 44, 45, 53)
-    tab = knob('s', 'keyhole', 32, 54, r=2.8)
-    sil = head | rect(22, 32, 41, 44) | plinth | tab
+    head = ellipse(31.5, 32, 12, 9)
+    hat = poly([(18, 27), (31.5, 10), (45, 27)])
+    plinth = rect(18, 42, 45, 47)
+    tab = knob('s', 'keyhole', 32, 48, r=2.4)
+    sil = head | rect(22, 32, 41, 42) | plinth | tab
     st.part(sil, tex=fill(key, sil, 14, 14, 36, list(STONE)), contour=True)
     st.part(plinth | tab, PLINTH, d=2, contour=True)
-    st.paint(rect(19, 44, 44, 45), '#5a5662')
+    st.paint(rect(19, 42, 44, 43), '#5a5662')
     st.part(hat, '#8a8a94', d=2, contour=True)
-    st.paint(line([(31, 8), (25, 25)]), '#b4b4bc')
-    beard = poly([(23, 36), (40, 36), (31.5, 45)])
+    st.paint(line([(31, 13), (25, 25)]), '#b4b4bc')
+    beard = poly([(23, 35), (40, 35), (31.5, 42)])
     st.part(beard, '#d8d8de', d=1, contour=True)
     st.eye(23, 28)
     st.eye(35, 29, lid=1)
     st.paint(line([(22, 25), (26, 24)]), UMBER)
-    st.mouth('smirk', 29, 37)
+    st.mouth('smirk', 29, 36)
     st.paint(rect(19, 34, 21, 34) | rect(42, 34, 44, 34), BLUSH)
-    st.sparkle(6, 6)
-    st.sparkle(51, 10, big=False)
+    st.sparkle(8, 8)
+    st.sparkle(50, 12, big=False)
     st.sparkle(8, 40, big=False)
     return key, st
 

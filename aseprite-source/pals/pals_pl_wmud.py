@@ -190,28 +190,28 @@ def cobalt_peekhole():
 def slowpage_tortoise():
     key = 'pl-wmud-6'
     st = Sticker()
-    legs = disc(20, 45, 3.2) | disc(41, 45, 3.2)
+    legs = disc(25, 47, 3.4) | disc(43, 47, 3.4)
     st.part(legs, OLIVE[0], d=0, contour=True, shade=False)
-    shell = ellipse(32, 36, 16, 10) & (YY <= 44)
-    head = disc(15, 30, 6.5)
-    tab = knob('e', 'keyhole', 49, 38, r=3.0)
+    shell = ellipse(35, 38, 15, 10) & (YY <= 45)
+    tab = knob('e', 'keyhole', 50, 40, r=3.0)
     sil = shell | tab
-    st.part(sil, tex=fill(key, sil, 15, 24, 40, list(TURQ)), contour=True)
-    st.part(rect(16, 42, 48, 45), '#d8c090', d=1, contour=True)
-    for cx, cy in ((26, 33), (36, 33), (31, 39)):
+    st.part(sil, tex=fill(key, sil, 18, 26, 40, list(TURQ)), contour=True)
+    st.part(rect(20, 44, 50, 45), '#d8c090', d=0, contour=True, shade=False)     # shell rim
+    for cx, cy in ((30, 34), (40, 34), (35, 40)):
         st.paint(disc(cx, cy, 2.6) & shell, COBALT[1])
         st.dots([(cx, cy)], GOLD[0])
-    st.part(head, tex=fill(key, head, 8, 23, 14, list(OLIVE)), contour=True)
-    # spectacles
-    st.paint(disc(12, 28, 2.6) & ~disc(12, 28, 1.6), GOLD[0], solid=True)
-    st.paint(disc(18, 28, 2.6) & ~disc(18, 28, 1.6), GOLD[0], solid=True)
-    st.dots([(15, 28)], GOLD[0])
-    st.dots([(12, 28), (18, 28)], UMBER)
-    st.mouth('smile', 13, 32)
-    st.paint(rect(10, 31, 11, 31) | rect(19, 31, 20, 31), BLUSH)
-    scroll(st, 15, 44, vertical=True)
-    st.sparkle(26, 14)
-    st.sparkle(52, 14, big=False)
+    head = disc(17, 27, 8.5) | line([(20, 33), (24, 38)], w=4)
+    st.part(head, tex=fill(key, head, 8, 18, 20, list(OLIVE)), contour=True)
+    # round spectacles
+    for ex in (13, 21):
+        st.paint(disc(ex, 25, 3.2) & ~disc(ex, 25, 2.2), GOLD[0], solid=True)
+        st.paint(rect(ex - 1, 24, ex, 25), UMBER, solid=True)
+    st.paint(rect(16, 24, 18, 24), GOLD[0], solid=True)
+    st.mouth('smile', 15, 31)
+    st.paint(rect(9, 29, 10, 29) | rect(23, 29, 24, 29), BLUSH)
+    scroll(st, 13, 44, vertical=True)
+    st.sparkle(30, 16)
+    st.sparkle(53, 16, big=False)
     st.sparkle(55, 55, big=False)
     return key, st
 
