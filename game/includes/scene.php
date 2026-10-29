@@ -158,6 +158,14 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): 
     $fight = $enc && ($enc['type'] ?? '') === 'creature';
     $units = [['id' => 'me', 'side' => 'p', 'name' => gnome_name($u), 'html' => gnome_stage_ico($u),
         'hp' => $fight ? max(0, (int)$exp['hp']) : 0, 'max' => $fight ? (int)$exp['max_hp'] : 0, 'ko' => $fight && (int)$exp['hp'] <= 0]];
+    // v2.2.2: the Puzzle Pals taken along stand beside your gnome (the stage has three spare spots on your side); no pal art, no pals, nothing added
+    if (empty($u['guest'])) {
+        require_once __DIR__ . '/puzzle_pals.php';
+        if (ppal_party_on()) foreach (ppal_equipped($u) as $i => $e) {
+            $url = ppal_art_url((string)$e['pal']['key']);
+            if ($url !== '' && $i < 3) $units[] = ['id' => 'pal' . $i, 'side' => 'p', 'name' => (string)($e['pal']['name'] ?? 'Pal'), 'html' => '<img class="gvs-pal pix" src="' . e($url) . '" width="40" height="40" alt="">'];
+        }
+    }
     if ($fight && ($c = encounter_creature($enc))) {
         $rel = creature_image((string)($c['slug'] ?? ''), true);
         $units[] = ['id' => 'foe', 'side' => 'f', 'name' => (string)$c['name'], 'mini' => 'mini-' . (string)($c['slug'] ?? ''), 'img' => $rel,
