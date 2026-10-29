@@ -250,7 +250,7 @@
 .cfcard .cfhold { justify-content: center; }
 .cfcard .cfinfo { flex: 1 1 100%; text-align: center; }
 .cfcard .cfmain { flex: 1 1 100%; }
-/* Yarn ball colours: recoloured sprites cf-yarn-<1..4>-<colour>.png chosen in catfish_room_extras_html (2.2.x; the old CSS colour filter is gone) */
+/* Yarn ball colours: recoloured sprites cf-yarn-<1..4>-<colour>.png chosen in catfish_room_extras_html (2.2.x; the old CSS tint is gone) */
 /* Collar tint (the ring `.cfcol-*` is the fallback; with cf-collar-*.png the cat wears a neck-band layer instead), Cat bio, and the seasonal room (eight CSS bits falling or drifting; none under reduced motion). */
 .cfcol-rose { box-shadow: 0 0 0 2px #e8799b; border-radius: 12px; } .cfcol-mint { box-shadow: 0 0 0 2px #5fc9a0; border-radius: 12px; }
 .cfcol-sky { box-shadow: 0 0 0 2px #5aa7e0; border-radius: 12px; } .cfcol-gold { box-shadow: 0 0 0 2px #e0a526; border-radius: 12px; }

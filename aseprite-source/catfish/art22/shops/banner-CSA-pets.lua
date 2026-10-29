@@ -136,9 +136,9 @@ for _, x0 in ipairs({ 96, 134 }) do
 end
 -- round cat-face window: wood ring, ears, teal glass, whisker carving
 local ring = c:ellipse(120, 20.5, 6.5, 5.5)
-ring:add(tri(113, 18, 114, 12, 118, 16)):add(tri(122, 16, 126, 12, 127, 18))
+ring:add(tri(112, 19, 114, 12, 119, 16)):add(tri(121, 16, 126, 12, 128, 19))
 part(ring, WOOD, { flat = true })
-local glass = c:ellipse(120, 20.5, 4.5, 3.5)
+local glass = c:ellipse(120, 20.5, 4.5, 3.5):add(tri(115, 18, 115, 14, 118, 17)):add(tri(122, 17, 125, 14, 125, 18))
 part(glass, TEAL, { flat = true })
 c:px(118, 20, "#f5cf6a"); c:px(122, 20, "#f5cf6a")             -- lamp-lit cat eyes in the glass
 c:px(120, 22, "#2f6290"); c:px(119, 23, "#2f6290"); c:px(121, 23, "#2f6290")
@@ -153,24 +153,14 @@ c:fill(c:rect(88, 31, 152, 31), "#5e2f1e")
 for _, y in ipairs({ 37, 42 }) do c:fill(c:rect(89, y, 151, y), "#d9a660"); c:fill(c:rect(89, y + 1, 151, y + 1), "#5e2f1e") end
 -- shelf goods: yarn balls (with a wrap line) and, on the right, a stack of fish-shaped treat tins
 local function yarn(x, y, r)
-  local m = c:ellipse(x, y, 2.5, 2.5)
-  c:fill(m, r.base)
-  c:px(x - 1, y - 2, r.rim); c:px(x - 2, y - 1, r.rim); c:px(x - 1, y - 1, r.gloss)
-  c:px(x + 1, y + 1, r.shade); c:px(x + 2, y, r.shade); c:px(x, y + 2, r.shade)
-  c:px(x - 1, y + 1, r.shade); c:px(x, y, r.shade)
+  c:paint({ ".aab.", "abbsb", "absbs", "bsbss", ".sss." }, x - 2, y - 2, { a = r.rim, b = r.base, s = r.shade })
 end
 yarn(95, 35, RED); yarn(101, 35, TEAL); yarn(107, 35, GOLD)
-yarn(133, 35, CREAM); yarn(139, 35, RED); yarn(145, 35, TEAL)
--- lower shelf: little cushion beds (left) and treat jars (right)
-for _, x in ipairs({ 91, 101 }) do
-  c:fill(c:rrect(x, 39, x + 7, 41, 1), "#3f8fb0"); c:fill(c:rect(x + 1, 39, x + 6, 39), "#c4e4f1")
+yarn(113, 35, CREAM)
+-- lower shelf, right: treat jars peeking past the cat's tail
+for _, x in ipairs({ 144, 148 }) do
+  c:fill(c:rect(x, 38, x + 2, 41), "#f1ece0"); c:fill(c:rect(x, 38, x + 2, 38), "#dd3a2a"); c:px(x + 2, 40, "#d8c49a"); c:px(x + 2, 41, "#d8c49a")
 end
-for _, x in ipairs({ 136, 142 }) do
-  c:fill(c:rect(x, 38, x + 4, 41), "#f1ece0"); c:fill(c:rect(x, 38, x + 4, 38), "#dd3a2a"); c:px(x + 4, 40, "#d8c49a"); c:px(x + 4, 41, "#d8c49a")
-end
--- bell chime hanging in the centre of the opening
-c:fill(c:rect(120, 32, 120, 34), "#5e2f1e")
-c:fill(c:ellipse(120, 36, 2, 2), "#e8a317"); c:px(119, 35, "#fff1c8"); c:px(121, 37, "#b8661a"); c:px(120, 38, "#5e2f1e")
 -- posts
 part(c:rect(84, 31, 88, 50), WOOD, { gloss = false })
 part(c:rect(152, 31, 156, 50), WOOD, { gloss = false })
@@ -197,19 +187,18 @@ end
 local cushion = c:rrect(124, 41, 150, 45, 2)
 part(cushion, RED, { gloss = false })
 c:seam({ { 127, 43 }, { 147, 43 } })
-local body = c:ellipse(139, 38.5, 8, 3.5)
-local head = c:ellipse(129.5, 37.5, 4.5, 3.5)
-head:add(tri(125, 36, 126, 31, 129, 34)):add(tri(130, 34, 133, 31, 134, 36))
-local cat = body:copy():add(head)
+local body = c:ellipse(139, 37.5, 8, 3.5)
+local head = c:ellipse(129.5, 36.5, 4.5, 3.5)
+head:add(tri(125, 35, 126, 30, 129, 33)):add(tri(130, 33, 133, 30, 134, 35))
+local tail = c:line({ { 146, 38 }, { 149, 39 }, { 151, 37 } }, 2)
+local cat = body:copy():add(head):add(tail)
 part(cat, GOLD, { gloss = { 136, 36 } })
-c:fill(tri(126, 34, 127, 32, 128, 34), "#f1ece0"); c:fill(tri(131, 34, 132, 32, 133, 34), "#f1ece0")
-local tail = c:line({ { 147, 39 }, { 149, 40 } }, 2)
-part(tail, GOLD, { flat = true })
+c:fill(tri(126, 33, 127, 31, 128, 33), "#f1ece0"); c:fill(tri(131, 33, 132, 31, 133, 33), "#f1ece0")
 -- tabby stripes, closed smiling eyes, nose
-for _, x in ipairs({ 137, 141, 144 }) do c:px(x, 36, "#b8661a"); c:px(x + 1, 36, "#b8661a") end
-c:px(127, 37, "#4a2c1a"); c:px(128, 38, "#4a2c1a")
-c:px(131, 38, "#4a2c1a"); c:px(132, 37, "#4a2c1a")
-c:px(129, 39, "#ae2a2a"); c:px(130, 39, "#ae2a2a")
+for _, x in ipairs({ 137, 141, 144 }) do c:px(x, 35, "#b8661a"); c:px(x + 1, 35, "#b8661a") end
+c:px(127, 36, "#4a2c1a"); c:px(128, 37, "#4a2c1a")
+c:px(131, 37, "#4a2c1a"); c:px(132, 36, "#4a2c1a")
+c:px(129, 38, "#ae2a2a"); c:px(130, 38, "#ae2a2a")
 -- hanging fish sign (no text) on a bracket from the left post
 c:fill(c:rect(76, 31, 83, 31), "#5e2f1e")
 c:px(77, 32, "#5e2f1e"); c:px(82, 32, "#5e2f1e")

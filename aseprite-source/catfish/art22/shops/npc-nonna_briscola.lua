@@ -47,7 +47,7 @@ local p = c:build{
   { "scarf",  scarf,  scarfR, { stitch = { side = "lit" } } },
   { "face",   face,   "skin", { gloss = { 27, 47 } } },
   { "curls",  curls,  cream,  { flat = true } },
-  { "nose",   nose,   "skin", { gloss = false } },
+  { "nose",   nose,   "skin", { gloss = { 37, 57 }, cres = 2, deep = 0 } },
   { "tails",  tails,  scarfR, { gloss = false } },
   { "knot",   knot,   scarfR, { gloss = false } },
   { "ftail",  ftail,  fish,   { gloss = false } },
@@ -79,6 +79,12 @@ c:paint({
   "....uuuuu....",
 }, 33, 63, { u = "#2a1a10", r = "#ae2a2a" })
 
+-- curl partings and finger creases
+for _, x in ipairs({ 28, 34, 40, 46, 52 }) do
+  local y = ({ [28] = 43, [34] = 41, [40] = 40, [46] = 41, [52] = 43 })[x]
+  if p.curls.m:has(x, y) then c:px(x, y, "#d8c49a"); c:px(x, y + 1, "#d8c49a") end
+end
+for _, x in ipairs({ 25, 27, 49, 51 }) do c:px(x, 89, "#c47a52"); c:px(x, 90, "#c47a52") end
 -- blouse lace collar + cameo button
 for x = 32, 47, 2 do c:px(x, 79, "#d8c49a") end
 c:button(38, 85)

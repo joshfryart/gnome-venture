@@ -1,15 +1,18 @@
 -- shops/ESA-items.lua : Cat Fish pet shop ESA "Thornacre Trading Den" (Thornacre Savanna, East and Southern
 -- Africa): the 5 room item sprites, 1x on the 320 x 200 room (like the cats and cf-yarn-*), Stitched Toy.
 -- Run: AppRun -b --script shops/ESA-items.lua     Writes art22/out/cf-pet-<slug>.png + .aseprite
---   acacia_perch       sill     30x26  flat-topped felt acacia (two-tier umbrella canopy, yellow puff flowers)
---                                      on a Y trunk, set in a round wooden plinth with a bead band
---   beaded_rack        shelf    20x24  wooden post stand wearing a round flat bead collar (red, cream with
---                                      blue dots, blue, gold rings) and two short dangling bead strands
---   grass_tuft         floor-l  38x28  tuft of felt savanna grass (straw blades, olive ones behind) in a low
---                                      coiled sisal basket with a bead band
---   rain_cloud_mobile  ceiling  48x34  acacia twig hung from the top edge: a felt rain cloud, three blue felt
---                                      drops on threads, two bead strands at the twig ends
---   coffee_bean_rattle rod      16x16  a glossy roasted coffee-bean shaker with a beaded gold cap, on its thread
+--   acacia_perch       sill     30x26  flat-topped felt acacia (umbrella canopy, yellow puff flowers) on a
+--                                      V trunk, rooted in a red-earth felt mound with grass tufts and a bead band
+--   beaded_rack        shelf    20x24  round flat bead collar (red, cream with blue dots, blue, gold rings) on a
+--                                      short wooden display stand, two bead dangles, gold hem seam on the foot
+--   grass_tuft         floor-l  38x28  fountain of felt savanna grass (straw, sage and olive blades, each its own
+--                                      part) in a low coiled sisal basket with a bead band
+--   rain_cloud_mobile  ceiling  48x34  arched acacia twig hung from the top edge: a felt rain cloud, three blue
+--                                      felt drops on threads, a bead strand with a small drop at each twig end
+--   coffee_bean_rattle rod      16x16  a glossy roasted coffee-bean shaker (tilted, S crease) with a beaded gold
+--                                      cap, on its thread
+-- Polish: pass 1 replaced the collar-on-knob (read as a figure) and the spiky grass (read as a crown); pass 2
+-- made the acacia a V trunk on an earth mound (the pot read as a bonsai) and split every grass blade.
 -- Shared regional look: savanna straw/ochre + acacia olive + roasted brown felt, and the same bead row
 -- (red, cream, blue, gold, 1 px each) on every item. 1 px three-tone umber outline (selective by light) and the
 -- 1 px #000000 border last, as the 1x room sprites; hanging threads are 1 px umber with no border, to y 0.
@@ -80,8 +83,8 @@ do
   local c = canvas(30, 26)
   local canopy = c:rrect(2, 3, 27, 6, 2):add(c:ellipse(14.5, 3, 9, 1.5))
   canopy:add(c:ellipse(7, 6.5, 3.5, 1.2)):add(c:ellipse(14.5, 7, 4, 1.2)):add(c:ellipse(22, 6.5, 3.5, 1.2))
-  local trunk = c:line({ { 14, 20 }, { 14, 14 }, { 9, 8 } }, 2)
-  trunk:add(c:line({ { 15, 15 }, { 20, 8 } }, 2)):add(c:line({ { 14, 13 }, { 14, 8 } }, 2))
+  local trunk = c:line({ { 14, 20 }, { 14, 15 }, { 7, 8 } }, 2)
+  trunk:add(c:line({ { 15, 15 }, { 22, 8 } }, 2))
   local EARTH = felt("#c4703a", { gloss = "#f2a868", rim = "#e08a50", shade = "#8e4a2a" })   -- red savanna earth
   local plinth = c:ellipse(14.5, 21, 10.5, 2.5):add(c:rect(5, 21, 24, 23)):closed(1)
   c:build{

@@ -234,8 +234,10 @@ do
   for x = 2, 35 do edge:set(x, 21); edge:set(x, 22) end
   -- cream fringe front and back (behind the rug)
   local fr = c:mask()
-  for x = 3, 34, 2 do for y = 23, 25 do fr:set(x, y) end end
-  for x = 9, 28, 2 do for y = 3, 5 do fr:set(x, y) end end
+  for x = 3, 34 do fr:set(x, 23) end
+  for x = 3, 34, 2 do fr:set(x, 24); fr:set(x, 25) end
+  for x = 9, 28 do fr:set(x, 5) end
+  for x = 9, 28, 2 do fr:set(x, 4) end
   part(c, fr, R.cream, { cres = 0, rim = false, contour = false })
   part(c, edge, R.back, { cres = 1, contour = false })
   part(c, top, R.mari, { cres = 2, gloss = { { 9, 7 }, { 10, 7 }, { 11, 7 } } })
@@ -248,15 +250,16 @@ do
     elseif not edgepx and y > yb + 1 and y < yf - 1 then
       -- tiger stripes: wedges from the back and from the front, alternating across the rug
       local v = (y - yb - 2) / (yf - yb - 4)
-      local n = 7
+      local n = 9
       local f = u * n
       local i = math.floor(f)
       local w = f - i
       local fromBack = (i % 2 == 0)
-      local len = fromBack and (0.7 - v) or (v - 0.3)
+      local len = fromBack and (0.66 - v) or (v - 0.34)
+      local mid = 0.5 + (fromBack and 1 or -1) * 0.22 * (v - 0.5)
       if len > 0 then
-        local half = 0.08 + len * 0.42
-        if math.abs(w - 0.5) < half then c:px(x, y, (v > 0.5) and OL3 or OL2) end
+        local half = 0.07 + len * 0.40
+        if math.abs(w - mid) < half then c:px(x, y, (v > 0.5) and OL3 or OL2) end
       end
     end
   end)
@@ -300,15 +303,17 @@ do
   part(c, field, R.teal, { cres = 0, rim = false })
   -- counter strip
   part(c, c:rect(6, 21, 28, 24), R.wood, { cres = 1, contour = false })
-  -- kettle: belly, lid, knob, spout, handle
-  part(c, c:line({ { 8, 14 }, { 7, 16 }, { 8, 18 } }, 2), R.brass, { cres = 1 })
-  local belly = c:ellipse(13, 17, 4.5, 3)
-  part(c, belly, R.brass, { cres = 2, deep = true, gloss = { { 10, 15 }, { 11, 15 } } })
-  part(c, c:line({ { 17, 17 }, { 19, 15 }, { 20, 13 } }, 2), R.brass, { cres = 1 })
-  part(c, c:ellipse(13, 13, 2, 1), R.brass, { cres = 1 })
-  P(c, 13, 11, R.brass.shade)
+  -- tall chai kettle: bail handle over the top, knob lid, spout low on the right
+  for _, p in ipairs({ { 9, 11 }, { 9, 10 }, { 10, 9 }, { 11, 8 }, { 12, 8 }, { 13, 8 }, { 14, 8 }, { 15, 9 }, { 16, 10 }, { 16, 11 } }) do
+    P(c, p[1], p[2], OL2)
+  end
+  part(c, c:line({ { 17, 18 }, { 18, 16 }, { 19, 14 } }, 2), R.brass, { cres = 1 })
+  local pot = c:rrect(9, 12, 16, 20, 2)
+  part(c, pot, R.brass, { cres = 2, deep = true, gloss = { { 10, 14 }, { 10, 15 }, { 11, 14 } } })
+  for x = 10, 15 do c:px(x, 13, (x < 13) and R.brass.shade or R.brass.deep) end   -- lid seam
+  part(c, c:rect(12, 10, 13, 11), R.brass, { cres = 1 })                            -- knob
   -- chai pouring into the kulhad
-  P(c, 21, 13, R.terra.rim); P(c, 22, 14, R.terra.rim); P(c, 22, 15, R.terra.rim); P(c, 22, 16, R.terra.rim)
+  P(c, 21, 14, R.terra.rim); P(c, 21, 15, R.terra.rim); P(c, 22, 16, R.terra.rim)
   -- clay kulhad cups
   part(c, c:rect(20, 17, 24, 17):add(c:rect(21, 18, 23, 20)), R.terra, { cres = 1 })
   part(c, c:rect(25, 18, 27, 18):add(c:rect(25, 19, 27, 20)), R.terra, { cres = 1 })

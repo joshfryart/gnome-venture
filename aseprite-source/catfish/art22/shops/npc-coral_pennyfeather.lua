@@ -14,7 +14,7 @@ local OUT = here .. "/../out/"
 local c = GV.canvas{ w = 80, h = 100, mode = "bust" }
 
 local skyR   = GV.ramp("#a9d6ea")
-local pinkR  = GV.ramp("#f6a08c")                 -- coral flamingo feathers
+local pinkR  = GV.ramp("#f6a08c", { shade = "#e27c7a", deep = "#b95a6c", bounce = "#ea8a80" })                 -- coral flamingo feathers
 local turqR  = GV.ramp("#3fb5ad")
 local madR   = GV.R.red
 local woodR  = GV.R.wood
@@ -38,7 +38,7 @@ local stick = c:line({ {59, 87}, {63, 64}, {66, 47} }, 2)
 local p = c:build{
   { "disc",   disc,   skyR, { flat = true } },
   { "blouse", blouse, turqR, { stitch = { side = "lit" } } },
-  { "apron",  apron,  "cream" },
+  { "apron",  apron,  "cream", { gloss = false } },
   { "head",   head,   pinkR },
   { "knot",   knot,   madR, { gloss = false } },
   { "wrap",   wrap,   madR, { gloss = { 30, 36 } } },
@@ -58,39 +58,44 @@ c:seam({ {18, 47}, {57, 47} })
 
 -- stick, then the hand over it; feathers and bell on a string at the top
 c:part(stick, woodR, { flat = true, contact = false })
-c:part(wing, pinkR, { gloss = false })
+c:part(wing, pinkR, { flat = true })
 c:fill(c:line({ {54, 86}, {57, 87} }, 1), pinkR.shade)      -- feather fingers curled round the stick
 c:fill(c:line({ {54, 89}, {57, 90} }, 1), pinkR.shade)
 c:fill(c:line({ {67, 47}, {69, 51}, {70, 53} }, 1), "#f1ece0")  -- string
-c:part(c:ellipse(70.5, 56, 2.5, 2.5), "gold", { gloss = false, contact = false })   -- bell
-c:px(69, 55, "#fff1c8"); c:px(70, 57, "#7a3a14"); c:px(71, 57, "#7a3a14")
-local f1 = c:line({ {65, 46}, {61, 41}, {59, 36} }, 3)
-local f2 = c:line({ {66, 46}, {67, 39}, {68, 33} }, 3)
-local f3 = c:line({ {67, 46}, {71, 42}, {72, 38} }, 2)
+c:part(c:ellipse(70.5, 56.5, 3, 3), "gold", { flat = true, contact = false })   -- bell
+c:px(69, 55, "#fff1c8"); c:fill(c:rect(69, 58, 72, 58), "#b8661a"); c:px(70, 59, "#7a3a14"); c:px(71, 59, "#7a3a14")
+local f1 = c:line({ {64, 46}, {60, 41}, {57, 36} }, 2):add(c:poly({ {55, 28}, {59, 31}, {61, 37}, {57, 39}, {54, 33} }))
+local f2 = c:line({ {66, 46}, {66, 38} }, 2):add(c:poly({ {66, 25}, {69, 30}, {69, 38}, {64, 38}, {64, 30} }))
+local f3 = c:line({ {67, 46}, {71, 41} }, 2):add(c:poly({ {76, 31}, {76, 37}, {73, 42}, {70, 40}, {72, 35} }))
 c:part(f2, turqR, { flat = true, contact = false })
 c:part(f1, pinkR, { flat = true, contact = false })
 c:part(f3, "gold", { flat = true, contact = false })
-c:px(67, 37, turqR.shade); c:px(67, 41, turqR.shade); c:px(60, 39, pinkR.shade); c:px(62, 42, pinkR.shade)
+-- feather spines (1 px quills)
+c:fill(c:line({ {66, 29}, {66, 37} }, 1), turqR.shade); c:fill(c:line({ {58, 32}, {57, 37} }, 1), pinkR.deep); c:fill(c:line({ {73, 35}, {72, 40} }, 1), "#b8661a")
 c:part(c:rect(64, 45, 67, 48), woodR, { flat = true, contact = false })  -- wrapped grip at the tip
 
 ---------------------------------------------------------------- face
 c:eye(27, 52); c:eye(43, 52)
 -- flamingo beak: pale, bent down, dark tip
-local beak = c:poly({ {33, 58}, {43, 58}, {42, 64}, {40, 70}, {37, 70}, {35, 64} })
-c:fill(beak, "#f2e4c0")
-c:fill(c:poly({ {34, 58}, {41, 58}, {40, 60}, {35, 60} }), "#fff3c8")
-c:fill(beak:copy():clip(c:rect(0, 65, 79, 99)), "#3e2f66")
-c:px(37, 65, "#7b66b4"); c:px(38, 66, "#7b66b4")
-beak:edge():clip(c:rect(0, 60, 79, 64)):each(function(x, y) c:px(x, y, "#c9a96e") end)
+c:paint({
+  "ooooooooooo",
+  "ollllllllco",
+  "occcccccccso",
+  ".occcccccsso",
+  "..ocddddsso.",
+  "...oddddso..",
+  "....odddo...",
+  ".....odo....",
+  "......o.....",
+}, 33, 58, { o = "#4a2c1a", l = "#fff3c8", c = "#f2e4c0", s = "#c9a96e", d = "#3e2f66" })
+c:px(38, 62, "#7b66b4"); c:px(39, 62, "#7b66b4")
 -- smile lines either side of the beak
 c:paint({ "u...", ".uu." }, 29, 61, { u = "umber" })
 c:paint({ "...u", ".uu." }, 43, 61, { u = "umber" })
 
 ---------------------------------------------------------------- clothes details
--- cream ruffled collar points and the conch pendant
-c:part(c:poly({ {30, 75}, {37, 75}, {33, 81} }), "cream", { flat = true })
-c:part(c:poly({ {41, 75}, {48, 75}, {44, 81} }), "cream", { flat = true })
-c:fill(c:line({ {33, 74}, {39, 78}, {45, 74} }, 1), "#c9a96e")
+-- conch pendant on a cream cord
+c:fill(c:line({ {33, 75}, {39, 79}, {45, 75} }, 1), "#c9a96e")
 local conch = c:ellipse(39, 80.5, 2.5, 2):add(c:poly({ {40, 79}, {43, 81}, {40, 83} }))
 c:part(conch, GV.ramp("#f6b8cf"), { flat = true, contact = false })
 c:px(38, 80, "#fff3c8")

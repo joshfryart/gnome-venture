@@ -80,8 +80,10 @@ do
   local rimR = body:copy():clip(c:rect(30, 0, 32, 27))
   local head = c:ellipse(5, CY, 3, 9.5)                            -- left drum head, seen 3/4 on
   local sash = body:copy():clip(c:rect(17, 0, 21, 27))
-  local stick = c:line({ { 10, 6 }, { 12, 6 }, { 26, 11 }, { 28, 13 }, { 28, 15 } }, 2) -- hooked beater laid across
+  local stick = c:line({ { 9, 3 }, { 12, 4 }, { 24, 9 }, { 26, 11 }, { 26, 14 } }, 2) -- hooked beater laid across
+  local pad = c:rrect(9, 19, 29, 23, 1)                            -- folded kente cloth the drum rests on
   local p = c:build{
+    { "pad", pad, KG, { cres = 2, gloss = false } },
     { "body", body, MAH, { cres = 3, gloss = false } },
     { "rimR", rimR, KR, { cres = 2, gloss = false } },
     { "rimL", rimL, KR, { cres = 2, gloss = false } },
@@ -104,6 +106,11 @@ do
   c:seam({ { 7, 8 }, { 7, 21 } }, { gap = KR.shade })               -- hide lacing seam on the left rim
   c:seam({ { 31, 8 }, { 31, 21 } }, { gap = KR.shade })
   c:paint({ "ss", "s." }, 3, 10, { s = "#c9a96e" })                  -- worn tone ring on the head
+  retone(c, p.pad, function(x, y)                                  -- warp blocks: green / gold / red
+    local b = x % 6
+    if b < 2 then return KN elseif b == 3 or b == 4 then return KR end
+  end)
+  c:seam({ { 10, 22 }, { 28, 22 } }, { gap = KG.shade })            -- pad hem
   c:ground(19, 25, 15, 1.5)
   save(c, "talking_drum")
 end
@@ -212,9 +219,9 @@ do
   local c = GV.canvas{ w = 30, h = 26, mode = "sticker", margin = 0 }
   local GRASS = felt("#8fae4a", { gloss = "#e0e8a0", rim = "#c8d77a" })
   local BIRD = felt("#f2c418", { gloss = "#fff1c8", rim = "#ffe27a" })
-  local foot = c:rrect(2, 19, 11, 21, 1)
-  local post = c:rect(5, 6, 6, 18):add(c:line({ { 5, 6 }, { 16, 5 } }, 2))
-  local nest = c:ellipse(12.5, 12.5, 5, 5):add(c:rrect(11, 15, 14, 21, 1))
+  local foot = c:rrect(2, 19, 9, 21, 1)
+  local post = c:line({ { 5, 18 }, { 5, 10 }, { 6, 8 }, { 9, 6 }, { 16, 5 } }, 2)  -- bent twig
+  local nest = c:ellipse(12.5, 12, 5, 5.5):add(c:rrect(12, 15, 15, 21, 1))
   local tail = c:poly({ { 20, 14 }, { 24, 14 }, { 25, 20 }, { 22, 19 } })
   local body = c:ellipse(21.5, 11.5, 3, 3.5)
   local head = c:ellipse(20.5, 7, 2.5, 2.5)
@@ -229,12 +236,12 @@ do
   -- woven grass: short over-under strands, a few straw-gold strands woven in
   p.nest.m:each(function(x, y)
     if onPart(c, p.nest, x, y) then
-      if (y % 2 == 0 and x % 3 == 0) or (y % 2 == 1 and x % 3 == 2) then
+      if y % 2 == 0 and (x + ((y // 2) % 2) * 2) % 4 < 2 then        -- basket weave: offset 2-px dashes
         c:px(x, y, shaded(c, x, y) and "#3e5a22" or GRASS.shade)
-      elseif (x + y) % 7 == 0 and not shaded(c, x, y) then c:px(x, y, "#d9c46a") end
+      elseif y % 2 == 1 and (x + y) % 8 == 0 and not shaded(c, x, y) then c:px(x, y, "#d9c46a") end
     end
   end)
-  c:px(12, 21, DK); c:px(13, 21, DK); c:px(12, 20, DK)                -- entrance at the tube's foot
+  c:px(13, 21, DK); c:px(14, 21, DK); c:px(13, 20, DK)                -- entrance at the tube's foot
   c:px(10, 7, GRASS.rim); c:px(15, 7, GRASS.rim)                      -- grass ends at the hanging knot
   -- weaver face (looking at the nest): dark mask, red eye in it, pale beak; wing bars; foot on the nest
   c:paint({ "mm..", "mmm.", ".mm." }, 18, 5, { m = DK })
@@ -243,7 +250,7 @@ do
   c:paint({ "s..", ".s.", "s.." }, 22, 10, { s = BIRD.shade })
   c:px(18, 13, DK); c:px(18, 14, DK)
   -- carved zigzag on the foot
-  for x = 3, 10 do
+  for x = 3, 8 do
     local y = 20 + (x % 2)
     if onPart(c, p.foot, x, y) then c:px(x, y, MAH.rim) end
   end

@@ -106,7 +106,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
     return diff + ',' + light;
   }, [shotA ? shotA.toString('base64') : '', shotB.toString('base64')]);
   const cmpN = cmp.split(',').map(Number);
-  ok('ambience: the perched bird sprite sits on the robin of cf-room-window.png: the toggle changes only the sprite outline ring (about 104 px, all dark), never a robin pixel', !!shotA && cmpN[0] > 0 && cmpN[0] < 140 && cmpN[1] === 0, true);
+  ok('ambience: the perched bird sprite sits on the robin of cf-room-window.png: the toggle changes no robin pixel (the redrawn 2.2.x sprite has no outline ring; an old 1 px dark ring, under 140 px, would still pass)', !!shotA && cmpN[0] < 140 && cmpN[1] === 0, true);
   // idle variety and the bird, over time (fast hook: waits are one tenth)
   await watch(p, '.cfactive', '__seq');
   await p.evaluate(() => { window.__bird = []; var b = document.querySelector('.cfbird'); new MutationObserver(() => window.__bird.push(b.className)).observe(b, { attributes: true, attributeFilter: ['class'] }); });

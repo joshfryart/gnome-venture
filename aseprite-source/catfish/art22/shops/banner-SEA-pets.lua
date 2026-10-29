@@ -140,8 +140,8 @@ end
 c:part(c:rect(78, 21, 162, 46), WOOD, { gloss = false })
 c:fill(c:rect(85, 28, 155, 40), "#d9a660")
 for x = 91, 155, 9 do c:fill(c:rect(x, 30, x, 40), "#b07a45") end
-c:fill(c:rect(85, 33, 109, 33):add(c:rect(131, 33, 155, 33)), "#8a4f2a") -- shelf boards
-c:fill(c:rect(85, 34, 109, 34):add(c:rect(131, 34, 155, 34)), "#b07a45")
+c:fill(c:rect(85, 33, 109, 33), "#8a4f2a") -- shelf board
+c:fill(c:rect(85, 34, 109, 34), "#b07a45")
 -- shelf goods: rattan balls (sepak takraw) and plush fish
 local function rattan(x, y)
   local m = c:ellipse(x, y, 2, 2)
@@ -149,28 +149,32 @@ local function rattan(x, y)
   c:px(x, y, "#b8661a"); c:px(x + 1, y + 1, "#b8661a"); c:px(x - 1, y - 1, "#fff1c8")
 end
 local function fish(x, y, col)
-  local m = c:poly({ { x, y - 1 }, { x + 5, y - 1 }, { x + 6, y + 1 }, { x + 5, y + 3 }, { x, y + 3 } })
-  m:add(c:poly({ { x + 6, y + 1 }, { x + 9, y - 1 }, { x + 9, y + 4 } }))
+  local rows = { "..bbb..b", ".bebbbbb", "bbbbbbb.", ".bbbbbbb", "..bbb..b" }
+  local m = c:ascii(rows, x, y)
   c:part(m, col, { flat = true, outline = false }); edge1(m, "#8a4f2a")
-  c:px(x + 1, y, "#2a1a10")
+  c:paint({ "..sss..s" }, x, y + 4, { s = col.shade })
+  c:px(x + 2, y + 1, "#2a1a10")
 end
 rattan(89, 31); rattan(95, 31); rattan(101, 31); rattan(107, 31)
-fish(133, 30, RED); fish(145, 30, TEAL)
+-- plush fish dangling from the awning on threads
+c:fill(c:rect(138, 28, 138, 29):add(c:rect(149, 28, 149, 30)), "#8a4f2a")
+fish(135, 30, RED); fish(146, 31, TEAL)
 -- left of the cat: a jar of kibble
 local jar = c:rrect(92, 35, 102, 40, 2)
-c:part(jar, TEAL, { flat = true, outline = false }); edge1(jar)
+c:part(jar, TEAL, { flat = true, outline = false }); edge1(jar, "#5e2f1e")
 c:fill(c:rect(93, 35, 101, 35), "#dd3a2a")
 c:px(93, 36, "#c8ecdc"); c:px(93, 37, "#c8ecdc")
 for _, p in ipairs({ { 96, 38 }, { 98, 37 }, { 100, 38 }, { 97, 39 }, { 99, 39 } }) do c:px(p[1], p[2], "#8a4f2a") end
 -- right of the cat: kitten asleep in an upturned paddy-hat bed
-local kit = c:ellipse(144.5, 37, 6, 3):cut(c:rect(0, 38, W, H))
-kit:add(c:poly({ { 139, 36 }, { 140, 32 }, { 143, 35 } })):add(c:poly({ { 143, 35 }, { 145, 32 }, { 147, 36 } }))
-c:part(kit, CREAM, { flat = true, outline = false }); edge1(kit)
-c:fill(c:rect(140, 36, 141, 36):add(c:rect(144, 36, 145, 36)), "#4a2c1a") -- sleepy eyes
-c:fill(c:rect(147, 36, 150, 36), "#d9a660")
-local hat = c:poly({ { 133, 38 }, { 157, 38 }, { 152, 41 }, { 138, 41 } })
-c:part(hat, GOLD, { flat = true, outline = false }); edge1(hat)
-for x = 136, 154, 3 do c:px(x, 39, "#b8661a"); c:px(x + 1, 40, "#b8661a") end
+local kit = c:ellipse(144.5, 37.5, 5, 3)
+kit:add(c:poly({ { 140, 37 }, { 140, 32 }, { 144, 35 } })):add(c:poly({ { 145, 35 }, { 149, 32 }, { 149, 37 } }))
+c:part(kit, CREAM, { flat = true, outline = false }); edge1(kit, "#8a4f2a")
+c:paint({ "aa...aa", ".......", "..n.n.." }, 141, 36, { a = "#4a2c1a", n = "#b07a45" })
+c:px(141, 34, "#f2793a"); c:px(148, 34, "#f2793a")
+local hat = c:poly({ { 133, 39 }, { 157, 39 }, { 153, 42 }, { 137, 42 } }):add(c:rect(134, 38, 156, 39))
+c:part(hat, GOLD, { flat = true, outline = false }); edge1(hat, "#8a4f2a")
+for x = 136, 154, 3 do c:px(x, 40, "#b8661a"); c:px(x + 1, 41, "#b8661a") end
+c:fill(c:rect(134, 38, 156, 38), "#f5cf6a")
 
 -- counter and batik cloth
 c:part(c:rect(82, 41, 158, 42), WOOD, { flat = true, outline = false })

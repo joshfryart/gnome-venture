@@ -37,7 +37,7 @@ local GREEN  = R{ K.leafL, K.haze, K.leafL, K.moss, K.leafS, K.can, K.leafS }
 ----------------------------------------------------------------- sky: canopy air in hard bands + leafy ceiling
 c:fill(c:rect(0, 0, W - 1, 14), K.haze)
 c:fill(c:rect(0, 15, W - 1, 27), K.haze2)
-c:fill(c:rect(0, 28, W - 1, 36), K.haze)
+c:fill(c:rect(0, 28, W - 1, 41), K.haze)
 -- canopy ceiling: dark leaf mass with a wavy lower edge and hanging drips
 for x = 0, W - 1 do
   local d = 4 + floor(1.3 * sin(x / 7) + 0.9 * sin(x / 3.1) + 0.5)
@@ -84,12 +84,12 @@ c:fill(c:rect(84, 46, 158, 46), K.pathL)
 for _, d in ipairs({ { 80, 55 }, { 150, 52 }, { 162, 56 }, { 92, 51 } }) do c:fill(c:rect(d[1], d[2], d[1] + 1, d[2]), K.pathL) end
 
 ----------------------------------------------------------------- canopy tree with weaver-bird nests (right of shop)
-c:part(c:line({ { 191, 50 }, { 191, 38 }, { 190, 28 }, { 189, 20 } }, 4), WOOD, { gloss = false, cres = 2, deep = 0 })
-c:part(c:line({ { 191, 30 }, { 199, 24 } }, 2), WOOD, { flat = true })
-local crown = c:ellipse(190, 15, 20, 9):add(c:ellipse(176, 19, 9, 6)):add(c:ellipse(205, 19, 9, 6))
+c:part(c:line({ { 196, 47 }, { 196, 38 }, { 195, 28 }, { 194, 20 } }, 3), WOOD, { gloss = false, cres = 2, deep = 0 })
+c:part(c:line({ { 196, 30 }, { 203, 25 } }, 2), WOOD, { flat = true })
+local crown = c:ellipse(195, 15, 15, 7):add(c:ellipse(184, 18, 7, 5)):add(c:ellipse(207, 18, 7, 5))
 c:part(crown, LEAF, { gloss = false, cres = 3, deep = 1 })
-c:fill(c:ellipse(183, 12, 7, 2.5):clip(crown:shrink(1)), K.leafL)
-c:px(180, 11, K.haze)
+c:fill(c:ellipse(189, 12, 6, 2):clip(crown:shrink(1)), K.leafL)
+c:px(186, 11, K.haze)
 -- weaver nests: straw teardrops hanging on short threads
 local function nest(x, y)
   c:fill(c:rect(x + 1, y - 3, x + 1, y - 1), K.u1)
@@ -97,28 +97,27 @@ local function nest(x, y)
   c:part(m, THATCH, { flat = true })
   c:px(x + 1, y + 4, K.u2)                     -- entrance hole
 end
-nest(176, 25); nest(203, 26); nest(197, 28)
+nest(184, 24); nest(208, 24); nest(201, 27)
 -- a little yellow weaver bird at its nest
-c:fill(c:rect(205, 30, 207, 31), K.sand); c:px(208, 30, K.goldS); c:px(205, 30, K.u2)
+c:fill(c:rect(209, 30, 211, 31), K.sand); c:px(212, 30, K.goldS); c:px(209, 30, K.u2)
 
 ----------------------------------------------------------------- the shop: round mud house
-local roofY = 29
-local wall = c:rect(86, 24, 154, 48)
-wall:cut(c:rect(86, 24, 87, 27)):cut(c:rect(153, 24, 154, 27))
+local roofY = 26
+local wall = c:rect(87, 22, 153, 48)
 -- thatch cat ears, drawn first so the roof overlaps their bases
-local earL = c:poly({ { 101, 15 }, { 104, 3 }, { 113, 11 } })
-local earR = c:poly({ { 127, 11 }, { 136, 3 }, { 139, 15 } })
+local earL = c:poly({ { 101, 13 }, { 104, 2 }, { 113, 9 } })
+local earR = c:poly({ { 127, 9 }, { 136, 2 }, { 139, 13 } })
 c:part(earL, THATCH, { cres = 2, deep = 0, gloss = false })
 c:part(earR, THATCH, { cres = 2, deep = 0, gloss = false })
-c:fill(c:poly({ { 104, 12 }, { 105, 7 }, { 109, 11 } }), K.redS)
-c:fill(c:poly({ { 131, 11 }, { 135, 7 }, { 136, 12 } }), K.redS)
+c:fill(c:poly({ { 104, 10 }, { 105, 6 }, { 109, 9 } }), K.redS)
+c:fill(c:poly({ { 131, 9 }, { 135, 6 }, { 136, 10 } }), K.redS)
 c:part(wall, MUD, { cres = 5, deep = 2, gloss = false })
 -- conical thatch roof with a fringed eave
-local roof = c:poly({ { 78, roofY + 1 }, { 92, 18 }, { 106, 11 }, { 120, 8 }, { 134, 11 }, { 148, 18 }, { 163, roofY + 1 } })
+local roof = c:poly({ { 79, roofY + 1 }, { 92, 16 }, { 106, 10 }, { 120, 7 }, { 134, 10 }, { 148, 16 }, { 162, roofY + 1 } })
 for x = 79, 161, 3 do roof:rect(x, roofY + 1, x + 1, roofY + 2) end
 c:part(roof, THATCH, { cres = 4, deep = 2, gloss = { 98, 18 } })
 -- thatch rows: broken 1 px strokes, darker
-for _, r in ipairs({ { 14, 112, 128 }, { 18, 100, 142 }, { 22, 92, 150 }, { 26, 84, 157 } }) do
+for _, r in ipairs({ { 12, 108, 132 }, { 16, 98, 144 }, { 20, 90, 151 }, { 24, 84, 157 } }) do
   for x = r[2], r[3], 4 do
     if roof:has(x, r[1]) and roof:has(x + 1, r[1]) then
       c:px(x, r[1], K.goldS); c:px(x + 1, r[1], K.goldS)
@@ -126,15 +125,15 @@ for _, r in ipairs({ { 14, 112, 128 }, { 18, 100, 142 }, { 22, 92, 150 }, { 26, 
   end
 end
 -- roof tip knot
-c:part(c:rrect(118, 5, 122, 9, 1), WOOD, { flat = true })
+c:part(c:rrect(118, 4, 122, 8, 1), WOOD, { flat = true })
 
 -- painted wall band: cream zigzag between two umber lines (painted-house pattern)
-local band = c:rect(88, 31, 152, 34):clip(wall)
+local band = c:rect(88, 34, 152, 37):clip(wall)
 c:fill(band, K.cream)
-c:fill(c:rect(88, 31, 152, 31):clip(wall), K.u2)
-c:fill(c:rect(88, 35, 152, 35):clip(wall), K.u2)
+c:fill(c:rect(88, 34, 152, 34):clip(wall), K.u2)
+c:fill(c:rect(88, 38, 152, 38):clip(wall), K.u2)
 for x = 88, 152, 4 do
-  c:paint({ "u...", ".u.u", "..u." }, x, 32, { u = K.redS })
+  c:paint({ "u...", ".u.u", "..u." }, x, 35, { u = K.redS })
 end
 -- lower wall: little painted triangles at the foot
 for x = 90, 150, 6 do
@@ -142,44 +141,44 @@ for x = 90, 150, 6 do
 end
 
 -- door: tall arch, warm glowing inside
-local door = c:rect(111, 34, 128, 48):add(c:ellipse(119.5, 33, 9, 8))
+local door = c:rect(111, 37, 128, 48):add(c:ellipse(119.5, 37, 9, 7))
 local frame = door:grow(2):cut(door):cut(c:rect(0, 49, W, H))
 c:part(frame, WOOD, { cres = 2, deep = 0, gloss = false })
 c:fill(door, K.sand)
 c:fill(door:copy():cut(door:shrink(1)):cut(c:rect(0, 48, W, H)), K.goldB)
 -- inside: a shelf of calabash treat bowls, a fish hanging, a cat bed on the floor
-c:fill(c:rect(112, 37, 127, 37), K.wood)
-c:part(c:ellipse(115.5, 35, 2.5, 1.5):cut(c:rect(0, 0, W, 34)), CALA, { flat = true, outline = false })
-c:part(c:ellipse(121.5, 35, 2.5, 1.5):cut(c:rect(0, 0, W, 34)), RED, { flat = true, outline = false })
-c:fill(c:rect(125, 35, 126, 36), K.goldS)
-c:fill(c:rect(119, 26, 119, 28), K.wood)
-c:paint({ ".ff.f", "fffff", ".ff.f" }, 117, 29, { f = K.u1 })   -- dried-fish treat silhouette
+c:fill(c:rect(112, 40, 127, 40), K.wood)
+c:part(c:ellipse(115.5, 38, 2.5, 1.5):cut(c:rect(0, 0, W, 37)), CALA, { flat = true, outline = false })
+c:part(c:ellipse(121.5, 38, 2.5, 1.5):cut(c:rect(0, 0, W, 37)), RED, { flat = true, outline = false })
+c:fill(c:rect(125, 38, 126, 39), K.goldS)
+c:fill(c:rect(119, 31, 119, 32), K.wood)
+c:paint({ ".ff.f", "fffff", ".ff.f" }, 117, 33, { f = K.u1 })   -- dried-fish treat silhouette
 c:part(c:ellipse(119.5, 46, 6, 2), RED, { flat = true, outline = false })
 c:fill(c:rect(114, 45, 125, 45), K.ginger)
 
 -- round windows with warm glow, a cream kitten peeking in the right one
 local function window(cx)
-  local m = c:ellipse(cx, 40, 4, 3.5)
+  local m = c:ellipse(cx, 42, 3.5, 3.5)
   c:fill(m:grow(1):cut(m), K.u2)
   c:fill(m, K.sand)
   c:fill(m:copy():cut(m:shrink(1)), K.goldB)
   return m
 end
-window(98); local wR = window(141)
-c:fill(c:rect(94, 40, 102, 40), K.wood)
-c:fill(c:ellipse(141, 42, 3, 2):add(c:poly({ { 138, 42 }, { 138, 38 }, { 141, 40 } })):add(c:poly({ { 141, 40 }, { 144, 38 }, { 144, 42 } })):clip(wR), K.cream)
-c:px(140, 41, K.u3); c:px(142, 41, K.u3)
+window(93.5); local wR = window(142.5)
+c:fill(c:rect(90, 42, 97, 42), K.wood)
+c:fill(c:ellipse(142.5, 44, 3, 2):add(c:poly({ { 140, 44 }, { 140, 40 }, { 143, 42 } })):add(c:poly({ { 142, 42 }, { 146, 40 }, { 146, 44 } })):clip(wR), K.cream)
+c:px(141, 43, K.u3); c:px(144, 43, K.u3)
 
 -- kente-coloured bunting under the eave: gold / green / red flags on a sagging string
 do
   local pts = {}
-  for x = 88, 152 do pts[#pts + 1] = { x, roofY + 4 + floor(2.2 * sin((x - 88) / 64 * math.pi) + 0.5) } end
+  for x = 88, 152 do pts[#pts + 1] = { x, roofY + 3 + floor(2.2 * sin((x - 88) / 64 * math.pi) + 0.5) } end
   for _, p in ipairs(pts) do c:px(p[1], p[2], K.u2) end
   local cols = { K.goldB, K.moss, K.red }
   local n = 0
   for i = 3, #pts - 3, 5 do
     local x, y = pts[i][1], pts[i][2]
-    if not (x > 108 and x < 131) then
+    do
       n = n + 1
       local col = cols[(n - 1) % 3 + 1]
       c:fill(c:poly({ { x - 1, y + 1 }, { x + 3, y + 1 }, { x + 1, y + 5 } }), col)
@@ -208,20 +207,19 @@ local function drum(x0, y0, h)
   for x = x0 + 1, x0 + 6, 2 do c:fill(c:rect(x, y0 + 1, x, y0 + h - 1):clip(m), K.sand) end   -- tension cords
   return m
 end
-drum(100, 40, 8)
-drum(130, 41, 7)
+drum(99, 38, 10)
 -- grey-cream cat sitting on the left drum, tail hanging
-local sitB = c:ellipse(104, 36, 3.5, 2.5)
-local sitH = c:ellipse(103.5, 31, 3.5, 3):add(c:poly({ { 100, 30 }, { 100, 26 }, { 103, 28 } })):add(c:poly({ { 104, 28 }, { 107, 26 }, { 107, 30 } }))
-local sitT = c:line({ { 107, 38 }, { 109, 40 }, { 109, 44 } }, 2)
+local sitB = c:ellipse(103, 34, 3.5, 2.5)
+local sitH = c:ellipse(102.5, 29, 3.5, 3):add(c:poly({ { 99, 28 }, { 99, 24 }, { 102, 26 } })):add(c:poly({ { 103, 26 }, { 106, 24 }, { 106, 28 } }))
+local sitT = c:line({ { 106, 36 }, { 108, 37 }, { 108, 43 } }, 2)
 c:build{
   { "stail", sitT, CAT, { flat = true } },
   { "sbody", sitB, CAT, { cres = 2, deep = 1, gloss = false } },
   { "shead", sitH, CAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:px(102, 31, K.u3); c:px(105, 31, K.u3)
-c:px(103, 32, K.redS)
-c:paint({ "s.s" }, 102, 29, { s = K.goldS })
+c:px(101, 29, K.u3); c:px(104, 29, K.u3)
+c:px(102, 30, K.redS)
+c:paint({ "s.s" }, 101, 27, { s = K.goldS })
 
 -- stacked calabash bowls on a low bench (right of the door)
 c:part(c:rect(140, 46, 152, 47), WOOD, { flat = true })

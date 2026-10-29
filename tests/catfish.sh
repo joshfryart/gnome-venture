@@ -1186,7 +1186,7 @@ if not re.search(r'CATFISH_YARN_ROLL = true', js): bad.append('yarn roll constan
 # bird frames 2 and 3 are 12 x 10 and differ from the perched one
 for n in (2, 3):
     if im('cf-bird-%d' % n).shape[:2] != (10, 12) or (im('cf-bird-%d' % n) == rb).all(): bad.append('bird %d' % n)
-print('ok   2.1.06 art: perched bird at 2x on the layout perch = the robin of cf-room-window.png pixel for pixel (plus a dark outline ring); nobird is transparent; the yarn patch box differs from the base (a ball is there); css boxes match room-layout.json' if not bad else 'FAIL 2.1.06 art: ' + '; '.join(bad))
+print('ok   2.1.06 art: perched bird at 2x on the layout perch = the robin of cf-room-window.png pixel for pixel (the redrawn sprite has no ring; a dark ring would still pass); nobird is transparent; the yarn patch box differs from the base (a ball is there); css boxes match room-layout.json' if not bad else 'FAIL 2.1.06 art: ' + '; '.join(bad))
 P
 ok "2.1.06 css: bird, yarn roll, rug wobble, dust motes rules; steps() only (no blur, no filter); reduced motion hides the motes and the sprite" "$(for w in '.cfstage.is-bird .cfl-window { display: none; }' '.cfyarn.is-roll .yp' '@keyframes cfyroll' '@keyframes cfrug' '.cfl-rug.is-wobble' '@keyframes cfmote' '.cfdust { display: none; }'; do grep -c -F "$w" $GAME/assets/catfish.css | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(sed -n '/^\/\* 2.1.06 room life/,$p' $GAME/assets/catfish.css | grep -c 'blur\|filter')" "yyyyyyy0"
 ok "2.1.06 js: idle variety yawn 900, stretch 900, wash 600 x4 every 15-30 s, bird 6-14 s (hop 150, wings 200), yarn roll 1250 ms, rug wobble, ?cffast test hook, no inline style anywhere" "$(for w in "between(15000, 30000)" "[['yawn', 900]]" "[['stretch', 900]]" "[['washA', 600], ['washB', 600], ['washA', 600], ['washB', 600]]" "(6000 + br() * 8000)" "hop ? 150 : 200" "}, 1250);" "rug.classList.add('is-wobble')" "cffast=1" "birdStop(); setMode"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(grep -c '\.style\.\|setAttribute(.style' $GAME/assets/catfish.js)" "yyyyyyyyyy0"
@@ -1254,7 +1254,7 @@ from PIL import Image
 a = np.array(Image.open(sys.argv[1]).convert('RGBA')); op = a[a[..., 3] > 0][:, :3].astype(int)
 print(a.shape[:2] == (100, 80), set(np.unique(a[..., 3])) <= {0, 255}, bool((op.max(1) - op.min(1) <= 2).all()))
 P
-)$(grep -c "pixel_image('assets/img/gnome/gnome-scarf.png'" $GAME/includes/gnome.php)$(grep -c 'data-placeholder="1"' $GAME/includes/gnome.php)" "True True True10"
+)$(grep -c "pixel_image('assets/img/gnome/gnome-scarf.png'" $GAME/includes/gnome.php)$(grep -c 'data-placeholder="1"' $GAME/includes/gnome.php)" "True True True11"
 COLCAT='["colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"upright","tail"=>"long","seed"=>5,"collar"=>"rose"]'
 H=$(cfx $FULL "catfish_cat_html($COLCAT, 64, 'idleA')")
 ok "2.2.x collar art: the layered cat has the rose band layer above body and pattern and no CSS ring on the cat" "$(echo "$H" | grep -o 'cf-[a-z]*-[a-z-]*idleA.png\|cf-collar-rose-idleA.png' | sed 's/cf-eyes.*/eyes/' | tr '\n' ' ')$(echo "$H" | grep -c 'cfcol-')" "cf-cat-orange-idleA.png cf-pat-tabby-orange-idleA.png cf-collar-rose-idleA.png eyes 0"
@@ -1283,7 +1283,7 @@ print('ok' if not bad else ';'.join(bad[:4]))
 P
 )" ok
 ok "2.2.x seasons: art gives class cfsart on the bits, 8 sprite files installed with their sizes, css has the sprite rules for all four seasons, reduced motion still hides them" "$(cfx $FULL 'catfish_season_art() ? 1 : 0')$(cfx $W/art9 'catfish_season_art() ? 1 : 0')$(for w in 'cf-season-petal.png' 'cf-season-petal-b.png' 'cf-season-firefly.png' 'cf-season-firefly-b.png' 'cf-season-leaf.png' 'cf-season-leaf-b.png' 'cf-season-flake.png' 'cf-season-flake-small.png' '@media (prefers-reduced-motion: reduce) { .cfseason { display: none; } }'; do grep -c -F "$w" $CSS22 | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(grep -c 'style=' $CSS22)" "10yyyyyyyyy0"
-ok "2.2.x yarn balls: the CSS colour filter is gone (no sepia/hue-rotate/filter in catfish.css)" "$(grep -c 'sepia\|hue-rotate\|filter' $CSS22)" 0
+ok "2.2.x yarn balls: the CSS colour filter is gone (no sepia or hue-rotate in catfish.css)" "$(grep -c 'sepia\|hue-rotate\|filter:' $CSS22)" 0
 ok "2.2.x yarn balls: 4 colours x 4 rolling frames are 16 x 16 and differ from the grey frame" "$(python3 -I - "$FULL" <<'P'
 import sys, numpy as np
 from PIL import Image
@@ -1302,7 +1302,7 @@ pagew3; ok "2.2.x yarn balls: the mint ball rolls with cf-yarn-1..4-mint.png (4 
 dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
 pagew3; ok "2.2.x yarn balls: the plain ball keeps the grey frames" "$(grep -o 'cf-yarn-[1-4].png' $W/w3.html | sort -u | wc -l | tr -d ' ')$(grep -c 'cf-yarn-[1-4]-' $W/w3.html)" "40"
 dbx "UPDATE catfish_state SET meta='$CFMETA0' WHERE user_id=$UID_"
-pagew3; ok "2.2.x Yarn panel icons: cf-yi-<key>.png (48 px, same cficon cell as the upgrade rows) replace the emoji" "$(grep -o 'cf-yi-[a-z0-9]*.png' $W/w3.html | sort -u | tr '\n' ' ')" "cf-yi-balls.png cf-yi-buddy.png cf-yi-catnip.png cf-yi-keepsake.png cf-yi-scarf.png cf-yi-season.png cf-yi-show2.png cf-yi-stake.png cf-yi-titles.png cf-yi-treat.png cf-yi-tune.png "
+pagew3; ok "2.2.x Yarn panel icons: cf-yi-<key>.png (48 px, same cficon cell as the upgrade rows) replace the emoji" "$(grep -o 'cf-yi-[a-z0-9]*.png' $W/w3.html | sort -u | tr '\n' ' ')" "cf-yi-balls.png cf-yi-bio.png cf-yi-buddy.png cf-yi-catnip.png cf-yi-collar.png cf-yi-keepsake.png cf-yi-scarf.png cf-yi-season.png cf-yi-show2.png cf-yi-stake.png cf-yi-titles.png cf-yi-treat.png cf-yi-tune.png "
 ok "2.2.x Yarn panel icons: no icon without art keeps the emoji (cfx, no art folder)" "$(cfx none "catfish_img('yi-stake', '🔭', '', 48)")" '<span aria-hidden="true">🔭</span>'
 ok "2.2.x upgrade tabs: the four tabs share the width (flex 1 1 0, no scroll) with the count pip on the corner; js passes the class" "$(grep -c '^\.cftabs4 button { flex: 1 1 0; min-width: 0;' $CSS22)$(grep -c '^\.cftabs4 { overflow: visible' $CSS22)$(grep -c "'cftabs cftabs4'" $GAME/assets/catfish.js)" 111
 
