@@ -79,8 +79,8 @@ foreach (q("SELECT r.*, i.id AS item_id FROM recipes r JOIN items i ON i.id = r.
     $byTimer[(int)$r['cook_minutes']][] = $batch / max(1, $raw);
 }
 ksort($byTimer);
-$avg = array_map(fn($a) => array_sum($a) / count($a), $byTimer);
-ok('worth ratio rises with the timer: ' . implode(' < ', array_map(fn($x) => number_format($x, 2), $avg)), array_values($avg) === (function ($a) { sort($a); return $a; })(array_values($avg)) && count(array_unique(array_map(fn($x) => round($x, 2), $avg))) === count($avg));
+$avg = array_map(function ($a) { sort($a); return $a[intdiv(count($a), 2)]; }, $byTimer);   // the median: the 20-coin floor lifts the cheapest batches, which skews a mean
+ok('worth ratio (median) rises with the timer: ' . implode(' < ', array_map(fn($x) => number_format($x, 2), $avg)), array_values($avg) === (function ($a) { sort($a); return $a; })(array_values($avg)) && count(array_unique(array_map(fn($x) => round($x, 2), $avg))) === count($avg));
 
 echo "== the Fair: Preserves class judged like the others\n";
 $mk = function (string $name) use ($uid): int {
@@ -160,7 +160,8 @@ ok('garden_buildings.pantry, fair_best.label, fair_entries.label are back', (int
 $counts = fn() => implode('/', [$one("SELECT COUNT(*) FROM recipes WHERE category = 'pantry'"), $one("SELECT COUNT(*) FROM items WHERE json_extract(effects, '\$.preserve') = 1"),
     $one("SELECT COUNT(*) FROM encyclopedia_entries WHERE category = 'Preserves'"), $one("SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key = 'pantry'"), $one('SELECT COUNT(*) FROM recipes')]);
 $total = $one('SELECT COUNT(*) FROM recipes');
-ok('17 recipes, 17 items, 17 recipe pages, 2 how-to pages: ' . $counts(), explode('/', $counts())[0] === '17' && explode('/', $counts())[1] === '17' && explode('/', $counts())[2] === '17' && explode('/', $counts())[3] === '2');
+$nPre = count(array_filter(file($argv[1] . '/includes/data/recipes.txt', FILE_IGNORE_NEW_LINES), fn($l) => $l !== '' && $l[0] !== '#' && (explode('|', $l)[7] ?? '') === 'preserve'));   // every preserve row in recipes.txt
+ok($nPre . ' recipes, ' . $nPre . ' items, ' . $nPre . ' recipe pages, 2 how-to pages: ' . $counts(), explode('/', $counts())[0] === (string)$nPre && explode('/', $counts())[1] === (string)$nPre && explode('/', $counts())[2] === (string)$nPre && explode('/', $counts())[3] === '2');
 $before = $counts();
 $code = '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "' . $argv[1] . '/includes/bootstrap.php"; require_once "' . $argv[1] . '/includes/pantry.php"; echo upgrade_098_pantry(), upgrade_098_pantry();';
 $out = shell_exec('php -d display_errors=1 -r ' . escapeshellarg($code) . ' 2>&1');

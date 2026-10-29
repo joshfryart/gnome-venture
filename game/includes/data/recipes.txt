@@ -97,3 +97,141 @@ scotch-quail-eggs|Scotch Quail Eggs|quail-egg:6,wheat:2,thyme:1|grit:2,hardiness
 stuffed-peppers-goat|Goat Cheese Stuffed Peppers|goat-cheese:2,bell-pepper:2,basil:1|sense:2,charm:2|240|11|Roasted pepper boats filled with warm, herby goat cheese.|meal|15
 goat-cheese-tart|Goat Cheese and Quail Egg Tart|goat-cheese:1,quail-egg:3,wheat:2,onion:1|hardiness:2,lore:2|240|12|Flaky pastry, sweet onion, goat cheese and a scatter of quail eggs.|meal|15
 pickled-quail-eggs|Pickled Quail Eggs|quail-egg:8,beet:1,dill:1|sense:1|720|4|Tiny pink-stained eggs in a jar of beet brine. Gone in a night.|preserve|4320|3
+# Pantry expansion: 137 more preserves (jams, marmalades, chutneys and sauces, pickles, ferments, cordials and syrups, dried goods, spreads and spice blends). Same columns as above; days in the jar = cook minutes / 1440.
+blueberry-jam|Blueberry Jam|blueberry:5||0|3|Dusk-purple and thick, with whole berries that pop. Stains the spoon, the toast and the chin.|preserve|1440|4
+blackcurrant-jam|Blackcurrant Jam|blackcurrant:5|sense:1|720|3|Dark, sharp and almost black. Tart enough to make you sit up.|preserve|1440|4
+gooseberry-jam|Gooseberry Jam|gooseberry:5||0|3|Pale green-gold and tangy. Best on a scone, argue the old gnomes.|preserve|1440|4
+cranberry-sauce|Cranberry Sauce|cranberry:5||0|3|Ruby, tart and glossy. It wobbles when you tip the jar.|preserve|1440|4
+lingonberry-jam|Lingonberry Jam|lingonberry:5||0|3|Bright red northern jam, sharp and sweet. Goes with anything fried.|preserve|1440|4
+cloudberry-jam|Cloudberry Jam|cloudberry:5|charm:1|720|3|Amber and honeyed. Cloudberries are rare, so every spoonful is an event.|preserve|1440|3
+cherry-jam|Cherry Jam|cherry:5||0|3|Deep red with a hint of almond, pitted one by one by someone patient.|preserve|1440|4
+apricot-jam|Apricot Jam|apricot:5||0|3|Sunny orange and soft-set. A good friend to pastry.|preserve|1440|4
+peach-jam|Peach Jam|peach:5||0|3|Blush-gold, silky and summery. A whole orchard afternoon in a jar.|preserve|1440|4
+fig-jam|Fig Jam|fig:5|lore:1|720|3|Sticky, seedy and dark. The crunch of the seeds is the best part.|preserve|1440|4
+quince-paste|Quince Paste|quince:4||0|3|Firm, amber-pink and sliceable. Cut it thin and eat it with cheese.|preserve|1440|3
+mulberry-jam|Mulberry Jam|mulberry:5||0|3|Inky and mild, sweet without being sharp.|preserve|1440|4
+guava-jam|Guava Jam|guava:4||0|3|Pink, fragrant and tropical. Smells like a bowl of sunshine.|preserve|1440|4
+pear-butter|Pear Butter|pear:4,cinnamon:1|hardiness:1|720|3|Pear cooked down until it is smooth as silk, with a whisper of cinnamon.|preserve|1440|4
+persimmon-jam|Persimmon Jam|persimmon:4||0|3|Orange, honeyed and almost custardy. Autumn on a spoon.|preserve|1440|4
+rhubarb-jam|Rhubarb Jam|rhubarb:4||0|3|Pink, tart and stringy-in-a-good-way. The first jam of the spring.|preserve|1440|4
+pumpkin-butter|Pumpkin Butter|pumpkin:2,cinnamon:1|hardiness:1|720|3|Smooth, orange and spiced. A thick spread for cold mornings.|preserve|1440|4
+passion-fruit-curd|Passion Fruit Curd|passion-fruit:3,hen-egg:2|charm:1|720|3|Yellow, zingy and silky. The seeds crackle softly.|preserve|1440|3
+lemon-curd|Lemon Curd|lemon:3,hen-egg:2|charm:1|720|3|Bright yellow, buttery and sharp. Eat it with a spoon, nobody is watching.|preserve|1440|3
+pluot-jam|Pluot Jam|pluot:4|luck:1|720|3|Made from a breeder's cross, plum-dark with an apricot glow.|preserve|1440|4
+nectaplum-jam|Nectaplum Jam|nectaplum:4|luck:1|720|3|Peach and plum in one jar, because somebody had the patience to cross them.|preserve|1440|4
+jostaberry-jam|Jostaberry Jam|jostaberry:4|luck:1|720|3|Half gooseberry, half blackcurrant, wholly its own jam. Nobody has agreed what to call the flavour.|preserve|1440|4
+bilberry-jam|Bilberry Jam|bilberries:5|sense:1|720|3|A wild forager's jam, dark blue and tasting of heath and sky.|preserve|1440|4
+orange-marmalade|Orange Marmalade|orange:3|charm:1|720|3|Bitter-sweet shreds in amber jelly. A proper breakfast.|preserve|2880|3
+lime-marmalade|Lime Marmalade|lime:3|sense:1|720|3|Sharp green jelly with tiny golden strands. Tart enough to clear a stuffy head.|preserve|2880|3
+grapefruit-marmalade|Grapefruit Marmalade|grapefruit:3||0|3|Pink-gold, pleasantly bitter. An acquired taste people acquire quickly.|preserve|2880|3
+mandarin-marmalade|Mandarin Marmalade|mandarin:3||0|3|Sweeter and milder than orange. A gentle marmalade for the nervous.|preserve|2880|3
+yuzu-marmalade|Yuzu Marmalade|yuzu:3|sense:1|720|3|Fragrant and sharp, with a perfume like no other citrus.|preserve|2880|3
+meyer-lemon-marmalade|Meyer Lemon Marmalade|meyer-lemon:3|luck:1|720|3|A softer, sweeter marmalade from the cross of lemon and mandarin.|preserve|2880|3
+tangelo-marmalade|Tangelo Marmalade|tangelo:3|luck:1|720|3|Honeyed orange-gold, made from a bell-shaped fruit that took a lot of crossing.|preserve|2880|3
+plum-chutney|Plum Chutney|plum:3,onion:1,ginger:1|lore:1|720|5|Dark, sticky and gingery. It sharpens a cheese board and a conversation.|preserve|2880|3
+peach-chutney|Peach Chutney|peach:3,onion:1,chili-pepper:1|charm:1|720|5|Sweet peach with a creeping chili warmth.|preserve|2880|3
+pineapple-chutney|Pineapple Chutney|pineapple:2,chili-pepper:1,ginger:1|nimble:1|720|5|Golden, fruity and fiery. Wonderful with anything grilled.|preserve|2880|3
+papaya-chutney|Papaya Chutney|papaya:2,ginger:1|nimble:1|720|5|Soft orange and mildly spiced. Sweet enough for children, spicy enough to be proud of.|preserve|2880|3
+tamarind-chutney|Tamarind Chutney|tamarind:2,date:2|sense:1|720|5|Dark, sweet-sour and sticky. A drizzle on a snack makes it a feast.|preserve|2880|3
+date-chutney|Date Chutney|date:3,ginger:1|hardiness:1|720|5|Dark and treacly, with a ginger bite behind the sweetness.|preserve|2880|3
+rhubarb-chutney|Rhubarb Chutney|rhubarb:3,onion:1,ginger:1|lore:1|720|5|Tart and pink-brown, with onion and ginger to keep it honest.|preserve|2880|3
+green-tomato-relish|Green Tomato Relish|tomato:4,bell-pepper:1,onion:1|grit:1|720|5|The relish that saves the last tomatoes of the year. Crisp and a little sweet.|preserve|2880|3
+salsa-verde|Tomatillo Salsa Verde|tomatillo:4,chili-pepper:1,coriander:1|grit:1|720|5|Tangy green salsa with a chili edge. The coriander makes it sing.|preserve|2880|3
+hot-sauce|Hot Sauce|chili-pepper:6,garlic:1|grit:1|720|5|A small bottle with a large reputation. Use one drop, then decide.|preserve|2880|3
+harissa|Harissa|chili-pepper:4,bell-pepper:2,cumin:1|grit:1|720|5|Smoky, red and earthy. A spoon in a stew improves it a great deal.|preserve|2880|3
+chili-jam|Chili Jam|chili-pepper:3,bell-pepper:2|charm:1|720|5|Sweet, sticky and fiery, like a jam that has something to say.|preserve|2880|3
+sweetcorn-relish|Sweetcorn Relish|corn:3,bell-pepper:1,onion:1|grit:1|720|5|Golden kernels in a sharp, sweet pickle. Good with every picnic.|preserve|2880|3
+piccalilli|Piccalilli|cauliflower:2,cucumber:1,turmeric:1|sense:1|720|5|Yellow mustard pickle, crunchy and sharp. A British pub classic.|preserve|2880|3
+basil-pesto|Basil Pesto|basil:3,garlic:1,almond:1|lore:1|720|5|Green, garlicky and oily. A summer in one spoonful.|preserve|2880|3
+coriander-chutney|Coriander Chutney|coriander:3,chili-pepper:1,lime:1|sense:1|720|5|Bright green and fiery, with lime to cut it. Smears onto everything.|preserve|2880|3
+olive-tapenade|Olive Tapenade|olive:4,caper:1,garlic:1|sense:1|720|5|Salty, dark and savoury. A thin smear is plenty.|preserve|2880|3
+tomato-passata|Tomato Passata|tomato:6||0|5|Smooth sieved tomato, ready for any winter sauce.|preserve|2880|3
+pickled-onions|Pickled Onions|onion:4||0|4|Sharp white onions in tangy brine. A pub lunch is incomplete without.|preserve|4320|3
+pickled-carrots|Pickled Carrots|carrot:4,dill:1|nimble:1|720|4|Orange batons, crisp and sweet-sour, with a sprig of dill.|preserve|4320|3
+pickled-turnips|Pickled Turnips|turnip:4,beet:1|hardiness:1|720|4|Bright pink from a slice of beet. Crunchy and a little surprising.|preserve|4320|3
+pickled-okra|Pickled Okra|okra:5,dill:1,garlic:1|grit:1|720|4|Small green pods in garlicky brine. Less slimy than you fear.|preserve|4320|3
+pickled-peppers|Pickled Peppers|chili-pepper:4,garlic:1|grit:1|720|4|Hot little peppers in a vinegar brine. Fish one out at your peril.|preserve|4320|3
+pickled-cauliflower|Pickled Cauliflower|cauliflower:3,turmeric:1|sense:1|720|4|Golden florets, crisp and turmeric-bright.|preserve|4320|3
+pickled-asparagus|Pickled Asparagus|asparagus:4,dill:1|sense:1|720|4|Crisp green spears, upright in the jar like soldiers.|preserve|4320|3
+pickled-fennel|Pickled Fennel|fennel:3,dill:1|lore:1|720|4|Pale aniseed slivers in sweet brine. Lovely beside fish.|preserve|4320|3
+pickled-ginger|Pickled Ginger|ginger:4||0|4|Pale pink slivers that cleanse the palate between bites.|preserve|4320|3
+pickled-daikon|Pickled Daikon|daikon:3|hardiness:1|720|4|Yellow-white rounds, crunchy and sweet. Crisp as a winter morning.|preserve|4320|3
+pickled-kale|Pickled Greens|kale:3|hardiness:1|720|4|Tangy dark leaves in brine. Tough greens turned tender and sharp.|preserve|4320|3
+pickled-lotus-root|Pickled Lotus Root|lotus-root:3|lore:1|720|4|Lace-holed slices, crisp and pale. A pretty thing to find in a jar.|preserve|4320|3
+pickled-bamboo-shoots|Pickled Bamboo Shoots|bamboo-shoot:3||0|4|Pale ivory shoots in tangy brine, sour and crunchy.|preserve|4320|3
+pickled-capers|Pickled Capers|caper:4||0|4|Tiny green buds in salt and brine. A little goes a long way.|preserve|4320|3
+preserved-lemons|Preserved Lemons|lemon:4|sense:1|720|4|Salt-cured and soft. The rind is the treasure, and it flavours everything.|preserve|4320|3
+pickled-garlic|Pickled Garlic|garlic:5||0|4|Mild, soft cloves that lose their fire in brine and keep their flavour.|preserve|4320|3
+pickled-samphire|Pickled Samphire|samphire:4||0|4|Salty green sea-fingers in vinegar. A taste of the shore.|preserve|4320|3
+pickled-mushrooms|Pickled Mushrooms|chanterelle:3|lore:1|720|4|Golden chanterelles kept in spiced brine, forest-fragrant.|preserve|4320|3
+pickled-fiddleheads|Pickled Fiddleheads|fiddleheads:4||0|4|Little green spirals in tangy brine. Spring, kept for later.|preserve|4320|3
+pickled-kohlrabi|Pickled Kohlrabi|kohlrabi:3||0|4|Crisp pale-green sticks, mildly sweet and sharp.|preserve|4320|3
+radish-kimchi|Radish Kimchi|daikon:3,chili-pepper:1,garlic:1|grit:1|1080|5|Cubed radish in fiery red paste. Crunchy, bold and a little fizzy.|preserve|7200|3
+cucumber-kimchi|Cucumber Kimchi|cucumber:4,chili-pepper:1,garlic:1|grit:1|1080|5|Stuffed cucumber with a red chili filling. Sharp and cooling at once.|preserve|7200|3
+bok-choy-kimchi|Bok Choy Kimchi|bok-choy:3,chili-pepper:1,ginger:1|sense:1|1080|5|Sturdy white stems in chili paste. Satisfyingly crunchy.|preserve|7200|3
+fermented-hot-sauce|Fermented Hot Sauce|chili-pepper:6,garlic:1|grit:2|1080|6|A week of bubbling makes the heat deeper and rounder. Still hot.|preserve|10080|3
+gochujang|Gochujang|chili-pepper:4,rice:2|grit:2|1440|6|A deep red, sweet-hot fermented paste. It takes two weeks to be itself.|preserve|20160|3
+miso|Miso|soybean:4,rice:2|hardiness:2|1440|6|Salty, savoury paste of soy and rice, fermented slowly. A spoonful makes a soup.|preserve|20160|3
+soy-sauce|Soy Sauce|soybean:4,wheat:2|sense:2|1440|6|Dark and salty, made patiently. The base of a thousand dishes.|preserve|20160|3
+doenjang|Doenjang|soybean:5|hardiness:2|1440|6|Brown, pungent soybean paste. Strong, earthy and indispensable.|preserve|20160|3
+tempeh|Tempeh|soybean:4|grit:1|720|5|Soybeans bound by a pale white mould into a firm, nutty cake.|preserve|4320|3
+natto|Natto|soybean:4|hardiness:1|720|5|Sticky fermented soybeans that string out when you lift them. Either loved or not.|preserve|2880|3
+kvass|Kvass|rye:3,beet:1|hardiness:1|1080|5|A tangy, mildly fizzy drink of fermented rye and beet. Earthy and cleansing.|preserve|7200|3
+kombucha|Kombucha|tea:2,sugarcane:1|sense:1|1080|6|A tangy, fizzing tea with a floating mother. It looks alarming and tastes fine.|preserve|10080|3
+tepache|Tepache|pineapple:2,sugarcane:1|nimble:1|1080|5|Cloudy, fizzy pineapple-rind drink. Sweet-sour and slightly wild.|preserve|7200|3
+fermented-carrots|Fermented Carrots|carrot:4,dill:1|nimble:1|1080|5|Salt-fermented carrot sticks, tangy and fizzy and full of life.|preserve|7200|3
+sourdough-starter|Sourdough Starter|wheat:3|hardiness:1|720|5|A bubbling jar of wild yeast. Keep it fed and it will outlive you.|preserve|4320|3
+yogurt|Yogurt|goat-milk:4||0|5|Thick, tangy goat's-milk yogurt. A day in a warm corner is all it needs.|preserve|1440|3
+soft-cheese|Soft Cheese|goat-milk:4,dill:1|charm:1|720|5|Spreadable and herby, drained overnight in cloth.|preserve|2880|3
+aged-goat-cheese|Aged Goat Cheese|goat-milk:6|charm:2|1080|6|A firm, sharp wheel that has had a week to think. Worth the wait.|preserve|10080|3
+cheese-wheel|Cheese Wheel|goat-milk:8|charm:2,hardiness:1|1440|6|A great waxed wheel, turned every day for two weeks. Heavy with pride.|preserve|20160|3
+salted-eggs|Salted Eggs|hen-egg:4||0|4|Eggs cured in salty brine until the yolks turn firm and orange.|preserve|4320|3
+rhubarb-cordial|Rhubarb Cordial|rhubarb:4,ginger:1|nimble:1|1440|5|Pink, tart and sweet with a ginger edge. Wonderful with fizzy water.|preserve|20160|3
+blackcurrant-cordial|Blackcurrant Cordial|blackcurrant:5|hardiness:2|1440|5|Dark and syrupy. A winter-colds remedy that actually tastes good.|preserve|20160|3
+lemon-cordial|Lemon Cordial|lemon:4,mint:1|sense:1|1440|5|Sharp, sweet and minty. Barely a cordial, mostly summer.|preserve|20160|3
+lime-cordial|Lime Cordial|lime:4|sense:1|1440|5|Tart green syrup that makes any drink a better drink.|preserve|20160|3
+cherry-cordial|Cherry Cordial|cherry:5|charm:1|1440|5|Deep red and syrupy, with a bitter-almond note.|preserve|20160|3
+cranberry-cordial|Cranberry Cordial|cranberry:5,orange:1|hardiness:1|1440|5|Ruby, tart and orange-scented. A winter table staple.|preserve|20160|3
+lingonberry-cordial|Lingonberry Cordial|lingonberry:5|hardiness:1|1440|5|Bright red and slightly bitter, in the northern manner.|preserve|20160|3
+hibiscus-cordial|Hibiscus Cordial|hibiscus:4|charm:1|1440|5|Tart magenta syrup, floral and cooling.|preserve|20160|3
+sea-buckthorn-juice|Sea Buckthorn Juice|sea-buckthorn:5|hardiness:2|1440|5|Orange, sour and vitamin-fierce. An acquired but admirable drink.|preserve|20160|3
+lemongrass-cordial|Lemongrass Cordial|lemongrass:3,ginger:1|nimble:1|1440|5|Pale green, citrusy and warming.|preserve|20160|3
+ginger-beer|Ginger Beer|ginger:3,sugarcane:1|grit:1|1080|5|Fiery, fizzy and sweet. The ginger is not shy.|preserve|10080|3
+tamarind-drink|Tamarind Drink|tamarind:3|sense:1|1080|5|Sweet-sour brown cordial. Refreshing and a bit sticky.|preserve|10080|3
+rooibos-concentrate|Rooibos Concentrate|rooibos:3|hardiness:1|1080|5|Deep red-brown and sweet-earthy. Dilute it, or drink it strong.|preserve|10080|3
+cold-brew-coffee|Cold Brew Coffee|coffee:3|nimble:2|1080|5|Slow-steeped and smooth. Strong enough to lift a sleepy gnome.|preserve|10080|3
+iced-tea-concentrate|Iced Tea Concentrate|tea:3|sense:1|1080|5|Strong amber tea, ready to be watered down on a hot day.|preserve|10080|3
+pomegranate-molasses|Pomegranate Molasses|pomegranate:4|lore:1|1080|5|Sour, dark and syrupy. A teaspoon changes a stew.|preserve|10080|3
+date-syrup|Date Syrup|date:4||0|5|Dark, treacly and mineral-sweet. Pour it over everything.|preserve|10080|3
+cane-syrup|Cane Syrup|sugarcane:4||0|5|Amber, thick and rum-scented. Pour with a patient hand.|preserve|10080|3
+apple-cider|Apple Cider|apple:6|hardiness:1|1440|5|Cloudy, cold and sharp. A barrel's worth in a few small jars.|preserve|20160|3
+dried-apple-rings|Dried Apple Rings|apple:4||0|4|Chewy rings threaded on string. A pocket snack that keeps all winter.|preserve|4320|4
+dried-apricots|Dried Apricots|apricot:5||0|4|Chewy, concentrated and tangy-sweet.|preserve|4320|4
+raisins|Raisins|grape:6||0|4|Wrinkled little sweets, sun-dried into sugary pearls.|preserve|4320|4
+dried-figs|Dried Figs|fig:5||0|4|Squashed, sticky and honeyed. A good provision.|preserve|4320|4
+dried-mango|Dried Mango|mango:3||0|4|Chewy golden strips, sweet and slightly sour.|preserve|4320|4
+banana-chips|Banana Chips|banana:3||0|4|Crisp little coins, sweet and snappy.|preserve|4320|4
+prunes|Prunes|plum:5|hardiness:1|720|4|Wrinkled and dark. Sweeter than their reputation.|preserve|4320|4
+dried-cranberries|Dried Cranberries|cranberry:5||0|4|Chewy red jewels, tangy and sweet.|preserve|4320|4
+dried-dates|Dried Dates|date:5||0|4|Soft, toffee-sweet and sticky. A desert-traveller's friend.|preserve|4320|4
+sun-dried-tomatoes|Sun-Dried Tomatoes|tomato:6||0|4|Leathery, intense and salty-sweet. A tiny piece does a great deal.|preserve|4320|4
+chili-flakes|Chili Flakes|chili-pepper:6|grit:1|720|4|Red flakes with serious intent. Shake gently.|preserve|4320|4
+dried-mushrooms|Dried Mushrooms|morel:4|lore:1|720|4|Pale-brown, papery and perfumed. Soak them and they bloom.|preserve|4320|4
+candied-ginger|Candied Ginger|ginger:4,sugarcane:1|nimble:1|1080|4|Sugar-crusted slices with a hot heart. Good for a queasy day.|preserve|7200|4
+candied-citrus-peel|Candied Citrus Peel|orange:3,sugarcane:1|charm:1|1080|4|Bright strips in sugar. They glow in the jar like stained glass.|preserve|7200|4
+candied-chestnuts|Candied Chestnuts|chestnut:4,vanilla:1|charm:1|1080|4|Soft, sweet, vanilla-scented. A treat for the long winter.|preserve|7200|3
+marzipan|Marzipan|almond:4,sugarcane:1|charm:1|1080|4|Soft almond paste. Mould it into fruits, or just eat the lump.|preserve|7200|3
+peanut-butter|Peanut Butter|peanut:5||0|4|Thick, nutty and delightfully sticky. The roof of your mouth will complain.|preserve|4320|4
+almond-butter|Almond Butter|almond:5||0|4|Smooth and mild, a touch sweet. Rich in a quiet way.|preserve|4320|4
+hazelnut-spread|Hazelnut Spread|hazelnut:4,cacao:1|charm:1|720|4|Chocolate and hazelnut, smooth and dangerous. Hide the jar.|preserve|4320|4
+tahini|Tahini|sesame:5||0|4|Ground sesame, pale and nutty. Stir it before you use it.|preserve|4320|4
+halva|Halva|sesame:4,sugarcane:1|charm:1|1080|4|Crumbly sesame sweetmeat. It shatters pleasantly and sticks to the teeth.|preserve|7200|3
+sunflower-butter|Sunflower Butter|sunflower:5||0|4|Golden, earthy and nut-free. A gentle spread for anyone.|preserve|4320|4
+hummus-jar|Hummus Jar|chickpea:4,sesame:1,garlic:1|hardiness:1|720|4|Creamy chickpea dip with garlic and tahini. Nobody makes it as well as you.|preserve|4320|4
+curry-paste|Curry Paste|turmeric:2,ginger:1,chili-pepper:2,lemongrass:1|grit:1|720|4|Bright, fragrant and hot. Fry it first, then add everything else.|preserve|4320|3
+dukkah|Dukkah|hazelnut:2,sesame:2,cumin:1,coriander:1|lore:1|720|4|A crumbly nut-and-spice blend. Dip bread in oil, then in this.|preserve|4320|3
+garam-masala|Garam Masala|cumin:2,cardamom:1,cinnamon:1,clove:1|sense:1|720|4|A warm blend of ground spices. It brings dinner to life.|preserve|4320|3
+chai-blend|Chai Blend|cardamom:1,cinnamon:1,ginger:1,tea:2|sense:1|720|4|Tea and sweet spice, ready for the pot and a long chat.|preserve|4320|3
+vanilla-extract|Vanilla Extract|vanilla:2|charm:1|1080|5|Dark and sweetly fragrant. A few drops are plenty.|preserve|10080|3
+smoked-paprika|Smoked Paprika|bell-pepper:5|grit:1|1080|4|Brick-red dust with a smoke-and-sweetness that sticks in the memory.|preserve|7200|3
+cured-olives|Cured Olives|olive:6||0|5|Plump olives, cured through a week of brine. Bitter becomes lovely.|preserve|10080|3

@@ -34,13 +34,14 @@ stock() { for s in $(db "SELECT key FROM recipes, json_each(recipes.ingredients)
 eat() { post inventory.php inventory.php -d do=eat -d item_id=$(db "SELECT id FROM items WHERE slug='$1'"); }
 
 echo "== data: 14 preserves, tier, timers, batches, items"
-chk "17 pantry recipes (14 + Pickled Eggs v1.1.0 + Goat Cheese and Pickled Quail Eggs v1.2.0)" "$(db "SELECT COUNT(*) FROM recipes WHERE category='pantry' AND tier='preserve'")" 17
+NPRE=$(awk -F"|" '!/^#/ && $8=="preserve"{n++} END{print n}' $GAME/includes/data/recipes.txt)   # every preserve row in recipes.txt
+chk "$NPRE pantry recipes (all of recipes.txt tier preserve)" "$(db "SELECT COUNT(*) FROM recipes WHERE category='pantry' AND tier='preserve'")" $NPRE
 chk "timers (minutes): jam 1440 chutney 2880 pickles 4320 kimchi 7200 sauerkraut 10080 cordial 20160" "$(db "SELECT group_concat(DISTINCT cook_minutes) FROM (SELECT cook_minutes FROM recipes WHERE category='pantry' ORDER BY cook_minutes)")" "1440,2880,4320,7200,10080,20160"
 chk "jam makes 4, pickles 3" "$(db "SELECT (SELECT output_qty FROM recipes WHERE slug='plum-jam')||(SELECT output_qty FROM recipes WHERE slug='dill-pickles')")" 43
 chk "jam is a food item, edible, tradable, flagged preserve" "$(db "SELECT category||edible||tradable||json_extract(effects,'\$.preserve') FROM items WHERE slug='plum-jam'")" food111
 chk "Strawberry Jam has no buff" "$(db "SELECT COALESCE(json_extract(effects,'\$.temp'),'none') FROM items WHERE slug='strawberry-jam'")" none
 chk "cordial buff is 24 h" "$(db "SELECT json_extract(effects,'\$.temp.minutes') FROM items WHERE slug='elderberry-cordial'")" 1440
-chk "recipe Almanac pages in the Preserves section" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE chapter='Recipes' AND category='Preserves'")" 17
+chk "recipe Almanac pages in the Preserves section" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE chapter='Recipes' AND category='Preserves'")" $NPRE
 chk "Pantry + Preserves how-to pages" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key='pantry'")" 2
 chk "pantry tab is the 2nd crafting tab" "$(php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/crafting.php"; echo implode(",", array_slice(array_keys(CRAFT_CATEGORIES),0,2));')" cooking,pantry
 chk "pickled-radishes stays a cooking snack" "$(db "SELECT category||tier FROM recipes WHERE slug='pickled-radishes'")" cookingsnack
@@ -65,7 +66,7 @@ echo "bad csrf buy: $(curl -s -b $C -X POST "$BASE/garden.php" -d csrf=x -d do=p
 
 echo "== jars: 5 to start, a jar per batch, energy 1 a batch"
 page "$PT"; chk "jar strip" "$(grep -c 'class="potstrip jarstrip"' /tmp/pk.html)" 1; chk "5 empty jars" "$(grep -o 'class="pot empty"' /tmp/pk.html | wc -l)" 5; has "0/5" "$(grep -o '[0-9]*/[0-9]* jars in use' /tmp/pk.html | head -1)" "0/5 in use"
-chk "17 recipe cards on the tab" "$(grep -o 'class="ccard' /tmp/pk.html | wc -l)" 17; chk "each tagged preserve" "$(grep -o '🫙 preserve' /tmp/pk.html | wc -l)" 17
+chk "$NPRE recipe cards on the tab" "$(grep -o 'class="ccard' /tmp/pk.html | wc -l)" $NPRE; chk "each tagged preserve" "$(grep -o '🫙 preserve' /tmp/pk.html | wc -l)" $NPRE
 setE 60; S0=$(qty strawberry); m=$(makeit strawberry-jam 3)
 has "Preserving 3 batches of Strawberry Jam" "$m" "3 batches started"; chk "3 jars busy" "$(jars)" 3; chk "energy 60 -> 57" "$(energy)" 57; chk "strawberries taken (5 each)" "$(qty strawberry)" $((S0-15))
 chk "each jar holds 4 jam, ready in exactly 1 day" "$(db "SELECT DISTINCT qty||'/'||CAST((julianday(ready_at)-julianday(started_at))*86400+0.5 AS INTEGER) FROM pantry_jars")" "4/86400"

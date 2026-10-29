@@ -1,6 +1,11 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## Unreleased (Pantry expansion, data only, no version bump)
+- recipes.txt: +137 preserve recipes (17 -> 154): jams/curds/marmalades, chutneys/sauces/pastes, pickles, ferments (kimchi, miso, soy sauce, tempeh, cheeses, kombucha), cordials/syrups, dried goods, spreads/spice blends. Imported by the existing ensure_crafts() boot step; no schema change. No alcohol.
+- Art specs for all 137 in aseprite-source/img-redraw-full/specs/ph/<slug>.md (for the drawing agent; placeholders come from tests/gen_ph_items.php).
+- Tests: pantry.sh/pantry.php count preserves from recipes.txt (worth-ratio check now uses the median per timer, the 20-coin price floor skews a mean); eggs110.sh expects 14 egg recipes.
+
 ## 2.0.68 (2026-10-28)
 - Puzzles rework: Jeff/Ffej/Old Wizard cast skin (`puzzle_cast()` light/dark img pairs, art in `assets/img/puzzles/cast/`); `puzzle_pics` table (seeded from `PUZZLES`, now in `includes/puzzles.php`); admin/puzzles.php Library/Upload/Tournaments (GIF checks in `puzzle_check_gif`, frames by `gif_frame_count`); mulberry32 seeded scramble (`?seed=`); tournaments behind `puzzles_tournaments` (`puzzles_api.php` start/finish, server clock, `start_ms` + `place` columns on `puzzle_attempts`, `settle_puzzle_tournaments`, profile badges). tests/router.php serves `uploads/puzzles/`. New tables, no column patches. Suites puzzles, puzzles_upload, puzzles_tourney.
 
