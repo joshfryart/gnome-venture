@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * v2.0.87 C: Admin > Jigsaw. Library (all still pictures; Places read-only except on/off), Upload (3:2 stills, GD re-encode), Tournaments (one picture + one tier each,
- * "Make all three tiers" = a cup), and a Settings card. Pieces ALWAYS come from the tier (JIGSAW_TIERS), never from the form. The weekly Schedule tab is 2.0.88.
+ * "Make all three tiers" = a cup), and a Settings card. Pieces ALWAYS come from the tier (JIGSAW_TIERS), never from the form. The weekly Schedule tab is not built yet (moved later). The Pals tab (v2.0.88) is read only.
  * Shares the tournament markup with admin/puzzles.php through includes/admin_puzzle_ui.php. Plan: claude/plan-jigsaw.md section 6.
  */
 require dirname(__DIR__) . '/includes/bootstrap.php';
@@ -11,12 +11,13 @@ $me = require_admin();
 require_once dirname(__DIR__) . '/includes/jigsaw.php';
 require_once dirname(__DIR__) . '/includes/admin_puzzle_ui.php';
 require_once dirname(__DIR__) . '/includes/trade.php';
+require_once dirname(__DIR__) . '/includes/puzzle_pals.php';
 jigsaw_ensure();
 settle_puzzle_tournaments();
 jigsaw_release_reserved();
 const JIGSAW_UP_MAX_BYTES = 3145728;   // 3 MB
 const JIGSAW_UP_MAX_FILES = 25;
-$tab = in_array($_GET['tab'] ?? '', ['upload', 'tournaments', 'settings'], true) ? (string)$_GET['tab'] : 'library';
+$tab = in_array($_GET['tab'] ?? '', ['upload', 'tournaments', 'pals', 'settings'], true) ? (string)$_GET['tab'] : 'library';
 $back = fn(string $t, string $extra = '') => 'admin/jigsaw.php?tab=' . $t . $extra;
 
 /** The tier radio's value, or '' when it is not one of the three tiers. */
@@ -234,6 +235,7 @@ admin_crumbs('jigsaw.php');
   <a class="tab<?= $tab === 'library' ? ' on' : '' ?>" href="<?= e(url('admin/jigsaw.php')) ?>">🖼️ Library</a>
   <a class="tab<?= $tab === 'upload' ? ' on' : '' ?>" href="<?= e(url('admin/jigsaw.php?tab=upload')) ?>">⬆️ Upload</a>
   <a class="tab<?= $tab === 'tournaments' ? ' on' : '' ?>" href="<?= e(url('admin/jigsaw.php?tab=tournaments')) ?>">🏆 Tournaments</a>
+  <a class="tab<?= $tab === 'pals' ? ' on' : '' ?>" href="<?= e(url('admin/jigsaw.php?tab=pals')) ?>">🐾 Pals</a>
   <a class="tab<?= $tab === 'settings' ? ' on' : '' ?>" href="<?= e(url('admin/jigsaw.php?tab=settings')) ?>">⚙️ Settings</a>
 </nav>
 
@@ -296,6 +298,60 @@ admin_crumbs('jigsaw.php');
     <button class="btn">Upload</button>
   </form>
 </div>
+
+<?php elseif ($tab === 'pals'):
+    // v2.0.88: Puzzle Pals, read only. Rosters come from the data file (or the generator for an upload); art-ready = every sticker of the roster is a real PNG.
+    $pp = jigsaw_pics(false);
+    ppal_ensure();
+    $fnd = []; $rel = []; $tro = [];
+    try {
+        foreach (q('SELECT pic_id, COUNT(*) AS n, COUNT(DISTINCT user_id) AS g FROM ppal_found GROUP BY pic_id')->fetchAll() as $r) $fnd[(int)$r['pic_id']] = [(int)$r['n'], (int)$r['g']];
+        foreach (q('SELECT pic_id, COUNT(*) AS n FROM ppal_releases GROUP BY pic_id')->fetchAll() as $r) $rel[(int)$r['pic_id']] = (int)$r['n'];
+        foreach (q('SELECT pic_id, COUNT(*) AS n FROM ppal_trophies GROUP BY pic_id')->fetchAll() as $r) $tro[(int)$r['pic_id']] = (int)$r['n'];
+    } catch (Throwable $e) {}
+    $groups = ['gallery' => []];
+    foreach (PPAL_PLACE_KINDS as $k) $groups[$k] = [];
+    $tot = ['pics' => 0, 'ready' => 0, 'pals' => 0, 'found' => 0, 'rel' => 0, 'tro' => 0];
+    foreach ($pp as $p) {
+        $g = ($p['source'] ?? '') === 'place' ? ppal_pic_kind($p) : 'gallery';
+        $ros = ppal_roster($p);
+        $ready = ppal_art_ready($p);
+        $row = ['p' => $p, 'ros' => $ros, 'ready' => $ready, 'found' => $fnd[(int)$p['id']] ?? [0, 0], 'rel' => $rel[(int)$p['id']] ?? 0, 'tro' => $tro[(int)$p['id']] ?? 0];
+        $groups[$g][] = $row;
+        $tot['pics']++; $tot['ready'] += $ready ? 1 : 0; $tot['pals'] += count($ros); $tot['found'] += $row['found'][0]; $tot['rel'] += $row['rel']; $tot['tro'] += $row['tro'];
+    }
+    $rar = ['common' => 'C', 'uncommon' => 'U', 'rare' => 'R']; ?>
+<div class="box">
+  <h2>Puzzle Pals</h2>
+  <p class="help">Read only. A pal is released the first time a gnome solves a picture at Advanced; it is then found on page views (the find lane). A picture only releases pals once all of its stickers are drawn (<b>art ready</b>). Pals are <b><?= ppal_open() && setting('ppal_open') === '1' ? 'open' : 'admins only' ?></b> for players, taking pals along is <b><?= setting('ppal_party') === '1' ? 'on' : 'off' ?></b>.
+    <a class="btn small" href="<?= e(url('admin/tools.php')) ?>">🧩 Test a pal find (Tools)</a> · <a href="<?= e(url('puzzlepals.php')) ?>">Open the Pal Book</a></p>
+  <p><b><?= $tot['pics'] ?></b> pictures · art ready <b><?= $tot['ready'] ?></b> · pals in rosters <b><?= $tot['pals'] ?></b> · finds <b><?= $tot['found'] ?></b> · pictures released <b><?= $tot['rel'] ?></b> · Expert trophies <b><?= $tot['tro'] ?></b></p>
+  <p class="help">Settings (change them in <a href="<?= e(url('admin/settings.php')) ?>">Admin &gt; Settings</a>, look for “Puzzle Pals”):</p>
+  <table class="grid">
+    <?php foreach (['ppal_open', 'ppal_party', 'ppal_party_max', 'ppal_chance', 'ppal_cooldown_minutes', 'ppal_daily_max', 'ppal_roster_size'] as $k): ?>
+    <tr><td><code><?= e($k) ?></code></td><td><b><?= e(setting($k)) ?></b></td></tr>
+    <?php endforeach; ?>
+  </table>
+</div>
+<?php foreach ($groups as $g => $rows):
+    if (!$rows) continue;
+    $gr = count(array_filter($rows, fn($r) => $r['ready'])); ?>
+<details<?= $g === 'gallery' ? ' open' : '' ?> id="pals-<?= e($g) ?>"><summary><b><?= $g === 'gallery' ? '🖼️ Gallery' : '🗺️ Places: ' . e($g) ?> (<?= count($rows) ?>)</b> <small class="muted">art ready <?= $gr ?> of <?= count($rows) ?></small></summary>
+<table class="grid">
+  <tr><th>Picture</th><th>Art</th><th>Roster (C common, U uncommon, R rare)</th><th>Found · gnomes</th><th>Released</th><th>Trophies</th></tr>
+  <?php foreach ($rows as $r): $p = $r['p']; ?>
+  <tr>
+    <td><?= e($p['title']) ?><br><small class="help"><?= e(ppal_pic_slug($p)) ?></small></td>
+    <td><?= $r['ready'] ? '✅ ready' : '⚠️ not ready' ?></td>
+    <td><small><?php foreach ($r['ros'] as $pal): $f = ppal_art_file($pal['key']); ?><?= $rar[$pal['rarity']] ?? '?' ?> <?= e($pal['name']) ?><?= is_file($f) && !ppal_is_placeholder($f) ? '' : ' (no art)' ?><br><?php endforeach; ?><?= $r['ros'] ? '' : 'no roster' ?></small></td>
+    <td><?= (int)$r['found'][0] ?> · <?= (int)$r['found'][1] ?></td>
+    <td><?= (int)$r['rel'] ?></td>
+    <td><?= (int)$r['tro'] ?></td>
+  </tr>
+  <?php endforeach; ?>
+</table>
+</details>
+<?php endforeach; ?>
 
 <?php elseif ($tab === 'settings'): ?>
 <div class="box">

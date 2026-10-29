@@ -103,6 +103,17 @@ ok "places: a place you cleared before is unlocked" "$(dbv "SELECT COUNT(*) FROM
 dbx "ALTER TABLE puzzle_runs DROP COLUMN pic_id"; dbx "ALTER TABLE puzzle_pics DROP COLUMN reserved"
 curl -s -b $W/p -o /dev/null $BASE/gifsaw.php
 ok "columns come back on an old database" "$(dbv "SELECT COUNT(*) FROM pragma_table_info('puzzle_pics') WHERE name='reserved'")$(dbv "SELECT COUNT(*) FROM pragma_table_info('puzzle_runs') WHERE name='pic_id'")" 11
+# v2.0.88: Admin > Jigsaw > Pals tab (read only roster + art status, counts, ppal_* settings, link to Test a pal find)
+curl -s -b $W/a "$BASE/admin/jigsaw.php?tab=pals" > $W/pt.html
+ok "pals tab: nav tab present" "$(grep -c 'tab=pals' $W/pt.html | php -r 'echo (int)stream_get_contents(STDIN) > 0 ? "y" : "n";')" y
+ok "pals tab: all 95 pictures listed (14 gallery + 81 places)" "$(sed 's/<[^>]*>//g' $W/pt.html | grep -o '[0-9]* pictures' | head -1)" "95 pictures"
+ok "pals tab: 14 gallery + 4 place kinds, group counts" "$(grep -o '[A-Za-z]* ([0-9]*)</b>' $W/pt.html | sed 's/<.*//' | tr '\n' ' ')" "Gallery (14) haven (18) wonder (35) delve (14) lair (14) "
+ok "pals tab: every picture is art ready (486 pals drawn)" "$(grep -c 'not ready' $W/pt.html)/$(grep -o ' ready</td>' $W/pt.html | wc -l | tr -d ' ')/$(sed 's/<[^>]*>//g' $W/pt.html | grep -c 'art ready 95 ')" 0/95/1
+ok "pals tab: the ppal_* settings shortcut rows" "$(grep -o '<code>ppal_[a-z_]*</code>' $W/pt.html | wc -l | tr -d ' ')" 7
+ok "pals tab: links to Test a pal find in Tools" "$(grep -c 'admin/tools.php' $W/pt.html | php -r 'echo (int)stream_get_contents(STDIN) > 0 ? "y" : "n";')" y
+ok "pals tab: players off (ppal_open stays 0 here)" "$(grep -c 'admins only' $W/pt.html | php -r 'echo (int)stream_get_contents(STDIN) > 0 ? "y" : "n";')" y
+ok "pals tab: a player is refused" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' "$BASE/admin/jigsaw.php?tab=pals")" 403
+ok "pals tab: an unknown tab falls back to the library (no pals table)" "$(curl -s -b $W/a "$BASE/admin/jigsaw.php?tab=nope" | grep -c 'Solves · used')" 2
 # real browser: tier buttons open exactly 24 / 96 / 216 pieces, desktop and phone
 if node -e "require('playwright')" 2>/dev/null; then
   mkdir -p ${SHOTS:-/tmp/jig-shots}
