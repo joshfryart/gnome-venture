@@ -1,4 +1,4 @@
--- cf_test.lua : Cat Fish test art, pass 5 (grey cat idle A + pounce, catch, nap, stalk key frames, plain plushie
+-- cf_test.lua : Cat Fish test art, pass 6 (grey cat idle A + pounce, catch, nap, stalk key frames, plain plushie
 -- fish, cat wand rod, kibble + yarn icons).
 -- Run: AppRun -b --script cf_test.lua      (Stitched Toy, art-style-guide Part D, via gvlib)
 --
@@ -9,7 +9,7 @@
 --   gloss  #f1ebe3   enamel comma and dot, head rim
 -- Everything else on the cat is a FIXED accent and is never recoloured:
 --   pink #e8909e / #c66a80 (nose, inner ear), eye cream #f2e4c0, umber #2a1a10 #4a2c1a #74462a,
---   thread gold #f5cf6a #e8a317, button hole #8a4a1c, floor shadow #9a6b3f (pounce), border #000000.
+--   thread gold #f5cf6a #e8a317, border #000000. (Pounce floor shadow is umber #4a2c1a; no cat button.)
 -- Parts stay separate (tail, earL, earR, body, head, paws) so folded ears and bobtail can replace them later.
 -- Pass 3: head is felt one tone lighter than the body (head/body split reads at 16 px), tall ears with a clear
 -- notch, tail curls up clear of the body, edge stitch runs continuous (2 on / 1 off) round the visible body.
@@ -19,6 +19,11 @@
 -- leap (fore and hind legs stretched out, tail streaming, a floor shadow left behind); stalk is a play bow with
 -- the tail held out and flicked up (no enclosed hole); nap tail rides round the haunch so its tip seam is clear
 -- of the face; props use felt ramps shaded like the coat (see felt()).
+-- Pass 6 (16 px read): edge stitch on the lit half of the body only (the crescent side stays clean felt) and no
+-- belly seam/button on idle A (it read as a coat zip and no other frame had it); open-eye ring is umber, closed
+-- eyes are 3-row arcs that survive 32 px; stalk haunch is one big round egg; catch paws cradle the fish from
+-- below with toes; pounce floor shadow is a slim umber dash. Props: rod grip gets the enamel comma, kibble is a
+-- wide bowl with a 4-piece heap, yarn's loose end lies on the floor (it hung like a balloon string).
 -- Frame offsets: idleA 0,0  pounce 16,0  catch 0,0  nap 0,18  stalk 15,20. The catch fish reuses the cf-fish-1
 -- colours on trimmed ramps. No 'z' on the nap frame: a z small enough to fit is 2 px tall at 32 px.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
@@ -33,6 +38,7 @@ local function coatHi(t) -- head/paw ramp: one tone up (base = light, crescent =
   return { gloss = t.gloss, dot = t.gloss, rim = t.gloss, base = t.light, shade = t.base, deep = t.shade, bounce = t.light }
 end
 local PINK, PINKS = "#e8909e", "#c66a80"
+local LIT = 3 -- edge stitch only on the lit half of the body (s <= LIT): the crescent side stays clean felt
 
 -- recolour pixels of `from` inside mask m to `to` (keeps the crescent and contours intact)
 local function tint(c, m, from, to)
@@ -57,7 +63,8 @@ local function edgeStitch(c, m, P, o)
   local on, off = o.on or 2, o.off or 1
   for i, p in ipairs(ring) do
     local k = p[3]
-    if (i - 1) % (on + off) < on and c.own[k] == P and not c.gl.s[k] and p[2] <= (o.ymax or 1e9) then
+    local lit = (p[1] - cx) + (p[2] - cy) <= (o.lit or 1e9)
+    if (i - 1) % (on + off) < on and c.own[k] == P and not c.gl.s[k] and p[2] <= (o.ymax or 1e9) and lit then
       c.pix[k] = c.shd[k] and GV.C.goldS or GV.C.gold
     end
   end
@@ -66,9 +73,9 @@ end
 -- ===== shared cat template pieces (every frame uses the same head, ears, face, eyes, paws, tail tip) =====
 -- The head is drawn at idle A's place shifted by (ox, oy), so all frames share one face and the eye overlay
 -- positions are just idle A's plus the frame offset. Ears and tail stay separate parts in every frame.
--- EYES: open = locked disc (gvlib c:eye) with a 1 px umber-2 (#4a2c1a) ring just outside it, so the cream disc
--- reads on the light head felt (pass 4). Closed = a 1 px umber (#2a1a10) arc, 5 px wide, in the middle two rows
--- of the 5x5 eye box: "happy" squint is an upturned arc (catch), "sleep" is a downturned arc (nap). Closed-eye
+-- EYES: open = locked disc (gvlib c:eye) with a 1 px umber ring just outside it, so the cream disc
+-- reads on the light head felt (pass 4; umber #2a1a10 from pass 6). Closed = a 3-row umber arc, 5 px wide, in
+-- the middle of the 5x5 eye box (pass 6, was 1 px): "happy" squint is an upturned arc (catch), "sleep" is a downturned arc (nap). Closed-eye
 -- frames take no eye-colour overlay.
 local function catHead(c, ox, oy) -- returns build entries (earL, earR, head) and the head mask
   local g, h = coat(GREY), coatHi(GREY)
@@ -81,7 +88,7 @@ local function catHead(c, ox, oy) -- returns build entries (earL, earR, head) an
     { "head", head, h, { gloss = { 14 + ox, 15 + oy } } },
   }, head
 end
-local function eyeRing(c, x, y) -- 1 px umber-2 ring round the 5x5 cut-corner disc at (x, y)
+local function eyeRing(c, x, y) -- 1 px umber ring round the 5x5 cut-corner disc at (x, y)
   c:paint({
     "..uuu..",
     ".u...u.",
@@ -90,11 +97,11 @@ local function eyeRing(c, x, y) -- 1 px umber-2 ring round the 5x5 cut-corner di
     "u.....u",
     ".u...u.",
     "..uuu..",
-  }, x - 1, y - 1, { u = "ol2" })
+  }, x - 1, y - 1, { u = "umber" })
 end
 local function catEye(c, x, y, mode)
-  if mode == "happy" then c:paint({ ".uuu.", "u...u" }, x, y + 1, { u = "umber" })
-  elseif mode == "sleep" then c:paint({ "u...u", ".uuu." }, x, y + 2, { u = "umber" })
+  if mode == "happy" then c:paint({ ".uuu.", "uu.uu", "u...u" }, x, y + 1, { u = "umber" })
+  elseif mode == "sleep" then c:paint({ "u...u", "uu.uu", ".uuu." }, x, y + 1, { u = "umber" })
   else eyeRing(c, x, y); c:eye(x, y) end
 end
 local function catFace(c, ox, oy, head, eyes) -- inner ears, muzzle, nose, mouth, eyes set wide
@@ -105,8 +112,8 @@ local function catFace(c, ox, oy, head, eyes) -- inner ears, muzzle, nose, mouth
   c:paint({ "u.u" }, 24 + ox, 27 + oy, { u = "ol2" })
   catEye(c, 14 + ox, 19 + oy, eyes); catEye(c, 32 + ox, 19 + oy, eyes)
 end
-local function paw(c, cx, cy, toes) -- light-tone paw (flat), toe lines in the base tone
-  c:part(c:ellipse(cx, cy, 4.5, 2.5), coatHi(GREY), { flat = true })
+local function paw(c, cx, cy, toes, rx, ry) -- light-tone paw (flat), toe lines in the base tone
+  c:part(c:ellipse(cx, cy, rx or 4.5, ry or 2.5), coatHi(GREY), { flat = true })
   if toes ~= false then c:paint({ "s.s", "s.s" }, math.floor(cx) - 1, math.floor(cy) + 1, { s = GREY.base }) end
 end
 local function tailTip(c, tail, region, seam) -- light-tone tip with a gold seam at the join
@@ -145,10 +152,7 @@ do
   }
   tailTip(c, tail, c:rect(46, 30, 56, 36), { { 49, 37 }, { 53, 37 } })
   paw(c, 19.5, 53); paw(c, 30.5, 53)                                        -- paws on top (light tone)
-  edgeStitch(c, body, p.body, { cy = 45 })
-  -- belly seam with a button at its head (front join of the two body halves)
-  c:button(23, 35)
-  c:seam({ { 25, 39 }, { 25, 50 } })
+  edgeStitch(c, body, p.body, { cy = 45, lit = LIT })
   catFace(c, 0, 0, head, "open")
   catSave(c, "cf-cat-grey-idleA")
 end
@@ -178,9 +182,9 @@ do
   tailTip(c, tail, c:rect(5, 15, 18, 23), { { 7, 24 }, { 11, 24 } })
   paw(c, 50.5, 39.5); paw(c, 47.5, 45.5)                                   -- front paws out, about to land
   paw(c, 10.5, 41.5); paw(c, 11.5, 49.5)                                   -- hind paws trailing
-  edgeStitch(c, body, p.body)
+  edgeStitch(c, body, p.body, { lit = LIT })
   catFace(c, OX, OY, head, "open")
-  c:ground(32, 57, 7, 1.5)                                                 -- shadow left on the floor: airborne
+  c:ground(30.5, 57.5, 5.5, 1, "#4a2c1a")                                  -- slim umber floor shadow: airborne
   catSave(c, "cf-cat-grey-pounce")
 end
 
@@ -215,8 +219,8 @@ do
   c:seam({ { 18, 37 }, { 19, 40 }, { 18, 44 } })                           -- gill seam
   c:eye(15, 39, true)
   paw(c, 19.5, 53); paw(c, 30.5, 53)                                        -- hind feet
-  paw(c, 15.5, 46, false); paw(c, 30.5, 46.5, false)                        -- front paws hugging the fish
-  edgeStitch(c, body, p.body, { cy = 45 })
+  paw(c, 16.5, 45.5, true, 3.5, 2.5); paw(c, 28.5, 46, true, 3.5, 2.5)    -- small front paws cradle the fish from below
+  edgeStitch(c, body, p.body, { cy = 45, lit = LIT })
   catFace(c, 0, 0, head, "happy")
   catSave(c, "cf-cat-grey-catch")
 end
@@ -239,7 +243,7 @@ do
     { "tail", tail, g, { cres = 2, gloss = false } },
   }
   tailTip(c, tail, c:rect(30, 48, 41, 58), { { 42, 52 }, { 42, 56 } })
-  edgeStitch(c, body, p.body, { ymax = 46 })                               -- none on the thin strip under the chin
+  edgeStitch(c, body, p.body, { ymax = 46, lit = LIT })                               -- none on the thin strip under the chin
   catFace(c, OX, OY, head, "sleep")
   catSave(c, "cf-cat-grey-nap")
 end
@@ -251,19 +255,21 @@ do
   local OX, OY = 15, 20
   local H, head = catHead(c, OX, OY)
   local body = rell(c, 25, 32, 15, 7.5, 0.9)                               -- play bow: rump high, chest down
-  local thigh = c:ellipse(21, 43, 6, 6.5)                                  -- folded haunch
+  -- haunch: one big round egg leaning forward from the rump to the hind paw (pass 6: the small upright
+  -- ellipse left a square stub between the body and the head)
+  local thigh = rell(c, 17.5, 39, 7.5, 10, -0.35)
   -- tail held low behind, tip flicked up: open shape, never closes a hole against the body (pass 5)
   local tail = c:line({ {18, 22}, {13, 23}, {9, 21}, {8, 16}, {10, 11} }, 5)
   local p = c:build{
     { "tail", tail, g, { cres = 2, gloss = false } },
     { "body", body, g, { gloss = { 18, 24 } } },
-    { "thigh", thigh, g, { cres = 2, gloss = false } },
+    { "thigh", thigh, g, { cres = 2, gloss = { 13, 33 } } },
     H[1], H[2], H[3],
   }
   tailTip(c, tail, c:rect(4, 4, 15, 14), { { 6, 15 }, { 10, 15 } })
-  paw(c, 20, 53)                                                           -- hind paw
+  paw(c, 19.5, 53)                                                         -- hind paw under the haunch
   paw(c, 34.5, 53); paw(c, 45.5, 53)                                       -- front paws under the chin
-  edgeStitch(c, body, p.body)
+  edgeStitch(c, body, p.body, { lit = LIT })
   catFace(c, OX, OY, head, "open")
   catSave(c, "cf-cat-grey-stalk")
 end
@@ -346,7 +352,7 @@ do
     { "bowL",  bowL, BLUE, { cres = 2, gloss = false } },
     { "bowR",  bowR, BLUE, { cres = 2, gloss = false } },
     { "knot",  c:rrect(31, 18, 34, 21, 1), BLUE, { flat = true } },
-    { "grip",  grip, RED, { cres = 2, gloss = false } },
+    { "grip",  grip, RED, { cres = 2, gloss = { 17, 38 } } },              -- enamel comma like the cat (pass 6)
     { "collar", collar, "gold", { cres = 1, deep = 0, bounce = false, gloss = false } },
     { "pom",   pom, BLUE, { cres = 2, gloss = false } },
   }
@@ -357,9 +363,9 @@ do
   for _, y in ipairs({ 40, 44, 48 }) do
     for x = 0, 47 do
       local k = c:key(x, y)
-      if inner:has(x, y) and c.own[k] == p.grip and not c.shd[k] then c:px(x, y, RED.shade) end
+      if inner:has(x, y) and c.own[k] == p.grip and not c.shd[k] and not c.gl.s[k] then c:px(x, y, RED.shade) end
       local k2 = c:key(x, y - 1)
-      if inner:has(x, y - 1) and c.own[k2] == p.grip and not c.shd[k2] then c:px(x, y - 1, RED.rim) end
+      if inner:has(x, y - 1) and c.own[k2] == p.grip and not c.shd[k2] and not c.gl.s[k2] then c:px(x, y - 1, RED.rim) end
     end
   end
   c:gloss(pom, BLUE, { 12, 50 })
@@ -368,49 +374,59 @@ do
   print("rod    " .. GV.report(t))
 end
 
--- ===== kibble icon (32x32, icon mode): felt bowl heaped with round kibble =====
--- Pass 5: fewer, bigger, lighter kibble that separate from the umber outline; bowl gets a lit inner rim,
--- a gold hem and a cream paw print.
+-- ===== kibble icon (32x32, icon mode): wide felt bowl heaped with round kibble =====
+-- Pass 6: the bowl is wide and shallow with its lip sticking out past the heap on both sides, so the silhouette
+-- is a bowl with a bumpy top instead of an egg. Five darker brown kibble, each its own part with an umber
+-- contour, so they read as separate pieces; the bumps show in the outline. No paw print (it read as teeth).
 do
   local c = GV.canvas{ w = 32, h = 32, mode = "icon" }
-  local K = felt("#d49a52", { gloss = "#ffe2a8" })
+  local K = felt("#c47a36", { gloss = "#ffd79a", rim = "#e09a58" })
   local B = felt("#3f8fb0", { gloss = "#c8ecdc", rim = "#8fcbd8" })
-  local bowl = c:ellipse(15.5, 18, 8.5, 2):add(c:poly({ {7, 18}, {25, 18}, {22, 25}, {10, 25} })):closed(1)
+  local bowl = c:ellipse(15.5, 18, 9, 2):add(c:poly({ {7, 18}, {25, 18}, {22, 25}, {10, 25} })):closed(1)
   local list = {}
-  local pieces = { {15.5, 9.5}, {10.5, 13}, {20.5, 13}, {15.5, 14} } -- back to front, centres
-  for i, q in ipairs(pieces) do -- no umber contour between pieces: rim against crescent separates them
-    list[#list + 1] = { "k" .. i, c:ellipse(q[1], q[2], 3, 2.5), K, { cres = 2, gloss = false, contour = false } }
+  local pieces = { {15.5, 11.5}, {11, 15}, {20, 15}, {15.5, 15.5} }  -- back to front: one on top, three in front
+  for i, q in ipairs(pieces) do
+    list[#list + 1] = { "k" .. i, c:ellipse(q[1], q[2], 2.5, 2.5), K, { cres = 2, gloss = false, bounce = false } }
   end
   list[#list + 1] = { "bowl", bowl, B, { cres = 3, gloss = { 9, 20 } } }
   c:build(list)
-  for _, q in ipairs(pieces) do c:px(math.floor(q[1]) - 1, math.floor(q[2]) - 1, K.gloss) end         -- glaze dot on each kibble
-  c:seam({ { 8, 19 }, { 23, 19 } }, { gap = B.shade })                                     -- bowl hem
-  c:paint({ ".c.c.", "c...c", ".ccc.", ".ccc." }, 14, 20, { c = "#f2e4c0" })              -- paw print
+  for _, q in ipairs(pieces) do                                          -- glaze dot + the kibble's hole
+    c:px(math.floor(q[1]) - 1, math.floor(q[2]) - 1, K.gloss); c:px(math.floor(q[1]), math.floor(q[2]), K.shade)
+  end
+  c:seam({ { 9, 21 }, { 22, 21 } }, { gap = B.shade })                                     -- bowl hem
   local t = c:save(OUT .. "cf-ico-kibble.aseprite", OUT .. "cf-ico-kibble.png")
   print("kibble " .. GV.report(t))
 end
 
--- ===== yarn ball icon (32x32, icon mode): wound felt yarn with a loose curling end =====
--- Pass 5: clear wraps (one family of parallel arcs + a crossing band) and a wavy 2 px thread, so it no
--- longer reads as a lollipop.
+-- ===== yarn ball icon (32x32, icon mode): wound felt yarn with a loose end trailing along the floor =====
+-- Pass 6: the loose end leaves the ball's right side and snakes off along the floor (a hanging string read as a
+-- balloon). Wraps are shade grooves with a lit ridge on their upper-left side (the rod grip's wrap language).
 do
   local c = GV.canvas{ w = 32, h = 32, mode = "icon" }
   local Y = felt("#e46a9b")
-  local ball = c:ellipse(13.5, 12.5, 7.5, 7)
-  -- loose end: a wavy 2 px strand outside the umber outline (black border only), so it reads as thread, not
-  -- as a lollipop stick
-  local thread = c:line({ { 19, 18 }, { 21, 21 }, { 20, 24 }, { 22, 26 }, { 25, 26 }, { 26, 24 } }, 2)
+  local ball = c:ellipse(14, 14, 8, 8)
+  local thread = c:line({ { 20, 21 }, { 22, 23 }, { 24, 24 }, { 26, 23 }, { 26, 21 } }, 2) -- lies on the floor
   local p = c:build{
     { "thread", thread, Y, { flat = true, solid = false, contact = false } },
-    { "ball", ball, Y, { cres = 3, gloss = { 10, 8 } } },
+    { "ball", ball, Y, { cres = 3, gloss = { 10, 9 } } },
   }
   local inner = ball:shrink(1)
-  local strands = c:mask()
-  for _, r in ipairs({ 6, 9, 12, 15 }) do strands:add(c:ellipse(24, 2, r):cut(c:ellipse(24, 2, r - 1))) end
-  local band = c:mask()
-  for _, r in ipairs({ 9, 12 }) do band:add(c:ellipse(2, 25, r):cut(c:ellipse(2, 25, r - 1))) end
-  strands:cut(c:ellipse(2, 25, 12.5):cut(c:ellipse(2, 25, 7.5)))   -- the crossing band sits on top
-  strands:add(band):clip(inner)
+  local strands, ridge = c:mask(), c:mask()
+  local function arcs(cx, cy, list)
+    for _, r in ipairs(list) do
+      strands:add(c:ellipse(cx, cy, r):cut(c:ellipse(cx, cy, r - 1)))
+      ridge:add(c:ellipse(cx, cy, r - 1):cut(c:ellipse(cx, cy, r - 2)))
+    end
+  end
+  arcs(27, 1, { 10, 14, 18, 22, 26 })                             -- wraps running lower-left to upper-right
+  local cross = c:ellipse(1, 28, 19):cut(c:ellipse(1, 28, 11.5))  -- crossing band wound on top
+  strands:cut(cross); ridge:cut(cross)
+  arcs(1, 28, { 15, 19 })
+  strands:clip(inner); ridge:clip(inner):cut(strands)
+  ridge:each(function(x, y)
+    local k = c:key(x, y)
+    if c.own[k] == p.ball and not c.gl.s[k] and not c.shd[k] then c:px(x, y, Y.rim) end
+  end)
   strands:each(function(x, y)
     local k = c:key(x, y)
     if c.own[k] == p.ball and not c.gl.s[k] then c:px(x, y, Y.shade) end
