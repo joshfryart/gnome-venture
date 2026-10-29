@@ -57,7 +57,7 @@ page_header('Cat Fish');
 <?php if (!$cat): ?>
 <p class="help">Pick a cat to take home. Your first one is free. The shelter shows new cats every day.</p>
 <?php else: ?>
-<?php $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0);   // '' without cf-room.png: the old rod box, cat card and room below ?>
+<?php $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0);   // '' without cf-room.png: the old rod box, cat card and room below ?>
 <?php if ($stage !== ''): ?>
 <?= $stage ?>
 <div class="cfscene cfcard box">
@@ -175,5 +175,5 @@ if ($capWk > 0): ?>
 </details>
 <?php endif; ?>
 </div>
-<script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null], $J) ?></script>
+<script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null, 'play' => $v['play']], $J) ?></script>
 <?php page_footer();

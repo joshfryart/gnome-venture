@@ -132,6 +132,40 @@
 .cfactive.fr-idleA .ff-idleA, .cfactive.fr-idleB .ff-idleB, .cfactive.fr-wiggle .ff-wiggle, .cfactive.fr-stalk .ff-stalk,
 .cfactive.fr-pounce .ff-pounce, .cfactive.fr-catch .ff-catch, .cfactive.fr-nap .ff-nap, .cfactive.fr-bored .ff-bored { display: block; }
 @media (prefers-reduced-motion: reduce) { .cfsdrop { animation: none; } }
+/* Active play (2.1.04): each fish is a <button> (tap = bounce, the cat plays, a little extra Kibble; see catfish_play). The button box is the fish plus its string, 48 px wide
+   and 48 px + string tall, so the tap area is far above 44 px. */
+.cfstage .cfsdrop { display: block; padding: 0; margin: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.cfsdrop:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+/* is-hit: 900 ms damped wobble (rotate -18/+14/-9/+5/-2/0 deg, translateY whole px 0/6/-3/0) on the individual rotate/translate properties, so it adds to the sway instead of replacing it. */
+@keyframes cfbounce {
+  0% { rotate: 0deg; translate: 0 0; } 15% { rotate: -18deg; translate: 0 6px; } 35% { rotate: 14deg; translate: 0 -3px; }
+  55% { rotate: -9deg; translate: 0 0; } 72% { rotate: 5deg; translate: 0 0; } 88% { rotate: -2deg; translate: 0 0; } 100% { rotate: 0deg; translate: 0 0; }
+}
+.cfsdrop.is-hit { animation-name: cfssway, cfbounce; animation-duration: 3.2s, 900ms; animation-timing-function: ease-in-out, linear; animation-iteration-count: infinite, 1; animation-delay: 0s, 0s; }
+.cfsdrop.sd2.is-hit { animation-delay: -1.1s, 0s; } .cfsdrop.sd3.is-hit { animation-delay: -2.2s, 0s; }
+/* is-caught: the cat's catch lands, the fish picture flips for 240 ms (two steps, scaleX(-1), pixel exact) */
+@keyframes cfflip { 0%, 49% { transform: scaleX(1); } 50%, 100% { transform: scaleX(-1); } }
+.cfsdrop.is-caught .cfimg { animation: cfflip 240ms steps(1, end) 1; }
+/* '+N' pop: one per fish (p1..p3), above the fish, rises 12 whole px and fades; the cat flip mirrors the active cat toward the fish */
+.cfpop { position: absolute; width: 40px; text-align: center; font: 700 13px/14px monospace; color: #ffe27a; text-shadow: 1px 0 #3a2410, -1px 0 #3a2410, 0 1px #3a2410, 0 -1px #3a2410; opacity: 0; pointer-events: none; white-space: nowrap; }
+.cfpop.p1 { left: 98px; top: 26px; } .cfpop.p2 { left: 150px; top: 42px; } .cfpop.p3 { left: 202px; top: 18px; }
+.cfpop.go { animation: cfpopup 900ms linear 1 forwards; }
+@keyframes cfpopup { 0% { opacity: 1; translate: 0 0; } 70% { opacity: 1; translate: 0 -10px; } 100% { opacity: 0; translate: 0 -12px; } }
+@keyframes cfpopfade { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.cfcombo { position: absolute; right: 6px; bottom: 6px; font: 700 16px/18px monospace; color: #fff; text-shadow: 1px 0 #3a2410, -1px 0 #3a2410, 0 1px #3a2410, 0 -1px #3a2410; pointer-events: none; }
+.cfcombo:empty { display: none; }
+.cfhint { position: absolute; left: 198px; top: 128px; width: 100px; padding: 2px 4px; background: #fff8e0; color: #3a2410; border: 2px solid #3a2410; font: 700 11px/13px monospace; text-align: center; pointer-events: none; }
+.cfhint[hidden] { display: none; }
+.cfsr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cfactive.flip { transform: scaleX(-1); }
+/* Reduced motion: no bounce, no sway, no flip, no rise. The hit fish shows an outline for 300 ms and the pop only fades. */
+@media (prefers-reduced-motion: reduce) {
+  .cfsdrop, .cfsdrop.is-hit, .cfsdrop.sd2.is-hit, .cfsdrop.sd3.is-hit { animation: none; }
+  .cfsdrop.is-hit .cfimg { outline: 2px solid #fff; outline-offset: 1px; }
+  .cfsdrop.is-caught .cfimg { animation: none; }
+  .cfpop.go { animation: cfpopfade 900ms linear 1 forwards !important; }   /* opacity only: style.css switches every animation off for reduced motion, a fade is the one thing kept */
+  .cfactive.flip { transform: none; }
+}
 /* Centred layout: banner, cat card text, headings and notes on the page. Upgrade rows and the shelter lists keep their layouts. */
 .cfbanner { text-align: center; }
 .cfbanner .cfimg { display: inline-block; }

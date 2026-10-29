@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-// Cat Fish: POST only, CSRF, JSON. do=tick pays out the kibble earned so far and returns the fresh view; do=buy (key) buys one upgrade level.
+// Cat Fish: POST only, CSRF, JSON. do=tick pays out the kibble earned so far and returns the fresh view (optional play=n and seq=batch id: taps on the dangling fish, paid by catfish_play); do=buy (key) buys one upgrade level.
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/catfish.php';
 header('Content-Type: application/json; charset=utf-8');
@@ -17,6 +17,10 @@ $uid = (int)$u['id'];
 if (rate_limited('cfapi:' . $uid, 60, 10)) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
 record_attempt('cfapi:' . $uid);
 $do = (string)($_POST['do'] ?? '');
-if ($do === 'tick') $out(['ok' => true, 'view' => catfish_view($uid)]);
+if ($do === 'tick') {
+    $got = 0; $paid = 0;
+    if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);   // taps batched since the last tick (see catfish_play)
+    $out(['ok' => true, 'view' => catfish_view($uid, $got, $paid)]);
+}
 if ($do === 'buy') { [$ok, $msg] = catfish_buy($uid, (string)($_POST['key'] ?? '')); $out(['ok' => $ok, 'message' => $msg, 'view' => catfish_view($uid)], $ok ? 200 : 400); }
 $out(['ok' => false, 'error' => 'Unknown action.'], 400);

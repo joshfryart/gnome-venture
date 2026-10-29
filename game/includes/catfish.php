@@ -21,6 +21,14 @@ const CATFISH_SLOT_COSTS = [5, 20];     // Yarn for the 3rd and 4th place in the
 const CATFISH_RARE_COSTS = [3, 10];     // Yarn for Rare Shelter levels 1 and 2 (the shelter shows the best of 2, then 3, candidates per slot)
 const CATFISH_REROLL_COST = 1;          // Yarn to swap one shelter cat for another
 const CATFISH_REROLL_MAX = 3;           // rerolls per slot per day
+/** Active play (tap a dangling fish): one accepted tap pays max(1, floor(present kph * PLAY_SECS / 3600 * tier)) Kibble. Tiers are by Hollow day: taps 1..120 x1, 121..240 x0.5, 241..360 x0.25, then 0.
+ *  Server token bucket (no jitter): PLAY_CAP tokens, one more every PLAY_REFILL seconds; a batch holds 0..PLAY_BATCH taps (more = refused whole). State lives in catfish_state.meta: pb pt pd pc pq pe. */
+const CATFISH_PLAY_SECS = 5;
+const CATFISH_PLAY_TIERS = [[120, 1.0], [240, 0.5], [360, 0.25]];   // [last tap number of the tier, multiplier]
+const CATFISH_PLAY_CAP = 15;
+const CATFISH_PLAY_REFILL = 2;
+const CATFISH_PLAY_BATCH = 40;
+const CATFISH_PLAY_UP = [];             // hook for later upgrades that change play (none in 2.1.04)
 /** Petal milestones: key => [label, base Petals (then scaled by game_petals())]. Each pays once, inside the weekly cap (setting catfish_petal_cap). */
 const CATFISH_MILESTONES_PETALS = [
     'adopt1'    => ['Brought your first cat home', 20],
@@ -159,14 +167,14 @@ const CATFISH_STAGE_ACTIVE = [128, 120];
  * The play scene: one 320 x 200 stage with the room (base and owned overlays), the wand hung at the ceiling hook, a line to three dangling fish
  * (catfish_fish_kinds), the other cats (up to 3) as still frames at the side spots, and the active cat in the centre with all 8 frame groups
  * (body, pattern, ears, tail and eyes layers each; catfish.js shows one at a time by class fr-<frame> and data-frame). Everything is positioned by
- * CSS classes (no inline style). '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
+ * CSS classes (no inline style). Each fish is a button (tap = play, see catfish_play); the stage is a group, not an image, because buttons cannot sit in role=img. $hint shows the first-visit bubble. '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
  */
-function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false): string
+function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false): string
 {
     if (!catfish_art_has('cf-room.png')) return '';
-    $h = '<div class="cfstagewrap"><div class="cfstage" role="img" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '">' . catfish_room_base_html($owned);
+    $h = '<div class="cfstagewrap"><div class="cfstage" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
     $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
-    foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<span class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</span>';
+    foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<button type="button" class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '" data-fish="' . ($i + 1) . '" aria-label="Bat the plush fish (' . ($i + 1) . ' of 3)"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</button>';
     $others = [];
     foreach ($cats as $c) if (($c['id'] ?? null) !== ($active['id'] ?? null)) $others[] = $c;
     usort($others, fn($a, $b) => (($b['mood'] ?? '') === 'lazy') <=> (($a['mood'] ?? '') === 'lazy'));   // a lazy cat takes the cushion (stable order otherwise)
@@ -183,7 +191,9 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
     $spots[] = [$ay, '<span class="cfactive cfpos-x' . $ax . '-y' . $ay . ' fr-' . $start . '" data-frame="' . $start . '" data-seed="' . (int)($active['seed'] ?? 0) . '"' . ($napping ? ' data-nap="1"' : '') . '>' . $groups . '</span>'];
     usort($spots, fn($a, $b) => $a[0] <=> $b[0]);   // lower on the floor is drawn in front
     foreach ($spots as $sp) $h .= $sp[1];
-    return $h . '</div></div>';
+    $h .= '<span class="cfpop p1" aria-hidden="true"></span><span class="cfpop p2" aria-hidden="true"></span><span class="cfpop p3" aria-hidden="true"></span><span id="cf-combo" class="cfcombo" aria-hidden="true"></span>';
+    if ($hint) $h .= '<span class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!</span>';
+    return $h . '<span id="cf-playlive" class="cfsr" aria-live="polite"></span></div></div>';
 }
 
 /** One Cat Book cell. $st: 1 adopted, 0 seen, -1 not found yet. Art (cf-bookhead-<coat>, cf-bookhead-unknown, 32 x 32) when it exists, else the coloured circle. */
@@ -544,6 +554,62 @@ function catfish_tick(int $uid): array
     });
 }
 
+/** Tier multiplier of the $k-th tap of a Hollow day (1-based): 1, 0.5, 0.25, then 0 after the last tier. */
+function catfish_play_tier(int $k): float
+{
+    foreach (CATFISH_PLAY_TIERS as [$last, $mul]) if ($k <= $last) return $mul;
+    return 0.0;
+}
+
+/** Kibble for one tap at tap number $k with present income $kph (the figure the page shows). */
+function catfish_play_value(float $kph, int $k): int
+{
+    $t = catfish_play_tier($k);
+    return $t > 0 ? max(1, (int)floor($kph * CATFISH_PLAY_SECS / 3600 * $t)) : 0;
+}
+
+/**
+ * Pay a batch of $n taps ($seq = the client's increasing batch id) inside the lock. Returns [got taps accepted, paid Kibble].
+ * A batch whose seq is not above meta.pq is a replay (a retry after a lost reply): nothing is paid. n must be an integer 0..PLAY_BATCH; anything else pays 0.
+ * Accepted = min(n, whole tokens in the bucket, taps left today). Play Kibble goes to kibble, run_kibble and total_kibble in ONE update with meta.
+ */
+function catfish_play(int $uid, $n, $seq): array
+{
+    return catfish_locked($uid, function () use ($uid, $n, $seq) {
+        $s = catfish_tick($uid);
+        $cat = catfish_active($uid, $s);
+        if (!$cat) return [0, 0];
+        $m = $s['meta']; $now = time(); $today = catfish_today();
+        $seq = is_int($seq) ? $seq : (is_string($seq) && preg_match('/^\d{1,15}$/', $seq) ? (int)$seq : 0);
+        if ($seq < 1 || $seq <= (int)($m['pq'] ?? 0)) return [0, 0];   // a replay or no batch id
+        $n = is_int($n) ? $n : (is_string($n) && preg_match('/^\d{1,6}$/', $n) ? (int)$n : 0);
+        $m['pq'] = $seq;
+        $pc = ($m['pd'] ?? '') === $today ? (int)($m['pc'] ?? 0) : 0;
+        $m['pd'] = $today;
+        $tokens = min((float)CATFISH_PLAY_CAP, (float)($m['pb'] ?? CATFISH_PLAY_CAP) + max(0, $now - (int)($m['pt'] ?? $now)) / CATFISH_PLAY_REFILL);
+        $last = CATFISH_PLAY_TIERS[count(CATFISH_PLAY_TIERS) - 1][0];
+        $got = ($n < 1 || $n > CATFISH_PLAY_BATCH) ? 0 : (int)min($n, floor($tokens), max(0, $last - $pc));
+        $paid = 0;
+        if ($got > 0) {
+            $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid));
+            for ($i = 1; $i <= $got; $i++) $paid += catfish_play_value($kph, $pc + $i);
+            $tokens -= $got;
+            $m['pe'] = (int)($m['pe'] ?? 0) + $got;
+        }
+        $m['pb'] = $tokens; $m['pt'] = $now; $m['pc'] = $pc + $got;
+        q('UPDATE catfish_state SET kibble = kibble + ?, run_kibble = run_kibble + ?, total_kibble = total_kibble + ?, meta = ? WHERE user_id = ?', [$paid, $paid, $paid, json_encode($m), $uid]);
+        return [$got, $paid];
+    });
+}
+
+/** The play block of the view: v = Kibble the next tap would pay (0 when today's taps are used up), left = taps left today, got and paid = the batch just accepted, ever = lifetime taps (0 = show the hint). */
+function catfish_play_view(array $s, ?array $cat, float $kph, int $got = 0, int $paid = 0): array
+{
+    $m = $s['meta']; $pc = ($m['pd'] ?? '') === catfish_today() ? (int)($m['pc'] ?? 0) : 0;
+    $last = CATFISH_PLAY_TIERS[count(CATFISH_PLAY_TIERS) - 1][0];
+    return ['v' => $cat ? catfish_play_value($kph, $pc + 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
+}
+
 /** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. $r is a roll in [0, 1); pure, so the tests can pin it. */
 function catfish_rare_fish(float $effKph, int $secs, float $r): int
 {
@@ -751,7 +817,7 @@ function catfish_cats(int $uid): array
 }
 
 /** Everything the page and the JS need for one gnome, after paying out the tick. */
-function catfish_view(int $uid): array
+function catfish_view(int $uid, int $got = 0, int $paid = 0): array
 {
     $s = catfish_tick($uid);
     $cat = catfish_active($uid, $s);
@@ -761,8 +827,9 @@ function catfish_view(int $uid): array
         $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'can' => (int)$s['kibble'] >= $cost,
             'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n)];
     }
+    $kphNow = $cat ? catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)) : 0.0;
     return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
-        'kph' => $cat ? round(catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)), 1) : 0, 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
+        'kph' => $cat ? round($kphNow, 1) : 0, 'play' => catfish_play_view($s, $cat, $kphNow, $got, $paid), 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
 
 /** Badges, worked out from what the gnome has (nothing stored): [key => [icon, label]]. */
