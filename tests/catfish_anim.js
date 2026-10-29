@@ -156,6 +156,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   const k0 = await kib();
   ok('buy: before, no room overlay, no dust, no bird', await p.evaluate(() => [document.querySelectorAll('.cfroom-layer').length, document.querySelectorAll('.cfdust').length].join()), '0,0');
   const cost1 = +(await p.getAttribute('#cf-ups form[data-key=sunbeam] button', 'data-cost'));
+  await p.click('.cftabs [data-branch=room]');
   await p.click('#cf-ups form[data-key=sunbeam] button');
   await p.waitForTimeout(250);
   ok('buy: the cost leaves the Kibble counter at once (before the reply), the pressed button is off', (await kib()) + ',' + await p.$eval('#cf-ups form[data-key=sunbeam] button', b => b.disabled), (k0 - cost1) + ',true');
@@ -177,6 +178,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   const pend0 = +(await p.getAttribute('.cfstage', 'data-play-pending'));
   ok('buy: taps are pending on the stage before the buy (the fish tap above and this one)', pend0 >= 1, true);
   const kq = await kib();
+  await p.click('.cftabs [data-branch=fish]');
   await p.click('#cf-ups form[data-key=silk] button'); await p.waitForTimeout(1500);
   const bq = reqs.slice(nReq).find(x => /name="do"\s+buy/.test(x)) || '';
   ok('buy: the request carries play=<pending taps>, a seq and the scene key', new RegExp('name="play"\\s+' + pend0 + '\\s').test(bq) + ',' + /name="seq"\s+\d{6,}/.test(bq) + ',' + /name="scene"/.test(bq), 'true,true,true');
@@ -188,6 +190,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   await p.waitForTimeout(100);
   const costR = +(await p.getAttribute('#cf-ups form[data-key=catnip] button', 'data-cost'));
   const kr = await kib();
+  await p.click('.cftabs [data-branch=fish]');
   await p.click('#cf-ups form[data-key=catnip] button'); await p.waitForTimeout(250);
   ok('buy refused: the number dips at once (optimistic)', await kib(), kr - costR);
   await p.waitForTimeout(1200);
@@ -197,6 +200,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   await p.goto(B + '/catfish.php');
   await p.route('**/catfish_api.php', r => r.abort());
   const kn = await kib();
+  await p.click('.cftabs [data-branch=fish]');
   await p.click('#cf-ups form[data-key=catnip] button'); await p.waitForTimeout(600);
   ok('buy with no reply: the Kibble is given back, a message says so, the button is on again', (await kib()) + ',' + await p.$eval('#cf-msg', e => e.textContent) + ',' + await p.$eval('#cf-ups form[data-key=catnip] button', b => b.disabled), kn + ',Could not reach the game. Try again.,false');
   ok('buy flow: no page errors', errs3.join('|'), '');
@@ -206,6 +210,7 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   c = await br.newContext({ viewport: { width: 412, height: 900 }, reducedMotion: 'reduce' }); p = await c.newPage(); await login(p);
   await p.route('**/catfish_api.php', async r => { await new Promise(x => setTimeout(x, 500)); r.continue(); });
   await p.waitForTimeout(500);
+  await p.click('.cftabs [data-branch=room]');
   await p.click('#cf-ups form[data-key=sunbeam] button'); await p.waitForTimeout(150);
   ok('buy, reduced motion: the -N fades (cfspendfade), it does not move', await p.$eval('#cf-spend', e => getComputedStyle(e).animationName), 'cfspendfade');
   await p.waitForTimeout(1200);

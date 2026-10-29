@@ -317,7 +317,7 @@ cfpost -d do=rare >/dev/null
 ok "Rare Shelter third refused: ys stays 13" "$(mget ys)" 13
 ok "Rare Shelter third refused: rare stays 2" "$(mget rare)" 2
 pagew3
-ok "Yarn to spend shows 100 - 13 = 87" "$(grep -c 'Home and shelter · 87 Yarn to spend' $W/w3.html)" 1
+ok "Yarn to spend shows 100 - 13 = 87" "$(grep -c 'Yarn · 87 to spend' $W/w3.html)" 1
 
 # 5. adopt with a stale seed is refused; the seed from the page works (a cat freed for it first)
 dbx "DELETE FROM cats WHERE user_id=$UID_ AND name='Delta'"

@@ -17,6 +17,10 @@
       var f = b.closest('form.cfup');   // a buy in flight keeps its own button off until the reply
       b.disabled = Math.floor(shown) < +b.getAttribute('data-cost') || !!(f && buying[f.getAttribute('data-key')]);
     });
+    document.querySelectorAll('.cftabs [data-branch]').forEach(function (t) {   // upgrade tab badges: how many in that branch can be bought now
+      var n = document.querySelectorAll('.cfbranch[data-branch="' + t.getAttribute('data-branch') + '"] button[data-cost]:not(:disabled)').length, g = t.querySelector('.cfbdg');
+      if (g) { g.textContent = n; g.hidden = n < 1; }
+    });
   }
   function form(data) { var fd = new FormData(); fd.append('csrf', d.csrf); Object.keys(data).forEach(function (k) { fd.append(k, data[k]); }); return fd; }
   function post(data, done, fail) {
@@ -34,7 +38,7 @@
       var f = document.querySelector('#cf-ups form[data-key="' + u.key + '"]'); if (!f) return;
       f.querySelector('small.muted').textContent = '×' + u.owned;
       f.querySelector('.cfgives').textContent = u.gives + (u.mult > 1 ? ' · ×' + u.mult + ' bonus' : '');
-      var b = f.querySelector('button'); b.setAttribute('data-cost', u.cost); b.textContent = 'Buy · ' + u.cost.toLocaleString();
+      var b = f.querySelector('button'); b.setAttribute('data-cost', u.cost); b.textContent = u.cost.toLocaleString(); b.setAttribute('aria-label', 'Buy ' + u.name + ' for ' + u.cost.toLocaleString() + ' Kibble');
     });
     var run = document.getElementById('cf-run'); if (run) {
       run.textContent = view.run.toLocaleString(); document.getElementById('cf-napyarn').textContent = view.nap_yarn;
@@ -403,4 +407,56 @@
     var keep = inst ? inst.snap() : null; if (inst) inst.stop();
     inst = init(keep);
   });
+})();
+
+/* Layout (2.2.0): upgrade branch tabs, the six-panel hub and the Cat Book pattern tabs. All three are built here from server markup, so without JS every branch,
+   panel and pattern simply shows stacked. The chosen panel is remembered for the session, since forms reload the page. */
+(function () {
+  var page = document.querySelector('.cfpage'); if (!page) return;
+  function mem(k, v) { try { if (v === undefined) return sessionStorage.getItem('cf' + k); sessionStorage.setItem('cf' + k, v); } catch (e) {} return null; }
+  function tabs(wrap, items, label, key, cls) {   // items: [{id, html, el}]; shows one el at a time
+    if (items.length < 2) return;
+    var bar = document.createElement('div'); bar.className = cls; bar.setAttribute('role', 'tablist'); bar.setAttribute('aria-label', label);
+    var cur = mem(key); if (!items.some(function (i) { return i.id === cur; })) cur = items[0].id;
+    function show(id) {
+      cur = id; mem(key, id);
+      items.forEach(function (i) { i.el.hidden = i.id !== id; i.btn.setAttribute('aria-selected', i.id === id ? 'true' : 'false'); i.btn.classList.toggle('on', i.id === id); });
+    }
+    items.forEach(function (i) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.appendChild(document.createTextNode(i.label + ' ')); if (i.sub) { var sm = document.createElement('small'); sm.textContent = i.sub; b.appendChild(sm); }
+      if (i.badge) { var bg = document.createElement('span'); bg.className = 'cfbdg'; bg.hidden = true; b.appendChild(bg); }
+      if (i.attr) b.setAttribute(i.attr[0], i.attr[1]);
+      b.addEventListener('click', function () { show(i.id); }); i.btn = b; bar.appendChild(b);
+    });
+    wrap.insertBefore(bar, items[0].el); wrap.classList.add('js'); show(cur);
+  }
+  var ups = document.getElementById('cf-ups');
+  if (ups) tabs(ups, [].map.call(ups.querySelectorAll('.cfbranch'), function (el) {
+    return { id: el.getAttribute('data-branch'), el: el, attr: ['data-branch', el.getAttribute('data-branch')], label: el.getAttribute('data-label'), badge: true };
+  }), 'Upgrade branches', 'upt', 'cftabs');
+  var hub = document.getElementById('cf-hub');
+  if (hub) {
+    var ps = [].slice.call(hub.querySelectorAll(':scope > .cfpanel')), bar = document.createElement('div'), cur = mem('hub');
+    if (ps.length) {
+      bar.className = 'cfhub'; bar.setAttribute('role', 'tablist'); bar.setAttribute('aria-label', 'More');
+      function show(id) {
+        cur = id; mem('hub', id);
+        ps.forEach(function (p) { var on = p.id === id; p.hidden = !on; p.btn.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      }
+      if (!ps.some(function (p) { return p.id === cur; })) cur = ps[0].id;
+      ps.forEach(function (p) {
+        var b = document.createElement('button'), n = +p.getAttribute('data-badge') || 0; b.type = 'button'; b.setAttribute('role', 'tab');
+        [['cfhi', p.getAttribute('data-icon'), 'span'], ['', p.getAttribute('data-title'), 'span'], ['', p.getAttribute('data-status'), 'small']].forEach(function (r) {
+          var e = document.createElement(r[2]); if (r[0]) { e.className = r[0]; e.setAttribute('aria-hidden', 'true'); } e.textContent = r[1]; b.appendChild(e);
+        });
+        if (n) { var g = document.createElement('span'); g.className = 'cfbdg'; g.textContent = n; b.appendChild(g); }
+        b.addEventListener('click', function () { show(p.id); }); p.btn = b; bar.appendChild(b); p.querySelector('h3').classList.add('cfh3js');
+      });
+      hub.insertBefore(bar, ps[0]); hub.classList.add('js'); show(cur);
+    }
+  }
+  var bk = page.querySelector('.cfbook');
+  if (bk) tabs(bk, [].map.call(bk.querySelectorAll('.cfbpat'), function (el) {
+    return { id: el.getAttribute('data-label'), el: el, label: el.getAttribute('data-label'), sub: el.getAttribute('data-count') };
+  }), 'Cat Book patterns', 'bkt', 'cftabs');
 })();

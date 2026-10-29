@@ -284,3 +284,34 @@
 .cfdust .m5 { left: 132px; top: 150px; --dx: 8px; --dy: -12px; animation-duration: 10s; animation-delay: -2s; } .cfdust .m6 { left: 170px; top: 88px; width: 1px; height: 1px; --dx: -6px; --dy: 10px; animation-duration: 13s; animation-delay: -9s; }
 @keyframes cfmote { 0% { translate: 0 0; } 100% { translate: var(--dx) var(--dy); } }
 @media (prefers-reduced-motion: reduce) { .cfdust { display: none; } .cfbird { display: none !important; } .cfstage.is-bird .cfl-window { display: block; } .cfyarn.is-roll .yp, .cfyarn.is-roll .yb { display: none; } .cfl-rug.is-wobble { animation: none; } }
+
+/* 2.2.0 layout: upgrade tabs, Shelter fold, six-panel hub, slim cat rows, Cat Book pattern tabs. JS adds .js to each wrapper; without it everything shows stacked. */
+.cftabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 0 .5rem; }
+.cftabs button { flex: 1 0 auto; font: inherit; font-size: .9rem; padding: .4rem .7rem; border: 1px solid var(--line, #ddd); border-radius: 8px; background: transparent; color: inherit; white-space: nowrap; }
+.cftabs button.on { background: var(--brand-fill, #e8a317); border-color: var(--brand-fill, #e8a317); color: var(--on-fill, #2a1a10); font-weight: 700; }
+.cftabs small { opacity: .8; }
+.cfbdg { display: inline-block; min-width: 1.15rem; padding: 0 .3rem; border-radius: 999px; background: var(--accent, #e8a317); color: #2a1a10; font-size: .7rem; font-weight: 700; text-align: center; margin-left: .2rem; }
+.cftabs .on .cfbdg { background: #2a1a10; color: #fff3c8; }
+.cfupwrap.js .cfbranch > h3, .cfhubwrap.js .cfh3js { display: none; }
+.cfbranch[hidden], .cfpanel[hidden], .cfbpat[hidden] { display: none; }
+.cfcost { min-width: 4.5rem; font-variant-numeric: tabular-nums; }
+.cfsav { display: inline-flex; gap: 2px; vertical-align: middle; margin: 0 .3rem; }
+.cfsav .cfart { zoom: .5; } .cfsav .cfcat { font-size: 1rem; padding: .1rem; }
+.cfhub { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: .5rem 0; }
+.cfhub button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; font: inherit; font-size: .9rem; padding: .5rem .2rem; border: 1px solid var(--line, #ddd); border-radius: 8px; background: transparent; color: inherit; }
+.cfhub button .cfhi { font-size: 1.5rem; line-height: 1.1; }
+.cfhub button small { font-size: .72rem; opacity: .8; text-align: center; line-height: 1.2; }
+.cfhub button[aria-selected="true"] { border-color: var(--accent, #e8a317); box-shadow: 0 0 0 1px var(--accent, #e8a317); font-weight: 700; }
+.cfhub .cfbdg { position: absolute; top: 3px; right: 5px; margin: 0; }
+.cfrow { flex-wrap: wrap; }
+.cfrow .cfinfo { flex: 1 1 8rem; }
+.cfren > summary { list-style: none; padding: .2rem .5rem; border: 1px solid var(--line, #ddd); border-radius: 8px; }
+.cfren > summary::-webkit-details-marker { display: none; }
+.cfren[open] { flex: 1 1 100%; order: 9; }
+.cfren[open] > summary { display: inline-block; margin-bottom: .3rem; }
+.cfbpat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.cfbtile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: .4rem .2rem; border: 1px solid var(--line, #ddd); border-radius: 8px; text-align: center; font-size: .75rem; line-height: 1.2; }
+.cfbtile:not(.got) { opacity: .65; }
+.cfbook:not(.js) .cfbpat { margin-bottom: .5rem; }
+.cfbook:not(.js) .cfbpat::before { content: attr(data-label); grid-column: 1 / -1; font-weight: 700; text-align: left; }
+@media (max-width: 380px) { .cfbpat { grid-template-columns: repeat(2, 1fr); } }
