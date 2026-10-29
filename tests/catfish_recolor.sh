@@ -10,7 +10,8 @@ grep -q FAILED "$OUT.log" && exit 1
 grep -q unmapped "$OUT.log" && { echo "FAIL: unmapped colours"; exit 1; }
 IN=aseprite-source/catfish/test
 N=$(ls "$OUT"/cf-cat-*-*.png | wc -l)
-[ "$N" = 40 ] || { echo "FAIL: expected 40 cat outputs, got $N"; exit 1; }
+F=$(ls "$IN"/cf-cat-grey-*.png | wc -l)   # drawn frames grow as the art does
+[ "$N" = $((8 * F)) ] || { echo "FAIL: expected $((8 * F)) cat outputs, got $N"; exit 1; }
 for c in grey black white orange cream brown silver-blue ginger-red; do
   for f in idleA pounce catch nap stalk; do [ -f "$OUT/cf-cat-$c-$f.png" ] || { echo "FAIL missing $c $f"; exit 1; }; done
 done
@@ -40,9 +41,9 @@ for f in sorted(glob.glob(f'{i}/cf-pat-*-grey-*.png')):
         a, b = arr(f), arr(g); n += 1
         assert (a[..., 3] == b[..., 3]).all()
         if c == 'grey': assert (a == b).all()
-assert n == 5 * 4 * 8, n
+assert n == 5 * len(glob.glob(f"{i}/cf-pat-tabby-grey-*.png")) * 8, n   # patterns x drawn key frames x coats
 parts = sorted(glob.glob(f'{i}/cf-ears-folded-*.png') + glob.glob(f'{i}/cf-tail-bobtail-*.png'))
-assert len(parts) == 8
+assert len(parts) >= 8
 for f in parts:
     k = os.path.basename(f)[:-4].split('-')
     for c in C:
@@ -52,11 +53,17 @@ for f in parts:
         else: assert (a != b).any(), 'part not recoloured ' + g
 # masks and final eye files are copied byte for byte (mask white is not art)
 cp = glob.glob(f'{i}/cf-*-mask-*.png') + glob.glob(f'{i}/cf-eyes-[!r]*.png')
-assert len(cp) == 8 + 20
+assert len(cp) >= 28   # grows as frames are drawn
 for f in cp:
     assert open(f, 'rb').read() == open(o + '/' + os.path.basename(f), 'rb').read(), 'not copied unchanged ' + f
 # roles: patch_white is fixed, coat_deep follows the coat ramp
-assert (arr(f'{i}/cf-pat-tuxedo-grey-idleA.png') == arr(f'{o}/cf-pat-tuxedo-orange-idleA.png')).all(), 'white patch must be fixed'
+# patch_white_* stay fixed; only patch_white_edge (#463e5e, derive coat_deep) follows the coat ramp
+g, ob = arr(f'{i}/cf-pat-tuxedo-grey-idleA.png'), arr(f'{o}/cf-pat-tuxedo-orange-idleA.png')
+edge = (g[..., :3] == [0x46, 0x3e, 0x5e]).all(-1) & (g[..., 3] > 0)
+assert edge.any(), 'tuxedo has an edge row'
+assert (g[~edge] == ob[~edge]).all(), 'white patch must be fixed'
+assert (g[edge] != ob[edge]).any(), 'patch_white_edge must follow the coat'
+assert (g == arr(f'{o}/cf-pat-tuxedo-grey-idleA.png')).all(), 'grey is the template'
 assert (arr(f'{i}/cf-pat-tabby-grey-idleA.png') != arr(f'{o}/cf-pat-tabby-orange-idleA.png')).any()
 print('overlays ok (%d pattern files, %d part files)' % (n, len(parts) * 8))
 P

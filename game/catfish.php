@@ -40,10 +40,10 @@ $rolls = array_replace([0, 0, 0], ($meta['roll']['day'] ?? '') === catfish_today
 $slots = catfish_slots($uid, $st); $owned = count($cats); $room = $owned < $slots;
 $adoptCost = catfish_adopt_cost($owned);
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
-/** One cat as a tinted placeholder block plus its trait line. */
+/** One cat (layered art when the PNGs exist, else a tinted placeholder block) plus its trait line. */
 $catCard = function (array $c): string {
     $traits = ucfirst($c['colour']) . ' ' . $c['pattern'] . ', ' . $c['eyes'] . ' eyes' . ($c['ears'] === 'folded' ? ', folded ears' : '') . ($c['tail'] === 'bobtail' ? ', bobtail' : '');
-    return '<span class="cfcat c-' . e($c['colour']) . ' p-' . e($c['pattern']) . ' e-' . e($c['eyes']) . '" aria-hidden="true">🐱</span>'
+    return catfish_cat_html($c, 64, 'idleA')
         . '<span class="cfinfo"><b>' . e($c['name']) . '</b> <span class="cfrar r-' . e($c['rarity']) . '">' . e(ucfirst($c['rarity'])) . '</span><br>'
         . '<small>' . e($traits) . '</small><br><small class="muted">' . e(ucfirst($c['mood'])) . ($c['quirk'] !== '' ? ' · ' . e($c['quirk']) : '') . '</small></span>';
 };

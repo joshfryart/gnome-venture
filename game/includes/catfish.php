@@ -86,6 +86,63 @@ function catfish_img(string $name, string $fallback, string $alt = '', int $px =
     return '<img class="cfimg" src="' . e(url($file . '?v=' . APP_VERSION)) . '" alt="' . e($alt) . '" width="' . $px . '" height="' . $px . '">';
 }
 
+/**
+ * Layered cat. Real art: a stack of absolutely positioned 64 x 64 PNG layers in a wrapper, no inline style (CSP). Order, bottom to top:
+ * body, ears/tail replacement parts, pattern, eyes (see tools/catfish_recolor.py --compose, which draws the same stack).
+ * Folded ears / bobtail replace part of the body: the body and pattern layers sit inside <span class="cfmk cfmk-ears-F"> / cfmk-tail-F groups,
+ * and catfish.css erases those regions with CSS mask-image (cf-ears-mask-F.png / cf-tail-mask-F.png, alpha 255 = erase; mask-composite exclude).
+ * Nothing is pre-baked, so the art folder stays at body + pattern + part + eyes files per coat. A part with no mask for the frame is not drawn.
+ * Art location: constant CATFISH_ART_DIR (disk) and CATFISH_ART_URL (web path, relative to the app), default assets/img/catfish.
+ * No body PNG for this coat and frame = the old emoji placeholder, byte for byte. Every file is checked once per request.
+ * $size snaps to 64, 128 or 192 px (integer scales, CSS classes cf-s64 / cf-s128 / cf-s192). $eyeClass only affects the emoji fallback.
+ */
+const CATFISH_FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored'];
+const CATFISH_ART_COATS = ['ginger' => 'orange', 'black' => 'black', 'grey' => 'grey', 'cream' => 'cream', 'white' => 'white', 'brown' => 'brown', 'silver' => 'silver-blue'];   // game coat => art coat (lilac has no art yet: emoji)
+const CATFISH_PATTERN_FRAMES = ['idleA', 'pounce', 'catch', 'nap', 'stalk'];
+const CATFISH_EYE_COLOURS = ['amber', 'green', 'blue', 'hazel'];
+function catfish_art_has(string $file): bool
+{
+    static $have = [];
+    $dir = defined('CATFISH_ART_DIR') ? CATFISH_ART_DIR : APP_ROOT . '/assets/img/catfish';
+    return $have[$dir . '/' . $file] ??= is_file($dir . '/' . $file);
+}
+function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', bool $eyeClass = true): string
+{
+    $coat = CATFISH_ART_COATS[$cat['colour'] ?? ''] ?? null;
+    $fallback = '<span class="cfcat c-' . e($cat['colour'] ?? '') . ' p-' . e($cat['pattern'] ?? '') . ($eyeClass ? ' e-' . e($cat['eyes'] ?? '') : '') . '" aria-hidden="true">🐱</span>';
+    if (!in_array($frame, CATFISH_FRAMES, true)) $frame = 'idleA';
+    if ($coat === null || !catfish_art_has("cf-cat-$coat-$frame.png")) return $fallback;
+    $img = function (string $file): string {
+        $base = defined('CATFISH_ART_URL') ? CATFISH_ART_URL : 'assets/img/catfish';
+        return '<img src="' . e(url($base . '/' . $file . '?v=' . APP_VERSION)) . '" alt="" width="64" height="64">';
+    };
+    $parts = []; $masks = [];
+    foreach ([['ears', 'folded', 'ears'], ['tail', 'bobtail', 'tail']] as [$kind, $val, $trait]) {
+        if (($cat[$trait] ?? '') !== $val) continue;
+        if (!catfish_art_has("cf-$kind-$val-$coat-$frame.png") || !catfish_art_has("cf-$kind-mask-$frame.png")) continue;
+        $parts[] = $img("cf-$kind-$val-$coat-$frame.png"); $masks[] = "cfmk cfmk-$kind-$frame";
+    }
+    $erase = function (string $inner) use ($masks): string {
+        foreach ($masks as $m) $inner = '<span class="' . $m . '">' . $inner . '</span>';
+        return $inner;
+    };
+    $h = $erase($img("cf-cat-$coat-$frame.png")) . implode('', $parts);
+    $pat = (string)($cat['pattern'] ?? 'solid');
+    if ($pat !== 'solid' && preg_match('/^[a-z]+$/', $pat)) {
+        $pf = in_array($frame, CATFISH_PATTERN_FRAMES, true) ? $frame : 'idleA';
+        if (catfish_art_has("cf-pat-$pat-$coat-$pf.png")) $h .= $erase($img("cf-pat-$pat-$coat-$pf.png"));
+    }
+    $eye = (string)($cat['eyes'] ?? 'amber');   // eye layers exist for the key frames only; none for the others
+    if ($eye === 'odd') {   // left and right halves, two different colours, chosen by the seed
+        $sd = (int)($cat['seed'] ?? 0); $l = CATFISH_EYE_COLOURS[$sd % 4]; $r = CATFISH_EYE_COLOURS[($sd % 4 + 1 + intdiv($sd, 4) % 3) % 4];
+        foreach ([[$l, 'L'], [$r, 'R']] as [$c, $side]) if (catfish_art_has("cf-eyes-$c-$frame.png")) $h .= '<span class="cfclip cfclip-' . $side . '-' . $frame . '">' . $img("cf-eyes-$c-$frame.png") . '</span>';
+    } elseif (in_array($eye, CATFISH_EYE_COLOURS, true) && catfish_art_has("cf-eyes-$eye-$frame.png")) {
+        $h .= $img("cf-eyes-$eye-$frame.png");
+    }
+    $s = $size >= 192 ? 192 : ($size >= 128 ? 128 : 64);
+    return '<span class="cfart cf-s' . $s . '" aria-hidden="true">' . $h . '</span>';
+}
+
 /** Today's date in the Hollow's time zone (setting game_timezone, America/Halifax). Every Cat Fish day and week turns over at its local midnight, like the rest of the game (jobs.php). */
 function catfish_today(?int $ts = null): string
 {
@@ -741,7 +798,7 @@ function catfish_garden_html(int $uid): string
     $cat = $s ? catfish_active($uid, $s) : null;
     if (!$cat) return '';
     $spot = ['lazy' => 'dozing on a warm bed', 'hyper' => 'zooming between the beds', 'sneaky' => 'hiding in the leaves', 'greedy' => 'guarding the harvest basket', 'dreamy' => 'watching the clouds'][$cat['mood']] ?? 'sitting in the garden';
-    return '<p class="cfgarden"><span class="cfcat c-' . e($cat['colour']) . ' p-' . e($cat['pattern']) . '" aria-hidden="true">🐱</span> <small>' . e($cat['name']) . ' is ' . e($spot) . '. <a href="' . e(url('catfish.php')) . '">Cat Fish</a></small></p>';
+    return '<p class="cfgarden">' . catfish_cat_html($cat, 64, 'idleA', false) . ' <small>' . e($cat['name']) . ' is ' . e($spot) . '. <a href="' . e(url('catfish.php')) . '">Cat Fish</a></small></p>';
 }
 
 /** Profile block: a gnome's Cat Fish badges as a list, '' if none or Cat Fish is closed. */

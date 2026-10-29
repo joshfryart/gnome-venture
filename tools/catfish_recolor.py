@@ -15,7 +15,9 @@ builds base coat, clears the mask regions (also from the pattern), adds parts, p
 default --out aseprite-source/catfish/test/recolor/ (never game/assets).
 
 Tones: aseprite-source/catfish/tones.json maps role -> template hex (shade, base, light, gloss).
-Optional aseprite-source/catfish/tones_overlays.json adds more roles (role -> hex):
+Optional aseprite-source/catfish/tones_overlays.json adds more roles: role -> hex, or role -> {hex, derive}.
+When 'derive' is present it decides the recolour (e.g. patch_white_edge derives coat_deep, so the 1 px rim of a
+white/cream patch follows the coat's deep tone); otherwise the role name does. Kinds:
   - plain roles (any name): the hex passes through unchanged (fixed accent);
   - coat roles: mark_dark (coat deep), mark_mid (coat shade), mark_base (coat base),
     mark_light (coat light), mark_pale (coat gloss): hex is recoloured from the coat ramp;
@@ -113,6 +115,7 @@ def ramp(base):
     if l == to_hsl(base)[2]: out['base'] = base
     return out
 
+UNKNOWN_SEEN = set()
 COAT_ROLES = {'mark_dark': 'deep', 'mark_mid': 'shade', 'mark_base': 'base', 'mark_light': 'light', 'mark_pale': 'gloss'}
 
 
@@ -144,7 +147,10 @@ def build_map(coat, base_tones, overlays, eye):
         elif d.startswith('coat_') and d[5:] in r: m[hx] = r[d[5:]]
         elif d == 'eye_ring' and eye: m[hx] = EYES[eye]
         elif d in base_tones: m[hx] = r[d]
-        else: m.setdefault(hx, hx)  # fixed
+        else:
+            if d not in ('fixed', 'eye_ring') and not d.startswith('eye_') and role not in UNKNOWN_SEEN:
+                UNKNOWN_SEEN.add(role); print('WARN overlay role %s: unknown derive %r, left fixed' % (role, d), file=sys.stderr)
+            m.setdefault(hx, hx)  # fixed
     return m
 
 

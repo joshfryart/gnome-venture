@@ -40,3 +40,29 @@
 .cfshowform select { max-width: 100%; }
 .cfribbon small { white-space: normal; }
 .cfimg { image-rendering: pixelated; vertical-align: middle; max-width: 100%; height: auto; }
+/* Layered cat (catfish_cat_html): transparent 64 x 64 PNG layers stacked in .cfart, integer scales only. No inline style anywhere (CSP). */
+.cfart { position: relative; display: inline-block; flex: none; vertical-align: middle; }
+.cf-s64 { width: 64px; height: 64px; } .cf-s128 { width: 128px; height: 128px; } .cf-s192 { width: 192px; height: 192px; }
+.cfart img, .cfart .cfmk, .cfart .cfclip { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.cfart .cfmk img, .cfart .cfclip img { image-rendering: pixelated; }
+/* Folded ears / bobtail: erase the base part under the replacement. Mask PNG alpha 255 = erase, so XOR it against a solid layer. */
+.cfmk { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-composite: xor; mask-composite: exclude; image-rendering: pixelated; }
+.cfmk-ears-idleA { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-idleA.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-idleA.png); }
+.cfmk-ears-pounce { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-pounce.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-pounce.png); }
+.cfmk-ears-catch { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-catch.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-catch.png); }
+.cfmk-ears-nap { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-nap.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-nap.png); }
+.cfmk-tail-idleA { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-idleA.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-idleA.png); }
+.cfmk-tail-pounce { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-pounce.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-pounce.png); }
+.cfmk-tail-catch { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-catch.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-catch.png); }
+.cfmk-tail-nap { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-nap.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-nap.png); }
+.cfmk-ears-stalk { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-stalk.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-stalk.png); }
+.cfmk-tail-stalk { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-stalk.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-stalk.png); }
+/* Odd-eyed: left eye and right eye layers, each clipped to its half (split x from tools/catfish_recolor.py EYE_OX). */
+.cfclip-L-idleA { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-idleA { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-pounce { clip-path: inset(0 35.9375% 0 0); } .cfclip-R-pounce { clip-path: inset(0 0 0 64.0625%); }
+.cfclip-L-catch { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-catch { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-nap { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-nap { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-stalk { clip-path: inset(0 37.5% 0 0); } .cfclip-R-stalk { clip-path: inset(0 0 0 62.5%); }
+.cfclip-L-idleB { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-idleB { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-wiggle { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-wiggle { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-bored { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-bored { clip-path: inset(0 0 0 39.0625%); }
