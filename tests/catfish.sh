@@ -380,5 +380,14 @@ setg catfish_open 0
 ok "gate off: do=reroll via the page redirects (302)" "$(cfpost -d do=reroll -d slot=0)" 302
 setg catfish_open 1
 
+# a milestone worth more than the whole weekly cap still pays (capped), then nothing more that week
+setg catfish_open 1; setg catfish_petal_cap 5
+dbx "UPDATE catfish_state SET meta='{}' WHERE user_id=$UID_"; dbx "UPDATE users SET coins=0 WHERE id=$UID_"
+curl -s -b $W/p $BASE/catfish.php -o /dev/null
+ok "cap 5: first milestone pays exactly the cap" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" 5
+curl -s -b $W/p $BASE/catfish.php -o /dev/null
+ok "cap 5: a second page load pays nothing more" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" 5
+setg catfish_petal_cap 100
+
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

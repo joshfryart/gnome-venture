@@ -210,9 +210,9 @@ function catfish_adopt_cost(int $owned): int
 }
 
 /** Cats a gnome may own: 2, plus one per bigger-home upgrade (up to CATFISH_MAX_CATS). */
-function catfish_slots(int $uid): int
+function catfish_slots(int $uid, ?array $state = null): int
 {
-    return min(CATFISH_MAX_CATS, 2 + (int)(catfish_state($uid)['meta']['extra'] ?? 0));
+    return min(CATFISH_MAX_CATS, 2 + (int)(($state ?? catfish_state($uid))['meta']['extra'] ?? 0));
 }
 
 // ---------- state and tick ----------
@@ -372,7 +372,8 @@ function catfish_adopt(int $uid, int $slot, string $name, string $day = '', int 
         if ($owned >= catfish_slots($uid)) return [false, 'Your home is full.'];
         $cat = catfish_shelter_now($uid, $s['meta'])[$slot];
         if ($seed > 0 && $cat['seed'] !== $seed) {
-            // the form may be from before the UTC reset: yesterday's plain shelter still counts
+            // a form from before the UTC reset still adopts the cat it showed, but only in the first hour of the new day
+            if (time() % 86400 >= 3600) return [false, 'The shelter changed. Reload the page and try again.'];
             $old = catfish_shelter($uid, gmdate('Y-m-d', time() - 86400), [], (int)($s['meta']['rare'] ?? 0))[$slot];
             if ($old['seed'] !== $seed) return [false, 'The shelter changed. Reload the page and try again.'];
             $cat = $old;
@@ -465,6 +466,8 @@ function catfish_claim_petals(int $uid): int
 {
     $cap = (int)setting('catfish_petal_cap');
     if ($cap <= 0) return 0;
+    $seen = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+    if (is_array($seen) && count((array)($seen['ms'] ?? [])) >= count(CATFISH_MILESTONES_PETALS)) return 0;   // all paid: no lock, no extra queries
     return catfish_locked($uid, function () use ($uid, $cap) {
         $s = catfish_state($uid); $meta = $s['meta'];
         $week = gmdate('o-\WW');
@@ -472,7 +475,7 @@ function catfish_claim_petals(int $uid): int
         $done = (array)($meta['ms'] ?? []); $total = 0;
         foreach (catfish_milestones_reached($uid, $s) as $key => $hit) {
             if (!$hit || in_array($key, $done, true)) continue;
-            $amount = game_petals(CATFISH_MILESTONES_PETALS[$key][1]);
+            $amount = min(game_petals(CATFISH_MILESTONES_PETALS[$key][1]), $cap);   // never bigger than the cap, so a milestone can always be paid in some week
             if ($paid + $total + $amount > $cap) continue;   // waits for next week
             $done[] = $key; $total += $amount;
         }

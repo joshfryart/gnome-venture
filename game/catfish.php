@@ -28,13 +28,12 @@ if (is_post()) {
     redirect('catfish.php');
 }
 $v = catfish_view($uid);
-catfish_claim_petals($uid);   // milestones reached since last visit (inside the weekly cap)
 $st = catfish_state($uid); $meta = $st['meta'];
 $cats = catfish_cats($uid);
 $cat = $v['cat'];
 $shelter = catfish_shelter_now($uid, $meta);
 $rolls = array_replace([0, 0, 0], ($meta['roll']['day'] ?? '') === gmdate('Y-m-d') ? (array)($meta['roll']['n'] ?? []) : []);
-$slots = catfish_slots($uid); $owned = count($cats); $room = $owned < $slots;
+$slots = catfish_slots($uid, $st); $owned = count($cats); $room = $owned < $slots;
 $adoptCost = catfish_adopt_cost($owned);
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 /** One cat as a tinted placeholder block plus its trait line. */
@@ -89,20 +88,21 @@ page_header('Cat Fish');
     <?php else: ?><input class="cfname" type="text" name="name" maxlength="<?= CATFISH_NAME_MAX ?>" value="<?= e($s['name']) ?>" aria-label="Name"><button class="btn" type="submit" data-cost="<?= (int)$adoptCost ?>"<?= $v['kibble'] >= $adoptCost ? '' : ' disabled' ?>>Adopt<?= $adoptCost > 0 ? ' · ' . number_format($adoptCost) : '' ?></button><?php endif; ?>
   </form>
   <?php if (!$has && $v['spend'] >= CATFISH_REROLL_COST && $rolls[$s['slot']] < CATFISH_REROLL_MAX): ?>
-  <form method="post" class="cfreroll"><?= csrf_field() ?><input type="hidden" name="do" value="reroll"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>"><button class="btn" type="submit">Swap this cat · <?= CATFISH_REROLL_COST ?> Yarn</button> <small class="muted"><?= CATFISH_REROLL_MAX - $rolls[$s['slot']] ?> left today</small></form>
+  <form method="post" class="cfreroll"><?= csrf_field() ?><input type="hidden" name="do" value="reroll"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>"><button class="btn" type="submit" aria-label="Swap <?= e($s['name']) ?> for another cat, <?= CATFISH_REROLL_COST ?> Yarn">Swap this cat · <?= CATFISH_REROLL_COST ?> Yarn</button> <small class="muted"><?= CATFISH_REROLL_MAX - $rolls[$s['slot']] ?> left today</small></form>
   <?php endif; ?>
 <?php endforeach; ?>
 </div>
 <?php endif; ?>
 
-<?php if ($cat): $extra = (int)($meta['extra'] ?? 0); $rareLvl = (int)($meta['rare'] ?? 0); ?>
+<?php if ($cat): catfish_claim_petals($uid); $st = catfish_state($uid); $meta = $st['meta'];   // milestones reached since the last visit, after the shelter cats above are in the Book
+$extra = (int)($meta['extra'] ?? 0); $rareLvl = (int)($meta['rare'] ?? 0); ?>
 <details class="fold box"><summary>🏡 Home and shelter · <?= number_format($v['spend']) ?> Yarn to spend</summary>
   <p class="help">Yarn you spend here never lowers your Kibble bonus. That follows all the Yarn you have earned.</p>
   <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="bigger">
     <span class="cficon" aria-hidden="true">🏡</span><span class="cfinfo"><b>Bigger home</b> <small class="muted"><?= $slots ?> of <?= CATFISH_MAX_CATS ?> places</small><br><small>Room for one more cat.</small></span>
     <?php if ($extra < count(CATFISH_SLOT_COSTS)): ?><button class="btn" type="submit"<?= $v['spend'] >= CATFISH_SLOT_COSTS[$extra] ? '' : ' disabled' ?>><?= CATFISH_SLOT_COSTS[$extra] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
   <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="rare">
-    <span class="cficon" aria-hidden="true">🔭</span><span class="cfinfo"><b>Rare Shelter</b> <small class="muted">level <?= $rareLvl ?> of <?= count(CATFISH_RARE_COSTS) ?></small><br><small><?= $rareLvl === 0 ? 'Each spot shows one cat.' : 'Each spot shows the best of ' . ($rareLvl + 1) . ' cats.' ?> Next level: best of <?= min($rareLvl, count(CATFISH_RARE_COSTS) - 1) + 2 ?>.</small></span>
+    <span class="cficon" aria-hidden="true">🔭</span><span class="cfinfo"><b>Rare Shelter</b> <small class="muted">level <?= $rareLvl ?> of <?= count(CATFISH_RARE_COSTS) ?></small><br><small><?= $rareLvl === 0 ? 'Each spot shows one cat.' : 'Each spot shows the best of ' . ($rareLvl + 1) . ' cats.' ?> <?= $rareLvl < count(CATFISH_RARE_COSTS) ? 'Next level: best of ' . ($rareLvl + 2) . '.' : '' ?></small></span>
     <?php if ($rareLvl < count(CATFISH_RARE_COSTS)): ?><button class="btn" type="submit"<?= $v['spend'] >= CATFISH_RARE_COSTS[$rareLvl] ? '' : ' disabled' ?>><?= CATFISH_RARE_COSTS[$rareLvl] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
 </details>
 <?php
