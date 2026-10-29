@@ -985,6 +985,15 @@ if (!window.gvMycBound) {
    after a page load or an in-place update, if the whole banner is not on screen, put its top just under the header; the card follows below it. With
    no banner, the card itself is the target. No smooth scroll, so no animation is missed. */
 function gvFightScroll() {
+  gvFightScrollNow();
+  // the message log, folds and banner image settle after the swap and move the banner: place it again once they have (unless the gnome scrolled)
+  var touched = false, mark = function () { touched = true; };
+  ['touchstart', 'wheel', 'keydown', 'mousedown'].forEach(function (t) { window.addEventListener(t, mark, { once: true, passive: true }); });
+  [60, 350].forEach(function (ms) { setTimeout(function () { if (!touched) gvFightScrollNow(); }, ms); });
+  var img = document.querySelector('#advstage img');
+  if (img && !img.complete) img.addEventListener('load', function () { if (!touched) gvFightScrollNow(); }, { once: true });
+}
+function gvFightScrollNow() {
   if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
   var card = document.querySelector('.panel.encounter');
   if (!card || !card.getClientRects().length) return;
