@@ -70,15 +70,16 @@ local backR = c:ellipse(49, 44, 8, 8)
 local thumbL = c:line({ {10, 45}, {11, 33} }, 5)
 local thumbR = c:line({ {53, 45}, {52, 33} }, 5)
 local fy = { 38, 42, 46 }
-local fe = { 31, 31, 30 }
-local cuffL = c:rrect(6, 50, 20, 56, 2)
-local cuffR = c:rrect(43, 50, 57, 56, 2)
-local thread = c:line({ {20, 54}, {25, 56}, {30, 55}, {32, 52} }, 3)
+local fe = { 31, 30, 28 }
+local cuffL = c:rrect(7, 50, 19, 55, 2)
+local cuffR = c:rrect(44, 50, 56, 55, 2)
+local thread = c:line({ {49, 27}, {53, 23}, {55, 17}, {53, 12}, {48, 11}, {46, 15}, {49, 18}, {52, 16} }, 2)
 local list = {
   { "body", body, GREY, { cres = 4, gloss = false } },
   { "earL", earL, GREY, { cres = 2, gloss = false } },
   { "earR", earR, GREY, { cres = 2, gloss = false } },
   { "head", head, GREY, { cres = 3, gloss = { 18, 21 } } },
+  { "thread", thread, RED, { flat = true, contact = false } },
   { "tail", tail, GREY, { cres = 2, gloss = false } },
   { "backL", backL, SKIN, { cres = 4, gloss = false } },
   { "backR", backR, SKIN, { cres = 4, gloss = false } },
@@ -89,7 +90,6 @@ for i = 1, 3 do
 end
 list[#list + 1] = { "thumbL", thumbL, SKIN, { cres = 2, gloss = false } }
 list[#list + 1] = { "thumbR", thumbR, SKIN, { cres = 2, gloss = false } }
-list[#list + 1] = { "thread", thread, RED, { cres = 1, deep = 0, gloss = false } }
 list[#list + 1] = { "cuffL", cuffL, RED, { cres = 2, gloss = false } }
 list[#list + 1] = { "cuffR", cuffR, RED, { cres = 2, gloss = false } }
 local p = c:build(list)
@@ -103,8 +103,8 @@ c:paint({ "pp" }, 23, 29, { p = PINKN })
 -- back seam on the cat
 c:seam({ { 35, 25 }, { 41, 24 }, { 46, 26 } }, { gap = GREY.shade })
 -- knit ribs on the cuffs
-for x = 8, 18, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffL, RED.shade, true) end
-for x = 45, 55, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffR, RED.shade, true) end
+for x = 9, 18, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffL, RED.shade, true) end
+for x = 45, 54, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffR, RED.shade, true) end
 -- glints: thumb tips and fingertips
 c:paint({ "gg", "g." }, 9, 32, { g = SKIN.gloss }); c:paint({ "gg", "g." }, 51, 32, { g = SKIN.gloss })
 for i = 1, 3 do c:px(fe[i] - 3, fy[i] + 1, SKIN.gloss); c:px(63 - fe[i] + 1, fy[i] + 1, SKIN.gloss) end

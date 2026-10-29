@@ -69,14 +69,14 @@ local function band(cat, f)
       if k == 0 then h = C.ol2
       elseif k == 4 then h = C.ol3
       elseif k == 1 then h = (near0 >= 3 and near0 <= 4) and GREY.gloss or GREY.light
-      elseif k == 2 then h = (near1 <= f.cres) and GREY.shade or GREY.base
-      else h = GREY.shade end
+      elseif k == 2 then h = (near1 <= f.cres - 3) and GREY.shade or GREY.base
+      else h = (near1 <= f.cres) and GREY.shade or GREY.base end
       -- rounded ends: the end slice is outline, its corners cut
       if first or last then
         if k == 0 or k == 4 then h = nil else h = first and C.ol2 or C.ol3 end
       end
       -- gold thread, 2 on / 1 off along the middle of the band (shaded pixels get the darker thread)
-      if h and k == 2 and near0 >= 3 and near1 >= 3 and (s - n0) % 3 ~= 0 then
+      if f.thread and h and k == 2 and near0 >= 3 and near1 >= 3 and (s - n0) % 3 ~= 0 then
         h = (near1 <= f.cres) and C.goldS or C.gold
       end
       if h then
@@ -116,9 +116,13 @@ local function sag(c, w, base)  -- top row: base, one lower within w of the cent
   return function(x) return (math.abs(x - c) < w) and base + 1 or base end
 end
 
+local function sag2(c, base)  -- 2 px smile: ends at base, +1 within 11 of the centre, +2 within 5
+  return function(x) local d = math.abs(x - c) return base + ((d <= 5) and 2 or (d <= 11) and 1 or 0) end
+end
+
 local FRAMES = {
-  idleA = { dir = "h", from = 12, to = 38, at = sag(25, 10, 32), cres = 6, bell = { 22, 37 } },
-  catch = { dir = "h", from = 12, to = 38, at = sag(25, 10, 32), cres = 6,
+  idleA = { dir = "h", from = 12, to = 38, at = sag2(25, 32), cres = 7, bell = { 22, 38 } },
+  catch = { dir = "h", from = 12, to = 38, at = sag2(25, 32), cres = 7,
             skip = function(x, y, cat)  -- behind the fish and its 1 px outline
               for dy = -1, 1 do for dx = -1, 1 do
                 if FISH[cat[(y + dy) * 64 + x + dx] or ""] then return true end
