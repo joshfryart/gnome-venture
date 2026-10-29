@@ -12,7 +12,8 @@ Handled by file name (default --glob 'cf-*.png' in --in):
   cf-*-mask-<f>                               -> copied unchanged
 Other files (fish, rod, icons) are skipped.
 Compositor: --compose --coat X [--pattern P] [--eyes E | L,R] [--ears folded] [--tail bobtail] --frame F --out file.png
-builds base coat, clears the mask regions (also from the pattern), adds parts, pattern, eyes, in that order. Default --in aseprite-source/catfish/test,
+builds base coat, clears the mask regions (also from the pattern), adds parts, pattern, eyes, in that order.
+Alias frames (blink, tailflick, eartwitch; frames-alias-s*.json) use the base frame's file for each layer they do not own. Default --in aseprite-source/catfish/test,
 default --out aseprite-source/catfish/test/recolor/ (never game/assets).
 
 Tones: aseprite-source/catfish/tones.json maps role -> template hex (shade, base, light, gloss).
@@ -68,6 +69,22 @@ COMPOSE_MAXCOL = 28  # per composited cat
 EYE_SPLIT = {'idleA': 25, 'idleB': 26, 'wiggle': 40, 'stalk': 40, 'pounce': 41, 'catch': 25, 'nap': 25, 'bored': 24,
              'swatA': 23, 'swatB': 32, 'jump': 32, 'happy': 25, 'blink': 25, 'yawn': 25, 'stretch': 40, 'washA': 25, 'washB': 27}
 PATTERNS = ('tabby', 'tuxedo', 'calico', 'pointed', 'spotted')
+# Alias frames (aseprite-source/catfish/frames-alias-s*.json, kind 'alias'): frame -> {'base': ..., 'own': [...]}. Only the owned layers are drawn
+# under the alias name; every other layer is the base frame's file. Same data as CATFISH_FRAME_BASE / CATFISH_FRAME_OWN in game/includes/catfish.php.
+ALIAS = {}
+for _f in sorted(glob.glob(os.path.join(CF, 'frames-alias-s*.json'))):
+    with open(_f) as _h:
+        for _k, _v in json.load(_h).items():
+            if isinstance(_v, dict) and _v.get('kind') == 'alias': ALIAS[_k] = _v
+
+
+def role_frame(frame, role):
+    """The frame whose file supplies layer role of frame (mirrors catfish_role_frame in game/includes/catfish.php). Roles: body, pat-<p>,
+    ears-folded, ears-mask, tail-bobtail, tail-mask, eyes-<colour> ('eyes' in an own list covers every colour)."""
+    a = ALIAS.get(frame)
+    if a is None: return frame
+    own = a.get('own', [])
+    return frame if role in own or (role.startswith('eyes-') and 'eyes' in own) else a['base']
 
 
 def eye_split(path):
@@ -223,7 +240,8 @@ def _layer(path, cmap):
 
 def compose(coat, frame, indir=os.path.join(CF, 'test'), pattern=None, eyes=None, ears=None, tail=None,
             tones=os.path.join(CF, 'tones.json'), overlays=os.path.join(CF, 'tones_overlays.json')):
-    """Layered cat as an RGBA array: base, clear masks, parts, pattern, eyes. No new drawing."""
+    """Layered cat as an RGBA array: base, clear masks, parts, pattern, eyes. No new drawing.
+    Alias frames (ALIAS) take each layer they do not own from their base frame (role_frame), like the game does."""
     base_tones = {k: v[0] for k, v in load(tones, True).items()}
     cmap = build_map(coat, base_tones, load(overlays), None)
     def need(n):
@@ -231,15 +249,15 @@ def compose(coat, frame, indir=os.path.join(CF, 'test'), pattern=None, eyes=None
         if not os.path.exists(p): sys.exit('missing %s (frame %r not drawn for this layer?)' % (n, frame))
         return p
     img = _layer(need('cf-cat-grey-%s.png' % frame), cmap)
-    pat = _layer(need('cf-pat-%s-grey-%s.png' % (pattern, frame)), cmap) if pattern and pattern != 'none' else None
+    pat = _layer(need('cf-pat-%s-grey-%s.png' % (pattern, role_frame(frame, 'pat-' + pattern))), cmap) if pattern and pattern != 'none' else None
     parts = []
     for kind, val in (('ears', ears), ('tail', tail)):
         if not val or val == 'none': continue
         if val != {'ears': 'folded', 'tail': 'bobtail'}[kind]: sys.exit('unknown %s %r' % (kind, val))
-        m = np.array(Image.open(need('cf-%s-mask-%s.png' % (kind, frame))).convert('RGBA'))[..., 3] > 0
+        m = np.array(Image.open(need('cf-%s-mask-%s.png' % (kind, role_frame(frame, kind + '-mask')))).convert('RGBA'))[..., 3] > 0
         img[m] = 0
         if pat is not None: pat[m] = 0
-        parts.append(_layer(need('cf-%s-%s-%s.png' % (kind, val, frame)), cmap))
+        parts.append(_layer(need('cf-%s-%s-%s.png' % (kind, val, role_frame(frame, '%s-%s' % (kind, val)))), cmap))
     def over(dst, src):
         o = src[..., 3] > 0; dst[o] = src[o]
     for pt in parts: over(img, pt)
@@ -249,9 +267,11 @@ def compose(coat, frame, indir=os.path.join(CF, 'test'), pattern=None, eyes=None
         if len(names) == 1: names = names * 2
         if len(names) != 2 or any(n not in EYES for n in names): sys.exit('bad --eyes %r (one of %s, or LEFT,RIGHT)' % (eyes, '/'.join(EYES)))
         xs = np.arange(64)[None, :].repeat(64, 0)
-        split = EYE_SPLIT.get(frame, 25)
-        for n, sel in ((names[0], xs < split), (names[1], xs >= split)):
-            e = np.array(Image.open(need('cf-eyes-%s-%s.png' % (n, frame))).convert('RGBA'))
+        for n, side in ((names[0], 0), (names[1], 1)):
+            ef = role_frame(frame, 'eyes-' + n)           # the clip follows the eye file's frame, as in catfish_cat_layers
+            split = EYE_SPLIT.get(ef, 25)
+            sel = xs < split if side == 0 else xs >= split
+            e = np.array(Image.open(need('cf-eyes-%s-%s.png' % (n, ef))).convert('RGBA'))
             e[~sel] = 0
             over(img, e)
     return img

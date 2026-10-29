@@ -12,8 +12,8 @@ A cat is one integer **seed**; traits come from a seeded RNG, nothing else store
 - Rarity score from trait weights: Common, Uncommon, Rare, Legendary.
 - Personality perks (small, capped): Lazy +25% offline cap, Hyper +15% Kibble while page open, Sneaky rare-fish chance, Greedy +10% Kibble, Dreamy +10% Yarn.
 
-## Upgrades (16 nodes, cost `base * 1.15^n`, x2 at 10 / 25 / 50 owned)
-Fish (+fish x3, silk tail, catnip stuffing), Rod (longer string, spring, motor, double rod), Room (sunbeam, rug, scratch post, window bird), Cat (3 breed boosts).
+## Upgrades (16 nodes, cost `base * 1.18^n`, x2 at 10 / 25 / 50 owned)
+4 branches of 4: Fish (plushie fish, silk tail, catnip stuffing, glitter scales), Rod (longer string, spring, motor, double rod), Room (sunbeam, rug, scratch post, window bird), Cat (fancy bowl, toy box, cat tree, cat flap).
 
 ## Rewards
 - **R1 Collection:** Cat Book (pattern x colour pages), badges (First Adoption, 3 Cats, First Nap, Odd-Eyed Finder).
@@ -49,7 +49,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 
 **Week 2**
 - [x] Full 16-node tree (4 branches), percent upgrades shrunk 5x, base 600 Kibble/h, growth 1.18 (sim: `scratchpad/sim.php`, first Nap about 27 min active)
-- [x] Nap + Yarn (Yarn = floor(sqrt(run/500)), +10% Kibble each, Dreamy +10% Yarn)
+- [x] Nap + Yarn (Yarn = floor(cube root(run/500)), Kibble x (1 + 0.1 x Yarn^0.6), Dreamy +10% Yarn; was sqrt and +10% each until the review below)
 - [x] All 5 personalities (Sneaky rare fish, Dreamy Yarn)
 - [x] Cat Book (adopted pattern x colour) + derived badges on profile
 - [x] Tests grown for week 2 (about 95 checks incl. replay + mutation-checked)
@@ -66,7 +66,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 **Week 4**
 - [x] Weekly Cat Show (themed, seeded judges + theme/rarity bonus, ribbons on profile, no Kibble/Yarn influence)
 - [x] Active cat on the garden page (read only, no row created by visiting)
-- [x] Puzzle Pals +2% Kibble each (follows PPAL_PARTY_LEVEL, max 10), festival doubles Nap Yarn
+- [x] Puzzle Pals +2% Kibble per pal found (max 10, needs Puzzle Pals open; no gnome level), festival doubles Nap Yarn
 - [x] Art todo (`claude/catfish-art-brief.md`) + `catfish_img()` PNG-or-emoji helper
 - [x] Version 2.0.89, CHANGELOG, README line. Feature stays off for players (`catfish_open`)
 - [x] Tests (about 190 checks); security190, prog, events, puzzles, games2, garden100, puzzle_pals, jigsaw and upgrade_check from 2.0.88 pass (jigsaw failed once inside a long multi-suite run, passed on 3 reruns)
@@ -76,7 +76,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 
 ## Active play (2.1.04): tap a dangling fish
 Owner-approved. Each of the three fish on the stage is a `<button class="cfsdrop sdI cfk-N" data-fish="I">`; a tap bounces it, the cat stalks/pounces/catches, and the gnome earns a little extra Kibble. The server decides everything; the client only draws and batches.
-- **Pay:** one accepted tap = `max(1, floor(kph_present x 5 / 3600 x tier))` Kibble (`CATFISH_PLAY_SECS` 5; `kph_present` = `catfish_kph(up, cat, true, yarn, extra)`, the figure the page shows, so hyper, festival and Pals bonuses apply only through it). Tiers by Hollow day (`catfish_today()`), taps 1-120 x1, 121-240 x0.5, 241-360 x0.25, then 0 (`CATFISH_PLAY_TIERS`). Max a day is 17.5 minutes of income (120 + 60 + 30 = 210 tap-units of 5 s), so play can never beat idle. A Nap resets the run and kph returns to base, so v shrinks (no Yarn exploit). `CATFISH_PLAY_UP = []` is the hook for a later upgrade.
+- **Pay:** one accepted tap = `max(1, floor(kph_present x 5 / 3600 x tier))` Kibble (`CATFISH_PLAY_SECS` 5; `kph_present` = `catfish_kph(up, cat, true, yarn, extra)`, the figure the page shows, so hyper, festival and Pals bonuses apply only through it). Tiers by Hollow day (`catfish_today()`), taps 1-120 x1, 121-240 x0.5, 241-360 x0.25, then 0 (`CATFISH_PLAY_TIERS`). Max a day is 17.5 minutes of income (120 + 60 + 30 = 210 tap-units of 5 s) once taps pay well above 1; at low income the `max(1, ...)` floor lifts it (at the base 600 kph every one of the 360 taps pays 1 = 360 Kibble, about 36 minutes of income). Either way under 10% of a day's idle income, so play can never beat idle. A Nap resets the run and kph returns to base, so v shrinks (no Yarn exploit). `CATFISH_PLAY_UP = []` is the hook for a later upgrade.
 - **Bucket (no jitter):** cap 15 tokens, +1 per 2 s: `tokens = min(15, pb + (now - pt)/2)`; `accepted = min(n, floor(tokens), taps left today)`. `n` must be an integer 0..40: negative, non-numeric, fractional or an array = 0; `n > 40` = the whole batch refused (0 accepted). A batch with `seq <= meta.pq` is a replay: acknowledged, pays nothing (safe retries). No cat = 0, guests 403, CSRF as the other calls.
 - **API (no new endpoint):** `do=tick` takes optional `play=n` and `seq` (increasing batch id, the client uses its ms clock). `catfish_play($uid, $n, $seq)` runs inside `catfish_locked`: `catfish_tick` first, then ONE UPDATE of kibble, run_kibble, total_kibble and meta. The reply's `view.play = {v, left, got, paid, ever}`: v = what the next tap pays now (0 when the day is used up), left = taps left today, got/paid = the batch just accepted, ever = lifetime taps (0 shows the "Tap a fish to play!" hint).
 - **DB:** no new columns. New `catfish_state.meta` keys: `pb` (tokens, float), `pt` (refill ts), `pd` (Hollow day), `pc` (taps today), `pq` (last seq), `pe` (lifetime taps).

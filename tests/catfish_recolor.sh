@@ -100,7 +100,8 @@ C=$(mktemp -d); trap 'rm -rf "$OUT" "$OUT.log" "$C"; rm -rf tools/__pycache__' E
 n=0
 for combo in "orange tabby amber none none idleA" "cream tuxedo green folded bobtail pounce" "lilac calico blue folded none catch" \
              "white pointed hazel none bobtail nap" "black spotted amber,blue folded bobtail idleA" "grey none green folded bobtail nap" \
-             "silver-blue calico hazel none bobtail pounce" "brown tabby blue folded none nap" "cream calico amber folded bobtail catch"; do
+             "silver-blue calico hazel none bobtail pounce" "brown tabby blue folded none nap" "cream calico amber folded bobtail catch" \
+             "orange tuxedo amber folded bobtail tailflick"; do   # alias frame: tuxedo, ears and eyes come from idleA (role_frame)
   set -- $combo
   args=(--compose --coat "$1" --pattern "$2" --eyes "$3" --frame "$6" --out "$C/c$n.png")
   [ "$4" = none ] || args+=(--ears "$4"); [ "$5" = none ] || args+=(--tail "$5")
@@ -111,7 +112,7 @@ python3 -I - "$C" "$IN" <<'P'
 import sys, glob, numpy as np
 from PIL import Image
 c, i = sys.argv[1:]
-fs = sorted(glob.glob(c + '/c*.png')); assert len(fs) == 9
+fs = sorted(glob.glob(c + '/c*.png')); assert len(fs) == 10
 for f in fs:
     a = np.array(Image.open(f).convert('RGBA')); assert a.shape == (64, 64, 4)
     assert set(np.unique(a[..., 3])) <= {0, 255}, 'alpha ' + f
@@ -130,6 +131,6 @@ g = np.array(Image.open(out).convert('RGBA'))
 diff = (g != base).any(-1)
 assert not (diff & ~(mask | part)).any(), 'compose changed pixels outside mask/part'
 assert (g[part] == np.array(Image.open(f'{i}/cf-ears-folded-idleA.png').convert('RGBA'))[part]).all()
-print('compose ok (9 combos)')
+print('compose ok (10 combos, 1 alias frame)')
 P
 rm -f "$OUT.log"; rm -rf tools/__pycache__; echo "catfish_recolor: ok"
