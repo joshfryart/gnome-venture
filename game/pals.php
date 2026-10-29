@@ -125,7 +125,7 @@ page_header('Gnome friends');
   </div>
 
 <?php elseif ($tab === 'mentor'): require_once __DIR__ . '/includes/mentors120.php'; ?>
-  <p class="help">Gnome mentors are other players. For your calling’s teacher, see <a href="<?= e(url('gnome.php#calling')) ?>">My calling</a>.</p>
+  <p class="help">Gnome mentors are other players. For your calling’s teacher, see <a href="<?= e(url('gnome.php?tab=calling')) ?>">My calling</a>.</p>
   <?= mentors120_tab_html($u) ?>
 
 <?php else: $blocked = pal_blocked_list($uid); ?>

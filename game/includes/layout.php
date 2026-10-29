@@ -695,7 +695,8 @@ function right_rail(array $u): string
     require_once __DIR__ . '/crafting.php';
     $uid = (int)$u['id'];
     $onToday = !empty($GLOBALS['gv_today_page']);   // v1.9.2: the Today page already shows weather, boosts and jobs, so its rail keeps only Messages, Market and Pots
-    $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
+    $today = $onToday ? '' : '<section class="rbox rtoday" aria-labelledby="rt-today"><h3 id="rt-today">🏠 Today</h3><p><a class="rgo" href="' . e(url('index.php')) . '">Go to Today →</a></p></section>';   // v2.0.89: a way back to Today, just under Messages
+    $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . $today . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
     $pots = cook_pots_list($uid);
     if ($pots) {
         $rd = count(array_filter($pots, fn($p) => $p['left'] <= 0));

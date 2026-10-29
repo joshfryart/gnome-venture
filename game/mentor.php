@@ -16,7 +16,7 @@ foreach (CALLING_MENTORS as $key => $m) {
 $npc = $calling !== '' ? calling_mentor($calling) : null;
 if (!$npc) {
     flash($slug === '' ? 'Choose a calling first (My Gnome → Calling) and your mentor will be waiting.' : 'Nobody by that name teaches here.', 'err');
-    redirect($slug === '' ? 'gnome.php#calling' : 'world.php');
+    redirect($slug === '' ? 'gnome.php?tab=calling' : 'world.php');
 }
 $nid = (int)$npc['id'];
 
@@ -53,7 +53,7 @@ $chapters = calling_chapters_for($calling);
 $name = CALLINGS[$calling][0] ?? $calling;
 page_header($npc['name']);
 ?>
-<p class="crumbs">📜 <a href="<?= e(url('gnome.php#calling')) ?>">My calling</a> › Calling mentor › <b><?= e($npc['name']) ?></b></p>
+<p class="crumbs">📜 <a href="<?= e(url('gnome.php?tab=calling')) ?>">My calling</a> › Calling mentor › <b><?= e($npc['name']) ?></b></p>
 <div class="box npchead">
   <div class="jintro"><a href="<?= e(url('folk.php?id=' . $nid)) ?>"><?= npc_portrait($npc, 'small') ?></a>
     <div>
