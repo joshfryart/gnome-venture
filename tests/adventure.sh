@@ -45,5 +45,7 @@ echo "wander page: $(get adventure.php) wander=$(grep -c 'advgrid withrings wand
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" wander; OPEN=1 node "$HERE/advshot.js" "$BASE" "$SHOT" wanderopen; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" choice 2>&1 | tail -1
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" choice; fi
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" problem 2>&1 | tail -1
+if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" problem; fi
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"

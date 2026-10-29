@@ -27,3 +27,8 @@ if (($argv[2] ?? '') === 'choice' && $exp) {   // v2.1.12: a road-event choice c
     $exp['depth'] = 9; $exp['level'] = 18; $exp['trail'] = json_encode([1, 2, 3, 4, 5, 6, 7, 8, 9]); $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ev['id']]); save_exp($exp);
     echo "choice\n";
 }
+if (($argv[2] ?? '') === 'problem' && $exp) {   // v2.1.13: a d20 problem card
+    $pr = q_one("SELECT id FROM problems ORDER BY id LIMIT 1");
+    $exp['depth'] = 2; $exp['level'] = 4; $exp['trail'] = json_encode([1, 2]); $exp['encounter'] = json_encode(['type' => 'problem', 'id' => (int)$pr['id']]); save_exp($exp);
+    echo "problem\n";
+}

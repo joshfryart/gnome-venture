@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.13
+- **Phone: the d20 problem card ("Pick an approach") uses the compact layout too.** It was the one event still on the old tall layout. The question now sits beside the ring map with the "Pick an approach" line under it, and the answers are a 2-column grid. The "Latest:" line is no longer repeated above a problem card (it said the same thing as the question).
+- Tests: `tests/advforce.php problem` and a `problem` shot in `tests/adventure.sh`.
+
 ## 2.1.12
 - **Phone: event cards use the compact wander layout too.** A road event (a choice, someone met on the road, a problem) used to fall back to the tall layout (banner, big map, then the card), so the answers sat below the first screen. They now get the same layout as the wander screen: ring map left, place line and the event text on its right, the answers as a 2-column grid below. A problem card keeps its full-width answers. Fights are unchanged.
 - Tests: `tests/advforce.php choice` and a `choice` shot in `tests/adventure.sh`.

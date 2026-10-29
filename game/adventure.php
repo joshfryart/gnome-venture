@@ -211,7 +211,7 @@ $lastLine = $log ? (string)end($log) : '';
 $resultCard = ($exp && !$enc && $lastLine !== '' && !str_contains($lastLine, 'You step onto the mycelium') && in_array(preg_match('/^(\X)\s/us', $lastLine, $rm) ? $rm[1] : '', $rcIcons, true)) ? road_result_parts($lastLine) : null;
 if ($resultCard): ?>
   <div class="roadresult <?= e($resultCard[0]) ?>" aria-live="polite"><span class="rr-ico" aria-hidden="true"><?= e($resultCard[1]) ?></span><span class="rr-body"><b class="rr-title"><?= e($resultCard[2]) ?></b><?php if ($resultCard[3] !== ''): ?><small class="rr-sub"><?= e($resultCard[3]) ?></small><?php endif; ?></span></div>
-<?php elseif ($log && !($enc && in_array($enc['type'] ?? '', ['choice', 'meet'], true))): // v0.7.61: what just happened, right under the map so you don't have to scroll to the journal (v1.9.4: not while the card says the same thing) ?>
+<?php elseif ($log && !($enc && in_array($enc['type'] ?? '', ['choice', 'meet', 'problem'], true))): // v0.7.61: what just happened, right under the map so you don't have to scroll to the journal (v1.9.4: not while the card says the same thing) ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
 <?php endif;
 $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card already shows the rounds
@@ -320,8 +320,9 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
 
 <?php elseif ($enc && $enc['type'] === 'problem'):
     $p = q_one('SELECT * FROM problems WHERE id = ?', [$enc['id']]); ?>
-  <h3>❓ <?= e($p['text']) ?></h3>
-  <p class="help">Pick an approach: d20 + the stat’s modifier must reach the number.</p>
+  <h3 class="probq">❓ <?= e($p['text']) ?></h3>
+  <p class="help probq">Pick an approach: d20 + the stat’s modifier must reach the number.</p>
+  <div class="choicelist">
   <?php foreach (json_decode((string)$p['options'], true) ?: [] as $i => $o):
       $st = GNOME_STATS[$o['stat']] ?? GNOME_STATS['grit'];
       $mod = eff_mod($u, $o['stat']);
@@ -330,6 +331,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
     <form method="post" class="option"><?= csrf_field() ?><input type="hidden" name="do" value="solve"><input type="hidden" name="option" value="<?= (int)$i ?>">
       <?= choice_row($st[1], (string)$o['label'], $st[0] . ' ' . ($mod >= 0 ? '+' : '') . $mod . ' vs ' . (int)$o['dc'], [$chance . '%', choice_odds_class($chance)]) ?></form>   <?php // v1.6.3: .choice row ?>
   <?php endforeach; ?>
+  </div>
 
 <?php elseif ($mapMode): // v2.0.6: nothing in front of you: walk the map ?>
   <?php if ($kind === 'delve' && (int)$exp['depth'] >= DELVE_ROOMS): ?>
