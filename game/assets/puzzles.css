@@ -301,3 +301,12 @@ body.pz-play .lp #game{text-align:left}
 :root[data-theme="dark"] .ppalpip.full{color:var(--accent)}
 :root[data-theme="dark"] .ppalslot{background:var(--felt)}
 :root[data-theme="dark"] .ppsil img{filter:brightness(0) invert(1) opacity(.25)}
+.ppalparty h2{margin:0 0 6px; text-align:center}
+.ppalslots{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
+.ppalslots li{display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:3px; min-width:0; padding:8px 4px; text-align:center; background:var(--surface-2); box-shadow:inset 0 0 0 2px var(--pr, var(--line))}
+.ppalslots b{font-size:13px; line-height:1.2; overflow-wrap:anywhere}
+.ppalslots small{font-size:11px; line-height:1.25}
+.ppalperks{margin:8px 0 0; text-align:center}
+.ppaltake{margin:4px 0 0}
+.ppalperk{font-size:11px}
+:root[data-theme="dark"] .ppalslots li{background:var(--felt)}

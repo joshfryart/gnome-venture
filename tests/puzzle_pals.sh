@@ -250,6 +250,39 @@ ok "book: a complete roster is marked (full) and counts 6 of 6" "$(grep -c 'ppal
 setg ppal_open 0
 ok "flag off: profile shelf hidden" "$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards" | grep -c 'ppalbadges')" 0
 setg ppal_open 1
+echo "== step 4: take along, perks, avatar companions"
+setg ppal_open 1; dbx "DELETE FROM settings WHERE name IN ('ppal_party','ppal_party_max')"; dbx "UPDATE users SET level=15 WHERE id=$UID_; UPDATE ppal_found SET active=0 WHERE user_id=$UID_"
+act() { dbv "SELECT COUNT(*) FROM ppal_found WHERE user_id=$UID_ AND active=1"; }
+take() { curl -s -b $W/p -c $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/puzzlepals.php --data-urlencode "csrf=$(B | grep -o 'name="csrf" value="[^"]*"' | head -1 | sed 's/.*value="\([^"]*\)".*/\1/')" -d pal=$1 -d do=$2 "${@:3}"; }
+B > $W/b.html
+ok "ppal_party off: no party strip, no Take along button, no companions" "$(grep -c 'ppalparty\|Take along' $W/b.html)/$(curl -s -b $W/p $BASE/gnome.php | grep -c 'class="gpw')" "0/0"
+ok "ppal_party off: a POST is ignored (nothing equipped)" "$(take mw-acorn-nip on)/$(act)" "200/0"
+setg ppal_party 1
+B > $W/b.html
+ok "ppal_party on, level 15: party strip with 2 empty slots and a Take along button on each found pal" "$(grep -c 'Room for a pal' $W/b.html)/$(grep -c '>Take along<' $W/b.html)" "2/6"
+ok "...and no inline styles" "$(grep -c ' style=' $W/b.html)" 0
+ok "Take along #1 and #2 (redirects back)" "$(take mw-acorn-nip on)/$(take mw-leaf-tuck on)/$(act)" "302/302/2"
+B > $W/b.html
+ok "party full: the strip shows both pals with their perk lines (the Expert trophy's +1 unit counted), the other pals offer Swap" "$(grep -c 'ppalpslot got' $W/b.html)/$(grep -o 'Brings +2% XP from games' $W/b.html | wc -l | tr -d ' ')/$(grep -c '>Swap with' $W/b.html)/$(grep -c '>Send home<' $W/b.html)" "2/3/4/2"
+ok "a third POST is refused (still 2)" "$(take mw-sap-drip on)/$(act)" "302/2"
+GP=$(curl -s -b $W/p $BASE/gnome.php | grep -o 'class="gpal gpal-[lr]"' | wc -l | tr -d ' ')
+ok "the gnome page shows the 2 companions wherever the gnome shows (nav + page + drawer twin: pairs)" "$([ $GP -ge 2 ] && [ $((GP % 2)) -eq 0 ] && echo pairs || echo $GP)" pairs
+ok "the profile (public) shows them too" "$(curl -s -b $W/p "$BASE/profile.php?id=$UID_" | grep -c 'class="gpal gpal-')" 2
+ok "Swap: one goes home, the new one comes along" "$(take mw-sap-drip swap -d out=mw-acorn-nip)/$(act)/$(dbv "SELECT active FROM ppal_found WHERE user_id=$UID_ AND pal_key='mw-acorn-nip'")/$(dbv "SELECT active FROM ppal_found WHERE user_id=$UID_ AND pal_key='mw-sap-drip'")" "302/2/0/1"
+ok "Send home" "$(take mw-sap-drip off)/$(act)" "302/1"
+ok "a wrong csrf token is refused (400)" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/puzzlepals.php -d csrf=bad -d pal=mw-acorn-nip -d do=on)" 400
+dbx "UPDATE users SET level=14 WHERE id=$UID_"
+B > $W/b.html
+ok "level 14: gate text, no buttons, no companions, a POST changes nothing" "$(grep -c 'Take pals along from gnome level 15' $W/b.html)/$(grep -c '>Take along<' $W/b.html)/$(curl -s -b $W/p $BASE/gnome.php | grep -c 'class="gpw')/$(take mw-acorn-nip off)/$(act)" "1/0/0/302/1"
+dbx "UPDATE users SET level=15 WHERE id=$UID_"
+setg ppal_party 0
+ok "back to ppal_party 0: companions gone from the gnome page" "$(curl -s -b $W/p $BASE/gnome.php | grep -c 'class="gpw')" 0
+dbx "UPDATE ppal_found SET active=0 WHERE user_id=$UID_"
+echo "-- perk maths, gates, avatar (tests/puzzle_pals_party.php)"
+php -d session.save_path=/tmp $HERE/puzzle_pals_party.php $GAME 2>&1 | tee $W/party.out | grep -v '^ok'
+ok "party checks: no FAIL, ends all ok" "$(grep -c "^FAIL\|Fatal\|Warning" $W/party.out)/$(tail -1 $W/party.out)" "0/all ok"
+ok "party checks ran" "$(grep -c '^ok' $W/party.out | awk '{print ($1>35)?"many":$1}')" many
+setg ppal_open 1
 echo "-- admin tool"
 ok "admin tools page has the 'Test a pal find' button" "$(curl -s -b $W/a $BASE/admin/tools.php | grep -c 'value="test_ppal"')" 1
 ok "...and posting it is accepted (302)" "$(curl -s -b $W/a -c $W/a -o /dev/null -w '%{http_code}' -X POST $BASE/admin/tools.php --data-urlencode "csrf=$(curl -s -b $W/a $BASE/admin/tools.php | grep -o 'name="csrf" value="[^"]*"' | head -1 | sed 's/.*value="\([^"]*\)".*/\1/')" -d do=test_ppal)" 302

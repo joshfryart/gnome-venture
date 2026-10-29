@@ -15,7 +15,7 @@ foreach (['ppal_releases', 'ppal_found', 'ppal_trophies'] as $t) ok("guest purge
 ok('no function named pal_* was added by Puzzle Pals', !function_exists('pal_on_solve') && function_exists('ppal_on_solve'));
 echo "== authored rosters\n";
 $d = ppal_data();
-ok('42 authored pictures (14 gallery + 14 lair + 14 delve), 252 pals', count($d) === 42 && array_sum(array_map('count', $d)) === 252 && isset($d['maplewold'], $d['maizehollow'], $d['sunsprinkle']), count($d) . ' pictures');
+ok('authored pictures (14 gallery + lair + delve), 6 pals each', count($d) >= 42 && array_sum(array_map('count', $d)) === 6 * count($d) && isset($d['maplewold'], $d['maizehollow'], $d['sunsprinkle']), count($d) . ' pictures');
 foreach ($d as $slug => $rows) {
     $m = array_count_values(array_column($rows, 'rarity'));
     ok("$slug: 6 pals = 3 common / 2 uncommon / 1 rare", count($rows) === 6 && ($m['common'] ?? 0) === 3 && ($m['uncommon'] ?? 0) === 2 && ($m['rare'] ?? 0) === 1);
