@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.02
+- **Cat Fish room is one play scene** (`catfish_stage_html`): a centred 320 x 200 stage holds the room (base and owned overlays), the toy rod hung from the ceiling hook, a line to three swaying fish, your cat in the centre play zone and up to three other cats at the side spots (nap, idle, bored). Coordinates come from `aseprite-source/catfish/room-layout.json`; positions are CSS classes (`.cfpos-x128-y120`, `.cfsdrop.sd1`), no inline style. Without `cf-room.png` the old rod box, cat card and room stay as before.
+- **Animated active cat** (`assets/catfish.js`, decorative only): all 8 frame groups are in the page and one class (`fr-<frame>`, mirrored in `data-frame`) shows one. idleA/idleB blink, every 6-9 s a play loop (wiggle, stalk, pounce, catch), sometimes bored, nap after a Nap. `prefers-reduced-motion`: idleA only, no sway. The Kibble tick and sync are unchanged.
+- **Art:** idleB, wiggle and bored now have patterns, folded ears, bobtails and masks (`CATFISH_PATTERN_FRAMES` is all 8 frames, `KEY_FRAMES` in `tools/catfish_build_art.py` too): 614 PNGs. New room art (`cf-room*.png`, layout in `room-layout.json`).
+- **Centred layout:** banner, stage, cat card text, headings and shelter notes are centred; upgrade rows and lists unchanged.
+- Tests: `tests/catfish.sh` (stage markup, frame list, coordinates against the layout JSON), `tests/catfish_build_art.sh` (614 files).
+- Merges main up to 2.1.01 (Journey next-chapter notice).
+
 ## 2.1.01
 - **Journey:** the chapter-complete notice now names the next chapter in story order (what Wren's letter says), not the first chapter you had not started yet.
 

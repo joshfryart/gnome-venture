@@ -1,4 +1,8 @@
-# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.00 (Cat Fish art + code, merged with main 2.0.99))
+# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.02 (Cat Fish play scene; main 2.1.01 merged))
+
+## NOW (2.1.02, 2026-10-29): Cat Fish room is one play scene. Built on branch claude/cat-fish-game-art-2c5q76 (main 2.1.01 merged), slim zip in `releases/`.
+- **In it:** `catfish_stage_html` (centred 320x200 stage: room, wand on the ceiling hook, 3 swaying fish, active cat with 8 frame groups, up to 3 side cats), `assets/catfish.js` frame state machine (decorative, reduced-motion aware), centred layout, idleB/wiggle/bored now have patterns/ears/tails (614 PNGs). Coordinates: `aseprite-source/catfish/room-layout.json` (test checks CSS/PHP against it).
+- **Known gaps:** nap frame only after a Nap button press or a fresh run (the game has no lasting nap state); stage is 1x only (no 2x on big screens).
 
 ## NOW (2.1.00, 2026-10-29): Cat Fish art + code. Built on branch claude/cat-fish-game-art-2c5q76 (main merged in, 2.0.99), slim zip in `releases/`. Cat Fish is ON for everyone (Joshua's decision). Joshua merges to main.
 - **In it:** 440 hand-drawn PNGs in `assets/img/catfish` (8 coats x 5 patterns, eyes, ears, tails, room, fish, rod, icons, badges, ribbons, banner, tile, Cat Book heads), layered cat renderer `catfish_cat_html`, lilac coat, tools `catfish_recolor.py` / `catfish_build_art.py`, tests.
