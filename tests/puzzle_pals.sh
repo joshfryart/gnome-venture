@@ -271,9 +271,9 @@ ok "the profile (public) shows them too" "$(curl -s -b $W/p "$BASE/profile.php?i
 ok "Swap: one goes home, the new one comes along" "$(take mw-sap-drip swap -d out=mw-acorn-nip)/$(act)/$(dbv "SELECT active FROM ppal_found WHERE user_id=$UID_ AND pal_key='mw-acorn-nip'")/$(dbv "SELECT active FROM ppal_found WHERE user_id=$UID_ AND pal_key='mw-sap-drip'")" "302/2/0/1"
 ok "Send home" "$(take mw-sap-drip off)/$(act)" "302/1"
 ok "a wrong csrf token is refused (400)" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/puzzlepals.php -d csrf=bad -d pal=mw-acorn-nip -d do=on)" 400
-dbx "UPDATE users SET level=14 WHERE id=$UID_"
+dbx "UPDATE users SET level=2 WHERE id=$UID_"
 B > $W/b.html
-ok "level 14: gate text, no buttons, no companions, a POST changes nothing" "$(grep -c 'Take pals along from gnome level 15' $W/b.html)/$(grep -c '>Take along<' $W/b.html)/$(curl -s -b $W/p $BASE/gnome.php | grep -c 'class="gpw')/$(take mw-acorn-nip off)/$(act)" "1/0/0/302/1"
+ok "level 2: no level gate (2.0.91): Take along buttons and companions show" "$(grep -c '>Take along<\|>Swap with' $W/b.html | awk '{print ($1>0)?1:0}')/$(curl -s -b $W/p $BASE/gnome.php | grep -c 'class="gpw' | awk '{print ($1>0)?1:0}')" "1/1"
 dbx "UPDATE users SET level=15 WHERE id=$UID_"
 setg ppal_party 0
 ok "back to ppal_party 0: companions gone from the gnome page" "$(curl -s -b $W/p $BASE/gnome.php | grep -c 'class="gpw')" 0

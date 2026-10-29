@@ -69,10 +69,7 @@ $palShort = function (array $p): string {
     $v = match ($p['perk']) { 'road' => intdiv($n, 2), 'shine' => 0, default => (PPAL_PERK_RATE[$p['perk']] ?? 0) * $n };
     return match ($p['perk']) { 'gather' => "+$v% rare finds", 'road' => "+$v in road fights", 'finder' => "+$v% pal finds", 'tinker' => "+$v% game XP", 'bloom' => "+$v% harvest extras", default => 'a sparkle' };
 };
-$palImg = function (string $key, int $px): string {
-    $f = 'assets/img/puzzles/pals/' . $key . '.png';
-    return is_file(APP_ROOT . '/' . $f) ? '<img class="palstk" src="' . e(url($f)) . '" alt="" width="' . $px . '" height="' . $px . '" loading="lazy">' : '<span class="palstk palstk-ph" aria-hidden="true">🐾</span>';
-};
+$palImg = fn(string $key, int $px): string => ppal_sticker_html($key, $px);
 $pick = $canParty && isset($_GET['pick']) ? max(0, min(ppal_party_max() - 1, (int)$_GET['pick'])) : null;
 $palBook = $palsOn ? ppal_book($uid) : null;
 [$palF, $palT] = $palsOn ? ppal_counts($uid) : [0, 0];
@@ -99,7 +96,7 @@ page_header('My Gnome');
   <div class="palhead"><b>🐾 Pals along · <?= count($eq) ?> of <?= ppal_party_max() ?></b>
     <a href="<?= e(url('puzzlepals.php')) ?>">📘 Pal Book<?= $palT > 0 ? ' (' . $palF . '/' . $palT . ')' : '' ?> →</a></div>
   <?php if (!$canParty): ?>
-    <p class="help">Pals can come along from gnome level <?= (int)PPAL_PARTY_LEVEL ?>.</p>
+    <p class="help">Pals cannot come along just yet.</p>
   <?php else: ?>
     <div class="palslots">
       <?php for ($i = 0; $i < ppal_party_max(); $i++): $e = $eq[$i] ?? null; ?>
@@ -109,6 +106,7 @@ page_header('My Gnome');
         </a>
       <?php endfor; ?>
     </div>
+    <?php if ((int)$palBook['found'] === 0 && $pick === null) echo ppal_howto_html(); ?>
   <?php endif; ?>
 </section>
 <?php if ($pick !== null): $cur = $eq[$pick] ?? null; $eqKeys = array_map(fn($x) => $x['pal']['key'], $eq); ?>
@@ -125,7 +123,7 @@ page_header('My Gnome');
       <?php elseif ($along): ?><small class="muted">In the other slot</small>
       <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="take"><input type="hidden" name="back" value="<?= e($tab) ?>"><input type="hidden" name="pal" value="<?= e($p['key']) ?>"><?php if ($cur): ?><input type="hidden" name="out" value="<?= e($cur['pal']['key']) ?>"><?php endif; ?><button class="btn small">Take along</button></form><?php endif; ?>
     </div>
-  <?php endforeach; endforeach; if (!$any): ?><p class="muted">No pals found yet. Solve a jigsaw on Advanced to meet your first.</p><?php endif; ?>
+  <?php endforeach; endforeach; if (!$any) echo ppal_howto_html(); ?>
 </section>
 <?php endif; endif; ?>
 
@@ -162,6 +160,7 @@ page_header('My Gnome');
       <?php if ($canParty): ?><p class="help">Pick a slot in the strip above to take a pal along or send it home.</p><?php endif; ?>
       <div class="perkbox"><b>What your pals do now</b>
         <?php if ($perks['lines']): foreach ($perks['lines'] as $ln): ?><div>✔ <?= e($ln) ?></div><?php endforeach; else: ?><div>Nothing yet. Take a pal along for a small boost.</div><?php endif; ?></div>
+      <?php if ((int)$palBook['found'] === 0) echo ppal_howto_html(); ?>
       <h3>Your found pals · <?= $palF ?> of <?= $palT ?></h3>
       <table class="grid"><tr><th>Pal</th><th>Rarity</th><th>Where</th></tr>
       <?php $eqKeys = array_map(fn($x) => $x['pal']['key'], $eq); foreach ($palBook['released'] as $sec): foreach ($sec['roster'] as $p): if (!$p['got']) continue; ?>

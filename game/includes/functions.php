@@ -370,7 +370,7 @@ function settings_schema(): array
         'ppal_chance' => ['label' => 'Puzzle Pals: a find on a page view is 1 in this many (v2.0.88)', 'type' => 'int', 'default' => '60', 'min' => 5, 'max' => 5000],
         'ppal_cooldown_minutes' => ['label' => 'Puzzle Pals: minutes between finds (v2.0.88)', 'type' => 'int', 'default' => '30', 'min' => 0, 'max' => 1440],
         'ppal_daily_max' => ['label' => 'Puzzle Pals: most finds per gnome per day (v2.0.88)', 'type' => 'int', 'default' => '4', 'min' => 0, 'max' => 100],
-        'ppal_party' => ['label' => 'Puzzle Pals: gnomes level 15+ can take pals along (perks, shown beside the gnome; the Expert trophy adds +1 unit) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'ppal_party' => ['label' => 'Puzzle Pals: gnomes can take pals along (perks, shown beside the gnome; the Expert trophy adds +1 unit) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'ppal_party_max' => ['label' => 'Puzzle Pals: pals a gnome can take along (v2.0.88)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 3],
         'ppal_roster_size' => ['label' => 'Puzzle Pals: pals per picture (6 = 3 common, 2 uncommon, 1 rare; authored rosters are cut to this) (v2.0.88)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 6],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],

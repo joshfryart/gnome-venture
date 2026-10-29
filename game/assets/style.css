@@ -6003,3 +6003,13 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .gvpage .calling, .gvpage .ctiers { text-align: center; }
 .gvpage .ctiers { list-style-position: inside; padding-left: 0; }
 @media (max-width: 720px) { .gvpage .gvtabs { justify-content: flex-start; } }
+
+/* v2.0.91: how to get pals */
+.palhowto { margin: 10px 0; padding: 10px 14px; text-align: left; background: var(--surface-2); box-shadow: inset 4px 0 0 0 var(--brand); }
+.palhowto ol { margin: 6px 0; padding-left: 20px; }
+.palhowto li { margin: 4px 0; }
+.palhowto small { color: var(--muted); }
+
+.almpals { list-style: none; margin: 6px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.almpals li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--surface-2); box-shadow: var(--frame-lite); flex-wrap: wrap; }
+.almpals li.miss { opacity: .6; }
