@@ -19,9 +19,8 @@
 --                      eyes are the miniature eye (3 x 3 cream disc, 2 x 2 umber pupil lower right, gvlib c:eye small)
 --                      inside a 1 px umber ring, as the big cat's ringed eyes.
 --   cf-bookhead-unknown same silhouette, flat umber-grey felt, cream question mark (locked / unseen coat).
--- Recolour note: tools/catfish_recolor.py's CLI skips cf-bookhead-* (classify() only takes cf-cat-/cf-pat- names with
--- '-grey-'), so --glob 'cf-bookhead-grey*.png' writes 0 files; its build_map()/recolor() map the head cleanly for all
--- 8 coats (11 colours each, nothing unmapped) when called directly.
+-- Recolour: tools/catfish_recolor.py --glob 'cf-bookhead-grey*.png' writes cf-bookhead-<coat>.png for all 8 coats
+-- (11 colours each, nothing unmapped).
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../gvlib/gvlib.lua")
 local OUT = here .. "/test/"
@@ -121,7 +120,17 @@ do
   local fish = c:ellipse(46.5, 15.5, 8, 6)
   local ftail = c:poly({ {52, 15}, {57, 8}, {57, 24} }):cut(c:poly({ {54, 16}, {58, 12}, {58, 21} }))
   local finT = c:poly({ {42, 11}, {46, 7}, {51, 11} })
-  local arm = c:line({ {32, 38}, {36, 32}, {39, 27} }, 5)
+  -- stubby plush arm: round capsule (shoulder -> bent elbow -> wrist), tapering, not a square-pen stick
+  local arm = c:mask()
+  local AP = { {31, 37, 4.5}, {36.5, 33.5, 4}, {39.5, 28, 3.5} }
+  for i = 1, #AP - 1 do
+    local a, b = AP[i], AP[i + 1]
+    for s = 0, 8 do
+      local t = s / 8
+      local r = a[3] + (b[3] - a[3]) * t
+      arm:add(c:ellipse(a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, r, r))
+    end
+  end
 
   c:build{
     { "cushion", cushion, TEAL, { gloss = { 12, 47 } } },
@@ -135,8 +144,9 @@ do
     { "fish", fish, FISH, { gloss = { 42, 12 } } },
     { "arm", arm, g, { cres = 2, gloss = false } },
   }
-  c:part(c:ellipse(41, 23.5, 3.5, 2.5), h, { flat = true })                 -- paw holding the fish's belly
-  c:paint({ "s.s" }, 40, 24, { s = GREY.base })
+  c:part(c:ellipse(41, 23.5, 4, 3), h, { flat = true })                     -- mitten paw holding the fish's belly
+  c:paint({ "s.s", "s.s" }, 40, 24, { s = GREY.base })
+  c:seam({ {33, 31}, {35, 33}, {36, 36} })                                   -- shoulder seam (arm sewn on)
   c:part(c:ellipse(18.5, 48.5, 4.5, 2.5), h, { flat = true })               -- front paw on the cushion
   c:paint({ "s.s", "s.s" }, 18, 49, { s = GREY.base })
   tint(c, tail:copy():clip(c:rect(5, 28, 14, 34)), GREY.base, GREY.light)          -- light tail tip + seam
@@ -242,13 +252,45 @@ do
   c:paint({ "s.s" }, 142, 37, { s = GREY.base })
   c:outline(grip, { ol = 1, olx = 0 })
 
-  -- yarn ball, left third, loose end across the floor
-  at(38, 50)
-  local yarn = c:ellipse(38, 50, 5.5, 5)
-  c:part(yarn, RED, { cres = 3, gloss = { 35, 47 } })
-  c:line({ {35, 47}, {41, 53} }, 1):each(function(x, y) if yarn:has(x, y) then c:px(x, y, RED.shade) end end)
-  c:line({ {34, 50}, {38, 54} }, 1):each(function(x, y) if yarn:has(x, y) then c:px(x, y, RED.shade) end end)
-  for _, p in ipairs({ {44, 54}, {45, 55}, {46, 55}, {47, 55}, {48, 54}, {49, 54}, {50, 55}, {51, 56}, {52, 56} }) do
+  -- left third (existing colours only, banner is at the cap): a small framed fish picture on the wall and a
+  -- woven cat basket with a cream felt cushion on the floor; yarn ball beside it.
+  at(30, 19)
+  c:line({ {24, 11}, {30, 6} }, 1):each(function(x, y) c:px(x, y, C.ol2) end)  -- picture string to a gold nail
+  c:line({ {36, 11}, {31, 6} }, 1):each(function(x, y) c:px(x, y, C.ol2) end)
+  c:paint({ ".g.", "gGG", ".G." }, 29, 4, { g = C.gold, G = C.goldS })
+  local frame = c:rect(20, 11, 40, 27)
+  c:part(frame, WOOD, { flat = true })
+  c:fill(c:rect(23, 14, 37, 24), C.halo)                                     -- cream mat
+  c:fill(c:rect(23, 14, 37, 14), W3)                                         -- frame's inner shadow
+  c:fill(c:rect(23, 14, 23, 24), W3)
+  local pfish = c:ellipse(29, 19.5, 4, 2.5)
+  c:fill(c:poly({ {32, 19.5}, {36, 16}, {36, 24} }):cut(c:poly({ {34.5, 19.5}, {37, 18}, {37, 21} })), C.goldS)
+  c:fill(pfish, C.gold)
+  pfish:each(function(x, y) if not pfish:has(x + 1, y) or not pfish:has(x, y + 1) then c:px(x, y, C.goldS) end end)
+  c:px(27, 19, C.ol3)
+
+  at(34, 44)
+  local basket = c:rrect(14, 39, 54, 50, 4)
+  c:part(basket, WOOD, { cres = 2, gloss = false })
+  for _, y in ipairs({ 43, 47 }) do                                          -- weave: rows and staggered ribs
+    c:line({ {16, y}, {52, y} }, 1):each(function(x, yy) if basket:has(x, yy) and c:get(x, yy) == FLS then c:px(x, yy, FL) end end)
+  end
+  for x = 18, 50, 4 do
+    local o = ((x / 4) % 2 == 0) and 0 or 4
+    for yy = 44 + o - 4, 46 + o - 4 do if basket:has(x, yy) and c:get(x, yy) == FLS then c:px(x, yy, C.ol1) end end
+  end
+  local CREAM = { gloss = C.halo, dot = C.halo, rim = C.halo, base = W1, shade = W3, deep = FLS, bounce = W2 }
+  local cushion = c:ellipse(34, 37.5, 17, 4.5)
+  c:part(cushion, CREAM, { cres = 2, gloss = { 23, 36 } })
+  c:seam({ {20, 39}, {48, 39} })                                             -- cushion piping seam
+
+  -- yarn ball beside the basket, loose end across the floor
+  at(64, 51)
+  local yarn = c:ellipse(64, 51, 5.5, 5)
+  c:part(yarn, RED, { cres = 3, gloss = { 61, 48 } })
+  c:line({ {61, 48}, {67, 54} }, 1):each(function(x, y) if yarn:has(x, y) then c:px(x, y, RED.shade) end end)
+  c:line({ {60, 51}, {64, 55} }, 1):each(function(x, y) if yarn:has(x, y) then c:px(x, y, RED.shade) end end)
+  for _, p in ipairs({ {70, 55}, {71, 56}, {72, 56}, {73, 56}, {74, 55}, {75, 55}, {76, 56}, {77, 57}, {78, 57} }) do
     c:px(p[1], p[2], RED.base)
   end
 

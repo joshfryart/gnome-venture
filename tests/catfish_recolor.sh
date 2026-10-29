@@ -13,6 +13,7 @@ N=$(ls "$OUT"/cf-cat-*-*.png | wc -l)
 F=$(ls "$IN"/cf-cat-grey-*.png | wc -l)   # drawn frames grow as the art does
 [ "$N" = $((8 * F)) ] || { echo "FAIL: expected $((8 * F)) cat outputs, got $N"; exit 1; }
 for c in grey black white orange cream brown silver-blue ginger-red; do
+  [ -f "$OUT/cf-bookhead-$c.png" ] || { echo "FAIL missing bookhead $c"; exit 1; }
   for f in idleA pounce catch nap stalk; do [ -f "$OUT/cf-cat-$c-$f.png" ] || { echo "FAIL missing $c $f"; exit 1; }; done
 done
 python3 -I - "$IN" "$OUT" <<'P'

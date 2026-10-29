@@ -7,6 +7,7 @@ Usage: python3 tools/catfish_recolor.py [--in DIR] [--out DIR] [--glob 'cf-cat-g
 Handled by file name (default --glob 'cf-*.png' in --in):
   cf-cat-grey-<f>, cf-pat-<pattern>-grey-<f>  -> '-grey-' becomes '-<coat>-' for all 8 coats
   cf-ears-folded-<f>, cf-tail-bobtail-<f>     -> cf-ears-folded-<coat>-<f> (parts use the grey tones: recoloured like the body)
+  cf-bookhead-grey[-*]                        -> cf-bookhead-<coat>[-*] (Cat Book cell head, grey tones + fixed accents)
   cf-eyes-<amber|green|blue|hazel>-<f>        -> copied as is; cf-eyes-ring-<f> -> cf-eyes-ring-<eye>-<f> tinted with --eye
   cf-*-mask-<f>                               -> copied unchanged
 Other files (fish, rod, icons) are skipped.
@@ -184,13 +185,14 @@ def check(name, src, out, unmapped, base_tones):
 
 
 def classify(name):
-    """-> kind: 'mask', 'eyes', 'ring', 'coat' (has -grey-), 'part' (ears/tail), or None (skip)."""
+    """-> kind: 'mask', 'eyes', 'ring', 'coat' (has -grey-), 'part' (ears/tail), 'head' (bookhead), or None (skip)."""
     if not name.startswith('cf-') or not name.endswith('.png'): return None
     if is_mask(name): return 'mask'
     if name.startswith('cf-eyes-ring-'): return 'ring'
     if name.startswith('cf-eyes-'): return 'eyes'
     if name.startswith(('cf-cat-', 'cf-pat-')) and '-grey-' in name: return 'coat'
     if name.startswith(('cf-ears-folded-', 'cf-tail-bobtail-')): return 'part'
+    if name.startswith('cf-bookhead-grey'): return 'head'
     return None
 
 
@@ -297,7 +299,9 @@ def main(argv=None):
         for coat in coats:
             cmap = build_map(coat, base_tones, overlays, a.eye)
             out, unm = recolor(src, cmap)
-            oname = name.replace('-grey-', '-%s-' % coat) if kind == 'coat' else part_name(name, coat)
+            if kind == 'coat': oname = name.replace('-grey-', '-%s-' % coat)
+            elif kind == 'head': oname = name.replace('cf-bookhead-grey', 'cf-bookhead-' + coat, 1)
+            else: oname = part_name(name, coat)
             Image.fromarray(out, 'RGBA').save(os.path.join(a.out, oname), optimize=False)
             n += 1
             if a.check:
