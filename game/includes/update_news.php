@@ -560,6 +560,12 @@ function post_update_news(string $from): void
         "Havens, wonders, delves and lairs now show a painted scene when you arrive: a crab keeper at the dark lighthouse, a silverback in the glade, a spider in her hollow, and 78 more. Look for them on the World and Town pages."],
     '2.0.88' => ['🧩 Puzzle Pals',
         "Every Jigsaw picture now has six little Puzzle Pals. Solve a picture at Advanced size and its pals are set free; after that you may meet them on your travels. Keep them in your Pal Book, take two along once you are gnome level 15, and win an Expert trophy to make a picture's pals a little stronger."],
+    '2.0.89' => ['🧙 My Gnome has tabs',
+        "[list][*][b]My Gnome[/b] is split into tabs down the left: Overview, Stats, Calling, Foods eaten, Villagers and Gardens.\n"
+        . "[*][b]Stats[/b] show a chart next to the list. Tap a stat to read what it does and press +1 to spend a point.\n"
+        . "[*][b]Foods eaten[/b] is now a tasting menu, and [b]Villagers[/b] is a wall of snapshots of everyone you know.\n"
+        . "[*][b]Easy roads[/b] moved to Account.\n"
+        . "[*]A new [b]Today[/b] link sits in the side rail on every page.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
