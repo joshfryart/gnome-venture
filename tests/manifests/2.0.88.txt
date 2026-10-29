@@ -7110,7 +7110,7 @@ b4c09b7112b65c41faacf8f9ee91d3a18f818b1c  includes/first_week.php
 bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 7021ac3cc44e66b2e9115dace1ccd53f291494aa  includes/fresh_start.php
 99110fc778d8b37055135c27a5f9cd203c2482a5  includes/friends.php
-dd5eb13143599a09ad44263fcc8f16b586f7ee62  includes/functions.php
+0f536ed70432aebd81cb4936d023e93a6bcf143a  includes/functions.php
 69d8da4cad7862024c639d32d9f53145860160d5  includes/games.php
 a9fbcab82e35bb8e8c57cc79f053fe83f73ed42c  includes/garden_critters.php
 26b6b870c76eb1eab2f25da9eafe2a6beec400c9  includes/garden_fx.php
@@ -7133,7 +7133,7 @@ ed297d75d0c62b1a9ba9ac8ece5b5330f9090717  includes/jobs.php
 8f03a6f8c34ee9103943b3002e5631175f428a8b  includes/journey.php
 0fe4c590ce325a0ce8750a014194faac1c3c1ad4  includes/journey_view.php
 cbf7a6e875f024670fa0e40f402c470a2ce57c84  includes/landmarks.php
-92c591a44b6bfae92dc36c36a377f4d73588a21d  includes/layout.php
+81d76b7a4bf8dace011b39fe3731c2783b02995b  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
 efa9c0a4a871eb187e42bd6d43d212e92b2b3eb1  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
