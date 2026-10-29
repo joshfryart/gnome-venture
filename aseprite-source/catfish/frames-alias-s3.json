@@ -1,0 +1,53 @@
+{
+  "_note": "Animation slice S3 (aseprite-source/catfish/cf_frames_s3.lua + cf_overlays_s3.lua). Layer roles: body = cf-cat-grey-<f>; pat-<p> = cf-pat-<p>-grey-<f>; ears-folded/ears-mask, tail-bobtail/tail-mask, eyes-<ring|amber|green|blue|hazel> = cf-<role>-<f>. Grey template names: recolour per coat as for every frame. kind full = every layer is the frame's own, named with the frame. kind alias = the body is own; each other layer is either own (its file named with the alias frame) or the base frame's file, as listed in files. Stack order as tools/catfish_recolor.py compose(): body, clear ear/tail masks from body and pattern, parts, pattern, eyes. Every alias stack was checked pixel-equal to the stack of layers computed for the alias frame itself. Eye split (odd eyes): jump x = 32, happy has closed eyes (no iris; 25), aliases as idleA (25).",
+  "jump": { "kind": "full", "eye_split": 32, "notes": "Straight-up leap drawn at ground level (feet on idleA's floor line); add the 16 px translateY arc in code. Eyes open." },
+  "happy": { "kind": "full", "eye_split": 25, "notes": "After a catch: happy squint (eye files are empty, like catch), open smile, tail high, little hop with a floor shadow in the frame." },
+  "tailflick": {
+    "kind": "alias",
+    "base": "idleA",
+    "own": ["body", "pat-tabby", "pat-pointed", "pat-spotted", "tail-bobtail", "tail-mask"],
+    "from_base": ["pat-tuxedo", "pat-calico", "ears-folded", "ears-mask", "eyes-ring", "eyes-amber", "eyes-green", "eyes-blue", "eyes-hazel"],
+    "files": {
+      "body": "cf-cat-grey-tailflick.png",
+      "pat-tabby": "cf-pat-tabby-grey-tailflick.png",
+      "pat-tuxedo": "cf-pat-tuxedo-grey-idleA.png",
+      "pat-calico": "cf-pat-calico-grey-idleA.png",
+      "pat-pointed": "cf-pat-pointed-grey-tailflick.png",
+      "pat-spotted": "cf-pat-spotted-grey-tailflick.png",
+      "ears-folded": "cf-ears-folded-idleA.png",
+      "ears-mask": "cf-ears-mask-idleA.png",
+      "tail-bobtail": "cf-tail-bobtail-tailflick.png",
+      "tail-mask": "cf-tail-mask-tailflick.png",
+      "eyes-ring": "cf-eyes-ring-idleA.png",
+      "eyes-amber": "cf-eyes-amber-idleA.png",
+      "eyes-green": "cf-eyes-green-idleA.png",
+      "eyes-blue": "cf-eyes-blue-idleA.png",
+      "eyes-hazel": "cf-eyes-hazel-idleA.png"
+    },
+    "notes": "idleA with only the tail moved (up high, tip hooked back). Patterns that mark the tail are own; a bobtail cat shows no flick (none=same tabby=same tuxedo=same calico=same pointed=same spotted=same against idleA+bobtail)."
+  },
+  "eartwitch": {
+    "kind": "alias",
+    "base": "idleA",
+    "own": ["body", "pat-tabby", "pat-calico", "pat-pointed", "ears-folded", "ears-mask"],
+    "from_base": ["pat-tuxedo", "pat-spotted", "tail-bobtail", "tail-mask", "eyes-ring", "eyes-amber", "eyes-green", "eyes-blue", "eyes-hazel"],
+    "files": {
+      "body": "cf-cat-grey-eartwitch.png",
+      "pat-tabby": "cf-pat-tabby-grey-eartwitch.png",
+      "pat-tuxedo": "cf-pat-tuxedo-grey-idleA.png",
+      "pat-calico": "cf-pat-calico-grey-eartwitch.png",
+      "pat-pointed": "cf-pat-pointed-grey-eartwitch.png",
+      "pat-spotted": "cf-pat-spotted-grey-idleA.png",
+      "ears-folded": "cf-ears-folded-eartwitch.png",
+      "ears-mask": "cf-ears-mask-eartwitch.png",
+      "tail-bobtail": "cf-tail-bobtail-idleA.png",
+      "tail-mask": "cf-tail-mask-idleA.png",
+      "eyes-ring": "cf-eyes-ring-idleA.png",
+      "eyes-amber": "cf-eyes-amber-idleA.png",
+      "eyes-green": "cf-eyes-green-idleA.png",
+      "eyes-blue": "cf-eyes-blue-idleA.png",
+      "eyes-hazel": "cf-eyes-hazel-idleA.png"
+    },
+    "notes": "idleA with the right ear tip tilted 2 px out and 2 px down (base fixed); a folded right flap drops 1,1. Patterns that mark the ears are own."
+  }
+}
