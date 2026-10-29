@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.91
+- **Pals along: no gnome level needed** (`PPAL_PARTY_LEVEL` is 1). Still behind `ppal_open` + `ppal_party`. Tests updated.
+- **How to get pals:** a short "How to meet your first pals" box for gnomes with none (My Gnome strip, picker and Pals tab; the Pal Book page).
+- **Almanac:** a Pal Book chapter under Wild (shown while Puzzle Pals are open); the front-page card opens it.
+
 ## 2.0.90
 - My Gnome content is centred. (2.0.89 was rebuilt under the same number; this release carries the change under a new one.)
 
