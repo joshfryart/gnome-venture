@@ -26,15 +26,17 @@ scarf:add(c:poly({ { 31, 27 }, { 45, 12 }, { 50, 12 }, { 53, 18 }, { 52, 28 } })
 local face  = c:ellipse(39.5, 57, 18, 16)
 local knot  = c:ellipse(39.5, 74.5, 4.5, 3.5)
 local tails = c:poly({ { 36, 75 }, { 31, 83 }, { 35, 84 }, { 39, 77 } }):add(c:poly({ { 41, 77 }, { 45, 84 }, { 48, 82 }, { 43, 75 } }))
-local curls = c:ellipse(29, 43, 5, 3):add(c:ellipse(39.5, 41.5, 6, 3)):add(c:ellipse(50, 43, 5, 3))
-curls:add(c:ellipse(22.5, 55, 2.5, 4)):add(c:ellipse(56.5, 55, 2.5, 4)):clip(face:copy():add(face:grow(1)))
+local curls = c:mask()
+for _, q in ipairs({ { 25, 45, 3.5 }, { 31, 42, 3.5 }, { 37, 40.5, 3.5 }, { 43, 40.5, 3.5 }, { 49, 42, 3.5 }, { 55, 45, 3.5 },
+                     { 22.5, 51, 2.5 }, { 57, 51, 2.5 } }) do curls:add(c:ellipse(q[1], q[2], q[3], 2.5)) end
+curls:clip(face:grow(2)):cut(c:rect(0, 47, 79, 99):clip(face:shrink(2)))
 local nose  = c:ellipse(39.5, 59.5, 4, 3.5)
 -- felt sardine toy held across the chest
 local fbody = c:ellipse(37, 90, 18, 6.5)
 local ftail = c:poly({ { 52, 90 }, { 63, 82 }, { 61, 90 }, { 64, 98 } })
 local fbelly = c:ellipse(37, 93.5, 15, 3):clip(fbody)
-local handL = c:ellipse(25.5, 93.5, 4, 3.5)
-local handR = c:ellipse(49.5, 93.5, 4, 3.5)
+local handL = c:ellipse(26, 91.5, 3.5, 4)
+local handR = c:ellipse(50, 91.5, 3.5, 4)
 
 local p = c:build{
   { "disc",   disc,   sky,    { solid = false, gloss = false } },
@@ -44,7 +46,7 @@ local p = c:build{
   { "shawlR", shawlR, shawl,  { gloss = false } },
   { "scarf",  scarf,  scarfR, { stitch = { side = "lit" } } },
   { "face",   face,   "skin", { gloss = { 27, 47 } } },
-  { "curls",  curls,  cream,  { gloss = false } },
+  { "curls",  curls,  cream,  { flat = true } },
   { "nose",   nose,   "skin", { gloss = false } },
   { "tails",  tails,  scarfR, { gloss = false } },
   { "knot",   knot,   scarfR, { gloss = false } },

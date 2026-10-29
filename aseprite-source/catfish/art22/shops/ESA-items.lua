@@ -78,28 +78,30 @@ end
 -- Y trunk with a third limb; round wooden plinth with the bead band and a gold hem seam.
 do
   local c = canvas(30, 26)
-  local canopy = c:rrect(2, 4, 27, 8, 2):add(c:ellipse(14.5, 4, 10, 2.5))
-  canopy:add(c:ellipse(7, 8.5, 3.5, 1.5)):add(c:ellipse(14.5, 9, 4, 1.5)):add(c:ellipse(22, 8.5, 3.5, 1.5))
-  local trunk = c:line({ { 14, 20 }, { 14, 15 }, { 9, 11 } }, 2)
-  trunk:add(c:line({ { 15, 16 }, { 20, 11 } }, 2)):add(c:line({ { 14, 14 }, { 14, 11 } }, 2))
-  local plinth = c:rrect(5, 19, 24, 23, 2)
+  local canopy = c:rrect(2, 3, 27, 6, 2):add(c:ellipse(14.5, 3, 9, 1.5))
+  canopy:add(c:ellipse(7, 6.5, 3.5, 1.2)):add(c:ellipse(14.5, 7, 4, 1.2)):add(c:ellipse(22, 6.5, 3.5, 1.2))
+  local trunk = c:line({ { 14, 20 }, { 14, 14 }, { 9, 8 } }, 2)
+  trunk:add(c:line({ { 15, 15 }, { 20, 8 } }, 2)):add(c:line({ { 14, 13 }, { 14, 8 } }, 2))
+  local EARTH = felt("#c4703a", { gloss = "#f2a868", rim = "#e08a50", shade = "#8e4a2a" })   -- red savanna earth
+  local plinth = c:ellipse(14.5, 21, 10.5, 2.5):add(c:rect(5, 21, 24, 23)):closed(1)
   c:build{
     { "trunk", trunk, BARK, { cres = 1, gloss = false, bounce = false } },
     { "canopy", canopy, OLIVE, { cres = 2, gloss = { 5, 3 } } },
-    { "plinth", plinth, WOODR, { cres = 2, gloss = false } },
+    { "plinth", plinth, EARTH, { cres = 2, gloss = false } },
   }
   -- leaf dashes (2 px shade) and yellow puff flowers (lit gold) on the canopy felt
-  for _, p in ipairs({ { 10, 5 }, { 18, 4 }, { 23, 6 }, { 6, 7 }, { 14, 7 } }) do
+  for _, p in ipairs({ { 10, 4 }, { 18, 3 }, { 23, 5 }, { 6, 6 }, { 14, 6 } }) do
     for i = 0, 1 do
       local k = c:key(p[1] + i, p[2])
       if canopy:has(p[1] + i, p[2]) and not c.gl.s[k] and not c.shd[k] then c:px(p[1] + i, p[2], OLIVE.shade) end
     end
   end
-  for _, p in ipairs({ { 9, 3 }, { 15, 3 }, { 21, 3 }, { 12, 6 }, { 20, 6 }, { 25, 5 }, { 4, 6 }, { 17, 8 } }) do
+  for _, p in ipairs({ { 9, 3 }, { 15, 2 }, { 21, 3 }, { 12, 5 }, { 20, 5 }, { 25, 4 }, { 4, 5 }, { 17, 7 } }) do
     if canopy:has(p[1], p[2]) then c:px(p[1], p[2], c.shd[c:key(p[1], p[2])] and GOLDR.base or GOLDR.rim) end
   end
-  beadrow(c, hrow(7, 22, 21))
-  c:seam({ { 7, 19 }, { 22, 19 } }, { gap = WOODR.base })
+  -- tufts of grass on the earth mound, then the bead band round it
+  c:paint({ "g.g", ".g." }, 7, 18, { g = OLIVE.rim }); c:paint({ "g.g", ".g." }, 20, 18, { g = OLIVE.rim })
+  beadrow(c, hrow(6, 23, 22))
   save(c, "acacia_perch")
 end
 

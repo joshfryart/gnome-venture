@@ -145,28 +145,34 @@ end
 ---------------------------------------------------------------- 1. singing bowl (shelf 20x24)
 do
   local c = sprite(20, 24)
-  -- wooden striker leaning behind the bowl, a pink suede-wrapped knob on top
-  part(c, c:line({ { 12, 19 }, { 15, 6 } }, 2), R.wood, { cres = 1 })
-  part(c, c:rrect(13, 2, 17, 6, 1), R.pink, { cres = 1, gloss = { { 14, 3 } } })
+  -- wooden striker leaning behind the bowl's right shoulder, a pink suede-wrapped knob on top
+  part(c, c:line({ { 16, 15 }, { 16, 6 } }, 2), R.wood, { cres = 1 })
+  part(c, c:rrect(14, 2, 17, 5, 1), R.pink, { cres = 1, gloss = { { 15, 3 } } })
   -- felt ring cushion
-  local cush = c:rrect(2, 16, 17, 21, 2)
-  part(c, cush, R.pink, { cres = 2 })
-  -- bronze bowl: a lip ellipse + round belly
-  local bowl = c:ellipse(9.5, 8.5, 6.5, 2)
-  bowl:add(c:ellipse(9.5, 10, 6.5, 6.5):clip(c:rect(0, 9, 19, 16)))
-  part(c, bowl, R.bronze, { cres = 3, deep = true, gloss = { { 5, 11 }, { 5, 12 }, { 6, 13 } } })
-  -- the opening: dark inside, lit lip ring
-  local inside = c:ellipse(9.5, 8.5, 5, 1)
-  inside:each(function(x, y) c:px(x, y, (y <= 8) and R.bronze.deep or R.bronze.shade) end)
-  for x = 3, 16 do for y = 6, 10 do
-    if bowl:has(x, y) and not inside:has(x, y) and (inside:has(x, y + 1) or inside:has(x + 1, y) or inside:has(x - 1, y)) and y <= 8 then
-      c:px(x, y, R.bronze.rim)
-    end
-  end end
-  c:px(5, 7, R.bronze.gloss); c:px(6, 7, R.bronze.gloss)
-  -- engraved band round the belly
-  for x = 5, 14, 2 do c:px(x, 13, (x < 10) and R.bronze.rim or R.bronze.shade) end
-  -- gold seam across the cushion front and two tassel corners
+  local cush = c:rrect(2, 15, 17, 21, 2)
+  part(c, cush, R.pink, { cres = 2, gloss = { { 4, 16 }, { 5, 16 } } })
+  -- bronze bowl, seen a little from above: back lip, dark inside, bright front lip, round belly
+  local bowl = c:ascii({
+    "..##########..",
+    ".############.",
+    "##############",
+    "##############",
+    "##############",
+    ".############.",
+    "..##########..",
+    "...########...",
+  }, 3, 9)
+  part(c, bowl, R.bronze, { cres = 3, deep = true })
+  for x = 5, 14 do c:px(x, 9, R.bronze.rim) end                      -- back lip
+  for x = 5, 14 do c:px(x, 10, R.bronze.deep) end                    -- inside, back wall in shadow
+  for x = 4, 15 do c:px(x, 11, (x < 6) and R.bronze.deep or R.bronze.shade) end -- inside floor
+  c:px(4, 10, R.bronze.rim); c:px(15, 10, R.bronze.base); c:px(3, 11, R.bronze.rim); c:px(16, 11, R.bronze.shade)
+  for x = 3, 16 do c:px(x, 12, (x < 11) and R.bronze.gloss or (x < 15 and R.bronze.rim or R.bronze.shade)) end -- front lip
+  c:px(3, 12, R.bronze.rim)
+  -- engraved band round the belly + gloss comma
+  for x = 5, 14, 2 do c:px(x, 14, (x < 11) and R.bronze.shade or R.bronze.deep) end
+  c:px(4, 13, R.bronze.gloss); c:px(5, 13, R.bronze.gloss)
+  -- gold seam across the cushion front
   local pts = {} for x = 3, 16 do pts[#pts + 1] = { x, 19 } end
   thread(c, pts, R.pink.shade)
   finish(c)
