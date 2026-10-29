@@ -2,6 +2,7 @@
 
 ## 2.1.10
 - **Phone: after a fight ends the action card is centred.** When a fight finished (win, lose, flee, Fight on, Auto-win) the tall fight card vanished and the old scroll position left the page mid-way. `gvFightScroll(ended)` now notices that the page had `.advgrid.fighting` and no longer does, and centres the `.encounter` card between the header (and the adventure bar) and the bottom bar; a card taller than that is put at the top. Re-placed at 60 ms and 350 ms like the banner, unless the gnome scrolls. Desktop and other pages are unchanged.
+- **Phone: smaller hoop map.** Up to 720 px wide the ring map is 170 px (was 250 px) and it is hidden, with its caption, while a fight is on, so the stage banner and the fight card get the room.
 
 ## 2.1.09
 - **Phone: the fight / wander scroll now keeps the whole stage banner in view.** The scroll ran before the message log, folds and banner image finished changing the layout, so it could land with only a sliver of the banner showing. `gvFightScroll` now places the banner again at 60 ms, 350 ms and when the banner image loads (skipped if the gnome has started scrolling).

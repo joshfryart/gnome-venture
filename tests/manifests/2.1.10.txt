@@ -8239,7 +8239,7 @@ c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 2a6129e7d5268f26ac38a31371c55a73c0038cca  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-059f59da865c8e45790258be5782a81ac04ba629  assets/style.css
+3e7e576e79dc637bcb767273e04c6fdd513bfedd  assets/style.css
 7caa4d9d42a2d06b9526e57cbf1ff6c096af7f3a  assets/tilemap.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
 21f8f690992ec0560260662de62adf8aedd0a48e  assets/trekfight.js

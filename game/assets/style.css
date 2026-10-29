@@ -4898,6 +4898,11 @@ dialog.tkscene.onstage, dialog.tkfoe.onstage { position: fixed; margin: 0; }
 .hoopmap .hr { cursor: pointer; outline: none; }
 .hoopmap .hr:focus-visible circle:last-child { stroke: #fff3c8; }
 .hoopcap { margin: 6px 0 0; text-align: center; font-size: 14px; line-height: 1.35; min-height: 2.7em; }
+/* v2.1.10 phone: a smaller hoop map leaves more room for the action card; in a fight it is not needed, so it goes */
+@media (max-width: 720px) {
+  .journeymap.rings.hoopmap { max-width: 170px; }
+  .advgrid.fighting .hoopmap, .advgrid.fighting .hoopcap { display: none; }
+}
 
 /* v2.0.45 Adventure cards: fade in when a new one is swapped in; someone met on the road stands on the stage, not under a harsh box */
 @media (prefers-reduced-motion: no-preference) {
