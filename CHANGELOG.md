@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.90
+- My Gnome content is centred. (2.0.89 was rebuilt under the same number; this release carries the change under a new one.)
+
 ## 2.0.89
 - **My Gnome tabs** (`gnome.php?tab=`): Overview, Pals (when `ppal_open` is on), Stats, Calling, Foods eaten, Villagers, Gardens. Plain links, no script. Old `#calling` / `#effects` links now go to the right tab.
 - **Stats:** a chart beside the list; click a stat for its detail; +1 per stat while points are unspent.
@@ -7,7 +10,6 @@
 - **Pals along on My Gnome** (still behind `ppal_open` + `ppal_party`): a two-slot strip under the header with a picker (Take along / Send home).
 - **Easy roads** moved from My Gnome to Account (`account.php#easyroads`).
 - **Right rail:** a "Go to Today" box, first in the rail.
-- My Gnome content is centred.
 - **Build:** `tests/build_update.sh` makes the FULL and source zips only on milestone versions (x.y.0); pass `all` or `slim` as the 4th argument to force.
 
 ## 2.0.88
