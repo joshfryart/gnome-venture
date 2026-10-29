@@ -1,4 +1,4 @@
--- shops/EA-items.lua : Cat Fish pet shop EA (Blossom Lantern Cattery, Blossomreach) item sprites, art22 v1.
+-- shops/EA-items.lua : Cat Fish pet shop EA (Blossom Lantern Cattery, Blossomreach) item sprites, art22 (v1 + polish passes 1-2).
 -- Five 1x room sprites (Stitched Toy, Part D) at the exact slot max sizes of claude/catfish-shops-art-spec.md:
 --   cf-pet-maneki_neko           shelf        20 x 24  beckoning cream felt cat, red collar + bell, gold coin
 --   cf-pet-paper_lantern_string  ceiling      48 x 34  swag cord from the top edge, two red + one paper lantern
@@ -142,13 +142,13 @@ do
   local p = c:build{
     { "trunk", trunk, BARK, { cres = 2, gloss = false } },
     { "br", br, BARK, { flat = true } },
-    { "padA", c:ellipse(8, 10, 5, 3), LEAF, {} },
+    { "padA", c:ellipse(8, 9, 5, 3), LEAF, {} },
     { "padB", c:ellipse(18, 5.5, 7, 3.5), LEAF, {} },
-    { "padC", c:ellipse(23, 12, 4, 2.5), LEAF, {} },
+    { "padC", c:ellipse(23, 11, 4, 2.5), LEAF, {} },
     { "lip", lip, INDIGO, { flat = true } },
     { "pot", pot, INDIGO, { cres = 2 } },
   }
-  for _, b in ipairs({ { 6, 9 }, { 15, 4 }, { 21, 6 }, { 24, 11 }, { 10, 11 } }) do
+  for _, b in ipairs({ { 6, 8 }, { 15, 4 }, { 21, 6 }, { 24, 10 }, { 10, 10 } }) do
     c:px(b[1], b[2], PINK.base); c:px(b[1] + 1, b[2], PINK.rim); c:px(b[1], b[2] + 1, PINK.shade)
   end
   c:seam({ { 5, 21 }, { 24, 21 } }, { gap = INDIGO.shade })
@@ -193,7 +193,7 @@ do
   local pot = c:ellipse(13, 12, 6, 5)
   local lid = c:rrect(10, 5, 16, 7, 1)
   local knob = c:rect(12, 3, 14, 4)
-  local spout = c:line({ { 7, 12 }, { 4, 9 } }, 2)
+  local spout = c:line({ { 8, 12 }, { 5, 9 }, { 4, 8 } }, 2)
   local handle = c:line({ { 18, 13 }, { 21, 10 }, { 21, 7 } }, 2)
   local cup1 = c:rrect(22, 13, 26, 17, 1)
   local cup2 = c:rrect(28, 14, 32, 18, 1)

@@ -183,7 +183,7 @@ do
   -- coiled sisal groove under the bead band
   basket:each(function(x, y)
     local k = c:key(x, y)
-    if (y == 20 or y == 24) and not c.gl.s[k] then c:px(x, y, c.shd[k] and "#9a7440" or SISAL.shade) end
+    if (y == 20 or y == 24) and x > 0 and not c.gl.s[k] then c:px(x, y, c.shd[k] and "#9a7440" or SISAL.shade) end
   end)
   local x0, _, x1 = basket:bbox()
   local row = {}

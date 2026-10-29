@@ -14,7 +14,7 @@ local OUT = here .. "/../out/"
 local c = GV.canvas{ w = 80, h = 100, mode = "bust" }
 
 local skyR   = GV.ramp("#a9d6ea")
-local pinkR  = GV.ramp("#f28a78")                 -- coral flamingo feathers
+local pinkR  = GV.ramp("#f6a08c")                 -- coral flamingo feathers
 local turqR  = GV.ramp("#3fb5ad")
 local madR   = GV.R.red
 local woodR  = GV.R.wood
@@ -25,14 +25,14 @@ local disc   = c:ellipse(39.5, 48, 34, 34):cut(c:rect(0, 86, 79, 99))
 local blouse = c:ellipse(39.5, 102, 33, 25)
 local apron  = c:poly({ {28, 82}, {51, 82}, {56, 100}, {23, 100} })
 local head   = c:ellipse(37.5, 56, 19, 17)
--- head tie: dome over the crown, brim band, knot with two lobes and a tail at the upper right
+-- head tie: dome over the crown, brim band, knot with two lobes and a tail at the upper left
 local wrap = c:ellipse(37.5, 45, 21, 14):cut(c:rect(0, 47, 79, 99))
 wrap:add(c:rrect(16, 43, 59, 48, 2))
-local knot = c:ellipse(55, 31, 6, 5):add(c:ellipse(47, 28, 5, 4.5)):add(c:poly({ {56, 33}, {64, 38}, {60, 41}, {53, 36} }))
+local knot = c:ellipse(20, 31, 6, 5):add(c:ellipse(28, 28, 5, 4.5)):add(c:poly({ {19, 33}, {11, 38}, {15, 41}, {22, 36} }))
 -- wing-hand at lower right holding the wand
-local wing = c:ellipse(60.5, 86, 7, 6)
+local wing = c:ellipse(57.5, 88, 6, 5.5)
 -- wand: driftwood stick from the hand up to the upper right
-local stick = c:line({ {63, 85}, {67, 64}, {71, 47} }, 2)
+local stick = c:line({ {59, 87}, {63, 64}, {66, 47} }, 2)
 
 ---------------------------------------------------------------- build (back to front)
 local p = c:build{
@@ -41,14 +41,14 @@ local p = c:build{
   { "apron",  apron,  "cream" },
   { "head",   head,   pinkR },
   { "knot",   knot,   madR, { gloss = false } },
-  { "wrap",   wrap,   madR, { gloss = { 24, 38 } } },
+  { "wrap",   wrap,   madR, { gloss = { 30, 36 } } },
 }
 -- madras check on the tie (gold + green lines, clipped inside the edge)
 local inner = wrap:shrink(1):add(knot:shrink(1))
-for x = 18, 64, 6 do
+for x = 13, 60, 6 do
   inner:copy():clip(c:rect(x, 0, x, 99)):each(function(xx, yy) c:px(xx, yy, GOLDT) end)
 end
-for x = 21, 64, 12 do
+for x = 16, 60, 12 do
   inner:copy():clip(c:rect(x, 0, x + 1, 99)):each(function(xx, yy) c:px(xx, yy, GREEN) end)
 end
 for _, y in ipairs({ 37, 45, 30 }) do
@@ -59,35 +59,32 @@ c:seam({ {18, 47}, {57, 47} })
 -- stick, then the hand over it; feathers and bell on a string at the top
 c:part(stick, woodR, { flat = true, contact = false })
 c:part(wing, pinkR, { gloss = false })
-c:fill(c:line({ {57, 85}, {60, 87} }, 1), pinkR.shade)      -- feather tips on the wing
-c:fill(c:line({ {57, 88}, {60, 90} }, 1), pinkR.shade)
-c:fill(c:line({ {71, 47}, {73, 52}, {72, 56} }, 1), "#f1ece0")  -- string
-c:part(c:ellipse(72, 58.5, 2.5, 2.5), "gold", { gloss = false, contact = false })   -- bell
-c:px(71, 57, "#fff1c8"); c:px(72, 60, "#7a3a14")
-local f1 = c:line({ {71, 46}, {67, 41}, {65, 36} }, 3)
-local f2 = c:line({ {72, 46}, {72, 39}, {73, 34} }, 3)
-local f3 = c:line({ {72, 46}, {76, 42}, {77, 38} }, 2)
+c:fill(c:line({ {54, 86}, {57, 87} }, 1), pinkR.shade)      -- feather fingers curled round the stick
+c:fill(c:line({ {54, 89}, {57, 90} }, 1), pinkR.shade)
+c:fill(c:line({ {67, 47}, {69, 51}, {70, 53} }, 1), "#f1ece0")  -- string
+c:part(c:ellipse(70.5, 56, 2.5, 2.5), "gold", { gloss = false, contact = false })   -- bell
+c:px(69, 55, "#fff1c8"); c:px(70, 57, "#7a3a14"); c:px(71, 57, "#7a3a14")
+local f1 = c:line({ {65, 46}, {61, 41}, {59, 36} }, 3)
+local f2 = c:line({ {66, 46}, {67, 39}, {68, 33} }, 3)
+local f3 = c:line({ {67, 46}, {71, 42}, {72, 38} }, 2)
 c:part(f2, turqR, { flat = true, contact = false })
 c:part(f1, pinkR, { flat = true, contact = false })
 c:part(f3, "gold", { flat = true, contact = false })
-c:px(72, 37, turqR.shade); c:px(72, 41, turqR.shade); c:px(66, 39, pinkR.shade); c:px(68, 42, pinkR.shade)
-c:part(c:rect(70, 45, 73, 47), woodR, { flat = true, contact = false })  -- wrapped grip at the tip
+c:px(67, 37, turqR.shade); c:px(67, 41, turqR.shade); c:px(60, 39, pinkR.shade); c:px(62, 42, pinkR.shade)
+c:part(c:rect(64, 45, 67, 48), woodR, { flat = true, contact = false })  -- wrapped grip at the tip
 
 ---------------------------------------------------------------- face
 c:eye(27, 52); c:eye(43, 52)
 -- flamingo beak: pale, bent down, dark tip
-local beak = c:poly({ {34, 58}, {42, 58}, {41, 63}, {38, 67}, {36, 63} })
+local beak = c:poly({ {33, 58}, {43, 58}, {42, 64}, {40, 70}, {37, 70}, {35, 64} })
 c:fill(beak, "#f2e4c0")
-c:fill(c:poly({ {35, 58}, {41, 58}, {40, 59}, {36, 59} }), "#fff3c8")
-c:fill(beak:copy():clip(c:rect(0, 63, 79, 99)), "#3e2f66")
-c:px(38, 63, "#7b66b4")
-beak:edge():clip(c:rect(0, 59, 79, 62)):each(function(x, y) c:px(x, y, "#c9a96e") end)
+c:fill(c:poly({ {34, 58}, {41, 58}, {40, 60}, {35, 60} }), "#fff3c8")
+c:fill(beak:copy():clip(c:rect(0, 65, 79, 99)), "#3e2f66")
+c:px(37, 65, "#7b66b4"); c:px(38, 66, "#7b66b4")
+beak:edge():clip(c:rect(0, 60, 79, 64)):each(function(x, y) c:px(x, y, "#c9a96e") end)
 -- smile lines either side of the beak
-c:paint({ "u...", ".uu." }, 30, 61, { u = "umber" })
-c:paint({ "...u", ".uu." }, 42, 61, { u = "umber" })
--- feather tuft cheeks (small chevrons, not blush)
-c:paint({ "s.", ".s" }, 22, 60, { s = pinkR.shade })
-c:paint({ ".s", "s." }, 52, 60, { s = pinkR.shade })
+c:paint({ "u...", ".uu." }, 29, 61, { u = "umber" })
+c:paint({ "...u", ".uu." }, 43, 61, { u = "umber" })
 
 ---------------------------------------------------------------- clothes details
 -- cream ruffled collar points and the conch pendant

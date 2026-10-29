@@ -169,7 +169,7 @@ do
     { "gac", 19, 10, STAR9, 23, 8 },
     { "mim", 3,  15, STAR9, 7, 8 },
     { "del", 36, 13, STAR9, 40, 8 },
-    { "eps", 29, 22, STAR7, 32, 8 },
+    { "eps", 30, 24, STAR7, 33, 8 },
     { "acr", 19, 24, STAR9, 23, 17 },
   }
   local parts = { { "bar", bar, DRIFT, { cres = 1, gloss = false } } }

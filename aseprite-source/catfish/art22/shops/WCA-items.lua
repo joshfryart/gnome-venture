@@ -213,17 +213,17 @@ do
   local GRASS = felt("#8fae4a", { gloss = "#e0e8a0", rim = "#c8d77a" })
   local BIRD = felt("#f2c418", { gloss = "#fff1c8", rim = "#ffe27a" })
   local foot = c:rrect(2, 19, 11, 21, 1)
-  local post = c:rect(5, 6, 6, 18):add(c:line({ { 5, 6 }, { 17, 5 } }, 2))
-  local nest = c:ellipse(13.5, 12.5, 5, 5):add(c:rrect(12, 15, 15, 21, 1))
-  local tail = c:poly({ { 21, 15 }, { 25, 15 }, { 24, 20 }, { 22, 20 } })
-  local body = c:ellipse(22.5, 12, 3, 3.5)
-  local head = c:ellipse(21.5, 7.5, 2.5, 2.5)
+  local post = c:rect(5, 6, 6, 18):add(c:line({ { 5, 6 }, { 16, 5 } }, 2))
+  local nest = c:ellipse(12.5, 12.5, 5, 5):add(c:rrect(11, 15, 14, 21, 1))
+  local tail = c:poly({ { 20, 14 }, { 24, 14 }, { 25, 20 }, { 22, 19 } })
+  local body = c:ellipse(21.5, 11.5, 3, 3.5)
+  local head = c:ellipse(20.5, 7, 2.5, 2.5)
   local p = c:build{
     { "foot", foot, MAH, { cres = 2, gloss = false } },
-    { "post", post, MAH, { flat = true } },
+    { "post", post, WOOD, { flat = true } },
     { "nest", nest, GRASS, { cres = 3, gloss = { 11, 9 } } },
-    { "tail", tail, felt("#8a7a2a"), { flat = true } },
-    { "body", body, BIRD, { cres = 2, gloss = { 21, 10 } } },
+    { "tail", tail, felt("#b8961a", { rim = "#d9b52a" }), { flat = true } },
+    { "body", body, BIRD, { cres = 2, gloss = { 20, 10 } } },
     { "head", head, BIRD, { flat = true } },
   }
   -- woven grass: short over-under strands, a few straw-gold strands woven in
@@ -234,14 +234,14 @@ do
       elseif (x + y) % 7 == 0 and not shaded(c, x, y) then c:px(x, y, "#d9c46a") end
     end
   end)
-  c:px(13, 21, DK); c:px(14, 21, DK); c:px(13, 20, DK)                -- entrance at the tube's foot
-  c:px(11, 7, GRASS.rim); c:px(16, 7, GRASS.rim)                      -- grass ends at the hanging knot
+  c:px(12, 21, DK); c:px(13, 21, DK); c:px(12, 20, DK)                -- entrance at the tube's foot
+  c:px(10, 7, GRASS.rim); c:px(15, 7, GRASS.rim)                      -- grass ends at the hanging knot
   -- weaver face (looking at the nest): dark mask, red eye in it, pale beak; wing bars; foot on the nest
-  c:paint({ "mm..", "mmm.", ".mm." }, 19, 6, { m = DK })
-  c:px(20, 7, "#e0501f")
-  c:px(18, 8, "#c9a96e"); c:px(18, 9, "#c9a96e")
-  c:paint({ "s..", ".s.", "s.." }, 23, 11, { s = BIRD.shade })
-  c:px(19, 14, DK); c:px(19, 15, DK)
+  c:paint({ "mm..", "mmm.", ".mm." }, 18, 5, { m = DK })
+  c:px(19, 6, "#e0501f")
+  c:px(17, 7, "#c9a96e"); c:px(17, 8, "#c9a96e")
+  c:paint({ "s..", ".s.", "s.." }, 22, 10, { s = BIRD.shade })
+  c:px(18, 13, DK); c:px(18, 14, DK)
   -- carved zigzag on the foot
   for x = 3, 10 do
     local y = 20 + (x % 2)

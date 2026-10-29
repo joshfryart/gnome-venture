@@ -21,7 +21,7 @@ local UMB = "#2a1a10"
 -- shapes -----------------------------------------------------------------------------------------------------------
 local disc = c:ellipse(40, 50, 36)
 -- cocked wren tail behind the right shoulder
-local tail = c:line({ { 58, 50 }, { 63, 23 } }, 4):add(c:line({ { 60, 50 }, { 69, 23 } }, 4)):add(c:line({ { 62, 52 }, { 74, 29 } }, 4))
+local tail = c:line({ { 60, 52 }, { 61, 24 } }, 5):add(c:line({ { 61, 52 }, { 68, 22 } }, 5)):add(c:line({ { 62, 52 }, { 74, 28 } }, 5)):add(c:poly({ { 58, 30 }, { 76, 30 }, { 62, 52 } })):closed(2)
 -- body (brown feathers) and cream shawl over the shoulders
 local body = c:ellipse(39.5, 99, 33, 22):clip(c:rect(0, 76, 79, 99))
 local shawl = c:ellipse(39.5, 101, 34, 23):clip(c:rect(0, 78, 79, 99))

@@ -106,10 +106,10 @@ banana(62, -1)
 banana(178, 1)
 
 -- sampan on the river (left)
-local boat = c:poly({ { 40, 52 }, { 62, 52 }, { 59, 56 }, { 44, 56 } })
+local boat = c:poly({ { 37, 50 }, { 41, 52 }, { 60, 52 }, { 65, 50 }, { 61, 56 }, { 42, 56 } })
 c:part(boat, WOOD, { gloss = false })
 c:fill(c:rect(43, 53, 58, 53), "#d9a660")
-local canopy = c:ellipse(51, 52, 5, 3):cut(c:rect(0, 52, W, H))
+local canopy = c:ellipse(51, 51, 6, 4):cut(c:rect(0, 51, W, H))
 c:part(canopy, CREAM, { flat = true })
 
 -- lantern strings from the shop eaves to the palms
@@ -136,14 +136,12 @@ local CX = 120
 local function edge1(m, col) -- 1 px dark contour just outside a small mask (no 2 px scene outline)
   m:grow(1):cut(m):each(function(x, y) c:px(x, y, col or "#4a2c1a") end)
 end
--- walls behind everything, then a lamp-lit interior
+-- walls, then a lamp-lit interior
 c:part(c:rect(78, 21, 162, 46), WOOD, { gloss = false })
-local inner = c:rect(85, 28, 155, 40)
-c:fill(inner, "#d9a660")
-for x = 91, 155, 9 do c:fill(c:rect(x, 28, x, 40), "#b07a45") end
-c:fill(c:rect(85, 28, 155, 29), "#8a4f2a")              -- shadow under the awning
-c:fill(c:rect(85, 33, 113, 33):add(c:rect(128, 33, 155, 33)), "#8a4f2a") -- shelf boards
-c:fill(c:rect(85, 34, 113, 34):add(c:rect(128, 34, 155, 34)), "#b07a45")
+c:fill(c:rect(85, 28, 155, 40), "#d9a660")
+for x = 91, 155, 9 do c:fill(c:rect(x, 30, x, 40), "#b07a45") end
+c:fill(c:rect(85, 33, 109, 33):add(c:rect(131, 33, 155, 33)), "#8a4f2a") -- shelf boards
+c:fill(c:rect(85, 34, 109, 34):add(c:rect(131, 34, 155, 34)), "#b07a45")
 -- shelf goods: rattan balls (sepak takraw) and plush fish
 local function rattan(x, y)
   local m = c:ellipse(x, y, 2, 2)
@@ -157,114 +155,112 @@ local function fish(x, y, col)
   c:px(x + 1, y, "#2a1a10")
 end
 rattan(89, 31); rattan(95, 31); rattan(101, 31); rattan(107, 31)
-fish(131, 30, RED); fish(143, 30, TEAL)
--- left of the cat: a jar of fish treats; right: kitten in a paddy-hat bed
-local jar = c:rrect(91, 35, 101, 40, 2)
+fish(133, 30, RED); fish(145, 30, TEAL)
+-- left of the cat: a jar of kibble
+local jar = c:rrect(92, 35, 102, 40, 2)
 c:part(jar, TEAL, { flat = true, outline = false }); edge1(jar)
-c:fill(c:rect(92, 35, 100, 35), "#dd3a2a")
-c:px(92, 36, "#c8ecdc"); c:px(92, 37, "#c8ecdc")
-c:paint({ "rr.r", "rrrr", "rr.r" }, 95, 37, { r = "#f2793a" })
-local kit = c:ellipse(143.5, 36, 6, 3):cut(c:rect(0, 38, W, H))
-kit:add(c:poly({ { 138, 35 }, { 139, 31 }, { 142, 34 } })):add(c:poly({ { 141, 34 }, { 143, 31 }, { 145, 34 } }))
+c:fill(c:rect(93, 35, 101, 35), "#dd3a2a")
+c:px(93, 36, "#c8ecdc"); c:px(93, 37, "#c8ecdc")
+for _, p in ipairs({ { 96, 38 }, { 98, 37 }, { 100, 38 }, { 97, 39 }, { 99, 39 } }) do c:px(p[1], p[2], "#8a4f2a") end
+-- right of the cat: kitten asleep in an upturned paddy-hat bed
+local kit = c:ellipse(144.5, 37, 6, 3):cut(c:rect(0, 38, W, H))
+kit:add(c:poly({ { 139, 36 }, { 140, 32 }, { 143, 35 } })):add(c:poly({ { 143, 35 }, { 145, 32 }, { 147, 36 } }))
 c:part(kit, CREAM, { flat = true, outline = false }); edge1(kit)
-c:px(140, 36, "#2a1a10"); c:px(141, 36, "#2a1a10"); c:px(144, 36, "#2a1a10"); c:px(145, 36, "#2a1a10")
-c:fill(c:rect(146, 35, 149, 35), "#d9a660")
-local hat = c:poly({ { 132, 38 }, { 156, 38 }, { 151, 41 }, { 137, 41 } })
+c:fill(c:rect(140, 36, 141, 36):add(c:rect(144, 36, 145, 36)), "#4a2c1a") -- sleepy eyes
+c:fill(c:rect(147, 36, 150, 36), "#d9a660")
+local hat = c:poly({ { 133, 38 }, { 157, 38 }, { 152, 41 }, { 138, 41 } })
 c:part(hat, GOLD, { flat = true, outline = false }); edge1(hat)
-for x = 135, 153, 3 do c:px(x, 39, "#b8661a"); c:px(x + 1, 40, "#b8661a") end
-
--- ginger cat sitting on the counter (the hero of the banner)
-local tail = c:line({ { 127, 40 }, { 130, 39 }, { 131, 36 }, { 129, 34 } }, 2)
-local body = c:ellipse(CX + 0.5, 37, 7, 4):cut(c:rect(0, 41, W, H))
-local head = c:ellipse(CX + 0.5, 31, 6, 4.5)
-head:add(c:poly({ { 114, 30 }, { 115, 24 }, { 119, 27 } })):add(c:poly({ { 122, 27 }, { 126, 24 }, { 127, 30 } }))
-local cat = c:build{
-  { "tail", tail, GOLD, { flat = true, outline = false } },
-  { "body", body, GOLD, { gloss = false, outline = false } },
-  { "head", head, GOLD, { gloss = { 116, 29 }, outline = false } },
-}
-local catAll = tail:copy():add(body):add(head)
-c:outline(catAll, { ol = 1, olx = 1 })
-c:px(116, 27, "#f2793a"); c:px(116, 28, "#f2793a"); c:px(125, 27, "#f2793a"); c:px(125, 28, "#f2793a")
-c:eye(115, 30, true); c:eye(123, 30, true)
-c:paint({ "m..m", ".mm." }, 119, 34, { m = "#2a1a10" })
-c:paint({ "s.s" }, 119, 27, { s = "#b8661a" })
-c:px(115, 37, "#b8661a"); c:px(116, 38, "#b8661a"); c:px(125, 36, "#b8661a")
-c:fill(c:rect(116, 40, 118, 40):add(c:rect(123, 40, 125, 40)), "#fff1c8") -- paws
+for x = 136, 154, 3 do c:px(x, 39, "#b8661a"); c:px(x + 1, 40, "#b8661a") end
 
 -- counter and batik cloth
-local counter = c:rect(82, 41, 158, 42)
-c:part(counter, WOOD, { flat = true, outline = false })
+c:part(c:rect(82, 41, 158, 42), WOOD, { flat = true, outline = false })
 c:fill(c:rect(82, 43, 158, 43), "#5e2f1e")
-local cloth = c:rect(84, 43, 156, 46)
-for _, k in ipairs({ 84, 156 }) do cloth:add(c:rect(k, 43, k, 46)) end
-c:part(cloth, TEAL, { flat = true, outline = false })
+c:part(c:rect(84, 44, 156, 46), TEAL, { flat = true, outline = false })
 for x = 87, 153, 6 do c:paint({ ".g.", "gdg", ".g." }, x, 44, { g = "#f5cf6a", d = "#2f6290" }) end
 c:fill(c:rect(84, 46, 156, 46), "#2f6290")
 
--- front posts (over the interior edge)
-c:part(c:rect(78, 23, 83, 46), WOOD, { gloss = false, outline = false })
-c:part(c:rect(157, 23, 162, 46), WOOD, { gloss = false, outline = false })
-edge1(c:rect(78, 23, 83, 46)); edge1(c:rect(157, 23, 162, 46))
-
--- awning: teal and cream stripes, scalloped hem
-local awn = c:rect(72, 21, 168, 25)
-for x = 72, 168, 8 do awn:add(c:ellipse(x + 3.5, 25, 4, 2.4)) end
-awn:cut(c:rect(0, 28, W, H)):cut(c:rect(169, 0, W, H)):cut(c:rect(0, 0, 71, H))
-local stripeT, stripeC = c:mask(), c:mask()
-awn:each(function(x, y) if ((x - 72) // 8) % 2 == 0 then stripeT:set(x, y) else stripeC:set(x, y) end end)
-c:part(stripeC, CREAM, { light = awn, outline = false, gloss = false, cres = 3 })
-c:part(stripeT, TEAL, { light = awn, outline = false, gloss = false, cres = 3 })
-c:fill(c:rect(72, 21, 168, 21), "#8a4f2a")
-edge1(awn:copy():cut(c:rect(0, 0, W, 21)))
--- ears of the cat sit in front of the awning
-c:part(c:poly({ { 114, 30 }, { 115, 24 }, { 119, 27 } }):add(c:poly({ { 122, 27 }, { 126, 24 }, { 127, 30 } })):cut(c:rect(0, 29, W, H)), GOLD, { flat = true, outline = false })
-edge1(c:poly({ { 114, 29 }, { 115, 24 }, { 119, 27 } }):add(c:poly({ { 122, 27 }, { 126, 24 }, { 127, 29 } })):cut(c:rect(0, 29, W, H)))
-c:px(116, 27, "#f2793a"); c:px(116, 28, "#f2793a"); c:px(125, 27, "#f2793a"); c:px(125, 28, "#f2793a")
-
--- roof: front gable with cat-ear finials
-local roof = c:poly({ { 64, 22 }, { CX, 4 }, { CX + 1, 4 }, { 177, 22 } })
-local gable = c:poly({ { 86, 21 }, { CX, 10 }, { CX + 1, 10 }, { 155, 21 } })
-roof:cut(gable)
-local earL = c:poly({ { 105, 11 }, { 107, 1 }, { 116, 7 } })
-local earR = c:poly({ { 125, 7 }, { 134, 1 }, { 136, 11 } })
-local roofAll = roof:copy():add(earL):add(earR)
-c:part(roofAll, RED, { gloss = { 90, 15 } })
-c:fill(c:poly({ { 108, 9 }, { 108, 5 }, { 113, 8 } }), "#f2e4c0")
-c:fill(c:poly({ { 128, 8 }, { 133, 5 }, { 133, 9 } }), "#f2e4c0")
--- tile ridges: short dark ticks along each slope
-for x = 68, 173, 4 do
-  local y = math.floor(22 - math.min(x - 64, 177 - x) * 18 / 56 + 0.5) + 3
-  if roof:has(x, y) and not gable:has(x, y) and roof:has(x, y + 1) then c:px(x, y, "#ae2a2a"); c:px(x, y + 1, "#ae2a2a") end
+-- front posts
+for _, x in ipairs({ 78, 157 }) do
+  local m = c:rect(x, 23, x + 5, 46)
+  c:part(m, WOOD, { gloss = false, outline = false }); edge1(m)
 end
+
+-- roof: front gable with cat-ear finials (its outline spills down; the awning covers it)
+local roof = c:poly({ { 64, 23 }, { CX, 5 }, { CX + 1, 5 }, { 177, 23 } })
+local gable = c:poly({ { 87, 22 }, { CX, 11 }, { CX + 1, 11 }, { 154, 22 } })
+roof:cut(gable)
+local earL = c:poly({ { 105, 12 }, { 107, 2 }, { 116, 8 } })
+local earR = c:poly({ { 125, 8 }, { 134, 2 }, { 136, 12 } })
+c:part(roof:copy():add(earL):add(earR), RED, { gloss = false, cres = 3 })
+c:fill(c:poly({ { 108, 10 }, { 108, 6 }, { 113, 9 } }), "#f2e4c0")
+c:fill(c:poly({ { 128, 9 }, { 133, 6 }, { 133, 10 } }), "#f2e4c0")
+-- small enamel comma on the lit left slope
+c:fill(c:line({ { 80, 16 }, { 86, 12 } }, 1), "#f2793a"); c:px(84, 14, "#f5cf6a"); c:px(85, 13, "#f5cf6a")
 -- woven attap gable
-c:part(gable, CREAM, { gloss = false, outline = false })
+c:part(gable, CREAM, { gloss = false, outline = false, flat = true })
 gable:each(function(x, y) if (x + y) % 4 == 0 or (x - y) % 4 == 0 then c:px(x, y, "#d9a660") end end)
 edge1(gable, "#ae2a2a")
 -- gold emblem: cat head (no text)
-local disc = c:ellipse(CX + 0.5, 16, 4.5, 4.5)
-c:part(disc, GOLD, { gloss = false, outline = false }); edge1(disc)
+local disc = c:ellipse(CX + 0.5, 17, 4.5, 4.5)
+c:part(disc, GOLD, { gloss = false, outline = false, flat = true }); edge1(disc)
 c:paint({
   "s....s",
   "ss..ss",
   "ssssss",
   "s.ss.s",
   ".ssss.",
-}, CX - 2, 14, { s = "#5e2f1e" })
+}, CX - 2, 15, { s = "#5e2f1e" })
 -- gold seam along the eaves (a real join between tiles and trim)
-c:seam({ { 66, 21 }, { CX, 5 } }, {})
-c:seam({ { CX + 1, 5 }, { 175, 21 } }, {})
+c:seam({ { 67, 21 }, { CX, 6 } }, {})
+c:seam({ { CX + 1, 6 }, { 174, 21 } }, {})
+
+-- awning: teal and cream stripes, scalloped hem
+local awn = c:rect(72, 22, 168, 25)
+for x = 72, 168, 8 do awn:add(c:ellipse(x + 3.5, 25, 4, 2.4)) end
+awn:cut(c:rect(0, 28, W, H)):cut(c:rect(169, 0, W, H)):cut(c:rect(0, 0, 71, H))
+local stripeT, stripeC = c:mask(), c:mask()
+awn:each(function(x, y) if ((x - 72) // 8) % 2 == 0 then stripeT:set(x, y) else stripeC:set(x, y) end end)
+c:part(stripeC, CREAM, { flat = true, outline = false })
+c:part(stripeT, TEAL, { flat = true, outline = false })
+-- crescent: the bottom row of each scallop is shaded
+awn:each(function(x, y)
+  if not awn:has(x, y + 1) or x >= 166 then
+    c:px(x, y, stripeT:has(x, y) and "#2f6290" or "#d9a660")
+  end
+end)
+c:fill(c:rect(72, 22, 168, 22), "#8a4f2a")
+edge1(awn:copy():cut(c:rect(0, 0, W, 22)))
 
 -- big lanterns hanging at the eave corners (warm light)
 local function lantern(x)
-  c:fill(c:rect(x, 23, x, 24), "#4a2c1a")
-  local m = c:rrect(x - 3, 25, x + 3, 32, 2)
+  c:fill(c:rect(x, 24, x, 25), "#4a2c1a")
+  local m = c:rrect(x - 3, 26, x + 3, 33, 2)
   c:part(m, GOLD, { gloss = false, outline = false, cres = 2 }); edge1(m)
-  c:fill(c:rect(x - 2, 25, x + 2, 25):add(c:rect(x - 2, 32, x + 2, 32)), "#dd3a2a")
-  c:fill(c:rect(x - 2, 27, x - 2, 29), "#fff1c8")
-  c:px(x, 33, "#dd3a2a"); c:px(x, 34, "#dd3a2a")
+  c:fill(c:rect(x - 2, 26, x + 2, 26):add(c:rect(x - 2, 33, x + 2, 33)), "#dd3a2a")
+  c:fill(c:rect(x - 2, 28, x - 2, 30), "#fff1c8")
+  c:px(x, 34, "#dd3a2a"); c:px(x, 35, "#dd3a2a")
 end
 lantern(71); lantern(169)
+
+-- ginger cat sitting on the counter (the hero of the banner), ears in front of the awning
+local tail = c:line({ { 126, 40 }, { 129, 39 }, { 131, 37 }, { 131, 34 } }, 2)
+local body = c:ellipse(CX + 0.5, 37, 7, 4):cut(c:rect(0, 41, W, H))
+local head = c:ellipse(CX + 0.5, 31, 6.5, 4.5)
+head:add(c:poly({ { 113, 30 }, { 115, 23 }, { 119, 28 } })):add(c:poly({ { 122, 28 }, { 126, 23 }, { 128, 30 } }))
+c:part(tail, GOLD, { flat = true, outline = false })
+c:part(body, GOLD, { gloss = false, outline = false, cres = 3 })
+c:part(head, GOLD, { gloss = false, outline = false, cres = 3 })
+edge1(tail:copy():add(body):add(head))
+c:fill(c:rect(115, 26, 115, 28):add(c:rect(116, 27, 116, 28)), "#f2793a")
+c:fill(c:rect(126, 26, 126, 28):add(c:rect(125, 27, 125, 28)), "#f2793a")
+c:fill(c:rect(118, 33, 123, 35), "#fff1c8")                      -- muzzle
+c:eye(115, 30, true); c:eye(123, 30, true)
+c:fill(c:rect(120, 33, 121, 33), "#dd3a2a")                      -- nose
+c:paint({ "m.m" }, 119, 35, { m = "#8a4f2a" })
+c:paint({ "s.s" }, 119, 28, { s = "#b8661a" })
+c:px(115, 37, "#b8661a"); c:px(116, 38, "#b8661a"); c:px(125, 37, "#b8661a"); c:px(124, 38, "#b8661a")
+c:fill(c:rect(116, 40, 118, 40):add(c:rect(123, 40, 125, 40)), "#fff1c8") -- paws
+c:px(116, 29, "#fff1c8") -- gloss dot on the lit cheek
 
 -- deck shadow under the shop
 c:fill(c:rect(70, 50, 170, 50), "#8a4f2a")

@@ -219,12 +219,12 @@ do
   local NUT  = felt("#8a5a36", { gloss = "#ecc58a", rim = "#b07a45" })
   local base = c:rrect(9, 21, 18, 22, 1)
   local post = c:rect(13, 18, 14, 21)
-  local tail = c:poly({ { 8, 12 }, { 12, 14 }, { 9, 21 }, { 6, 20 } })
+  local tail = c:poly({ { 8, 12 }, { 12, 14 }, { 8, 23 }, { 4, 22 } })
   local bird = c:ellipse(12, 11, 5, 5):add(c:ellipse(15.5, 6.5, 4, 4)):closed(1)
   local wing = c:ellipse(10.5, 12, 2.5, 3.5)
-  local beak = c:ascii({ "bb.", "bbb", ".bb", "..b" }, 19, 5)
+  local beak = c:ascii({ "bbb.", "bbbb", ".bbb", "..bb" }, 18, 5)
   local bar  = c:rect(4, 16, 25, 17)
-  local cup  = c:ellipse(22.5, 13, 3, 2):clip(c:rect(19, 13, 26, 15))
+  local cup  = c:ellipse(22.5, 13, 3, 2.5):clip(c:rect(19, 13, 26, 15))
   c:build{
     { "base", base, DRIFT, { gloss = false } },
     { "post", post, DRIFT, { flat = true } },
@@ -235,13 +235,16 @@ do
     { "bar", bar, DRIFT, { flat = true } },
     { "cup", cup, NUT, { flat = true } },
   }
-  c:paint({ "..ff", ".fff", "ffff", ".ff." }, 16, 5, { f = FACE })               -- blue face
+  c:paint({ "..fff.", ".fffff", "ffffff", ".ffff.", "..ff.." }, 13, 3, { f = FACE })  -- blue forehead and face
+  c:px(14, 3, "#7ab8f0"); c:px(15, 3, "#7ab8f0")
   c:paint({ ".rr", "rrr" }, 15, 10, { r = "#dd3a2a" })                            -- red throat
   c:seam({ { 9, 10 }, { 9, 14 } }, { gap = WING.shade })                         -- wing seam
-  c:eye(16, 5, true)
+  c:eye(15, 4, true)
+  c:paint({ "h", "h" }, 21, 7, { h = "#8a7a5a" })                                -- beak hook tip
   c:paint({ "ff.ff" }, 11, 15, { f = "#7b66b4" })                                 -- toes over the bar
-  c:paint({ ".yy.", "yyyy" }, 21, 11, { y = SUN.base })                           -- mango in the cup
-  c:px(21, 11, SUN.gloss)
+  c:paint({ "cccccc" }, 20, 13, { c = "#f1e3c0" })                               -- coconut rim
+  c:paint({ ".yyy", "yyyy" }, 21, 11, { y = SUN.base })                           -- mango in the cup
+  c:px(22, 11, SUN.gloss); c:px(24, 12, SUN.shade)
   save(c, "parrot_perch", W, H)
 end
 
