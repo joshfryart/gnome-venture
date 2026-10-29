@@ -27,7 +27,7 @@ ROWS = rows('pl-wonder-the-stepped-seed-temple-fd002d')
 MOSS = ('#4c7a34', '#6a9a46')
 TSTONE = ('#b8b4a8', '#d4d0c4')
 MARI = ('#e0862a', '#f4a63e')
-EARTH = ('#6a4630', '#86603e')
+EARTH = ('#9a7050', '#b48a62')
 SKYB = ('#86bcdc', '#b0d6ea')
 SCAR = ('#c42a26', '#e04438')
 CREAMS = '#efe4c4'
@@ -49,20 +49,20 @@ def happy_arc(st, x, y):
 def grumpy_mossmask():
     key = 'pl-step-1'
     st = Sticker()
-    core = (14, 12, 49, 50)
+    core = (17, 12, 46, 50)
     body, holes = piece_blanks(core, n='F', w='F', e=('B', 'keyhole', 0, 3.4), s=('B', 'keyhole', 0, 3.4))
     for sx in (1, -1):
-        cx = 13 if sx == 1 else 50
-        leaf = poly([(cx, 22), (cx - 9 * sx, 16), (cx - 7 * sx, 28)])
+        cx = 18 if sx == 1 else 45
+        leaf = poly([(cx, 22), (cx - 8 * sx, 17), (cx - 6 * sx, 27)])
         st.part(leaf, '#5e9a3a', d=1, contour=True)
-        st.paint(line([(cx, 22), (cx - 7 * sx, 19)]), LEAF)
-    st.part(body, tex=fill(key, body, 14, 12, 38, list(MOSS)), contour=True)
+        st.paint(line([(cx, 22), (cx - 6 * sx, 20)]), LEAF)
+    st.part(body, tex=fill(key, body, 16, 12, 36, list(MOSS)), contour=True)
     st.blank_shade(body, holes, width=1)
-    st.eye(20, 25, lid=2)
-    st.eye(34, 25, lid=2)
-    st.paint(line([(19, 22), (25, 24)]) | line([(39, 24), (45, 22)]), UMBER)
-    st.mouth('flat', 29, 38)
-    st.paint(rect(28, 37, 28, 37) | rect(32, 37, 32, 37), UMBER)
+    st.eye(22, 20, lid=2)
+    st.eye(36, 20, lid=2)
+    st.paint(line([(21, 17), (27, 19)]) | line([(37, 19), (43, 17)]), UMBER)
+    st.mouth('flat', 30, 30)
+    st.paint(rect(29, 29, 29, 29) | rect(33, 29, 33, 29), UMBER)
     return key, st
 
 
@@ -91,19 +91,19 @@ def glyph_doodle():
 def marigold_dot_duo():
     key = 'pl-step-3'
     st = Sticker()
-    core = (15, 22, 48, 48)
+    core = (17, 24, 46, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    for x, col in ((15, '#f08a20'), (45, PINK)):
-        st.paint(line([(x + 2, 13), (x + 2, 22)]), LEAF)
-        st.part(disc(x + 2, 11, 4), col, d=1, contour=True)
-        st.paint(disc(x + 2, 11, 1.2), '#ffe070')
+    for x, col in ((17, '#f08a20'), (43, PINK)):
+        st.paint(line([(x + 2, 17), (x + 2, 24)]), LEAF)
+        st.part(disc(x + 2, 15, 3.5), col, d=1, contour=True)
+        st.paint(disc(x + 2, 15, 1.2), '#ffe070')
     st.part(body, tex=fill(key, body, 15, 14, 34, list(MARI)), contour=True)
     st.blank_shade(body, holes, width=1)
-    st.eye(21, 28)
-    st.eye(37, 28)
+    st.eye(23, 27)
+    st.eye(36, 27)
     st.mouth('tooth', 29, 38)
-    st.paint(rect(19, 36, 21, 36) | rect(42, 36, 44, 36), BLUSH)
+    st.paint(rect(22, 34, 23, 34) | rect(39, 34, 40, 34), BLUSH)
     return key, st
 
 
@@ -152,7 +152,7 @@ def scarlet_riddlecaller():
     st = Sticker()
     head = disc(30, 22, 10)
     bod = ellipse(31, 38, 11, 12)
-    tail = poly([(26, 46), (36, 46), (33, 57), (29, 57)])
+    tail = poly([(26, 46), (36, 46), (33, 54), (29, 54)])
     tab = knob('w', 'keyhole', 38, 21, r=2.4)
     st.part(tail, '#2a6ac8', d=1, contour=True)
     sil = head | bod | tab
@@ -170,9 +170,9 @@ def scarlet_riddlecaller():
     st.part(rect(25, 50, 27, 52) | rect(35, 50, 37, 52), '#4a4a50', d=0, contour=True, shade=False)
     q = ['.GGG.', 'G...G', '...G.', '..G..', '.....', '..G..']
     st.sprite(q, 49, 9, {'G': GOLD}, solid=False)
-    st.sparkle(8, 10)
-    st.sparkle(8, 44, big=False)
-    st.sparkle(52, 48, big=False)
+    st.sparkle(13, 12)
+    st.sparkle(14, 44, big=False)
+    st.sparkle(48, 47, big=False)
     return key, st
 
 

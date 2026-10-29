@@ -55,13 +55,13 @@ def mini_gate(st, x, y, w, h):
 def lollipop_maple():
     key = 'pl-gate-1'
     st = Sticker()
-    st.part(rect(30, 48, 33, 57), TRUNK, d=1, contour=True)
-    core = (12, 16, 46, 48)
+    st.part(rect(30, 47, 33, 53), TRUNK, d=1, contour=True)
+    core = (12, 19, 46, 47)
     body, holes = piece_blanks(core, s='F', w='F', n=('T', 'keyhole', 2, 3.6), e=('B', 'keyhole', 0, 3.0))
-    body = body & ~(disc(12, 16, 5) & ~disc(17, 21, 5)) & ~(disc(12, 48, 5) & ~disc(17, 43, 5))
+    body = body & ~(disc(12, 19, 5) & ~disc(17, 24, 5)) & ~(disc(12, 47, 5) & ~disc(17, 42, 5))
     st.part(body, tex=fill(key, body, 12, 10, 38, list(MAPLE)), contour=True)
     st.blank_shade(body, holes, width=1)
-    st.part(poly([(33, 5), (38, 7), (34, 9)]), '#e88a3a', d=0, contour=True, shade=False)
+    st.part(poly([(36, 8), (41, 10), (37, 12)]), '#e88a3a', d=0, contour=True, shade=False)
     st.eye(19, 27, lid=2)
     st.eye(32, 27, lid=2)
     st.mouth('smile', 26, 36)
@@ -73,7 +73,7 @@ def lollipop_maple():
 def hilltop_bowl():
     key = 'pl-gate-2'
     st = Sticker()
-    core = (15, 24, 47, 54)
+    core = (13, 24, 44, 54)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 15, 14, 36, list(HILL)), contour=True)
     st.blank_shade(body, holes, width=1)
@@ -92,20 +92,20 @@ def hilltop_bowl():
 def torii_tophat():
     key = 'pl-gate-3'
     st = Sticker()
-    core = (15, 22, 48, 50)
+    core = (15, 20, 48, 44)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 15, 14, 34, list(LILAC)), contour=True)
     st.blank_shade(body, holes, width=1)
-    crown = rect(22, 11, 41, 19)
+    crown = rect(22, 9, 41, 17)
     st.part(crown, ROOF, d=1, contour=True)
-    brim = poly([(9, 18), (54, 18), (51, 22), (12, 22)]) | rect(8, 16, 10, 18) | rect(53, 16, 55, 18)
+    brim = poly([(10, 16), (53, 16), (50, 20), (13, 20)]) | rect(9, 14, 11, 16) | rect(52, 14, 54, 16)
     st.part(brim, '#3a3240', d=1, contour=True)
-    st.paint(rect(22, 17, 41, 17), VERM)
-    st.eye(21, 28)
-    st.eye(37, 28)
-    st.mouth('tooth', 29, 38)
-    st.paint(rect(19, 36, 21, 36) | rect(42, 36, 44, 36), BLUSH)
+    st.paint(rect(22, 15, 41, 15), VERM)
+    st.eye(21, 25)
+    st.eye(37, 25)
+    st.mouth('tooth', 29, 34)
+    st.paint(rect(19, 33, 21, 33) | rect(42, 33, 44, 33), BLUSH)
     return key, st
 
 
@@ -139,7 +139,9 @@ def dawnglow_pearl():
     st.blank_shade(body, holes, width=1)
     for (x, y) in ((16, 16), (46, 16), (16, 46), (46, 46)):
         st.paint(rect(x, y, x + 1, y + 1), '#fff4dc')
-    st.paint(disc(31.5, 40, 6) & ~disc(31.5, 40, 4.8) & (YY <= 40), '#e88a50')
+    st.paint(disc(31.5, 43, 4.5) & (YY <= 42), '#f08a40')
+    st.paint(rect(24, 43, 39, 43), '#c86a30')
+    st.paint(rect(31, 35, 32, 36) | rect(25, 38, 25, 38) | rect(38, 38, 38, 38), '#f08a40')
     st.eye(22, 22, look=(0, -1))
     st.eye(37, 22, look=(0, -1))
     st.mouth('o', 31, 30)
@@ -152,8 +154,8 @@ def whisker_sentinel():
     st = Sticker()
     head = ellipse(31.5, 28, 14, 11)
     ears = poly([(18, 24), (20, 10), (28, 19)]) | poly([(45, 24), (43, 10), (35, 19)])
-    bodym = ellipse(31.5, 44, 11, 9)
-    tab = knob('s', 'keyhole', 32, 52, r=2.4)
+    bodym = ellipse(31.5, 42, 11, 7)
+    tab = knob('s', 'keyhole', 32, 48, r=2.4)
     sil = head | ears | bodym | tab
     st.part(sil, tex=fill(key, sil, 14, 10, 38, list(CATC)), contour=True)
     st.paint(poly([(21, 15), (22, 21), (25, 19)]) | poly([(42, 15), (41, 21), (38, 19)]), '#f0b0b0')

@@ -162,7 +162,7 @@ def tuftear_chipmunk():
     st = Sticker()
     head = disc(30, 26, 12)
     ears = disc(20, 15, 3.6) | disc(40, 15, 3.6)
-    tufts = poly([(18, 13), (19, 6), (23, 12)]) | poly([(37, 12), (41, 6), (42, 13)])
+    tufts = poly([(18, 13), (19, 9), (23, 12)]) | poly([(37, 12), (41, 9), (42, 13)])
     belly = ellipse(30, 41, 11, 8)
     tab = knob('s', 'keyhole', 30, 48, r=2.6)
     body = head | ears | tufts | belly | tab
@@ -182,7 +182,7 @@ def tuftear_chipmunk():
     st.eye(33, 21, look=(1, -1))
     st.mouth('grin', 28, 29)
     st.paint(rect(19, 28, 21, 28) | rect(39, 28, 41, 28), BLUSH)
-    st.sparkle(48, 8)
+    st.sparkle(49, 9)
     st.sparkle(9, 30, big=False)
     st.sparkle(50, 42, big=False)
     return key, st
