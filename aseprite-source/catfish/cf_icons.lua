@@ -5,12 +5,12 @@
 -- thread seams (2 on / 1 off), locked eyes, umber contours. Each icon is its own silhouette and main colour;
 -- the branch shows as a shared accent:
 --   fish (orange/rose): fish = orange plushie fish (cf-fish-1 look), silk = pale silk bow with rose knot,
---                       catnip = green catnip sprig with a rose flower spike, glitter = crimson sequin scales
---                       with a gold 4-point sparkle
+--                       catnip = green catnip sprig with a rose flower spike, glitter = crimson sequin fish
+--                       facing right with a gold 4-point sparkle
 --   rod (blue/violet):  string = spool wound with blue string and a curling loose end, spring = violet coil
 --                       spring on a red grip, motor = steel gear reel with a red button and a rod, double =
 --                       two crossed wands tied with a blue bow
---   room (yellow/green): sunbeam = sun and a window-shaped light patch, rug = round green rug with a stitched
+--   room (yellow/green): sunbeam = sun, rays and a window-shaped light patch on a floor, rug = round green rug with a stitched
 --                       border and fringe, scratch = sisal post on a green base, window = green frame, sky
 --                       panes, bird outside
 --   cat (brown/pink):   bowl = pink pedestal bowl with a gold fish on the rim and kibble, toybox = open wooden
@@ -211,42 +211,51 @@ do
   save(c, "catnip")
 end
 
--- glitter: a round patch of crimson sequin scales (scallop rows, sparkle dots) with a big gold 4-point
--- sparkle breaking out of its top right and a small one top left. (Pass 2: three round sequins read as cherries.)
+-- glitter: a crimson sequin fish facing right (the plain fish faces left and is orange), every scale a
+-- scallop, gold fan tail and fin, gold glitter specks, a big gold 4-point sparkle top right and a small one
+-- top left. (Pass 2's round scale patch read as a Christmas bauble; pass 3 makes it a fish again.)
 do
   local c = canvas()
   local Q = felt("#d43a5a", { gloss = "#ffb0b8", dot = "#ffe0e0", rim = "#f06a80", shade = "#9a2448" })
-  local patch = c:ellipse(29.5, 38, 17, 16)
-  local big = star(c, 43, 19, 15, 4.2, 0)
-  local small = star(c, 13, 15, 8, 2.6, 0)
+  local body = c:ellipse(33, 37, 17, 13)
+  local tail = c:poly({ {20, 37}, {10, 24}, {8, 31}, {12, 37}, {8, 43}, {10, 51} })
+  local finM = c:poly({ {25, 27}, {29, 17}, {38, 18}, {42, 27} })
+  local big = star(c, 48, 15, 8, 2.6, 0)
+  local small = star(c, 13, 12, 5, 1.8, 0)
   local p = c:build{
-    { "patch", patch, Q, { cres = 4, gloss = false } },
-    { "small", small, GOLD, { cres = 2, gloss = false, bounce = false } },
-    { "big", big, GOLD, { cres = 3, gloss = false, bounce = false } },
+    { "tail", tail, GOLD, { cres = 3, gloss = false } },
+    { "fin", finM, GOLD, { cres = 2, gloss = false } },
+    { "body", body, Q, { cres = 4, gloss = false } },
+    { "small", small, GOLD, { flat = true, contact = false } },
+    { "big", big, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } },
   }
   -- scallop rows: each scale is the lower arc of a radius-4 ring (shade), lit just inside (rim)
-  local inner = patch:shrink(2)
+  local inner = body:shrink(2)
   for row = 0, 4 do
-    local y = 23 + row * 7
-    for col = -1, 4 do
-      local x = 12 + col * 10 + (row % 2) * 5
+    local y = 23 + row * 6
+    for col = -1, 5 do
+      local x = 12 + col * 9 + (row % 2) * 4
       for dy = 0, 5 do for dx = -5, 5 do
         local d = math.sqrt(dx * dx + dy * dy)
         local px, py = x + dx, y + dy
         local k = c:key(px, py)
-        if inner:has(px, py) and c.own[k] == p.patch then
-          if d >= 4.2 and d < 5.4 then c:px(px, py, Q.shade)
-          elseif d >= 3.0 and d < 4.2 and dy >= 1 and not c.shd[k] then c:px(px, py, Q.rim) end
+        if inner:has(px, py) and c.own[k] == p.body and px < 42 then
+          if d >= 3.6 and d < 4.7 then c:px(px, py, Q.shade)
+          elseif d >= 2.6 and d < 3.6 and dy >= 1 and not c.shd[k] then c:px(px, py, Q.rim) end
         end
       end end
     end
   end
-  c:paint({ "..ggg", ".g...", "g....", "g...." }, 16, 26, { g = Q.gloss })              -- enamel comma
-  for _, q in ipairs({ { 22, 33 }, { 34, 30 }, { 28, 42 }, { 39, 45 }, { 18, 46 } }) do  -- gold glitter specks
+  c:seam({ { 41, 27 }, { 43, 33 }, { 43, 40 }, { 41, 46 } }, { gap = Q.shade })        -- gill seam
+  c:paint({ ".ggg", "g...", "g..." }, 21, 28, { g = Q.gloss })                         -- enamel comma
+  c:paint({ "sss.", "...s" }, 11, 30, { s = GOLD.shade })                              -- tail ribs
+  c:paint({ "...s", "sss." }, 11, 43, { s = GOLD.shade })
+  for _, q in ipairs({ { 27, 33 }, { 35, 38 }, { 24, 43 } }) do                        -- gold glitter specks
     c:paint({ ".d.", "dgd", ".d." }, q[1] - 1, q[2] - 1, { d = C.gold, g = GOLD.gloss })
   end
-  c:paint({ ".d.", "ddd", ".d." }, 41, 17, { d = GOLD.gloss })                            -- star glints
-  c:paint({ "d" }, 12, 14, { d = GOLD.gloss })
+  c:eye(43, 31)
+  c:paint({ "..u", "uu." }, 47, 41, { u = "ol2" })                                    -- smile
+  c:px(48, 15, GOLD.gloss); c:px(47, 14, GOLD.gloss)                                  -- star glint
   save(c, "glitter")
 end
 
@@ -378,30 +387,42 @@ do
 end
 
 -------------------------------------------------------------------------------- ROOM
--- sunbeam: a little sun top-left and the window-shaped patch of light it throws on the floor (pass 2: bigger
--- patch, 1 px dust motes dropped)
+-- sunbeam: a little sun top left throwing three chunky rays down onto a wooden floor, where they land as a
+-- bright window-shaped patch. (Pass 3: the sun and the patch were not joined, so it read as sun + yellow tile.)
 do
   local c = canvas()
   local LIGHT = felt("#f5d470", { gloss = "#fff4c0", dot = "#fff4c0", rim = "#fff0a0", shade = "#e0a83a" })
-  local sun = c:ellipse(18, 18, 8)
+  local BEAM = { gloss = "#fff4c0", dot = "#fff4c0", rim = "#fff4c0", base = "#fff0a0", shade = LIGHT.base }
+  BEAM.deep, BEAM.bounce = BEAM.shade, BEAM.base
+  local sun = c:ellipse(18, 18, 7)
   local rays = c:mask()
   for i = 0, 7 do
-    local a = i * math.pi / 4
-    local ux, uy = math.cos(a), math.sin(a)
-    local vx, vy = -uy, ux
-    local function P(t, s) return { 18.5 + ux * t + vx * s, 18.5 + uy * t + vy * s } end
-    rays:add(c:poly({ P(8, -3), P(13.5, 0), P(8, 3) }))
+    if i ~= 0 and i ~= 1 and i ~= 2 then                                                 -- beams take the lower right
+      local a = i * math.pi / 4
+      local ux, uy = math.cos(a), math.sin(a)
+      local vx, vy = -uy, ux
+      local function P(t, s) return { 18.5 + ux * t + vx * s, 18.5 + uy * t + vy * s } end
+      rays:add(c:poly({ P(7, -3), P(11.5, 0), P(7, 3) }))
+    end
   end
-  local patch = c:poly({ {22, 32}, {46, 32}, {57, 56}, {31, 56} })
-  local p = c:build{
-    { "patch", patch, LIGHT, { cres = 3, gloss = false } },
-    { "rays", rays, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } },
-    { "sun", sun, GOLD, { cres = 3, gloss = { 14, 14 } } },
+  local floor = c:rrect(8, 45, 55, 55, 2)
+  local patch = c:poly({ {25, 45}, {48, 45}, {55, 56}, {32, 56} }):clip(floor:shrink(1))
+  local beams = {
+    c:poly({ {14, 23}, {20, 24}, {31, 48}, {25, 48} }),
+    c:poly({ {21, 23}, {25, 20}, {40, 48}, {34, 48} }),
+    c:poly({ {24, 14}, {26, 19}, {49, 48}, {43, 48} }),
   }
-  -- window bars in the light: a cross of 2 px shade lines, and floor-board seams
-  local bars = c:line({ {35, 32}, {45, 56} }, 2):add(c:line({ {27, 44}, {51, 44} }, 2))
-  onPart(c, bars, p.patch, LIGHT.shade)
-  c:seam({ { 25, 35 }, { 32, 35 } }, { gap = LIGHT.shade })
+  local list = { { "floor", floor, WOOD, { cres = 3, gloss = false } } }
+  list[#list + 1] = { "patch", patch, BEAM, { cres = 2, gloss = false, contact = false } }
+  for i, m in ipairs(beams) do list[#list + 1] = { "b" .. i, m, BEAM, { flat = true, contact = false, solid = false } } end
+  list[#list + 1] = { "rays", rays, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } }
+  list[#list + 1] = { "sun", sun, GOLD, { cres = 3, gloss = { 14, 14 } } }
+  local p = c:build(list)
+  -- window bars in the light patch, plank seams on the floor
+  local bars = c:line({ {40, 45}, {46, 55} }, 2):add(c:line({ {29, 50}, {52, 50} }, 2))
+  onPart(c, bars, p.patch, LIGHT.base)
+  for _, x in ipairs({ 14, 20 }) do onPart(c, c:rect(x, 47, x, 54), p.floor, WOOD.shade) end
+  c:seam({ { 10, 51 }, { 22, 51 } }, { gap = WOOD.shade })
   save(c, "sunbeam")
 end
 
