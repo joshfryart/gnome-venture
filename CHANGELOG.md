@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.100
+- **Staple seeds in regional markets:** every regional seed market now stocks its region's staple crops (up to 20, restocks about 90% of the time). Existing markets are filled in on update.
+
 ## 2.0.99
 - **Drying rack icons fixed:** each bundle now shows its own flower icon (it was using the rack row id, so it showed random items like a shovel).
 
