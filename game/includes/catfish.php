@@ -655,9 +655,14 @@ function catfish_show_judge(int $uid, string $week, array $cat, array $theme): a
     $rng = catfish_rng(crc32('judge|' . $uid . '|' . $week . '|' . $cat['seed']));
     $judges = [(int)floor($rng() * 11), (int)floor($rng() * 11), (int)floor($rng() * 11)];
     $score = array_sum($judges) + (($cat[$theme['trait']] ?? '') === $theme['value'] ? CATFISH_SHOW_THEME_MATCH : 0) + (CATFISH_SHOW_RARITY[$cat['rarity']] ?? 0);
-    $tier = CATFISH_RIBBON_PART[0];
-    foreach (CATFISH_RIBBONS as $t => [$min]) if ($score >= $min) { $tier = $t; break; }
-    return ['score' => $score, 'tier' => $tier, 'judges' => $judges];
+    return ['score' => $score, 'tier' => catfish_show_tier($score), 'judges' => $judges];
+}
+
+/** The ribbon tier a score earns. */
+function catfish_show_tier(int $score): string
+{
+    foreach (CATFISH_RIBBONS as $t => [$min]) if ($score >= $min) return $t;
+    return CATFISH_RIBBON_PART[0];
 }
 
 /** Enter (or swap) a cat for this week's show. One entry per gnome per week. */

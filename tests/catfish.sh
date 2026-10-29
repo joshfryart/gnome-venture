@@ -390,5 +390,158 @@ curl -s -b $W/p $BASE/catfish.php -o /dev/null
 ok "cap 5: a second page load pays nothing more" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" 5
 setg catfish_petal_cap 100
 
+# ---------- week 4: Cat Show (pure), entering, settling, profile and garden, Puzzle Pals bonus, festival ----------
+setg catfish_open 1; setg festivals_on 0; cfreset
+# pure: weeks, theme and judging (stubs for is_admin and setting, no database)
+PUR4=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1];
+echo "wk44=", catfish_show_week(strtotime("2026-10-26 12:00 UTC")), "\n";
+echo "wk44_end=", catfish_show_week(strtotime("2026-11-01 23:59 UTC")), "\n";
+echo "wk45_start=", catfish_show_week(strtotime("2026-11-02 00:00 UTC")), "\n";
+echo "wk53=", catfish_show_week(strtotime("2027-01-01 12:00 UTC")), "\n";
+$same = 0; $banned = 0;
+for ($w = 1; $w <= 53; $w++) { $wk = sprintf("2026-W%02d", $w); $a = catfish_show_theme($wk); if ($a === catfish_show_theme($wk)) $same++; if (in_array($a["value"], ["silver", "lilac", "odd", "spotted"], true)) $banned++; }
+echo "theme_same=", $same, "\n";
+echo "theme_banned=", $banned, "\n";
+$th = catfish_show_theme("2026-W44"); $c = catfish_cat(1);
+$j1 = catfish_show_judge(7, "2026-W44", $c, $th); $j2 = catfish_show_judge(7, "2026-W44", $c, $th);
+echo "judge_same=", ($j1 === $j2 ? "y" : "n"), "\n";
+$m = $c; $m[$th["trait"]] = $th["value"];
+$o = null; foreach (array_keys(CATFISH_TRAITS[$th["trait"]]) as $v) if ($v !== $th["value"]) { $o = $v; break; }
+$n = $c; $n[$th["trait"]] = $o;
+echo "match_diff=", catfish_show_judge(7, "2026-W44", $m, $th)["score"] - catfish_show_judge(7, "2026-W44", $n, $th)["score"], "\n";' "$GAME/includes/catfish.php")
+pw4() { echo "$PUR4" | grep "^$1=" | cut -d= -f2-; }
+ok "show week: 2026-10-26 is 2026-W44" "$(pw4 wk44)" 2026-W44
+ok "show week: 2026-11-01 23:59 UTC is still 2026-W44" "$(pw4 wk44_end)" 2026-W44
+ok "show week: 2026-11-02 00:00 UTC is 2026-W45" "$(pw4 wk45_start)" 2026-W45
+ok "show week: 2027-01-01 is 2026-W53" "$(pw4 wk53)" 2026-W53
+ok "show theme: same week, same theme (all 53 weeks of 2026)" "$(pw4 theme_same)" 53
+ok "show theme: never silver, lilac, odd or spotted (2026-W01..W53)" "$(pw4 theme_banned)" 0
+ok "show judge: same inputs, same result (no re-roll)" "$(pw4 judge_same)" y
+ok "show judge: matching cat scores exactly 12 more than the same cat off-theme" "$(pw4 match_diff)" 12
+
+# entering: owned cats (the gnome needs two; slots are opened with a bigger home first)
+WEEK=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; echo catfish_show_week();' "$GAME/includes/catfish.php")
+# mset CODE: edits $m (the decoded meta) with CODE. eval is safe here: CODE is a literal written in this test, never player input.
+mset() { local n; n=$(php -r '$m=json_decode($argv[1],true); if(!is_array($m)) $m=[]; eval($argv[2]); echo json_encode($m);' "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_")" "$1"); dbx "UPDATE catfish_state SET meta='$n' WHERE user_id=$UID_"; }
+mshowv() { dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | jp "$1"; }
+mjson() { dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_"; }
+noshow() { php -r '$m=json_decode($argv[1],true); unset($m["show"]); echo json_encode($m);' "$1"; }
+rib_wk() { dbv "SELECT COUNT(*) FROM cat_ribbons WHERE user_id=$UID_ AND week='$1'"; }
+rib_all() { dbv "SELECT COUNT(*) FROM cat_ribbons WHERE user_id=$UID_"; }
+dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
+mset '$m["extra"]=3;'
+i=0; while [ "$(ncats)" -lt 2 ] && [ $i -lt 4 ]; do pagew3; S=$(seed_of $i $W/w3.html); [ -n "$S" ] && cfpost -d do=adopt -d slot=$i -d seed=$S --data-urlencode name=Two$i >/dev/null; i=$((i+1)); done
+A=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1"); B=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id DESC LIMIT 1")
+ok "show: the gnome owns two different cats" "$([ "$(ncats)" -ge 2 ] && [ -n "$A" ] && [ "$A" != "$B" ] && echo y || echo n)" y
+dbx "DELETE FROM cat_ribbons WHERE user_id=$UID_"; mset 'unset($m["show"]);'
+# a stranger's cat (the admin's), for the refusal check
+ADM=$(dbv "SELECT id FROM users WHERE username='admin'")
+dbx "INSERT OR IGNORE INTO cats (user_id, seed, name, adopted_at) VALUES ($ADM, 4242, 'Stranger', '2026-01-01 00:00:00')"
+X=$(dbv "SELECT id FROM cats WHERE user_id=$ADM AND seed=4242")
+pagew3
+cfpost -d do=show -d cat=$A >/dev/null
+ok "enter: show.week is this week" "$(mshowv show.week)" "$WEEK"
+ok "enter: show.cat is the cat entered" "$(mshowv show.cat)" "$A"
+ok "enter: no cat_ribbons row yet" "$(rib_all)" 0
+M0=$(mjson)
+cfpost -d do=show -d cat=$X >/dev/null
+ok "enter another gnome's cat: refused (meta unchanged)" "$([ "$(mjson)" = "$M0" ] && echo y || echo n)" y
+cfpost -d do=show -d cat=999999 >/dev/null
+ok "enter a cat that does not exist: refused (meta unchanged)" "$([ "$(mjson)" = "$M0" ] && echo y || echo n)" y
+cfpost -d do=show -d cat=$B >/dev/null
+ok "swap to the second cat: show.cat updated" "$(mshowv show.cat)" "$B"
+ok "swap: still this week" "$(mshowv show.week)" "$WEEK"
+dbx "DELETE FROM cats WHERE id=$X"
+
+# settling: an entry from a finished week gets its ribbon on the next page load, once
+dbx "DELETE FROM cat_ribbons WHERE user_id=$UID_"
+mset "\$m['show']=['week'=>'2025-W01','cat'=>$B];"
+MB=$(mjson)
+curl -s -b $W/p $BASE/catfish.php -o /dev/null
+ok "settle: one ribbon row for 2025-W01" "$(rib_wk 2025-W01)" 1
+TIER=$(dbv "SELECT tier FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W01'")
+ok "settle: tier is best, blue, red, white or part" "$(echo " best blue red white part " | grep -c " $TIER ")" 1
+NAME=$(dbv "SELECT name FROM cats WHERE id=$B")
+ok "settle: the ribbon names the cat" "$(dbv "SELECT cat_name FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W01'")" "$NAME"
+ok "settle: meta show is gone" "$(mshowv show)" ""
+ok "settle: other meta keys kept" "$(noshow "$(mjson)")" "$(noshow "$MB")"
+curl -s -b $W/p $BASE/catfish.php -o /dev/null
+ok "settle: a second page load adds no second row" "$(rib_wk 2025-W01)" 1
+# this week's entry is not settled early
+mset "\$m['show']=['week'=>'$WEEK','cat'=>$A];"
+curl -s -b $W/p $BASE/catfish.php -o /dev/null
+ok "this week's entry: not settled (no ribbon for this week)" "$(rib_wk $WEEK)" 0
+ok "this week's entry: stays in meta" "$(mshowv show.week)" "$WEEK"
+# an entry whose cat no longer exists: no ribbon, entry cleared
+mset "\$m['show']=['week'=>'2025-W02','cat'=>999999];"
+curl -s -b $W/p $BASE/catfish.php -o /dev/null
+ok "missing cat: no ribbon" "$(rib_wk 2025-W02)" 0
+ok "missing cat: entry cleared" "$(mshowv show)" ""
+
+# profile: the ribbon text and the cat name (awards tab), and nothing while Cat Fish is closed
+case $TIER in best) RL="Best in Show";; blue) RL="Blue ribbon";; red) RL="Red ribbon";; white) RL="White ribbon";; *) RL="Took part";; esac
+PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
+ok "profile: ribbon text for the tier and the cat name" "$(echo "$PR" | grep -cF "$RL: $NAME")" 1
+setg catfish_open 0
+PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
+ok "profile: no Cat Fish ribbon while closed" "$(echo "$PR" | grep -cF "$RL: $NAME")" 0
+ok "profile: no Cat Fish box while closed (ribbons)" "$(echo "$PR" | grep -c 'cfribbon')" 0
+setg catfish_open 1
+
+# garden: the active cat shows under the header; a closed Cat Fish shows nothing
+dbx "UPDATE catfish_state SET active_cat_id=$B WHERE user_id=$UID_"
+G=$(curl -s -b $W/p $BASE/garden.php)
+ok "garden: cfgarden line with the active cat" "$(echo "$G" | grep -c 'class="cfgarden"')" 1
+ok "garden: the active cat's name is on the line" "$(echo "$G" | grep -c "$NAME is ")" 1
+ok "garden: catfish.css is linked" "$(echo "$G" | grep -c 'catfish.css')" 1
+setg catfish_open 0
+G=$(curl -s -b $W/p $BASE/garden.php)
+ok "garden: no cfgarden line while closed" "$(echo "$G" | grep -c 'class="cfgarden"')" 0
+ok "garden: catfish.css not linked while closed" "$(echo "$G" | grep -c 'catfish.css')" 0
+setg catfish_open 1
+# a gnome who never opened Cat Fish gets no catfish_state row from a garden visit (the admin, who has never opened it)
+ok "admin never opened Cat Fish: no catfish_state row before" "$(dbv "SELECT COUNT(*) FROM catfish_state WHERE user_id=$ADM")" 0
+curl -s -b $W/a -o /dev/null $BASE/garden.php
+ok "garden visit by a fresh gnome: no catfish_state row created" "$(dbv "SELECT COUNT(*) FROM catfish_state WHERE user_id=$ADM")" 0
+
+# Puzzle Pals bonus through view.kph: 2% per pal, 10 pals max (+20%), gnome level 15 and ppal_open only
+LV=$(dbv "SELECT level FROM users WHERE id=$UID_")
+setg puzzles_open 1; setg jigsaw_open 1; setg ppal_open 1
+dbx "UPDATE users SET level=15 WHERE id=$UID_"
+cfreset; cfapi -d do=tick >/dev/null   # the first Puzzle Pals read creates its tables
+ppal_fill() { dbx "DELETE FROM ppal_found WHERE user_id=$UID_; $(for i in $(seq 1 $1); do printf "INSERT INTO ppal_found (user_id,pal_key,pic_id,found_at) VALUES ($UID_,'t-pal-$i',1,'%s');" "$(date -u +'%Y-%m-%d %H:%M:%S')"; done)"; }
+kp() { cfreset; cfapi -d do=tick | jp view.kph; }
+kp_eq() { awk "BEGIN{d=$1-$2; if (d<0) d=-d; print (d<=0.2) ? \"y\" : \"n\"}"; }
+setg ppal_open 0; ppal_fill 0; KA=$(kp)
+ppal_fill 5; KB=$(kp)
+ok "ppal_open off: 5 found pals leave view.kph unchanged" "$(kp_eq $KB $KA)" y
+setg ppal_open 1
+KC=$(kp)
+ok "ppal_open on, 5 pals: view.kph is x1.10 (within 0.2)" "$(kp_eq $KC $(awk "BEGIN{print $KA*1.10}"))" y
+ppal_fill 15; KD=$(kp)
+ok "ppal_open on, 15 pals: view.kph is capped at x1.20 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.20}"))" y
+dbx "UPDATE users SET level=14 WHERE id=$UID_"; KE=$(kp)
+ok "gnome level 14: 15 pals give no bonus (within 0.2)" "$(kp_eq $KE $KA)" y
+dbx "UPDATE users SET level=$LV WHERE id=$UID_; DELETE FROM ppal_found WHERE user_id=$UID_"
+setg ppal_open 0; dbx "DELETE FROM settings WHERE name IN ('ppal_open','puzzles_open','jigsaw_open')"
+
+# festival: the page still loads while a festival is running (no numbers asserted)
+setg festivals_on 1
+ok "festival on: the Cat Fish page loads" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
+setg festivals_on 0
+
+# ribbon tiers by score
+TIERS=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require "'$GAME'/includes/catfish.php"; foreach ([0,17,18,24,25,31,32,39,40,60] as $x) echo catfish_show_tier($x), " ";')
+ok "ribbon tiers: 0 17 18 24 25 31 32 39 40 60" "$TIERS" "part part white white red red blue blue best best "
+
+# art swap: a real PNG replaces the emoji, and only for a safe name
+setg catfish_open 1
+curl -s -b $W/p $BASE/games.php > $W/g.html
+ok "hub tile: emoji while there is no cf-tile.png" "$(grep -c 'cf-tile.png' $W/g.html)" 0
+mkdir -p $GAME/assets/img/catfish && cp $GAME/assets/img/icon-32.png $GAME/assets/img/catfish/cf-tile.png
+curl -s -b $W/p $BASE/games.php > $W/g.html
+ok "hub tile: cf-tile.png used when it exists" "$(grep -c 'img/catfish/cf-tile.png' $W/g.html)" 1
+rm -f $GAME/assets/img/catfish/cf-tile.png; rmdir $GAME/assets/img/catfish 2>/dev/null
+
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

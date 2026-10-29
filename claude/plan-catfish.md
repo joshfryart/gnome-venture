@@ -62,7 +62,16 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] Opus mid-week review. Fixed: a milestone bigger than the cap could never pay (now capped), claim ran before shelter cats entered the Book, yesterday's-shelter fallback only in the first hour after the UTC reset, claim exits early once all 6 are paid, slots reuse loaded state, Rare label and Swap aria-labels. Not changed: seedless adopt posts still use the slot's current cat (the page always posts a seed).
 - Open decision for the owner: Rare Shelter 2 plus 3 swaps a day makes a legendary show on about 42% of days (4.4% with no upgrades). Cats cannot be deleted and only 4 fit, so left as is. Tighten by lowering CATFISH_REROLL_MAX if wanted.
 
-**Week 4:** Cat Show, garden bed cat, Pals bonus, final art, balance, CHANGELOG, Opus end review.
+**Week 4**
+- [x] Weekly Cat Show (themed, seeded judges + theme/rarity bonus, ribbons on profile, no Kibble/Yarn influence)
+- [x] Active cat on the garden page (read only, no row created by visiting)
+- [x] Puzzle Pals +2% Kibble each (level 15, max 10), festival doubles Nap Yarn
+- [x] Art todo (`claude/catfish-art-brief.md`) + `catfish_img()` PNG-or-emoji helper
+- [x] Version 2.0.89, CHANGELOG, README line. Feature stays off for players (`catfish_open`)
+- [x] Tests (about 190 checks); security190, prog, events, puzzles, games2, garden100, puzzle_pals, jigsaw and upgrade_check from 2.0.88 pass (jigsaw failed once inside a long multi-suite run, passed on 3 reruns)
+- [ ] Opus end review
+- [ ] Real art, layered cat renderer, recolor script (needs Joshua's 3 decisions in the art brief)
+- Not done on purpose: release zips (build_update only on milestone releases)
 
 ## Rules
 Tick uses server time only. Petals capped. Race-safe buys (conditional UPDATE + rowCount). CSRF on every POST. No inline style or script. Keep this list current; leave a handoff note in `claude/handoff.md` before a session ends.
