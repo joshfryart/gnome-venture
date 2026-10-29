@@ -317,7 +317,7 @@ function import_catalog(): array
 
         // ----- Gardening guides (one per region) + regional markets, zones, landmarks
         $stats['markets'] = import_markets($regions, $regionIds, $regionById, $regionTiers, $regionFlowers, $stats);
-        ensure_staple_stock();   // v2.0.100
+        ensure_staple_stock();   // v2.0.99
 
         // ----- Living soil: Almanac pages and milestones for no-till soil grades
         ensure_soil_content($stats);
@@ -477,7 +477,7 @@ function upgrade_2065_seed_shop_names(): void
     }
 }
 
-/** v2.0.100: every regional seed market also sells its region's staple seeds, well stocked. Adds only what's missing. */
+/** v2.0.99: every regional seed market also sells its region's staple seeds, well stocked. Adds only what's missing. */
 function ensure_staple_stock(): int
 {
     $n = 0;
