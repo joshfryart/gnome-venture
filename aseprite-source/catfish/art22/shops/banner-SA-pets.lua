@@ -112,16 +112,19 @@ end
 window(103, 28); window(137, 28)
 c:part(c:poly({ { 116, 24 }, { 125, 24 }, { 120, 29 } }), PINK, { gloss = false, outline = false })
 thin(c:poly({ { 116, 24 }, { 125, 24 }, { 120, 29 } }))
-for i, d in ipairs({ { 0, -1 }, { 0, 1 } }) do
-  c:seam({ { 111, 31 + d[2] * 2 }, { 96, 32 + d[2] * 3 } }, { free = true, on = 2, off = 1 })
-  c:seam({ { 129, 31 + d[2] * 2 }, { 144, 32 + d[2] * 3 } }, { free = true, on = 2, off = 1 })
-end
-local doorM = c:rrect(113, 31, 127, 44, 7):cut(c:rect(0, 45, W - 1, H - 1))
+-- whiskers: two cream threads each side of the nose
+c:fill(c:line({ { 111, 30 }, { 98, 33 } }, 1):add(c:line({ { 111, 32 }, { 99, 36 } }, 1)), "#fbe6c2")
+c:fill(c:line({ { 129, 30 }, { 142, 33 } }, 1):add(c:line({ { 129, 32 }, { 141, 36 } }, 1)), "#fbe6c2")
+local doorM = c:rrect(112, 31, 128, 44, 5):cut(c:rect(0, 45, W - 1, H - 1))
 c:part(doorM, DARKW, { flat = true })
-local inner = c:rrect(115, 33, 125, 44, 5):cut(c:rect(0, 45, W - 1, H - 1))
+local inner = c:rrect(114, 33, 126, 44, 4):cut(c:rect(0, 45, W - 1, H - 1))
 c:fill(inner, "#f5b860")
-c:fill(c:rect(115, 33, 117, 44):clip(inner), "#e8a317") -- curtain tied back
-c:fill(c:rect(123, 33, 125, 44):clip(inner), "#e8a317")
+c:fill(c:rect(118, 36, 122, 44), GLOW) -- warm light from inside
+-- red felt curtains tied back at the sides
+local cur = c:poly({ { 114, 33 }, { 119, 33 }, { 116, 39 }, { 117, 44 }, { 114, 44 } })
+cur:add(c:poly({ { 121, 33 }, { 127, 33 }, { 127, 44 }, { 124, 44 }, { 125, 39 } })):clip(inner)
+c:fill(cur, "#c23a4a"); c:fill(c:rect(114, 33, 126, 33):clip(inner), "#e0606a")
+c:px(116, 39, "#f5cf6a"); c:px(124, 39, "#f5cf6a")
 
 -- 9. railing (gap at the door)
 local rail = c:rect(80, 39, 110, 40):add(c:rect(130, 39, 160, 40))
@@ -130,9 +133,9 @@ for x = 135, 159, 8 do rail:add(c:rect(x, 39, x + 1, 43)) end
 small(rail, WOOD, { flat = true })
 
 -- 10. paper lantern (left) and fish sign on a bracket (right) with a toucan
-c:fill(c:rect(84, 16, 84, 24), "#4a2c1a")
-small(c:rrect(81, 24, 87, 31, 2), ORNG, { gloss = { 82, 26 } })
-c:fill(c:rect(82, 27, 86, 28), GLOW)
+c:fill(c:rect(80, 12, 80, 16), "#4a2c1a")
+small(c:rrect(77, 16, 83, 23, 2), ORNG, { gloss = { 78, 18 } })
+c:fill(c:rect(78, 19, 82, 20), GLOW)
 small(c:rect(150, 18, 170, 19), DARKW, { flat = true })
 c:fill(c:rect(161, 20, 161, 21), "#4a2c1a")
 small(c:ellipse(161, 25, 6, 3.5):add(c:poly({ { 166, 25 }, { 171, 21 }, { 171, 30 } })), TEAL, { gloss = { 157, 23 } })
@@ -145,15 +148,15 @@ small(c:poly({ { 157, 10 }, { 164, 10 }, { 164, 14 }, { 157, 12 } }), ORNG, { fl
 c:px(157, 10, "#dd3a2a"); c:px(158, 10, "#dd3a2a")
 c:fill(c:rect(168, 17, 169, 17), ORNG.base) -- feet
 
--- 11. orange cat sitting on the right rail
-local catM = c:ellipse(148, 35, 4, 3.5):add(c:ellipse(148, 30, 4, 3))
-catM:add(c:poly({ { 144, 30 }, { 145, 25 }, { 148, 28 } })):add(c:poly({ { 148, 28 }, { 151, 25 }, { 152, 30 } }))
-local tail = c:line({ { 152, 37 }, { 155, 36 }, { 156, 33 } }, 2)
+-- 11. orange cat sitting on the left rail end, against the green canopy
+local catM = c:ellipse(86, 35, 4, 3.5):add(c:ellipse(86, 30, 4, 3))
+catM:add(c:poly({ { 82, 30 }, { 83, 25 }, { 86, 28 } })):add(c:poly({ { 86, 28 }, { 89, 25 }, { 90, 30 } }))
+local tail = c:line({ { 82, 37 }, { 79, 36 }, { 78, 33 } }, 2)
 small(tail, ORNG, { flat = true })
 small(catM, ORNG, { gloss = false })
-c:px(146, 30, D); c:px(150, 30, D)
-c:px(148, 31, PINK.base)
-c:fill(c:rect(148, 26, 148, 27):add(c:rect(147, 34, 147, 35)):add(c:rect(149, 34, 149, 35)), ORNG.shade)
+c:px(84, 30, D); c:px(88, 30, D)
+c:px(86, 31, PINK.base)
+c:fill(c:rect(86, 26, 86, 27):add(c:rect(85, 34, 85, 35)):add(c:rect(87, 34, 87, 35)), ORNG.shade)
 
 -- 12. feather bunting strung from the canopy to the roof ears
 local function bunting(x0, y0, x1, y1, sag)

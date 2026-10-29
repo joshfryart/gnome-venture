@@ -12,10 +12,10 @@ local OUT = here .. "/../out/"
 local c = GV.canvas{ w = 80, h = 100, mode = "bust" }
 
 local FUR   = GV.ramp("#b3a39c", { rim = "#d4c6bc", gloss = "#e2d6cc", dot = "#f2e4c0" })
-local HAIR  = GV.ramp("#e6dee6", { shade = "#b8aac4", deep = "#8a7aa0", bounce = "#c4b4cc" })
+local HAIR  = GV.ramp("#e6dee6", { shade = "#b8aac4", deep = "#8a7aa0", bounce = "#c4b4cc", dot = "#fff3c8" })
 local PLUM  = GV.ramp("#8a4a7a", { rim = "#b06a96", gloss = "#d08aa8", dot = "#f6b8cf", shade = "#5e2f5e", deep = "#3e2046", bounce = "#6e3a62" })
 local OBI   = GV.R.red
-local CAT   = GV.ramp("#f1ece0", { shade = "#d8c49a", bounce = "#e6d4ac", deep = "#b8aac4" })
+local CAT   = GV.ramp("#f1ece0", { shade = "#d8c49a", bounce = "#e6d4ac", deep = "#b8aac4", dot = "#fff3c8" })
 local PINKE = GV.ramp("#e46a9b", { rim = "#f6b8cf", shade = "#b84a7a", deep = "#8a3460", bounce = "#c4587e" })
 
 -- shapes
@@ -28,7 +28,7 @@ local inR   = c:ellipse(63, 36, 6, 6)
 local head  = c:ellipse(39.5, 56, 22, 19)
 local hair  = c:ellipse(39.5, 45, 19, 10):cut(c:rect(0, 47, 79, 99))
 hair:add(c:ellipse(30, 47, 7, 3)):add(c:ellipse(49, 47, 7, 3))
-local bun   = c:ellipse(39.5, 29, 9, 7)
+local bun   = c:ellipse(39.5, 28.5, 10, 7.5)
 local pin   = c:line({ { 26, 33 }, { 54, 24 } }, 2)
 local muzz  = c:ellipse(39.5, 65, 11, 7.5)
 local obi   = c:rect(0, 93, 79, 99):clip(body)
@@ -50,13 +50,16 @@ c:build{
 -- hairpin (kanzashi) through the bun, with a gold star and a dangling pink blossom bead
 c:part(pin, "wood", { flat = true })
 c:paint({
-  "..g..",
-  ".ggg.",
-  "ggggg",
-  ".gSg.",
-  ".g.S.",
-}, 53, 19, { g = "#f5cf6a", S = "#e8a317" })
-c:px(55, 21, "#fff1c8")
+  "...g...",
+  "..ggg..",
+  "ggggggS",
+  ".ggggS.",
+  "..gSS..",
+  ".gS.SS.",
+  ".S...S.",
+}, 52, 17, { g = "#f5cf6a", S = "#e8a317" })
+c:px(54, 19, "#fff1c8")
+c:fill(c:line({ { 32, 30 }, { 36, 32 }, { 43, 32 }, { 47, 30 } }, 1):clip(bun:shrink(1)), "#b8aac4")  -- twist of the bun
 c:px(56, 25, "#e8a317"); c:px(56, 26, "#e8a317")
 c:fill(c:rect(55, 27, 57, 28), "#e46a9b"); c:px(55, 27, "#f6b8cf")
 
@@ -86,11 +89,11 @@ c:fill(c:line({ { 26, 48 }, { 31, 47 } }, 1), "#e6dee6")
 c:fill(c:line({ { 48, 47 }, { 53, 48 } }, 1), "#e6dee6")
 
 -- the maneki-neko she holds, lower right
-local mb = c:ellipse(53.5, 91, 8, 7)
-local mh = c:ellipse(53.5, 80, 7, 6)
-mh:add(c:poly({ { 47, 78 }, { 47, 72 }, { 51, 75 } })):add(c:poly({ { 56, 75 }, { 60, 72 }, { 60, 78 } }))
-local paw = c:rrect(60, 77, 64, 86, 2)                     -- raised beckoning paw
-local hands = c:ellipse(45, 94, 3.5, 3):add(c:ellipse(62, 95, 3.5, 3))
+local mb = c:ellipse(52.5, 91, 9.5, 8)
+local mh = c:ellipse(52.5, 78.5, 8, 6.5)
+mh:add(c:poly({ { 45, 77 }, { 45, 70 }, { 50, 73 } })):add(c:poly({ { 55, 73 }, { 60, 70 }, { 60, 77 } }))
+local paw = c:rrect(60, 74, 65, 85, 2)                     -- raised beckoning paw
+local hands = c:ellipse(42.5, 93, 4, 3.5):add(c:ellipse(62.5, 94, 4, 3.5))
 local q = c:build{
   { "mb",   mb,   CAT },
   { "paw",  paw,  CAT, { gloss = false, cres = 2, deep = 1 } },
@@ -98,16 +101,16 @@ local q = c:build{
   { "hands", hands, FUR, { gloss = false, cres = 2, deep = 1 } },
 }
 -- calico patches, ear insides, happy closed eyes, nose, collar + bell
-c:spot(c:ellipse(57, 77, 2, 1.5), "#f2793a", "#ffc27a")
-c:spot(c:ellipse(50, 90, 2, 2), "#f2793a", "#ffc27a")
-c:spot(c:ellipse(56, 93, 1.5, 1.5), "#4a2c1a", "#74462a")
-c:px(48, 75, "#e46a9b"); c:px(48, 76, "#e46a9b"); c:px(59, 75, "#e46a9b"); c:px(59, 76, "#e46a9b")
-c:paint({ "u.u", ".u." }, 49, 79, { u = "umber" })
-c:paint({ "u.u", ".u." }, 55, 79, { u = "umber" })
-c:px(53, 82, "#e46a9b"); c:px(54, 82, "#e46a9b")
-c:fill(c:rect(47, 85, 60, 86), "#dd3a2a")
-c:fill(c:rect(52, 87, 55, 89), "#e8a317"); c:px(52, 87, "#f5cf6a"); c:px(53, 89, "#8a4a1c")
-c:fill(c:rect(61, 80, 63, 80), "#d8c49a")                 -- paw toe line
+c:spot(c:ellipse(56.5, 75.5, 2.5, 1.5), "#f2793a", "#ffc27a")
+c:spot(c:ellipse(48, 91, 2.5, 2), "#f2793a", "#ffc27a")
+c:spot(c:ellipse(56, 94, 2, 1.5), "#4a2c1a", "#74462a")
+c:fill(c:rect(46, 73, 47, 75), "#e46a9b"); c:fill(c:rect(58, 73, 59, 75), "#e46a9b")
+c:paint({ "u...u", ".uuu." }, 46, 78, { u = "umber" })
+c:paint({ "u...u", ".uuu." }, 54, 78, { u = "umber" })
+c:fill(c:rect(52, 80, 53, 81), "#e46a9b")
+c:fill(c:rect(45, 84, 60, 85), "#dd3a2a"); c:fill(c:rect(45, 85, 60, 85), "#ae2a2a")
+c:fill(c:rrect(51, 86, 54, 89, 1), "#e8a317"); c:px(51, 87, "#f5cf6a"); c:px(52, 86, "#f5cf6a"); c:px(52, 88, "#8a4a1c"); c:px(53, 88, "#8a4a1c")
+c:fill(c:rect(61, 77, 64, 77), "#d8c49a")                 -- paw toe line
 
 local t = c:save(OUT .. "npc-grandmother_hoshi.aseprite", OUT .. "npc-grandmother_hoshi.png")
 print(GV.report(t))

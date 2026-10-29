@@ -100,7 +100,7 @@ do
     local cap1 = c:rrect(cx - rx + 2, top, cx + rx - 2, top + 1, 0)
     local bodyM = c:ellipse(cx, top + 2 + ry, rx, ry)
     local cap2 = c:rrect(cx - rx + 2, top + 2 * ry + 3, cx + rx - 2, top + 2 * ry + 4, 0)
-    local tas = c:rect(cx - 0.5, top + 2 * ry + 5, cx + 0.5, top + 2 * ry + 8)
+    local tas = c:rect(cx - 0.5, top + 2 * ry + 5, cx + 0.5, top + 2 * ry + 7)
     local p = c:build{
       { "b", bodyM, R, { cres = 3 } },
       { "c1", cap1, LAC, { flat = true } },
@@ -119,11 +119,16 @@ do
   local function blossom(x, y)
     c:paint({ ".p.", "pyp", ".p." }, x - 1, y - 1, { p = PINK.base, y = GOLD.rim })
   end
-  lantern(9, 6, 5, 6, RED)
-  lantern(38, 6, 5, 6, RED)
-  lantern(24, 8, 7, 8, PAPER, function(x, y)
+  -- each lantern hangs 4 rows under the cord: the cord's outline, the gap and the cap's outline make a short
+  -- dark hanging thread (re-inked 1 px umber after the border pass)
+  local function cy(x) for _, q in ipairs(cordPts) do if q[1] == x then return q[2] end end end
+  lantern(7.5, cy(7) + 4, 4, 5, RED)
+  lantern(40.5, cy(40) + 4, 4, 5, RED)
+  lantern(24, cy(24) + 4, 6, 7, PAPER, function(x, y)
     c:paint({ ".p.p.", "ppppp", ".pyp.", "ppppp", ".p.p." }, x - 2, y - 2, { p = PINK.base, y = GOLD.base })
   end)
+  c:finish()
+  for _, x in ipairs({ 7, 8, 40, 41, 24 }) do for y = cy(x) + 1, cy(x) + 3 do c:px(x, y, C.ol3) end end
   RES[#RES + 1] = { "paper_lantern_string", save(c, "paper_lantern_string") }
 end
 
@@ -163,14 +168,14 @@ do
     "................",
     ".....gGGGh......",
     ".....Goooh......",
-    "....WcqrrRcs....",
-    "....WecrRces....",
-    "....WcccqrRs....",
-    "...qWcqrRccsR...",
-    "...rWqrRcccsR...",
+    "....Wecccces....",
     "....WccqrRcs....",
-    ".....cqrRss.....",
-    "......qrRs......",
+    "...qWcqrrRcsR...",
+    "...rWccrRccsR...",
+    "....Wcccccss....",
+    "....WccccqRs....",
+    ".....cccqRs.....",
+    "......ccss......",
     ".....qrrrRR.....",
     "....qgR..qgR....",
   }, L, true)

@@ -4,6 +4,7 @@
 -- border). Silver braids tied with red wool, a brown felt hat with a red band and a toucan feather, a striped
 -- woven shawl (Andean-weave stripes in felt) pinned with a gold button, and an orange tabby kitten plush in her
 -- arms. Light from the upper left; locked eyes; no text.
+-- Pass 1: band 5 rows (contours ate it), parting removed, no cheek dots, bigger kitten with clear pink ears.
 -- Run: AppRun -b --script npc-abuela_quilla.lua     Writes ../out/npc-abuela_quilla.png + .aseprite
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../../gvlib/gvlib.lua")

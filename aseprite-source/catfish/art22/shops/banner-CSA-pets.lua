@@ -36,6 +36,7 @@ local function part(m, r, o) return c:part(m, r, o) end
 local function tri(x0, y0, x1, y1, x2, y2) return c:poly({ { x0, y0 }, { x1, y1 }, { x2, y2 } }) end
 
 ---------------------------------------------------------------- sky and far peaks (no outline)
+c:fill(c:rect(0, 0, W - 1, H - 1), "#d8c49a")
 c:bands(c:rect(0, 0, W - 1, 38), { "#c4e4f1", "#d8eef6", "#d8eef6", "#fff1c8" })
 local function peak(ax, ay, x0, x1, base)
   local m = c:poly({ { x0, base }, { ax, ay }, { x1, base } })
@@ -160,77 +161,77 @@ c:px(120, 22, "#2f6290"); c:px(119, 23, "#2f6290"); c:px(121, 23, "#2f6290")
 local eave = c:poly({ { 74, 31 }, { 166, 31 }, { 157, 26 }, { 83, 26 } })
 local pE = part(eave, RED, { gloss = { 86, 27 } })
 for x = 80, 160, 4 do c:px(x, 29, "#ae2a2a") end
--- shop front: dark interior with shelves
-part(c:rect(88, 31, 152, 46), DWOOD, { flat = true, contact = false })
-for _, y in ipairs({ 37, 42 }) do c:fill(c:rect(89, y, 151, y), "#b07a45"); c:fill(c:rect(89, y + 1, 151, y + 1), "#5e2f1e") end
--- shelf goods: yarn balls, fish toys, a little cat bed
-local function yarn(x, y, r) local m = c:ellipse(x, y, 2.5, 2.5) part(m, r, { flat = true }) c:px(x, y, r.shade) c:px(x - 1, y + 1, r.shade) end
-yarn(93, 35, RED); yarn(99, 35, TEAL); yarn(105, 35, GOLD)
-yarn(136, 35, TEAL); yarn(142, 35, RED); yarn(148, 35, CREAM)
-for _, fx in ipairs({ 92, 140 }) do
-  part(c:poly({ { fx, 39 }, { fx + 6, 39 }, { fx + 8, 41 }, { fx + 6, 42 }, { fx, 42 } }):add(tri(fx - 3, 38, fx, 40, fx - 3, 43)), GOLD, { flat = true })
-  c:px(fx + 6, 40, "#4a2c1a")
+-- shop front: warm lamp-lit interior (a recess: flat, no outline) with two shelves
+local FL = { outline = false, contour = false, contact = false, flat = true, rim = false }
+c:fill(c:rect(88, 31, 152, 45), "#8a4f2a")
+c:fill(c:rect(88, 31, 152, 31), "#5e2f1e")
+for _, y in ipairs({ 37, 42 }) do c:fill(c:rect(89, y, 151, y), "#d9a660"); c:fill(c:rect(89, y + 1, 151, y + 1), "#5e2f1e") end
+-- shelf goods: yarn balls (with a wrap line) and, on the right, a stack of fish-shaped treat tins
+local function yarn(x, y, r)
+  local m = c:ellipse(x, y, 2.5, 2.5)
+  c:fill(m, r.base)
+  c:px(x - 1, y - 2, r.rim); c:px(x - 2, y - 1, r.rim); c:px(x - 1, y - 1, r.gloss)
+  c:px(x + 1, y + 1, r.shade); c:px(x + 2, y, r.shade); c:px(x, y + 2, r.shade)
+  c:px(x - 1, y + 1, r.shade); c:px(x, y, r.shade)
 end
-part(c:rrect(100, 38, 110, 42, 1), CREAM, { flat = true })
-c:fill(c:rect(102, 39, 108, 40), "#dd3a2a")
--- kitten peeking from the shelf bed (closed happy eyes)
-part(c:ellipse(105, 37, 2.5, 2):add(tri(102, 36, 103, 33, 105, 35)):add(tri(105, 35, 107, 33, 108, 36)), GOLD, { flat = true })
-c:px(104, 37, "#4a2c1a"); c:px(106, 37, "#4a2c1a")
--- the hanging hook-and-bell chime in the opening centre
-c:fill(c:rect(120, 31, 120, 34), "#8a4f2a")
-part(c:ellipse(120, 36, 2, 2), GOLD, { flat = true })
-c:px(120, 37, "#8a4f2a")
+yarn(94, 34, RED); yarn(100, 34, TEAL); yarn(106, 34, GOLD)
+yarn(134, 34, CREAM); yarn(140, 34, RED); yarn(146, 34, TEAL)
+-- lower shelf: little cushion beds (left) and treat jars (right)
+for _, x in ipairs({ 91, 101 }) do
+  c:fill(c:rrect(x, 39, x + 7, 41, 1), "#3f8fb0"); c:fill(c:rect(x + 1, 39, x + 6, 39), "#c4e4f1")
+end
+for _, x in ipairs({ 136, 142 }) do
+  c:fill(c:rect(x, 38, x + 4, 41), "#f1ece0"); c:fill(c:rect(x, 38, x + 4, 38), "#dd3a2a"); c:px(x + 4, 40, "#d8c49a"); c:px(x + 4, 41, "#d8c49a")
+end
+-- bell chime hanging in the centre of the opening
+c:fill(c:rect(120, 32, 120, 34), "#5e2f1e")
+c:fill(c:ellipse(120, 36, 2, 2), "#e8a317"); c:px(119, 35, "#fff1c8"); c:px(121, 37, "#b8661a"); c:px(120, 38, "#5e2f1e")
 -- posts
 part(c:rect(84, 31, 88, 50), WOOD, { gloss = false })
 part(c:rect(152, 31, 156, 50), WOOD, { gloss = false })
--- marigold garland swags under the eave, with hanging strands at the posts
-local function swag(x0, x1, y0, sag)
-  local n = x1 - x0
-  for i = 0, n, 2 do
-    local t = i / n
-    local x = x0 + i
-    local y = math.floor(y0 + sag * math.sin(t * math.pi) + 0.5)
-    c:paint({ "ab", "bc" }, x, y, { a = "#f5cf6a", b = "#f2793a", c = "#ae2a2a" })
-  end
+-- marigold garland: one swag between the posts, plus strands down each post
+local function bead(x, y, n) local a = (n % 2 == 0) and "#f2793a" or "#e8a317" c:fill(c:rect(x, y, x + 1, y + 1), a) c:px(x + 1, y + 1, "#ae2a2a") end
+local n = 0
+for x = 89, 150, 2 do
+  local t = (x - 89) / 61
+  bead(x, math.floor(31 + 4 * math.sin(t * math.pi) + 0.5), n); n = n + 1
 end
-swag(89, 105, 31, 4); swag(105, 135, 31, 3); swag(135, 151, 31, 4)
-for y = 32, 42, 2 do c:paint({ "ab", "bc" }, 86, y, { a = "#f5cf6a", b = "#f2793a", c = "#ae2a2a" }) end
-for y = 32, 42, 2 do c:paint({ "ab", "bc" }, 153, y, { a = "#f5cf6a", b = "#f2793a", c = "#ae2a2a" }) end
+for y = 31, 43, 2 do bead(85, y, y // 2); bead(153, y, y // 2 + 1) end
 -- counter
 local counter = c:rrect(86, 45, 154, 51, 1)
-local pC = part(counter, WOOD, { gloss = { 90, 46 } })
+part(counter, WOOD, { gloss = { 90, 46 } })
 for x = 90, 150, 10 do c:fill(c:rect(x, 48, x + 6, 49), "#8a4f2a") end
--- spice baskets on the counter (left)
+-- spice baskets on the counter (left): heaped cones of chilli, turmeric and saffron
 for i, col in ipairs({ RED, GOLD, ORNG }) do
-  local x = 90 + (i - 1) * 11
-  part(c:poly({ { x, 41 }, { x + 4, 38 }, { x + 5, 38 }, { x + 9, 41 } }), col, { flat = true })
-  part(c:rrect(x, 41, x + 9, 45, 1), DWOOD, { flat = true })
-  c:px(x + 2, 43, "#b07a45"); c:px(x + 5, 43, "#b07a45"); c:px(x + 8, 43, "#b07a45")
+  local x = 90 + (i - 1) * 10
+  part(c:poly({ { x, 42 }, { x + 4, 38 }, { x + 5, 38 }, { x + 9, 42 } }), col, { outline = false, contour = false, flat = true })
+  part(c:rrect(x, 42, x + 8, 45, 1), DWOOD, { outline = false, contour = false, flat = true })
+  c:px(x + 2, 43, "#b07a45"); c:px(x + 5, 43, "#b07a45")
 end
 -- ginger cat napping on a red cushion (right of the counter)
 local cushion = c:rrect(124, 41, 150, 45, 2)
-local pK = part(cushion, RED, { gloss = false })
-c:seam({ { 126, 43 }, { 148, 43 } })
-local body = c:ellipse(139, 38.5, 9, 3.5)
-local head = c:ellipse(128.5, 37.5, 4.5, 3.5)
-head:add(tri(124, 36, 125, 31, 128, 34)):add(tri(129, 34, 132, 31, 133, 36))
-local tail = c:line({ { 147, 40 }, { 150, 43 }, { 151, 47 }, { 149, 49 } }, 2)
+part(cushion, RED, { gloss = false })
+c:seam({ { 127, 43 }, { 147, 43 } })
+local body = c:ellipse(139, 38.5, 8, 3.5)
+local head = c:ellipse(129.5, 37.5, 4.5, 3.5)
+head:add(tri(125, 36, 126, 31, 129, 34)):add(tri(130, 34, 133, 31, 134, 36))
 local cat = body:copy():add(head)
-part(body, GOLD, { light = cat, gloss = { 135, 36 } })
-part(head, GOLD, { light = cat, gloss = false, contour = false })
+part(cat, GOLD, { gloss = { 136, 36 } })
+c:fill(tri(126, 34, 127, 32, 128, 34), "#f1ece0"); c:fill(tri(131, 34, 132, 32, 133, 34), "#f1ece0")
+local tail = c:line({ { 147, 39 }, { 149, 40 } }, 2)
 part(tail, GOLD, { flat = true })
 -- tabby stripes, closed smiling eyes, nose
-for _, x in ipairs({ 136, 140, 144 }) do c:px(x, 36, "#b8661a"); c:px(x + 1, 36, "#b8661a") end
-c:px(126, 37, "#4a2c1a"); c:px(127, 38, "#4a2c1a")
-c:px(130, 38, "#4a2c1a"); c:px(131, 37, "#4a2c1a")
-c:px(128, 39, "#ae2a2a"); c:px(129, 39, "#ae2a2a")
+for _, x in ipairs({ 137, 141, 144 }) do c:px(x, 36, "#b8661a"); c:px(x + 1, 36, "#b8661a") end
+c:px(127, 37, "#4a2c1a"); c:px(128, 38, "#4a2c1a")
+c:px(131, 38, "#4a2c1a"); c:px(132, 37, "#4a2c1a")
+c:px(129, 39, "#ae2a2a"); c:px(130, 39, "#ae2a2a")
 -- hanging fish sign (no text) on a bracket from the left post
-c:fill(c:rect(76, 31, 84, 31), "#5e2f1e")
-c:px(78, 32, "#5e2f1e"); c:px(82, 32, "#5e2f1e")
-local fish = c:ellipse(80, 36.5, 5, 3):add(tri(73, 33, 76, 36, 73, 40))
-part(fish, GOLD, { gloss = { 78, 35 } })
-c:px(83, 36, "#2a1a10")
-c:px(79, 35, "#b8661a"); c:px(79, 37, "#b8661a"); c:px(80, 36, "#b8661a")
+c:fill(c:rect(76, 31, 83, 31), "#5e2f1e")
+c:px(77, 32, "#5e2f1e"); c:px(82, 32, "#5e2f1e")
+local fish = c:ellipse(80, 36.5, 4.5, 3):add(tri(73, 33, 76, 36.5, 73, 40))
+part(fish, TEAL, { gloss = { 78, 35 } })
+c:px(82, 36, "#f5cf6a")
+c:px(79, 35, "#2f6290"); c:px(79, 37, "#2f6290")
 -- potted marigolds either side of the step
 for _, px0 in ipairs({ 76, 158 }) do
   part(c:rrect(px0, 45, px0 + 6, 51, 1), ORNG, { gloss = false })
@@ -238,8 +239,8 @@ for _, px0 in ipairs({ 76, 158 }) do
   part(bush, GREEN, { flat = true })
   c:paint({ "a.b", ".c.", "b.a" }, px0 + 2, 41, { a = "#e8a317", b = "#f2793a", c = "#f5cf6a" })
 end
--- doorstep
-part(c:rect(80, 51, 160, 53), CREAM, { flat = true })
+-- stone step under the shop (flat, ground-like)
+c:fill(c:rect(82, 52, 158, 52), "#d8c49a")
 
 ---------------------------------------------------------------- hem stitch top and bottom
 c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true })

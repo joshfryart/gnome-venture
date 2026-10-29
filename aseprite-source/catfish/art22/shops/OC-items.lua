@@ -194,25 +194,28 @@ do
   local KIWI = felt("#8a6440", { gloss = "#e8c48a", rim = "#b08a5a", shade = "#5e4028" })
   local BEAK = felt("#e9c48a", { gloss = "#fff1c8", rim = "#f5dca8", shade = "#c49a62", pale = false })
   local LEG  = felt("#d9a660", { rim = "#ecc58a", shade = "#a8582f" })
-  local body = c:ellipse(22, 14.5, 12.5, 9.5):add(c:ellipse(10, 10.5, 5.5, 5)):closed(2)
-  local beak = c:line({ { 5, 12 }, { 3, 15 }, { 2, 19 }, { 2, 23 } }, 2)
+  local body = c:ellipse(23, 14.5, 12, 9)
+  local head = c:ellipse(10, 10, 5.5, 5)
+  local beak = c:line({ { 5, 11 }, { 3, 14 }, { 2, 18 }, { 2, 22 } }, 2)
   local legL = c:rrect(15, 22, 17, 25, 0)
   local legR = c:rrect(23, 22, 25, 25, 0)
   local p = c:build{
     { "legL", legL:add(c:rect(13, 24, 17, 25)), LEG, { flat = true, contact = false } },
     { "legR", legR:add(c:rect(21, 24, 25, 25)), LEG, { flat = true, contact = false } },
-    { "body", body, KIWI, { cres = 3, gloss = { 9, 7 }, stitch = { side = "lit" } } },
+    { "body", body, KIWI, { cres = 3, gloss = { 16, 8 }, stitch = { side = "lit" } } },
+    { "head", head, KIWI, { cres = 2, gloss = false } },
     { "beak", beak, BEAK, { flat = true } },
   }
   -- feather tufts: short shade dashes over the back
-  for _, q in ipairs({ {20, 10}, {26, 12}, {30, 16}, {22, 15}, {16, 17}, {27, 19}, {13, 15} }) do
+  for _, q in ipairs({ {21, 11}, {27, 12}, {31, 16}, {24, 16}, {18, 18}, {28, 20}, {21, 21} }) do
     c:paint({ "s.", ".s" }, q[1], q[2], { s = KIWI.shade })
   end
-  c:seam({ { 17, 7 }, { 24, 6 }, { 30, 8 } }, { gap = KIWI.shade })     -- back seam
+  c:seam({ { 20, 7 }, { 26, 6 }, { 32, 9 } }, { gap = KIWI.shade })     -- back seam
   -- coral bow at the neck
-  c:paint({ "bb.bb", "bbkbb", "b...b" }, 12, 14, { b = CORAL.base, k = CORAL.shade })
-  c:px(12, 14, CORAL.rim); c:px(15, 14, CORAL.rim)
-  c:eye(7, 8, true)
+  c:paint({ "bb.bb", "bbkbb", "b...b" }, 13, 14, { b = CORAL.base, k = CORAL.shade })
+  c:px(13, 14, CORAL.rim); c:px(16, 14, CORAL.rim)
+  c:px(8, 6, KIWI.gloss); c:px(9, 6, KIWI.gloss); c:px(7, 7, KIWI.gloss)
+  c:eye(8, 8, true)
   c:ground(20, 26, 12, 0.6)
   save(c, "kiwi_plush")
 end
@@ -240,18 +243,18 @@ do
     { "shell", shell, SH, { cres = 2, gloss = false } },
     { "bead",  c:rect(6, 3, 8, 4), TEAL, { flat = true, contact = false } },
   }
-  -- ribs: grooves radiating from the hinge, shade on lit felt, deep on the shaded side
-  shell:each(function(x, y)
-    if y < Y0 + 3 then return end
-    local a = math.atan(x - 7, y - (Y0 + 1))
-    local f = (a / 0.36 + 0.5) % 1
-    if f > 0.38 and f < 0.62 then
-      local v = c:get(x, y)
-      c:px(x, y, (v == SH.shade) and C.ol1 or SH.shade)
-    end
-  end)
-  c:px(7, 5, C.hole)                                       -- drilled hinge the thread runs through
-  c:px(4, 9, SH.gloss); c:px(5, 8, SH.gloss); c:px(3, 10, SH.gloss)
+  -- hand-set rib tones (light upper left): two grooves converge on the hinge, deep grooves on the shaded side
+  c:paint({
+    "..RRRHBBS..",
+    "....RBS....",
+    "...RSBSB...",
+    "..RBSBSBS..",
+    ".RGSBBBSBS.",
+    "RGBSBBBSBDS",
+    "RBBSBBBSBDS",
+    "BBBSBBBSSDD",
+    ".BB.BBS.SD.",
+  }, X0, Y0, { R = SH.rim, B = SH.base, S = SH.shade, D = C.ol1, G = SH.gloss, H = C.hole })
   tline(c, T, 7, 0, 7, 2)
   save(c, "seashell_lure", T)
 end

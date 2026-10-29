@@ -60,37 +60,38 @@ do
   local SHELL = felt("#f3c08c", { gloss = "#fff3c8", rim = "#ffdcae" })
   local LIP   = felt("#ef7f96", { gloss = "#ffd2dc", rim = "#f8a8b8" })
   local G = {
-    "o...............",
-    "oo..........pp..",
-    "ooo........pppp.",
-    ".ooo.o....ppppp.",
-    "oooooo...pppppp.",
-    ".ooooooo.ppppppp",
-    "oooooooooppppppp",
+    ".o..............",
+    "ooo.............",
+    "oooo.o..........",
+    ".ooooooo.....pp.",
+    "ooooooooo..pppp.",
     ".ooooooooopppppp",
-    "..ooooooooppppp.",
-    "...ooooooopppp..",
-    "...oooooooppp...",
-    "....ooooooppp...",
-    ".....oooooop....",
-    "......oooooo....",
+    "oooooooooopppppp",
+    ".oooooooooppppp.",
+    "..ooooooooopppp.",
+    "...oooooooopppp.",
+    "....ooooooopppp.",
+    ".....oooooopp...",
+    "......ooooopp...",
     ".......oooo.....",
+    "........oo......",
   }
-  local shell = c:ascii(G, 2, 2, "o")
+  local shell = c:ascii(G, 2, 2)                    -- one felt body: exterior + lip, no inner contour
   local lip = c:ascii(G, 2, 2, "p")
   local cushion = c:rrect(2, 16, 16, 20, 2)
   c:build{
     { "cushion", cushion, TURQ, { gloss = false } },
-    { "shell", shell, SHELL, { gloss = { 6, 8 } } },
-    { "lip", lip, LIP, { gloss = { 13, 5 } } },
+    { "shell", shell, SHELL, { gloss = { 4, 5 } } },
   }
-  -- spire whorl grooves across the axis, two bean markings
-  c:paint({ "..s", ".s.", "s.." }, 3, 3, { s = SHELL.shade })
-  c:paint({ "...s", "..s.", ".s..", "s..." }, 4, 5, { s = SHELL.shade })
-  c:paint({ "mm" }, 6, 12, { m = "#c98a5a" })
-  c:paint({ "m", "m" }, 9, 13, { m = "#c98a5a" })
-  -- aperture: the deep glossy slit inside the lip
-  c:paint({ "a", "a", ".a", ".a", ".a", "..a" }, 10, 8, { a = "#a8324f" })
+  retint(c, lip, SHELL, LIP)
+  c:paint({ "gg", "g." }, 13, 6, { g = LIP.gloss })
+  -- two spire whorl steps, two bean markings
+  c:paint({ "..s", ".s.", "s.." }, 3, 5, { s = SHELL.shade })
+  c:paint({ "...s", "..s.", ".s..", "s..." }, 5, 6, { s = SHELL.shade })
+  c:paint({ "mm" }, 7, 12, { m = "#c98a5a" })
+  c:paint({ "m", "m" }, 10, 10, { m = "#c98a5a" })
+  -- aperture: the deep glossy slit just inside the lip
+  c:paint({ "a", "a", "a", ".a", ".a", ".a", ".a" }, 12, 7, { a = "#b8385a" })
   c:seam({ { 4, 19 }, { 15, 19 } }, { gap = TURQ.shade })                        -- cushion hem
   save(c, "conch_shell", W, H)
 end
@@ -132,39 +133,39 @@ end
 
 -- ===== flying_fish_charm (rod, 16x16) =====
 -- Blue felt flying fish, its big sun-yellow wing fin raised like a sail, a forked tail, a silver belly panel;
--- a gold jump ring on its head (the rod string ties on there, top-left of the sprite at x 3, y 0).
+-- hanging from its own short string with a gold knot (top of the sprite at x 6, y 0: tie the rod string there).
+-- Outline 1 px with no lower-right extra here: at 16 px the extra ate the fish.
 do
   local W, H = 16, 16
-  local c = canvas(W, H)
+  local c = GV.canvas{ w = W, h = H, mode = "sticker", ol = 1, olx = 0, cres = 2, deep = 1 }
   local BLUE = felt("#3a7ccc", { gloss = "#c8ecff", rim = "#7ab4ee" })
   local G = {
-    "ggg........",
-    "g.g...ww...",
-    "ggg..wwww..",
-    ".b..wwwww..",
-    "bbbbbwwww..",
-    "bbbbbbww...",
-    "bbbbbbbb.tt",
-    "bbbbbbbbbt.",
-    "bbbbbbbbbtt",
-    ".bbbbbbb.tt",
+    ".......www..",
+    "......wwww..",
+    "......wwwww.",
+    ".......wwww.",
+    "..bbbbbbbww.",
+    ".bbbbbbbbb..",
+    "bbbbbbbbbb.t",
+    "bbbbbbbbbbtt",
+    "bbbbbbbbbbbt",
+    "bbbbbbbbbbtt",
+    ".bbbbbbbb..t",
   }
-  local ring = c:ascii(G, 2, 1, "g")
-  local wing = c:ascii(G, 2, 1, "w")
-  local tail = c:ascii(G, 2, 1, "t")
-  local body = c:ascii(G, 2, 1, "b")
+  local wing = c:ascii(G, 2, 2, "w")
+  local tail = c:ascii(G, 2, 2, "t")
+  local body = c:ascii(G, 2, 2, "b")
   c:build{
-    { "ring", ring, "gold", { flat = true } },
     { "tail", tail, SUN, { flat = true } },
     { "wing", wing, SUN, { flat = true } },
     { "body", body, BLUE, { gloss = false } },
   }
-  c:px(3, 2, GV.C.hole)
-  c:paint({ "r.r.", ".r.r" }, 8, 3, { r = SUN.shade })                         -- wing ribs
-  c:paint({ "cccc", ".cc." }, 4, 9, { c = "#d8e8f0" })                           -- silver belly panel
-  c:paint({ "gg" }, 6, 6, { g = BLUE.gloss })                                    -- gloss
-  c:px(7, 7, BLUE.rim)
-  c:eye(2, 6, true)
+  c:paint({ "r.", ".r", "..r" }, 9, 3, { r = SUN.shade })                       -- wing ribs
+  c:paint({ "cccccc", ".cccc." }, 5, 11, { c = "#d8e8f0" })                     -- silver belly panel
+  c:paint({ "gg", "g" }, 7, 7, { g = BLUE.gloss })                               -- gloss comma
+  c:eye(3, 7, true)
+  for y = 0, 5 do c:px(6, y, "#4a2c1a") end                                       -- the string it hangs on
+  c:px(6, 6, GV.C.gold)                                                           -- gold knot on its back
   save(c, "flying_fish_charm", W, H)
 end
 

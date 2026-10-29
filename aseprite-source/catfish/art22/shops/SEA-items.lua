@@ -179,7 +179,7 @@ do
   c:part(c:rect(18, 2, 19, 3), RATTAN, { flat = true })                    -- woven tip knob
   c:build{
     { "cush", cush, TEAL, { flat = true } },
-    { "strap", c:line({ { 5, 19 }, { 8, 22 }, { 27, 22 } }, 2), RED, { flat = true, contact = false } },  -- chin strap
+    { "strap", c:line({ { 5, 19 }, { 8, 22 }, { 27, 22 } }, 2), RED, { flat = true, contact = false, contour = false } },  -- chin strap
     { "bowL", bowL, RED, { flat = true } },
     { "bowR", bowR, RED, { flat = true } },
     { "knot", c:rect(29, 20, 30, 22), RED, { flat = true } },
@@ -196,11 +196,12 @@ do
   c:part(c:rect(4, 4, 29, 25), "#a9d6c4", { flat = true, rim = false })
   c:part(c:poly({ {5, 24}, {5, 15}, {11, 10}, {13, 13}, {11, 20}, {8, 24} }), LEAF, { flat = true })
   for _, l in ipairs({ { {15, 13}, {12, 11} }, { {20, 13}, {23, 11} }, { {15, 18}, {12, 21} }, { {19, 18}, {22, 20} } }) do
-    c:part(c:line(l, 2), G, { flat = true, contact = false })
+    c:part(c:line(l, 2), G, { flat = true, rim = false, contact = false, contour = false })
   end
+  local bodyM = c:ellipse(17, 16, 3, 4.5)
   c:build{
-    { "body", c:ellipse(17, 16, 3, 4.5), G, {} },
-    { "head", c:ellipse(17.5, 9.5, 3.5, 3), G, {} },
+    { "body", bodyM, G, {} },
+    { "head", c:ellipse(17.5, 10, 4, 3.5), G, {} },
   }
   for _, q in ipairs({ {11, 10}, {23, 10}, {11, 21}, {22, 20} }) do c:fill(c:rect(q[1], q[2], q[1] + 1, q[2] + 1), "#f08a24") end
   c:build{
@@ -209,7 +210,7 @@ do
     { "poleT", c:rrect(2, 2, 31, 4, 1), RATTAN, { gloss = false } },
     { "poleB", c:rrect(2, 25, 31, 27, 1), RATTAN, { gloss = false } },
   }
-  c:part(c:line({ { 17, 20 }, { 17, 23 }, { 19, 26 }, { 23, 26 }, { 25, 24 } }, 2), G, { flat = true })  -- tail curls over the frame
+  c:part(c:line({ { 17, 20 }, { 17, 23 }, { 19, 26 }, { 23, 26 }, { 25, 24 } }, 2):cut(bodyM), G, { flat = true, rim = false, contact = false, contour = false })  -- tail curls over the frame
   c:eye(14, 7, true); c:eye(19, 7, true)
   c:px(16, 15, "#f08a24"); c:px(18, 17, "#f08a24"); c:px(16, 19, "#f08a24")
   for _, q in ipairs({ {2, 2}, {29, 2}, {2, 25}, {29, 25} }) do

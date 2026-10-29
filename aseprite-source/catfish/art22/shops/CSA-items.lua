@@ -152,14 +152,18 @@ do
   local cush = c:rrect(2, 16, 17, 21, 2)
   part(c, cush, R.pink, { cres = 2 })
   -- bronze bowl: a lip ellipse + round belly
-  local bowl = c:ellipse(9.5, 9, 6.5, 1.5)
+  local bowl = c:ellipse(9.5, 8.5, 6.5, 2)
   bowl:add(c:ellipse(9.5, 10, 6.5, 6.5):clip(c:rect(0, 9, 19, 16)))
   part(c, bowl, R.bronze, { cres = 3, deep = true, gloss = { { 5, 11 }, { 5, 12 }, { 6, 13 } } })
   -- the opening: dark inside, lit lip ring
-  local inside = c:ellipse(9.5, 9, 5, 0.6)
-  inside:each(function(x, y) c:px(x, y, (x < 9) and R.bronze.deep or R.bronze.shade) end)
-  for x = 4, 15 do if not inside:has(x, 8) and bowl:has(x, 8) then c:px(x, 8, R.bronze.rim) end end
-  c:px(5, 8, R.bronze.gloss)
+  local inside = c:ellipse(9.5, 8.5, 5, 1)
+  inside:each(function(x, y) c:px(x, y, (y <= 8) and R.bronze.deep or R.bronze.shade) end)
+  for x = 3, 16 do for y = 6, 10 do
+    if bowl:has(x, y) and not inside:has(x, y) and (inside:has(x, y + 1) or inside:has(x + 1, y) or inside:has(x - 1, y)) and y <= 8 then
+      c:px(x, y, R.bronze.rim)
+    end
+  end end
+  c:px(5, 7, R.bronze.gloss); c:px(6, 7, R.bronze.gloss)
   -- engraved band round the belly
   for x = 5, 14, 2 do c:px(x, 13, (x < 10) and R.bronze.rim or R.bronze.shade) end
   -- gold seam across the cushion front and two tassel corners
@@ -180,7 +184,7 @@ do
       local t = i / n
       local x = xa + (xb - xa) * t
       local y = 4 + 8 * (1 - (2 * t - 1) ^ 2)
-      ball(math.floor(x + 0.5), math.floor(y + 0.5), ((i + off) % 3 == 1) and "turm" or "mari")
+      ball(math.floor(x + 0.5), math.floor(y + 0.5), ((i + off) % 2 == 1) and "turm" or "mari")
     end
   end
   swag(4, 23, 5, 0)
@@ -188,7 +192,7 @@ do
   -- dangling strands (drawn after, so they sit in front)
   local strands = { { 4, 3 }, { 24, 5 }, { 43, 3 } }
   for si, s in ipairs(strands) do
-    for j = 1, s[2] do ball(s[1], 4 + j * 4, ((j + si) % 2 == 0) and "turm" or "mari") end
+    for j = 1, s[2] do ball(s[1] + ((j % 2 == 0) and 1 or 0), 4 + j * 4, ((j + si) % 2 == 0) and "turm" or "mari") end
   end
   -- paint balls back to front: swags first, then strands top-down
   for _, b in ipairs(balls) do
@@ -213,54 +217,45 @@ end
 ---------------------------------------------------------------- 3. tiger-stripe rug (floor-left 38x28)
 do
   local c = sprite(38, 28)
-  -- flat top in perspective: back edge y 11 (x 7..30), front edge y 21 (x 2..35)
-  local yb, yf = 11, 21
-  local function xl(y) return 7 - (y - yb) * 5 / (yf - yb) end
-  local function xr(y) return 30 + (y - yb) * 5 / (yf - yb) end
+  -- flat felt rug in perspective: back edge y 6 (x 8..29), front edge y 20 (x 2..35)
+  local yb, yf = 6, 20
+  local function xl(y) return 8 - (y - yb) * 6 / (yf - yb) end
+  local function xr(y) return 29 + (y - yb) * 6 / (yf - yb) end
+  local function X(v) return math.floor(v + 0.5) end
   local top = c:mask()
-  for y = yb, yf do for x = math.floor(xl(y) + 0.5), math.floor(xr(y) + 0.5) do top:set(x, y) end end
-  -- front felt thickness
+  for y = yb, yf do for x = X(xl(y)), X(xr(y)) do top:set(x, y) end end
   local edge = c:mask()
-  for x = 2, 35 do edge:set(x, 22); edge:set(x, 23) end
-  -- cream fringe (drawn first, behind the edge)
+  for x = 2, 35 do edge:set(x, 21); edge:set(x, 22) end
+  -- cream fringe front and back (behind the rug)
   local fr = c:mask()
-  for x = 3, 34, 2 do fr:set(x, 24); fr:set(x, 25) end
+  for x = 3, 34, 2 do for y = 23, 25 do fr:set(x, y) end end
+  for x = 9, 28, 2 do for y = 3, 5 do fr:set(x, y) end end
   part(c, fr, R.cream, { cres = 0, rim = false, contour = false })
   part(c, edge, R.back, { cres = 1, contour = false })
-  part(c, top, R.mari, { cres = 2 })
-  -- red border band 1 px inside the top edge
+  part(c, top, R.mari, { cres = 2, gloss = { { 9, 7 }, { 10, 7 }, { 11, 7 } } })
   top:each(function(x, y)
+    local x0, x1 = X(xl(y)), X(xr(y))
     local u = (x - xl(y)) / (xr(y) - xl(y))
-    local band = (y == yb + 1 or y == yf - 1 or x == math.floor(xl(y) + 0.5) + 1 or x == math.floor(xr(y) + 0.5) - 1)
-    local edgepx = (y == yb or y == yf or x == math.floor(xl(y) + 0.5) or x == math.floor(xr(y) + 0.5))
-    if band and not edgepx then c:px(x, y, (u > 0.6 or y >= yf - 1) and R.pink.shade or R.pink.base) end
-    if not band and not edgepx then
+    local edgepx = (y == yb or y == yf or x == x0 or x == x1)
+    local band = not edgepx and (y == yb + 1 or y == yf - 1 or x == x0 + 1 or x == x1 - 1)
+    if band then c:px(x, y, (u > 0.55 or y >= yf - 1) and R.pink.shade or R.pink.base)
+    elseif not edgepx and y > yb + 1 and y < yf - 1 then
       -- tiger stripes: wedges from the back and from the front, alternating across the rug
-      local v = (y - yb) / (yf - yb)
+      local v = (y - yb - 2) / (yf - yb - 4)
       local n = 7
       local f = u * n
       local i = math.floor(f)
       local w = f - i
       local fromBack = (i % 2 == 0)
-      local len = fromBack and (0.62 - v) or (v - 0.38)
+      local len = fromBack and (0.7 - v) or (v - 0.3)
       if len > 0 then
-        local half = 0.10 + len * 0.45
+        local half = 0.08 + len * 0.42
         if math.abs(w - 0.5) < half then c:px(x, y, (v > 0.5) and OL3 or OL2) end
       end
     end
   end)
-  -- rolled back edge: a felt roll showing the backing, spiral end on the left
-  local roll = c:mask()
-  for x = 7, 30 do for y = 6, 10 do roll:set(x, y) end end
-  roll:del(7, 6); roll:del(30, 6)
-  part(c, roll, R.back, { cres = 2, gloss = { { 10, 7 }, { 11, 7 }, { 12, 7 } } })
-  -- stripes peeking on the roll (top face rolled outward)
-  for x = 13, 28, 4 do c:px(x, 9, OL3); c:px(x + 1, 8, OL2) end
-  -- spiral end
-  paint(c, { "u", "u" }, 8, 8, { u = OL2 })
-  c:px(9, 9, R.mari.base)
   -- gold stitch along the front edge
-  local pts = {} for x = 3, 34 do pts[#pts + 1] = { x, 22 } end
+  local pts = {} for x = 3, 34 do pts[#pts + 1] = { x, 21 } end
   thread(c, pts, nil)
   finish(c)
   save(c, "tiger_stripe_rug", 38, 28)
@@ -281,12 +276,11 @@ do
   -- little pucchi tail triangle
   part(c, c:rect(5, 11, 7, 11):add(c:rect(6, 12, 6, 12)), R.teal, { cres = 1 })
   -- ribbon bows on the tail
-  paint(c, { "t.t", ".k.", "t.t" }, 9, 11, { t = R.teal.base, k = R.teal.shade })
-  c:px(9, 11, R.teal.rim)
+  part(c, c:line({ { 8, 12 }, { 10, 12 }, { 12, 11 } }, 2), R.teal, { cres = 1 })
+  c:px(10, 12, R.turm.base); c:px(10, 13, R.turm.shade)
   finish(c)
   -- string on top, tail string between the bows (no border)
   str(c, 6, 0); str(c, 6, 1)
-  str(c, 7, 13); str(c, 8, 13); str(c, 11, 13); str(c, 12, 14)
   save(c, "kite_tail_lure", 16, 16)
 end
 

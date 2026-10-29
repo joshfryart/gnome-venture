@@ -52,7 +52,7 @@ end
 do
   local c = canvas(20, 24)
   local MOUSE = felt("#a89cae", { gloss = "#e8e0f0", rim = "#c8bccc" })
-  local GRN = GREEN
+  local GRN = felt("#5a86b8", { gloss = "#c8ecdc", rim = "#8fcbd8" })
   -- big doll (red), x 2..12
   local bigHead = c:ellipse(7, 9, 4.5, 4)
   local bigBody = c:ellipse(7, 17.5, 5.5, 6):cut(c:rect(0, 23, 19, 30)):add(c:rrect(3, 12, 11, 16, 2))
@@ -78,40 +78,45 @@ do
   -- big apron: gold flower on a cream bib
   local bib = c:ellipse(7, 17.5, 3, 3)
   c:fill(bib, CREAM.base)
-  c:paint({ ".g.", "gdg", ".g." }, 6, 16, { g = GOLD.base, d = RED.base })
+  c:paint({ ".rr.", "rggr", ".rr.", "l..l" }, 5, 16, { r = RED.base, g = GOLD.base, l = GREEN.base })
   c:seam({ { 3, 13 }, { 11, 13 } }, { gap = RED.shade })                         -- scarf hem
   -- small face
   c:fill(c:rect(13, 14, 15, 15), CREAM.base); c:px(13, 14, C.ol3); c:px(15, 14, C.ol3)
-  c:px(14, 19, GOLD.base); c:px(13, 20, GOLD.base); c:px(15, 20, GOLD.base)
+  c:px(14, 19, GOLD.base); c:px(13, 20, GOLD.base); c:px(15, 20, GOLD.base); c:px(14, 20, RED.base)
   save(c, "matryoshka_mice")
 end
 
 -- ===== rug_runner (floor-right, 36x28) =====
--- A runner lying on the floor and running back into the room: a long trapezoid (front end wide), its felt
--- thickness showing as a front edge, cream fringe on both short ends, folk stepped diamonds down the middle.
+-- A woven runner lying flat on the floor, long side to the front: shallow top (floor perspective), its felt
+-- thickness as a front edge, cream fringe on both short ends, cream border band, folk stepped diamonds.
 do
   local c = canvas(36, 28)
-  local top   = c:poly({ { 10, 6 }, { 25, 6 }, { 31, 23 }, { 4, 23 } })
-  local edge  = c:rect(4, 23, 30, 24)
-  local front = c:rect(4, 25, 30, 26)
-  local back  = c:rect(10, 4, 24, 5)
+  local top   = c:poly({ { 7, 13 }, { 29, 13 }, { 31, 23 }, { 5, 23 } })
+  local edge  = c:rect(5, 23, 30, 25)
+  local fringeL, fringeR = c:mask(), c:mask()
+  for y = 14, 25 do
+    local xl = (y < 23) and math.floor(7 - (y - 13) * 0.2) or 5
+    local xr = (y < 23) and math.ceil(28 + (y - 13) * 0.2) or 30
+    fringeL:add(c:rect(xl - 3, y, xl - 1, y)); fringeR:add(c:rect(xr + 1, y, xr + 3, y))
+  end
   c:build{
-    { "back", back, CREAM, { flat = true } },
-    { "rug", top:add(edge), RED, { cres = 2, gloss = { 9, 8 } } },
-    { "front", front, CREAM, { flat = true } },
+    { "fringeL", fringeL, CREAM, { flat = true } },
+    { "fringeR", fringeR, CREAM, { flat = true } },
+    { "rug", top:add(edge), RED, { cres = 2, gloss = { 9, 14 } } },
   }
-  for x = 5, 29, 2 do c:px(x, 26, C.ol2) end                                     -- front fringe notches
-  for x = 11, 23, 2 do c:px(x, 4, C.ol2) end                                     -- back fringe notches
-  c:fill(edge, RED.shade)                                                         -- felt thickness
-  -- cream border band, 1 px in from the edge of the top
-  local band = c:poly({ { 10, 6 }, { 25, 6 }, { 31, 23 }, { 4, 23 } }):shrink(1):edge()
-  band:each(function(x, y) if y < 22 then c:px(x, y, CREAM.base) end end)
-  -- stepped diamonds down the middle (smaller toward the back)
-  c:paint({ ".g.", "g.g", ".g." }, 16, 9, { g = GOLD.base })
-  c:paint({ "..g..", ".g.g.", "g.r.g", ".g.g.", "..g.." }, 15, 12, { g = GREEN.base, r = GOLD.base })
-  c:paint({ "...g...", "..g.g..", ".g.r.g.", "g.rrr.g", ".g.r.g.", "..g.g..", "...g..." }, 14, 16,
-    { g = GOLD.base, r = CREAM.base })
-  c:seam({ { 5, 24 }, { 29, 24 } }, { gap = RED.deep })
+  c:fill(c:rect(5, 24, 30, 25), RED.shade); c:fill(c:rect(5, 25, 30, 25), RED.deep)  -- felt thickness
+  for y = 15, 25, 2 do                                                            -- fringe: separate tassels
+    fringeL:each(function(x, yy) if yy == y then c:px(x, yy, C.ol2) end end)
+    fringeR:each(function(x, yy) if yy == y then c:px(x, yy, C.ol2) end end)
+  end
+  local band = top:copy():clip(c:rect(0, 0, 35, 22)):shrink(1):edge()
+  band:each(function(x, y) c:px(x, y, CREAM.base) end)
+  for i, x in ipairs({ 9, 15, 21 }) do
+    local g = (i == 2) and GOLD.base or GREEN.base
+    c:paint({ "..g..", ".gcg.", "gcrcg", ".gcg.", "..g.." }, x, 16, { g = g, c = CREAM.base, r = GOLD.base })
+  end
+  c:paint({ ".g.", "g.g", ".g." }, 27, 17, { g = GOLD.base })
+  c:seam({ { 6, 24 }, { 29, 24 } }, { gap = RED.shade })
   save(c, "rug_runner")
 end
 
@@ -122,21 +127,21 @@ do
   local c = canvas(38, 28)
   local BOOT = felt("#8b8f96", { gloss = "#e6e2d6", rim = "#b4b4b4" })
   local SOLE = felt("#6b3a2a", { gloss = "#a8582f", rim = "#8a4f2a" })
-  local shaft = c:rrect(5, 6, 18, 26, 3)
+  local shaft = c:rrect(5, 8, 18, 26, 3)
   local foot  = c:rrect(13, 15, 30, 26, 4):add(c:ellipse(29, 21.5, 5, 5)):cut(c:rect(0, 27, 40, 40))
   local boot  = shaft:add(foot):closed(2)
   local sole  = boot:copy():clip(c:rect(0, 24, 40, 26))
-  local cuff  = c:rrect(3, 4, 20, 10, 2)
-  local pillow = c:ellipse(11.5, 4, 6, 2.5)
+  local cuff  = c:rrect(4, 6, 19, 11, 2)
+  local pillow = c:ellipse(11.5, 5, 5.5, 2.5)
   c:build{
     { "boot", boot, BOOT, { cres = 3, gloss = { 22, 16 } } },
     { "sole", sole, SOLE, { cres = 1, deep = 0, gloss = false } },
     { "pillow", pillow, RED, { cres = 2, gloss = false } },
     { "cuff", cuff, CREAM, { cres = 2, gloss = false } },
   }
-  c:px(9, 3, RED.gloss); c:px(10, 3, RED.gloss)                                    -- pillow glint
-  c:button(10, 2)
-  for x = 4, 18, 4 do c:paint({ ".r.", "rrr" }, x, 6, { r = RED.base }) end      -- stepped band on the cuff
+  c:px(8, 4, RED.gloss); c:px(9, 3, RED.gloss); c:px(10, 3, RED.gloss)                 -- pillow glint
+  c:px(13, 4, C.gold); c:px(12, 4, C.goldS)                                         -- pillow tuft
+  for x = 6, 16, 4 do c:paint({ ".r.", "rrr" }, x, 8, { r = RED.base }) end      -- stepped band on the cuff
   -- embroidered flower on the shaft (red petals, gold heart, green leaves)
   c:paint({ ".rr.", "rggr", "rggr", ".rr." }, 9, 14, { r = RED.base, g = GOLD.base })
   c:paint({ "l....l", ".l..l.", "..ll.." }, 8, 18, { l = GREEN.base })
@@ -166,8 +171,10 @@ do
     { "disc", c:ellipse(14, 10, 4.5, 4.5), DISC, { cres = 2, gloss = false } },
     { "pot", pot, BIRCH, { cres = 2, gloss = false } },
   }
-  for _, q in ipairs({ { 12, 8 }, { 15, 8 }, { 13, 11 }, { 16, 11 }, { 11, 11 } }) do c:px(q[1], q[2], DARK) end
-  c:fill(c:rect(10, 21, 12, 21), DARK); c:fill(c:rect(16, 20, 17, 20), DARK); c:fill(c:rect(14, 23, 15, 23), DARK)
+  -- seed lattice: light seeds on the brown disc, a few pecked out (dark) by the birds
+  for _, q in ipairs({ { 12, 7 }, { 15, 7 }, { 11, 9 }, { 14, 9 }, { 17, 9 }, { 12, 11 }, { 15, 11 }, { 13, 13 } }) do c:px(q[1], q[2], DISC.rim) end
+  for _, q in ipairs({ { 16, 12 }, { 13, 10 } }) do c:px(q[1], q[2], DARK) end
+  for _, d in ipairs({ { 9, 20, 11 }, { 14, 19, 15 }, { 17, 21, 19 }, { 11, 22, 13 }, { 15, 23, 16 } }) do c:fill(c:rect(d[1], d[2], d[3], d[2]), DARK) end
   c:seam({ { 8, 18 }, { 20, 18 } }, { gap = BIRCH.shade })
   save(c, "sunflower_head")
 end

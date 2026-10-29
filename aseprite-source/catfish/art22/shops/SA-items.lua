@@ -53,41 +53,55 @@ local function weave(c, m, dir, seq)
 end
 
 -- ============ 1. bromeliad (shelf, 20x24) ============
--- A fan of arching strap leaves round a tall red bract, on a mossy bark chunk; a blue frog peeks over the
--- front-left leaf (its two eye bumps sit above the leaf line).
+-- Drawn as an ascii plan (too small for shape maths): dark back leaves fanning up, a tall red bract in the
+-- middle, light arching side and front leaves, a blue frog peeking out of the leaf cup (two eye bumps), on a
+-- mossy bark chunk. 1 px gaps in the plan become umber outline, which splits the leaves.
 do
   local c = canvas(20, 24)
   local BARK = felt("#8a5636", { gloss = "#c98a4a", rim = "#b0703e" })
   local MOSS = felt("#7ab55c", { gloss = "#c8d77a", rim = "#a4b86a" })
-  local LEAF2 = felt("#3f8a45", { gloss = "#c8d77a", rim = "#6aa850", shade = "#2a5a38" })
+  local LEAF2 = felt("#3f8a45", { gloss = "#c8d77a", rim = "#5a9e4a", shade = "#2a5a38" })
   local BRACT = felt("#e0405a", { gloss = "#ffc27a", rim = "#f2793a", shade = "#ae2a4a" })
   local FROG = felt("#3f8fb0", { gloss = "#c8ecdc", rim = "#8fcbd8", shade = "#2f6290" })
-  local bark = c:rrect(3, 17, 16, 20, 2)
-  local moss = c:ellipse(6, 17, 2.5, 1):add(c:ellipse(13, 17, 2.5, 1))
-  local backL = c:line({ { 8, 15 }, { 6, 9 }, { 5, 4 } }, 3)
-  local backR = c:line({ { 11, 15 }, { 13, 9 }, { 14, 4 } }, 3)
-  local sideL = c:line({ { 9, 16 }, { 5, 13 }, { 2, 11 } }, 3):add(c:line({ { 2, 11 }, { 1, 13 } }, 2))
-  local sideR = c:line({ { 10, 16 }, { 14, 13 }, { 17, 11 } }, 3):add(c:line({ { 17, 11 }, { 18, 13 } }, 2))
-  local bract = c:ellipse(9.5, 7, 1.5, 5)
-  local front = c:ellipse(9.5, 15.5, 3, 1.5)
-  local frog = c:rrect(2, 11, 8, 14, 1)
-  c:build{
-    { "backL", backL, LEAF2, { flat = true } },
-    { "backR", backR, LEAF2, { flat = true } },
-    { "bract", bract, BRACT, { cres = 2, deep = 0, gloss = false } },
-    { "sideL", sideL, LEAF, { flat = true } },
-    { "sideR", sideR, LEAF, { flat = true } },
-    { "frog", frog, FROG, { flat = true } },
-    { "front", front, LEAF, { flat = true } },
-    { "bark", bark, BARK, { cres = 2, deep = 0, gloss = false } },
-    { "moss", moss, MOSS, { flat = true } },
+  local PLAN = {
+    "....................", -- 0
+    "....................", -- 1
+    ".........R..........", -- 2
+    "..D.....RRR.....D...", -- 3
+    "..DD....RRR....DD...", -- 4
+    "...DD...RRR...DD....", -- 5
+    "...DD..RRRRR..DD....", -- 6
+    "..L.DD.RRRRR.DD.L...", -- 7
+    "..LL.DDRRRRRDD.LL...", -- 8
+    "...LL.DRRRRRD.LL....", -- 9
+    "...LLEEERRREEELL....", -- 10
+    "....LEEEFFFEEEL.....", -- 11
+    "..L.LEEEFFFEEEL.L...", -- 12
+    "..LLLFFFFFFFFFLLL...", -- 13
+    "...LLLLFFFFFLLLL....", -- 14
+    "....LLLLLLLLLLL.....", -- 15
+    "..MMMMLLLLLLLMMMM...", -- 16
+    "..BBBBBBBBBBBBBBB...", -- 17
+    "..BBBBBBBBBBBBBBB...", -- 18
+    "..BBBBBBBBBBBBBBB...", -- 19
+    "...BBBBBBBBBBBBB....", -- 20
   }
-  c:paint({ "g", "d" }, 9, 4, { g = BRACT.gloss, d = "#ffc27a" })       -- enamel gloss on the bract
+  local function m(ch) return c:ascii(PLAN, 0, 0, ch) end
+  c:build{
+    { "back", m("D"), LEAF2, { flat = true, contour = false } },
+    { "bract", m("R"), BRACT, { cres = 2, deep = 0, gloss = false, contour = false } },
+    { "frog", m("FE"), FROG, { cres = 2, deep = 0, gloss = false, contour = false } },
+    { "leaves", m("L"), LEAF, { cres = 2, deep = 0, gloss = false, contour = false } },
+    { "bark", m("B"), BARK, { cres = 2, deep = 0, gloss = false } },
+    { "moss", m("M"), MOSS, { flat = true } },
+  }
+  c:paint({ "g", "gd" }, 8, 6, { g = BRACT.gloss, d = "#ffc27a" })       -- enamel gloss on the bract
   c:paint({ "y.y" }, 8, 1, { y = GOLD })                                 -- tiny flowers at the tip
-  c:eye(2, 9, true); c:eye(6, 9, true)                                    -- frog eye bumps
-  c:px(5, 10, FROG.rim)                                                   -- blue between the eyes
-  c:paint({ "sss" }, 4, 13, { s = FROG.shade })                           -- smile
-  c:paint({ "s....s" }, 6, 19, { s = BARK.shade })                        -- bark grain
+  c:eye(5, 10, true); c:eye(11, 10, true)                                 -- frog eye bumps
+  c:paint({ "s.s", ".s." }, 8, 12, { s = FROG.shade })                    -- smile
+  c:px(9, 11, FROG.gloss)
+  c:paint({ "s.....s" }, 5, 19, { s = BARK.shade })                       -- bark grain
+  c:seam({ { 3, 18 }, { 15, 18 } }, { gap = BARK.base })                   -- felt seam round the log
   save(c, "bromeliad")
 end
 
@@ -129,29 +143,42 @@ do
 end
 
 -- ============ 3. toucan feather lure (rod, 16x16) ============
--- Three feathers in toucan colours (yellow, dark with an orange tip, orange-red) fanned under a woven red bead,
--- tied to the rod string at the top.
+-- Ascii plan: a gold bead knotted on the string, a woven red wrap, then three feathers in toucan colours
+-- (yellow, dark with an orange tip, orange-red) fanning down. The string runs from the top edge to the bead.
 do
   local c = canvas(16, 16)
   local DARK = felt("#3e2f66", { gloss = "#a894dc", rim = "#7b66b4", shade = "#291d4a" })
   local YEL = felt("#f5c12a", { gloss = "#fff1c8", rim = "#ffe07a", shade = "#d0862a" })
   local ORA = felt("#f0602a", { gloss = "#ffc27a", rim = "#ff9158", shade = "#ae2a2a" })
-  local fl = c:line({ { 6, 7 }, { 4, 10 }, { 3, 12 } }, 3)
-  local fr = c:line({ { 9, 7 }, { 11, 10 }, { 12, 12 } }, 3)
-  local fc = c:rrect(6, 6, 9, 13, 2):add(c:rect(7, 14, 8, 14))
-  local bead = c:rrect(5, 2, 10, 5, 1)
-  c:build{
-    { "fl", fl, YEL, { flat = true } },
-    { "fr", fr, ORA, { flat = true } },
-    { "fc", fc, DARK, { flat = true } },
-    { "bead", bead, WEAVE, { flat = true } },
+  local PLAN = {
+    "................", -- 0
+    "................", -- 1
+    "................", -- 2
+    "......kk........", -- 3
+    ".....WWWW.......", -- 4
+    ".....WWWW.......", -- 5
+    "....YDDDDO......", -- 6
+    "...YYDDDDOO.....", -- 7
+    "...YYDDDDOO.....", -- 8
+    "..YYY.DD.OOO....", -- 9
+    "..YY..DD..OO....", -- 10
+    "..Y...TT...O....", -- 11
+    "......TT........", -- 12
   }
-  c:paint({ "gtgt" }, 6, 4, { g = GOLD, t = TEAL })                       -- woven wrap on the bead
-  c:paint({ "dd" }, 6, 3, { d = WEAVE.gloss })                             -- enamel glint
-  c:paint({ "r", "r", "r" }, 7, 8, { r = "#7b66b4" })                       -- rachis on the dark feather
-  c:paint({ "oo", "o" }, 7, 12, { o = ORA.base })                           -- orange tip like the beak
+  local function m(ch) return c:ascii(PLAN, 0, 0, ch) end
+  c:build{
+    { "fl", m("Y"), YEL, { flat = true, contour = false } },
+    { "fr", m("O"), ORA, { flat = true, contour = false } },
+    { "fc", m("D"), DARK, { flat = true, contour = false } },
+    { "tip", m("T"), ORA, { flat = true, contour = false } },
+    { "wrap", m("W"), WEAVE, { flat = true, contour = false } },
+    { "bead", m("k"), "gold", { flat = true, contour = false } },
+  }
+  c:paint({ "gtgt" }, 5, 5, { g = GOLD, t = TEAL })                       -- woven stripe on the wrap
+  c:px(6, 3, GV.R.gold.gloss)
+  c:paint({ "r", "r" }, 7, 7, { r = "#7b66b4" })                            -- rachis on the dark feather
   c:finish()
-  cord(c, 7, 0, 0)
+  cord(c, 6, 0, 1); cord(c, 7, 0, 1, GV.C.ol1)
   save(c, "toucan_feather_lure")
 end
 

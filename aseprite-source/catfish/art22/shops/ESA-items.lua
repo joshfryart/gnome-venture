@@ -104,47 +104,45 @@ do
 end
 
 -- ===== beaded_rack (shelf, 20x24) =====
--- A small wooden display rack (two uprights, top bar with knob ends, foot) with a woven sisal back panel;
--- a round flat bead collar hangs on it (red rim, cream ring with blue dots, blue ring, gold centre) with a
--- short bead tassel under it.
+-- A round flat bead collar (seen a little from above: red rim, cream ring with blue dots, blue ring, gold
+-- inner ring round the neck hole) displayed on a short wooden stand that ends inside the neck hole, two bead
+-- dangles under the rim, wide wooden foot with a gold hem seam.
 do
   local c = canvas(20, 24)
-  local panel = c:rect(4, 5, 15, 19)
-  local frame = c:rect(2, 4, 3, 21):add(c:rect(16, 4, 17, 21))
-  local bar = c:rect(2, 3, 17, 4)
-  local foot = c:rrect(2, 20, 17, 21, 0)
-  local CX, CY, R = 9.5, 11, 5
-  local collar = c:ellipse(CX, CY, R, R)
+  local CX, CY, RX, RY = 9.5, 9.5, 8, 5.5
+  local post = c:rect(8, 7, 11, 19)
+  local collar = c:ellipse(CX, CY, RX, RY)
+  local hole = c:ellipse(CX, 8, 3, 1.5)
+  collar:cut(hole)
+  local strands = c:rect(4, 13, 5, 17):add(c:rect(14, 13, 15, 17))
+  local foot = c:rrect(3, 18, 16, 21, 1)
   c:build{
-    { "panel", panel, SISAL, { cres = 2, gloss = false, bounce = false } },
-    { "frame", frame, WOODR, { cres = 1, gloss = false, bounce = false } },
-    { "bar", bar, WOODR, { flat = true } },
-    { "foot", foot, WOODR, { cres = 1, gloss = false, bounce = false } },
+    { "post", post, WOODR, { cres = 2, gloss = false, bounce = false } },
+    { "strands", strands, REDR, { flat = true, contact = false } },
     { "collar", collar, REDR, { cres = 2, gloss = false } },
+    { "foot", foot, WOODR, { cres = 1, gloss = false } },
   }
-  -- weave on the back panel: shade every other row, broken 2 on / 1 off so it reads as woven sisal
-  panel:each(function(x, y)
-    local k = c:key(x, y)
-    if c.own[k] and c.pix[k] == SISAL.base and y % 2 == 0 and (x + y) % 3 ~= 0 then c:px(x, y, SISAL.shade) end
-  end)
-  -- concentric bead rings
   collar:each(function(x, y)
     local k = c:key(x, y)
-    local t = math.sqrt((x - CX) ^ 2 + (y - CY) ^ 2) / R
+    local t = math.sqrt(((x - CX) / RX) ^ 2 + ((y - CY) / RY) ^ 2)
     local sh = c.shd[k]
     local col
-    if t > 0.78 then col = sh and REDR.shade or (c.pix[k] == REDR.rim and REDR.rim or REDR.base)
-    elseif t > 0.5 then col = ((x + y) % 2 == 0) and (sh and WATER.shade or WATER.base) or (sh and CREAM.shade or CREAM.base)
-    elseif t > 0.25 then col = sh and WATER.shade or WATER.base
-    else col = GOLDR.rim end
+    if t > 0.8 then col = sh and REDR.shade or (c.pix[k] == REDR.rim and REDR.rim or REDR.base)
+    elseif t > 0.6 then col = ((x + y) % 2 == 0) and (sh and WATER.shade or WATER.base) or (sh and CREAM.shade or CREAM.base)
+    elseif t > 0.42 then col = sh and WATER.shade or WATER.base
+    else col = sh and GOLDR.base or GOLDR.rim end
+    if c.pix[k] == C.ol2 or c.pix[k] == C.ol3 then col = c.pix[k] end   -- keep the inner contour round the hole
     c:px(x, y, col)
   end)
-  c:px(6, 8, REDR.gloss); c:px(7, 7, REDR.gloss); c:px(8, 7, REDR.gloss)   -- enamel comma on the red rim
-  c:px(9, 10, GOLDR.gloss)                                                 -- glint on the gold centre
-  -- bead tassel under the collar (on the panel)
-  beadrow(c, { { 9, 17 }, { 9, 18 } }, 4)
-  beadrow(c, { { 10, 17 }, { 10, 18 } }, 2)
-  c:seam({ { 3, 20 }, { 16, 20 } }, { gap = WOODR.base })
+  c:px(3, 7, REDR.gloss); c:px(4, 6, REDR.gloss); c:px(5, 5, REDR.gloss); c:px(4, 7, REDR.dot)  -- enamel comma
+  -- dangles: beads down each strand
+  for _, x in ipairs({ 4, 14 }) do
+    for y = 14, 17 do
+      local b = BEADS[(y + (x > 9 and 2 or 0)) % 4 + 1]
+      c:px(x, y, b[1]); c:px(x + 1, y, b[2])
+    end
+  end
+  c:seam({ { 5, 19 }, { 14, 19 } }, { gap = WOODR.base })
   save(c, "beaded_rack")
 end
 
@@ -246,24 +244,43 @@ do
 end
 
 -- ===== coffee_bean_rattle (rod, 16x16) =====
--- A glossy roasted coffee bean (upright oval, dark S crease with a lit lip) as a felt shaker, with a gold cap
--- banded in beads, tied on its thread (thread runs to the top edge).
+-- A glossy roasted coffee bean (oval tilted a little, dark S crease along its long axis with a lit lip) as a
+-- felt shaker, with a gold cap banded in beads, tied on its thread (thread runs to the top edge).
 do
   local c = canvas(16, 16)
-  local bean = c:ellipse(7.5, 9, 3.5, 4.5)
-  local cap = c:rrect(5, 3, 10, 5, 1)
+  local ANG = math.rad(-25)                       -- long axis leans: top to the right
+  local ux, uy = math.sin(-ANG), -math.cos(-ANG)  -- unit vector up the long axis
+  local nx, ny = -uy, ux                          -- normal
+  local CX, CY, A, B = 7.5, 9.5, 4.6, 3.4
+  local bean = c:mask()
+  for y = 0, 15 do for x = 0, 15 do
+    local dx, dy = x - CX, y - CY
+    local u, v = dx * ux + dy * uy, dx * nx + dy * ny
+    if (u / A) ^ 2 + (v / B) ^ 2 <= 1 then bean:set(x, y) end
+  end end
+  local cap = c:rrect(6, 3, 11, 5, 1)
   c:build{
-    { "bean", bean, BEAN, { cres = 2, gloss = { 5, 7 }, bounce = false } },
+    { "bean", bean, BEAN, { cres = 2, gloss = { 4, 8 }, bounce = false } },
     { "cap", cap, GOLDR, { flat = true } },
   }
-  local cr = { { 8, 6 }, { 8, 7 }, { 7, 8 }, { 7, 9 }, { 7, 10 }, { 8, 11 }, { 8, 12 } }
-  for _, p in ipairs(cr) do c:px(p[1], p[2], C.ol3) end
-  for _, p in ipairs({ { 7, 6 }, { 7, 7 }, { 6, 9 }, { 6, 10 }, { 7, 11 } }) do
-    if not c.gl.s[c:key(p[1], p[2])] then c:px(p[1], p[2], BEAN.rim) end
+  -- S crease along the long axis, lit lip on its upper-left side
+  local seen = {}
+  for i = -9, 9 do
+    local t = i / 9 * 0.8
+    local off = math.sin(t * math.pi) * 1.2
+    local px = math.floor(CX + ux * t * A + nx * off + 0.5)
+    local py = math.floor(CY + uy * t * A + ny * off + 0.5)
+    local k = py * 16 + px
+    if not seen[k] and bean:has(px, py) and not cap:has(px, py) then
+      seen[k] = true
+      c:px(px, py, C.ol3)
+      local lx, ly = px - 1, py
+      if bean:has(lx, ly) and not c.gl.s[c:key(lx, ly)] and c:get(lx, ly) ~= C.ol3 then c:px(lx, ly, BEAN.rim) end
+    end
   end
-  beadrow(c, hrow(6, 9, 4), 1)
+  beadrow(c, hrow(7, 10, 4), 1)
   c:finish()
-  thread(c, 7, 0, 1)
+  thread(c, 8, 0, 1)
   save(c, "coffee_bean_rattle")
 end
 

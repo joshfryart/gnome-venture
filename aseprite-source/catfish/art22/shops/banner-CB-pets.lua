@@ -223,6 +223,8 @@ c:px(154, 32, O3); c:fill(c:rect(156, 33, 159, 33), WOOD); c:fill(c:rect(157, 32
 -- warm lamps by the door
 c:fill(c:rect(127, 33, 128, 35), GLD); c:px(127, 33, THR); c:fill(c:rect(127, 32, 128, 32), O2)
 
+-- driftwood window ledge (lifts the dark band under the window)
+c:fill(c:rect(95, 45, 121, 45), WOOD_L); c:fill(c:rect(96, 46, 120, 46), WOOD)
 ---------------------------------------------------------------- foreground props
 -- hibiscus pot left of the steps
 local bush = c:ellipse(86.5, 40, 6, 4.5)

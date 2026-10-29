@@ -146,9 +146,6 @@ window(88); window(140)
 c:part(c:rrect(142, 35, 144, 38, 1), TEAL, { flat = true, outline = false })
 c:part(c:rrect(148, 34, 150, 38, 1), RED, { flat = true, outline = false })
 c:fill(c:rect(142, 34, 144, 34), K.wood); c:fill(c:rect(148, 33, 150, 33), K.wood)
--- a ginger kitten peeking up in the left window
-c:fill(c:ellipse(94.5, 37, 3.5, 2.5):add(c:poly({ { 91, 37 }, { 91, 33 }, { 94, 35 } })):add(c:poly({ { 95, 35 }, { 98, 33 }, { 98, 37 } })), K.ginger)
-c:px(93, 36, K.u3); c:px(96, 36, K.u3)
 
 -- striped awnings over the windows, scalloped hem
 local function awning(x0, x1, y0)
@@ -157,7 +154,7 @@ local function awning(x0, x1, y0)
   local n = 0
   for x = x0 - 1, x1 + 2, 3 do
     local s = c:rect(x, y0, x + 2, y0 + 6):clip(m)
-    c:part(s, (n % 2 == 0) and TEAL or WALL, { light = m, outline = false, gloss = false, contact = false, cres = 2, deep = 0, rim = false })
+    c:part(s, (n % 2 == 0) and TEAL or WALL, { light = m, outline = false, contour = false, gloss = false, contact = false, cres = 2, deep = 0, rim = false })
     n = n + 1
   end
   c:outline(m)
@@ -225,18 +222,18 @@ pot(175, 41, 7, 7)
 pot(184, 43, 5, 5)
 
 -- cream cat sitting up beside the door, looking out (small locked eyes)
-local sitB = c:ellipse(143, 51, 5, 4)
-local sitH = c:ellipse(142.5, 44, 5, 4):add(c:poly({ { 138, 43 }, { 138, 38 }, { 142, 41 } })):add(c:poly({ { 143, 41 }, { 147, 38 }, { 147, 43 } }))
-local sitT = c:line({ { 148, 54 }, { 150, 52 }, { 150, 49 } }, 2)
+local sitB = c:ellipse(142, 48.5, 5, 3.5)
+local sitH = c:ellipse(141.5, 42, 5, 4):add(c:poly({ { 137, 41 }, { 137, 36 }, { 141, 39 } })):add(c:poly({ { 142, 39 }, { 146, 36 }, { 146, 41 } }))
+local sitT = c:line({ { 147, 51 }, { 149, 49 }, { 149, 46 } }, 2)
 c:build{
   { "stail", sitT, CREAMCAT, { flat = true } },
   { "sbody", sitB, CREAMCAT, { cres = 3, deep = 1, gloss = false } },
   { "shead", sitH, CREAMCAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:eye(139, 43, true); c:eye(143, 43, true)
-c:px(142, 46, K.redS)
-c:fill(c:rect(139, 48, 146, 48), K.teal)                   -- little collar
-c:px(142, 49, K.goldB)
+c:eye(138, 41, true); c:eye(142, 41, true)
+c:px(141, 44, K.redS)
+c:fill(c:rect(138, 46, 145, 46), K.teal)                   -- little collar
+c:px(141, 47, K.goldB)
 
 ----------------------------------------------------------------- hem stitch
 c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true })

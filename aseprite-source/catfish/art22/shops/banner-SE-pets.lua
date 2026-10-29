@@ -17,7 +17,7 @@ local SHOPW = R{ base = "#d9885a", rim = "#e9b98a", gloss = "#fff1c8", shade = "
 local TERRA = R{ base = "#c47a52", rim = "#d9885a", gloss = "#e9b98a", dot = "#fff1c8", shade = "#8a4f2a", deep = "#5e2f1e", pale = false }
 local OLIVE = R{ base = "#6a9a3a", rim = "#a4b86a", gloss = "#c8d77a", shade = "#4a8a3e", deep = "#2f5a2a", pale = false }
 local DKGRN = R{ base = "#4a8a3e", rim = "#6a9a3a", gloss = "#a4b86a", shade = "#2f5a2a", deep = "#2f5a2a", pale = false }
-local GOLD  = R{ base = "#e8a317", rim = "#f5cf6a", gloss = "#fff1c8", shade = "#d9885a", deep = "#c47a52", pale = false }
+local GOLD  = R{ base = "#e8a317", rim = "#f5cf6a", gloss = "#fff1c8", shade = "#b8661a", deep = "#8a4f2a", pale = false }
 local PINK  = R{ base = "#e46a9b", rim = "#e46a9b", gloss = "#fff1c8", shade = "#c47a52", deep = "#8a4f2a", pale = false }
 local SEA   = R{ base = "#3f8fb0", rim = "#8fcbd8", gloss = "#c8ecdc", shade = "#2f5a2a", deep = "#2f5a2a", pale = false }
 
@@ -89,10 +89,10 @@ c:part(c:rect(172, 25, 176, 37), OLIVE, { outline = false, gloss = false, flat =
 c:part(c:rect(191, 25, 195, 37), OLIVE, { outline = false, gloss = false, flat = true })
 for y = 27, 36, 2 do c:fill(c:rect(173, y, 175, y), "#4a8a3e"); c:fill(c:rect(192, y, 194, y), "#4a8a3e") end
 -- bougainvillea tumbling over the right of the house
-local bush = c:ellipse(214, 25, 10, 6):add(c:ellipse(220, 34, 5, 8)):add(c:ellipse(206, 22, 5, 3))
+local bush = c:ellipse(216, 31, 7, 10):add(c:ellipse(208, 24, 6, 4.5)):add(c:ellipse(220, 40, 4, 4))
 c:part(bush, DKGRN, { gloss = false })
-for _, p in ipairs({ { 205, 21 }, { 209, 23 }, { 214, 20 }, { 219, 23 }, { 212, 27 }, { 217, 29 },
-                     { 221, 33 }, { 218, 37 }, { 221, 40 }, { 222, 26 }, { 203, 23 } }) do
+for _, p in ipairs({ { 205, 22 }, { 209, 25 }, { 212, 21 }, { 215, 26 }, { 219, 23 }, { 213, 31 }, { 218, 30 },
+                     { 221, 35 }, { 215, 37 }, { 219, 41 }, { 211, 27 }, { 216, 42 } }) do
   c:fill(c:rect(p[1], p[2], p[1] + 1, p[2] + 1), "#e46a9b")
   c:px(p[1], p[2], "#fff1c8")
 end
@@ -123,18 +123,16 @@ for _, wx in ipairs({ 92, 140 }) do
   c:fill(c:rect(wx + 2, 16, wx + 2, 16), "#6a9a3a"); c:fill(c:rect(wx + 5, 16, wx + 5, 16), "#6a9a3a")
 end
 
--- hanging sign: gold oval plaque with a cat-head cut-out, on two short chains
-c:fill(c:rect(113, 10, 113, 11), "#4a2c1a"); c:fill(c:rect(127, 10, 127, 11), "#4a2c1a")
-c:part(c:ellipse(120, 15.5, 8, 4), GOLD, { gloss = false })
-c:paint({
-  "u.......u",
-  "uu.....uu",
-  "uuuuuuuuu",
-  "uucuuucuu",
-  "uuuuuuuuu",
-  ".uuuyuuu.",
-  "..uuuuu..",
-}, 116, 12, { u = "#8a4f2a", c = "#fff1c8", y = "#e46a9b" })
+-- hanging sign: a gold cat-head plaque (no text) on two short chains
+c:fill(c:rect(114, 7, 114, 9), "#4a2c1a"); c:fill(c:rect(126, 7, 126, 9), "#4a2c1a")
+local sign = c:ellipse(120, 14.5, 7.5, 4.5)
+sign:add(c:poly({ { 113, 13 }, { 114, 8 }, { 118, 11 } })):add(c:poly({ { 122, 11 }, { 126, 8 }, { 128, 13 } }))
+c:part(sign, GOLD, { gloss = { 115, 12 }, cres = 2, deep = 1 })
+c:fill(c:rect(115, 10, 115, 11), "#c47a52"); c:fill(c:rect(125, 10, 125, 11), "#c47a52")   -- inner ears
+c:fill(c:rect(116, 14, 117, 15), "#4a2c1a"); c:fill(c:rect(123, 14, 124, 15), "#4a2c1a")    -- eyes
+c:px(120, 16, "#e46a9b")                                                                   -- nose
+c:fill(c:rect(110, 15, 112, 15), "#8a4f2a"); c:fill(c:rect(128, 15, 130, 15), "#8a4f2a")    -- whiskers
+c:px(118, 17, "#8a4f2a"); c:px(119, 18, "#8a4f2a"); c:px(121, 18, "#8a4f2a"); c:px(122, 17, "#8a4f2a")
 
 -- striped awning: olive and cream, flaring out, scalloped hem
 local function awx(y) local t = (y - 20) / 8 return 85 - t * 4, 155 + t * 4 end
@@ -180,6 +178,10 @@ local arch = c:rect(121, 35, 139, 48):add(c:ellipse(130, 35, 9, 5):cut(c:rect(0,
 c:part(arch:grow(1), CREAM, { outline = false, gloss = false, flat = true })
 c:fill(arch, "#f5cf6a")
 c:fill(c:rect(121, 45, 139, 48):clip(arch), "#e8a317")
+c:fill(c:rect(131, 41, 139, 44):clip(arch), "#e8a317")       -- counter inside
+c:fill(c:rect(131, 41, 139, 41):clip(arch), "#d9885a")
+c:fill(c:rect(133, 39, 136, 40), "#c47a52")                    -- cat bowl on the counter
+c:fill(c:rect(134, 38, 135, 38), "#8a4f2a")
 -- door leaf swung open to the left
 local leaf = c:poly({ { 121, 33 }, { 127, 35 }, { 127, 49 }, { 121, 49 } }):clip(arch)
 c:part(leaf, OLIVE, { outline = false, gloss = false })
@@ -193,9 +195,10 @@ local tail = c:line({ { 157, 48 }, { 159, 45 }, { 159, 42 } }, 2)
 local body = c:ellipse(151.5, 44.5, 4.5, 4)
 local head = c:ellipse(150.5, 37.5, 5.5, 4.5)
 local ears = c:poly({ { 145, 35 }, { 146, 30 }, { 149, 34 } }):add(c:poly({ { 152, 34 }, { 155, 30 }, { 156, 35 } }))
-c:part(tail, GOLD, { flat = true })
-c:part(body, CREAM, { gloss = false })
-c:part(ears:add(head), CREAM, { gloss = false })
+c:outline(tail:copy():add(body):add(head):add(ears))   -- one outline round the whole cat
+c:part(tail, GOLD, { flat = true, outline = false })
+c:part(body, CREAM, { gloss = false, outline = false })
+c:part(ears:add(head), CREAM, { gloss = false, outline = false })
 -- ginger patches: right ear + crown, and one on the flank
 c:fill(c:poly({ { 152, 34 }, { 155, 30 }, { 156, 35 } }):add(c:rect(151, 34, 154, 35)), "#e8a317")
 c:px(155, 34, "#d9885a"); c:px(155, 33, "#d9885a")
