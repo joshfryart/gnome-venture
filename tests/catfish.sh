@@ -2,7 +2,10 @@
 # Cat Fish (catfish.php, catfish_api.php, includes/catfish.php, profile box): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades (16 in 4 branches), naps and Yarn, Cat Book and badges, API guards, generator and shelter determinism, pure helpers.
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
 php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/catfish-php.log 2>&1 & PID=$!; sleep 1
-W=$(mktemp -d); trap "kill $PID 2>/dev/null; rm -rf $W" EXIT
+# the "no art" checks assume an empty art folder: move installed art aside for the run, restore it on exit
+CFART=$GAME/assets/img/catfish; CFHOLD=$GAME/assets/img/.catfish-held
+[ -d "$CFART" ] && [ ! -e "$CFHOLD" ] && mv "$CFART" "$CFHOLD"
+W=$(mktemp -d); trap "kill $PID 2>/dev/null; rm -rf $W; [ -d \"$CFHOLD\" ] && { rm -rf \"$CFART\"; mv \"$CFHOLD\" \"$CFART\"; }" EXIT
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 dbv() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query($argv[1])->fetchColumn();' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
