@@ -63,7 +63,7 @@ local A = { x = 18, y = 19, R = 10 }       -- back rosette (upper left)
 local B = { x = 43, y = 22, R = 11 }       -- front rosette (right)
 local outA, outB = pleats(A.x, A.y, A.R, 14), pleats(B.x, B.y, B.R, 16)
 local inA, inB = c:ellipse(A.x, A.y, 6), c:ellipse(B.x, B.y, 8)
-local btnA = c:ellipse(A.x, A.y, 3.5)
+local btnA = c:ellipse(A.x, A.y, 4)
 -- cat head button on B: round cream face plus two ears
 local head = c:ellipse(B.x, B.y + 1, 6, 5)
 head:add(c:poly({ { B.x - 6, B.y + 1 }, { B.x - 6, B.y - 7 }, { B.x - 1, B.y - 3 } }))

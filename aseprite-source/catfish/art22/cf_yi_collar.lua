@@ -81,9 +81,7 @@ c:paint({ "..s", ".s.", "s.." }, 21, 34, { s = PINK.shade })
 c:paint({ "..s", ".s.", "s.." }, 21, 39, { s = PINK.shade })
 c:paint({ "gg", "g." }, 9, 33, { g = PINK.gloss })
 c:px(14, 37, PINK.gloss)
--- swatches: two stitched felt squares, fanned
-c:seam({ { 43, 52 }, { 47, 52 } }, { gap = MINT.shade })
-c:seam({ { 53, 42 }, { 53, 45 } }, { gap = SKY.shade })
+-- swatches: two felt colour squares, fanned (no seam: a seam plus glint reads as a face)
 c:paint({ "gg", "g." }, 43, 48, { g = MINT.gloss })
 c:paint({ "gg", "g." }, 49, 42, { g = SKY.gloss })
 
