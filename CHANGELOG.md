@@ -7,6 +7,7 @@
 - **Pals along on My Gnome** (still behind `ppal_open` + `ppal_party`): a two-slot strip under the header with a picker (Take along / Send home).
 - **Easy roads** moved from My Gnome to Account (`account.php#easyroads`).
 - **Right rail:** a "Go to Today" box, first in the rail.
+- My Gnome content is centred.
 - **Build:** `tests/build_update.sh` makes the FULL and source zips only on milestone versions (x.y.0); pass `all` or `slim` as the 4th argument to force.
 
 ## 2.0.88
