@@ -11,7 +11,7 @@ Usage: python3 tools/catfish_build_art.py [--in DIR] [--out DIR] [--check] [--in
   --verify DIR   no build: run the checks on an existing folder (e.g. the installed one)
 
 What it does: copies the hand-drawn pieces (fish, rod, icons, upgrade icons, badges, ribbons, tile, banner, room and overlays, ear/tail masks,
-Cat Book unknown head, eye colour files) and runs tools/catfish_recolor.py for the cat frames (8 coats, grey is the template), patterns,
+Cat Book unknown head, eye colour files, the z and sparkle sprites, the window bird and yarn pieces; cf-room-window-nobird.png may be fully transparent) and runs tools/catfish_recolor.py for the cat frames (8 coats, grey is the template), patterns,
 folded ears, bobtail and the Cat Book heads. The eye-ring template is not shipped. Writes manifest.json (file, size, sha1, width, height) into --out.
 """
 import argparse, glob, hashlib, io, json, os, re, shutil, sys, tempfile
@@ -25,11 +25,18 @@ import catfish_recolor as R
 SRC = os.path.join(R.CF, 'test')
 DEST = os.path.join(ROOT, 'game', 'assets', 'img', 'catfish')
 BRIEF = os.path.join(ROOT, 'claude', 'catfish-art-brief.md')
-FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored']   # CATFISH_FRAMES in game/includes/catfish.php
-KEY_FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored']   # CATFISH_PATTERN_FRAMES: every frame has full overlays since b60b0cf7
+# Full frames: body, 5 patterns, folded ears + mask, bobtail + mask, eye files. The first 8 are CATFISH_FRAMES in game/includes/catfish.php (inline set); the next 8 are
+# CATFISH_FRAMES_EXTRA's full frames (swatA, swatB, jump, happy are animated since 2.1.05; yawn, stretch, washA, washB install now and animate in 2.1.06).
+FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored', 'swatA', 'swatB', 'jump', 'happy', 'yawn', 'stretch', 'washA', 'washB']
+KEY_FRAMES = list(FRAMES)   # every full frame has full overlays
+# Alias frames (aseprite-source/catfish/frames-alias-s*.json): only the layers they own exist; the rest is the base frame's file.
+ALIAS = {}
+for _f in sorted(glob.glob(os.path.join(R.CF, 'frames-alias-s*.json'))):
+    for _k, _v in json.load(open(_f)).items():
+        if isinstance(_v, dict) and _v.get('kind') == 'alias': ALIAS[_k] = _v
 EYES = sorted(R.EYES)
 COATS = list(R.COATS)
-HAND = ['cf-fish-[1-5].png', 'cf-rod.png', 'cf-ico-*.png', 'cf-up-*.png', 'cf-badge-*.png', 'cf-ribbon-*.png', 'cf-tile.png', 'cf-banner.png',
+HAND = ['cf-z.png', 'cf-sparkle-[1-3].png', 'cf-bird-[1-3].png', 'cf-yarn-[1-4].png', 'cf-fish-[1-5].png', 'cf-rod.png', 'cf-ico-*.png', 'cf-up-*.png', 'cf-badge-*.png', 'cf-ribbon-*.png', 'cf-tile.png', 'cf-banner.png',
         'cf-room.png', 'cf-room-*.png', 'cf-bookhead-unknown.png']
 # recolour passes: (glob in --in, what it makes)
 RECOLOR = ['cf-cat-grey-*.png', 'cf-pat-*-grey-*.png', 'cf-ears-folded-*.png', 'cf-tail-bobtail-*.png', 'cf-bookhead-grey.png', 'cf-eyes-[!r]*.png', 'cf-*-mask-*.png']
@@ -52,6 +59,13 @@ def expected():
     k = brief_keys(); e = {}
     for c in COATS:
         for f in FRAMES: e['cf-cat-%s-%s.png' % (c, f)] = (64, 64)
+        for f, a in ALIAS.items():
+            own = set(a['own'])
+            e['cf-cat-%s-%s.png' % (c, f)] = (64, 64)
+            for p in R.PATTERNS:
+                if 'pat-' + p in own: e['cf-pat-%s-%s-%s.png' % (p, c, f)] = (64, 64)
+            if 'ears-folded' in own: e['cf-ears-folded-%s-%s.png' % (c, f)] = (64, 64)
+            if 'tail-bobtail' in own: e['cf-tail-bobtail-%s-%s.png' % (c, f)] = (64, 64)
         for f in KEY_FRAMES:
             for p in R.PATTERNS: e['cf-pat-%s-%s-%s.png' % (p, c, f)] = (64, 64)
             e['cf-ears-folded-%s-%s.png' % (c, f)] = (64, 64)
@@ -59,8 +73,13 @@ def expected():
         e['cf-bookhead-%s.png' % c] = (32, 32)
     for f in KEY_FRAMES:
         e['cf-ears-mask-%s.png' % f] = (64, 64); e['cf-tail-mask-%s.png' % f] = (64, 64)
+    for f, a in ALIAS.items():
+        if 'ears-mask' in a['own']: e['cf-ears-mask-%s.png' % f] = (64, 64)
+        if 'tail-mask' in a['own']: e['cf-tail-mask-%s.png' % f] = (64, 64)
     for y in EYES:
         for f in FRAMES: e['cf-eyes-%s-%s.png' % (y, f)] = (64, 64)
+        for f, a in ALIAS.items():
+            if 'eyes' in a['own'] or 'eyes-' + y in a['own']: e['cf-eyes-%s-%s.png' % (y, f)] = (64, 64)
     for n in range(1, 6): e['cf-fish-%d.png' % n] = (48, 48)
     e['cf-rod.png'] = (48, 64)
     e['cf-ico-kibble.png'] = e['cf-ico-yarn.png'] = e['cf-bookhead-unknown.png'] = (32, 32)
@@ -69,14 +88,18 @@ def expected():
     for t in k['ribbon']: e['cf-ribbon-%s.png' % t] = (64, 64)
     e['cf-tile.png'] = (64, 64); e['cf-banner.png'] = (480, 120)
     e['cf-room.png'] = (320, 200)
-    for o in ('sunbeam', 'rug', 'scratch', 'window'): e['cf-room-%s.png' % o] = (320, 200)
+    for o in ('sunbeam', 'rug', 'scratch', 'window', 'window-nobird'): e['cf-room-%s.png' % o] = (320, 200)
+    e['cf-room-yarnpatch.png'] = (38, 20)
+    e['cf-z.png'] = (8, 8)
+    for n in range(1, 4): e['cf-sparkle-%d.png' % n] = (8, 8); e['cf-bird-%d.png' % n] = (12, 10)
+    for n in range(1, 5): e['cf-yarn-%d.png' % n] = (16, 16)
     return e
 
 
 def category(name):
     for p, c in (('cf-cat-', 'cat bodies'), ('cf-pat-', 'patterns'), ('cf-ears-mask', 'masks'), ('cf-tail-mask', 'masks'), ('cf-ears-folded', 'folded ears'),
                  ('cf-tail-bobtail', 'bobtails'), ('cf-eyes-', 'eyes'), ('cf-fish-', 'fish'), ('cf-rod', 'rod'), ('cf-ico-', 'icons'), ('cf-up-', 'upgrade icons'),
-                 ('cf-badge-', 'badges'), ('cf-ribbon-', 'ribbons'), ('cf-tile', 'tile'), ('cf-banner', 'banner'), ('cf-room', 'room'), ('cf-bookhead-', 'book heads')):
+                 ('cf-z', 'sprites'), ('cf-sparkle-', 'sprites'), ('cf-bird-', 'sprites'), ('cf-yarn-', 'sprites'), ('cf-badge-', 'badges'), ('cf-ribbon-', 'ribbons'), ('cf-tile', 'tile'), ('cf-banner', 'banner'), ('cf-room', 'room'), ('cf-bookhead-', 'book heads')):
         if name.startswith(p): return c
     return 'other'
 
@@ -94,7 +117,7 @@ def check_dir(d):
         if im.size != exp[f]: bad.append('%s: size %dx%d, want %dx%d' % (f, im.width, im.height, *exp[f]))
         a = np.array(im.convert('RGBA'))
         if any(v not in (0, 255) for v in np.unique(a[..., 3])): bad.append(f + ': semi-transparent pixels')
-        if not (a[..., 3] > 0).any() and not f.startswith('cf-eyes-'): bad.append(f + ': fully transparent')
+        if not (a[..., 3] > 0).any() and not f.startswith('cf-eyes-') and f != 'cf-room-window-nobird.png': bad.append(f + ': fully transparent')
         if (a[(a[..., 3] > 0)][:, :3] == [255, 0, 255]).all(-1).any(): bad.append(f + ': placeholder #ff00ff present')
     return bad
 

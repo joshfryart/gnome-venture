@@ -64,7 +64,9 @@ COMPOSE_MAXCOL = 28  # per composited cat
 # Odd-eyed split column per frame: the left eye is x < split, the right eye x >= split. This is the midpoint column between the
 # two eye clusters of aseprite-source/catfish/test/cf-eyes-ring-<frame>.png (see eye_split(); tests/catfish.sh recomputes it and
 # checks game/assets/catfish.css). Closed-eye frames (catch, nap) have no eye pixels, so they keep the old 25.
-EYE_SPLIT = {'idleA': 25, 'idleB': 26, 'wiggle': 40, 'stalk': 40, 'pounce': 41, 'catch': 25, 'nap': 25, 'bored': 24}
+# 2.1.05 frames (swatA, swatB, jump, stretch from the ring PNGs; happy, yawn, washA, washB have closed eyes and carry the split named in frames-alias-s3/s4.json; blink is an alias of idleA: 25).
+EYE_SPLIT = {'idleA': 25, 'idleB': 26, 'wiggle': 40, 'stalk': 40, 'pounce': 41, 'catch': 25, 'nap': 25, 'bored': 24,
+             'swatA': 23, 'swatB': 32, 'jump': 32, 'happy': 25, 'blink': 25, 'yawn': 25, 'stretch': 40, 'washA': 25, 'washB': 27}
 PATTERNS = ('tabby', 'tuxedo', 'calico', 'pointed', 'spotted')
 
 

@@ -42,7 +42,8 @@ for f in sorted(glob.glob(f'{i}/cf-pat-*-grey-*.png')):
         a, b = arr(f), arr(g); n += 1
         assert (a[..., 3] == b[..., 3]).all()
         if c == 'grey': assert (a == b).all()
-assert n == 5 * len(glob.glob(f"{i}/cf-pat-tabby-grey-*.png")) * 8, n   # patterns x drawn key frames x coats
+assert n == len(glob.glob(f"{i}/cf-pat-*-grey-*.png")) * 8, n   # every drawn pattern file x coats (alias frames only have the patterns they own)
+assert len(glob.glob(f"{i}/cf-pat-*-grey-*.png")) >= 5 * 16
 parts = sorted(glob.glob(f'{i}/cf-ears-folded-*.png') + glob.glob(f'{i}/cf-tail-bobtail-*.png'))
 assert len(parts) >= 8
 for f in parts:

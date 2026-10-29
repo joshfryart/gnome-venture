@@ -9,21 +9,29 @@ OUT=$(mktemp -d); trap 'rm -rf "$OUT" "$OUT.log" "$OUT.bad"; rm -rf tools/__pyca
 python3 tools/catfish_build_art.py --out "$OUT" --check | tee "$OUT.log"
 grep -q 'check: ok' "$OUT.log" || { echo "FAIL: --check did not pass"; exit 1; }
 N=$(ls "$OUT"/cf-*.png | wc -l)
-[ "$N" = 614 ] || { echo "FAIL: expected 614 files, got $N"; exit 1; }
-grep -q 'built 614 files' "$OUT.log" || { echo "FAIL: build count line"; exit 1; }
+[ "$N" = 1281 ] || { echo "FAIL: expected 1281 files, got $N"; exit 1; }
+grep -q 'built 1281 files' "$OUT.log" || { echo "FAIL: build count line"; exit 1; }
 [ -f "$OUT/manifest.json" ] || { echo "FAIL: no manifest.json"; exit 1; }
 python3 -I - "$OUT" <<'P'
 import sys, json, hashlib, os, re
 o = sys.argv[1]
 m = json.load(open(o + '/manifest.json'))
-assert m['count'] == 614 == len(m['files'])
+assert m['count'] == 1281 == len(m['files'])
 for r in m['files']:
     b = open(o + '/' + r['file'], 'rb').read()
     assert r['size'] == len(b) and r['sha1'] == hashlib.sha1(b).hexdigest(), r['file']
 names = {r['file'] for r in m['files']}
 for need in ('cf-cat-lilac-idleA.png', 'cf-bookhead-lilac.png', 'cf-bookhead-unknown.png', 'cf-room-window.png', 'cf-eyes-hazel-bored.png', 'cf-pat-calico-silver-blue-stalk.png',
-             'cf-ears-folded-orange-nap.png', 'cf-tail-bobtail-black-catch.png', 'cf-up-catflap.png', 'cf-badge-book_full.png', 'cf-ribbon-part.png', 'cf-banner.png', 'cf-tile.png'):
+             'cf-ears-folded-orange-nap.png', 'cf-tail-bobtail-black-catch.png', 'cf-up-catflap.png', 'cf-badge-book_full.png', 'cf-ribbon-part.png', 'cf-banner.png', 'cf-tile.png',
+             'cf-cat-lilac-swatA.png', 'cf-pat-calico-orange-happy.png', 'cf-ears-folded-black-washB.png', 'cf-tail-bobtail-white-yawn.png', 'cf-eyes-blue-stretch.png', 'cf-ears-mask-jump.png',
+             'cf-cat-grey-blink.png', 'cf-eyes-amber-blink.png', 'cf-pat-tabby-brown-tailflick.png', 'cf-tail-bobtail-cream-tailflick.png', 'cf-tail-mask-tailflick.png',
+             'cf-pat-calico-lilac-eartwitch.png', 'cf-ears-folded-orange-eartwitch.png', 'cf-ears-mask-eartwitch.png', 'cf-z.png', 'cf-sparkle-1.png', 'cf-sparkle-3.png',
+             'cf-bird-2.png', 'cf-yarn-4.png', 'cf-room-yarnpatch.png', 'cf-room-window-nobird.png'):
     assert need in names, need
+# alias frames carry only the layers they own (frames-alias-s2/s3.json): no tuxedo/calico on tailflick, no folded ears on tailflick, no pattern on blink, no ears on blink
+for no in ('cf-pat-tuxedo-black-tailflick.png', 'cf-pat-calico-black-tailflick.png', 'cf-ears-folded-black-tailflick.png', 'cf-pat-tabby-black-blink.png', 'cf-tail-bobtail-black-blink.png',
+           'cf-pat-spotted-black-eartwitch.png', 'cf-tail-bobtail-black-eartwitch.png', 'cf-eyes-amber-tailflick.png', 'cf-eyes-amber-eartwitch.png'):
+    assert no not in names, no
 assert not any(n.startswith('cf-eyes-ring') or 'ginger-red' in n for n in names), 'template ring or old coat shipped'
 # the tool's key lists match the game's upgrade keys
 import subprocess
@@ -47,7 +55,7 @@ bad "a wrong size" 'python3 -c "from PIL import Image; Image.new(\"RGBA\",(40,40
 bad "a semi-transparent pixel" 'python3 -c "from PIL import Image; im=Image.open(\"cf-ico-yarn.png\").convert(\"RGBA\"); im.putpixel((16,16),(200,10,10,128)); im.save(\"cf-ico-yarn.png\")"' 'cf-ico-yarn.png: semi-transparent'
 # --install is the only way into game/: the default run leaves game/assets/img/catfish alone, and --install DIR writes where it is told
 [ "$(ls game/assets/img/catfish 2>/dev/null | wc -l)" = "$G0" ] && [ "$(ls -l game/assets/img/catfish 2>/dev/null | md5sum)" = "$GH0" ] || { echo "FAIL: game/assets/img/catfish changed after a plain build"; exit 1; }
-I=$(mktemp -d); python3 tools/catfish_build_art.py --install "$I" | tail -1 | grep -q 'installed 614 files' || { echo "FAIL: --install DIR"; rm -rf "$I"; exit 1; }
-[ "$(ls $I | wc -l)" = 614 ] || { echo "FAIL: installed file count"; rm -rf "$I"; exit 1; }
+I=$(mktemp -d); python3 tools/catfish_build_art.py --install "$I" | tail -1 | grep -q 'installed 1281 files' || { echo "FAIL: --install DIR"; rm -rf "$I"; exit 1; }
+[ "$(ls $I | wc -l)" = 1281 ] || { echo "FAIL: installed file count"; rm -rf "$I"; exit 1; }
 rm -rf "$I" tools/__pycache__
 echo "catfish_build_art: ok"
