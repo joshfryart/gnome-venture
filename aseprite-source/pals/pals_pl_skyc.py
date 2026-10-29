@@ -165,12 +165,12 @@ def trailpack_cubbie():
     st = Sticker()
     head = disc(30, 27, 13)
     ears = disc(19, 16, 4.2) | disc(41, 16, 4.2)
-    belly = ellipse(30, 41, 12, 7)
-    tab = knob('s', 'keyhole', 30, 47, r=2.6)
+    belly = ellipse(30, 40, 12, 6)
+    tab = knob('s', 'keyhole', 30, 45, r=2.6)
     body = head | ears | belly | tab
     st.part(body, tex=fill(key, body, 14, 12, 36, list(CUB)), contour=True)
     st.paint(disc(19, 16, 2) | disc(41, 16, 2), '#d49a78')
-    pack = rect(42, 33, 50, 45) & ~disc(42, 33, 1) & ~disc(50, 33, 1)
+    pack = rect(42, 32, 50, 44) & ~disc(42, 33, 1) & ~disc(50, 33, 1)
     st.part(pack, PACK[0], d=1, contour=True)
     st.paint(rect(43, 38, 49, 38), PACK[1])
     st.paint(line([(22, 36), (42, 34)], w=2) & belly, PACK[0])
@@ -181,9 +181,9 @@ def trailpack_cubbie():
     st.eye(35, 22, look=(1, -1))
     st.mouth('grin', 27, 33)
     st.paint(rect(17, 29, 19, 29) | rect(40, 29, 42, 29), BLUSH)
-    cloud(st, 54, 18, w=4)
+    cloud(st, 51, 19, w=4)
     st.sparkle(9, 9)
-    st.sparkle(53, 8, big=False)
+    st.sparkle(51, 9, big=False)
     st.sparkle(12, 44, big=False)
     return key, st
 
