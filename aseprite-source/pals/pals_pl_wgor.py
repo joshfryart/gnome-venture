@@ -53,7 +53,6 @@ def wink(st, x, y):
 
 
 def stern_eye(st, x, y, side):
-    brow = ['UUUU.', '.UUUU'] if side < 0 else ['.UUUU', 'UUUU.']
     brow = ['UUU..', '..UUU'] if side < 0 else ['..UUU', 'UUU..']
     st.sprite(brow, x, y, {'U': UMBER}, solid=False)
     st.sprite(['.WW.', 'WUUW', '.WW.'], x, y + 3, {'U': UMBER, 'W': CREAM}, solid=False)
@@ -75,14 +74,14 @@ def fruit(st, x, y, col, r=2.0):
 def marmalade_treetop():
     key = 'pl-wgor-1'
     st = Sticker()
-    core = (12, 20, 46, 53)
+    core = (12, 22, 46, 53)
     body, holes = piece_blanks(core, s='F', w='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 2, 3.6))
-    crown = disc(22, 16, 7) | disc(31, 12, 8) | disc(40, 16, 7) | rect(16, 16, 44, 22)
+    crown = disc(22, 17, 6) | disc(31, 14, 7) | disc(40, 17, 6) | rect(16, 17, 44, 23)
     st.part(crown, LEAF[0], d=1, contour=True)
-    st.paint(disc(31, 10, 4) | disc(22, 14, 3), LEAF[1])
+    st.paint(disc(31, 12, 3.5) | disc(22, 15, 2.5), LEAF[1])
     st.part(body, tex=fill(key, body, 12, 12, 42, list(MARM)), contour=True)
     st.blank_shade(body, holes, width=1)
-    for x, y in ((19, 14), (27, 9), (35, 12), (41, 17), (25, 18)):
+    for x, y in ((19, 16), (27, 11), (35, 13), (41, 18), (25, 19)):
         fruit(st, x, y, ORANGE[0], 1.6)
     st.part(rect(27, 48, 33, 53), '#6a4428', d=0, contour=False, shade=False)
     st.eye(18, 29)
@@ -178,24 +177,24 @@ def orange_offering():
 def frowny_silverback():
     key = 'pl-wgor-6'
     st = Sticker()
-    torso = ellipse(32, 39, 17, 13)
-    head = ellipse(32, 18, 10, 9) | ellipse(32, 11, 6, 4)
-    arms = disc(14, 45, 5) | disc(50, 45, 5)
-    tab = knob('n', 'keyhole', 32, 6, r=3.0) & ~head
-    sil = torso | head | arms
+    torso = ellipse(32, 39, 16, 12)
+    head = ellipse(32, 19, 9, 8) | ellipse(32, 13, 5, 3)
+    arms = disc(15, 45, 4.5) | disc(49, 45, 4.5)
+    tab = knob('s', 'keyhole', 32, 47, r=3.0)
+    sil = torso | head | arms | tab
     st.part(sil, tex=fill(key, sil, 9, 4, 50, list(SLATE)), contour=True)
     st.paint(ellipse(32, 30, 13, 3) & torso, SILVER[0])
     st.paint(ellipse(32, 29, 10, 1.5) & torso, SILVER[1])
     st.paint(ellipse(32, 42, 9, 7), SLATE[1])
-    st.part(ellipse(32, 21, 7, 5), FACE[0], d=1, contour=True)
-    st.paint(rect(24, 14, 40, 15), '#26262c')
-    stern_eye(st, 25, 14, -1)
-    stern_eye(st, 35, 14, 1)
-    st.dots([(30, 20), (33, 20)], UMBER)
-    st.mouth('flat', 30, 23)
-    st.paint(rect(23, 21, 24, 21) | rect(39, 21, 40, 21), BLUSH)
-    fruit(st, 50, 40, ORANGE[0], 3.2)
-    st.part(ellipse(52, 36.5, 2, 1), LEAF[1], d=0, contour=True, shade=False)
+    st.part(ellipse(32, 22, 7, 5), FACE[0], d=1, contour=True)
+    st.paint(rect(24, 15, 40, 16), '#26262c')
+    stern_eye(st, 25, 15, -1)
+    stern_eye(st, 35, 15, 1)
+    st.dots([(30, 22), (33, 22)], UMBER)
+    st.mouth('flat', 30, 25)
+    st.paint(rect(24, 23, 25, 23) | rect(38, 23, 39, 23), BLUSH)
+    fruit(st, 49, 41, ORANGE[0], 3.0)
+    st.part(ellipse(51, 37.5, 2, 1), LEAF[1], d=0, contour=True, shade=False)
     st.sparkle(8, 10)
     st.sparkle(54, 10, big=False)
     st.sparkle(9, 54, big=False)

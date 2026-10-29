@@ -116,18 +116,18 @@ def ribboned_gift():
 def mycelium_twinkles():
     key = 'pl-wfri-3'
     st = Sticker()
-    core = (14, 14, 49, 46)
+    core = (15, 14, 48, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', -5, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 5, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 14, 15, 36, list(SOIL)), contour=True)
+    st.part(body, tex=fill(key, body, 15, 14, 34, list(SOIL)), contour=True)
     st.blank_shade(body, holes, width=1)
     thr = line([(16, 44), (21, 40), (26, 43), (31, 39), (36, 42), (41, 38), (46, 41)])
     thr |= line([(26, 43), (24, 48)]) | line([(36, 42), (38, 47)])
     st.paint(thr & body, GOLDT[0])
-    wave = line([(46, 41), (49, 35), (50, 31)], w=2)                  # one thread waving hello out the side
+    wave = line([(45, 41), (48, 35), (49, 31)], w=2)                  # one thread waving hello out the side
     st.part(wave, GOLDT[0], d=0, contour=True, shade=False)
-    st.paint(disc(50.5, 29.5, 1.7), GOLDT[1], solid=True)
-    for x, y in ((20, 46), (33, 45), (44, 46), (9, 12), (55, 54)):
+    st.paint(disc(49.5, 29.5, 1.7), GOLDT[1], solid=True)
+    for x, y in ((20, 46), (33, 45), (44, 46), (10, 12), (51, 53)):
         twinkle(st, x, y)
     wink(st, 21, 26)
     st.eye(35, 25, look=(1, 0))

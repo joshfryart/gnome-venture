@@ -58,7 +58,7 @@ def dot_eye(st, x, y):
 
 def bead(st, x, y):
     st.part(ellipse(x, y, 2.2, 2.6), LANT[0], d=1, contour=True)
-    st.dots([(x, y)], GLOW[0])
+    st.paint(ellipse(x, y, 0.8, 1.0), GLOW[0])
 
 
 # ------------------------------------------------------------------ 1. Upturned Pagoda Eaves: corner-TB keyhole, common.
@@ -102,18 +102,18 @@ def butter_moonlet():
 def lollipop_tree():
     key = 'pl-wlfe-3'
     st = Sticker()
-    core = (14, 12, 49, 43)
+    core = (14, 16, 49, 43)
     trunk = rect(29, 43, 34, 54)
     st.part(trunk, TRUNK, d=0, contour=True, shade=False)
     body, holes = piece_blanks(core, n=('T', 'keyhole', -5, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 5, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 14, 4, 36, list(LEAF)), contour=True)
+    st.part(body, tex=fill(key, body, 14, 8, 36, list(LEAF)), contour=True)
     st.blank_shade(body, holes, width=1)
-    for x, y in ((19, 16), (42, 17), (24, 38), (44, 36), (36, 14)):
+    for x, y in ((19, 20), (42, 21), (24, 39), (44, 38), (36, 18)):
         st.paint(disc(x, y, 1.3) & body, GLOW[0])
-    happy_eye(st, 20, 23)
-    happy_eye(st, 36, 23)
-    st.mouth('o', 30, 30)
+    happy_eye(st, 20, 26)
+    happy_eye(st, 36, 26)
+    st.mouth("o", 30, 33)
     return key, st
 
 
@@ -129,10 +129,10 @@ def bridge_beads():
     for x in (23, 40):
         st.paint(rect(x, 23, x, 25), '#4a4a54')
         bead(st, x, 28)
-    bead(st, 31.5, 8)
-    bead(st, 31.5, 56)
-    bead(st, 8, 31.5)
-    bead(st, 55, 31.5)
+    bead(st, 31.5, 11)
+    bead(st, 31.5, 52)
+    bead(st, 11, 31.5)
+    bead(st, 52, 31.5)
     st.eye(24, 33, look=(0, -1))
     st.eye(36, 33, look=(0, -1))
     st.mouth('cat', 29, 40)
@@ -167,7 +167,7 @@ def roundbelly_lanternling():
 def candle_boat_pilot():
     key = 'pl-wlfe-6'
     st = Sticker()
-    boat = rect(12, 46, 50, 49) | rect(15, 50, 47, 52) | rect(9, 43, 12, 46) | rect(50, 43, 53, 46)
+    boat = rect(12, 46, 50, 49) | rect(15, 50, 47, 52) | rect(11, 43, 12, 46) | rect(50, 43, 51, 46)
     st.part(boat, TRUNK, d=0, contour=True, shade=False)
     lan = ellipse(31, 30, 13, 14)
     tab = knob('e', 'keyhole', 44, 30, r=3.0)
@@ -183,8 +183,8 @@ def candle_boat_pilot():
     st.paint(rect(21, 29, 23, 29) | rect(39, 29, 41, 29), BLUSH)
     st.mouth('smile', 29, 30)
     st.sparkle(6, 8)
-    st.sparkle(52, 10, big=False)
-    st.sparkle(54, 54, big=False)
+    st.sparkle(50, 10, big=False)
+    st.sparkle(52, 54, big=False)
     return key, st
 
 

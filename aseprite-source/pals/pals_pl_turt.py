@@ -124,19 +124,19 @@ def crescent(st, cx, cy, r):
 def moonlit_beam():
     key = 'pl-turt-1'
     st = Sticker()
-    core = (12, 12, 45, 45)
+    core = (12, 17, 43, 46)
     body, holes = piece_blanks(core, n=('T', 'round', 0, 3.6), e=('B', 'round', 0, 3.0))
-    body = body & ~(rect(0, 29, 28, 63) & ~disc(28.5, 28.5, 17))      # moon-round lower-left belly
-    st.part(body, tex=fill(key, body, 12, 10, 36, list(MOON)), contour=True)
+    body = body & ~(rect(0, 32, 27, 63) & ~disc(27.5, 31.5, 15))      # moon-round lower-left belly
+    st.part(body, tex=fill(key, body, 12, 13, 34, list(MOON)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#c09a3a', skip=grow(holes, 3))
-    for cx, cy, r in ((36, 20, 2.2), (18, 40, 1.8), (38, 40, 1.5)):
+    for cx, cy, r in ((35, 24, 2.2), (19, 41, 1.6), (36, 41, 1.5)):
         st.paint(disc(cx, cy, r), '#d8a840')
-    beams(st, 22, 42)
-    st.sprite(['UUUUU'], 17, 28, {'U': UMBER}, solid=False)
-    st.sprite(['UUUUU'], 31, 28, {'U': UMBER}, solid=False)
-    st.paint(rect(15, 33, 17, 33) | rect(38, 33, 40, 33), BLUSH)
-    st.mouth('cat', 25, 33)
+    beams(st, 25, 44)
+    st.sprite(['UUUUU'], 17, 31, {'U': UMBER}, solid=False)
+    st.sprite(['UUUUU'], 30, 31, {'U': UMBER}, solid=False)
+    st.paint(rect(15, 35, 17, 35) | rect(37, 35, 39, 35), BLUSH)
+    st.mouth('cat', 24, 35)
     return key, st
 
 
