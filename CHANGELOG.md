@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.01
+- **Journey:** the chapter-complete notice now names the next chapter in story order (what Wren's letter says), not the first chapter you had not started yet.
+
 ## 2.1.00
 - **Cat Fish art** (ON by default now: `catfish_open` default is On; existing sites flip on once at upgrade; admins can turn it Off in Admin > Settings). Hand-drawn Stitched Toy art, 440 PNGs under `assets/img/catfish` (emoji fallback stays for anything missing): 8 coats x 5 patterns, eyes, folded ears, bobtails, the room and its overlays, fish, rod, upgrade icons, badges, ribbons, banner, shelter tile and Cat Book heads.
 - **Layered cat renderer** (`catfish_cat_html`): body, pattern, ears, tail and eyes are stacked layers, so any seeded cat is drawn from the art set. Lilac coat art added; odd-eye cats split their eyes.
