@@ -21,7 +21,7 @@ const ROAD_STEPS = 3;   // spaces on each stretch of road
 const ROADS_ALMANAC = "🛣️ [b]Roads[/b] run between the towns of neighbouring regions. Each road passes three villages, "
     . "and roads are gentle. Next to home (a town, a haven, a village with your garden) what you meet matches your own level; "
     . "further along it sits at the level of the region the road leads into, and nothing too big.\n\n"
-    . "🌱 [b]Easy roads[/b] (on My Gnome, on for new gnomes) keep everything next to home a few levels below you, with no legendary creatures. Switch it off whenever you want a real fight.\n\n"
+    . "🌱 [b]Easy roads[/b] (in Account, on for new gnomes) keep everything next to home a few levels below you, with no legendary creatures. Switch it off whenever you want a real fight.\n\n"
     . "💨 A road that is far below your level is a [b]quick walk[/b]: it takes half the time.\n\n"
     . "🌿 [b]Off the path[/b]: from any town or road village you can wander off into the wild mycelium. "
     . "Each step out costs 1 energy and gets harder: [b]medium[/b] for the first two steps, [b]hard[/b] for the next two, then [b]wild[/b], "

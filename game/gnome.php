@@ -13,9 +13,6 @@ if (is_post()) {
     if ($do === 'stat') {
         [$ok, $msg] = spend_stat_point($u, (string)($_POST['stat'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
-    } elseif ($do === 'easy_roads') {   // v0.9.7
-        q('UPDATE users SET easy_roads = ? WHERE id = ?', [empty($_POST['easy_roads']) ? 0 : 1, $u['id']]);
-        flash(empty($_POST['easy_roads']) ? 'Easy roads are off: roads next to home match your level and can be tough.' : 'Easy roads are on: roads next to home stay a few levels below you, with no legendary creatures.', 'ok');
     } elseif ($do === 'calling') {
         [$ok, $msg] = choose_calling($u, (string)($_POST['calling'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
@@ -81,14 +78,6 @@ $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, 
   <?php else: ?><p class="muted">Nothing yet. Eat or drink something from your <a href="<?= e(url('inventory.php?cat=food')) ?>">satchel</a>.</p><?php endif; ?>
   <p class="help">The first taste of a rare crop can raise a stat for good. Newest first.</p>
 </details>
-
-<div class="box" id="easyroads">
-  <h2>🛣️ Easy roads</h2>
-  <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="easy_roads">
-    <label class="check"><input type="checkbox" name="easy_roads" value="1" <?= easy_roads_on($u) ? 'checked' : '' ?>> Keep the roads next to home easy</label> <button class="btn small">Save</button>
-  </form>
-  <p class="help"><?= easy_roads_on($u) ? 'On: on the roads next to your home, towns and gardens, creatures stay at most ' . (int)setting('easy_roads_gap') . ' levels below you (level ' . easy_road_cap($u) . ' or lower) and legendary creatures stay away.' : 'Off: on the roads next to your home, towns and gardens, creatures match your level (level ' . max(1, (int)$u['level']) . '), and the ones you meet can be tough.' ?> Roads further out and off the path are not changed.</p>
-</div>
 
 <div class="box">
   <h2>Stats</h2>
