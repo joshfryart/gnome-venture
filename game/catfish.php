@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/catfish.php';
+require_once __DIR__ . '/includes/jobs.php';   // job_period_left(): the same daily and weekly clocks as the rest of the game
 $u = require_login();
 if (!catfish_open()) { flash('Cat Fish is coming soon.', 'err'); redirect('games.php'); }
 if (!empty($u['guest'])) { flash('Guests can look around, but making your own gnome is needed to keep a cat.', 'err'); redirect('games.php'); }
@@ -35,7 +36,7 @@ $st = catfish_state($uid); $meta = $st['meta'];
 $cats = catfish_cats($uid);
 $cat = $v['cat'];
 $shelter = catfish_shelter_now($uid, $meta);
-$rolls = array_replace([0, 0, 0], ($meta['roll']['day'] ?? '') === gmdate('Y-m-d') ? (array)($meta['roll']['n'] ?? []) : []);
+$rolls = array_replace([0, 0, 0], ($meta['roll']['day'] ?? '') === catfish_today() ? (array)($meta['roll']['n'] ?? []) : []);
 $slots = catfish_slots($uid, $st); $owned = count($cats); $room = $owned < $slots;
 $adoptCost = catfish_adopt_cost($owned);
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
@@ -81,7 +82,7 @@ page_header('Cat Fish');
 
 <?php if ($room || !$cat): foreach ($shelter as $sc) catfish_book_add($uid, $sc['pattern'], $sc['colour'], 0); ?>
 <h2>🏠 Shelter</h2>
-<p class="help"><?= $adoptCost === 0 ? 'Your first cat is free.' : 'Taking another home costs ' . number_format($adoptCost) . ' Kibble.' ?> New cats arrive at the daily reset.</p>
+<p class="help"><?= $adoptCost === 0 ? 'Your first cat is free.' : 'Taking another home costs ' . number_format($adoptCost) . ' Kibble.' ?> New cats arrive in <?= nice_time(job_period_left('daily')) ?>.</p>
 <div class="cflist">
 <?php foreach ($shelter as $s): $has = in_array($s['seed'], array_column($cats, 'seed'), true); ?>
   <form method="post" class="cfshelf">
@@ -110,7 +111,7 @@ $extra = (int)($meta['extra'] ?? 0); $rareLvl = (int)($meta['rare'] ?? 0); ?>
 </details>
 <?php
 $reached = catfish_milestones_reached($uid, $st); $done = (array)($meta['ms'] ?? []);
-$week = gmdate('o-\WW'); $paidWk = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0; $capWk = (int)setting('catfish_petal_cap');
+$week = catfish_week(); $paidWk = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0; $capWk = (int)setting('catfish_petal_cap');
 if ($capWk > 0): ?>
 <details class="fold box"><summary>🌸 Milestones · <?= number_format($paidWk) ?> of <?= number_format($capWk) ?> Petals this week</summary>
   <p class="help">Each milestone pays Petals once. At most <?= number_format($capWk) ?> a week, so a milestone that does not fit waits for next week.</p>
@@ -125,7 +126,7 @@ if ($capWk > 0): ?>
 <?php if ($owned > 0): $week = catfish_show_week(); $theme = catfish_show_theme($week); $entry = $meta['show'] ?? null; $entered = is_array($entry) && ($entry['week'] ?? '') === $week ? $entry : null; $myRibbons = catfish_ribbons($uid, 6);
 ?>
 <details class="fold box"><summary>🎀 Cat Show · <?= e($theme['label']) ?></summary>
-  <p class="help">A new show every week (Monday to Sunday). Enter one cat. Three judges look at it when the week ends; a cat that fits the theme and a rarer cat score higher. Kibble and Yarn do not count. Prizes are ribbons on your profile.</p>
+  <p class="help">A new show every week (Monday to Sunday, <?= e(setting('game_timezone') ?: 'America/Halifax') ?> time). This one is judged in <?= nice_time(job_period_left('weekly')) ?>. Enter one cat. Three judges look at it when the week ends; a cat that fits the theme and a rarer cat score higher. Kibble and Yarn do not count. Prizes are ribbons on your profile.</p>
   <?php if ($entered): foreach ($cats as $c) if ($c['id'] === (int)$entered['cat']): ?><p>Entered: <b><?= e($c['name']) ?></b><?= ($c[$theme['trait']] ?? '') === $theme['value'] ? ' (fits the theme!)' : '' ?></p><?php endif; endif; ?>
   <form method="post" class="cfshowform"><?= csrf_field() ?><input type="hidden" name="do" value="show">
     <label for="cf-showcat">Cat</label>

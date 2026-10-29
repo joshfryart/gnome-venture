@@ -17,7 +17,7 @@ cfpost() { curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/catfish.
 # the API allows 10 calls an hour per gnome (rate_limited in catfish_api.php); the suite clears that counter between groups of calls
 cfreset() { dbx "DELETE FROM login_attempts WHERE username LIKE 'cfapi:%'"; }
 # shelter seeds for a gnome on a fixed day
-shelter() { php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; echo json_encode(array_column(catfish_shelter((int)$argv[2], "2026-10-29"), "seed"));' "$GAME/includes/catfish.php" "$1"; }
+shelter() { php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1]; echo json_encode(array_column(catfish_shelter((int)$argv[2], "2026-10-29"), "seed"));' "$GAME/includes/catfish.php" "$1"; }
 
 login $W/a admin TestPassword123
 login $W/p sprout 'TestPass123!'
@@ -44,7 +44,7 @@ ok "adopt slot 0 (first cat is free): redirect" "$(cfpost -d do=adopt -d slot=0 
 ok "adopt slot 0: one cat in the database" "$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")" 1
 ok "adopt slot 0: active cat set" "$(dbv "SELECT CASE WHEN active_cat_id IS NULL THEN 'n' ELSE 'y' END FROM catfish_state WHERE user_id=$UID_")" y
 ok "adopt slot 0: named Biscuit2" "$(dbv "SELECT name FROM cats WHERE user_id=$UID_")" Biscuit2
-ok "adopt slot 0: the cat is the shelter's slot 0" "$(dbv "SELECT seed FROM cats WHERE user_id=$UID_")" "$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; echo catfish_shelter((int)$argv[2])[0]["seed"];' "$GAME/includes/catfish.php" "$UID_")"
+ok "adopt slot 0: the cat is the shelter's slot 0" "$(dbv "SELECT seed FROM cats WHERE user_id=$UID_")" "$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1]; echo catfish_shelter((int)$argv[2])[0]["seed"];' "$GAME/includes/catfish.php" "$UID_")"
 cfpost -d do=adopt -d slot=0 --data-urlencode name=Again >/dev/null
 ok "adopt the same cat again is refused (still one row)" "$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")" 1
 dbx "UPDATE catfish_state SET kibble=0 WHERE user_id=$UID_"
@@ -52,7 +52,7 @@ cfpost -d do=adopt -d slot=1 --data-urlencode name=Second >/dev/null
 ok "adopt slot 1 with 0 Kibble is refused (still one row)" "$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")" 1
 
 # Cat Book: the adopted cat's pattern and colour go in the book, and the page shows it (derived, nothing else stored)
-read PC CC <<< "$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; $c = catfish_cat((int)$argv[2]); echo $c["pattern"], " ", $c["colour"];' "$GAME/includes/catfish.php" "$(dbv "SELECT seed FROM cats WHERE user_id=$UID_")")"
+read PC CC <<< "$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1]; $c = catfish_cat((int)$argv[2]); echo $c["pattern"], " ", $c["colour"];' "$GAME/includes/catfish.php" "$(dbv "SELECT seed FROM cats WHERE user_id=$UID_")")"
 ok "cat book: adopted cat's pattern and colour recorded" "$(dbv "SELECT COUNT(*) FROM cat_book WHERE user_id=$UID_ AND pattern='$PC' AND colour='$CC'")" 1
 curl -s -b $W/p $BASE/catfish.php > $W/c2.html
 ok "cat book: page shows the Cat Book" "$([ "$(grep -c 'Cat Book' $W/c2.html)" -ge 1 ] && echo y || echo n)" y
@@ -170,7 +170,7 @@ ok "profile: 'First adoption' badge" "$(echo "$PR" | grep -c 'First adoption')" 
 ok "profile: 'First nap' badge after the nap" "$(echo "$PR" | grep -c 'First nap')" 1
 
 # pure helpers, loaded without the game (stubs for is_admin and setting)
-PURE=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1];
+PURE=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1];
 $r = [];
 $r["rare_hit"] = catfish_rare_fish(600.0, 3600, 0.1);
 $r["rare_miss"] = catfish_rare_fish(600.0, 3600, 0.6);
@@ -204,7 +204,7 @@ PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
 ok "profile: no Cat Fish box while closed" "$(echo "$PR" | grep -c '🐱 Cat Fish</h3>')" 0
 
 # generator: same seed, same cat; rarity bands over 20000 random seeds
-GEN=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; mt_srand(7);
+GEN=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1]; mt_srand(7);
 $same = catfish_cat(12345) == catfish_cat(12345);
 $n = 20000; $r = [];
 for ($i = 0; $i < $n; $i++) { $c = catfish_cat(mt_rand()); $r[$c["rarity"]] = ($r[$c["rarity"]] ?? 0) + 1; }
@@ -237,7 +237,7 @@ pagew3() { curl -s -b $W/p $BASE/catfish.php > $W/w3.html; CS=$(csrf $W/w3.html)
 seed_of() { grep -o "name=\"slot\" value=\"$1\"><input type=\"hidden\" name=\"seed\" value=\"[0-9]*\"" "$2" | grep -o '[0-9]*"$' | tr -d '"'; }
 
 # pure: rolls and Rare Shelter (stubs for is_admin and setting, no database)
-PUREW3=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1];
+PUREW3=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1];
 $base = catfish_shelter(7, "2026-01-01"); $same = catfish_shelter(7, "2026-01-01", [], 0); $roll = catfish_shelter(7, "2026-01-01", [1,0,0], 0);
 $r0 = catfish_shelter(7, "2026-01-01", [], 0); $r2 = catfish_shelter(7, "2026-01-01", [], 2);
 echo json_encode($base) === json_encode($same) ? "y" : "n", "\n";
@@ -393,10 +393,11 @@ setg catfish_petal_cap 100
 # ---------- week 4: Cat Show (pure), entering, settling, profile and garden, Puzzle Pals bonus, festival ----------
 setg catfish_open 1; setg festivals_on 0; cfreset
 # pure: weeks, theme and judging (stubs for is_admin and setting, no database)
-PUR4=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1];
+PUR4=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1];
 echo "wk44=", catfish_show_week(strtotime("2026-10-26 12:00 UTC")), "\n";
-echo "wk44_end=", catfish_show_week(strtotime("2026-11-01 23:59 UTC")), "\n";
-echo "wk45_start=", catfish_show_week(strtotime("2026-11-02 00:00 UTC")), "\n";
+echo "wk44_end=", catfish_show_week(strtotime("2026-11-02 03:59 UTC")), "\n";
+echo "wk44_utc_midnight=", catfish_show_week(strtotime("2026-11-02 00:00 UTC")), "\n";
+echo "wk45_start=", catfish_show_week(strtotime("2026-11-02 04:00 UTC")), "\n";
 echo "wk53=", catfish_show_week(strtotime("2027-01-01 12:00 UTC")), "\n";
 $same = 0; $banned = 0;
 for ($w = 1; $w <= 53; $w++) { $wk = sprintf("2026-W%02d", $w); $a = catfish_show_theme($wk); if ($a === catfish_show_theme($wk)) $same++; if (in_array($a["value"], ["silver", "lilac", "odd", "spotted"], true)) $banned++; }
@@ -411,8 +412,9 @@ $n = $c; $n[$th["trait"]] = $o;
 echo "match_diff=", catfish_show_judge(7, "2026-W44", $m, $th)["score"] - catfish_show_judge(7, "2026-W44", $n, $th)["score"], "\n";' "$GAME/includes/catfish.php")
 pw4() { echo "$PUR4" | grep "^$1=" | cut -d= -f2-; }
 ok "show week: 2026-10-26 is 2026-W44" "$(pw4 wk44)" 2026-W44
-ok "show week: 2026-11-01 23:59 UTC is still 2026-W44" "$(pw4 wk44_end)" 2026-W44
-ok "show week: 2026-11-02 00:00 UTC is 2026-W45" "$(pw4 wk45_start)" 2026-W45
+ok "show week: Sunday 23:59 Halifax (2026-11-02 03:59 UTC) is still 2026-W44" "$(pw4 wk44_end)" 2026-W44
+ok "show week: Monday 00:00 UTC is still W44 in Halifax (the week turns at local midnight)" "$(pw4 wk44_utc_midnight)" 2026-W44
+ok "show week: Monday 00:00 Halifax (2026-11-02 04:00 UTC) is 2026-W45" "$(pw4 wk45_start)" 2026-W45
 ok "show week: 2027-01-01 is 2026-W53" "$(pw4 wk53)" 2026-W53
 ok "show theme: same week, same theme (all 53 weeks of 2026)" "$(pw4 theme_same)" 53
 ok "show theme: never silver, lilac, odd or spotted (2026-W01..W53)" "$(pw4 theme_banned)" 0
@@ -420,7 +422,7 @@ ok "show judge: same inputs, same result (no re-roll)" "$(pw4 judge_same)" y
 ok "show judge: matching cat scores exactly 12 more than the same cat off-theme" "$(pw4 match_diff)" 12
 
 # entering: owned cats (the gnome needs two; slots are opened with a bigger home first)
-WEEK=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; echo catfish_show_week();' "$GAME/includes/catfish.php")
+WEEK=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1]; echo catfish_show_week();' "$GAME/includes/catfish.php")
 # mset CODE: edits $m (the decoded meta) with CODE. eval is safe here: CODE is a literal written in this test, never player input.
 mset() { local n; n=$(php -r '$m=json_decode($argv[1],true); if(!is_array($m)) $m=[]; eval($argv[2]); echo json_encode($m);' "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_")" "$1"); dbx "UPDATE catfish_state SET meta='$n' WHERE user_id=$UID_"; }
 mshowv() { dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | jp "$1"; }
@@ -531,7 +533,7 @@ ok "festival on: the Cat Fish page loads" "$(curl -s -b $W/p -o /dev/null -w '%{
 setg festivals_on 0
 
 # ribbon tiers by score
-TIERS=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require "'$GAME'/includes/catfish.php"; foreach ([0,17,18,24,25,31,32,39,40,60] as $x) echo catfish_show_tier($x), " ";')
+TIERS=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require "'$GAME'/includes/catfish.php"; foreach ([0,17,18,24,25,31,32,39,40,60] as $x) echo catfish_show_tier($x), " ";')
 ok "ribbon tiers: 0 17 18 24 25 31 32 39 40 60" "$TIERS" "part part white white red red blue blue best best "
 
 # art swap: a real PNG replaces the emoji, and only for a safe name
@@ -542,6 +544,13 @@ mkdir -p $GAME/assets/img/catfish && cp $GAME/assets/img/icon-32.png $GAME/asset
 curl -s -b $W/p $BASE/games.php > $W/g.html
 ok "hub tile: cf-tile.png used when it exists" "$(grep -c 'img/catfish/cf-tile.png' $W/g.html)" 1
 rm -f $GAME/assets/img/catfish/cf-tile.png; rmdir $GAME/assets/img/catfish 2>/dev/null
+
+# one clock: Cat Fish days and weeks follow the Hollow time zone (America/Halifax), never UTC
+CLK=$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return (new DateTimeImmutable("@".($t??time())))->setTimezone(new DateTimeZone("America/Halifax"))->format($f);} require $argv[1];
+echo catfish_today(strtotime("2026-10-29 02:30 UTC")), " ", catfish_today(strtotime("2026-10-29 03:30 UTC")), " ", catfish_yesterday("2026-11-02"), " ", catfish_yesterday("2026-03-09"), " ", catfish_yesterday("2027-01-01");' "$GAME/includes/catfish.php")
+ok "clock: 23:30 Halifax on Oct 28 (02:30 UTC Oct 29) is still Oct 28; 00:30 Halifax is Oct 29; yesterday is plain calendar maths across DST and year ends" "$CLK" "2026-10-28 2026-10-29 2026-11-01 2026-03-08 2026-12-31"
+ok "clock: the only gmdate left in includes/catfish.php is the calendar arithmetic in catfish_yesterday" "$(grep -c 'gmdate' $GAME/includes/catfish.php)" 1
+ok "clock: catfish.php and catfish_api.php use no gmdate or UTC day maths" "$(grep -c 'gmdate\|% 86400' $GAME/catfish.php $GAME/catfish_api.php | awk -F: '{s+=$2} END{print s}')" 0
 
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

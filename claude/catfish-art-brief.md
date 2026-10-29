@@ -4,10 +4,10 @@ Style: **Stitched Toy** (Aseprite), see `claude/art-style-guide.md` Part D. Hard
 
 Today everything is a placeholder (emoji, CSS tint). Real art replaces it piece by piece. Nothing in the game blocks on art.
 
-## Decisions needed from Joshua first
-- [ ] **Cat eyes.** The locked eye rule (5 x 5 cream disc, 3 x 3 umber pupil) has no colour. Proposal: keep the disc and pupil, and tint a 1 px ring inside the disc with the eye colour (amber, green, blue, hazel). Odd-eyed = two different rings. OK, or a new rule?
-- [ ] **Colour by script.** Draw each cat piece once with a 4-tone indexed palette (shade, base, light, gloss) and generate the 8 coat colours with a palette-swap script (hue-shifted, not a plain darken). Patterns are generated per colour the same way. OK?
-- [ ] **Layered cat.** The page stacks transparent PNGs: body, pattern, ears, tail, eyes. Fine, or one flat PNG per cat (about 6000 combinations, so no)?
+## Decisions (Joshua, 2026-10-29: yes to all three)
+- [x] **Cat eyes:** keep the locked disc (5 x 5 cream, 3 x 3 umber pupil, glint) and tint a 1 px ring inside the disc with the eye colour (amber, green, blue, hazel). Odd-eyed = two different rings.
+- [x] **Colour by script:** draw each cat piece once with a 4-tone indexed palette (shade, base, light, gloss) and generate the 8 coat colours with a hue-shifted palette-swap script (`tools/catfish_recolor.py`). Patterns are generated per colour the same way.
+- [x] **Layered cat:** the page stacks transparent PNGs (body, pattern, ears, tail, eyes), never one flat PNG per cat.
 
 ## Drawn by hand (about 80)
 Canvas: 64 x 64 stickers and icons; small art 32 to 48; scenes about 100 px short side written at 2x.
@@ -63,6 +63,6 @@ Source `.aseprite` files go in `aseprite-source/catfish/`. Art fallback order in
 
 ## Code hooks
 - [x] `catfish_img()` serves `cf-up-*`, `cf-badge-*`, `cf-ribbon-*` and the tile when the PNG exists, otherwise the emoji (works today)
-- [ ] Layered cat renderer (body, pattern, ears, tail, eyes) once the cat PNGs exist
-- [ ] Palette-swap script `tools/catfish_recolor.py`
+- [ ] Layered cat renderer (body, pattern, ears, tail, eyes): approved, build once the first cat PNGs exist (or against placeholder layers)
+- [ ] Palette-swap script `tools/catfish_recolor.py`: approved, define the 4-tone indexed template first (Joshua's cat body drawing sets the indices)
 - [ ] Art contact sheet check at 412 px, light and dark

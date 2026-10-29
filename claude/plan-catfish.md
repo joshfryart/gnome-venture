@@ -70,8 +70,8 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] Art todo (`claude/catfish-art-brief.md`) + `catfish_img()` PNG-or-emoji helper
 - [x] Version 2.0.89, CHANGELOG, README line. Feature stays off for players (`catfish_open`)
 - [x] Tests (about 190 checks); security190, prog, events, puzzles, games2, garden100, puzzle_pals, jigsaw and upgrade_check from 2.0.88 pass (jigsaw failed once inside a long multi-suite run, passed on 3 reruns)
-- [x] Opus end review (verdict: ship once finding 1 fixed). Fixed: Pals table creation inside the tick lock (dropped ppal_ensure and the level query; bonus needs no gnome level), dead 'already judged' check, ribbon art on the game page, duplicate-column race, changelog count. Left: show week uses UTC like the shelter and Petal cap (README says Halifax midnight for game weeks; decide if the show should follow).
-- [ ] Real art, layered cat renderer, recolor script (needs Joshua's 3 decisions in the art brief)
+- [x] Opus end review (verdict: ship once finding 1 fixed). Fixed: Pals table creation inside the tick lock (dropped ppal_ensure and the level query; bonus needs no gnome level), dead 'already judged' check, ribbon art on the game page, duplicate-column race, changelog count. Time was then standardized in 2.0.93: shelter day, swaps, show week and Petal week all use the Hollow time zone (`hollow_date`).
+- [ ] Real art, layered cat renderer, recolor script (the 3 decisions in the art brief are approved)
 - Not done on purpose: release zips (build_update only on milestone releases)
 
 ## Rules

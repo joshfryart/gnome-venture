@@ -86,6 +86,24 @@ function catfish_img(string $name, string $fallback, string $alt = '', int $px =
     return '<img class="cfimg" src="' . e(url($file . '?v=' . APP_VERSION)) . '" alt="' . e($alt) . '" width="' . $px . '" height="' . $px . '">';
 }
 
+/** Today's date in the Hollow's time zone (setting game_timezone, America/Halifax). Every Cat Fish day and week turns over at its local midnight, like the rest of the game (jobs.php). */
+function catfish_today(?int $ts = null): string
+{
+    return hollow_date('Y-m-d', $ts);
+}
+
+/** The day before a 'Y-m-d' date (plain calendar arithmetic, so DST cannot skip or repeat a day). */
+function catfish_yesterday(?string $today = null): string
+{
+    return gmdate('Y-m-d', strtotime(($today ?? catfish_today()) . ' UTC') - 86400);
+}
+
+/** ISO week key like '2026-W44' in the Hollow's time zone (Monday to Sunday). The show, the Petal cap and job_period_key('weekly') all agree. */
+function catfish_week(?int $ts = null): string
+{
+    return hollow_date('o-\\WW', $ts);
+}
+
 /** Is Cat Fish open to this viewer? (Admins always; players need the catfish_open setting.) */
 function catfish_open(): bool
 {
@@ -185,13 +203,13 @@ function catfish_cat(int $seed): array
 }
 
 /**
- * The day's shelter for a gnome: CATFISH_SHELTER cats, each ['slot' => n] + catfish_cat(). $day is 'Y-m-d' (UTC).
+ * The day's shelter for a gnome: CATFISH_SHELTER cats, each ['slot' => n] + catfish_cat(). $day is 'Y-m-d' in the Hollow's time zone.
  * $rolls[slot] = rerolls bought today for that slot; $rare = Rare Shelter level (the best-scoring of 1 + $rare candidates is shown).
  * With no rolls and no Rare Shelter the seeds are the plain crc32(user|day|slot), so older shelters do not change.
  */
 function catfish_shelter(int $uid, ?string $day = null, array $rolls = [], int $rare = 0): array
 {
-    $day = $day ?? gmdate('Y-m-d');
+    $day = $day ?? catfish_today();
     $out = [];
     for ($slot = 0; $slot < CATFISH_SHELTER; $slot++) {
         $n = (int)($rolls[$slot] ?? 0); $best = null;
@@ -209,7 +227,7 @@ function catfish_shelter(int $uid, ?string $day = null, array $rolls = [], int $
 function catfish_shelter_now(int $uid, ?array $meta = null): array
 {
     $meta = $meta ?? catfish_state($uid)['meta'];
-    $today = gmdate('Y-m-d');
+    $today = catfish_today();
     $rolls = ($meta['roll']['day'] ?? '') === $today ? (array)($meta['roll']['n'] ?? []) : [];
     return catfish_shelter($uid, $today, $rolls, (int)($meta['rare'] ?? 0));
 }
@@ -408,9 +426,9 @@ function catfish_adopt(int $uid, int $slot, string $name, string $day = '', int 
         if ($owned >= catfish_slots($uid)) return [false, 'Your home is full.'];
         $cat = catfish_shelter_now($uid, $s['meta'])[$slot];
         if ($seed > 0 && $cat['seed'] !== $seed) {
-            // a form from before the UTC reset still adopts the cat it showed, but only in the first hour of the new day
-            if (time() % 86400 >= 3600) return [false, 'The shelter changed. Reload the page and try again.'];
-            $old = catfish_shelter($uid, gmdate('Y-m-d', time() - 86400), [], (int)($s['meta']['rare'] ?? 0))[$slot];
+            // a form from before midnight still adopts the cat it showed, but only in the first hour of the new day
+            if ((int)hollow_date('G') >= 1) return [false, 'The shelter changed. Reload the page and try again.'];
+            $old = catfish_shelter($uid, catfish_yesterday(), [], (int)($s['meta']['rare'] ?? 0))[$slot];
             if ($old['seed'] !== $seed) return [false, 'The shelter changed. Reload the page and try again.'];
             $cat = $old;
         }
@@ -458,7 +476,7 @@ function catfish_reroll(int $uid, int $slot): array
 {
     if ($slot < 0 || $slot >= CATFISH_SHELTER) return [false, 'No such cat.'];
     return catfish_yarn_spend($uid, function (&$meta) use ($slot) {
-        $today = gmdate('Y-m-d');
+        $today = catfish_today();
         $n = ($meta['roll']['day'] ?? '') === $today ? (array)($meta['roll']['n'] ?? []) : [];
         $n = array_replace([0, 0, 0], $n);
         if ($n[$slot] >= CATFISH_REROLL_MAX) return [false, 'That spot has had its swaps for today.'];
@@ -506,7 +524,7 @@ function catfish_claim_petals(int $uid): int
     if (is_array($seen) && count((array)($seen['ms'] ?? [])) >= count(CATFISH_MILESTONES_PETALS)) return 0;   // all paid: no lock, no extra queries
     return catfish_locked($uid, function () use ($uid, $cap) {
         $s = catfish_state($uid); $meta = $s['meta'];
-        $week = gmdate('o-\WW');
+        $week = catfish_week();
         $paid = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0;
         $done = (array)($meta['ms'] ?? []); $total = 0;
         foreach (catfish_milestones_reached($uid, $s) as $key => $hit) {
@@ -627,10 +645,10 @@ const CATFISH_RIBBON_PART = ['part', '🎗️', 'Took part'];
 const CATFISH_SHOW_THEME_MATCH = 12;   // score for a cat that fits the week's theme
 const CATFISH_SHOW_RARITY = ['common' => 0, 'uncommon' => 3, 'rare' => 6, 'legendary' => 10];
 
-/** ISO week key like '2026-W44' (UTC): the show runs Monday to Sunday. */
+/** The show's week key: same as catfish_week(), kept as its own name for readers of the Cat Show code. */
 function catfish_show_week(?int $ts = null): string
 {
-    return gmdate('o-\\WW', $ts ?? time());
+    return catfish_week($ts);
 }
 
 /** This week's theme: ['trait' => 'pattern', 'value' => 'tabby', 'label' => 'Best tabby coat']. Only fairly common values, so every gnome can hope to match. */
