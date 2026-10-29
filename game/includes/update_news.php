@@ -588,6 +588,9 @@ function post_update_news(string $from): void
         . "[*]Everything is centred on the page.[/list]"],
     '2.1.03' => ['🐱 Update 2.1.03: Cat Fish strings',
         "[list][*]Cat Fish: the toy rod strings now reach the fish.[/list]"],
+    '2.1.04' => ['🐱 Update 2.1.04: play with your cat',
+        "[list][*]Cat Fish: tap the fish on the toy rod and your cat plays with it.\n"
+        . "[*]Every tap earns a little bonus Kibble, up to a daily limit.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

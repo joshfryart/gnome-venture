@@ -1,4 +1,8 @@
-# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.03 (Cat Fish line fix; main 2.1.01 merged))
+# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.04 (Cat Fish active play; main 2.1.01 merged))
+
+## NOW (2.1.04, 2026-10-29): Cat Fish active play. Tap a fish: it bounces, the cat stalks/pounces/catches, extra Kibble (5 s of income a tap, 360 taps a Hollow day, x1 / x0.5 / x0.25 tiers at 120 / 240, bucket 15 + 1 per 2 s). Server `catfish_play` in `do=tick` (`play`, `seq`), meta keys pb pt pd pc pq pe, no new columns; details in `claude/plan-catfish.md` "Active play". Slim zip in `releases/`.
+- **NEXT (animation catalogue, plan slices S2..S4):** S2 first: new cat frames `swatA`, `swatB` and `blink` (art, then wire them into `catfish.js`: the tap reaction can use swat instead of stalk/pounce/catch); then S3 and S4 from the animation catalogue plan. This slice used only the existing 8 frames.
+- Known gaps: play pops show the last server `v` (a rapid clicker can see `+N` for taps the bucket later refuses, the counter corrects at the next tick); the hint bubble is shown until the first tap or the first paid sync.
 
 ## NOW (2.1.03, 2026-10-29): hotfix, Cat Fish fishing lines now reach the fish (`cfk-N` + `--cfn` per fish kind). If a fish PNG changes, update `--cfn` (test fails otherwise). Slim zip in `releases/`.
 

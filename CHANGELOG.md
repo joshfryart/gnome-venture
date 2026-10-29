@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.04
+- **Cat Fish active play.** Tap a fish to bounce it and your cat plays; each tap earns a little extra Kibble (5 s of income, up to 360 taps a day, tapering after 120 and 240); keyboard and touch friendly; reduced-motion respected; no new tables.
+- Server (`catfish_play`, inside the lock, no new columns): `do=tick` takes `play=n` and `seq`. A tap pays `max(1, floor(kph x 5 / 3600 x tier))`, tiers 1 / 0.5 / 0.25 by Hollow day and 0 after 360; token bucket 15 tokens, +1 per 2 s; a batch needs an integer 0..40 (more pays 0) and a higher `seq` than the last (replays pay nothing). New `catfish_state.meta` keys `pb pt pd pc pq pe`; `view.play = {v, left, got, paid, ever}`.
+- Page: each fish is a `<button>` (44 px or more, focus ring), the stage is `role="group"`, `+N` pops, a "Tap a fish to play!" hint until the first tap, a cosmetic combo and a polite "+N Kibble from play" line. The cat stalks, pounces and catches, and faces the fish. Batches ride the 30 s tick and `pagehide` uses `sendBeacon`.
+- Tests: `tests/catfish.sh` (play economy and markup), `claude/catfish-sim.php` third argument (taps a day; play is 1.2% of a day's idle at 360 taps).
+
 ## 2.1.03
 - **Cat Fish: the fishing lines now reach their fish; the string length follows each fish picture.** Every fish PNG has transparent rows above its body, so the strings stopped short of the fish. Each drop now carries its fish kind (`cfk-N`, from `catfish_fish_kinds`) and `catfish.css` adds `--cfn` per kind (8, 7, 4, 11, 11 px: the first opaque row in the string columns) to the string height. `room-layout.json` nose of fish 2 corrected to 7. Test: `tests/catfish.sh` recomputes `--cfn` from the PNGs.
 
