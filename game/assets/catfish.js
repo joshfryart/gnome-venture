@@ -74,7 +74,7 @@
     clearTimeout(comboTimer); comboTimer = setTimeout(function () { combo = 0; setCombo(); }, 2000);
     setCombo();
     if (hint) hint.hidden = true;
-    stage.dispatchEvent(new CustomEvent('cftap', { detail: { btn: b, fish: +f } }));
+    stage.dispatchEvent(new CustomEvent('cftap', { detail: { btn: b, fish: +f, combo: combo } }));
   });
   setInterval(sync, 30000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
@@ -86,73 +86,185 @@
 })();
 
 /* Play scene (decorative only): the active cat in the stage (.cfactive, see catfish_stage_html) swaps its frame group by moving one class (fr-<frame>)
-   and mirrors it in data-frame. It never touches Kibble: the counter above and the server tick stay the only authority.
-   Idle: idleA <-> idleB every 1.2-2.4 s. Every 6-9 s of idling: a play loop wiggle .6 s, stalk .8 s, pounce .4 s, catch 1.2 s (the fish toy), back to idleA;
-   after the first one, one time in four it sits bored for 3 s instead. A freshly napped cat (data-nap, until the first Kibble of the new run) and the Nap button show nap.
-   Tap on a fish (event 'cftap' from the sync block above): the fish gets is-hit (cfbounce 900 ms) and the cat's idle loop is interrupted: stalk 150 ms, pounce 350 ms, catch 600 ms
-   (the fish gets is-caught for 240 ms when the catch lands), idleA, then idle resumes with idled = 0. The cat reacts at most once per 700 ms, faces the fish (class flip when the
-   fish is left of room x 150) and wakes if napping (data-nap goes with the first paid Kibble of the run). Reduced motion: the fish only shows its outline (is-hit) for 300 ms.
-   prefers-reduced-motion: idleA only, nothing moves. The random numbers come from the cat's seed, so a page load plays the same sequence every time. */
+   and mirrors it in data-frame (data-anim-state: rest, play, nap or bored). It never touches Kibble: the counter above and the server tick stay the only authority.
+   Frames: the page carries 8 groups (idleA, idleB, wiggle, stalk, pounce, catch, nap, bored). The others (swatA, swatB, blink, jump, happy, tailflick, eartwitch) are built
+   from the manifest block #cf-frames (frame -> layer files, already resolved to the base frame's files for alias frames) after the first interaction or 2 s; until a
+   frame's pictures have loaded a close frame stands in (swatA stalk, swatB and jump pounce, the rest idleA). Same-origin pictures, no inline script.
+   Idle: idleA <-> idleB every 2.4-4.2 s (head tilt); idleA blinks for 120 ms every 3-6 s; every 5-12 s a tailflick (400 ms) or an eartwitch (300 ms); never during a play loop.
+   Every 6-9 s of idling a play loop: wiggle .6 s, stalk .8 s, pounce .4 s, catch 1.2 s, back to idleA; after the first one, one time in four it sits bored for 3 s instead.
+   A freshly napped cat (data-nap, until the first Kibble of the new run) and the Nap button show nap, with a floating z (.cfz) over it.
+   Tap on a fish (event 'cftap' from the sync block above): swatA 120 ms, swatB 200 ms (the fish bounces from here, is-hit), catch 600 ms (is-caught for 240 ms), happy 500 ms, idleA.
+   A combo of 5, or the top fish tapped twice within 1.5 s: jump (5 whole-pixel steps, class is-jump, 500 ms) then the catch and happy. A glitter fish (cfk-4) and combo 10
+   show 3 sparkles over the fish (200 ms). The cat reacts at most once per 700 ms, faces the fish (class flip when the fish is left of room x 150) and wakes if napping.
+   Side cats (.cfside) alternate idleA <-> idleB every 4-8 s from a seeded offset, and the nearest one stalks 800 ms when the active cat swats (swatB) or pounces.
+   prefers-reduced-motion: idleA only, nothing moves, no z, no sparkles; the tapped fish only shows its outline (is-hit) for 300 ms.
+   The random numbers come from each cat's seed, so a page load plays the same sequence every time. */
 (function () {
   var cat = document.querySelector('.cfactive'); if (!cat) return;
-  var have = {}; [].forEach.call(cat.querySelectorAll('.cfframe'), function (f) { have[f.getAttribute('data-f')] = true; });
-  var cur = cat.getAttribute('data-frame'), timer = 0, napping = cat.getAttribute('data-nap') === '1';
-  var a = (parseInt(cat.getAttribute('data-seed'), 10) || 1) >>> 0;
-  function rnd() { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+  var stage = cat.parentNode;
+  var have = {}, groups = {}; [].forEach.call(cat.querySelectorAll('.cfframe'), function (f) { have[f.getAttribute('data-f')] = true; });
+  var cur = cat.getAttribute('data-frame'), timer = 0, napping = cat.getAttribute('data-nap') === '1', mode = 'rest', rest = 'idleA';
+  function mk(seed) {
+    var a = seed >>> 0;
+    return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  var seed = parseInt(cat.getAttribute('data-seed'), 10) || 1, rnd = mk(seed);
   function between(lo, hi) { return lo + rnd() * (hi - lo); }
-  function show(f) {
-    if (!have[f]) f = have.idleA ? 'idleA' : cur;
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { return !!(mq && mq.matches); }
+  var zEl = stage.querySelector('.cfz-a'), spark = stage.querySelector('.cfspark');
+  var man = null; try { var me = document.getElementById('cf-frames'); if (me) man = JSON.parse(me.textContent); } catch (e) { man = null; }
+  var FB = { swatA: 'stalk', swatB: 'pounce', jump: 'pounce', happy: 'idleA', blink: 'idleA', tailflick: 'idleA', eartwitch: 'idleA' };
+  function build(f) {
+    if (have[f] || !man || !man.frames || !man.frames[f]) return;
+    var g = document.createElement('span'), art = document.createElement('span');
+    g.className = 'cfframe ff-' + f; g.setAttribute('data-f', f); art.className = 'cfart cf-s64'; art.setAttribute('aria-hidden', 'true');
+    man.frames[f].forEach(function (l) {
+      var im = new Image(); im.alt = ''; im.width = 64; im.height = 64; im.src = man.p + l[0] + man.s;
+      var n = im, c;
+      if (l[2]) { c = document.createElement('span'); c.className = 'cfclip cfclip-' + l[2]; c.appendChild(n); n = c; }
+      (l[1] || []).forEach(function (m) { c = document.createElement('span'); c.className = 'cfmk cfmk-' + m; c.appendChild(n); n = c; });
+      art.appendChild(n);
+    });
+    g.appendChild(art); cat.appendChild(g); groups[f] = g; have[f] = true;
+  }
+  function ready(f) {
+    if (!have[f]) return false;
+    if (!groups[f]) return true;
+    return [].every.call(groups[f].querySelectorAll('img'), function (im) { return im.complete && im.naturalWidth > 0; });
+  }
+  function resolve(f) {
+    for (var n = 0; n < 3; n++) { if (ready(f)) return f; build(f); if (ready(f)) return f; f = FB[f] || 'idleA'; }
+    return have.idleA ? 'idleA' : cur;
+  }
+  var preloaded = false;
+  function preload() {
+    if (preloaded || reduced() || !man || !man.frames) return; preloaded = true;
+    var seen = {};
+    Object.keys(man.frames).forEach(function (f) {
+      build(f);
+      man.frames[f].forEach(function (l) { var u = man.p + l[0] + man.s; if (!seen[u]) { seen[u] = 1; new Image().src = u; } });
+    });
+  }
+  setTimeout(preload, 2000);
+  ['pointerdown', 'pointerover', 'touchstart', 'keydown'].forEach(function (t) { stage.addEventListener(t, preload, { once: true, passive: true }); });
+  function setMode(m) { mode = m; cat.setAttribute('data-anim-state', m); }
+  function put(f) {
     if (f === cur) return;
     cat.classList.remove('fr-' + cur); cat.classList.add('fr-' + f); cat.setAttribute('data-frame', f); cur = f;
+    if (zEl) zEl.classList.toggle('is-on', f === 'nap');
   }
+  function show(f) { put(resolve(f)); }
   function later(ms, fn) { timer = setTimeout(fn, ms); }
   var idled = 0, plays = 0, nextPlay = between(6000, 9000);
   var PLAY = [['wiggle', 600], ['stalk', 800], ['pounce', 400], ['catch', 1200]];
+  function back() { rest = 'idleA'; setMode('rest'); show('idleA'); }
   function play(i) {
-    if (i >= PLAY.length) { show('idleA'); return later(between(1200, 2400), idle); }
-    show(PLAY[i][0]); later(PLAY[i][1], function () { play(i + 1); });
+    if (i >= PLAY.length) { back(); return later(between(1200, 2400), idle); }
+    setMode('play'); show(PLAY[i][0]); if (PLAY[i][0] === 'pounce') sideStalk();
+    later(PLAY[i][1], function () { play(i + 1); });
   }
   function idle() {
-    if (napping) { show('nap'); return later(1000, idle); }
+    if (napping) { setMode('nap'); show('nap'); return later(1000, idle); }
+    setMode('rest');
     if (idled >= nextPlay) {
       idled = 0; nextPlay = between(6000, 9000);
-      if (plays++ > 0 && rnd() < 0.25) { show('bored'); return later(3000, function () { show('idleA'); later(between(1200, 2400), idle); }); }
+      if (plays++ > 0 && rnd() < 0.25) { setMode('bored'); show('bored'); return later(3000, function () { back(); later(between(1200, 2400), idle); }); }
       return play(0);
     }
-    var ms = between(1200, 2400);
-    show(cur === 'idleA' ? 'idleB' : 'idleA');
+    var ms = between(2400, 4200);
+    rest = rest === 'idleA' ? 'idleB' : 'idleA'; show(rest);
     idled += ms; later(ms, idle);
   }
-  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  function start() {
-    clearTimeout(timer);
-    if (mq && mq.matches) { show(napping ? 'nap' : 'idleA'); return; }
-    show(napping ? 'nap' : 'idleA'); later(between(1200, 2400), idle);
+  /* blink, tailflick and eartwitch ride on idleA only, on their own timers, and never while a loop, a nap or boredom runs */
+  var bt = 0, et = 0;
+  function flick(f, ms) {
+    if (mode !== 'rest' || cur !== 'idleA') return false;
+    build(f); if (!ready(f)) return false;
+    put(f); setTimeout(function () { if (cur === f) put(mode === 'rest' ? 'idleA' : cur); }, ms); return true;
   }
+  function schedBlink(wait) { clearTimeout(bt); bt = setTimeout(function () { schedBlink(flick('blink', 120) ? 0 : 400); }, wait || between(3000, 6000)); }
+  function schedExtra(wait) {
+    clearTimeout(et);
+    et = setTimeout(function () { var tail = rnd() < 0.5; schedExtra(flick(tail ? 'tailflick' : 'eartwitch', tail ? 400 : 300) ? 0 : 500); }, wait || between(5000, 12000));
+  }
+  /* side cats */
+  var sides = [].map.call(stage.querySelectorAll('.cfside'), function (el) {
+    var s = { el: el, cur: el.getAttribute('data-frame'), base: 'idleA', busy: false, t: 0, r: mk((parseInt(el.getAttribute('data-seed'), 10) || 1) + 977) };
+    s.has = {}; [].forEach.call(el.querySelectorAll('.cfframe'), function (f) { s.has[f.getAttribute('data-f')] = true; });
+    return s;
+  });
+  function sideShow(s, f) {
+    if (!s.has[f] || f === s.cur) return;
+    s.el.classList.remove('fr-' + s.cur); s.el.classList.add('fr-' + f); s.el.setAttribute('data-frame', f); s.cur = f;
+  }
+  function sideTick(s, first) {
+    s.t = setTimeout(function () {
+      if (!s.busy) { s.base = s.base === 'idleA' ? 'idleB' : 'idleA'; sideShow(s, s.base); }
+      sideTick(s);
+    }, first ? 500 + s.r() * 7500 : 4000 + s.r() * 4000);
+  }
+  function sideStart() { sides.forEach(function (s) { clearTimeout(s.t); sideTick(s, true); }); }
+  function sideStop() { sides.forEach(function (s) { clearTimeout(s.t); s.busy = false; sideShow(s, 'idleA'); s.base = 'idleA'; }); }
+  function sideStalk() {
+    if (reduced()) return;
+    var best = null, d = 1e9, cx = cat.offsetLeft;
+    sides.forEach(function (s) { var x = Math.abs(s.el.offsetLeft - cx); if (s.has.stalk && !s.busy && x < d) { d = x; best = s; } });
+    if (!best) return;
+    best.busy = true; sideShow(best, 'stalk');
+    setTimeout(function () { best.busy = false; sideShow(best, best.base); }, 800);
+  }
+  function start() {
+    clearTimeout(timer); clearTimeout(bt); clearTimeout(et); sideStop(); cat.classList.remove('is-jump');
+    if (reduced()) { setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); return; }
+    rest = 'idleA'; setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); later(between(1200, 2400), idle);
+    schedBlink(); schedExtra(); sideStart();
+  }
+  cat.setAttribute('data-anim-state', mode);
   start();
   if (mq && mq.addEventListener) mq.addEventListener('change', start);
-  var stage = cat.parentNode, lastReact = 0, hitT = {};
+  var lastReact = 0, hitT = {}, lastTop = 0, lastCombo = 0;
   function hit(b) {
-    var f = b.getAttribute('data-fish'), ms = mq && mq.matches ? 300 : 900;
+    var f = b.getAttribute('data-fish'), ms = reduced() ? 300 : 900;
     b.classList.remove('is-hit'); void b.offsetWidth; b.classList.add('is-hit');
     clearTimeout(hitT[f]); hitT[f] = setTimeout(function () { b.classList.remove('is-hit'); }, ms);
   }
   function caught(b) { b.classList.add('is-caught'); setTimeout(function () { b.classList.remove('is-caught'); }, 240); }
-  function react(b) {
-    var now = Date.now(); if (now - lastReact < 700) return; lastReact = now;
-    clearTimeout(timer); napping = false;
+  function sparkle(b) {
+    if (!spark || reduced()) return;
+    spark.className = 'cfspark at' + b.getAttribute('data-fish'); void spark.offsetWidth; spark.classList.add('go');
+    setTimeout(function () { spark.classList.remove('go'); }, 200);
+  }
+  function topFish(b) {
+    var best = null, y = 1e9;
+    [].forEach.call(stage.querySelectorAll('button.cfsdrop'), function (x) { var im = x.querySelector('img'), t = im ? im.offsetTop : 0; if (t < y) { y = t; best = x; } });
+    return best === b;
+  }
+  function finish() { cat.classList.remove('flip', 'is-jump'); idled = 0; back(); later(between(1200, 2400), idle); }
+  function react(b, jump) {
+    var now = Date.now(); if (now - lastReact < 700) return false; lastReact = now;
+    clearTimeout(timer); napping = false; cat.classList.remove('is-jump'); setMode('play'); preload();
     cat.classList.toggle('flip', b.offsetLeft + 24 < 150);
-    show('stalk');
-    later(150, function () { show('pounce'); later(350, function () { show('catch'); caught(b); later(600, function () {
-      show('idleA'); cat.classList.remove('flip'); idled = 0; later(between(1200, 2400), idle);
-    }); }); });
+    function land() { show('catch'); caught(b); later(600, function () { show('happy'); later(500, finish); }); }
+    if (jump) {
+      show('jump'); cat.classList.add('is-jump');
+      later(250, function () { hit(b); later(250, function () { cat.classList.remove('is-jump'); land(); }); });
+    } else {
+      show('swatA');
+      later(120, function () { show('swatB'); hit(b); sideStalk(); later(200, land); });
+    }
+    return true;
   }
   stage.addEventListener('cftap', function (ev) {
-    var b = ev.detail.btn; hit(b);
-    if (!(mq && mq.matches)) react(b);
+    var b = ev.detail.btn, c = ev.detail.combo || 0, now = Date.now();
+    if (reduced()) { hit(b); return; }
+    var jump = c === 5 || (topFish(b) && (lastTop && now - lastTop < 1500 ? (lastTop = 0, true) : (lastTop = now, false)));
+    if (b.classList.contains('cfk-4') || (c === 10 && lastCombo < 10)) sparkle(b);
+    lastCombo = c;
+    if (!react(b, jump)) hit(b);
   });
   var nf = document.getElementById('cf-napform');
-  if (nf) nf.addEventListener('submit', function () { napping = true; show('nap'); });
+  if (nf) nf.addEventListener('submit', function () { napping = true; setMode('nap'); show('nap'); });
   var run = document.getElementById('cf-run');
   if (run && window.MutationObserver) new MutationObserver(function () {
     if (parseInt(run.textContent.replace(/\D/g, ''), 10) > 0) {

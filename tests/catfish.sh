@@ -739,15 +739,15 @@ ok "stage, no art: nothing (the page keeps the old rod box)" "$(cfx none "catfis
 SH=$(cfx $FULL "catfish_stage_html($SC, $SC[0], [\"sunbeam\"=>1, \"rug\"=>1, \"silk\"=>1])")
 ok "stage: one stage in a wrapper, room base then owned overlays only, wand, then the fish" "$(echo "$SH" | grep -o 'class="cfstage"\|cf-room[a-z-]*.png\|cf-rod.png\|cf-fish-[0-9].png' | tr '\n' ' ')" 'class="cfstage" cf-room.png cf-room-sunbeam.png cf-room-rug.png cf-rod.png cf-fish-1.png cf-fish-2.png cf-fish-1.png '
 ok "stage: three dangling fish (sd1..sd3), each with a string, and the line from the wand" "$(echo "$SH" | grep -o 'cfsdrop sd[0-9]\|class="cfstr"\|class="cfsline"' | tr '\n' ' ')" 'class="cfsline" cfsdrop sd1 class="cfstr" cfsdrop sd2 class="cfstr" cfsdrop sd3 class="cfstr" '
-ok "stage: the active cat is in the centre play zone with all 8 frame groups, starting on idleA" "$(echo "$SH" | grep -o 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"')$(echo "$SH" | grep -o 'class="cfframe ff-[A-Za-z]*"' | sed 's/.*ff-//;s/"//' | tr '\n' ' ')" 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"idleA idleB wiggle stalk pounce catch nap bored '
-AH=$(echo "$SH" | sed 's/.*class="cfactive/class="cfactive/')
+ok "stage: the active cat is in the centre play zone with all 8 frame groups, starting on idleA" "$(echo "$SH" | grep -o 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"')$(echo "$SH" | sed 's/.*class="cfactive/class="cfactive/' | grep -o 'class="cfframe ff-[A-Za-z]*"' | sed 's/.*ff-//;s/"//' | tr '\n' ' ')" 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"idleA idleB wiggle stalk pounce catch nap bored '
+AH=$(echo "$SH" | sed 's/.*class="cfactive/class="cfactive/;s#<script[^<]*</script>##')
 ok "stage: every frame group of the folded bobtail tabby cat has body, pattern, ears, tail and eyes" "$(for f in idleA idleB wiggle stalk pounce catch nap bored; do echo "$AH" | grep -o "cf-cat-orange-$f.png\|cf-pat-tabby-orange-$f.png\|cf-ears-folded-orange-$f.png\|cf-tail-bobtail-orange-$f.png\|cf-eyes-amber-$f.png" | wc -l | tr -d ' '; done | tr '\n' ' ')" "5 5 5 5 5 5 5 5 "
-ok "stage: three other cats at the side spots (a lazy cat first on the cushion as nap), frames nap, idleA, bored" "$(echo "$SH" | grep -o 'cfspot cfpos-x[0-9]*-y[0-9]*"><span class="cfart cf-s64" aria-hidden="true">\(<span class="cfmk[^>]*>\)*<img src="[^"]*cf-cat-[a-z-]*-[A-Za-z]*\.png' | sed 's/cfspot cfpos-//;s/".*cf-cat-/ /;s/\.png//' | tr '\n' ',')" "x40-y98 lilac-idleA,x236-y116 white-bored,x0-y124 black-nap,"
+ok "stage: three other cats at the side spots (a lazy cat first on the cushion as nap), frames nap, idleA, bored" "$(echo "$SH" | grep -o 'cfspot \(cfside \)\?cfpos-x[0-9]*-y[0-9]*[^>]*>\(<span class="cfframe ff-idleA" data-f="idleA">\)\?<span class="cfart cf-s64" aria-hidden="true">\(<span class="cfmk[^>]*>\)*<img src="[^"]*cf-cat-[a-z-]*-[A-Za-z]*\.png' | sed 's/cfspot \(cfside \)\?cfpos-//;s/[" ].*cf-cat-/ /;s/\.png//' | tr '\n' ',')" "x40-y98 lilac-idleA,x236-y116 white-bored,x0-y124 black-nap,"
 SH2=$(cfx $FULL "catfish_stage_html(array_slice($SC, 0, 2), $SC[0], [])")
 ok "stage: two cats = the active one and one at the cushion (nap frame)" "$(echo "$SH2" | grep -c 'cfpos-x0-y124')$(echo "$SH2" | grep -c 'cfpos-x40-y98')$(echo "$SH2" | grep -c 'cfpos-x236-y116')" "100"
 SH3=$(cfx $FULL "catfish_stage_html([$SC[0]], $SC[0], [], true)")
 ok "stage: a lone cat has no side spots; a napping one starts on the nap frame (data-nap)" "$(echo "$SH3" | grep -c 'cfspot')$(echo "$SH3" | grep -c 'fr-nap" data-frame="nap" data-seed="11" data-nap="1"')" "01"
-ok "stage: no inline style, no script, no event handler; every img has an empty alt except none" "$(echo "$SH" | grep -c 'style=\|<script\|on[a-z]*=')" 0
+ok "stage: no inline style, no script (besides the one JSON manifest block), no event handler; every img has an empty alt except none" "$(echo "$SH" | sed 's#<script type="application/json" id="cf-frames">[^<]*</script>##' | grep -c 'style=\|<script\|on[a-z]*=')$(echo "$SH" | grep -o '<script' | wc -l | tr -d ' ')" 01
 # 2.1.04 markup: each fish is a button (a group, not an image, holds buttons), the pop, combo, hint and live line are plain classed elements
 ok "stage play: each fish is a type=button with its cfsdrop/sdI/cfk-N classes, data-fish and an aria-label 'Bat the plush fish (I of 3)'" "$(echo "$SH" | grep -o '<button type="button" class="cfsdrop sd[1-3] cfk-[1-5]" data-fish="[1-3]" aria-label="Bat the plush fish ([1-3] of 3)">' | sed 's/.*sd\([1-3]\) cfk-\([1-5]\)" data-fish="\([1-3]\)" aria-label="Bat the plush fish (\([1-3]\) of 3)">/\1\2\3\4/' | tr '\n' ' ')" "1111 2222 3133 "
 ok "stage play: three buttons close again, no span left for a fish" "$(echo "$SH" | grep -o '</button>' | wc -l | tr -d ' ')$(echo "$SH" | grep -c '<span class="cfsdrop')" "30"
@@ -841,6 +841,88 @@ print(('ok   odd-eyed split: %d frames recomputed from the ring PNGs match EYE_S
 P
 ok "css: the guessed split of idleB, wiggle and bored is gone (each differs from idleA's 39.0625%)" "$(grep -o 'cfclip-R-\(idleB\|wiggle\|bored\) { clip-path: inset(0 0 0 [0-9.]*%' $GAME/assets/catfish.css | grep -vc '39.0625')" 3
 
+# ---------- 2.1.05 animation art: alias frames, manifest, new frames, css, js ----------
+# the PHP alias map mirrors the art notes (frames-alias-s2.json, frames-alias-s3.json) and the frame lists cover every frame the art notes name
+python3 -I - "aseprite-source/catfish" "$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return "";} require $argv[1]; echo json_encode(["base"=>CATFISH_FRAME_BASE,"own"=>CATFISH_FRAME_OWN,"frames"=>CATFISH_FRAMES,"extra"=>CATFISH_FRAMES_EXTRA,"lazy"=>CATFISH_FRAMES_LAZY]);' "$GAME/includes/catfish.php")" <<'P'
+import sys, json, glob
+d, php = sys.argv[1], json.loads(sys.argv[2])
+alias, full = {}, []
+for f in sorted(glob.glob(d + '/frames-alias-s*.json')):
+    for k, v in json.load(open(f)).items():
+        if not isinstance(v, dict): continue
+        if v['kind'] == 'alias': alias[k] = v
+        else: full.append(k)
+bad = []
+if php['base'] != {k: v['base'] for k, v in alias.items()}: bad.append('CATFISH_FRAME_BASE %s != json' % php['base'])
+if php['own'] != {k: v['own'] for k, v in alias.items()}: bad.append('CATFISH_FRAME_OWN != json own lists')
+if set(php['frames']) | set(php['extra']) != set(php['frames']) | set(full) | set(alias) or set(php['frames']) & set(php['extra']): bad.append('frame lists vs json: extra=%s json=%s' % (php['extra'], full + list(alias)))
+if not set(php['lazy']) <= set(php['extra']) or set(php['lazy']) != {'swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch'}: bad.append('lazy list')
+for k, v in alias.items():   # every layer an alias does not own comes from the base frame; the listed files agree with own
+    for role, fn in v.get('files', {}).items():
+        own = role in v['own']
+        if own != fn.endswith('-%s.png' % k): bad.append('%s %s: files says %s' % (k, role, fn))
+print('ok   alias map: PHP CATFISH_FRAME_BASE / CATFISH_FRAME_OWN equal frames-alias-s2/s3.json (%d aliases), frame lists match the art notes' % len(alias) if not bad else 'FAIL alias map: ' + '; '.join(bad))
+P
+# layer composition of alias frames (art = the recoloured set in $A): own layers by the frame's name, the rest from idleA, masks of the layer's frame
+ok "alias blink: own body and eyes, tabby pattern from idleA" "$(lay $A '{"colour":"ginger","pattern":"tabby","eyes":"amber","ears":"upright","tail":"long","seed":7}' 64 blink | files)" "cf-cat-orange-blink cf-pat-tabby-orange-idleA cf-eyes-amber-blink "
+ok "alias blink, folded bobtail calico: ears, tail, pattern and both masks from idleA; body and eyes own" "$(lay $A '{"colour":"cream","pattern":"calico","eyes":"green","ears":"folded","tail":"bobtail","seed":1}' 64 blink | files)" "cfmk-tail-idleA cfmk-ears-idleA cf-cat-cream-blink cf-ears-folded-cream-idleA cf-tail-bobtail-cream-idleA cfmk-tail-idleA cfmk-ears-idleA cf-pat-calico-cream-idleA cf-eyes-green-blink "
+ok "alias tailflick, folded bobtail tabby: own body, tail, tail mask and tabby marks; ears and ears mask and eyes from idleA" "$(lay $A '{"colour":"brown","pattern":"tabby","eyes":"blue","ears":"folded","tail":"bobtail","seed":1}' 64 tailflick | files)" "cfmk-tail-tailflick cfmk-ears-idleA cf-cat-brown-tailflick cf-ears-folded-brown-idleA cf-tail-bobtail-brown-tailflick cfmk-tail-tailflick cfmk-ears-idleA cf-pat-tabby-brown-tailflick cf-eyes-blue-idleA "
+ok "alias tailflick: tuxedo and calico come from idleA (they do not mark the tail), pointed and spotted are own" "$(for pt in tuxedo calico pointed spotted; do lay $A "{\"colour\":\"white\",\"pattern\":\"$pt\",\"eyes\":\"amber\",\"ears\":\"upright\",\"tail\":\"long\",\"seed\":1}" 64 tailflick | files | grep -o "cf-pat-[a-z]*-white-[A-Za-z]*"; done | tr '\n' ' ')" "cf-pat-tuxedo-white-idleA cf-pat-calico-white-idleA cf-pat-pointed-white-tailflick cf-pat-spotted-white-tailflick "
+ok "alias eartwitch, folded bobtail calico: own body, ears, ears mask and calico marks; tail, tail mask and eyes from idleA" "$(lay $A '{"colour":"black","pattern":"calico","eyes":"hazel","ears":"folded","tail":"bobtail","seed":1}' 64 eartwitch | files)" "cfmk-tail-idleA cfmk-ears-eartwitch cf-cat-black-eartwitch cf-ears-folded-black-eartwitch cf-tail-bobtail-black-idleA cfmk-tail-idleA cfmk-ears-eartwitch cf-pat-calico-black-eartwitch cf-eyes-hazel-idleA "
+ok "alias eartwitch: tuxedo and spotted from idleA, tabby and pointed own" "$(for pt in tuxedo spotted tabby pointed; do lay $A "{\"colour\":\"white\",\"pattern\":\"$pt\",\"eyes\":\"amber\",\"ears\":\"upright\",\"tail\":\"long\",\"seed\":1}" 64 eartwitch | files | grep -o "cf-pat-[a-z]*-white-[A-Za-z]*"; done | tr '\n' ' ')" "cf-pat-tuxedo-white-idleA cf-pat-spotted-white-idleA cf-pat-tabby-white-eartwitch cf-pat-pointed-white-eartwitch "
+ok "alias odd-eyed: blink clips its own eyes (cfclip-*-blink), tailflick and eartwitch clip idleA's" "$(for fr in blink tailflick eartwitch; do lay $A '{"colour":"lilac","pattern":"solid","eyes":"odd","ears":"upright","tail":"long","seed":6}' 64 $fr | files | grep -o 'cfclip-[LR]-[A-Za-z]*' | tr '\n' ','; done)" "cfclip-L-blink,cfclip-R-blink,cfclip-L-idleA,cfclip-R-idleA,cfclip-L-idleA,cfclip-R-idleA,"
+for f in swatA swatB jump happy yawn stretch washA washB; do
+  H=$(lay $A '{"colour":"cream","pattern":"calico","eyes":"green","ears":"folded","tail":"bobtail","seed":1}' 64 $f)
+  ok "layers: folded bobtail calico cat, new full frame $f: both masks, body, ears, tail, pattern, eyes" "$(echo "$H" | files)" "cfmk-tail-$f cfmk-ears-$f cf-cat-cream-$f cf-ears-folded-cream-$f cf-tail-bobtail-cream-$f cfmk-tail-$f cfmk-ears-$f cf-pat-calico-cream-$f cf-eyes-green-$f "
+done
+ok "alias frames render only when the base frame's art is there: no idleA files = body only for the pattern-less tabby cat" "$(mkdir -p $W/art5; cp $A/cf-cat-orange-blink.png $W/art5/; lay $W/art5 '{"colour":"ginger","pattern":"tabby","eyes":"amber","ears":"upright","tail":"long","seed":7}' 64 blink | files)" "cf-cat-orange-blink "
+ok "frames: an unknown frame still falls back to idleA; the new names are accepted" "$(lay $A "$P0" 64 nonesuch | grep -c 'cf-cat-orange-idleA')$(lay $A "$P0" 64 swatB | grep -c 'cf-cat-orange-swatB')" "11"
+ok "css: mask classes exist for every part and mask a frame can ask for (swatA swatB jump happy yawn stretch washA washB, eartwitch ears, tailflick tail)" "$(for f in swatA swatB jump happy yawn stretch washA washB eartwitch; do grep -c "^\.cfmk-ears-$f " $GAME/assets/catfish.css; done | tr -d '\n')$(for f in swatA swatB jump happy yawn stretch washA washB tailflick; do grep -c "^\.cfmk-tail-$f " $GAME/assets/catfish.css; done | tr -d '\n')" "111111111111111111"
+ok "css: every cfmk class names the mask file of its own frame" "$(grep -o '^\.cfmk-\(ears\|tail\)-[A-Za-z]* { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-[a-z]*-mask-[A-Za-z]*\.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-[a-z]*-mask-[A-Za-z]*\.png)' $GAME/assets/catfish.css | sed 's/^\.cfmk-\([a-z]*\)-\([A-Za-z]*\) .*url(img\/catfish\/cf-\([a-z]*\)-mask-\([A-Za-z]*\)\.png); mask-image.*url(img\/catfish\/cf-\([a-z]*\)-mask-\([A-Za-z]*\)\.png)/\1-\2=\3-\4=\5-\6/' | awk -F= '{ if ($1==$2 && $2==$3) ok++; else bad++ } END { print (bad==0 && ok>=28) ? "y" : "n" }')" y
+python3 -I - "$FULL" "$GAME/assets/catfish.css" <<'P'
+import sys, os, re
+d, css = sys.argv[1], open(sys.argv[2]).read()
+bad = []
+for k in ('ears', 'tail'):
+    for m in re.findall(r'^\.cfmk-%s-([A-Za-z]+) ' % k, css, re.M):
+        if not os.path.exists('%s/cf-%s-mask-%s.png' % (d, k, m)): bad.append('mask file cf-%s-mask-%s.png' % (k, m))
+print('ok   css: every mask class points at a mask PNG the build tool installs' if not bad else 'FAIL css masks: ' + '; '.join(bad))
+P
+ok "css: show rules for the new frames on .cfactive, and for idleA, idleB, stalk on .cfside" "$(for f in swatA swatB blink jump happy tailflick eartwitch yawn stretch washA washB; do grep -c "\.cfactive\.fr-$f \.ff-$f" $GAME/assets/catfish.css; done | tr -d '\n')$(for f in idleA idleB stalk; do grep -c "\.cfside\.fr-$f \.ff-$f" $GAME/assets/catfish.css; done | tr -d '\n')" "11111111111111"
+ok "css: z (3 steps, 8 x 8 at 2x), sparkle (3 images, 200 ms), jump arc (0 -16 -24 -16 0 in steps) and the reduced-motion rule" "$(grep -c 'animation: cfzfloat 2400ms steps(3, end) infinite' $GAME/assets/catfish.css)$(grep -c '^@keyframes cfjump { 0% { translate: 0 0; } 20% { translate: 0 -16px; } 40% { translate: 0 -24px; } 60% { translate: 0 -16px; } 80%, 100% { translate: 0 0; } }' $GAME/assets/catfish.css)$(grep -c 'animation: cfjump 500ms steps(1, end) 1' $GAME/assets/catfish.css)$(grep -c '@keyframes cfsph[123]' $GAME/assets/catfish.css)$(grep -c 'animation: 200ms step-end 1 forwards' $GAME/assets/catfish.css)$(grep -c '\.cfz, \.cfspark, \.cfspark\.go { display: none !important; }' $GAME/assets/catfish.css)" "111311"
+ok "css: the new rules use no inline-style tricks and no external url (only img/catfish)" "$(grep -o 'url([^)]*)' $GAME/assets/catfish.css | grep -vc 'url(img/catfish/\|url(#000)')" 0
+# stage markup: manifest block, z, sparkle element, side-cat groups
+SM=$(cfx $FULL "catfish_stage_html($SC, $SC[0], [])")
+MJ=$(echo "$SM" | grep -o '<script type="application/json" id="cf-frames">[^<]*</script>' | sed 's/<[^>]*>//g')
+ok "manifest: one #cf-frames JSON block in the stage, none anywhere else" "$(echo "$SM" | grep -o 'id="cf-frames"' | wc -l | tr -d ' ')" 1
+python3 -I - "$MJ" "$FULL" <<'P'
+import sys, json, os
+m = json.loads(sys.argv[1]); d = sys.argv[2]; bad = []
+if sorted(m['frames']) != sorted(['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch']): bad.append('frames %s' % sorted(m['frames']))
+if not m['p'].endswith('/catfish/') or not m['s'].startswith('?v='): bad.append('prefix/suffix %s %s' % (m['p'], m['s']))
+for f, ls in m['frames'].items():
+    for l in ls:
+        if not os.path.exists(d + '/' + l[0]): bad.append(l[0] + ' missing')
+    names = [l[0] for l in ls]
+    if names[0] != 'cf-cat-orange-%s.png' % f: bad.append('%s body %s' % (f, names[0]))
+fl = lambda f: [l[0] for l in m['frames'][f]]
+# Pip: ginger tabby folded bobtail. blink: body and eyes own, the rest idleA
+if fl('blink') != ['cf-cat-orange-blink.png', 'cf-ears-folded-orange-idleA.png', 'cf-tail-bobtail-orange-idleA.png', 'cf-pat-tabby-orange-idleA.png', 'cf-eyes-amber-blink.png']: bad.append('blink %s' % fl('blink'))
+if fl('tailflick') != ['cf-cat-orange-tailflick.png', 'cf-ears-folded-orange-idleA.png', 'cf-tail-bobtail-orange-tailflick.png', 'cf-pat-tabby-orange-tailflick.png', 'cf-eyes-amber-idleA.png']: bad.append('tailflick %s' % fl('tailflick'))
+if fl('eartwitch') != ['cf-cat-orange-eartwitch.png', 'cf-ears-folded-orange-eartwitch.png', 'cf-tail-bobtail-orange-idleA.png', 'cf-pat-tabby-orange-eartwitch.png', 'cf-eyes-amber-idleA.png']: bad.append('eartwitch %s' % fl('eartwitch'))
+if m['frames']['blink'][0][1] != ['ears-idleA', 'tail-idleA'] or m['frames']['eartwitch'][0][1] != ['ears-eartwitch', 'tail-idleA'] or m['frames']['tailflick'][0][1] != ['ears-idleA', 'tail-tailflick']: bad.append('mask groups')
+if m['frames']['swatB'][0][1] != ['ears-swatB', 'tail-swatB']: bad.append('swatB masks')
+print('ok   manifest: 7 lazy frames, alias frames use the base layers\' files, mask groups follow the layer\'s frame, every file exists' if not bad else 'FAIL manifest: ' + '; '.join(bad))
+P
+ok "manifest: size stays modest (under 4 KB for a patterned folded-ear bobtail cat)" "$([ ${#MJ} -lt 4000 ] && echo y || echo n)" y
+ok "stage: only the 8 inline frame groups are in the markup (swatA, blink, jump, happy and the rest are not inline images)" "$(echo "$SM" | sed 's#<script[^<]*</script>##' | grep -c 'cf-cat-orange-\(swatA\|swatB\|blink\|jump\|happy\|tailflick\|eartwitch\|yawn\)')" 0
+ok "stage: the awake side cat is a .cfside group with idleA, idleB and stalk, seed in data-seed; the other side cats stay single frames" "$(echo "$SM" | sed 's/<span class="cfactive.*<span class="cfspot cfpos-x0-y124"/<span class="cfspot cfpos-x0-y124"/' | grep -o 'cfspot cfside cfpos-x40-y98 fr-idleA" data-frame="idleA" data-seed="2"\|cfframe ff-\(idleA\|idleB\|stalk\)" data-f' | tr '\n' ',')$(echo "$SM" | grep -o 'class="cfspot cfpos-x[0-9]*-y[0-9]*"' | tr '\n' ',')" 'cfspot cfside cfpos-x40-y98 fr-idleA" data-frame="idleA" data-seed="2",cfframe ff-idleA" data-f,cfframe ff-idleB" data-f,cfframe ff-stalk" data-f,class="cfspot cfpos-x236-y116",class="cfspot cfpos-x0-y124",'
+ok "stage: z on the cushion cat (nap spot) always; the active cat's z is off unless it starts asleep" "$(echo "$SM" | grep -c 'cfpos-x0-y124"><span class="cfart[^>]*>.*cf-cat-black-nap[^>]*>.*<img class="cfz cfz-s"')$(echo "$SM" | grep -o 'class="cfz cfz-a[^"]*"' | tr '\n' ',')$(cfx $FULL "catfish_stage_html($SC, $SC[0], [], true)" | grep -o 'class="cfz cfz-a[^"]*"' | tr '\n' ',')" '1class="cfz cfz-a",class="cfz cfz-a is-on",'
+ok "stage: three sparkle images in one hidden element, no z or sparkle without their PNGs" "$(echo "$SM" | grep -o 'class="cfspark" aria-hidden="true"><img class="sp1"[^>]*cf-sparkle-1.png[^>]*><img class="sp2"[^>]*><img class="sp3"[^>]*></span>' | wc -l | tr -d ' ')$(mkdir -p $W/art6; cp $FULL/cf-room.png $FULL/cf-rod.png $FULL/cf-fish-*.png $W/art6/; cfx $W/art6 "catfish_stage_html($SC, $SC[0], [])" | grep -c 'cfz\|cfspark')" "10"
+ok "stage: a cat with no art for the new frames still gets a valid manifest block (empty frames: no block)" "$(mkdir -p $W/art7; cp $FULL/cf-room.png $FULL/cf-cat-orange-idleA.png $W/art7/; cfx $W/art7 "catfish_stage_html($SC, $SC[0], [])" | grep -c 'cf-frames')" 0
+ok "js: tap loop swatA 120, swatB 200, catch 600, happy 500; jump 500 ms arc; blink 120; tailflick 400; eartwitch 300; sparkles 200; side stalk 800" "$(for w in "show('swatA')" "later(120," "later(200, land)" "later(600," "later(500, finish)" "'jump'" "flick('blink', 120)" "tail ? 400 : 300" "setTimeout(function () { spark.classList.remove('go'); }, 200)" "}, 800);" "between(3000, 6000)" "between(5000, 12000)" "4000 + s.r() * 4000" "between(2400, 4200)"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')" "yyyyyyyyyyyyyy"
+ok "js: manifest-driven lazy layers (no inline images), preload after first interaction or 2 s, fallback frames while loading, reduced motion off" "$(for w in "getElementById('cf-frames')" "setTimeout(preload, 2000)" "'pointerdown'" "new Image().src" "var FB = {" "if (reduced()) { setMode(napping" "data-anim-state"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')" "yyyyyyy"
+
 # the real page with the full art set installed in this suite's own copy of game/ (removed after): banner, rod, icons, room, Cat Book heads
 mkdir -p $GAME/assets/img/catfish; cp $FULL/cf-*.png $GAME/assets/img/catfish/
 curl -s -b $W/p $BASE/catfish.php > $W/art.html
@@ -858,6 +940,14 @@ mset '$m["pe"]=0;'
 curl -s -b $W/p $BASE/catfish.php > $W/art2.html
 ok "page with art: the hint 'Tap a fish to play!' shows while lifetime taps are 0" "$(grep -c 'class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!<' $W/art2.html)" 1
 ok "page with art: no inline style and no inline script besides the JSON block" "$(grep -c ' style=\|<script>' $W/art.html)" 0
+# the animation machine in a real browser (tests/catfish_anim.js; skipped without playwright): a home of 4 cats (patterned folded-ear bobtail active cat, lazy cat on the cushion, an awake side cat, a bored one)
+if node -e "require('playwright')" 2>/dev/null; then
+  dbx "DELETE FROM cats WHERE user_id=$UID_"
+  for sd in 538 6 1626 160; do dbx "INSERT INTO cats (user_id, seed, name, adopted_at) VALUES ($UID_, $sd, 'Cat$sd', '2026-10-29 00:00:00')"; done
+  dbx "UPDATE catfish_state SET active_cat_id=(SELECT id FROM cats WHERE user_id=$UID_ AND seed=538), upgrades='{\"glitter\":1,\"silk\":1,\"catnip\":1}', kibble=500, naps=0, run_kibble=50, last_tick=$(date +%s) WHERE user_id=$UID_"
+  AOUT=$(DBFILE=$GAME/data/game.sqlite SQL_NAP="UPDATE catfish_state SET naps=1, run_kibble=0, last_tick={NOW} WHERE user_id=$UID_" SQL_AWAKE="UPDATE catfish_state SET naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" NODE_PATH=${NODE_PATH:-} node tests/catfish_anim.js $BASE 2>&1)
+  echo "$AOUT"
+else echo "ok   anim browser pass: skipped (no playwright)"; fi
 rm -rf "${GAME:?}/assets/img/catfish"
 curl -s -b $W/p $BASE/catfish.php > $W/noart.html
 ok "page without art: emoji heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1>🐱 Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"

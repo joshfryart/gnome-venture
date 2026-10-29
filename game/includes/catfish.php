@@ -162,6 +162,8 @@ function catfish_room_base_html(array $owned): string
  */
 const CATFISH_STAGE_SPOTS = [['nap', 0, 124], ['idleA', 40, 98], ['bored', 236, 116]];
 const CATFISH_STAGE_ACTIVE = [128, 120];
+/** Frames a side cat carries by its spot frame (others are one still frame): the awake one alternates idleA and idleB and can stalk. */
+const CATFISH_SIDE_FRAMES = ['idleA' => ['idleA', 'idleB', 'stalk']];
 
 /**
  * The play scene: one 320 x 200 stage with the room (base and owned overlays), the wand hung at the ceiling hook, a line to three dangling fish
@@ -179,7 +181,21 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
     foreach ($cats as $c) if (($c['id'] ?? null) !== ($active['id'] ?? null)) $others[] = $c;
     usort($others, fn($a, $b) => (($b['mood'] ?? '') === 'lazy') <=> (($a['mood'] ?? '') === 'lazy'));   // a lazy cat takes the cushion (stable order otherwise)
     $spots = [];
-    foreach (array_slice($others, 0, count(CATFISH_STAGE_SPOTS)) as $i => $c) { [$f, $x, $y] = CATFISH_STAGE_SPOTS[$i]; $spots[] = [$y, '<span class="cfspot cfpos-x' . $x . '-y' . $y . '">' . catfish_cat_html($c, 64, $f, false) . '</span>']; }
+    $zimg = catfish_art_has('cf-z.png') ? '<img class="cfz cfz-s" src="' . e(catfish_art_url('cf-z.png')) . '" alt="" width="8" height="8">' : '';
+    foreach (array_slice($others, 0, count(CATFISH_STAGE_SPOTS)) as $i => $c) {
+        [$f, $x, $y] = CATFISH_STAGE_SPOTS[$i];
+        $sf = CATFISH_SIDE_FRAMES[$f] ?? null;
+        if ($sf !== null) {   // an awake side cat: idleA, idleB and stalk, catfish.js alternates them and lets it stalk when the active cat pounces
+            $g = '';
+            foreach ($sf as $fr) {
+                $gh = catfish_cat_html($c, 64, $fr, false);
+                if (str_contains($gh, 'class="cfcat ')) { $g = ''; break; }
+                $g .= '<span class="cfframe ff-' . $fr . '" data-f="' . $fr . '">' . $gh . '</span>';
+            }
+            if ($g !== '') { $spots[] = [$y, '<span class="cfspot cfside cfpos-x' . $x . '-y' . $y . ' fr-' . $f . '" data-frame="' . $f . '" data-seed="' . (int)($c['seed'] ?? 0) . '">' . $g . '</span>']; continue; }
+        }
+        $spots[] = [$y, '<span class="cfspot cfpos-x' . $x . '-y' . $y . '">' . catfish_cat_html($c, 64, $f, false) . ($f === 'nap' ? $zimg : '') . '</span>'];
+    }
     [$ax, $ay] = CATFISH_STAGE_ACTIVE;
     $start = $napping ? 'nap' : 'idleA';
     $groups = '';
@@ -191,6 +207,10 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
     $spots[] = [$ay, '<span class="cfactive cfpos-x' . $ax . '-y' . $ay . ' fr-' . $start . '" data-frame="' . $start . '" data-seed="' . (int)($active['seed'] ?? 0) . '"' . ($napping ? ' data-nap="1"' : '') . '>' . $groups . '</span>'];
     usort($spots, fn($a, $b) => $a[0] <=> $b[0]);   // lower on the floor is drawn in front
     foreach ($spots as $sp) $h .= $sp[1];
+    if ($zimg !== '') $h .= str_replace('cfz-s', 'cfz-a' . ($napping ? ' is-on' : ''), $zimg);   // the active cat's z: catfish.js shows it while the cat naps
+    $man = catfish_frame_manifest($active);
+    if ($man['frames']) $h .= '<script type="application/json" id="cf-frames">' . json_encode($man, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
+    if (catfish_art_has('cf-sparkle-1.png')) $h .= '<span class="cfspark" aria-hidden="true">' . implode('', array_map(fn($n) => '<img class="sp' . $n . '" src="' . e(catfish_art_url("cf-sparkle-$n.png")) . '" alt="" width="8" height="8">', [1, 2, 3])) . '</span>';
     $h .= '<span class="cfpop p1" aria-hidden="true"></span><span class="cfpop p2" aria-hidden="true"></span><span class="cfpop p3" aria-hidden="true"></span><span id="cf-combo" class="cfcombo" aria-hidden="true"></span>';
     if ($hint) $h .= '<span class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!</span>';
     return $h . '<span id="cf-playlive" class="cfsr" aria-live="polite"></span></div></div>';
@@ -227,38 +247,95 @@ function catfish_art_has(string $file): bool
     $dir = defined('CATFISH_ART_DIR') ? CATFISH_ART_DIR : APP_ROOT . '/assets/img/catfish';
     return $have[$dir . '/' . $file] ??= is_file($dir . '/' . $file);
 }
-function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', bool $eyeClass = true): string
+/**
+ * Frames beyond the 8 inline ones (2.1.05). Full frames carry every layer under their own name. Alias frames (CATFISH_FRAME_BASE) own only some layers;
+ * every other layer is the base frame's file (blink, tailflick and eartwitch are idleA with a few layers swapped). CATFISH_FRAME_OWN mirrors the "own" lists of
+ * aseprite-source/catfish/frames-alias-s2.json and frames-alias-s3.json (tests/catfish.sh checks they are equal, so they cannot drift). Role names: body, pat-<pattern>,
+ * ears-folded, ears-mask, tail-bobtail, tail-mask, eyes-<colour> ('eyes' alone owns all four colours).
+ * CATFISH_FRAMES_LAZY are the ones the play scene animates now: catfish.js creates their layers on first need from the manifest block (catfish_frame_manifest);
+ * yawn, stretch, washA and washB are installed for 2.1.06.
+ */
+const CATFISH_FRAMES_EXTRA = ['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch', 'yawn', 'stretch', 'washA', 'washB'];
+const CATFISH_FRAMES_LAZY = ['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch'];
+const CATFISH_FRAME_BASE = ['blink' => 'idleA', 'tailflick' => 'idleA', 'eartwitch' => 'idleA'];
+const CATFISH_FRAME_OWN = [
+    'blink' => ['body', 'eyes'],
+    'tailflick' => ['body', 'pat-tabby', 'pat-pointed', 'pat-spotted', 'tail-bobtail', 'tail-mask'],
+    'eartwitch' => ['body', 'pat-tabby', 'pat-calico', 'pat-pointed', 'ears-folded', 'ears-mask'],
+];
+/** The frame whose file supplies layer $role of $frame (the frame itself, or the base frame of an alias that does not own the layer). */
+function catfish_role_frame(string $frame, string $role): string
+{
+    $base = CATFISH_FRAME_BASE[$frame] ?? null;
+    if ($base === null) return $frame;
+    $own = CATFISH_FRAME_OWN[$frame] ?? [];
+    return (in_array($role, $own, true) || (str_starts_with($role, 'eyes-') && in_array('eyes', $own, true))) ? $frame : $base;
+}
+/**
+ * The layer list of one cat frame, bottom to top: [file, masks, clip]. masks = names of the cfmk groups that wrap the layer (ears, tail), clip = 'L-<frame>' / 'R-<frame>'
+ * for an odd-eyed half. null = no art for this coat and frame (the emoji fallback). A layer with a missing file, or a part with no mask, is left out.
+ */
+function catfish_cat_layers(array $cat, string $frame): ?array
 {
     $coat = CATFISH_ART_COATS[$cat['colour'] ?? ''] ?? null;
-    $fallback = '<span class="cfcat c-' . e($cat['colour'] ?? '') . ' p-' . e($cat['pattern'] ?? '') . ($eyeClass ? ' e-' . e($cat['eyes'] ?? '') : '') . '" aria-hidden="true">🐱</span>';
-    if (!in_array($frame, CATFISH_FRAMES, true)) $frame = 'idleA';
-    if ($coat === null || !catfish_art_has("cf-cat-$coat-$frame.png")) return $fallback;
-    $img = fn(string $file): string => '<img src="' . e(catfish_art_url($file)) . '" alt="" width="64" height="64">';
+    if ($coat === null || !catfish_art_has("cf-cat-$coat-$frame.png")) return null;
     $parts = []; $masks = [];
     foreach ([['ears', 'folded', 'ears'], ['tail', 'bobtail', 'tail']] as [$kind, $val, $trait]) {
         if (($cat[$trait] ?? '') !== $val) continue;
-        if (!catfish_art_has("cf-$kind-$val-$coat-$frame.png") || !catfish_art_has("cf-$kind-mask-$frame.png")) continue;
-        $parts[] = $img("cf-$kind-$val-$coat-$frame.png"); $masks[] = "cfmk cfmk-$kind-$frame";
+        $pf = catfish_role_frame($frame, "$kind-$val"); $mf = catfish_role_frame($frame, "$kind-mask");
+        if (!catfish_art_has("cf-$kind-$val-$coat-$pf.png") || !catfish_art_has("cf-$kind-mask-$mf.png")) continue;
+        $parts[] = ["cf-$kind-$val-$coat-$pf.png", [], '']; $masks[] = "$kind-$mf";
     }
-    $erase = function (string $inner) use ($masks): string {
-        foreach ($masks as $m) $inner = '<span class="' . $m . '">' . $inner . '</span>';
-        return $inner;
-    };
-    $h = $erase($img("cf-cat-$coat-$frame.png")) . implode('', $parts);
+    $out = [["cf-cat-$coat-$frame.png", $masks, '']];
+    foreach ($parts as $pt) $out[] = $pt;
     $pat = (string)($cat['pattern'] ?? 'solid');
     if ($pat !== 'solid' && preg_match('/^[a-z]+$/', $pat)) {
-        $pf = in_array($frame, CATFISH_PATTERN_FRAMES, true) ? $frame : 'idleA';
-        if (catfish_art_has("cf-pat-$pat-$coat-$pf.png")) $h .= $erase($img("cf-pat-$pat-$coat-$pf.png"));
+        $pf = catfish_role_frame($frame, "pat-$pat");
+        if (catfish_art_has("cf-pat-$pat-$coat-$pf.png")) $out[] = ["cf-pat-$pat-$coat-$pf.png", $masks, ''];
     }
-    $eye = (string)($cat['eyes'] ?? 'amber');   // eye layers exist for the key frames only; none for the others
+    $eye = (string)($cat['eyes'] ?? 'amber');
     if ($eye === 'odd') {   // left and right halves, two different colours, chosen by the seed
         $sd = (int)($cat['seed'] ?? 0); $l = CATFISH_EYE_COLOURS[$sd % 4]; $r = CATFISH_EYE_COLOURS[($sd % 4 + 1 + intdiv($sd, 4) % 3) % 4];
-        foreach ([[$l, 'L'], [$r, 'R']] as [$c, $side]) if (catfish_art_has("cf-eyes-$c-$frame.png")) $h .= '<span class="cfclip cfclip-' . $side . '-' . $frame . '">' . $img("cf-eyes-$c-$frame.png") . '</span>';
-    } elseif (in_array($eye, CATFISH_EYE_COLOURS, true) && catfish_art_has("cf-eyes-$eye-$frame.png")) {
-        $h .= $img("cf-eyes-$eye-$frame.png");
+        foreach ([[$l, 'L'], [$r, 'R']] as [$c, $side]) {
+            $ef = catfish_role_frame($frame, "eyes-$c");
+            if (catfish_art_has("cf-eyes-$c-$ef.png")) $out[] = ["cf-eyes-$c-$ef.png", [], "$side-$ef"];
+        }
+    } elseif (in_array($eye, CATFISH_EYE_COLOURS, true)) {
+        $ef = catfish_role_frame($frame, "eyes-$eye");
+        if (catfish_art_has("cf-eyes-$eye-$ef.png")) $out[] = ["cf-eyes-$eye-$ef.png", [], ''];
+    }
+    return $out;
+}
+function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', bool $eyeClass = true): string
+{
+    $fallback = '<span class="cfcat c-' . e($cat['colour'] ?? '') . ' p-' . e($cat['pattern'] ?? '') . ($eyeClass ? ' e-' . e($cat['eyes'] ?? '') : '') . '" aria-hidden="true">🐱</span>';
+    if (!in_array($frame, CATFISH_FRAMES, true) && !in_array($frame, CATFISH_FRAMES_EXTRA, true)) $frame = 'idleA';
+    $layers = catfish_cat_layers($cat, $frame);
+    if ($layers === null) return $fallback;
+    $h = '';
+    foreach ($layers as [$file, $masks, $clip]) {
+        $inner = '<img src="' . e(catfish_art_url($file)) . '" alt="" width="64" height="64">';
+        if ($clip !== '') $inner = '<span class="cfclip cfclip-' . $clip . '">' . $inner . '</span>';
+        foreach ($masks as $m) $inner = '<span class="cfmk cfmk-' . $m . '">' . $inner . '</span>';
+        $h .= $inner;
     }
     $s = $size >= 192 ? 192 : ($size >= 128 ? 128 : 64);
     return '<span class="cfart cf-s' . $s . '" aria-hidden="true">' . $h . '</span>';
+}
+/**
+ * Manifest of the lazily built frames of one cat for catfish.js: url prefix p and suffix s (cache-busting version), and frame => [[file, masks, clip], ...] as
+ * catfish_cat_layers() lists them (aliases already resolved to the base layers' files). Frames with no art are left out. Same-origin images only.
+ */
+function catfish_frame_manifest(array $cat, array $frames = CATFISH_FRAMES_LAZY): array
+{
+    $u = catfish_art_url('@'); $i = strpos($u, '@');
+    $m = ['p' => substr($u, 0, $i), 's' => substr($u, $i + 1), 'frames' => []];
+    foreach ($frames as $f) {
+        $l = catfish_cat_layers($cat, $f);
+        if ($l === null) continue;
+        $m['frames'][$f] = array_map(fn($r) => $r[2] !== '' ? $r : ($r[1] ? [$r[0], $r[1]] : [$r[0]]), $l);
+    }
+    return $m;
 }
 
 /** Today's date in the Hollow's time zone (setting game_timezone, America/Halifax). Every Cat Fish day and week turns over at its local midnight, like the rest of the game (jobs.php). */
