@@ -74,6 +74,21 @@ $pick = $canParty && isset($_GET['pick']) ? max(0, min(ppal_party_max() - 1, (in
 $palBook = $palsOn ? ppal_book($uid) : null;
 [$palF, $palT] = $palsOn ? ppal_counts($uid) : [0, 0];
 
+$radarSvg = function (string $selK = '') use ($u, $gurl): string {   // the stat web: Overview (no selection) and Stats tab
+    $keys = array_keys(GNOME_STATS);
+    $n = count($keys); $cx = 130; $cy = 128; $R = 92;
+    $ptAt = function (int $i, float $f) use ($n, $cx, $cy, $R): array { $a = -M_PI / 2 + 2 * M_PI * $i / $n; return [round($cx + cos($a) * $R * $f, 1), round($cy + sin($a) * $R * $f, 1)]; };
+    $ring = function (float $f) use ($n, $ptAt): string { $o = []; for ($i = 0; $i < $n; $i++) { [$x, $y] = $ptAt($i, $f); $o[] = "$x,$y"; } return implode(' ', $o); };
+    $now = []; $axes = '';
+    foreach ($keys as $i => $k) { [$x, $y] = $ptAt($i, min(1, eff_stat($u, $k) / 20)); $now[] = "$x,$y"; [$ax, $ay] = $ptAt($i, 1); $axes .= "M$cx $cy L$ax $ay "; }
+    $o = '<svg class="radar" viewBox="0 0 260 256" role="img" aria-label="Your stats as a chart: ' . e(implode(', ', array_map(fn($k) => GNOME_STATS[$k][0] . ' ' . eff_stat($u, $k), $keys))) . '">'
+       . '<polygon points="' . $ring(1) . '" class="r20"/><polygon points="' . $ring(.75) . '" class="r15"/><path d="' . $axes . '" class="rax"/>'
+       . '<polygon points="' . $ring(.5) . '" class="r10"/><polygon points="' . implode(' ', $now) . '" class="rnow"/>';
+    foreach ($keys as $i => $k) { [$lx, $ly] = $ptAt($i, 1.16);
+        $o .= '<a href="' . e($gurl('stats', ['s' => $k])) . '"><text x="' . $lx . '" y="' . $ly . '" text-anchor="middle" class="rlab' . ($k === $selK ? ' on' : '') . '">' . GNOME_STATS[$k][1] . ' ' . e(GNOME_STATS[$k][0]) . '</text></a>'; }
+    return $o . '</svg>';
+};
+
 page_header('My Gnome');
 ?>
 <div class="gvpage">
@@ -150,7 +165,7 @@ page_header('My Gnome');
       <?php if ((int)($lc['lairs'] ?? 0)): ?><span class="fact"><span>🐉</span><b><?= (int)$lc['lairs'] ?></b><small>lairs conquered</small></span><?php endif; ?>
       <?php if ((int)($lc['delves'] ?? 0)): ?><span class="fact"><span>🕳️</span><b><?= (int)$lc['delves'] ?></b><small>delves cleared</small></span><?php endif; ?>
     </div>
-    <div class="box"><h3>💪 Stats</h3><p class="help"><?php foreach (GNOME_STATS as $sk => $sd) echo e($sd[0]) . ' ' . eff_stat($u, $sk) . ' · '; ?><a href="<?= e($gurl('stats')) ?>">Open stats →</a></p></div>
+    <div class="box"><h3>💪 Stats</h3><?= $radarSvg() ?><p class="help"><a href="<?= e($gurl('stats')) ?>">Open stats →</a></p></div>
     <?= dye_editor_html($u) ?>
 
 <?php elseif ($tab === 'pals'):
@@ -174,23 +189,12 @@ page_header('My Gnome');
     $keys = array_keys(GNOME_STATS);
     $selK = (string)($_GET['s'] ?? $keys[0]);
     if (!isset(GNOME_STATS[$selK])) $selK = $keys[0];
-    $n = count($keys); $cx = 130; $cy = 128; $R = 92;
-    $ptAt = function (int $i, float $f) use ($n, $cx, $cy, $R): array { $a = -M_PI / 2 + 2 * M_PI * $i / $n; return [round($cx + cos($a) * $R * $f, 1), round($cy + sin($a) * $R * $f, 1)]; };
-    $ring = function (float $f) use ($n, $ptAt): string { $o = []; for ($i = 0; $i < $n; $i++) { [$x, $y] = $ptAt($i, $f); $o[] = "$x,$y"; } return implode(' ', $o); };
-    $now = []; $axes = '';
-    foreach ($keys as $i => $k) { [$x, $y] = $ptAt($i, min(1, eff_stat($u, $k) / 20)); $now[] = "$x,$y"; [$ax, $ay] = $ptAt($i, 1); $axes .= "M$cx $cy L$ax $ay "; }
     $stMax = (int)setting('stat_max'); ?>
     <section class="box">
       <div class="palhead"><h2>💪 Stats</h2><?php if ($pts > 0): ?><span class="gvbadge big">✨ <?= $pts ?> point<?= $pts === 1 ? '' : 's' ?> to spend</span><?php endif; ?></div>
       <p class="help"><?= $pts > 0 ? 'Press + next to a stat to spend a point.' : '10 is an average gnome. Every 2 points above 10 gives a +1 modifier. You earn ' . (int)setting('stat_points_per_level') . ' stat point per gnome level.' ?></p>
       <div class="statsplit">
-        <svg class="radar" viewBox="0 0 260 256" role="img" aria-label="Your stats as a chart: <?= e(implode(', ', array_map(fn($k) => GNOME_STATS[$k][0] . ' ' . eff_stat($u, $k), $keys))) ?>">
-          <polygon points="<?= $ring(1) ?>" class="r20"/><polygon points="<?= $ring(.75) ?>" class="r15"/><path d="<?= $axes ?>" class="rax"/>
-          <polygon points="<?= $ring(.5) ?>" class="r10"/><polygon points="<?= implode(' ', $now) ?>" class="rnow"/>
-          <?php foreach ($keys as $i => $k): [$lx, $ly] = $ptAt($i, 1.16); ?>
-            <a href="<?= e($gurl('stats', ['s' => $k])) ?>"><text x="<?= $lx ?>" y="<?= $ly ?>" text-anchor="middle" class="rlab<?= $k === $selK ? ' on' : '' ?>"><?= GNOME_STATS[$k][1] ?> <?= e(GNOME_STATS[$k][0]) ?></text></a>
-          <?php endforeach; ?>
-        </svg>
+        <?= $radarSvg($selK) ?>
         <ul class="statlist">
           <?php foreach (GNOME_STATS as $k => [$nm, $ic]):
               $base = (int)$u['stat_' . $k]; $tot = eff_stat($u, $k); $mod = stat_mod($tot); ?>

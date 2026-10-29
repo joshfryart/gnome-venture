@@ -572,6 +572,8 @@ function post_update_news(string $from): void
     '2.0.95' => ['📱 My Gnome on phones',
         "[list][*]My Gnome is tighter on phones: a smaller header, slimmer pal slots and a smaller skill web, with every stat still listed.\n"
         . "[*]Computers look the same as before.[/list]"],
+    '2.0.96' => ['🕸️ Stat web on Overview',
+        "[list][*]The Stats box on My Gnome Overview now shows your stat web. Tap a label to open that stat.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

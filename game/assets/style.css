@@ -6045,3 +6045,4 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .gvpage .statlist .sc { font-size: 18px; }
   .gvpage .statsel { font-size: 13px; padding: 6px 10px; }
 }
+.gvpage .box > .radar { display: block; margin: 4px auto; }
