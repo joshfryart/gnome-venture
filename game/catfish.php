@@ -102,7 +102,7 @@ page_header('Cat Fish');
     <span class="cficon" aria-hidden="true">🏡</span><span class="cfinfo"><b>Bigger home</b> <small class="muted"><?= $slots ?> of <?= CATFISH_MAX_CATS ?> places</small><br><small>Room for one more cat.</small></span>
     <?php if ($extra < count(CATFISH_SLOT_COSTS)): ?><button class="btn" type="submit"<?= $v['spend'] >= CATFISH_SLOT_COSTS[$extra] ? '' : ' disabled' ?>><?= CATFISH_SLOT_COSTS[$extra] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
   <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="rare">
-    <span class="cficon" aria-hidden="true">🔭</span><span class="cfinfo"><b>Rare Shelter</b> <small class="muted">level <?= $rareLvl ?> of <?= count(CATFISH_RARE_COSTS) ?></small><br><small>Each spot shows the best of <?= $rareLvl + 2 ?> cats.</small></span>
+    <span class="cficon" aria-hidden="true">🔭</span><span class="cfinfo"><b>Rare Shelter</b> <small class="muted">level <?= $rareLvl ?> of <?= count(CATFISH_RARE_COSTS) ?></small><br><small><?= $rareLvl === 0 ? 'Each spot shows one cat.' : 'Each spot shows the best of ' . ($rareLvl + 1) . ' cats.' ?> Next level: best of <?= min($rareLvl, count(CATFISH_RARE_COSTS) - 1) + 2 ?>.</small></span>
     <?php if ($rareLvl < count(CATFISH_RARE_COSTS)): ?><button class="btn" type="submit"<?= $v['spend'] >= CATFISH_RARE_COSTS[$rareLvl] ? '' : ' disabled' ?>><?= CATFISH_RARE_COSTS[$rareLvl] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
 </details>
 <?php

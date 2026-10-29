@@ -225,5 +225,160 @@ dbx "UPDATE catfish_state SET yarn=0 WHERE user_id=$UID_"
 # the Cat Book also records cats only seen at the shelter
 ok "Cat Book: shelter cats seen are recorded" "$([ "$(dbv "SELECT COUNT(*) FROM cat_book WHERE user_id=$UID_")" -ge 3 ] && echo y || echo n)" y
 
+# ---------- week 3: shelter rerolls, Rare Shelter, Yarn spending, bigger home, adoption guards, Petal milestones ----------
+setg catfish_open 1
+cfreset
+w3reset() { dbx "DELETE FROM cats WHERE user_id=$UID_; DELETE FROM cat_book WHERE user_id=$UID_; UPDATE catfish_state SET active_cat_id=NULL, kibble=0, upgrades='{}', naps=0, run_kibble=0, yarn=0, meta='{}', last_tick=$(date +%s) WHERE user_id=$UID_"; }
+mget() { local v; v=$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | jp "$1"); echo "${v:-0}"; }   # one value out of catfish_state.meta (0 when absent)
+ncats() { dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_"; }
+pagew3() { curl -s -b $W/p $BASE/catfish.php > $W/w3.html; CS=$(csrf $W/w3.html); }
+# the seed in the hidden input of shelter slot $1, read from page file $2
+seed_of() { grep -o "name=\"slot\" value=\"$1\"><input type=\"hidden\" name=\"seed\" value=\"[0-9]*\"" "$2" | grep -o '[0-9]*"$' | tr -d '"'; }
+
+# pure: rolls and Rare Shelter (stubs for is_admin and setting, no database)
+PUREW3=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1];
+$base = catfish_shelter(7, "2026-01-01"); $same = catfish_shelter(7, "2026-01-01", [], 0); $roll = catfish_shelter(7, "2026-01-01", [1,0,0], 0);
+$r0 = catfish_shelter(7, "2026-01-01", [], 0); $r2 = catfish_shelter(7, "2026-01-01", [], 2);
+echo json_encode($base) === json_encode($same) ? "y" : "n", "\n";
+echo ($base[0]["seed"] !== $roll[0]["seed"] && $base[1]["seed"] === $roll[1]["seed"] && $base[2]["seed"] === $roll[2]["seed"]) ? "y" : "n", "\n";
+$up = true; for ($i = 0; $i < 3; $i++) if ($r2[$i]["score"] < $r0[$i]["score"]) $up = false;
+echo $up ? "y" : "n", "\n";' "$GAME/includes/catfish.php")
+pw3() { echo "$PUREW3" | sed -n "$1p"; }
+ok "pure: no rolls and no Rare Shelter = the default shelter" "$(pw3 1)" y
+ok "pure: a roll on slot 0 changes slot 0 only" "$(pw3 2)" y
+ok "pure: Rare Shelter 2 never scores a slot below its plain cat" "$(pw3 3)" y
+
+# 2. shelter rerolls: 1 Yarn each, 3 per slot per day
+w3reset; pagew3
+dbx "UPDATE catfish_state SET yarn=0 WHERE user_id=$UID_"
+cfpost -d do=reroll -d slot=0 >/dev/null
+ok "reroll with 0 Yarn: refused (ys stays 0)" "$(mget ys)" 0
+dbx "UPDATE catfish_state SET yarn=5 WHERE user_id=$UID_"
+pagew3; SA=$(seed_of 0 $W/w3.html)
+ok "page: slot 0 has a seed" "$([ -n "$SA" ] && echo y || echo n)" y
+cfpost -d do=reroll -d slot=0 >/dev/null
+ok "reroll 1: ys=1" "$(mget ys)" 1
+ok "reroll 1: roll.n[0]=1" "$(mget roll.n.0)" 1
+pagew3; SB=$(seed_of 0 $W/w3.html)
+ok "reroll 1: slot 0 shows a new seed" "$([ -n "$SB" ] && [ "$SA" != "$SB" ] && echo y || echo n)" y
+cfpost -d do=reroll -d slot=0 >/dev/null; cfpost -d do=reroll -d slot=0 >/dev/null
+ok "reroll 3: ys=3" "$(mget ys)" 3
+ok "reroll 3: roll.n[0]=3" "$(mget roll.n.0)" 3
+cfpost -d do=reroll -d slot=0 >/dev/null
+ok "fourth reroll refused: ys stays 3" "$(mget ys)" 3
+ok "fourth reroll refused: roll.n[0] stays 3" "$(mget roll.n.0)" 3
+
+# 3. bigger home: 5 Yarn, then 20; a third is refused; the home holds 4 cats at most
+dbx "UPDATE catfish_state SET yarn=4, meta='{}' WHERE user_id=$UID_"
+cfpost -d do=bigger >/dev/null
+ok "bigger home with 4 Yarn: refused (extra stays 0)" "$(mget extra)" 0
+ok "bigger home with 4 Yarn: ys stays 0" "$(mget ys)" 0
+dbx "UPDATE catfish_state SET yarn=5 WHERE user_id=$UID_"
+cfpost -d do=bigger >/dev/null
+ok "bigger home with 5 Yarn: extra=1" "$(mget extra)" 1
+ok "bigger home with 5 Yarn: ys=5" "$(mget ys)" 5
+dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
+pagew3; SA=$(seed_of 0 $W/w3.html); SB=$(seed_of 1 $W/w3.html); SC=$(seed_of 2 $W/w3.html)
+ok "page: slots 0-2 have seeds" "$([ -n "$SA$SB$SC" ] && [ -n "$SC" ] && echo y || echo n)" y
+cfpost -d do=adopt -d slot=0 -d seed=$SA --data-urlencode name=Alpha >/dev/null
+cfpost -d do=adopt -d slot=1 -d seed=$SB --data-urlencode name=Beta >/dev/null
+cfpost -d do=adopt -d slot=2 -d seed=$SC --data-urlencode name=Gamma >/dev/null
+ok "one bigger home: a 3rd cat is allowed (3 cats)" "$(ncats)" 3
+dbx "UPDATE catfish_state SET yarn=30, meta='{\"extra\":1,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=bigger >/dev/null
+ok "second bigger home: extra=2" "$(mget extra)" 2
+ok "second bigger home costs 20: ys=20" "$(mget ys)" 20
+cfpost -d do=bigger >/dev/null
+ok "third bigger home refused: extra stays 2" "$(mget extra)" 2
+ok "third bigger home refused: ys stays 20" "$(mget ys)" 20
+dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
+cfpost -d do=reroll -d slot=0 >/dev/null
+pagew3; S4=$(seed_of 0 $W/w3.html)
+cfpost -d do=adopt -d slot=0 -d seed=$S4 --data-urlencode name=Delta >/dev/null
+ok "4 places: a 4th cat adopts" "$(ncats)" 4
+cfpost -d do=adopt -d slot=1 --data-urlencode name=Epsilon >/dev/null
+ok "5th cat refused: home full (still 4)" "$(ncats)" 4
+
+# 4. Rare Shelter: 3 Yarn, then 10; a third is refused; ys follows
+dbx "UPDATE catfish_state SET yarn=100, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=rare >/dev/null
+ok "Rare Shelter 1 costs 3: ys=3" "$(mget ys)" 3
+ok "Rare Shelter 1: rare=1" "$(mget rare)" 1
+cfpost -d do=rare >/dev/null
+ok "Rare Shelter 2 costs 10: ys=13" "$(mget ys)" 13
+ok "Rare Shelter 2: rare=2" "$(mget rare)" 2
+cfpost -d do=rare >/dev/null
+ok "Rare Shelter third refused: ys stays 13" "$(mget ys)" 13
+ok "Rare Shelter third refused: rare stays 2" "$(mget rare)" 2
+pagew3
+ok "Yarn to spend shows 100 - 13 = 87" "$(grep -c 'Home and shelter · 87 Yarn to spend' $W/w3.html)" 1
+
+# 5. adopt with a stale seed is refused; the seed from the page works (a cat freed for it first)
+dbx "DELETE FROM cats WHERE user_id=$UID_ AND name='Delta'"
+dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
+pagew3; S5=$(seed_of 0 $W/w3.html)
+ok "page: slot 0 has a seed to adopt" "$([ -n "$S5" ] && echo y || echo n)" y
+cfpost -d do=adopt -d slot=0 -d seed=1 --data-urlencode name=Wrong >/dev/null
+ok "stale seed (1): refused, cats unchanged" "$(ncats)" 3
+cfpost -d do=adopt -d slot=0 -d seed=$S5 --data-urlencode name=Right >/dev/null
+ok "seed from the page: adopted (4 cats)" "$(ncats)" 4
+
+# 6. spending Yarn never lowers Kibble per hour
+cfreset
+dbx "UPDATE catfish_state SET yarn=100, meta='{\"extra\":0,\"ys\":0}', last_tick=$(date +%s) WHERE user_id=$UID_"
+KA=$(cfapi -d do=tick | jp view.kph)
+cfpost -d do=bigger >/dev/null
+KB=$(cfapi -d do=tick | jp view.kph)
+ok "bigger home bought with 5 Yarn: ys=5" "$(mget ys)" 5
+ok "view.kph unchanged after spending Yarn" "$KB" "$KA"
+ok "view.kph with 100 Yarn is above 600" "$(awk "BEGIN{print ($KA > 600) ? \"y\" : \"n\"}")" y
+
+# 7. Petal milestones: paid on page load, once each, inside the weekly cap (catfish_petal_cap)
+setg catfish_petal_cap 100
+PCT=$(dbv "SELECT value FROM settings WHERE name='games_petals_percent'"); PCT=${PCT:-60}
+P20=$(php -r 'echo max(1, (int)round(20 * (int)$argv[1] / 100));' "$PCT")
+P40=$(php -r 'echo max(1, (int)round(40 * (int)$argv[1] / 100));' "$PCT")
+cfreset
+w3reset; pagew3; S1=$(seed_of 0 $W/w3.html)
+dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
+cfpost -d do=adopt -d slot=0 -d seed=$S1 --data-urlencode name=Pebble >/dev/null
+ok "petals: one cat adopted" "$(ncats)" 1
+dbx "UPDATE users SET coins=0 WHERE id=$UID_; UPDATE catfish_state SET meta='{}' WHERE user_id=$UID_"
+curl -s -b $W/p $BASE/catfish.php > $W/pm.html
+ok "first page load pays adopt1 ($P20 Petals at 60%)" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" "$P20"
+ok "adopt1 recorded in meta.ms" "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | grep -c '"adopt1"')" 1
+curl -s -b $W/p $BASE/catfish.php > $W/pm.html
+ok "second page load pays nothing more" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" "$P20"
+dbx "UPDATE catfish_state SET naps=1 WHERE user_id=$UID_"
+C0=$(dbv "SELECT coins FROM users WHERE id=$UID_")
+curl -s -b $W/p $BASE/catfish.php > $W/pm.html
+ok "nap1 pays $P40 Petals on the next page load" "$(( $(dbv "SELECT coins FROM users WHERE id=$UID_") - C0 ))" "$P40"
+ok "nap1 recorded in meta.ms" "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | grep -c '"nap1"')" 1
+# weekly cap 30 with 5 naps: adopt1 (12) fits; nap1 (24) would take it to 36 and waits; nap5 waits too
+setg catfish_petal_cap 30
+dbx "UPDATE users SET coins=0 WHERE id=$UID_; UPDATE catfish_state SET meta='{}', naps=5 WHERE user_id=$UID_"
+curl -s -b $W/p $BASE/catfish.php > $W/pm.html
+CAPC=$(dbv "SELECT coins FROM users WHERE id=$UID_")
+ok "weekly cap 30: at most 30 Petals paid in one load" "$([ "$CAPC" -le 30 ] && echo y || echo n)" y
+ok "weekly cap 30: only adopt1 fits ($P20)" "$CAPC" "$P20"
+ok "weekly cap 30: pw.paid counts the one paid" "$(mget pw.paid)" "$P20"
+ok "weekly cap 30: nap1 does not fit, stays unpaid" "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | grep -c '"nap1"')" 0
+ok "weekly cap 30: nap5 does not fit, stays unpaid" "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | grep -c '"nap5"')" 0
+curl -s -b $W/p $BASE/catfish.php > $W/pm.html
+ok "weekly cap 30: a second load pays nothing more" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" "$CAPC"
+# cap 0: nothing paid
+setg catfish_petal_cap 0
+dbx "UPDATE users SET coins=0 WHERE id=$UID_; UPDATE catfish_state SET meta='{}' WHERE user_id=$UID_"
+curl -s -b $W/p $BASE/catfish.php > $W/pm.html
+ok "cap 0: nothing paid" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" 0
+ok "cap 0: no milestone recorded" "$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_" | grep -c '"adopt1"')" 0
+setg catfish_petal_cap 100
+
+# 8. gate: the reroll POST through the page redirects while Cat Fish is closed
+pagew3
+setg catfish_open 0
+ok "gate off: do=reroll via the page redirects (302)" "$(cfpost -d do=reroll -d slot=0)" 302
+setg catfish_open 1
+
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

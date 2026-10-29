@@ -58,7 +58,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] Shelter upgrades (Yarn): Swap a cat (1 Yarn, 3 a day per spot), Bigger home (5 then 20 Yarn, cap 4 cats), Rare Shelter (3 then 10 Yarn, best of 2-3 cats). Spending never lowers the Kibble bonus (it follows Yarn earned).
 - [x] Adopt posts the shelter cat's seed, so a stale form or a changed shelter cannot adopt the wrong cat
 - [x] Petal milestones (one-time, `give_petals`, weekly cap = setting `catfish_petal_cap`, default 100, 0 = off; milestones that do not fit wait for next week)
-- [ ] Tests for week 3 (Haiku)
+- [x] Tests for week 3 (136 checks)
 - [ ] Opus mid-week review
 **Week 4:** Cat Show, garden bed cat, Pals bonus, final art, balance, CHANGELOG, Opus end review.
 
