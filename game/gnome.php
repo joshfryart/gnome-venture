@@ -79,6 +79,7 @@ $palBook = $palsOn ? ppal_book($uid) : null;
 
 page_header('My Gnome');
 ?>
+<div class="gvpage">
 <div class="gnomehead box">
   <?= gnome_avatar_pals($u, 90) ?>
   <div>
@@ -334,5 +335,6 @@ page_header('My Gnome');
 <?php endif; ?>
 <?php endif; ?>
   </div>
+</div>
 </div>
 <?php page_footer();

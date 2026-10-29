@@ -5983,3 +5983,23 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .gardcard.empty { background: transparent; border: 2px dashed var(--line); box-shadow: none; }
 /* right rail: Today */
 .rtoday p { margin: 0 0 6px; font-size: 13px; }
+
+/* v2.0.90: centre everything on My Gnome */
+.gvpage { text-align: center; }
+.gvpage .gnomehead { justify-content: center; align-items: center; text-align: center; }
+.gvpage .palhead { justify-content: center; text-align: center; }
+.gvpage .palhead h2, .gvpage h2, .gvpage h3 { text-align: center; }
+.gvpage .palslots, .gvpage .gvtabs, .gvpage .wall, .gvpage .gardgrid { justify-content: center; }
+.gvpage .gvtabs a, .gvpage .palslot, .gvpage .palrow, .gvpage .palnow, .gvpage .statlist li, .gvpage .statlist li a { justify-content: center; text-align: center; }
+.gvpage .palrow .grow, .gvpage .folkcard .grow { text-align: center; }
+.gvpage .folkcard { flex-direction: column; align-items: center; text-align: center; }
+.gvpage .statsplit { justify-content: center; }
+.gvpage .statsel, .gvpage .effects, .gvpage .perkbox { text-align: center; }
+.gvpage .effects { list-style: none; padding: 0; }
+.gvpage .menucard, .gvpage .menucard .course { text-align: center; }
+.gvpage .menucard .dish { justify-content: center; }
+.gvpage .menucard .dish .lead { flex: 0 1 60px; }
+.gvpage table.grid { margin: 0 auto; }
+.gvpage .calling, .gvpage .ctiers { text-align: center; }
+.gvpage .ctiers { list-style-position: inside; padding-left: 0; }
+@media (max-width: 720px) { .gvpage .gvtabs { justify-content: flex-start; } }
