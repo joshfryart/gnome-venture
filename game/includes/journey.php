@@ -356,8 +356,14 @@ function journey_finish(array $u, int $chapterId): array
     $jxp = (int)round((int)$ch['reward_xp'] * (int)setting('journey_xp_percent') / 100);
     if ($jxp > 0) { add_xp($uid, $jxp, 'Journey chapters'); $lines[] = '+' . $jxp . ' XP'; }
     $lines[] = $ch['project_icon'] . ' ' . $ch['benefit_text'];
-    $nx = journey_next_locked($u);   // v1.0.0: where the story goes next
-    if ($nx) $lines[] = '🧭 Next chapter: ' . $nx['region'] . '. Wren’s letter says how to get there.';
+    // Where the story goes next: the chapter after this one (what Wren's letter names), not the first one you haven't started
+    $nx = null;
+    $all = journey_chapters();
+    foreach ($all as $i => $c) if ((int)$c['id'] === $chapterId) { $nx = $all[$i + 1] ?? null; break; }
+    if ($nx) {
+        $started = journey_row($uid, $nx);
+        $lines[] = '🧭 Next chapter: ' . $nx['region'] . ($started ? '.' : '. Wren’s letter says how to get there.');
+    }
     prize('🧭', 'Chapter complete: ' . $ch['title'], 'Wren has written to you. Read the letter in your Almanac → Journey.', $lines);
     return [true, ''];
 }
