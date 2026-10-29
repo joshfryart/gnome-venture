@@ -43,39 +43,49 @@ local function save(c, slug)
   return t
 end
 local function tint(c, m, from, to) m:each(function(x, y) if c:get(x, y) == from then c:px(x, y, to) end end) end
+-- hand(c, rows, legend): a hand-placed 1x sprite (too small for auto shading). The rows' non-'.' pixels form one
+-- flat silhouette part (so finish() still grows the three-tone umber outline and the black border), then every
+-- pixel is painted from the legend: rim / base / crescent shade / gloss placed by hand, light from the upper left.
+local function hand(c, rows, legend, pale)
+  for j, r in ipairs(rows) do assert(#r == c.W, "row " .. j .. " is " .. #r .. " wide") end
+  assert(#rows <= c.H)
+  local m = c:ascii(rows, 0, 0)
+  c:part(m, pale and PAPER or RED, { flat = true, contour = false, contact = false, gloss = false, pale = pale })
+  c:paint(rows, 0, 0, legend)
+  return m
+end
 
 -- ===== maneki_neko (shelf, 20 x 24) =====
 -- Cream felt beckoning cat sitting on the shelf: left paw raised beside the face (pink pad), red collar with a
--- gold bell, a gold koban coin hugged to the lit side, gold hem seam round the base.
+-- gold bell, a gold koban coin hugged to the lit side, gold hem seam round the base. Hand-placed (1x, 20 px).
 do
   local c = canvas(20, 24)
-  local earL = c:poly({ {4, 7}, {5, 2}, {9, 5} })
-  local earR = c:poly({ {10, 5}, {14, 2}, {15, 7} })
-  local body = c:rrect(3, 12, 15, 21, 3)
-  local head = c:ellipse(9.5, 8, 6, 4.5)
-  local arm  = c:rect(15, 7, 17, 13)
-  local paw  = c:rrect(14, 3, 17, 7, 1)
-  c:build{
-    { "earL", earL, PAPER, { flat = true } },
-    { "earR", earR, PAPER, { flat = true } },
-    { "body", body, PAPER, { gloss = false } },
-    { "head", head, PAPER, { gloss = false } },
-    { "arm",  arm,  PAPER, { flat = true } },
-    { "paw",  paw,  PAPER, { flat = true } },
-    { "collar", c:rect(4, 12, 14, 13), RED, { flat = true } },
-    { "coin", c:rrect(4, 15, 8, 21, 2), GOLD, { cres = 2, gloss = false } },
-    { "bell", c:rrect(8, 13, 10, 15, 1), GOLD, { flat = true } },
-  }
-  c:px(6, 5, PINK.base); c:px(6, 6, PINK.base); c:px(12, 5, PINK.base); c:px(12, 6, PINK.base)   -- inner ears
-  c:paint({ "uu....uu", "uu....uu" }, 5, 7, { u = "ol3" })                                         -- pupils
-  c:px(5, 7, C.halo); c:px(11, 7, C.halo)                                                          -- glints
-  c:px(9, 9, PINK.shade); c:px(8, 10, C.ol2); c:px(10, 10, C.ol2)                                 -- nose, mouth
-  c:px(15, 5, PINK.base); c:px(16, 5, PINK.base)                                                    -- paw pad
-  c:px(9, 15, C.hole)                                                                              -- bell slot
-  c:px(5, 16, GOLD.gloss); c:px(5, 17, GOLD.gloss)                                                 -- coin glint
-  c:px(6, 18, GOLD.shade); c:px(7, 18, GOLD.shade)                                                 -- coin rib
-  c:paint({ "gg", "g." }, 5, 4, { g = PAPER.gloss })
-  c:seam({ { 9, 19 }, { 15, 19 } }, { gap = PAPER.shade })                                         -- base hem
+  local L = { W = PAPER.rim, c = PAPER.base, s = PAPER.shade, p = PINK.base, n = PINK.shade, e = "ol3", m = "ol2",
+              r = RED.base, R = RED.shade, q = RED.rim, g = GOLD.rim, G = GOLD.base, h = GOLD.shade, o = "hole", T = "gold" }
+  hand(c, {
+    "....................",
+    "....................",
+    "..Wc.....Wc...WWc...",
+    "..Wpc...Wpcs..Wccs..",
+    "..WppcccWppcs.Wpps..",
+    "..Wcccccccccs.Wpps..",
+    "..Wcccccccccs.cccs..",
+    "..Wceeccceecs.ccs...",
+    "..Wceeccceecs.ccs...",
+    "..Wccccnccccs.ccs...",
+    "..Wcccmcmccss.ccs...",
+    "...csccccccss.ccs...",
+    "..qrrrrrrrrrrrccs...",
+    "..rrrrrgGhrrRRcss...",
+    "..WccccGohcccccs....",
+    "..WgGGhcccccccss....",
+    "..gGGGhcccccccss....",
+    "..ghhhhcccccccss....",
+    "..gGGGhcccccccss....",
+    "..gGGhhcTTcTTcTs....",
+    "..chhhcccccsssss....",
+    "...ssssssssssss.....",
+  }, L, true)
   RES[#RES + 1] = { "maneki_neko", save(c, "maneki_neko") }
 end
 
@@ -142,29 +152,30 @@ end
 
 -- ===== koi_kite_lure (rod, 16 x 16) =====
 -- Kohaku koi streamer (koinobori) hanging nose-up from the rod string: gold mouth ring, cream felt body with
--- red patches, red split tail with gold ribs. The 1 px umber string runs from the top edge to the ring (painted
--- after the border pass so it joins the game's own string).
+-- red patches and wide-set eyes, side fins, split red tail with gold ribs. The 1 px umber string runs from the
+-- top edge to the ring (painted after the border pass so it joins the game's own string). Hand-placed (1x).
 do
   local c = canvas(16, 16)
-  local ring = c:rrect(4, 2, 9, 3, 1)
-  local body = c:ellipse(6.5, 7, 3.5, 4)
-  local tail = c:poly({ {4, 10}, {9, 10}, {13, 15}, {6.5, 12}, {0, 15} })
-  local finL = c:rect(2, 7, 2, 8)
-  local finR = c:rect(11, 7, 11, 8)
-  c:build{
-    { "tail", tail, RED, { flat = true } },
-    { "finL", finL, RED, { flat = true } },
-    { "finR", finR, RED, { flat = true } },
-    { "body", body, PAPER, { cres = 2, gloss = false } },
-    { "ring", ring, GOLD, { flat = true } },
-  }
-  c:paint({ ".rrr.", "..rr.", "....." , "rr...", ".rrr." }, 5, 5, { r = RED.base })
-  c:paint({ "u....u", "u....u" }, 4, 4, { u = "ol3" })
-  c:px(4, 6, PAPER.gloss)
-  c:px(6, 3, C.hole); c:px(7, 3, C.hole)
-  c:paint({ "g.....g", ".g...g." }, 3, 12, { g = GOLD.rim })
+  local L = { W = PAPER.rim, c = PAPER.base, s = PAPER.shade, e = "ol3", r = RED.base, R = RED.shade, q = RED.rim,
+              g = GOLD.rim, G = GOLD.base, h = GOLD.shade, o = "hole" }
+  hand(c, {
+    "................",
+    "................",
+    ".....gGGGh......",
+    ".....Goooh......",
+    "....WcqrrRcs....",
+    "....WecrRces....",
+    "....WcccqrRs....",
+    "...qWcqrRccsR...",
+    "...rWqrRcccsR...",
+    "....WccqrRcs....",
+    ".....cqrRss.....",
+    "......qrRs......",
+    ".....qrrrRR.....",
+    "....qgR..qgR....",
+  }, L, true)
   c:finish()
-  c:px(6, 0, C.ol3); c:px(6, 1, C.ol3)
+  c:px(7, 0, C.ol3); c:px(7, 1, C.ol3)
   RES[#RES + 1] = { "koi_kite_lure", save(c, "koi_kite_lure") }
 end
 

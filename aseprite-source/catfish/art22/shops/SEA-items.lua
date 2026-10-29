@@ -58,7 +58,7 @@ do
   local c = canvas(W, H)
   local dish  = c:ellipse(9.5, 17, 6.5, 2):add(c:poly({ {3, 17}, {17, 17}, {14, 21}, {6, 21} }))
   local leaf  = c:poly({ {2, 15}, {4, 12}, {6, 14}, {9.5, 12}, {13, 14}, {15, 12}, {17, 15}, {15, 17}, {4, 17} })
-  local candle = c:rect(8, 6, 11, 12)
+  local candle = c:rect(8, 6, 10, 12)
   local lotus = c:poly({ {3, 9}, {7, 11}, {9.5, 9}, {12, 11}, {16, 9}, {15, 15}, {4, 15} })
   local front = c:poly({ {9.5, 10}, {12.5, 13}, {9.5, 16}, {6.5, 13} })
   c:build{
@@ -66,11 +66,11 @@ do
     { "leaf",   leaf, LEAF, { gloss = false } },
     { "candle", candle, "cream", { flat = true } },
     { "lotus",  lotus, LOTUS, { gloss = false } },
-    { "front",  front, felt("#f08cb4", { rim = "#ffc0d8" }), { flat = true } },
+    { "front",  front, felt("#ef82b0", { rim = "#f8b4d0" }), { flat = true } },
   }
   tint(c, c:rect(3, 16, 16, 17):clip(dish), TEAL.base, "#8fcbd8")       -- water surface
   c:paint({ ".f.", "fff", "fyf", ".f." }, 8, 2, { f = "#f08a24", y = "#fff1c8" })   -- flame
-  c:px(8, 9, "#d8c49a")
+  c:px(10, 7, "#d8c49a"); c:px(10, 8, "#d8c49a")
   c:px(5, 11, LOTUS.gloss); c:px(14, 11, LOTUS.gloss)
   save(c, "floating_lantern", W, H)
 end
@@ -112,34 +112,44 @@ do
 end
 
 -- ===== banana_leaf_fan (ceiling, 48x34) =====
+-- A whole banana leaf (stem left, blunt point right, pale midrib, slanted veins, torn slits) slung under a short
+-- bamboo rod by two red ties; the rod hangs from the top edge on two red cords; red tassel with a gold cap.
 do
   local W, H = 48, 34
   local c = canvas(W, H)
-  local rod  = c:rrect(3, 7, 44, 9, 1)
-  local leaf = c:poly({ {4, 10}, {44, 10}, {43, 15}, {38, 21}, {28, 25}, {15, 25}, {8, 21}, {4, 15} })
-  for _, sx in ipairs({ 14, 24, 34 }) do                                    -- torn slits along the veins
-    for t = 0, 3 do leaf:del(sx + (t > 1 and 1 or 0), 25 - t - (sx == 34 and 2 or 0)) end
+  local MY = 18                                                             -- midrib row
+  local leaf = c:ellipse(24, MY, 19.5, 8):add(c:poly({ {37, 12}, {45, MY}, {37, 24} }))
+  local function vein(vx, dir) local pts = {}
+    for j = 1, 12 do local x, y = vx + j // 2, MY + dir * (j + (dir > 0 and 0 or 0)) if leaf:has(x, y) then pts[#pts + 1] = { x, y } end end
+    return pts end
+  for _, s in ipairs({ { 15, 1 }, { 29, 1 }, { 22, -1 }, { 36, -1 } }) do   -- torn slits: cut the outer end of a vein
+    local pts = vein(s[1], s[2])
+    for i = math.max(1, #pts - 2), #pts do leaf:del(pts[i][1], pts[i][2]) end
   end
-  local bead = c:ellipse(25.5, 26.5, 1.5, 1.5)
-  local tassel = c:rect(24, 28, 27, 31)
+  local stem = c:line({ { 2, 20 }, { 5, 19 } }, 2)
+  local rod  = c:rrect(9, 4, 39, 6, 1)
+  local tieL, tieR = c:rect(13, 7, 14, 11), c:rect(33, 7, 34, 11)
+  local tassel = c:rect(23, 27, 26, 30)
   c:build{
-    { "leaf", leaf, LEAF, { gloss = { 8, 13 } } },
+    { "stem", stem, LEAF, { flat = true } },
+    { "leaf", leaf, LEAF, { gloss = { 10, 13 } } },
     { "rod",  rod, RATTAN, { gloss = false } },
+    { "tieL", tieL, RED, { flat = true, contact = false } },
+    { "tieR", tieR, RED, { flat = true, contact = false } },
     { "tassel", tassel, RED, { flat = true } },
-    { "bead", bead, GOLD, { flat = true } },
   }
-  for x = 5, 43 do if leaf:has(x, 11) then c:px(x, 11, GREEN_PALE) end end    -- midrib
-  for vx = 8, 42, 4 do                                                      -- veins
-    for y = 13, 24 do
-      local x = vx + math.floor((y - 13) / 4)
-      if leaf:has(x, y) and leaf:has(x + 1, y + 1) and c:get(x, y) == LEAF.base then c:px(x, y, LEAF.shade) end
+  for x = 4, 43 do if leaf:has(x, MY) and not c.gl.s[c:key(x, MY)] then c:px(x, MY, GREEN_PALE) end end   -- midrib
+  for vx = 7, 41, 4 do for _, d in ipairs({ -1, 1 }) do                     -- veins slant toward the tip
+    for _, q in ipairs(vein(vx, d)) do
+      local k = c:key(q[1], q[2])
+      if leaf:shrink(1):has(q[1], q[2]) and not c.gl.s[k] and c.own[k] and c.own[k].m == leaf then c:px(q[1], q[2], LEAF.shade) end
     end
-  end
-  for _, nx in ipairs({ 14, 24, 34 }) do c:px(nx, 8, RATTAN.shade); c:px(nx, 9, RATTAN.shade) end
-  c:px(25, 30, RED.shade); c:px(25, 31, RED.shade)
+  end end
+  for _, nx in ipairs({ 19, 29 }) do c:px(nx, 5, RATTAN.shade); c:px(nx, 6, RATTAN.shade) end   -- bamboo nodes
+  c:fill(c:rect(23, 27, 26, 27), GOLD.base); c:px(23, 27, GOLD.rim)                            -- tassel cap
+  c:px(24, 29, RED.shade); c:px(25, 29, RED.shade); c:px(24, 30, RED.shade)
   c:finish()
-  for y = 0, 6 do c:px(10, y, RED.shade); c:px(37, y, RED.shade) end    -- cords, no border (like the rod strings)
-  c:px(10, 7, RED.base); c:px(37, 7, RED.base)
+  for y = 0, 3 do c:px(14, y, RED.shade); c:px(34, y, RED.shade) end    -- cords, no border (like the rod strings)
   save(c, "banana_leaf_fan", W, H)
 end
 
@@ -166,8 +176,10 @@ do
     end
   end
   c:part(door, felt("#5e2f1e"), { flat = true, rim = false, contour = false })
+  c:part(c:rect(18, 2, 19, 3), RATTAN, { flat = true })                    -- woven tip knob
   c:build{
     { "cush", cush, TEAL, { flat = true } },
+    { "strap", c:line({ { 5, 19 }, { 8, 22 }, { 27, 22 } }, 2), RED, { flat = true, contact = false } },  -- chin strap
     { "bowL", bowL, RED, { flat = true } },
     { "bowR", bowR, RED, { flat = true } },
     { "knot", c:rect(29, 20, 30, 22), RED, { flat = true } },
@@ -183,7 +195,6 @@ do
   local G = felt("#4f86c0", { gloss = "#c8ecdc", rim = "#8fb8e0" })
   c:part(c:rect(4, 4, 29, 25), "#a9d6c4", { flat = true, rim = false })
   c:part(c:poly({ {5, 24}, {5, 15}, {11, 10}, {13, 13}, {11, 20}, {8, 24} }), LEAF, { flat = true })
-  c:part(c:line({ { 17, 20 }, { 17, 22 }, { 19, 24 }, { 22, 23 } }, 2), G, { flat = true })
   for _, l in ipairs({ { {15, 13}, {12, 11} }, { {20, 13}, {23, 11} }, { {15, 18}, {12, 21} }, { {19, 18}, {22, 20} } }) do
     c:part(c:line(l, 2), G, { flat = true, contact = false })
   end
@@ -198,6 +209,7 @@ do
     { "poleT", c:rrect(2, 2, 31, 4, 1), RATTAN, { gloss = false } },
     { "poleB", c:rrect(2, 25, 31, 27, 1), RATTAN, { gloss = false } },
   }
+  c:part(c:line({ { 17, 20 }, { 17, 23 }, { 19, 26 }, { 23, 26 }, { 25, 24 } }, 2), G, { flat = true })  -- tail curls over the frame
   c:eye(14, 7, true); c:eye(19, 7, true)
   c:px(16, 15, "#f08a24"); c:px(18, 17, "#f08a24"); c:px(16, 19, "#f08a24")
   for _, q in ipairs({ {2, 2}, {29, 2}, {2, 25}, {29, 25} }) do

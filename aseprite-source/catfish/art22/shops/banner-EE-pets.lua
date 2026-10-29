@@ -4,7 +4,7 @@
 -- opaque, no border, gold hem stitch top + bottom, <= 24 colours (art-style-guide Part E banner row).
 -- Focal subject: one carved log hut (izba-style) shop front, centre: red felt-shingle gable roof with a cat-ear
 -- ridge finial, cream carved bargeboards, blue shutters, a lit window with a cat sitting on the sill, a warm
--- half-open door, a cat-head hanging sign (no text), sunflowers, a bench with yarn balls and a felt boot.
+-- half-open door, a cat-face hanging sign (no text), sunflowers, a bench with yarn balls and a felt boot.
 -- Region flavour from banner-EE: birch trees, golden steppe, moss hills, pale sky. Light from the upper left.
 -- Run: AppRun -b --script banner-EE-pets.lua   Writes ../out/banner-EE-pets.png + .aseprite.
 local here = debug.getinfo(1, "S").source:sub(2):match("(.*)/") or "."
@@ -170,8 +170,8 @@ c:part(c:rect(143, 30, 156, 31), WOOD, { flat = true, contact = false })
 c:fill(c:rect(146, 32, 146, 33), UMB); c:fill(c:rect(154, 32, 154, 33), UMB)
 local sign = c:ellipse(150, 39, 6, 4.5):add(c:poly({ { 144, 37 }, { 145, 32 }, { 149, 35 } })):add(c:poly({ { 151, 35 }, { 155, 32 }, { 157, 37 } }))
 c:part(sign, GOLD, { cres = 3, deep = 0, gloss = { 146, 36 }, contact = false })
-c:px(147, 37, UMB); c:px(153, 37, UMB); c:px(150, 38, RED.shade)
-c:fill(c:ellipse(149.5, 41, 2.5, 1), RED.base); c:px(152, 40, RED.base); c:px(152, 42, RED.base); c:px(148, 41, CREAM)
+c:fill(c:rect(147, 37, 147, 38), UMB); c:fill(c:rect(153, 37, 153, 38), UMB); c:px(150, 39, RED.base)
+c:px(149, 40, UMB); c:px(151, 40, UMB); c:px(144, 39, UMB); c:px(156, 39, UMB)
 
 -- sunflowers left of the window and by the door
 local function sunflower(x, y, stem)

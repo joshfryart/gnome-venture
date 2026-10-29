@@ -109,8 +109,8 @@ do
   body:add(c:ellipse(6, 15, 2.5, 6)):add(c:ellipse(31, 15, 2.5, 6))
   body:add(c:poly({ { 3, 6 }, { 9, 8 }, { 7, 12 } })):add(c:poly({ { 35, 6 }, { 29, 8 }, { 31, 12 } }))
   body:add(c:poly({ { 3, 24 }, { 7, 18 }, { 9, 24 } })):add(c:poly({ { 35, 24 }, { 31, 18 }, { 29, 24 } }))
-  local tl = c:rect(2, 4, 4, 6)
-  local tr = c:rect(33, 4, 35, 6)
+  local tl = c:rect(1, 7, 3, 12)                                           -- tassels hang from the top corners
+  local tr = c:rect(34, 7, 36, 12)
   c:build{
     { "tl", tl, BRASS, { flat = true, contact = false } },
     { "tr", tr, BRASS, { flat = true, contact = false } },
@@ -122,7 +122,7 @@ do
   for i, dx in ipairs({ 9, 16, 23 }) do
     c:paint(D, dx, 14, { g = (i == 3) and C.goldS or C.gold, t = (i == 3) and TURQ.shade or TURQ.base, m = MADDER.shade })
   end
-  c:paint({ "g.g" }, 2, 7, { g = BRASS.shade }); c:paint({ "g.g" }, 33, 7, { g = BRASS.shade })   -- tassel strands
+  c:paint({ "g.g", "g.g" }, 1, 11, { g = BRASS.shade }); c:paint({ "g.g", "g.g" }, 34, 11, { g = BRASS.shade }) -- strands
   c:seam({ { 8, 24 }, { 30, 24 } }, { gap = MADDER.shade })                                         -- bottom hem
   c:button(17, 6)                                                                                   -- tuft button
   save(c, "kilim_cushion")

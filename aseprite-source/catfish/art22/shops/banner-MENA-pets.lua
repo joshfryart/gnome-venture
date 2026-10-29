@@ -78,9 +78,10 @@ end
 -- tiled path from the door (stone slabs)
 local path = c:poly({ { 107, 49 }, { 133, 49 }, { 140, 58 }, { 100, 58 } })
 c:fill(path, K.stone)
+c:fill(c:poly({ { 109, 49 }, { 131, 49 }, { 136, 58 }, { 104, 58 } }), K.sand)   -- warm light spilling out of the door
 for y = 52, 57, 3 do c:fill(c:rect(100, y, 140, y):clip(path), K.dune) end
 
------------------------------------------------------------------ palm, left of the shop (behind wall edge)
+----------------------------------------------------------------- palm, left of the shop
 c:part(c:line({ { 70, 48 }, { 70, 40 }, { 71, 32 }, { 73, 25 } }, 3), WOOD, { gloss = false, cres = 2, deep = 0 })
 local fronds = c:mask()
 for _, f in ipairs({
@@ -91,60 +92,63 @@ for _, f in ipairs({
 c:part(fronds, LEAF, { gloss = false, cres = 2, deep = 0 })
 
 ----------------------------------------------------------------- the shop
--- wall block, parapet, dome with cat ears
-local wall = c:rect(82, 21, 158, 47)
-local parapet = c:rect(80, 18, 160, 21)
-for x = 82, 156, 6 do parapet:rect(x, 16, x + 2, 17) end      -- little merlons
-local domeM = c:ellipse(119.5, 17, 15, 11):cut(c:rect(0, 18, W, H))
-domeM:add(c:poly({ { 105, 12 }, { 107, 2 }, { 114, 7 } }))
-domeM:add(c:poly({ { 125, 7 }, { 132, 2 }, { 134, 12 } }))
+local wall = c:rect(82, 20, 158, 48)
+local parapet = c:rect(80, 17, 160, 20)
+for x = 82, 156, 6 do parapet:rect(x, 15, x + 2, 16) end      -- little merlons
+local domeM = c:ellipse(119.5, 17, 13, 12):cut(c:rect(0, 17, W, H))
+domeM:add(c:rect(105, 14, 134, 16))                              -- drum under the dome
+domeM:add(c:poly({ { 108, 10 }, { 109, 1 }, { 116, 6 } }))
+domeM:add(c:poly({ { 123, 6 }, { 130, 1 }, { 131, 10 } }))
 c:part(domeM, GOLD, { cres = 4, deep = 2 })
 c:part(wall, WALL, { cres = 5, deep = 2, gloss = false })
 c:part(parapet, WALL, { cres = 2, deep = 1, gloss = false })
-c:fill(c:ellipse(119.5, 1, 1.5, 1.5), K.goldB)                 -- finial
-c:px(119, 1, K.sand)
--- inner ears (teal felt)
-c:fill(c:poly({ { 107, 10 }, { 108, 5 }, { 112, 8 } }), K.redS)
-c:fill(c:poly({ { 127, 8 }, { 131, 5 }, { 132, 10 } }), K.redS)
--- dome seam (stitched gores)
-c:seam({ { 105, 16 }, { 112, 10 }, { 119, 7 }, { 127, 10 }, { 134, 16 } })
+-- inner ears
+c:fill(c:poly({ { 110, 8 }, { 110, 4 }, { 114, 7 } }), K.redS)
+c:fill(c:poly({ { 125, 7 }, { 129, 4 }, { 129, 8 } }), K.redS)
+-- two little lit windows in the drum (the dome's "eyes"), seam along the drum lip
+for _, x in ipairs({ 112, 125 }) do
+  c:fill(c:rect(x - 1, 9, x + 2, 13), K.u2)
+  c:fill(c:rect(x, 10, x + 1, 13), K.glow)
+end
+c:seam({ { 106, 14 }, { 133, 14 } })
 
 -- door: horseshoe arch, warm glowing inside, teal tiled frame
-local door = c:rect(112, 32, 127, 47):add(c:ellipse(119.5, 31, 8, 7))
-local frame = door:grow(2):cut(door):cut(c:rect(0, 48, W, H))
-c:part(frame, TEAL, { cres = 2, deep = 0, gloss = false, outline = false })
+local door = c:rect(112, 31, 127, 48):add(c:ellipse(119.5, 30, 8, 7))
+local frame = door:grow(2):cut(door):cut(c:rect(0, 49, W, H))
+c:part(frame, TEAL, { cres = 2, deep = 0, gloss = false })
 c:fill(door, K.sand)
-c:fill(door:copy():cut(door:shrink(1)):cut(c:rect(0, 47, W, H)), K.goldB)   -- inner rim of warm light
-for y = 28, 46, 3 do c:px(110, y, K.cream); c:px(129, y, K.cream) end        -- tile joints on the frame
+c:fill(door:copy():cut(door:shrink(1)):cut(c:rect(0, 48, W, H)), K.goldB)   -- inner rim of warm light
+for y = 27, 47, 3 do c:px(110, y, K.cream); c:px(129, y, K.cream) end        -- tile joints on the frame
 -- inside: shelf with cushions and a lantern
-c:fill(c:rect(113, 39, 126, 39), K.wood)
-c:part(c:rrect(114, 35, 119, 38, 1), RED, { flat = true, outline = false })
-c:part(c:rrect(120, 36, 125, 38, 1), TEAL, { flat = true, outline = false })
-c:fill(c:rect(119, 25, 119, 27), K.wood)
-c:part(c:rrect(118, 28, 121, 32, 1), GOLD, { flat = true, outline = false })
-c:px(119, 30, K.glow); c:px(120, 30, K.glow)
--- cat bed (round basket) on the floor inside
-c:part(c:ellipse(122, 45, 4, 2), WOOD, { flat = true, outline = false })
+c:fill(c:rect(113, 38, 126, 38), K.wood)
+c:part(c:rrect(114, 34, 119, 37, 1), RED, { flat = true, outline = false })
+c:part(c:rrect(120, 35, 125, 37, 1), TEAL, { flat = true, outline = false })
+c:fill(c:rect(119, 23, 119, 25), K.wood)
+c:part(c:rrect(118, 26, 121, 30, 1), GOLD, { flat = true, outline = false })
+c:px(119, 28, K.glow); c:px(120, 28, K.glow)
+-- round cat basket on the floor inside
+c:part(c:ellipse(121.5, 45, 4.5, 2), WOOD, { flat = true, outline = false })
+c:fill(c:rect(118, 44, 125, 44), K.terra)
 
 -- windows with mullions and glow
 local function window(x0)
-  local m = c:rect(x0, 31, x0 + 11, 40):add(c:ellipse(x0 + 5.5, 31, 5.5, 4))
+  local m = c:rect(x0, 29, x0 + 11, 38):add(c:ellipse(x0 + 5.5, 29, 5.5, 3))
   c:fill(m:grow(1):cut(m), K.u2)
   c:fill(m, K.sand)
   c:fill(m:copy():cut(m:shrink(1)), K.goldB)
-  c:fill(c:rect(x0 + 5, 27, x0 + 6, 40), K.wood)
-  c:fill(c:rect(x0, 35, x0 + 11, 35), K.wood)
-  c:part(c:rect(x0 - 1, 41, x0 + 12, 42), WALL, { flat = true })   -- sill
+  c:fill(c:rect(x0 + 5, 26, x0 + 6, 38), K.wood)
+  c:fill(c:rect(x0, 33, x0 + 11, 33), K.wood)
+  c:part(c:rect(x0 - 1, 39, x0 + 12, 40), WALL, { flat = true })   -- sill
   return m
 end
 window(88); window(140)
--- a ginger cat peeking up in the left window
-c:fill(c:ellipse(94.5, 39, 3.5, 3):add(c:poly({ { 91, 38 }, { 91, 35 }, { 94, 37 } })):add(c:poly({ { 95, 37 }, { 98, 35 }, { 98, 38 } })), K.ginger)
-c:px(93, 39, K.u3); c:px(96, 39, K.u3)
 -- jars of treats in the right window
-c:part(c:rrect(142, 37, 144, 40, 1), TEAL, { flat = true, outline = false })
-c:part(c:rrect(148, 36, 150, 40, 1), RED, { flat = true, outline = false })
-c:fill(c:rect(142, 36, 144, 36), K.wood); c:fill(c:rect(148, 35, 150, 35), K.wood)
+c:part(c:rrect(142, 35, 144, 38, 1), TEAL, { flat = true, outline = false })
+c:part(c:rrect(148, 34, 150, 38, 1), RED, { flat = true, outline = false })
+c:fill(c:rect(142, 34, 144, 34), K.wood); c:fill(c:rect(148, 33, 150, 33), K.wood)
+-- a ginger kitten peeking up in the left window
+c:fill(c:ellipse(94.5, 37, 3.5, 2.5):add(c:poly({ { 91, 37 }, { 91, 33 }, { 94, 35 } })):add(c:poly({ { 95, 35 }, { 98, 33 }, { 98, 37 } })), K.ginger)
+c:px(93, 36, K.u3); c:px(96, 36, K.u3)
 
 -- striped awnings over the windows, scalloped hem
 local function awning(x0, x1, y0)
@@ -158,85 +162,81 @@ local function awning(x0, x1, y0)
   end
   c:outline(m)
 end
-awning(86, 100, 24)
-awning(138, 152, 24)
+awning(86, 100, 22)
+awning(138, 152, 22)
 
 -- brass lanterns hanging from the parapet
 local function lantern(x, y)
-  c:fill(c:rect(x + 1, 22, x + 1, y - 1), K.woodD)
+  c:fill(c:rect(x + 1, 21, x + 1, y - 1), K.woodD)
   c:part(c:poly({ { x - 1, y + 2 }, { x + 1.5, y - 1 }, { x + 4, y + 2 } }), GOLD, { flat = true })
   c:part(c:rrect(x, y + 2, x + 3, y + 6, 1), GOLD, { flat = true })
   c:px(x + 1, y + 4, K.glow); c:px(x + 2, y + 4, K.glow); c:px(x + 1, y + 3, K.glow)
   c:px(x + 1, y + 7, K.goldS); c:px(x + 2, y + 7, K.goldS)
 end
-lantern(104, 25)
-lantern(133, 25)
+lantern(104, 24)
+lantern(133, 24)
 
 -- hanging sign: wooden bracket + round gold disc with a teal cat head (no text)
-c:part(c:rect(158, 22, 171, 23), WOOD, { flat = true })
-c:fill(c:rect(165, 24, 165, 25), K.woodD); c:fill(c:rect(170, 24, 170, 25), K.woodD)
-local sign = c:ellipse(167.5, 31, 6, 6)
+c:part(c:rect(159, 22, 172, 23), WOOD, { flat = true })
+c:fill(c:rect(166, 24, 166, 25), K.woodD); c:fill(c:rect(170, 24, 170, 25), K.woodD)
+local sign = c:ellipse(168, 31, 6, 6)
 c:part(sign, GOLD, { cres = 3, deep = 1, gloss = false })
-local cathead = c:ellipse(167.5, 32.5, 3, 2.5):add(c:poly({ { 164, 32 }, { 164, 28 }, { 167, 30 } })):add(c:poly({ { 168, 30 }, { 171, 28 }, { 171, 32 } }))
+local cathead = c:ellipse(168, 32.5, 3.5, 2.5):add(c:poly({ { 164, 32 }, { 164, 28 }, { 167, 30 } })):add(c:poly({ { 169, 30 }, { 172, 28 }, { 172, 32 } }))
 c:fill(cathead, K.tealS)
-c:px(166, 32, K.sand); c:px(169, 32, K.sand)
+c:px(166, 32, K.sand); c:px(170, 32, K.sand)
 
 ----------------------------------------------------------------- front: rug, cushion + napping cat, pots + sitting cat
 -- kilim rug on the path
-local rug = c:poly({ { 109, 48 }, { 131, 48 }, { 134, 53 }, { 106, 53 } })
+local rug = c:poly({ { 109, 49 }, { 131, 49 }, { 134, 54 }, { 106, 54 } })
 c:part(rug, RED, { cres = 2, deep = 0, gloss = false, outline = false })
 c:fill(rug:copy():cut(rug:shrink(1)), K.teal)
 for _, x in ipairs({ 113, 120, 127 }) do
-  c:paint({ ".g.", "gsg", ".g." }, x - 1, 49, { g = K.sand, s = K.teal })
+  c:paint({ ".g.", "gsg", ".g." }, x - 1, 50, { g = K.sand, s = K.teal })
 end
 c:outline(rug)
 
 -- red floor cushion with a ginger cat napping (curled loaf, closed eyes)
-c:ground(98, 49, 10, 1.5, K.goldS)
-local cush = c:rrect(88, 44, 107, 49, 3)
+local cush = c:rrect(87, 45, 107, 50, 3)
 c:part(cush, RED, { cres = 2, deep = 1, stitch = true })
-c:button(96, 46)
-local catB = c:ellipse(99, 41, 7, 3.5)
-local catH = c:ellipse(92, 40, 4, 3.5):add(c:poly({ { 88, 39 }, { 88, 34 }, { 92, 37 } })):add(c:poly({ { 93, 37 }, { 96, 34 }, { 96, 39 } }))
-local tail = c:line({ { 105, 43 }, { 107, 40 }, { 104, 38 } }, 2)
+local catB = c:ellipse(99.5, 42, 7, 3.5)
+local catH = c:ellipse(92, 41, 4, 3.5):add(c:poly({ { 88, 41 }, { 88, 36 }, { 92, 38 } })):add(c:poly({ { 93, 38 }, { 96, 36 }, { 96, 41 } }))
+local tail = c:line({ { 105, 45 }, { 107, 42 }, { 105, 40 } }, 2)
 c:build{
   { "tail", tail, CAT, { flat = true } },
   { "body", catB, CAT, { cres = 3, deep = 1 } },
   { "head", catH, CAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:paint({ "uu.uu" }, 90, 40, { u = K.u3 })                -- sleepy eyes
-c:px(92, 42, K.redS)                                       -- nose
-c:paint({ "s.s.s" }, 97, 38, { s = K.goldS })              -- tabby stripes
+c:paint({ "uu.uu" }, 90, 41, { u = K.u3 })                -- sleepy eyes
+c:px(92, 43, K.redS)                                       -- nose
+c:paint({ "s.s.s" }, 98, 39, { s = K.goldS })              -- tabby stripes
 
--- clay pots with catgrass, right of the door
+-- clay pots with catgrass, far right of the shop
 local function pot(x, y, w, h)
   local m = c:rrect(x, y, x + w, y + h, 2)
   m:rect(x - 1, y, x + w + 1, y + 1)
   c:part(m, POT, { cres = 2, deep = 1, gloss = false })
-  return m
 end
 local grass = c:mask()
-for _, g in ipairs({ { 147, 36, 0 }, { 149, 35, 1 }, { 151, 36, 2 }, { 155, 38, 0 }, { 157, 37, 1 } }) do
-  grass:add(c:line({ { g[1], 41 }, { g[1] + g[3] - 1, g[2] } }, 2))
+for _, g in ipairs({ { 176, 36, 0 }, { 178, 35, 1 }, { 180, 36, 2 }, { 184, 39, 0 }, { 186, 38, 1 } }) do
+  grass:add(c:line({ { g[1], 42 }, { g[1] + g[3] - 1, g[2] } }, 2))
 end
 c:part(grass, LEAF, { flat = true })
-pot(146, 40, 7, 7)
-pot(155, 42, 5, 5)
+pot(175, 41, 7, 7)
+pot(184, 43, 5, 5)
 
--- cream cat sitting up by the pots, looking out (small locked eyes)
-c:ground(140, 48, 6, 1, K.goldS)
-local sitB = c:ellipse(140, 44, 5, 4.5)
-local sitH = c:ellipse(139.5, 37, 5, 4):add(c:poly({ { 135, 36 }, { 135, 31 }, { 139, 34 } })):add(c:poly({ { 140, 34 }, { 144, 31 }, { 144, 36 } }))
-local sitT = c:line({ { 145, 47 }, { 147, 45 }, { 147, 42 } }, 2)
+-- cream cat sitting up beside the door, looking out (small locked eyes)
+local sitB = c:ellipse(143, 51, 5, 4)
+local sitH = c:ellipse(142.5, 44, 5, 4):add(c:poly({ { 138, 43 }, { 138, 38 }, { 142, 41 } })):add(c:poly({ { 143, 41 }, { 147, 38 }, { 147, 43 } }))
+local sitT = c:line({ { 148, 54 }, { 150, 52 }, { 150, 49 } }, 2)
 c:build{
   { "stail", sitT, CREAMCAT, { flat = true } },
   { "sbody", sitB, CREAMCAT, { cres = 3, deep = 1, gloss = false } },
   { "shead", sitH, CREAMCAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:eye(136, 36, true); c:eye(140, 36, true)
-c:px(139, 39, K.redS)
-c:fill(c:rect(136, 41, 143, 41), K.teal)                   -- little collar
-c:px(139, 42, K.goldB)
+c:eye(139, 43, true); c:eye(143, 43, true)
+c:px(142, 46, K.redS)
+c:fill(c:rect(139, 48, 146, 48), K.teal)                   -- little collar
+c:px(142, 49, K.goldB)
 
 ----------------------------------------------------------------- hem stitch
 c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true })

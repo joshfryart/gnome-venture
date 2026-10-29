@@ -52,53 +52,46 @@ end
 local function canvas(w, h) return GV.canvas{ w = w, h = h, mode = "sticker", ol = 1, olx = 1, cres = 2, deep = 1 } end
 
 -- ===== conch_shell (shelf, 20x24) =====
+-- Queen conch: knobbed spire pointing up-left, flared pink lip wing at the upper right, the glossy aperture slit
+-- between them, resting on a small sea-turquoise felt cushion (flat bottom on the shelf).
 do
   local W, H = 20, 24
   local c = canvas(W, H)
   local SHELL = felt("#f3c08c", { gloss = "#fff3c8", rim = "#ffdcae" })
   local LIP   = felt("#ef7f96", { gloss = "#ffd2dc", rim = "#f8a8b8" })
-  local shell = c:ascii({
-    "......oo.......",
-    ".....oooo......",
-    "...oooooooo....",
-    "..ooooooooooo..",
-    ".oooooooooooooo",
-    "ooooooooooooooo",
-    "ooooooooooooooo",
-    ".oooooooooooooo",
-    ".ooooooooooooo.",
-    "..oooooooooooo.",
-    "..ooooooooooo..",
-    "...oooooooooo..",
-    "....oooooooo...",
-    ".....ooooo.....",
-    "......ooo......",
-  }, 2, 2)
-  local lip = c:ascii({
-    ".........pp....",
-    "........pppp...",
-    ".......pppppp..",
-    ".......ppppppp.",
-    "......pppppppp.",
-    "......pppppppp.",
-    ".......pppppp..",
-    "........ppppp..",
-    "........pppp...",
-    ".........pp....",
-  }, 2, 6)
+  local G = {
+    "o...............",
+    "oo..........pp..",
+    "ooo........pppp.",
+    ".ooo.o....ppppp.",
+    "oooooo...pppppp.",
+    ".ooooooo.ppppppp",
+    "oooooooooppppppp",
+    ".ooooooooopppppp",
+    "..ooooooooppppp.",
+    "...ooooooopppp..",
+    "...oooooooppp...",
+    "....ooooooppp...",
+    ".....oooooop....",
+    "......oooooo....",
+    ".......oooo.....",
+  }
+  local shell = c:ascii(G, 2, 2, "o")
+  local lip = c:ascii(G, 2, 2, "p")
   local cushion = c:rrect(2, 16, 16, 20, 2)
   c:build{
     { "cushion", cushion, TURQ, { gloss = false } },
-    { "shell", shell, SHELL, { gloss = { 5, 5 } } },
-    { "lip", lip, LIP, { gloss = { 11, 8 } } },
+    { "shell", shell, SHELL, { gloss = { 6, 8 } } },
+    { "lip", lip, LIP, { gloss = { 13, 5 } } },
   }
-  -- spire whorls (shade grooves) and two bean markings on the shell
-  c:paint({ ".....ss", "...ss..", "", "......s", "..sss.." }, 3, 5, { s = SHELL.shade })
-  c:paint({ "m.", "mm" }, 4, 11, { m = "#c98a5a" })
-  c:paint({ "mm" }, 7, 13, { m = "#c98a5a" })
+  -- spire whorl grooves across the axis, two bean markings
+  c:paint({ "..s", ".s.", "s.." }, 3, 3, { s = SHELL.shade })
+  c:paint({ "...s", "..s.", ".s..", "s..." }, 4, 5, { s = SHELL.shade })
+  c:paint({ "mm" }, 6, 12, { m = "#c98a5a" })
+  c:paint({ "m", "m" }, 9, 13, { m = "#c98a5a" })
   -- aperture: the deep glossy slit inside the lip
-  c:paint({ "a", "aa", ".a", ".a" }, 11, 9, { a = "#a8324f" })
-  c:seam({ { 4, 18 }, { 15, 18 } }, { gap = TURQ.shade })                        -- cushion hem
+  c:paint({ "a", "a", ".a", ".a", ".a", "..a" }, 10, 8, { a = "#a8324f" })
+  c:seam({ { 4, 19 }, { 15, 19 } }, { gap = TURQ.shade })                        -- cushion hem
   save(c, "conch_shell", W, H)
 end
 
@@ -138,96 +131,117 @@ do
 end
 
 -- ===== flying_fish_charm (rod, 16x16) =====
+-- Blue felt flying fish, its big sun-yellow wing fin raised like a sail, a forked tail, a silver belly panel;
+-- a gold jump ring on its head (the rod string ties on there, top-left of the sprite at x 3, y 0).
 do
   local W, H = 16, 16
   local c = canvas(W, H)
   local BLUE = felt("#3a7ccc", { gloss = "#c8ecff", rim = "#7ab4ee" })
-  local ring = c:ellipse(7.5, 2, 1.5, 1.5)
-  local wing = c:poly({ { 4, 8 }, { 8, 6 }, { 13, 3 }, { 11, 8 } })
-  local body = c:ellipse(6.5, 9.5, 4.5, 2.5)
-  local tail = c:poly({ { 10, 9 }, { 14, 6 }, { 13, 10 }, { 14, 13 } })
+  local G = {
+    "ggg........",
+    "g.g...ww...",
+    "ggg..wwww..",
+    ".b..wwwww..",
+    "bbbbbwwww..",
+    "bbbbbbww...",
+    "bbbbbbbb.tt",
+    "bbbbbbbbbt.",
+    "bbbbbbbbbtt",
+    ".bbbbbbb.tt",
+  }
+  local ring = c:ascii(G, 2, 1, "g")
+  local wing = c:ascii(G, 2, 1, "w")
+  local tail = c:ascii(G, 2, 1, "t")
+  local body = c:ascii(G, 2, 1, "b")
   c:build{
     { "ring", ring, "gold", { flat = true } },
     { "tail", tail, SUN, { flat = true } },
     { "wing", wing, SUN, { flat = true } },
     { "body", body, BLUE, { gloss = false } },
   }
-  c:px(7, 2, GV.C.hole); c:px(8, 2, GV.C.hole)
-  c:px(4, 8, BLUE.gloss); c:px(5, 8, BLUE.gloss)
-  c:paint({ "ccccc" }, 4, 11, { c = "#d8e8f0" })                                 -- silver belly
-  c:eye(2, 8, true)
+  c:px(3, 2, GV.C.hole)
+  c:paint({ "r.r.", ".r.r" }, 8, 3, { r = SUN.shade })                         -- wing ribs
+  c:paint({ "cccc", ".cc." }, 4, 9, { c = "#d8e8f0" })                           -- silver belly panel
+  c:paint({ "gg" }, 6, 6, { g = BLUE.gloss })                                    -- gloss
+  c:px(7, 7, BLUE.rim)
+  c:eye(2, 6, true)
   save(c, "flying_fish_charm", W, H)
 end
 
 -- ===== steel_pan_chime (ceiling, 48x34) =====
+-- Silver steel pan (dimpled note face), coral skirt with a turquoise band and gold seam, hung on two threads
+-- from the top edge; three chime drops of different lengths under it: coral shell, sea-glass bead, sun shell.
 do
   local W, H = 48, 34
   local c = canvas(W, H)
   local STEEL = felt("#b9bfcc", { gloss = "#fff3c8", rim = "#dfe4ec", shade = "#8a8ea8" })
-  local skirt = c:rect(11, 12, 36, 18):add(c:ellipse(23.5, 18, 12.5, 3))
-  local face = c:ellipse(23.5, 11, 13, 4)
-  local stickL = c:rect(15, 25, 16, 28)
-  local stickR = c:rect(31, 25, 32, 28)
-  local tipL = c:ellipse(15.5, 30, 2, 1.5)
-  local tipR = c:ellipse(31.5, 30, 2, 1.5)
-  local bead = c:ellipse(23.5, 26, 2, 2)
+  local skirt = c:rect(10, 10, 37, 15):add(c:ellipse(23.5, 15, 13.5, 2.5))
+  local face = c:ellipse(23.5, 10, 14, 4.5)
+  local function shell(cx, cy) -- little scallop: fan with a hinge nub
+    return c:ellipse(cx, cy, 2.5, 2):clip(c:rect(0, cy - 2, 47, cy + 1)):add(c:rect(cx - 0.5, cy + 1, cx + 0.5, cy + 2))
+  end
+  local shL = shell(14.5, 26)
+  local shR = shell(33.5, 23)
+  local bead = c:ellipse(23.5, 22, 1.5, 2)
   c:build{
     { "skirt", skirt, CORAL, { gloss = false } },
-    { "face", face, STEEL, { gloss = { 14, 9 } } },
-    { "stickL", stickL, DRIFT, { flat = true } },
-    { "stickR", stickR, DRIFT, { flat = true } },
-    { "tipL", tipL, CORAL, { flat = true } },
-    { "tipR", tipR, CORAL, { flat = true } },
-    { "bead", bead, TURQ, { gloss = false } },
+    { "face", face, STEEL, { gloss = { 14, 8 } } },
+    { "shL", shL, CORAL, { flat = true } },
+    { "shR", shR, SUN, { flat = true } },
+    { "bead", bead, TURQ, { flat = true } },
   }
-  -- note dimples on the playing face
   c:paint({
-    "....ss.ss....",
-    "..s..sss..s..",
-    "...s.....s...",
-  }, 17, 9, { s = STEEL.shade })
-  -- turquoise band round the skirt with a gold seam
-  retint(c, c:rect(11, 17, 36, 18):clip(skirt), CORAL, TURQ)
-  c:seam({ { 12, 16 }, { 35, 16 } }, { gap = CORAL.shade })
-  -- threads: two from the top edge to the rim, three drops under the pan
-  for y = 0, 7 do c:px(13, y, "#4a2c1a"); c:px(34, y, "#4a2c1a") end
-  for y = 22, 24 do c:px(15, y, "#4a2c1a"); c:px(32, y, "#4a2c1a") end
-  for y = 22, 23 do c:px(23, y, "#4a2c1a") end
+    ".....ss.ss.....",
+    "..ss..sss..ss..",
+    "....s.....s....",
+  }, 16, 8, { s = STEEL.shade })                                                 -- note dimples
+  retint(c, c:rect(10, 15, 37, 17):clip(skirt), CORAL, TURQ)                     -- turquoise band
+  c:seam({ { 11, 14 }, { 36, 14 } }, { gap = CORAL.shade })
+  c:paint({ "r.r", ".r." }, 13, 25, { r = CORAL.shade })                          -- shell ribs
+  c:paint({ "r.r", ".r." }, 32, 22, { r = SUN.shade })
+  local T = "#4a2c1a"
+  for y = 0, 5 do c:px(12, y, T); c:px(35, y, T) end                             -- hanging threads
+  for y = 19, 23 do c:px(14, y, T) end
+  for y = 19, 19 do c:px(23, y, T) end
+  for y = 19, 20 do c:px(33, y, T) end
   save(c, "steel_pan_chime", W, H)
 end
 
 -- ===== parrot_perch (sill, 30x26) =====
+-- Island parrot plush (green felt, blue face, red throat, turquoise tail) on a driftwood T-perch with a
+-- coconut cup of mango at the bar's end; the stand's foot is flat on the sill.
 do
   local W, H = 30, 26
   local c = canvas(W, H)
-  local HEAD = felt("#3f86d8", { gloss = "#c8ecff", rim = "#7ab8f0" })
+  local FACE = "#3f86d8"
+  local WING = felt("#3a9440", { gloss = "#c8e88a", rim = "#5cb84a" })
   local BEAK = felt("#e9d6a8", { gloss = "#fff3c8", rim = "#f5e6c0" })
   local NUT  = felt("#8a5a36", { gloss = "#ecc58a", rim = "#b07a45" })
-  local base = c:rrect(8, 20, 19, 22, 1)
-  local post = c:rect(12, 15, 14, 20)
-  local tail = c:poly({ { 8, 11 }, { 13, 12 }, { 9, 21 }, { 5, 19 } })
-  local body = c:ellipse(11.5, 9.5, 4.5, 5)
-  local head = c:ellipse(15, 5.5, 3.5, 3.5)
-  local beak = c:ascii({ "bb.", "bbb", "bbb", ".b." }, 18, 4)
-  local bar  = c:rrect(3, 14, 25, 15, 0)
-  local cup  = c:ellipse(22.5, 12, 3, 2):clip(c:rect(19, 12, 26, 14))
+  local base = c:rrect(9, 21, 18, 22, 1)
+  local post = c:rect(13, 18, 14, 21)
+  local tail = c:poly({ { 8, 12 }, { 12, 14 }, { 9, 21 }, { 6, 20 } })
+  local bird = c:ellipse(12, 11, 5, 5):add(c:ellipse(15.5, 6.5, 4, 4)):closed(1)
+  local wing = c:ellipse(10.5, 12, 2.5, 3.5)
+  local beak = c:ascii({ "bb.", "bbb", ".bb", "..b" }, 19, 5)
+  local bar  = c:rect(4, 16, 25, 17)
+  local cup  = c:ellipse(22.5, 13, 3, 2):clip(c:rect(19, 13, 26, 15))
   c:build{
     { "base", base, DRIFT, { gloss = false } },
     { "post", post, DRIFT, { flat = true } },
     { "tail", tail, TURQ, { gloss = false } },
-    { "body", body, PALM, { gloss = { 9, 6 } } },
-    { "head", head, HEAD, { gloss = { 13, 3 } } },
+    { "bird", bird, PALM, { gloss = { 13, 4 } } },
+    { "wing", wing, WING, { gloss = false } },
     { "beak", beak, BEAK, { flat = true } },
     { "bar", bar, DRIFT, { flat = true } },
     { "cup", cup, NUT, { flat = true } },
   }
-  c:paint({ "rr", "rrr" }, 15, 9, { r = "#dd3a2a" })                             -- red throat
-  c:paint({ "w.", "ww", ".w" }, 12, 9, { w = "#2f8a3e" })                        -- wing edge
-  c:paint({ "y" }, 13, 12, { y = SUN.base })
-  c:eye(14, 4, true)
-  c:paint({ "ff.ff" }, 10, 13, { f = "#7b66b4" })                                 -- toes on the bar
-  c:paint({ "yyy" }, 21, 11, { y = SUN.base })                                    -- mango in the cup
-  c:seam({ { 9, 21 }, { 18, 21 } }, { gap = DRIFT.shade })
+  c:paint({ "..ff", ".fff", "ffff", ".ff." }, 16, 5, { f = FACE })               -- blue face
+  c:paint({ ".rr", "rrr" }, 15, 10, { r = "#dd3a2a" })                            -- red throat
+  c:seam({ { 9, 10 }, { 9, 14 } }, { gap = WING.shade })                         -- wing seam
+  c:eye(16, 5, true)
+  c:paint({ "ff.ff" }, 11, 15, { f = "#7b66b4" })                                 -- toes over the bar
+  c:paint({ ".yy.", "yyyy" }, 21, 11, { y = SUN.base })                           -- mango in the cup
+  c:px(21, 11, SUN.gloss)
   save(c, "parrot_perch", W, H)
 end
 

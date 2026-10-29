@@ -131,30 +131,30 @@ c:fill(c:rect(109, 44, 131, 47), P.orange)
 c:fill(c:rect(109, 31, 131, 31), P.goldS)
 -- a cream cat sitting inside the door, looking out (back-lit), between noren and floor
 local doorcat = c:mask()
-doorcat:add(c:ellipse(122, 43, 3, 2.5)):add(c:ellipse(122, 39.5, 2.5, 2))
-doorcat:add(c:poly({ { 120, 38 }, { 120, 35 }, { 122, 37 } })):add(c:poly({ { 122, 37 }, { 124, 35 }, { 124, 38 } }))
+doorcat:add(c:ellipse(121, 44.5, 3, 2)):add(c:ellipse(121, 41, 2.5, 2))
+doorcat:add(c:poly({ { 119, 41 }, { 119, 38 }, { 121, 40 } })):add(c:poly({ { 122, 40 }, { 123, 38 }, { 123, 41 } }))
 c:part(doorcat, CAT, { cres = 2, deep = 1, gloss = false })
-c:fill(c:line({ { 125, 45 }, { 127, 44 }, { 127, 42 } }, 1), P.pathL)
-px(121, 39, P.ol3); px(123, 39, P.ol3)
+c:fill(c:line({ { 124, 46 }, { 126, 45 }, { 126, 43 } }, 1), P.pathL)
+px(120, 41, P.ol3); px(122, 41, P.ol3); px(121, 42, P.pink)
 -- noren curtain: three red panels with gaps, paw print on the middle one
 local noren = c:mask()
-noren:add(c:rect(109, 31, 115, 39)):add(c:rect(117, 31, 123, 39)):add(c:rect(125, 31, 131, 39))
+noren:add(c:rect(109, 31, 115, 37)):add(c:rect(117, 31, 123, 37)):add(c:rect(125, 31, 131, 37))
 c:part(noren, RED, { cres = 2, deep = 1, gloss = false, outline = false })
 c:fill(c:rect(109, 31, 131, 31), P.redD)
-c:paint({ "c.c.c", ".....", ".ccc.", ".ccc." }, 118, 33, { c = P.cream })   -- paw print
+c:paint({ "c.c.c", ".ccc.", ".ccc." }, 118, 33, { c = P.cream })   -- paw print
 -- round window with a sitting cat silhouette
 local rw = c:ellipse(97.5, 38, 6.5, 6.5)
 c:part(rw, DARKW, { flat = true })
 local pane = c:ellipse(97.5, 38, 5, 5)
 c:fill(pane, P.gold)
-c:fill(c:ellipse(97.5, 38, 5, 5):cut(c:rect(90, 30, 106, 40)), P.orange)
-c:fill(c:rect(97, 33, 98, 43):clip(pane), P.goldS)                   -- lattice
-local sil = c:mask()
-sil:add(c:ellipse(94.5, 41, 2.5, 2.5)):add(c:ellipse(94.5, 37.5, 2, 2))
-sil:add(c:poly({ { 92, 37 }, { 92, 34 }, { 94, 36 } })):add(c:poly({ { 95, 36 }, { 97, 34 }, { 97, 37 } }))
+c:fill(c:rect(91, 42, 104, 43):clip(pane), P.orange)               -- warm sill light
+local sil = c:mask()                                                -- cat sitting in the window, back-lit
+sil:add(c:ellipse(97.5, 41, 3, 2)):add(c:ellipse(97.5, 37.5, 2.5, 2))
+sil:add(c:poly({ { 95, 37 }, { 95, 34 }, { 97, 36 } })):add(c:poly({ { 98, 36 }, { 100, 34 }, { 100, 37 } }))
 sil:clip(pane)
 c:fill(sil, P.ol2)
-c:fill(c:line({ { 97, 43 }, { 99, 42 }, { 99, 40 } }, 1):clip(pane), P.ol2)
+c:fill(c:line({ { 100, 42 }, { 101, 41 }, { 101, 39 } }, 1):clip(pane), P.ol2)
+px(96, 37, P.gold); px(99, 37, P.gold)                              -- eyes catching the light
 -- display window with a maneki-neko and a yarn ball
 local dw = c:rect(136, 33, 150, 45)
 c:part(dw, DARKW, { flat = true })
@@ -213,14 +213,14 @@ end
 lantern(80); lantern(160)
 
 -- tabby cat asleep on the ridge
-local tb = c:ellipse(138, 7.5, 6, 2.5)
-local th = c:ellipse(131.5, 7.5, 2.5, 2.5)
-th:add(c:poly({ { 129, 6 }, { 129, 3 }, { 131, 5 } })):add(c:poly({ { 132, 5 }, { 134, 3 }, { 134, 6 } }))
+local tb = c:ellipse(138, 8.5, 6, 2)
+local th = c:ellipse(131.5, 8.5, 2.5, 2)
+th:add(c:poly({ { 129, 8 }, { 129, 5 }, { 131, 7 } })):add(c:poly({ { 132, 7 }, { 134, 5 }, { 134, 8 } }))
 c:part(tb, TABBY, { cres = 2, deep = 1, gloss = false })
 c:part(th, TABBY, { cres = 2, deep = 1, gloss = false })
 c:fill(c:line({ { 144, 9 }, { 146, 9 }, { 147, 8 } }, 1), P.orange)
-px(136, 6, P.wood); px(139, 6, P.wood); px(142, 7, P.wood)          -- stripes
-px(130, 8, P.ol3); px(133, 8, P.ol3)                              -- closed eyes
+px(136, 7, P.wood); px(139, 7, P.wood); px(142, 8, P.wood)          -- stripes
+px(130, 9, P.ol3); px(133, 9, P.ol3)                              -- closed eyes
 
 -- potted pine by the door and stepping stones
 c:part(c:rrect(76, 45, 81, 49, 1), WOOD, { cres = 1, deep = 0, gloss = false })

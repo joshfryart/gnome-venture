@@ -69,31 +69,31 @@ end
 -- ========== 1. Talking Drum (floor-left, 38x28) ==========
 do
   local c = GV.canvas{ w = 38, h = 28, mode = "sticker", margin = 0 }
-  local CY = 12.5
-  local function hh(x) -- half height of the hourglass at column x (ends 8, waist 4)
+  local CY = 12
+  local function hh(x) -- half height of the hourglass at column x (ends 9, waist 3.5)
     local t = (x - 19) / 13
-    return 4 + 4 * t * t
+    return 3.5 + 5.5 * t * t
   end
   local body = c:mask()
   for x = 6, 32 do local h = hh(x) for y = math.floor(CY - h + 0.5), math.floor(CY + h + 0.5) do body:set(x, y) end end
   local rimL = body:copy():clip(c:rect(6, 0, 8, 27))
   local rimR = body:copy():clip(c:rect(30, 0, 32, 27))
-  local head = c:ellipse(5, CY, 2.5, 8.5)                          -- left drum head, seen 3/4 on
-  local sash = body:copy():clip(c:rect(17, 0, 21, 27)):add(c:rect(18, 17, 20, 21))
-  local stick = c:line({ { 12, 22 }, { 28, 22 }, { 32, 21 } }, 2):add(c:line({ { 32, 21 }, { 33, 18 } }, 2))
+  local head = c:ellipse(5, CY, 3, 9.5)                            -- left drum head, seen 3/4 on
+  local sash = body:copy():clip(c:rect(17, 0, 21, 27))
+  local stick = c:line({ { 12, 23 }, { 28, 20 }, { 30, 18 }, { 30, 16 } }, 2)
   local p = c:build{
     { "body", body, MAH, { cres = 3, gloss = false } },
     { "rimR", rimR, KR, { cres = 2, gloss = false } },
     { "rimL", rimL, KR, { cres = 2, gloss = false } },
-    { "head", head, felt("#efd9a6", { gloss = "#fff3c8", rim = "#fff3c8" }), { cres = 2, gloss = { 4, 7 } } },
+    { "head", head, felt("#efd9a6", { gloss = "#fff3c8", rim = "#fff3c8", dot = "#fff1c8" }), { cres = 2, gloss = { 4, 6 } } },
     { "sash", sash, KG, { cres = 2, gloss = false } },
     { "stick", stick, WOOD, { flat = true } },
   }
-  -- tension cords: 5 lengthwise cords following the hourglass, between the rims (cream on lit, tan in shade)
-  for _, t in ipairs({ -0.75, -0.4, 0, 0.4, 0.75 }) do
+  -- tension cords: 4 lengthwise cords following the hourglass, between the rims (tan on lit, wood in shade)
+  for _, t in ipairs({ -0.8, -0.35, 0.35, 0.8 }) do
     for x = 9, 29 do
       local y = math.floor(CY + t * hh(x) + 0.5)
-      if onPart(c, p.body, x, y) then c:px(x, y, shaded(c, x, y) and "#c9a96e" or "#f1dcae") end
+      if onPart(c, p.body, x, y) then c:px(x, y, shaded(c, x, y) and "#b07a45" or "#d9a660") end
     end
   end
   -- kente sash: green and red block rows across the gold
@@ -155,30 +155,46 @@ do
   local CAL = felt("#e9b04a", { gloss = "#fff1c8", rim = "#f5cf6a" })
   local KIB = felt("#a8582f", { gloss = "#ecc58a", rim = "#c47a36" })
   local RAF = felt("#c9a96e", { gloss = "#fff3c8" })
-  local bowl = c:ellipse(17.5, 11, 13.5, 11):cut(c:rect(0, 0, 35, 10))
-  bowl:add(c:ellipse(17.5, 11, 13.5, 2.5))
-  local inner = c:ellipse(17.5, 10.5, 11.5, 1.5)
-  local heap = c:ellipse(17.5, 9, 9, 2.5)
-  for _, q in ipairs({ { 12.5, 7 }, { 17.5, 5.5 }, { 22.5, 7 }, { 15, 6.5 }, { 20, 6.5 } }) do heap:add(c:ellipse(q[1], q[2], 2.5, 2.5)) end
-  heap:clip(c:rect(0, 0, 35, 10))
+  local FISH = felt("#3f8fb0", { gloss = "#c8ecdc", rim = "#8fcbd8" })
+  local bowl = c:ellipse(17.5, 9, 13.5, 12):cut(c:rect(0, 0, 35, 8))
+  bowl:add(c:ellipse(17.5, 9, 13.5, 2.5))
+  local inner = c:ellipse(17.5, 8.5, 11.5, 1.5)
+  local pieces = { { 10.5, 6.5 }, { 14.5, 5 }, { 19, 5.5 }, { 23.5, 6.5 } }
+  local heap = c:ellipse(17, 7.5, 9, 1.5)
+  for _, q in ipairs(pieces) do heap:add(c:ellipse(q[1], q[2], 2.5, 2.5)) end
+  heap:clip(c:rect(0, 0, 35, 8))
+  local fish = c:ellipse(25.5, 3.5, 3, 1.5):add(c:poly({ { 28, 3 }, { 31, 1 }, { 31, 6 } }))
   local ring = c:rrect(9, 20, 26, 23, 2)
   local p = c:build{
     { "ring", ring, RAF, { cres = 2, gloss = false } },
-    { "bowl", bowl, CAL, { cres = 4, gloss = { 8, 13 } } },
+    { "bowl", bowl, CAL, { cres = 4, gloss = { 8, 11 } } },
+    { "fish", fish, FISH, { flat = true } },
     { "heap", heap, KIB, { cres = 2, gloss = false, contact = false } },
   }
-  c:fill(inner:copy():cut(heap), "#f1dcae")                          -- pale gourd lining at the lip
-  -- burnt zigzag band: two lines and a zigzag between
-  local BURN = "#7a3a14"
-  for x = 6, 29 do
-    if onPart(c, p.bowl, x, 14) then c:px(x, 14, BURN) end
-    if onPart(c, p.bowl, x, 18) then c:px(x, 18, BURN) end
-    local zy = 15 + math.abs((x % 4) - 2) * 1
-    if onPart(c, p.bowl, x, zy) then c:px(x, zy, BURN) end
+  c:fill(inner:copy():cut(heap):cut(fish), "#f1dcae")                -- pale gourd lining at the lip
+  -- kibble split lines (nearest-centre) + a glaze dot on each piece
+  local function near(x, y)
+    local b, bd = 0, 1e9
+    for i, q in ipairs(pieces) do local d = (x - q[1]) ^ 2 + (y - q[2]) ^ 2 if d < bd then b, bd = i, d end end
+    return b
   end
-  -- kibble split dots
-  for _, q in ipairs({ { 11, 6 }, { 16, 4 }, { 21, 6 }, { 14, 8 }, { 19, 8 } }) do c:px(q[1], q[2], KIB.gloss) end
-  for _, q in ipairs({ { 13, 7 }, { 18, 6 }, { 23, 8 }, { 16, 8 } }) do c:px(q[1], q[2], C.ol2) end
+  p.heap.m:each(function(x, y)
+    if onPart(c, p.heap, x, y) and y < 8 then
+      local n = near(x, y)
+      if (p.heap.m:has(x + 1, y) and near(x + 1, y) ~= n) then c:px(x, y, C.ol2) end
+    end
+  end)
+  for _, q in ipairs(pieces) do c:px(math.floor(q[1]) - 1, math.floor(q[2]) - 1, KIB.gloss) end
+  c:px(24, 3, C.ol3)                                                  -- fish treat eye
+  -- burnt band: a line, then a row of dark triangles (pyrography), then dots
+  local BURN = "#7a3a14"
+  for x = 4, 31 do
+    if onPart(c, p.bowl, x, 12) then c:px(x, 12, BURN) end
+    for y = 13, 15 do
+      if (y - 13) < 3 - math.abs((x % 6) - 3) and onPart(c, p.bowl, x, y) then c:px(x, y, BURN) end
+    end
+    if x % 3 == 0 and onPart(c, p.bowl, x, 18) then c:px(x, 18, BURN) end
+  end
   -- raffia ring: green and red wraps
   p.ring.m:each(function(x, y)
     if onPart(c, p.ring, x, y) and y >= 21 then
@@ -192,37 +208,39 @@ end
 -- ========== 4. Weaver-bird Nest (sill, 30x26) ==========
 do
   local c = GV.canvas{ w = 30, h = 26, mode = "sticker", margin = 0 }
-  local STRAW = felt("#c2a84a", { gloss = "#fff1c8", rim = "#e0cc78" })
+  local GRASS = felt("#8fae4a", { gloss = "#e0e8a0", rim = "#c8d77a" })
   local BIRD = felt("#f2c418", { gloss = "#fff1c8", rim = "#ffe27a" })
-  local stand = c:rrect(3, 18, 25, 21, 1)
-  local twig = c:line({ { 5, 18 }, { 5, 10 }, { 7, 8 }, { 23, 8 } }, 2)
-  local nest = c:ellipse(12.5, 13, 5.5, 5.5):add(c:rrect(12, 15, 16, 18, 1))
-  local body = c:ellipse(23, 5.5, 3.5, 2.5)
-  local tail = c:poly({ { 25, 5 }, { 28, 4 }, { 28, 7 }, { 25, 7 } })
-  local headm = c:ellipse(19.5, 4.5, 2, 2)
+  local block = c:rrect(2, 18, 13, 21, 1)
+  local twig = c:line({ { 7, 18 }, { 7, 10 }, { 9, 8 }, { 25, 8 } }, 2)
+  local nest = c:ellipse(20.5, 14, 5, 5):add(c:rrect(20, 17, 23, 21, 1))
+  local tail = c:poly({ { 16, 4 }, { 19, 3 }, { 20, 6 }, { 16, 7 } })
+  local body = c:ellipse(13.5, 5.5, 3.5, 2.5)
+  local head = c:ellipse(10, 4.5, 2, 2)
   local p = c:build{
-    { "stand", stand, MAH, { cres = 2, gloss = false } },
+    { "block", block, MAH, { cres = 2, gloss = false } },
     { "twig", twig, WOOD, { flat = true } },
-    { "nest", nest, STRAW, { cres = 3, gloss = { 9, 9 } } },
+    { "nest", nest, GRASS, { cres = 3, gloss = { 17, 11 } } },
     { "tail", tail, felt("#8a7a2a"), { flat = true } },
-    { "body", body, BIRD, { cres = 2, gloss = { 22, 4 } } },
-    { "head", headm, felt("#3e2f66", { rim = "#54447f" }), { flat = true, contour = false } },
+    { "body", body, BIRD, { cres = 2, gloss = { 13, 4 } } },
+    { "head", head, BIRD, { flat = true, contour = false } },
   }
   -- woven grass: short over-under strands
   p.nest.m:each(function(x, y)
     if onPart(c, p.nest, x, y) and ((y % 2 == 0 and x % 3 == 0) or (y % 2 == 1 and x % 3 == 2)) then
-      c:px(x, y, shaded(c, x, y) and "#6a5a1e" or STRAW.shade)
+      c:px(x, y, shaded(c, x, y) and "#3e5a22" or GRASS.shade)
     end
   end)
-  c:px(13, 18, DK); c:px(14, 18, DK); c:px(14, 17, DK)                -- entrance
-  c:px(9, 6, STRAW.rim); c:px(16, 6, STRAW.rim)                        -- loose grass ends at the hanging knot
-  c:px(18, 4, "#e0501f")                                               -- weaver's red eye
-  c:px(17, 5, "#c9a96e"); c:px(16, 5, "#c9a96e")                       -- beak
-  c:paint({ "s.s.s" }, 22, 7, { s = BIRD.shade })                      -- wing feathering
-  -- carved zigzag on the stand
-  for x = 5, 23 do
+  c:px(21, 21, DK); c:px(22, 21, DK); c:px(21, 20, DK)                -- entrance at the tube's foot
+  c:px(18, 9, GRASS.rim); c:px(23, 9, GRASS.rim)                      -- grass ends at the hanging knot
+  -- weaver face: dark mask over the beak side, red eye in it, pale beak
+  c:paint({ "mm.", "mmm", ".m." }, 8, 4, { m = DK })
+  c:px(9, 4, "#e0501f")
+  c:px(7, 5, "#c9a96e"); c:px(7, 6, "#c9a96e")
+  c:paint({ "s.s" }, 13, 7, { s = BIRD.shade })                       -- wing feathering
+  -- carved zigzag on the block
+  for x = 3, 12 do
     local y = 19 + (x % 2)
-    if onPart(c, p.stand, x, y) then c:px(x, y, shaded(c, x, y) and MAH.rim or MAH.rim) end
+    if onPart(c, p.block, x, y) then c:px(x, y, MAH.rim) end
   end
   save(c, "weaver_bird_nest")
 end

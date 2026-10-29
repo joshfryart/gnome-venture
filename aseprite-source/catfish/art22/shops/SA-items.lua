@@ -53,34 +53,41 @@ local function weave(c, m, dir, seq)
 end
 
 -- ============ 1. bromeliad (shelf, 20x24) ============
+-- A fan of arching strap leaves round a tall red bract, on a mossy bark chunk; a blue frog peeks over the
+-- front-left leaf (its two eye bumps sit above the leaf line).
 do
   local c = canvas(20, 24)
   local BARK = felt("#8a5636", { gloss = "#c98a4a", rim = "#b0703e" })
   local MOSS = felt("#7ab55c", { gloss = "#c8d77a", rim = "#a4b86a" })
+  local LEAF2 = felt("#3f8a45", { gloss = "#c8d77a", rim = "#6aa850", shade = "#2a5a38" })
   local BRACT = felt("#e0405a", { gloss = "#ffc27a", rim = "#f2793a", shade = "#ae2a4a" })
   local FROG = felt("#3f8fb0", { gloss = "#c8ecdc", rim = "#8fcbd8", shade = "#2f6290" })
-  local bark = c:rrect(3, 16, 16, 20, 2)
-  local moss = c:ellipse(6, 16, 3, 1.5):add(c:ellipse(13, 16, 2.5, 1.5))
-  local leaves = c:mask()
-  leaves:add(c:line({ { 9, 15 }, { 5, 11 }, { 2, 9 } }, 3))     -- left arch
-  leaves:add(c:line({ { 10, 15 }, { 14, 11 }, { 17, 8 } }, 3))  -- right arch
-  leaves:add(c:line({ { 9, 14 }, { 7, 8 }, { 6, 4 } }, 3))      -- back left
-  leaves:add(c:line({ { 11, 14 }, { 13, 8 } }, 3))              -- back right
-  leaves:add(c:ellipse(9.5, 14, 4, 2))
-  local bract = c:ellipse(11, 7, 2, 4)
-  local frog = c:rrect(3, 11, 8, 14, 1)
+  local bark = c:rrect(3, 17, 16, 20, 2)
+  local moss = c:ellipse(6, 17, 2.5, 1):add(c:ellipse(13, 17, 2.5, 1))
+  local backL = c:line({ { 8, 15 }, { 6, 9 }, { 5, 4 } }, 3)
+  local backR = c:line({ { 11, 15 }, { 13, 9 }, { 14, 4 } }, 3)
+  local sideL = c:line({ { 9, 16 }, { 5, 13 }, { 2, 11 } }, 3):add(c:line({ { 2, 11 }, { 1, 13 } }, 2))
+  local sideR = c:line({ { 10, 16 }, { 14, 13 }, { 17, 11 } }, 3):add(c:line({ { 17, 11 }, { 18, 13 } }, 2))
+  local bract = c:ellipse(9.5, 7, 1.5, 5)
+  local front = c:ellipse(9.5, 15.5, 3, 1.5)
+  local frog = c:rrect(2, 11, 8, 14, 1)
   c:build{
-    { "leaves", leaves, LEAF, { cres = 2, deep = 0, gloss = false } },
+    { "backL", backL, LEAF2, { flat = true } },
+    { "backR", backR, LEAF2, { flat = true } },
     { "bract", bract, BRACT, { cres = 2, deep = 0, gloss = false } },
+    { "sideL", sideL, LEAF, { flat = true } },
+    { "sideR", sideR, LEAF, { flat = true } },
     { "frog", frog, FROG, { flat = true } },
+    { "front", front, LEAF, { flat = true } },
     { "bark", bark, BARK, { cres = 2, deep = 0, gloss = false } },
     { "moss", moss, MOSS, { flat = true } },
   }
-  c:paint({ "g", "gd" }, 10, 4, { g = BRACT.gloss, d = "#ffc27a" })      -- enamel gloss on the bract
-  c:paint({ "y.y", ".y." }, 10, 2, { y = GOLD })                          -- tiny flowers at the tip
-  c:eye(3, 9, true); c:eye(6, 9, true)                                    -- frog peeking eyes
-  c:paint({ "ss" }, 5, 13, { s = FROG.shade })                            -- frog mouth
-  c:paint({ "s....s", "..s..." }, 7, 18, { s = BARK.shade })              -- bark grain
+  c:paint({ "g", "d" }, 9, 4, { g = BRACT.gloss, d = "#ffc27a" })       -- enamel gloss on the bract
+  c:paint({ "y.y" }, 8, 1, { y = GOLD })                                 -- tiny flowers at the tip
+  c:eye(2, 9, true); c:eye(6, 9, true)                                    -- frog eye bumps
+  c:px(5, 10, FROG.rim)                                                   -- blue between the eyes
+  c:paint({ "sss" }, 4, 13, { s = FROG.shade })                           -- smile
+  c:paint({ "s....s" }, 6, 19, { s = BARK.shade })                        -- bark grain
   save(c, "bromeliad")
 end
 
@@ -118,36 +125,39 @@ do
   c:px(33, 12, GV.C.ol3)                                                   -- nostril
   c:paint({ "u", "u" }, 32, 15, { u = "ol2" })                             -- mouth
   c:seam({ { 21, 11 }, { 21, 18 } }, { gap = CAPY.shade })                  -- head seam
-  c:ground(17, 25, 14, 1)
   save(c, "capybara_plush")
 end
 
 -- ============ 3. toucan feather lure (rod, 16x16) ============
+-- Three feathers in toucan colours (yellow, dark with an orange tip, orange-red) fanned under a woven red bead,
+-- tied to the rod string at the top.
 do
   local c = canvas(16, 16)
   local DARK = felt("#3e2f66", { gloss = "#a894dc", rim = "#7b66b4", shade = "#291d4a" })
   local YEL = felt("#f5c12a", { gloss = "#fff1c8", rim = "#ffe07a", shade = "#d0862a" })
-  local ORA = felt("#f08a24", { gloss = "#ffc27a", rim = "#ffb25a", shade = "#c0501f" })
-  local fl = c:line({ { 6, 8 }, { 4, 11 }, { 3, 13 } }, 2):add(c:ellipse(4, 11, 1.5, 1.5))
-  local fr = c:line({ { 9, 8 }, { 11, 11 }, { 12, 13 } }, 2):add(c:ellipse(11, 11, 1.5, 1.5))
-  local fc = c:rrect(6, 7, 9, 13, 1)
-  local bead = c:rrect(6, 3, 9, 6, 1)
+  local ORA = felt("#f0602a", { gloss = "#ffc27a", rim = "#ff9158", shade = "#ae2a2a" })
+  local fl = c:line({ { 6, 7 }, { 4, 10 }, { 3, 12 } }, 3)
+  local fr = c:line({ { 9, 7 }, { 11, 10 }, { 12, 12 } }, 3)
+  local fc = c:rrect(6, 6, 9, 13, 2):add(c:rect(7, 14, 8, 14))
+  local bead = c:rrect(5, 2, 10, 5, 1)
   c:build{
     { "fl", fl, YEL, { flat = true } },
     { "fr", fr, ORA, { flat = true } },
-    { "fc", fc, DARK, { cres = 2, deep = 0, gloss = false } },
+    { "fc", fc, DARK, { flat = true } },
     { "bead", bead, WEAVE, { flat = true } },
   }
-  c:paint({ "gt" }, 7, 5, { g = GOLD, t = TEAL })                          -- woven wrap on the bead
-  c:px(6, 3, WEAVE.gloss)
-  c:paint({ "s", "s", "s" }, 7, 9, { s = "#7b66b4" })                       -- rachis on the dark feather
-  c:px(8, 12, ORA.base)                                                     -- orange tip like the beak
+  c:paint({ "gtgt" }, 6, 4, { g = GOLD, t = TEAL })                       -- woven wrap on the bead
+  c:paint({ "dd" }, 6, 3, { d = WEAVE.gloss })                             -- enamel glint
+  c:paint({ "r", "r", "r" }, 7, 8, { r = "#7b66b4" })                       -- rachis on the dark feather
+  c:paint({ "oo", "o" }, 7, 12, { o = ORA.base })                           -- orange tip like the beak
   c:finish()
-  cord(c, 7, 0, 1)
+  cord(c, 7, 0, 0)
   save(c, "toucan_feather_lure")
 end
 
 -- ============ 4. rain stick (sill, 30x26) ============
+-- A cane rain stick with woven red end caps and two woven bands, lying on the sill with its right end
+-- raised on a little carved wooden block; spine pins spiral round the cane.
 do
   local c = canvas(30, 26)
   local WOOD = felt("#b07a45", { gloss = "#ecc58a", rim = "#d9a660", shade = "#8a4f2a" })
@@ -157,29 +167,36 @@ do
     local nx, ny = -dy / L * w, dx / L * w
     return c:poly({ { x0 + nx, y0 + ny }, { x1 + nx, y1 + ny }, { x1 - nx, y1 - ny }, { x0 - nx, y0 - ny } })
   end
-  local tube = band(5, 18, 24, 7, 3.2)
-  local capL = c:ellipse(5, 18.5, 3, 3)
-  local capR = c:ellipse(24.5, 7, 3, 3)
-  local legA = c:line({ { 15, 22 }, { 20, 13 } }, 2)
-  local legB = c:line({ { 23, 22 }, { 19, 13 } }, 2)
-  local p = c:build{
-    { "legB", legB, WOOD, { flat = true } },
-    { "tube", tube, CANE, { cres = 2, deep = 0, gloss = { 9, 13 } } },
+  local A, B = { 5, 19 }, { 24, 13 }
+  local tube = band(A[1], A[2], B[1], B[2], 3.5)
+  local capL = c:ellipse(4, 19.5, 3, 3.5)
+  local capR = c:ellipse(25, 13, 3, 3.5)
+  local block = c:rrect(17, 18, 25, 22, 1)
+  c:build{
+    { "block", block, WOOD, { cres = 2, deep = 0, gloss = false } },
+    { "tube", tube, CANE, { cres = 2, deep = 0, gloss = { 8, 15 } } },
     { "capR", capR, WEAVE, { cres = 2, deep = 0, gloss = false } },
     { "capL", capL, WEAVE, { cres = 2, deep = 0, gloss = false } },
-    { "legA", legA, WOOD, { flat = true } },
   }
-  -- spine dots in a spiral along the cane
-  for i = 0, 6 do
-    local t = (i + 0.5) / 7
-    local x, y = 7 + (22 - 7) * t, 16 - (16 - 8) * t
-    local off = (i % 2 == 0) and 1 or -1
-    c:px(math.floor(x + 0.5), math.floor(y + off + 0.5), CANE.shade)
+  local function at(t, v) -- point along the axis (t 0..1) and across it (v px, + = lower side)
+    local dx, dy = B[1] - A[1], B[2] - A[2]
+    local L = math.sqrt(dx * dx + dy * dy)
+    return math.floor(A[1] + dx * t - dy / L * v + 0.5), math.floor(A[2] + dy * t + dx / L * v + 0.5)
   end
-  -- woven middle band across the tube
-  local mid = band(14, 12.5, 15.5, 11.6, 3.2):clip(tube)
-  mid:each(function(x, y) c:px(x, y, ((x + y) % 2 == 0) and TEAL or GOLD) end)
-  c:paint({ "g" }, 4, 17, { g = GOLD }); c:paint({ "g" }, 23, 6, { g = GOLD })  -- cap ties
+  for _, t in ipairs({ 0.3, 0.7 }) do                                      -- woven bands
+    for v = -3, 3 do
+      local x, y = at(t, v)
+      if tube:has(x, y) then c:px(x, y, WEAVE.base); c:px(x + 1, y, (v % 2 == 0) and GOLD or TEAL) end
+      if tube:has(x + 2, y) and v ~= -3 then c:px(x + 2, y, WEAVE.shade) end
+    end
+  end
+  for i = 0, 9 do                                                          -- spine pins, spiral
+    local t = 0.1 + i * 0.09
+    local x, y = at(t, ((i % 3) - 1) * 2)
+    if tube:has(x, y) and c:get(x, y) ~= WEAVE.base then c:px(x, y, CANE.shade) end
+  end
+  c:paint({ "s.s" }, 19, 21, { s = WOOD.shade })                          -- carved notches
+  c:px(5, 17, GOLD); c:px(4, 18, GOLD); c:px(24, 11, GOLD); c:px(25, 12, GOLD) -- cap ties
   save(c, "rain_stick")
 end
 
@@ -205,7 +222,7 @@ do
   -- separations between tubes + bottom holes
   for i = 1, N - 1 do
     local x = X0 + i * 4 - 1
-    for y = 12, 30 do if tubes:has(x, y) and tubes:has(x + 1, y) then c:px(x, y, CANE.shade) end end
+    for y = 12, 30 do if tubes:has(x, y) and tubes:has(x + 1, y) then c:px(x, y, GV.C.ol2) end end
   end
   for i = 0, N - 1 do
     local x = X0 + i * 4

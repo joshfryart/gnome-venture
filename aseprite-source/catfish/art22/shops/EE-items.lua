@@ -87,59 +87,66 @@ do
 end
 
 -- ===== rug_runner (floor-right, 36x28) =====
+-- A runner lying on the floor and running back into the room: a long trapezoid (front end wide), its felt
+-- thickness showing as a front edge, cream fringe on both short ends, folk stepped diamonds down the middle.
 do
   local c = canvas(36, 28)
-  local rug  = c:poly({ { 5, 12 }, { 31, 12 }, { 33, 24 }, { 2, 24 } })
-  local roll = c:rrect(4, 6, 31, 13, 3)
-  local fringe = c:rect(3, 24, 32, 26)
-  local p = c:build{
-    { "fringe", fringe, CREAM, { flat = true } },
-    { "rug", rug, RED, { cres = 3, gloss = false } },
-    { "roll", roll, RED, { cres = 3, gloss = { 9, 7 } } },
+  local top   = c:poly({ { 10, 6 }, { 25, 6 }, { 31, 23 }, { 4, 23 } })
+  local edge  = c:rect(4, 23, 30, 24)
+  local front = c:rect(4, 25, 30, 26)
+  local back  = c:rect(10, 4, 24, 5)
+  c:build{
+    { "back", back, CREAM, { flat = true } },
+    { "rug", top:add(edge), RED, { cres = 2, gloss = { 9, 8 } } },
+    { "front", front, CREAM, { flat = true } },
   }
-  for x = 4, 32, 2 do c:px(x, 26, C.ol2) end                                     -- fringe notches
-  -- cream border band on the rug top
-  local band = c:poly({ { 6, 14 }, { 30, 14 }, { 32, 23 }, { 3, 23 } }):edge()
-  tint(c, band, RED.base, CREAM.base); tint(c, band, RED.shade, CREAM.shade)
-  -- stepped diamonds along the middle
-  for i, x in ipairs({ 8, 14, 20, 26 }) do
-    local col = (i % 2 == 1) and GOLD.base or GREEN.base
-    c:paint({ "..g..", ".ggg.", "gg.gg", ".ggg.", "..g.." }, x - 1, 16, { g = col })
-  end
-  -- rolled end: spiral on the left face
-  c:paint({ ".cc.", "c..c", "c.c.", ".c.." }, 5, 8, { c = CREAM.base })
-  c:seam({ { 8, 13 }, { 30, 13 } }, { gap = RED.shade })
+  for x = 5, 29, 2 do c:px(x, 26, C.ol2) end                                     -- front fringe notches
+  for x = 11, 23, 2 do c:px(x, 4, C.ol2) end                                     -- back fringe notches
+  c:fill(edge, RED.shade)                                                         -- felt thickness
+  -- cream border band, 1 px in from the edge of the top
+  local band = c:poly({ { 10, 6 }, { 25, 6 }, { 31, 23 }, { 4, 23 } }):shrink(1):edge()
+  band:each(function(x, y) if y < 22 then c:px(x, y, CREAM.base) end end)
+  -- stepped diamonds down the middle (smaller toward the back)
+  c:paint({ ".g.", "g.g", ".g." }, 16, 9, { g = GOLD.base })
+  c:paint({ "..g..", ".g.g.", "g.r.g", ".g.g.", "..g.." }, 15, 12, { g = GREEN.base, r = GOLD.base })
+  c:paint({ "...g...", "..g.g..", ".g.r.g.", "g.rrr.g", ".g.r.g.", "..g.g..", "...g..." }, 14, 16,
+    { g = GOLD.base, r = CREAM.base })
+  c:seam({ { 5, 24 }, { 29, 24 } }, { gap = RED.deep })
   save(c, "rug_runner")
 end
 
 -- ===== felt_boot_bed (floor-left, 38x28) =====
+-- A giant valenki (felt boot) standing up: tall shaft, rounded toe, rubber galosh band, turned-down cream cuff
+-- with a red stepped band, and a red cushion bulging out of the opening (the bed). Embroidered flower on the shaft.
 do
   local c = canvas(38, 28)
   local BOOT = felt("#8b8f96", { gloss = "#e6e2d6", rim = "#b4b4b4" })
-  local SOLE = felt("#5e3a2a", { gloss = "#a8582f", rim = "#8a4f2a" })
-  local shaft = c:rrect(4, 6, 19, 25, 2)
-  local foot  = c:rrect(14, 14, 33, 25, 5):add(c:rect(14, 20, 33, 25))
-  local sole  = c:rrect(4, 24, 34, 26, 1)
-  local cuff  = c:rrect(2, 3, 21, 9, 2)
-  local p = c:build{
-    { "boot", shaft:add(foot), BOOT, { cres = 3, gloss = { 21, 16 } } },
-    { "sole", sole, SOLE, { flat = true } },
+  local SOLE = felt("#6b3a2a", { gloss = "#a8582f", rim = "#8a4f2a" })
+  local shaft = c:rrect(5, 6, 18, 26, 3)
+  local foot  = c:rrect(13, 15, 30, 26, 4):add(c:ellipse(29, 21.5, 5, 5)):cut(c:rect(0, 27, 40, 40))
+  local boot  = shaft:add(foot):closed(2)
+  local sole  = boot:copy():clip(c:rect(0, 24, 40, 26))
+  local cuff  = c:rrect(3, 4, 20, 10, 2)
+  local pillow = c:ellipse(11.5, 4, 6, 2.5)
+  c:build{
+    { "boot", boot, BOOT, { cres = 3, gloss = { 22, 16 } } },
+    { "sole", sole, SOLE, { cres = 1, deep = 0, gloss = false } },
+    { "pillow", pillow, RED, { cres = 2, gloss = false } },
     { "cuff", cuff, CREAM, { cres = 2, gloss = false } },
   }
-  -- opening with a red cushion inside
-  local hole = c:ellipse(11.5, 4, 7, 1.5)
-  c:fill(hole, C.ol3)
-  c:fill(c:ellipse(11.5, 5, 5, 1):cut(c:rect(0, 0, 37, 4)), RED.base)
-  -- red stepped band on the cuff
-  for x = 4, 19, 3 do c:paint({ ".r.", "rrr" }, x, 6, { r = RED.base }) end
-  -- embroidered flower on the shaft
-  c:paint({ ".r.", "rgr", ".r." }, 9, 14, { r = RED.base, g = GOLD.base })
-  c:paint({ "l.l", ".l." }, 9, 17, { l = GREEN.base })
-  c:seam({ { 20, 15 }, { 20, 23 } }, { gap = BOOT.shade })
+  c:px(9, 3, RED.gloss); c:px(10, 3, RED.gloss)                                    -- pillow glint
+  c:button(10, 2)
+  for x = 4, 18, 4 do c:paint({ ".r.", "rrr" }, x, 6, { r = RED.base }) end      -- stepped band on the cuff
+  -- embroidered flower on the shaft (red petals, gold heart, green leaves)
+  c:paint({ ".rr.", "rggr", "rggr", ".rr." }, 9, 14, { r = RED.base, g = GOLD.base })
+  c:paint({ "l....l", ".l..l.", "..ll.." }, 8, 18, { l = GREEN.base })
+  c:seam({ { 19, 16 }, { 22, 15 }, { 26, 16 } }, { gap = BOOT.shade })            -- instep seam
   save(c, "felt_boot_bed")
 end
 
 -- ===== sunflower_head (sill, 30x26) =====
+-- A sunflower head in a birch-bark tuesok pot: yellow petal ring, seed disc with diamond seeds, two leaves,
+-- cream bark with dark lenticel dashes and a gold lacing seam on the rim.
 do
   local c = canvas(30, 26)
   local PET = felt("#f2c14e", { gloss = "#fff1c8", rim = "#ffe08a" })
@@ -152,33 +159,36 @@ do
   local leafL = c:poly({ { 9, 19 }, { 3, 14 }, { 2, 18 }, { 6, 21 } })
   local leafR = c:poly({ { 19, 19 }, { 25, 14 }, { 26, 18 }, { 22, 21 } })
   local pot = c:rrect(8, 17, 20, 24, 1)
-  local p = c:build{
+  c:build{
     { "leafL", leafL, GREEN, { flat = true } },
     { "leafR", leafR, GREEN, { flat = true } },
     { "petals", petals, PET, { cres = 2, gloss = { 7, 4 } } },
     { "disc", c:ellipse(14, 10, 4.5, 4.5), DISC, { cres = 2, gloss = false } },
     { "pot", pot, BIRCH, { cres = 2, gloss = false } },
   }
-  -- seed diamonds
   for _, q in ipairs({ { 12, 8 }, { 15, 8 }, { 13, 11 }, { 16, 11 }, { 11, 11 } }) do c:px(q[1], q[2], DARK) end
-  -- birch lenticels and a lacing seam on the rim
-  for _, q in ipairs({ { 10, 20 }, { 11, 20 }, { 15, 21 }, { 16, 21 }, { 13, 23 }, { 18, 22 } }) do c:px(q[1], q[2], DARK) end
+  c:fill(c:rect(10, 21, 12, 21), DARK); c:fill(c:rect(16, 20, 17, 20), DARK); c:fill(c:rect(14, 23, 15, 23), DARK)
   c:seam({ { 8, 18 }, { 20, 18 } }, { gap = BIRCH.shade })
   save(c, "sunflower_head")
 end
 
 -- ===== painted_egg_charm (rod, 16x16) =====
+-- A pysanka egg on a thread: red ends, a cream band with a red zigzag, gold knot and a short red tassel below.
 do
-  local c = canvas(16, 16)
-  local egg = c:ellipse(7, 6, 3, 3.5)
-  local p = c:build{
-    { "tassel", c:rect(6, 11, 8, 12), RED, { flat = true } },
-    { "knot", c:rect(6, 10, 8, 10), GOLD, { flat = true } },
+  local c = GV.canvas{ w = 16, h = 16, mode = "sticker", ol = 1, olx = 0, cres = 2, deep = 1 }
+  local egg = c:ellipse(7.5, 6.5, 3.5, 4.5)
+  c:build{
+    { "tassel", c:poly({ { 6, 12 }, { 10, 12 }, { 11, 14 }, { 5, 14 } }), RED, { flat = true } },
     { "egg", egg, RED, { cres = 2, gloss = false } },
+    { "knot", c:rect(6, 11, 9, 11), GOLD, { flat = true } },
   }
-  c:fill(c:rect(4, 6, 10, 7):clip(egg), CREAM.base)
-  c:px(5, 6, RED.base); c:px(7, 7, RED.base); c:px(9, 6, RED.base)
-  c:px(5, 4, RED.gloss); c:px(5, 3, RED.gloss)
-  c:px(7, 0, C.ol2); c:px(7, 1, C.ol2)
+  local bandM = c:rect(0, 5, 15, 8):clip(egg)
+  bandM:each(function(x, y) if c:get(x, y) == RED.base or c:get(x, y) == RED.rim then c:px(x, y, CREAM.base) end
+    if c:get(x, y) == RED.shade then c:px(x, y, CREAM.shade) end end)
+  c:paint({ "r.r.r.", ".r.r.r" }, 5, 6, { r = RED.base })                         -- zigzag
+  c:px(7, 3, GOLD.base); c:px(8, 3, GOLD.base)                                     -- gold dots on the cap
+  c:px(5, 3, RED.gloss); c:px(5, 4, RED.gloss); c:px(6, 2, RED.gloss)              -- gloss comma
+  c:px(7, 13, RED.shade); c:px(9, 13, RED.shade)                                   -- tassel threads
+  c:px(7, 0, C.ol2); c:px(7, 1, C.ol2)                                             -- thread up to the rod string
   save(c, "painted_egg_charm", { { 7, 0 }, { 7, 1 } })
 end

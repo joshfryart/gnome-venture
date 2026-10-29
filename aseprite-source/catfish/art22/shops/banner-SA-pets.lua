@@ -1,13 +1,15 @@
 -- banner-SA-pets.lua : Cat Fish pet shops (claude/plan-catfish-petshops.md s1), SA "Canopy Critter Co."
 -- Shop banner for the Rainroot Reaches market town: "a leafy treehouse shop strung with vines, feathers and
 -- friendly noises". Same format as game/assets/img/scenes/banner-*.png: 480x120 opaque, drawn on a 240x60 grid
--- in gvlib "scene" mode at out=2, no border, gold hem stitch top and bottom, 3-tone umber outline on raised
--- objects only, stepped bands for the sky. Focal subject: one treehouse shop on a big rainforest trunk whose
--- thatched roof has cat ears; its two round windows glow warm like cat eyes, a pink nose and stitched-thread
--- whiskers sit over the open door; a fish sign hangs on the right, a toucan perches on its bracket, an orange cat
--- sits on the deck and a vine ladder drops to the forest floor. Feather bunting, two distant stilt huts of the
--- market town, hanging vines, big foreground leaves and a red bromeliad frame it. Warm golden afternoon light
--- from the upper left. No text.
+-- in gvlib "scene" mode at out=2, no border, gold hem stitch top and bottom, umber outline on raised objects only,
+-- stepped bands for the sky, a small palette (the shipped banners use 15-23 colours).
+-- Focal subject: one treehouse shop on a big rainforest trunk. Its thatched roof has cat ears, its two round
+-- windows glow warm like cat eyes, a pink nose and gold-thread whiskers sit over the open arched door. A fish sign
+-- hangs from a bracket on the right with a toucan perched on it, an orange cat sits on the deck rail and a vine
+-- ladder drops to the forest floor. Feather bunting, two distant stilt huts of the market town, hanging vines and
+-- big foreground leaves frame it. Warm golden afternoon light from the upper left. No text.
+-- Pass 1: colours 105 -> ~40 (4-step felt ramps), thin 1 px outlines on small/far things (2 px only on the shop),
+-- bigger roof and ears, clearer door (no stripe), cat on the rail, lighter toucan, pointed leaves.
 -- Run: AppRun -b --script banner-SA-pets.lua     Writes ../out/banner-SA-pets.png + .aseprite
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../../gvlib/gvlib.lua")
@@ -17,132 +19,145 @@ local c = GV.canvas{ w = W, h = H, mode = "scene", out = 2 }
 local D = "#2a1a10"
 local sin = math.sin
 
+-- felt(hex): 4-step ramp (gloss, rim, base, shade) so the banner keeps a small palette
+local function felt(hex, ov)
+  local r = GV.ramp(hex)
+  local n = {} for k, v in pairs(r) do n[k] = v end
+  n.deep, n.bounce, n.dot = r.shade, r.shade, r.gloss
+  for k, v in pairs(ov or {}) do n[k] = v end
+  return n
+end
+local WOOD  = felt("#b07a45")
+local DARKW = felt("#6a3a22", { rim = "#8a4f2a" })
+local STRAW = felt("#e0a83c")
+local LEAF  = felt("#4a8a3e", { gloss = "#8fb860", rim = "#6a9a4a" })
+local PINK  = felt("#e46a9b")
+local ORNG  = felt("#e8913a")
+local TEAL  = felt("#3f8fb0")
+local GLOW, GLOW2 = "#ffd77a", "#fff1c8"
+
 local function below(f)
   local m = c:mask()
   for x = 0, W - 1 do for y = math.max(0, math.floor(f(x) + 0.5)), H - 1 do m:set(x, y) end end
   return m
 end
 local function thin(m) c:outline(m, { ol = 1, olx = 0 }) end
+-- small raised part with a 1 px outline
+local function small(m, ramp, o)
+  o = o or {}; o.outline = false
+  local p = c:part(m, ramp, o); thin(m); return p
+end
 
--- 1. sky: warm golden afternoon, hard bands
-c:bands(c:rect(0, 0, W - 1, H - 1), { "#f0b874", "#f4c486", "#f7d098", "#f9dcae", "#fbe6c2" }, { dir = "v" })
--- sun, upper left, in stepped rings
+-- 1. sky: warm golden afternoon, hard bands; sun upper left
+c:bands(c:rect(0, 0, W - 1, H - 1), { "#f0b874", "#f4c486", "#f7d098", "#f9dcae" }, { dir = "v" })
 c:fill(c:ellipse(46, 12, 9, 9), "#fbe6c2")
-c:fill(c:ellipse(46, 12, 6, 6), "#fff1c8")
+c:fill(c:ellipse(46, 12, 6, 6), GLOW2)
 
--- 2. far canopy (hazy), then mid canopy (darker), each with a 1 px lit top edge
+-- 2. far canopy (hazy), mid canopy, forest floor; each with a 1 px lit top edge
 local far = below(function(x) return 27 + 3 * sin(x / 7.5) + 2 * sin(x / 3.1 + 1) end)
 c:fill(far, "#a9c47a"); c:fill(far:edge():clip(c:rect(0, 0, W - 1, 40)), "#c8d77a")
 local mid = below(function(x) return 39 + 3 * sin(x / 9 + 2) + 1.5 * sin(x / 4 + 0.5) end)
 c:fill(mid, "#6a9a4a"); c:fill(mid:edge():clip(c:rect(0, 0, W - 1, 46)), "#8fb860")
 local floor = below(function(x) return 52 + sin(x / 11) end)
-c:fill(floor, "#3f6a36"); c:fill(floor:edge():clip(c:rect(0, 0, W - 1, 54)), "#5a8a40")
+c:fill(floor, "#3f6a36"); c:fill(floor:edge():clip(c:rect(0, 0, W - 1, 54)), "#4a8a3e")
 
--- 3. two distant stilt huts of the market town (thin outline, muted)
+-- 3. two distant stilt huts of the market town (flat, 1 px outline)
 local function hut(x0, x1, top, base)
   local cx = (x0 + x1) / 2
-  local stilts = c:rect(x0 + 2, base, x0 + 3, base + 8):add(c:rect(x1 - 3, base, x1 - 2, base + 8))
-  c:fill(stilts, "#7a5a3a"); thin(stilts)
-  local body = c:rect(x0, top + 6, x1, base)
-  c:part(body, "#b8906a", { outline = false, gloss = false }); thin(body)
-  local roof = c:poly({ { x0 - 3, top + 7 }, { cx, top - 2 }, { x1 + 4, top + 7 } })
-  c:part(roof, "#d0a860", { outline = false, gloss = false }); thin(roof)
-  c:fill(c:rect(cx - 1, top + 9, cx + 1, top + 12), "#f5cf6a")
+  local stilts = c:rect(x0 + 2, base, x0 + 3, base + 9):add(c:rect(x1 - 3, base, x1 - 2, base + 9))
+  c:fill(stilts, "#8a4f2a"); thin(stilts)
+  small(c:rect(x0, top + 6, x1, base), WOOD, { gloss = false, flat = true })
+  small(c:poly({ { x0 - 3, top + 7 }, { cx, top - 2 }, { x1 + 4, top + 7 } }), STRAW, { gloss = false, flat = true })
+  c:fill(c:rect(cx - 1, top + 9, cx + 1, top + 12), GLOW)
 end
 hut(26, 40, 26, 40)
-hut(196, 210, 24, 38)
+hut(198, 212, 24, 38)
 
--- 4. the great trunk (bleeds off the bottom), behind the shop, with root flares
+-- 4. the great trunk (bleeds off the bottom) with root flares
 local trunk = c:rect(106, 30, 134, 59)
-trunk:add(c:poly({ { 98, 60 }, { 106, 48 }, { 106, 60 } })):add(c:poly({ { 134, 48 }, { 142, 60 }, { 134, 60 } }))
-c:part(trunk, "#8a5a34", { gloss = false })
-c:fill(c:rect(113, 50, 114, 57):add(c:rect(125, 52, 126, 58)), "#5e2f1e")
+trunk:add(c:poly({ { 97, 60 }, { 106, 47 }, { 106, 60 } })):add(c:poly({ { 134, 47 }, { 143, 60 }, { 134, 60 } }))
+c:part(trunk, DARKW, { gloss = false })
+c:fill(c:rect(113, 50, 114, 56):add(c:rect(125, 52, 126, 57)), "#4a2c1a")
 
--- 5. vine ladder hanging from the deck on the left (behind the deck)
-local ropes = c:rect(88, 47, 89, 59):add(c:rect(96, 47, 97, 59))
-local rungs = c:mask()
-for y = 50, 58, 4 do rungs:add(c:rect(88, y, 97, y + 1)) end
-c:part(ropes:add(rungs), "#9a7a3a", { flat = true })
+-- 5. vine ladder from the deck on the left
+local ladder = c:rect(86, 47, 87, 59):add(c:rect(94, 47, 95, 59))
+for y = 50, 58, 4 do ladder:add(c:rect(86, y, 95, y + 1)) end
+small(ladder, STRAW, { flat = true })
 
 -- 6. deck + shop body
-local deck = c:rrect(80, 44, 160, 48, 1)
-c:part(deck, "#c08a50", { gloss = false })
-c:fill(c:rect(80, 46, 160, 46):clip(deck:shrink(1)), "#a8682f")
-local body = c:rrect(92, 17, 148, 44, 3)
-c:part(body, "#b07a45", { gloss = { 95, 23 } })
-for y = 30, 42, 6 do c:fill(c:rect(93, y, 147, y):clip(body:shrink(2)), "#8a4f2a") end
+c:part(c:rrect(78, 44, 162, 48, 1), WOOD, { gloss = false })
+local body = c:rrect(90, 17, 150, 44, 3)
+c:part(body, WOOD, { gloss = { 93, 23 } })
+for y = 37, 41, 4 do c:fill(c:rect(92, y, 148, y):clip(body:shrink(2)), "#8a4f2a") end
 
--- 7. thatched roof with cat ears
-local roof = c:ellipse(120, 17, 33, 10):cut(c:rect(0, 23, W - 1, H - 1))
-local earL = c:poly({ { 91, 12 }, { 97, 3 }, { 108, 9 } })
-local earR = c:poly({ { 132, 9 }, { 143, 3 }, { 149, 12 } })
-roof:add(earL):add(earR)
-c:part(roof, "#e0a83c", { gloss = { 100, 11 } })
-c:fill(c:poly({ { 96, 10 }, { 98, 6 }, { 103, 9 } }), "#e46a9b")
-c:fill(c:poly({ { 137, 9 }, { 142, 6 }, { 144, 10 } }), "#e46a9b")
--- thatch fringe and straw strokes
-for x = 89, 151, 3 do c:px(x, 22, "#b8661a") end
-for _, p in ipairs({ { 108, 12 }, { 116, 10 }, { 124, 10 }, { 132, 12 }, { 112, 17 }, { 128, 17 }, { 120, 14 } }) do
-  c:fill(c:rect(p[1], p[2], p[1] + 2, p[2]), "#b8661a")
+-- 7. thatched roof with cat ears (one part), pink inner ears, fringe
+local roof = c:ellipse(120, 17, 36, 11):cut(c:rect(0, 23, W - 1, H - 1))
+roof:add(c:poly({ { 86, 15 }, { 93, 2 }, { 107, 8 } })):add(c:poly({ { 133, 8 }, { 147, 2 }, { 154, 15 } }))
+c:part(roof, STRAW, { gloss = { 99, 11 } })
+c:fill(c:poly({ { 92, 11 }, { 94, 6 }, { 101, 9 } }), PINK.base)
+c:fill(c:poly({ { 139, 9 }, { 146, 6 }, { 148, 11 } }), PINK.base)
+for x = 86, 154, 3 do c:px(x, 22, STRAW.shade) end
+for _, p in ipairs({ { 110, 12 }, { 118, 10 }, { 126, 11 }, { 114, 17 }, { 128, 16 }, { 104, 18 }, { 136, 18 } }) do
+  c:fill(c:rect(p[1], p[2], p[1] + 2, p[2]), STRAW.shade)
 end
-c:seam({ { 88, 21 }, { 152, 21 } })
+c:seam({ { 86, 21 }, { 154, 21 } })
 
--- 8. cat-eye windows (warm glow), nose, stitched whiskers, open door
+-- 8. cat-eye windows (warm glow), pink nose, gold-thread whiskers, open arched door
 local function window(cx, cy)
-  local fr = c:ellipse(cx, cy, 6, 6)
-  c:part(fr, "#6a3a22", { gloss = false, flat = true })
-  local gl = c:ellipse(cx, cy, 4, 4)
-  c:fill(gl, "#ffd77a"); c:fill(c:ellipse(cx - 1, cy - 1, 2, 2), "#fff1c8")
-  c:fill(c:rect(cx, cy - 4, cx, cy + 4):add(c:rect(cx - 4, cy, cx + 4, cy)), "#6a3a22")
+  c:part(c:ellipse(cx, cy, 6, 6), DARKW, { flat = true })
+  c:fill(c:ellipse(cx, cy, 4, 4), GLOW)
+  c:fill(c:ellipse(cx - 1.5, cy - 1.5, 1.5, 1.5), GLOW2)
+  c:fill(c:rect(cx, cy - 4, cx, cy + 4), DARKW.base)
 end
-window(104, 29); window(136, 29)
-local nose = c:poly({ { 116, 25 }, { 125, 25 }, { 120, 30 } })
-c:part(nose, "#e46a9b", { gloss = false })
-c:seam({ { 110, 30 }, { 98, 37 } }, { free = true })
-c:seam({ { 130, 30 }, { 142, 37 } }, { free = true })
-local door = c:rrect(113, 32, 127, 44, 6):cut(c:rect(0, 45, W - 1, H - 1))
-c:part(door, "#5e2f1e", { gloss = false, flat = true })
-c:fill(c:rrect(115, 34, 125, 44, 5):cut(c:rect(0, 45, W - 1, H - 1)), "#f5b860")
-c:fill(c:rect(115, 38, 125, 39):clip(c:rrect(115, 34, 125, 44, 5)), "#e8a317")
+window(103, 28); window(137, 28)
+c:part(c:poly({ { 116, 24 }, { 125, 24 }, { 120, 29 } }), PINK, { gloss = false, outline = false })
+thin(c:poly({ { 116, 24 }, { 125, 24 }, { 120, 29 } }))
+for i, d in ipairs({ { 0, -1 }, { 0, 1 } }) do
+  c:seam({ { 111, 31 + d[2] * 2 }, { 96, 32 + d[2] * 3 } }, { free = true, on = 2, off = 1 })
+  c:seam({ { 129, 31 + d[2] * 2 }, { 144, 32 + d[2] * 3 } }, { free = true, on = 2, off = 1 })
+end
+local doorM = c:rrect(113, 31, 127, 44, 7):cut(c:rect(0, 45, W - 1, H - 1))
+c:part(doorM, DARKW, { flat = true })
+local inner = c:rrect(115, 33, 125, 44, 5):cut(c:rect(0, 45, W - 1, H - 1))
+c:fill(inner, "#f5b860")
+c:fill(c:rect(115, 33, 117, 44):clip(inner), "#e8a317") -- curtain tied back
+c:fill(c:rect(123, 33, 125, 44):clip(inner), "#e8a317")
 
 -- 9. railing (gap at the door)
-local rail = c:rect(82, 39, 110, 40):add(c:rect(130, 39, 158, 40))
-for x = 82, 106, 8 do rail:add(c:rect(x, 39, x + 1, 43)) end
-for x = 133, 157, 8 do rail:add(c:rect(x, 39, x + 1, 43)) end
-c:part(rail, "#9a6a3a", { flat = true })
+local rail = c:rect(80, 39, 110, 40):add(c:rect(130, 39, 160, 40))
+for x = 80, 104, 8 do rail:add(c:rect(x, 39, x + 1, 43)) end
+for x = 135, 159, 8 do rail:add(c:rect(x, 39, x + 1, 43)) end
+small(rail, WOOD, { flat = true })
 
 -- 10. paper lantern (left) and fish sign on a bracket (right) with a toucan
-c:fill(c:rect(86, 20, 86, 25), "#4a2c1a")
-local lantern = c:rrect(83, 25, 89, 32, 2)
-c:part(lantern, "#f08a24", { gloss = { 84, 27 } })
-c:fill(c:rect(84, 28, 88, 28), "#ffd77a")
-local bracket = c:rect(148, 19, 168, 20)
-c:part(bracket, "#6a3a22", { flat = true })
-c:fill(c:rect(160, 21, 160, 22), "#4a2c1a")
-local fish = c:ellipse(160, 26, 6, 3.5):add(c:poly({ { 165, 26 }, { 170, 22 }, { 170, 31 } }))
-c:part(fish, "#3f8fb0", { gloss = { 156, 24 } })
-c:px(156, 26, D)
--- toucan on the bracket end
-local tbody = c:ellipse(165, 14, 3, 4)
-c:part(tbody, "#3e2f66", { gloss = false })
-c:fill(c:rect(163, 13, 164, 15), "#fff1c8")
-local beak = c:poly({ { 160, 11 }, { 165, 11 }, { 165, 14 }, { 160, 13 } })
-c:part(beak, "#f08a24", { flat = true })
-c:px(160, 12, "#dd3a2a")
-c:px(165, 11, "#fff1c8")
+c:fill(c:rect(84, 16, 84, 24), "#4a2c1a")
+small(c:rrect(81, 24, 87, 31, 2), ORNG, { gloss = { 82, 26 } })
+c:fill(c:rect(82, 27, 86, 28), GLOW)
+small(c:rect(150, 18, 170, 19), DARKW, { flat = true })
+c:fill(c:rect(161, 20, 161, 21), "#4a2c1a")
+small(c:ellipse(161, 25, 6, 3.5):add(c:poly({ { 166, 25 }, { 171, 21 }, { 171, 30 } })), TEAL, { gloss = { 157, 23 } })
+c:px(157, 25, D)
+-- toucan perched on the bracket end, facing left, big orange beak
+small(c:ellipse(167, 13, 3, 4), "#3e2f66", { gloss = false, flat = true })
+c:fill(c:rect(164, 12, 165, 14), GLOW2)
+c:px(166, 11, GLOW2); c:px(166, 12, D)
+small(c:poly({ { 157, 10 }, { 164, 10 }, { 164, 14 }, { 157, 12 } }), ORNG, { flat = true })
+c:px(157, 10, "#dd3a2a"); c:px(158, 10, "#dd3a2a")
+c:fill(c:rect(168, 17, 169, 17), ORNG.base) -- feet
 
--- 11. orange cat sitting on the deck, right of the door
-local cat = c:ellipse(141, 40, 4, 3.5):add(c:ellipse(141, 35, 3.5, 3))
-cat:add(c:poly({ { 138, 34 }, { 138, 30 }, { 141, 33 } })):add(c:poly({ { 141, 33 }, { 144, 30 }, { 144, 34 } }))
-local tail = c:line({ { 145, 42 }, { 147, 40 }, { 147, 37 } }, 2)
-c:part(tail, "#e8913a", { flat = true })
-c:part(cat, "#e8913a", { gloss = false })
-c:px(140, 35, D); c:px(142, 35, D)
-c:fill(c:rect(141, 31, 141, 32), "#b8661a")
+-- 11. orange cat sitting on the right rail
+local catM = c:ellipse(148, 35, 4, 3.5):add(c:ellipse(148, 30, 4, 3))
+catM:add(c:poly({ { 144, 30 }, { 145, 25 }, { 148, 28 } })):add(c:poly({ { 148, 28 }, { 151, 25 }, { 152, 30 } }))
+local tail = c:line({ { 152, 37 }, { 155, 36 }, { 156, 33 } }, 2)
+small(tail, ORNG, { flat = true })
+small(catM, ORNG, { gloss = false })
+c:px(146, 30, D); c:px(150, 30, D)
+c:px(148, 31, PINK.base)
+c:fill(c:rect(148, 26, 148, 27):add(c:rect(147, 34, 147, 35)):add(c:rect(149, 34, 149, 35)), ORNG.shade)
 
--- 12. feather bunting strung from the side trees to the roof ears
+-- 12. feather bunting strung from the canopy to the roof ears
 local function bunting(x0, y0, x1, y1, sag)
-  local cols = { "#dd3a2a", "#f5cf6a", "#3f8fb0", "#7ab55c" }
+  local cols = { "#dd3a2a", "#f5cf6a", TEAL.base, "#7ab55c" }
   local i = 0
   for x = x0, x1 do
     local t = (x - x0) / (x1 - x0)
@@ -150,35 +165,32 @@ local function bunting(x0, y0, x1, y1, sag)
     c:px(x, y, "#4a2c1a")
     if (x - x0) % 6 == 3 and x < x1 - 2 then
       i = i + 1
-      local col = cols[(i - 1) % 4 + 1]
-      c:paint({ "xx", "xx", "xx", ".x" }, x - 1, y + 1, { x = col })
+      c:paint({ "xx", "xx", "xx", ".x" }, x - 1, y + 1, { x = cols[(i - 1) % 4 + 1] })
     end
   end
 end
-bunting(56, 4, 94, 13, 6)
-bunting(146, 13, 188, 4, 6)
+bunting(56, 4, 89, 12, 6)
+bunting(151, 12, 186, 4, 6)
 
 -- 13. canopy fringe at the top corners and hanging vines
-local crownL = c:ellipse(10, 0, 30, 7):add(c:ellipse(40, -1, 18, 5))
-local crownR = c:ellipse(230, 0, 30, 7):add(c:ellipse(200, -1, 18, 5))
-c:part(crownL, "#4f8a3e", { gloss = false })
-c:part(crownR, "#4f8a3e", { gloss = false })
-for _, v in ipairs({ { 14, 22 }, { 30, 14 }, { 62, 8 }, { 178, 8 }, { 212, 16 }, { 228, 24 } }) do
-  local vm = c:rect(v[1], 4, v[1] + 1, v[2])
-  c:fill(vm, "#3f7a3a")
-  for y = 8, v[2] - 1, 5 do c:fill(c:rect(v[1] + ((y // 5) % 2 == 0 and 2 or -2), y, v[1] + ((y // 5) % 2 == 0 and 3 or -1), y + 1), "#6a9a4a") end
+small(c:ellipse(10, 0, 30, 7):add(c:ellipse(40, -1, 18, 5)), LEAF, { gloss = false })
+small(c:ellipse(230, 0, 30, 7):add(c:ellipse(200, -1, 18, 5)), LEAF, { gloss = false })
+for _, v in ipairs({ { 14, 22 }, { 30, 14 }, { 62, 9 }, { 180, 9 }, { 212, 16 }, { 228, 24 } }) do
+  c:fill(c:rect(v[1], 5, v[1] + 1, v[2]), "#3f6a36")
+  for y = 9, v[2] - 1, 5 do
+    local x = v[1] + (((y // 5) % 2 == 0) and 2 or -2)
+    c:fill(c:rect(x, y, x + 1, y + 1), LEAF.rim)
+  end
 end
 
--- 14. foreground leaves and a red bromeliad
-local leafL = c:ellipse(12, 52, 16, 8):add(c:ellipse(34, 57, 12, 5))
-local leafR = c:ellipse(228, 51, 16, 8):add(c:ellipse(206, 57, 12, 5))
-c:part(leafL, "#4a8a3e", { gloss = { 6, 47 } })
-c:part(leafR, "#4a8a3e", { gloss = { 220, 46 } })
-c:fill(c:line({ { 0, 53 }, { 26, 52 } }, 1):clip(leafL), "#2f5a2a")
-c:fill(c:line({ { 214, 52 }, { 239, 52 } }, 1):clip(leafR), "#2f5a2a")
-local brom = c:poly({ { 196, 52 }, { 199, 42 }, { 202, 50 }, { 205, 40 }, { 208, 50 }, { 211, 43 }, { 213, 52 } })
-c:part(brom, "#dd3a2a", { gloss = false })
-c:fill(c:rect(203, 46, 206, 49), "#f5cf6a")
+-- 14. foreground pointed leaves in the bottom corners
+local function leaf(pts) small(c:poly(pts), LEAF, { gloss = false }) end
+leaf({ { -2, 59 }, { 6, 42 }, { 22, 38 }, { 16, 50 }, { 6, 60 } })
+leaf({ { 10, 60 }, { 26, 46 }, { 44, 46 }, { 32, 56 }, { 22, 60 } })
+leaf({ { 241, 59 }, { 233, 42 }, { 217, 38 }, { 223, 50 }, { 233, 60 } })
+leaf({ { 229, 60 }, { 213, 46 }, { 195, 46 }, { 207, 56 }, { 217, 60 } })
+c:fill(c:line({ { 3, 56 }, { 18, 41 } }, 1), LEAF.shade); c:fill(c:line({ { 236, 56 }, { 221, 41 } }, 1), LEAF.shade)
+c:fill(c:line({ { 16, 58 }, { 40, 47 } }, 1), LEAF.shade); c:fill(c:line({ { 223, 58 }, { 199, 47 } }, 1), LEAF.shade)
 
 -- hem stitch top and bottom
 c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true })

@@ -74,26 +74,29 @@ local function save(c, slug)
 end
 
 -- ===== acacia_perch (sill, 30x26) =====
+-- Flat umbrella canopy (the acacia silhouette), scalloped underside, leaf dashes and yellow puff flowers;
+-- Y trunk with a third limb; round wooden plinth with the bead band and a gold hem seam.
 do
   local c = canvas(30, 26)
-  local canopy = c:ellipse(14.5, 6.5, 12.5, 3)
-  canopy:add(c:ellipse(9, 4.5, 6, 2.5)):add(c:ellipse(19.5, 4, 6, 2.5))
-  local trunk = c:line({ { 14, 20 }, { 14, 15 }, { 9, 10 } }, 2)
-  trunk:add(c:line({ { 15, 16 }, { 20, 10 } }, 2)):add(c:line({ { 14, 14 }, { 14, 10 } }, 2))
+  local canopy = c:rrect(2, 4, 27, 8, 2):add(c:ellipse(14.5, 4, 10, 2.5))
+  canopy:add(c:ellipse(7, 8.5, 3.5, 1.5)):add(c:ellipse(14.5, 9, 4, 1.5)):add(c:ellipse(22, 8.5, 3.5, 1.5))
+  local trunk = c:line({ { 14, 20 }, { 14, 15 }, { 9, 11 } }, 2)
+  trunk:add(c:line({ { 15, 16 }, { 20, 11 } }, 2)):add(c:line({ { 14, 14 }, { 14, 11 } }, 2))
   local plinth = c:rrect(5, 19, 24, 23, 2)
   c:build{
     { "trunk", trunk, BARK, { cres = 1, gloss = false, bounce = false } },
-    { "canopy", canopy, OLIVE, { cres = 2, gloss = { 6, 3 } } },
+    { "canopy", canopy, OLIVE, { cres = 2, gloss = { 5, 3 } } },
     { "plinth", plinth, WOODR, { cres = 2, gloss = false } },
   }
-  -- lower canopy tier: a lit ridge row with a shade row under it (two felt layers)
-  for x = 4, 25 do
-    if canopy:has(x, 6) and not c.gl.s[c:key(x, 6)] and not c.shd[c:key(x, 6)] then c:px(x, 6, OLIVE.rim) end
-    if canopy:has(x, 5) and not c.gl.s[c:key(x, 5)] and not c.shd[c:key(x, 5)] then c:px(x, 5, OLIVE.shade) end
+  -- leaf dashes (2 px shade) and yellow puff flowers (lit gold) on the canopy felt
+  for _, p in ipairs({ { 10, 5 }, { 18, 4 }, { 23, 6 }, { 6, 7 }, { 14, 7 } }) do
+    for i = 0, 1 do
+      local k = c:key(p[1] + i, p[2])
+      if canopy:has(p[1] + i, p[2]) and not c.gl.s[k] and not c.shd[k] then c:px(p[1] + i, p[2], OLIVE.shade) end
+    end
   end
-  -- yellow puff flowers
-  for _, p in ipairs({ { 8, 3 }, { 15, 4 }, { 22, 3 }, { 11, 7 }, { 19, 7 }, { 25, 6 }, { 4, 6 } }) do
-    if canopy:has(p[1], p[2]) then c:px(p[1], p[2], GOLDR.rim) end
+  for _, p in ipairs({ { 9, 3 }, { 15, 3 }, { 21, 3 }, { 12, 6 }, { 20, 6 }, { 25, 5 }, { 4, 6 }, { 17, 8 } }) do
+    if canopy:has(p[1], p[2]) then c:px(p[1], p[2], c.shd[c:key(p[1], p[2])] and GOLDR.base or GOLDR.rim) end
   end
   beadrow(c, hrow(7, 22, 21))
   c:seam({ { 7, 19 }, { 22, 19 } }, { gap = WOODR.base })
@@ -101,141 +104,161 @@ do
 end
 
 -- ===== beaded_rack (shelf, 20x24) =====
+-- A small wooden display rack (two uprights, top bar with knob ends, foot) with a woven sisal back panel;
+-- a round flat bead collar hangs on it (red rim, cream ring with blue dots, blue ring, gold centre) with a
+-- short bead tassel under it.
 do
   local c = canvas(20, 24)
-  local post = c:rect(9, 4, 10, 19):add(c:ellipse(9.5, 3, 1.5, 1.5))
-  local CX, CY, RX, RY = 9.5, 10.5, 8, 5.5
-  local collar = c:ellipse(CX, CY, RX, RY)
-  local hole = c:ellipse(CX, 8.5, 3, 1.5)
-  collar:cut(hole)
-  local foot = c:rrect(4, 19, 15, 21, 1)
-  local strands = c:rect(6, 15, 7, 18):add(c:rect(12, 15, 13, 18))
+  local panel = c:rect(4, 5, 15, 19)
+  local frame = c:rect(2, 4, 3, 21):add(c:rect(16, 4, 17, 21))
+  local bar = c:rect(2, 3, 17, 4)
+  local foot = c:rrect(2, 20, 17, 21, 0)
+  local CX, CY, R = 9.5, 11, 5
+  local collar = c:ellipse(CX, CY, R, R)
   c:build{
-    { "post", post, WOODR, { cres = 1, gloss = false, bounce = false } },
-    { "strands", strands, REDR, { flat = true, contact = false } },
+    { "panel", panel, SISAL, { cres = 2, gloss = false, bounce = false } },
+    { "frame", frame, WOODR, { cres = 1, gloss = false, bounce = false } },
+    { "bar", bar, WOODR, { flat = true } },
+    { "foot", foot, WOODR, { cres = 1, gloss = false, bounce = false } },
     { "collar", collar, REDR, { cres = 2, gloss = false } },
-    { "foot", foot, WOODR, { cres = 1, gloss = false } },
   }
-  -- concentric bead rings (normalised radius): red rim, cream with blue dots, blue, gold inner
+  -- weave on the back panel: shade every other row, broken 2 on / 1 off so it reads as woven sisal
+  panel:each(function(x, y)
+    local k = c:key(x, y)
+    if c.own[k] and c.pix[k] == SISAL.base and y % 2 == 0 and (x + y) % 3 ~= 0 then c:px(x, y, SISAL.shade) end
+  end)
+  -- concentric bead rings
   collar:each(function(x, y)
     local k = c:key(x, y)
-    local t = math.sqrt(((x - CX) / RX) ^ 2 + ((y - CY) / RY) ^ 2)
+    local t = math.sqrt((x - CX) ^ 2 + (y - CY) ^ 2) / R
     local sh = c.shd[k]
     local col
-    if t > 0.8 then col = sh and REDR.shade or (c.pix[k] == REDR.rim and REDR.rim or REDR.base)
-    elseif t > 0.6 then col = ((x + y) % 2 == 0) and (sh and WATER.shade or WATER.base) or (sh and CREAM.shade or CREAM.base)
-    elseif t > 0.42 then col = sh and WATER.shade or WATER.base
-    else col = sh and GOLDR.shade or GOLDR.rim end
+    if t > 0.78 then col = sh and REDR.shade or (c.pix[k] == REDR.rim and REDR.rim or REDR.base)
+    elseif t > 0.5 then col = ((x + y) % 2 == 0) and (sh and WATER.shade or WATER.base) or (sh and CREAM.shade or CREAM.base)
+    elseif t > 0.25 then col = sh and WATER.shade or WATER.base
+    else col = GOLDR.rim end
     c:px(x, y, col)
   end)
-  c:paint({ ".gg", "g.." }, 4, 6, { g = REDR.gloss })     -- enamel comma on the lit outer ring
-  -- dangling bead strands
-  beadrow(c, { { 6, 15 }, { 6, 16 }, { 6, 17 }, { 6, 18 } }, 2)
-  beadrow(c, { { 13, 15 }, { 13, 16 }, { 13, 17 }, { 13, 18 } }, 4)
-  for y = 15, 18 do c:px(7, y, c:get(6, y) == "#f1ece0" and CREAM.shade or BEADS[(y - 15 + 1) % 4 + 1][2]) end
-  for y = 15, 18 do c:px(12, y, BEADS[(y - 15 + 3) % 4 + 1][1]) end
-  c:seam({ { 6, 20 }, { 13, 20 } }, { gap = WOODR.base })
+  c:px(6, 8, REDR.gloss); c:px(7, 7, REDR.gloss); c:px(8, 7, REDR.gloss)   -- enamel comma on the red rim
+  c:px(9, 10, GOLDR.gloss)                                                 -- glint on the gold centre
+  -- bead tassel under the collar (on the panel)
+  beadrow(c, { { 9, 17 }, { 9, 18 } }, 4)
+  beadrow(c, { { 10, 17 }, { 10, 18 } }, 2)
+  c:seam({ { 3, 20 }, { 16, 20 } }, { gap = WOODR.base })
   save(c, "beaded_rack")
 end
 
 -- ===== grass_tuft (floor-left, 38x28) =====
+-- A fountain of felt savanna grass: 12 tapered blades fanning out of a low coiled sisal basket, tall in the
+-- middle and arching outward at the sides; straw blades in front, olive blades behind; bead band on the rim.
 do
   local c = canvas(38, 28)
-  local function blade(bx, tx, ty, w)
-    return c:poly({ { bx - w, 21 }, { tx, ty }, { tx + 1, ty }, { bx + w + 1, 21 } })
+  local function blade(bx, tx, ty, bend, w)
+    local my = (22 + ty) / 2
+    local mx = (bx + tx) / 2 + bend
+    return c:poly({ { bx - w, 22 }, { mx - w * 0.7, my }, { tx, ty }, { tx + 1, ty }, { mx + w * 0.7 + 1, my }, { bx + w + 1, 22 } })
   end
-  local back = c:mask()
-  for _, b in ipairs({ { 9, 6, 6, 2 }, { 18, 17, 3, 2 }, { 27, 31, 5, 2 } }) do back:add(blade(b[1], b[2], b[3], b[4])) end
-  local front = c:mask()
-  for _, b in ipairs({ { 7, 3, 9, 2 }, { 12, 10, 4, 2 }, { 15, 13, 7, 2 }, { 21, 22, 2, 2 }, { 24, 26, 6, 2 },
-                       { 30, 34, 10, 2 }, { 19, 20, 8, 2 }, { 11, 7, 12, 2 }, { 27, 29, 11, 2 } }) do
-    front:add(blade(b[1], b[2], b[3], b[4]))
-  end
-  local basket = c:ellipse(18.5, 21.5, 15.5, 4)
+  local BL = {
+    -- bx, tx, ty, bend, back?
+    { 11, 4, 8, -1, true }, { 17, 14, 1, 0, true }, { 23, 27, 2, 0, true }, { 27, 34, 9, 1, true },
+    { 8, 2, 14, -1 }, { 12, 8, 4, -1 }, { 15, 12, 6, 0 }, { 19, 19, 2, 0 }, { 21, 24, 6, 0 },
+    { 25, 30, 4, 1 }, { 29, 35, 14, 1 }, { 18, 16, 9, 0 },
+  }
+  local back, front = c:mask(), c:mask()
+  for _, b in ipairs(BL) do (b[5] and back or front):add(blade(b[1], b[2], b[3], b[4], 1.6)) end
+  local basket = c:ellipse(18.5, 22.5, 15.5, 3)
   c:build{
     { "back", back, OLIVE, { cres = 2, gloss = false, bounce = false } },
     { "front", front, STRAW, { cres = 2, gloss = false, bounce = false } },
-    { "basket", basket, SISAL, { cres = 2, gloss = { 6, 19 } } },
+    { "basket", basket, SISAL, { cres = 2, gloss = { 6, 21 } } },
   }
-  -- blade midribs: 1 px shade line down the middle of each straw blade (felt rib)
-  for _, b in ipairs({ { 15, 13, 7 }, { 24, 26, 6 }, { 7, 3, 9 }, { 21, 22, 2 } }) do
-    local bx, tx, ty = b[1], b[2], b[3]
-    for y = ty + 3, 16 do
-      local x = math.floor(tx + (bx - tx) * (y - ty) / (21 - ty) + 0.5)
+  -- blade split lines: where one front blade meets the next, 1 px shade so the blades stay apart
+  local fronts = {}
+  for _, b in ipairs(BL) do if not b[5] then fronts[#fronts + 1] = blade(b[1], b[2], b[3], b[4], 1.6) end end
+  for i, m in ipairs(fronts) do
+    m:each(function(x, y)
       local k = c:key(x, y)
-      if c.own[k] and c.pix[k] == STRAW.base then c:px(x, y, STRAW.rim) end
-    end
+      if c.own[k] and (c.pix[k] == STRAW.base or c.pix[k] == STRAW.rim) and y < 20 then
+        for j = i + 1, #fronts do
+          if fronts[j]:has(x + 1, y) and not m:has(x + 1, y) then c:px(x, y, STRAW.shade) end
+        end
+      end
+    end)
   end
-  -- coiled sisal rows: shade grooves on the basket
+  -- coiled sisal groove under the bead band
   basket:each(function(x, y)
     local k = c:key(x, y)
-    if y == 23 and not c.gl.s[k] then c:px(x, y, c.shd[k] and "#a07a44" or SISAL.shade) end
+    if y == 24 and not c.gl.s[k] and not c.shd[k] then c:px(x, y, SISAL.shade) end
   end)
-  beadrow(c, hrow(5, 32, 21), 1)
+  beadrow(c, hrow(4, 33, 22), 1)
   save(c, "grass_tuft")
 end
 
 -- ===== rain_cloud_mobile (ceiling, 48x34) =====
+-- An arched acacia twig on one thread from the top edge; a felt rain cloud (gold edge stitch, hem seam)
+-- hangs from its middle, three blue felt drops on threads under the cloud, and a bead strand ending in a
+-- small blue drop at each twig end.
 do
   local c = canvas(48, 34)
-  local twig = c:line({ { 4, 5 }, { 43, 4 } }, 2)
+  local twig = c:line({ { 5, 6 }, { 12, 4 }, { 23, 3 }, { 35, 4 }, { 42, 6 } }, 2)
   local cloud = c:ellipse(17, 16, 5.5, 4.5):add(c:ellipse(24, 13, 6.5, 6)):add(c:ellipse(31, 15.5, 5, 4.5))
   cloud:add(c:rrect(12, 15, 36, 21, 2))
-  local function drop(cx, cy)
-    return c:ellipse(cx, cy + 1, 2.5, 2.5):add(c:poly({ { cx - 2, cy }, { cx + 0.5, cy - 4 }, { cx + 3, cy } }))
+  local function drop(cx, cy, r)
+    r = r or 2.5
+    return c:ellipse(cx, cy + 1, r, r):add(c:poly({ { cx - r + 0.5, cy }, { cx + 0.5, cy - r - 1.5 }, { cx + r + 0.5, cy } }))
   end
-  local drops = { drop(15.5, 27), drop(24.5, 29), drop(32.5, 26) }
-  local goldDrops = { c:ellipse(6.5, 15.5, 2, 2), c:ellipse(41.5, 15.5, 2, 2) }
+  local DX = { { 15.5, 27 }, { 24.5, 29 }, { 32.5, 26 } }
+  local SX = { { 6.5, 18 }, { 41.5, 18 } }
   local list = { { "twig", twig, BARK, { cres = 1, gloss = false, bounce = false } },
                  { "cloud", cloud, CLOUD, { cres = 2, gloss = { 19, 9 }, stitch = { side = "lit" } } } }
-  for i, d in ipairs(drops) do list[#list + 1] = { "d" .. i, d, WATER, { cres = 1, gloss = false, bounce = false } } end
-  for i, d in ipairs(goldDrops) do list[#list + 1] = { "g" .. i, d, GOLDR, { cres = 1, gloss = false, bounce = false } } end
+  for i, d in ipairs(DX) do list[#list + 1] = { "d" .. i, drop(d[1], d[2]), WATER, { cres = 1, gloss = false, bounce = false } } end
+  for i, d in ipairs(SX) do list[#list + 1] = { "s" .. i, drop(d[1], d[2], 2), WATER, { cres = 1, gloss = false, bounce = false } } end
   c:build(list)
-  for i, d in ipairs(drops) do   -- 1 px glaze glint on each drop
-    local x0, y0 = d:bbox(); local cx = ({ 15, 24, 32 })[i]
-    c:px(cx - 1, y0 + 3, WATER.gloss)
-  end
-  for _, g in ipairs({ { 6, 14 }, { 41, 14 } }) do c:px(g[1], g[2], GOLDR.gloss) end
+  for _, d in ipairs(DX) do c:px(math.floor(d[1]) - 1, d[2], WATER.gloss) end      -- glaze glint on each drop
+  for _, d in ipairs(SX) do c:px(math.floor(d[1]) - 1, d[2], WATER.gloss) end
   c:seam({ { 13, 19 }, { 35, 19 } }, { gap = CLOUD.base })
   c:finish()
-  thread(c, 23, 0, 3)                                      -- hanger to the top edge
-  thread(c, 24, 6, 6)                                      -- twig to cloud
-  for _, x in ipairs({ 15, 24, 32 }) do                    -- cloud to drops
-    local _, _, _, cy1 = cloud:bbox()
-    local y = cy1 + 2
-    while c.pix[c:key(x, y)] == nil or c.pix[c:key(x, y)] == "#000000" do
-      if c.pix[c:key(x, y + 1)] and c.pix[c:key(x, y + 1)] ~= "#000000" then break end
-      c.pix[c:key(x, y)] = THREAD; y = y + 1
-      if y > 33 then break end
+  thread(c, 23, 0, 1)                                      -- hanger to the top edge
+  local function hang(x, y)                                -- thread down to the next art pixel
+    while y < 34 do
+      local nxt = c.pix[c:key(x, y + 1)]
+      local v = c.pix[c:key(x, y)]
+      if v ~= nil and v ~= "#000000" then break end
+      c.pix[c:key(x, y)] = THREAD
+      if nxt and nxt ~= "#000000" then break end
+      y = y + 1
     end
   end
-  -- bead strands at the twig ends: 2 px beads stacked on the thread, gold drop at the end
-  for _, x in ipairs({ 6, 41 }) do
-    thread(c, x, 7, 7)
-    local i = 0
-    for y = 8, 12, 2 do
-      local b = BEADS[(i + (x == 41 and 2 or 0)) % 4 + 1]
-      c.pix[c:key(x, y)] = b[1]; c.pix[c:key(x + 1, y)] = b[2]
-      c.pix[c:key(x, y + 1)] = b[2]; c.pix[c:key(x + 1, y + 1)] = b[2]
-      i = i + 1
+  hang(24, 6)
+  for _, d in ipairs(DX) do hang(math.floor(d[1]), 22) end
+  -- bead strands at the twig ends: three 2 px beads on the thread, then the small drop
+  for _, d in ipairs(SX) do
+    local x = math.floor(d[1])
+    c.pix[c:key(x, 8)] = THREAD
+    for i = 0, 2 do
+      local b = BEADS[(i + (x > 20 and 2 or 0)) % 4 + 1]
+      local y = 9 + i * 2
+      c.pix[c:key(x - 1, y)] = b[1]; c.pix[c:key(x, y)] = b[1]
+      c.pix[c:key(x - 1, y + 1)] = b[2]; c.pix[c:key(x, y + 1)] = b[2]
     end
   end
   save(c, "rain_cloud_mobile")
 end
 
 -- ===== coffee_bean_rattle (rod, 16x16) =====
+-- A glossy roasted coffee bean (upright oval, dark S crease with a lit lip) as a felt shaker, with a gold cap
+-- banded in beads, tied on its thread (thread runs to the top edge).
 do
   local c = canvas(16, 16)
-  local bean = c:ellipse(7.5, 9.5, 4, 4)
+  local bean = c:ellipse(7.5, 9, 3.5, 4.5)
   local cap = c:rrect(5, 3, 10, 5, 1)
   c:build{
     { "bean", bean, BEAN, { cres = 2, gloss = { 5, 7 }, bounce = false } },
     { "cap", cap, GOLDR, { flat = true } },
   }
-  -- the bean's S crease, dark down the middle with a lit lip on its left
   local cr = { { 8, 6 }, { 8, 7 }, { 7, 8 }, { 7, 9 }, { 7, 10 }, { 8, 11 }, { 8, 12 } }
   for _, p in ipairs(cr) do c:px(p[1], p[2], C.ol3) end
-  for _, p in ipairs({ { 7, 7 }, { 6, 9 }, { 7, 11 } }) do
+  for _, p in ipairs({ { 7, 6 }, { 7, 7 }, { 6, 9 }, { 6, 10 }, { 7, 11 } }) do
     if not c.gl.s[c:key(p[1], p[2])] then c:px(p[1], p[2], BEAN.rim) end
   end
   beadrow(c, hrow(6, 9, 4), 1)

@@ -118,26 +118,28 @@ do
     { "top",   top,   DRIFT, { cres = 2, gloss = { 9, 3 } } },
     { "bot",   bot,   DRIFT, { cres = 2, gloss = false } },
   }
-  -- felt sea picture: sky band, sea, a curling cream wave, sand
-  for y = 7, 22 do for x = 7, 26 do
-    local col
-    if y <= 11 then col = "#bfe4dc"
-    elseif y >= 20 then col = (y == 20) and SAND.rim or SAND.base
-    else col = (y == 12) and TEAL.rim or TEAL.base end
-    c:px(x, y, col)
-  end end
-  -- curling wave: cream crest breaking to the right, a dark hollow under the curl
+  -- felt sea picture (x 7..26, y 7..22): sky, a little sun, a curling wave with a cream crest, sea, sand
   c:paint({
-    "......cccc.....",
-    "....cc....c....",
-    "...c...tt..c...",
-    "..c...t..c.....",
-    ".c...t..........",
-    "cccccccccccccccc",
-  }, 7, 13, { c = "#f8f0dc", t = TEAL.shade })
-  for x = 7, 26 do c:px(x, 19, TEAL.shade) end
+    "kkkkkkkkkkkkkkkkkkkk",
+    "kkkkkkkkkkkkkkkkyykk",
+    "kkkkcccckkkkkkkyGyyk",
+    "kkkcrrttckkkkkkyyyyk",
+    "kkcrttddtckkkkkkyykk",
+    "kcrtdkkdtdkkkkkkkkkk",
+    "kcrtdkkkkkkkkkkkkkkk",
+    "crttdkkkkcccckkkkccc",
+    "ttttttdtttttttttdttt",
+    "tttttttttttdddtttttt",
+    "ttdddttttttttttttddt",
+    "dddddddddddddddddddd",
+    "ssssssssssssssssssss",
+    "SSSSSSSSSSSSSSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSS",
+  }, 7, 7, { k = "#bfe4dc", c = "#f8f0dc", r = TEAL.rim, t = TEAL.base, d = TEAL.shade,
+             y = STAR.base, G = STAR.gloss, s = SAND.rim, S = SAND.base })
   -- scallop shell on the sand
-  c:paint({ ".ppp.", "prprp", "prprp", ".sss." }, 20, 18, { p = CORAL.rim, r = CORAL.shade, s = CORAL.base })
+  c:paint({ ".ppp.", "prprp", "prprp", ".sss." }, 20, 19, { p = CORAL.rim, r = CORAL.shade, s = CORAL.base })
   -- wood grain
   c:paint({ "ss...sss", }, 14, 4, { s = DRIFT.shade })
   c:paint({ "sss....ss", }, 10, 26, { s = DRIFT.shade })
@@ -219,37 +221,37 @@ end
 do
   local c = GV.canvas{ w = 16, h = 16, mode = "sticker", ol = 1, olx = 0, margin = 0 }
   local T = {}
-  -- scallop: a ribbed fan with a wavy top edge, hinge ears at the bottom; hung by a drilled hole at the top
+  -- scallop charm hung from its drilled hinge: ears at the top, ribbed fan opening downward, bumpy rim
   local SH = felt("#f49a7a", { gloss = "#fff1c8", rim = "#ffc8a0", shade = "#d0605a" })
   local rows = {
-    "..xx.x.xx..",
-    ".xxxxxxxxx.",
-    "xxxxxxxxxxx",
-    "xxxxxxxxxxx",
-    "xxxxxxxxxxx",
-    ".xxxxxxxxx.",
     "..xxxxxxx..",
+    "....xxx....",
     "...xxxxx...",
+    "..xxxxxxx..",
     ".xxxxxxxxx.",
+    "xxxxxxxxxxx",
+    "xxxxxxxxxxx",
+    "xxxxxxxxxxx",
+    ".xx.xxx.xx.",
   }
   local X0, Y0 = 2, 5
   local shell = c:ascii(rows, X0, Y0)
   c:build{
     { "shell", shell, SH, { cres = 2, gloss = false } },
-    { "bead",  c:rect(7, 3, 8, 4), TEAL, { flat = true, contact = false } },
+    { "bead",  c:rect(6, 3, 8, 4), TEAL, { flat = true, contact = false } },
   }
-  -- ribs: grooves radiating from the hinge (7.5, 13), shade on the grooves, deep on the lower right
+  -- ribs: grooves radiating from the hinge, shade on lit felt, deep on the shaded side
   shell:each(function(x, y)
-    if y >= Y0 + 8 then return end
-    local a = math.atan(x - 7, 13.5 - y)
-    local f = (a / 0.30 + 0.5) % 1
-    if f < 0.28 and y >= Y0 + 1 then
-      c:px(x, y, ((x - 7) + (y - 9) > 3) and C.ol1 or SH.shade)
+    if y < Y0 + 3 then return end
+    local a = math.atan(x - 7, y - (Y0 + 1))
+    local f = (a / 0.36 + 0.5) % 1
+    if f > 0.38 and f < 0.62 then
+      local v = c:get(x, y)
+      c:px(x, y, (v == SH.shade) and C.ol1 or SH.shade)
     end
   end)
-  for x = X0 + 1, X0 + 9 do if shell:has(x, Y0 + 8) then c:px(x, Y0 + 8, (x < 6) and SH.rim or SH.shade) end end
-  c:px(7, 5, C.hole)                                       -- drilled hole the thread runs through
-  c:px(4, 7, SH.gloss); c:px(5, 6, SH.gloss); c:px(4, 8, SH.gloss)
+  c:px(7, 5, C.hole)                                       -- drilled hinge the thread runs through
+  c:px(4, 9, SH.gloss); c:px(5, 8, SH.gloss); c:px(3, 10, SH.gloss)
   tline(c, T, 7, 0, 7, 2)
   save(c, "seashell_lure", T)
 end

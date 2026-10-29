@@ -1,7 +1,7 @@
 -- banner-SE-pets.lua : Cat Fish pet shop banner for "The Olive Pantry Pets" (Olivewhistle Shore, SE).
 -- A warm ochre shop front in the market town: terracotta tile eave, a hanging gold cat-head sign (no text),
 -- olive-and-cream striped awning, a lit shop window full of cat goods, an open arched door with warm light,
--- a ginger cat on the step, a potted lemon tree, cream neighbours with shutters and bougainvillea, sea beyond.
+-- a cream-and-ginger cat on the step, a potted lemon tree, cream neighbours with shutters and bougainvillea, sea beyond.
 -- House banner format: 240x60 grid written at 2x (480x120), scene mode (no border), gold hem top and bottom.
 -- Run: AppRun -b --script banner-SE-pets.lua  -> ../out/banner-SE-pets.png + .aseprite
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
@@ -13,6 +13,7 @@ local c = GV.canvas{ w = 240, h = 60, mode = "scene", out = 2 }
 local function R(t) t.dot = t.dot or t.gloss; t.bounce = t.bounce or t.shade; return t end
 local CREAM = R{ base = "#f1ece0", rim = "#fff1c8", gloss = "#fff1c8", shade = "#e9b98a", deep = "#c9a96e", pale = true }
 local OCHRE = R{ base = "#e9b98a", rim = "#fff1c8", gloss = "#fff1c8", shade = "#d9885a", deep = "#c47a52", pale = false }
+local SHOPW = R{ base = "#d9885a", rim = "#e9b98a", gloss = "#fff1c8", shade = "#c47a52", deep = "#8a4f2a", pale = false }
 local TERRA = R{ base = "#c47a52", rim = "#d9885a", gloss = "#e9b98a", dot = "#fff1c8", shade = "#8a4f2a", deep = "#5e2f1e", pale = false }
 local OLIVE = R{ base = "#6a9a3a", rim = "#a4b86a", gloss = "#c8d77a", shade = "#4a8a3e", deep = "#2f5a2a", pale = false }
 local DKGRN = R{ base = "#4a8a3e", rim = "#6a9a3a", gloss = "#a4b86a", shade = "#2f5a2a", deep = "#2f5a2a", pale = false }
@@ -32,8 +33,8 @@ end
 ---------------------------------------------------------------- sky, sea, street (no outline)
 c:bands(c:rect(0, 0, 239, 31), { "#8fcbd8", "#8fcbd8", "#8fcbd8", "#c8ecdc", "#c8ecdc", "#fff1c8" }, { dir = "v" })
 -- low afternoon sun, upper left
-c:part(c:ellipse(30, 7, 3.5, 3.5), GOLD, { outline = false, gloss = false, flat = true })
-c:px(28, 5, "#fff1c8"); c:px(29, 5, "#fff1c8"); c:px(28, 6, "#fff1c8")
+c:part(c:ellipse(40, 8, 3.5, 3.5), GOLD, { outline = false, gloss = false, flat = true })
+c:px(38, 6, "#fff1c8"); c:px(39, 6, "#fff1c8"); c:px(38, 7, "#fff1c8")
 -- far headland on the left horizon
 c:fill(c:poly({ { 0, 30 }, { 6, 26 }, { 14, 25 }, { 22, 28 }, { 26, 31 }, { 0, 31 } }), "#a4b86a")
 -- sea strip
@@ -60,13 +61,13 @@ c:part(c:rect(231, 41, 232, 47), TERRA, { flat = true })
 c:part(c:ellipse(231.5, 26, 4.5, 15), DKGRN, { gloss = false })
 
 ---------------------------------------------------------------- left neighbour (cream house, green shutters)
-c:part(c:rect(18, 16, 77, 48), CREAM, { gloss = false })
-c:part(c:rect(15, 12, 80, 15), TERRA, { gloss = false })
-for x = 17, 79, 4 do c:fill(c:rect(x, 13, x, 14), "#8a4f2a") end
+c:part(c:rect(18, 19, 77, 48), CREAM, { gloss = false })
+c:part(c:rect(15, 15, 80, 18), TERRA, { gloss = false })
+for x = 17, 79, 4 do c:fill(c:rect(x, 16, x, 17), "#8a4f2a") end
 -- shuttered window (two closed olive shutters with slats)
-c:part(c:rect(28, 21, 33, 31), OLIVE, { outline = false, gloss = false, flat = true })
-c:part(c:rect(35, 21, 40, 31), OLIVE, { outline = false, gloss = false, flat = true })
-for y = 23, 30, 2 do c:fill(c:rect(29, y, 32, y), "#4a8a3e"); c:fill(c:rect(36, y, 39, y), "#4a8a3e") end
+c:part(c:rect(28, 23, 33, 31), OLIVE, { outline = false, gloss = false, flat = true })
+c:part(c:rect(35, 23, 40, 31), OLIVE, { outline = false, gloss = false, flat = true })
+for y = 25, 30, 2 do c:fill(c:rect(29, y, 32, y), "#4a8a3e"); c:fill(c:rect(36, y, 39, y), "#4a8a3e") end
 c:part(c:rect(26, 32, 42, 33), CREAM, { outline = false, flat = true })
 -- geranium box on the sill
 c:part(c:rect(28, 34, 40, 36), TERRA, { outline = false, flat = true })
@@ -77,9 +78,9 @@ c:part(ldoor, TERRA, { outline = false, gloss = false })
 c:fill(c:rect(56, 33, 56, 48), "#8a4f2a")
 
 ---------------------------------------------------------------- right neighbour (cream house, bougainvillea)
-c:part(c:rect(163, 19, 224, 48), CREAM, { gloss = false })
-c:part(c:rect(161, 15, 227, 18), TERRA, { gloss = false })
-for x = 163, 226, 4 do c:fill(c:rect(x, 16, x, 17), "#8a4f2a") end
+c:part(c:rect(163, 21, 224, 48), CREAM, { gloss = false })
+c:part(c:rect(161, 17, 227, 20), TERRA, { gloss = false })
+for x = 163, 226, 4 do c:fill(c:rect(x, 18, x, 19), "#8a4f2a") end
 -- open window with shutters folded back
 c:part(c:rect(178, 25, 189, 37), TERRA, { outline = false, gloss = false })
 c:fill(c:rect(180, 27, 187, 37), "#5e2f1e")
@@ -88,26 +89,38 @@ c:part(c:rect(172, 25, 176, 37), OLIVE, { outline = false, gloss = false, flat =
 c:part(c:rect(191, 25, 195, 37), OLIVE, { outline = false, gloss = false, flat = true })
 for y = 27, 36, 2 do c:fill(c:rect(173, y, 175, y), "#4a8a3e"); c:fill(c:rect(192, y, 194, y), "#4a8a3e") end
 -- bougainvillea tumbling over the right of the house
-local bush = c:ellipse(212, 22, 13, 8):add(c:ellipse(219, 33, 7, 9)):add(c:ellipse(203, 17, 7, 4))
+local bush = c:ellipse(214, 25, 10, 6):add(c:ellipse(220, 34, 5, 8)):add(c:ellipse(206, 22, 5, 3))
 c:part(bush, DKGRN, { gloss = false })
-for _, p in ipairs({ { 203, 16 }, { 208, 19 }, { 214, 15 }, { 219, 20 }, { 211, 24 }, { 205, 22 }, { 217, 27 },
-                     { 221, 32 }, { 216, 35 }, { 220, 39 }, { 222, 25 }, { 198, 18 } }) do
+for _, p in ipairs({ { 205, 21 }, { 209, 23 }, { 214, 20 }, { 219, 23 }, { 212, 27 }, { 217, 29 },
+                     { 221, 33 }, { 218, 37 }, { 221, 40 }, { 222, 26 }, { 203, 23 } }) do
   c:fill(c:rect(p[1], p[2], p[1] + 1, p[2] + 1), "#e46a9b")
   c:px(p[1], p[2], "#fff1c8")
 end
 
 ---------------------------------------------------------------- the shop: The Olive Pantry Pets
-local wall = c:rect(81, 9, 159, 48)
-c:part(wall, OCHRE, { gloss = false })
+local wall = c:rect(81, 6, 159, 48)
+c:part(wall, SHOPW, { gloss = false })
 -- terracotta tile eave
-local eave = c:rect(77, 4, 163, 9)
+local eave = c:rect(77, 1, 163, 6)
 c:part(eave, TERRA, { gloss = false })
-for x = 79, 162, 4 do c:fill(c:rect(x, 5, x, 8), "#8a4f2a") end
-for x = 78, 162, 4 do c:px(x, 9, "#8a4f2a"); c:px(x + 1, 9, "#8a4f2a") end
-c:fill(c:rect(78, 6, 162, 6), "#d9885a")
+for x = 79, 162, 4 do c:fill(c:rect(x, 2, x, 5), "#8a4f2a") end
+for x = 78, 162, 4 do c:px(x, 6, "#8a4f2a"); c:px(x + 1, 6, "#8a4f2a") end
+c:fill(c:rect(78, 3, 162, 3), "#d9885a")
 -- corner stone quoins
-for y = 12, 46, 6 do
-  c:fill(c:rect(82, y, 84, y + 2), "#fff1c8"); c:fill(c:rect(156, y, 158, y + 2), "#d9885a")
+for y = 9, 46, 6 do
+  c:fill(c:rect(82, y, 84, y + 2), "#e9b98a"); c:fill(c:rect(156, y, 158, y + 2), "#c47a52")
+end
+
+-- upper floor: two small windows with open shutters and geranium boxes
+for _, wx in ipairs({ 92, 140 }) do
+  c:part(c:rect(wx, 9, wx + 7, 16), TERRA, { outline = false, gloss = false })
+  c:fill(c:rect(wx + 1, 10, wx + 6, 16), "#5e2f1e")
+  c:fill(c:rect(wx + 3, 10, wx + 4, 16), "#8a4f2a")
+  c:part(c:rect(wx - 4, 9, wx - 2, 16), OLIVE, { outline = false, gloss = false, flat = true })
+  c:part(c:rect(wx + 9, 9, wx + 11, 16), OLIVE, { outline = false, gloss = false, flat = true })
+  c:part(c:rect(wx - 1, 17, wx + 8, 18), TERRA, { outline = false, flat = true })
+  for x = wx, wx + 6, 3 do c:fill(c:rect(x, 15, x + 1, 16), "#e46a9b") end
+  c:fill(c:rect(wx + 2, 16, wx + 2, 16), "#6a9a3a"); c:fill(c:rect(wx + 5, 16, wx + 5, 16), "#6a9a3a")
 end
 
 -- hanging sign: gold oval plaque with a cat-head cut-out, on two short chains
@@ -175,20 +188,21 @@ c:px(126, 42, "#e8a317")
 -- doorstep
 c:part(c:rect(117, 48, 160, 50), CREAM, { gloss = false })
 
--- ginger cat sitting on the step, looking out
+-- cream-and-ginger cat sitting on the step, looking out (pale, so it pops off the terracotta wall)
 local tail = c:line({ { 157, 48 }, { 159, 45 }, { 159, 42 } }, 2)
 local body = c:ellipse(151.5, 44.5, 4.5, 4)
 local head = c:ellipse(150.5, 37.5, 5.5, 4.5)
 local ears = c:poly({ { 145, 35 }, { 146, 30 }, { 149, 34 } }):add(c:poly({ { 152, 34 }, { 155, 30 }, { 156, 35 } }))
 c:part(tail, GOLD, { flat = true })
-c:part(body, GOLD, { gloss = false })
-c:part(ears:add(head), GOLD, { gloss = { 147, 35 } })
-c:fill(c:rect(152, 41, 153, 46), "#fff1c8")         -- cream bib
-c:px(146, 34, "#e46a9b"); c:px(154, 34, "#e46a9b")  -- inner ears
+c:part(body, CREAM, { gloss = false })
+c:part(ears:add(head), CREAM, { gloss = false })
+-- ginger patches: right ear + crown, and one on the flank
+c:fill(c:poly({ { 152, 34 }, { 155, 30 }, { 156, 35 } }):add(c:rect(151, 34, 154, 35)), "#e8a317")
+c:px(155, 34, "#d9885a"); c:px(155, 33, "#d9885a")
+c:fill(c:rect(154, 43, 155, 45), "#e8a317")
+c:px(146, 34, "#e46a9b")                            -- inner ear
 c:eye(146, 36, true); c:eye(151, 36, true)
-c:px(150, 40, "#8a4f2a")
--- stripes on the head
-c:px(150, 34, "#c47a52"); c:px(150, 35, "#c47a52"); c:px(148, 34, "#c47a52"); c:px(152, 34, "#c47a52")
+c:px(150, 40, "#e46a9b")                            -- nose
 
 -- potted lemon tree on the street, left of the window
 c:part(c:rect(73, 34, 74, 43), TERRA, { flat = true })

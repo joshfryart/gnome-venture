@@ -72,6 +72,9 @@ c:fill(c:poly({ {205, 20}, {205, 29}, {213, 29} }), CREAM)
 c:fill(c:rect(204, 19, 204, 30), WOOD_S)
 c:fill(c:poly({ {199, 30}, {216, 30}, {213, 33}, {202, 33} }), CORAL)
 
+---------------------------------------------------------------- beach strip behind the town
+c:fill(c:rect(0, 38, 239, 46), SAND)
+c:fill(c:rect(0, 38, 239, 38), CREAM)
 ---------------------------------------------------------------- background town houses (lighter, 1 px outline)
 local function house(x0, x1, ytop, ybase, wall, roof, roofTop)
   local w = c:rect(x0, ytop, x1, ybase)
@@ -95,9 +98,6 @@ house(212, 236, 31, 47, YELR, REDR, 25)
 c:fill(c:rect(14, 41, 17, 47), WOOD); c:fill(c:rect(41, 42, 44, 47), CORAL_S)
 c:fill(c:rect(195, 42, 198, 47), SEA_D); c:fill(c:rect(222, 41, 225, 47), TURQ)
 
----------------------------------------------------------------- beach strip behind the town, then the sandy street
-c:fill(c:rect(0, 38, 239, 46), SAND)
-c:fill(c:rect(0, 38, 239, 38), CREAM)
 ---------------------------------------------------------------- ground: sandy street
 c:bands(c:rect(0, 47, 239, 59), { SAND, SAND, SAND })
 c:fill(c:rect(0, 47, 239, 47), WOOD_L)
@@ -135,8 +135,9 @@ palm({ {176, 47}, {179, 34}, {184, 20} }, {
 
 ---------------------------------------------------------------- the shop (focal)
 -- porch deck and steps
-part(c:rect(80, 46, 160, 50), WOODR, { gloss = false })
-for x = 86, 158, 8 do c:fill(c:rect(x, 47, x, 49), WOOD_S) end
+far(c:rect(80, 46, 160, 50), DRIFT, { gloss = false, contact = false })
+c:fill(c:rect(81, 48, 159, 48), WOOD)
+for x = 86, 158, 9 do c:fill(c:rect(x, 46, x, 47), WOOD); c:fill(c:rect(x + 4, 49, x + 4, 50), WOOD) end
 far(c:rect(112, 51, 128, 52), DRIFT, { gloss = false, contact = false })
 far(c:rect(109, 54, 131, 55), DRIFT, { gloss = false, contact = false })
 -- walls: coral clapboard
@@ -176,30 +177,34 @@ for x = 84, 156, 4 do
 end
 c:fill(c:rect(82, 26, 158, 26), CREAM)
 -- shutters + big shop window
-local winX0, winX1, winY0, winY1 = 97, 118, 34, 43
-far(c:rect(91, 33, 94, 44), TURQR, { gloss = false, contact = false })
-far(c:rect(121, 33, 124, 44), TURQR, { gloss = false, contact = false })
-for y = 35, 43, 2 do c:fill(c:rect(92, y, 93, y), SEA_D); c:fill(c:rect(122, y, 123, y), SEA_D) end
-far(c:rect(winX0 - 1, winY0 - 1, winX1 + 1, winY1 + 1), CREAMR, { gloss = false, contact = false })
-c:fill(c:rect(winX0, winY0, winX1, winY1), THR)
-c:fill(c:rect(winX0, winY1 - 3, winX1, winY1), GLD)                   -- warm sill shelf glow
--- ginger cat sitting on a turquoise cushion in the window (back view, tail curl), plus a red yarn ball
-c:fill(c:ellipse(103.5, 41.5, 6, 1.5), TURQ); c:fill(c:rect(98, 42, 109, 42), SEA_D)
-local catb = c:ellipse(103, 37.5, 4, 3.5):add(c:ellipse(103, 33.5, 3, 2.5))
-catb:add(c:poly({ {100, 33}, {101, 29}, {103, 32} })):add(c:poly({ {104, 32}, {106, 29}, {107, 33} }))
-catb:clip(c:rect(winX0, winY0, winX1, winY1))
-c:fill(catb, GLD); c:fill(catb:edge(), WOOD_S)
-c:fill(c:rect(101, 35, 105, 35), WOOD_S); c:fill(c:rect(101, 38, 105, 38), WOOD_S)
-c:fill(c:line({ {107, 40}, {110, 39}, {111, 37} }, 2), GLD); c:px(111, 37, WOOD_S)
-c:fill(c:ellipse(115, 40.5, 2, 2), RED); c:px(114, 39, CORAL_L); c:px(116, 42, RED_S)
-c:fill(c:rect(winX0 + 12, winY0, winX0 + 12, winY1), CREAM)            -- mullion
 -- striped awning over the window, scalloped hem
 local aw = c:poly({ {92, 28}, {124, 28}, {127, 32}, {89, 32} })
 far(aw, TURQR, { gloss = false })
 for x = 89, 125, 6 do
   c:fill(c:poly({ {x, 28}, {x + 3, 28}, {x + 3, 32}, {x, 32} }):clip(aw), CREAM)
 end
-for x = 88, 126, 3 do c:px(x, 33, (math.floor((x - 88) / 3) % 2 == 0) and CREAM or TURQ) end
+for x = 89, 125, 3 do c:px(x, 32, (math.floor((x - 88) / 3) % 2 == 0) and CREAM or TURQ) end
+local winX0, winX1, winY0, winY1 = 97, 118, 34, 43
+far(c:rect(91, 33, 94, 44), TURQR, { gloss = false, contact = false })
+far(c:rect(121, 33, 124, 44), TURQR, { gloss = false, contact = false })
+for y = 35, 43, 2 do c:fill(c:rect(92, y, 93, y), SEA_D); c:fill(c:rect(122, y, 123, y), SEA_D) end
+far(c:rect(winX0 - 1, winY0 - 1, winX1 + 1, winY1 + 1), CREAMR, { gloss = false, contact = false })
+c:fill(c:rect(winX0, winY0, winX1, winY1), THR)
+c:fill(c:rect(winX0, winY1 - 2, winX1, winY1), CORAL_L)                   -- warm sill shelf glow
+-- ginger cat sitting on a turquoise cushion in the window (back view, tail curl), plus a red yarn ball
+c:fill(c:ellipse(103.5, 41.5, 6, 1.5), TURQ); c:fill(c:rect(98, 42, 109, 42), SEA_D)
+-- front-facing ginger cat: round head, two ears, dot eyes, loaf body, tail curled round the front paws
+local catb = c:ellipse(104, 40.5, 4.5, 2.5)
+local cath = c:ellipse(104, 37, 3.5, 2.5)
+cath:add(c:poly({ {100, 37}, {101, 33}, {103, 35} })):add(c:poly({ {105, 35}, {107, 33}, {108, 37} }))
+c:fill(catb, GLD); c:fill(c:rect(107, 39, 108, 42), WOOD_S)
+c:fill(cath, GLD)
+c:px(101, 34, THR); c:px(102, 35, THR)                                   -- lit ear edge
+c:px(102, 37, O3); c:px(105, 37, O3); c:px(103, 38, CORAL_S); c:px(104, 38, CORAL_S)
+c:fill(c:rect(100, 39, 100, 41), WOOD_S); c:fill(c:rect(101, 42, 107, 42), WOOD_S)
+c:fill(c:rect(102, 41, 106, 41), THR)                                    -- tail across the paws
+c:fill(c:ellipse(114.5, 40.5, 2.5, 2.5), RED); c:px(113, 39, CORAL_L); c:px(116, 42, RED_S); c:px(115, 42, RED_S)
+c:fill(c:rect(winX0 + 12, winY0, winX0 + 12, winY1), CREAM)            -- mullion
 -- door: turquoise, arched top, round porthole, cat flap
 local door = c:rect(130, 29, 143, 45):cut(c:rect(130, 29, 130, 30)):cut(c:rect(143, 29, 143, 30)):cut(c:rect(131, 29, 131, 29)):cut(c:rect(142, 29, 142, 29))
 far(door, TURQR, { gloss = false })
