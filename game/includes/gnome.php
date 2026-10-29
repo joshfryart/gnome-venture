@@ -578,15 +578,20 @@ function gnome_avatar(array $u, int $size = 96): string
         . gnome_scarf_svg($u) . '</svg>';
 }
 
-/** The Yarn scarf (bought in Cat Fish), a plain SVG drawn over the neck; '' without one. */
+/**
+ * The Yarn scarf (bought in Cat Fish), a plain SVG drawn over the neck; '' without one. PLACEHOLDER art: the red outline is the house marker
+ * (red border = THIS IS PLACEHOLDER, see claude/todo.md "Art for 2.2.x"). The real art is a tintable pixel layer, assets/img/gnome/gnome-scarf.png,
+ * drawn like the hat and beard layers; when it exists, swap this for pixel_image() and drop the red outline.
+ */
 function gnome_scarf_svg(array $u): string
 {
     if (empty($u['id'])) return '';
     require_once __DIR__ . '/catfish.php';
     $c = catfish_scarf_color((int)$u['id']);
     if ($c === '') return '';
-    return '<g data-part="scarf"><path d="M25 62 Q40 72 55 62 L56 70 Q40 79 24 70 Z" fill="' . e($c) . '" stroke="#000" stroke-opacity=".25" stroke-width=".8"/>'
-        . '<path d="M47 73 L50 90 L58 88 L54 71 Z" fill="' . e($c) . '" stroke="#000" stroke-opacity=".25" stroke-width=".8"/></g>';
+    $edge = 'stroke="#dc1414" stroke-width="1.2" stroke-dasharray="3 1.5"';   // placeholder marker
+    return '<g data-part="scarf" data-placeholder="1"><title>THIS IS PLACEHOLDER (Yarn scarf)</title><path d="M25 62 Q40 72 55 62 L56 70 Q40 79 24 70 Z" fill="' . e($c) . '" ' . $edge . '/>'
+        . '<path d="M47 73 L50 90 L58 88 L54 71 Z" fill="' . e($c) . '" ' . $edge . '/></g>';
 }
 
 function gnome_hat(array $u): string

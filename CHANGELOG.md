@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased (branch ccr-d4955a91-j50rxx; version not bumped, no zip)
+- **Cat Fish page layout.** Upgrades are four branch tabs with buy buttons that show only the cost. The Shelter is a fold whose closed header shows the day's three cats. The folds below the cats became a six-tile hub (Nap, Yarn, Milestones, Cat Show, Your cats, Cat Book) with a status line on each tile; "Home" is now "Yarn". Cat rows are slim (Play, and Rename, bio and collar behind a pencil). The Cat Book has pattern tabs with named colour tiles. Everything still works without JavaScript (all panels stack).
+- **New ways to spend Yarn:** Buy x10, Longer naps away, titles "Cat Person" and "Napmaster", Hold a cat, Stakeout, a second Cat Show entry, a Buddy cat, Keepsake, yarn ball colours, a Yarn scarf for your gnome, Yarn bunting for the festival jar, Rod Tune-up, Catnip Hour, Mood Treat, cat bio lines, collar tints and a seasonal room. The Yarn panel is grouped into three folds. Profiles show a ribbon shelf with a count per tier.
+- **Adventure fights:** your panel is now on the left under your gnome and the creature's is on the right (fight card, the open-bar duel box and the Fight on replay).
+- **Wandering and exploring** (not treks) now shows the Puzzle Pals you took along beside your gnome on the scene.
+- Placeholder art: the Yarn scarf is a flat SVG with a red dashed outline until the pixel layer is drawn (see `claude/todo.md`).
+- Tests: many new checks in `tests/catfish.sh`; `tests/catfish_anim.js` clicks the upgrade tab before buying. `tests/social100.sh` fails on the base commit as well.
+
 ## 2.1.14
 - **Phone: the "Visit <place> now" button is full width and centred.** After you find a hidden place while wandering, its lone button sat in half of the 2-column action grid, pushed to the left. A button that is alone in its list now spans the whole row with centred text.
 

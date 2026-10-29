@@ -79,3 +79,14 @@ Status 2026-10-29: the art is drawn as test art in `aseprite-source/catfish/test
 - Catch and nap have no eye pixels (eyes closed), so odd-eyed has no visible effect on them.
 - Patterns on folded ears: checked, the pattern layer already marks the folded ears outside the erased mask; clipping the pattern to the ear part adds jagged marks (calico, pointed), so it is not coded.
 - Room art is drawn at 2x (about 100 px short side) but cats are 1x sprites; the grain differs a little. Banner is shown at 240 px on narrow screens (exact half).
+
+
+## 2.2.x additions: art still to draw (placeholders in game; red border = placeholder)
+Added 2026-10-29 with the Yarn sinks. Full detail and the pet shop list: `claude/todo.md` "Art for 2.2.x" and `claude/plan-catfish-petshops.md` section 7.
+- [ ] Yarn scarf: `game/assets/img/gnome/gnome-scarf.png`, 80 x 100, tintable like the hat layer (placeholder: red-dashed SVG in `gnome_scarf_svg()`)
+- [ ] Collar: neck band on idleA, pounce, catch, nap x 6 colours (placeholder: CSS ring `.cfcol-*`)
+- [ ] Seasonal room bits: petal, firefly, leaf, flake sprites (placeholder: CSS dots `.cfseason`)
+- [ ] Yarn ball in rose, mint, violet, gold: recolour `cf-yarn-1..4.png` (placeholder: CSS tint `.cfball-*`)
+- [ ] 16 Yarn panel icons, 64 x 64 (placeholder: emoji)
+- [ ] Pet shops (not built): 55 item sprites `cf-pet-<key>.png`, 11 banners, 11 shopkeepers, 8 slot spots in `room-layout.json`
+- [ ] Long-cooldown scene events (not built): golden fish, feather, yarn crumb, stranger cat spot

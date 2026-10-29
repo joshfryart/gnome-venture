@@ -87,3 +87,7 @@ Owner-approved. Each of the three fish on the stage is a `<button class="cfsdrop
 
 ## Rules
 Tick uses server time only. Petals capped. Race-safe buys (conditional UPDATE + rowCount). CSRF on every POST. No inline style or script. Keep this list current; leave a handoff note in `claude/handoff.md` before a session ends.
+
+
+## Yarn sinks, layout and pet shops (2.2.x, unreleased)
+Built: see `claude/todo.md` top block. Designed, not built: pet shops, 8 scene slots, long-cooldown scene events, in `claude/plan-catfish-petshops.md` (no cap on the summed passive Kibble %, owner decision 2026-10-29).
