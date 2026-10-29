@@ -46,7 +46,7 @@ def fill(key, body, x0, y0, size, tones):
 
 
 def happy_eye(st, x, y):
-    st.sprite(['.UUU.', 'UU.UU', 'U...U'], x, y, {'U': UMBER}, solid=False)
+    st.sprite(['.UUU.', 'UUUUU', 'UU.UU', 'U...U'], x, y, {'U': UMBER}, solid=True)
 
 
 def shut_eye(st, x, y):
@@ -126,7 +126,7 @@ def bubble_bop():
         st.extra |= line([(a, b), (c, d)])
     happy_eye(st, 22, 27)
     happy_eye(st, 36, 27)
-    st.mouth('o', 30, 36)
+    st.mouth('o', 30, 37)
     return key, st
 
 

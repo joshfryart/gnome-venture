@@ -176,7 +176,7 @@ def candle_boat_pilot():
     st.paint(rect(22, 15, 40, 17), ROOF[0])
     st.paint(rect(24, 43, 38, 45), ROOF[0])
     st.paint(ellipse(31, 34, 6, 5) & lan, GLOW[1])
-    st.part(disc(31, 9, 2.4), GLOW[0], d=1, contour=True)      # the wish star
+    st.part(disc(31, 12, 2.2), GLOW[0], d=1, contour=True)      # the wish star
     st.paint(rect(31, 12, 31, 14), GLOW[0])
     lash_eye(st, 23, 23)
     lash_eye(st, 34, 23)

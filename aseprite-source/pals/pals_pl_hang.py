@@ -102,9 +102,9 @@ def fruit_tray():
 def palm_fringe():
     key = 'pl-hang-2'
     st = Sticker()
-    core = (14, 27, 48, 52)
+    core = (15, 27, 46, 52)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 14, 27, 35, list(TRUNK)), contour=True)
+    st.part(body, tex=fill(key, body, 15, 27, 32, list(TRUNK)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#5a3a1e', skip=grow(holes, 3))
     # leaning palm crown: fronds fanning from the top knob, leaning right
@@ -127,15 +127,15 @@ def palm_fringe():
 def brimful_pool():
     key = 'pl-hang-3'
     st = Sticker()
-    core = (15, 17, 47, 44)
+    core = (15, 18, 47, 45)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 15, 17, 33, list(POOL)), contour=True)
+    st.part(body, tex=fill(key, body, 15, 18, 33, list(POOL)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col=WATER[0], skip=grow(holes, 3))
     # ripple rings across the brim + splash droplets
     st.paint(ellipse(31, 22, 9, 1.6) & ~ellipse(31, 22, 7, 0.8), WATER[0], solid=True)
-    for x, y in ((22, 8), (40, 8), (31, 4), (10, 12), (53, 12)):
+    for x, y in ((22, 10), (40, 10), (10, 14), (53, 14), (14, 9)):
         st.paint(disc(x, y, 1.3), WATER[0], solid=True)
         dot(st, x, y, WATER[1])
     st.eye(20, 27)

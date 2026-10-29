@@ -83,18 +83,18 @@ def nugget_nap():
 def pinklegs_strut():
     key = 'pl-mirr-2'
     st = Sticker()
-    core = (11, 13, 44, 40)
+    core = (11, 16, 44, 42)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), w=('B', 'keyhole', 0, 3.0))
-    for pts in (((21, 40), (17, 47), (22, 53)), ((35, 40), (39, 47), (42, 53))):
+    for pts in (((21, 42), (17, 48), (22, 53)), ((35, 42), (39, 48), (42, 53))):
         st.part(line(list(pts), w=2), LEG[0], d=0, contour=True, shade=False)
     st.part(rect(19, 53, 25, 54), LEG[1], d=0, contour=True, shade=False)
     st.part(rect(40, 53, 46, 54), LEG[1], d=0, contour=True, shade=False)
-    st.dots([(17, 47), (39, 47)], LEG[1])
-    st.part(body, tex=fill(key, body, 11, 5, 44, list(LAV)), contour=True)
+    st.dots([(17, 48), (39, 48)], LEG[1])
+    st.part(body, tex=fill(key, body, 11, 8, 44, list(LAV)), contour=True)
     st.blank_shade(body, holes, width=1)
-    st.eye(18, 22, look=(1, 0))
-    st.eye(32, 22, look=(1, 0))
-    st.mouth('smirk', 25, 31)
+    st.eye(18, 25, look=(1, 0))
+    st.eye(32, 25, look=(1, 0))
+    st.mouth('smirk', 25, 34)
     return key, st
 
 
@@ -167,8 +167,8 @@ def puddle_dancer():
     key = 'pl-mirr-6'
     st = Sticker()
     bodyb = ellipse(34, 27, 12, 7)
-    nk = line([(25, 24), (21, 17), (23, 11)], w=4)
-    head = disc(25, 10, 5.5)
+    nk = line([(25, 24), (21, 19), (23, 14)], w=4)
+    head = disc(25, 13, 5.0)
     tab = knob('e', 'keyhole', 44, 28, r=3.0)
     sil = bodyb | nk | head | tab
     leg = line([(34, 33), (34, 42)], w=1) | line([(35, 36), (40, 32)], w=1)
@@ -182,14 +182,14 @@ def puddle_dancer():
     st.paint(rect(20, 45, 23, 45) | rect(43, 46, 46, 46), '#e8f0fc')
     st.part(sil, tex=fill(key, sil, 9, 4, 44, list(HOT)), contour=True)
     st.paint(ellipse(38, 25, 6, 3) & bodyb, '#ffc8dc')
-    beak = rect(29, 10, 32, 12) | rect(32, 11, 33, 14)
+    beak = rect(29, 13, 32, 15) | rect(32, 14, 33, 17)
     st.part(beak, BEAK, d=0, contour=False, shade=False)
-    st.paint(rect(29, 10, 30, 11), '#f4ece0')
+    st.paint(rect(29, 13, 30, 14), '#f4ece0')
     # twirl swish marks
     st.paint(line([(12, 30), (16, 34)]) | line([(48, 38), (51, 35)]), '#fff0f6')
-    lash_eye(st, 22, 7)
-    st.paint(rect(20, 13, 22, 13), BLUSH)
-    st.sparkle(8, 8)
+    lash_eye(st, 22, 10)
+    st.paint(rect(20, 16, 22, 16), BLUSH)
+    st.sparkle(9, 11)
     st.sparkle(50, 13, big=False)
     st.sparkle(12, 50, big=False)
     return key, st
