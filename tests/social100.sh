@@ -89,9 +89,9 @@ gt "sprout has a share" "$(db "SELECT COALESCE(SUM(amount),0) FROM hollow_goal_c
 # a helper hired to harvest must not count: ctx helper is skipped in calling_event (covered by the engine) - here check the tiers
 C1=$(db "SELECT coins FROM users WHERE id=$SID")
 dbx "UPDATE hollow_goals SET progress=11 WHERE id=$GID"      # tier 1 (25%) reached, tier 2 (50%) not even with the townsfolk top-up
-get $A index.php >/dev/null
+get $A 'index.php?today=1' >/dev/null
 ok "tier 1 paid once" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$SID")" 1
-get $A index.php >/dev/null; ok "no double pay on reload" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$SID")" 1
+get $A 'index.php?today=1' >/dev/null; ok "no double pay on reload" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$SID")" 1
 gt "coins went up for tier 1" "$(db "SELECT coins FROM users WHERE id=$SID")" "$C1"
 dbx "UPDATE hollow_goals SET progress=40 WHERE id=$GID"; get $A 'community.php?t=jar' >/dev/null
 ok "all four tiers paid at 100%" "$(db "SELECT COUNT(*) FROM hollow_goal_claims WHERE goal_id=$GID AND user_id=$SID")" 4
@@ -184,7 +184,7 @@ ok "day 1 claimed" "$(db "SELECT COUNT(*) FROM first_week_claims WHERE user_id=$
 gt "day 1 paid coins" "$(db "SELECT coins FROM users WHERE id=$SID")" "$C1"
 get $A firstweek.php >/dev/null; post $A firstweek.php -d day=1 >/dev/null; ok "no double claim" "$(db "SELECT COUNT(*) FROM first_week_claims WHERE user_id=$SID AND day=1")" 1
 dbx "UPDATE users SET fw_start='$(halifax -1)' WHERE id=$SID"; get $A firstweek.php >/dev/null; ok "day 2 unlocked next day (only day 3 says tomorrow)" "$(grep -c 'Unlocks tomorrow' $H)" 1
-get $A index.php >/dev/null; has "Today shows the First Week card" $H 'First Week'
+get $A 'index.php?today=1' >/dev/null; has "Today shows the First Week card" $H 'First Week'
 dbx "UPDATE users SET fw_start='$(halifax -6)' WHERE id=$SID"; get $A firstweek.php >/dev/null; hasnt "day 7 unlocked on day 7" $H '🔒 Make it yours'
 # tour end starts it
 dbx "UPDATE users SET fw_start=NULL WHERE id=$SID"
@@ -192,11 +192,11 @@ php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SE
 dbx "UPDATE users SET tour_step=1 WHERE id=$BID"; get $B garden.php >/dev/null; post $B tour.php -d do=skip >/dev/null
 ok "skipping the tour starts the First Week" "$(db "SELECT fw_start IS NOT NULL FROM users WHERE id=$BID")" 1
 get $A 'book.php?ch=Journey' >/dev/null; has "Journey shows a next step" $H 'class="jnext"'
-get $A index.php >/dev/null; has "Today Journey card shows a next step" $H 'class="jhint'   # the 👉 is swapped for a pixel icon on output
+get $A 'index.php?today=1' >/dev/null; has "Today Journey card shows a next step" $H 'class="jhint'   # the 👉 is swapped for a pixel icon on output
 
 echo "== 5. welcome back + the daily card"
 dbx "UPDATE users SET last_seen=datetime('now','-5 days'), away_from=NULL WHERE id=$SID"
-get $A index.php >/dev/null
+get $A 'index.php?today=1' >/dev/null
 ok "away_from noted on return" "$(db "SELECT away_from IS NOT NULL FROM users WHERE id=$SID")" 1
 has "welcome-back call on Today" $H 'Welcome back!'
 get $A back.php >/dev/null; has "summary page" $H 'You were away about 5 days'; has "garden section" $H 'Your garden'; has "letters section" $H 'Letters'; has "jar section" $H 'jar'
@@ -208,10 +208,10 @@ post $A back.php -d do=basket >/dev/null; ok "no second basket" "$(( $(db "SELEC
 dbx "UPDATE users SET last_seen=datetime('now','-10 days') WHERE id=$SID"; login $A sprout
 rm -f $A; get $A login.php >/dev/null; has "login after days away goes to the summary" <(curl -s -o /dev/null -w '%{redirect_url}' -c $A -b $A -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=sprout -d 'password=TestPass123!') 'back.php'
 get $A garden.php >/dev/null; ok "login noted the absence" "$(db "SELECT away_from IS NOT NULL FROM users WHERE id=$SID")" 1
-dbx "UPDATE users SET away_from=NULL, last_seen=datetime('now','-1 day') WHERE id=$SID"; get $A index.php >/dev/null; hasnt "one day away: no welcome back" $H 'Welcome back!'
+dbx "UPDATE users SET away_from=NULL, last_seen=datetime('now','-1 day') WHERE id=$SID"; get $A 'index.php?today=1' >/dev/null; hasnt "one day away: no welcome back" $H 'Welcome back!'
 dbx "UPDATE users SET tour_step=0 WHERE id=$SID"   # the tour is over (a gnome mid-tour gets no daily card)
-get $A index.php >/dev/null; has "daily card" $H 'htdaily'
-post $A daily.php >/dev/null; get $A index.php >/dev/null
+get $A 'index.php?today=1' >/dev/null; has "daily card" $H 'htdaily'
+post $A daily.php >/dev/null; get $A 'index.php?today=1' >/dev/null
 ok "daily tick stored" "$(db "SELECT COUNT(*) FROM daily_ticks WHERE user_id=$SID")" 1
 hasnt "ticked card is quiet" $H "Enough for today"
 hasnt "no streak words" $H 'streak'
@@ -219,7 +219,7 @@ hasnt "no streak words" $H 'streak'
 echo "== 6. Opening Day festival framework"
 ok "dates set by the upgrade" "$(db "SELECT COUNT(*) FROM settings WHERE name IN ('fest_opening_day_start','fest_opening_day_end') AND value <> ''")" 2
 get $A festival.php >/dev/null; has "festival page" $H 'Opening Day'; has "stalls" $H 'The stalls'; has "festival jar" $H 'The festival jar'
-get $A index.php >/dev/null; has "bunting strip" $H 'class="festbar"'
+get $A 'index.php?today=1' >/dev/null; has "bunting strip" $H 'class="festbar"'
 ok "festival jar made" "$(db "SELECT COUNT(*) FROM hollow_goals WHERE festival='opening_day'")" 1
 get $A festival.php >/dev/null; post $A festival.php -d do=flag >/dev/null
 ok "flag found" "$(db "SELECT COUNT(*) FROM festival_flags WHERE user_id=$SID")" 1
@@ -238,7 +238,7 @@ dbx "DELETE FROM garden_stamps"; get $A "visit.php?g=$BPLOT" >/dev/null; has "fe
 # seasons hook is guarded and used if present
 has "season line (if the season helper is there)" $H "stamp" 
 dbx "UPDATE settings SET value='2001-01-01' WHERE name='fest_opening_day_start'"; dbx "UPDATE settings SET value='2001-01-07' WHERE name='fest_opening_day_end'"
-get $A festival.php >/dev/null; has "ended festival page" $H 'No festival is on right now'; get $A index.php >/dev/null; hasnt "no bunting strip when ended" $H 'class="festbar"'
+get $A festival.php >/dev/null; has "ended festival page" $H 'No festival is on right now'; get $A 'index.php?today=1' >/dev/null; hasnt "no bunting strip when ended" $H 'class="festbar"'
 dbx "UPDATE settings SET value='2099-05-01' WHERE name='fest_opening_day_start'"; dbx "UPDATE settings SET value='2099-05-07' WHERE name='fest_opening_day_end'"
 get $A festival.php >/dev/null; has "upcoming festival shown" $H 'starts on May 1'
 F0=$(db "SELECT COUNT(*) FROM festival_flags WHERE user_id=$SID"); dbx "DELETE FROM festival_flags WHERE user_id=$SID AND day='$(halifax 0)'"; F0=$(db "SELECT COUNT(*) FROM festival_flags WHERE user_id=$SID"); post $A festival.php -d do=flag >/dev/null; ok "no flags when not on" "$(db "SELECT COUNT(*) FROM festival_flags WHERE user_id=$SID")" "$F0"
@@ -246,7 +246,7 @@ dbx "UPDATE settings SET value='2001-01-01' WHERE name='fest_opening_day_start'"
 get $A festival.php >/dev/null; has "switched off" $H 'No festival is on right now'; dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('festivals_on','1')"
 
 echo "== 7. pages render in both modes, no PHP errors"
-for pg in index.php 'community.php?t=jar' 'community.php?t=about' pals.php 'pals.php?tab=requests' 'pals.php?tab=find' 'pals.php?tab=blocked' firstweek.php festival.php show.php fair.php gotm.php 'arrange.php?t=show' race.php carve.php 'profile.php?id='$BID 'profile.php?id='$QID "visit.php?g=$BPLOT" 'book.php?ch=Journey' games.php; do
+for pg in 'index.php?today=1' 'community.php?t=jar' 'community.php?t=about' pals.php 'pals.php?tab=requests' 'pals.php?tab=find' 'pals.php?tab=blocked' firstweek.php festival.php show.php fair.php gotm.php 'arrange.php?t=show' race.php carve.php 'profile.php?id='$BID 'profile.php?id='$QID "visit.php?g=$BPLOT" 'book.php?ch=Journey' games.php; do
   code=$(get $A "$pg"); [ "$code" = 200 ] && echo "  ok   $pg" || { echo "  FAIL $pg -> $code"; FAILS=$((FAILS+1)); }
 done
 echo "== php errors"
