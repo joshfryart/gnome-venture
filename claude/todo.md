@@ -1,4 +1,9 @@
-# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.0.92 (Cat Fish); 2.0.93 in progress)
+# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.0.94 (My Gnome home page); 2.0.93 on main, no zip)
+
+## NOW (2.0.94, 2026-10-29): My Gnome home page. Built, slim zip in `releases/`, on main. Joshua uploads.
+- **Done:** index.php redirects players to gnome.php (`?today=1` keeps Today); login goes to gnome.php; My Gnome tabs load in place (`main nav.gvtabs a` in site.js).
+- **Joshua to check (phone, dark):** tabs swap without reload and Back/forward work; Today link reachable; logo/Home link lands on My Gnome; welcome-back page still first after days away.
+- **Maybe:** rename "Today" labels if My Gnome is now "Home"; tests that expect `index.php` Today for logged-in players (`tests/*.sh`) not re-run, check CI.
 
 ## NOW (2.0.93, 2026-10-29): Cat Fish. Built, tested, OFF for players (`catfish_open`). 2.0.92 is on main with a slim zip; 2.0.93 (game clock) is on branch ccr-12f7bb05-4plve4, no zip yet.
 - **Art todo: `claude/catfish-art-brief.md`.** About 80 hand-drawn pieces (cat body 8 frames, 20 pattern overlays, ears/tail 8, fish + rod 6, room 5, 16 upgrade icons, 9 badges + 5 ribbons, 5 small UI). Colours are made by script. **The 3 style decisions are approved (2026-10-29):** ring-tinted cat eyes, palette-swap script for the 8 coats, layered cat PNGs. Art lands one piece at a time: `catfish_img()` shows `assets/img/catfish/cf-<kind>-<name>.png` when it exists, else the emoji.
