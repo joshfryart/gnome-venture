@@ -577,12 +577,19 @@ H=$(lay $A '{"colour":"grey","pattern":"calico","eyes":"blue","ears":"folded","t
 ok "layers: folded ears = masked body, ears part, masked pattern, eyes" "$(echo "$H" | files)" "cfmk-ears-nap cf-cat-grey-nap cf-ears-folded-grey-nap cfmk-ears-nap cf-pat-calico-grey-nap cf-eyes-blue-nap "
 H=$(lay $A '{"colour":"cream","pattern":"pointed","eyes":"hazel","ears":"folded","tail":"bobtail","seed":1}' 64 catch)
 ok "layers: folded ears and bobtail = both masks, both parts, pattern, eyes" "$(echo "$H" | files)" "cfmk-tail-catch cfmk-ears-catch cf-cat-cream-catch cf-ears-folded-cream-catch cf-tail-bobtail-cream-catch cfmk-tail-catch cfmk-ears-catch cf-pat-pointed-cream-catch cf-eyes-hazel-catch "
-mkdir -p $W/art2; cp $A/cf-cat-brown-wiggle.png $A/cf-pat-spotted-brown-idleA.png $A/cf-ears-folded-brown-idleA.png $W/art2/   # a body for a frame that has no pattern, eyes, mask or part
+mkdir -p $W/art2; cp $A/cf-cat-brown-wiggle.png $A/cf-pat-spotted-brown-idleA.png $A/cf-ears-folded-brown-idleA.png $W/art2/   # a body for a frame whose pattern, eyes, mask and part files are missing
 H=$(lay $W/art2 '{"colour":"brown","pattern":"spotted","eyes":"amber","ears":"folded","tail":"bobtail","seed":1}' 64 wiggle)
-ok "layers: frame with no pattern/eyes/part art: body plus idleA pattern only, no half-drawn parts" "$(echo "$H" | files)" "cf-cat-brown-wiggle cf-pat-spotted-brown-idleA "
+ok "layers: a frame with no overlay files: the body only, no half-drawn parts" "$(echo "$H" | files)" "cf-cat-brown-wiggle "
+ok "frames: CATFISH_PATTERN_FRAMES is all 8 frames, idleB, wiggle and bored included" "$(php -r 'function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return "";} require $argv[1]; echo implode(" ", CATFISH_PATTERN_FRAMES), "|", CATFISH_PATTERN_FRAMES === CATFISH_FRAMES ? "same" : "differ";' "$GAME/includes/catfish.php")" "idleA idleB wiggle stalk pounce catch nap bored|same"
+# a patterned folded-ear bobtail cat on every one of the 8 frames: body, pattern, ears, tail, eyes (both masks) - a missing layer on any frame is a bug
+FRAMES8="idleA idleB wiggle stalk pounce catch nap bored"
+for f in $FRAMES8; do
+  H=$(lay $A '{"colour":"cream","pattern":"calico","eyes":"green","ears":"folded","tail":"bobtail","seed":1}' 64 $f)
+  ok "layers: folded bobtail calico cat, frame $f: both masks, body, ears, tail, pattern, eyes" "$(echo "$H" | files)" "cfmk-tail-$f cfmk-ears-$f cf-cat-cream-$f cf-ears-folded-cream-$f cf-tail-bobtail-cream-$f cfmk-tail-$f cfmk-ears-$f cf-pat-calico-cream-$f cf-eyes-green-$f "
+done
 ok "layers: no inline style, no script, all images empty alt" "$(for f in idleA nap; do lay $A '{"colour":"ginger","pattern":"tabby","eyes":"odd","ears":"folded","tail":"bobtail","seed":3}' 128 $f; done | grep -c 'style=\|<script\|on[a-z]*=')" 0
 ok "layers: bad frame name falls back to idleA" "$(lay $A "$P0" 64 '../x' | grep -c 'cf-cat-orange-idleA')" 1
-ok "css: mask, clip and size classes exist for every frame the renderer can emit" "$(for c in cf-s64 cf-s128 cf-s192 cfmk-ears-idleA cfmk-tail-pounce cfclip-L-stalk cfclip-R-nap; do grep -c "\.$c " $GAME/assets/catfish.css; done | tr '\n' ' ')" "1 1 1 1 1 1 1 "
+ok "css: mask, clip and size classes exist for every frame the renderer can emit" "$(for c in cf-s64 cf-s128 cf-s192 cfmk-ears-idleA cfmk-tail-pounce cfclip-L-stalk cfclip-R-nap cfmk-ears-idleB cfmk-ears-wiggle cfmk-ears-bored cfmk-tail-idleB cfmk-tail-wiggle cfmk-tail-bored; do grep -c "\.$c " $GAME/assets/catfish.css; done | tr '\n' ' ')" "1 1 1 1 1 1 1 1 1 1 1 1 1 "
 ok "css: no art, no change: every png has image-rendering pixelated" "$(grep -c 'image-rendering: pixelated' $GAME/assets/catfish.css | awk '{print ($1>=3)?"y":"n"}')" y
 OLD='<span class="cfcat c-ginger p-tabby e-amber" aria-hidden="true">🐱</span>'
 ok "no art folder: the old emoji block renders unchanged" "$(lay none '{"colour":"ginger","pattern":"tabby","eyes":"amber","ears":"folded","tail":"bobtail","seed":3}' 64 idleA)" "$OLD"
@@ -625,6 +632,59 @@ ok "book cell, art: found coats use their head (ginger -> orange, lilac), unknow
 mkdir -p $W/art4; cp $FULL/cf-bookhead-unknown.png $W/art4/
 ok "book cell, art for unknown only: a found coat keeps today's circle" "$(cfx $W/art4 'catfish_book_cell("ginger", 0, "a") . catfish_book_cell("ginger", -1, "b")' | grep -o 'cfbcell got c-ginger\|cf-bookhead-unknown.png' | tr '\n' ' ')" "cfbcell got c-ginger cf-bookhead-unknown.png "
 ok "art coat map: all 8 coats have art, lilac included" "$(cfx none 'count(CATFISH_ART_COATS) . " " . CATFISH_ART_COATS["lilac"]')" "8 lilac"
+# play scene (catfish_stage_html): one centred stage with the room stack, wand, three fish, the other cats as still frames and the active cat with all 8 frame groups
+SC='[["id"=>1,"name"=>"Pip","colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"folded","tail"=>"bobtail","seed"=>11,"mood"=>"hyper"],["id"=>2,"name"=>"Dot","colour"=>"lilac","pattern"=>"solid","eyes"=>"odd","ears"=>"upright","tail"=>"long","seed"=>2,"mood"=>"hyper"],["id"=>3,"name"=>"Zed","colour"=>"black","pattern"=>"calico","eyes"=>"blue","ears"=>"upright","tail"=>"long","seed"=>3,"mood"=>"lazy"],["id"=>4,"name"=>"Moe","colour"=>"white","pattern"=>"spotted","eyes"=>"green","ears"=>"folded","tail"=>"long","seed"=>4,"mood"=>"dreamy"],["id"=>5,"name"=>"Fig","colour"=>"brown","pattern"=>"tuxedo","eyes"=>"hazel","ears"=>"upright","tail"=>"bobtail","seed"=>5,"mood"=>"greedy"]]'
+ok "stage, no art: nothing (the page keeps the old rod box)" "$(cfx none "catfish_stage_html($SC, $SC[0], [\"rug\"=>1])")" ""
+SH=$(cfx $FULL "catfish_stage_html($SC, $SC[0], [\"sunbeam\"=>1, \"rug\"=>1, \"silk\"=>1])")
+ok "stage: one stage in a wrapper, room base then owned overlays only, wand, then the fish" "$(echo "$SH" | grep -o 'class="cfstage"\|cf-room[a-z-]*.png\|cf-rod.png\|cf-fish-[0-9].png' | tr '\n' ' ')" 'class="cfstage" cf-room.png cf-room-sunbeam.png cf-room-rug.png cf-rod.png cf-fish-1.png cf-fish-2.png cf-fish-1.png '
+ok "stage: three dangling fish (sd1..sd3), each with a string, and the line from the wand" "$(echo "$SH" | grep -o 'cfsdrop sd[0-9]\|class="cfstr"\|class="cfsline"' | tr '\n' ' ')" 'class="cfsline" cfsdrop sd1 class="cfstr" cfsdrop sd2 class="cfstr" cfsdrop sd3 class="cfstr" '
+ok "stage: the active cat is in the centre play zone with all 8 frame groups, starting on idleA" "$(echo "$SH" | grep -o 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"')$(echo "$SH" | grep -o 'class="cfframe ff-[A-Za-z]*"' | sed 's/.*ff-//;s/"//' | tr '\n' ' ')" 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"idleA idleB wiggle stalk pounce catch nap bored '
+AH=$(echo "$SH" | sed 's/.*class="cfactive/class="cfactive/')
+ok "stage: every frame group of the folded bobtail tabby cat has body, pattern, ears, tail and eyes" "$(for f in idleA idleB wiggle stalk pounce catch nap bored; do echo "$AH" | grep -o "cf-cat-orange-$f.png\|cf-pat-tabby-orange-$f.png\|cf-ears-folded-orange-$f.png\|cf-tail-bobtail-orange-$f.png\|cf-eyes-amber-$f.png" | wc -l | tr -d ' '; done | tr '\n' ' ')" "5 5 5 5 5 5 5 5 "
+ok "stage: three other cats at the side spots (a lazy cat first on the cushion as nap), frames nap, idleA, bored" "$(echo "$SH" | grep -o 'cfspot cfpos-x[0-9]*-y[0-9]*"><span class="cfart cf-s64" aria-hidden="true">\(<span class="cfmk[^>]*>\)*<img src="[^"]*cf-cat-[a-z-]*-[A-Za-z]*\.png' | sed 's/cfspot cfpos-//;s/".*cf-cat-/ /;s/\.png//' | tr '\n' ',')" "x40-y98 lilac-idleA,x236-y116 white-bored,x0-y124 black-nap,"
+SH2=$(cfx $FULL "catfish_stage_html(array_slice($SC, 0, 2), $SC[0], [])")
+ok "stage: two cats = the active one and one at the cushion (nap frame)" "$(echo "$SH2" | grep -c 'cfpos-x0-y124')$(echo "$SH2" | grep -c 'cfpos-x40-y98')$(echo "$SH2" | grep -c 'cfpos-x236-y116')" "100"
+SH3=$(cfx $FULL "catfish_stage_html([$SC[0]], $SC[0], [], true)")
+ok "stage: a lone cat has no side spots; a napping one starts on the nap frame (data-nap)" "$(echo "$SH3" | grep -c 'cfspot')$(echo "$SH3" | grep -c 'fr-nap" data-frame="nap" data-seed="11" data-nap="1"')" "01"
+ok "stage: no inline style, no script, no event handler; every img has an empty alt except none" "$(echo "$SH" | grep -c 'style=\|<script\|on[a-z]*=')" 0
+ok "stage: the page's catfish_room_html is unchanged (still its own markup)" "$(cfx $FULL "catfish_room_html($CATS3, [])" | grep -c 'class="cfroom"')" 1
+# positions and sizes in catfish.css come from room-layout.json; the PHP spots too
+python3 -I - "aseprite-source/catfish/room-layout.json" "$GAME/assets/catfish.css" "$GAME/includes/catfish.php" <<'P'
+import sys, json, re
+j = json.load(open(sys.argv[1])); css = open(sys.argv[2]).read(); php = open(sys.argv[3]).read()
+bad = []
+def rule(sel):
+    m = re.search(re.escape(sel) + r' \{([^}]*)\}', css)
+    return m.group(1) if m else ''
+def px(body, prop):
+    m = re.search(r'(?:^|[ ;])' + prop + r': (-?\d+)(?:px)?[ ;]', body + ' ')
+    return int(m.group(1)) if m else None
+for c in j['cats']:
+    b = rule('.cfpos-x%d-y%d' % (c['x'], c['y']))
+    if px(b, 'left') != c['x'] or px(b, 'top') != c['y']: bad.append('cat position class x%d y%d' % (c['x'], c['y']))
+side = [(c['frame'], c['x'], c['y']) for c in j['cats'] if c['role'] == 'side']
+m = re.search(r"CATFISH_STAGE_SPOTS = \[(.*?)\];", php).group(1)
+spots = [(f, int(x), int(y)) for f, x, y in re.findall(r"\['(\w+)', (\d+), (\d+)\]", m)]
+if spots != side: bad.append('PHP CATFISH_STAGE_SPOTS %s != layout %s' % (spots, side))
+act = [c for c in j['cats'] if c['role'] == 'active'][0]
+if re.search(r"CATFISH_STAGE_ACTIVE = \[(\d+), (\d+)\]", php).groups() != (str(act['x']), str(act['y'])): bad.append('PHP CATFISH_STAGE_ACTIVE')
+w = rule('.cfswand')
+if (px(w, 'left'), px(w, 'top')) != (j['wand']['img_x'], j['wand']['img_y']): bad.append('wand position')
+ln = rule('.cfsline')
+if (px(ln, 'left'), px(ln, 'top') + px(ln, 'height') // 2) != tuple(j['wand']['tip']): bad.append('line start at the wand tip')
+if px(ln, 'left') + px(ln, 'width') < max(d['x'] for d in j['strings']['drops']): bad.append('line does not reach the last string')
+for i, d in enumerate(j['strings']['drops'], 1):
+    b = re.search(r'\.cfsdrop\.sd%d \{([^}]*)\}' % i, css).group(1)
+    if px(b, 'left') != d['x'] - 24 or px(b, '--cfl') != d['fish_y'] - d['top']: bad.append('fish drop %d' % i)
+if px(rule('.cfsdrop'), 'top') != j['strings']['drops'][0]['top']: bad.append('drop top')
+print('ok   stage css/PHP coordinates match room-layout.json' if not bad else 'FAIL stage coordinates: ' + '; '.join(bad))
+P
+ok "css: stage is 320 x 200, centred in a flex wrapper, pixelated, with a reduced-motion rule for the sway" "$(grep -c '^\.cfstage { position: relative; flex: none; width: 320px; height: 200px' $GAME/assets/catfish.css)$(grep -c '^\.cfstagewrap { display: flex; justify-content: center' $GAME/assets/catfish.css)$(grep -c 'prefers-reduced-motion: reduce) { .cfsdrop' $GAME/assets/catfish.css)" 111
+# frame names in the css (one show-rule each) and in the JS state machine
+ok "css: each of the 8 frames has a show rule on .cfactive" "$(for f in idleA idleB wiggle stalk pounce catch nap bored; do grep -c "\.cfactive\.fr-$f \.ff-$f" $GAME/assets/catfish.css; done | tr '\n' ' ')" "1 1 1 1 1 1 1 1 "
+ok "js: state machine frames (wiggle, stalk, pounce, catch, bored, nap, idleB) and reduced-motion are in catfish.js" "$(for w in "'wiggle', 600" "'stalk', 800" "'pounce', 400" "'catch', 1200" "'bored'" "'nap'" "'idleB'" "prefers-reduced-motion" "data-frame"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')" "yyyyyyyyy"
+ok "js: no inline script or style needed (catfish.js is the only script, loaded from layout.php)" "$(grep -c 'eval(\|innerHTML\|document.write' $GAME/assets/catfish.js)" 0
+
 # odd-eyed split columns: recomputed from the PNGs (the midpoint between the two eye clusters of cf-eyes-ring-<frame>.png), compared with catfish.css and tools/catfish_recolor.py
 python3 -I - "aseprite-source/catfish/test" "$GAME/assets/catfish.css" <<'P'
 import sys, os, re, numpy as np
@@ -656,12 +716,16 @@ curl -s -b $W/p $BASE/catfish.php > $W/art.html
 ok "page with art: banner is the heading (img with alt text, no emoji heading)" "$(grep -c '<h1 class="cfbanner"><img class="cfimg" src="[^"]*cf-banner.png[^"]*" alt="Cat Fish" width="480" height="120">' $W/art.html)$(grep -c '<h1>🐱 Cat Fish</h1>' $W/art.html)" "10"
 ok "page with art: rod art and 3 fish" "$(grep -c 'cf-rod.png' $W/art.html)$(grep -o 'cf-fish-[0-9].png' $W/art.html | wc -l | tr -d ' ')" "13"
 ok "page with art: kibble icon by the count, yarn icon in the Nap and Home summaries" "$(grep -o 'cf-ico-kibble.png' $W/art.html | wc -l | tr -d ' ')$(grep -o 'cf-ico-yarn.png' $W/art.html | wc -l | tr -d ' ')" "12"
-ok "page with art: the room is there with its cats" "$(grep -c 'class="cfroom"' $W/art.html)$([ "$(grep -o 'class="cfrc n' $W/art.html | wc -l)" -ge 1 ] && echo y)" "1y"
+NCATS=$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_"); NSIDE=$(( NCATS - 1 )); [ $NSIDE -gt 3 ] && NSIDE=3
+ok "page with art: one stage with the room, wand, 3 fish; the old rod box and the separate room are gone" "$(grep -c 'class="cfstage"' $W/art.html)$(grep -c 'cf-room.png' $W/art.html)$(grep -c 'class="cfrod\|class="cfroom"\|class="cfrc ' $W/art.html)" "110"
+ok "page with art: the active cat has 8 frame groups and data-frame, the other cats stand at the side spots" "$(grep -o 'class="cfframe ff-' $W/art.html | wc -l | tr -d ' ')$(grep -c 'data-frame="idleA"\|data-frame="nap"' $W/art.html)$(grep -o 'class="cfspot ' $W/art.html | wc -l | tr -d ' ')" "81$NSIDE"
+ok "page with art: the cat card (name, traits, Kibble) sits under the stage and has no second sprite" "$(grep -c 'class="cfscene cfcard box"' $W/art.html)$(awk '/class="cfscene cfcard box"/{f=1} f&&/id="cf-kibble"/{print "k"; exit}' $W/art.html)$(sed -n '/class="cfscene cfcard box"/,$p' $W/art.html | sed '1s/.*class="cfscene cfcard box"//' | awk '/id="cf-kibble"/{exit} /class="cfart/{print "x"; exit}' | wc -c | tr -d ' ')" "1k0"
+ok "page with art: the page is wrapped in .cfpage (centred headings) and stays one script block plus the json" "$(grep -c 'class="cfpage"' $W/art.html)$(grep -c 'type="application/json" id="cf-data"' $W/art.html)" "11"
 ok "page with art: Cat Book cells use heads, unknown cells use the question head" "$([ "$(grep -c 'cf-bookhead-' $W/art.html)" -ge 1 ] && echo y)$([ "$(grep -o 'cf-bookhead-unknown.png' $W/art.html | wc -l)" -ge 10 ] && echo y)" "yy"
 ok "page with art: no inline style and no inline script besides the JSON block" "$(grep -c ' style=\|<script>' $W/art.html)" 0
 rm -rf "${GAME:?}/assets/img/catfish"
 curl -s -b $W/p $BASE/catfish.php > $W/noart.html
-ok "page without art: emoji heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1>🐱 Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art' $W/noart.html)" "110"
+ok "page without art: emoji heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1>🐱 Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"
 
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

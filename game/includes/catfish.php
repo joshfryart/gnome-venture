@@ -132,12 +132,57 @@ const CATFISH_ROOM_LAYERS = ['window', 'sunbeam', 'rug', 'scratch'];
 function catfish_room_html(array $cats, array $owned): string
 {
     if (!catfish_art_has('cf-room.png')) return '';
-    $h = '<div class="cfroomwrap"><div class="cfroom" role="img" aria-label="Your home' . ($cats ? ' with ' . count($cats) . (count($cats) === 1 ? ' cat' : ' cats') : '') . '"><img class="cfroom-bg" src="' . e(catfish_art_url('cf-room.png')) . '" alt="" width="320" height="200">';
+    $h = '<div class="cfroomwrap"><div class="cfroom" role="img" aria-label="Your home' . ($cats ? ' with ' . count($cats) . (count($cats) === 1 ? ' cat' : ' cats') : '') . '">' . catfish_room_base_html($owned);
+    $cats = array_slice(array_values($cats), 0, CATFISH_MAX_CATS); $n = count($cats);
+    foreach ($cats as $i => $c) $h .= '<span class="cfrc n' . $n . ' i' . ($i + 1) . '">' . catfish_cat_html($c, 64, 'idleA', false) . '</span>';
+    return $h . '</div></div>';
+}
+
+/** The room base (cf-room) and the overlay of each owned Room upgrade, back to front. Shared by catfish_room_html and catfish_stage_html. */
+function catfish_room_base_html(array $owned): string
+{
+    $h = '<img class="cfroom-bg" src="' . e(catfish_art_url('cf-room.png')) . '" alt="" width="320" height="200">';
     foreach (CATFISH_ROOM_LAYERS as $key) {
         if ((int)($owned[$key] ?? 0) > 0 && catfish_art_has("cf-room-$key.png")) $h .= '<img class="cfroom-layer" src="' . e(catfish_art_url("cf-room-$key.png")) . '" alt="" width="320" height="200">';
     }
-    $cats = array_slice(array_values($cats), 0, CATFISH_MAX_CATS); $n = count($cats);
-    foreach ($cats as $i => $c) $h .= '<span class="cfrc n' . $n . ' i' . ($i + 1) . '">' . catfish_cat_html($c, 64, 'idleA', false) . '</span>';
+    return $h;
+}
+
+/**
+ * Side spots of the play scene: [frame, x, y] in room pixels (top left of the 64 x 64 cat), from aseprite-source/catfish/room-layout.json "cats"
+ * (role side). The active cat stands at CATFISH_STAGE_ACTIVE (role active). catfish.css has one .cfpos-x<X>-y<Y> class per spot (tests/catfish.sh checks both against the JSON).
+ */
+const CATFISH_STAGE_SPOTS = [['nap', 0, 124], ['idleA', 40, 98], ['bored', 236, 116]];
+const CATFISH_STAGE_ACTIVE = [128, 120];
+
+/**
+ * The play scene: one 320 x 200 stage with the room (base and owned overlays), the wand hung at the ceiling hook, a line to three dangling fish
+ * (catfish_fish_kinds), the other cats (up to 3) as still frames at the side spots, and the active cat in the centre with all 8 frame groups
+ * (body, pattern, ears, tail and eyes layers each; catfish.js shows one at a time by class fr-<frame> and data-frame). Everything is positioned by
+ * CSS classes (no inline style). '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
+ */
+function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false): string
+{
+    if (!catfish_art_has('cf-room.png')) return '';
+    $h = '<div class="cfstagewrap"><div class="cfstage" role="img" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '">' . catfish_room_base_html($owned);
+    $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
+    foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<span class="cfsdrop sd' . ($i + 1) . '"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</span>';
+    $others = [];
+    foreach ($cats as $c) if (($c['id'] ?? null) !== ($active['id'] ?? null)) $others[] = $c;
+    usort($others, fn($a, $b) => (($b['mood'] ?? '') === 'lazy') <=> (($a['mood'] ?? '') === 'lazy'));   // a lazy cat takes the cushion (stable order otherwise)
+    $spots = [];
+    foreach (array_slice($others, 0, count(CATFISH_STAGE_SPOTS)) as $i => $c) { [$f, $x, $y] = CATFISH_STAGE_SPOTS[$i]; $spots[] = [$y, '<span class="cfspot cfpos-x' . $x . '-y' . $y . '">' . catfish_cat_html($c, 64, $f, false) . '</span>']; }
+    [$ax, $ay] = CATFISH_STAGE_ACTIVE;
+    $start = $napping ? 'nap' : 'idleA';
+    $groups = '';
+    foreach (CATFISH_FRAMES as $f) {
+        $g = catfish_cat_html($active, 64, $f, false);
+        if (str_contains($g, 'class="cfcat ')) { if ($f === 'idleA') $groups .= '<span class="cfframe ff-idleA" data-f="idleA">' . $g . '</span>'; continue; }   // no art for this coat or frame
+        $groups .= '<span class="cfframe ff-' . $f . '" data-f="' . $f . '">' . $g . '</span>';
+    }
+    $spots[] = [$ay, '<span class="cfactive cfpos-x' . $ax . '-y' . $ay . ' fr-' . $start . '" data-frame="' . $start . '" data-seed="' . (int)($active['seed'] ?? 0) . '"' . ($napping ? ' data-nap="1"' : '') . '>' . $groups . '</span>'];
+    usort($spots, fn($a, $b) => $a[0] <=> $b[0]);   // lower on the floor is drawn in front
+    foreach ($spots as $sp) $h .= $sp[1];
     return $h . '</div></div>';
 }
 
@@ -164,7 +209,7 @@ function catfish_book_cell(string $colour, int $st, string $label): string
  */
 const CATFISH_FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored'];
 const CATFISH_ART_COATS = ['ginger' => 'orange', 'black' => 'black', 'grey' => 'grey', 'cream' => 'cream', 'white' => 'white', 'brown' => 'brown', 'silver' => 'silver-blue', 'lilac' => 'lilac'];   // game coat => art coat (tools/catfish_recolor.py COATS)
-const CATFISH_PATTERN_FRAMES = ['idleA', 'pounce', 'catch', 'nap', 'stalk'];
+const CATFISH_PATTERN_FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored'];
 const CATFISH_EYE_COLOURS = ['amber', 'green', 'blue', 'hazel'];
 function catfish_art_has(string $file): bool
 {

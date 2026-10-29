@@ -42,27 +42,35 @@ $adoptCost = catfish_adopt_cost($owned);
 $ownedUp = array_column($v['ups'], 'owned', 'key');   // upgrade key => level, for the rod's fish and the room's overlays
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 /** One cat (layered art when the PNGs exist, else a tinted placeholder block) plus its trait line. */
-$catCard = function (array $c): string {
+$catCard = function (array $c, bool $sprite = true): string {
     $traits = ucfirst($c['colour']) . ' ' . $c['pattern'] . ', ' . $c['eyes'] . ' eyes' . ($c['ears'] === 'folded' ? ', folded ears' : '') . ($c['tail'] === 'bobtail' ? ', bobtail' : '');
-    return catfish_cat_html($c, 64, 'idleA')
+    return ($sprite ? catfish_cat_html($c, 64, 'idleA') : '')
         . '<span class="cfinfo"><b>' . e($c['name']) . '</b> <span class="cfrar r-' . e($c['rarity']) . '">' . e(ucfirst($c['rarity'])) . '</span><br>'
         . '<small>' . e($traits) . '</small><br><small class="muted">' . e(ucfirst($c['mood'])) . ($c['quirk'] !== '' ? ' · ' . e($c['quirk']) : '') . '</small></span>';
 };
 page_header('Cat Fish');
 ?>
+<div class="cfpage">
 <?php if (catfish_art_has('cf-banner.png')): ?><h1 class="cfbanner"><?= catfish_img('banner', '', 'Cat Fish', 480, 120) ?></h1>
 <?php else: ?><h1>🐱 Cat Fish</h1>
 <?php endif; ?>
 <?php if (!$cat): ?>
 <p class="help">Pick a cat to take home. Your first one is free. The shelter shows new cats every day.</p>
 <?php else: ?>
+<?php $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0);   // '' without cf-room.png: the old rod box, cat card and room below ?>
+<?php if ($stage !== ''): ?>
+<?= $stage ?>
+<div class="cfscene cfcard box">
+  <div class="cfmain"><div class="cfhold"><?= $catCard($cat, false) ?></div>
+<?php else: ?>
 <div class="cfscene box">
   <?= catfish_rod_html($ownedUp, $cat) ?>
   <div class="cfmain"><div class="cfhold"><?= $catCard($cat) ?></div>
+<?php endif; ?>
     <p class="cfcount"><?= catfish_ico('ico-kibble') ?><b id="cf-kibble"><?= number_format($v['kibble']) ?></b> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p>
     <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= (int)(catfish_offline_cap($cat) / 3600) ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
 </div>
-<?= catfish_room_html($cats, $ownedUp) ?>
+<?= $stage === '' ? catfish_room_html($cats, $ownedUp) : '' ?>
 <h2>Upgrades</h2>
 <p id="cf-msg" role="status"></p>
 <div class="cfups" id="cf-ups">
@@ -166,5 +174,6 @@ if ($capWk > 0): ?>
 <?php if ($bg = catfish_badges($uid)): ?><p class="cfbadgeline"><?php foreach ($bg as $bk2 => [$bi, $bl2]): ?><span class="cfbadge" title="<?= e($bl2) ?>"><?= catfish_img('badge-' . $bk2, $bi, '', 24) ?> <?= e($bl2) ?></span> <?php endforeach; ?></p><?php endif; ?>
 </details>
 <?php endif; ?>
+</div>
 <script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null], $J) ?></script>
 <?php page_footer();
