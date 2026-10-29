@@ -22,7 +22,15 @@ if (is_post()) {
     elseif ($do === 'bulk') $r = catfish_buy_bulk($uid);
     elseif ($do === 'away') $r = catfish_buy_away($uid);
     elseif ($do === 'title') $r = catfish_buy_title($uid, (string)($_POST['key'] ?? ''));
-    elseif ($do === 'show') $r = catfish_show_enter($uid, (int)($_POST['cat'] ?? 0));
+    elseif ($do === 'show') $r = catfish_show_enter($uid, (int)($_POST['cat'] ?? 0), (int)($_POST['slot'] ?? 1));
+    elseif ($do === 'hold') $r = catfish_hold($uid, (int)($_POST['slot'] ?? -1));
+    elseif ($do === 'stake') $r = catfish_stake($uid, (string)($_POST['pick'] ?? ''));
+    elseif ($do === 'show2') $r = catfish_buy_show2($uid);
+    elseif ($do === 'buddyunlock') $r = catfish_buy_buddy($uid);
+    elseif ($do === 'buddy') $r = catfish_set_buddy($uid, (int)($_POST['cat'] ?? 0));
+    elseif ($do === 'keep') $r = catfish_buy_keep($uid);
+    elseif ($do === 'ballbuy') $r = catfish_buy_ball($uid, (string)($_POST['key'] ?? ''));
+    elseif ($do === 'ballset') $r = catfish_set_ball($uid, (string)($_POST['key'] ?? ''));
     elseif ($do === 'reroll') $r = catfish_reroll($uid, (int)($_POST['slot'] ?? -1));
     elseif ($do === 'bigger') $r = catfish_buy_slot($uid);
     elseif ($do === 'rare') $r = catfish_buy_rare($uid);
@@ -53,7 +61,7 @@ $catCard = function (array $c, bool $sprite = true): string {
 };
 page_header('Cat Fish');
 ?>
-<div class="cfpage">
+<div class="cfpage<?= !empty($meta['ball']) && isset(CATFISH_BALLS[$meta['ball']]) ? ' cfball-' . e($meta['ball']) : '' ?>">
 <?php if (catfish_art_has('cf-banner.png')): ?><h1 class="cfbanner"><?= catfish_img('banner', '', 'Cat Fish', 480, 120) ?></h1>
 <?php else: ?><h1>🐱 Cat Fish</h1>
 <?php endif; ?>
@@ -106,12 +114,17 @@ page_header('Cat Fish');
     <?= csrf_field() ?><input type="hidden" name="do" value="adopt"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>"><input type="hidden" name="seed" value="<?= (int)$s['seed'] ?>">
     <?= $catCard($s) ?>
     <?php if ($has): ?><small class="muted">Already yours</small>
-    <?php else: ?><input class="cfname" type="text" name="name" maxlength="<?= CATFISH_NAME_MAX ?>" value="<?= e($s['name']) ?>" aria-label="Name"><button class="btn" type="submit" data-cost="<?= (int)$adoptCost ?>"<?= $v['kibble'] >= $adoptCost ? '' : ' disabled' ?>>Adopt<?= $adoptCost > 0 ? ' · ' . number_format($adoptCost) : '' ?></button><?php endif; ?>
+    <?php else: ?><?= !empty($s['held']) ? '<small class="muted">Held for you</small>' : '' ?><input class="cfname" type="text" name="name" maxlength="<?= CATFISH_NAME_MAX ?>" value="<?= e($s['name']) ?>" aria-label="Name"><button class="btn" type="submit" data-cost="<?= (int)$adoptCost ?>"<?= $v['kibble'] >= $adoptCost ? '' : ' disabled' ?>>Adopt<?= $adoptCost > 0 ? ' · ' . number_format($adoptCost) : '' ?></button><?php endif; ?>
   </form>
-  <?php if (!$has && $v['spend'] >= CATFISH_REROLL_COST && $rolls[$s['slot']] < CATFISH_REROLL_MAX): ?>
+  <?php if (!$has && empty($s['held']) && $v['spend'] >= CATFISH_REROLL_COST && $rolls[$s['slot']] < CATFISH_REROLL_MAX): ?>
   <form method="post" class="cfreroll"><?= csrf_field() ?><input type="hidden" name="do" value="reroll"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>"><button class="btn" type="submit" aria-label="Swap <?= e($s['name']) ?> for another cat, <?= CATFISH_REROLL_COST ?> Yarn">Swap this cat · <?= CATFISH_REROLL_COST ?> Yarn</button> <small class="muted"><?= CATFISH_REROLL_MAX - $rolls[$s['slot']] ?> left today</small></form>
   <?php endif; ?>
+  <?php if (!$has && $cat && $v['spend'] >= CATFISH_HOLD_COST && ($meta['hold']['for'] ?? '') !== catfish_tomorrow()): ?>
+  <form method="post" class="cfreroll"><?= csrf_field() ?><input type="hidden" name="do" value="hold"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>"><button class="btn" type="submit" aria-label="Hold <?= e($s['name']) ?> for tomorrow, <?= CATFISH_HOLD_COST ?> Yarn">Hold for tomorrow · <?= CATFISH_HOLD_COST ?> Yarn</button></form>
+  <?php endif; ?>
 <?php endforeach; ?>
+<?php if ($cat && ($meta['hold']['for'] ?? '') === catfish_tomorrow()): ?><p class="help">Holding a cat for tomorrow.</p><?php endif; ?>
+<?php if ($cat && ($meta['stake']['for'] ?? '') === catfish_today()): ?><p class="help">Stakeout today: looking for <?= e((string)$meta['stake']['value']) ?> cats.</p><?php endif; ?>
 </div>
 </details>
 <?php endif; ?>
@@ -120,7 +133,7 @@ page_header('Cat Fish');
 $extra = (int)($meta['extra'] ?? 0); $rareLvl = (int)($meta['rare'] ?? 0);
 $awayLvl = (int)($meta['away'] ?? 0); $bulk = !empty($meta['bulk']); $myTitles = (array)($meta['titles'] ?? []); $sp = $v['spend'];
 $yarnReady = (int)(($extra < count(CATFISH_SLOT_COSTS) && $sp >= CATFISH_SLOT_COSTS[$extra]) + ($rareLvl < count(CATFISH_RARE_COSTS) && $sp >= CATFISH_RARE_COSTS[$rareLvl])
-    + (!$bulk && $sp >= CATFISH_BULK_COST) + ($awayLvl < count(CATFISH_AWAY_COSTS) && $sp >= CATFISH_AWAY_COSTS[$awayLvl]));
+    + (!$bulk && $sp >= CATFISH_BULK_COST) + (empty($meta['buddyon']) && $sp >= CATFISH_BUDDY_COST) + (empty($meta['show2on']) && $sp >= CATFISH_SHOW2_COST) + ((int)($meta['keepsake'] ?? 0) < count(CATFISH_KEEP_COSTS) && $sp >= CATFISH_KEEP_COSTS[(int)($meta['keepsake'] ?? 0)]) + ($awayLvl < count(CATFISH_AWAY_COSTS) && $sp >= CATFISH_AWAY_COSTS[$awayLvl]));
 foreach (CATFISH_TITLES as $tk => [, $tc]) if (!in_array($tk, $myTitles, true) && $sp >= $tc) $yarnReady++; ?>
 <div class="cfhubwrap" id="cf-hub">
 <section class="cfpanel box" id="cf-p-nap" data-icon="😴" data-title="Nap" data-status="<?= $v['yarn'] > 0 ? number_format($v['yarn']) . ' Yarn' : 'Start over' ?>" data-badge="<?= $v['nap_yarn'] >= 1 ? 1 : 0 ?>"><h3><?= catfish_ico('ico-yarn', 24) ?>😴 Nap</h3>
@@ -143,6 +156,25 @@ foreach (CATFISH_TITLES as $tk => [, $tc]) if (!in_array($tk, $myTitles, true) &
   <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="away">
     <span class="cficon" aria-hidden="true">🌙</span><span class="cfinfo"><b>Longer naps away</b> <small class="muted">level <?= $awayLvl ?> of <?= count(CATFISH_AWAY_COSTS) ?></small><br><small>Your cat fishes up to <?= 8 + $awayLvl ?> hours while you are away. Each level adds an hour.</small></span>
     <?php if ($awayLvl < count(CATFISH_AWAY_COSTS)): ?><button class="btn" type="submit"<?= $sp >= CATFISH_AWAY_COSTS[$awayLvl] ? '' : ' disabled' ?>><?= CATFISH_AWAY_COSTS[$awayLvl] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
+  <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="stake">
+    <span class="cficon" aria-hidden="true">🔭</span><span class="cfinfo"><b>Stakeout</b> <small class="muted"><?= CATFISH_STAKE_COST ?> Yarn a day</small><br><small><?= ($meta['stake']['for'] ?? '') === catfish_tomorrow() ? 'Set for tomorrow: ' . e((string)$meta['stake']['value']) . '.' : 'Tomorrow the shelter looks harder for the coat you pick.' ?></small>
+      <select name="pick" aria-label="Pattern or colour"><?php foreach (['pattern', 'colour'] as $tr): ?><optgroup label="<?= e(ucfirst($tr)) ?>"><?php foreach (array_keys(CATFISH_TRAITS[$tr]) as $tv): ?><option value="<?= e($tr . ':' . $tv) ?>"><?= e(ucfirst($tv)) ?></option><?php endforeach; ?></optgroup><?php endforeach; ?></select></span>
+    <button class="btn" type="submit"<?= $sp >= CATFISH_STAKE_COST && ($meta['stake']['for'] ?? '') !== catfish_tomorrow() ? '' : ' disabled' ?>><?= CATFISH_STAKE_COST ?> Yarn</button></form>
+  <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="show2">
+    <span class="cficon" aria-hidden="true">🎀</span><span class="cfinfo"><b>Second show entry</b><br><small>Enter two cats in the Cat Show. The better result wins the week's ribbon.</small></span>
+    <?php if (empty($meta['show2on'])): ?><button class="btn" type="submit"<?= $sp >= CATFISH_SHOW2_COST ? '' : ' disabled' ?>><?= CATFISH_SHOW2_COST ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
+  <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="buddyunlock">
+    <span class="cficon" aria-hidden="true">🐾</span><span class="cfinfo"><b>Buddy cat</b><br><small>A second cat keeps the playing cat company: +<?= (int)(CATFISH_BUDDY_PCT * 100) ?>% Kibble. Choose it under Your cats.</small></span>
+    <?php if (empty($meta['buddyon'])): ?><button class="btn" type="submit"<?= $sp >= CATFISH_BUDDY_COST ? '' : ' disabled' ?>><?= CATFISH_BUDDY_COST ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
+  <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="keep">
+    <span class="cficon" aria-hidden="true">🧺</span><span class="cfinfo"><b>Keepsake</b> <small class="muted">level <?= (int)($meta['keepsake'] ?? 0) ?> of <?= count(CATFISH_KEEP_COSTS) ?></small><br><small>A Nap keeps <?= max(1, (int)($meta['keepsake'] ?? 0)) ?> level<?= (int)($meta['keepsake'] ?? 0) > 1 ? 's' : '' ?> of Plushie fish, Longer string, Sunbeam and Fancy bowl.</small></span>
+    <?php if ((int)($meta['keepsake'] ?? 0) < count(CATFISH_KEEP_COSTS)): ?><button class="btn" type="submit"<?= $sp >= CATFISH_KEEP_COSTS[(int)($meta['keepsake'] ?? 0)] ? '' : ' disabled' ?>><?= CATFISH_KEEP_COSTS[(int)($meta['keepsake'] ?? 0)] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
+  <div class="cfup"><span class="cficon" aria-hidden="true">🧶</span><span class="cfinfo"><b>Yarn ball colours</b> <small class="muted"><?= CATFISH_BALL_COST ?> Yarn each</small><br><small>Tints the ball by the rug.</small></span></div>
+  <div class="cfballs">
+<?php $ownBalls = (array)($meta['balls'] ?? []); $curBall = (string)($meta['ball'] ?? ''); foreach (array_merge(['' => 'Plain'], CATFISH_BALLS) as $bk => $bn): $mine = $bk === '' || in_array($bk, $ownBalls, true); ?>
+    <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $mine ? 'ballset' : 'ballbuy' ?>"><input type="hidden" name="key" value="<?= e($bk) ?>"><button class="btn cfballbtn cfball-sw-<?= e($bk === '' ? 'plain' : $bk) ?>" type="submit" aria-pressed="<?= $curBall === $bk ? 'true' : 'false' ?>"<?= !$mine && $sp < CATFISH_BALL_COST ? ' disabled' : '' ?>><?= e($bn) ?><?= $mine ? '' : ' · ' . CATFISH_BALL_COST . ' Yarn' ?></button></form>
+<?php endforeach; ?>
+  </div>
 <?php foreach (CATFISH_TITLES as $tk => [$tn, $tc]): $got = in_array($tk, $myTitles, true); ?>
   <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="title"><input type="hidden" name="key" value="<?= e($tk) ?>">
     <span class="cficon" aria-hidden="true">🏷️</span><span class="cfinfo"><b>Title: <?= e($tn) ?></b><br><small>Shown by your name. Pick it in the <a href="<?= e(url('book.php?ch=Milestones')) ?>">Almanac</a>.</small></span>
@@ -168,10 +200,17 @@ if ($capWk > 0): ?>
 <section class="cfpanel box" id="cf-p-show" data-icon="🎀" data-title="Cat Show" data-status="<?php $en = ''; if ($entered) foreach ($cats as $c) if ($c['id'] === (int)$entered['cat']) $en = $c['name']; echo e($en !== '' ? $en . ' entered' : 'Not entered'); ?>" data-badge="0"><h3>🎀 Cat Show · <?= e($theme['label']) ?></h3>
   <p class="help">A new show every week (Monday to Sunday, <?= e(setting('game_timezone') ?: 'America/Halifax') ?> time). This one is judged in <?= nice_time(job_period_left('weekly')) ?>. Enter one cat. Three judges look at it when the week ends; a cat that fits the theme and a rarer cat score higher. Kibble and Yarn do not count. Prizes are ribbons on your profile.</p>
   <?php if ($entered): foreach ($cats as $c) if ($c['id'] === (int)$entered['cat']): ?><p>Entered: <b><?= e($c['name']) ?></b><?= ($c[$theme['trait']] ?? '') === $theme['value'] ? ' (fits the theme!)' : '' ?></p><?php endif; endif; ?>
+  <?php if ($entered && !empty($entered['cat2'])): foreach ($cats as $c) if ($c['id'] === (int)$entered['cat2']): ?><p>Second entry: <b><?= e($c['name']) ?></b><?= ($c[$theme['trait']] ?? '') === $theme['value'] ? ' (fits the theme!)' : '' ?></p><?php endif; endif; ?>
   <form method="post" class="cfshowform"><?= csrf_field() ?><input type="hidden" name="do" value="show">
     <label for="cf-showcat">Cat</label>
     <select id="cf-showcat" name="cat"><?php foreach ($cats as $c): ?><option value="<?= (int)$c['id'] ?>"<?= $entered && (int)$entered['cat'] === $c['id'] ? ' selected' : '' ?>><?= e($c['name']) ?> (<?= e($c['colour'] . ' ' . $c['pattern']) ?>)</option><?php endforeach; ?></select>
     <button class="btn" type="submit"><?= $entered ? 'Swap entry' : 'Enter' ?></button></form>
+  <?php if (!empty($meta['show2on']) && $entered && count($cats) > 1): ?>
+  <form method="post" class="cfshowform"><?= csrf_field() ?><input type="hidden" name="do" value="show"><input type="hidden" name="slot" value="2">
+    <label for="cf-showcat2">Second cat</label>
+    <select id="cf-showcat2" name="cat"><?php foreach ($cats as $c): ?><option value="<?= (int)$c['id'] ?>"<?= $entered && (int)($entered['cat2'] ?? 0) === $c['id'] ? ' selected' : '' ?>><?= e($c['name']) ?> (<?= e($c['colour'] . ' ' . $c['pattern']) ?>)</option><?php endforeach; ?></select>
+    <button class="btn" type="submit"><?= !empty($entered['cat2']) ? 'Swap second entry' : 'Enter second cat' ?></button></form>
+  <?php endif; ?>
   <?php if ($myRibbons): ?><ul class="cfms"><?php foreach ($myRibbons as $rb): [$ri, $rl] = catfish_ribbon_face((string)$rb['tier']); ?><li><?= catfish_img('ribbon-' . $rb['tier'], $ri, '', 24) ?> <?= e($rl) ?> · <?= e($rb['cat_name']) ?> <small class="muted">· <?= e($rb['theme']) ?> (<?= e($rb['week']) ?>)</small></li><?php endforeach; ?></ul><?php endif; ?>
 </section>
 <?php endif; ?>
@@ -185,6 +224,7 @@ if ($capWk > 0): ?>
       <input class="cfname" type="text" name="name" maxlength="<?= CATFISH_NAME_MAX ?>" value="<?= e($c['name']) ?>" aria-label="Name"><button class="btn" type="submit">Rename</button></form></details>
     <?php if ($on): ?><small class="muted">Playing</small>
     <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="switch"><input type="hidden" name="cat" value="<?= (int)$c['id'] ?>"><button class="btn" type="submit">Play</button></form><?php endif; ?>
+    <?php if (!empty($meta['buddyon']) && !$on): $isB = (int)($meta['buddy'] ?? 0) === (int)$c['id']; ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="buddy"><input type="hidden" name="cat" value="<?= $isB ? 0 : (int)$c['id'] ?>"><button class="btn" type="submit" aria-pressed="<?= $isB ? 'true' : 'false' ?>"><?= $isB ? 'Buddy ✓' : 'Buddy' ?></button></form><?php endif; ?>
   </div>
 <?php endforeach; ?>
 </section>

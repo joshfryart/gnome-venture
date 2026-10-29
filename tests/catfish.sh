@@ -359,6 +359,76 @@ ok "Almanac: an unbought title is refused" "$(dbv "SELECT COALESCE(title,'') FRO
 curl -s -b $W/p -o /dev/null -X POST $BASE/book.php --data-urlencode "csrf=$CS" --data-urlencode "title=Cat Person"
 ok "Almanac: the bought title can be picked" "$(dbv "SELECT title FROM users WHERE id=$UID_")" "Cat Person"
 cfpost -d do=title -d key=napmaster >/dev/null; ok "Napmaster costs 30: ys=45" "$(mget ys)" 45
+
+cfx() { php -r 'if ($argv[1] !== "none") define("CATFISH_ART_DIR", $argv[1]); define("APP_ROOT", "/nonexistent"); define("APP_VERSION", "t"); function e($v){return htmlspecialchars((string)$v, ENT_QUOTES);} function url($p){return "/".$p;} function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return "";} require $argv[2]; echo eval("return " . $argv[3] . ";");' "$1" "$GAME/includes/catfish.php" "$2"; }
+# 4e. Hold a cat, Stakeout, Second show entry, Buddy cat, Keepsake, Yarn ball colours
+TD=$(TZ=America/Halifax date +%F); TM=$(TZ=America/Halifax date -d tomorrow +%F)
+CID1=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1"); CID2=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1 OFFSET 1"); CID3=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1 OFFSET 2")
+CID4=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id DESC LIMIT 1"); dbx "UPDATE cats SET user_id=0 WHERE id=$CID4"   # park the last cat so the home has room and the shelter shows (put back below)
+HM='{"extra":3,"ys":0,"roll":{"day":"'$TD'","n":[1,1,1]}}'   # room for a fifth cat, and spots the gnome does not own yet
+dbx "UPDATE catfish_state SET yarn=200, active_cat_id=$CID1, meta='$HM' WHERE user_id=$UID_"
+pagew3; SEEDH=$(seed_of 0 $W/w3.html)
+cfpost -d do=hold -d slot=0 >/dev/null
+ok "Hold a cat costs 2 Yarn: ys=2" "$(mget ys)" 2
+ok "Hold a cat: remembered for tomorrow, slot 0, the cat's seed" "$(mget hold.for),$(mget hold.slot),$(mget hold.seed)" "$TM,0,$SEEDH"
+cfpost -d do=hold -d slot=1 >/dev/null
+ok "second hold for the same day refused: ys stays 2" "$(mget ys)" 2
+dbx "UPDATE catfish_state SET meta='{\"extra\":3,\"ys\":2,\"hold\":{\"for\":\"$TD\",\"seed\":12345,\"slot\":1}}' WHERE user_id=$UID_"
+pagew3
+ok "a cat held yesterday is back in its spot today" "$(seed_of 1 $W/w3.html)" 12345
+dbx "UPDATE cats SET user_id=$UID_ WHERE id=$CID4"
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=stake --data-urlencode pick=pattern:calico >/dev/null
+ok "Stakeout costs 3 Yarn: ys=3, set for tomorrow" "$(mget ys),$(mget stake.for),$(mget stake.value)" "3,$TM,calico"
+cfpost -d do=stake --data-urlencode pick=colour:ginger >/dev/null
+ok "second stakeout for the same day refused: ys stays 3" "$(mget ys)" 3
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":3}' WHERE user_id=$UID_"
+cfpost -d do=stake --data-urlencode pick=eyes:blue >/dev/null
+ok "stakeout on eyes refused: ys stays 3" "$(mget ys)" 3
+ok "stakeout finds more of the coat than a plain shelter does" "$(cfx none '(function(){ $a = 0; $b = 0; for ($d = 1; $d <= 30; $d++) { foreach (catfish_shelter(7, "2026-03-" . sprintf("%02d", $d), [], 0, ["pattern", "calico"]) as $c) if ($c["pattern"] === "calico") $a++; foreach (catfish_shelter(7, "2026-03-" . sprintf("%02d", $d)) as $c) if ($c["pattern"] === "calico") $b++; } return ($a > $b ? "more" : "no") . "," . ($b > 0 ? "base" : "none"); })()')" "more,base"
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=show2 >/dev/null; ok "Second show entry costs 5 Yarn: ys=5, show2on=1" "$(mget ys),$(mget show2on)" "5,1"
+WK=$(dbv "SELECT json_extract(meta,'$.show.week') FROM catfish_state WHERE user_id=$UID_")
+dbx "UPDATE catfish_state SET meta=json_set(meta,'$.show',json('{\"week\":\"$(php -r 'echo "2025-W".sprintf("%02d",7);')\",\"cat\":$CID2}')) WHERE user_id=$UID_"
+pagew3; cfpost -d do=show -d slot=2 -d cat=$CID1 >/dev/null
+SHW=$(php -d session.save_path=/tmp -r 'require "'$GAME'/includes/bootstrap.php"; require "'$GAME'/includes/catfish.php"; echo catfish_show_week();' 2>/dev/null)
+dbx "UPDATE catfish_state SET meta=json_set(meta,'$.show',json('{\"week\":\"2025-W07\",\"cat\":$CID2,\"cat2\":$CID1}')) WHERE user_id=$UID_"
+dbx "DELETE FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W07'"
+S1=$(dbv "SELECT seed FROM cats WHERE id=$CID1"); S2=$(dbv "SELECT seed FROM cats WHERE id=$CID2")
+pagew3
+BEST=$(cfx none 'max(catfish_show_judge('$UID_', "2025-W07", catfish_cat('$S1'), catfish_show_theme("2025-W07"))["score"], catfish_show_judge('$UID_', "2025-W07", catfish_cat('$S2'), catfish_show_theme("2025-W07"))["score"])')
+ok "two entries: the ribbon takes the better score of the two" "$(dbv "SELECT score FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W07'")" "$BEST"
+dbx "DELETE FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W07'"
+dbx "UPDATE catfish_state SET yarn=2, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=show2 >/dev/null; ok "second entry with no Yarn: refused" "$(mget show2on)" 0
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=show -d slot=2 -d cat=$CID2 >/dev/null; ok "second entry before unlocking: refused" "$(mget show.cat2)" 0
+
+dbx "UPDATE catfish_state SET yarn=200, kibble=0, active_cat_id=$CID1, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+KB=$(cfapi -d do=tick | jp view.kph)
+cfpost -d do=buddy -d cat=$CID2 >/dev/null; ok "Buddy before unlocking: refused" "$(mget buddy)" 0
+cfpost -d do=buddyunlock >/dev/null; ok "Buddy cat costs 12 Yarn: ys=12, buddyon=1" "$(mget ys),$(mget buddyon)" "12,1"
+cfpost -d do=buddy -d cat=$CID1 >/dev/null; ok "the playing cat cannot be its own Buddy" "$(mget buddy)" 0
+cfpost -d do=buddy -d cat=$CID2 >/dev/null; ok "Buddy chosen" "$(mget buddy)" "$CID2"
+cfreset; KA=$(cfapi -d do=tick | jp view.kph)
+ok "a Buddy adds 10% Kibble per hour (base $KB, with Buddy $KA)" "$(php -r 'echo abs('$KA' - round('$KB' * 1.1, 1)) < 0.2 ? "y" : "n";')" y
+cfpost -d do=buddy -d cat=0 >/dev/null; cfreset; ok "no Buddy: the bonus is gone" "$(cfapi -d do=tick | jp view.kph)" "$KB"
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=keep >/dev/null; cfpost -d do=keep >/dev/null; cfpost -d do=keep >/dev/null
+ok "Keepsake costs 10, 20, 40: ys=70, level 3" "$(mget ys),$(mget keepsake)" "70,3"
+cfpost -d do=keep >/dev/null; ok "Keepsake fourth level refused: ys stays 70" "$(mget ys)" 70
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0,\"keepsake\":2}', upgrades='{\"fish\":50,\"rug\":4}', run_kibble=32000, kibble=500, last_tick=$(date +%s) WHERE user_id=$UID_"
+cfpost -d do=nap >/dev/null
+ok "a Nap with Keepsake 2 keeps 2 levels of the first upgrade in each branch and drops the rest" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_")" '{"fish":2,"string":2,"sunbeam":2,"bowl":2}'
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=ballbuy -d key=rose >/dev/null; ok "a yarn ball colour costs 1 Yarn and is in use" "$(mget ys),$(mget ball)" "1,rose"
+pagew3; ok "the page carries the ball colour class" "$(grep -c 'class="cfpage cfball-rose"' $W/w3.html)" 1
+cfpost -d do=ballset -d key=mint >/dev/null; ok "a colour you do not own cannot be switched on" "$(mget ball)" rose
+cfpost -d do=ballbuy -d key=nonsense >/dev/null; ok "unknown ball colour refused: ys stays 1" "$(mget ys)" 1
+cfpost -d do=ballset -d key= >/dev/null; ok "back to the plain ball for free" "$(mget ys),$(mget ball)" "1,0"
 dbx "UPDATE users SET title=NULLIF('$TITLE0','') WHERE id=$UID_"
 dbx "UPDATE catfish_state SET yarn=${CF0%%|*}, meta='$(echo "$CF0" | cut -d'|' -f2)', upgrades='$(echo "$CF0" | cut -d'|' -f3)' WHERE user_id=$UID_"
 
@@ -531,7 +601,7 @@ ok "missing cat: entry cleared" "$(mshowv show)" ""
 # profile: the ribbon text and the cat name (awards tab), and nothing while Cat Fish is closed
 case $TIER in best) RL="Best in Show";; blue) RL="Blue ribbon";; red) RL="Red ribbon";; white) RL="White ribbon";; *) RL="Took part";; esac
 PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
-ok "profile: ribbon text for the tier and the cat name" "$(echo "$PR" | grep -cF "$RL: $NAME")" 1
+ok "profile: ribbon shelf shows the tier with its count and the latest cat name" "$(echo "$PR" | grep -cF "$RL ×1")$(echo "$PR" | grep -cF "Latest: $NAME")" 11
 setg catfish_open 0
 PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
 ok "profile: no Cat Fish ribbon while closed" "$(echo "$PR" | grep -cF "$RL: $NAME")" 0
