@@ -1,4 +1,7 @@
-# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.04 (Cat Fish active play; main 2.1.01 merged))
+# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.05 (Cat Fish more moves; main 2.1.01 merged))
+
+## NOW (2.1.05, 2026-10-29): Cat Fish animation slices S2/S3 wired. Tap = swatA 120, swatB 200 (fish bounce), catch 600, happy 500; jump (combo 5 or top fish twice in 1.5 s); blink, tailflick, eartwitch idle variety; z on napping cats; sparkles (glitter fish, combo 10); side cats alternate idleA/idleB and the nearest stalks. Alias frames via `CATFISH_FRAME_BASE`/`CATFISH_FRAME_OWN` (test-checked against `frames-alias-s2/s3.json`); 7 frames lazy-built by `catfish.js` from the `#cf-frames` manifest; 1281 PNGs installed. Slim zip in `releases/`.
+- **NEXT 2.1.06:** yawn / stretch / wash idle variety (art already installed, not animated), window bird flit (`cf-bird-1..3`, `cf-room-window-nobird`), yarn roll (`cf-yarn-1..4`, `cf-room-yarnpatch`), dust motes, rug wobble.
 
 ## NOW (2.1.04, 2026-10-29): Cat Fish active play. Tap a fish: it bounces, the cat stalks/pounces/catches, extra Kibble (5 s of income a tap, 360 taps a Hollow day, x1 / x0.5 / x0.25 tiers at 120 / 240, bucket 15 + 1 per 2 s). Server `catfish_play` in `do=tick` (`play`, `seq`), meta keys pb pt pd pc pq pe, no new columns; details in `claude/plan-catfish.md` "Active play". Slim zip in `releases/`.
 - **NEXT (animation catalogue, plan slices S2..S4):** S2 first: new cat frames `swatA`, `swatB` and `blink` (art, then wire them into `catfish.js`: the tap reaction can use swat instead of stalk/pounce/catch); then S3 and S4 from the animation catalogue plan. This slice used only the existing 8 frames.
