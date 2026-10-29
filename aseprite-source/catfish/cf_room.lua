@@ -15,6 +15,8 @@
 --   cf-room-rug.png       flat green felt oval under the active cat, cream braid, gold hem stitch, cream fringe.
 --   cf-room-scratch.png   sisal scratch post on a green base at the far right, cap, pink pompom, floor shadow.
 --   cf-room-window.png    a small robin perched on the bottom bar of the lower pane, clipped to the glass.
+--   S4 animation pieces (end of file): cf-room-window-nobird.png, cf-bird-1..3.png (robin flit), cf-room-yarnpatch.png
+--   and cf-yarn-1..4.png (rolling yarn); room-layout.json keys "bird" and "yarn". The files above are unchanged.
 -- Overlays are 320 x 200, alpha 0/255, never share a pixel, never cover a base object (any stacking order works).
 -- Layout for code (exported px, also in room-layout.json): wand hook knot (66, 12); play zone x 70..250,
 -- y 120..190 (no furniture); calm upper wall x 40..280, y 0..70; cat feet line y 184.
@@ -86,7 +88,8 @@ end
 
 -------------------------------------------------------------------------------- base
 local glass = nil
-local function drawBase(c)
+local function drawBase(c, o)
+  o = o or {}
   -- wallpaper, soft stripes, crown shadow row, then one warm stepped glow band round the window
   c:fill(c:rect(0, 0, W - 1, 40), WALL.base)
   for x = 0, W - 1 do if x % 12 == 4 or x % 12 == 5 then c:fill(c:rect(x, 4, x, 34), WALL.stripe) end end
@@ -223,15 +226,17 @@ local function drawBase(c)
   end
   c:button(13, 87)
 
-  c:fill(c:line({ { 30, 96 }, { 27, 97 }, { 23, 97 }, { 20, 98 } }, 1), WAIN.shade)   -- loose thread
-  c:ellipse(YARN.cx + 1, YARN.cy + 3.5, 4, 1):each(function(x, y) local h = c:get(x, y) c:px(x, y, DOWN[h] or h) end)
-  local yarn = c:ellipse(YARN.cx, YARN.cy, YARN.r, YARN.r)
-  propOutline(c, yarn)
-  c:part(yarn, WAIN, { cres = 2, gloss = false, outline = false })
-  for _, l in ipairs({ { { 31, 91 }, { 35, 95 } }, { { 30, 93 }, { 33, 96 } }, { { 33, 90 }, { 36, 93 } } }) do
-    c:line(l, 1):clip(yarn):each(function(x, y) c:px(x, y, WAIN.shade) end)
+  if not o.noYarn then                                               -- (o.noYarn: the floor behind it, for the patch)
+    c:fill(c:line({ { 30, 96 }, { 27, 97 }, { 23, 97 }, { 20, 98 } }, 1), WAIN.shade)   -- loose thread
+    c:ellipse(YARN.cx + 1, YARN.cy + 3.5, 4, 1):each(function(x, y) local h = c:get(x, y) c:px(x, y, DOWN[h] or h) end)
+    local yarn = c:ellipse(YARN.cx, YARN.cy, YARN.r, YARN.r)
+    propOutline(c, yarn)
+    c:part(yarn, WAIN, { cres = 2, gloss = false, outline = false })
+    for _, l in ipairs({ { { 31, 91 }, { 35, 95 } }, { { 30, 93 }, { 33, 96 } }, { { 33, 90 }, { 36, 93 } } }) do
+      c:line(l, 1):clip(yarn):each(function(x, y) c:px(x, y, WAIN.shade) end)
+    end
+    c:px(31, 91, WAIN.rim); c:px(32, 90, WAIN.rim)
   end
-  c:px(31, 91, WAIN.rim); c:px(32, 90, WAIN.rim)
 
   -- floor, front right: terracotta food bowl, kibble heap, a cream fish on the front
   local BX = (BOWL.x0 + BOWL.x1) / 2
@@ -337,21 +342,24 @@ overlays.scratch = function(c)
   keep:each(function(x, y) c.pix[c:key(x, y)] = nil end)
 end
 
-overlays.window = function(c)
-  -- robin outside, in the lower sash (x 0..10, y 23..31), perched on the bottom bar, facing right
-  local robin = {
-    "....uuuu..",
-    "...urrhhu.",
-    "..urhOeOkk",
-    "u.uhOOOOu.",
-    "ruuhOOoou.",
-    ".rhhhOooou",
-    "..ushhcccu",
-    "...uussuu.",
-  }
-  for _, r in ipairs(robin) do assert(#r == 10) end
-  c:paint(robin, 0, 23, { u = "ol3", r = "#c98a4a", h = "#9a6b3f", s = "#7a4a1f", O = "#f08a24", o = "#e0501f",
-                          e = "ol3", k = "#e8a317", c = "#e8d0a0" })
+-- robin outside, in the lower sash (x 0..10, y 23..31), perched on the bottom bar, facing right. Shared by the
+-- window overlay and the flit sprites (cf-bird-<n>.png) below.
+local ROBIN = {
+  "....uuuu..",
+  "...urrhhu.",
+  "..urhOeOkk",
+  "u.uhOOOOu.",
+  "ruuhOOoou.",
+  ".rhhhOooou",
+  "..ushhcccu",
+  "...uussuu.",
+}
+local ROBIN_AT = { 0, 23 }                                           -- grid px of the robin's top-left
+local ROBIN_KEY = { u = "ol3", r = "#c98a4a", h = "#9a6b3f", s = "#7a4a1f", O = "#f08a24", o = "#e0501f",
+                    e = "ol3", k = "#e8a317", c = "#e8d0a0" }
+overlays.window = function(c, nobird)
+  for _, r in ipairs(ROBIN) do assert(#r == 10) end
+  if not nobird then c:paint(ROBIN, ROBIN_AT[1], ROBIN_AT[2], ROBIN_KEY) end
   for k in pairs(c.pix) do local x, y = c:xy(k) if not glass:has(x, y) or not base:inside(x, y) then c.pix[k] = nil end end
 end
 
@@ -362,4 +370,127 @@ for _, key in ipairs({ "sunbeam", "rug", "scratch", "window" }) do
   local c = canvas()
   overlays[key](c)
   report("cf-room-" .. key, c:save(OUT .. "cf-room-" .. key .. ".aseprite", OUT .. "cf-room-" .. key .. ".png"))
+end
+
+-------------------------------------------------------------------------------- S4 room animation pieces
+-- (a) window bird. cf-room-window.png above stays the full overlay (robin included) as the fallback;
+--   cf-room-window-nobird.png  the same overlay with the robin left out, pixel-aligned (320 x 200). The window
+--                              overlay holds nothing but the robin, so this file is fully transparent.
+--   cf-bird-1..3.png           12 x 10 robin flit frames on the room grid (draw at 2x = 24 x 20 like the room):
+--                              1 perched (the overlay's robin exactly, plus the 1 px #000000 border), 2 hop
+--                              (crouched forward, tail cocked, feet off the bar), 3 wings spread (take-off).
+--   Perch: draw cf-bird-1 at 2x with its top-left at export (2 * (ROBIN_AT - 1)) = (-2, 44); its inner pixels
+--   then sit exactly on the overlay's robin (room-layout.json "bird").
+-- (b) yarn roll. cf-room.png keeps its yarn ball. room-layout.json "yarn" {x, y, w, h} is the exact export-px box
+--   of everything the yarn puts on cf-room.png (ball, outline, contact shadow, loose thread), found by diffing
+--   the base against a render without the yarn; cf-room-yarnpatch.png is that box cut from the yarn-less render
+--   (floor, cushion edge), so  base + patch  is the room without the yarn. cf-yarn-1..4.png are 16 x 16 rolling
+--   frames at export scale (1x, like the cats): the ball turning a quarter turn clockwise per frame (rolling to
+--   the right; the wound strands and the loose end turn with it, the light stays upper left), 1 px border.
+--   Draw them at room-layout.json yarn.sprite (16 x 16 centred on the old ball) after the patch.
+local function saveImg(img, ase, png)
+  local spr = Sprite(img.width, img.height, ColorMode.RGB)
+  spr.cels[1].image = img
+  if ase then spr:saveAs(ase) end
+  if png then spr:saveCopyAs(png) end
+  local t = GV.check(img)
+  spr:close()
+  return t
+end
+
+do -- (a) window without the bird
+  local c = canvas()
+  overlays.window(c, true)
+  report("cf-room-window-nobird", c:save(nil, OUT .. "cf-room-window-nobird.png"))
+end
+
+local BIRD = {
+  ROBIN,
+  { -- hop: body tipped forward, tail cocked up, feet tucked off the bar
+    "....uuuu..",
+    "...urrhhu.",
+    "u.urhOeOkk",
+    "ruuhOOOOu.",
+    ".rhhhOoou.",
+    "..ushOooou",
+    "...uhhcccu",
+    ".....u.u..",
+  },
+  { -- wings spread: near wing raised over the back in a fan, tail fanned low
+    "uuu.uuuu..",
+    "urhuurrhu.",
+    ".urhhOeOkk",
+    "..uhOOOOu.",
+    "uuuhOOoou.",
+    "rrhhhOooou",
+    ".uushhcccu",
+    "....uuuuu.",
+  },
+}
+for n, rows in ipairs(BIRD) do
+  for _, r in ipairs(rows) do assert(#r == 10 and #rows == 8) end
+  local c = GV.canvas{ w = 12, h = 10, mode = "sticker", margin = 0 }
+  c:paint(rows, 1, 1, ROBIN_KEY)
+  report("cf-bird-" .. n, c:save(OUT .. "cf-bird-" .. n .. ".aseprite", OUT .. "cf-bird-" .. n .. ".png"))
+end
+print(string.format("LAYOUT bird x=%d y=%d (cf-bird-*.png at 2x)", 2 * (ROBIN_AT[1] - 1), 2 * (ROBIN_AT[2] - 1)))
+
+do -- (b) yarn: box, patch, rolling frames
+  local bare = canvas()
+  drawBase(bare, { noYarn = true })
+  local x0, y0, x1, y1 = 1e9, 1e9, -1e9, -1e9
+  for y = 0, H - 1 do for x = 0, W - 1 do
+    if base:get(x, y) ~= bare:get(x, y) then x0, y0, x1, y1 = math.min(x0, x), math.min(y0, y), math.max(x1, x), math.max(y1, y) end
+  end end
+  local bx, by, bw, bh = 2 * x0, 2 * y0, 2 * (x1 - x0 + 1), 2 * (y1 - y0 + 1)
+  local full = bare:image()
+  local patch = Image(bw, bh, ColorMode.RGB)
+  patch:drawImage(full, Point(-bx, -by))
+  report("cf-room-yarnpatch", saveImg(patch, nil, OUT .. "cf-room-yarnpatch.png"))
+  print(string.format("LAYOUT yarn x=%d y=%d w=%d h=%d", bx, by, bw, bh))
+
+  -- One hand-placed frame of roles (felt, wound strand, loose end) on the 16 x 16 grid, turned a quarter turn
+  -- clockwise per frame by exact pixel rotation about the centre (7.5, 7.5): (x, y) -> (15 - y, x). Shading is
+  -- applied after the turn from a fixed upper-left light, so only the strands and the loose end roll.
+  local DEEPB = "#56708f"                                            -- strand groove on the ball's shaded side
+  local R, CX, CY = 5.0, 7.5, 7.5                                    -- ball 10 px across, centred
+  local role = {}
+  for y = 0, 15 do for x = 0, 15 do
+    if (x - CX) ^ 2 + (y - CY) ^ 2 <= R * R then role[y * 16 + x] = "o" end
+  end end
+  local STRANDS = { { 10, 4 }, { 9, 4 }, { 8, 4 }, { 7, 5 }, { 6, 5 }, { 5, 6 }, { 4, 7 }, { 4, 8 }, { 3, 9 },   -- three arcs
+                    { 12, 7 }, { 11, 7 }, { 10, 7 }, { 9, 8 }, { 8, 8 }, { 7, 9 }, { 6, 10 }, { 5, 11 },
+                    { 11, 10 }, { 10, 11 }, { 9, 11 }, { 8, 12 }, { 4, 11 } }
+  for _, q in ipairs(STRANDS) do assert(role[q[2] * 16 + q[1]]); role[q[2] * 16 + q[1]] = "s" end
+  for _, q in ipairs({ { 3, 12 }, { 2, 12 }, { 1, 13 } }) do role[q[2] * 16 + q[1]] = "t" end   -- loose end
+  local function nrm(v) local l = math.sqrt(v[1] ^ 2 + v[2] ^ 2 + v[3] ^ 2) return { v[1] / l, v[2] / l, v[3] / l } end
+  local LIGHT = nrm({ -1, -1.1, 1.3 })
+  for k = 0, 3 do
+    local c = GV.canvas{ w = 16, h = 16, mode = "sticker", margin = 0 }
+    for i, r in pairs(role) do
+      local x, y = i % 16, i // 16
+      local dx, dy = x - CX, y - CY
+      local d2 = dx * dx + dy * dy
+      if r ~= "t" then
+        local z = math.sqrt(math.max(0, R * R - d2))
+        local lam = (dx * LIGHT[1] + dy * LIGHT[2] + z * LIGHT[3]) / R
+        local t = lam > 0.8 and 1 or (lam > 0.15 and 2 or 3)
+        c:px(x, y, r == "s" and (t <= 2 and WAIN.shade or DEEPB) or ({ WAIN.rim, WAIN.base, WAIN.shade })[t])
+      end
+    end
+    for y = 0, 15 do for x = 0, 15 do                                -- 1 px umber outline, lit per side
+      local d2 = (x - CX) ^ 2 + (y - CY) ^ 2
+      if not role[y * 16 + x] and d2 <= (R + 1.15) ^ 2 then
+        local s = (x - CX) + (y - CY)
+        c:px(x, y, s < -3 and C.ol1 or (s < 2 and C.ol2 or C.ol3))
+      end
+    end end
+    for i, r in pairs(role) do if r == "t" then c:px(i % 16, i // 16, WAIN.base) end end
+    report("cf-yarn-" .. (k + 1), c:save(OUT .. "cf-yarn-" .. (k + 1) .. ".aseprite", OUT .. "cf-yarn-" .. (k + 1) .. ".png"))
+    local nr = {}
+    for i, r in pairs(role) do local x, y = i % 16, i // 16 nr[x * 16 + (15 - y)] = r end   -- (x,y) -> (15-y, x)
+    role = nr
+  end
+  local rx, ry = 2 * YARN.cx - 8, 2 * YARN.cy - 8                    -- 16 x 16 sprite centred on the old ball
+  print(string.format("LAYOUT yarn sprite x=%d y=%d", rx, ry))
 end

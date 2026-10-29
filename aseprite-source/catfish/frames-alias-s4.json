@@ -1,0 +1,7 @@
+{
+  "_note": "Animation slice S4 (aseprite-source/catfish/cf_frames_s4.lua + cf_overlays_s4.lua). Every frame is full: body, 5 patterns, folded ears + mask, bobtail + mask, eye ring + 4 eye colours, all named with the frame (cf-<role>-<frame>.png, grey template, recolour per coat as for every frame). eye_split = x where the odd-eyed split falls (25 + head x offset). yawn, washA and washB have closed eyes (empty eye files, like catch and nap); stretch is half-lidded (iris below the lid, like bored).",
+  "yawn": { "kind": "full", "eye_split": 25 },
+  "stretch": { "kind": "full", "eye_split": 40 },
+  "washA": { "kind": "full", "eye_split": 25 },
+  "washB": { "kind": "full", "eye_split": 27 }
+}
