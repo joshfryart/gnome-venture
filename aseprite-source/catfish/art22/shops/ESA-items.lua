@@ -162,27 +162,22 @@ do
     { 8, 2, 14, -1 }, { 12, 8, 4, -1 }, { 15, 12, 6, 0 }, { 19, 19, 2, 0 }, { 21, 24, 6, 0 },
     { 25, 30, 4, 1 }, { 29, 35, 14, 1 }, { 18, 16, 9, 0 },
   }
-  local back, front = c:mask(), c:mask()
-  for _, b in ipairs(BL) do (b[5] and back or front):add(blade(b[1], b[2], b[3], b[4], 1.6)) end
-  local basket = c:ellipse(18.5, 22.5, 15.5, 3)
-  c:build{
-    { "back", back, OLIVE, { cres = 2, gloss = false, bounce = false } },
-    { "front", front, STRAW, { cres = 2, gloss = false, bounce = false } },
-    { "basket", basket, SISAL, { cres = 2, gloss = { 6, 21 } } },
-  }
-  -- blade split lines: where one front blade meets the next, 1 px shade so the blades stay apart
-  local fronts = {}
-  for _, b in ipairs(BL) do if not b[5] then fronts[#fronts + 1] = blade(b[1], b[2], b[3], b[4], 1.6) end end
-  for i, m in ipairs(fronts) do
-    m:each(function(x, y)
-      local k = c:key(x, y)
-      if c.own[k] and (c.pix[k] == STRAW.base or c.pix[k] == STRAW.rim) and y < 20 then
-        for j = i + 1, #fronts do
-          if fronts[j]:has(x + 1, y) and not m:has(x + 1, y) then c:px(x, y, STRAW.shade) end
-        end
-      end
-    end)
+  -- every blade is its own felt part (back to front: olive blades, then straw blades from the sides in),
+  -- so each keeps its rim, crescent and an umber contour against its neighbour
+  local STRAW2 = felt("#e6b850", { gloss = "#fff1c8", rim = "#f8dc84", shade = "#b8822e" })
+  local list, order = {}, {}
+  for _, b in ipairs(BL) do if b[5] then order[#order + 1] = b end end
+  local fr = {}
+  for _, b in ipairs(BL) do if not b[5] then fr[#fr + 1] = b end end
+  table.sort(fr, function(p, q) return math.abs(p[1] - 18.5) > math.abs(q[1] - 18.5) end)
+  for _, b in ipairs(fr) do order[#order + 1] = b end
+  for i, b in ipairs(order) do
+    local ramp = b[5] and OLIVE or ((i % 2 == 0) and STRAW or STRAW2)
+    list[#list + 1] = { "b" .. i, blade(b[1], b[2], b[3], b[4], 1.6), ramp, { cres = 1, gloss = false, bounce = false, contact = false } }
   end
+  local basket = c:ellipse(18.5, 22.5, 15.5, 3)
+  list[#list + 1] = { "basket", basket, SISAL, { cres = 2, gloss = { 6, 21 } } }
+  c:build(list)
   -- coiled sisal groove under the bead band
   basket:each(function(x, y)
     local k = c:key(x, y)

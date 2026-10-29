@@ -174,8 +174,8 @@ local function yarn(x, y, r)
   c:px(x + 1, y + 1, r.shade); c:px(x + 2, y, r.shade); c:px(x, y + 2, r.shade)
   c:px(x - 1, y + 1, r.shade); c:px(x, y, r.shade)
 end
-yarn(94, 34, RED); yarn(100, 34, TEAL); yarn(106, 34, GOLD)
-yarn(134, 34, CREAM); yarn(140, 34, RED); yarn(146, 34, TEAL)
+yarn(95, 35, RED); yarn(101, 35, TEAL); yarn(107, 35, GOLD)
+yarn(133, 35, CREAM); yarn(139, 35, RED); yarn(145, 35, TEAL)
 -- lower shelf: little cushion beds (left) and treat jars (right)
 for _, x in ipairs({ 91, 101 }) do
   c:fill(c:rrect(x, 39, x + 7, 41, 1), "#3f8fb0"); c:fill(c:rect(x + 1, 39, x + 6, 39), "#c4e4f1")
@@ -194,7 +194,7 @@ local function bead(x, y, n) local a = (n % 2 == 0) and "#f2793a" or "#e8a317" c
 local n = 0
 for x = 89, 150, 2 do
   local t = (x - 89) / 61
-  bead(x, math.floor(31 + 4 * math.sin(t * math.pi) + 0.5), n); n = n + 1
+  bead(x, math.floor(31 + 1.6 * math.sin(t * math.pi * 2) ^ 2 + 0.5), n); n = n + 1
 end
 for y = 31, 43, 2 do bead(85, y, y // 2); bead(153, y, y // 2 + 1) end
 -- counter

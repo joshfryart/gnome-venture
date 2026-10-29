@@ -74,11 +74,11 @@ do
     "..L.DD.RRRRR.DD.L...", -- 7
     "..LL.DDRRRRRDD.LL...", -- 8
     "...LL.DRRRRRD.LL....", -- 9
-    "...LLEEERRREEELL....", -- 10
-    "....LEEEFFFEEEL.....", -- 11
-    "..L.LEEEFFFEEEL.L...", -- 12
-    "..LLLFFFFFFFFFLLL...", -- 13
-    "...LLLLFFFFFLLLL....", -- 14
+    "...LLFEEEFEEEFLL....", -- 10
+    "....LFEEEFEEEFL.....", -- 11
+    "..L.FFEEEFEEEFF.L...", -- 12
+    "..LLFFFFFFFFFFFLL...", -- 13
+    "...LLLFFFFFFFLLL....", -- 14
     "....LLLLLLLLLLL.....", -- 15
     "..MMMMLLLLLLLMMMM...", -- 16
     "..BBBBBBBBBBBBBBB...", -- 17
@@ -97,11 +97,10 @@ do
   }
   c:paint({ "g", "gd" }, 8, 6, { g = BRACT.gloss, d = "#ffc27a" })       -- enamel gloss on the bract
   c:paint({ "y.y" }, 8, 1, { y = GOLD })                                 -- tiny flowers at the tip
-  c:eye(5, 10, true); c:eye(11, 10, true)                                 -- frog eye bumps
-  c:paint({ "s.s", ".s." }, 8, 12, { s = FROG.shade })                    -- smile
-  c:px(9, 11, FROG.gloss)
-  c:paint({ "s.....s" }, 5, 19, { s = BARK.shade })                       -- bark grain
-  c:seam({ { 3, 18 }, { 15, 18 } }, { gap = BARK.base })                   -- felt seam round the log
+  c:eye(6, 10, true); c:eye(10, 10, true)                                 -- frog eye bumps
+  c:paint({ "s...s", ".sss." }, 7, 13, { s = FROG.shade })                -- smile
+  c:px(5, 11, FROG.gloss)
+  c:paint({ "s.....s", "...s..." }, 5, 18, { s = BARK.shade })            -- bark grain
   save(c, "bromeliad")
 end
 
@@ -178,7 +177,7 @@ do
   c:px(6, 3, GV.R.gold.gloss)
   c:paint({ "r", "r" }, 7, 7, { r = "#7b66b4" })                            -- rachis on the dark feather
   c:finish()
-  cord(c, 6, 0, 1); cord(c, 7, 0, 1, GV.C.ol1)
+  cord(c, 7, 0, 1)
   save(c, "toucan_feather_lure")
 end
 
@@ -196,8 +195,8 @@ do
   end
   local A, B = { 5, 19 }, { 24, 13 }
   local tube = band(A[1], A[2], B[1], B[2], 3.5)
-  local capL = c:ellipse(4, 19.5, 3, 3.5)
-  local capR = c:ellipse(25, 13, 3, 3.5)
+  local capL = band(3, 19.5, 6, 18.6, 3.8)
+  local capR = band(23, 13.6, 26, 12.7, 3.8)
   local block = c:rrect(17, 18, 25, 22, 1)
   c:build{
     { "block", block, WOOD, { cres = 2, deep = 0, gloss = false } },
@@ -223,7 +222,9 @@ do
     if tube:has(x, y) and c:get(x, y) ~= WEAVE.base then c:px(x, y, CANE.shade) end
   end
   c:paint({ "s.s" }, 19, 21, { s = WOOD.shade })                          -- carved notches
-  c:px(5, 17, GOLD); c:px(4, 18, GOLD); c:px(24, 11, GOLD); c:px(25, 12, GOLD) -- cap ties
+  for _, t in ipairs({ 0.06, 0.94 }) do                                    -- gold cap ties
+    for v = -3, 3, 2 do local x, y = at(t, v) if c:get(x, y) then c:px(x, y, GOLD) end end
+  end
   save(c, "rain_stick")
 end
 

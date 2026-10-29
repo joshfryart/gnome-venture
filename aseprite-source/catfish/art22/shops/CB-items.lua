@@ -3,7 +3,7 @@
 -- Spec: claude/catfish-shops-art-spec.md (slot sizes), claude/plan-catfish-petshops.md section 2/3 (what/where).
 --   conch_shell        shelf        20x24  pink queen conch resting on a little sea-turquoise felt cushion
 --   hammock_net        floor-left   38x28  striped island hammock slung between two driftwood posts, rope net fringe
---   flying_fish_charm  rod          16x16  blue flying fish with sunny wing fins, gold jump ring at the top (string)
+--   flying_fish_charm  rod          16x16  blue flying fish with sunny wing fins, hangs on its own string + gold knot
 --   steel_pan_chime    ceiling      48x34  silver steel pan with a coral skirt, hung on two threads from the top edge,
 --                                         two pan sticks and a sea-glass bead dangling under it as chimes
 --   parrot_perch       sill         30x26  green island parrot plush (blue face, red throat) on a driftwood T-perch
@@ -57,24 +57,24 @@ local function canvas(w, h) return GV.canvas{ w = w, h = h, mode = "sticker", ol
 do
   local W, H = 20, 24
   local c = canvas(W, H)
-  local SHELL = felt("#f3c08c", { gloss = "#fff3c8", rim = "#ffdcae" })
+  local SHELL = felt("#f3c08c", { gloss = "#fff3c8", rim = "#ffdcae", shade = "#d49468", deep = "#d49468" })
   local LIP   = felt("#ef7f96", { gloss = "#ffd2dc", rim = "#f8a8b8" })
   local G = {
     ".o..............",
-    "ooo.............",
-    "oooo.o..........",
-    ".ooooooo.....pp.",
-    "ooooooooo..pppp.",
+    ".oo.........pp..",
+    "oooo.......ppp..",
+    "ooooo.o...pppp..",
+    ".ooooooo.ooppppp",
     ".ooooooooopppppp",
     "oooooooooopppppp",
-    ".oooooooooppppp.",
+    "ooooooooooppppp.",
+    ".oooooooooopppp.",
     "..ooooooooopppp.",
     "...oooooooopppp.",
-    "....ooooooopppp.",
-    ".....oooooopp...",
-    "......ooooopp...",
-    ".......oooo.....",
-    "........oo......",
+    "....ooooooopp...",
+    ".....ooooooop...",
+    "......ooooo.....",
+    ".......ooo......",
   }
   local shell = c:ascii(G, 2, 2)                    -- one felt body: exterior + lip, no inner contour
   local lip = c:ascii(G, 2, 2, "p")
@@ -86,8 +86,7 @@ do
   retint(c, lip, SHELL, LIP)
   c:paint({ "gg", "g." }, 13, 6, { g = LIP.gloss })
   -- two spire whorl steps, two bean markings
-  c:paint({ "..s", ".s.", "s.." }, 3, 5, { s = SHELL.shade })
-  c:paint({ "...s", "..s.", ".s..", "s..." }, 5, 6, { s = SHELL.shade })
+  c:paint({ "...s", "..s.", "ss.." }, 2, 5, { s = SHELL.shade })                -- shoulder whorl step
   c:paint({ "mm" }, 7, 12, { m = "#c98a5a" })
   c:paint({ "m", "m" }, 10, 10, { m = "#c98a5a" })
   -- aperture: the deep glossy slit just inside the lip

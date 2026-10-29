@@ -196,7 +196,7 @@ do
   c:part(c:rect(4, 4, 29, 25), "#a9d6c4", { flat = true, rim = false })
   c:part(c:poly({ {5, 24}, {5, 15}, {11, 10}, {13, 13}, {11, 20}, {8, 24} }), LEAF, { flat = true })
   for _, l in ipairs({ { {15, 13}, {12, 11} }, { {20, 13}, {23, 11} }, { {15, 18}, {12, 21} }, { {19, 18}, {22, 20} } }) do
-    c:part(c:line(l, 2), G, { flat = true, rim = false, contact = false, contour = false })
+    c:part(c:line(l, 2), felt("#3f72ae"), { flat = true, rim = false, contact = false, contour = false })
   end
   local bodyM = c:ellipse(17, 16, 3, 4.5)
   c:build{
@@ -210,7 +210,7 @@ do
     { "poleT", c:rrect(2, 2, 31, 4, 1), RATTAN, { gloss = false } },
     { "poleB", c:rrect(2, 25, 31, 27, 1), RATTAN, { gloss = false } },
   }
-  c:part(c:line({ { 17, 20 }, { 17, 23 }, { 19, 26 }, { 23, 26 }, { 25, 24 } }, 2):cut(bodyM), G, { flat = true, rim = false, contact = false, contour = false })  -- tail curls over the frame
+  c:part(c:line({ { 17, 20 }, { 17, 23 }, { 19, 26 }, { 23, 26 }, { 25, 24 } }, 2):cut(bodyM), felt("#3f72ae"), { flat = true, rim = false, contact = false, contour = false })  -- tail curls over the frame
   c:eye(14, 7, true); c:eye(19, 7, true)
   c:px(16, 15, "#f08a24"); c:px(18, 17, "#f08a24"); c:px(16, 19, "#f08a24")
   for _, q in ipairs({ {2, 2}, {29, 2}, {2, 25}, {29, 25} }) do

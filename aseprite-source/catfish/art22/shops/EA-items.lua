@@ -156,31 +156,30 @@ do
 end
 
 -- ===== koi_kite_lure (rod, 16 x 16) =====
--- Kohaku koi streamer (koinobori) hanging nose-up from the rod string: gold mouth ring, cream felt body with
--- red patches and wide-set eyes, side fins, split red tail with gold ribs. The 1 px umber string runs from the
--- top edge to the ring (painted after the border pass so it joins the game's own string). Hand-placed (1x).
+-- Kohaku koi streamer (koinobori) hanging level from the rod string like the game's fish lures: gold mouth
+-- ring at the nose (left), cream felt body with red back patches, one eye, a pectoral fin, a forked red tail
+-- with a gold rib. The 1 px umber string runs from the top edge to the back (painted after the border pass
+-- so it joins the game's own string, which ends at the top centre). Hand-placed (1x).
 do
   local c = canvas(16, 16)
   local L = { W = PAPER.rim, c = PAPER.base, s = PAPER.shade, e = "ol3", r = RED.base, R = RED.shade, q = RED.rim,
-              g = GOLD.rim, G = GOLD.base, h = GOLD.shade, o = "hole" }
+              g = GOLD.rim, G = GOLD.base, h = GOLD.shade }
   hand(c, {
     "................",
     "................",
-    ".....gGGGh......",
-    ".....Goooh......",
-    "....Wecccces....",
-    "....WccqrRcs....",
-    "...qWcqrrRcsR...",
-    "...rWccrRccsR...",
-    "....Wcccccss....",
-    "....WccccqRs....",
-    ".....cccqRs.....",
-    "......ccss......",
-    ".....qrrrRR.....",
-    "....qgR..qgR....",
+    "................",
+    "................",
+    "................",
+    "....WcqrrR..qR..",
+    "..gWceeqrrRsrR..",
+    "..GWceecccccgR..",
+    "..GWccccqrRcrR..",
+    "..hWcccqrRRsqR..",
+    "....sssssss.qR..",
+    "......qR........",
   }, L, true)
   c:finish()
-  c:px(7, 0, C.ol3); c:px(7, 1, C.ol3)
+  for y = 0, 3 do c:px(8, y, C.ol3) end
   RES[#RES + 1] = { "koi_kite_lure", save(c, "koi_kite_lure") }
 end
 
