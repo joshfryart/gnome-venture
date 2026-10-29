@@ -117,7 +117,7 @@ def mycelium_twinkles():
     key = 'pl-wfri-3'
     st = Sticker()
     core = (15, 14, 48, 46)
-    body, holes = piece_blanks(core, n=('T', 'keyhole', -5, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 5, 3.6),
+    body, holes = piece_blanks(core, n=('T', 'keyhole', -5, 3.1), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 5, 3.1),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 15, 14, 34, list(SOIL)), contour=True)
     st.blank_shade(body, holes, width=1)
