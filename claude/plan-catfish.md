@@ -46,7 +46,14 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - Note: cats cap is 2 now (`catfish_slots`), raised to `CATFISH_MAX_CATS` (4) by Yarn shelter upgrades in week 3.
 - Note: a gap of 300 s or less counts as page-open (100%, no cap). A background tab earns full rate. Decide in week 2 balance whether to keep.
 
-**Week 2:** full 16-node tree, Nap + Yarn, personalities, Cat Book + badges, test growth, Opus end-of-week review.
+**Week 2**
+- [x] Full 16-node tree (4 branches), percent upgrades shrunk 5x, base 600 Kibble/h, growth 1.18 (sim: `scratchpad/sim.php`, first Nap about 27 min active)
+- [x] Nap + Yarn (Yarn = floor(sqrt(run/500)), +10% Kibble each, Dreamy +10% Yarn)
+- [x] All 5 personalities (Sneaky rare fish, Dreamy Yarn)
+- [x] Cat Book (adopted pattern x colour) + derived badges on profile
+- [ ] Tests grown for week 2 (Haiku)
+- [ ] Opus end-of-week review
+- Balance note: Naps get faster with Yarn; revisit the 1.5x-longer rule in week 4
 **Week 3:** shelter upgrades, milestone Petals with cap, Opus mid-week review.
 **Week 4:** Cat Show, garden bed cat, Pals bonus, final art, balance, CHANGELOG, Opus end review.
 

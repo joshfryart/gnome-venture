@@ -25,3 +25,10 @@
 .p-calico { box-shadow: inset 6px 6px 0 rgba(240, 168, 90, .8), inset -6px -6px 0 rgba(40, 40, 40, .5); }
 .p-pointed { box-shadow: inset 0 0 0 6px rgba(60, 40, 30, .55); } .p-spotted { box-shadow: inset 4px 4px 0 rgba(0, 0, 0, .35), inset -5px 2px 0 rgba(0, 0, 0, .3); }
 :root[data-theme="dark"] .cfrar { background: #3a3a44; color: #eee; }
+.cfups h3 { margin: .6rem 0 .1rem; }
+.cfbook { display: grid; gap: .25rem; overflow-x: auto; }
+.cfbrow { display: flex; gap: .25rem; align-items: center; }
+.cfbrow b { width: 4.5rem; flex: none; font-size: .85rem; }
+.cfbcell { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--cf, #eee); font-size: 1rem; flex: none; }
+.cfbcell.none { background: transparent; border: 1px dashed var(--line, #ccc); color: var(--muted, #999); }
+.cfbadge { display: inline-block; padding: .1rem .5rem; border: 1px solid var(--line, #ddd); border-radius: 999px; font-size: .85rem; }

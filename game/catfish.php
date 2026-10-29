@@ -18,6 +18,7 @@ if (is_post()) {
     $r = [false, 'Unknown action.'];
     if ($do === 'adopt') $r = catfish_adopt($uid, (int)($_POST['slot'] ?? -1), (string)($_POST['name'] ?? ''), (string)($_POST['day'] ?? ''));
     elseif ($do === 'buy') $r = catfish_buy($uid, (string)($_POST['key'] ?? ''));
+    elseif ($do === 'nap') $r = catfish_nap($uid);
     elseif ($do === 'switch') $r = catfish_switch($uid, (int)($_POST['cat'] ?? 0));
     elseif ($do === 'rename') $r = catfish_rename($uid, (int)($_POST['cat'] ?? 0), (string)($_POST['name'] ?? ''));
     flash($r[1], $r[0] ? 'ok' : 'err');
@@ -52,15 +53,22 @@ page_header('Cat Fish');
 <h2>Upgrades</h2>
 <p id="cf-msg" role="status"></p>
 <div class="cfups" id="cf-ups">
-<?php foreach ($v['ups'] as $up): ?>
+<?php foreach (CATFISH_BRANCHES as $bk => $bl): ?>
+  <h3><?= e($bl) ?></h3>
+<?php foreach ($v['ups'] as $up): if ($up['branch'] !== $bk) continue; ?>
   <form method="post" class="cfup" data-key="<?= e($up['key']) ?>">
     <?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="key" value="<?= e($up['key']) ?>">
     <span class="cficon"><?= $up['icon'] ?></span>
     <span class="cfinfo"><b><?= e($up['name']) ?></b> <small class="muted">×<?= (int)$up['owned'] ?></small><br><small class="cfgives"><?= e($up['gives']) ?><?= $up['mult'] > 1 ? ' · ×' . (int)$up['mult'] . ' bonus' : '' ?></small></span>
     <button class="btn" type="submit"<?= $up['can'] ? '' : ' disabled' ?> data-cost="<?= (int)$up['cost'] ?>">Buy · <?= number_format($up['cost']) ?></button>
   </form>
-<?php endforeach; ?>
+<?php endforeach; endforeach; ?>
 </div>
+<details class="fold box"><summary>😴 Nap<?= $v['yarn'] > 0 ? ' · ' . number_format($v['yarn']) . ' Yarn (+' . (int)round($v['yarn'] * CATFISH_YARN_STEP * 100) . '% Kibble)' : '' ?></summary>
+  <p class="help">Napping puts your upgrades and Kibble back to zero and gives Yarn. Every Yarn adds <?= (int)round(CATFISH_YARN_STEP * 100) ?>% to all the Kibble your cat earns, for good. Your cats, Cat Book and badges stay.</p>
+  <p>This run: <b><?= number_format($v['run']) ?></b> Kibble earned. A Nap now gives <b><?= (int)$v['nap_yarn'] ?></b> Yarn.<?= $v['nap_yarn'] < 1 ? ' You need ' . number_format(CATFISH_NAP_BASE) . ' to get your first.' : '' ?></p>
+  <?php if ($v['nap_yarn'] >= 1): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="nap"><button class="btn" type="submit">Nap for <?= (int)$v['nap_yarn'] ?> Yarn</button></form><?php endif; ?>
+</details>
 <?php endif; ?>
 
 <?php if ($room || !$cat): ?>
@@ -88,6 +96,20 @@ page_header('Cat Fish');
     <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="switch"><input type="hidden" name="cat" value="<?= (int)$c['id'] ?>"><button class="btn" type="submit">Play with</button></form><?php endif; ?>
   </div>
 <?php endforeach; ?>
+</details>
+<?php endif; ?>
+<?php if ($owned > 0): $book = catfish_book($uid); $have = array_flip(array_map(fn($b) => $b[0] . '/' . $b[1], $book)); ?>
+<details class="fold box"><summary>📖 Cat Book (<?= count($book) ?> of <?= count(CATFISH_TRAITS['pattern']) * count(CATFISH_TRAITS['colour']) ?>)</summary>
+  <p class="help">Every pattern and colour you have taken home. Fill a whole row for a badge.</p>
+  <div class="cfbook">
+  <?php foreach (array_keys(CATFISH_TRAITS['pattern']) as $pat): ?>
+    <div class="cfbrow"><b><?= e(ucfirst($pat)) ?></b>
+    <?php foreach (array_keys(CATFISH_TRAITS['colour']) as $col): $got = isset($have[$pat . '/' . $col]); ?>
+      <span class="cfbcell <?= $got ? 'got c-' . e($col) : 'none' ?>" title="<?= e(ucfirst($col) . ' ' . $pat) ?>"><?= $got ? '🐱' : '·' ?></span>
+    <?php endforeach; ?></div>
+  <?php endforeach; ?>
+  </div>
+<?php if ($bg = catfish_badges($uid)): ?><p class="cfbadgeline"><?php foreach ($bg as [$bi, $bl2]): ?><span class="cfbadge" title="<?= e($bl2) ?>"><?= $bi ?> <?= e($bl2) ?></span> <?php endforeach; ?></p><?php endif; ?>
 </details>
 <?php endif; ?>
 <script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null], $J) ?></script>

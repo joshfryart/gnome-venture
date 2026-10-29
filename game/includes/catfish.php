@@ -9,26 +9,39 @@ declare(strict_types=1);
  * Kibble is earned on the server clock only (catfish_tick): 100% while the page is polling, 50% when away, capped at CATFISH_OFFLINE_CAP seconds.
  */
 
-const CATFISH_BASE_KPH = 60;            // kibble per hour with nothing bought
+const CATFISH_BASE_KPH = 600;           // kibble per hour with nothing bought
 const CATFISH_OFFLINE_CAP = 8 * 3600;   // seconds of away time that count
 const CATFISH_AWAY_AFTER = 300;         // a gap longer than this since the last tick counts as away (50%)
-const CATFISH_GROWTH = 1.15;            // cost = base * growth^owned
+const CATFISH_GROWTH = 1.18;            // cost = base * growth^owned
 const CATFISH_MILESTONES = [10, 25, 50];   // owned counts that double an upgrade's effect
 const CATFISH_SHELTER = 3;              // cats on show per day
 const CATFISH_MAX_CATS = 4;
 const CATFISH_NAME_MAX = 20;
 
-/** key => [name, icon, base cost, kibble/hour added per level, share of total added per level (0.05 = +5%)] */
+/** Branch key => label, in display order. */
+const CATFISH_BRANCHES = ['fish' => '🐟 Fish', 'rod' => '🎣 Rod', 'room' => '🛋️ Room', 'cat' => '🐾 Cat'];
+/** key => [name, icon, base cost, Kibble/hour added per level, share of the total added per level (0.05 = +5%), branch] */
 const CATFISH_UPGRADES = [
-    'fish'    => ['Plushie fish',   '🐟', 10,    12,  0.0],
-    'string'  => ['Longer string',  '🧵', 80,    40,  0.0],
-    'spring'  => ['Springy rod',    '🎣', 600,   150, 0.0],
-    'motor'   => ['Rod motor',      '⚙️', 4000,  600, 0.0],
-    'sunbeam' => ['Sunbeam',        '☀️', 300,   0,   0.05],
-    'rug'     => ['Cosy rug',       '🧶', 2500,  0,   0.08],
-    'scratch' => ['Scratch post',   '🪵', 15000, 0,   0.10],
-    'window'  => ['Window bird',    '🐦', 90000, 0,   0.15],
+    'fish'    => ['Plushie fish',   '🐟', 10,     48,   0.0,  'fish'],
+    'silk'    => ['Silk tail',      '🎀', 150,    220,   0.0,  'fish'],
+    'catnip'  => ['Catnip stuffing', '🌿', 2200,  1040,  0.0,  'fish'],
+    'glitter' => ['Glitter scales', '✨', 30000,  4800, 0.0,  'fish'],
+    'string'  => ['Longer string',  '🧵', 80,     160,   0.0,  'rod'],
+    'spring'  => ['Springy rod',    '🪀', 600,    600,  0.0,  'rod'],
+    'motor'   => ['Rod motor',      '⚙️', 4000,   2400,  0.0,  'rod'],
+    'double'  => ['Double rod',     '🎣', 60000,  11200, 0.0,  'rod'],
+    'sunbeam' => ['Sunbeam',        '☀️', 300,    0,    0.01, 'room'],
+    'rug'     => ['Cosy rug',       '🧶', 2500,   0,    0.015, 'room'],
+    'scratch' => ['Scratch post',   '🪵', 15000,  0,    0.02, 'room'],
+    'window'  => ['Window bird',    '🐦', 90000,  0,    0.03, 'room'],
+    'bowl'    => ['Fancy bowl',     '🥣', 1200,   0,    0.012, 'cat'],
+    'toybox'  => ['Toy box',        '🧸', 9000,   0,    0.018, 'cat'],
+    'cattree' => ['Cat tree',       '🌳', 55000,  0,    0.024, 'cat'],
+    'catflap' => ['Cat flap',       '🚪', 320000, 0,    0.036, 'cat'],
 ];
+const CATFISH_YARN_STEP = 0.10;        // each Yarn adds this share to every Kibble earned
+const CATFISH_NAP_BASE = 500;          // a Nap needs this much Kibble earned in the run; Yarn = floor(sqrt(run / base))
+const CATFISH_RARE_PER_HOUR = 0.5;     // Sneaky cats: expected rare fish per hour, each worth a tenth of an hour's Kibble
 
 /** trait => [value => weight]. Rarer value = smaller weight. */
 const CATFISH_TRAITS = [
@@ -57,7 +70,12 @@ function catfish_ensure(): bool
     static $ok = null;
     if ($ok !== null) return $ok;
     if (PHP_INT_SIZE < 8) return $ok = false;   // seeds and the RNG need 64-bit integers
-    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT 1 FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_book LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT 1 FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble FROM catfish_state LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try {   // week-1 test databases: the Nap columns arrive on an existing table
+        q('SELECT 1 FROM catfish_state LIMIT 1');
+        foreach (['run_kibble', 'total_kibble'] as $col) { try { q('SELECT ' . $col . ' FROM catfish_state LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE catfish_state ADD COLUMN ' . $col . ' BIGINT NOT NULL DEFAULT 0'); } }
+        return $ok = true;
+    } catch (Throwable $e) {}
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         $PK = $s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY';
@@ -69,7 +87,7 @@ function catfish_ensure(): bool
         )$END");
         db()->exec("CREATE TABLE IF NOT EXISTS catfish_state (
             user_id $ID NOT NULL PRIMARY KEY, kibble BIGINT NOT NULL DEFAULT 0, yarn $ID NOT NULL DEFAULT 0, upgrades TEXT NULL,
-            active_cat_id $ID NULL, last_tick $ID NOT NULL DEFAULT 0, naps $ID NOT NULL DEFAULT 0, created_at DATETIME NOT NULL
+            active_cat_id $ID NULL, last_tick $ID NOT NULL DEFAULT 0, naps $ID NOT NULL DEFAULT 0, run_kibble BIGINT NOT NULL DEFAULT 0, total_kibble BIGINT NOT NULL DEFAULT 0, created_at DATETIME NOT NULL
         )$END");
         db()->exec("CREATE TABLE IF NOT EXISTS cat_book (
             user_id $ID NOT NULL, pattern VARCHAR(12) NOT NULL, colour VARCHAR(12) NOT NULL, found_at DATETIME NOT NULL,
@@ -184,7 +202,7 @@ function catfish_state(int $uid): array
 {
     $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?', [$uid]);
     if (!$s) {
-        try { db_insert('catfish_state', ['user_id' => $uid, 'kibble' => 0, 'yarn' => 0, 'upgrades' => '{}', 'active_cat_id' => null, 'last_tick' => time(), 'naps' => 0, 'created_at' => now()]); }
+        try { db_insert('catfish_state', ['user_id' => $uid, 'kibble' => 0, 'yarn' => 0, 'upgrades' => '{}', 'active_cat_id' => null, 'last_tick' => time(), 'naps' => 0, 'run_kibble' => 0, 'total_kibble' => 0, 'created_at' => now()]); }
         catch (Throwable $e) {}   // a second tab created it first
         $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?', [$uid]);
     }
@@ -207,7 +225,7 @@ function catfish_milestone_mult(int $owned): int
 }
 
 /** Kibble per hour for these owned levels and this cat (null = no cat yet). */
-function catfish_kph(array $up, ?array $cat = null, bool $present = false): float
+function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $yarn = 0): float
 {
     $add = CATFISH_BASE_KPH; $pct = 0.0;
     foreach (CATFISH_UPGRADES as $key => [, , , $a, $p]) {
@@ -217,7 +235,7 @@ function catfish_kph(array $up, ?array $cat = null, bool $present = false): floa
         $add += $a * $n * $mm;
         $pct += $p * $n * $mm;
     }
-    $kph = $add * (1 + $pct);
+    $kph = $add * (1 + $pct) * (1 + CATFISH_YARN_STEP * $yarn);
     $mood = $cat['mood'] ?? '';
     if ($mood === 'greedy') $kph *= 1.10;
     if ($mood === 'hyper' && $present) $kph *= 1.15;
@@ -252,14 +270,30 @@ function catfish_tick(int $uid): array
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
         $secs = $away ? min($gap, catfish_offline_cap($cat)) : $gap;
-        $eff = catfish_kph($s['up'], $cat, !$away) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
-        $gain = (int)floor($eff * $secs / 3600);
-        if ($gain < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
-        $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)floor($gain * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
-        $claim = q('UPDATE catfish_state SET kibble = kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $tick, $uid, (int)$s['last_tick']])->rowCount();
-        if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['last_tick'] = $tick; $s['gained'] = $gain; }
+        $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn']) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
+        $base = (int)floor($eff * $secs / 3600);
+        if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
+        $gain = $base + (($cat['mood'] ?? '') === 'sneaky' ? catfish_rare_fish($eff, $secs, mt_rand() / (mt_getrandmax() + 1)) : 0);
+        $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)floor($base * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
+        $claim = q('UPDATE catfish_state SET kibble = kibble + ?, run_kibble = run_kibble + ?, total_kibble = total_kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $gain, $gain, $tick, $uid, (int)$s['last_tick']])->rowCount();
+        if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['run_kibble'] = (int)$s['run_kibble'] + $gain; $s['last_tick'] = $tick; $s['gained'] = $gain; }
         return $s;
     });
+}
+
+/** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. $r is a roll in [0, 1); pure, so the tests can pin it. */
+function catfish_rare_fish(float $effKph, int $secs, float $r): int
+{
+    $chance = min(0.9, CATFISH_RARE_PER_HOUR * $secs / 3600);
+    return $r < $chance ? (int)floor($effKph / 10) : 0;
+}
+
+/** Yarn a Nap would give for this run's Kibble (Dreamy cats add 10%). 0 means the run is too short. */
+function catfish_nap_yarn(int $runKibble, ?array $cat): int
+{
+    $y = (int)floor(sqrt(max(0, $runKibble) / CATFISH_NAP_BASE));
+    if ($y > 0 && ($cat['mood'] ?? '') === 'dreamy') $y = (int)ceil($y * 1.10);
+    return $y;
 }
 
 // ---------- actions (each returns [ok, message]) ----------
@@ -306,6 +340,19 @@ function catfish_adopt(int $uid, int $slot, string $name, string $day = ''): arr
     });
 }
 
+/** Nap: spend the run for Yarn. Upgrades and Kibble reset; cats, Yarn, the Cat Book and badges stay. */
+function catfish_nap(int $uid): array
+{
+    return catfish_locked($uid, function () use ($uid) {
+        $s = catfish_tick($uid);
+        $cat = catfish_active($uid, $s);
+        $y = catfish_nap_yarn((int)$s['run_kibble'], $cat);
+        if ($y < 1) return [false, 'Not enough Kibble earned this run to nap yet.'];
+        $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ? WHERE user_id = ? AND run_kibble = ?', [$y, '{}', time(), $uid, (int)$s['run_kibble']])->rowCount();
+        return $done === 1 ? [true, 'Nap time! +' . $y . ' Yarn.'] : [false, 'Try that again.'];
+    });
+}
+
 function catfish_switch(int $uid, int $catId): array
 {
     return catfish_locked($uid, function () use ($uid, $catId) {
@@ -341,11 +388,48 @@ function catfish_view(int $uid): array
     $s = catfish_tick($uid);
     $cat = catfish_active($uid, $s);
     $ups = [];
-    foreach (CATFISH_UPGRADES as $key => [$name, $icon, , $a, $p]) {
+    foreach (CATFISH_UPGRADES as $key => [$name, $icon, , $a, $p, $branch]) {
         $n = (int)($s['up'][$key] ?? 0); $cost = catfish_cost($key, $n);
-        $ups[] = ['key' => $key, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'can' => (int)$s['kibble'] >= $cost,
-            'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . (int)round($p * 100) . '% each', 'mult' => catfish_milestone_mult($n)];
+        $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'can' => (int)$s['kibble'] >= $cost,
+            'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n)];
     }
     return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
-        'kph' => $cat ? round(catfish_kph($s['up'], $cat, true), 1) : 0, 'cat' => $cat, 'ups' => $ups, 'now' => time()];
+        'kph' => $cat ? round(catfish_kph($s['up'], $cat, true, (int)$s['yarn']), 1) : 0, 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
+}
+
+/** Badges, worked out from what the gnome has (nothing stored): [key => [icon, label]]. */
+function catfish_badges(int $uid): array
+{
+    if (!catfish_ensure()) return [];
+    $out = [];
+    $cats = catfish_cats($uid);
+    if ($cats) $out['first_cat'] = ['🐱', 'First adoption'];
+    if (count($cats) >= catfish_slots($uid)) $out['full_house'] = ['🏠', 'Full house'];
+    foreach ($cats as $c) {
+        if ($c['eyes'] === 'odd') $out['odd_eyed'] = ['👀', 'Odd-eyed finder'];
+        if ($c['rarity'] === 'legendary') $out['legendary'] = ['🌟', 'Legendary cat'];
+    }
+    $naps = (int)q_val('SELECT naps FROM catfish_state WHERE user_id = ?', [$uid]);
+    if ($naps >= 1) $out['nap1'] = ['😴', 'First nap'];
+    if ($naps >= 5) $out['nap5'] = ['💤', 'Five naps'];
+    $book = catfish_book($uid);
+    foreach (array_keys(CATFISH_TRAITS['pattern']) as $pat) {
+        if (count(array_filter($book, fn($b) => $b[0] === $pat)) >= count(CATFISH_TRAITS['colour'])) $out['page_' . $pat] = ['📖', ucfirst($pat) . ' page complete'];
+    }
+    return $out;
+}
+
+/** The Cat Book: list of [pattern, colour] pairs the gnome has adopted. */
+function catfish_book(int $uid): array
+{
+    return array_map(fn($r) => [$r['pattern'], $r['colour']], q('SELECT pattern, colour FROM cat_book WHERE user_id = ?', [$uid])->fetchAll());
+}
+
+/** Profile block: a gnome's Cat Fish badges as a list, '' if none or Cat Fish is closed. */
+function catfish_badges_html(int $uid): string
+{
+    if (!catfish_open()) return '';
+    $h = '';
+    foreach (catfish_badges($uid) as [$icon, $label]) $h .= '<li class="cfbadge" title="' . e($label) . '"><span aria-hidden="true">' . $icon . '</span><small>' . e($label) . '</small></li>';
+    return $h === '' ? '' : '<ul class="pzbadges cfbadges">' . $h . '</ul>';
 }
