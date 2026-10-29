@@ -16,7 +16,7 @@ if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
     $r = [false, 'Unknown action.'];
-    if ($do === 'adopt') $r = catfish_adopt($uid, (int)($_POST['slot'] ?? -1), (string)($_POST['name'] ?? ''));
+    if ($do === 'adopt') $r = catfish_adopt($uid, (int)($_POST['slot'] ?? -1), (string)($_POST['name'] ?? ''), (string)($_POST['day'] ?? ''));
     elseif ($do === 'buy') $r = catfish_buy($uid, (string)($_POST['key'] ?? ''));
     elseif ($do === 'switch') $r = catfish_switch($uid, (int)($_POST['cat'] ?? 0));
     elseif ($do === 'rename') $r = catfish_rename($uid, (int)($_POST['cat'] ?? 0), (string)($_POST['name'] ?? ''));
@@ -50,12 +50,13 @@ page_header('Cat Fish');
     <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= (int)(catfish_offline_cap($cat) / 3600) ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
 </div>
 <h2>Upgrades</h2>
+<p id="cf-msg" role="status"></p>
 <div class="cfups" id="cf-ups">
 <?php foreach ($v['ups'] as $up): ?>
   <form method="post" class="cfup" data-key="<?= e($up['key']) ?>">
     <?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="key" value="<?= e($up['key']) ?>">
     <span class="cficon"><?= $up['icon'] ?></span>
-    <span class="cfinfo"><b><?= e($up['name']) ?></b> <small class="muted">×<?= (int)$up['owned'] ?></small><br><small><?= e($up['gives']) ?><?= $up['mult'] > 1 ? ' · ×' . (int)$up['mult'] . ' bonus' : '' ?></small></span>
+    <span class="cfinfo"><b><?= e($up['name']) ?></b> <small class="muted">×<?= (int)$up['owned'] ?></small><br><small class="cfgives"><?= e($up['gives']) ?><?= $up['mult'] > 1 ? ' · ×' . (int)$up['mult'] . ' bonus' : '' ?></small></span>
     <button class="btn" type="submit"<?= $up['can'] ? '' : ' disabled' ?> data-cost="<?= (int)$up['cost'] ?>">Buy · <?= number_format($up['cost']) ?></button>
   </form>
 <?php endforeach; ?>
@@ -68,10 +69,10 @@ page_header('Cat Fish');
 <div class="cflist">
 <?php foreach ($shelter as $s): $has = in_array($s['seed'], array_column($cats, 'seed'), true); ?>
   <form method="post" class="cfshelf">
-    <?= csrf_field() ?><input type="hidden" name="do" value="adopt"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>">
+    <?= csrf_field() ?><input type="hidden" name="do" value="adopt"><input type="hidden" name="slot" value="<?= (int)$s['slot'] ?>"><input type="hidden" name="day" value="<?= e(gmdate('Y-m-d')) ?>">
     <?= $catCard($s) ?>
     <?php if ($has): ?><small class="muted">Already yours</small>
-    <?php else: ?><input class="cfname" type="text" name="name" maxlength="<?= CATFISH_NAME_MAX ?>" value="<?= e($s['name']) ?>" aria-label="Name"><button class="btn" type="submit"<?= $v['kibble'] >= $adoptCost ? '' : ' disabled' ?>>Adopt<?= $adoptCost > 0 ? ' · ' . number_format($adoptCost) : '' ?></button><?php endif; ?>
+    <?php else: ?><input class="cfname" type="text" name="name" maxlength="<?= CATFISH_NAME_MAX ?>" value="<?= e($s['name']) ?>" aria-label="Name"><button class="btn" type="submit" data-cost="<?= (int)$adoptCost ?>"<?= $v['kibble'] >= $adoptCost ? '' : ' disabled' ?>>Adopt<?= $adoptCost > 0 ? ' · ' . number_format($adoptCost) : '' ?></button><?php endif; ?>
   </form>
 <?php endforeach; ?>
 </div>

@@ -41,8 +41,10 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] `catfish.php` page, `catfish_open` setting, Games hub tile
 - [ ] Version bump + CHANGELOG entry (only at release; feature stays hidden behind `catfish_open`)
 - [x] Placeholder art, no inline script or style (CSP)
-- [x] `tests/catfish.sh` and CI entry (38 checks)
-- [ ] Opus mid-week review
+- [x] `tests/catfish.sh` and CI entry (40 checks)
+- [x] Opus mid-week review. Fixed: tick dropped part-earned Kibble (clock now moves only by seconds paid), RNG now true mulberry32 (16-bit multiply, matches JS), adopt posts shelter day (today or yesterday), welcome message uses cleaned name, API rate limit 60 per 10 min, JS shows buy messages and refreshes bonus text. Test server leak fixed (trap order).
+- Note: cats cap is 2 now (`catfish_slots`), raised to `CATFISH_MAX_CATS` (4) by Yarn shelter upgrades in week 3.
+- Note: a gap of 300 s or less counts as page-open (100%, no cap). A background tab earns full rate. Decide in week 2 balance whether to keep.
 
 **Week 2:** full 16-node tree, Nap + Yarn, personalities, Cat Book + badges, test growth, Opus end-of-week review.
 **Week 3:** shelter upgrades, milestone Petals with cap, Opus mid-week review.

@@ -14,6 +14,8 @@ if (!$u) $out(['ok' => false, 'error' => 'Please log in first.'], 403);
 if (!empty($u['guest'])) $out(['ok' => false, 'error' => 'Guests can’t keep a cat. Make your own gnome to adopt one!'], 403);
 if (!catfish_open() || !catfish_ensure()) $out(['ok' => false, 'error' => 'Cat Fish isn’t open right now.'], 403);
 $uid = (int)$u['id'];
+if (rate_limited('cfapi:' . $uid, 60, 10)) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
+record_attempt('cfapi:' . $uid);
 $do = (string)($_POST['do'] ?? '');
 if ($do === 'tick') $out(['ok' => true, 'view' => catfish_view($uid)]);
 if ($do === 'buy') { [$ok, $msg] = catfish_buy($uid, (string)($_POST['key'] ?? '')); $out(['ok' => $ok, 'message' => $msg, 'view' => catfish_view($uid)], $ok ? 200 : 400); }

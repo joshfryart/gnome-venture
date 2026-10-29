@@ -56,6 +56,7 @@ function catfish_ensure(): bool
 {
     static $ok = null;
     if ($ok !== null) return $ok;
+    if (PHP_INT_SIZE < 8) return $ok = false;   // seeds and the RNG need 64-bit integers
     try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT 1 FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_book LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
@@ -83,15 +84,20 @@ function catfish_ensure(): bool
 
 // ---------- cat generator ----------
 
-/** Seeded RNG (mulberry32). Returns a closure giving floats in [0, 1). */
+/** 32-bit unsigned multiply (Math.imul), done in 16-bit halves so PHP never overflows into a float. */
+function catfish_mul32(int $a, int $b): int
+{
+    return ((($a & 0xFFFF) * $b) + (((($a >> 16) * $b) & 0xFFFF) << 16)) & 0xFFFFFFFF;
+}
+
+/** Seeded RNG (mulberry32, identical to the usual JS version). Returns a closure giving floats in [0, 1). */
 function catfish_rng(int $seed): Closure
 {
     $a = $seed & 0xFFFFFFFF;
     return function () use (&$a): float {
         $a = ($a + 0x6D2B79F5) & 0xFFFFFFFF;
-        $t = $a;
-        $t = (($t ^ ($t >> 15)) * ($t | 1)) & 0xFFFFFFFF;
-        $t ^= ($t + ((($t ^ ($t >> 7)) * ($t | 61)) & 0xFFFFFFFF)) & 0xFFFFFFFF;
+        $t = catfish_mul32($a ^ ($a >> 15), 1 | $a);
+        $t = (($t + catfish_mul32($t ^ ($t >> 7), 61 | $t)) & 0xFFFFFFFF) ^ $t;
         return (($t ^ ($t >> 14)) & 0xFFFFFFFF) / 4294967296;
     };
 }
@@ -246,9 +252,12 @@ function catfish_tick(int $uid): array
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
         $secs = $away ? min($gap, catfish_offline_cap($cat)) : $gap;
-        $gain = (int)floor(catfish_kph($s['up'], $cat, !$away) * $secs / 3600 * ($away ? 0.5 : 1));
-        $claim = q('UPDATE catfish_state SET kibble = kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $now, $uid, (int)$s['last_tick']])->rowCount();
-        if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['last_tick'] = $now; $s['gained'] = $gain; }
+        $eff = catfish_kph($s['up'], $cat, !$away) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
+        $gain = (int)floor($eff * $secs / 3600);
+        if ($gain < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
+        $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)floor($gain * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
+        $claim = q('UPDATE catfish_state SET kibble = kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $tick, $uid, (int)$s['last_tick']])->rowCount();
+        if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['last_tick'] = $tick; $s['gained'] = $gain; }
         return $s;
     });
 }
@@ -275,21 +284,25 @@ function catfish_clean_name(string $name, string $fallback): string
     return $name !== '' ? $name : $fallback;
 }
 
-function catfish_adopt(int $uid, int $slot, string $name): array
+function catfish_adopt(int $uid, int $slot, string $name, string $day = ''): array
 {
     if ($slot < 0 || $slot >= CATFISH_SHELTER) return [false, 'No such cat.'];
-    return catfish_locked($uid, function () use ($uid, $slot, $name) {
+    // the form says which day's shelter it showed; only today's or yesterday's counts (so a form open across the UTC reset still adopts the cat that was shown)
+    $today = gmdate('Y-m-d'); $yest = gmdate('Y-m-d', time() - 86400);
+    $day = in_array($day, [$today, $yest], true) ? $day : $today;
+    return catfish_locked($uid, function () use ($uid, $slot, $name, $day) {
         $s = catfish_tick($uid);
         $owned = (int)q_val('SELECT COUNT(*) FROM cats WHERE user_id = ?', [$uid]);
         if ($owned >= catfish_slots($uid)) return [false, 'Your home is full.'];
-        $cat = catfish_shelter($uid)[$slot];
+        $cat = catfish_shelter($uid, $day)[$slot];
         if (q_val('SELECT 1 FROM cats WHERE user_id = ? AND seed = ?', [$uid, $cat['seed']])) return [false, 'You already adopted that cat.'];
         $cost = catfish_adopt_cost($owned);
         if ($cost > 0 && q('UPDATE catfish_state SET kibble = kibble - ? WHERE user_id = ? AND kibble >= ?', [$cost, $uid, $cost])->rowCount() !== 1) return [false, 'Not enough Kibble.'];
-        $id = db_insert('cats', ['user_id' => $uid, 'seed' => $cat['seed'], 'name' => catfish_clean_name($name, $cat['name']), 'adopted_at' => now()]);
+        $clean = catfish_clean_name($name, $cat['name']);
+        $id = db_insert('cats', ['user_id' => $uid, 'seed' => $cat['seed'], 'name' => $clean, 'adopted_at' => now()]);
         if (empty($s['active_cat_id'])) q('UPDATE catfish_state SET active_cat_id = ?, last_tick = ? WHERE user_id = ?', [$id, time(), $uid]);
         try { db_insert('cat_book', ['user_id' => $uid, 'pattern' => $cat['pattern'], 'colour' => $cat['colour'], 'found_at' => now()]); } catch (Throwable $e) {}   // already in the book
-        return [true, 'Welcome home, ' . $cat['name'] . '!'];
+        return [true, 'Welcome home, ' . $clean . '!'];
     });
 }
 

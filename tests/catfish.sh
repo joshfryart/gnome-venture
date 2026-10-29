@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Cat Fish (catfish.php, catfish_api.php, includes/catfish.php): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades, API guards, generator and shelter determinism.
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
+php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/catfish-php.log 2>&1 & PID=$!; sleep 1
 W=$(mktemp -d); trap "kill $PID 2>/dev/null; rm -rf $W" EXIT
-php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >$W/php.log 2>&1 & PID=$!; sleep 1
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 dbv() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query($argv[1])->fetchColumn();' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
@@ -71,9 +71,18 @@ KPH=60; CAPH=8; [ "$MOOD" = greedy ] && KPH=66; [ "$MOOD" = lazy ] && CAPH=10
 ok "away 100000 s: gain capped (8 h at half rate, 10 h for lazy)" "$([ "$G" -gt 0 ] && [ "$G" -le $(( CAPH * KPH / 2 )) ] && echo y || echo n)" y
 G2=$(cfapi -d do=tick | jp view.gained)
 ok "immediate second tick gains about 0" "$([ "$G2" -le 1 ] && echo y || echo n)" y
+# part-earned Kibble is kept: 30 s at 60+/h pays nothing and leaves the clock alone; 90 s pays 1 and moves the clock only by the seconds paid
+NOW=$(date +%s); dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - 30 )) WHERE user_id=$UID_"
+G=$(cfapi -d do=tick | jp view.gained); LT=$(dbv "SELECT last_tick FROM catfish_state WHERE user_id=$UID_")
+ok "30 s tick: nothing whole earned" "$G" 0
+ok "30 s tick: last_tick not moved" "$([ "$LT" -le $(( NOW - 29 )) ] && echo y || echo n)" y
+NOW=$(date +%s); dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - 90 )) WHERE user_id=$UID_"
+G=$(cfapi -d do=tick | jp view.gained); LT=$(dbv "SELECT last_tick FROM catfish_state WHERE user_id=$UID_")
+ok "90 s tick: pays 1" "$G" 1
+ok "90 s tick: clock keeps the unpaid seconds (last_tick at least 20 s behind now)" "$([ "$LT" -le $(( $(date +%s) - 20 )) ] && echo y || echo n)" y
 
 # upgrades
-dbx "UPDATE catfish_state SET kibble=1000 WHERE user_id=$UID_"
+dbx "UPDATE catfish_state SET kibble=1000, last_tick=$(date +%s) WHERE user_id=$UID_"
 R=$(cfapi -d do=buy -d key=fish)
 ok "buy fish: ok true" "$(echo "$R" | jp ok)" true
 ok "buy fish: 10 Kibble spent (1000 -> 990)" "$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")" 990
@@ -85,7 +94,7 @@ dbx "UPDATE catfish_state SET kibble=0 WHERE user_id=$UID_"
 R=$(cfapi -d do=buy -d key=fish)
 ok "buy with 0 Kibble: ok false" "$(echo "$R" | jp ok)" false
 ok "buy with 0 Kibble: level unchanged" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_" | grep -o '"fish":[0-9]*')" '"fish":2'
-dbx "UPDATE catfish_state SET kibble=1000 WHERE user_id=$UID_"
+dbx "UPDATE catfish_state SET kibble=1000, last_tick=$(date +%s) WHERE user_id=$UID_"
 R=$(cfapi -d do=buy -d key=nope)
 ok "unknown upgrade key: ok false" "$(echo "$R" | jp ok)" false
 
