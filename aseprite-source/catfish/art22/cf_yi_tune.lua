@@ -100,8 +100,8 @@ c:paint({ "..gg", ".g..", "g...", "g..." }, 19, 30, { g = TEAL.gloss })
 c:paint({ "gg", "g." }, 44, 10, { g = GOLD.gloss })
 c:paint({ "...g", "..g.", ".g.." }, 37, 37, { g = TEAL.gloss })
 c:paint({ "..g", ".g.", "g.." }, 9, 48, { g = RED.rim })
-for _, arc in ipairs({ { {24, 50}, {25, 51}, {26, 53}, {27, 54} }, { {26, 48}, {27, 49}, {28, 51}, {30, 53}, {31, 54} } }) do
-  for _, q in ipairs(arc) do if c.own[c:key(q[1], q[2])] == p.ball then c:px(q[1], q[2], ROSE.shade) end end
+for _, r in ipairs({ 6, 9 }) do                                               -- yarn ball wraps (cf-up-toybox)
+  onPart(c, c:ellipse(34, 45, r + 1):cut(c:ellipse(34, 45, r)), p.ball, ROSE.shade)
 end
 c:px(27, 47, ROSE.gloss); c:px(26, 47, ROSE.gloss); c:px(25, 48, ROSE.gloss)
 c:px(12, 13, GOLD.gloss); c:px(11, 12, GOLD.gloss)

@@ -36,7 +36,7 @@ GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 -- the string: gold yarn sagging from (8,8) to (55,8), lowest (y 23) in the middle, a knot and tail at each end
-local X0, X1, YT, SAG = 8, 55, 8, 15
+local X0, X1, YT, SAG = 10, 53, 12, 14
 local CXS = (X0 + X1) / 2
 local function sy(x) local u = (x - CXS) / ((X1 - X0) / 2) return YT + SAG * (1 - u * u) end
 local pts = {}
@@ -48,9 +48,9 @@ local knotR = c:ellipse(X1 + 0.5, YT, 2.5)
 local tailL = c:line({ { X0 - 1, YT + 2 }, { X0 - 2, YT + 7 } }, 2)
 local tailR = c:line({ { X1 + 1, YT + 2 }, { X1 + 2, YT + 7 } }, 2)
 
--- pennants: top corners on the string, tip straight below the middle, 3 px gaps between flags
-local FL = { { 11, 19, RED }, { 22, 30, SKY }, { 33, 41, MINT }, { 44, 52, VIO } }
-local H = 25
+-- pennants: top corners on the string, tip straight below the middle, neighbours overlap 1 px (contour)
+local FL = { { 11, 21, RED }, { 21, 31, SKY }, { 31, 41, MINT }, { 41, 51, VIO } }
+local H = 21
 local list = { { "tailL", tailL, GOLD, { flat = true, contact = false } },
                { "tailR", tailR, GOLD, { flat = true, contact = false } } }
 local flags = {}

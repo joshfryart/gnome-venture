@@ -65,7 +65,7 @@ for _, b in ipairs(balls) do
   local x0, y0 = math.floor(b[2]) - 7, b[3] - 8
   c:paint({ "..gg", ".g..", "g...", "g..." }, x0, y0, { g = b[4].gloss })
 end
--- loose end: a twist line along the strand, a frayed tip
+-- loose end: two glints along the strand
 c:px(45, 14, GOLD.gloss); c:px(50, 13, GOLD.gloss)
 
 local name = "cf-yi-balls"

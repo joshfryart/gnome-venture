@@ -73,13 +73,13 @@ local fy = { 38, 42, 46 }
 local fe = { 31, 30, 28 }
 local cuffL = c:rrect(7, 50, 19, 55, 2)
 local cuffR = c:rrect(44, 50, 56, 55, 2)
-local thread = c:line({ {45, 26}, {50, 21}, {52, 15}, {50, 10}, {46, 11}, {46, 16}, {51, 19}, {54, 17}, {54, 13} }, 2)
+local thread = c:line({ {44, 26}, {49, 23}, {53, 19}, {53, 13}, {49, 10}, {45, 12}, {46, 16} }, 3)
 local list = {
   { "body", body, GREY, { cres = 4, gloss = false } },
   { "earL", earL, GREY, { cres = 2, gloss = false } },
   { "earR", earR, GREY, { cres = 2, gloss = false } },
   { "head", head, GREY, { cres = 3, gloss = { 18, 21 } } },
-  { "thread", thread, RED, { flat = true, contact = false } },
+  { "thread", thread, RED, { cres = 1, deep = 0, gloss = false, contact = false } },
   { "backL", backL, SKIN, { cres = 4, gloss = false } },
   { "backR", backR, SKIN, { cres = 4, gloss = false } },
 }

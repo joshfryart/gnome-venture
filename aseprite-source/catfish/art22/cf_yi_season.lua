@@ -4,7 +4,7 @@
 -- Picture: a round felt badge sewn from four quarter panels, one per season, clockwise from top left:
 -- spring (mint, pink blossom), summer (sky, gold sun), autumn (wheat, orange leaf), winter (violet, pale
 -- flake). Gold seams run along the cross and round the rim; the hub where the panels meet is a little pink
--- yarn ball with a loose curling end (the Yarn panel motif). Silhouette: a full disc with a yarn tail.
+-- yarn ball (the Yarn panel motif). Silhouette: a full round disc.
 -- Run: AppRun -b --script cf_yi_season.lua      Writes out/cf-yi-season.png + .aseprite.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
@@ -53,15 +53,15 @@ local function onPart(c, m, P, hex, litOnly)
   end)
 end
 
-local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
+local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#fff1c8", base = "#f5cf6a", shade = "#e8a317" } -- seam golds
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 local MINT = felt("#6fbf7a", { gloss = "#d4f0b0", dot = "#d4f0b0", rim = "#9cd890", shade = "#3f8a62" })
-local SKY = felt("#6fb4e0", { gloss = "#e0f4f0", dot = "#e0f4f0", rim = "#a0d4ec", shade = "#4a7cc0" })
+local SKY = felt("#6fb4e0", { gloss = "#e0f4f0", dot = "#e0f4f0", rim = "#6fb4e0", shade = "#4a7cc0" })
 local WHEAT = felt("#e8c27a", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#f5dca0", shade = "#c08a4a" })
-local VIO = felt("#7a68c0", { gloss = "#d8c8ff", dot = "#d8c8ff", rim = "#a090dc", shade = "#4e3a8a" })
-local ROSE = felt("#e46a9b", { gloss = "#ffc8dc", dot = "#ffc8dc", rim = "#f29abb", shade = "#b04478" })
+local VIO = felt("#7a68c0", { gloss = "#d8c8ff", dot = "#d8c8ff", rim = "#7a68c0", shade = "#4e3a8a" })
+local ROSE = felt("#e46a9b", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f29abb", shade = "#b04478" })
 local LEAF = felt("#dc6f2c", { gloss = "#ffc27a", dot = "#ffc27a", rim = "#f2a860", shade = "#a8442a" })
-local FLAKE = { gloss = "#f4fbff", dot = "#f4fbff", rim = "#f4fbff", base = "#e0ecf8", shade = "#b8c8e8" }
+local FLAKE = { gloss = "#e0ecf8", dot = "#e0ecf8", rim = "#e0ecf8", base = "#e0ecf8", shade = "#b8c8e8" }
 FLAKE.deep, FLAKE.bounce = FLAKE.shade, FLAKE.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
@@ -135,9 +135,10 @@ c:seam({ { 7, CY - 0.5 }, { 23, CY - 0.5 } }); c:seam({ { 38, CY - 0.5 }, { 54, 
 c:stitch(disc)
 -- yarn wraps on the hub ball
 local onH = set(ROSE.base, ROSE.rim)
-trace(c, { {26, 28}, {30, 25}, {34, 27} }, ROSE.shade, onH)
-trace(c, { {25, 32}, {30, 29}, {36, 31} }, ROSE.shade, onH)
-trace(c, { {27, 35}, {31, 33}, {35, 34} }, ROSE.shade, onH)
+for _, r in ipairs({ 5, 8, 11 }) do                                                  -- wraps: arcs round a point up right
+  onPart(c, c:ellipse(37, 24, r):cut(c:ellipse(37, 24, r - 1)), p.hub, ROSE.shade)
+end
+onPart(c, c:line({ {25, 27}, {30, 37} }, 1), p.hub, ROSE.shade)                        -- one cross wrap
 c:paint({ "gg", "g." }, 26, 26, { g = ROSE.gloss })
 -- leaf midrib, sun glint, flake glint
 local onL = set(LEAF.base, LEAF.rim)
@@ -146,4 +147,4 @@ trace(c, { {42, 43}, {41, 38} }, LEAF.shade, onL); trace(c, { {42, 43}, {47, 44}
 c:paint({ "gg", "g." }, 40, 16, { g = GOLD.gloss })
 local t = c:save(OUT .. "cf-yi-season.aseprite", OUT .. "cf-yi-season.png")
 print("season " .. GV.report(t))
-assert(t.semi == 0 and t.margin >= 3 and t.colours <= 24 and t.bw == 0, "check failed")
+assert(t.semi == 0 and t.margin >= 3 and t.colours <= 20 and t.bw == 0, "check failed")
