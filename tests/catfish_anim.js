@@ -1,9 +1,10 @@
+// ({NOW} in a state SQL = 10 minutes ahead, so the next page load pays no Kibble into the run.)
 // node catfish_anim.js BASE : the Cat Fish stage animation machine in a real browser (called by tests/catfish.sh with the full art installed and a seeded home).
 // Prints "ok   ..." / "FAIL ..." lines. Player sprout (cats: active patterned folded-ear bobtail cat, a lazy cat, an awake side cat, a bored cat; glitter fish owned).
 const { chromium } = require('playwright');
 const B = process.argv[2];
 const { execFileSync } = require('child_process');
-const sql = q => execFileSync('php', ['-r', '$p = new PDO("sqlite:" . getenv("DBFILE")); $p->exec(getenv("SQLQ"));'], { env: Object.assign({}, process.env, { SQLQ: q.replace('{NOW}', String(Math.floor(Date.now() / 1000))) }) });
+const sql = q => execFileSync('php', ['-r', '$p = new PDO("sqlite:" . getenv("DBFILE")); $p->exec(getenv("SQLQ"));'], { env: Object.assign({}, process.env, { SQLQ: q.replace(/{NOW}/g, String(Math.floor(Date.now() / 1000) + 600)) }) });
 const out = []; const ok = (name, got, want) => out.push((got === want ? 'ok   ' : 'FAIL ') + name + (got === want ? '' : " (got '" + got + "', want '" + want + "')"));
 async function login(p) {
   await p.goto(B + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!');
