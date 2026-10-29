@@ -581,10 +581,82 @@ ok "css: mask, clip and size classes exist for every frame the renderer can emit
 ok "css: no art, no change: every png has image-rendering pixelated" "$(grep -c 'image-rendering: pixelated' $GAME/assets/catfish.css | awk '{print ($1>=3)?"y":"n"}')" y
 OLD='<span class="cfcat c-ginger p-tabby e-amber" aria-hidden="true">🐱</span>'
 ok "no art folder: the old emoji block renders unchanged" "$(lay none '{"colour":"ginger","pattern":"tabby","eyes":"amber","ears":"folded","tail":"bobtail","seed":3}' 64 idleA)" "$OLD"
-ok "no art for this coat (lilac): emoji block" "$(lay $A '{"colour":"lilac","pattern":"tabby","eyes":"amber","ears":"upright","tail":"long","seed":3}' 64 idleA)" '<span class="cfcat c-lilac p-tabby e-amber" aria-hidden="true">🐱</span>'
+ok "lilac now has art: layered like any coat" "$(lay $A '{"colour":"lilac","pattern":"tabby","eyes":"amber","ears":"upright","tail":"long","seed":3}' 64 idleA | files)" "cf-cat-lilac-idleA cf-pat-tabby-lilac-idleA cf-eyes-amber-idleA "
+ok "no art for this coat (unknown colour): emoji block" "$(lay $A '{"colour":"mauve","pattern":"tabby","eyes":"amber","ears":"upright","tail":"long","seed":3}' 64 idleA)" '<span class="cfcat c-mauve p-tabby e-amber" aria-hidden="true">🐱</span>'
 ok "no body png for the frame (empty dir): emoji block" "$(lay $W/nonesuch '{"colour":"ginger","pattern":"tabby","eyes":"amber","ears":"upright","tail":"long","seed":3}' 64 idleA)" "$OLD"
 ok "page without art: shelter and cat cards are the emoji blocks (no cfart)" "$(curl -s -b $W/p $BASE/catfish.php | grep -c 'class="cfart')" 0
 ok "page without art: cards still show the emoji cat" "$([ "$(curl -s -b $W/p $BASE/catfish.php | grep -c 'class="cfcat c-')" -ge 3 ] && echo y || echo n)" y
+
+# art wiring beyond the cat: rod and fish, kibble and yarn icons, room stack, Cat Book heads, banner. Art = the full set built by tools/catfish_build_art.py into a temp dir.
+FULL=$W/full; PYTHONDONTWRITEBYTECODE=1 python3 tools/catfish_build_art.py --out $FULL --check >/dev/null 2>&1 || echo "FAIL build art set"; rm -rf tools/__pycache__
+# cfx: result of a PHP expression. args: artdir(or none) expression
+cfx() { php -r 'if ($argv[1] !== "none") define("CATFISH_ART_DIR", $argv[1]); define("APP_ROOT", "/nonexistent"); define("APP_VERSION", "t"); function e($v){return htmlspecialchars((string)$v, ENT_QUOTES);} function url($p){return "/".$p;} function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return "";} require $argv[2]; echo eval("return " . $argv[3] . ";");' "$1" "$GAME/includes/catfish.php" "$2"; }
+OLDROD='<div class="cfrod" aria-hidden="true"><span class="cfwand">🎣</span><span class="cffish f1">🐟</span><span class="cffish f2">🐠</span><span class="cffish f3">🐡</span></div>'
+ok "fish kinds: plain only = 1 1 1" "$(cfx none 'implode(" ", catfish_fish_kinds([]))')" "1 1 1"
+ok "fish kinds: silk = 1 2 1; silk and catnip = 1 2 3" "$(cfx none 'implode(" ", catfish_fish_kinds(["silk"=>2])) . "|" . implode(" ", catfish_fish_kinds(["silk"=>1,"catnip"=>1]))')" "1 2 1|1 2 3"
+ok "fish kinds: everything and a Sneaky cat = the newest three, 3 4 5" "$(cfx none 'implode(" ", catfish_fish_kinds(["silk"=>1,"catnip"=>1,"glitter"=>1], ["mood"=>"sneaky"]))')" "3 4 5"
+ok "rod, no art: today's emoji markup, byte for byte" "$(cfx none 'catfish_rod_html([])')" "$OLDROD"
+H=$(cfx $FULL 'catfish_rod_html(["silk"=>1,"glitter"=>1], ["mood"=>"lazy"])')
+ok "rod, art: the wand and three fish (1, 2, 4), strings are CSS" "$(echo "$H" | grep -o 'cf-rod.png\|cf-fish-[0-9].png\|class="cfstr"' | tr '\n' ' ')" 'cf-rod.png class="cfstr" cf-fish-1.png class="cfstr" cf-fish-2.png class="cfstr" cf-fish-4.png '
+ok "rod, art: no inline style, wand is 48 x 64" "$(echo "$H" | grep -c 'style=')$(echo "$H" | grep -c 'width="48" height="64"')" "01"
+mkdir -p $W/art3; cp $FULL/cf-fish-1.png $W/art3/
+H=$(cfx $W/art3 'catfish_rod_html(["silk"=>1])')
+ok "rod, only a fish PNG: wand keeps its emoji, fish is art, the other fish keep theirs" "$(echo "$H" | grep -c '🎣')$(echo "$H" | grep -c 'cf-fish-1.png')$(echo "$H" | grep -c '🐠')" "111"
+ok "icons, no art: nothing at all" "$(cfx none 'catfish_ico("ico-kibble") . catfish_ico("ico-yarn", 24)')" ""
+ok "icons, art: the PNG and a space" "$(cfx $FULL 'catfish_ico("ico-kibble")' | grep -o 'cf-ico-kibble.png.*width="32" height="32"')" 'cf-ico-kibble.png?v=t" alt="" width="32" height="32"'
+ok "catfish_img: art folder honoured, bad name falls back" "$(cfx $FULL 'catfish_img("fish-5", "F", "gold", 48) . catfish_img("../x", "Z")' | grep -o 'cf-fish-5.png\|alt="gold"\|<span aria-hidden="true">Z</span>' | tr '\n' ' ')" 'cf-fish-5.png alt="gold" <span aria-hidden="true">Z</span> '
+ok "catfish_img: banner is 480 x 120" "$(cfx $FULL 'catfish_img("banner", "", "Cat Fish", 480, 120)' | grep -c 'width="480" height="120"')" 1
+CATS3='[["colour"=>"ginger","pattern"=>"solid","eyes"=>"amber","ears"=>"upright","tail"=>"long","seed"=>1],["colour"=>"lilac","pattern"=>"tabby","eyes"=>"odd","ears"=>"folded","tail"=>"bobtail","seed"=>2],["colour"=>"black","pattern"=>"calico","eyes"=>"blue","ears"=>"upright","tail"=>"long","seed"=>3]]'
+ok "room, no art: nothing (no room on the page)" "$(cfx none "catfish_room_html($CATS3, [\"rug\"=>1])")" ""
+H=$(cfx $FULL "catfish_room_html($CATS3, [\"sunbeam\"=>2, \"rug\"=>1, \"window\"=>0])")
+ok "room, art: base then owned overlays only (sunbeam, rug), in stacking order" "$(echo "$H" | grep -o 'cf-room[a-z-]*.png' | tr '\n' ' ')" "cf-room.png cf-room-sunbeam.png cf-room-rug.png "
+ok "room, art: three cats in three position classes, layered art, no inline style" "$(echo "$H" | grep -o 'cfrc n3 i[0-9]' | tr '\n' ',')$(echo "$H" | grep -o 'class="cfart' | wc -l | tr -d ' ')$(echo "$H" | grep -c 'style=')" "cfrc n3 i1,cfrc n3 i2,cfrc n3 i3,30"
+ok "room, art: the lilac folded-ear bobtail cat is layered (lilac body, ears, tail)" "$(echo "$H" | grep -o 'cf-cat-lilac-idleA\|cf-ears-folded-lilac-idleA\|cf-tail-bobtail-lilac-idleA' | tr '\n' ' ')" "cf-cat-lilac-idleA cf-ears-folded-lilac-idleA cf-tail-bobtail-lilac-idleA "
+ok "room, art, no cats yet: the room and no cat" "$(cfx $FULL 'catfish_room_html([], [])' | grep -c 'cfrc')" 0
+ok "room: six cats show four" "$(cfx $FULL "catfish_room_html(array_merge($CATS3, $CATS3), [])" | grep -o 'cfrc n4' | wc -l | tr -d ' ')" 4
+ok "css: 10 room position rules (1 + 2 + 3 + 4 cats)" "$(grep -o '\.cfrc\.n[1-4]\.i[1-4] {' $GAME/assets/catfish.css | wc -l | tr -d ' ')" 10
+ok "book cell, no art: today's circle, adopted shows the emoji" "$(cfx none 'catfish_book_cell("ginger", 1, "Ginger tabby, adopted") . catfish_book_cell("black", -1, "Black tabby, not seen yet")')" '<span class="cfbcell got c-ginger" role="img" aria-label="Ginger tabby, adopted" title="Ginger tabby, adopted">🐱</span><span class="cfbcell none" role="img" aria-label="Black tabby, not seen yet" title="Black tabby, not seen yet"></span>'
+ok "book cell, art: found coats use their head (ginger -> orange, lilac), unknown uses the question head" "$(cfx $FULL 'catfish_book_cell("ginger", 1, "a") . catfish_book_cell("lilac", 0, "b") . catfish_book_cell("white", -1, "c")' | grep -o 'cf-bookhead-[a-z-]*.png\|got adopted\|got seen\|cfbcell art none' | tr '\n' ' ')" "got adopted cf-bookhead-orange.png got seen cf-bookhead-lilac.png cfbcell art none cf-bookhead-unknown.png "
+mkdir -p $W/art4; cp $FULL/cf-bookhead-unknown.png $W/art4/
+ok "book cell, art for unknown only: a found coat keeps today's circle" "$(cfx $W/art4 'catfish_book_cell("ginger", 0, "a") . catfish_book_cell("ginger", -1, "b")' | grep -o 'cfbcell got c-ginger\|cf-bookhead-unknown.png' | tr '\n' ' ')" "cfbcell got c-ginger cf-bookhead-unknown.png "
+ok "art coat map: all 8 coats have art, lilac included" "$(cfx none 'count(CATFISH_ART_COATS) . " " . CATFISH_ART_COATS["lilac"]')" "8 lilac"
+# odd-eyed split columns: recomputed from the PNGs (the midpoint between the two eye clusters of cf-eyes-ring-<frame>.png), compared with catfish.css and tools/catfish_recolor.py
+python3 -I - "aseprite-source/catfish/test" "$GAME/assets/catfish.css" <<'P'
+import sys, os, re, numpy as np
+from PIL import Image
+sys.dont_write_bytecode = True; sys.path.insert(0, 'tools')
+import catfish_recolor as R
+d, css = sys.argv[1:]
+css = open(css).read()
+if not any(os.path.exists('%s/cf-eyes-ring-%s.png' % (d, f)) for f in R.EYE_SPLIT): print('ok   odd-eyed split: skipped (no eye PNGs in %s)' % d); sys.exit(0)
+bad = []; n = 0
+for f, want in R.EYE_SPLIT.items():
+    m = re.search(r'\.cfclip-L-%s \{ clip-path: inset\(0 ([0-9.]+)%% 0 0\); \} \.cfclip-R-%s \{ clip-path: inset\(0 0 0 ([0-9.]+)%%\); \}' % (f, f), css)
+    if not m: bad.append(f + ': no css rule'); continue
+    if abs(float(m.group(2)) - want / 64 * 100) > 1e-3 or abs(float(m.group(1)) - (100 - want / 64 * 100)) > 1e-3: bad.append('%s: css split != %d' % (f, want))
+    p = '%s/cf-eyes-ring-%s.png' % (d, f)
+    got = R.eye_split(p) if os.path.exists(p) else None
+    if got is None: continue   # closed eyes (catch, nap): no eye pixels, nothing to split
+    n += 1
+    a = np.array(Image.open(p).convert('RGBA'))[..., 3] > 0
+    if got != want: bad.append('%s: EYE_SPLIT %d but the art says %d' % (f, want, got))
+    if a[:, :got].sum() != a[:, got:].sum() or not a[:, :got].any(): bad.append('%s: split %d does not halve the eyes' % (f, got))
+print(('ok   odd-eyed split: %d frames recomputed from the ring PNGs match EYE_SPLIT and catfish.css' % n) if not bad else 'FAIL odd-eyed split: ' + '; '.join(bad))
+P
+ok "css: the guessed split of idleB, wiggle and bored is gone (each differs from idleA's 39.0625%)" "$(grep -o 'cfclip-R-\(idleB\|wiggle\|bored\) { clip-path: inset(0 0 0 [0-9.]*%' $GAME/assets/catfish.css | grep -vc '39.0625')" 3
+
+# the real page with the full art set installed in this suite's own copy of game/ (removed after): banner, rod, icons, room, Cat Book heads
+mkdir -p $GAME/assets/img/catfish; cp $FULL/cf-*.png $GAME/assets/img/catfish/
+curl -s -b $W/p $BASE/catfish.php > $W/art.html
+ok "page with art: banner is the heading (img with alt text, no emoji heading)" "$(grep -c '<h1 class="cfbanner"><img class="cfimg" src="[^"]*cf-banner.png[^"]*" alt="Cat Fish" width="480" height="120">' $W/art.html)$(grep -c '<h1>🐱 Cat Fish</h1>' $W/art.html)" "10"
+ok "page with art: rod art and 3 fish" "$(grep -c 'cf-rod.png' $W/art.html)$(grep -o 'cf-fish-[0-9].png' $W/art.html | wc -l | tr -d ' ')" "13"
+ok "page with art: kibble icon by the count, yarn icon in the Nap and Home summaries" "$(grep -o 'cf-ico-kibble.png' $W/art.html | wc -l | tr -d ' ')$(grep -o 'cf-ico-yarn.png' $W/art.html | wc -l | tr -d ' ')" "12"
+ok "page with art: the room is there with its cats" "$(grep -c 'class="cfroom"' $W/art.html)$([ "$(grep -o 'class="cfrc n' $W/art.html | wc -l)" -ge 1 ] && echo y)" "1y"
+ok "page with art: Cat Book cells use heads, unknown cells use the question head" "$([ "$(grep -c 'cf-bookhead-' $W/art.html)" -ge 1 ] && echo y)$([ "$(grep -o 'cf-bookhead-unknown.png' $W/art.html | wc -l)" -ge 10 ] && echo y)" "yy"
+ok "page with art: no inline style and no inline script besides the JSON block" "$(grep -c ' style=\|<script>' $W/art.html)" 0
+rm -rf "${GAME:?}/assets/img/catfish"
+curl -s -b $W/p $BASE/catfish.php > $W/noart.html
+ok "page without art: emoji heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1>🐱 Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art' $W/noart.html)" "110"
 
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

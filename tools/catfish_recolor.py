@@ -49,7 +49,7 @@ COATS = {
     'cream':      '#f0dca0',
     'brown':      '#8a5a3c',
     'silver-blue': '#8aa0b8',
-    'ginger-red': '#c4482a',
+    'lilac':      '#b4a0d6',   # pale violet-grey; its hue-shifted ramp stays apart from grey and silver-blue in all 4 tones
 }
 # Fixed accents, never recoloured (from the cf_test.lua comment).
 FIXED = {'#e8909e', '#c66a80', '#f2e4c0', '#2a1a10', '#4a2c1a', '#74462a', '#f5cf6a', '#e8a317', '#000000'}
@@ -61,9 +61,22 @@ FIXED |= FIXED_EXTRA
 EYES = {'amber': '#e0902a', 'green': '#7cb342', 'blue': '#4f9fe0', 'hazel': '#a89436'}
 MAXCOL = 24          # per recoloured file
 COMPOSE_MAXCOL = 28  # per composited cat
-# frame -> x offset of the eyes (left eye x < 25 + ox, right eye x >= 25 + ox), from cf_overlays.lua
-EYE_OX = {'idleA': 0, 'pounce': 16, 'catch': 0, 'nap': 0, 'stalk': 15}
+# Odd-eyed split column per frame: the left eye is x < split, the right eye x >= split. This is the midpoint column between the
+# two eye clusters of aseprite-source/catfish/test/cf-eyes-ring-<frame>.png (see eye_split(); tests/catfish.sh recomputes it and
+# checks game/assets/catfish.css). Closed-eye frames (catch, nap) have no eye pixels, so they keep the old 25.
+EYE_SPLIT = {'idleA': 25, 'idleB': 26, 'wiggle': 40, 'stalk': 40, 'pounce': 41, 'catch': 25, 'nap': 25, 'bored': 24}
 PATTERNS = ('tabby', 'tuxedo', 'calico', 'pointed', 'spotted')
+
+
+def eye_split(path):
+    """Midpoint column between the two eye clusters of a ring/eyes PNG (columns with opaque pixels, split at the widest gap), or None if there are no two clusters."""
+    a = np.array(Image.open(path).convert('RGBA'))[..., 3] > 0
+    cols = np.nonzero(a.any(0))[0]
+    if len(cols) < 2: return None
+    gaps = np.diff(cols)
+    i = int(np.argmax(gaps))
+    if gaps[i] < 2: return None
+    return int((cols[i] + cols[i + 1]) // 2)
 
 
 def h2rgb(h):
@@ -234,7 +247,7 @@ def compose(coat, frame, indir=os.path.join(CF, 'test'), pattern=None, eyes=None
         if len(names) == 1: names = names * 2
         if len(names) != 2 or any(n not in EYES for n in names): sys.exit('bad --eyes %r (one of %s, or LEFT,RIGHT)' % (eyes, '/'.join(EYES)))
         xs = np.arange(64)[None, :].repeat(64, 0)
-        split = 25 + EYE_OX.get(frame, 0)
+        split = EYE_SPLIT.get(frame, 25)
         for n, sel in ((names[0], xs < split), (names[1], xs >= split)):
             e = np.array(Image.open(need('cf-eyes-%s-%s.png' % (n, frame))).convert('RGBA'))
             e[~sel] = 0

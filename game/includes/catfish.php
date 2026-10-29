@@ -75,15 +75,81 @@ const CATFISH_NAMES = ['Biscuit', 'Pickle', 'Mochi', 'Nutmeg', 'Clover', 'Pebble
 /** Rarity bands on the summed -log2(probability) of a cat's traits (tuned by tests/catfish.sh's distribution check). */
 const CATFISH_RARITY = ['common' => 0.0, 'uncommon' => 10.8, 'rare' => 12.6, 'legendary' => 16.3];   // about 50 / 30 / 18.5 / 1.5 percent of cats
 
-/** A Cat Fish picture: the real PNG (assets/img/catfish/cf-<name>.png) when it exists, else the emoji placeholder. See claude/catfish-art-brief.md for the names. */
-function catfish_img(string $name, string $fallback, string $alt = '', int $px = 48): string
+/** URL of one art file (cf-*.png) under the art folder, with the cache-busting version. */
+function catfish_art_url(string $file): string
 {
-    static $have = [];
-    if (!preg_match('/^[a-z0-9_-]+$/', $name)) return '<span aria-hidden="true">' . $fallback . '</span>';
-    $file = 'assets/img/catfish/cf-' . $name . '.png';
-    $have[$name] ??= is_file(APP_ROOT . '/' . $file);
-    if (!$have[$name]) return '<span aria-hidden="true">' . $fallback . '</span>';
-    return '<img class="cfimg" src="' . e(url($file . '?v=' . APP_VERSION)) . '" alt="' . e($alt) . '" width="' . $px . '" height="' . $px . '">';
+    $base = defined('CATFISH_ART_URL') ? CATFISH_ART_URL : 'assets/img/catfish';
+    return url($base . '/' . $file . '?v=' . APP_VERSION);
+}
+
+/** A Cat Fish picture: the real PNG (assets/img/catfish/cf-<name>.png) when it exists, else the emoji placeholder. See claude/catfish-art-brief.md for the names. $h = 0 means square. */
+function catfish_img(string $name, string $fallback, string $alt = '', int $px = 48, int $h = 0): string
+{
+    if (!preg_match('/^[a-z0-9_-]+$/', $name) || !catfish_art_has('cf-' . $name . '.png')) return '<span aria-hidden="true">' . $fallback . '</span>';
+    return '<img class="cfimg" src="' . e(catfish_art_url('cf-' . $name . '.png')) . '" alt="' . e($alt) . '" width="' . $px . '" height="' . ($h > 0 ? $h : $px) . '">';
+}
+
+/** A small decorative icon (cf-ico-kibble, cf-ico-yarn) followed by a space, or '' while there is no art, so the page is unchanged. */
+function catfish_ico(string $name, int $px = 32): string
+{
+    return catfish_art_has('cf-' . $name . '.png') ? catfish_img($name, '', '', $px) . ' ' : '';
+}
+
+/** Fish kinds hanging on the rod (cf-fish-1..5: plain, silk, catnip, glitter, golden for a Sneaky cat's rare fish), for the owned upgrade levels. Up to 3, the newest kinds. */
+function catfish_fish_kinds(array $owned, ?array $cat = null): array
+{
+    $k = [1];
+    foreach ([2 => 'silk', 3 => 'catnip', 4 => 'glitter'] as $n => $key) if ((int)($owned[$key] ?? 0) > 0) $k[] = $n;
+    if (($cat['mood'] ?? '') === 'sneaky') $k[] = 5;
+    $k = array_slice($k, -3);
+    $out = [];
+    for ($i = 0; $i < 3; $i++) $out[] = $k[$i % count($k)];
+    return $out;
+}
+
+/**
+ * The swaying rod. No rod and no fish art: today's emoji markup, byte for byte. Otherwise the wand art (cf-rod, 48 x 64) and a plushie fish on a string
+ * (the string is a CSS line) for each kind from catfish_fish_kinds(); a piece with no PNG keeps its emoji. $owned = upgrade key => level.
+ */
+function catfish_rod_html(array $owned, ?array $cat = null): string
+{
+    $kinds = catfish_fish_kinds($owned, $cat);
+    $any = catfish_art_has('cf-rod.png');
+    foreach ($kinds as $n) $any = $any || catfish_art_has("cf-fish-$n.png");
+    if (!$any) return '<div class="cfrod" aria-hidden="true"><span class="cfwand">🎣</span><span class="cffish f1">🐟</span><span class="cffish f2">🐠</span><span class="cffish f3">🐡</span></div>';
+    $h = '<div class="cfrod cfrod-art" aria-hidden="true"><span class="cfwand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span>';
+    foreach ($kinds as $i => $n) $h .= '<span class="cfdrop d' . ($i + 1) . '"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</span>';
+    return $h . '</div>';
+}
+
+/** Room upgrades that have an overlay, in stacking order (back to front). */
+const CATFISH_ROOM_LAYERS = ['window', 'sunbeam', 'rug', 'scratch'];
+
+/**
+ * The room: cf-room (320 x 200) with an overlay for each owned Room upgrade, and the home's cats (up to 4, 64 x 64) standing on the floor band.
+ * '' while there is no cf-room.png (the page then shows no room, as before). Positions are CSS classes (cfrc n<count> i<index>), no inline style.
+ */
+function catfish_room_html(array $cats, array $owned): string
+{
+    if (!catfish_art_has('cf-room.png')) return '';
+    $h = '<div class="cfroomwrap"><div class="cfroom" role="img" aria-label="Your home' . ($cats ? ' with ' . count($cats) . (count($cats) === 1 ? ' cat' : ' cats') : '') . '"><img class="cfroom-bg" src="' . e(catfish_art_url('cf-room.png')) . '" alt="" width="320" height="200">';
+    foreach (CATFISH_ROOM_LAYERS as $key) {
+        if ((int)($owned[$key] ?? 0) > 0 && catfish_art_has("cf-room-$key.png")) $h .= '<img class="cfroom-layer" src="' . e(catfish_art_url("cf-room-$key.png")) . '" alt="" width="320" height="200">';
+    }
+    $cats = array_slice(array_values($cats), 0, CATFISH_MAX_CATS); $n = count($cats);
+    foreach ($cats as $i => $c) $h .= '<span class="cfrc n' . $n . ' i' . ($i + 1) . '">' . catfish_cat_html($c, 64, 'idleA', false) . '</span>';
+    return $h . '</div></div>';
+}
+
+/** One Cat Book cell. $st: 1 adopted, 0 seen, -1 not found yet. Art (cf-bookhead-<coat>, cf-bookhead-unknown, 32 x 32) when it exists, else the coloured circle. */
+function catfish_book_cell(string $colour, int $st, string $label): string
+{
+    $coat = CATFISH_ART_COATS[$colour] ?? null;
+    $file = $st < 0 ? 'cf-bookhead-unknown.png' : ($coat !== null ? "cf-bookhead-$coat.png" : '');
+    if ($file === '' || !catfish_art_has($file)) {
+        return '<span class="cfbcell ' . ($st >= 0 ? 'got c-' . e($colour) : 'none') . '" role="img" aria-label="' . e($label) . '" title="' . e($label) . '">' . ($st === 1 ? '🐱' : '') . '</span>';
+    }
+    return '<span class="cfbcell art ' . ($st < 0 ? 'none' : ($st === 1 ? 'got adopted' : 'got seen')) . '" role="img" aria-label="' . e($label) . '" title="' . e($label) . '"><img class="cfimg" src="' . e(catfish_art_url($file)) . '" alt="" width="32" height="32"></span>';
 }
 
 /**
@@ -97,7 +163,7 @@ function catfish_img(string $name, string $fallback, string $alt = '', int $px =
  * $size snaps to 64, 128 or 192 px (integer scales, CSS classes cf-s64 / cf-s128 / cf-s192). $eyeClass only affects the emoji fallback.
  */
 const CATFISH_FRAMES = ['idleA', 'idleB', 'wiggle', 'stalk', 'pounce', 'catch', 'nap', 'bored'];
-const CATFISH_ART_COATS = ['ginger' => 'orange', 'black' => 'black', 'grey' => 'grey', 'cream' => 'cream', 'white' => 'white', 'brown' => 'brown', 'silver' => 'silver-blue'];   // game coat => art coat (lilac has no art yet: emoji)
+const CATFISH_ART_COATS = ['ginger' => 'orange', 'black' => 'black', 'grey' => 'grey', 'cream' => 'cream', 'white' => 'white', 'brown' => 'brown', 'silver' => 'silver-blue', 'lilac' => 'lilac'];   // game coat => art coat (tools/catfish_recolor.py COATS)
 const CATFISH_PATTERN_FRAMES = ['idleA', 'pounce', 'catch', 'nap', 'stalk'];
 const CATFISH_EYE_COLOURS = ['amber', 'green', 'blue', 'hazel'];
 function catfish_art_has(string $file): bool
@@ -112,10 +178,7 @@ function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', b
     $fallback = '<span class="cfcat c-' . e($cat['colour'] ?? '') . ' p-' . e($cat['pattern'] ?? '') . ($eyeClass ? ' e-' . e($cat['eyes'] ?? '') : '') . '" aria-hidden="true">🐱</span>';
     if (!in_array($frame, CATFISH_FRAMES, true)) $frame = 'idleA';
     if ($coat === null || !catfish_art_has("cf-cat-$coat-$frame.png")) return $fallback;
-    $img = function (string $file): string {
-        $base = defined('CATFISH_ART_URL') ? CATFISH_ART_URL : 'assets/img/catfish';
-        return '<img src="' . e(url($base . '/' . $file . '?v=' . APP_VERSION)) . '" alt="" width="64" height="64">';
-    };
+    $img = fn(string $file): string => '<img src="' . e(catfish_art_url($file)) . '" alt="" width="64" height="64">';
     $parts = []; $masks = [];
     foreach ([['ears', 'folded', 'ears'], ['tail', 'bobtail', 'tail']] as [$kind, $val, $trait]) {
         if (($cat[$trait] ?? '') !== $val) continue;

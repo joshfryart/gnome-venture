@@ -39,6 +39,7 @@ $shelter = catfish_shelter_now($uid, $meta);
 $rolls = array_replace([0, 0, 0], ($meta['roll']['day'] ?? '') === catfish_today() ? (array)($meta['roll']['n'] ?? []) : []);
 $slots = catfish_slots($uid, $st); $owned = count($cats); $room = $owned < $slots;
 $adoptCost = catfish_adopt_cost($owned);
+$ownedUp = array_column($v['ups'], 'owned', 'key');   // upgrade key => level, for the rod's fish and the room's overlays
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 /** One cat (layered art when the PNGs exist, else a tinted placeholder block) plus its trait line. */
 $catCard = function (array $c): string {
@@ -49,16 +50,19 @@ $catCard = function (array $c): string {
 };
 page_header('Cat Fish');
 ?>
-<h1>🐱 Cat Fish</h1>
+<?php if (catfish_art_has('cf-banner.png')): ?><h1 class="cfbanner"><?= catfish_img('banner', '', 'Cat Fish', 480, 120) ?></h1>
+<?php else: ?><h1>🐱 Cat Fish</h1>
+<?php endif; ?>
 <?php if (!$cat): ?>
 <p class="help">Pick a cat to take home. Your first one is free. The shelter shows new cats every day.</p>
 <?php else: ?>
 <div class="cfscene box">
-  <div class="cfrod" aria-hidden="true"><span class="cfwand">🎣</span><span class="cffish f1">🐟</span><span class="cffish f2">🐠</span><span class="cffish f3">🐡</span></div>
+  <?= catfish_rod_html($ownedUp, $cat) ?>
   <div class="cfmain"><div class="cfhold"><?= $catCard($cat) ?></div>
-    <p class="cfcount"><b id="cf-kibble"><?= number_format($v['kibble']) ?></b> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p>
+    <p class="cfcount"><?= catfish_ico('ico-kibble') ?><b id="cf-kibble"><?= number_format($v['kibble']) ?></b> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p>
     <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= (int)(catfish_offline_cap($cat) / 3600) ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
 </div>
+<?= catfish_room_html($cats, $ownedUp) ?>
 <h2>Upgrades</h2>
 <p id="cf-msg" role="status"></p>
 <div class="cfups" id="cf-ups">
@@ -73,7 +77,7 @@ page_header('Cat Fish');
   </form>
 <?php endforeach; endforeach; ?>
 </div>
-<details class="fold box"><summary>😴 Nap<?= $v['yarn'] > 0 ? ' · ' . number_format($v['yarn']) . ' Yarn (×' . rtrim(rtrim(number_format(catfish_yarn_mult($v['yarn']), 2), '0'), '.') . ' Kibble)' : '' ?></summary>
+<details class="fold box"><summary><?= catfish_ico('ico-yarn', 24) ?>😴 Nap<?= $v['yarn'] > 0 ? ' · ' . number_format($v['yarn']) . ' Yarn (×' . rtrim(rtrim(number_format(catfish_yarn_mult($v['yarn']), 2), '0'), '.') . ' Kibble)' : '' ?></summary>
   <p class="help">Napping puts your upgrades and Kibble back to zero and gives Yarn. Yarn makes all the Kibble your cat earns go further, for good, though each extra Yarn helps a little less. Longer runs give more Yarn. Your cats, Cat Book and badges stay.</p>
   <p>This run: <b id="cf-run"><?= number_format($v['run']) ?></b> Kibble earned. A Nap now gives <b id="cf-napyarn"><?= (int)$v['nap_yarn'] ?></b> Yarn.<span id="cf-napneed"<?= $v['nap_yarn'] < 1 ? '' : ' hidden' ?>> You need <?= number_format(CATFISH_NAP_BASE) ?> for your first.</span></p>
   <form method="post" id="cf-napform"<?= $v['nap_yarn'] >= 1 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="nap"><button class="btn" type="submit">Nap</button></form>
@@ -100,7 +104,7 @@ page_header('Cat Fish');
 
 <?php if ($cat): catfish_claim_petals($uid); $st = catfish_state($uid); $meta = $st['meta'];   // milestones reached since the last visit, after the shelter cats above are in the Book
 $extra = (int)($meta['extra'] ?? 0); $rareLvl = (int)($meta['rare'] ?? 0); ?>
-<details class="fold box"><summary>🏡 Home and shelter · <?= number_format($v['spend']) ?> Yarn to spend</summary>
+<details class="fold box"><summary>🏡 Home and shelter · <?= catfish_ico('ico-yarn', 24) ?><?= number_format($v['spend']) ?> Yarn to spend</summary>
   <p class="help">Yarn you spend here never lowers your Kibble bonus. That follows all the Yarn you have earned.</p>
   <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="bigger">
     <span class="cficon" aria-hidden="true">🏡</span><span class="cfinfo"><b>Bigger home</b> <small class="muted"><?= $slots ?> of <?= CATFISH_MAX_CATS ?> places</small><br><small>Room for one more cat.</small></span>
@@ -150,12 +154,12 @@ if ($capWk > 0): ?>
 <?php endif; ?>
 <?php if ($owned > 0): $book = catfish_book($uid); $have = []; foreach ($book as $bk) $have[$bk[0] . '/' . $bk[1]] = $bk[2]; ?>
 <details class="fold box"><summary>📖 Cat Book (<?= count($book) ?> of <?= count(CATFISH_TRAITS['pattern']) * count(CATFISH_TRAITS['colour']) ?>)</summary>
-  <p class="help">Every coat you have seen at the shelter or taken home (🐱 = adopted). Fill the book for badges.</p>
+  <p class="help">Every coat you have seen at the shelter or taken home (<?= catfish_art_has('cf-bookhead-unknown.png') ? 'bright = adopted, faded = only seen' : '🐱 = adopted' ?>). Fill the book for badges.</p>
   <div class="cfbook">
   <?php foreach (array_keys(CATFISH_TRAITS['pattern']) as $pat): ?>
     <div class="cfbrow"><b><?= e(ucfirst($pat)) ?></b>
     <?php foreach (array_keys(CATFISH_TRAITS['colour']) as $col): $st = $have[$pat . '/' . $col] ?? -1; $nm = ucfirst($col) . ' ' . $pat . ($st === 1 ? ', adopted' : ($st === 0 ? ', seen' : ', not seen yet')); ?>
-      <span class="cfbcell <?= $st >= 0 ? 'got c-' . e($col) : 'none' ?>" role="img" aria-label="<?= e($nm) ?>" title="<?= e($nm) ?>"><?= $st === 1 ? '🐱' : '' ?></span>
+      <?= catfish_book_cell($col, $st, $nm) ?>
     <?php endforeach; ?></div>
   <?php endforeach; ?>
   </div>

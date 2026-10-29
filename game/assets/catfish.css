@@ -57,12 +57,44 @@
 .cfmk-tail-nap { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-nap.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-nap.png); }
 .cfmk-ears-stalk { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-stalk.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-ears-mask-stalk.png); }
 .cfmk-tail-stalk { -webkit-mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-stalk.png); mask-image: linear-gradient(#000, #000), url(img/catfish/cf-tail-mask-stalk.png); }
-/* Odd-eyed: left eye and right eye layers, each clipped to its half (split x from tools/catfish_recolor.py EYE_OX). */
+/* Odd-eyed: left eye and right eye layers, each clipped to its half. The split column per frame is the midpoint between the two eye clusters of
+ cf-eyes-ring-<frame>.png (tools/catfish_recolor.py EYE_SPLIT; tests/catfish.sh recomputes it from the art). Closed-eye frames (catch, nap) have no eye pixels. */
 .cfclip-L-idleA { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-idleA { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-idleB { clip-path: inset(0 59.375% 0 0); } .cfclip-R-idleB { clip-path: inset(0 0 0 40.625%); }
+.cfclip-L-wiggle { clip-path: inset(0 37.5% 0 0); } .cfclip-R-wiggle { clip-path: inset(0 0 0 62.5%); }
+.cfclip-L-stalk { clip-path: inset(0 37.5% 0 0); } .cfclip-R-stalk { clip-path: inset(0 0 0 62.5%); }
 .cfclip-L-pounce { clip-path: inset(0 35.9375% 0 0); } .cfclip-R-pounce { clip-path: inset(0 0 0 64.0625%); }
 .cfclip-L-catch { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-catch { clip-path: inset(0 0 0 39.0625%); }
 .cfclip-L-nap { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-nap { clip-path: inset(0 0 0 39.0625%); }
-.cfclip-L-stalk { clip-path: inset(0 37.5% 0 0); } .cfclip-R-stalk { clip-path: inset(0 0 0 62.5%); }
-.cfclip-L-idleB { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-idleB { clip-path: inset(0 0 0 39.0625%); }
-.cfclip-L-wiggle { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-wiggle { clip-path: inset(0 0 0 39.0625%); }
-.cfclip-L-bored { clip-path: inset(0 60.9375% 0 0); } .cfclip-R-bored { clip-path: inset(0 0 0 39.0625%); }
+.cfclip-L-bored { clip-path: inset(0 62.5% 0 0); } .cfclip-R-bored { clip-path: inset(0 0 0 37.5%); }
+/* Banner (cf-banner, 480 x 120 drawn at 2x): shown at its drawn size, or exactly half on narrow screens so the pixels stay even. */
+.cfbanner { margin: 0 0 .5rem; line-height: 0; }
+.cfbanner .cfimg { width: 480px; max-width: 100%; height: auto; }
+@media (max-width: 519px) { .cfbanner .cfimg { width: 240px; } }
+/* Rod with art: wand 48 x 64, tip at (36, 6); each plushie fish hangs on a string from a line drawn out from the tip (string = CSS, no art). */
+.cfrod-art { width: 200px; height: 110px; }
+.cfrod-art .cfwand { left: 0; top: 0; font-size: 0; line-height: 0; }
+.cfrod-art::before { content: ""; position: absolute; left: 36px; top: 6px; width: 132px; height: 2px; background: var(--cfstr, #b08a55); }
+.cfdrop { position: absolute; top: 6px; width: 48px; transform-origin: 24px 0; animation: cfsway 3.2s ease-in-out infinite; }
+.cfdrop .cfstr { display: block; width: 2px; height: var(--cfl, 20px); margin: 0 auto; background: var(--cfstr, #b08a55); }
+.cfdrop .cfimg { display: block; }
+.cfdrop.d1 { left: 48px; --cfl: 20px; } .cfdrop.d2 { left: 96px; --cfl: 44px; animation-delay: -1s; } .cfdrop.d3 { left: 144px; --cfl: 26px; animation-delay: -2s; }
+@media (prefers-reduced-motion: reduce) { .cfdrop { animation: none; } }
+:root[data-theme="dark"] .cfrod-art { --cfstr: #d2b07a; }
+/* Room: cf-room 320 x 200 (art at 2x), overlays for owned Room upgrades, cats 64 x 64 on the floor band (floor line about y 184, so the sprite sits 12 px up).
+   n<count> i<index>: three cats fit between x 20 and 256; four step 64 px from x 8. */
+.cfroomwrap { overflow-x: auto; }
+.cfroom { position: relative; width: 320px; height: 200px; margin: .5rem 0; max-width: none; overflow: hidden; }
+.cfroom img { image-rendering: pixelated; }
+.cfroom-bg, .cfroom-layer { position: absolute; left: 0; top: 0; width: 320px; height: 200px; display: block; }
+.cfrc { position: absolute; bottom: 12px; width: 64px; height: 64px; line-height: 0; }
+.cfrc .cfcat { font-size: 2rem; line-height: 1; }
+.cfrc.n1.i1 { left: 106px; }
+.cfrc.n2.i1 { left: 62px; } .cfrc.n2.i2 { left: 150px; }
+.cfrc.n3.i1 { left: 24px; } .cfrc.n3.i2 { left: 96px; } .cfrc.n3.i3 { left: 168px; }
+.cfrc.n4.i1 { left: 8px; } .cfrc.n4.i2 { left: 72px; } .cfrc.n4.i3 { left: 136px; } .cfrc.n4.i4 { left: 200px; }
+/* Cat Book cell with art (cf-bookhead-<coat> / cf-bookhead-unknown, 32 x 32) */
+.cfbcell.art, .cfbcell.art.got:not(:empty) { width: 32px; height: 32px; border-radius: 0; background: none; border: 0; outline: 0; }
+.cfbcell.art .cfimg { display: block; }
+.cfbcell.art.seen .cfimg { opacity: .5; }
+.cfbcell.art.none .cfimg { opacity: .8; }

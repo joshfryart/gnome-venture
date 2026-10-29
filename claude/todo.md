@@ -2,7 +2,7 @@
 
 ## NOW (2.0.93, 2026-10-29): Cat Fish. Built, tested, OFF for players (`catfish_open`). 2.0.92 is on main with a slim zip; 2.0.93 (game clock) is on branch ccr-12f7bb05-4plve4, no zip yet.
 - **Art todo: `claude/catfish-art-brief.md`.** About 80 hand-drawn pieces (cat body 8 frames, 20 pattern overlays, ears/tail 8, fish + rod 6, room 5, 16 upgrade icons, 9 badges + 5 ribbons, 5 small UI). Colours are made by script. **The 3 style decisions are approved (2026-10-29):** ring-tinted cat eyes, palette-swap script for the 8 coats, layered cat PNGs. Art lands one piece at a time: `catfish_img()` shows `assets/img/catfish/cf-<kind>-<name>.png` when it exists, else the emoji.
-- **Still to build for the art:** layered cat renderer (body, pattern, ears, tail, eyes) and `tools/catfish_recolor.py`. Both wait on the cat PNGs.
+- **Art status:** drawn as test art in `aseprite-source/catfish/test/`; code is wired with fallbacks (rod, fish, icons, banner, room, Cat Book heads, layered cats). To switch on: `python3 tools/catfish_build_art.py --install` and review. Gaps: `claude/catfish-art-brief.md` "Known art gaps".
 - **Plan and state:** `claude/plan-catfish.md` (all four weeks ticked; Opus reviewed every week). Tests: `tests/catfish.sh` (182 checks, in CI). Balance sim: `claude/catfish-sim.php`.
 - **Time (done, 2.0.93):** Cat Fish days and weeks follow `game_timezone` (Halifax) via `catfish_today()` / `catfish_week()`; no UTC date maths (a test guards it).
 - **Open decisions (Joshua):** (1) Rare Shelter 2 + 3 swaps a day shows a legendary on about 42% of days: lower `CATFISH_REROLL_MAX`? (3) switch `catfish_open` on when ready; `catfish_petal_cap` default 100 a week.

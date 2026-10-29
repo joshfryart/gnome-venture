@@ -12,7 +12,7 @@ IN=aseprite-source/catfish/test
 N=$(ls "$OUT"/cf-cat-*-*.png | wc -l)
 F=$(ls "$IN"/cf-cat-grey-*.png | wc -l)   # drawn frames grow as the art does
 [ "$N" = $((8 * F)) ] || { echo "FAIL: expected $((8 * F)) cat outputs, got $N"; exit 1; }
-for c in grey black white orange cream brown silver-blue ginger-red; do
+for c in grey black white orange cream brown silver-blue lilac; do
   [ -f "$OUT/cf-bookhead-$c.png" ] || { echo "FAIL missing bookhead $c"; exit 1; }
   for f in idleA pounce catch nap stalk; do [ -f "$OUT/cf-cat-$c-$f.png" ] || { echo "FAIL missing $c $f"; exit 1; }; done
 done
@@ -33,7 +33,7 @@ python3 -I - "$IN" "$OUT" <<'P'
 import sys, glob, os, numpy as np
 from PIL import Image
 i, o = sys.argv[1:]
-C = 'grey black white orange cream brown silver-blue ginger-red'.split()
+C = 'grey black white orange cream brown silver-blue lilac'.split()
 def arr(p): return np.array(Image.open(p).convert('RGBA'))
 n = 0
 for f in sorted(glob.glob(f'{i}/cf-pat-*-grey-*.png')):
@@ -85,12 +85,19 @@ for t, m in MIN.items():
         d = np.linalg.norm(lab(R.ramp(R.COATS[a])[t]) - lab(R.ramp(R.COATS[b])[t]))
         assert d > m, f'{a} vs {b} too close in {t}: {d:.1f} <= {m}'
         if {a, b} == {'orange', 'cream'}: assert d > 15, f'orange vs cream {t}: {d:.1f}'
-print('coat distances ok')
+# lilac must stay apart from the two coats it could be mistaken for (grey, silver-blue), tone by tone
+LIL = {'shade': 40, 'base': 18, 'light': 14, 'gloss': 6}
+for o in ('grey', 'silver-blue'):
+    for t, m in LIL.items():
+        d = np.linalg.norm(lab(R.ramp(R.COATS['lilac'])[t]) - lab(R.ramp(R.COATS[o])[t]))
+        assert d > m, f'lilac vs {o} too close in {t}: {d:.1f} <= {m}'
+assert 'lilac' in R.COATS and 'ginger-red' not in R.COATS and len(R.COATS) == 8
+print('coat distances ok (28 pairs, lilac vs grey / silver-blue)')
 P
 # compositor: base coat, clear masks, parts, pattern, eyes
 C=$(mktemp -d); trap 'rm -rf "$OUT" "$OUT.log" "$C"; rm -rf tools/__pycache__' EXIT
 n=0
-for combo in "orange tabby amber none none idleA" "cream tuxedo green folded bobtail pounce" "ginger-red calico blue folded none catch" \
+for combo in "orange tabby amber none none idleA" "cream tuxedo green folded bobtail pounce" "lilac calico blue folded none catch" \
              "white pointed hazel none bobtail nap" "black spotted amber,blue folded bobtail idleA" "grey none green folded bobtail nap" \
              "silver-blue calico hazel none bobtail pounce" "brown tabby blue folded none nap" "cream calico amber folded bobtail catch"; do
   set -- $combo
