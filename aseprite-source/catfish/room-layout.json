@@ -1,0 +1,164 @@
+{
+  "note": "Cat Fish room v2 (cf_room.lua). Exported px on the 320x200 room (grid x2). Cats are 64x64 sprites: x = left edge, y = top. Feet line = y + 60 for idleA/bored (y + 61 for nap).",
+  "size": [
+    320,
+    200
+  ],
+  "hook": {
+    "x": 66,
+    "y": 12,
+    "bbox": [
+      64,
+      6,
+      71,
+      15
+    ],
+    "what": "brass cup hook under the crown, pink thread knot at (66,12): hang the wand here"
+  },
+  "wand": {
+    "attach": [
+      66,
+      12
+    ],
+    "img_x": 31,
+    "img_y": 11,
+    "tip": [
+      66,
+      15
+    ],
+    "what": "mock: cf-rod.png (48x64) drawn at img_x,img_y so its top knob (rod px 35,4) hangs from the knot; the lines start at tip"
+  },
+  "play_zone": {
+    "x0": 70,
+    "y0": 120,
+    "x1": 250,
+    "y1": 190,
+    "feet_y": 184,
+    "what": "no furniture; rug overlay x 80..241, y 172..199; sunbeam floor patch x 108..240, y 124..167 (behind the rug)"
+  },
+  "calm_wall": {
+    "x0": 40,
+    "y0": 0,
+    "x1": 280,
+    "y1": 70,
+    "what": "plain wallpaper only: window, sill and rod end by x 37; shelf and picture start at x 280"
+  },
+  "cats": [
+    {
+      "role": "active",
+      "frame": "idleA",
+      "x": 128,
+      "y": 120,
+      "where": "centre, on the rug"
+    },
+    {
+      "role": "side",
+      "frame": "nap",
+      "x": 0,
+      "y": 124,
+      "where": "front left, lying on the cushion"
+    },
+    {
+      "role": "side",
+      "frame": "idleA",
+      "x": 40,
+      "y": 98,
+      "where": "back left, behind the cushion and the yarn"
+    },
+    {
+      "role": "side",
+      "frame": "bored",
+      "x": 236,
+      "y": 116,
+      "where": "right, by the scratch post and the bowl"
+    }
+  ],
+  "strings": {
+    "what": "mock: 1 px umber lines from the wand tip to the top centre of each fish (fish drawn at x - 24, fish_y)",
+    "drops": [
+      {
+        "x": 118,
+        "top": 15,
+        "fish": 1,
+        "fish_y": 40,
+        "nose": 8
+      },
+      {
+        "x": 170,
+        "top": 15,
+        "fish": 2,
+        "fish_y": 56,
+        "nose": 6
+      },
+      {
+        "x": 222,
+        "top": 15,
+        "fish": 3,
+        "fish_y": 34,
+        "nose": 4
+      }
+    ]
+  },
+  "objects": {
+    "window": [
+      0,
+      10,
+      37,
+      77
+    ],
+    "window_glass_lower": [
+      0,
+      46,
+      21,
+      63
+    ],
+    "cushion": [
+      0,
+      166,
+      62,
+      197
+    ],
+    "yarn": [
+      60,
+      178,
+      76,
+      196
+    ],
+    "bowl": [
+      282,
+      176,
+      316,
+      199
+    ],
+    "shelf": [
+      280,
+      12,
+      319,
+      39
+    ],
+    "picture": [
+      282,
+      42,
+      317,
+      73
+    ],
+    "scratch_post": [
+      276,
+      78,
+      319,
+      177
+    ],
+    "rug": [
+      80,
+      172,
+      241,
+      199
+    ],
+    "sunbeam": [
+      6,
+      78,
+      237,
+      167
+    ]
+  }
+}
