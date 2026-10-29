@@ -653,13 +653,14 @@ gvAdvFold();
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var fresh = doc.querySelector('section.gx'), cur = document.querySelector('section.gx');
         if (!fresh || !cur) throw new Error('box');
+        var wasFight = !!document.querySelector('.advgrid.fighting');
         cur.replaceWith(fresh);
         ['.statusstrip', '.userbar', '.advbar', '.railsrv', '.msglog.mlside', '.msglog.top'].forEach(function (sel) {
           var a = document.querySelector(sel), b = doc.querySelector(sel);
           if (a && b) a.innerHTML = b.innerHTML;
         });
         window.scrollTo(0, y);
-        gvFightScroll();
+        gvFightScroll(wasFight && !document.querySelector('.advgrid.fighting'));
         busy = false;
         if (window.gvRailFit) window.gvRailFit();
         var log = window.gvVisibleLog ? gvVisibleLog() : null;
@@ -711,6 +712,7 @@ gvAdvFold();
         if (!doc.querySelector('main')) { location.href = res.url; return; }
         // Keep folds the player had open (e.g. buildings, hired help) open after the swap
         var openKeys = Array.prototype.map.call(document.querySelectorAll('main details[open]'), foldKey);
+        var wasFight = !!document.querySelector('.advgrid.fighting');
         swap(doc, 'main');
         document.querySelectorAll('main details').forEach(function (d) { if (openKeys.indexOf(foldKey(d)) >= 0) d.open = true; });
         swap(doc, '.statusstrip');
@@ -721,7 +723,7 @@ gvAdvFold();
         if (res.url !== location.href) history.replaceState(history.state, '', res.url);
         shownAt = location.pathname + location.search;
         window.scrollTo(0, y);
-        gvFightScroll();
+        gvFightScroll(wasFight && !document.querySelector('.advgrid.fighting'));
         var main = document.querySelector('main');
         // Messages appear at the top of the page: if that's out of view, show them as a toast too
         var msgs = Array.prototype.slice.call(main.querySelectorAll('.flash, .prizebox, .newpages'));
@@ -983,23 +985,32 @@ if (!window.gvMycBound) {
 }
 /* On a phone, keep the fight / wander scene in view: the stage banner (#advstage, where the fight animations play) sits above the .encounter card, so
    after a page load or an in-place update, if the whole banner is not on screen, put its top just under the header; the card follows below it. With
-   no banner, the card itself is the target. No smooth scroll, so no animation is missed. */
-function gvFightScroll() {
-  gvFightScrollNow();
+   no banner, the card itself is the target. No smooth scroll, so no animation is missed.
+   v2.1.10: when a fight has just ended (`ended`), the tall fight card is gone and the old scroll position is mid-page: centre the action card instead. */
+function gvFightScroll(ended) {
+  gvFightScrollNow(ended);
   // the message log, folds and banner image settle after the swap and move the banner: place it again once they have (unless the gnome scrolled)
   var touched = false, mark = function () { touched = true; };
   ['touchstart', 'wheel', 'keydown', 'mousedown'].forEach(function (t) { window.addEventListener(t, mark, { once: true, passive: true }); });
-  [60, 350].forEach(function (ms) { setTimeout(function () { if (!touched) gvFightScrollNow(); }, ms); });
+  [60, 350].forEach(function (ms) { setTimeout(function () { if (!touched) gvFightScrollNow(ended); }, ms); });
   var img = document.querySelector('#advstage img');
-  if (img && !img.complete) img.addEventListener('load', function () { if (!touched) gvFightScrollNow(); }, { once: true });
+  if (img && !img.complete) img.addEventListener('load', function () { if (!touched) gvFightScrollNow(ended); }, { once: true });
 }
-function gvFightScrollNow() {
+function gvFightScrollNow(ended) {
   if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
   var card = document.querySelector('.panel.encounter');
   if (!card || !card.getClientRects().length) return;
+  var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
+  if (ended) {   // centre the action card between the header (+ adventure bar) and the bottom bar
+    var ab = document.querySelector('.advbar'), bb = document.querySelector('.bottombar');
+    var top = hdr + (ab && getComputedStyle(ab).position === 'sticky' ? ab.getBoundingClientRect().height : 0);
+    var bot = window.innerHeight - (bb && bb.getClientRects().length ? bb.getBoundingClientRect().height : 0);
+    var c = card.getBoundingClientRect(), want = c.height < bot - top ? top + (bot - top - c.height) / 2 : top + 8;
+    if (Math.abs(c.top - want) >= 12) window.scrollTo(0, Math.max(0, window.scrollY + c.top - want));
+    return;
+  }
   var box = document.getElementById('advstage');
   if (!box || !box.getClientRects().length) box = card;
-  var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
   var r = box.getBoundingClientRect(), H = window.innerHeight;
   if (r.top >= hdr && r.top < H * 0.35 && (r.bottom <= H || r.top <= hdr + 12)) return;   // already well placed
   window.scrollTo(0, Math.max(0, window.scrollY + r.top - hdr - 8));
