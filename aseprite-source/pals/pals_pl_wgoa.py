@@ -138,22 +138,22 @@ def squishy_grape_crate():
 def harvest_hat_parade():
     key = 'pl-wgoa-4'
     st = Sticker()
-    core = (19, 21, 44, 44)
+    core = (18, 21, 43, 44)
     body = piece(core, n=('T', 'double', 0, 3.4), e=('T', 'double', 0, 3.4), s=('T', 'double', 0, 3.4), w=('T', 'double', 0, 3.4))
-    st.part(body, tex=fill(key, body, 19, 21, 26, list(STRAW)), contour=True)
+    st.part(body, tex=fill(key, body, 18, 21, 26, list(STRAW)), contour=True)
     st.stitch(body, col=HATR[1])                               # uncommon accent: harvest red
-    hat(st, 32, 15, w=5, h=8)                                  # hats bobbing on the tabs, symmetric
-    hat(st, 11, 32, w=4, h=7)
-    hat(st, 53, 32, w=4, h=7)
-    bask = ellipse(32, 40, 6, 3.5) & (CY > 38)                 # grape basket on its belly
+    hat(st, 31, 15, w=5, h=8)                                  # hats bobbing on the tabs, symmetric
+    hat(st, 10, 32, w=4, h=7)
+    hat(st, 52, 32, w=4, h=7)
+    bask = ellipse(31, 40, 6, 3.5) & (CY > 38)                 # grape basket on its belly
     st.part(bask, '#8a5a2a', d=1, contour=True)
     st.paint(bask & ((XX + YY) % 3 == 0), '#b07a3a')
-    for x in (29, 32, 35):
+    for x in (28, 31, 34):
         grape(st, x, 37, 1.8, solid=False)
-    st.eye(23, 25)
-    st.eye(36, 25)
-    st.mouth('grin', 30, 31)
-    st.paint(rect(21, 31, 22, 31) | rect(41, 31, 42, 31), BLUSH)
+    st.eye(22, 25)
+    st.eye(35, 25)
+    st.mouth('grin', 29, 31)
+    st.paint(rect(20, 31, 21, 31) | rect(40, 31, 41, 31), BLUSH)
     return key, st
 
 

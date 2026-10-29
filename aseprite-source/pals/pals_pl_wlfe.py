@@ -170,7 +170,7 @@ def candle_boat_pilot():
     boat = rect(12, 46, 50, 49) | rect(15, 50, 47, 52) | rect(11, 43, 12, 46) | rect(50, 43, 51, 46)
     st.part(boat, TRUNK, d=0, contour=True, shade=False)
     lan = ellipse(31, 30, 13, 14)
-    tab = knob('e', 'keyhole', 44, 30, r=3.0)
+    tab = knob('e', 'keyhole', 41, 30, r=3.0)
     sil = lan | tab
     st.part(sil, tex=fill(key, sil, 12, 10, 44, list(AMBER)), contour=True)
     st.paint(rect(22, 15, 40, 17), ROOF[0])
@@ -183,8 +183,8 @@ def candle_boat_pilot():
     st.paint(rect(21, 29, 23, 29) | rect(39, 29, 41, 29), BLUSH)
     st.mouth('smile', 29, 30)
     st.sparkle(6, 8)
-    st.sparkle(50, 10, big=False)
-    st.sparkle(52, 54, big=False)
+    st.sparkle(47, 7, big=False)
+    st.sparkle(48, 54, big=False)
     return key, st
 
 

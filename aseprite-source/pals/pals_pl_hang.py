@@ -102,19 +102,19 @@ def fruit_tray():
 def palm_fringe():
     key = 'pl-hang-2'
     st = Sticker()
-    core = (13, 26, 50, 53)
+    core = (14, 27, 48, 52)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 13, 26, 38, list(TRUNK)), contour=True)
+    st.part(body, tex=fill(key, body, 14, 27, 35, list(TRUNK)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#5a3a1e', skip=grow(holes, 3))
     # leaning palm crown: fronds fanning from the top knob, leaning right
-    hub = (34, 17)
-    for tip in ((18, 12), (24, 5), (36, 4), (48, 9), (54, 18), (44, 22)):
+    hub = (31, 20)
+    for tip in ((16, 16), (21, 10), (31, 8), (42, 10), (50, 16), (45, 22)):
         f = line([hub, ((hub[0] + tip[0]) / 2, min(hub[1], tip[1]) - 2), tip], w=2)
         st.part(f, LEAF[0], d=1, contour=True)
         st.paint(line([hub, tip], w=1) & f, LEAF[1])
-    st.part(disc(34, 18, 2.5), TRUNK[0], d=1, contour=True)
-    for x, y in ((6, 20), (9, 18), (58, 30)):
+    st.part(disc(31, 21, 2.5), TRUNK[0], d=1, contour=True)
+    for x, y in ((6, 20), (9, 18), (55, 28)):
         dot(st, x, y, LEAF[1])
     st.paint(rect(20, 38, 24, 38) | rect(20, 37, 20, 37) | rect(24, 37, 24, 37), UMBER)    # wink
     st.eye(37, 35)
@@ -127,15 +127,15 @@ def palm_fringe():
 def brimful_pool():
     key = 'pl-hang-3'
     st = Sticker()
-    core = (13, 19, 49, 49)
+    core = (15, 19, 47, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 13, 19, 37, list(POOL)), contour=True)
+    st.part(body, tex=fill(key, body, 15, 19, 33, list(POOL)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col=WATER[0], skip=grow(holes, 3))
     # ripple rings across the brim + splash droplets
     st.paint(ellipse(31, 24, 9, 1.6) & ~ellipse(31, 24, 7, 0.8), WATER[0], solid=True)
-    for x, y in ((22, 9), (40, 9), (31, 5), (8, 14), (55, 14)):
+    for x, y in ((22, 9), (40, 9), (31, 5), (10, 14), (53, 14)):
         st.paint(disc(x, y, 1.3), WATER[0], solid=True)
         dot(st, x, y, WATER[1])
     st.eye(20, 29)
@@ -194,25 +194,25 @@ def vine_gateway():
 def swallow():
     key = 'pl-hang-6'
     st = Sticker()
-    torso = ellipse(30, 34, 14, 10)
-    head = disc(42, 26, 8)
+    torso = ellipse(29, 34, 13, 10)
+    head = disc(40, 26, 8)
     tab = knob('n', 'keyhole', 28, 24.5, r=3.0)
-    tail = poly([(18, 34), (4, 46), (12, 38), (6, 52), (20, 40)])
+    tail = poly([(18, 34), (8, 44), (13, 39), (9, 50), (20, 40)])
     st.part(tail, NAVY[0], d=1, contour=True)
     body = torso | head | tab
     st.part(body, tex=fill(key, body, 16, 18, 36, list(NAVY)), contour=True)
     belly = ellipse(33, 39, 10, 5) & torso
     st.paint(belly, CREAM[0], solid=True)
     st.paint(belly & (CY > 41), CREAM[1])
-    st.paint(ellipse(42, 31, 4, 2) & head, '#c4503a')               # rusty throat
+    st.paint(ellipse(40, 31, 4, 2) & head, '#c4503a')               # rusty throat
     wing = poly([(20, 30), (36, 28), (30, 38)])
     st.part(wing, NAVY[1], d=1, contour=True)
-    st.paint(poly([(50, 25), (56, 27), (50, 28)]), '#3a2a1a', solid=True)
-    st.paint(ellipse(57.5, 27, 1.5, 1.2), '#e0b83a', solid=True)    # seed in beak
-    st.eye(42, 23, socket=None)
-    st.sparkle(56, 12)
-    st.sparkle(8, 18, big=False)
-    st.sparkle(46, 52, big=False)
+    st.paint(poly([(47, 25), (53, 27), (47, 28)]), '#3a2a1a', solid=True)
+    st.paint(ellipse(54, 27, 1.5, 1.2), '#e0b83a', solid=True)    # seed in beak
+    st.eye(40, 23, socket=None)
+    st.sparkle(52, 13)
+    st.sparkle(12, 20, big=False)
+    st.sparkle(44, 50, big=False)
     return key, st
 
 

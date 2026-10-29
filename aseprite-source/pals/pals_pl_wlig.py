@@ -77,17 +77,17 @@ def brass_bonnet():
 def tipsy_crescent():
     key = 'pl-wlig-2'
     st = Sticker()
-    core = (13, 24, 46, 53)
+    core = (15, 24, 48, 53)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 3, 3.0), w=('T', 'keyhole', 3, 3.6))
-    st.part(body, tex=fill(key, body, 13, 14, 40, list(NIGHT)), contour=True)
+    st.part(body, tex=fill(key, body, 15, 14, 40, list(NIGHT)), contour=True)
     st.blank_shade(body, holes, width=1)
     moon = disc(36, 15, 6) & ~disc(39, 12, 5.2)
     st.part(moon, '#f4e8a8', d=1, contour=True)
     st.dots([(46, 8), (49, 6), (52, 8)], '#f4e8a8')
     st.dots([(18, 28), (40, 46), (24, 49)], '#c8d0f0')
-    st.eye(20, 34, lid=2)
-    st.eye(34, 34, lid=2)
-    st.mouth('smile', 26, 42)
+    st.eye(22, 34, lid=2)
+    st.eye(36, 34, lid=2)
+    st.mouth("smile", 28, 42)
     return key, st
 
 
