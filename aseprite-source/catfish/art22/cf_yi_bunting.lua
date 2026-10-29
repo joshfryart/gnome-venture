@@ -25,66 +25,70 @@ local function onPart(c, m, P, hex, litOnly)
   end)
 end
 
-local RED = felt("#dd3a2a", { gloss = "#ff9158", dot = "#ff9158", rim = "#f2793a", shade = "#ae2a2a" })
-local SKY = felt("#4f8fd8", { gloss = "#c8e4ff", dot = "#c8e4ff", rim = "#8cbcf0", shade = "#3a5fae" })
-local MINT = felt("#4fb88a", { gloss = "#c8f0d8", dot = "#c8f0d8", rim = "#86d8b0", shade = "#2f8a6a" })
-local VIO = felt("#7a5cc0", { gloss = "#d8c8ff", dot = "#d8c8ff", rim = "#a890e0", shade = "#4e3a8a" })
-local PINK = felt("#f08cb4", { gloss = "#ffe0ec", dot = "#ffe0ec", rim = "#ffb8d0", shade = "#c85a8e" })
+-- flag felts: gloss = rim so each flag is 3 tones (the icon stays at 20 colours)
+local function flag(base, rim, shade) return felt(base, { gloss = rim, dot = rim, rim = rim, shade = shade }) end
+local RED = flag("#dd3a2a", "#f2793a", "#ae2a2a")
+local SKY = flag("#4f8fd8", "#8cbcf0", "#3a5fae")
+local MINT = flag("#4fb88a", "#86d8b0", "#2f8a6a")
+local VIO = flag("#7a5cc0", "#a890e0", "#4e3a8a")
 local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
--- the string: a catenary-ish sag from (7,11) to (56,11), lowest at the middle
-local X0, X1, YT, SAG = 11, 52, 11, 12
-local function sy(x) local u = (x - (X0 + X1) / 2) / ((X1 - X0) / 2) return YT + SAG * (1 - u * u) end
+-- the string: gold yarn sagging from (8,8) to (55,8), lowest (y 23) in the middle, a knot and tail at each end
+local X0, X1, YT, SAG = 8, 55, 8, 15
+local CXS = (X0 + X1) / 2
+local function sy(x) local u = (x - CXS) / ((X1 - X0) / 2) return YT + SAG * (1 - u * u) end
 local pts = {}
-for x = X0, X1, 3 do pts[#pts + 1] = { x, sy(x) } end
+for x = X0, X1, 2 do pts[#pts + 1] = { x, sy(x) } end
 pts[#pts + 1] = { X1, sy(X1) }
 local str = c:line(pts, 3)
+local knotL = c:ellipse(X0 - 0.5, YT, 2.5)
+local knotR = c:ellipse(X1 + 0.5, YT, 2.5)
+local tailL = c:line({ { X0 - 1, YT + 2 }, { X0 - 2, YT + 7 } }, 2)
+local tailR = c:line({ { X1 + 1, YT + 2 }, { X1 + 2, YT + 7 } }, 2)
 
--- pennants: top corners on the string, tip straight below the middle
-local FL = { { 9, 20, RED }, { 21, 32, SKY }, { 32, 43, MINT }, { 43, 54, VIO } }
-local H = 24
-local list = {}
+-- pennants: top corners on the string, tip straight below the middle, 3 px gaps between flags
+local FL = { { 11, 19, RED }, { 22, 30, SKY }, { 33, 41, MINT }, { 44, 52, VIO } }
+local H = 25
+local list = { { "tailL", tailL, GOLD, { flat = true, contact = false } },
+               { "tailR", tailR, GOLD, { flat = true, contact = false } } }
 local flags = {}
 for i, f in ipairs(FL) do
-  local xa, xb, R = f[1], f[2] - 1, f[3]
-  -- outer flags sit a bit higher on the sag; keep the tip under the centre, sloped with the string
-  local ya, yb = sy(xa) + 1, sy(xb) + 1
-  local xm = (xa + xb) / 2 + 0.5
-  local tip = { xm, (ya + yb) / 2 + H - math.abs(xm - 31.5) * 0.35 }
+  local xa, xb, R = f[1], f[2], f[3]
+  local ya, yb = sy(xa), sy(xb + 1)
+  local xm = (xa + xb + 1) / 2
+  local tip = { xm, math.max(ya, yb) + H }
   local m = c:poly({ { xa, ya }, { xb + 1, yb }, tip })
   flags[i] = { m = m, R = R, xa = xa, xb = xb, ya = ya, yb = yb, tip = tip }
   list[#list + 1] = { "f" .. i, m, R, { cres = 3, gloss = false } }
 end
-list[#list + 1] = { "str", str, PINK, { cres = 1, deep = 0, gloss = false, contact = false } }
-list[#list + 1] = { "beadL", c:ellipse(X0 - 2, YT, 3), GOLD, { cres = 2, gloss = false, bounce = false } }
-list[#list + 1] = { "beadR", c:ellipse(X1 + 2, YT, 3), GOLD, { cres = 2, gloss = false, bounce = false } }
+list[#list + 1] = { "str", str, GOLD, { cres = 1, deep = 0, gloss = false, contact = false } }
+list[#list + 1] = { "knotL", knotL, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } }
+list[#list + 1] = { "knotR", knotR, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } }
 local p = c:build(list)
 
--- twisted yarn: a shade tick every 3 px along the string's lower row
-for x = X0 + 2, X1 - 2 do
+-- twisted yarn: a shade tick every 3 px along the string's lower row, a lit tick above it
+for x = X0 + 3, X1 - 3 do
   if x % 3 == 0 then
     local y = math.floor(sy(x) + 0.5)
     local k = c:key(x, y + 1)
-    if c.own[k] == p.str then c:px(x, y + 1, PINK.shade) end
+    if c.own[k] == p.str then c:px(x, y + 1, GOLD.shade) end
     local k2 = c:key(x - 1, y - 1)
-    if c.own[k2] == p.str and not c.shd[k2] then c:px(x - 1, y - 1, PINK.rim) end
+    if c.own[k2] == p.str and not c.shd[k2] then c:px(x - 1, y - 1, GOLD.gloss) end
   end
 end
 
--- each pennant: a gold hem stitch down both slanted sides, a glint on the lit upper left
+-- each pennant: a gold hem stitch under the string (the folded-over top), a felt glint on the lit upper left
 for i, f in ipairs(flags) do
-  local ins = 3
-  local A = { f.xa + ins, f.ya + 4 }
-  local B = { f.xb - ins + 1, f.yb + 4 }
-  local T = { f.tip[1] - 0.5, f.tip[2] - 6 }
-  c:seam({ A, T, B }, { gap = f.R.shade })
-  c:paint({ "gg", "g." }, f.xa + 2, math.floor(f.ya) + 3, { g = f.R.gloss })
+  local y0 = function(x) return math.floor(sy(x) + 0.5) + 4 end
+  local hem = {}
+  for x = f.xa + 2, f.xb - 1 do hem[#hem + 1] = { x, y0(x) } end
+  c:seam(hem, { gap = f.R.shade })
+  c:paint({ "g", "g", "g" }, f.xa + 3, y0(f.xa + 3) + 2, { g = f.R.rim })
 end
-c:px(X0 - 2, YT - 1, GOLD.gloss); c:px(X1, YT - 1, GOLD.gloss)
 
 local name = "cf-yi-bunting"
 local t = c:save(OUT .. name .. ".aseprite", OUT .. name .. ".png")
 print("bunting  " .. GV.report(t))
-assert(t.semi == 0 and t.margin >= 3 and t.colours <= 24 and t.bw == 0, "check failed")
+assert(t.semi == 0 and t.margin >= 3 and t.colours <= 20 and t.bw == 0, "check failed")

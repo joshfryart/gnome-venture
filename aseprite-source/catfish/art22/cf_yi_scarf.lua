@@ -43,17 +43,17 @@ local function onPart(c, m, P, hex, litOnly)
 end
 
 -- poppy red (CATFISH_SCARVES red #c0392b), red family of cf_icons.lua, a touch deeper
-local RED = felt("#d23a2c", { gloss = "#ff9a68", dot = "#ffc8a0", rim = "#f2733a", shade = "#a02430" })
+local RED = felt("#dd3e2c", { gloss = "#ff9e68", dot = "#ffc8a0", rim = "#f57a40", shade = "#ae2a2e" })
 local CREAM = felt("#f1e6c8", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#fff8e0", shade = "#d8b88a" })
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 
 -- the loop round the (unseen) neck, a little wider than tall, hole set high
-local loop = c:ellipse(31.5, 18, 19, 11):cut(c:ellipse(31.5, 15, 10, 4.5))
+local loop = c:ellipse(31.5, 18, 20, 10):cut(c:ellipse(31.5, 15.5, 10.5, 4))
 -- back tail (right): hangs from the loop, swings out to the right, a little shorter
-local tailB = c:poly({ {34, 24}, {45, 21}, {51, 42}, {40, 45} })
+local tailB = c:poly({ {34, 23}, {45, 20}, {51, 40}, {40, 43} })
 -- front tail (left): crosses over the loop front, hangs down to the left, longer
-local tailF = c:poly({ {21, 21}, {33, 24}, {25, 50}, {13, 47} })
+local tailF = c:poly({ {20, 20}, {33, 23}, {25, 47}, {13, 44} })
 -- fringe: 2 px strands below each end, 1 px gaps
 local function fringe(x0, y0, x1, y1, n, len)
   local m = c:mask()
@@ -64,12 +64,12 @@ local function fringe(x0, y0, x1, y1, n, len)
   end
   return m
 end
-local frB = fringe(41, 44, 51, 41, 3, 6)
-local frF = fringe(14, 47, 25, 50, 3, 7)
+local frB = fringe(40, 42, 51, 39, 4, 6)
+local frF = fringe(13, 44, 25, 47, 4, 7)
 local p = c:build{
   { "frB", frB, RED, { flat = true, contact = false } },
   { "tailB", tailB, RED, { cres = 3, gloss = false } },
-  { "loop", loop, RED, { cres = 4, gloss = { 16, 12 } } },
+  { "loop", loop, RED, { cres = 3, gloss = { 16, 12 } } },
   { "frF", frF, RED, { flat = true, contact = false } },
   { "tailF", tailF, RED, { cres = 3, gloss = false } },
 }
@@ -86,21 +86,22 @@ local function stripe(part, m)
     end
   end)
 end
-stripe(p.tailF, c:poly({ {14, 38}, {30, 42}, {29, 44}, {13, 40} }))
-stripe(p.tailF, c:poly({ {13, 42}, {29, 46}, {28, 48}, {12, 44} }))
-stripe(p.tailB, c:poly({ {38, 37}, {52, 33}, {53, 35}, {39, 39} }))
+stripe(p.tailF, c:poly({ {14, 35}, {30, 39}, {29, 41}, {13, 37} }))
+stripe(p.tailF, c:poly({ {13, 39}, {29, 43}, {28, 45}, {12, 41} }))
+stripe(p.tailB, c:poly({ {38, 34}, {52, 30}, {53, 32}, {39, 36} }))
+stripe(p.tailB, c:poly({ {39, 38}, {53, 34}, {54, 36}, {40, 40} }))
 
 -- knit ribs: shade lines running down each tail (broken every 4th px like knit V's)
 local on = set(RED.base, RED.rim)
 local brk = function(n) return n % 4 == 0 end
-for _, d in ipairs({ 3, 6, 9 }) do
-  trace(c, { { 21 + d, 23 + d * 0.25 }, { 14 + d, 48 + d * 0.25 } }, RED.shade, on, brk)
+for _, d in ipairs({ 4, 8 }) do
+  trace(c, { { 20 + d, 22 + d * 0.25 }, { 14 + d, 34 + d * 0.25 } }, RED.shade, on, brk)
 end
-for _, d in ipairs({ 3, 6, 9 }) do
-  trace(c, { { 35 + d, 24 - d * 0.27 }, { 41 + d, 45 - d * 0.27 } }, RED.shade, on, brk)
+for _, d in ipairs({ 4, 8 }) do
+  trace(c, { { 35 + d, 23 - d * 0.27 }, { 39 + d, 33 - d * 0.27 } }, RED.shade, on, brk)
 end
 -- loop ribs: arcs round the front of the loop
-for _, r in ipairs({ 14, 17 }) do
+for _, r in ipairs({ 15 }) do
   local pts = {}
   for i = 0, 16 do
     local t = math.pi * 0.08 + i * math.pi * 0.84 / 16
@@ -108,6 +109,9 @@ for _, r in ipairs({ 14, 17 }) do
   end
   trace(c, pts, RED.shade, on, brk)
 end
+-- lit knit ridge beside the first rib of each tail (lit felt only)
+trace(c, { { 22, 23 }, { 16, 34 } }, RED.rim, set(RED.base), brk)
+trace(c, { { 37, 23 }, { 41, 33 } }, RED.rim, set(RED.base), brk)
 -- glints on the tails
 c:paint({ "gg", "g." }, 22, 25, { g = RED.gloss })
 c:paint({ "g" }, 37, 26, { g = RED.gloss })

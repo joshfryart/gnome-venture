@@ -35,11 +35,11 @@ local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
-local cord = c:line({ {9, 12}, {20, 15}, {32, 16}, {44, 15}, {55, 12} }, 3)
-local pomL = c:ellipse(7.5, 11, 4)
-local pomR = c:ellipse(56.5, 11, 4)
-local banner = c:poly({ {14, 15}, {50, 15}, {50, 58}, {32, 47}, {14, 58} })
-local hem = c:rrect(12, 13, 52, 20, 2)
+local cord = c:line({ {12, 12}, {21, 15}, {32, 16}, {43, 15}, {52, 12} }, 3)
+local pomL = c:ellipse(10.5, 11, 3.5)
+local pomR = c:ellipse(53.5, 11, 3.5)
+local banner = c:poly({ {15, 15}, {49, 15}, {49, 56}, {32, 46}, {15, 56} })
+local hem = c:rrect(13, 13, 51, 20, 2)
 -- emblem: cat head with two ears, crown on top
 local head = c:ellipse(32, 36, 10, 8)
   :add(c:poly({ {22, 35}, {23, 23}, {30, 30} })):add(c:poly({ {34, 30}, {41, 23}, {42, 35} }))
@@ -54,9 +54,9 @@ local p = c:build{
   { "crown", crown, GOLD, { cres = 2, gloss = false, bounce = false } },
 }
 -- gold edge stitches down both sides and along the swallowtail
-c:seam({ { 17, 23 }, { 17, 53 } }, { gap = VIO.shade })
-c:seam({ { 47, 23 }, { 47, 53 } }, { gap = VIO.shade })
-c:seam({ { 18, 53 }, { 32, 44 }, { 46, 53 } }, { gap = VIO.shade })
+c:seam({ { 18, 23 }, { 18, 51 } }, { gap = VIO.shade })
+c:seam({ { 46, 23 }, { 46, 51 } }, { gap = VIO.shade })
+c:seam({ { 19, 51 }, { 32, 43 }, { 45, 51 } }, { gap = VIO.shade })
 -- banner sheen on the lit left side
 c:paint({ "g", "g", "g", ".", "g" }, 19, 25, { g = VIO.gloss })
 -- cat face: closed happy eyes, nose, inner ears
@@ -68,7 +68,7 @@ onPart(c, c:poly({ {39, 31}, {39, 27}, {36, 30} }), p.head, PINK.rim)
 -- crown jewels and glint
 c:px(32, 23, PINK.base); c:px(28, 24, VIO.base); c:px(36, 24, VIO.base)
 c:px(27, 21, GOLD.gloss); c:px(32, 19, GOLD.gloss)
-c:paint({ "gg", "g." }, 5, 9, { g = PINK.gloss }); c:paint({ "gg", "g." }, 54, 9, { g = PINK.gloss })
+c:paint({ "gg", "g." }, 8, 9, { g = PINK.gloss }); c:paint({ "gg", "g." }, 51, 9, { g = PINK.gloss })
 c:paint({ "gg", "g." }, 25, 33 - 4, { g = CREAM.gloss })
 
 local t = c:save(OUT .. "cf-yi-titles.aseprite", OUT .. "cf-yi-titles.png")

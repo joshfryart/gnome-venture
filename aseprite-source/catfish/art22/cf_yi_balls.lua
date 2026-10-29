@@ -30,16 +30,16 @@ local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
-local R = 11
+local R = 12
 local balls = {
-  { "rose", 18, 43, ROSE },
-  { "mint", 43, 43, MINT },
-  { "gold", 30.5, 24, GOLD },
+  { "rose", 19, 43, ROSE },
+  { "mint", 44, 43, MINT },
+  { "gold", 31.5, 22, GOLD },
 }
-local loose = c:line({ {39, 20}, {45, 15}, {51, 15}, {54, 19}, {53, 24}, {49, 26}, {47, 22} }, 3)
+local loose = c:line({ {41, 18}, {46, 13}, {51, 13}, {54, 17}, {53, 22}, {49, 23}, {48, 19} }, 3)
 local list = {}
 for _, b in ipairs(balls) do
-  list[#list + 1] = { b[1], c:ellipse(b[2], b[3], R), b[4], { cres = 4, gloss = { b[2] - 7, b[3] - 7 } } }
+  list[#list + 1] = { b[1], c:ellipse(b[2], b[3], R + 0.45), b[4], { cres = 4, gloss = { b[2] - 7, b[3] - 7 } } }
 end
 list[#list + 1] = { "loose", loose, GOLD, { cres = 1, deep = 0, gloss = false, contact = false } }
 local p = c:build(list)
@@ -49,19 +49,24 @@ for _, b in ipairs(balls) do
   local P, F, cx, cy = p[b[1]], b[4], b[2], b[3]
   -- band A: arcs round a centre off the lower right
   local ax, ay = cx + 13, cy + 9
-  for _, r in ipairs({ 10, 14, 18 }) do
+  for _, r in ipairs({ 11, 16 }) do
     onPart(c, c:ellipse(ax, ay, r + 1):cut(c:ellipse(ax, ay, r)), P, F.shade)
     onPart(c, c:ellipse(ax, ay, r + 2):cut(c:ellipse(ax, ay, r + 1)), P, F.rim, true)
   end
   -- band B: arcs round a centre off the upper right, only on the left part of the ball (crossing wrap)
   local bx, by = cx + 12, cy - 12
-  for _, r in ipairs({ 15, 19 }) do
-    local m = c:ellipse(bx, by, r + 1):cut(c:ellipse(bx, by, r)):clip(c:rect(0, 0, math.floor(cx) - 1, 63))
+  for _, r in ipairs({ 17 }) do
+    local m = c:ellipse(bx, by, r + 1):cut(c:ellipse(bx, by, r)):clip(c:rect(0, cy - 3, math.floor(cx) - 1, 63))
     onPart(c, m, P, F.shade)
   end
 end
+-- enamel comma on each ball (upper left, over the wraps)
+for _, b in ipairs(balls) do
+  local x0, y0 = math.floor(b[2]) - 7, b[3] - 8
+  c:paint({ "..gg", ".g..", "g...", "g..." }, x0, y0, { g = b[4].gloss })
+end
 -- loose end: a twist line along the strand, a frayed tip
-c:px(44, 16, GOLD.gloss); c:px(50, 15, GOLD.gloss)
+c:px(45, 14, GOLD.gloss); c:px(50, 13, GOLD.gloss)
 
 local name = "cf-yi-balls"
 local t = c:save(OUT .. name .. ".aseprite", OUT .. name .. ".png")

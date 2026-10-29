@@ -71,36 +71,48 @@ local function quarter(x0, y0, x1, y1) return disc:copy():clip(c:rect(x0, y0, x1
 local qTL, qTR = quarter(0, 0, 30, 30), quarter(31, 0, 63, 30)
 local qBR, qBL = quarter(31, 31, 63, 63), quarter(0, 31, 30, 63)
 local hub = c:ellipse(CX, CY, 6.5)
--- loose yarn end leaving the hub, crossing the autumn/winter seam and curling off the lower rim
-local tail = c:line({ {33, 36}, {36, 44}, {40, 52}, {45, 57}, {50, 57}, {52, 53}, {49, 51} }, 2)
 
--- motifs (one per quarter, centred about 11 px out along each diagonal)
--- spring: five-petal blossom
+-- motifs (one per quarter, centred about 12 px out along each diagonal)
+-- spring: five-petal blossom with a gold heart
 local bloom = c:mask()
 for i = 0, 4 do
   local a = -math.pi / 2 + i * 2 * math.pi / 5
-  bloom:add(c:ellipse(18.5 + math.cos(a) * 3.6, 18.5 + math.sin(a) * 3.6, 2.6))
+  bloom:add(c:ellipse(18.5 + math.cos(a) * 4.4, 18.5 + math.sin(a) * 4.4, 3.2))
 end
-local bloomC = c:ellipse(18.5, 18.5, 1.5)
+local bloomC = c:ellipse(18.5, 18.5, 1.6)
 -- summer: sun disc with eight rays
-local sunC = c:ellipse(42.5, 18.5, 4)
+local sunC = c:ellipse(42.5, 18.5, 4.5)
 local rays = c:mask()
 for i = 0, 7 do
   local a = i * math.pi / 4
   local ux, uy = math.cos(a), math.sin(a)
   local vx, vy = -uy, ux
   local function P(t, s) return { 43 + ux * t + vx * s, 19 + uy * t + vy * s } end
-  rays:add(c:poly({ P(4.5, -2), P(8, 0), P(4.5, 2) }))
+  rays:add(c:poly({ P(5, -2.2), P(9.5, 0), P(5, 2.2) }))
 end
--- autumn: an orange leaf with a stem
-local leaf = rell(c, 43, 42, 7, 4, -0.8)
-local stem = c:line({ {37, 48}, {39, 46} }, 2)
--- winter: six-arm flake
+-- autumn: a pointed lens leaf (two-circle intersection) along the diagonal, tip upper right, short stem
+local leaf = c:mask()
+do
+  local mx, my, ux, uy, R, d = 43.5, 41.5, 0.7071, 0.7071, 11.25, 6.75
+  for y = 30, 56 do for x = 30, 56 do
+    local ax, ay = x - (mx + ux * d), y - (my + uy * d)
+    local bx, by = x - (mx - ux * d), y - (my - uy * d)
+    if ax * ax + ay * ay <= R * R and bx * bx + by * by <= R * R then leaf:set(x, y) end
+  end end
+end
+local stem = c:line({ {37, 48}, {35, 51} }, 2)
+-- winter: six-arm flake, 2 px arms with forked tips
 local flake = c:mask()
-for i = 0, 2 do
-  local a = i * math.pi / 3 + math.pi / 2
-  local dx, dy = math.cos(a) * 6, math.sin(a) * 6
-  flake:add(c:line({ {18 - dx, 43 - dy}, {18 + dx, 43 + dy} }, 2))
+for i = 0, 5 do
+  local a = i * math.pi / 3 - math.pi / 2
+  local ux, uy = math.cos(a), math.sin(a)
+  local ex, ey = 18 + ux * 8, 42 + uy * 8
+  flake:add(c:line({ {18, 42}, {ex, ey} }, 2))
+  for _, s in ipairs({ -1, 1 }) do
+    local b = a + s * 0.75
+    local fx, fy = 18 + ux * 5, 42 + uy * 5
+    flake:add(c:line({ {fx, fy}, {fx + math.cos(b) * 3, fy + math.sin(b) * 3} }, 2))
+  end
 end
 
 local p = c:build{
@@ -115,7 +127,6 @@ local p = c:build{
   { "stem", stem, LEAF, { flat = true, contact = false } },
   { "leaf", leaf, LEAF, { cres = 2, gloss = false, contact = false } },
   { "flake", flake, FLAKE, { flat = true, contact = false } },
-  { "tail", tail, ROSE, { flat = true, contact = false } },
   { "hub", hub, ROSE, { cres = 3, gloss = false } },
 }
 -- gold seams along the cross and edge stitch round the rim
@@ -129,7 +140,9 @@ trace(c, { {25, 32}, {30, 29}, {36, 31} }, ROSE.shade, onH)
 trace(c, { {27, 35}, {31, 33}, {35, 34} }, ROSE.shade, onH)
 c:paint({ "gg", "g." }, 26, 26, { g = ROSE.gloss })
 -- leaf midrib, sun glint, flake glint
-trace(c, { {39, 46}, {47, 38} }, LEAF.shade, set(LEAF.base, LEAF.rim))
+local onL = set(LEAF.base, LEAF.rim)
+trace(c, { {37, 48}, {49, 36} }, LEAF.shade, onL)                                     -- midrib and veins
+trace(c, { {42, 43}, {41, 38} }, LEAF.shade, onL); trace(c, { {42, 43}, {47, 44} }, LEAF.shade, onL)
 c:paint({ "gg", "g." }, 40, 16, { g = GOLD.gloss })
 local t = c:save(OUT .. "cf-yi-season.aseprite", OUT .. "cf-yi-season.png")
 print("season " .. GV.report(t))

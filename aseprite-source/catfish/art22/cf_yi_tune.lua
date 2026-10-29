@@ -61,18 +61,18 @@ local ring = c:ellipse(ringC[1], ringC[2], 6.5)
 local hole = c:ellipse(ringC[1] + 0.5, ringC[2] + 0.5, 1.6)
 local wrench = head:add(handle):add(ring):cut(hole)
 local yarn = band(10, 18, -5.5, 5.5)
-local tailY = c:line({ P(14, -5), {30, 49}, {29, 51} }, 2)
-local ball = c:ellipse(29, 53, 3.5)
+local tailY = c:line({ P(14, -5), {31, 48}, {30, 49} }, 2)
+local ball = c:ellipse(28, 51, 4.5)
 local big = star(c, 12, 13, 8, 2.6, 0)
 local small = star(c, 52, 29, 4.5, 1.6, 0)
 local p = c:build{
   { "stick", stick, WOOD, { cres = 2, deep = 0, gloss = false } },
   { "bead", bead, GOLD, { cres = 2, gloss = false, bounce = false } },
-  { "grip", grip, RED, { cres = 3, gloss = false } },
+  { "grip", grip, RED, { cres = 2, gloss = false } },
   { "nut", nut, GOLD, { cres = 2, gloss = false } },
   { "wrench", wrench, TEAL, { cres = 4, gloss = false } },
   { "tailY", tailY, ROSE, { flat = true, contact = false } },
-  { "ball", ball, ROSE, { cres = 2, gloss = false, bounce = false } },
+  { "ball", ball, ROSE, { cres = 1, deep = 0, gloss = false, bounce = false } },
   { "yarn", yarn, ROSE, { cres = 2, gloss = false } },
   { "small", small, GOLD, { flat = true, contact = false } },
   { "big", big, GOLD, { flat = true, contact = false } },
@@ -93,14 +93,17 @@ do local a, b2 = P(5.5, 0), P(10, 0) c:seam({ { math.floor(a[1]), math.floor(a[2
 -- grip wraps
 for _, q in ipairs({ { 12, 48 }, { 15, 45 } }) do                           -- grip wraps
   for i = 0, 6 do local x, y = q[1] - 3 + i, q[2] - 3 + i
-    if c.own[c:key(x, y)] == p.grip and not c.shd[c:key(x, y)] then c:px(x, y, RED.shade) end end
+    if c.own[c:key(x, y)] == p.grip then c:px(x, y, RED.shade) end end
 end
 -- enamel commas and glints
 c:paint({ "..gg", ".g..", "g...", "g..." }, 19, 30, { g = TEAL.gloss })
 c:paint({ "gg", "g." }, 44, 10, { g = GOLD.gloss })
 c:paint({ "...g", "..g.", ".g.." }, 37, 37, { g = TEAL.gloss })
 c:paint({ "..g", ".g.", "g.." }, 9, 48, { g = RED.rim })
-c:paint({ ".s.", "s.s" }, 27, 51, { s = ROSE.shade }); c:px(27, 51, ROSE.gloss)
+for _, arc in ipairs({ { {24, 50}, {25, 51}, {26, 53}, {27, 54} }, { {26, 48}, {27, 49}, {28, 51}, {30, 53}, {31, 54} } }) do
+  for _, q in ipairs(arc) do if c.own[c:key(q[1], q[2])] == p.ball then c:px(q[1], q[2], ROSE.shade) end end
+end
+c:px(27, 47, ROSE.gloss); c:px(26, 47, ROSE.gloss); c:px(25, 48, ROSE.gloss)
 c:px(12, 13, GOLD.gloss); c:px(11, 12, GOLD.gloss)
 local t = c:save(OUT .. "cf-yi-tune.aseprite", OUT .. "cf-yi-tune.png")
 print("tune " .. GV.report(t))

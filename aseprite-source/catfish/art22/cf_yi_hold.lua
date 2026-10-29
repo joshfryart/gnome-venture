@@ -62,25 +62,24 @@ local body = c:ellipse(37, 31, 13, 7.5)
 local head = c:ellipse(24, 26, 10, 8.5)
 local earL = c:poly({ {15, 23}, {16, 12}, {23, 19} })
 local earR = c:poly({ {25, 18}, {32, 14}, {33, 23} })
-local tail = c:line({ {46, 36}, {50, 33}, {50, 28} }, 4)
+local tail = c:line({ {40, 36}, {45, 39}, {49, 37} }, 3)
 -- hands: palms up, cradling from both sides. Each hand: back of hand at the outer side, a thumb rising
 -- against the cat, three stacked fingers reaching in to meet in the middle, a knitted red yarn cuff at the wrist
-local backL = c:ellipse(14, 44, 8, 8)
-local backR = c:ellipse(49, 44, 8, 8)
+local backL = c:ellipse(14, 44, 7, 8)
+local backR = c:ellipse(49, 44, 7, 8)
 local thumbL = c:line({ {10, 45}, {11, 33} }, 5)
 local thumbR = c:line({ {53, 45}, {52, 33} }, 5)
 local fy = { 38, 42, 46 }
 local fe = { 31, 30, 28 }
 local cuffL = c:rrect(7, 50, 19, 55, 2)
 local cuffR = c:rrect(44, 50, 56, 55, 2)
-local thread = c:line({ {49, 27}, {53, 23}, {55, 17}, {53, 12}, {48, 11}, {46, 15}, {49, 18}, {52, 16} }, 2)
+local thread = c:line({ {45, 26}, {50, 21}, {52, 15}, {50, 10}, {46, 11}, {46, 16}, {51, 19}, {54, 17}, {54, 13} }, 2)
 local list = {
   { "body", body, GREY, { cres = 4, gloss = false } },
   { "earL", earL, GREY, { cres = 2, gloss = false } },
   { "earR", earR, GREY, { cres = 2, gloss = false } },
   { "head", head, GREY, { cres = 3, gloss = { 18, 21 } } },
   { "thread", thread, RED, { flat = true, contact = false } },
-  { "tail", tail, GREY, { cres = 2, gloss = false } },
   { "backL", backL, SKIN, { cres = 4, gloss = false } },
   { "backR", backR, SKIN, { cres = 4, gloss = false } },
 }
@@ -90,6 +89,7 @@ for i = 1, 3 do
 end
 list[#list + 1] = { "thumbL", thumbL, SKIN, { cres = 2, gloss = false } }
 list[#list + 1] = { "thumbR", thumbR, SKIN, { cres = 2, gloss = false } }
+list[#list + 1] = { "tail", tail, GREY, { cres = 1, deep = 0, gloss = false } }
 list[#list + 1] = { "cuffL", cuffL, RED, { cres = 2, gloss = false } }
 list[#list + 1] = { "cuffR", cuffR, RED, { cres = 2, gloss = false } }
 local p = c:build(list)
