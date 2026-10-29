@@ -89,28 +89,36 @@ end
 palm(34, 46, 29, 17, -1)
 palm(218, 46, 222, 18, 1)
 
--- banana plants flanking the shop (paddle leaves)
+-- banana plants flanking the shop (broad paddle leaves with a midrib)
+local function paddle(bx, by, ang, len, wd)
+  local ca, sa = math.cos(ang), math.sin(ang)
+  local nx, ny = -sa, ca
+  local function at(t, w) return { bx + len * t * ca + nx * w, by + len * t * sa + ny * w } end
+  return c:poly({ at(0, 0.6), at(0.25, wd), at(0.85, wd), at(1, wd * 0.4), at(1, -wd * 0.4), at(0.85, -wd), at(0.25, -wd), at(0, -0.6) })
+end
 local function banana(bx, dir)
-  local m = c:mask()
-  m:add(leaf(bx, 45, -math.pi / 2 - 0.55 * dir, 15, 2.6))
-  m:add(leaf(bx, 45, -math.pi / 2 + 0.1 * dir, 18, 2.8))
-  m:add(leaf(bx, 45, -math.pi / 2 + 0.8 * dir, 14, 2.6))
-  c:part(c:rect(bx - 1, 38, bx, 46), GREEN, { flat = true, outline = false })
-  c:part(m, GREEN, { gloss = false })
-  -- midribs
-  for t = 3, 15 do
-    c:px(math.floor(bx + t * math.cos(-math.pi / 2 + 0.1 * dir) + 0.5), math.floor(45 + t * math.sin(-math.pi / 2 + 0.1 * dir) + 0.5), "#4a8a3e")
+  local leaves = {
+    { -math.pi / 2 - 0.75 * dir, 13 }, { -math.pi / 2 + 0.05 * dir, 17 }, { -math.pi / 2 + 0.8 * dir, 13 },
+  }
+  c:part(c:rect(bx - 1, 36, bx + 1, 46), GREEN, { flat = true })
+  for _, l in ipairs(leaves) do
+    local m = paddle(bx, 38, l[1], l[2], 3)
+    c:part(m, GREEN, { gloss = false })
+    for t = 3, l[2] - 2 do
+      c:px(math.floor(bx + t * math.cos(l[1]) + 0.5), math.floor(38 + t * math.sin(l[1]) + 0.5), "#a4b86a")
+    end
   end
 end
-banana(62, -1)
-banana(178, 1)
+banana(64, -1)
+banana(176, 1)
 
--- sampan on the river (left)
-local boat = c:poly({ { 37, 50 }, { 41, 52 }, { 60, 52 }, { 65, 50 }, { 61, 56 }, { 42, 56 } })
+-- sampan on the river (left) with an arched woven roof
+local boat = c:poly({ { 36, 49 }, { 41, 52 }, { 61, 52 }, { 66, 49 }, { 62, 57 }, { 41, 57 } })
 c:part(boat, WOOD, { gloss = false })
-c:fill(c:rect(43, 53, 58, 53), "#d9a660")
-local canopy = c:ellipse(51, 51, 6, 4):cut(c:rect(0, 51, W, H))
-c:part(canopy, CREAM, { flat = true })
+c:fill(c:rect(42, 54, 60, 54), "#d9a660")
+local canopy = c:ellipse(51, 52, 7, 4):cut(c:rect(0, 52, W, H))
+c:part(canopy, GOLD, { flat = true })
+for x = 46, 56, 3 do c:fill(c:rect(x, 49, x, 51), "#b8661a") end
 
 -- lantern strings from the shop eaves to the palms
 local function lanternString(x0, y0, x1, y1, n)
