@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.97
+- **Stats tab:** tapping a stat name loads in place (no page reload).
+
 ## 2.0.96
 - **My Gnome Overview shows the stat web.** The Stats box on Overview now draws the web (tap a label to open that stat) instead of the line of numbers. The full list stays on the Stats tab. The web is built by one shared helper in `gnome.php`.
 
