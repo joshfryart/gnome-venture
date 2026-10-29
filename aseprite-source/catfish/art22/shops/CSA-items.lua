@@ -28,7 +28,7 @@ local R = {
   back  = { gloss = "#f0b060", rim = "#d0862a", base = "#b8661a", shade = "#8a4220", deep = "#5e2a1e" }, -- rug backing
 }
 local OL1, OL2, OL3, BLACK = C.ol1, C.ol2, C.ol3, "#000000"
-local GOLD, GOLDS = C.gold, C.goldS
+local GOLD = C.gold
 
 ---------------------------------------------------------------- tiny 1x sprite kit
 local function sprite(w, h)
@@ -91,7 +91,7 @@ end
 -- gold thread 2 on / 1 off along a list of px
 local function thread(c, pts, gap)
   for i, p in ipairs(pts) do
-    if i % 3 ~= 0 then c:px(p[1], p[2], (c:get(p[1], p[2]) and c.shadeset and c.shadeset[c:get(p[1], p[2])]) and GOLDS or GOLD)
+    if i % 3 ~= 0 then c:px(p[1], p[2], GOLD)
     elseif gap then c:px(p[1], p[2], gap) end
   end
 end
@@ -133,7 +133,7 @@ end
 -- string px drawn after the border (no outline, no border)
 local function str(c, x, y, h) c:px(x, y, h or OL2); c.nob[K(c, x, y)] = true end
 
-local FAILS, REPORT = {}, {}
+local FAILS = {}
 local function save(c, slug, mw, mh)
   local name = "cf-pet-" .. slug
   local t = c:save(OUT .. name .. ".aseprite", OUT .. name .. ".png")
@@ -184,12 +184,12 @@ do
   local c = sprite(48, 34)
   local balls = {}
   local function ball(x, y, col) balls[#balls + 1] = { x, y, col } end
-  -- two swags between ties at x 3, 24, 44 (top y 3), dipping to y 11
+  -- two swags between the ties at x 4, 24, 43, dipping to y 13
   local function swag(xa, xb, n, off)
     for i = 0, n do
       local t = i / n
       local x = xa + (xb - xa) * t
-      local y = 4 + 8 * (1 - (2 * t - 1) ^ 2)
+      local y = 4 + 9 * (1 - (2 * t - 1) ^ 2)
       ball(math.floor(x + 0.5), math.floor(y + 0.5), ((i + off) % 2 == 1) and "turm" or "mari")
     end
   end

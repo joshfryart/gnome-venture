@@ -16,10 +16,10 @@ local YARN  = GV.ramp("#e46a9b")   -- petal yarn ball
 
 -- shapes
 local back  = c:ellipse(39.5, 46, 35, 35)
-local coat  = c:ellipse(39.5, 104, 34, 29)
+local coat  = c:ellipse(39.5, 100, 34, 29)
 -- shawl: drapes over both shoulders and falls in a V to the chest
-local shawl = c:ellipse(39.5, 104, 34, 29):clip(c:rect(0, 74, 79, 99))
-shawl:cut(c:poly({ {21, 100}, {31, 77}, {48, 77}, {58, 100} }))
+local shawl = c:ellipse(39.5, 100, 34, 29):clip(c:rect(0, 70, 79, 99))
+shawl:cut(c:poly({ {19, 100}, {31, 73}, {48, 73}, {60, 100} }))
 local earL  = c:poly({ {14, 40}, {16, 24}, {19, 21}, {23, 22}, {31, 34} })
 local earR  = c:poly({ {65, 40}, {63, 24}, {60, 21}, {56, 22}, {48, 34} })
 local innL  = c:poly({ {18, 36}, {19, 27}, {21, 25}, {26, 33} })
@@ -31,10 +31,10 @@ muzzle:add(c:rect(24, 58, 55, 62)):clip(c:ellipse(39.5, 51, 22, 19))
 local browL = c:rrect(29, 43, 33, 44, 0)
 local browR = c:rrect(46, 43, 50, 44, 0)
 local nose  = c:ellipse(39.5, 57.5, 3, 2)
-local ball  = c:ellipse(39.5, 87, 11, 10)
-local pawL  = c:ellipse(28, 91, 4.5, 4)
-local pawR  = c:ellipse(51, 91, 4.5, 4)
-local bell  = c:ellipse(49.5, 79.5, 4, 4)
+local ball  = c:ellipse(39.5, 84, 11, 10)
+local pawL  = c:ellipse(28, 88, 4.5, 4)
+local pawR  = c:ellipse(51, 88, 4.5, 4)
+local bell  = c:ellipse(49.5, 76.5, 4, 4)
 
 local p = c:build{
   { "back",  back,  GV.ramp("#c3b2ea"), { flat = true } },
@@ -61,15 +61,15 @@ c:fill(c:line({ { 48, 54 }, { 49, 58 }, { 49, 62 } }, 2):clip(p.muzzle.m), RUST.
 c:px(30, 63, RUST.shade); c:px(31, 63, RUST.shade); c:px(49, 63, RUST.shade); c:px(50, 63, RUST.shade)
 
 -- yarn wraps on the ball (shade lines, 1 px) and the loose thread curling off to the right
-c:fill(c:line({ { 31, 82 }, { 38, 79 }, { 44, 80 } }, 1):clip(p.ball.m):cut(p.bell.m), YARN.shade)
-c:fill(c:line({ { 30, 88 }, { 39, 84 }, { 49, 86 } }, 1):clip(p.ball.m), YARN.shade)
-c:fill(c:line({ { 33, 94 }, { 40, 91 }, { 47, 93 } }, 1):clip(p.ball.m), YARN.shade)
-c:fill(c:line({ { 55, 93 }, { 58, 96 }, { 56, 98 }, { 59, 99 } }, 1), YARN.rim)
+c:fill(c:line({ { 31, 79 }, { 38, 76 }, { 44, 77 } }, 1):clip(p.ball.m):cut(p.bell.m), YARN.shade)
+c:fill(c:line({ { 30, 85 }, { 39, 81 }, { 49, 83 } }, 1):clip(p.ball.m), YARN.shade)
+c:fill(c:line({ { 33, 91 }, { 40, 88 }, { 47, 90 } }, 1):clip(p.ball.m), YARN.shade)
+c:fill(c:line({ { 55, 90 }, { 58, 93 }, { 56, 96 }, { 59, 99 } }, 1), YARN.rim)
 -- bell slot
-c:fill(c:rect(48, 81, 51, 81), "#7a3a14"); c:px(49, 82, "#7a3a14"); c:px(50, 82, "#7a3a14")
+c:fill(c:rect(48, 78, 51, 78), "#7a3a14"); c:px(49, 79, "#7a3a14"); c:px(50, 79, "#7a3a14")
 
 -- toe beans on the paws (cream dots) so they read as hugging hands
-for _, q in ipairs({ { 26, 89 }, { 28, 88 }, { 51, 88 }, { 53, 89 } }) do c:px(q[1], q[2], "#e9b98a") end
+for _, q in ipairs({ { 26, 86 }, { 28, 85 }, { 51, 85 }, { 53, 86 } }) do c:px(q[1], q[2], "#e9b98a") end
 
 -- marigold blossom tucked by her right ear (lower-right of the ear, over the head edge)
 c:paint({
@@ -85,11 +85,11 @@ c:paint({
 }, 54, 33, { r = "#b8452f", o = "#f08a24", g = "#f5cf6a", y = "#fff1c8" })
 
 -- shawl: gold thread hem along its inner edges, and a little button pin on the left shoulder
-c:seam({ { 30, 79 }, { 22, 98 } })
-c:seam({ { 49, 79 }, { 57, 98 } })
-c:button(15, 84)
+c:seam({ { 30, 75 }, { 21, 98 } })
+c:seam({ { 49, 75 }, { 58, 98 } })
+c:button(13, 81)
 -- kurta neckline
-c:fill(c:poly({ { 34, 77 }, { 46, 77 }, { 40, 81 } }):clip(p.coat.m):cut(p.shawl.m):cut(p.ball.m):cut(p.bell.m), KURTA.deep)
+c:fill(c:poly({ { 33, 73 }, { 46, 73 }, { 40, 78 } }):clip(p.coat.m):cut(p.shawl.m):cut(p.ball.m):cut(p.bell.m), KURTA.deep)
 
 -- face
 c:fill(c:rect(30, 43, 32, 43):add(c:rect(47, 43, 49, 43)), "#f8eed2")

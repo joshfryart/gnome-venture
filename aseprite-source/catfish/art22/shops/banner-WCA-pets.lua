@@ -78,9 +78,9 @@ for _, d in ipairs({ { 8, 50 }, { 28, 54 }, { 46, 49 }, { 62, 56 }, { 186, 55 },
   c:paint({ "x.x", ".x." }, d[1], d[2], { x = K.leafS })
 end
 -- packed earth market yard in front of the shop
-local yard = c:poly({ { 84, 46 }, { 158, 46 }, { 172, 58 }, { 70, 58 } })
+local yard = c:poly({ { 72, 46 }, { 158, 46 }, { 172, 58 }, { 62, 58 } })
 c:fill(yard, K.path)
-c:fill(c:rect(84, 46, 158, 46), K.pathL)
+c:fill(c:rect(72, 46, 158, 46), K.pathL)
 for _, d in ipairs({ { 80, 55 }, { 150, 52 }, { 162, 56 }, { 92, 51 } }) do c:fill(c:rect(d[1], d[2], d[1] + 1, d[2]), K.pathL) end
 
 ----------------------------------------------------------------- canopy tree with weaver-bird nests (right of shop)
@@ -149,7 +149,7 @@ c:fill(door:copy():cut(door:shrink(1)):cut(c:rect(0, 48, W, H)), K.goldB)
 c:fill(c:rect(114, 41, 125, 41), K.goldB)                           -- glowing floor line inside
 -- inside: one dried-fish treat hanging, a round red cat bed
 c:fill(c:rect(119, 32, 119, 34), K.u1)
-c:paint({ "f..f", "ffff", "ffff", ".ff.", "f..f" }, 118, 35, { f = K.u1 })
+c:paint({ ".fff.f", "ffffff", ".fff.f" }, 117, 35, { f = K.u1 })
 c:part(c:ellipse(119.5, 46, 5.5, 2), RED, { flat = true, outline = false })
 c:fill(c:rect(115, 45, 124, 45), K.ginger)
 
@@ -218,33 +218,31 @@ c:px(101, 31, K.u3); c:px(104, 31, K.u3)
 c:px(102, 32, K.redS)
 c:paint({ "s.s" }, 101, 29, { s = K.goldS })
 
--- stacked calabash bowls on a low bench (right of the door, under the window)
-c:part(c:rect(133, 47, 151, 48), WOOD, { flat = true })
-c:fill(c:rect(134, 49, 134, 50), K.u2); c:fill(c:rect(150, 49, 150, 50), K.u2)
-c:part(c:ellipse(138, 44, 4.5, 3):cut(c:rect(0, 0, W, 43)), CALA, { cres = 1, deep = 0, gloss = { 135, 44 } })
-c:part(c:ellipse(146.5, 45, 3.5, 2):cut(c:rect(0, 0, W, 44)), CALA, { cres = 1, deep = 0, gloss = false })
-c:part(c:ellipse(138, 41, 3, 1.5):cut(c:rect(0, 0, W, 40)), CALA, { flat = true })   -- small bowl stacked on top
-c:paint({ "z.z.z" }, 136, 45, { z = K.u1 })                       -- carved zigzag
+-- stacked calabash bowls on the ground at the left corner of the house
+c:part(c:ellipse(79, 45, 5, 3.5):cut(c:rect(0, 0, W, 43)), CALA, { cres = 2, deep = 0, gloss = { 76, 45 } })
+c:part(c:ellipse(86.5, 46, 3.5, 2.5):cut(c:rect(0, 0, W, 45)), CALA, { cres = 1, deep = 0, gloss = false })
+c:part(c:ellipse(79, 41, 3.5, 2):cut(c:rect(0, 0, W, 40)), RED, { flat = true })   -- red bowl of treats stacked on top
+c:paint({ "z.z.z" }, 77, 46, { z = K.u1 })                       -- carved zigzag
 
 ----------------------------------------------------------------- front: woven mat and a ginger cat napping
-local mat = c:poly({ { 125, 51 }, { 150, 51 }, { 153, 57 }, { 122, 57 } })
+local mat = c:poly({ { 110, 51 }, { 148, 51 }, { 151, 57 }, { 107, 57 } })
 c:part(mat, THATCH, { cres = 2, deep = 0, gloss = false, outline = false })
 c:fill(mat:copy():cut(mat:shrink(1)), K.red)
-for y = 53, 55, 2 do c:fill(c:rect(122, y, 153, y):clip(mat:shrink(1)), K.goldS) end
-for x = 127, 150, 6 do c:fill(c:rect(x, 52, x + 1, 56):clip(mat:shrink(1)), K.moss) end
+for y = 53, 55, 2 do c:fill(c:rect(107, y, 151, y):clip(mat:shrink(1)), K.goldS) end
+for x = 111, 148, 6 do c:fill(c:rect(x, 52, x + 1, 56):clip(mat:shrink(1)), K.moss) end
 c:outline(mat)
 -- napping ginger cat (loaf, closed eyes)
-local catB = c:ellipse(141.5, 52, 6, 3)
-local catH = c:ellipse(134, 51, 3.5, 3):add(c:poly({ { 131, 51 }, { 131, 46 }, { 134, 48 } })):add(c:poly({ { 135, 48 }, { 138, 46 }, { 138, 51 } }))
-local tail = c:line({ { 147, 54 }, { 149, 52 }, { 148, 50 } }, 2)
+local catB = c:ellipse(131.5, 53, 6, 3)
+local catH = c:ellipse(124, 52, 3.5, 3):add(c:poly({ { 121, 52 }, { 121, 47 }, { 124, 49 } })):add(c:poly({ { 125, 49 }, { 128, 47 }, { 128, 52 } }))
+local tail = c:line({ { 137, 55 }, { 139, 53 }, { 138, 51 } }, 2)
 c:build{
   { "tail", tail, CAT, { flat = true } },
   { "body", catB, CAT, { cres = 2, deep = 1 } },
   { "head", catH, CAT, { cres = 2, deep = 1, gloss = false } },
 }
-c:paint({ "u..u" }, 132, 51, { u = K.u3 })
-c:px(134, 52, K.redS)
-c:paint({ "s.s.s" }, 139, 49, { s = K.goldS })
+c:paint({ "u..u" }, 122, 52, { u = K.u3 })
+c:px(124, 53, K.redS)
+c:paint({ "s.s.s" }, 129, 50, { s = K.goldS })
 
 ----------------------------------------------------------------- hem stitch
 c:seam({ { 0, 1 }, { W - 1, 1 } }, { free = true })

@@ -149,14 +149,14 @@ local function rattan(x, y)
   c:px(x, y, "#b8661a"); c:px(x + 1, y + 1, "#b8661a"); c:px(x - 1, y - 1, "#fff1c8")
 end
 local function fish(x, y, col)
-  local rows = { "..bbb..b", ".bebbbbb", "bbbbbbb.", ".bbbbbbb", "..bbb..b" }
+  local rows = { "..bbbb...b", ".bbbbbb.bb", "bebbbbbbbb", ".bbbbbb.bb", "..bbbb...b" }
   local m = c:ascii(rows, x, y)
   c:part(m, col, { flat = true, outline = false }); edge1(m, "#8a4f2a")
-  c:paint({ "..sss..s" }, x, y + 4, { s = col.shade })
-  c:px(x + 2, y + 1, "#2a1a10")
+  c:paint({ "..ssss...s" }, x, y + 4, { s = col.shade })
+  c:px(x + 1, y + 2, "#2a1a10"); c:px(x + 3, y + 1, col.gloss)
 end
 rattan(88, 31); rattan(93, 31)
-fish(99, 29, RED)
+fish(98, 28, RED)
 -- left of the cat: a jar of kibble
 local jar = c:rrect(92, 35, 102, 40, 2)
 c:part(jar, TEAL, { flat = true, outline = false }); edge1(jar, "#5e2f1e")
@@ -249,7 +249,7 @@ end
 lantern(71); lantern(169)
 
 -- ginger cat sitting on the counter (the hero of the banner), ears in front of the awning
-local tail = c:line({ { 126, 40 }, { 129, 39 }, { 131, 37 }, { 131, 34 } }, 2)
+local tail = c:line({ { 125, 40 }, { 129, 40 }, { 131, 39 } }, 2)
 local body = c:ellipse(CX + 0.5, 37, 7, 4):cut(c:rect(0, 41, W, H))
 local head = c:ellipse(CX + 0.5, 31, 6.5, 4.5)
 head:add(c:poly({ { 113, 30 }, { 115, 23 }, { 119, 28 } })):add(c:poly({ { 122, 28 }, { 126, 23 }, { 128, 30 } }))
