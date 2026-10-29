@@ -8,7 +8,9 @@ $freshNews = $news && strtotime($news[0]['created_at'] . ' UTC') > time() - 3 * 
 $u = current_user();
 $today = $u && (int)($u['onboarded'] ?? 1) === 1;   // v0.7.48: a "Today" page for players
 // v1.9.2: Today is one page again (no tabs); the old ?t=out / ?t=hollow links land on their part of it
-if (!$allNews && $u && $today && isset($_GET['t'])) redirect('index.php' . ($_GET['t'] === 'out' ? '#todaycards' : ($_GET['t'] === 'hollow' ? '#hollowtoday' : '')));
+if (!$allNews && $u && $today && isset($_GET['t'])) redirect('index.php?today=1' . ($_GET['t'] === 'out' ? '#todaycards' : ($_GET['t'] === 'hollow' ? '#hollowtoday' : '')));
+// v2.0.90: My Gnome is the home page for players; Today is still at index.php?today=1
+if (!$allNews && $u && $today && !isset($_GET['today'])) redirect('gnome.php');
 if ($today) $GLOBALS['gv_today_page'] = true;   // v1.9.2: layout.php hides the rail boxes this page already shows
 if ($today) {
     require_once __DIR__ . '/includes/garden_logic.php';

@@ -23,7 +23,7 @@ page_header('Wren’s First Week');
     <p><?php if (!first_week_on()): ?>Wren’s First Week is switched off.
       <?php elseif ((int)$u['tour_step'] > 0): ?>Finish Wren’s tour first (the card at the top of the page). The First Week starts right after it.
       <?php else: ?>Wren’s First Week is for new gnomes, and yours has already begun your own way. Welcome!<?php endif; ?></p>
-    <p><a class="btn small" href="<?= e(url('index.php')) ?>">Back to Today</a></p>
+    <p><a class="btn small" href="<?= e(url('index.php?today=1')) ?>">Back to Today</a></p>
   </div>
 <?php else: ?>
   <p class="help">One card unlocks each day. Do them in any order, any time: they never run out, and nothing is lost if you miss a day.

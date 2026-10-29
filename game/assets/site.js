@@ -778,7 +778,7 @@ gvAdvFold();
     load(to.href, { method: 'GET' }, null, function () { location.href = to.href; });
   });
   document.addEventListener('click', function (ev) {
-    var a = ev.target.closest ? ev.target.closest('a[data-inplace], main nav.tabs a, main nav.chips a, main nav.ccfilter a') : null;
+    var a = ev.target.closest ? ev.target.closest('a[data-inplace], main nav.tabs a, main nav.gvtabs a, main nav.chips a, main nav.ccfilter a') : null;
     if (!a || ev.defaultPrevented || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
     var to = new URL(a.href, location.href);
     if (to.origin !== location.origin || to.pathname !== location.pathname) return;

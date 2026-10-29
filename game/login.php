@@ -32,7 +32,7 @@ if (is_post()) {
                 }
                 clear_attempts($key);
                 log_in_user($u);
-                redirect($u['role'] === 'admin' && setting('maintenance_mode') === '1' ? 'admin/index.php' : (q_val('SELECT away_from FROM users WHERE id = ?', [$u['id']]) ? 'back.php' : 'garden.php'));   // v1.0.0: away for days? the welcome-back page first
+                redirect($u['role'] === 'admin' && setting('maintenance_mode') === '1' ? 'admin/index.php' : (q_val('SELECT away_from FROM users WHERE id = ?', [$u['id']]) ? 'back.php' : 'gnome.php'));   // v1.0.0: away for days? the welcome-back page first
             }
         } else {
             record_attempt($key);

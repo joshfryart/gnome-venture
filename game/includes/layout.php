@@ -664,7 +664,7 @@ function nav_sheet(array $u, string $page): string
         . '<button type="button" class="navx" aria-label="Close the menu">✕</button></div>'
         . '<div class="navrow"><p class="navstatus">' . money((int)$u['coins'])
         . ($ds ? ' · 🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'
-        . '<a class="navhome" href="' . e(url('index.php')) . '"><span class="nti">' . nav_icon('today', '🏠', 20) . '</span> Today</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to Today   // v1.0.0.1: one row on a phone
+        . '<a class="navhome" href="' . e(url('index.php?today=1')) . '"><span class="nti">' . nav_icon('today', '🏠', 20) . '</span> Today</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to Today   // v1.0.0.1: one row on a phone
     foreach ($groups as $name => $tiles) {
         // menu icons: the groups stay open on every screen (no folding any more)
         $tl = '';
@@ -699,7 +699,7 @@ function right_rail(array $u): string
     require_once __DIR__ . '/crafting.php';
     $uid = (int)$u['id'];
     $onToday = !empty($GLOBALS['gv_today_page']);   // v1.9.2: the Today page already shows weather, boosts and jobs, so its rail keeps only Messages, Market and Pots
-    $today = $onToday ? '' : '<section class="rbox rtoday" aria-labelledby="rt-today"><h3 id="rt-today">🏠 Today</h3><p><a class="rgo" href="' . e(url('index.php')) . '">Go to Today →</a></p></section>';   // v2.0.89: a way back to Today, just under Messages
+    $today = $onToday ? '' : '<section class="rbox rtoday" aria-labelledby="rt-today"><h3 id="rt-today">🏠 Today</h3><p><a class="rgo" href="' . e(url('index.php?today=1')) . '">Go to Today →</a></p></section>';   // v2.0.89: a way back to Today, just under Messages
     $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . $today . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
     $pots = cook_pots_list($uid);
     if ($pots) {
