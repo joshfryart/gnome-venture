@@ -14,9 +14,14 @@ if (!$u) $out(['ok' => false, 'error' => 'Please log in first.'], 403);
 if (!empty($u['guest'])) $out(['ok' => false, 'error' => 'Guests can’t keep a cat. Make your own gnome to adopt one!'], 403);
 if (!catfish_open() || !catfish_ensure()) $out(['ok' => false, 'error' => 'Cat Fish isn’t open right now.'], 403);
 $uid = (int)$u['id'];
-if (rate_limited('cfapi:' . $uid, 60, 10)) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
-record_attempt('cfapi:' . $uid);
-$do = (string)($_POST['do'] ?? '');
+$do = is_string($_POST['do'] ?? null) ? $_POST['do'] : '';
+// Ticks only: at most 60 per 10 minutes (the page sends one every 30 s). Counted in the session, not login_attempts, so a tick adds no row. Buys are not limited here (each one costs Kibble).
+if ($do === 'tick') {
+    $rl = $_SESSION['cf_rl'] ?? null;
+    if (!is_array($rl) || ($rl['uid'] ?? 0) !== $uid || time() - (int)($rl['t'] ?? 0) >= 600) $rl = ['uid' => $uid, 't' => time(), 'n' => 0];
+    if ($rl['n'] >= 60) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
+    $rl['n']++; $_SESSION['cf_rl'] = $rl;
+}
 // The scene key the page shows (optional): when the fresh scene differs the reply carries stage_html, the stage markup the page prints, for catfish.js to swap in.
 $withScene = function (array $a, array $view) use ($uid, $do) {
     [$key, $html] = catfish_scene($uid, $view);
@@ -36,7 +41,7 @@ if ($do === 'buy') {
     [$ok, $msg, $got, $paid] = catfish_locked($uid, function () use ($uid) {
         $got = 0; $paid = 0;
         if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);
-        [$ok, $msg] = catfish_buy($uid, (string)($_POST['key'] ?? ''));
+        [$ok, $msg] = catfish_buy($uid, is_string($_POST['key'] ?? null) ? $_POST['key'] : '');
         return [$ok, $msg, $got, $paid];
     });
     $view = catfish_view($uid, $got, $paid);

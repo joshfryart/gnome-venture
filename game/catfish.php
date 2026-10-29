@@ -15,17 +15,20 @@ if (!catfish_ensure()) { flash('Cat Fish could not start. Try again soon.', 'err
 $uid = (int)$u['id'];
 if (is_post()) {
     csrf_check();
-    $do = (string)($_POST['do'] ?? '');
+    // form fields: a field sent as an array (name[]=x) reads as '' or the default instead of 'Array' or a TypeError
+    $str = function (string $k): string { $x = $_POST[$k] ?? ''; return is_string($x) ? $x : ''; };
+    $int = function (string $k, int $def): int { $x = $_POST[$k] ?? $def; return is_scalar($x) ? (int)$x : $def; };
+    $do = $str('do');
     $r = [false, 'Unknown action.'];
-    if ($do === 'adopt') $r = catfish_adopt($uid, (int)($_POST['slot'] ?? -1), (string)($_POST['name'] ?? ''), '', (int)($_POST['seed'] ?? 0));
-    elseif ($do === 'buy') $r = catfish_buy($uid, (string)($_POST['key'] ?? ''));
-    elseif ($do === 'show') $r = catfish_show_enter($uid, (int)($_POST['cat'] ?? 0));
-    elseif ($do === 'reroll') $r = catfish_reroll($uid, (int)($_POST['slot'] ?? -1));
+    if ($do === 'adopt') $r = catfish_adopt($uid, $int('slot', -1), $str('name'), '', $int('seed', 0));
+    elseif ($do === 'buy') $r = catfish_buy($uid, $str('key'));
+    elseif ($do === 'show') $r = catfish_show_enter($uid, $int('cat', 0));
+    elseif ($do === 'reroll') $r = catfish_reroll($uid, $int('slot', -1));
     elseif ($do === 'bigger') $r = catfish_buy_slot($uid);
     elseif ($do === 'rare') $r = catfish_buy_rare($uid);
     elseif ($do === 'nap') $r = catfish_nap($uid);
-    elseif ($do === 'switch') $r = catfish_switch($uid, (int)($_POST['cat'] ?? 0));
-    elseif ($do === 'rename') $r = catfish_rename($uid, (int)($_POST['cat'] ?? 0), (string)($_POST['name'] ?? ''));
+    elseif ($do === 'switch') $r = catfish_switch($uid, $int('cat', 0));
+    elseif ($do === 'rename') $r = catfish_rename($uid, $int('cat', 0), $str('name'));
     flash($r[1], $r[0] ? 'ok' : 'err');
     redirect('catfish.php');
 }
