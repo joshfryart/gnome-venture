@@ -107,8 +107,10 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   }, [shotA ? shotA.toString('base64') : '', shotB.toString('base64')]);
   const cmpN = cmp.split(',').map(Number);
   ok('ambience: the perched bird sprite sits on the robin of cf-room-window.png: the toggle changes only the sprite outline ring (about 104 px, all dark), never a robin pixel', !!shotA && cmpN[0] > 0 && cmpN[0] < 140 && cmpN[1] === 0, true);
-  // idle variety and the bird, over time (fast hook: waits are one tenth)
-  await watch(p, '.cfactive', '__seq');
+  // idle variety and the bird, over time (fast hook: waits are one tenth). Recording starts at an idleA (now, or the next one), so a wash already
+  // running when the watch begins never shows up as a partial washB washA washB at the front of the sequence.
+  await p.evaluate(() => { window.__seq = []; var c = document.querySelector('.cfactive'), on = c.getAttribute('data-frame') === 'idleA';
+    new MutationObserver(() => { var f = c.getAttribute('data-frame'); if (!on) { on = f === 'idleA'; if (!on) return; } window.__seq.push(f); }).observe(c, { attributes: true, attributeFilter: ['data-frame'] }); });
   await p.evaluate(() => { window.__bird = []; var b = document.querySelector('.cfbird'); new MutationObserver(() => window.__bird.push(b.className)).observe(b, { attributes: true, attributeFilter: ['class'] }); });
   const seen2 = {}; const t1 = Date.now();
   let fullWash = false;
@@ -221,4 +223,4 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   await c.close();
   await br.close();
   console.log(out.join('\n'));
-})().catch(e => { console.log('FAIL anim script: ' + e.message); process.exit(0); });
+})().catch(e => { if (out.length) console.log(out.join('\n')); console.log('FAIL anim script: ' + e.message); process.exit(0); });
