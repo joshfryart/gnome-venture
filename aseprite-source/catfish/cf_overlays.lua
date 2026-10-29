@@ -11,10 +11,13 @@
 --
 -- LAYER ORDER (renderer): body, pattern, ears, tail, eyes. A replacement part works in two steps: clear the
 -- mask's pixels (alpha 255 = clear) from the body AND pattern layers below, then draw the part on top. The
--- mask covers the original ear/tail felt, inner pink, its inner contour on the head/body, its umber outline
--- and its black border. The part layer also carries the few head/body pixels the clear removed (head-top
--- outline, body felt and edge stitch that the old tail covered), so  base - mask + part  equals a true
--- render of the cat with that part (checked pixel-exact below). Patterns are not drawn on replacement parts.
+-- mask covers what the original ear/tail put on the cat (felt, inner pink, inner contour, umber outline, black
+-- border) EXCEPT where the part repaints that pixel as plain coat felt, plus every pixel where the part paints
+-- an edge, contour, crescent shade or crease. The part layer also carries the few head/body pixels the clear
+-- removed, so  base - mask + part  equals a true render of the cat with that part (checked pixel-exact below).
+-- Pass 7: patterns now carry onto the parts: the pattern's marks on the old ear/tail root survive on the
+-- part's felt (the mask no longer clears them there), and its edges stay clean (the mask clears them there).
+-- Pointed marks the whole tail and the head under each folded flap; calico's tail patch starts at the root.
 --
 -- COLOURS. Overlays use the grey template's own tones so tools/catfish_recolor.py derives them per coat:
 --   template (tones.json): shade #57516f  base #8a859b  light #cdc9d3  gloss #f1ebe3
@@ -49,14 +52,14 @@
 -- Odd-eyed cats: the renderer takes the left eye from one colour's file and the right from another
 -- (left eye x < 25 + ox, right eye x >= 25 + ox; ox per frame below).
 --
--- GEOMETRY. The frame drawing code below is a copy of cf_test.lua pass 6 (idleA, pounce, catch, nap, stalk) with
+-- GEOMETRY. The frame drawing code below is a copy of cf_cats.lua pass 7 (idleA, pounce, catch, nap, stalk) with
 -- switches for the ears (orig / none / fold) and tail (orig / none / bob). The script re-renders each base
--- frame and asserts it matches the committed cf-cat-grey PNG pixel for pixel, so a later cf_test edit that
+-- frame and asserts it matches the committed cf-cat-grey PNG pixel for pixel, so a later cf_cats edit that
 -- moves the cat makes this script stop with an error instead of writing overlays that no longer line up.
 -- wiggle, bored and idleB are only read from their PNGs (eyes only; the eye asserts check the disc positions).
 -- Frame offsets (head, eyes): idleA 0,0  pounce 16,0  catch 0,0  nap 0,18  stalk 15,20  wiggle 15,19  bored -1,3
--- idleB 1,1. Stalk bobtail sits on the rump's upper-left tip (STALK_BOB); the chest is under the chin there, so
--- the tuxedo/calico bib barely shows and the muzzle and paws carry the white.
+-- idleB 1,1. Stalk bobtail sits on the rump's upper-left tip (STALK_BOB); the tuxedo/calico bib sits on the chest
+-- lobe that peeks out between the haunch and the chin (pass 7).
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../gvlib/gvlib.lua")
 local OUT = here .. "/test/"
@@ -71,7 +74,7 @@ local EYES = { amber = "#e0902a", green = "#7cb342", blue = "#4f9fe0", hazel = "
 local TONE = { [DEEP] = 0, [GREY.shade] = 1, [GREY.base] = 2, [GREY.light] = 3, [GREY.gloss] = 4 }
 local BYTONE = { [0] = DEEP, GREY.shade, GREY.base, GREY.light, GREY.gloss }
 
--- ===================== copy of cf_test.lua pass 6 (keep in step; checked against the PNGs) =====================
+-- ============ copy of cf_cats.lua pass 7 (pounce leap, stalk haunch + chest lobe; keep in step; checked) ============
 local function coat(t) return { gloss = t.gloss, dot = t.gloss, rim = t.light, base = t.base, shade = t.shade, deep = t.shade, bounce = t.base } end
 local function coatHi(t) return { gloss = t.gloss, dot = t.gloss, rim = t.gloss, base = t.light, shade = t.base, deep = t.shade, bounce = t.light } end
 local PINK, PINKS = "#e8909e", "#c66a80"
@@ -178,7 +181,7 @@ local function build(c, list)
   for n, P in pairs(p) do c.names[P] = n end
   return p
 end
-local STALK_BOB = { 13.5, 20.5 }
+local STALK_BOB = { 14, 21.5 } -- pass 7: bobs sit on the old tail root, so they keep its marks
 local function bobEntry(c, m) return { "bob", m, coat(GREY), { cres = 2, gloss = false } } end
 
 -- each frame: o.ears = orig|none|fold, o.tail = orig|none|bob. Returns the canvas (not finished) and info.
@@ -192,7 +195,7 @@ FR.idleA = function(o)
   local tail = c:line(tpts, 5)
   local list = {}
   if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
-  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(41.5, 49.5, 4, 3.5)) end
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(44.5, 50.5, 4, 3.5)) end
   list[#list + 1] = { "body", body, g, { gloss = { 15, 40 } } }
   for _, e in ipairs(H) do list[#list + 1] = e end
   local p = build(c, list)
@@ -207,30 +210,30 @@ FR.pounce = function(o)
   local g = coat(GREY)
   local OX, OY = 16, 0
   local H, head = catHead(c, OX, OY, o.ears)
-  local A = math.atan(-10, 24)
-  local body = rell(c, 28, 37, 15, 7, A)
-  local tpts = { {17, 38}, {12, 35}, {9, 30}, {9, 24}, {12, 20} }
+  local A = math.atan(-5, 24)
+  local body = rell(c, 27, 33.5, 16, 7, A)
+  local tpts = { {16, 30}, {13, 26}, {11, 21}, {10, 16}, {8, 12} }
   local tail = c:line(tpts, 5)
-  local legF = c:line({ {38, 33}, {44, 37}, {48, 39} }, 4)
-  local legN = c:line({ {36, 38}, {41, 42}, {45, 44} }, 4)
-  local legB = c:line({ {17, 40}, {13, 41}, {12, 41} }, 4)
-  local legH = c:line({ {22, 44}, {17, 47}, {14, 49} }, 5)
+  local legF = c:line({ {39, 33}, {45, 35}, {49, 34} }, 4)
+  local legN = c:line({ {35, 36}, {40, 40}, {44, 39} }, 4)
+  local legB = c:line({ {17, 33}, {13, 33}, {11, 32} }, 4)
+  local legH = c:line({ {21, 37}, {16, 39}, {13, 40} }, 5)
   local list = {}
   if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
-  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(13.5, 33.5, 4, 3.5)) end
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(13.5, 27.5, 4, 3.5)) end
   list[#list + 1] = { "legB", legB, g, { cres = 2, gloss = false } }
   list[#list + 1] = { "legF", legF, g, { cres = 2, gloss = false } }
-  list[#list + 1] = { "body", body, g, { gloss = { 18, 36 } } }
+  list[#list + 1] = { "body", body, g, { gloss = { 18, 31 } } }
   list[#list + 1] = { "legH", legH, g, { cres = 2, gloss = false } }
   for _, e in ipairs(H) do list[#list + 1] = e end
   list[#list + 1] = { "legN", legN, g, { cres = 2, gloss = false } }
   local p = build(c, list)
-  if o.tail == "orig" then tailTip(c, tail, c:rect(5, 15, 18, 23), { { 7, 24 }, { 11, 24 } }) end
-  paw(c, 50.5, 39.5); paw(c, 47.5, 45.5)
-  paw(c, 10.5, 41.5); paw(c, 11.5, 49.5)
+  if o.tail == "orig" then tailTip(c, tail, c:rect(4, 4, 16, 15), { { 7, 16 }, { 12, 16 } }) end
+  paw(c, 51.5, 34.5); paw(c, 46.5, 40)
+  paw(c, 10.5, 32.5); paw(c, 11.5, 40.5)
   edgeStitch(c, body, p.body, { lit = LIT })
   catFace(c, OX, OY, head, "open", o.ears)
-  c:ground(30.5, 57.5, 5.5, 1, "#4a2c1a")
+  c:ground(29.5, 57.5, 9, 1, "#4a2c1a")
   return c, { ox = OX, oy = OY, tpts = tpts, p = p, A = A }
 end
 FR.catch = function(o)
@@ -249,7 +252,7 @@ FR.catch = function(o)
   local fFin = c:poly({ {18, 37}, {21, 33}, {26, 33}, {29, 37} })
   local list = {}
   if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
-  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(41.5, 49.5, 4, 3.5)) end
+  elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(44.5, 50.5, 4, 3.5)) end
   list[#list + 1] = { "body", body, g, { gloss = { 15, 40 } } }
   for _, e in ipairs(H) do list[#list + 1] = e end
   list[#list + 1] = { "fTail", fTail, FIN, { cres = 2, deep = 0, bounce = false, gloss = false } }
@@ -278,10 +281,11 @@ FR.nap = function(o)
   local tpts = { {50, 35}, {53, 38}, {54, 44}, {51, 50}, {46, 53}, {38, 54} }
   local tail = c:line(tpts, 5)
   local list = {}
-  if o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(54, 34.5, 4, 3.5)) end
   list[#list + 1] = { "body", body, g, { gloss = { 30, 35 } } }
   list[#list + 1] = { "thigh", thigh, g, { cres = 2, gloss = false } }
   for _, e in ipairs(H) do list[#list + 1] = e end
+  -- pass 7: the nap bob sits in front of the haunch on the tail root (behind the body it was a hidden nub)
+  if o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(51, 37.5, 4, 3.5)) end
   if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } } end
   local p = build(c, list)
   if o.tail == "orig" then tailTip(c, tail, c:rect(30, 48, 41, 58), { { 42, 52 }, { 42, 56 } }) end
@@ -294,20 +298,20 @@ FR.stalk = function(o)
   local g = coat(GREY)
   local OX, OY = 15, 20
   local H, head = catHead(c, OX, OY, o.ears)
-  local A = 0.9
-  local body = rell(c, 25, 32, 15, 7.5, A)
-  local thigh = rell(c, 17.5, 39, 7.5, 10, -0.35)
+  local A = 0.8
+  local body = rell(c, 24, 33, 15, 8, A):add(c:ellipse(26, 46, 5, 6.5))
+  local thigh = rell(c, 14.5, 43, 7, 8, -0.45)
   local tpts = { {18, 22}, {13, 23}, {9, 21}, {8, 16}, {10, 11} }
   local tail = c:line(tpts, 5)
   local list = {}
   if o.tail == "orig" then list[#list + 1] = { "tail", tail, g, { cres = 2, gloss = false } }
   elseif o.tail == "bob" then list[#list + 1] = bobEntry(c, c:ellipse(STALK_BOB[1], STALK_BOB[2], 4, 3.5)) end
-  list[#list + 1] = { "body", body, g, { gloss = { 18, 24 } } }
-  list[#list + 1] = { "thigh", thigh, g, { cres = 2, gloss = { 13, 33 } } }
+  list[#list + 1] = { "body", body, g, { gloss = { 18, 25 } } }
+  list[#list + 1] = { "thigh", thigh, g, { cres = 2, gloss = { 10, 38 } } }
   for _, e in ipairs(H) do list[#list + 1] = e end
   local p = build(c, list)
   if o.tail == "orig" then tailTip(c, tail, c:rect(4, 4, 15, 14), { { 6, 15 }, { 10, 15 } }) end
-  paw(c, 19.5, 53)
+  paw(c, 15.5, 53)
   paw(c, 34.5, 53); paw(c, 45.5, 53)
   edgeStitch(c, body, p.body, { lit = LIT })
   catFace(c, OX, OY, head, "open", o.ears)
@@ -374,15 +378,16 @@ for _, f in ipairs(KEY) do
   local file = loadPNG(OUT .. "cf-cat-grey-" .. f .. ".png")
   local mine = pixOf(c)
   for i = 0, 4095 do
-    if file[i] ~= mine[i] then error(string.format("%s: re-render differs from cf-cat-grey PNG at %d,%d (%s vs %s): copy is out of step with cf_test.lua", f, i % 64, i // 64, tostring(file[i]), tostring(mine[i]))) end
+    if file[i] ~= mine[i] then error(string.format("%s: re-render differs from cf-cat-grey PNG at %d,%d (%s vs %s): copy is out of step with cf_cats.lua", f, i % 64, i // 64, tostring(file[i]), tostring(mine[i]))) end
   end
   BASE[f], INFO[f], CAN[f] = file, info, c
 end
 for _, f in ipairs(EXTRA) do BASE[f] = loadPNG(OUT .. "cf-cat-grey-" .. f .. ".png") end
 
 -- ================================ A. eyes ================================
--- iris = the 12 cream px round the pupil minus the upper-left 3 (kept cream, lit side)
-local IRIS = { {3, 0}, {4, 1}, {4, 2}, {4, 3}, {1, 4}, {2, 4}, {3, 4}, {0, 3}, {0, 2} }
+-- iris = the 12 cream px round the pupil minus the upper-left 2 (kept cream, lit side). Pass 7: was minus 3;
+-- the extra iris px lifts the colour share of the eye so it reads as amber/green/blue, not khaki, at 16 px.
+local IRIS = { {2, 0}, {3, 0}, {4, 1}, {4, 2}, {4, 3}, {1, 4}, {2, 4}, {3, 4}, {0, 3}, {0, 2} }
 -- half-lidded (bored): the lid covers disc rows 0-1 (felt row + umber lash), so only the lower ring shows. The
 -- iris is the IRIS pixels below the lash minus its topmost lit pixel (0,2), kept cream as the glint the lid hid:
 -- 6 tinted px per eye, so a half-closed eye still shows its colour (and odd eyes still read).
@@ -561,14 +566,14 @@ local function tabby(f)
     end
     st = lines(f, L2, 3)
   elseif f == "pounce" then -- side view: stripes across the back, tapering toward the belly
-    st = stripes(f, 28, 37, I.A, { -11, -6, -1, 4, 9 }, 3, -8, 1, -2)
-    st:add(lines(f, { { {20, 44}, {18, 47} }, { {41, 40}, {42, 43} }, { {44, 34}, {45, 37} } }, 2))
+    st = stripes(f, 27, 33.5, I.A, { -12, -7, -2, 3, 8 }, 3, -8, 1, -2)
+    st:add(lines(f, { { {17, 37}, {16, 40} }, { {40, 38}, {40, 41} }, { {45, 33}, {45, 36} } }, 2))
   elseif f == "nap" then -- loaf from the side: stripes down over the back and round the haunch
     st = stripes(f, 46, 42, 0, { -4, 1, 6 }, 3, -11, -1, -4)
     st:add(lines(f, { { {41, 39}, {44, 42}, {45, 46} }, { {47, 37}, {50, 41}, {51, 45} } }, 2))
   elseif f == "stalk" then -- play bow: stripes across the sloping back, arcs round the egg haunch
-    st = stripes(f, 25, 32, I.A, { -9, -4, 1, 6 }, 3, -8, 1, -2)
-    st:add(lines(f, { { {14, 31}, {11, 35}, {11, 40} }, { {18, 35}, {15, 39}, {15, 44} } }, 2))
+    st = stripes(f, 24, 33, I.A, { -9, -4, 1, 6 }, 3, -8, 1, -2)
+    st:add(lines(f, { { {12, 36}, {9, 40}, {9, 45} }, { {17, 37}, {14, 41}, {14, 47} } }, 2))
   end
   L[#L + 1] = { st:clip(body), "dark2" }
   return marks(f, L)
@@ -595,11 +600,11 @@ local function bib(f, big)
   if f == "idleA" or f == "catch" then
     return big and c:ellipse(25, 46, 10, 9) or c:ellipse(25, 40, 5, 10):add(c:poly({ {19, 29}, {31, 29}, {25, 38} }))
   elseif f == "pounce" then
-    return big and rell(c, 32, 41, 13, 4.5, INFO[f].A) or rell(c, 36, 40, 7, 3.5, INFO[f].A)
+    return big and rell(c, 30, 38.5, 14, 4.5, INFO[f].A) or rell(c, 34, 38.5, 8, 3.5, INFO[f].A)
   elseif f == "nap" then
     return big and c:rect(14, 47, 40, 53):add(c:ellipse(46, 50, 7, 3)) or c:rect(14, 47, 38, 53)
-  elseif f == "stalk" then -- chest is under the chin: only the strip between haunch and head shows
-    return big and c:ellipse(26, 45, 5, 7) or c:ellipse(26, 46, 3, 5)
+  elseif f == "stalk" then -- the chest lobe that peeks out between haunch and chin (pass 7)
+    return big and c:ellipse(25, 45, 7, 9) or c:ellipse(25.5, 46.5, 5, 7)
   end
 end
 local function tuxedo(f)
@@ -629,15 +634,15 @@ local function calico(f)
   if f == "idleA" or f == "catch" then
     bp = c:poly({ {27, 30}, {42, 31}, {43, 50}, {37, 47}, {33, 40}, {29, 37} }):add(c:poly({ {7, 40}, {15, 38}, {18, 45}, {16, 57}, {7, 57} }))
   elseif f == "pounce" then
-    bp = c:poly({ {14, 34}, {27, 26}, {32, 30}, {29, 38}, {18, 42} }):add(c:poly({ {36, 28}, {45, 30}, {48, 38}, {39, 37} }))
+    bp = c:poly({ {11, 30}, {24, 25}, {29, 29}, {26, 38}, {14, 39} }):add(c:poly({ {34, 29}, {42, 30}, {46, 38}, {37, 40} }))
   elseif f == "nap" then
     bp = c:poly({ {38, 30}, {53, 30}, {57, 39}, {50, 46}, {41, 43} }):add(c:poly({ {16, 37}, {26, 33}, {28, 40}, {18, 44} }))
   elseif f == "stalk" then
-    bp = c:poly({ {13, 18}, {25, 21}, {29, 30}, {21, 31}, {15, 26} }):add(c:poly({ {9, 41}, {18, 39}, {23, 47}, {15, 52}, {9, 49} }))
+    bp = c:poly({ {12, 19}, {24, 21}, {28, 30}, {20, 31}, {14, 26} }):add(c:poly({ {7, 40}, {16, 37}, {22, 45}, {15, 52}, {7, 50} }))
   end
   L[#L + 1] = { bp:clip(body), "dark2" }
   local tail = partMask(f, S{ "tail" })
-  L[#L + 1] = { rings(f, I.tpts, tail, 7, 100, 9, nil), "dark2" }
+  L[#L + 1] = { rings(f, I.tpts, tail, 0, 100, 11, nil), "dark2" } -- from the root (pass 7) so a bobtail keeps it
   return marks(f, L)
 end
 
@@ -650,12 +655,13 @@ local function pointed(f)
   -- diamond face mask: muzzle, nose bridge and round the eyes, cheeks and brow stay light
   local mask = c:poly({ {25, 14}, {35, 20}, {37.5, 26}, {31, 31.5}, {19, 31.5}, {12.5, 26}, {15, 20} }):shift(I.ox, I.oy)
   L[#L + 1] = { mask:clip(partMask(f, S{ "head" })), "dark" }
-  local tail = partMask(f, S{ "tail" })
-  local L2 = 0
-  for i = 1, #I.tpts - 1 do L2 = L2 + math.sqrt((I.tpts[i + 1][1] - I.tpts[i][1]) ^ 2 + (I.tpts[i + 1][2] - I.tpts[i][2]) ^ 2) end
-  L[#L + 1] = { rings(f, I.tpts, tail, L2 * 0.45, 1000, 1000, nil), "dark" }
+  -- pass 7: the whole tail is a point (it was dark from 45 % along), so a bobtail, which keeps the tail
+  -- root's marks, is dark too; and the head under a folded flap is dark, so folded ears read as points
+  L[#L + 1] = { partMask(f, S{ "tail" }), "dark" }
+  local fL, fR = foldMask(c, I.ox, I.oy)
+  L[#L + 1] = { fL:add(fR):clip(partMask(f, S{ "head" })), "dark2" } -- head light -> shade, like the ears
   -- dark lower legs in the pounce (socks up to the knee)
-  if f == "pounce" then L[#L + 1] = { lines(f, { { {44, 37}, {48, 39} }, { {41, 42}, {45, 44} }, { {13, 41}, {12, 41} }, { {17, 47}, {14, 49} } }, 4):clip(partMask(f, S{ "legB", "legF", "legH", "legN" })), "dark" } end
+  if f == "pounce" then L[#L + 1] = { lines(f, { { {45, 35}, {49, 34} }, { {40, 40}, {44, 39} }, { {13, 33}, {11, 32} }, { {16, 39}, {13, 40} } }, 4):clip(partMask(f, S{ "legB", "legF", "legH", "legN" })), "dark" } end
   return marks(f, L)
 end
 
@@ -693,7 +699,8 @@ local function spotted(f)
     return m
   end
   local front = f == "idleA" or f == "catch" -- slim side-view bodies (pounce, nap) let spots reach the edge
-  local m = stampAll({ "body", "thigh" }, front and 7 or 6, 1, 1, front and 1 or 0)
+  -- pass 7: one step tighter (front 7 -> 6, side 6 -> 5) so the coat still reads spotted at 16 px
+  local m = stampAll({ "body", "thigh" }, front and 6 or 5, 1, 1, front and 1 or 0)
   m:add(stampAll({ "legB", "legF", "legH", "legN" }, 5, 0, 0))
   -- tail: broken rings (a ring with every third pixel row left out) and a dark tip
   local tail = partMask(f, S{ "tail" })
@@ -750,9 +757,15 @@ for _, f in ipairs(KEY) do
     local M = diff(base, none)                  -- everything the original part put on the base
     local keep = diff(none, repl)               -- what the replacement adds over the part-less cat
     local mask, part = {}, {}
-    for i in pairs(M) do mask[i] = "#ffffff" end
     for i in pairs(M) do if repl[i] then part[i] = repl[i] end end
     for i in pairs(keep) do if repl[i] then part[i] = repl[i] end end
+    -- pass 7: the mask only clears what the part does not repaint as plain coat felt. Where the part paints
+    -- felt (base, light, gloss) the pattern above it survives, so the pattern's marks on the old ear/tail root
+    -- carry onto the folded flap and the bobtail. Where it paints anything else (outline, contour, crescent
+    -- shade, crease, pink, stitch) the mask clears the pattern so the part's edges stay clean.
+    local FELT = { [GREY.base] = true, [GREY.light] = true, [GREY.gloss] = true }
+    for i in pairs(M) do if not (part[i] and FELT[part[i]]) then mask[i] = "#ffffff" end end
+    for i, v in pairs(part) do if not FELT[v] then mask[i] = "#ffffff" end end
     -- check: base - mask + part == true render of the replacement
     for i = 0, 4095 do
       local v = base[i]

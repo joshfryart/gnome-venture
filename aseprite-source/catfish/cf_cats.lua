@@ -1,6 +1,8 @@
 -- cf_cats.lua : Cat Fish grey cat key frames (idleA, pounce, catch, nap, stalk), split out of cf_test.lua in pass 7.
--- fish, cat wand rod, kibble + yarn icons).
--- Run: AppRun -b --script cf_test.lua      (Stitched Toy, art-style-guide Part D, via gvlib)
+-- Run: AppRun -b --script cf_cats.lua      (Stitched Toy, art-style-guide Part D, via gvlib), then cf_overlays.lua
+-- (it re-renders these frames and stops if its copy is out of step).
+-- Pass 7: pounce is airborne (level body, forelegs tucked, hind legs kicked out behind, tail streaming back, wide
+-- shadow far below); stalk haunch is a smaller round ball set back, with a chest lobe showing under the chin.
 --
 -- GREY CAT TEMPLATE TONES (the recolour script tools/catfish_recolor.py maps exactly these 4 hex values):
 --   shade  #57516f   crescent, deep, contact shadow, toe lines, tail stripe
@@ -157,34 +159,36 @@ do
   catSave(c, "cf-cat-grey-idleA")
 end
 
--- ===== pounce: mid-leap, body stretched on the diagonal, front paws reaching right, back legs tucked =====
+-- ===== pounce: airborne. Body level and stretched, forelegs tucked up under the chest, hind legs kicked
+-- straight out behind, tail streaming up; the cat rides high over a wide slim floor shadow (pass 7: the old
+-- pose had the front paws reaching down to the floor and read as a reach, not a leap) =====
 do
   local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
   local g = coat(GREY)
   local OX, OY = 16, 0
   local H, head = catHead(c, OX, OY)
-  local A = math.atan(-10, 24)                                             -- body axis, rising to the right
-  local body = rell(c, 28, 37, 15, 7, A)
-  local tail = c:line({ {17, 38}, {12, 35}, {9, 30}, {9, 24}, {12, 20} }, 5) -- streams up behind
-  local legF = c:line({ {38, 33}, {44, 37}, {48, 39} }, 4)                -- far foreleg (behind the body)
-  local legN = c:line({ {36, 38}, {41, 42}, {45, 44} }, 4)                -- near foreleg, reaching down
-  local legB = c:line({ {17, 40}, {13, 41}, {12, 41} }, 4)                -- far hind leg, trailing
-  local legH = c:line({ {22, 44}, {17, 47}, {14, 49} }, 5)                -- near hind leg, kicked straight back
+  local A = math.atan(-5, 24)                                              -- body axis, nearly level
+  local body = rell(c, 27, 33.5, 16, 7, A)
+  local tail = c:line({ {16, 30}, {13, 26}, {11, 21}, {10, 16}, {8, 12} }, 5)   -- streams up and back
+  local legF = c:line({ {39, 33}, {45, 35}, {49, 34} }, 4)                -- far foreleg, tucked under the chin
+  local legN = c:line({ {35, 36}, {40, 40}, {44, 39} }, 4)                -- near foreleg, folded up
+  local legB = c:line({ {17, 33}, {13, 33}, {11, 32} }, 4)                -- far hind leg, straight back
+  local legH = c:line({ {21, 37}, {16, 39}, {13, 40} }, 5)                -- near hind leg, kicked out behind
   local p = c:build{
     { "tail", tail, g, { cres = 2, gloss = false } },
     { "legB", legB, g, { cres = 2, gloss = false } },
     { "legF", legF, g, { cres = 2, gloss = false } },
-    { "body", body, g, { gloss = { 18, 36 } } },
+    { "body", body, g, { gloss = { 18, 31 } } },
     { "legH", legH, g, { cres = 2, gloss = false } },
     H[1], H[2], H[3],
     { "legN", legN, g, { cres = 2, gloss = false } },
   }
-  tailTip(c, tail, c:rect(5, 15, 18, 23), { { 7, 24 }, { 11, 24 } })
-  paw(c, 50.5, 39.5); paw(c, 47.5, 45.5)                                   -- front paws out, about to land
-  paw(c, 10.5, 41.5); paw(c, 11.5, 49.5)                                   -- hind paws trailing
+  tailTip(c, tail, c:rect(4, 4, 16, 15), { { 7, 16 }, { 12, 16 } })
+  paw(c, 51.5, 34.5); paw(c, 46.5, 40)                                     -- front paws tucked
+  paw(c, 10.5, 32.5); paw(c, 11.5, 40.5)                                   -- hind paws trailing
   edgeStitch(c, body, p.body, { lit = LIT })
   catFace(c, OX, OY, head, "open")
-  c:ground(30.5, 57.5, 5.5, 1, "#4a2c1a")                                  -- slim umber floor shadow: airborne
+  c:ground(29.5, 57.5, 9, 1, "#4a2c1a")                                    -- wide slim umber shadow far below
   catSave(c, "cf-cat-grey-pounce")
 end
 
@@ -249,25 +253,25 @@ do
 end
 
 -- ===== stalk: low crouch, chin on the front paws, bum up, tail low, eyes wide =====
+-- Pass 7: the haunch is a round ball set back on the rump (the leaning egg read blocky), and a chest lobe
+-- peeks out between haunch and chin so the tuxedo/calico bib has somewhere to show.
 do
   local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
   local g = coat(GREY)
   local OX, OY = 15, 20
   local H, head = catHead(c, OX, OY)
-  local body = rell(c, 25, 32, 15, 7.5, 0.9)                               -- play bow: rump high, chest down
-  -- haunch: one big round egg leaning forward from the rump to the hind paw (pass 6: the small upright
-  -- ellipse left a square stub between the body and the head)
-  local thigh = rell(c, 17.5, 39, 7.5, 10, -0.35)
+  local body = rell(c, 24, 33, 15, 8, 0.8):add(c:ellipse(26, 46, 5, 6.5)) -- play bow + chest lobe under the chin
+  local thigh = rell(c, 14.5, 43, 7, 8, -0.45)                             -- round haunch, set back
   -- tail held low behind, tip flicked up: open shape, never closes a hole against the body (pass 5)
   local tail = c:line({ {18, 22}, {13, 23}, {9, 21}, {8, 16}, {10, 11} }, 5)
   local p = c:build{
     { "tail", tail, g, { cres = 2, gloss = false } },
-    { "body", body, g, { gloss = { 18, 24 } } },
-    { "thigh", thigh, g, { cres = 2, gloss = { 13, 33 } } },
+    { "body", body, g, { gloss = { 18, 25 } } },
+    { "thigh", thigh, g, { cres = 2, gloss = { 10, 38 } } },
     H[1], H[2], H[3],
   }
   tailTip(c, tail, c:rect(4, 4, 15, 14), { { 6, 15 }, { 10, 15 } })
-  paw(c, 19.5, 53)                                                         -- hind paw under the haunch
+  paw(c, 15.5, 53)                                                         -- hind paw under the haunch
   paw(c, 34.5, 53); paw(c, 45.5, 53)                                       -- front paws under the chin
   edgeStitch(c, body, p.body, { lit = LIT })
   catFace(c, OX, OY, head, "open")
