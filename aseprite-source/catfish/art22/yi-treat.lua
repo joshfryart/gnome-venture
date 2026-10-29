@@ -24,20 +24,29 @@ local function onPart(c, m, P, hex, litOnly)
   end)
 end
 
-local BISC = felt("#d38a45", { gloss = "#ffe0a0", dot = "#fff1c8", rim = "#eeb46a", shade = "#a2582e" })
+local BISC = felt("#dc9a50", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f2c070", shade = "#ae6634" })
 local PINK = felt("#e46a9b", { gloss = "#ffc8dc", dot = "#ffc8dc", rim = "#f29abb" })
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local heart = c:ellipse(20.5, 22, 12.5):add(c:ellipse(41.5, 22, 12.5))
 heart:add(c:poly({ {8.5, 25}, {54.5, 25}, {31.5, 54} })):closed(2)
 local ball = c:ellipse(46.5, 47, 9)
-local strand = c:line({ {52, 39}, {55, 34}, {55, 29}, {52, 27} }, 2)
+local strand = c:line({ {39, 51}, {36, 53}, {32, 53} }, 2)
 local p = c:build{
-  { "heart", heart, BISC, { cres = 5, gloss = { 13, 15 } } },
+  { "heart", heart, BISC, { cres = 4, gloss = false } },
   { "strand", strand, PINK, { flat = true, contact = false } },
   { "ball", ball, PINK, { cres = 3, gloss = { 42, 42 } } },
 }
 c:stitch(heart)                                                                    -- felt edge stitch
+c:paint({                                                                          -- enamel comma, upper-left lobe
+  "...gggd",
+  ".ggd...",
+  "gd.....",
+  "g......",
+}, 12, 15, { g = BISC.gloss, d = BISC.dot })
+for _, q in ipairs({ { 25, 19 }, { 38, 19 }, { 31, 38 }, { 17, 31 } }) do           -- biscuit docking holes
+  onPart(c, c:rect(q[1], q[2], q[1], q[2]), p.heart, BISC.shade, true)
+end
 -- yarn wraps: arcs round a point off the upper right, clipped to the ball
 for _, r in ipairs({ 6, 10 }) do
   local m = c:ellipse(54, 39, r + 1):cut(c:ellipse(54, 39, r))

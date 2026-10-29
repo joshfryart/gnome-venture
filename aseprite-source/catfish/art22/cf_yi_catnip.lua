@@ -51,62 +51,60 @@ local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 local PINK = felt("#e46a9b", { gloss = "#ffc8dc", dot = "#ffc8dc", rim = "#f29abb" })
 local LEAF = felt("#5aa83c", { gloss = "#d4ec8a", dot = "#d4ec8a", rim = "#8ccc5a", shade = "#2f7a3a" })
-local GLASS = felt("#a9d6ea", { gloss = "#eef8f2", dot = "#eef8f2", rim = "#d4ecf4", shade = "#6f98c4" })
+local GLASS = felt("#a9d6ea", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#d4ecf4", shade = "#6f98c4" })
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local cx = 23.5
-local leafL = rell(c, 16.5, 10, 7, 3.5, -0.35)
-local leafR = rell(c, 30.5, 10, 7, 3.5, 0.35)
-for _, lf in ipairs({ leafL, leafR }) do                                  -- toothed top edge
-  lf:edge():each(function(x, y) if ((x + 2 * y) % 5 == 0) and y < 10 then lf:del(x, y) end end)
+local leafL = rell(c, 16.5, 10, 8, 3.8, -0.45)
+local leafR = rell(c, 30.5, 10, 8, 3.8, 0.45)
+for _, lf in ipairs({ leafL, leafR }) do                                  -- toothed outer edge
+  lf:edge():each(function(x, y) if ((x + 2 * y) % 5 == 0) and y < 11 then lf:del(x, y) end end)
 end
-local glass = c:poly({ {11, 17}, {36, 17}, {36, 22}, {26, 32}, {26, 35}, {36, 45}, {36, 51}, {11, 51},
-                       {11, 45}, {21, 35}, {21, 32}, {11, 22} })
-local postL = c:rect(7, 17, 9, 50)
-local postR = c:rect(37, 17, 39, 50)
-local capT = c:rrect(5, 12, 41, 17, 2)
-local capB = c:rrect(5, 50, 41, 56, 2)
+local glass = c:ellipse(cx, 22, 12, 11):clip(c:rect(0, 18, 63, 33))
+glass:add(c:rect(21, 30, 26, 37))
+glass:add(c:ellipse(cx, 47, 12, 11):clip(c:rect(0, 36, 63, 51)))
+local capT = c:rrect(8, 14, 39, 19, 2)
+local capB = c:rrect(8, 50, 39, 56, 2)
 local inner = glass:shrink(2)
-local pile = c:ellipse(cx, 52, 12, 8):clip(inner)
-local rem = c:poly({ {13, 25}, {35, 25}, {26, 33}, {21, 33} }):clip(inner)
+local pile = c:ellipse(cx, 52, 11, 8):clip(inner)
+local rem = c:rect(0, 26, 63, 33):clip(inner)
 local stream = c:rect(23, 33, 24, 46)
 local yarn = c:rrect(18, 31, 29, 36, 2)
 local loose = c:line({ {29, 35}, {32, 38}, {33, 42}, {31, 44} }, 2)
-local big = star(c, 50, 15, 6.5, 2.3, 0)
-local small = star(c, 50, 31, 4.5, 1.6, 0)
+local big = star(c, 48, 15, 7, 2.5, 0)
+local small = star(c, 48, 32, 5, 1.8, 0)
 
 local p = c:build{
   { "leafL", leafL, LEAF, { cres = 2, gloss = false } },
   { "leafR", leafR, LEAF, { cres = 2, gloss = false } },
-  { "postL", postL, WOOD, { cres = 1, deep = 0, gloss = false } },
-  { "postR", postR, WOOD, { cres = 1, deep = 0, gloss = false } },
   { "glass", glass, GLASS, { cres = 3, gloss = false } },
   { "rem", rem, LEAF, { cres = 2, gloss = false, contact = false } },
   { "stream", stream, LEAF, { flat = true, contact = false } },
   { "pile", pile, LEAF, { cres = 3, gloss = false, contact = false } },
-  { "capT", capT, WOOD, { cres = 2, gloss = { 8, 13 } } },
-  { "capB", capB, WOOD, { cres = 3, gloss = { 8, 51 } } },
+  { "capT", capT, WOOD, { cres = 2, gloss = { 10, 15 } } },
+  { "capB", capB, WOOD, { cres = 3, gloss = { 10, 51 } } },
   { "loose", loose, PINK, { flat = true, contact = false } },
   { "yarn", yarn, PINK, { cres = 2, gloss = false } },
   { "small", small, GOLD, { cres = 1, gloss = false, bounce = false, contact = false } },
   { "big", big, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } },
 }
 -- glass glints (upper-left of each bulb)
-c:paint({ "ggg", "g..", "g.." }, 13, 19, { g = GLASS.gloss })
-c:paint({ "g", "g" }, 13, 46, { g = GLASS.gloss })
--- catnip leaf specks in the pile
+c:paint({ ".ggg", "g...", "g...", "g..." }, 14, 20, { g = GLASS.gloss })
+c:paint({ "g", "g" }, 14, 41, { g = GLASS.gloss })
+-- catnip leaf specks in the sand
 c:paint({ ".r.", "rr." }, 17, 47, { r = LEAF.rim })
 c:paint({ ".r", "r." }, 27, 46, { r = LEAF.rim })
+c:paint({ "r.", ".r" }, 17, 27, { r = LEAF.rim })
 -- yarn wraps
 for _, x in ipairs({ 21, 24, 27 }) do onPart(c, c:line({ {x, 32}, {x + 1, 35} }, 1), p.yarn, PINK.shade) end
-c:px(19, 32, PINK.gloss); c:px(20, 32, PINK.gloss)
+c:px(19, 32, PINK.rim); c:px(20, 32, PINK.rim)
 -- leaf midribs, cap seams
-c:seam({ { 22, 11 }, { 16, 10 }, { 11, 9 } }, { gap = LEAF.shade })
-c:seam({ { 25, 11 }, { 31, 10 }, { 36, 9 } }, { gap = LEAF.shade })
-c:seam({ { 8, 15 }, { 38, 15 } }, { gap = WOOD.shade })
-c:seam({ { 8, 53 }, { 38, 53 } }, { gap = WOOD.shade })
+c:seam({ { 22, 12 }, { 16, 10 }, { 10, 7 } }, { gap = LEAF.shade })
+c:seam({ { 25, 12 }, { 31, 10 }, { 37, 7 } }, { gap = LEAF.shade })
+c:seam({ { 11, 17 }, { 36, 17 } }, { gap = WOOD.shade })
+c:seam({ { 11, 53 }, { 36, 53 } }, { gap = WOOD.shade })
 -- star glints
-c:px(49, 14, GOLD.gloss); c:px(50, 14, GOLD.gloss); c:px(49, 30, GOLD.gloss)
+c:px(47, 14, GOLD.gloss); c:px(48, 14, GOLD.gloss); c:px(47, 31, GOLD.gloss)
 
 local t = c:save(OUT .. "cf-yi-catnip.aseprite", OUT .. "cf-yi-catnip.png")
 print("catnip " .. GV.report(t))

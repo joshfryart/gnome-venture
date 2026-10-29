@@ -61,23 +61,39 @@ GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 local INK = "#4a2c1a"
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
-local sheet = c:rect(11, 12, 43, 50)
-local topR = c:rrect(7, 7, 47, 15, 4)
-local botR = c:rrect(7, 47, 47, 55, 4)
+local sheet = c:rect(10, 12, 40, 50)
+local topR = c:rrect(6, 7, 44, 15, 4)
+local botR = c:rrect(6, 47, 44, 55, 4)
 local stamp = c:ellipse(18.5, 23, 4.5, 4):add(c:poly({ {14, 22}, {15, 16}, {19, 20} })):add(c:poly({ {18, 20}, {22, 16}, {23, 22} }))
--- quill: feather along the axis from the nib (33,43) up to the upper right
-local ax, ay = 21, -33
-local a = math.atan(ay, ax)
-local feather = rell(c, 47, 21, 13, 5, a)
-local shaft = c:line({ {34, 41}, {41, 31} }, 3)
+-- quill: a pointed feather vane along the axis from S up to the tip T, two notches on its lower edge
+local S, T = { 38, 34 }, { 55, 7 }
+local L = math.sqrt((T[1] - S[1]) ^ 2 + (T[2] - S[2]) ^ 2)
+local ux, uy = (T[1] - S[1]) / L, (T[2] - S[2]) / L
+local vx, vy = -uy, ux                                                                    -- v > 0: lower right side
+local function Q(u, v) return { S[1] + 0.5 + ux * u + vx * v, S[2] + 0.5 + uy * u + vy * v } end
+local up, dn = {}, {}
+for i = 0, 12 do
+  local u = L * i / 12
+  local w = 5.2 * math.sin(math.pi * (0.08 + 0.92 * i / 12)) ^ 0.8
+  up[#up + 1] = Q(u, -w * 0.85); dn[#dn + 1] = Q(u, w)
+end
+local pts = {}
+for _, q in ipairs(up) do pts[#pts + 1] = q end
+for i = #dn, 1, -1 do pts[#pts + 1] = dn[i] end
+local feather = c:poly(pts)
+for _, f in ipairs({ 0.42, 0.66 }) do                                                    -- notches
+  local u = L * f
+  feather:cut(c:poly({ Q(u - 1.2, 6), Q(u + 2.2, 6), Q(u - 1.8, 2.2) }))
+end
+local shaft = c:line({ {34, 41}, {39, 33} }, 3)
 local nib = c:poly({ {31, 46}, {33, 38}, {38, 41} })
-local yarn = c:ellipse(52, 50, 7)
+local yarn = c:ellipse(48, 49, 7)
 local p = c:build{
   { "sheet", sheet, PAPER, { cres = 4, gloss = false } },
   { "top", topR, ROLL, { cres = 3, gloss = { 10, 9 } } },
   { "bot", botR, ROLL, { cres = 3, gloss = false } },
   { "stamp", stamp, ROSE, { cres = 2, gloss = false, contact = false } },
-  { "yarn", yarn, ROSE, { cres = 3, gloss = { 48, 46 } } },
+  { "yarn", yarn, ROSE, { cres = 3, gloss = { 44, 45 } } },
   { "nib", nib, GOLD, { cres = 2, gloss = false, bounce = false } },
   { "shaft", shaft, TEAL, { cres = 1, deep = 0, gloss = false } },
   { "feather", feather, TEAL, { cres = 3, gloss = false } },
@@ -88,26 +104,24 @@ local function squig(x0, x1, y)
   for x = x0, x1, 2 do pts[#pts + 1] = { x, y + ((x // 2) % 2) } end
   trace(c, pts, INK, set(PAPER.base, PAPER.rim, PAPER.shade))
 end
-squig(25, 38, 20)
-squig(15, 38, 29)
-squig(15, 36, 35)
-squig(15, 29, 41)
--- feather barbs: notch lines across the vane, shaft line along it
-local ux, uy = math.cos(a), math.sin(a)
-trace(c, { { 40 - ux * 2, 32 - uy * 2 }, { 47 + ux * 9, 21 + uy * 9 } }, TEAL.rim, set(TEAL.base, TEAL.shade))
-for _, t in ipairs({ -4, 1, 6 }) do
-  local bx, by = 47 + ux * t, 21 + uy * t
-  trace(c, { { bx, by }, { bx + 4, by + 2 } }, TEAL.shade, set(TEAL.base, TEAL.rim))
+squig(25, 36, 20)
+squig(14, 36, 29)
+squig(14, 34, 35)
+squig(14, 27, 41)
+-- rachis (lit quill line) along the vane, barb lines on the lower half
+trace(c, { Q(0, 0), Q(L - 3, 0) }, TEAL.rim, set(TEAL.base, TEAL.shade))
+for _, f in ipairs({ 0.3, 0.54, 0.78 }) do
+  local u = L * f
+  trace(c, { Q(u, 1), Q(u - 2.5, 3.5) }, TEAL.shade, set(TEAL.base, TEAL.rim))
 end
-c:paint({ ".gg", "g.." }, 43, 14, { g = TEAL.gloss })
+c:paint({ ".g", "g." }, 47, 13, { g = TEAL.gloss })
 c:px(33, 41, GOLD.shade)                                                                 -- nib slit
 -- roll seams and the stamp's face
-c:seam({ { 10, 11 }, { 44, 11 } }, { gap = ROLL.shade })
-c:seam({ { 10, 51 }, { 44, 51 } }, { gap = ROLL.shade })
+c:seam({ { 9, 11 }, { 41, 11 } }, { gap = ROLL.shade })
+c:seam({ { 9, 51 }, { 41, 51 } }, { gap = ROLL.shade })
 c:px(17, 22, INK); c:px(20, 22, INK); c:px(16, 21, ROSE.gloss)
 -- yarn ball wraps and thread to the bottom roll
-for _, r in ipairs({ 3, 6 }) do onPart(c, c:ellipse(58, 44, r + 5):cut(c:ellipse(58, 44, r + 4)), p.yarn, ROSE.shade) end
-save = nil
+for _, r in ipairs({ 7, 10 }) do onPart(c, c:ellipse(54, 42, r + 1):cut(c:ellipse(54, 42, r)), p.yarn, ROSE.shade) end
 local t = c:save(OUT .. "cf-yi-bio.aseprite", OUT .. "cf-yi-bio.png")
 print("bio " .. GV.report(t))
 assert(t.semi == 0 and t.margin >= 3 and t.colours <= 22 and t.bw == 0, "check failed")

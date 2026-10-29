@@ -2,34 +2,37 @@
 -- Run: AppRun -b --script season-firefly.lua
 -- Writes out/cf-season-firefly.png (glow on) and out/cf-season-firefly-b.png (glow off), 5 x 6 each,
 -- plus matching .aseprite files. Same footprint in both so the two frames swap in place.
--- Tiny sprite: hand-placed pixels (dusk dark head/thorax, 2 lavender wing pixels, a glow tail: bright core
--- diamond inside a 1 px yellow-green halo ring). Hard pixels, no border: the ring is the edge, so it reads as
--- light on the cream wall, the blue wainscot and the wood floor. Glow off drops the ring and dims the core.
+-- Tiny sprite: hand-placed pixels (dusk dark head/thorax, 2 lavender wing pixels raised in a V, a round
+-- lantern tail: bright core inside a 1 px yellow-green halo ring, crescent lower right). Hard pixels, no border:
+-- the ring is the edge, so it reads on the cream wall, blue wainscot and wood floor. Glow off dims it to olive.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
 local OUT = here .. "/out/"
 
 -- 5 x 6, drawn at 0,0
 local ART = {
-  "..h..",
-  ".wbw.",
-  ".rcr.",
-  "rcCcr",
-  ".rcr.",
-  "..r..",
+  ".w.w.",   -- wings raised in a V (2 px)
+  "..h..",   -- head
+  ".rbr.",   -- thorax, top of the lantern ring
+  "rcCcr",   -- lantern: hot spot upper left of centre
+  "rcccr",   -- lantern body
+  ".rrR.",   -- ring, deep (R) on the lower right
 }
 local ON = {
   h = "#291d4a",  -- dusk shade (head)
   b = "#3e2f66",  -- dusk base (thorax)
-  w = "#a894dc",  -- dusk gloss (wing)
-  C = "#fbfcb4",  -- glow hot centre, warm cream-yellow
+  w = "#a894dc",  -- dusk gloss (wings)
+  C = "#fbfcb4",  -- glow hot spot, warm cream-yellow
   c = "#dcef4e",  -- glow core, yellow
   r = "#94bc2a",  -- 1 px halo ring, yellow-green
+  R = "#6e9a24",  -- ring deep / core crescent, greener and darker
 }
-local OFF = {
+local OFF = {     -- same silhouette, lantern dimmed to olive (blinks in place)
   h = ON.h, b = ON.b, w = ON.w,
-  C = "#9aa63e",  -- unlit lantern, olive
-  c = "#76842e",  -- olive shade
+  C = "#a4ac4a",
+  c = "#8a963a",
+  r = "#66722c",
+  R = "#4e5a26",
 }
 
 local function draw(pal, name)

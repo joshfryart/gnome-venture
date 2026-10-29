@@ -27,7 +27,7 @@ end
 -- coat ramps (from cf-cat-orange-idleA / cf-cat-grey-idleA)
 local GINGER = felt("#e8701a", { gloss = "#fbeab7", dot = "#fbeab7", rim = "#f3bb60", shade = "#a32d0c" })
 local GREY = felt("#8a859b", { gloss = "#f1ebe3", dot = "#f1ebe3", rim = "#cdc9d3", shade = "#57516f" })
-local ROSE = felt("#d2507e", { gloss = "#ffb8c8", dot = "#ffb8c8", rim = "#ec86a6", shade = "#9a2a58" })
+local HEART = felt("#dd3a4a", { gloss = "#ffb8c8", dot = "#ffb8c8", rim = "#f2707a", shade = "#9a2a58" })
 local EAR, MUZ = "#e8909e", "#f2e4c0"
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
@@ -36,25 +36,23 @@ local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local aHead = c:ellipse(19.5, 27, 11.5, 9)
   :add(c:poly({ {9, 25}, {10, 12}, {19, 19} })):add(c:poly({ {20, 19}, {29, 12}, {30, 25} }))
 local aBody = c:ellipse(19.5, 45, 10, 9):clip(c:rect(0, 0, 63, 53))
-local aTail = c:line({ {11, 51}, {7, 47}, {7, 41} }, 4)
 -- grey buddy (right, smaller, leaning in)
 local bHead = c:ellipse(43.5, 32, 10.5, 8.5)
   :add(c:poly({ {34, 31}, {35, 19}, {43, 25} })):add(c:poly({ {44, 25}, {52, 19}, {53, 31} }))
 local bBody = c:ellipse(43.5, 47, 9, 7.5):clip(c:rect(0, 0, 63, 53))
-local bTail = c:line({ {51, 52}, {55, 49}, {56, 43} }, 4)
+local bTail = c:line({ {49, 52}, {53, 50}, {54, 45}, {52, 41} }, 4)
 -- rose heart above, yarn ball between their feet
-local heart = c:ellipse(28.5, 9, 3.5):add(c:ellipse(35.5, 9, 3.5)):add(c:poly({ {25, 10}, {39, 10}, {32, 18} }))
-local ball = c:ellipse(31.5, 51, 4.5)
+local heart = c:ellipse(28, 10.5, 4.5):add(c:ellipse(36, 10.5, 4.5)):add(c:poly({ {23.5, 11}, {40.5, 11}, {32, 20} }))
+local ball = c:ellipse(31.5, 50, 5.5)
 
 local p = c:build{
-  { "aTail", aTail, GINGER, { cres = 2, deep = 0, gloss = false } },
   { "bTail", bTail, GREY, { cres = 2, deep = 0, gloss = false } },
   { "aBody", aBody, GINGER, { cres = 4, gloss = false } },
   { "aHead", aHead, GINGER, { cres = 4, gloss = { 11, 21 } } },
   { "bBody", bBody, GREY, { cres = 3, gloss = false } },
   { "bHead", bHead, GREY, { cres = 4, gloss = { 36, 26 } } },
-  { "ball", ball, ROSE, { cres = 2, gloss = false } },
-  { "heart", heart, ROSE, { cres = 3, gloss = { 27, 7 } } },
+  { "ball", ball, HEART, { cres = 3, gloss = false } },
+  { "heart", heart, HEART, { cres = 3, gloss = { 26, 8 } } },
 }
 
 -- inner ears
@@ -71,15 +69,19 @@ c:paint({ "nn" }, 43, 35, { n = EAR })
 c:paint({ "u..u", ".uu." }, 42, 37, { u = "ol2" })
 -- tabby stripes on the ginger forehead, belly seams on both
 c:paint({ "s.s", "s.s" }, 18, 19, { s = GINGER.shade })
-c:seam({ { 15, 41 }, { 15, 50 } }, { gap = GINGER.shade }); c:seam({ { 24, 41 }, { 24, 50 } }, { gap = GINGER.shade })
-c:seam({ { 40, 44 }, { 40, 51 } }, { gap = GREY.shade }); c:seam({ { 47, 44 }, { 47, 51 } }, { gap = GREY.shade })
+c:seam({ { 13, 40 }, { 14, 46 }, { 19, 49 }, { 24, 47 } }, { gap = GINGER.shade })   -- belly panel seams
+c:seam({ { 38, 44 }, { 40, 49 }, { 45, 50 }, { 49, 47 } }, { gap = GREY.shade })
+-- front paws: two lit bumps with a toe line
+for _, q in ipairs({ { 13, 51, GINGER }, { 21, 51, GINGER }, { 39, 51, GREY }, { 45, 51, GREY } }) do
+  c:paint({ ".rrr.", "rrrrr", "r.r.r" }, q[1], q[2], { r = q[3].rim })
+end
 -- yarn ball wraps
 for _, r in ipairs({ 3, 6 }) do
-  onPart(c, c:ellipse(36, 47, r + 3):cut(c:ellipse(36, 47, r + 2)), p.ball, ROSE.shade)
+  onPart(c, c:ellipse(37, 45, r + 3):cut(c:ellipse(37, 45, r + 2)), p.ball, HEART.shade)
 end
-c:px(30, 49, ROSE.gloss)
+c:paint({ "gg", "g." }, 28, 47, { g = HEART.gloss })
 -- heart centre seam
-c:seam({ { 32, 9 }, { 32, 14 } }, { gap = ROSE.shade })
+c:seam({ { 32, 10 }, { 32, 16 } }, { gap = HEART.shade })
 
 local t = c:save(OUT .. "cf-yi-buddy.aseprite", OUT .. "cf-yi-buddy.png")
 print("buddy " .. GV.report(t))

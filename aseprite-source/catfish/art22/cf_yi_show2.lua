@@ -72,7 +72,7 @@ head:add(c:poly({ { B.x + 2, B.y - 3 }, { B.x + 6, B.y - 6 }, { B.x + 7, B.y + 1
 local yarn = c:line({ { 13, 44 }, { 20, 49 }, { 27, 49 }, { 31, 46 } }, 3)
 yarn:add(c:line({ { 31, 46 }, { 36, 49 }, { 43, 50 }, { 49, 46 } }, 3))
 local knot = c:ellipse(31, 46, 3.5)
-local loose = c:line({ { 31, 49 }, { 29, 54 }, { 32, 57 } }, 2)
+local loose = c:line({ { 31, 49 }, { 29, 52 }, { 31, 54 } }, 2)
 
 local p = c:build{
   { "tA1", tail(A.x - 2, A.y + 2, 12, 47, 5), TEAL, { cres = 2, gloss = false } },
