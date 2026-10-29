@@ -1,6 +1,6 @@
 # Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.07 (Cat Fish buy flow, live scene; main 2.1.01 merged))
 
-## NOW (2.1.07, 2026-10-29): Cat Fish buy flow fixed: instant cost with `-N`, taps flushed with the buy, scene refreshed in place (`stage_html`), one news post for 2.1.05 to 2.1.07. Slim zip in `releases/`.
+## NOW (2.1.07, 2026-10-29): Cat Fish buy flow fixed: instant cost with `-N`, taps flushed with the buy, scene refreshed in place (`stage_html`), one news post for 2.1.05 to 2.1.07. Also carries the fight-card phone scroll (`gvFightScroll`, branch ccr-103a3178-10sv83 rolled in). Slim zip in `releases/`.
 - **NEXT:** art follow-ups: bird sprite 1 px outline vs the overlay robin; rolling yarn sprite lacks thread and contact shadow; side-cat nap/bored spots are static (could move).
 
 ## NOW (2.1.06, 2026-10-29): Cat Fish S4 wired. Idle variety yawn / stretch / wash (15-30 s, from idleA only), window bird sprite (hop 150, wings 200, 6-14 s; replaces the overlay robin while animating), yarn roll on swatB/pounce (`CATFISH_YARN_ROLL = true`), dust motes in the sunbeam, rug wobble. `?cffast=1` test hook. Slim zip in `releases/`.

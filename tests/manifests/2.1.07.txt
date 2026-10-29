@@ -8232,7 +8232,7 @@ aaf63aaedf1a7ef675fc5912829c63cbd97d129d  assets/puzzles.js
 c26c75ea30f818042a409dd242b48bb747cf049a  assets/race.js
 666aedf59738eacfc535eab531f07397593a5862  assets/rainbarrel.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
-a672746fe50c7b0e55751154e3dc2b2d10cac552  assets/site.js
+c98eaabc4874558ae6ce2deb6220b20b0c8f818c  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
 059f59da865c8e45790258be5782a81ac04ba629  assets/style.css
@@ -8488,7 +8488,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-c166d1045593047820bd3844b19682480d6f1bd0  includes/update_news.php
+360a143a7eeef7ddb9c4b944f06e77330b652027  includes/update_news.php
 66ef47580112917eaecfee11f6bb531a0cc97bc4  includes/updater.php
 46532daa3ff13c87820a3d523e887c36439ec70c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php

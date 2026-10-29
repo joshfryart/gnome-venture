@@ -596,7 +596,8 @@ function post_update_news(string $from): void
         . "[*]Your cat blinks, hops for joy, flicks its tail, yawns, stretches and washes.\n"
         . "[*]Sleepy cats get a floating z.\n"
         . "[*]The window bird hops, dust floats in the sunbeam and the yarn ball rolls when your cat pounces.\n"
-        . "[*]Buying an upgrade now shows in the room right away.[/list]"],
+        . "[*]Buying an upgrade now shows in the room right away.\n"
+        . "[*]On phones, the fight and wander card stays in view after each action.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
