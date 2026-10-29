@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.99
+- **Drying rack icons fixed:** each bundle now shows its own flower icon (it was using the rack row id, so it showed random items like a shovel).
+
 ## 2.0.98
 - **Stats tab on phones:** stats show three per row (Luck on its own row below) so the list is much shorter. Desktop unchanged.
 
