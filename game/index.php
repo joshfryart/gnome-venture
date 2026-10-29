@@ -133,7 +133,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
 ?>
 <div class="todaypage">
 <div class="box todayhead">
-  <div class="tavatar"><?= gnome_avatar($u, 64) ?></div>
+  <div class="tavatar"><?= gnome_avatar_pals($u, 64) ?></div>
   <div>
     <h1><?= e($hello) ?>, <?= e(gnome_name($u)) ?>!</h1>
     <p class="todayfx tline"><span>📍 <?= e(player_location($u)) ?></span> <span><?= hollow_chip(hollow_user_region($u), 'hollow') ?></span><?php if ($fc): ?> <span class="muted">Tomorrow: <?= e($fc[1]['emoji'] . ' ' . $fc[1]['wlabel']) ?></span><?php endif; ?><?php if ($fx): ?> <a href="<?= e(url('gnome.php#effects')) ?>">✨ <?= implode(' ', array_map(fn($f) => e($f[0] . ' ' . $f[2] . ' (' . effect_time($f[3]) . ')'), $fx)) ?></a><?php endif; ?></p>

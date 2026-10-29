@@ -454,7 +454,7 @@ function adventure_topbar(array $u): string
             . '<div class="fwho"><b>' . e($c['name'] ?? 'Creature') . '</b> <small>lv ' . (int)($c['level'] ?? 1) . '</small><br><meter min="0" max="' . $cm . '" low="' . (int)ceil($cm / 3) . '" value="' . $ch . '"></meter> <span class="hpnum">❤️ ' . $ch . '/' . $cm . '</span>'
             . (!empty($enc['poison']) ? ' <span class="fx" role="img" aria-label="Poisoned" title="Poisoned">🧪</span>' : '') . '</div></div>'
             . '<div class="vs">vs</div>'
-            . '<div class="fighter me' . ($hp * 3 <= $max ? ' low' : '') . '">' . gnome_avatar($u, 44)
+            . '<div class="fighter me' . ($hp * 3 <= $max ? ' low' : '') . '">' . gnome_avatar_pals($u, 44)
             . '<div class="fwho"><b>' . e(gnome_name($u)) . '</b><br><meter min="0" max="' . $max . '" low="' . (int)ceil($max / 3) . '" optimum="' . $max . '" value="' . $hp . '"></meter> <span class="hpnum">❤️ ' . $hp . '/' . $max . '</span>'
             . ' <span class="fx" role="img" aria-label="Energy ' . (int)$u['energy'] . '" title="Energy">⚡' . (int)$u['energy'] . '</span>'
             . (!empty($enc['bark']) ? ' <span class="fx" role="img" aria-label="Bark Skin ' . (int)$enc['bark'] . '" title="Bark Skin">🌳' . (int)$enc['bark'] . '</span>' : '') . '</div></div>'
@@ -473,7 +473,7 @@ function adventure_topbar(array $u): string
                 . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="back" value="' . e($back) . '">'
                 . $extra . choice_row($icon, $title, $sub, $badge, $cls, $battrs) . '</form>';
         };
-        $gc = gnome_combat($u);
+        $gc = gnome_combat($u, true);
         $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
         $runPct = max(0, min(100, (21 - (8 + intdiv((int)($c['level'] ?? 1), 3) - eff_mod($u, 'nimble'))) * 5));
         $actionsRow = '<div class="choices advchoices">'
@@ -656,7 +656,7 @@ function nav_sheet(array $u, string $page): string
     if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)
     require_once __DIR__ . '/destination.php';
     $ds = function_exists('dest_status') ? dest_status($u) : null;
-    $h = '<div class="navhead"><a class="navme" href="' . e(url('gnome.php')) . '">' . gnome_avatar($u, 40) . '<span><b>' . e(gnome_name($u)) . '</b></span></a>'
+    $h = '<div class="navhead"><a class="navme" href="' . e(url('gnome.php')) . '">' . gnome_avatar_pals($u, 40) . '<span><b>' . e(gnome_name($u)) . '</b></span></a>'
         . '<button type="button" class="navx" aria-label="Close the menu">✕</button></div>'
         . '<div class="navrow"><p class="navstatus">' . money((int)$u['coins'])
         . ($ds ? ' · 🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'

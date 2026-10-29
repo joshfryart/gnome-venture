@@ -28,7 +28,7 @@ $calling = CALLINGS[$g['calling'] ?? ''] ?? null;
 page_header(gnome_name($g));
 ?>
 <div class="profilehead box">
-  <?= gnome_avatar($g, 80) ?>
+  <?= gnome_avatar_pals($g, 80) ?>
   <div>
     <h1><?= e(gnome_name($g)) ?> <?= report_link((int)$g['id'], 'name') ?></h1>
     <?php if (!empty($g['title'])): ?><p class="title"><i><?= e((string)$g['title']) ?></i></p><?php endif; ?>

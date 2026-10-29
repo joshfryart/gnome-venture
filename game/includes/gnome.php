@@ -528,6 +528,18 @@ function gnome_name(array $u): string
 }
 
 /** A little gnome portrait. Colours are attributes (not inline styles) so the strict CSP allows them. */
+/**
+ * v2.0.88: gnome_avatar() plus the Puzzle Pals the gnome has taken along (companions at the feet). gnome_avatar() itself stays plain because trek.php, trek_art.php
+ * and scene.php re-embed its svg. Cheap gate first: setting off, under level 15 or a tiny avatar = the plain avatar with no query and no extra file loaded.
+ */
+function gnome_avatar_pals(array $u, int $size = 96): string
+{
+    $svg = gnome_avatar($u, $size);
+    if ($size < 30 || (int)($u['level'] ?? 0) < 15 || setting('ppal_party') !== '1') return $svg;
+    require_once __DIR__ . '/puzzle_pals.php';
+    return ppal_avatar($u, $size, $svg);
+}
+
 function gnome_avatar(array $u, int $size = 96): string
 {
     $hat = gnome_hat_color($u);

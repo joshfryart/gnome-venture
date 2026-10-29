@@ -404,6 +404,7 @@ function ppal_maybe_find(array $u): bool
         $day = hollow_date('Y-m-d');
         if (!$force) {
             $chance = max(2, (int)setting('ppal_chance'));
+            if (($fp = ppal_perks($u)['finder']) > 0) $chance = max(2, (int)round($chance / (1 + $fp / 100)));   // step 4: the finder perk (+5% per unit, cap +30%)
             if (random_int(1, $chance) !== 1) return false;
             $cool = max(0, (int)setting('ppal_cooldown_minutes')) * 60;
             if (!empty($u['ppal_at']) && strtotime($u['ppal_at'] . ' UTC') > time() - $cool) return false;
@@ -586,4 +587,179 @@ function ppal_badges_html(int $uid): string
         $h .= '<li class="ppaltrophy" title="' . e('Expert trophy: ' . $pic['title']) . '"><span class="ppaltro" aria-hidden="true">🏆</span><small>' . e((string)$pic['title']) . '</small></li>';
     }
     return $h === '' ? '' : '<ul class="pzbadges ppalbadges">' . $h . '</ul>';
+}
+
+// ---------------- step 4: take pals along (equip), passive perks, the avatar companions ----------------
+
+const PPAL_PARTY_LEVEL = 15;   // gnome level needed to take pals along
+/** Perk units by rarity, and the caps: the units a kind adds up to (a pal's own units + the Expert trophy's +1 for its picture), then what they are worth. */
+const PPAL_UNITS = ['common' => 1, 'uncommon' => 2, 'rare' => 3];
+const PPAL_PERK_RATE = ['gather' => 1, 'finder' => 5, 'tinker' => 1, 'bloom' => 1];   // percent per unit
+const PPAL_PERK_CAP = ['gather' => 6, 'finder' => 30, 'tinker' => 6, 'bloom' => 6, 'road' => 3];   // percent, or points for road
+const PPAL_PERK_TEXT = [
+    'gather' => 'Brings +%d%% rare finds when you gather',
+    'road' => 'Gives +%d Grit, Nimble and Hardiness in road, lair and delve fights',
+    'finder' => 'Brings +%d%% Puzzle Pal finds',
+    'tinker' => 'Brings +%d%% XP from games',
+    'bloom' => 'Brings +%d%% lucky extras at the harvest',
+    'shine' => 'Makes your gnome sparkle',
+];
+
+/** Is "take along" on (feature open to the viewer AND the ppal_party setting)? Everything in step 4 hides behind this. */
+function ppal_party_on(): bool
+{
+    return setting('ppal_party') === '1' && ppal_open();
+}
+
+/** Pals a gnome may take along (setting ppal_party_max, 1 to 3, default 2). */
+function ppal_party_max(): int
+{
+    $v = setting('ppal_party_max');
+    return $v === '' ? 2 : max(1, min(3, (int)$v));
+}
+
+/** The user row (id, level, guest) for a uid or a row: perks and the avatar need only these. */
+function ppal_user(int|array $u): array
+{
+    if (is_array($u)) return $u;
+    static $c = [];
+    return $c[$u] ??= (q_one('SELECT id, level, guest FROM users WHERE id = ?', [$u]) ?: ['id' => $u, 'level' => 0, 'guest' => 1]);
+}
+
+/** Can this gnome take pals along? Party on, not a guest, level 15+. */
+function ppal_can_party(int|array $u): bool
+{
+    if (!ppal_party_on()) return false;
+    $u = ppal_user($u);
+    return (int)($u['level'] ?? 0) >= PPAL_PARTY_LEVEL && !is_guest($u) && ppal_ensure();
+}
+
+/** Forget the per-request caches (after an equip change). */
+function ppal_party_reset(): void
+{
+    ppal_equipped(0, true);
+    ppal_perks(0, true);
+}
+
+/**
+ * The pals this gnome has taken along, in the order taken: list of ['pal' => roster row, 'pic' => picture row, 'units' => perk units (rarity + the Expert trophy's +1)].
+ * [] when take-along is off, the gnome is under level 15, or a pal's picture / roster row is gone (an unknown key plays as nothing, never an error). One query, cached per request.
+ */
+function ppal_equipped(int|array $u, bool $reset = false): array
+{
+    static $c = [];
+    if ($reset) { $c = []; return []; }
+    $row = ppal_user($u);
+    $uid = (int)($row['id'] ?? 0);
+    if (isset($c[$uid])) return $c[$uid];
+    $c[$uid] = [];
+    try {
+        if (!$uid || !ppal_can_party($row)) return [];
+        foreach (q('SELECT pal_key, pic_id FROM ppal_found WHERE user_id = ? AND active = 1 ORDER BY found_at, id', [$uid])->fetchAll() as $r) {
+            if (count($c[$uid]) >= ppal_party_max()) break;
+            $pic = ppal_pic((int)$r['pic_id']);
+            $pal = $pic ? ppal_find_pal($pic, (string)$r['pal_key']) : null;
+            if (!$pal) continue;
+            $c[$uid][] = ['pal' => $pal, 'pic' => $pic, 'units' => (PPAL_UNITS[$pal['rarity']] ?? 1) + ppal_trophy_unit($uid, (int)$pic['id'])];
+        }
+    } catch (Throwable $e) { error_log('ppal_equipped: ' . $e->getMessage()); }
+    return $c[$uid];
+}
+
+/**
+ * The passive perks from the pals taken along (plan section 4). Each pal adds its units (common 1, uncommon 2, rare 3, +1 if the gnome holds that picture's
+ * Expert trophy) to its perk kind; same-kind pals stack, then the cap bites: gather +1% per unit (cap 6), finder +5% per unit (cap 30), tinker +1% (cap 6),
+ * bloom +1% (cap 6), road +1 per 2 units (cap 3), shine = a sparkle only. Returns ['units' => kind => n, 'gather', 'finder', 'tinker', 'bloom' (percent), 'road' (points),
+ * 'shine' (bool), 'lines' => perk sentences for the UI]. All zero when take-along is off. Cached per request.
+ */
+function ppal_perks(int|array $u, bool $reset = false): array
+{
+    static $c = [];
+    if ($reset) { $c = []; return []; }
+    $uid = (int)(ppal_user($u)['id'] ?? 0);
+    if (isset($c[$uid])) return $c[$uid];
+    $p = ['units' => [], 'gather' => 0, 'finder' => 0, 'tinker' => 0, 'bloom' => 0, 'road' => 0, 'shine' => false, 'lines' => []];
+    foreach (ppal_equipped($u) as $e) $p['units'][$e['pal']['perk']] = ($p['units'][$e['pal']['perk']] ?? 0) + $e['units'];
+    foreach (PPAL_PERK_RATE as $k => $rate) $p[$k] = min(PPAL_PERK_CAP[$k], $rate * ($p['units'][$k] ?? 0));
+    $p['road'] = min(PPAL_PERK_CAP['road'], intdiv($p['units']['road'] ?? 0, 2));
+    $p['shine'] = ($p['units']['shine'] ?? 0) > 0;
+    foreach ($p['units'] as $k => $n) {
+        $v = $k === 'shine' ? 0 : (int)$p[$k];
+        if ($k !== 'shine' && $v <= 0) continue;
+        $p['lines'][] = sprintf(PPAL_PERK_TEXT[$k] ?? '', $v);
+    }
+    return $c[$uid] = $p;
+}
+
+/** One pal's own perk sentence for the book ("Brings +2% rare finds ..."), at its units, before the caps. */
+function ppal_perk_line(array $pal, int $units): string
+{
+    $k = (string)$pal['perk'];
+    $v = $k === 'road' ? intdiv($units, 2) : (PPAL_PERK_RATE[$k] ?? 0) * $units;
+    return sprintf(PPAL_PERK_TEXT[$k] ?? '', $v);
+}
+
+/** Take a found pal along ($on) or send it home. Returns [ok, message]. Max ppal_party_max() at once (a third is refused until one goes home). */
+function ppal_set_active(array $u, string $key, bool $on): array
+{
+    $uid = (int)$u['id'];
+    if (!ppal_party_on() || is_guest($u) || !ppal_ensure()) return [false, 'Pals cannot come along just yet.'];
+    if ((int)$u['level'] < PPAL_PARTY_LEVEL) return [false, 'Take pals along from gnome level ' . PPAL_PARTY_LEVEL . '.'];
+    $f = q_one('SELECT active FROM ppal_found WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+    if (!$f) return [false, 'You have not met that pal yet.'];
+    $name = $key;
+    foreach (ppal_releases($uid) as $picId => $at) { $pic = ppal_pic((int)$picId); if ($pic && ($p = ppal_find_pal($pic, $key))) { $name = $p['name']; break; } }
+    if (!$on) {
+        q('UPDATE ppal_found SET active = 0 WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+        ppal_party_reset();
+        return [true, $name . ' goes home to rest.'];
+    }
+    if ((int)$f['active'] === 1) return [true, $name . ' is already with you.'];
+    if ((int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ? AND active = 1', [$uid]) >= ppal_party_max()) return [false, 'Your party is full (' . ppal_party_max() . '). Send a pal home first.'];
+    q('UPDATE ppal_found SET active = 1 WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+    ppal_party_reset();
+    return [true, $name . ' comes along with you.'];
+}
+
+/** Percent chance of one more in a roll, rounded the fair way: a whole number of extra, plus one more at the leftover chance. */
+function ppal_scale(int $n, int $pct): int
+{
+    if ($n <= 0 || $pct <= 0) return $n;
+    $x = $n * $pct;
+    return $n + intdiv($x, 100) + (random_int(1, 100) <= $x % 100 ? 1 : 0);
+}
+
+/** XP from a game with the tinker perk (games.php): 1% per unit, fractions rolled. Same number when the perk is off. */
+function ppal_xp(int $uid, int $xp): int
+{
+    return ppal_scale($xp, ppal_perks($uid)['tinker']);
+}
+
+/** The harvest's lucky-extra roll with the bloom perk: true on a hit. Off = false without a roll. */
+function ppal_bloom_roll(array $u): bool
+{
+    $b = ppal_perks($u)['bloom'];
+    return $b > 0 && random_int(1, 100) <= $b;
+}
+
+/** The pal's sticker beside the gnome: an <img> by class only (no inline style, CSP), nothing when its art is missing. */
+function ppal_companion(string $key, string $side, int $px): string
+{
+    $url = ppal_art_url($key);
+    return $url === '' ? '' : '<span class="gpal gpal-' . $side . '"><img src="' . e($url) . '" width="' . $px . '" height="' . $px . '" alt="" loading="lazy" decoding="async"></span>';
+}
+
+/**
+ * gnome_avatar() with the pals taken along standing at the feet (build step 4). The caller is gnome_avatar_pals() in gnome.php, which has already checked
+ * size, level and the setting. $svg is the plain avatar. No pals (or none with art) = $svg unchanged. Companion size is CSS (45% of the avatar's width), no inline styles.
+ */
+function ppal_avatar(array $u, int $size, string $svg): string
+{
+    $eq = ppal_equipped($u);
+    if (!$eq) return $svg;
+    $px = max(14, (int)round($size * 0.45));
+    $h = '';
+    foreach ($eq as $i => $e) $h .= ppal_companion($e['pal']['key'], $i % 2 === 0 ? 'l' : 'r', $px);
+    if ($h === '') return $svg;
+    return '<span class="gpw' . (ppal_perks($u)['shine'] ? ' gshine' : '') . '">' . $svg . $h . '</span>';
 }

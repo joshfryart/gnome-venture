@@ -5889,3 +5889,14 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .ppalbadge { width: 48px; height: 48px; object-fit: contain; image-rendering: pixelated; }
 .ppalbadges .ppaltro { font-size: 32px; line-height: 48px; }
 :root[data-theme="dark"] .ppalst, :root[data-theme="dark"] .ppalbadges .ppalframe { background: var(--felt); }
+
+/* v2.0.88 Puzzle Pals step 4: pals taken along stand at the gnome's feet wherever gnome_avatar_pals() draws it (45% of the avatar's width, a gentle bob, still for reduced motion). */
+.gpw { position: relative; display: inline-block; line-height: 0; vertical-align: bottom; }
+.gpw > svg { display: block; }
+.gpal { position: absolute; bottom: 0; width: 45%; pointer-events: none; animation: gpalbob 2.6s ease-in-out infinite; }
+.gpal img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.gpal-l { left: 0; }
+.gpal-r { right: 0; animation-delay: -1.3s; }
+@keyframes gpalbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6%); } }
+.gshine { filter: drop-shadow(0 0 3px var(--accent)); }
+@media (prefers-reduced-motion: reduce) { .gpal { animation: none; } }

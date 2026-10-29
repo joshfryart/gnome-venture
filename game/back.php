@@ -17,7 +17,7 @@ $s = welcome_back_summary($u);
 page_header('Welcome back');
 ?>
 <div class="box todayhead wbhead">
-  <div class="tavatar"><?= gnome_avatar($u, 64) ?></div>
+  <div class="tavatar"><?= gnome_avatar_pals($u, 64) ?></div>
   <div>
     <h1>Welcome back, <?= e(gnome_name($u)) ?>!</h1>
     <p class="muted">You were away about <?= (int)$s['away'] ?> day<?= (int)$s['away'] === 1 ? '' : 's' ?>. Nothing was lost, and nothing is owed. Here is what happened.</p>

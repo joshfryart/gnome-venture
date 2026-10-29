@@ -389,7 +389,7 @@ function dye_editor_html(array $u): string
     $shop = q_one('SELECT id FROM shops WHERE slug = ?', [DYE_SHOP]);
     return '<details class="fold box dyebox" id="dyes"' . (isset($_GET['dye']) ? ' open' : '') . '><summary>🎨 Hat and beard dyes' . ($nHat + $nBeard ? ' (' . ($nHat + $nBeard) . ' owned)' : '') . '</summary>'
         . '<form method="post" class="form dyeform" data-gnome-preview>' . csrf_field() . '<input type="hidden" name="do" value="dye">'
-        . '<div class="avatarcol">' . gnome_avatar($u, 96) . '</div><div>'
+        . '<div class="avatarcol">' . gnome_avatar_pals($u, 96) . '</div><div>'
         . '<fieldset class="swatches"><legend>Hat</legend>' . $hat . '</fieldset>'
         . ($u['calling'] ? '<p class="help">A hat dye is worn over your calling’s colour.</p>' : '')
         . '<fieldset class="swatches"><legend>Beard</legend>' . $beard . '</fieldset>'

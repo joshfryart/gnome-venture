@@ -142,7 +142,7 @@ if (($last['kind'] ?? 'walk') === 'walk' && ($qr = q_one('SELECT * FROM routes W
 $log = json_decode((string)$last['log'], true) ?: [];
 road_bind($u, $last);   // v1.9.3: read-only on a page view (road_flush is never called here), so the line above the button is the one the next step will log
 $enc = $exp && $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
-$gc = gnome_combat($u);
+$gc = gnome_combat($u, true);
 $L = LANDSCAPES[$scene['land']] ?? ['🌱', 'Wilds', ''];
 $dmScene = ($exp && dm_on()) ? dm_scene($exp) : null;   // v2.0.6: a delve or lair that has a map (the list still works for it)
 $mapMode = $dmScene && dm_pref() === 'map';
@@ -248,7 +248,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
       <small>⚔️ +<?= (int)$c['attack'] ?> · 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
     </div>
     <div class="fcard you">
-      <div class="fname"><?= gnome_avatar($u, 30) ?> <b><?= e(gnome_name($u)) ?></b></div>
+      <div class="fname"><?= gnome_avatar_pals($u, 30) ?> <b><?= e(gnome_name($u)) ?></b></div>
       <small class="muted">gnome level <?= (int)$u['level'] ?></small>
       <div class="fbar">❤️ <progress max="<?= (int)$exp['max_hp'] ?>" value="<?= max(0, (int)$exp['hp']) ?>"></progress> <?= max(0, (int)$exp['hp']) ?>/<?= (int)$exp['max_hp'] ?></div>
       <small>⚡ <?= (int)$u['energy'] ?> · ⚔️ +<?= $gc['atk'] ?> · 🛡️ <?= $gc['ac'] ?> · 🎲 d<?= $gc['dmg_die'] ?>+<?= $gc['dmg_bonus'] ?><?= $enc['bark'] ? ' · 🌳 ' . (int)$enc['bark'] : '' ?></small>

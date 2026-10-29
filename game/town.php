@@ -184,7 +184,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     <?php if (!$gnomes): ?><p class="muted">No other gnomes in the last <?= TOWN_PRESENCE_MINUTES ?> minutes. <?= (int)$u['town_hidden'] ? 'You’re hidden from these lists (Account page).' : 'Others will see you here for a little while.' ?></p>
     <?php else: ?><div class="gnomelist">
       <?php foreach ($gnomes as $g): $hid = '<input type="hidden" name="to" value="' . (int)$g['id'] . '"><input type="hidden" name="spot" value="' . $sid . '">' . ($hub ? '<input type="hidden" name="hub" value="1">' : ''); ?>
-        <details class="gnomerow"><summary><?= gnome_avatar($g, 36) ?><b><?= e(gnome_name($g)) ?></b> <small class="muted">level <?= (int)$g['level'] ?> · tap to say hi</small></summary>
+        <details class="gnomerow"><summary><?= gnome_avatar_pals($g, 36) ?><b><?= e(gnome_name($g)) ?></b> <small class="muted">level <?= (int)$g['level'] ?> · tap to say hi</small></summary>
           <span class="gacts"><?= profile_link($g, '👤 Profile') ?> <?= report_link((int)$g['id'], 'name') ?>
             <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="wave"><?= $hid ?><button class="btn small">👋 Wave</button></form>
             <?php if ($spot['kind'] === 'green'): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="bench"><?= $hid ?><button class="btn small">🪑 Sit together</button></form><?php endif; ?>

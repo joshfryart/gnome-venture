@@ -44,7 +44,7 @@ $callingLevel = (int)setting('calling_level');
 page_header('My Gnome');
 ?>
 <div class="gnomehead box">
-  <?= gnome_avatar($u, 90) ?>
+  <?= gnome_avatar_pals($u, 90) ?>
   <div>
     <h1><?= e(gnome_name($u)) ?><?= $u['title'] ? ' <small class="title">“' . e($u['title']) . '”</small>' : '' ?></h1>
     <p class="help"><a href="<?= e(url('profile.php')) ?>">👤 See your profile as others do</a></p>

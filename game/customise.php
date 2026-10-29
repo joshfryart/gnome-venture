@@ -39,7 +39,7 @@ page_header('Make your gnome');
   <?php foreach ($errors as $err): ?><div class="flash err"><?= e($err) ?></div><?php endforeach; ?>
   <form method="post" class="box form gnomemaker" data-gnome-preview>
     <?= csrf_field() ?>
-    <div class="avatarcol"><?= gnome_avatar($preview, 120) ?></div>
+    <div class="avatarcol"><?= gnome_avatar_pals($preview, 120) ?></div>
     <div>
       <label>Your gnome’s name
         <input name="gnome_name" value="<?= e($name) ?>" required maxlength="24" placeholder="e.g. Bramble Puddlefoot" autocomplete="off"></label>
