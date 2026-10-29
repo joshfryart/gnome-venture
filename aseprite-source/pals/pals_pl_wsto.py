@@ -115,13 +115,13 @@ def noon_sunwink():
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 10, 36, list(SUNY)), contour=True)
     st.blank_shade(body, holes, width=1)
-    for (x, y) in ((8, 10), (52, 10), (8, 52), (53, 52)):   # sun rays at the corners
+    for (x, y) in ((10, 11), (51, 11), (10, 50), (51, 50)):   # sun rays at the corners
         r = rect(x, y, x + 2, y + 2)
         st.part(r, '#f5b440', d=0, contour=True, shade=False)
     cloud = ellipse(44, 44, 5, 2.2) | disc(41, 42, 2.2)
     st.part(cloud, '#f4f8f8', d=0, contour=True, shade=False)
     wink(st, 21, 27)
-    happy_arc(st, 36, 28)
+    st.eye(36, 26, look=(-1, 0))
     st.mouth('grin', 29, 35)
     st.paint(rect(18, 34, 20, 34) | rect(43, 34, 45, 34), BLUSH)
     return key, st
@@ -169,15 +169,15 @@ def round_eyed_peeker():
 def blinkseed_stonehead():
     key = 'pl-wsto-6'
     st = Sticker()
-    head = rect(19, 18, 44, 50) & ~(disc(19, 18, 3) & (XX < 19)) & ellipse(31.5, 34, 13.5, 20)
-    tab = knob('s', 'keyhole', 31, 50, r=3.0)
+    head = rect(20, 18, 43, 49) & ~(disc(19, 18, 3) & (XX < 19)) & ellipse(31.5, 34, 13.5, 20)
+    tab = knob('s', 'keyhole', 31, 49, r=2.8)
     sil = head | tab
     st.part(sil, tex=fill(key, sil, 15, 14, 36, list(STONE)), contour=True)
     st.paint(head & (YY <= 18), MOSSG[0])
-    cap = rect(21, 7, 42, 14)
+    cap = rect(22, 10, 41, 15)
     st.part(cap, '#c8402e', d=1, contour=True)
-    st.paint(rect(22, 8, 41, 8), '#f07a60')
-    st.paint(rect(22, 9, 23, 13), '#e0604a')
+    st.paint(rect(23, 11, 40, 11), '#f07a60')
+    st.paint(rect(23, 12, 24, 14), '#e0604a')
     st.paint(rect(18, 23, 45, 24) & head, STONE_D)
     st.eye(22, 26)
     st.paint(rect(36, 29, 41, 29), UMBER)              # the blink
@@ -185,11 +185,11 @@ def blinkseed_stonehead():
     st.paint(rect(31, 25, 32, 37), STONE_D)
     st.paint(rect(27, 41, 36, 42), STONE_D)
     st.paint(rect(28, 41, 35, 41), MOUTH_RED)
-    seed(st, 40, 46, 2.6)
-    st.paint(rect(17, 37, 19, 37) | rect(44, 37, 46, 37), BLUSH)
-    st.sparkle(6, 6)
-    st.sparkle(52, 20, big=False)
-    st.sparkle(9, 44, big=False)
+    seed(st, 37, 45, 2.4)
+    st.paint(rect(22, 37, 24, 37) | rect(39, 37, 41, 37), BLUSH)
+    st.sparkle(9, 9)
+    st.sparkle(50, 20, big=False)
+    st.sparkle(12, 42, big=False)
     return key, st
 
 

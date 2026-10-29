@@ -92,21 +92,21 @@ def flat_stone(st, cx, cy, rx, ry, tone):
 def gilded_nubbin():
     key = 'pl-wpry-1'
     st = Sticker()
-    core = (14, 20, 44, 50)
+    core = (14, 17, 44, 47)
     body = piece(core, n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6))
-    st.part(body, tex=fill(key, body, 14, 20, 31, list(GOLD)), contour=True)
+    st.part(body, tex=fill(key, body, 14, 17, 31, list(GOLD)), contour=True)
     st.stitch(body, col='#fff0b0')
     # brass pole stub it sits on, and the big ball shine
-    st.part(rect(27, 51, 31, 56), BRASS[0], d=1, contour=True)
-    st.paint(rect(27, 51, 27, 56), BRASS[2])
-    st.part(ellipse(29, 57, 6, 1.6), BRASS[1], d=1, contour=True)
-    st.paint(disc(19.5, 25.5, 2.2), '#fff6d0')
+    st.part(rect(27, 48, 31, 53), BRASS[0], d=1, contour=True)
+    st.paint(rect(27, 48, 27, 53), BRASS[2])
+    st.part(ellipse(29, 54, 6, 1.6), BRASS[1], d=1, contour=True)
+    st.paint(disc(19.5, 22.5, 2.2), '#fff6d0')
     st.sparkle(50, 12, big=False)
     st.sparkle(8, 16, big=False)
-    closed_eye(st, 19, 32)
-    closed_eye(st, 33, 32)
-    st.mouth('smile', 26, 40)
-    st.paint(rect(16, 37, 18, 37) | rect(39, 37, 41, 37), BLUSH)
+    closed_eye(st, 19, 29)
+    closed_eye(st, 33, 29)
+    st.mouth('smile', 26, 37)
+    st.paint(rect(16, 34, 18, 34) | rect(39, 34, 41, 34), BLUSH)
     return key, st
 
 
@@ -120,16 +120,16 @@ def glacier_hat():
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#7a9ab4', skip=grow(holes, 3))
     # peak hat: slate rock cone with a snow cap, sitting over the top knob
-    peak = poly([(18, 27), (32, 5), (46, 27)])
+    peak = poly([(18, 27), (32, 8), (46, 27)])
     st.part(peak, ROCK[0], d=1, contour=True)
     st.paint(peak & (CX < 31), ROCK[2])
-    cap = peak & (CY < 14 + ((XX % 4) == 0))
+    cap = peak & (CY < 16 + ((XX % 4) == 0))
     st.paint(cap, SNOWC[0], solid=True)
     st.paint(cap & (CX > 33), SNOWC[1])
     st.paint(rect(17, 27, 47, 28) & grow(peak, 1), SNOWC[1], solid=True)
     flake(st, 8, 12)
     flake(st, 55, 16)
-    flake(st, 52, 6)
+    flake(st, 52, 9)
     st.paint(line([(19, 34), (24, 35)]) | line([(36, 35), (41, 34)]), UMBER)     # chilly squint
     st.paint(rect(20, 37, 23, 37) | rect(37, 37, 40, 37), UMBER)
     st.sprite(['U.U.U', '.U.U.'], 28, 43, {'U': UMBER}, solid=False)               # shivery wobble
@@ -141,25 +141,25 @@ def glacier_hat():
 def pilgrim_pebble():
     key = 'pl-wpry-3'
     st = Sticker()
-    core = (13, 20, 49, 50)
+    core = (13, 17, 49, 47)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 13, 20, 37, list(DUST)), contour=True)
+    st.part(body, tex=fill(key, body, 13, 17, 37, list(DUST)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#6a5a3e', skip=grow(holes, 3))
     # little lucky pebble held up in two stubby hands
-    st.part(ellipse(17, 17, 3, 2.4), DUST[0], d=1, contour=True)
-    st.part(ellipse(45, 17, 3, 2.4), DUST[0], d=1, contour=True)
-    pb = ellipse(31, 9, 6, 4)
+    st.part(ellipse(17, 14, 3, 2.4), DUST[0], d=1, contour=True)
+    st.part(ellipse(45, 14, 3, 2.4), DUST[0], d=1, contour=True)
+    pb = ellipse(31, 9, 6, 3.6)
     st.part(pb, '#8a8490', d=1, contour=True)
     st.paint(disc(29, 7.5, 1.4), '#c4bec8')
     st.sparkle(42, 5, big=False)
     for x, y in ((6, 50), (9, 56), (54, 50), (57, 56)):
         st.px[y, x] = hx('#6a5a3e')
         st.extra[y, x] = True
-    st.eye(21, 28, look=(0, -1))
-    st.eye(36, 28, look=(0, -1))
-    st.mouth('o', 30, 39)
+    st.eye(21, 25, look=(0, -1))
+    st.eye(36, 25, look=(0, -1))
+    st.mouth('o', 30, 35)
     return key, st
 
 
@@ -194,8 +194,8 @@ def stone_doughnuts():
     st.stitch(body, col=GOLD[1], skip=grow(holes, 3))            # uncommon accent: pole gold
     for cy, rx in ((48, 13), (43, 10.5), (38.5, 8)):              # the cairn of stone rings
         m = ellipse(31.5, cy, rx, 2.6)
-        st.part(m, ROCK[0], d=1, contour=True)
-        st.paint(m & ~shift(m, 0, -1), ROCK[2])
+        st.part(m, DUST[0], d=1, contour=True)
+        st.paint(m & ~shift(m, 0, -1), DUST[1])
         st.paint(ellipse(31.5, cy - 0.5, rx * 0.35, 0.9), ROCK[1])
     st.paint(rect(31, 26, 32, 36), BRASS[0], solid=True)
     st.paint(poly([(33, 26), (39, 27.5), (33, 29.5)]), FLAGS[3], solid=True)
@@ -212,14 +212,14 @@ def redsaddle_yak():
     key = 'pl-wpry-6'
     st = Sticker()
     torso = ellipse(36, 36, 17, 11)
-    head = ellipse(16, 30, 9, 8)
+    head = ellipse(18, 30, 9, 8)
     tab = knob('n', 'keyhole', 36, 25.5, r=3.0)
     legs = rect(24, 44, 28, 54) | rect(44, 44, 48, 54)
     st.part(legs, SHAG[0], d=1, contour=True)
     st.paint(rect(24, 53, 28, 54) | rect(44, 53, 48, 54), ROCK[1])
     # horns
-    hl = line([(10, 25), (6, 20), (7, 15)], w=2)
-    hr = line([(21, 24), (25, 19), (24, 15)], w=2)
+    hl = line([(12, 25), (8, 20), (9, 15)], w=2)
+    hr = line([(23, 24), (27, 19), (26, 15)], w=2)
     st.part(hl | hr, HORN[0], d=1, contour=True)
     body = torso | head | tab
     st.part(body, tex=fill(key, body, 6, 20, 48, list(SHAG)), contour=True)
@@ -235,13 +235,13 @@ def redsaddle_yak():
     st.paint(poly([(38, 8), (45, 10), (38, 13)]), FLAGS[0], solid=True)
     st.paint(poly([(38, 13), (44, 15), (38, 18)]), FLAGS[2], solid=True)
     # face: fluffy fringe, patient eyes, muzzle
-    st.paint(rect(10, 24, 22, 26) & head, SHAG[1])
-    st.eye(11, 28, lid=2, socket=None)
-    st.eye(17, 28, lid=2, socket=None)
-    st.part(ellipse(15, 35, 5, 2.6), HORN[1], d=1, contour=True)
-    st.mouth('flat', 13, 36)
+    st.paint(rect(12, 23, 24, 24) & head, SHAG[1])
+    st.eye(12, 26, lid=1)
+    st.eye(19, 26, lid=1)
+    st.part(ellipse(17, 34.5, 5, 2.6), HORN[0], d=1, contour=True)
+    st.mouth('smile', 15, 35)
     st.sparkle(52, 8)
-    st.sparkle(6, 44, big=False)
+    st.sparkle(9, 46, big=False)
     st.sparkle(56, 30, big=False)
     return key, st
 

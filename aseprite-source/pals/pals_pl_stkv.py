@@ -80,7 +80,10 @@ def pink_dusk_lullaby():
     st.blank_shade(body, holes, width=1)
     moon = disc(40, 13, 5) & ~disc(43, 11, 4.2)
     st.part(moon, GOLD[0], d=1, contour=True)
-    stork_head(st, 18, 26, 1)
+    st.part(ellipse(21, 24, 5, 2.4), WHITE[1], d=0, contour=True)
+    st.paint(rect(18, 21, 23, 22), BLACK, solid=True)
+    st.paint(rect(26, 24, 29, 24), BEAK, solid=True)
+    st.paint(rect(15, 25, 17, 25), BEAK, solid=True)
     for x, y in ((40, 24), (22, 47)):
         st.dots([(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)], GOLD[1])
     sleep_eye(st, 20, 33)
@@ -94,7 +97,7 @@ def pink_dusk_lullaby():
 def airmail_parcel_sway():
     key = 'pl-stkv-2'
     st = Sticker()
-    core = (12, 24, 47, 53)
+    core = (14, 24, 46, 53)
     body, holes = piece_blanks(core, s='F', n=('B', 'keyhole', 0, 3.0), e=('T', 'keyhole', 3, 3.6), w=('B', 'keyhole', 3, 3.0))
     st.part(body, tex=fill(key, body, 12, 16, 40, list(KRAFT)), contour=True)
     st.blank_shade(body, holes, width=1)
@@ -116,18 +119,18 @@ def airmail_parcel_sway():
 def sunflower_nodder():
     key = 'pl-stkv-3'
     st = Sticker()
-    core = (14, 20, 49, 49)
+    core = (15, 20, 48, 49)
     body, holes = piece_blanks(core, n=('T', 'keyhole', -5, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 5, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 12, 36, list(SAGE)), contour=True)
     st.blank_shade(body, holes, width=1)
     petals = None
     for dx, dy in ((0, -5), (4, -3), (5, 1), (3, 5), (-3, 5), (-5, 1), (-4, -3), (0, 6)):
-        p = disc(42 + dx, 14 + dy, 2.4)
+        p = disc(40 + dx, 15 + dy, 2.4)
         petals = p if petals is None else petals | p
     st.part(petals, SUN[0], d=1, contour=True)
-    st.part(disc(42, 15, 3), '#6a4020', d=1, contour=True)
-    st.dots([(41, 14), (43, 16)], '#3a2010')
+    st.part(disc(40, 16, 3), '#6a4020', d=1, contour=True)
+    st.dots([(39, 15), (41, 17)], '#3a2010')
     st.paint(ellipse(18, 44, 3, 1.5) | ellipse(45, 44, 3, 1.5), SAGE[1])
     happy_eye(st, 19, 28)
     happy_eye(st, 34, 28)
@@ -179,10 +182,10 @@ def lamplit_shutters():
 def rooftop_courier():
     key = 'pl-stkv-6'
     st = Sticker()
-    roof = poly([(10, 54), (32, 44), (54, 54)])
+    roof = poly([(13, 54), (32, 45), (51, 54)])
     st.part(roof, TILE[0], d=0, contour=True)
     for y in (48, 51):
-        st.paint(rect(10, y, 54, y) & roof, TILE[1])
+        st.paint(rect(13, y, 51, y) & roof, TILE[1])
     legs = line([(30, 38), (30, 46)], w=1) | line([(36, 38), (36, 46)], w=1)
     st.part(legs, BEAK, d=0, contour=True, shade=False)
     bodyb = ellipse(34, 33, 11, 7)
@@ -200,9 +203,9 @@ def rooftop_courier():
     st.paint(rect(11, 25, 11, 31) | rect(7, 28, 15, 28), RED[0])
     lash_eye(st, 22, 13)
     st.paint(rect(26, 20, 28, 20), BLUSH)
-    st.sparkle(50, 10)
+    st.sparkle(49, 10)
     st.sparkle(8, 8, big=False)
-    st.sparkle(54, 40, big=False)
+    st.sparkle(52, 42, big=False)
     return key, st
 
 PALS = [pink_dusk_lullaby, airmail_parcel_sway, sunflower_nodder, bowtie_bundle, lamplit_shutters, rooftop_courier]
