@@ -17,6 +17,19 @@ const CATFISH_MILESTONES = [10, 25, 50];   // owned counts that double an upgrad
 const CATFISH_SHELTER = 3;              // cats on show per day
 const CATFISH_MAX_CATS = 4;
 const CATFISH_NAME_MAX = 20;
+const CATFISH_SLOT_COSTS = [5, 20];     // Yarn for the 3rd and 4th place in the home
+const CATFISH_RARE_COSTS = [3, 10];     // Yarn for Rare Shelter levels 1 and 2 (the shelter shows the best of 2, then 3, candidates per slot)
+const CATFISH_REROLL_COST = 1;          // Yarn to swap one shelter cat for another
+const CATFISH_REROLL_MAX = 3;           // rerolls per slot per day
+/** Petal milestones: key => [label, base Petals (then scaled by game_petals())]. Each pays once, inside the weekly cap (setting catfish_petal_cap). */
+const CATFISH_MILESTONES_PETALS = [
+    'adopt1'    => ['Brought your first cat home', 20],
+    'nap1'      => ['Took your first Nap', 40],
+    'book12'    => ['12 coats in the Cat Book', 30],
+    'nap5'      => ['Took five Naps', 80],
+    'full4'     => ['Four cats at home', 60],
+    'book_half' => ['Half the Cat Book', 100],
+];
 
 /** Branch key => label, in display order. */
 const CATFISH_BRANCHES = ['fish' => '🐟 Fish', 'rod' => '🎣 Rod', 'room' => '🛋️ Room', 'cat' => '🐾 Cat'];
@@ -74,10 +87,11 @@ function catfish_ensure(): bool
     static $ok = null;
     if ($ok !== null) return $ok;
     if (PHP_INT_SIZE < 8) return $ok = false;   // seeds and the RNG need 64-bit integers
-    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble FROM catfish_state LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
     try {   // week-1 test databases: the Nap columns arrive on an existing table
         q('SELECT 1 FROM catfish_state LIMIT 1');
         foreach (['run_kibble', 'total_kibble'] as $col) { try { q('SELECT ' . $col . ' FROM catfish_state LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE catfish_state ADD COLUMN ' . $col . ' BIGINT NOT NULL DEFAULT 0'); } }
+        try { q('SELECT meta FROM catfish_state LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE catfish_state ADD COLUMN meta TEXT NULL'); }
         try { q('SELECT adopted FROM cat_book LIMIT 1'); } catch (Throwable $e) { db()->exec('ALTER TABLE cat_book ADD COLUMN adopted INT NOT NULL DEFAULT 0'); }
         return $ok = true;
     } catch (Throwable $e) {}
@@ -92,7 +106,7 @@ function catfish_ensure(): bool
         )$END");
         db()->exec("CREATE TABLE IF NOT EXISTS catfish_state (
             user_id $ID NOT NULL PRIMARY KEY, kibble BIGINT NOT NULL DEFAULT 0, yarn $ID NOT NULL DEFAULT 0, upgrades TEXT NULL,
-            active_cat_id $ID NULL, last_tick $ID NOT NULL DEFAULT 0, naps $ID NOT NULL DEFAULT 0, run_kibble BIGINT NOT NULL DEFAULT 0, total_kibble BIGINT NOT NULL DEFAULT 0, created_at DATETIME NOT NULL
+            active_cat_id $ID NULL, last_tick $ID NOT NULL DEFAULT 0, naps $ID NOT NULL DEFAULT 0, run_kibble BIGINT NOT NULL DEFAULT 0, total_kibble BIGINT NOT NULL DEFAULT 0, meta TEXT NULL, created_at DATETIME NOT NULL
         )$END");
         db()->exec("CREATE TABLE IF NOT EXISTS cat_book (
             user_id $ID NOT NULL, pattern VARCHAR(12) NOT NULL, colour VARCHAR(12) NOT NULL, adopted $ID NOT NULL DEFAULT 0, found_at DATETIME NOT NULL,
@@ -159,17 +173,34 @@ function catfish_cat(int $seed): array
     return $cat;
 }
 
-/** The day's shelter for a gnome: CATFISH_SHELTER cats, each ['slot' => n] + catfish_cat(). $day is 'Y-m-d' (UTC). */
-function catfish_shelter(int $uid, ?string $day = null): array
+/**
+ * The day's shelter for a gnome: CATFISH_SHELTER cats, each ['slot' => n] + catfish_cat(). $day is 'Y-m-d' (UTC).
+ * $rolls[slot] = rerolls bought today for that slot; $rare = Rare Shelter level (the best-scoring of 1 + $rare candidates is shown).
+ * With no rolls and no Rare Shelter the seeds are the plain crc32(user|day|slot), so older shelters do not change.
+ */
+function catfish_shelter(int $uid, ?string $day = null, array $rolls = [], int $rare = 0): array
 {
     $day = $day ?? gmdate('Y-m-d');
     $out = [];
     for ($slot = 0; $slot < CATFISH_SHELTER; $slot++) {
-        $c = catfish_cat(crc32($uid . '|' . $day . '|' . $slot));
-        $c['slot'] = $slot;
-        $out[] = $c;
+        $n = (int)($rolls[$slot] ?? 0); $best = null;
+        for ($c = 0; $c <= $rare; $c++) {
+            $cand = catfish_cat(crc32($uid . '|' . $day . '|' . $slot . ($n > 0 ? '|r' . $n : '') . ($c > 0 ? '|c' . $c : '')));
+            if ($best === null || $cand['score'] > $best['score']) $best = $cand;
+        }
+        $best['slot'] = $slot;
+        $out[] = $best;
     }
     return $out;
+}
+
+/** Today's shelter for a gnome with their rerolls and Rare Shelter level applied. */
+function catfish_shelter_now(int $uid, ?array $meta = null): array
+{
+    $meta = $meta ?? catfish_state($uid)['meta'];
+    $today = gmdate('Y-m-d');
+    $rolls = ($meta['roll']['day'] ?? '') === $today ? (array)($meta['roll']['n'] ?? []) : [];
+    return catfish_shelter($uid, $today, $rolls, (int)($meta['rare'] ?? 0));
 }
 
 /** Kibble price of the next adoption for a gnome who owns $owned cats. The first is free. */
@@ -178,10 +209,10 @@ function catfish_adopt_cost(int $owned): int
     return $owned <= 0 ? 0 : (int)(500 * 4 ** ($owned - 1));
 }
 
-/** Cats a gnome may own (raised by shelter upgrades in a later step). */
+/** Cats a gnome may own: 2, plus one per bigger-home upgrade (up to CATFISH_MAX_CATS). */
 function catfish_slots(int $uid): int
 {
-    return 2;
+    return min(CATFISH_MAX_CATS, 2 + (int)(catfish_state($uid)['meta']['extra'] ?? 0));
 }
 
 // ---------- state and tick ----------
@@ -207,12 +238,14 @@ function catfish_state(int $uid): array
 {
     $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?', [$uid]);
     if (!$s) {
-        try { db_insert('catfish_state', ['user_id' => $uid, 'kibble' => 0, 'yarn' => 0, 'upgrades' => '{}', 'active_cat_id' => null, 'last_tick' => time(), 'naps' => 0, 'run_kibble' => 0, 'total_kibble' => 0, 'created_at' => now()]); }
+        try { db_insert('catfish_state', ['user_id' => $uid, 'kibble' => 0, 'yarn' => 0, 'upgrades' => '{}', 'active_cat_id' => null, 'last_tick' => time(), 'naps' => 0, 'run_kibble' => 0, 'total_kibble' => 0, 'meta' => '{}', 'created_at' => now()]); }
         catch (Throwable $e) {}   // a second tab created it first
         $s = q_one('SELECT * FROM catfish_state WHERE user_id = ?', [$uid]);
     }
     $up = json_decode((string)($s['upgrades'] ?? ''), true);
     $s['up'] = is_array($up) ? array_map('intval', $up) : [];
+    $meta = json_decode((string)($s['meta'] ?? ''), true);
+    $s['meta'] = is_array($meta) ? $meta : [];
     return $s;
 }
 
@@ -330,17 +363,20 @@ function catfish_clean_name(string $name, string $fallback): string
     return $name !== '' ? $name : $fallback;
 }
 
-function catfish_adopt(int $uid, int $slot, string $name, string $day = ''): array
+function catfish_adopt(int $uid, int $slot, string $name, string $day = '', int $seed = 0): array
 {
     if ($slot < 0 || $slot >= CATFISH_SHELTER) return [false, 'No such cat.'];
-    // the form says which day's shelter it showed; only today's or yesterday's counts (so a form open across the UTC reset still adopts the cat that was shown)
-    $today = gmdate('Y-m-d'); $yest = gmdate('Y-m-d', time() - 86400);
-    $day = in_array($day, [$today, $yest], true) ? $day : $today;
-    return catfish_locked($uid, function () use ($uid, $slot, $name, $day) {
+    return catfish_locked($uid, function () use ($uid, $slot, $name, $seed) {
         $s = catfish_tick($uid);
         $owned = (int)q_val('SELECT COUNT(*) FROM cats WHERE user_id = ?', [$uid]);
         if ($owned >= catfish_slots($uid)) return [false, 'Your home is full.'];
-        $cat = catfish_shelter($uid, $day)[$slot];
+        $cat = catfish_shelter_now($uid, $s['meta'])[$slot];
+        if ($seed > 0 && $cat['seed'] !== $seed) {
+            // the form may be from before the UTC reset: yesterday's plain shelter still counts
+            $old = catfish_shelter($uid, gmdate('Y-m-d', time() - 86400), [], (int)($s['meta']['rare'] ?? 0))[$slot];
+            if ($old['seed'] !== $seed) return [false, 'The shelter changed. Reload the page and try again.'];
+            $cat = $old;
+        }
         if (q_val('SELECT 1 FROM cats WHERE user_id = ? AND seed = ?', [$uid, $cat['seed']])) return [false, 'You already adopted that cat.'];
         $cost = catfish_adopt_cost($owned);
         if ($cost > 0 && q('UPDATE catfish_state SET kibble = kibble - ? WHERE user_id = ? AND kibble >= ?', [$cost, $uid, $cost])->rowCount() !== 1) return [false, 'Not enough Kibble.'];
@@ -348,7 +384,104 @@ function catfish_adopt(int $uid, int $slot, string $name, string $day = ''): arr
         $id = db_insert('cats', ['user_id' => $uid, 'seed' => $cat['seed'], 'name' => $clean, 'adopted_at' => now()]);
         if (empty($s['active_cat_id'])) q('UPDATE catfish_state SET active_cat_id = ?, last_tick = ? WHERE user_id = ?', [$id, time(), $uid]);
         catfish_book_add($uid, $cat['pattern'], $cat['colour'], 1);
+        catfish_claim_petals($uid);
         return [true, 'Welcome home, ' . $clean . '!'];
+    });
+}
+
+// ---------- shelter upgrades (Yarn) and Petal milestones ----------
+
+/** Yarn the gnome can still spend: all Yarn ever earned minus what shelter upgrades cost. Spending never lowers the Kibble bonus (that follows Yarn earned). */
+function catfish_spendable(array $s): int
+{
+    return max(0, (int)$s['yarn'] - (int)($s['meta']['ys'] ?? 0));
+}
+
+function catfish_meta_save(int $uid, array $meta): void
+{
+    q('UPDATE catfish_state SET meta = ? WHERE user_id = ?', [json_encode($meta), $uid]);
+}
+
+/** Run one Yarn purchase: $fn(&$meta, $s) returns [cost, message] or a [false, message] refusal, inside the lock. */
+function catfish_yarn_spend(int $uid, callable $fn): array
+{
+    return catfish_locked($uid, function () use ($uid, $fn) {
+        $s = catfish_state($uid); $meta = $s['meta'];
+        $r = $fn($meta, $s);
+        if ($r[0] === false) return $r;
+        [$cost, $msg] = $r;
+        if (catfish_spendable($s) < $cost) return [false, 'Not enough Yarn.'];
+        $meta['ys'] = (int)($meta['ys'] ?? 0) + $cost;
+        catfish_meta_save($uid, $meta);
+        return [true, $msg];
+    });
+}
+
+function catfish_reroll(int $uid, int $slot): array
+{
+    if ($slot < 0 || $slot >= CATFISH_SHELTER) return [false, 'No such cat.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($slot) {
+        $today = gmdate('Y-m-d');
+        $n = ($meta['roll']['day'] ?? '') === $today ? (array)($meta['roll']['n'] ?? []) : [];
+        $n = array_replace([0, 0, 0], $n);
+        if ($n[$slot] >= CATFISH_REROLL_MAX) return [false, 'That spot has had its swaps for today.'];
+        $n[$slot]++;
+        $meta['roll'] = ['day' => $today, 'n' => $n];
+        return [CATFISH_REROLL_COST, 'A new cat is waiting.'];
+    });
+}
+
+function catfish_buy_slot(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        $extra = (int)($meta['extra'] ?? 0);
+        if ($extra >= count(CATFISH_SLOT_COSTS)) return [false, 'Your home is as big as it gets.'];
+        $meta['extra'] = $extra + 1;
+        return [CATFISH_SLOT_COSTS[$extra], 'Room for ' . (2 + $extra + 1) . ' cats.'];
+    });
+}
+
+function catfish_buy_rare(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        $lvl = (int)($meta['rare'] ?? 0);
+        if ($lvl >= count(CATFISH_RARE_COSTS)) return [false, 'The shelter already sends its best.'];
+        $meta['rare'] = $lvl + 1;
+        return [CATFISH_RARE_COSTS[$lvl], 'The shelter will show better cats.'];
+    });
+}
+
+/** Which Petal milestones this gnome has reached. */
+function catfish_milestones_reached(int $uid, array $s): array
+{
+    $cats = (int)q_val('SELECT COUNT(*) FROM cats WHERE user_id = ?', [$uid]);
+    $book = count(catfish_book($uid));
+    $half = (int)(count(CATFISH_TRAITS['pattern']) * count(CATFISH_TRAITS['colour']) / 2);
+    return ['adopt1' => $cats >= 1, 'nap1' => (int)$s['naps'] >= 1, 'book12' => $book >= 12, 'nap5' => (int)$s['naps'] >= 5, 'full4' => $cats >= 4, 'book_half' => $book >= $half];
+}
+
+/** Pay reached milestones that have not been paid, as long as this ISO week's total stays inside the cap. Returns Petals paid. Safe to call often. */
+function catfish_claim_petals(int $uid): int
+{
+    $cap = (int)setting('catfish_petal_cap');
+    if ($cap <= 0) return 0;
+    return catfish_locked($uid, function () use ($uid, $cap) {
+        $s = catfish_state($uid); $meta = $s['meta'];
+        $week = gmdate('o-\WW');
+        $paid = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0;
+        $done = (array)($meta['ms'] ?? []); $total = 0;
+        foreach (catfish_milestones_reached($uid, $s) as $key => $hit) {
+            if (!$hit || in_array($key, $done, true)) continue;
+            $amount = game_petals(CATFISH_MILESTONES_PETALS[$key][1]);
+            if ($paid + $total + $amount > $cap) continue;   // waits for next week
+            $done[] = $key; $total += $amount;
+        }
+        if ($total > 0) {
+            $meta['ms'] = $done; $meta['pw'] = ['week' => $week, 'paid' => $paid + $total];
+            catfish_meta_save($uid, $meta);
+            give_petals($uid, $total, 'catfish');
+        }
+        return $total;
     });
 }
 
@@ -361,6 +494,7 @@ function catfish_nap(int $uid): array
         $y = catfish_nap_yarn((int)$s['run_kibble'], $cat);
         if ($y < 1) return [false, 'Not enough Kibble earned this run to nap yet.'];
         $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ? WHERE user_id = ? AND run_kibble = ?', [$y, '{}', time(), $uid, (int)$s['run_kibble']])->rowCount();
+        if ($done === 1) catfish_claim_petals($uid);
         return $done === 1 ? [true, 'Nap time! +' . $y . ' Yarn.'] : [false, 'Try that again.'];
     });
 }
@@ -405,7 +539,7 @@ function catfish_view(int $uid): array
         $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'can' => (int)$s['kibble'] >= $cost,
             'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n)];
     }
-    return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
+    return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
         'kph' => $cat ? round(catfish_kph($s['up'], $cat, true, (int)$s['yarn']), 1) : 0, 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
 
