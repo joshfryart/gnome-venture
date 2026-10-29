@@ -130,8 +130,10 @@ def buttercream_moonlight():
     st.part(body, tex=fill(key, body, 10, 10, 44, list(CREAM)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#d8c070', skip=grow(holes, 3))
-    for x in (18, 24, 30, 36, 42):
-        st.part(rect(x, 38, x + 3, 45) & ~(rect(x, 38, x, 38) | rect(x + 3, 38, x + 3, 38)), DUSK[0], d=0, contour=False, shade=False)
+    st.paint(ellipse(31.5, 50, 16, 6) & body & (YY <= 47), '#5e9a58')
+    for x in (20, 27, 35, 42):
+        st.part(ellipse(x + 0.5, 40, 1.6, 3), DUSK[1], d=0, contour=True, shade=False)
+    st.paint(rect(16, 27, 18, 27) | rect(45, 27, 47, 27), BLUSH)
     st.eye(21, 20, look=(0, -1))
     st.eye(38, 20, look=(0, -1))
     st.mouth('o', 31, 28)

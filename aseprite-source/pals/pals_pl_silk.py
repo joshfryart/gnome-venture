@@ -94,22 +94,22 @@ def potstack():
 def doorlamp():
     key = 'pl-silk-2'
     st = Sticker()
-    core = (14, 27, 48, 52)
+    core = (13, 27, 45, 52)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 14, 27, 35, list(LAMPG)), contour=True)
+    st.part(body, tex=fill(key, body, 13, 27, 33, list(LAMPG)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#7a5a1a', skip=grow(holes, 3))
     # brass hook bar, hanging chain and a small flame cap
-    st.part(rect(20, 22, 42, 24), BRASS[0], d=1, contour=True)
-    st.paint(rect(20, 22, 42, 22), BRASS[1])
-    st.paint(rect(31, 9, 31, 13), BRASS[0], solid=True)
-    st.paint(poly([(29, 15), (31, 10), (33, 15)]) | disc(31, 15, 1.6), FLAME[0], solid=True)
-    dot(st, 31, 14, FLAME[1])
+    st.part(rect(19, 22, 40, 24), BRASS[0], d=1, contour=True)
+    st.paint(rect(19, 22, 40, 22), BRASS[1])
+    st.paint(rect(29, 9, 29, 13), BRASS[0], solid=True)
+    st.paint(poly([(27, 15), (29, 10), (31, 15)]) | disc(29, 15, 1.6), FLAME[0], solid=True)
+    dot(st, 29, 14, FLAME[1])
     zzz(st, 47, 12)
     st.eye(21, 36, lid=3)
-    st.eye(36, 36, lid=3)
-    st.mouth('smile', 29, 44)
-    st.paint(rect(17, 42, 19, 42) | rect(44, 42, 46, 42), BLUSH)
+    st.eye(34, 36, lid=3)
+    st.mouth('smile', 27, 44)
+    st.paint(rect(16, 42, 18, 42) | rect(41, 42, 43, 42), BLUSH)
     return key, st
 
 
