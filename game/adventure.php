@@ -185,8 +185,8 @@ if ($wi && !$isWalk): ?>
   </details>
 </div>
 <?php endif; ?>
-<?php $fighting = $enc && $enc['type'] === 'creature'; ?>
-<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?>">
+<?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$enc;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold) ?>
+<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
 <?php if ($exp): echo adventure_stage_html($u, $exp, $scene, $enc); endif; ?>
 <?php if ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
@@ -201,6 +201,9 @@ if ($wi && !$isWalk): ?>
 <?php endif; ?>
 </div>
 <?php if ($dmScene): ?><p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=map')) ?>">🗺️ Show the map</a></p><?php endif; ?>
+<?php endif; ?>
+<?php if ($wander): [$wTier] = explore_tier(max(1, (int)$last['depth'])); ?>
+<div class="wanderinfo"><b>🌿 Off the path near <?= e($from['name']) ?></b><br><?= $L[0] ?> <?= e($L[1]) ?> · <?= (int)$last['depth'] ?> step<?= (int)$last['depth'] === 1 ? '' : 's' ?> out · <?= e($wTier) ?> · danger <?= (int)$last['level'] ?></div>
 <?php endif; ?>
 <?php ob_start();   // v2.0.52: the latest result is built here and shown at the top of the action card
 $rcIcons = array_merge(['✅', '❌', '👉', '✨', '🪙', '🧺', '🌱', '🎁', '👛', '💬', '👋'], road_sight_icons());   // v1.9.4: the sights come from road_events.txt
@@ -369,12 +372,14 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
     $outPct = $dep > 0 ? outlevel_percent($u, explore_level($u, $dep, $exp)) : 100; ?>
   <?php $rl = $dep > 0 ? road_line($scene, ['seed' => road_line_seed($exp, count($log)), 'record' => false]) : null;   // v1.9.3: the line this step will log ?>
   <h3<?= $rl ? ' class="roadline"' : '' ?>><?= $rl ? '🍃 ' . e($rl) : ($dep === 0 ? 'The wild mycelium stretches away from the road…' : 'The threads tangle on ahead…') ?></h3>
+  <?php ob_start(); ?>
   <p class="help"><?= $dep > 0 ? 'You’re in <b>' . e($hereTier) . '</b> country (danger level ' . explore_level($u, $dep, $exp) . '). ' : '' ?>
     Deeper is <b><?= e($nextTier) ?></b>, danger level <?= $nextLvl ?><?= $dep + 1 >= $wildAt ? ' (bosses roam out there!)' : '' ?>.<?= $dep + 1 >= $deepAt ? ' The deep wilds are matched to your own level.' : '' ?>
     Each step out is a little harder than the last. The further you go, the better the finds, and the more likely you are to spot a hidden village or landmark.</p>
   <?php if ($outPct < 100): // v0.7.75: an outgrown area ?>
     <p class="help">🌱 You’ve outgrown these parts: XP and Petals here are <?= $outPct ?>%. Items are the same. Head for the deep wilds (step <?= $deepAt ?>) for a real challenge.</p>
   <?php endif; ?>
+  <?php $wmore = ob_get_clean(); ?>
   <?php if ($dep + 1 >= $warnAt && $dep < $warnAt): ?>
     <p class="flash err">⚠️ Past here it gets dangerous: danger level <?= $nextLvl ?>. Only go on if you’re feeling strong; heading back is always free.</p>
   <?php endif; ?>
@@ -383,13 +388,16 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
     <div class="choicelist"><?= act_choice('visit', '🚶', 'Visit ' . $fl['name'] . ' now', 'You can come straight back to exploring afterwards', '', 'primary', '<input type="hidden" name="place" value="' . $foundId . '">') ?></div>
   <?php endif; ?>
   <div class="choicelist">   <?php // v1.9.3: .choice rows: what it costs and how hard it is, in the sub line ?>
-  <?= act_choice('deeper', '🌿', 'Go deeper', '1 energy · ' . $nextTier . ' · danger ' . $nextLvl, ['⚡1', 'cost'], 'primary') ?>
-  <?php if ($dep >= 1): ?><?= act_choice('roam', '🔁', 'Keep exploring here', '1 energy · ' . $hereTier . ' · danger ' . explore_level($u, $dep, $exp), ['⚡1', 'cost']) ?><?php endif; ?>
-  <?php if ($dep >= 2): ?><?= act_choice('back', '↩️', 'Step back toward the road', '1 energy · ' . explore_tier($dep - 1)[0] . ' · danger ' . explore_level($u, $dep - 1, $exp), ['⚡1', 'cost']) ?><?php endif; ?>
-  <?= act_choice('return', '🛣️', 'Head back to the road', 'Free · you keep everything', ['free', 'free']) ?>
+  <?= act_choice('deeper', '🌿', 'Go deeper', $nextTier . ' · danger ' . $nextLvl, ['⚡1', 'cost'], 'primary') ?>
+  <?php if ($dep >= 1): ?><?= act_choice('roam', '🔁', 'Keep exploring', $hereTier . ' · danger ' . explore_level($u, $dep, $exp), ['⚡1', 'cost']) ?><?php endif; ?>
+  <?php if ($dep >= 2): ?><?= act_choice('back', '↩️', 'Step back', explore_tier($dep - 1)[0] . ' · danger ' . explore_level($u, $dep - 1, $exp), ['⚡1', 'cost']) ?><?php endif; ?>
+  <?= act_choice('return', '🛣️', 'Head to the road', 'Free · keep everything', ['free', 'free']) ?>
   </div>
-  <p class="help">If you’re knocked out, you wake up on the road with all your things.</p>
-  <?php if ($dep >= 1): echo gather_here_box($u, explore_land($exp), url('adventure.php'), ''); endif; // v0.7.80 ?>
+  <details class="wfold wmore"><summary>More</summary><?= $wmore ?><p class="help">If you’re knocked out, you wake up on the road with all your things.</p></details>   <?php // v2.1.11: the long notes, folded ?>
+  <?php if ($dep >= 1): $gOpen = !empty($_SESSION['gather_reveal']);   // v2.1.11: gather lives in a fold, open when a find has just come in ?>
+  <details class="wfold wgather"<?= $gOpen ? ' open' : '' ?>><summary>🧺 Gather here</summary><?= gather_here_box($u, explore_land($exp), url('adventure.php'), '') ?></details>   <?php // v0.7.80 ?>
+  <?php endif; ?>
+
 
 <?php elseif ((int)$exp['step'] < (int)$exp['steps_total']): ?>
   <?php $rl = road_line($scene, ['seed' => road_line_seed($exp, (int)$exp['step'] + 1), 'record' => false]);   // v1.9.3: the line the next space will log ?>

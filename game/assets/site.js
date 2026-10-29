@@ -745,6 +745,7 @@ gvAdvFold();
         gvRouteFade();   // v2.0.57
         gvGarden();
         gvAlmTabs();
+        gvWanderFolds();
         if (after) after();
       })
       .catch(function () { busy = false; fallback(); });
@@ -983,6 +984,14 @@ if (!window.gvMycBound) {
     gvMycApply();
   });
 }
+/* v2.1.11: the wander page folds (gather, notes) start closed on a phone and open on a larger screen; set once per fold, so a fold the gnome opened stays open. */
+function gvWanderFolds() {
+  var phone = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+  document.querySelectorAll('details.wfold:not([data-init])').forEach(function (d) {
+    d.setAttribute('data-init', '1');
+    if (!phone) d.open = true;
+  });
+}
 /* On a phone, keep the fight / wander scene in view: the stage banner (#advstage, where the fight animations play) sits above the .encounter card, so
    after a page load or an in-place update, if the whole banner is not on screen, put its top just under the header; the card follows below it. With
    no banner, the card itself is the target. No smooth scroll, so no animation is missed.
@@ -999,6 +1008,7 @@ function gvFightScroll(ended) {
 function gvFightScrollNow(ended) {
   if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
   var card = document.querySelector('.panel.encounter');
+  if (card && !card.getClientRects().length && ended) card = document.querySelector('.advgrid .choicelist');   // v2.1.11: the wander layout has no card box, centre the actions
   if (!card || !card.getClientRects().length) return;
   var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
   if (ended) {   // centre the action card between the header (+ adventure bar) and the bottom bar
@@ -1165,6 +1175,7 @@ gvMycZoom();   // v1.6.4
 gvMycApply();
 gvMycScroll();   // v1.6.1
 gvFightScroll();
+gvWanderFolds();
 
 // v0.9.3: road "metro lines" scroll sideways on phones; bring the stop you're at into view (no page jump)
 function gvMetro() {

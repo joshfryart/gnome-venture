@@ -6060,3 +6060,33 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .gvpage .statsel { font-size: 13px; padding: 6px 10px; }
 }
 .gvpage .box > .radar { display: block; margin: 4px auto; }
+
+/* ===== v2.1.11 phone wander layout: map left, place + result + story right, actions in 2 rows, gather and notes in folds ===== */
+.wanderinfo { display: none; }
+.wfold { margin-top: 8px; border-top: 1px dashed var(--line-2); padding-top: 4px; text-align: left; }
+.wfold > summary { cursor: pointer; font-weight: 700; min-height: 36px; display: flex; align-items: center; gap: 6px; }
+.wfold > .gx { margin-top: 6px; }
+@media (max-width: 720px) {
+  body:has(.advgrid.wander) main > h1, body:has(.advgrid.wander) main > p.status { display: none; }
+  .advgrid.wander { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px; align-items: start; }
+  .advgrid.wander .mapcol, .advgrid.wander > .encounter { display: contents; }
+  .advgrid.wander #advstage { display: none; }
+  .advgrid.wander .mapwrap { grid-column: 1; grid-row: 1 / span 3; align-self: center; width: auto; max-width: none; margin: 0; overflow: visible; }
+  .advgrid.wander .mapwrap::after { display: none; }
+  .advgrid.wander .journeymap.rings.hoopmap { max-width: 112px; }
+  .advgrid.wander .hoopcap { margin: 2px 0 0; min-height: 0; font-size: 11px; }
+  .advgrid.wander .hoopcap-tip, .advgrid.wander .tmlinks { display: none; }
+  .advgrid.wander .wanderinfo { display: block; grid-column: 2; font-size: 13px; line-height: 1.35; text-align: left; }
+  .advgrid.wander .roadresult, .advgrid.wander .advlatest, .advgrid.wander .roadline { grid-column: 2; margin: 0; text-align: left; font-size: 13px; line-height: 1.35; }
+  .advgrid.wander > .encounter > :not(.roadresult):not(.advlatest):not(.roadline) { grid-column: 1 / -1; }
+  .advgrid.wander .choicelist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0; margin: 0; }
+  .advgrid.wander .choicelist .choice { position: relative; min-height: 44px; padding: 5px 6px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; text-align: left; }
+  .advgrid.wander .choicelist .choice::after { content: none; }
+  .advgrid.wander .choicelist .choice-ico { display: none; }
+  .advgrid.wander .choicelist .choice-body { align-items: flex-start; text-align: left; padding-right: 30px; }
+  .advgrid.wander .choicelist .choice-title { font-size: 13px; }
+  .advgrid.wander .choicelist .choice-sub { font-size: 10px; }
+  .advgrid.wander .choicelist .choice-badge { position: absolute; top: 4px; right: 4px; min-width: 0; padding: 0 4px; font-size: 11px; }
+  .advgrid.wander .gx-hero { width: 82%; margin-inline: auto; }
+  .advgrid.wander .gx-h--belt { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}

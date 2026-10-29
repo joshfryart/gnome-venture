@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.11
+- **Phone: the wander screen fits on one screen.** Off the path, up to 720 px wide: no stage banner on top; one row with the ring map (112 px, centred in its space) on the left and, on its right, the place and tier line, the latest result and the story line; the four actions below as a 2 by 2 grid (energy cost as a corner badge); then two folds, closed by default: **Gather here** (the scene picture at 82% width, the tool belt right under it on one line with no heading, felt cards, What's here; it opens by itself when a find has just come in) and **More** (the country notes and the knocked-out reminder). The heading, status line and the "swipe to see the whole map" hint are hidden there. Fights, other adventure cards and desktop are unchanged (the folds start open on a larger screen).
+- Action labels shortened everywhere: Go deeper, Keep exploring, Step back, Head to the road (the cost is already in the badge).
+- After a fight ends on the wander layout the action buttons are centred (`gvFightScroll` falls back to `.choicelist` when there is no card box).
+- Code: `.advgrid.wander` (adventure.php), `.wfold` folds (`gvWanderFolds` in site.js), `.gx-h--belt` class on the belt heading, `.hoopcap-tip` span in the map caption. Tests: `tests/adventure.sh` has a wander step (`advforce.php wander`, shots `wander` and `wanderopen`).
+
 ## 2.1.10
 - **Phone: after a fight ends the action card is centred.** When a fight finished (win, lose, flee, Fight on, Auto-win) the tall fight card vanished and the old scroll position left the page mid-way. `gvFightScroll(ended)` now notices that the page had `.advgrid.fighting` and no longer does, and centres the `.encounter` card between the header (and the adventure bar) and the bottom bar; a card taller than that is put at the top. Re-placed at 60 ms and 350 ms like the banner, unless the gnome scrolls. Desktop and other pages are unchanged.
 - **Phone: smaller hoop map.** Up to 720 px wide the ring map is 170 px (was 250 px) and it is hidden, with its caption, while a fight is on, so the stage banner and the fight card get the room.

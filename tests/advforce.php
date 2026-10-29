@@ -18,3 +18,7 @@ if (($argv[2] ?? '') === 'meet' && $exp) {
     save_exp($exp);
     echo "meet\n";
 }
+if (($argv[2] ?? '') === 'wander' && $exp) {   // v2.1.11: a step 7 wander with nothing in front of the gnome (the phone wander layout)
+    $exp['depth'] = 7; $exp['level'] = 16; $exp['trail'] = json_encode([1, 2, 3, 4, 5, 6, 7]); $exp['encounter'] = null; save_exp($exp);
+    echo "wander\n";
+}

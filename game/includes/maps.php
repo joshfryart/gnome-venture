@@ -939,6 +939,6 @@ function hoop_map_html(array $exp, string $mark, bool $active): string
     }
     $svg .= '</svg>';
     $cur = explore_tier(max(1, $depth));
-    $caption = '<p class="hoopcap" aria-live="polite" data-def="' . e('Step ' . $depth . ' · ' . $cur[0] . ' country. Tap a ring to see what it means.') . '">Step ' . $depth . ' · ' . e($cur[0]) . ' country. Tap a ring to see what it means.</p>';
+    $caption = '<p class="hoopcap" aria-live="polite" data-def="' . e('Step ' . $depth . ' · ' . $cur[0] . ' country. Tap a ring to see what it means.') . '">Step ' . $depth . ' · ' . e($cur[0]) . ' country.<span class="hoopcap-tip"> Tap a ring to see what it means.</span></p>';
     return $svg . $caption;
 }

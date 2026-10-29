@@ -40,5 +40,8 @@ if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" fight; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" meet 2>&1 | tail -1
 echo "meet page: $(get adventure.php) other=$(grep -c 'other' $H)"
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" meet; fi
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" wander 2>&1 | tail -1
+echo "wander page: $(get adventure.php) wander=$(grep -c 'advgrid withrings wander' $H) gatherfold=$(grep -c 'wfold wgather' $H) actions=$(grep -c 'choiceform' $H)"
+if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" wander; OPEN=1 node "$HERE/advshot.js" "$BASE" "$SHOT" wanderopen; fi
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"

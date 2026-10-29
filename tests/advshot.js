@@ -11,7 +11,8 @@ const { chromium } = require('playwright');
     await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!'); await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
     await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
     await p.waitForTimeout(500);
-    await p.screenshot({ path: `${out}/adv-${name}-${mode}.png` });
+    if (process.env.OPEN) { await p.evaluate(() => document.querySelectorAll('details.wfold').forEach(d => { d.open = true; })); await p.waitForTimeout(200); }
+    await p.screenshot({ path: `${out}/adv-${name}-${mode}.png`, fullPage: !!process.env.OPEN });
     console.log(name, mode, 'js errors:', errs.length ? errs.join(' | ') : 'none');
     await c.close();
   }

@@ -296,7 +296,7 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
         }
         $slots['own'] .= '<li class="belt__slot' . ($on ? ' is-active' : '') . '" title="' . e($name . ' · ' . $tierName) . '">' . $inner . '</li>';
     }
-    $h .= '<h3 class="gx-h">Your tool belt</h3><ul class="belt">' . $slots['own'] . $slots['miss'] . '</ul>';
+    $h .= '<h3 class="gx-h gx-h--belt">Your tool belt</h3><ul class="belt">' . $slots['own'] . $slots['miss'] . '</ul>';
     if ($active !== '' && ($best = best_tool($uid, $active))) {
         $left = tool_left_text($uid, $active);
         $h .= '<p class="belt__now"><b>' . e((string)$best['name']) . '</b> · ' . e(TOOL_TIERS[tool_tier($uid, $active)] ?? '') . ($left !== '' ? ' · ' . e($left) : '') . '</p>';
