@@ -70,7 +70,7 @@ def leaf(st, cx, cy, col=LEAF[1]):
 
 
 def steam(st, x, y):
-    st.sprite(['.W', 'W.', '.W', 'W.'], x, y, {'W': '#f4f8f8'}, solid=True)
+    st.sprite(['.W', 'W.', '.W', 'W.'], x, y, {'W': '#ffffff'}, solid=True)
 
 
 # ------------------------------------------------------------------ 1. Heapsy Basket: corner-BB keyhole, common.
@@ -122,7 +122,7 @@ def magenta_muffler():
 def steeping_cuppa():
     key = 'pl-tegr-3'
     st = Sticker()
-    core = (13, 17, 50, 48)
+    core = (14, 19, 49, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 13, 17, 38, list(MIST)), contour=True)
@@ -133,10 +133,10 @@ def steeping_cuppa():
     st.paint(rect(24, 35, 40, 35), '#7a9a3a')
     st.paint(cup & (YY == 41), CUPW[1])
     st.part(disc(43, 38, 2.0) & ~disc(43, 38, 0.8), CUPW[0], d=0, contour=True, shade=False)
-    for x in (27, 31, 35):
-        steam(st, x, 29)
-    st.eye(22, 23, lid=2)
-    st.eye(37, 23, lid=2)
+    for x in (28, 32, 36):
+        steam(st, x, 30)
+    st.eye(21, 21, lid=2)
+    st.eye(38, 21, lid=2)
     st.mouth('smile', 30, 26)
     st.paint(rect(17, 28, 19, 28) | rect(44, 28, 46, 28), BLUSH)
     return key, st
@@ -146,13 +146,13 @@ def steeping_cuppa():
 def conehat_cluster():
     key = 'pl-tegr-4'
     st = Sticker()
-    core = (17, 17, 46, 46)
+    core = (19, 19, 44, 44)
     body = piece(core, n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), s=('T', 'keyhole', 0, 3.6), w=('T', 'keyhole', 0, 3.6))
     st.part(body, tex=fill(key, body, 17, 17, 30, list(STRAW)), contour=True)
     st.stitch(body, col=LEAF[0])                               # uncommon accent: tea leaf green
-    cone_hat(st, 32, 13, 6, 6)
-    cone_hat(st, 11, 32, 5, 5)
-    cone_hat(st, 52, 32, 5, 5)
+    cone_hat(st, 32, 16, 8, 7)
+    cone_hat(st, 14, 32, 7, 6)
+    cone_hat(st, 49, 32, 7, 6)
     leaf(st, 32, 52)
     happy_eye(st, 22, 26)
     happy_eye(st, 37, 26)

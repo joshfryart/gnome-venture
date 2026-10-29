@@ -71,7 +71,7 @@ def sunnyfin_shoal():
     key = 'pl-sung-1'
     st = Sticker()
     core = (10, 22, 40, 52)
-    tail = poly([(42, 37), (54, 28), (51, 37), (54, 46)])
+    tail = poly([(41, 37), (52, 29), (49, 37), (52, 45)])
     st.part(tail, FISH[1], d=1, contour=True)
     st.paint(line([(45, 37), (51, 32)]) | line([(45, 37), (51, 42)]), '#c8902a')
     body, holes = piece_blanks(core, s='F', w='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6))
@@ -82,8 +82,8 @@ def sunnyfin_shoal():
     st.eye(15, 29)
     st.eye(28, 29)
     st.mouth('grin', 22, 38)
-    tiny_fish(st, 11, 11, 1)
-    tiny_fish(st, 51, 14, -1)
+    tiny_fish(st, 15, 13, 1)
+    tiny_fish(st, 49, 15, -1)
     return key, st
 
 
@@ -91,22 +91,22 @@ def sunnyfin_shoal():
 def chestful_snore():
     key = 'pl-sung-2'
     st = Sticker()
-    core = (12, 22, 46, 52)
+    core = (16, 22, 48, 52)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), w=('T', 'keyhole', 3, 3.6), e=('B', 'keyhole', 3, 3.0))
-    st.part(body, tex=fill(key, body, 12, 12, 42, list(CHEST)), contour=True)
+    st.part(body, tex=fill(key, body, 14, 12, 42, list(CHEST)), contour=True)
     st.blank_shade(body, holes, width=1)
-    st.paint(rect(12, 33, 46, 34) & body & ~grow(holes, 1), IRON)
-    st.paint(rect(16, 22, 17, 52) & body, IRON)
-    st.paint(rect(41, 22, 42, 52) & body & ~grow(holes, 1), IRON)
-    st.part(rect(26, 32, 31, 38), LOCK[0], d=0, contour=True, shade=False)
-    st.paint(rect(28, 35, 29, 36), IRON, solid=True)
-    st.dots([(27, 33)], LOCK[1])
-    shut_eye(st, 20, 27)
-    shut_eye(st, 32, 27)
-    st.mouth('cat', 26, 43)
-    bub(st, 52, 18, 2.4)
-    bub(st, 47, 11, 1.7)
-    zzz(st, 52, 4)
+    st.paint(rect(16, 33, 48, 34) & body & ~grow(holes, 1), IRON)
+    st.paint(rect(20, 22, 21, 52) & body, IRON)
+    st.paint(rect(43, 22, 44, 52) & body & ~grow(holes, 1), IRON)
+    st.part(rect(29, 32, 34, 38), LOCK[0], d=0, contour=True, shade=False)
+    st.paint(rect(31, 35, 32, 36), IRON, solid=True)
+    st.dots([(30, 33)], LOCK[1])
+    shut_eye(st, 23, 27)
+    shut_eye(st, 35, 27)
+    st.mouth('cat', 29, 43)
+    bub(st, 50, 18, 2.4)
+    bub(st, 45, 12, 1.7)
+    zzz(st, 50, 6)
     return key, st
 
 
@@ -114,18 +114,18 @@ def chestful_snore():
 def bubble_bop():
     key = 'pl-sung-3'
     st = Sticker()
-    core = (14, 16, 48, 48)
+    core = (14, 14, 48, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 6, 44, list(AQUA)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col=BUBW, skip=grow(holes, 3))
     st.paint(rect(19, 21, 23, 22) | rect(19, 23, 20, 25), BUBW)        # glassy shine
-    for (a, b, c, d) in ((6, 10, 9, 13), (56, 10, 53, 13), (6, 54, 9, 51), (56, 54, 53, 51)):
+    for (a, b, c, d) in ((8, 12, 10, 14), (55, 12, 53, 14), (8, 51, 10, 49), (55, 51, 53, 49)):
         st.paint(line([(a, b), (c, d)]), AQUA[1], solid=True)          # pop lines
         st.extra |= line([(a, b), (c, d)])
-    happy_eye(st, 22, 28)
-    happy_eye(st, 36, 28)
+    happy_eye(st, 22, 27)
+    happy_eye(st, 36, 27)
     st.mouth('o', 30, 36)
     return key, st
 
@@ -134,21 +134,21 @@ def bubble_bop():
 def topsail_bandage():
     key = 'pl-sung-4'
     st = Sticker()
-    core = (17, 18, 46, 45)
+    core = (17, 20, 46, 46)
     body = piece(core, n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), s=('T', 'keyhole', 0, 3.6), w=('T', 'keyhole', 0, 3.6))
     st.part(body, tex=fill(key, body, 10, 8, 46, list(SAIL)), contour=True)
     st.stitch(body, col=PATCH[0])
-    st.paint(rect(31, 4, 32, 9), '#7a4a2a', solid=True)                # mast tip over the top tab
-    st.paint(rect(29, 3, 34, 3), '#7a4a2a', solid=True)
-    st.extra |= rect(29, 3, 34, 9)
-    patch = rect(27, 33, 36, 41)
+    st.paint(rect(31, 8, 32, 12), '#7a4a2a', solid=True)                # mast tip over the top tab
+    st.paint(rect(29, 7, 34, 7), '#7a4a2a', solid=True)
+    st.extra |= rect(29, 7, 34, 12)
+    patch = rect(27, 37, 36, 43)
     st.part(patch, PATCH[0], d=0, contour=True, shade=False)
-    st.paint(rect(28, 34, 35, 34), PATCH[1])
+    st.paint(rect(28, 38, 35, 38), PATCH[1])
     for x in (26, 37):
-        st.paint(line([(x - 1, 35), (x + 1, 37)]) | line([(x + 1, 35), (x - 1, 37)]), UMBER)
-    st.eye(23, 25, look=(0, -1))
-    st.eye(36, 25, look=(0, -1))
-    st.mouth('smile', 29, 31)
+        st.paint(line([(x - 1, 39), (x + 1, 41)]) | line([(x + 1, 39), (x - 1, 41)]), UMBER)
+    st.eye(23, 26, look=(0, -1))
+    st.eye(36, 26, look=(0, -1))
+    st.mouth('smile', 29, 32)
     st.paint(rect(20, 31, 22, 31) | rect(41, 31, 43, 31), BLUSH)
     return key, st
 
@@ -188,11 +188,11 @@ def hullmate_octopus():
     for (x0, x1, x2) in ((22, 17, 13), (27, 25, 21), (37, 39, 43), (42, 47, 51)):
         arms |= line([(x0, 34), (x1, 46), (x2, 50)], w=3)
     arms |= disc(12, 49, 2.2) | disc(52, 49, 2.2)
-    wave = line([(45, 28), (51, 22), (54, 15)], w=3) | disc(52, 13, 2.2)   # the waving curly arm
+    wave = line([(45, 28), (50, 22), (51, 16)], w=3) | disc(50, 14, 2.2)   # the waving curly arm
     left = line([(19, 30), (12, 34), (9, 40)], w=3)
     sil = head | tab | arms | wave | left
     st.part(sil, tex=fill(key, sil, 6, 8, 52, list(OCTO)), contour=True)
-    for (x, y) in ((16, 47), (23, 46), (40, 46), (47, 47), (51, 20), (11, 37)):
+    for (x, y) in ((16, 47), (23, 46), (40, 46), (47, 47), (49, 21), (11, 37)):
         st.dots([(x, y)], '#f4b0a0')
     st.paint(disc(24, 26, 4.5), CREAMW, solid=True)
     st.paint(disc(40, 26, 4.5), CREAMW, solid=True)
@@ -202,8 +202,8 @@ def hullmate_octopus():
     st.paint(line([(20, 19), (26, 18)]) | line([(38, 18), (44, 19)]), UMBER)   # brows shot up
     st.mouth('o', 31, 32)
     st.paint(rect(18, 32, 20, 32) | rect(44, 32, 46, 32), BLUSH)
-    st.sparkle(7, 6)
-    st.sparkle(56, 40, big=False)
+    st.sparkle(9, 9)
+    st.sparkle(54, 40, big=False)
     st.sparkle(12, 22, big=False)
     return key, st
 

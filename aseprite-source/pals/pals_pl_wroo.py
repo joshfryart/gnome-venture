@@ -117,21 +117,21 @@ def elbow_root_hug():
 def vine_bead_dangle():
     key = 'pl-wroo-3'
     st = Sticker()
-    core = (14, 18, 49, 49)
+    core = (14, 15, 49, 44)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
-    st.part(body, tex=fill(key, body, 14, 10, 40, list(TEAL)), contour=True)
+    st.part(body, tex=fill(key, body, 14, 8, 40, list(TEAL)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#8ac8b0', skip=grow(holes, 3))
-    v = line([(36, 9), (41, 14), (44, 20), (44, 26)], w=1)              # the vine from the top tab
+    v = line([(36, 7), (41, 12), (44, 17), (44, 23)], w=1)              # the vine from the top tab
     st.paint(v, VINE[0], solid=True)
-    st.paint(disc(40, 12, 1.2) | disc(45, 18, 1.2), VINE[2], solid=True)
-    st.part(disc(44, 29, 3.2), VINE[2], d=1, contour=True)              # the green bead
-    st.dots([(43, 28)], '#d8f0b0')
-    st.eye(20, 27, look=(1, -1))
-    st.eye(31, 27, look=(1, -1))
-    st.mouth('o', 25, 37)
-    st.paint(rect(17, 35, 19, 35), BLUSH)
+    st.paint(disc(40, 10, 1.2) | disc(45, 15, 1.2), VINE[2], solid=True)
+    st.part(disc(44, 26, 3.2), VINE[2], d=1, contour=True)              # the green bead
+    st.dots([(43, 25)], '#d8f0b0')
+    st.eye(20, 24, look=(1, -1))
+    st.eye(31, 24, look=(1, -1))
+    st.mouth('o', 25, 33)
+    st.paint(rect(17, 31, 19, 31), BLUSH)
     return key, st
 
 
@@ -184,17 +184,17 @@ def archway_ember():
 def grinning_stone_face():
     key = 'pl-wroo-6'
     st = Sticker()
-    head = rect(19, 16, 44, 46) | rect(22, 10, 41, 16) | rect(26, 6, 37, 10)
+    head = rect(19, 16, 44, 46) | rect(22, 10, 41, 16) | rect(26, 8, 37, 10)
     tab = knob('s', 'keyhole', 32, 47, r=3.4)
     body = head | tab
-    st.part(body, tex=fill(key, body, 17, 6, 30, list(STONE)), contour=True)
+    st.part(body, tex=fill(key, body, 17, 8, 30, list(STONE)), contour=True)
     st.paint(rect(22, 10, 41, 10) | rect(19, 16, 44, 16), '#c2c6be')
     moss_drips(st, 23, 40, 11)
     # roots holding it from both sides like arms
-    root_band(st, [(6, 54), (10, 40), (14, 30), (21, 24)], w=4)
-    root_band(st, [(57, 54), (53, 40), (49, 30), (42, 24)], w=4)
-    root_band(st, [(10, 40), (20, 44)], w=3)
-    root_band(st, [(53, 40), (43, 44)], w=3)
+    root_band(st, [(11, 53), (12, 40), (14, 30), (21, 24)], w=4)
+    root_band(st, [(52, 53), (51, 40), (49, 30), (42, 24)], w=4)
+    root_band(st, [(12, 40), (20, 44)], w=3)
+    root_band(st, [(51, 40), (43, 44)], w=3)
     # carved face
     st.paint(rect(24, 24, 29, 28) | rect(34, 24, 39, 28), UMBER)
     st.paint(rect(25, 25, 26, 26) | rect(35, 25, 36, 26), CREAM)
@@ -203,9 +203,9 @@ def grinning_stone_face():
     st.sprite(['U........U', 'UCCCCCCCCU', '.URRRRRRU.', '..UUUUUU..'], 27, 35, {'U': UMBER, 'C': CREAM, 'R': MOUTH_RED},
               solid=False)
     st.paint(rect(21, 33, 23, 33) | rect(40, 33, 42, 33), BLUSH)
-    st.sparkle(5, 8)
-    st.sparkle(52, 7, big=False)
-    st.sparkle(54, 20, big=False)
+    st.sparkle(9, 9)
+    st.sparkle(48, 9, big=False)
+    st.sparkle(50, 18, big=False)
     return key, st
 
 

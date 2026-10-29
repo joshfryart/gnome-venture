@@ -118,7 +118,7 @@ def marmalade_minnow():
 def coral_fingerlings():
     key = 'pl-wpea-3'
     st = Sticker()
-    core = (14, 22, 49, 50)
+    core = (14, 20, 49, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     fingers = blank()
@@ -148,9 +148,8 @@ def oysterbed_choir():
     shut_eye(st, 22, 24)
     shut_eye(st, 37, 24)
     st.mouth('o', 30, 27)
-    for x, y in ((10, 9), (52, 9)):
-        st.paint(rect(x + 2, y - 4, x + 2, y), UMBER)
-        st.paint(rect(x, y, x + 2, y + 1), UMBER)
+    for x, y in ((11, 13), (49, 13)):
+        st.paint(rect(x + 2, y - 4, x + 2, y) | rect(x, y, x + 2, y + 1), UMBER, solid=True)
     return key, st
 
 
@@ -164,10 +163,10 @@ def pearl_peekaboo():
     st.part(body, tex=fill(key, body, 11, 11, 42, list(SAND)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col=PEARL[2], skip=grow(holes, 3))               # uncommon accent: pearl
-    gap = ellipse(31.5, 38, 12, 4)
+    gap = ellipse(31.5, 38, 12, 5)
     st.part(gap, '#4b312f', d=0, contour=True, shade=False)
     st.paint(rect(19, 34, 44, 34) & grow(gap, 1), SAND[0])
-    pearl(st, 31.5, 38, 3.0)
+    pearl(st, 31.5, 38, 4.0)
     for x, y in ((31, 31), (25, 38), (38, 38)):
         st.dots([(x, y)], '#fff8d0')
     wink(st, 18, 19)
@@ -180,10 +179,10 @@ def pearl_peekaboo():
 def whiskerwatch_diver():
     key = 'pl-wpea-6'
     st = Sticker()
-    torso = ellipse(30, 42, 14, 10)
+    torso = ellipse(30, 40, 14, 9)
     head = disc(30, 23, 9)
     arm = line([(42, 36), (50, 20)], w=4)
-    tab = knob('s', 'keyhole', 30, 51, r=3.0)
+    tab = knob('s', 'keyhole', 30, 48, r=3.0)
     sil = torso | head | tab | arm
     st.part(sil, tex=fill(key, sil, 9, 8, 46, list(TEAL)), contour=True)
     st.part(ellipse(30, 25, 7, 6), SKIN[0], d=1, contour=True)
@@ -195,7 +194,7 @@ def whiskerwatch_diver():
     st.paint(rect(22, 27, 23, 27) | rect(37, 27, 38, 27), BLUSH)
     st.part(disc(50, 19, 2.5), SKIN[1], d=0, contour=True, shade=False)
     pearl(st, 50, 14, 3.0)
-    st.paint(rect(18, 44, 42, 45) & torso, CREAM)
+    st.paint(rect(18, 42, 42, 43) & torso, CREAM)
     st.sparkle(8, 10)
     st.sparkle(56, 6, big=False)
     st.sparkle(9, 52, big=False)

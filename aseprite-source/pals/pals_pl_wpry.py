@@ -150,7 +150,7 @@ def pilgrim_pebble():
     # little lucky pebble held up in two stubby hands
     st.part(ellipse(17, 14, 3, 2.4), DUST[0], d=1, contour=True)
     st.part(ellipse(45, 14, 3, 2.4), DUST[0], d=1, contour=True)
-    pb = ellipse(31, 9, 6, 3.6)
+    pb = ellipse(31, 10, 6, 3.4)
     st.part(pb, '#8a8490', d=1, contour=True)
     st.paint(disc(29, 7.5, 1.4), '#c4bec8')
     st.sparkle(42, 5, big=False)
@@ -218,7 +218,7 @@ def redsaddle_yak():
     st.part(legs, SHAG[0], d=1, contour=True)
     st.paint(rect(24, 53, 28, 54) | rect(44, 53, 48, 54), ROCK[1])
     # horns
-    hl = line([(12, 25), (8, 20), (9, 15)], w=2)
+    hl = line([(13, 25), (10, 20), (11, 15)], w=2)
     hr = line([(23, 24), (27, 19), (26, 15)], w=2)
     st.part(hl | hr, HORN[0], d=1, contour=True)
     body = torso | head | tab
