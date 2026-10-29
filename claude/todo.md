@@ -1,4 +1,7 @@
-# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.07 (Cat Fish buy flow, live scene; main 2.1.01 merged))
+# Gnome Venture: to-do (updated 2026-10-29, latest built release 2.1.08 (Cat Fish Cat/Rod upgrades in the scene, phone scroll to the stage banner; on main))
+
+## NOW (2.1.08, 2026-10-29): bowl, toy box, cat tree and cat flap are drawn in the room; string, spring, motor and double rod show on the stage; a buy that changes the room flashes; phone fight/wander scroll brings the whole `#advstage` banner into view. Slim zip and manifest built, pushed to main.
+- **NEXT:** check `gvFightScroll` on a real phone fight and wander page (only syntax-checked); decide on a 2.1.08 news post (`update_news.php`); hand-polish the 4 new overlays in Aseprite if wanted (source is `cf_room_cat.py`, no `.aseprite`); toy box is partly hidden behind the right-hand cat's feet on some layouts; a level badge on repeat buys was left out.
 
 ## NOW (2.1.07, 2026-10-29): Cat Fish buy flow fixed: instant cost with `-N`, taps flushed with the buy, scene refreshed in place (`stage_html`), one news post for 2.1.05 to 2.1.07. Also carries the fight-card phone scroll (`gvFightScroll`, branch ccr-103a3178-10sv83 rolled in). Slim zip in `releases/`.
 - **NEXT:** art follow-ups: bird sprite 1 px outline vs the overlay robin; rolling yarn sprite lacks thread and contact shadow; side-cat nap/bored spots are static (could move).
