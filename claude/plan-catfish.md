@@ -51,9 +51,9 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] Nap + Yarn (Yarn = floor(sqrt(run/500)), +10% Kibble each, Dreamy +10% Yarn)
 - [x] All 5 personalities (Sneaky rare fish, Dreamy Yarn)
 - [x] Cat Book (adopted pattern x colour) + derived badges on profile
-- [x] Tests grown for week 2 (80 checks)
-- [ ] Opus end-of-week review
-- Balance note: Naps get faster with Yarn; revisit the 1.5x-longer rule in week 4
+- [x] Tests grown for week 2 (about 95 checks incl. replay + mutation-checked)
+- [x] Opus end-of-week review. Fixed: page reload replay (paid seconds now rounded up), Yarn runaway (cube root + Yarn^0.6 bonus, sim: 8 h runs go 312k -> 27M over 6 Naps), overflow caps (kph 1e12, cost 1e15, gain cap), Cat Book now records shelter cats seen (badges by count: 12, half, all), Dreamy 10% before rounding, Full house fixed at 2 cats, polling shows 429 and pauses when hidden, Nap block refreshes, Cat Book a11y. Cube root float bug (64 -> 3.99999) fixed.
+- Balance note: sim5.php (scratchpad) shows longer runs pay better; revisit in week 4. Short 30 min runs give 1 Yarn each, so the first Nap is a taster.
 **Week 3:** shelter upgrades, milestone Petals with cap, Opus mid-week review.
 **Week 4:** Cat Show, garden bed cat, Pals bonus, final art, balance, CHANGELOG, Opus end review.
 

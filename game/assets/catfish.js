@@ -20,11 +20,17 @@
       f.querySelector('.cfgives').textContent = u.gives + (u.mult > 1 ? ' · ×' + u.mult + ' bonus' : '');
       var b = f.querySelector('button'); b.setAttribute('data-cost', u.cost); b.textContent = 'Buy · ' + u.cost.toLocaleString();
     });
+    var run = document.getElementById('cf-run'); if (run) {
+      run.textContent = view.run.toLocaleString(); document.getElementById('cf-napyarn').textContent = view.nap_yarn;
+      document.getElementById('cf-napform').hidden = view.nap_yarn < 1; document.getElementById('cf-napneed').hidden = view.nap_yarn >= 1;
+    }
     refreshButtons();
   }
   function say(text, bad) { var m = document.getElementById('cf-msg'); if (!m) return; m.textContent = text || ''; m.className = bad ? 'flash err' : 'flash ok'; }
   setInterval(function () { shown += rate / 3600; draw(); }, 1000);
-  setInterval(function () { post({ do: 'tick' }, function (r) { if (r.ok) apply(r.view); }); }, 30000);
+  function sync() { if (document.hidden) return; post({ do: 'tick' }, function (r) { if (r.ok) apply(r.view); else say(r.error, true); }); }
+  setInterval(sync, 30000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
   document.getElementById('cf-ups').addEventListener('submit', function (ev) {
     var f = ev.target; if (!f.matches('form.cfup')) return;
     ev.preventDefault();

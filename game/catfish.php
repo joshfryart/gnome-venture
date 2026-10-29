@@ -58,20 +58,20 @@ page_header('Cat Fish');
 <?php foreach ($v['ups'] as $up): if ($up['branch'] !== $bk) continue; ?>
   <form method="post" class="cfup" data-key="<?= e($up['key']) ?>">
     <?= csrf_field() ?><input type="hidden" name="do" value="buy"><input type="hidden" name="key" value="<?= e($up['key']) ?>">
-    <span class="cficon"><?= $up['icon'] ?></span>
+    <span class="cficon" aria-hidden="true"><?= $up['icon'] ?></span>
     <span class="cfinfo"><b><?= e($up['name']) ?></b> <small class="muted">×<?= (int)$up['owned'] ?></small><br><small class="cfgives"><?= e($up['gives']) ?><?= $up['mult'] > 1 ? ' · ×' . (int)$up['mult'] . ' bonus' : '' ?></small></span>
     <button class="btn" type="submit"<?= $up['can'] ? '' : ' disabled' ?> data-cost="<?= (int)$up['cost'] ?>">Buy · <?= number_format($up['cost']) ?></button>
   </form>
 <?php endforeach; endforeach; ?>
 </div>
-<details class="fold box"><summary>😴 Nap<?= $v['yarn'] > 0 ? ' · ' . number_format($v['yarn']) . ' Yarn (+' . (int)round($v['yarn'] * CATFISH_YARN_STEP * 100) . '% Kibble)' : '' ?></summary>
-  <p class="help">Napping puts your upgrades and Kibble back to zero and gives Yarn. Every Yarn adds <?= (int)round(CATFISH_YARN_STEP * 100) ?>% to all the Kibble your cat earns, for good. Your cats, Cat Book and badges stay.</p>
-  <p>This run: <b><?= number_format($v['run']) ?></b> Kibble earned. A Nap now gives <b><?= (int)$v['nap_yarn'] ?></b> Yarn.<?= $v['nap_yarn'] < 1 ? ' You need ' . number_format(CATFISH_NAP_BASE) . ' to get your first.' : '' ?></p>
-  <?php if ($v['nap_yarn'] >= 1): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="nap"><button class="btn" type="submit">Nap for <?= (int)$v['nap_yarn'] ?> Yarn</button></form><?php endif; ?>
+<details class="fold box"><summary>😴 Nap<?= $v['yarn'] > 0 ? ' · ' . number_format($v['yarn']) . ' Yarn (×' . rtrim(rtrim(number_format(catfish_yarn_mult($v['yarn']), 2), '0'), '.') . ' Kibble)' : '' ?></summary>
+  <p class="help">Napping puts your upgrades and Kibble back to zero and gives Yarn. Yarn makes all the Kibble your cat earns go further, for good, though each extra Yarn helps a little less. Longer runs give more Yarn. Your cats, Cat Book and badges stay.</p>
+  <p>This run: <b id="cf-run"><?= number_format($v['run']) ?></b> Kibble earned. A Nap now gives <b id="cf-napyarn"><?= (int)$v['nap_yarn'] ?></b> Yarn.<span id="cf-napneed"<?= $v['nap_yarn'] < 1 ? '' : ' hidden' ?>> You need <?= number_format(CATFISH_NAP_BASE) ?> for your first.</span></p>
+  <form method="post" id="cf-napform"<?= $v['nap_yarn'] >= 1 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="nap"><button class="btn" type="submit">Nap</button></form>
 </details>
 <?php endif; ?>
 
-<?php if ($room || !$cat): ?>
+<?php if ($room || !$cat): foreach ($shelter as $sc) catfish_book_add($uid, $sc['pattern'], $sc['colour'], 0); ?>
 <h2>🏠 Shelter</h2>
 <p class="help"><?= $adoptCost === 0 ? 'Your first cat is free.' : 'Taking another home costs ' . number_format($adoptCost) . ' Kibble.' ?> New cats arrive at the daily reset.</p>
 <div class="cflist">
@@ -98,14 +98,14 @@ page_header('Cat Fish');
 <?php endforeach; ?>
 </details>
 <?php endif; ?>
-<?php if ($owned > 0): $book = catfish_book($uid); $have = array_flip(array_map(fn($b) => $b[0] . '/' . $b[1], $book)); ?>
+<?php if ($owned > 0): $book = catfish_book($uid); $have = []; foreach ($book as $bk) $have[$bk[0] . '/' . $bk[1]] = $bk[2]; ?>
 <details class="fold box"><summary>📖 Cat Book (<?= count($book) ?> of <?= count(CATFISH_TRAITS['pattern']) * count(CATFISH_TRAITS['colour']) ?>)</summary>
-  <p class="help">Every pattern and colour you have taken home. Fill a whole row for a badge.</p>
+  <p class="help">Every coat you have seen at the shelter or taken home (🐱 = adopted). Fill the book for badges.</p>
   <div class="cfbook">
   <?php foreach (array_keys(CATFISH_TRAITS['pattern']) as $pat): ?>
     <div class="cfbrow"><b><?= e(ucfirst($pat)) ?></b>
-    <?php foreach (array_keys(CATFISH_TRAITS['colour']) as $col): $got = isset($have[$pat . '/' . $col]); ?>
-      <span class="cfbcell <?= $got ? 'got c-' . e($col) : 'none' ?>" title="<?= e(ucfirst($col) . ' ' . $pat) ?>"><?= $got ? '🐱' : '·' ?></span>
+    <?php foreach (array_keys(CATFISH_TRAITS['colour']) as $col): $st = $have[$pat . '/' . $col] ?? -1; $nm = ucfirst($col) . ' ' . $pat . ($st === 1 ? ', adopted' : ($st === 0 ? ', seen' : ', not seen yet')); ?>
+      <span class="cfbcell <?= $st >= 0 ? 'got c-' . e($col) : 'none' ?>" role="img" aria-label="<?= e($nm) ?>" title="<?= e($nm) ?>"><?= $st === 1 ? '🐱' : '' ?></span>
     <?php endforeach; ?></div>
   <?php endforeach; ?>
   </div>

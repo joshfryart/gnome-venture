@@ -96,7 +96,7 @@ ok "sub-Kibble tick ($G0 s): nothing whole earned" "$G" 0
 ok "sub-Kibble tick: last_tick not moved" "$LT" "$(( NOW - G0 ))"
 # a tick of about 2.5 Kibble's worth pays 2 and moves last_tick only by the seconds those 2 cost; the rest stays owed
 NOW=$(date +%s); G1=$(awk "BEGIN{print int(9000/$KPH + 0.5)}")
-E=$(awk "BEGIN{print int($KPH*$G1/3600)}"); M=$(awk "BEGIN{print int($E*3600/$KPH)}")
+E=$(awk "BEGIN{print int($KPH*$G1/3600)}"); M=$(awk "BEGIN{x=$E*3600/$KPH; print (x==int(x))?x:int(x)+1}")
 dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - G1 )) WHERE user_id=$UID_"
 G=$(cfapi -d do=tick | jp view.gained); LT=$(dbv "SELECT last_tick FROM catfish_state WHERE user_id=$UID_")
 ok "$G1 s tick: pays $E whole Kibble" "$G" "$E"
@@ -126,19 +126,19 @@ dbx "UPDATE catfish_state SET kibble=1000, last_tick=$(date +%s) WHERE user_id=$
 R=$(cfapi -d do=buy -d key=nope)
 ok "unknown upgrade key: ok false" "$(echo "$R" | jp ok)" false
 
-# nap: a run of 100 Kibble is too short; a run of 2000 gives 2 Yarn (3 for a dreamy cat) and resets Kibble and upgrades
+# nap: a run of 100 Kibble is too short; a run of 32000 gives 4 Yarn (cube root of 64, dreamy 4.4 still 4) and resets Kibble and upgrades
 cfreset
 dbx "UPDATE catfish_state SET run_kibble=100, kibble=0, last_tick=$(date +%s) WHERE user_id=$UID_"
 cfpost -d do=nap >/dev/null
 ok "nap with 100 run Kibble: refused (naps stays 0)" "$(dbv "SELECT naps FROM catfish_state WHERE user_id=$UID_")" 0
 ok "nap with 100 run Kibble: refused (yarn stays 0)" "$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" 0
 MOOD=$(cfapi -d do=tick | jp view.cat.mood)
-Y=2; [ "$MOOD" = dreamy ] && Y=3
+Y=4
 CATS0=$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")
-dbx "UPDATE catfish_state SET run_kibble=2000, kibble=777, upgrades='{\"fish\":3}', last_tick=$(date +%s) WHERE user_id=$UID_"
+dbx "UPDATE catfish_state SET run_kibble=32000, kibble=777, upgrades='{\"fish\":3}', last_tick=$(date +%s) WHERE user_id=$UID_"
 cfpost -d do=nap >/dev/null
 ok "nap: naps=1" "$(dbv "SELECT naps FROM catfish_state WHERE user_id=$UID_")" 1
-ok "nap: yarn=$Y (dreamy adds 10%, rounded up)" "$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" "$Y"
+ok "nap: yarn=$Y (cube root of run / 500)" "$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" "$Y"
 ok "nap: kibble back to 0" "$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")" 0
 ok "nap: run_kibble back to 0" "$(dbv "SELECT run_kibble FROM catfish_state WHERE user_id=$UID_")" 0
 ok "nap: upgrades back to {}" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_")" '{}'
@@ -146,8 +146,8 @@ ok "nap: cats table row count unchanged" "$(dbv "SELECT COUNT(*) FROM cats WHERE
 # after the nap the cat earns (1 + 0.10 x Yarn) more, times its mood factor (greedy x1.10, hyper x1.15 while present)
 NK=$(cfapi -d do=tick | jp view.kph)
 MF=1; case $MOOD in greedy) MF=1.1;; hyper) MF=1.15;; esac
-WANT=$(awk "BEGIN{printf \"%.1f\", 600*(1+0.1*$Y)*$MF}")
-ok "after the nap: view.kph = 600 x (1 + 0.10 x Yarn) x mood (within rounding)" "$(awk "BEGIN{d=$NK-$WANT; print (d<0?-d:d)<=0.11 ? \"y\" : \"n\"}")" y
+WANT=$(awk "BEGIN{printf \"%.1f\", 600*(1+0.1*($Y^0.6))*$MF}")
+ok "after the nap: view.kph = 600 x (1 + 0.10 x Yarn^0.6) x mood (within rounding)" "$(awk "BEGIN{d=$NK-$WANT; print (d<0?-d:d)<=0.11 ? \"y\" : \"n\"}")" y
 # a tick adds the same Kibble to the run and to the lifetime total
 dbx "UPDATE catfish_state SET last_tick=$(( $(date +%s) - 3600 )) WHERE user_id=$UID_"
 K0=$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_"); RU0=$(dbv "SELECT run_kibble FROM catfish_state WHERE user_id=$UID_"); T0=$(dbv "SELECT total_kibble FROM catfish_state WHERE user_id=$UID_")
@@ -175,7 +175,7 @@ $r["rare_hit"] = catfish_rare_fish(600.0, 3600, 0.1);
 $r["rare_miss"] = catfish_rare_fish(600.0, 3600, 0.6);
 $r["yarn_499"] = catfish_nap_yarn(499, null);
 $r["yarn_500"] = catfish_nap_yarn(500, null);
-$r["yarn_2000"] = catfish_nap_yarn(2000, null);
+$r["yarn_2000"] = catfish_nap_yarn(2000, null); $r["yarn_big"] = catfish_nap_yarn(389500, null); $r["yarn_big_dreamy"] = catfish_nap_yarn(389500, ["mood" => "dreamy"]);
 $r["yarn_dreamy"] = catfish_nap_yarn(2000, ["mood" => "dreamy"]);
 $g = catfish_rng(123456); $r["rng"] = sprintf("%.6f %.6f %.6f", $g(), $g(), $g());
 $r["kph"] = var_export(catfish_kph([], null, false, 0), true);
@@ -186,8 +186,10 @@ ok "rare fish: 60 on a hit (chance 0.5 per hour)" "$(pv rare_hit)" 60
 ok "rare fish: 0 on a miss" "$(pv rare_miss)" 0
 ok "nap yarn: 499 Kibble -> 0" "$(pv yarn_499)" 0
 ok "nap yarn: 500 Kibble -> 1" "$(pv yarn_500)" 1
-ok "nap yarn: 2000 Kibble -> 2" "$(pv yarn_2000)" 2
-ok "nap yarn: 2000 Kibble, dreamy -> 3" "$(pv yarn_dreamy)" 3
+ok "nap yarn: 2000 Kibble -> 1 (cube root)" "$(pv yarn_2000)" 1
+ok "nap yarn: 2000 Kibble, dreamy -> 1 (1.74 rounds down)" "$(pv yarn_dreamy)" 1
+ok "nap yarn: 389500 Kibble -> 9" "$(pv yarn_big)" 9
+ok "nap yarn: 389500 Kibble, dreamy -> 10 (10% before rounding)" "$(pv yarn_big_dreamy)" 10
 ok "rng: seed 123456, first three values" "$(pv rng)" "0.382333 0.797263 0.996530"
 ok "kph: nothing bought, no cat -> 600.0" "$(pv kph)" "600.0"
 ok "milestone: 9 owned -> x1" "$(pv mult_9)" 1
@@ -210,6 +212,18 @@ echo $same ? "y" : "n", "\n", ($leg >= 0.5 && $leg <= 3) ? "y" : "n", "\n", ($co
 ok "generator: catfish_cat(12345) is always the same cat" "$(echo "$GEN" | sed -n 1p)" y
 ok "generator: legendary between 0.5% and 3% of 20000 seeds" "$(echo "$GEN" | sed -n 2p)" y
 ok "generator: common between 40% and 60% of 20000 seeds" "$(echo "$GEN" | sed -n 3p)" y
+
+setg catfish_open 1
+# no replay: hammering tick at a high rate never pays more than the time that passed (ceil on the clock)
+cfreset
+T0=$(date +%s); dbx "UPDATE catfish_state SET kibble=0, yarn=1000, last_tick=$T0 WHERE user_id=$UID_"
+KP=$(cfapi -d do=tick | jp view.kph)
+for i in $(seq 1 30); do cfapi -d do=tick >/dev/null; done
+T1=$(date +%s); GOT=$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")
+ok "30 rapid ticks at $KP/h pay no more than the elapsed time allows" "$(awk "BEGIN{print ($GOT <= $KP*($T1-$T0+1)/3600 + 2) ? \"y\" : \"n\"}")" y
+dbx "UPDATE catfish_state SET yarn=0 WHERE user_id=$UID_"
+# the Cat Book also records cats only seen at the shelter
+ok "Cat Book: shelter cats seen are recorded" "$([ "$(dbv "SELECT COUNT(*) FROM cat_book WHERE user_id=$UID_")" -ge 3 ] && echo y || echo n)" y
 
 # cleanup
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"

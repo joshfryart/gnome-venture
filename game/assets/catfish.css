@@ -32,3 +32,4 @@
 .cfbcell { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--cf, #eee); font-size: 1rem; flex: none; }
 .cfbcell.none { background: transparent; border: 1px dashed var(--line, #ccc); color: var(--muted, #999); }
 .cfbadge { display: inline-block; padding: .1rem .5rem; border: 1px solid var(--line, #ddd); border-radius: 999px; font-size: .85rem; }
+.cfbcell.got:not(:empty) { outline: 2px solid var(--line, #888); }
