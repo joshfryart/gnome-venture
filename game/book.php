@@ -198,6 +198,11 @@ page_header('My Almanac');
           <p><?= e($label) ?><br><progress max="<?= $nd ?>" value="<?= $h ?>"></progress> <small><?= $h ?>/<?= $nd ?> crops grown</small></p>
         <?php endforeach; ?><p class="help">Medals come from growing a region’s crops: every staple (bronze), then every uncommon (silver), then every treasure and flower (gold).</p>
         <?php else: ?><p class="muted">Visit a region and grow its crops to start on its medals.</p><?php endif; ?></div>
+      <?php require_once __DIR__ . '/includes/puzzle_pals.php'; if (ppal_open() && !is_guest($u)): [$palF, $palT] = ppal_counts($uid); ?>
+      <div class="box ccard"><h3>🐾 Pal Book <small><?= $palT > 0 ? $palF . '/' . $palT : '' ?></small></h3>
+        <p><?= $palT > 0 ? 'You have found ' . $palF . ' of ' . $palT . ' puzzle pals so far.' : 'Solve a jigsaw on Advanced to start your collection.' ?></p>
+        <p><a href="<?= e(url('puzzlepals.php')) ?>">Open the Pal Book →</a></p></div>
+      <?php endif; ?>
     </div>
     <div class="secgrid">
       <?php foreach (ALMANAC_SECTIONS as $sk => [$ic, $label, $chs]): if ($sk === 'contents') continue;

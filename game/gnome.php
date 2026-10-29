@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/items.php';
 require_once __DIR__ . '/includes/adventure.php';   // v0.9.7: easy_roads_on()
+require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.0.89: Pal Book tile
 $u = require_login();
 
 if (is_post()) {
@@ -66,6 +67,9 @@ $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, 
 <div class="factrow">
   <a class="fact" href="#tasted"><span>🍴</span><b><?= count($tastedList) ?></b><small>foods tasted<?= $edibleTotal ? ' of ' . $edibleTotal : '' ?></small></a>
   <a class="fact" href="#calling"><span><?= ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) /* v1.5.2 */ ?></span><b><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) : ((int)$u['level'] >= $callingLevel ? 'Choose!' : 'Lv ' . $callingLevel) ?></b><small>calling</small></a>
+  <?php if (ppal_open() && !is_guest($u)): [$palF, $palT] = ppal_counts((int)$u['id']); $palAlong = ppal_equipped($u); ?>
+  <a class="fact" href="<?= e(url('puzzlepals.php')) ?>" title="<?= $palAlong ? e('Taking along: ' . implode(', ', array_map(fn($e) => $e['pal']['name'], $palAlong))) : 'Your Pal Book' ?>"><span>🐾</span><b><?= $palT > 0 ? $palF . '/' . $palT : 'Pal Book' ?></b><small><?= $palAlong ? count($palAlong) . ' along · ' : '' ?>puzzle pals</small></a>
+  <?php endif; ?>
   <a class="fact" href="#friends"><span>💛</span><b><?= (int)q_val('SELECT COUNT(*) FROM npc_friends WHERE user_id = ? AND points > 0', [$u['id']]) ?></b><small>villagers who know you</small></a>
   <?php if ((int)($u['ribbons'] ?? 0)): ?><span class="fact"><span>🎀</span><b><?= (int)$u['ribbons'] ?></b><small>ribbons</small></span><?php endif; ?>
   <?php if ((int)($u['community_rep'] ?? 0)): ?><span class="fact"><span>💚</span><b><?= (int)$u['community_rep'] ?></b><small>community help</small></span><?php endif; ?>
