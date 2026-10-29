@@ -36,7 +36,7 @@ GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 -- the string: gold yarn sagging from (8,8) to (55,8), lowest (y 23) in the middle, a knot and tail at each end
-local X0, X1, YT, SAG = 10, 53, 12, 14
+local X0, X1, YT, SAG = 10, 53, 13, 14
 local CXS = (X0 + X1) / 2
 local function sy(x) local u = (x - CXS) / ((X1 - X0) / 2) return YT + SAG * (1 - u * u) end
 local pts = {}
@@ -49,8 +49,8 @@ local tailL = c:line({ { X0 - 1, YT + 2 }, { X0 - 2, YT + 7 } }, 2)
 local tailR = c:line({ { X1 + 1, YT + 2 }, { X1 + 2, YT + 7 } }, 2)
 
 -- pennants: top corners on the string, tip straight below the middle, neighbours overlap 1 px (contour)
-local FL = { { 11, 21, RED }, { 21, 31, SKY }, { 31, 41, MINT }, { 41, 51, VIO } }
-local H = 21
+local FL = { { 9, 20, RED }, { 20, 31, SKY }, { 31, 42, MINT }, { 42, 53, VIO } }
+local H = 23
 local list = { { "tailL", tailL, GOLD, { flat = true, contact = false } },
                { "tailR", tailR, GOLD, { flat = true, contact = false } } }
 local flags = {}
@@ -61,7 +61,7 @@ for i, f in ipairs(FL) do
   local tip = { xm, math.max(ya, yb) + H }
   local m = c:poly({ { xa, ya }, { xb + 1, yb }, tip })
   flags[i] = { m = m, R = R, xa = xa, xb = xb, ya = ya, yb = yb, tip = tip }
-  list[#list + 1] = { "f" .. i, m, R, { cres = 3, gloss = false } }
+  list[#list + 1] = { "f" .. i, m, R, { cres = 2, gloss = false } }
 end
 list[#list + 1] = { "str", str, GOLD, { cres = 1, deep = 0, gloss = false, contact = false } }
 list[#list + 1] = { "knotL", knotL, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } }
@@ -79,13 +79,13 @@ for x = X0 + 3, X1 - 3 do
   end
 end
 
--- each pennant: a gold hem stitch under the string (the folded-over top), a felt glint on the lit upper left
+-- each pennant: a gold hem stitch under the string (the folded-over top), an enamel comma (rim tone, cream dot) on the lit upper left
 for i, f in ipairs(flags) do
   local y0 = function(x) return math.floor(sy(x) + 0.5) + 4 end
   local hem = {}
   for x = f.xa + 2, f.xb - 1 do hem[#hem + 1] = { x, y0(x) } end
   c:seam(hem, { gap = f.R.shade })
-  c:paint({ "g", "g", "g" }, f.xa + 3, y0(f.xa + 3) + 2, { g = f.R.rim })
+  c:paint({ "dg", "g.", "g." }, f.xa + 3, y0(f.xa + 3) + 2, { g = f.R.rim, d = GOLD.gloss })
 end
 
 local name = "cf-yi-bunting"

@@ -38,7 +38,7 @@ local RED = felt("#dd3a2a", { gloss = "#ff9158", dot = "#ff9158", rim = "#f2793a
 local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 local ROSE = felt("#d2507e", { gloss = "#ffb8c8", dot = "#ffb8c8", rim = "#ec86a6" })
-local TEAL = felt("#2fb0aa", { gloss = "#d8fff0", dot = "#d8fff0", rim = "#78d8c8", shade = "#1f7486" })
+local TEAL = felt("#2fb0aa", { gloss = "#fff1c8", dot = "#fff1c8", rim = "#78d8c8", shade = "#1f7486" })
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 -- axes: u runs along the spanner (to the lower right), v along the rod (to the upper right)
@@ -60,9 +60,7 @@ local ringC = P(24, 0)
 local ring = c:ellipse(ringC[1], ringC[2], 6.5)
 local hole = c:ellipse(ringC[1] + 0.5, ringC[2] + 0.5, 1.6)
 local wrench = head:add(handle):add(ring):cut(hole)
-local yarn = band(10, 18, -5.5, 5.5)
-local tailY = c:line({ P(14, -5), {31, 48}, {30, 49} }, 2)
-local ball = c:ellipse(28, 51, 4.5)
+local yarn = band(9.5, 18, -6, 6)
 local big = star(c, 12, 13, 8, 2.6, 0)
 local small = star(c, 52, 29, 4.5, 1.6, 0)
 local p = c:build{
@@ -71,16 +69,14 @@ local p = c:build{
   { "grip", grip, RED, { cres = 2, gloss = false } },
   { "nut", nut, GOLD, { cres = 2, gloss = false } },
   { "wrench", wrench, TEAL, { cres = 4, gloss = false } },
-  { "tailY", tailY, ROSE, { flat = true, contact = false } },
-  { "ball", ball, ROSE, { cres = 1, deep = 0, gloss = false, bounce = false } },
   { "yarn", yarn, ROSE, { cres = 2, gloss = false } },
   { "small", small, GOLD, { flat = true, contact = false } },
   { "big", big, GOLD, { flat = true, contact = false } },
 }
 c:fill(c:ellipse(HX + 0.5, HY + 0.5, 1.5), GOLD.shade)                   -- nut bore
 -- yarn wrap strands: shade grooves across the band, every 2nd px along u
-for _, t in ipairs({ 12.6, 15.6 }) do
-  local a, b2 = P(t, -6), P(t, 6)
+for _, t in ipairs({ 12.3, 15.3 }) do
+  local a, b2 = P(t, -7), P(t, 7)
   local n = 16
   for i = 0, n do
     local x = math.floor(a[1] + (b2[1] - a[1]) * i / n + 0.5)
@@ -100,10 +96,6 @@ c:paint({ "..gg", ".g..", "g...", "g..." }, 19, 30, { g = TEAL.gloss })
 c:paint({ "gg", "g." }, 44, 10, { g = GOLD.gloss })
 c:paint({ "...g", "..g.", ".g.." }, 37, 37, { g = TEAL.gloss })
 c:paint({ "..g", ".g.", "g.." }, 9, 48, { g = RED.rim })
-for _, r in ipairs({ 6, 9 }) do                                               -- yarn ball wraps (cf-up-toybox)
-  onPart(c, c:ellipse(34, 45, r + 1):cut(c:ellipse(34, 45, r)), p.ball, ROSE.shade)
-end
-c:px(27, 47, ROSE.gloss); c:px(26, 47, ROSE.gloss); c:px(25, 48, ROSE.gloss)
 c:px(12, 13, GOLD.gloss); c:px(11, 12, GOLD.gloss)
 local t = c:save(OUT .. "cf-yi-tune.aseprite", OUT .. "cf-yi-tune.png")
 print("tune " .. GV.report(t))

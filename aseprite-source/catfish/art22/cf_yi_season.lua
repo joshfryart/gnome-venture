@@ -66,7 +66,7 @@ FLAKE.deep, FLAKE.bounce = FLAKE.shade, FLAKE.base
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local CX, CY = 30.5, 30.5
-local disc = c:ellipse(CX, CY, 25)
+local disc = c:ellipse(CX, CY, 24.7)                                                -- .7: rounder, less octagon
 local function quarter(x0, y0, x1, y1) return disc:copy():clip(c:rect(x0, y0, x1, y1)) end
 local qTL, qTR = quarter(0, 0, 30, 30), quarter(31, 0, 63, 30)
 local qBR, qBL = quarter(31, 31, 63, 63), quarter(0, 31, 30, 63)
@@ -145,6 +145,7 @@ local onL = set(LEAF.base, LEAF.rim)
 trace(c, { {37, 48}, {49, 36} }, LEAF.shade, onL)                                     -- midrib and veins
 trace(c, { {42, 43}, {41, 38} }, LEAF.shade, onL); trace(c, { {42, 43}, {47, 44} }, LEAF.shade, onL)
 c:paint({ "gg", "g." }, 40, 16, { g = GOLD.gloss })
+trace(c, { {9, 24}, {10, 20}, {13, 15}, {16, 12} }, GOLD.gloss, set(MINT.base, MINT.rim), function(n) return n > 7 end) -- felt sheen
 local t = c:save(OUT .. "cf-yi-season.aseprite", OUT .. "cf-yi-season.png")
 print("season " .. GV.report(t))
 assert(t.semi == 0 and t.margin >= 3 and t.colours <= 20 and t.bw == 0, "check failed")

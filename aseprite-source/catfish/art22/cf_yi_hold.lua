@@ -1,7 +1,7 @@
 -- cf_yi_hold.lua : Cat Fish Yarn panel icon `hold` (Hold for tomorrow, 2 Yarn, one hold a day: today's shelter
 -- cat comes back to the same spot tomorrow). 64x64 gvlib "icon" mode, house look of cf_icons.lua (cf-up-*).
 -- Picture: two cupped peach felt hands cradling a small grey sleeping cat (cf-cat-grey-nap colours), its tail
--- tip curled over the right hand; a red yarn thread loops up from the left thumb (the Yarn panel's shared motif).
+-- tip over the right hand, hugging a small red yarn ball whose loose thread trails over the left fingers; knitted red cuffs.
 -- Run: AppRun -b --script cf_yi_hold.lua     Writes art22/out/cf-yi-hold.png + .aseprite.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
@@ -73,13 +73,13 @@ local fy = { 38, 42, 46 }
 local fe = { 31, 30, 28 }
 local cuffL = c:rrect(7, 50, 19, 55, 2)
 local cuffR = c:rrect(44, 50, 56, 55, 2)
-local thread = c:line({ {44, 26}, {49, 23}, {53, 19}, {53, 13}, {49, 10}, {45, 12}, {46, 16} }, 3)
+local ball = c:ellipse(32, 33, 4.5)
+local thread = c:line({ {29, 36}, {25, 39}, {21, 38}, {18, 40} }, 2)
 local list = {
   { "body", body, GREY, { cres = 4, gloss = false } },
   { "earL", earL, GREY, { cres = 2, gloss = false } },
   { "earR", earR, GREY, { cres = 2, gloss = false } },
   { "head", head, GREY, { cres = 3, gloss = { 18, 21 } } },
-  { "thread", thread, RED, { cres = 1, deep = 0, gloss = false, contact = false } },
   { "backL", backL, SKIN, { cres = 4, gloss = false } },
   { "backR", backR, SKIN, { cres = 4, gloss = false } },
 }
@@ -89,6 +89,8 @@ for i = 1, 3 do
 end
 list[#list + 1] = { "thumbL", thumbL, SKIN, { cres = 2, gloss = false } }
 list[#list + 1] = { "thumbR", thumbR, SKIN, { cres = 2, gloss = false } }
+list[#list + 1] = { "thread", thread, RED, { flat = true, contact = false } }
+list[#list + 1] = { "ball", ball, RED, { cres = 2, gloss = false } }
 list[#list + 1] = { "tail", tail, GREY, { cres = 1, deep = 0, gloss = false } }
 list[#list + 1] = { "cuffL", cuffL, RED, { cres = 2, gloss = false } }
 list[#list + 1] = { "cuffR", cuffR, RED, { cres = 2, gloss = false } }
@@ -105,6 +107,10 @@ c:seam({ { 35, 25 }, { 41, 24 }, { 46, 26 } }, { gap = GREY.shade })
 -- knit ribs on the cuffs
 for x = 9, 18, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffL, RED.shade, true) end
 for x = 45, 54, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffR, RED.shade, true) end
+-- yarn ball wraps and glint
+c:paint({ "..s..", ".s...", "s..s.", "..s..", ".s..." }, 30, 31, { s = RED.shade })
+c:paint({ "gg", "g." }, 29, 30, { g = RED.gloss })
+c:seam({ { 9, 51 }, { 18, 51 } }, { gap = RED.shade }); c:seam({ { 46, 51 }, { 55, 51 } }, { gap = RED.shade })
 -- glints: thumb tips and fingertips
 c:paint({ "gg", "g." }, 9, 32, { g = SKIN.gloss }); c:paint({ "gg", "g." }, 51, 32, { g = SKIN.gloss })
 for i = 1, 3 do c:px(fe[i] - 3, fy[i] + 1, SKIN.gloss); c:px(63 - fe[i] + 1, fy[i] + 1, SKIN.gloss) end
