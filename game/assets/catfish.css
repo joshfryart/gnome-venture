@@ -1,0 +1,27 @@
+/* Cat Fish: placeholder art (tinted emoji cats, CSS rod). Real sprites replace .cfcat later. */
+.cfscene { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
+.cfrod { position: relative; width: 120px; height: 120px; flex: none; }
+.cfwand { position: absolute; top: 0; left: 4px; font-size: 2rem; }
+.cffish { position: absolute; font-size: 1.4rem; transform-origin: top center; animation: cfsway 3.2s ease-in-out infinite; }
+.cffish.f1 { left: 58px; top: 36px; }
+.cffish.f2 { left: 80px; top: 62px; animation-delay: -1s; }
+.cffish.f3 { left: 36px; top: 80px; animation-delay: -2s; }
+@keyframes cfsway { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { .cffish { animation: none; } }
+.cfmain { flex: 1 1 14rem; min-width: 0; }
+.cfhold, .cfshelf { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.cfcount { font-size: 1.3rem; margin: .4rem 0 .2rem; }
+.cfcat { display: inline-block; font-size: 2.2rem; line-height: 1; padding: .25rem; border-radius: 50%; background: var(--cf, #ddd); flex: none; }
+.cfinfo { flex: 1 1 10rem; min-width: 0; }
+.cfups, .cflist { display: grid; gap: .5rem; }
+.cfup, .cfshelf { display: flex; gap: .6rem; align-items: center; padding: .4rem .5rem; border: 1px solid var(--line, #ddd); border-radius: 8px; }
+.cficon { font-size: 1.6rem; flex: none; }
+.cfname { width: 8rem; max-width: 100%; }
+.cfrar { font-size: .75rem; padding: 0 .35rem; border-radius: 6px; background: #eee; color: #333; }
+.cfrar.r-uncommon { background: #cfe8cf; } .cfrar.r-rare { background: #cfe0f5; } .cfrar.r-legendary { background: #f5e0a8; }
+.c-ginger { --cf: #f0a85a; } .c-black { --cf: #4a4a52; } .c-grey { --cf: #aab0b8; } .c-cream { --cf: #f3e3bd; }
+.c-white { --cf: #fafafa; } .c-brown { --cf: #9a7452; } .c-lilac { --cf: #c9b6dd; } .c-silver { --cf: #d6dde6; }
+.p-tabby { box-shadow: inset 0 0 0 3px rgba(0, 0, 0, .25); } .p-tuxedo { box-shadow: inset 0 -10px 0 rgba(255, 255, 255, .7); }
+.p-calico { box-shadow: inset 6px 6px 0 rgba(240, 168, 90, .8), inset -6px -6px 0 rgba(40, 40, 40, .5); }
+.p-pointed { box-shadow: inset 0 0 0 6px rgba(60, 40, 30, .55); } .p-spotted { box-shadow: inset 4px 4px 0 rgba(0, 0, 0, .35), inset -5px 2px 0 rgba(0, 0, 0, .3); }
+:root[data-theme="dark"] .cfrar { background: #3a3a44; color: #eee; }

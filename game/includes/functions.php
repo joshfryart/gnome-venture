@@ -352,6 +352,7 @@ function settings_schema(): array
         'worm_count'         => ['label' => 'Worm Hunting: worms hidden in each dig', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 20],
         'worm_coins_per_point' => ['label' => 'Worm Hunting: currency per point', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 1000],
         'puzzles_open' => ['label' => 'Games: Puzzles (hub + GIFsaw) open to every player (off = admins only) (v2.0.2)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'catfish_open' => ['label' => 'Games: Cat Fish (adopt a cat, upgrade the toy rod, earn Kibble) open to every player (off = admins only)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'pz_barrel_open' => ['label' => 'Puzzles: Rain Barrel open to every player (off = admins only; needs Puzzles open) (v2.0.71)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'guest_open' => ['label' => 'Guests: visitors can play a guest garden without an account (v2.0.75)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'guest_max_per_ip_day' => ['label' => 'Guests: new guest gardens per connection per day (v2.0.75)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 50],

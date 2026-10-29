@@ -44,6 +44,13 @@ page_header('Games');
     <span class="gtbadge"><?php require_once __DIR__ . '/includes/jigsaw.php'; $gk = array_keys(array_filter(['gif' => puzzle_tournaments_on(), 'still' => jigsaw_tournaments_on()])); ?><?= $gk && puzzles_ensure() && q_val("SELECT 1 FROM puzzle_tournaments WHERE kind IN ('" . implode("','", $gk) . "') AND status = 'live' AND starts_at <= ? AND ends_at > ?", [now(), now()]) ? '🏆 Tournament' : 'Relax' ?></span>
   </a>
 <?php endif;   // v2.0.2: Puzzles locked for players (setting puzzles_open) ?>
+<?php require_once __DIR__ . '/includes/catfish.php'; if (catfish_open()): ?>
+  <a class="gtile ok" href="<?= e(url('catfish.php')) ?>" title="Adopt a cat and dangle a toy fishing rod. Upgrade it and the cat keeps catching fish, even while you are away.">
+    <span class="gticon">🐱</span>
+    <b>Cat Fish</b>
+    <span class="gtbadge">Relax</span>
+  </a>
+<?php endif;   // Cat Fish (setting catfish_open) ?>
 </div>
 <details class="fold box"><summary>🏅 This week’s high scores</summary>
   <div class="gtops">
