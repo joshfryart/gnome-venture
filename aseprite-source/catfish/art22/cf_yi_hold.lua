@@ -74,7 +74,7 @@ local fe = { 31, 30, 28 }
 local cuffL = c:rrect(7, 50, 19, 55, 2)
 local cuffR = c:rrect(44, 50, 56, 55, 2)
 local ball = c:ellipse(32, 33, 4.5)
-local thread = c:line({ {29, 36}, {25, 39}, {21, 38}, {18, 40} }, 2)
+local thread = c:line({ {29, 37}, {27, 41}, {27, 45}, {24, 48} }, 2)
 local list = {
   { "body", body, GREY, { cres = 4, gloss = false } },
   { "earL", earL, GREY, { cres = 2, gloss = false } },
@@ -89,7 +89,7 @@ for i = 1, 3 do
 end
 list[#list + 1] = { "thumbL", thumbL, SKIN, { cres = 2, gloss = false } }
 list[#list + 1] = { "thumbR", thumbR, SKIN, { cres = 2, gloss = false } }
-list[#list + 1] = { "thread", thread, RED, { flat = true, contact = false } }
+list[#list + 1] = { "thread", thread, RED, { flat = true, contact = false, contour = false } }
 list[#list + 1] = { "ball", ball, RED, { cres = 2, gloss = false } }
 list[#list + 1] = { "tail", tail, GREY, { cres = 1, deep = 0, gloss = false } }
 list[#list + 1] = { "cuffL", cuffL, RED, { cres = 2, gloss = false } }

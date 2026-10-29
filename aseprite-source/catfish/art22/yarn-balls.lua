@@ -1,6 +1,6 @@
 -- yarn-balls.lua : Cat Fish art22, coloured yarn balls (rose, mint, violet, gold) for the rolling-yarn room bit.
 -- Run: AppRun -b --script yarn-balls.lua     Writes art22/out/cf-yarn-<n>-<colour>.png + .aseprite (n = 1..4).
--- Source frames: game/assets/img/catfish/cf-yarn-<n>.png (blue-grey felt, read only). This is a palette swap,
+-- Source frames: out/cf-yarn-<n>.png (the redrawn grey rolling frames, read only). This is a palette swap,
 -- not a filter: the four felt tones of the grey ball (thread highlight, base, shade/thread line, deep contact
 -- shading) are each mapped to one tone of a hue-shifted ramp built here; the umber outline and the 1 px #000000
 -- border are kept, so every frame keeps its pixel structure exactly (same alpha, same tone index per pixel).
@@ -8,7 +8,7 @@
 -- violet target and darker. The violet ball shades toward indigo (its own hue is already the violet target).
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
-local SRC = here .. "/../../../game/assets/img/catfish/"
+local SRC = here .. "/out/"  -- the redrawn rolling frames (cf-yarn-1..4.png, grey)
 local OUT = here .. "/out/"
 local abs, min, max = math.abs, math.min, math.max
 
@@ -39,7 +39,7 @@ end
 
 -- grey source tones (exact) -> ramp key
 local GREY = { ["b9cfd9"] = "light", ["8eaabf"] = "base", ["6f8aa8"] = "shade", ["56708f"] = "deep" }
-local KEEP = { ["000000"] = true, ["74462a"] = true, ["4a2c1a"] = true, ["2a1a10"] = true }
+local KEEP = { ["000000"] = true, ["74462a"] = true, ["4a2c1a"] = true, ["2a1a10"] = true, ["c78d52"] = true, ["b07a45"] = true }
 
 local pc = app.pixelColor
 local function hex(v) return string.format("%02x%02x%02x", pc.rgbaR(v), pc.rgbaG(v), pc.rgbaB(v)) end

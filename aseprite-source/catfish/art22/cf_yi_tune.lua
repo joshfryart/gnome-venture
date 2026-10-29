@@ -1,9 +1,10 @@
 -- cf_yi_tune.lua : Cat Fish 2.2 Yarn panel icon "tune" (Rod Tune-up, 4 Yarn a run: one branch's milestone
 -- doubles come earlier until the next Nap). 64x64, gvlib "icon" mode, house look of cf_icons.lua.
--- Picture: the cat-fishing wand standing upright (red grip, wooden stick, gold bead) with a turquoise
--- spanner clamped on its gold hex collar, the handle sticking out to the right with a rose yarn wrap
--- (the Yarn motif), and a gold 4-point sparkle top right ("tuned up"). Silhouette is a leaning "T",
--- not the X of cf-up-double; main colour turquoise, not the steel of cf-up-motor or violet of cf-up-spring.
+-- Picture: the cat-fishing wand on the diagonal (red grip lower left, wooden stick, gold bead upper right)
+-- with a big turquoise open-end spanner clamped on a gold hex nut on the stick, its handle running to the
+-- lower right with a rose yarn wrap (the Yarn motif) and a ring end; gold 4-point sparkles ("tuned up").
+-- Silhouette is a "lambda" (spanner only on one side), not the X of cf-up-double; main colour turquoise,
+-- not the steel of cf-up-motor or violet of cf-up-spring. Pass 2 dropped a yarn ball + loose end (clutter).
 -- Run: AppRun -b --script cf_yi_tune.lua     Writes out/cf-yi-tune.png + .aseprite.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
