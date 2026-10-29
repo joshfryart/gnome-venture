@@ -4,6 +4,7 @@
 set -e
 export PYTHONDONTWRITEBYTECODE=1
 cd "$(dirname "$0")/.."
+G0=$(ls game/assets/img/catfish 2>/dev/null | wc -l); GH0=$(ls -l game/assets/img/catfish 2>/dev/null | md5sum)
 OUT=$(mktemp -d); trap 'rm -rf "$OUT" "$OUT.log" "$OUT.bad"; rm -rf tools/__pycache__' EXIT
 python3 tools/catfish_build_art.py --out "$OUT" --check | tee "$OUT.log"
 grep -q 'check: ok' "$OUT.log" || { echo "FAIL: --check did not pass"; exit 1; }
@@ -45,7 +46,7 @@ bad "a stray name" 'cp cf-fish-3.png cf-fish-9.png' 'not in the brief naming lis
 bad "a wrong size" 'python3 -c "from PIL import Image; Image.new(\"RGBA\",(40,40),(1,2,3,255)).save(\"cf-rod.png\")"' 'cf-rod.png: size 40x40'
 bad "a semi-transparent pixel" 'python3 -c "from PIL import Image; im=Image.open(\"cf-ico-yarn.png\").convert(\"RGBA\"); im.putpixel((16,16),(200,10,10,128)); im.save(\"cf-ico-yarn.png\")"' 'cf-ico-yarn.png: semi-transparent'
 # --install is the only way into game/: the default run leaves game/assets/img/catfish alone, and --install DIR writes where it is told
-[ ! -e game/assets/img/catfish ] || [ -z "$(ls game/assets/img/catfish 2>/dev/null)" ] || { echo "FAIL: art found in game/assets/img/catfish after a plain build"; exit 1; }
+[ "$(ls game/assets/img/catfish 2>/dev/null | wc -l)" = "$G0" ] && [ "$(ls -l game/assets/img/catfish 2>/dev/null | md5sum)" = "$GH0" ] || { echo "FAIL: game/assets/img/catfish changed after a plain build"; exit 1; }
 I=$(mktemp -d); python3 tools/catfish_build_art.py --install "$I" | tail -1 | grep -q 'installed 440 files' || { echo "FAIL: --install DIR"; rm -rf "$I"; exit 1; }
 [ "$(ls $I | wc -l)" = 440 ] || { echo "FAIL: installed file count"; rm -rf "$I"; exit 1; }
 rm -rf "$I" tools/__pycache__

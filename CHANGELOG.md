@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.00
+- **Cat Fish art** (still off for players until Admin > Settings `catfish_open` is On; admins see it now). Hand-drawn Stitched Toy art, 440 PNGs under `assets/img/catfish` (emoji fallback stays for anything missing): 8 coats x 5 patterns, eyes, folded ears, bobtails, the room and its overlays, fish, rod, upgrade icons, badges, ribbons, banner, shelter tile and Cat Book heads.
+- **Layered cat renderer** (`catfish_cat_html`): body, pattern, ears, tail and eyes are stacked layers, so any seeded cat is drawn from the art set. Lilac coat art added; odd-eye cats split their eyes.
+- **Tools:** `tools/catfish_recolor.py` (palette swaps), `tools/catfish_build_art.py` (build and `--install` the art set).
+- Known art gaps (idleB, wiggle and bored frames lack ear, tail and pattern art): `claude/catfish-art-brief.md`.
+- Tests: `tests/catfish.sh` (art held aside for its no-art checks), `tests/catfish_recolor.sh`, `tests/catfish_build_art.sh`.
+- Merges main up to 2.0.99 (stat tab, drying rack icons, regional seed staples).
+
 ## 2.0.99
 - **Drying rack icons fixed:** each bundle now shows its own flower icon (it was using the rack row id, so it showed random items like a shovel).
 - **Staple seeds in regional markets:** every regional seed market now stocks its region's staple crops (up to 20, restocks about 90% of the time). Existing markets are filled in on update.

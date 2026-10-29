@@ -574,6 +574,10 @@ function post_update_news(string $from): void
         . "[*]Computers look the same as before.[/list]"],
     '2.0.96' => ['🕸️ Stat web on Overview',
         "[list][*]The Stats box on My Gnome Overview now shows your stat web. Tap a label to open that stat.[/list]"],
+    '2.1.00' => ['🌼 Update 2.1.00: little fixes and fresh stock',
+        "[list][*][b]Stats[/b]: tap a stat name and it opens right away, and on phones the stats sit three to a row.\n"
+        . "[*][b]Drying rack[/b]: each bundle shows its own flower picture.\n"
+        . "[*][b]Seed markets[/b]: every regional market now stocks its region’s staple crops.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
