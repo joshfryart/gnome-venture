@@ -171,7 +171,7 @@ function explore_start(array $u): array
     $free = staff_free($uid);
     if (!$free && !spend_energy($uid, 1)) return [false, 'You need 1 energy to wander off the path. Rest or eat something first.'];
     unset($_SESSION['explore_found'], $_SESSION['explore_back']);
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $here['id'], 'to_id' => $here['id'], 'route_id' => 0, 'kind' => 'explore', 'depth' => 0,
         'steps_total' => 0, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => max(1, (int)$u['level']), 'scaled' => 0,
@@ -430,7 +430,7 @@ function explore_come_back(array $u, string $how): array
         q('UPDATE users SET location_id = ?, location = ?, arrived_at = ? WHERE id = ?', [$from['id'], $from['region'], now(), $uid]);
         return [true, '🛣️ You follow your footprints back to the road at ' . $from['name'] . '.'];
     }
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     $depth = (int)$b['depth'];
     db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $from['id'], 'to_id' => $from['id'], 'route_id' => 0, 'kind' => 'explore', 'depth' => $depth,

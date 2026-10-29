@@ -302,7 +302,7 @@ function delve_start(array $u, int $lmId): array
         q('DELETE FROM landmark_uses WHERE user_id = ? AND landmark_id = ? AND action = ? AND day = ?', [$uid, $lmId, 'delve', landmark_day()]);
         return [false, 'You need 1 energy to go in.'];
     }
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
         'steps_total' => DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
@@ -421,7 +421,7 @@ function lair_start(array $u, int $lmId): array
         q('DELETE FROM landmark_uses WHERE user_id = ? AND landmark_id = ? AND action = ? AND day = ?', [$uid, $lmId, 'lair', landmark_day()]);
         return [false, 'You need 2 energy to face the ' . $boss['name'] . '.'];
     }
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     $map = dm_on() && dm_pref() === 'map';   // v2.0.6: with the map the boss waits at the far end of the lair; with the list it rises at once, as it always did
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'lair', 'depth' => $map ? 0 : 1,

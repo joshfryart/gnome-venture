@@ -1251,7 +1251,9 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
         $msgs[] = '☘️ You dig the ' . $p['name'] . ' back into the soil. Fertility and soil life go up!';
     } else {
         $qty = random_int((int)$p['yield_min'], max((int)$p['yield_min'], (int)$p['yield_max']));
-        if (luck_roll($u)) {
+        $palBloom = false;
+        if (setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; $palBloom = ppal_bloom_roll($u); }   // v2.0.88: the Puzzle Pals bloom perk
+        if (luck_roll($u) || $palBloom) {
             $qty++;
             $msgs[] = '🍀 Lucky! An extra one.';
         }

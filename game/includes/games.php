@@ -26,6 +26,14 @@ function game_day(): string
 }
 
 /** v0.9.1a: a little energy for playing: +1 (+2 for a good game), at most games_energy_cap a game day. Returns ' ⚡+1' or ''. */
+/** v2.0.88: game XP with the Puzzle Pals tinker perk (+1% per unit, cap +6%). The same number when take-along is off. */
+function games_pal_xp(int $uid, int $xp): int
+{
+    if ($xp <= 0 || setting('ppal_party') !== '1') return $xp;
+    require_once __DIR__ . '/puzzle_pals.php';
+    return ppal_xp($uid, $xp);
+}
+
 function game_energy(int $uid, bool $good): string
 {
     $cap = (int)setting('games_energy_cap');
@@ -320,7 +328,7 @@ function worm_finish(array $u, array $s, string $last = ''): array
     $coins = game_petals((int)$s['score'] * (int)setting('worm_coins_per_point'));
     if ($coins) give_petals((int)$uid, (int)$coins);
     $xp = (string)setting('games_give_xp') === '1' ? max(1, intdiv((int)$s['score'], 2)) : 0;   // v0.9.1: game XP only when games_give_xp is on
-    if ($xp) add_xp($uid, $xp);
+    if ($xp) add_xp($uid, games_pal_xp((int)$uid, (int)$xp));
     $en = game_energy($uid, (int)$s['score'] >= 10);   // v0.9.1a
     if ($own) db()->commit();
     $found = [];
@@ -437,7 +445,7 @@ function memory_finish(array $u, array $s): array
     $coins = game_petals(intdiv($score, $s['mode'] === 'hard' ? 3 : 2));   // v0.7.90: hard paid ~97 a game with no energy
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
     $xp = (string)setting('games_give_xp') === '1' ? ($s['mode'] === 'hard' ? 15 + intdiv($score, 30) : 5 + intdiv($score, 20)) : 0;   // v0.7.42: better games, more XP (easy 5–10, hard 15–25). v0.9.1: only when games_give_xp is on
-    if ($xp) add_xp($uid, $xp);
+    if ($xp) add_xp($uid, games_pal_xp((int)$uid, (int)$xp));
     $en = game_energy($uid, $s['mode'] === 'hard' || $score >= 40);   // v0.9.1a
     db()->commit();
     prize('🃏', 'All pairs found in ' . (int)$s['turns'] . ' turns!', 'Score: ' . $score, array_merge(['+' . money($coins)], $xp ? ['+' . $xp . ' XP'] : [], $en !== '' ? [trim($en) . ' energy'] : []));
@@ -639,7 +647,7 @@ function spit_pay(array $u, float $cm): array
     $coins = game_petals($cm >= 60 ? 30 : ($cm >= 45 ? 15 : ($cm >= 30 ? 5 : 0)));
     if ($coins) give_petals((int)$uid, (int)$coins);
     $xp = (string)setting('games_give_xp') === '1' ? 1 + intdiv((int)$cm, 15) : 0;   // v0.7.42: every game pays a little XP. v0.9.1: only when games_give_xp is on
-    if ($xp) add_xp($uid, $xp);
+    if ($xp) add_xp($uid, games_pal_xp((int)$uid, (int)$xp));
     $en = game_energy($uid, $cm >= 45);   // v0.9.1a
     return ['uid' => $uid, 'cm' => $cm, 'coins' => $coins, 'xp' => $xp, 'en' => $en];
 }

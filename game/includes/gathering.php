@@ -97,6 +97,8 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
     }
     // Weighted pick: common things turn up most; Luck nudges rarer ones up.
     $luck = max(0, function_exists('eff_mod') ? eff_mod($u, 'luck') : 0);
+    $palG = 0;
+    if (setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; $palG = ppal_perks($u)['gather']; }
     $total = 0;
     $weights = [];
     $now = road_now();   // v1.9.3: the weather and time of day lean the pick (x3); a "!" cond is a must. Never changes what a find is worth.
@@ -104,6 +106,7 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
         $cw = road_cond_weight($g, $now);
         if ($cw <= 0) continue;
         $w = GATHER_RARITY[$g['rarity']][1] + ($g['rarity'] !== 'common' ? 3 * $luck : 0);
+        if ($g['rarity'] === 'rare' && $palG > 0) $w = (int)round($w * (1 + $palG / 100));   // v2.0.88: the Puzzle Pals gather perk (+1% per unit, cap +6%)
         $w = max(1, (int)round($w * $cw));
         $weights[$k] = $w;
         $total += $w;

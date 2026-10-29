@@ -67,14 +67,16 @@ function outlevel_fx(string $fx, int $pct): string
     return implode('+', $parts);
 }
 
-/** The gnome's fighting numbers, from stats, level and calling. */
-function gnome_combat(array $u): array
+/** The gnome's fighting numbers, from stats, level and calling. $pals = true only for road, lair and delve fights (Puzzle Pals road perk); Treks never pass it. */
+function gnome_combat(array $u, bool $pals = false): array
 {
     $lvl = (int)$u['level'];
-    $grit = eff_mod($u, 'grit');
-    $nim = eff_mod($u, 'nimble');
+    $pal = 0;   // v2.0.88: the Puzzle Pals road perk: +N Grit, Nimble and Hardiness modifiers in road, lair and delve fights (Treks and contests use other code)
+    if ($pals && setting('ppal_party') === '1' && (int)$u['level'] >= 15) { require_once __DIR__ . '/puzzle_pals.php'; $pal = ppal_perks($u)['road']; }
+    $grit = eff_mod($u, 'grit') + $pal;
+    $nim = eff_mod($u, 'nimble') + $pal;
     return [   // v0.9.1: calling numbers now come from the tier table (calling_perk)
-        'max_hp' => max(10, 20 + 3 * $lvl + 5 * eff_mod($u, 'hardiness') + calling_perk($u, 'hp_bonus')),
+        'max_hp' => max(10, 20 + 3 * $lvl + 5 * (eff_mod($u, 'hardiness') + $pal) + calling_perk($u, 'hp_bonus')),
         'ac' => 10 + $nim + intdiv($lvl, 4) + calling_perk($u, 'def_bonus'),
         'atk' => 2 + intdiv($lvl, 2) + max($grit, $nim + calling_perk($u, 'atk_nimble')) + calling_perk($u, 'atk_bonus'),
         'dmg_die' => 8,
@@ -221,7 +223,7 @@ function start_expedition(array $u, int $routeId): array
     $quick = q('UPDATE users SET ev_quickwalk = 0 WHERE id = ? AND ev_quickwalk = 1', [$u['id']])->rowCount() === 1;   // fireflies (v0.7.31): an instant walk, free roads too (v0.9.1 review)
     if ($quick) $cost = 0;
     if ($cost > 0 && !spend_energy((int)$u['id'], $cost)) return [false, "You need $cost energy for this walk. Rest or eat something first."];
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     [$min, $max, $scaled] = route_danger($u, $route);
     [$mins, $quickWalk] = route_walk_minutes($u, $route);   // v0.9.7: a road far below you is a quick walk
     if (setting('climate_on') === '1') {   // v0.8.9: some climates make walks into the region slower
@@ -443,7 +445,7 @@ function next_step(array $u, array &$exp): void
  */
 function fight_certainty(array $u, array $exp, array $c, array $enc): ?string
 {
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     if ((int)$c['attack'] + 20 < $gc['ac']) return 'win';
     // You hit even on a 1, and your weakest hits finish it before its strongest hits could finish you
     if ($gc['atk'] + 1 >= (int)$c['defense']) {
@@ -524,7 +526,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     $enc = json_decode((string)$exp['encounter'], true);
     $c = encounter_creature($enc);
     fight_prep($enc, $c);   // v1.3.0: late-game creature health easing
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     $calling = $u['calling'] ?? '';
 
     // v1.4.0: a snack that can't be eaten costs nothing (no poison tick, no creature turn)
@@ -774,7 +776,7 @@ function fight_odds(array $u, array $exp, array $enc): array
 {
     $c = encounter_creature($enc);
     fight_prep($enc, $c);
-    $gc = gnome_combat($u);
+    $gc = gnome_combat($u, true);
     $need = max(1, (int)$c['defense'] - $gc['atk']);
     $hitN = max(0, min(20, 21 - $need));
     $hit = $hitN / 20;
