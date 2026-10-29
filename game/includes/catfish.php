@@ -166,7 +166,7 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
     if (!catfish_art_has('cf-room.png')) return '';
     $h = '<div class="cfstagewrap"><div class="cfstage" role="img" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '">' . catfish_room_base_html($owned);
     $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
-    foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<span class="cfsdrop sd' . ($i + 1) . '"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</span>';
+    foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<span class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</span>';
     $others = [];
     foreach ($cats as $c) if (($c['id'] ?? null) !== ($active['id'] ?? null)) $others[] = $c;
     usort($others, fn($a, $b) => (($b['mood'] ?? '') === 'lazy') <=> (($a['mood'] ?? '') === 'lazy'));   // a lazy cat takes the cushion (stable order otherwise)

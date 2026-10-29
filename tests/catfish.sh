@@ -679,6 +679,28 @@ for i, d in enumerate(j['strings']['drops'], 1):
 if px(rule('.cfsdrop'), 'top') != j['strings']['drops'][0]['top']: bad.append('drop top')
 print('ok   stage css/PHP coordinates match room-layout.json' if not bad else 'FAIL stage coordinates: ' + '; '.join(bad))
 P
+
+# fishing line meets the fish: --cfn per fish kind (catfish.css .cfk-N) == first opaque row of cf-fish-N.png in the string columns (23, 24, as .cfstr left/width); each drop carries cfk-N of its fish
+python3 -I - "$FULL" "$GAME/assets/catfish.css" "$SH" <<'P'
+import sys, re
+from PIL import Image
+d, css, html = sys.argv[1:]
+css = open(css).read(); bad = []
+m = re.search(r'\.cfsdrop \.cfstr \{([^}]*)\}', css).group(1)
+if not re.search(r'left: 23px', m) or not re.search(r'width: 2px', m) or 'calc(var(--cfl, 20px) + var(--cfn, 0px))' not in m: bad.append('cfstr rule')
+for n in range(1, 6):
+    im = Image.open('%s/cf-fish-%d.png' % (d, n)).convert('RGBA')
+    tops = []
+    for x in (23, 24):
+        ys = [y for y in range(im.height) if im.getpixel((x, y))[3] > 0]
+        tops.append(ys[0] if ys else None)
+    r = re.search(r'\.cfk-%d \{ --cfn: (\d+)px; \}' % n, css)
+    if not r: bad.append('fish %d: no --cfn' % n); continue
+    if tops[0] is None or tops[0] != tops[1] or int(r.group(1)) != tops[0]: bad.append('fish %d: css %s, art %s' % (n, r.group(1), tops))
+drops = re.findall(r'class="cfsdrop sd(\d) cfk-(\d)"><i class="cfstr"></i><img[^>]*cf-fish-(\d)\.png', html)
+if len(drops) != 3 or any(k != f for _, k, f in drops): bad.append('drop classes %s' % drops)
+print('ok   fishing lines: --cfn of fish 1-5 equals the first opaque string row of each PNG, and every drop carries its fish kind (cfk-N)' if not bad else 'FAIL fishing lines: ' + '; '.join(bad))
+P
 ok "css: stage is 320 x 200, centred in a flex wrapper, pixelated, with a reduced-motion rule for the sway" "$(grep -c '^\.cfstage { position: relative; flex: none; width: 320px; height: 200px' $GAME/assets/catfish.css)$(grep -c '^\.cfstagewrap { display: flex; justify-content: center' $GAME/assets/catfish.css)$(grep -c 'prefers-reduced-motion: reduce) { .cfsdrop' $GAME/assets/catfish.css)" 111
 # frame names in the css (one show-rule each) and in the JS state machine
 ok "css: each of the 8 frames has a show rule on .cfactive" "$(for f in idleA idleB wiggle stalk pounce catch nap bored; do grep -c "\.cfactive\.fr-$f \.ff-$f" $GAME/assets/catfish.css; done | tr '\n' ' ')" "1 1 1 1 1 1 1 1 "
