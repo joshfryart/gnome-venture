@@ -6,9 +6,9 @@ const B = process.argv[2];
 const { execFileSync } = require('child_process');
 const sql = q => execFileSync('php', ['-r', '$p = new PDO("sqlite:" . getenv("DBFILE")); $p->exec(getenv("SQLQ"));'], { env: Object.assign({}, process.env, { SQLQ: q.replace(/{NOW}/g, String(Math.floor(Date.now() / 1000) + 600)) }) });
 const out = []; const ok = (name, got, want) => out.push((got === want ? 'ok   ' : 'FAIL ') + name + (got === want ? '' : " (got '" + got + "', want '" + want + "')"));
-async function login(p) {
+async function login(p, q) {
   await p.goto(B + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!');
-  await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]); await p.goto(B + '/catfish.php');
+  await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]); await p.goto(B + '/catfish.php' + (q || ''));
 }
 // record every data-frame change of a selector from now on in window.__seq (name only)
 const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; var c = document.querySelector(sel); new MutationObserver(() => window[key].push(c.getAttribute('data-frame'))).observe(c, { attributes: true, attributeFilter: ['data-frame'] }); }, [sel, key]);
@@ -19,7 +19,8 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   await login(p);
   ok('anim: stage has the 8 inline frame groups, the manifest block, one z and one sparkle element', await p.evaluate(() => [document.querySelectorAll('.cfactive .cfframe').length, !!document.getElementById('cf-frames'), document.querySelectorAll('.cfz-a').length, document.querySelectorAll('.cfspark').length].join()), '8,true,1,1');
   await p.waitForTimeout(3000);
-  ok('anim: after 2 s the 7 lazy frames are built from the manifest (15 groups), all their pictures loaded', await p.evaluate(() => document.querySelectorAll('.cfactive .cfframe').length + ':' + [].every.call(document.querySelectorAll('.cfactive .cfframe img'), i => i.complete && i.naturalWidth > 0)), '15:true');
+  ok('anim: after 2 s the 11 lazy frames are built from the manifest (19 groups), all their pictures loaded', await p.evaluate(() => document.querySelectorAll('.cfactive .cfframe').length + ':' + [].every.call(document.querySelectorAll('.cfactive .cfframe img'), i => i.complete && i.naturalWidth > 0)), '19:true');
+  ok('anim: without room upgrades there is no bird and no dust, the yarn roll element is there', await p.evaluate(() => [document.querySelectorAll('.cfbird').length, document.querySelectorAll('.cfdust').length, document.querySelectorAll('.cfyarn').length, document.querySelector('.cfstage').classList.contains('is-bird')].join()), '0,0,1,false');
   ok('anim: data-anim-state is rest at start', await p.getAttribute('.cfactive', 'data-anim-state'), 'rest');
   await p.waitForTimeout(500);
   await watch(p, '.cfactive', '__seq');
@@ -80,6 +81,68 @@ const watch = (p, sel, key) => p.evaluate(([sel, key]) => { window[key] = []; va
   ok('anim: reduced motion: no frame ever changes (static idleA, 8 groups, no preload, no sparkles, side cat still)', rs, '0,idleA,8,none,idleA');
   await p.click('.cfsdrop.sd2', { force: true }); await p.waitForTimeout(100);
   ok('anim: reduced motion: the tapped fish still shows its outline state (is-hit) and the cat stays idleA', await p.evaluate(() => document.querySelector('.cfsdrop.sd2').classList.contains('is-hit') + ',' + document.querySelector('.cfactive').getAttribute('data-frame')), 'true,idleA');
+  await c.close();
+  // 2.1.06: all four room upgrades owned. ?cffast=1 shortens the idle variety and bird waits tenfold (a test hook; production pages never carry it)
+  sql(process.env.SQL_ROOM);
+  c = await br.newContext({ viewport: { width: 412, height: 900 } }); p = await c.newPage(); const errs2 = []; p.on('pageerror', e => errs2.push(String(e)));
+  await login(p, '?cffast=1');
+  ok('ambience: window, sunbeam and rug owned: one bird, one dust layer of 6 motes, one yarn element, 6 motes animate (cfmote)', await p.evaluate(() => [document.querySelectorAll('.cfbird').length, document.querySelectorAll('.cfdust i').length, document.querySelectorAll('.cfyarn').length, [].filter.call(document.querySelectorAll('.cfdust i'), i => getComputedStyle(i).animationName === 'cfmote').length].join()), '1,6,1,6');
+  ok('ambience: no inline style attribute and no inline script on the stage', await p.evaluate(() => document.querySelectorAll('.cfstage [style], .cfstage script:not([type="application/json"])').length), 0);
+  // the perched sprite sits exactly where the robin was: crop the perch with the bird on, then with the window overlay's robin back
+  await p.waitForTimeout(600);
+  ok('ambience: with JS and motion the stage is in bird mode, the window overlay is hidden and the perched frame f1 shows', await p.evaluate(() => [document.querySelector('.cfstage').classList.contains('is-bird'), getComputedStyle(document.querySelector('.cfl-window')).display, document.querySelector('.cfbird').className].join()), 'true,none,cfbird f1');
+  const box = await p.$eval('.cfstage', e => { const r = e.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY }; });
+  const clip = { x: box.x, y: box.y + 40, width: 28, height: 28 };
+  let shotA = null, shotB = null;
+  for (let t = 0; t < 8 && !shotA; t++) { const cls = await p.$eval('.cfbird', e => e.className); if (cls === 'cfbird f1') { shotA = await p.screenshot({ clip }); if ((await p.$eval('.cfbird', e => e.className)) !== 'cfbird f1') shotA = null; } if (!shotA) await p.waitForTimeout(50); }
+  await p.evaluate(() => document.querySelector('.cfstage').classList.remove('is-bird'));
+  shotB = await p.screenshot({ clip });
+  await p.evaluate(() => document.querySelector('.cfstage').classList.add('is-bird'));
+  const cmp = await p.evaluate(async ([a, b]) => {
+    const load = u => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = 'data:image/png;base64,' + u; });
+    const px = async u => { const i = await load(u), c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const x = c.getContext('2d'); x.drawImage(i, 0, 0); return x.getImageData(0, 0, i.width, i.height).data; };
+    const A = await px(a), B = await px(b); let diff = 0, light = 0;
+    for (let i = 0; i < A.length; i += 4) if (A[i] !== B[i] || A[i + 1] !== B[i + 1] || A[i + 2] !== B[i + 2]) { diff++; if (A[i] + A[i + 1] + A[i + 2] > 150) light++; }
+    return diff + ',' + light;
+  }, [shotA ? shotA.toString('base64') : '', shotB.toString('base64')]);
+  const cmpN = cmp.split(',').map(Number);
+  ok('ambience: the perched bird sprite sits on the robin of cf-room-window.png: the toggle changes only the sprite outline ring (about 104 px, all dark), never a robin pixel', !!shotA && cmpN[0] > 0 && cmpN[0] < 140 && cmpN[1] === 0, true);
+  // idle variety and the bird, over time (fast hook: waits are one tenth)
+  await watch(p, '.cfactive', '__seq');
+  await p.evaluate(() => { window.__bird = []; var b = document.querySelector('.cfbird'); new MutationObserver(() => window.__bird.push(b.className)).observe(b, { attributes: true, attributeFilter: ['class'] }); });
+  const seen2 = {}; const t1 = Date.now();
+  let fullWash = false;
+  while (Date.now() - t1 < 80000 && !(seen2.yawn && seen2.stretch && fullWash)) {
+    const sq = await p.evaluate(() => window.__seq.slice()); sq.forEach(f => seen2[f] = true); fullWash = /washA washB washA washB idleA/.test(sq.join(' ')); await p.waitForTimeout(500);
+  }
+  const seq2 = await p.evaluate(() => window.__seq.slice()); seq2.forEach(f => seen2[f] = true);
+  ok('ambience: idle variety shows a yawn, a stretch and a wash within the window', !!(seen2.yawn && seen2.stretch && seen2.washA && seen2.washB), true);
+  const J = seq2.join(' ');
+  const J2 = J.replace(/ washA washB washA( washB)?$/, '').replace(/ washA( washB)?$/, '');
+  ok('ambience: a wash is always washA washB washA washB then idleA', (J2.match(/washA/g) || []).length > 0 && (J2.match(/washA washB washA washB idleA/g) || []).length === (J2.match(/washA/g) || []).length / 2 ? 'wash' : J2, 'wash');
+  let badv = 0; seq2.forEach((f, i) => { if (['yawn', 'stretch', 'washA'].includes(f) && i > 0 && seq2[i - 1] !== 'idleA' && !(f === 'washA' && seq2[i - 1] === 'washB')) badv++; if (['wiggle', 'stalk', 'pounce', 'catch', 'bored'].includes(f) && i > 0 && ['yawn', 'stretch', 'washA', 'washB'].includes(seq2[i - 1])) badv++; });
+  ok('ambience: yawn, stretch and wash only start from idleA and a play loop never starts straight out of one', badv, 0);
+  const bj = await p.evaluate(() => window.__bird.join('|'));
+  ok('ambience: the bird perches, hops (f2) and spreads its wings (f3), then perches again', /cfbird f2\|cfbird f1/.test(bj) || /cfbird f3\|cfbird f1/.test(bj), true);
+  // tap: yarn roll and rug wobble
+  await p.waitForTimeout(1500);
+  const waitCalm = async () => { for (let i = 0; i < 40; i++) { if (await p.getAttribute('.cfactive', 'data-anim-state') === 'rest') return; await p.waitForTimeout(250); } };
+  await waitCalm();
+  await p.click('.cfsdrop.sd3', { force: true }); await p.waitForTimeout(200);
+  const rolling = await p.evaluate(() => [document.querySelector('.cfyarn').classList.contains('is-roll'), getComputedStyle(document.querySelector('.cfyarn .yp')).display, getComputedStyle(document.querySelector('.cfyarn .yb')).display, document.querySelector('.cfl-rug').classList.contains('is-wobble'), getComputedStyle(document.querySelector('.cfl-rug')).animationName].join());
+  ok('ambience: a swat rolls the yarn (patch and rolling sprite shown) and wobbles the rug', rolling, 'true,block,block,true,cfrug');
+  await p.waitForTimeout(500);
+  ok('ambience: the rug wobble is over after 300 ms', await p.$eval('.cfl-rug', e => e.classList.contains('is-wobble')), false);
+  await p.waitForTimeout(1200);
+  ok('ambience: the yarn roll ends after about 1.2 s and the ball is the base ball again (patch hidden)', await p.evaluate(() => document.querySelector('.cfyarn').classList.contains('is-roll') + ',' + getComputedStyle(document.querySelector('.cfyarn .yp')).display), 'false,none');
+  ok('ambience: no page errors', errs2.join('|'), '');
+  await c.close();
+  // reduced motion with all room upgrades: static, nothing extra
+  c = await br.newContext({ viewport: { width: 412, height: 900 }, reducedMotion: 'reduce' }); p = await c.newPage(); await login(p, '?cffast=1');
+  await p.waitForTimeout(2500); await watch(p, '.cfactive', '__seq');
+  await p.click('.cfsdrop.sd1', { force: true }); await p.waitForTimeout(12000);
+  const rr = await p.evaluate(() => [window.__seq.length, document.querySelector('.cfstage').classList.contains('is-bird'), getComputedStyle(document.querySelector('.cfbird')).display, getComputedStyle(document.querySelector('.cfl-window')).display, getComputedStyle(document.querySelector('.cfdust')).display, document.querySelector('.cfyarn').classList.contains('is-roll'), document.querySelector('.cfl-rug').classList.contains('is-wobble')].join());
+  ok('ambience: reduced motion: no frame change, no bird (the window overlay with the robin stays), no dust, no yarn roll, no rug wobble', rr, '0,false,none,block,none,false,false');
   await br.close();
   console.log(out.join('\n'));
 })().catch(e => { console.log('FAIL anim script: ' + e.message); process.exit(0); });

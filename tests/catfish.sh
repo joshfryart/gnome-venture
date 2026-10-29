@@ -737,7 +737,7 @@ ok "art coat map: all 8 coats have art, lilac included" "$(cfx none 'count(CATFI
 SC='[["id"=>1,"name"=>"Pip","colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"folded","tail"=>"bobtail","seed"=>11,"mood"=>"hyper"],["id"=>2,"name"=>"Dot","colour"=>"lilac","pattern"=>"solid","eyes"=>"odd","ears"=>"upright","tail"=>"long","seed"=>2,"mood"=>"hyper"],["id"=>3,"name"=>"Zed","colour"=>"black","pattern"=>"calico","eyes"=>"blue","ears"=>"upright","tail"=>"long","seed"=>3,"mood"=>"lazy"],["id"=>4,"name"=>"Moe","colour"=>"white","pattern"=>"spotted","eyes"=>"green","ears"=>"folded","tail"=>"long","seed"=>4,"mood"=>"dreamy"],["id"=>5,"name"=>"Fig","colour"=>"brown","pattern"=>"tuxedo","eyes"=>"hazel","ears"=>"upright","tail"=>"bobtail","seed"=>5,"mood"=>"greedy"]]'
 ok "stage, no art: nothing (the page keeps the old rod box)" "$(cfx none "catfish_stage_html($SC, $SC[0], [\"rug\"=>1])")" ""
 SH=$(cfx $FULL "catfish_stage_html($SC, $SC[0], [\"sunbeam\"=>1, \"rug\"=>1, \"silk\"=>1])")
-ok "stage: one stage in a wrapper, room base then owned overlays only, wand, then the fish" "$(echo "$SH" | grep -o 'class="cfstage"\|cf-room[a-z-]*.png\|cf-rod.png\|cf-fish-[0-9].png' | tr '\n' ' ')" 'class="cfstage" cf-room.png cf-room-sunbeam.png cf-room-rug.png cf-rod.png cf-fish-1.png cf-fish-2.png cf-fish-1.png '
+ok "stage: one stage in a wrapper, room base then owned overlays only, the yarn patch (2.1.06), wand, then the fish" "$(echo "$SH" | grep -o 'class="cfstage"\|cf-room[a-z-]*.png\|cf-rod.png\|cf-fish-[0-9].png' | tr '\n' ' ')" 'class="cfstage" cf-room.png cf-room-sunbeam.png cf-room-rug.png cf-room-yarnpatch.png cf-rod.png cf-fish-1.png cf-fish-2.png cf-fish-1.png '
 ok "stage: three dangling fish (sd1..sd3), each with a string, and the line from the wand" "$(echo "$SH" | grep -o 'cfsdrop sd[0-9]\|class="cfstr"\|class="cfsline"' | tr '\n' ' ')" 'class="cfsline" cfsdrop sd1 class="cfstr" cfsdrop sd2 class="cfstr" cfsdrop sd3 class="cfstr" '
 ok "stage: the active cat is in the centre play zone with all 8 frame groups, starting on idleA" "$(echo "$SH" | grep -o 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"')$(echo "$SH" | sed 's/.*class="cfactive/class="cfactive/' | grep -o 'class="cfframe ff-[A-Za-z]*"' | sed 's/.*ff-//;s/"//' | tr '\n' ' ')" 'class="cfactive cfpos-x128-y120 fr-idleA" data-frame="idleA"idleA idleB wiggle stalk pounce catch nap bored '
 AH=$(echo "$SH" | sed 's/.*class="cfactive/class="cfactive/;s#<script[^<]*</script>##')
@@ -856,7 +856,7 @@ bad = []
 if php['base'] != {k: v['base'] for k, v in alias.items()}: bad.append('CATFISH_FRAME_BASE %s != json' % php['base'])
 if php['own'] != {k: v['own'] for k, v in alias.items()}: bad.append('CATFISH_FRAME_OWN != json own lists')
 if set(php['frames']) | set(php['extra']) != set(php['frames']) | set(full) | set(alias) or set(php['frames']) & set(php['extra']): bad.append('frame lists vs json: extra=%s json=%s' % (php['extra'], full + list(alias)))
-if not set(php['lazy']) <= set(php['extra']) or set(php['lazy']) != {'swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch'}: bad.append('lazy list')
+if not set(php['lazy']) <= set(php['extra']) or set(php['lazy']) != {'swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch', 'yawn', 'stretch', 'washA', 'washB'}: bad.append('lazy list')
 for k, v in alias.items():   # every layer an alias does not own comes from the base frame; the listed files agree with own
     for role, fn in v.get('files', {}).items():
         own = role in v['own']
@@ -898,7 +898,7 @@ ok "manifest: one #cf-frames JSON block in the stage, none anywhere else" "$(ech
 python3 -I - "$MJ" "$FULL" <<'P'
 import sys, json, os
 m = json.loads(sys.argv[1]); d = sys.argv[2]; bad = []
-if sorted(m['frames']) != sorted(['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch']): bad.append('frames %s' % sorted(m['frames']))
+if sorted(m['frames']) != sorted(['swatA', 'swatB', 'blink', 'jump', 'happy', 'tailflick', 'eartwitch', 'yawn', 'stretch', 'washA', 'washB']): bad.append('frames %s' % sorted(m['frames']))
 if not m['p'].endswith('/catfish/') or not m['s'].startswith('?v='): bad.append('prefix/suffix %s %s' % (m['p'], m['s']))
 for f, ls in m['frames'].items():
     for l in ls:
@@ -912,16 +912,68 @@ if fl('tailflick') != ['cf-cat-orange-tailflick.png', 'cf-ears-folded-orange-idl
 if fl('eartwitch') != ['cf-cat-orange-eartwitch.png', 'cf-ears-folded-orange-eartwitch.png', 'cf-tail-bobtail-orange-idleA.png', 'cf-pat-tabby-orange-eartwitch.png', 'cf-eyes-amber-idleA.png']: bad.append('eartwitch %s' % fl('eartwitch'))
 if m['frames']['blink'][0][1] != ['ears-idleA', 'tail-idleA'] or m['frames']['eartwitch'][0][1] != ['ears-eartwitch', 'tail-idleA'] or m['frames']['tailflick'][0][1] != ['ears-idleA', 'tail-tailflick']: bad.append('mask groups')
 if m['frames']['swatB'][0][1] != ['ears-swatB', 'tail-swatB']: bad.append('swatB masks')
-print('ok   manifest: 7 lazy frames, alias frames use the base layers\' files, mask groups follow the layer\'s frame, every file exists' if not bad else 'FAIL manifest: ' + '; '.join(bad))
+print('ok   manifest: 11 lazy frames, alias frames use the base layers\' files, mask groups follow the layer\'s frame, every file exists' if not bad else 'FAIL manifest: ' + '; '.join(bad))
 P
-ok "manifest: size stays modest (under 4 KB for a patterned folded-ear bobtail cat)" "$([ ${#MJ} -lt 4000 ] && echo y || echo n)" y
-ok "stage: only the 8 inline frame groups are in the markup (swatA, blink, jump, happy and the rest are not inline images)" "$(echo "$SM" | sed 's#<script[^<]*</script>##' | grep -c 'cf-cat-orange-\(swatA\|swatB\|blink\|jump\|happy\|tailflick\|eartwitch\|yawn\)')" 0
+ok "manifest: size stays modest (under 6 KB for a patterned folded-ear bobtail cat, 11 frames)" "$([ ${#MJ} -lt 6000 ] && echo y || echo n)" y
+ok "stage: only the 8 inline frame groups are in the markup (swatA, blink, jump, happy and the rest are not inline images)" "$(echo "$SM" | sed 's#<script[^<]*</script>##' | grep -c 'cf-cat-orange-\(swatA\|swatB\|blink\|jump\|happy\|tailflick\|eartwitch\|yawn\|stretch\|washA\|washB\)')" 0
 ok "stage: the awake side cat is a .cfside group with idleA, idleB and stalk, seed in data-seed; the other side cats stay single frames" "$(echo "$SM" | sed 's/<span class="cfactive.*<span class="cfspot cfpos-x0-y124"/<span class="cfspot cfpos-x0-y124"/' | grep -o 'cfspot cfside cfpos-x40-y98 fr-idleA" data-frame="idleA" data-seed="2"\|cfframe ff-\(idleA\|idleB\|stalk\)" data-f' | tr '\n' ',')$(echo "$SM" | grep -o 'class="cfspot cfpos-x[0-9]*-y[0-9]*"' | tr '\n' ',')" 'cfspot cfside cfpos-x40-y98 fr-idleA" data-frame="idleA" data-seed="2",cfframe ff-idleA" data-f,cfframe ff-idleB" data-f,cfframe ff-stalk" data-f,class="cfspot cfpos-x236-y116",class="cfspot cfpos-x0-y124",'
 ok "stage: z on the cushion cat (nap spot) always; the active cat's z is off unless it starts asleep" "$(echo "$SM" | grep -c 'cfpos-x0-y124"><span class="cfart[^>]*>.*cf-cat-black-nap[^>]*>.*<img class="cfz cfz-s"')$(echo "$SM" | grep -o 'class="cfz cfz-a[^"]*"' | tr '\n' ',')$(cfx $FULL "catfish_stage_html($SC, $SC[0], [], true)" | grep -o 'class="cfz cfz-a[^"]*"' | tr '\n' ',')" '1class="cfz cfz-a",class="cfz cfz-a is-on",'
 ok "stage: three sparkle images in one hidden element, no z or sparkle without their PNGs" "$(echo "$SM" | grep -o 'class="cfspark" aria-hidden="true"><img class="sp1"[^>]*cf-sparkle-1.png[^>]*><img class="sp2"[^>]*><img class="sp3"[^>]*></span>' | wc -l | tr -d ' ')$(mkdir -p $W/art6; cp $FULL/cf-room.png $FULL/cf-rod.png $FULL/cf-fish-*.png $W/art6/; cfx $W/art6 "catfish_stage_html($SC, $SC[0], [])" | grep -c 'cfz\|cfspark')" "10"
 ok "stage: a cat with no art for the new frames still gets a valid manifest block (empty frames: no block)" "$(mkdir -p $W/art7; cp $FULL/cf-room.png $FULL/cf-cat-orange-idleA.png $W/art7/; cfx $W/art7 "catfish_stage_html($SC, $SC[0], [])" | grep -c 'cf-frames')" 0
 ok "js: tap loop swatA 120, swatB 200, catch 600, happy 500; jump 500 ms arc; blink 120; tailflick 400; eartwitch 300; sparkles 200; side stalk 800" "$(for w in "show('swatA')" "later(120," "later(200, land)" "later(600," "later(500, finish)" "'jump'" "flick('blink', 120)" "tail ? 400 : 300" "setTimeout(function () { spark.classList.remove('go'); }, 200)" "}, 800);" "between(3000, 6000)" "between(5000, 12000)" "4000 + s.r() * 4000" "between(2400, 4200)"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')" "yyyyyyyyyyyyyy"
-ok "js: manifest-driven lazy layers (no inline images), preload after first interaction or 2 s, fallback frames while loading, reduced motion off" "$(for w in "getElementById('cf-frames')" "setTimeout(preload, 2000)" "'pointerdown'" "new Image().src" "var FB = {" "if (reduced()) { setMode(napping" "data-anim-state"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')" "yyyyyyy"
+ok "js: manifest-driven lazy layers (no inline images), preload after first interaction or 2 s, fallback frames while loading, reduced motion off" "$(for w in "getElementById('cf-frames')" "setTimeout(preload, 2000)" "'pointerdown'" "new Image().src" "var FB = {" "if (reduced()) { birdStop(); setMode(napping" "data-anim-state"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')" "yyyyyyy"
+
+# ---------- 2.1.06: idle variety, window bird, yarn roll, dust motes, rug wobble ----------
+OWN4='["window"=>1,"sunbeam"=>1,"rug"=>1,"scratch"=>1]'
+S6=$(cfx $FULL "catfish_stage_html($SC, $SC[0], $OWN4)")
+S6N=$(cfx $FULL "catfish_stage_html($SC, $SC[0], [])")
+ok "2.1.06 markup: window owned = bird sprite (3 images 24 x 20, perched f1 first) after the room base and under the cats; not owned = none" "$(echo "$S6" | grep -o '<span class="cfbird f1" aria-hidden="true"><img class="b1"[^>]*cf-bird-1.png[^>]*width="24" height="20"><img class="b2"[^>]*cf-bird-2.png[^>]*><img class="b3"[^>]*cf-bird-3.png[^>]*></span>' | wc -l | tr -d ' ')$(echo "$S6N" | grep -c 'cfbird')$(echo "$S6" | sed 's/<span class="cfactive.*//' | grep -c 'cfbird')" "101"
+ok "2.1.06 markup: the window overlay keeps its robin (cf-room-window.png) as the static fallback, the layer has class cfl-window; rug layer cfl-rug" "$(echo "$S6" | grep -c 'class="cfroom-layer cfl-window" src="[^"]*cf-room-window.png')$(echo "$S6" | grep -c 'class="cfroom-layer cfl-rug"')" "11"
+ok "2.1.06 markup: the yarn roll element (patch 38 x 20 and 4 rolling sprites 16 x 16) is in the stage, hidden until catfish.js rolls it" "$(echo "$S6" | grep -o '<span class="cfyarn" aria-hidden="true"><img class="yp"[^>]*cf-room-yarnpatch.png[^>]*width="38" height="20"><span class="yb"><img class="y1"[^>]*cf-yarn-1.png[^>]*width="16" height="16"><img class="y2"[^>]*><img class="y3"[^>]*><img class="y4"[^>]*cf-yarn-4.png[^>]*></span></span>' | wc -l | tr -d ' ')" 1
+ok "2.1.06 markup: six dust motes only with the sunbeam upgrade" "$(echo "$S6" | grep -o '<span class="cfdust" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i><i class="m4"></i><i class="m5"></i><i class="m6"></i></span>' | wc -l | tr -d ' ')$(echo "$S6N" | grep -c 'cfdust')$(cfx $FULL "catfish_stage_html($SC, $SC[0], [\"window\"=>1,\"rug\"=>1])" | grep -c 'cfdust')" "100"
+ok "2.1.06 markup: the room base alone (no window art files) draws no bird: the nobird overlay is transparent and is never drawn when the bird animates" "$(mkdir -p $W/art8; cp $FULL/cf-room.png $FULL/cf-room-window.png $FULL/cf-cat-orange-idleA.png $W/art8/; cfx $W/art8 "catfish_stage_html($SC, $SC[0], $OWN4)" | grep -c 'cfbird')" 0
+ok "2.1.06 markup: no inline style, no event handler, scripts only the one JSON manifest block, with all four room upgrades" "$(echo "$S6" | sed 's#<script type="application/json" id="cf-frames">[^<]*</script>##' | grep -c 'style=\|<script\|on[a-z]*=')" 0
+python3 -I - "$FULL" "aseprite-source/catfish/room-layout.json" "$GAME/assets/catfish.css" "$GAME/assets/catfish.js" <<'P'
+import sys, json, re, numpy as np
+from PIL import Image
+d, lay, css, js = sys.argv[1:]
+L = json.load(open(lay)); css = open(css).read(); js = open(js).read(); bad = []
+im = lambda n: np.array(Image.open('%s/%s.png' % (d, n)).convert('RGBA'))
+b = L['bird']; rb = im('cf-bird-1')
+if b['scale'] != 2: bad.append('bird scale %s' % b['scale'])
+if not re.search(r'\.cfbird \{[^}]*left: %dpx; top: %dpx; width: %dpx; height: %dpx' % (b['x'], b['y'], 12 * b['scale'], 10 * b['scale']), css): bad.append('css .cfbird box != layout bird')
+# the perched sprite at 2x on the perch equals the robin of cf-room-window.png pixel for pixel (inside the room), so toggling does not shift
+w = im('cf-room-window'); canvas = np.zeros((200, 320, 4), np.uint8)
+big = np.repeat(np.repeat(rb, 2, 0), 2, 1)
+for y in range(big.shape[0]):
+    for x in range(big.shape[1]):
+        X, Y = b['x'] + x, b['y'] + y
+        if 0 <= X < 320 and 0 <= Y < 200: canvas[Y, X] = big[y, x]
+# the overlay's robin has no outer outline ring, the sprite adds one (2 px at 2x, near black): every robin pixel must be identical, every extra sprite pixel must be dark
+opq = w[..., 3] > 0
+if not (canvas[opq] == w[opq]).all(): bad.append('perched sprite at 2x differs from the robin in cf-room-window.png in %d robin px' % (canvas[opq] != w[opq]).any(axis=1).sum())
+extra = (canvas[..., 3] > 0) & ~opq
+if (canvas[extra][:, :3].astype(int).sum(axis=1) > 150).any(): bad.append('sprite pixels beyond the robin are not dark outline')
+if im('cf-room-window-nobird')[..., 3].any(): bad.append('nobird overlay is not transparent')
+# yarn
+y = L['yarn']; patch = im('cf-room-yarnpatch'); room = im('cf-room')
+if patch.shape[:2] != (y['h'], y['w']): bad.append('patch size')
+box = room[y['y']:y['y'] + y['h'], y['x']:y['x'] + y['w']]
+if (box == patch).all(): bad.append('the room base has no ball under the patch box')
+if (patch[..., 3] != 255).any(): bad.append('patch is not opaque')
+if not re.search(r'\.cfyarn \{[^}]*left: %dpx; top: %dpx; width: %dpx; height: %dpx' % (y['x'], y['y'], y['w'], y['h']), css): bad.append('css .cfyarn box')
+sx, sy = y['sprite']
+if not re.search(r'\.cfyarn \.yb \{[^}]*left: %dpx; top: %d(px)?;' % (sx - y['x'], sy - y['y']), css): bad.append('css .yb offset')
+for n in range(1, 5):
+    if im('cf-yarn-%d' % n).shape[:2] != (16, 16): bad.append('yarn %d size' % n)
+if not re.search(r'CATFISH_YARN_ROLL = true', js): bad.append('yarn roll constant')
+# bird frames 2 and 3 are 12 x 10 and differ from the perched one
+for n in (2, 3):
+    if im('cf-bird-%d' % n).shape[:2] != (10, 12) or (im('cf-bird-%d' % n) == rb).all(): bad.append('bird %d' % n)
+print('ok   2.1.06 art: perched bird at 2x on the layout perch = the robin of cf-room-window.png pixel for pixel (plus a dark outline ring); nobird is transparent; the yarn patch box differs from the base (a ball is there); css boxes match room-layout.json' if not bad else 'FAIL 2.1.06 art: ' + '; '.join(bad))
+P
+ok "2.1.06 css: bird, yarn roll, rug wobble, dust motes rules; steps() only (no blur, no filter); reduced motion hides the motes and the sprite" "$(for w in '.cfstage.is-bird .cfl-window { display: none; }' '.cfyarn.is-roll .yp' '@keyframes cfyroll' '@keyframes cfrug' '.cfl-rug.is-wobble' '@keyframes cfmote' '.cfdust { display: none; }'; do grep -c -F "$w" $GAME/assets/catfish.css | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(sed -n '/^\/\* 2.1.06 room life/,$p' $GAME/assets/catfish.css | grep -c 'blur\|filter')" "yyyyyyy0"
+ok "2.1.06 js: idle variety yawn 900, stretch 900, wash 600 x4 every 15-30 s, bird 6-14 s (hop 150, wings 200), yarn roll 1250 ms, rug wobble, ?cffast test hook, no inline style anywhere" "$(for w in "between(15000, 30000)" "[['yawn', 900]]" "[['stretch', 900]]" "[['washA', 600], ['washB', 600], ['washA', 600], ['washB', 600]]" "(6000 + br() * 8000)" "hop ? 150 : 200" "}, 1250);" "rug.classList.add('is-wobble')" "cffast=1" "birdStop(); setMode"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(grep -c '\.style\.\|setAttribute(.style' $GAME/assets/catfish.js)" "yyyyyyyyyy0"
 
 # the real page with the full art set installed in this suite's own copy of game/ (removed after): banner, rod, icons, room, Cat Book heads
 mkdir -p $GAME/assets/img/catfish; cp $FULL/cf-*.png $GAME/assets/img/catfish/
@@ -945,7 +997,7 @@ if node -e "require('playwright')" 2>/dev/null; then
   dbx "DELETE FROM cats WHERE user_id=$UID_"
   for sd in 538 6 1626 160; do dbx "INSERT INTO cats (user_id, seed, name, adopted_at) VALUES ($UID_, $sd, 'Cat$sd', '2026-10-29 00:00:00')"; done
   dbx "UPDATE catfish_state SET active_cat_id=(SELECT id FROM cats WHERE user_id=$UID_ AND seed=538), upgrades='{\"glitter\":1,\"silk\":1,\"catnip\":1}', kibble=500, naps=0, run_kibble=50, last_tick=$(date +%s) WHERE user_id=$UID_"
-  AOUT=$(DBFILE=$GAME/data/game.sqlite SQL_NAP="UPDATE catfish_state SET naps=1, run_kibble=0, last_tick={NOW} WHERE user_id=$UID_" SQL_AWAKE="UPDATE catfish_state SET naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" NODE_PATH=${NODE_PATH:-} node tests/catfish_anim.js $BASE 2>&1)
+  AOUT=$(DBFILE=$GAME/data/game.sqlite SQL_NAP="UPDATE catfish_state SET naps=1, run_kibble=0, last_tick={NOW} WHERE user_id=$UID_" SQL_AWAKE="UPDATE catfish_state SET naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" SQL_ROOM="UPDATE catfish_state SET upgrades='{\"glitter\":1,\"silk\":1,\"catnip\":1,\"window\":1,\"sunbeam\":1,\"rug\":1,\"scratch\":1}', naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" NODE_PATH=${NODE_PATH:-} node tests/catfish_anim.js $BASE 2>&1)
   echo "$AOUT"
 else echo "ok   anim browser pass: skipped (no playwright)"; fi
 rm -rf "${GAME:?}/assets/img/catfish"
