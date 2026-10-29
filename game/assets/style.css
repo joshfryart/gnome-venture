@@ -6095,6 +6095,11 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .advgrid.wander .choicelist .choice-title { font-size: 13px; }
   .advgrid.wander .choicelist .choice-sub { font-size: 10px; }
   .advgrid.wander .choicelist .choice-badge { position: absolute; top: 4px; right: 4px; min-width: 0; padding: 0 4px; font-size: 11px; }
+  .advgrid.wander .choicelist:has(> form:only-child) { grid-template-columns: 1fr; }   /* v2.1.14: a lone button (Visit a found place) is full width and centred */
+  .advgrid.wander .choicelist > form:only-child .choice { align-items: center; text-align: center; min-height: 52px; }
+  .advgrid.wander .choicelist > form:only-child .choice-body { align-items: center; text-align: center; padding-right: 0; }
+  .advgrid.wander .choicelist > form:only-child .choice-title { font-size: 15px; }
+  .advgrid.wander .choicelist > form:only-child .choice-sub { font-size: 12px; }
   .advgrid.wander .gx-hero { width: 82%; margin-inline: auto; }
   .advgrid.wander .gx-h--belt { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.14
+- **Phone: the "Visit <place> now" button is full width and centred.** After you find a hidden place while wandering, its lone button sat in half of the 2-column action grid, pushed to the left. A button that is alone in its list now spans the whole row with centred text.
+
 ## 2.1.13
 - **Phone: the d20 problem card ("Pick an approach") uses the compact layout too.** It was the one event still on the old tall layout. The question now sits beside the ring map with the "Pick an approach" line under it, and the answers are a 2-column grid. The "Latest:" line is no longer repeated above a problem card (it said the same thing as the question).
 - Tests: `tests/advforce.php problem` and a `problem` shot in `tests/adventure.sh`.
