@@ -6039,10 +6039,19 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .gvpage .statsplit { flex-direction: column; gap: 6px; margin: 4px 0; }
   .radar { width: 230px; overflow: visible; margin: 0 14px; }
   .radar .rlab { font-size: 14px; }
-  .gvpage .statlist { flex: none; width: 100%; gap: 4px; }
-  .gvpage .statlist li { padding: 0 8px; }
-  .gvpage .statlist li a { min-height: 40px; justify-content: flex-start; text-align: left; font-size: 15px; }
-  .gvpage .statlist .sc { font-size: 18px; }
+  /* v2.0.98: three stats per row (tile: name, score + modifier, +1); Luck, the seventh, spans the last row */
+  .gvpage .statlist { flex: none; width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .gvpage .statlist li { flex-direction: column; gap: 3px; padding: 6px 4px; }
+  .gvpage .statlist li:last-child { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 10px; }
+  .gvpage .statlist li a { flex: none; width: 100%; min-height: 40px; flex-wrap: wrap; justify-content: center; align-content: center; gap: 2px 6px; text-align: center; font-size: 13px; }
+  .gvpage .statlist li:last-child a { width: auto; flex: 1; }
+  .gvpage .statlist .sn { width: 100%; white-space: nowrap; }
+  .gvpage .statlist li:last-child .sn { width: auto; }
+  .gvpage .statlist .sc { margin-left: 0; font-size: 20px; }
+  .gvpage .statlist form { width: 100%; }
+  .gvpage .statlist li:last-child form { width: auto; }
+  .gvpage .statlist form .btn { width: 100%; min-height: 36px; }
+  .gvpage .statlist li:last-child form .btn { width: auto; padding-left: 24px; padding-right: 24px; }
   .gvpage .statsel { font-size: 13px; padding: 6px 10px; }
 }
 .gvpage .box > .radar { display: block; margin: 4px auto; }

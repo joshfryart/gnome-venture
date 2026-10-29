@@ -199,7 +199,7 @@ page_header('My Gnome');
           <?php foreach (GNOME_STATS as $k => [$nm, $ic]):
               $base = (int)$u['stat_' . $k]; $tot = eff_stat($u, $k); $mod = stat_mod($tot); ?>
             <li class="<?= $k === $selK ? 'on' : '' ?>">
-              <a href="<?= e($gurl('stats', ['s' => $k])) ?>" data-inplace><span aria-hidden="true"><?= $ic ?></span> <b><?= e($nm) ?></b> <span class="sc"><?= $tot ?></span> <span class="statmod"><?= $k === 'luck' ? rtrim(rtrim(number_format(luck_percent($u), 3), '0'), '.') . '%' : ($mod >= 0 ? '+' : '') . $mod ?></span></a>
+              <a href="<?= e($gurl('stats', ['s' => $k])) ?>" data-inplace><span class="sn"><span aria-hidden="true"><?= $ic ?></span> <b><?= e($nm) ?></b></span> <span class="sc"><?= $tot ?></span> <span class="statmod"><?= $k === 'luck' ? rtrim(rtrim(number_format(luck_percent($u), 3), '0'), '.') . '%' : ($mod >= 0 ? '+' : '') . $mod ?></span></a>
               <?php if ($pts > 0 && $base < $stMax): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="stat"><input type="hidden" name="stat" value="<?= e($k) ?>"><button class="btn small" aria-label="Add one point to <?= e($nm) ?>">+1</button></form><?php endif; ?>
             </li>
           <?php endforeach; ?>

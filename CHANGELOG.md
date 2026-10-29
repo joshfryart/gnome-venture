@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.98
+- **Stats tab on phones:** stats show three per row (Luck on its own row below) so the list is much shorter. Desktop unchanged.
+
 ## 2.0.97
 - **Stats tab:** tapping a stat name loads in place (no page reload).
 
