@@ -32,6 +32,11 @@ const CATFISH_KEEP_COSTS = [10, 20, 40];   // Keepsake levels: a Nap keeps this 
 const CATFISH_KEEP_UPS = ['fish', 'string', 'sunbeam', 'bowl'];
 const CATFISH_BALL_COST = 1;            // Yarn per ball colour (one-off). key => [label, CSS filter id used by catfish.css as .cfball-<key>]
 const CATFISH_BALLS = ['rose' => 'Rose', 'mint' => 'Mint', 'violet' => 'Violet', 'gold' => 'Gold'];
+const CATFISH_BUNTING_COST = 1;         // Yarn per bunting hung in the festival jar while a festival runs
+const CATFISH_BUNTING_ADD = 3;          // jar points per bunting
+const CATFISH_BUNTING_DAILY = 3;        // buntings per gnome per Hollow day
+const CATFISH_SCARF_COST = 12;          // Yarn for the scarf the gnome wears (drawn in gnome_avatar); colours are then free
+const CATFISH_SCARVES = ['red' => ['Poppy red', '#c0392b'], 'green' => ['Moss green', '#2e7d4f'], 'blue' => ['Bluebell', '#2f5d9e'], 'gold' => ['Buttercup', '#e0a526'], 'cream' => ['Wool cream', '#f1e6c8']];
 const CATFISH_RARE_COSTS = [3, 10];     // Yarn for Rare Shelter levels 1 and 2 (the shelter shows the best of 2, then 3, candidates per slot)
 const CATFISH_REROLL_COST = 1;          // Yarn to swap one shelter cat for another
 const CATFISH_REROLL_MAX = 3;           // rerolls per slot per day
@@ -1039,6 +1044,68 @@ function catfish_set_ball(int $uid, string $key): array
         $meta['ball'] = $key; catfish_meta_save($uid, $meta);
         return [true, $key === '' ? 'Plain yarn ball.' : CATFISH_BALLS[$key] . ' yarn ball.'];
     });
+}
+
+/** True while a festival with a jar is running (so the bunting row shows). */
+function catfish_festival_on(): bool
+{
+    try { require_once __DIR__ . '/festival.php'; $f = festival_active(); return $f !== null && festival_goal($f) !== null; } catch (Throwable $e) { return false; }
+}
+
+/** Hang yarn bunting in the running festival's jar: 1 Yarn for +3, three a day. Only Yarn leaves; nothing here pays Petals. */
+function catfish_hang_bunting(int $uid): array
+{
+    require_once __DIR__ . '/festival.php'; require_once __DIR__ . '/hollow_goals.php';
+    hollow_goals_active();   // makes the festival's jar the first time anyone looks
+    $f = festival_active();
+    $goal = $f ? festival_goal($f) : null;
+    if (!$goal) return [false, 'No festival is running.'];
+    return catfish_yarn_spend($uid, function (&$meta, $s) use ($uid, $goal) {
+        if (catfish_spendable($s) < CATFISH_BUNTING_COST) return [false, 'Not enough Yarn.'];
+        $today = catfish_today();
+        $n = ($meta['bunting']['day'] ?? '') === $today ? (int)$meta['bunting']['n'] : 0;
+        if ($n >= CATFISH_BUNTING_DAILY) return [false, 'All of today\'s bunting is hung.'];
+        $meta['bunting'] = ['day' => $today, 'n' => $n + 1];
+        if (q('UPDATE hollow_goal_contrib SET amount = amount + ? WHERE goal_id = ? AND user_id = ?', [CATFISH_BUNTING_ADD, $goal['id'], $uid])->rowCount() === 0) {
+            try { db_insert('hollow_goal_contrib', ['goal_id' => $goal['id'], 'user_id' => $uid, 'amount' => CATFISH_BUNTING_ADD]); }
+            catch (PDOException $e) { q('UPDATE hollow_goal_contrib SET amount = amount + ? WHERE goal_id = ? AND user_id = ?', [CATFISH_BUNTING_ADD, $goal['id'], $uid]); }
+        }
+        return [CATFISH_BUNTING_COST, 'Bunting is up: +' . CATFISH_BUNTING_ADD . ' in the festival jar.'];
+    });
+}
+
+function catfish_buy_scarf(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        if (!empty($meta['scarfown'])) return [false, 'You already have the scarf.'];
+        $meta['scarfown'] = 1; $meta['scarf'] = 'red';
+        return [CATFISH_SCARF_COST, 'Your gnome is wearing a scarf. Pick a colour any time.'];
+    });
+}
+
+/** Choose the scarf colour, or '' to take it off. Free once bought. */
+function catfish_set_scarf(int $uid, string $key): array
+{
+    return catfish_locked($uid, function () use ($uid, $key) {
+        $meta = catfish_state($uid)['meta'];
+        if (empty($meta['scarfown'])) return [false, 'Buy the scarf with Yarn first.'];
+        if ($key !== '' && !isset(CATFISH_SCARVES[$key])) return [false, 'No such colour.'];
+        $meta['scarf'] = $key; catfish_meta_save($uid, $meta);
+        return [true, $key === '' ? 'Scarf off.' : CATFISH_SCARVES[$key][0] . ' scarf on.'];
+    });
+}
+
+/** Hex colour of the scarf this gnome wears, or ''. Read-only and cached per request (the gnome avatar asks for every gnome on a page). */
+function catfish_scarf_color(int $uid): string
+{
+    static $cache = [];
+    if (isset($cache[$uid])) return $cache[$uid];
+    $c = '';
+    try {
+        $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+        if (is_array($meta) && !empty($meta['scarfown']) && isset(CATFISH_SCARVES[$meta['scarf'] ?? ''])) $c = CATFISH_SCARVES[$meta['scarf']][1];
+    } catch (Throwable $e) {}
+    return $cache[$uid] = $c;
 }
 
 function catfish_buy_rare(int $uid): array

@@ -561,7 +561,7 @@ function gnome_avatar(array $u, int $size = 96): string
             $o .= '<g data-part="' . ($l === 'beard' || $l === 'hat' || $l === 'band' || $l === 'star' ? $l : 'base') . '">'
                 . pixel_image('assets/img/gnome/gnome-' . $l . '.png', 0, 0, 80, 100, $l === 'beard' ? $beard : ($l === 'hat' ? $hat : ''), $uid) . '</g>';
         }
-        return $o . '</svg>';
+        return $o . gnome_scarf_svg($u) . '</svg>';
     }
     return '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome">'
         . '<ellipse cx="40" cy="96" rx="26" ry="4" fill="#000" opacity=".12"/>'
@@ -575,7 +575,18 @@ function gnome_avatar(array $u, int $size = 96): string
         . '<rect data-part="hat" x="20" y="37" width="40" height="6" rx="3" fill="' . e($hat) . '"/>'
         . ($tier >= 2 ? '<rect data-part="band" x="20" y="37" width="40" height="3" fill="#f4d35e" opacity=".9"/>' : '')   // v0.9.1: tier II hat band
         . ($tier >= 3 ? '<path data-part="star" d="M40 16 L41.8 20.2 L46.3 20.5 L42.8 23.4 L43.9 27.8 L40 25.4 L36.1 27.8 L37.2 23.4 L33.7 20.5 L38.2 20.2 Z" fill="#f4d35e" stroke="#b8860b" stroke-width=".6"/>' : '')   // v0.9.1: tier III star
-        . '</svg>';
+        . gnome_scarf_svg($u) . '</svg>';
+}
+
+/** The Yarn scarf (bought in Cat Fish), a plain SVG drawn over the neck; '' without one. */
+function gnome_scarf_svg(array $u): string
+{
+    if (empty($u['id'])) return '';
+    require_once __DIR__ . '/catfish.php';
+    $c = catfish_scarf_color((int)$u['id']);
+    if ($c === '') return '';
+    return '<g data-part="scarf"><path d="M25 62 Q40 72 55 62 L56 70 Q40 79 24 70 Z" fill="' . e($c) . '" stroke="#000" stroke-opacity=".25" stroke-width=".8"/>'
+        . '<path d="M47 73 L50 90 L58 88 L54 71 Z" fill="' . e($c) . '" stroke="#000" stroke-opacity=".25" stroke-width=".8"/></g>';
 }
 
 function gnome_hat(array $u): string

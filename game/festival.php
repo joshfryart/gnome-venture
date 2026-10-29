@@ -12,6 +12,7 @@ if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
     if ($do === 'flag') [$ok, $msg] = festival_find_flag($u);
+    elseif ($do === 'bunting' && empty($u['guest'])) { require_once __DIR__ . '/includes/catfish.php'; [$ok, $msg] = catfish_open() && catfish_ensure() ? catfish_hang_bunting($uid) : [false, 'Cat Fish isn’t open right now.']; }
     elseif ($do === 'buy') [$ok, $msg] = festival_buy($u, (string)($_POST['stall'] ?? ''), (int)($_POST['idx'] ?? -1));
     else [$ok, $msg] = [false, 'Unknown action.'];
     flash($msg, $ok ? 'ok' : 'err');
@@ -57,6 +58,9 @@ page_header($f ? $f['name'] : 'Festivals');
       <p class="help">Everything you do counts: a harvest, a walk, a pot of stew. <?= $mine ? 'You put in <b>' . number_format($mine) . '</b>.' : 'You haven’t added anything yet.' ?> <a href="<?= e(url('community.php?t=jar')) ?>">Tiers and rewards →</a></p>
     </div>
   </div>
+  <?php require_once __DIR__ . '/includes/catfish.php'; if (empty($u['guest']) && catfish_open()): ?>
+  <form method="post" class="help"><?= csrf_field() ?><input type="hidden" name="do" value="bunting"><button class="btn" type="submit">🧶 Hang yarn bunting · <?= CATFISH_BUNTING_COST ?> Yarn</button> <small class="muted">+<?= CATFISH_BUNTING_ADD ?> for the jar, <?= CATFISH_BUNTING_DAILY ?> a day. Yarn comes from Naps in <a href="<?= e(url('catfish.php')) ?>">Cat Fish</a>.</small></form>
+  <?php endif; ?>
 </section>
 <?php endif; ?>
 

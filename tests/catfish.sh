@@ -429,6 +429,24 @@ pagew3; ok "the page carries the ball colour class" "$(grep -c 'class="cfpage cf
 cfpost -d do=ballset -d key=mint >/dev/null; ok "a colour you do not own cannot be switched on" "$(mget ball)" rose
 cfpost -d do=ballbuy -d key=nonsense >/dev/null; ok "unknown ball colour refused: ys stays 1" "$(mget ys)" 1
 cfpost -d do=ballset -d key= >/dev/null; ok "back to the plain ball for free" "$(mget ys),$(mget ball)" "1,0"
+
+# 4f. Yarn scarf (12 Yarn, drawn on the gnome everywhere) and Yarn bunting (1 Yarn: +3 in the festival jar, 3 a day)
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=scarfset -d key=blue >/dev/null; ok "scarf colour before buying: refused" "$(mget scarf)" 0
+cfpost -d do=scarfbuy >/dev/null; ok "the scarf costs 12 Yarn: ys=12, red to start" "$(mget ys),$(mget scarf)" "12,red"
+PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"')" -ge 1 ] && echo y || echo n)" y
+cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
+cfpost -d do=scarfset -d key=nonsense >/dev/null; ok "unknown scarf colour refused: still blue" "$(mget scarf)" blue
+cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf off: gone from the profile" "$(echo "$PRF" | grep -c 'data-part="scarf"')" 0
+cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
+setg festivals_on 1; setg fest_opening_day_start "$TD"; setg fest_opening_day_end "$TM"
+curl -s -b $W/p $BASE/festival.php >/dev/null   # the page makes the jar
+for i in 1 2 3 4; do cfpost -d do=bunting >/dev/null; done
+ok "bunting: 1 Yarn each, three a day (ys 12 + 3)" "$(mget ys)" 15
+ok "bunting: +3 each in the festival jar (9)" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+dbx "UPDATE catfish_state SET yarn=12, meta='{\"extra\":2,\"ys\":12}' WHERE user_id=$UID_"
+cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+setg festivals_on 0
 dbx "UPDATE users SET title=NULLIF('$TITLE0','') WHERE id=$UID_"
 dbx "UPDATE catfish_state SET yarn=${CF0%%|*}, meta='$(echo "$CF0" | cut -d'|' -f2)', upgrades='$(echo "$CF0" | cut -d'|' -f3)' WHERE user_id=$UID_"
 
@@ -869,7 +887,7 @@ ok "book cell, no art: today's circle, adopted shows the emoji" "$(cfx none 'cat
 ok "book cell, art: found coats use their head (ginger -> orange, lilac), unknown uses the question head" "$(cfx $FULL 'catfish_book_cell("ginger", 1, "a") . catfish_book_cell("lilac", 0, "b") . catfish_book_cell("white", -1, "c")' | grep -o 'cf-bookhead-[a-z-]*.png\|got adopted\|got seen\|cfbcell art none' | tr '\n' ' ')" "got adopted cf-bookhead-orange.png got seen cf-bookhead-lilac.png cfbcell art none cf-bookhead-unknown.png "
 mkdir -p $W/art4; cp $FULL/cf-bookhead-unknown.png $W/art4/
 ok "book cell, art for unknown only: a found coat keeps today's circle" "$(cfx $W/art4 'catfish_book_cell("ginger", 0, "a") . catfish_book_cell("ginger", -1, "b")' | grep -o 'cfbcell got c-ginger\|cf-bookhead-unknown.png' | tr '\n' ' ')" "cfbcell got c-ginger cf-bookhead-unknown.png "
-ok "Buy x10 price is the sum of ten single prices" "$SPENT10" "$(cfx none 'catfish_cost_n("fish", 0, 10)')"
+ok "Buy x10 price is the sum of ten single prices (give or take a second of income)" "$(php -r 'echo abs('$SPENT10' - '$(cfx none 'catfish_cost_n("fish", 0, 10)')') <= 3 ? "y" : "n";')" y
 ok "offline cap: 8 hours, +1 per Longer naps away level, Lazy x1.25 on top" "$(cfx none 'catfish_offline_cap(null) . "," . catfish_offline_cap(null, 3) . "," . catfish_offline_cap(["mood" => "lazy"], 3)')" "28800,39600,49500"
 ok "art coat map: all 8 coats have art, lilac included" "$(cfx none 'count(CATFISH_ART_COATS) . " " . CATFISH_ART_COATS["lilac"]')" "8 lilac"
 # play scene (catfish_stage_html): one centred stage with the room stack, wand, three fish, the other cats as still frames and the active cat with all 8 frame groups

@@ -29,6 +29,9 @@ if (is_post()) {
     elseif ($do === 'buddyunlock') $r = catfish_buy_buddy($uid);
     elseif ($do === 'buddy') $r = catfish_set_buddy($uid, (int)($_POST['cat'] ?? 0));
     elseif ($do === 'keep') $r = catfish_buy_keep($uid);
+    elseif ($do === 'bunting') $r = catfish_hang_bunting($uid);
+    elseif ($do === 'scarfbuy') $r = catfish_buy_scarf($uid);
+    elseif ($do === 'scarfset') $r = catfish_set_scarf($uid, (string)($_POST['key'] ?? ''));
     elseif ($do === 'ballbuy') $r = catfish_buy_ball($uid, (string)($_POST['key'] ?? ''));
     elseif ($do === 'ballset') $r = catfish_set_ball($uid, (string)($_POST['key'] ?? ''));
     elseif ($do === 'reroll') $r = catfish_reroll($uid, (int)($_POST['slot'] ?? -1));
@@ -170,6 +173,21 @@ foreach (CATFISH_TITLES as $tk => [, $tc]) if (!in_array($tk, $myTitles, true) &
     <span class="cficon" aria-hidden="true">🧺</span><span class="cfinfo"><b>Keepsake</b> <small class="muted">level <?= (int)($meta['keepsake'] ?? 0) ?> of <?= count(CATFISH_KEEP_COSTS) ?></small><br><small>A Nap keeps <?= max(1, (int)($meta['keepsake'] ?? 0)) ?> level<?= (int)($meta['keepsake'] ?? 0) > 1 ? 's' : '' ?> of Plushie fish, Longer string, Sunbeam and Fancy bowl.</small></span>
     <?php if ((int)($meta['keepsake'] ?? 0) < count(CATFISH_KEEP_COSTS)): ?><button class="btn" type="submit"<?= $sp >= CATFISH_KEEP_COSTS[(int)($meta['keepsake'] ?? 0)] ? '' : ' disabled' ?>><?= CATFISH_KEEP_COSTS[(int)($meta['keepsake'] ?? 0)] ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
   <div class="cfup"><span class="cficon" aria-hidden="true">🧶</span><span class="cfinfo"><b>Yarn ball colours</b> <small class="muted"><?= CATFISH_BALL_COST ?> Yarn each</small><br><small>Tints the ball by the rug.</small></span></div>
+  <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="scarfbuy">
+    <span class="cficon" aria-hidden="true">🧣</span><span class="cfinfo"><b>Yarn scarf</b><br><small>Your gnome wears a scarf everywhere on the site. Colours are free.</small></span>
+    <?php if (empty($meta['scarfown'])): ?><button class="btn" type="submit"<?= $sp >= CATFISH_SCARF_COST ? '' : ' disabled' ?>><?= CATFISH_SCARF_COST ?> Yarn</button><?php else: ?><small class="muted">Done</small><?php endif; ?></form>
+<?php if (!empty($meta['scarfown'])): ?>
+  <div class="cfballs">
+<?php foreach (array_merge(['' => ['Scarf off', '']], CATFISH_SCARVES) as $sk => $sv): ?>
+    <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="scarfset"><input type="hidden" name="key" value="<?= e($sk) ?>"><button class="btn cfballbtn" type="submit" aria-pressed="<?= (string)($meta['scarf'] ?? '') === $sk ? 'true' : 'false' ?>"><?= e($sv[0]) ?></button></form>
+<?php endforeach; ?>
+  </div>
+<?php endif; ?>
+<?php if (catfish_festival_on()): ?>
+  <form method="post" class="cfup"><?= csrf_field() ?><input type="hidden" name="do" value="bunting">
+    <span class="cficon" aria-hidden="true">🎏</span><span class="cfinfo"><b>Yarn bunting</b> <small class="muted"><?= max(0, CATFISH_BUNTING_DAILY - (($meta['bunting']['day'] ?? '') === catfish_today() ? (int)$meta['bunting']['n'] : 0)) ?> left today</small><br><small>Adds <?= CATFISH_BUNTING_ADD ?> to the festival jar.</small></span>
+    <button class="btn" type="submit"<?= $sp >= CATFISH_BUNTING_COST && (($meta['bunting']['day'] ?? '') !== catfish_today() || (int)$meta['bunting']['n'] < CATFISH_BUNTING_DAILY) ? '' : ' disabled' ?>><?= CATFISH_BUNTING_COST ?> Yarn</button></form>
+<?php endif; ?>
   <div class="cfballs">
 <?php $ownBalls = (array)($meta['balls'] ?? []); $curBall = (string)($meta['ball'] ?? ''); foreach (array_merge(['' => 'Plain'], CATFISH_BALLS) as $bk => $bn): $mine = $bk === '' || in_array($bk, $ownBalls, true); ?>
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $mine ? 'ballset' : 'ballbuy' ?>"><input type="hidden" name="key" value="<?= e($bk) ?>"><button class="btn cfballbtn cfball-sw-<?= e($bk === '' ? 'plain' : $bk) ?>" type="submit" aria-pressed="<?= $curBall === $bk ? 'true' : 'false' ?>"<?= !$mine && $sp < CATFISH_BALL_COST ? ' disabled' : '' ?>><?= e($bn) ?><?= $mine ? '' : ' · ' . CATFISH_BALL_COST . ' Yarn' ?></button></form>
