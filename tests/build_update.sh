@@ -9,11 +9,15 @@
 if grep -rnE "^(<<<<<<<|=======|>>>>>>>)( |$)" game tests --include=*.php --include=*.js --include=*.css --include=*.txt --include=*.sh >/dev/null 2>&1; then echo "Merge conflict markers found:"; grep -rnE "^(<<<<<<<|=======|>>>>>>>)( |$)" game tests --include=*.php --include=*.js --include=*.css --include=*.txt --include=*.sh | head; exit 1; fi
 set -e
 V=$1; BASE=$2; OUT=${3:-$HOME}
+# FULL + source zips only on milestone releases (x, x.y, x.y.0). Patch bumps (x.y.z, x.y.z.w) get slim only.
+# Override with 4th arg: all = always build them, slim = never.
+BIG=$(echo $V | awk -F. '{print ($3==""||$3==0)&&$4==""?1:0}')
+[ "$4" = all ] && BIG=1; [ "$4" = slim ] && BIG=0
 [ -f tests/manifests/$BASE.txt ] || { echo "No manifest for $BASE: make a FULL zip only"; exit 1; }
 python3 tests/manifest.py game tests/manifests/$V.txt
 T=$(mktemp -d); mkdir -p $T/full $T/slim
-cp -r game $T/full/ && rm -rf $T/full/game/data $T/full/game/config.php $T/full/game/install.php
-( cd $T/full && rm -f $OUT/GnomeVenture-$V-web-update-FULL.zip && zip -qr $OUT/GnomeVenture-$V-web-update-FULL.zip game )
+[ $BIG = 1 ] && cp -r game $T/full/ && rm -rf $T/full/game/data $T/full/game/config.php $T/full/game/install.php
+[ $BIG = 1 ] && ( cd $T/full && rm -f $OUT/GnomeVenture-$V-web-update-FULL.zip && zip -qr $OUT/GnomeVenture-$V-web-update-FULL.zip game )
 # files whose hash differs from the base, or that are new
 python3 - "$BASE" "$V" > $T/list.txt <<'PY'
 import sys
@@ -26,6 +30,9 @@ mkdir -p $T/slim/game
 while read f; do mkdir -p "$T/slim/game/$(dirname "$f")"; cp "game/$f" "$T/slim/game/$f"; done < $T/list.txt
 echo "$BASE" > $T/slim/game/UPDATE-BASE.txt
 ( cd $T/slim && rm -f $OUT/GnomeVenture-$V-web-update.zip && zip -qr $OUT/GnomeVenture-$V-web-update.zip game )
-rm -f $OUT/GnomeVenture-$V-source.zip && zip -qr $OUT/GnomeVenture-$V-source.zip game tests -x "game/data/*" "game/config.php"
-echo "slim: $(wc -l < $T/list.txt) files (needs v$BASE+) · full: $(unzip -l $OUT/GnomeVenture-$V-web-update-FULL.zip | tail -1 | awk '{print $2}') files"
+if [ $BIG = 1 ]; then
+  rm -f $OUT/GnomeVenture-$V-source.zip && zip -qr $OUT/GnomeVenture-$V-source.zip game tests -x "game/data/*" "game/config.php"
+  echo "full + source built (milestone)"
+else echo "slim only (patch release; pass 'all' as 4th arg for full + source)"; fi
+echo "slim: $(wc -l < $T/list.txt) files (needs v$BASE+)"
 rm -rf $T
