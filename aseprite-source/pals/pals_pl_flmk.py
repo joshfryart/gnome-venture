@@ -216,10 +216,10 @@ def noodle_skipper():
     st = Sticker()
     bowl = ellipse(32, 37, 21, 12) & (CY > 35)
     rimm = ellipse(32, 35, 21, 4)
-    foot = rect(25, 47, 39, 50)
+    foot = rect(25, 46, 39, 48)
     hat = poly([(16, 23), (32, 9), (48, 23)])
     head = ellipse(32, 28, 10, 7)
-    tab = knob('s', 'round', 32, 50, r=2.8)
+    tab = knob('s', 'round', 32, 48, r=2.8)
     body = bowl | rimm | foot | head | tab
     st.part(body, tex=fill(key, body, 12, 20, 40, list(BOWL)), contour=True)
     st.paint(bowl & (CY > 41) & (CY < 44), BLUEB[0])

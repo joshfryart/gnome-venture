@@ -81,7 +81,7 @@ def shut_eye(st, x, y):
 
 
 def flame_tuft(st, cx, by):
-    m = poly([(cx - 5, by), (cx - 3, by - 6), (cx - 1, by - 4), (cx, by - 10), (cx + 2, by - 4), (cx + 4, by - 7), (cx + 5, by)])
+    m = poly([(cx - 5, by), (cx - 3, by - 6), (cx - 1, by - 4), (cx, by - 9), (cx + 2, by - 4), (cx + 4, by - 7), (cx + 5, by)])
     st.part(m, FLAME[0], d=1, contour=True)
     st.paint(shrink(m, 1) & (CY > by - 5), FLAME[2])
     return m
@@ -158,7 +158,7 @@ def fireside_flickerling():
     st.part(body, tex=fill(key, body, 14, 20, 36, list(EMBERO)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#8a4a1a', skip=grow(holes, 3))
-    flame_tuft(st, 32, 15)
+    flame_tuft(st, 32, 17)
     st.eye(21, 27, look=(0, -1))
     st.eye(37, 27, look=(0, -1))
     st.mouth('grin', 30, 35)
@@ -230,9 +230,9 @@ def branch_meditator():
     key = 'pl-wced-6'
     st = Sticker()
     # the cedar branch it sits on
-    br = line([(7, 52), (56, 50)], w=3)
+    br = line([(10, 52), (53, 50)], w=3)
     st.part(br, '#5a3a20', d=1, contour=True)
-    for x in (11, 51):
+    for x in (14, 49):
         st.part(ellipse(x, 47, 5, 2.5), CEDAR[0], d=1, contour=True)
     head = ellipse(32, 23, 10, 9)
     torso = ellipse(32, 38, 9, 7)
@@ -244,7 +244,7 @@ def branch_meditator():
     st.paint(disc(28, 40, 2) | disc(36, 40, 2), '#6a4428')          # hands together in the lap
     st.paint(ellipse(32, 28, 5, 1) & ~ellipse(32, 27, 4, 1), '#6a4428')  # carved grain ring
     # cedar sprig tuft crown
-    st.part(poly([(25, 14), (32, 6), (39, 14)]), CEDAR[0], d=1, contour=True)
+    st.part(poly([(25, 15), (32, 8), (39, 15)]), CEDAR[0], d=1, contour=True)
     shut_eye(st, 25, 22)
     shut_eye(st, 35, 22)
     st.mouth('flat', 31, 27)

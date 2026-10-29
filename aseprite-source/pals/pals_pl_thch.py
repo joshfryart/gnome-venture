@@ -196,7 +196,7 @@ def teatime_hedgehog():
         a = math.pi * (0.95 + 1.1 * i / 8)
         x, y = 33 + 17 * math.cos(a), 36 + 13 * math.sin(a)
         spikes |= poly([(x - 2.5, y), (x + 4 * math.cos(a), y + 4 * math.sin(a)), (x + 2.5, y)])
-    tab = knob('e', 'peg', 38, 50.5, r=3.0)
+    tab = knob('e', 'peg', 38, 48.5, r=3.0)
     body = back | spikes | tab
     st.part(body, tex=fill(key, body, 12, 16, 44, list(SPINE)), contour=True)
     st.paint(body & ((XX + 2 * YY) % 6 == 0) & shrink(body, 2), '#4a2a18')

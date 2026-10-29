@@ -181,7 +181,7 @@ def towel_bear():
     head = disc(32, 28, 14)
     ears = disc(21, 16, 4.5) | disc(43, 16, 4.5)
     belly = ellipse(32, 41, 15, 8)
-    tab = knob('s', 'round', 32, 48, r=3.2)
+    tab = knob('s', 'round', 32, 47, r=3.0)
     body = head | ears | belly | tab
     st.part(body, tex=fill(key, body, 14, 12, 38, list(BEAR)), contour=True)
     st.paint(disc(21, 16, 2.2) | disc(43, 16, 2.2), '#d49a78')

@@ -56,7 +56,7 @@ def beams(st, cx, cy, n=5):
     m = blank()
     for i in range(n):
         a = math.radians(60 + 60.0 * i / (n - 1))
-        m |= line([(cx + 4 * math.cos(a), cy + 4 * math.sin(a)), (cx + 9 * math.cos(a), cy + 9 * math.sin(a))], w=1)
+        m |= line([(cx + 2 * math.cos(a), cy + 2 * math.sin(a)), (cx + 12 * math.cos(a), cy + 12 * math.sin(a))], w=1)
     mark(st, m, BEAM[1])
     return m
 
@@ -126,13 +126,13 @@ def moonlit_beam():
     st = Sticker()
     core = (12, 12, 45, 45)
     body, holes = piece_blanks(core, n=('T', 'round', 0, 3.6), e=('B', 'round', 0, 3.0))
-    body = body & ~(rect(0, 0, 63, 63) & ~(disc(28.5, 28.5, 18.5) | rect(12, 12, 45, 28) | rect(29, 12, 45, 45)))
+    body = body & ~(rect(0, 29, 28, 63) & ~disc(28.5, 28.5, 17))      # moon-round lower-left belly
     st.part(body, tex=fill(key, body, 12, 10, 36, list(MOON)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#c09a3a', skip=grow(holes, 3))
     for cx, cy, r in ((36, 20, 2.2), (18, 40, 1.8), (38, 40, 1.5)):
         st.paint(disc(cx, cy, r), '#d8a840')
-    beams(st, 18, 50)
+    beams(st, 22, 42)
     st.sprite(['UUUUU'], 17, 28, {'U': UMBER}, solid=False)
     st.sprite(['UUUUU'], 31, 28, {'U': UMBER}, solid=False)
     st.paint(rect(15, 33, 17, 33) | rect(38, 33, 40, 33), BLUSH)

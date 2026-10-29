@@ -122,9 +122,9 @@ def dabbing_painter():
 def spring_chick():
     key = 'pl-eggs-3'
     st = Sticker()
-    core = (14, 20, 46, 48)
+    core = (14, 18, 46, 45)
     body, holes = piece_blanks(core, n=('T', 'round', 0, 3.6), e=('B', 'round', 0, 2.8), s=('T', 'round', -4, 3.6), w=('B', 'round', 0, 2.8))
-    st.part(body, tex=fill(key, body, 14, 20, 33, list(CHICK)), contour=True)
+    st.part(body, tex=fill(key, body, 14, 18, 33, list(CHICK)), contour=True)
     st.blank_shade(body, holes, width=1)
     st.stitch(body, col='#fff2b0', skip=grow(holes, 3))
     tuft = line([(29, 13), (28, 8)]) | line([(31, 13), (32, 7)]) | line([(33, 13), (35, 9)])
@@ -137,7 +137,7 @@ def spring_chick():
     st.paint(rect(17, 35, 19, 35) | rect(42, 35, 44, 35), BLUSH)
     for wx in (16, 44):
         st.paint(ellipse(wx, 41, 2.5, 3.5) & body, '#d8a82a')
-    limbs(st, [20, 37], 49, BEAK[0])
+    limbs(st, [20, 37], 46, BEAK[0])
     return key, st
 
 
@@ -188,19 +188,19 @@ def wreath_hollow():
 def pink_stripe_egg():
     key = 'pl-eggs-6'
     st = Sticker()
-    egg = ellipse(32, 33, 15, 18) & (CY > 18)
+    egg = ellipse(32, 31, 15, 16) & (CY > 18)
     egg |= ellipse(32, 28, 12.5, 13)
-    tab = knob('s', 'round', 32, 50, r=3.0)
+    tab = knob('s', 'round', 32, 46.5, r=3.0)
     body = egg | tab
     st.part(body, tex=fill(key, body, 14, 10, 40, list(PINK)), contour=True)
     # zigzag folk stripes
-    for by, col in ((22, '#f2e4c0'), (41, '#c8302a')):
+    for by, col in ((22, '#f2e4c0'), (38, '#c8302a')):
         zz = blank()
         for x in range(16, 48):
             y = by + (x % 4 if x % 8 < 4 else 4 - x % 4) - 2
             zz |= rect(x, y, x, y + 1)
         st.paint(zz & shrink(egg, 1), col)
-    st.paint(shrink(egg, 1) & (abs(CY - 45) < 0.6) & (XX % 3 == 0), '#f2e4c0')
+    st.paint(shrink(egg, 1) & (abs(CY - 43) < 0.6) & (XX % 3 == 0), '#f2e4c0')
     st.eye(22, 25)
     st.eye(37, 25)
     st.mouth('grin', 29, 33)
@@ -210,7 +210,7 @@ def pink_stripe_egg():
     st.part(bow, RIBBON[0], d=1, contour=True)
     st.paint(bow & (CY < 13) & shrink(bow, 0), RIBBON[1])
     st.paint(rect(30, 12, 33, 16), RIBBON[1], solid=True)
-    limbs(st, [14, 45], 38, PINK[0])
+    limbs(st, [14, 45], 36, PINK[0])
     st.sparkle(7, 7)
     st.sparkle(54, 20, big=False)
     st.sparkle(8, 46, big=False)

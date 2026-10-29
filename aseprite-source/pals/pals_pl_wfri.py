@@ -124,9 +124,9 @@ def mycelium_twinkles():
     thr = line([(16, 44), (21, 40), (26, 43), (31, 39), (36, 42), (41, 38), (46, 41)])
     thr |= line([(26, 43), (24, 48)]) | line([(36, 42), (38, 47)])
     st.paint(thr & body, GOLDT[0])
-    wave = line([(46, 41), (50, 35), (53, 30)], w=2)                  # one thread waving hello out the side
+    wave = line([(46, 41), (49, 35), (50, 31)], w=2)                  # one thread waving hello out the side
     st.part(wave, GOLDT[0], d=0, contour=True, shade=False)
-    st.paint(disc(53.5, 28.5, 1.7), GOLDT[1], solid=True)
+    st.paint(disc(50.5, 29.5, 1.7), GOLDT[1], solid=True)
     for x, y in ((20, 46), (33, 45), (44, 46), (9, 12), (55, 54)):
         twinkle(st, x, y)
     wink(st, 21, 26)

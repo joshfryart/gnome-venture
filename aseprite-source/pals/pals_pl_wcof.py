@@ -204,13 +204,13 @@ def headband_pourer():
     st.paint(disc(40, 32, 2) & jb, POT[2])
     st.part(disc(35, 36, 2.6), BEAN[1], d=1, contour=True)                # the steady hand
     st.paint(line([(46, 21), (48, 24), (48, 45)]), '#2a1408', solid=True)  # the pour
-    for cx in (42, 48, 54):
-        cup(st, cx, 52 if cx == 48 else 50)
+    for cx in (41, 47, 53):
+        cup(st, cx, 52 if cx == 47 else 50)
     st.eye(21, 22, lid=2, socket=None)
     st.eye(30, 22, lid=2, socket=None)
     st.mouth('smile', 25, 29)
     st.sparkle(5, 6)
-    st.sparkle(52, 8, big=False)
+    st.sparkle(49, 6, big=False)
     st.sparkle(6, 30, big=False)
     return key, st
 
