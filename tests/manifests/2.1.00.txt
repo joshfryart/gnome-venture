@@ -7443,7 +7443,7 @@ bc066649b7621fc6f5212aa93050a7cefc71d6be  includes/adventure_data.php
 d009e07a06875819b4fb1bd96a4d4db1782d7188  includes/animals120.php
 2dc8daeba7659ff89d656242c9f5ed3ba5f95099  includes/animals140.php
 0fa370c08e0a6e66183d20c2767d4d6feb2106c3  includes/art_upload.php
-f3e2916f1e4b75849124a5473c48ab67babc4a16  includes/bootstrap.php
+738a4dc3c00ce56d9f4eabf0ad82e974cbc82d89  includes/bootstrap.php
 9f728e124bb44048742556b6a2cf067f765ba602  includes/breeding110.php
 c42786a70359ed1bd5628a6f1ce1d8e9691d59cd  includes/calling_quests.php
 ec4fffa8c51c4ed98c51b6433e9de5047c785e06  includes/calling_view.php
@@ -7555,7 +7555,7 @@ b4c09b7112b65c41faacf8f9ee91d3a18f818b1c  includes/first_week.php
 bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 7021ac3cc44e66b2e9115dace1ccd53f291494aa  includes/fresh_start.php
 99110fc778d8b37055135c27a5f9cd203c2482a5  includes/friends.php
-8d30db75e10bd1c433b79644ec7fdf1c0bb0f33d  includes/functions.php
+d8964226ac4b1f527f1490aff4773bf899e388ed  includes/functions.php
 69d8da4cad7862024c639d32d9f53145860160d5  includes/games.php
 a9fbcab82e35bb8e8c57cc79f053fe83f73ed42c  includes/garden_critters.php
 26b6b870c76eb1eab2f25da9eafe2a6beec400c9  includes/garden_fx.php
@@ -7647,7 +7647,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-29e839707759e12dae0d40b729fec9724d0203d0  includes/update_news.php
+60c42ab4bbecc592303546e03bffdb25b5c0494b  includes/update_news.php
 66ef47580112917eaecfee11f6bb531a0cc97bc4  includes/updater.php
 46532daa3ff13c87820a3d523e887c36439ec70c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php

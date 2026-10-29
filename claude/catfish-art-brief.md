@@ -1,5 +1,7 @@
 # Cat Fish: art todo
 
+Note (2.1.00): Cat Fish is ON for everyone by default (`catfish_open` default On; existing sites flip on once at upgrade; admins can set Off in Admin > Settings).
+
 Style: **Stitched Toy** (Aseprite), see `claude/art-style-guide.md` Part D. Hard pixels only, no anti-aliasing, hue-shifted ramps, 1 px black border, three-tone umber outline, one crescent shade at the lower right, enamel gloss comma, gold edge stitch where there is a seam. Plushie cats and fish should look like stitched felt toys.
 
 Today everything is a placeholder (emoji, CSS tint). Real art replaces it piece by piece. Nothing in the game blocks on art.

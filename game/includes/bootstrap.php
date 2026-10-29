@@ -458,6 +458,11 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             require_once __DIR__ . '/roads.php';
             q("UPDATE encyclopedia_entries SET body = ? WHERE title = 'Roads and the wilds'", [ROADS_ALMANAC]);   // v0.7.57: roads stay at the region's level
         });
+        boot_step('catfish_open_210', function () {
+            if (version_compare((string)setting('db_version'), '2.1.00', '<')) set_setting('catfish_open', '1');   // v2.1.00: Cat Fish opens for everyone once; a later admin Off is kept
+            require_once __DIR__ . '/catfish.php';
+            catfish_ensure();   // tables made at upgrade too (a fresh install makes them on first page view, now that the game is open)
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players

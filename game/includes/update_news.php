@@ -574,8 +574,12 @@ function post_update_news(string $from): void
         . "[*]Computers look the same as before.[/list]"],
     '2.0.96' => ['🕸️ Stat web on Overview',
         "[list][*]The Stats box on My Gnome Overview now shows your stat web. Tap a label to open that stat.[/list]"],
-    '2.1.00' => ['🌼 Update 2.1.00: little fixes and fresh stock',
-        "[list][*][b]Stats[/b]: tap a stat name and it opens right away, and on phones the stats sit three to a row.\n"
+    '2.1.00' => ['🐱 Update 2.1.00: Cat Fish!',
+        "[list][*][b]Cat Fish[/b] is open in Games! Adopt a cat from the daily shelter: 8 coats, 5 patterns, eye colours, folded ears and bobtails.\n"
+        . "[*]Dangle the toy rod and your cat catches fish for Kibble, even while you are away.\n"
+        . "[*]Cats take Naps for Yarn, you can upgrade their room, fill the Cat Book and earn badges.\n"
+        . "[*]Every week the Cat Show hands out ribbons.\n"
+        . "[*][b]Stats[/b]: tap a stat name and it opens right away, and on phones the stats sit three to a row.\n"
         . "[*][b]Drying rack[/b]: each bundle shows its own flower picture.\n"
         . "[*][b]Seed markets[/b]: every regional market now stocks its region’s staple crops.[/list]"],
 ];

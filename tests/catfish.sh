@@ -26,7 +26,9 @@ login $W/a admin TestPassword123
 login $W/p sprout 'TestPass123!'
 dbx "DELETE FROM settings WHERE name IN ('catfish_open')"
 
-# gate
+# gate (default is On since 2.1.00: close it explicitly first)
+ok "default: no stored row means open" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
+setg catfish_open 0
 ok "gate off: player is sent away" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 302
 curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: no Cat Fish link while off" "$(grep -c 'href="[^"]*catfish.php"' $W/h.html)" 0
 setg festivals_on 0   # a running festival doubles Yarn from a Nap; keep the checks date-independent
