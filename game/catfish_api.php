@@ -36,7 +36,7 @@ if ($do === 'buy') {
     [$ok, $msg, $got, $paid] = catfish_locked($uid, function () use ($uid) {
         $got = 0; $paid = 0;
         if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);
-        [$ok, $msg] = catfish_buy($uid, (string)($_POST['key'] ?? ''));
+        [$ok, $msg] = catfish_buy($uid, (string)($_POST['key'] ?? ''), (int)($_POST['n'] ?? 1));
         return [$ok, $msg, $got, $paid];
     });
     $view = catfish_view($uid, $got, $paid);

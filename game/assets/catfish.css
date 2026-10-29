@@ -315,3 +315,6 @@
 .cfbook:not(.js) .cfbpat { margin-bottom: .5rem; }
 .cfbook:not(.js) .cfbpat::before { content: attr(data-label); grid-column: 1 / -1; font-weight: 700; text-align: left; }
 @media (max-width: 380px) { .cfbpat { grid-template-columns: repeat(2, 1fr); } }
+.cfbulk { display: flex; gap: 4px; justify-content: center; margin: 0 0 .5rem; }
+.cfbulk button { font: inherit; font-size: .85rem; padding: .25rem .8rem; border: 1px solid var(--line, #ddd); border-radius: 999px; background: transparent; color: inherit; }
+.cfbulk button[aria-pressed="true"] { background: var(--brand-fill, #e8a317); border-color: var(--brand-fill, #e8a317); color: var(--on-fill, #2a1a10); font-weight: 700; }

@@ -319,6 +319,49 @@ ok "Rare Shelter third refused: rare stays 2" "$(mget rare)" 2
 pagew3
 ok "Yarn to spend shows 100 - 13 = 87" "$(grep -c 'Yarn · 87 to spend' $W/w3.html)" 1
 
+CF0=$(dbv "SELECT yarn || '|' || meta || '|' || upgrades FROM catfish_state WHERE user_id=$UID_"); TITLE0=$(dbv "SELECT COALESCE(title,'') FROM users WHERE id=$UID_")   # restored after 4b to 4d
+# 4b. Buy x10 (3 Yarn, one-off): n=10 is only honoured once unlocked, costs the sum of ten levels, all or none
+dbx "UPDATE catfish_state SET yarn=100, kibble=1000000, upgrades='{}', last_tick=$(date +%s), meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+pagew3; cfreset
+cfapi -d do=buy -d key=fish -d n=10 >/dev/null
+ok "buy n=10 before the unlock buys one level" "$(dbv "SELECT json_extract(upgrades,'$.fish') FROM catfish_state WHERE user_id=$UID_")" 1
+cfpost -d do=bulk >/dev/null
+ok "Buy x10 costs 3 Yarn: ys=3" "$(mget ys)" 3
+ok "Buy x10 unlocked: bulk=1" "$(mget bulk)" 1
+cfpost -d do=bulk >/dev/null
+ok "Buy x10 twice refused: ys stays 3" "$(mget ys)" 3
+pagew3; ok "Buy x10 bar is on the page once unlocked" "$(grep -c 'id="cf-bulk"' $W/w3.html)" 1
+dbx "UPDATE catfish_state SET kibble=1000000, upgrades='{}', last_tick=$(date +%s) WHERE user_id=$UID_"
+cfreset; cfapi -d do=buy -d key=fish -d n=10 >/dev/null
+ok "buy n=10 buys ten levels" "$(dbv "SELECT json_extract(upgrades,'$.fish') FROM catfish_state WHERE user_id=$UID_")" 10
+SPENT10=$((1000000 - $(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")))
+dbx "UPDATE catfish_state SET kibble=100, upgrades='{}', last_tick=$(date +%s) WHERE user_id=$UID_"
+cfreset; cfapi -d do=buy -d key=fish -d n=10 >/dev/null
+ok "buy n=10 without the Kibble for ten: nothing bought" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_")" "{}"
+
+# 4c. Longer naps away: 4, 8, 16 Yarn, +1 hour each, a fourth is refused
+dbx "UPDATE catfish_state SET yarn=100, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=away >/dev/null; ok "Longer naps away 1 costs 4: ys=4" "$(mget ys)" 4
+cfpost -d do=away >/dev/null; ok "Longer naps away 2 costs 8: ys=12" "$(mget ys)" 12
+cfpost -d do=away >/dev/null; ok "Longer naps away 3 costs 16: ys=28" "$(mget ys)" 28
+cfpost -d do=away >/dev/null; ok "Longer naps away 4 refused: ys stays 28, away stays 3" "$(mget ys),$(mget away)" "28,3"
+dbx "UPDATE catfish_state SET yarn=2, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=away >/dev/null; ok "Longer naps away with 2 Yarn: refused (away stays 0)" "$(mget away)" 0
+
+# 4d. Yarn titles: Cat Person 15, Napmaster 30; only a bought title can be picked in the Almanac
+dbx "UPDATE catfish_state SET yarn=100, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=title -d key=catperson >/dev/null; ok "Cat Person costs 15: ys=15" "$(mget ys)" 15
+cfpost -d do=title -d key=catperson >/dev/null; ok "Cat Person twice refused: ys stays 15" "$(mget ys)" 15
+cfpost -d do=title -d key=nonsense >/dev/null; ok "unknown title refused: ys stays 15" "$(mget ys)" 15
+dbx "UPDATE users SET title=NULL WHERE id=$UID_"
+curl -s -b $W/p -o /dev/null -X POST $BASE/book.php --data-urlencode "csrf=$CS" --data-urlencode "title=Napmaster"
+ok "Almanac: an unbought title is refused" "$(dbv "SELECT COALESCE(title,'') FROM users WHERE id=$UID_")" ""
+curl -s -b $W/p -o /dev/null -X POST $BASE/book.php --data-urlencode "csrf=$CS" --data-urlencode "title=Cat Person"
+ok "Almanac: the bought title can be picked" "$(dbv "SELECT title FROM users WHERE id=$UID_")" "Cat Person"
+cfpost -d do=title -d key=napmaster >/dev/null; ok "Napmaster costs 30: ys=45" "$(mget ys)" 45
+dbx "UPDATE users SET title=NULLIF('$TITLE0','') WHERE id=$UID_"
+dbx "UPDATE catfish_state SET yarn=${CF0%%|*}, meta='$(echo "$CF0" | cut -d'|' -f2)', upgrades='$(echo "$CF0" | cut -d'|' -f3)' WHERE user_id=$UID_"
+
 # 5. adopt with a stale seed is refused; the seed from the page works (a cat freed for it first)
 dbx "DELETE FROM cats WHERE user_id=$UID_ AND name='Delta'"
 dbx "UPDATE catfish_state SET kibble=1000000, last_tick=$(date +%s) WHERE user_id=$UID_"
@@ -756,6 +799,8 @@ ok "book cell, no art: today's circle, adopted shows the emoji" "$(cfx none 'cat
 ok "book cell, art: found coats use their head (ginger -> orange, lilac), unknown uses the question head" "$(cfx $FULL 'catfish_book_cell("ginger", 1, "a") . catfish_book_cell("lilac", 0, "b") . catfish_book_cell("white", -1, "c")' | grep -o 'cf-bookhead-[a-z-]*.png\|got adopted\|got seen\|cfbcell art none' | tr '\n' ' ')" "got adopted cf-bookhead-orange.png got seen cf-bookhead-lilac.png cfbcell art none cf-bookhead-unknown.png "
 mkdir -p $W/art4; cp $FULL/cf-bookhead-unknown.png $W/art4/
 ok "book cell, art for unknown only: a found coat keeps today's circle" "$(cfx $W/art4 'catfish_book_cell("ginger", 0, "a") . catfish_book_cell("ginger", -1, "b")' | grep -o 'cfbcell got c-ginger\|cf-bookhead-unknown.png' | tr '\n' ' ')" "cfbcell got c-ginger cf-bookhead-unknown.png "
+ok "Buy x10 price is the sum of ten single prices" "$SPENT10" "$(cfx none 'catfish_cost_n("fish", 0, 10)')"
+ok "offline cap: 8 hours, +1 per Longer naps away level, Lazy x1.25 on top" "$(cfx none 'catfish_offline_cap(null) . "," . catfish_offline_cap(null, 3) . "," . catfish_offline_cap(["mood" => "lazy"], 3)')" "28800,39600,49500"
 ok "art coat map: all 8 coats have art, lilac included" "$(cfx none 'count(CATFISH_ART_COATS) . " " . CATFISH_ART_COATS["lilac"]')" "8 lilac"
 # play scene (catfish_stage_html): one centred stage with the room stack, wand, three fish, the other cats as still frames and the active cat with all 8 frame groups
 SC='[["id"=>1,"name"=>"Pip","colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"folded","tail"=>"bobtail","seed"=>11,"mood"=>"hyper"],["id"=>2,"name"=>"Dot","colour"=>"lilac","pattern"=>"solid","eyes"=>"odd","ears"=>"upright","tail"=>"long","seed"=>2,"mood"=>"hyper"],["id"=>3,"name"=>"Zed","colour"=>"black","pattern"=>"calico","eyes"=>"blue","ears"=>"upright","tail"=>"long","seed"=>3,"mood"=>"lazy"],["id"=>4,"name"=>"Moe","colour"=>"white","pattern"=>"spotted","eyes"=>"green","ears"=>"folded","tail"=>"long","seed"=>4,"mood"=>"dreamy"],["id"=>5,"name"=>"Fig","colour"=>"brown","pattern"=>"tuxedo","eyes"=>"hazel","ears"=>"upright","tail"=>"bobtail","seed"=>5,"mood"=>"greedy"]]'

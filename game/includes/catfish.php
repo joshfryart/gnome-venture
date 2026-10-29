@@ -18,6 +18,10 @@ const CATFISH_SHELTER = 3;              // cats on show per day
 const CATFISH_MAX_CATS = 4;
 const CATFISH_NAME_MAX = 20;
 const CATFISH_SLOT_COSTS = [5, 20];     // Yarn for the 3rd and 4th place in the home
+const CATFISH_AWAY_COSTS = [4, 8, 16];  // Yarn for Longer naps away levels 1 to 3: each adds one hour to the away cap
+const CATFISH_BULK_COST = 3;            // Yarn to unlock Buy x10 on upgrades (one-off)
+/** Titles Yarn can buy (one-off), offered in the Almanac title picker: key => [title, Yarn]. */
+const CATFISH_TITLES = ['catperson' => ['Cat Person', 15], 'napmaster' => ['Napmaster', 30]];
 const CATFISH_RARE_COSTS = [3, 10];     // Yarn for Rare Shelter levels 1 and 2 (the shelter shows the best of 2, then 3, candidates per slot)
 const CATFISH_REROLL_COST = 1;          // Yarn to swap one shelter cat for another
 const CATFISH_REROLL_MAX = 3;           // rerolls per slot per day
@@ -651,9 +655,9 @@ function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $
 }
 
 /** Seconds of away time that count for this cat. */
-function catfish_offline_cap(?array $cat): int
+function catfish_offline_cap(?array $cat, int $away = 0): int
 {
-    return (int)(CATFISH_OFFLINE_CAP * (($cat['mood'] ?? '') === 'lazy' ? 1.25 : 1));
+    return (int)((CATFISH_OFFLINE_CAP + 3600 * max(0, min($away, count(CATFISH_AWAY_COSTS)))) * (($cat['mood'] ?? '') === 'lazy' ? 1.25 : 1));
 }
 
 /** The gnome's active cat as a full trait array, or null. */
@@ -677,7 +681,7 @@ function catfish_tick(int $uid): array
         $s['gained'] = 0;
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
-        $secs = $away ? min($gap, catfish_offline_cap($cat)) : $gap;
+        $secs = $away ? min($gap, catfish_offline_cap($cat, (int)($s['meta']['away'] ?? 0))) : $gap;
         $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
         $base = (int)floor(min($eff * $secs / 3600, PHP_INT_MAX >> 4));
         if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
@@ -763,16 +767,26 @@ function catfish_nap_yarn(int $runKibble, ?array $cat): int
 
 // ---------- actions (each returns [ok, message]) ----------
 
-function catfish_buy(int $uid, string $key): array
+/** Cost of the next $n levels of an upgrade in one go (each level costs more than the last). */
+function catfish_cost_n(string $key, int $owned, int $n): int
+{
+    $sum = 0.0;
+    for ($i = 0; $i < $n; $i++) $sum += catfish_cost($key, $owned + $i);
+    return (int)min(CATFISH_MAX_COST, $sum);
+}
+
+/** $n is 1, or 10 once Buy x10 is unlocked (anything else counts as 1). All ten or none. */
+function catfish_buy(int $uid, string $key, int $n = 1): array
 {
     if (!isset(CATFISH_UPGRADES[$key])) return [false, 'No such upgrade.'];
-    return catfish_locked($uid, function () use ($uid, $key) {
+    return catfish_locked($uid, function () use ($uid, $key, $n) {
         $s = catfish_tick($uid);
-        $owned = (int)($s['up'][$key] ?? 0); $cost = catfish_cost($key, $owned);
+        $n = $n === 10 && !empty($s['meta']['bulk']) ? 10 : 1;
+        $owned = (int)($s['up'][$key] ?? 0); $cost = catfish_cost_n($key, $owned, $n);
         if ((int)$s['kibble'] < $cost) return [false, 'Not enough Kibble.'];
-        $s['up'][$key] = $owned + 1;
+        $s['up'][$key] = $owned + $n;
         $paid = q('UPDATE catfish_state SET kibble = kibble - ?, upgrades = ? WHERE user_id = ? AND kibble >= ?', [$cost, json_encode($s['up']), $uid, $cost])->rowCount();
-        return $paid === 1 ? [true, CATFISH_UPGRADES[$key][0] . ' bought.'] : [false, 'Not enough Kibble.'];
+        return $paid === 1 ? [true, CATFISH_UPGRADES[$key][0] . ($n > 1 ? ' ×' . $n : '') . ' bought.'] : [false, 'Not enough Kibble.'];
     });
 }
 
@@ -860,6 +874,46 @@ function catfish_buy_slot(int $uid): array
         $meta['extra'] = $extra + 1;
         return [CATFISH_SLOT_COSTS[$extra], 'Room for ' . (2 + $extra + 1) . ' cats.'];
     });
+}
+
+function catfish_buy_bulk(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        if (!empty($meta['bulk'])) return [false, 'You already have Buy ×10.'];
+        $meta['bulk'] = 1;
+        return [CATFISH_BULK_COST, 'Buy ×10 is on. Pick ×10 above the upgrades.'];
+    });
+}
+
+function catfish_buy_away(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        $lvl = (int)($meta['away'] ?? 0);
+        if ($lvl >= count(CATFISH_AWAY_COSTS)) return [false, 'Your cat already naps as long as it can.'];
+        $meta['away'] = $lvl + 1;
+        return [CATFISH_AWAY_COSTS[$lvl], 'Your cat now fishes for ' . (8 + $lvl + 1) . ' hours while you are away.'];
+    });
+}
+
+function catfish_buy_title(int $uid, string $key): array
+{
+    if (!isset(CATFISH_TITLES[$key])) return [false, 'No such title.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($key) {
+        $have = (array)($meta['titles'] ?? []);
+        if (in_array($key, $have, true)) return [false, 'You already have that title.'];
+        $meta['titles'] = array_values(array_merge($have, [$key]));
+        return [CATFISH_TITLES[$key][1], '“' . CATFISH_TITLES[$key][0] . '” is yours. Choose it in the Almanac (Milestones).'];
+    });
+}
+
+/** Titles this gnome bought with Yarn (for the Almanac title picker). */
+function catfish_titles(int $uid): array
+{
+    if (!catfish_ensure()) return [];
+    $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+    $out = [];
+    foreach ((array)($meta['titles'] ?? []) as $k) if (isset(CATFISH_TITLES[$k])) $out[] = CATFISH_TITLES[$k][0];
+    return $out;
 }
 
 function catfish_buy_rare(int $uid): array
@@ -959,11 +1013,11 @@ function catfish_view(int $uid, int $got = 0, int $paid = 0): array
     $ups = [];
     foreach (CATFISH_UPGRADES as $key => [$name, $icon, , $a, $p, $branch]) {
         $n = (int)($s['up'][$key] ?? 0); $cost = catfish_cost($key, $n);
-        $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'can' => (int)$s['kibble'] >= $cost,
+        $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'cost10' => catfish_cost_n($key, $n, 10), 'can' => (int)$s['kibble'] >= $cost,
             'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n)];
     }
     $kphNow = $cat ? catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)) : 0.0;
-    return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
+    return ['bulk' => !empty($s['meta']['bulk']), 'kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
         'kph' => $cat ? round($kphNow, 1) : 0, 'play' => catfish_play_view($s, $cat, $kphNow, $got, $paid), 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], $cat) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
 

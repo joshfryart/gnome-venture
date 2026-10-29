@@ -11,6 +11,19 @@
   var play = d.play || { v: 1, left: 0, ever: 0 };
   var pending = 0, pendV = 0, seq = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
   function nextSeq() { lastSeq = Math.max(lastSeq + 1, Date.now()); return lastSeq; }   // ms clock: increasing across page loads and tabs
+  var bulkBar = document.getElementById('cf-bulk'), bulkN = 1;   // Buy x1 / x10 (the bar only exists once Buy x10 is unlocked with Yarn)
+  try { if (bulkBar && sessionStorage.getItem('cfn') === '10') bulkN = 10; } catch (e) {}
+  function costFace(b, name) {   // the button shows, and spends, the cost of the chosen amount; the server prices it again
+    var c = +b.getAttribute(bulkN === 10 ? 'data-c10' : 'data-c1') || +b.getAttribute('data-cost') || 0;
+    b.setAttribute('data-cost', c); b.textContent = c.toLocaleString(); b.setAttribute('aria-label', 'Buy ' + name + (bulkN === 10 ? ' \u00d710' : '') + ' for ' + c.toLocaleString() + ' Kibble');
+  }
+  function setBulk(n) {
+    bulkN = n; try { sessionStorage.setItem('cfn', String(n)); } catch (e) {}
+    [].forEach.call(bulkBar.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', +x.getAttribute('data-n') === n ? 'true' : 'false'); });
+    [].forEach.call(document.querySelectorAll('#cf-ups form.cfup'), function (f) { var b = f.querySelector('button[data-cost]'); if (b) costFace(b, f.querySelector('.cfinfo b').textContent); });
+    refreshButtons();
+  }
+  if (bulkBar) { bulkBar.addEventListener('click', function (ev) { var t = ev.target.closest('button[data-n]'); if (t) setBulk(+t.getAttribute('data-n')); }); setBulk(bulkN); }
   function draw() { kibble.textContent = Math.floor(shown).toLocaleString(); kph.textContent = rate; refreshButtons(); }
   function refreshButtons() {
     document.querySelectorAll('button[data-cost]').forEach(function (b) {
@@ -38,7 +51,7 @@
       var f = document.querySelector('#cf-ups form[data-key="' + u.key + '"]'); if (!f) return;
       f.querySelector('small.muted').textContent = '×' + u.owned;
       f.querySelector('.cfgives').textContent = u.gives + (u.mult > 1 ? ' · ×' + u.mult + ' bonus' : '');
-      var b = f.querySelector('button'); b.setAttribute('data-cost', u.cost); b.textContent = u.cost.toLocaleString(); b.setAttribute('aria-label', 'Buy ' + u.name + ' for ' + u.cost.toLocaleString() + ' Kibble');
+      var b = f.querySelector('button'); b.setAttribute('data-c1', u.cost); b.setAttribute('data-c10', u.cost10); costFace(b, u.name);
     });
     var run = document.getElementById('cf-run'); if (run) {
       run.textContent = view.run.toLocaleString(); document.getElementById('cf-napyarn').textContent = view.nap_yarn;
@@ -118,6 +131,7 @@
     buying[key] = true; shown -= cost; spendPop(cost); say('', false); draw();
     whenFree(function () {
       var data = { do: 'buy', key: key, scene: d.scene }, sentN = 0, sentV = 0;
+      if (bulkN === 10) data.n = 10;
       if (pending > 0) { if (!seq) seq = nextSeq(); sentN = pending; sentV = pendV; data.play = sentN; data.seq = seq; }
       busy = true;
       post(data, function (r) {
