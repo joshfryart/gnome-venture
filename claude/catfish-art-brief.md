@@ -74,7 +74,7 @@ Status 2026-10-29: the art is drawn as test art in `aseprite-source/catfish/test
 - [x] Art contact sheet check at 412 px (checked once with the built set)
 
 ## Known art gaps
-- Frames idleB, wiggle and bored have no folded-ears, bobtail or pattern art: a folded/bobtail cat shows plain ears/tail there, patterns fall back to the idleA pattern. Only idleA, pounce, catch, nap, stalk have them.
+- (Filled in 2.1.02) idleB, wiggle and bored now have patterns, folded ears, bobtails and masks like the other frames.
 - Catch and nap have no eye pixels (eyes closed), so odd-eyed has no visible effect on them.
 - Patterns on folded ears: checked, the pattern layer already marks the folded ears outside the erased mask; clipping the pattern to the ear part adds jagged marks (calico, pointed), so it is not coded.
 - Room art is drawn at 2x (about 100 px short side) but cats are 1x sprites; the grain differs a little. Banner is shown at 240 px on narrow screens (exact half).

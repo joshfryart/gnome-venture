@@ -9,14 +9,14 @@ OUT=$(mktemp -d); trap 'rm -rf "$OUT" "$OUT.log" "$OUT.bad"; rm -rf tools/__pyca
 python3 tools/catfish_build_art.py --out "$OUT" --check | tee "$OUT.log"
 grep -q 'check: ok' "$OUT.log" || { echo "FAIL: --check did not pass"; exit 1; }
 N=$(ls "$OUT"/cf-*.png | wc -l)
-[ "$N" = 440 ] || { echo "FAIL: expected 440 files, got $N"; exit 1; }
-grep -q 'built 440 files' "$OUT.log" || { echo "FAIL: build count line"; exit 1; }
+[ "$N" = 614 ] || { echo "FAIL: expected 614 files, got $N"; exit 1; }
+grep -q 'built 614 files' "$OUT.log" || { echo "FAIL: build count line"; exit 1; }
 [ -f "$OUT/manifest.json" ] || { echo "FAIL: no manifest.json"; exit 1; }
 python3 -I - "$OUT" <<'P'
 import sys, json, hashlib, os, re
 o = sys.argv[1]
 m = json.load(open(o + '/manifest.json'))
-assert m['count'] == 440 == len(m['files'])
+assert m['count'] == 614 == len(m['files'])
 for r in m['files']:
     b = open(o + '/' + r['file'], 'rb').read()
     assert r['size'] == len(b) and r['sha1'] == hashlib.sha1(b).hexdigest(), r['file']
@@ -47,7 +47,7 @@ bad "a wrong size" 'python3 -c "from PIL import Image; Image.new(\"RGBA\",(40,40
 bad "a semi-transparent pixel" 'python3 -c "from PIL import Image; im=Image.open(\"cf-ico-yarn.png\").convert(\"RGBA\"); im.putpixel((16,16),(200,10,10,128)); im.save(\"cf-ico-yarn.png\")"' 'cf-ico-yarn.png: semi-transparent'
 # --install is the only way into game/: the default run leaves game/assets/img/catfish alone, and --install DIR writes where it is told
 [ "$(ls game/assets/img/catfish 2>/dev/null | wc -l)" = "$G0" ] && [ "$(ls -l game/assets/img/catfish 2>/dev/null | md5sum)" = "$GH0" ] || { echo "FAIL: game/assets/img/catfish changed after a plain build"; exit 1; }
-I=$(mktemp -d); python3 tools/catfish_build_art.py --install "$I" | tail -1 | grep -q 'installed 440 files' || { echo "FAIL: --install DIR"; rm -rf "$I"; exit 1; }
-[ "$(ls $I | wc -l)" = 440 ] || { echo "FAIL: installed file count"; rm -rf "$I"; exit 1; }
+I=$(mktemp -d); python3 tools/catfish_build_art.py --install "$I" | tail -1 | grep -q 'installed 614 files' || { echo "FAIL: --install DIR"; rm -rf "$I"; exit 1; }
+[ "$(ls $I | wc -l)" = 614 ] || { echo "FAIL: installed file count"; rm -rf "$I"; exit 1; }
 rm -rf "$I" tools/__pycache__
 echo "catfish_build_art: ok"
