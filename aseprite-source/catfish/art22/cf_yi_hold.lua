@@ -57,47 +57,55 @@ local PINKN = "#e8909e"
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 
--- yarn thread: rises from behind the left thumb and curls into a loop, end trailing to the right
-local thread = c:line({ {9, 33}, {7, 26}, {8, 19}, {12, 14}, {17, 13}, {20, 16}, {19, 20}, {15, 20}, {14, 16}, {17, 10}, {23, 7} }, 3)
--- cat: loaf body, round head left, two ears, tail tip curling over the right hand
-local body = c:ellipse(36, 34, 15, 9)
-local head = c:ellipse(23, 30, 10, 8.5)
-local earL = c:poly({ {14, 27}, {15, 17}, {22, 23} })
-local earR = c:poly({ {24, 22}, {31, 18}, {32, 27} })
-local tail = c:line({ {48, 40}, {52, 36}, {52, 31} }, 4)
--- hands: two cupped palms, low in the middle, thumbs up at the outer ends
-local handL = rell(c, 20, 47, 15, 9, 0.30):add(rell(c, 9.5, 39, 4, 7, 0.25))
-local handR = rell(c, 43, 47, 15, 9, -0.30):add(rell(c, 53.5, 39, 4, 7, -0.25))
-
-local p = c:build{
-  { "thread", thread, RED, { cres = 1, deep = 0, gloss = false } },
+-- cat: loaf body, round head left, two ears, tail tip curling down over the right fingers
+local body = c:ellipse(37, 29, 14, 8)
+local head = c:ellipse(24, 25, 10, 8.5)
+local earL = c:poly({ {15, 22}, {16, 11}, {23, 18} })
+local earR = c:poly({ {25, 17}, {32, 13}, {33, 22} })
+local tail = c:line({ {47, 35}, {51, 31}, {51, 26} }, 4)
+-- hands: palms under the cat, four stubby fingers each forming the front wall (outer fingers higher),
+-- knitted red yarn cuffs at the wrists, a loose cuff thread curling out to the right
+local palmL = c:rrect(8, 38, 30, 52, 5)
+local palmR = c:rrect(33, 38, 55, 52, 5)
+local fx = { 8, 14, 20, 26 }
+local ft = { 31, 33, 35, 36 }
+local cuffL = c:rrect(12, 50, 29, 56, 2)
+local cuffR = c:rrect(34, 50, 51, 56, 2)
+local thread = c:line({ {51, 52}, {55, 49}, {56, 44}, {54, 41}, {51, 42}, {51, 45} }, 3)
+local list = {
   { "body", body, GREY, { cres = 4, gloss = false } },
   { "earL", earL, GREY, { cres = 2, gloss = false } },
   { "earR", earR, GREY, { cres = 2, gloss = false } },
-  { "head", head, GREY, { cres = 3, gloss = { 17, 25 } } },
-  { "tail", tail, GREY, { cres = 2, gloss = false } },
-  { "handL", handL, SKIN, { cres = 4, gloss = { 9, 41 } } },
-  { "handR", handR, SKIN, { cres = 4, gloss = false } },
+  { "head", head, GREY, { cres = 3, gloss = { 18, 20 } } },
+  { "palmL", palmL, SKIN, { cres = 4, gloss = false } },
+  { "palmR", palmR, SKIN, { cres = 4, gloss = false } },
 }
+for i = 1, 4 do
+  list[#list + 1] = { "fl" .. i, c:rrect(fx[i], ft[i], fx[i] + 5, 46, 2), SKIN, { cres = 2, gloss = false, contact = false } }
+  local xr = 63 - fx[i] - 5
+  list[#list + 1] = { "fr" .. i, c:rrect(xr, ft[i], xr + 5, 46, 2), SKIN, { cres = 2, gloss = false, contact = false } }
+end
+list[#list + 1] = { "tail", tail, GREY, { cres = 2, gloss = false } }
+list[#list + 1] = { "thread", thread, RED, { cres = 1, deep = 0, gloss = false } }
+list[#list + 1] = { "cuffL", cuffL, RED, { cres = 2, gloss = false } }
+list[#list + 1] = { "cuffR", cuffR, RED, { cres = 2, gloss = false } }
+local p = c:build(list)
 -- inner ears
-c:paint({ ".p", "pp", "pp" }, 16, 21, { p = PINKN })
-c:paint({ "p.", "pp" }, 28, 22, { p = PINKN })
+c:paint({ ".p", "pp", "pp" }, 17, 15, { p = PINKN })
+c:paint({ "p.", "pp" }, 29, 17, { p = PINKN })
 -- closed sleeping eyes and nose
-c:paint({ "u...u", ".uuu." }, 16, 30, { u = "ol3" })
-c:paint({ "u...u", ".uuu." }, 25, 30, { u = "ol3" })
-c:paint({ "pp" }, 22, 33, { p = PINKN })
--- body stripe seam down the back
-c:seam({ { 34, 27 }, { 41, 26 }, { 47, 29 } }, { gap = GREY.shade })
--- finger grooves on the front of each palm
-for _, q in ipairs({ { 15, 49 }, { 21, 51 } }) do onPart(c, c:line({ { q[1], q[2] }, { q[1] + 1, q[2] + 4 } }, 1), p.handL, SKIN.shade, true) end
-for _, q in ipairs({ { 47, 49 }, { 41, 51 } }) do onPart(c, c:line({ { q[1], q[2] }, { q[1] - 1, q[2] + 4 } }, 1), p.handR, SKIN.shade, true) end
--- palm seams
-c:seam({ { 8, 46 }, { 14, 52 }, { 24, 55 } }, { gap = SKIN.shade })
-c:seam({ { 55, 46 }, { 49, 52 }, { 39, 55 } }, { gap = SKIN.shade })
--- thread twist glints
-trace(c, { {8, 25}, {8, 20} }, RED.gloss, set(RED.base, RED.rim), function(n) return n % 3 == 0 end)
-c:paint({ "gg", "g." }, 38, 39, { g = SKIN.gloss })
-
+c:paint({ "u...u", ".uuu." }, 17, 25, { u = "ol3" })
+c:paint({ "u...u", ".uuu." }, 26, 25, { u = "ol3" })
+c:paint({ "pp" }, 23, 28, { p = PINKN })
+-- back seam on the cat
+c:seam({ { 35, 22 }, { 41, 21 }, { 47, 24 } }, { gap = GREY.shade })
+-- knit ribs on the cuffs
+for x = 14, 28, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffL, RED.shade, true) end
+for x = 36, 50, 3 do onPart(c, c:rect(x, 52, x, 55), p.cuffR, RED.shade, true) end
+-- fingertip nails glints
+for i = 1, 4 do
+  c:px(fx[i] + 1, ft[i] + 1, SKIN.gloss); c:px(63 - fx[i] - 4, ft[i] + 1, SKIN.gloss)
+end
 local t = c:save(OUT .. "cf-yi-hold.aseprite", OUT .. "cf-yi-hold.png")
 print("hold " .. GV.report(t))
 assert(t.semi == 0 and t.margin >= 3 and t.colours <= 20 and t.bw == 0, "check failed")

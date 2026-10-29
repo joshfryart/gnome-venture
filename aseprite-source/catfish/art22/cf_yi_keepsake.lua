@@ -50,8 +50,8 @@ local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 local body = c:ellipse(31.5, 39, 16, 17)
 local face = c:ellipse(31.5, 39, 11, 12)
 local bail = c:ellipse(31.5, 19.5, 4.5, 4)
-local loopL = c:poly({ {29, 11}, {19, 5}, {14, 8}, {14, 15}, {18, 18}, {29, 15} }):closed(2)
-local loopR = c:poly({ {35, 11}, {45, 5}, {50, 8}, {50, 15}, {46, 18}, {35, 15} }):closed(2)
+local loopL = c:poly({ {29, 11}, {20, 5}, {14, 7}, {13, 13}, {16, 18}, {29, 15} }):closed(2)
+local loopR = c:poly({ {35, 11}, {44, 5}, {50, 7}, {51, 13}, {48, 18}, {35, 15} }):closed(2)
 local knot = c:rrect(28, 8, 35, 16, 2)
 local p = c:build{
   { "bail", bail, GOLD, { cres = 2, gloss = false, bounce = false } },
@@ -62,12 +62,17 @@ local p = c:build{
   { "knot", knot, ROSE, { cres = 2, gloss = false } },
 }
 c:fill(c:rect(30, 19, 33, 20), GOLD.shade)                                            -- ring hole
+-- fold: the inside of each loop near the knot is in shadow
+c:fill(c:poly({ {28, 10}, {22, 8}, {22, 15}, {28, 15} }):clip(loopL), ROSE.shade)
+c:fill(c:poly({ {36, 10}, {42, 8}, {42, 15}, {36, 15} }):clip(loopR), ROSE.shade)
 -- yarn strands on the bow loops (curved grooves) and the knot wrap
 local on = set(ROSE.base, ROSE.rim)
-trace(c, { {16, 10}, {22, 10}, {28, 13} }, ROSE.shade, on)
-trace(c, { {48, 10}, {42, 10}, {36, 13} }, ROSE.shade, on)
+trace(c, { {15, 11}, {18, 9}, {21, 10} }, ROSE.shade, on)
+trace(c, { {15, 15}, {18, 14}, {21, 14} }, ROSE.shade, on)
+trace(c, { {49, 11}, {46, 9}, {43, 10} }, ROSE.shade, on)
+trace(c, { {49, 15}, {46, 14}, {43, 14} }, ROSE.shade, on)
 trace(c, { {30, 12}, {34, 12} }, ROSE.shade, on)
-c:paint({ "gg", "g." }, 16, 8, { g = ROSE.gloss })
+c:paint({ "gg", "g." }, 16, 7, { g = ROSE.gloss }); c:px(30, 10, ROSE.gloss); c:px(31, 10, ROSE.gloss)
 -- cream paw print on the enamel face: pad + four beans, navy gaps between them
 local L = { r = CREAM.rim, b = CREAM.base, s = CREAM.shade }
 c:paint({

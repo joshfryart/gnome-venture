@@ -28,9 +28,9 @@ draw("cf-season-flake", {
   ".NSN.N",
   "...N..",
 })
--- far flake: a 3x3 puff, lit top-left, lilac lower right, one violet corner
+-- far flake: a 3x3 puff, lit top-left, lilac below, violet drop on the right and corner
 draw("cf-season-flake-small", {
   ".L.",
-  "LBS",
+  "LBN",
   ".SN",
 })

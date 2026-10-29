@@ -36,7 +36,7 @@ local function onPart(c, m, P, hex, litOnly)
   end)
 end
 
-local TEAL = felt("#2a9d9a", { gloss = "#d0f4dc", dot = "#d0f4dc", rim = "#6ccab4", shade = "#1f6478" })
+local TEAL = felt("#1fa58c", { gloss = "#d4f6d8", dot = "#d4f6d8", rim = "#62cfae", shade = "#1a6a70" })
 local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
 local PINK = felt("#e46a9b", { gloss = "#ffc8dc", dot = "#ffc8dc", rim = "#f29abb" })
@@ -59,34 +59,34 @@ local function tail(x0, y0, x1, y1, w)
   return m
 end
 
-local A = { x = 19, y = 20, R = 11 }       -- back rosette (upper left)
-local B = { x = 41, y = 26, R = 13 }       -- front rosette (lower right)
+local A = { x = 19, y = 19, R = 11 }       -- back rosette (upper left)
+local B = { x = 41, y = 24, R = 13 }       -- front rosette (right)
 local outA, outB = pleats(A.x, A.y, A.R, 14), pleats(B.x, B.y, B.R, 16)
-local inA, inB = c:ellipse(A.x, A.y, 7), c:ellipse(B.x, B.y, 8)
+local inA, inB = c:ellipse(A.x, A.y, 7), c:ellipse(B.x, B.y, 9)
 local btnA = c:ellipse(A.x, A.y, 4)
--- cat head button on B: round face plus two ears
-local head = c:ellipse(B.x, B.y + 1, 5.5, 4.5)
-head:add(c:poly({ { B.x - 6, B.y + 1 }, { B.x - 5, B.y - 6 }, { B.x - 1, B.y - 3 } }))
-head:add(c:poly({ { B.x + 2, B.y - 3 }, { B.x + 6, B.y - 6 }, { B.x + 7, B.y + 1 } }))
--- yarn strand: pink cord looping between the two tail pairs, with a knot in the middle
-local yarn = c:line({ { 13, 44 }, { 20, 49 }, { 27, 49 }, { 31, 46 } }, 3)
-yarn:add(c:line({ { 31, 46 }, { 36, 49 }, { 43, 50 }, { 49, 46 } }, 3))
-local knot = c:ellipse(31, 46, 3.5)
-local loose = c:line({ { 31, 49 }, { 29, 52 }, { 31, 54 } }, 2)
+-- cat head button on B: round cream face plus two ears
+local head = c:ellipse(B.x, B.y + 1, 6, 5)
+head:add(c:poly({ { B.x - 6, B.y + 1 }, { B.x - 6, B.y - 7 }, { B.x - 1, B.y - 3 } }))
+head:add(c:poly({ { B.x + 2, B.y - 3 }, { B.x + 7, B.y - 7 }, { B.x + 7, B.y + 1 } }))
+-- the two inner tails cross and are tied with a pink yarn bow (both entries go in together)
+local KX, KY = 30, 42
+local loopL = c:poly({ { KX, KY }, { KX - 8, KY - 4 }, { KX - 8, KY + 4 } }):grow(1)
+local loopR = c:poly({ { KX + 1, KY }, { KX + 9, KY - 4 }, { KX + 9, KY + 4 } }):grow(1)
+local knot = c:ellipse(KX + 0.5, KY, 3)
 
 local p = c:build{
-  { "tA1", tail(A.x - 2, A.y + 2, 12, 47, 5), TEAL, { cres = 2, gloss = false } },
-  { "tA2", tail(A.x + 2, A.y + 2, 24, 49, 5), TEAL, { cres = 2, gloss = false } },
+  { "tA1", tail(A.x - 2, A.y + 2, 12, 46, 5), TEAL, { cres = 2, gloss = false } },
+  { "tA2", tail(A.x + 2, A.y + 2, 36, 51, 5), TEAL, { cres = 2, gloss = false } },
   { "outA", outA, TEAL, { cres = 4, gloss = { A.x - A.R + 3, A.y - A.R + 5 } } },
   { "inA", inA, TEAL, { cres = 3, gloss = false } },
   { "btnA", btnA, GOLD, { cres = 2, gloss = false } },
-  { "tB1", tail(B.x - 2, B.y + 2, 37, 54, 5), TEAL, { cres = 2, gloss = false } },
-  { "tB2", tail(B.x + 3, B.y + 2, 50, 52, 5), TEAL, { cres = 2, gloss = false } },
+  { "tB2", tail(B.x + 3, B.y + 2, 50, 50, 5), TEAL, { cres = 2, gloss = false } },
+  { "tB1", tail(B.x - 3, B.y + 4, 24, 52, 5), TEAL, { cres = 2, gloss = false } },
   { "outB", outB, TEAL, { cres = 4, gloss = { B.x - B.R + 3, B.y - B.R + 5 } } },
-  { "inB", inB, GOLD, { cres = 3, gloss = false } },
+  { "inB", inB, TEAL, { cres = 3, gloss = false } },
   { "head", head, CREAM, { cres = 2, gloss = false } },
-  { "yarn", yarn, PINK, { cres = 1, deep = 0, gloss = false } },
-  { "loose", loose, PINK, { flat = true, contact = false } },
+  { "loopL", loopL, PINK, { cres = 2, gloss = false } },
+  { "loopR", loopR, PINK, { cres = 2, gloss = false } },
   { "knot", knot, PINK, { cres = 2, gloss = false } },
 }
 
@@ -102,26 +102,21 @@ local function folds(P, cx, cy, r0, r1, off, k)
   end
 end
 folds(p.outA, A.x, A.y, 9, A.R + 1, 0.5, 14)
-folds(p.outB, B.x, B.y, 10, B.R + 1, 0.5, 16)
+folds(p.outB, B.x, B.y, 11, B.R + 1, 0.5, 16)
 folds(p.inA, A.x, A.y, 5, 6, 0, 10)
 c:stitch(inA)
-c:seam({ { B.x - 7, B.y + 3 }, { B.x - 6, B.y + 6 }, { B.x - 3, B.y + 8 }, { B.x + 3, B.y + 8 }, { B.x + 6, B.y + 6 } },
-  { gap = GOLD.shade })
 -- button A: two thread holes
 c:px(A.x - 1, A.y - 1, C.hole); c:px(A.x + 1, A.y + 1, C.hole)
 c:px(A.x - 2, A.y - 3, GOLD.gloss)
--- cat face: inner ears, small eyes, nose
-c:px(B.x - 4, B.y - 3, PINK.base); c:px(B.x + 5, B.y - 3, PINK.base)
-c:paint({ "u....u" }, B.x - 2, B.y, { u = "ol3" })
-c:paint({ "u....u" }, B.x - 2, B.y + 1, { u = "ol3" })
-c:px(B.x - 2, B.y, CREAM.gloss); c:px(B.x + 3, B.y, CREAM.gloss)
-c:paint({ "pp", ".." }, B.x, B.y + 2, { p = PINK.shade })
+-- cat face: inner ears, 2x2 eyes with a glint, pink nose, mouth
+c:paint({ "p", "p" }, B.x - 5, B.y - 5, { p = PINK.base }); c:paint({ "p", "p" }, B.x + 6, B.y - 5, { p = PINK.base })
+c:paint({ "gu....gu", "uu....uu" }, B.x - 3, B.y, { u = "ol3", g = CREAM.gloss })
+c:paint({ "pp" }, B.x, B.y + 2, { p = PINK.shade })
 c:paint({ "u..u", ".uu." }, B.x - 1, B.y + 3, { u = "ol2" })
--- yarn twist lines
-for _, q in ipairs({ { 16, 46 }, { 22, 49 }, { 39, 50 }, { 45, 49 } }) do
-  onPart(c, c:rect(q[1], q[2] - 1, q[1], q[2] + 1), p.yarn, PINK.shade)
-end
-c:px(30, 44, PINK.gloss); c:px(29, 45, PINK.gloss)
+-- yarn bow: ply lines on the loops, glint on the knot
+onPart(c, c:line({ { KX - 7, KY - 2 }, { KX - 3, KY } }, 1), p.loopL, PINK.shade, true)
+onPart(c, c:line({ { KX + 4, KY }, { KX + 8, KY - 2 } }, 1), p.loopR, PINK.shade, true)
+c:px(KX - 1, KY - 2, PINK.gloss); c:px(KX - 7, KY - 4, PINK.gloss); c:px(KX + 3, KY - 4, PINK.gloss)
 
 local t = c:save(OUT .. "cf-yi-show2.aseprite", OUT .. "cf-yi-show2.png")
 print("show2 " .. GV.report(t))

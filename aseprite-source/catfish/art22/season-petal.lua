@@ -9,7 +9,7 @@
 -- Tones (petal family, Part A + the room cushion): edge #b8466e (cushion shade), curl shade #f29abb (cushion light),
 -- base #fbdce6 (pink-white: petal 300 #f6b8cf lifted toward cream), light #f6b8cf (petal 300) as the lit rim,
 -- highlight #fff3c8 (pale-subject gloss). Light from the upper left; the lower-right edge curls up and shows the
--- shade band (the "crescent"). Cherry-petal shape: a pointed base end and a wide, slightly notched tip.
+-- shade band (the "crescent"). Cherry-petal shape: a pointed base end and a wide, flat tip.
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../gvlib/gvlib.lua")
 local OUT = here .. "/out/"
@@ -17,21 +17,21 @@ local OUT = here .. "/out/"
 local KEY = { o = "#b8466e", s = "#f29abb", b = "#fbdce6", l = "#f6b8cf", h = "#fff3c8" }
 
 local FRAMES = {
-  ["cf-season-petal"] = { -- A: tip to the upper right (notched), base end lower left, curl along the lower right
-    "...oo.",
+  ["cf-season-petal"] = { -- A: wide tip to the upper right, pointed base lower left, curl along the lower right
+    "...ooo",
     "..ohbo",
     ".ohbbo",
-    "olbbso",
-    "olsso.",
-    ".ooo..",
+    "olbsso",
+    "osso..",
+    "oo....",
   },
-  ["cf-season-petal-b"] = { -- B: turned a quarter over, tip to the upper left, curl lower right
-    ".oo...",
-    "ohbo..",
+  ["cf-season-petal-b"] = { -- B: A turned a quarter clockwise (point upper left, wide tip lower right), relit
+    "oo....",
+    "ohoo..",
     "ohbbo.",
-    "olbbso",
-    ".olsso",
-    "..ooo.",
+    ".olbso",
+    "..osso",
+    "...ooo",
   },
 }
 

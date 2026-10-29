@@ -54,7 +54,7 @@ end
 
 local PAPER = felt("#ecd6a4", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#fff0c8", shade = "#c49a60" })
 local ROLL = felt("#e0c088", { gloss = "#fff3c8", dot = "#fff3c8", rim = "#f5dca8", shade = "#b07e48" })
-local ROSE = felt("#d2507e", { gloss = "#ffb8c8", dot = "#ffb8c8", rim = "#ec86a6" })
+local ROSE = felt("#e46a9b")                                                         -- the cf-ico-yarn pink
 local TEAL = felt("#3aa59a", { gloss = "#c8f0d8", dot = "#c8f0d8", rim = "#7ccfb4", shade = "#2a6f80" })
 local GOLD = { gloss = "#fff1c8", dot = "#fff1c8", rim = "#f5cf6a", base = "#e8a317", shade = "#b8661a" }
 GOLD.deep, GOLD.bounce = GOLD.shade, GOLD.base
@@ -86,14 +86,14 @@ for _, f in ipairs({ 0.42, 0.66 }) do                                           
   feather:cut(c:poly({ Q(u - 1.2, 6), Q(u + 2.2, 6), Q(u - 1.8, 2.2) }))
 end
 local shaft = c:line({ {34, 41}, {39, 33} }, 3)
-local nib = c:poly({ {31, 46}, {33, 38}, {38, 41} })
+local nib = c:poly({ {29, 47}, {32, 37}, {38, 41} })
 local yarn = c:ellipse(48, 49, 7)
 local p = c:build{
   { "sheet", sheet, PAPER, { cres = 4, gloss = false } },
   { "top", topR, ROLL, { cres = 3, gloss = { 10, 9 } } },
   { "bot", botR, ROLL, { cres = 3, gloss = false } },
   { "stamp", stamp, ROSE, { cres = 2, gloss = false, contact = false } },
-  { "yarn", yarn, ROSE, { cres = 3, gloss = { 44, 45 } } },
+  { "yarn", yarn, ROSE, { cres = 3, gloss = { 44, 44 } } },
   { "nib", nib, GOLD, { cres = 2, gloss = false, bounce = false } },
   { "shaft", shaft, TEAL, { cres = 1, deep = 0, gloss = false } },
   { "feather", feather, TEAL, { cres = 3, gloss = false } },
@@ -115,13 +115,29 @@ for _, f in ipairs({ 0.3, 0.54, 0.78 }) do
   trace(c, { Q(u, 1), Q(u - 2.5, 3.5) }, TEAL.shade, set(TEAL.base, TEAL.rim))
 end
 c:paint({ ".g", "g." }, 47, 13, { g = TEAL.gloss })
-c:px(33, 41, GOLD.shade)                                                                 -- nib slit
+c:px(32, 42, GOLD.shade); c:px(31, 44, GOLD.shade)                                       -- nib slit
 -- roll seams and the stamp's face
 c:seam({ { 9, 11 }, { 41, 11 } }, { gap = ROLL.shade })
 c:seam({ { 9, 51 }, { 41, 51 } }, { gap = ROLL.shade })
 c:px(17, 22, INK); c:px(20, 22, INK); c:px(16, 21, ROSE.gloss)
 -- yarn ball wraps and thread to the bottom roll
-for _, r in ipairs({ 7, 10 }) do onPart(c, c:ellipse(54, 42, r + 1):cut(c:ellipse(54, 42, r)), p.yarn, ROSE.shade) end
+do                                                                                        -- cf-ico-yarn wraps
+  local inner = yarn:shrink(1)
+  local strands, ridge = c:mask(), c:mask()
+  local function arcs(cx, cy, list)
+    for _, r in ipairs(list) do
+      strands:add(c:ellipse(cx, cy, r):cut(c:ellipse(cx, cy, r - 1)))
+      ridge:add(c:ellipse(cx, cy, r - 1):cut(c:ellipse(cx, cy, r - 2)))
+    end
+  end
+  arcs(60.5, 36.5, { 10, 14, 18, 22, 26 })
+  local cross = c:ellipse(34.5, 62.5, 18):cut(c:ellipse(34.5, 62.5, 11))
+  strands:cut(cross); ridge:cut(cross)
+  arcs(34.5, 62.5, { 14, 18 })
+  strands:clip(inner); ridge:clip(inner):cut(strands)
+  onPart(c, ridge, p.yarn, ROSE.rim, true)
+  onPart(c, strands, p.yarn, ROSE.shade)
+end
 local t = c:save(OUT .. "cf-yi-bio.aseprite", OUT .. "cf-yi-bio.png")
 print("bio " .. GV.report(t))
 assert(t.semi == 0 and t.margin >= 3 and t.colours <= 22 and t.bw == 0, "check failed")

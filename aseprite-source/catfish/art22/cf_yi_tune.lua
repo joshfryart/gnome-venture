@@ -41,55 +41,58 @@ local ROSE = felt("#d2507e", { gloss = "#ffb8c8", dot = "#ffb8c8", rim = "#ec86a
 local TEAL = felt("#2fb0aa", { gloss = "#d8fff0", dot = "#d8fff0", rim = "#78d8c8", shade = "#1f7486" })
 
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
-local RX = 20                                                  -- rod centre column (x RX..RX+3)
-local stick = c:rect(RX, 13, RX + 3, 45)
-local bead = c:ellipse(RX + 1.5, 11, 4)
-local grip = c:rrect(RX - 4, 44, RX + 7, 55, 3)
-local nut = c:poly({ {RX - 3, 30}, {RX + 7, 30}, {RX + 9, 34}, {RX + 7, 39}, {RX - 3, 39}, {RX - 5, 34} })
--- spanner: open-jaw head round the nut (opening to the left), handle to the right, ring end with a hole
-local hcx, hcy = RX + 2, 34.5
-local head = c:ellipse(hcx, hcy, 11, 10):cut(c:rect(hcx - 13, 31, hcx - 3, 38)):cut(nut:grow(0))
-local handle = c:rrect(RX + 10, 31, 48, 38, 2)
-local ring = c:ellipse(49, 34.5, 6.5):cut(c:ellipse(49.5, 34.5, 2))
-local wrench = head:add(handle):add(ring)
-local yarn = c:rrect(35, 29, 43, 40, 2)
-local big = star(c, 45, 15, 7, 2.4, 0)
-local small = star(c, 34, 22, 4, 1.5, 0)
+-- axes: u runs along the spanner (to the lower right), v along the rod (to the upper right)
+local SQ = math.sqrt(0.5)
+local ux, uy, vx, vy = SQ, SQ, SQ, -SQ
+local HX, HY = 27.5, 31.5                                      -- spanner head / nut centre, on the rod
+local function P(t, s) return { HX + ux * t + vx * s, HY + uy * t + vy * s } end
+local function band(t0, t1, s0, s1) return c:poly({ P(t0, s0), P(t1, s0), P(t1, s1), P(t0, s1) }) end
+local stick = c:line({ {17, 42}, {44, 15} }, 4)
+local bead = c:ellipse(46, 13, 4.5)
+local grip = c:line({ {10, 50}, {18, 42} }, 8)
+local nut = c:mask()
+do local pts = {} for i = 0, 5 do local a = i * math.pi / 3 + math.pi / 4
+  pts[#pts + 1] = { HX + math.cos(a) * 5.2, HY + math.sin(a) * 5.2 } end nut = c:poly(pts) end
+-- open-end jaw: a round head with a slot opening to the upper left, round the nut
+local head = c:ellipse(HX, HY, 9.5):cut(band(-14, 0, -3.6, 3.6))
+local handle = band(6, 21, -4, 4)
+local ringC = P(24, 0)
+local ring = c:ellipse(ringC[1], ringC[2], 6.5)
+local hole = c:ellipse(ringC[1] + 0.5, ringC[2] + 0.5, 1.6)
+local wrench = head:add(handle):add(ring):cut(hole)
+local yarn = band(11, 18, -5.5, 5.5)
+local big = star(c, 12, 13, 7.5, 2.4, 0)
+local small = star(c, 52, 32, 4, 1.4, 0)
 local p = c:build{
   { "stick", stick, WOOD, { cres = 2, deep = 0, gloss = false } },
   { "bead", bead, GOLD, { cres = 2, gloss = false, bounce = false } },
-  { "grip", grip, RED, { cres = 3, gloss = { RX - 2, 46 } } },
+  { "grip", grip, RED, { cres = 3, gloss = false } },
   { "nut", nut, GOLD, { cres = 2, gloss = false } },
   { "wrench", wrench, TEAL, { cres = 4, gloss = false } },
   { "yarn", yarn, ROSE, { cres = 3, gloss = false } },
   { "small", small, GOLD, { flat = true, contact = false } },
   { "big", big, GOLD, { cres = 2, gloss = false, bounce = false, contact = false } },
 }
--- grip wraps
-for _, y in ipairs({ 49, 52 }) do onPart(c, c:rect(RX - 3, y, RX + 6, y), p.grip, RED.shade, true) end
--- yarn wrap strands: diagonal shade grooves, lit ridge beside them
-for i = 0, 3 do
-  local x0 = 35 + i * 3
-  for d = 0, 11 do
-    local x, y = x0 + math.floor(d / 4), 29 + d
-    local k = c:key(x, y)
-    if c.own[k] == p.yarn then c:px(x, y, ROSE.shade) end
-    local k2 = c:key(x - 1, y)
-    if c.own[k2] == p.yarn and not c.shd[k2] then c:px(x - 1, y, ROSE.rim) end
+c:fill(c:ellipse(HX + 0.5, HY + 0.5, 1.5), GOLD.shade)                   -- nut bore
+-- yarn wrap strands: shade grooves across the band, every 2nd px along u
+for _, t in ipairs({ 12.5, 14.8, 17.1 }) do
+  local a, b2 = P(t, -6), P(t, 6)
+  local n = 16
+  for i = 0, n do
+    local x = math.floor(a[1] + (b2[1] - a[1]) * i / n + 0.5)
+    local y = math.floor(a[2] + (b2[2] - a[2]) * i / n + 0.5)
+    if c.own[c:key(x, y)] == p.yarn then c:px(x, y, ROSE.shade) end
   end
 end
--- loose yarn end curling down from the wrap
--- gold seam along the handle (stitched felt spanner)
-c:seam({ { RX + 11, 37 }, { 33, 37 } }, { gap = TEAL.shade })
-c:seam({ { 44, 37 }, { 45, 37 } }, { gap = TEAL.shade })
--- nut facet line and gloss
-c:paint({ "gg", "g." }, RX - 2, 31, { g = GOLD.gloss })
--- enamel commas
-c:paint({ "..ggg", ".g...", "g...." }, RX - 6, 26, { g = TEAL.gloss })
-c:paint({ "gggg", "g..." }, RX + 12, 32, { g = TEAL.gloss })
-c:paint({ "gg", "g." }, RX - 1, 8, { g = GOLD.gloss })
-c:px(45, 15, GOLD.gloss); c:px(44, 14, GOLD.gloss)
-
+-- gold seam down the handle middle (stitched felt spanner)
+do local a, b2 = P(5.5, 0), P(10, 0) c:seam({ { math.floor(a[1]), math.floor(a[2]) }, { math.floor(b2[1]), math.floor(b2[2]) } }, { gap = TEAL.shade }) end
+-- grip wraps
+c:seam({ { 9, 47 }, { 15, 41 } }, { gap = RED.shade })
+-- enamel commas and glints
+c:paint({ "..gg", ".g..", "g...", "g..." }, 19, 30, { g = TEAL.gloss })
+c:paint({ "gg", "g." }, 44, 10, { g = GOLD.gloss })
+c:paint({ "..g", ".g.", "g.." }, 9, 48, { g = RED.rim })
+c:px(12, 13, GOLD.gloss); c:px(11, 12, GOLD.gloss)
 local t = c:save(OUT .. "cf-yi-tune.aseprite", OUT .. "cf-yi-tune.png")
 print("tune " .. GV.report(t))
 assert(t.semi == 0 and t.margin >= 3 and t.bw == 0, "check failed")
