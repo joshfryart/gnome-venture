@@ -9,7 +9,7 @@
 --   3 catnip    green, chubby round body, short round tail, a pale leaf patch blanket-stitched on the side
 --               and a catnip sprig (stem + 3 leaves) sewn into the back seam, standing up
 --   4 glitter   blue/violet, long slim body, swallow tail with long points, spiky dorsal; 1 px scale arcs in
---               a staggered grid with light sparkle dots on a regular lattice and two 4-point glints
+--               a staggered grid and three big diamond sparkles (pass 7)
 --   5 golden    rare: gold, deep body, 3-point crown dorsal with gloss beads on the tips, lyre tail with
 --               crown points, a second gloss streak, pale-gold thread (brighter than the body), a tiny
 --               ruby button at the head of the tail seam
@@ -91,7 +91,7 @@ do
   c:seam({ { 8, 25 }, { 12, 27 }, { 18, 28 }, { 23, 27 } }, { gap = f.shade })
   c:seam({ { 11, 15 }, { 13, 18 }, { 13, 22 }, { 12, 26 } }, { gap = f.shade })           -- gill seam
   c:seam({ { 26, 18 }, { 27, 22 }, { 26, 25 } }, { gap = f.shade })                       -- tail panel seam
-  c:paint({ "..ggd", ".gd..", "gd...", "g...." }, 15, 16, { g = f.gloss, d = f.dot })     -- enamel comma
+  c:paint({ "...ggdd", "..gddd.", ".gdd...", "gdd....", "gd....." }, 14, 15, { g = f.gloss, d = f.dot }) -- enamel comma, 2 px thick
   c:eye(8, 18)
   c:paint({ "uu", "u." }, 7, 25, { u = "ol2" })
   save(c, "cf-fish-2")
@@ -135,7 +135,7 @@ do
   c:seam({ { 9, 34 }, { 13, 37 }, { 19, 38 }, { 25, 37 } }, { gap = f.shade })
   c:seam({ { 12, 20 }, { 16, 18 }, { 21, 17 }, { 26, 18 }, { 30, 21 } }, { gap = f.shade }) -- back seam (sprig sewn in)
   c:seam({ { 12, 23 }, { 14, 26 }, { 14, 30 }, { 13, 34 } }, { gap = f.shade })          -- gill seam
-  c:paint({ "..gg", ".gd.", "gd..", "g..." }, 13, 21, { g = f.gloss, d = f.dot })        -- enamel comma
+  c:paint({ "...ggdd", "..gddd.", ".gdd...", "gdd....", "gd.....", "g......" }, 13, 20, { g = f.gloss, d = f.dot }) -- enamel comma, 2 px thick
   c:eye(8, 24)
   c:paint({ "uu", "u." }, 8, 32, { u = "ol2" })
   save(c, "cf-fish-3")
@@ -156,29 +156,31 @@ do
     { "pelv", pelv, fin, { cres = 2, gloss = false } },
     { "body", body, f, { gloss = false } },
   }
-  -- scale arcs: 1 px shade "v" marks on a staggered 4 x 3 grid over the back half of the body (felt only),
-  -- sparkle: a light dot at the head of every other scale, in a regular lattice; two 4-point glints
+  -- scale arcs: 1 px shade "v" marks on a staggered grid over the back half of the body (felt only).
+  -- Pass 7: the 1 px lattice dots and small glints were lost at 16 px; now three big sparkles instead: two
+  -- 5 x 5 diamond stars (solid 3 x 3 core) and one 3 x 3 plus, all on the lit felt, plus fin-tip glints.
   local felt_ = set(f.base, f.rim, f.shade)
   local inner = body:shrink(2)
+  local skip = c:mask()
+  for _, g in ipairs({ { 23, 21, 3 }, { 31, 25, 2 }, { 17, 26, 2 } }) do skip:add(c:ellipse(g[1], g[2], g[3] + 1)) end
   for row = 0, 2 do
     local y = 20 + row * 3
     for col = 0, 3 do
       local x = 18 + col * 5 + (row % 2) * 2
-      if inner:has(x, y) and inner:has(x + 2, y + 1) and c:get(x, y) and felt_[c:get(x, y)] then
+      if inner:has(x, y) and inner:has(x + 2, y + 1) and not skip:has(x + 1, y) and c:get(x, y) and felt_[c:get(x, y)] then
         local s = c:get(x + 1, y + 1) == f.shade and f.deep or f.shade
         c:px(x, y, s); c:px(x + 1, y + 1, s); c:px(x + 2, y, s)
-        if (row + col) % 2 == 0 and felt_[c:get(x + 1, y - 1) or ""] then c:px(x + 1, y - 1, f.dot) end
       end
     end
   end
-  for _, g in ipairs({ { 15, 22 }, { 27, 26 } }) do
-    c:paint({ ".d.", "ddd", ".d." }, g[1] - 1, g[2] - 1, { d = f.dot })
-  end
-  c:paint({ "d", ".", "d" }, 38, 16, { d = fin.gloss }); c:paint({ "d", ".", "d" }, 38, 30, { d = fin.gloss })
+  c:paint({ "..d..", ".ddd.", "ddwdd", ".ddd.", "..d.." }, 21, 19, { d = f.dot, w = "#fbfcff" })   -- big star
+  c:paint({ ".d.", "dwd", ".d." }, 30, 24, { d = f.dot, w = "#fbfcff" })                         -- small star
+  c:paint({ ".d.", "ddd", ".d." }, 16, 25, { d = f.dot })
+  c:paint({ "dd", "d." }, 38, 15, { d = fin.gloss }); c:paint({ "d.", "dd" }, 38, 31, { d = fin.gloss })
   tint(c, c:ellipse(19, 29, 10, 1.5):clip(body), f.base, f.rim)                           -- belly panel
   c:seam({ { 8, 27 }, { 13, 29 }, { 20, 30 }, { 27, 29 } }, { gap = f.shade })
   c:seam({ { 13, 19 }, { 14, 22 }, { 14, 26 }, { 13, 28 } }, { gap = f.shade })          -- gill seam
-  c:paint({ "..gg", "ggd." }, 15, 19, { g = f.gloss, d = f.dot })                         -- enamel comma
+  c:paint({ "...ggd", ".ggdd.", "gdd..." }, 14, 18, { g = f.gloss, d = f.dot })           -- enamel comma, 2 px thick
   c:eye(8, 21)
   c:paint({ "uu" }, 7, 26, { u = "ol2" })
   save(c, "cf-fish-4")
