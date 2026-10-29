@@ -57,7 +57,7 @@ page_header('Cat Fish');
 <?php if (!$cat): ?>
 <p class="help">Pick a cat to take home. Your first one is free. The shelter shows new cats every day.</p>
 <?php else: ?>
-<?php $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0);   // '' without cf-room.png: the old rod box, cat card and room below ?>
+<?php $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0); $sceneKey = catfish_scene_key($cats, $cat, $ownedUp);   // '' without cf-room.png: the old rod box, cat card and room below ?>
 <?php if ($stage !== ''): ?>
 <?= $stage ?>
 <div class="cfscene cfcard box">
@@ -67,7 +67,7 @@ page_header('Cat Fish');
   <?= catfish_rod_html($ownedUp, $cat) ?>
   <div class="cfmain"><div class="cfhold"><?= $catCard($cat) ?></div>
 <?php endif; ?>
-    <p class="cfcount"><?= catfish_ico('ico-kibble') ?><b id="cf-kibble"><?= number_format($v['kibble']) ?></b> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p>
+    <p class="cfcount"><?= catfish_ico('ico-kibble') ?><b id="cf-kibble"><?= number_format($v['kibble']) ?></b><span id="cf-spend" class="cfspend" aria-hidden="true"></span> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p>
     <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= (int)(catfish_offline_cap($cat) / 3600) ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
 </div>
 <?= $stage === '' ? catfish_room_html($cats, $ownedUp) : '' ?>
@@ -175,5 +175,5 @@ if ($capWk > 0): ?>
 </details>
 <?php endif; ?>
 </div>
-<script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null, 'play' => $v['play']], $J) ?></script>
+<script type="application/json" id="cf-data"><?= json_encode(['kibble' => $v['kibble'], 'kph' => $v['kph'], 'api' => url('catfish_api.php'), 'csrf' => csrf_token(), 'has' => $cat !== null, 'play' => $v['play'], 'scene' => $sceneKey ?? '', 'cat' => (int)($cat['id'] ?? 0)], $J) ?></script>
 <?php page_footer();

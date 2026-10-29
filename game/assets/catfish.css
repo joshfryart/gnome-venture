@@ -11,6 +11,12 @@
 .cfmain { flex: 1 1 14rem; min-width: 0; }
 .cfhold, .cfshelf { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
 .cfcount { font-size: 1.3rem; margin: .4rem 0 .2rem; }
+/* 2.1.07: the '-N' that rises by the Kibble counter when a buy is pressed (class .go; reduced motion = fade only) */
+.cfcount { position: relative; }
+.cfspend { position: absolute; margin-left: .35rem; font: 700 .95rem/1.3rem monospace; color: #b3402a; opacity: 0; pointer-events: none; white-space: nowrap; }
+.cfspend.go { animation: cfspendup 1100ms linear 1 forwards; }
+@keyframes cfspendup { 0% { opacity: 1; translate: 0 0; } 70% { opacity: 1; translate: 0 -8px; } 100% { opacity: 0; translate: 0 -10px; } }
+@keyframes cfspendfade { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
 .cfcat { display: inline-block; font-size: 2.2rem; line-height: 1; padding: .25rem; border-radius: 50%; background: var(--cf, #ddd); flex: none; }
 .cfinfo { flex: 1 1 10rem; min-width: 0; }
 .cfups, .cflist { display: grid; gap: .5rem; }
@@ -218,7 +224,8 @@
   .cfsdrop, .cfsdrop.is-hit, .cfsdrop.sd2.is-hit, .cfsdrop.sd3.is-hit { animation: none; }
   .cfsdrop.is-hit .cfimg { outline: 2px solid #fff; outline-offset: 1px; }
   .cfsdrop.is-caught .cfimg { animation: none; }
-  .cfpop.go { animation: cfpopfade 900ms linear 1 forwards !important; }   /* opacity only: style.css switches every animation off for reduced motion, a fade is the one thing kept */
+  .cfpop.go { animation: cfpopfade 900ms linear 1 forwards !important; }
+  .cfspend.go { animation: cfspendfade 1100ms linear 1 forwards !important; }   /* opacity only: style.css switches every animation off for reduced motion, a fade is the one thing kept */
   .cfactive.flip { transform: none; }
 }
 /* Centred layout: banner, cat card text, headings and notes on the page. Upgrade rows and the shelter lists keep their layouts. */

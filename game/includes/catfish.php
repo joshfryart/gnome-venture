@@ -243,6 +243,26 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
     return $h . '<span id="cf-playlive" class="cfsr" aria-live="polite"></span></div></div>';
 }
 
+/**
+ * 2.1.07 live scene: a short key of everything the stage draws that an upgrade or a cat change can alter (room overlays, extras, ambience, the fish kinds,
+ * which cat is active, which cats are at home). The page carries it in the JSON block and sends it back with a tick or a buy; the API answers with the new
+ * stage markup only when the key differs, so catfish.js swaps the scene in place without a reload.
+ */
+function catfish_scene_key(array $cats, ?array $active, array $owned): string
+{
+    return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active))
+        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats))), 0, 12);
+}
+
+/** The stage for a view from catfish_view(): [scene key, markup]. The markup is exactly what catfish.php prints ('' with no cat or no room art). */
+function catfish_scene(int $uid, array $v): array
+{
+    $cats = catfish_cats($uid); $cat = $v['cat'];
+    if (!$cat) return ['', ''];
+    $owned = array_column($v['ups'], 'owned', 'key');
+    return [catfish_scene_key($cats, $cat, $owned), catfish_stage_html($cats, $cat, $owned, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0)];
+}
+
 /** One Cat Book cell. $st: 1 adopted, 0 seen, -1 not found yet. Art (cf-bookhead-<coat>, cf-bookhead-unknown, 32 x 32) when it exists, else the coloured circle. */
 function catfish_book_cell(string $colour, int $st, string $label): string
 {

@@ -7,21 +7,27 @@
   var d = JSON.parse(el.textContent); if (!d.has) return;
   var kibble = document.getElementById('cf-kibble'), kph = document.getElementById('cf-kph');
   var shown = d.kibble, rate = d.kph, frac = 0;
-  var stage = document.querySelector('.cfstage'), live = document.getElementById('cf-playlive'), hint = document.getElementById('cf-hint'), comboEl = document.getElementById('cf-combo');
+  function st() { return document.querySelector('.cfstage'); }   // the stage is swapped in place after a buy (swapScene), so it is looked up each time
   var play = d.play || { v: 1, left: 0, ever: 0 };
-  var pending = 0, pendV = 0, seq = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {};
+  var pending = 0, pendV = 0, seq = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
   function nextSeq() { lastSeq = Math.max(lastSeq + 1, Date.now()); return lastSeq; }   // ms clock: increasing across page loads and tabs
   function draw() { kibble.textContent = Math.floor(shown).toLocaleString(); kph.textContent = rate; refreshButtons(); }
   function refreshButtons() {
-    document.querySelectorAll('button[data-cost]').forEach(function (b) { b.disabled = Math.floor(shown) < +b.getAttribute('data-cost'); });
+    document.querySelectorAll('button[data-cost]').forEach(function (b) {
+      var f = b.closest('form.cfup');   // a buy in flight keeps its own button off until the reply
+      b.disabled = Math.floor(shown) < +b.getAttribute('data-cost') || !!(f && buying[f.getAttribute('data-key')]);
+    });
   }
   function form(data) { var fd = new FormData(); fd.append('csrf', d.csrf); Object.keys(data).forEach(function (k) { fd.append(k, data[k]); }); return fd; }
   function post(data, done, fail) {
-    fetch(d.api, { method: 'POST', body: form(data), credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(done).catch(fail || function () {});
+    fetch(d.api, { method: 'POST', body: form(data), credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(done, fail || function () {});
   }
-  function setPending() { if (stage) stage.setAttribute('data-play-pending', pending); }
-  function setCombo() { if (stage) stage.setAttribute('data-combo', combo); if (comboEl) comboEl.textContent = combo >= 2 ? '\u00d7' + combo : ''; }
-  function playView(p) { if (!p) return; play = p; if (p.ever > 0 && hint) hint.hidden = true; }
+  /* one request at a time: a buy waits for a tick in flight (and the other way round), so the same pending taps and seq are never in two requests at once */
+  function free() { busy = false; var n = queue.shift(); if (n) n(); }
+  function whenFree(fn) { if (busy) queue.push(fn); else fn(); }
+  function setPending() { var stage = st(); if (stage) stage.setAttribute('data-play-pending', pending); }
+  function setCombo() { var stage = st(), comboEl = document.getElementById('cf-combo'); if (stage) stage.setAttribute('data-combo', combo); if (comboEl) comboEl.textContent = combo >= 2 ? '\u00d7' + combo : ''; }
+  function playView(p) { var hint = document.getElementById('cf-hint'); if (!p) return; play = p; if ((p.ever > 0 || pending > 0) && hint) hint.hidden = true; }
   function apply(view) {
     shown = view.kibble + pendV; rate = view.kph; draw(); playView(view.play);
     view.ups.forEach(function (u) {
@@ -37,30 +43,48 @@
     refreshButtons();
   }
   function say(text, bad) { var m = document.getElementById('cf-msg'); if (!m) return; m.textContent = text || ''; m.className = bad ? 'flash err' : 'flash ok'; }
+  /* 2.1.07 live scene: the API sends stage_html (the markup catfish.php prints) when the scene key changed, e.g. after a buy that adds a room overlay or a new fish kind.
+     It is parsed with DOMParser (nothing in it runs), the .cfstagewrap is replaced, and the animation block below is told ('cfscene') to bind to the new nodes. */
+  function swapScene(html) {
+    var old = document.querySelector('.cfstagewrap'); if (!old || !old.parentNode) return false;
+    var nu = new DOMParser().parseFromString(html, 'text/html').querySelector('.cfstagewrap'); if (!nu) return false;
+    old.parentNode.replaceChild(document.importNode(nu, true), old);
+    setPending(); setCombo(); playView(play);   // taps in flight stay counted on the new nodes
+    document.dispatchEvent(new CustomEvent('cfscene'));
+    return true;
+  }
+  function newScene(r) { if (r.stage_html) swapScene(r.stage_html); if (r.scene) d.scene = r.scene; }
+  function spendPop(n) {   // the small '-N' by the Kibble counter
+    var el = document.getElementById('cf-spend'); if (!el || n < 1) return;
+    el.textContent = '\u2212' + n.toLocaleString(); el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+    clearTimeout(popTimer); popTimer = setTimeout(function () { el.classList.remove('go'); }, 1200);
+  }
   setInterval(function () { shown += rate / 3600; draw(); }, 1000);
   function sync() {
     if (document.hidden || busy) return;
-    var data = { do: 'tick' }, sentN = 0, sentV = 0;
+    var data = { do: 'tick', scene: d.scene }, sentN = 0, sentV = 0;
     if (pending > 0) { if (!seq) seq = nextSeq(); sentN = pending; sentV = pendV; data.play = sentN; data.seq = seq; }
     busy = true;
     post(data, function (r) {
-      busy = false;
+      free();
       if (!r.ok) { say(r.error, true); return; }   // 429 and the like: keep the pending taps and the same seq, resend next tick
       if (sentN) { pending = Math.max(0, pending - sentN); pendV = Math.max(0, pendV - sentV); seq = 0; setPending(); }
-      apply(r.view);
+      if (r.view.cat && r.view.cat.id !== d.cat && !reloaded) { reloaded = true; location.reload(); return; }   // another tab switched the cat: the card below the stage is stale, so start over
+      apply(r.view); newScene(r);
+      var live = document.getElementById('cf-playlive');
       if (sentN && live && r.view.play && r.view.play.paid > 0) {
         live.textContent = ''; setTimeout(function () { live.textContent = '+' + r.view.play.paid + ' Kibble from play'; }, 50);
       }
-    }, function () { busy = false; });
+    }, function () { free(); });
   }
   window.addEventListener('pagehide', function () {
     if (pending < 1 || !navigator.sendBeacon) return;
     if (!seq) seq = nextSeq();
     navigator.sendBeacon(d.api, form({ do: 'tick', play: pending, seq: seq }));
   });
-  if (stage) stage.addEventListener('click', function (ev) {
-    var b = ev.target.closest ? ev.target.closest('button.cfsdrop') : null;
-    if (!b || !ev.isTrusted) return;
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('.cfstage button.cfsdrop') : null, stage = b && b.closest('.cfstage');
+    if (!b || !stage || !ev.isTrusted) return;
     var now = Date.now(), f = b.getAttribute('data-fish');
     if (cool[f] && now - cool[f] < 600) return;
     cool[f] = now;
@@ -73,15 +97,33 @@
     combo = (lastTap && now - lastTap < 2000) ? Math.min(10, Math.max(combo, 1) + 1) : 1; lastTap = now;
     clearTimeout(comboTimer); comboTimer = setTimeout(function () { combo = 0; setCombo(); }, 2000);
     setCombo();
-    if (hint) hint.hidden = true;
+    var hint = document.getElementById('cf-hint'); if (hint) hint.hidden = true;
     stage.dispatchEvent(new CustomEvent('cftap', { detail: { btn: b, fish: +f, combo: combo } }));
   });
   setInterval(sync, 30000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
+  /* Buy (2.1.07): the cost leaves the counter at once, the pressed button stays off until the reply, and the request carries the pending taps (play, seq as in a tick) so the server pays
+     them before it checks the cost. A reply with a view means the server handled the taps and the buy: pending is cleared and the view (kibble, rate, rows, run) replaces the guess, a refusal
+     restores the number. No reply at all gives the cost back and keeps the taps and seq for the next tick. */
   document.getElementById('cf-ups').addEventListener('submit', function (ev) {
     var f = ev.target; if (!f.matches('form.cfup')) return;
     ev.preventDefault();
-    post({ do: 'buy', key: f.getAttribute('data-key') }, function (r) { if (r.view) apply(r.view); say(r.message || r.error, !r.ok); });
+    var key = f.getAttribute('data-key'), b = f.querySelector('button[data-cost]'); if (!b || b.disabled || buying[key]) return;
+    var cost = +b.getAttribute('data-cost') || 0;
+    buying[key] = true; shown -= cost; spendPop(cost); say('', false); draw();
+    whenFree(function () {
+      var data = { do: 'buy', key: key, scene: d.scene }, sentN = 0, sentV = 0;
+      if (pending > 0) { if (!seq) seq = nextSeq(); sentN = pending; sentV = pendV; data.play = sentN; data.seq = seq; }
+      busy = true;
+      post(data, function (r) {
+        delete buying[key]; free();
+        if (r.view) {
+          if (sentN) { pending = Math.max(0, pending - sentN); pendV = Math.max(0, pendV - sentV); seq = 0; setPending(); }
+          apply(r.view); newScene(r);
+        } else { shown += cost; draw(); }
+        say(r.message || r.error, !r.ok);
+      }, function () { delete buying[key]; free(); shown += cost; draw(); say('Could not reach the game. Try again.', true); });
+    });
   });
 })();
 
@@ -102,8 +144,13 @@
    prefers-reduced-motion: idleA only, nothing moves, no z, no sparkles, no bird, no yarn, no wobble; the tapped fish only shows its outline (is-hit) for 300 ms.
    The random numbers come from each cat's seed, so a page load plays the same sequence every time. */
 (function () {
-  var cat = document.querySelector('.cfactive'); if (!cat) return;
-  var stage = cat.parentNode;
+  var inst = null;
+  /* init binds the whole machine to the current .cfactive stage and returns {snap, stop}. 2.1.07: after a buy swaps the stage (event 'cfscene' from the sync block) the old instance
+     is stopped (every timer it started checks `dead`, listeners are removed) and a new one starts on the new nodes with the old cat's frame, nap state and facing kept. */
+  function init(keep) {
+  var cat = document.querySelector('.cfactive'); if (!cat) return null;
+  var dead = false, stage = cat.parentNode;
+  function T(fn, ms) { return setTimeout(function () { if (!dead) fn(); }, ms); }
   var have = {}, groups = {}; [].forEach.call(cat.querySelectorAll('.cfframe'), function (f) { have[f.getAttribute('data-f')] = true; });
   var cur = cat.getAttribute('data-frame'), timer = 0, napping = cat.getAttribute('data-nap') === '1', mode = 'rest', rest = 'idleA';
   function mk(seed) {
@@ -148,7 +195,7 @@
       man.frames[f].forEach(function (l) { var u = man.p + l[0] + man.s; if (!seen[u]) { seen[u] = 1; new Image().src = u; } });
     });
   }
-  setTimeout(preload, 2000);
+  T(preload, 2000);
   ['pointerdown', 'pointerover', 'touchstart', 'keydown'].forEach(function (t) { stage.addEventListener(t, preload, { once: true, passive: true }); });
   function setMode(m) { mode = m; cat.setAttribute('data-anim-state', m); }
   function put(f) {
@@ -157,7 +204,7 @@
     if (zEl) zEl.classList.toggle('is-on', f === 'nap');
   }
   function show(f) { put(resolve(f)); }
-  function later(ms, fn) { timer = setTimeout(fn, ms); }
+  function later(ms, fn) { timer = T(fn, ms); }
   var idled = 0, plays = 0, nextPlay = between(6000, 9000);
   var PLAY = [['wiggle', 600], ['stalk', 800], ['pounce', 400], ['catch', 1200]];
   function back() { rest = 'idleA'; setMode('rest'); show('idleA'); }
@@ -184,12 +231,12 @@
   function flick(f, ms) {
     if (mode !== 'rest' || cur !== 'idleA') return false;
     build(f); if (!ready(f)) return false;
-    put(f); setTimeout(function () { if (cur === f) put(mode === 'rest' ? 'idleA' : cur); }, ms); return true;
+    put(f); T(function () { if (cur === f) put(mode === 'rest' ? 'idleA' : cur); }, ms); return true;
   }
-  function schedBlink(wait) { clearTimeout(bt); bt = setTimeout(function () { schedBlink(flick('blink', 120) ? 0 : 400); }, wait || between(3000, 6000)); }
+  function schedBlink(wait) { clearTimeout(bt); bt = T(function () { schedBlink(flick('blink', 120) ? 0 : 400); }, wait || between(3000, 6000)); }
   function schedExtra(wait) {
     clearTimeout(et);
-    et = setTimeout(function () { var tail = rnd() < 0.5; schedExtra(flick(tail ? 'tailflick' : 'eartwitch', tail ? 400 : 300) ? 0 : 500); }, wait || between(5000, 12000));
+    et = T(function () { var tail = rnd() < 0.5; schedExtra(flick(tail ? 'tailflick' : 'eartwitch', tail ? 400 : 300) ? 0 : 500); }, wait || between(5000, 12000));
   }
   /* idle variety (2.1.06): every 15-30 s a yawn (900 ms), a stretch (900 ms) or a wash (washA, washB, washA, washB, 600 ms each) from idleA; never during a play loop, a nap or boredom.
      A tap or a play loop cancels it at once (vtok). ?cffast=1 on the page URL makes the waits and the bird ten times shorter (test hook; nothing else reads it). */
@@ -199,11 +246,11 @@
   function vstep(seq, i, tok) {
     if (tok !== vtok) return;
     if (i >= seq.length) return vend(tok);
-    put(seq[i][0]); setTimeout(function () { vstep(seq, i + 1, tok); }, seq[i][1]);
+    put(seq[i][0]); T(function () { vstep(seq, i + 1, tok); }, seq[i][1]);
   }
   function schedVariety(wait) {
     clearTimeout(vt);
-    vt = setTimeout(function () {
+    vt = T(function () {
       if (mode !== 'rest' || cur !== 'idleA' || varying) return schedVariety(500);
       var r = rnd(), seq = r < 0.34 ? [['yawn', 900]] : r < 0.67 ? [['stretch', 900]] : [['washA', 600], ['washB', 600], ['washA', 600], ['washB', 600]];
       seq.forEach(function (st) { build(st[0]); });
@@ -224,7 +271,7 @@
     s.el.classList.remove('fr-' + s.cur); s.el.classList.add('fr-' + f); s.el.setAttribute('data-frame', f); s.cur = f;
   }
   function sideTick(s, first) {
-    s.t = setTimeout(function () {
+    s.t = T(function () {
       if (!s.busy) { s.base = s.base === 'idleA' ? 'idleB' : 'idleA'; sideShow(s, s.base); }
       sideTick(s);
     }, first ? 500 + s.r() * 7500 : 4000 + s.r() * 4000);
@@ -237,7 +284,7 @@
     sides.forEach(function (s) { var x = Math.abs(s.el.offsetLeft - cx); if (s.has.stalk && !s.busy && x < d) { d = x; best = s; } });
     if (!best) return;
     best.busy = true; sideShow(best, 'stalk');
-    setTimeout(function () { best.busy = false; sideShow(best, best.base); }, 800);
+    T(function () { best.busy = false; sideShow(best, best.base); }, 800);
   }
   /* window bird (owned 'window'): the cf-room-window robin is swapped for the 12 x 10 sprite drawn at 2x on the perch; f1 perched, f2 hop (150 ms), f3 wings (200 ms), every 6-14 s.
      Without JS, or under reduced motion, the overlay with the robin stays. */
@@ -246,9 +293,9 @@
   function birdFrame(n) { bird.className = 'cfbird f' + n; }
   function birdNext() {
     clearTimeout(bt2);
-    bt2 = setTimeout(function () {
+    bt2 = T(function () {
       var hop = br() < 0.5; birdFrame(hop ? 2 : 3);
-      setTimeout(function () { birdFrame(1); birdNext(); }, hop ? 150 : 200);
+      T(function () { birdFrame(1); birdNext(); }, hop ? 150 : 200);
     }, (6000 + br() * 8000) * (FAST ? 0.1 : 1));
   }
   function birdStop() { clearTimeout(bt2); if (bird) { birdFrame(1); stage.classList.remove('is-bird'); } birdOn = false; }
@@ -256,7 +303,7 @@
     if (!bird) return;
     clearTimeout(bt2); birdOn = false; stage.classList.remove('is-bird'); birdFrame(1);
     if (reduced()) return;
-    if (!birdOk()) { if (birdTries++ < 20) bt2 = setTimeout(birdStart, 500); return; }
+    if (!birdOk()) { if (birdTries++ < 20) bt2 = T(birdStart, 500); return; }
     birdOn = true; stage.classList.add('is-bird'); birdNext();
   }
   /* yarn roll (the ball at the left of the floor): when the cat swats (swatB) or pounces the ball rolls 8 px right and back in 1.2 s (8 steps of 150 ms), then the base ball is shown again.
@@ -265,33 +312,39 @@
   function landed() {
     if (reduced()) return;
     if (CATFISH_YARN_ROLL && yarn && !yarn.classList.contains('is-roll')) {
-      yarn.classList.add('is-roll'); clearTimeout(yarnT); yarnT = setTimeout(function () { yarn.classList.remove('is-roll'); }, 1250);
+      yarn.classList.add('is-roll'); clearTimeout(yarnT); yarnT = T(function () { yarn.classList.remove('is-roll'); }, 1250);
     }
     if (rug) {   // rug wobble: 1 px right, back, 1 px, back (4 steps of 60 ms)
       rug.classList.remove('is-wobble'); void rug.offsetWidth; rug.classList.add('is-wobble');
-      clearTimeout(rugT); rugT = setTimeout(function () { rug.classList.remove('is-wobble'); }, 300);
+      clearTimeout(rugT); rugT = T(function () { rug.classList.remove('is-wobble'); }, 300);
     }
   }
+  var first = null;   // frame to show first after a scene swap (an inline frame of the old cat), else idleA
   function start() {
     clearTimeout(timer); clearTimeout(bt); clearTimeout(et); clearTimeout(vt); vcancel(); sideStop(); cat.classList.remove('is-jump');
-    if (reduced()) { birdStop(); setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); return; }
-    rest = 'idleA'; setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); later(between(1200, 2400), idle);
+    if (reduced()) { birdStop(); setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : 'idleA'); first = null; return; }
+    rest = 'idleA'; setMode(napping ? 'nap' : 'rest'); show(napping ? 'nap' : first || 'idleA'); first = null; later(between(1200, 2400), idle);
     schedBlink(); schedExtra(); schedVariety(); sideStart(); birdStart();
   }
   cat.setAttribute('data-anim-state', mode);
+  if (keep) {   // scene swap: same nap state, same frame (when the new cat carries it inline), same facing
+    napping = keep.napping; if (napping) cat.setAttribute('data-nap', '1'); else cat.removeAttribute('data-nap');
+    if (have[keep.frame] && keep.frame !== 'nap') first = keep.frame;
+    cat.classList.toggle('flip', keep.flip);
+  }
   start();
   if (mq && mq.addEventListener) mq.addEventListener('change', start);
   var lastReact = 0, hitT = {}, lastTop = 0, lastCombo = 0;
   function hit(b) {
     var f = b.getAttribute('data-fish'), ms = reduced() ? 300 : 900;
     b.classList.remove('is-hit'); void b.offsetWidth; b.classList.add('is-hit');
-    clearTimeout(hitT[f]); hitT[f] = setTimeout(function () { b.classList.remove('is-hit'); }, ms);
+    clearTimeout(hitT[f]); hitT[f] = T(function () { b.classList.remove('is-hit'); }, ms);
   }
-  function caught(b) { b.classList.add('is-caught'); setTimeout(function () { b.classList.remove('is-caught'); }, 240); }
+  function caught(b) { b.classList.add('is-caught'); T(function () { b.classList.remove('is-caught'); }, 240); }
   function sparkle(b) {
     if (!spark || reduced()) return;
     spark.className = 'cfspark at' + b.getAttribute('data-fish'); void spark.offsetWidth; spark.classList.add('go');
-    setTimeout(function () { spark.classList.remove('go'); }, 200);
+    T(function () { spark.classList.remove('go'); }, 200);
   }
   function topFish(b) {
     var best = null, y = 1e9;
@@ -321,13 +374,32 @@
     lastCombo = c;
     if (!react(b, jump)) hit(b);
   });
-  var nf = document.getElementById('cf-napform');
-  if (nf) nf.addEventListener('submit', function () { napping = true; vcancel(); setMode('nap'); show('nap'); });
-  var run = document.getElementById('cf-run');
-  if (run && window.MutationObserver) new MutationObserver(function () {
-    if (parseInt(run.textContent.replace(/\D/g, ''), 10) > 0) {
-      cat.removeAttribute('data-nap');
-      if (napping) { napping = false; idled = 0; start(); }
+  var nf = document.getElementById('cf-napform'), onNap = function () { napping = true; vcancel(); setMode('nap'); show('nap'); };
+  if (nf) nf.addEventListener('submit', onNap);
+  var run = document.getElementById('cf-run'), mo = null;
+  if (run && window.MutationObserver) {
+    mo = new MutationObserver(function () {
+      if (parseInt(run.textContent.replace(/\D/g, ''), 10) > 0) {
+        cat.removeAttribute('data-nap');
+        if (napping) { napping = false; idled = 0; start(); }
+      }
+    });
+    mo.observe(run, { childList: true, characterData: true, subtree: true });
+  }
+  return {
+    snap: function () { return { frame: cur, napping: napping, flip: cat.classList.contains('flip') }; },
+    stop: function () {
+      dead = true; clearTimeout(timer); clearTimeout(bt); clearTimeout(et); clearTimeout(vt); clearTimeout(bt2); clearTimeout(yarnT); clearTimeout(rugT);
+      sides.forEach(function (s) { clearTimeout(s.t); });
+      if (mq && mq.removeEventListener) mq.removeEventListener('change', start);
+      if (nf) nf.removeEventListener('submit', onNap);
+      if (mo) mo.disconnect();
     }
-  }).observe(run, { childList: true, characterData: true, subtree: true });
+  };
+  }
+  inst = init(null);
+  document.addEventListener('cfscene', function () {
+    var keep = inst ? inst.snap() : null; if (inst) inst.stop();
+    inst = init(keep);
+  });
 })();
