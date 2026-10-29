@@ -110,7 +110,7 @@ def roll_away_seed():
 def noon_sunwink():
     key = 'pl-wsto-3'
     st = Sticker()
-    core = (14, 18, 49, 48)
+    core = (14, 17, 49, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', 0, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 0, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 10, 36, list(SUNY)), contour=True)
@@ -169,8 +169,8 @@ def round_eyed_peeker():
 def blinkseed_stonehead():
     key = 'pl-wsto-6'
     st = Sticker()
-    head = rect(20, 18, 43, 49) & ~(disc(19, 18, 3) & (XX < 19)) & ellipse(31.5, 34, 13.5, 20)
-    tab = knob('s', 'keyhole', 31, 49, r=2.8)
+    head = rect(20, 18, 43, 47) & ~(disc(19, 18, 3) & (XX < 19)) & ellipse(31.5, 33, 13.5, 19)
+    tab = knob('s', 'keyhole', 31, 47, r=2.6)
     sil = head | tab
     st.part(sil, tex=fill(key, sil, 15, 14, 36, list(STONE)), contour=True)
     st.paint(head & (YY <= 18), MOSSG[0])
@@ -185,7 +185,7 @@ def blinkseed_stonehead():
     st.paint(rect(31, 25, 32, 37), STONE_D)
     st.paint(rect(27, 41, 36, 42), STONE_D)
     st.paint(rect(28, 41, 35, 41), MOUTH_RED)
-    seed(st, 37, 45, 2.4)
+    seed(st, 38, 44, 2.6)
     st.paint(rect(22, 37, 24, 37) | rect(39, 37, 41, 37), BLUSH)
     st.sparkle(9, 9)
     st.sparkle(50, 20, big=False)

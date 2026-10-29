@@ -97,18 +97,18 @@ def pink_dusk_lullaby():
 def airmail_parcel_sway():
     key = 'pl-stkv-2'
     st = Sticker()
-    core = (14, 24, 46, 53)
+    core = (14, 25, 46, 53)
     body, holes = piece_blanks(core, s='F', n=('B', 'keyhole', 0, 3.0), e=('T', 'keyhole', 3, 3.6), w=('B', 'keyhole', 3, 3.0))
     st.part(body, tex=fill(key, body, 12, 16, 40, list(KRAFT)), contour=True)
     st.blank_shade(body, holes, width=1)
     tw = (rect(29, 24, 30, 53) | rect(12, 44, 47, 45)) & body & ~grow(holes, 1)
     st.paint(tw, CREAM)
-    st.part(line([(26, 25), (30, 14), (34, 25)], w=1), CREAM, d=0, contour=True, shade=False)
+    st.part(line([(26, 26), (30, 16), (34, 26)], w=1), CREAM, d=0, contour=True, shade=False)
     # stork beak gripping the string
-    st.part(ellipse(36, 8, 5, 3), WHITE[1], d=0, contour=True)
-    st.paint(rect(36, 5, 40, 6), BLACK, solid=True)
-    st.part(line([(31, 10), (28, 13)], w=1) | rect(28, 13, 32, 14), BEAK, d=0, contour=True, shade=False)
-    st.dots([(34, 7)], BLACK)
+    st.part(ellipse(36, 10, 5, 3), WHITE[1], d=0, contour=True)
+    st.paint(rect(36, 7, 40, 8), BLACK, solid=True)
+    st.part(line([(31, 12), (28, 14)], w=1) | rect(28, 14, 32, 15), BEAK, d=0, contour=True, shade=False)
+    st.dots([(34, 9)], BLACK)
     st.eye(17, 32)
     st.eye(36, 32)
     st.mouth('smile', 27, 39)
@@ -119,7 +119,7 @@ def airmail_parcel_sway():
 def sunflower_nodder():
     key = 'pl-stkv-3'
     st = Sticker()
-    core = (15, 20, 48, 49)
+    core = (15, 18, 48, 46)
     body, holes = piece_blanks(core, n=('T', 'keyhole', -5, 3.6), e=('B', 'keyhole', 0, 3.0), s=('T', 'keyhole', 5, 3.6),
                                w=('B', 'keyhole', 0, 3.0))
     st.part(body, tex=fill(key, body, 14, 12, 36, list(SAGE)), contour=True)
@@ -131,7 +131,7 @@ def sunflower_nodder():
     st.part(petals, SUN[0], d=1, contour=True)
     st.part(disc(40, 16, 3), '#6a4020', d=1, contour=True)
     st.dots([(39, 15), (41, 17)], '#3a2010')
-    st.paint(ellipse(18, 44, 3, 1.5) | ellipse(45, 44, 3, 1.5), SAGE[1])
+    st.paint(ellipse(19, 41, 3, 1.5) | ellipse(44, 41, 3, 1.5), SAGE[1])
     happy_eye(st, 19, 28)
     happy_eye(st, 34, 28)
     st.mouth('grin', 26, 36)
@@ -182,11 +182,11 @@ def lamplit_shutters():
 def rooftop_courier():
     key = 'pl-stkv-6'
     st = Sticker()
-    roof = poly([(13, 54), (32, 45), (51, 54)])
+    roof = poly([(13, 52), (32, 44), (51, 52)])
     st.part(roof, TILE[0], d=0, contour=True)
     for y in (48, 51):
         st.paint(rect(13, y, 51, y) & roof, TILE[1])
-    legs = line([(30, 38), (30, 46)], w=1) | line([(36, 38), (36, 46)], w=1)
+    legs = line([(30, 38), (30, 45)], w=1) | line([(36, 38), (36, 45)], w=1)
     st.part(legs, BEAK, d=0, contour=True, shade=False)
     bodyb = ellipse(34, 33, 11, 7)
     head = disc(24, 17, 6.5)
@@ -195,16 +195,16 @@ def rooftop_courier():
     sil = bodyb | nk | head | tab
     st.part(sil, tex=fill(key, sil, 13, 9, 40, list(WHITE)), contour=True)
     st.paint(ellipse(39, 32, 8, 4) & bodyb & (YY > 31), BLACK)
-    beak = poly([(17, 17), (9, 21), (17, 20)])
+    beak = poly([(17, 17), (11, 21), (17, 20)])
     st.part(beak, BEAK, d=0, contour=True, shade=False)
     # parcel dangling from beak
-    st.part(line([(11, 21), (11, 24)]), CREAM, d=0, contour=False, shade=False)
-    st.part(rect(7, 25, 15, 31), KRAFT[0], d=1, contour=True)
-    st.paint(rect(11, 25, 11, 31) | rect(7, 28, 15, 28), RED[0])
+    st.part(line([(13, 21), (13, 24)]), CREAM, d=0, contour=False, shade=False)
+    st.part(rect(9, 25, 17, 31), KRAFT[0], d=1, contour=True)
+    st.paint(rect(13, 25, 13, 31) | rect(9, 28, 17, 28), RED[0])
     lash_eye(st, 22, 13)
     st.paint(rect(26, 20, 28, 20), BLUSH)
     st.sparkle(49, 10)
-    st.sparkle(8, 8, big=False)
+    st.sparkle(9, 9, big=False)
     st.sparkle(52, 42, big=False)
     return key, st
 

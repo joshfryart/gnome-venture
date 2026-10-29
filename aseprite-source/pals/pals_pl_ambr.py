@@ -146,13 +146,13 @@ def sprout_nook():
 def plumetail_digger():
     key = 'pl-ambr-6'
     st = Sticker()
-    tail = disc(47, 22, 9) | ellipse(44, 36, 7, 9)
+    tail = disc(46, 22, 8.5) | ellipse(43, 36, 7, 9)
     head = disc(26, 26, 10)
     ears = poly([(17, 19), (18, 9), (23, 17)]) | poly([(29, 17), (34, 9), (35, 19)])
     torso = ellipse(28, 40, 9, 8)
     tab = knob('s', 'keyhole', 28, 47, r=3.0)
-    st.part(tail, tex=fill(key, tail, 36, 12, 22, list(SQUIR)), contour=True)
-    st.paint(ellipse(48, 20, 4, 5) & tail, SQUIR[1])
+    st.part(tail, tex=fill(key, tail, 35, 12, 22, list(SQUIR)), contour=True)
+    st.paint(ellipse(47, 20, 4, 5) & tail, SQUIR[1])
     sil = head | ears | torso | tab
     st.part(sil, tex=fill(key, sil, 15, 9, 42, list(SQUIR)), contour=True)
     st.paint(ellipse(28, 42, 5, 4) & torso, CREAM)

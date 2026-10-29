@@ -167,7 +167,7 @@ def roundbelly_lanternling():
 def candle_boat_pilot():
     key = 'pl-wlfe-6'
     st = Sticker()
-    boat = rect(12, 46, 50, 49) | rect(15, 50, 47, 52) | rect(11, 43, 12, 46) | rect(50, 43, 51, 46)
+    boat = rect(14, 46, 48, 49) | rect(17, 50, 45, 52) | rect(13, 43, 14, 46) | rect(48, 43, 49, 46)
     st.part(boat, TRUNK, d=0, contour=True, shade=False)
     lan = ellipse(31, 30, 13, 14)
     tab = knob('e', 'keyhole', 41, 30, r=3.0)

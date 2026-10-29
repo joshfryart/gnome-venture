@@ -83,18 +83,18 @@ def nugget_nap():
 def pinklegs_strut():
     key = 'pl-mirr-2'
     st = Sticker()
-    core = (13, 13, 47, 40)
+    core = (11, 13, 44, 40)
     body, holes = piece_blanks(core, s='F', n=('T', 'keyhole', 0, 3.6), e=('T', 'keyhole', 0, 3.6), w=('B', 'keyhole', 0, 3.0))
-    for pts in (((23, 40), (19, 47), (24, 53)), ((37, 40), (41, 47), (44, 53))):
+    for pts in (((21, 40), (17, 47), (22, 53)), ((35, 40), (39, 47), (42, 53))):
         st.part(line(list(pts), w=2), LEG[0], d=0, contour=True, shade=False)
-    st.part(rect(21, 53, 27, 54), LEG[1], d=0, contour=True, shade=False)
-    st.part(rect(42, 53, 48, 54), LEG[1], d=0, contour=True, shade=False)
-    st.dots([(19, 47), (41, 47)], LEG[1])
-    st.part(body, tex=fill(key, body, 13, 5, 44, list(LAV)), contour=True)
+    st.part(rect(19, 53, 25, 54), LEG[1], d=0, contour=True, shade=False)
+    st.part(rect(40, 53, 46, 54), LEG[1], d=0, contour=True, shade=False)
+    st.dots([(17, 47), (39, 47)], LEG[1])
+    st.part(body, tex=fill(key, body, 11, 5, 44, list(LAV)), contour=True)
     st.blank_shade(body, holes, width=1)
-    st.eye(20, 22, look=(1, 0))
-    st.eye(34, 22, look=(1, 0))
-    st.mouth('smirk', 27, 31)
+    st.eye(18, 22, look=(1, 0))
+    st.eye(32, 22, look=(1, 0))
+    st.mouth('smirk', 25, 31)
     return key, st
 
 
@@ -169,28 +169,28 @@ def puddle_dancer():
     bodyb = ellipse(34, 27, 12, 7)
     nk = line([(25, 24), (21, 17), (23, 11)], w=4)
     head = disc(25, 10, 5.5)
-    tab = knob('e', 'keyhole', 45, 28, r=3.0)
+    tab = knob('e', 'keyhole', 44, 28, r=3.0)
     sil = bodyb | nk | head | tab
     leg = line([(34, 33), (34, 42)], w=1) | line([(35, 36), (40, 32)], w=1)
     st.part(leg, LEG[1], d=0, contour=True, shade=False)
     # puddle + reflection (mirror of body, paler)
-    pud = ellipse(33, 46, 20, 3.5)
+    pud = ellipse(33, 46, 16, 3.5)
     st.part(pud, '#b8c8e8', d=0, contour=True, shade=False)
     ref = ellipse(34, 50, 10, 3) & ~pud | (ellipse(34, 48.5, 9, 2) & pud)
     st.paint(ellipse(34, 47.5, 9, 1.5), '#f4b0cc')
     st.part(ellipse(34, 52, 8, 2.2), '#f4b0cc', d=0, contour=True, shade=False)
-    st.paint(rect(16, 45, 19, 45) | rect(46, 46, 49, 46), '#e8f0fc')
+    st.paint(rect(20, 45, 23, 45) | rect(43, 46, 46, 46), '#e8f0fc')
     st.part(sil, tex=fill(key, sil, 9, 4, 44, list(HOT)), contour=True)
     st.paint(ellipse(38, 25, 6, 3) & bodyb, '#ffc8dc')
     beak = rect(29, 10, 32, 12) | rect(32, 11, 33, 14)
     st.part(beak, BEAK, d=0, contour=False, shade=False)
     st.paint(rect(29, 10, 30, 11), '#f4ece0')
     # twirl swish marks
-    st.paint(line([(12, 30), (16, 34)]) | line([(50, 37), (54, 34)]), '#fff0f6')
+    st.paint(line([(12, 30), (16, 34)]) | line([(48, 38), (51, 35)]), '#fff0f6')
     lash_eye(st, 22, 7)
     st.paint(rect(20, 13, 22, 13), BLUSH)
     st.sparkle(8, 8)
-    st.sparkle(52, 12, big=False)
+    st.sparkle(50, 13, big=False)
     st.sparkle(12, 50, big=False)
     return key, st
 
