@@ -659,6 +659,7 @@ gvAdvFold();
           if (a && b) a.innerHTML = b.innerHTML;
         });
         window.scrollTo(0, y);
+        gvFightScroll();
         busy = false;
         if (window.gvRailFit) window.gvRailFit();
         var log = window.gvVisibleLog ? gvVisibleLog() : null;
@@ -720,6 +721,7 @@ gvAdvFold();
         if (res.url !== location.href) history.replaceState(history.state, '', res.url);
         shownAt = location.pathname + location.search;
         window.scrollTo(0, y);
+        gvFightScroll();
         var main = document.querySelector('main');
         // Messages appear at the top of the page: if that's out of view, show them as a toast too
         var msgs = Array.prototype.slice.call(main.querySelectorAll('.flash, .prizebox, .newpages'));
@@ -979,6 +981,17 @@ if (!window.gvMycBound) {
     gvMycApply();
   });
 }
+/* On a phone, keep the fight / wander card (.encounter on adventure.php) in view: after a page load or an in-place update, if its top has
+   drifted off screen (or its bottom is cut off), put its top just under the header. No smooth scroll, so no animation is missed. */
+function gvFightScroll() {
+  if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
+  var box = document.querySelector('.panel.encounter');
+  if (!box || !box.getClientRects().length) return;
+  var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
+  var r = box.getBoundingClientRect(), H = window.innerHeight;
+  if (r.top >= hdr && r.top < H * 0.35 && (r.bottom <= H || r.top <= hdr + 12)) return;   // already well placed
+  window.scrollTo(0, Math.max(0, window.scrollY + r.top - hdr - 8));
+}
 /* v1.6.1: on a map page, bring the "you are here" hat into view once per address (not when a filter chip is tapped or a form is
    sent in place), unless the gnome has already started scrolling, and without smooth scrolling when reduced motion is asked for. */
 var gvMycSig = '', gvMycUser = false;
@@ -1128,6 +1141,7 @@ gvRegionZoom();
 gvMycZoom();   // v1.6.4
 gvMycApply();
 gvMycScroll();   // v1.6.1
+gvFightScroll();
 
 // v0.9.3: road "metro lines" scroll sideways on phones; bring the stop you're at into view (no page jump)
 function gvMetro() {
