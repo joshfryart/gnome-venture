@@ -558,6 +558,8 @@ function post_update_news(string $from): void
         "Going down a delve or into a lair? You now walk it on a little cave map. Tap a lit tile to walk there, find the rooms in any order, and open the chest once the other rooms are cleared. Walking costs no energy. Prefer the old way? Tap [b]Use the simple list[/b]."],
     '2.0.86' => ['🏞️ Every special place has its own picture',
         "Havens, wonders, delves and lairs now show a painted scene when you arrive: a crab keeper at the dark lighthouse, a silverback in the glade, a spider in her hollow, and 78 more. Look for them on the World and Town pages."],
+    '2.0.88' => ['🧩 Puzzle Pals',
+        "Every Jigsaw picture now has six little Puzzle Pals. Solve a picture at Advanced size and its pals are set free; after that you may meet them on your travels. Keep them in your Pal Book, take two along once you are gnome level 15, and win an Expert trophy to make a picture's pals a little stronger."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
