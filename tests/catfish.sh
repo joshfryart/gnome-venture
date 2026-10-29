@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cat Fish (catfish.php, catfish_api.php, includes/catfish.php): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades, API guards, generator and shelter determinism.
+# Cat Fish (catfish.php, catfish_api.php, includes/catfish.php, profile box): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades (16 in 4 branches), naps and Yarn, Cat Book and badges, API guards, generator and shelter determinism, pure helpers.
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
 php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/catfish-php.log 2>&1 & PID=$!; sleep 1
 W=$(mktemp -d); trap "kill $PID 2>/dev/null; rm -rf $W" EXIT
@@ -14,6 +14,8 @@ jp() { php -r '$v=json_decode(stream_get_contents(STDIN), true); foreach (explod
 setg() { dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('$1','$2')"; }
 cfapi() { curl -s -b $W/p -X POST $BASE/catfish_api.php --data-urlencode "csrf=$CS" "$@"; }
 cfpost() { curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/catfish.php --data-urlencode "csrf=$CS" "$@"; }
+# the API allows 10 calls an hour per gnome (rate_limited in catfish_api.php); the suite clears that counter between groups of calls
+cfreset() { dbx "DELETE FROM login_attempts WHERE username LIKE 'cfapi:%'"; }
 # shelter seeds for a gnome on a fixed day
 shelter() { php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; echo json_encode(array_column(catfish_shelter((int)$argv[2], "2026-10-29"), "seed"));' "$GAME/includes/catfish.php" "$1"; }
 
@@ -48,6 +50,12 @@ dbx "UPDATE catfish_state SET kibble=0 WHERE user_id=$UID_"
 cfpost -d do=adopt -d slot=1 --data-urlencode name=Second >/dev/null
 ok "adopt slot 1 with 0 Kibble is refused (still one row)" "$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")" 1
 
+# Cat Book: the adopted cat's pattern and colour go in the book, and the page shows it (derived, nothing else stored)
+read PC CC <<< "$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; $c = catfish_cat((int)$argv[2]); echo $c["pattern"], " ", $c["colour"];' "$GAME/includes/catfish.php" "$(dbv "SELECT seed FROM cats WHERE user_id=$UID_")")"
+ok "cat book: adopted cat's pattern and colour recorded" "$(dbv "SELECT COUNT(*) FROM cat_book WHERE user_id=$UID_ AND pattern='$PC' AND colour='$CC'")" 1
+curl -s -b $W/p $BASE/catfish.php > $W/c2.html
+ok "cat book: page shows the Cat Book" "$([ "$(grep -c 'Cat Book' $W/c2.html)" -ge 1 ] && echo y || echo n)" y
+
 # name cleaning
 CID=$(dbv "SELECT id FROM cats WHERE user_id=$UID_")
 cfpost -d do=rename -d cat=$CID --data-urlencode "name=<b>x</b>" >/dev/null
@@ -56,39 +64,59 @@ ok "rename: tags reduced to letters (bxb)" "$(dbv "SELECT name FROM cats WHERE i
 cfpost -d do=rename -d cat=$CID --data-urlencode "name=abcdefghijklmnopqrstuvwxy" >/dev/null
 ok "rename: over 20 chars cut to 20" "$(dbv "SELECT name FROM cats WHERE id=$CID")" abcdefghijklmnopqrst
 
-# tick and away pay-out
+# tick and away pay-out. Base is 600 Kibble/h, so every bound comes from the view's kph:
+# a greedy cat is x1.10, a hyper cat x1.15 only while present (view and present ticks), and away pays half.
+cfreset
 R=$(cfapi -d do=tick)
 ok "tick: ok true" "$(echo "$R" | jp ok)" true
 ok "tick: view.kibble is numeric" "$([[ $(echo "$R" | jp view.kibble) =~ ^[0-9]+$ ]] && echo y || echo n)" y
+KPH=$(echo "$R" | jp view.kph); MOOD=$(echo "$R" | jp view.cat.mood)
+case $MOOD in greedy) WANT=660;; hyper) WANT=690;; *) WANT=600;; esac
+ok "fresh cat, no upgrades: view.kph is 600 x mood factor" "$KPH" "$WANT"
+# away: a hyper cat is not present, so no x1.15 on the away rate
+AK=$KPH; [ "$MOOD" = hyper ] && AK=600
+SNEAKY=0; [ "$MOOD" = sneaky ] && SNEAKY=$(( AK / 20 ))   # a sneaky cat's one rare-fish roll is floor(eff/10) with eff = AK/2
 dbx "UPDATE catfish_state SET last_tick=$(( $(date +%s) - 3600 )) WHERE user_id=$UID_"
 G=$(cfapi -d do=tick | jp view.gained)
 ok "away 1 h: gained more than 0" "$([ "$G" -gt 0 ] && echo y || echo n)" y
-ok "away 1 h: gained at most 60 (half of base 60/h)" "$([ "$G" -le 60 ] && echo y || echo n)" y
+ok "away 1 h: gained at least half of the base rate" "$([ "$G" -ge $(( AK / 2 )) ] && echo y || echo n)" y
+ok "away 1 h: gained at most half of the base rate (plus a sneaky rare fish)" "$([ "$G" -le $(( AK / 2 + SNEAKY )) ] && echo y || echo n)" y
 dbx "UPDATE catfish_state SET last_tick=$(( $(date +%s) - 100000 )) WHERE user_id=$UID_"
 R=$(cfapi -d do=tick); G=$(echo "$R" | jp view.gained); MOOD=$(echo "$R" | jp view.cat.mood)
-# bound = cap hours * half rate * kph; a lazy cat has a 10 h cap (catfish_offline_cap), a greedy one earns 10% more
-KPH=60; CAPH=8; [ "$MOOD" = greedy ] && KPH=66; [ "$MOOD" = lazy ] && CAPH=10
-ok "away 100000 s: gain capped (8 h at half rate, 10 h for lazy)" "$([ "$G" -gt 0 ] && [ "$G" -le $(( CAPH * KPH / 2 )) ] && echo y || echo n)" y
+# bound = cap hours x half the rate; a lazy cat has a 10 h cap (catfish_offline_cap), the rest 8 h
+CAPH=8; [ "$MOOD" = lazy ] && CAPH=10
+ok "away 100000 s: gain capped (8 h at half rate, 10 h for lazy)" "$([ "$G" -gt 0 ] && [ "$G" -le $(( CAPH * AK / 2 + SNEAKY )) ] && echo y || echo n)" y
 G2=$(cfapi -d do=tick | jp view.gained)
 ok "immediate second tick gains about 0" "$([ "$G2" -le 1 ] && echo y || echo n)" y
-# part-earned Kibble is kept: 30 s at 60+/h pays nothing and leaves the clock alone; 90 s pays 1 and moves the clock only by the seconds paid
-NOW=$(date +%s); dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - 30 )) WHERE user_id=$UID_"
+# a tick worth less than one whole Kibble pays nothing and leaves last_tick alone, so the part-earned fraction is kept
+NOW=$(date +%s); G0=$(awk "BEGIN{print int(3600/$KPH)-2}")
+dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - G0 )) WHERE user_id=$UID_"
 G=$(cfapi -d do=tick | jp view.gained); LT=$(dbv "SELECT last_tick FROM catfish_state WHERE user_id=$UID_")
-ok "30 s tick: nothing whole earned" "$G" 0
-ok "30 s tick: last_tick not moved" "$([ "$LT" -le $(( NOW - 29 )) ] && echo y || echo n)" y
-NOW=$(date +%s); dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - 90 )) WHERE user_id=$UID_"
+ok "sub-Kibble tick ($G0 s): nothing whole earned" "$G" 0
+ok "sub-Kibble tick: last_tick not moved" "$LT" "$(( NOW - G0 ))"
+# a tick of about 2.5 Kibble's worth pays 2 and moves last_tick only by the seconds those 2 cost; the rest stays owed
+NOW=$(date +%s); G1=$(awk "BEGIN{print int(9000/$KPH + 0.5)}")
+E=$(awk "BEGIN{print int($KPH*$G1/3600)}"); M=$(awk "BEGIN{print int($E*3600/$KPH)}")
+dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( NOW - G1 )) WHERE user_id=$UID_"
 G=$(cfapi -d do=tick | jp view.gained); LT=$(dbv "SELECT last_tick FROM catfish_state WHERE user_id=$UID_")
-ok "90 s tick: pays 1" "$G" 1
-ok "90 s tick: clock keeps the unpaid seconds (last_tick at least 20 s behind now)" "$([ "$LT" -le $(( $(date +%s) - 20 )) ] && echo y || echo n)" y
+ok "$G1 s tick: pays $E whole Kibble" "$G" "$E"
+ok "$G1 s tick: last_tick moved only by the $M s paid" "$LT" "$(( NOW - G1 + M ))"
 
-# upgrades
+# upgrades: 16 in four branches
+cfreset
+curl -s -b $W/p $BASE/catfish.php > $W/c1.html
+ok "page: 16 upgrade forms" "$(grep -c 'name="do" value="buy"' $W/c1.html)" 16
+for b in Fish Rod Room Cat; do ok "page: $b branch heading" "$(grep -c "> $b</h3>" $W/c1.html)" 1; done
+UPS=$(cfapi -d do=tick | php -r '$v=json_decode(stream_get_contents(STDIN),true); $b=["fish","rod","room","cat"]; $n=0; $bad=0; foreach (($v["view"]["ups"] ?? []) as $u) { $n++; if (!in_array($u["branch"] ?? "", $b, true)) $bad++; } echo $n, " ", $bad;')
+ok "api view.ups: 16 entries" "${UPS% *}" 16
+ok "api view.ups: every entry has one of the four branches" "${UPS#* }" 0
 dbx "UPDATE catfish_state SET kibble=1000, last_tick=$(date +%s) WHERE user_id=$UID_"
 R=$(cfapi -d do=buy -d key=fish)
 ok "buy fish: ok true" "$(echo "$R" | jp ok)" true
 ok "buy fish: 10 Kibble spent (1000 -> 990)" "$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")" 990
 ok "buy fish: upgrades say fish=1" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_" | grep -o '"fish":[0-9]*')" '"fish":1'
 R=$(cfapi -d do=buy -d key=fish)
-ok "second fish costs 12 (ceil 10 x 1.15)" "$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")" 978
+ok "second fish costs 12 (ceil 10 x 1.18)" "$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")" 978
 ok "second fish: fish=2" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_" | grep -o '"fish":[0-9]*')" '"fish":2'
 dbx "UPDATE catfish_state SET kibble=0 WHERE user_id=$UID_"
 R=$(cfapi -d do=buy -d key=fish)
@@ -98,9 +126,79 @@ dbx "UPDATE catfish_state SET kibble=1000, last_tick=$(date +%s) WHERE user_id=$
 R=$(cfapi -d do=buy -d key=nope)
 ok "unknown upgrade key: ok false" "$(echo "$R" | jp ok)" false
 
+# nap: a run of 100 Kibble is too short; a run of 2000 gives 2 Yarn (3 for a dreamy cat) and resets Kibble and upgrades
+cfreset
+dbx "UPDATE catfish_state SET run_kibble=100, kibble=0, last_tick=$(date +%s) WHERE user_id=$UID_"
+cfpost -d do=nap >/dev/null
+ok "nap with 100 run Kibble: refused (naps stays 0)" "$(dbv "SELECT naps FROM catfish_state WHERE user_id=$UID_")" 0
+ok "nap with 100 run Kibble: refused (yarn stays 0)" "$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" 0
+MOOD=$(cfapi -d do=tick | jp view.cat.mood)
+Y=2; [ "$MOOD" = dreamy ] && Y=3
+CATS0=$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")
+dbx "UPDATE catfish_state SET run_kibble=2000, kibble=777, upgrades='{\"fish\":3}', last_tick=$(date +%s) WHERE user_id=$UID_"
+cfpost -d do=nap >/dev/null
+ok "nap: naps=1" "$(dbv "SELECT naps FROM catfish_state WHERE user_id=$UID_")" 1
+ok "nap: yarn=$Y (dreamy adds 10%, rounded up)" "$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" "$Y"
+ok "nap: kibble back to 0" "$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")" 0
+ok "nap: run_kibble back to 0" "$(dbv "SELECT run_kibble FROM catfish_state WHERE user_id=$UID_")" 0
+ok "nap: upgrades back to {}" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_")" '{}'
+ok "nap: cats table row count unchanged" "$(dbv "SELECT COUNT(*) FROM cats WHERE user_id=$UID_")" "$CATS0"
+# after the nap the cat earns (1 + 0.10 x Yarn) more, times its mood factor (greedy x1.10, hyper x1.15 while present)
+NK=$(cfapi -d do=tick | jp view.kph)
+MF=1; case $MOOD in greedy) MF=1.1;; hyper) MF=1.15;; esac
+WANT=$(awk "BEGIN{printf \"%.1f\", 600*(1+0.1*$Y)*$MF}")
+ok "after the nap: view.kph = 600 x (1 + 0.10 x Yarn) x mood (within rounding)" "$(awk "BEGIN{d=$NK-$WANT; print (d<0?-d:d)<=0.11 ? \"y\" : \"n\"}")" y
+# a tick adds the same Kibble to the run and to the lifetime total
+dbx "UPDATE catfish_state SET last_tick=$(( $(date +%s) - 3600 )) WHERE user_id=$UID_"
+K0=$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_"); RU0=$(dbv "SELECT run_kibble FROM catfish_state WHERE user_id=$UID_"); T0=$(dbv "SELECT total_kibble FROM catfish_state WHERE user_id=$UID_")
+G=$(cfapi -d do=tick | jp view.gained)
+K1=$(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_"); RU1=$(dbv "SELECT run_kibble FROM catfish_state WHERE user_id=$UID_"); T1=$(dbv "SELECT total_kibble FROM catfish_state WHERE user_id=$UID_")
+ok "tick after a nap: gained more than 0" "$([ "$G" -gt 0 ] && echo y || echo n)" y
+ok "tick: kibble rises by gained" "$(( K1 - K0 ))" "$G"
+ok "tick: run_kibble rises by the same amount as kibble" "$(( RU1 - RU0 ))" "$(( K1 - K0 ))"
+ok "tick: total_kibble rises by the same amount as kibble" "$(( T1 - T0 ))" "$(( K1 - K0 ))"
+
 # API guards
 ok "api without csrf: 400" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/catfish_api.php -d do=tick)" 400
 ok "api GET: 405" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish_api.php)" 405
+
+# profile box (the viewer is the player): shows while Cat Fish is open, with First adoption and First nap; gone when closed
+PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
+ok "profile: Cat Fish box while open" "$(echo "$PR" | grep -c '🐱 Cat Fish</h3>')" 1
+ok "profile: 'First adoption' badge" "$(echo "$PR" | grep -c 'First adoption')" 1
+ok "profile: 'First nap' badge after the nap" "$(echo "$PR" | grep -c 'First nap')" 1
+
+# pure helpers, loaded without the game (stubs for is_admin and setting)
+PURE=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1];
+$r = [];
+$r["rare_hit"] = catfish_rare_fish(600.0, 3600, 0.1);
+$r["rare_miss"] = catfish_rare_fish(600.0, 3600, 0.6);
+$r["yarn_499"] = catfish_nap_yarn(499, null);
+$r["yarn_500"] = catfish_nap_yarn(500, null);
+$r["yarn_2000"] = catfish_nap_yarn(2000, null);
+$r["yarn_dreamy"] = catfish_nap_yarn(2000, ["mood" => "dreamy"]);
+$g = catfish_rng(123456); $r["rng"] = sprintf("%.6f %.6f %.6f", $g(), $g(), $g());
+$r["kph"] = var_export(catfish_kph([], null, false, 0), true);
+foreach ([9, 10, 25, 50] as $n) $r["mult_$n"] = catfish_milestone_mult($n);
+foreach ($r as $k => $v) echo $k, "=", $v, "\n";' "$GAME/includes/catfish.php")
+pv() { echo "$PURE" | grep "^$1=" | cut -d= -f2-; }
+ok "rare fish: 60 on a hit (chance 0.5 per hour)" "$(pv rare_hit)" 60
+ok "rare fish: 0 on a miss" "$(pv rare_miss)" 0
+ok "nap yarn: 499 Kibble -> 0" "$(pv yarn_499)" 0
+ok "nap yarn: 500 Kibble -> 1" "$(pv yarn_500)" 1
+ok "nap yarn: 2000 Kibble -> 2" "$(pv yarn_2000)" 2
+ok "nap yarn: 2000 Kibble, dreamy -> 3" "$(pv yarn_dreamy)" 3
+ok "rng: seed 123456, first three values" "$(pv rng)" "0.382333 0.797263 0.996530"
+ok "kph: nothing bought, no cat -> 600.0" "$(pv kph)" "600.0"
+ok "milestone: 9 owned -> x1" "$(pv mult_9)" 1
+ok "milestone: 10 owned -> x2" "$(pv mult_10)" 2
+ok "milestone: 25 owned -> x4" "$(pv mult_25)" 4
+ok "milestone: 50 owned -> x8" "$(pv mult_50)" 8
+
+# closed again: the profile box goes, and the cat is still kept
+setg catfish_open 0
+PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
+ok "profile: no Cat Fish box while closed" "$(echo "$PR" | grep -c '🐱 Cat Fish</h3>')" 0
 
 # generator: same seed, same cat; rarity bands over 20000 random seeds
 GEN=$(php -r 'function is_admin(){return false;} function setting($n){return "";} require $argv[1]; mt_srand(7);

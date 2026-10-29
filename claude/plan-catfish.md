@@ -51,7 +51,7 @@ Sonnet builds. Haiku for tests, mechanical edits, art-brief lists. Opus for the 
 - [x] Nap + Yarn (Yarn = floor(sqrt(run/500)), +10% Kibble each, Dreamy +10% Yarn)
 - [x] All 5 personalities (Sneaky rare fish, Dreamy Yarn)
 - [x] Cat Book (adopted pattern x colour) + derived badges on profile
-- [ ] Tests grown for week 2 (Haiku)
+- [x] Tests grown for week 2 (80 checks)
 - [ ] Opus end-of-week review
 - Balance note: Naps get faster with Yarn; revisit the 1.5x-longer rule in week 4
 **Week 3:** shelter upgrades, milestone Petals with cap, Opus mid-week review.
