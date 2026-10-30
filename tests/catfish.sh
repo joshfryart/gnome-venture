@@ -1360,7 +1360,7 @@ PY
 )"; }
 ok "pets art installed: 55 cf-pet-<key>.png at their slot size, 11 banner-<CODE>-pets.png at 480x120 (catfish folder), 11 busts npc-<keeper-slug-with-hyphens>.png at 80x100 (ph folder), alpha 0/255, no stray cf-pet or pets-banner file" "$(petart_chk)" "55 11 0 0 [] []"
 BN=$GAME/assets/img/catfish/banner-CB-pets.png; BU=$GAME/assets/img/ph/npc-coral-pennyfeather.png
-pbn() { pp 'echo strpos(petshop_banner_html("CB", "X"), "catfish/banner-CB-pets.png") !== false ? "png" : "fallback", "/", strpos(npc_portrait(["name" => "C", "slug" => "coral-pennyfeather", "species" => "Gnome", "image" => ""]), "ph/npc-coral-pennyfeather.png") !== false ? "bust" : "nobust";'; }
+pbn() { pp 'require_once "'$GAME'/includes/items.php"; require_once "'$GAME'/includes/friends.php"; echo strpos(petshop_banner_html("CB", "X"), "catfish/banner-CB-pets.png") !== false ? "png" : "fallback", "/", strpos(npc_portrait(["name" => "C", "slug" => "coral-pennyfeather", "species" => "Gnome", "image" => ""]), "ph/npc-coral-pennyfeather.png") !== false ? "bust" : "nobust";'; }
 PB1=$(pbn); mv $BN $BN.x; mv $BU $BU.x; PB2=$(pbn); mv $BN.x $BN; mv $BU.x $BU
 ok "pets art: with the files the shop shows the banner PNG and the keeper bust PNG from ph/ (no admin upload: npcs.image stays empty); without them it falls back as before (placeholder or name box, never an error)" "$PB1 $PB2/$(dbv "SELECT COUNT(*) FROM npcs WHERE slug='coral-pennyfeather' AND COALESCE(image,'')=''")" "png/bust fallback/nobust/1"
 
@@ -1586,7 +1586,7 @@ P
 
 # --- the room things in a real browser (tests/catfish_pets.js; skipped without playwright): all 8 spots filled with the real sprites, a ready Chime tapped on the stage, the Room things panel in the hub
 if node -e "require('playwright')" 2>/dev/null; then
-  clean_pets; cp $PETART/cf-pet-*.png $GAME/assets/img/catfish/
+  clean_pets; cp $PETART/cf-pet-*.png $PETART/banner-*-pets.png $GAME/assets/img/catfish/
   for k in amphora conch_shell bonsai chai_stall_sign steel_pan_chime hammock_net calabash_bowl lemon_on_a_string; do own $k; done
   metaset '$m["slotn"]=["ceiling","rod"]; $m["slots"]=["1"=>"amphora","2"=>"conch_shell","3"=>"bonsai","4"=>"chai_stall_sign","5"=>"steel_pan_chime","6"=>"hammock_net","7"=>"calabash_bowl","8"=>"lemon_on_a_string"];'
   dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 7200 )) WHERE user_id=$UID_"; dbx "UPDATE catfish_state SET last_tick=$(date +%s) WHERE user_id=$UID_"

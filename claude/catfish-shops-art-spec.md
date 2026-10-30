@@ -3,6 +3,7 @@
 Design source: `claude/plan-catfish-petshops.md` (sections 1-3, 7). One shop = one Opus artist doing 2 jobs: ITEMS (5 sprites) or FRONT (banner + shopkeeper bust).
 
 ## Naming
+- FINAL NAMES (installed 2026-10-30): item `game/assets/img/catfish/cf-pet-<item key>.png` (the key is the one in `game/includes/data/catfish_pets.php`; a few differ from the list below, e.g. `parrot_perch`, `acacia_perch`), banner `game/assets/img/catfish/banner-<CODE>-pets.png` (480x120, upper-case region code), bust `game/assets/img/ph/npc-<keeper-slug-with-hyphens>.png` (80x100; e.g. `npc-coral-pennyfeather.png`; the art folder keeps the underscore form). `tools/catfish_build_art.py` reads names and sizes from the data file.
 - item sprite: `cf-pet-<slug>.png` (slug below); shop banner: `banner-<code>-pets.png`; shopkeeper bust: `npc-<shopkeeper_slug>.png` (slug = lowercase, non-alphanumerics to `_`; e.g. coral_pennyfeather).
 - Match the ACTUAL sizes/style of existing `banner-*` and `npc-*` PNGs in `game/assets/img/` (and the NPC/banner Lua in `aseprite-source/final/scripts/`); the 480x120 / 400x500 figures in the plan are the 2x written sizes, check the real files and report what you matched.
 
