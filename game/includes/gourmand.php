@@ -346,6 +346,20 @@ function gourmand_served_this_tour(int $uid, string $code, string $course, ?stri
 }
 
 /**
+ * Tell the jobs, callings and Hollow jars that a course was served: job_event('serve', region, 1, course + spoons). Called once per paid serve,
+ * AFTER the commit (the ledger and the claim are the truth; a refusal never gets here). Never breaks the serve.
+ */
+function gourmand_fire(int $uid, string $region, string $course, int $spoons): void
+{
+    try {
+        require_once __DIR__ . '/jobs.php';
+        job_event($uid, 'serve', $region, 1, ['course' => $course, 'spoons' => $spoons, 'region' => $region]);
+    } catch (Throwable $e) {
+        error_log('gourmand serve event: ' . $e->getMessage());
+    }
+}
+
+/**
  * Serve one course of the region you are standing in. Any day, from anywhere in the region. One serve per course per region per tour
  * (the traveller_deals claim). The user row is locked first, so two taps at once can't both pay. Returns [ok, message].
  */
@@ -442,6 +456,7 @@ function gourmand_serve(array $u, string $course): array
     if ($petals > 0) give_petals($uid, $petals, 'gourmand');
     if ($xp > 0) give_xp($uid, $xp, 'Gourmand');
     db()->commit();
+    gourmand_fire($uid, $code, $course, $spoons);
     $tastes = gourmand_tastes($uid);
     if ($tastes >= 14 && $tastesBefore < 14) {
         $_SESSION['gourmand_hold'] = 1;   // the finale waits for the next meeting
@@ -579,6 +594,7 @@ function gourmand_serve_home(array $u, string $slug): array
     give_xp($uid, GOURMAND_HOME_PAY[1], 'Gourmand');
     friend_add($uid, $npcId, 10);
     db()->commit();
+    gourmand_fire($uid, $home, 'home', $spoons);
     prize('🥄', 'The Home Plate', str_repeat('🥄', $spoons) . ' ' . gourmand_word($spoons),
         ['“I tasted ' . gourmand_region_name($home) . ' in that. I think I tasted home.”', '+' . money(GOURMAND_HOME_PAY[0]), '+' . GOURMAND_HOME_PAY[1] . ' XP', '💛 +10 with Pomeroy']);
     return [true, 'Pomeroy ate your ' . $item['name'] . ': ' . str_repeat('🥄', $spoons) . ' (' . gourmand_word($spoons) . '). The Home Plate is done.'];

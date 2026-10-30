@@ -35,6 +35,7 @@ function admin_menu_def(): array
         ]],
         ['folk', '🧑‍🌾', 'Folk & shops', [
             ['r:npcs', '🧙', null, 'Characters who live in the world', 't:npcs'],
+            ['gourmand.php', '🥄', 'The Gourmand', 'Pomeroy’s camp schedule, menus and what gnomes served (read-only)', ''],
             ['r:npc_schedules', '🕒', null, 'Where each NPC is, hour by hour', 't:npc_schedules'],
             ['r:shops', '🏪', null, 'Shops, opening and staffing', 't:shops'],
             ['r:shop_stock', '📦', null, 'What each shop sells, and for how much', 't:shop_stock'],

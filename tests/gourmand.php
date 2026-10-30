@@ -244,6 +244,17 @@ $at('Maizehollow'); $stock('tomatillo', 0, null);
 ok('serving the Maplewold menu from another region is refused (that region wants its own)', gourmand_here($U()) === 'CA' && !gourmand_serve($U(), 'plate')[0] && $held('wild-rice') === 3);
 $at('The Maplewold');
 
+echo "== the serve event: jobs, hollow jars and callings hear one event per paid serve\n";
+require_once $argv[1] . '/includes/jobs.php';
+require_once $argv[1] . '/includes/hollow_goals.php';
+require_once $argv[1] . '/includes/calling_quests.php';
+$JK = job_period_key('daily');
+q('DELETE FROM user_jobs WHERE user_id = ?', [$uid]);
+db_insert('user_jobs', ['user_id' => $uid, 'period' => 'daily', 'period_key' => $JK, 'kind' => 'serve', 'title' => 'Serve', 'text' => 'Serve', 'qty' => 99, 'progress' => 0, 'status' => 'active', 'taken_at' => now()]);
+$jobN = fn() => (int)q_val("SELECT progress FROM user_jobs WHERE user_id = ? AND kind = 'serve'", [$uid]);
+ok('serve is a calling event kind, and a spoons filter reads the ctx', in_array('serve', CALLING_EVENT_KINDS, true) && calling_match(calling_spec('spoons>=2'), 'NA', ['spoons' => 3]) && !calling_match(calling_spec('spoons>=2'), 'NA', ['spoons' => 1]));
+ok('a Hollow serve jar counts 1 per event, and no other jar counts it', hollow_goal_adds(['kind' => 'serve', 'filter' => ''], 'serve', 'NA', 1, []) === 1 && hollow_goal_adds(['kind' => 'cook', 'filter' => ''], 'serve', 'NA', 1, []) === 0 && hollow_goal_adds(['kind' => 'any', 'filter' => ''], 'serve', 'NA', 1, []) === 0);
+ok('every refusal so far fired nothing', $jobN() === 0);
 echo "== serving: the first time pays every spoon level once\n";
 $c0 = $coins(); $x0 = $xp(); $f0 = $friend(); $d0 = $deals(); $p0 = $prizes();
 [$okk, $m] = gourmand_serve($U(), 'plate');
@@ -252,11 +263,13 @@ ok('plate at quality 70 = 3 spoons, "Splendid"', $okk && str_contains($m, 'Splen
 ok('0 -> 3 spoons pays 240 Petals (60 + 60 + 120)', $coins() - $c0 === 240, (string)($coins() - $c0));
 ok('and 80 XP (20 + 20 + 40), the ask is taken, friendship +10, one claim, one prize card', $xp() - $x0 >= 80 && $held('wild-rice') === 0 && $friend() - $f0 === 10 && $deals() === $d0 + 1 && $prizes() === $p0 + 1, ($xp() - $x0) . '/' . $friend());
 ok('the claim row is Y-m|CODE|course', (bool)q_val("SELECT 1 FROM traveller_deals WHERE user_id = ? AND npc_id = ? AND stop = '2026-10|NA|plate'", [$uid, $pom]));
+ok('the first paid serve fired the event once', $jobN() === 1, (string)$jobN());
 $stock('wild-rice', 3, 70); $c1 = $coins();
 [$okk, $m] = gourmand_serve($U(), 'plate');
 ok('the same course twice in one tour is refused, nothing taken or paid', !$okk && str_contains($m, 'Already served') && $held('wild-rice') === 3 && $coins() === $c1, $m);
 $d1 = $deals(); gourmand_serve($U(), 'plate'); gourmand_serve($U(), 'plate');
 ok('and no extra claim rows', $deals() === $d1);
+ok('and a refused repeat fires nothing', $jobN() === 1, (string)$jobN());
 
 echo "== a Taste (full table) and a golden table pay once\n";
 $c0 = $coins();
@@ -268,6 +281,7 @@ ok('jar at quality 70 (62 for 3) = 3 spoons', $o2 && (int)$led('NA', 'jar')['spo
 ok('the jar completes the table: 240 + 150 (Taste) + 300 (golden) = 690 Petals', $coins() - $c0 === 690, (string)($coins() - $c0));
 ok('+2 Wild Rice seeds and +1 Pecan seed (the NA treasure seed)', $held('wild-rice-seed') - $ws0 === 2 && $held('pecan-seed') - $pe0 === 1);
 ok('table and gold claim rows exist, Tastes = 1', $led('NA', 'table') && $led('NA', 'gold') && gourmand_tastes($uid) === 1 && gourmand_progress($uid)['gold'] === 1);
+ok('pot and jar fired once each (3 serves, 3 events), however many rewards they paid', $jobN() === 3, (string)$jobN());
 ok('titles: Guest of the Gourmand, not yet Well Fed or Second Spoon', gourmand_titles($uid) === ['Guest of the Gourmand']);
 echo "-- next month: the tip only, and the table is not paid twice\n";
 $day('2026-11-14');
@@ -420,13 +434,16 @@ $stock('wild-rice-hotdish', 2, 45);
 ok('the right dish at one spoon (quality 45) is refused: it needs two. Nothing taken', !$okk && str_contains($m, 'two spoons') && $held('wild-rice-hotdish') === 2 && !$led('HOME', 'home') && $coins() === $c0, $m);
 $stock('wild-rice-hotdish', 2, 50); $x0 = $xp(); $f0 = $friend();
 ok('the options list offers it (quality 50 = 2 spoons)', (function () use ($U) { foreach (gourmand_home_options($U()) as $o) if ($o['slug'] === 'wild-rice-hotdish' && $o['spoons'] === 2) return true; return false; })());
+$evBefore = $jobN();
 [$okk, $m] = gourmand_serve_home($U(), 'wild-rice-hotdish');
 $H = $led('HOME', 'home');
 ok('at quality 50 (2 spoons) from Mossbottom it is served: one dish taken, ledger HOME/home, paid 1', $okk && $held('wild-rice-hotdish') === 1 && $H && (int)$H['paid'] === 1 && (int)$H['spoons'] === 2 && (int)$H['best_q'] === 50, $m);
+ok('the Home Plate fired the event once, region NA', $jobN() === $evBefore + 1, (string)$jobN());
 ok('it pays 200 Petals and 40 XP once, friendship +10', $coins() - $c0 === GOURMAND_HOME_PAY[0] && $xp() - $x0 >= 40 && $friend() - $f0 === 10, (string)($coins() - $c0));
 $c0 = $coins();
 [$okk, $m] = gourmand_serve_home($U(), 'wild-rice-hotdish');
 ok('a second Home Plate is refused: nothing taken, nothing paid, one row', !$okk && str_contains($m, 'already') && $held('wild-rice-hotdish') === 1 && $coins() === $c0 && (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'home'", [$uid]) === 1, $m);
+ok('and the refused second one fired nothing', $jobN() === $evBefore + 1);
 ok('and gourmand_claim on HOME/home is refused too', gourmand_claim($uid, 'HOME', 'home') === false);
 ok('the Home Plate does not change Tastes or the Spoon totals', gourmand_tastes($uid) === 14 && gourmand_progress($uid)['spoons'] === (int)q_val("SELECT COALESCE(SUM(spoons), 0) FROM gourmand_ledger WHERE user_id = ? AND course IN ('plate', 'pot', 'jar')", [$uid]));
 echo "-- the off switch also shuts the new courses\n";
@@ -496,6 +513,13 @@ q('INSERT OR REPLACE INTO gourmand_ledger (user_id, region, course, spoons) VALU
 [$okk] = fresh_start_player($uid);
 ok('fresh start wipes this gnome\'s ledger and claim rows, and leaves another gnome\'s alone', $okk && (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$uid]) === 0 && $deals() === 0 && (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$other]) === 1);
 q('DELETE FROM gourmand_ledger WHERE user_id = ?', [$other]);
+
+echo "== the serve event: off-switch\n";
+cfg(['gourmand_open' => '0']); gourmand_sync_active();
+$off0 = $jobN(); $lead0 = (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$uid]);
+$day('2026-12-14'); $at('The Maplewold'); $rowO = gourmand_menu('NA', '2026-12')['plate']; $stock($rowO['item'], $rowO['qty'], 70);
+ok('off: a serve is refused and fires nothing', !gourmand_serve($U(), 'plate')[0] && $jobN() === $off0 && (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$uid]) === $lead0);
+ok('off: the Hollow pool never offers the serve jar; on, it does', !in_array('serve', array_column(hollow_goal_pool(), 0), true) && (function () { cfg(['gourmand_open' => '1']); $r = in_array('serve', array_column(hollow_goal_pool(), 0), true); cfg(['gourmand_open' => '0']); return $r; })());
 
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

@@ -55,6 +55,10 @@ dbx "UPDATE users SET onboarded=1, tour_step=0 WHERE username='admin'"
 getA() { curl -s -c $C2 -b $C2 "$BASE/$1" -o $H2 -w '%{http_code}'; }
 postA() { local page=$1; shift; curl -s -c $C2 -b $C2 -X POST "$BASE/$page" --data-urlencode "csrf=$(csrf $H2)" "$@" -o $H2 -w '%{http_code}'; }
 for t in now journal menu howto; do chk "admin: gourmand.php?t=$t" "$(getA "gourmand.php?t=$t")" 200; done
+chk "admin preview page" "$(getA admin/gourmand.php)" 200; grep -q 'The Gourmand' $H2 && grep -q 'Off' $H2 && grep -q 'Plate' $H2 && echo "ok   the admin preview shows the state and the schedule"
+chk "admin preview for a month" "$(getA 'admin/gourmand.php?tour=2027-02')" 200
+chk "admin preview is not for players" "$(get admin/gourmand.php)" 403
+getA admin/index.php >/dev/null; grep -q 'admin/gourmand.php' $H2 && echo "ok   the admin menu links the preview"
 grep -q 'Closed to players' $H2 && echo "ok   admin sees the closed banner"
 chk "admin: nav tile" "$(getA gnome.php >/dev/null; grep -c 'gourmand.php' $H2)" 1
 getA 'admin/settings.php?q=gourmand' >/dev/null; grep -q 'gourmand_open' $H2 && echo "ok   settings page lists gourmand_open"

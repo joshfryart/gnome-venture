@@ -28,6 +28,7 @@ const HOLLOW_GOAL_POOL = [
     ['craft', '', 'Make {n} things in the workshop and kitchen', '🔨', 12, 'things'],
     ['townact', '', 'Enjoy {n} outings in town squares', '🏘️', 18, 'outings'],
     ['defeat', '', 'Meet {n} creatures on the roads', '🐞', 12, 'creatures'],
+    ['serve', '', 'Serve Pomeroy {n} courses', '🥄', 3, 'courses'],   // only while the Gourmand is on (hollow_goal_make_weekly)
 ];
 
 /** Tier fractions and the items that come with each tier (coins come from the goal_tier_coins setting). */
@@ -62,18 +63,25 @@ function hollow_goal_round(int $n): int
     return max($step, (int)(round($n / $step) * $step));
 }
 
+/** The pool entries that can be picked now: a crop entry needs its plant, the serve jar needs the Gourmand switched on for players (invisible while off). */
+function hollow_goal_pool(): array
+{
+    $pool = [];
+    foreach (HOLLOW_GOAL_POOL as $e) {
+        if ($e[0] === 'harvest' && $e[1] !== '' && !q_val('SELECT 1 FROM plants WHERE slug = ?', [$e[1]])) continue;
+        if ($e[0] === 'serve' && setting('gourmand_open') !== '1') continue;
+        $pool[] = $e;
+    }
+    return $pool;
+}
+
 /** Make this week's jar if it does not exist yet. Returns it. */
 function hollow_goal_make_weekly(): ?array
 {
     [$key, $start, $end] = hollow_goal_week();
     $pk = 'week:' . $key;
     if ($g = q_one('SELECT * FROM hollow_goals WHERE period_key = ?', [$pk])) return $g;
-    // a pool entry whose crop exists (and, for crops, rotate by week so the same one doesn't come twice in a row)
-    $pool = [];
-    foreach (HOLLOW_GOAL_POOL as $e) {
-        if ($e[0] === 'harvest' && $e[1] !== '' && !q_val('SELECT 1 FROM plants WHERE slug = ?', [$e[1]])) continue;
-        $pool[] = $e;
-    }
+    $pool = hollow_goal_pool();
     if (!$pool) return null;
     [$kind, $filter, $title, $icon, $per] = $pool[crc32('hollowgoal|' . $key) % count($pool)];
     $target = hollow_goal_round($per * hollow_goal_gnomes());

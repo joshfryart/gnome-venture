@@ -22,7 +22,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/gnome.php';
 
 const CALLING_EVENT_KINDS = ['harvest', 'water', 'gather', 'cook', 'craft', 'defeat', 'befriend', 'page', 'arrive', 'walk', 'depth',
-    'wonder', 'haven', 'travel', 'eat', 'sell', 'talk', 'gift', 'tend', 'seed_saved', 'townact'];
+    'wonder', 'haven', 'travel', 'eat', 'sell', 'talk', 'gift', 'tend', 'seed_saved', 'townact', 'serve'];
 const CALLING_STATE_KINDS = ['grade', 'beds', 'regions', 'places', 'clears', 'friends', 'mastered', 'known', 'guides', 'recipes', 'roads'];
 const CALLING_MAX_KINDS = ['depth', 'grade'];   // events that keep the highest value instead of adding up
 
