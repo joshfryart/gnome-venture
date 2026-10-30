@@ -14,7 +14,7 @@ local D = "#2a1a10"
 
 local SKIN  = GV.ramp("#8c5a34")                       -- warm brown skin
 local BEARD = GV.ramp("#ece6dc", { pale = true })      -- white beard and brows
-local CAP   = GV.ramp("#f1ece0", { shade = "#d8c49a", bounce = "#e6d4ac", deep = "#9a6b3f" })
+local CAP   = GV.ramp("#f1ece0", { dot = "#fff3c8", shade = "#d8c49a", bounce = "#e6d4ac", deep = "#9a6b3f" })
 local SHIRT = GV.ramp("#4f9a45")                       -- moss shirt
 local CLOTH = GV.ramp("#e8a317")                       -- gold striped shoulder cloth
 local BASKET = GV.ramp("#d9a660", { shade = "#b07a45", deep = "#8a4f2a", bounce = "#c98a4a" })
