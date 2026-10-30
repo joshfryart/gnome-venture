@@ -1,13 +1,14 @@
 # ph/hummus-jar
 - canvas: 64x64, mode sticker, 1x.
-- subject: A wide-mouthed glass jar of hummus jar, #d6b98a smooth contents, a swirl on top, cream label and gold lid.
-- must-read-at-16px: wide jar, #d6b98a smooth contents with a top swirl, gold lid.
-- distinct: smooth fill showing a 2px swirl groove on top, with a wide squat shape unlike the tall jars.
+- subject: A wide shallow stoneware pot with lug handles, parchment cover tied with twine, a chickpea label.
+- must-read-at-16px: a low wide pot with two ear-handles and a tied paper top.
+- distinct: stoneware pot: low and wide with two lug handles and parchment tied top; the widest spread container and the only ear-handled one.
 - parts (back to front):
-  1. jar glass: rrect x 14..50, y 24..54 (r8), #a9d6ea
-  2. fill: rrect x 16..48, y 28..52 (r6), #d6b98a with a 2px lighter swirl
-  3. label: rect x 22..42, y 38..47, cream #f4f0e0
-  4. lid: rrect x 13..51, y 16..26 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. pot body: rrect x8..56, y30..57 (r8), stoneware #c9a96e with 1px #9a6b3f glaze drip at y42
+  2. lug handles: loops 6x8 at (6,40) and (58,40), #c9a96e
+  3. parchment cover: ellipse x10..54, y22..36, #f4f0e0, scalloped edge, 3 fold lines 1px #c9c5bc, bulging up in the middle with a hint of hummus #d6b98a
+  4. twine: 2 wraps 1px #7a4a1f at y32 with a bow 4x3 at (32,32)
+  5. label: rect x24..40, y44..54 cream #f4f0e0; emblem chickpea circle r3 #d6b98a with a 1px beak and a paprika dust dot #a8241f
+- joins: twine bow; edge stitch dashes along the parchment scallops; no glass.
 - face: none.
-- notes: pantry food from the Pantry (chickpea x4, sesame x1, garlic x1). Glass lit upper-left, gloss comma at (24,32). Keep #d6b98a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Chickpea x4, sesame x1, garlic x1. Pale tan like tahini, but squat and wide. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

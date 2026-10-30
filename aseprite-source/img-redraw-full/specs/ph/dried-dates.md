@@ -1,13 +1,14 @@
 # ph/dried-dates
 - canvas: 64x64, mode sticker, 1x.
-- subject: A small linen bag or tray of dried dates, #5a3a1f pieces spilling a few from the top; chewy pantry snack.
-- must-read-at-16px: a drawstring linen bag with #5a3a1f pieces peeking out.
-- distinct: a tied cream linen bag with 3 #5a3a1f pieces spilling from the mouth, the only non-glass preserve.
+- subject: A woven palm-leaf basket with an arched handle, heaped with glossy sticky brown dates.
+- must-read-at-16px: a round basket with a high handle and a mound of brown ovals.
+- distinct: handled basket: round woven bowl with a tall arched carry handle; the only item with a handle arc over the contents.
 - parts (back to front):
-  1. bag body: rrect x 16..48, y 22..54 (r8), linen #e8d8b0
-  2. drawstring: 2px line y 26, x 20..44, #8a5a2f, bow at (32,26)
-  3. pieces: three ovals r4 at (24,20), (32,17), (40,20), #5a3a1f
-  4. label tag: rect x 26..38, y 36..46, cream #f4f0e0
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. basket body: rrect x10..54, y34..57 (r8), palm-leaf weave #c9a96e, 1px #9a6b3f diagonal weave lines every 3px, rim band y34..38 #9a6b3f
+  2. dates pile: eight ovals 9x5 at (20,30),(30,26),(40,30),(26,34),(36,34),(46,34),(32,20),(24,24), #5a3a1f with 1px #7a4a1f highlight along the top and a 1px #2a1a10 crease line
+  3. handle: 3px arc #9a6b3f from (12,34) up to (32,6) down to (52,34), woven ticks 1px #7a4a1f every 4px
+  4. tag: cream #f4f0e0 rect x26..38, y42..52 hung on a 1px string from the rim at (32,38)
+  5. emblem: date palm tree: trunk 1px #7a4a1f (32,50)->(32,45), crown of 5 #4f9a45 fronds 4px
+- joins: weave rim edge stitch; handle lashing at the rim; no glass.
 - face: none.
-- notes: pantry food from the Pantry (date x5). Glass lit upper-left, gloss comma at (24,32). Keep #5a3a1f as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Date x5. Dates #5a3a1f are dark; keep the basket light #c9a96e behind them for contrast. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

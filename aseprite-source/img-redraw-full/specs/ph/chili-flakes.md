@@ -1,13 +1,14 @@
 # ph/chili-flakes
 - canvas: 64x64, mode sticker, 1x.
-- subject: A small linen bag or tray of chili flakes, #d6322b pieces spilling a few from the top; chewy pantry snack.
-- must-read-at-16px: a drawstring linen bag with #d6322b pieces peeking out.
-- distinct: a tied cream linen bag with 3 #d6322b pieces spilling from the mouth, the only non-glass preserve.
+- subject: A folded kraft paper packet sealed with a red wax dot, with bright red chili flakes spilling from one corner onto a tiny wooden spoon.
+- must-read-at-16px: a small tilted envelope with a red wax dot and a scatter of red flakes.
+- distinct: paper packet: a flat, tilted kraft envelope with a wax seal and spilled flakes; the flakes are tiny scattered dots, not a mass.
 - parts (back to front):
-  1. bag body: rrect x 16..48, y 22..54 (r8), linen #e8d8b0
-  2. drawstring: 2px line y 26, x 20..44, #8a5a2f, bow at (32,26)
-  3. pieces: three ovals r4 at (24,20), (32,17), (40,20), #d6322b
-  4. label tag: rect x 26..38, y 36..46, cream #f4f0e0
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. packet body: parallelogram x12..52, y20..56, kraft #c9a96e, tilted 8 degrees; flap triangle top x12..52, y20..34 #d8b97e with 1px fold line #9a6b3f
+  2. wax seal: circle r4 at (32,34) #a8241f with 1px #d6322b highlight
+  3. spilled flakes: fourteen 1-2px specks #d6322b at (14..24, 48..56) fan plus 3 #a8241f
+  4. wooden spoon: oval x6..16, y50..56 #c9a96e filled with flakes + handle 1px line #9a6b3f to (24,50)
+  5. emblem: chili pod 8x3 #d6322b curved with a #4f9a45 cap, printed at (32,46)
+- joins: folded flap edge stitch thread-gold dashes; wax seal covers the join.
 - face: none.
-- notes: pantry food from the Pantry (chili-pepper x6). Glass lit upper-left, gloss comma at (24,32). Keep #d6322b as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Chili pepper x6. Flakes are specks, not rings; the red #d6322b is the loudest colour in the shard. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

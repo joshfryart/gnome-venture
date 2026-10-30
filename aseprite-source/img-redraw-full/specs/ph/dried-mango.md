@@ -1,13 +1,13 @@
 # ph/dried-mango
 - canvas: 64x64, mode sticker, 1x.
-- subject: A small linen bag or tray of dried mango, #f0a02f pieces spilling a few from the top; chewy pantry snack.
-- must-read-at-16px: a drawstring linen bag with #f0a02f pieces peeking out.
-- distinct: a tied cream linen bag with 3 #f0a02f pieces spilling from the mouth, the only non-glass preserve.
+- subject: A bamboo-mat tray fanned with golden dried mango strips tied by a twine band, a mango silhouette burned into the mat.
+- must-read-at-16px: a flat woven tray with five tall orange-gold strips fanned out.
+- distinct: fan of tall strips: five long tapering strips splayed like a hand of cards from one tie point on a flat bamboo mat; only vertical fan shape in the shard.
 - parts (back to front):
-  1. bag body: rrect x 16..48, y 22..54 (r8), linen #e8d8b0
-  2. drawstring: 2px line y 26, x 20..44, #8a5a2f, bow at (32,26)
-  3. pieces: three ovals r4 at (24,20), (32,17), (40,20), #f0a02f
-  4. label tag: rect x 26..38, y 36..46, cream #f4f0e0
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bamboo mat: rrect x6..58, y40..56 (r2), #c9a96e with 1px #9a6b3f vertical stripes every 3px
+  2. mango strips: five rounded strips each 6x30, angled from the tie, #f0a02f, fan (center (32,40)) tips at x12,22,32,42,52, y12..16; 1px #c8661f fibre line per strip
+  3. twine tie: rect x24..40, y38..42 #7a4a1f 1px cross hatch; bow 4x3 at (40,40)
+  4. label burn: mango silhouette 8x6 oval + leaf #7a4a1f at (32,50) on the mat
+- joins: twine tie is the join; edge stitch dashes along the mat rim.
 - face: none.
-- notes: pantry food from the Pantry (mango x3). Glass lit upper-left, gloss comma at (24,32). Keep #f0a02f as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Mango x3. Strips #f0a02f with sun-gold #f5cf6a highlight; keep tips pointed so it reads as strips, not coins. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

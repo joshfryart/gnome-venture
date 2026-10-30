@@ -1,14 +1,15 @@
 # ph/sea-buckthorn-juice
 - canvas: 64x64, mode sticker, 1x.
-- subject: A round-bellied glass bottle of sea buckthorn juice, #f08a24 liquid with a cork and a cream label; sweet syrupy drink.
-- must-read-at-16px: round-bellied bottle with a cork, #f08a24 liquid, cream label.
-- distinct: round-bellied glass with a narrow neck and cork, unlike the jars; liquid is #f08a24 with a lit upper-left highlight.
+- subject: A round Florence flask of orange sea buckthorn juice, neck wrapped in twine, a berry-laden twig on the label.
+- must-read-at-16px: round ball bottle with a long thin neck wound with twine; orange #f08a24 liquid.
+- distinct: Florence flask: a perfect round ball body with a long thin neck wound in twine; the roundest silhouette and the only twine-wrapped neck.
 - parts (back to front):
-  1. bottle body: ellipse x 16..48, y 24..56, pale glass #d8ecf0
-  2. neck: rect x 28..36, y 12..24, same glass
-  3. liquid: ellipse x 18..46, y 28..54, #f08a24
-  4. label: rect x 22..42, y 36..46 (r2), cream #f4f0e0, 2 umber ticks
-  5. cork: rect x 28..36, y 8..14, #c9a96e
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. flask body: circle r15 at (32,42), glass #d8ecf0
+  2. neck: rect x29..35, y10..28, glass
+  3. liquid: circle r13 at (32,43), #f08a24; darker #c8661f crescent lower right
+  4. twine wraps: five 1px #c9a96e bands across the neck at y14,16,18,20,22 (x29..35) and a loop tail (36,22)->(38,26)
+  5. cork: rect x29..35, y6..11, #c9a96e
+  6. label: tag on string, rect x26..38, y40..52 cream #f4f0e0; emblem twig 1px #7a4a1f (28,50)->(36,42) with 5 berries r1.5 #f08a24 and 2 leaves #a4b86a
+- joins: twine wraps are the join; no gold seam.
 - face: none.
-- notes: pantry food from the Pantry (sea-buckthorn x5). Glass lit upper-left, gloss comma at (24,32). Keep #f08a24 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Sea buckthorn x5. Orange, but a brighter yellow-orange than the cane or cider bottles; keep the thin twig/berry label. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

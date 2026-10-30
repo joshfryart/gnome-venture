@@ -1,14 +1,15 @@
 # ph/lingonberry-cordial
 - canvas: 64x64, mode sticker, 1x.
-- subject: A round-bellied glass bottle of lingonberry cordial, #d6322b liquid with a cork and a cream label; sweet syrupy drink.
-- must-read-at-16px: round-bellied bottle with a cork, #d6322b liquid, cream label.
-- distinct: round-bellied glass with a narrow neck and cork, unlike the jars; liquid is #d6322b with a lit upper-left highlight.
+- subject: A tall dark-green wine-style bottle of bright red lingonberry cordial, neck dipped in red wax, with a lingonberry sprig label.
+- must-read-at-16px: tall slim bottle with a thick dripping red wax cap; bright red #d6322b liquid.
+- distinct: wax-sealed tall bottle: the tallest and slimmest silhouette, capped by a bulbous red wax dip with 2 drips down the neck; no cork, cap or stopper.
 - parts (back to front):
-  1. bottle body: ellipse x 16..48, y 24..56, pale glass #d8ecf0
-  2. neck: rect x 28..36, y 12..24, same glass
-  3. liquid: ellipse x 18..46, y 28..54, #d6322b
-  4. label: rect x 22..42, y 36..46 (r2), cream #f4f0e0, 2 umber ticks
-  5. cork: rect x 28..36, y 8..14, #c9a96e
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bottle body: rrect x22..42, y22..57 (r5), glass #9ec3c8 (greenish)
+  2. shoulder/neck: rect x28..36, y8..24, same glass
+  3. liquid: rrect x24..40, y26..55, #d6322b, darker #a8241f crescent right
+  4. wax seal: rrect x26..38, y6..18 (r3), #a8241f with a 2px #d6322b highlight stripe; drips: 2x5 at (27,18) and 2x3 at (35,18)
+  5. label: rect x24..40, y36..50 cream #f4f0e0
+  6. emblem: sprig 1px stem #4f9a45 (28,48)->(36,40) with 3 oval leaves 3x2 #4f9a45 and 3 berries r2 #d6322b at (30,43),(33,42),(36,43)
+- joins: wax drip edges are the join; no gold seam, no glass stitch.
 - face: none.
-- notes: pantry food from the Pantry (lingonberry x5). Glass lit upper-left, gloss comma at (24,32). Keep #d6322b as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Lingonberry x5: brighter and more orange-red than the cherry and cranberry bottles; do not use #8a1f2a or #a8241f for the fill. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

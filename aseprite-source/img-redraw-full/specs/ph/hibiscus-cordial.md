@@ -1,14 +1,15 @@
 # ph/hibiscus-cordial
 - canvas: 64x64, mode sticker, 1x.
-- subject: A round-bellied glass bottle of hibiscus cordial, #a8241f liquid with a cork and a cream label; sweet syrupy drink.
-- must-read-at-16px: round-bellied bottle with a cork, #a8241f liquid, cream label.
-- distinct: round-bellied glass with a narrow neck and cork, unlike the jars; liquid is #a8241f with a lit upper-left highlight.
+- subject: A long-necked crown-capped bottle of tart magenta hibiscus cordial, a five-petal flower on the label.
+- must-read-at-16px: slim beer-style bottle with a silver crown cap and a flower label; magenta-red #a8241f liquid.
+- distinct: crown-cap longneck: a smooth S-curve from shoulder to a thin neck with a serrated silver cap; the only bottle with a crimped metal cap.
 - parts (back to front):
-  1. bottle body: ellipse x 16..48, y 24..56, pale glass #d8ecf0
-  2. neck: rect x 28..36, y 12..24, same glass
-  3. liquid: ellipse x 18..46, y 28..54, #a8241f
-  4. label: rect x 22..42, y 36..46 (r2), cream #f4f0e0, 2 umber ticks
-  5. cork: rect x 28..36, y 8..14, #c9a96e
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bottle body: rrect x20..44, y28..56 (r6) tapering to the neck at y20, glass #d8ecf0
+  2. neck: rect x28..36, y12..30, glass (slightly narrowing to x29..35 at y14)
+  3. liquid: rrect x22..42, y31..54, #a8241f with a #e46a9b 2px highlight stripe at x24..26
+  4. crown cap: rect x26..38, y8..13, #8b8f96, serrated edge: alternating 1px notches along y13
+  5. label: oval x23..41, y36..52, cream #f4f0e0
+  6. emblem: hibiscus 5 petals r3 round #e46a9b around centre (32,44), centre 2px #f5cf6a, 1px stamen line #e0501f to (35,40)
+- joins: crimp line under the cap is the seam; no edge stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (hibiscus x4). Glass lit upper-left, gloss comma at (24,32). Keep #a8241f as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry. Hibiscus x4. The flower is the label; the liquid must stay #a8241f (crimson), not pink, so it does not copy the rhubarb bottle. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.
