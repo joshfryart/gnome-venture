@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.6
+- **Pantry phone sheet slimmer.** The selected-recipe sheet shows one slim line per ingredient (icon, name, have/need) instead of the big squares, with a smaller title and tighter buttons. It starts closed; tap its header to open or close it (chevron shows the state); picking a recipe from the list opens it. Desktop unchanged.
+- Known failing on the base commit too: `gather150`, `folkoverlay`. Only `tests/pantry.sh` was re-run (2.2.5).
+
 ## 2.2.5
 - **Pantry redesigned (master-detail).** The Pantry tab is now one row of jar chips (Collect on each ready jar), a search box, Ready / Missing / To discover chips plus kind chips (Jam, Chutney, Pickle, Ferment, Cordial), a compact recipe list and a detail panel for the selected recipe with its ingredients and the Make buttons. On a phone the detail is a sticky sheet above the bottom bar, folded until a recipe is picked; the page is about 3,700 px tall instead of about 15,000. New `game/includes/pantry_view.php`, `.pantry2` block in `style.css`, a few lines in `site.js`; `tests/pantry.sh` updated for the new markup. Forms still post to `crafting.php`.
 - **Menu:** Garden, Arranging, Games, Whisker Pond (Cat Fish) and Puzzle Pals sit in a new **Hobbies** group (Whisker Pond and Puzzle Pals only while open). Games moved there from Out & about. On phones the menu sheet skips Garden, World, Satchel, Here and Tasks (already in the bottom bar); desktop keeps them.
