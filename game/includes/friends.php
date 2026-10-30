@@ -87,6 +87,7 @@ function npc_here(array $u, int $npcId): bool
     $t = q_one('SELECT * FROM npcs WHERE id = ? AND traveller IS NOT NULL', [$npcId]);
     if ($t) {
         require_once __DIR__ . '/npc_life.php';
+        if ($t['traveller'] === 'gourmand') return true;   // next version: he is there for everyone, at his camp or not
         return can_reach($u, traveller_stop($t)['town']);
     }
     $hour = hollow_hour();

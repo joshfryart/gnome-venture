@@ -11,7 +11,7 @@ const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.p
     // v0.7.47: most game pages update in place
     'world.php', 'trek.php', 'town.php', 'inventory.php', 'shop.php', 'crafting.php', 'jobs.php', 'gnome.php', 'community.php', 'market.php', 'folk.php', 'tend.php', 'book.php', 'gotm.php', 'event.php',
     'festival.php', 'marketday.php', 'hollow.php', 'pals.php', 'index.php',   // v1.2.0: festival + market-day stalls, the Hollow, friends and the Today tabs update in place too
-    'mushroom.php', 'letters.php', 'fair.php', 'pest.php'];   // v1.4.0: the last three game pages update in place too
+    'mushroom.php', 'letters.php', 'fair.php', 'pest.php', 'gourmand.php'];   // v1.4.0: the last three game pages update in place too
 
 // v2.0.88 Puzzle Pals: pages where a pal never turns up (the puzzle rooms and the pal book own the screen; the Treks stage; the event finisher). Admin pages, POSTs and Wren's tour are skipped anyway.
 const PPAL_QUIET_PAGES = ['puzzles.php', 'jigsaw.php', 'gifsaw.php', 'puzzlepals.php', 'puzzles_api.php', 'rainbarrel.php', 'gnomebeds.php', 'trek.php', 'event.php'];
@@ -655,6 +655,8 @@ function nav_sheet(array $u, string $page): string
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
         'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Gnome friends', $b['pals'] ?? '', 'friends']],
     ];
+    require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
+    if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
     if (tour_active($u) && (int)$u['level'] < 5) array_unshift($groups['You'], ['welcome.php', '🌱', 'Getting started', '', 'start']);   // v1.7.0 menu: only while the tour runs and below level 5
     require_once __DIR__ . '/festival.php';   // v1.0.0: a Festival tile while one runs
     if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)

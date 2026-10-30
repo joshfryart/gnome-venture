@@ -99,6 +99,7 @@ function villager_panel(array $u, int $nid, string $msg = '', bool $ok = true): 
     if (!$npc) return '';
     $here = npc_here($u, $nid);
     if ($here) npc_meet($uid, [$nid]);
+    if ($npc['traveller'] === 'gourmand') { require_once __DIR__ . '/gourmand.php'; gourmand_beats($u); }   // next version: his finale plays at the next meeting, here or on his page
     $f = friendship($uid, $nid);
     if (!$here && !q_val('SELECT 1 FROM user_npc_met WHERE user_id = ? AND npc_id = ?', [$uid, $nid]) && (int)$f['points'] === 0) return '';
     $lvl = friend_level((int)$f['points']);
@@ -142,9 +143,12 @@ function villager_panel(array $u, int $nid, string $msg = '', bool $ok = true): 
                 . gift_picker_html($npc, $f, $giftable, $bday, url('villagers.php'), '<input type="hidden" name="id" value="' . $nid . '">', ' data-vform="1"');
         }
         if ($npc['traveller'] && ($offer = traveller_offer($npc))) {
-            $done = traveller_dealt($uid, $npc);
-            $h .= '<form method="post" action="' . e(url('villagers.php')) . '" class="vact" data-vform="1">' . csrf_field() . '<input type="hidden" name="id" value="' . $nid . '"><input type="hidden" name="do" value="deal">'
-                . '<button class="btn small"' . ($done ? ' disabled' : '') . '>' . e($offer['label']) . ($done ? ' (done this visit)' : '') . '</button></form>';
+            if ($offer['kind'] === 'link') $h .= '<p class="vact"><a class="btn small" href="' . e(url($offer['url'])) . '">' . e($offer['label']) . '</a></p>';   // next version: the Gourmand is served on his own page
+            else {
+                $done = traveller_dealt($uid, $npc);
+                $h .= '<form method="post" action="' . e(url('villagers.php')) . '" class="vact" data-vform="1">' . csrf_field() . '<input type="hidden" name="id" value="' . $nid . '"><input type="hidden" name="do" value="deal">'
+                    . '<button class="btn small"' . ($done ? ' disabled' : '') . '>' . e($offer['label']) . ($done ? ' (done this visit)' : '') . '</button></form>';
+            }
         }
     } else {
         $h .= '<p class="help">Not anywhere you can reach right now. Find them in town or knock when they’re home.</p>';

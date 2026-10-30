@@ -563,7 +563,7 @@ function road_meet_candidates(array $scene, ?int $ts = null): array
     }
     foreach (q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1 ORDER BY id')->fetchAll() as $t) {
         $s = traveller_stop($t, $ts);
-        $started = $s['ends'] - TRAVEL_STOP_HOURS * 3600;
+        $started = $s['starts'] ?? ($s['ends'] - TRAVEL_STOP_HOURS * 3600);   // next version: the Gourmand's stay is whole days
         $town = (string)$s['town'];
         $touches = false;
         foreach ([$from, $to] as $l) if (($l['kind'] ?? '') === 'market' && (string)($l['region'] ?? '') === $town) $touches = true;
@@ -625,7 +625,7 @@ function road_meet_start(array $u, array &$exp, array $c): void
         $intro = road_meet_text($c['dir'] === 'in' ? '@trav-in' : '@trav-out', [], $vars, $now);
         $chat = road_meet_text('chat', [(string)$t['traveller'], (string)$t['personality']], $vars, $now);
         $enc = ['type' => 'meet', 'w' => 't', 'id' => (int)$t['id'], 'loc' => 0, 'ic' => npc_icon($t['species']), 'n' => $t['name'],
-            's' => 'Travelling ' . (string)$t['traveller'], 't' => $intro, 'l' => $chat];
+            's' => 'Travelling ' . ($t['traveller'] === 'gourmand' ? 'food writer' : (string)$t['traveller']), 't' => $intro, 'l' => $chat];
     }
     if ($enc['t'] === '') $enc['t'] = $enc['n'] . ' is out on the road.';
     if ($enc['l'] === '') $enc['l'] = '“Hello, ' . $gname . '.”';

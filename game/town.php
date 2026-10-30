@@ -245,7 +245,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     if (market_day_on()) $chips[] = '🧺 <b><a class="inl" href="' . e(url('marketday.php' . ($hub ? '?hub=1' : ''))) . '">Market day</a></b>: stalls are up!';
     elseif (($md = market_days_until()) > 0 && $md <= 2) $chips[] = '🧺 Market day in ' . $md . ' day' . ($md === 1 ? '' : 's');
     if ($chips): ?><ul class="tday__more"><?php foreach ($chips as $ch): ?><li class="tday__chip"><?= $ch ?></li><?php endforeach; ?></ul><?php endif; ?>
-    <?php foreach ($travHere as $th): ?><a class="tday__row" href="<?= e(url('folk.php?id=' . (int)$th['id'])) ?>"><span aria-hidden="true">🧭</span><span class="tday__rowt"><b><?= e($th['name']) ?></b> is visiting</span><span class="tday__go" aria-hidden="true">›</span></a><?php endforeach; ?>
+    <?php foreach ($travHere as $th): $isG = $th['traveller'] === 'gourmand'; ?><a class="tday__row" href="<?= e(url($isG ? 'gourmand.php' : 'folk.php?id=' . (int)$th['id'])) ?>"><span aria-hidden="true">🧭</span><span class="tday__rowt"><b><?= e($th['name']) ?></b> is <?= $isG ? 'at ' . e((string)(npc_now($th)['spot']['name'] ?? 'his camp')) : 'visiting' ?></span><span class="tday__go" aria-hidden="true">›</span></a><?php endforeach; ?>
   </section>
   <?php endif; ?>
   <?php $present = [];
@@ -302,7 +302,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     <details class="fold box travellers"><summary>🧭 Where the travellers are</summary>
       <?php foreach ($trav as $t): $st = traveller_stop($t); ?>
         <p><?= npc_icon($t['species']) ?> <a href="<?= e(url('folk.php?id=' . (int)$t['id'])) ?>"><?= e($t['name']) ?></a>:
-          <?= $st['town'] === $town ? '<b>here, on the Green!</b>' : 'in ' . e($st['town']) . ', then ' . e($st['next']) ?></p>
+          <?= $st['town'] === $town ? ($t['traveller'] === 'gourmand' ? '<b>here, at ' . e((string)(npc_now($t)['spot']['name'] ?? 'his camp')) . '!</b>' : '<b>here, on the Green!</b>') : 'in ' . e($st['town']) . ', then ' . e($st['next']) ?></p>
       <?php endforeach; ?></details>
   <?php endif; ?>
   <?php $up = upcoming_festivals(3); if ($up): ?>

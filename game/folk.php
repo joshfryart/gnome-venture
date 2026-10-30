@@ -79,8 +79,9 @@ $bar = $lvl['next'] ? max(0, min(100, (int)round(100 * (int)$f['points'] / max(1
         <?php else: ?><button type="button" class="btn alt" data-giftopen="1">🎁 Give a gift</button><?php endif; ?>
       </div>
       <?php if ($here && $npc['traveller'] && ($offer = traveller_offer($npc))): ?>
-        <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="deal">
-          <button class="btn small" <?= traveller_dealt($uid, $npc) ? 'disabled' : '' ?>><?= e($offer['label']) ?><?= traveller_dealt($uid, $npc) ? ' (done this visit)' : '' ?></button></form>
+        <?php if ($offer['kind'] === 'link'): ?><a class="btn small" href="<?= e(url($offer['url'])) ?>"><?= e($offer['label']) ?></a>
+        <?php else: ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="deal">
+          <button class="btn small" <?= traveller_dealt($uid, $npc) ? 'disabled' : '' ?>><?= e($offer['label']) ?><?= traveller_dealt($uid, $npc) ? ' (done this visit)' : '' ?></button></form><?php endif; ?>
       <?php endif; ?>
     <?php else: ?><p class="help">Not anywhere you can reach right now. Find them in town or knock when they’re home.</p><?php endif; ?>
   </div>

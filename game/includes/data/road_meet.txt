@@ -3,7 +3,7 @@
 # when: - = always; dp=dawn,day,dusk,night  se=spring,summer,autumn,winter  we=sun,cloud,rain,storm,frost,heat,wind,fog,snow  (join with /).
 #       Here every "when" is a must (a line about rain is never said in the sun).
 # who:  a personality (Chatty Cheerful Warm Generous Eager Grumpy Shy Fussy Proud Curious Dreamy Sleepy), a traveller (merchant minstrel
-#       naturalist), or any. A line for someone in particular is likelier than a line for any.
+#       naturalist gourmand), or any. A line for someone in particular is likelier than a line for any.
 #       Three special values are the "you meet them" lines, shown on the card:
 #         @folk      a villager of one end of the road. {folk} {role} {place} (their home stop) {dest} (where they are heading)
 #         @trav-in   a travelling NPC just arriving in a region's town. {folk} {from} (where they came from) {dest} (the town)
@@ -58,3 +58,13 @@ se=winter|any|“Cold one, {name}! You keep your ears covered and I’ll keep mi
 -|minstrel|“Tap your foot, {name}, and the road walks itself. It’s a very old trick.”
 -|naturalist|“{name}! Have you looked under that fern yet? I’ve spent a week on that fern, and it’s still surprising me.”
 -|naturalist|“The best seeds come from the strangest corners, {name}. Keep your eyes low and your pockets open.”
+-|gourmand|“{name}! Have you eaten? You have the look of someone who hasn’t eaten properly.”
+-|gourmand|“Not a word until I’ve had a biscuit, {name}. Emergency biscuit, number three. Now: hello.”
+-|gourmand|“There’s a table waiting for me in {dest}, {name}. A folding one, with a napkin. Come hungry. Or come with a jar.”
+-|gourmand|“I can smell your satchel, {name}. Is that a jar? A good jar? Don’t tell me. Show me, at the table.”
+-|gourmand|“Mind the verge, {name}. Brambles. I’d eat them, but I’m told I mustn’t before lunch.”
+dp=dawn|gourmand|“Breakfast, {name}! The only meal that happens before the world has opinions. I’m rather fond of it.”
+dp=night|gourmand|“Forgive the whiskers, {name}. I walk off my supper in the dark, so the dark won’t mind my chewing.”
+we=rain|gourmand|“Rain on the road, {name}. Nothing makes a pocket of biscuit taste better. Don’t ask which pocket.”
+se=autumn|gourmand|“Windfalls, {name}! A pocket of apples is a pocket well spent. Cider for the road, if you’ve any.”
+-|gourmand|“Fourteen regions, one sneeze, and a long way to go, {name}. Keep a spoon handy. I do.”

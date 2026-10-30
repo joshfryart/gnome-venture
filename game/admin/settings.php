@@ -62,6 +62,7 @@ if (is_post()) {
         }
         if ($changes) admin_log('settings', '', json_encode($changes, JSON_UNESCAPED_UNICODE));
         if (isset($changes['guide_price'])) { setting('__reload__'); require_once __DIR__ . '/../includes/journey.php'; ensure_guide_price(); }   // v0.7.65: reprice the guides in every shop
+        if (isset($changes['gourmand_open'])) { setting('__reload__'); require_once __DIR__ . '/../includes/gourmand.php'; gourmand_sync_active(); }   // next version: Pomeroy is only on the folk lists while the feature is on
         flash('Settings saved.');
         redirect('admin/settings.php' . ($sq !== '' || $showAdv ? '?' . http_build_query(array_filter(['q' => $sq, 'adv' => $showAdv ? '1' : ''])) : ''));
     }
@@ -81,7 +82,7 @@ $sectionOf = function (string $k): string {
               'community_' => 'Community garden', 'trade' => 'Trading', 'gifts' => 'Trading', 'stall_' => 'Trading', 'sapling' => 'Trading',
               'helper_' => 'Hired help', 'notill_' => 'Soil & no-till', 'amend_' => 'Soil & no-till', 'broadfork' => 'Soil & no-till',
               'stat_' => 'Gnomes', 'food_' => 'Gnomes', 'calling' => 'Gnomes', 'max_energy' => 'Gnomes', 'energy_' => 'Gnomes', 'tour_' => 'Gnomes',
-              'trek_' => 'Treks', 'stop_' => 'Rest stops', 'season' => 'Seasons & weather', 'weather_' => 'Seasons & weather', 'daypart_' => 'Seasons & weather', 'travel' => 'World', 'game_timezone' => 'World', 'town_' => 'World', 'orders_' => 'Market & orders', 'market_' => 'Market & orders', 'price_' => 'Market & orders', 'basket_' => 'Market & orders'] as $pre => $sec) {
+              'trek_' => 'Treks', 'stop_' => 'Rest stops', 'season' => 'Seasons & weather', 'weather_' => 'Seasons & weather', 'daypart_' => 'Seasons & weather', 'travel' => 'World', 'game_timezone' => 'World', 'town_' => 'World', 'gourmand_' => 'World', 'orders_' => 'Market & orders', 'market_' => 'Market & orders', 'price_' => 'Market & orders', 'basket_' => 'Market & orders'] as $pre => $sec) {
         if (str_starts_with($k, $pre)) return $sec;
     }
     return 'Gardens & economy';

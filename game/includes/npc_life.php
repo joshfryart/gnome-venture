@@ -20,6 +20,7 @@ const TRAVELLERS = [
     'merchant' => ['Tobias Trundle', 'Tortoise', 'Generous', 'A travelling merchant with a whole shop strapped to his shell. Sells one rare seed in every town he visits.', 0],
     'minstrel' => ['Lyra Fiddlewing', 'Grasshopper', 'Cheerful', 'A wandering minstrel who plays a tiny fiddle on every village green in the Hollow. Her songs put a spring in your step.', 5],
     'naturalist' => ['Wren Thimblewick', 'Wren', 'Curious', 'A travelling naturalist who trades stories for seeds from every corner of the world. She’ll swap a seed for something you found.', 9],
+    'gourmand' => ['Pomeroy Crumbworth', 'Dormouse', 'Fussy', 'A travelling food writer with a napkin always tucked in. Tours the Hollow’s festivals and asks gnomes to share their cooking. Rates in spoons.', 0],
 ];
 const TRAVEL_STOP_HOURS = 12;
 
@@ -62,7 +63,8 @@ function ensure_npc_lives(): void
     foreach (TRAVELLERS as $role => [$name, $species, $pers, $bio, $offset]) {
         $id = q_val('SELECT id FROM npcs WHERE slug = ?', [slugify($name)]);
         if (!$id) {
-            $id = db_insert('npcs', ['name' => $name, 'slug' => slugify($name), 'species' => $species, 'personality' => $pers, 'bio' => $bio, 'mood' => 60, 'active' => 1]);
+            $id = db_insert('npcs', ['name' => $name, 'slug' => slugify($name), 'species' => $species, 'personality' => $pers, 'bio' => $bio, 'mood' => 60,
+                'active' => $role === 'gourmand' ? (setting('gourmand_open') === '1' ? 1 : 0) : 1]);   // next version: the Gourmand starts hidden until the admin opens him
         }
         if (!q_val('SELECT traveller FROM npcs WHERE id = ?', [$id])) {
             q('UPDATE npcs SET traveller = ?, circuit_offset = ?, bio = ? WHERE id = ?', [$role, $offset, $bio, $id]);
@@ -130,8 +132,13 @@ function npcs_at_spot(array $spot): array
     }
     if ($spot['kind'] === 'green') {
         foreach (q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1')->fetchAll() as $t) {
+            if ($t['traveller'] === 'gourmand') continue;   // next version: he sits at his camp spot, not on the Green
             if (traveller_stop($t)['town'] === $spot['region']) $out[$t['id']] = $t;
         }
+    }
+    if ($g = q_one("SELECT * FROM npcs WHERE traveller = 'gourmand' AND active = 1")) {
+        require_once __DIR__ . '/gourmand.php';
+        if ((string)$spot['slug'] === gourmand_stop()['camp']) $out[$g['id']] = $g;
     }
     return array_values($out);
 }
@@ -145,6 +152,11 @@ function traveller_towns(): array
 /** Where a traveller is: [town, stop key, ends (unix time), next town]. */
 function traveller_stop(array $npc, ?int $at = null): array
 {
+    if (($npc['traveller'] ?? '') === 'gourmand') {   // next version: Pomeroy follows the festival calendar (camp days, not 12-hour slots)
+        require_once __DIR__ . '/gourmand.php';
+        $g = gourmand_stop($at);
+        return ['next_stop' => $g['next'], 'next' => $g['next']['town']] + $g;
+    }
     $towns = traveller_towns();
     $n = max(1, count($towns));
     $len = TRAVEL_STOP_HOURS * 3600;
@@ -156,6 +168,11 @@ function traveller_stop(array $npc, ?int $at = null): array
 /** What an NPC is doing right now: ['what' => text, 'town' => region or null, 'spot' => row or null]. */
 function npc_now(array $npc): array
 {
+    if (($npc['traveller'] ?? '') === 'gourmand') {   // next version: at his camp spot
+        $s = traveller_stop($npc);
+        $camp = q_one('SELECT * FROM town_spots WHERE slug = ? AND active = 1', [$s['camp']]);
+        return ['what' => $camp ? 'at ' . $camp['name'] . ' in ' . $s['town'] : 'in ' . $s['town'], 'town' => $s['town'], 'spot' => $camp ?: null];
+    }
     if (!empty($npc['traveller'])) {
         $s = traveller_stop($npc);
         $green = q_one("SELECT * FROM town_spots WHERE region = ? AND kind = 'green' AND active = 1", [$s['town']]);
@@ -219,6 +236,12 @@ function npc_home_hours(array $npc): string
 /** Their day as a list of lines, e.g. "6 am – 2 pm: working at …". */
 function npc_routine(array $npc): array
 {
+    if (($npc['traveller'] ?? '') === 'gourmand') {   // next version
+        $s = traveller_stop($npc);
+        $left = max(1, (int)ceil(($s['ends'] - gourmand_now()) / 86400));
+        return ['🧭 Tours the Hollow with the festivals, a few days in each region’s town, and eats wherever a gnome sets a table.',
+            '📍 Now: ' . $s['town'] . ' (for about ' . $left . ' more day' . ($left === 1 ? '' : 's') . ')', '➡️ Next: ' . $s['next']];
+    }
     if (!empty($npc['traveller'])) {
         $s = traveller_stop($npc);
         $left = max(1, (int)round(($s['ends'] - time()) / 3600));
@@ -265,6 +288,12 @@ function teahouse_rumours(string $town, int $n = 2): array
     }
     foreach (q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1')->fetchAll() as $t) {
         $s = traveller_stop($t);
+        if ($t['traveller'] === 'gourmand') {   // next version: a menu rumour, and where he sits
+            require_once __DIR__ . '/gourmand.php';
+            $pool[] = $s['town'] === $town ? '“' . $t['name'] . ' is in town! Look for the folding table.”' : '“I heard ' . $t['name'] . ' is in ' . $s['town'] . ', heading for ' . $s['next'] . ' next.”';
+            if ($ask = gourmand_rumour($town)) $pool[] = $ask;
+            continue;
+        }
         $pool[] = $s['town'] === $town ? '“' . $t['name'] . ' is in town! Over on the Green.”' : '“I heard ' . $t['name'] . ' is in ' . $s['town'] . ', heading for ' . $s['next'] . ' next.”';
     }
     require_once __DIR__ . '/jobs.php';
@@ -285,6 +314,7 @@ function teahouse_rumours(string $town, int $n = 2): array
 
 function traveller_offer(array $npc): ?array
 {
+    if (($npc['traveller'] ?? '') === 'gourmand') return ['kind' => 'link', 'url' => 'gourmand.php', 'label' => '🍽️ Serve a course', 'stop' => ''];   // next version: served on his own page
     $s = traveller_stop($npc);
     $r = region_by_name($s['town']);
     if (!$r) return null;
@@ -312,7 +342,7 @@ function traveller_deal(array $u, int $npcId): array
     require_once __DIR__ . '/friends.php';
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND traveller IS NOT NULL AND active = 1', [$npcId]);
-    if (!$npc) return [false, 'They aren’t a traveller.'];
+    if (!$npc || $npc['traveller'] === 'gourmand') return [false, 'They aren’t a traveller.'];   // next version: Pomeroy is served on gourmand.php
     $stop = traveller_stop($npc);
     if (!can_reach($u, $stop['town'])) return [false, $npc['name'] . ' is in ' . $stop['town'] . ' right now.'];
     $offer = traveller_offer($npc);
