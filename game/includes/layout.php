@@ -651,12 +651,15 @@ function nav_sheet(array $u, string $page): string
     $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
     $groups = [
         'You' => [['gnome.php', '🧙', 'My Gnome', '', 'gnome'], ['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
-        'Grow' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'], ['arrange.php', '💐', 'Arranging', '', 'arranging']],
-        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers'],
-            ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']]
+        'Grow' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'], ['arrange.php', '💐', 'Arranging', '', 'arranging'],
+            ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
+        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
         'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Gnome friends', $b['pals'] ?? '', 'friends']],
     ];
+    require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Grow: Whisker Pond (Cat Fish) and Puzzle Pals tiles once each is open, after Games
+    if (catfish_open()) $groups['Grow'][] = ['catfish.php', '🐟', 'Whisker Pond', '', 'catfish'];
+    if (ppal_open() && !is_guest($u)) $groups['Grow'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];
     require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
     if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
     if (tour_active($u) && (int)$u['level'] < 5) array_unshift($groups['You'], ['welcome.php', '🌱', 'Getting started', '', 'start']);   // v1.7.0 menu: only while the tour runs and below level 5
