@@ -1,4 +1,4 @@
--- ph/banana-chips (Pantry dried): short round red tin, lid tilted ajar behind, a heap of pale gold coin chips on top
+-- ph/banana-chips (Pantry dried): short round red tin, round lid stood on edge behind, a heap of pale gold coin chips on top
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local N = "banana-chips"
@@ -12,11 +12,17 @@ local function rell(cx, cy, rx, ry, a)
   end end
   return m
 end
--- lid leaning on the right rim, behind the heap
-local lid = rell(49, 20, 11, 6, -1.1)
-c:part(lid, "#d6322b", { gloss = { 46, 13 } })
-c:fill(rell(49, 20, 8.5, 4, -1.1):cut(rell(49, 20, 7, 2.6, -1.1)), "#a8241f")   -- pressed lid ring
-c:paint({ "....k", "...y.", "..yy.", ".yy..", "yy...", "y...." }, 47, 13, { y = "#f5cf6a", k = "#7a4a1f" })   -- banana on the lid
+-- lid standing on edge against the right rim, behind the heap: a round disc (not a pointed oval) seen
+-- almost face-on, with a dark rolled rim band on its right (its thickness), a gold rim line and a
+-- pressed ring, so it reads as a tin lid and never as a leaf
+c:part(c:ellipse(49, 19, 7, 9), "#a8241f", { gloss = false, cres = 2, deep = 0, rim = false })   -- lid edge (thickness)
+local lid = c:ellipse(47, 19, 8, 9)
+c:part(lid, "#d6322b", { gloss = { 43, 13 }, contour = "#6b1b2c" })
+c:fill(lid:edge():cut(c:rect(0, 19, 63, 63)):cut(c:rect(48, 0, 63, 63)), "#f5cf6a")   -- gold rim, lit upper-left
+c:fill(lid:edge():cut(c:rect(0, 0, 63, 18)), "#b07a10")                            -- gold rim, shaded side
+c:fill(lid:edge():cut(c:rect(0, 0, 47, 63)):cut(c:rect(0, 19, 63, 63)), "#e8a317")
+c:fill(c:ellipse(47, 19, 4, 5):edge(), "#a8241f")                                     -- pressed ring
+c:paint({ "...k", "..y.", ".yy.", "yy..", }, 45, 17, { y = "#f5cf6a", k = "#7a4a1f" })   -- tiny banana stamp
 -- tin body with the rim on top
 local tin = c:rrect(12, 32, 51, 55, 4)
 c:part(tin, "#d6322b", { gloss = { 15, 41 } })

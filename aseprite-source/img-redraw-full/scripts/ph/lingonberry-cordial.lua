@@ -1,26 +1,28 @@
--- ph/lingonberry-cordial (Pantry cordial): tall slim green-glass bottle, neck dipped in dripping red wax, bright red lingonberry cordial, sprig label
+-- ph/lingonberry-cordial (Pantry cordial): tall slim dark-green wine bottle, neck dipped in dripping red wax, bright red lingonberry cordial, sprig label
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local R = GV.R
 local N = "lingonberry-cordial"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
-local glass = c:rrect(23, 23, 41, 56, 5):add(c:rect(28, 10, 36, 24)):add(c:poly({ {28, 19}, {37, 19}, {42, 27}, {23, 27} }))
+-- dark green wine-bottle glass (spec), clearly visible as a long green neck and a 2-3 px rim round
+-- the red cordial: at 1x this is a green bottle with a red wax top, unlike the clear crown-cap hibiscus
+local glass = c:rrect(24, 25, 40, 56, 5):add(c:rect(29, 10, 35, 26)):add(c:poly({ {29, 20}, {36, 20}, {41, 29}, {23, 29} }))
 c:build{
-  { "glass",  glass, GV.ramp("#9ec3c8"), { pale = false } },
-  { "liquid", c:rrect(25, 28, 39, 54, 4), GV.ramp("#d6322b", { shade = "#a8241f", gloss = "#ff9158", rim = "#f2793a" }), { contour = "#8a1f1a", gloss = { 27, 31 } } },
-  { "label",  c:rect(25, 37, 39, 50), "cream", { gloss = false, contact = false } },
+  { "glass",  glass, GV.ramp("#2f6a3a", { gloss = "#a4d68a", dot = "#c8ecb0", rim = "#4f9a45", shade = "#1f4a32", deep = "#1f3f3a", bounce = "#2f5a2a" }), { pale = false, gloss = { 26, 30 } } },
+  { "liquid", c:rrect(27, 31, 38, 53, 3), GV.ramp("#d6322b", { shade = "#a8241f", gloss = "#ff9158", rim = "#f2793a" }), { contour = "#6b1b2c", gloss = false } },
+  { "label",  c:rect(26, 38, 38, 50), "cream", { gloss = false, contact = false } },
 }
+c:fill(c:rect(30, 18, 30, 25), "#4f9a45")   -- light down the green neck
 -- bulbous wax dip with two drips down the neck
-local wax = c:rrect(26, 6, 38, 17, 4):add(c:rrect(27, 17, 28, 23, 1)):add(c:rrect(35, 17, 36, 20, 1)):add(c:rect(27, 15, 37, 18))
-c:part(wax, GV.ramp("#a8241f", { rim = "#d6322b", gloss = "#f2793a", dot = "#ff9158" }), { cres = 2, gloss = { 29, 8 } })
-c:fill(c:rect(29, 9, 30, 13), "#d6322b")
+local wax = c:rrect(26, 6, 38, 15, 4):add(c:rrect(28, 15, 29, 21, 1)):add(c:rrect(35, 15, 36, 18, 1)):add(c:rect(27, 13, 37, 16))
+c:part(wax, GV.ramp("#d6322b", { shade = "#a8241f", deep = "#6b1b2c", rim = "#f2793a", gloss = "#ff9158", dot = "#ffc27a" }), { cres = 2, gloss = { 29, 8 } })
 -- sprig: stem, three leaves, three berries
-c:fill(c:line({ {28, 48}, {36, 40} }, 1), "#4f9a45")
-c:paint({ "gg", "gg" }, 27, 44, { g = "#4f9a45" }); c:paint({ "ggg" }, 33, 46, { g = "#4f9a45" }); c:paint({ "gg" }, 35, 39, { g = "#4f9a45" })
-for _, b in ipairs({ {29, 41}, {32, 39}, {34, 43} }) do
+c:fill(c:line({ {28, 48}, {36, 41} }, 1), "#4f9a45")
+c:paint({ "gg", "gg" }, 27, 45, { g = "#4f9a45" }); c:paint({ "gg" }, 34, 46, { g = "#4f9a45" }); c:paint({ "gg" }, 35, 40, { g = "#4f9a45" })
+for _, b in ipairs({ {29, 42}, {32, 40}, {34, 44} }) do
   c:paint({ ".r.", "rRr", ".r." }, b[1] - 1, b[2] - 1, { r = "#d6322b", R = "#f2793a" })
 end
-c:ground(32, 57, 10, 1.5)
+c:ground(32, 57, 9, 1.5)
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))

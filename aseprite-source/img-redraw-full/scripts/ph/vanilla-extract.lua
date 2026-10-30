@@ -1,4 +1,4 @@
--- ph/vanilla-extract (Pantry cordial): tiny amber dropper bottle, dark extract, black collar and rubber bulb, crossed vanilla pods
+-- ph/vanilla-extract (Pantry cordial): tiny amber dropper bottle, dark extract, black collar and rubber bulb, crossed vanilla pods on a tall oval label
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local N = "vanilla-extract"
@@ -15,13 +15,16 @@ c:fill(c:rect(26, 19, 38, 19), "#5b6470")
 c:part(c:ellipse(32, 12, 5.5, 6):add(c:rect(28, 14, 36, 17)), "#4a3a30", { gloss = false })
 c:fill(c:rect(29, 8, 29, 10), "#7a6a5a"); c:px(30, 8, "#7a6a5a")
 c:px(29, 7, "#ffffff")
--- label with two crossed vanilla pods and a few seeds
-c:part(c:rect(22, 36, 42, 49), "cream", { gloss = false, contact = false })
--- pods: two thick curved beans crossed at their stalks (a V), a pale vanilla orchid between them
-c:fill(c:line({ {34, 48}, {30, 45}, {27, 42}, {25, 38} }, 2), "#3a2a1f")
-c:fill(c:line({ {30, 48}, {34, 45}, {37, 42}, {39, 38} }, 2), "#5a3a1f")
-c:px(26, 41, "#7a5a3a"); c:px(28, 43, "#7a5a3a"); c:px(37, 41, "#8a6a4a"); c:px(35, 43, "#8a6a4a")
-c:paint({ ".y.", "yky", ".y." }, 31, 38, { y = "#f5cf6a", k = "#e8a317" })
+-- tall oval label (a rectangle with a V on it read as an envelope): two long vanilla pods crossing
+-- low in a steep X, tied with a gold band where they cross, and a pale yellow orchid above
+local lab = c:ellipse(32, 42, 8, 9)
+c:part(lab, "cream", { gloss = false, contact = false })
+c:fill(lab:edge(), "#c9a96e")
+c:fill(c:line({ {27, 50}, {29, 46}, {33, 41}, {37, 36} }, 2), "#3a2a1f")
+c:fill(c:line({ {37, 50}, {35, 46}, {31, 41}, {27, 36} }, 2), "#5a3a1f")
+c:px(36, 37, "#8a6a4a"); c:px(28, 37, "#7a5a3a"); c:px(28, 48, "#7a5a3a")
+c:fill(c:rect(31, 45, 33, 46), "#e8a317"); c:px(31, 45, "#f5cf6a")   -- tie
+c:paint({ ".y.", "yky", ".y." }, 31, 34, { y = "#f5cf6a", k = "#e8a317" })
 c:ground(32, 57, 13, 1.5)
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
