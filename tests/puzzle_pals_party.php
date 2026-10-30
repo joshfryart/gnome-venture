@@ -102,6 +102,54 @@ $withP = gnome_combat($u(), true); $road = ppal_perks($u())['road'];
 ok('the skills are the sum of the party (capped)', $sk && array_sum($sk) > 0 && $sk['ward'] === min(PPAL_SKILL_CAP['ward'], $want['ward'] ?? 0) && $sk['foot'] === min(PPAL_SKILL_CAP['foot'], $want['foot'] ?? 0), json_encode([$sk, $want]));
 ok('armour, damage and crit chance carry the skills (road perk counted apart)', $withP['ac'] === $base['ac'] + $road + $sk['foot'] && $withP["dmg_bonus"] === $base["dmg_bonus"] + $road + $sk["edge"] && abs($withP['luck_crit'] - $base['luck_crit'] - $sk['petal']) < 0.0001 && $withP['pal'] === $sk, json_encode([$base, $withP]));
 ok('without the flag (Treks, contests) there are no skills', gnome_combat($u(), false) === $base);
+// whole combat_turn rounds: the skills as the fight uses them (Mend, Thorn Ward, Fleet Foot)
+$cr = q_one('SELECT * FROM creatures ORDER BY id LIMIT 1'); $crId = (int)$cr['id'];
+$fromId = (int)q_val('SELECT id FROM locations ORDER BY id LIMIT 1');
+$round = function (array $user, string $action, int $lv = 0, int $hp = 900) use ($crId, $fromId): array {
+    $enc = ['type' => 'creature', 'id' => $crId, 'lv' => $lv, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+    $exp = ['id' => 77, 'status' => 'active', 'hp' => $hp, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($enc), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+    $over = combat_turn($user, $exp, $action);
+    return [$over, (int)$exp['hp'], implode(' | ', json_decode((string)$exp['log'], true) ?: [])];
+};
+q('UPDATE creatures SET attack = 200, dmg_die = 1, dmg_bonus = 9 WHERE id = ?', [$crId]);   // always hits for exactly 10
+equip($uid, [], $pid);
+[, , $log0] = $round($u(), 'attack');
+ok('no pals: the creature hits for 10', str_contains($log0, 'hits you for 10'), $log0);
+equip($uid, ['mw-bark-badger'], $pid);
+[, , $log1] = $round($u(), 'attack');
+ok('Thorn Ward 2 (uncommon rootwarden): the same hit does 8', str_contains($log1, 'hits you for 8'), $log1);
+equip($uid, ['mw-acorn-nip'], $pid);
+[, $hpM, $logM] = $round($u(), 'attack', 0, 500);
+ok('Mend 1 (common seedkeeper): "mends you: +1" and health is 500 + 1 - 10', str_contains($logM, 'mends you: +1') && $hpM === 491, $logM . ' hp ' . $hpM);
+[, $hpF, $logF] = $round($u(), 'attack', 0, 900);
+ok('Mend never heals past full health', !str_contains($logF, 'mends you'), $logF);
+q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+$nim = (int)eff_mod($u(), 'nimble');
+$lvF = 3 * ($nim + 4);   // a foe that needs 12 on the d20 plus Nimble: 45% to run away
+$runs = function () use ($round, $u, $lvF): int { $n = 0; for ($i = 0; $i < 1000; $i++) { [, , $l] = $round($u(), 'flee', $lvF); if (str_contains($l, 'slip away')) $n++; } return $n; };
+equip($uid, [], $pid); $r0 = $runs();
+equip($uid, ['mw-fourwind-finch'], $pid); $r1 = $runs();
+ok('Fleet Foot 2 (uncommon wayfinder): running away works more often (' . $r0 . ' -> ' . $r1 . ' of 1000)', $r1 - $r0 > 40);
+equip($uid, [], $pid);
+// Sip: a snack heals 10% more with a common brewroot pal along (needs a real snack: any cooked snack item in the game)
+$snk = q_one("SELECT i.id FROM items i JOIN recipes r ON r.output_item_id = i.id AND r.category = 'cooking' AND r.tier = 'snack' WHERE i.edible = 1 AND i.slug NOT LIKE 'bought-%' ORDER BY i.id LIMIT 1");
+if ($snk) {
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$snk['id']]); give_item($uid, (int)$snk['id'], 5);
+    $heal = (fight_snacks($u())[0]['heal'] ?? 0);
+    $eat = function () use ($u, $snk, $crId, $fromId): int {
+        $enc = ['type' => 'creature', 'id' => $crId, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+        $exp = ['id' => 77, 'status' => 'active', 'hp' => 100, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($enc), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+        q('UPDATE creatures SET attack = -200 WHERE id = ?', [$crId]);   // it can never hit, so the health shown is the snack alone
+        combat_turn($u(), $exp, 'snack', (int)$snk['id']);
+        return (int)$exp['hp'] - 100;
+    };
+    $cr0 = q_one('SELECT attack FROM creatures WHERE id = ?', [$crId]);
+    equip($uid, [], $pid); $plain = $eat();
+    equip($uid, ['mw-sap-drip'], $pid); $sip = $eat();
+    q('UPDATE creatures SET attack = ? WHERE id = ?', [(int)$cr['attack'], $crId]);
+    ok('Sip 10% (common brewroot): the snack heals ' . $plain . ' plain and ' . $sip . ' with the pal', $heal > 0 && $plain === min(800, $heal) && $sip === min(800, (int)round($heal * 1.1)), "heal $heal");
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$snk['id']]);
+} else echo "skip Sip fight (no cooked snack in this install)\n";
 set_setting('ppal_party', '0'); setting('__reload__'); reset_all();
 ok('ppal_party off: no skills', ppal_skills($u()) === [] && gnome_combat($u(), true) === $base);
 set_setting('ppal_party', '1'); setting('__reload__'); reset_all();
