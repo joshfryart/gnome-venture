@@ -1,51 +1,42 @@
--- ph/kangkong-stir-fry (Gourmand P2 dish): black round-bottom wok with a loop handle on the left, tall bright-green water-spinach tangle, garlic and chili rings
+-- ph/kangkong-stir-fry (Gourmand P2 dish): an oval plate with a low bundle of long hollow water-spinach stems
+-- lying the same way (cut ends show the hollow), a few arrow leaves, golden garlic chips and red chili rings
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local N = "kangkong-stir-fry"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
-local iron = GV.ramp("#2f3338", { rim = "#5b6470", gloss = "#8b939e", dot = "#b4bcc6", shade = "#22252a", deep = "#1a1c20", bounce = "#2a2d33" })
--- loop handle on the left
-local loop = c:ellipse(11, 34, 5, 3):cut(c:ellipse(11, 34, 3, 1)):cut(c:rect(13, 0, 63, 63))
-c:part(loop, iron, { flat = true, contact = false })
--- deep round-bottom wok
-local wok = c:ellipse(34, 31, 22, 17):clip(c:rect(0, 33, 63, 63)):add(c:ellipse(34, 33, 22, 5))
-wok:add(c:rrect(29, 46, 39, 49, 1))
-c:part(wok, iron, { cres = 4, gloss = { 18, 38 } })
-c:fill(c:ellipse(34, 33, 22, 5):edge():clip(c:rect(0, 26, 63, 33)), "#6a7480")
-c:fill(c:ellipse(34, 33, 19, 3.5), "#1a1c20")
--- tall glossy heap of greens in the wok
-local heap = c:ellipse(34, 31, 18, 4):add(c:ellipse(33, 24, 14, 8)):add(c:ellipse(24, 23, 6, 5)):add(c:ellipse(43, 22, 6, 5))
-heap:add(c:ellipse(33, 16, 5, 3))
-c:part(heap, "#3f9a32", { contour = "#1a1c20", cres = 3, gloss = false, contact = false })
--- pointed leaves lying at angles
-local function lf(x, y, dx, dy)
-  local m = c:poly({ {x, y}, {x + dx * 0.45 - dy * 0.3, y + dy * 0.45 + dx * 0.3}, {x + dx, y + dy}, {x + dx * 0.45 + dy * 0.3, y + dy * 0.45 - dx * 0.3} })
-  c:fill(m, "#2a6e28"); c:fill(c:line({ {x, y}, {math.floor(x + dx * 0.8), math.floor(y + dy * 0.8)} }, 1), "#5fbf3a")
+-- oval plate with a blue rim band
+local plate = c:ellipse(31.5, 38, 25, 15)
+c:part(plate, GV.ramp("#e6e2d6", { dot = "#f6f2e6" }), { cres = 2, gloss = false })
+c:fill(c:ellipse(31.5, 38, 22, 12):edge(), "#3f8fb0")
+c:fill(c:ellipse(31.5, 38, 21, 11), "#d8d2c2")                               -- plate well
+c:seam({ {14, 49}, {49, 49} }, { gap = "#2f6290" })
+-- two arrow-shaped leaves tucked under the stems
+local function leaf(pts, vein)
+  c:part(c:poly(pts), "#3f8a32", { cres = 2, gloss = false, contact = false, contour = "#1f4a1f" })
+  c:fill(c:line(vein, 1), "#7ab55c")
 end
-lf(20, 25, -1, -8); lf(29, 18, 6, -4); lf(44, 25, 7, -6); lf(37, 19, -2, -6); lf(26, 30, -8, 1)
--- crisscross hollow stems, bright green
-local stems = {
-  { {19, 30}, {27, 22}, {34, 18} },
-  { {24, 31}, {33, 26}, {44, 19} },
-  { {30, 17}, {37, 23}, {48, 28} },
-  { {22, 22}, {30, 28}, {38, 31} },
-  { {17, 31}, {13, 37} },          -- flopping over the rim
-  { {49, 30}, {54, 35} },
-}
-for _, l in ipairs(stems) do
-  c:part(c:line(l, 2), "#6ccc44", { flat = true, contact = false, contour = "#1f4a1f" })
+leaf({ {12, 33}, {20, 27}, {27, 29}, {19, 35} }, { {14, 33}, {24, 29} })
+leaf({ {37, 46}, {46, 42}, {53, 43}, {45, 48} }, { {39, 46}, {51, 43} })
+-- hollow stems: four long, thick tubes lying the same way, spaced so the plate shows between them;
+-- each right end is a fresh cut showing the hollow
+local function sy(b, x) return b - 0.3 * (x - 30) end
+for _, st in ipairs({ { 29, 19, 44 }, { 34, 13, 48 }, { 39, 14, 50 }, { 44, 16, 46 }, { 48.5, 23, 41 } }) do
+  local b, x0, x1 = st[1], st[2], st[3]
+  local l = { { x0, sy(b, x0) }, { x1, sy(b, x1) } }
+  c:part(c:line(l, 3), "#5cb83a", { cres = 1, deep = 0, gloss = false, contour = "#1f4a1f" })
+  c:fill(c:line({ { x0 + 1, sy(b, x0) - 1 }, { x1 - 2, sy(b, x1) - 1 } }, 1), "#a8e070")   -- lit top of the tube
+  local ex, ey = math.floor(x1 + 0.5), math.floor(sy(b, x1) + 0.5)
+  c:paint({ "rrr", "rhr", "rrr" }, ex - 1, ey - 1, { r = "#c8f0a0", h = "#1f4a1f" })
 end
--- hollow cut stem ends on the heap
-for _, p in ipairs({ {30, 21}, {44, 27}, {21, 28} }) do
-  c:paint({ "gg", "gd" }, p[1], p[2], { g = "#a8e070", d = "#2f5a2a" })
+-- golden fried garlic chips
+for _, p in ipairs({ {25, 31}, {38, 33}, {29, 41}, {19, 38}, {35, 46} }) do
+  c:paint({ "gg", "gs" }, p[1], p[2], { g = "#f5d88a", s = "#c98a3a" })
 end
--- garlic slivers
-for _, p in ipairs({ {33, 24}, {26, 31}, {45, 31}, {38, 32} }) do c:paint({ "ggs" }, p[1], p[2], { g = "#f1ece0", s = "#d8c49a" }) end
--- chili rings, scattered
-for _, p in ipairs({ {40, 23}, {25, 27}, {33, 30} }) do
-  c:paint({ "rrr", "ryR", "RRR" }, p[1], p[2], { r = "#d6322b", R = "#8a1a22", y = "#f6d27a" })
+-- red chili rings with seeds
+for _, p in ipairs({ {32, 27}, {21, 41}, {41, 37} }) do
+  c:paint({ ".rr.", "rysr", "rssR", ".RR." }, p[1], p[2], { r = "#e0402b", R = "#8a1a22", y = "#f6d27a", s = "#f0b84a" })
 end
-c:ground(34, 53, 16, 1.2)
+c:ground(31.5, 55, 18, 1.2)
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))
