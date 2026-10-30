@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.2.2 (2026-10-30)
+- Puzzle Pals: perk units are percents (common 8 / uncommon 15 / rare 30; road 1/2/4; trophy +4; caps 50, road 5). Pals now wait on the map (`ppal_find_mode` map|page, `ppal_spawn_count`; SCHEMA: table `ppal_spawns`, column `users.ppal_spawn_day`, additive via `ppal_ensure()`): daily top-up to 3, kept until collected, level bands (common g-2..g, uncommon g-1..g+2, rare g+1..g+3), Places pals at their own place, sticker + rarity ring on both region maps, 🧩 badge on both world maps, "Say hello" on the World Go tab, Pal Book "Waiting on the map". Passive combat skills per calling (`ppal_skills`, hooks in `gnome_combat` / `combat_turn`). Tests: puzzle_pals_map.php, puzzle_pals_party.php. No player news (feature off). Slim needs 2.2.0+.
+
 ## 2.2.1 (2026-10-30)
 - Pantry: recipes.txt +137 preserves (17 -> 154, no alcohol) + 16 Pomeroy recipes = 156; 155+ item icons; imported by `ensure_crafts()`. Specs in aseprite-source/img-redraw-full/specs/ph/. Quick one-day jars get spoon bars 42/49/55.
 - Gourmand (Pomeroy Crumbworth) feature, OFF (`gourmand_open` 0). SCHEMA: table `gourmand_ledger`, column `cook_pots.score` (additive, `db_migrate`). Docs: plan-gourmand, decisions-gourmand, review-gourmand, review-gourmand-rewards.
