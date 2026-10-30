@@ -19,6 +19,7 @@ if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
     if ($do === 'serve') [$ok, $msg] = gourmand_serve($u, (string)($_POST['course'] ?? ''));
+    elseif ($do === 'home') [$ok, $msg] = gourmand_serve_home($u, (string)($_POST['dish'] ?? ''));
     elseif ($do === 'seat') [$ok, $msg] = gourmand_seat($u);
     else [$ok, $msg] = [false, 'Unknown action.'];
     flash($msg, $ok ? 'ok' : 'err');
@@ -89,13 +90,47 @@ page_header('The Gourmand');
         <button class="btn"<?= $have >= (int)$row['qty'] && $sp > 0 ? '' : ' disabled' ?>>🥄 Serve it</button></form><?php endif; ?>
     </div>
   <?php endforeach; ?>
+  <?php if (!empty($menu['grand'])): $row = $menu['grand']; $nmG = $names($menu); [$item, $have, $q, $sp, $loose] = gourmand_preview($uid, $row);
+        $done = gourmand_served_this_tour($uid, $code, 'grand', $tour); $mine = $ledger[$code]['grand'] ?? null;
+        $kit = user_building_bonus($uid, 'kitchen')['best']; $taste = isset($ledger[$code]['table']); ?>
+    <div class="box inset">
+      <h3><?= GOURMAND_GRAND[0] ?> <?= e(GOURMAND_GRAND[1]) ?> <small class="muted"><?= e(GOURMAND_GRAND[2]) ?></small> <span title="Your best here"><?= $spoons((int)($mine['spoons'] ?? 0)) ?></span><?= isset($ledger[$code]['grandpay']) ? ' 🥄' : '' ?></h3>
+      <p>“<?= e($row['ask']) ?>”</p>
+      <p>He wants <b><?= (int)$row['qty'] ?> × <?= e($nmG[$row['item']] ?? $row['item']) ?></b>, cooked in a Kitchen at level III.</p>
+      <?php if ($kit < 3): ?><p class="help">🔒 A feast needs a Kitchen at level III.</p>
+      <?php elseif (!$taste): ?><p class="help">🔒 He sits down to a feast after your first Taste of <?= e(gourmand_region_name($code)) ?>: a plate, a pot and a jar.</p>
+      <?php else: ?>
+        <?php if ($have < (int)$row['qty']): ?><p>You have <?= (int)$have ?>.</p>
+        <?php else: ?><p>Your <?= e($nmG[$row['item']] ?? $row['item']) ?>: quality <?= (int)$q ?> → <?= $sp ? e($spoons($sp) . ' (' . gourmand_word($sp) . ')') : 'not enough for a spoon' ?>.</p><?php endif; ?>
+        <?php if (!isset($ledger[$code]['grandpay'])): ?><p class="help">The first feast here pays <?= money(GOURMAND_GRAND_PAY[0]) ?> and <?= GOURMAND_GRAND_PAY[1] ?> XP, once.</p><?php endif; ?>
+        <?php if ($done): ?><p class="good">✔️ Served this month. Back next month.</p>
+        <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="serve"><input type="hidden" name="course" value="grand">
+          <button class="btn gold"<?= $have >= (int)$row['qty'] && $sp > 0 ? '' : ' disabled' ?>>🍽️ Serve the feast</button></form><?php endif; ?>
+      <?php endif; ?>
+    </div>
+  <?php endif; ?>
+</section>
+<?php endif; ?>
+
+<?php if ((int)$prog['tastes'] >= GOURMAND_HOME_TASTES): $homeCode = gourmand_home_code($u); ?>
+<section class="box">
+  <h2>🏡 The Home Plate</h2>
+  <?php if (gourmand_home_done($uid)): ?><p class="good">🏡 You have shown Pomeroy the cooking of your home.</p>
+  <?php elseif ($homeCode === ''): ?><p class="help">You have no home village to cook for.</p>
+  <?php else: $opts = gourmand_home_options($u); ?>
+    <p>Pomeroy wants a cooked dish made with a crop of <?= e(gourmand_region_name($homeCode)) ?>, at <?= GOURMAND_BARS['pot'][1] ?> quality or better (🥄🥄). Serve it from anywhere. <?= money(GOURMAND_HOME_PAY[0]) ?> and <?= GOURMAND_HOME_PAY[1] ?> XP, once in your life.</p>
+    <?php if (!$opts): ?><p class="help">You hold no such dish yet.</p>
+    <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="home">
+      <select name="dish"><?php foreach ($opts as $o): ?><option value="<?= e($o['slug']) ?>"><?= e($o['name']) ?> (<?= (int)$o['held'] ?> held, quality <?= (int)$o['q'] ?><?= $o['spoons'] >= 2 ? '' : ', too low' ?>)</option><?php endforeach; ?></select>
+      <button class="btn gold">🏡 Serve the Home Plate</button></form><?php endif; ?>
+  <?php endif; ?>
 </section>
 <?php endif; ?>
 
 <?php elseif ($tab === 'journal'): ?>
 <section class="box">
   <h2>📓 Pomeroy’s journal</h2>
-  <p><b>Tastes <?= (int)$prog['tastes'] ?>/14</b> · Spoons <?= (int)$prog['spoons'] ?>/<?= (int)$prog['spoons_max'] ?> · Golden tables <?= (int)$prog['gold'] ?></p>
+  <p><b>Tastes <?= (int)$prog['tastes'] ?>/14</b> · Spoons <?= (int)$prog['spoons'] ?>/<?= (int)$prog['spoons_max'] ?> · Golden tables <?= (int)$prog['gold'] ?> · Grand <?= (int)$prog['grand'] ?>/<?= (int)$prog['grand_max'] ?></p>
   <p class="help">A Taste is a region where you have served him a plate, a pot and a jar. Fourteen Tastes finish his story.</p>
   <?php foreach ($beats as $b): ?><p class="story"><b><?= e($b['title']) ?></b><br><?= e(str_replace('{gnome}', (string)($u['gnome_name'] ?: $u['username']), $b['text'])) ?></p><?php endforeach; ?>
   <?php if ($beats && (int)$prog['tastes'] >= 7): ?><p class="story">🥄 A second spoon is laid at his table now.</p><?php endif; ?>
@@ -110,6 +145,7 @@ page_header('The Gourmand');
       <li><?= $ic ?> <?= e($label) ?>: <?= $spoons((int)($m['spoons'] ?? 0)) ?><?= $m ? ' <small class="muted">best ' . (int)$m['best_q'] . '</small>' : '' ?>
         <?php if ($m && !empty($menuJ[$course]['note'])): ?><br><small class="muted">“<?= e($menuJ[$course]['note']) ?>”</small><?php endif; ?></li>
     <?php endforeach; ?>
+      <?php if (!empty($menuJ['grand'])): $gm = $ledger[$rc]['grand'] ?? null; ?><li><?= GOURMAND_GRAND[0] ?> <?= e(GOURMAND_GRAND[1]) ?>: <?= $spoons((int)($gm['spoons'] ?? 0)) ?><?= isset($ledger[$rc]['grandpay']) ? ' 🥄 <small class="muted">gold spoon</small>' : '' ?></li><?php endif; ?>
     </ul>
   </div>
 <?php endforeach; ?>
@@ -126,7 +162,7 @@ page_header('The Gourmand');
       <?php continue; } $nm = $names($menu); ?>
       <p><?= TOWN_FESTIVALS[$town][1] ?? '' ?> <b><?= e($town) ?></b> · camp days <?= (int)$w['from'] ?>–<?= (int)$w['to'] ?>
         <br><small>
-        <?php foreach (GOURMAND_COURSES as $course => [$ic]): if (empty($menu[$course])) continue; ?><?= $ic ?> <?= (int)$menu[$course]['qty'] ?> × <?= e($nm[$menu[$course]['item']] ?? $menu[$course]['item']) ?> &nbsp;<?php endforeach; ?></small></p>
+        <?php foreach (GOURMAND_COURSES + ['grand' => GOURMAND_GRAND] as $course => [$ic]): if (empty($menu[$course])) continue; ?><?= $ic ?> <?= (int)$menu[$course]['qty'] ?> × <?= e($nm[$menu[$course]['item']] ?? $menu[$course]['item']) ?> &nbsp;<?php endforeach; ?></small></p>
     <?php endforeach; ?>
   <?php endforeach; ?>
 </section>
@@ -142,6 +178,8 @@ page_header('The Gourmand');
     <li><b>Once a month per course.</b> The first time you earn each spoon on a course you are paid (<?= GOURMAND_FIRST[1][0] ?> / <?= GOURMAND_FIRST[2][0] ?> / <?= GOURMAND_FIRST[3][0] ?> Petals). Serving it again in a later month earns a <?= GOURMAND_TIP[0] ?> Petal tip.</li>
     <li><b>A Taste</b> is a region with all three courses served: <?= GOURMAND_TABLE ?> Petals and two seeds of its plate crop. Three splendid courses in one region make a golden table: <?= GOURMAND_GOLD ?> Petals and a rare seed.</li>
     <li><b>Festival day.</b> On a region’s festival day, a serve there doubles your friendship with Pomeroy and his tip experience. You do not need to be at his camp.</li>
+    <li><b>The Grand course.</b> Eight regions have a feast. With a Kitchen at level III and your first Taste of the region, you can serve him its feast (judged like a pot): <?= money(GOURMAND_GRAND_PAY[0]) ?> and <?= GOURMAND_GRAND_PAY[1] ?> XP the first time, a tip after. All eight earns the title Grand Diner.</li>
+    <li><b>The Home Plate.</b> At <?= GOURMAND_HOME_TASTES ?> Tastes he asks for the cooking of your home: one cooked dish made with a crop of your home region, at two spoons or better, served from anywhere. Once only.</li>
     <li><b>The Long Table.</b> On the first of the month, a gnome who served <?= GOURMAND_SEAT_MIN ?> courses or more last month can take a seat for <?= money(50) ?> and a charm boost.</li>
     <li><b>Fourteen Tastes</b> finish his story. Come back and sit down when you get there.</li>
   </ul>

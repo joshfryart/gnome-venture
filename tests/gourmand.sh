@@ -46,6 +46,9 @@ done
 chk "nav has no Gourmand tile" "$(get gnome.php >/dev/null; grep -c 'gourmand.php' $H)" 0
 chk "serve is refused for a player while off" "$(post gourmand.php -d do=serve -d course=plate)" 302
 chk "no claim made" "$(db "SELECT COUNT(*) FROM traveller_deals WHERE npc_id=$POM")" 0
+chk "the Grand course is refused for a player while off" "$(post gourmand.php -d do=serve -d course=grand)" 302
+chk "the Home Plate is refused for a player while off" "$(post gourmand.php -d do=home -d dish=wild-rice-hotdish)" 302
+chk "no Grand or Home row was made while off" "$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU")" 0
 echo "== the admin sees the page when it is off, and flips the switch from the settings page"
 curl -s -c $C2 -b $C2 $BASE/login.php -o $H2 >/dev/null; curl -s -c $C2 -b $C2 -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H2)" -d username=admin -d password=TestPassword123 -o /dev/null
 dbx "UPDATE users SET onboarded=1, tour_step=0 WHERE username='admin'"
@@ -86,6 +89,53 @@ chk "claims" "$(db "SELECT COUNT(*) FROM traveller_deals WHERE user_id=$SU AND n
 chk "Petals paid once" "$(db "SELECT coins FROM users WHERE id=$SU")" 240
 chk "ledger served once" "$(db "SELECT served FROM gourmand_ledger WHERE user_id=$SU AND region='NA' AND course='plate'")" 1
 chk "the ask was taken once" "$(db "SELECT COALESCE((SELECT qty FROM user_items WHERE user_id=$SU AND item_id=(SELECT id FROM items WHERE slug='wild-rice')),0)")" 0
+echo "== the Grand course over HTTP: Kitchen III, the first Taste, one payment, a double tap"
+PLOT=$(db "SELECT id FROM plots WHERE user_id=$SU LIMIT 1")
+pg() { get gourmand.php >/dev/null; post gourmand.php "$@"; }
+kitchen() { dbx "DELETE FROM garden_buildings WHERE plot_id=$PLOT AND building='kitchen'"; [ "$1" -gt 0 ] && dbx "INSERT INTO garden_buildings (plot_id, building, level, built_at, last_collect) VALUES ($PLOT, 'kitchen', $1, datetime('now'), datetime('now'))"; true; }
+held() { db "SELECT COALESCE((SELECT qty FROM user_items WHERE user_id=$SU AND item_id=(SELECT id FROM items WHERE slug='$1')),0)"; }
+dbx "DELETE FROM traveller_deals WHERE npc_id=$POM; DELETE FROM gourmand_ledger WHERE user_id=$SU; UPDATE users SET coins=0 WHERE id=$SU"
+give feast-maplewold-table 2 70
+kitchen 0; get gourmand.php >/dev/null; grep -q 'needs a Kitchen at level III' $H && echo "ok   the page shows the feast as locked without a Kitchen"
+chk "Grand without a Kitchen" "$(pg -d do=serve -d course=grand)" 302
+chk "  nothing taken, nothing claimed" "$(held feast-maplewold-table)/$(db "SELECT COUNT(*) FROM traveller_deals WHERE npc_id=$POM")/$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU")" "2/0/0"
+kitchen 2; chk "Grand at Kitchen II" "$(pg -d do=serve -d course=grand)" 302
+chk "  refused: nothing taken, nothing claimed" "$(held feast-maplewold-table)/$(db "SELECT COUNT(*) FROM traveller_deals WHERE npc_id=$POM")/$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU")" "2/0/0"
+kitchen 3; get gourmand.php >/dev/null; grep -q 'after your first Taste' $H && echo "ok   the page says a Taste comes first"
+chk "Grand at Kitchen III before the first Taste" "$(pg -d do=serve -d course=grand)" 302
+chk "  refused: nothing taken, nothing claimed, nothing paid" "$(held feast-maplewold-table)/$(db "SELECT COUNT(*) FROM traveller_deals WHERE npc_id=$POM")/$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU")/$(db "SELECT coins FROM users WHERE id=$SU")" "2/0/0/0"
+dbx "INSERT INTO gourmand_ledger (user_id, region, course, paid, served, first_at, last_at) VALUES ($SU, 'NA', 'table', 1, 0, datetime('now'), datetime('now'))"
+get gourmand.php >/dev/null; grep -q 'Serve the feast' $H && echo "ok   the page offers the feast as a servable course"
+TOK=$(csrf $H)
+PIDS=""; for i in 1 2 3 4; do curl -s -b $C -c $C -X POST $BASE/gourmand.php --data-urlencode "csrf=$TOK" -d do=serve -d course=grand -o /dev/null & PIDS="$PIDS $!"; done; wait $PIDS
+chk "double-POST Grand: one claim" "$(db "SELECT COUNT(*) FROM traveller_deals WHERE user_id=$SU AND npc_id=$POM AND stop LIKE '%|grand'")" 1
+chk "  paid once (200)" "$(db "SELECT coins FROM users WHERE id=$SU")" 200
+chk "  the feast was taken once" "$(held feast-maplewold-table)" 1
+chk "  one grandpay row, one grand row served once" "$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU AND course='grandpay'")/$(db "SELECT served FROM gourmand_ledger WHERE user_id=$SU AND region='NA' AND course='grand'")" "1/1"
+chk "a second Grand this month" "$(pg -d do=serve -d course=grand)" 302
+chk "  pays nothing more" "$(db "SELECT coins FROM users WHERE id=$SU")/$(held feast-maplewold-table)" "200/1"
+get 'gourmand.php?t=journal' >/dev/null; grep -q 'Grand 1/8' $H && echo "ok   the journal counts Grand 1/8"
+echo "-- the Grand Diner title is granted by the engine test (gourmand_titles); here, seven more grandpay rows"
+for rc in CA CB NWE SE EE MENA CSA; do dbx "INSERT INTO gourmand_ledger (user_id, region, course, paid, served, first_at, last_at) VALUES ($SU, '$rc', 'grandpay', 1, 0, datetime('now'), datetime('now'))"; done
+echo "== the Home Plate over HTTP: 10 Tastes, a home-crop dish, once, a double tap"
+dbx "DELETE FROM traveller_deals WHERE npc_id=$POM; UPDATE users SET coins=0, location='Mossbottom' WHERE id=$SU"
+give wild-rice-hotdish 3 70; give falafel 1 70
+chk "Home Plate before 10 Tastes (1 so far)" "$(pg -d do=home -d dish=wild-rice-hotdish)" 302
+chk "  refused: nothing taken, no HOME row" "$(held wild-rice-hotdish)/$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU AND region='HOME'")/$(db "SELECT coins FROM users WHERE id=$SU")" "3/0/0"
+for rc in CA CB SA NWE SE EE MENA WCA; do dbx "INSERT OR IGNORE INTO gourmand_ledger (user_id, region, course, paid, served, first_at, last_at) VALUES ($SU, '$rc', 'table', 1, 0, datetime('now'), datetime('now'))"; done
+chk "9 Tastes before OC" "$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU AND course='table'")" 9
+dbx "INSERT OR IGNORE INTO gourmand_ledger (user_id, region, course, paid, served, first_at, last_at) VALUES ($SU, 'OC', 'table', 1, 0, datetime('now'), datetime('now'))"
+get gourmand.php >/dev/null; grep -q 'The Home Plate' $H && echo "ok   the Home Plate shows from Mossbottom at 10 Tastes"; grep -q 'value="wild-rice-hotdish"' $H && echo "ok   it lists the home dish"; grep -q 'value="falafel"' $H && { echo "FAIL it lists a dish with no home crop"; RC=1; }
+chk "the wrong dish (falafel)" "$(pg -d do=home -d dish=falafel)" 302
+chk "  refused: nothing taken, no HOME row, nothing paid" "$(held falafel)/$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU AND region='HOME'")/$(db "SELECT coins FROM users WHERE id=$SU")" "1/0/0"
+get gourmand.php >/dev/null; TOK=$(csrf $H)
+PIDS=""; for i in 1 2 3 4; do curl -s -b $C -c $C -X POST $BASE/gourmand.php --data-urlencode "csrf=$TOK" -d do=home -d dish=wild-rice-hotdish -o /dev/null & PIDS="$PIDS $!"; done; wait $PIDS
+chk "double-POST Home Plate: paid once (200)" "$(db "SELECT coins FROM users WHERE id=$SU")" 200
+chk "  one dish taken, one HOME/home row" "$(held wild-rice-hotdish)/$(db "SELECT COUNT(*) FROM gourmand_ledger WHERE user_id=$SU AND region='HOME' AND course='home'")" "2/1"
+chk "a later try" "$(pg -d do=home -d dish=wild-rice-hotdish)" 302
+chk "  pays nothing more, takes nothing" "$(db "SELECT coins FROM users WHERE id=$SU")/$(held wild-rice-hotdish)" "200/2"
+get gourmand.php >/dev/null; grep -q 'shown Pomeroy the cooking of your home' $H && echo "ok   the page says it is done"
+kitchen 0; dbx "DELETE FROM traveller_deals WHERE npc_id=$POM; DELETE FROM gourmand_ledger WHERE user_id=$SU; UPDATE users SET coins=0, location='The Maplewold' WHERE id=$SU"
 echo "== the Long Table seat over HTTP"
 dbx "UPDATE settings SET value='2026-11-01' WHERE name='gourmand_force_date'"; dbx "UPDATE users SET location='Mossbottom' WHERE id=$SU"
 get gourmand.php >/dev/null; grep -q 'Long Table' $H && echo "ok   the Long Table shows on day 1"

@@ -24,6 +24,10 @@ const GOURMAND_GOLD_SEEDS = [
     'MENA' => 'saffron-seed', 'WCA' => 'grains-of-paradise-seed', 'ESA' => 'coffee-seed', 'CSA' => 'black-pepper-seed', 'EA' => 'yuzu-seed', 'SEA' => 'mangosteen-seed', 'OC' => 'macadamia-seed',
 ];
 const GOURMAND_COURSES = ['plate' => ['🥗', 'Plate', 'a raw crop'], 'pot' => ['🍲', 'Pot', 'a cooked dish'], 'jar' => ['🫙', 'Jar', 'a Pantry preserve']];
+const GOURMAND_GRAND = ['🍽️', 'Grand', 'a regional feast'];   // the fourth course of the eight feast regions: Kitchen III, after that region's first Taste, pot bars
+const GOURMAND_GRAND_PAY = [200, 40];                       // [Petals, XP] for a first 🥄 or better on a region's Grand course (the grandpay claim), once in a lifetime per region
+const GOURMAND_HOME_PAY = [200, 40];                        // [Petals, XP] for the Home Plate (HOME/home), once in a lifetime
+const GOURMAND_HOME_TASTES = 10;                            // Tastes that open the Home Plate (the `home` beat)
 
 /** Is the feature on for this viewer? Admins always see it; players only while the setting is On. */
 function gourmand_open(): bool
@@ -274,12 +278,19 @@ function gourmand_tastes(int $uid): int
     return (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'table'", [$uid]);
 }
 
-/** Journal totals: tastes x/14, spoons x/126 (3 courses in 14 regions at 3 spoons), golden tables. */
+/** How many regions have a Grand course (the menu rows with course grand): 8. */
+function gourmand_grand_regions(): int
+{
+    return count(array_filter(gourmand_rows()['M'], fn($c) => isset($c['grand'])));
+}
+
+/** Journal totals: tastes x/14, spoons x/126 (3 courses in 14 regions at 3 spoons), golden tables, Grand courses x/8. */
 function gourmand_progress(int $uid): array
 {
     return ['tastes' => gourmand_tastes($uid), 'tastes_max' => 14,
         'spoons' => (int)q_val("SELECT COALESCE(SUM(spoons), 0) FROM gourmand_ledger WHERE user_id = ? AND course IN ('plate', 'pot', 'jar')", [$uid]), 'spoons_max' => 126,
-        'gold' => (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'gold'", [$uid])];
+        'gold' => (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'gold'", [$uid]),
+        'grand' => (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'grandpay'", [$uid]), 'grand_max' => gourmand_grand_regions()];
 }
 
 /** Titles he has given this gnome (for the Almanac title picker). */
@@ -291,10 +302,12 @@ function gourmand_titles(int $uid): array
     if ($p['tastes'] >= 7) $out[] = 'Well Fed';
     if (q_val("SELECT 1 FROM gourmand_ledger WHERE user_id = ? AND region = 'ALL' AND course = 'finale'", [$uid])) $out[] = 'Second Spoon';
     if ((int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course IN ('plate', 'pot', 'jar') AND spoons >= 3", [$uid]) >= 42) $out[] = 'Golden Palate';
+    $gm = gourmand_grand_regions();
+    if ($gm > 0 && (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'grandpay'", [$uid]) >= $gm) $out[] = 'Grand Diner';
     return $out;
 }
 
-/** Claim a once-in-a-lifetime row (table, gold, finale). True only for the request that made it. */
+/** Claim a once-in-a-lifetime row (table, gold, grandpay, finale). True only for the request that made it. */
 function gourmand_claim(int $uid, string $region, string $course): bool
 {
     try { db_insert('gourmand_ledger', ['user_id' => $uid, 'region' => $region, 'course' => $course, 'paid' => 1, 'served' => 0, 'first_at' => now(), 'last_at' => now()]); }
@@ -344,7 +357,9 @@ function gourmand_serve(array $u, string $course): array
     if (!gourmand_open()) return [false, 'Pomeroy isn’t about yet.'];
     if (is_guest_uid($uid)) return [false, 'Guests can look around, but Pomeroy only dines with gnomes of their own.'];
     if ((int)$u['level'] < GOURMAND_LEVEL) return [false, 'Pomeroy dines with gnomes from level ' . GOURMAND_LEVEL . '.'];
-    if (!isset(GOURMAND_COURSES[$course])) return [false, 'That isn’t on the menu.'];
+    $grand = $course === 'grand';
+    $info = $grand ? GOURMAND_GRAND : (GOURMAND_COURSES[$course] ?? null);
+    if (!$info) return [false, 'That isn’t on the menu.'];
     $code = gourmand_here($u);
     if ($code === '') return [false, 'There is no menu on the Green. Pomeroy takes his courses out in the regions (the Long Table is only a seat).'];
     $tour = hollow_date('Y-m', gourmand_now());
@@ -353,8 +368,16 @@ function gourmand_serve(array $u, string $course): array
     $npcId = gourmand_npc_id();
     if (!$row || !$item || !$npcId) return [false, 'That isn’t on the menu.'];
     $key = $tour . '|' . $code . '|' . $course;
+    if ($grand) {
+        require_once __DIR__ . '/gardens.php';
+        if (user_building_bonus($uid, 'kitchen')['best'] < 3) return [false, 'A feast needs a Kitchen at level III. Pomeroy will wait.'];
+    }
     db()->beginTransaction();
     q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // lock this gnome, then re-read what is held
+    if ($grand && !q_val("SELECT 1 FROM gourmand_ledger WHERE user_id = ? AND region = ? AND course = 'table'", [$uid, $code])) {
+        db()->rollBack();
+        return [false, 'Pomeroy wants a Taste of ' . gourmand_region_name($code) . ' before he sits down to a feast. Serve him a plate, a pot and a jar here first.'];
+    }
     $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $item['id']]);
     if ($have < (int)$row['qty']) {
         db()->rollBack();
@@ -370,7 +393,7 @@ function gourmand_serve(array $u, string $course): array
         db_insert('traveller_deals', ['user_id' => $uid, 'npc_id' => $npcId, 'stop' => $key, 'at' => now()]);
     } catch (PDOException $e) {
         db()->rollBack();
-        return [false, 'Already served this month. Pomeroy has had his ' . strtolower(GOURMAND_COURSES[$course][1]) . ' from you. Come back next month.'];
+        return [false, 'Already served this month. Pomeroy has had his ' . strtolower($info[1]) . ' from you. Come back next month.'];
     }
     if (!give_item($uid, (int)$item['id'], -(int)$row['qty'])) {
         db()->rollBack();
@@ -380,12 +403,17 @@ function gourmand_serve(array $u, string $course): array
     $L = q_one('SELECT * FROM gourmand_ledger WHERE user_id = ? AND region = ? AND course = ?', [$uid, $code, $course]);
     $paid = $L ? (int)$L['paid'] : 0;
     $first = !$L;
+    $petals = 0; $xp = 0; $lines = [];
     if (!$L) db_insert('gourmand_ledger', ['user_id' => $uid, 'region' => $code, 'course' => $course, 'best_q' => $quality, 'spoons' => $spoons, 'paid' => 0, 'served' => 1, 'first_at' => now(), 'last_at' => now()]);
     else q('UPDATE gourmand_ledger SET best_q = ?, spoons = ?, served = served + 1, last_at = ? WHERE user_id = ? AND region = ? AND course = ?',
         [max($quality, (int)$L['best_q']), max($spoons, (int)$L['spoons']), now(), $uid, $code, $course]);
     $fest = gourmand_festival($code);
-    $petals = 0; $xp = 0; $lines = [];
-    if ($spoons > $paid) {
+    if ($grand && gourmand_claim($uid, $code, 'grandpay')) {   // the feast pays once per region, however many spoons; later months tip
+        $petals += GOURMAND_GRAND_PAY[0]; $xp += GOURMAND_GRAND_PAY[1];
+        q('UPDATE gourmand_ledger SET paid = ? WHERE user_id = ? AND region = ? AND course = ?', [$spoons, $uid, $code, $course]);
+        $lines[] = '🍽️ The feast of ' . gourmand_region_name($code) . ': a gold spoon on your journal card.';
+        if (gourmand_progress($uid)['grand'] >= gourmand_grand_regions()) $lines[] = 'All the feasts eaten: the title “Grand Diner”';
+    } elseif ($spoons > $paid && !$grand) {
         for ($l = $paid + 1; $l <= $spoons; $l++) { $petals += GOURMAND_FIRST[$l][0]; $xp += GOURMAND_FIRST[$l][1]; }
         q('UPDATE gourmand_ledger SET paid = ? WHERE user_id = ? AND region = ? AND course = ?', [$spoons, $uid, $code, $course]);
         $lines[] = '🥄 ' . ($paid === 0 ? 'First ' : 'New ') . 'spoons on this course!';
@@ -455,6 +483,105 @@ function gourmand_seat(array $u): array
     db()->commit();
     prize('🥄', 'A seat at the Long Table', '“Sit, sit. There’s always a second spoon at this table.”', array_merge(['+' . money(50)], $fx));
     return [true, 'You take your seat at the Long Table.'];
+}
+
+// ---------------------------------------------------------------- the Home Plate
+
+/** The region code of a gnome's home village ('' if none). */
+function gourmand_home_code(array $u): string
+{
+    $hv = (int)($u['home_village_id'] ?? 0);
+    $town = $hv ? (string)q_val('SELECT region FROM locations WHERE id = ?', [$hv]) : '';
+    $c = $town !== '' ? gourmand_code($town) : '';
+    return $c === GOURMAND_HUB_CODE ? '' : $c;
+}
+
+/** Has the Home Plate been eaten? */
+function gourmand_home_done(int $uid): bool
+{
+    return (bool)q_val("SELECT 1 FROM gourmand_ledger WHERE user_id = ? AND region = 'HOME' AND course = 'home'", [$uid]);
+}
+
+/** Is this item slug a Pot dish (a snack or meal recipe) that uses a crop from the home region? Returns the recipe's name or null. */
+function gourmand_home_dish(string $homeCode, string $slug): ?string
+{
+    $rec = q_one("SELECT r.ingredients, i.name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE i.slug = ? AND r.tier IN ('snack', 'meal')", [$slug]);
+    if (!$rec || $homeCode === '') return null;
+    $crops = array_column(q("SELECT DISTINCT it.slug FROM plant_regions pr JOIN regions rg ON rg.id = pr.region_id JOIN plants p ON p.id = pr.plant_id JOIN items it ON it.id = p.produce_item_id
+                             WHERE rg.code = ?", [$homeCode])->fetchAll(), 'slug');
+    foreach (array_keys(json_decode((string)$rec['ingredients'], true) ?: []) as $ing) {
+        if (in_array((string)$ing, $crops, true)) return (string)$rec['name'];
+    }
+    return null;
+}
+
+/** The Pot dishes in the satchel that would do for the Home Plate: [slug, name, held, quality, spoons]. */
+function gourmand_home_options(array $u): array
+{
+    $uid = (int)$u['id']; $home = gourmand_home_code($u); $out = [];
+    if ($home === '') return $out;
+    foreach (q("SELECT it.slug, it.name, ui.qty, it.id FROM user_items ui JOIN items it ON it.id = ui.item_id JOIN recipes r ON r.output_item_id = it.id
+                WHERE ui.user_id = ? AND ui.qty > 0 AND r.tier IN ('snack', 'meal') ORDER BY it.name", [$uid])->fetchAll() as $r) {
+        if (gourmand_home_dish($home, (string)$r['slug']) === null) continue;
+        $qq = market_stack_q($uid, (int)$r['id'], (int)$r['qty']);
+        $out[] = ['slug' => (string)$r['slug'], 'name' => (string)$r['name'], 'held' => (int)$r['qty'], 'q' => $qq, 'spoons' => gourmand_spoons('pot', $qq)];
+    }
+    return $out;
+}
+
+/**
+ * Serve the Home Plate: one Pot dish that uses a crop from your home region, at 2 spoons or better, from anywhere. Once in a lifetime
+ * (the HOME/home ledger row is the claim; the user row is locked first, as in gourmand_serve). Returns [ok, message].
+ */
+function gourmand_serve_home(array $u, string $slug): array
+{
+    require_once __DIR__ . '/rewards.php';
+    require_once __DIR__ . '/friends.php';
+    $uid = (int)$u['id'];
+    if (!gourmand_open()) return [false, 'Pomeroy isn’t about yet.'];
+    if (is_guest_uid($uid)) return [false, 'Guests can look around, but Pomeroy only dines with gnomes of their own.'];
+    if ((int)$u['level'] < GOURMAND_LEVEL) return [false, 'Pomeroy dines with gnomes from level ' . GOURMAND_LEVEL . '.'];
+    if (gourmand_tastes($uid) < GOURMAND_HOME_TASTES) return [false, 'Pomeroy will ask for the cooking of your home after ' . GOURMAND_HOME_TASTES . ' Tastes.'];
+    $home = gourmand_home_code($u);
+    if ($home === '') return [false, 'You have no home village to cook for.'];
+    $npcId = gourmand_npc_id();
+    $item = q_one('SELECT id, name FROM items WHERE slug = ?', [$slug]);
+    if (!$npcId || !$item) return [false, 'That isn’t a dish.'];
+    if (gourmand_home_dish($home, $slug) === null) return [false, 'Pomeroy wants a cooked dish made with a crop of ' . gourmand_region_name($home) . '. ' . $item['name'] . ' isn’t one.'];
+    db()->beginTransaction();
+    q('UPDATE users SET id = id WHERE id = ?', [$uid]);
+    if (gourmand_home_done($uid)) {
+        db()->rollBack();
+        return [false, 'You have already shown Pomeroy the cooking of your home.'];
+    }
+    $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $item['id']]);
+    if ($have < 1) {
+        db()->rollBack();
+        return [false, 'You aren’t holding a ' . $item['name'] . '.'];
+    }
+    $quality = market_stack_q($uid, (int)$item['id'], $have);
+    $spoons = gourmand_spoons('pot', $quality);
+    if ($spoons < 2) {
+        db()->rollBack();
+        return [false, '“Not quite moved.” Your ' . $item['name'] . ' scored ' . $quality . '; the Home Plate needs ' . GOURMAND_BARS['pot'][1] . ' for two spoons. Nothing was taken.'];
+    }
+    try {
+        db_insert('gourmand_ledger', ['user_id' => $uid, 'region' => 'HOME', 'course' => 'home', 'best_q' => $quality, 'spoons' => $spoons, 'paid' => 1, 'served' => 1, 'first_at' => now(), 'last_at' => now()]);
+    } catch (PDOException $e) {
+        db()->rollBack();
+        return [false, 'You have already shown Pomeroy the cooking of your home.'];
+    }
+    if (!give_item($uid, (int)$item['id'], -1)) {
+        db()->rollBack();
+        return [false, 'Something changed while you were setting the table. Nothing was taken.'];
+    }
+    give_petals($uid, GOURMAND_HOME_PAY[0], 'gourmand');
+    give_xp($uid, GOURMAND_HOME_PAY[1], 'Gourmand');
+    friend_add($uid, $npcId, 10);
+    db()->commit();
+    prize('🥄', 'The Home Plate', str_repeat('🥄', $spoons) . ' ' . gourmand_word($spoons),
+        ['“I tasted ' . gourmand_region_name($home) . ' in that. I think I tasted home.”', '+' . money(GOURMAND_HOME_PAY[0]), '+' . GOURMAND_HOME_PAY[1] . ' XP', '💛 +10 with Pomeroy']);
+    return [true, 'Pomeroy ate your ' . $item['name'] . ': ' . str_repeat('🥄', $spoons) . ' (' . gourmand_word($spoons) . '). The Home Plate is done.'];
 }
 
 // ---------------------------------------------------------------- the story
