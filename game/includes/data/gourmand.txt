@@ -1,6 +1,6 @@
 # Pomeroy Crumbworth, the travelling food writer (includes/gourmand.php). Pipe-separated, # comments, no pipes inside a field. Use ’ never '.
 # R|code|camp spot slug|taste name|camp line (Now tab)
-# M|code|course (plate, pot, jar)|variant (1..3, rotates every Hollow month)|item slug|qty|ask line|margin note (journal, first spoon)
+# M|code|course (plate, pot, jar, grand: grand is a region’s feast, only the eight feast regions have one)|variant (1..3, rotates every Hollow month)|item slug|qty|ask line|margin note (journal, first spoon)
 # B|beat key|tastes needed (0 = first visit)|title|text ({gnome} = gnome name)
 # Keep camp lines, asks and margin notes to 140 characters or fewer.
 R|NA|na-sugarshack|sweet smoke|Pomeroy has set up a folding table beside the sugarshack, napkin first.
@@ -80,6 +80,34 @@ M|EA|jar|2|pickled-daikon|1|Pickled daikon. Crisp and pale, and clean as a bloss
 M|SEA|jar|1|lemongrass-cordial|1|Lemongrass cordial. Bright as a bell. I want to be woken up.|Bright as a bell. I am quite awake.
 M|SEA|jar|2|tempeh|1|Tempeh. Firm, nutty, and quite alive in the jar. I like a dish with a pulse.|Firm, nutty and cheerfully alive.
 M|OC|jar|1|pickled-samphire|1|Pickled samphire. Salt from the shore, and snap from the pools.|The sea, in a snap. Salt of the sea, indeed.
+#
+# ---- P2: the second pots, two more jars and the Grand courses (a region's feast, served at Kitchen III or better)
+M|NA|pot|2|wild-rice-hotdish|1|A hotdish of wild rice and mushrooms, baked under a lid. Bring it hot and I’ll bring my manners.|Woodsmoke and patience under a lid. I scraped the dish.
+M|CA|pot|2|bean-tamales|1|Tamales, please: corn and beans in their husks. I shall unwrap them as one unwraps a letter.|Corn, beans and a little fire. Unwrapped like a letter.
+M|CB|pot|2|rice-and-peas|1|Rice and peas, the Isles way. Yes, they are beans. No, I shan’t argue.|Coconut-soft and sure of itself. I did not argue.
+M|SA|pot|2|quinoa-soup|1|A quinoa soup for thin air. Make it warm enough to argue with the altitude.|Warm, plain and high. The altitude lost the argument.
+M|NWE|pot|2|colcannon|1|Colcannon. Mash and greens, with a coin hidden in it, I hope. I shall chew with care.|Buttery, green and kind. No coin, but I felt lucky.
+M|SE|pot|2|artichoke-fava-stew|1|Artichoke and fava stew, with lemon. Something to eat slowly, in the sun.|Slow, green and lemon-bright. I ate it slowly, in the sun.
+M|EE|pot|2|buckwheat-kasha|1|Kasha, toasted, with mushrooms. A steppe grandmother will tell you it’s wrong. I shall not tell her.|Toasted, earthy, steadfast. The grandmother will never know.
+M|MENA|pot|2|falafel|1|Falafel, crisp and green inside. I intend to eat it standing up, like a local.|Crisp outside, green within. I ate it standing, like a local.
+M|WCA|pot|2|egusi-soup|1|Egusi soup. Thick, green, generous. I shall need both hands and a clean napkin.|Thick, green and generous. The napkin did not survive.
+M|ESA|pot|2|sukuma-wiki|1|Sukuma wiki: collards with tomato and onion. They say it pushes the week. Push mine.|Collards, tomato, onion. It pushed the week along nicely.
+M|CSA|pot|2|khichdi|1|Khichdi. Rice and yellow lentils cooked soft. The dish for a tired dormouse.|Soft, golden and kind. A tired dormouse, restored.
+M|EA|pot|2|red-bean-buns|1|Red bean buns, soft and white. One each, they say. I say one, and then another.|Soft, sweet, and gone. I took another. Picnic rules.
+M|SEA|pot|2|kangkong-stir-fry|1|Kangkong, flashed in a hot pan with garlic. Be quick: I’ll be quicker.|Bright, hot and over in a moment. I was quicker.
+M|OC|pot|2|palusami|1|Palusami: taro and coconut cream in a parcel. Island lunch, gnome. Take your time.|Parcelled sweetness. Island lunch, taken slowly.
+#
+M|SA|jar|3|chicha|1|Chicha, five days in the jar. Cloudy, a little fizzy and entirely unembarrassed.|Cloudy, gently fizzing and unembarrassed. High green.
+M|OC|jar|2|poi|1|Poi. Taro, pounded and left to sour for a week. An acquired taste I intend to acquire.|Purple, smooth and sour. Acquired, with pleasure.
+#
+M|NA|grand|1|feast-maplewold-table|1|The Maplewold Harvest Table, whole. I have cleared my pockets, all eleven of them.|Pecan, cranberry, pumpkin. The whole autumn on one table.
+M|CA|grand|1|feast-maizehollow-mole|1|The Maizehollow mole feast. I know it is a great deal of work. I have brought a very large napkin.|Dark, deep, slow-burning. I will remember it for years.
+M|CB|grand|1|feast-isles-ackee-pot|1|The Sunsprinkle ackee pot. Bring the whole Isles to the table, and I’ll bring the spoon.|The whole Isles in a pot. I closed my eyes and listened.
+M|NWE|grand|1|feast-mistmoor-supper|1|A Mistmoor cloudberry supper. Rain on the windows, please, and something rich in the bowl.|Cloudberry and rain. The perfect supper for a grey evening.
+M|SE|grand|1|feast-olivewhistle-supper|1|The Olivewhistle shore supper. Olive, caper, lemon, and a view of the sea if you can manage it.|Olive, caper, lemon and a long sea light. A supper to keep.
+M|EE|grand|1|feast-steppe-table|1|The Birchbramble steppe table. Walnuts, quince, a great deal of buckwheat. I am ready.|Walnut, quince and buckwheat. A table for a long winter.
+M|MENA|grand|1|feast-dunewhisper-pilaf|1|The Dunewhisper saffron pilaf. I have been told to expect gold. I shall expect it politely.|Saffron gold, nut-sweet and tender. I expected it politely.
+M|CSA|grand|1|feast-spicepeak-thali|1|A Spicepeak thali, every little bowl of it. I shall start at the left and finish at the right.|Every little bowl a different weather. I finished at the right.
 #
 # ---- the story, in order of play
 B|hello|0|A dormouse with a napkin|Pomeroy Crumbworth tucks in his napkin and peers up at you. “Sneezed at Aurora Camp. My sense of taste blew away in fourteen pieces, one to every region. Would you feed me, {gnome}?”

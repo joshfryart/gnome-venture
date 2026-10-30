@@ -235,3 +235,19 @@ chai-blend|Chai Blend|cardamom:1,cinnamon:1,ginger:1,tea:2|sense:1|720|4|Tea and
 vanilla-extract|Vanilla Extract|vanilla:2|charm:1|1080|5|Dark and sweetly fragrant. A few drops are plenty.|preserve|10080|3
 smoked-paprika|Smoked Paprika|bell-pepper:5|grit:1|1080|4|Brick-red dust with a smoke-and-sweetness that sticks in the memory.|preserve|7200|3
 cured-olives|Cured Olives|olive:6||0|5|Plump olives, cured through a week of brine. Bitter becomes lovely.|preserve|10080|3
+wild-rice-hotdish|Wild Rice Hotdish|wild-rice:2,chanterelle:1,onion:1,celery:1|hardiness:3,lore:1|300|11|Wild rice and chanterelles baked under a lid until the kitchen smells of the woods.|meal|15
+bean-tamales|Bean Tamales|corn:3,black-bean:2,chili-pepper:1|grit:3,charm:1|300|11|Little parcels of corn dough and beans, steamed in their husks. Unwrap with ceremony.|meal|15
+rice-and-peas|Rice and Peas|rice:2,pigeon-pea:2,coconut:1|grit:2,nimble:2|240|10|Rice simmered in coconut milk with pigeon peas. The Isles call beans peas and nobody argues.|meal|15
+quinoa-soup|Quinoa Soup|quinoa:2,potato:2,carrot:1|hardiness:3,sense:1|240|10|A highland soup for thin air and cold evenings. Potato number one of a hundred.|meal|15
+colcannon|Colcannon|potato:3,kale:1,leek:1|hardiness:3,luck:1|240|11|Buttery mash with greens folded through. Hide a coin in it for luck.|meal|15
+artichoke-fava-stew|Artichoke and Fava Stew|artichoke:2,fava-bean:2,lemon:1|sense:3,charm:1|240|10|Spring artichokes and broad beans with lemon. Eat it slowly, in the sun.|meal|15
+buckwheat-kasha|Buckwheat Kasha|buckwheat:3,chanterelle:1,onion:1|hardiness:2,lore:2|240|10|Toasted buckwheat with mushrooms and onion. Steppe grandmothers will tell you it’s wrong.|meal|15
+falafel|Falafel|chickpea:3,parsley:1,cumin:1|grit:2,sense:1|180|7|Crisp green-hearted chickpea balls. Best eaten standing up in a bazaar.|snack|3
+egusi-soup|Egusi Soup|egusi:2,okra:2,spinach:1|grit:3,hardiness:1|300|11|Ground melon seeds thicken a rich green soup. A Greatcanopy Sunday.|meal|15
+sukuma-wiki|Sukuma Wiki|collard:3,onion:1,tomato:1|hardiness:2,nimble:2|240|10|Collards cooked with tomato and onion. The name means “push the week”, and it does.|meal|15
+khichdi|Khichdi|mung-bean:2,rice:2,turmeric:1|hardiness:2,lore:2|240|10|Rice and yellow lentils cooked soft. The dish for a tired gnome.|meal|15
+red-bean-buns|Red Bean Buns|adzuki:2,wheat:2,garden-honey:1|charm:2,luck:1|180|8|Soft white buns with sweet adzuki paste inside. Picnic rules: one each, then another.|snack|3
+kangkong-stir-fry|Kangkong Stir-fry|kangkong:3,garlic:1,chili-pepper:1|nimble:2,sense:1|180|7|Water spinach flashed in a hot pan with garlic. Done before you’ve found a plate.|snack|3
+palusami|Palusami|taro:2,coconut:2,onion:1|hardiness:3,charm:1|300|11|Taro and coconut cream baked in a parcel. The Coralscatter’s Sunday lunch.|meal|15
+chicha|Chicha|corn:3,quinoa:1|grit:1,luck:1|1080|5|A cloudy, gently fizzing highland drink of corn and quinoa. Five days in the jar.|preserve|7200|3
+poi|Poi|taro:5|hardiness:2|1080|5|Pounded taro left to sour for a week. Purple, smooth and an acquired taste worth acquiring.|preserve|10080|3

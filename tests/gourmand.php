@@ -81,6 +81,7 @@ $crops = [];
 foreach (stops_file_rows('region_crops.txt') as $r) if (in_array($r[1] ?? '', ['staple', 'uncommon'], true)) foreach (explode(',', $r[2]) as $cr) $crops[$r[0]][] = trim($cr);
 foreach ($codes as $c) {
     foreach (['plate', 'pot', 'jar'] as $course) if (empty($rows['M'][$c][$course][1])) $errs[] = "$c has no $course";
+    if (count($rows['M'][$c]['pot'] ?? []) < 2) $errs[] = "$c has no second pot";
     foreach ($rows['M'][$c] ?? [] as $course => $vars) foreach ($vars as $v => $m) {
         $tag = "$c $course $v {$m['item']}";
         $it = q_one('SELECT id, category FROM items WHERE slug = ?', [$m['item']]);
@@ -95,6 +96,7 @@ foreach ($codes as $c) {
         } else {
             $rec = q_one('SELECT tier, cook_minutes, ingredients FROM recipes WHERE slug = ?', [$m['item']]);
             if (!$rec) { $errs[] = "$tag: no recipe"; continue; }
+            if ($course === 'grand' && ($rec['tier'] !== 'feast' || !str_starts_with($m['item'], 'feast-'))) $errs[] = "$tag: tier {$rec['tier']}";
             if ($course === 'pot' && !in_array($rec['tier'], ['snack', 'meal'], true)) $errs[] = "$tag: tier {$rec['tier']}";
             if ($course === 'jar') {
                 if ($rec['tier'] !== 'preserve') $errs[] = "$tag: tier {$rec['tier']}";
@@ -103,16 +105,40 @@ foreach ($codes as $c) {
             }
         }
     }
-    if (!isset($jarOk[$c]) && !in_array($c, ['SA', 'OC'], true)) $errs[] = "$c has no jar that can reach 3 spoons";
+    if (!isset($jarOk[$c])) $errs[] = "$c has no jar that can reach 3 spoons";
 }
-ok('every region has plate, pot and jar rows that are real items of the right kind, and a 3-spoon-capable jar (SA, OC exempt)', !$errs, implode('; ', array_slice($errs, 0, 4)));
-foreach ($rows['M'] as $c => $x) foreach ($x as $course => $vars) if (!in_array($course, ['plate', 'pot', 'jar'], true)) $errs[] = "$c: course $course";
+ok('every region has plate, pot and jar rows that are real items of the right kind, two pots, and a 3-spoon-capable jar (no exemptions)', !$errs, implode('; ', array_slice($errs, 0, 4)));
+foreach ($rows['M'] as $c => $x) foreach ($x as $course => $vars) if (!in_array($course, ['plate', 'pot', 'jar', 'grand'], true)) $errs[] = "$c: course $course";
 $t0 = gourmand_menu('EE', '2026-10'); $t1 = gourmand_menu('EE', '2026-11'); $t2 = gourmand_menu('EE', '2026-12');
 ok('menus rotate monthly through the jar variants', $t0['jar']['variant'] !== $t1['jar']['variant'] && $t1['jar']['variant'] !== $t2['jar']['variant'] && gourmand_menu('NA', '2026-10')['plate']['item'] === 'wild-rice');
 ok('itinerary lists every stop with its camp', count(gourmand_itinerary('2026-10')) === 15 && array_filter(gourmand_itinerary('2026-10'), fn($w) => $w['camp'] === '') === []);
 $errs = [];
-foreach (stops_file_rows('regions.txt') as $r) { $t = gourmand_menu($r[0], '2026-10'); if (count($t) !== 3) $errs[] = $r[0]; }
-ok('each region serves exactly 3 courses in a tour', !$errs, implode(',', $errs));
+$grandRegions = ['NA', 'CA', 'CB', 'NWE', 'SE', 'EE', 'MENA', 'CSA'];
+foreach (stops_file_rows('regions.txt') as $r) { $t = gourmand_menu($r[0], '2026-10'); if (count($t) !== (in_array($r[0], $grandRegions, true) ? 4 : 3) || isset($t['grand']) !== in_array($r[0], $grandRegions, true)) $errs[] = $r[0]; }
+ok('each region serves plate, pot and jar in a tour, and the 8 feast regions also a Grand', !$errs, implode(',', $errs));
+$errs = [];
+foreach ($grandRegions as $c) { $g = $rows['M'][$c]['grand'][1]['item'] ?? ''; if (!preg_match('/^feast-/', $g)) $errs[] = "$c grand $g"; }
+ok('the 8 Grand courses are the regional feasts, one each, all distinct', !$errs && count(array_unique(array_map(fn($c) => $rows['M'][$c]['grand'][1]['item'], $grandRegions))) === 8, implode(',', $errs));
+// P2 recipes: 14 regional dishes + chicha + poi, every ingredient a real item, pots in the Pot tiers, the two jars preserves
+$newPots = ['wild-rice-hotdish', 'bean-tamales', 'rice-and-peas', 'quinoa-soup', 'colcannon', 'artichoke-fava-stew', 'buckwheat-kasha', 'falafel', 'egusi-soup', 'sukuma-wiki', 'khichdi', 'red-bean-buns', 'kangkong-stir-fry', 'palusami'];
+$errs = [];
+foreach (array_merge($newPots, ['chicha', 'poi']) as $slug) {
+    $rec = q_one('SELECT tier, ingredients FROM recipes WHERE slug = ?', [$slug]);
+    if (!$rec) { $errs[] = "$slug: no recipe"; continue; }
+    if (in_array($slug, $newPots, true) ? !in_array($rec['tier'], ['snack', 'meal'], true) : $rec['tier'] !== 'preserve') $errs[] = "$slug: tier {$rec['tier']}";
+    foreach (array_keys(json_decode($rec['ingredients'], true) ?: []) as $ing) if (!q_val('SELECT 1 FROM items WHERE slug = ?', [$ing])) $errs[] = "$slug: ingredient $ing missing";
+}
+ok('the 16 P2 recipes exist with real ingredients and the right tiers', !$errs, implode('; ', array_slice($errs, 0, 4)));
+$pots2 = array_filter(array_map(fn($x) => $x['pot'][2]['item'] ?? '', $rows['M'])); sort($pots2); $np = $newPots; sort($np);
+ok('the v2 Pot rows are exactly the 14 new dishes, and SA and OC have chicha and poi as jars', $pots2 == $np && ($rows['M']['SA']['jar'][3]['item'] ?? '') === 'chicha' && ($rows['M']['OC']['jar'][2]['item'] ?? '') === 'poi');
+// jar reachability at Kitchen III with no luck and no wobble: 38 + min(20, 2 days) + 9 + 3 kinds must reach the 62 bar. Hummus and okra land on it exactly (hard by design)
+$jarBase = function (string $slug): int {
+    $r = q_one('SELECT cook_minutes, ingredients FROM recipes WHERE slug = ?', [$slug]);
+    return 38 + min(20, 2 * max(1, (int)round((int)$r['cook_minutes'] / 1440))) + 9 + 3 * min(4, count(json_decode($r['ingredients'], true) ?: []));
+};
+ok('chicha and poi clear the 3-spoon jar bar at Kitchen III with room to spare', $jarBase('chicha') > GOURMAND_BARS['jar'][2] && $jarBase('poi') > GOURMAND_BARS['jar'][2]);
+ok('hummus-jar and pickled-okra land exactly on the bar (a -3 wobble costs the third spoon), by design', $jarBase('hummus-jar') === GOURMAND_BARS['jar'][2] && $jarBase('pickled-okra') === GOURMAND_BARS['jar'][2]);
+ok('MENA and WCA each also have an easier jar, so the hard one is a choice', $jarBase('pomegranate-molasses') > GOURMAND_BARS['jar'][2] && $jarBase('hibiscus-cordial') > GOURMAND_BARS['jar'][2]);
 $errs = [];
 foreach ($rows['B'] as $k => $b) { if (str_contains($b['text'], "'")) $errs[] = "$k apostrophe"; if (mb_strlen($b['text']) > 400) $errs[] = "$k long"; }
 ok('beats hello first four mid home finale, in order of tastes needed, no straight apostrophes', array_keys($rows['B']) === ['hello', 'first', 'four', 'mid', 'home', 'finale'] && array_column($rows['B'], 'tastes') === [0, 1, 4, 7, 10, 14] && !$errs, implode(',', $errs));
@@ -319,7 +345,7 @@ ok('the second spoon is a non-tradable decoration, made when first needed, not i
     $i = q_one("SELECT * FROM items WHERE slug = 'second-spoon'");
     return $i && (int)$i['tradable'] === 0 && $i['category'] === 'decor' && !in_array('second-spoon', array_keys(defined('DECOR') ? DECOR : []), true);
 })());
-ok('the finale beat shows in the story', in_array('finale', array_column($b, 'key'), true) && !in_array('home', array_column($b, 'key'), true));
+ok('the finale and Home Plate beats show in the story at 14 Tastes', in_array('finale', array_column($b, 'key'), true) && in_array('home', array_column($b, 'key'), true));
 $c0 = $coins(); gourmand_beats($U()); gourmand_beats($U());
 ok('and never plays again', $coins() === $c0 && $held('second-spoon') === 1 && (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'finale'", [$uid]) === 1);
 

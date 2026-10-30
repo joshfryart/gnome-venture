@@ -460,7 +460,7 @@ function gourmand_seat(array $u): array
 // ---------------------------------------------------------------- the story
 
 /**
- * The beats unlocked so far, in order of play (hello, first, four, mid, finale; the Home Plate beat waits for his own cooking).
+ * The beats unlocked so far, in order of play (hello, first, four, mid, home, finale; the Home Plate beat shows at 10 Tastes).
  * Plays the finale once, at the first meeting after the 14th Taste: the first load of his page or his folk card. Returns [beat rows].
  */
 function gourmand_beats(array $u): array
@@ -474,7 +474,6 @@ function gourmand_beats(array $u): array
     $finale = (bool)q_val("SELECT 1 FROM gourmand_ledger WHERE user_id = ? AND region = 'ALL' AND course = 'finale'", [$uid]);
     $out = [];
     foreach (gourmand_rows()['B'] as $b) {
-        if ($b['key'] === 'home') continue;
         if ($b['key'] === 'finale' ? !$finale : $tastes < $b['tastes']) continue;
         $out[] = $b;
     }
