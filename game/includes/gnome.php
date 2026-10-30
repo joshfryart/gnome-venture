@@ -554,14 +554,16 @@ function gnome_avatar(array $u, int $size = 96): string
         $bh = pixel_hex($beard);
         $hh = pixel_hex($hat);
         $uid = '-' . bin2hex(random_bytes(3));   // v2.0.36: unique filter ids per avatar (the phone nav drawer holds a hidden twin of this gnome)
-        $defs = ($hh !== '' ? pixel_tint_filter($hh, 1.25, $uid) : '') . ($bh !== '' && $bh !== $hh ? pixel_tint_filter($bh, 1.25, $uid) : '');
+        $sc = empty($u['id']) ? '' : (function () use ($u): string { require_once __DIR__ . '/catfish.php'; return catfish_scarf_color((int)$u['id']); })();   // 2.2.x Yarn scarf colour ('' = none)
+        $sh = $sc !== '' && pixel_has('assets/img/gnome/gnome-scarf.png') ? pixel_hex($sc) : '';
+        $defs = ($hh !== '' ? pixel_tint_filter($hh, 1.25, $uid) : '') . ($bh !== '' && $bh !== $hh ? pixel_tint_filter($bh, 1.25, $uid) : '') . ($sh !== '' && $sh !== $hh && $sh !== $bh ? pixel_tint_filter($sh, 1.25, $uid) : '');
         $o = '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome" data-tint="' . $uid . '">'
             . ($defs !== '' ? '<defs>' . $defs . '</defs>' : '');
         foreach ($L as $l) {
             $o .= '<g data-part="' . ($l === 'beard' || $l === 'hat' || $l === 'band' || $l === 'star' ? $l : 'base') . '">'
                 . pixel_image('assets/img/gnome/gnome-' . $l . '.png', 0, 0, 80, 100, $l === 'beard' ? $beard : ($l === 'hat' ? $hat : ''), $uid) . '</g>';
         }
-        return $o . '</svg>';
+        return $o . gnome_scarf_svg($u, $uid) . '</svg>';
     }
     return '<svg class="gnomeart" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 80 100" role="img" aria-label="Your gnome">'
         . '<ellipse cx="40" cy="96" rx="26" ry="4" fill="#000" opacity=".12"/>'
@@ -575,7 +577,27 @@ function gnome_avatar(array $u, int $size = 96): string
         . '<rect data-part="hat" x="20" y="37" width="40" height="6" rx="3" fill="' . e($hat) . '"/>'
         . ($tier >= 2 ? '<rect data-part="band" x="20" y="37" width="40" height="3" fill="#f4d35e" opacity=".9"/>' : '')   // v0.9.1: tier II hat band
         . ($tier >= 3 ? '<path data-part="star" d="M40 16 L41.8 20.2 L46.3 20.5 L42.8 23.4 L43.9 27.8 L40 25.4 L36.1 27.8 L37.2 23.4 L33.7 20.5 L38.2 20.2 Z" fill="#f4d35e" stroke="#b8860b" stroke-width=".6"/>' : '')   // v0.9.1: tier III star
-        . '</svg>';
+        . gnome_scarf_svg($u) . '</svg>';
+}
+
+/**
+ * The Yarn scarf (bought in Cat Fish); '' without one. With the art (assets/img/gnome/gnome-scarf.png, 80 x 100, grey, same canvas as gnome-hat.png) it is a
+ * pixel_image() tinted like the hat, drawn topmost (the beard footprint is already cut out); $uid is the avatar's filter suffix (the tint filter is in that
+ * svg's <defs>). Without the PNG it is the old flat SVG with a red dashed outline (red border = THIS IS PLACEHOLDER, claude/todo.md "Art for 2.2.x").
+ */
+function gnome_scarf_svg(array $u, string $uid = ''): string
+{
+    if (empty($u['id'])) return '';
+    require_once __DIR__ . '/catfish.php';
+    $c = catfish_scarf_color((int)$u['id']);
+    if ($c === '') return '';
+    require_once __DIR__ . '/pixel_art.php';
+    if (pixel_has('assets/img/gnome/gnome-scarf.png')) {
+        return '<g data-part="scarf">' . pixel_image('assets/img/gnome/gnome-scarf.png', 0, 0, 80, 100, $uid !== '' ? $c : '', $uid) . '</g>';
+    }
+    $edge = 'stroke="#dc1414" stroke-width="1.2" stroke-dasharray="3 1.5"';   // placeholder marker
+    return '<g data-part="scarf" data-placeholder="1"><title>THIS IS PLACEHOLDER (Yarn scarf)</title><path d="M25 62 Q40 72 55 62 L56 70 Q40 79 24 70 Z" fill="' . e($c) . '" ' . $edge . '/>'
+        . '<path d="M47 73 L50 90 L58 88 L54 71 Z" fill="' . e($c) . '" ' . $edge . '/></g>';
 }
 
 function gnome_hat(array $u): string

@@ -10,6 +10,9 @@ Handled by file name (default --glob 'cf-*.png' in --in):
   cf-bookhead-grey[-*]                        -> cf-bookhead-<coat>[-*] (Cat Book cell head, grey tones + fixed accents)
   cf-eyes-<amber|green|blue|hazel>-<f>        -> copied as is; cf-eyes-ring-<f> -> cf-eyes-ring-<eye>-<f> tinted with --eye
   cf-*-mask-<f>                               -> copied unchanged
+  cf-collar-<f>                               -> cf-collar-<colour>-<f> for the 6 collar colours (rose mint sky gold violet red): the 4 grey tones
+                                                 (tones.json) become that colour's ramp; umber outlines, #000000 border, gold thread and bell stay (fixed accents).
+                                                 --coats is ignored for collars. Frames: idleA pounce catch nap.
 Other files (fish, rod, icons) are skipped.
 Compositor: --compose --coat X [--pattern P] [--eyes E | L,R] [--ears folded] [--tail bobtail] --frame F --out file.png
 builds base coat, clears the mask regions (also from the pattern), adds parts, pattern, eyes, in that order.
@@ -52,6 +55,8 @@ COATS = {
     'silver-blue': '#8aa0b8',
     'lilac':      '#b4a0d6',   # pale violet-grey; its hue-shifted ramp stays apart from grey and silver-blue in all 4 tones
 }
+# 6 collar colours (2.2.x): name -> base hex, the same hexes as the `.cfcol-*` ring colours in game/assets/catfish.css and CATFISH_COLLARS in game/includes/catfish.php.
+COLLARS = {'rose': '#e8799b', 'mint': '#5fc9a0', 'sky': '#5aa7e0', 'gold': '#e0a526', 'violet': '#9a6fd0', 'red': '#c0392b'}
 # Fixed accents, never recoloured (from the cf_test.lua comment).
 FIXED = {'#e8909e', '#c66a80', '#f2e4c0', '#2a1a10', '#4a2c1a', '#74462a', '#f5cf6a', '#e8a317', '#000000'}
 # The fish held in cf-cat-grey-catch.png is a fixed accent (orange/gold body, never recoloured). Read from
@@ -225,6 +230,7 @@ def classify(name):
     if name.startswith(('cf-cat-', 'cf-pat-')) and '-grey-' in name: return 'coat'
     if name.startswith(('cf-ears-folded-', 'cf-tail-bobtail-')): return 'part'
     if name.startswith('cf-bookhead-grey'): return 'head'
+    if name.startswith('cf-collar-') and not any(name.startswith('cf-collar-%s-' % c) for c in COLLARS): return 'collar'
     return None
 
 
@@ -331,6 +337,18 @@ def main(argv=None):
             out, unm = recolor(src, build_map('grey', base_tones, overlays, a.eye))
             Image.fromarray(out, 'RGBA').save(os.path.join(a.out, name.replace('ring-', 'ring-%s-' % a.eye, 1)), optimize=False)
             n += 1; continue
+        if kind == 'collar':   # grey neck band -> 6 collar colours; only the 4 grey tones move
+            for col, hx in COLLARS.items():
+                r = ramp(hx)
+                out, unm = recolor(src, {base_tones[k]: r[k] for k in ('shade', 'base', 'light', 'gloss')})
+                Image.fromarray(out, 'RGBA').save(os.path.join(a.out, name.replace('cf-collar-', 'cf-collar-%s-' % col, 1)), optimize=False)
+                n += 1
+                if a.check:
+                    errs, warns, nc = check(name, src, out, unm, base_tones)
+                    for w in warns:
+                        if (name, w) not in warned: warned.add((name, w)); print('WARN %s: %s' % (name, w))
+                    for e in errs: print('FAIL %s %s: %s' % (col, name, e)); bad += 1
+            continue
         for coat in coats:
             cmap = build_map(coat, base_tones, overlays, a.eye)
             out, unm = recolor(src, cmap)

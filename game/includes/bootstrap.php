@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.1.14');
+define('APP_VERSION', '2.2.0');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -463,6 +463,11 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             require_once __DIR__ . '/catfish.php';
             catfish_ensure();   // tables made at upgrade too (a fresh install makes them on first page view, now that the game is open)
         });
+        boot_step('petshops_220', function () {
+            require_once __DIR__ . '/catfish.php';
+            catfish_ensure();   // the catfish_items table (2.2.x room things)
+            petshops_ensure();  // the 11 pet shops beside the regional markets (idempotent; the flag petshops220 is set once all 11 exist)
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players
@@ -480,6 +485,7 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
     }
 }
 
+if (setting('petshops220') !== '1') { require_once __DIR__ . '/catfish_pets.php'; petshops_boot(); }   // 2.2.x: the pet shops exist even where the version is not bumped yet (a dev copy, a fresh install)
 market_boot();   // v1.0.0 wave 2b: the market Almanac page exists even where db_version was set by hand (a dev copy)
 
 send_security_headers();

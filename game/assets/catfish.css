@@ -250,6 +250,37 @@
 .cfcard .cfhold { justify-content: center; }
 .cfcard .cfinfo { flex: 1 1 100%; text-align: center; }
 .cfcard .cfmain { flex: 1 1 100%; }
+/* Yarn ball colours: recoloured sprites cf-yarn-<1..4>-<colour>.png chosen in catfish_room_extras_html (2.2.x; the old CSS tint is gone) */
+/* Collar tint (the ring `.cfcol-*` is the fallback; with cf-collar-*.png the cat wears a neck-band layer instead), Cat bio, and the seasonal room (eight CSS bits falling or drifting; none under reduced motion). */
+.cfcol-rose { box-shadow: 0 0 0 2px #e8799b; border-radius: 12px; } .cfcol-mint { box-shadow: 0 0 0 2px #5fc9a0; border-radius: 12px; }
+.cfcol-sky { box-shadow: 0 0 0 2px #5aa7e0; border-radius: 12px; } .cfcol-gold { box-shadow: 0 0 0 2px #e0a526; border-radius: 12px; }
+.cfcol-violet { box-shadow: 0 0 0 2px #9a6fd0; border-radius: 12px; } .cfcol-red { box-shadow: 0 0 0 2px #c0392b; border-radius: 12px; }
+.cfcat.cfcol-rose, .cfcat.cfcol-mint, .cfcat.cfcol-sky, .cfcat.cfcol-gold, .cfcat.cfcol-violet, .cfcat.cfcol-red { border-radius: 50%; }
+.cfbio { font-style: italic; }
+.cfbioin { width: 14rem; }
+.cfseason { position: absolute; left: 0; top: 0; width: 320px; height: 200px; overflow: hidden; pointer-events: none; }
+.cfseason i { position: absolute; top: 0; width: 3px; height: 3px; animation: cfsfall 9s steps(24, end) infinite; }
+.cfs-sp i { background: #f4a6c0; border-radius: 50% 0; --sx: 26px; } .cfs-au i { background: #d9772b; width: 4px; height: 3px; --sx: -30px; }
+.cfs-wi i { background: #fff; width: 2px; height: 2px; --sx: 12px; } .cfs-su i { background: #ffe66b; width: 2px; height: 2px; top: 60px; --sx: 14px; animation-name: cfsglow; animation-duration: 6s; animation-timing-function: steps(6, end); animation-direction: alternate; }
+.cfseason i:nth-child(1) { left: 14px; } .cfseason i:nth-child(2) { left: 52px; animation-duration: 11s; animation-delay: -3s; } .cfseason i:nth-child(3) { left: 96px; animation-duration: 8s; animation-delay: -6s; }
+.cfseason i:nth-child(4) { left: 140px; animation-duration: 12s; animation-delay: -2s; } .cfseason i:nth-child(5) { left: 186px; animation-duration: 10s; animation-delay: -8s; }
+.cfseason i:nth-child(6) { left: 228px; animation-duration: 9s; animation-delay: -5s; } .cfseason i:nth-child(7) { left: 268px; animation-duration: 13s; animation-delay: -9s; } .cfseason i:nth-child(8) { left: 302px; animation-duration: 8s; animation-delay: -1s; }
+.cfs-su i:nth-child(2n) { top: 110px; } .cfs-su i:nth-child(3n) { top: 150px; }
+/* 2.2.x pixel sprites (class cfsart, all 8 cf-season-*.png installed): spring petal/petal-b, summer firefly/firefly-b, autumn leaf/leaf-b, winter flake (6 px) and flake-small (3 px, slower, for depth).
+   A bit shows frame A as its own background and frame B on ::after, which flips on and off in whole steps (petals 1.6 s, fireflies blink 1.2 s). Same fall/glow motion as the dots. */
+.cfseason.cfsart i { background-color: transparent; background-repeat: no-repeat; background-size: 100% 100%; border-radius: 0; image-rendering: pixelated; }
+.cfseason.cfsart i::after { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-repeat: no-repeat; background-size: 100% 100%; image-rendering: pixelated; animation: cfsflip 1600ms steps(1, end) infinite; }
+.cfs-sp.cfsart i { width: 6px; height: 6px; background-image: url(img/catfish/cf-season-petal.png); } .cfs-sp.cfsart i::after { background-image: url(img/catfish/cf-season-petal-b.png); }
+.cfs-sp.cfsart i:nth-child(2n) { background-image: url(img/catfish/cf-season-petal-b.png); } .cfs-sp.cfsart i:nth-child(2n)::after { background-image: url(img/catfish/cf-season-petal.png); }
+.cfs-su.cfsart i { width: 5px; height: 6px; background-image: url(img/catfish/cf-season-firefly.png); } .cfs-su.cfsart i::after { background-image: url(img/catfish/cf-season-firefly-b.png); animation-duration: 1200ms; }
+.cfs-au.cfsart i { width: 9px; height: 9px; background-image: url(img/catfish/cf-season-leaf.png); } .cfs-au.cfsart i::after { background-image: url(img/catfish/cf-season-leaf-b.png); animation-duration: 2000ms; }
+.cfs-au.cfsart i:nth-child(2n) { background-image: url(img/catfish/cf-season-leaf-b.png); } .cfs-au.cfsart i:nth-child(2n)::after { background-image: url(img/catfish/cf-season-leaf.png); }
+.cfs-wi.cfsart i { width: 6px; height: 6px; background-image: url(img/catfish/cf-season-flake.png); } .cfs-wi.cfsart i::after { display: none; }
+.cfs-wi.cfsart i:nth-child(2n) { width: 3px; height: 3px; background-image: url(img/catfish/cf-season-flake-small.png); animation-duration: 14s; }
+@keyframes cfsflip { 0% { opacity: 0; } 50%, 100% { opacity: 1; } }
+@keyframes cfsfall { 0% { translate: 0 -8px; } 100% { translate: var(--sx) 206px; } }
+@keyframes cfsglow { 0% { translate: 0 0; opacity: .2; } 100% { translate: var(--sx) -14px; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cfseason { display: none; } }
 /* 2.1.06 room life. Window bird (cf-bird-1..3, 12 x 10 drawn at 2x = 24 x 20 on the perch, room-layout.json "bird" x -2, y 44: the perched frame covers the robin of cf-room-window.png exactly).
    catfish.js adds .is-bird on the stage (JS on, motion allowed) which hides the window overlay (its only pixels are the robin) and shows the sprite; class f1/f2/f3 picks the frame. */
 .cfbird { display: none; position: absolute; left: -2px; top: 44px; width: 24px; height: 20px; pointer-events: none; }
@@ -284,3 +315,112 @@
 .cfdust .m5 { left: 132px; top: 150px; --dx: 8px; --dy: -12px; animation-duration: 10s; animation-delay: -2s; } .cfdust .m6 { left: 170px; top: 88px; width: 1px; height: 1px; --dx: -6px; --dy: 10px; animation-duration: 13s; animation-delay: -9s; }
 @keyframes cfmote { 0% { translate: 0 0; } 100% { translate: var(--dx) var(--dy); } }
 @media (prefers-reduced-motion: reduce) { .cfdust { display: none; } .cfbird { display: none !important; } .cfstage.is-bird .cfl-window { display: block; } .cfyarn.is-roll .yp, .cfyarn.is-roll .yb { display: none; } .cfl-rug.is-wobble { animation: none; } }
+
+/* 2.2.0 layout: upgrade tabs, Shelter fold, six-panel hub, slim cat rows, Cat Book pattern tabs. JS adds .js to each wrapper; without it everything shows stacked. */
+.cftabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 0 .5rem; }
+.cftabs button { flex: 1 0 auto; font: inherit; font-size: .9rem; padding: .4rem .7rem; border: 1px solid var(--line, #ddd); border-radius: 8px; background: transparent; color: inherit; white-space: nowrap; }
+.cftabs button.on { background: var(--brand-fill, #e8a317); border-color: var(--brand-fill, #e8a317); color: var(--on-fill, #2a1a10); font-weight: 700; }
+.cftabs small { opacity: .8; }
+/* The four upgrade tabs (Fish, Rod, Room, Cat) share the width equally and never scroll: tight padding, label centred, the buyable-count pip sits on the corner (phone 390 px used to cut the 4th tab off). */
+.cftabs4 { overflow: visible; padding-top: 6px; }
+.cftabs4 button { flex: 1 1 0; min-width: 0; position: relative; padding: .4rem .1rem; font-size: .85rem; text-align: center; overflow-wrap: anywhere; }
+.cftabs4 .cfbdg { position: absolute; top: -6px; right: -2px; margin: 0; min-width: 1.05rem; padding: 0 .25rem; font-size: .68rem; line-height: 1.25; }
+.cfbdg { display: inline-block; min-width: 1.15rem; padding: 0 .3rem; border-radius: 999px; background: var(--accent, #e8a317); color: #2a1a10; font-size: .7rem; font-weight: 700; text-align: center; margin-left: .2rem; }
+.cftabs .on .cfbdg { background: #2a1a10; color: #fff3c8; }
+.cfupwrap.js .cfbranch > h3, .cfhubwrap.js .cfh3js { display: none; }
+.cfbranch[hidden], .cfpanel[hidden], .cfbpat[hidden] { display: none; }
+.cfcost { min-width: 4.5rem; font-variant-numeric: tabular-nums; }
+.cfsav { display: inline-flex; gap: 2px; vertical-align: middle; margin: 0 .3rem; }
+.cfsav .cfart { zoom: .5; } .cfsav .cfcat { font-size: 1rem; padding: .1rem; }
+.cfhub { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: .5rem 0; }
+.cfhub button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; font: inherit; font-size: .9rem; padding: .5rem .2rem; border: 1px solid var(--line, #ddd); border-radius: 8px; background: transparent; color: inherit; }
+.cfhub button .cfhi { font-size: 1.5rem; line-height: 1.1; }
+.cfhub button small { font-size: .72rem; opacity: .8; text-align: center; line-height: 1.2; }
+.cfhub button[aria-selected="true"] { border-color: var(--accent, #e8a317); box-shadow: 0 0 0 1px var(--accent, #e8a317); font-weight: 700; }
+.cfhub .cfbdg { position: absolute; top: 3px; right: 5px; margin: 0; }
+.cfrow { flex-wrap: wrap; }
+.cfrow .cfinfo { flex: 1 1 8rem; }
+.cfren > summary { list-style: none; padding: .2rem .5rem; border: 1px solid var(--line, #ddd); border-radius: 8px; }
+.cfren > summary::-webkit-details-marker { display: none; }
+.cfren[open] { flex: 1 1 100%; order: 9; }
+.cfren[open] > summary { display: inline-block; margin-bottom: .3rem; }
+.cfbpat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.cfbtile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: .4rem .2rem; border: 1px solid var(--line, #ddd); border-radius: 8px; text-align: center; font-size: .75rem; line-height: 1.2; }
+.cfbtile:not(.got) { opacity: .65; }
+.cfbook:not(.js) .cfbpat { margin-bottom: .5rem; }
+.cfbook:not(.js) .cfbpat::before { content: attr(data-label); grid-column: 1 / -1; font-weight: 700; text-align: left; }
+@media (max-width: 380px) { .cfbpat { grid-template-columns: repeat(2, 1fr); } }
+.cfbulk { display: flex; gap: 4px; justify-content: center; margin: 0 0 .5rem; }
+.cfbulk button { font: inherit; font-size: .85rem; padding: .25rem .8rem; border: 1px solid var(--line, #ddd); border-radius: 999px; background: transparent; color: inherit; }
+.cfbulk button[aria-pressed="true"] { background: var(--brand-fill, #e8a317); border-color: var(--brand-fill, #e8a317); color: var(--on-fill, #2a1a10); font-weight: 700; }
+
+.cfballs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 .5rem; }
+.cfballbtn[aria-pressed="true"] { outline: 2px solid var(--accent, #e8a317); }
+.cfshelftitle { margin: .5rem 0 0; }
+.cfgroup { margin: .5rem 0; }
+.cfgroup > summary { padding: .35rem .2rem; }
+.cfgroup > .cfup, .cfgroup > .cfballs { margin-top: .5rem; }
+
+/* 2.2.x room things (pet shops, includes/catfish_pets.php). Rectangles come from aseprite-source/catfish/room-layout.json "pet_slots" (tests/catfish.sh checks them): the sprite is exactly w x h.
+   Wall, ceiling and floor things are drawn after the room and before the wand, fish and cats; slot 8 (the rod charm) hangs on the line. An active thing is a <button> with a 44 px hit area. */
+.cfpet { position: absolute; display: block; padding: 0; margin: 0; border: 0; background: none; color: inherit; font-size: 0; line-height: 0; }
+.cfpet .cfimg { display: block; max-width: none; image-rendering: pixelated; }
+.cfpet-s1 { left: 280px; top: 8px; width: 20px; height: 24px; } .cfpet-s2 { left: 300px; top: 8px; width: 20px; height: 24px; }
+.cfpet-s3 { left: 0; top: 42px; width: 30px; height: 26px; } .cfpet-s4 { left: 282px; top: 42px; width: 35px; height: 31px; }
+.cfpet-s5 { left: 121px; top: 0; width: 48px; height: 34px; } .cfpet-s6 { left: 0; top: 139px; width: 38px; height: 28px; }
+.cfpet-s7 { left: 244px; top: 172px; width: 36px; height: 28px; } .cfpet-s8 { left: 92px; top: 17px; width: 16px; height: 16px; }
+.cfpet-s8::before { content: ""; position: absolute; left: 7px; top: -1px; width: 2px; height: 2px; background: var(--cfstr, #74462a); }   /* the knot on the line */
+.cfpet .cfpetph { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; height: 100%; border: 2px solid #dc1414; background: #fff; color: #333; font-size: 12px; line-height: 1; }
+.cfpet-s8 .cfpetph { font-size: 8px; border-width: 1px; }
+button.cfpet { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+button.cfpet::after { content: ""; position: absolute; left: -12px; top: -12px; right: -12px; bottom: -12px; }   /* 20 px things get a 44 px target */
+button.cfpet-s5 { z-index: 2; }   /* the ceiling thing hangs over the fish strings; its tap target must win there */
+button.cfpet-s5::after { left: -6px; right: -6px; top: 0; bottom: -10px; }
+.cfspot, .cfactive { pointer-events: none; }   /* cats are not tap targets: a floor thing under a cat's box stays tappable */
+button.cfpet:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+button.cfpet.is-wait { opacity: .8; }
+button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; top: -2px; width: 3px; height: 3px; background: #fff3a0; box-shadow: 0 0 0 1px #3a2410; animation: cfpetpip 1200ms steps(1, end) infinite; }   /* a blinking pip: ready to tap */
+@keyframes cfpetpip { 0% { opacity: 1; } 50% { opacity: .15; } }
+/* window rain (Rain Stick): a few falling streaks on the window, 4 whole steps; a still shade under reduced motion */
+.cfrain { position: absolute; left: 3px; top: 12px; width: 31px; height: 54px; pointer-events: none; opacity: .75;
+  background: repeating-linear-gradient(100deg, rgba(255, 255, 255, 0) 0 5px, rgba(210, 232, 255, .9) 5px 6px, rgba(255, 255, 255, 0) 6px 9px); background-size: 9px 12px; animation: cfrainfall 480ms steps(4, end) infinite; }
+@keyframes cfrainfall { 0% { background-position: 0 0; } 100% { background-position: -3px 12px; } }
+/* ceiling lanterns (Brass Lantern): a warm wash over the stage */
+.cfstage:has(.cfpc-warm_glow)::after { content: ""; position: absolute; left: 0; top: 0; width: 320px; height: 200px; pointer-events: none; background: radial-gradient(ellipse at 145px 20px, rgba(255, 200, 90, .22), rgba(255, 200, 90, 0) 70%); }
+/* Tea Tray: every cat hops once or twice (cats play happy; whole-pixel steps) */
+@keyframes cfteahop { 0%, 100% { translate: 0 0; } 25% { translate: 0 -6px; } 50% { translate: 0 0; } 75% { translate: 0 -4px; } }
+.cfstage.is-tea .cfspot, .cfstage.is-tea .cfactive { animation: cfteahop 800ms steps(1, end) 3; }
+@media (prefers-reduced-motion: reduce) { button.cfpet.is-ready::before, .cfrain, .cfstage.is-tea .cfspot, .cfstage.is-tea .cfactive { animation: none; } }
+/* Room things panel and the pet shop pages */
+.cfpetslot { margin: 0 0 .5rem; }
+.cfpetrow .cficon { width: 48px; min-height: 28px; text-align: center; font-size: 1.2rem; }
+.cfpetrow .cficon .cfimg { max-width: 48px; }
+.cfpetacts { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: .25rem 0 0; }
+.cfpetacts .cfpetform { margin: 0; flex: 1 1 13rem; }
+.cfpetacts .cfpetform:last-child:not(:only-child) { flex: 0 0 auto; }
+.cfpetform { display: flex; gap: .5rem; align-items: center; flex-wrap: nowrap; margin: .25rem 0 0; }
+.cfpetform select { max-width: 100%; width: 8rem; flex: 1 1 8rem; min-width: 0; }   /* an explicit width: a select's own width is its longest option, which would stop the form shrinking */
+.cfpetacts .cfpetform { min-width: 0; }
+.cfpetstate { font-weight: 700; }
+.cfpethint { font-style: italic; }
+.cfpshops { margin: .4rem 0; padding-left: 1.1rem; }
+.cfpbanner { margin: 0 0 .5rem; line-height: 0; text-align: center; }
+.cfpbanner .cfimg { width: 480px; max-width: 100%; height: auto; display: inline-block; }
+@media (max-width: 519px) { .cfpbanner .cfimg { width: 240px; } }
+.cfpbanner-ph { line-height: 1.2; padding: 1.2rem .5rem; border: 2px dashed #dc1414; border-radius: 8px; }
+.cfpkeeper { display: flex; gap: .8rem; align-items: center; margin: .5rem 0; }
+.cfpportrait { flex: none; width: 80px; }
+.cfpportrait .portrait { width: 80px; height: auto; }
+.cfpsays { flex: 1 1 10rem; min-width: 0; }
+.cfpsays p { margin: .2rem 0; }
+.cfpline { font-style: italic; }
+.cfplist { list-style: none; margin: .5rem 0; padding: 0; display: grid; gap: .5rem; }
+.cfpitem { flex-wrap: wrap; }
+.cfpitem .cfpspr { flex: 0 0 auto; min-width: 56px; text-align: center; }
+.cfpitem .cfpspr .cfimg { max-width: 96px; }
+.cfpitem .cfpspr .cfpetph { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #dc1414; box-sizing: border-box; background: #fff; color: #333; font-size: 1.2rem; }
+.cfpitem .btn { min-width: 4.5rem; }
+.cfpitem .cfinfo { flex: 1 1 9rem; }
+.cfpown { margin-left: auto; }
+
+.cfhub button:last-child:nth-child(3n+1) { grid-column: 1 / -1; }   /* seven tiles: the odd one out takes the whole last row */

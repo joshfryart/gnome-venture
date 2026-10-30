@@ -6103,3 +6103,5 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .advgrid.wander .gx-hero { width: 82%; margin-inline: auto; }
   .advgrid.wander .gx-h--belt { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+/* 2.2.2: Puzzle Pals taken along stand beside your gnome on the Adventure stage */
+.gvs-html img.gvs-pal { width: 40px; height: 40px; image-rendering: pixelated; }

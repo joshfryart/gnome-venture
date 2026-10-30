@@ -21,6 +21,8 @@ $sid = (int)$shop['id'];
 $tab = ($_GET['tab'] ?? '') === 'sell' ? 'sell' : 'buy';   // v0.7.61: Buy and Sell tabs, each with a basket
 $shopTown = $shop['location_id'] ? q_one('SELECT id, name, region FROM locations WHERE id = ?', [$shop['location_id']]) : null;
 $reachable = shop_reachable($u, $shop);
+$isPets = ($shop['shop_type'] ?? '') === 'pets';   // 2.2.x: the Cat Fish pet shops (includes/catfish_pets.php)
+if ($isPets) { require_once __DIR__ . '/includes/catfish.php'; $GLOBALS['gv_catfish_css'] = true; }
 
 if (is_post()) {
     csrf_check();
@@ -32,6 +34,12 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect('shop.php?id=' . $sid . '#volunteer');
     }
+    if ($isPets && str_starts_with($do, 'pet_')) {   // 2.2.x: buying a room thing
+        [$ok, $msg] = petshop_post($u, $shop, $do, $reachable);
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('shop.php?id=' . $sid);
+    }
+    if ($isPets) { flash('This shop does not sell that.', 'err'); redirect('shop.php?id=' . $sid); }
     if (str_starts_with($do, 'sink_')) {   // v0.9.7: the Curio Cabinet and the Dye Pot
         [$ok, $msg] = sink_shop_post($u, $shop, $do, $reachable);
         flash($msg, $ok ? 'ok' : 'err');
@@ -91,7 +99,8 @@ $open = $reachable && $staff;
 page_header($shop['name']);
 ?>
 <p class="crumbs">🌍 <a href="<?= e(url('world.php?tab=markets')) ?>">Shops</a> › <b><?= e($shop['name']) ?></b><?= $shopTown ? ' <span class="muted">in ' . e($shopTown['name']) . '</span>' : '' ?></p>
-<?php require_once __DIR__ . '/includes/place_ui.php';   // v2.0.65: the shop gets the same place header as the stops (interior art, kind, name, its line)
+<?php if ($isPets) { echo petshop_page_html($u, $shop, $reachable); page_footer(); exit; }   // 2.2.x: banner, keeper and the five room things instead of the stock tabs
+require_once __DIR__ . '/includes/place_ui.php';   // v2.0.65: the shop gets the same place header as the stops (interior art, kind, name, its line)
 $shopKind = ['seeds' => 'Seed shop', 'food' => 'Kitchen', 'decor' => 'Home & curios', 'dyes' => 'Dye shop', 'florist' => 'Florist'][(string)($shop['shop_type'] ?? '')] ?? 'Shop';
 $shopArt = scene_shop_key($shop); ?>
 <?= place_header_html($shopArt !== '' ? 'shop-' . $shopArt . '.png' : '', 'Inside ' . $shop['name'], $shopKind . ($shopTown ? ' · ' . $shopTown['name'] : ''), (string)$shop['name'], (string)$shop['description']) ?>

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """catfish_build_art.py: build the whole Cat Fish art set with its final names from the test art.
 
-Usage: python3 tools/catfish_build_art.py [--in DIR] [--out DIR] [--check] [--install [DIR]] [--verify DIR]
+Usage: python3 tools/catfish_build_art.py [--in DIR] [--out DIR] [--check] [--install [DIR]] [--install-ph [DIR]] [--verify DIR]
 
   --in DIR       source art (default aseprite-source/catfish/test)
+  --art22 DIR    2.2.x finished art (default aseprite-source/catfish/art22/out): redrawn cf-bird/cf-yarn, coloured yarn balls, season bits, Yarn icons, grey collars (recoloured to 6)
   --out DIR      where the set is built (default: a new temp dir; printed at the end). Nothing in game/ is touched.
   --check        validate every output file (RGBA, alpha 0/255 only, size per kind from claude/catfish-art-brief.md, names against the brief's
                  naming list, every required file present, no stray file); exit 1 on any failure
@@ -12,9 +13,9 @@ Usage: python3 tools/catfish_build_art.py [--in DIR] [--out DIR] [--check] [--in
 
 What it does: copies the hand-drawn pieces (fish, rod, icons, upgrade icons, badges, ribbons, tile, banner, room and overlays, ear/tail masks,
 Cat Book unknown head, eye colour files, the z and sparkle sprites, the window bird and yarn pieces; cf-room-window-nobird.png may be fully transparent) and runs tools/catfish_recolor.py for the cat frames (8 coats, grey is the template), patterns,
-folded ears, bobtail and the Cat Book heads. The eye-ring template is not shipped. Writes manifest.json (file, size, sha1, width, height) into --out.
+folded ears, bobtail and the Cat Book heads. The eye-ring template is not shipped. Pet shops (2.2.x, from art22/out; names and sizes come from game/includes/data/catfish_pets.php): 55 cf-pet-<key>.png (size by slot type) and 11 banner-<CODE>-pets.png (480x120) go into the catfish folder; the 11 busts npc-<keeper_slug>.png (80x100) are renamed to npc-<keeper-slug-with-hyphens>.png and installed into game/assets/img/ph (the NPC portrait loader's folder), built in <out>/ph. Writes manifest.json (file, size, sha1, width, height) into --out.
 """
-import argparse, glob, hashlib, io, json, os, re, shutil, sys, tempfile
+import argparse, glob, hashlib, io, json, os, re, shutil, subprocess, sys, tempfile
 sys.dont_write_bytecode = True
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
@@ -23,7 +24,10 @@ from PIL import Image
 import catfish_recolor as R
 
 SRC = os.path.join(R.CF, 'test')
+ART22 = os.path.join(R.CF, 'art22', 'out')   # 2.2.x art (finished): copied after the test art, so the same name (cf-bird-1..3, cf-yarn-1..4) takes the redrawn file
 DEST = os.path.join(ROOT, 'game', 'assets', 'img', 'catfish')
+DEST_PH = os.path.join(ROOT, 'game', 'assets', 'img', 'ph')   # shopkeeper busts: npc_portrait() looks for ph/npc-<npc slug>.png when npcs.image is empty
+PETS_DATA = os.path.join(ROOT, 'game', 'includes', 'data', 'catfish_pets.php')
 BRIEF = os.path.join(ROOT, 'claude', 'catfish-art-brief.md')
 # Full frames: body, 5 patterns, folded ears + mask, bobtail + mask, eye files. The first 8 are CATFISH_FRAMES in game/includes/catfish.php (inline set); the next 8 are
 # CATFISH_FRAMES_EXTRA's full frames (swatA, swatB, jump, happy are animated since 2.1.05; yawn, stretch, washA, washB install now and animate in 2.1.06).
@@ -36,10 +40,29 @@ for _f in sorted(glob.glob(os.path.join(R.CF, 'frames-alias-s*.json'))):
         if isinstance(_v, dict) and _v.get('kind') == 'alias': ALIAS[_k] = _v
 EYES = sorted(R.EYES)
 COATS = list(R.COATS)
+COLLARS = list(R.COLLARS)
+COLLAR_FRAMES = ['idleA', 'pounce', 'catch', 'nap']
+BALLS = ['rose', 'mint', 'violet', 'gold']
+SEASON_BITS = {'petal': (6, 6), 'petal-b': (6, 6), 'firefly': (5, 6), 'firefly-b': (5, 6), 'leaf': (9, 9), 'leaf-b': (9, 9), 'flake': (6, 6), 'flake-small': (3, 3)}   # name -> (w, h)
+YI_KEYS = ['hold', 'stake', 'show2', 'buddy', 'keepsake', 'tune', 'catnip', 'treat', 'bio', 'collar', 'season', 'scarf', 'bunting', 'balls', 'titles']
 HAND = ['cf-z.png', 'cf-sparkle-[1-3].png', 'cf-bird-[1-3].png', 'cf-yarn-[1-4].png', 'cf-fish-[1-5].png', 'cf-rod.png', 'cf-ico-*.png', 'cf-up-*.png', 'cf-badge-*.png', 'cf-ribbon-*.png', 'cf-tile.png', 'cf-banner.png',
         'cf-room.png', 'cf-room-*.png', 'cf-bookhead-unknown.png']
+# 2.2.x hand pieces from ART22 (art22/out): season bits, coloured yarn balls, Yarn panel icons; the redrawn bird and grey yarn frames come from HAND_22 too
+HAND_22 = ['cf-bird-[1-3].png', 'cf-yarn-[1-4].png', 'cf-yarn-[1-4]-*.png', 'cf-season-*.png', 'cf-yi-*.png']
 # recolour passes: (glob in --in, what it makes)
 RECOLOR = ['cf-cat-grey-*.png', 'cf-pat-*-grey-*.png', 'cf-ears-folded-*.png', 'cf-tail-bobtail-*.png', 'cf-bookhead-grey.png', 'cf-eyes-[!r]*.png', 'cf-*-mask-*.png']
+
+
+def pet_data():
+    """From game/includes/data/catfish_pets.php (the one source): item key -> (w, h) by its slot type, shop code -> bust file name (npc-<keeper slug with hyphens>.png)."""
+    code = ('require %s; $s = []; foreach (CATFISH_PET_SLOTS as $x) $s[$x["type"]] = [$x["w"], $x["h"]]; $i = []; foreach (CATFISH_PET_ITEMS as $k => $v) $i[$k] = $s[$v["type"]]; '
+            '$b = []; foreach (CATFISH_PET_SHOPS as $c => $v) $b[$c] = str_replace("_", "-", $v["keeper_slug"]); echo json_encode(["items" => $i, "keepers" => $b]);') % json.dumps(PETS_DATA)
+    r = subprocess.run(['php', '-r', code], capture_output=True, text=True)
+    if r.returncode: sys.exit('cannot read ' + PETS_DATA + ': ' + r.stderr)
+    return json.loads(r.stdout)
+
+
+def bust_name(keeper_hyphen): return 'npc-%s.png' % keeper_hyphen
 
 
 def brief_keys():
@@ -92,21 +115,35 @@ def expected():
     e['cf-room-yarnpatch.png'] = (38, 20)
     e['cf-z.png'] = (8, 8)
     for n in range(1, 4): e['cf-sparkle-%d.png' % n] = (8, 8); e['cf-bird-%d.png' % n] = (12, 10)
-    for n in range(1, 5): e['cf-yarn-%d.png' % n] = (16, 16)
+    for n in range(1, 5):
+        e['cf-yarn-%d.png' % n] = (16, 16)
+        for c in BALLS: e['cf-yarn-%d-%s.png' % (n, c)] = (16, 16)
+    for c in COLLARS:
+        for f in COLLAR_FRAMES: e['cf-collar-%s-%s.png' % (c, f)] = (64, 64)
+    for b, wh in SEASON_BITS.items(): e['cf-season-%s.png' % b] = wh
+    for k in YI_KEYS: e['cf-yi-%s.png' % k] = (64, 64)
+    pd = pet_data()
+    for k, wh in pd['items'].items(): e['cf-pet-%s.png' % k] = tuple(wh)   # pet shops: size by slot type (claude/catfish-shops-art-spec.md)
+    for c in pd['keepers']: e['banner-%s-pets.png' % c] = (480, 120)
     return e
+
+
+def busts():
+    """Shopkeeper busts: installed file name (in game/assets/img/ph) -> 80x100. Not part of the catfish folder."""
+    return {bust_name(k): (80, 100) for k in pet_data()['keepers'].values()}
 
 
 def category(name):
     for p, c in (('cf-cat-', 'cat bodies'), ('cf-pat-', 'patterns'), ('cf-ears-mask', 'masks'), ('cf-tail-mask', 'masks'), ('cf-ears-folded', 'folded ears'),
                  ('cf-tail-bobtail', 'bobtails'), ('cf-eyes-', 'eyes'), ('cf-fish-', 'fish'), ('cf-rod', 'rod'), ('cf-ico-', 'icons'), ('cf-up-', 'upgrade icons'),
-                 ('cf-z', 'sprites'), ('cf-sparkle-', 'sprites'), ('cf-bird-', 'sprites'), ('cf-yarn-', 'sprites'), ('cf-badge-', 'badges'), ('cf-ribbon-', 'ribbons'), ('cf-tile', 'tile'), ('cf-banner', 'banner'), ('cf-room', 'room'), ('cf-bookhead-', 'book heads')):
+                 ('cf-z', 'sprites'), ('cf-season-', 'season bits'), ('cf-collar-', 'collars'), ('cf-yi-', 'Yarn icons'), ('cf-pet-', 'pet things'), ('banner-', 'pet shop banners'), ('cf-sparkle-', 'sprites'), ('cf-bird-', 'sprites'), ('cf-yarn-', 'sprites'), ('cf-badge-', 'badges'), ('cf-ribbon-', 'ribbons'), ('cf-tile', 'tile'), ('cf-banner', 'banner'), ('cf-room', 'room'), ('cf-bookhead-', 'book heads')):
         if name.startswith(p): return c
     return 'other'
 
 
-def check_dir(d):
-    """List of problems in the folder d (empty = good)."""
-    bad = []; exp = expected()
+def check_dir(d, exp=None):
+    """List of problems in the folder d (empty = good). exp = file -> size (default: the catfish set); the busts are checked the same way against busts()."""
+    bad = []; exp = exp or expected()
     have = sorted(f for f in os.listdir(d) if f.endswith('.png'))
     for f in sorted(set(exp) - set(have)): bad.append('missing required file ' + f)
     for f in sorted(set(have) - set(exp)): bad.append('name not in the brief naming list: ' + f)
@@ -122,10 +159,26 @@ def check_dir(d):
     return bad
 
 
-def build(src, out):
+def build(src, out, art22=ART22):
     os.makedirs(out, exist_ok=True)
     for pat in HAND:
         for f in sorted(glob.glob(os.path.join(src, pat))): shutil.copyfile(f, os.path.join(out, os.path.basename(f)))
+    for pat in HAND_22:   # 2.2.x: finished art wins over the test art of the same name
+        if not glob.glob(os.path.join(art22, pat)): sys.exit('no 2.2.x art for %s in %s' % (pat, art22))
+        for f in sorted(glob.glob(os.path.join(art22, pat))): shutil.copyfile(f, os.path.join(out, os.path.basename(f)))
+    pd = pet_data()   # pet shops: items and banners keep their names; busts go to out/ph/ renamed to the hyphen form
+    for k in pd['items']:
+        f = os.path.join(art22, 'cf-pet-%s.png' % k)
+        if not os.path.isfile(f): sys.exit('no pet art ' + f)
+        shutil.copyfile(f, os.path.join(out, 'cf-pet-%s.png' % k))
+    for c, kh in pd['keepers'].items():
+        for f, t in ((os.path.join(art22, 'banner-%s-pets.png' % c), 'banner-%s-pets.png' % c), (os.path.join(art22, 'npc-%s.png' % kh.replace('-', '_')), os.path.join('ph', bust_name(kh)))):
+            if not os.path.isfile(f): sys.exit('no pet shop art ' + f)
+            os.makedirs(os.path.dirname(os.path.join(out, t)), exist_ok=True); shutil.copyfile(f, os.path.join(out, t))
+    buf = io.StringIO(); old = sys.stdout; sys.stdout = buf   # collars: grey neck band -> 6 colours (catfish_recolor.py)
+    try: rc = R.main(['--in', art22, '--out', out, '--glob', 'cf-collar-*.png', '--check'])
+    finally: sys.stdout = old
+    if rc: sys.exit('collar recolour failed:\n' + buf.getvalue())
     for g in RECOLOR:
         if not glob.glob(os.path.join(src, g)): sys.exit('no source art for ' + g)
         buf = io.StringIO(); old = sys.stdout; sys.stdout = buf
@@ -147,18 +200,21 @@ def manifest(out):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--in', dest='src', default=SRC)
+    ap.add_argument('--art22', default=ART22, help='2.2.x finished art folder (default aseprite-source/catfish/art22/out)')
     ap.add_argument('--out')
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--install', nargs='?', const=DEST, metavar='DIR')
+    ap.add_argument('--install-ph', nargs='?', const=DEST_PH, metavar='DIR', help='with --install: where the 11 busts go (default game/assets/img/ph)')
     ap.add_argument('--verify', metavar='DIR')
     a = ap.parse_args(argv)
     if a.verify:
         bad = check_dir(a.verify)
+        if os.path.isdir(os.path.join(a.verify, 'ph')): bad += ['ph/' + b for b in check_dir(os.path.join(a.verify, 'ph'), busts())]
         for b in bad: print('FAIL ' + b)
         print('verify %s: %s' % (a.verify, 'FAILED (%d problems)' % len(bad) if bad else 'ok'))
         return 1 if bad else 0
     out = a.out or tempfile.mkdtemp(prefix='catfish-art-')
-    build(a.src, out)
+    build(a.src, out, a.art22)
     rows = manifest(out)
     counts = {}
     for r in rows: counts[category(r['file'])] = counts.get(category(r['file']), 0) + 1
@@ -166,7 +222,7 @@ def main(argv=None):
     print('  ' + ', '.join('%s %d' % kv for kv in sorted(counts.items())))
     rc = 0
     if a.check or a.install:
-        bad = check_dir(out)
+        bad = check_dir(out) + ['ph/' + b for b in check_dir(os.path.join(out, 'ph'), busts())]
         for b in bad: print('FAIL ' + b)
         print('check: ' + ('FAILED (%d problems)' % len(bad) if bad else 'ok'))
         rc = 1 if bad else 0
@@ -174,6 +230,10 @@ def main(argv=None):
         os.makedirs(a.install, exist_ok=True)
         for r in rows: shutil.copyfile(os.path.join(out, r['file']), os.path.join(a.install, r['file']))
         print('installed %d files into %s' % (len(rows), a.install))
+        ph = a.install_ph or (DEST_PH if a.install == DEST else os.path.join(a.install, 'ph'))   # a test install into another folder keeps its busts beside it
+        os.makedirs(ph, exist_ok=True)
+        for f in sorted(os.listdir(os.path.join(out, 'ph'))): shutil.copyfile(os.path.join(out, 'ph', f), os.path.join(ph, f))
+        print('installed %d busts into %s' % (len(busts()), ph))
     return rc
 
 

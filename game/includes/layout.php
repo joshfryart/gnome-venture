@@ -65,6 +65,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js). v2.0.69: puzzles.js = GIFsaw (gifsaw.php), puzzles.php = hub (puzzlehub.js) */ ?>
 <?php if (!$admin && $page === 'garden.php' && (setting('catfish_open') === '1' || is_admin())): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
 <?php endif; /* Cat Fish: the garden cat uses catfish.css */ ?>
+<?php if (!$admin && !empty($GLOBALS['gv_catfish_css']) && $page !== 'catfish.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
+<?php endif; /* 2.2.x: the Cat Fish pet shops (shop.php) set gv_catfish_css */ ?>
 <?php if (!$admin && $page === 'catfish.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/catfish.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* Cat Fish: assets/catfish.css + assets/catfish.js */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>
@@ -452,16 +454,16 @@ function adventure_topbar(array $u): string
         $cm = max(1, (int)$enc['max']);
         require_once __DIR__ . '/adventure.php';
         [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES[''];
-        // v0.7.61: one box, the creature on the left and you on the right (with your energy), sized for phones
+        // v0.7.61: one box, sized for phones. 2.2.1: you on the left (with your energy), the creature on the right, matching the stage above where your gnome stands on the left
         $what = '<div class="duel">'
-            . '<div class="fighter foe' . ($ch * 3 <= $cm ? ' low' : '') . '"><span class="foeicon">' . creature_pic($c) . '</span>'
-            . '<div class="fwho"><b>' . e($c['name'] ?? 'Creature') . '</b> <small>lv ' . (int)($c['level'] ?? 1) . '</small><br><meter min="0" max="' . $cm . '" low="' . (int)ceil($cm / 3) . '" value="' . $ch . '"></meter> <span class="hpnum">❤️ ' . $ch . '/' . $cm . '</span>'
-            . (!empty($enc['poison']) ? ' <span class="fx" role="img" aria-label="Poisoned" title="Poisoned">🧪</span>' : '') . '</div></div>'
-            . '<div class="vs">vs</div>'
             . '<div class="fighter me' . ($hp * 3 <= $max ? ' low' : '') . '">' . gnome_avatar_pals($u, 44)
             . '<div class="fwho"><b>' . e(gnome_name($u)) . '</b><br><meter min="0" max="' . $max . '" low="' . (int)ceil($max / 3) . '" optimum="' . $max . '" value="' . $hp . '"></meter> <span class="hpnum">❤️ ' . $hp . '/' . $max . '</span>'
             . ' <span class="fx" role="img" aria-label="Energy ' . (int)$u['energy'] . '" title="Energy">⚡' . (int)$u['energy'] . '</span>'
             . (!empty($enc['bark']) ? ' <span class="fx" role="img" aria-label="Bark Skin ' . (int)$enc['bark'] . '" title="Bark Skin">🌳' . (int)$enc['bark'] . '</span>' : '') . '</div></div>'
+            . '<div class="vs">vs</div>'
+            . '<div class="fighter foe' . ($ch * 3 <= $cm ? ' low' : '') . '"><span class="foeicon">' . creature_pic($c) . '</span>'
+            . '<div class="fwho"><b>' . e($c['name'] ?? 'Creature') . '</b> <small>lv ' . (int)($c['level'] ?? 1) . '</small><br><meter min="0" max="' . $cm . '" low="' . (int)ceil($cm / 3) . '" value="' . $ch . '"></meter> <span class="hpnum">❤️ ' . $ch . '/' . $cm . '</span>'
+            . (!empty($enc['poison']) ? ' <span class="fx" role="img" aria-label="Poisoned" title="Poisoned">🧪</span>' : '') . '</div></div>'
             . '</div>';
         $actions = $btn('attack', '⚔️ Attack')
             . (!empty($enc['used']) ? '<button class="btn small" disabled title="' . e($abDesc) . '">✨ ' . e($abName) . ' (used)</button>'

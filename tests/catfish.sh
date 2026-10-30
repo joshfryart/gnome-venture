@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cat Fish (catfish.php, catfish_api.php, includes/catfish.php, profile box): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades (16 in 4 branches), naps and Yarn, Cat Book and badges, API guards, generator and shelter determinism, pure helpers.
+# Cat Fish (catfish.php, catfish_api.php, includes/catfish.php, profile box): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades (16 in 4 branches), naps and Yarn, Cat Book and badges, API guards, generator and shelter determinism, pure helpers, and (2.2.x) the pet shops: 11 shops in regions 4+, 55 room things, 8 scene spots (tests/catfish_pets.js runs the browser part).
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
 # the "no art" checks assume an empty art folder: move installed art aside for the run, restore it on exit.
 # A hold folder left by an earlier run that died is never overwritten: stop and say so (it may hold the only copy of the art).
@@ -365,7 +365,197 @@ cfpost -d do=rare >/dev/null
 ok "Rare Shelter third refused: ys stays 13" "$(mget ys)" 13
 ok "Rare Shelter third refused: rare stays 2" "$(mget rare)" 2
 pagew3
-ok "Yarn to spend shows 100 - 13 = 87" "$(grep -c 'Home and shelter · 87 Yarn to spend' $W/w3.html)" 1
+ok "Yarn to spend shows 100 - 13 = 87" "$(grep -c 'Yarn · 87 to spend' $W/w3.html)" 1
+
+CF0=$(dbv "SELECT yarn || '|' || meta || '|' || upgrades FROM catfish_state WHERE user_id=$UID_"); TITLE0=$(dbv "SELECT COALESCE(title,'') FROM users WHERE id=$UID_")   # restored after 4b to 4d
+# 4b. Buy x10 (3 Yarn, one-off): n=10 is only honoured once unlocked, costs the sum of ten levels, all or none
+dbx "UPDATE catfish_state SET yarn=100, kibble=1000000, upgrades='{}', last_tick=$(date +%s), meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+pagew3; cfreset
+cfapi -d do=buy -d key=fish -d n=10 >/dev/null
+ok "buy n=10 before the unlock buys one level" "$(dbv "SELECT json_extract(upgrades,'$.fish') FROM catfish_state WHERE user_id=$UID_")" 1
+cfpost -d do=bulk >/dev/null
+ok "Buy x10 costs 3 Yarn: ys=3" "$(mget ys)" 3
+ok "Buy x10 unlocked: bulk=1" "$(mget bulk)" 1
+cfpost -d do=bulk >/dev/null
+ok "Buy x10 twice refused: ys stays 3" "$(mget ys)" 3
+pagew3; ok "Buy x10 bar is on the page once unlocked" "$(grep -c 'id="cf-bulk"' $W/w3.html)" 1
+dbx "UPDATE catfish_state SET kibble=1000000, upgrades='{}', last_tick=$(date +%s) WHERE user_id=$UID_"
+cfreset; cfapi -d do=buy -d key=fish -d n=10 >/dev/null
+ok "buy n=10 buys ten levels" "$(dbv "SELECT json_extract(upgrades,'$.fish') FROM catfish_state WHERE user_id=$UID_")" 10
+SPENT10=$((1000000 - $(dbv "SELECT kibble FROM catfish_state WHERE user_id=$UID_")))
+dbx "UPDATE catfish_state SET kibble=100, upgrades='{}', last_tick=$(date +%s) WHERE user_id=$UID_"
+cfreset; cfapi -d do=buy -d key=fish -d n=10 >/dev/null
+ok "buy n=10 without the Kibble for ten: nothing bought" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_")" "{}"
+
+# 4c. Longer naps away: 4, 8, 16 Yarn, +1 hour each, a fourth is refused
+dbx "UPDATE catfish_state SET yarn=100, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=away >/dev/null; ok "Longer naps away 1 costs 4: ys=4" "$(mget ys)" 4
+cfpost -d do=away >/dev/null; ok "Longer naps away 2 costs 8: ys=12" "$(mget ys)" 12
+cfpost -d do=away >/dev/null; ok "Longer naps away 3 costs 16: ys=28" "$(mget ys)" 28
+cfpost -d do=away >/dev/null; ok "Longer naps away 4 refused: ys stays 28, away stays 3" "$(mget ys),$(mget away)" "28,3"
+dbx "UPDATE catfish_state SET yarn=2, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=away >/dev/null; ok "Longer naps away with 2 Yarn: refused (away stays 0)" "$(mget away)" 0
+
+# 4d. Yarn titles: Cat Person 15, Napmaster 30; only a bought title can be picked in the Almanac
+dbx "UPDATE catfish_state SET yarn=100, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=title -d key=catperson >/dev/null; ok "Cat Person costs 15: ys=15" "$(mget ys)" 15
+cfpost -d do=title -d key=catperson >/dev/null; ok "Cat Person twice refused: ys stays 15" "$(mget ys)" 15
+cfpost -d do=title -d key=nonsense >/dev/null; ok "unknown title refused: ys stays 15" "$(mget ys)" 15
+dbx "UPDATE users SET title=NULL WHERE id=$UID_"
+curl -s -b $W/p -o /dev/null -X POST $BASE/book.php --data-urlencode "csrf=$CS" --data-urlencode "title=Napmaster"
+ok "Almanac: an unbought title is refused" "$(dbv "SELECT COALESCE(title,'') FROM users WHERE id=$UID_")" ""
+curl -s -b $W/p -o /dev/null -X POST $BASE/book.php --data-urlencode "csrf=$CS" --data-urlencode "title=Cat Person"
+ok "Almanac: the bought title can be picked" "$(dbv "SELECT title FROM users WHERE id=$UID_")" "Cat Person"
+cfpost -d do=title -d key=napmaster >/dev/null; ok "Napmaster costs 30: ys=45" "$(mget ys)" 45
+
+cfx() { php -r 'if ($argv[1] !== "none") define("CATFISH_ART_DIR", $argv[1]); define("APP_ROOT", "/nonexistent"); define("APP_VERSION", "t"); function e($v){return htmlspecialchars((string)$v, ENT_QUOTES);} function url($p){return "/".$p;} function is_admin(){return false;} function setting($n){return "";} function hollow_date($f,$t=null){return "";} require $argv[2]; echo eval("return " . $argv[3] . ";");' "$1" "$GAME/includes/catfish.php" "$2"; }
+# 4e. Hold a cat, Stakeout, Second show entry, Buddy cat, Keepsake, Yarn ball colours
+TD=$(TZ=America/Halifax date +%F); TM=$(TZ=America/Halifax date -d tomorrow +%F)
+CID1=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1"); CID2=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1 OFFSET 1"); CID3=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id LIMIT 1 OFFSET 2")
+CID4=$(dbv "SELECT id FROM cats WHERE user_id=$UID_ ORDER BY id DESC LIMIT 1"); dbx "UPDATE cats SET user_id=0 WHERE id=$CID4"   # park the last cat so the home has room and the shelter shows (put back below)
+HM='{"extra":3,"ys":0,"roll":{"day":"'$TD'","n":[1,1,1]}}'   # room for a fifth cat, and spots the gnome does not own yet
+dbx "UPDATE catfish_state SET yarn=200, active_cat_id=$CID1, meta='$HM' WHERE user_id=$UID_"
+pagew3; SEEDH=$(seed_of 0 $W/w3.html)
+cfpost -d do=hold -d slot=0 >/dev/null
+ok "Hold a cat costs 2 Yarn: ys=2" "$(mget ys)" 2
+ok "Hold a cat: remembered for tomorrow, slot 0, the cat's seed" "$(mget hold.for),$(mget hold.slot),$(mget hold.seed)" "$TM,0,$SEEDH"
+cfpost -d do=hold -d slot=1 >/dev/null
+ok "second hold for the same day refused: ys stays 2" "$(mget ys)" 2
+dbx "UPDATE catfish_state SET meta='{\"extra\":3,\"ys\":2,\"hold\":{\"for\":\"$TD\",\"seed\":12345,\"slot\":1}}' WHERE user_id=$UID_"
+pagew3
+ok "a cat held yesterday is back in its spot today" "$(seed_of 1 $W/w3.html)" 12345
+dbx "UPDATE cats SET user_id=$UID_ WHERE id=$CID4"
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=stake --data-urlencode pick=pattern:calico >/dev/null
+ok "Stakeout costs 3 Yarn: ys=3, set for tomorrow" "$(mget ys),$(mget stake.for),$(mget stake.value)" "3,$TM,calico"
+cfpost -d do=stake --data-urlencode pick=colour:ginger >/dev/null
+ok "second stakeout for the same day refused: ys stays 3" "$(mget ys)" 3
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":3}' WHERE user_id=$UID_"
+cfpost -d do=stake --data-urlencode pick=eyes:blue >/dev/null
+ok "stakeout on eyes refused: ys stays 3" "$(mget ys)" 3
+ok "stakeout finds more of the coat than a plain shelter does" "$(cfx none '(function(){ $a = 0; $b = 0; for ($d = 1; $d <= 30; $d++) { foreach (catfish_shelter(7, "2026-03-" . sprintf("%02d", $d), [], 0, ["pattern", "calico"]) as $c) if ($c["pattern"] === "calico") $a++; foreach (catfish_shelter(7, "2026-03-" . sprintf("%02d", $d)) as $c) if ($c["pattern"] === "calico") $b++; } return ($a > $b ? "more" : "no") . "," . ($b > 0 ? "base" : "none"); })()')" "more,base"
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=show2 >/dev/null; ok "Second show entry costs 5 Yarn: ys=5, show2on=1" "$(mget ys),$(mget show2on)" "5,1"
+WK=$(dbv "SELECT json_extract(meta,'$.show.week') FROM catfish_state WHERE user_id=$UID_")
+dbx "UPDATE catfish_state SET meta=json_set(meta,'$.show',json('{\"week\":\"$(php -r 'echo "2025-W".sprintf("%02d",7);')\",\"cat\":$CID2}')) WHERE user_id=$UID_"
+pagew3; cfpost -d do=show -d slot=2 -d cat=$CID1 >/dev/null
+SHW=$(php -d session.save_path=/tmp -r 'require "'$GAME'/includes/bootstrap.php"; require "'$GAME'/includes/catfish.php"; echo catfish_show_week();' 2>/dev/null)
+dbx "UPDATE catfish_state SET meta=json_set(meta,'$.show',json('{\"week\":\"2025-W07\",\"cat\":$CID2,\"cat2\":$CID1}')) WHERE user_id=$UID_"
+dbx "DELETE FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W07'"
+S1=$(dbv "SELECT seed FROM cats WHERE id=$CID1"); S2=$(dbv "SELECT seed FROM cats WHERE id=$CID2")
+pagew3
+BEST=$(cfx none 'max(catfish_show_judge('$UID_', "2025-W07", catfish_cat('$S1'), catfish_show_theme("2025-W07"))["score"], catfish_show_judge('$UID_', "2025-W07", catfish_cat('$S2'), catfish_show_theme("2025-W07"))["score"])')
+ok "two entries: the ribbon takes the better score of the two" "$(dbv "SELECT score FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W07'")" "$BEST"
+dbx "DELETE FROM cat_ribbons WHERE user_id=$UID_ AND week='2025-W07'"
+dbx "UPDATE catfish_state SET yarn=2, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=show2 >/dev/null; ok "second entry with no Yarn: refused" "$(mget show2on)" 0
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=show -d slot=2 -d cat=$CID2 >/dev/null; ok "second entry before unlocking: refused" "$(mget show.cat2)" 0
+
+dbx "UPDATE catfish_state SET yarn=200, kibble=0, active_cat_id=$CID1, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+KB=$(cfapi -d do=tick | jp view.kph)
+cfpost -d do=buddy -d cat=$CID2 >/dev/null; ok "Buddy before unlocking: refused" "$(mget buddy)" 0
+cfpost -d do=buddyunlock >/dev/null; ok "Buddy cat costs 12 Yarn: ys=12, buddyon=1" "$(mget ys),$(mget buddyon)" "12,1"
+cfpost -d do=buddy -d cat=$CID1 >/dev/null; ok "the playing cat cannot be its own Buddy" "$(mget buddy)" 0
+cfpost -d do=buddy -d cat=$CID2 >/dev/null; ok "Buddy chosen" "$(mget buddy)" "$CID2"
+cfreset; KA=$(cfapi -d do=tick | jp view.kph)
+ok "a Buddy adds 10% Kibble per hour (base $KB, with Buddy $KA)" "$(php -r 'echo abs('$KA' - round('$KB' * 1.1, 1)) < 0.2 ? "y" : "n";')" y
+cfpost -d do=buddy -d cat=0 >/dev/null; cfreset; ok "no Buddy: the bonus is gone" "$(cfapi -d do=tick | jp view.kph)" "$KB"
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=keep >/dev/null; cfpost -d do=keep >/dev/null; cfpost -d do=keep >/dev/null
+ok "Keepsake costs 10, 20, 40: ys=70, level 3" "$(mget ys),$(mget keepsake)" "70,3"
+cfpost -d do=keep >/dev/null; ok "Keepsake fourth level refused: ys stays 70" "$(mget ys)" 70
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0,\"keepsake\":2}', upgrades='{\"fish\":50,\"rug\":4}', run_kibble=32000, kibble=500, last_tick=$(date +%s) WHERE user_id=$UID_"
+cfpost -d do=nap >/dev/null
+ok "a Nap with Keepsake 2 keeps 2 levels of the first upgrade in each branch and drops the rest" "$(dbv "SELECT upgrades FROM catfish_state WHERE user_id=$UID_")" '{"fish":2,"string":2,"sunbeam":2,"bowl":2}'
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=ballbuy -d key=rose >/dev/null; ok "a yarn ball colour costs 1 Yarn and is in use" "$(mget ys),$(mget ball)" "1,rose"
+pagew3; ok "the page carries the ball colour class" "$(grep -c 'class="cfpage cfball-rose"' $W/w3.html)" 1
+cfpost -d do=ballset -d key=mint >/dev/null; ok "a colour you do not own cannot be switched on" "$(mget ball)" rose
+cfpost -d do=ballbuy -d key=nonsense >/dev/null; ok "unknown ball colour refused: ys stays 1" "$(mget ys)" 1
+cfpost -d do=ballset -d key= >/dev/null; ok "back to the plain ball for free" "$(mget ys),$(mget ball)" "1,0"
+
+# 4f. Yarn scarf (12 Yarn, drawn on the gnome everywhere) and Yarn bunting (1 Yarn: +3 in the festival jar, 3 a day)
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=scarfset -d key=blue >/dev/null; ok "scarf colour before buying: refused" "$(mget scarf)" 0
+cfpost -d do=scarfbuy >/dev/null; ok "the scarf costs 12 Yarn: ys=12, red to start" "$(mget ys),$(mget scarf)" "12,red"
+PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"')" -ge 1 ] && echo y || echo n)" y
+cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e\|tint-2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
+cfpost -d do=scarfset -d key=nonsense >/dev/null; ok "unknown scarf colour refused: still blue" "$(mget scarf)" blue
+cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf off: gone from the profile" "$(echo "$PRF" | grep -c 'data-part="scarf"')" 0
+cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
+setg festivals_on 1; setg fest_opening_day_start "$TD"; setg fest_opening_day_end "$TM"
+curl -s -b $W/p $BASE/festival.php >/dev/null   # the page makes the jar
+for i in 1 2 3 4; do cfpost -d do=bunting >/dev/null; done
+ok "bunting: 1 Yarn each, three a day (ys 12 + 3)" "$(mget ys)" 15
+ok "bunting: +3 each in the festival jar (9)" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+dbx "UPDATE catfish_state SET yarn=12, meta='{\"extra\":2,\"ys\":12}' WHERE user_id=$UID_"
+cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+setg festivals_on 0
+
+# 4g. Rod Tune-up, Catnip Hour, Mood Treat, Cat bio, Collar tint, Seasonal room
+dbx "UPDATE catfish_state SET yarn=200, active_cat_id=$CID1, naps=3, upgrades='{\"string\":8}', meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfreset; ok "no tune-up yet: 8 Longer string levels have no milestone double" "$(cfapi -d do=tick | jp view.ups.4.mult)" 1
+cfpost -d do=tune -d branch=rod >/dev/null
+ok "Rod Tune-up costs 4 Yarn: ys=4, rod, this run" "$(mget ys),$(mget tune.branch),$(mget tune.naps)" "4,rod,3"
+cfreset; ok "tuned: 8 Longer string levels double" "$(cfapi -d do=tick | jp view.ups.4.mult)" 2
+cfpost -d do=tune -d branch=fish >/dev/null; ok "a second tune-up in the same run is refused: ys stays 4" "$(mget ys)" 4
+cfpost -d do=tune -d branch=nonsense >/dev/null; ok "tune-up with an unknown branch refused: ys stays 4" "$(mget ys)" 4
+dbx "UPDATE catfish_state SET naps=4 WHERE user_id=$UID_"
+cfreset; ok "after the next Nap the tune-up is over" "$(cfapi -d do=tick | jp view.ups.4.mult)" 1
+ok "tuned kph is higher than untuned kph for the same levels" "$(cfx none 'catfish_kph(["string" => 8], ["tune" => "rod"], true) > catfish_kph(["string" => 8], [], true) ? "y" : "n"')" y
+cfpost -d do=tune -d branch=fish >/dev/null; ok "a new run can be tuned again: ys=8" "$(mget ys)" 8
+
+dbx "UPDATE catfish_state SET yarn=200, upgrades='{\"fish\":50}', meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfreset; V0=$(cfapi -d do=tick | jp view.play.v)
+cfpost -d do=catnip >/dev/null; ok "Catnip Hour costs 1 Yarn: ys=1" "$(mget ys)" 1
+cfreset; V1=$(cfapi -d do=tick | jp view.play.v)
+ok "Catnip Hour: a tap pays double (plain $V0, catnip $V1)" "$([ "$V1" -eq $((V0 * 2)) ] && echo y || echo n)" y
+cfpost -d do=catnip >/dev/null; ok "a second Catnip Hour the same day is refused" "$(mget ys)" 1
+dbx "UPDATE catfish_state SET meta=json_set(meta,'$.catnip.until',$(( $(date +%s) - 5 ))) WHERE user_id=$UID_"
+cfreset; ok "when the hour is up, taps pay the plain value again" "$(cfapi -d do=tick | jp view.play.v)" "$V0"
+
+dbx "UPDATE catfish_state SET yarn=200, upgrades='{\"fish\":50}', meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfreset; MOOD=$(cfapi -d do=tick | jp view.cat.mood); KB2=$(cfapi -d do=tick | jp view.kph)
+case $MOOD in greedy) PICK=hyper;; *) PICK=greedy;; esac
+cfpost -d do=treat -d mood=dreamy >/dev/null; ok "Mood Treat with Dreamy refused: ys stays 0" "$(mget ys)" 0
+cfpost -d do=treat -d mood=$MOOD >/dev/null; ok "Mood Treat with the cat's own mood refused: ys stays 0" "$(mget ys)" 0
+cfpost -d do=treat -d mood=$PICK >/dev/null; ok "Mood Treat costs 2 Yarn: ys=2, second mood $PICK" "$(mget ys),$(mget treat.mood)" "2,$PICK"
+cfreset; KA2=$(cfapi -d do=tick | jp view.kph)
+if [ "$MOOD" = lazy ] || [ "$MOOD" = sneaky ] || [ "$MOOD" = dreamy ] || [ "$MOOD" = greedy ] || [ "$MOOD" = hyper ]; then ok "a second greedy or hyper mood raises Kibble per hour (before $KB2, after $KA2)" "$(php -r 'echo '$KA2' > '$KB2' ? "y" : "n";')" y; fi
+cfpost -d do=treat -d mood=lazy >/dev/null; ok "one Mood Treat a day: ys stays 2" "$(mget ys)" 2
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"; dbx "UPDATE cats SET bio='', collar='' WHERE user_id=$UID_"
+cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Loves boxes" >/dev/null
+ok "first bio costs 1 Yarn: ys=1, saved" "$(mget ys),$(dbv "SELECT bio FROM cats WHERE id=$CID1")" "1,Loves boxes"
+cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Hates Mondays" >/dev/null
+ok "changing a bio is free: ys stays 1" "$(mget ys),$(dbv "SELECT bio FROM cats WHERE id=$CID1")" "1,Hates Mondays"
+cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=<b>Tiny</b> & $(printf 'x%.0s' $(seq 1 80))" >/dev/null
+ok "a bio is cleaned and cut to 60 characters" "$(dbv "SELECT LENGTH(bio) FROM cats WHERE id=$CID1")$(dbv "SELECT bio LIKE '%<%' FROM cats WHERE id=$CID1")" "600"
+cfpost -d do=bio -d cat=999999 --data-urlencode "bio=Not mine" >/dev/null; ok "a bio for a cat that is not yours is refused: ys stays 1" "$(mget ys)" 1
+cfpost -d do=bio -d cat=$CID2 --data-urlencode "bio=Sleepy" >/dev/null; ok "the second cat's first bio costs 1 more: ys=2" "$(mget ys)" 2
+pagew3; cfpost -d do=bio -d cat=$CID1 --data-urlencode "bio=Loves boxes" >/dev/null; pagew3; ok "the bio shows on the page" "$([ "$(grep -c 'Loves boxes' $W/w3.html)" -ge 1 ] && echo y || echo n)" y
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=collar -d cat=$CID1 -d key=rose >/dev/null
+ok "a collar costs 2 Yarn for that cat: ys=2, worn" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,rose"
+pagew3; ok "the collar class is on the page" "$([ "$(grep -c 'cfcol-rose\|cf-collar-rose-idleA.png' $W/w3.html)" -ge 1 ] && echo y || echo n)" y
+cfpost -d do=collar -d cat=$CID1 -d key= >/dev/null; ok "collar off is free" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,"
+cfpost -d do=collar -d cat=$CID1 -d key=rose >/dev/null; ok "wearing an owned collar again is free: ys stays 2" "$(mget ys),$(dbv "SELECT collar FROM cats WHERE id=$CID1")" "2,rose"
+cfpost -d do=collar -d cat=$CID1 -d key=gold >/dev/null; ok "a second colour costs 2 more: ys=4" "$(mget ys)" 4
+cfpost -d do=collar -d cat=$CID2 -d key=rose >/dev/null; ok "the same colour on another cat costs again: ys=6" "$(mget ys)" 6
+cfpost -d do=collar -d cat=$CID1 -d key=plaid >/dev/null; ok "unknown collar colour refused: ys stays 6" "$(mget ys)" 6
+
+dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+cfpost -d do=season -d code=wi >/dev/null; ok "a season costs 3 Yarn: ys=3, owned" "$(mget ys),$(mget seasons.0)" "3,wi"
+cfpost -d do=season -d code=wi >/dev/null; ok "the same season twice refused: ys stays 3" "$(mget ys)" 3
+cfpost -d do=season -d code=xx >/dev/null; ok "unknown season refused: ys stays 3" "$(mget ys)" 3
+dbx "UPDATE cats SET bio='', collar='' WHERE user_id=$UID_"
+dbx "UPDATE users SET title=NULLIF('$TITLE0','') WHERE id=$UID_"
+dbx "UPDATE catfish_state SET yarn=${CF0%%|*}, meta='$(echo "$CF0" | cut -d'|' -f2)', upgrades='$(echo "$CF0" | cut -d'|' -f3)' WHERE user_id=$UID_"
 
 # 5. adopt with a stale seed is refused; the seed from the page works (a cat freed for it first)
 dbx "DELETE FROM cats WHERE user_id=$UID_ AND name='Delta'"
@@ -551,7 +741,7 @@ ok "missing cat: entry cleared" "$(mshowv show)" ""
 # profile: the ribbon text and the cat name (awards tab), and nothing while Cat Fish is closed
 case $TIER in best) RL="Best in Show";; blue) RL="Blue ribbon";; red) RL="Red ribbon";; white) RL="White ribbon";; *) RL="Took part";; esac
 PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
-ok "profile: ribbon text for the tier and the cat name" "$(echo "$PR" | grep -cF "$RL: $NAME")" 1
+ok "profile: ribbon shelf shows the tier with its count and the latest cat name" "$(echo "$PR" | grep -cF "$RL ×1")$(echo "$PR" | grep -cF "Latest: $NAME")" 11
 setg catfish_open 0
 PR=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_&tab=awards")
 ok "profile: no Cat Fish ribbon while closed" "$(echo "$PR" | grep -cF "$RL: $NAME")" 0
@@ -957,6 +1147,8 @@ ok "book cell, no art: today's circle, adopted shows the emoji" "$(cfx none 'cat
 ok "book cell, art: found coats use their head (ginger -> orange, lilac), unknown uses the question head" "$(cfx $FULL 'catfish_book_cell("ginger", 1, "a") . catfish_book_cell("lilac", 0, "b") . catfish_book_cell("white", -1, "c")' | grep -o 'cf-bookhead-[a-z-]*.png\|got adopted\|got seen\|cfbcell art none' | tr '\n' ' ')" "got adopted cf-bookhead-orange.png got seen cf-bookhead-lilac.png cfbcell art none cf-bookhead-unknown.png "
 mkdir -p $W/art4; cp $FULL/cf-bookhead-unknown.png $W/art4/
 ok "book cell, art for unknown only: a found coat keeps today's circle" "$(cfx $W/art4 'catfish_book_cell("ginger", 0, "a") . catfish_book_cell("ginger", -1, "b")' | grep -o 'cfbcell got c-ginger\|cf-bookhead-unknown.png' | tr '\n' ' ')" "cfbcell got c-ginger cf-bookhead-unknown.png "
+ok "Buy x10 price is the sum of ten single prices (give or take a second of income)" "$(php -r 'echo abs('$SPENT10' - '$(cfx none 'catfish_cost_n("fish", 0, 10)')') <= 3 ? "y" : "n";')" y
+ok "offline cap: 8 hours, +1 per Longer naps away level, Lazy x1.25 on top" "$(cfx none 'catfish_offline_cap(null) . "," . catfish_offline_cap(null, 3) . "," . catfish_offline_cap(["mood" => "lazy"], 3)')" "28800,39600,49500"
 ok "art coat map: all 8 coats have art, lilac included" "$(cfx none 'count(CATFISH_ART_COATS) . " " . CATFISH_ART_COATS["lilac"]')" "8 lilac"
 # play scene (catfish_stage_html): one centred stage with the room stack, wand, three fish, the other cats as still frames and the active cat with all 8 frame groups
 SC='[["id"=>1,"name"=>"Pip","colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"folded","tail"=>"bobtail","seed"=>11,"mood"=>"hyper"],["id"=>2,"name"=>"Dot","colour"=>"lilac","pattern"=>"solid","eyes"=>"odd","ears"=>"upright","tail"=>"long","seed"=>2,"mood"=>"hyper"],["id"=>3,"name"=>"Zed","colour"=>"black","pattern"=>"calico","eyes"=>"blue","ears"=>"upright","tail"=>"long","seed"=>3,"mood"=>"lazy"],["id"=>4,"name"=>"Moe","colour"=>"white","pattern"=>"spotted","eyes"=>"green","ears"=>"folded","tail"=>"long","seed"=>4,"mood"=>"dreamy"],["id"=>5,"name"=>"Fig","colour"=>"brown","pattern"=>"tuxedo","eyes"=>"hazel","ears"=>"upright","tail"=>"bobtail","seed"=>5,"mood"=>"greedy"]]'
@@ -979,8 +1171,8 @@ ok "stage play: three buttons close again, no span left for a fish" "$(echo "$SH
 ok "stage play: the stage is role=group with the same aria-label (not role=img), data-play-pending and data-combo for tests" "$(echo "$SH" | grep -c 'class="cfstage" role="group" aria-label="Pip plays under the toy rod at home, with 4 other cats" data-play-pending="0" data-combo="0"')$(echo "$SH" | grep -c 'role="img" aria-label="Pip')" "10"
 ok "stage play: three pops p1..p3, the combo counter and a polite live line, all by class or id only" "$(echo "$SH" | grep -o 'cfpop p[1-3]"\|id="cf-combo"\|id="cf-playlive" class="cfsr" aria-live="polite"' | tr '\n' ' ')" 'cfpop p1" cfpop p2" cfpop p3" id="cf-combo" id="cf-playlive" class="cfsr" aria-live="polite" '
 ok "stage play: no hint bubble by default; stage_html(..., hint) adds 'Tap a fish to play!'" "$(echo "$SH" | grep -c 'cfhint')$(cfx $FULL "catfish_stage_html($SC, $SC[0], [], false, true)" | grep -o 'class="cfhint" id="cf-hint" aria-hidden="true">Tap a fish to play!<' | wc -l | tr -d ' ')" "01"
-ok "css play: button reset, focus ring, hit area, cfbounce, is-caught flip and a reduced-motion rule for .is-hit" "$(grep -c '^\.cfstage \.cfsdrop { display: block; padding: 0; margin: 0; border: 0; background: none;' $GAME/assets/catfish.css)$(grep -c '^\.cfsdrop:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }' $GAME/assets/catfish.css)$(grep -c '@keyframes cfbounce' $GAME/assets/catfish.css)$(grep -c 'cursor: pointer' $GAME/assets/catfish.css)$(grep -c '\.cfsdrop\.is-caught \.cfimg { animation: cfflip 240ms' $GAME/assets/catfish.css)$(sed -n '/prefers-reduced-motion: reduce) {$/,/^}/p' $GAME/assets/catfish.css | grep -c 'is-hit')" "111112"
-ok "js play: untrusted events ignored, 600 ms per-fish cooldown, pending capped at 40, sendBeacon on pagehide, cftap drives the animation, reaction at most every 700 ms" "$(grep -c 'isTrusted' $GAME/assets/catfish.js)$(grep -c 'now - cool\[f\] < 600' $GAME/assets/catfish.js)$(grep -c 'pending < 40' $GAME/assets/catfish.js)$(grep -c "addEventListener('pagehide'" $GAME/assets/catfish.js)$(grep -c 'navigator.sendBeacon(d.api' $GAME/assets/catfish.js)$(grep -c "now - lastReact < 700" $GAME/assets/catfish.js)" "111111"
+ok "css play: button reset, focus ring, hit area, cfbounce, is-caught flip and a reduced-motion rule for .is-hit" "$(grep -c '^\.cfstage \.cfsdrop { display: block; padding: 0; margin: 0; border: 0; background: none;' $GAME/assets/catfish.css)$(grep -c '^\.cfsdrop:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }' $GAME/assets/catfish.css)$(grep -c '@keyframes cfbounce' $GAME/assets/catfish.css)$(grep -c 'cursor: pointer' $GAME/assets/catfish.css)$(grep -c '\.cfsdrop\.is-caught \.cfimg { animation: cfflip 240ms' $GAME/assets/catfish.css)$(sed -n '/prefers-reduced-motion: reduce) {$/,/^}/p' $GAME/assets/catfish.css | grep -c 'is-hit')" "111212"
+ok "js play: untrusted events ignored, 600 ms per-fish cooldown, pending capped at 40, sendBeacon on pagehide, cftap drives the animation, reaction at most every 700 ms" "$(grep -c 'isTrusted' $GAME/assets/catfish.js)$(grep -c 'now - cool\[f\] < 600' $GAME/assets/catfish.js)$(grep -c 'pending < 40' $GAME/assets/catfish.js)$(grep -c "addEventListener('pagehide'" $GAME/assets/catfish.js)$(grep -c 'navigator.sendBeacon(d.api' $GAME/assets/catfish.js)$(grep -c "now - lastReact < 700" $GAME/assets/catfish.js)" "211111"
 ok "stage: the page's catfish_room_html is unchanged (still its own markup)" "$(cfx $FULL "catfish_room_html($CATS3, [])" | grep -c 'class="cfroom"')" 1
 # positions and sizes in catfish.css come from room-layout.json; the PHP spots too
 python3 -I - "aseprite-source/catfish/room-layout.json" "$GAME/assets/catfish.css" "$GAME/includes/catfish.php" <<'P' || echo "FAIL stage coordinates: python check crashed"
@@ -1195,7 +1387,7 @@ if not re.search(r'CATFISH_YARN_ROLL = true', js): bad.append('yarn roll constan
 # bird frames 2 and 3 are 12 x 10 and differ from the perched one
 for n in (2, 3):
     if im('cf-bird-%d' % n).shape[:2] != (10, 12) or (im('cf-bird-%d' % n) == rb).all(): bad.append('bird %d' % n)
-print('ok   2.1.06 art: perched bird at 2x on the layout perch = the robin of cf-room-window.png pixel for pixel (plus a dark outline ring); nobird is transparent; the yarn patch box differs from the base (a ball is there); css boxes match room-layout.json' if not bad else 'FAIL 2.1.06 art: ' + '; '.join(bad))
+print('ok   2.1.06 art: perched bird at 2x on the layout perch = the robin of cf-room-window.png pixel for pixel (the redrawn sprite has no ring; a dark ring would still pass); nobird is transparent; the yarn patch box differs from the base (a ball is there); css boxes match room-layout.json' if not bad else 'FAIL 2.1.06 art: ' + '; '.join(bad))
 P
 ok "2.1.06 css: bird, yarn roll, rug wobble, dust motes rules; steps() only (no blur, no filter); reduced motion hides the motes and the sprite" "$(for w in '.cfstage.is-bird .cfl-window { display: none; }' '.cfyarn.is-roll .yp' '@keyframes cfyroll' '@keyframes cfrug' '.cfl-rug.is-wobble' '@keyframes cfmote' '.cfdust { display: none; }'; do grep -c -F "$w" $GAME/assets/catfish.css | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(sed -n '/^\/\* 2.1.06 room life/,$p' $GAME/assets/catfish.css | grep -c 'blur\|filter')" "yyyyyyy0"
 ok "2.1.06 js: idle variety yawn 900, stretch 900, wash 600 x4 every 15-30 s, bird 6-14 s (hop 150, wings 200), yarn roll 1250 ms, rug wobble, ?cffast test hook, no inline style anywhere" "$(for w in "between(15000, 30000)" "[['yawn', 900]]" "[['stretch', 900]]" "[['washA', 600], ['washB', 600], ['washA', 600], ['washB', 600]]" "(6000 + br() * 8000)" "hop ? 150 : 200" "}, 1250);" "rug.classList.add('is-wobble')" "cffast=1" "birdStop(); setMode"; do grep -c -F "$w" $GAME/assets/catfish.js | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(grep -c '\.style\.\|setAttribute(.style' $GAME/assets/catfish.js)" "yyyyyyyyyy0"
@@ -1255,6 +1447,66 @@ done
 ok "2.1.08 scene: with all four Rod upgrades the stage has cfrs cfrsp cfrmo cfrdb and a second wand (hidden from screen readers)" "$(echo "$SH" | grep -c 'class="cfstage cfrs cfrsp cfrmo cfrdb"')/$(echo "$SH" | grep -c 'class="cfswand cfswand2" aria-hidden="true"')" "1/1"
 cfreset
 cfreset
+# 2.2.x art wired: gnome scarf layer, collar band, season sprites, coloured yarn balls, redrawn bird/yarn frames, Yarn panel icons, 4 upgrade tabs that fit
+CSS22=$GAME/assets/catfish.css
+ok "2.2.x scarf art: gnome-scarf.png is 80 x 100, alpha 0/255, grey only (tintable); gnome.php draws it with pixel_image and tints it, the red placeholder only without the PNG" "$(python3 -I - "$GAME/assets/img/gnome/gnome-scarf.png" <<'P'
+import sys, numpy as np
+from PIL import Image
+a = np.array(Image.open(sys.argv[1]).convert('RGBA')); op = a[a[..., 3] > 0][:, :3].astype(int)
+print(a.shape[:2] == (100, 80), set(np.unique(a[..., 3])) <= {0, 255}, bool((op.max(1) - op.min(1) <= 2).all()))
+P
+)$(grep -c "pixel_image('assets/img/gnome/gnome-scarf.png'" $GAME/includes/gnome.php)$(grep -c 'data-placeholder="1"' $GAME/includes/gnome.php)" "True True True11"
+COLCAT='["colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"upright","tail"=>"long","seed"=>5,"collar"=>"rose"]'
+H=$(cfx $FULL "catfish_cat_html($COLCAT, 64, 'idleA')")
+ok "2.2.x collar art: the layered cat has the rose band layer above body and pattern and no CSS ring on the cat" "$(echo "$H" | grep -o 'cf-[a-z]*-[a-z-]*idleA.png\|cf-collar-rose-idleA.png' | sed 's/cf-eyes.*/eyes/' | tr '\n' ' ')$(echo "$H" | grep -c 'cfcol-')" "cf-cat-orange-idleA.png cf-pat-tabby-orange-idleA.png cf-collar-rose-idleA.png eyes 0"
+ok "2.2.x collar art: frames pounce, catch, nap and the idleA aliases (blink) have the band; stalk (no art) has none" "$(for f in pounce catch nap blink stalk; do cfx $FULL "catfish_cat_html($COLCAT, 64, '$f')" | grep -c "cf-collar-rose-"; done | tr -d '\n')" "11110"
+mkdir -p $W/art9; cp $FULL/cf-cat-orange-idleA.png $W/art9/
+ok "2.2.x collar fallback: no collar PNGs = the CSS ring class stays on the cat" "$(cfx $W/art9 "catfish_cat_html($COLCAT, 64, 'idleA')" | grep -c 'cfart cf-s64 cfcol-rose')" 1
+ok "2.2.x collar: the 6 colours come from catfish.css, only the 4 grey tones move (umber outline, #000000 and bell are identical in all)" "$(python3 -I - "$FULL" "$CSS22" <<'P'
+import sys, re, numpy as np
+from PIL import Image
+d, css = sys.argv[1:]; css = open(css).read(); bad = []
+grey = {}
+for f in ('idleA', 'pounce', 'catch', 'nap'):
+    g = np.array(Image.open('/home/user/gnome-venture/aseprite-source/catfish/art22/out/cf-collar-%s.png' % f).convert('RGBA'))
+    for c in ('rose', 'mint', 'sky', 'gold', 'violet', 'red'):
+        o = np.array(Image.open('%s/cf-collar-%s-%s.png' % (d, c, f)).convert('RGBA'))
+        if o.shape != (64, 64, 4) or (o[..., 3] != g[..., 3]).any(): bad.append('%s %s alpha/size' % (c, f)); continue
+        fixed = {(0x4a, 0x2c, 0x1a), (0x2a, 0x1a, 0x10), (0, 0, 0), (0xf5, 0xcf, 0x6a), (0xe8, 0xa3, 0x17), (0xe3, 0x81, 0x11), (0xff, 0xf1, 0xc8)}
+        for y, x in zip(*np.nonzero(g[..., 3])):
+            if tuple(g[y, x, :3]) in fixed and tuple(o[y, x, :3]) != tuple(g[y, x, :3]): bad.append('%s %s fixed pixel moved' % (c, f)); break
+        if not (o[..., :3] != g[..., :3]).any(): bad.append('%s %s not recoloured' % (c, f))
+        m = re.search(r'\.cfcol-%s \{ box-shadow: 0 0 0 2px (#[0-9a-f]{6})' % c, css)
+        mk = (g[..., 0] == 0x8a) & (g[..., 1] == 0x85) & (g[..., 2] == 0x9b)
+        base = '#%02x%02x%02x' % tuple(o[mk][0][:3]) if mk.any() else ''
+        if not m or base != m.group(1): bad.append('%s base tone %s != css ring %s' % (c, base, m and m.group(1)))
+print('ok' if not bad else ';'.join(bad[:4]))
+P
+)" ok
+ok "2.2.x seasons: art gives class cfsart on the bits, 8 sprite files installed with their sizes, css has the sprite rules for all four seasons, reduced motion still hides them" "$(cfx $FULL 'catfish_season_art() ? 1 : 0')$(cfx $W/art9 'catfish_season_art() ? 1 : 0')$(for w in 'cf-season-petal.png' 'cf-season-petal-b.png' 'cf-season-firefly.png' 'cf-season-firefly-b.png' 'cf-season-leaf.png' 'cf-season-leaf-b.png' 'cf-season-flake.png' 'cf-season-flake-small.png' '@media (prefers-reduced-motion: reduce) { .cfseason { display: none; } }'; do grep -c -F "$w" $CSS22 | awk '{print ($1>0)?"y":"n"}'; done | tr -d '\n')$(grep -c 'style=' $CSS22)" "10yyyyyyyyy0"
+ok "2.2.x yarn balls: the CSS colour filter is gone (no sepia or hue-rotate in catfish.css)" "$(grep -c 'sepia\|hue-rotate\|filter:' $CSS22)" 0
+ok "2.2.x yarn balls: 4 colours x 4 rolling frames are 16 x 16 and differ from the grey frame" "$(python3 -I - "$FULL" <<'P'
+import sys, numpy as np
+from PIL import Image
+d = sys.argv[1]; bad = []
+for n in range(1, 5):
+    g = np.array(Image.open('%s/cf-yarn-%d.png' % (d, n)).convert('RGBA'))
+    for c in ('rose', 'mint', 'violet', 'gold'):
+        o = np.array(Image.open('%s/cf-yarn-%d-%s.png' % (d, n, c)).convert('RGBA'))
+        if o.shape != (16, 16, 4) or (o == g).all() or (o[..., 3] != g[..., 3]).any(): bad.append('%d %s' % (n, c))
+print('ok' if not bad else ' '.join(bad))
+P
+)" ok
+CFMETA0=$(dbv "SELECT meta FROM catfish_state WHERE user_id=$UID_")
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0,\"ball\":\"mint\",\"balls\":[\"mint\"]}' WHERE user_id=$UID_"
+pagew3; ok "2.2.x yarn balls: the mint ball rolls with cf-yarn-1..4-mint.png (4 images), none of the grey ones" "$(grep -o 'cf-yarn-[1-4]-mint.png' $W/w3.html | sort -u | wc -l | tr -d ' ')$(grep -o 'cf-yarn-[1-4].png' $W/w3.html | wc -l | tr -d ' ')" "40"
+dbx "UPDATE catfish_state SET meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
+pagew3; ok "2.2.x yarn balls: the plain ball keeps the grey frames" "$(grep -o 'cf-yarn-[1-4].png' $W/w3.html | sort -u | wc -l | tr -d ' ')$(grep -c 'cf-yarn-[1-4]-' $W/w3.html)" "40"
+dbx "UPDATE catfish_state SET meta='$CFMETA0' WHERE user_id=$UID_"
+pagew3; ok "2.2.x Yarn panel icons: cf-yi-<key>.png (48 px, same cficon cell as the upgrade rows) replace the emoji" "$(grep -o 'cf-yi-[a-z0-9]*.png' $W/w3.html | sort -u | tr '\n' ' ')" "cf-yi-balls.png cf-yi-bio.png cf-yi-buddy.png cf-yi-catnip.png cf-yi-collar.png cf-yi-keepsake.png cf-yi-scarf.png cf-yi-season.png cf-yi-show2.png cf-yi-stake.png cf-yi-titles.png cf-yi-treat.png cf-yi-tune.png "
+ok "2.2.x Yarn panel icons: no icon without art keeps the emoji (cfx, no art folder)" "$(cfx none "catfish_img('yi-stake', '🔭', '', 48)")" '<span aria-hidden="true">🔭</span>'
+ok "2.2.x upgrade tabs: the four tabs share the width (flex 1 1 0, no scroll) with the count pip on the corner; js passes the class" "$(grep -c '^\.cftabs4 button { flex: 1 1 0; min-width: 0;' $CSS22)$(grep -c '^\.cftabs4 { overflow: visible' $CSS22)$(grep -c "'cftabs cftabs4'" $GAME/assets/catfish.js)" 111
+
 # the animation machine in a real browser (tests/catfish_anim.js; skipped without playwright): a home of 4 cats (patterned folded-ear bobtail active cat, lazy cat on the cushion, an awake side cat, a bored one)
 if node -e "require('playwright')" 2>/dev/null; then
   dbx "DELETE FROM cats WHERE user_id=$UID_"
@@ -1263,6 +1515,292 @@ if node -e "require('playwright')" 2>/dev/null; then
   AOUT=$(DBFILE=$GAME/data/game.sqlite UIDX=$UID_ SQL_BUY="UPDATE catfish_state SET upgrades='{}', kibble=100000, naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" SQL_NAP="UPDATE catfish_state SET naps=1, run_kibble=0, last_tick={NOW} WHERE user_id=$UID_" SQL_AWAKE="UPDATE catfish_state SET naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" SQL_ROOM="UPDATE catfish_state SET upgrades='{\"glitter\":1,\"silk\":1,\"catnip\":1,\"window\":1,\"sunbeam\":1,\"rug\":1,\"scratch\":1}', naps=0, run_kibble=50, last_tick={NOW} WHERE user_id=$UID_" NODE_PATH=${NODE_PATH:-} node tests/catfish_anim.js $BASE 2>&1)
   echo "$AOUT"
 else echo "ok   anim browser pass: skipped (no playwright)"; fi
+# ===== 2.2.x pet shops: 11 shops in regions 4+, 55 room things, 8 scene slots (includes/catfish_pets.php, shop.php type pets, plan claude/plan-catfish-petshops.md) =====
+# pp: run PHP against the game's own database (bootstrap + catfish.php). own: give the gnome an item without paying (the buy path has its own checks below).
+pp() { php -d session.save_path=/tmp -r 'require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/catfish.php"; '"$1" 2>&1; }
+own() { dbx "INSERT OR IGNORE INTO catfish_items (user_id, item_key, got_at, last_used, slotted_at) VALUES ($UID_, '$1', '2026-10-29 00:00:00', 0, 0)"; }
+metaset() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $m=json_decode($p->query("SELECT meta FROM catfish_state WHERE user_id='$UID_'")->fetchColumn(),true) ?: []; '"$1"'; $p->prepare("UPDATE catfish_state SET meta=? WHERE user_id='$UID_'")->execute([json_encode($m)]);'; }
+metaget() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $m=json_decode($p->query("SELECT meta FROM catfish_state WHERE user_id='$UID_'")->fetchColumn(),true) ?: []; echo eval("return " . $argv[1] . ";");' "$1"; }
+shopid() { dbv "SELECT id FROM shops WHERE slug='$1-pet-shop'"; }
+shopbuy() { curl -s -b $W/p "$BASE/shop.php?id=$1" > $W/shop.html; curl -s -b $W/p -c $W/p -X POST "$BASE/shop.php?id=$1" --data-urlencode "csrf=$(csrf $W/shop.html)" -d do=pet_buy -d item=$2 -o /dev/null -w '%{http_code}'; }
+petsaid() { curl -s -b $W/p -c $W/p "$BASE/shop.php?id=$1" | grep -c "$2"; }   # how many page lines hold a phrase (the flash from the last POST is shown once, in the message log)
+goto() { dbx "UPDATE users SET location_id=(SELECT id FROM locations WHERE slug='market-$1') WHERE id=$UID_"; }
+gold() { dbx "UPDATE users SET coins=$1 WHERE id=$UID_"; }
+coins() { dbv "SELECT coins FROM users WHERE id=$UID_"; }
+clean_pets() { dbx "DELETE FROM catfish_items WHERE user_id=$UID_"; metaset 'unset($m["slots"], $m["slotn"], $m["pa"], $m["py"], $m["phint"], $m["rain"], $m["roll"]);'; }
+PETART=aseprite-source/catfish/art22/out
+OLDACT=$(dbv "SELECT active_cat_id FROM catfish_state WHERE user_id=$UID_")
+cfreset; clean_pets
+
+# --- data and shops
+ok "pets data: 11 shops, 55 items, 8 slots, 5 items in every shop" "$(pp 'echo count(CATFISH_PET_SHOPS), "/", count(CATFISH_PET_ITEMS), "/", count(CATFISH_PET_SLOTS), "/", implode(",", array_count_values(array_column(CATFISH_PET_ITEMS, "shop")));')" "11/55/8/5,5,5,5,5,5,5,5,5,5,5"
+ok "pets data: every item fits its own slot type, shelf things also fit the sill, and every price is in Petals above 0" "$(pp '$bad = 0; foreach (CATFISH_PET_ITEMS as $k => $i) { $keys = array_column(array_filter(CATFISH_PET_SLOTS, fn($s) => $s["type"] === $i["type"]), "key"); if ($i["type"] === "shelf") $keys = array_merge($keys, ["sill"]); sort($keys); $f = $i["fit"]; sort($f); if ($f !== $keys || $i["price"] < 1 || !isset(CATFISH_PET_SHOPS[$i["shop"]])) $bad++; } echo $bad;')" 0
+ok "pets: 11 pet shops exist (shop_type pets), one beside each regional market" "$(dbv "SELECT COUNT(*) FROM shops WHERE shop_type='pets'")/$(dbv "SELECT COUNT(*) FROM shops s JOIN locations l ON l.id=s.location_id WHERE s.shop_type='pets' AND l.slug='market-' || lower(substr(s.slug, 1, instr(s.slug, '-') - 1))")" "11/11"
+ok "pets: regions 1 to 3 (Maplewold, Maizehollow, Mistmoor) have no pet shop; the shop regions are REGION_LEVELS from the 4th on, in order" "$(dbv "SELECT COUNT(*) FROM shops s JOIN locations l ON l.id=s.location_id WHERE s.shop_type='pets' AND l.region_id IN (SELECT id FROM regions WHERE code IN ('NA','CA','NWE'))")/$(pp 'echo implode(",", array_slice(array_keys(REGION_LEVELS), 3)) === implode(",", array_keys(CATFISH_PET_SHOPS)) ? "same" : "differ";')" "0/same"
+ok "pets: each shop has its keeper (npc slug = keeper_slug with hyphens) working round the clock" "$(pp '$n = 0; foreach (CATFISH_PET_SHOPS as $c => $s) { $sid = (int)q_val("SELECT id FROM shops WHERE slug = ?", [petshop_slug($c)]); $nid = (int)q_val("SELECT id FROM npcs WHERE slug = ?", [str_replace("_", "-", $s["keeper_slug"])]); if ($sid && $nid && q_val("SELECT 1 FROM npc_schedules WHERE npc_id = ? AND shop_id = ? AND activity = \"working\" AND start_hour = end_hour", [$nid, $sid])) $n++; } echo $n;')" 11
+ok "pets: the setup is idempotent (a second run adds nothing)" "$(pp 'petshops_ensure(); echo q_val("SELECT COUNT(*) FROM shops WHERE shop_type = \"pets\""), "/", q_val("SELECT COUNT(*) FROM npc_schedules WHERE shop_id IN (SELECT id FROM shops WHERE shop_type = \"pets\")");')" "11/11"
+ok "pets: no code path gives Petals (no give_petals in the pets file, no petal effect in the data)" "$(grep -c 'give_petals' $GAME/includes/catfish_pets.php)$(pp 'echo count(array_filter(CATFISH_PET_ITEMS, fn($i) => isset($i["effect"]["petals"]) || isset($i["effect"]["coins"])));')" "00"
+ok "pets: the numbers are admin settings (uses a day, pop minutes, Yarn a week, slot hours, caps, price percent, shops on)" "$(for k in catfish_pet_uses_day catfish_pet_pop_min_day catfish_pet_yarn_week catfish_pet_slot_hours catfish_pet_cap_away catfish_pet_cap_show catfish_pet_cap_rare catfish_pet_cap_catnip catfish_pet_price_pct catfish_pet_shops_open; do grep -c "'$k' =>" $GAME/includes/functions.php; done | tr -d '\n')" "1111111111"
+
+# the installed art (repo game/assets/img, not the test copy): a missing item, banner or bust PNG, or a wrong size, fails
+petart_chk() { pp 'echo json_encode(["i" => array_map(fn($i) => $i["type"], CATFISH_PET_ITEMS), "s" => array_map(fn($s) => str_replace("_", "-", $s["keeper_slug"]), CATFISH_PET_SHOPS), "z" => array_column(CATFISH_PET_SLOTS, null, "type")]);' | python3 -I -c "$(cat <<'PY'
+import sys, json, os
+from PIL import Image
+import numpy as np
+d = json.load(sys.stdin); R = "game/assets/img"; bad = []
+def chk(f, wh):
+    try: im = Image.open(f).convert("RGBA")
+    except Exception: bad.append(f); return
+    a = np.array(im)[..., 3]
+    if im.size != tuple(wh) or set(np.unique(a)) - {0, 255}: bad.append(f)
+for k, t in d["i"].items(): chk("%s/catfish/cf-pet-%s.png" % (R, k), (d["z"][t]["w"], d["z"][t]["h"]))
+for c, s in d["s"].items(): chk("%s/catfish/banner-%s-pets.png" % (R, c), (480, 120)); chk("%s/ph/npc-%s.png" % (R, s), (80, 100))
+stray = [f for f in os.listdir(R + "/catfish") if (f.startswith("cf-pet-") and f[7:-4] not in d["i"]) or (f.startswith("banner-") and f[7:-9] not in d["s"])]
+print(len(d["i"]), len(d["s"]), len(bad), len(stray), bad[:3], stray[:3])
+PY
+)"; }
+ok "pets art installed: 55 cf-pet-<key>.png at their slot size, 11 banner-<CODE>-pets.png at 480x120 (catfish folder), 11 busts npc-<keeper-slug-with-hyphens>.png at 80x100 (ph folder), alpha 0/255, no stray cf-pet or pets-banner file" "$(petart_chk)" "55 11 0 0 [] []"
+BN=$GAME/assets/img/catfish/banner-CB-pets.png; BU=$GAME/assets/img/ph/npc-coral-pennyfeather.png
+pbn() { pp 'require_once "'$GAME'/includes/items.php"; require_once "'$GAME'/includes/friends.php"; require_once "'$GAME'/includes/npc_life.php"; echo strpos(petshop_banner_html("CB", "X"), "catfish/banner-CB-pets.png") !== false ? "png" : "fallback", "/", strpos(npc_portrait(["name" => "C", "slug" => "coral-pennyfeather", "species" => "Gnome", "image" => ""]), "ph/npc-coral-pennyfeather.png") !== false ? "bust" : "nobust";'; }
+mkdir -p $GAME/assets/img/catfish; cp game/assets/img/catfish/banner-CB-pets.png $BN; PB1=$(pbn); mv $BN $BN.x; mv $BU $BU.x; PB2=$(pbn); mv $BU.x $BU; rm -f $BN.x; rmdir $GAME/assets/img/catfish 2>/dev/null
+ok "pets art: with the files the shop shows the banner PNG and the keeper bust PNG from ph/ (no admin upload: npcs.image stays empty); without them it falls back as before (placeholder or name box, never an error)" "$PB1 $PB2/$(dbv "SELECT COUNT(*) FROM npcs WHERE slug='coral-pennyfeather' AND COALESCE(image,'')=''")" "png/bust fallback/nobust/1"
+
+# --- buying: needs the region (shop_reachable), Petals only, one row in catfish_items, never user_items
+CBSHOP=$(shopid cb); UI0=$(dbv "SELECT COUNT(*) FROM user_items"); gold 50000
+ok "pets shop page: reachable or not it lists the shop's five things, the keeper and no inline style; away from the region the buttons are off" "$(curl -s -b $W/p $BASE/shop.php?id=$CBSHOP > $W/ps.html; grep -c 'Coral Pennyfeather' $W/ps.html | tr -d '\n')/$(grep -o 'name="item" value="[a-z_]*"' $W/ps.html | wc -l | tr -d ' ')/$(grep -c 'style=' $W/ps.html)/$(grep -o 'name="item" value="[a-z_]*"[^>]*><button class="btn" type="submit" disabled' $W/ps.html | wc -l | tr -d ' ')" "1/5/0/5"
+ok "buy away from the region: refused (nothing bought, no Petals taken)" "$(shopbuy $CBSHOP conch_shell)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_")/$(coins)" "302/0/50000"
+shopbuy $CBSHOP conch_shell >/dev/null
+ok "buy away: the keeper says the region was not reached" "$([ "$(petsaid $CBSHOP 'out this far\|beaches')" -ge 1 ] && echo y || echo n)" y
+goto cb
+ok "buy conch_shell at the Sunsprinkle Isles shop: one row, 400 Petals taken, no user_items row" "$(shopbuy $CBSHOP conch_shell)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_ AND item_key='conch_shell'")/$(coins)/$(dbv "SELECT COUNT(*) FROM user_items")" "302/1/49600/$UI0"
+ok "buy: the message is the keeper's lines and says what it cost" "$([ "$(petsaid $CBSHOP 'Conch Shell is yours for 400 Petals')" -ge 1 ] && echo y || echo n)" y
+ok "buy the same thing again: refused, charged once" "$(shopbuy $CBSHOP conch_shell)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_")/$(coins)" "302/1/49600"
+ok "buy something another shop sells: refused" "$(shopbuy $CBSHOP amphora)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_ AND item_key='amphora'")/$(coins)" "302/0/49600"
+gold 1700
+ok "buy without enough Petals: refused, Petals untouched, keeper says so" "$(shopbuy $CBSHOP hammock_net)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_ AND item_key='hammock_net'")/$(coins)/$([ "$(petsaid $CBSHOP 'Petals yet\|Petals short')" -ge 1 ] && echo y || echo n)" "302/0/1700/y"
+gold 3000
+ok "buy hammock_net (1800)" "$(shopbuy $CBSHOP hammock_net)/$(coins)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_")" "302/1200/2"
+ok "buy needs the CSRF token" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST "$BASE/shop.php?id=$CBSHOP" -d do=pet_buy -d item=bell_lure)/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_")" "400/2"
+ok "buy: a pet shop takes no other action (sell, basket buys, sink)" "$(curl -s -b $W/p -c $W/p "$BASE/shop.php?id=$CBSHOP" > $W/shop.html; curl -s -b $W/p -X POST "$BASE/shop.php?id=$CBSHOP" --data-urlencode "csrf=$(csrf $W/shop.html)" -d do=buy -d 'qty[1]=1' -o /dev/null -w '%{http_code}')/$(coins)" "302/1200"
+ok "pets: shop page after buying shows the thing as yours" "$(curl -s -b $W/p $BASE/shop.php?id=$CBSHOP | grep -o 'Yours, not placed' | wc -l | tr -d ' ')" 2
+
+# --- slots: locked, wrong fit, one item one spot, free swapping
+clean_pets; own conch_shell; own hammock_net
+ok "slots: locked spots (frame after 3 shops, ceiling and rod charm for Yarn, floor corner after 5 shops) refuse even an empty change" "$(pp '$o = ""; foreach ([4, 5, 6, 8] as $n) $o .= catfish_pet_slot('$UID_', $n, "")[0] ? "Y" : "n"; echo $o;' | tr -d '\n')" "nnnn"
+ok "slots: the free spots are shelf left, sill and floor by the bowl; shelf right opens after one shop (conch owned = 1 shop)" "$(pp '$u = '$UID_'; $m = catfish_state($u)["meta"]; $o = catfish_pet_owned($u); $r = ""; foreach (CATFISH_PET_SLOTS as $s) $r .= catfish_pet_slot_open($s, $m, $o)[0] ? "1" : "0"; echo $r;')" "11100010"
+ok "slots: wrong fit refused (a hammock is a floor-left thing: not on the shelf, the sill or the floor by the bowl)" "$(pp '$u = '$UID_'; $o = ""; foreach ([1, 2, 3, 7] as $n) $o .= catfish_pet_slot($u, $n, "hammock_net")[0] ? "Y" : "n"; echo $o;')" "nnnn"
+ok "slots: an item you do not own is refused" "$(pp 'echo catfish_pet_slot('$UID_', 1, "amphora")[0] ? "Y" : "n";')" n
+ok "slots: a locked spot refuses even a thing that would fit (floor-left needs 5 shops, we have 1)" "$(pp 'echo catfish_pet_slot('$UID_', 6, "hammock_net")[0] ? "Y" : "n";')" n
+cfreset; R=$(cfapi -d do=tick); SK0=$(echo "$R" | jp scene)
+R=$(cfapi -d do=petslot -d slot=1 -d item=conch_shell -d scene=$SK0)
+ok "petslot: conch in the left shelf spot, ok, the answer carries a new scene key and the stage (it holds the thing)" "$(echo "$R" | jp ok)/$([ "$(echo "$R" | jp scene)" != "$SK0" ] && echo changed)/$(echo "$R" | jp stage_html | grep -c 'cfpet cfpet-s1 cfpi-conch_shell')" "true/changed/1"
+SK1=$(echo "$R" | jp scene)
+ok "petslot: even without a scene key the answer carries stage_html" "$(cfapi -d do=petslot -d slot=1 -d item=conch_shell | jp stage_html | grep -c 'cfpi-conch_shell')" 1
+R=$(cfapi -d do=petslot -d slot=3 -d item=conch_shell)
+ok "one item, one spot: moving the conch to the sill empties the shelf spot" "$(echo "$R" | jp ok)/$(metaget 'json_encode($m["slots"])')" 'true/{"3":"conch_shell"}'
+ok "swapping out: an empty choice puts it back on the shelf and clears slotted_at" "$(cfapi -d do=petslot -d slot=3 -d item= | jp ok)/$(metaget 'json_encode($m["slots"])')/$(dbv "SELECT slotted_at FROM catfish_items WHERE user_id=$UID_ AND item_key='conch_shell'")" 'true/[]/0'
+ok "petslot: a wrong fit through the API answers 400 with the reason, and a locked spot too" "$(cfapi -d do=petslot -d slot=1 -d item=hammock_net | jp ok)/$(curl -s -b $W/p -o /dev/null -w '%{http_code}' -X POST $BASE/catfish_api.php --data-urlencode "csrf=$CS" -d do=petslot -d slot=6 -d item=hammock_net)" "false/400"
+cfreset
+ok "petslot: the scene key changes with the slot map and goes back when it is empty again" "$(R1=$(cfapi -d do=petslot -d slot=1 -d item=conch_shell | jp scene); R2=$(cfapi -d do=petslot -d slot=1 -d item= | jp scene); [ "$R1" != "$R2" ] && [ "$R2" = "$(cfapi -d do=tick | jp scene)" ] && echo y)" y
+ok "scene key (pure): changes with a slot, not with an empty map, and the old key is unchanged with no room things" "$(cfx $FULL '(function () { $a = catfish_scene_key([], null, []); $b = catfish_scene_key([], null, [], ["slots" => [1 => "conch_shell"], "rain" => false]); $c = catfish_scene_key([], null, [], ["slots" => [], "rain" => false]); $d = catfish_scene_key([], null, [], ["slots" => [1 => "amphora"], "rain" => false]); return ($a === $c ? "same" : "diff") . ($a !== $b ? "/changes" : "/stuck") . ($b !== $d ? "/item" : "/blind"); })()')" "same/changes/item"
+ok "no JS: the page forms place a thing (302) and the slot is set" "$(pagew3; cfpost -d do=petslot -d slot=3 -d item=conch_shell)/$(metaget 'json_encode($m["slots"])')" '302/{"3":"conch_shell"}'
+pagew3
+ok "Room things panel: a seventh hub panel with a form and a select for each open spot (1, 2, 3 and 7 with one shop) and a Use button only for active things" "$(grep -c 'id="cf-p-pets"' $W/w3.html)/$(grep -o 'name="do" value="petslot"' $W/w3.html | wc -l | tr -d ' ')/$(grep -o 'name="do" value="petuse"' $W/w3.html | wc -l | tr -d ' ')/$(grep -o 'id="cf-petsel-' $W/w3.html | wc -l | tr -d ' ')" "1/4/0/4"
+ok "Room things panel: the locked spots say how to open them (frame and floor corner: shops; ceiling and rod charm: Yarn) and the Yarn spots have an unlock form" "$(grep -o 'different pet shop' $W/w3.html | wc -l | tr -d ' ')/$(grep -o 'Opens for 5 Yarn\|Opens for 15 Yarn' $W/w3.html | wc -l | tr -d ' ')/$(grep -o 'name="do" value="petunlock"' $W/w3.html | wc -l | tr -d ' ')" "2/2/2"
+ok "Room things panel: owned things are the select options, only the ones that fit (conch: shelf and sill, not the floor by the bowl; the hammock only in the corner, which is locked)" "$(php -r '$h = file_get_contents($argv[1]); foreach ([1, 3, 7] as $n) { preg_match("#id=\"cf-petsel-$n\".*?</select>#s", $h, $m); echo substr_count($m[0] ?? "", "value=\"conch_shell\""), substr_count($m[0] ?? "", "value=\"hammock_net\""), ","; }' $W/w3.html)" "10,10,00,"
+ok "Room things panel: a pet shops list with a link to each existing shop" "$(grep -c 'class="cfpshops"' $W/w3.html)/$(php -r 'preg_match("#class=\"cfpshops\".*?</ul>#s", file_get_contents($argv[1]), $m); echo substr_count($m[0] ?? "", "shop.php?id=");' $W/w3.html)" "1/11"
+
+# --- Yarn spots
+clean_pets; dbx "UPDATE catfish_state SET yarn=4 WHERE user_id=$UID_"; metaset '$m["ys"]=0;'; cfreset
+ok "Yarn spots: 4 Yarn is not enough for the ceiling (5)" "$(cfapi -d do=petunlock -d slot=5 | jp ok)/$(metaget 'json_encode($m["slotn"] ?? [])')" "false/[]"
+dbx "UPDATE catfish_state SET yarn=30 WHERE user_id=$UID_"
+ok "Yarn spots: 30 Yarn opens the ceiling (5) and the rod charm (15), spends 20, and a spot opens once" "$(cfapi -d do=petunlock -d slot=5 | jp ok)/$(cfapi -d do=petunlock -d slot=8 | jp ok)/$(cfapi -d do=petunlock -d slot=5 | jp ok)/$(metaget '$m["ys"]')/$(metaget 'json_encode($m["slotn"])')" 'true/true/false/20/["ceiling","rod"]'
+ok "Yarn spots: a floor spot cannot be opened with Yarn" "$(cfapi -d do=petunlock -d slot=6 | jp ok)" false
+
+# --- passive bonuses: Kibble % adds up with no cap, away time, rare fish, Catnip, Cat Show, taps (caps are admin settings)
+cfreset; clean_pets; metaset '$m["slotn"]=["ceiling","rod"];'
+for k in bonsai chai_stall_sign calabash_bowl southern_cross_mobile lemon_on_a_string terracotta_catgrass hammock_net siesta_fan kilim_cushion acacia_perch koi_kite_lure seashell_lure weaver_bird_nest kite_tail_lure toucan_feather_lure coffee_bean_rattle capybara_plush kiwi_plush paddy_hat_bed; do own $k; done
+dbx "UPDATE catfish_state SET last_tick=$(date +%s), upgrades='{}' WHERE user_id=$UID_"
+KPH0=$(cfapi -d do=tick | jp view.kph)
+cfapi -d do=petslot -d slot=3 -d item=bonsai >/dev/null; KPH1=$(cfapi -d do=tick | jp view.kph)
+ok "Kibble %: a Bonsai on the sill adds 2% to the rate shown" "$(php -r 'echo abs('$KPH1' / '$KPH0' - 1.02) < 0.003 ? "y" : "n";')" y
+for sp in "4 chai_stall_sign" "7 calabash_bowl" "5 southern_cross_mobile" "8 lemon_on_a_string"; do set -- $sp; cfapi -d do=petslot -d slot=$1 -d item=$2 >/dev/null; done
+KPH2=$(cfapi -d do=tick | jp view.kph)
+ok "Kibble %: all five Kibble spots filled = +9% in total (2+2+2+2+1), nothing caps the sum" "$(pp 'echo catfish_pet_bonus('$UID_', true)["kibble_pct"];')/$(php -r 'echo abs('$KPH2' / '$KPH0' - 1.09) < 0.004 ? "y" : "n";')" "9/y"
+ok "Kibble %: a thing outside its spot (in the shop, not placed) adds nothing: terracotta owned but not placed" "$(pp 'echo catfish_pet_bonus('$UID_', true)["kibble_pct"];')" 9
+cfapi -d do=petslot -d slot=4 -d item= >/dev/null
+ok "Kibble %: emptying the frame drops its 2% at once" "$(pp 'echo catfish_pet_bonus('$UID_', true)["kibble_pct"];')" 7
+metaset '$m["slots"]=new stdClass();'
+# away time, rare fish, Catnip, Cat Show, taps
+metaset '$m["slots"]=["5"=>"siesta_fan","6"=>"hammock_net"];'
+ok "away: a Siesta Fan (ceiling +15) and a Hammock Net (floor corner +10) lift the away cap by 25 minutes" "$(pp '$b = catfish_pet_bonus('$UID_', true); echo $b["away_min"], "/", catfish_offline_cap(null, 0, 60 * $b["away_min"]) - catfish_offline_cap(null, 0);')" '25/1500'
+metaset '$m["slots"]=["5"=>"siesta_fan","6"=>"paddy_hat_bed"];'
+ok "away: a tick after a long absence pays for the longer cap (30 minutes more of 8 hours or 10 for a lazy cat, at half rate)" "$(
+  metaset '$m["slots"]=new stdClass();'; dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( $(date +%s) - 100000 )) WHERE user_id=$UID_"; B=$(cfapi -d do=tick | jp view.kibble)
+  metaset '$m["slots"]=["5"=>"siesta_fan","6"=>"paddy_hat_bed"];'; dbx "UPDATE catfish_state SET kibble=0, last_tick=$(( $(date +%s) - 100000 )) WHERE user_id=$UID_"; A=$(cfapi -d do=tick | jp view.kibble)
+  CAPB=$(pp 'echo catfish_offline_cap(catfish_active('$UID_', catfish_state('$UID_')), 0);'); php -r '$want = ('$CAPB' + 1800) / '$CAPB'; echo abs('$A' / '$B' - $want) < 0.01 ? "y" : "n:'$A'/'$B'";')" y
+ok "away: the cap on the total is an admin setting (catfish_pet_cap_away=10 with fan and bed: 10)" "$(setg catfish_pet_cap_away 10; pp 'echo catfish_pet_bonus('$UID_', true)["away_min"];'; setg catfish_pet_cap_away 30)" 10
+ok "caps: the defaults are away 30, Cat Show 2, rare fish 10, Catnip 10, and 4 taps, 60 pop minutes, 1 Yarn a week, 1 hour in the spot" "$(pp 'foreach (["away" => 30, "show" => 2, "rare" => 10, "catnip" => 10] as $k => $d) echo catfish_pet_cfg("catfish_pet_cap_" . $k, 0), ","; echo catfish_pet_cfg("catfish_pet_uses_day", 0), ",", catfish_pet_cfg("catfish_pet_pop_min_day", 0), ",", catfish_pet_cfg("catfish_pet_yarn_week", 0), ",", catfish_pet_cfg("catfish_pet_slot_hours", 0);')" "30,2,10,10,4,60,1,1"
+metaset '$m["slots"]=["3"=>"acacia_perch","6"=>"kilim_cushion"];'
+ok "Cat Show: Acacia Perch (sill) +1 and Kilim Cushion (floor corner) +1 make +2 for any cat" "$(pp '$u = '$UID_'; echo catfish_pet_show_bonus($u, ["mood" => "greedy"]);')" 2
+ok "Cat Show: the total is capped by the admin setting catfish_pet_cap_show (set to 1: 1)" "$(setg catfish_pet_cap_show 1; pp 'echo catfish_pet_show_bonus('$UID_', ["mood" => "greedy"]);'; setg catfish_pet_cap_show 2)" 1
+metaset '$m["slots"]=["6"=>"capybara_plush"];'
+ok "Cat Show: Capybara Plush counts only for a lazy cat (also a cat made lazy by a Mood Treat), not for a hyper one" "$(pp '$u = '$UID_'; echo catfish_pet_show_bonus($u, ["mood" => "lazy"]), catfish_pet_show_bonus($u, ["mood" => "hyper"]), catfish_pet_show_bonus($u, ["mood" => "hyper", "mood2" => "lazy"]);')" "101"
+ok "Cat Show: the judge adds the bonus to the score and the ribbon tier follows, the judges' own numbers do not move (pure)" "$(cfx none '(function () { $c = catfish_cat(11); $t = catfish_show_theme("2026-W44"); $a = catfish_show_judge(7, "2026-W44", $c, $t); $b = catfish_show_judge(7, "2026-W44", $c, $t, 2); return ($b["score"] - $a["score"]) . "/" . ($b["judges"] === $a["judges"] ? "same judges" : "judges moved") . "/" . ($b["tier"] === catfish_show_tier($b["score"]) ? "tier" : "no tier"); })()')" "2/same judges/tier"
+ok "taps (pure): x1.5 on the first 10 taps (Toucan lure), +25% on the first 30 (Coffee rattle), nothing after, and a 1 Kibble tap never pays less" "$(cfx none 'implode(",", [catfish_pet_tap_value(10, 5, ["n" => 10, "mult" => 1.5]), catfish_pet_tap_value(10, 11, ["n" => 10, "mult" => 1.5]), catfish_pet_tap_value(10, 30, ["n" => 30, "mult" => 1.25]), catfish_pet_tap_value(10, 31, ["n" => 30, "mult" => 1.25]), catfish_pet_tap_value(1, 1, ["n" => 10, "mult" => 1.5]), catfish_pet_tap_value(10, 1, null)])')" "15,10,12,10,1,10"
+ok "taps: the Toucan lure on the rod charm changes the next tap's shown value (view.play.v) for the first taps of the day" "$(metaset '$m["slots"]=new stdClass(); unset($m["pb"],$m["pc"],$m["pd"]);'; dbx "UPDATE catfish_state SET last_tick=$(date +%s), upgrades='{}' WHERE user_id=$UID_"; V0=$(cfapi -d do=tick | jp view.play.v); metaset '$m["slots"]=["8"=>"toucan_feather_lure"];'; V1=$(cfapi -d do=tick | jp view.play.v); php -r 'echo ('$V1' >= '$V0' && '$V1' == max('$V0', floor('$V0' * 1.5))) ? "y" : "n:'$V0'/'$V1'";')" y
+ok "rare fish (pure): a Sneaky cat's chance grows by the %, any other cat finds them at that % of the Sneaky rate" "$(cfx none 'implode(",", [catfish_rare_fish(600.0, 3600, 0.5), catfish_rare_fish(600.0, 3600, 0.52, 10), catfish_rare_fish(600.0, 3600, 0.04, 10, false), catfish_rare_fish(600.0, 3600, 0.06, 10, false), catfish_rare_fish(600.0, 3600, 0.01, 0, false)])')" "0,60,60,0,0"
+ok "Catnip Hour: a Kite Tail Lure on the rod charm adds 10 minutes (3600 + 600 seconds)" "$(metaset '$m["slots"]=["8"=>"kite_tail_lure"]; unset($m["catnip"]);'; dbx "UPDATE catfish_state SET yarn=40 WHERE user_id=$UID_"; pp 'catfish_pet_bonus('$UID_', true); [$ok] = catfish_catnip('$UID_'); $m = catfish_state('$UID_')["meta"]; $d = $m["catnip"]["until"] - time(); echo $ok ? "ok" : "no", "/", ($d > 4190 && $d <= 4200) ? "4200" : $d;')" "ok/4200"
+metaset '$m["slots"]=new stdClass(); unset($m["catnip"]);'
+
+# --- active things
+clean_pets; metaset '$m["slotn"]=["ceiling","rod"]; $m["slots"]=new stdClass();'; for k in amphora sand_timer floating_lantern matryoshka_mice steel_pan_chime tide_pool_jar maneki_neko parrot_perch mirage_mirror singing_bowl shadow_puppet_screen rain_stick tea_tray talking_drum rain_cloud_mobile; do own $k; done
+for k in conch_shell hammock_net; do own $k; done; dbx "INSERT OR IGNORE INTO catfish_items (user_id,item_key,got_at,last_used,slotted_at) VALUES ($UID_,'bonsai','x',0,0),($UID_,'chai_stall_sign','x',0,0),($UID_,'koi_kite_lure','x',0,0),($UID_,'kilim_cushion','x',0,0)"
+dbx "UPDATE catfish_state SET kibble=0, run_kibble=0, last_tick=$(date +%s), active_cat_id=$OLDACT WHERE user_id=$UID_"
+cfreset
+cfapi -d do=petslot -d slot=1 -d item=amphora >/dev/null
+R=$(cfapi -d do=petuse -d slot=1)
+ok "use: a tap right after placing is refused: the thing must sit in its spot for an hour first" "$(echo "$R" | jp ok)/$(echo "$R" | jp message | grep -c 'more in its spot')/$(dbv "SELECT last_used FROM catfish_items WHERE user_id=$UID_ AND item_key='amphora'")" "false/1/0"
+ok "use: a passive thing says it needs no tapping; an empty spot says nothing is there" "$(cfapi -d do=petslot -d slot=3 -d item=conch_shell >/dev/null; cfapi -d do=petuse -d slot=3 | jp message | grep -c 'needs no tapping')/$(cfapi -d do=petuse -d slot=7 | jp message | grep -c 'Nothing is in that spot')" "1/1"
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"
+dbx "UPDATE catfish_state SET last_tick=$(date +%s) WHERE user_id=$UID_"; COINS0=$(coins); KPH=$(cfapi -d do=tick | jp view.kph); K0=$(cfapi -d do=tick | jp view.kibble)
+R=$(cfapi -d do=petuse -d slot=1)
+ok "use: after an hour in its spot the Amphora pays 15 minutes of the current Kibble/h (a bit over, with the seconds of income in between), once" "$(echo "$R" | jp ok)/$(php -r '$want = floor('$KPH' * 15 / 60); $got = '$(echo "$R" | jp view.kibble)' - '$K0'; echo ($got >= $want - 1 && $got <= $want + 40) ? "y" : "n:$got/$want";')" "true/y"
+ok "use: Petals are never touched by using a thing" "$(coins)" "$COINS0"
+ok "use: the cooldown (20 h) now sits on the owned item, the day's count is 1 and 15 pop minutes are used; the answer's stage shows the thing again" "$(dbv "SELECT CASE WHEN last_used > 0 THEN 'set' ELSE 'zero' END FROM catfish_items WHERE user_id=$UID_ AND item_key='amphora'")/$(metaget '$m["pa"]["n"] . "," . $m["pa"]["kmin"]')/$(echo "$R" | jp stage_html | grep -c 'cfpi-amphora')" "set/1,15/1"
+R=$(cfapi -d do=petuse -d slot=1)
+ok "use: again at once is refused with the time left" "$(echo "$R" | jp ok)/$(echo "$R" | jp message | grep -c 'ready again in')" "false/1"
+LU=$(dbv "SELECT last_used FROM catfish_items WHERE user_id=$UID_ AND item_key='amphora'")
+cfapi -d do=petslot -d slot=2 -d item=amphora >/dev/null; cfapi -d do=petslot -d slot=1 -d item=amphora >/dev/null
+ok "cooldown survives a swap: moving it to another spot and back keeps last_used" "$(dbv "SELECT last_used FROM catfish_items WHERE user_id=$UID_ AND item_key='amphora'")" "$LU"
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"
+R=$(cfapi -d do=petuse -d slot=1)
+ok "cooldown survives a swap: once the hour has passed again it is still refused, by the cooldown (not the spot)" "$(echo "$R" | jp ok)/$(echo "$R" | jp message | grep -c 'ready again in')" "false/1"
+ok "cooldown: it ends on its own (last_used 21 h ago = usable again)" "$(dbx "UPDATE catfish_items SET last_used=$(( $(date +%s) - 21 * 3600 )) WHERE user_id=$UID_ AND item_key='amphora'"; cfapi -d do=petuse -d slot=1 | jp ok)" true
+
+# daily limit: 4 uses a Hollow day across all spots
+clean_pets; metaset '$m["slotn"]=["ceiling","rod"];'; for k in amphora sand_timer floating_lantern matryoshka_mice steel_pan_chime parrot_perch; do own $k; done
+cfapi -d do=petslot -d slot=1 -d item=amphora >/dev/null; cfapi -d do=petslot -d slot=2 -d item=sand_timer >/dev/null; cfapi -d do=petslot -d slot=3 -d item=parrot_perch >/dev/null; cfapi -d do=petslot -d slot=5 -d item=steel_pan_chime >/dev/null
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"
+TODAY=$(pp 'echo catfish_today();'); metaset '$m["pa"]=["day"=>"'$TODAY'", "n"=>0, "kmin"=>0];'
+ok "limit: four taps in one Hollow day work (amphora, sand timer, parrot perch, chime)" "$(for s in 1 2 3 5; do cfapi -d do=petuse -d slot=$s | jp ok; echo -n ,; done)" "true,true,true,true,"
+dbx "UPDATE catfish_items SET last_used=0 WHERE user_id=$UID_ AND item_key='amphora'"; R=$(cfapi -d do=petuse -d slot=1)
+ok "limit: the 5th tap of the day is refused, even by a rested thing (amphora, cooldown cleared)" "$(echo "$R" | jp ok)/$(echo "$R" | jp message | grep -c '4 room things used today')" "false/1"
+ok "limit: tomorrow the count starts again (day in the meta is old)" "$(metaset '$m["pa"]["day"]="2020-01-01";'; cfapi -d do=petuse -d slot=1 | jp ok)" true
+ok "limit: the number is an admin setting (catfish_pet_uses_day=1: the second tap is refused)" "$(setg catfish_pet_uses_day 1; dbx "UPDATE catfish_items SET last_used=0 WHERE user_id=$UID_"; metaset '$m["pa"]=["day"=>"'$TODAY'", "n"=>1, "kmin"=>0];'; cfapi -d do=petuse -d slot=2 | jp ok; setg catfish_pet_uses_day 4)" false
+
+# pops: at most 60 minutes of Kibble a day
+clean_pets; metaset '$m["slotn"]=["ceiling","rod"];'; for k in amphora sand_timer floating_lantern; do own $k; done
+cfapi -d do=petslot -d slot=1 -d item=amphora >/dev/null; cfapi -d do=petslot -d slot=2 -d item=sand_timer >/dev/null; cfapi -d do=petslot -d slot=3 -d item=floating_lantern >/dev/null
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"
+metaset '$m["pa"]=["day"=>"'$TODAY'", "n"=>1, "kmin"=>55];'; dbx "UPDATE catfish_state SET last_tick=$(date +%s) WHERE user_id=$UID_"
+KPH=$(cfapi -d do=tick | jp view.kph); K0=$(cfapi -d do=tick | jp view.kibble)
+R=$(cfapi -d do=petuse -d slot=1)
+ok "pops: with 55 of 60 minutes used, a 15 minute pop pays only the last 5, and the day shows 60" "$(echo "$R" | jp ok)/$(metaget '$m["pa"]["kmin"]')/$(php -r '$want = floor('$KPH' * 5 / 60); $got = '$(echo "$R" | jp view.kibble)' - '$K0'; echo ($got >= $want - 1 && $got <= $want + 40) ? "y" : "n:$got/$want";')" "true/60/y"
+R=$(cfapi -d do=petuse -d slot=2)
+ok "pops stop at 60 minutes: the next pop is refused (nothing paid, no cooldown spent)" "$(echo "$R" | jp ok)/$(echo "$R" | jp message | grep -c 'all the Kibble they can')/$(dbv "SELECT last_used FROM catfish_items WHERE user_id=$UID_ AND item_key='sand_timer'")/$(metaget '$m["pa"]["n"]')" "false/1/0/2"
+ok "pops: the minutes are an admin setting (catfish_pet_pop_min_day=0 stops all pops)" "$(setg catfish_pet_pop_min_day 0; cfapi -d do=petuse -d slot=3 | jp ok; setg catfish_pet_pop_min_day 60)" false
+
+# Yarn: 1-in-N chance, seeded roll for the test, at most one a week from all things
+ok "yarn odds (pure): 1-in-50 hits at about 2% over 200000 seeded rolls; a roll of 0 always hits, 0.99 never; odds 0 never" "$(cfx none '(function () { $r = catfish_rng(20261029); $h = 0; for ($i = 0; $i < 200000; $i++) if (catfish_pet_yarn_hit(50, $r())) $h++; $p = $h / 200000; return (abs($p - 0.02) < 0.002 ? "2pct" : "off:$p") . "/" . (catfish_pet_yarn_hit(50, 0.0) ? "hit" : "miss") . "/" . (catfish_pet_yarn_hit(50, 0.99) ? "hit" : "miss") . "/" . (catfish_pet_yarn_hit(0, 0.0) ? "hit" : "miss"); })()')" "2pct/hit/miss/miss"
+clean_pets; metaset '$m["slotn"]=["ceiling","rod"];'; for k in matryoshka_mice maneki_neko tide_pool_jar; do own $k; done
+cfapi -d do=petslot -d slot=1 -d item=matryoshka_mice >/dev/null; cfapi -d do=petslot -d slot=2 -d item=maneki_neko >/dev/null; cfapi -d do=petslot -d slot=3 -d item=tide_pool_jar >/dev/null
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"; dbx "UPDATE catfish_state SET yarn=0 WHERE user_id=$UID_"
+ok "yarn: a winning roll gives 1 Yarn (matryoshka mice), and counts in the week" "$(pp 'echo json_encode(catfish_pet_use('$UID_', 1, [], 0.0)[2]);' | grep -o '"yarn":[01]')/$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")/$(metaget '$m["py"]["n"]')" '"yarn":1/1/1'
+ok "yarn weekly cap: a second winning roll in the same ISO week (another thing) pays no Yarn" "$(pp 'echo json_encode(catfish_pet_use('$UID_', 2, [], 0.0)[2]);' | grep -o '"yarn":[01]')/$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")/$(metaget '$m["py"]["n"]')" '"yarn":0/1/1'
+ok "yarn: a losing roll gives nothing" "$(pp 'echo json_encode(catfish_pet_use('$UID_', 3, [], 0.99)[2]);' | grep -o '"yarn":[01]')/$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" '"yarn":0/1'
+ok "yarn weekly cap: next ISO week it can pay again" "$(metaset '$m["py"]=["week"=>"2020-W01","n"=>1];'; dbx "UPDATE catfish_items SET last_used=0 WHERE user_id=$UID_"; dbx "UPDATE catfish_state SET meta=json_set(meta, '\$.pa', json('{}')) WHERE user_id=$UID_"; pp 'echo json_encode(catfish_pet_use('$UID_', 2, [], 0.0)[2]);' | grep -o '"yarn":[01]')/$(dbv "SELECT yarn FROM catfish_state WHERE user_id=$UID_")" '"yarn":1/2'
+ok "yarn: the API never takes a roll (no 'roll' parameter is read)" "$(grep -c 'POST\[.roll.\]' $GAME/catfish_api.php $GAME/catfish.php | tr '\n' ' ')" "$GAME/catfish_api.php:0 $GAME/catfish.php:0 "
+
+# hints: text only, and they never write cat_book (book12 / book_half pay Petals from those rows)
+clean_pets; metaset '$m["slotn"]=["ceiling","rod"];'; for k in parrot_perch mirage_mirror singing_bowl shadow_puppet_screen; do own $k; done
+dbx "INSERT OR IGNORE INTO catfish_items (user_id,item_key,got_at,last_used,slotted_at) SELECT $UID_, k, 'x', 0, 0 FROM (SELECT 'conch_shell' AS k UNION SELECT 'driftwood_board' UNION SELECT 'bell_lure' UNION SELECT 'bonsai' UNION SELECT 'hammock_net') "
+cfapi -d do=petslot -d slot=1 -d item=singing_bowl >/dev/null; cfapi -d do=petslot -d slot=3 -d item=parrot_perch >/dev/null; cfapi -d do=petslot -d slot=4 -d item=mirage_mirror >/dev/null
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"
+metaset '$m["pa"]=["day"=>"'$TODAY'", "n"=>0, "kmin"=>0];'
+BOOK0=$(dbv "SELECT COUNT(*) FROM cat_book WHERE user_id=$UID_"); COINS0=$(coins)
+R=$(cfapi -d do=petuse -d slot=1); HB="$(echo "$R" | jp ok):$(echo "$R" | jp hint)"
+R=$(cfapi -d do=petuse -d slot=3); HP="$(echo "$R" | jp ok):$(echo "$R" | jp hint)"
+R=$(cfapi -d do=petuse -d slot=4); HM="$(echo "$R" | jp ok):$(echo "$R" | jp hint)"
+cfapi -d do=petslot -d slot=3 -d item=shadow_puppet_screen >/dev/null; dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_ AND item_key='shadow_puppet_screen'"
+R=$(cfapi -d do=petuse -d slot=3); HS="$(echo "$R" | jp ok):$(echo "$R" | jp hint)"
+echo "     hint texts: $HB | $HP | $HM | $HS"
+ok "hints: Singing Bowl previews this week's score for the theme, with the ribbon it would earn" "$(echo "$HB" | grep -c '^true:.* would score [0-9]* for ".*" right now: .*\.$')" 1
+ok "hints: Parrot Perch names one coat of tomorrow's shelter" "$(echo "$HP" | grep -c '^true:The parrot whispers: tomorrow the shelter has a [a-z]* [a-z]* cat\.$')" 1
+ok "hints: Mirage Mirror says whether tomorrow's shelter has an uncommon cat or better" "$(echo "$HM" | grep -c "^true:The mirror .*tomorrow's shelter")" 1
+ok "hints: Shadow-puppet Screen names one coat you have never seen" "$(echo "$HS" | grep -c '^true:The shadows show a coat you have never seen: [a-z]* [a-z]*\.$')" 1
+ok "hints: none of the four wrote a cat_book row, and Petals are unchanged" "$(dbv "SELECT COUNT(*) FROM cat_book WHERE user_id=$UID_")/$(coins)" "$BOOK0/$COINS0"
+ok "hints: each is a use of the day (4 of 4) and sets its own cooldown" "$(metaget '$m["pa"]["n"]')/$(dbv "SELECT COUNT(*) FROM catfish_items WHERE user_id=$UID_ AND last_used > 0")" "4/4"
+ok "hints: the last hint of each placed thing is kept for the panel (bowl, mirror and screen; the parrot was taken off the sill)" "$(pagew3; grep -o 'class="cfpethint"' $W/w3.html | wc -l | tr -d ' ')" 3
+ok "hints (pure text): the unseen coat is one the Cat Book lacks, tomorrow's coat is one of tomorrow's three" "$(pp '$u = '$UID_'; $m = catfish_state($u)["meta"]; $t = catfish_pet_hint($u, "unseen_coat", $m, null); preg_match("/never seen: (\w+) (\w+)\./", $t, $x); $seen = false; foreach (catfish_book($u) as $b) if ($b[0] === $x[2] && $b[1] === $x[1]) $seen = true; $tm = catfish_pet_hint($u, "tomorrow_coat", $m, null); preg_match("/has a (\w+) (\w+) cat\./", $tm, $y); $in = false; foreach (catfish_pet_tomorrow($u, $m) as $c) if ($c["colour"] === $y[1] && $c["pattern"] === $y[2]) $in = true; echo ($seen ? "SEEN" : "unseen"), "/", ($in ? "tomorrow" : "NOT");')" "unseen/tomorrow"
+
+# special effects: rain, happy cats, the talking drum's free shelter reroll (counts toward the daily cap)
+clean_pets; metaset '$m["slotn"]=["ceiling","rod"];'; dbx "INSERT OR IGNORE INTO catfish_items (user_id,item_key,got_at,last_used,slotted_at) VALUES ($UID_,'rain_stick','x',0,0),($UID_,'tea_tray','x',0,0),($UID_,'talking_drum','x',0,0),($UID_,'hammock_net','x',0,0),($UID_,'bonsai','x',0,0),($UID_,'chai_stall_sign','x',0,0),($UID_,'calabash_bowl','x',0,0),($UID_,'koi_kite_lure','x',0,0),($UID_,'brass_lantern','x',0,0)"
+metaset '$m["slots"]=["3"=>"rain_stick","7"=>"tea_tray","6"=>"talking_drum"]; $m["pa"]=["day"=>"'$TODAY'", "n"=>0, "kmin"=>0]; unset($m["rain"], $m["roll"]);'
+dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 4000 )) WHERE user_id=$UID_"; dbx "UPDATE catfish_state SET last_tick=$(date +%s) WHERE user_id=$UID_"
+R=$(cfapi -d do=petuse -d slot=3)
+ok "rain: the Rain Stick pays a pop and starts an hour of rain (a rain span on the window, a new scene key)" "$(echo "$R" | jp ok)/$(echo "$R" | jp stage_html | grep -c 'class="cfrain"')/$(metaget '(int)($m["rain"] > time() + 3000 && $m["rain"] <= time() + 3601)')" "true/1/1"
+R=$(cfapi -d do=petuse -d slot=7)
+ok "happy cats: the Tea Tray answers happy=true (catfish.js hops every cat) and pays a pop" "$(echo "$R" | jp ok)/$(echo "$R" | jp happy)" "true/true"
+dbx "UPDATE catfish_items SET last_used=0 WHERE user_id=$UID_"; metaset '$m["pa"]["n"]=0; $m["pa"]["kmin"]=0;'
+SH0=$(pp 'echo json_encode(array_map(fn($c) => $c["colour"] . " " . $c["pattern"], catfish_shelter_now('$UID_')));')
+R=$(cfapi -d do=petuse -d slot=6 -d shelter=1)
+ok "talking drum: a free reroll of the chosen shelter spot (only that spot changes), counted toward the 3 a day" "$(echo "$R" | jp ok)/$(metaget '$m["roll"]["n"][1]')/$(pp 'echo json_encode(array_map(fn($c) => $c["colour"] . " " . $c["pattern"], catfish_shelter_now('$UID_')));' | php -r '$a = json_decode(file_get_contents("php://stdin"), true); $b = json_decode($argv[1], true); echo ($a[0] === $b[0] && $a[2] === $b[2]) ? "others same" : "moved";' "$SH0")" "true/1/others same"
+dbx "UPDATE catfish_items SET last_used=0 WHERE user_id=$UID_"; metaset '$m["pa"]["n"]=0; $m["roll"]["n"]=[0,3,0];'
+ok "talking drum: a spot that has had its 3 rerolls today is refused" "$(cfapi -d do=petuse -d slot=6 -d shelter=1 | jp ok)" false
+
+# the scene: depth order, sprites or placeholders, no inline style, positions = room-layout.json
+cp $PETART/cf-pet-conch_shell.png $GAME/assets/img/catfish/ 2>/dev/null
+PETS='["slots" => [1 => "conch_shell", 2 => "amphora", 3 => "bonsai", 4 => "chai_stall_sign", 5 => "steel_pan_chime", 6 => "hammock_net", 7 => "calabash_bowl", 8 => "lemon_on_a_string"], "ready" => [2 => true, 5 => false], "rain" => true, "bird_x" => 2]'
+SC='[["id"=>1,"name"=>"Pip","colour"=>"ginger","pattern"=>"tabby","eyes"=>"amber","ears"=>"folded","tail"=>"bobtail","seed"=>11,"mood"=>"hyper"],["id"=>2,"name"=>"Dot","colour"=>"lilac","pattern"=>"solid","eyes"=>"odd","ears"=>"upright","tail"=>"long","seed"=>12,"mood"=>"lazy"],["id"=>3,"name"=>"Bo","colour"=>"black","pattern"=>"calico","eyes"=>"blue","ears"=>"upright","tail"=>"long","seed"=>13,"mood"=>"hyper"]]'
+SH=$(cfx $FULL "catfish_stage_html($SC, $SC[0], [], false, false, $PETS)")
+ok "stage: all eight things are on the stage, in their spot classes (shelf, shelf, sill, frame, ceiling, floor, floor, rod charm)" "$(echo "$SH" | grep -o 'cfpet cfpet-s[1-8] cfpi-[a-z_]*' | sed 's/cfpet cfpet-//;s/ cfpi-/=/' | tr '\n' ' ')" "s6=hammock_net s7=calabash_bowl s1=conch_shell s2=amphora s3=bonsai s4=chai_stall_sign s5=steel_pan_chime s8=lemon_on_a_string "
+ok "stage: a passive thing is a plain span, an active one a button with data-slot and a ready/not-ready label (is-ready / is-wait)" "$(echo "$SH" | grep -o '<button type="button" class="cfpet cfpet-s2 cfpi-amphora is-ready" data-slot="2" data-item="amphora" aria-label="Amphora: ready, tap to use">\|<button type="button" class="cfpet cfpet-s5 cfpi-steel_pan_chime is-wait" data-slot="5" data-item="steel_pan_chime" aria-label="Steel-pan Chime: not ready yet">' | wc -l | tr -d ' ')/$(echo "$SH" | grep -o '<span class="cfpet cfpet-s1 cfpi-conch_shell cfpc-cats_listen" data-item="conch_shell" aria-hidden="true">' | wc -l | tr -d ' ')/$(echo "$SH" | grep -o '<button' | wc -l | tr -d ' ')" "2/1/5"
+ok "stage: floor things come before every cat in the markup (cats stay in front), wall things before the wand and the fish; the rod charm after the rod line" "$(php -r '$h = file_get_contents("php://stdin"); $p = fn($n) => strpos($h, $n); echo ($p("cfpet-s6") < $p("cfspot") && $p("cfpet-s7") < $p("cfactive") && $p("cfpet-s5") < $p("cfswand") && $p("cfpet-s1") < $p("cfsdrop") && $p("cfsline") < $p("cfpet-s8") && $p("cfpet-s8") < $p("cfsdrop")) ? "ordered" : "WRONG";' <<< "$SH")" ordered
+mkdir -p $W/art10; cp $FULL/cf-room.png $W/art10/; cp $PETART/cf-pet-conch_shell.png $W/art10/
+NOP=$W/nopets; cp -r $FULL $NOP; rm -f $NOP/cf-pet-*.png; SHN=$(cfx $NOP "catfish_stage_html($SC, $SC[0], [], false, false, $PETS)")
+SH10=$(cfx $W/art10 "catfish_stage_html($SC, $SC[0], [], false, false, $PETS)")
+ok "stage: no PNG yet = a red-outlined placeholder with an emoji (all 8 here); the one PNG that exists is an image at its slot size (20 x 24 for the conch) and the other 7 stay placeholders" "$(echo "$SHN" | grep -o 'class="cfpetph"' | wc -l | tr -d ' ')/$(echo "$SH10" | grep -o 'class="cfpetph"' | wc -l | tr -d ' ')/$(echo "$SH10" | grep -o '<img class="cfimg cfpetimg" src="[^"]*cf-pet-conch_shell.png[^"]*" alt="" width="20" height="24">' | wc -l | tr -d ' ')" "8/7/1"
+ok "stage: no inline style, rain span and the Weaver-bird class are there, nothing is scaled" "$(echo "$SH" | sed 's#<script type="application/json" id="cf-frames">[^<]*</script>##' | grep -c 'style=')/$(echo "$SH" | grep -c 'class="cfrain"')/$(echo "$SH" | grep -c 'cfstage cfpr-rain cfpr-birdx2')" "0/1/1"
+ok "stage: with no room things the stage markup is exactly what it was (byte for byte)" "$(cfx $FULL "catfish_stage_html($SC, $SC[0], [], false, false, [])" | md5sum | cut -c1-12)" "$(cfx $FULL "catfish_stage_html($SC, $SC[0], [])" | md5sum | cut -c1-12)"
+python3 -I - "aseprite-source/catfish/room-layout.json" "$GAME/assets/catfish.css" "$GAME/includes/data/catfish_pets.php" <<'P'
+import sys, json, re
+j = json.load(open(sys.argv[1])); css = open(sys.argv[2]).read(); data = open(sys.argv[3]).read()
+bad = []
+slots = j['pet_slots']['slots']
+if [s['no'] for s in slots] != list(range(1, 9)): bad.append('slot numbers')
+def prop(body, p):
+    m = re.search(r'(?:^|[ ;])' + p + r': (-?\d+)(?:px)?[ ;]', body + ' ')
+    return int(m.group(1)) if m else None
+for s in slots:
+    m = re.search(r'\.cfpet-s%d \{([^}]*)\}' % s['no'], css)
+    if not m: bad.append('no css for slot %d' % s['no']); continue
+    got = (prop(m.group(1), 'left'), prop(m.group(1), 'top'), prop(m.group(1), 'width'), prop(m.group(1), 'height'))
+    if got != (s['x'], s['y'], s['w'], s['h']): bad.append('slot %d css %s != json %s' % (s['no'], got, (s['x'], s['y'], s['w'], s['h'])))
+    d = re.search(r"\['no' => %d, 'key' => '([a-z-]+)'.*?'w' => (\d+), 'h' => (\d+)\]" % s['no'], data)
+    if not d or d.group(1) != s['key'] or (int(d.group(2)), int(d.group(3))) != (s['w'], s['h']): bad.append('slot %d data %s' % (s['no'], d and d.groups()))
+    if s['x'] < 0 or s['y'] < 0 or s['x'] + s['w'] > 320 or s['y'] + s['h'] > 200: bad.append('slot %d off the room' % s['no'])
+# the ceiling thing sits between the fish strings (x 118 and 170); the floor things are out of the play zone's cats (cats are drawn over them)
+c = [s for s in slots if s['key'] == 'ceiling'][0]
+if not (c['x'] > 118 and c['x'] + c['w'] <= 170): bad.append('ceiling not between the fish strings')
+print('ok   pet_slots in room-layout.json = the .cfpet-sN CSS rectangles = the slot sizes in the data file' if not bad else 'FAIL pet_slots: ' + '; '.join(bad))
+P
+
+# --- the room things in a real browser (tests/catfish_pets.js; skipped without playwright): all 8 spots filled with the real sprites, a ready Chime tapped on the stage, the Room things panel in the hub
+if node -e "require('playwright')" 2>/dev/null; then
+  clean_pets; cp $PETART/cf-pet-*.png $PETART/banner-*-pets.png $GAME/assets/img/catfish/
+  for k in amphora conch_shell bonsai chai_stall_sign steel_pan_chime hammock_net calabash_bowl lemon_on_a_string; do own $k; done
+  metaset '$m["slotn"]=["ceiling","rod"]; $m["slots"]=["1"=>"amphora","2"=>"conch_shell","3"=>"bonsai","4"=>"chai_stall_sign","5"=>"steel_pan_chime","6"=>"hammock_net","7"=>"calabash_bowl","8"=>"lemon_on_a_string"];'
+  dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 7200 )) WHERE user_id=$UID_"; dbx "UPDATE catfish_state SET last_tick=$(date +%s) WHERE user_id=$UID_"
+  PETOUT=$(PETSHOPS=$(shopid cb),$(shopid oc) SHOTS=${PETSHOTS:-} NODE_PATH=${NODE_PATH:-} node tests/catfish_pets.js $BASE 2>&1); echo "$PETOUT"
+else echo "ok   pets browser pass: skipped (no playwright)"; fi
+dbx "DELETE FROM settings WHERE name LIKE 'catfish_pet_%'"
+
+# --- migration: the table and the shops are made on demand
+dbx "DROP TABLE catfish_items"; curl -s -b $W/p -o /dev/null -w '' $BASE/catfish.php
+ok "migration: a world without the catfish_items table gets it on the next Cat Fish page view" "$(dbv "SELECT COUNT(*) FROM catfish_items")" 0
+dbx "DELETE FROM shops WHERE slug='oc-pet-shop'"; dbx "DELETE FROM settings WHERE name='petshops220'"; curl -s -b $W/p -o /dev/null $BASE/games.php
+ok "migration: a missing pet shop is made again by the next page view, the flag is set, and nothing is doubled" "$(dbv "SELECT COUNT(*) FROM shops WHERE shop_type='pets'")/$(dbv "SELECT value FROM settings WHERE name='petshops220'")/$(dbv "SELECT COUNT(*) FROM npcs WHERE slug='captain-pipi-shellback'")" "11/1/1"
 rm -rf "${GAME:?}/assets/img/catfish"
 curl -s -b $W/p $BASE/catfish.php > $W/noart.html
 ok "page without art: emoji heading, emoji rod, no room, no icons, no book heads" "$(grep -c '<h1>🐱 Cat Fish</h1>' $W/noart.html)$(grep -c 'class="cfrod" ' $W/noart.html)$(grep -c 'class="cfroom"\|cf-ico-\|cf-bookhead-\|cfbanner\|cfrod-art\|cfstage\|cfactive' $W/noart.html)" "110"

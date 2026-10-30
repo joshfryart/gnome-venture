@@ -29,11 +29,28 @@
     if (!live) { live = document.createElement('span'); live.id = 'cf-playsr'; live.className = 'cfsr'; live.setAttribute('aria-live', 'polite'); document.body.appendChild(live); }
     live.textContent = ''; setTimeout(function () { live.textContent = '+' + r.view.play.paid + ' Kibble from play'; }, 50);
   }
+  var bulkBar = document.getElementById('cf-bulk'), bulkN = 1;   // Buy x1 / x10 (the bar only exists once Buy x10 is unlocked with Yarn)
+  try { if (bulkBar && sessionStorage.getItem('cfn') === '10') bulkN = 10; } catch (e) {}
+  function costFace(b, name) {   // the button shows, and spends, the cost of the chosen amount; the server prices it again
+    var c = +b.getAttribute(bulkN === 10 ? 'data-c10' : 'data-c1') || +b.getAttribute('data-cost') || 0;
+    b.setAttribute('data-cost', c); b.textContent = c.toLocaleString(); b.setAttribute('aria-label', 'Buy ' + name + (bulkN === 10 ? ' \u00d710' : '') + ' for ' + c.toLocaleString() + ' Kibble');
+  }
+  function setBulk(n) {
+    bulkN = n; try { sessionStorage.setItem('cfn', String(n)); } catch (e) {}
+    [].forEach.call(bulkBar.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', +x.getAttribute('data-n') === n ? 'true' : 'false'); });
+    [].forEach.call(document.querySelectorAll('#cf-ups form.cfup'), function (f) { var b = f.querySelector('button[data-cost]'); if (b) costFace(b, f.querySelector('.cfinfo b').textContent); });
+    refreshButtons();
+  }
+  if (bulkBar) { bulkBar.addEventListener('click', function (ev) { var t = ev.target.closest('button[data-n]'); if (t) setBulk(+t.getAttribute('data-n')); }); setBulk(bulkN); }
   function draw() { kibble.textContent = Math.floor(shown).toLocaleString(); kph.textContent = rate; refreshButtons(); }
   function refreshButtons() {
     document.querySelectorAll('button[data-cost]').forEach(function (b) {
       var f = b.closest('form.cfup');   // a buy in flight keeps its own button off until the reply
       b.disabled = Math.floor(shown) < +b.getAttribute('data-cost') || !!(f && buying[f.getAttribute('data-key')]);
+    });
+    document.querySelectorAll('.cftabs [data-branch]').forEach(function (t) {   // upgrade tab badges: how many in that branch can be bought now
+      var n = document.querySelectorAll('.cfbranch[data-branch="' + t.getAttribute('data-branch') + '"] button[data-cost]:not(:disabled)').length, g = t.querySelector('.cfbdg');
+      if (g) { g.textContent = n; g.hidden = n < 1; }
     });
   }
   function form(data) { var fd = new FormData(); fd.append('csrf', d.csrf); Object.keys(data).forEach(function (k) { fd.append(k, data[k]); }); return fd; }
@@ -55,7 +72,7 @@
       var f = document.querySelector('#cf-ups form[data-key="' + u.key + '"]'); if (!f) return;
       f.querySelector('small.muted').textContent = '×' + u.owned;
       f.querySelector('.cfgives').textContent = u.gives + (u.mult > 1 ? ' · ×' + u.mult + ' bonus' : '');
-      var b = f.querySelector('button'); b.setAttribute('data-cost', u.cost); b.textContent = 'Buy · ' + u.cost.toLocaleString();
+      var b = f.querySelector('button'); b.setAttribute('data-c1', u.cost); b.setAttribute('data-c10', u.cost10); costFace(b, u.name);
     });
     var run = document.getElementById('cf-run'); if (run) {
       run.textContent = view.run.toLocaleString(); document.getElementById('cf-napyarn').textContent = view.nap_yarn;
@@ -117,6 +134,27 @@
     stage.dispatchEvent(new CustomEvent('cftap', { detail: { btn: b, fish: +f, combo: combo } }));
   });
   setInterval(sync, 30000);
+  /* Room things (2.2.x): an active item on the stage (button.cfpet) is used with do=petuse. The pending taps ride along (play, seq) and are paid first, in the same lock, like a buy;
+     the reply carries the view and, when the scene changed (the item is cooling down, rain started), the new stage. The Room things panel does the same with plain forms. */
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest ? ev.target.closest('.cfstage button.cfpet') : null;
+    if (!b || !ev.isTrusted || b.disabled || b.getAttribute('data-busy')) return;
+    var slot = b.getAttribute('data-slot'); if (!slot) return;
+    b.setAttribute('data-busy', '1');
+    whenFree(function () {
+      var data = { do: 'petuse', slot: slot, scene: d.scene }, pb = takeBatch(data);
+      busy = true;
+      post(data, function (r) {
+        free(); b.removeAttribute('data-busy'); settle(pb, r); setPending();
+        if (r.view) {
+          apply(r.view); newScene(r, true); announcePlay(pb, r);
+          if (r.happy) { var ns = st(); if (ns) { ns.classList.add('is-tea'); setTimeout(function () { var t = st(); if (t) t.classList.remove('is-tea'); }, 2400); } }
+        }
+        say(r.message || r.error, !r.ok);
+        var live = document.getElementById('cf-playlive'); if (live) { live.textContent = ''; setTimeout(function () { live.textContent = r.message || r.error || ''; }, 50); }
+      }, function () { free(); b.removeAttribute('data-busy'); say('Could not reach the game. Try again.', true); });
+    });
+  });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); });
   /* Buy (2.1.07): the cost leaves the counter at once, the pressed button stays off until the reply, and the request carries the pending taps (play, seq as in a tick) so the server pays
      them before it checks the cost. A reply with a view means the server handled the taps and the buy: pending is cleared and the view (kibble, rate, rows, run) replaces the guess, a refusal
@@ -129,6 +167,7 @@
     buying[key] = true; held += cost; shown -= cost; spendPop(cost); say('', false); draw();
     whenFree(function () {
       var data = { do: 'buy', key: key, scene: d.scene }, b = takeBatch(data);
+      if (bulkN === 10) data.n = 10;
       busy = true;
       post(data, function (r) {
         delete buying[key]; held -= cost; free(); settle(b, r); setPending();
@@ -309,7 +348,7 @@
     bt2 = T(function () {
       var hop = br() < 0.5; birdFrame(hop ? 2 : 3);
       T(function () { birdFrame(1); birdNext(); }, hop ? 150 : 200);
-    }, (6000 + br() * 8000) * (FAST ? 0.1 : 1));
+    }, (6000 + br() * 8000) * (FAST ? 0.1 : 1) * (stage.classList.contains('cfpr-birdx2') ? 0.5 : 1));   // a Weaver-bird Nest (room things) doubles the visits
   }
   function birdStop() { clearTimeout(bt2); if (bird) { birdFrame(1); stage.classList.remove('is-bird'); } birdOn = false; }
   function birdStart() {
@@ -415,4 +454,56 @@
     var keep = inst ? inst.snap() : null; if (inst) inst.stop();
     inst = init(keep);
   });
+})();
+
+/* Layout (2.2.0): upgrade branch tabs, the six-panel hub and the Cat Book pattern tabs. All three are built here from server markup, so without JS every branch,
+   panel and pattern simply shows stacked. The chosen panel is remembered for the session, since forms reload the page. */
+(function () {
+  var page = document.querySelector('.cfpage'); if (!page) return;
+  function mem(k, v) { try { if (v === undefined) return sessionStorage.getItem('cf' + k); sessionStorage.setItem('cf' + k, v); } catch (e) {} return null; }
+  function tabs(wrap, items, label, key, cls) {   // items: [{id, html, el}]; shows one el at a time
+    if (items.length < 2) return;
+    var bar = document.createElement('div'); bar.className = cls; bar.setAttribute('role', 'tablist'); bar.setAttribute('aria-label', label);
+    var cur = mem(key); if (!items.some(function (i) { return i.id === cur; })) cur = items[0].id;
+    function show(id) {
+      cur = id; mem(key, id);
+      items.forEach(function (i) { i.el.hidden = i.id !== id; i.btn.setAttribute('aria-selected', i.id === id ? 'true' : 'false'); i.btn.classList.toggle('on', i.id === id); });
+    }
+    items.forEach(function (i) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.appendChild(document.createTextNode(i.label + ' ')); if (i.sub) { var sm = document.createElement('small'); sm.textContent = i.sub; b.appendChild(sm); }
+      if (i.badge) { var bg = document.createElement('span'); bg.className = 'cfbdg'; bg.hidden = true; b.appendChild(bg); }
+      if (i.attr) b.setAttribute(i.attr[0], i.attr[1]);
+      b.addEventListener('click', function () { show(i.id); }); i.btn = b; bar.appendChild(b);
+    });
+    wrap.insertBefore(bar, items[0].el); wrap.classList.add('js'); show(cur);
+  }
+  var ups = document.getElementById('cf-ups');
+  if (ups) tabs(ups, [].map.call(ups.querySelectorAll('.cfbranch'), function (el) {
+    return { id: el.getAttribute('data-branch'), el: el, attr: ['data-branch', el.getAttribute('data-branch')], label: el.getAttribute('data-label'), badge: true };
+  }), 'Upgrade branches', 'upt', 'cftabs cftabs4');
+  var hub = document.getElementById('cf-hub');
+  if (hub) {
+    var ps = [].slice.call(hub.querySelectorAll(':scope > .cfpanel')), bar = document.createElement('div'), cur = mem('hub');
+    if (ps.length) {
+      bar.className = 'cfhub'; bar.setAttribute('role', 'tablist'); bar.setAttribute('aria-label', 'More');
+      function show(id) {
+        cur = id; mem('hub', id);
+        ps.forEach(function (p) { var on = p.id === id; p.hidden = !on; p.btn.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      }
+      if (!ps.some(function (p) { return p.id === cur; })) cur = ps[0].id;
+      ps.forEach(function (p) {
+        var b = document.createElement('button'), n = +p.getAttribute('data-badge') || 0; b.type = 'button'; b.setAttribute('role', 'tab');
+        [['cfhi', p.getAttribute('data-icon'), 'span'], ['', p.getAttribute('data-title'), 'span'], ['', p.getAttribute('data-status'), 'small']].forEach(function (r) {
+          var e = document.createElement(r[2]); if (r[0]) { e.className = r[0]; e.setAttribute('aria-hidden', 'true'); } e.textContent = r[1]; b.appendChild(e);
+        });
+        if (n) { var g = document.createElement('span'); g.className = 'cfbdg'; g.textContent = n; b.appendChild(g); }
+        b.addEventListener('click', function () { show(p.id); }); p.btn = b; bar.appendChild(b); p.querySelector('h3').classList.add('cfh3js');
+      });
+      hub.insertBefore(bar, ps[0]); hub.classList.add('js'); show(cur);
+    }
+  }
+  var bk = page.querySelector('.cfbook');
+  if (bk) tabs(bk, [].map.call(bk.querySelectorAll('.cfbpat'), function (el) {
+    return { id: el.getAttribute('data-label'), el: el, label: el.getAttribute('data-label'), sub: el.getAttribute('data-count') };
+  }), 'Cat Book patterns', 'bkt', 'cftabs');
 })();

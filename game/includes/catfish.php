@@ -18,6 +18,38 @@ const CATFISH_SHELTER = 3;              // cats on show per day
 const CATFISH_MAX_CATS = 4;
 const CATFISH_NAME_MAX = 20;
 const CATFISH_SLOT_COSTS = [5, 20];     // Yarn for the 3rd and 4th place in the home
+const CATFISH_AWAY_COSTS = [4, 8, 16];  // Yarn for Longer naps away levels 1 to 3: each adds one hour to the away cap
+const CATFISH_BULK_COST = 3;            // Yarn to unlock Buy x10 on upgrades (one-off)
+/** Titles Yarn can buy (one-off), offered in the Almanac title picker: key => [title, Yarn]. */
+const CATFISH_TITLES = ['catperson' => ['Cat Person', 15], 'napmaster' => ['Napmaster', 30]];
+const CATFISH_HOLD_COST = 2;            // Yarn to hold one of today's shelter cats for tomorrow (one hold a day)
+const CATFISH_STAKE_COST = 3;           // Yarn to stake out a pattern or colour for tomorrow's shelter (one a day)
+const CATFISH_STAKE_TRIES = 8;          // extra look-alike candidates a stakeout draws per spot
+const CATFISH_SHOW2_COST = 5;           // Yarn to unlock a second Cat Show entry (the better result of the two counts)
+const CATFISH_BUDDY_COST = 12;          // Yarn to unlock a Buddy cat
+const CATFISH_BUDDY_PCT = 0.10;         // Kibble bonus while a Buddy (an owned cat other than the playing one) keeps the main cat company
+const CATFISH_KEEP_COSTS = [10, 20, 40];   // Keepsake levels: a Nap keeps this many levels of the first upgrade in each branch
+const CATFISH_KEEP_UPS = ['fish', 'string', 'sunbeam', 'bowl'];
+const CATFISH_BALL_COST = 1;            // Yarn per ball colour (one-off). key => label. The coloured sprites are cf-yarn-<1..4>-<key>.png (2.2.x; no CSS filter any more)
+const CATFISH_BALLS = ['rose' => 'Rose', 'mint' => 'Mint', 'violet' => 'Violet', 'gold' => 'Gold'];
+const CATFISH_BUNTING_COST = 1;         // Yarn per bunting hung in the festival jar while a festival runs
+const CATFISH_BUNTING_ADD = 3;          // jar points per bunting
+const CATFISH_BUNTING_DAILY = 3;        // buntings per gnome per Hollow day
+const CATFISH_SCARF_COST = 12;          // Yarn for the scarf the gnome wears (drawn in gnome_avatar); colours are then free
+const CATFISH_SCARVES = ['red' => ['Poppy red', '#c0392b'], 'green' => ['Moss green', '#2e7d4f'], 'blue' => ['Bluebell', '#2f5d9e'], 'gold' => ['Buttercup', '#e0a526'], 'cream' => ['Wool cream', '#f1e6c8']];
+const CATFISH_TUNE_COST = 4;            // Yarn for a Rod Tune-up: one branch's milestone doubles come earlier for this run
+const CATFISH_MILESTONES_TUNED = [8, 20, 40];   // instead of CATFISH_MILESTONES, for the tuned branch until the next Nap
+const CATFISH_CATNIP_COST = 1;          // Yarn for Catnip Hour: taps pay double for an hour, once a day
+const CATFISH_CATNIP_SECS = 3600;
+const CATFISH_CATNIP_MULT = 2;
+const CATFISH_TREAT_COST = 2;           // Yarn for a Mood Treat: the playing cat also has a second mood for the day (never Dreamy)
+const CATFISH_TREAT_MOODS = ['greedy', 'hyper', 'lazy', 'sneaky'];
+const CATFISH_BIO_COST = 1;             // Yarn the first time a cat gets a bio line (edits are free)
+const CATFISH_BIO_MAX = 60;
+const CATFISH_COLLAR_COST = 2;          // Yarn per cat per collar colour (one-off); wearing one you own is free
+const CATFISH_COLLARS = ['rose' => 'Rose', 'mint' => 'Mint', 'sky' => 'Sky', 'gold' => 'Gold', 'violet' => 'Violet', 'red' => 'Red'];
+const CATFISH_SEASON_COST = 3;          // Yarn per season for falling petals, motes, leaves or flakes in the room (one-off per season)
+const CATFISH_SEASONS = ['sp' => 'Spring petals', 'su' => 'Summer fireflies', 'au' => 'Autumn leaves', 'wi' => 'Winter snow'];
 const CATFISH_RARE_COSTS = [3, 10];     // Yarn for Rare Shelter levels 1 and 2 (the shelter shows the best of 2, then 3, candidates per slot)
 const CATFISH_REROLL_COST = 1;          // Yarn to swap one shelter cat for another
 const CATFISH_REROLL_MAX = 3;           // rerolls per slot per day
@@ -67,6 +99,7 @@ const CATFISH_MAX_KPH = 1.0e12;        // hard ceiling on Kibble/hour, so the su
 const CATFISH_MAX_COST = 1.0e15;
 const CATFISH_NAP_BASE = 500;          // a Nap needs this much Kibble earned in the run
 const CATFISH_RARE_PER_HOUR = 0.5;     // Sneaky cats: expected rare fish per hour, each worth a tenth of an hour's Kibble
+require_once __DIR__ . '/catfish_pets.php';   // 2.2.x pet shops: room things, slots, bonuses (the hooks below call catfish_pet_bonus())
 
 /** trait => [value => weight]. Rarer value = smaller weight. */
 const CATFISH_TRAITS = [
@@ -173,22 +206,63 @@ function catfish_room_base_html(array $owned): string
  */
 function catfish_room_extras_html(array $owned): string
 {
-    $h = '';
+    $h = ''; $ball = catfish_ball_key();
     if ((int)($owned['window'] ?? 0) > 0 && catfish_art_has('cf-room-window.png') && catfish_art_has('cf-room-window-nobird.png') && catfish_art_has('cf-bird-1.png') && catfish_art_has('cf-bird-2.png') && catfish_art_has('cf-bird-3.png')) {
         $h .= '<span class="cfbird f1" aria-hidden="true">' . implode('', array_map(fn($n) => '<img class="b' . $n . '" src="' . e(catfish_art_url("cf-bird-$n.png")) . '" alt="" width="24" height="20">', [1, 2, 3])) . '</span>';
     }
     if (catfish_art_has('cf-room-yarnpatch.png') && catfish_art_has('cf-yarn-1.png') && catfish_art_has('cf-yarn-2.png') && catfish_art_has('cf-yarn-3.png') && catfish_art_has('cf-yarn-4.png')) {
         $h .= '<span class="cfyarn" aria-hidden="true"><img class="yp" src="' . e(catfish_art_url('cf-room-yarnpatch.png')) . '" alt="" width="38" height="20"><span class="yb">'
-            . implode('', array_map(fn($n) => '<img class="y' . $n . '" src="' . e(catfish_art_url("cf-yarn-$n.png")) . '" alt="" width="16" height="16">', [1, 2, 3, 4])) . '</span></span>';
+            . implode('', array_map(fn($n) => '<img class="y' . $n . '" src="' . e(catfish_art_url($ball !== '' ? "cf-yarn-$n-$ball.png" : "cf-yarn-$n.png")) . '" alt="" width="16" height="16">', [1, 2, 3, 4])) . '</span></span>';
     }
     return $h;
+}
+
+/** The yarn ball colour the viewer picked ('' = plain, or no coloured art): only when all 4 rolling frames of that colour exist (cf-yarn-<1..4>-<key>.png). Read-only. */
+function catfish_ball_key(): string
+{
+    $u = function_exists('current_user') ? current_user() : null;
+    $uid = (int)($u['id'] ?? 0);
+    if ($uid < 1) return '';
+    try {
+        $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+    } catch (Throwable $e) { return ''; }
+    $k = is_array($meta) ? (string)($meta['ball'] ?? '') : '';
+    if (!isset(CATFISH_BALLS[$k])) return '';
+    foreach ([1, 2, 3, 4] as $n) if (!catfish_art_has("cf-yarn-$n-$k.png")) return '';
+    return $k;
 }
 
 /** 2.1.06 code-only ambience over the scene: six dust motes drifting in the sunbeam (only with the owned Room upgrade 'sunbeam'; CSS steps animation, none under reduced motion). */
 function catfish_ambience_html(array $owned): string
 {
-    if ((int)($owned['sunbeam'] ?? 0) < 1 || !catfish_art_has('cf-room-sunbeam.png')) return '';
-    return '<span class="cfdust" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i><i class="m4"></i><i class="m5"></i><i class="m6"></i></span>';
+    $h = '';
+    if ((int)($owned['sunbeam'] ?? 0) >= 1 && catfish_art_has('cf-room-sunbeam.png')) $h .= '<span class="cfdust" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i><i class="m4"></i><i class="m5"></i><i class="m6"></i></span>';
+    return $h . catfish_season_html();
+}
+
+/** Do all 8 seasonal sprites exist (cf-season-*.png)? Then the bits are pixel sprites (class cfsart), else the old CSS dots. */
+function catfish_season_art(): bool
+{
+    foreach (['petal', 'petal-b', 'firefly', 'firefly-b', 'leaf', 'leaf-b', 'flake', 'flake-small'] as $b) if (!catfish_art_has("cf-season-$b.png")) return false;
+    return true;
+}
+
+/** Seasonal room: eight bits (petal, firefly, leaf and flake sprites; CSS dots without the art) while the gnome owns the current season. '' otherwise. Read-only, cached per request. */
+function catfish_season_html(): string
+{
+    static $cache = [];
+    $u = function_exists('current_user') ? current_user() : null;
+    $uid = (int)($u['id'] ?? 0);
+    if ($uid < 1) return '';
+    if (!isset($cache[$uid])) {
+        $cache[$uid] = '';
+        try {
+            $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+            $code = function_exists('hollow_season_code') ? hollow_season_code() : '';
+            if (is_array($meta) && isset(CATFISH_SEASONS[$code]) && in_array($code, (array)($meta['seasons'] ?? []), true)) $cache[$uid] = $code;
+        } catch (Throwable $e) {}
+    }
+    return $cache[$uid] === '' ? '' : '<span class="cfseason cfs-' . $cache[$uid] . (catfish_season_art() ? ' cfsart' : '') . '" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>';
 }
 
 /**
@@ -204,14 +278,15 @@ const CATFISH_SIDE_FRAMES = ['idleA' => ['idleA', 'idleB', 'stalk']];
  * The play scene: one 320 x 200 stage with the room (base and owned overlays), the wand hung at the ceiling hook, a line to three dangling fish
  * (catfish_fish_kinds), the other cats (up to 3) as still frames at the side spots, and the active cat in the centre with all 8 frame groups
  * (body, pattern, ears, tail and eyes layers each; catfish.js shows one at a time by class fr-<frame> and data-frame). Everything is positioned by
- * CSS classes (no inline style). Each fish is a button (tap = play, see catfish_play); the stage is a group, not an image, because buttons cannot sit in role=img. $hint shows the first-visit bubble. '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
+ * CSS classes (no inline style). $pets = catfish_pet_scene(): the room things (2.2.x) are drawn after the room extras, behind the fish and every cat; the rod charm hangs on the line. Each fish is a button (tap = play, see catfish_play); the stage is a group, not an image, because buttons cannot sit in role=img. $hint shows the first-visit bubble. '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
  */
-function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false): string
+function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false, array $pets = []): string
 {
     if (!catfish_art_has('cf-room.png')) return '';
-    $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
+    $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . catfish_pet_stage_classes($pets) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
     $h .= catfish_room_extras_html($owned);
-    $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
+    $h .= catfish_pets_html($pets);   // 2.2.x room things: wall, ceiling and floor, behind the wand, the fish and every cat
+    $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>' . catfish_pet_charm_html($pets);
     if ((int)($owned['double'] ?? 0) > 0) $h .= '<span class="cfswand cfswand2" aria-hidden="true">' . catfish_img('rod', '🎣', '', 48, 64) . '</span>';   // 2.1.08 Double rod: a second wand at the right end of the line
     foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<button type="button" class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '" data-fish="' . ($i + 1) . '" aria-label="Bat the plush fish (' . ($i + 1) . ' of 3)"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</button>';
     $others = [];
@@ -260,10 +335,10 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
  * which cat is active, which cats are at home). The page carries it in the JSON block and sends it back with a tick or a buy; the API answers with the new
  * stage markup only when the key differs, so catfish.js swaps the scene in place without a reload.
  */
-function catfish_scene_key(array $cats, ?array $active, array $owned): string
+function catfish_scene_key(array $cats, ?array $active, array $owned, array $pets = []): string
 {
     return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active)) . '|' . catfish_rod_classes($owned)
-        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats))), 0, 12);
+        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')), 0, 12);
 }
 
 /** The stage for a view from catfish_view(): [scene key, markup]. The markup is exactly what catfish.php prints ('' with no cat or no room art). */
@@ -271,8 +346,8 @@ function catfish_scene(int $uid, array $v): array
 {
     $cats = catfish_cats($uid); $cat = $v['cat'];
     if (!$cat) return ['', ''];
-    $owned = array_column($v['ups'], 'owned', 'key');
-    return [catfish_scene_key($cats, $cat, $owned), catfish_stage_html($cats, $cat, $owned, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0)];
+    $owned = array_column($v['ups'], 'owned', 'key'); $pets = catfish_pet_scene($uid);
+    return [catfish_scene_key($cats, $cat, $owned, $pets), catfish_stage_html($cats, $cat, $owned, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0, $pets)];
 }
 
 /** One Cat Book cell. $st: 1 adopted, 0 seen, -1 not found yet. Art (cf-bookhead-<coat>, cf-bookhead-unknown, 32 x 32) when it exists, else the coloured circle. */
@@ -330,6 +405,26 @@ function catfish_role_frame(string $frame, string $role): string
     $own = CATFISH_FRAME_OWN[$frame] ?? [];
     return (in_array($role, $own, true) || (str_starts_with($role, 'eyes-') && in_array('eyes', $own, true))) ? $frame : $base;
 }
+/** Frames that have collar art (cf-collar-<colour>-<frame>.png, 64 x 64): the 4 key frames; blink, tailflick and eartwitch are idleA, so they use its band. */
+const CATFISH_COLLAR_FRAMES = ['idleA', 'pounce', 'catch', 'nap'];
+/** The collar PNG of a cat's collar colour for a frame, or '' (no collar, or no art for that frame). */
+function catfish_collar_file(array $cat, string $frame): string
+{
+    $c = (string)($cat['collar'] ?? '');
+    if (!isset(CATFISH_COLLARS[$c])) return '';
+    $f = CATFISH_FRAME_BASE[$frame] ?? $frame;
+    return in_array($f, CATFISH_COLLAR_FRAMES, true) && catfish_art_has("cf-collar-$c-$f.png") ? "cf-collar-$c-$f.png" : '';
+}
+/** Is the collar art installed (all 6 colours x 4 frames)? Then the layered cat shows the band and the CSS ring `.cfcol-*` is only the fallback for cats with no art. */
+function catfish_collar_art(): bool
+{
+    static $r = null;
+    if ($r === null) {
+        $r = true;
+        foreach (array_keys(CATFISH_COLLARS) as $c) foreach (CATFISH_COLLAR_FRAMES as $f) if (!catfish_art_has("cf-collar-$c-$f.png")) $r = false;
+    }
+    return $r;
+}
 /**
  * The layer list of one cat frame, bottom to top: [file, masks, clip]. masks = names of the cfmk groups that wrap the layer (ears, tail), clip = 'L-<frame>' / 'R-<frame>'
  * for an odd-eyed half. null = no art for this coat and frame (the emoji fallback). A layer with a missing file, or a part with no mask, is left out.
@@ -352,6 +447,8 @@ function catfish_cat_layers(array $cat, string $frame): ?array
         $pf = catfish_role_frame($frame, "pat-$pat");
         if (catfish_art_has("cf-pat-$pat-$coat-$pf.png")) $out[] = ["cf-pat-$pat-$coat-$pf.png", $masks, ''];
     }
+    $cl = catfish_collar_file($cat, $frame);
+    if ($cl !== '') $out[] = [$cl, [], ''];   // 2.2.x collar: neck band above body and pattern, under the eyes (the band never covers them)
     $eye = (string)($cat['eyes'] ?? 'amber');
     if ($eye === 'odd') {   // left and right halves, two different colours, chosen by the seed
         $sd = (int)($cat['seed'] ?? 0); $l = CATFISH_EYE_COLOURS[$sd % 4]; $r = CATFISH_EYE_COLOURS[($sd % 4 + 1 + intdiv($sd, 4) % 3) % 4];
@@ -367,7 +464,8 @@ function catfish_cat_layers(array $cat, string $frame): ?array
 }
 function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', bool $eyeClass = true): string
 {
-    $fallback = '<span class="cfcat c-' . e($cat['colour'] ?? '') . ' p-' . e($cat['pattern'] ?? '') . ($eyeClass ? ' e-' . e($cat['eyes'] ?? '') : '') . '" aria-hidden="true">🐱</span>';
+    $col = isset(CATFISH_COLLARS[$cat['collar'] ?? '']) ? ' cfcol-' . $cat['collar'] : '';
+    $fallback = '<span class="cfcat c-' . e($cat['colour'] ?? '') . ' p-' . e($cat['pattern'] ?? '') . ($eyeClass ? ' e-' . e($cat['eyes'] ?? '') : '') . $col . '" aria-hidden="true">🐱</span>';
     if (!in_array($frame, CATFISH_FRAMES, true) && !in_array($frame, CATFISH_FRAMES_EXTRA, true)) $frame = 'idleA';
     $layers = catfish_cat_layers($cat, $frame);
     if ($layers === null) return $fallback;
@@ -379,7 +477,7 @@ function catfish_cat_html(array $cat, int $size = 64, string $frame = 'idleA', b
         $h .= $inner;
     }
     $s = $size >= 192 ? 192 : ($size >= 128 ? 128 : 64);
-    return '<span class="cfart cf-s' . $s . '" aria-hidden="true">' . $h . '</span>';
+    return '<span class="cfart cf-s' . $s . (catfish_collar_art() ? '' : $col) . '" aria-hidden="true">' . $h . '</span>';
 }
 /**
  * Manifest of the lazily built frames of one cat for catfish.js: url prefix p and suffix s (cache-busting version), and frame => [[file, masks, clip], ...] as
@@ -427,7 +525,7 @@ function catfish_ensure(): bool
     static $ok = null;
     if ($ok !== null) return $ok;
     if (PHP_INT_SIZE < 8) return $ok = false;   // seeds and the RNG need 64-bit integers
-    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); q('SELECT 1 FROM catfish_items LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         $PK = $s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY';
@@ -449,7 +547,11 @@ function catfish_ensure(): bool
             id $PK, user_id $ID NOT NULL, week VARCHAR(8) NOT NULL, theme VARCHAR(60) NOT NULL, cat_name VARCHAR(30) NOT NULL, tier VARCHAR(10) NOT NULL, score $ID NOT NULL DEFAULT 0, created_at DATETIME NOT NULL,
             UNIQUE (user_id, week)
         )$END");
-        foreach ([['catfish_state', 'run_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'total_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'meta', 'TEXT NULL'], ['cat_book', 'adopted', 'INT NOT NULL DEFAULT 0']] as [$t, $col, $def]) {
+        db()->exec("CREATE TABLE IF NOT EXISTS catfish_items (
+            user_id $ID NOT NULL, item_key VARCHAR(40) NOT NULL, got_at DATETIME NOT NULL, last_used $ID NOT NULL DEFAULT 0, slotted_at $ID NOT NULL DEFAULT 0,
+            PRIMARY KEY (user_id, item_key)
+        )$END");
+        foreach ([['catfish_state', 'run_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'total_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'meta', 'TEXT NULL'], ['cat_book', 'adopted', 'INT NOT NULL DEFAULT 0'], ['cats', 'bio', "VARCHAR(80) NOT NULL DEFAULT ''"], ['cats', 'collar', "VARCHAR(12) NOT NULL DEFAULT ''"]] as [$t, $col, $def]) {
             try { q('SELECT ' . $col . ' FROM ' . $t . ' LIMIT 1'); } catch (Throwable $e) { try { db()->exec('ALTER TABLE ' . $t . ' ADD COLUMN ' . $col . ' ' . $def); } catch (Throwable $e2) {} }   // a second first request may have added it already
         }
         try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); }
@@ -524,7 +626,7 @@ function catfish_cat(int $seed): array
  * $rolls[slot] = rerolls bought today for that slot; $rare = Rare Shelter level (the best-scoring of 1 + $rare candidates is shown).
  * With no rolls and no Rare Shelter the seeds are the plain crc32(user|day|slot), so older shelters do not change.
  */
-function catfish_shelter(int $uid, ?string $day = null, array $rolls = [], int $rare = 0): array
+function catfish_shelter(int $uid, ?string $day = null, array $rolls = [], int $rare = 0, ?array $stake = null): array
 {
     $day = $day ?? catfish_today();
     $out = [];
@@ -533,6 +635,12 @@ function catfish_shelter(int $uid, ?string $day = null, array $rolls = [], int $
         for ($c = 0; $c <= $rare; $c++) {
             $cand = catfish_cat(crc32($uid . '|' . $day . '|' . $slot . ($n > 0 ? '|r' . $n : '') . ($c > 0 ? '|c' . $c : '')));
             if ($best === null || $cand['score'] > $best['score']) $best = $cand;
+        }
+        if ($stake !== null && isset(CATFISH_TRAITS[$stake[0]][$stake[1]]) && in_array($stake[0], ['pattern', 'colour'], true)) {   // a stakeout: the best-scoring look-alike beats a cat that does not match
+            for ($c = 0; $c < CATFISH_STAKE_TRIES; $c++) {
+                $cand = catfish_cat(crc32($uid . '|' . $day . '|' . $slot . '|s' . $c));
+                if (($cand[$stake[0]] ?? '') === $stake[1] && (($best[$stake[0]] ?? '') !== $stake[1] || $cand['score'] > $best['score'])) $best = $cand;
+            }
         }
         $best['slot'] = $slot;
         $out[] = $best;
@@ -546,7 +654,20 @@ function catfish_shelter_now(int $uid, ?array $meta = null): array
     $meta = $meta ?? catfish_state($uid)['meta'];
     $today = catfish_today();
     $rolls = ($meta['roll']['day'] ?? '') === $today ? (array)($meta['roll']['n'] ?? []) : [];
-    return catfish_shelter($uid, $today, $rolls, (int)($meta['rare'] ?? 0));
+    $st = $meta['stake'] ?? null;
+    $out = catfish_shelter($uid, $today, $rolls, (int)($meta['rare'] ?? 0), is_array($st) && ($st['for'] ?? '') === $today ? [(string)$st['trait'], (string)$st['value']] : null);
+    $h = $meta['hold'] ?? null;   // a cat held yesterday takes its old spot again today
+    if (is_array($h) && ($h['for'] ?? '') === $today && isset($out[(int)$h['slot']])) {
+        $c = catfish_cat((int)$h['seed']); $c['slot'] = (int)$h['slot']; $c['held'] = true;
+        $out[(int)$h['slot']] = $c;
+    }
+    return $out;
+}
+
+/** 'Y-m-d' of the next Hollow day. */
+function catfish_tomorrow(): string
+{
+    return (new DateTimeImmutable(catfish_today()))->modify('+1 day')->format('Y-m-d');
 }
 
 /** Kibble price of the next adoption for a gnome who owns $owned cats. The first is free. */
@@ -602,10 +723,10 @@ function catfish_cost(string $key, int $owned): int
 }
 
 /** Effect multiplier of an upgrade: x2 at each milestone owned count reached. */
-function catfish_milestone_mult(int $owned): int
+function catfish_milestone_mult(int $owned, bool $tuned = false): int
 {
     $m = 1;
-    foreach (CATFISH_MILESTONES as $at) if ($owned >= $at) $m *= 2;
+    foreach ($tuned ? CATFISH_MILESTONES_TUNED : CATFISH_MILESTONES as $at) if ($owned >= $at) $m *= 2;
     return $m;
 }
 
@@ -616,7 +737,7 @@ const CATFISH_PAL_MAX = 10;             // ...for up to this many pals (+20%)
 function catfish_extra_mult(int $uid): float
 {
     static $cache = [];
-    if (isset($cache[$uid])) return $cache[$uid];
+    if (isset($cache[$uid])) return $cache[$uid] * (1 + catfish_pet_bonus($uid)['kibble_pct'] / 100);   // room things (2.2.x): their Kibble % is summed, never capped, and not cached with the rest (a swap changes it at once)
     $m = 1.0;
     try {
         require_once __DIR__ . '/puzzle_pals.php';
@@ -625,7 +746,14 @@ function catfish_extra_mult(int $uid): float
             $m += CATFISH_PAL_STEP * min($found, CATFISH_PAL_MAX);
         }
     } catch (Throwable $e) {}
-    return $cache[$uid] = $m;
+    try {   // a Buddy: an owned cat that is not the playing one
+        $r = q_one('SELECT meta, active_cat_id FROM catfish_state WHERE user_id = ?', [$uid]);
+        $meta = $r ? json_decode((string)$r['meta'], true) : null;
+        $b = is_array($meta) && !empty($meta['buddyon']) ? (int)($meta['buddy'] ?? 0) : 0;
+        if ($b > 0 && $b !== (int)$r['active_cat_id'] && q_val('SELECT 1 FROM cats WHERE id = ? AND user_id = ?', [$b, $uid])) $m *= 1 + CATFISH_BUDDY_PCT;
+    } catch (Throwable $e) {}
+    $cache[$uid] = $m;
+    return $m * (1 + catfish_pet_bonus($uid)['kibble_pct'] / 100);
 }
 
 /** 2 while a festival is running (Yarn from a Nap doubles), else 1. */
@@ -644,24 +772,24 @@ function catfish_yarn_mult(int $yarn): float
 function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $yarn = 0, float $extra = 1.0): float
 {
     $add = CATFISH_BASE_KPH; $pct = 0.0;
-    foreach (CATFISH_UPGRADES as $key => [, , , $a, $p]) {
+    foreach (CATFISH_UPGRADES as $key => [, , , $a, $p, $branch]) {
         $n = (int)($up[$key] ?? 0);
         if ($n <= 0) continue;
-        $mm = catfish_milestone_mult($n);
+        $mm = catfish_milestone_mult($n, ($cat['tune'] ?? '') === $branch);
         $add += $a * $n * $mm;
         $pct += $p * $n * $mm;
     }
     $kph = $add * (1 + $pct) * catfish_yarn_mult($yarn) * max(1.0, $extra);
-    $mood = $cat['mood'] ?? '';
-    if ($mood === 'greedy') $kph *= 1.10;
-    if ($mood === 'hyper' && $present) $kph *= 1.15;
+    $moods = [$cat['mood'] ?? '', $cat['mood2'] ?? ''];   // mood2: today's Mood Treat
+    if (in_array('greedy', $moods, true)) $kph *= 1.10;
+    if (in_array('hyper', $moods, true) && $present) $kph *= 1.15;
     return min($kph, CATFISH_MAX_KPH);
 }
 
-/** Seconds of away time that count for this cat. */
-function catfish_offline_cap(?array $cat): int
+/** Seconds of away time that count for this cat. $petSecs = the room things' extra away time (Hammock Net and friends), added after the Lazy bonus. */
+function catfish_offline_cap(?array $cat, int $away = 0, int $petSecs = 0): int
 {
-    return (int)(CATFISH_OFFLINE_CAP * (($cat['mood'] ?? '') === 'lazy' ? 1.25 : 1));
+    return (int)((CATFISH_OFFLINE_CAP + 3600 * max(0, min($away, count(CATFISH_AWAY_COSTS)))) * (in_array('lazy', [$cat['mood'] ?? '', $cat['mood2'] ?? ''], true) ? 1.25 : 1)) + max(0, $petSecs);
 }
 
 /** The gnome's active cat as a full trait array, or null. */
@@ -672,6 +800,11 @@ function catfish_active(int $uid, array $s): ?array
     if (!$row) return null;
     $c = catfish_cat((int)$row['seed']);
     $c['id'] = (int)$row['id']; $c['name'] = (string)$row['name'];
+    $c['bio'] = (string)($row['bio'] ?? ''); $c['collar'] = (string)($row['collar'] ?? '');
+    $m = $s['meta'] ?? [];
+    if (isset($m['tune']['branch']) && (int)($m['tune']['naps'] ?? -1) === (int)($s['naps'] ?? -2)) $c['tune'] = (string)$m['tune']['branch'];   // Rod Tune-up lasts until the next Nap
+    $t = $m['treat'] ?? null;
+    if (is_array($t) && ($t['day'] ?? '') === catfish_today() && (int)($t['cat'] ?? 0) === $c['id'] && in_array($t['mood'] ?? '', CATFISH_TREAT_MOODS, true) && $t['mood'] !== $c['mood']) $c['mood2'] = (string)$t['mood'];
     return $c;
 }
 
@@ -685,13 +818,14 @@ function catfish_tick(int $uid): array
         $s['gained'] = 0;
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
-        $secs = $away ? min($gap, catfish_offline_cap($cat)) : $gap;
+        $secs = $away ? min($gap, catfish_offline_cap($cat, (int)($s['meta']['away'] ?? 0), 60 * catfish_pet_bonus($uid)['away_min'])) : $gap;
         $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
         $base = (int)floor(min($eff * $secs / 3600, PHP_INT_MAX >> 4));
         if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
         $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)ceil($base * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
         $paidSecs = min($secs, $tick - (int)$s['last_tick']);   // the rare fish rolls on the seconds paid now, so the kept fraction is not rolled twice
-        $gain = $base + (($cat['mood'] ?? '') === 'sneaky' ? catfish_rare_fish($eff, $paidSecs, mt_rand() / (mt_getrandmax() + 1)) : 0);
+        $sneaky = in_array('sneaky', [$cat['mood'] ?? '', $cat['mood2'] ?? ''], true); $rareB = catfish_pet_bonus($uid)['rare_pct'];
+        $gain = $base + ($sneaky || $rareB > 0 ? catfish_rare_fish($eff, $paidSecs, mt_rand() / (mt_getrandmax() + 1), $rareB, $sneaky) : 0);
         $claim = q('UPDATE catfish_state SET kibble = kibble + ?, run_kibble = run_kibble + ?, total_kibble = total_kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $gain, $gain, $tick, $uid, (int)$s['last_tick']])->rowCount();
         if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['run_kibble'] = (int)$s['run_kibble'] + $gain; $s['last_tick'] = $tick; $s['gained'] = $gain; }
         return $s;
@@ -736,7 +870,9 @@ function catfish_play(int $uid, $n, $seq): array
         $paid = 0;
         if ($got > 0) {
             $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid));
-            for ($i = 1; $i <= $got; $i++) $paid += catfish_play_value($kph, $pc + $i);
+            $dbl = catfish_catnip_left($m, $now) > 0 ? CATFISH_CATNIP_MULT : 1;   // Catnip Hour
+            $tap = catfish_pet_bonus($uid)['tap'];   // 2.2.x rod charm: the first taps of the day pay more
+            for ($i = 1; $i <= $got; $i++) $paid += catfish_pet_tap_value(catfish_play_value($kph, $pc + $i), $pc + $i, $tap) * $dbl;
             $tokens -= $got;
             $m['pe'] = (int)($m['pe'] ?? 0) + $got;
         }
@@ -751,14 +887,15 @@ function catfish_play_view(array $s, ?array $cat, float $kph, int $got = 0, int 
 {
     $m = $s['meta']; $pc = ($m['pd'] ?? '') === catfish_today() ? (int)($m['pc'] ?? 0) : 0;
     $last = CATFISH_PLAY_TIERS[count(CATFISH_PLAY_TIERS) - 1][0];
-    return ['v' => $cat ? catfish_play_value($kph, $pc + 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
+    return ['v' => $cat ? catfish_pet_tap_value(catfish_play_value($kph, $pc + 1), $pc + 1, catfish_pet_bonus((int)($s['user_id'] ?? 0))['tap']) * (catfish_catnip_left($m, time()) > 0 ? CATFISH_CATNIP_MULT : 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
 }
 
 /** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. The expected count for $secs is paid as its whole part plus one roll for the
- *  fractional rest. $r is a roll in [0, 1); pure, so the tests can pin it. */
-function catfish_rare_fish(float $effKph, int $secs, float $r): int
+ *  fractional rest. $r is a roll in [0, 1); pure, so the tests can pin it.
+ *  2.2.x: $pct = the room things' rare fish % (a Koi Kite Lure is 5): a Sneaky cat's rate grows by that %, any other cat finds them at that % of the Sneaky rate. */
+function catfish_rare_fish(float $effKph, int $secs, float $r, float $pct = 0, bool $sneaky = true): int
 {
-    $n = CATFISH_RARE_PER_HOUR * max(0, $secs) / 3600;
+    $n = CATFISH_RARE_PER_HOUR * max(0, $secs) / 3600 * (($sneaky ? 1 : 0) + $pct / 100);
     $fish = floor($n) + ($r < $n - floor($n) ? 1 : 0);
     return (int)floor(min($fish * floor($effKph / 10), PHP_INT_MAX >> 4));   // same ceiling as the tick's base pay
 }
@@ -783,16 +920,26 @@ function catfish_nap_yarn(int $runKibble, ?array $cat): int
 
 // ---------- actions (each returns [ok, message]) ----------
 
-function catfish_buy(int $uid, string $key): array
+/** Cost of the next $n levels of an upgrade in one go (each level costs more than the last). */
+function catfish_cost_n(string $key, int $owned, int $n): int
+{
+    $sum = 0.0;
+    for ($i = 0; $i < $n; $i++) $sum += catfish_cost($key, $owned + $i);
+    return (int)min(CATFISH_MAX_COST, $sum);
+}
+
+/** $n is 1, or 10 once Buy x10 is unlocked (anything else counts as 1). All ten or none. */
+function catfish_buy(int $uid, string $key, int $n = 1): array
 {
     if (!isset(CATFISH_UPGRADES[$key])) return [false, 'No such upgrade.'];
-    return catfish_locked($uid, function () use ($uid, $key) {
+    return catfish_locked($uid, function () use ($uid, $key, $n) {
         $s = catfish_tick($uid);
-        $owned = (int)($s['up'][$key] ?? 0); $cost = catfish_cost($key, $owned);
+        $n = $n === 10 && !empty($s['meta']['bulk']) ? 10 : 1;
+        $owned = (int)($s['up'][$key] ?? 0); $cost = catfish_cost_n($key, $owned, $n);
         if ((int)$s['kibble'] < $cost) return [false, 'Not enough Kibble.'];
-        $s['up'][$key] = $owned + 1;
+        $s['up'][$key] = $owned + $n;
         $paid = q('UPDATE catfish_state SET kibble = kibble - ?, upgrades = ? WHERE user_id = ? AND kibble >= ?', [$cost, json_encode($s['up']), $uid, $cost])->rowCount();
-        return $paid === 1 ? [true, CATFISH_UPGRADES[$key][0] . ' bought.'] : [false, 'Not enough Kibble.'];
+        return $paid === 1 ? [true, CATFISH_UPGRADES[$key][0] . ($n > 1 ? ' ×' . $n : '') . ' bought.'] : [false, 'Not enough Kibble.'];
     });
 }
 
@@ -895,6 +1042,292 @@ function catfish_buy_slot(int $uid): array
     });
 }
 
+function catfish_buy_bulk(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        if (!empty($meta['bulk'])) return [false, 'You already have Buy ×10.'];
+        $meta['bulk'] = 1;
+        return [CATFISH_BULK_COST, 'Buy ×10 is on. Pick ×10 above the upgrades.'];
+    });
+}
+
+function catfish_buy_away(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        $lvl = (int)($meta['away'] ?? 0);
+        if ($lvl >= count(CATFISH_AWAY_COSTS)) return [false, 'Your cat already naps as long as it can.'];
+        $meta['away'] = $lvl + 1;
+        return [CATFISH_AWAY_COSTS[$lvl], 'Your cat now fishes for ' . (8 + $lvl + 1) . ' hours while you are away.'];
+    });
+}
+
+function catfish_buy_title(int $uid, string $key): array
+{
+    if (!isset(CATFISH_TITLES[$key])) return [false, 'No such title.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($key) {
+        $have = (array)($meta['titles'] ?? []);
+        if (in_array($key, $have, true)) return [false, 'You already have that title.'];
+        $meta['titles'] = array_values(array_merge($have, [$key]));
+        return [CATFISH_TITLES[$key][1], '“' . CATFISH_TITLES[$key][0] . '” is yours. Choose it in the Almanac (Milestones).'];
+    });
+}
+
+/** Titles this gnome bought with Yarn (for the Almanac title picker). */
+function catfish_titles(int $uid): array
+{
+    if (!catfish_ensure()) return [];
+    $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+    $out = [];
+    foreach ((array)($meta['titles'] ?? []) as $k) if (isset(CATFISH_TITLES[$k])) $out[] = CATFISH_TITLES[$k][0];
+    return $out;
+}
+
+/** Hold today's cat in a shelter spot: tomorrow it is back in the same spot. One hold a day; an owned cat is not worth holding. */
+function catfish_hold(int $uid, int $slot): array
+{
+    if ($slot < 0 || $slot >= CATFISH_SHELTER) return [false, 'No such cat.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($uid, $slot) {
+        $tomorrow = catfish_tomorrow();
+        if (($meta['hold']['for'] ?? '') === $tomorrow) return [false, 'You are already holding a cat for tomorrow.'];
+        $cat = catfish_shelter_now($uid, $meta)[$slot];
+        if (q_val('SELECT 1 FROM cats WHERE user_id = ? AND seed = ?', [$uid, $cat['seed']])) return [false, 'That cat is already yours.'];
+        $meta['hold'] = ['for' => $tomorrow, 'seed' => (int)$cat['seed'], 'slot' => $slot];
+        return [CATFISH_HOLD_COST, $cat['name'] . ' will wait for you tomorrow.'];
+    });
+}
+
+/** Stake out a pattern or a colour: tomorrow's shelter looks harder for it. One a day. */
+function catfish_stake(int $uid, string $pick): array
+{
+    [$trait, $value] = array_pad(explode(':', $pick, 2), 2, '');
+    if (!in_array($trait, ['pattern', 'colour'], true) || !isset(CATFISH_TRAITS[$trait][$value])) return [false, 'Pick a pattern or a colour.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($trait, $value) {
+        $tomorrow = catfish_tomorrow();
+        if (($meta['stake']['for'] ?? '') === $tomorrow) return [false, 'You have already staked out tomorrow.'];
+        $meta['stake'] = ['for' => $tomorrow, 'trait' => $trait, 'value' => $value];
+        return [CATFISH_STAKE_COST, 'Tomorrow the shelter looks for ' . $value . '.'];
+    });
+}
+
+function catfish_buy_show2(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        if (!empty($meta['show2on'])) return [false, 'You already have a second entry.'];
+        $meta['show2on'] = 1;
+        return [CATFISH_SHOW2_COST, 'You can enter two cats in the Cat Show.'];
+    });
+}
+
+function catfish_buy_buddy(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        if (!empty($meta['buddyon'])) return [false, 'You already have a Buddy cat.'];
+        $meta['buddyon'] = 1;
+        return [CATFISH_BUDDY_COST, 'Pick a Buddy under Your cats.'];
+    });
+}
+
+/** Choose (or, with 0, clear) the Buddy cat. Free once unlocked. */
+function catfish_set_buddy(int $uid, int $catId): array
+{
+    return catfish_locked($uid, function () use ($uid, $catId) {
+        $s = catfish_state($uid); $meta = $s['meta'];
+        if (empty($meta['buddyon'])) return [false, 'Unlock Buddy cat with Yarn first.'];
+        if ($catId > 0 && !q_val('SELECT 1 FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid])) return [false, 'No such cat.'];
+        if ($catId > 0 && $catId === (int)$s['active_cat_id']) return [false, 'The playing cat cannot be its own Buddy.'];
+        $meta['buddy'] = $catId; catfish_meta_save($uid, $meta);
+        return [true, $catId > 0 ? 'Buddy chosen.' : 'No Buddy now.'];
+    });
+}
+
+function catfish_buy_keep(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        $lvl = (int)($meta['keepsake'] ?? 0);
+        if ($lvl >= count(CATFISH_KEEP_COSTS)) return [false, 'Keepsake is as strong as it gets.'];
+        $meta['keepsake'] = $lvl + 1;
+        return [CATFISH_KEEP_COSTS[$lvl], 'After a Nap you keep ' . ($lvl + 1) . ' level' . ($lvl ? 's' : '') . ' of the first upgrade in each branch.'];
+    });
+}
+
+function catfish_buy_ball(int $uid, string $key): array
+{
+    if (!isset(CATFISH_BALLS[$key])) return [false, 'No such colour.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($key) {
+        $have = (array)($meta['balls'] ?? []);
+        if (in_array($key, $have, true)) return [false, 'You already have that colour.'];
+        $meta['balls'] = array_values(array_merge($have, [$key])); $meta['ball'] = $key;
+        return [CATFISH_BALL_COST, CATFISH_BALLS[$key] . ' yarn ball bought and in use.'];
+    });
+}
+
+/** Switch the yarn ball colour ('' = the plain one). Free for colours you own. */
+function catfish_set_ball(int $uid, string $key): array
+{
+    return catfish_locked($uid, function () use ($uid, $key) {
+        $meta = catfish_state($uid)['meta'];
+        if ($key !== '' && !in_array($key, (array)($meta['balls'] ?? []), true)) return [false, 'You do not have that colour.'];
+        $meta['ball'] = $key; catfish_meta_save($uid, $meta);
+        return [true, $key === '' ? 'Plain yarn ball.' : CATFISH_BALLS[$key] . ' yarn ball.'];
+    });
+}
+
+/** True while a festival with a jar is running (so the bunting row shows). */
+function catfish_festival_on(): bool
+{
+    try { require_once __DIR__ . '/festival.php'; $f = festival_active(); return $f !== null && festival_goal($f) !== null; } catch (Throwable $e) { return false; }
+}
+
+/** Hang yarn bunting in the running festival's jar: 1 Yarn for +3, three a day. Only Yarn leaves; nothing here pays Petals. */
+function catfish_hang_bunting(int $uid): array
+{
+    require_once __DIR__ . '/festival.php'; require_once __DIR__ . '/hollow_goals.php';
+    hollow_goals_active();   // makes the festival's jar the first time anyone looks
+    $f = festival_active();
+    $goal = $f ? festival_goal($f) : null;
+    if (!$goal) return [false, 'No festival is running.'];
+    return catfish_yarn_spend($uid, function (&$meta, $s) use ($uid, $goal) {
+        if (catfish_spendable($s) < CATFISH_BUNTING_COST) return [false, 'Not enough Yarn.'];
+        $today = catfish_today();
+        $n = ($meta['bunting']['day'] ?? '') === $today ? (int)$meta['bunting']['n'] : 0;
+        if ($n >= CATFISH_BUNTING_DAILY) return [false, 'All of today\'s bunting is hung.'];
+        $meta['bunting'] = ['day' => $today, 'n' => $n + 1];
+        if (q('UPDATE hollow_goal_contrib SET amount = amount + ? WHERE goal_id = ? AND user_id = ?', [CATFISH_BUNTING_ADD, $goal['id'], $uid])->rowCount() === 0) {
+            try { db_insert('hollow_goal_contrib', ['goal_id' => $goal['id'], 'user_id' => $uid, 'amount' => CATFISH_BUNTING_ADD]); }
+            catch (PDOException $e) { q('UPDATE hollow_goal_contrib SET amount = amount + ? WHERE goal_id = ? AND user_id = ?', [CATFISH_BUNTING_ADD, $goal['id'], $uid]); }
+        }
+        return [CATFISH_BUNTING_COST, 'Bunting is up: +' . CATFISH_BUNTING_ADD . ' in the festival jar.'];
+    });
+}
+
+function catfish_buy_scarf(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) {
+        if (!empty($meta['scarfown'])) return [false, 'You already have the scarf.'];
+        $meta['scarfown'] = 1; $meta['scarf'] = 'red';
+        return [CATFISH_SCARF_COST, 'Your gnome is wearing a scarf. Pick a colour any time.'];
+    });
+}
+
+/** Choose the scarf colour, or '' to take it off. Free once bought. */
+function catfish_set_scarf(int $uid, string $key): array
+{
+    return catfish_locked($uid, function () use ($uid, $key) {
+        $meta = catfish_state($uid)['meta'];
+        if (empty($meta['scarfown'])) return [false, 'Buy the scarf with Yarn first.'];
+        if ($key !== '' && !isset(CATFISH_SCARVES[$key])) return [false, 'No such colour.'];
+        $meta['scarf'] = $key; catfish_meta_save($uid, $meta);
+        return [true, $key === '' ? 'Scarf off.' : CATFISH_SCARVES[$key][0] . ' scarf on.'];
+    });
+}
+
+/** Hex colour of the scarf this gnome wears, or ''. Read-only and cached per request (the gnome avatar asks for every gnome on a page). */
+function catfish_scarf_color(int $uid): string
+{
+    static $cache = [];
+    if (isset($cache[$uid])) return $cache[$uid];
+    $c = '';
+    try {
+        $meta = json_decode((string)q_val('SELECT meta FROM catfish_state WHERE user_id = ?', [$uid]), true);
+        if (is_array($meta) && !empty($meta['scarfown']) && isset(CATFISH_SCARVES[$meta['scarf'] ?? ''])) $c = CATFISH_SCARVES[$meta['scarf']][1];
+    } catch (Throwable $e) {}
+    return $cache[$uid] = $c;
+}
+
+/** Seconds of Catnip Hour left (0 when none). */
+function catfish_catnip_left(array $meta, int $now): int
+{
+    return max(0, (int)($meta['catnip']['until'] ?? 0) - $now);
+}
+
+/** Catnip Hour: taps pay double for an hour. Once a Hollow day. Bounded by the tap bucket and the daily tap tiers, so it only doubles small play Kibble. */
+function catfish_catnip(int $uid): array
+{
+    return catfish_yarn_spend($uid, function (&$meta) use ($uid) {
+        $today = catfish_today();
+        if (($meta['catnip']['day'] ?? '') === $today) return [false, 'Catnip Hour was already today.'];
+        $meta['catnip'] = ['day' => $today, 'until' => time() + CATFISH_CATNIP_SECS + 60 * catfish_pet_bonus($uid)['catnip_min']];   // a Kite Tail Lure adds minutes
+        return [CATFISH_CATNIP_COST, 'Catnip Hour! Taps pay double for the next hour.'];
+    });
+}
+
+/** Rod Tune-up: for this run (until the next Nap) one branch's milestone doubles come at 8, 20 and 40 owned instead of 10, 25 and 50. */
+function catfish_tune(int $uid, string $branch): array
+{
+    if (!isset(CATFISH_BRANCHES[$branch])) return [false, 'Pick a branch.'];
+    return catfish_yarn_spend($uid, function (&$meta, $s) use ($branch) {
+        if (isset($meta['tune']['branch']) && (int)($meta['tune']['naps'] ?? -1) === (int)$s['naps']) return [false, 'This run is already tuned.'];
+        $meta['tune'] = ['branch' => $branch, 'naps' => (int)$s['naps']];
+        return [CATFISH_TUNE_COST, 'Tuned: ' . trim(preg_replace('/^\X/u', '', CATFISH_BRANCHES[$branch]) ?? CATFISH_BRANCHES[$branch]) . ' bonuses come sooner until your next Nap.'];
+    });
+}
+
+/** Mood Treat: the playing cat also has a second mood for today. One a day; never Dreamy (it would stack with Nap Yarn), never the cat's own mood. */
+function catfish_treat(int $uid, string $mood): array
+{
+    if (!in_array($mood, CATFISH_TREAT_MOODS, true)) return [false, 'Pick a mood.'];
+    return catfish_yarn_spend($uid, function (&$meta, $s) use ($uid, $mood) {
+        $cat = catfish_active($uid, $s);
+        if (!$cat) return [false, 'Adopt a cat first.'];
+        if ($cat['mood'] === $mood) return [false, $cat['name'] . ' is already ' . $mood . '.'];
+        $today = catfish_today();
+        if (($meta['treat']['day'] ?? '') === $today) return [false, 'One Mood Treat a day.'];
+        $meta['treat'] = ['day' => $today, 'cat' => $cat['id'], 'mood' => $mood];
+        return [CATFISH_TREAT_COST, $cat['name'] . ' feels ' . $mood . ' as well today.'];
+    });
+}
+
+/** A short bio line for a cat. The first one for each cat costs 1 Yarn; after that it is free to change. Plain letters, numbers and a little punctuation only. */
+function catfish_set_bio(int $uid, int $catId, string $text): array
+{
+    if (!q_one('SELECT id FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid])) return [false, 'No such cat.'];
+    $bio = trim(preg_replace('/\s+/u', ' ', preg_replace('/[^\p{L}\p{N} .,!?\'’-]/u', '', $text) ?? '') ?? '');
+    $bio = mb_substr($bio, 0, CATFISH_BIO_MAX);
+    $u = function_exists('current_user') ? current_user() : null;
+    if ($bio !== '' && $u && function_exists('text_problem') && ($p = text_problem($u, $bio))) return [false, $p];
+    $paid = in_array($catId, array_map('intval', (array)(catfish_state($uid)['meta']['bios'] ?? [])), true);
+    if ($paid || $bio === '') {
+        q('UPDATE cats SET bio = ? WHERE id = ? AND user_id = ?', [$bio, $catId, $uid]);
+        return [true, $bio === '' ? 'Bio cleared.' : 'Bio saved.'];
+    }
+    return catfish_yarn_spend($uid, function (&$meta, $s) use ($uid, $catId, $bio) {
+        if (catfish_spendable($s) < CATFISH_BIO_COST) return [false, 'Not enough Yarn.'];
+        q('UPDATE cats SET bio = ? WHERE id = ? AND user_id = ?', [$bio, $catId, $uid]);
+        $meta['bios'] = array_values(array_unique(array_merge(array_map('intval', (array)($meta['bios'] ?? [])), [$catId])));
+        return [CATFISH_BIO_COST, 'Bio saved.'];
+    });
+}
+
+/** Wear a collar colour on one cat: a colour you own is free to put on ('' takes it off); a new one costs 2 Yarn for that cat, once. */
+function catfish_collar(int $uid, int $catId, string $key): array
+{
+    if ($key !== '' && !isset(CATFISH_COLLARS[$key])) return [false, 'No such colour.'];
+    if (!q_one('SELECT id FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid])) return [false, 'No such cat.'];
+    $own = fn(array $meta) => (array)($meta['collars'][$catId] ?? []);
+    if ($key === '' || in_array($key, $own(catfish_state($uid)['meta']), true)) {
+        q('UPDATE cats SET collar = ? WHERE id = ? AND user_id = ?', [$key, $catId, $uid]);
+        return [true, $key === '' ? 'Collar off.' : CATFISH_COLLARS[$key] . ' collar on.'];
+    }
+    return catfish_yarn_spend($uid, function (&$meta, $s) use ($uid, $catId, $key) {
+        if (catfish_spendable($s) < CATFISH_COLLAR_COST) return [false, 'Not enough Yarn.'];
+        $meta['collars'][$catId] = array_values(array_merge((array)($meta['collars'][$catId] ?? []), [$key]));
+        q('UPDATE cats SET collar = ? WHERE id = ? AND user_id = ?', [$key, $catId, $uid]);
+        return [CATFISH_COLLAR_COST, CATFISH_COLLARS[$key] . ' collar bought and on.'];
+    });
+}
+
+/** Seasonal room: unlock one season's falling bits for the room; they show while that season is on. */
+function catfish_buy_season(int $uid, string $code): array
+{
+    if (!isset(CATFISH_SEASONS[$code])) return [false, 'No such season.'];
+    return catfish_yarn_spend($uid, function (&$meta) use ($code) {
+        $have = (array)($meta['seasons'] ?? []);
+        if (in_array($code, $have, true)) return [false, 'You already have that season.'];
+        $meta['seasons'] = array_values(array_merge($have, [$code]));
+        return [CATFISH_SEASON_COST, CATFISH_SEASONS[$code] . ' will drift through the room in its season.'];
+    });
+}
+
 function catfish_buy_rare(int $uid): array
 {
     return catfish_yarn_spend($uid, function (&$meta) {
@@ -950,8 +1383,10 @@ function catfish_nap(int $uid): array
         $cat = catfish_active($uid, $s);
         $y = catfish_nap_yarn((int)$s['run_kibble'], catfish_run_cat($s, $cat)) * catfish_festival_mult();   // Dreamy counts only for a cat that was active the whole run
         if ($y < 1) return [false, 'Not enough Kibble earned this run to nap yet.'];
+        $kept = []; $keep = min((int)($s['meta']['keepsake'] ?? 0), count(CATFISH_KEEP_COSTS));
+        if ($keep > 0) foreach (CATFISH_KEEP_UPS as $k) $kept[$k] = $keep;   // Keepsake: the first upgrade of each branch survives the Nap
         $meta = $s['meta']; $meta['rc'] = (int)($s['active_cat_id'] ?? 0);   // the new run starts with this cat
-        $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ?, meta = ? WHERE user_id = ? AND run_kibble = ?', [$y, '{}', time(), json_encode($meta), $uid, (int)$s['run_kibble']])->rowCount();
+        $done = q('UPDATE catfish_state SET yarn = yarn + ?, naps = naps + 1, kibble = 0, run_kibble = 0, upgrades = ?, last_tick = ?, meta = ? WHERE user_id = ? AND run_kibble = ?', [$y, $kept ? json_encode($kept) : '{}', time(), json_encode($meta), $uid, (int)$s['run_kibble']])->rowCount();
         if ($done === 1) catfish_claim_petals($uid);
         return $done === 1 ? [true, 'Nap time! +' . $y . ' Yarn.'] : [false, 'Try that again.'];
     });
@@ -984,6 +1419,7 @@ function catfish_cats(int $uid): array
     $out = [];
     foreach (q('SELECT * FROM cats WHERE user_id = ? ORDER BY id', [$uid])->fetchAll() as $r) {
         $c = catfish_cat((int)$r['seed']); $c['id'] = (int)$r['id']; $c['name'] = (string)$r['name'];
+        $c['bio'] = (string)($r['bio'] ?? ''); $c['collar'] = (string)($r['collar'] ?? '');
         $out[] = $c;
     }
     return $out;
@@ -997,11 +1433,11 @@ function catfish_view(int $uid, int $got = 0, int $paid = 0): array
     $ups = [];
     foreach (CATFISH_UPGRADES as $key => [$name, $icon, , $a, $p, $branch]) {
         $n = (int)($s['up'][$key] ?? 0); $cost = catfish_cost($key, $n);
-        $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'can' => (int)$s['kibble'] >= $cost,
-            'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n)];
+        $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'cost10' => catfish_cost_n($key, $n, 10), 'can' => (int)$s['kibble'] >= $cost,
+            'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n, ($cat['tune'] ?? '') === $branch)];
     }
     $kphNow = $cat ? catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)) : 0.0;
-    return ['kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
+    return ['bulk' => !empty($s['meta']['bulk']), 'kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
         'kph' => $cat ? round($kphNow, 1) : 0, 'play' => catfish_play_view($s, $cat, $kphNow, $got, $paid), 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], catfish_run_cat($s, $cat)) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
 
@@ -1072,11 +1508,11 @@ function catfish_show_theme(string $week): array
  * Three judges (0 to 10 each, seeded by gnome, week and cat so a refresh cannot re-roll them) plus the theme and rarity bonuses.
  * Kibble, Yarn and play time are not part of it. Pure: returns ['score' => n, 'tier' => 'blue', 'judges' => [..]].
  */
-function catfish_show_judge(int $uid, string $week, array $cat, array $theme): array
+function catfish_show_judge(int $uid, string $week, array $cat, array $theme, int $bonus = 0): array
 {
     $rng = catfish_rng(crc32('judge|' . $uid . '|' . $week . '|' . $cat['seed']));
     $judges = [(int)floor($rng() * 11), (int)floor($rng() * 11), (int)floor($rng() * 11)];
-    $score = array_sum($judges) + (($cat[$theme['trait']] ?? '') === $theme['value'] ? CATFISH_SHOW_THEME_MATCH : 0) + (CATFISH_SHOW_RARITY[$cat['rarity']] ?? 0);
+    $score = array_sum($judges) + (($cat[$theme['trait']] ?? '') === $theme['value'] ? CATFISH_SHOW_THEME_MATCH : 0) + (CATFISH_SHOW_RARITY[$cat['rarity']] ?? 0) + max(0, $bonus);   // $bonus: room things (Cat Show +1 items, capped), worked out by the caller
     return ['score' => $score, 'tier' => catfish_show_tier($score), 'judges' => $judges];
 }
 
@@ -1088,15 +1524,26 @@ function catfish_show_tier(int $score): string
 }
 
 /** Enter (or swap) a cat for this week's show. One entry per gnome per week. */
-function catfish_show_enter(int $uid, int $catId): array
+function catfish_show_enter(int $uid, int $catId, int $slot = 1): array
 {
     $row = q_one('SELECT id, name FROM cats WHERE id = ? AND user_id = ?', [$catId, $uid]);
     if (!$row) return [false, 'No such cat.'];
-    return catfish_locked($uid, function () use ($uid, $catId, $row) {
+    return catfish_locked($uid, function () use ($uid, $catId, $slot, $row) {
         catfish_show_settle($uid);   // an old entry gets its ribbon before a new one replaces it
         $s = catfish_state($uid); $meta = $s['meta'];
         $week = catfish_show_week();
-        $meta['show'] = ['week' => $week, 'cat' => $catId, 'name' => (string)$row['name']];   // the ribbon keeps the name the cat was entered under
+        $now = ($meta['show']['week'] ?? '') === $week ? (array)$meta['show'] : ['week' => $week];
+        $nm = (string)$row['name'];   // the ribbon keeps the name the cat was entered under
+        if ($slot === 2) {
+            if (empty($meta['show2on'])) return [false, 'Unlock the second entry with Yarn first.'];
+            if ((int)($now['cat'] ?? 0) === 0) return [false, 'Enter your first cat before the second.'];
+            if ((int)$now['cat'] === $catId) return [false, 'That cat is already entered.'];
+            $now['cat2'] = $catId; $now['name2'] = $nm;
+        } else {
+            if ((int)($now['cat2'] ?? 0) === $catId) unset($now['cat2'], $now['name2']);   // swapping the second entry in as the first
+            $now['cat'] = $catId; $now['name'] = $nm;
+        }
+        $meta['show'] = $now;
         catfish_meta_save($uid, $meta);
         return [true, 'Entered. The judges decide when the week ends.'];
     });
@@ -1113,13 +1560,19 @@ function catfish_show_settle(int $uid): ?array
         $e = $meta['show'] ?? null;
         if (!is_array($e) || ($e['week'] ?? '') >= catfish_show_week()) return null;
         unset($meta['show']);
-        $row = q_one('SELECT * FROM cats WHERE id = ? AND user_id = ?', [(int)$e['cat'], $uid]);
         catfish_meta_save($uid, $meta);
-        if (!$row) return null;
-        $cat = catfish_cat((int)$row['seed']);
         $theme = catfish_show_theme((string)$e['week']);
-        $j = catfish_show_judge($uid, (string)$e['week'], $cat, $theme);
-        $r = ['user_id' => $uid, 'week' => (string)$e['week'], 'theme' => $theme['label'], 'cat_name' => (string)($e['name'] ?? $row['name']), 'tier' => $j['tier'], 'score' => $j['score'], 'created_at' => now()];
+        $row = null; $j = null; $nm = '';
+        foreach ([[(int)$e['cat'], 'name'], [(int)($e['cat2'] ?? 0), 'name2']] as [$cid, $nk]) {   // the better of up to two entries wins the one ribbon for the week
+            if ($cid < 1) continue;
+            $r2 = q_one('SELECT * FROM cats WHERE id = ? AND user_id = ?', [$cid, $uid]);
+            if (!$r2) continue;
+            $c2 = catfish_cat((int)$r2['seed']);
+            $j2 = catfish_show_judge($uid, (string)$e['week'], $c2, $theme, catfish_pet_show_bonus($uid, $c2));
+            if ($j === null || $j2['score'] > $j['score']) { $row = $r2; $j = $j2; $nm = (string)($e[$nk] ?? $r2['name']); }
+        }
+        if (!$row) return null;
+        $r = ['user_id' => $uid, 'week' => (string)$e['week'], 'theme' => $theme['label'], 'cat_name' => $nm, 'tier' => $j['tier'], 'score' => $j['score'], 'created_at' => now()];
         try { db_insert('cat_ribbons', $r); }
         catch (PDOException $ex) {   // only the unique key (already judged) is fine; anything else rolls the transaction back
             if (($ex->errorInfo[0] ?? $ex->getCode()) === '23000' || ($ex->errorInfo[1] ?? 0) === 19) return null;
@@ -1134,6 +1587,23 @@ function catfish_ribbons(int $uid, int $limit = 20): array
 {
     if (!catfish_ensure()) return [];
     return q('SELECT * FROM cat_ribbons WHERE user_id = ? ORDER BY week DESC LIMIT ' . (int)$limit, [$uid])->fetchAll();
+}
+
+/** Profile ribbon shelf: one slot per tier with a count, best tier first, and the latest ribbon under it. '' with no ribbons. */
+function catfish_ribbon_shelf_html(int $uid): string
+{
+    if (!catfish_ensure()) return '';
+    $n = q('SELECT tier, COUNT(*) FROM cat_ribbons WHERE user_id = ? GROUP BY tier', [$uid])->fetchAll(PDO::FETCH_KEY_PAIR);
+    if (!$n) return '';
+    $h = '';
+    foreach (array_merge(array_keys(CATFISH_RIBBONS), [CATFISH_RIBBON_PART[0]]) as $t) {
+        if (empty($n[$t])) continue;
+        [$icon, $label] = catfish_ribbon_face($t);
+        $h .= '<li class="cfbadge cfribbon" title="' . e($label) . '">' . catfish_img('ribbon-' . $t, $icon, '', 32) . '<small>' . e($label) . ' ×' . (int)$n[$t] . '</small></li>';
+    }
+    $last = catfish_ribbons($uid, 1)[0] ?? null;
+    return '<p class="cfshelftitle"><b>🎀 Ribbon shelf</b></p><ul class="pzbadges cfbadges cfribbonshelf">' . $h . '</ul>'
+        . ($last ? '<p class="muted"><small>Latest: ' . e($last['cat_name'] . ' · ' . $last['theme']) . '</small></p>' : '');
 }
 
 /** [icon, label] for a ribbon tier. */
@@ -1159,9 +1629,6 @@ function catfish_badges_html(int $uid): string
     if (!catfish_open()) return '';
     $h = '';
     foreach (catfish_badges($uid) as $key => [$icon, $label]) $h .= '<li class="cfbadge" title="' . e($label) . '">' . catfish_img('badge-' . $key, $icon, '', 32) . '<small>' . e($label) . '</small></li>';
-    foreach (catfish_ribbons($uid, 8) as $r) {
-        [$icon, $label] = catfish_ribbon_face((string)$r['tier']);
-        $h .= '<li class="cfbadge cfribbon" title="' . e($r['theme'] . ' · ' . $r['cat_name']) . '">' . catfish_img('ribbon-' . $r['tier'], $icon, '', 32) . '<small>' . e($label . ': ' . $r['cat_name']) . '</small></li>';
-    }
-    return $h === '' ? '' : '<ul class="pzbadges cfbadges">' . $h . '</ul>';
+    $shelf = catfish_ribbon_shelf_html($uid);
+    return $h === '' && $shelf === '' ? '' : ($h === '' ? '' : '<ul class="pzbadges cfbadges">' . $h . '</ul>') . $shelf;
 }

@@ -1,21 +1,29 @@
 <?php
-// Balance sim: php claude/catfish-sim.php <run minutes> <cycles> [taps per day]. Greedy active player, Nap at the end of every run.
+// Balance sim: php claude/catfish-sim.php <run minutes> <cycles> [taps per day] [pets]. Greedy active player, Nap at the end of every run.
+// Fourth argument (default 0): 1 = every Kibble spot of the pet shops is filled with the best item that fits it (2.2.x room things, includes/data/catfish_pets.php): the summed Kibble % is NOT capped
+// (Joshua), so this is the ceiling: sill +2, picture frame +2, floor by the bowl +2, ceiling +2, rod charm +1 = +9% Kibble/h. The line at the end compares the run with the same run without them.
 // Third argument (default 0): active play, taps on the dangling fish per Hollow day (the server pays at most 360). The taps are spread evenly over the day's 1440 minutes,
 // each paid max(1, floor(kph x 5 / 3600 x tier)) by catfish_play_value() at that minute's income, tiers 1 / 0.5 / 0.25 by tap number within the day.
 // After every cycle it asserts that a full day of those taps at the run's final income is at most 10% of a full day of idle income (kph x 24), and exits 1 if not.
 function is_admin(){return false;} function setting($n){return '';}
 require __DIR__ . '/../game/includes/catfish.php';
 $mins=(int)($argv[1]??120); $cycles=(int)($argv[2]??10); $taps=max(0,min(CATFISH_PLAY_TIERS[count(CATFISH_PLAY_TIERS)-1][0],(int)($argv[3]??0))); $yarn=0; $cat=['mood'=>'lazy'];
+$pets=(int)($argv[4]??0); $petPct=0; $petCost=0;
+if($pets){ foreach(CATFISH_PET_SLOTS as $sl){ $best=null; foreach(CATFISH_PET_ITEMS as $it){ if(!in_array($sl['key'],$it['fit'],true)||empty($it['effect']['kibble_pct'])) continue;
+   if($best===null||$it['effect']['kibble_pct']>$best['effect']['kibble_pct']||($it['effect']['kibble_pct']===$best['effect']['kibble_pct']&&$it['price']<$best['price'])) $best=$it; }
+  if($best){ $petPct+=$best['effect']['kibble_pct']; $petCost+=$best['price']; echo "spot {$sl['key']}: {$best['name']} +{$best['effect']['kibble_pct']}% ({$best['price']} Petals)\n"; } }
+ echo "pets: +{$petPct}% Kibble/h for {$petCost} Petals\n"; }
+$extra=1+$petPct/100;
 $clock=0; $acc=0.0; $dayTaps=0; $bad=0; $playAll=0.0; $idleAll=0.0;
 echo "run length {$mins}m, {$taps} taps a day: ";
-for($c=1;$c<=$cycles;$c++){ $up=[]; $k=0.0; $runk=0.0; $kph=catfish_kph($up,$cat,true,$yarn); $playRun=0.0;
- for($t=1;$t<=$mins;$t++){ $kph=catfish_kph($up,$cat,true,$yarn); $k+=$kph/60; $runk+=$kph/60;
+for($c=1;$c<=$cycles;$c++){ $up=[]; $k=0.0; $runk=0.0; $kph=catfish_kph($up,$cat,true,$yarn,$extra); $playRun=0.0;
+ for($t=1;$t<=$mins;$t++){ $kph=catfish_kph($up,$cat,true,$yarn,$extra); $k+=$kph/60; $runk+=$kph/60;
   if($taps>0){ if($clock%1440===0) $dayTaps=0; $clock++; $acc+=$taps/1440;
    while($acc>=1 && $dayTaps<360){ $acc-=1; $dayTaps++; $v=catfish_play_value($kph,$dayTaps); $k+=$v; $runk+=$v; $playRun+=$v; } }
   while(true){ $best=null;$bv=0;
    foreach(CATFISH_UPGRADES as $key=>$d){ $n=$up[$key]??0; $cc=catfish_cost($key,$n); if($cc>$k) continue;
-    $u2=$up; $u2[$key]=$n+1; $v=(catfish_kph($u2,$cat,true,$yarn)-$kph)/$cc; if($v>$bv){$bv=$v;$best=$key;} }
-   if(!$best)break; $n=$up[$best]??0; $k-=catfish_cost($best,$n); $up[$best]=$n+1; $kph=catfish_kph($up,$cat,true,$yarn); } }
+    $u2=$up; $u2[$key]=$n+1; $v=(catfish_kph($u2,$cat,true,$yarn,$extra)-$kph)/$cc; if($v>$bv){$bv=$v;$best=$key;} }
+   if(!$best)break; $n=$up[$best]??0; $k-=catfish_cost($best,$n); $up[$best]=$n+1; $kph=catfish_kph($up,$cat,true,$yarn,$extra); } }
  $dayPlay=0.0; for($i=1;$i<=$taps;$i++) $dayPlay+=catfish_play_value($kph,$i); $dayIdle=$kph*24;
  if($dayPlay>0.10*$dayIdle) $bad++;
  $playAll+=$dayPlay; $idleAll+=$dayIdle;
