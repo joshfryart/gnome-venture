@@ -66,7 +66,7 @@ $canParty = $palsOn && ppal_can_party($u);
 $eq = $canParty ? ppal_equipped($u) : [];
 $palShort = function (array $p): string {
     $v = $p['perk'] === 'shine' ? 0 : ($p['perk'] === 'road' ? (PPAL_ROAD_UNITS[$p['rarity']] ?? 1) : (PPAL_PERK_RATE[$p['perk']] ?? 0) * (PPAL_UNITS[$p['rarity']] ?? 8));
-    $perk = match ($p['perk']) { 'gather' => "+$v% rare finds", 'road' => "+$v in road fights", 'finder' => "+$v% pal finds", 'tinker' => "+$v% game XP", 'bloom' => "+$v% harvest extras", default => 'a sparkle' };
+    $perk = match ($p['perk']) { 'gather' => "+$v% rare finds", 'road' => "+$v in road fights", 'finder' => "+$v% extra pal chance", 'tinker' => "+$v% game XP", 'bloom' => "+$v% harvest extras", default => 'a sparkle' };
     $sk = ppal_skill_short($p);
     return $sk !== '' ? $perk . ' · ⚔️ ' . $sk : $perk;
 };

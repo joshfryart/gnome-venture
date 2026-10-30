@@ -104,7 +104,7 @@ ok "tournament Advanced without art: no release for a player" "$(rel $MAIZE)" 0
 
 echo "== admin, guest, flag off"
 dbx "DELETE FROM ppal_releases; DELETE FROM ppal_trophies"
-ok "admin is not blocked by missing art (rosters are previewable)" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; $GLOBALS["CURRENT_USER"]=q_one("SELECT * FROM users WHERE username=\"admin\""); echo count(ppal_on_solve((int)$GLOBALS["CURRENT_USER"]["id"], (int)$argv[2], "advanced", "free"));' $GAME $MAIZE)" 3
+ok "admin is not blocked by missing art (rosters are previewable)" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; $GLOBALS["CURRENT_USER"]=q_one("SELECT * FROM users WHERE username=\"admin\""); echo count(ppal_on_solve((int)$GLOBALS["CURRENT_USER"]["id"], (int)$argv[2], "advanced", "free"));' $GAME $MAIZE)" 4
 setg guest_open 1; dbx "DELETE FROM login_attempts"
 curl -s -c $W/g -b $W/g $BASE/guest.php > $W/g.html; curl -s -c $W/g -b $W/g -o /dev/null -X POST $BASE/guest.php --data-urlencode "csrf=$(csrf $W/g.html)"
 GID=$(dbv "SELECT id FROM users WHERE guest=1 ORDER BY id DESC LIMIT 1")

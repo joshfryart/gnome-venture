@@ -116,7 +116,7 @@ page_header('World');
     'here' => [in_array($node['kind'], ['market', 'hub'], true) ? '🏘️ Town square' : '🪧 Rest stop', url('town.php'), ''],
 ], $tab, 'World sections') ?>
 
-<?php if ($tab === 'go' && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); } ?>
+<?php if ($tab === 'go' && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']) . ppal_chip_html($u); } ?>
 
 <?php if (!$home): ?>
   <form method="post" class="box form">

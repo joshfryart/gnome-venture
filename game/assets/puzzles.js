@@ -550,7 +550,7 @@ function pStart(){
 function ppalLine(r){
   var p=r&&r.ppal; if(!p) return '';
   if(p.trophy) return ' \ud83c\udfc6 An Expert trophy for '+p.title+'! It goes on your profile shelf.';
-  if(p.released) return ' The magic of the jigsaw is loose! '+p.released+' Puzzle Pals from '+p.title+' are somewhere about the Hollow.';
+  if(p.released) return ' The magic of the jigsaw is loose! '+p.released+' Puzzle Pals from '+p.title+(p.mode==='map'?' will wait at places on the map. Look for their stickers!':' are somewhere about the Hollow.');
   return '';
 }
 function pFinish(){

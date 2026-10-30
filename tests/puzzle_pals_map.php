@@ -142,6 +142,15 @@ ok('page mode: no badge on the world map', !str_contains(myc_world_svg($uu, $rid
 set_setting('ppal_find_mode', 'map'); setting('__reload__'); ppal_spawns_reset();
 $book = ppal_waiting_html($uu);
 ok('the Pal Book lists the waiting pal with its place and level', str_contains($book, $pal0['name']) && str_contains($book, 'Lv '), $book);
+echo "== reworked finds: chip, admin test, wording\n";
+ok('the Go tab chip counts the waiting pals and links to the map', str_contains(ppal_chip_html($uu), '1 Puzzle Pal is') && str_contains(ppal_chip_html($uu), 'world.php?tab=map'), ppal_chip_html($uu));
+$beforeN = count(ppal_spawns($uid));
+$msg = ppal_admin_spawn($uu);
+ok('admin test puts one more pal on the map now (' . $msg . ')', str_contains($msg, 'now waits at') && count(ppal_spawns($uid)) === $beforeN + 1, $msg);
+ok('the finder perk line says what it does now', str_contains(PPAL_PERK_TEXT['finder'], 'extra Puzzle Pal on your map'));
+q('DELETE FROM ppal_spawns WHERE user_id = ?', [$uid]); ppal_spawns_reset();
+ok('nothing waiting but pals left to meet: the book says new pals arrive each day', str_contains(ppal_waiting_html($uu), 'Nothing is waiting right now') && ppal_chip_html($uu) === '');
+ok('the win card says the pals wait on the map (puzzles.js)', str_contains((string)file_get_contents(APP_ROOT . '/assets/puzzles.js'), "p.mode==='map'"));
 $g = q_one('SELECT * FROM users WHERE guest = 1 LIMIT 1');
 ok('guests never get spawns', !$g || ppal_map_spawns($g) === []);
 

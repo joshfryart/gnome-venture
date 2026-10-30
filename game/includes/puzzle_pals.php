@@ -319,10 +319,10 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
             try {
                 db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => $picId, 'released_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
             } catch (Throwable $e) { return []; }   // UNIQUE: released already
-            $out = ['title' => (string)$pic['title'], 'released' => count(ppal_roster($pic)), 'trophy' => false];
+            $out = ['title' => (string)$pic['title'], 'released' => count(ppal_roster($pic)), 'trophy' => false, 'mode' => ppal_find_mode()];
             try { q('UPDATE users SET ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable $e) {}   // v2.0.92: the new roster gets its map spawns on the next page
             require_once __DIR__ . '/trade.php';
-            notify($uid, '🧩 The magic of the jigsaw is loose! ' . $out['released'] . ' Puzzle Pals from ' . $pic['title'] . ' are somewhere about the Hollow.');
+            notify($uid, '🧩 The magic of the jigsaw is loose! ' . $out['released'] . ' Puzzle Pals from ' . $pic['title'] . (ppal_find_mode() === 'map' ? ' will wait at places on the map. Look for their stickers.' : ' are somewhere about the Hollow.'));
         } else {
             try {
                 db_insert('ppal_trophies', ['user_id' => $uid, 'pic_id' => $picId, 'earned_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
@@ -618,7 +618,7 @@ const PPAL_PERK_CAP = ['gather' => 50, 'finder' => 50, 'tinker' => 50, 'bloom' =
 const PPAL_PERK_TEXT = [
     'gather' => 'Brings +%d%% rare finds when you gather',
     'road' => 'Gives +%d Grit, Nimble and Hardiness in road, lair and delve fights',
-    'finder' => 'Brings +%d%% Puzzle Pal finds',
+    'finder' => 'Brings +%d%% chance of an extra Puzzle Pal on your map each day',
     'tinker' => 'Brings +%d%% XP from games',
     'bloom' => 'Brings +%d%% lucky extras at the harvest',
     'shine' => 'Makes your gnome sparkle',
@@ -900,21 +900,21 @@ function ppal_spawns(int $uid, bool $reset = false): array
 /**
  * Once per Hollow day (and right after a roster is released) top the gnome's map up to ppal_spawn_count waiting pals. Pals already waiting are kept, never moved or
  * rerolled; a pal collected today is replaced tomorrow. Only pals not found yet, of released rosters, weighted by rarity. The finder perk is the chance (percent) of
- * one extra pal. Cheap when nothing is due: one column compare. Returns the number made.
+ * one extra pal. Cheap when nothing is due: one column compare. $extra > 0 (admin test only) skips the day and request guards and adds that many. Returns the number made.
  */
-function ppal_spawn_refresh(array $u): int
+function ppal_spawn_refresh(array $u, int $extra = 0): int
 {
     static $done = [];
     $uid = (int)($u['id'] ?? 0);
-    if (!$uid || isset($done[$uid])) return 0;
+    if (!$uid || ($extra <= 0 && isset($done[$uid]))) return 0;
     $done[$uid] = 1;
     try {
         if (!ppal_map_on() || is_guest($u) || !ppal_ensure()) return 0;
         $day = hollow_date('Y-m-d');
-        if ((string)q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]) === $day) return 0;
+        if ($extra <= 0 && (string)q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]) === $day) return 0;
         $rel = ppal_releases($uid);
         if (!$rel) return 0;
-        if (q('UPDATE users SET ppal_spawn_day = ? WHERE id = ? AND (ppal_spawn_day IS NULL OR ppal_spawn_day <> ?)', [$day, $uid, $day])->rowCount() !== 1) return 0;   // a second tab got there first
+        if ($extra <= 0 && q('UPDATE users SET ppal_spawn_day = ? WHERE id = ? AND (ppal_spawn_day IS NULL OR ppal_spawn_day <> ?)', [$day, $uid, $day])->rowCount() !== 1) return 0;   // a second tab got there first
         $have = ppal_found_map($uid);
         $waiting = ppal_spawns($uid);
         $isWaiting = [];
@@ -926,7 +926,7 @@ function ppal_spawn_refresh(array $u): int
             foreach (ppal_roster($pic) as $p) if (!isset($have[$p['key']]) && !isset($isWaiting[$p['key']])) $pool[] = [$p, $pic];
         }
         $want = ppal_spawn_target() + (($fp = ppal_perks($u)['finder']) > 0 && random_int(1, 100) <= $fp ? 1 : 0);
-        $need = $want - count($waiting);
+        $need = $extra > 0 ? $extra : $want - count($waiting);   // $extra (the admin test): that many on top of those waiting, whatever the day says
         $nodes = $need > 0 && $pool ? ppal_spawn_nodes($uid) : [];
         $taken = array_fill_keys(array_keys($waiting), true);
         $g = max(1, (int)($u['level'] ?? 1));
@@ -994,7 +994,11 @@ function ppal_here_html(array $u, int $locId): string
 function ppal_waiting_html(array $u): string
 {
     $sp = ppal_map_spawns($u);
-    if (!$sp) return '';
+    if (!$sp) {
+        if (!ppal_map_on()) return '';
+        [$f, $t] = ppal_counts((int)$u['id']);
+        return $t > $f ? '<section class="box ppalwaiting" aria-label="Pals waiting on the map"><h2>🧩 Waiting on the map</h2><p class="help">Nothing is waiting right now. New pals from your freed pictures arrive on the map each new day.</p></section>' : '';
+    }
     $lvl = (int)$u['level'];
     $h = '';
     foreach ($sp as $locId => $w) {
@@ -1133,4 +1137,36 @@ function ppal_skill_lines(int|array $u): array
     $out = [];
     foreach (PPAL_SKILLS as [$kind, $name, , $text]) if (!empty($sk[$kind])) $out[] = $name . ': ' . sprintf($text, $sk[$kind]);
     return $out;
+}
+
+/** One line for the World Go tab: how many pals wait on the map and the rarest, linking to the map. '' when none. */
+function ppal_chip_html(array $u): string
+{
+    $sp = ppal_map_spawns($u);
+    if (!$sp) return '';
+    $rare = false;
+    foreach ($sp as $w) if ($w['pal']['rarity'] === 'rare') $rare = true;
+    return '<p class="ppalchip help">🧩 <b>' . count($sp) . ' Puzzle Pal' . (count($sp) === 1 ? ' is' : 's are') . ' waiting</b> at places on the map' . ($rare ? ' (one is rare!)' : '') . '. <a href="' . e(url('world.php?tab=map#regionmap')) . '">See the map</a> · <a href="' . e(url('puzzlepals.php')) . '">Where?</a></p>';
+}
+
+/**
+ * Admin test: make a pal wait on the admin's map now, whatever the daily top-up says. With nothing released it releases the first picture that has a roster (like the old
+ * test find). Adds one pal on top of those already waiting. Returns a sentence for the flash message.
+ */
+function ppal_admin_spawn(array $u): string
+{
+    if (!ppal_open() || !ppal_ensure()) return 'Puzzle Pals are not open.';
+    $uid = (int)$u['id'];
+    if (!ppal_releases($uid)) {
+        foreach (q("SELECT * FROM puzzle_pics WHERE kind = 'still' AND active = 1 ORDER BY sort, id")->fetchAll() as $pic) {
+            if (ppal_roster($pic)) { try { db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => (int)$pic['id'], 'released_at' => now(), 'src' => 'free', 'run_id' => null]); } catch (Throwable $e) {} break; }
+        }
+    }
+    $before = array_keys(ppal_spawns($uid));
+    ppal_spawn_refresh($u, 1);
+    ppal_spawns_reset();
+    $new = array_diff(array_keys(ppal_spawns($uid)), $before);
+    if (!$new) return 'No pal could be added (every pal of your released pictures is found or already waiting).';
+    $w = ppal_spawns($uid)[reset($new)];
+    return $w['pal']['name'] . ' (' . $w['pal']['rarity'] . ') now waits at ' . $w['loc'] . ' (level ' . $w['level'] . '). Open the map or the Pal Book.';
 }
