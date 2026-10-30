@@ -625,8 +625,8 @@ function petshop_page_html(array $u, array $shop, bool $reachable): string
         $h .= '<li class="cfup cfpitem"><span class="cficon cfpspr">' . catfish_pet_sprite($key, 2) . '</span><span class="cfinfo"><b>' . e($it['name']) . '</b> <small class="muted">· ' . e($kind) . ' · ' . e(catfish_pet_type_label($it['type'])) . '</small><br>'
             . '<small>' . e($it['desc']) . '</small><br><small class="muted">' . e($it['flavour']) . '</small></span>';
         if ($has) $h .= '<span class="cfpown"><small class="muted">' . ($at !== false ? '✓ In your room' : '✓ Yours, not placed') . '</small></span>';
-        else $h .= '<form method="post" action="' . e(url('shop.php?id=' . (int)$shop['id'])) . '">' . csrf_field() . '<input type="hidden" name="do" value="pet_buy"><input type="hidden" name="item" value="' . e($key) . '"><button class="btn" type="submit"'
-            . ($canBuy && $coins >= $price ? '' : ' disabled') . ' aria-label="Buy ' . e($it['name']) . ' for ' . number_format($price) . ' Petals">' . number_format($price) . '</button></form>';
+        else $h .= '<form class="cfpown" method="post" action="' . e(url('shop.php?id=' . (int)$shop['id'])) . '">' . csrf_field() . '<input type="hidden" name="do" value="pet_buy"><input type="hidden" name="item" value="' . e($key) . '"><button class="btn" type="submit"'
+            . ($canBuy && $coins >= $price ? '' : ' disabled') . ' aria-label="Buy ' . e($it['name']) . ' for ' . number_format($price) . ' Petals">Buy · ' . number_format($price) . '</button></form>';
         $h .= '</li>';
     }
     $h .= '</ul>';

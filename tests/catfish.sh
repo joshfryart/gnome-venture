@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cat Fish (catfish.php, catfish_api.php, includes/catfish.php, profile box): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades (16 in 4 branches), naps and Yarn, Cat Book and badges, API guards, generator and shelter determinism, pure helpers.
+# Cat Fish (catfish.php, catfish_api.php, includes/catfish.php, profile box): gate, shelter, adoption, name cleaning, tick and away pay-out, upgrades (16 in 4 branches), naps and Yarn, Cat Book and badges, API guards, generator and shelter determinism, pure helpers, and (2.2.x) the pet shops: 11 shops in regions 4+, 55 room things, 8 scene spots (tests/catfish_pets.js runs the browser part).
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
 php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/catfish-php.log 2>&1 & PID=$!; sleep 1
 # the "no art" checks assume an empty art folder: move installed art aside for the run, restore it on exit

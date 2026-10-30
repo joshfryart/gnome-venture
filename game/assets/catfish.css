@@ -399,7 +399,8 @@ button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; to
 .cfpetacts .cfpetform { margin: 0; flex: 1 1 13rem; }
 .cfpetacts .cfpetform:last-child:not(:only-child) { flex: 0 0 auto; }
 .cfpetform { display: flex; gap: .5rem; align-items: center; flex-wrap: nowrap; margin: .25rem 0 0; }
-.cfpetform select { max-width: 100%; flex: 1 1 8rem; min-width: 0; }
+.cfpetform select { max-width: 100%; width: 8rem; flex: 1 1 8rem; min-width: 0; }   /* an explicit width: a select's own width is its longest option, which would stop the form shrinking */
+.cfpetacts .cfpetform { min-width: 0; }
 .cfpetstate { font-weight: 700; }
 .cfpethint { font-style: italic; }
 .cfpshops { margin: .4rem 0; padding-left: 1.1rem; }
@@ -415,10 +416,11 @@ button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; to
 .cfpline { font-style: italic; }
 .cfplist { list-style: none; margin: .5rem 0; padding: 0; display: grid; gap: .5rem; }
 .cfpitem { flex-wrap: wrap; }
-.cfpitem .cfpspr { width: 96px; text-align: center; }
+.cfpitem .cfpspr { flex: 0 0 auto; min-width: 56px; text-align: center; }
 .cfpitem .cfpspr .cfimg { max-width: 96px; }
 .cfpitem .cfpspr .cfpetph { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #dc1414; box-sizing: border-box; background: #fff; color: #333; font-size: 1.2rem; }
 .cfpitem .btn { min-width: 4.5rem; }
+.cfpitem .cfinfo { flex: 1 1 9rem; }
 .cfpown { margin-left: auto; }
 
 .cfhub button:last-child:nth-child(3n+1) { grid-column: 1 / -1; }   /* seven tiles: the odd one out takes the whole last row */

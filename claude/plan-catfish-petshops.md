@@ -1,6 +1,6 @@
 # Cat Fish: pet shops, slots and long-cooldown scene events (design, not built)
 
-Status 2026-10-29: designed with an Opus agent and a Fable agent, approved in outline by Joshua, NOT built. Facts below came from the agents' reading of the code; re-check file:line before building.
+Status 2026-10-30: sections 1-5 BUILT on branch ccr-d4955a91-j50rxx (server `includes/catfish_pets.php`, UI, tests; art drawn in `aseprite-source/catfish/art22/out/` but not installed, so placeholders show); section 6 (scene events) NOT built. Built differently from the sketch: meta `slotn` is the list of Yarn spots opened (not a count); buying is `shop.php` `do=pet_buy` only; the scene key also holds which active things are ready, so the stage swaps when a cooldown ends. Designed with an Opus agent and a Fable agent, approved in outline by Joshua. Facts below came from the agents' reading of the code; re-check file:line before building.
 Owner decisions: **no cap on the summed passive Kibble %** (see Guardrails). Placeholder art = red border + THIS IS PLACEHOLDER (`tools/gen_placeholder_art.py`).
 
 ## 1. Shops: 11 (regions 4 and up, one pet shop in each region's market town)
