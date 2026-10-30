@@ -8,6 +8,11 @@ function craft_view(array $u, string $tab): void
 {
 $uid = (int)$u['id'];
 if (!isset(CRAFT_CATEGORIES[$tab])) $tab = 'cooking';
+if ($tab === 'pantry') {   // The Pantry has its own master-detail view
+    require_once __DIR__ . '/pantry_view.php';
+    pantry_view($u);
+    return;
+}
 $stations = craft_stations($uid);
 $isPantry = $tab === 'pantry';   // v0.9.8: preserves in Pantry jars (a Kitchen add-on)
 $kitchenOk = $stations[$tab] !== 0;

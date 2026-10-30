@@ -2013,3 +2013,9 @@ document.addEventListener('animationend', function (ev) {
   if (ev.animationName !== 'routefade') return;
   try { sessionStorage.setItem('gvRouteFaded', '1'); } catch (e) {}
 });
+
+/* Pantry (master-detail): on a phone the selected-recipe sheet starts folded so the recipe list shows first; picking a recipe (?r=) leaves it open */
+(function () {
+  var d = document.querySelector('.p2sheet');
+  if (d && window.matchMedia('(max-width: 720px)').matches && !/[?&]r=/.test(location.search)) d.open = false;
+})();
