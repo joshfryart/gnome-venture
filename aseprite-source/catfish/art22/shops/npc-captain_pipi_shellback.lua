@@ -6,6 +6,8 @@
 -- sailing jacket with a cream shirt and a string of pipi shells. He holds a grey kitten wearing a little flower
 -- lei in his flippers. Pacific touches (tapa, frangipani, shells, the turtle) kept gentle, no costume clichés.
 -- Light from the upper left; locked eyes; no text.
+-- Pass 1: cap lowered and widened to sit on the head, smaller shell inside the disc, a neck, pale muzzle.
+-- Pass 2: scute seams clipped to the visible shell (no stray lines on neck or kitten), radial plate seams.
 -- Run: AppRun -b --script npc-captain_pipi_shellback.lua     Writes ../out/npc-captain_pipi_shellback.png + .aseprite
 local here = debug.getinfo(1, "S").source:sub(2):match("^(.*)/[^/]*$") or "."
 local GV = dofile(here .. "/../../../gvlib/gvlib.lua")
@@ -15,20 +17,21 @@ local D = "#2a1a10"
 
 local SKIN  = GV.ramp("moss")                -- turtle green
 local SHELL = GV.ramp("#9a6b3f")             -- carapace (soil family)
-local CAP   = GV.ramp("cream")
+local CAP   = GV.ramp("cream", { dot = "#fff3c8" })
 local NAVY  = GV.ramp("#2f4a7a")
 local KIT   = GV.ramp("#9a96a6")             -- grey kitten (stone family)
 local TAPA, CREAM = "#6a3a22", "#fff1c8"
 
 -- shapes (back to front)
 local disc  = c:ellipse(39.5, 50, 34, 34)
-local shell = c:ellipse(39.5, 90, 37, 22)
-local coat  = c:ellipse(39.5, 106, 30, 28)
-local head  = c:ellipse(39.5, 56, 18, 16)
-local crown = c:ellipse(39.5, 34, 19, 9):cut(c:rect(0, 37, 79, 99))
-crown:add(c:rrect(22, 30, 57, 39, 3))
-local band  = c:rect(23, 36, 56, 40)
-local peak  = c:ellipse(39.5, 42, 17, 3):cut(c:rect(0, 0, 79, 40))
+local shell = c:ellipse(39.5, 94, 34, 22)
+local coat  = c:ellipse(39.5, 107, 30, 29)
+local head  = c:ellipse(39.5, 57, 19, 16.5)
+local neck  = c:rrect(30, 68, 49, 84, 4)
+local crown = c:ellipse(39.5, 31, 22, 10):cut(c:rect(0, 34, 79, 99))
+crown:add(c:rrect(19, 28, 60, 40, 3))
+local band  = c:rect(20, 35, 59, 40)
+local peak  = c:ellipse(39.5, 42, 18, 3.5):cut(c:rect(0, 0, 79, 40))
 local shirt = c:poly({ { 30, 79 }, { 50, 79 }, { 40, 92 } })
 -- kitten held in front, lower left
 local kit   = c:ellipse(25.5, 88, 12, 9.5)
@@ -40,6 +43,7 @@ local flipR = c:ellipse(38, 96, 5, 3)
 c:build{
   { "disc",  disc,  "#8fd0c8", { contour = false, gloss = false } },
   { "shell", shell, SHELL, { gloss = false } },
+  { "neck",  neck,  SKIN, { gloss = false } },
   { "coat",  coat,  NAVY, { stitch = { side = "lit" } } },
   { "head",  head,  SKIN },
   { "crown", crown, CAP },
@@ -51,29 +55,33 @@ c:build{
   { "flipR", flipR, SKIN, { gloss = false } },
 }
 
--- shell scutes peeking past the shoulders
-for _, p in ipairs({ { 6, 80 }, { 12, 72 }, { 67, 72 }, { 73, 80 } }) do
-  c:fill(c:rect(p[1], p[2], p[1] + 1, p[2]), SHELL.shade)
-end
-c:fill(c:line({ { 9, 76 }, { 12, 82 } }, 1):add(c:line({ { 70, 76 }, { 67, 82 } }, 1)), SHELL.shade)
-c:fill(c:rect(8, 74, 9, 75):add(c:rect(15, 70, 16, 71)), SHELL.gloss)
+-- shell scutes peeking past the shoulders: a ring of plate seams echoing the edge, radial seams out to the
+-- rim, and a lighter centre on each marginal plate (only where the shell itself shows)
+local shellVis = shell:copy():shrink(1):cut(coat:grow(1)):cut(neck:grow(1)):cut(kit:grow(1)):cut(head:grow(1))
+local scute = c:ellipse(39.5, 94, 29, 17):edge()
+scute:add(c:line({ { 10, 84 }, { 6, 82 } }, 1)):add(c:line({ { 17, 78 }, { 14, 74 } }, 1))
+scute:add(c:line({ { 62, 78 }, { 65, 74 } }, 1)):add(c:line({ { 69, 84 }, { 73, 82 } }, 1))
+c:fill(scute:clip(shellVis), SHELL.shade)
+c:fill(c:rect(9, 78, 10, 79):add(c:rect(68, 78, 69, 79)):add(c:rect(58, 74, 59, 75)):add(c:rect(20, 74, 21, 75)):clip(shellVis), SHELL.rim)
 -- tapa triangles on the cap band
-for x = 24, 54, 4 do c:paint({ "xxx", ".x." }, x, 37, { x = CREAM }) end
+for x = 21, 57, 4 do c:paint({ "xxx", ".x." }, x, 37, { x = CREAM }) end
 -- gold star badge on the band centre
 c:paint({ ".g.", "ggg", ".g." }, 38, 36, { g = "#f5cf6a" })
 -- frangipani tucked at the right of the cap
-c:paint({ ".pp.", "pyyp", "pyyp", ".pp." }, 52, 33, { p = CREAM, y = "#f5cf6a" })
-c:paint({ "p...", "...." }, 55, 31, { p = CREAM })
+c:paint({ ".pp.", "pppp", "ppyp", ".pp." }, 54, 30, { p = CREAM, y = "#f5cf6a" })
+c:paint({ ".pp", "pp." }, 57, 27, { p = "#f7b8cf" })
 -- turtle scale patches on the brow and cheeks
-for _, p in ipairs({ { 30, 45 }, { 37, 44 }, { 45, 45 }, { 24, 56 }, { 53, 56 } }) do
+for _, p in ipairs({ { 24, 55 }, { 53, 55 }, { 26, 62 }, { 51, 62 } }) do
   c:paint({ "ss", "ss" }, p[1], p[2], { s = SKIN.rim })
 end
 
+-- pale beak-like muzzle
+c:fill(c:ellipse(39.5, 60, 9, 4.5), SKIN.gloss)
 -- face: locked eyes, little nostrils, big friendly smile
-c:eye(28, 49); c:eye(46, 49)
-c:px(38, 56, SKIN.deep); c:px(41, 56, SKIN.deep)
-c:paint({ "u..........u", ".u........u.", "..uuuuuuuu.." }, 34, 60, { u = D })
-c:fill(c:rect(37, 62, 42, 62), "#dd3a2a")
+c:eye(28, 50); c:eye(46, 50)
+c:px(38, 57, SKIN.deep); c:px(41, 57, SKIN.deep)
+c:paint({ "u..........u", ".u........u.", "..uuuuuuuu.." }, 34, 61, { u = D })
+c:fill(c:rect(37, 63, 42, 63), "#dd3a2a")
 
 -- pipi-shell necklace across the shirt
 for i, p in ipairs({ { 31, 80 }, { 35, 83 }, { 40, 85 }, { 45, 83 }, { 49, 80 } }) do
