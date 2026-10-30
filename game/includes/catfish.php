@@ -730,8 +730,9 @@ function catfish_milestone_mult(int $owned, bool $tuned = false): int
     return $m;
 }
 
-const CATFISH_PAL_STEP = 0.02;          // Puzzle Pals: +2% Kibble per pal found (needs Puzzle Pals open; no gnome level, as Pals themselves need none since 2.0.91)
-const CATFISH_PAL_MAX = 10;             // ...for up to this many pals (+20%)
+const CATFISH_PAL_STEP = ['common' => 0.04, 'uncommon' => 0.08, 'rare' => 0.16];   // Puzzle Pals: Kibble per pal found, by rarity (2.2.3: was a flat +2% a pal, scaled up like the perks); needs Puzzle Pals open, no gnome level
+const CATFISH_PAL_MAX = 10;             // ...the best this many pals count
+const CATFISH_PAL_CAP = 0.5;            // ...and the total stops at +50% (the perk cap)
 
 /** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (ppal_open). 1.0 when none. One cheap count per call, cached per request. */
 function catfish_extra_mult(int $uid): float
@@ -742,8 +743,14 @@ function catfish_extra_mult(int $uid): float
     try {
         require_once __DIR__ . '/puzzle_pals.php';
         if (ppal_open()) {   // no ppal_ensure() here: this runs inside the tick lock, and creating tables there would end the transaction. A missing table is caught below.
-            $found = (int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ?', [$uid]);
-            $m += CATFISH_PAL_STEP * min($found, CATFISH_PAL_MAX);
+            $steps = [];
+            foreach (q('SELECT pal_key, pic_id FROM ppal_found WHERE user_id = ?', [$uid])->fetchAll() as $f) {
+                $pic = ppal_pic((int)$f['pic_id']);
+                $pal = $pic ? ppal_find_pal($pic, (string)$f['pal_key']) : null;
+                $steps[] = $pal ? (CATFISH_PAL_STEP[$pal['rarity']] ?? CATFISH_PAL_STEP['common']) : CATFISH_PAL_STEP['common'];
+            }
+            rsort($steps);
+            $m += min(CATFISH_PAL_CAP, array_sum(array_slice($steps, 0, CATFISH_PAL_MAX)));
         }
     } catch (Throwable $e) {}
     try {   // a Buddy: an owned cat that is not the playing one

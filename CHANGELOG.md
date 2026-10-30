@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.3
+- **My Gnome shows pal combat skills.** Each pal row on My Gnome lists its skill ("... · ⚔️ Thorn Ward 2"), and the Pals tab's "What your pals do now" lists the party's combined skills. Before, skills showed only in the Pal Book.
+- **Cat Fish: Puzzle Pals found now pay Kibble by rarity** (common +4%, uncommon +8%, rare +16% each; the best 10 pals count; total capped at +50%). It was a flat +2% per pal, max +20%, so it had not moved with the 2.2.2 perk scale. Applies to pals found, equipped or not.
+- Known failing on the base commit too: `gather150`, `folkoverlay`.
+
 ## 2.2.2
 - **Puzzle Pals: bigger perks.** A perk unit is now one percent: common 8%, uncommon 15%, rare 30% (gather, finder, tinker, bloom); road is +1 / +2 / +4 points. The Expert trophy adds +4 (+1 road). Caps 50% (road +5). A single common road pal no longer gives 0, and the road perk uses `PPAL_PARTY_LEVEL` instead of a hard-coded 15.
 - **Puzzle Pals: pals wait on the map** (setting `ppal_find_mode`, default `map`; `page` = the old random page find; `ppal_spawn_count`, default 3). New table `ppal_spawns` and column `users.ppal_spawn_day` (additive, made by `ppal_ensure()` / `db_migrate`). Each Hollow day a gnome's map is topped up to 3 waiting pals from released rosters, kept until collected (never rerolled). Level bands round the gnome's level: common g-2..g, uncommon g-1..g+2, rare g+1..g+3. A Places picture's pals wait at their own place when it is within a level of the band. The finder perk is the chance of one extra pal. The pal's sticker with a rarity ring replaces the place icon on both region maps (a corner badge keeps the kind), a 🧩 badge marks regions on both world maps, "Say hello" collects it on the World Go tab, and the Pal Book lists the waiting pals. Everything stays behind `ppal_open`.

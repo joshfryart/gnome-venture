@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.2.3 (2026-10-30)
+- My Gnome shows each pal's combat skill (`ppal_skill_short`) and the party's combined skills (`ppal_skill_lines`) on the Pals tab. Cat Fish `catfish_extra_mult`: Kibble from pals found is by rarity (`CATFISH_PAL_STEP` 4/8/16%, best 10 pals, cap +50%), was flat +2% a pal (max +20%). No schema change. Slim needs 2.2.1+.
+
 ## 2.2.2 (2026-10-30)
 - Puzzle Pals: perk units are percents (common 8 / uncommon 15 / rare 30; road 1/2/4; trophy +4; caps 50, road 5). Pals now wait on the map (`ppal_find_mode` map|page, `ppal_spawn_count`; SCHEMA: table `ppal_spawns`, column `users.ppal_spawn_day`, additive via `ppal_ensure()`): daily top-up to 3, kept until collected, level bands (common g-2..g, uncommon g-1..g+2, rare g+1..g+3), Places pals at their own place, sticker + rarity ring on both region maps, 🧩 badge on both world maps, "Say hello" on the World Go tab, Pal Book "Waiting on the map". Passive combat skills per calling (`ppal_skills`, hooks in `gnome_combat` / `combat_turn`). Tests: puzzle_pals_map.php, puzzle_pals_party.php. No player news (feature off). Slim needs 2.2.0+.
 
