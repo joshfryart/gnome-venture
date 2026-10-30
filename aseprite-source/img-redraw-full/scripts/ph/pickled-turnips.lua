@@ -1,40 +1,39 @@
--- ph/pickled-turnips (Pantry pickle): wide fishbowl jar of magenta beet brine, purple-topped turnip halves, beet slice, wooden disc lid with knob
+-- ph/pickled-turnips (Pantry pickle): wide fishbowl jar of beet-pink brine, round wooden disc lid.
+-- Redraw B: the four small soft turnip halves become two big whole turnips (purple shoulders, white bulb, root tail,
+-- leaf stubs, crisp umber contour) plus one dark beet slice; the label is dropped so the turnips carry the read.
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local N = "pickled-turnips"
 local c = GV.canvas{ w = 64, h = 64, mode = "sticker" }
 local bowl = c:ellipse(32, 38, 22, 18):add(c:rect(19, 17, 45, 24))
+local brineM = c:ellipse(32, 39, 20, 15.5):cut(c:rect(0, 0, 63, 25))
 c:build{
   { "glass", bowl, "glass" },
-  { "brine", c:ellipse(32, 39, 20, 15.5):cut(c:rect(0, 0, 63, 25)), "#e46a9b", { contour = "#9a2a5a", gloss = false } },
+  { "brine", brineM, "#e46a9b", { contour = "#9a2a5a", gloss = false } },
 }
-c:fill(c:rect(14, 25, 50, 26):clip(c:ellipse(32, 39, 20, 15.5)), "#f6b8cf")   -- lit top rows
-c:fill(c:rect(14, 27, 50, 27):clip(c:ellipse(32, 39, 20, 15.5)), "#ef8fb5")
--- turnip halves: cream half-rounds with a purple crown band, flat cut face down
-local turnip = GV.ramp("#f1ece0", { shade = "#d8c49a", deep = "#b8a070" })
-local function half(x, y)
-  local m = c:ellipse(x, y, 5, 4.5)
-  c:part(m, turnip, { cres = 2, deep = 1, gloss = false, contact = false, contour = "#7a2a4a" })
-  c:fill(m:copy():cut(c:ellipse(x + 1, y + 4, 7, 5.5)), "#7a5cc0")   -- curved purple shoulders
-  c:px(x - 3, y - 2, "#a894dc"); c:px(x - 2, y - 3, "#a894dc")
-  c:px(x - 2, y + 1, "#fbf6e8")
-  c:px(x, y + 5, "#b8a070"); c:px(x + 1, y + 6, "#b8a070")            -- root tail
-  c:fill(c:rect(x - 1, y - 6, x, y - 5), "#4f9a45")                     -- leaf stub
+c:fill(c:rect(14, 25, 50, 26):clip(brineM), "#f6b8cf")   -- lit top rows
+c:fill(c:rect(14, 27, 50, 27):clip(brineM), "#ef8fb5")
+-- whole turnips: round bulb, purple upper half, white lower half, tapering root tail, green leaf stubs
+local white = GV.ramp("#f1ece0", { shade = "#d8c49a", deep = "#b8a070", rim = "#fbf6e8", pale = false })
+local purple = GV.ramp("#7a5cc0", { shade = "#4e3a8a", deep = "#3e2f66", rim = "#a894dc", bounce = "#5e48a0" })
+local function turnip(x, y, r)
+  local bulb = c:ellipse(x, y, r, r - 0.5):add(c:poly({ {x - 3, y + r - 2}, {x + 4, y + r - 2}, {x + 1, y + r + 4}, {x, y + r + 4} }))
+  local p = c:part(bulb, white, { cres = 3, deep = 1, gloss = false, contact = false, contour = "#4a2c1a" })
+  -- purple shoulders: everything above a gentle curve
+  local top = bulb:copy():cut(c:ellipse(x + 1, y + r + 2, r + 3, r + 1.5))
+  c:part(top, purple, { cres = 2, deep = 1, gloss = false, contact = false, contour = false })
+  c:px(x - r + 2, y - 2, "#a894dc"); c:px(x - r + 3, y - 3, "#a894dc"); c:px(x - r + 4, y - 4, "#c3b2ea")
+  c:px(x - r + 3, y + 2, "#fbf6e8")
+  c:fill(c:line({ {x - 1, y - r - 4}, {x - 1, y - r} }, 2), "#4f9a45")                -- leaf stubs
+  c:fill(c:line({ {x + 3, y - r - 3}, {x + 1, y - r} }, 2), "#2f6a3a")
+  c:px(x - 1, y - r - 4, "#7ab55c")
+  return p
 end
-half(22, 34); half(42, 35); half(31, 43); half(20, 48)
-c:part(c:ellipse(43, 48, 4, 4), "#8a2a3a", { cres = 2, deep = 1, gloss = false, contact = false })   -- beet slice
-c:fill(c:ellipse(43, 48, 2, 2):cut(c:ellipse(43, 48, 1, 1)), "#b8455a")
--- small oval label with a turnip emblem
-c:part(c:ellipse(32, 51, 7, 4.5), "cream", { gloss = false, contact = false })
-c:paint({
-  ".g.g.",
-  ".PPP.",
-  "PPpPP",
-  "bwwwb",
-  ".bwb.",
-  "..r..",
-}, 26, 48, { g = "#4f9a45", P = "#7a5cc0", p = "#a894dc", w = "#f1ece0", b = "#b8a070", r = "#9a6b3f" })
-c:paint({ "uu.u", "", "u.uu" }, 33, 50, { u = "#7a5a3a" })
+-- dark beet slice low on the left, half behind the big turnip (off the centre line so the group never reads as a face)
+c:part(c:ellipse(18, 48, 4.5, 3.5), "#8a2a3a", { cres = 2, deep = 1, gloss = false, contact = false, contour = "#4a2c1a" })
+c:fill(c:ellipse(18, 48, 2.5, 1.5):cut(c:ellipse(18, 48, 1, 0.5)), "#b8455a")
+turnip(24, 38, 8)
+turnip(40, 44, 7)
 -- wooden disc lid and knob
 c:part(c:rrect(16, 11, 48, 19, 3), "#9a6b3f", { contour = "#5e2f1e", gloss = { 19, 13 } })
 c:paint({ "gggg.ggggggg..gggg", "", "...gggggg..ggggggg" }, 22, 14, { g = "#7a4a1f" })
@@ -44,4 +43,4 @@ c:gloss(bowl, "glass", { 16, 30 })
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))
-assert(t.semi == 0 and t.margin >= 3 and t.bw <= 4, N .. " failed checks")
+assert(t.semi == 0 and t.margin >= 3 and t.bw <= 1, N .. " failed checks")
