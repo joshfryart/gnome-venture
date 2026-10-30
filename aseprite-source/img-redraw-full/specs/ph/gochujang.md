@@ -1,13 +1,15 @@
 # ph/gochujang
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of gochujang, #a8241f contents under a loose gold lid with a cloth tie; fizzing ferment.
-- must-read-at-16px: jar with a cloth-tied lid, #a8241f contents, and a few rising bubbles.
-- distinct: cloth-tied lid (a cream square tied with thread-gold) and 4 bubble px #ffffff rising; #a8241f contents.
+- subject: A wide low red tub of glossy dark-red paste mounded above the rim, a wooden paddle leaning in it.
+- must-read-at-16px: low wide dish with a glossy red dome of paste and a stick standing.
+- distinct: vs miso (paste): red #a8241f DOME with a swirled top and a wooden spoon; vessel is a short red ceramic tub (no lid, no glass).
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. contents: rrect x 20..44, y 28..52 (r5), #a8241f
-  3. bubbles: four 1px #ffffff dots rising from y 44 to y 30
-  4. cloth lid: rrect x 17..47, y 14..24 (r4), cream #f4f0e0 with a gold #e8a317 tie band
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. tub body: rrect x 8..56, y 34..57 (r8), glazed red #d6322b shade #a8241f lower
+  2. rim: rrect x 8..56, y 32..38 (r3), #e0501f
+  3. paste dome: half ellipse x 12..52, y 22..36, #a8241f with swirl #d6322b curve and highlight px #f08a24
+  4. wooden paddle: slanted rect from (46,8) to (36,30) width 4px #c9a96e with paste daub on tip
+  5. emblem: on tub front x 24..40, y 40..53 cream circle #f1ece0 with a chili pod #d6322b green cap #4f9a45
+  6. specks: 3 px #f5cf6a (rice) on dome
+- joins: rim at y 32..38.
 - face: none.
-- notes: pantry food from the Pantry (chili-pepper x4, rice x2). Glass lit upper-left, gloss comma at (24,32). Keep #a8241f as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (chili-pepper x4, rice x2). Lit upper-left, gloss comma on the body. dome swirl lit upper-left. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

@@ -1,13 +1,15 @@
 # ph/pickled-fennel
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pickled fennel in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #a4b86a contents in pale brine.
-- distinct: pale brine #d8ecc8 around #a4b86a pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A tall footed apothecary jar of pale fennel slivers with a bulbous glass lid and finial.
+- must-read-at-16px: jar on a stemmed round foot with a big onion-shaped lid and a knob.
+- distinct: vs pickled-lemons and all other jars: the ONLY jar on a pedestal foot (rect x 24..40 y 54..58 stem + disc base x 20..44 y 58..60) and the ONLY one with a bulbous glass lid.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #a4b86a pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. foot: rrect x 20..44, y 57..60 (r1), glass #c9e6f0; stem rect x 29..35 y 53..57
+  2. jar body: rrect x 18..46, y 28..54 (r10), glass #a9d6ea
+  3. brine: rrect x 20..44, y 33..52 (r8), #eef0c0
+  4. slivers: curved crescents #d8e0a0 (shade #a4b86a) at (26,40),(34,38),(30,46),(38,46); feathery fronds #7ab55c 3px at (24,36),(40,41)
+  5. glass lid: ellipse x 22..42, y 14..29, #c9e6f0 outline #7fb6cc; finial ball r3 #e8a317 at (32,11)
+  6. label: oval x 24..40, y 40..50 cream #f1ece0 with fennel emblem: white bulb #f4f0e0, 3 green fronds #7ab55c up to y 41
+- joins: gold finial sits on lid top.
 - face: none.
-- notes: pantry food from the Pantry (fennel x3, dill x1). Glass lit upper-left, gloss comma at (24,32). Keep #a4b86a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (fennel x3, dill x1). Lit upper-left, gloss comma on the body. bulb lid wider at belly than jar neck. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

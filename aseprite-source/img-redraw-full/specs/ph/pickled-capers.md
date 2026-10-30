@@ -1,13 +1,15 @@
 # ph/pickled-capers
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pickled capers in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #6a8a3a contents in pale brine.
-- distinct: pale brine #d8ecc8 around #6a8a3a pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A tiny round-bellied bottle, wired cork, full of little olive-green caper buds.
+- must-read-at-16px: small narrow-necked bottle (smallest in shard) with a wired cork and a belly of tiny green dots.
+- distinct: vs cured-olives and fermented-hot-sauce (bottles): TINY (28px wide), round belly + narrow neck + wire cage on cork, contents are many 2px buds not whole fruit.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #6a8a3a pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bottle body: circle-ish r13 centred (32,44), glass #a9d6ea; neck rect x 28..36 y 18..30
+  2. brine: circle r11 at (32,45), #d8e4a0
+  3. buds: ~12 dots 2px #6a8a3a with #4f9a45 highlight px, scatter inside
+  4. cork: rrect x 27..37, y 10..19 (r2), #c9a96e, dots #9a6b3f
+  5. wire cage: 1px #8b8f96 cross over cork x 26..38, loop at neck y 20
+  6. label: rrect x 24..40, y 41..51 cream #f1ece0 with caper emblem: bud r3 #6a8a3a, tiny stem #4f9a45, flower px #f4f0e0
+- joins: wire cage at neck y 19..21.
 - face: none.
-- notes: pantry food from the Pantry (caper x4). Glass lit upper-left, gloss comma at (24,32). Keep #6a8a3a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (caper x4). Lit upper-left, gloss comma on the body. keep it small, within x 18..46. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

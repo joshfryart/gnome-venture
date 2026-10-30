@@ -1,13 +1,14 @@
 # ph/pickled-bamboo-shoots
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pickled bamboo shoots in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #e8d890 contents in pale brine.
-- distinct: pale brine #d8ecc8 around #e8d890 pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A section of real bamboo used as a canister, with a bamboo-leaf cap tied with twine.
+- must-read-at-16px: green-tan bamboo tube with two node rings and a pointed leaf cap.
+- distinct: vs pickled-asparagus (tall green): no glass at all, node rings and a cut-open door window showing ivory shoot slices; leaf cap folded to a point.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #e8d890 pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. tube: rect x 18..46, y 20..57 (r3), bamboo #c9a96e shade #9a6b3f right 4px, node rings 2px #7a4a1f at y 28 and y 48
+  2. window: rrect x 24..40, y 32..46, ivory #e8d890 with 3 shoot slices stacked #f4f0e0 with ring lines #c9b878
+  3. leaf cap: leaf polygon (16,22),(48,22),(40,6),(32,10),(24,6) #7ab55c shade #4f9a45, mid vein #2f5a2a
+  4. twine: 2px #9a6b3f at y 22 x 17..47
+  5. emblem: on lower tube x 26..38, y 50..56, shoot cone #e8d890 outlined #9a6b3f with ring bands
+- joins: twine ring at y22.
 - face: none.
-- notes: pantry food from the Pantry (bamboo-shoot x3). Glass lit upper-left, gloss comma at (24,32). Keep #e8d890 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (bamboo-shoot x3). Lit upper-left, gloss comma on the body. nodes need to read as bamboo at 16px. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

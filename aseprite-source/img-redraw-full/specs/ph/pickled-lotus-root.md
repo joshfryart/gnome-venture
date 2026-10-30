@@ -1,13 +1,15 @@
 # ph/pickled-lotus-root
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pickled lotus root in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #f5e0c0 contents in pale brine.
-- distinct: pale brine #d8ecc8 around #f5e0c0 pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A short wide jar with a red lacquer lid, stacked lace-holed lotus root slices showing through the glass.
+- must-read-at-16px: wide low jar with a red lacquer lid and round slices carrying seven visible holes.
+- distinct: vs pickled-turnips (wide): LOW and flat (only 30px tall), holes pattern on round cream discs, lacquer red #a8241f lid with a gold stripe.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #f5e0c0 pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar body: rrect x 10..54, y 26..57 (r8), glass #a9d6ea
+  2. brine: rrect x 12..52, y 31..55 (r6), #f8ecd0
+  3. slices: three overlapping discs r8 #f5e0c0 (shade #d8b890) at (24,44),(36,42),(44,46), each with a ring of 6 1px holes #c9a878 and centre hole
+  4. lacquer lid: rrect x 9..55, y 16..27 (r4), #a8241f highlight #d6322b, gold band 2px #e8a317 y 22
+  5. knob: ellipse x 28..36, y 12..17, #a8241f
+  6. label: none; emblem painted on glass lower: lotus slice 9px cream with 7 holes #c9a878, at x 28..38 y 46..56
+- joins: gold stripe on lid.
 - face: none.
-- notes: pantry food from the Pantry (lotus-root x3). Glass lit upper-left, gloss comma at (24,32). Keep #f5e0c0 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (lotus-root x3). Lit upper-left, gloss comma on the body. slices dominant colour #f5e0c0, holes darker not transparent. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

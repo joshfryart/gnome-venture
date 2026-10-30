@@ -1,13 +1,15 @@
 # ph/pickled-cauliflower
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pickled cauliflower in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #e8a317 contents in pale brine.
-- distinct: pale brine #d8ecc8 around #e8a317 pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A six-sided glass jar full of turmeric-gold brine and bumpy cream florets.
+- must-read-at-16px: faceted hexagonal-shouldered jar with bright gold brine and cloud-shaped florets, pewter lid.
+- distinct: vs pickled-ginger and pickled-daikon: the ONLY faceted jar (angled shoulders, vertical facet line at x32) and the ONLY solidly gold brine #e8a317; lid is pewter, domed.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #e8a317 pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar body: polygon (16,26),(24,20),(40,20),(48,26),(48,52),(42,57),(22,57),(16,52) glass #a9d6ea
+  2. brine: same shape inset 2px from y 27, gold #f5cf6a with #e8a317 lower half
+  3. florets: four bumpy clouds (3 r3 bumps each) #f4f0e0 shade #e0c890 at (26,36),(38,37),(31,46),(40,49)
+  4. facet lines: 1px #7fb6cc at x24 and x40 y 22..56
+  5. lid: rrect x 20..44, y 12..21 (r3) pewter #8b8f96 with highlight row #c9c5bc y 14
+  6. label: rect x 22..42, y 49..56 cream #f1ece0 with floret emblem: 3 bumps #f4f0e0 outlined #b8a070 above a #4f9a45 leaf
+- joins: seam under lid y21.
 - face: none.
-- notes: pantry food from the Pantry (cauliflower x3, turmeric x1). Glass lit upper-left, gloss comma at (24,32). Keep #e8a317 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (cauliflower x3, turmeric x1). Lit upper-left, gloss comma on the body. turmeric brine is warm gold, florets cream. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

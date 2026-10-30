@@ -1,13 +1,15 @@
 # ph/tempeh
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of tempeh, #f4f0e0 contents under a loose gold lid with a cloth tie; fizzing ferment.
-- must-read-at-16px: jar with a cloth-tied lid, #f4f0e0 contents, and a few rising bubbles.
-- distinct: cloth-tied lid (a cream square tied with thread-gold) and 4 bubble px #ffffff rising; #f4f0e0 contents.
+- subject: A banana-leaf parcel opened at one end to show a pale nutty block threaded with soybeans.
+- must-read-at-16px: flat green leaf envelope with a cut white end face and a toothpick.
+- distinct: vs bok-choy parcel: the ONLY leaf wrap (rectangular folded envelope), cut end face white mould #f4f0e0 with soybean dots, bamboo pick pin.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. contents: rrect x 20..44, y 28..52 (r5), #f4f0e0
-  3. bubbles: four 1px #ffffff dots rising from y 44 to y 30
-  4. cloth lid: rrect x 17..47, y 14..24 (r4), cream #f4f0e0 with a gold #e8a317 tie band
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. leaf parcel: rrect x 8..56, y 20..54 (r4) slight skew, leaf #4f9a45 shade #2f5a2a, mid vein #7ab55c horizontal y 38
+  2. folded ends: triangles at right (50,20),(56,30),(50,38) #2f5a2a
+  3. cut face: rrect x 44..56, y 24..46 (r2), #f4f0e0 with bean dots #c9a96e 6 px and white mould fuzz #fbf6e8
+  4. fold lines: 2px #2f5a2a diagonals at (10,24)-(22,34)
+  5. pin: bamboo stick 1px x 8, #c9a96e from (28,12) through (34,24)
+  6. emblem: soybean pod on leaf x 14..28 y 40..52, pod #e8d890 outline #2f5a2a 3 beans
+- joins: fold seam diagonal.
 - face: none.
-- notes: pantry food from the Pantry (soybean x4). Glass lit upper-left, gloss comma at (24,32). Keep #f4f0e0 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (soybean x4). Lit upper-left, gloss comma on the body. cream-safe mould white; label emblem painted onto the leaf. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

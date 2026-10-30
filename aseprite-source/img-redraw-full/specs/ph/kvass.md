@@ -1,13 +1,15 @@
 # ph/kvass
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of kvass, #8a2a3a contents under a loose gold lid with a cloth tie; fizzing ferment.
-- must-read-at-16px: jar with a cloth-tied lid, #8a2a3a contents, and a few rising bubbles.
-- distinct: cloth-tied lid (a cream square tied with thread-gold) and 4 bubble px #ffffff rising; #8a2a3a contents.
+- subject: A small wooden keg with iron hoops and a brass tap, burgundy kvass and a rye ear on the stave.
+- must-read-at-16px: fat barrel with two iron hoops and a brass tap dripping.
+- distinct: vs daikon-tub: barrel is round-bellied (bulging), lies upright with a tap and a wine-dark #8a2a3a drip; rye ear emblem branded on front.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. contents: rrect x 20..44, y 28..52 (r5), #8a2a3a
-  3. bubbles: four 1px #ffffff dots rising from y 44 to y 30
-  4. cloth lid: rrect x 17..47, y 14..24 (r4), cream #f4f0e0 with a gold #e8a317 tie band
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. keg body: ellipse-ish x 10..54, y 14..56, wood #9a6b3f shade #7a4a1f, staves lines vertical, top ellipse x 14..50 y 10..18 #c9a96e
+  2. hoops: 2px #5b6470 arcs at y 22 and y 48
+  3. tap: rect x 26..34, y 40..46 #e8a317 with handle rect (34,38)-(40,40), spigot down
+  4. drip: 2 px #8a2a3a at (30,48),(30,52) and a puddle row y 56
+  5. rye emblem: stalk 1px #e8d890 on cream circle r7 #f1ece0 at (32,32), 3 grain pairs
+  6. bung: ellipse r2 #3d2a1c at (22,12)
+- joins: hoops are edges.
 - face: none.
-- notes: pantry food from the Pantry (rye x3, beet x1). Glass lit upper-left, gloss comma at (24,32). Keep #8a2a3a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (rye x3, beet x1). Lit upper-left, gloss comma on the body. burgundy only in drip. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

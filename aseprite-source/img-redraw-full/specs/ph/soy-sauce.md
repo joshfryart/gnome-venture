@@ -1,13 +1,15 @@
 # ph/soy-sauce
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of soy sauce, #3a2a1f contents under a loose gold lid with a cloth tie; fizzing ferment.
-- must-read-at-16px: jar with a cloth-tied lid, #3a2a1f contents, and a few rising bubbles.
-- distinct: cloth-tied lid (a cream square tied with thread-gold) and 4 bubble px #ffffff rising; #3a2a1f contents.
+- subject: A square dark-glass soy bottle with a red cap and pouring spout, black-brown sauce, a soybean pod on the label.
+- must-read-at-16px: square shouldered dark bottle with a red cap and a visible spout lip.
+- distinct: vs fermented-hot-sauce: near-black #3a2a1f liquid in a SQUARE-section bottle with wide flat shoulders, a spout, and cream label with pod emblem; cap red #a8241f.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. contents: rrect x 20..44, y 28..52 (r5), #3a2a1f
-  3. bubbles: four 1px #ffffff dots rising from y 44 to y 30
-  4. cloth lid: rrect x 17..47, y 14..24 (r4), cream #f4f0e0 with a gold #e8a317 tie band
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bottle body: rrect x 16..48, y 20..57 (r3), dark glass #3a2a1f with a left highlight 2px #5b6470, shade right #2a1a10
+  2. neck: rect x 26..38, y 12..21, #3a2a1f
+  3. spout: small wedge (38,14),(44,14),(38,18) #3a2a1f lip highlight px
+  4. cap: rrect x 25..39, y 6..13 (r2), red #a8241f shade #5a1010
+  5. label: rect x 20..44, y 30..50 cream #f1ece0; soy pod emblem: green pod #7ab55c with 3 bumps and bean dots #e8d890
+  6. liquid line: 1px #c9a96e at y 24 through glass shoulder
+- joins: cap over neck y13.
 - face: none.
-- notes: pantry food from the Pantry (soybean x4, wheat x2). Glass lit upper-left, gloss comma at (24,32). Keep #3a2a1f as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (soybean x4, wheat x2). Lit upper-left, gloss comma on the body. dark body, strong cream label. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

@@ -1,13 +1,14 @@
 # ph/yogurt
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of yogurt, #f4f0e0 contents under a loose gold lid with a cloth tie; fizzing ferment.
-- must-read-at-16px: jar with a cloth-tied lid, #f4f0e0 contents, and a few rising bubbles.
-- distinct: cloth-tied lid (a cream square tied with thread-gold) and 4 bubble px #ffffff rising; #f4f0e0 contents.
+- subject: A squat milk-bottle style jar with a blue foil cap and a thick cream-line on top of white yogurt; goat head label.
+- must-read-at-16px: wide-neck white bottle with blue foil cap and a goat head emblem.
+- distinct: vs soft-cheese/sourdough: cream-white thick yogurt filling a rounded-shoulder bottle with a crimped BLUE foil cap and horned goat-head emblem.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. contents: rrect x 20..44, y 28..52 (r5), #f4f0e0
-  3. bubbles: four 1px #ffffff dots rising from y 44 to y 30
-  4. cloth lid: rrect x 17..47, y 14..24 (r4), cream #f4f0e0 with a gold #e8a317 tie band
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bottle body: rrect x 16..48, y 24..57 (r10), glass #a9d6ea
+  2. yogurt: rrect x 18..46, y 30..55 (r8), #f4f0e0 shade #e0d4b0; cream line y 30..32 #fbf6e8
+  3. neck: rect x 22..42, y 16..25 glass
+  4. foil cap: rrect x 21..43, y 8..18 (r2), blue #3f8fb0 crimp lines #25637d 4 vertical
+  5. label: oval x 22..42, y 38..53 cream #f1ece0 with goat head: face #c9c5bc, horns curl #9a6b3f, two eyes px #2a1a10, beard px
+- joins: cap crimps at y 8..18.
 - face: none.
-- notes: pantry food from the Pantry (goat-milk x4). Glass lit upper-left, gloss comma at (24,32). Keep #f4f0e0 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (goat-milk x4). Lit upper-left, gloss comma on the body. white must carry a shade so it separates from cream label. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

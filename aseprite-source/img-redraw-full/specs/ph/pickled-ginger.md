@@ -1,13 +1,14 @@
 # ph/pickled-ginger
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pickled ginger in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #f5b8cf contents in pale brine.
-- distinct: pale brine #d8ecc8 around #f5b8cf pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A small white porcelain pot with a domed lid; pale pink ginger slivers heaped above the rim.
+- must-read-at-16px: white pot with a dome lid knob, beside a pink ginger heap peeking out the front.
+- distinct: vs pickled-turnips (pink): OPAQUE ceramic pot (no glass), pale blush #f6b8cf slivers only, and a cobalt line decoration; lid dome ajar to one side.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #f5b8cf pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. pot body: rrect x 14..50, y 32..57 (r10), porcelain #f1ece0 shade #c9c5bc lower right
+  2. blue band: 2px #3f8fb0 at y 36 and 44 x 14..50
+  3. ginger heap: pile of curved slivers #f6b8cf (shade #e46a9b) rising above rim x 20..44 y 24..34, 6 strands
+  4. lid dome: half ellipse x 16..40, y 22..32 tilted, #f1ece0 with #3f8fb0 band; knob r2 #3f8fb0 at (28,20)
+  5. ginger root emblem: on pot front x 24..40, y 38..52, knobby root #e8d890 outlined #9a6b3f with 2 pink slices #f6b8cf
+- joins: lid rests slanted on left side, gap shows heap.
 - face: none.
-- notes: pantry food from the Pantry (ginger x4). Glass lit upper-left, gloss comma at (24,32). Keep #f5b8cf as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (ginger x4). Lit upper-left, gloss comma on the body. pink must stay pale and low-saturated; porcelain cream-safe. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

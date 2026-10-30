@@ -1,13 +1,15 @@
 # ph/cured-olives
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of cured olives in clear brine, gold lid and cream label; pantry friendly.
-- must-read-at-16px: tall jar with gold lid, cream label and #3d3a2a contents in pale brine.
-- distinct: pale brine #d8ecc8 around #3d3a2a pieces; the only jars with visible brine bubbles (3 single px #ffffff).
+- subject: A two-handled amphora with a cork stopper, ring of painted olive branches, and olives piled at the mouth.
+- must-read-at-16px: amphora with two ear handles and a pointed cork.
+- distinct: vs pickled-capers (bottle): TERRACOTTA amphora with TWO big ear handles, olive branch painted band, dark olives heaped at the shoulder.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), pale blue glass #a9d6ea
-  2. contents: rrect x 20..44, y 30..52 (r5), brine #d8ecc8 with #3d3a2a pieces r3
-  3. label: rect x 22..42, y 36..45, cream #f1ece0
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. amphora body: polygon (24,14),(40,14),(52,30),(48,48),(38,58),(26,58),(16,48),(12,30) terracotta #9a6b3f shade #7a4a1f
+  2. handles: two loops 3px #7a4a1f at x 10..18 y 20..34 and x 46..54
+  3. olives: four r3 #3d3a2a with #6a8a3a lower, highlight px #a4b86a at (27,16),(32,13),(37,16)
+  4. cork: rrect x 27..37, y 6..13 (r2), #c9a96e
+  5. painted band: 3px #3d2a1c at y 34 with olive sprig #6a8a3a leaves 5 and 2 olives #3d3a2a
+  6. emblem: olive branch on belly x 24..40 y 38..52
+- joins: cork meets body y 14.
 - face: none.
-- notes: pantry food from the Pantry (olive x6). Glass lit upper-left, gloss comma at (24,32). Keep #3d3a2a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (olive x6). Lit upper-left, gloss comma on the body. dark olive dominant, terracotta body brown. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

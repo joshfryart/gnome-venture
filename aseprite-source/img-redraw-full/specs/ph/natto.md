@@ -1,13 +1,15 @@
 # ph/natto
 - canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of natto, #c9a96e contents under a loose gold lid with a cloth tie; fizzing ferment.
-- must-read-at-16px: jar with a cloth-tied lid, #c9a96e contents, and a few rising bubbles.
-- distinct: cloth-tied lid (a cream square tied with thread-gold) and 4 bubble px #ffffff rising; #c9a96e contents.
+- subject: A straw-wrapped rice-straw bundle with beans peeking from both ends and sticky threads stretching.
+- must-read-at-16px: horizontal capsule of straw tied at both ends, with threads from beans.
+- distinct: vs tempeh/doenjang: HORIZONTAL straw capsule pinched at both ends, brown beans heaped at open end with 3 stretching 1px strings (#f4f0e0) rising.
 - parts (back to front):
-  1. jar body: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. contents: rrect x 20..44, y 28..52 (r5), #c9a96e
-  3. bubbles: four 1px #ffffff dots rising from y 44 to y 30
-  4. cloth lid: rrect x 17..47, y 14..24 (r4), cream #f4f0e0 with a gold #e8a317 tie band
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. straw wrap: rounded capsule x 8..56, y 28..48 (r10), straw #e8d890 shade #c9b878 lower
+  2. straw lines: 1px #c9b878 diagonals every 4px
+  3. end ties: 2px #9a6b3f bands at x 14 and x 50, tufts of straw spiking at x 6..10 and 54..58
+  4. beans: five r2 dots #c9a96e (shade #7a4a1f) at the right open end (52,34..44)
+  5. sticky strings: three 1px #f4f0e0 arcs from beans up to (46,16) etc.
+  6. emblem: tag cream rect x 24..40 y 33..43 with 3 bean dots #7a4a1f
+- joins: ties at both ends.
 - face: none.
-- notes: pantry food from the Pantry (soybean x4). Glass lit upper-left, gloss comma at (24,32). Keep #c9a96e as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (soybean x4). Lit upper-left, gloss comma on the body. strings need single-pixel width. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).
