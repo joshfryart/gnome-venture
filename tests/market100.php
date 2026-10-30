@@ -238,6 +238,31 @@ ok('one basket a day', !$ok && str_contains($m, 'already'), $m);
 $rv = basket_rivals($town);
 ok('three rival baskets, easy to hard', count($rv) === 3 && $rv[0]['score'] < $rv[2]['score'], json_encode(array_column($rv, 'score')));
 
+echo "== market stalls charge the rarity multiplier: buying a Legendary or Rare good and selling it back never makes money\n";
+$slugs = ['ackee', 'almond', 'black-pepper', 'cacao', 'chestnut', 'cinnamon', 'clove', 'coffee', 'hazelnut', 'nutmeg', 'pecan', 'pistachio', 'quince', 'vanilla', 'walnut', 'yuzu',
+          'blueberry', 'caper', 'cardamom', 'cloudberry', 'cranberry', 'gooseberry', 'sea-buckthorn', 'sugarcane', 'tea', 'saffron', 'golden-carp', 'morel'];   // the 26 treasure crops, golden carp and morel
+cfg(['price_drift_on' => 0, 'price_base_pct' => 80, 'market_stall_markup' => 115]);   // the best a shop ever pays (80%, wanted on a market day)
+$bad = []; $seenN = 0;
+foreach ($slugs as $sl) {
+    $row = q_one('SELECT * FROM items WHERE slug = ?', [$sl]);
+    if (!$row) { $bad[] = "$sl missing"; continue; }
+    $seenN++;
+    $cheapest = market_stall_price($row, 90);   // the lowest wobble a stall can have
+    $best = sell_price($row);
+    if ($cheapest <= $best) $bad[] = "$sl stall $cheapest <= sell $best";
+}
+ok('the 26 treasure crops, golden-carp and morel: cheapest stall price is above the best a shop pays (' . $seenN . ')', $seenN === 28 && !$bad, implode('; ', $bad));
+$com = q_one("SELECT i.* FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.slug = 'radish'");
+ok('a Common crop keeps the plain 115% x wobble stall price', market_stall_price($com, 100) === max(1, (int)round((int)$com['base_price'] * 1.15)));
+ok('a stall lists the same price market_stall_price gives', (function () use ($town, $today) {
+    foreach (market_stalls($town, $today) as $s) foreach ($s['goods'] as $g) if ($g['price'] < market_stall_price($g['item'], 90) || $g['price'] > market_stall_price($g['item'], 110)) return false;
+    return true;
+})());
+$dw = (int)q_val("SELECT COUNT(*) FROM items WHERE slug LIKE 'dried-%' AND category = 'food' AND tradable = 1");
+$poolIds = array_map('intval', q("SELECT id FROM items WHERE category IN ('produce','flower','food','forage') AND tradable = 1 AND NOT (category = 'flower' AND slug LIKE 'dried-%')")->fetchAll(PDO::FETCH_COLUMN));
+ok("the $dw dried-* preserves are no longer hidden from the wanted/stall pool, but dried flowers still are", $dw === 7 && !array_diff(array_map('intval', q("SELECT id FROM items WHERE slug LIKE 'dried-%' AND category = 'food'")->fetchAll(PDO::FETCH_COLUMN)), $poolIds));
+cfg(['price_base_pct' => 60]);
+
 echo "== price drift: bounds\n";
 cfg(['price_drift_on' => 1, 'price_base_pct' => 60, 'price_min_pct' => 45, 'price_max_pct' => 80, 'price_noise' => 6, 'price_wanted_count' => 6, 'price_season_swing' => 6]);
 $items = q("SELECT * FROM items WHERE category IN ('produce','flower','food','forage') AND tradable = 1")->fetchAll();

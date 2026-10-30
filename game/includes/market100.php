@@ -270,7 +270,7 @@ function market_wanted(?string $date = null): array
         if ($saved !== '' && strncmp($saved, $n . ':', strlen((string)$n) + 1) === 0) {
             foreach (array_filter(array_map('intval', explode(',', substr($saved, strlen((string)$n) + 1)))) as $id) $out[$id] = true;
         } else {
-            $ids = q("SELECT id FROM items WHERE category IN ('produce','flower','food','forage') AND tradable = 1 AND slug NOT LIKE 'dried-%' ORDER BY id")->fetchAll(PDO::FETCH_COLUMN);
+            $ids = q("SELECT id FROM items WHERE category IN ('produce','flower','food','forage') AND tradable = 1 AND NOT (category = 'flower' AND slug LIKE 'dried-%') ORDER BY id")->fetchAll(PDO::FETCH_COLUMN);
             $h = [];
             foreach ($ids as $id) $h[(int)$id] = mk_h("want|$week|$id");
             usort($ids, fn($a, $b) => $h[(int)$a] <=> $h[(int)$b]);
@@ -671,6 +671,20 @@ function market_days_until(?string $date = null): int
     return (max(0, min(6, mk_int('market_day', 6))) - mk_weekday($date) + 7) % 7;
 }
 
+/**
+ * What a stall charges for one: base price x the stall markup (115%) x the day's wobble (90-110%) x the rarity multiplier shops
+ * pay on top (Uncommon, Rare, Legendary), so buying at a stall and selling back to a shop never makes money. $L is a fresh
+ * item_lookups() (cached for the request).
+ */
+function market_stall_price(array $it, int $wobble, ?array $L = null): int
+{
+    static $RL = null;
+    require_once __DIR__ . '/items.php';
+    $L ??= ($RL ??= item_lookups());
+    $mult = ['C' => 100, 'U' => mk_int('sell_mult_uncommon', 130), 'R' => mk_int('sell_mult_rare', 180), 'L' => mk_int('sell_mult_legendary', 250)][item_rarity($it, $L)[0]] ?? 100;
+    return max(1, (int)round((int)$it['base_price'] * mk_int('market_stall_markup', 115) / 100 * $wobble / 100 * max(1, $mult) / 100));
+}
+
 /** The stalls in a town's square today: [['npc' => row, 'goods' => [['item' => row, 'price' => int], ...]], ...]. Same for everyone. */
 function market_stalls(string $town, ?string $date = null): array
 {
@@ -679,16 +693,15 @@ function market_stalls(string $town, ?string $date = null): array
     $folk = town_folk($town);
     usort($folk, fn($a, $b) => mk_h("stall|$date|$town|{$a['id']}") <=> mk_h("stall|$date|$town|{$b['id']}"));
     static $pool = null;
-    $pool ??= q("SELECT id, name, slug, category, base_price, rarity, image FROM items WHERE category IN ('seed','produce','flower','food','forage','soil') AND tradable = 1 AND base_price > 0 AND slug NOT LIKE 'dried-%' ORDER BY id")->fetchAll();
+    $pool ??= q("SELECT id, name, slug, category, base_price, rarity, image FROM items WHERE category IN ('seed','produce','flower','food','forage','soil') AND tradable = 1 AND base_price > 0 AND NOT (category = 'flower' AND slug LIKE 'dried-%') ORDER BY id")->fetchAll();
     $out = [];
-    $markup = mk_int('market_stall_markup', 115);
     foreach (array_slice($folk, 0, max(1, mk_int('market_stalls', 4))) as $n) {
         $items = $pool;
         usort($items, fn($a, $b) => mk_h("stk|$date|{$n['id']}|{$a['id']}") <=> mk_h("stk|$date|{$n['id']}|{$b['id']}"));
         $goods = [];
         foreach (array_slice($items, 0, max(1, mk_int('market_stall_stock', 4))) as $it) {
             $wobble = 90 + mk_h("sp|$date|{$n['id']}|{$it['id']}") % 21;
-            $goods[] = ['item' => $it, 'price' => max(1, (int)round((int)$it['base_price'] * $markup / 100 * $wobble / 100))];
+            $goods[] = ['item' => $it, 'price' => market_stall_price($it, $wobble)];
         }
         $out[] = ['npc' => $n, 'goods' => $goods];
     }

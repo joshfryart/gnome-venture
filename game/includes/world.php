@@ -364,6 +364,25 @@ function charm_price(array $u, int $price, bool $buying): int
     return max(1, (int)round($price * max(0.5, min(1.5, $f))));
 }
 
+/**
+ * v2.2.x: what a shop pays for one at the flat base share (price_base_pct, no weekly drift, season, demand or sales), with the rarity
+ * multiplier and the buy-back cap, using the $L the caller passes (a FRESH item_lookups(), not sell_price()'s per-request cache).
+ * Used to price preserves at import, so a fresh install and a live one agree.
+ */
+function flat_sell_value(array $item, array $L): int
+{
+    $pct = max(1, mk_int('price_base_pct', 60));
+    $base = max(1, (int)floor((int)$item['base_price'] * $pct / 100));
+    if (in_array($item['category'] ?? '', ['arrangement', 'packet'], true)) return $base;
+    require_once __DIR__ . '/items.php';
+    [$r] = item_rarity($item, $L);
+    $mult = ['C' => 100, 'U' => (int)setting('sell_mult_uncommon'), 'R' => (int)setting('sell_mult_rare'), 'L' => (int)setting('sell_mult_legendary')][$r] ?? 100;
+    $base = max(1, (int)round($base * max(1, $mult) / 100));
+    $sr = shop_stock_rows((int)($item['id'] ?? 0));
+    if ($sr) $base = min($base, max(1, (int)floor(min(array_map(fn($x) => (int)$x['p'], $sr)) * $pct / 100)));
+    return $base;
+}
+
 function sell_price(array $item, ?array $u = null): int
 {
     $pct = market_sell_pct($item);   // v1.0.0: the shop's share of the base price drifts (45-80%) with the week, season, demand and sales

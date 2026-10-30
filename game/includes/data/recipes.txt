@@ -71,7 +71,7 @@ dill-pickles|Dill Pickles|cucumber:4,dill:1,garlic:1|sense:1|720|4|Crunchy, sour
 pickled-beets|Pickled Beets|beet:4,onion:1|hardiness:1|720|4|Ruby slices that stain everything they touch.|preserve|4320|3
 pickled-green-beans|Pickled Green Beans|green-bean:5,dill:1,garlic:1|nimble:1|720|4|Snappy little spears in garlicky brine.|preserve|4320|3
 kimchi|Kimchi|napa-cabbage:3,chili-pepper:1,garlic:1,ginger:1|grit:2,sense:1|1080|6|Fermented, fiery and fizzing a little when you open the jar.|preserve|7200|3
-sauerkraut|Sauerkraut|cabbage:4|hardiness:1,grit:1|1080|5|Shredded, salted and left alone for a week. Good for you, say the old gnomes.|preserve|10080|4
+sauerkraut|Sauerkraut|cabbage:6|hardiness:1,grit:1|1080|5|Shredded, salted and left alone for a week. Good for you, say the old gnomes.|preserve|10080|4
 elderberry-cordial|Elderberry Cordial|elderberry:5,mint:1|hardiness:2,sense:1|1440|4|Dark, sweet and warming. Two weeks in a cool cupboard makes it syrupy.|preserve|20160|3
 mixed-berry-cordial|Mixed Berry Cordial|blueberry:3,raspberry:3,mint:1|charm:2,luck:1|1440|4|A ruby cordial that tastes of every hedgerow at once.|preserve|20160|3
 ginger-apple-cordial|Ginger and Apple Cordial|ginger:3,apple:2|nimble:2,grit:1|1440|4|Sharp ginger over sweet apple. It wakes you right up.|preserve|20160|3
@@ -156,14 +156,14 @@ pickled-asparagus|Pickled Asparagus|asparagus:4,dill:1|sense:1|720|4|Crisp green
 pickled-fennel|Pickled Fennel|fennel:3,dill:1|lore:1|720|4|Pale aniseed slivers in sweet brine. Lovely beside fish.|preserve|4320|3
 pickled-ginger|Pickled Ginger|ginger:4||0|4|Pale pink slivers that cleanse the palate between bites.|preserve|4320|3
 pickled-daikon|Pickled Daikon|daikon:3|hardiness:1|720|4|Yellow-white rounds, crunchy and sweet. Crisp as a winter morning.|preserve|4320|3
-pickled-kale|Pickled Greens|kale:3|hardiness:1|720|4|Tangy dark leaves in brine. Tough greens turned tender and sharp.|preserve|4320|3
+pickled-kale|Pickled Greens|kale:4,garlic:1|hardiness:1|720|4|Tangy dark leaves in brine. Tough greens turned tender and sharp.|preserve|4320|3
 pickled-lotus-root|Pickled Lotus Root|lotus-root:3|lore:1|720|4|Lace-holed slices, crisp and pale. A pretty thing to find in a jar.|preserve|4320|3
 pickled-bamboo-shoots|Pickled Bamboo Shoots|bamboo-shoot:3||0|4|Pale ivory shoots in tangy brine, sour and crunchy.|preserve|4320|3
 pickled-capers|Pickled Capers|caper:4||0|4|Tiny green buds in salt and brine. A little goes a long way.|preserve|4320|3
 preserved-lemons|Preserved Lemons|lemon:4|sense:1|720|4|Salt-cured and soft. The rind is the treasure, and it flavours everything.|preserve|4320|3
 pickled-garlic|Pickled Garlic|garlic:5||0|4|Mild, soft cloves that lose their fire in brine and keep their flavour.|preserve|4320|3
 pickled-samphire|Pickled Samphire|samphire:4||0|4|Salty green sea-fingers in vinegar. A taste of the shore.|preserve|4320|3
-pickled-mushrooms|Pickled Mushrooms|chanterelle:3|lore:1|720|4|Golden chanterelles kept in spiced brine, forest-fragrant.|preserve|4320|3
+pickled-mushrooms|Pickled Mushrooms|chanterelle:4,garlic:1|lore:1|720|4|Golden chanterelles kept in spiced brine, forest-fragrant.|preserve|4320|3
 pickled-fiddleheads|Pickled Fiddleheads|fiddleheads:4||0|4|Little green spirals in tangy brine. Spring, kept for later.|preserve|4320|3
 pickled-kohlrabi|Pickled Kohlrabi|kohlrabi:3||0|4|Crisp pale-green sticks, mildly sweet and sharp.|preserve|4320|3
 radish-kimchi|Radish Kimchi|daikon:3,chili-pepper:1,garlic:1|grit:1|1080|5|Cubed radish in fiery red paste. Crunchy, bold and a little fizzy.|preserve|7200|3
@@ -179,9 +179,9 @@ natto|Natto|soybean:4|hardiness:1|720|5|Sticky fermented soybeans that string ou
 kvass|Kvass|rye:3,beet:1|hardiness:1|1080|5|A tangy, mildly fizzy drink of fermented rye and beet. Earthy and cleansing.|preserve|7200|3
 kombucha|Kombucha|tea:2,sugarcane:1|sense:1|1080|6|A tangy, fizzing tea with a floating mother. It looks alarming and tastes fine.|preserve|10080|3
 tepache|Tepache|pineapple:2,sugarcane:1|nimble:1|1080|5|Cloudy, fizzy pineapple-rind drink. Sweet-sour and slightly wild.|preserve|7200|3
-fermented-carrots|Fermented Carrots|carrot:4,dill:1|nimble:1|1080|5|Salt-fermented carrot sticks, tangy and fizzy and full of life.|preserve|7200|3
+fermented-carrots|Fermented Carrots|carrot:4,ginger:1,garlic:1|nimble:1|1080|5|Salt-fermented carrot sticks, tangy and fizzy and full of life.|preserve|7200|3
 sourdough-starter|Sourdough Starter|wheat:3|hardiness:1|720|5|A bubbling jar of wild yeast. Keep it fed and it will outlive you.|preserve|4320|3
-yogurt|Yogurt|goat-milk:4||0|5|Thick, tangy goat's-milk yogurt. A day in a warm corner is all it needs.|preserve|1440|3
+yogurt|Yogurt|goat-milk:3||0|5|Thick, tangy goat's-milk yogurt. A day in a warm corner is all it needs.|preserve|1440|3
 soft-cheese|Soft Cheese|goat-milk:4,dill:1|charm:1|720|5|Spreadable and herby, drained overnight in cloth.|preserve|2880|3
 aged-goat-cheese|Aged Goat Cheese|goat-milk:6|charm:2|1080|6|A firm, sharp wheel that has had a week to think. Worth the wait.|preserve|10080|3
 cheese-wheel|Cheese Wheel|goat-milk:8|charm:2,hardiness:1|1440|6|A great waxed wheel, turned every day for two weeks. Heavy with pride.|preserve|20160|3

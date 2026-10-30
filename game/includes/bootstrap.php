@@ -155,6 +155,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         boot_step('upgrade_098_pantry', function () {
             if (version_compare((string)setting('db_version'), '0.9.8', '<')) { require_once __DIR__ . '/pantry.php'; upgrade_098_pantry(); }   // v0.9.8 part A: the Pantry (preserve recipes and Almanac pages; tables and columns come from schema.php)
         });
+        boot_step('pantry_reprice', function () {
+            require_once __DIR__ . '/pantry.php'; pantry_reprice_run();   // after ensure_crafts: the preserves exist
+        });
         boot_step('upgrade_099_flowers', function () {
             if (version_compare((string)setting('db_version'), '0.9.9', '<')) { require_once __DIR__ . '/flowers.php'; upgrade_099_flowers(); }   // v0.9.9 part A: florists (shops, staff, stock) and the flower Almanac pages; tables come from schema.php
         });
@@ -486,6 +489,7 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
 }
 
 if (setting('petshops220') !== '1') { require_once __DIR__ . '/catfish_pets.php'; petshops_boot(); }   // 2.2.x: the pet shops exist even where the version is not bumped yet (a dev copy, a fresh install)
+if (setting('upg_pantry_reprice') !== '1') { require_once __DIR__ . '/pantry.php'; pantry_reprice_boot(); }   // preserves priced from a stale rarity cache get their right price once (pantry.php); a world on the same version still gets it
 market_boot();   // v1.0.0 wave 2b: the market Almanac page exists even where db_version was set by hand (a dev copy)
 
 send_security_headers();

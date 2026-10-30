@@ -82,6 +82,51 @@ ksort($byTimer);
 $avg = array_map(function ($a) { sort($a); return $a[intdiv(count($a), 2)]; }, $byTimer);   // the median: the 20-coin floor lifts the cheapest batches, which skews a mean
 ok('worth ratio (median) rises with the timer: ' . implode(' < ', array_map(fn($x) => number_format($x, 2), $avg)), array_values($avg) === (function ($a) { sort($a); return $a; })(array_values($avg)) && count(array_unique(array_map(fn($x) => round($x, 2), $avg))) === count($avg));
 
+echo "== preserve pricing: the same on every world, no stale-cache Legendary mispricing, new time curve\n";
+require_once $argv[1] . '/includes/catalog.php';
+require_once $argv[1] . '/includes/pantry.php';
+require_once $argv[1] . '/includes/items.php';
+$FL = item_lookups();   // fresh, after every plant and gatherable exists
+$off = [];
+foreach (q("SELECT r.slug, r.ingredients, r.cook_minutes, r.output_qty, i.base_price FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.category = 'pantry' AND r.tier = 'preserve'")->fetchAll() as $r) {
+    $want = preserve_price(json_decode($r['ingredients'], true), (int)$r['cook_minutes'], (int)$r['output_qty'], $FL);
+    if ($want !== (int)$r['base_price']) $off[] = $r['slug'] . ' ' . $r['base_price'] . '!=' . $want;
+}
+ok('every installed preserve costs what a fresh item_lookups() says (no stale cache, no install-week drift)', !$off, implode('; ', array_slice($off, 0, 8)));
+foreach (['jostaberry-jam', 'pluot-jam', 'nectaplum-jam', 'meyer-lemon-marmalade', 'tangelo-marmalade', 'pickled-fiddleheads'] as $sl) {   // their crops are Common: Common shop value is floor(base x 60%), the stale cache read them as x2.5
+    $r = q_one('SELECT r.*, i.base_price AS bp FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.slug = ?', [$sl]);
+    $v = 0; foreach (json_decode($r['ingredients'], true) as $ing => $n) $v += (int)floor((int)q_val('SELECT base_price FROM items WHERE slug = ?', [$ing]) * 0.6) * (int)$n;
+    $want = max(20, (int)ceil($v * (1 + 0.8 * ($r['cook_minutes'] / 1440) ** 0.6) / (int)$r['output_qty'] / 0.6));
+    ok("$sl is priced as Common crops would make it, not about 2.6x ($r[bp])", (int)$r['bp'] === $want, "want $want");
+}
+set_setting('price_drift_on', '1'); setting('__reload__');
+$withDrift = []; foreach (['plum-jam', 'elderberry-cordial'] as $sl) { $r = q_one('SELECT * FROM recipes WHERE slug = ?', [$sl]); $withDrift[$sl] = preserve_price(json_decode($r['ingredients'], true), (int)$r['cook_minutes'], (int)$r['output_qty'], $FL); }
+set_setting('price_drift_on', '0'); setting('__reload__');
+$noDrift = []; foreach (['plum-jam', 'elderberry-cordial'] as $sl) { $r = q_one('SELECT * FROM recipes WHERE slug = ?', [$sl]); $noDrift[$sl] = preserve_price(json_decode($r['ingredients'], true), (int)$r['cook_minutes'], (int)$r['output_qty'], $FL); }
+ok('preserve_price ignores weekly price drift', $withDrift === $noDrift, json_encode([$withDrift, $noDrift]));
+$straw = q_one("SELECT i.* FROM plants p JOIN items i ON i.id = p.produce_item_id WHERE p.slug = 'strawberry'");
+$v1 = flat_sell_value($straw, $FL);
+ok('time curve: 1 day = x1.8 (jams unchanged)', preserve_price(['strawberry' => 10], 1440, 1, $FL) === (int)ceil($v1 * 10 * 1.8 / 0.6));
+ok('time curve: 14 days = 1 + 0.8 x 14^0.6 (x4.8)', preserve_price(['strawberry' => 10], 20160, 1, $FL) === (int)ceil($v1 * 10 * (1 + 0.8 * 14 ** 0.6) / 0.6));
+ok('a missing crop prices nothing', preserve_price(['no-such-crop' => 1], 1440, 3, $FL) === null);
+// the one-off re-price for worlds that already have the bad prices
+$bugged = ['jostaberry-jam', 'pluot-jam', 'pickled-fiddleheads'];
+$good = []; foreach ($bugged as $sl) $good[$sl] = (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$sl]);
+foreach ($bugged as $sl) q('UPDATE items SET base_price = ? WHERE slug = ?', [(int)round($good[$sl] * 2.6), $sl]);   // as the old import left them
+q("UPDATE items SET base_price = 7 WHERE slug = 'nectaplum-jam'");                                                  // an admin set this one low: never touched
+$plumGood = (int)q_val("SELECT base_price FROM items WHERE slug = 'plum-jam'"); q('UPDATE items SET base_price = ? WHERE slug = ?', [$plumGood * 3, 'plum-jam']);   // no hybrid crop in it: not the bug
+$adminHi = (int)q_val("SELECT base_price FROM items WHERE slug = 'tangelo-marmalade'"); q("UPDATE items SET base_price = ? WHERE slug = 'tangelo-marmalade'", [(int)round($adminHi * 1.5)]);   // an admin's own price, well under 1.8x
+q("DELETE FROM settings WHERE name = 'upg_pantry_reprice'"); setting('__reload__');
+$n = pantry_reprice_run();
+ok('re-price step fixes exactly the bugged jars (' . $n . ')', $n === count($bugged));
+foreach ($bugged as $sl) ok("$sl back to $good[$sl]", (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$sl]) === $good[$sl]);
+ok('an admin-lowered price stays', (int)q_val("SELECT base_price FROM items WHERE slug = 'nectaplum-jam'") === 7);
+ok('an admin price under 1.8x of the right one stays', (int)q_val("SELECT base_price FROM items WHERE slug = 'tangelo-marmalade'") === (int)round($adminHi * 1.5));
+ok('a jar with no mispriced crop stays, whatever its price', (int)q_val("SELECT base_price FROM items WHERE slug = 'plum-jam'") === $plumGood * 3);
+ok('the step sets its flag and a second run changes nothing', setting('upg_pantry_reprice') === '1' && pantry_reprice_run() === 0);
+q('UPDATE items SET base_price = ? WHERE slug = ?', [$plumGood, 'plum-jam']); q("UPDATE items SET base_price = ? WHERE slug = 'tangelo-marmalade'", [$adminHi]);
+$nectaGood = preserve_price(json_decode((string)q_val("SELECT ingredients FROM recipes WHERE slug = 'nectaplum-jam'"), true), 1440, 4, $FL); q('UPDATE items SET base_price = ? WHERE slug = ?', [$nectaGood, 'nectaplum-jam']);
+
 echo "== the Fair: Preserves class judged like the others\n";
 $mk = function (string $name) use ($uid): int {
     $row = q_one('SELECT * FROM users WHERE id = ?', [$uid]);

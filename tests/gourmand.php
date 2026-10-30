@@ -139,6 +139,8 @@ $jarBase = function (string $slug): int {
 ok('chicha and poi clear the 3-spoon jar bar at Kitchen III with room to spare', $jarBase('chicha') > GOURMAND_BARS['jar'][2] && $jarBase('poi') > GOURMAND_BARS['jar'][2]);
 ok('hummus-jar and pickled-okra land exactly on the bar (a -3 wobble costs the third spoon), by design', $jarBase('hummus-jar') === GOURMAND_BARS['jar'][2] && $jarBase('pickled-okra') === GOURMAND_BARS['jar'][2]);
 ok('MENA and WCA each also have an easier jar, so the hard one is a choice', $jarBase('pomegranate-molasses') > GOURMAND_BARS['jar'][2] && $jarBase('hibiscus-cordial') > GOURMAND_BARS['jar'][2]);
+ok('sauerkraut (EE/2 ask) still reaches 3 spoons at Kitchen III after its ingredients rose to 6 cabbage (same kinds, same timer)', $jarBase('sauerkraut') >= GOURMAND_BARS['jar'][2] && array_keys(json_decode((string)q_val("SELECT ingredients FROM recipes WHERE slug = 'sauerkraut'"), true)) === ['cabbage']);
+ok('fermented-carrots is no longer a copy of pickled-carrots and gains a third kind (+3 jar score)', array_keys(json_decode((string)q_val("SELECT ingredients FROM recipes WHERE slug = 'fermented-carrots'"), true)) === ['carrot', 'ginger', 'garlic']);
 $errs = [];
 foreach ($rows['B'] as $k => $b) { if (str_contains($b['text'], "'")) $errs[] = "$k apostrophe"; if (mb_strlen($b['text']) > 400) $errs[] = "$k long"; }
 ok('beats hello first four mid home finale, in order of tastes needed, no straight apostrophes', array_keys($rows['B']) === ['hello', 'first', 'four', 'mid', 'home', 'finale'] && array_column($rows['B'], 'tastes') === [0, 1, 4, 7, 10, 14] && !$errs, implode(',', $errs));

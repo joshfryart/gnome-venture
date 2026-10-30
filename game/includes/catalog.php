@@ -541,6 +541,23 @@ function tier_setting(string $name, array $fallback): array
     return ['snack' => $v[0] ?? $fallback[0], 'meal' => $v[1] ?? $fallback[1], 'feast' => $v[2] ?? $fallback[2]];
 }
 
+/**
+ * What a preserve's output item is worth (items.base_price): the crops' flat shop value x (1 + 0.8 x days^0.6), spread over the
+ * jars of a batch, at the 60% shop share. "Flat" = price_base_pct with no weekly drift, season, demand or sales, so every world
+ * (and every install week) prices the same jar the same. $L must be a fresh item_lookups(). null if a crop does not exist.
+ */
+function preserve_price(array $ing, int $cookMin, int $outQty, array $L): ?int
+{
+    $value = 0;
+    foreach ($ing as $s => $n) {
+        $it = q_one('SELECT * FROM items WHERE slug = ?', [$s]);
+        if (!$it) return null;
+        $value += flat_sell_value($it, $L) * (int)$n;
+    }
+    $mult = 1.0 + 0.8 * (max(1, $cookMin / 1440) ** 0.6);   // 1 day = 1.8 (jams), 14 days = 4.8
+    return max(20, (int)ceil($value * $mult / max(1, $outQty) / 0.6));
+}
+
 /** Dishes from includes/data/recipes.txt. Adds only recipes whose dish doesn't exist yet. v0.9.4: energy column is the real number; tier and cook minutes columns. */
 function import_recipes(array &$stats): int
 {
@@ -575,16 +592,10 @@ function import_recipes(array &$stats): int
         $fx = ['energy' => max(0, (int)$energy)];   // v0.9.4: no /5 any more
         if ($temp) $fx = ['temp' => $temp] + $fx;
         if ($pre) {
-            // Needs every crop to exist; sells for more than the crops would, and more the longer it takes (1.3 + 0.5 x sqrt(days)), spread over the jars of a batch
-            $value = 0;
-            foreach ($ing as $s => $n) {
-                $it = q_one('SELECT * FROM items WHERE slug = ?', [$s]);
-                if (!$it) continue 2;
-                require_once __DIR__ . '/world.php';
-                $value += sell_price($it) * $n;
-            }
-            $mult = 1.3 + 0.5 * sqrt(max(1, $cookMin / 1440));
-            $price = max(20, (int)ceil($value * $mult / $outQty / 0.6));
+            // Needs every crop to exist. Priced by preserve_price(): flat shop value of the crops (no weekly drift) from a fresh item_lookups()
+            $L ??= item_lookups();   // v2.2.x: fresh, not sell_price()'s per-request cache, which can predate the hybrids and fiddleheads
+            $price = preserve_price($ing, $cookMin, $outQty, $L);
+            if ($price === null) continue;
             $fx['preserve'] = 1;   // every townsfolk likes one as a gift (friends.php); it never spoils
         } else {
             $value = 0;

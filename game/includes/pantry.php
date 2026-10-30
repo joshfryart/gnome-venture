@@ -256,3 +256,57 @@ function upgrade_098_pantry(): int
     ensure_almanac_howto(false);
     return $n;
 }
+
+/**
+ * Re-price the preserves that were priced from a stale rarity cache. Until 2.2.x import_recipes() priced a jar from sell_price(),
+ * whose per-request item_lookups() cache was built before the hybrid plants and the fiddleheads gatherable existed, so those crops
+ * read as Legendary (x2.5 at the shop) and six jars (jostaberry-jam, pluot-jam, nectaplum-jam, meyer-lemon-marmalade,
+ * tangelo-marmalade, pickled-fiddleheads) were stored about 2.6x too high. This sets those, and only those, to what a fresh install
+ * now prices them at. A jar is touched only when ALL of these hold: it is a pantry preserve; one of its crops reads Legendary
+ * from the raw items.rarity but is not Legendary in the regions or gathering tables; and its stored price is still more than
+ * 1.8x the correct one (so a price an admin set near or below the right number is never changed). Runs once (flag
+ * upg_pantry_reprice), safe to run again. Returns how many items changed.
+ */
+function pantry_reprice_run(): int
+{
+    if (setting('upg_pantry_reprice') === '1') return 0;
+    if (!q_val("SELECT 1 FROM recipes WHERE category = 'pantry' AND tier = 'preserve' LIMIT 1")) return 0;   // nothing imported yet: import prices it right
+    require_once __DIR__ . '/upgrade100.php';
+    require_once __DIR__ . '/catalog.php';
+    require_once __DIR__ . '/items.php';
+    require_once __DIR__ . '/world.php';
+    $n = upgrade_tx(function (): int {
+        $L = item_lookups();
+        $raw = fn(array $i): string => ($r = (int)($i['rarity'] ?? 1)) >= 80 ? 'L' : ($r >= 45 ? 'R' : ($r >= 20 ? 'U' : 'C'));
+        $n = 0;
+        foreach (q("SELECT r.ingredients, r.cook_minutes, r.output_qty, r.output_item_id FROM recipes r WHERE r.category = 'pantry' AND r.tier = 'preserve'")->fetchAll() as $r) {
+            $ing = json_decode((string)$r['ingredients'], true) ?: [];
+            $stale = false;
+            foreach (array_keys($ing) as $slug) {
+                $it = q_one('SELECT * FROM items WHERE slug = ?', [$slug]);
+                if ($it && $raw($it) === 'L' && item_rarity($it, $L)[0] !== 'L') $stale = true;
+            }
+            if (!$stale) continue;
+            $good = preserve_price($ing, (int)$r['cook_minutes'], (int)$r['output_qty'], $L);
+            $have = (int)q_val('SELECT base_price FROM items WHERE id = ?', [$r['output_item_id']]);
+            if ($good === null || $have <= $good * 1.8) continue;
+            q('UPDATE items SET base_price = ? WHERE id = ?', [$good, $r['output_item_id']]);
+            $n++;
+        }
+        return $n;
+    });
+    set_setting('upg_pantry_reprice', '1');
+    setting('__reload__');
+    return $n;
+}
+
+/** Run pantry_reprice_run() once per request on any world that has not had it (it also runs inside the version upgrade chain). Never takes a page down. */
+function pantry_reprice_boot(): void
+{
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    if (setting('upg_pantry_reprice') !== '1') {
+        try { require_once __DIR__ . '/pantry.php'; pantry_reprice_run(); } catch (Throwable $e) { error_log('pantry_reprice_boot: ' . $e->getMessage()); }
+    }
+}

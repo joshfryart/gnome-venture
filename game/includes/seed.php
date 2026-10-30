@@ -175,6 +175,7 @@ function seed_starter_content(): void
     upgrade_163_run();    // v1.6.3: sets its done-flags on a fresh world
     require_once __DIR__ . '/upgrade170.php'; upgrade_170_run();   // v1.7.0: garden reactions become guestbook stamps
     require_once __DIR__ . '/upgrade193.php'; upgrade_193_run();   // v1.9.3: sets its done-flag on a fresh world (the data files already carry the cond tags)
+    require_once __DIR__ . '/pantry.php'; pantry_reprice_run();   // sets its done-flag on a fresh world (import prices the preserves right, so nothing changes)
     // NPCs' daily routines around their towns, and the travellers (needs the NPCs above and the town places)
     require_once __DIR__ . '/npc_life.php';
     ensure_npc_lives();
