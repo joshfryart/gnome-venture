@@ -360,3 +360,65 @@
 .cfgroup { margin: .5rem 0; }
 .cfgroup > summary { padding: .35rem .2rem; }
 .cfgroup > .cfup, .cfgroup > .cfballs { margin-top: .5rem; }
+
+/* 2.2.x room things (pet shops, includes/catfish_pets.php). Rectangles come from aseprite-source/catfish/room-layout.json "pet_slots" (tests/catfish.sh checks them): the sprite is exactly w x h.
+   Wall, ceiling and floor things are drawn after the room and before the wand, fish and cats; slot 8 (the rod charm) hangs on the line. An active thing is a <button> with a 44 px hit area. */
+.cfpet { position: absolute; display: block; padding: 0; margin: 0; border: 0; background: none; color: inherit; font-size: 0; line-height: 0; }
+.cfpet .cfimg { display: block; max-width: none; image-rendering: pixelated; }
+.cfpet-s1 { left: 280px; top: 8px; width: 20px; height: 24px; } .cfpet-s2 { left: 300px; top: 8px; width: 20px; height: 24px; }
+.cfpet-s3 { left: 0; top: 42px; width: 30px; height: 26px; } .cfpet-s4 { left: 282px; top: 42px; width: 35px; height: 31px; }
+.cfpet-s5 { left: 121px; top: 0; width: 48px; height: 34px; } .cfpet-s6 { left: 0; top: 139px; width: 38px; height: 28px; }
+.cfpet-s7 { left: 244px; top: 172px; width: 36px; height: 28px; } .cfpet-s8 { left: 92px; top: 17px; width: 16px; height: 16px; }
+.cfpet-s8::before { content: ""; position: absolute; left: 7px; top: -1px; width: 2px; height: 2px; background: var(--cfstr, #74462a); }   /* the knot on the line */
+.cfpet .cfpetph { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; height: 100%; border: 2px solid #dc1414; background: #fff; color: #333; font-size: 12px; line-height: 1; }
+.cfpet-s8 .cfpetph { font-size: 8px; border-width: 1px; }
+button.cfpet { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+button.cfpet::after { content: ""; position: absolute; left: -12px; top: -12px; right: -12px; bottom: -12px; }   /* 20 px things get a 44 px target */
+button.cfpet-s5 { z-index: 2; }   /* the ceiling thing hangs over the fish strings; its tap target must win there */
+button.cfpet-s5::after { left: -6px; right: -6px; top: 0; bottom: -10px; }
+.cfspot, .cfactive { pointer-events: none; }   /* cats are not tap targets: a floor thing under a cat's box stays tappable */
+button.cfpet:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+button.cfpet.is-wait { opacity: .8; }
+button.cfpet.is-ready::before { content: ""; position: absolute; right: -2px; top: -2px; width: 3px; height: 3px; background: #fff3a0; box-shadow: 0 0 0 1px #3a2410; animation: cfpetpip 1200ms steps(1, end) infinite; }   /* a blinking pip: ready to tap */
+@keyframes cfpetpip { 0% { opacity: 1; } 50% { opacity: .15; } }
+/* window rain (Rain Stick): a few falling streaks on the window, 4 whole steps; a still shade under reduced motion */
+.cfrain { position: absolute; left: 3px; top: 12px; width: 31px; height: 54px; pointer-events: none; opacity: .75;
+  background: repeating-linear-gradient(100deg, rgba(255, 255, 255, 0) 0 5px, rgba(210, 232, 255, .9) 5px 6px, rgba(255, 255, 255, 0) 6px 9px); background-size: 9px 12px; animation: cfrainfall 480ms steps(4, end) infinite; }
+@keyframes cfrainfall { 0% { background-position: 0 0; } 100% { background-position: -3px 12px; } }
+/* ceiling lanterns (Brass Lantern): a warm wash over the stage */
+.cfstage:has(.cfpc-warm_glow)::after { content: ""; position: absolute; left: 0; top: 0; width: 320px; height: 200px; pointer-events: none; background: radial-gradient(ellipse at 145px 20px, rgba(255, 200, 90, .22), rgba(255, 200, 90, 0) 70%); }
+/* Tea Tray: every cat hops once or twice (cats play happy; whole-pixel steps) */
+@keyframes cfteahop { 0%, 100% { translate: 0 0; } 25% { translate: 0 -6px; } 50% { translate: 0 0; } 75% { translate: 0 -4px; } }
+.cfstage.is-tea .cfspot, .cfstage.is-tea .cfactive { animation: cfteahop 800ms steps(1, end) 3; }
+@media (prefers-reduced-motion: reduce) { button.cfpet.is-ready::before, .cfrain, .cfstage.is-tea .cfspot, .cfstage.is-tea .cfactive { animation: none; } }
+/* Room things panel and the pet shop pages */
+.cfpetslot { margin: 0 0 .5rem; }
+.cfpetrow .cficon { width: 48px; min-height: 28px; text-align: center; font-size: 1.2rem; }
+.cfpetrow .cficon .cfimg { max-width: 48px; }
+.cfpetacts { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: .25rem 0 0; }
+.cfpetacts .cfpetform { margin: 0; flex: 1 1 13rem; }
+.cfpetacts .cfpetform:last-child:not(:only-child) { flex: 0 0 auto; }
+.cfpetform { display: flex; gap: .5rem; align-items: center; flex-wrap: nowrap; margin: .25rem 0 0; }
+.cfpetform select { max-width: 100%; flex: 1 1 8rem; min-width: 0; }
+.cfpetstate { font-weight: 700; }
+.cfpethint { font-style: italic; }
+.cfpshops { margin: .4rem 0; padding-left: 1.1rem; }
+.cfpbanner { margin: 0 0 .5rem; line-height: 0; text-align: center; }
+.cfpbanner .cfimg { width: 480px; max-width: 100%; height: auto; display: inline-block; }
+@media (max-width: 519px) { .cfpbanner .cfimg { width: 240px; } }
+.cfpbanner-ph { line-height: 1.2; padding: 1.2rem .5rem; border: 2px dashed #dc1414; border-radius: 8px; }
+.cfpkeeper { display: flex; gap: .8rem; align-items: center; margin: .5rem 0; }
+.cfpportrait { flex: none; width: 80px; }
+.cfpportrait .portrait { width: 80px; height: auto; }
+.cfpsays { flex: 1 1 10rem; min-width: 0; }
+.cfpsays p { margin: .2rem 0; }
+.cfpline { font-style: italic; }
+.cfplist { list-style: none; margin: .5rem 0; padding: 0; display: grid; gap: .5rem; }
+.cfpitem { flex-wrap: wrap; }
+.cfpitem .cfpspr { width: 96px; text-align: center; }
+.cfpitem .cfpspr .cfimg { max-width: 96px; }
+.cfpitem .cfpspr .cfpetph { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid #dc1414; box-sizing: border-box; background: #fff; color: #333; font-size: 1.2rem; }
+.cfpitem .btn { min-width: 4.5rem; }
+.cfpown { margin-left: auto; }
+
+.cfhub button:last-child:nth-child(3n+1) { grid-column: 1 / -1; }   /* seven tiles: the odd one out takes the whole last row */

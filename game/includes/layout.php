@@ -65,6 +65,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js). v2.0.69: puzzles.js = GIFsaw (gifsaw.php), puzzles.php = hub (puzzlehub.js) */ ?>
 <?php if (!$admin && $page === 'garden.php' && (setting('catfish_open') === '1' || is_admin())): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
 <?php endif; /* Cat Fish: the garden cat uses catfish.css */ ?>
+<?php if (!$admin && !empty($GLOBALS['gv_catfish_css']) && $page !== 'catfish.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
+<?php endif; /* 2.2.x: the Cat Fish pet shops (shop.php) set gv_catfish_css */ ?>
 <?php if (!$admin && $page === 'catfish.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/catfish.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* Cat Fish: assets/catfish.css + assets/catfish.js */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>

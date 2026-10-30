@@ -43,6 +43,9 @@ if (is_post()) {
     elseif ($do === 'reroll') $r = catfish_reroll($uid, (int)($_POST['slot'] ?? -1));
     elseif ($do === 'bigger') $r = catfish_buy_slot($uid);
     elseif ($do === 'rare') $r = catfish_buy_rare($uid);
+    elseif ($do === 'petslot') $r = catfish_pet_slot($uid, (int)($_POST['slot'] ?? 0), (string)($_POST['item'] ?? ''));
+    elseif ($do === 'petuse') $r = array_slice(catfish_pet_use($uid, (int)($_POST['slot'] ?? 0), ['shelter' => (string)($_POST['shelter'] ?? '')]), 0, 2);
+    elseif ($do === 'petunlock') $r = catfish_pet_unlock($uid, (int)($_POST['slot'] ?? 0));
     elseif ($do === 'nap') $r = catfish_nap($uid);
     elseif ($do === 'switch') $r = catfish_switch($uid, (int)($_POST['cat'] ?? 0));
     elseif ($do === 'rename') $r = catfish_rename($uid, (int)($_POST['cat'] ?? 0), (string)($_POST['name'] ?? ''));
@@ -77,7 +80,7 @@ page_header('Cat Fish');
 <?php if (!$cat): ?>
 <p class="help">Pick a cat to take home. Your first one is free. The shelter shows new cats every day.</p>
 <?php else: ?>
-<?php $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0); $sceneKey = catfish_scene_key($cats, $cat, $ownedUp);   // '' without cf-room.png: the old rod box, cat card and room below ?>
+<?php $petScene = catfish_pet_scene($uid); $stage = catfish_stage_html($cats, $cat, $ownedUp, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0, $petScene); $sceneKey = catfish_scene_key($cats, $cat, $ownedUp, $petScene);   // '' without cf-room.png: the old rod box, cat card and room below ?>
 <?php if ($stage !== ''): ?>
 <?= $stage ?>
 <div class="cfscene cfcard box">
@@ -88,7 +91,7 @@ page_header('Cat Fish');
   <div class="cfmain"><div class="cfhold"><?= $catCard($cat) ?></div>
 <?php endif; ?>
     <p class="cfcount"><?= catfish_ico('ico-kibble') ?><b id="cf-kibble"><?= number_format($v['kibble']) ?></b><span id="cf-spend" class="cfspend" aria-hidden="true"></span> Kibble <small class="muted">· <span id="cf-kph"><?= e((string)$v['kph']) ?></span> an hour</small></p>
-    <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= (int)(catfish_offline_cap($cat, (int)($meta['away'] ?? 0)) / 3600) ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
+    <p class="help">Your cat keeps catching fish while you are away (half speed, up to <?= rtrim(rtrim(number_format(catfish_offline_cap($cat, (int)($meta['away'] ?? 0), 60 * catfish_pet_bonus($uid)['away_min']) / 3600, 1), '0'), '.') ?> hours).<?= $v['gained'] > 0 ? ' While you were away: +' . number_format($v['gained']) . ' Kibble.' : '' ?></p></div>
 </div>
 <?= $stage === '' ? catfish_room_html($cats, $ownedUp) : '' ?>
 <h2>Upgrades</h2>
@@ -230,6 +233,7 @@ foreach (CATFISH_TITLES as $tk => [, $tc]) if (!in_array($tk, $myTitles, true) &
 <?php endforeach; ?>
 </details>
 </section>
+<?= catfish_pet_panel_html($uid, $v, $meta) ?>
 <?php
 $reached = catfish_milestones_reached($uid, $st); $done = (array)($meta['ms'] ?? []);
 $week = catfish_week(); $paidWk = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0; $capWk = (int)setting('catfish_petal_cap');

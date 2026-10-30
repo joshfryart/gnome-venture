@@ -99,6 +99,7 @@ const CATFISH_MAX_KPH = 1.0e12;        // hard ceiling on Kibble/hour, so the su
 const CATFISH_MAX_COST = 1.0e15;
 const CATFISH_NAP_BASE = 500;          // a Nap needs this much Kibble earned in the run
 const CATFISH_RARE_PER_HOUR = 0.5;     // Sneaky cats: expected rare fish per hour, each worth a tenth of an hour's Kibble
+require_once __DIR__ . '/catfish_pets.php';   // 2.2.x pet shops: room things, slots, bonuses (the hooks below call catfish_pet_bonus())
 
 /** trait => [value => weight]. Rarer value = smaller weight. */
 const CATFISH_TRAITS = [
@@ -277,14 +278,15 @@ const CATFISH_SIDE_FRAMES = ['idleA' => ['idleA', 'idleB', 'stalk']];
  * The play scene: one 320 x 200 stage with the room (base and owned overlays), the wand hung at the ceiling hook, a line to three dangling fish
  * (catfish_fish_kinds), the other cats (up to 3) as still frames at the side spots, and the active cat in the centre with all 8 frame groups
  * (body, pattern, ears, tail and eyes layers each; catfish.js shows one at a time by class fr-<frame> and data-frame). Everything is positioned by
- * CSS classes (no inline style). Each fish is a button (tap = play, see catfish_play); the stage is a group, not an image, because buttons cannot sit in role=img. $hint shows the first-visit bubble. '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
+ * CSS classes (no inline style). $pets = catfish_pet_scene(): the room things (2.2.x) are drawn after the room extras, behind the fish and every cat; the rod charm hangs on the line. Each fish is a button (tap = play, see catfish_play); the stage is a group, not an image, because buttons cannot sit in role=img. $hint shows the first-visit bubble. '' while there is no cf-room.png: the page then keeps the old rod box and cat card. $napping starts the active cat asleep.
  */
-function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false): string
+function catfish_stage_html(array $cats, array $active, array $owned, bool $napping = false, bool $hint = false, array $pets = []): string
 {
     if (!catfish_art_has('cf-room.png')) return '';
-    $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
+    $h = '<div class="cfstagewrap"><div class="cfstage' . catfish_rod_classes($owned) . catfish_pet_stage_classes($pets) . '" role="group" aria-label="' . e($active['name'] ?? 'Your cat') . ' plays under the toy rod at home' . (count($cats) > 1 ? ', with ' . (count($cats) - 1) . ' other ' . (count($cats) === 2 ? 'cat' : 'cats') : '') . '" data-play-pending="0" data-combo="0">' . catfish_room_base_html($owned);
     $h .= catfish_room_extras_html($owned);
-    $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>';
+    $h .= catfish_pets_html($pets);   // 2.2.x room things: wall, ceiling and floor, behind the wand, the fish and every cat
+    $h .= '<span class="cfswand">' . catfish_img('rod', '🎣', '', 48, 64) . '</span><i class="cfsline"></i>' . catfish_pet_charm_html($pets);
     if ((int)($owned['double'] ?? 0) > 0) $h .= '<span class="cfswand cfswand2" aria-hidden="true">' . catfish_img('rod', '🎣', '', 48, 64) . '</span>';   // 2.1.08 Double rod: a second wand at the right end of the line
     foreach (catfish_fish_kinds($owned, $active) as $i => $n) $h .= '<button type="button" class="cfsdrop sd' . ($i + 1) . ' cfk-' . (int)$n . '" data-fish="' . ($i + 1) . '" aria-label="Bat the plush fish (' . ($i + 1) . ' of 3)"><i class="cfstr"></i>' . catfish_img("fish-$n", ['🐟', '🐠', '🐡'][$i], '', 48) . '</button>';
     $others = [];
@@ -332,10 +334,10 @@ function catfish_stage_html(array $cats, array $active, array $owned, bool $napp
  * which cat is active, which cats are at home). The page carries it in the JSON block and sends it back with a tick or a buy; the API answers with the new
  * stage markup only when the key differs, so catfish.js swaps the scene in place without a reload.
  */
-function catfish_scene_key(array $cats, ?array $active, array $owned): string
+function catfish_scene_key(array $cats, ?array $active, array $owned, array $pets = []): string
 {
     return substr(md5(catfish_room_base_html($owned) . '|' . catfish_room_extras_html($owned) . '|' . catfish_ambience_html($owned) . '|' . implode(',', catfish_fish_kinds($owned, $active)) . '|' . catfish_rod_classes($owned)
-        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats))), 0, 12);
+        . '|' . (int)($active['id'] ?? 0) . '|' . implode(',', array_map(fn($c) => (int)($c['id'] ?? 0), $cats)) . (catfish_pet_key($pets) !== '' ? '|' . catfish_pet_key($pets) : '')), 0, 12);
 }
 
 /** The stage for a view from catfish_view(): [scene key, markup]. The markup is exactly what catfish.php prints ('' with no cat or no room art). */
@@ -343,8 +345,8 @@ function catfish_scene(int $uid, array $v): array
 {
     $cats = catfish_cats($uid); $cat = $v['cat'];
     if (!$cat) return ['', ''];
-    $owned = array_column($v['ups'], 'owned', 'key');
-    return [catfish_scene_key($cats, $cat, $owned), catfish_stage_html($cats, $cat, $owned, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0)];
+    $owned = array_column($v['ups'], 'owned', 'key'); $pets = catfish_pet_scene($uid);
+    return [catfish_scene_key($cats, $cat, $owned, $pets), catfish_stage_html($cats, $cat, $owned, $v['naps'] > 0 && $v['run'] === 0, (int)$v['play']['ever'] === 0, $pets)];
 }
 
 /** One Cat Book cell. $st: 1 adopted, 0 seen, -1 not found yet. Art (cf-bookhead-<coat>, cf-bookhead-unknown, 32 x 32) when it exists, else the coloured circle. */
@@ -522,7 +524,7 @@ function catfish_ensure(): bool
     static $ok = null;
     if ($ok !== null) return $ok;
     if (PHP_INT_SIZE < 8) return $ok = false;   // seeds and the RNG need 64-bit integers
-    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM cats LIMIT 1'); q('SELECT adopted FROM cat_book LIMIT 1'); q('SELECT run_kibble, total_kibble, meta FROM catfish_state LIMIT 1'); q('SELECT 1 FROM cat_ribbons LIMIT 1'); q('SELECT 1 FROM catfish_items LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         $PK = $s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY';
@@ -543,6 +545,10 @@ function catfish_ensure(): bool
         db()->exec("CREATE TABLE IF NOT EXISTS cat_ribbons (
             id $PK, user_id $ID NOT NULL, week VARCHAR(8) NOT NULL, theme VARCHAR(60) NOT NULL, cat_name VARCHAR(30) NOT NULL, tier VARCHAR(10) NOT NULL, score $ID NOT NULL DEFAULT 0, created_at DATETIME NOT NULL,
             UNIQUE (user_id, week)
+        )$END");
+        db()->exec("CREATE TABLE IF NOT EXISTS catfish_items (
+            user_id $ID NOT NULL, item_key VARCHAR(40) NOT NULL, got_at DATETIME NOT NULL, last_used $ID NOT NULL DEFAULT 0, slotted_at $ID NOT NULL DEFAULT 0,
+            PRIMARY KEY (user_id, item_key)
         )$END");
         foreach ([['catfish_state', 'run_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'total_kibble', 'BIGINT NOT NULL DEFAULT 0'], ['catfish_state', 'meta', 'TEXT NULL'], ['cat_book', 'adopted', 'INT NOT NULL DEFAULT 0'], ['cats', 'bio', "VARCHAR(80) NOT NULL DEFAULT ''"], ['cats', 'collar', "VARCHAR(12) NOT NULL DEFAULT ''"]] as [$t, $col, $def]) {
             try { q('SELECT ' . $col . ' FROM ' . $t . ' LIMIT 1'); } catch (Throwable $e) { try { db()->exec('ALTER TABLE ' . $t . ' ADD COLUMN ' . $col . ' ' . $def); } catch (Throwable $e2) {} }   // a second first request may have added it already
@@ -723,7 +729,7 @@ const CATFISH_PAL_MAX = 10;             // ...for up to this many pals (+20%)
 function catfish_extra_mult(int $uid): float
 {
     static $cache = [];
-    if (isset($cache[$uid])) return $cache[$uid];
+    if (isset($cache[$uid])) return $cache[$uid] * (1 + catfish_pet_bonus($uid)['kibble_pct'] / 100);   // room things (2.2.x): their Kibble % is summed, never capped, and not cached with the rest (a swap changes it at once)
     $m = 1.0;
     try {
         require_once __DIR__ . '/puzzle_pals.php';
@@ -738,7 +744,8 @@ function catfish_extra_mult(int $uid): float
         $b = is_array($meta) && !empty($meta['buddyon']) ? (int)($meta['buddy'] ?? 0) : 0;
         if ($b > 0 && $b !== (int)$r['active_cat_id'] && q_val('SELECT 1 FROM cats WHERE id = ? AND user_id = ?', [$b, $uid])) $m *= 1 + CATFISH_BUDDY_PCT;
     } catch (Throwable $e) {}
-    return $cache[$uid] = $m;
+    $cache[$uid] = $m;
+    return $m * (1 + catfish_pet_bonus($uid)['kibble_pct'] / 100);
 }
 
 /** 2 while a festival is running (Yarn from a Nap doubles), else 1. */
@@ -771,10 +778,10 @@ function catfish_kph(array $up, ?array $cat = null, bool $present = false, int $
     return min($kph, CATFISH_MAX_KPH);
 }
 
-/** Seconds of away time that count for this cat. */
-function catfish_offline_cap(?array $cat, int $away = 0): int
+/** Seconds of away time that count for this cat. $petSecs = the room things' extra away time (Hammock Net and friends), added after the Lazy bonus. */
+function catfish_offline_cap(?array $cat, int $away = 0, int $petSecs = 0): int
 {
-    return (int)((CATFISH_OFFLINE_CAP + 3600 * max(0, min($away, count(CATFISH_AWAY_COSTS)))) * (in_array('lazy', [$cat['mood'] ?? '', $cat['mood2'] ?? ''], true) ? 1.25 : 1));
+    return (int)((CATFISH_OFFLINE_CAP + 3600 * max(0, min($away, count(CATFISH_AWAY_COSTS)))) * (in_array('lazy', [$cat['mood'] ?? '', $cat['mood2'] ?? ''], true) ? 1.25 : 1)) + max(0, $petSecs);
 }
 
 /** The gnome's active cat as a full trait array, or null. */
@@ -803,11 +810,12 @@ function catfish_tick(int $uid): array
         $s['gained'] = 0;
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
-        $secs = $away ? min($gap, catfish_offline_cap($cat, (int)($s['meta']['away'] ?? 0))) : $gap;
+        $secs = $away ? min($gap, catfish_offline_cap($cat, (int)($s['meta']['away'] ?? 0), 60 * catfish_pet_bonus($uid)['away_min'])) : $gap;
         $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
         $base = (int)floor(min($eff * $secs / 3600, PHP_INT_MAX >> 4));
         if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
-        $gain = $base + (in_array('sneaky', [$cat['mood'] ?? '', $cat['mood2'] ?? ''], true) ? catfish_rare_fish($eff, $secs, mt_rand() / (mt_getrandmax() + 1)) : 0);
+        $sneaky = in_array('sneaky', [$cat['mood'] ?? '', $cat['mood2'] ?? ''], true); $rareB = catfish_pet_bonus($uid)['rare_pct'];
+        $gain = $base + ($sneaky || $rareB > 0 ? catfish_rare_fish($eff, $secs, mt_rand() / (mt_getrandmax() + 1), $rareB, $sneaky) : 0);
         $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)ceil($base * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
         $claim = q('UPDATE catfish_state SET kibble = kibble + ?, run_kibble = run_kibble + ?, total_kibble = total_kibble + ?, last_tick = ? WHERE user_id = ? AND last_tick = ?', [$gain, $gain, $gain, $tick, $uid, (int)$s['last_tick']])->rowCount();
         if ($claim === 1) { $s['kibble'] = (int)$s['kibble'] + $gain; $s['run_kibble'] = (int)$s['run_kibble'] + $gain; $s['last_tick'] = $tick; $s['gained'] = $gain; }
@@ -854,7 +862,8 @@ function catfish_play(int $uid, $n, $seq): array
         if ($got > 0) {
             $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid));
             $dbl = catfish_catnip_left($m, $now) > 0 ? CATFISH_CATNIP_MULT : 1;   // Catnip Hour
-            for ($i = 1; $i <= $got; $i++) $paid += catfish_play_value($kph, $pc + $i) * $dbl;
+            $tap = catfish_pet_bonus($uid)['tap'];   // 2.2.x rod charm: the first taps of the day pay more
+            for ($i = 1; $i <= $got; $i++) $paid += catfish_pet_tap_value(catfish_play_value($kph, $pc + $i), $pc + $i, $tap) * $dbl;
             $tokens -= $got;
             $m['pe'] = (int)($m['pe'] ?? 0) + $got;
         }
@@ -869,13 +878,14 @@ function catfish_play_view(array $s, ?array $cat, float $kph, int $got = 0, int 
 {
     $m = $s['meta']; $pc = ($m['pd'] ?? '') === catfish_today() ? (int)($m['pc'] ?? 0) : 0;
     $last = CATFISH_PLAY_TIERS[count(CATFISH_PLAY_TIERS) - 1][0];
-    return ['v' => $cat ? catfish_play_value($kph, $pc + 1) * (catfish_catnip_left($m, time()) > 0 ? CATFISH_CATNIP_MULT : 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
+    return ['v' => $cat ? catfish_pet_tap_value(catfish_play_value($kph, $pc + 1), $pc + 1, catfish_pet_bonus((int)($s['user_id'] ?? 0))['tap']) * (catfish_catnip_left($m, time()) > 0 ? CATFISH_CATNIP_MULT : 1) : 0, 'left' => max(0, $last - $pc), 'got' => $got, 'paid' => $paid, 'ever' => (int)($m['pe'] ?? 0)];
 }
 
-/** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. $r is a roll in [0, 1); pure, so the tests can pin it. */
-function catfish_rare_fish(float $effKph, int $secs, float $r): int
+/** Sneaky cats: a rare fish now and then, worth a tenth of an hour's Kibble. $r is a roll in [0, 1); pure, so the tests can pin it.
+ *  2.2.x: $pct = the room things' rare fish % (a Koi Kite Lure is 5): a Sneaky cat's chance grows by that %, any other cat finds them at that % of the Sneaky rate. */
+function catfish_rare_fish(float $effKph, int $secs, float $r, float $pct = 0, bool $sneaky = true): int
 {
-    $chance = min(0.9, CATFISH_RARE_PER_HOUR * $secs / 3600);
+    $chance = min(0.9, CATFISH_RARE_PER_HOUR * $secs / 3600 * (($sneaky ? 1 : 0) + $pct / 100));
     return $r < $chance ? (int)floor($effKph / 10) : 0;
 }
 
@@ -1200,10 +1210,10 @@ function catfish_catnip_left(array $meta, int $now): int
 /** Catnip Hour: taps pay double for an hour. Once a Hollow day. Bounded by the tap bucket and the daily tap tiers, so it only doubles small play Kibble. */
 function catfish_catnip(int $uid): array
 {
-    return catfish_yarn_spend($uid, function (&$meta) {
+    return catfish_yarn_spend($uid, function (&$meta) use ($uid) {
         $today = catfish_today();
         if (($meta['catnip']['day'] ?? '') === $today) return [false, 'Catnip Hour was already today.'];
-        $meta['catnip'] = ['day' => $today, 'until' => time() + CATFISH_CATNIP_SECS];
+        $meta['catnip'] = ['day' => $today, 'until' => time() + CATFISH_CATNIP_SECS + 60 * catfish_pet_bonus($uid)['catnip_min']];   // a Kite Tail Lure adds minutes
         return [CATFISH_CATNIP_COST, 'Catnip Hour! Taps pay double for the next hour.'];
     });
 }
@@ -1460,11 +1470,11 @@ function catfish_show_theme(string $week): array
  * Three judges (0 to 10 each, seeded by gnome, week and cat so a refresh cannot re-roll them) plus the theme and rarity bonuses.
  * Kibble, Yarn and play time are not part of it. Pure: returns ['score' => n, 'tier' => 'blue', 'judges' => [..]].
  */
-function catfish_show_judge(int $uid, string $week, array $cat, array $theme): array
+function catfish_show_judge(int $uid, string $week, array $cat, array $theme, int $bonus = 0): array
 {
     $rng = catfish_rng(crc32('judge|' . $uid . '|' . $week . '|' . $cat['seed']));
     $judges = [(int)floor($rng() * 11), (int)floor($rng() * 11), (int)floor($rng() * 11)];
-    $score = array_sum($judges) + (($cat[$theme['trait']] ?? '') === $theme['value'] ? CATFISH_SHOW_THEME_MATCH : 0) + (CATFISH_SHOW_RARITY[$cat['rarity']] ?? 0);
+    $score = array_sum($judges) + (($cat[$theme['trait']] ?? '') === $theme['value'] ? CATFISH_SHOW_THEME_MATCH : 0) + (CATFISH_SHOW_RARITY[$cat['rarity']] ?? 0) + max(0, $bonus);   // $bonus: room things (Cat Show +1 items, capped), worked out by the caller
     return ['score' => $score, 'tier' => catfish_show_tier($score), 'judges' => $judges];
 }
 
@@ -1518,7 +1528,8 @@ function catfish_show_settle(int $uid): ?array
             if ($cid < 1) continue;
             $r2 = q_one('SELECT * FROM cats WHERE id = ? AND user_id = ?', [$cid, $uid]);
             if (!$r2) continue;
-            $j2 = catfish_show_judge($uid, (string)$e['week'], catfish_cat((int)$r2['seed']), $theme);
+            $c2 = catfish_cat((int)$r2['seed']);
+            $j2 = catfish_show_judge($uid, (string)$e['week'], $c2, $theme, catfish_pet_show_bonus($uid, $c2));
             if ($j === null || $j2['score'] > $j['score']) { $row = $r2; $j = $j2; }
         }
         if (!$row) return null;

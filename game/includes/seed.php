@@ -157,6 +157,8 @@ function seed_starter_content(): void
     upgrade_097_sinks();  // v0.9.7: Curio Cabinet, Dye Pot, Almanac page
     require_once __DIR__ . '/flowers.php';
     upgrade_099_flowers();   // v0.9.9: florists and the flower Almanac pages
+    require_once __DIR__ . '/catfish_pets.php';
+    petshops_ensure();       // 2.2.x: the Cat Fish pet shops beside the regional markets
     require_once __DIR__ . '/upgrade100.php';   // v1.0.0: the steps set their done-flags, so a fresh world shows nothing pending
     upgrade_100_run_step('social', true) or throw new RuntimeException('Install: upgrade step social failed (see data/error-log.txt)');    // v1.0.0 wave 3: Almanac pages, Opening Day dates, festival decor
     upgrade_100_run_step('clock', true) or throw new RuntimeException('Install: upgrade step clock failed (see data/error-log.txt)');     // v1.0.0: the Hollow clock's Almanac page and calendar start
