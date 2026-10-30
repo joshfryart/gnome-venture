@@ -11,6 +11,10 @@ const GOURMAND_BARS = [   // spoon bars: 🥄, 🥄🥄, 🥄🥄🥄
     'plate' => [40, 50, 65], 'pot' => [40, 50, 65], 'grand' => [40, 50, 65],
     'jar' => [45, 52, 62],
 ];
+// Quick preserves (cook_minutes <= GOURMAND_QUICK_MINUTES, one day) have too little time score in pantry_quality(), so a 1-day single-ingredient jam
+// tops out at 59 at Kitchen III. They use their own bars. The 55 third bar is reachable only at Kitchen III with a decent roll/luck (K III 1 kind: 52 base).
+const GOURMAND_QUICK_MINUTES = 1440;
+const GOURMAND_QUICK_JAR_BARS = [42, 49, 55];
 const GOURMAND_WORDS = [1 => 'Honest', 2 => 'Seconds, please', 3 => 'Splendid'];   // not fair_word(): 62 is "Fine" there
 const GOURMAND_LEVEL = 3;                                   // gnome level to dine with him
 const GOURMAND_FIRST = [1 => [60, 20], 2 => [60, 20], 3 => [120, 40]];   // [Petals, XP] for reaching each spoon level on a course, once in a lifetime
@@ -178,11 +182,22 @@ function gourmand_itinerary(string $tour): array
     return $out;
 }
 
-/** Spoons (0-3) a quality earns on a course. */
-function gourmand_spoons(string $course, int $q): int
+/** The three spoon bars for a course. For a jar, pass the item slug: quick preserves (cook_minutes <= 1440) use the lower quick-jar bars. */
+function gourmand_bars(string $course, ?string $slug = null): array
+{
+    if ($course === 'jar' && $slug !== null && $slug !== '') {
+        static $mins = [];
+        if (!array_key_exists($slug, $mins)) $mins[$slug] = q_val('SELECT cook_minutes FROM recipes WHERE slug = ?', [$slug]);
+        if ($mins[$slug] !== null && $mins[$slug] !== false && (int)$mins[$slug] <= GOURMAND_QUICK_MINUTES) return GOURMAND_QUICK_JAR_BARS;
+    }
+    return GOURMAND_BARS[$course] ?? GOURMAND_BARS['plate'];
+}
+
+/** Spoons (0-3) a quality earns on a course (and, for a jar, the item served). */
+function gourmand_spoons(string $course, int $q, ?string $slug = null): int
 {
     $n = 0;
-    foreach (GOURMAND_BARS[$course] ?? GOURMAND_BARS['plate'] as $bar) if ($q >= $bar) $n++;
+    foreach (gourmand_bars($course, $slug) as $bar) if ($q >= $bar) $n++;
     return $n;
 }
 
@@ -335,7 +350,7 @@ function gourmand_preview(int $uid, array $row): array
     $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $item['id']]);
     $q = market_stack_q($uid, (int)$item['id'], $have);
     $n = (int)q_val('SELECT n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $item['id']]);
-    return [$item, $have, $q, gourmand_spoons((string)$row['course'], $q), max(0, $have - $n)];
+    return [$item, $have, $q, gourmand_spoons((string)$row['course'], $q, (string)$row['item']), max(0, $have - $n)];
 }
 
 /** Has this gnome served this course of this region's menu this tour? */
@@ -398,7 +413,7 @@ function gourmand_serve(array $u, string $course): array
         return [false, 'Pomeroy asked for ' . (int)$row['qty'] . ' × ' . $item['name'] . '. You have ' . $have . '.'];
     }
     $quality = market_stack_q($uid, (int)$item['id'], $have);
-    $spoons = gourmand_spoons($course, $quality);
+    $spoons = gourmand_spoons($course, $quality, (string)$row['item']);
     if ($spoons < 1) {
         db()->rollBack();
         return [false, '“I can taste the shop counter.” Your ' . $item['name'] . ' scored ' . $quality . ', not enough for a spoon. Nothing was taken. A fresh harvest or a home-made dish scores higher.'];

@@ -115,7 +115,7 @@ Ask lines (M rows, variant 1). Keep them in this exact voice:
 ### 2.3 Spoons, quality, rewards
 - Bars are consts in gourmand.php:
   - Plate, Pot and Grand: 🥄 40, 🥄🥄 50, 🥄🥄🥄 65.
-  - Jar: 45, 52, 62.
+  - Jar: 45, 52, 62. Quick jars (recipe `cook_minutes` <= 1440, i.e. the 1-day jams and curd) use 42, 49, 55 instead (`gourmand_bars('jar', $slug)`, the one place bars are chosen; `pantry_quality` is unchanged). The quick 55 bar is reachable only at Kitchen III with a decent roll.
 - Spoon words come from a const of their own, **not** `fair_word` (`fair_word(62)` = "Fine", because Splendid starts at 65): 1 = "Honest", 2 = "Seconds, please", 3 = "Splendid".
 - Before you press Serve, the panel shows: "Your Wild Rice: 3 held, quality 52 → 🥄🥄 (Seconds, please)". If untracked units drag the average down, it adds: "Older or bought ones are dragging this down. A fresh harvest scores higher."
 - Dish score (P1), set in `cook_start` and written to `cook_pots.score`:
@@ -297,7 +297,7 @@ Run every suite one at a time, each on its own port (parallel runs give spurious
   - Pots are snack or meal, jars are preserves, and grand rows are `feast-` slugs that exist.
   - Each region has a jar with `min(20,2·days)+3·min(4,kinds) ≥ 15` (SA and OC are exempt until the P2 rows exist).
   - Lines are 140 characters or fewer, with no straight apostrophes.
-- Bars: 39/40/50/65 give 0/1/2/3 (plate), and 44/45/52/62 give 0/1/2/3 (jar).
+- Bars: 39/40/50/65 give 0/1/2/3 (plate), and 44/45/52/62 give 0/1/2/3 (jar; quick jars 41/42/49/55).
 - **give_item test** (its own block in tests/market100.php after the "quality tracking" section, line 165):
   1. Harvest-note 3 at q70, remove 3, buy 3: `market_stack_q` = 35.
   2. 4 at q80 plus 4 plain, remove 4: n = 2, average unchanged at 58 (±1).

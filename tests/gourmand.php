@@ -13,6 +13,7 @@ echo "== bars\n";
 ok('plate 39/40/50/65 = 0/1/2/3', array_map(fn($q) => gourmand_spoons('plate', $q), [39, 40, 50, 65]) === [0, 1, 2, 3]);
 ok('pot and grand use the plate bars', gourmand_spoons('pot', 49) === 1 && gourmand_spoons('grand', 64) === 2);
 ok('jar 44/45/52/62 = 0/1/2/3', array_map(fn($q) => gourmand_spoons('jar', $q), [44, 45, 52, 62]) === [0, 1, 2, 3]);
+ok('quick jam 41/42/49/55 = 0/1/2/3, a long jar keeps 44/45/52/62', array_map(fn($q) => gourmand_spoons('jar', $q, 'plum-jam'), [41, 42, 49, 55]) === [0, 1, 2, 3] && array_map(fn($q) => gourmand_spoons('jar', $q, 'sauerkraut'), [44, 45, 52, 62]) === [0, 1, 2, 3] && gourmand_bars('jar') === [45, 52, 62]);
 ok('words', gourmand_word(1) === 'Honest' && gourmand_word(2) === 'Seconds, please' && gourmand_word(3) === 'Splendid' && gourmand_word(0) === '');
 
 echo "== schedule\n";
@@ -101,13 +102,17 @@ foreach ($codes as $c) {
             if ($course === 'jar') {
                 if ($rec['tier'] !== 'preserve') $errs[] = "$tag: tier {$rec['tier']}";
                 $days = max(1, (int)round((int)$rec['cook_minutes'] / 1440));
-                if (min(20, 2 * $days) + 3 * min(4, count(json_decode($rec['ingredients'], true) ?: [])) >= 15) $jarOk[$c] = true;
+                $hard = in_array($m['item'], ['hummus-jar', 'pickled-okra'], true);   // deliberately hard: exactly on the normal 62 bar
+                $best = 38 + min(20, 2 * $days) + 9 + 3 * min(4, count(json_decode($rec['ingredients'], true) ?: [])) + 4 + 3;   // Kitchen III, max luck, max roll
+                if (!$hard && gourmand_spoons('jar', $best, $m['item']) < 3) $errs[] = "$tag: cannot reach 3 spoons (max $best)";
+                if ($hard && gourmand_bars('jar', $m['item']) !== [45, 52, 62]) $errs[] = "$tag: hard ask lost the normal bars";
+                $jarOk[$c] = true;
             }
         }
     }
-    if (!isset($jarOk[$c])) $errs[] = "$c has no jar that can reach 3 spoons";
+    if (!isset($jarOk[$c])) $errs[] = "$c has no jar ask";
 }
-ok('every region has plate, pot and jar rows that are real items of the right kind, two pots, and a 3-spoon-capable jar (no exemptions)', !$errs, implode('; ', array_slice($errs, 0, 4)));
+ok('every region has plate, pot and jar rows that are real items of the right kind, two pots, and every jar ask able to reach 3 spoons at Kitchen III with max luck and roll (except hummus-jar and pickled-okra)', !$errs, implode('; ', array_slice($errs, 0, 4)));
 foreach ($rows['M'] as $c => $x) foreach ($x as $course => $vars) if (!in_array($course, ['plate', 'pot', 'jar', 'grand'], true)) $errs[] = "$c: course $course";
 $t0 = gourmand_menu('EE', '2026-10'); $t1 = gourmand_menu('EE', '2026-11'); $t2 = gourmand_menu('EE', '2026-12');
 ok('menus rotate monthly through the jar variants', $t0['jar']['variant'] !== $t1['jar']['variant'] && $t1['jar']['variant'] !== $t2['jar']['variant'] && gourmand_menu('NA', '2026-10')['plate']['item'] === 'wild-rice');
@@ -138,6 +143,11 @@ $jarBase = function (string $slug): int {
 };
 ok('chicha and poi clear the 3-spoon jar bar at Kitchen III with room to spare', $jarBase('chicha') > GOURMAND_BARS['jar'][2] && $jarBase('poi') > GOURMAND_BARS['jar'][2]);
 ok('hummus-jar and pickled-okra land exactly on the bar (a -3 wobble costs the third spoon), by design', $jarBase('hummus-jar') === GOURMAND_BARS['jar'][2] && $jarBase('pickled-okra') === GOURMAND_BARS['jar'][2]);
+foreach (['plum-jam', 'raspberry-jam', 'lingonberry-jam', 'guava-jam'] as $jam) {
+    $maxQ = $jarBase($jam) + 4 + 3; $lowQ = $jarBase($jam) - 3;   // Kitchen III: max luck + best roll, and no luck + worst roll
+    ok("$jam (quick jar) reaches 3 spoons only with a decent roll: max $maxQ >= 55, low roll $lowQ does not", $maxQ >= 55 && gourmand_spoons('jar', $maxQ, $jam) === 3 && gourmand_spoons('jar', $lowQ, $jam) < 3 && gourmand_bars('jar', $jam) === [42, 49, 55]);
+}
+ok('hummus-jar and pickled-okra stay on the normal 62 bar and stay hard (no-luck best roll lands only on it, a -3 wobble misses)', gourmand_bars('jar', 'hummus-jar') === [45, 52, 62] && gourmand_bars('jar', 'pickled-okra') === [45, 52, 62] && gourmand_spoons('jar', $jarBase('hummus-jar') - 3, 'hummus-jar') < 3);
 ok('MENA and WCA each also have an easier jar, so the hard one is a choice', $jarBase('pomegranate-molasses') > GOURMAND_BARS['jar'][2] && $jarBase('hibiscus-cordial') > GOURMAND_BARS['jar'][2]);
 ok('sauerkraut (EE/2 ask) still reaches 3 spoons at Kitchen III after its ingredients rose to 6 cabbage (same kinds, same timer)', $jarBase('sauerkraut') >= GOURMAND_BARS['jar'][2] && array_keys(json_decode((string)q_val("SELECT ingredients FROM recipes WHERE slug = 'sauerkraut'"), true)) === ['cabbage']);
 ok('fermented-carrots is no longer a copy of pickled-carrots and gains a third kind (+3 jar score)', array_keys(json_decode((string)q_val("SELECT ingredients FROM recipes WHERE slug = 'fermented-carrots'"), true)) === ['carrot', 'ginger', 'garlic']);

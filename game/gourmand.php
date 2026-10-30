@@ -75,7 +75,7 @@ page_header('The Gourmand');
     $menu = gourmand_menu($code, $tour); $nm = $names($menu); ?>
 <section class="box">
   <h2>🍽️ This month in <?= e(gourmand_region_name($code)) ?></h2>
-  <p class="help">One of each course a month. Quality is the average of the stack you hold. Spoons: <?= GOURMAND_BARS['plate'][0] ?> / <?= GOURMAND_BARS['plate'][1] ?> / <?= GOURMAND_BARS['plate'][2] ?> (jars <?= GOURMAND_BARS['jar'][0] ?> / <?= GOURMAND_BARS['jar'][1] ?> / <?= GOURMAND_BARS['jar'][2] ?>).</p>
+  <p class="help">One of each course a month. Quality is the average of the stack you hold. Spoons: <?= GOURMAND_BARS['plate'][0] ?> / <?= GOURMAND_BARS['plate'][1] ?> / <?= GOURMAND_BARS['plate'][2] ?> (jars <?= implode(' / ', gourmand_bars('jar', (string)($menu['jar']['item'] ?? ''))) ?>).</p>
   <?php foreach (GOURMAND_COURSES as $course => [$ic, $label, $what]): $row = $menu[$course] ?? null; if (!$row) continue;
         [$item, $have, $q, $sp, $loose] = gourmand_preview($uid, $row); $done = gourmand_served_this_tour($uid, $code, $course, $tour); $mine = $ledger[$code][$course] ?? null; ?>
     <div class="box inset">
