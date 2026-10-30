@@ -14,7 +14,16 @@ function give_item(int $userId, int $itemId, int $qty): bool
     if ($qty < 0) {
         $ok = q('UPDATE user_items SET qty = qty + ? WHERE user_id = ? AND item_id = ? AND qty >= ?',
             [$qty, $userId, $itemId, -$qty])->rowCount() === 1;
-        if ($ok) q('DELETE FROM user_items WHERE user_id = ? AND item_id = ? AND qty <= 0', [$userId, $itemId]);
+        if ($ok) {
+            q('DELETE FROM user_items WHERE user_id = ? AND item_id = ? AND qty <= 0', [$userId, $itemId]);
+            // The tracked-quality count shrinks with the stack, so what is bought or traded later can't inherit a harvest's quality
+            $n = (int)q_val('SELECT n FROM item_quality WHERE user_id = ? AND item_id = ?', [$userId, $itemId]);
+            if ($n > 0) {
+                $after = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$userId, $itemId]);
+                $before = $after - $qty;
+                q('UPDATE item_quality SET n = ? WHERE user_id = ? AND item_id = ?', [intdiv(min($n, $before) * $after, $before), $userId, $itemId]);
+            }
+        }
         return $ok;
     }
     if (q('UPDATE user_items SET qty = qty + ?, got_at = ? WHERE user_id = ? AND item_id = ?', [$qty, now(), $userId, $itemId])->rowCount() === 1) {

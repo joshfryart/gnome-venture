@@ -52,6 +52,7 @@ const FRESH_USER_TABLES = [
     'fair_best' => 'user_id', 'fair_entries' => 'user_id', 'fair_ribbons' => 'user_id', 'show_entries' => 'user_id',
     'gotm_entries' => 'user_id', 'notices' => 'user_id', 'gifts' => 'from_id', 'sink_owned' => 'user_id', 'curio_buys' => 'user_id',   // v0.9.7
     'dry_racks' => 'user_id', 'florist_shifts' => 'user_id', 'arrangement_entries' => 'user_id', 'flower_daily' => 'user_id',   // v0.9.9
+    'item_quality' => 'user_id',
 ];
 
 /**

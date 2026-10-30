@@ -174,6 +174,27 @@ give_item($uid, $carrot, 8);   // bought or traded: plain
 ok('8 untracked units pull it towards plain (35)', market_stack_q($uid, $carrot) === (int)round((60 * 8 + 35 * 8) / 16), (string)market_stack_q($uid, $carrot));
 ok('grade letters', market_grade(90) === 'S' && market_grade(76) === 'A' && market_grade(60) === 'B' && market_grade(45) === 'C' && market_grade(10) === 'F');
 
+echo "== quality shrinks when items leave a stack\n";
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $carrot]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]);
+give_item($uid, $carrot, 3); market_note_quality($uid, $carrot, 3, 70);
+ok('3 harvested at 70 = 70', market_stack_q($uid, $carrot) === 70);
+give_item($uid, $carrot, -3); give_item($uid, $carrot, 3);   // all used or sold, then 3 bought
+ok('3 bought after the harvest left are plain (35)', market_stack_q($uid, $carrot) === MARKET_PLAIN_Q, (string)market_stack_q($uid, $carrot));
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $carrot]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]);
+give_item($uid, $carrot, 4); market_note_quality($uid, $carrot, 4, 80); give_item($uid, $carrot, 4);
+$avg = market_stack_q($uid, $carrot);
+give_item($uid, $carrot, -4);
+ok('4 at 80 plus 4 plain, 4 removed: tracked count halves', (int)q_val('SELECT n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]) === 2);
+ok('...and the average stays put (58)', abs(market_stack_q($uid, $carrot) - $avg) <= 1 && abs($avg - 58) <= 1, "$avg then " . market_stack_q($uid, $carrot));
+ok('a failed removal changes nothing', !give_item($uid, $carrot, -9) && (int)q_val('SELECT n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]) === 2);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $carrot]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]);
+give_item($uid, $carrot, 5); market_note_quality($uid, $carrot, 5, 90); give_item($uid, $carrot, -2);
+ok('a plain remove keeps the rest at harvest quality (5 at 90, 2 gone)', market_stack_q($uid, $carrot) === 90 && (int)q_val('SELECT n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]) === 3);
+give_item($uid, $carrot, -3);
+ok('...and empty stack leaves n at 0', (int)q_val('SELECT n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $carrot]) === 0);
+require_once $argv[1] . '/includes/fresh_start.php';
+ok('fresh start clears item_quality', (FRESH_USER_TABLES['item_quality'] ?? '') === 'user_id');
+
 echo "== market day: toggle by setting\n";
 $wd = mk_weekday($today);
 cfg(['market_on' => 1, 'market_day' => $wd]);
