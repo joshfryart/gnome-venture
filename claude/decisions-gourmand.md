@@ -13,3 +13,4 @@
 12. YES: fix give_item so bought/traded goods cannot inherit harvest quality (item_quality.n must shrink), so the 'plain quality' guard really works. Needs its own test.
 13. YES: adopt the integration review's simplifications (claude/review-gourmand.md): npcs.active kept in step with the setting, traveller_deals as once-per-tour claim (no gourmand_plates), drop gourmand_teach / Almanac chapter / Wayside Bite / board, 2 settings, second-spoon via existing decor list, score>0 guard on cook_pots.score.
 
+14. Plan items (final): festival friendship bonus does NOT require being at the camp; tip XP doubles on festival day (8 -> 16); Long Table is seat-only (no board); proportional give_item fix OK; second-spoon via the non-tradable reward-decor pattern (festival.php:40-46), overriding 13's wording; add a How-to page; jar bar stays 62 (hummus-jar, pickled-okra stay hard); version numbering on hold.
