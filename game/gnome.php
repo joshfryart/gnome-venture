@@ -66,7 +66,9 @@ $canParty = $palsOn && ppal_can_party($u);
 $eq = $canParty ? ppal_equipped($u) : [];
 $palShort = function (array $p): string {
     $v = $p['perk'] === 'shine' ? 0 : ($p['perk'] === 'road' ? (PPAL_ROAD_UNITS[$p['rarity']] ?? 1) : (PPAL_PERK_RATE[$p['perk']] ?? 0) * (PPAL_UNITS[$p['rarity']] ?? 8));
-    return match ($p['perk']) { 'gather' => "+$v% rare finds", 'road' => "+$v in road fights", 'finder' => "+$v% pal finds", 'tinker' => "+$v% game XP", 'bloom' => "+$v% harvest extras", default => 'a sparkle' };
+    $perk = match ($p['perk']) { 'gather' => "+$v% rare finds", 'road' => "+$v in road fights", 'finder' => "+$v% pal finds", 'tinker' => "+$v% game XP", 'bloom' => "+$v% harvest extras", default => 'a sparkle' };
+    $sk = ppal_skill_short($p);
+    return $sk !== '' ? $perk . ' · ⚔️ ' . $sk : $perk;
 };
 $palImg = fn(string $key, int $px): string => ppal_sticker_html($key, $px);
 $pick = $canParty && isset($_GET['pick']) ? max(0, min(ppal_party_max() - 1, (int)$_GET['pick'])) : null;
@@ -173,6 +175,7 @@ page_header('My Gnome');
       <h2>🐾 Pals along <small class="muted"><?= count($eq) ?> of <?= ppal_party_max() ?></small></h2>
       <?php if ($canParty): ?><p class="help">Pick a slot in the strip above to take a pal along or send it home.</p><?php endif; ?>
       <div class="perkbox"><b>What your pals do now</b>
+        <?php foreach ($canParty ? ppal_skill_lines($u) : [] as $ln): ?><div>⚔️ <?= e($ln) ?></div><?php endforeach; ?>
         <?php if ($perks['lines']): foreach ($perks['lines'] as $ln): ?><div>✔ <?= e($ln) ?></div><?php endforeach; else: ?><div>Nothing yet. Take a pal along for a small boost.</div><?php endif; ?></div>
       <?php if ((int)$palBook['found'] === 0) echo ppal_howto_html(); ?>
       <h3>Your found pals · <?= $palF ?> of <?= $palT ?></h3>

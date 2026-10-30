@@ -1115,3 +1115,22 @@ function ppal_own_node(array $pic, array $nodes): ?array
     foreach ($nodes as $n) if ($n['id'] === $loc) return $n;
     return null;
 }
+
+/** Short skill text for a pal's row ("Thorn Ward 2" / "Sip 10%"; a rare shows both its skills). */
+function ppal_skill_short(array $pal): string
+{
+    $out = [];
+    foreach (ppal_pal_skills($pal) as $kind => $v) {
+        foreach (PPAL_SKILLS as [$k, $name]) if ($k === $kind) { $out[] = $name . ' ' . $v . ($kind === 'sip' || $kind === 'petal' ? '%' : ''); break; }
+    }
+    return implode(', ', $out);
+}
+
+/** The party's combined skills as sentences for the gnome page: ["Takes 2 off every hit you suffer", ...]. [] when none. */
+function ppal_skill_lines(int|array $u): array
+{
+    $sk = ppal_skills($u);
+    $out = [];
+    foreach (PPAL_SKILLS as [$kind, $name, , $text]) if (!empty($sk[$kind])) $out[] = $name . ': ' . sprintf($text, $sk[$kind]);
+    return $out;
+}
