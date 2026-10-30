@@ -1,4 +1,6 @@
 # Puzzle Pals plan: piece records, pal rosters released by an Advanced solve, finds on page views, pals as a party for the road (Treks excluded) (Fable 5.1, 2026-10-28)
+> **UPDATE 2026-10-30 (2.2.2 to 2.2.4): sections 3 (spawning on any page) and 4 (perks, level gate) below are superseded.** Pals now wait at places on the map in level bands (`ppal_find_mode` map, page mode kept as rollback), perks are 8/15/30% (road 1/2/4, caps 50 / road 5), take along has no level gate (2.0.91), and every pal has a passive combat skill by calling (`ppal_skills`). Current design and function names: `claude/handoff.md` "2.2.2 to 2.2.4". The rest of this file is history.
+
 Target release: **2.0.88** (after Jigsaw steps B to E of `plan-jigsaw.md` land in 2.0.87; the Jigsaw Schedule tab is also 2.0.88). Everything behind `ppal_open`, off for players. Branch `claude/eager-thompson-7g0p5p`. Nothing built yet.
 Owner's idea (verbatim intent): record each puzzle's piece images; completing a picture at **Advanced** releases that picture's pal roster for the gnome; pals then turn up on any page (random event system); collect them all per picture; recruit some to fill a party of 3 (2 pals + you) for Treks (gnome level 15+).
 
