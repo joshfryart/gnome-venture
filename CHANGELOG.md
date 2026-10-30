@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.4
+- **Puzzle Pals: finds reworked for map mode.** The Advanced-solve win card and notification say the pals wait at places on the map; the finder perk reads "+N% chance of an extra Puzzle Pal on your map each day"; a line on the World Go tab counts the pals waiting (and flags a rare one) with links to the map and the Pal Book; the Pal Book explains when nothing is waiting. Admin: Tools > "Test a pal find" puts one pal on your map now in map mode (the old find card in page mode); the chance, cooldown and daily-max settings are labelled page mode only. `ppal_on_solve` returns an extra `mode` field. No schema change. Features stay off for players (`ppal_open` 0), so no player news.
+- Known failing on the base commit too: `gather150`, `folkoverlay`.
+
 ## 2.2.3
 - **My Gnome shows pal combat skills.** Each pal row on My Gnome lists its skill ("... · ⚔️ Thorn Ward 2"), and the Pals tab's "What your pals do now" lists the party's combined skills. Before, skills showed only in the Pal Book.
 - **Cat Fish: Puzzle Pals found now pay Kibble by rarity** (common +4%, uncommon +8%, rare +16% each; the best 10 pals count; total capped at +50%). It was a flat +2% per pal, max +20%, so it had not moved with the 2.2.2 perk scale. Applies to pals found, equipped or not.

@@ -1,6 +1,9 @@
 # Gnome Venture changelog (newest first, condensed)
 Dates 2026-10-17 unless noted. "Slim needs vX" = minimum installed version. Upgrade steps: see handoff.md.
 
+## 2.2.4 (2026-10-30)
+- Puzzle Pals finds reworked for map mode: win card / notify / finder perk / My Gnome wording, World Go chip (`ppal_chip_html`), Pal Book empty state, admin Test a pal find = `ppal_admin_spawn` (map mode) via `ppal_spawn_refresh($u, $extra)`, page-mode-only setting labels. No schema change. Slim needs 2.2.2+.
+
 ## 2.2.3 (2026-10-30)
 - My Gnome shows each pal's combat skill (`ppal_skill_short`) and the party's combined skills (`ppal_skill_lines`) on the Pals tab. Cat Fish `catfish_extra_mult`: Kibble from pals found is by rarity (`CATFISH_PAL_STEP` 4/8/16%, best 10 pals, cap +50%), was flat +2% a pal (max +20%). No schema change. Slim needs 2.2.1+.
 
