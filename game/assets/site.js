@@ -2014,8 +2014,15 @@ document.addEventListener('animationend', function (ev) {
   try { sessionStorage.setItem('gvRouteFaded', '1'); } catch (e) {}
 });
 
-/* Pantry (master-detail): on a phone the selected-recipe sheet starts folded so the recipe list shows first; picking a recipe (?r=) leaves it open */
+/* Pantry (master-detail): on a phone the selected-recipe sheet always starts folded so the list shows first; tapping its header folds or unfolds it,
+   and picking a recipe from the list opens it once (the pick reloads the page, so the choice is carried in sessionStorage) */
 (function () {
-  var d = document.querySelector('.p2sheet');
-  if (d && window.matchMedia('(max-width: 720px)').matches && !/[?&]r=/.test(location.search)) d.open = false;
+  var d = document.querySelector('.p2sheet'), phone = window.matchMedia('(max-width: 720px)');
+  if (!d) return;
+  var want = false;
+  try { want = sessionStorage.getItem('p2open') === '1'; sessionStorage.removeItem('p2open'); } catch (e) {}
+  if (phone.matches) d.open = want;
+  document.querySelectorAll('.p2row').forEach(function (a) {
+    a.addEventListener('click', function () { try { sessionStorage.setItem('p2open', '1'); } catch (e) {} });
+  });
 })();

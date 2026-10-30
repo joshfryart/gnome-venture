@@ -195,7 +195,7 @@ $when = function (array $r) use ($jarsFree): string {
         <span class="p2dt"><b class="p2name"><?= $sel['known'] ? e($sel['name']) : '???' ?></b>
           <span class="p2tags"><span class="tag">🫙 preserve</span> <span class="tag"><?= e(P2_KINDS[$sk][0]) ?></span></span>
           <?php if ($sel['known']): ?><small class="p2sub">Makes <?= (int)$sel['output_qty'] ?> jars · <?= e(buff_text($sel['effects'], $u, true)) ?></small><?php endif; ?></span>
-        <span class="p2grab" aria-hidden="true"></span>
+        <span class="p2grab" aria-hidden="true"></span><span class="p2chev" aria-hidden="true">▾</span>
       </summary>
       <?php if ($sel['known']): ?><p class="p2fit"><?= $when($sel) ?></p><?php endif; ?>
       <p class="ccingh p2ingh">Ingredients</p>

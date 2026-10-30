@@ -6237,3 +6237,12 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .pantry2 .p2make .btn, .pantry2 .p2make .btn[value="1"] { min-height: 40px; padding: 6px; }
   .pantry2 .p2note { font-size: 13px; }
 }
+
+/* Pantry sheet: closable tab on phones (tap the header; the chevron shows the state) */
+.pantry2 .p2chev { display: none; }
+@media (max-width: 720px) {
+  .pantry2 .p2chev { display: grid; place-items: center; flex: none; width: 40px; height: 40px; margin-left: auto; font-size: 20px; color: var(--muted); transition: transform .15s; }
+  .pantry2 .p2sheet:not([open]) .p2chev { transform: rotate(180deg); }
+  .pantry2 .p2sheet > summary { min-height: 56px; }
+  .pantry2 .p2sheet:not([open]) + .p2acts { display: none; }
+}
