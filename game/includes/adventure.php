@@ -71,19 +71,20 @@ function outlevel_fx(string $fx, int $pct): string
 function gnome_combat(array $u, bool $pals = false): array
 {
     $lvl = (int)$u['level'];
+    $sk = [];   // v2.0.92: the pals' combat skills (ppal_skills); empty unless pals come along, so a gnome without pals fights exactly as before
     $pal = 0;   // v2.0.88: the Puzzle Pals road perk: +N Grit, Nimble and Hardiness modifiers in road, lair and delve fights (Treks and contests use other code)
-    if ($pals && setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; if ((int)$u['level'] >= PPAL_PARTY_LEVEL) $pal = ppal_perks($u)['road']; }
+    if ($pals && setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; if ((int)$u['level'] >= PPAL_PARTY_LEVEL) { $pal = ppal_perks($u)['road']; $sk = ppal_skills($u); } }
     $grit = eff_mod($u, 'grit') + $pal;
     $nim = eff_mod($u, 'nimble') + $pal;
     return [   // v0.9.1: calling numbers now come from the tier table (calling_perk)
         'max_hp' => max(10, 20 + 3 * $lvl + 5 * (eff_mod($u, 'hardiness') + $pal) + calling_perk($u, 'hp_bonus')),
-        'ac' => 10 + $nim + intdiv($lvl, 4) + calling_perk($u, 'def_bonus'),
+        'ac' => 10 + $nim + intdiv($lvl, 4) + calling_perk($u, 'def_bonus') + ($sk['foot'] ?? 0),
         'atk' => 2 + intdiv($lvl, 2) + max($grit, $nim + calling_perk($u, 'atk_nimble')) + calling_perk($u, 'atk_bonus'),
         'dmg_die' => 8,
-        'dmg_bonus' => max(0, $grit) + intdiv($lvl, 4) + calling_perk($u, 'dmg_bonus'),
+        'dmg_bonus' => max(0, $grit) + intdiv($lvl, 4) + calling_perk($u, 'dmg_bonus') + ($sk['edge'] ?? 0),
         'crit_from' => calling_perk($u, 'crit_from', 20),
-        'luck_crit' => luck_percent($u),   // % chance any hit becomes a crit (2 Luck = 0.05% by default)
-    ];
+        'luck_crit' => luck_percent($u) + ($sk['petal'] ?? 0),   // % chance any hit becomes a crit (2 Luck = 0.05% by default)
+    ] + ($sk ? ['pal' => $sk] : []);
 }
 
 function player_node(array $u): array
@@ -536,6 +537,13 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         if (!$snack) { exp_log($exp, '🎒 ' . $why); return false; }
     }
 
+    $palSk = $gc['pal'] ?? [];   // v2.0.92: pal skills (mend, running, sip, ward); no dice
+    if (!empty($palSk['mend']) && (int)$exp['hp'] < (int)$exp['max_hp']) {
+        $mend = min((int)$palSk['mend'], (int)$exp['max_hp'] - (int)$exp['hp']);
+        $exp['hp'] = (int)$exp['hp'] + $mend;
+        exp_log($exp, '🌱 Your pal mends you: +' . $mend . ' health.');
+    }
+
     // Poison ticks first
     if ($enc['poison'] > 0) {
         $enc['hp'] -= 2;
@@ -546,7 +554,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if ($enc['hp'] > 0) {
         switch ($action) {
             case 'flee':
-                if (flee_roll(eff_mod($u, 'nimble'), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
+                if (flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
                     $exp['encounter'] = null;
                     return true;
@@ -559,7 +567,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     $exp['encounter'] = json_encode($enc);
                     return false;
                 }
-                $heal = min((int)$exp['max_hp'] - (int)$exp['hp'], (int)$snack['heal']);
+                $heal = min((int)$exp['max_hp'] - (int)$exp['hp'], !empty($palSk['sip']) ? (int)round((int)$snack['heal'] * (100 + (int)$palSk['sip']) / 100) : (int)$snack['heal']);
                 $exp['hp'] = (int)$exp['hp'] + $heal;
                 $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
                 exp_log($exp, '🎒 You gulp down the ' . $snack['name'] . ': +' . $heal . ' health.');
@@ -658,6 +666,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if (foe_hits((int)$c['attack'], $gc['ac'])) {
         $dmg = foe_damage((int)$c['dmg_die'], (int)$c['dmg_bonus']);
         if ($enc['bark'] > 0) $dmg = max(1, intdiv($dmg, 2));
+        if (!empty($palSk['ward'])) $dmg = max(1, $dmg - (int)$palSk['ward']);
         $exp['hp'] = (int)$exp['hp'] - $dmg;
         exp_log($exp, '💥 The ' . $c['name'] . ' hits you for ' . $dmg . '.');
     } else {

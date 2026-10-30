@@ -1020,3 +1020,58 @@ function ppal_marker_svg(array $sp, string $corner = '', int $r = 20): string
         . ($rar === 'common' ? '' : '<circle r="' . ($r + 4) . '" fill="none" stroke="' . $col . '" stroke-opacity="0.6" stroke-width="2"' . ($rar === 'rare' ? ' stroke-dasharray="4 3"' : '') . '/>')
         . $img . $corner . '</g>';
 }
+
+// ---------------- v2.0.92: pal combat skills (passive, road / lair / delve fights; Treks and contests never get them) ----------------
+
+/** Combat skill per calling: name, and its value for [common, uncommon, rare]. Passive, no extra dice: they are flat numbers added where the fight already looks. */
+const PPAL_SKILLS = [
+    'rootwarden' => ['ward', 'Thorn Ward', [1, 2, 3], 'Takes %d off every hit you suffer'],
+    'thornblade' => ['edge', 'Keen Edge', [1, 1, 2], 'Adds %d damage to your hits'],
+    'wayfinder' => ['foot', 'Fleet Foot', [1, 2, 3], 'Adds %d to your armour and to running away'],
+    'seedkeeper' => ['mend', 'Mend', [1, 2, 3], 'Heals you %d at the start of every round'],
+    'brewroot' => ['sip', 'Sip', [10, 20, 40], 'Snacks heal %d%% more'],
+    'bloomcaller' => ['petal', 'Lucky Petal', [1, 2, 4], 'Adds %d%% to your chance of a critical hit'],
+];
+/** A rare pal also carries the skill of this other calling, at common strength. */
+const PPAL_SKILL_SECOND = ['rootwarden' => 'wayfinder', 'thornblade' => 'bloomcaller', 'wayfinder' => 'rootwarden', 'seedkeeper' => 'brewroot', 'brewroot' => 'seedkeeper', 'bloomcaller' => 'thornblade'];
+const PPAL_SKILL_CAP = ['ward' => 4, 'edge' => 3, 'foot' => 4, 'mend' => 4, 'sip' => 60, 'petal' => 6];
+
+/** One pal's skills as [kind => value]: its calling's skill by rarity, plus (rare) the second calling's at common strength. Pure. */
+function ppal_pal_skills(array $pal): array
+{
+    $i = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity']] ?? 0;
+    $out = [];
+    foreach ([[$pal['calling'], $i], ...($i === 2 && isset(PPAL_SKILL_SECOND[$pal['calling']]) ? [[PPAL_SKILL_SECOND[$pal['calling']], 0]] : [])] as [$calling, $at]) {
+        if (!isset(PPAL_SKILLS[$calling])) continue;
+        [$kind, , $vals] = PPAL_SKILLS[$calling];
+        $out[$kind] = ($out[$kind] ?? 0) + $vals[$at];
+    }
+    return $out;
+}
+
+/** The skill sentences of one pal for the Pal Book and the gnome page. */
+function ppal_skill_line(array $pal): string
+{
+    $i = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity']] ?? 0;
+    $parts = [];
+    foreach ([[$pal['calling'], $i], ...($i === 2 && isset(PPAL_SKILL_SECOND[$pal['calling']]) ? [[PPAL_SKILL_SECOND[$pal['calling']], 0]] : [])] as [$calling, $at]) {
+        if (!isset(PPAL_SKILLS[$calling])) continue;
+        [, $name, $vals, $text] = PPAL_SKILLS[$calling];
+        $parts[] = '⚔️ ' . $name . ': ' . sprintf($text, $vals[$at]);
+    }
+    return implode(' · ', $parts);
+}
+
+/**
+ * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)],
+ * summed over the party and capped (PPAL_SKILL_CAP). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
+ */
+function ppal_skills(int|array $u): array
+{
+    $t = [];
+    foreach (ppal_equipped($u) as $e) foreach (ppal_pal_skills($e['pal']) as $k => $v) $t[$k] = ($t[$k] ?? 0) + $v;
+    if (!$t) return [];
+    $o = ['ward' => $t['ward'] ?? 0, 'edge' => $t['edge'] ?? 0, 'foot' => $t['foot'] ?? 0, 'mend' => $t['mend'] ?? 0, 'sip' => $t['sip'] ?? 0, 'petal' => $t['petal'] ?? 0];
+    foreach ($o as $k => $v) $o[$k] = min(PPAL_SKILL_CAP[$k], $v);
+    return array_sum($o) > 0 ? $o : [];
+}
