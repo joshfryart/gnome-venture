@@ -370,6 +370,8 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
         $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
         return (craft_short_text($stock, $energy, $haveE, $qty) ?: ($feeEach > 0 ? $feeText : 'Something changed while you were cooking.')) . ' Nothing was used.';
     };
+    require_once __DIR__ . '/gourmand.php';
+    $score = gourmand_dish_score($u, $stock);   // next version: the dish's quality, read before the ingredients leave the satchel
     db()->beginTransaction();
     if ($energy > 0 && !spend_energy($uid, $cost)) {
         db()->rollBack();
@@ -397,7 +399,7 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
             $extra += $makes;
         }
         $ids[] = db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => $makes, 'dishes' => $dishes,
-            'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)]);
+            'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs), 'score' => $score]);
     }
     db()->commit();
     $info = ['ids' => $ids, 'qty' => $qty, 'cost' => $cost, 'fee' => $fee, 'clamped' => $clamped];
@@ -436,6 +438,7 @@ function cook_collect_one(array $u, int $potId): array
     $dishes = max(1, (int)$pot['dishes']);
     $tier = (string)($r['tier'] ?: 'meal');
     give_item($uid, (int)$r['output_item_id'], $dishes);
+    if ((int)$pot['score'] > 0) market_note_quality($uid, (int)$r['output_item_id'], $dishes, (int)$pot['score']);   // next version: the dish keeps its score as quality (0 = a pot started before this existed)
     q('UPDATE user_recipes SET made = made + ? WHERE user_id = ? AND recipe_id = ?', [$makes, $uid, (int)$r['id']]);
     $xp = max(0, tier_setting('cook_xp_tiers', [1, 5, 15])[$tier] ?? 5);
     if (($xpPct = user_building_bonus($uid, 'kitchen')['xp_pct']) > 0) $xp = (int)round($xp * (100 + $xpPct) / 100);   // v0.7.96: level 3 kitchen +50%; v0.9.5: other gardens' kitchens add a little
