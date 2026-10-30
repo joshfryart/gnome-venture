@@ -1,7 +1,8 @@
 /* Cat Fish: keeps the Kibble counter ticking and syncs with the server every 30 s. The server is the only authority; this only draws.
    Active play: a tap on a dangling fish (button.cfsdrop) counts one pending tap (cap 40, per-fish cooldown 600 ms, untrusted events ignored), shows '+v' at once
-   (v = the last server value, view.play.v) and fires 'cftap' on the stage for the animation below. The pending count rides the next 30 s tick as play=n and seq=batch id
-   (the same seq is resent until the server answers, so a lost reply never pays twice); pagehide sends it with sendBeacon. The server decides what is paid. */
+   (v = the last server value, view.play.v) and fires 'cftap' on the stage for the animation below. The pending count rides the next 30 s tick as play=n and seq=batch id.
+   A sent batch is frozen ({n, v, seq} in outB): a lost reply (network, timeout) resends exactly that batch and seq, so it never pays twice; taps made meanwhile wait in a new batch.
+   A reply without a view (429/400/403) proves nothing was paid, so that batch gets a fresh seq. pagehide sends the frozen batch, then the new taps under their own seq, with sendBeacon. The server decides what is paid. */
 (function () {
   var el = document.getElementById('cf-data'); if (!el) return;
   var d = JSON.parse(el.textContent); if (!d.has) return;
@@ -9,8 +10,25 @@
   var shown = d.kibble, rate = d.kph, frac = 0;
   function st() { return document.querySelector('.cfstage'); }   // the stage is swapped in place after a buy (swapScene), so it is looked up each time
   var play = d.play || { v: 1, left: 0, ever: 0 };
-  var pending = 0, pendV = 0, seq = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
-  function nextSeq() { lastSeq = Math.max(lastSeq + 1, Date.now()); return lastSeq; }   // ms clock: increasing across page loads and tabs
+  var pending = 0, pendV = 0, outB = [], held = 0, busy = false, lastSeq = 0, combo = 0, lastTap = 0, comboTimer = 0, cool = {}, buying = {}, queue = [], reloaded = false, popTimer = 0;
+  // ms clock x 100 plus a random 0-99: increasing in this tab and across page loads, and two tabs rarely mint the same id (stays within the server's 15 digits)
+  function nextSeq() { lastSeq = Math.max(lastSeq + 1, Date.now() * 100 + Math.floor(Math.random() * 100)); return lastSeq; }
+  function unpaidV() { return outB.reduce(function (a, b) { return a + b.v; }, pendV); }   // Kibble from taps the server has not confirmed yet
+  function tapsHeld() { return outB.reduce(function (a, b) { return a + b.n; }, pending); }
+  function freeze() { if (pending > 0) { outB.push({ n: pending, v: pendV, seq: nextSeq() }); pending = 0; pendV = 0; } }
+  /* the batch a request carries: the oldest frozen one, else the pending taps frozen now */
+  function takeBatch(data) { if (!outB.length) freeze(); var b = outB[0] || null; if (b) { data.play = b.n; data.seq = b.seq; } return b; }
+  function settle(b, r) {   // the server answered: a view means the batch was handled (paid or a replay); no view means it was not, so it is retried under a fresh seq
+    if (!b) return;
+    var i = outB.indexOf(b); if (i >= 0) outB.splice(i, 1);
+    if (!(r && r.view)) { b.seq = nextSeq(); outB.push(b); }   // to the back, so batches still go out in seq order
+  }
+  function announcePlay(b, r) {   // a persistent live region outside .cfstagewrap, so a scene swap never drops the message
+    if (!b || !r.view || !r.view.play || !(r.view.play.paid > 0)) return;
+    var live = document.getElementById('cf-playsr');
+    if (!live) { live = document.createElement('span'); live.id = 'cf-playsr'; live.className = 'cfsr'; live.setAttribute('aria-live', 'polite'); document.body.appendChild(live); }
+    live.textContent = ''; setTimeout(function () { live.textContent = '+' + r.view.play.paid + ' Kibble from play'; }, 50);
+  }
   var bulkBar = document.getElementById('cf-bulk'), bulkN = 1;   // Buy x1 / x10 (the bar only exists once Buy x10 is unlocked with Yarn)
   try { if (bulkBar && sessionStorage.getItem('cfn') === '10') bulkN = 10; } catch (e) {}
   function costFace(b, name) {   // the button shows, and spends, the cost of the chosen amount; the server prices it again
@@ -36,17 +54,20 @@
     });
   }
   function form(data) { var fd = new FormData(); fd.append('csrf', d.csrf); Object.keys(data).forEach(function (k) { fd.append(k, data[k]); }); return fd; }
-  function post(data, done, fail) {
-    fetch(d.api, { method: 'POST', body: form(data), credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(done, fail || function () {});
+  function post(data, done, fail) {   // 15 s timeout: an aborted request goes through fail like a network error (the batch keeps its seq)
+    var ac = window.AbortController ? new AbortController() : null, t = ac ? setTimeout(function () { ac.abort(); }, 15000) : 0;
+    fetch(d.api, { method: 'POST', body: form(data), credentials: 'same-origin', signal: ac ? ac.signal : undefined })
+      .then(function (r) { return r.json(); })
+      .then(function (r) { clearTimeout(t); done(r); }, function (e) { clearTimeout(t); (fail || function () {})(e); });
   }
   /* one request at a time: a buy waits for a tick in flight (and the other way round), so the same pending taps and seq are never in two requests at once */
   function free() { busy = false; var n = queue.shift(); if (n) n(); }
   function whenFree(fn) { if (busy) queue.push(fn); else fn(); }
-  function setPending() { var stage = st(); if (stage) stage.setAttribute('data-play-pending', pending); }
+  function setPending() { var stage = st(); if (stage) stage.setAttribute('data-play-pending', tapsHeld()); }
   function setCombo() { var stage = st(), comboEl = document.getElementById('cf-combo'); if (stage) stage.setAttribute('data-combo', combo); if (comboEl) comboEl.textContent = combo >= 2 ? '\u00d7' + combo : ''; }
-  function playView(p) { var hint = document.getElementById('cf-hint'); if (!p) return; play = p; if ((p.ever > 0 || pending > 0) && hint) hint.hidden = true; }
-  function apply(view) {
-    shown = view.kibble + pendV; rate = view.kph; draw(); playView(view.play);
+  function playView(p) { var hint = document.getElementById('cf-hint'); if (!p) return; play = p; if ((p.ever > 0 || tapsHeld() > 0) && hint) hint.hidden = true; }
+  function apply(view) {   // held = costs of buys sent or queued, not yet in view.kibble
+    shown = view.kibble + unpaidV() - held; rate = view.kph; draw(); playView(view.play);
     view.ups.forEach(function (u) {
       var f = document.querySelector('#cf-ups form[data-key="' + u.key + '"]'); if (!f) return;
       f.querySelector('small.muted').textContent = '×' + u.owned;
@@ -80,25 +101,19 @@
   setInterval(function () { shown += rate / 3600; draw(); }, 1000);
   function sync() {
     if (document.hidden || busy) return;
-    var data = { do: 'tick', scene: d.scene }, sentN = 0, sentV = 0;
-    if (pending > 0) { if (!seq) seq = nextSeq(); sentN = pending; sentV = pendV; data.play = sentN; data.seq = seq; }
+    var data = { do: 'tick', scene: d.scene }, b = takeBatch(data);
     busy = true;
     post(data, function (r) {
-      free();
-      if (!r.ok) { say(r.error, true); return; }   // 429 and the like: keep the pending taps and the same seq, resend next tick
-      if (sentN) { pending = Math.max(0, pending - sentN); pendV = Math.max(0, pendV - sentV); seq = 0; setPending(); }
+      free(); settle(b, r); setPending();
+      if (!r.ok || !r.view) { say(r.error, true); return; }   // 429 and the like: nothing was paid, the batch is resent next tick under a fresh seq
       if (r.view.cat && r.view.cat.id !== d.cat && !reloaded) { reloaded = true; location.reload(); return; }   // another tab switched the cat: the card below the stage is stale, so start over
-      apply(r.view); newScene(r);
-      var live = document.getElementById('cf-playlive');
-      if (sentN && live && r.view.play && r.view.play.paid > 0) {
-        live.textContent = ''; setTimeout(function () { live.textContent = '+' + r.view.play.paid + ' Kibble from play'; }, 50);
-      }
-    }, function () { free(); });
+      apply(r.view); newScene(r); announcePlay(b, r);
+    }, function () { free(); });   // no reply: the frozen batch keeps its seq
   }
-  window.addEventListener('pagehide', function () {
-    if (pending < 1 || !navigator.sendBeacon) return;
-    if (!seq) seq = nextSeq();
-    navigator.sendBeacon(d.api, form({ do: 'tick', play: pending, seq: seq }));
+  window.addEventListener('pagehide', function () {   // the frozen batches (same seq), then the new taps under their own seq; they stay frozen in case the page comes back
+    if (!navigator.sendBeacon) return;
+    freeze();
+    outB.forEach(function (b) { navigator.sendBeacon(d.api, form({ do: 'tick', play: b.n, seq: b.seq })); });
   });
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest ? ev.target.closest('.cfstage button.cfsdrop') : null, stage = b && b.closest('.cfstage');
@@ -106,7 +121,7 @@
     var now = Date.now(), f = b.getAttribute('data-fish');
     if (cool[f] && now - cool[f] < 600) return;
     cool[f] = now;
-    var v = play.left - pending > 0 ? play.v : 0;
+    var v = play.left - tapsHeld() > 0 ? play.v : 0;
     if (v > 0 && pending < 40) { pending++; pendV += v; setPending(); shown += v; draw(); }
     if (v > 0) {
       var pop = stage.querySelector('.cfpop.p' + f);
@@ -127,14 +142,12 @@
     var slot = b.getAttribute('data-slot'); if (!slot) return;
     b.setAttribute('data-busy', '1');
     whenFree(function () {
-      var data = { do: 'petuse', slot: slot, scene: d.scene }, sentN = 0, sentV = 0;
-      if (pending > 0) { if (!seq) seq = nextSeq(); sentN = pending; sentV = pendV; data.play = sentN; data.seq = seq; }
+      var data = { do: 'petuse', slot: slot, scene: d.scene }, pb = takeBatch(data);
       busy = true;
       post(data, function (r) {
-        free(); b.removeAttribute('data-busy');
+        free(); b.removeAttribute('data-busy'); settle(pb, r); setPending();
         if (r.view) {
-          if (sentN) { pending = Math.max(0, pending - sentN); pendV = Math.max(0, pendV - sentV); seq = 0; setPending(); }
-          apply(r.view); newScene(r, true);
+          apply(r.view); newScene(r, true); announcePlay(pb, r);
           if (r.happy) { var ns = st(); if (ns) { ns.classList.add('is-tea'); setTimeout(function () { var t = st(); if (t) t.classList.remove('is-tea'); }, 2400); } }
         }
         say(r.message || r.error, !r.ok);
@@ -151,20 +164,17 @@
     ev.preventDefault();
     var key = f.getAttribute('data-key'), b = f.querySelector('button[data-cost]'); if (!b || b.disabled || buying[key]) return;
     var cost = +b.getAttribute('data-cost') || 0;
-    buying[key] = true; shown -= cost; spendPop(cost); say('', false); draw();
+    buying[key] = true; held += cost; shown -= cost; spendPop(cost); say('', false); draw();
     whenFree(function () {
-      var data = { do: 'buy', key: key, scene: d.scene }, sentN = 0, sentV = 0;
+      var data = { do: 'buy', key: key, scene: d.scene }, b = takeBatch(data);
       if (bulkN === 10) data.n = 10;
-      if (pending > 0) { if (!seq) seq = nextSeq(); sentN = pending; sentV = pendV; data.play = sentN; data.seq = seq; }
       busy = true;
       post(data, function (r) {
-        delete buying[key]; free();
-        if (r.view) {
-          if (sentN) { pending = Math.max(0, pending - sentN); pendV = Math.max(0, pendV - sentV); seq = 0; setPending(); }
-          apply(r.view); newScene(r, true);
-        } else { shown += cost; draw(); }
+        delete buying[key]; held -= cost; free(); settle(b, r); setPending();
+        if (r.view) { apply(r.view); newScene(r, true); announcePlay(b, r); }
+        else { shown += cost; draw(); }
         say(r.message || r.error, !r.ok);
-      }, function () { delete buying[key]; free(); shown += cost; draw(); say('Could not reach the game. Try again.', true); });
+      }, function () { delete buying[key]; held -= cost; free(); shown += cost; draw(); say('Could not reach the game. Try again.', true); });
     });
   });
 })();

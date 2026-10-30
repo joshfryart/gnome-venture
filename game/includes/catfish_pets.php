@@ -585,7 +585,7 @@ function petshop_buy(array $u, array $shop, string $key, bool $reachable = true)
 function petshop_post(array $u, array $shop, string $do, bool $reachable): array
 {
     if (petshop_code($shop) === '') return [false, 'This shop does not sell that.'];
-    if ($do === 'pet_buy') return petshop_buy($u, $shop, (string)($_POST['item'] ?? ''), $reachable);
+    if ($do === 'pet_buy') return petshop_buy($u, $shop, (is_string($_POST['item'] ?? null) ? $_POST['item'] : ''), $reachable);
     return [false, 'This shop does not sell that.'];
 }
 

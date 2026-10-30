@@ -14,9 +14,17 @@ if (!$u) $out(['ok' => false, 'error' => 'Please log in first.'], 403);
 if (!empty($u['guest'])) $out(['ok' => false, 'error' => 'Guests can’t keep a cat. Make your own gnome to adopt one!'], 403);
 if (!catfish_open() || !catfish_ensure()) $out(['ok' => false, 'error' => 'Cat Fish isn’t open right now.'], 403);
 $uid = (int)$u['id'];
-if (rate_limited('cfapi:' . $uid, 60, 10)) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
-record_attempt('cfapi:' . $uid);
-$do = (string)($_POST['do'] ?? '');
+// array-valued fields (name[]=x) read as '' or the default instead of 'Array' or a TypeError
+$str = function (string $k): string { $x = $_POST[$k] ?? ''; return is_string($x) ? $x : ''; };
+$int = function (string $k, int $def): int { $x = $_POST[$k] ?? $def; return is_scalar($x) ? (int)$x : $def; };
+$do = $str('do');
+// Ticks only: at most 60 per 10 minutes (the page sends one every 30 s). Counted in the session, not login_attempts, so a tick adds no row. Buys and the 2.2.x room actions are not limited here (each costs Kibble or is a plain state change).
+if ($do === 'tick') {
+    $rl = $_SESSION['cf_rl'] ?? null;
+    if (!is_array($rl) || ($rl['uid'] ?? 0) !== $uid || time() - (int)($rl['t'] ?? 0) >= 600) $rl = ['uid' => $uid, 't' => time(), 'n' => 0];
+    if ($rl['n'] >= 60) $out(['ok' => false, 'error' => 'Slow down a little, then try again.'], 429);
+    $rl['n']++; $_SESSION['cf_rl'] = $rl;
+}
 // The scene key the page shows (optional): when the fresh scene differs the reply carries stage_html, the stage markup the page prints, for catfish.js to swap in.
 $withScene = function (array $a, array $view) use ($uid, $do) {
     [$key, $html] = catfish_scene($uid, $view);
@@ -33,26 +41,26 @@ if ($do === 'tick') {
 }
 if ($do === 'buy') {
     // 2.1.07: pending taps (play=n, seq) are paid first, in the same lock, so the cost check sees the Kibble the player already saw; the buy answers with the new view and the new scene.
-    [$ok, $msg, $got, $paid] = catfish_locked($uid, function () use ($uid) {
+    [$ok, $msg, $got, $paid] = catfish_locked($uid, function () use ($uid, $str, $int) {
         $got = 0; $paid = 0;
         if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);
-        [$ok, $msg] = catfish_buy($uid, (string)($_POST['key'] ?? ''), (int)($_POST['n'] ?? 1));
+        [$ok, $msg] = catfish_buy($uid, $str('key'), $int('n', 1));
         return [$ok, $msg, $got, $paid];
     });
     $view = catfish_view($uid, $got, $paid);
     $out($withScene(['ok' => $ok, 'message' => $msg, 'view' => $view], $view), $ok ? 200 : 400);
 }
 if ($do === 'petslot' || $do === 'petunlock') {
-    [$ok, $msg] = $do === 'petslot' ? catfish_pet_slot($uid, (int)($_POST['slot'] ?? 0), (string)($_POST['item'] ?? '')) : catfish_pet_unlock($uid, (int)($_POST['slot'] ?? 0));
+    [$ok, $msg] = $do === 'petslot' ? catfish_pet_slot($uid, $int('slot', 0), $str('item')) : catfish_pet_unlock($uid, $int('slot', 0));
     $view = catfish_view($uid);
     $out($withScene(['ok' => $ok, 'message' => $msg, 'view' => $view], $view), $ok ? 200 : 400);
 }
 if ($do === 'petuse') {
     // like a buy: pending taps (play, seq) are paid first, in the same lock, so the Kibble the player already saw is real before a pop adds to it
-    [$ok, $msg, $x, $got, $paid] = catfish_locked($uid, function () use ($uid) {
+    [$ok, $msg, $x, $got, $paid] = catfish_locked($uid, function () use ($uid, $str, $int) {
         $got = 0; $paid = 0;
         if (array_key_exists('play', $_POST)) [$got, $paid] = catfish_play($uid, $_POST['play'], $_POST['seq'] ?? 0);
-        [$ok, $msg, $x] = catfish_pet_use($uid, (int)($_POST['slot'] ?? 0), ['shelter' => (string)($_POST['shelter'] ?? '')]);
+        [$ok, $msg, $x] = catfish_pet_use($uid, $int('slot', 0), ['shelter' => $str('shelter')]);
         return [$ok, $msg, $x, $got, $paid];
     });
     $view = catfish_view($uid, $got, $paid);
