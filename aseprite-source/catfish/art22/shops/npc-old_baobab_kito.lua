@@ -23,13 +23,13 @@ local KIT   = GV.ramp("#9a8a7a")                       -- grey-brown tabby kitte
 -- shapes
 local disc  = c:ellipse(39.5, 50, 34, 34)
 local coat  = c:ellipse(39.5, 104, 35, 28)
-local earL  = c:ellipse(20, 56, 3.5, 4.5)
-local earR  = c:ellipse(59, 56, 3.5, 4.5)
+local earL  = c:ellipse(20.5, 57, 2.5, 3.5)
+local earR  = c:ellipse(58.5, 57, 2.5, 3.5)
 local head  = c:ellipse(39.5, 55, 19, 18)
 local beard = c:ellipse(39.5, 67, 15, 11):cut(c:rect(0, 0, 79, 59))
 beard:add(c:ellipse(39.5, 78, 9, 6))
-local cap   = c:rrect(23, 27, 56, 41, 4)
-local capTop = c:ellipse(39.5, 28, 16, 3)
+local cap   = c:rrect(21, 30, 58, 44, 4)
+local capTop = c:ellipse(39.5, 31, 18, 3)
 -- striped cloth over the viewer's-left shoulder, falling across the chest
 local cloth = c:poly({ { 5, 99 }, { 8, 84 }, { 18, 76 }, { 30, 80 }, { 44, 99 } })
 -- woven basket held in front, lower right, with a kitten peeking out
@@ -48,7 +48,7 @@ local p = c:build{
   { "earR",   earR,   SKIN, { gloss = false } },
   { "head",   head,   SKIN },
   { "beard",  beard,  BEARD, { gloss = false } },
-  { "cap",    cap,    CAP, { gloss = { 27, 31 } } },
+  { "cap",    cap,    CAP, { gloss = { 25, 35 } } },
   { "capTop", capTop, CAP, { flat = true } },
   { "cloth",  cloth,  CLOTH, { stitch = { side = "lit" }, gloss = false } },
   { "kit",    kitH,   KIT, { gloss = false } },
@@ -59,20 +59,20 @@ local p = c:build{
 }
 
 -- cap embroidery: a gold zigzag band and red/moss dots (felt stitch-work, kofia-style)
-for x = 25, 54 do
-  local k = (x - 25) % 4
-  local y = 37 - ((k < 2) and k or (3 - k))
+for x = 23, 56 do
+  local k = (x - 23) % 4
+  local y = 40 - ((k < 2) and k or (3 - k))
   if p.cap.m:has(x, y) then c:px(x, y, "#e8a317") end
 end
-for x = 27, 53, 4 do
-  if p.cap.m:has(x, 32) then c:px(x, 32, (x % 8 == 3) and "#dd3a2a" or "#4f9a45"); c:px(x + 1, 32, (x % 8 == 3) and "#dd3a2a" or "#4f9a45") end
+for x = 25, 55, 4 do
+  if p.cap.m:has(x, 35) then c:px(x, 35, (x % 8 == 1) and "#dd3a2a" or "#4f9a45"); c:px(x + 1, 35, (x % 8 == 1) and "#dd3a2a" or "#4f9a45") end
 end
-c:seam({ { 24, 40 }, { 55, 40 } })
+c:seam({ { 22, 43 }, { 57, 43 } })
 
 -- cloth stripes (red and moss bands across the gold weave), skipping kitten/basket/hands
 local clothOnly = cloth:copy():cut(handL):shrink(1)
 clothOnly:each(function(x, y)
-  local d = (x + y) % 9
+  local d = y % 7
   if d == 0 or d == 1 then c:px(x, y, "#dd3a2a") elseif d == 4 then c:px(x, y, "#2f6a3a") end
 end)
 c:button(24, 79)
