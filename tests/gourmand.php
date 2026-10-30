@@ -119,5 +119,269 @@ ok('beats hello first four mid home finale, in order of tastes needed, no straig
 $raw = file_get_contents($argv[1] . '/includes/data/gourmand.txt');
 ok('no straight apostrophes in any data line', !array_filter(preg_split('/\R/', $raw), fn($l) => $l !== '' && $l[0] !== '#' && str_contains($l, "'")));
 
+
+// ================================================================ P1: the NPC, the switch, serving, the ledger, the finale, dish scores
+$_SESSION = [];
+require_once $argv[1] . '/includes/crafting.php';
+$uid = (int)q_val("SELECT id FROM users WHERE username = 'sprout'");
+$U = fn() => q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$pom = (int)q_val("SELECT id FROM npcs WHERE traveller = 'gourmand'");
+$coins = fn() => (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
+$xp = fn() => (int)q_val('SELECT xp FROM users WHERE id = ?', [$uid]);
+$friend = fn() => (int)q_val('SELECT points FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$uid, $pom]);
+$held = fn(string $slug) => (int)q_val('SELECT COALESCE(SUM(qty), 0) FROM user_items WHERE user_id = ? AND item_id = (SELECT id FROM items WHERE slug = ?)', [$uid, $slug]);
+$led = fn(string $region, string $course) => q_one('SELECT * FROM gourmand_ledger WHERE user_id = ? AND region = ? AND course = ?', [$uid, $region, $course]);
+$deals = fn() => (int)q_val('SELECT COUNT(*) FROM traveller_deals WHERE user_id = ? AND npc_id = ?', [$uid, $pom]);
+$stock = function (string $slug, int $n, ?int $qual) use ($uid): void {   // $qual null = bought (no quality note)
+    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]);
+    q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $id]);
+    give_item($uid, $id, $n);
+    if ($qual !== null) market_note_quality($uid, $id, $n, $qual);
+};
+$at = fn(string $loc) => q('UPDATE users SET location = ? WHERE id = ?', [$loc, $uid]);
+$day = fn(string $d) => cfg(['gourmand_force_date' => $d]);
+$serve = function (string $code, string $course, ?int $qual, string $tour) use ($stock, $U): array {   // stock the month's ask at $qual, then serve it
+    $row = gourmand_menu($code, $tour)[$course];
+    $stock($row['item'], $row['qty'], $qual);
+    return gourmand_serve($U(), $course);
+};
+$prizes = fn() => count($_SESSION['prizes'] ?? []);
+q('UPDATE users SET level = 10, coins = 0, guest = 0 WHERE id = ?', [$uid]);
+// start from the shipped state, whatever gourmand.sh did over HTTP before this
+cfg(['gourmand_open' => '0', 'gourmand_force_date' => '']); gourmand_sync_active();
+q('DELETE FROM traveller_deals WHERE user_id = ?', [$uid]); q('DELETE FROM gourmand_ledger WHERE user_id = ?', [$uid]); q('DELETE FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$uid, $pom]);
+
+echo "== the switch: off by default, and nothing of him shows\n";
+ok('with the switch off the NPC row is inactive', setting('gourmand_open') === '0' && (int)q_val("SELECT active FROM npcs WHERE traveller = 'gourmand'") === 0 && $pom > 0);
+ok('he is the Fussy dormouse Pomeroy Crumbworth', q_val('SELECT name FROM npcs WHERE id = ?', [$pom]) === 'Pomeroy Crumbworth' && q_val('SELECT species FROM npcs WHERE id = ?', [$pom]) === 'Dormouse');
+require_once $argv[1] . '/includes/villagers.php';
+require_once $argv[1] . '/includes/folk_list.php';
+$seen = function () use ($U, $uid): string {
+    $names = array_column(villagers_all($U()), 'name');
+    $camp = q_one("SELECT * FROM town_spots WHERE slug = 'na-sugarshack'");
+    $a = array_map(fn($n) => $n['name'], npcs_at_spot($camp));
+    $tea = [];
+    foreach (all_regions() as $r) $tea = array_merge($tea, teahouse_rumours($r['gnomish_name'], 20));
+    $trav = array_column(q('SELECT name FROM npcs WHERE traveller IS NOT NULL AND active = 1')->fetchAll(), 'name');
+    $folk = array_column(met_npcs($uid), 'name');
+    return implode('|', array_merge($names, $a, $tea, $trav, $folk));
+};
+$day('2026-10-02');   // his camp is the Maplewold's
+q('INSERT OR IGNORE INTO user_npc_met (user_id, npc_id, first_at) VALUES (?, ?, ?)', [$uid, $pom, now()]);
+ok('off: not in the villagers list, the camp spot, the teahouse rumours, the travellers fold or the folk list', !str_contains($seen(), 'Pomeroy'));
+ok('off: a player cannot serve (the gate), the admin-only page is not for players', !gourmand_open() && gourmand_serve($U(), 'plate')[0] === false);
+cfg(['gourmand_open' => '1']); gourmand_sync_active();
+ok('on: sync flips npcs.active to 1', (int)q_val("SELECT active FROM npcs WHERE traveller = 'gourmand'") === 1);
+$s = $seen();
+ok('on: he is in the villagers list, at the camp spot, the folk list and the travellers', substr_count($s, 'Pomeroy') >= 4, $s);
+$camp = q_one("SELECT * FROM town_spots WHERE slug = 'na-sugarshack'"); $green = q_one("SELECT * FROM town_spots WHERE region = 'The Maplewold' AND kind = 'green'");
+ok('on: at the camp spot and not on the Green', in_array('Pomeroy Crumbworth', array_column(npcs_at_spot($camp), 'name'), true) && !in_array('Pomeroy Crumbworth', array_column(npcs_at_spot($green), 'name'), true));
+$gn = q_one('SELECT * FROM npcs WHERE id = ?', [$pom]);
+ok('on: npc_now puts him at the camp, npc_routine and the offer do not say Green, the offer is a link', npc_now($gn)['spot']['slug'] === 'na-sugarshack' && !str_contains(implode(' ', npc_routine($gn)), 'Green') && traveller_offer($gn)['kind'] === 'link' && traveller_offer($gn)['url'] === 'gourmand.php');
+ok('on: he is "here" for everyone (npc_here), and traveller_deal refuses him', npc_here($U(), $pom) && traveller_deal($U(), $pom)[0] === false);
+ok('on: the teahouse says where he sits, not "the Green", and his ask is gossiped', (function () {
+    $all = []; foreach (all_regions() as $r) $all = array_merge($all, teahouse_rumours($r['gnomish_name'], 30));
+    $mine = array_filter($all, fn($l) => str_contains($l, 'Pomeroy'));
+    return $mine && !array_filter($mine, fn($l) => str_contains($l, 'Green'));
+})());
+cfg(['gourmand_open' => '0']); gourmand_sync_active();
+ok('off again: inactive and gone from the lists', (int)q_val("SELECT active FROM npcs WHERE traveller = 'gourmand'") === 0 && !str_contains($seen(), 'Pomeroy'));
+cfg(['gourmand_open' => '1']); gourmand_sync_active();
+
+echo "== serving: gates and the plain-stack guard\n";
+$day('2026-10-14');   // a day in nobody's window for the Maplewold: serving is always open
+$at('The Maplewold');
+ok('title and region: standing in the Maplewold is region NA, Mossbottom has no courses', gourmand_here($U()) === 'NA');
+$row = gourmand_menu('NA', '2026-10')['plate'];
+$stock($row['item'], 3, null);
+[$okk, $m] = gourmand_serve($U(), 'plate');
+ok('a bought stack (quality 35) is refused: "shop counter", nothing taken, no claim made', !$okk && str_contains($m, 'shop counter') && $held('wild-rice') === 3 && $deals() === 0, $m);
+$stock('wild-rice', 3, 70); $wid = (int)q_val("SELECT id FROM items WHERE slug = 'wild-rice'");
+give_item($uid, $wid, -3); give_item($uid, $wid, 3);
+ok('selling the good stack and buying plain ones does not keep the old quality (the give_item fix)', market_stack_q($uid, $wid) === 35);
+$stock('wild-rice', 2, 70);
+[$okk, $m] = gourmand_serve($U(), 'plate');
+ok('too few held is refused with what he asked for', !$okk && str_contains($m, '3 × Wild Rice') && $held('wild-rice') === 2, $m);
+q('UPDATE users SET level = 2 WHERE id = ?', [$uid]); $stock('wild-rice', 3, 70);
+ok('below level 3 is refused', !gourmand_serve($U(), 'plate')[0] && $held('wild-rice') === 3);
+q('UPDATE users SET level = 10 WHERE id = ?', [$uid]);
+$adm = (int)q_val("SELECT id FROM users WHERE username = 'admin'");   // is_guest_uid caches per request, so use a row it has not seen
+q('UPDATE users SET level = 10, guest = 1, location = ? WHERE id = ?', ['The Maplewold', $adm]);
+$stock('wild-rice', 3, 70);
+ok('a guest is refused', !gourmand_serve(q_one('SELECT * FROM users WHERE id = ?', [$adm]), 'plate')[0] && $held('wild-rice') === 3 && $deals() === 0);
+q('UPDATE users SET guest = 0 WHERE id = ?', [$adm]);
+ok('a course he does not serve is refused', !gourmand_serve($U(), 'grand')[0] && !gourmand_serve($U(), '')[0]);
+$at('Mossbottom');
+ok('Mossbottom has no courses', gourmand_here($U()) === '' && !gourmand_serve($U(), 'plate')[0] && $held('wild-rice') === 3);
+$at('Maizehollow'); $stock('tomatillo', 0, null);
+ok('serving the Maplewold menu from another region is refused (that region wants its own)', gourmand_here($U()) === 'CA' && !gourmand_serve($U(), 'plate')[0] && $held('wild-rice') === 3);
+$at('The Maplewold');
+
+echo "== serving: the first time pays every spoon level once\n";
+$c0 = $coins(); $x0 = $xp(); $f0 = $friend(); $d0 = $deals(); $p0 = $prizes();
+[$okk, $m] = gourmand_serve($U(), 'plate');
+$L = $led('NA', 'plate');
+ok('plate at quality 70 = 3 spoons, "Splendid"', $okk && str_contains($m, 'Splendid') && (int)$L['spoons'] === 3 && (int)$L['best_q'] === 70 && (int)$L['paid'] === 3 && (int)$L['served'] === 1, $m);
+ok('0 -> 3 spoons pays 240 Petals (60 + 60 + 120)', $coins() - $c0 === 240, (string)($coins() - $c0));
+ok('and 80 XP (20 + 20 + 40), the ask is taken, friendship +10, one claim, one prize card', $xp() - $x0 >= 80 && $held('wild-rice') === 0 && $friend() - $f0 === 10 && $deals() === $d0 + 1 && $prizes() === $p0 + 1, ($xp() - $x0) . '/' . $friend());
+ok('the claim row is Y-m|CODE|course', (bool)q_val("SELECT 1 FROM traveller_deals WHERE user_id = ? AND npc_id = ? AND stop = '2026-10|NA|plate'", [$uid, $pom]));
+$stock('wild-rice', 3, 70); $c1 = $coins();
+[$okk, $m] = gourmand_serve($U(), 'plate');
+ok('the same course twice in one tour is refused, nothing taken or paid', !$okk && str_contains($m, 'Already served') && $held('wild-rice') === 3 && $coins() === $c1, $m);
+$d1 = $deals(); gourmand_serve($U(), 'plate'); gourmand_serve($U(), 'plate');
+ok('and no extra claim rows', $deals() === $d1);
+
+echo "== a Taste (full table) and a golden table pay once\n";
+$c0 = $coins();
+[$o1] = $serve('NA', 'pot', 70, '2026-10');
+ok('pot at score 70 = 3 spoons, +240', $o1 && $coins() - $c0 === 240 && (int)$led('NA', 'pot')['spoons'] === 3, (string)($coins() - $c0));
+$c0 = $coins(); $ws0 = $held('wild-rice-seed'); $pe0 = $held('pecan-seed');
+[$o2, $m2] = $serve('NA', 'jar', 70, '2026-10');
+ok('jar at quality 70 (62 for 3) = 3 spoons', $o2 && (int)$led('NA', 'jar')['spoons'] === 3, $m2);
+ok('the jar completes the table: 240 + 150 (Taste) + 300 (golden) = 690 Petals', $coins() - $c0 === 690, (string)($coins() - $c0));
+ok('+2 Wild Rice seeds and +1 Pecan seed (the NA treasure seed)', $held('wild-rice-seed') - $ws0 === 2 && $held('pecan-seed') - $pe0 === 1);
+ok('table and gold claim rows exist, Tastes = 1', $led('NA', 'table') && $led('NA', 'gold') && gourmand_tastes($uid) === 1 && gourmand_progress($uid)['gold'] === 1);
+ok('titles: Guest of the Gourmand, not yet Well Fed or Second Spoon', gourmand_titles($uid) === ['Guest of the Gourmand']);
+echo "-- next month: the tip only, and the table is not paid twice\n";
+$day('2026-11-14');
+$c0 = $coins(); $f0 = $friend(); $ws0 = $held('wild-rice-seed');
+[$o3] = $serve('NA', 'plate', 70, '2026-11');
+ok('a repeat serve in a new month tips 25 Petals, friendship +10 (3 spoons), paid levels unchanged', $o3 && $coins() - $c0 === 25 && $friend() - $f0 === 10 && (int)$led('NA', 'plate')['served'] === 2 && (int)$led('NA', 'plate')['paid'] === 3);
+$x0 = $xp();
+[$o4] = $serve('NA', 'pot', 70, '2026-11'); $tipXp = $xp() - $x0;
+$c0 = $coins();
+[$o5] = $serve('NA', 'jar', 70, '2026-11');
+ok('the full and golden tables did not pay again (jar tip 25 only), no new seeds', $o4 && $o5 && $coins() - $c0 === 25 && $held('wild-rice-seed') === $ws0 && gourmand_tastes($uid) === 1 && (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND region = 'NA' AND course IN ('table', 'gold')", [$uid]) === 2);
+ok('the tip is 8 XP on an ordinary day', $tipXp >= 8, (string)$tipXp);
+
+echo "== levels are paid once each, skipped levels pay\n";
+$at('The Sunsprinkle Isles');
+$day('2026-10-14'); $c0 = $coins();
+$serve('CB', 'plate', 45, '2026-10');
+ok('1 spoon first: 60 Petals', $coins() - $c0 === 60 && (int)$led('CB', 'plate')['paid'] === 1);
+$day('2026-11-14'); $c0 = $coins();
+$serve('CB', 'plate', 55, '2026-11');
+ok('then 2 spoons the next month: only the second level, 60 (no tip on top)', $coins() - $c0 === 60 && (int)$led('CB', 'plate')['paid'] === 2 && (int)$led('CB', 'plate')['spoons'] === 2);
+$day('2026-12-14'); $c0 = $coins();
+$serve('CB', 'plate', 70, '2026-12');
+ok('then 3 spoons: 120', $coins() - $c0 === 120 && (int)$led('CB', 'plate')['paid'] === 3);
+$day('2027-01-14'); $c0 = $coins();
+$serve('CB', 'plate', 45, '2027-01');
+ok('a worse serve later is a tip, and the best quality and spoons stay', $coins() - $c0 === 25 && (int)$led('CB', 'plate')['spoons'] === 3 && (int)$led('CB', 'plate')['best_q'] === 70);
+$day('2026-11-14'); $at('Thornacre Savanna'); $c0 = $coins();
+$serve('ESA', 'plate', 20, '2026-11');
+ok('quality 20 is under the bar: refused', $coins() === $c0 && !$led('ESA', 'plate'));
+
+echo "== festival day: friendship doubles, Petals and first-time XP do not, tip XP doubles; no need to be at the camp\n";
+$at('The Maplewold'); $day('2026-12-03');
+ok('Dec 3 is the Maplewold festival and the camp is there', gourmand_stop()['festival'] && gourmand_festival('NA') && !gourmand_festival('CA'));
+$c0 = $coins(); $f0 = $friend(); $x0 = $xp();
+$serve('NA', 'plate', 70, '2026-12');
+ok('3-spoon tip on the festival day: friendship +20 (10 doubled), Petals 25', $friend() - $f0 === 20 && $coins() - $c0 === 25, ($friend() - $f0) . '/' . ($coins() - $c0));
+ok('tip XP doubles (8 -> 16)', $xp() - $x0 >= 16 && $xp() - $x0 >= 2 * $tipXp - 1, ($xp() - $x0) . ' vs ' . $tipXp);
+$day('2026-12-20'); $f0 = $friend();
+$serve('NA', 'pot', 55, '2026-12');
+ok('an ordinary day, a 2-spoon tip: friendship +5', $friend() - $f0 === 5, (string)($friend() - $f0));
+
+echo "== the Long Table seat\n";
+q("DELETE FROM traveller_deals WHERE user_id = ? AND npc_id = ? AND stop LIKE '2026-11|%'", [$uid, $pom]);
+$day('2026-12-01');
+ok('day 1 is the Long Table', gourmand_stop()['long_table'] && gourmand_stop()['code'] === 'MB');
+for ($i = 0; $i < 6; $i++) q('INSERT INTO traveller_deals (user_id, npc_id, stop, at) VALUES (?, ?, ?, ?)', [$uid, $pom, '2026-11|NA|f' . $i, now()]);
+$c0 = $coins();
+[$okk, $m] = gourmand_seat($U());
+ok('6 courses last tour is not enough', !$okk && str_contains($m, '6') && $coins() === $c0, $m);
+q('INSERT INTO traveller_deals (user_id, npc_id, stop, at) VALUES (?, ?, ?, ?)', [$uid, $pom, '2026-11|NA|f6', now()]);
+[$okk, $m] = gourmand_seat($U());
+ok('7 courses earns the seat: 50 Petals and the charm boost', $okk && $coins() - $c0 === 50 && (bool)q_val("SELECT 1 FROM traveller_deals WHERE user_id = ? AND npc_id = ? AND stop = '2026-11|LT|seat'", [$uid, $pom]), $m);
+$c0 = $coins();
+ok('a second try is refused and pays nothing', !gourmand_seat($U())[0] && $coins() === $c0);
+$day('2026-12-02');
+ok('the seat is only for day 1', !gourmand_seat($U())[0]);
+$day('2026-12-14');
+
+echo "== the finale: the next meeting after the 14th Taste, once\n";
+$codes = array_map(fn($r) => $r[0], stops_file_rows('regions.txt'));
+foreach ($codes as $c) if ($c !== 'EA') gourmand_claim($uid, $c, 'table');
+foreach (['plate', 'pot'] as $co) q('INSERT OR REPLACE INTO gourmand_ledger (user_id, region, course, best_q, spoons, paid, served, first_at, last_at) VALUES (?, ?, ?, 70, 3, 3, 1, ?, ?)', [$uid, 'EA', $co, now(), now()]);
+ok('13 Tastes so far, no finale yet', gourmand_tastes($uid) === 13 && count(gourmand_beats($U())) >= 4 && !$led('ALL', 'finale'));
+$at('Blossomreach'); $c0 = $coins();
+unset($_SESSION['gourmand_hold']);
+[$okk, $m] = $serve('EA', 'jar', 70, '2026-12');
+ok('the 14th serve earns the 14th Taste and pays the table and the golden table (EA plate and pot were already 3 spoons), but not the finale', $okk && gourmand_tastes($uid) === 14 && !$led('ALL', 'finale') && $coins() - $c0 === 240 + 150 + 300, (string)($coins() - $c0));
+ok('and it tells the gnome to come back', str_contains(json_encode($_SESSION['prizes'] ?? []), 'Come back and sit down') && !empty($_SESSION['gourmand_hold']));
+$c0 = $coins(); gourmand_beats($U());
+ok('the page we land on straight after it does not play the finale', !$led('ALL', 'finale') && $coins() === $c0 && empty($_SESSION['gourmand_hold']));
+$b = gourmand_beats($U());
+ok('the next meeting plays it: 1,000 Petals, a Second Spoon, the title', (bool)$led('ALL', 'finale') && $coins() - $c0 === 1000 && $held('second-spoon') === 1 && in_array('Second Spoon', gourmand_titles($uid), true) && in_array('Well Fed', gourmand_titles($uid), true));
+ok('the second spoon is a non-tradable decoration, made when first needed, not in the shop lists', (function () {
+    $i = q_one("SELECT * FROM items WHERE slug = 'second-spoon'");
+    return $i && (int)$i['tradable'] === 0 && $i['category'] === 'decor' && !in_array('second-spoon', array_keys(defined('DECOR') ? DECOR : []), true);
+})());
+ok('the finale beat shows in the story', in_array('finale', array_column($b, 'key'), true) && !in_array('home', array_column($b, 'key'), true));
+$c0 = $coins(); gourmand_beats($U()); gourmand_beats($U());
+ok('and never plays again', $coins() === $c0 && $held('second-spoon') === 1 && (int)q_val("SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ? AND course = 'finale'", [$uid]) === 1);
+
+echo "== dish scores: cook_pots.score and the quality of what comes out\n";
+ok('cook_pots.score column exists and gourmand_ledger has its inline UNIQUE', (bool)q_val("SELECT 1 FROM pragma_table_info('cook_pots') WHERE name = 'score'") && str_contains((string)q_val("SELECT sql FROM sqlite_master WHERE name = 'gourmand_ledger'"), 'UNIQUE (user_id, region, course)'));
+q('UPDATE users SET level = 20, energy = 100, coins = 5000, location = ?, guest = 0 WHERE id = ?', ['The Maplewold', $uid]);
+$plot = (int)q_val('SELECT id FROM plots WHERE user_id = ? LIMIT 1', [$uid]);
+q("DELETE FROM garden_buildings WHERE plot_id = ? AND building = 'kitchen'", [$plot]);
+q("INSERT INTO garden_buildings (plot_id, building, level, built_at, last_collect) VALUES (?, 'kitchen', 3, ?, ?)", [$plot, now(), now()]);
+$rec = q_one("SELECT * FROM recipes WHERE slug = 'apple-crumble'");
+q('INSERT OR IGNORE INTO user_recipes (user_id, recipe_id, learned_at) VALUES (?, ?, ?)', [$uid, $rec['id'], now()]);
+$outId = (int)$rec['output_item_id'];
+$giveIng = function (?int $qual) use ($uid, $rec): void {
+    foreach (json_decode($rec['ingredients'], true) as $slug => $n) {
+        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $id]);
+        give_item($uid, $id, $n * 3);
+        if ($qual !== null) market_note_quality($uid, $id, $n * 3, $qual);
+    }
+};
+$cookOne = function () use ($U, $rec, $uid): array {   // cook one make, ready it, collect it: [craft result, pot row]
+    $u = $U(); q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]); $u = $U();
+    $r = craft($u, (int)$rec['id'], 1);
+    $pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$uid]);
+    if ($pot && $pot['collected_at'] === null) { q('UPDATE cook_pots SET ready_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 60), $pot['id']]); cook_collect_one($U(), (int)$pot['id']); }
+    return [$r, q_one('SELECT * FROM cook_pots WHERE id = ?', [$pot['id'] ?? 0])];
+};
+q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+$giveIng(null);
+[$r, $pot] = $cookOne();
+ok('cooking from all-plain ingredients at Kitchen III scores 1-50', $r[0] && (int)$pot['score'] >= 1 && (int)$pot['score'] <= 50, json_encode([$r, $pot['score'] ?? null]));
+$qr = q_one('SELECT q, n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+ok('collecting wrote the dish quality = the pot score', $qr && (int)$qr['q'] === (int)$pot['score'] && (int)$qr['n'] === (int)$pot['dishes'], json_encode($qr));
+$giveIng(80);
+[$r, $pot] = $cookOne();
+ok('ingredients of quality 80 at Kitchen III score 73 or more', $r[0] && (int)$pot['score'] >= 73 && (int)$pot['score'] <= 100, (string)($pot['score'] ?? ''));
+echo "-- a pot started before the upgrade (score 0) writes no quality\n";
+q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+$old = db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => (int)$rec['id'], 'makes' => 1, 'dishes' => 1, 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() - 60), 'score' => 0]);
+[$okk] = cook_collect_one($U(), $old);
+ok('collected, the dish arrived, and no item_quality row was made (not 0)', $okk && $held('apple-crumble') === 1 && !q_val('SELECT 1 FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]));
+ok('and a dish with no row counts as plain for Pomeroy, never below it', market_stack_q($uid, $outId) === MARKET_PLAIN_Q);
+echo "-- kitchen_pots = 0 (instant cooking)\n";
+cfg(['kitchen_pots' => '0']);
+q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+$giveIng(80);
+q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]);
+[$r] = (function () use ($U, $rec) { $u = $U(); return [craft($u, (int)$rec['id'], 1)]; })();
+$pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$uid]);
+$qr = q_one('SELECT q, n FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+ok('instant cooking: a score of 73+ was written to the pot and the dish quality', $r[0] && $pot && $pot['collected_at'] !== null && (int)$pot['score'] >= 73 && $qr && (int)$qr['q'] === (int)$pot['score'], json_encode([$r, $pot['score'] ?? null, $qr]));
+cfg(['kitchen_pots' => settings_schema()['kitchen_pots']['default']]);
+setting('__reload__');
+
+echo "== fresh start clears the ledger and his claims\n";
+ok('the gnome has ledger rows and claims first', (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$uid]) > 10 && $deals() > 3);
+ok('FRESH_USER_TABLES lists gourmand_ledger, traveller_deals and item_quality', (function () { require_once $GLOBALS['argv'][1] . '/includes/fresh_start.php'; return isset(FRESH_USER_TABLES['gourmand_ledger'], FRESH_USER_TABLES['traveller_deals'], FRESH_USER_TABLES['item_quality']); })());
+$other = (int)q_val("SELECT id FROM users WHERE username = 'admin'");
+q('INSERT OR REPLACE INTO gourmand_ledger (user_id, region, course, spoons) VALUES (?, ?, ?, 1)', [$other, 'NA', 'plate']);
+[$okk] = fresh_start_player($uid);
+ok('fresh start wipes this gnome\'s ledger and claim rows, and leaves another gnome\'s alone', $okk && (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$uid]) === 0 && $deals() === 0 && (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$other]) === 1);
+q('DELETE FROM gourmand_ledger WHERE user_id = ?', [$other]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);
