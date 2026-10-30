@@ -1,0 +1,90 @@
+# Pomeroy Crumbworth, the travelling food writer (includes/gourmand.php). Pipe-separated, # comments, no pipes inside a field. Use ’ never '.
+# R|code|camp spot slug|taste name|camp line (Now tab)
+# M|code|course (plate, pot, jar)|variant (1..3, rotates every Hollow month)|item slug|qty|ask line|margin note (journal, first spoon)
+# B|beat key|tastes needed (0 = first visit)|title|text ({gnome} = gnome name)
+# Keep camp lines, asks and margin notes to 140 characters or fewer.
+R|NA|na-sugarshack|sweet smoke|Pomeroy has set up a folding table beside the sugarshack, napkin first.
+R|CA|ca-tea|slow heat|Pomeroy is at the teahouse in Maizehollow, asking the cook what is in the pot.
+R|CB|ss-brewhouse|lime on the breeze|Pomeroy sits by the brewhouse, fanning himself with his journal.
+R|SA|sa-tea|high green|Pomeroy is at the Rainroot teahouse, pacing himself against a hundred potatoes.
+R|NWE|nwe-tea|rainy-day comfort|Pomeroy has taken the dry corner of the Mistmoor teahouse and is eyeing the kettle.
+R|SE|ow-press|sunshine|Pomeroy waits by the olive press with a heel of bread and a great deal of patience.
+R|EE|ee-tea|the good sour|Pomeroy is at the steppe teahouse, one pocket of his waistcoat already open.
+R|MENA|dw-bazaar|warm spice|Pomeroy is in the bazaar, being offered a date by everyone he walks past.
+R|WCA|wca-tea|deep red earth|Pomeroy is at the Greatcanopy teahouse, listening closely to somebody’s grandmother.
+R|ESA|esa-tea|first light|Pomeroy has found the shadiest chair at the Thornacre teahouse and means to keep it.
+R|CSA|sp-grind|fire|Pomeroy stands by the spice grinders with streaming eyes and a very happy face.
+R|EA|br-blossom|the quiet savoury|Pomeroy has spread a mat under the blossom and is saving the best view for lunch.
+R|SEA|mt-float|bright|Pomeroy is at the floating market, tasting something from a boat.
+R|OC|cs-pools|salt of the sea|Pomeroy dangles his feet by the pools. There is no hurry, only lunch.
+R|MB|hub-green|Long Table|Pomeroy has laid the Long Table on the Green. There is always a second spoon at it.
+#
+# ---- plates: a raw crop, judged by harvest quality
+M|NA|plate|1|wild-rice|3|Wild rice, raw, if you please. I want to hear it crunch before I hear it cooked.|It rattled like rain on a tin roof. Honest.
+M|CA|plate|1|tomatillo|3|Tomatillos! Little lanterns of sour. Three, and I’ll forgive the café for the chocolate I haven’t had yet.|Green, tart, papery. A lantern lit from inside.
+M|CB|plate|1|plantain|2|Juniper says I’m not to be fussy. So: two plantains, ripe, and I shan’t mention the colour.|Sweet as a long afternoon. I did not mention the colour.
+M|SA|plate|1|quinoa|3|Quinoa, three handfuls. The Rainroot has a hundred potatoes, and I am pacing myself.|Nutty and clean. A grain that minds its own business.
+M|NWE|plate|1|rhubarb|3|Rhubarb. Raw. Don’t look at me like that. A gnome must face the sour to deserve the crumble.|I faced it. It faced back. We respect each other now.
+M|SE|plate|1|artichoke|2|Two artichokes. I eat them petal by petal, so we’ll be here a while. Pull up a crate.|Petal by petal, to the heart. Worth every one.
+M|EE|plate|1|sorrel|4|Four leaves of sorrel, please. Not you, Sorrel Inkcap. You’re a snail and a scholar. The leaves.|Lemon without the lemon. My eyebrows are still raised.
+M|MENA|plate|1|date|3|Three dates, and sit. In the bazaar the first date is a joke and the second is a story.|The third was the point. Sticky, dark, and completely sincere.
+M|WCA|plate|1|fonio|4|Fonio! The smallest grain in the Hollow. Four handfuls, and I shall admire every one.|Tiny, light, and so very sure of itself.
+M|ESA|plate|1|watermelon|1|One watermelon. Whole. I have a spoon, and I have the afternoon.|Cold, loud and pink. I shall be sticky until Thursday.
+M|CSA|plate|1|apricot|3|Three apricots from the roof of the world. My eyes are watering already, and that’s just the grinders.|Sun in a velvet coat. I saved the stones for luck.
+M|EA|plate|1|persimmon|2|Two persimmons, soft as a promise. Under the blossom, if you don’t mind. I like to eat with a view.|Soft as a promise kept. The petals landed in my spoon.
+M|SEA|plate|1|rambutan|3|Rambutan! They look like they’re shouting. Three, please, and I’ll shout back.|Hairy outside, pearl within. I shouted. Politely.
+M|OC|plate|1|coconut|1|One coconut, opened with ceremony. Island time, gnome: there is no hurry, only lunch.|Opened with ceremony, drunk with gratitude.
+#
+# ---- pots: a cooked dish, judged by its dish score
+M|NA|pot|1|apple-crumble|1|Something warm with apples in it. A crumble. I won’t say please twice.|The crust gave way like a good argument.
+M|CA|pot|1|three-sisters-stew|1|A stew of the three sisters. Corn, beans, squash, simmered as they grow: together.|Three sisters, one pot, no quarrels.
+M|CB|pot|1|sea-grape-sorbet|1|Sorbet, from the sea grapes, and cold enough to make my whiskers ring.|It tasted of a tide going out. Cold, then calm.
+M|SA|pot|1|fiddlehead-fry|1|Fiddleheads, fried. Curled ferns like little green question marks. Answer me.|A crisp answer. Green, bright and a touch wild.
+M|NWE|pot|1|potato-leek-soup|1|Soup, please. Potato and leek. The sort a damp afternoon was invented for.|I closed my eyes. The rain agreed with me.
+M|SE|pot|1|grilled-sardines|1|Sardines, grilled, with lemon on the side and no apology.|Smoke, salt, and a squeeze of sunshine.
+M|EE|pot|1|mushroom-toast|1|Mushrooms on toast. Butter is a vegetable, and I will hear no argument.|Earthy, buttery and gone too soon. Seconds, please.
+M|MENA|pot|1|shakshuka|1|Shakshuka. Eggs poached in red, with bread to chase them. I shall be very quiet while I eat.|I was very quiet. That is the highest praise I have.
+M|WCA|pot|1|rice-and-beans|1|Rice and beans. Plain, you say? Plain is a dare. Show me what plain can do.|Plain, done properly, is the bravest dish there is.
+M|ESA|pot|1|chickpea-stew|1|A chickpea stew, thick enough to stand a spoon in. That is the test.|The spoon stood. I bowed to it.
+M|CSA|pot|1|lentil-dal|1|Dal. Lentils, gold and soft, with a little spice to keep me honest.|Gold and gentle. Warmth that arrived on tiptoe.
+M|EA|pot|1|mackerel-rice|1|Mackerel on rice. Nothing clever. Cleverness is for people who haven’t had it done right.|Nothing clever. Everything right.
+M|SEA|pot|1|coconut-curry|1|A coconut curry, and be bold with it. I have a handkerchief ready.|I needed the handkerchief. I regret nothing.
+M|OC|pot|1|mussel-broth|1|Mussel broth. A bowl that tastes of the shore. Bring bread to mop it.|The sea, in a bowl, behaving itself.
+#
+# ---- jars: a Pantry preserve, judged by its jar score
+M|NA|jar|1|raspberry-jam|1|A jar of raspberry jam. I shall open it myself, thank you, and I shall go slowly.|Bright and a little shy. It held its shape.
+M|NA|jar|2|apple-cider|1|Cider, two weeks in the jar. Patience is an ingredient.|Sharp, cloudy, cold. Autumn talking.
+M|CA|jar|1|salsa-verde|1|Salsa verde, in a jar, with a spoon to go with it.|Green and cheerful, with teeth.
+M|CA|jar|2|fermented-hot-sauce|1|Hot sauce, fermented until it has opinions. A small jar. A big napkin.|It arrived slowly, and then it arrived. Slow heat.
+M|CB|jar|1|guava-jam|1|Guava jam. Pink, perfumed, and unreasonably cheerful.|Pink and perfumed. A jar with a sea breeze in it.
+M|CB|jar|2|lime-cordial|1|A cordial of limes. I want to taste the breeze on the water.|Lime on the breeze. I swear I felt a gull.
+M|SA|jar|1|peanut-butter|1|Peanut butter. Thick, honest, a little salt. A jar that can hold up its end.|Thick, honest, nutty. A jar that holds up its end.
+M|SA|jar|2|passion-fruit-curd|1|Passion fruit curd. Sharp and sunny, and I shall want bread.|Sharp, sunny and rather grand about it.
+M|NWE|jar|1|lingonberry-jam|1|Lingonberry jam. Tart and red, for a dull day that needs a good talking to.|Tart and red. It told the grey day off.
+M|NWE|jar|2|blackcurrant-cordial|1|Blackcurrant cordial, deep as a puddle at night.|Deep, dark and sweet. A rainy day made kind.
+M|SE|jar|1|cured-olives|1|Cured olives. Bring them in brine, and let me think about them for a while.|Briny, bitter, then suddenly warm. Well thought out.
+M|SE|jar|2|lemon-cordial|1|Lemon cordial, if the sun can be bottled. I suspect it can.|The sun, bottled. I held it up to the light.
+M|EE|jar|1|plum-jam|1|Plum jam. Dark and sticky, the colour of a good evening.|Dark and sticky. A good evening, jarred.
+M|EE|jar|2|sauerkraut|1|Sauerkraut. A week in the jar, and not a day less. The good sour takes time.|The good sour. It crackled. I felt very awake.
+M|EE|jar|3|elderberry-cordial|1|Elderberry cordial. Dark, a little tart, and I’m told it keeps colds away.|Dark and a little wild. I do feel rather well.
+M|MENA|jar|1|hummus-jar|1|A jar of hummus. Smooth, with a pool of oil on top. I shall not be hurried.|Smooth as a bazaar rumour, and twice as welcome.
+M|MENA|jar|2|pomegranate-molasses|1|Pomegranate molasses. Dark, sour, sweet. A single spoonful says a great deal.|One spoonful, a whole speech. Warm spice and sour.
+M|WCA|jar|1|pickled-okra|1|Pickled okra. Crisp and tangy, and I’ll not hear a word about the slime.|Crisp, tangy, and not a word about the slime.
+M|WCA|jar|2|hibiscus-cordial|1|Hibiscus cordial. Red as a sunset, tart as a good argument.|Deep red, tart, and rather proud of it.
+M|ESA|jar|1|banana-chips|1|Banana chips, in a jar. They must snap. I shall be listening.|They snapped. Sweet, crisp and gone.
+M|ESA|jar|2|rooibos-concentrate|1|Rooibos concentrate. The first light of a day in a jar, if you please.|First light, in a jar. Red-gold, calm and quiet.
+M|CSA|jar|1|mango-chutney|1|Mango chutney. Sweet, sharp and a little fierce. Bring a cheese to go with it.|Sweet, sharp and fierce. It wanted cheese.
+M|CSA|jar|2|curry-paste|1|Curry paste. A jar of fire, with the lid on. Open it slowly.|A jar of fire. The lid was no match for it.
+M|EA|jar|1|kimchi|1|Kimchi. Five days in the jar, mind. It has to fizz a little when you open it.|It fizzed. Quiet, savoury and certain of itself.
+M|EA|jar|2|pickled-daikon|1|Pickled daikon. Crisp and pale, and clean as a blossom.|Pale, crisp and clean. A little cold snap in a jar.
+M|SEA|jar|1|lemongrass-cordial|1|Lemongrass cordial. Bright as a bell. I want to be woken up.|Bright as a bell. I am quite awake.
+M|SEA|jar|2|tempeh|1|Tempeh. Firm, nutty, and quite alive in the jar. I like a dish with a pulse.|Firm, nutty and cheerfully alive.
+M|OC|jar|1|pickled-samphire|1|Pickled samphire. Salt from the shore, and snap from the pools.|The sea, in a snap. Salt of the sea, indeed.
+#
+# ---- the story, in order of play
+B|hello|0|A dormouse with a napkin|Pomeroy Crumbworth tucks in his napkin and peers up at you. “Sneezed at Aurora Camp. My sense of taste blew away in fourteen pieces, one to every region. Would you feed me, {gnome}?”
+B|first|1|The first Taste|“One piece back. I could taste it, {gnome}, just for a moment.” He pats a pocket. “Emergency biscuit. Not for you.”
+B|four|4|Four Tastes|“Four!” says Pomeroy. “I can tell salt from sugar again. Very soon I shall be insufferable.”
+B|mid|7|Juniper’s letter|A letter from Juniper Kettleby: “He was never ill, you know. He just stopped cooking for anyone, and then stopped tasting. Keep feeding him. And sit down while he eats. It matters.”
+B|home|10|The Home Plate|“Ten pieces, {gnome}. One last thing before the end: show me the cooking of your own home. I am ready to be moved.”
+B|finale|14|Second Spoon|Pomeroy cooks for you. “It tastes of company. I think it always did. Sit, {gnome}. There’s always a second spoon at this table.”

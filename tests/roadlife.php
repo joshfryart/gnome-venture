@@ -373,7 +373,7 @@ ok('explore never meets anyone (walks only)', (function () use ($mk, $gu, $tsHit
 
 echo "== data lint: road_meet.txt\n";
 $errs = []; $who = []; $n = 0;
-$allWho = ['Chatty', 'Cheerful', 'Warm', 'Generous', 'Eager', 'Grumpy', 'Shy', 'Fussy', 'Proud', 'Curious', 'Dreamy', 'Sleepy', 'merchant', 'minstrel', 'naturalist', 'any', '@folk', '@trav-in', '@trav-out'];
+$allWho = ['Chatty', 'Cheerful', 'Warm', 'Generous', 'Eager', 'Grumpy', 'Shy', 'Fussy', 'Proud', 'Curious', 'Dreamy', 'Sleepy', 'merchant', 'minstrel', 'naturalist', 'any', 'gourmand', '@folk', '@trav-in', '@trav-out'];
 foreach (file($argv[1] . '/includes/data/road_meet.txt', FILE_IGNORE_NEW_LINES) as $i => $line) {
     $line = trim($line); if ($line === '' || $line[0] === '#') continue; $n++;
     $f = explode('|', $line);
