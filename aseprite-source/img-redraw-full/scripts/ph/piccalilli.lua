@@ -1,34 +1,46 @@
--- ph/piccalilli (Pantry pickle): squat wide jar of mustard-yellow relish, cream florets, lacquered lid with a pinstripe
+-- ph/piccalilli (Pantry pickle): faceted hexagonal jar of mustard-yellow relish with cream florets, tall lacquered mustard lid with black pinstripes and a knob, dark lacquer label with a cream cauliflower
+-- redraw A: new vessel (hex jar with chamfered shoulders and base, short neck, knobbed drum lid) so it no longer matches apricot-jam's wide jar; dark label so the cauliflower is bold
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local N = "piccalilli"
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
+local jar  = c:poly({ {19, 27}, {46, 27}, {52, 34}, {52, 50}, {47, 56}, {18, 56}, {12, 50}, {12, 34} }):add(c:rect(22, 24, 42, 27))
+local fill = c:poly({ {20, 30}, {45, 30}, {50, 35}, {50, 49}, {46, 54}, {19, 54}, {14, 49}, {14, 35} })
 c:build{
-  { "glass", c:rrect(12, 25, 52, 55, 6), "glass" },
-  { "fill",  c:rrect(14, 28, 50, 53, 5), "#e8b830", { contour = "#a8701a", gloss = { 17, 31 } } },
+  { "glass", jar, "glass" },
+  { "fill",  fill, "#e8b830", { contour = "#a8701a", gloss = { 17, 36 } } },
 }
--- cream floret bumps (clusters of three) and cucumber bits
-for _, p in ipairs({ {17,30}, {26,29}, {37,30}, {45,32}, {16,47}, {25,49}, {37,48}, {45,46} }) do
+-- facet edges: the hexagon's front face between two side faces
+for _, x in ipairs({ 20, 44 }) do
+  for y = 31, 53 do if fill:has(x, y) then c:px(x, y, "#c8901a") end end
+end
+c:fill(c:rect(21, 31, 21, 52), "#f5cf6a")
+-- cream floret bumps and cucumber bits on the side faces and top
+for _, p in ipairs({ {15,37}, {15,45}, {46,37}, {46,45}, {24,31}, {36,31} }) do
   c:paint({ ".a.", "abb", ".b." }, p[1], p[2], { a = "#fbf6e8", b = "#e0d4b0" })
 end
-for _, p in ipairs({ {22,32}, {32,31}, {42,29}, {21,50}, {31,51}, {41,51} }) do c:paint({ "gg" }, p[1], p[2], { g = "#7ab55c" }) end
-c:part(c:rrect(20, 35, 44, 46, 2), "cream", { gloss = false, contact = false })
--- emblem: cauliflower floret
+for _, p in ipairs({ {30,31}, {16,42}, {47,42}, {25,52}, {37,52} }) do c:paint({ "gg" }, p[1], p[2], { g = "#4f9a45" }) end
+-- dark lacquer label with a gold rim
+c:part(c:rrect(22, 35, 42, 50, 2), GV.ramp("#3d2a1c", { rim = "#5e3a24", shade = "#2a1a10", deep = "#2a1a10", bounce = "#3d2a1c" }), { gloss = false, contact = false })
+c:fill(c:rrect(23, 36, 41, 49, 2):edge(), "#e8a317")
+-- emblem: cauliflower, a lumpy cream head over cupping green leaves and a pale stalk
 c:paint({
-  "..cc.cc..",
-  ".cCccccc.",
-  "ccccccccs",
-  ".ccsccsc.",
-  "g.ttttt.g",
-  ".gg.t.gg.",
-  "...ggg...",
-}, 22, 37, { c = "#f1ece0", C = "#fbfdfe", s = "#c9b98a", t = "#b0c890", g = "#4f9a45" })
-c:paint({ "uuuu", "", "uuu", "", "uuuu" }, 35, 38, { u = "#7a5a3a" })
--- lacquered mustard lid with black pinstripes
-c:part(c:rrect(11, 15, 53, 26, 3), "#e8a317")
-c:fill(c:rect(13, 17, 51, 17), "#2a1a10")
-c:fill(c:rect(12, 24, 52, 24), "#2a1a10")
-c:seam({ {13, 26}, {51, 26} })
+  "....cc.cc....",
+  "..cCccccccc..",
+  ".cCcccccccccs",
+  "ccccscccsccss",
+  "gcccccccccccg",
+  "ggsscsscsscgg",
+  ".gggg.t.gggg.",
+  "..ggg.t.ggg..",
+  "....g.t.g....",
+}, 26, 38, { c = "#f1ece0", C = "#fbfdfe", s = "#c9b98a", t = "#d8e0b0", g = "#7ab55c" })
+-- tall lacquered mustard drum lid, black pinstripes, round knob
+c:part(c:rrect(18, 13, 46, 24, 2), "#e8a317")
+c:part(c:rrect(29, 8, 35, 13, 2), "#e8a317", { gloss = false, flat = true })
+c:fill(c:rect(19, 16, 45, 16), "#2a1a10")
+c:fill(c:rect(19, 21, 45, 21), "#2a1a10")
+c:seam({ {20, 24}, {44, 24} })
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))

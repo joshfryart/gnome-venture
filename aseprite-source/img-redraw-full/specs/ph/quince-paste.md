@@ -13,3 +13,4 @@
 - joins: box is 46 wide; lid pokes beyond right side up to x 58.
 - face: none.
 - notes: pantry food from the Pantry (quince x4). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.
+- redraw A (2026-10-30): simplified: no parchment, knife cut or grain lines; slab and slice are deep amber #d0702a, box darker wood so the amber reads.

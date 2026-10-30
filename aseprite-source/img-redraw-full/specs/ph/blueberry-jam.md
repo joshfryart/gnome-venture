@@ -12,3 +12,4 @@
 - joins: cloth hem scallops over the glass shoulder; string bow at right.
 - face: none.
 - notes: pantry food from the Pantry (blueberry x5). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.
+- redraw A (2026-10-30): label is a rounded rect; emblem is one big side-view berry with its crown up, a small berry and a leaf (the old cluster in an oval read as an eye).

@@ -11,3 +11,4 @@
 - joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
 - notes: pantry food from the Pantry (jostaberry x4). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.
+- redraw A (2026-10-30): emblem is a strig of three round berries hanging from a green stem with a leaf (the striped berry read as an eye).

@@ -1,43 +1,45 @@
--- ph/peach-chutney (Pantry chutney): round jar with three embossed bands, crimped gold lid, mini chili tied on string
+-- ph/peach-chutney (Pantry chutney): round jar with three embossed bands, crimped gold lid, mini chili tied on a string that hangs clear of the jar
+-- redraw A: jar moved left and narrowed so the chili tag hangs in its own space on the right, with a gap between the two outlines
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
 local N = "peach-chutney"
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 -- jar with three raised bands that bump out past the silhouette
-local glass = c:rrect(15, 22, 49, 54, 6)
-for _, y in ipairs({ 29, 37, 45 }) do glass:add(c:rect(14, y, 50, y + 1)) end
+local glass = c:rrect(9, 22, 41, 55, 6)
+for _, y in ipairs({ 29, 37, 45 }) do glass:add(c:rect(8, y, 42, y + 1)) end
 c:build{
   { "glass", glass, "glass" },
-  { "fill",  c:rrect(17, 27, 47, 52, 5), "#e89a50", { contour = "#a8561a", gloss = { 20, 31 } } },
+  { "fill",  c:rrect(11, 27, 39, 53, 5), "#e89a50", { contour = "#a8561a", gloss = { 14, 31 } } },
 }
 -- chunks and onion bits
-for _, p in ipairs({ {21,32}, {28,30}, {37,31}, {43,33}, {20,48}, {27,50}, {35,49}, {42,47} }) do
+for _, p in ipairs({ {15,32}, {22,30}, {31,31}, {36,33}, {14,48}, {21,50}, {29,49}, {35,47} }) do
   c:paint({ "ab", "bb" }, p[1], p[2], { a = "#f0b070", b = "#c8702a" })
 end
-for _, p in ipairs({ {25,33}, {40,30}, {31,48}, {45,50} }) do c:px(p[1], p[2], "#f1ece0") end
+for _, p in ipairs({ {19,33}, {34,30}, {25,48}, {38,50} }) do c:px(p[1], p[2], "#f1ece0") end
 -- embossed bands across the fill (pale glass ridges)
-for _, y in ipairs({ 29, 45 }) do c:fill(c:rect(17, y, 47, y), "#c9e6f2"); c:fill(c:rect(17, y + 1, 47, y + 1), "#7fb0cc") end
-c:part(c:rrect(22, 33, 42, 43, 2), "cream", { gloss = false, contact = false })
--- emblem: peach + chili side by side
+for _, y in ipairs({ 29, 45 }) do c:fill(c:rect(11, y, 39, y), "#c9e6f2"); c:fill(c:rect(11, y + 1, 39, y + 1), "#7fb0cc") end
+c:part(c:rrect(15, 33, 35, 43, 2), "cream", { gloss = false, contact = false })
+-- emblem: a peach with leaf and cleft (the chili now lives on the tag, so the label carries the peach alone)
 c:paint({
-  "..ug.......",
-  ".ppuppg..g.",
-  "pPppppp..rr",
-  "ppppppp.rr.",
-  "pppppps.r..",
-  ".pppss.rr..",
-  "..sss..r...",
-}, 24, 35, { p = "#f0a070", P = "#ffd0a8", s = "#d0684a", u = "umber", g = "#4f9a45", r = "#d6322b" })
-c:paint({ "uu" }, 37, 41, { u = "#7a5a3a" })
+  "....ug..",
+  "..ppugg.",
+  ".pPpcpp.",
+  "pPppcppp",
+  "ppppcpps",
+  ".pppcss.",
+  "..psss..",
+}, 21, 35, { p = "#f0a070", P = "#ffd0a8", s = "#d0684a", c = "#d88058", u = "umber", g = "#4f9a45" })
 -- crimped lid
-c:part(c:rrect(14, 14, 50, 24, 4), "gold")
-for x = 17, 47, 3 do c:px(x, 15, "#f5cf6a"); c:px(x, 23, "#b8661a") end
-c:seam({ {16, 22}, {48, 22} })
--- string and dangling chili
-c:fill(c:line({ {47, 23}, {53, 29} }, 1), "#c9a96e")
-c:part(c:poly({ {50, 31}, {57, 31}, {57, 36}, {55, 42}, {52, 45}, {51, 40} }), "#d6322b", { contour = "#7a1a14", gloss = false })
-c:part(c:rect(52, 28, 55, 31), "#4f9a45", { flat = true })
-c:px(52, 33, "#f07060"); c:px(52, 34, "#f07060")
+c:part(c:rrect(8, 14, 42, 24, 4), "gold")
+for x = 11, 39, 3 do c:px(x, 15, "#f5cf6a"); c:px(x, 23, "#b8661a") end
+c:seam({ {10, 22}, {40, 22} })
+-- string from the lid's knot, out across the gap, down to the chili
+c:fill(c:line({ {41, 19}, {46, 19}, {51, 24}, {51, 27} }, 1), "#c9a96e")
+c:part(c:rect(49, 27, 53, 29), "leaf", { flat = true })
+local chili = c:poly({ {48, 30}, {55, 30}, {55, 35}, {54, 41}, {52, 47}, {50, 44}, {49, 38} })
+c:part(chili, "red", { flat = true, contour = "#7a1a14" })
+c:fill(chili:copy():cut(chili:copy():shift(-2, 0)), "#ae2a2a")          -- shaded right side
+c:fill(c:rect(50, 31, 50, 37), "#ff9158"); c:px(50, 32, "#ffc27a")
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))
