@@ -602,6 +602,9 @@ function post_update_news(string $from): void
         "[list][*]The Pantry has over a hundred new preserves to make: jams, pickles, sauces, ferments, cordials, dried treats and more, each with its own little picture.\n"
         . "[*]Preserve prices and timers are fairer, and one-day jars show their spoon bars.\n"
         . "[*]Fixed: items you are given now keep their quality.[/list]"],
+    '2.2.5' => ['🫙 Update 2.2.5: a tidier Pantry and menu',
+        "[list][*]The Pantry now shows your jars in one row, with search and filters for Jam, Chutney, Pickle, Ferment and Cordial. Pick a recipe to see its ingredients and make it, with far less scrolling on a phone.\n"
+        . "[*]The menu has a new [b]Hobbies[/b] group, and on phones it no longer repeats what the bottom bar already has.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
