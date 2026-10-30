@@ -195,6 +195,8 @@ function world_map_svg(array $u, ?int $sel = null): string
     $pos = map_positions();
     $sideOf = $GLOBALS['gv_side_of'] ?? [];
     $guides = guide_regions($uid);
+    $prc = [];   // v2.0.92: Puzzle Pals waiting per region
+    if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/puzzle_pals.php'; $prc = ppal_region_counts($u); }
     $been = visited_regions($uid);
     $lvl = (int)$u['level'];
     $walking = (bool)active_expedition($uid);
@@ -272,7 +274,8 @@ function world_map_svg(array $u, ?int $sel = null): string
             . map_mark($x, $y, '<text y="8" text-anchor="middle" font-size="24"' . ($open ? '' : ' opacity="0.45"') . '>🏘️</text>'
                 . map_text(e($reg['gnomish_name']), $ny, 15) . $lv
                 . ($town ? '<g class="lod3">' . map_text(e($town['name']), $top ? $ny - 34 : $ny + 34, 11, ['bold' => false]) . '</g>' : '')
-                . (in_array($rid, $guides, true) ? '<text x="-22" y="-14" text-anchor="middle" font-size="15">📗</text>' : ''))
+                . (in_array($rid, $guides, true) ? '<text x="-22" y="-14" text-anchor="middle" font-size="15">📗</text>' : '')
+                . (isset($prc[$rid]) ? ppal_region_badge($prc[$rid], '24 -14') : ''))
             . '</a>';
     }
     // Every stop on the roads, and the off-road places you've found (layer 2, names in layer 3)

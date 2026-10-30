@@ -1053,6 +1053,8 @@ function myc_world_svg(array $u, ?int $sel = null): string
     $lvl = (int)$u['level'];
     $been = visited_regions($uid);
     $guides = guide_regions($uid);
+    $prc = [];   // v2.0.92: Puzzle Pals waiting per region
+    if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/puzzle_pals.php'; $prc = ppal_region_counts($u); }
     $here = player_node($u);
     $hereRegion = (int)($here['region_id'] ?? 0);
     $rows = [];
@@ -1191,8 +1193,9 @@ function myc_world_svg(array $u, ?int $sel = null): string
             $gd = in_array($id, $guides, true) ? '<text x="-26" y="-12" text-anchor="middle" class="mbadge">📗</text>' : '';
             $seek = isset($GLOBALS['gv_seek_regions'][$id]) ? '<ellipse rx="' . ($rx + 13) . '" ry="' . ($ry + 13) . '" class="mseek"/>' : '';
             $title = $r['gnomish_name'] . ' (' . $r['real_name'] . '), level ' . $min . ', about ' . $g['depth'] . ' roots down' . ($isHere ? ', you are here' : '');
+            if (isset($prc[$id])) $title .= ', ' . $prc[$id]['n'] . ' Puzzle Pal' . ($prc[$id]['n'] > 1 ? 's' : '') . ' waiting';
             $nodes .= '<g class="mn mk-region ' . $state . '" transform="translate(' . myc_f($x) . ' ' . myc_f($y) . ')"><a href="' . e(url('world.php?tab=map&r=' . $id . '#regionmap')) . '" aria-label="' . e($title) . '"><title>' . e($title) . '</title>'
-                . '<ellipse rx="' . myc_f(max(40.0, $g['bw'] / 2)) . '" ry="' . myc_f($g['bh'] / 2 - 6) . '" cy="' . myc_f($g['bh'] / 2 - 26) . '" class="mhit"/>' . $seek . $body . $gd . $lab . '</a></g>';
+                . '<ellipse rx="' . myc_f(max(40.0, $g['bw'] / 2)) . '" ry="' . myc_f($g['bh'] / 2 - 6) . '" cy="' . myc_f($g['bh'] / 2 - 26) . '" class="mhit"/>' . $seek . $body . $gd . (isset($prc[$id]) ? ppal_region_badge($prc[$id], '-32 10') : '') . $lab . '</a></g>';
             if ($isHere) $nodes .= '<g transform="translate(' . myc_f($x + 22) . ' ' . myc_f($y - 24) . ')" class="mme"><circle r="12" class="mhatbg"/><text y="6" text-anchor="middle" class="mhat">🎩</text></g>';
             if (!empty($quests[$id])) $ovq .= '<g class="ov-q" transform="translate(' . myc_f($x - 30) . ' ' . myc_f($y - 22) . ')"><title>' . e(implode(' · ', $quests[$id])) . '</title><path d="M0 12C-12 2 -11 -10 0 -12 11 -10 12 2 0 12z" class="mpin"/><text y="5" text-anchor="middle" class="mpint">!</text></g>';
             if (!empty($folk[$id])) {

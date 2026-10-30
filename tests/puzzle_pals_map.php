@@ -43,6 +43,30 @@ ok('no place in the band: the nearest level is used', $near && $near['level'] ==
 $tk = ppal_spawn_node($nodes, $uid, 'k-rare', 'rare', 10, [$r['id'] => true]);
 ok('a taken place is avoided while another fits', $tk && $tk['id'] !== $r['id'] && $tk['level'] >= 11 && $tk['level'] <= 13);
 
+echo "== a Places picture's pals wait at their own place\n";
+jigsaw_seed_places();
+$allNodes = ppal_spawn_nodes($uid);
+$own = null; $ownPic = null;
+require_once APP_ROOT . '/includes/landmarks.php'; require_once APP_ROOT . '/includes/progression.php';
+foreach (q("SELECT * FROM puzzle_pics WHERE source = 'place' AND kind = 'still' ORDER BY id")->fetchAll() as $pp_) {
+    foreach (q('SELECT kind, name, location_id FROM landmarks WHERE location_id IS NOT NULL')->fetchAll() as $lm_) {
+        if (landmark_scene_slug((string)$lm_['kind'], (string)$lm_['name']) !== $pp_['unlock_key'] || !in_array((string)q_val('SELECT kind FROM locations WHERE id = ?', [(int)$lm_['location_id']]), ['haven', 'wonder', 'village'], true)) continue;
+        $lid = (int)$lm_['location_id'];
+        $allNodes = array_values(array_filter($allNodes, fn($n) => $n['id'] !== $lid));
+        $allNodes[] = ['id' => $lid, 'name' => (string)$lm_['name'], 'level' => location_min_level($lid)];   // the gnome has found the place (a real gnome has: that is what unlocks the picture)
+        if (($o_ = ppal_own_node($pp_, $allNodes))) { $own = $o_; $ownPic = $pp_; break 2; }
+    }
+}
+if ($own) {
+    $sameLevel = ppal_spawn_node($allNodes, $uid, 'x-own', 'common', max(1, $own['level']), [], $own);
+    ok('the place of a Places picture is a spawn node and gets its pal (' . $own['name'] . ')', $sameLevel && $sameLevel['id'] === $own['id']);
+    $far = ppal_spawn_node($allNodes, $uid, 'x-own', 'common', $own['level'] + 20, [], $own);
+    ok('...but not when it is far below the gnome (the level band wins)', $far && $far['id'] !== $own['id']);
+    $busy = ppal_spawn_node($allNodes, $uid, 'x-own', 'common', max(1, $own['level']), [$own['id'] => true], $own);
+    ok('...and not when another pal already waits there', $busy && $busy['id'] !== $own['id']);
+} else echo "skip own-place checks (no Places picture with a spawn-node landmark in this install)\n";
+ok('a gallery picture has no own place', ppal_own_node($pic, $allNodes) === null);
+
 echo "== the daily top-up\n";
 fresh_day($uid);
 $made = ppal_spawn_refresh($u());
@@ -110,6 +134,12 @@ ok('no inline styles on the markers', !str_contains(ppal_marker_svg(ppal_spawns(
 set_setting('ppal_find_mode', 'page'); setting('__reload__'); ppal_spawns_reset();
 ok('page mode: the map shows no pals', !str_contains(region_map_svg($uu, $rid), 'class="mppal '));
 set_setting('ppal_find_mode', 'map'); setting('__reload__');
+$wm = myc_world_svg($uu, $rid);
+ok('mycelium world map: a pal badge on the region with a waiting pal', str_contains($wm, 'class="mppalreg"') && str_contains($wm, 'Puzzle Pals waiting'));
+ok('classic world map: the badge too', str_contains(world_map_svg($uu, $rid), 'class="mppalreg"'));
+set_setting('ppal_find_mode', 'page'); setting('__reload__'); ppal_spawns_reset();
+ok('page mode: no badge on the world map', !str_contains(myc_world_svg($uu, $rid), 'mppalreg'));
+set_setting('ppal_find_mode', 'map'); setting('__reload__'); ppal_spawns_reset();
 $book = ppal_waiting_html($uu);
 ok('the Pal Book lists the waiting pal with its place and level', str_contains($book, $pal0['name']) && str_contains($book, 'Lv '), $book);
 $g = q_one('SELECT * FROM users WHERE guest = 1 LIMIT 1');

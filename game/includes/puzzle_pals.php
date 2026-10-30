@@ -851,13 +851,15 @@ function ppal_spawn_nodes(int $uid): array
 
 /**
  * Where a pal of this rarity waits for a gnome of level $g: the nodes nearest the rarity's level band (inside it when there are any), one pal to a node when it can
- * be, picked by a stable hash of gnome + pal so the same pal always lands at the same place. $taken = node ids to avoid. Returns the node row or null.
+ * be, picked by a stable hash of gnome + pal so the same pal always lands at the same place. $taken = node ids to avoid. $own = the place a Places picture is of: its pals wait
+ * there when its level is within one of the rarity's band. Returns the node row or null.
  */
-function ppal_spawn_node(array $nodes, int $uid, string $palKey, string $rarity, int $g, array $taken): ?array
+function ppal_spawn_node(array $nodes, int $uid, string $palKey, string $rarity, int $g, array $taken, ?array $own = null): ?array
 {
     [$a, $b] = PPAL_BANDS[$rarity] ?? PPAL_BANDS['common'];
     $lo = max(1, $g + $a);
     $hi = max($lo, $g + $b);
+    if ($own && !isset($taken[$own['id']]) && $own['level'] >= $lo - 1 && $own['level'] <= $hi + 1) return $own;   // a Places picture's pal waits at its own place when that place is within a level of the rarity's band
     $best = null;
     $pool = [];
     foreach ($nodes as $n) {
@@ -937,7 +939,7 @@ function ppal_spawn_refresh(array $u): int
             foreach ($pool as $i => [$p]) { $roll -= PPAL_RARITIES[$p['rarity']] ?? 10; if ($roll <= 0) { $at = $i; break; } }
             [$p, $pic] = $pool[$at];
             array_splice($pool, $at, 1);
-            $node = ppal_spawn_node($nodes, $uid, $p['key'], $p['rarity'], $g, $taken);
+            $node = ppal_spawn_node($nodes, $uid, $p['key'], $p['rarity'], $g, $taken, ppal_own_node($pic, $nodes));
             if (!$node) break;
             try {
                 db_insert('ppal_spawns', ['user_id' => $uid, 'pal_key' => $p['key'], 'pic_id' => (int)$pic['id'], 'loc_id' => $node['id'], 'made_day' => $day]);
@@ -1074,4 +1076,42 @@ function ppal_skills(int|array $u): array
     $o = ['ward' => $t['ward'] ?? 0, 'edge' => $t['edge'] ?? 0, 'foot' => $t['foot'] ?? 0, 'mend' => $t['mend'] ?? 0, 'sip' => $t['sip'] ?? 0, 'petal' => $t['petal'] ?? 0];
     foreach ($o as $k => $v) $o[$k] = min(PPAL_SKILL_CAP[$k], $v);
     return array_sum($o) > 0 ? $o : [];
+}
+
+/** Pals waiting per region for the world maps: region_id => ['n' => count, 'rare' => bool, 'names' => 'A, B']. [] when none or the feature is closed to the viewer. */
+function ppal_region_counts(array $u): array
+{
+    $o = [];
+    foreach (ppal_map_spawns($u) as $locId => $w) {
+        $rid = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$locId]);
+        if (!$rid) continue;
+        $o[$rid]['n'] = ($o[$rid]['n'] ?? 0) + 1;
+        $o[$rid]['rare'] = !empty($o[$rid]['rare']) || $w['pal']['rarity'] === 'rare';
+        $o[$rid]['names'] = (isset($o[$rid]['names']) ? $o[$rid]['names'] . ', ' : '') . $w['pal']['name'];
+    }
+    return $o;
+}
+
+/** The small 🧩 badge on a region of the world map (SVG, drawn at the region's own origin): a count when more than one pal waits there. Rare = gold ring. */
+function ppal_region_badge(array $c, string $at = ''): string
+{
+    $col = !empty($c['rare']) ? '#d99a10' : '#7d8590';
+    return '<g class="mppalreg"' . ($at !== '' ? ' transform="translate(' . $at . ')"' : '') . '><title>' . e('Puzzle Pals waiting: ' . $c['names']) . '</title><circle r="11" fill="#fff8e1" stroke="' . $col . '" stroke-width="2.5"/>'
+        . '<text y="4" text-anchor="middle" font-size="12">🧩</text>'
+        . ((int)$c['n'] > 1 ? '<circle cx="9" cy="-9" r="7" fill="' . $col . '"/><text x="9" y="-6" text-anchor="middle" font-size="9" font-weight="700" fill="#ffffff">' . (int)$c['n'] . '</text>' : '') . '</g>';
+}
+
+/** The landmark-place a Places picture is of, as a spawn node (so its pals wait at their own place), or null for gallery pictures and places that are not spawn nodes. */
+function ppal_own_node(array $pic, array $nodes): ?array
+{
+    if (($pic['source'] ?? '') !== 'place' || (string)($pic['unlock_key'] ?? '') === '') return null;
+    static $map = null;
+    if ($map === null) {
+        require_once __DIR__ . '/landmarks.php';
+        $map = [];
+        try { foreach (q("SELECT kind, name, location_id FROM landmarks WHERE location_id IS NOT NULL")->fetchAll() as $lm) $map[landmark_scene_slug((string)$lm['kind'], (string)$lm['name'])] = (int)$lm['location_id']; } catch (Throwable $e) {}
+    }
+    $loc = $map[(string)$pic['unlock_key']] ?? 0;
+    foreach ($nodes as $n) if ($n['id'] === $loc) return $n;
+    return null;
 }
