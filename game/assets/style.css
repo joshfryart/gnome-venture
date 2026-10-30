@@ -6107,5 +6107,5 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 }
 /* 2.2.2: Puzzle Pals taken along stand beside your gnome on the Adventure stage */
 .gvs-html img.gvs-pal { width: 40px; height: 40px; image-rendering: pixelated; }
-/* Menu: Here is already in the phone's bottom bar, so the menu sheet skips it (desktop keeps it) */
-@media (max-width: 720px) { .navtile[href$="town.php"] { display: none; } }
+/* Menu: Garden, World, Satchel, Here and Tasks are already in the phone's bottom bar, so the menu sheet skips them (desktop keeps them) */
+@media (max-width: 720px) { .navtile.inbar { display: none; } }
