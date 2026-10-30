@@ -901,6 +901,8 @@ function myc_region_svg_one(array $u, array $D, int $selId, bool $wide, string $
     $homeV = (int)($u['home_village_id'] ?? 0);
     $plots = array_fill_keys(array_map('intval', q('SELECT village_id FROM plots WHERE user_id = ? AND village_id IS NOT NULL', [$uid])->fetchAll(PDO::FETCH_COLUMN)), true);
     $nodes = ''; $top = '';
+    $pp = [];   // v2.0.92: Puzzle Pals waiting at places: the pal's sticker takes the place's icon (a small badge keeps the kind)
+    if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/puzzle_pals.php'; $pp = ppal_map_spawns($u); }
     foreach ($items as $id => $it) {
         $l = $it['loc'];
         $type = $it['type'];
@@ -924,6 +926,9 @@ function myc_region_svg_one(array $u, array $D, int $selId, bool $wide, string $
             if (isset($plots[$id])) $body .= '<text x="' . myc_f($rx - 4) . '" y="' . myc_f($ry) . '" text-anchor="middle" class="mbadge">' . ($id === $homeV ? '🏡' : '🌱') . '</text>';
             if ($it['ruin']) $body .= '<text x="' . myc_f(-$rx + 4) . '" y="' . myc_f(-$ry + 4) . '" text-anchor="middle" class="mbadge">🏚️</text>';
         }
+        if (isset($pp[$id]) && $kk !== 'exit' && !$isMe) {
+            $body = ppal_marker_svg($pp[$id], $kk === 'new' ? '' : '<circle cx="14" cy="14" r="8" class="mfloor"/><g transform="translate(14 15) scale(.42)">' . myc_glyph($it['ruin'] ? 'ruins' : $kk) . '</g>');
+        }
         $lab = '';
         if (isset($labels[$id])) {
             $b = $labels[$id]; $lines = $it['lines'];
@@ -941,7 +946,7 @@ function myc_region_svg_one(array $u, array $D, int $selId, bool $wide, string $
             foreach ($lines as $li => $ln) $lab .= $li ? '<tspan x="' . myc_f($lx) . '" dy="' . ($fs + 2) . '">' . e($ln) . '</tspan>' : e($ln);
             $lab .= '</text>';
         }
-        $title = ($type === 'far' ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . ($isMe ? ' (you are here)' : '');
+        $title = ($type === 'far' ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . ($isMe ? ' (you are here)' : '') . (isset($pp[$id]) ? ' · 🧩 ' . $pp[$id]['pal']['name'] . ' waits here (' . $pp[$id]['pal']['rarity'] . ', level ' . $pp[$id]['level'] . ')' : '');
         $hit = '<ellipse rx="' . myc_f(max(24.0, $rx + 6)) . '" ry="' . myc_f(max(24.0, $ry + 6)) . '" class="mhit"/>';
         $inner = '<title>' . e($title) . '</title>' . $hit . $ring . $body . $lab;
         $g = '<g class="mn mk-' . $kk . ($isMe ? ' here' : '') . ($seen ? '' : ' new') . '" transform="translate(' . myc_f($x) . ' ' . myc_f($y) . ')">'
@@ -973,7 +978,7 @@ function myc_filter_chips(bool $gather): string
 function myc_legend(bool $region): string
 {
     return '<details class="mycleg"><summary>Map key</summary><ul>'
-        . ($region ? '<li>🏘️ town</li><li>🏡 village</li><li>🏕️ haven</li><li>✨ wonder</li><li>🕳️ delve</li><li>🐉 lair</li><li>🏚️ ruins</li><li>? not visited</li><li>➜ road on to the next region</li>'
+        . ($region ? '<li>🏘️ town</li><li>🏡 village</li><li>🏕️ haven</li><li>✨ wonder</li><li>🕳️ delve</li><li>🐉 lair</li><li>🏚️ ruins</li><li>🧩 a Puzzle Pal waits here (ring: grey common, blue uncommon, gold rare)</li><li>? not visited</li><li>➜ road on to the next region</li>'
             . '<li>🎩 you</li><li><b class="mkpin">!</b> a quest target</li><li>🧺 things to gather here (dim: you need the tool)</li><li>🦔 folk you know</li><li>Left edge: how many roots down</li>'
             : '<li>Deeper = higher level</li><li>🎩 you</li><li>🔒 locked until you reach the level</li><li><b class="mkpin">!</b> something to do there</li><li>👤 folk you know</li><li>Lit thread: you have been along it</li>')
         . '</ul></details>';

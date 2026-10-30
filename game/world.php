@@ -19,6 +19,10 @@ if (is_post()) {
         [$ok, $msg] = buy_land_deed($u, player_node($u));
         flash($msg, $ok ? 'ok' : 'err');
         if ($ok) redirect('garden.php');
+    } elseif ($do === 'ppal_collect') {   // v2.0.92: a Puzzle Pal waiting at the place you stand in
+        require_once __DIR__ . '/includes/puzzle_pals.php';
+        [$ok, $box] = ppal_spawn_collect($u, (int)(player_node($u)['id'] ?? 0));
+        if ($ok) $_SESSION['event_box'] = $box; else flash((string)$box, 'err');
     } elseif ($do === 'set_region' && empty($u['region_id'])) {
         $rid = (int)($_POST['region_id'] ?? 0);
         if (q_val('SELECT 1 FROM regions WHERE id = ?', [$rid])) {
@@ -112,6 +116,8 @@ page_header('World');
     'here' => [in_array($node['kind'], ['market', 'hub'], true) ? '🏘️ Town square' : '🪧 Rest stop', url('town.php'), ''],
 ], $tab, 'World sections') ?>
 
+<?php if ($tab === 'go' && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); } ?>
+
 <?php if (!$home): ?>
   <form method="post" class="box form">
     <?= csrf_field() ?><input type="hidden" name="do" value="set_region">
@@ -136,7 +142,7 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
     <div class="mapwrap regionwrap"><div class="rzoom"><div class="rzctl" hidden><button type="button" class="btn small" data-z="in" aria-label="Zoom in">＋</button><button type="button" class="btn small" data-z="out" aria-label="Zoom out">−</button><button type="button" class="btn small" data-z="fit" aria-label="Whole region">⤢</button></div><?= region_map_svg($u, $mapRegion, $goId) ?></div></div>
     <?php /* v1.4.2: legend as chips; small sites are named when zoomed */ ?>
     <p class="help maphelp">Tap any place to see how to get there. Zoom ＋ to name the havens, wonders, delves and lairs.</p>
-    <ul class="maplegend" aria-label="Map key"><li>🏘️ town</li><li>🏡 village</li><li>🏕️ haven</li><li>✨ wonder</li><li>🕳️ delve</li><li>🐉 lair</li><li>🏚️ ruins</li><li>❔ not visited</li><li>➜ next region</li><li>🎩 you</li></ul>
+    <ul class="maplegend" aria-label="Map key"><li>🏘️ town</li><li>🏡 village</li><li>🏕️ haven</li><li>✨ wonder</li><li>🕳️ delve</li><li>🐉 lair</li><li>🏚️ ruins</li><li>🧩 a Puzzle Pal waits here</li><li>❔ not visited</li><li>➜ next region</li><li>🎩 you</li></ul>
   </div>
 <?php endif; ?>
 <?= region_panel($u, $mapRegion) ?>

@@ -65,8 +65,7 @@ $pts = (int)$u['stat_points'];
 $canParty = $palsOn && ppal_can_party($u);
 $eq = $canParty ? ppal_equipped($u) : [];
 $palShort = function (array $p): string {
-    $n = PPAL_UNITS[$p['rarity']] ?? 1;
-    $v = match ($p['perk']) { 'road' => intdiv($n, 2), 'shine' => 0, default => (PPAL_PERK_RATE[$p['perk']] ?? 0) * $n };
+    $v = $p['perk'] === 'shine' ? 0 : ($p['perk'] === 'road' ? (PPAL_ROAD_UNITS[$p['rarity']] ?? 1) : (PPAL_PERK_RATE[$p['perk']] ?? 0) * (PPAL_UNITS[$p['rarity']] ?? 8));
     return match ($p['perk']) { 'gather' => "+$v% rare finds", 'road' => "+$v in road fights", 'finder' => "+$v% pal finds", 'tinker' => "+$v% game XP", 'bloom' => "+$v% harvest extras", default => 'a sparkle' };
 };
 $palImg = fn(string $key, int $px): string => ppal_sticker_html($key, $px);

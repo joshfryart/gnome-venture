@@ -328,7 +328,7 @@ admin_crumbs('jigsaw.php');
   <p><b><?= $tot['pics'] ?></b> pictures · art ready <b><?= $tot['ready'] ?></b> · pals in rosters <b><?= $tot['pals'] ?></b> · finds <b><?= $tot['found'] ?></b> · pictures released <b><?= $tot['rel'] ?></b> · Expert trophies <b><?= $tot['tro'] ?></b></p>
   <p class="help">Settings (change them in <a href="<?= e(url('admin/settings.php')) ?>">Admin &gt; Settings</a>, look for “Puzzle Pals”):</p>
   <table class="grid">
-    <?php foreach (['ppal_open', 'ppal_party', 'ppal_party_max', 'ppal_chance', 'ppal_cooldown_minutes', 'ppal_daily_max', 'ppal_roster_size'] as $k): ?>
+    <?php foreach (['ppal_open', 'ppal_party', 'ppal_party_max', 'ppal_find_mode', 'ppal_spawn_count', 'ppal_chance', 'ppal_cooldown_minutes', 'ppal_daily_max', 'ppal_roster_size'] as $k): ?>
     <tr><td><code><?= e($k) ?></code></td><td><b><?= e(setting($k)) ?></b></td></tr>
     <?php endforeach; ?>
   </table>

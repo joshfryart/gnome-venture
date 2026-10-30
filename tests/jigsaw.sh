@@ -109,7 +109,7 @@ ok "pals tab: nav tab present" "$(grep -c 'tab=pals' $W/pt.html | php -r 'echo (
 ok "pals tab: all 95 pictures listed (14 gallery + 81 places)" "$(sed 's/<[^>]*>//g' $W/pt.html | grep -o '[0-9]* pictures' | head -1)" "95 pictures"
 ok "pals tab: 14 gallery + 4 place kinds, group counts" "$(grep -o '[A-Za-z]* ([0-9]*)</b>' $W/pt.html | sed 's/<.*//' | tr '\n' ' ')" "Gallery (14) haven (18) wonder (35) delve (14) lair (14) "
 ok "pals tab: every picture is art ready (486 pals drawn)" "$(grep -c 'not ready' $W/pt.html)/$(grep -o ' ready</td>' $W/pt.html | wc -l | tr -d ' ')/$(sed 's/<[^>]*>//g' $W/pt.html | grep -c 'art ready 95 ')" 0/95/1
-ok "pals tab: the ppal_* settings shortcut rows" "$(grep -o '<code>ppal_[a-z_]*</code>' $W/pt.html | wc -l | tr -d ' ')" 7
+ok "pals tab: the ppal_* settings shortcut rows" "$(grep -o '<code>ppal_[a-z_]*</code>' $W/pt.html | wc -l | tr -d ' ')" 9
 ok "pals tab: links to Test a pal find in Tools" "$(grep -c 'admin/tools.php' $W/pt.html | php -r 'echo (int)stream_get_contents(STDIN) > 0 ? "y" : "n";')" y
 ok "pals tab: players off (ppal_open stays 0 here)" "$(grep -c 'admins only' $W/pt.html | php -r 'echo (int)stream_get_contents(STDIN) > 0 ? "y" : "n";')" y
 ok "pals tab: a player is refused" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' "$BASE/admin/jigsaw.php?tab=pals")" 403

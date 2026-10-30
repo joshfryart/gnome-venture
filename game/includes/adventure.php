@@ -72,7 +72,7 @@ function gnome_combat(array $u, bool $pals = false): array
 {
     $lvl = (int)$u['level'];
     $pal = 0;   // v2.0.88: the Puzzle Pals road perk: +N Grit, Nimble and Hardiness modifiers in road, lair and delve fights (Treks and contests use other code)
-    if ($pals && setting('ppal_party') === '1' && (int)$u['level'] >= 15) { require_once __DIR__ . '/puzzle_pals.php'; $pal = ppal_perks($u)['road']; }
+    if ($pals && setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; if ((int)$u['level'] >= PPAL_PARTY_LEVEL) $pal = ppal_perks($u)['road']; }
     $grit = eff_mod($u, 'grit') + $pal;
     $nim = eff_mod($u, 'nimble') + $pal;
     return [   // v0.9.1: calling numbers now come from the tier table (calling_perk)

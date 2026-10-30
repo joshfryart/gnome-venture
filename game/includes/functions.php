@@ -381,6 +381,8 @@ function settings_schema(): array
         'jigsaw_tries_expert' => ['label' => 'Jigsaw tournaments: timed goes per day, Expert (v2.0.87)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 50],
         'jigsaw_reserve_days' => ['label' => 'Jigsaw tournaments: days a settled tournament’s picture waits before it joins free play (0 = at once) (v2.0.87)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 60],
         'ppal_open' => ['label' => 'Puzzle Pals: pals released by an Advanced Jigsaw solve, found on pages (needs Jigsaw open; off = admins only) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
+        'ppal_find_mode' => ['label' => 'Puzzle Pals: how released pals are found (v2.0.92)', 'type' => 'select', 'default' => 'map', 'options' => ['map' => 'Waiting at places on the map (collect by standing there)', 'page' => 'Random find on a page view (the old way)']],
+        'ppal_spawn_count' => ['label' => 'Puzzle Pals: pals waiting on the map at once per gnome (v2.0.92)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],
         'ppal_chance' => ['label' => 'Puzzle Pals: a find on a page view is 1 in this many (v2.0.88)', 'type' => 'int', 'default' => '60', 'min' => 5, 'max' => 5000],
         'ppal_cooldown_minutes' => ['label' => 'Puzzle Pals: minutes between finds (v2.0.88)', 'type' => 'int', 'default' => '30', 'min' => 0, 'max' => 1440],
         'ppal_daily_max' => ['label' => 'Puzzle Pals: most finds per gnome per day (v2.0.88)', 'type' => 'int', 'default' => '4', 'min' => 0, 'max' => 100],

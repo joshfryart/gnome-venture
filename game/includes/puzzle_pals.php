@@ -72,9 +72,17 @@ function ppal_schema(string $PK, string $ID, string $END): array
         src VARCHAR(8) NOT NULL DEFAULT 'free',
         run_id $ID NULL,
         UNIQUE (user_id, pic_id)
+    )$END", "CREATE TABLE IF NOT EXISTS ppal_spawns (
+        id $PK,
+        user_id $ID NOT NULL,
+        pal_key VARCHAR(48) NOT NULL,
+        pic_id $ID NOT NULL,
+        loc_id $ID NOT NULL,
+        made_day VARCHAR(10) NOT NULL,
+        UNIQUE (user_id, pal_key)
     )$END"];
     $i = ['CREATE INDEX idx_ppal_found_pic ON ppal_found (user_id, pic_id)'];
-    $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0']];
+    $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0'], ['users', 'ppal_spawn_day', 'VARCHAR(10) NULL']];
     return [$t, $i, $c];
 }
 
@@ -83,7 +91,7 @@ function ppal_ensure(): bool
 {
     static $ok = null;
     if ($ok !== null) return $ok;
-    try { q('SELECT 1 FROM ppal_releases LIMIT 1'); q('SELECT 1 FROM ppal_found LIMIT 1'); q('SELECT 1 FROM ppal_trophies LIMIT 1'); $ok = true; } catch (Throwable $e) { $ok = false; }
+    try { q('SELECT 1 FROM ppal_releases LIMIT 1'); q('SELECT 1 FROM ppal_found LIMIT 1'); q('SELECT 1 FROM ppal_trophies LIMIT 1'); q('SELECT 1 FROM ppal_spawns LIMIT 1'); $ok = true; } catch (Throwable $e) { $ok = false; }
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         [$t, $i, $c] = ppal_schema($s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', $s ? 'INTEGER' : 'INT UNSIGNED', $s ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
@@ -279,10 +287,17 @@ function ppal_trophies(int $uid): array
     try { return q('SELECT pic_id, earned_at FROM ppal_trophies WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_KEY_PAIR); } catch (Throwable $e) { return []; }
 }
 
-/** Perk units the Expert trophy adds to this picture's pals (+1, bounded; only while ppal_party is on and the gnome holds the trophy). Step 4 adds it inside ppal_perks(). */
-function ppal_trophy_unit(int $uid, int $picId): int
+/** Perk units the Expert trophy adds to this picture's pals (+4 percent, +1 point for road; only while ppal_party is on and the gnome holds the trophy). */
+function ppal_trophy_unit(int $uid, int $picId, string $perk = ''): int
 {
-    return setting('ppal_party') === '1' && ppal_has_trophy($uid, $picId) ? 1 : 0;
+    return setting('ppal_party') === '1' && ppal_has_trophy($uid, $picId) ? ($perk === 'road' ? 1 : PPAL_TROPHY_UNITS) : 0;
+}
+
+/** A pal's perk units: its rarity's worth (percent, or road points) plus the Expert trophy of its picture. */
+function ppal_pal_units(array $pal, int $uid, int $picId): int
+{
+    $k = (string)$pal['perk'];
+    return ($k === 'road' ? (PPAL_ROAD_UNITS[$pal['rarity']] ?? 1) : (PPAL_UNITS[$pal['rarity']] ?? 8)) + ppal_trophy_unit($uid, $picId, $k);
 }
 
 /**
@@ -305,6 +320,7 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
                 db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => $picId, 'released_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
             } catch (Throwable $e) { return []; }   // UNIQUE: released already
             $out = ['title' => (string)$pic['title'], 'released' => count(ppal_roster($pic)), 'trophy' => false];
+            try { q('UPDATE users SET ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable $e) {}   // v2.0.92: the new roster gets its map spawns on the next page
             require_once __DIR__ . '/trade.php';
             notify($uid, '🧩 The magic of the jigsaw is loose! ' . $out['released'] . ' Puzzle Pals from ' . $pic['title'] . ' are somewhere about the Hollow.');
         } else {
@@ -397,6 +413,7 @@ function ppal_maybe_find(array $u): bool
 {
     try {
         if (!ppal_open() || is_guest($u) || !ppal_ensure()) return false;
+        if (ppal_find_mode() === 'map' && empty($_SESSION['ppal_force'])) return false;   // v2.0.92: pals wait on the map; the page lane is the old mode (setting ppal_find_mode = page)
         if (!empty($_SESSION['event_pending']) || !empty($_SESSION['event_box'])) return false;
         if (in_array(basename((string)($_SERVER['SCRIPT_NAME'] ?? '')), defined('PPAL_QUIET_PAGES') ? PPAL_QUIET_PAGES : [], true)) return false;   // PPAL_QUIET_PAGES is set in layout.php
         $uid = (int)$u['id'];
@@ -593,9 +610,11 @@ function ppal_badges_html(int $uid): string
 
 const PPAL_PARTY_LEVEL = 1;   // gnome level needed to take pals along (v2.0.91: every gnome; was 15)
 /** Perk units by rarity, and the caps: the units a kind adds up to (a pal's own units + the Expert trophy's +1 for its picture), then what they are worth. */
-const PPAL_UNITS = ['common' => 1, 'uncommon' => 2, 'rare' => 3];
-const PPAL_PERK_RATE = ['gather' => 1, 'finder' => 5, 'tinker' => 1, 'bloom' => 1];   // percent per unit
-const PPAL_PERK_CAP = ['gather' => 6, 'finder' => 30, 'tinker' => 6, 'bloom' => 6, 'road' => 3];   // percent, or points for road
+const PPAL_UNITS = ['common' => 8, 'uncommon' => 15, 'rare' => 30];   // v2.0.92: a unit is now one percent (was a common pal = 1%); the Expert trophy adds PPAL_TROPHY_UNITS
+const PPAL_ROAD_UNITS = ['common' => 1, 'uncommon' => 2, 'rare' => 4];   // road perk: Grit, Nimble and Hardiness points
+const PPAL_TROPHY_UNITS = 4;   // the Expert trophy's gift to that picture's pals (percent; road gets +1 point)
+const PPAL_PERK_RATE = ['gather' => 1, 'finder' => 1, 'tinker' => 1, 'bloom' => 1];   // percent per unit
+const PPAL_PERK_CAP = ['gather' => 50, 'finder' => 50, 'tinker' => 50, 'bloom' => 50, 'road' => 5];   // percent, or points for road
 const PPAL_PERK_TEXT = [
     'gather' => 'Brings +%d%% rare finds when you gather',
     'road' => 'Gives +%d Grit, Nimble and Hardiness in road, lair and delve fights',
@@ -660,16 +679,16 @@ function ppal_equipped(int|array $u, bool $reset = false): array
             $pic = ppal_pic((int)$r['pic_id']);
             $pal = $pic ? ppal_find_pal($pic, (string)$r['pal_key']) : null;
             if (!$pal) continue;
-            $c[$uid][] = ['pal' => $pal, 'pic' => $pic, 'units' => (PPAL_UNITS[$pal['rarity']] ?? 1) + ppal_trophy_unit($uid, (int)$pic['id'])];
+            $c[$uid][] = ['pal' => $pal, 'pic' => $pic, 'units' => ppal_pal_units($pal, $uid, (int)$pic['id'])];
         }
     } catch (Throwable $e) { error_log('ppal_equipped: ' . $e->getMessage()); }
     return $c[$uid];
 }
 
 /**
- * The passive perks from the pals taken along (plan section 4). Each pal adds its units (common 1, uncommon 2, rare 3, +1 if the gnome holds that picture's
- * Expert trophy) to its perk kind; same-kind pals stack, then the cap bites: gather +1% per unit (cap 6), finder +5% per unit (cap 30), tinker +1% (cap 6),
- * bloom +1% (cap 6), road +1 per 2 units (cap 3), shine = a sparkle only. Returns ['units' => kind => n, 'gather', 'finder', 'tinker', 'bloom' (percent), 'road' (points),
+ * The passive perks from the pals taken along (plan section 4). Each pal adds its units (percent: common 8, uncommon 15, rare 30, +4 if the gnome holds that picture's
+ * Expert trophy; road is points 1 / 2 / 4, +1) to its perk kind; same-kind pals stack, then the cap bites: gather, finder, tinker and bloom 1% per unit (cap 50),
+ * road points as they are (cap 5), shine = a sparkle only. Returns ['units' => kind => n, 'gather', 'finder', 'tinker', 'bloom' (percent), 'road' (points),
  * 'shine' (bool), 'lines' => perk sentences for the UI]. All zero when take-along is off. Cached per request.
  */
 function ppal_perks(int|array $u, bool $reset = false): array
@@ -681,7 +700,7 @@ function ppal_perks(int|array $u, bool $reset = false): array
     $p = ['units' => [], 'gather' => 0, 'finder' => 0, 'tinker' => 0, 'bloom' => 0, 'road' => 0, 'shine' => false, 'lines' => []];
     foreach (ppal_equipped($u) as $e) $p['units'][$e['pal']['perk']] = ($p['units'][$e['pal']['perk']] ?? 0) + $e['units'];
     foreach (PPAL_PERK_RATE as $k => $rate) $p[$k] = min(PPAL_PERK_CAP[$k], $rate * ($p['units'][$k] ?? 0));
-    $p['road'] = min(PPAL_PERK_CAP['road'], intdiv($p['units']['road'] ?? 0, 2));
+    $p['road'] = min(PPAL_PERK_CAP['road'], $p['units']['road'] ?? 0);
     $p['shine'] = ($p['units']['shine'] ?? 0) > 0;
     foreach ($p['units'] as $k => $n) {
         $v = $k === 'shine' ? 0 : (int)$p[$k];
@@ -695,7 +714,7 @@ function ppal_perks(int|array $u, bool $reset = false): array
 function ppal_perk_line(array $pal, int $units): string
 {
     $k = (string)$pal['perk'];
-    $v = $k === 'road' ? intdiv($units, 2) : (PPAL_PERK_RATE[$k] ?? 0) * $units;
+    $v = $k === 'road' ? $units : (PPAL_PERK_RATE[$k] ?? 0) * $units;
     return sprintf(PPAL_PERK_TEXT[$k] ?? '', $v);
 }
 
@@ -780,4 +799,224 @@ function ppal_sticker_html(string $key, int $px = 44): string
 {
     $f = 'assets/img/puzzles/pals/' . preg_replace('/[^a-z0-9_-]/i', '', $key) . '.png';
     return is_file(APP_ROOT . '/' . $f) ? '<img class="palstk" src="' . e(url($f)) . '" alt="" width="' . $px . '" height="' . $px . '" loading="lazy">' : '<span class="palstk palstk-ph" aria-hidden="true">🐾</span>';
+}
+
+// ---------------- v2.0.92: pals wait on the map (instead of turning up on a page) ----------------
+
+/** Rarity => level band round the gnome's level [from, to]: commons at or just below it, rares a stretch above it, so the rare ones push a gnome to harder places. */
+const PPAL_BANDS = ['common' => [-2, 0], 'uncommon' => [-1, 2], 'rare' => [1, 3]];
+
+/** 'map' (default): released pals wait at places on the map and are collected by standing there. 'page' = the old random find on a page view. */
+function ppal_find_mode(): string
+{
+    return setting('ppal_find_mode') === 'page' ? 'page' : 'map';
+}
+
+/** Are map spawns on for this viewer? */
+function ppal_map_on(): bool
+{
+    return ppal_find_mode() === 'map' && ppal_open();
+}
+
+/** Pals waiting on the map at once (setting ppal_spawn_count, 1 to 10, default 3). */
+function ppal_spawn_target(): int
+{
+    $v = setting('ppal_spawn_count');
+    return $v === '' ? 3 : max(1, min(10, (int)$v));
+}
+
+/** Forget the per-request spawn cache. */
+function ppal_spawns_reset(): void
+{
+    ppal_spawns(0, true);
+}
+
+/**
+ * Places a pal may wait at: every road stop and town (a pal can glimmer on a "?" stop you have not visited, which is the nudge to go there) and the off-road
+ * places this gnome has found; never a hub or a lair. Returns list of ['id', 'name', 'level'].
+ */
+function ppal_spawn_nodes(int $uid): array
+{
+    require_once __DIR__ . '/progression.php';
+    require_once __DIR__ . '/roads.php';
+    $road = array_fill_keys(array_map('intval', q("SELECT a_id FROM routes WHERE kind = 'road' UNION SELECT b_id FROM routes WHERE kind = 'road'")->fetchAll(PDO::FETCH_COLUMN)), true);
+    $out = [];
+    foreach (q("SELECT id, name, slug, kind, region_id FROM locations WHERE kind IN ('market', 'village', 'haven', 'wonder') AND region_id IS NOT NULL ORDER BY id")->fetchAll() as $l) {
+        $id = (int)$l['id'];
+        if (!isset($road[$id]) && !place_known($uid, $l)) continue;
+        $out[] = ['id' => $id, 'name' => (string)$l['name'], 'level' => location_min_level($id)];
+    }
+    return $out;
+}
+
+/**
+ * Where a pal of this rarity waits for a gnome of level $g: the nodes nearest the rarity's level band (inside it when there are any), one pal to a node when it can
+ * be, picked by a stable hash of gnome + pal so the same pal always lands at the same place. $taken = node ids to avoid. Returns the node row or null.
+ */
+function ppal_spawn_node(array $nodes, int $uid, string $palKey, string $rarity, int $g, array $taken): ?array
+{
+    [$a, $b] = PPAL_BANDS[$rarity] ?? PPAL_BANDS['common'];
+    $lo = max(1, $g + $a);
+    $hi = max($lo, $g + $b);
+    $best = null;
+    $pool = [];
+    foreach ($nodes as $n) {
+        $dist = $n['level'] < $lo ? $lo - $n['level'] : ($n['level'] > $hi ? $n['level'] - $hi : 0);
+        if (isset($taken[$n['id']])) $dist += 1000;
+        $pool[] = [$dist, ppal_h($uid . ':' . $palKey . ':' . $n['id']), $n];
+    }
+    if (!$pool) return null;
+    usort($pool, fn($x, $y) => $x[0] <=> $y[0] ?: $x[1] <=> $y[1]);
+    $best = $pool[0];
+    return $best[2];
+}
+
+/** The pals waiting for this gnome: loc_id => ['pal' => roster row, 'pic' => picture row, 'level' => place level, 'loc' => place name]. Only pals still on a released roster and not found yet. */
+function ppal_spawns(int $uid, bool $reset = false): array
+{
+    static $c = [];
+    if ($reset) { $c = []; return []; }
+    if (isset($c[$uid])) return $c[$uid];
+    $c[$uid] = [];
+    if (!$uid || !ppal_ensure()) return [];
+    try {
+        require_once __DIR__ . '/progression.php';
+        $have = ppal_found_map($uid);
+        $rel = ppal_releases($uid);
+        foreach (q('SELECT pal_key, pic_id, loc_id FROM ppal_spawns WHERE user_id = ? ORDER BY id', [$uid])->fetchAll() as $r) {
+            $pic = isset($rel[(int)$r['pic_id']]) ? ppal_pic((int)$r['pic_id']) : null;
+            $pal = $pic ? ppal_find_pal($pic, (string)$r['pal_key']) : null;
+            if (!$pal || isset($have[$pal['key']]) || isset($c[$uid][(int)$r['loc_id']])) continue;
+            $loc = q_one('SELECT name FROM locations WHERE id = ?', [(int)$r['loc_id']]);
+            if (!$loc) continue;
+            $c[$uid][(int)$r['loc_id']] = ['pal' => $pal, 'pic' => $pic, 'level' => location_min_level((int)$r['loc_id']), 'loc' => (string)$loc['name']];
+        }
+    } catch (Throwable $e) { error_log('ppal_spawns: ' . $e->getMessage()); }
+    return $c[$uid];
+}
+
+/**
+ * Once per Hollow day (and right after a roster is released) top the gnome's map up to ppal_spawn_count waiting pals. Pals already waiting are kept, never moved or
+ * rerolled; a pal collected today is replaced tomorrow. Only pals not found yet, of released rosters, weighted by rarity. The finder perk is the chance (percent) of
+ * one extra pal. Cheap when nothing is due: one column compare. Returns the number made.
+ */
+function ppal_spawn_refresh(array $u): int
+{
+    static $done = [];
+    $uid = (int)($u['id'] ?? 0);
+    if (!$uid || isset($done[$uid])) return 0;
+    $done[$uid] = 1;
+    try {
+        if (!ppal_map_on() || is_guest($u) || !ppal_ensure()) return 0;
+        $day = hollow_date('Y-m-d');
+        if ((string)q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]) === $day) return 0;
+        $rel = ppal_releases($uid);
+        if (!$rel) return 0;
+        if (q('UPDATE users SET ppal_spawn_day = ? WHERE id = ? AND (ppal_spawn_day IS NULL OR ppal_spawn_day <> ?)', [$day, $uid, $day])->rowCount() !== 1) return 0;   // a second tab got there first
+        $have = ppal_found_map($uid);
+        $waiting = ppal_spawns($uid);
+        $isWaiting = [];
+        foreach ($waiting as $w) $isWaiting[$w['pal']['key']] = 1;
+        $pool = [];
+        foreach (array_keys($rel) as $picId) {
+            $pic = ppal_pic((int)$picId);
+            if (!$pic) continue;
+            foreach (ppal_roster($pic) as $p) if (!isset($have[$p['key']]) && !isset($isWaiting[$p['key']])) $pool[] = [$p, $pic];
+        }
+        $want = ppal_spawn_target() + (($fp = ppal_perks($u)['finder']) > 0 && random_int(1, 100) <= $fp ? 1 : 0);
+        $need = $want - count($waiting);
+        $nodes = $need > 0 && $pool ? ppal_spawn_nodes($uid) : [];
+        $taken = array_fill_keys(array_keys($waiting), true);
+        $g = max(1, (int)($u['level'] ?? 1));
+        $made = 0;
+        while ($need > 0 && $pool && $nodes) {
+            $tot = 0;
+            foreach ($pool as [$p]) $tot += PPAL_RARITIES[$p['rarity']] ?? 10;
+            $roll = random_int(1, max(1, $tot));
+            $at = 0;
+            foreach ($pool as $i => [$p]) { $roll -= PPAL_RARITIES[$p['rarity']] ?? 10; if ($roll <= 0) { $at = $i; break; } }
+            [$p, $pic] = $pool[$at];
+            array_splice($pool, $at, 1);
+            $node = ppal_spawn_node($nodes, $uid, $p['key'], $p['rarity'], $g, $taken);
+            if (!$node) break;
+            try {
+                db_insert('ppal_spawns', ['user_id' => $uid, 'pal_key' => $p['key'], 'pic_id' => (int)$pic['id'], 'loc_id' => $node['id'], 'made_day' => $day]);
+                $taken[$node['id']] = true;
+                $made++;
+                $need--;
+            } catch (Throwable $e) {}   // UNIQUE: already waiting
+        }
+        ppal_spawns_reset();
+        return $made;
+    } catch (Throwable $e) {
+        error_log('ppal_spawn_refresh: ' . $e->getMessage());
+        return 0;
+    }
+}
+
+/** The pals waiting for this gnome, topped up first (what the maps and the Pal Book call). [] when map spawns are off for the viewer. */
+function ppal_map_spawns(array $u): array
+{
+    if (!ppal_map_on() || is_guest($u)) return [];
+    ppal_spawn_refresh($u);
+    return ppal_spawns((int)$u['id']);
+}
+
+/**
+ * Collect the pal waiting where the gnome stands ($locId must be the gnome's own place, the caller checks). Uses ppal_claim() for the checks and the INSERT, then
+ * the spawn row goes. Returns [ok, box|message] like ppal_claim().
+ */
+function ppal_spawn_collect(array $u, int $locId): array
+{
+    $uid = (int)$u['id'];
+    $sp = ppal_map_spawns($u)[$locId] ?? null;
+    if (!$sp) return [false, 'There is no Puzzle Pal waiting here.'];
+    $r = ppal_claim($u, $sp['pal']['key'], (int)$sp['pic']['id']);
+    if ($r[0]) { q('DELETE FROM ppal_spawns WHERE user_id = ? AND pal_key = ?', [$uid, $sp['pal']['key']]); ppal_spawns_reset(); }
+    return $r;
+}
+
+/** The "a pal is here" card for the place the gnome stands at (world.php Go tab): sticker, name, rarity, one Collect button. '' when nothing waits. */
+function ppal_here_html(array $u, int $locId): string
+{
+    $sp = ppal_map_spawns($u)[$locId] ?? null;
+    if (!$sp) return '';
+    $p = $sp['pal'];
+    return '<form method="post" class="box ppalhere ppr-' . e($p['rarity']) . '" action="' . e(url('world.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="ppal_collect">'
+        . '<div class="ppalst">' . ppal_img($p['key'], $p['name']) . '</div><div class="evbody"><div class="evkicker">🧩 A Puzzle Pal is here!</div><div class="evtitle">' . e($p['name']) . '</div>'
+        . '<p><span class="ppalrar ppr-' . e($p['rarity']) . '">' . e(ucfirst($p['rarity'])) . '</span> · a Puzzle Pal from ' . e((string)$sp['pic']['title']) . '</p>'
+        . '<button class="btn">Say hello</button></div></form>';
+}
+
+/** Pals waiting on the map as a short list for the Pal Book: sticker, name, rarity, where (link to that place's region map) and the place's level. '' when none. */
+function ppal_waiting_html(array $u): string
+{
+    $sp = ppal_map_spawns($u);
+    if (!$sp) return '';
+    $lvl = (int)$u['level'];
+    $h = '';
+    foreach ($sp as $locId => $w) {
+        $rid = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$locId]);
+        $p = $w['pal'];
+        $h .= '<li class="ppalwait ppr-' . e($p['rarity']) . '">' . ppal_sticker_html($p['key'], 36) . '<span><b>' . e($p['name']) . '</b> <span class="ppalrar ppr-' . e($p['rarity']) . '">' . e(ucfirst($p['rarity'])) . '</span><br>'
+            . '<a href="' . e(url('world.php?tab=map&r=' . $rid . '#regionmap')) . '">' . e($w['loc']) . '</a> <small class="muted">· Lv ' . (int)$w['level'] . ($w['level'] > $lvl ? ' (above you)' : '') . '</small></span></li>';
+    }
+    return '<section class="box ppalwaiting" aria-label="Pals waiting on the map"><h2>🧩 Waiting on the map</h2><ul class="ppalwaitlist">' . $h . '</ul>'
+        . '<p class="help">Walk to the place and say hello. Pals you have not met stay put until you do. Rarer pals wait in tougher places.</p></section>';
+}
+
+/**
+ * The marker for a place with a pal waiting, drawn at the place's centre (inside an SVG map): a rarity ring (grey common, blue uncommon, gold rare, with a dashed
+ * outer ring), the pal's sticker, and $corner (SVG for a small badge of the place's own icon, so a haven still reads as a haven). SVG attributes only, no style (CSP).
+ */
+function ppal_marker_svg(array $sp, string $corner = '', int $r = 20): string
+{
+    $rar = (string)$sp['pal']['rarity'];
+    $col = ['common' => '#7d8590', 'uncommon' => '#2f7fc4', 'rare' => '#d99a10'][$rar] ?? '#7d8590';
+    $url = ppal_art_url($sp['pal']['key']);
+    $s = ($r - 4) * 2;
+    $img = $url !== '' ? '<image href="' . e($url) . '" x="' . -($s / 2) . '" y="' . -($s / 2) . '" width="' . $s . '" height="' . $s . '" image-rendering="pixelated"/>' : '<text y="6" text-anchor="middle" font-size="16">🧩</text>';
+    return '<g class="mppal mppal-' . e($rar) . '"><circle r="' . $r . '" fill="#fff8e1" fill-opacity="0.95" stroke="' . $col . '" stroke-width="3.5"/>'
+        . ($rar === 'common' ? '' : '<circle r="' . ($r + 4) . '" fill="none" stroke="' . $col . '" stroke-opacity="0.6" stroke-width="2"' . ($rar === 'rare' ? ' stroke-dasharray="4 3"' : '') . '/>')
+        . $img . $corner . '</g>';
 }

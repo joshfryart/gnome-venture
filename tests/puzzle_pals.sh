@@ -43,7 +43,7 @@ echo "== release hooks"
 login $W/a admin TestPassword123
 login $W/p sprout 'TestPass123!'
 UID_=$(dbv "SELECT id FROM users WHERE username='sprout'")
-setg puzzles_open 1; setg jigsaw_open 1; dbx "DELETE FROM settings WHERE name IN ('ppal_open','ppal_party')"
+setg puzzles_open 1; setg ppal_find_mode page; setg jigsaw_open 1; dbx "DELETE FROM settings WHERE name IN ('ppal_open','ppal_party')"
 MAP=$(dbv "SELECT id FROM puzzle_pics WHERE slug='jig-maplewold'"); MAIZE=$(dbv "SELECT id FROM puzzle_pics WHERE slug='jig-maizehollow'"); SUN=$(dbv "SELECT id FROM puzzle_pics WHERE slug='jig-sunsprinkle'")
 curl -s -b $W/p $BASE/jigsaw.php > $W/j.html; CS=$(grep -o '"csrf":"[^"]*"' $W/j.html | head -1 | sed 's/.*:"\(.*\)"/\1/')
 # every authored roster ships real art now; the test COPY moves maizehollow's pal PNGs aside so it plays the "art not ready" picture (the repo is untouched)
@@ -78,7 +78,7 @@ ok "Expert without a release: trophy only" "$(tro $SUN)/$(rel $SUN)" "1/0"
 ok "trophy row is per user and picture (UNIQUE)" "$(dbv "SELECT COUNT(*) FROM (SELECT user_id,pic_id FROM ppal_trophies GROUP BY 1,2 HAVING COUNT(*)>1)")" 0
 ok "ppal_party off: no trophy unit" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; echo ppal_trophy_unit((int)$argv[2], (int)$argv[3]);' $GAME $UID_ $MAP)" 0
 setg ppal_party 1
-ok "ppal_party on: the trophy is worth +1 to that picture, 0 to another" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; echo ppal_trophy_unit((int)$argv[2], (int)$argv[3]).ppal_trophy_unit((int)$argv[2], (int)$argv[4]);' $GAME $UID_ $MAP $MAIZE)" 10
+ok "ppal_party on: the trophy is worth +4 to that picture, 0 to another" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; echo ppal_trophy_unit((int)$argv[2], (int)$argv[3]).ppal_trophy_unit((int)$argv[2], (int)$argv[4]);' $GAME $UID_ $MAP $MAIZE)" 40
 setg ppal_party 0
 
 echo "== tournament hook"
@@ -263,7 +263,7 @@ ok "ppal_party on, level 15: party strip with 2 empty slots and a Take along but
 ok "...and no inline styles" "$(grep -c ' style=' $W/b.html)" 0
 ok "Take along #1 and #2 (redirects back)" "$(take mw-acorn-nip on)/$(take mw-leaf-tuck on)/$(act)" "302/302/2"
 B > $W/b.html
-ok "party full: the strip shows both pals with their perk lines (the Expert trophy's +1 unit counted), the other pals offer Swap" "$(grep -c 'ppalpslot got' $W/b.html)/$(grep -o 'Brings +2% XP from games' $W/b.html | wc -l | tr -d ' ')/$(grep -c '>Swap with' $W/b.html)/$(grep -c '>Send home<' $W/b.html)" "2/3/4/2"
+ok "party full: the strip shows both pals with their perk lines (the Expert trophy's +4 counted), the other pals offer Swap" "$(grep -c 'ppalpslot got' $W/b.html)/$(grep -o 'Brings +12% XP from games' $W/b.html | wc -l | tr -d ' ')/$(grep -c '>Swap with' $W/b.html)/$(grep -c '>Send home<' $W/b.html)" "2/3/4/2"
 ok "a third POST is refused (still 2)" "$(take mw-sap-drip on)/$(act)" "302/2"
 GP=$(curl -s -b $W/p $BASE/gnome.php | grep -o 'class="gpal gpal-[lr]"' | wc -l | tr -d ' ')
 ok "the gnome page shows the 2 companions wherever the gnome shows (nav + page + drawer twin: pairs)" "$([ $GP -ge 2 ] && [ $((GP % 2)) -eq 0 ] && echo pairs || echo $GP)" pairs
@@ -282,6 +282,11 @@ echo "-- perk maths, gates, avatar (tests/puzzle_pals_party.php)"
 php -d session.save_path=/tmp $HERE/puzzle_pals_party.php $GAME 2>&1 | tee $W/party.out | grep -v '^ok'
 ok "party checks: no FAIL, ends all ok" "$(grep -c "^FAIL\|Fatal\|Warning" $W/party.out)/$(tail -1 $W/party.out)" "0/all ok"
 ok "party checks ran" "$(grep -c '^ok' $W/party.out | awk '{print ($1>35)?"many":$1}')" many
+setg ppal_open 1
+echo "-- pals on the map (tests/puzzle_pals_map.php)"
+php -d session.save_path=/tmp $HERE/puzzle_pals_map.php $GAME 2>&1 | tee $W/map.out | grep -v '^ok'
+ok "map checks: no FAIL, ends all ok" "$(grep -c "^FAIL\|Fatal\|Warning" $W/map.out)/$(tail -1 $W/map.out)" "0/all ok"
+ok "map checks ran" "$(grep -c '^ok' $W/map.out | awk '{print ($1>20)?"many":$1}')" many
 setg ppal_open 1
 echo "-- admin tool"
 ok "admin tools page has the 'Test a pal find' button" "$(curl -s -b $W/a $BASE/admin/tools.php | grep -c 'value="test_ppal"')" 1

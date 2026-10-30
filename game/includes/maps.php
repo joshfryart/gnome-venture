@@ -566,6 +566,8 @@ function region_map_svg(array $u, int $regionId, int $selId = 0, bool $focus = f
     // Markers
     $sideRot = ['E' => 0, 'S' => 90, 'W' => 180, 'N' => 270];
     $top = '';
+    $pp = [];   // v2.0.92: Puzzle Pals waiting at places: the sticker takes the place's icon (a small badge keeps the kind)
+    if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/puzzle_pals.php'; $pp = ppal_map_spawns($u); }
     foreach ($items as $id => $it) {
         $l = $it['loc'];
         $type = $it['type'];
@@ -592,13 +594,14 @@ function region_map_svg(array $u, int $regionId, int $selId = 0, bool $focus = f
             foreach ($lines as $li => $ln) $lab .= $li ? '<tspan x="' . (int)round($lx - $x) . '" dy="' . ($FS + 2) . '">' . e($ln) . '</tspan>' : e($ln);
             $lab .= '</text>';
         }
-        $inner = '<title>' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . ($isMe ? ' (you are here)' : '')) . '</title>'
+        $palMark = isset($pp[$id]) && !$isFar && !$isMe ? ppal_marker_svg($pp[$id], $seen ? '<circle cx="' . ($r - 1) . '" cy="' . ($r - 1) . '" r="8" fill="' . $fillC . '" stroke="' . $strokeC . '" stroke-width="1.5"/><text x="' . ($r - 1) . '" y="' . ($r + 3) . '" text-anchor="middle" font-size="10">' . $icon . '</text>' : '', max(18, $r + 6)) : '';
+        $inner = '<title>' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . ($isMe ? ' (you are here)' : '') . (isset($pp[$id]) ? ' · 🧩 ' . $pp[$id]['pal']['name'] . ' waits here (' . $pp[$id]['pal']['rarity'] . ', level ' . $pp[$id]['level'] . ')' : '')) . '</title>'
             . '<circle class="hit" r="' . max(22, $r + 8) . '" fill="#ffffff" fill-opacity="0"/>' . $ring
             . ($art !== '' ? '<circle class="halo" r="' . ($r + 2) . '" fill="#f2e4c0"/>' : '')
             . '<circle class="dot' . ($seen ? '' : ' new') . '" r="' . $r . '" fill="' . $fillC . '" stroke="' . $strokeC . '" stroke-width="2.5"' . ($seen ? '' : ' stroke-dasharray="4 3"') . '/>'
             . ($isFar ? '<text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="#6b4a00" transform="rotate(' . ($sideRot[$it['side']] ?? 0) . ')">➜</text>'
                 : '<text y="' . ($isTown ? 6 : 5) . '" text-anchor="middle" font-size="' . ($isTown ? 16 : ($small ? 11 : 13)) . '"' . ($seen || $art !== '' ? '' : ' opacity="0.7"') . '>' . ($isMe ? '🎩' : $icon) . '</text>')
-            . $badge . $ruin . $lab;
+            . $badge . $ruin . $palMark . $lab;
         $inner = '<g class="ms">' . $inner . '</g>';
         $g = '<g class="rmp k-' . $k . ($isMe ? ' here' : '') . (isset($onRoute[$id]) && !$isMe ? ' onroute' : '') . ($seen ? '' : ' new') . '" transform="translate(' . $x . ' ' . $y . ')">';
         $g .= $isMe ? '<g aria-current="location">' . $inner . '</g>'

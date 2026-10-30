@@ -38,11 +38,13 @@ page_header('Puzzle Pals');
   <div class="pzhost box">
     <?= puzzle_cast('jeff-magic', 'Jeff', 'pzface') ?: puzzle_cast('jeff-host', 'Jeff', 'pzface') ?>
     <div>
-      <p class="pzline"><b>Jeff:</b> “Finish a picture at Advanced and its pals tumble loose. They turn up on any page, so keep your eyes open!”</p>
+      <p class="pzline"><b>Jeff:</b> “Finish a picture at Advanced and its pals tumble loose. They wait at places on the map, so go and find them!”</p>
       <?php if ((int)$book['found'] === 0) echo ppal_howto_html(); ?>
       <p class="help"><b><?= (int)$book['found'] ?></b> of <?= (int)$book['total'] ?> pals found · <b><?= count($book['released']) ?></b> picture<?= count($book['released']) === 1 ? '' : 's' ?> released</p>
     </div>
   </div>
+
+  <?= ppal_waiting_html($u) ?>
 
   <?php if ($party): ?>
   <section class="box ppalparty" aria-label="Your party">
@@ -82,7 +84,7 @@ page_header('Puzzle Pals');
           <span class="ppalrar ppr-<?= e($p['rarity']) ?>"><?= e(ucfirst($p['rarity'])) ?></span>
           <small class="muted">found <?= e(puzzle_local((string)$got['found_at'], 'j M Y')) ?><?= (int)$got['times'] > 1 ? ' · met ' . (int)$got['times'] . '×' : '' ?></small>
           <?php if ($canParty): $isEq = in_array($p['key'], $eqKeys, true); ?>
-          <small class="ppalperk muted"><?= e(ppal_perk_line($p, (PPAL_UNITS[$p['rarity']] ?? 1) + ppal_trophy_unit($uid, (int)$pic['id']))) ?></small>
+          <small class="ppalperk muted"><?= e(ppal_perk_line($p, ppal_pal_units($p, $uid, (int)$pic['id']))) ?></small>
           <form method="post" action="<?= e(url('puzzlepals.php')) ?>" class="ppaltake"><?= csrf_field() ?><input type="hidden" name="pal" value="<?= e($p['key']) ?>">
             <?php if ($isEq): ?><button class="btn small ghost" name="do" value="off">Send home</button>
             <?php elseif (count($eq) >= ppal_party_max()): ?><input type="hidden" name="out" value="<?= e($eq[0]['pal']['key']) ?>"><button class="btn small ghost" name="do" value="swap">Swap with <?= e($eq[0]['pal']['name']) ?></button>
