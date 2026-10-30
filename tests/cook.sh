@@ -154,6 +154,7 @@ m=$(post crafting.php $CP -d do=collect -d pot_id=$P1); has "already empty" "$m"
 m=$(collectall); has "Collected 1 × Green Pea Soup" "$m" "collect all takes the other"
 chk "soup +2" "$(qty $SOUP)" $((S0+2)); chk "pots empty" "$(potsn)" 0; chk "job +2" "$(jobp)" 2; chk "calling task +2" "$(callp)" 2
 chk "recipe made count" "$(db "SELECT made FROM user_recipes ur JOIN recipes r ON r.id=ur.recipe_id WHERE ur.user_id=$UID_ AND r.slug='$SOUP'")" 2
+chk "cook_pots.score is stored (1 or more) on every pot cooked" "$(db "SELECT COUNT(*)||'/'||SUM(score>0) FROM cook_pots WHERE user_id=$UID_ AND collected_at IS NOT NULL AND score IS NOT NULL" | sed 's/\([0-9]*\)\/\1/all/')" all
 echo "-- snack batch: one pot, up to 5 makes, no energy; snacks do not count as meals"
 M0=$(qty mint-tea); setE 40; m=$(cookit mint-tea 7)
 has "Cooking 7 × Mint Tea in 2 pots" "$m" "snack x7 = pots of 5 + 2"
