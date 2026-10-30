@@ -18,18 +18,14 @@ c:fill(fill:copy():clip(c:rect(0, 23, 63, 23)), "#3f5a2a")
 for x = 23, 41, 3 do c:fill(c:rect(x, 9, x, 13), "#5b6470") end   -- crimp ridges
 c:fill(c:rect(22, 9, 42, 9), "#c9c5bc")
 for _, s in ipairs({ {21, 28}, {42, 28}, {20, 49}, {28, 51}, {37, 50}, {44, 49} }) do c:px(s[1], s[2], "#7b66b4") end
--- label: dark berry with three green stripes and a whisker tip
-c:paint({
-  "...kk...",
-  "..dddd..",
-  ".dgdgdg.",
-  "dLgdgdgd",
-  "ddgdgdgd",
-  ".dgdgdd.",
-  "..dddd..",
-  "...k....",
-}, 26, 34, { d = "#3a2850", L = "#7b66b4", g = "#5a7a40", k = "#7a4a1f" })
-c:paint({ "uuu", "", "uu", "", "uuu" }, 35, 36, { u = "#9a6b3f" })
+-- label (redraw A): a strig of three round berries hanging from a green stem with a leaf.
+-- No stripes: the old striped berry centred on the label read as an eye at 1x.
+c:fill(c:rect(25, 34, 37, 34), "#4f9a45")
+c:paint({ "ll.", "lll", ".l." }, 37, 33, { l = "#4f9a45" })
+for _, b in ipairs({ {25, 36, 1}, {30, 38, 3}, {35, 36, 1} }) do
+  c:fill(c:rect(b[1] + 1, 35, b[1] + 1, 35 + b[3]), "#7a4a1f")
+  c:paint({ ".dd.", "dLdd", "dddd", ".dd." }, b[1], b[2] + 0, { d = "#3a2850", L = "#a894dc" })
+end
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))

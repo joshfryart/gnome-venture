@@ -12,3 +12,4 @@
 - joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
 - notes: pantry food from the Pantry (tamarind x2, date x2). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.
+- redraw A (2026-10-30): drip is a glossy pool on the lip with two tongues ending in beads on the pot face (it read as a post); the saucer shows a pale rim, a dark well and a thick edge (it read as a leaf).

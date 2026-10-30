@@ -8,7 +8,7 @@
   2. yogurt: rrect x 18..46, y 30..55 (r8), #f4f0e0 shade #e0d4b0; cream line y 30..32 #fbf6e8
   3. neck: rect x 22..42, y 16..25 glass
   4. foil cap: rrect x 21..43, y 8..18 (r2), blue #3f8fb0 crimp lines #25637d 4 vertical
-  5. label: oval x 22..42, y 38..53 cream #f1ece0 with goat head: face #c9c5bc, horns curl #9a6b3f, two eyes px #2a1a10, beard px
+  5. label: COBALT oval x 20..44, y 34..54 #3f8fb0 with a BIG white goat head 17x16 px: face #f4f0e0, dark curled horns #5e2f1e, grey floppy ears, 2x2 eyes #2a1a10, beard (redraw B: the small goat head vanished at 16px)
 - joins: cap crimps at y 8..18.
 - face: none.
-- notes: pantry food from the Pantry (goat-milk x4). Lit upper-left, gloss comma on the body. white must carry a shade so it separates from cream label. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).
+- notes: pantry food from the Pantry (goat-milk x4). Lit upper-left, gloss comma on the body. white must carry a shade; the label is cobalt so the white goat face reads. Its own vessel/lid/emblem, never a recolour of a sibling. Style: all coords within 2..61 (edge margin >=2px), no semi-transparent px, no pure #ffffff except ONE highlight pixel (use #fbf6e8 for bubbles/sheen).

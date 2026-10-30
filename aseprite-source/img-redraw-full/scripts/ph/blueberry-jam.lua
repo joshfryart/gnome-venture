@@ -11,7 +11,7 @@ cap:add(c:poly({ {8, 31}, {15, 31}, {9, 40} })):add(c:poly({ {50, 31}, {57, 31},
 local p = c:build{
   { "glass", c:rrect(12, 30, 52, 54, 9), "glass" },
   { "jam",   c:rrect(14, 33, 50, 52, 7), "#4e3a8a", { contour = "#291d4a", gloss = false } },
-  { "label", c:ellipse(32, 44, 10, 5), "cream", { gloss = false, contact = false } },
+  { "label", c:rrect(19, 39, 45, 49, 2), "cream", { gloss = false, contact = false } },
   { "cap",   cap, "#a894dc", { gloss = false } },
 }
 -- whole berries pressed to the glass: 3 px beads with one glint each
@@ -39,17 +39,33 @@ c:paint({
   "...s.s...",
   "..s...s..",
 }, 37, 23, { b = "#c9a96e", s = "#9a6b3f", k = "#7a4a1f" })
--- label: blueberry cluster with dark crowns and a leaf
+-- label (redraw A): one big side-view blueberry with its crown sticking up, a small one behind, and a leaf.
+-- Side view on purpose: a dark disc centred in an oval read as an eye at 1x.
 c:paint({
-  "....g....",
-  ".bb.g.bb.",
-  "bLbb.bLbb",
-  "bbkb.bbkb",
-  ".bb.b.bb.",
-  "...bLbb..",
-  "...bbkb..",
-  "....bb...",
-}, 28, 40, { b = "#4e3a8a", L = "#7a5cc0", k = "umber", g = "#4f9a45" })
+  "...gg",
+  ".gggg",
+  "ggggG",
+  "gggG.",
+  ".gG..",
+}, 21, 41, { g = "#4f9a45", G = "#2f6a3a" })
+c:paint({
+  "..k.k.k..",
+  "..kkkkk..",
+  ".bbbbbbb.",
+  "bLLbbbbbb",
+  "bLbbbbbbs",
+  "bbbbbbbbs",
+  "bbbbbbbss",
+  ".bbbbbss.",
+}, 27, 40, { b = "#5a4aa0", L = "#a894dc", s = "#2e2260", k = "#2a1a10" })
+c:paint({
+  ".k.k.",
+  ".kkk.",
+  "bbbbb",
+  "bLbbs",
+  "bbbbs",
+  ".bss.",
+}, 37, 42, { b = "#5a4aa0", L = "#a894dc", s = "#2e2260", k = "#2a1a10" })
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))

@@ -25,16 +25,14 @@ c:paint({
   "l..",
 }, 47, 11, { v = "#7a5cc0", l = "#c3b2ea" })
 c:seam({ {19, 23}, {45, 23} })
--- label: bilberry cluster with crown dots
-c:paint({
-  ".bbb.bbb.",
-  "bLbbbLbbb",
-  "bbkbbbkbb",
-  ".bbbbbbb.",
-  "...bLbb..",
-  "...bbkb..",
-  "....bb...",
-}, 28, 39, { b = "#2a3a7a", L = "#5a86b8", k = "#c3b2ea" })
+-- label (redraw A): a diagonal sprig with small leaves and three separate berries along it.
+-- Separate berries on a twig: the old packed cluster read as a heart at 1x.
+c:fill(c:line({ {24, 45}, {40, 38} }, 1), "#7a4a1f")
+c:paint({ "gg", "g." }, 28, 41, { g = "#4f9a45" }); c:paint({ ".g", "gg" }, 34, 37, { g = "#4f9a45" })
+c:paint({ "gg", ".g" }, 41, 35, { g = "#4f9a45" })
+for _, b in ipairs({ {22, 42}, {30, 41}, {37, 38} }) do
+  c:paint({ ".bbb.", "bLbbb", "bbbbb", "bbkbb", ".bbb." }, b[1], b[2], { b = "#2a3a7a", L = "#5a86b8", k = "#c3b2ea" })
+end
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")
 print(N, GV.report(t))

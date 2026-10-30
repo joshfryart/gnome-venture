@@ -9,7 +9,7 @@
   3. liquid: rrect x22..42, y32..55, #3a2a1f, #5a3a1f 2px highlight at x23..25
   4. collar: rect x26..38, y17..22, #2a1a10 with 1px #5b6470 ring
   5. rubber bulb: ellipse x26..38, y4..18, #4a3a30, 1px #7a6a5a glint at (29,8)
-  6. label: rect x22..42, y36..50 cream #f4f0e0; emblem two crossed pods 1px-wide curves #3a2a1f length 12 forming an X at (32,43), seed speckle 3 dots #f5cf6a
+  6. label: tall OVAL (32,42) r8x9 cream #f4f0e0 with a 1px #c9a96e rim (redraw-C: a rectangle with a V read as an envelope); emblem two 2px pods #3a2a1f / #5a3a1f, length ~16, crossing low in a steep X with a gold #e8a317 tie at the cross (32,45), a small #f5cf6a orchid above at (32,35)
 - joins: black collar is the seam; no edge stitch on glass.
 - face: none.
 - notes: pantry food from the Pantry. Vanilla x2. The only amber-glass bottle; liquid is #3a2a1f so keep the amber body visible as a 2px rim around it. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.

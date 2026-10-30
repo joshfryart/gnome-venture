@@ -598,6 +598,10 @@ function post_update_news(string $from): void
         . "[*]The window bird hops, dust floats in the sunbeam and the yarn ball rolls when your cat pounces.\n"
         . "[*]Buying an upgrade now shows in the room right away.\n"
         . "[*]On phones, the fight and wander card stays in view after each action.[/list]"],
+    '2.2.1' => ['🫙 Update 2.2.1: lots of new Pantry recipes',
+        "[list][*]The Pantry has over a hundred new preserves to make: jams, pickles, sauces, ferments, cordials, dried treats and more, each with its own little picture.\n"
+        . "[*]Preserve prices and timers are fairer, and one-day jars show their spoon bars.\n"
+        . "[*]Fixed: items you are given now keep their quality.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

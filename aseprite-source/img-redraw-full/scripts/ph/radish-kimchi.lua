@@ -1,3 +1,4 @@
+-- Redraw B: radish cubes are 7 px (were 5) with a lit top, shaded side and paste corners, placed off-centre.
 -- ph/radish-kimchi (Pantry kimchi): tall brown onggi crock, sloped shoulders, narrow mouth, pinch-knob lid, red paste runs, radish cubes
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
@@ -29,13 +30,16 @@ c:paint({
 c:paint({ "gg.gg", ".ggg." }, 30, 36, { g = "#2f6a3a" })
 c:fill(c:rect(30, 41, 30, 42), "#fbf6e8")
 c:paint({ "r..r", ".rr.", "..r." }, 31, 44, { r = "#dd3a2a" })
--- radish cubes, red coated, spilt off the lid and shoulders
+-- radish cubes, red coated: big 7 px blocks with a lit top face and a shaded side, spilt on the shoulder and at the foot
 local function rcube(x, y)
-  c:part(c:rect(x, y, x + 4, y + 4), cube, { gloss = false, contact = false, cres = 2, deep = 0 })
-  c:fill(c:rect(x + 3, y, x + 4, y + 1), "#dd3a2a"); c:fill(c:rect(x, y + 3, x + 1, y + 4), "#dd3a2a")
-  c:px(x + 4, y + 4, "#ae2a2a"); c:px(x + 1, y + 1, "#fbf6e8")
+  c:part(c:rect(x, y, x + 6, y + 6), cube, { gloss = false, contact = false, cres = 2, deep = 0, contour = "#2a1a10" })
+  c:fill(c:rect(x, y, x + 6, y + 1), "#f8f2e0")                                   -- lit top face
+  c:fill(c:rect(x + 5, y + 2, x + 6, y + 6), "#d8c49a")                           -- shaded side
+  c:fill(c:rect(x + 4, y, x + 6, y + 2), "#dd3a2a"); c:px(x + 6, y + 3, "#ae2a2a")  -- chili paste on the corner
+  c:fill(c:rect(x, y + 4, x + 2, y + 6), "#dd3a2a"); c:px(x + 3, y + 6, "#ae2a2a")
+  c:px(x + 1, y, "#fbf6e8")
 end
-rcube(16, 20); rcube(43, 23); rcube(41, 9)
+rcube(15, 18); rcube(8, 30); rcube(43, 47)   -- a diagonal tumble down the left, one in front on the right
 c:ground(32, 57, 15, 1.5)
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")

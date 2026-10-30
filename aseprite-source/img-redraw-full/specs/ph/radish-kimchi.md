@@ -8,7 +8,7 @@
   2. foot: rect x 20..44 y 54..58 #3d2a1c
   3. lid: rrect x 24..40, y 10..16 (r2), #9a6b3f, pinch knob r2 #7a4a1f at (32,8)
   4. red drips: from rim: 3px wide #d6322b down to y 28, 22 and y 34, 40
-  5. radish cubes: four 4px squares #f1ece0 with #d6322b coat at (22,36),(41,39),(29,46),(38,48)
+  5. radish cubes: three 7px cubes #f1ece0 with a lit top #f8f2e0, shaded side #d8c49a and #dd3a2a paste corners, umber contour; tumbling down the left shoulder (15,18),(8,30) and one in front at (43,47) (redraw B: 4-5px cubes were too small)
   6. emblem: round radish on belly x 26..38, y 36..50 daikon white #f1ece0 with green top #4f9a45
 - joins: lid sits in mouth y 16.
 - face: none.

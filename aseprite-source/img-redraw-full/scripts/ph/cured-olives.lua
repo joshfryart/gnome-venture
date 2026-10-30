@@ -1,3 +1,5 @@
+-- Redraw B: the five dark olives ringing the shoulder became three big contoured olives (two black, one green)
+-- heaped on the right shoulder.
 -- ph/cured-olives (Pantry preserve): terracotta amphora with two big ear handles, pointed cork, painted olive band, olives heaped at the shoulder
 local D = "/home/user/gnome-venture/aseprite-source/"
 local GV = dofile(D .. "gvlib/gvlib.lua")
@@ -32,11 +34,15 @@ c:paint({
 -- pointed cork in the mouth
 c:part(c:poly({ {28, 15}, {37, 15}, {36, 9}, {33, 6}, {31, 6}, {28, 9} }), "#c9a96e", { gloss = false, cres = 2, deep = 0 })
 c:px(30, 9, "#efdcae"); c:px(34, 11, "#9a6b3f"); c:px(31, 13, "#9a6b3f")
--- olives heaped on the shoulder around the cork
-for _, p in ipairs({ {23, 19}, {28, 17}, {37, 17}, {42, 19}, {32, 20} }) do
-  c:part(c:ellipse(p[1], p[2], 3.5, 3), olive, { gloss = false, contact = false, cres = 2, deep = 0 })
-  c:px(p[1] - 1, p[2] - 1, "#a4b86a")
+-- three big olives heaped off-centre on the right shoulder: two near-black, one green, each with its own umber contour
+-- and a bright glint so they stay separate instead of merging into a dark wreath
+local green = GV.ramp("#7a9a3a", { rim = "#a4b86a", gloss = "#c8d77a", dot = "#e8f0a8", shade = "#4f6a24", deep = "#2f4a1a", bounce = "#5e7a2a" })
+local black = GV.ramp("#4a3550", { rim = "#7a5c8a", gloss = "#a894dc", dot = "#d8c8f0", shade = "#2e2038", deep = "#1e1428", bounce = "#3a2a44" })
+for _, o in ipairs({ { 42, 17, black }, { 47, 22, green }, { 40, 23, black } }) do
+  c:part(c:ellipse(o[1], o[2], 3.5, 3), o[3], { flat = true, contact = false, contour = "#2a1a10" })
+  c:px(o[1] - 1, o[2] - 1, o[3].gloss); c:px(o[1] - 2, o[2] - 1, o[3].rim)
 end
+c:paint({ "..ll", ".ll.", "ll.." }, 44, 12, { l = "#6a8a3a" })   -- leaf on the heap
 c:ground(32, 57, 13, 1.5)
 local P = app.params or {}
 local t = c:save((P.ase or D .. "img-redraw-full/aseprite/ph/") .. N .. ".aseprite", (P.out or "/home/user/gnome-venture/game/assets/img/ph/") .. N .. ".png")

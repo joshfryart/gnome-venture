@@ -9,7 +9,7 @@
   3. liquid: rrect x18..46, y28..55, #e8c070, darker #c89040 crescent
   4. bubbles: five 1px dots #fbf6e8 at (24,36),(28,32),(36,36),(40,44),(26,48)
   5. foil+cork: rect x26..38, y6..14, cork #c9a96e top y6..10, gold foil #e8a317 y10..14; wire cage: 1px #8b8f96 cross at (32,8)-(32,20), loop 8x2 at y15
-  6. label: oval x22..42, y36..50 cream #f4f0e0; emblem ginger root: 3 knobby lobes #c9a96e outlined #7a4a1f, lobes at (27,44),(32,41),(37,44), 1px ring lines #9a6b3f
+  6. label: oval x21..43, y36..52 dark green #2f6a3a with a 1px cream #e8d8b0 rim (redraw-C: a tan root on cream was a low-contrast blob); emblem ginger root 17x9: a knobby pale-tan #e8c080 rhizome with two raised fingers, #f8e6b8 lights, #a8742f ring marks, outlined #4e2a16
 - joins: foil crimp at the neck is the seam; no edge stitch on glass.
 - face: none.
 - notes: pantry food from the Pantry. Ginger x3, sugarcane x1. Bubble dots are #fbf6e8 (never #ffffff); fizzy, not syrupy, so keep the liquid lighter than the cane syrup. Style: no pure #ffffff except one highlight pixel; keep every coordinate within 2..61 (2px edge margin); solid opaque pixels only, no semi-transparent shading; cel shade lower right.
