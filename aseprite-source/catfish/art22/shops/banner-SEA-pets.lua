@@ -97,15 +97,17 @@ local function paddle(bx, by, ang, len, wd)
   return c:poly({ at(0, 0.6), at(0.25, wd), at(0.85, wd), at(1, wd * 0.4), at(1, -wd * 0.4), at(0.85, -wd), at(0.25, -wd), at(0, -0.6) })
 end
 local function banana(bx, dir)
+  local top = 31
   local leaves = {
-    { -math.pi / 2 - 0.75 * dir, 13 }, { -math.pi / 2 + 0.05 * dir, 17 }, { -math.pi / 2 + 0.8 * dir, 13 },
+    { -math.pi / 2 - 1.25 * dir, 12 }, { -math.pi / 2 - 0.45 * dir, 13 }, { -math.pi / 2 + 0.35 * dir, 13 },
+    { -math.pi / 2 + 1.2 * dir, 12 }, { math.pi / 2 - 0.6 * dir, 9 },
   }
-  c:part(c:rect(bx - 1, 36, bx + 1, 46), GREEN, { flat = true })
+  c:part(c:rect(bx - 1, top, bx + 1, 46), GREEN, { flat = true })
   for _, l in ipairs(leaves) do
-    local m = paddle(bx, 38, l[1], l[2], 3)
+    local m = paddle(bx, top, l[1], l[2], 2.4)
     c:part(m, GREEN, { gloss = false })
-    for t = 3, l[2] - 2 do
-      c:px(math.floor(bx + t * math.cos(l[1]) + 0.5), math.floor(38 + t * math.sin(l[1]) + 0.5), "#a4b86a")
+    for t = 2, l[2] - 2 do
+      c:px(math.floor(bx + t * math.cos(l[1]) + 0.5), math.floor(top + t * math.sin(l[1]) + 0.5), "#a4b86a")
     end
   end
 end
