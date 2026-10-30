@@ -6215,3 +6215,25 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .pantry2 .p2det .itm__ic, .pantry2 .p2det .itm__svg, .pantry2 .p2det .itm__svg > svg { width: 32px; height: 32px; }
   .pantry2 .p2det .itm__emo { font-size: 26px; }
 }
+
+/* Pantry sheet, slimmer on phones: one line per ingredient instead of the big squares; smaller title, tighter strip and buttons */
+.pantry2 .p2ingcmp { display: none; }
+@media (max-width: 720px) {
+  .pantry2 .p2det .p2ings { display: none; }
+  .pantry2 .p2ingcmp { display: flex; flex-wrap: wrap; gap: 4px 6px; list-style: none; margin: 8px 0 0; padding: 0; }
+  .pantry2 .p2ingcmp li { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 8px 0 2px; background: var(--surface-2); border: 1px solid var(--line); font-size: 13px; }
+  .pantry2 .p2ingcmp li.short { border-color: var(--danger); }
+  .pantry2 .p2ingcmp li.short b { color: var(--danger-ink); }
+  .pantry2 .p2ingcmp li.ok b { color: var(--brand-ink); }
+  .pantry2 .p2ingcmp .p2ic { width: 28px; height: 28px; font-size: 20px; }
+  .pantry2 .p2ingcmp .p2ic img, .pantry2 .p2ingcmp .p2ic svg { width: 28px; height: 28px; }
+  .pantry2 .p2det { padding: 2px 12px 8px; max-height: 46vh; }
+  .pantry2 .p2sheet > summary { padding-top: 12px; }
+  .pantry2 { --p2-big: 40px; }
+  .pantry2 .p2big img { width: 56px; height: 56px; margin: -8px; }
+  .pantry2 .p2name { font-size: 16px; }
+  .pantry2 .p2fit { margin: 6px 0 0; padding: 4px 8px; font-size: 12.5px; }
+  .pantry2 .p2acts { margin-top: 8px; }
+  .pantry2 .p2make .btn, .pantry2 .p2make .btn[value="1"] { min-height: 40px; padding: 6px; }
+  .pantry2 .p2note { font-size: 13px; }
+}

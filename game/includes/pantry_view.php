@@ -109,6 +109,15 @@ $ingGrid = function (array $r) use ($icons): string {
     }
     return item_grid($sq, 'itms--flush ccings p2ings');
 };
+$ingLine = function (array $r) use ($icons): string {   // phone sheet: one slim line per ingredient instead of the big squares
+    if (!$r['known']) return '';
+    $o = '';
+    foreach ($r['ings'] as $i) {
+        $it = $icons[$i['slug']] ?? null; $ok = (int)$i['have'] >= (int)$i['qty'];
+        $o .= '<li class="' . ($ok ? 'ok' : 'short') . '"><span class="p2ic">' . ($it ? item_icon($it, 'sm', '-') : '❔') . '</span><span class="p2in">' . e((string)$i['name']) . '</span><b>' . ($ok ? '✔ ' : '✖ ') . (int)$i['have'] . '/' . (int)$i['qty'] . '</b></li>';
+    }
+    return '<ul class="p2ingcmp" aria-label="Ingredients">' . $o . '</ul>';
+};
 $when = function (array $r) use ($jarsFree): string {
     $s = pantry_seconds($r);
     return '⏱ <b>' . e(pantry_time_text($s)) . '</b> <span class="muted">· ' . ($jarsFree > 0 ? 'ready ' . e(date('D j M', time() + $s)) . ' in a free jar' : 'no free jar right now') . '</span>';
@@ -191,6 +200,7 @@ $when = function (array $r) use ($jarsFree): string {
       <?php if ($sel['known']): ?><p class="p2fit"><?= $when($sel) ?></p><?php endif; ?>
       <p class="ccingh p2ingh">Ingredients</p>
       <?= $ingGrid($sel) ?>
+      <?= $ingLine($sel) ?>
     </details>
     <div class="p2acts"><?= $make($sel) ?></div>
   </section>
