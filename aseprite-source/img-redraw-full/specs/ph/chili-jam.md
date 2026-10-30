@@ -1,13 +1,14 @@
 # ph/chili-jam
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of chili jam, #d6322b chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #d6322b chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #d6322b and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: A slanted-shoulder jar of sticky red chili jam with a chili-stalk lid knob and flecks of yellow seed.
+- must-read-at-16px: sloping shoulders and a chili stem on the lid.
+- distinct: slanted-shoulder jar (no vertical sides) and a green chili stalk knob; sugar-glinted red fill with yellow seeds. Signature detail: green stalk knob on a sloping shoulder jar.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #d6322b with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar glass: pentagon body x 14..50, y 22..54 with sloped shoulders to neck x 20..44 at y 16, #a9d6ea
+  2. jam fill: inset 2px, #e03a2a with seed flecks #f5cf6a and glaze glints
+  3. label: oval x 22..42, y 34..48, cream; emblem 9px: curled chili #d6322b with green stalk
+  4. lid: rrect x 20..44, y 10..18 (r3), red enamel #a8241f
+  5. stalk knob: green stem x 29..35, y 4..10, #4f9a45
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (chili-pepper x3, bell-pepper x2). Glass lit upper-left, gloss comma at (24,32). Keep #d6322b as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (chili-pepper x3, bell-pepper x2). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

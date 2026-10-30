@@ -1,13 +1,15 @@
 # ph/nectaplum-jam
 - canvas: 64x64, mode icon, 1x.
-- subject: A squat glass jar of nectaplum jam, #c9503a fill, cream label and gold lid; cheerful pantry item.
-- must-read-at-16px: upright jar, #c9503a fill, cream label window and gold cap.
-- distinct: jam is #c9503a with 1px specks; flat gold lid, a small cream label showing a nectaplum mark unlike its siblings.
+- subject: A glass tankard jar with a loop handle of red-orange nectaplum jam closed with a ceramic lid topped by a stone-shaped knob.
+- must-read-at-16px: jar with a loop handle on the right.
+- distinct: only handled jar: 6px loop handle at right; lid is a ceramic cream cap with a pit-shaped knob. Signature detail: loop handle at right and a pit knob.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), pale blue #a9d6ea
-  2. jam fill: rrect x 20..44, y 30..52 (r5), #c9503a
-  3. label: rect x 22..42, y 36..45 (r2), cream #f4f0e0 with 3 short 1px umber dashes
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar glass: rrect x 12..42, y 22..54 (r5), #a9d6ea
+  2. handle: loop x 40..54, y 28..46, 3px thick, #a9d6ea with outline
+  3. jam fill: rrect x 14..40, y 27..52 (r4), #e0603a
+  4. label: rect x 17..37, y 36..46, cream; emblem 8px: split nectaplum, half red #d6322b half peach #f2a05a, brown pit #7a4a1f
+  5. ceramic lid: rrect x 11..43, y 15..24 (r3), #f1ece0
+  6. knob: ellipse x 22..32, y 10..16, #9a6b3f pit with groove
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (nectaplum x4). Glass lit upper-left, gloss comma at (24,32). Keep #c9503a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (nectaplum x4). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

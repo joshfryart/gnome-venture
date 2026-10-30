@@ -1,13 +1,15 @@
 # ph/basil-pesto
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of basil pesto, #4f9a45 chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #4f9a45 chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #4f9a45 and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: A short wide glass jar of green basil pesto with a gold oil layer on top, dark green lid and a basil sprig tucked in the twine.
+- must-read-at-16px: short wide jar with a gold oil layer.
+- distinct: gold oil layer on top of dark green pesto and a basil sprig tucked into twine; the lowest, widest jar. Signature detail: gold oil layer and basil sprig.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #4f9a45 with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar glass: rrect x 11..53, y 32..54 (r5), #a9d6ea
+  2. pesto fill: rrect x 13..51, y 38..52 (r4), #4a7a30
+  3. oil layer: rect x 13..51, y 35..39, #e8c030 with bubble pixels
+  4. label: rect x 20..44, y 42..52, cream; emblem 8px: two basil leaves #4f9a45
+  5. lid: rrect x 10..54, y 24..34 (r3), dark green #2f5a2a
+  6. twine and sprig: 1px #c9a96e at y 33, basil sprig x 48..56, y 16..32, #4f9a45
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (basil x3, garlic x1, almond x1). Glass lit upper-left, gloss comma at (24,32). Keep #4f9a45 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (basil x3, garlic x1, almond x1). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

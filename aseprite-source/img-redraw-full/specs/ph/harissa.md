@@ -1,13 +1,14 @@
 # ph/harissa
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of harissa, #a8241f chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #a8241f chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #a8241f and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: A tagine-shaped red-clay pot of smoky harissa with a tall cone lid and a smear around the rim.
+- must-read-at-16px: wide flat dish with a tall cone lid.
+- distinct: tagine silhouette: low wide dish plus a tall cone lid; the only conical lid; red-brown glazed clay. Signature detail: cone lid.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #a8241f with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. dish: rrect x 8..56, y 42..54 (r4), glazed clay #a8501f
+  2. cone lid: triangle x 14..50 at y 42, tip (32,10), #c0602a with highlight #e0803a
+  3. rim ring: rect x 12..52, y 40..44, #7a3a1f
+  4. harissa smear: blob x 16..30, y 44..48, #a8241f
+  5. label: rect x 20..44, y 46..52, cream; emblem 8px: two crossed chilies #d6322b and bell pepper #e0501f
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (chili-pepper x4, bell-pepper x2, cumin x1). Glass lit upper-left, gloss comma at (24,32). Keep #a8241f as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (chili-pepper x4, bell-pepper x2, cumin x1). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

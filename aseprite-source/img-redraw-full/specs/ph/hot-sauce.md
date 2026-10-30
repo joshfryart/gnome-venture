@@ -1,13 +1,14 @@
 # ph/hot-sauce
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of hot sauce, #d6322b chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #d6322b chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #d6322b and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: A small woozy glass bottle of fiery red hot sauce with a red shaker cap and a flame label.
+- must-read-at-16px: small narrow-necked bottle with a red cap and flame label.
+- distinct: bottle with a long neck and a flame-edged label; only small bottle with a red drop at the neck. Signature detail: red cap and neck on a small bottle.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #d6322b with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. bottle glass: body x 20..44, y 28..54 (r6), neck x 27..37, y 14..30, #a9d6ea
+  2. sauce fill: inset 2px, #d6322b with glint column x 22
+  3. label: rect x 22..42, y 34..48, cream; emblem 9px: chili in a flame ring #e0501f / #f08a24
+  4. cap: rrect x 25..39, y 6..16 (r2), #d6322b with a hole pixel (32,8)
+  5. drop: 2px drop at (34,18), #d6322b
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (chili-pepper x6, garlic x1). Glass lit upper-left, gloss comma at (24,32). Keep #d6322b as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (chili-pepper x6, garlic x1). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

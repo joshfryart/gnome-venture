@@ -1,13 +1,14 @@
 # ph/cloudberry-jam
 - canvas: 64x64, mode icon, 1x.
-- subject: A squat glass jar of cloudberry jam, #e8a317 fill, cream label and gold lid; cheerful pantry item.
-- must-read-at-16px: upright jar, #e8a317 fill, cream label window and gold cap.
-- distinct: jam is #e8a317 with 1px specks; flat gold lid, a small cream label showing a cloudberry mark unlike its siblings.
+- subject: A low round pot of amber cloudberry jam sealed with a golden wax cap that drips down one side.
+- must-read-at-16px: low round pot with a thick amber wax seal and one drip.
+- distinct: wax-sealed: lumpy #e8a317 wax cap with a 2px drip on the right, low rounded body; jam amber #f0a030. Signature detail: wax drip down the right side.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), pale blue #a9d6ea
-  2. jam fill: rrect x 20..44, y 30..52 (r5), #e8a317
-  3. label: rect x 22..42, y 36..45 (r2), cream #f4f0e0 with 3 short 1px umber dashes
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. pot glass: rrect x 13..51, y 30..54 (r9), #a9d6ea
+  2. jam fill: rrect x 15..49, y 34..52 (r7), amber #f0a030
+  3. label: circle r5 at (32,43), cream; emblem 7px: cloudberry, lumpy golden drupe berry #e8a317 with 4 sepal ticks #4f9a45
+  4. wax seal: lumpy dome x 14..50, y 20..32, #e8a317 with highlight #f5cf6a
+  5. drip: x 46..49, y 30..38, wax #e8a317 ending in a round bead
+- joins: wax overhangs the glass rim by 1px; drip hangs over glass.
 - face: none.
-- notes: pantry food from the Pantry (cloudberry x5). Glass lit upper-left, gloss comma at (24,32). Keep #e8a317 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (cloudberry x5). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

@@ -1,13 +1,14 @@
 # ph/rhubarb-chutney
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of rhubarb chutney, #c84a5a chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #c84a5a chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #c84a5a and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: A flat pocket-flask jar of pink-brown rhubarb chutney with a narrow brass cap and a pink waxed thread.
+- must-read-at-16px: flat flask with rounded shoulders and a narrow neck.
+- distinct: flask silhouette: broad flat body with sloping shoulders and a narrow neck; brass cap; pink-brown fill. Signature detail: flask body with narrow neck.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #c84a5a with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. flask glass: body x 13..51, y 24..54 with shoulders sloping to neck x 25..39, y 12..24, #a9d6ea
+  2. chutney fill: inset 2px, #b0604a with pink stalk bits #e46a9b
+  3. label: rect x 21..43, y 34..48, cream; emblem 8px: rhubarb leaf and stalk, red-pink stalk #d6322b
+  4. cap: rrect x 24..40, y 6..14 (r2), brass #b07a10
+  5. thread: 1px #e46a9b around neck y 20, tail to (44,28)
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (rhubarb x3, onion x1, ginger x1). Glass lit upper-left, gloss comma at (24,32). Keep #c84a5a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (rhubarb x3, onion x1, ginger x1). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

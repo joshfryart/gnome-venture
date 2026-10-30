@@ -1,13 +1,14 @@
 # ph/peach-jam
 - canvas: 64x64, mode icon, 1x.
-- subject: A squat glass jar of peach jam, #f2a65a fill, cream label and gold lid; cheerful pantry item.
-- must-read-at-16px: upright jar, #f2a65a fill, cream label window and gold cap.
-- distinct: jam is #f2a65a with 1px specks; flat gold lid, a small cream label showing a peach mark unlike its siblings.
+- subject: A round blush-gold pot of peach jam in a scalloped paper cap tied with red string.
+- must-read-at-16px: short round pot under a pink scalloped paper cap.
+- distinct: scalloped paper cap #f6b8cf with red string, unlike apricot-jam's gold screw lid; fill is peach blush #f2a05a. Signature detail: scalloped paper cap hem.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), pale blue #a9d6ea
-  2. jam fill: rrect x 20..44, y 30..52 (r5), #f2a65a
-  3. label: rect x 22..42, y 36..45 (r2), cream #f4f0e0 with 3 short 1px umber dashes
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. pot glass: rrect x 15..49, y 26..54 (r9), #a9d6ea
+  2. jam fill: rrect x 17..47, y 31..52 (r7), #f2a05a with 1px #f5cf6a lights
+  3. label: rect x 22..42, y 38..48 (r2), cream; emblem 8px: peach with centre cleft #d6322b-tint line and one leaf #4f9a45
+  4. paper cap: dome x 13..51, y 14..30, #f6b8cf with 6 scallop bumps at hem, 1px fold lines #e46a9b
+  5. string: 1px #d6322b at y 29, two tails to (46,36) and (49,34)
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (peach x5). Glass lit upper-left, gloss comma at (24,32). Keep #f2a65a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (peach x5). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

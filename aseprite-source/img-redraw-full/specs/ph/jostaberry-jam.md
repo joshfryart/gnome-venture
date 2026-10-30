@@ -1,13 +1,13 @@
 # ph/jostaberry-jam
 - canvas: 64x64, mode icon, 1x.
-- subject: A squat glass jar of jostaberry jam, #3a2a4a fill, cream label and gold lid; cheerful pantry item.
-- must-read-at-16px: upright jar, #3a2a4a fill, cream label window and gold cap.
-- distinct: jam is #3a2a4a with 1px specks; flat gold lid, a small cream label showing a jostaberry mark unlike its siblings.
+- subject: A waisted hourglass-shaped jar of dark jostaberry jam sealed with a crown cap.
+- must-read-at-16px: pinched waist in the middle of the jar and a ridged crown cap.
+- distinct: only pinched-waist silhouette: wide shoulder, narrow waist, wide base; crown cap #8b8f96 with scalloped edge; fill black-purple with green gooseberry rind tint at top. Signature detail: waist pinch and scalloped crown cap.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), pale blue #a9d6ea
-  2. jam fill: rrect x 20..44, y 30..52 (r5), #3a2a4a
-  3. label: rect x 22..42, y 36..45 (r2), cream #f4f0e0 with 3 short 1px umber dashes
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar glass: hourglass x 15..49 at y 22 and y 52, waist x 22..42 at y 38, neck 22..42 y 14..22, #a9d6ea
+  2. jam fill: same inset 2px, #3a2850; top 4px band #5a7a40
+  3. label: rect x 23..41, y 30..46, cream; emblem 8px: dark berry with 3 vertical green stripes and whisker tip
+  4. crown cap: rect x 20..44, y 8..16 (r1), #8b8f96 with 6 scallops at the base and 1px ridges
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (jostaberry x4). Glass lit upper-left, gloss comma at (24,32). Keep #3a2a4a as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (jostaberry x4). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

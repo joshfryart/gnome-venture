@@ -1,13 +1,14 @@
 # ph/pineapple-chutney
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of pineapple chutney, #e8a317 chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #e8a317 chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #e8a317 and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: An oval jar embossed with a diamond grid like pineapple skin, golden chutney inside and a spiky leaf crown for a lid.
+- must-read-at-16px: spiky green crown on top of an oval gold jar.
+- distinct: leaf crown lid (5 spiky leaves) over a diamond-grid oval jar; only lid shaped like a plant crown with spikes. Signature detail: spiky crown lid.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #e8a317 with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. jar glass: ellipse x 14..50, y 22..54, #a9d6ea with diamond grid lines #c9e6f2 every 6px
+  2. chutney fill: ellipse inset 2px, #e8b830 with chili flecks #d6322b
+  3. label: rect x 24..40, y 34..46, cream; emblem 9px: pineapple body #e8b830 with green crown, grid dots
+  4. lid base: rrect x 22..42, y 16..24 (r2), #4f9a45
+  5. crown: 5 spiky leaves x 20..44, y 4..18, #4f9a45 / #2f5a2a
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (pineapple x2, chili-pepper x1, ginger x1). Glass lit upper-left, gloss comma at (24,32). Keep #e8a317 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (pineapple x2, chili-pepper x1, ginger x1). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.

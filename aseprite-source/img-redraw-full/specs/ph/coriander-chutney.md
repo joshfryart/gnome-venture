@@ -1,13 +1,15 @@
 # ph/coriander-chutney
-- canvas: 64x64, mode sticker, 1x.
-- subject: A glass jar of coriander chutney, #4f9a45 chunky fill, gold lid and cream label; hearty pantry item.
-- must-read-at-16px: tall jar, #4f9a45 chunky fill, gold lid, cream label.
-- distinct: chunky fill with visible 2px pieces in #4f9a45 and a darker shade; a hint of spice flecks #f5cf6a.
+- canvas: 64x64, mode icon, 1x.
+- subject: A pedestal-footed jar of bright green coriander chutney with a flat gold lid and a fresh leaf poking out.
+- must-read-at-16px: jar on a foot with leaves at the top.
+- distinct: stemmed pedestal foot below the jar and a coriander leaf on the lid; the only footed jar. Signature detail: pedestal foot and a leaf on the lid.
 - parts (back to front):
-  1. jar glass: rrect x 18..46, y 22..54 (r7), #a9d6ea
-  2. fill: rrect x 20..44, y 30..52 (r5), #4f9a45 with darker chunks
-  3. label: rect x 22..42, y 36..45, #f4f0e0 with two rows of 1px ticks
-  4. lid: rrect x 17..47, y 14..24 (r4), gold #e8a317
-- joins: thread-gold seam along the lid/cap base; no edge stitch on glass.
+  1. foot: rect x 22..42, y 52..58 (r2), #a9d6ea; stem x 28..36, y 48..53
+  2. jar glass: rrect x 14..50, y 20..50 (r8), #a9d6ea
+  3. chutney fill: inset 2px, #4f9a45 with flecks #a4b86a
+  4. label: rect x 22..42, y 30..42, cream; emblem 8px: ruffled coriander leaf with three lobes
+  5. lid: rrect x 15..49, y 12..22 (r3), gold #e8a317
+  6. leaf: lobed x 30..42, y 4..14, #7ab55c
+- joins: thread-gold seam along the lid base; no stitch on glass.
 - face: none.
-- notes: pantry food from the Pantry (coriander x3, chili-pepper x1, lime x1). Glass lit upper-left, gloss comma at (24,32). Keep #4f9a45 as the dominant colour so it reads against sibling preserves.
+- notes: pantry food from the Pantry (coriander x3, chili-pepper x1, lime x1). Own jar, lid and label emblem, no recolour of a sibling. Cel-shade lower right, gloss upper-left, umber #2a1a10 outline, cream #f4f0e0 label. No pure #ffffff except one highlight pixel; keep coordinates within 2..61 (2px edge margin); no semi-transparent pixels. Keep the ingredient colour dominant.
