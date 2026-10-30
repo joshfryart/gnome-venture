@@ -1341,6 +1341,29 @@ ok "pets: the setup is idempotent (a second run adds nothing)" "$(pp 'petshops_e
 ok "pets: no code path gives Petals (no give_petals in the pets file, no petal effect in the data)" "$(grep -c 'give_petals' $GAME/includes/catfish_pets.php)$(pp 'echo count(array_filter(CATFISH_PET_ITEMS, fn($i) => isset($i["effect"]["petals"]) || isset($i["effect"]["coins"])));')" "00"
 ok "pets: the numbers are admin settings (uses a day, pop minutes, Yarn a week, slot hours, caps, price percent, shops on)" "$(for k in catfish_pet_uses_day catfish_pet_pop_min_day catfish_pet_yarn_week catfish_pet_slot_hours catfish_pet_cap_away catfish_pet_cap_show catfish_pet_cap_rare catfish_pet_cap_catnip catfish_pet_price_pct catfish_pet_shops_open; do grep -c "'$k' =>" $GAME/includes/functions.php; done | tr -d '\n')" "1111111111"
 
+# the installed art (repo game/assets/img, not the test copy): a missing item, banner or bust PNG, or a wrong size, fails
+petart_chk() { pp 'echo json_encode(["i" => array_map(fn($i) => $i["type"], CATFISH_PET_ITEMS), "s" => array_map(fn($s) => str_replace("_", "-", $s["keeper_slug"]), CATFISH_PET_SHOPS), "z" => array_column(CATFISH_PET_SLOTS, null, "type")]);' | python3 -I -c "$(cat <<'PY'
+import sys, json, os
+from PIL import Image
+import numpy as np
+d = json.load(sys.stdin); R = "game/assets/img"; bad = []
+def chk(f, wh):
+    try: im = Image.open(f).convert("RGBA")
+    except Exception: bad.append(f); return
+    a = np.array(im)[..., 3]
+    if im.size != tuple(wh) or set(np.unique(a)) - {0, 255}: bad.append(f)
+for k, t in d["i"].items(): chk("%s/catfish/cf-pet-%s.png" % (R, k), (d["z"][t]["w"], d["z"][t]["h"]))
+for c, s in d["s"].items(): chk("%s/catfish/banner-%s-pets.png" % (R, c), (480, 120)); chk("%s/ph/npc-%s.png" % (R, s), (80, 100))
+stray = [f for f in os.listdir(R + "/catfish") if (f.startswith("cf-pet-") and f[7:-4] not in d["i"]) or (f.startswith("banner-") and f[7:-9] not in d["s"])]
+print(len(d["i"]), len(d["s"]), len(bad), len(stray), bad[:3], stray[:3])
+PY
+)"; }
+ok "pets art installed: 55 cf-pet-<key>.png at their slot size, 11 banner-<CODE>-pets.png at 480x120 (catfish folder), 11 busts npc-<keeper-slug-with-hyphens>.png at 80x100 (ph folder), alpha 0/255, no stray cf-pet or pets-banner file" "$(petart_chk)" "55 11 0 0 [] []"
+BN=$GAME/assets/img/catfish/banner-CB-pets.png; BU=$GAME/assets/img/ph/npc-coral-pennyfeather.png
+pbn() { pp 'echo strpos(petshop_banner_html("CB", "X"), "catfish/banner-CB-pets.png") !== false ? "png" : "fallback", "/", strpos(npc_portrait(["name" => "C", "slug" => "coral-pennyfeather", "species" => "Gnome", "image" => ""]), "ph/npc-coral-pennyfeather.png") !== false ? "bust" : "nobust";'; }
+PB1=$(pbn); mv $BN $BN.x; mv $BU $BU.x; PB2=$(pbn); mv $BN.x $BN; mv $BU.x $BU
+ok "pets art: with the files the shop shows the banner PNG and the keeper bust PNG from ph/ (no admin upload: npcs.image stays empty); without them it falls back as before (placeholder or name box, never an error)" "$PB1 $PB2/$(dbv "SELECT COUNT(*) FROM npcs WHERE slug='coral-pennyfeather' AND COALESCE(image,'')=''")" "png/bust fallback/nobust/1"
+
 # --- buying: needs the region (shop_reachable), Petals only, one row in catfish_items, never user_items
 CBSHOP=$(shopid cb); UI0=$(dbv "SELECT COUNT(*) FROM user_items"); gold 50000
 ok "pets shop page: reachable or not it lists the shop's five things, the keeper and no inline style; away from the region the buttons are off" "$(curl -s -b $W/p $BASE/shop.php?id=$CBSHOP > $W/ps.html; grep -c 'Coral Pennyfeather' $W/ps.html | tr -d '\n')/$(grep -o 'name="item" value="[a-z_]*"' $W/ps.html | wc -l | tr -d ' ')/$(grep -c 'style=' $W/ps.html)/$(grep -o 'name="item" value="[a-z_]*"[^>]*><button class="btn" type="submit" disabled' $W/ps.html | wc -l | tr -d ' ')" "1/5/0/5"
@@ -1567,7 +1590,7 @@ if node -e "require('playwright')" 2>/dev/null; then
   for k in amphora conch_shell bonsai chai_stall_sign steel_pan_chime hammock_net calabash_bowl lemon_on_a_string; do own $k; done
   metaset '$m["slotn"]=["ceiling","rod"]; $m["slots"]=["1"=>"amphora","2"=>"conch_shell","3"=>"bonsai","4"=>"chai_stall_sign","5"=>"steel_pan_chime","6"=>"hammock_net","7"=>"calabash_bowl","8"=>"lemon_on_a_string"];'
   dbx "UPDATE catfish_items SET slotted_at=$(( $(date +%s) - 7200 )) WHERE user_id=$UID_"; dbx "UPDATE catfish_state SET last_tick=$(date +%s) WHERE user_id=$UID_"
-  PETOUT=$(SHOTS=${PETSHOTS:-} NODE_PATH=${NODE_PATH:-} node tests/catfish_pets.js $BASE 2>&1); echo "$PETOUT"
+  PETOUT=$(PETSHOPS=$(shopid cb),$(shopid oc) SHOTS=${PETSHOTS:-} NODE_PATH=${NODE_PATH:-} node tests/catfish_pets.js $BASE 2>&1); echo "$PETOUT"
 else echo "ok   pets browser pass: skipped (no playwright)"; fi
 dbx "DELETE FROM settings WHERE name LIKE 'catfish_pet_%'"
 

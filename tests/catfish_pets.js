@@ -46,6 +46,15 @@ const out = []; const ok = (name, got, want) => out.push((got === want ? 'ok   '
   ok('pets browser: the Room things panel is the only open panel, with a form per open spot', await p.evaluate(() => [].filter.call(document.querySelectorAll('.cfpanel'), e => !e.hidden).map(e => e.id).join() + ':' + document.querySelectorAll('#cf-p-pets form.cfpetform select[name=item]').length), 'cf-p-pets:8');
   ok('pets browser: no page overflow sideways at 390 px', await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   if (process.env.SHOTS) { await (await p.$('.cfhub')).scrollIntoViewIfNeeded(); await p.screenshot({ path: process.env.SHOTS + '/hub-390-dark.png', fullPage: false }); await (await p.$('#cf-p-pets')).screenshot({ path: process.env.SHOTS + '/panel-390-dark.png' }); }
+  // the pet shop pages (PETSHOPS=id,id,...): the real banner (480 x 120) and keeper bust (80 x 100) are loaded images, not placeholders; no sideways overflow
+  for (const id of (process.env.PETSHOPS || '').split(',').filter(Boolean)) {
+    await p.goto(B + '/shop.php?id=' + id); await p.waitForTimeout(600);
+    ok('pets browser: shop ' + id + ' shows its banner PNG 480x120, the keeper bust PNG 80x100 and 5 things with sprites', await p.evaluate(() => {
+      var b = document.querySelector('.cfpbanner img'), k = document.querySelector('.cfpportrait img'), t = document.querySelectorAll('.cfpetimg');
+      return [b && b.complete && b.naturalWidth + 'x' + b.naturalHeight, k && k.complete && k.naturalWidth + 'x' + k.naturalHeight, t.length, [].every.call(t, function (i) { return i.complete && i.naturalWidth > 0; }), document.documentElement.scrollWidth <= window.innerWidth].join(' ');
+    }), '480x120 80x100 5 true true');
+    if (process.env.SHOTS) await p.screenshot({ path: process.env.SHOTS + '/shop-' + id + '-390-dark.png', fullPage: true });
+  }
   // reduced motion: the pip stops, nothing moves
   const c2 = await br.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' }); const p2 = await c2.newPage();
   p2.on('pageerror', e => errs.push(String(e)));
