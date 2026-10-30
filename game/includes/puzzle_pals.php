@@ -789,7 +789,7 @@ function ppal_howto_html(): string
     $jig = jigsaw_open() ? '<a href="' . e(url('jigsaw.php')) . '">Jigsaw</a>' : 'Jigsaw';
     return '<div class="palhowto"><b>How to meet your first pals</b><ol>'
         . '<li>Play a ' . $jig . ' picture and finish it at <b>Advanced</b> size (or Expert). That sets the picture’s six pals free.</li>'
-        . '<li>Then keep going about your day. A freed pal now and then turns up on an ordinary page, in a little box. Tap it to catch it.</li>'
+        . '<li>' . (ppal_find_mode() === 'map' ? 'Then look at the <b>World map</b>. A freed pal waits at a place, shown as its sticker. Walk there and say hello. Rarer pals wait in tougher places.' : 'Then keep going about your day. A freed pal now and then turns up on an ordinary page, in a little box. Tap it to catch it.') . '</li>'
         . '<li>Caught pals live in your <a href="' . e(url('puzzlepals.php')) . '">Pal Book</a>. Pick up to ' . ppal_party_max() . ' to take along here on My Gnome.</li></ol>'
         . '<small>Each new picture you finish at Advanced frees six more pals.</small></div>';
 }

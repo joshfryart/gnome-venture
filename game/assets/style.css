@@ -5887,6 +5887,8 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .ppalemo { font-size: 40px; line-height: 64px; text-align: center; width: 64px; }
 .eventbox.ppalfind, .eventbox.ppalgot { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
 .ppalfind .evbody, .ppalgot .evbody { width: 100%; }
+.ppalhere { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.ppalhere .evbody { width: 100%; }
 .ppalfind .evbtns { justify-content: center; }
 .ppalgot ul { list-style: none; padding: 0; }
 .ppalrar { display: inline-block; padding: 0 8px; font-size: .75rem; font-weight: 700; line-height: 1.5; letter-spacing: .03em; text-transform: uppercase; background: var(--pr, var(--r-c)); color: var(--on-fill); }

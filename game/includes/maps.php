@@ -605,7 +605,7 @@ function region_map_svg(array $u, int $regionId, int $selId = 0, bool $focus = f
         $inner = '<g class="ms">' . $inner . '</g>';
         $g = '<g class="rmp k-' . $k . ($isMe ? ' here' : '') . (isset($onRoute[$id]) && !$isMe ? ' onroute' : '') . ($seen ? '' : ' new') . '" transform="translate(' . $x . ' ' . $y . ')">';
         $g .= $isMe ? '<g aria-current="location">' . $inner . '</g>'
-            : '<a href="' . e(url('world.php?go=' . $id . '#gopanel')) . '" aria-label="' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name) . '">' . $inner . '</a>';
+            : '<a href="' . e(url('world.php?go=' . $id . '#gopanel')) . '" aria-label="' . e(($isFar ? 'Road on to ' . $it['farname'] . ': ' : '') . $name . (isset($pp[$id]) ? ' · a Puzzle Pal waits here' : '')) . '">' . $inner . '</a>';
         $g .= '</g>';
         if ($isMe) $top .= $g; else $svg .= $g;   // you, on top
     }
