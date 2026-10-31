@@ -1,6 +1,6 @@
 # Handoff + TODO: Crafting "area map" (replaces category dropdown)
 
-Branch: `ccr-187536d6-6139q1`. Status: PLAN ONLY. No code written yet.
+Branch: `ccr-187536d6-6139q1`. Status: DONE in 2.3.6 (on main `d7734e6b`). Built as option A grown into drawn scenes with tappable objects; see `claude/todo.md` NOW block. TODO list below is kept as the record; all items done except: no MySQL run, no phone check by the owner.
 
 ## Problem
 Satchel → Crafting picks a category via native `<select>` (Cooking, Pantry, Tools, Garden supplies, Potions, Building, Yard & decor). Owner wants a graphical, tappable representation of these areas.
