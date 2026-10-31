@@ -13,6 +13,7 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/delve_route.php';
+require_once __DIR__ . '/delve_stamp.php';
 
 /** Floor objects by node kind for a generated floor (the last spot is the farthest room: the way down E, or the guardian B). */
 const DV2_GEN = [
@@ -81,10 +82,11 @@ function dv2_save(array $sc): void
     q('UPDATE walk_scene SET x = ?, y = ?, seen = ?, state = ?, updated_at = ? WHERE id = ?', [$sc['x'], $sc['y'], $sc['seen'], json_encode($sc['st']), now(), $sc['row']['id']]);
 }
 
-/** A floor made from a seed (no authored floor for it): a cave from tm_gen with the objects of the node kind put in its rooms. */
-function dv2_gen_floor(string $seed, string $tier, string $kind): array
+/** A floor made from a seed (no authored floor for it): stamped from the delve's chambers when it has them, else a cave from tm_gen. The objects of the node kind are put on it. */
+function dv2_gen_floor(string $seed, string $tier, string $kind, string $slug = ''): array
 {
     $objs = DV2_GEN[$kind] ?? DV2_GEN['fight'];
+    if ($slug !== '' && ($st = ds_floor($seed, $slug, $tier, $objs))) return $st;
     $codes = array_map('strval', range(1, count($objs)));
     $m = tm_gen($seed, DV_TIERS[$tier], $codes, 1);
     $rows = [];
@@ -99,7 +101,7 @@ function dv2_gen_floor(string $seed, string $tier, string $kind): array
 /** The map of a floor state: an authored floor from the pool, or a generated one. */
 function dv2_floor_map(array $f): ?array
 {
-    if (($f['k'] ?? '') === 'g') return dv2_gen_floor((string)$f['gs'], (string)$f['ti'], (string)$f['kd']);
+    if (($f['k'] ?? '') === 'g') return dv2_gen_floor((string)$f['gs'], (string)$f['ti'], (string)$f['kd'], (string)($f['sl'] ?? ''));
     $all = dv_floors();
     return isset($all[$f['k']]) ? $all[$f['k']]['map'] : null;
 }
@@ -164,7 +166,7 @@ function dv2_pick(array $u, array &$exp, array &$sc, string $nodeId): array
         $f = ['k' => $pickFloor['key'], 'ti' => dv_floors()[$pickFloor['key']]['tier'], 'kd' => $node['kind']];
         $sc['st']['u'][] = $pickFloor['key'];
     } else {
-        $f = ['k' => 'g', 'gs' => $sc['st']['rs'] . '|' . $nodeId, 'ti' => $tier, 'kd' => $node['kind']];
+        $f = ['k' => 'g', 'gs' => $sc['st']['rs'] . '|' . $nodeId, 'ti' => $tier, 'kd' => $node['kind'], 'sl' => dv2_slug((array)$sc['lm'])];
     }
     $f += ['n' => $nodeId, 't' => dv2_fuel($uid, $f['ti']), 'got' => [], 'key' => 0];
     $sc['st']['f'] = $f;

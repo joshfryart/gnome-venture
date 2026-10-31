@@ -1,0 +1,2 @@
+# Delve chambers (v2.3.1). A floor is 4 chambers stamped in a 2x2 grid (see includes/delve_stamp.php). Format: "@slug/name", "size: 3|5|6", "tags:", rows of # . , W.
+# slug 'any' = shared by delves with none of their own. Check with: php tools/lint_delve_chambers.php
