@@ -1,0 +1,1 @@
+{"excludes": ["aseprite-source", "opus-test-run", "game/assets", "screenshots", "claude/art-variants", "claude/pals-sheets", "claude/art22-sheets", "docs/satchel-mockups", "docs/screens", "docs/pantry-mockups", "*.png", "*.gif", "*.jpg", "*.jpeg", "*.webp", "*.aseprite", "tests/manifests", "tests/ico_src", "claude/art-briefs", "*.svg"], "gitignore": true}
