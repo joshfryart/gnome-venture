@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gnome Venture: delve redesign mockups</title>
+<style>
+:root{--bg:#f6f1e7;--card:#fffdf8;--ink:#2b2a26;--mute:#6b675c;--line:#ddd3bf;--acc:#2e7d4f}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1b18;--card:#262420;--ink:#f0eadc;--mute:#a49d8c;--line:#3a372f;--acc:#7cc99a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:26px;margin:0 0 4px} .sub{color:var(--mute);margin:0 0 24px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+nav a{padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;background:var(--card)}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:24px}
+h2{margin:0 0 4px;font-size:20px} .tag{color:var(--acc);font-weight:700}
+ul{margin:8px 0 14px;padding-left:20px} li{margin:2px 0}
+.shots{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:760px){.shots{grid-template-columns:minmax(0,300px) minmax(0,1fr);align-items:start}}
+figure{margin:0} figcaption{font-size:13px;color:var(--mute);margin-top:4px}
+img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}
+.meta{font-size:14px;color:var(--mute)}
+</style></head><body><main>
+<h1>Delve redesign: 4 mockups</h1>
+<p class="sub">Phone (left) and desktop (right) for each idea. Static mockups, no game code changed. Files: <code>claude/delve-mockups/</code> on branch <code>ccr-5e82e48d-1d6u8o</code>.</p>
+<nav><a href="#m1">1 Tile map</a><a href="#m2">2 Dig down</a><a href="#m3">3 Route map</a><a href="#m4">4 Diorama</a></nav>
+
+<section id="m1"><h2><span class="tag">1</span> Tile map</h2>
+<ul><li>15×15 cave floor, fog lifts as you walk, torch lights 3 tiles</li><li>Keys, locked door, tripwires, shrine, chests, a way down</li><li>Torch burns per step (replaces energy per room)</li></ul>
+<p class="meta">Effort L · M step: keep the 5 rooms, add torch, fog and floor finds</p>
+<div class="shots"><figure><img src="1-tilemap-phone.png" alt="Tile map on phone"><figcaption>Phone</figcaption></figure><figure><img src="1-tilemap-desktop.png" alt="Tile map on desktop"><figcaption>Desktop</figcaption></figure></div></section>
+
+<section id="m2"><h2><span class="tag">2</span> Dig down</h2>
+<ul><li>Side cut-away of 5 earth layers, depth gauge is the hero</li><li>Dig, tunnel or rope down; light is the resource</li><li>Climb out or press on: loot is Safe or At risk (new: you can lose it)</li></ul>
+<p class="meta">Effort L · M step: same 5 rooms reskinned as layers, no loss, no pals</p>
+<div class="shots"><figure><img src="2-dig-down-phone.png" alt="Dig down on phone"><figcaption>Phone</figcaption></figure><figure><img src="2-dig-down-desktop.png" alt="Dig down on desktop"><figcaption>Desktop</figcaption></figure></div></section>
+
+<section id="m3"><h2><span class="tag">3</span> Route map</h2>
+<ul><li>Branching chambers: fight, treasure, shrine, puzzle, mole merchant, boss</li><li>Each room has 3 real choices (fight, hum to sleep, offer a glowcap)</li><li>Delve moods (Grotto, Mine, Flooded); replay and pal-run views</li></ul>
+<p class="meta">Effort L · moods need writing for 14 delves · M version in its README</p>
+<div class="shots"><figure><img src="3-route-map-phone.png" alt="Route map on phone"><figcaption>Phone</figcaption></figure><figure><img src="3-route-map-desktop.png" alt="Route map on desktop"><figcaption>Desktop</figcaption></figure></div></section>
+
+<section id="m4"><h2><span class="tag">4</span> Diorama <span class="meta">(recommended)</span></h2>
+<ul><li>One illustrated cave scene with 5 hotspots plus a hidden one</li><li>Lantern-oil clock: quiet play refills, loud play wakes the beetle</li><li>Fight happens inside the scene; pals stand beside the gnome</li></ul>
+<p class="meta">Effort L · M: a slice · reuses the existing scene pattern</p>
+<div class="shots"><figure><img src="4-diorama-phone.png" alt="Diorama on phone"><figcaption>Phone</figcaption></figure><figure><img src="4-diorama-desktop.png" alt="Diorama on desktop"><figcaption>Desktop (fight)</figcaption></figure></div></section>
+</main></body></html>
