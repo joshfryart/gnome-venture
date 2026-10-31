@@ -99,3 +99,41 @@ Full CI list on SQLite, a MySQL run (never done for `ppal_jobs`, `ppal_found`, `
 3. Is splitting `style.css` into several files acceptable given the CanSpace host and the one-file convention in README?
 4. Which unchecked-on-phone items from todo.md should block the first polish release?
 5. Any pages you already know look worst (to bring forward in Phase 3)?
+
+## 7. Where consolidating pages, features or locations makes sense
+
+Evidence: `game/includes/layout.php` `nav_sheet()` (menu groups and the 5-tab phone bottom bar), the 82 top-level pages in `game/`, tab parameters in each page, the graph's section bridges and the UI consolidation PDF. Counts are from a grep of this checkout, not from player analytics. Ranked by payoff over risk. Every merge keeps the old URL as a redirect (the repo already does this: `kitchen.php`, `passport.php`, `seasons.php`, `crafting.php` are redirect stubs).
+
+### A. Strong candidates
+
+1. **Villagers: seven surfaces, one component.** `villagers.php` (14 inbound links), `folk.php` (20), `stopfolk.php` (overlay JSON), `town.php?view=villagers`, `world.php?view=villagers`, `gnome.php?view=villagers`, `book.php?view=villagers`, plus the rest-stop villager card in `stops.php`/`local.php`. One `villager_list_html` in `place_ui.php` (already planned in the PDF), one page, the rest become tabs or redirects. Menu tile "Villagers" stays; the three `?view=villagers` aliases go.
+2. **Go/Here/World: three menu tiles and a bottom tab for one idea.** Menu has World, Here and Villagers under "Out & about"; the bottom bar has World and Here. Where-to-next, the GPS panel and the chip row repeat the navigation. Recommendation: one "World" entry with tabs Go, Map, Gather, Shops. "Here" becomes the first tab, not a tile. Frees a bottom-bar slot for Games or Pals. (The PDF decision "is Here top-level?" is this.)
+3. **Orders in three places.** `jobs.php?t=orders`, `town.php?t=orders` and `marketday.php?t=orders`. Pick Tasks > Orders as the single home and make the other two a short summary with a link.
+4. **Contests and fairs: five pages, one hub.** `games.php?tab=contests`, `fair.php`, `show.php`, `gotm.php`, `marketday.php`, and `festival.php` all link back to Contests (each carries `?tab=contests`). Make Contests a real hub with Fair, Village Show, Garden of the Month as cards or tabs and keep the files as thin routers. Festival stays separate because it is seasonal.
+5. **Pal naming collision and pal pages.** `pals.php` is Gnome friends, `puzzlepals.php` is the Pal Book, `paljobs.php` is Pal jobs, plus `pals.php?tab=mentor|calling`. Players will confuse "Pals" with "Puzzle Pals". Rename the friends page to "Friends" everywhere, and put Pal Book + Pal jobs + pal party under one "Pals" hub (Pal Book, Jobs, Party/Skills). Mentor and Calling tabs belong on My Gnome > Calling (`gnome.php?tab=calling` already exists).
+6. **Passport / Stamps in three places** (PDF): keep Town > Stop tab; make `passport.php` and Almanac links point to it.
+7. **Crafting entry points.** Five pages link to `?tab=craft` (garden, yard, arrange, gnome, paljobs, jobs) and there is a Crafting menu tile plus an Almanac tile. This one is already mostly consolidated (map in `inventory.php?tab=craft`). Remaining step: crafting tile should live under "You" only and other pages deep-link to areas, not duplicate recipe lists.
+
+### B. Worth doing with a decision from Joshua
+
+8. **Menu size.** Groups: You (4), Hobbies (3 to 5), Out & about (3 to 5), Together (4 to 5), plus Account, Feedback, Staff. About 15 to 19 tiles. Candidates to fold: Satchel + Crafting (already tabs of `inventory.php`), Almanac + Getting started + First Week (all "learning"), Together + Gnome friends + Festival (social).
+9. **Games hub.** Games, Puzzles (`puzzles.php`: Jigsaw, GIFsaw, Rain Barrel, Gnome Beds), Whisker Pond, Puzzle Pals are four Hobbies tiles. `puzzles.php` is a hub under Games already; make Whisker Pond and Pal Book cards there. Keeps Hobbies at Garden, Arranging, Games.
+10. **Together page** (`community.php`: Community garden, Hollow jar, Who's about) plus `hollow.php` (redirect) and Festival jar: three "shared pot" features. Consider one "Hollow" page with Garden, Jar, Goals.
+11. **Welcome/First Week/Tour/guide.** `welcome.php`, `firstweek.php`, `tour.php` (redirect), `guide.php`, Almanac guide pages: one onboarding path with the Almanac "Getting started" fold as the permanent home.
+12. **Garden-side: `garden.php`, `tend.php`, `yard.php`, `gnomebeds.php` (puzzle), `visit.php`, `gotm.php`.** Visiting a garden and Garden of the Month could be tabs of one "Gardens" area; yard stays its own page.
+
+### C. Leave alone
+- Trek, Delve, Cat Fish pages: self-contained (graph shows few outbound edges) and flag-gated.
+- Admin: separate menu already.
+- `*_api.php` endpoints, `install/login/register/forgot/reset/verify`: auth and plumbing.
+- Tiny redirect stubs: keep as the compatibility layer, but list them in a `tests/redirects.sh` check so merges do not break old links.
+
+### D. How to do each merge safely
+1. Inbound-link inventory first (`grep -rn "villagers.php"` etc.; graph hub edges are name-matched guesses, so do not trust the graph alone).
+2. Extract to a shared function with no visual change; run the section's tests.
+3. Add the new tab/hub, switch menu and bottom bar, keep old file as `redirect()` with query string carried over (see `town.php:54` pattern).
+4. Update `nav_sheet()`, the bottombar `$tabs`, `sitemap.php`, README and `guide.php` text together.
+5. One merge per release; measure with the menu badge cache (`$_SESSION['nav_badges']`) because merged pages change which badge belongs where.
+
+### E. Suggested order
+Villagers (1) with Phase 2 of the plan, then Go/Here (2) and Orders (3), then Pal naming (5), then Contests hub (4), then menu fold (8, 9) once the pages beneath are stable.
