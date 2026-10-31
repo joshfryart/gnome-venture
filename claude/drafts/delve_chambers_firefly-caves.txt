@@ -1,0 +1,220 @@
+# Firefly Caves: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W spring pool.
+
+@firefly-caves/slant_ledge
+size: 3
+tags: diagonal,ledge,bend,shelf
+##.
+...
+.##
+
+@firefly-caves/spring_seep
+size: 3
+tags: spring,seep,alcove,cross
+#.#
+.W.
+#.#
+
+@firefly-caves/crack_side
+size: 3
+tags: crack,narrow,side-opening
+#.#
+#..
+#.#
+
+@firefly-caves/dome_rim
+size: 3
+tags: dome,rim,rounded,corner
+##,
+#,,
+,,,
+
+@firefly-caves/pillar_split
+size: 3
+tags: pillar,split,u-bend,stalagmite
+.#.
+.#.
+...
+
+@firefly-caves/pool_ring
+size: 3
+tags: round,pool,glow,open
+.W.
+,.,
+.W.
+
+@firefly-caves/round_grotto
+size: 5
+tags: round,grotto,glow,four-door
+##.##
+#...#
+.....
+#...#
+##.##
+
+@firefly-caves/stalagmite_diamond
+size: 5
+tags: stalagmites,cluster,open
+.....
+..#..
+.#...
+..#..
+.....
+
+@firefly-caves/winding_passage
+size: 5
+tags: passage,zigzag,bend,corridor
+.....
+###.#
+#...#
+#.###
+.....
+
+@firefly-caves/diagonal_fissure
+size: 5
+tags: fissure,diagonal,crack
+#####
+.#...
+..#..
+...#.
+.....
+
+@firefly-caves/spring_hollow
+size: 5
+tags: spring,hollow,pool,rough
+.....
+.,,,.
+.,W,.
+.,,,.
+.....
+
+@firefly-caves/brook_channel
+size: 5
+tags: brook,channel,water,wide
+.....
+WWW..
+..WW.
+..WWW
+.....
+
+@firefly-caves/pool_alcove
+size: 5
+tags: pool,alcove,ledge,sunken
+#####
+#WWW#
+.WWW.
+#...#
+.....
+
+@firefly-caves/glow_corridor_bend
+size: 5
+tags: corridor,bend,elbow,passage
+##...
+##...
+.....
+...##
+...##
+
+@firefly-caves/side_alcoves
+size: 5
+tags: alcove,wide,two-side,hall
+.###.
+.....
+#...#
+#...#
+.....
+
+@firefly-caves/rough_cavern
+size: 5
+tags: cavern,rough,boulder,open
+#,,,#
+,,,,,
+,,#,,
+,,,,.
+#,.,#
+
+@firefly-caves/bowed_pillar
+size: 5
+tags: pillar,curve,bowed,nook
+..###
+.#...
+.....
+.#...
+..###
+
+@firefly-caves/twin_halls
+size: 5
+tags: halls,twin,pillars,gap
+#####
+.....
+#.#.#
+.....
+#####
+
+@firefly-caves/fork_hall
+size: 5
+tags: fork,hall,pillars,junction
+##.##
+##.##
+.....
+.#.#.
+.....
+
+@firefly-caves/stalagmite_scatter
+size: 5
+tags: stalagmites,scatter,rough,open
+,....
+.#.#.
+...#,
+.#...
+.,#..
+
+@firefly-caves/dome_hall
+size: 6
+tags: dome,big,round,doorways
+##..##
+#....#
+......
+......
+#....#
+##..##
+
+@firefly-caves/stalagmite_forest
+size: 6
+tags: stalagmites,forest,dense,open
+......
+.#..#.
+.#....
+..#.#.
+.#....
+......
+
+@firefly-caves/cascade_pools
+size: 6
+tags: cascade,pools,water,terraces
+#....,
+#WWW..
+#.WWW.
+#..WW.
+#,.WWW
+#.,...
+
+@firefly-caves/zigzag_crevasse
+size: 6
+tags: crevasse,zigzag,narrow,crack
+#.####
+#.#..#
+#....#
+##.#..
+##W..#
+####..
+
+@firefly-caves/curved_gallery
+size: 6
+tags: gallery,curve,long,winding
+#####.
+#.....
+#.###.
+#.#...
+#.#.##
+..#...

@@ -1,0 +1,220 @@
+# Salt Mine Galleries: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor (rubble, salt spill), W brine puddle.
+
+@salt-mine-galleries/salt_bend
+size: 3
+tags: dry,bend,gallery,corner
+.##
+.##
+...
+
+@salt-mine-galleries/cart_siding
+size: 3
+tags: dry,rails,siding,cart
+...
+...
+#.#
+
+@salt-mine-galleries/rubble_slide
+size: 3
+tags: dry,rubble,slide,rough
+,,#
+,#,
+..,
+
+@salt-mine-galleries/brine_seep
+size: 3
+tags: wet,brine,seep,puddle
+...
+W.W
+...
+
+@salt-mine-galleries/alcove_nook
+size: 3
+tags: dry,alcove,nook,dead-end
+#.#
+...
+...
+
+@salt-mine-galleries/carved_step
+size: 3
+tags: dry,steps,carved,corner
+..#
+.##
+...
+
+@salt-mine-galleries/straight_gallery
+size: 5
+tags: dry,gallery,straight,carved
+#...#
+#...#
+#...#
+#...#
+#...#
+
+@salt-mine-galleries/pillar_hall
+size: 5
+tags: dry,pillars,hall,carved
+.....
+.#.#.
+.....
+.#.#.
+.....
+
+@salt-mine-galleries/rail_bend
+size: 5
+tags: dry,rails,bend,cart
+###..
+###..
+.....
+..###
+..###
+
+@salt-mine-galleries/rubble_fall
+size: 5
+tags: dry,rubble,collapse,rough
+.,.,.
+,#,#,
+.,,,.
+#,.,#
+.....
+
+@salt-mine-galleries/brine_channel
+size: 5
+tags: wet,channel,brine,narrow
+#.W.#
+#.W.#
+#WWW#
+#.W.#
+#.W.#
+
+@salt-mine-galleries/alcove_hall
+size: 5
+tags: dry,hall,alcoves,carved
+#.#.#
+#...#
+.....
+#...#
+#.#.#
+
+@salt-mine-galleries/carved_hall_deep
+size: 5
+tags: dry,hall,alcoves,deep
+##.##
+#...#
+#.#..
+#...#
+##.##
+
+@salt-mine-galleries/cart_t_junction
+size: 5
+tags: dry,rails,junction,cart
+##.##
+##.##
+##.##
+.....
+#...#
+
+@salt-mine-galleries/brine_cross_pool
+size: 5
+tags: wet,pool,island,brine
+..,..
+.WWW.
+..W..
+.WWW.
+..,..
+
+@salt-mine-galleries/brine_shore
+size: 5
+tags: wet,shore,brine,corner
+##...
+#....
+WW...
+WWW..
+WWW..
+
+@salt-mine-galleries/rubble_choke
+size: 5
+tags: dry,rubble,choke,rough
+#.,..
+#,,,.
+#.,,.
+#,,..
+#....
+
+@salt-mine-galleries/alcove_hall_wide
+size: 5
+tags: dry,hall,alcoves,two-door
+#.#.#
+#...#
+#...#
+#...#
+##.##
+
+@salt-mine-galleries/pillar_bridge_row
+size: 5
+tags: dry,pillars,row,corridor
+#.#.#
+#.#.#
+.....
+#.#.#
+#.#.#
+
+@salt-mine-galleries/rough_gallery_h
+size: 5
+tags: dry,gallery,horizontal,rough
+#####
+.,,,.
+.....
+.,,,.
+#####
+
+@salt-mine-galleries/alcove_gnome_hall
+size: 6
+tags: dry,hall,alcoves,carved,two-door
+#.##.#
+#....#
+#....#
+#....#
+##..##
+##..##
+
+@salt-mine-galleries/pillar_court
+size: 6
+tags: dry,pillars,court,wide
+......
+.#..#.
+......
+......
+.#..#.
+......
+
+@salt-mine-galleries/brine_basin_wide
+size: 6
+tags: wet,basin,brine,pool
+......
+..WW..
+.WWWW.
+.WWWW.
+......
+##..##
+
+@salt-mine-galleries/rubble_slope
+size: 6
+tags: rough,rubble,slope,collapse
+###...
+##,,..
+#,,,,.
+,,,,,.
+......
+......
+
+@salt-mine-galleries/cart_snake
+size: 6
+tags: dry,rails,snake,bend
+......
+#####.
+......
+.#####
+......
+......

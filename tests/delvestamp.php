@@ -51,7 +51,7 @@ echo "== the real library\n";
 $real = ds_chambers();
 $p = ds_parse((string)file_get_contents($game . '/includes/data/delve_chambers.txt'));
 ok('real chamber file has no parse errors and every chamber passes', !$p['errors'] && count($p['chambers']) === count($real), json_encode($p['errors']));
-foreach (['beaverdam-tunnels'] as $slug) {
+foreach (['beaverdam-tunnels', 'jaguar-root-caves', 'mangrove-root-maze', 'salt-mine-galleries', 'firefly-caves'] as $slug) {
     if (!ds_pool($slug, 5, $real)) { echo "  (no chambers for $slug yet)\n"; continue; }
     $miss = 0;
     foreach (['small', 'standard', 'large'] as $tier) for ($i = 0; $i < 60; $i++) foreach ($kinds as $kd => $objs) if (($tier !== 'large' || in_array($kd, ['treasure', 'boss'], true)) && !ds_floor("r$i", $slug, $tier, $objs, $real)) $miss++;

@@ -1,0 +1,226 @@
+# Jaguar Root Caves: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , mossy rough floor, W shallow puddle.
+
+# --- size 3 ---
+
+@jaguar-root-caves/root_gate
+size: 3
+tags: rough,throat,root-gate
+,.,
+#.#
+,,,
+
+@jaguar-root-caves/knot_tangle
+size: 3
+tags: rough,knot,mossy
+.#.
+,,.
+#,.
+
+@jaguar-root-caves/puddle_corner
+size: 3
+tags: wet,puddle,corner
+#.W
+..W
+#..
+
+@jaguar-root-caves/claw_nook
+size: 3
+tags: rough,claw,nook
+#,#
+.,.
+,##
+
+@jaguar-root-caves/hollow_bend
+size: 3
+tags: dry,tunnel,bend,hollow
+#..
+##.
+#..
+
+@jaguar-root-caves/pool_root
+size: 3
+tags: wet,roots,pool,rough
+.#,
+W,.
+,W.
+
+# --- size 5 ---
+
+@jaguar-root-caves/root_ring_den
+size: 5
+tags: dry,ring,den,root-ring
+.,,,.
+.###.
+.#.#.
+.#.#.
+,....
+
+@jaguar-root-caves/root_stair_tunnel
+size: 5
+tags: dry,tunnel,hollow-root,zigzag
+...##
+.#...
+.##..
+##.#.
+##...
+
+@jaguar-root-caves/claw_hall
+size: 5
+tags: rough,claw,hall,scratched
+#.,,#
+.,,,.
+.,.,.
+,,,,,
+#,,.#
+
+@jaguar-root-caves/pool_wedge
+size: 5
+tags: wet,pool,cave-lake
+.#...
+WWW..
+WWWW.
+.WW#.
+.,,,.
+
+@jaguar-root-caves/twin_shaft_hall
+size: 5
+tags: dry,tunnel,twin-shaft,root
+#.#.#
+#.#.#
+#...#
+##.##
+.....
+
+@jaguar-root-caves/root_cross_mossy
+size: 5
+tags: dry,crossroads,mossy,puddle
+..#..
+..,..
+#,W,#
+..,..
+..#..
+
+@jaguar-root-caves/root_loop_diagonal
+size: 5
+tags: dry,loop,diagonal,rough
+.,,,,
+.#,#.
+..#,.
+.,#..
+,,,,.
+
+@jaguar-root-caves/stream_channel
+size: 5
+tags: wet,stream,channel,ledge
+#.W.#
+#.W..
+.WWW.
+.W.##
+.W,..
+
+@jaguar-root-caves/claw_gouge_wall
+size: 5
+tags: rough,claw,gouge,scratched
+##,##
+#,,,#
+#,#,.
+#,,,.
+.,,,.
+
+@jaguar-root-caves/twin_pool_roots
+size: 5
+tags: wet,twin-pool,root-split
+.....
+.W#W.
+.WW#.
+.WW..
+.....
+
+@jaguar-root-caves/root_span_pool
+size: 5
+tags: wet,ford,root-span
+.....
+WWWWW
+..#..
+WWWWW
+.....
+
+@jaguar-root-caves/cistern_hollow
+size: 5
+tags: wet,cistern,pool,hollow-stump
+#####
+#WWW#
+#W.W#
+#.W.#
+..,..
+
+@jaguar-root-caves/root_cage
+size: 5
+tags: dry,cage,roots,two-door
+##.##
+#...#
+#.#.#
+#...#
+##.##
+
+@jaguar-root-caves/moss_bowl
+size: 5
+tags: rough,moss,bowl,nest
+..,..
+.,,,.
+,,,,,
+.,,,.
+#...#
+
+# --- size 6 ---
+
+@jaguar-root-caves/great_root_ring
+size: 6
+tags: rough,root-ring,den,hollow
+,,,,,,
+,####,
+,#..#,
+,#....
+,####.
+......
+
+@jaguar-root-caves/claw_scar_cavern
+size: 6
+tags: wet,cavern,claw,pool
+#.,,,.
+#,WW,.
+.,WWW,
+,,,,,,
+,.,W..
+..,,.#
+
+@jaguar-root-caves/twin_hollow_roots
+size: 6
+tags: dry,tunnel,twin-root,hall
+#.##.#
+#.##.#
+#....#
+#....#
+##..##
+##..##
+
+@jaguar-root-caves/flooded_sprawl
+size: 6
+tags: wet,puddles,sprawl,rough
+.,,,..
+.WWW..
+.WWWW.
+..WW#.
+..#,,,
+.,,,,.
+
+@jaguar-root-caves/root_crown
+size: 6
+tags: rough,crown,root-arch,hall
+......
+.####.
+.,,,,.
+.,##,.
+.,,,,.
+......
