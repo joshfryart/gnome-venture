@@ -42,12 +42,12 @@ Route menu (pick the next stage) + tile-map floors (fog, torch, pickups, pal str
 - **Turn the Gourmand on:** Admin > Settings, `gourmand_open` = 1. Players see Pomeroy only after playing through a region. Off = no menu, no news, no recipes shown to players.
 - **Tests (run ONE suite at a time, they share /tmp files):** see handoff.md "2.2.1" for the table. Known failures on the BASE commit too: `gather150`, `social100`, `catfish`, `folkoverlay`; the reset-install check fails on base. `pantry` is flaky when suites overlap.
 - **NEXT (Joshua picks):**
-  1. Optional Brewroot calling task for Pomeroy (skipped so the feature stays invisible while off).
-  2. Still-weak 16 px art, left unchanged: tamarind-chutney, tahini, candied-chestnuts, natto, doenjang, radish-kimchi, cured-olives, pickled-bamboo-shoots, palusami, bean-tamales, hibiscus-cordial.
+  1. DONE (branch, not on main): Brewroot Master task "Serve Pomeroy 5 courses at two spoons or better" (`brewroot-2`). `calling_tasks()` hides kind `serve` while `gourmand_open` is not 1 (not shown, not needed to finish); `calling_add_serve_tasks()` adds it to old worlds before the hand-in, with progress rows for gnomes mid-chapter. Tests at the end of `tests/gourmand.php`.
+  2. Still-weak 16 px art: REDRAWN as two versions; Joshua picked B, INSTALLED in `game/assets/img/ph/` (branch, not on main). Sheets: `claude/pantry-redraw-AB.png` (+ `-A`, `-B`, `-dark`). PNGs `aseprite-source/img-redraw-full/redraw-2.2.1/{A,B}/`, scripts `scripts/ph-redraw-{A,B}/`. To install a pick: render with `--script-param out=game/assets/img/ph/`. Slugs: tamarind-chutney, tahini, candied-chestnuts, natto, doenjang, radish-kimchi, cured-olives, pickled-bamboo-shoots, palusami, bean-tamales, hibiscus-cordial.
   3. 14 art banners and the camp sprite were cut from P1 (not drawn).
   4. MySQL CI job NOT run for these changes (new table + column); full CI list NOT re-run on the merged main.
-  5. `balance-pantry.md` still shows the old "never 3 spoons" jam row (the code now has the 42/49/55 bars).
-  6. Tests share fixed /tmp files (`images.sh` img-php.log, walk.html, walk-ck): parallel agents clobber each other. Give each suite its own TMPDIR/paths.
+  5. DONE: `balance-pantry.md` jam rows now use the 42/49/55 quick-jar bars.
+  6. DONE for walk.sh, mwalk43.sh, images.sh (honour TMPDIR; ci_suites.sh passes TMPDIR=$T to walk.sh too). Other suites (town, puzzles, modr, roadkinds, ...) still write fixed /tmp names.
   7. Cat Fish ideas from 2.2.x (scene events, short taps) are in `claude/plan-catfish-petshops.md`; the 2.1.x/2.2.0 todo blocks are in `todo-archive.md`.
 
 

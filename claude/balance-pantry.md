@@ -19,7 +19,7 @@ The task brief says 154 preserves. `recipes.txt` has **156** rows with the `pres
 4. **Treasure-crop 1-day preserves are rich, but in proportion.** blueberry-jam, gooseberry-jam, cranberry-sauce, cloudberry-jam and quince-paste each make 281 to 333 per jar-day. That is 2.1× the best uncommon jams and 10× strawberry jam. The jar markup is the same 1.8× for every jam, so the gap is only the crop's value. That value comes from treasure crops selling at 250%. With the stall bug fixed, this is acceptable. An optional 2-day timer is listed below.
 5. **The 20-coin floor never applies** at canonical prices: the lowest raw price is pickled-kale at 21.7. Under install-time drift at its low (45%), it would apply by less than 4 coins to bilberry-jam, pickled-kale and pickled-mushrooms. That is not worth changing.
 6. **Buffs are in line.** No preserve beats a meal's strength at any one moment: preserves give at most +3 stats, meals +4, feasts +7. Cordials and cheese-wheel do give the most stat-hours of anything: 3 stats × 24 h = 72, or 108 at Kitchen III, against 56 for a median feast. They are a weak, all-day buff that takes a feast's place in the single buff slot. That is reasonable.
-7. **The quality bars are reachable by design, with one wrinkle.** Four Pomeroy jar asks can **never** reach 3 spoons. They are plum-jam (EE/1), raspberry-jam (NA/1), lingonberry-jam (NWE/1) and guava-jam (CB/1), and each tops out at 59 against a bar of 62. Eight more reach 3 spoons only on a lucky roll at Kitchen III with Luck +4. Every region still has another variant that can reach 3 spoons (`tests/gourmand.php` asserts this), and the ledger keeps the lifetime best, so a Golden table is never blocked. The wrinkle is that those months cap at 2 spoons.
+7. **The quality bars are reachable by design.** (Fixed in 2.2.1: was "four 1-day jam asks can never reach 3 spoons".) Quick preserves (`cook_minutes` <= 1440, one day) now use their own bars `GOURMAND_QUICK_JAR_BARS = [42, 49, 55]`, so plum-jam (EE/1), raspberry-jam (NA/1), lingonberry-jam (NWE/1) and guava-jam (CB/1) reach 3 spoons at Kitchen III on a +3 roll, or on most rolls with Luck +4. The 3-day and longer asks still use `[45, 52, 62]`; a few of them reach 3 spoons only on a lucky roll. Every region still has another variant that can reach 3 spoons (`tests/gourmand.php` asserts this), and the ledger keeps the lifetime best, so a Golden table is never blocked.
 8. **There are near-duplicates.** In 16 groups, two or more preserves share the exact same ingredient set. Two of them are strictly dominated: goat-cheese by yogurt, and fermented-carrots by pickled-carrots.
 9. **The 16 Pomeroy recipes are in line.** The 14 dishes match the existing meal and snack profiles: meals give 4 stats for 240–300 min and 10–11 energy, snacks 3 stats for 180 min and 7–8 energy, and both sell for 1.43× their ingredients. Chicha (5 days) and poi (7 days) match the other 5- and 7-day ferments and reach 3 spoons comfortably: 63/64 before the roll at Kitchen III.
 
@@ -185,20 +185,20 @@ Jars: 5 with a Pantry at Kitchen I or II, 7 at Kitchen III, plus 1 for each Pant
 * One 14-day cordial ties up 20% of a Kitchen I pantry for two weeks and yields 3 items. A Pomeroy tour asks for 14 different jars a month, and the jar ask rotates monthly. Preserves never spoil, so stockpiling works and the jars are not a hard block. Still, a Kitchen I player chasing a 14-day cordial ask loses noticeable income. That is another point for the gentler curve.
 * There is no bottleneck bug. The Pantry costs 600 Petals and 4 planks; at the median jam rate of about 144 a day that pays back in a day.
 
-## 9. Quality bars (`pantry_quality` against `GOURMAND_BARS['jar'] = [45, 52, 62]`)
+## 9. Quality bars (`pantry_quality` against `GOURMAND_BARS['jar'] = [45, 52, 62]`; 1-day preserves against `GOURMAND_QUICK_JAR_BARS = [42, 49, 55]`)
 
 The score is `38 + min(20, 2·days) + 3·Kitchen level + 3·min(4, kinds) + Luck (0–4) ± 3`. The Kitchen only goes to level III, so the best possible is 83 ± 3.
 
-| Pomeroy jar ask | days | kinds | K I | K III | K III + Luck 4 | 3 spoons (62)? |
+| Pomeroy jar ask | days | kinds | K I | K III | K III + Luck 4 | 3 spoons (62; 1-day: 55)? |
 |---|---:|---:|---:|---:|---:|---|
-| plum-jam EE/1, raspberry-jam NA/1, lingonberry-jam NWE/1, guava-jam CB/1 | 1 | 1 | 46 | 52 | 56 (max 59) | **never** |
-| passion-fruit-curd SA/2 | 1 | 2 | 49 | 55 | 59 (max 62) | only on a +3 roll |
+| plum-jam EE/1, raspberry-jam NA/1, lingonberry-jam NWE/1, guava-jam CB/1 | 1 | 1 | 46 | 52 | 56 (max 59) | quick bars 42/49/55: at K III only on a +3 roll; with Luck +4 on a roll of -1 or more |
+| passion-fruit-curd SA/2 | 1 | 2 | 49 | 55 | 59 (max 62) | quick bars: at K III on a roll of 0 or more; always with Luck +4 |
 | pickled-daikon EA/2, tempeh SEA/2, banana-chips ESA/1, peanut-butter SA/1, pickled-samphire OC/1 | 3 | 1 | 50 | 56 | 60 (max 63) | only on a roll of +2 or more |
 | mango-chutney CSA/1, salsa-verde CA/1 | 2 | 3 | 54 | 60 | 64 | needs some Luck |
 | pickled-okra WCA/1, hummus-jar MENA/1 | 3 | 3 | 56 | 62 | 66 | exactly on the bar (hard by design, tested) |
 | chicha, sauerkraut, rooibos, pomegranate-molasses, cured-olives, poi, curry-paste, fermented-hot-sauce, kimchi, every cordial, apple-cider | 3–14 | 1–4 | 57–67 | 63–73 | 67–77 | always at K III |
 
-Across all 156 preserves at Kitchen III with Luck +4: 57 always reach 3 spoons, 66 need a roll, and 33 never do. Every recipe can reach 1 spoon at Kitchen I.
+Across all 156 preserves at Kitchen III with Luck +4 (measured against the old single bar of 62, before the quick-jar bars): 57 always reach 3 spoons, 66 need a roll, and 33 never do. The 1-day preserves among them now use the 55 bar; the counts were not re-run. Every recipe can reach 1 spoon at Kitchen I.
 
 The jar score ignores ingredient quality, so stall-bought crops make jars as good as home-grown ones. Pots do use ingredient quality (`gourmand_dish_score`), and Pomeroy refuses "shop counter" plates. That inconsistency is worth a decision.
 

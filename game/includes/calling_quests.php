@@ -65,8 +65,31 @@ function ensure_calling_quests(): int
         }
         $added++;
     }
+    calling_add_serve_tasks($tasks);
     ensure_calling_mentors();
     return $added;
+}
+
+/**
+ * 2.2.1 follow-up: a Pomeroy task (event kind "serve") in the file joins a chapter that is already in the database (the import above
+ * skips known chapters). It goes just before the hand-in, and gnomes part-way through the chapter get a progress row. Idempotent.
+ */
+function calling_add_serve_tasks(array $tasks): void
+{
+    foreach ($tasks as $cslug => $list) {
+        foreach ($list as $t) {
+            if ($t['kind'] !== 'serve') continue;
+            $cid = (int)q_val('SELECT id FROM calling_chapters WHERE slug = ?', [$cslug]);
+            if (!$cid || q_val("SELECT 1 FROM calling_tasks WHERE chapter_id = ? AND kind = 'serve'", [$cid])) continue;
+            $sort = (int)(q_val("SELECT MIN(sort_order) FROM calling_tasks WHERE chapter_id = ? AND mode = 'give'", [$cid]) ?: 0);
+            if ($sort > 0) q('UPDATE calling_tasks SET sort_order = sort_order + 1 WHERE chapter_id = ? AND sort_order >= ?', [$cid, $sort]);
+            else $sort = (int)q_val('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM calling_tasks WHERE chapter_id = ?', [$cid]);
+            $tid = (int)db_insert('calling_tasks', ['chapter_id' => $cid, 'sort_order' => $sort] + $t);
+            foreach (q('SELECT user_id FROM user_calling_chapters WHERE chapter_id = ? AND done_at IS NULL', [$cid])->fetchAll(PDO::FETCH_COLUMN) as $u) {
+                db_insert('user_calling_tasks', ['user_id' => (int)$u, 'task_id' => $tid, 'progress' => 0]);
+            }
+        }
+    }
 }
 
 /** The six mentors: calling => [name, npc slug, species, personality, bio, region code, lodge slug, lodge icon, lodge name, lodge description]. */
@@ -145,9 +168,15 @@ function calling_chapter(int $id): ?array
     return q_one('SELECT * FROM calling_chapters WHERE id = ?', [$id]) ?: null;
 }
 
-function calling_tasks(int $chapterId): array
+/**
+ * A chapter's tasks in order. A Pomeroy task (event kind "serve") is left out while the Gourmand is off for players
+ * (setting gourmand_open), so it is neither shown nor needed to finish; $all = true keeps it (start, admin).
+ */
+function calling_tasks(int $chapterId, bool $all = false): array
 {
-    return q('SELECT * FROM calling_tasks WHERE chapter_id = ? ORDER BY sort_order, id', [$chapterId])->fetchAll();
+    $rows = q('SELECT * FROM calling_tasks WHERE chapter_id = ? ORDER BY sort_order, id', [$chapterId])->fetchAll();
+    if ($all || setting('gourmand_open') === '1') return $rows;
+    return array_values(array_filter($rows, fn($t) => $t['kind'] !== 'serve'));
 }
 
 /** A calling's chapters, Journeyman first. */
@@ -408,7 +437,7 @@ function calling_start(array $u, int $chapterId): array
         if (!q_val('SELECT 1 FROM user_calling_chapters WHERE user_id = ? AND chapter_id = ?', [$uid, $chapterId])) {
             db_insert('user_calling_chapters', ['user_id' => $uid, 'chapter_id' => $chapterId, 'started_at' => now()]);
         }
-        foreach (calling_tasks($chapterId) as $t) {
+        foreach (calling_tasks($chapterId, true) as $t) {   // all: a hidden Pomeroy task still gets its progress row, ready for when he opens
             if ($t['mode'] === 'state') continue;
             if (!q_val('SELECT 1 FROM user_calling_tasks WHERE user_id = ? AND task_id = ?', [$uid, $t['id']])) {
                 db_insert('user_calling_tasks', ['user_id' => $uid, 'task_id' => $t['id'], 'progress' => 0]);

@@ -211,7 +211,7 @@ foreach ($fileC as $slug => $r) {
     $c = q_one('SELECT * FROM calling_chapters WHERE slug = ?', [$slug]);
     $callings[$r[2]][] = (int)$r[3];
     $n = count($fileT[$slug] ?? []);
-    if (!$c || count(calling_tasks((int)$c['id'])) !== $n || $n < 6) $badKinds[] = $slug . ' (' . ($c ? count(calling_tasks((int)$c['id'])) : 'missing') . '/' . $n . ')';
+    if (!$c || count(calling_tasks((int)$c['id'], true)) !== $n || $n < 6) $badKinds[] = $slug . ' (' . ($c ? count(calling_tasks((int)$c['id'], true)) : 'missing') . '/' . $n . ')';
     foreach ($fileT[$slug] ?? [] as $t) {
         if ($t[3] === 'give') foreach (journey_needs((string)$t[5]) as [$type, $islug]) if ($type === 'item' && !q_val('SELECT 1 FROM items WHERE slug = ?', [$islug])) $badItems[] = $slug . ':' . $islug;
     }
