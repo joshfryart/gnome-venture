@@ -2,7 +2,7 @@
 """Lint the Puzzle Pal Boons (game/includes/data/puzzle_pal_boons.txt) against puzzle_pals.txt and the effect list in includes/puzzle_pals.php.
 Usage: tools/lint_pal_boons.py [DRAFT.txt ...] [--require-boons]   (the live puzzle_pal_boons.txt is always read; drafts are checked together with it)
 Checks: 5 columns, one row per key, key is a pal, effect and active valid (read from PPAL_EFFECTS / PPAL_ACTIVES in puzzle_pals.php), active only on a rare,
-name unique and <= 24 chars, line <= 120 chars, curly apostrophes, no '|'; per roster: 6 different effects, and no two rosters share 4 or more of their effects (as a set);
+name unique and <= 24 chars, line <= 120 chars, curly apostrophes, no '|'; per roster: 6 different effects, and no two rosters share 4 or more of their (effect, rarity) pairs;
 each rare's (effect, active) pair is unique. --require-boons: every pal needs a row. Prints a fingerprint per roster. Exit 1 on any problem."""
 import re, sys, os
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,7 +52,7 @@ def main():
         if not got: continue
         effs = [rows[k][0] for k in got]
         if len(set(effs)) != len(effs): bad.append('%s: effects repeat: %s' % (pic, ', '.join(effs)))
-        sets[pic] = set(effs)
+        sets[pic] = set((rows[k][0], pals[k][1]) for k in got)
         for k in got:
             if pals[k][1] == 'rare':
                 pair = rows[k]
@@ -62,7 +62,7 @@ def main():
     pics = sorted(sets)
     for i, a in enumerate(pics):
         for b in pics[i + 1:]:
-            if len(sets[a] & sets[b]) >= 4 and len(sets[a]) == 6: bad.append('TOO ALIKE %s ~ %s: share %s' % (a, b, ','.join(sorted(sets[a] & sets[b]))))
+            if len(sets[a] & sets[b]) >= 4 and len(sets[a]) == 6: bad.append('TOO ALIKE %s ~ %s: share %s' % (a, b, ','.join('%s/%s' % t for t in sorted(sets[a] & sets[b]))))
     for b in bad: print('PROBLEM', b)
     print('%d Boons, %d rosters, %d problems' % (len(rows), len(sets), len(bad)))
     sys.exit(1 if bad else 0)

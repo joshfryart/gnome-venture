@@ -2,7 +2,7 @@
 """Propose Boon effects (and the rare's active) for Puzzle Pal rosters.
 Usage: tools/pal_boons_draft.py [--kind haven|wonder|delve|lair | SLUG ...] [--with DRAFT.txt,...]   (no names = the 14 gallery pictures without a Boon row yet)
 Prints key|effect|active|? rows (name and line are written afterwards by the Opus review). Seeded by crc32(slug), so reruns give the same draft.
-Rules (claude/brainstorm-pal-rosters.md 3.2): 6 different effects per roster, no two rosters share 4 or more effects, each rare's (effect, active) pair unique,
+Rules (claude/brainstorm-pal-rosters.md 3.2): 6 different effects per roster, no two rosters share 4 or more (effect, rarity) pairs, each rare's (effect, active) pair unique,
 slot pools per rarity; among the legal drafts it prefers the one where most pals keep the effect their calling has today."""
 import os, random, re, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +10,7 @@ DATA = os.path.join(HERE, '..', 'game', 'includes', 'data')
 COMMON_POOL = ['mend', 'sip', 'feast', 'petal', 'guard', 'bulwark', 'slip', 'first']
 UNCOMMON_POOL = ['ward', 'foot', 'bulwark', 'slip', 'guard', 'first', 'rally', 'feast', 'edge', 'mend']
 RARE_POOL = ['edge', 'first', 'rally', 'petal', 'foot', 'ward', 'bulwark', 'guard', 'mend', 'sip', 'slip', 'feast']
-ACTIVES = ['strike', 'shield', 'patch']
+ACTIVES = ['strike', 'shield', 'patch', 'snare', 'sap', 'daze', 'rouse', 'gust']
 ALL = ['ward', 'edge', 'foot', 'mend', 'sip', 'petal', 'guard', 'bulwark', 'slip', 'feast', 'rally', 'first', 'kindle', 'spoils', 'lesson', 'tonic']
 # Places lean (claude/brainstorm-pal-rosters.md 3.4): the effects a kind of place favours; the rare may use any effect of the lean list plus ward/edge/foot
 LEAN = {
@@ -53,34 +53,35 @@ def draft(pals, boons, names):
     sets, rares = [], set()
     for s, ps in pals.items():
         if all(p['key'] in boons for p in ps):
-            sets.append(set(boons[p['key']][0] for p in ps))
+            sets.append(set((boons[p['key']][0], p['rarity']) for p in ps))
             for p in ps:
                 if p['rarity'] == 'rare': rares.add(boons[p['key']])
     for slug in names:
         rng = random.Random(zlib.crc32(slug.encode()))
         best = None
-        for _ in range(20000):
+        for _ in range(4000):
             pick, used = [], set()
             for p in pals[slug]:
                 pool = {'common': COMMON_POOL, 'uncommon': UNCOMMON_POOL, 'rare': RARE_POOL}[p['rarity']]
                 if slug.startswith('pl-'):
                     kind = slug.split('-')[1]
-                    pool = LEAN.get(kind, ALL) if _ < 12000 else ALL   # lean first, then any of the 16
-                    if p['rarity'] == 'rare' and _ < 12000: pool = list(dict.fromkeys(pool + ['edge', 'foot', 'ward']))
+                    pool = LEAN.get(kind, ALL) if _ < 2500 else ALL   # lean first, then any of the 16
+                    if p['rarity'] == 'rare' and _ < 2500: pool = list(dict.fromkeys(pool + ['edge', 'foot', 'ward']))
                 opts = [e for e in pool if e not in used]
                 if not opts: break
                 e = rng.choice(opts); used.add(e); pick.append(e)
             if len(pick) != len(pals[slug]): continue
             act = rng.choice(ACTIVES)
+            mine = set((e, p['rarity']) for p, e in zip(pals[slug], pick))   # rule 2 counts (effect, rarity) pairs: Mend on a common is not Mend on a rare
             rare_e = [e for p, e in zip(pals[slug], pick) if p['rarity'] == 'rare'][0]
             if (rare_e, act) in rares: continue
-            if any(len(used & o) >= 4 for o in sets): continue
+            if any(len(mine & o) >= 4 for o in sets): continue
             score = sum(1 for p, e in zip(pals[slug], pick) if CALLING_EFFECT.get(p['calling']) == e)
             if best is None or score > best[0]: best = (score, pick, act)
         if not best:
             return None
         _, pick, act = best
-        sets.append(set(pick))
+        sets.append(set((e, p['rarity']) for p, e in zip(pals[slug], pick)))
         for p, e in zip(pals[slug], pick):
             a = act if p['rarity'] == 'rare' else '-'
             if p['rarity'] == 'rare': rares.add((e, act))

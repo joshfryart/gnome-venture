@@ -1000,6 +1000,11 @@ const PPAL_ACTIVES = [
     'strike' => [6, 'A hit that cannot miss, for %d damage'],
     'shield' => [3, 'The next 2 hits you take are %d lighter'],
     'patch' => [10, 'Heals you %d now'],
+    'snare' => [1, 'Your next run always works'],
+    'sap' => [4, 'Poisons the creature and hits it for %d'],
+    'daze' => [1, 'The creature loses its next turn (a boss only has its next hit halved)'],
+    'rouse' => [1, 'Your calling ability can be used again this fight'],
+    'gust' => [2, 'The creature misses more: -%d to hit for 3 rounds'],
 ];
 
 function ppal_boons_on(): bool

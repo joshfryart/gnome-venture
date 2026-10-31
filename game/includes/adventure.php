@@ -574,7 +574,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if ($enc['hp'] > 0) {
         switch ($action) {
             case 'flee':
-                if (flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0) + (int)($palSk['slip'] ?? 0), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
+                if (!empty($enc['pn']) || flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0) + (int)($palSk['slip'] ?? 0), (int)$c['level'])) {   // pn: Snare   // v1.3.0: level/3 (was /2)
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
                     $exp['encounter'] = null;
                     return true;
@@ -601,6 +601,27 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     case 'shield':
                         $enc['ps'] = 2;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' shields you: the next 2 hits are ' . $palAct['value'] . ' lighter.');
+                        break;
+                    case 'snare':
+                        $enc['pn'] = 1;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' snares the way out: your next run will work.');
+                        break;
+                    case 'sap':
+                        $enc['hp'] -= $palAct['value'];
+                        $enc['poison'] = 1;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' saps the ' . $c['name'] . ' for ' . $palAct['value'] . ' and leaves it poisoned.');
+                        break;
+                    case 'daze':
+                        $enc['pd'] = 1;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' dazes the ' . $c['name'] . '.');
+                        break;
+                    case 'rouse':
+                        $enc['used'] = false;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' rouses you: your ability is ready again.');
+                        break;
+                    case 'gust':
+                        $enc['pgu'] = 3;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' whips up a gust: the ' . $c['name'] . ' will miss more.');
                         break;
                     case 'patch':
                         $heal = min($palAct['value'], (int)$exp['max_hp'] - (int)$exp['hp']);
@@ -700,9 +721,17 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     }
 
     // Creature's turn
-    if (foe_hits((int)$c['attack'], $gc['ac'])) {
+    $dazed = !empty($enc['pd']) && ($c['size'] ?? '') !== 'boss';   // v2.3.8 Daze: a creature loses its turn; a boss only has its next hit halved
+    $bossDaze = !empty($enc['pd']) && !$dazed;
+    if (!empty($enc['pd'])) $enc['pd'] = 0;
+    $gust = (int)($enc['pgu'] ?? 0) > 0 ? 2 : 0;   // Gust: -2 to hit for 3 rounds
+    if ($gust) $enc['pgu'] = (int)$enc['pgu'] - 1;
+    if ($dazed) {
+        exp_log($exp, '💫 The ' . $c['name'] . ' is dazed and loses its turn.');
+    } elseif (foe_hits((int)$c['attack'] - $gust, $gc['ac'])) {
         $dmg = foe_damage((int)$c['dmg_die'], (int)$c['dmg_bonus']);
         if ($enc['bark'] > 0) $dmg = max(1, intdiv($dmg, 2));
+        if ($bossDaze) $dmg = max(1, intdiv($dmg, 2));
         if (!empty($palSk['guard']) && (int)($enc['pg'] ?? 0) < (int)$palSk['guard']) {   // v2.3.8 Boon guard: the first N hits of a fight are halved
             $dmg = max(1, intdiv($dmg, 2));
             $enc['pg'] = (int)($enc['pg'] ?? 0) + 1;

@@ -237,10 +237,34 @@ $r2 = combat_turn($u(), $expA, 'palskill:mw-samara-spin'); $eA2 = json_decode((s
 ok('a second use is refused: no damage, no spend, a log line', $r2 === false && $eA2['hp'] === 894 && str_contains((string)$expA['log'], 'already helped'));
 $r3 = combat_turn($u(), $expA, 'palskill:mw-nobody');
 ok('a pal that is not along is refused', $r3 === false && str_contains((string)$expA['log'], 'not with you') && json_decode((string)$expA['encounter'], true)['hp'] === 894);
+// the other actives (snare, sap, daze, rouse, gust): a test row gives Samara each one
+$act5 = function (string $a, array $encExtra = [], string $action = null, int $hp = 900) use ($u, $crId, $fromId, $uid, $pid, $T): array {
+    $GLOBALS['ppal_boon_test'] = ['mw-samara-spin' => ['name' => 'T', 'effect' => 'edge', 'active' => $a, 'line' => '']];
+    equip($uid, ['mw-samara-spin'], $pid);
+    $enc = $encExtra + ['type' => 'creature', 'id' => $crId, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+    $exp = ['id' => 83, 'status' => 'active', 'hp' => $hp, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($enc), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+    $over = combat_turn($u(), $exp, $action ?? 'palskill:mw-samara-spin');
+    return [$over, $exp, $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null];
+};
+q('UPDATE creatures SET attack = 200, dmg_die = 1, dmg_bonus = 9 WHERE id = ?', [$crId]);   // hits for 10
+[, $eD, ] = $act5('daze');
+ok('daze: the creature loses its turn (health stays 900)', (int)$eD['hp'] === 900 && str_contains((string)$eD['log'], 'dazed'), (string)$eD['log']);
+[, $eS, $nS] = $act5('sap');
+ok('sap: 4 damage and poison (the sting comes on the next turn)', $nS['hp'] === 896 && $nS['poison'] === 1, json_encode($nS));
+[, , $nR] = $act5('rouse', ['used' => true]);
+ok('rouse: the calling ability is ready again', $nR['used'] === false);
+[$oN, , ] = $act5('snare');
+[$oF, $eF] = $act5('snare', ['pn' => 1], 'flee');
+ok('snare: a run after a snare always works (fight over, "slip away")', $oF === true && str_contains((string)$eF['log'], 'slip away'), (string)$eF['log']);
+[, , $nG] = $act5('gust');
+ok('gust: 2 rounds left after the first (3 - 1)', $nG['pgu'] === 2, json_encode($nG));
+unset($GLOBALS['ppal_boon_test']); equip($uid, [], $pid);
+q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
 set_setting('ppal_boons', '0'); setting('__reload__');
 ok('Boons off: no actives and the action is refused', ppal_actives($u()) === [] && combat_turn($u(), $expA, 'palskill:mw-samara-spin') === false);
 set_setting('ppal_boons', '1'); setting('__reload__');
 // Strike can finish a creature
+equip($uid, ['mw-samara-spin'], $pid);
 $encK = $encA; $encK['hp'] = 5; $encK['max'] = 5;
 $expK = ['id' => 80, 'status' => 'active', 'hp' => 900, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($encK), 'from_id' => $fromId, 'level' => 5, 'kind' => 'explore', 'step' => 1, 'depth' => 1];
 $rK = combat_turn($u(), $expK, 'palskill:mw-samara-spin');
