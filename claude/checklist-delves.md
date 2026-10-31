@@ -14,10 +14,10 @@ Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 - [x] [S] Gate: tests pass; commit.
 
 ## 2. Route generator
-- [ ] [S] `dv_route(seed, slug)`: 9 nodes, 4 to 5 rows, one path of 4 to 5 picks, typed nodes, `?` for unseen, tier per node (large = treasure + boss only).
-- [ ] [S] Floor draw per node: from the delve's pool, no repeat, one signature on first clear, fallback `tm_gen` when pool empty.
-- [ ] [S] Seed = gnome + delve + day.
-- [ ] [S] `tests/delveroute.php`: deterministic, no repeats, tier rules, fallback. Commit.
+- [x] [S] `dv_route(seed, slug, stages)` (includes/delve_route.php): 6 to 12 nodes (3, 4 or 5 rows; default 4 = 9 nodes), one path of 4 to 5 picks, typed nodes, `?` for unseen, tier per node (large = treasure + boss only).
+- [x] [S] Floor draw per node: from the delve's pool, no repeat, one signature on first clear, fallback `tm_gen` when pool empty.
+- [x] [S] Seed = gnome + delve + day.
+- [x] [S] `tests/delveroute.php`: deterministic, no repeats, tier rules, fallback. Commit.
 
 ## 3. M slice (old 5 rooms as tile floors)
 - [ ] [S] State in `walk_scene.state` `{v:2, route, floor:{torch,found,picks,hp}, c}`; `map_key` prefix `f:`. Old delves untouched.

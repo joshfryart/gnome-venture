@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/tilemap.php';
 require_once __DIR__ . '/delve_floors.php';   // v2.3.1: the floor pool of the delve redo (pure functions)
+require_once __DIR__ . '/delve_route.php';    // v2.3.1: the route graph of the delve redo (pure functions)
 
 const DM_DELVE_SIZE = 11;
 const DM_LAIR_SIZE = 13;
