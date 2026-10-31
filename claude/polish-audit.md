@@ -45,6 +45,33 @@ Still open: 5 (menu has 19 tiles, needs your call on which to fold), 6 (CSS weig
 - **CSS:** the three truncating `.side .ntl` rules (`max-width 720`, `min-width 1200`, `721-1199`; the last two are two halves of one desktop rule) lost their `overflow/ellipsis/nowrap` lines; one wrap rule at the end replaces them.
 - **Not done:** Here/World merge, Puzzle Pals tile, Satchel+Crafting fold (need your call); Orders, Contests, Pal pages (plan section 7 items 3-5); Phase 1 token, breakpoint and `style.css` split work (large, needs its own release).
 
+## Phase 1 foundations (unreleased, same branch)
+Measured on `style.css` (6,600 lines):
+
+| Check | Result |
+|---|---|
+| Text contrast, 25 token pairs x light and dark (ink, muted, brand, accent, danger, info, purple, chips, felt, focus) | all pass 4.5:1 (focus ring 3:1). Only `--line` (decorative border, 1.9:1 light, 2.1:1 dark) is under 3:1; inputs use `--line-2` (3.9:1 / 3.6:1). Not measured: text on art, text over images, hover and disabled states. |
+| Reduced motion | already global: section 6 has `animation: none !important; transition: none !important` under `prefers-reduced-motion: reduce`. Nothing to add. |
+| CSP, served HTML on all 55 pages | no `style=` attributes, no `<style>`, no `on*=` handlers |
+| Focus ring | global `:focus-visible` rule exists; 12 `outline: none/0` rules reviewed. Found: the world map, region map and mycelium map links only changed `fill-opacity` on focus (same as hover), so no distinct keyboard ring. |
+| Breakpoints | 24 distinct widths in `@media` (the most-used 720/721 pair has 59 + 45 blocks); stragglers 380, 399, 400, 420, 440, 480, 520, 560, 600, 700, 761, 801, 899/900, 960, 999/1000, 1200, 1500, 1600 |
+| Hard-coded colours outside the token blocks | 295 distinct hex values, 572 uses, plus 172 `rgba()` uses. Top: `#2a1a10` 35, `#fff3c8` 22, `#f2e4c0` 17, `#fff` 16, `#f5cf6a` 14. |
+| `!important` | 52 |
+
+Changed:
+- Map links get a dashed `--focus` ring on keyboard focus (`.worldmap a.region`, `.regionmap a`, `.mycsvg a`). Checked in a browser: stroke 3px, dash 6 4, on both World views.
+- Three `@media` pairs that both applied at one exact width are fixed: min-width 720 to 721 (`.st-folks`, `.homelist`), 560 to 561 (`.gtiles`, `.st-tiles`), 600 to 601 (`.mstop`). The clashing rules were on different elements, so no visible change.
+- `@media (max-width:720px)` one-liner reformatted like the rest.
+- New `tests/css_lint.sh` (added to the CI suite list): braces balance, no min/max pair at the same width, breakpoint count ratchet (24; lower it as they merge), map focus rings present. `claude/css-map.md` lists the 56 sections of `style.css` with sizes.
+
+Checked: css_lint images security190 scenes town gather150 landing pass.
+
+Not done in Phase 1 (each needs its own release and screenshot diffs):
+- **Colour tokens:** replacing the 572 literal uses. About a third equal an existing token, but dark-theme tokens change value, so a blind swap would change dark mode. Needs a per-colour decision (add `--ink-fixed`/`--cream-fixed` style tokens for art that must not flip).
+- **Breakpoint merge:** map the 24 widths to the set 720/721, 1000, 1200 plus two or three component-specific ones.
+- **Split `style.css`:** use `claude/css-map.md`; the file is one request today and CanSpace shared hosting has no build step, so a split means more requests unless pages load only the files they need.
+- **Phone dark/light contrast on art** and a keyboard-order pass: not measured.
+
 ## What this changes in the plan
 - World already has the tabs Go, Map, Gather, Shops (plus Wander and Rest stop buttons), so part of the PDF's "Go replaces Here + Travel" is done. `world.php?tab=travel` still renders as its own tab. Phase 2 should start from what is live, not from the PDF's "current state".
 - `gather.php`, `adventure.php`, `folk.php`, `mentor.php`, `back.php` are already redirect stubs.

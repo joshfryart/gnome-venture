@@ -37,7 +37,7 @@ Each phase ships as its own slim zip and CHANGELOG line. Phases 1 and 2 first; e
 3. Write the findings per page into a table: overflow, tap target under 44px, contrast, duplicated surface, empty state, wording.
 4. Run impeccable `init` and `document` to create `PRODUCT.md` and `DESIGN.md` (closes a recurring todo). Base on `claude/art-style-guide.md` Part C tokens and the top of `style.css`.
 
-### Phase 1: Foundations (Core, highest leverage)
+### Phase 1: Foundations (Core, highest leverage). PARTLY DONE 2026-10-31, see `claude/polish-audit.md` "Phase 1 foundations"; colour tokens, breakpoint merge and the style.css split are still open
 1. Fix the 768px status-strip overflow in `layout.php`/`style.css`.
 2. Audit breakpoints. 720 is the main one, with 520/480 stragglers. Pick one set (720 plus 1000/1200 for desktop) and fold the rest.
 3. Split `style.css` by section behind the same `<link>` order (shell, forms, world, garden, trek, economy) or at least add a table of contents and group blocks. Pages already load `puzzles.css`, `catfish.css`, `landing.css`, `admin.css` separately, so the pattern exists. Do not change selectors in the same commit as the split.

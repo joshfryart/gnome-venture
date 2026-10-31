@@ -1013,7 +1013,7 @@ a.rend:hover b { text-decoration: underline; }
 .gamecard h2 { margin-top: 0; }
 .gamecard ol.top { margin: 4px 0 0; padding-left: 20px; }
 .gtiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0 12px; }
-@media (min-width: 560px) { .gtiles { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
+@media (min-width: 561px) { .gtiles { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
 .gtile { display: grid; grid-template-columns: 38px 1fr; column-gap: 8px; align-items: center; min-height: 64px; padding: 8px 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
 .gtile:hover, .gtile:focus-visible { border-color: var(--brand); }
 .gticon { grid-row: 1 / span 3; font-size: 30px; line-height: 1; text-align: center; }
@@ -1645,7 +1645,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .mname small { display: block; font-weight: 400; color: var(--muted); }
 .mstop.new .mname { font-weight: 400; color: var(--muted); }
 .mstop.here .mname { color: var(--brand-ink); }
-@media (min-width: 600px) { .mstop { flex-basis: 96px; } .mname { font-size: 13px; } }
+@media (min-width: 601px) { .mstop { flex-basis: 96px; } .mname { font-size: 13px; } }
 .metroline, .regchips { position: relative; }
 /* v0.9.3: region map zoom */
 .rzoom { position: relative; max-width: 760px; margin: 0 auto; }
@@ -2179,7 +2179,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
   .st-folds > details[open] { grid-column: 1 / -1; }
   .roadjournal .rj-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px 20px; }
 }
-@media (min-width: 560px) { .st-tiles, .st-folks { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 561px) { .st-tiles, .st-folks { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 960px) { .st-tiles { grid-template-columns: 1fr 1fr 1fr; } .st-folks { grid-template-columns: repeat(3, 1fr); } }
 
 /* ===== v1.0.0 wave 2a: the garden lives (seasons, weather, pests, companions, animals) ===== */
@@ -4531,7 +4531,7 @@ nav.tabs .ico,nav.chips .ico,.tab .ico,.chip .ico{height:1.05em;width:1.05em;ver
 summary .ico{height:1.05em;width:1.05em}
 small .ico,.muted .ico{height:1em;width:1em}
 .statusstrip .ico,.userbar .ico{height:1.1em;width:1.1em;vertical-align:-.2em}
-@media (max-width:720px){.gogrid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width: 720px) { .gogrid { grid-template-columns: minmax(0, 1fr); } }
 
 /* v2.0.24: creature art inside the duel/lair icon boxes scales to the box */
 .foeicon img.aimg, .bigfoe img.aimg { max-width: 100%; height: auto; vertical-align: middle; }
@@ -5204,7 +5204,7 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 .vfold > summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
 .vfold form { margin: 6px 0 0; }
 .st-folks, .homelist { display: grid; grid-template-columns: 1fr; gap: 0 8px; align-items: start; }
-@media (min-width: 720px) { .st-folks, .homelist { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 721px) { .st-folks, .homelist { grid-template-columns: 1fr 1fr; } }   /* was 720: at exactly 720px the max-width:720 rules and this one both applied */
 
 /* v2.0.65: trip strip (dest_strip_html): one tappable line under the header while a route is remembered */
 .tripstrip { display: grid; gap: 2px; padding: 6px 10px; margin: 6px 0; border: 2px solid var(--line); background: var(--surface); color: inherit; text-decoration: none; min-width: 0; }
@@ -6597,4 +6597,6 @@ progress.hpbar.hpbar-s { display: inline-block; width: 56px; max-width: 56px; he
 footer a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
 .statusstrip a.stbadge { position: relative; }
 .statusstrip a.stbadge::after { content: ''; position: absolute; inset: -10px -4px; }
+/* 5. map links: keyboard focus draws a dashed ring (before, focus only changed the fill opacity, the same as hover) */
+.worldmap a.region:focus-visible .hit, .regionmap a:focus-visible .hit, .mycsvg a:focus-visible .mhit { stroke: var(--focus); stroke-width: 3; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; }
 /* ===== end polish ===== */
