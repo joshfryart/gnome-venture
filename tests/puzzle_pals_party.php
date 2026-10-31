@@ -150,6 +150,36 @@ if ($snk) {
     ok('Sip 10% (common brewroot): the snack heals ' . $plain . ' plain and ' . $sip . ' with the pal', $heal > 0 && $plain === min(800, $heal) && $sip === min(800, (int)round($heal * 1.1)), "heal $heal");
     q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$snk['id']]);
 } else echo "skip Sip fight (no cooked snack in this install)\n";
+echo "== Boons (v2.3.8): a pal's own effect instead of its calling skill, only with ppal_boons on\n";
+$P = fn(string $k) => ppal_find_pal($pic, $k);
+set_setting('ppal_boons', '0'); setting('__reload__');
+ok('Boons off: Samara Spin keeps Keen Edge 2 + Lucky Petal 1 (calling skills)', ppal_pal_skills($P('mw-samara-spin')) === ['edge' => 2, 'petal' => 1] && ppal_boon($P('mw-samara-spin')) === null);
+set_setting('ppal_boons', '1'); setting('__reload__');
+ok('Boons on: the six Maplewold pals have their effects', array_map(fn($k) => ppal_pal_skills($P($k)), ['mw-acorn-nip', 'mw-leaf-tuck', 'mw-sap-drip', 'mw-bark-badger', 'mw-fourwind-finch', 'mw-samara-spin'])
+    === [['mend' => 1], ['guard' => 1], ['sip' => 10], ['ward' => 2], ['foot' => 2], ['edge' => 2]], json_encode(array_map(fn($k) => ppal_pal_skills($P($k)), ['mw-samara-spin'])));
+ok('a row with no key (or no Boon row) still plays by its calling', ppal_pal_skills($R('rare', 'rootwarden')) === ['ward' => 3, 'foot' => 1]);
+ok('the line shows the Boon name, text and the rare\'s skill', str_contains(ppal_skill_line($P('mw-leaf-tuck')), 'Leaf Pile: Halves the first 1 hit(s)') && str_contains(ppal_skill_line($P('mw-samara-spin')), 'Whirligig: Adds 2 damage') && str_contains(ppal_skill_line($P('mw-samara-spin')), 'Skill: Strike') && !str_contains(ppal_skill_line($P('mw-acorn-nip')), 'Skill:'), ppal_skill_line($P('mw-samara-spin')));
+ok('short text uses the Boon name', ppal_skill_short($P('mw-sap-drip')) === 'Sticky Sweet 10%', ppal_skill_short($P('mw-sap-drip')));
+equip($uid, ['mw-leaf-tuck', 'mw-bark-badger'], $pid);
+$sk = ppal_skills($u());
+ok('party sums: guard 1 and ward 2, no guard key without a guard Boon', ($sk['guard'] ?? 0) === 1 && $sk['ward'] === 2 && gnome_combat($u(), true)['pal'] === $sk);
+equip($uid, ['mw-acorn-nip'], $pid);
+ok('no guard key when no pal gives guard', !isset(ppal_skills($u())['guard']));
+// whole rounds: the first hit of the fight is halved, the second is not
+q('UPDATE creatures SET attack = 200, dmg_die = 1, dmg_bonus = 9 WHERE id = ?', [$crId]);   // always hits for exactly 10
+equip($uid, ['mw-leaf-tuck'], $pid);
+$encG = ['type' => 'creature', 'id' => $crId, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+$expG = ['id' => 78, 'status' => 'active', 'hp' => 900, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($encG), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+combat_turn($u(), $expG, 'attack'); $h1 = (int)$expG['hp'];
+combat_turn($u(), $expG, 'attack'); $h2 = (int)$expG['hp'];
+ok('Leaf Pile (guard 1): hit 1 does 5, hit 2 does 10 (health ' . $h1 . ' then ' . $h2 . ')', $h1 === 895 && $h2 === 885 && (json_decode((string)$expG['encounter'], true)['pg'] ?? 0) === 1, (string)$expG['log']);
+equip($uid, ['mw-bark-badger'], $pid);
+[, , $logB] = $round($u(), 'attack');
+ok('Borrowed Coat (ward 2): the same hit does 8', str_contains($logB, 'hits you for 8'), $logB);
+equip($uid, [], $pid);
+q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+ok('Boons on, no pals along: gnome_combat unchanged', gnome_combat($u(), true) === $base);
+set_setting('ppal_boons', '0'); setting('__reload__'); reset_all();
 set_setting('ppal_party', '0'); setting('__reload__'); reset_all();
 ok('ppal_party off: no skills', ppal_skills($u()) === [] && gnome_combat($u(), true) === $base);
 set_setting('ppal_party', '1'); setting('__reload__'); reset_all();

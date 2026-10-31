@@ -668,6 +668,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if (foe_hits((int)$c['attack'], $gc['ac'])) {
         $dmg = foe_damage((int)$c['dmg_die'], (int)$c['dmg_bonus']);
         if ($enc['bark'] > 0) $dmg = max(1, intdiv($dmg, 2));
+        if (!empty($palSk['guard']) && (int)($enc['pg'] ?? 0) < (int)$palSk['guard']) {   // v2.3.8 Boon guard: the first N hits of a fight are halved
+            $dmg = max(1, intdiv($dmg, 2));
+            $enc['pg'] = (int)($enc['pg'] ?? 0) + 1;
+        }
         if (!empty($palSk['ward'])) $dmg = max(1, $dmg - (int)$palSk['ward']);
         $exp['hp'] = (int)$exp['hp'] - $dmg;
         exp_log($exp, '💥 The ' . $c['name'] . ' hits you for ' . $dmg . '.');

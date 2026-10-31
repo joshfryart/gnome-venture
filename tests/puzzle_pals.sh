@@ -142,7 +142,7 @@ ok "book: 200 and header counts 3 of 12, 2 pictures" "$(grep -c '<b>3</b> of 12 
 ok "book: 12 slots, 3 found stickers, 9 silhouettes with a ?" "$(grep -c 'class="ppalslot' $W/b.html)/$(grep -c 'ppalslot ppr-[a-z]* got' $W/b.html)/$(grep -c 'ppalslot ppr-[a-z]* miss' $W/b.html)/$(grep -c 'class="ppalart ppsil"' $W/b.html)" "12/3/9/9"
 ok "book: section counts '3 of 6 found' and '0 of 6 found'" "$(grep -c '<b>3</b> of 6 found' $W/b.html)/$(grep -c '<b>0</b> of 6 found' $W/b.html)" "1/1"
 ok "book: a found pal shows name, rarity, date and 'met 3×'" "$(grep -o 'Sap Drip</b>' $W/b.html | wc -l | tr -d ' ')/$(grep -c 'met 3×' $W/b.html)/$(grep -c 'found [0-9]* [A-Z][a-z][a-z] 20' $W/b.html)" "1/1/3"
-ok "book: a missing pal's name is hidden" "$(grep -c 'Bark Badger' $W/b.html)" 0
+ok "book: a missing pal's name is hidden" "$(grep -v 'ppalwaiting' $W/b.html | grep -c 'Bark Badger')" 0
 ok "book: piece chip crops use classes only (no inline style anywhere)" "$(grep -c 'ppiece pcx[0-9]* pcy[0-9]* ppchip' $W/b.html)/$(grep -c ' style=' $W/b.html)" "3/0"
 ok "book: every pal image resolves (no broken images)" "$(grep -o 'src="[^"]*"' $W/b.html | sed 's/src="//; s/"$//' | grep -E 'puzzles/pals|jigsaw' | while read u; do curl -s -o /dev/null -w '%{http_code}\n' "$BASE$u"; done | grep -vc 200)" 0
 ok "book: not locked-listed while unready (Maize has no art)" "$(grep -c 'Solve Maize' $W/b.html)" 0

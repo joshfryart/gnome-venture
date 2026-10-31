@@ -970,12 +970,57 @@ const PPAL_SKILLS = [
 ];
 /** A rare pal also carries the skill of this other calling, at common strength. */
 const PPAL_SKILL_SECOND = ['rootwarden' => 'wayfinder', 'thornblade' => 'bloomcaller', 'wayfinder' => 'rootwarden', 'seedkeeper' => 'brewroot', 'brewroot' => 'seedkeeper', 'bloomcaller' => 'thornblade'];
-const PPAL_SKILL_CAP = ['ward' => 4, 'edge' => 3, 'foot' => 4, 'mend' => 4, 'sip' => 60, 'petal' => 6];
+const PPAL_SKILL_CAP = ['ward' => 4, 'edge' => 3, 'foot' => 4, 'mend' => 4, 'sip' => 60, 'petal' => 6, 'guard' => 3];
 
-/** One pal's skills as [kind => value]: its calling's skill by rarity, plus (rare) the second calling's at common strength. Pure. */
+/**
+ * v2.3.8 Boons (claude/brainstorm-pal-rosters.md): a pal with a row in includes/data/puzzle_pal_boons.txt has its own combat effect instead of its calling's
+ * skill (setting ppal_boons = 1). Always on, no conditions. Effect => [label, value for [common, uncommon, rare], sentence, party cap].
+ * Only the effects the fight code reads are listed here; the rest of the planned 16 arrive with the rosters that use them (tools/lint_pal_boons.py checks this list).
+ */
+const PPAL_EFFECTS = [
+    'ward' => ['Thorn Ward', [1, 2, 3], 'Takes %d off every hit you suffer', 4],
+    'edge' => ['Keen Edge', [1, 1, 2], 'Adds %d damage to your hits', 3],
+    'foot' => ['Fleet Foot', [1, 2, 3], 'Adds %d to your armour and to running away', 4],
+    'mend' => ['Mend', [1, 2, 3], 'Heals you %d at the start of every round', 4],
+    'sip' => ['Sip', [10, 20, 40], 'Snacks heal %d%% more', 60],
+    'petal' => ['Lucky Petal', [1, 2, 4], 'Adds %d%% to your chance of a critical hit', 6],
+    'guard' => ['Guard', [1, 1, 2], 'Halves the first %d hit(s) you take in each fight', 3],
+];
+/** Active skills a rare may have (row column 4; the fight button arrives in a later release). */
+const PPAL_ACTIVES = ['strike', 'shield', 'patch', 'snare', 'sap', 'daze', 'rouse', 'gust'];
+
+function ppal_boons_on(): bool
+{
+    return setting('ppal_boons') === '1';
+}
+
+/** includes/data/puzzle_pal_boons.txt parsed once: pal key => ['name', 'effect', 'active', 'line']. Bad lines are skipped (tools/lint_pal_boons.py reports them). */
+function ppal_boon_data(): array
+{
+    static $d = null;
+    if ($d !== null) return $d;
+    $d = [];
+    $f = __DIR__ . '/data/puzzle_pal_boons.txt';
+    foreach (is_file($f) ? (file($f, FILE_IGNORE_NEW_LINES) ?: []) : [] as $l) {
+        if (trim($l) === '' || $l[0] === '#') continue;
+        $c = explode('|', $l);
+        if (count($c) !== 5 || !isset(PPAL_EFFECTS[$c[2]])) continue;
+        $d[$c[0]] = ['name' => $c[1], 'effect' => $c[2], 'active' => $c[3] === '-' ? '' : $c[3], 'line' => $c[4]];
+    }
+    return $d;
+}
+
+/** This pal's Boon row, or null when Boons are off, the pal has none, or the row passed has no key (then it plays by its calling as before). */
+function ppal_boon(array $pal): ?array
+{
+    return ppal_boons_on() && isset($pal['key']) ? (ppal_boon_data()[(string)$pal['key']] ?? null) : null;
+}
+
+/** One pal's skills as [kind => value]: its Boon's effect by rarity, else its calling's skill by rarity plus (rare) the second calling's at common strength. Pure apart from the setting. */
 function ppal_pal_skills(array $pal): array
 {
     $i = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity']] ?? 0;
+    if ($b = ppal_boon($pal)) return [$b['effect'] => PPAL_EFFECTS[$b['effect']][1][$i]];
     $out = [];
     foreach ([[$pal['calling'], $i], ...($i === 2 && isset(PPAL_SKILL_SECOND[$pal['calling']]) ? [[PPAL_SKILL_SECOND[$pal['calling']], 0]] : [])] as [$calling, $at]) {
         if (!isset(PPAL_SKILLS[$calling])) continue;
@@ -989,6 +1034,10 @@ function ppal_pal_skills(array $pal): array
 function ppal_skill_line(array $pal): string
 {
     $i = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity']] ?? 0;
+    if ($b = ppal_boon($pal)) {
+        [, $vals, $text] = PPAL_EFFECTS[$b['effect']];
+        return '⚔️ ' . $b['name'] . ': ' . sprintf($text, $vals[$i]) . ($b['active'] !== '' ? ' · ✨ Skill: ' . ucfirst($b['active']) : '');
+    }
     $parts = [];
     foreach ([[$pal['calling'], $i], ...($i === 2 && isset(PPAL_SKILL_SECOND[$pal['calling']]) ? [[PPAL_SKILL_SECOND[$pal['calling']], 0]] : [])] as [$calling, $at]) {
         if (!isset(PPAL_SKILLS[$calling])) continue;
@@ -999,8 +1048,8 @@ function ppal_skill_line(array $pal): string
 }
 
 /**
- * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)],
- * summed over the party and capped (PPAL_SKILL_CAP). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
+ * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)] and, only when a Boon gives it,
+ * 'guard' (hits halved a fight), summed over the party and capped (PPAL_EFFECTS). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
  */
 function ppal_skills(int|array $u): array
 {
@@ -1008,7 +1057,8 @@ function ppal_skills(int|array $u): array
     foreach (ppal_equipped($u) as $e) foreach (ppal_pal_skills($e['pal']) as $k => $v) $t[$k] = ($t[$k] ?? 0) + $v;
     if (!$t) return [];
     $o = ['ward' => $t['ward'] ?? 0, 'edge' => $t['edge'] ?? 0, 'foot' => $t['foot'] ?? 0, 'mend' => $t['mend'] ?? 0, 'sip' => $t['sip'] ?? 0, 'petal' => $t['petal'] ?? 0];
-    foreach ($o as $k => $v) $o[$k] = min(PPAL_SKILL_CAP[$k], $v);
+    if (!empty($t['guard'])) $o['guard'] = $t['guard'];
+    foreach ($o as $k => $v) $o[$k] = min(PPAL_EFFECTS[$k][3], $v);
     return array_sum($o) > 0 ? $o : [];
 }
 
@@ -1053,10 +1103,9 @@ function ppal_own_node(array $pic, array $nodes): ?array
 /** Short skill text for a pal's row ("Thorn Ward 2" / "Sip 10%"; a rare shows both its skills). */
 function ppal_skill_short(array $pal): string
 {
+    $b = ppal_boon($pal);
     $out = [];
-    foreach (ppal_pal_skills($pal) as $kind => $v) {
-        foreach (PPAL_SKILLS as [$k, $name]) if ($k === $kind) { $out[] = $name . ' ' . $v . ($kind === 'sip' || $kind === 'petal' ? '%' : ''); break; }
-    }
+    foreach (ppal_pal_skills($pal) as $kind => $v) $out[] = ($b ? $b['name'] : PPAL_EFFECTS[$kind][0]) . ' ' . $v . ($kind === 'sip' || $kind === 'petal' ? '%' : '');
     return implode(', ', $out);
 }
 
@@ -1065,7 +1114,7 @@ function ppal_skill_lines(int|array $u): array
 {
     $sk = ppal_skills($u);
     $out = [];
-    foreach (PPAL_SKILLS as [$kind, $name, , $text]) if (!empty($sk[$kind])) $out[] = $name . ': ' . sprintf($text, $sk[$kind]);
+    foreach (PPAL_EFFECTS as $kind => [$name, , $text]) if (!empty($sk[$kind])) $out[] = $name . ': ' . sprintf($text, $sk[$kind]);
     return $out;
 }
 
