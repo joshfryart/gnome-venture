@@ -385,3 +385,10 @@ details.fold[open] > summary::before { border: 6px solid transparent; border-top
 .delve[data-mode="fight"] .gnome { z-index: 4; }
 .delve[data-mode="fight"] .you-hp { display: grid; position: absolute; z-index: 6; left: 8%; top: 38%; width: 23%; gap: 2px; font: 800 11px/1.1 var(--font); color: #f2e4c0; text-shadow: 1px 1px 0 #1c1328; }
 @media (min-width: 600px) { .delve[data-mode="fight"] .you-hp { font-size: 13px; } }
+
+/* layout tail: wins over the component rules above */
+@media (min-width: 600px) { .tray { min-height: 0; } }
+@media (min-width: 900px) and (max-width: 1099px) {
+  .mem { grid-template-columns: 40px minmax(0, 1fr); grid-template-areas: "pic lv" "name name" "hp hp" "n n"; }
+  .lv { align-self: center; }
+}
