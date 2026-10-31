@@ -176,6 +176,49 @@ ok('clear count of the real delve is untouched', (int)q_val('SELECT clears FROM 
 $best = pj_roll_delve(array_merge(pj_pal($uid, $p3), ['a' => 10, 'hp' => 60, 'max' => 60]), ['level' => 1, 'name' => 'x'], 0, 'z');
 ok('a strong pal clears all 5 rooms and is paid', $best['rounds'] === DELVE_ROOMS && !$best['fainted'] && $best['coins'] > 0);
 
+echo "== delve re-runs on the new route (delve_v2)\n";
+require_once APP_ROOT . '/includes/delve_v2.php';
+$bp = array_merge(pj_pal($uid, $p3), ['a' => 10, 'hp' => 60, 'max' => 60]);
+$lmB = ['level' => 5, 'name' => 'Beaverdam Tunnels'];
+$routeOf = fn(string $rs) => dv_route($rs, 'beaverdam-tunnels', dv_stages(5));
+$wayOk = true; $thornOk = true; $noBoss = true; $lenOk = true; $paid = true;
+foreach (range(1, 40) as $i) {
+    $rs = 'rs' . $i;
+    $route = $routeOf($rs);
+    foreach (['wayfinder', 'thornblade'] as $cl) {
+        $pp = $bp; $pp['pal']['calling'] = $cl;
+        $res = pj_roll_delve_route($pp, $lmB, 0, 'x' . $i, $rs);
+        if (in_array('boss', $res['path'], true)) $noBoss = false;
+        if (count($res['path']) !== $route['stages'] - 1 && !$res['fainted']) $lenOk = false;
+        if (!$res['fainted'] && ($res['coins'] <= 0 || $res['rounds'] !== DELVE_ROOMS)) $paid = false;
+        $first = dv_route_choices($route, null);
+        $kinds = array_map(fn($id) => dv_route_node($route, $id)['kind'], $first);
+        if ($cl === 'wayfinder' && $res['path'][0] === 'fight' && array_diff($kinds, ['fight'])) $wayOk = false;
+        if ($cl === 'thornblade' && in_array('fight', $kinds, true) && $res['path'][0] !== 'fight') $thornOk = false;
+    }
+}
+ok('route re-run: the pal never fights the guardian', $noBoss);
+ok('route re-run: one pick per row before the guardian', $lenOk);
+ok('route re-run: a strong pal is paid, rounds scaled to DELVE_ROOMS', $paid);
+ok('route re-run: a Wayfinder avoids a fight when it can', $wayOk);
+ok('route re-run: a Thornblade picks the fight', $thornOk);
+$r1 = pj_roll_delve_route($bp, $lmB, 0, 'same', 'rs1'); $r2 = pj_roll_delve_route($bp, $lmB, 0, 'same', 'rs1');
+ok('route re-run: same seeds, same walk', $r1['path'] === $r2['path'] && $r1['hp'] === $r2['hp']);
+$weak = array_merge($bp, ['a' => 1, 'hp' => 3, 'max' => 3]); $weak['pal']['calling'] = 'thornblade';
+$wf = 0; foreach (range(1, 20) as $i) { $wr = pj_roll_delve_route($weak, ['level' => 20, 'name' => 'Beaverdam Tunnels'], 0, 'w' . $i, 'rs' . $i); if ($wr['fainted']) { $wf++; if ($wr['coins'] !== 0) $wf = -99; } }
+ok('route re-run: a weak pal faints in a hard delve and brings nothing', $wf > 0, (string)$wf);
+cfg(['delve_v2' => 1, 'delve_map' => 1]);
+$dl2 = q_one("SELECT id, name FROM landmarks WHERE kind = 'delve' AND id <> ? ORDER BY id LIMIT 1", [$dl['id']]);
+q('INSERT INTO landmark_clears (user_id, landmark_id, clears, first_at, last_at) VALUES (?, ?, 1, ?, ?)', [$uid, $dl2['id'], now(), now()]);
+[$d3, $dm3] = pj_delve_send($u, $p2, (int)$dl2['id'], 0);
+$dr3 = json_decode((string)q_val("SELECT result FROM ppal_jobs WHERE kind = 'delve' ORDER BY id DESC LIMIT 1"), true);
+ok('delve_v2 on: the send walks the route', $d3 === true && isset($dr3['path']) && count($dr3['path']) >= 1, $dm3 . ' ' . json_encode($dr3));
+q("UPDATE ppal_jobs SET ends_at = ? WHERE kind = 'delve' AND pal_uid = ?", [gmdate('Y-m-d H:i:s', time() - 5), $p2]);
+$j3 = (int)q_val("SELECT id FROM ppal_jobs WHERE kind = 'delve' AND pal_uid = ? ORDER BY id DESC LIMIT 1", [$p2]);
+[$c3, $l3] = pj_collect($u, $j3);
+ok('collect names the way taken', $c3 === true && (bool)array_filter($l3, fn($l) => str_starts_with($l, '🗺️')), json_encode($l3));
+cfg(['delve_v2' => 0]);
+
 echo "== equipped xp\n";
 cfg(['ppal_party' => 1]);
 q("UPDATE ppal_found SET status = 'home', active = 1, eq_since = ?, g_xp = 0, a_xp = 0 WHERE pal_uid = ?", [gmdate('Y-m-d H:i:s', time() - 5 * 3600 - 30), $p2]);
