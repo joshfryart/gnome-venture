@@ -325,3 +325,13 @@ At max-width 340px: chip padding 2px 5px, font 13px, gap 4px (fits 320px).
 - Tabs show counts (`Out 3`, `At home 9`); the Out count turns gold when a pal is ready to collect. Default tab: Out, or Jobs if nobody is out or the URL is `#pjboard`. Free-slot "Pick a job" links switch to Jobs.
 - Keys: Left/Right/Home/End. `aria-selected`, `aria-controls`, `role=tabpanel` set by JS.
 - CSS: `.pjtabs`, `.pjtab`, `.pjtabn`, `.pj-tabbed .pjgrid{display:block}` (the 2-column desktop grid is not used in tabbed mode). Tab height 44px.
+
+## Update: "Send a pal" unfolds the form; reload checks
+- Each post shows a `Send a pal` button (`aria-expanded`, `aria-controls`); the form is `hidden` until opened. One open at a time (opening another resets the first). Cancel or Esc folds it. Opening focuses the first pal. **No PHP change**; without JS the forms stay open.
+- **Reload and Back, checked:**
+  1. Post → server redirect to `paljobs.php` (PRG). F5 after a send re-GETs, never re-posts. Keep the `redirect()` in the POST handler.
+  2. Forms get `autocomplete="off"`, so Firefox does not restore half-filled forms after reload.
+  3. Back/Forward from the bfcache: on `pageshow` (persisted) all forms reset, folded, and Send re-enabled (it is disabled on submit, so a stuck button after Back was the real risk).
+  4. Tab after a post: success lands on Out (the pal is there). If the redirect carries a `.flash.err`, the page returns to the tab you posted from (`sessionStorage` key `pj-from`, read once then removed), so the error sits by the form.
+  5. Double tap: Send disables on submit; the server claims the pal in one UPDATE anyway.
+- **Not testable in the static copy:** the real redirect and flash round-trip. Test on the site: send (success, then F5, then Back), send with a failing case (pal at 0 HP, no runs left), Collect then Back.

@@ -8858,6 +8858,14 @@ body.pz-play .lp #game{text-align:left}
 .pjcounts a{display:inline-flex; align-items:center; gap:6px; min-height:var(--tap); margin:-6px -8px; padding:0 8px; font-weight:700}
 
 
+
+/* unfold button */
+.pjopen{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:12px}
+.pjopen::after{content:''; width:0; height:0; border:6px solid transparent; border-top:7px solid currentColor; border-bottom:0; transition:transform .2s cubic-bezier(.16,1,.3,1)}
+.pjopen[aria-expanded="true"]::after{transform:rotate(180deg)}
+.pjopen[aria-expanded="true"]{background:var(--surface-2); color:var(--ink)}
+.pjopen + .pjform{margin-top:8px}
+@media (prefers-reduced-motion:reduce){ .pjopen::after{transition:none} }
 /* tabs (JS adds .pj-tabbed; without JS the sections stack) */
 .pjtabs{display:flex; gap:0; margin:0 0 14px; border-bottom:2px solid var(--line-2)}
 .pjtab{position:relative; flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:var(--tap); margin:0 -2px -2px 0; padding:0 10px; font:inherit; font-weight:700; color:var(--ink-2); background:var(--surface-2); border:2px solid var(--line-2); border-radius:0; cursor:pointer; white-space:nowrap}
@@ -9154,6 +9162,50 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
   });
 })();
 
+  /* unfold: each job post shows a "Send a pal" button; the form opens under it. One open at a time. Without JS the forms stay open. */
+  (function () {
+    var root = document.querySelector('.pjpage');
+    if (!root) return;
+    var forms = [].slice.call(root.querySelectorAll('form.pjform'));
+    var opens = [];
+    var reset = function (f) {   // back to the first-load state: nothing picked, button live
+      f.reset();
+      f.querySelectorAll('[data-pj-send]').forEach(function (b) { b.disabled = false; });
+      f.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    var close = function (f, focus) {
+      var b = f.pjOpen;
+      reset(f); f.hidden = true;
+      if (b) { b.setAttribute('aria-expanded', 'false'); if (focus) b.focus(); }
+    };
+    forms.forEach(function (f, i) {
+      f.setAttribute('autocomplete', 'off');   // Firefox would restore a half-filled form after a reload or Back
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn pjopen';
+      b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', f.id || (f.id = 'pjform-' + i));
+      b.innerHTML = '<span>Send a pal</span>';
+      f.parentNode.insertBefore(b, f);
+      f.pjOpen = b; opens.push(b);
+      f.hidden = true;
+      b.addEventListener('click', function () {
+        if (!f.hidden) { close(f); return; }
+        forms.forEach(function (o) { if (o !== f && !o.hidden) close(o); });
+        f.hidden = false; b.setAttribute('aria-expanded', 'true');
+        var first = f.querySelector('input[name="pal"]:not(:disabled)');
+        if (first) first.focus({ preventScroll: true });
+        f.scrollIntoView({ block: 'nearest' });
+      });
+      f.addEventListener('keydown', function (ev) {   // Esc folds the form (the draft clear above runs first on the same key)
+        if (ev.key === 'Escape' && !f.querySelector('input[name="pal"]:checked')) close(f, true);
+      });
+      f.querySelectorAll('.linkbtn').forEach(function (c) {   // Cancel folds the form too
+        c.addEventListener('click', function () { setTimeout(function () { close(f, true); }, 0); });
+      });
+    });
+    // Back/Forward or a failed post can bring the page back from the cache with a disabled Send and old picks.
+    window.addEventListener('pageshow', function (ev) { if (ev.persisted) forms.forEach(function (f) { close(f); }); });
+  })();
+
   /* tabs: Out / At home / Jobs. Without JS all three stack as before. */
   (function () {
     var root = document.querySelector('.pjpage');
@@ -9199,7 +9251,18 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
       if (a) { ev.preventDefault(); show(2); secs[2][2].scrollIntoView(); tabs[2].focus(); }
     });
     count(); setInterval(count, 1000);
-    show(location.hash === '#pjboard' || !secs[0][2].querySelector('.pjrow:not(.pjfree)') ? 2 : 0);
+    // A post redirects back here. Success: land on Out (the pal is there). Error: land on the tab you posted from, so the message sits by the form.
+    var KEY = 'pj-from', from = null;
+    try { from = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); } catch (e) {}
+    root.addEventListener('submit', function (ev) {
+      var k = secs.findIndex(function (x) { return x[2].contains(ev.target); });
+      try { if (k > -1) sessionStorage.setItem(KEY, String(k)); } catch (e) {}
+    });
+    var failed = !!document.querySelector('.flash.err');
+    var start = location.hash === '#pjboard' || !secs[0][2].querySelector('.pjrow:not(.pjfree)') ? 2 : 0;
+    if (failed && from !== null && secs[+from]) start = +from;
+    show(start);
+    window.addEventListener('pageshow', function (ev) { if (ev.persisted) show(start); });
   })();
 
 /* ===== pj JS END ===== */
