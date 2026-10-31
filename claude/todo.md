@@ -1,6 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-31, code on main is 2.3.91 `0e1719b1` (2.3.91 zip NOT built yet))
+# Gnome Venture: to-do (updated 2026-10-31, code on main is 2.3.91 `0e1719b1` (2.3.91 slim zip built))
 
-## NOW (2.3.91, 2026-10-31): merge + two fixes. ON MAIN (`0e1719b1`), NO ZIP YET (build slim + manifest `tests/manifests/2.3.91.txt`; the 2.3.9 zip lacks the Stamp passport). Not run: full CI, MySQL, phone check.
+## NOW (2.3.91, 2026-10-31): merge + two fixes. ON MAIN (`0e1719b1`), slim zip BUILT `releases/GnomeVenture-2.3.91-web-update.zip` (needs 2.3.7+, manifest `tests/manifests/2.3.91.txt`), Joshua uploads; it replaces the 2.3.9 zip, which lacks the Stamp passport. Not run: full CI, MySQL, phone check.
 - **Merged** the 2.3.9 branch (Boons, health bars, Pantry rooms) with main's 2.3.8 (Stamp passport); changelog keeps both.
 - **Pal active skills stack:** the same active from two pals = ONE fight button at double value (`ppal_actives()` groups by active; shield/gust carry their value in `enc.psv`/`enc.pgv`). Snare, daze, rouse are on/off, so no extra. Test in `tests/puzzle_pals_party.php`. Player news entry for 2.3.91 not added.
 - **Waiting Puzzle Pal also shows on the Here page** (`town.php`, rest stop and town square), not only World > Go.
