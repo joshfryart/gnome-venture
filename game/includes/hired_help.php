@@ -76,7 +76,7 @@ function helper_slots(int $plotId): int
 /** Visit times due since the last visit, up to now and the end of the contract. */
 function hire_visits(array $hire): array
 {
-    $step = max(1, (int)setting('helper_visit_hours')) * 3600;
+    $step = max(1, (int)($hire['step_hours'] ?? setting('helper_visit_hours'))) * 3600;   // v2.3.0: a pal on garden duty brings its own step
     $end = min(time(), ts($hire['ends_at']));
     $out = [];
     for ($v = ts($hire['last_visit']) + $step; $v <= $end && count($out) < 200; $v += $step) $out[] = $v;
@@ -155,6 +155,7 @@ function helper_water_tile(array $t, ?array $p, array $visits, array &$stats): a
 /** Finish a helper's visits: record them, close an ended contract, and return a "while you were out" line. */
 function helper_finish(array $hire, array $visits, array $stats): ?string
 {
+    if (isset($hire['pj_job'])) return pj_garden_finish($hire, $visits, $stats);   // v2.3.0: a pal tending the garden (pal_jobs.php)
     $last = $visits ? gmdate('Y-m-d H:i:s', end($visits)) : $hire['last_visit'];
     $ended = ts($hire['ends_at']) <= time();
     q('UPDATE garden_hires SET last_visit = ?, visits = visits + ?, waterings = waterings + ?, weedings = weedings + ?, harvests = harvests + ?, active = ? WHERE id = ?',

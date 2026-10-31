@@ -821,6 +821,8 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
     // A hired helper's visits since the garden last loaded
     // v0.7.99: a Tool Shed can house up to 3 helpers; each keeps its own visits and tally
     $hires = $helperDone ? [] : current_hires((int)$plotId);
+    if (!$helperDone && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/pal_jobs.php'; }
+    if (!$helperDone && function_exists('pj_garden_hires')) $hires = array_merge($hires, pj_garden_hires((int)$plotId));   // v2.3.0: a Puzzle Pal on garden duty visits like a helper (no Tool Shed slot)
     $hv = $hs = $hst = [];
     foreach ($hires as $k => $hh) { $hv[$k] = hire_visits($hh); $hs[$k] = helper_skills($hh); $hst[$k] = ['water' => 0, 'weed' => 0, 'harvest' => 0]; }
     foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$plotId])->fetchAll() as $t) {

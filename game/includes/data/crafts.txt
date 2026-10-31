@@ -88,3 +88,6 @@ rope-goat-hair|Rope (goat hair)|building|rope:2|goat-hair:3|3
 # v1.4.0 garden animal crafts (animals140.php): Wing Scales and Snail Trail Glaze. The decor items are made by animals140_items().
 wing-scale-lantern|Wing Scale Lantern|decor|wing-scale-lantern:1|wing-scale:3,silk-thread:1|2
 glazed-garden-pot|Glazed Garden Pot|decor|glazed-garden-pot:1|snail-trail-glaze:2,river-clay:2|2
+
+# Potions (v2.3.0): Puzzle Pals drink these on trips and delve runs
+healing-potion|Healing Potion|potions|healing-potion:1|meadowsweet:2,sphagnum:1|2

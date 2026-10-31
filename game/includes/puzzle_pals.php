@@ -80,9 +80,28 @@ function ppal_schema(string $PK, string $ID, string $END): array
         loc_id $ID NOT NULL,
         made_day VARCHAR(10) NOT NULL,
         UNIQUE (user_id, pal_key)
+    )$END", "CREATE TABLE IF NOT EXISTS ppal_jobs (
+        id $PK,
+        user_id $ID NOT NULL,
+        pal_uid VARCHAR(16) NOT NULL,
+        kind VARCHAR(8) NOT NULL,
+        target VARCHAR(40) NOT NULL DEFAULT '',
+        plot_id $ID NULL,
+        day VARCHAR(10) NOT NULL DEFAULT '',
+        tool VARCHAR(12) NULL,
+        started_at DATETIME NOT NULL,
+        ends_at DATETIME NOT NULL,
+        last_tick DATETIME NULL,
+        potions INT NOT NULL DEFAULT 0,
+        tasks INT NOT NULL DEFAULT 0,
+        state VARCHAR(8) NOT NULL DEFAULT 'active',
+        result TEXT NULL
     )$END"];
-    $i = ['CREATE INDEX idx_ppal_found_pic ON ppal_found (user_id, pic_id)'];
-    $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0'], ['users', 'ppal_spawn_day', 'VARCHAR(10) NULL']];
+    $i = ['CREATE INDEX idx_ppal_found_pic ON ppal_found (user_id, pic_id)', 'CREATE INDEX idx_ppal_jobs_user ON ppal_jobs (user_id, state)', 'CREATE INDEX idx_ppal_jobs_plot ON ppal_jobs (plot_id, state)'];
+    $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0'], ['users', 'ppal_spawn_day', 'VARCHAR(10) NULL'],
+        ['ppal_found', 'pal_uid', 'VARCHAR(16) NULL'], ['ppal_found', 'g_xp', 'INT NOT NULL DEFAULT 0'], ['ppal_found', 'a_xp', 'INT NOT NULL DEFAULT 0'],
+        ['ppal_found', 'hp', 'INT NOT NULL DEFAULT -1'], ['ppal_found', 'hp_at', 'DATETIME NULL'], ['ppal_found', 'status', "VARCHAR(8) NOT NULL DEFAULT 'home'"],
+        ['ppal_found', 'eq_since', 'DATETIME NULL']];
     return [$t, $i, $c];
 }
 
@@ -91,7 +110,7 @@ function ppal_ensure(): bool
 {
     static $ok = null;
     if ($ok !== null) return $ok;
-    try { q('SELECT 1 FROM ppal_releases LIMIT 1'); q('SELECT 1 FROM ppal_found LIMIT 1'); q('SELECT 1 FROM ppal_trophies LIMIT 1'); q('SELECT 1 FROM ppal_spawns LIMIT 1'); $ok = true; } catch (Throwable $e) { $ok = false; }
+    try { q('SELECT 1 FROM ppal_releases LIMIT 1'); q('SELECT 1 FROM ppal_found LIMIT 1'); q('SELECT 1 FROM ppal_trophies LIMIT 1'); q('SELECT 1 FROM ppal_spawns LIMIT 1'); q('SELECT 1 FROM ppal_jobs LIMIT 1'); $ok = true; } catch (Throwable $e) { $ok = false; }
     try {
         $s = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         [$t, $i, $c] = ppal_schema($s ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', $s ? 'INTEGER' : 'INT UNSIGNED', $s ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
@@ -479,10 +498,10 @@ function ppal_claim(array $u, string $key, int $picId, bool $test = false): arra
     }
     $new = true;
     try {
-        db_insert('ppal_found', ['user_id' => $uid, 'pal_key' => $key, 'pic_id' => $picId, 'found_at' => now(), 'times' => 1, 'active' => 0]);
+        db_insert('ppal_found', ['user_id' => $uid, 'pal_key' => $key, 'pic_id' => $picId, 'found_at' => now(), 'times' => 1, 'active' => 0, 'pal_uid' => bin2hex(random_bytes(8))]);
     } catch (Throwable $e) {
         $new = false;
-        q('UPDATE ppal_found SET times = times + 1 WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+        q('UPDATE ppal_found SET times = times + 1, g_xp = g_xp + ?, a_xp = a_xp + ? WHERE user_id = ? AND pal_key = ?', [PPAL_DUP_XP, PPAL_DUP_XP, $uid, $key]);   // v2.3.0: a repeat find trains the pal it already has
     }
     $have = ppal_found_map($uid);
     $n = 0;
@@ -495,7 +514,7 @@ function ppal_claim(array $u, string $key, int $picId, bool $test = false): arra
         $head = 'A new Puzzle Pal!';
     } else {
         $t = (int)($have[$key]['times'] ?? 2);
-        $lines = [$pal['name'] . ' waves hello again (met ' . $t . ' times)'];
+        $lines = [$pal['name'] . ' waves hello again (met ' . $t . ' times) and learns a little: +' . PPAL_DUP_XP . ' Gardening and Adventuring XP'];
         $head = $pal['name'] . ' waves!';
     }
     return [true, ['icon' => '🧩', 'title' => $head, 'text' => '', 'lines' => $lines, 'ppal' => $key]];
@@ -608,6 +627,7 @@ function ppal_badges_html(int $uid): string
 
 // ---------------- step 4: take pals along (equip), passive perks, the avatar companions ----------------
 
+const PPAL_DUP_XP = 15;   // v2.3.0: XP of each kind a duplicate find gives (pal jobs)
 const PPAL_PARTY_LEVEL = 1;   // gnome level needed to take pals along (v2.0.91: every gnome; was 15)
 /** Perk units by rarity, and the caps: the units a kind adds up to (a pal's own units + the Expert trophy's +1 for its picture), then what they are worth. */
 const PPAL_UNITS = ['common' => 8, 'uncommon' => 15, 'rare' => 30];   // v2.0.92: a unit is now one percent (was a common pal = 1%); the Expert trophy adds PPAL_TROPHY_UNITS
@@ -674,7 +694,7 @@ function ppal_equipped(int|array $u, bool $reset = false): array
     $c[$uid] = [];
     try {
         if (!$uid || !ppal_can_party($row)) return [];
-        foreach (q('SELECT pal_key, pic_id FROM ppal_found WHERE user_id = ? AND active = 1 ORDER BY found_at, id', [$uid])->fetchAll() as $r) {
+        foreach (q('SELECT pal_key, pic_id FROM ppal_found WHERE user_id = ? AND active = 1 AND status = \'home\' ORDER BY found_at, id', [$uid])->fetchAll() as $r) {
             if (count($c[$uid]) >= ppal_party_max()) break;
             $pic = ppal_pic((int)$r['pic_id']);
             $pal = $pic ? ppal_find_pal($pic, (string)$r['pal_key']) : null;
@@ -724,18 +744,19 @@ function ppal_set_active(array $u, string $key, bool $on): array
     $uid = (int)$u['id'];
     if (!ppal_party_on() || is_guest($u) || !ppal_ensure()) return [false, 'Pals cannot come along just yet.'];
     if ((int)$u['level'] < PPAL_PARTY_LEVEL) return [false, 'Take pals along from gnome level ' . PPAL_PARTY_LEVEL . '.'];
-    $f = q_one('SELECT active FROM ppal_found WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+    $f = q_one('SELECT active, status FROM ppal_found WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
     if (!$f) return [false, 'You have not met that pal yet.'];
     $name = $key;
     foreach (ppal_releases($uid) as $picId => $at) { $pic = ppal_pic((int)$picId); if ($pic && ($p = ppal_find_pal($pic, $key))) { $name = $p['name']; break; } }
     if (!$on) {
-        q('UPDATE ppal_found SET active = 0 WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+        q('UPDATE ppal_found SET active = 0, eq_since = NULL WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
         ppal_party_reset();
         return [true, $name . ' goes home to rest.'];
     }
+    if ((string)$f['status'] !== 'home') return [false, $name . ' is out on a job.'];
     if ((int)$f['active'] === 1) return [true, $name . ' is already with you.'];
     if ((int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ? AND active = 1', [$uid]) >= ppal_party_max()) return [false, 'Your party is full (' . ppal_party_max() . '). Send a pal home first.'];
-    q('UPDATE ppal_found SET active = 1 WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+    q("UPDATE ppal_found SET active = 1, eq_since = ? WHERE user_id = ? AND pal_key = ? AND status = 'home'", [now(), $uid, $key]);
     ppal_party_reset();
     return [true, $name . ' comes along with you.'];
 }
