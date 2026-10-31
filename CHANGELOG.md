@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.61
+- **Satchel and Crafting redesigned (Shelves).** The Satchel is a Quick bar (one-tap Eat, Open, Read, Mend) above foldable type shelves of compact pills; tap a pill to open its details in place. Every Crafting tab except the Pantry shows the station strip (pots, energy, Petals, or the Tool Shed), a Shopping list of what to gather for recipes one trip away, a search box (also matches ingredient names) and shelves: Ready, One trip away, Need more, To discover. The picked recipe opens inline with "You have / Still need" and the Make buttons. Phone page heights: Satchel 5,859 to 3,284 px, Cooking 6,319 to 1,731 px. New `shelves.php`, `satchel_view.php`, `craft_shelves.php`; `.shelves` block in `style.css`, a Shelves block in `site.js`; the big item squares are gone from the Satchel and from known recipes. Sell and Gift link to the market tabs.
+- **Making something keeps its recipe open.** After Make, you come back to the same recipe (`?r=`), scrolled to its row, instead of every panel closing.
+- Tests: cook, craft, eggs110, animals120, animals140, itemsq, images, flowers, sinks097, pantry, yard, tools, guest and security190 pass as on the base; assertions updated in `itemsq.sh`, `images.sh`, `craft.sh`, `cook.sh` for the new markup. Known failing on the base commit too: `gather150`, `folkoverlay`. Full CI not run.
+
 ## 2.2.6
 - **Pantry phone sheet slimmer.** The selected-recipe sheet shows one slim line per ingredient (icon, name, have/need) instead of the big squares, with a smaller title and tighter buttons. It starts closed; tap its header to open or close it (chevron shows the state); picking a recipe from the list opens it. Desktop unchanged.
 - Known failing on the base commit too: `gather150`, `folkoverlay`. Only `tests/pantry.sh` was re-run (2.2.5).

@@ -605,6 +605,10 @@ function post_update_news(string $from): void
     '2.2.5' => ['🫙 Update 2.2.5: a tidier Pantry and menu',
         "[list][*]The Pantry now shows your jars in one row, with search and filters for Jam, Chutney, Pickle, Ferment and Cordial. Pick a recipe to see its ingredients and make it, with far less scrolling on a phone.\n"
         . "[*]The menu has a new [b]Hobbies[/b] group, and on phones it no longer repeats what the bottom bar already has.[/list]"],
+    '2.2.61' => ['🧺 Update 2.2.61: a tidier Satchel and Crafting',
+        "[list][*]The Satchel now has a [b]Quick[/b] bar for one-tap eating, opening and reading, and your things sit on foldable shelves. Tap one to see what it can do.\n"
+        . "[*]Crafting shows what you can make now, a shopping list of what to gather for the next recipes, and the rest on shelves. After you make something, its recipe stays open.\n"
+        . "[*]Much less scrolling on a phone.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

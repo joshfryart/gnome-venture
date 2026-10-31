@@ -33,4 +33,5 @@ if (is_post()) {
     flash($msg, $ok ? 'ok' : 'err');
     if ($ok) foreach (check_milestones($uid) as $m) flash($m);
 }
-redirect('inventory.php?tab=craft&c=' . $tab);
+$rid = (int)($_POST['recipe_id'] ?? 0);   // come back with the same recipe open (shelves open it from ?r=; the Pantry also scrolls to its detail)
+redirect('inventory.php?tab=craft&c=' . $tab . ($rid > 0 ? '&r=' . $rid . '#' . ($tab === 'pantry' ? 'p2d' : 'r' . $rid) : ''));
