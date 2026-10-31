@@ -7,3 +7,81 @@ mw-sap-drip|Sticky Sweet|sip|-|Makes every snack a little sweeter and a little s
 mw-bark-badger|Borrowed Coat|ward|-|Lends you a coat of bark against every hit.
 mw-fourwind-finch|Four Ways|foot|-|Points out the way round, and the way out.
 mw-samara-spin|Whirligig|edge|strike|A maple key that learned to fly, and to hit.
+mh-husk-hopper|Silent Pounce|first|-|Says nothing, then springs from its husk before the creature has noticed it was there.
+mh-cob-scout|Spare Kernels|feast|-|Always counts a few kernels too many, so there’s an extra handful with every snack.
+mh-kernel-knock|Twice Knocked|mend|-|Knocks twice on your bruises each round, and each knock pops a little ache away.
+mh-stitch-crow|Hatpin Jab|edge|-|Takes the pin from its best hat and jabs with it, very seriously indeed.
+mh-golden-ring|Harvest Hoop|ward|-|Frames you in harvest gold, and every blow comes through it a little smaller.
+mh-popcorn-moon|Midnight Feast|bulwark|patch|Fills you up like a harvest supper for the long road, and pops a hot kernel your way when you’re flagging.
+ss-shell-skip|Tideline Shell|guard|-|Hands you the biggest shell it collected, just in time to catch the first blow of a fight.
+ss-palm-fidget|Twitchy Timing|petal|-|Twitches at just the right moment, and now and then your swing lands exactly where it hurts.
+ss-tide-tuck|Wet Sand Larder|sip|-|Tucks your snacks into cool wet sand so they go further when you need them.
+ss-coral-cuff|Reef Bracer|ward|-|Lends you a bracer of tiny reefs that takes the sting out of every hit.
+ss-lagoon-loop|Lagoon Lungful|bulwark|-|Lets you take a deep, salty lungful of lagoon air and walk on a good deal sturdier.
+ss-cocopaddle|Paddle Rush|first|strike|Comes in on the first wave before anyone is ready, and its paddle never misses its mark.
+rr-kapok-nook|Back Door|slip|-|Knows every little door in the roots, so there’s always a way out when a fight goes wrong.
+rr-hammock-hush|Upside Thinking|petal|-|All that upside-down thinking pays off: it spots the soft spot and you hit it squarely.
+rr-mate-mumble|Gourd Top-Up|sip|-|Tops up every snack with a warm sip from its gourd, so it does you more good.
+rr-bromeliad-bolt|Spiky Crown|edge|-|Won’t share its rain, but gladly shares its spikes with whatever you’re hitting.
+rr-highland-ring|Cloud Collar|ward|-|Wraps you in cold highland cloud, and every blow arrives a bit muffled.
+rr-glimmer-frog|Rainglow Supper|feast|patch|Croaks its llama song over your snacks to make them go further, and glows a quick heal on you in a pinch.
+mm-toadstool-tuck|Inside the Ring|guard|-|Pulls you inside the fairy ring, where the first blow of a fight lands only half as hard.
+mm-skerry-seal|Opening Bark|first|-|Tired of waiting for fish, it barks at the first thing that moves and your opening blow goes true.
+mm-peat-sip|Peat Smoke Tea|sip|-|Brews a smoky cup to go with your snacks, and they warm you through far better.
+mm-stone-sentry|Just a Rock|slip|-|While the creature argues with a rock about being a rock, you quietly slip away.
+mm-kite-knot|Huffy Crust|feast|-|Flies off in a huff and comes back with an extra crust for every snack you eat.
+mm-gatepost-hoot|Gatepost Vigil|mend|shield|Keeps watch over the lane, patches you a bit each round, and hoots a warning before two blows land.
+ow-net-nudge|Mended Net|guard|-|Throws a freshly mended net between you and the first blow of every fight.
+ow-olive-pip|Her Lucky Tree|petal|-|Every tree is hers, and so is the lucky branch that makes your best hits land hard.
+ow-jar-hum|Oil Jar Supper|feast|-|Hums a drizzle of golden oil over your snacks, and each one fills you a bit more.
+ow-sun-glint|Morning Dazzle|ward|-|Winks the sea’s glare at your foes so their blows glance off half-blind.
+ow-press-ring|Golden Drop|mend|-|Squeezes out a golden drop of oil each round to soothe your scrapes.
+ow-harbour-leap|Safe Harbour|rally|shield|Lands you back in the bay when you’re nearly sunk, and leaps in front of the next two hits.
+bb-slushbelly|Slushy Sweet|feast|-|Melts a little over your snacks when you’re not looking, and they go down all the better.
+bb-gander-gait|Marching Order|bulwark|-|Marches you in a neat line down the road, and you arrive with more puff to spare.
+bb-samovar-puff|Unasked-For Tea|sip|-|Pours tea with every snack whether you like it or not, and the snack does you more good.
+bb-catkin-crown|Golden Sneeze|rally|-|When you’re nearly done for, it sneezes a shower of gold that sets you back on your feet.
+bb-chimney-nest|Hearth Warmth|mend|-|Keeps the chimney warm, and a little of that warmth mends you every round.
+bb-homing-stork|Homeward Wings|foot|shield|Knows the safe roads and how to run them, and spreads its wings over the next two blows.
+dw-sherbet-sip|High Pour|sip|-|Pours your snack drink from a great height, and somehow every drop does more good.
+dw-scarab-roll|Sand Ball|guard|-|Rolls its little sand ball into the path of the first blow of every fight.
+dw-lantern-lark|Violet Hour|petal|-|Sings the lanterns bright, and in that light your best blows find their mark.
+dw-canyon-crown|Rose-Red Stand|rally|-|Never takes its crown off, and never lets you fall: when you’re nearly beaten, it holds you up.
+dw-oasis-hoop|Oasis to Oasis|foot|-|Points you from pool to pool, a date in your pocket and a firmer step on the sand.
+dw-mirage-moon|Shimmer Step|slip|patch|Leaves the creature blinking at a mirage of you while you slip off, and shines a cool heal when you need it.
+gc-calabash-cup|Polite Catch|guard|-|Catches the first blow of every fight like roof rain and passes it on, softly.
+gc-drum-tap|Downbeat|petal|-|Taps out a rhythm, and when your swing lands on the beat it lands hard.
+gc-yam-nub|Giggle Dig|first|-|Its giggle catches creatures off guard, and your first swing finds them unready.
+gc-shellstep|Slow and Sure|foot|-|Shares its shell and its steady pace: you walk safer and still get away in time.
+gc-canopy-loop|Market Breakfast|feast|-|Comes back from its parrot rounds with a bit of fruit to go with your snacks.
+gc-parrot-pennant|Louder Again|edge|shield|Shouts every hit back louder so it lands harder, and squawks the next two blows off course.
+th-coffee-crumb|Early Roast|first|-|A cup of its careful roast, and your first swing is the sharpest of the fight.
+th-flamingo-flick|One-Leg Dare|guard|-|Dares the creature to try, and its first blow wobbles in at half the strength.
+th-termite-tower|Tunnel Out|slip|-|Has a tunnel under every tower, so slipping away is never much trouble.
+th-acacia-antler|Weaver Thatch|ward|-|Hangs a weaver nest over you, and the thatch takes a little off every hit.
+th-kopje-keeper|Stony Stare|edge|-|Never blinks, so it sees exactly where to hit, and you hit harder for it.
+th-tall-tiptoe|Top Leaf|rally|patch|Plucks the top leaf for you whenever you need it, and especially when you’re nearly beaten.
+sp-saffron-snip|Saffron Stock|bulwark|-|Tucks a pinch of saffron in your pack, and you set out with a deeper store of strength.
+sp-yak-yonder|Yak Charge|first|-|Sends the yak in first, so your opening blow lands on a creature still picking itself up.
+sp-chilli-chime|Chilli Warmth|sip|-|Spices up your snacks with a chilli or two, and they warm you through all the more.
+sp-stupa-snug|Prayer Flag Path|slip|-|Keeps a tidy line of flags back to the dome, so you always know which way to run.
+sp-teal-ferry|River Oar|edge|-|Waves at the fish, then swings the ferry oar at your foes with real weight behind it.
+sp-lofty-kite|Ridge Dive|foot|strike|Looks down on the whole road so you tread safely, then dives in a strike that cannot miss.
+br-petal-pinch|Lucky Pocket|petal|-|Pulls a pinched petal from its pocket for luck, and your blows land where they hurt.
+br-koi-kin|Cousin Circle|mend|-|Its many orange cousins swim round you and nibble a little hurt away each round.
+br-panda-puff|Slow Chew|sip|-|Teaches you to eat slowly, and every snack does you far more good.
+br-pagoda-pin|Up There First|rally|-|When you’re nearly beaten, it points you to the top, and you find the strength to climb.
+br-torii-loop|Red Gate Rush|first|-|Hops through the gate ahead of you, and your first blow follows it straight in.
+br-dragon-dart|Paper Fire|edge|patch|Breathes paper fire on your foes so you hit harder, and patches your wounds with a neat fold of paper.
+mt-stilt-stoop|Stilt House Rest|mend|-|Lets you rest up on its stilts between swings, and you mend a bit each round.
+mt-seedling-plod|Paddy Shuffle|slip|-|Plods off through the paddy and shows you how to do the same when a fight turns sour.
+mt-lotus-lump|Lotus Luck|petal|-|Sleeps through everything, yet now and then your drowsy swing lands a startling blow.
+mt-sky-lantern|Lantern Glow|ward|-|Hurries the rain along, and the blows that fall on you come down softer too.
+mt-fig-knot|Strangler Grip|bulwark|-|Wraps round you like a fig round the temple, and you hold together far longer.
+mt-bill-brolly|Big Leaf|foot|patch|Holds its big leaf over you on the road, and shares a drip of rainwater to heal you up.
+cs-snorkel-snip|Deep Breath|bulwark|-|Teaches you to take a big breath before diving in, and you last a good deal longer.
+cs-octo-ogle|Ink Cloud|slip|-|Stops staring at something shiny just long enough to squirt ink so you can slip away.
+cs-anemone-nudge|Clownfish Lunch|feast|-|Nudges a bit of extra lunch your way whenever you stop for a snack.
+cs-claw-sail|Grinning Rescue|rally|-|Sails in grinning when you’re nearly sunk and hauls you back aboard.
+cs-grotto-glim|Glowworm Ooh|first|-|Whispers ooh, the glowworms light up, and your first blow lands in the dazzle.
+cs-keel-drift|Old Shell Luck|petal|shield|Its very old shell knows the lucky angle for a hit, and drifts in front of the next two blows.
