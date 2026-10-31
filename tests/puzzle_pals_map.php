@@ -20,10 +20,11 @@ q('INSERT INTO ppal_releases (user_id, pic_id, released_at, src) VALUES (?, ?, ?
 q('UPDATE users SET level = 10 WHERE id = ?', [$uid]);
 set_setting('puzzles_open', '1'); set_setting('jigsaw_open', '1'); set_setting('ppal_open', '1'); set_setting('ppal_party', '0'); set_setting('ppal_spawn_count', '3'); setting('__reload__');
 
-echo "== modes\n";
-set_setting('ppal_find_mode', 'page'); setting('__reload__');
-ok('page mode: no map spawns, none made', ppal_map_spawns($u()) === [] && (int)q_val('SELECT COUNT(*) FROM ppal_spawns WHERE user_id = ?', [$uid]) === 0);
-set_setting('ppal_find_mode', 'map'); setting('__reload__');
+echo "== modes (map only; page mode was removed)\n";
+set_setting('ppal_find_mode', 'page'); setting('__reload__');   // a leftover row from an old install
+ok('a leftover ppal_find_mode = page row is ignored: map spawns are on', ppal_map_on());
+q("DELETE FROM settings WHERE name = 'ppal_find_mode'"); setting('__reload__');
+ok('the page find lane is gone', !function_exists('ppal_maybe_find') && !function_exists('ppal_find_mode') && !function_exists('ppal_lane') && !defined('PPAL_QUIET_PAGES'));
 set_setting('ppal_open', '0'); setting('__reload__');
 ok('feature closed: no spawns', ppal_map_spawns($u()) === []);
 set_setting('ppal_open', '1'); setting('__reload__');
@@ -68,8 +69,11 @@ if ($own) {
 ok('a gallery picture has no own place', ppal_own_node($pic, $allNodes) === null);
 
 echo "== the daily top-up\n";
+$arrived = fn() => (int)q_val("SELECT COUNT(*) FROM notices WHERE user_id = ? AND text LIKE '%arrived on your map%'", [$uid]);
+q("DELETE FROM notices WHERE user_id = ? AND text LIKE '%arrived on your map%'", [$uid]);
 fresh_day($uid);
 $made = ppal_spawn_refresh($u());
+ok('first top-up after a release (day NULL): no "arrived" notice (the release notice said it)', $arrived() === 0);
 $sp = ppal_spawns($uid);
 ok('3 pals made, one place each', $made === 3 && count($sp) === 3, "$made/" . count($sp));
 ok('only pals of the released roster, none found', count(array_filter($sp, fn($w) => (int)$w['pic']['id'] === $pid)) === 3);
@@ -105,6 +109,7 @@ ok('a pal at another place cannot be collected from here', ppal_spawn_collect($u
 q('UPDATE users SET ppal_spawn_day = ? WHERE id = ?', ['2000-01-02', $uid]);
 $out = $run('$u = q_one("SELECT * FROM users WHERE id = ' . $uidc . '"); echo ppal_spawn_refresh($u);');
 ok('next day: the collected slot is topped up (1 new)', $out === '1', $out);
+ok('...and the gnome gets one "A Puzzle Pal has arrived on your map" notice', $arrived() === 1 && (int)q_val("SELECT COUNT(*) FROM notices WHERE user_id = ? AND text LIKE '%A Puzzle Pal has arrived on your map%'", [$uid]) === 1);
 $rows = q('SELECT pal_key FROM ppal_spawns WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN);
 ok('3 waiting again, none of them the pal already found', count($rows) === 3 && !in_array($pal, $rows, true));
 ppal_spawns_reset();
@@ -131,15 +136,9 @@ $D = myc_region_data($uu, $rid, 0);
 $m = $D ? myc_region_svg_one($uu, $D, 0, false, 'p', false) : '';
 ok('mycelium region map: the pal marker too', str_contains($m, 'class="mppal mppal-' . $pal0['rarity'] . '"'));
 ok('no inline styles on the markers', !str_contains(ppal_marker_svg(ppal_spawns($uid)[(int)$town['id']] ?? ['pal' => $pal0], '', 20), 'style='));
-set_setting('ppal_find_mode', 'page'); setting('__reload__'); ppal_spawns_reset();
-ok('page mode: the map shows no pals', !str_contains(region_map_svg($uu, $rid), 'class="mppal '));
-set_setting('ppal_find_mode', 'map'); setting('__reload__');
 $wm = myc_world_svg($uu, $rid);
 ok('mycelium world map: a pal badge on the region with a waiting pal', str_contains($wm, 'class="mppalreg"') && str_contains($wm, 'Puzzle Pals waiting'));
 ok('classic world map: the badge too', str_contains(world_map_svg($uu, $rid), 'class="mppalreg"'));
-set_setting('ppal_find_mode', 'page'); setting('__reload__'); ppal_spawns_reset();
-ok('page mode: no badge on the world map', !str_contains(myc_world_svg($uu, $rid), 'mppalreg'));
-set_setting('ppal_find_mode', 'map'); setting('__reload__'); ppal_spawns_reset();
 $book = ppal_waiting_html($uu);
 ok('the Pal Book lists the waiting pal with its place and level', str_contains($book, $pal0['name']) && str_contains($book, 'Lv '), $book);
 echo "== reworked finds: chip, admin test, wording\n";
@@ -150,7 +149,7 @@ ok('admin test puts one more pal on the map now (' . $msg . ')', str_contains($m
 ok('the finder perk line says what it does now', str_contains(PPAL_PERK_TEXT['finder'], 'extra Puzzle Pal on your map'));
 q('DELETE FROM ppal_spawns WHERE user_id = ?', [$uid]); ppal_spawns_reset();
 ok('nothing waiting but pals left to meet: the book says new pals arrive each day', str_contains(ppal_waiting_html($uu), 'Nothing is waiting right now') && ppal_chip_html($uu) === '');
-ok('the win card says the pals wait on the map (puzzles.js)', str_contains((string)file_get_contents(APP_ROOT . '/assets/puzzles.js'), "p.mode==='map'"));
+ok('the win card says the pals wait on the map (puzzles.js)', str_contains((string)file_get_contents(APP_ROOT . '/assets/puzzles.js'), "' will wait at places on the map. Look for their stickers!'") && !str_contains((string)file_get_contents(APP_ROOT . '/assets/puzzles.js'), 'somewhere about the Hollow'));
 $g = q_one('SELECT * FROM users WHERE guest = 1 LIMIT 1');
 ok('guests never get spawns', !$g || ppal_map_spawns($g) === []);
 

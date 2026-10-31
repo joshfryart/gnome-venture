@@ -5921,11 +5921,10 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .ppalst { flex: none; position: relative; display: flex; align-items: center; justify-content: center; width: 84px; height: 84px; background: var(--surface-2); box-shadow: inset 0 0 0 3px var(--pr, var(--line-2)); }
 .ppalimg { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; display: block; }
 .ppalemo { font-size: 40px; line-height: 64px; text-align: center; width: 64px; }
-.eventbox.ppalfind, .eventbox.ppalgot { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
-.ppalfind .evbody, .ppalgot .evbody { width: 100%; }
+.eventbox.ppalgot { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.ppalgot .evbody { width: 100%; }
 .ppalhere { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
 .ppalhere .evbody { width: 100%; }
-.ppalfind .evbtns { justify-content: center; }
 .ppalgot ul { list-style: none; padding: 0; }
 .ppalrar { display: inline-block; padding: 0 8px; font-size: .75rem; font-weight: 700; line-height: 1.5; letter-spacing: .03em; text-transform: uppercase; background: var(--pr, var(--r-c)); color: var(--on-fill); }
 .ppalbadges .ppalframe { box-shadow: inset 0 0 0 3px var(--accent); padding: 4px 2px; background: var(--surface-2); }
