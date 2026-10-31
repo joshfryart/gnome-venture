@@ -449,17 +449,21 @@ function road_journal_html(int $uid): string
     $got = [];
     foreach (q("SELECT region, entry FROM road_journal WHERE user_id = ? AND entry <> '_done'", [$uid])->fetchAll() as $r) $got[$r['region']][$r['entry']] = true;
     $h = '';
+    $allN = $allPages = 0;
     foreach (q('SELECT code, gnomish_name FROM regions ORDER BY id')->fetchAll() as $rg) {
         $pages = road_journal_pages((string)$rg['code']);
         if (!$pages) continue;
         $n = count(array_intersect_key($pages, $got[$rg['code']] ?? []));
+        $allN += $n;
+        $allPages += count($pages);
         $jimg = 'assets/img/journal/' . strtolower((string)$rg['code']) . '.png';   // PLACEHOLDER art until drawn (claude/todo-art-variety.md)
         $h .= '<li>' . (pixel_has($jimg) ? '<img class="ico pix rjimg" src="' . e(url($jimg)) . '" alt="" width="48" height="48"> ' : '') . '<b>' . e((string)$rg['gnomish_name']) . '</b> <small class="muted">' . $n . ' of ' . count($pages) . '</small>';
         $names = [];
         foreach ($pages as $id => $nm) $names[] = isset($got[$rg['code']][$id]) ? '<span class="rj-got">' . e($nm) . '</span>' : '<span class="rj-miss">?</span>';
         $h .= '<br><small>' . implode(' · ', $names) . '</small></li>';
     }
-    return $h === '' ? '' : '<section class="box roadjournal"><h3>📓 Road Journal</h3><p class="help">Sketch the sights you meet on the roads. A full page pays.</p><ul class="rj-list">' . $h . '</ul></section>';
+    // v2.3.x: a fold (closed) under the passport, with the page count on its summary, so the Stop tab stays short on a phone
+    return $h === '' ? '' : '<details class="box fold roadjournal" id="journal"><summary>📓 Road Journal <small class="muted">' . $allN . ' / ' . $allPages . ' pages</small></summary><p class="help">Sketch the sights you meet on the roads. A full page pays.</p><ul class="rj-list">' . $h . '</ul></details>';
 }
 
 /** A strange sight (wilds). */

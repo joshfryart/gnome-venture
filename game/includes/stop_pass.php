@@ -148,14 +148,27 @@ function stop_stamp_tile(array $s, ?array $stamp): string
     $types = stop_types();
     $t = $types[$s['type']] ?? null;
     if ($stamp) {
-        return '<div class="st-stamp has" data-sh="' . (int)($t['hue'] ?? 100) . '" title="' . e($s['name']) . ' · stamped ' . e(substr((string)$stamp['first_at'], 0, 10)) . '">'
+        return '<div class="st-stamp has" data-sh="' . (int)($t['hue'] ?? 100) . '" title="' . e($s['name']) . ' · ' . e((string)($t['name'] ?? '')) . ' · stamped ' . e(substr((string)$stamp['first_at'], 0, 10)) . '">'
             . stop_svg($s['type'], 'stamp', 'st-stamp-art') . '<b>' . e($s['name']) . '</b><small>' . e((string)($t['name'] ?? '')) . '</small></div>';
     }
-    return '<div class="st-stamp"><span class="st-stamp-ghost">?</span><b>' . e($s['name']) . '</b><small>not yet visited</small></div>';
+    return '<div class="st-stamp" title="' . e($s['name']) . ' · not yet visited"><span class="st-stamp-ghost" aria-hidden="true">?</span><b>' . e($s['name']) . '</b><small>not yet visited</small></div>';
 }
 
-/** The whole passport page body (HTML). */
-function stop_passport_html(array $u): string
+/** One set row for the passport lists. A claimed set is one line (no bar): it is finished, the bar says nothing. */
+function stop_set_row(array $set, int $got, int $need, bool $isDone): string
+{
+    $title = $set['title'] ? ' <small class="tag">“' . e((string)$set['title']) . '”</small>' : '';
+    if ($isDone) return '<li class="done"><span>✅ ' . e((string)$set['label']) . $title . '</span></li>';
+    return '<li><span>' . e((string)$set['label']) . $title . '</span><span class="muted">' . $got . '/' . max(1, $need) . '</span>'
+        . '<progress max="' . max(1, $need) . '" value="' . $got . '" aria-label="' . e((string)$set['label']) . '"></progress></li>';
+}
+
+/**
+ * The whole passport page body (HTML). v2.3.x: glanceable on a phone. A summary (count, one bar, sets done), then folds:
+ * $afterSum (the earned titles) sits right under the summary; the three closest sets show, every set is one tap away;
+ * kinds are a fold of small chips; regions are one list of rows with small stamp thumbnails (here open, unstarted regions folded away).
+ */
+function stop_passport_html(array $u, string $afterSum = ''): string
 {
     $uid = (int)$u['id'];
     $stamps = stop_stamps_of($uid);
@@ -163,46 +176,73 @@ function stop_passport_html(array $u): string
     $types = stop_types();
     $roadTotal = count(array_filter($stops, fn($s) => $s['on_road']));
     $have = count(array_filter($stamps, fn($x, $id) => isset($stops[$id]), ARRAY_FILTER_USE_BOTH));
-    $h = '<div class="st-pass"><p class="st-sum"><b>' . $have . '</b> of ' . $roadTotal . ' road stops stamped <small class="muted">(hidden villages you find count too)</small></p>'
-        . '<progress max="' . max(1, $roadTotal) . '" value="' . min($have, $roadTotal) . '"></progress>';
-    // by type
-    $h .= '<h2>Stops by kind</h2><div class="st-kinds">';
-    foreach ($types as $slug => $t) {
-        $all = count(array_filter($stops, fn($s) => $s['type'] === $slug && $s['on_road']));
-        $mine = count(array_filter($stops, fn($s, $id) => $s['type'] === $slug && isset($stamps[$id]), ARRAY_FILTER_USE_BOTH));
-        $h .= '<div class="st-kind' . ($mine ? ' has' : '') . '" data-sh="' . (int)$t['hue'] . '">' . stop_svg($slug, 'icon', 'st-ico') . '<b>' . e((string)$t['name']) . '</b><small>' . $mine . ' / ' . $all . '</small></div>';
-    }
-    $h .= '</div>';
-    // sets
-    $h .= '<h2>Sets and rewards</h2><ul class="st-sets">';
+    // sets (worked out first: the summary counts them)
     $claimed = array_fill_keys(array_map('intval', q('SELECT set_id FROM stop_set_claims WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN)), true);
+    $groups = [];
+    $open = [];
+    $setsAll = 0;
+    $setsDone = 0;
     foreach (['total' => 'Anywhere', 'type' => 'By kind of stop', 'region' => 'By region'] as $scope => $label) {
         $rows = q('SELECT * FROM stop_sets WHERE active = 1 AND scope = ? ORDER BY need, id', [$scope])->fetchAll();
         if (!$rows) continue;
-        $h .= '<li class="st-setgroup"><b>' . $label . '</b></li>';
+        $todo = $done = '';
         foreach ($rows as $set) {
             [$got, $need] = stop_set_progress($uid, $set, $stamps);
             $isDone = isset($claimed[(int)$set['id']]);
-            $h .= '<li class="' . ($isDone ? 'done' : '') . '"><span>' . ($isDone ? '✅ ' : '') . e((string)$set['label']) . ($set['title'] ? ' <small class="tag">“' . e((string)$set['title']) . '”</small>' : '') . '</span>'
-                . '<span class="muted">' . $got . '/' . max(1, $need) . '</span><progress max="' . max(1, $need) . '" value="' . $got . '"></progress></li>';
+            $setsAll++;
+            if ($isDone) { $setsDone++; $done .= stop_set_row($set, $got, $need, true); continue; }
+            $todo .= stop_set_row($set, $got, $need, false);
+            if ($need > 0) $open[] = [$need - $got, -$got / max(1, $need), (int)$set['id'], $set, $got, $need];
         }
+        $groups[] = '<li class="st-setgroup"><b>' . $label . '</b></li>' . $todo . $done;   // still to do first, finished ones after
     }
-    $h .= '</ul>';
-    // stamps by region
+    $h = '<div class="st-pass"><div class="st-sum"><p class="st-sumline"><b>' . $have . '</b> of ' . $roadTotal . ' road stops stamped</p>'
+        . '<progress max="' . max(1, $roadTotal) . '" value="' . min($have, $roadTotal) . '" aria-label="Road stops stamped"></progress>'
+        . '<p class="st-summeta">' . ($setsAll ? $setsDone . ' of ' . $setsAll . ' sets done · ' : '') . 'hidden villages you find count too</p></div>' . $afterSum;
+    if ($setsAll) {
+        sort($open);
+        $h .= '<h3 class="st-h3">Next up</h3>';
+        if ($open) {
+            $h .= '<ul class="st-sets st-next">';
+            foreach (array_slice($open, 0, 3) as [, , , $set, $got, $need]) $h .= stop_set_row($set, $got, $need, false);
+            $h .= '</ul>';
+        } else {
+            $h .= '<p class="muted">Every set is done. What a traveller!</p>';
+        }
+        $h .= '<details class="fold st-fold"><summary>All sets and rewards <small class="muted">' . $setsDone . ' / ' . $setsAll . ' done</small></summary><ul class="st-sets">' . implode('', $groups) . '</ul></details>';
+    }
+    // by type
+    $kinds = '';
+    $kindsHave = 0;
+    foreach ($types as $slug => $t) {
+        $all = count(array_filter($stops, fn($s) => $s['type'] === $slug && $s['on_road']));
+        $mine = count(array_filter($stops, fn($s, $id) => $s['type'] === $slug && isset($stamps[$id]), ARRAY_FILTER_USE_BOTH));
+        if ($mine) $kindsHave++;
+        $kinds .= '<div class="st-kind' . ($mine ? ' has' : '') . '" data-sh="' . (int)$t['hue'] . '">' . stop_svg($slug, 'icon', 'st-ico') . '<b>' . e((string)$t['name']) . '</b><small>' . $mine . ' / ' . $all . '</small></div>';
+    }
+    $h .= '<details class="fold st-fold"><summary>Stops by kind <small class="muted">' . $kindsHave . ' / ' . count($types) . ' kinds stamped</small></summary><div class="st-kinds">' . $kinds . '</div></details>';
+    // stamps by region: started regions (and the one you are in) as rows, the rest in one fold
     $here = (int)($u['region_id'] ?? 0);
     $byRegion = [];
     foreach ($stops as $id => $s) {
         if (!$s['on_road'] && !isset($stamps[$id])) continue;
         $byRegion[(string)$s['region_name']][] = $s;
     }
-    $h .= '<h2>Your stamps</h2>';
+    $started = $later = '';
+    $laterN = 0;
     foreach ($byRegion as $region => $list) {
         $n = count(array_filter($list, fn($s) => isset($stamps[(int)$s['id']])));
-        $open = $n > 0 && $list[0]['region_id'] == $here;
-        $h .= '<details class="box st-region"' . ($open ? ' open' : '') . '><summary><b>' . e($region) . '</b> <small class="muted">' . $n . ' / ' . count($list) . '</small></summary><div class="st-stamps">';
-        foreach ($list as $s) $h .= stop_stamp_tile($s, $stamps[(int)$s['id']] ?? null);
-        $h .= '</div></details>';
+        $isHere = $list[0]['region_id'] == $here;
+        $full = $n >= count($list);
+        $row = '<details class="st-region' . ($full ? ' full' : '') . '"' . ($n > 0 && $isHere ? ' open' : '') . '><summary><b>' . ($full ? '✅ ' : '') . e($region) . '</b>'
+            . '<progress max="' . count($list) . '" value="' . $n . '" aria-hidden="true"></progress><small class="muted">' . $n . ' / ' . count($list) . '</small></summary><div class="st-stamps">';
+        foreach ($list as $s) $row .= stop_stamp_tile($s, $stamps[(int)$s['id']] ?? null);
+        $row .= '</div></details>';
+        if ($n > 0 || $isHere) $started .= $row;
+        else { $later .= $row; $laterN++; }
     }
-    require_once __DIR__ . '/road_life.php';
-    return $h . '</div>' . road_journal_html($uid);   // v2.0.79: the Road Journal sits under the passport
+    $h .= '<h3 class="st-h3">Your stamps</h3><div class="box st-regions">' . $started;
+    if ($later !== '') $h .= '<details class="fold st-fold st-later-regions"><summary>Not started yet <small class="muted">' . $laterN . ' region' . ($laterN === 1 ? '' : 's') . '</small></summary>' . $later . '</details>';
+    $h .= '</div>';
+    return $h . '</div>';   // the Road Journal (v2.0.79) is a fold beside Seasons in stop_tab_html()
 }

@@ -324,16 +324,18 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     $uid = (int)$u['id'];
     foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
     $nodeRegion = !empty($node['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$node['region_id']]) : null;
-    $h = '<h2>🛂 Stamp passport</h2><p class="muted">Every rest stop gives you a stamp on your first visit. Fill the sets for rewards and titles. Hidden villages you find count too.</p>';
+    $h = '<h2>🛂 Stamp passport</h2><p class="muted st-lede">A stamp for every rest stop you visit. Sets pay rewards and titles.</p>';
     $titles = stop_titles($uid);
-    if ($titles) {
-        $h .= '<p>Titles earned: ';
-        foreach ($titles as $t) $h .= '<span class="tag">“' . e($t) . '”</span> ';
-        $h .= '<a href="' . e(url('book.php?ch=Milestones')) . '">Choose yours in the Almanac →</a></p>';
+    $tf = '';
+    if ($titles) {   // v2.3.x: a fold under the passport summary, not a wall of tags above it
+        $tf = '<details class="fold st-fold st-titles"><summary>Titles earned <small class="muted">' . count($titles) . '</small></summary><p class="st-tags">';
+        foreach ($titles as $t) $tf .= '<span class="tag">“' . e($t) . '”</span> ';
+        $tf .= '</p><a class="st-almanac" href="' . e(url('book.php?ch=Milestones')) . '">Choose yours in the Almanac →</a></details>';
     }
-    $h .= stop_passport_html($u);
+    require_once __DIR__ . '/road_life.php';
+    $h .= stop_passport_html($u, $tf);
     $h .= '<p class="help">📜 <a href="' . e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
-    $h .= season_fold_html($u) . land_card_html($u, $node, $nodeRegion);
+    $h .= '<div class="st-folds">' . road_journal_html($uid) . season_fold_html($u) . '</div>' . land_card_html($u, $node, $nodeRegion);
     return $h;
 }
 
