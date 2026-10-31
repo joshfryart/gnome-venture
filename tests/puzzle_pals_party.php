@@ -192,6 +192,32 @@ combat_turn($u(), $expR, 'attack'); $hr2 = (int)$expR['hp'];   // 34 - 10 = 24, 
 ok('rally (common 4): once a fight at 30% health or less (' . $hr1 . ' then ' . $hr2 . ')', $hr1 === 34 && $hr2 === 24 && str_contains((string)$expR['log'], 'rallies you: +4'), (string)$expR['log']);
 $GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('first')];
 ok('first / slip / feast sum from the party like the rest', ppal_skills($u())['first'] === 2 && ($GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('slip')]) && ppal_skills($u())['slip'] === 1 && ($GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('feast')]) && ppal_skills($u())['feast'] === 1);
+// kindle: Bark Skin lasts one round more; tonic: Grit and Nimble count more while a meal or potion boost is on; spoils and lesson sum
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('kindle')];
+q('UPDATE creatures SET attack = -200 WHERE id = ?', [$crId]);
+$bark = function () use ($u, $crId, $fromId): int {
+    $uk = $u(); $uk['calling'] = 'rootwarden';
+    $enc = ['type' => 'creature', 'id' => $crId, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+    $exp = ['id' => 82, 'status' => 'active', 'hp' => 900, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($enc), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+    combat_turn($uk, $exp, 'ability');
+    return (int)json_decode((string)$exp['encounter'], true)['bark'];
+};
+$bk1 = $bark(); unset($GLOBALS['ppal_boon_test']); $bk0 = $bark();
+ok('kindle (rootwarden Bark Skin): 3 rounds left after the turn with the pal, 2 without (' . $bk1 . ' / ' . $bk0 . ')', $bk1 === 3 && $bk0 === 2);
+q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+$keepBuff = q_one('SELECT buff, buff_until, buff2, buff2_until FROM users WHERE id = ?', [$uid]);
+q('UPDATE users SET buff = NULL, buff_until = NULL, buff2 = NULL, buff2_until = NULL WHERE id = ?', [$uid]);
+$noBuff = gnome_combat($u(), false)['atk'];
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('tonic')];
+$tOff = gnome_combat($u(), true)['atk'] - ppal_perks($u())['road'];
+q('UPDATE users SET buff = ?, buff_until = ? WHERE id = ?', ['{"luck":1}', gmdate('Y-m-d H:i:s', time() + 3600), $uid]);
+$tOn = gnome_combat($u(), true)['atk'] - ppal_perks($u())['road'];
+ok('tonic: nothing without a boost on, +1 Grit and Nimble with one (attack ' . $tOff . ' then ' . $tOn . ')', $tOff === $noBuff && $tOn === $tOff + 1, "$noBuff $tOff $tOn");
+q('UPDATE users SET buff = ?, buff_until = ?, buff2 = ?, buff2_until = ? WHERE id = ?', [$keepBuff['buff'], $keepBuff['buff_until'], $keepBuff['buff2'], $keepBuff['buff2_until'], $uid]);
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('spoils')];
+$sp = ppal_skills($u())['spoils'];
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('lesson')];
+ok('spoils 5 and lesson 5 (common)', $sp === 5 && ppal_skills($u())['lesson'] === 5);
 unset($GLOBALS['ppal_boon_test']);
 q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
 equip($uid, [], $pid);

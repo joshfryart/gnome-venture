@@ -990,6 +990,10 @@ const PPAL_EFFECTS = [
     'feast' => ['Feast', [1, 2, 4], 'Snacks heal %d more', 8],
     'rally' => ['Rally', [4, 7, 12], 'Once a fight, at 30%% health or less, heals you %d', 12],
     'first' => ['First Strike', [2, 3, 5], 'Adds %d to your first attack of a fight', 6],
+    'kindle' => ['Kindle', [1, 1, 1], 'Makes your calling ability %d step stronger', 2],
+    'spoils' => ['Spoils', [5, 10, 20], 'Adds %d%% to the chance of a creature’s drop after a win', 30],
+    'lesson' => ['Lesson', [5, 10, 20], 'Adds %d%% Fighting XP from a win', 30],
+    'tonic' => ['Tonic', [1, 1, 2], 'While a meal or potion boost is on you, adds %d to your Grit and Nimble in fights', 2],
 ];
 /** Active skills a rare may have (row column 4): once per fight, uses your turn, fixed numbers, no dice. Value and sentence. More arrive with the rosters that use them (the lint reads this list). */
 const PPAL_ACTIVES = [
@@ -1087,7 +1091,7 @@ function ppal_skills(int|array $u): array
     foreach (ppal_equipped($u) as $e) foreach (ppal_pal_skills($e['pal']) as $k => $v) $t[$k] = ($t[$k] ?? 0) + $v;
     if (!$t) return [];
     $o = ['ward' => $t['ward'] ?? 0, 'edge' => $t['edge'] ?? 0, 'foot' => $t['foot'] ?? 0, 'mend' => $t['mend'] ?? 0, 'sip' => $t['sip'] ?? 0, 'petal' => $t['petal'] ?? 0];
-    foreach (['guard', 'bulwark', 'slip', 'feast', 'rally', 'first'] as $k) if (!empty($t[$k])) $o[$k] = $t[$k];
+    foreach (['guard', 'bulwark', 'slip', 'feast', 'rally', 'first', 'kindle', 'spoils', 'lesson', 'tonic'] as $k) if (!empty($t[$k])) $o[$k] = $t[$k];
     foreach ($o as $k => $v) $o[$k] = min(PPAL_EFFECTS[$k][3], $v);
     return array_sum($o) > 0 ? $o : [];
 }
