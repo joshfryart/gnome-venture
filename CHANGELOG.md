@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.3.5
+- **Health stays with the gnome.** Before, every adventure (road walk, off-road explore, delve, lair) started at full health. Now `users.hp` (NULL = full) is carried into the next adventure. It comes back at 1 a minute while the gnome stands in a village, market, hub or haven and is not adventuring (a clock in `users.hp_at`), by resting at a haven fire (half) or staying the night (full), by a rest-stop inn or table (half) or bath/soak (full), by a Healing Potion (half) or a home-cooked snack from My Gnome, and fully on a level up. A knock-out wakes at half. Treks keep their own party health. My Gnome has a Health box. Settings: `hp_persist` (off = the old full-health starts), `hp_regen_per_minute`, `hp_ko_percent`, `hp_rest_percent`, `hp_potion_percent`. New columns `users.hp`, `users.hp_at` (additive). Code: `includes/health.php`. Test: `tests/health.sh`. News entry added.
 ## 2.3.4
 - **Delve finds use the chest animation** (`delve_v2` only). Picking up a find, a floor chest or Mo's gift now pops the delve chest over the page (a short version for small finds, the full one for a floor chest) with what you got, instead of a notice under the map you had to scroll to. Petals and XP show only when there are any. The guardian's chest is unchanged.
 ## 2.3.3

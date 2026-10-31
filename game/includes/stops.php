@@ -884,10 +884,13 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
             case 'rest':
                 $p = stop_spec_params($spec);
                 $cost = max(0, (int)($p['cost'] ?? 0));
-                if ($energy === 0 && (int)$fresh['energy'] >= max_energy($fresh)) throw new UserError('You’re already full of energy.');
+                [$hpNow, $hpMax] = hp_get($fresh);
+                if ($energy === 0 && (int)$fresh['energy'] >= max_energy($fresh) && $hpNow >= $hpMax) throw new UserError('You’re already full of energy and health.');
                 if ($cost > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) throw new UserError('You need ' . $cost . ' ' . $cur . '.');
                 if ($cost > 0) $lines[] = '−' . $cost . ' ' . $cur;
                 $lines = array_merge($lines, stop_rewards($fresh, $loc, $win, 1.0, $seed));
+                $healed = hp_heal_pct($fresh, (int)($p['heal'] ?? (preg_match('/soak|room_rest|spring/', $slug) ? 100 : hp_pct('hp_rest_percent', 50))));   // v2.3.5: baths and soaks heal fully, other rests by half
+                if ($healed > 0) $lines[] = '+' . $healed . ' ❤️';
                 $msg = $icon . ' ' . ($lineWin !== '' ? $lineWin : 'You rest a while.');
                 break;
             case 'buy':

@@ -6414,3 +6414,12 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .shelves .shpanel .itm__win { height: 58px; }
   .shelves .shpanel .itm__ic, .shelves .shpanel .itm__svg, .shelves .shpanel .itm__svg > svg { width: 32px; height: 32px; }
 }
+
+/* v2.3.5 Health box on My Gnome (includes/health.php) */
+.hpcard { margin: 8px 0; }
+.hphead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.hpnum { font-variant-numeric: tabular-nums; font-weight: 700; }
+.hpbar { height: 12px; border-radius: 8px; background: var(--accent-soft); border: 1px solid var(--line); overflow: hidden; margin: 4px 0 6px; }
+.hpbar i { display: block; height: 100%; background: #c0443a; }
+.hpuse { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.hpuse .btn { min-height: 44px; }

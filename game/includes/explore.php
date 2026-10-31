@@ -174,7 +174,7 @@ function explore_start(array $u): array
     $gc = gnome_combat($u, true);
     db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $here['id'], 'to_id' => $here['id'], 'route_id' => 0, 'kind' => 'explore', 'depth' => 0,
-        'steps_total' => 0, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => max(1, (int)$u['level']), 'scaled' => 0,
+        'steps_total' => 0, 'step' => 0, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => max(1, (int)$u['level']), 'scaled' => 0,
         'log' => json_encode(['🌿 You step off the road at ' . $here['name'] . ' and into the wild mycelium.']),
         'started_at' => now(), 'arrive_at' => now(),
     ]);
@@ -434,7 +434,7 @@ function explore_come_back(array $u, string $how): array
     $depth = (int)$b['depth'];
     db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $from['id'], 'to_id' => $from['id'], 'route_id' => 0, 'kind' => 'explore', 'depth' => $depth,
-        'steps_total' => $depth, 'step' => $depth, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => explore_level($u, $depth, ['from_id' => $from['id']]),
+        'steps_total' => $depth, 'step' => $depth, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => explore_level($u, $depth, ['from_id' => $from['id']]),
         'scaled' => 0, 'log' => json_encode(['🌿 You slip back into the wild mycelium, ' . $depth . ' step' . ($depth === 1 ? '' : 's') . ' out from ' . $from['name'] . '.']),
         'started_at' => now(), 'arrive_at' => now(),
     ]);

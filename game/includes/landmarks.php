@@ -120,14 +120,16 @@ function haven_act(array $u, int $lmId, string $what, int $itemId = 0): array
     $uid = (int)$u['id'];
     require_once __DIR__ . '/events.php';
     if ($what === 'rest') {
-        // v0.7.85: a full gnome gets nothing, and the day's rest is not spent
+        // v0.7.85: a full gnome gets nothing, and the day's rest is not spent (v2.3.5: a hurt one still gets the rest)
         require_once __DIR__ . '/gnome.php';   // max_energy()
-        if ((int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) >= max_energy($u)) {
-            return [false, 'You’re already full of energy. Come back to rest when you’re tired.'];
+        [$hpNow, $hpMax] = hp_get($u);
+        if ((int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) >= max_energy($u) && $hpNow >= $hpMax) {
+            return [false, 'You’re already full of energy and health. Come back to rest when you’re tired or hurt.'];
         }
         if (!landmark_once($uid, $lmId, 'rest')) return [false, 'You’ve already rested here today.'];
         calling_event($uid, 'haven', 'lm:' . $lmId, 1, ['act' => 'rest']);   // v0.9.4 N3: a haven used
-        prize('🔥', $lm['name'], 'You doze by the fire while the kettle sings.', apply_event_effect($u, 'energy:' . (landmark_rebuilt_by($lm, $uid) ? 6 : 4)));   // v0.7.88: a rested fire for the gnome who made it safe
+        $healed = hp_heal_pct($u, hp_pct('hp_rest_percent', 50));   // v2.3.5
+        prize('🔥', $lm['name'], 'You doze by the fire while the kettle sings.', array_merge(apply_event_effect($u, 'energy:' . (landmark_rebuilt_by($lm, $uid) ? 6 : 4)), $healed > 0 ? ['+' . $healed . ' ❤️'] : []));   // v0.7.88: a rested fire for the gnome who made it safe
         return [true, ''];
     }
     if ($what === 'stay') {
@@ -138,7 +140,8 @@ function haven_act(array $u, int $lmId, string $what, int $itemId = 0): array
         }
         $stat = haven_stat($lm);
         calling_event($uid, 'haven', 'lm:' . $lmId, 1, ['act' => 'stay']);   // v0.9.4 N3
-        prize('🛏️', $lm['name'], 'You sleep soundly and wake up feeling wonderful.', array_merge(['−' . money(20)], apply_event_effect($u, 'tbuff:' . $stat . ':3:120+energy:2')));
+        $healed = hp_heal_pct($u, 100);   // v2.3.5: a night's sleep heals fully
+        prize('🛏️', $lm['name'], 'You sleep soundly and wake up feeling wonderful.', array_merge(['−' . money(20)], apply_event_effect($u, 'tbuff:' . $stat . ':3:120+energy:2'), $healed > 0 ? ['+' . $healed . ' ❤️'] : []));
         return [true, ''];
     }
     if ($what === 'buy') {
@@ -306,7 +309,7 @@ function delve_start(array $u, int $lmId): array
     $v2 = dv_on();   // v2.3.1: the route menu and tile floors (setting delve_v2); a delve that starts now keeps these rules to its end
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
-        'steps_total' => $v2 ? dv_stages((int)$lm['level']) : DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
+        'steps_total' => $v2 ? dv_stages((int)$lm['level']) : DELVE_ROOMS, 'step' => 0, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
         'log' => json_encode(array_values(array_filter(['🕳️ You light a lantern and step into ' . $lm['name'] . '.',
             ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $uid . '|' . now())) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
     ]);
@@ -429,7 +432,7 @@ function lair_start(array $u, int $lmId): array
     $map = dm_on() && dm_pref() === 'map';   // v2.0.6: with the map the boss waits at the far end of the lair; with the list it rises at once, as it always did
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'lair', 'depth' => $map ? 0 : 1,
-        'steps_total' => 1, 'step' => $map ? 0 : 1, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$boss['level'], 'scaled' => 0,
+        'steps_total' => 1, 'step' => $map ? 0 : 1, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => (int)$boss['level'], 'scaled' => 0,
         'encounter' => $map ? null : json_encode(lair_boss_encounter($boss)),
         'log' => json_encode([$map ? '🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' waits somewhere deeper in the dark.' : '🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' rises to meet you!']), 'started_at' => now(), 'arrive_at' => now(),
     ]);

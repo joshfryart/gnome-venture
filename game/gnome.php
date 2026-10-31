@@ -22,6 +22,11 @@ if (is_post()) {
     $do = (string)($_POST['do'] ?? '');
     $back = (string)($_POST['back'] ?? 'overview');
     if (!isset($TABS[$back])) $back = 'overview';
+    if ($do === 'heal') {   // v2.3.5: a Healing Potion or a snack, from the Health box
+        [$ok, $msg] = hp_use($u, (string)($_POST['what'] ?? ''), (int)($_POST['item'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('gnome.php');
+    }
     if ($do === 'stat') {
         $sk = (string)($_POST['stat'] ?? '');
         [$ok, $msg] = spend_stat_point($u, $sk);
@@ -107,6 +112,7 @@ page_header('My Gnome');
   </div>
 </div>
 
+<?php if ($tab === 'overview' && !is_guest($u)) echo hp_card_html($u);   // v2.3.5 ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>
 <section class="palstrip" aria-label="Pals along">
   <div class="palhead"><b>🐾 Pals along · <?= count($eq) ?> of <?= ppal_party_max() ?></b>

@@ -1305,6 +1305,8 @@ function schema_statements(string $driver): array
     $c = [
         ['users', 'gnome_name', 'VARCHAR(30) NULL'],
         ['users', 'theme', "VARCHAR(8) NOT NULL DEFAULT 'dark'"],      // v1.6.5: dark / light / auto
+        ['users', 'hp', 'INT NULL'],                                   // v2.3.5: the gnome's health (NULL = full), see includes/health.php
+        ['users', 'hp_at', 'DATETIME NULL'],                           // v2.3.5: when the town health clock last ran (NULL = stopped)
         ['users', 'sess_ver', 'INT NOT NULL DEFAULT 0'],              // v1.2.2: bumped on password change/reset; older sessions are signed out
         ['users', 'hat_color', 'VARCHAR(7) NULL'],
         ['users', 'beard_color', 'VARCHAR(7) NULL'],

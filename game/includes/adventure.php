@@ -235,7 +235,7 @@ function start_expedition(array $u, int $routeId): array
     db_insert('expeditions', [
         'level' => random_int($min, $max), 'scaled' => $scaled ? 1 : 0,
         'user_id' => $u['id'], 'from_id' => $here['id'], 'to_id' => $to, 'route_id' => $route['id'],
-        'steps_total' => $route['steps'], 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'],
+        'steps_total' => $route['steps'], 'step' => 0, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'],
         'log' => json_encode(['🍄 You step onto the mycelium thread at ' . $here['name'] . '.' . ($quickWalk ? ' 💨 A quick walk: you know this road well.' : '')]),
         'started_at' => now(), 'arrive_at' => gmdate('Y-m-d H:i:s', time() + ($quick ? 0 : $mins * 60)),
     ]);
@@ -258,9 +258,11 @@ function exp_log(array &$exp, string $line): void
 
 function save_exp(array $exp): void
 {
+    if (!empty($GLOBALS['gv_hp_full'])) $exp['hp'] = (int)$exp['max_hp'];   // v2.3.5: a level up in this request healed the gnome fully
     q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ?, trail = ?, chain = ? WHERE id = ?',
         [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['trail'] ?? null, ($exp['chain'] ?? '') !== '' ? $exp['chain'] : null, $exp['id']]);
     if (($exp['status'] ?? 'active') !== 'active' && in_array($exp['kind'] ?? 'walk', ['delve', 'lair'], true)) dm_scene_drop((int)$exp['id']);   // v2.0.6: the map goes when the delve ends
+    if (hp_on() && in_array($exp['kind'] ?? 'walk', ['walk', 'explore', 'delve', 'lair'], true)) hp_store((int)$exp['user_id'], max(1, (int)$exp['hp']), (int)$exp['max_hp'], ($exp['status'] ?? 'active') !== 'active');   // v2.3.5: the health goes home with the gnome
 }
 
 /** v0.9.7: on an easy road (a walk next to home with the switch on) the walk's level is the most any creature may have; else 0. */
@@ -733,6 +735,7 @@ function knock_out(array $u, array &$exp, array $c): void
     exp_log($exp, '💫 The ' . $c['name'] . ' knocks you flat. You wake up back in ' . $from['name'] . ', a bit sore but with all your things.');
     $exp['status'] = 'ko';
     $exp['encounter'] = null;
+    if (hp_on()) $exp['hp'] = max(1, (int)ceil((int)$exp['max_hp'] * hp_pct('hp_ko_percent', 50) / 100));   // v2.3.5: you wake up hurt
     q('UPDATE users SET location_id = ?, location = ?, arrived_at = ?, energy = CASE WHEN energy > 2 THEN energy - 2 ELSE 0 END WHERE id = ?',
         [$from['id'], $from['region'], now(), $u['id']]);
     unlock_entries((int)$u['id'], 'creature:' . $c['slug']);   // you still saw it
