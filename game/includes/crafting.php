@@ -111,13 +111,18 @@ function craft_recipes(int $uid, ?string $category = null): array
     $names = [];
     $sql = 'SELECT r.*, i.name AS out_name, i.description, i.effects, i.category AS out_cat FROM recipes r JOIN items i ON i.id = r.output_item_id';
     $rows = $category ? q($sql . ' WHERE r.category = ? ORDER BY r.name', [$category])->fetchAll() : q($sql . ' ORDER BY r.name')->fetchAll();
+    $want = [];   // v2.3.7: every ingredient name in one query (was one query per ingredient slug)
+    foreach ($rows as $r) foreach (array_keys(json_decode((string)$r['ingredients'], true) ?: []) as $slug) $want[(string)$slug] = true;
+    foreach (array_chunk(array_keys($want), 400) as $part) {
+        foreach (q('SELECT slug, name FROM items WHERE slug IN (' . implode(',', array_fill(0, count($part), '?')) . ')', $part)->fetchAll() as $it) $names[(string)$it['slug']] = (string)$it['name'];
+    }
     $out = [];
     foreach ($rows as $r) {
         $ings = [];
         $all = true;
         $can = true;
         foreach (json_decode((string)$r['ingredients'], true) ?: [] as $slug => $qty) {
-            $names[$slug] ??= (string)(q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug);
+            $names[$slug] ??= (string)$slug;
             $h = $have[$slug] ?? 0;
             $all = $all && isset($seen[$slug]);
             $can = $can && $h >= $qty;

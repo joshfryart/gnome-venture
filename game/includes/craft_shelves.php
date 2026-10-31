@@ -28,20 +28,25 @@ $show = (string)($_GET['show'] ?? '');
 if (!in_array($show, ['ready', 'missing', 'unknown'], true)) $show = '';
 $qs = trim((string)($_GET['q'] ?? ''));
 $selId = (int)($_GET['r'] ?? 0);
+require_once __DIR__ . '/craft_map.php';
+$obj = craft_obj_pick($tab);   // v2.3.7: a tapped scene object (?o=) keeps only its recipes, known or not
+$slugOf = [];
+foreach ($recipes as $r) $slugOf[(int)$r['id']] = (string)($r['slug'] ?? '');
 $shelfOf = ['ready' => ['ready'], 'missing' => ['close', 'far'], 'unknown' => ['unk']];
-$shown = array_values(array_filter($all, fn($e) => ($show === '' || in_array($e['group'], $shelfOf[$show], true)) && ($qs === '' || mb_stripos($e['hay'], $qs) !== false)));
+$shown = array_values(array_filter($all, fn($e) => ($show === '' || in_array($e['group'], $shelfOf[$show], true)) && ($qs === '' || mb_stripos($e['hay'], $qs) !== false)
+    && (!$obj || craft_tag_match($obj['globs'], $slugOf[(int)$e['id']] ?? ''))));
 $defs = ['ready' => ['✅', 'Ready to ' . ($tab === 'cooking' ? 'cook' : 'make')], 'close' => ['🧺', 'One trip away'], 'far' => ['📋', 'Need more'], 'unk' => ['❔', 'To discover']];
-$open = $show !== '' || $qs !== '' ? array_fill_keys(array_keys($defs), true) : ['ready' => true, 'close' => true];
-$base = 'inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs], 'strlen'));
+$open = $show !== '' || $qs !== '' || $obj ? array_fill_keys(array_keys($defs), true) : ['ready' => true, 'close' => true];
+$base = 'inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs, 'o' => $obj['id'] ?? ''], 'strlen'));
 $link = fn(int $id) => url($base . '&r=' . $id) . '#r' . $id;
 $close = fn() => url($base);
 $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   // v0.9.4: pots with timers (kitchen_pots 0 = instant)
 ?>
-<?php require_once __DIR__ . '/craft_map.php'; craft_area_header($tab); ?>
+<?php craft_area_header($tab); ?>
 <div class="pantry2 shelves shcraft">
 <div class="p2head shhead">
   <?php // v2.3.3: the area is picked on the map above (craft_map.php); this form keeps it and only filters the list ?>
-  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>">
+  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>"><?php if ($obj): ?><input type="hidden" name="o" value="<?= e($obj['id']) ?>"><?php endif; ?>
     <label>List <select name="show" data-autosubmit>
       <option value=""<?= $show === '' ? ' selected' : '' ?>>🗂️ All shelves</option>
       <?php foreach (['ready' => ['✅ Ready', $n['ready']], 'missing' => ['📋 Missing', $n['missing']], 'unknown' => ['❔ To discover', $n['unknown']]] as $k => [$l, $c]): ?><option value="<?= $k ?>"<?= $show === $k ? ' selected' : '' ?>><?= $l ?> (<?= $c ?>)</option><?php endforeach; ?>
@@ -103,8 +108,9 @@ if ($shop): ?>
 </section>
 <?php endif; ?>
 <?= sh_search($qs, '<input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="' . e($tab) . '">' . ($show !== '' ? '<input type="hidden" name="show" value="' . e($show) . '">' : ''), '🔍 Search ' . $known . ' recipes or an ingredient…') ?>
+<?php if ($obj) echo craft_obj_line($obj, url('inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs], 'strlen'))) . '#shelves', count($shown)); ?>
 <?php if (!$shown): ?>
-  <p class="muted"><?= $qs !== '' ? 'Nothing matches “' . e($qs) . '”.' : (['ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?? 'No recipes yet.') ?></p>
+  <p class="muted"><?= $obj ? 'Nothing here on this list.' : '' ?><?= $obj ? '' : ($qs !== '' ? 'Nothing matches “' . e($qs) . '”.' : (['ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?? 'No recipes yet.')) ?></p>
 <?php endif; ?>
 <?= sh_shelves($shown, $defs, $open, $selId, 'craft-' . $tab, $link, $close, false) ?>
 <p class="muted shnone" hidden>Nothing matches.</p>

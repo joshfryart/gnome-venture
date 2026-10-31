@@ -6510,3 +6510,9 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .pjluck{display:flex; align-items:flex-start; gap:8px; margin:10px 0 0; font-size:14px}
 .pjluck input{margin:3px 0 0; width:20px; height:20px; flex:none}
 /* ===== end Alchemy potions ===== */
+
+/* ===== 2.3.7 Crafting scene objects open their own recipes (includes/craft_map.php: craft_obj_pick, craft_obj_line) ===== */
+.cmap-hs[aria-current] { border-color: var(--accent); background: rgba(232, 163, 23, .14); }
+.cmap-hs[aria-current] span { opacity: 1; }
+.cmap-on { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; margin: 8px auto; text-align: center; }
+/* ===== end 2.3.7 ===== */

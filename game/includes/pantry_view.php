@@ -50,7 +50,11 @@ if ($show === 'known' && !isset($_GET['show']) && !$ready && !$missing) $show = 
 $kind = (string)($_GET['k'] ?? '');
 if (!isset(P2_KINDS[$kind])) $kind = '';
 $qs = trim((string)($_GET['q'] ?? ''));
-$base = ['known' => array_merge($ready, $missing), 'ready' => $ready, 'missing' => $missing, 'unknown' => $unknown][$show];
+require_once __DIR__ . '/craft_map.php';
+$obj = craft_obj_pick($tab);   // v2.3.7: a tapped scene object (?o=) keeps only its preserves; with no List chip picked it shows known and undiscovered together
+if ($obj && !isset($_GET['show'])) $show = 'any';
+$base = ['known' => array_merge($ready, $missing), 'ready' => $ready, 'missing' => $missing, 'unknown' => $unknown, 'any' => array_merge($ready, $missing, $unknown)][$show];
+if ($obj) $base = array_values(array_filter($base, fn($r) => craft_tag_match($obj['globs'], (string)($r['slug'] ?? ''))));
 $list = array_values(array_filter($base, fn($r) => ($kind === '' || $kindOf($r) === $kind) && ($qs === '' || stripos($r['known'] ? $r['name'] : '', $qs) !== false)));
 $kindN = []; foreach ($base as $r) $kindN[$kindOf($r)] = ($kindN[$kindOf($r)] ?? 0) + 1;
 
@@ -62,8 +66,8 @@ $selId = (int)($_GET['r'] ?? 0);
 $sel = null;
 foreach ($list as $r) if ((int)$r['id'] === $selId) $sel = $r;
 $sel ??= $list[0] ?? null;
-$link = function (array $over = []) use ($show, $kind, $qs, $sel): string {
-    $p = array_filter(['show' => $show === 'known' ? '' : $show, 'k' => $kind, 'q' => $qs, 'r' => $sel ? (string)$sel['id'] : ''] , 'strlen');
+$link = function (array $over = []) use ($show, $kind, $qs, $sel, $obj): string {
+    $p = array_filter(['show' => in_array($show, ['known', 'any'], true) ? '' : $show, 'k' => $kind, 'q' => $qs, 'o' => $obj['id'] ?? '', 'r' => $sel ? (string)$sel['id'] : ''] , 'strlen');
     $p = array_filter(array_merge($p, $over), fn($v) => $v !== '' && $v !== null);
     return url('inventory.php?' . http_build_query(['tab' => 'craft', 'c' => 'pantry'] + $p));
 };
@@ -124,7 +128,7 @@ $when = function (array $r) use ($jarsFree): string {
 };
 
 ?>
-<?php require_once __DIR__ . '/craft_map.php'; craft_area_header($tab); ?>
+<?php craft_area_header($tab); ?>
 <div class="pantry2">
 <div class="p2head">
   <h2 class="p2title" id="shelves">🫙 Pantry <small><?= count($jarsList) ?>/<?= $jarLimit ?> jars in use</small></h2>
@@ -153,6 +157,7 @@ $when = function (array $r) use ($jarsFree): string {
 <form method="get" action="<?= e(url('inventory.php')) ?>" class="p2search" role="search"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="pantry">
   <?php if ($show !== 'known'): ?><input type="hidden" name="show" value="<?= e($show) ?>"><?php endif; ?>
   <?php if ($kind !== ''): ?><input type="hidden" name="k" value="<?= e($kind) ?>"><?php endif; ?>
+  <?php if ($obj): ?><input type="hidden" name="o" value="<?= e($obj['id']) ?>"><?php endif; ?>
   <label class="vh" for="p2q">Search recipes</label>
   <input id="p2q" type="search" name="q" value="<?= e($qs) ?>" placeholder="🔍 Search <?= count($ready) + count($missing) ?> recipes…" autocomplete="off">
 </form>
@@ -166,8 +171,9 @@ $when = function (array $r) use ($jarsFree): string {
   <?php foreach (P2_KINDS as $k => [$l, $ds]): ?><a class="<?= $kind === $k ? 'on' : '' ?>" href="<?= e($link(['k' => $k, 'r' => ''])) ?>"><?= $l ?> <small><?= (int)($kindN[$k] ?? 0) ?></small></a><?php endforeach; ?>
 </nav>
 
+<?php if ($obj) echo craft_obj_line($obj, $link(['o' => '', 'r' => '']) . '#shelves', count($list)); ?>
 <?php if (!$list): ?>
-  <p class="muted"><?= ['known' => 'No recipes yet.', 'ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?></p>
+  <p class="muted"><?= ['known' => 'No recipes yet.', 'any' => 'Nothing here.', 'ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?></p>
 <?php else: ?>
 <div class="p2md">
   <ul class="p2list" aria-label="Recipes">

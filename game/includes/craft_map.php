@@ -14,11 +14,48 @@ function craft_scenes(): array
     return $s ??= require __DIR__ . '/data/craft_scenes.php';
 }
 
+/** v2.3.7: does a recipe slug match an object's tag list (fnmatch globs like "pickled-*")? */
+function craft_tag_match(array $globs, string $slug): bool
+{
+    foreach ($globs as $g) if (fnmatch($g, $slug)) return true;
+    return false;
+}
+
+/** v2.3.7: the scene object picked by ?o= in this area, or null: ['id', 'label', 'globs']. Only objects with a tag list count. */
+function craft_obj_pick(string $tab): ?array
+{
+    $o = (string)($_GET['o'] ?? '');
+    if ($o === '') return null;
+    foreach (craft_scenes()[$tab]['hot'] ?? [] as [$id, $label, , , , , $to]) {
+        if ($id === $o && is_array($to)) return ['id' => $id, 'label' => $label, 'globs' => $to];
+    }
+    return null;
+}
+
+/** v2.3.7: the "Showing: <object> · Show all" line above a filtered list. */
+function craft_obj_line(array $obj, string $clearUrl, int $n): string
+{
+    return '<p class="cmap-on"><span>Showing <b>' . e($obj['label']) . '</b>: ' . $n . ' recipe' . ($n === 1 ? '' : 's') . '</span> <a class="btn small alt" href="' . e($clearUrl) . '">Show all</a></p>';
+}
+
+/**
+ * v2.3.7: ready recipes per category for the landing badges, from ONE craft_recipes() pass over every category (was one pass per area, six
+ * on the landing). The pass also saves newly discovered recipes, so it runs before the known counts. No cross-request cache on purpose:
+ * the satchel changes from many places and a stale "3 ready" would mislead.
+ */
+function craft_map_ready(int $uid): array
+{
+    $n = [];
+    foreach (craft_recipes($uid) as $r) if ($r['known'] && $r['can']) $n[$r['category']] = ($n[$r['category']] ?? 0) + 1;
+    return $n;
+}
+
 /** One line of facts per area for the map cards: have/total known, a lock if the building is missing, ready counts. */
 function craft_map_facts(array $u): array
 {
     $uid = (int)$u['id'];
     $stations = craft_stations($uid);
+    $readyN = craft_map_ready($uid);
     $counts = [];
     foreach (q('SELECT r.category, COUNT(*) AS total, COUNT(ur.id) AS have FROM recipes r
                 LEFT JOIN user_recipes ur ON ur.recipe_id = r.id AND ur.user_id = ? GROUP BY r.category', [$uid])->fetchAll() as $c) $counts[$c['category']] = $c;
@@ -38,8 +75,7 @@ function craft_map_facts(array $u): array
             $done = count(array_filter($jars, fn($j) => $j['left'] <= 0));
             $badge = $done ? $done . ' jar' . ($done > 1 ? 's' : '') . ' done' : (count($jars) ? count($jars) . ' in use' : '');
         } else {
-            $ready = 0;
-            foreach (craft_recipes($uid, $k) as $r) if ($r['known'] && $r['can']) $ready++;
+            $ready = $readyN[$k] ?? 0;
             if ($ready) $badge = $ready . ' ready';
         }
         $out[$k] = ['label' => $label, 'icon' => $icon, 'have' => $have, 'total' => $total, 'locked' => $locked, 'badge' => $badge];
@@ -89,8 +125,9 @@ function craft_area_header(string $tab): void
 <?php if ($sc): ?>
 <figure class="cmap-scene">
   <img src="<?= e(url('assets/img/craftmap/' . $tab . '.png')) ?>" alt="<?= e($sc['alt']) ?>" width="900" height="600">
-  <?php foreach ($sc['hot'] as [$id, $label, $x, $y, $w, $h, $to]): ?>
-    <a class="cmap-hs hs-<?= e($tab . '-' . $id) ?>" href="<?= e(url($qs($to))) ?>" aria-label="<?= e($label) ?>"><span><?= e($label) ?></span></a>
+  <?php $pick = (string)($_GET['o'] ?? '');
+  foreach ($sc['hot'] as [$id, $label, $x, $y, $w, $h, $to]): $tag = is_array($to); ?>
+    <a class="cmap-hs hs-<?= e($tab . '-' . $id) ?>" href="<?= e(url($qs($tag ? 'o=' . $id : $to))) ?>" aria-label="<?= e($label) ?>"<?= $tag && $pick === $id ? ' aria-current="true"' : '' ?>><span><?= e($label) ?></span></a>
   <?php endforeach; ?>
 </figure>
 <?php endif;
