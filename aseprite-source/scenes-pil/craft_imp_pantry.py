@@ -283,7 +283,7 @@ HOTSPOTS = [
     {'id': 'hanging', 'label': 'Garlic and cheese', 'x': 136, 'y': 8, 'w': 64, 'h': 84},
     {'id': 'pickles', 'label': 'Pickle crock', 'x': 134, 'y': 92, 'w': 70, 'h': 98},
     {'id': 'cordials', 'label': 'Cordial bottles', 'x': 210, 'y': 12, 'w': 88, 'h': 90},
-    {'id': 'kraut', 'label': 'Sauerkraut barrel', 'x': 214, 'y': 104, 'w': 84, 'h': 88},
+    {'id': 'kraut', 'label': 'Sauerkraut barrel', 'x': 214, 'y': 102, 'w': 84, 'h': 90},
 ]
 
 if __name__ == '__main__':
