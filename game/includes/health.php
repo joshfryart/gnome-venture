@@ -157,16 +157,31 @@ function hp_use(array $u, string $what, int $itemId): array
     return [false, 'That isn’t something you can use to heal right now.'];
 }
 
+/** [health now, max] to SHOW: out on an adventure the live numbers are in the expedition (the stored ones only change when it ends), otherwise hp_get(). */
+function hp_display(array $u): array
+{
+    if (!hp_on()) return [0, 0];
+    $exp = active_expedition((int)$u['id']);
+    if ($exp !== null) return [max(0, (int)$exp['hp']), max(1, (int)$exp['max_hp'])];
+    return hp_get($u);
+}
+
+/** A health bar: a <progress> (the CSP blocks inline styles, so no width style). $cls adds a size class (hpbar-s for the top bar). */
+function hp_bar_html(int $hp, int $max, string $cls = ''): string
+{
+    $max = max(1, $max);
+    return '<progress class="hpbar' . ($cls !== '' ? ' ' . $cls : '') . '" aria-label="Health" max="' . $max . '" value="' . max(0, min($max, $hp)) . '"></progress>';
+}
+
 /** The Health box of My Gnome: bar, how it comes back, and the potion and snacks. */
 function hp_card_html(array $u): string
 {
     if (!hp_on()) return '';
     $uid = (int)$u['id'];
-    [$hp, $max] = hp_get($u);
+    [$hp, $max] = hp_display($u);
     $out = active_expedition($uid) !== null;
-    $pct = $max > 0 ? max(0, min(100, (int)round(100 * $hp / $max))) : 0;
     $h = '<section class="box hpcard" aria-label="Health"><div class="hphead"><b>❤️ Health</b> <span class="hpnum">' . $hp . '/' . $max . '</span></div>'
-        . '<div class="hpbar" role="progressbar" aria-valuemin="0" aria-valuemax="' . $max . '" aria-valuenow="' . $hp . '"><i style="width:' . $pct . '%"></i></div>';
+        . hp_bar_html($hp, $max);
     if ($hp >= $max) {
         $h .= '<p class="help">You’re in good shape.</p>';
     } else {
