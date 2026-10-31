@@ -334,6 +334,11 @@ body.pz-play .lp #game{text-align:left}
 
 
 
+/* equipped pal: tag + the "take off my party" box, shown only while such a pal is picked */
+.pjparty{margin-left:4px; padding:0 4px; font-size:11px; font-weight:700; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--accent-line)}
+.pjeq{display:none; align-items:flex-start; gap:8px; margin:10px 0 0; padding:8px 10px; font-size:14px; background:var(--accent-soft); color:var(--accent-ink); border:2px solid var(--accent-line)}
+.pjeq input{margin:3px 0 0; width:20px; height:20px; flex:none}
+.pjform:has(input[name="pal"][data-pj-party]:checked) .pjeq{display:flex}
 /* unfold button */
 .pjopen{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:12px}
 .pjopen::after{content:''; width:0; height:0; border:6px solid transparent; border-top:7px solid currentColor; border-bottom:0; transition:transform .2s cubic-bezier(.16,1,.3,1)}

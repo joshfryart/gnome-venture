@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.3.2
+- **Pal jobs: an equipped pal is not sent by accident.** A pal on your party shows an "On party" tag in the pickers. Picking one shows a "Take it off my party to send it out" box that must be ticked; without it the send is refused with a message. Works without JS (the server checks). Tests added in `tests/paljobs.php`.
 ## 2.3.1
 - **Pal Jobs page redesigned.** Three tabs: **Out** (a ledger of pals on jobs with live countdowns, bars and a Collect button that appears when a pal is due), **At home** (HP, skills, Give a potion) and **Jobs** (garden, gathering trip, delve re-run). Each job has a **Send a pal** button that unfolds a ranked pal list and its options; one is open at a time. One-line counts row (runs left, Potions linking to Crafting, Pal Book). Works without JS (the sections stack and the forms stay open).
 - Back/Forward and reload: forms do not keep old picks, Send is re-enabled on Back, and a failed send returns to the tab you posted from.

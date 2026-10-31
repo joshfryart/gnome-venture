@@ -147,6 +147,11 @@ document.addEventListener("DOMContentLoaded",function(){
       reset(f); f.hidden = true;
       if (b) { b.setAttribute('aria-expanded', 'false'); if (focus) b.focus(); }
     };
+    forms.forEach(function (f) {   // an equipped pal needs the "take off my party" box ticked (it is only shown for such a pal)
+      var cb = f.querySelector('input[name="unequip"]');
+      if (!cb) return;
+      f.addEventListener('change', function () { var p = f.querySelector('input[name="pal"]:checked'); cb.required = !!(p && p.hasAttribute('data-pj-party')); if (!cb.required) cb.checked = false; });
+    });
     forms.forEach(function (f, i) {
       f.setAttribute('autocomplete', 'off');   // Firefox would restore a half-filled form after a reload or Back
       var b = document.createElement('button');

@@ -22,11 +22,12 @@ if (is_post()) {
     $do = (string)($_POST['do'] ?? '');
     $pal = (string)($_POST['pal'] ?? '');
     $pots = (int)($_POST['potions'] ?? 0);
+    $unq = !empty($_POST['unequip']);   // v2.3.2: the player agreed to take an equipped pal off the party
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
     $res = match ($do) {
-        'send_garden' => pj_garden_send($u, $pal, (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0)),
-        'send_trip' => pj_trip_send($u, $pal, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots),
-        'send_delve' => pj_delve_send($u, $pal, (int)($_POST['delve'] ?? 0), $pots),
+        'send_garden' => pj_garden_send($u, $pal, (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
+        'send_trip' => pj_trip_send($u, $pal, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq),
+        'send_delve' => pj_delve_send($u, $pal, (int)($_POST['delve'] ?? 0), $pots, $unq),
         'recall' => pj_recall($u, (int)($_POST['job'] ?? 0)),
         'heal' => pj_heal($u, $pal),
         'collect' => pj_collect($u, (int)($_POST['job'] ?? 0)),
@@ -214,9 +215,9 @@ page_header('Pal Jobs');
             <ul class="pjfaces">
               <?php foreach ($ranked as $p): $rest = $p['hp'] < 1; ?>
               <li><label class="pjface<?= $rest ? ' is-resting' : '' ?>">
-                <input type="radio" name="pal" value="<?= e($p['uid']) ?>" required<?= $rest ? ' disabled' : '' ?>>
+                <input type="radio" name="pal" value="<?= e($p['uid']) ?>" required<?= $rest ? ' disabled' : '' ?><?= $p['active'] ? ' data-pj-party="1"' : '' ?>>
                 <?= ppal_img($p['key'], '', 'ppalimg pjimg', 32) ?>
-                <span class="pjnm"><?= e($p['name']) ?></span>
+                <span class="pjnm"><?= e($p['name']) ?><?= $p['active'] ? ' <small class="pjparty">On party</small>' : '' ?></span>
                 <?php if ($rest): ?><span class="pjlv pjlv-rest">Resting</span>
                 <?php else: ?><meter class="pjfhp" min="0" max="<?= (int)$p['max'] ?>" low="<?= (int)ceil($p['max'] * 0.4) ?>" high="<?= (int)ceil($p['max'] * 0.4) ?>" optimum="<?= (int)$p['max'] ?>" value="<?= (int)$p['hp'] ?>" aria-hidden="true"></meter>
                 <span class="pjlv"><span class="vh"><?= $sk === 'g' ? 'Gardening' : 'Adventuring' ?> </span><?= (int)$p[$sk] ?><span class="vh">, HP <?= (int)$p['hp'] ?> of <?= (int)$p['max'] ?></span></span><?php endif; ?>
@@ -224,6 +225,7 @@ page_header('Pal Jobs');
               <?php endforeach; ?>
             </ul>
           </fieldset>
+          <label class="pjeq"><input type="checkbox" name="unequip" value="1"> <span>This pal is on your party (taken along). Take it off my party to send it out.</span></label>
           <div class="pjopts">
             <?php if ($kind === 'garden'): ?>
             <div class="pjfield"><label for="pjplot">Garden</label><select id="pjplot" name="plot"><?php foreach ($plotName as $id => $nm): ?><option value="<?= $id ?>"><?= e($nm) ?></option><?php endforeach; ?></select></div>

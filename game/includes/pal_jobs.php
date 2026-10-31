@@ -206,7 +206,7 @@ function pj_claim_pal(int $uid, string $palUid, string $status): bool
 }
 
 /** Common checks for sending. Returns [pal row or null, error text]. */
-function pj_can_send(array $u, string $palUid): array
+function pj_can_send(array $u, string $palUid, bool $unequip = false): array
 {
     $uid = (int)$u['id'];
     if (!pj_open($u)) return [null, 'Pal jobs open at gnome level ' . pj_min_level() . '.'];
@@ -215,6 +215,7 @@ function pj_can_send(array $u, string $palUid): array
     if (!$p) return [null, 'You have not met that pal.'];
     if ($p['status'] !== 'home') return [null, $p['name'] . ' is already out.'];
     if ($p['hp'] < 1) return [null, $p['name'] . ' needs to rest first.'];
+    if ($p['active'] && !$unequip) return [null, $p['name'] . ' is on your party. Tick "Take off my party" to send them out instead.'];
     $away = (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND state IN ('active','ready')", [$uid]);
     if ($away >= pj_max_away()) return [null, 'That is as many jobs at once as your pals can manage (' . pj_max_away() . '). Collect or wait.'];
     return [$p, ''];
@@ -244,12 +245,12 @@ function pj_garden_step(int $g): int
     return max(1, (int)setting('helper_visit_hours') - intdiv($g, 4));
 }
 
-function pj_garden_send(array $u, string $palUid, int $plotId, int $days): array
+function pj_garden_send(array $u, string $palUid, int $plotId, int $days, bool $unequip = false): array
 {
     $uid = (int)$u['id'];
     if (!in_array($days, PJ_GARDEN_DAYS, true)) return [false, 'Pick 1, 3 or 7 days.'];
     if (!q_val('SELECT 1 FROM plots WHERE id = ? AND user_id = ?', [$plotId, $uid])) return [false, 'That is not your garden.'];
-    [$p, $err] = pj_can_send($u, $palUid);
+    [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
     if (q_val("SELECT 1 FROM ppal_jobs WHERE plot_id = ? AND kind = 'garden' AND state = 'active'", [$plotId])) return [false, 'A pal is already tending that garden.'];
     if (!pj_claim_pal($uid, $palUid, 'garden')) return [false, $p['name'] . ' is already out.'];
@@ -365,7 +366,7 @@ function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hour
     return ['rounds' => $done, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => array_slice($log, 0, 12)];
 }
 
-function pj_trip_send(array $u, string $palUid, string $land, string $tool, int $hours, int $potions): array
+function pj_trip_send(array $u, string $palUid, string $land, string $tool, int $hours, int $potions, bool $unequip = false): array
 {
     $uid = (int)$u['id'];
     if (!isset(LANDSCAPES[$land])) return [false, 'Pick a place to go.'];
@@ -373,7 +374,7 @@ function pj_trip_send(array $u, string $palUid, string $land, string $tool, int 
     $tier = tool_tier($uid, $tool);
     if (!in_array($tool, PJ_TOOLS, true) || $tier < 1) return [false, 'Equip a gathering tool you own.'];
     $potions = max(0, min(5, $potions));
-    [$p, $err] = pj_can_send($u, $palUid);
+    [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
     if (pj_runs_today($uid) >= pj_runs_per_day()) return [false, 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').'];
     if (!gather_candidates($land, $tool)) return [false, 'Nothing for that tool grows there.'];
@@ -446,14 +447,14 @@ function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
     return ['rounds' => $rooms, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => $log];
 }
 
-function pj_delve_send(array $u, string $palUid, int $lmId, int $potions): array
+function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $unequip = false): array
 {
     $uid = (int)$u['id'];
     $potions = max(0, min(5, $potions));
     $lm = null;
     foreach (pj_cleared_delves($uid) as $d) if ((int)$d['id'] === $lmId) $lm = $d;
     if (!$lm) return [false, 'Your pal can only re-run a delve you have cleared yourself.'];
-    [$p, $err] = pj_can_send($u, $palUid);
+    [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
     if (pj_runs_today($uid) >= pj_runs_per_day()) return [false, 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').'];
     if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'delve' AND target = ? AND day = ?", [$uid, (string)$lmId, landmark_day()])) return [false, 'That delve needs a day to settle.'];
