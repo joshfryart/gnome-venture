@@ -3,10 +3,10 @@
 
 @salt-mine-galleries/salt_bend
 size: 3
-tags: dry,bend,gallery,corner
-.##
-.##
+tags: dry,gallery,t-junction,carved
 ...
+#.#
+#.#
 
 @salt-mine-galleries/cart_siding
 size: 3
@@ -31,10 +31,10 @@ W.W
 
 @salt-mine-galleries/alcove_nook
 size: 3
-tags: dry,alcove,nook,dead-end
+tags: dry,alcove,niche,carved
+.#.
+...
 #.#
-...
-...
 
 @salt-mine-galleries/carved_step
 size: 3
@@ -54,11 +54,11 @@ tags: dry,gallery,straight,carved
 
 @salt-mine-galleries/pillar_hall
 size: 5
-tags: dry,pillars,hall,carved
+tags: dry,pillars,hall,carved,blocks
 .....
-.#.#.
+##.##
 .....
-.#.#.
+##.##
 .....
 
 @salt-mine-galleries/rail_bend
@@ -81,10 +81,10 @@ tags: dry,rubble,collapse,rough
 
 @salt-mine-galleries/brine_channel
 size: 5
-tags: wet,channel,brine,narrow
+tags: wet,channel,brine,dry-bank
 #.W.#
 #.W.#
-#WWW#
+#...#
 #.W.#
 #.W.#
 
@@ -135,12 +135,12 @@ WWW..
 
 @salt-mine-galleries/rubble_choke
 size: 5
-tags: dry,rubble,choke,rough
-#.,..
-#,,,.
-#.,,.
-#,,..
-#....
+tags: dry,rubble,choke,hourglass,rough
+,,,,,
+#,,,#
+##,##
+#,,,#
+,,,,,
 
 @salt-mine-galleries/alcove_hall_wide
 size: 5
@@ -162,11 +162,11 @@ tags: dry,pillars,row,corridor
 
 @salt-mine-galleries/rough_gallery_h
 size: 5
-tags: dry,gallery,horizontal,rough
+tags: dry,gallery,horizontal,rough,wide
 #####
 .,,,.
-.....
-.,,,.
+.,.,.
+#####
 #####
 
 @salt-mine-galleries/alcove_gnome_hall
@@ -181,11 +181,11 @@ tags: dry,hall,alcoves,carved,two-door
 
 @salt-mine-galleries/pillar_court
 size: 6
-tags: dry,pillars,court,wide
+tags: dry,pillars,court,colonnade,wide
 ......
 .#..#.
-......
-......
+.#..#.
+.#..#.
 .#..#.
 ......
 

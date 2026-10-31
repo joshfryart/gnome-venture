@@ -38,10 +38,10 @@ tags: pillar,split,u-bend,stalagmite
 
 @firefly-caves/pool_ring
 size: 3
-tags: round,pool,glow,open
-.W.
-,.,
-.W.
+tags: pool,corner,rough,rim,glow
+WW.
+W,.
+..,
 
 @firefly-caves/round_grotto
 size: 5
@@ -181,13 +181,13 @@ tags: dome,big,round,doorways
 
 @firefly-caves/stalagmite_forest
 size: 6
-tags: stalagmites,forest,dense,open
+tags: stalagmites,forest,pairs,clusters,open
 ......
-.#..#.
+.##.#.
+....#.
+...#..
+.#.##.
 .#....
-..#.#.
-.#....
-......
 
 @firefly-caves/cascade_pools
 size: 6

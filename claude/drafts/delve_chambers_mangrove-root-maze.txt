@@ -31,10 +31,10 @@ W.W
 
 @mangrove-root-maze/mud_flat_strip
 size: 3
-tags: wet,mud,flat,rough
+tags: wet,mud,channel,rough
+,,,
+WWW
 ,,.
-#,.
-,,#
 
 @mangrove-root-maze/channel_bend
 size: 3
@@ -74,9 +74,9 @@ tags: dry,thicket,winding,maze
 size: 5
 tags: wet,stilts,grid,bridge
 W.W.W
-W.W.W
+..W..
 .....
-W.W.W
+..W..
 W.W.W
 
 @mangrove-root-maze/mud_lens_bank
@@ -144,12 +144,12 @@ tags: wet,gates,pool,ring
 
 @mangrove-root-maze/stilt_crossing_dry
 size: 5
-tags: dry,crossroads,hummocks,rough
-#,#,#
-,...,
-#.#.#
-,...,
-#,#,#
+tags: dry,zigzag,stilts,rough
+,,,,#
+##.##
+#,,,,
+##.##
+,,,,#
 
 @mangrove-root-maze/mud_flat_island
 size: 5
@@ -175,7 +175,7 @@ tags: wet,hall,room,pool
 ######
 #....#
 #.WW.#
-#.WW..
+..WW..
 #.....
 ######
 

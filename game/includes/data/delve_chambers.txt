@@ -1,5 +1,6 @@
 # Delve chambers (v2.3.1). A floor is 4 chambers stamped in a 2x2 grid (see includes/delve_stamp.php). Format: "@slug/name", "size: 3|5|6", "tags:", rows of # . , W.
 # slug 'any' = shared by delves with none of their own. Check with: php tools/lint_delve_chambers.php
+
 # Beaverdam Tunnels: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
 # Terrain only: no objects. # wall, . floor, , rough floor, W shallow water.
 
@@ -92,10 +93,10 @@ tags: wet,pool,ledge
 
 @beaverdam-tunnels/lodge_room
 size: 5
-tags: dry,lodge,room,two-door
+tags: dry,lodge,room,three-door
 ##.##
 #...#
-#...#
+....#
 #...#
 ##.##
 
@@ -183,11 +184,11 @@ tags: wet,gallery,ring,island
 
 @beaverdam-tunnels/lodge_hall_hearth
 size: 6
-tags: dry,lodge,hall,hearth,two-door
+tags: dry,lodge,hall,hearth,four-door
 ##.###
 #....#
-#.##.#
-#.##.#
+..##.#
+#.##..
 #....#
 ###.##
 
@@ -228,17 +229,17 @@ tags: dry,crossroads,wide
 
 @jaguar-root-caves/root_gate
 size: 3
-tags: rough,throat,root-gate
+tags: rough,gate,root-pillars,arch
 ,.,
-#.#
-,,,
+.#.
+.#.
 
 @jaguar-root-caves/knot_tangle
 size: 3
-tags: rough,knot,mossy
-.#.
+tags: rough,knot,mossy,zigzag
+,.#
 ,,.
-#,.
+#.,
 
 @jaguar-root-caves/puddle_corner
 size: 3
@@ -380,10 +381,10 @@ tags: wet,cistern,pool,hollow-stump
 
 @jaguar-root-caves/root_cage
 size: 5
-tags: dry,cage,roots,two-door
+tags: dry,cage,roots,side-doors
 ##.##
 #...#
-#.#.#
+..#..
 #...#
 ##.##
 
@@ -481,10 +482,10 @@ W.W
 
 @mangrove-root-maze/mud_flat_strip
 size: 3
-tags: wet,mud,flat,rough
+tags: wet,mud,channel,rough
+,,,
+WWW
 ,,.
-#,.
-,,#
 
 @mangrove-root-maze/channel_bend
 size: 3
@@ -524,9 +525,9 @@ tags: dry,thicket,winding,maze
 size: 5
 tags: wet,stilts,grid,bridge
 W.W.W
-W.W.W
+..W..
 .....
-W.W.W
+..W..
 W.W.W
 
 @mangrove-root-maze/mud_lens_bank
@@ -594,12 +595,12 @@ tags: wet,gates,pool,ring
 
 @mangrove-root-maze/stilt_crossing_dry
 size: 5
-tags: dry,crossroads,hummocks,rough
-#,#,#
-,...,
-#.#.#
-,...,
-#,#,#
+tags: dry,zigzag,stilts,rough
+,,,,#
+##.##
+#,,,,
+##.##
+,,,,#
 
 @mangrove-root-maze/mud_flat_island
 size: 5
@@ -625,7 +626,7 @@ tags: wet,hall,room,pool
 ######
 #....#
 #.WW.#
-#.WW..
+..WW..
 #.....
 ######
 
@@ -674,10 +675,10 @@ tags: dry,hummocks,court,rough
 
 @salt-mine-galleries/salt_bend
 size: 3
-tags: dry,bend,gallery,corner
-.##
-.##
+tags: dry,gallery,t-junction,carved
 ...
+#.#
+#.#
 
 @salt-mine-galleries/cart_siding
 size: 3
@@ -702,10 +703,10 @@ W.W
 
 @salt-mine-galleries/alcove_nook
 size: 3
-tags: dry,alcove,nook,dead-end
+tags: dry,alcove,niche,carved
+.#.
+...
 #.#
-...
-...
 
 @salt-mine-galleries/carved_step
 size: 3
@@ -725,11 +726,11 @@ tags: dry,gallery,straight,carved
 
 @salt-mine-galleries/pillar_hall
 size: 5
-tags: dry,pillars,hall,carved
+tags: dry,pillars,hall,carved,blocks
 .....
-.#.#.
+##.##
 .....
-.#.#.
+##.##
 .....
 
 @salt-mine-galleries/rail_bend
@@ -752,10 +753,10 @@ tags: dry,rubble,collapse,rough
 
 @salt-mine-galleries/brine_channel
 size: 5
-tags: wet,channel,brine,narrow
+tags: wet,channel,brine,dry-bank
 #.W.#
 #.W.#
-#WWW#
+#...#
 #.W.#
 #.W.#
 
@@ -806,12 +807,12 @@ WWW..
 
 @salt-mine-galleries/rubble_choke
 size: 5
-tags: dry,rubble,choke,rough
-#.,..
-#,,,.
-#.,,.
-#,,..
-#....
+tags: dry,rubble,choke,hourglass,rough
+,,,,,
+#,,,#
+##,##
+#,,,#
+,,,,,
 
 @salt-mine-galleries/alcove_hall_wide
 size: 5
@@ -833,11 +834,11 @@ tags: dry,pillars,row,corridor
 
 @salt-mine-galleries/rough_gallery_h
 size: 5
-tags: dry,gallery,horizontal,rough
+tags: dry,gallery,horizontal,rough,wide
 #####
 .,,,.
-.....
-.,,,.
+.,.,.
+#####
 #####
 
 @salt-mine-galleries/alcove_gnome_hall
@@ -852,11 +853,11 @@ tags: dry,hall,alcoves,carved,two-door
 
 @salt-mine-galleries/pillar_court
 size: 6
-tags: dry,pillars,court,wide
+tags: dry,pillars,court,colonnade,wide
 ......
 .#..#.
-......
-......
+.#..#.
+.#..#.
 .#..#.
 ......
 
@@ -930,10 +931,10 @@ tags: pillar,split,u-bend,stalagmite
 
 @firefly-caves/pool_ring
 size: 3
-tags: round,pool,glow,open
-.W.
-,.,
-.W.
+tags: pool,corner,rough,rim,glow
+WW.
+W,.
+..,
 
 @firefly-caves/round_grotto
 size: 5
@@ -1073,13 +1074,13 @@ tags: dome,big,round,doorways
 
 @firefly-caves/stalagmite_forest
 size: 6
-tags: stalagmites,forest,dense,open
+tags: stalagmites,forest,pairs,clusters,open
 ......
-.#..#.
+.##.#.
+....#.
+...#..
+.#.##.
 .#....
-..#.#.
-.#....
-......
 
 @firefly-caves/cascade_pools
 size: 6

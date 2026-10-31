@@ -90,10 +90,10 @@ tags: wet,pool,ledge
 
 @beaverdam-tunnels/lodge_room
 size: 5
-tags: dry,lodge,room,two-door
+tags: dry,lodge,room,three-door
 ##.##
 #...#
-#...#
+....#
 #...#
 ##.##
 
@@ -181,11 +181,11 @@ tags: wet,gallery,ring,island
 
 @beaverdam-tunnels/lodge_hall_hearth
 size: 6
-tags: dry,lodge,hall,hearth,two-door
+tags: dry,lodge,hall,hearth,four-door
 ##.###
 #....#
-#.##.#
-#.##.#
+..##.#
+#.##..
 #....#
 ###.##
 

@@ -5,17 +5,17 @@
 
 @jaguar-root-caves/root_gate
 size: 3
-tags: rough,throat,root-gate
+tags: rough,gate,root-pillars,arch
 ,.,
-#.#
-,,,
+.#.
+.#.
 
 @jaguar-root-caves/knot_tangle
 size: 3
-tags: rough,knot,mossy
-.#.
+tags: rough,knot,mossy,zigzag
+,.#
 ,,.
-#,.
+#.,
 
 @jaguar-root-caves/puddle_corner
 size: 3
@@ -157,10 +157,10 @@ tags: wet,cistern,pool,hollow-stump
 
 @jaguar-root-caves/root_cage
 size: 5
-tags: dry,cage,roots,two-door
+tags: dry,cage,roots,side-doors
 ##.##
 #...#
-#.#.#
+..#..
 #...#
 ##.##
 
