@@ -46,6 +46,7 @@ LAWN, LAWN_L, LAWN_S = '#7ab55c', '#86bf66', '#5f9e4a'
 SHADOW = '#4f9a45'
 STONE = ramp('#e2dccf', '#b4ab9a', '#f7f4ec', '#c6bead')   # the birdbath: pale warm stone
 FLAG = ramp('#c9c3b4', '#9e9686', '#e2dccf')               # flagstone pad and stepping stones, a step darker than the hero
+SIDE = ramp('#9e9686', '#857d6e')                           # their cut edges
 WATER = ramp('#2f8fc8', '#1f6a9e', '#8fd0f0')
 IRON = ramp('#4e5262', '#34343f', '#767c90', '#5b6070')
 GLOW = ramp('#f5cf6a', '#e8a317', '#fff1c8')
@@ -78,7 +79,7 @@ def sparkle(x, y, s=2, col=GOLD['r']):
 
 
 # ---------------------------------------------------------------- yard: calm sky, two flat clouds, a blossom hedge, mown lawn
-for (x0, y0, x1, y1) in ((62, 16, 100, 32), (210, 20, 262, 38)):
+for (x0, y0, x1, y1) in ((228, 14, 286, 34), (92, 6, 124, 18)):
     c = ell(x0, y0 + 4, x1, y1) | ell(x0 + (x1 - x0) // 4, y0, x0 + 3 * (x1 - x0) // 4, y1 - 4)
     cv.fill(c, CLOUD)
     cv.fill(c & ~shift(c, 0, -2), CLOUD_S)
@@ -87,9 +88,17 @@ HY = 112   # lawn horizon
 hedge = rect(0, 100, W - 1, HY)
 for k, bx in enumerate(range(-6, W + 12, 22)):
     hedge |= ell(bx - 13, 88 + (k % 2) * 3, bx + 13, 112)
+# a clipped topiary arch rises behind the hero: frames it like the kitchen's tiled alcove
+dome = ell(90, 32, 210, 168)
+for a in np.linspace(np.pi * 1.02, np.pi * 1.98, 9):   # scalloped like the rest of the hedge
+    bx, by = 150 + 58 * np.cos(a), 100 + 66 * np.sin(a)
+    dome |= ell(int(bx) - 10, int(by) - 10, int(bx) + 10, int(by) + 10)
+dome &= rect(0, 0, W, HY)
+hedge |= dome
 cv.fill(hedge, HEDGE['b'])
 cv.fill(hedge & ~shift(hedge, 0, 2), HEDGE['r'])
 cv.fill(hedge & rect(0, HY - 4, W, HY), HEDGE['s'])
+cv.fill(dome & ~shift(dome, -3, 0) & rect(0, 40, W, HY - 5), HEDGE['s'])       # its shaded right flank
 
 cv.fill(rect(0, HY, W - 1, H - 1), LAWN)
 for y0, y1 in ((HY + 10, HY + 22), (HY + 38, HY + 56)):   # wide mown stripes, widening towards the viewer
@@ -99,81 +108,88 @@ cv.fill(rect(0, HY, W - 1, HY), LAWN_S)
 # ---------------------------------------------------------------- HERO: stone birdbath on a round flagstone, robin on the rim
 shadow(108, 172, 214, 184)
 pad_top = ell(98, 158, 204, 178)
-draw((ell(98, 161, 204, 181), FLAG, {'d': 1, 'rim': False}), (pad_top, FLAG, {'d': 1, 'contour': True}))
-cv.fill(pad_top & ~shift(pad_top, 0, -1), FLAG['s'])
+draw((ell(98, 161, 204, 181), SIDE, {'d': 1, 'rim': False}), (pad_top, FLAG, {'d': 1, 'contour': True}))
 # plinth, baluster pedestal, collar
 draw((rrect(122, 150, 178, 166, 2), STONE, {'d': 2}),
      (rrect(128, 142, 172, 151, 2), STONE, {'d': 2, 'contour': True}),
      (rect(140, 96, 160, 143) | ell(132, 106, 168, 134), STONE, {'d': 3}),
      (rrect(134, 94, 166, 101, 1), STONE, {'d': 1, 'contour': True}))
-cv.fill(rect(138, 119, 162, 119) & ell(132, 106, 168, 134), STONE['s'])   # carved band on the vase
+cv.fill(rect(136, 119, 164, 119) & ell(132, 106, 168, 134), STONE['s'])   # carved band on the vase
+cv.fill(rect(136, 111, 137, 126) & ell(132, 106, 168, 134), STONE['r'])
 # bowl: shallow dish, thick rim seen from above
 bowl = ell(96, 58, 204, 104) & rect(0, 72, W, 99)
 rim = ell(92, 60, 208, 86)
 draw((bowl | rrect(126, 96, 174, 100, 1), STONE, {'d': 3}), (rim, STONE, {'d': 2, 'contour': True}))
 cv.fill(rim & ~shift(rim, 0, 1) & rect(0, 0, 150, H), STONE['r'])
+cv.fill(rect(104, 88, 106, 95) & bowl, STONE['r'])                              # light on the bowl's left belly
 water = ell(100, 64, 200, 82)
-cv.fill(water, WATER['s'])
-cv.fill(water & shift(water, 0, 2), WATER['b'])
-cv.fill(water & rect(0, 0, 128, H) & shift(water, 2, 3), WATER['r'])          # sky glinting off the near-left water
-cv.fill(rect(150, 72, 166, 72) | rect(170, 76, 182, 76), WATER['r'])            # ripples
-cv.fill(rect(112, 70, 117, 71), '#ffffff')
-for px_, py_ in ((176, 69), (186, 73)):                                         # two blossom petals afloat
+cv.fill(water, WATER['b'])
+cv.fill(water & ~shift(water, 0, 3), WATER['s'])                               # far edge in the rim's shade
+ring = ell(150, 70, 182, 79) & ~ell(153, 72, 179, 77)                           # ripple where the robin dipped its beak
+cv.fill(ring & water, WATER['r'])
+for (a, b, y) in ((108, 124, 75), (114, 130, 78), (186, 194, 75)):             # sky glints
+    cv.fill(rect(a, y, b, y) & water, WATER['r'])
+cv.fill(rect(110, 72, 114, 72), '#ffffff')
+for px_, py_ in ((132, 72), (188, 70)):                                         # two blossom petals afloat
     cv.fill(ell(px_, py_, px_ + 5, py_ + 3), PETAL['r'])
     cv.dots([(px_ + 4, py_ + 2)], PETAL['b'])
-cv.fill(ell(104, 86, 112, 96) & bowl, STONE['g'] if STONE.get('g') else STONE['r'])   # light on the bowl's left belly
 # robin on the rim, facing the water
 rb = ell(104, 46, 128, 64)
 head = ell(118, 38, 134, 54)
 tail = poly([(108, 52), (94, 46), (96, 52), (106, 60)])
 draw((tail, ROBIN, {'d': 1}), (rb, ROBIN, {'d': 2}), (head, ROBIN, {'d': 2}),
      (poly([(133, 45), (139, 47), (133, 49)]), GOLD, {'d': 1}))
-cv.fill(ell(118, 46, 132, 62) & (rb | head), BREAST['b'])
-cv.fill(ell(118, 46, 132, 62) & (rb | head) & ~shift(ell(118, 46, 132, 62) & (rb | head), -2, -2), BREAST['s'])
+br = ell(118, 46, 132, 62) & (rb | head)
+cv.fill(br, BREAST['b'])
+cv.fill(br & ~shift(br, -2, -2), BREAST['s'])
+cv.fill(br & ~shift(br, 1, 1), BREAST['r'])
 cv.fill(line([(108, 52), (118, 56)]), ROBIN['s'])                                # wing line
 cv.fill(rect(127, 43, 128, 44), UMB)
 cv.dots([(127, 43)], '#ffffff')
 cv.fill(rect(114, 64, 114, 66) | rect(120, 64, 120, 66), UMB)                   # legs to the rim
-for sx, sy in ((86, 52), (214, 50), (176, 38), (222, 92)):
+for sx, sy in ((80, 46), (220, 52), (176, 34), (226, 88)):
     sparkle(sx, sy)
 
-# ---------------------------------------------------------------- LEFT BACK: iron lantern post
-LX = 40
-shadow(LX - 10, 120, LX + 22, 128)
-draw((rrect(LX - 11, 114, LX + 11, 124, 2), IRON, {'d': 2}),           # foot
-     (rect(LX - 4, 52, LX + 4, 116), IRON, {'d': 2}),                  # post
-     (rect(LX - 7, 84, LX + 7, 88) | rect(LX - 7, 108, LX + 7, 112), IRON, {'d': 1, 'contour': True}))
-# lantern head: roof, four-pane glass, base
-glass = poly([(LX - 14, 22), (LX + 14, 22), (LX + 11, 46), (LX - 11, 46)])
-draw((rect(LX - 2, 4, LX + 2, 10), IRON, {'d': 1}),
-     (poly([(LX, 6), (LX + 20, 22), (LX - 20, 22)]), IRON, {'d': 2}),
+# ---------------------------------------------------------------- LEFT BACK: iron lantern post (stands further back, clear of the planter)
+LX = 56
+shadow(LX - 10, 116, LX + 22, 124)
+draw((rrect(LX - 12, 110, LX + 12, 121, 2), IRON, {'d': 2}),           # foot
+     (rect(LX - 5, 50, LX + 5, 112), IRON, {'d': 2}),                  # post
+     (rect(LX - 8, 78, LX + 8, 82) | rect(LX - 8, 102, LX + 8, 106), IRON, {'d': 1, 'contour': True}))
+glass = poly([(LX - 15, 21), (LX + 15, 21), (LX + 12, 45), (LX - 12, 45)])
+draw((rect(LX - 2, 2, LX + 2, 8), IRON, {'d': 1}),
+     (poly([(LX, 4), (LX + 22, 21), (LX - 22, 21)]), IRON, {'d': 2}),
      (glass, GLOW, {'d': 2}),
-     (rrect(LX - 13, 46, LX + 13, 52, 1), IRON, {'d': 1, 'contour': True}))
-cv.fill(rect(LX - 20, 22, LX + 20, 24), IRON['s'])
-cv.fill(line([(LX, 6), (LX - 18, 21)]), IRON['r'])
+     (rrect(LX - 14, 45, LX + 14, 51, 1), IRON, {'d': 1, 'contour': True}))
+cv.fill(rect(LX - 22, 21, LX + 22, 23), IRON['s'])
+cv.fill(line([(LX, 4), (LX - 20, 20)]), IRON['r'])
 for mx in (LX - 5, LX + 5):
-    cv.fill(rect(mx, 25, mx, 45), IRON['b'])
-cv.fill(ell(LX - 3, 30, LX + 3, 42), GLOW['r'])                       # candle flame
-cv.fill(rect(LX - 2, 40, LX + 2, 45), '#f1ece0')
+    cv.fill(rect(mx, 24, mx, 44), IRON['b'])
+cv.fill(ell(LX - 3, 28, LX + 3, 40), GLOW['r'])                       # candle flame
+cv.fill(rect(LX - 2, 38, LX + 2, 44), '#f1ece0')
 
-# ---------------------------------------------------------------- LEFT FRONT: terracotta planter of pink flowers
-PX0, PX1 = 16, 84
-shadow(PX0 + 4, 184, PX1 + 10, 194)
-potm = poly([(PX0 + 2, 160), (PX1 - 2, 160), (PX1 - 8, 190), (PX0 + 8, 190)])
-leaves = ell(PX0 - 2, 136, PX1 + 2, 166)
+# ---------------------------------------------------------------- LEFT FRONT: fat terracotta planter of pink flowers
+PX0, PX1 = 12, 82
+shadow(PX0 + 6, 186, PX1 + 12, 196)
+potm = poly([(PX0 + 3, 166), (PX1 - 3, 166), (PX1 - 9, 193), (PX0 + 9, 193)])
+leaves = ell(PX0 - 2, 142, PX1 + 2, 172) | ell(PX0 - 8, 148, PX0 + 12, 162) | ell(PX1 - 12, 148, PX1 + 8, 162)   # mound + two broad side leaves
 draw((leaves, LEAF, {'d': 2}),
      (potm, POT, {'d': 3}),
-     (rrect(PX0 - 2, 155, PX1 + 2, 163, 1), POT, {'d': 1, 'contour': True}))
-cv.fill(rect(PX0 - 1, 156, PX1 + 1, 156), POT['r'])
-for fx, fy, s in ((28, 140, 7), (46, 134, 8), (66, 140, 7), (38, 152, 6), (58, 152, 6)):
+     (rrect(PX0 - 1, 160, PX1 + 1, 168, 1), POT, {'d': 1, 'contour': True}))
+cv.fill(line([(PX0 - 6, 155), (PX0 + 6, 157)]) | line([(PX1 - 6, 157), (PX1 + 6, 155)]), LEAF['s'])   # midribs
+cv.fill(rect(PX0, 161, PX1, 161), POT['r'])
+cv.fill(potm & rect(0, 178, W, 178), POT['s'])                       # a thrown ring on the belly
+for k in range(PX0 + 14, PX1 - 12, 6):                               # stitched seam
+    cv.fill(rect(k, 172, k + 2, 172), POT['r'])
+for fx, fy, s in ((26, 150, 9), (48, 144, 10), (70, 151, 9), (38, 163, 7), (59, 163, 7)):
     bloom = blank()
-    for dx, dy in ((0, -s // 2 - 1), (s // 2 + 1, 0), (0, s // 2 + 1), (-s // 2 - 1, 0)):
-        bloom |= ell(fx + dx - s // 2, fy + dy - s // 2, fx + dx + s // 2, fy + dy + s // 2)
+    for a in range(5):
+        ang = np.pi * (-0.5 + 0.4 * a)
+        cx_, cy_ = fx + 0.55 * s * np.cos(ang), fy + 0.55 * s * np.sin(ang)
+        bloom |= ell(int(round(cx_ - s * 0.5)), int(round(cy_ - s * 0.5)), int(round(cx_ + s * 0.5)), int(round(cy_ + s * 0.5)))
     draw((bloom, PETAL, {'d': 2}))
-    cv.fill(ell(fx - 2, fy - 2, fx + 2, fy + 2), GOLD['r'])
-for k, (lx0, ly0) in enumerate(((22, 172), (40, 176), (58, 172))):     # stitched band on the pot
-    pass
-cv.fill(potm & rect(0, 174, W, 175), POT['s'])
+    cv.fill(ell(fx - 2, fy - 2, fx + 2, fy + 2), GOLD['b'])
+    cv.dots([(fx - 1, fy - 1)], GOLD['r'])
 
 # ---------------------------------------------------------------- RIGHT BACK: white picket fence section
 FX0, FX1, FB = 210, 292, 128
@@ -185,17 +201,19 @@ rails = rect(FX0 - 4, 88, FX1 + 2, 93) | rect(FX0 - 4, 112, FX1 + 2, 117)
 draw((rails, PICKET, {'d': 1}), (pk, PICKET, {'d': 2, 'contour': True}))
 
 # ---------------------------------------------------------------- RIGHT FRONT: round stepping stones running back into the lawn
-for (x0, y0, x1, y1) in ((222, 140, 244, 148), (232, 152, 262, 163), (246, 168, 284, 182), (254, 184, 298, 199)):
-    t = max(1, (y1 - y0) // 5)
-    draw((ell(x0, y0 + t, x1, y1 + t) & rect(0, 0, W, H - 1), FLAG, {'d': 1, 'rim': False}),
+for (x0, y0, x1, y1) in ((222, 138, 252, 148), (230, 153, 270, 166), (240, 171, 290, 187), (246, 190, 306, 210)):
+    t = max(2, (y1 - y0) // 4)
+    shadow(x0 + 4, y0 + t + 2, x1 + 4, y1 + t + 2)
+    draw((ell(x0, y0 + t, x1, y1 + t), SIDE, {'d': 1, 'rim': False}),
          (ell(x0, y0, x1, y1), FLAG, {'d': 1, 'contour': True}))
+    cv.fill(ell(x0 + 4, y0 + 2, x0 + (x1 - x0) // 2, y0 + (y1 - y0) // 2) & ~shift(ell(x0 + 4, y0 + 2, x0 + (x1 - x0) // 2, y0 + (y1 - y0) // 2), 1, 1), FLAG['r'])
 
 HOTSPOTS = [
-    {'id': 'lantern', 'label': 'Lantern post', 'x': 10, 'y': 2, 'w': 70, 'h': 128},
-    {'id': 'planter', 'label': 'Flower planter', 'x': 6, 'y': 130, 'w': 88, 'h': 68},
-    {'id': 'birdbath', 'label': 'Birdbath', 'x': 94, 'y': 32, 'w': 112, 'h': 156},
-    {'id': 'fence', 'label': 'Picket fence', 'x': 206, 'y': 64, 'w': 92, 'h': 70},
-    {'id': 'path', 'label': 'Stepping stones', 'x': 214, 'y': 136, 'w': 86, 'h': 64},
+    {'id': 'lantern', 'label': 'Lantern post', 'x': 20, 'y': 0, 'w': 72, 'h': 128},
+    {'id': 'planter', 'label': 'Flower planter', 'x': 2, 'y': 130, 'w': 90, 'h': 68},
+    {'id': 'birdbath', 'label': 'Birdbath', 'x': 92, 'y': 32, 'w': 116, 'h': 156},
+    {'id': 'fence', 'label': 'Picket fence', 'x': 208, 'y': 64, 'w': 90, 'h': 70},
+    {'id': 'path', 'label': 'Stepping stones', 'x': 214, 'y': 134, 'w': 86, 'h': 66},
 ]
 
 if __name__ == '__main__':

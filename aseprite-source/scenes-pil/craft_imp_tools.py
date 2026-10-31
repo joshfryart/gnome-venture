@@ -40,7 +40,7 @@ def save_scene(cv, name, hotspots, outdir=None):
 
 # ---------------------------------------------------------------- palette (steel blue / wood / amber)
 WALL, WALL_S = '#5a6f82', '#4e6276'
-GLOW1, GLOW2 = '#6e7a84', '#86847e'
+GLOW1, GLOW2 = '#6f7a82', '#8c877c'
 FLOOR, FLOOR_S, FLOOR_L = '#8a5a34', '#6e4528', '#a06c3e'
 SHADOW = '#5c3a22'
 IRON = ramp('#3e4a5c', '#2a3240', '#6c7c94', '#4a5668')
@@ -111,9 +111,10 @@ shadow(108, 172, 214, 186)
 # stump: cut top seen a little from above, bark grooves, flared roots
 stump = rrect(116, 128, 184, 176, 2) | poly([(110, 178), (122, 166), (126, 178)]) | poly([(190, 178), (178, 166), (174, 178)])
 draw((stump, BARK, {'d': 3}), (rect(116, 126, 184, 130), RING, {'d': 1, 'contour': True}))
-for bx, y0 in ((126, 134), (140, 138), (156, 134), (170, 140)):   # bark grooves, staggered
-    cv.fill(stump & rect(bx, y0, bx, 172), BARK['s'])
-    cv.fill(stump & rect(bx + 1, y0, bx + 1, y0 + 6), BARK['r'])
+for pts in (((126, 134), (125, 150), (127, 172)), ((142, 140), (143, 158)), ((158, 134), (157, 146), (159, 170)), ((172, 142), (173, 162))):
+    cv.fill(stump & line(list(pts)), BARK['s'])   # wavy bark grooves of uneven length (not planks)
+cv.fill(ell(147, 160, 152, 165), BARK['s'])   # a knot
+cv.dots([(148, 161)], BARK['r'])
 # anvil: horn on the left, flat face, waist, wide feet
 face = rect(114, 92, 188, 102)
 horn = poly([(115, 92), (104, 93), (94, 96), (104, 99), (115, 102)])
@@ -134,9 +135,16 @@ draw((line([(200, 178), (193, 110)], 4), WOOD, {'d': 1}),
 cv.fill(line([(183, 103), (203, 100)]), HAMMER['r'])
 cv.fill(rect(181, 103, 182, 114), HAMMER['s'])
 # sparks flying from the hot bar
-for sx, sy in ((122, 72), (148, 62), (174, 76), (136, 50), (164, 52)):
+import math   # noqa: E402
+for ang, d0, L in ((-158, 8, 9), (-128, 18, 11), (-104, 6, 16), (-84, 24, 10), (-62, 10, 15), (-36, 20, 9), (-14, 6, 8)):   # spark streaks off the strike, uneven
+    ux, uy = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+    x0, y0 = 142 + ux * d0, 86 + uy * d0
+    x1, y1 = x0 + ux * L, y0 + uy * L
+    cv.fill(line([(x0, y0), (x1, y1)], 2), HOT1)
+    cv.fill(line([(x0 + ux * L * .45, y0 + uy * L * .45), (x1, y1)], 2), HOT2)
+    cv.fill(rect(int(round(x1)) - 1, int(round(y1)) - 1, int(round(x1)), int(round(y1))), HOT3)
+for sx, sy in ((116, 58), (170, 56), (132, 38), (156, 36)):
     sparkle(sx, sy)
-cv.dots([(130, 80), (129, 78), (154, 79), (156, 77), (142, 74), (168, 84), (116, 80)], HOT1)
 
 # ---------------------------------------------------------------- LEFT TOP: wall rack with saw, spade and rake
 draw((rect(6, 14, 92, 18), DWOOD, {'d': 1}), (rect(10, 10, 14, 20) | rect(84, 10, 88, 20), DWOOD, {'d': 1}))
@@ -155,11 +163,11 @@ draw((rect(53, 28, 57, 56), WOOD, {'d': 1}),
 cv.fill(rect(48, 57, 49, 66), '#ffffff')
 # rake: head up on the peg, long tines down, handle
 tines = blank()
-for tx in range(68, 92, 5):
-    tines |= rect(tx, 25, tx + 1, 34)
-draw((rect(78, 26, 81, 76), WOOD, {'d': 1}),
+for tx in range(65, 91, 5):
+    tines |= rect(tx, 25, tx + 1, 36)
+draw((rect(76, 26, 79, 76), WOOD, {'d': 1}),
      (tines, STEEL, {'d': 0}),
-     (rect(66, 20, 93, 24), STEEL, {'d': 1, 'contour': True}))
+     (rect(63, 20, 91, 24), STEEL, {'d': 1, 'contour': True}))
 
 # ---------------------------------------------------------------- LEFT BOTTOM: workbench with a blue vice
 shadow(6, 174, 96, 184)
@@ -177,38 +185,36 @@ draw((rect(58, 82, 66, 97), RING, {'d': 1}))   # a block clamped in the jaws
 cv.fill(rect(59, 83, 65, 83), RING['r'])
 
 # ---------------------------------------------------------------- RIGHT TOP: wooden tool tote on a shelf
-draw((rect(212, 72, 294, 76), WOOD, {'d': 2}), (poly([(218, 77), (224, 77), (218, 88)]) | poly([(282, 77), (288, 77), (288, 88)]), WOOD, {'d': 1}))
+draw((rect(212, 68, 294, 72), WOOD, {'d': 2}), (poly([(218, 73), (224, 73), (218, 84)]) | poly([(282, 73), (288, 73), (288, 84)]), WOOD, {'d': 1}))
 # tools standing in the tote (behind its front board)
-wr = ell(226, 20, 242, 36) & ~rect(231, 18, 237, 26)   # open-end wrench head
-draw((line([(238, 58), (234, 32)], 5) | wr, STEEL, {'d': 1}))
-draw((rect(260, 32, 265, 52), RED, {'d': 1}), (rect(262, 22, 263, 32), STEEL, {'d': 0}))   # screwdriver
-tote = rect(222, 50, 288, 71)
-ends = poly([(220, 71), (220, 36), (225, 30), (230, 36), (230, 71)]) | poly([(280, 71), (280, 36), (285, 30), (290, 36), (290, 71)])
-draw((rect(228, 34, 282, 37), DWOOD, {'d': 1}), (tote, WOOD, {'d': 2}), (ends, WOOD, {'d': 2, 'contour': True}))
-cv.fill(rect(223, 60, 287, 60) & tote, WOOD['s'])
+wr = ell(226, 16, 242, 32) & ~rect(231, 14, 237, 22)   # open-end wrench head
+draw((line([(238, 54), (234, 28)], 5) | wr, STEEL, {'d': 1}))
+draw((rect(260, 28, 265, 48), RED, {'d': 1}), (rect(262, 18, 263, 28), STEEL, {'d': 0}))   # screwdriver
+tote = rect(222, 46, 288, 67)
+ends = poly([(220, 67), (220, 32), (225, 26), (230, 32), (230, 67)]) | poly([(280, 67), (280, 32), (285, 26), (290, 32), (290, 67)])
+draw((rect(228, 30, 282, 33), DWOOD, {'d': 1}), (tote, WOOD, {'d': 2}), (ends, WOOD, {'d': 2, 'contour': True}))
+cv.fill(rect(223, 56, 287, 56) & tote, WOOD['s'])
 for nx in (235, 275):
-    cv.dots([(nx, 54), (nx, 66)], DWOOD['s'])
+    cv.dots([(nx, 50), (nx, 62)], DWOOD['s'])
 
-# ---------------------------------------------------------------- RIGHT BOTTOM: sandstone grindstone in a trough, crank handle
+# ---------------------------------------------------------------- RIGHT BOTTOM: sandstone grindstone on a splayed stand, crank handle
 shadow(212, 176, 296, 186)
-draw((line([(228, 148), (218, 180)], 5) | line([(268, 148), (278, 180)], 5), WOOD, {'d': 1}),
-     (rect(220, 166, 276, 169), WOOD, {'d': 1}))
-wheel = ell(220, 90, 276, 146)
+draw((line([(238, 134), (222, 180)], 5) | line([(260, 134), (276, 180)], 5), WOOD, {'d': 1}),
+     (rect(226, 164, 272, 167), WOOD, {'d': 1}))
+wheel = ell(219, 90, 279, 150)
 draw((wheel, SAND, {'d': 3}))
-cv.fill(ell(226, 96, 270, 140) & ~ell(228, 98, 268, 138), SAND['s'])   # worn ring
-cv.fill(ell(241, 111, 255, 125), IRON['b'])
-cv.fill(ell(243, 113, 253, 123), IRON['r'])
-cv.fill(ell(245, 115, 251, 121), IRON['s'])
-draw((rect(214, 134, 282, 150), WOOD, {'d': 2, 'contour': True}))   # trough the wheel dips into
-cv.fill(rect(215, 135, 281, 135), WOOD['r'])
-for nx in (224, 272):
-    cv.dots([(nx, 139), (nx, 146)], DWOOD['s'])
-draw((line([(248, 118), (270, 102)], 3), IRON, {'d': 1}), (ell(265, 96, 275, 106), WOOD, {'d': 1}))   # crank arm and knob
+cv.fill(ell(222, 93, 276, 147) & ~ell(224, 95, 274, 145), SAND['s'])   # bevel just inside the grinding edge
+for gx, gy in ((232, 108), (262, 132), (236, 136), (266, 112), (228, 124), (254, 100)):   # sandstone grit
+    cv.dots([(gx, gy), (gx + 1, gy)], SAND['s'])
+draw((rrect(240, 111, 258, 129, 3), WOOD, {'d': 2}))   # bearing block on the axle
+cv.fill(ell(245, 116, 253, 124), IRON['b'])
+cv.fill(ell(247, 118, 251, 122), IRON['s'])
+draw((line([(250, 120), (272, 104)], 3), IRON, {'d': 1}), (ell(267, 97, 278, 108), WOOD, {'d': 2}))   # crank arm and knob
 
 HOTSPOTS = [
     {'id': 'rack', 'label': 'Tool rack', 'x': 2, 'y': 6, 'w': 90, 'h': 74},
     {'id': 'bench', 'label': 'Workbench', 'x': 2, 'y': 80, 'w': 90, 'h': 108},
-    {'id': 'anvil', 'label': 'Anvil', 'x': 92, 'y': 44, 'w': 118, 'h': 144},
+    {'id': 'anvil', 'label': 'Anvil', 'x': 92, 'y': 30, 'w': 118, 'h': 158},
     {'id': 'toolbox', 'label': 'Toolbox', 'x': 210, 'y': 12, 'w': 88, 'h': 76},
     {'id': 'grindstone', 'label': 'Grindstone', 'x': 210, 'y': 88, 'w': 88, 'h': 100},
 ]
