@@ -42,7 +42,7 @@ def save_scene(cv, name, hotspots, outdir=None):
 # ---------------------------------------------------------------- palette (leaf green / earth brown / cream)
 WALL, WALL_S, WALL_L = '#d9dcb0', '#c4c897', '#e6e8c4'
 SKY, HILL, HILL_S = '#d8ece6', '#b4d08e', '#9cbf7a'
-FLOOR, FLOOR_S, FLOOR_L = '#8a5a36', '#6e4426', '#a06c42'
+FLOOR, FLOOR_S, FLOOR_L = '#8a5a36', '#76492b', '#96643e'
 SHADOW = '#5e3a20'
 LEAF = ramp('#4fa443', '#357a34', '#86cc5a', '#41903c')    # the hero owns the saturated green
 LEAFD = ramp('#3a7f38', '#285e2a', '#5aa646')
@@ -51,7 +51,7 @@ WOOD = ramp('#b07a45', '#8a4f2a', '#d9a660', '#9a6438')
 DWOOD = ramp('#7a4a1f', '#5c3420', '#9a6b3f')
 ZINC = ramp('#8aa2ae', '#5f7886', '#c6d8de', '#6f8a98')
 TERRA = ramp('#c8683a', '#9a4a2a', '#e8925a', '#a85530')
-BURLAP = ramp('#cfb07a', '#a88654', '#e4cc98', '#b89660')
+BURLAP = ramp('#b49a72', '#94784f', '#c8b088', '#a28660')   # mid-value: sits back so the bin stays the hero
 BARROW = ramp('#5f8aa0', '#436a80', '#8cb4c4', '#4e7890')
 MULCH = ramp('#a8662e', '#7a4422', '#cf8a44')
 SPROUT = ramp('#7cc44e', '#4f9a3a', '#b4e07a')
@@ -92,10 +92,11 @@ for bx in (60, 240):
     cv.fill(rect(bx, 1, bx, 5), DWOOD['s'])
 cv.fill(rect(0, 8, W - 1, 8), WALL_S)
 cv.fill(rect(0, FY, W - 1, H - 1), FLOOR)
-for k, y in enumerate((FY + 12, FY + 28)):   # two long hard ridges in the trodden earth
-    for x0 in range(10 + k * 40, W, 90):
-        cv.fill(rect(x0, y, x0 + 46, y), FLOOR_S)
-        cv.fill(rect(x0 + 2, y + 1, x0 + 40, y + 1), FLOOR_L)
+for k, y in enumerate(range(FY + 10, H, 12)):   # subtle planks, widening towards the viewer
+    cv.fill(rect(0, y, W - 1, y), FLOOR_S)
+    for jx in range(26 + (k % 2) * 43, W, 86):
+        cv.fill(rect(jx, y - 11, jx, y - 1), FLOOR_S)
+        cv.fill(rect(jx + 1, y - 11, jx + 1, y - 1), FLOOR_L)
 cv.fill(rect(0, FY - 5, W - 1, FY - 1), DWOOD['b'])   # sill board
 cv.fill(rect(0, FY - 5, W - 1, FY - 5), DWOOD['r'])
 cv.fill(rect(0, FY, W - 1, FY), FLOOR_S)
@@ -115,35 +116,48 @@ cv.fill(pane & ~mull & ~shift(pane & ~mull, 1, 1), '#b7cfc8')   # inner reveal s
 
 # ---------------------------------------------------------------- HERO: leaf-green slatted compost bin with a heap, sprout and fork
 BX0, BX1, BY0, BY1 = 108, 192, 104, 174
-shadow(BX0 - 4, BY1 - 4, BX1 + 8, BY1 + 6)
-# lumpy heap: overlapping mounds, spilling just over the top slat
-heap = (ell(BX0 + 2, 88, BX0 + 46, 116) | ell(BX0 + 26, 80, BX1 - 22, 114) | ell(BX1 - 46, 86, BX1 - 2, 116)) & ~rect(0, 112, W, H)
+FX, DX, DY = 180, 12, 8   # front face BX0..FX, side face recedes up-right by DX, DY (three-quarter view)
+shadow(BX0 - 4, BY1 - 4, BX1 + 10, BY1 + 6)
 # garden fork: handle with a D-grip, rising out of the heap towards the window
-fork = line([(170, 98), (184, 44)], 4)
+fork = line([(170, 96), (184, 44)], 4)
 dgrip = poly([(180, 46), (188, 46), (194, 30), (192, 28), (176, 28), (174, 30)]) & ~poly([(180, 41), (188, 41), (190, 33), (178, 33)])
 draw((fork, WOOD, {'d': 1}), (dgrip, WOOD, {'d': 1}))
-slats = blank()
-for y in range(BY0 + 2, BY1 - 4, 14):
-    slats |= rect(BX0 + 6, y, BX1 - 6, y + 10)
-draw((heap, COMPOST, {'d': 3}),
-     (rect(BX0 + 6, BY0, BX1 - 6, BY1 - 2), COMPOST, {'flat': True}),
+top = poly([(BX0, BY0), (FX, BY0), (FX + DX, BY0 - DY), (BX0 + DX, BY0 - DY)])
+back_rim = rect(BX0 + DX, BY0 - DY - 3, FX + DX, BY0 - DY)
+left_rim = poly([(BX0, BY0), (BX0 + 4, BY0), (BX0 + DX + 4, BY0 - DY - 3), (BX0 + DX, BY0 - DY - 3)])
+side = poly([(FX, BY0), (FX + DX, BY0 - DY), (FX + DX, BY1 - DY), (FX, BY1)])
+heap = ((ell(BX0 + 4, 88, BX0 + 44, 112) | ell(BX0 + 24, 78, FX - 14, 110) | ell(FX - 38, 84, FX + DX - 2, 108)) & ~rect(0, BY0 - 1, W, H)) | (top & ~back_rim & ~left_rim)
+slats, sslats = blank(), blank()
+for y in range(BY0 + 4, BY1 - 4, 14):
+    slats |= rect(BX0 + 6, y, FX - 6, y + 10)
+    sslats |= poly([(FX + 1, y), (FX + DX, y - DY), (FX + DX, y - DY + 10), (FX + 1, y + 10)])
+posts = rect(BX0, BY0, BX0 + 7, BY1) | rect(FX - 7, BY0, FX, BY1)
+draw((back_rim | left_rim, LEAF, {'d': 1}),
+     (side, COMPOST, {'flat': True}),
+     (sslats, LEAFD, {'d': 1, 'rim': False}),
+     (poly([(FX + DX - 4, BY0 - DY - 3), (FX + DX, BY0 - DY - 3), (FX + DX, BY1 - DY), (FX + DX - 4, BY1 - DY + 2)]), LEAFD, {'d': 1, 'rim': False}),
+     (heap, COMPOST, {'d': 3}),
+     (rect(BX0, BY0, FX, BY1 - 2), COMPOST, {'flat': True}),
      (slats, LEAF, {'d': 2, 'contour': True}),
-     (rect(BX0, BY0 - 4, BX0 + 8, BY1) | rect(BX1 - 8, BY0 - 4, BX1, BY1), LEAFD, {'d': 2, 'contour': True}))
+     (posts, LEAFD, {'d': 2, 'contour': True}),
+     (rect(BX0, BY0, FX, BY0 + 3), LEAF, {'d': 1, 'contour': True}))
+cv.fill(rect(BX0 + 1, BY0, FX - 1, BY0), '#b4e07a')   # sunlit top edge of the front rim: reads as a surface
+cv.fill(back_rim & rect(0, BY0 - DY - 3, W, BY0 - DY - 3), LEAF['r'])
 cv.fill(slats & ~shift(slats, 0, 1), LEAF['r'])   # top lit edge on every slat
-for sx in range(BX0 + 14, BX1 - 12, 6):   # stitched seam on the middle slat
-    cv.fill(rect(sx, BY0 + 35, sx + 2, BY0 + 35), '#c8ec98')
-for py in (BY0 + 4, BY1 - 8):   # nail heads on the posts
-    cv.dots([(BX0 + 4, py), (BX1 - 4, py)], LEAFD['r'])
-# on the heap: carrot peel, apple core, a cabbage leaf, lumps of rich compost
-cv.dots([(122, 102), (123, 102), (134, 96), (135, 96), (140, 92), (141, 92), (138, 100), (166, 104), (167, 104), (182, 104), (128, 108), (146, 104), (176, 92), (177, 92)], COMPOST['r'])
-draw((poly([(118, 100), (130, 92), (134, 95), (122, 103)]), CARROT, {'d': 1}))
-draw((ell(155, 90, 165, 101), APPLE, {'d': 1}), (rect(159, 86, 160, 90), DWOOD, {'d': 0}))
-draw((ell(178, 96, 190, 104), SPROUT, {'d': 1}))
+cv.fill(rect(FX, BY0, FX, BY1), LEAFD['s'])   # front corner turns into shadow
+for sx in range(BX0 + 14, FX - 10, 6):   # stitched seam on the middle slat
+    cv.fill(rect(sx, BY0 + 37, sx + 2, BY0 + 37), '#c8ec98')
+for py in (BY0 + 8, BY1 - 8):   # nail heads on the posts
+    cv.dots([(BX0 + 4, py), (FX - 4, py)], LEAFD['r'])
+# on the heap: apple core, a cabbage leaf, lumps of rich compost
+cv.dots([(124, 98), (125, 98), (134, 94), (135, 94), (140, 90), (141, 90), (138, 99), (166, 100), (167, 100), (128, 101), (146, 100), (176, 92), (177, 92), (184, 95)], COMPOST['r'])
+draw((ell(155, 88, 165, 99), APPLE, {'d': 1}), (rect(159, 84, 160, 88), DWOOD, {'d': 0}))
+draw((ell(118, 92, 132, 101), SPROUT, {'d': 1}))
 # the sprout: proud and bright, the one thing that grows here
-draw((rect(150, 64, 152, 90), SPROUT, {'d': 0}),
+draw((rect(150, 64, 152, 86), SPROUT, {'d': 0}),
      (ell(134, 58, 151, 69), SPROUT, {'d': 1}), (ell(152, 52, 169, 63), SPROUT, {'d': 1}))
 cv.fill(line([(138, 63), (149, 63)]) | line([(155, 57), (165, 57)]), SPROUT['s'])
-for sx, sy in ((124, 76), (132, 44), (198, 66), (114, 92), (162, 40)):
+for sx, sy in ((124, 76), (132, 44), (200, 70), (112, 86), (162, 40)):
     sparkle(sx, sy)
 
 # ---------------------------------------------------------------- LEFT TOP: a pot of trowels and a zinc watering can on a shelf
@@ -179,9 +193,9 @@ for k, wy in enumerate(range(136, 184, 8)):   # sparse burlap weave stitches
     for wx in range(20 + (k % 2) * 4, 54, 8):
         if sack1[wy, wx] and sack1[wy, wx + 3]:
             cv.fill(rect(wx, wy, wx + 1, wy), BURLAP['s'])
-patch = ell(25, 144, 45, 168)   # leaf patch stitched on the front
-draw((patch, LEAFD, {'d': 1}))
-cv.fill(line([(35, 147), (35, 165)]), LEAF['r'])
+patch = ell(27, 148, 43, 166)   # small leaf patch stitched on the front, muted so it does not compete
+draw((patch, ramp('#6f8a4a', '#566e38', '#8aa25e'), {'d': 1}))
+cv.fill(line([(35, 151), (35, 163)]), '#8aa25e')
 # second sack, tied with twine, slumped against the first
 sack2 = (poly([(54, 188), (52, 164), (64, 143), (80, 143), (92, 164), (94, 188)]) | ell(48, 156, 98, 200)) & ~rect(0, 189, W, H)
 ears = ell(60, 126, 72, 138) | ell(68, 124, 80, 136) | ell(74, 128, 86, 140) | rect(66, 134, 78, 142)

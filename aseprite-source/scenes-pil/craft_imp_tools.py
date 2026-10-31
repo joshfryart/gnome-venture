@@ -95,8 +95,8 @@ cv.fill(rect(0, FY - 5, W - 1, FY - 1), DWOOD['b'])   # skirting board
 cv.fill(rect(0, FY - 5, W - 1, FY - 5), DWOOD['r'])
 
 # ---------------------------------------------------------------- warm glow from the hot iron (two hard steps behind the hero)
-g2 = ell(86, 30, 214, 170) & ~rect(0, FY - 5, W, H)
-g1 = ell(104, 50, 196, 156) & ~rect(0, FY - 5, W, H)
+g2 = ell(80, 18, 220, 168) & ~rect(0, FY - 5, W, H)
+g1 = ell(100, 38, 200, 150) & ~rect(0, FY - 5, W, H)
 cv.fill(g2, GLOW1)
 cv.fill(g1, GLOW2)
 for k, y in enumerate(range(20, FY, 13)):   # board lines stay visible inside the glow, one step lighter
@@ -106,44 +106,47 @@ for k, y in enumerate(range(20, FY, 13)):   # board lines stay visible inside th
         cv.fill(g2 & rect(jx, y - 12, jx, y - 1), WALL)
         cv.fill(g1 & rect(jx, y - 12, jx, y - 1), GLOW1)
 
-# ---------------------------------------------------------------- HERO: iron anvil on a stump, glowing bar, sledge leaning on it
-shadow(108, 172, 214, 186)
-# stump: cut top seen a little from above, bark grooves, flared roots
-stump = rrect(116, 128, 184, 176, 2) | poly([(110, 178), (122, 166), (126, 178)]) | poly([(190, 178), (178, 166), (174, 178)])
-draw((stump, BARK, {'d': 3}), (rect(116, 126, 184, 130), RING, {'d': 1, 'contour': True}))
-for pts in (((126, 134), (125, 150), (127, 172)), ((142, 140), (143, 158)), ((158, 134), (157, 146), (159, 170)), ((172, 142), (173, 162))):
-    cv.fill(stump & line(list(pts)), BARK['s'])   # wavy bark grooves of uneven length (not planks)
-cv.fill(ell(147, 160, 152, 165), BARK['s'])   # a knot
-cv.dots([(148, 161)], BARK['r'])
-# anvil: horn on the left, flat face, waist, wide feet
-face = rect(114, 92, 188, 102)
-horn = poly([(115, 92), (104, 93), (94, 96), (104, 99), (115, 102)])
-waist = poly([(128, 103), (176, 103), (166, 116), (138, 116)])
-feet = poly([(134, 116), (170, 116), (182, 126), (122, 126)])
+# ---------------------------------------------------------------- HERO: big iron anvil on a low stump, glowing bar, sledge beside it
+shadow(112, 172, 206, 186)
+# low stump: cut top seen a little from above, short bark grooves, flared roots (kept small so the iron dominates)
+stump = rrect(126, 146, 174, 176, 2) | poly([(118, 178), (130, 166), (134, 178)]) | poly([(182, 178), (170, 166), (166, 178)])
+draw((stump, DWOOD, {'d': 3}), (rect(126, 144, 174, 148), RING, {'d': 1, 'contour': True}))
+for pts in (((136, 152), (135, 162), (137, 172)), ((150, 156), (151, 168)), ((164, 152), (163, 170))):
+    cv.fill(stump & line(list(pts)), DWOOD['s'])
+# anvil: long horn on the left, thick flat face, waist, wide feet
+face = rect(108, 96, 192, 109)
+horn = poly([(109, 96), (101, 97), (95, 101), (102, 105), (109, 109)])
+waist = poly([(124, 110), (176, 110), (166, 127), (134, 127)])
+feet = poly([(130, 127), (170, 127), (186, 143), (114, 143)])
 draw((feet, IRON, {'d': 3}), (waist, IRON, {'d': 3}), (horn | face, IRON, {'d': 2, 'contour': True}))
-cv.fill(rect(115, 92, 187, 92) | rect(104, 93, 114, 93), IRON['r'])   # lit top edge
-cv.fill(rect(178, 95, 181, 98), UMB)   # hardy hole
+cv.fill(rect(109, 96, 191, 97) | rect(101, 97, 108, 97), IRON['r'])   # lit top edge, two pixels
+cv.fill(rect(110, 99, 190, 99), IRON['bo'])
+cv.fill(rect(128, 128, 168, 128), IRON['r'])   # lit step on the feet
+cv.fill(rect(181, 100, 185, 104), UMB)   # hardy hole
 # glowing bar on the face, its tip bent down over the horn
-bar = rect(118, 86, 164, 91) | poly([(118, 86), (110, 88), (106, 92), (112, 92), (118, 91)])
+bar = rect(114, 88, 166, 95) | poly([(114, 88), (106, 90), (101, 95), (108, 95), (114, 95)])
 draw((bar, ramp(HOT1, HOT0, HOT2), {'d': 1}))
-cv.fill(rect(122, 87, 158, 88), HOT2)
-cv.fill(rect(132, 87, 150, 87), HOT3)
-cv.fill(rect(156, 89, 163, 90), HOT0)
-# sledge hammer standing head-up, leaning against the anvil
-draw((line([(200, 178), (193, 110)], 4), WOOD, {'d': 1}),
-     (poly([(181, 102), (205, 99), (207, 112), (183, 115)]), HAMMER, {'d': 2, 'contour': True}))
-cv.fill(line([(183, 103), (203, 100)]), HAMMER['r'])
-cv.fill(rect(181, 103, 182, 114), HAMMER['s'])
-# sparks flying from the hot bar
+cv.fill(rect(118, 89, 160, 91), HOT2)
+cv.fill(rect(128, 89, 152, 90), HOT3)
+cv.fill(rect(158, 93, 165, 94), HOT0)
+cv.fill(rect(112, 96, 168, 96), HOT1)   # hot reflection on the face edge
+# sledge hammer standing head-up beside the anvil, clear of it: light steel head, gap to the face
+draw((line([(210, 178), (205, 124)], 4), WOOD, {'d': 1}),
+     (poly([(197, 114), (212, 112), (213, 126), (198, 128)]), STEEL, {'d': 2, 'contour': True}))
+cv.fill(line([(199, 115), (210, 113)]), STEEL['r'])
+cv.fill(rect(197, 116, 198, 126), STEEL['s'])
+cv.fill(rect(201, 117, 202, 123), '#ffffff')
+# sparks flying from the hot bar: thick streaks with white-hot tips, readable at thumb size
 import math   # noqa: E402
-for ang, d0, L in ((-158, 8, 9), (-128, 18, 11), (-104, 6, 16), (-84, 24, 10), (-62, 10, 15), (-36, 20, 9), (-14, 6, 8)):   # spark streaks off the strike, uneven
+for ang, d0, L in ((-160, 8, 12), (-128, 14, 15), (-102, 6, 20), (-80, 20, 13), (-56, 8, 18), (-28, 16, 12)):
     ux, uy = math.cos(math.radians(ang)), math.sin(math.radians(ang))
-    x0, y0 = 142 + ux * d0, 86 + uy * d0
+    x0, y0 = 140 + ux * d0, 87 + uy * d0
     x1, y1 = x0 + ux * L, y0 + uy * L
-    cv.fill(line([(x0, y0), (x1, y1)], 2), HOT1)
-    cv.fill(line([(x0 + ux * L * .45, y0 + uy * L * .45), (x1, y1)], 2), HOT2)
-    cv.fill(rect(int(round(x1)) - 1, int(round(y1)) - 1, int(round(x1)), int(round(y1))), HOT3)
-for sx, sy in ((116, 58), (170, 56), (132, 38), (156, 36)):
+    cv.fill(line([(x0, y0), (x1, y1)], 3), HOT1)
+    cv.fill(line([(x0 + ux * L * .4, y0 + uy * L * .4), (x1, y1)], 3), HOT2)
+    tx, ty = int(round(x1)), int(round(y1))
+    cv.fill(rect(tx - 1, ty - 1, tx + 1, ty + 1), HOT3)
+for sx, sy in ((108, 52), (176, 48), (126, 30), (158, 26)):
     sparkle(sx, sy)
 
 # ---------------------------------------------------------------- LEFT TOP: wall rack with saw, spade and rake
@@ -183,9 +186,17 @@ draw((rect(48, 98, 76, 104), BLUE, {'d': 1}),
      (rect(86, 84, 88, 102), STEEL, {'d': 1}))
 draw((rect(58, 82, 66, 97), RING, {'d': 1}))   # a block clamped in the jaws
 cv.fill(rect(59, 83, 65, 83), RING['r'])
+cv.fill(rect(60, 88, 64, 88) | rect(61, 93, 65, 93), RING['s'])   # grain on the block
+for vx in (51, 73):   # bolts on the vice base
+    cv.dots([(vx, 101)], STEEL['r'])
+    cv.dots([(vx, 102)], BLUE['s'])
+for jy in (91, 94):   # ribs cast into the jaws
+    cv.fill(rect(50, jy, 55, jy) | rect(69, jy, 74, jy), BLUE['s'])
+cv.fill(rect(49, 90, 49, 96) | rect(68, 90, 68, 96), BLUE['r'])
+cv.fill(rect(85, 83, 89, 84) | rect(85, 102, 89, 103), DWOOD['r'])   # wooden knobs on the T-handle
 
 # ---------------------------------------------------------------- RIGHT TOP: wooden tool tote on a shelf
-draw((rect(212, 68, 294, 72), WOOD, {'d': 2}), (poly([(218, 73), (224, 73), (218, 84)]) | poly([(282, 73), (288, 73), (288, 84)]), WOOD, {'d': 1}))
+draw((rect(215, 68, 295, 72), WOOD, {'d': 2}), (poly([(218, 73), (224, 73), (218, 84)]) | poly([(282, 73), (288, 73), (288, 84)]), WOOD, {'d': 1}))
 # tools standing in the tote (behind its front board)
 wr = ell(226, 16, 242, 32) & ~rect(231, 14, 237, 22)   # open-end wrench head
 draw((line([(238, 54), (234, 28)], 5) | wr, STEEL, {'d': 1}))
@@ -209,14 +220,19 @@ for gx, gy in ((232, 108), (262, 132), (236, 136), (266, 112), (228, 124), (254,
 draw((rrect(240, 111, 258, 129, 3), WOOD, {'d': 2}))   # bearing block on the axle
 cv.fill(ell(245, 116, 253, 124), IRON['b'])
 cv.fill(ell(247, 118, 251, 122), IRON['s'])
+cv.fill(rect(246, 117, 247, 117), IRON['r'])
+for bx, by in ((243, 114), (255, 114), (243, 126), (255, 126)):   # four bolts on the bearing block
+    cv.dots([(bx, by)], STEEL['r'])
+    cv.dots([(bx, by + 1)], DWOOD['s'])
+cv.fill(ell(222, 93, 276, 147) & ~ell(225, 96, 276, 147) & rect(219, 90, 249, 120), SAND['r'])   # lit rim upper left
 draw((line([(250, 120), (272, 104)], 3), IRON, {'d': 1}), (ell(267, 97, 278, 108), WOOD, {'d': 2}))   # crank arm and knob
 
 HOTSPOTS = [
-    {'id': 'rack', 'label': 'Tool rack', 'x': 2, 'y': 6, 'w': 90, 'h': 74},
-    {'id': 'bench', 'label': 'Workbench', 'x': 2, 'y': 80, 'w': 90, 'h': 108},
-    {'id': 'anvil', 'label': 'Anvil', 'x': 92, 'y': 30, 'w': 118, 'h': 158},
-    {'id': 'toolbox', 'label': 'Toolbox', 'x': 210, 'y': 12, 'w': 88, 'h': 76},
-    {'id': 'grindstone', 'label': 'Grindstone', 'x': 210, 'y': 88, 'w': 88, 'h': 100},
+    {'id': 'rack', 'label': 'Tool rack', 'x': 2, 'y': 6, 'w': 88, 'h': 74},
+    {'id': 'bench', 'label': 'Workbench', 'x': 2, 'y': 80, 'w': 88, 'h': 108},
+    {'id': 'anvil', 'label': 'Anvil', 'x': 90, 'y': 22, 'w': 124, 'h': 166},
+    {'id': 'toolbox', 'label': 'Toolbox', 'x': 214, 'y': 12, 'w': 84, 'h': 76},
+    {'id': 'grindstone', 'label': 'Grindstone', 'x': 214, 'y': 88, 'w': 84, 'h': 100},
 ]
 
 if __name__ == '__main__':
