@@ -20,10 +20,11 @@ $norm = function (array $rows) {
     sort($forms); return $forms[0];
 };
 $seen = [];
-foreach ($lib as $k => $c) { $slugs = array_map(fn($d) => $d['slug'], $draft); if (in_array($c['slug'], $slugs, true)) continue; $seen[$norm($c['rows'])] = $k; }
+foreach ($lib as $k => $c) { $slugs = array_map(fn($d) => $d['slug'], $draft); if (in_array($c['slug'], $slugs, true) || $c['size'] < 5) continue; $seen[$norm($c['rows'])] = $k; }   // 3x3 shapes are too few to be unique across delves: only size 5 and 6 are compared with other delves
 $bad = 0;
 foreach ($draft as $k => $c) {
     $key = $norm($c['rows']);
+    if ($c['size'] < 5) { $key .= '@' . $c['slug']; }   // 3x3: only duplicates inside the same delve count
     if (isset($seen[$key])) { echo "DUP $k == {$seen[$key]}\n"; $bad++; } else $seen[$key] = $k;
     $n = $c['size']; $f = $w = $iso = $edge = 0;
     foreach ($c['rows'] as $y => $r) for ($x = 0; $x < $n; $x++) {

@@ -35,7 +35,7 @@ Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 ## 3b. Chamber stamper (added 2026-10-31, instead of drawing 168 full grids)
 - [x] [S] `includes/delve_stamp.php` (chambers 3/5/6, 2x2 stamp, doorways, objects), `tools/lint_delve_chambers.php`, `tests/delvestamp.sh`, data `includes/data/delve_chambers.txt`.
 - [x] [H] 25 Beaverdam chambers (6 of 3x3, 14 of 5x5, 5 of 6x6) in the data file. Generated delve floors for Beaverdam now use them (any other delve still uses tm_gen).
-- [ ] [H] Chambers for the other 13 delves (about 25 each), Sonnet lints + reviews, Joshua approves the look. Wave 1 DONE (Jaguar Root Caves, Mangrove Root Maze, Salt Mine Galleries, Firefly Caves; 125 chambers total in the data file). Waves 2 and 3 to do: Anaconda Hollows, Sea-cave Smugglers' Run, Pirate-gull Grottoes, Rose-red Canyon City, The Canopy Bridges, Fynbos Fire Trails, Snowleopard Ledges, The Long Wall Walk, The Red Rock Songlines.
+- [ ] [H] Chambers for the other 13 delves (about 25 each), Sonnet lints + reviews, Joshua approves the look. Wave 1 DONE (Jaguar Root Caves, Mangrove Root Maze, Salt Mine Galleries, Firefly Caves; 125 chambers total in the data file). Wave 2 DONE (the other 9 delves; 350 chambers, 14 delves x 25; 11 near-copies fixed by hand; per-delve wet caps in `DS_WET_CAP`). Joshua still to review the look and approve.
 - [ ] [S] Per-delve hazard icon/name for W (brine, embers, ice...) instead of the shared 💧.
 - [ ] [S] Maybe: more doorway/shape variety, signature set pieces (dam wall, lodge) as full 13x13 authored floors in the pool.
 

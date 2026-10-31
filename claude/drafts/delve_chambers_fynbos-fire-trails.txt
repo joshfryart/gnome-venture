@@ -1,0 +1,227 @@
+# Fynbos Fire Trails: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # shrub clump (wall), . floor, , burnt rough ground, W ember and ash pit.
+# Heroes: ring_keep, hourglass_neck, spiral_track, burnt_cross, pit_crater.
+
+# --- size 3 ---
+
+@fynbos-fire-trails/notch_bend
+size: 3
+tags: rough,notch,bend
+#.#
+,,,
+..#
+
+@fynbos-fire-trails/ash_pit_ring
+size: 3
+tags: hazard,ring,ash,pit
+.W.
+.#.
+.W.
+
+@fynbos-fire-trails/corner_clearing
+size: 3
+tags: open,corner,clearing
+.,#
+.,.
+,,.
+
+@fynbos-fire-trails/shrub_slant
+size: 3
+tags: tight,slant,gap
+,#.
+,,.
+.,#
+
+@fynbos-fire-trails/ember_gate
+size: 3
+tags: hazard,neck,gate,ember
+.,W
+#,#
+W,.
+
+@fynbos-fire-trails/shoulder_clump
+size: 3
+tags: rough,clump,shoulder
+,.,
+.,#
+,.#
+
+# --- size 5 ---
+
+@fynbos-fire-trails/pit_crater
+size: 5
+tags: hero,crater,ash,pit,hazard
+.,,,,
+,WW#,
+,W,,,
+,#,W,
+,,,,.
+
+@fynbos-fire-trails/burnt_cross
+size: 5
+tags: hero,crossroads,rough,clearing
+.,#,.
+..,..
+,.W.,
+..,..
+,.#.,
+
+@fynbos-fire-trails/twin_bars_loop
+size: 5
+tags: open,loop,bars,rough
+.,,,.
+,###,
+,,.,,
+,##..
+.,,,.
+
+@fynbos-fire-trails/fork_split
+size: 5
+tags: fork,split,trunk,rough
+.,#,.
+.,#,.
+,,,,,
+#,,##
+,,,,.
+
+@fynbos-fire-trails/ember_hollow
+size: 5
+tags: hazard,hollow,ember,open
+.,,,.
+,##W,
+,,,,,
+,W##,
+.,,,.
+
+@fynbos-fire-trails/cinder_stair
+size: 5
+tags: diagonal,staircase,trail,rough
+##,..
+#,,,.
+.,,##
+..,,#
+...##
+
+@fynbos-fire-trails/shrub_island
+size: 5
+tags: open,loop,clump,ring
+,,,,,
+,##,,
+,##,,
+,,,,,
+,,W,,
+
+@fynbos-fire-trails/ash_bowl
+size: 5
+tags: hazard,bowl,pit,ember,hollow
+#,,,#
+#.W.#
+##,##
+,,,,,
+,W,,,
+
+@fynbos-fire-trails/ash_switchback
+size: 5
+tags: hazard,zigzag,ash,rough
+,,,#.
+#,##.
+..,,,
+.##,#
+,,,..
+
+@fynbos-fire-trails/ember_clearing
+size: 5
+tags: open,clearing,ember,band
+.,,,.
+,##,,
+WW,WW
+.,.,.
+.,,,.
+
+@fynbos-fire-trails/side_pocket
+size: 5
+tags: pocket,corner,rough,open
+#.,,.
+#,##.
+,,.,,
+,,,W.
+.,,,.
+
+@fynbos-fire-trails/burnt_comb
+size: 5
+tags: tight,comb,dense,trail
+.#..,
+.##.#
+,,,,,
+#.##.
+,..#,
+
+@fynbos-fire-trails/tight_knot
+size: 5
+tags: tight,knot,pinch,dense
+#,#,,
+,,#,#
+#,,,#
+#,#,,
+,,#,,
+
+@fynbos-fire-trails/ember_mouth
+size: 5
+tags: hazard,mouth,pinch,ember
+..,..
+.W#W.
+,,#,,
+..W..
+.,,,.
+
+# --- size 6 ---
+
+@fynbos-fire-trails/ring_keep
+size: 6
+tags: hero,ring,keep,loop,hazard
+,,,,,,
+,#.##,
+,#..#,
+,#.W#,
+,####,
+,,,,,,
+
+@fynbos-fire-trails/hourglass_neck
+size: 6
+tags: hero,ash-bowl,hazard,burnt
+##,,##
+#,,,,#
+,,W,,,
+,,,W,,
+#,,,,#
+##,,##
+
+@fynbos-fire-trails/spiral_track
+size: 6
+tags: hero,spiral,winding,trail
+......
+#####.
+....#.
+.##.#.
+.#....
+......
+
+@fynbos-fire-trails/ash_warren
+size: 6
+tags: open,warren,rough,clearing
+..,,..
+.##...
+,,,W,,
+...##.
+.W,,..
+..,,..
+
+@fynbos-fire-trails/gully_switch
+size: 6
+tags: switchback,gully,rough,ember,medium
+.,##,.
+.,,,,.
+##.##,
+,,W.##
+,##,,.
+.,,W,.

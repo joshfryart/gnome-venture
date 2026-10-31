@@ -12,7 +12,7 @@ require_once __DIR__ . '/delve_floors.php';
 
 const DS_CELL = ['small' => 3, 'standard' => 5, 'large' => 6];
 const DS_ROWCHARS = '#.,W';
-const DS_WET_CAP = ['mangrove-root-maze' => 35];   // most of a floor that may be hazard terrain, percent (default 18): the flooded delves are allowed more
+const DS_WET_CAP = ['mangrove-root-maze' => 35, 'anaconda-hollows' => 35, 'sea-cave-smugglers-run' => 35, 'pirate-gull-grottoes' => 30];   // most of a floor that may be hazard terrain, percent (default 18): the flooded delves are allowed more
 
 /** Parse chamber text: ['chambers' => [key => [key, slug, name, size, tags, rows]], 'errors' => [..]]. */
 function ds_parse(string $text): array

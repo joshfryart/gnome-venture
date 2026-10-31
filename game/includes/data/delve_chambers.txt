@@ -1111,3 +1111,2040 @@ tags: gallery,curve,long,winding
 #.#...
 #.#.##
 ..#...
+
+# Delve chambers for Anaconda Hollows (anaconda-hollows): 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , reed-rough floor, W creek water.
+# Shape language: sinuous S-curves, coils and long thin winding corridors, with a creek cutting across or along.
+
+# --- size 3 ---
+
+@anaconda-hollows/creek_bend_post
+size: 3
+tags: wet,creek,bend,tight
+.W#
+.W.
+,.,
+
+@anaconda-hollows/splash_horseshoe
+size: 3
+tags: wet,horseshoe,splash,open
+.#.
+W.W
+.W.
+
+@anaconda-hollows/diagonal_ford
+size: 3
+tags: wet,ford,diagonal,corner
+,W.
+.W#
+..W
+
+@anaconda-hollows/throat_tee
+size: 3
+tags: wet,throat,tee,tight
+#W#
+.W.
+#.#
+
+@anaconda-hollows/zig_creek_s
+size: 3
+tags: wet,zigzag,s-bend,winding
+..#
+W#.
+W..
+
+@anaconda-hollows/ford_pinch
+size: 3
+tags: reed,pinch,ford,band
+,,,
+#W#
+,,,
+
+# --- size 5 ---
+
+@anaconda-hollows/coil_spiral_creek
+size: 5
+tags: wet,coil,spiral,hero,tight
+.....
+.###.
+.#W#.
+.#WW.
+.###.
+
+@anaconda-hollows/serpent_creek_z
+size: 5
+tags: wet,serpent,zigzag,hero,reed
+..WW.
+###W#
+#WWW#
+#.###
+,,,,,
+
+@anaconda-hollows/split_creek_fork
+size: 5
+tags: wet,fork,channel,reed
+,,,,,
+,#W#,
+,#W#,
+,#W#,
+,,,,,
+
+@anaconda-hollows/winding_hollow_log
+size: 5
+tags: dry,hollow-log,tunnel,winding,tight
+...##
+##.##
+,WW..
+.##.#
+.##..
+
+@anaconda-hollows/reed_creek_braid
+size: 5
+tags: wet,braid,reed,rough,open
+,,WW.
+.#,W,
+,,W,.
+.W#,,
+,.W,.
+
+@anaconda-hollows/switchback_creek
+size: 5
+tags: wet,switchback,corridor,bend
+.W...
+.W###
+...W.
+###W.
+...W.
+
+@anaconda-hollows/confluence_cross
+size: 5
+tags: wet,cross,confluence,hero,open
+,.W.,
+#.W.#
+WWWWW
+#.W.#
+,.W.,
+
+@anaconda-hollows/muddy_bank_steps
+size: 5
+tags: mud,bank,steps,reed,rough
+,,,,.
+,###.
+,,W#.
+.###.
+.,,,,
+
+@anaconda-hollows/tight_zigzag_bog
+size: 5
+tags: wet,zigzag,bog,tight,winding
+.#.W.
+.#.#.
+W..#.
+#.##.
+..W..
+
+@anaconda-hollows/hairpin_bend_creek
+size: 5
+tags: wet,hairpin,bend,corridor
+.,,W.
+.###W
+.,,W.
+W###.
+W,,,.
+
+@anaconda-hollows/reed_throat_pinch
+size: 5
+tags: reed,throat,pinch,creek,medium
+#,,,#
+,#W,,
+,.W.,
+,,W#,
+#,,,#
+
+@anaconda-hollows/braided_fords
+size: 5
+tags: wet,braid,ford,open,rough
+.W.,.
+.W#W.
+,.W..
+#W.W,
+,.,.W
+
+@anaconda-hollows/diagonal_spine
+size: 5
+tags: wet,diagonal,spine,gap,medium
+,,W,#
+.,W#,
+.,.,.
+.#.W.
+#,,,.
+
+@anaconda-hollows/eel_crossing
+size: 5
+tags: wet,crossing,eel,lattice-free,open
+.,W,.
+.W.#.
+W.W.W
+.#.W.
+.,W,.
+
+# --- size 6 ---
+
+@anaconda-hollows/figure_eight_rings
+size: 6
+tags: wet,figure-eight,hero,rings,medium
+.W.###
+.#.###
+.W..W.
+###.#W
+###...
+######
+
+@anaconda-hollows/hourglass_waist_creek
+size: 6
+tags: wet,hourglass,hero,waist,pinch
+......
+#....#
+##W.##
+##.W##
+#....#
+......
+
+@anaconda-hollows/serpent_long_creek
+size: 6
+tags: wet,serpent,hero,long,winding
+.WW..#
+####W#
+#.WW.#
+#W####
+#.....
+######
+
+@anaconda-hollows/spiral_coil_creek
+size: 6
+tags: wet,spiral,coil,hero,tight
+......
+#####.
+#.WW#.
+#.###.
+#..W..
+######
+
+@anaconda-hollows/bank_creek_meander
+size: 6
+tags: wet,bank,meander,open,creek-edge
+W.....
+W####.
+W.....
+W#.#..
+W.,,,.
+W.....
+
+# Sea-cave Smugglers' Run: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W tidal water.
+
+# --- size 3 ---
+
+@sea-cave-smugglers-run/tide_nook
+size: 3
+tags: wet,nook,channel,tight
+#,.
+#,.
+,W.
+
+@sea-cave-smugglers-run/crate_alcove
+size: 3
+tags: rough,alcove,crates,side-nook
+#,.
+#,,
+,.,
+
+@sea-cave-smugglers-run/ledge_pool_ring
+size: 3
+tags: wet,ledge,pool,open
+.,.
+,W,
+.,.
+
+@sea-cave-smugglers-run/splash_corner
+size: 3
+tags: wet,channel,splash,corner
+W#.
+W..
+#,W
+
+@sea-cave-smugglers-run/narrow_passage
+size: 3
+tags: wet,passage,narrow,tight
+.#W
+W,.
+#.#
+
+@sea-cave-smugglers-run/shelf_ledge
+size: 3
+tags: rough,shelf,ledge,open
+,,#
+.W,
+.,.
+
+# --- size 5 ---
+
+@sea-cave-smugglers-run/moat_islet
+size: 5
+tags: wet,ring,islet,pool,hero
+#,,,#
+,WWW,
+,W.W,
+,WWW,
+#,,,#
+
+@sea-cave-smugglers-run/sea_arch
+size: 5
+tags: wet,arch,channel,hero
+,,,,,
+.###.
+W...W
+WWWWW
+.,,,.
+
+@sea-cave-smugglers-run/spiral_drip
+size: 5
+tags: wet,spiral,winding,tidal,hero
+.....
+.###.
+...#.
+.#.#.
+.#W..
+
+@sea-cave-smugglers-run/crate_nook
+size: 5
+tags: rough,nook,crates,side-nooks
+##.##
+#,,,#
+..#..
+#.,.#
+.....
+
+@sea-cave-smugglers-run/tidal_stair
+size: 5
+tags: wet,stair,zigzag,tidal
+.....
+#.###
+#.,..
+##.W.
+.,,..
+
+@sea-cave-smugglers-run/horseshoe_cove
+size: 5
+tags: wet,horseshoe,cove,pool,hero
+.....
+#...#
+#.W.#
+##.##
+..,..
+
+@sea-cave-smugglers-run/ledge_ring_pool
+size: 5
+tags: wet,ledge,pool,ring,corners
+.####
+.,,,.
+.,W,.
+.,,,.
+####.
+
+@sea-cave-smugglers-run/twin_channel
+size: 5
+tags: wet,channel,twin,narrow
+#.W.#
+#.W..
+..WW.
+#.,W.
+#.,.#
+
+@sea-cave-smugglers-run/tidal_gate
+size: 5
+tags: wet,gate,pinch,tidal,split
+#,.,#
+.,,,.
+##W##
+.,,,.
+#,.,#
+
+@sea-cave-smugglers-run/stacked_crate_split
+size: 5
+tags: rough,split,stacks,crates
+,,#,,
+,.#,.
+,,.,,
+#,,.#
+..,..
+
+@sea-cave-smugglers-run/wrack_pocket
+size: 5
+tags: rough,wrack,pocket,tidal
+#.,..
+#,,,.
+.,W,.
+.,,,#
+..,.#
+
+@sea-cave-smugglers-run/sea_stack_ring
+size: 5
+tags: wet,stack,ring,pillar
+.,W,.
+W,#,W
+.,#,.
+W,.,W
+.,W,.
+
+@sea-cave-smugglers-run/cove_steps
+size: 5
+tags: dry,pinch,ledges,rough
+#.###
+#,,,.
+##,##
+.,,,.
+.####
+
+@sea-cave-smugglers-run/tide_flat
+size: 5
+tags: wet,open,flat,rough,tidal-flat
+#,,,.
+,W,,.
+,,W,,
+.,,W,
+.,,,,
+
+# --- size 6 ---
+
+@sea-cave-smugglers-run/hourglass_waist
+size: 6
+tags: wet,hourglass,waist,tidal,hero
+,,,,,,
+.,,,,.
+##,,##
+##,,##
+.WWWW.
+WWWWWW
+
+@sea-cave-smugglers-run/figure_eight_neck
+size: 6
+tags: wet,figure-eight,neck,channel,hero
+.,.##.
+.,W,,.
+##,###
+##,###
+.,,W,.
+.##,..
+
+@sea-cave-smugglers-run/cave_mouth_wide
+size: 6
+tags: rough,wet,cave-mouth,arch,ledges
+,,,,,,
+,####,
+,,..,,
+#.WW.#
+#WWWW#
+.,,,,.
+
+@sea-cave-smugglers-run/lagoon_ledges
+size: 6
+tags: wet,lagoon,ledges,pool,open
+,,,,,.
+,WWW,.
+,W.W,.
+,WWW,#
+,,,,##
+.,,,..
+
+@sea-cave-smugglers-run/paired_tide_pools
+size: 6
+tags: wet,twin-pool,ledges,open
+.,,,,.
+,WW,,,
+,WW,WW
+#,,,W,
+##,,##
+..,,..
+
+# Pirate-gull Grottoes: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall (rock), . floor (ledge), , rough floor (guano-white), W seawater.
+
+# --- size 3 ---
+
+@pirate-gull-grottoes/gull_perch_nook
+size: 3
+tags: wet,perch,nook,guano
+.W.
+#W#
+.,.
+
+@pirate-gull-grottoes/shelf_bend
+size: 3
+tags: dry,ledge,bend
+..#
+.W.
+#..
+
+@pirate-gull-grottoes/open_bowl_small
+size: 3
+tags: wet,bowl,open,stepping
+,.,
+.W.
+,.,
+
+@pirate-gull-grottoes/tight_cross_perch
+size: 3
+tags: wet,perch,cross,tight
+#.#
+.W.
+##,
+
+@pirate-gull-grottoes/pier_gap
+size: 3
+tags: wet,pier,gap,stepping
+..,
+#W.
+..,
+
+@pirate-gull-grottoes/splash_corner
+size: 3
+tags: wet,corner,splash,guano
+W,.
+.,.
+.#W
+
+# --- size 5 ---
+
+@pirate-gull-grottoes/rock_stack_ring
+size: 5
+tags: hero,wet,ring,rock-stack,lagoon
+.,,.,
+,W..W
+.,#,.
+W..W,
+.,.,.
+
+@pirate-gull-grottoes/spiral_stepping_path
+size: 5
+tags: hero,wet,spiral,stepping,path
+.W...
+.###.
+...#.
+.#.#.
+.W...
+
+@pirate-gull-grottoes/gull_cross_perch
+size: 5
+tags: hero,wet,cross,perch,lagoon
+##.##
+#.W.#
+..W..
+#.W.#
+##.##
+
+@pirate-gull-grottoes/horseshoe_arch
+size: 5
+tags: hero,wet,horseshoe,arch,cove
+#...#
+#.W.#
+#.#.#
+#...#
+##.##
+
+@pirate-gull-grottoes/stone_lane_open
+size: 5
+tags: wet,open,stepping,lane
+.W.W.
+.....
+W.,.W
+.....
+.W.W.
+
+@pirate-gull-grottoes/snake_tight_pass
+size: 5
+tags: wet,tight,pass,bend
+##.##
+##.W#
+.W,..
+#.#.#
+#.###
+
+@pirate-gull-grottoes/guano_terrace
+size: 5
+tags: dry,guano,terrace,ledge
+,,,,.
+,###.
+,,,..
+.#W.,
+.,,,.
+
+@pirate-gull-grottoes/open_bowl_pool
+size: 5
+tags: wet,bowl,open,pool
+.,..,
+.W..W
+,..,.
+.W,W.
+.,..,
+
+@pirate-gull-grottoes/hourglass_lagoon
+size: 5
+tags: wet,hourglass,neck,lagoon
+.....
+#.W.#
+##.##
+#.W.#
+.....
+
+@pirate-gull-grottoes/stacked_pillar_tight
+size: 5
+tags: wet,tight,pillar,stack
+#.###
+#W.W#
+..,.#
+#W.W#
+###.#
+
+@pirate-gull-grottoes/shelf_crescent
+size: 5
+tags: dry,crescent,shelf,guano
+##...
+#,...
+#.W.,
+#,...
+##,..
+
+@pirate-gull-grottoes/round_grotto_pillar
+size: 5
+tags: wet,round,grotto,pillar
+.,#,.
+,...,
+#.W.,
+,...,
+.,#,.
+
+@pirate-gull-grottoes/spray_bank_mid
+size: 5
+tags: wet,bank,spray,medium
+.W.,.
+.##..
+,.,W.
+#.##.
+.,.,.
+
+@pirate-gull-grottoes/tide_pool_cluster
+size: 5
+tags: wet,pool,cluster,medium
+,..,.
+.W##.
+.,,.W
+..##,
+,..W,
+
+# --- size 6 ---
+
+@pirate-gull-grottoes/figure_eight_lagoon
+size: 6
+tags: hero,wet,figure-eight,neck,twin
+##..##
+#....#
+#.WW.#
+##..##
+#.,,.#
+##..##
+
+@pirate-gull-grottoes/round_pool_grotto
+size: 6
+tags: hero,wet,round,grotto,pool
+..##..
+.,WW,.
+#.WW.#
+#.WW.#
+.,WW,.
+..##..
+
+@pirate-gull-grottoes/rock_perch_ring
+size: 6
+tags: dry,ring,perch,island,guano
+..,,..
+.####.
+.,..,.
+.,WW,.
+....,.
+......
+
+@pirate-gull-grottoes/gull_hourglass_neck
+size: 6
+tags: wet,hourglass,neck,bowls
+......
+#....#
+##WW##
+##,,##
+#....#
+......
+
+@pirate-gull-grottoes/sea_stack_cluster
+size: 6
+tags: wet,stacks,cluster,open
+..,...
+.##..W
+.##,..
+W..,..
+.,,...
+..W...
+
+# Delve chambers for Rose-red Canyon City (v1). Terrain only: no objects.
+# # wall, . floor, , rough floor, W cistern water (walkable, costs 2 torch).
+# Shape language: orderly streets and plazas, stepped terraces, colonnades, courtyards with a central feature, cisterns.
+# Quantity: 6 of size 3, 14 of size 5, 5 of size 6. Heroes: cistern_cross, courtyard_ring, horseshoe_forum, hourglass_pinch, twin_lobe_plaza.
+
+@rose-red-canyon-city/well_plaza
+size: 3
+tags: open,plaza,cistern
+.,.
+.W.
+...
+
+@rose-red-canyon-city/gate_arch
+size: 3
+tags: tight,gate,arch
+##.
+.,.
+..#
+
+@rose-red-canyon-city/step_corner
+size: 3
+tags: tight,steps,terrace,corner
+..#
+.,.
+,..
+
+@rose-red-canyon-city/cistern_corners
+size: 3
+tags: tight,cistern,colonnade
+.W.
+,,,
+.#.
+
+@rose-red-canyon-city/column_court
+size: 3
+tags: open,courtyard,column
+##.
+...
+.#.
+
+@rose-red-canyon-city/stair_run
+size: 3
+tags: stairs,diagonal,steps
+,#.
+..,
+..#
+
+@rose-red-canyon-city/cistern_cross
+size: 5
+tags: tight,cross,cistern,hero
+##.##
+#...#
+..W..
+#...#
+##.##
+
+@rose-red-canyon-city/courtyard_ring
+size: 5
+tags: medium,ring,courtyard,cistern,hero
+#...#
+#.W.#
+#.W.#
+#...#
+##.##
+
+@rose-red-canyon-city/horseshoe_forum
+size: 5
+tags: medium,horseshoe,forum,cistern,hero
+#.#.#
+#.#.#
+#...#
+#.W.#
+##.##
+
+@rose-red-canyon-city/ziggurat_plaza
+size: 5
+tags: medium,stepped,terrace,rough
+##.##
+#.W.#
+.....
+#,.,#
+##.##
+
+@rose-red-canyon-city/hourglass_plaza
+size: 5
+tags: medium,hourglass,neck,cistern
+.....
+#.W.#
+##.##
+#...#
+.....
+
+@rose-red-canyon-city/funnel_stair
+size: 5
+tags: medium,stairs,funnel
+.....
+.....
+#...#
+##.##
+##.##
+
+@rose-red-canyon-city/square_cistern_court
+size: 5
+tags: open,courtyard,cistern,colonnade
+#...#
+.....
+.#W#.
+.....
+#...#
+
+@rose-red-canyon-city/colonnade_street
+size: 5
+tags: open,colonnade,street,rhythm
+.#..#
+.....
+..#..
+.....
+#..#.
+
+@rose-red-canyon-city/colonnade_grid
+size: 5
+tags: medium,colonnade,grid,pillars
+.#.#.
+.....
+.#.#.
+.....
+.#.#.
+
+@rose-red-canyon-city/stepped_run
+size: 5
+tags: medium,steps,diagonal,terrace
+...##
+.,.##
+..,..
+##.,.
+##...
+
+@rose-red-canyon-city/cistern_channel
+size: 5
+tags: open,channel,cistern,diagonal
+WW...
+.WW..
+..WW.
+...WW
+.....
+
+@rose-red-canyon-city/gate_hub_tight
+size: 5
+tags: tight,gate,hub,crossroads
+##.##
+##...
+.....
+...##
+##.##
+
+@rose-red-canyon-city/stacked_terraces
+size: 5
+tags: medium,terraces,stacked,rough
+#...#
+##.##
+#,,,#
+##,##
+#...#
+
+@rose-red-canyon-city/basin_tight
+size: 5
+tags: tight,basin,cistern,rough
+#...#
+#WWW#
+#.,.#
+##.##
+##,##
+
+@rose-red-canyon-city/twin_lobe_plaza
+size: 6
+tags: medium,figure-eight,twin,plaza,cistern,hero
+...###
+.W.###
+....##
+###...
+###...
+###...
+
+@rose-red-canyon-city/colonnade_court_ring
+size: 6
+tags: open,ring,colonnade,courtyard,cistern
+......
+.#..#.
+.#WW#.
+.#WW#.
+......
+......
+
+@rose-red-canyon-city/terrace_stairs
+size: 6
+tags: open,stepped,terrace,stairs
+##..##
+#....#
+#.,,.#
+......
+......
+......
+
+@rose-red-canyon-city/hourglass_pinch
+size: 6
+tags: medium,hourglass,pinch,hero
+......
+#.WW.#
+##..##
+##..##
+#....#
+......
+
+@rose-red-canyon-city/cross_plaza
+size: 6
+tags: medium,cross,plaza,arms,cistern
+##..##
+##..##
+......
+..WW..
+##..##
+##..##
+
+# Delve chambers: The Canopy Bridges (the-canopy-bridges). 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # air-gap wall, . bridge/platform floor, , rope-net rough floor, W rotten planks (slow, costs torch).
+
+# --- size 3 ---
+
+@the-canopy-bridges/stub_ladder
+size: 3
+tags: dry,ladder,stem,bend
+#.#
+#..
+##.
+
+@the-canopy-bridges/rope_horseshoe
+size: 3
+tags: dry,horseshoe,rope,rotten-end
+.#.
+.#.
+W..
+
+@the-canopy-bridges/rotten_span
+size: 3
+tags: rotten,span,bridge,cross
+..#
+W.W
+#..
+
+@the-canopy-bridges/rotten_crossing
+size: 3
+tags: rotten,crossing,zigzag
+.#W
+.W.
+..#
+
+@the-canopy-bridges/landing_net
+size: 3
+tags: rope-net,landing,rough,corner
+#..
+#.#
+..,
+
+@the-canopy-bridges/hub_cross
+size: 3
+tags: hub,cross,rotten,tips
+.#.
+W.W
+.#.
+
+# --- size 5 ---
+
+@the-canopy-bridges/trunk_ring
+size: 5
+tags: rough,ring,trunk,round-platform
+,,,,,
+,###,
+,###,
+,###,
+,,,,,
+
+@the-canopy-bridges/rope_cross
+size: 5
+tags: dry,cross,rope,crossing
+..#..
+..#..
+.....
+..#..
+..#..
+
+@the-canopy-bridges/hourglass_span
+size: 5
+tags: dry,hourglass,waist,span
+#...#
+.....
+##.##
+.....
+#...#
+
+@the-canopy-bridges/stem_fork_ladder
+size: 5
+tags: dry,stems,fork,ladder
+.#.#.
+.,,,.
+##,##
+#...#
+#.#.#
+
+@the-canopy-bridges/round_deck
+size: 5
+tags: rough,deck,round,trunk,medium
+##,##
+#,,,.
+,,#,,
+#,,,#
+##,##
+
+@the-canopy-bridges/switchback_rope
+size: 5
+tags: dry,switchback,rope,bend
+...##
+.#.##
+.#...
+##.#.
+##...
+
+@the-canopy-bridges/tree_hollow
+size: 5
+tags: dry,hollow,tree,four-ends
+##.##
+#,,,.
+..,##
+#..##
+##.##
+
+@the-canopy-bridges/gap_pinch
+size: 5
+tags: dry,pinch,twin-stems,tight
+.#.##
+.#.##
+.....
+##.#.
+##.#.
+
+@the-canopy-bridges/slant_rope
+size: 5
+tags: dry,diagonal,rope,slant
+...##
+#..##
+##...
+###..
+####.
+
+@the-canopy-bridges/rope_net_drop
+size: 5
+tags: rough,net,drop,landing
+,,,,,
+#.,.#
+##,##
+#...#
+##.##
+
+@the-canopy-bridges/net_landing
+size: 5
+tags: rough,net,landing,holes,open
+,,.,,
+,##,,
+.,,,.
+,,,##
+,,.,,
+
+@the-canopy-bridges/ladder_window
+size: 5
+tags: dry,window,ladder,rotten
+#.W.#
+#.#.#
+W...W
+#.#.#
+#.W.#
+
+@the-canopy-bridges/bough_fork
+size: 5
+tags: dry,fork,bough,branch
+#...#
+#.#.#
+#,,,#
+##.##
+..,..
+
+@the-canopy-bridges/rope_ladder_net
+size: 5
+tags: rough,ladder,net,stems
+#.#.#
+.,,,.
+#,#,#
+.,,,.
+##.##
+
+# --- size 6 ---
+
+@the-canopy-bridges/figure_eight_span
+size: 6
+tags: dry,figure-eight,twin-loops,hero
+##..##
+......
+.#WW#.
+......
+##..##
+######
+
+@the-canopy-bridges/coil_bridge
+size: 6
+tags: dry,spiral,coil,hero
+......
+#####.
+....#.
+.##.#.
+.#W.#.
+......
+
+@the-canopy-bridges/trunk_deck
+size: 6
+tags: rough,deck,trunk,round-platform
+#,,,,#
+,,##,,
+,,##,,
+,,,,,,
+#,,,,#
+##..##
+
+@the-canopy-bridges/stepped_rope_tight
+size: 6
+tags: tight,rope,stepped,rotten-center
+##.#.#
+#..,.#
+##.###
+#.W.##
+##.,.#
+##..##
+
+@the-canopy-bridges/ladder_stack
+size: 6
+tags: dry,ladder,stack,stems,rotten-ends
+#.##.#
+#.##.#
+......
+#.##.#
+#.##.#
+W....W
+
+# Fynbos Fire Trails: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # shrub clump (wall), . floor, , burnt rough ground, W ember and ash pit.
+# Heroes: ring_keep, hourglass_neck, spiral_track, burnt_cross, pit_crater.
+
+# --- size 3 ---
+
+@fynbos-fire-trails/notch_bend
+size: 3
+tags: rough,notch,bend
+#.#
+,,,
+..#
+
+@fynbos-fire-trails/ash_pit_ring
+size: 3
+tags: hazard,ring,ash,pit
+.W.
+.#.
+.W.
+
+@fynbos-fire-trails/corner_clearing
+size: 3
+tags: open,corner,clearing
+.,#
+.,.
+,,.
+
+@fynbos-fire-trails/shrub_slant
+size: 3
+tags: tight,slant,gap
+,#.
+,,.
+.,#
+
+@fynbos-fire-trails/ember_gate
+size: 3
+tags: hazard,neck,gate,ember
+.,W
+#,#
+W,.
+
+@fynbos-fire-trails/shoulder_clump
+size: 3
+tags: rough,clump,shoulder
+,.,
+.,#
+,.#
+
+# --- size 5 ---
+
+@fynbos-fire-trails/pit_crater
+size: 5
+tags: hero,crater,ash,pit,hazard
+.,,,,
+,WW#,
+,W,,,
+,#,W,
+,,,,.
+
+@fynbos-fire-trails/burnt_cross
+size: 5
+tags: hero,crossroads,rough,clearing
+.,#,.
+..,..
+,.W.,
+..,..
+,.#.,
+
+@fynbos-fire-trails/twin_bars_loop
+size: 5
+tags: open,loop,bars,rough
+.,,,.
+,###,
+,,.,,
+,##..
+.,,,.
+
+@fynbos-fire-trails/fork_split
+size: 5
+tags: fork,split,trunk,rough
+.,#,.
+.,#,.
+,,,,,
+#,,##
+,,,,.
+
+@fynbos-fire-trails/ember_hollow
+size: 5
+tags: hazard,hollow,ember,open
+.,,,.
+,##W,
+,,,,,
+,W##,
+.,,,.
+
+@fynbos-fire-trails/cinder_stair
+size: 5
+tags: diagonal,staircase,trail,rough
+##,..
+#,,,.
+.,,##
+..,,#
+...##
+
+@fynbos-fire-trails/shrub_island
+size: 5
+tags: open,loop,clump,ring
+,,,,,
+,##,,
+,##,,
+,,,,,
+,,W,,
+
+@fynbos-fire-trails/ash_bowl
+size: 5
+tags: hazard,bowl,pit,ember,hollow
+#,,,#
+#.W.#
+##,##
+,,,,,
+,W,,,
+
+@fynbos-fire-trails/ash_switchback
+size: 5
+tags: hazard,zigzag,ash,rough
+,,,#.
+#,##.
+..,,,
+.##,#
+,,,..
+
+@fynbos-fire-trails/ember_clearing
+size: 5
+tags: open,clearing,ember,band
+.,,,.
+,##,,
+WW,WW
+.,.,.
+.,,,.
+
+@fynbos-fire-trails/side_pocket
+size: 5
+tags: pocket,corner,rough,open
+#.,,.
+#,##.
+,,.,,
+,,,W.
+.,,,.
+
+@fynbos-fire-trails/burnt_comb
+size: 5
+tags: tight,comb,dense,trail
+.#..,
+.##.#
+,,,,,
+#.##.
+,..#,
+
+@fynbos-fire-trails/tight_knot
+size: 5
+tags: tight,knot,pinch,dense
+#,#,,
+,,#,#
+#,,,#
+#,#,,
+,,#,,
+
+@fynbos-fire-trails/ember_mouth
+size: 5
+tags: hazard,mouth,pinch,ember
+..,..
+.W#W.
+,,#,,
+..W..
+.,,,.
+
+# --- size 6 ---
+
+@fynbos-fire-trails/ring_keep
+size: 6
+tags: hero,ring,keep,loop,hazard
+,,,,,,
+,#.##,
+,#..#,
+,#.W#,
+,####,
+,,,,,,
+
+@fynbos-fire-trails/hourglass_neck
+size: 6
+tags: hero,ash-bowl,hazard,burnt
+##,,##
+#,,,,#
+,,W,,,
+,,,W,,
+#,,,,#
+##,,##
+
+@fynbos-fire-trails/spiral_track
+size: 6
+tags: hero,spiral,winding,trail
+......
+#####.
+....#.
+.##.#.
+.#....
+......
+
+@fynbos-fire-trails/ash_warren
+size: 6
+tags: open,warren,rough,clearing
+..,,..
+.##...
+,,,W,,
+...##.
+.W,,..
+..,,..
+
+@fynbos-fire-trails/gully_switch
+size: 6
+tags: switchback,gully,rough,ember,medium
+.,##,.
+.,,,,.
+##.##,
+,,W.##
+,##,,.
+.,,W,.
+
+# Snowleopard Ledges: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W ice patch (hazard).
+# Shape language: diagonal ledges, switchbacks, one-wide cliff paths, boulder clusters, cave pockets.
+
+@snowleopard-ledges/diagonal_shelf
+size: 3
+tags: dry,ledge,diagonal,shelf
+.##
+..#
+#..
+
+@snowleopard-ledges/ice_chute_bend
+size: 3
+tags: ice,cliff,one-wide,bend,tight
+#.#
+#W#
+#..
+
+@snowleopard-ledges/pocket_ice_nook
+size: 3
+tags: ice,cave,pocket,nook
+###
+.#.
+.W.
+
+@snowleopard-ledges/rubble_step
+size: 3
+tags: rough,ledge,step,rubble
+#..
+#..
+.,,
+
+@snowleopard-ledges/ice_diagonal
+size: 3
+tags: ice,diagonal,open,slide
+.WW
+..W
+W..
+
+@snowleopard-ledges/cliff_ridge_path
+size: 3
+tags: dry,cliff,ridge,boulders,edge-path
+#..
+#..
+#..
+
+@snowleopard-ledges/zigzag_ledges
+size: 5
+tags: dry,switchback,ledge,hero,zigzag
+.....
+.###.
+.....
+####.
+.....
+
+@snowleopard-ledges/ring_cliff_block
+size: 5
+tags: dry,ring,cliff,boulders,hero,ice-edge
+.....
+.###.
+.###.
+.###.
+.W.W.
+
+@snowleopard-ledges/cave_mouth_pocket
+size: 5
+tags: cave,mouth,pocket,horseshoe,hero,rough
+##.##
+#...#
+##.##
+.....
+,...,
+
+@snowleopard-ledges/cross_stub
+size: 5
+tags: dry,cross,junction,hero,stubs
+##.##
+##.##
+.....
+#...#
+##.##
+
+@snowleopard-ledges/boulder_twin_blocks
+size: 5
+tags: dry,boulders,clusters,diagonal
+.##..
+.##..
+.....
+..##.
+..##.
+
+@snowleopard-ledges/boulder_drift
+size: 5
+tags: dry,boulders,clusters,open,drift
+..##.
+...#.
+.#...
+.##..
+.....
+
+@snowleopard-ledges/stair_ledges_tight
+size: 5
+tags: dry,switchback,ledge,tight
+.....
+####.
+.....
+.####
+.....
+
+@snowleopard-ledges/ice_rink_bowl
+size: 5
+tags: ice,open,patch,rink
+..WW.
+.WWW.
+..W..
+##...
+.....
+
+@snowleopard-ledges/boulder_switchback
+size: 5
+tags: dry,boulders,switchback,clusters
+.#...
+.##..
+....#
+##..#
+....#
+
+@snowleopard-ledges/scree_slope_rubble
+size: 5
+tags: rough,scree,open,rubble
+,,,,.
+,###.
+,,,,.
+.,,,,
+.,,,,
+
+@snowleopard-ledges/cliff_hook_gully
+size: 5
+tags: dry,cliff,hook,gully,one-wide
+.....
+.####
+.#...
+.#.##
+...##
+
+@snowleopard-ledges/twin_passes_ice
+size: 5
+tags: ice,cliff,split,crossing,two-way
+..#..
+..#..
+.WWW.
+.....
+##.##
+
+@snowleopard-ledges/frozen_lake_edge
+size: 5
+tags: ice,shelf,open,shore
+WWWW.
+WWWW.
+.....
+##...
+#....
+
+@snowleopard-ledges/dead_end_pocket
+size: 5
+tags: cave,pocket,dead-end,ice,tight
+#####
+#...#
+#.W.#
+##.##
+..W..
+
+@snowleopard-ledges/boulder_corners_6
+size: 6
+tags: dry,boulders,open,clusters,corners
+##....
+#.....
+..##..
+......
+....##
+....##
+
+@snowleopard-ledges/switchback_hairpin
+size: 6
+tags: dry,switchback,hairpin,ledge,one-wide
+....##
+###.##
+....##
+.#####
+......
+##....
+
+@snowleopard-ledges/frost_hollow_cave
+size: 6
+tags: cave,ice,pocket,hollow,rough
+##..##
+#WWWW#
+#W..W#
+##..##
+#,,,,#
+......
+
+@snowleopard-ledges/diagonal_ledge_6
+size: 6
+tags: ice,ledge,diagonal,cliff,shelf
+....##
+##...#
+###W..
+####..
+####..
+##.W..
+
+@snowleopard-ledges/ice_hourglass
+size: 6
+tags: ice,hourglass,hero,narrow,waist
+......
+#....#
+##WW##
+##WW##
+#....#
+......
+
+# The Long Wall Walk: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W loose stones.
+
+# --- size 3 ---
+
+@the-long-wall-walk/notch_run
+size: 3
+tags: dry,walk,notch,battlement
+.#.
+...
+##.
+
+@the-long-wall-walk/tower_turn
+size: 3
+tags: dry,corner,tower,turn
+##.
+...
+#..
+
+@the-long-wall-walk/rubble_gap
+size: 3
+tags: loose,gap,collapsed,rubble
+.W.
+.W.
+...
+
+@the-long-wall-walk/stair_steps
+size: 3
+tags: rough,stairs,steps,corner
+..#
+,.#
+,,.
+
+@the-long-wall-walk/gate_stub
+size: 3
+tags: dry,gate,passage,stub
+#.#
+...
+#..
+
+@the-long-wall-walk/broken_walk
+size: 3
+tags: loose,broken,walk,rough
+.W#
+.,.
+#W.
+
+# --- size 5 ---
+
+@the-long-wall-walk/battlement_walk
+size: 5
+tags: dry,walk,battlement,notch,open
+#.#.#
+.....
+.....
+.....
+.....
+
+@the-long-wall-walk/windy_serpent
+size: 5
+tags: dry,serpent,wall-top,windy
+.###.
+.#...
+.#.#.
+...#.
+.###.
+
+@the-long-wall-walk/gate_arch
+size: 5
+tags: dry,gatehouse,passage,hero,hourglass
+###.#
+#...#
+.....
+#...#
+#.###
+
+@the-long-wall-walk/rubble_band
+size: 5
+tags: loose,collapsed,gap,band
+.....
+.....
+WWWWW
+.....
+.....
+
+@the-long-wall-walk/diag_towers
+size: 5
+tags: dry,gatehouse,towers,passage
+#...#
+#.#.#
+.....
+#.#.#
+#...#
+
+@the-long-wall-walk/steps_down
+size: 5
+tags: rough,stairs,steps,ledge
+####.
+###..
+#,,..
+,,,..
+.....
+
+@the-long-wall-walk/notched_corner
+size: 5
+tags: dry,corner,battlement,notch,open
+.#.#.
+.....
+#....
+#....
+#....
+
+@the-long-wall-walk/tower_ring
+size: 5
+tags: dry,keep,battlement,walk-around
+#.#.#
+.....
+.###.
+.....
+#.#.#
+
+@the-long-wall-walk/chicane
+size: 5
+tags: dry,zigzag,windy,passage
+...##
+##...
+...##
+##...
+.....
+
+@the-long-wall-walk/gap_wall
+size: 5
+tags: dry,wall,gap,collapsed,rubble
+.....
+.....
+##W##
+.....
+.....
+
+@the-long-wall-walk/stub_crossing
+size: 5
+tags: dry,stub,crossing,collapsed
+..#..
+.....
+#...#
+.....
+..#..
+
+@the-long-wall-walk/horseshoe_bastion
+size: 5
+tags: dry,horseshoe,bastion,hero,pocket
+##.##
+#...#
+#.#.#
+#...#
+#...#
+
+@the-long-wall-walk/crenel_stones
+size: 5
+tags: loose,crenel,battlement,stones
+.#.#.
+.....
+.W.W.
+.....
+.#.#.
+
+@the-long-wall-walk/pinch_gates
+size: 5
+tags: dry,gates,pinch,doorways
+.....
+##.##
+.....
+##.##
+##...
+
+# --- size 6 ---
+
+@the-long-wall-walk/corner_towers
+size: 6
+tags: dry,towers,corner,open
+##....
+##....
+......
+......
+....##
+....##
+
+@the-long-wall-walk/tower_ring_wide
+size: 6
+tags: rough,ring,tower,hero,loose
+......
+......
+..##..
+..##..
+......
+..WW..
+
+@the-long-wall-walk/broken_wall_run
+size: 6
+tags: loose,collapsed,gap,wall,run
+......
+......
+##WWW#
+......
+......
+......
+
+@the-long-wall-walk/twin_gatehouse
+size: 6
+tags: dry,gatehouse,passage,hero,double
+##..##
+##..##
+......
+......
+##..##
+##..##
+
+@the-long-wall-walk/stepped_towers
+size: 6
+tags: rough,stairs,towers,diagonal,steps
+###...
+##....
+#.....
+......
+.....#
+....##
+
+# Delve chambers: The Red Rock Songlines (the-red-rock-songlines). 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor (dry wash grit), W soft sand (slow, costs torch).
+# Shape language: spirals, concentric arcs, standing-stone rings, sinuous tracks, dry washes, rock shelters.
+
+# --- size 3 ---
+
+@the-red-rock-songlines/corner_stone_gate
+size: 3
+tags: stones,gate,corner,open
+.##
+,..
+...
+
+@the-red-rock-songlines/wash_elbow
+size: 3
+tags: dry,wash,pillar,bend
+,.#
+,,.
+.#,
+
+@the-red-rock-songlines/sinuous_s_bend
+size: 3
+tags: sinuous,track,bend,dry
+.##
+..#
+#..
+
+@the-red-rock-songlines/shelter_pocket
+size: 3
+tags: shelter,pocket,sand,tight
+##.
+.,.
+#W.
+
+@the-red-rock-songlines/wash_crossing
+size: 3
+tags: wash,open,crossing,rough
+,.,
+...
+,.,
+
+@the-red-rock-songlines/hairpin_wash
+size: 3
+tags: tight,hairpin,sand,rough
+#.,
+W#.
+,W.
+
+# --- size 5 ---
+
+@the-red-rock-songlines/spiral_song_line
+size: 5
+tags: hero,spiral,track,song,medium
+.....
+####.
+...#.
+.###.
+.....
+
+@the-red-rock-songlines/sand_hourglass
+size: 5
+tags: hero,hourglass,sand,pinch
+.....
+#...#
+##.##
+#WWW#
+.....
+
+@the-red-rock-songlines/stone_horseshoe_gate
+size: 5
+tags: hero,stones,horseshoe,gate,medium
+.....
+.###.
+.#...
+.#.#.
+.....
+
+@the-red-rock-songlines/braided_dry_wash
+size: 5
+tags: open,wash,braided,rough
+,,,,,
+.....
+.###.
+.....
+,,,,,
+
+@the-red-rock-songlines/zigzag_wash
+size: 5
+tags: sinuous,zigzag,wash,medium
+,,,..
+..###
+,,...
+###..
+,,,,.
+
+@the-red-rock-songlines/overhang_alcove
+size: 5
+tags: shelter,overhang,rough,alcove,medium
+#####
+##,,#
+#...#
+#,,,.
+.....
+
+@the-red-rock-songlines/wash_cross_corners
+size: 5
+tags: crossing,wash,rough,open
+.,,,.
+,,#,,
+,,,,,
+,,#,,
+.,,,.
+
+@the-red-rock-songlines/dune_ring
+size: 5
+tags: sand,crescent,dune,soft-sand
+,,,,.
+,WW#,
+,W##,
+,,,,,
+.,,,,
+
+@the-red-rock-songlines/pinch_pillars
+size: 5
+tags: pillars,pinch,corridor,rough,medium
+,,,,,
+,##.,
+..,..
+,.##,
+,,,,,
+
+@the-red-rock-songlines/twin_alcove_tight
+size: 5
+tags: tight,alcoves,twin,shelter
+#.,.#
+#...#
+##.##
+#...#
+#.,.#
+
+@the-red-rock-songlines/concentric_arc
+size: 5
+tags: arc,concentric,wall,curve,medium
+,,,,,
+,####
+,#...
+,#.##
+,....
+
+@the-red-rock-songlines/ladder_wash
+size: 5
+tags: wash,diagonal,rough,open
+,,.##
+,,..#
+.,,..
+#..,,
+##.,,
+
+@the-red-rock-songlines/bridge_gate
+size: 5
+tags: gate,bridge,ledges,open
+.#.#.
+.....
+##.##
+.....
+.#.#.
+
+@the-red-rock-songlines/spring_pools
+size: 5
+tags: oasis,pools,sand,ring,open
+#,,,#
+.W.W.
+,,.,,
+.W.W.
+#,,,#
+
+# --- size 6 ---
+
+@the-red-rock-songlines/stone_ring_six
+size: 6
+tags: hero,ring,stones,open-centre,open
+......
+..##..
+.#....
+.#..#.
+..##..
+......
+
+@the-red-rock-songlines/songline_crossing
+size: 6
+tags: hero,spiral,songline,sinuous
+......
+.####.
+.#..#.
+.#.##.
+.#....
+......
+
+@the-red-rock-songlines/winding_wash
+size: 6
+tags: winding,serpentine,wash,rough,medium
+......
+####.#
+......
+#.####
+......
+,,,,,,
+
+@the-red-rock-songlines/twin_arches
+size: 6
+tags: arches,twin,gate,hollow,medium
+##,,##
+#....#
+,.##.,
+,.##.,
+#....#
+##,,##
+
+@the-red-rock-songlines/sand_causeway
+size: 6
+tags: causeway,sand,spine,open
+..,,..
+..WW..
+#,WW,#
+#,WW,#
+..WW..
+..,,..

@@ -1,0 +1,226 @@
+# Sea-cave Smugglers' Run: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W tidal water.
+
+# --- size 3 ---
+
+@sea-cave-smugglers-run/tide_nook
+size: 3
+tags: wet,nook,channel,tight
+#,.
+#,.
+,W.
+
+@sea-cave-smugglers-run/crate_alcove
+size: 3
+tags: rough,alcove,crates,side-nook
+#,.
+#,,
+,.,
+
+@sea-cave-smugglers-run/ledge_pool_ring
+size: 3
+tags: wet,ledge,pool,open
+.,.
+,W,
+.,.
+
+@sea-cave-smugglers-run/splash_corner
+size: 3
+tags: wet,channel,splash,corner
+W#.
+W..
+#,W
+
+@sea-cave-smugglers-run/narrow_passage
+size: 3
+tags: wet,passage,narrow,tight
+.#W
+W,.
+#.#
+
+@sea-cave-smugglers-run/shelf_ledge
+size: 3
+tags: rough,shelf,ledge,open
+,,#
+.W,
+.,.
+
+# --- size 5 ---
+
+@sea-cave-smugglers-run/moat_islet
+size: 5
+tags: wet,ring,islet,pool,hero
+#,,,#
+,WWW,
+,W.W,
+,WWW,
+#,,,#
+
+@sea-cave-smugglers-run/sea_arch
+size: 5
+tags: wet,arch,channel,hero
+,,,,,
+.###.
+W...W
+WWWWW
+.,,,.
+
+@sea-cave-smugglers-run/spiral_drip
+size: 5
+tags: wet,spiral,winding,tidal,hero
+.....
+.###.
+...#.
+.#.#.
+.#W..
+
+@sea-cave-smugglers-run/crate_nook
+size: 5
+tags: rough,nook,crates,side-nooks
+##.##
+#,,,#
+..#..
+#.,.#
+.....
+
+@sea-cave-smugglers-run/tidal_stair
+size: 5
+tags: wet,stair,zigzag,tidal
+.....
+#.###
+#.,..
+##.W.
+.,,..
+
+@sea-cave-smugglers-run/horseshoe_cove
+size: 5
+tags: wet,horseshoe,cove,pool,hero
+.....
+#...#
+#.W.#
+##.##
+..,..
+
+@sea-cave-smugglers-run/ledge_ring_pool
+size: 5
+tags: wet,ledge,pool,ring,corners
+.####
+.,,,.
+.,W,.
+.,,,.
+####.
+
+@sea-cave-smugglers-run/twin_channel
+size: 5
+tags: wet,channel,twin,narrow
+#.W.#
+#.W..
+..WW.
+#.,W.
+#.,.#
+
+@sea-cave-smugglers-run/tidal_gate
+size: 5
+tags: wet,gate,pinch,tidal,split
+#,.,#
+.,,,.
+##W##
+.,,,.
+#,.,#
+
+@sea-cave-smugglers-run/stacked_crate_split
+size: 5
+tags: rough,split,stacks,crates
+,,#,,
+,.#,.
+,,.,,
+#,,.#
+..,..
+
+@sea-cave-smugglers-run/wrack_pocket
+size: 5
+tags: rough,wrack,pocket,tidal
+#.,..
+#,,,.
+.,W,.
+.,,,#
+..,.#
+
+@sea-cave-smugglers-run/sea_stack_ring
+size: 5
+tags: wet,stack,ring,pillar
+.,W,.
+W,#,W
+.,#,.
+W,.,W
+.,W,.
+
+@sea-cave-smugglers-run/cove_steps
+size: 5
+tags: dry,pinch,ledges,rough
+#.###
+#,,,.
+##,##
+.,,,.
+.####
+
+@sea-cave-smugglers-run/tide_flat
+size: 5
+tags: wet,open,flat,rough,tidal-flat
+#,,,.
+,W,,.
+,,W,,
+.,,W,
+.,,,,
+
+# --- size 6 ---
+
+@sea-cave-smugglers-run/hourglass_waist
+size: 6
+tags: wet,hourglass,waist,tidal,hero
+,,,,,,
+.,,,,.
+##,,##
+##,,##
+.WWWW.
+WWWWWW
+
+@sea-cave-smugglers-run/figure_eight_neck
+size: 6
+tags: wet,figure-eight,neck,channel,hero
+.,.##.
+.,W,,.
+##,###
+##,###
+.,,W,.
+.##,..
+
+@sea-cave-smugglers-run/cave_mouth_wide
+size: 6
+tags: rough,wet,cave-mouth,arch,ledges
+,,,,,,
+,####,
+,,..,,
+#.WW.#
+#WWWW#
+.,,,,.
+
+@sea-cave-smugglers-run/lagoon_ledges
+size: 6
+tags: wet,lagoon,ledges,pool,open
+,,,,,.
+,WWW,.
+,W.W,.
+,WWW,#
+,,,,##
+.,,,..
+
+@sea-cave-smugglers-run/paired_tide_pools
+size: 6
+tags: wet,twin-pool,ledges,open
+.,,,,.
+,WW,,,
+,WW,WW
+#,,,W,
+##,,##
+..,,..

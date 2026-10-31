@@ -1,0 +1,226 @@
+# Pirate-gull Grottoes: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall (rock), . floor (ledge), , rough floor (guano-white), W seawater.
+
+# --- size 3 ---
+
+@pirate-gull-grottoes/gull_perch_nook
+size: 3
+tags: wet,perch,nook,guano
+.W.
+#W#
+.,.
+
+@pirate-gull-grottoes/shelf_bend
+size: 3
+tags: dry,ledge,bend
+..#
+.W.
+#..
+
+@pirate-gull-grottoes/open_bowl_small
+size: 3
+tags: wet,bowl,open,stepping
+,.,
+.W.
+,.,
+
+@pirate-gull-grottoes/tight_cross_perch
+size: 3
+tags: wet,perch,cross,tight
+#.#
+.W.
+##,
+
+@pirate-gull-grottoes/pier_gap
+size: 3
+tags: wet,pier,gap,stepping
+..,
+#W.
+..,
+
+@pirate-gull-grottoes/splash_corner
+size: 3
+tags: wet,corner,splash,guano
+W,.
+.,.
+.#W
+
+# --- size 5 ---
+
+@pirate-gull-grottoes/rock_stack_ring
+size: 5
+tags: hero,wet,ring,rock-stack,lagoon
+.,,.,
+,W..W
+.,#,.
+W..W,
+.,.,.
+
+@pirate-gull-grottoes/spiral_stepping_path
+size: 5
+tags: hero,wet,spiral,stepping,path
+.W...
+.###.
+...#.
+.#.#.
+.W...
+
+@pirate-gull-grottoes/gull_cross_perch
+size: 5
+tags: hero,wet,cross,perch,lagoon
+##.##
+#.W.#
+..W..
+#.W.#
+##.##
+
+@pirate-gull-grottoes/horseshoe_arch
+size: 5
+tags: hero,wet,horseshoe,arch,cove
+#...#
+#.W.#
+#.#.#
+#...#
+##.##
+
+@pirate-gull-grottoes/stone_lane_open
+size: 5
+tags: wet,open,stepping,lane
+.W.W.
+.....
+W.,.W
+.....
+.W.W.
+
+@pirate-gull-grottoes/snake_tight_pass
+size: 5
+tags: wet,tight,pass,bend
+##.##
+##.W#
+.W,..
+#.#.#
+#.###
+
+@pirate-gull-grottoes/guano_terrace
+size: 5
+tags: dry,guano,terrace,ledge
+,,,,.
+,###.
+,,,..
+.#W.,
+.,,,.
+
+@pirate-gull-grottoes/open_bowl_pool
+size: 5
+tags: wet,bowl,open,pool
+.,..,
+.W..W
+,..,.
+.W,W.
+.,..,
+
+@pirate-gull-grottoes/hourglass_lagoon
+size: 5
+tags: wet,hourglass,neck,lagoon
+.....
+#.W.#
+##.##
+#.W.#
+.....
+
+@pirate-gull-grottoes/stacked_pillar_tight
+size: 5
+tags: wet,tight,pillar,stack
+#.###
+#W.W#
+..,.#
+#W.W#
+###.#
+
+@pirate-gull-grottoes/shelf_crescent
+size: 5
+tags: dry,crescent,shelf,guano
+##...
+#,...
+#.W.,
+#,...
+##,..
+
+@pirate-gull-grottoes/round_grotto_pillar
+size: 5
+tags: wet,round,grotto,pillar
+.,#,.
+,...,
+#.W.,
+,...,
+.,#,.
+
+@pirate-gull-grottoes/spray_bank_mid
+size: 5
+tags: wet,bank,spray,medium
+.W.,.
+.##..
+,.,W.
+#.##.
+.,.,.
+
+@pirate-gull-grottoes/tide_pool_cluster
+size: 5
+tags: wet,pool,cluster,medium
+,..,.
+.W##.
+.,,.W
+..##,
+,..W,
+
+# --- size 6 ---
+
+@pirate-gull-grottoes/figure_eight_lagoon
+size: 6
+tags: hero,wet,figure-eight,neck,twin
+##..##
+#....#
+#.WW.#
+##..##
+#.,,.#
+##..##
+
+@pirate-gull-grottoes/round_pool_grotto
+size: 6
+tags: hero,wet,round,grotto,pool
+..##..
+.,WW,.
+#.WW.#
+#.WW.#
+.,WW,.
+..##..
+
+@pirate-gull-grottoes/rock_perch_ring
+size: 6
+tags: dry,ring,perch,island,guano
+..,,..
+.####.
+.,..,.
+.,WW,.
+....,.
+......
+
+@pirate-gull-grottoes/gull_hourglass_neck
+size: 6
+tags: wet,hourglass,neck,bowls
+......
+#....#
+##WW##
+##,,##
+#....#
+......
+
+@pirate-gull-grottoes/sea_stack_cluster
+size: 6
+tags: wet,stacks,cluster,open
+..,...
+.##..W
+.##,..
+W..,..
+.,,...
+..W...
