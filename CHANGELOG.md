@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.92
+- **Cat Fish, fewer queries:** `catfish_extra_mult()` takes the caller's `catfish_state()` row for the Buddy check instead of reading it again, and loads the pictures behind a gnome's found Puzzle Pals with one `IN (...)` query instead of one per picture. No change to what players see or earn.
+- **Tests:** `tests/catfish.sh` passes again (0 failed): the Puzzle Pals bonus checks use the 2.2.3 values (+4% a common pal, best 10 count), the hub check counts the Games tile, not the menu's own link, and the bunting checks measure the jar's change, not its total.
+- No player news entry (nothing visible changed). No database change.
 ## 2.3.91
 - **Merge:** brings the 2.3.9 branch (Boons, health bars, Pantry rooms) together with `main`'s 2.3.8 (shorter Stamp passport).
 - **Here page:** a Puzzle Pal waiting at your spot now also shows its "Say hello" card on the Here page (rest stop and town square), not only on World > Go.
