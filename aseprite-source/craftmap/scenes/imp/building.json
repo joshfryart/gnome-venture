@@ -1,0 +1,47 @@
+{
+ "scene": "building",
+ "w": 300,
+ "h": 200,
+ "hotspots": [
+  {
+   "id": "pulley",
+   "label": "Crane pulley",
+   "x": 14,
+   "y": 8,
+   "w": 78,
+   "h": 94
+  },
+  {
+   "id": "sawhorse",
+   "label": "Sawhorse",
+   "x": 2,
+   "y": 102,
+   "w": 92,
+   "h": 88
+  },
+  {
+   "id": "stones",
+   "label": "Stone blocks",
+   "x": 94,
+   "y": 36,
+   "w": 112,
+   "h": 152
+  },
+  {
+   "id": "rope",
+   "label": "Rope coils",
+   "x": 214,
+   "y": 10,
+   "w": 82,
+   "h": 98
+  },
+  {
+   "id": "timber",
+   "label": "Timber stack",
+   "x": 206,
+   "y": 110,
+   "w": 92,
+   "h": 80
+  }
+ ]
+}

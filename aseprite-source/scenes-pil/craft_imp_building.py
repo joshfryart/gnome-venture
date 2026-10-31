@@ -104,7 +104,7 @@ for k, (y0, y1) in enumerate(((FY, FY + 13), (FY + 15, FY + 30), (FY + 32, H - 1
 cv.fill(rect(0, FY, W - 1, FY), FLOOR_L)
 
 # ---------------------------------------------------------------- gateway arch behind the hero: open sky and a far hill (frames the stack)
-AX0, AX1 = 98, 202
+AX0, AX1 = 94, 206
 arch = rect(AX0, 50, AX1, FY - 1) | ell(AX0, 20, AX1, 80)
 band = dil4(dil4(dil4(arch))) & ~arch & ~rect(0, FY, W, H)
 cv.fill(band, WALL_L)
@@ -116,8 +116,16 @@ cv.fill(hill, HILL)
 cv.fill(hill & ~shift(hill, 0, 2), HILL_S)
 cv.fill(arch & rect(0, 0, W, 0) & ~shift(arch, 1, 1), SKY_L)
 
+sun = poly([(AX0, FY), (AX1, FY), (AX1 + 24, H - 1), (AX0 - 24, H - 1)])   # daylight falling in through the gateway
+cv.fill(sun, FLOOR_L)
+for k, y in enumerate((FY + 14, FY + 31)):
+    cv.fill(sun & rect(0, y, W, y), FLOOR)
+for k, (y0, y1) in enumerate(((FY, FY + 13), (FY + 15, FY + 30), (FY + 32, H - 1))):
+    for jx in range(26 + k * 23, W, 62):
+        cv.fill(sun & rect(jx, y0, jx, y1), FLOOR)
+
 # ---------------------------------------------------------------- HERO: stacked dressed stone blocks with a red marker pennant
-BW, BH, TD = 34, 23, 6   # block width, front height, top depth
+BW, BH, TD = 36, 26, 6   # block width, front height, top depth
 
 
 def block(x0, yb, pits=(), chip=False):
@@ -138,11 +146,12 @@ def block(x0, yb, pits=(), chip=False):
 
 
 SB = 178
+shadow(90, 172, 212, 185)
 for i, pits in enumerate((((8, 6), (22, 14)), ((12, 10), (26, 5)), ((6, 13), (20, 7)))):
-    block(99 + i * BW, SB, pits, chip=(i == 2))
+    block(96 + i * BW, SB, pits, chip=(i == 2))
 for i, pits in enumerate((((10, 8), (24, 15)), ((7, 14), (20, 6)))):
-    block(116 + i * BW, SB - BH - 3, pits)
-block(133, SB - 2 * (BH + 3), ((8, 12), (25, 7)))
+    block(114 + i * BW, SB - BH - 3, pits)
+block(132, SB - 2 * (BH + 3), ((8, 12), (25, 7)))
 # red marker pennant planted on the top block
 PTOP = 44
 draw((rect(149, PTOP, 151, SB - 2 * (BH + 3) - BH - 2), WOOD, {'d': 1}), (ell(147, PTOP - 3, 153, PTOP + 2), GOLD, {'d': 1}))
@@ -171,7 +180,7 @@ lstr = rect(PCX - PR - 2, PCY, PCX - PR + 1, 80)
 rstr = rect(PCX + PR - 1, PCY, PCX + PR + 2, 70)
 rope_m = ropearc | lstr | rstr
 draw((rope_m, ROPE, {'d': 1}))
-twist(lstr | rstr, ROPE['s'])
+twist(lstr | rstr, ROPE['bo'])
 draw((ell(PCX + PR - 4, 68, PCX + PR + 5, 77), ROPE, {'d': 1}))   # knotted end
 cv.dots([(PCX + PR - 1, 71), (PCX + PR, 71)], ROPE['r'])
 hk = PCX - PR
@@ -191,8 +200,8 @@ yy, xx = np.mgrid[0:H, 0:W]
 uu = ((xx - TX) - (yy - TY)) / 1.4142
 vv = ((xx - TX) + (yy - TY)) / 1.4142
 BL = 30
-blade = (uu >= 0) & (uu <= BL) & (vv <= 0.5) & (vv >= -(5 + 6 * uu / BL))
-teeth = (uu >= 0) & (uu <= BL) & (vv > 0.5) & (vv <= 2.2) & (np.floor(uu) % 3 < 1.5)
+blade = (yy < 138) & (uu >= 0) & (uu <= BL) & (vv <= 0.5) & (vv >= -(5 + 6 * uu / BL))
+teeth = (yy < 138) & (uu >= 0) & (uu <= BL) & (vv > 0.5) & (vv <= 2.2) & (np.floor(uu) % 3 < 1.5)
 grip = (uu > BL - 1) & (uu <= BL + 15) & (vv <= 3) & (vv >= -14)
 grip &= ~((uu > BL + 4) & (uu < BL + 11) & (vv > -9) & (vv < -2))   # hand slot
 grip &= ~((uu > BL + 12) & (vv > 0))   # round off the far heel
@@ -218,7 +227,7 @@ for m in loops:
 o.part(rrect(244, 25, 262, 37, 3), ROPE, d=1, contour=True)   # binding turns at the neck
 o.draw()
 for m in loops:
-    twist(m, ROPE['s'])
+    twist(m, ROPE['bo'])
 draw((rrect(249, 14, 257, 22, 2), DWOOD, {'d': 1}))   # peg head
 
 # ---------------------------------------------------------------- RIGHT BOTTOM: stack of timber planks on bearers, lashed with rope
@@ -233,17 +242,19 @@ for i, (x0, x1, y0, y1) in enumerate(rows):
     o.draw()
     cv.fill(rect(x0 + 10, y0 + 1, x1 - 2, y0 + 1), rp['r'])
     cv.fill(rect(x0 + 22 + i * 5, y0 + 5, x0 + 48 + i * 5, y0 + 5), rp['s'])
-    cv.fill(ell(x0 + 1, y0 + 2, x0 + 7, y1 - 2) & ~ell(x0 + 3, y0 + 4, x0 + 5, y1 - 4), ENDG['s'])   # growth ring
+    ring = ell(x0 + 1, y0 + 1, x0 + 7, y1 - 1)
+    cv.fill(ring & ~(shift(ring, 1, 0) & shift(ring, -1, 0) & shift(ring, 0, 1) & shift(ring, 0, -1)) & rect(x0 + 1, y0 + 2, x0 + 7, y1 - 2), ENDG['s'])   # growth ring
+    cv.dots([(x0 + 4, (y0 + y1) // 2)], ENDG['s'])   # pith
 lash = rect(262, 113, 266, 171)
 draw((lash, ROPE, {'d': 1}))
-twist(lash, ROPE['s'])
+twist(lash, ROPE['bo'])
 
 HOTSPOTS = [
-    {'id': 'pulley', 'label': 'Crane pulley', 'x': 16, 'y': 8, 'w': 76, 'h': 94},
-    {'id': 'sawhorse', 'label': 'Sawhorse', 'x': 2, 'y': 102, 'w': 92, 'h': 86},
-    {'id': 'stones', 'label': 'Stone blocks', 'x': 96, 'y': 36, 'w': 108, 'h': 152},
-    {'id': 'rope', 'label': 'Rope coils', 'x': 214, 'y': 10, 'w': 82, 'h': 100},
-    {'id': 'timber', 'label': 'Timber stack', 'x': 206, 'y': 112, 'w': 92, 'h': 76},
+    {'id': 'pulley', 'label': 'Crane pulley', 'x': 14, 'y': 8, 'w': 78, 'h': 94},
+    {'id': 'sawhorse', 'label': 'Sawhorse', 'x': 2, 'y': 102, 'w': 92, 'h': 88},
+    {'id': 'stones', 'label': 'Stone blocks', 'x': 94, 'y': 36, 'w': 112, 'h': 152},
+    {'id': 'rope', 'label': 'Rope coils', 'x': 214, 'y': 10, 'w': 82, 'h': 98},
+    {'id': 'timber', 'label': 'Timber stack', 'x': 206, 'y': 110, 'w': 92, 'h': 80},
 ]
 
 if __name__ == '__main__':
