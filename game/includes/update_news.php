@@ -618,6 +618,10 @@ function post_update_news(string $from): void
         "[list][*][b]Alchemy[/b]: seven new potions. Strong Healing Potion and Grand Healing Elixir, Lucky, Sage's, Stoneskin and Swiftfoot draughts, and a Garden Tonic for your soil. Drink them from the Satchel or the new Potions box on My Gnome.\n"
         . "[*][b]Crafting map[/b]: tap an object in a scene (a cheese wheel, the anvil, the seed trays) and you see just the recipes it makes.\n"
         . "[*]Eleven Pantry preserves have new pictures.[/list]"],
+    '2.3.8' => ['🛂 Update 2.3.8: a shorter Stamp passport',
+        "[list][*]The [b]Stamp passport[/b] (Town, Stop tab) is much shorter. You see your total, the three sets closest to done, and your current region.\n"
+        . "[*]Titles, all sets, stops by kind and the Road Journal tuck into folds. Tap one to open it.\n"
+        . "[*]Regions you have not started wait in one fold, and on a wide screen the sets and regions sit in columns.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
