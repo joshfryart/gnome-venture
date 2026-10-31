@@ -115,7 +115,7 @@ $sCh = hollow_weather_chances($sn['season'], $sRegion);
 arsort($sCh);
 $sRegions = q('SELECT code, gnomish_name AS name, real_name FROM regions ORDER BY id')->fetchAll(); ?>
 <details class="fold box seasonfold" id="seasons"<?= ($_GET['tab'] ?? '') === 'seasons' ? ' open' : '' ?>>
-  <summary><?= $sn['season_emoji'] ?> Seasons &amp; weather: <?= e($sn['season_label']) ?>, <?= $sn['weather_emoji'] ?> <?= e($sn['weather_label']) ?></summary>
+  <summary><?= $sn['season_emoji'] ?> Seasons &amp; weather <small class="muted"><?= e($sn['season_label']) ?> · <?= $sn['weather_emoji'] ?> <?= e($sn['weather_label']) ?></small></summary><?php /* v2.3.x: name, then the state as a muted note (as the Road Journal fold), so it breaks between them, not mid-phrase */ ?>
   <p><b><?= e(hollow_line($sRegion)) ?></b></p>
   <p class="muted"><?= e(HOLLOW_SEASONS[$sn['season']][3]) ?> <?= e(HOLLOW_WEATHER[$sn['weather']][3]) ?>
     <?= $sn['mode'] === 'game' ? 'Day ' . $sn['season_day'] . ' of ' . $sn['season_length'] . '.' : 'Following the real calendar.' ?>
@@ -324,19 +324,20 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     $uid = (int)$u['id'];
     foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
     $nodeRegion = !empty($node['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$node['region_id']]) : null;
-    $h = '<h2>🛂 Stamp passport</h2><p class="muted st-lede">A stamp for every rest stop you visit. Sets pay rewards and titles.</p>';
+    // v2.3.x: the same section head and note as the other Town tabs (Orders, Villagers); .st-page is the container the wide layout keys off
+    $h = '<div class="st-page"><h2 class="gx-h">🛂 Stamp passport</h2><p class="gx-note gx-note--top">A stamp for every rest stop you visit. Sets pay rewards and titles.</p>';
     $titles = stop_titles($uid);
     $tf = '';
-    if ($titles) {   // v2.3.x: a fold under the passport summary, not a wall of tags above it
-        $tf = '<details class="fold st-fold st-titles"><summary>Titles earned <small class="muted">' . count($titles) . '</small></summary><p class="st-tags">';
+    if ($titles) {   // v2.3.x: a fold row inside the passport summary box, not a wall of tags above it
+        $tf = '<details class="fold st-titles"><summary>Titles earned <small class="muted">' . count($titles) . '</small></summary><p class="st-tags">';
         foreach ($titles as $t) $tf .= '<span class="tag">“' . e($t) . '”</span> ';
         $tf .= '</p><a class="st-almanac" href="' . e(url('book.php?ch=Milestones')) . '">Choose yours in the Almanac →</a></details>';
     }
     require_once __DIR__ . '/road_life.php';
     $h .= stop_passport_html($u, $tf);
-    $h .= '<p class="help">📜 <a href="' . e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
+    $h .= '<p class="gx-note">📜 <a href="' . e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
     $h .= '<div class="st-folds">' . road_journal_html($uid) . season_fold_html($u) . '</div>' . land_card_html($u, $node, $nodeRegion);
-    return $h;
+    return $h . '</div>';
 }
 
 /** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). v2.0.67: in town, Shops and Orders are town.php views

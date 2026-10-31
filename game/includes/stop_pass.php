@@ -165,8 +165,8 @@ function stop_set_row(array $set, int $got, int $need, bool $isDone): string
 
 /**
  * The whole passport page body (HTML). v2.3.x: glanceable on a phone. A summary (count, one bar, sets done), then folds:
- * $afterSum (the earned titles) sits right under the summary; the three closest sets show, every set is one tap away;
- * kinds are a fold of small chips; regions are one list of rows with small stamp thumbnails (here open, unstarted regions folded away).
+ * $afterSum (the earned titles fold) is the last row of the summary box; the three closest sets show, every set is one tap away;
+ * kinds are a fold of small chips (last row of the stamps box); regions are one list of rows with small stamp thumbnails (here open, unstarted regions folded away).
  */
 function stop_passport_html(array $u, string $afterSum = ''): string
 {
@@ -196,12 +196,12 @@ function stop_passport_html(array $u, string $afterSum = ''): string
         }
         $groups[] = '<li class="st-setgroup"><b>' . $label . '</b></li>' . $todo . $done;   // still to do first, finished ones after
     }
-    $h = '<div class="st-pass"><div class="st-sum"><p class="st-sumline"><b>' . $have . '</b> of ' . $roadTotal . ' road stops stamped</p>'
+    $h = '<div class="st-pass"><section class="box st-sum" aria-label="Passport summary"><p class="st-sumline"><b>' . $have . '</b> of ' . $roadTotal . ' road stops stamped</p>'
         . '<progress max="' . max(1, $roadTotal) . '" value="' . min($have, $roadTotal) . '" aria-label="Road stops stamped"></progress>'
-        . '<p class="st-summeta">' . ($setsAll ? $setsDone . ' of ' . $setsAll . ' sets done · ' : '') . 'hidden villages you find count too</p></div>' . $afterSum;
+        . '<p class="st-summeta">' . ($setsAll ? $setsDone . ' of ' . $setsAll . ' sets done · ' : '') . 'hidden villages you find count too</p>' . $afterSum . '</section>';
     if ($setsAll) {
         sort($open);
-        $h .= '<h3 class="st-h3">Next up</h3>';
+        $h .= '<h3 class="gx-h">Next up <span class="gx-h__sub">the closest sets</span></h3><section class="box st-setbox">';
         if ($open) {
             $h .= '<ul class="st-sets st-next">';
             foreach (array_slice($open, 0, 3) as [, , , $set, $got, $need]) $h .= stop_set_row($set, $got, $need, false);
@@ -209,7 +209,7 @@ function stop_passport_html(array $u, string $afterSum = ''): string
         } else {
             $h .= '<p class="muted">Every set is done. What a traveller!</p>';
         }
-        $h .= '<details class="fold st-fold"><summary>All sets and rewards <small class="muted">' . $setsDone . ' / ' . $setsAll . ' done</small></summary><ul class="st-sets">' . implode('', $groups) . '</ul></details>';
+        $h .= '<details class="fold"><summary>All sets and rewards <small class="muted">' . $setsDone . ' / ' . $setsAll . ' done</small></summary><ul class="st-sets">' . implode('', $groups) . '</ul></details></section>';
     }
     // by type
     $kinds = '';
@@ -220,7 +220,7 @@ function stop_passport_html(array $u, string $afterSum = ''): string
         if ($mine) $kindsHave++;
         $kinds .= '<div class="st-kind' . ($mine ? ' has' : '') . '" data-sh="' . (int)$t['hue'] . '">' . stop_svg($slug, 'icon', 'st-ico') . '<b>' . e((string)$t['name']) . '</b><small>' . $mine . ' / ' . $all . '</small></div>';
     }
-    $h .= '<details class="fold st-fold"><summary>Stops by kind <small class="muted">' . $kindsHave . ' / ' . count($types) . ' kinds stamped</small></summary><div class="st-kinds">' . $kinds . '</div></details>';
+    $kindsFold = '<details class="fold st-kindfold"><summary>Stops by kind <small class="muted">' . $kindsHave . ' / ' . count($types) . ' kinds stamped</small></summary><div class="st-kinds">' . $kinds . '</div></details>';
     // stamps by region: started regions (and the one you are in) as rows, the rest in one fold
     $here = (int)($u['region_id'] ?? 0);
     $byRegion = [];
@@ -234,15 +234,15 @@ function stop_passport_html(array $u, string $afterSum = ''): string
         $n = count(array_filter($list, fn($s) => isset($stamps[(int)$s['id']])));
         $isHere = $list[0]['region_id'] == $here;
         $full = $n >= count($list);
-        $row = '<details class="st-region' . ($full ? ' full' : '') . '"' . ($n > 0 && $isHere ? ' open' : '') . '><summary><b>' . ($full ? '✅ ' : '') . e($region) . '</b>'
+        $row = '<details class="fold st-region' . ($full ? ' full' : '') . '"' . ($n > 0 && $isHere ? ' open' : '') . '><summary><b>' . ($full ? '✅ ' : '') . e($region) . '</b>'
             . '<progress max="' . count($list) . '" value="' . $n . '" aria-hidden="true"></progress><small class="muted">' . $n . ' / ' . count($list) . '</small></summary><div class="st-stamps">';
         foreach ($list as $s) $row .= stop_stamp_tile($s, $stamps[(int)$s['id']] ?? null);
         $row .= '</div></details>';
         if ($n > 0 || $isHere) $started .= $row;
         else { $later .= $row; $laterN++; }
     }
-    $h .= '<h3 class="st-h3">Your stamps</h3><div class="box st-regions">' . $started;
-    if ($later !== '') $h .= '<details class="fold st-fold st-later-regions"><summary>Not started yet <small class="muted">' . $laterN . ' region' . ($laterN === 1 ? '' : 's') . '</small></summary>' . $later . '</details>';
-    $h .= '</div>';
+    $h .= '<h3 class="gx-h">Your stamps <span class="gx-h__sub">by region</span></h3><div class="box st-regions">' . $started;
+    if ($later !== '') $h .= '<details class="fold st-later-regions"><summary>Not started yet <small class="muted">' . $laterN . ' region' . ($laterN === 1 ? '' : 's') . '</small></summary>' . $later . '</details>';
+    $h .= $kindsFold . '</div>';   // by kind is the last row of the stamps box
     return $h . '</div>';   // the Road Journal (v2.0.79) is a fold beside Seasons in stop_tab_html()
 }
