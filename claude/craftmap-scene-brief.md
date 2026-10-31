@@ -13,3 +13,10 @@ Scenes (dominant colour; subject):
 - pantry (plum/amber/glass): larder shelves. Objects: shelf of jam jars with gingham lids, pickle crock, sauerkraut barrel, cordial bottles, a hanging cloth-wrapped cheese or garlic string.
 - alchemy (teal/violet/gold): alchemy station. Objects: bubbling cauldron, shelf of coloured potion flasks, mortar and pestle on a bench, a still/alembic with tubes, a book/scroll stand.
 Each scene needs a distinct colour mood so the three differ at a glance. Match the pilot tile pictures in aseprite-source/craftmap/out/ (cooking.png, pantry.png, potions.png) in motifs.
+
+## Round 2: remaining areas (variant "imp", Opus high + impeccable)
+House look = the approved impeccable Kitchen and Alchemy scenes (aseprite-source/craftmap/scenes/imp/kitchen.png, alchemy.png; scripts aseprite-source/scenes-pil/craft_imp_*.py): one saturated hero object per scene, quiet wall/floor, gold sparkle only around the hero, 5 large clear objects with gaps. Match their outline, palette handling and scale so all 7 read as one set. Keep the approved Pantry (medium variant) in mind for neighbours.
+- tools (steel blue / wood / amber): tool shed workbench. Hero: anvil or workbench with hammer. Objects: anvil, grindstone wheel, tool rack (saw, spade, rake), workbench with vice, a barrel of tool heads or a toolbox.
+- garden (leaf green / earth brown / cream): garden shed supplies. Hero: compost bin. Objects: compost bin, sacks of loam, mulch heap or wheelbarrow, watering can and trowel rack, seed trays.
+- building (stone grey / timber / rope tan / red accent): builders' yard. Hero: stacked dressed stone blocks. Objects: stone block stack, timber planks stack, rope coils on a post, a sawhorse with a plank, a wheelbarrow or crane pulley.
+- decor (petal pink / lawn green / sky): yard & decor corner. Hero: a stone ornament (birdbath or garden gnome statue). Objects: birdbath, short picket fence section, stepping-stone path, a lantern post, a flower planter.
