@@ -116,6 +116,16 @@ chk "a clear is recorded once" "$([ "$(db "SELECT clears FROM landmark_clears WH
 chk "scene row removed when the delve ends" "$([ "$(SCENES)" = 0 ] && echo 1)"
 chk "log showed the way down" "$WD"
 
+echo "== hazard ground and wandering creatures (in-process, on authored floors)"
+dbx "DELETE FROM landmark_uses WHERE user_id=$SID"
+lmact -d do=delve -d lm=$DID
+for k in hazard wander; do
+  php "$HERE/delve2.php" $k "$GAME" $(EXPID) > $A 2>&1; cat $A | sed 's/^/  /' | grep -E 'ok|FAIL' | sed 's/^  //'
+  chk "delve2.php $k" "$(tail -1 $A | grep -q "all $k checks passed" && echo 1)"
+done
+adv; post adventure.php -d do=leave >/dev/null
+dbx "UPDATE expeditions SET status='done' WHERE user_id=$SID"
+
 echo "== the torch burns per step; climbing out keeps loot"
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"
 lmact -d do=delve -d lm=$DID

@@ -27,6 +27,9 @@ function dm_settings(): array
     return [
         'delve_map' => ['label' => 'Delves: map view', 'type' => 'bool', 'default' => '1'],   // v2.0.6: off = delves and lairs show only the simple list
         'delve_v2' => ['label' => 'Delves: route menu and tile floors (the redo)', 'type' => 'bool', 'default' => '0'],   // v2.3.1: off = today's five rooms; running delves finish on their own rules
+        'dv_enc_steps' => ['label' => 'Delves (redo): steps walked between rolls for a wandering creature', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 100],
+        'dv_enc_chance' => ['label' => 'Delves (redo): percent chance a roll meets a wandering creature (0 = none)', 'type' => 'int', 'default' => '25', 'min' => 0, 'max' => 100],
+        'dv_enc_cap' => ['label' => 'Delves (redo): most wandering creatures on one floor', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 10],
     ];
 }
 

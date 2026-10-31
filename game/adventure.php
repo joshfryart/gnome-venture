@@ -85,6 +85,7 @@ if (is_post()) {
             elseif ($do === 'chest') { delve_chest($u, $exp); $gok = true; $gmsg = ''; }
             else { $gok = true; $gmsg = ''; }
             if (!$gok) flash($gmsg, 'err');
+            elseif ($gmsg !== '') flash($gmsg, 'ok');   // hazard ground and wandering creatures say what happened
         } elseif (($exp['kind'] ?? 'walk') === 'delve') {
             if ($do === 'next') delve_next($u, $exp);
             elseif ($do === 'leave') delve_leave($u, $exp);
