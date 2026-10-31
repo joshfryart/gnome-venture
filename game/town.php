@@ -97,6 +97,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     ?>
     <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
     <?= place_switcher_html($node, 'here') ?>
+    <?php if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); }   // a waiting Puzzle Pal shows on the Here page too, not only World ?>
     <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
       <?= place_header_html(stop_art_file($stType), $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name'], '', [$road ? '🛣️ ' . e($road['name']) : '🌿 Hidden village, off the road']) ?>
     <?php else: ?>
@@ -261,6 +262,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
   <?= main_stop_tabs_html(main_stop_tabs($hub, true, $view, count($present) + count($homeIn)), $view) ?>
+  <?php if ($view === 'square' && !$hub && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); }   // a waiting Puzzle Pal shows on the Here page too, not only World ?>
   <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
   <?php if ($view === 'villagers'): ?>
     <h3 class="gx-h">🚶 Out and about</h3>
