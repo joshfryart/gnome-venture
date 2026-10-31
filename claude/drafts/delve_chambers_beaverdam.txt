@@ -1,0 +1,220 @@
+# Beaverdam Tunnels: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W shallow water.
+
+@beaverdam-tunnels/bent_gnaw_tunnel
+size: 3
+tags: dry,tunnel,log
+#.#
+#.#
+#..
+
+@beaverdam-tunnels/stump_ring
+size: 3
+tags: dry,ring,pillar,rough
+.,.
+.#.
+,.,
+
+@beaverdam-tunnels/ford_crossing
+size: 3
+tags: wet,ford,crossing
+.W.
+WW.
+...
+
+@beaverdam-tunnels/lumber_corner
+size: 3
+tags: dry,store,log,corner
+,##
+,##
+,,.
+
+@beaverdam-tunnels/junction_cross
+size: 3
+tags: dry,crossroads,junction
+.#.
+...
+.#.
+
+@beaverdam-tunnels/bridge_planks
+size: 3
+tags: wet,bridge,planks
+W.W
+...
+W.W
+
+@beaverdam-tunnels/log_pile_gaps
+size: 5
+tags: dry,log,pile,gaps
+#.#.#
+.....
+#.#.#
+.....
+#.#.#
+
+@beaverdam-tunnels/gnawed_stumps
+size: 5
+tags: dry,stumps,rough
+,....
+.#.,.
+.....
+,.#..
+.....
+
+@beaverdam-tunnels/block_pillar_ring
+size: 5
+tags: dry,ring,pillar
+.....
+.###.
+.###.
+.###.
+.....
+
+@beaverdam-tunnels/dam_wall_cut
+size: 5
+tags: wet,dam,water,cut
+.WWW.
+WWWWW
+##.##
+.....
+.....
+
+@beaverdam-tunnels/sunken_pool
+size: 5
+tags: wet,pool,ledge
+,,...
+,WWW.
+.WWW.
+.WWW.
+.....
+
+@beaverdam-tunnels/lodge_room
+size: 5
+tags: dry,lodge,room,two-door
+##.##
+#...#
+#...#
+#...#
+##.##
+
+@beaverdam-tunnels/mud_bank_edge
+size: 5
+tags: wet,mud,bank,rough
+#####
+WW,,.
+W,,,.
+,,,,.
+.....
+
+@beaverdam-tunnels/dead_end_nook
+size: 5
+tags: dry,nook,dead-end
+##.##
+##.##
+##.##
+.....
+.....
+
+@beaverdam-tunnels/stepped_ledge
+size: 5
+tags: dry,ledge,steps,rough
+####.
+###,.
+##,,.
+#,,,.
+.....
+
+@beaverdam-tunnels/river_ford
+size: 5
+tags: wet,ford,river
+.,...
+.....
+WWWWW
+WWW..
+.....
+
+@beaverdam-tunnels/wood_chip_heap
+size: 5
+tags: dry,heap,chips,rough
+#####
+.,,,.
+.,,,.
+,,,,,
+.....
+
+@beaverdam-tunnels/store_l_wide
+size: 5
+tags: dry,store,L-shape,lumber
+.####
+.####
+.####
+.....
+.....
+
+@beaverdam-tunnels/pond_reeds
+size: 5
+tags: wet,pond,reeds,rough
+#####
+,,,WW
+,,WWW
+,,,WW
+,,,,,
+
+@beaverdam-tunnels/zigzag_passage
+size: 5
+tags: dry,tunnel,zigzag,bend
+....#
+###.#
+....#
+#.###
+#....
+
+@beaverdam-tunnels/flooded_gallery_ring
+size: 6
+tags: wet,gallery,ring,island
+......
+.WWWW.
+.W..W.
+.W..W.
+.WWWW.
+......
+
+@beaverdam-tunnels/lodge_hall_hearth
+size: 6
+tags: dry,lodge,hall,hearth,two-door
+##.###
+#....#
+#.##.#
+#.##.#
+#....#
+###.##
+
+@beaverdam-tunnels/dam_wall_sluice
+size: 6
+tags: wet,dam,water,sluice
+WWWWWW
+WWWWWW
+##.###
+,,....
+......
+......
+
+@beaverdam-tunnels/gnawed_tunnel_maze
+size: 6
+tags: dry,tunnel,maze,bend
+....##
+##.###
+..,...
+#.###.
+#.#...
+##....
+
+@beaverdam-tunnels/wide_crossroads
+size: 6
+tags: dry,crossroads,wide
+##..##
+##..##
+......
+......
+##..##
+##..##

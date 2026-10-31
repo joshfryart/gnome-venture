@@ -32,6 +32,12 @@ Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 - [x] [S] Balance sim `claude/delve-sim.php` (generated floors, 4 stages): fights 2.35 (old 2.83), traps 1.37 (0.98), finds 4.9 (2.4), about 65 torch steps of 192 fuel, about 3 min. First guess: torch never runs out on generated floors, so lower `DV_TORCH` or lean on authored floors. Tune after Joshua's playtest.
 - [ ] [J] Plays one delve on phone (Firefox Android, dark). Fix list from him.
 
+## 3b. Chamber stamper (added 2026-10-31, instead of drawing 168 full grids)
+- [x] [S] `includes/delve_stamp.php` (chambers 3/5/6, 2x2 stamp, doorways, objects), `tools/lint_delve_chambers.php`, `tests/delvestamp.sh`, data `includes/data/delve_chambers.txt`.
+- [x] [H] 25 Beaverdam chambers (6 of 3x3, 14 of 5x5, 5 of 6x6) in the data file. Generated delve floors for Beaverdam now use them (any other delve still uses tm_gen).
+- [ ] [H] Chambers for the other 13 delves (about 25 each), Sonnet lints + reviews, Joshua approves the look.
+- [ ] [S] Maybe: more doorway/shape variety, signature set pieces (dam wall, lodge) as full 13x13 authored floors in the pool.
+
 ## 4. Author 3 delves (Beaverdam Tunnels, Salt Mine Galleries, Firefly Caves)
 - [ ] [H] Per delve: draft 8 floors (4 small, 3 standard, 1 large/boss) from name + landscape + rule list. Names, rule lines, signature creature, 1 delve-only item name.
 - [ ] [S] Lint all; reject and send back failures to Haiku; Sonnet hand-fixes signature + boss floors; check uniqueness (no copied layouts, names unique).

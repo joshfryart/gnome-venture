@@ -102,7 +102,7 @@ function ds_put(array &$g, array $c, int $ox, int $oy): void
 
 /**
  * A floor from stamped chambers. $objs = the objects of the node kind (DV2_GEN): '1' finds, F, T, C, E, B ... The last one goes in the cell farthest from the way in.
- * Returns a parsed map (tm_parse) or null (no chambers for this size, or no valid layout in 24 tries).
+ * Returns a parsed map (tm_parse) or null (no chambers for this size, or no valid layout in 60 tries).
  */
 function ds_floor(string $seed, string $slug, string $tier, array $objs, ?array $all = null): ?array
 {
@@ -110,7 +110,7 @@ function ds_floor(string $seed, string $slug, string $tier, array $objs, ?array 
     $pool = ds_pool($slug, $n, $all);
     if (!$n || count($pool) < 2) return null;
     $N = 2 * $n + 3;
-    for ($try = 0; $try < 24; $try++) {
+    for ($try = 0; $try < 60; $try++) {
         $rng = tm_rng('dsfloor|' . $seed . '|' . $slug . '|' . $try);
         $g = array_fill(0, $N, array_fill(0, $N, '#'));
         $org = [[1, 1], [$n + 2, 1], [1, $n + 2], [$n + 2, $n + 2]];
@@ -174,6 +174,8 @@ function ds_floor(string $seed, string $slug, string $tier, array $objs, ?array 
         }
         if (!$ok) continue;
         $rows = array_map(fn($r) => implode('', $r), $g);
+        $all = implode('', $rows);
+        if (substr_count($all, 'W') * 100 > 18 * (strlen($all) - substr_count($all, '#'))) continue;   // too wet: more than 18% of the floor is water
         $f = ['tier' => $tier, 'rule' => 'x', 'for' => [in_array('B', $objs, true) ? 'boss' : ($tier === 'large' ? 'treasure' : 'fight')], 'rows' => $rows, 'map' => tm_parse($rows)];
         if (!dv_floor_lint($f)) return $f['map'];
     }
