@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.2
+- **Pal jobs: an equipped pal is not sent by accident.** A pal on your party shows an "On party" tag in the pickers. Picking one shows a "Take it off my party to send it out" box that must be ticked; without it the send is refused with a message. Works without JS (the server checks). Tests added in `tests/paljobs.php`.
+## 2.3.1
+- **Pal Jobs page redesigned.** Three tabs: **Out** (a ledger of pals on jobs with live countdowns, bars and a Collect button that appears when a pal is due), **At home** (HP, skills, Give a potion) and **Jobs** (garden, gathering trip, delve re-run). Each job has a **Send a pal** button that unfolds a ranked pal list and its options; one is open at a time. One-line counts row (runs left, Potions linking to Crafting, Pal Book). Works without JS (the sections stack and the forms stay open).
+- Back/Forward and reload: forms do not keep old picks, Send is re-enabled on Back, and a failed send returns to the tab you posted from.
+- Pal Book and Pal Jobs use the community area colour.
+- Files: `paljobs.php`, new `assets/paljobs.js`, pal jobs block of `assets/puzzles.css`, `layout.php`. Logic in `includes/pal_jobs.php` unchanged. `tests/paljobs.sh` updated (pal rows are `pjrow`).
+- No player news (Puzzle Pals is still off for players). Not run on MySQL.
 ## 2.3.0
 - **Pal jobs** (Puzzle Pals, gnome level 10+, setting `pj_open` / `pj_min_level`; Puzzle Pals itself still gates who sees it). A found pal can tend a garden (beside hired helpers, no Tool Shed slot: waters, weeds from Gardening 3, harvests at 9), go on a gathering trip (tool, place, 1/3/8 h, packed Healing Potions) or re-run a delve you have already cleared (about 60% of a real clear, once a day per delve). New `includes/pal_jobs.php`, page `paljobs.php`, table `ppal_jobs`.
 - Every found pal has its own 16-hex id and two levels (Gardening, Adventuring, 1 to 10) plus HP. A duplicate find gives +15 XP of each kind; a pal taken along earns 1 XP of each kind an hour. A pal at 0 HP goes home early; HP regrows at home. Trips and delve runs are rolled once at the start from a stored seed; Collect pays once.

@@ -39,7 +39,7 @@ dbx "UPDATE users SET level = 9 WHERE username='sprout'"
 chk "level 9: bounced to the book" "$(get paljobs.php)" 302
 dbx "UPDATE users SET level = 10 WHERE username='sprout'"
 chk "level 10: page renders" "$(get paljobs.php)" 200
-chk "page lists pals" "$(grep -c 'class="box pjpal' $H | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "page lists pals" "$(grep -c 'class="pjrow pjpal' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "page has the send forms" "$(grep -c 'name="do" value="send_trip"' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "no inline style attributes" "$(grep -c ' style=' $H)" 0
 chk "no raw row ids in the forms (pal id is the 16-hex hash)" "$(grep -o 'name="pal" value="[^"]*"' $H | grep -vc 'value="[0-9a-f]\{16\}"')" 0

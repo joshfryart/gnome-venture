@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pal Jobs · mockup v1 (board + ledger)</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--field:#fffaf0;
+  --ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;
+  --line:#c9a96e;--line-2:#9a6b3f;
+  --brand:#2f5a2a;--brand-soft:#c8d09f;--brand-line:#7ab55c;
+  --accent:#e8a317;--accent-ink:#7a4a1f;
+  --danger:#a8241f;--danger-soft:#f6b8cf;--danger-ink:#6b1b2c;
+  --focus:#25637d;--on-fill:#f2e4c0;
+  --px:2px;--edge-lt:#74462a;--edge-dk:#2a1a10;--drop:#c9a96e;--thread:#e8a317;
+  --r-c:#5b6470;--r-u:#2f5a2a;--r-r:#25637d;--r-l:#7a4a1f;
+  --frame:0 calc(-1*var(--px)) 0 0 var(--edge-lt),calc(-1*var(--px)) 0 0 0 var(--edge-lt),0 var(--px) 0 0 var(--edge-dk),var(--px) 0 0 0 var(--edge-dk),var(--px) calc(2*var(--px)) 0 0 var(--drop),calc(2*var(--px)) var(--px) 0 0 var(--drop);
+  --frame-lite:0 calc(-1*var(--px)) 0 0 var(--line),calc(-1*var(--px)) 0 0 0 var(--line),0 var(--px) 0 0 var(--line-2),var(--px) 0 0 0 var(--line-2);
+  --st-h:repeating-linear-gradient(90deg,var(--thread) 0 4px,transparent 4px 6px);
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --tap:44px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--font);padding:16px 14px 40px}
+@media(min-width:721px){body{font-size:15px;padding:24px}}
+::selection{background:var(--accent);color:var(--ink)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+a{color:var(--brand);text-underline-offset:3px;text-decoration-thickness:2px}
+img.pal{image-rendering:pixelated;display:block;flex:none}
+h1,h2,h3{margin:0;font-weight:800;line-height:1.2;letter-spacing:-.005em}
+h1{font-size:24px}@media(min-width:721px){h1{font-size:26px}}
+h2{font-size:19px}
+h3{font-size:17px}
+p{margin:0}
+small,.s{font-size:13px;color:var(--muted)}
+.n{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+.wrap{max-width:1000px;margin:0 auto}
+
+/* page head: title + the three numbers that gate every send */
+.head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:14px}
+.counts{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.counts li{display:flex;align-items:center;gap:6px;background:var(--surface);box-shadow:var(--frame-lite);padding:4px 10px;font-size:14px;min-height:32px}
+.counts b{font-variant-numeric:tabular-nums;font-size:15px}
+.counts svg{flex:none}
+
+/* buttons, Stitched Toy */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--tap);padding:8px 16px;margin:0;background:var(--brand);color:var(--on-fill);border:0;border-radius:0;box-shadow:var(--frame);font:700 15px/1.2 var(--font);cursor:pointer;-webkit-appearance:none;appearance:none;text-decoration:none;white-space:nowrap}
+.btn:hover{background:#3b6e35}
+.btn:active{transform:translate(1px,1px)}
+.btn.small{min-height:40px;padding:4px 12px;font-size:14px}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:var(--frame-lite)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.linkbtn{font:inherit;font-size:13px;background:none;border:0;padding:4px 0;color:var(--brand);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:32px}
+
+/* top band: ledger (out) + at home */
+.top{display:grid;gap:22px 14px;grid-template-areas:"out" "board" "home"}
+#pOut{grid-area:out}#pHome{grid-area:home}#board{grid-area:board}
+@media(min-width:860px){.top{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);grid-template-areas:"out home" "board board";align-items:start}}
+.panel{background:var(--surface);box-shadow:var(--frame);padding:12px 14px 6px}
+.panel>header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding-bottom:8px;margin-bottom:2px;position:relative}
+.panel>header::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--st-h)}
+.slots{display:flex;gap:4px;align-items:center}
+.slots i{width:12px;height:12px;background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--line-2)}
+.slots i.on{background:var(--brand);box-shadow:inset 0 0 0 2px var(--ink)}
+.slotlbl{font-size:13px;color:var(--muted);margin-right:4px}
+
+.lrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.lrow:first-of-type{border-top:0}
+.lrow .who b{display:block;line-height:1.25}
+.lrow .who small{display:block;line-height:1.35}
+.bar{grid-column:2/3;height:10px;background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--line-2);position:relative;overflow:hidden}
+.bar i{position:absolute;inset:2px auto 2px 2px;background:var(--accent);transition:width .6s cubic-bezier(.16,1,.3,1)}
+.bar.done i{background:var(--brand)}
+.bar.garden i{background:var(--brand-line)}
+.act{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:96px}
+.eta{font-weight:800;font-variant-numeric:tabular-nums;font-size:15px;white-space:nowrap}
+.lrow.ready .eta{color:var(--brand)}
+.lrow.ready{background:linear-gradient(var(--brand-soft),var(--brand-soft)) 0 0/100% 100% no-repeat;margin:0 -14px;padding:10px 14px}
+.lrow.free{grid-template-columns:44px minmax(0,1fr);color:var(--muted)}
+.lrow.free .ph{width:44px;height:44px;background:repeating-linear-gradient(45deg,transparent 0 4px,var(--surface-2) 4px 8px);box-shadow:inset 0 0 0 2px var(--line)}
+.lrow.free a{font-weight:700}
+.flash{margin:8px 0 6px;padding:8px 10px;background:var(--brand-soft);color:var(--ink);font-size:14px;box-shadow:var(--frame-lite)}
+.flash.err{background:var(--danger-soft);color:var(--danger-ink)}
+.flash ul{margin:4px 0 0;padding-left:18px}
+
+/* at home */
+.hrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.hrow:first-of-type{border-top:0}
+.hrow .who b{line-height:1.25}
+.rar{font-size:12px;font-weight:700;color:var(--muted);margin-left:4px}
+.hp{display:flex;align-items:center;gap:8px;font-size:13px}
+.hpbar{width:72px;height:10px;background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--line-2);position:relative;flex:none}
+.hpbar i{position:absolute;inset:2px auto 2px 2px;background:var(--brand);transition:width .6s cubic-bezier(.16,1,.3,1)}
+.hpbar.low i{background:var(--accent)}
+.hpbar.zero i{width:0!important}
+.hrow .rest{color:var(--danger-ink);font-weight:700}
+.hrow .btn{grid-row:1/3;grid-column:3}
+.hrow .s span{white-space:nowrap}
+@media(max-width:520px){.hrow{grid-template-columns:44px minmax(0,1fr)}.hrow .btn{grid-row:auto;grid-column:2;justify-self:start;margin-top:6px}}
+.foot{font-size:13px;color:var(--muted);padding:8px 0 10px;border-top:1px solid var(--line)}
+
+/* job board */
+.boardhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;margin-bottom:12px}
+.boardhead p{font-size:14px;color:var(--muted)}
+.board{display:grid;gap:18px}
+@media(min-width:760px){.board{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}}
+.post{position:relative;background:var(--surface);box-shadow:var(--frame);padding:16px 14px 14px}
+.post::before{content:'';position:absolute;top:-6px;left:50%;width:12px;height:12px;margin-left:-6px;background:#a8241f;box-shadow:0 0 0 2px var(--ink)}
+.post.on{box-shadow:0 0 0 3px var(--ink),var(--px) calc(2*var(--px) + 3px) 0 0 var(--drop),calc(2*var(--px) + 3px) var(--px) 0 0 var(--drop)}
+.ph1{display:flex;gap:10px;align-items:center}
+.ico{width:40px;height:40px;display:grid;place-items:center;background:var(--surface-2);box-shadow:var(--frame-lite);flex:none}
+.len{font-weight:700;color:var(--brand);font-size:14px}
+.desc{margin-top:8px;max-width:60ch}
+.pays{margin-top:4px;font-size:14px;color:var(--muted)}
+.why{font-size:13px;color:var(--muted);margin-top:8px}
+
+.pick{margin-top:12px;padding-top:12px;position:relative}
+.pick::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--st-h)}
+.pick>.lbl{font-weight:700;font-size:14px;margin-bottom:6px;display:block}
+.faces{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:8px 6px}
+.face{font:inherit;color:var(--ink);background:var(--field);border:0;box-shadow:var(--frame-lite);padding:6px 4px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap);text-align:center;position:relative}
+.face:hover{background:var(--surface-2)}
+.face img{width:40px;height:40px}
+.face .nm{font-size:12px;font-weight:700;line-height:1.15}
+.face .sk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.face .fhp{width:36px;height:6px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line-2);position:relative;margin:1px 0 2px}.face .fhp i{position:absolute;inset:1px auto 1px 1px;background:var(--brand)}.face .fhp.low i{background:var(--accent)}
+.face .best{position:absolute;top:-6px;right:-4px;background:var(--accent);color:var(--ink);font-size:11px;font-weight:800;padding:0 4px;line-height:16px;box-shadow:0 0 0 2px var(--ink)}
+.face[aria-pressed=true]{background:var(--brand);color:var(--on-fill);box-shadow:0 0 0 2px var(--ink),3px 3px 0 0 var(--drop)}
+.face[aria-pressed=true] .sk{color:var(--brand-soft)}
+.face:disabled{cursor:not-allowed;opacity:.55;background:var(--surface-2)}
+.face:disabled .sk{color:var(--danger-ink)}
+.blocked{font-size:14px;color:var(--muted);padding:6px 0 2px}
+
+.cfg{display:grid;gap:10px;margin-top:12px}
+.field{display:grid;gap:4px}
+.field>span{font-size:13px;font-weight:700;color:var(--ink-2)}
+select{font:inherit;font-size:15px;min-height:var(--tap);padding:0 32px 0 10px;width:100%;background:var(--field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' shape-rendering='crispEdges'%3E%3Cpath fill='%232a1a10' d='M0 0h10v2H8v2H6v2H4V4H2V2H0z'/%3E%3C/svg%3E") right 10px center/10px 6px no-repeat;border:0;border-radius:0;box-shadow:inset 0 0 0 2px var(--line-2);color:var(--ink);-webkit-appearance:none;appearance:none}
+.seg{display:flex}
+.seg button{flex:1;font:inherit;font-weight:700;font-size:14px;min-height:var(--tap);padding:0 8px;background:var(--field);border:0;box-shadow:inset 0 0 0 2px var(--line-2);color:var(--ink);cursor:pointer;margin-left:-2px}
+.seg button:first-child{margin-left:0}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--on-fill);box-shadow:inset 0 0 0 2px var(--ink);position:relative}
+.step{display:flex;align-items:stretch}
+.step button{width:var(--tap);min-height:var(--tap);font:800 18px/1 var(--font);background:var(--field);border:0;box-shadow:inset 0 0 0 2px var(--line-2);color:var(--ink);cursor:pointer}
+.step button:disabled{opacity:.45;cursor:not-allowed}
+.step output{min-width:52px;display:grid;place-items:center;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:inset 0 2px 0 var(--line-2),inset 0 -2px 0 var(--line-2);background:var(--surface)}
+.step small{align-self:center;margin-left:10px}
+.hint{font-size:13px;color:var(--muted)}
+.go{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:4px}
+.go .btn{flex:1 1 auto}
+.go .linkbtn{flex:none}
+.back{margin-top:4px;font-size:13px;color:var(--muted)}
+
+.mock{margin-top:28px;padding-top:12px;border-top:1px dashed var(--line-2);font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mock .btn{min-height:36px;font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Pal Jobs</h1>
+    <ul class="counts" aria-label="Today">
+      <li title="Pals out"><b id="cOut">2</b>&nbsp;of 3 out</li>
+      <li title="Trips and delves left today"><b id="cRuns">4</b>&nbsp;runs left today</li>
+      <li title="Healing Potions"><svg width="14" height="16" viewBox="0 0 7 8" shape-rendering="crispEdges" aria-hidden="true"><path fill="#2a1a10" d="M2 0h3v1H2zM1 2h5v1H1zM0 3h1v4H0zM6 3h1v4H6zM1 7h5v1H1zM2 1h1v1H2zM4 1h1v1H4z"/><path fill="#e46a9b" d="M1 4h5v3H1z"/><path fill="#f6b8cf" d="M1 3h5v1H1z"/></svg><b id="cPot">5</b>&nbsp;Healing Potions</li>
+      <li><a href="#">Pal Book</a></li>
+    </ul>
+  </div>
+
+  <div class="top">
+    <section class="panel" id="pOut" aria-labelledby="hOut">
+      <header><h2 id="hOut">Out and about</h2><span class="slots" aria-label="slots"><span class="slotlbl n" id="slotTxt"></span><span id="slotDots" style="display:flex;gap:4px"></span></span></header>
+      <div id="flash" role="status" aria-live="polite"></div>
+      <div id="ledger"></div>
+    </section>
+    <section class="panel" id="pHome" aria-labelledby="hHome">
+      <header><h2 id="hHome">At home</h2><span class="s">HP grows back at home</span></header>
+      <div id="home"></div>
+      <p class="foot">A pal at 0 HP heads home. Healing Potions: craft them (Crafting → Potions) or buy them at Twigg’s Seed Emporium.</p>
+    </section>
+  <section aria-labelledby="hBoard" id="board">
+    <div class="boardhead"><h2 id="hBoard">Jobs</h2><p>Pick a job, then a pal.</p></div>
+    <div class="board" id="posts"></div>
+  </section>
+  </div>
+
+
+  <div class="mock" aria-label="Mockup controls"><span>Mockup only:</span><button class="btn ghost small" id="ff">Skip ahead 1 hour</button><button class="btn ghost small" id="reset">Reset</button></div>
+</div>
+
+<script>
+const IMG={catkin:"data:image/png;base64,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",slush:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAE90lEQVR42u1aX2hTVxj/RSpCaaFJwaZxq+Io3a4XNrqk2YalrthMAht2iJOBgiJIN9hD6YNI2dgoo7C6h8GUvVTZwNXi/jBGsalzFEVo07AH4w1ayHTONJaSVpKWIcLdQ3JOb27OTe69uTfJ2PnBhZPz57vn+87399wAHBwcHBwcHBwcHBwcHBwc/zc4DM6XTdCSa2DflhCShwKC5uBYSGLRK1gjJdbK2vD91AahYYkQtljBPADkxmW7mQcAwdNkmWY5jDD/xQ/jtPPs90sAgGhEwupyEu3rvyk1gQgEbtGLLr+A7uC+sjZK3udubcHnp4JKgZalCXVGF8wn23KtJd1rVpq8WN/6iq65dx6mNEaWYAe2mFkkZkZo29ns1K9usUE4YoNF22JmhNJXtgd8M7YIoK6cxRrq78i15aDogZS4hlVX1hwCPV9u2tVL7Ha0YZjZtgumNIBsTO/pO1NS2Rs9H+6rHQGQ04/HYszTJxo/FU0AAK6HriESXkBo9qZJ+7fPBEwLQHxVQDqd1j2/lBYUY95OmPYB3W/6cf2rDyHl4vJQQMBYSJIVWiAHRQ8AoDewH11+AZ09e3HYu7uA1uRC/L9lAmJmBJ/2ewEAE1cvqZMcmZWkrDR5KfMTVy/RBwBTKDVvAkrmPx4/BwAIip68R3n6gZ69eWvUNKoFUyaQjQI/F6Spu1z1eX2E+W2dx5g2/lrXQQDALlc9bvw+l2deekxA8DRBSqzJ5WSDdWZNgMUIEUJvYD8AUOZZIGuY9j52gTpaIowB34wtfqCsROjIgffZKvxiPwBgW6df/5pcaHU2O7G6nAQATE0uIhqRcsKwxwkaLoY2awFQR6jEJz8tAAB2Xn6d9jUM3aWhjrXm5NlvcWP2HuKxGABgce47OtbuP4p0Oo22F9pp8jV98Yy6wqy8CUQbhimzBHued9F2RtGfGevIjg/dzQt5JDGKRG4jHovnMU5A+hobjwIA1Y6aMAEt5smpE8aJBmiheUczEI4z7w1ytT9TOBUth5WbUhcpaubVql8MkchtPF5JUAbVTEmJNZkIwWrmdecB6pscZRTQYl4PSG5Qyk+p32/llZghE9jTcUDxq2IJjGwncUMCiJzsw5+/SrZs5FDyEZNplvpbkQAZCoMkrT32z1Zbj/qzjSeG5lf8TvC9Py5jPtlGw+DxHgFX3DsKTnI+bixUhWZvIhJeAM6Nas5xCwdz4bCROsyqpcJWX1VRZ/jBaThTEsYnfqFjJ468k33n+mYitDhX5TyAaIAtQoAX/S6BXqB0+QXMP+mASDShtQXTF2swEbJKCHcephB/kAa2d9B6ojsn9Jophsjp3zocLBi7hZfx7PQJ1I2OG6ZLSma95XDVTeCNyakCJ0gd4ag55ovdCFVdA7Kfp5Yg+kAvMFTxezO+xgYxvfwu3tr+IwBots+H+zDgm4GoaIPRFn32mJ2hPKD3o69LTt69sxHDxw9h5MKVovPiD9KmNqz8Nljxctjd2lJyzsZT4Mw3U9h4WopWfU04Xr2So1pAPlHXAqzIBA39QUKZl7+9LxumHt17TPuW/1rD3wbdqlk6FS2HtcpS5aZZGyRPKRSjYyfzZohQLXjuGXsCOTnVJmV1NUdQig7rPgJV+o8Q0xRMnlBJGnacdrkmoGkKJjbs0GMadjNfLnHZasdaaeYr8oIKCZKDg4ODg4PDOP4Fj3JB5TZqYT4AAAAASUVORK5CYII=",dart:"data:image/png;base64,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",gander:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAFXElEQVR42u1aX2hTVxj/JUSyNAnENVUbNy1kmC4EmofW9W3Oh/gHuomUmfkgeyg+lLGNIoNuRYqUPUSRbow89UGUziJlOnQ2VIYWX4rZWIVLmjwUbDbSucURvbQ1tLR7ybneP+cm9zanya29Pzj0cu855+b33e/8vu87p4AJEyZMmDBhwsQ2haVG71mv03sNYYD1c5Gg5MalyZRhjGCtNXkAOB7y0bzitfMAgXzw4nsAgDs37wEAXo6vAQDucrm6e4K1VuSnZjPCQ2+P2zCeYK3FSwj5ax99aLgoYMU2x7Y3gG0zJ0/lCjhj70eDLVW6M4mPQz/gBvfZa+UB6/J2LhJEKldA9+gRAECXfxIAcHsugi7/JNyt+2hCqLcZwgOocT6VKwAA2u39SHEp+P3S58dsX2FiTwwALzaCgCf/LWnxrnUWIdSyWeS7R48IBpBjYjUmXP879EQ3edm7LPUwgCLO03BqzYHbcxGqAeKBMHozMwCA998NCM/a7f2q841eGwcANDbuxJVL/UyMwEQExUkOASF4zBahjunNzAh9xONfCeYWC4PxQBjxQFhCnnxt0mhGkI/t8k8Koim/Pt/9l2KOoM9TVTbJNAwSQuSv3nEkUqhdE2MYxgOI4G3LREhOvjczo1B0AGgaaFGdg9Z/YiAmhEo5Loy/ZVwNIGTGEj8KTY2klv40zaBpgKFqAUICADoPnpDEdNoXLddfLKBbrhboPHhCkfnp6a+WON34OQvsABaszq1RDLEAn87WPQ9QFCLy3J184ejR0wCA6Ue3MP3oFlrebCg7cbn+fDqrIF+cz6M4n8fS3N/MDFAphVSQFUOe718d7FX0OTMYV3VrmkC+0W0VyAKAfb8Xxfk8HC47+Oyy0O/PZAOTmsCyEfKkzG2398O/PEzN97ViYjWm+NLWZzz47DKKy6vwBtwCcTFpVgWRrRJ5QpaW/58KaCPv+amHer9wckS5JkvkCVm7Y4lKnFU1aNNCXl7sxANhTJXS04nVWEWVL5wcwaH0F5J7D1q/q0he7auzIq9JBKdmM6qFjh6ICdPIF+fzCvI00qSB0XlC2TBIDjJQIk9Dpa9f6asDgLt1nyB6csJBn0ecdjM/RLGUWwJEkeU/VuwFegygtitEwt7iH/+UE7pNMQBtCVhKR1Z4Ob4Gl8cpaXw6K6nj5UQufP6pbvIEa24HAGDBOaCo+UV1P9NN0Q2FQW+PG5Y9jVRNSPa92tE5//2ViobpuByUjG0b5pD4ZgzNi0Obvh9YSQMsd7kc1Qj5ER4Aj6aBFqog7jg6ViIdlZA8NCjt+2AwLDFa2zCHVIKT9Pngk0bcv/6MuhPEYmdYy2CFux0P+YTKjZAjnpDsSwkGAIDsQw7Ni0NoG+aws7Aqmef6xXHhmZj4SiKKvYfXcWC3F3tDTbj/6ywO7PZSDVGtJ1g1GknSiEYA0h1dMbIPOawkomheHELH5SAefxlS9BE/W0lEpWL7jhsL7iIyDqtwvSv0ArtCL/B2x5Lx9gTFS2ElEUWzbH2LXV5NB5J9UUm0kV+TUOlw2YGkwcphsRjKiavdUzcEfWvcvt8LAGjwOAE8NcaO0J2b94RiJh4Io/WsS8gc+XR2Q9fJX05T72/G/xds+GSotPbQetZV800Sl8eJ32JPmQihjcWP2cqo6nCUeEE9UW0YrDaTohrh96udAIDn07MAgMPx55on1DO2nqfDikSJGEJOgECLEfSMZZUKMzEAIf+tr1C249c5j6LUJdA7llVlyKq81KUHIgK6dYQleSZ5QJWiZdFzwMqaPEsDaCKiQqCasYZZAqqVo579hxr/VhMmTJgwYWK7439FqdNpYtn8YwAAAABJRU5ErkJggg==",koi:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAFYklEQVR42u1abWhbVRh+UirY6dpa22Sr2SxLamupltomjKlYBhatDIbMOGOnIENhiAshWpCxXyLoShdE/DWQaZ1dN7T+aC0Vpv3TjWQRiiNtsmZ0kqW0c1vKhrJZev2R3OO5N/fk3tycpoWdBy69Se75eJ73Pee873sLCAgICAgICAgICAgICAgICAjcX7Bw6kfiPJ5UqvnzEEAKdLcYerB/ImpkTKmntd5Qf2OXUkVzKCsVeQDIPivxIA8ALfXVhXgLdw8g5GuOHc/74IkjQ7i3ehP7/72czxMI+fSLb2Db0060PbMjp6/RofMAgErbCq5+/iUAIJpKm+ZSzmszic0s5P397rV/AKvx/pLxRTxYUbHmm2AZz86+agqRv/T982++gM3bHsPQA42IptLIWlrKZ31nW0NOP/I9T5SvhaqHYm7F/dz0fEHtk/FFONsacvoBgAlPCN3D1o3pASw42xrQ+Lgtswx00GirQ7tjO7qam0sSB5SvleVpdDU3I3JnFZvtFUjF7agOjaOntR5jl1ISAHlJoK73A7R0tsJaW8scg6f112wPYGHu1yiqQ+PqM9ySvcf1wS8w+eM5RC5GmX1MeJY29h5w/ZOPc78c/AEdnZkj8/eph5geAACYHMKVSeD2kU9LsgS4esBrB0YAAEPjp8gFAGd6XyXP3Lhxj9z3tNYryNNtNIXMLjNnW8O6C8CMvmQCALDTvRfzN/8mn28/XIbaFicSjt3Mduo2BSwzSePitgQkjZA2L3a69yo+/zY7S04EAEgAeHSHDdW/fK8gbxTWLU5cVYbEOYim0pJehGhEAGa8rxcC5zsWeZw0roEgmp7cisGXX2fmCnoilJkhX3PsOCEfm1nA4dWfyG/7X/ICAC6ERnAhNIKGmk1MEWQhjLbRWgqxmQW4BoLo/fm0qYTJYjbZic0skEnQVtHavOp0dnQzbWgh6PHlqJNOlvIlTIYFoJMd9aDrDXo+dNh962TQtACE/PkODwlADsXcG448TVgOkrqHrai0rQCArhcY8gBZBHntFiNC2O+DayDInbg6RDa6BAzFAZW2FXLNTc+TwQpNUcN+H45uqkLY7yuKuBZ5eo6y9XlUhHJOgWgqDengO7BucZraE4r1AJk8TVwGbXH1nFlcjZSRiAjZjv7/gRJCTwSjxNXeoW4zNz2PCc8S9k3WAADcjkacee8wsz+9cpmpMrW6cGnkyJKJaYlAk458+yzuRmLk867gXwoxWMecGfKmC4myILIQz333NYkL9LxALULY78shXeY9oWi3euogps4mEEhWITzqJa6vFkDtoUb4mU2GTFeTp3y1CPt9CqvT5FkIJKuMWpu+NkZFSCHA2QT67VlSGtaXLa7VJpCsIieQ29FIkqF1L4jsfuIpbJWq4JG+wbDlLZL56VnTNRBExwEf+u3L2LXPkUOaVRHiWRbjIsC5+B+IzS7A05RJe1kFzXCW/Idj40Qk10AQAb8PyG52/fZlputn9g6+pXEuAshva9CUOabk4Kh72ErCU9crmZw/POpF9+lx8n1fpBPhUS+5Dxz1K0Ub9aIv0onPOi4CCKEv0ol2BxBKXOYiQFGvxuRTYHnPu7oP3zoZxCNvK8/4dsd204Mn7lwxFOqWxAOMhJ6VH70PYCWHxHqj2NfjUk9rfd4aXilQzMtRLv8fQNfk9nQ1AQCuxRfJd0t/ppEswNcK6aMY8sUEQgoR1REYPXHGhHWRrw9e5Hl5gMIL7IztgLaelgi0FxXQx4b4FxnNpWDCaoba8yTPawkwl0KBE7cYWR48yfP2AM3UWXbvAiYu5XnRwX3OayEASxRLMSKWeL4CAgICAvcF/gNiApiYUU34OAAAAABJRU5ErkJggg==",lotus:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAFAklEQVR42u1aT2gUVxz+Zg1N/FO6xgTpQtKw2JiEXcSYCQY8VaLUXgqhh0IoObTXJYecBCElklMECW0PWkGsVC/CgmjTbG0pDRh2aUO7YXWNbKOBBVF2R2ITSaXjIfvG92bebCYzb3Zmy3ww7Mzsm7fv+73f/1kgQIAAAQIEcANqPSwy5Bb5sRM9dSGEkIvkUQ9CCLlF/lj2kB0hqLrDdTQ4tHFJ4PPqqViEGXB7sej0N1zTANrGVf3uT7QP4+RHcTMtUDk+wkAeACr3VL9pgN7GMTWbMyxSivUCt7KmzxKCtxeLGvnWi5cAAD9f+A0AEM9c1sa4pQmSXfIT7cM48/iqYcBE+7AmACX5F+bzC5iL/2kYdyx7CBf2/apdE/JL2SdYufsAALC7uwHRK98Sc4AbQtiuCUhTszkAwJnHVzG2MaIRpvH84RvFOnrwsIG4njzBUvYJUnIa9xOKr6OAJoSpty7j+cMGjG2MMLuvB/me+ARCvrKr9R0G3znwiiFJ7z7BfH5BI/9/yQMYU+CpPk2ehtXdbxvoxD/3XvlbA2hTsAI9eb33T8lpDGb6MZjpR0pOo22gE4XPPsdyaQ09kTDcSJLsJkJMOCNCIGbQdDaJl0iiqQ/AJ+8x5GniegcI2fhDzeEoiEusCAEAkCsqQkKjJII8lblhUv3QcP+09AM6mndxn6HDXzUo46OGe7mi4jg02s4Dnn55jjsgM/Sp4Z5841rVSb9puonBTD/3O2IWAJj8IHR+WogQnNQC3F0Lj5+3NI5HkAfiD6qN8TQMpuS09mnn3AoxIgQ3EqQGURPRRLZ7bnV+Irx66AgJB7F/3xRDX5eP4PAXxz0h/QJlvPvjNSHRwLYJbBSLWLh4R7tuibUhnjEmREpicsu5wtOnDfey8ghz/WxxZTPHiO3B+tKKZxrAaMFXa1EAwL9/r+Pk3nvmMbyKEHjkCX7ZeZxLOlqYE5YL2NEAaWo2p56KRfAB/ti8s3fzY7m0ZhhslgDRMHtObSwDANaXygxpkYmQ7WKIV8x0NO/SDgCYTyctTaYfN59OYrm0hmhhTjvcIO80DEqVVhU3v7ey82Y42v8xlzCpBUSRF91iYio0WiBZeQRtA51VfcD1me8Z8hWS+rWqotcttMdGSNONznzvEDZ2vG0qAL0jJP6A2mXVjbUKzwQBqHZbXEpiEit3H2A1X0CkNMPMSam96sbGSaLUnlfj53uH0NLXgx1NOy0nPqv5AiLLM1XH+cUHcF9m2CXvlRAkUeTzvUPMtZ68Mj7KlMr6a54Q9h1o1e41/vSdLxoiDHmadEtfD4oLb7I1ntOjuzpm5M3qgNV8AauPngIADqq/CxOC5IQ8TbqalxdVGJF6QG0sC0uHbUcBouJuE+dp1AvsAQoe9wO65A7PegP7u1v91xKrBXzVEiOvsCFv2idZXNd0WDu30tDUOzvePPS55x0h4gT1DYut7FZkm4tui3vmBHd3b/1oSSmgORzVTMVME+4nFBxJtXjiT2zlAfQrKisgMZ/3koMmT++qVdQ6D3AsBJ7661W6VuSdmICkq85MQQT1fny/9g8QogVOVN/rWsCWttBakJLT6JoOmzm0mq09VCvyRAu2QW6rA/UgAKHhz+8dIevJk4/g2btBYv9eo6ZOEAD+G02wOyAoo/OzACzlDV6Qr6UJSNXCm1fka+0DuELwkrxXP6z6YA0BAgQIEAAAXgPhNH09fKfLCAAAAABJRU5ErkJggg=="};
+const ICON={
+ garden:'<svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path fill="#2f5a2a" d="M7 2h2v6h2V5h2v4h-2v2H9v3H7v-3H5V9H3V5h2v3h2z"/><path fill="#7a5634" d="M4 13h8v2H4z"/></svg>',
+ trip:'<svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path fill="#7a4a1f" d="M3 7h10v7H3z"/><path fill="#e8a317" d="M2 6h12v2H2zM6 3h4v2H6z"/><path fill="#5e3a18" d="M5 9h1v4H5zM8 9h1v4H8zM11 9h1v4h-1z"/></svg>',
+ delve:'<svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><path fill="#3e2f66" d="M4 3h8v10H4z"/><path fill="#c3b2ea" d="M6 5h4v6H6z"/><path fill="#2a1a10" d="M7 7h2v4H7z"/><path fill="#7a5634" d="M3 13h10v2H3z"/></svg>'
+};
+const MAX_AWAY=3,RUNS_PER_DAY=6,DAYS=[1,3,7],HOURS=[1,3,8],HEAL=12;
+const LANDS=[['grassland','Grassland'],['forest','Forest'],['coast','Coast'],['wetland','Wetland'],['mountain','Mountain'],['desert','Desert'],['rainforest','Rainforest'],['tundra','Tundra'],['island','Island']];
+const TOOLS=[['forage','Foraging',2],['rod','Fishing',1],['pick','Rock picking',3]];
+const PLOTS=[[1,'Front Garden'],[2,'Mossbank Plot']];
+const DELVES=[[4,'Mossy Cellar',12],[7,'Rootwork Tunnels',8]];
+const KIND={garden:'Garden',trip:'Gathering',delve:'Delve'};
+const H=3600e3;
+let S,clock,sel,flashMsg;
+function init(){
+  clock=Date.now();
+  S={potions:5,runsToday:2,
+   pals:{
+    catkin:{name:'Catkin Crown',rar:'common',g:3,a:2,hp:18,max:20,status:'home'},
+    slush:{name:'Slushbelly',rar:'uncommon',g:5,a:4,hp:9,max:24,status:'home'},
+    dart:{name:'Dragon Dart',rar:'rare',g:2,a:6,hp:22,max:22,status:'home'},
+    lotus:{name:'Lotus Lump',rar:'common',g:4,a:1,hp:0,max:18,status:'home'},
+    gander:{name:'Gander Gait',rar:'common',g:1,a:3,hp:14,max:20,status:'out'},
+    koi:{name:'Koi Kin',rar:'rare',g:2,a:5,hp:6,max:22,status:'out'}},
+   jobs:[
+    {id:1,pal:'koi',kind:'delve',detail:'Mossy Cellar (L12) · 2 potions',start:clock-2*H,end:clock-5*60e3,pots:2,loot:['Mossy Cellar chest: 84 coins','2 × Cellar Moss','Unused potions back: 1']},
+    {id:2,pal:'gander',kind:'trip',detail:'Grassland · Foraging · 3 h',start:clock-1.65*H,end:clock+1.35*H,pots:1,loot:['3 × Wild Clover','1 × Honeycomb','Unused potions back: 1']}],
+   nextId:3};
+  sel={job:null,pal:null,days:3,plot:1,land:'grassland',tool:'forage',hours:3,delve:4,pots:2};
+  flashMsg=null;
+}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const img=(k,n,sz)=>`<img class="pal" src="${IMG[k]}" width="${sz}" height="${sz}" alt="${esc(S.pals[k].name)}">`;
+const rar=r=>r[0].toUpperCase()+r.slice(1);
+function ago(ms){const s=Math.max(0,Math.round(ms/1000));if(s<3600)return Math.max(1,Math.ceil(s/60))+' min';const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h+' h'+(m?' '+m+' min':'')}
+function stamp(t){const d=new Date(t);return d.getDate()+' '+d.toLocaleString('en',{month:'short'})+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+const runsLeft=()=>Math.max(0,RUNS_PER_DAY-S.runsToday);
+const slotsLeft=()=>MAX_AWAY-S.jobs.length;
+const home=()=>Object.entries(S.pals).filter(([k,p])=>p.status==='home');
+const ready=j=>j.kind!=='garden'&&clock>=j.end;
+
+function renderCounts(){
+  $('#cOut').textContent=S.jobs.length;$('#cRuns').textContent=runsLeft();$('#cPot').textContent=S.potions;
+  $('#slotTxt').textContent=S.jobs.length+' of '+MAX_AWAY;
+  $('#slotDots').innerHTML=Array.from({length:MAX_AWAY},(_,i)=>`<i class="${i<S.jobs.length?'on':''}"></i>`).join('');
+}
+function renderLedger(){
+  const f=$('#flash');
+  f.innerHTML=flashMsg?`<div class="flash ${flashMsg.err?'err':''}">${flashMsg.html}</div>`:'';
+  const rows=[...S.jobs].sort((a,b)=>(ready(b)-ready(a))||(a.end-b.end)).map(j=>{
+    const p=S.pals[j.pal],r=ready(j);
+    const pct=Math.min(100,Math.max(2,(clock-j.start)/(j.end-j.start)*100));
+    let eta,btn,sub=KIND[j.kind]+' · '+esc(j.detail);
+    if(j.kind==='garden'){eta=`<span class="eta s" style="font-weight:700">until ${stamp(j.end)}</span>`;btn=`<button class="btn ghost small" data-recall="${j.id}">Call home</button>`}
+    else if(r){eta=`<span class="eta">Ready</span>`;btn=`<button class="btn small" data-collect="${j.id}">Collect</button>`;sub=KIND[j.kind]+' · back home'+(j.fainted?' (ran out of HP)':'')}
+    else{eta=`<span class="eta" data-eta="${j.id}">${ago(j.end-clock)}</span>`;btn=`<button class="btn ghost small" disabled title="Back in ${ago(j.end-clock)}">Collect</button>`}
+    return `<div class="lrow ${r?'ready':''}">${img(j.pal,p.name,44)}<div class="who"><b>${esc(p.name)}</b><small>${sub}</small></div><div class="act">${eta}${btn}</div><div class="bar ${r?'done':''} ${j.kind==='garden'?'garden':''}" role="progressbar" aria-label="${esc(p.name)} progress" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i data-bar="${j.id}" style="width:calc(${pct}% - 4px)"></i></div></div>`;
+  });
+  for(let i=S.jobs.length;i<MAX_AWAY;i++)rows.push(`<div class="lrow free"><span class="ph" aria-hidden="true"></span><span>Free slot. <a href="#board">Pick a job</a></span></div>`);
+  $('#ledger').innerHTML=rows.join('');
+}
+function renderHome(){
+  const list=home();
+  if(!list.length){$('#home').innerHTML='<p class="s" style="padding:10px 0">Everyone is out on a job.</p>';return}
+  $('#home').innerHTML=list.map(([k,p])=>{
+    const pc=p.hp/p.max*100,low=p.hp<p.max*.4;
+    const state=p.hp<1?'<span class="rest">Resting</span>':`<span class="n">${p.hp}/${p.max}</span>`;
+    const heal=p.hp<p.max?`<button class="btn ghost small" data-heal="${k}" ${S.potions<1?'disabled':''}>Give a potion</button>`:'';
+    return `<div class="hrow">${img(k,p.name,44)}<div class="who"><b>${esc(p.name)}</b><span class="rar">${rar(p.rar)}</span><div class="s"><span>Gardening ${p.g}</span> · <span>Adventuring ${p.a}</span></div><div class="hp"><span class="hpbar ${low?'low':''} ${p.hp<1?'zero':''}" aria-hidden="true"><i style="width:calc(${pc}% - 4px)"></i></span><span>HP ${state}</span></div></div>${heal}</div>`;
+  }).join('');
+}
+
+const POSTS={
+ garden:{title:'Tend a garden',len:'1, 3 or 7 days',desc:'Waters, weeds and harvests while you are away. Works beside your hired helpers.',pays:'Pays Gardening XP',skill:'g',skillName:'Gardening',why:'Waters at Gardening 1, weeds from 3, harvests at 9.',run:false},
+ trip:{title:'Gathering trip',len:'1, 3 or 8 hours',desc:'Pick a land and a tool. The pal brings back what it finds.',pays:'Pays finds + Adventuring XP',skill:'a',skillName:'Adventuring',why:'Rare finds need Adventuring 5. Unused potions come back.',run:true},
+ delve:{title:'Re-run a cleared delve',len:'Once a day per delve',desc:'Five rooms against the delve’s level. The chest pays about 60% of a real clear.',pays:'No first-clear bonus',skill:'a',skillName:'Adventuring',why:'About 60% of a real clear. No first-clear bonus. Once a day per delve.',run:true}
+};
+function seg(name,vals,cur,fmt){return `<div class="seg" role="group" aria-label="${name}">${vals.map(v=>`<button type="button" data-seg="${name}" data-v="${v}" aria-pressed="${v==cur}">${fmt(v)}</button>`).join('')}</div>`}
+function sel_(name,label,opts,cur){return `<label class="field"><span>${label}</span><select data-sel="${name}">${opts.map(([v,t])=>`<option value="${v}" ${v==cur?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`}
+function potionMax(){return Math.min(5,S.potions)}
+function stepper(){const m=potionMax();sel.pots=Math.min(sel.pots,m);return `<div class="field"><span id="potL">Potions to pack</span><div class="step" role="group" aria-labelledby="potL"><button type="button" data-pot="-1" aria-label="One fewer" ${sel.pots<=0?'disabled':''}>−</button><output class="n" aria-live="polite">${sel.pots}</output><button type="button" data-pot="1" aria-label="One more" ${sel.pots>=m?'disabled':''}>+</button><small>of ${S.potions} · max 5</small></div></div>`}
+function config(kind,k){
+  const p=S.pals[k];let h='';
+  if(kind==='garden'){h+=sel_('plot','Garden',PLOTS,sel.plot)+`<div class="field"><span>For</span>${seg('days',DAYS,sel.days,v=>v+(v>1?' days':' day'))}</div>`}
+  if(kind==='trip'){h+=sel_('land','Where',LANDS,sel.land)+sel_('tool','Tool',TOOLS.map(([v,t,tier])=>[v,t+' (tier '+tier+')']),sel.tool)+`<div class="field"><span>Hours</span>${seg('hours',HOURS,sel.hours,v=>v+' h')}</div>`+stepper()}
+  if(kind==='delve'){h+=sel_('delve','Delve',DELVES.map(([v,n,l])=>[v,n+' (L'+l+')']),sel.delve)+stepper()}
+  const back=kind==='garden'?`Back on ${stamp(clock+sel.days*24*H)}`:kind==='trip'?`Back in ${sel.hours} h, sooner if HP runs out`:'Back in about 1 h';
+  return `<div class="cfg">${h}<p class="hint">${POSTS[kind].why}</p><div class="go"><button class="btn" data-send="${kind}">Send ${esc(p.name)}</button><button type="button" class="linkbtn" data-cancel>Cancel</button></div><p class="back">${back}.</p></div>`;
+}
+function renderPosts(){
+  const hl=home();
+  $('#posts').innerHTML=Object.entries(POSTS).map(([kind,P])=>{
+    const on=sel.job===kind;
+    const ranked=[...hl].sort((a,b)=>((b[1].hp>0)-(a[1].hp>0))||(b[1][P.skill]-a[1][P.skill]));
+    const bestK=(ranked.find(([k,p])=>p.hp>0)||[])[0];
+    let block='';
+    if(slotsLeft()<1)block=`All ${MAX_AWAY} jobs are taken. Collect one first.`;
+    else if(P.run&&runsLeft()<1)block='No trips or delves left today. Back tomorrow.';
+    else if(!hl.length)block='Everyone is out on a job.';
+    let pick;
+    if(block)pick=`<p class="blocked">${block}</p>`;
+    else pick=`<span class="lbl" id="lb-${kind}">Send who?</span><div class="faces" role="group" aria-labelledby="lb-${kind}">${ranked.map(([k,p])=>{
+      const dis=p.hp<1;
+      return `<button class="face" data-job="${kind}" data-pal="${k}" aria-pressed="${on&&sel.pal===k}" ${dis?'disabled title="Resting. Back to work when it has some HP."':''}>${k===bestK?'<span class="best">Best</span>':''}${img(k,p.name,40)}<span class="fhp ${p.hp<p.max*.4?'low':''}" title="HP ${p.hp}/${p.max}"><i style="width:calc(${p.hp/p.max*100}% - 2px)"></i></span><span class="nm">${esc(p.name)}</span><span class="sk">${dis?'Resting':P.skillName.slice(0,P.skill==='g'?4:3)+'. '+p[P.skill]}</span></button>`}).join('')}</div>`;
+    const cfg=on&&sel.pal&&!block?config(kind,sel.pal):'';
+    return `<article class="post ${on&&sel.pal?'on':''}" aria-labelledby="t-${kind}"><div class="ph1"><span class="ico">${ICON[kind]}</span><div><h3 id="t-${kind}">${P.title}</h3><p class="len">${P.len}</p></div></div><p class="desc">${P.desc}</p><p class="pays">${P.pays}</p><div class="pick">${pick}${cfg}</div></article>`;
+  }).join('');
+}
+function render(){renderCounts();renderLedger();renderHome();renderPosts()}
+
+function send(kind){
+  const k=sel.pal,p=S.pals[k];
+  if(slotsLeft()<1)return;
+  let detail,end,pots=0;
+  if(kind==='garden'){detail=PLOTS.find(x=>x[0]==sel.plot)[1]+' · '+sel.days+(sel.days>1?' days':' day');end=clock+sel.days*24*H}
+  if(kind==='trip'){pots=sel.pots;detail=LANDS.find(x=>x[0]==sel.land)[1]+' · '+TOOLS.find(x=>x[0]==sel.tool)[1]+' · '+sel.hours+' h';end=clock+sel.hours*H}
+  if(kind==='delve'){pots=sel.pots;const d=DELVES.find(x=>x[0]==sel.delve);detail=d[1]+' (L'+d[2]+')'+(pots?' · '+pots+' potion'+(pots>1?'s':''):'');end=clock+H}
+  if(kind!=='garden')S.runsToday++;
+  S.potions-=pots;p.status='out';
+  S.jobs.push({id:S.nextId++,pal:k,kind,detail,start:clock,end,pots,loot:kind==='trip'?['2 × Wild Clover','1 × Meadow Mushroom']:kind==='delve'?['Delve chest: 52 coins','1 × Cellar Moss']:[]});
+  flashMsg={html:`${esc(p.name)} is off: ${KIND[kind].toLowerCase()}, ${esc(detail)}.`};
+  sel.job=null;sel.pal=null;render();
+  document.getElementById('hOut').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function collect(id){
+  const j=S.jobs.find(x=>x.id==id),p=S.pals[j.pal];
+  S.jobs=S.jobs.filter(x=>x!==j);p.status='home';
+  if(j.pots>0)S.potions+=1;
+    flashMsg={html:`<b>${esc(p.name)} is home.</b><ul>${j.loot.map(l=>`<li>${esc(l)}</li>`).join('')}<li>+18 Adventuring XP</li></ul>`};
+  render();
+}
+function recall(id){
+  const j=S.jobs.find(x=>x.id==id),p=S.pals[j.pal];
+  S.jobs=S.jobs.filter(x=>x!==j);p.status='home';
+  flashMsg={html:`${esc(p.name)} came home from the garden.`};render();
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  const d=t.dataset;
+  if(d.job){
+    if(sel.job===d.job&&sel.pal===d.pal){sel.job=null;sel.pal=null}else{sel.job=d.job;sel.pal=d.pal}
+    flashMsg=null;renderPosts();
+    const f=document.querySelector(`.face[data-job="${d.job}"][data-pal="${d.pal}"]`);if(f)f.focus();
+    return}
+  if(d.seg){sel[d.seg]=+d.v;renderPosts();document.querySelector(`[data-seg="${d.seg}"][data-v="${d.v}"]`).focus();return}
+  if(d.pot){sel.pots=Math.max(0,Math.min(potionMax(),sel.pots+ +d.pot));renderPosts();const b=document.querySelector(`[data-pot="${d.pot}"]`);(b&&!b.disabled?b:document.querySelector('[data-pot]:not(:disabled)'))?.focus();return}
+  if('cancel' in d){const j=sel.job;sel.job=null;sel.pal=null;renderPosts();return}
+  if(d.send){send(d.send);return}
+  if(d.collect){collect(d.collect);return}
+  if(d.recall){recall(d.recall);return}
+  if(d.heal){const p=S.pals[d.heal];if(S.potions<1)return;S.potions--;p.hp=Math.min(p.max,p.hp+HEAL);flashMsg={html:`${esc(p.name)} drank a potion: HP ${p.hp}/${p.max}.`};render();return}
+  if(t.id==='ff'){clock+=H;render();return}
+  if(t.id==='reset'){init();render();return}
+});
+document.addEventListener('change',e=>{const s=e.target.closest('[data-sel]');if(!s)return;const v=s.value;sel[s.dataset.sel]=isNaN(+v)?v:+v;});
+const sig=()=>S.jobs.map(j=>j.id+(ready(j)?'r':'')).join();
+let lastSig='';
+function tick(){clock+=1000;const g=sig();if(g!==lastSig){lastSig=g;renderLedger();return}
+  S.jobs.forEach(j=>{const e=document.querySelector(`[data-eta="${j.id}"]`);if(e)e.textContent=ago(j.end-clock);const b=document.querySelector(`[data-bar="${j.id}"]`);if(b)b.style.width=`calc(${Math.min(100,Math.max(2,(clock-j.start)/(j.end-j.start)*100))}% - 4px)`;});}
+setInterval(tick,1000);
+init();render();
+</script>
+</body>
+</html>

@@ -62,6 +62,7 @@ function page_header(string $title, bool $admin = false): void
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
 <?php if (!$admin && (in_array($page, ['puzzles.php', 'gifsaw.php', 'jigsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'puzzlepals.php', 'paljobs.php'], true) || !empty($GLOBALS['gv_front_demo']))): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><?php if (!in_array($page, ['puzzlepals.php', 'paljobs.php'], true)): ?><script src="<?= e(url('assets/' . (['puzzles.php' => 'puzzlehub', 'rainbarrel.php' => 'rainbarrel', 'gnomebeds.php' => 'gnomebeds'][$page] ?? 'puzzles') . '.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
+<?php if (!$admin && $page === 'paljobs.php'): ?><script src="<?= e(url('assets/paljobs.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js). v2.0.69: puzzles.js = GIFsaw (gifsaw.php), puzzles.php = hub (puzzlehub.js) */ ?>
 <?php if (!$admin && $page === 'garden.php' && (setting('catfish_open') === '1' || is_admin())): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
 <?php endif; /* Cat Fish: the garden cat uses catfish.css */ ?>
@@ -257,7 +258,7 @@ function page_area(string $page): string
             'kitchen' => 'kitchen crafting',
             'book' => 'book guide memory marrow',
             'market' => 'market shop inventory fair jobs',
-            'community' => 'community letters profile folk friends show gotm race games puzzles gifsaw jigsaw rainbarrel gnomebeds event hollow pals festival firstweek back daily',
+            'community' => 'community letters profile folk friends show gotm race games puzzles gifsaw jigsaw puzzlepals paljobs rainbarrel gnomebeds event hollow pals festival firstweek back daily',
         ];
         foreach ($groups as $area => $pages) foreach (explode(' ', $pages) as $p) $map[$p . '.php'] = $area;
     }
