@@ -2,8 +2,8 @@
 # v0.9.8 part B: item pictures + Admin -> Images. Run on a fresh SQLite install that walk.sh made (admin / sprout): images.sh GAME PORT ROUTER
 # Needs php with GD, python3 (for the zips). Writes only under GAME/uploads and a temp dir.
 GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
-php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >/tmp/img-php.log 2>&1 & PID=$!; sleep 1
-T=$(mktemp -d /tmp/img-test.XXXXXX); trap 'kill $PID 2>/dev/null; [ -d "${T:?}" ] && rm -rf "${T:?}"' EXIT
+php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >"${TMPDIR:-/tmp}/img-php.log" 2>&1 & PID=$!; sleep 1
+T=$(mktemp -d "${TMPDIR:-/tmp}/img-test.XXXXXX"); trap 'kill $PID 2>/dev/null; [ -d "${T:?}" ] && rm -rf "${T:?}"' EXIT
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query($argv[1])->fetchAll(PDO::FETCH_NUM) as $r) echo implode(" | ",$r),"\n";' "$1"; }
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
@@ -107,5 +107,5 @@ chk "tomato no longer listed" "$(grep -c '<code>tomato.png</code></td></tr>' $T/
 curl -s -b $A -c $A $BASE/admin/index.php | grep -oE '[0-9]+ of [0-9]+ pictures in' | head -1
 
 echo "== php errors"
-grep -iE "warning|notice|fatal|deprecated" /tmp/img-php.log | head -5 || true
-chk "no php warnings" "$(grep -ciE 'warning|notice|fatal|deprecated' /tmp/img-php.log)" 0
+grep -iE "warning|notice|fatal|deprecated" "${TMPDIR:-/tmp}/img-php.log" | head -5 || true
+chk "no php warnings" "$(grep -ciE 'warning|notice|fatal|deprecated' "${TMPDIR:-/tmp}/img-php.log")" 0

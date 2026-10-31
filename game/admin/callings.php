@@ -25,7 +25,7 @@ page_header('Calling chapters', true);
 <h1>📜 Calling chapters</h1>
 <p class="help">Read-only. The chapters come from <code>includes/data/calling_quests.txt</code> and are imported once; ones already in the game are never overwritten. Mentors: <?= count(CALLING_MENTORS) ?> (<?= (int)q_val('SELECT COUNT(*) FROM npcs WHERE slug IN (' . implode(',', array_map(fn($m) => db()->quote($m[1]), CALLING_MENTORS)) . ')') ?> in the game).</p>
 <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="import"><button class="btn">Import calling quests</button></form>
-<?php foreach ($chapters as $c): $tasks = calling_tasks((int)$c['id']); ?>
+<?php foreach ($chapters as $c): $tasks = calling_tasks((int)$c['id'], true); ?>
   <div class="box">
     <h3><?= e((string)$c['title']) ?> <small class="muted"><?= e((CALLINGS[$c['calling']][0] ?? $c['calling']) . ' · ' . (CALLING_TIER_LABELS[(int)$c['tier']] ?? 'tier ' . $c['tier'])) ?> · <code><?= e((string)$c['slug']) ?></code></small></h3>
     <p class="help">Mentor <code><?= e((string)$c['mentor_slug']) ?></code> · reward <?= e(calling_reward_text($c)) ?> · <?= (int)$c['finished'] ?> finished, <?= (int)$c['open'] ?> in progress<?= (int)$c['active'] ? '' : ' · <b>inactive</b>' ?></p>
