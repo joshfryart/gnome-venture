@@ -2489,6 +2489,7 @@ dialog.chestov::backdrop { background: transparent; }
 .chestov .cs-lid { transform-box: view-box; transform-origin: 32px 31px; transition: transform .45s cubic-bezier(.3, 1.6, .5, 1); }
 .chestov .cs-svg { transform-origin: 50% 90%; }
 .chestov.cs-wobble .cs-svg { animation: cs-wobble 1s ease-in-out; }
+.chestov.cs-quick.cs-wobble .cs-svg { animation-duration: .45s; }   /* v2.3.3: a small find in a delve */
 .chestov.cs-opened .cs-lid { transform: translateY(-13px) rotate(-14deg) scaleY(.8); }
 .chestov .cs-svg .cs-img { image-rendering: pixelated; }
 .chestov .cs-px .cs-lid { transform-origin: 32px 30px; }   /* v2.0.31: pixel lid hinges at its back edge */
@@ -2511,6 +2512,7 @@ dialog.chestov::backdrop { background: transparent; }
 .chestov .cs-qty { font-size: 13px; color: var(--accent-ink); }
 .chestov .cs-uncommon { border-color: var(--r-u); box-shadow: 0 0 12px rgba(47, 125, 68, .55); }
 .chestov .cs-rare { border-color: var(--r-r); box-shadow: 0 0 14px rgba(70, 130, 220, .65); }
+.chestov .cs-t:empty { display: none; }   /* v2.3.3: a find with no Petals or XP shows only its cards */
 .chestov .cs-tally { margin: 12px 0 8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; font-weight: 600; min-height: 1.5em; }
 .chestov .cs-t { background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--accent-line); border-radius: var(--pill, 99px); padding: 2px 12px; font-variant-numeric: tabular-nums; }
 .chestov .cs-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }

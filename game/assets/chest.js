@@ -25,6 +25,8 @@
     if (active) active.close(true);
     var coins = parseInt(data.getAttribute('data-coins'), 10) || 0, xp = parseInt(data.getAttribute('data-xp'), 10) || 0;
     var cur = data.getAttribute('data-cur') || 'Petals', summary = data.getAttribute('data-summary') || '';
+    var heading = data.getAttribute('data-title') || 'The chest creaks open!', doneHeading = data.getAttribute('data-done') || 'The chest holds…';
+    var quick = data.getAttribute('data-quick') === '1';   // v2.3.3: a small find in a delve: the same chest, a shorter show
     var cards = Array.prototype.slice.call(data.querySelectorAll('li'));
     var prevFocus = document.activeElement;
 
@@ -40,7 +42,7 @@
       im.addEventListener('error', function () { stage.querySelector('.cs-svg').outerHTML = CHEST; });   // a PNG failed: swap in the vector chest (the swap detaches the other image, so it fires once)
     });
     var sparks = el('div', 'cs-sparks'); sparks.setAttribute('aria-hidden', 'true'); stage.appendChild(sparks);
-    var title = el('h2', 'cs-title', 'The chest creaks open!');
+    var title = el('h2', 'cs-title', heading);
     var loot = el('ul', 'cs-loot');
     var tally = el('p', 'cs-tally');
     var tc = el('span', 'cs-t cs-t-coins'), tx = el('span', 'cs-t cs-t-xp');
@@ -56,8 +58,8 @@
 
     var timers = [], raf = [], done = false, closed = false;
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-    function setCoins(v) { gvIcoLine(tc, 'ico-coin', ' +' + v.toLocaleString() + ' ' + cur); }
-    function setXp(v) { gvIcoLine(tx, 'ico-star', ' +' + v + ' XP', 'Star'); }
+    function setCoins(v) { if (!coins) { tc.textContent = ''; return; } gvIcoLine(tc, 'ico-coin', ' +' + v.toLocaleString() + ' ' + cur); }
+    function setXp(v) { if (!xp) { tx.textContent = ''; return; } gvIcoLine(tx, 'ico-star', ' +' + v + ' XP', 'Star'); }
     function count(set, to, ms) {
       var t0 = null;
       function tick(t) {
@@ -84,7 +86,7 @@
       root.classList.add('cs-opened', 'cs-done');
       cards.forEach(function (c) { c.classList.add('in'); });
       setCoins(coins); setXp(xp);
-      title.textContent = 'The chest holds…';
+      title.textContent = doneHeading;
       live.textContent = summary;
     }
     function close(quiet) {
@@ -111,14 +113,16 @@
     setCoins(0); setXp(0);
 
     if (reduce) { finish(); return; }
+    var t0 = quick ? 450 : 1000, t1 = quick ? 800 : 1500, step = quick ? 200 : 420, tail = quick ? 400 : 900, cnt = quick ? 600 : 1100;
     root.classList.add('cs-wobble');
+    if (quick) root.classList.add('cs-quick');
     later(function () {
       root.classList.remove('cs-wobble'); root.classList.add('cs-opened'); burst();
-      title.textContent = 'The chest creaks open!';
-      count(setCoins, coins, 1100); count(setXp, xp, 1100);
-    }, 1000);
-    cards.forEach(function (c, i) { later(function () { c.classList.add('in'); }, 1500 + i * 420); });
-    later(function () { done = false; finish(); }, 1500 + cards.length * 420 + 900);
+      title.textContent = heading;
+      count(setCoins, coins, cnt); count(setXp, xp, cnt);
+    }, t0);
+    cards.forEach(function (c, i) { later(function () { c.classList.add('in'); }, t1 + i * step); });
+    later(function () { done = false; finish(); }, t1 + cards.length * step + tail);
   }
 
   function scan() {

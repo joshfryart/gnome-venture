@@ -191,13 +191,36 @@ function dv2_quick(array $u, array &$exp, array &$sc): array
         $exp['hp'] = (int)$exp['max_hp'];
         exp_log($exp, '🕯️ You rest by the shrine. Your hurts mend.');
     } else {
-        exp_log($exp, '⛏️ Mo digs and hands you something: ' . give_find($u, exp_scene($exp)));
+        dv2_found($u, $exp, fn() => ['⛏️ Mo digs and hands you something: ' . give_find($u, exp_scene($exp))], 'Mo dug something up!', 'Mo gave you…', true);
     }
     $sc['st']['q'] = null;
     $exp['depth'] = (int)$exp['depth'] + 1;
     $exp['step'] = (int)$exp['depth'];
     dv2_save($sc);
     return [true, ''];
+}
+
+/**
+ * Run something that hands out finds ($fn returns log lines) and show what arrived with the delve chest animation (assets/chest.js, chest_note):
+ * the pickup is on the floor, the notice used to be under the map. Coins and items are measured before and after, so any find (seed, gathered thing, Petals) shows.
+ * $quick = the short version (small finds); a floor chest gets the full one.
+ */
+function dv2_found(array $u, array &$exp, callable $fn, string $title, string $done, bool $quick): void
+{
+    $uid = (int)$u['id'];
+    $c0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
+    $i0 = array_column(q('SELECT item_id, qty FROM user_items WHERE user_id = ?', [$uid])->fetchAll(), 'qty', 'item_id');
+    foreach ($fn() as $line) exp_log($exp, $line);
+    $coins = max(0, (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) - $c0);
+    $items = [];
+    foreach (q('SELECT item_id, qty FROM user_items WHERE user_id = ?', [$uid])->fetchAll() as $r) {
+        $d = (int)$r['qty'] - (int)($i0[$r['item_id']] ?? 0);
+        if ($d > 0) $items[] = [(int)$r['item_id'], $d, ((string)q_val('SELECT rarity FROM gatherables WHERE item_id = ? AND active = 1 LIMIT 1', [(int)$r['item_id']])) ?: 'common'];
+    }
+    if ($coins > 0 || $items) {
+        require_once __DIR__ . '/chest.php';
+        chest_note($coins, 0, $items, ['title' => $title, 'done' => $done, 'quick' => $quick]);
+    }
 }
 
 /** What stepping onto an object does. Returns nothing; logs, may start a fight or a trap card, may end the floor. */
@@ -208,7 +231,7 @@ function dv2_touch(array $u, array &$exp, array &$sc, string $t, int $x, int $y)
     $sc['st']['f']['got'][] = $x . ',' . $y;
     $boss = dv2_boss_floor($sc);
     if (ctype_digit($t)) {
-        exp_log($exp, '✨ ' . give_find($u, exp_scene($exp)));
+        dv2_found($u, $exp, fn() => ['✨ ' . give_find($u, exp_scene($exp))], 'You found something!', 'You found…', true);
     } elseif ($t === 'F' || $t === 'B') {
         $lvl = dv2_level($sc, $exp, $t === 'B');
         $exp['level'] = $lvl;
@@ -228,7 +251,7 @@ function dv2_touch(array $u, array &$exp, array &$sc, string $t, int $x, int $y)
         }
     } elseif ($t === 'C') {
         if ($boss) { delve_chest($u, $exp); return; }
-        exp_log($exp, '🎁 A chest! ' . give_find($u, exp_scene($exp)) . ' ' . give_find($u, exp_scene($exp)));
+        dv2_found($u, $exp, fn() => ['🎁 A chest! ' . give_find($u, exp_scene($exp)) . ' ' . give_find($u, exp_scene($exp))], 'The chest creaks open!', 'The chest holds…', false);
     } elseif ($t === 'K') {
         $sc['st']['f']['key'] = 1;
         exp_log($exp, '🗝️ A rusty key. It might open a door nearby.');

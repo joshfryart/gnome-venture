@@ -90,9 +90,12 @@ post adventure.php -d do=go -d go=1,1 >/dev/null; get adventure.php >/dev/null
 chk "a tap with no floor is refused" "$(grep -q 'Pick a way on first' $H && echo 1)"
 
 echo "== play every stage: pick, light the floor, take everything, take the way down"
+CHQ=0; CHF=0
 for iter in $(seq 400); do
   [ "$(ESTATUS)" != active ] && break
   get adventure.php >/dev/null; cp $H $A
+  grep -q 'class="chestdata" hidden.* data-quick="1"' $A && CHQ=$((CHQ+1))
+  grep -q 'class="chestdata"' $A && ! grep -q 'class="chestdata" hidden.* data-quick="1"' $A && CHF=$((CHF+1))
   if grep -q 'value="auto"' $A || grep -q 'value="attack"' $A || grep -q 'value="solve"' $A; then resolve; continue; fi
   if grep -q 'value="chest"' $A; then post adventure.php -d do=chest >/dev/null; break; fi
   T=$(tap)
@@ -103,6 +106,7 @@ for iter in $(seq 400); do
     *) php "$HERE/delve2.php" light "$GAME" $(EXPID); post adventure.php -d do=go -d "go=${T%% *}" >/dev/null ;;
   esac
 done
+chk "finds showed the quick chest animation block ($CHQ times); chests the full one ($CHF)" "$([ "$CHQ" -ge 1 ] && echo 1)"
 chk "the delve ended (status done)" "$([ "$(ESTATUS)" = done ] && echo 1)"
 chk "all $STG stages cleared (depth = steps_total)" "$([ "$(EDEPTH)" = "$STG" ] && echo 1)"
 logline $EX > $A
@@ -122,6 +126,7 @@ php "$HERE/delve2.php" light "$GAME" $EX
 T=$(tap); adv; post adventure.php -d do=go -d "go=${T%% *}" >/dev/null
 S1=$(dstate | jq1 '$j["st"]["f"]["t"] ?? "gone"')
 chk "torch dropped after a walk ($S0 -> $S1)" "$({ [ "$S1" = gone ] || [ "$S1" -lt "$S0" ]; } && echo 1)"
+resolve   # the first tap may have walked into a creature or a trap
 adv; post adventure.php -d do=leave >/dev/null
 chk "climbing out ends the delve and drops the scene" "$([ "$(ESTATUS)" = done ] && [ "$(SCENES)" = 0 ] && echo 1)"
 
