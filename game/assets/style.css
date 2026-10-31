@@ -6578,3 +6578,23 @@ progress.hpbar.hpbar-s { display: inline-block; width: 56px; max-width: 56px; he
 .p2rooms { margin: 6px 0 0; }
 .p2room { display: inline-block; margin: 0 8px 2px 0; }
 .p2room.full { color: var(--accent-ink); font-weight: 600; }
+
+/* ===== polish (unreleased, no version bump yet): audit findings 1-4 (claude/polish-audit.md) ===== */
+/* 1. status strip never scrolls sideways: chips wrap onto a second row instead (desktop strip; phones use the flat .stsum line) */
+@media (min-width: 721px) {
+  .statusin { flex-wrap: wrap; height: auto; min-height: var(--strip); overflow: visible; scroll-snap-type: none; }
+  .statusstrip .st { flex: 0 1 auto; }
+}
+/* 2. place header: image beside the text only when the column is wide enough (the side menu leaves ~440px at 768px) */
+@media (min-width: 721px) and (max-width: 999px) {
+  .ph { grid-template-columns: minmax(0, 1fr); }
+  .ph-art { box-shadow: 0 2px 0 0 var(--ol); }
+}
+/* 3. menu labels wrap to two lines instead of "Whisker Po..." */
+.side .ntl { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 1.15; }
+/* 4. small hit areas: logo, footer links and the status badge get a 44px target without changing how they look */
+.banner .logo { display: inline-flex; align-items: center; min-height: var(--tap); }
+footer a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
+.statusstrip a.stbadge { position: relative; }
+.statusstrip a.stbadge::after { content: ''; position: absolute; inset: -10px -4px; }
+/* ===== end polish ===== */

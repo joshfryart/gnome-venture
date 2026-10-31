@@ -25,6 +25,20 @@ Checked automatically: page-level horizontal overflow, elements poking past the 
 
 Not a problem, as noted in the plan: `adventure.php` -> `world.php`, `folk.php` -> `villagers.php`, `mentor.php` -> `gnome.php?tab=calling`, `back.php` -> `gnome.php`, `welcome.php` -> `garden.php` for this seeded player, and `index.php` -> `gnome.php` (the Today page itself is `index.php?today=1`; I did not look into why the plain URL goes to My Gnome for this account). These redirects work and are consistent with the consolidation plan.
 
+## Fixed (unreleased, no version bump), CSS block at the end of `style.css`
+| # | Fix | Result |
+|---|---|---|
+| 1 | Status strip wraps to a second row at 721 px and up instead of scrolling sideways | no hidden scroll at 768, 1000, 1400 |
+| 2 | Place header stacks image over text between 721 and 999 px (side menu leaves ~440 px) | World title no longer clipped at 768 |
+| 3 | Menu labels wrap to two lines | "Whisker Pond", "Gnome friends" show in full; none truncated at 768, 1000, 1400, 412 |
+| 4 | Logo, footer links and status badge get a 44 px hit area | tiny targets per page down about 4 (phone 14.9 to 10.9, tablet 48.0 to 44.1, desktop 47.8 to 43.8) |
+
+Correction to finding 4: tabs and `btn small` already carry a larger invisible hit area (`.tabs a::after`, as the style guide allows), so their 40 px look is by design. The remaining counts are mostly those plus inline text links, which are left alone.
+
+Checked after: audit rerun, 216 loads, no page-level overflow; suites town, stops100, villagers, scenes, images, security190, landing, folkoverlay, trekshell, gather150, tools all pass.
+
+Still open: 5 (menu has 19 tiles, needs your call on which to fold), 6 (CSS weight: tokens, breakpoints, split; Phase 1). The `.side .ntl` rule is still written three times; left because the copies sit in different media blocks and I did not verify they are identical.
+
 ## What this changes in the plan
 - World already has the tabs Go, Map, Gather, Shops (plus Wander and Rest stop buttons), so part of the PDF's "Go replaces Here + Travel" is done. `world.php?tab=travel` still renders as its own tab. Phase 2 should start from what is live, not from the PDF's "current state".
 - `gather.php`, `adventure.php`, `folk.php`, `mentor.php`, `back.php` are already redirect stubs.
