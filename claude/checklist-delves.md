@@ -3,15 +3,15 @@ Rules: Haiku = grunt (floor drafts, text, data, lint runs). Sonnet = code, tests
 Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 
 ## 0. Before
-- [ ] [J] Answer or accept the 7 suggested defaults (end of plan file).
-- [ ] [S] Check `walk_scene.map_key` width fits `f:<slug>/<floor>`; widen additively in `db_migrate` if not.
-- [ ] [S] Add setting `delve_v2` (0), admin toggle, `dv_on()` helper.
+- [x] [J] Accepted the 7 suggested defaults by saying Go (2026-10-31).
+- [x] [S] `walk_scene.map_key` is VARCHAR(60): fits. NOTE `state` is VARCHAR(2000), `seen` VARCHAR(500): keep route + floor state under 2000 chars (compact JSON, store route seed not nodes).
+- [x] [S] Setting `delve_v2` (0) in `dm_settings()`, `dv_on()` in delve_map.php.
 
 ## 1. Floor format + lint
-- [ ] [S] `dm_floors()` parser for `data/delve_floors.txt` (`@slug/name`, `tier:`, `rule:`, `sig:`, rows).
-- [ ] [S] `tools/lint_delve_floors.php`: size by tier, one S, solvable (key before door), pickups reachable, <7 finds, steps within torch budget x1.3.
-- [ ] [S] `tests/delvefloors.sh` with 3 good + bad sample floors.
-- [ ] [S] Gate: tests pass; commit.
+- [x] [S] `dv_floor_parse()` / `dv_floors()` (includes/delve_floors.php) parser for `data/delve_floors.txt` (`@slug/name`, `tier:`, `rule:`, `sig:`, rows).
+- [x] [S] `tools/lint_delve_floors.php`: size by tier, one S, solvable (key before door), pickups reachable, <7 finds, steps within torch budget x1.3.
+- [x] [S] `tests/delvefloors.sh` with 3 good + bad sample floors.
+- [x] [S] Gate: tests pass; commit.
 
 ## 2. Route generator
 - [ ] [S] `dv_route(seed, slug)`: 9 nodes, 4 to 5 rows, one path of 4 to 5 picks, typed nodes, `?` for unseen, tier per node (large = treasure + boss only).

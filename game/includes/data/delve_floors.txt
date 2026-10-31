@@ -1,0 +1,2 @@
+# Delve floors (v2.3.1, the delve redo). Format and characters: see the top of includes/delve_floors.php. Check with: php tools/lint_delve_floors.php
+# A block: "@delve-slug/floor_name", then tier:, rule:, sig:, for:, optional title:, then the rows. The pool is empty until the floors are authored (step 4 of claude/checklist-delves.md).
