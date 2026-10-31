@@ -470,28 +470,57 @@ function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $
 
 // ---------------- collect ----------------
 
-/** Collect a ready trip or delve: the claim UPDATE (ready to done) comes first, so a double click pays once. Returns [ok, lines]. */
+/**
+ * Collect a ready trip or delve: the claim UPDATE (ready to done) comes first, so a double click pays once. Returns [ok, lines, head].
+ * head (v2.3.3) is the receipt title ("Bramble is back from the forest."); lines are the receipt, faint first so a small haul makes sense.
+ */
 function pj_collect(array $u, int $jobId): array
 {
     $uid = (int)$u['id'];
     pj_settle($uid);
     $j = q_one('SELECT * FROM ppal_jobs WHERE id = ? AND user_id = ?', [$jobId, $uid]);
-    if (!$j || $j['state'] !== 'ready') return [false, ['Nothing to collect.']];
-    if (q("UPDATE ppal_jobs SET state = 'done' WHERE id = ? AND state = 'ready'", [$jobId])->rowCount() !== 1) return [false, ['Already collected.']];
+    if (!$j || $j['state'] !== 'ready') return [false, ['Nothing to collect.'], ''];
+    if (q("UPDATE ppal_jobs SET state = 'done' WHERE id = ? AND state = 'ready'", [$jobId])->rowCount() !== 1) return [false, ['Already collected.'], ''];
     $r = json_decode((string)$j['result'], true) ?: [];
     $p = pj_pal($uid, (string)$j['pal_uid']);
+    $name = $p ? $p['name'] : 'Your pal';
+    $where = $j['kind'] === 'delve' ? (string)(q_val('SELECT name FROM landmarks WHERE id = ?', [(int)$j['target']]) ?: 'the delve')
+        : 'the ' . strtolower((string)(LANDSCAPES[$j['target']][1] ?? 'wilds'));
+    $fainted = !empty($r['fainted']);
+    $head = $fainted ? $name . ' came home early from ' . $where . '.' : $name . ' is back from ' . $where . '.';
     $lines = [];
+    if ($fainted) $lines[] = '😵 Out of HP, so ' . $name . ' turned back. Let them rest or give a potion.';
     if (!empty($r['coins'])) { give_petals($uid, (int)$r['coins'], 'pal delve'); $lines[] = '💰 ' . money((int)$r['coins']); }
-    foreach ($r['items'] ?? [] as [$iid, $qty, $name]) { give_item($uid, (int)$iid, (int)$qty); $lines[] = '🎁 ' . $name . ' ×' . (int)$qty; }
-    if (!empty($r['potions_back'])) { give_item($uid, pj_potion_id(), (int)$r['potions_back']); $lines[] = '🧪 ' . (int)$r['potions_back'] . ' potion' . ((int)$r['potions_back'] > 1 ? 's' : '') . ' back'; }
+    foreach ($r['items'] ?? [] as [$iid, $qty, $iname]) { give_item($uid, (int)$iid, (int)$qty); $lines[] = '🎁 ' . $iname . ' ×' . (int)$qty; }
+    if (empty($r['coins']) && empty($r['items'])) $lines[] = '🍃 No finds this time.';
+    $used = (int)($r['potions_used'] ?? 0);
+    $back = (int)($r['potions_back'] ?? 0);
+    if ($back) give_item($uid, pj_potion_id(), $back);
+    if ($used || $back) $lines[] = '🧪 ' . ($used ? 'Drank ' . $used . ' potion' . ($used > 1 ? 's' : '') : '') . ($used && $back ? ', ' : '') . ($back ? $back . ' back in your satchel' : '') . '.';
     if ($p) {
-        $xp = $j['kind'] === 'delve' ? 4 * (int)($r['rounds'] ?? 0) + (empty($r['fainted']) ? 10 : 0) : 2 * (int)($r['rounds'] ?? 0);
+        $xp = $j['kind'] === 'delve' ? 4 * (int)($r['rounds'] ?? 0) + ($fainted ? 0 : 10) : 2 * (int)($r['rounds'] ?? 0);
         pj_add_xp($uid, $p['key'], 0, $xp);
-        $lines[] = '⭐ ' . $p['name'] . ' +' . $xp . ' Adventuring XP';
-        if (!empty($r['fainted'])) $lines[] = '😵 ' . $p['name'] . ' ran out of HP and came home early to rest.';
+        $lv = pj_level($p['axp'] + $xp);
+        if ($xp > 0) $lines[] = '⭐ +' . $xp . ' Adventuring XP' . ($lv > $p['a'] ? ': now level ' . $lv . '!' : '');
     }
-    if (!$lines) $lines[] = 'Nothing this time.';
-    return [true, $lines];
+    return [true, $lines, $head];
+}
+
+/**
+ * v2.3.3: "2 pals home with loot" for Today and My Gnome: a small centred link to paljobs.php, or '' (closed, a guest, or nothing due).
+ * One COUNT, no settling: a trip or delve whose time is up counts even before the jobs page marks it ready. Garden stays bring no loot, so they never show.
+ */
+function pj_home_count(array $u): int
+{
+    if (is_guest($u) || !pj_open($u) || !ppal_ensure()) return 0;
+    return (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind IN ('trip','delve') AND (state = 'ready' OR (state = 'active' AND ends_at <= ?))", [(int)$u['id'], now()]);
+}
+
+function pj_home_notice_html(array $u): string
+{
+    $n = pj_home_count($u);
+    if ($n < 1) return '';
+    return '<p class="pjhome"><a href="' . e(url('paljobs.php')) . '">🧩 ' . ($n === 1 ? '1 pal' : $n . ' pals') . ' home with loot · <b>Collect</b></a></p>';
 }
 
 /** Give a pal at home a potion to drink. */

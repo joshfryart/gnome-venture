@@ -143,6 +143,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
     <?= $callLine ?>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/puzzle_pals.php'; if (ppal_open() && !is_guest($u)) { require_once __DIR__ . '/includes/pal_jobs.php'; echo pj_home_notice_html($u); }   // v2.3.3: pals back from a trip or delve ?>
 <?php if (!$allNews && $news): $n = $news[0]; ?>
 <div class="box todaynews" id="news">
   <p class="tnhead"><span>📰 <b><?= e($n['title']) ?></b><?= $freshNews ? ' <span class="tag">new</span>' : '' ?> <small class="muted"><?= e(gmdate('M j, Y', strtotime($n['created_at'] . ' UTC'))) ?></small></span> <a href="<?= e(url('index.php?news=all#news')) ?>">All news →</a></p>

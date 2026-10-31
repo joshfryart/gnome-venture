@@ -6378,3 +6378,9 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .shelves .shpanel .itm__win { height: 58px; }
   .shelves .shpanel .itm__ic, .shelves .shpanel .itm__svg, .shelves .shpanel .itm__svg > svg { width: 32px; height: 32px; }
 }
+
+/* ==== v2.3.3 pal jobs: "pals home with loot" notice (Today, My Gnome) BEGIN ==== */
+.pjhome { margin: 8px auto; text-align: center; font-size: .92em; }
+.pjhome a { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--line, currentColor); text-decoration: none; }
+.pjhome a:hover, .pjhome a:focus-visible { text-decoration: underline; }
+/* ==== v2.3.3 pal jobs notice END ==== */

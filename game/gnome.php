@@ -107,6 +107,7 @@ page_header('My Gnome');
   </div>
 </div>
 
+<?php if ($palsOn) { require_once __DIR__ . '/includes/pal_jobs.php'; echo pj_home_notice_html($u); }   // v2.3.3: pals back from a trip or delve ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>
 <section class="palstrip" aria-label="Pals along">
   <div class="palhead"><b>🐾 Pals along · <?= count($eq) ?> of <?= ppal_party_max() ?></b>

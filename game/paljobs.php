@@ -34,8 +34,9 @@ if (is_post()) {
         default => [false, 'Nothing to do.'],
     };
     if ($do === 'collect') {
+        if (!empty($res[2])) flash((string)$res[2], 'ok');   // v2.3.3: the receipt title leads the message log too
         foreach ((array)$res[1] as $l) flash((string)$l, $res[0] ? 'ok' : 'err');
-        if ($res[0]) $_SESSION['pj_receipt'] = ['pal' => $jobPal, 'lines' => array_map('strval', (array)$res[1])];   // shown once, at the top of the ledger
+        if ($res[0]) $_SESSION['pj_receipt'] = ['pal' => $jobPal, 'head' => (string)($res[2] ?? ''), 'lines' => array_map('strval', (array)$res[1])];   // shown once, at the top of the ledger
     } else flash((string)$res[1], $res[0] ? 'ok' : 'err');
     redirect('paljobs.php');
 }
@@ -130,7 +131,7 @@ page_header('Pal Jobs');
       </header>
       <?php if ($receipt && $receipt['lines']): $rp = $pals[$receipt['pal']] ?? null; ?>
       <div class="flash pjreceipt" role="status">
-        <b><?= $rp ? e($rp['name']) . ' is home.' : 'Collected.' ?></b>
+        <b><?= ($receipt['head'] ?? '') !== '' ? e($receipt['head']) : ($rp ? e($rp['name']) . ' is home.' : 'Collected.') ?></b>
         <ul><?php foreach ($receipt['lines'] as $i => $l): ?><li class="pjl<?= min($i, 7) ?>"><?= e($l) ?></li><?php endforeach; ?></ul>
       </div>
       <?php endif; ?>
