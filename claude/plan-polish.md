@@ -19,7 +19,7 @@ Graph caveats: the graph covers code and docs but not rendered pages. It cannot 
 
 - Status strip overflows at 768px site-wide (2.3.8 follow-up).
 - `PRODUCT.md` and `DESIGN.md` do not exist; impeccable `init`/`document` has been deferred since 2.3.0. Every design pass is working without a written target.
-- World/Town/Stops UI consolidation plan (`docs/ui-consolidation-plan.pdf`) was never executed: 3 navigation surfaces, 3 villager surfaces, passport in 3 places, loose Seasons/Land on World Here. Its "dead villagers view" bug looks partly fixed since (`town.php:54`, v2.0.60), so recheck before phase 2.
+- World/Town/Stops UI consolidation plan (`docs/ui-consolidation-plan.pdf`) was only partly executed (the audit found World already has tabs Go, Map, Gather, Shops, and several redirect stubs): 3 navigation surfaces, 3 villager surfaces, passport in 3 places, loose Seasons/Land on World Here. Its "dead villagers view" bug looks partly fixed since (`town.php:54`, v2.0.60), so recheck before phase 2.
 - Unchecked on a phone: pal card on Here page, stacked pal button, top-bar HP bar, Crafting map hotspots, Pantry B icons, Potions box, Stamp passport folds, Pal Jobs tabs, Alchemy.
 - Delve v2 fight card has no pal skill buttons; `delve_v2`, `ppal_boons`, `ppal_party` are OFF, so their UI has had little real use.
 - Road-stop "do" activities ("come back, 1 of 3") are parked by Joshua. Out of scope.
@@ -31,7 +31,7 @@ Graph caveats: the graph covers code and docs but not rendered pages. It cannot 
 
 Each phase ships as its own slim zip and CHANGELOG line. Phases 1 and 2 first; everything after depends on them.
 
-### Phase 0: Audit and baseline (no code change, about 1 session)
+### Phase 0: Audit and baseline (DONE 2026-10-31; see `claude/ci-2.3.92.md` and `claude/polish-audit.md`)
 1. Run `bash tests/ci_suites.sh` once, record the known failures in `claude/ci-2.3.x.md`. Fix or quarantine-by-note the stale ones (`catfish` was fixed in 2.3.92, recheck).
 2. Screenshot every top-level page at 412px dark, 412px light, 768px, 1400px (`tests/readme_shots.sh` and `tests/shots.sh` give the pattern; `crawl.py` lists routes). Store in `docs/screens/polish-baseline/`.
 3. Write the findings per page into a table: overflow, tap target under 44px, contrast, duplicated surface, empty state, wording.

@@ -11,7 +11,7 @@ const PAGES = [
   'world.php', 'world.php?tab=map', 'world.php?tab=gather', 'world.php?tab=shops', 'world.php?tab=travel', 'town.php', 'town.php?view=passport', 'town.php?t=orders',
   'villagers.php', 'folk.php', 'market.php', 'marketday.php', 'jobs.php', 'jobs.php?t=quests', 'jobs.php?t=orders', 'community.php', 'community.php?t=jar',
   'pals.php', 'puzzlepals.php', 'paljobs.php', 'catfish.php', 'mentor.php', 'letters.php', 'festival.php', 'firstweek.php', 'gourmand.php', 'fair.php', 'show.php', 'gotm.php',
-  'account.php', 'profile.php', 'feedback.php', 'guide.php', 'welcome.php', 'trek.php', 'adventure.php', 'back.php', 'visit.php',
+  'account.php', 'profile.php', 'feedback.php', 'guide.php', 'welcome.php', 'trek.php', 'adventure.php', 'back.php',
   'admin/index.php',
 ];
 const VIEWS = [
