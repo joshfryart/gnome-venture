@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.0
+- **Pal jobs** (Puzzle Pals, gnome level 10+, setting `pj_open` / `pj_min_level`; Puzzle Pals itself still gates who sees it). A found pal can tend a garden (beside hired helpers, no Tool Shed slot: waters, weeds from Gardening 3, harvests at 9), go on a gathering trip (tool, place, 1/3/8 h, packed Healing Potions) or re-run a delve you have already cleared (about 60% of a real clear, once a day per delve). New `includes/pal_jobs.php`, page `paljobs.php`, table `ppal_jobs`.
+- Every found pal has its own 16-hex id and two levels (Gardening, Adventuring, 1 to 10) plus HP. A duplicate find gives +15 XP of each kind; a pal taken along earns 1 XP of each kind an hour. A pal at 0 HP goes home early; HP regrows at home. Trips and delve runs are rolled once at the start from a stored seed; Collect pays once.
+- **Healing Potion**: new item, crafted (Crafting > Potions: 2 Meadowsweet + 1 Sphagnum Moss) and sold at Twigg's Seed Emporium.
+- Limits: 3 pals out at once and 6 trips/delve runs a day (settings `pj_max_away`, `pj_runs_per_day`).
+- Tests: `tests/paljobs.sh`.
 ## 2.2.61
 - **Satchel and Crafting redesigned (Shelves).** The Satchel is a Quick bar (one-tap Eat, Open, Read, Mend) above foldable type shelves of compact pills; tap a pill to open its details in place. Every Crafting tab except the Pantry shows the station strip (pots, energy, Petals, or the Tool Shed), a Shopping list of what to gather for recipes one trip away, a search box (also matches ingredient names) and shelves: Ready, One trip away, Need more, To discover. The picked recipe opens inline with "You have / Still need" and the Make buttons. Phone page heights: Satchel 5,859 to 3,284 px, Cooking 6,319 to 1,731 px. New `shelves.php`, `satchel_view.php`, `craft_shelves.php`; `.shelves` block in `style.css`, a Shelves block in `site.js`; the big item squares are gone from the Satchel and from known recipes. Sell and Gift link to the market tabs.
 - **Making something keeps its recipe open.** After Make, you come back to the same recipe (`?r=`), scrolled to its row, instead of every panel closing.

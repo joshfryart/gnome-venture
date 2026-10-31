@@ -40,6 +40,7 @@ page_header('Puzzle Pals');
     <div>
       <p class="pzline"><b>Jeff:</b> “Finish a picture at Advanced and its pals tumble loose. They wait at places on the map, so go and find them!”</p>
       <?php if ((int)$book['found'] === 0) echo ppal_howto_html(); ?>
+      <?php require_once __DIR__ . '/includes/pal_jobs.php'; if (pj_open($u) && $book['found']): ?><p><a class="btn small" href="<?= e(url('paljobs.php')) ?>">🧭 Pal jobs</a></p><?php endif; ?>
       <p class="help"><b><?= (int)$book['found'] ?></b> of <?= (int)$book['total'] ?> pals found · <b><?= count($book['released']) ?></b> picture<?= count($book['released']) === 1 ? '' : 's' ?> released</p>
     </div>
   </div>

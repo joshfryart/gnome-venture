@@ -14,7 +14,7 @@ const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.p
     'mushroom.php', 'letters.php', 'fair.php', 'pest.php', 'gourmand.php'];   // v1.4.0: the last three game pages update in place too
 
 // v2.0.88 Puzzle Pals: pages where a pal never turns up (the puzzle rooms and the pal book own the screen; the Treks stage; the event finisher). Admin pages, POSTs and Wren's tour are skipped anyway.
-const PPAL_QUIET_PAGES = ['puzzles.php', 'jigsaw.php', 'gifsaw.php', 'puzzlepals.php', 'puzzles_api.php', 'rainbarrel.php', 'gnomebeds.php', 'trek.php', 'event.php'];
+const PPAL_QUIET_PAGES = ['puzzles.php', 'jigsaw.php', 'gifsaw.php', 'puzzlepals.php', 'paljobs.php', 'puzzles_api.php', 'rainbarrel.php', 'gnomebeds.php', 'trek.php', 'event.php'];
 
 function page_header(string $title, bool $admin = false): void
 {
@@ -61,7 +61,7 @@ function page_header(string $title, bool $admin = false): void
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
-<?php if (!$admin && (in_array($page, ['puzzles.php', 'gifsaw.php', 'jigsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'puzzlepals.php'], true) || !empty($GLOBALS['gv_front_demo']))): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><?php if ($page !== 'puzzlepals.php'): ?><script src="<?= e(url('assets/' . (['puzzles.php' => 'puzzlehub', 'rainbarrel.php' => 'rainbarrel', 'gnomebeds.php' => 'gnomebeds'][$page] ?? 'puzzles') . '.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
+<?php if (!$admin && (in_array($page, ['puzzles.php', 'gifsaw.php', 'jigsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'puzzlepals.php', 'paljobs.php'], true) || !empty($GLOBALS['gv_front_demo']))): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><?php if (!in_array($page, ['puzzlepals.php', 'paljobs.php'], true)): ?><script src="<?= e(url('assets/' . (['puzzles.php' => 'puzzlehub', 'rainbarrel.php' => 'rainbarrel', 'gnomebeds.php' => 'gnomebeds'][$page] ?? 'puzzles') . '.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
 <?php endif; /* v2.0.31: Puzzles (assets/puzzles.css + assets/puzzles.js). v2.0.69: puzzles.js = GIFsaw (gifsaw.php), puzzles.php = hub (puzzlehub.js) */ ?>
 <?php if (!$admin && $page === 'garden.php' && (setting('catfish_open') === '1' || is_admin())): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>">
 <?php endif; /* Cat Fish: the garden cat uses catfish.css */ ?>

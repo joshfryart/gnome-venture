@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.2.61');
+define('APP_VERSION', '2.3.0');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -148,6 +148,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         boot_step('ensure_yards', function () {
             require_once __DIR__ . '/yard.php';
             ensure_yards();          // yards, decor, the Hedge & Hearth (v0.7.32), before NPC routines (it adds staff)
+        });
+        boot_step('pj_content', function () {
+            require_once __DIR__ . '/pal_jobs.php'; pj_ensure_content();   // v2.3.0: Healing Potion + shelf (after the shops exist)
         });
         boot_step('upgrade_097_sinks', function () {
             if (version_compare((string)setting('db_version'), '0.9.7', '<')) upgrade_097_sinks();   // v0.9.7 part B: Curio Cabinet, Dye Pot, Almanac page (the feasts come with ensure_crafts)
