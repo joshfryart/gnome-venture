@@ -6,6 +6,9 @@
 - **Joshua to check (phone):** Pal Book "Pal jobs" button, the page, send forms, Collect flash lines; trip and delve payout feel (numbers are a first guess); a pal tending a real garden over a few visits.
 - **NEXT:** balance sim for loot per hour across the three jobs; Pal job tab/notice on Today ("2 pals home with loot"); not run: `puzzle_pals.sh` and the full CI list on this change, MySQL (`ppal_jobs`, new `ppal_found` columns); the 2.2.6 to 2.2.61 test failures `gather150`, `folkoverlay` are old.
 
+## NEXT (complements Pal jobs): Alchemy Table in Crafting
+Own station for potions (today the "no building needed" Potions tab in `includes/crafting.php`, `inventory.php?tab=craft&c=potions`). Pal Jobs "N Potions" chip links there. Ideas: build/upgrade the table, more recipes (Healing tiers, trip luck, garden boost), batch craft, show potion stock. Not built.
+
 ## NEXT BIG: Delve redo (planned, not built): `claude/plan-delves.md`
 Route menu (pick the next stage) + tile-map floors (fog, torch, pickups, pal strip), each stage 5 min at most, each delve has its own pool of about 12 floors (`data/delve_floors.txt`, 168 total). Mockups on branch `ccr-5e82e48d-1d6u8o` (`claude/delve-mockups/`), gallery https://claude.ai/artifact/TWQYNTxPecKASSqhSsx6ye. First: floor format + lint, route generator, M step (existing 5 rooms as tile floors with torch + fog + route menu), then author 3 delves. Joshua's 7 open questions are at the end of the plan file.
 

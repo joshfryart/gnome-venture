@@ -170,8 +170,8 @@ page_header('Pal Jobs');
   <div class="pjtop">
     <h1>🧩 Pal Jobs</h1>
     <ul class="chips pjcounts" aria-label="Today">
-      <li class="chip<?= $runsLeft < 1 ? ' pjnone-left' : '' ?>"><b><?= $runsLeft ?></b> trips and delves left today</li>
-      <li class="chip">🧪 <b><?= $potions ?></b> Healing Potion<?= $potions === 1 ? '' : 's' ?></li>
+      <li class="chip<?= $runsLeft < 1 ? ' pjnone-left' : '' ?>"><b><?= $runsLeft ?></b> runs left</li>
+      <li class="chip"><a href="<?= e(url('inventory.php?tab=craft&c=potions')) ?>" title="Craft Healing Potions at the Alchemy Table">🧪 <b><?= $potions ?></b> Potion<?= $potions === 1 ? '' : 's' ?></a></li>
       <li class="chip"><a href="<?= e(url('puzzlepals.php')) ?>">📖 Pal Book</a></li>
     </ul>
   </div>
@@ -314,3 +314,8 @@ page_header('Pal Jobs');
 </div>
 <?php page_footer();
 ```
+
+
+## Update: counts row is one line
+Chips: `N runs left` (title: trips and delves left today), `N Potions` (links to Crafting, Potions tab), `Pal Book`. CSS: `.pjcounts{display:flex; flex-wrap:nowrap; gap:6px}`, chips `white-space:nowrap; padding:2px 8px`. Check 320px.
+At max-width 340px: chip padding 2px 5px, font 13px, gap 4px (fits 320px).
