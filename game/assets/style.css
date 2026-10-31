@@ -6521,3 +6521,8 @@ progress.hpbar.hpbar-s { display: inline-block; width: 56px; max-width: 56px; he
 .cmap-hs[aria-current] span { opacity: 1; }
 .cmap-on { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; margin: 8px auto; text-align: center; }
 /* ===== end 2.3.7 ===== */
+
+/* v2.3.9 Pantry rooms: jars in use per kind */
+.p2rooms { margin: 6px 0 0; }
+.p2room { display: inline-block; margin: 0 8px 2px 0; }
+.p2room.full { color: var(--accent-ink); font-weight: 600; }

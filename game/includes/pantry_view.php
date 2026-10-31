@@ -14,7 +14,7 @@ require_once __DIR__ . '/item_square.php';
 require_once __DIR__ . '/pantry.php';
 
 // kinds come from the jar timer the game already uses (pantry.php: jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14)
-const P2_KINDS = ['jam' => ['Jam', [1]], 'chutney' => ['Chutney', [2]], 'pickle' => ['Pickle', [3]], 'ferment' => ['Ferment', [5, 7]], 'cordial' => ['Cordial', [14]]];
+const P2_KINDS = PANTRY_KINDS;   // v2.3.9: the rooms live in pantry.php
 
 function pantry_view(array $u): void
 {
@@ -30,7 +30,7 @@ $now = (int)($u['energy'] ?? 0);
 $coins = (int)($u['coins'] ?? 0);
 
 // kinds come from the jar timer the game already uses (pantry.php: jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14)
-$kindOf = function (array $r): string { $d = (int)round(pantry_seconds($r) / 86400); foreach (P2_KINDS as $k => [, $ds]) if (in_array($d, $ds, true)) return $k; return 'jam'; };
+$kindOf = fn(array $r): string => pantry_kind($r);
 
 $slugs = [];
 foreach ($recipes as $r) foreach ($r['ings'] as $i) $slugs[$i['slug']] = true;
@@ -59,7 +59,8 @@ $list = array_values(array_filter($base, fn($r) => ($kind === '' || $kindOf($r) 
 $kindN = []; foreach ($base as $r) $kindN[$kindOf($r)] = ($kindN[$kindOf($r)] ?? 0) + 1;
 
 $jarsList = $stations['pantry'] !== 0 ? pantry_jars_list($uid) : [];
-$jarsFree = max(0, $jarLimit - count($jarsList));
+$busyBy = pantry_busy_by_kind($uid);   // v2.3.9: every kind has its own room of $jarLimit jars
+$freeIn = fn(string $k): int => max(0, $jarLimit - ($busyBy[$k] ?? 0));
 $jr = count(array_filter($jarsList, fn($j) => $j['left'] <= 0));
 
 $selId = (int)($_GET['r'] ?? 0);
@@ -73,7 +74,8 @@ $link = function (array $over = []) use ($show, $kind, $qs, $sel, $obj): string 
 };
 
 /** the make block for one recipe: same rules and same POST as craft_view.php's $card */
-$make = function (array $r, bool $compact = false) use ($u, $tab, $stations, $now, $coins, $jarsFree): string {
+$make = function (array $r, bool $compact = false) use ($u, $tab, $stations, $now, $coins, $freeIn): string {
+    $jarsFree = $freeIn(pantry_kind($r));
     ob_start();
     if (!$r['known']) { ?><p class="muted p2note">Collect everything above to discover it.</p><?php return (string)ob_get_clean(); }
     if (!$r['can']) {
@@ -90,7 +92,7 @@ $make = function (array $r, bool $compact = false) use ($u, $tab, $stations, $no
         <?php if ($fit >= 5): ?><button class="btn alt" name="qty" value="5">×5</button><?php elseif ($fit >= 2): ?><button class="btn alt" name="qty" value="2">×2</button><?php endif; ?>
         <?php if ($fit >= 3): ?><button class="btn alt" name="qty" value="all">All <?= $fit ?></button><?php endif; ?>
       </form>
-    <?php elseif ($jarsFree < 1): ?><p class="ccneed p2note">All jars are full. Collect one to start another.</p>
+    <?php elseif ($jarsFree < 1): ?><p class="ccneed p2note">The <?= e(P2_KINDS[pantry_kind($r)][0]) ?> room is full. Collect one to start another (the other rooms are separate).</p>
     <?php elseif ($cost > 0 && $now < $cost): ?><p class="ccneed p2note">Too tired: this takes ⚡<?= $cost ?>, you have ⚡<?= $now ?>.</p>
     <?php endif;
     return (string)ob_get_clean();
@@ -122,8 +124,9 @@ $ingLine = function (array $r) use ($icons): string {   // phone sheet: one slim
     }
     return '<ul class="p2ingcmp" aria-label="Ingredients">' . $o . '</ul>';
 };
-$when = function (array $r) use ($jarsFree): string {
+$when = function (array $r) use ($freeIn): string {
     $s = pantry_seconds($r);
+    $jarsFree = $freeIn(pantry_kind($r));
     return '⏱ <b>' . e(pantry_time_text($s)) . '</b> <span class="muted">· ' . ($jarsFree > 0 ? 'ready ' . e(date('D j M', time() + $s)) . ' in a free jar' : 'no free jar right now') . '</span>';
 };
 
@@ -131,8 +134,8 @@ $when = function (array $r) use ($jarsFree): string {
 <?php craft_area_header($tab); ?>
 <div class="pantry2">
 <div class="p2head">
-  <h2 class="p2title" id="shelves">🫙 Pantry <small><?= count($jarsList) ?>/<?= $jarLimit ?> jars in use</small></h2>
-  <details class="helpfold p2help"><summary>❓ How the Pantry works</summary><p class="help">One jar holds one batch. Timers run in real days, even while you are away, and nothing spoils. Jam takes 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. A recipe appears once you’ve collected every ingredient.</p></details>
+  <h2 class="p2title" id="shelves">🫙 Pantry <small><?= count($jarsList) ?> jars in use · <?= $jarLimit ?> in each room</small></h2>
+  <details class="helpfold p2help"><summary>❓ How the Pantry works</summary><p class="help">One jar holds one batch, and every kind (jam, chutney, pickles, ferments, cordials) has its own room of jars, so a full jam room never stops a pickle. Timers run in real days, even while you are away, and nothing spoils. Jam takes 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. A recipe appears once you’ve collected every ingredient.</p></details>
 </div>
 
 <?php if ($jarLimit > 0): ?>
@@ -146,9 +149,11 @@ $when = function (array $r) use ($jarsFree): string {
           <input type="hidden" name="do" value="jar_collect"><input type="hidden" name="jar_id" value="<?= (int)$j['id'] ?>"><button class="btn small">Collect</button></form>
       </div>
     <?php endforeach; ?>
-    <?php if ($jarsFree > 0): ?><div class="p2jar empty"><span class="p2ic" aria-hidden="true">🫙</span><span class="p2jt">+<?= $jarsFree ?> free</span></div><?php endif; ?>
+    <?php $roomK = $kind !== '' ? $kind : ($sel ? pantry_kind($sel) : 'jam'); ?>
+    <?php if ($freeIn($roomK) > 0): ?><div class="p2jar empty"><span class="p2ic" aria-hidden="true">🫙</span><span class="p2jt">+<?= $freeIn($roomK) ?> free</span></div><?php endif; ?>
     <form method="post" action="<?= e(url('crafting.php?c=pantry')) ?>" class="p2all" data-jarall<?= $jr >= 2 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="jar_collect_all"><button class="btn small alt">Collect all</button></form>
   </div>
+  <p class="help p2rooms"><?php foreach (P2_KINDS as $pk => [$pl]): ?><span class="p2room<?= $freeIn($pk) < 1 ? ' full' : '' ?>"><?= e($pl) ?> <b><?= (int)($busyBy[$pk] ?? 0) ?>/<?= $jarLimit ?></b></span> <?php endforeach; ?></p>
 </section>
 <?php else: [$pc, $pm] = pantry_cost(); ?>
   <div class="box notice">You need a <b>🫙 Pantry</b> to make these: an add-on for your Kitchen (<?= money($pc) ?><?= $pm ? ' + ' . e(upgrade_mats_text($pm)) : '' ?>).</div>

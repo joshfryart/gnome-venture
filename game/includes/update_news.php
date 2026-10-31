@@ -618,6 +618,9 @@ function post_update_news(string $from): void
         "[list][*][b]Alchemy[/b]: seven new potions. Strong Healing Potion and Grand Healing Elixir, Lucky, Sage's, Stoneskin and Swiftfoot draughts, and a Garden Tonic for your soil. Drink them from the Satchel or the new Potions box on My Gnome.\n"
         . "[*][b]Crafting map[/b]: tap an object in a scene (a cheese wheel, the anvil, the seed trays) and you see just the recipes it makes.\n"
         . "[*]Eleven Pantry preserves have new pictures.[/list]"],
+    '2.3.9' => ['❤️ Update 2.3.9: health bars and Pantry rooms',
+        "[list][*][b]Health[/b]: a health bar now sits next to your level bar at the top of every page, and the bar on My Gnome shows your real health, even while you are out adventuring.\n"
+        . "[*][b]Pantry[/b]: jam, chutney, pickles, ferments and cordials each have their own room of jars, so a full jam shelf never stops you pickling.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

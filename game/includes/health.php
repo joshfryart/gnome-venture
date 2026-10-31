@@ -161,6 +161,7 @@ function hp_use(array $u, string $what, int $itemId): array
 function hp_display(array $u): array
 {
     if (!hp_on()) return [0, 0];
+    require_once __DIR__ . '/adventure.php';   // active_expedition(); pages like garden.php have not loaded it yet
     $exp = active_expedition((int)$u['id']);
     if ($exp !== null) return [max(0, (int)$exp['hp']), max(1, (int)$exp['max_hp'])];
     return hp_get($u);

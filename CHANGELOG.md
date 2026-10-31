@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.9
+- **Puzzle Pal Boons** (from 2.3.8, still OFF: `ppal_boons`, needs `ppal_party`): all 570 pals have a Boon, rares have an active skill. Included here again so one zip carries everything since 2.3.4.
+- **Health bars:** the My Gnome bar is a `<progress>` that shows the live value (the old inline `style="width"` was blocked by the CSP, and the stored value was stale while out on a trip, `hp_display()`); new health bar beside the level bar in the top bar (`status_strip`, desktop pill and phone line, `hp_bar_html()`).
+- **Pantry rooms:** every kind (jam, chutney, pickle, ferment, cordial; `PANTRY_KINDS`, `pantry_kind()`) has its own set of jars, each with the same count the Pantry gave in total (`pantry_free()`, `pantry_busy_by_kind()`). Per-room counts on the Pantry tab and Kitchen tile. Tests updated in `tests/pantry.sh` (a full jam room does not stop chutney).
+- Player news entry added.
+
 ## 2.3.8
 - **Puzzle Pal Boons (OFF: setting `ppal_boons`, needs `ppal_party`).** Every one of the 570 pals has its own combat Boon instead of its calling skill: 16 effects (ward, edge, foot, mend, sip, petal, guard, bulwark, slip, feast, rally, first, kindle, spoils, lesson, tonic) in `includes/data/puzzle_pal_boons.txt`, sizes by rarity in `PPAL_EFFECTS`. Rosters are unique (no two share 4+ effect/rarity pairs). Pals of uploaded pictures get a seeded Boon (`ppal_seeded_boon`).
 - **Rare actives:** each rare has one once-per-fight skill (strike, shield, patch, snare, sap, daze, rouse, gust) as a fight button (`palskill:KEY`, three fight renders), uses the turn, no dice.
