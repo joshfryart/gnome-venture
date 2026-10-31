@@ -76,16 +76,16 @@ for: fight,mystery
 title: The Dam Wall
 #############
 #S...,..#WWW#
-#.##.##.#W2W#
+#.##.##.#WWW#
 #..1..#.#WWW#
-##.##.#...WW#
+##.##.#..2WW#
 #..F..#.#W.W#
 #.###.#T#W.W#
 #.....#.#WWW#
 ###.###.#.MW#
 #..,..#...W.#
 #.#.C.#.#WWW#
-#E....,.#.3.#
+#E....,.#...#
 #############
 
 @beaverdam-tunnels/lodge_ring
