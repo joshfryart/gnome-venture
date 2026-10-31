@@ -6491,3 +6491,11 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .hs-decor-birdbath { left: 30.67%; top: 16%; width: 38.67%; height: 78%; }
 .hs-decor-fence { left: 69.33%; top: 32%; width: 30%; height: 35%; }
 .hs-decor-path { left: 71.33%; top: 67%; width: 28.67%; height: 33%; }
+/* ==== v2.3.3 pal jobs: "pals home with loot" notice (Today, My Gnome) BEGIN ==== */
+.pjhome { margin: 8px auto; text-align: center; font-size: .92em; }
+.pjhome a { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--line, currentColor); text-decoration: none; }
+.pjhome a:hover, .pjhome a:focus-visible { text-decoration: underline; }
+.pjrisky { margin-left: 4px; padding: 0 4px; font-size: 11px; font-weight: 700; border: 1px solid currentColor; border-radius: 4px; color: var(--danger); }
+.pjriskwarn { display: none; margin: 6px 0; font-size: .9em; text-align: center; }
+.pjform:has(input[data-pj-risky]:checked) .pjriskwarn { display: block; }
+/* ==== v2.3.3 pal jobs notice END ==== */

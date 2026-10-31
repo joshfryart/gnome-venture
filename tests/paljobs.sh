@@ -6,7 +6,7 @@ GAME=${1:-}; PORT=${2:-8797}; ROUTER=${3:-$HERE/router.php}
 if [ -z "$GAME" ]; then T=$(mktemp -d); cp -r "$HERE/../game" "$T/game"; GAME=$T/game; fi
 rm -f "$GAME/config.php"; rm -rf "$GAME/data"; mkdir -p "$GAME/data"
 BASE=http://127.0.0.1:$PORT
-LOG=$(mktemp)
+LOG=$(mktemp); OUT=$(mktemp)
 php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!; sleep 1
 trap "kill $PID 2>/dev/null" EXIT
 C=$(mktemp); H=$(mktemp)
@@ -30,9 +30,9 @@ VID=$(db "SELECT l.id FROM locations l WHERE l.region_id=$RID AND l.kind='villag
 post welcome.php -d do=place -d village_id=$VID >/dev/null
 get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'garden_name=Test Patch' >/dev/null
 echo "== logic (tests/paljobs.php)"
-php -d display_errors=1 -d error_reporting=-1 "$HERE/paljobs.php" "$GAME" 2>&1 | tee /tmp/paljobs.out; RC=${PIPESTATUS[0]}
+php -d display_errors=1 -d error_reporting=-1 "$HERE/paljobs.php" "$GAME" 2>&1 | tee $OUT; RC=${PIPESTATUS[0]}
 chk "paljobs.php exit code" "$RC" 0
-chk "no PHP warnings in the unit run" "$(grep -c 'Warning\|Notice\|Deprecated\|Fatal' /tmp/paljobs.out)" 0
+chk "no PHP warnings in the unit run" "$(grep -c "Warning\\|Notice\\|Deprecated\\|Fatal" $OUT)" 0
 echo "== the page"
 rm -f $C; get login.php >/dev/null; post login.php -d username=sprout --data-urlencode 'password=TestPass123!' >/dev/null
 dbx "UPDATE users SET level = 9 WHERE username='sprout'"
@@ -42,6 +42,15 @@ chk "level 10: page renders" "$(get paljobs.php)" 200
 chk "page lists pals" "$(grep -c 'class="pjrow pjpal' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "page has the send forms" "$(grep -c 'name="do" value="send_trip"' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "no inline style attributes" "$(grep -c ' style=' $H)" 0
+dbx "DELETE FROM ppal_jobs WHERE kind IN ('delve','trip')"; dbx "UPDATE ppal_found SET a_xp=0, status='home', hp=-1"
+get paljobs.php >/dev/null
+chk "v2.3.3: delve post tags low-Adventuring pals Risky" "$(grep -c 'class="pjrisky">Risky' $H | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "v2.3.3: delve form carries the risky warning (shown by CSS when a risky pal is picked)" "$(grep -c 'class="pjriskwarn"' $H)" 1
+chk "v2.3.3: risky pals are still sendable (not disabled)" "$(grep -o '<input type="radio" name="pal"[^>]*data-pj-risky="1"[^>]*>' $H | grep -c disabled)" 0
+chk "v2.3.3: garden post no longer gates tasks by level" "$(grep -c 'weeds from 3\|harvests at 9' $H)" 0
+dbx "UPDATE ppal_found SET a_xp=400"
+get paljobs.php >/dev/null
+chk "v2.3.3: Adventuring 5+ pals are not marked risky" "$(grep -c 'class="pjrisky"' $H)" 0
 chk "no raw row ids in the forms (pal id is the 16-hex hash)" "$(grep -o 'name="pal" value="[^"]*"' $H | grep -vc 'value="[0-9a-f]\{16\}"')" 0
 get paljobs.php >/dev/null
 PAL=$(grep -o 'name="pal" value="[0-9a-f]\{16\}"' $H | head -1 | sed 's/.*value="\(.*\)"/\1/')
@@ -52,6 +61,23 @@ chk "POST send_garden redirects" "$(post paljobs.php -d do=send_garden -d pal=$P
 chk "garden job stored" "$(db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 1
 chk "a bad hash is refused (no job)" "$(get paljobs.php >/dev/null; post paljobs.php -d do=send_garden -d pal=ffffffffffffffff -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs")" 1
 chk "POST without csrf is refused" "$(curl -s -c $C -b $C -X POST "$BASE/paljobs.php" -d do=recall -d job=1 -o /dev/null -w "%{http_code}")" 400
+echo "== v2.3.3: pals home with loot (Today, My Gnome) + Collect receipt"
+SID=$(db "SELECT id FROM users WHERE username='sprout'")
+PAL2=$(db "SELECT pal_uid FROM ppal_found WHERE user_id=$SID AND status='home' ORDER BY id DESC LIMIT 1")
+dbx "UPDATE ppal_found SET status='trip' WHERE pal_uid='$PAL2'"
+dbx "INSERT INTO ppal_jobs (user_id, pal_uid, kind, target, day, tool, started_at, ends_at, last_tick, potions, tasks, state, result) VALUES ($SID, '$PAL2', 'trip', 'forest', '', 'forage', datetime('now','-2 hours'), datetime('now','-1 minutes'), datetime('now'), 0, 0, 'active', '{\"rounds\":2,\"items\":[],\"hp\":5,\"potions_used\":0,\"potions_back\":0,\"fainted\":false}')"
+JOB=$(db "SELECT MAX(id) FROM ppal_jobs")
+get gnome.php >/dev/null
+chk "My Gnome: notice links to the jobs page" "$(grep -c 'class="pjhome"><a href="[^"]*paljobs.php">.* 1 pal home with loot' $H)" 1
+get 'index.php?today=1' >/dev/null
+chk "Today: notice shows" "$(grep -c 'class="pjhome"' $H)" 1
+chk "Today: no inline style attributes" "$(grep -c ' style=' $H)" 0
+get paljobs.php >/dev/null
+chk "POST collect redirects" "$(post paljobs.php -d do=collect -d job=$JOB)" 302
+get paljobs.php >/dev/null
+chk "receipt head says where the pal came back from" "$(grep -c '<b>[^<]* is back from the forest\.</b>' $H)" 1
+get gnome.php >/dev/null
+chk "My Gnome: notice gone once collected" "$(grep -c 'class="pjhome"' $H)" 0
 chk "PHP log clean" "$(grep -c 'Warning\|Fatal\|Notice\|Deprecated' $LOG)" 0
 [ $FAILS = 0 ] && echo "all pal job page tests passed" || echo "$FAILS FAILED"
 exit $FAILS

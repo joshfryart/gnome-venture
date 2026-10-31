@@ -883,6 +883,7 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
                     }
                     db()->commit();
                     $hst[$k]['harvest']++;
+                    if (isset($hire['pj_job'])) $hst[$k]['extra'] = ($hst[$k]['extra'] ?? 0) + pj_garden_extra($uid, $p, $hire);   // v2.3.3: a skilled pal brings an extra crop
                     $done[$t['id']] = true;
                 } catch (Throwable $e) {
                     if (db()->inTransaction()) db()->rollBack();
