@@ -1,0 +1,187 @@
+# Beaverdam Tunnels: 10 floors (4 small, 4 standard, 1 large, 1 boss).
+
+@beaverdam-tunnels/cross_junction
+tier: small
+rule: Four gnawed arms meet at a hub. The south arm is flooded and the shrine waits by the first find.
+sig: no
+for: fight,mystery
+title: The Cross Junction
+#########
+####S####
+####.####
+###.1M###
+#2.F.,.3#
+###.T.###
+####W####
+####E####
+#########
+
+@beaverdam-tunnels/gnawed_loop
+tier: small
+rule: A gnawed loop of tunnel. The shrine sits in a dead-end pocket off the top corridor.
+sig: no
+for: mystery,puzzle
+title: The Gnawed Loop
+#########
+#S....1.#
+#.####.##
+#.####M##
+#.####.##
+#..F.,..#
+#.####E.#
+#2.....T#
+#########
+
+@beaverdam-tunnels/flooded_pool
+tier: small
+rule: A flooded pool with dry ledges. The chest sits on the east ledge, and wading costs extra torch.
+sig: no
+for: fight,treasure
+title: The Flooded Pool
+#########
+#S..1...#
+#.WWWWW.#
+#.WWWWW.#
+#..F..C.#
+#.WWW.W.#
+#2..T...#
+#......E#
+#########
+
+@beaverdam-tunnels/twin_chambers
+tier: small
+rule: Two chambers joined by a gap. The shrine waits in one corner and a trap in the west room.
+sig: no
+for: fight,puzzle
+title: Twin Chambers
+#########
+#S..#...#
+#..1#.2.#
+#...#..M#
+#...,..F#
+#.T.#.E.#
+#...#.3.#
+#.....,.#
+#########
+
+@beaverdam-tunnels/dam_wall
+tier: standard
+rule: A straight dam wall with flooded side pockets. Finds hide in the pockets, a chest by the shrine.
+sig: yes
+for: fight,mystery
+title: The Dam Wall
+#############
+######S######
+######.######
+####1W.W2####
+######.######
+######F######
+######.######
+######T######
+####WC.M.####
+######.######
+######.######
+######E######
+#############
+
+@beaverdam-tunnels/lodge_ring
+tier: standard
+rule: A lodge ring around the chest room. The chest sits in the middle, and a trap guards the east ring.
+sig: yes
+for: treasure,fight
+title: The Lodge
+#############
+#S.1........#
+#.#########.#
+#.#########.#
+#.##.....##T#
+#.##.....##.#
+#.....C..##.#
+#F##.....##.#
+#.##.....##.#
+#.#########2#
+#.#########.#
+#.....E.....#
+#############
+
+@beaverdam-tunnels/log_jam
+tier: standard
+rule: A jam of gnawed logs: a spine corridor with dead-end branches and a flooded log on the spine.
+sig: no
+for: fight,puzzle
+title: The Log Jam
+#############
+#S.....#...2#
+#.#.##.#.##.#
+#.#.1.#..#..#
+#.#.#.#..#..#
+#...W.......#
+#.#.###.###.#
+#..F..#.#...#
+#.###.#...#.#
+#.....E..T..#
+#############
+#############
+#############
+
+@beaverdam-tunnels/key_storehouse
+tier: standard
+rule: The key hides in the west hall, far from the storehouse door. Behind the door: a chest and finds.
+sig: no
+for: puzzle,mystery
+title: The Key Storehouse
+#############
+#S....#.....#
+#.....#..C..#
+#.....#.....#
+#.T...#...2.#
+#.....#.....#
+#.....D.....#
+#.....#..W..#
+#..F..#.....#
+#.....#.1...#
+#K....#....E#
+#....M#.....#
+#############
+
+@beaverdam-tunnels/lumber_store
+tier: large
+rule: The old lumber store: log stacks in two halves, the chest in the east yard, a foe by the north gap.
+sig: no
+for: treasure
+title: The Lumber Store
+###############
+#S......#.....#
+#.......#.....#
+#.....F.#..1..#
+#.............#
+#.##....#.....#
+#.......#..C..#
+#.##....#.....#
+#.......#.....#
+#.##....#.....#
+#...T.........#
+#.......#..2..#
+#.##....#.....#
+#.E.....#.....#
+###############
+
+@beaverdam-tunnels/guardian_hall
+tier: standard
+rule: The guardian sleeps in the pillared hall, and the chest lies right beside it. Wake it, then loot.
+sig: no
+for: boss
+title: The Guardian Hall
+#############
+#S..........#
+#.#.#.#.#.#.#
+#..T........#
+#.#.#.#.#.#.#
+#...F.......#
+#.#.#.#.#.#.#
+#.....W.....#
+#.#.#.#.#.#.#
+#.....BC....#
+#.#.#.#.#.#.#
+#.........1.#
+#############

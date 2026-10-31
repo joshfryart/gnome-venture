@@ -2489,6 +2489,7 @@ dialog.chestov::backdrop { background: transparent; }
 .chestov .cs-lid { transform-box: view-box; transform-origin: 32px 31px; transition: transform .45s cubic-bezier(.3, 1.6, .5, 1); }
 .chestov .cs-svg { transform-origin: 50% 90%; }
 .chestov.cs-wobble .cs-svg { animation: cs-wobble 1s ease-in-out; }
+.chestov.cs-quick.cs-wobble .cs-svg { animation-duration: .45s; }   /* v2.3.3: a small find in a delve */
 .chestov.cs-opened .cs-lid { transform: translateY(-13px) rotate(-14deg) scaleY(.8); }
 .chestov .cs-svg .cs-img { image-rendering: pixelated; }
 .chestov .cs-px .cs-lid { transform-origin: 32px 30px; }   /* v2.0.31: pixel lid hinges at its back edge */
@@ -2511,6 +2512,7 @@ dialog.chestov::backdrop { background: transparent; }
 .chestov .cs-qty { font-size: 13px; color: var(--accent-ink); }
 .chestov .cs-uncommon { border-color: var(--r-u); box-shadow: 0 0 12px rgba(47, 125, 68, .55); }
 .chestov .cs-rare { border-color: var(--r-r); box-shadow: 0 0 14px rgba(70, 130, 220, .65); }
+.chestov .cs-t:empty { display: none; }   /* v2.3.3: a find with no Petals or XP shows only its cards */
 .chestov .cs-tally { margin: 12px 0 8px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; font-weight: 600; min-height: 1.5em; }
 .chestov .cs-t { background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--accent-line); border-radius: var(--pill, 99px); padding: 2px 12px; font-variant-numeric: tabular-nums; }
 .chestov .cs-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }
@@ -4149,6 +4151,40 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .tmwrap.busy .tilemap { filter: saturate(.75) brightness(.82); }
 .tmlegend { display: flex; justify-content: center; flex-wrap: nowrap; gap: 4px 12px; margin: 6px 0 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
 .tmlinks { text-align: center; margin: 2px 0 8px; }
+/* v2.3.1 delve redo: torch + party strip, route menu, quick card (includes/delve_v2.php) */
+.dv2strip { margin: 6px 0 8px; display: grid; gap: 6px; }
+.dv2top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.dv2chip { font-size: 14px; color: var(--ink); padding: 4px 10px; display: inline-block; line-height: 1.3; border: 1px solid var(--line); border-radius: 12px; background: var(--accent-soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dv2torch { flex: 1 1 120px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.dv2leave { margin: 0 0 0 auto; }
+.dv2leave .btn { min-height: 44px; min-width: 44px; padding: 0 12px; background: transparent; color: var(--muted); border: 1px solid var(--line-2); box-shadow: none; }
+.dv2leave .btn:hover, .dv2leave .btn:focus-visible { color: var(--ink); border-color: var(--accent-ink); }
+.dv2leave .btn:active { transform: translateY(1px); }
+.dv2bar { flex: 1; height: 10px; border-radius: 6px; background: var(--accent-soft); border: 1px solid var(--line); overflow: hidden; }
+.dv2bar i { display: block; height: 100%; background: var(--accent); }
+.dv2party { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; }
+.dv2m { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--accent-soft); min-height: 32px; }
+.dv2m .palstk { width: 28px; height: 28px; image-rendering: pixelated; }
+.dv2status { display: none; }
+.dv2wrap .tmlegend { margin-top: 2px; }
+@media (max-width: 720px) { .advgrid:not(.fighting):has(.dv2strip) #advstage { display: none; } }
+.dv2route { margin: 6px 0; text-align: center; }
+.dv2lead { margin: 0 0 6px; font-weight: 700; color: var(--accent-ink); }
+.dv2row { display: flex; justify-content: center; gap: 8px; margin: 0 0 6px; flex-wrap: wrap; }
+.dv2node { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 88px; min-height: 56px; padding: 6px 10px; border: 2px dashed var(--line); border-radius: 12px; background: transparent; color: var(--muted); font: inherit; font-size: 13px; opacity: .75; }
+.dv2node small { font-size: 11px; opacity: .85; }
+.dv2node .dv2ico { font-size: 20px; line-height: 1; }
+.dv2node.unk { min-height: 30px; min-width: 44px; padding: 2px 6px; }
+.dv2node.go { border-style: solid; border-color: var(--accent-line); background: var(--accent-soft); color: var(--ink); opacity: 1; cursor: pointer; }
+.dv2node.go:hover, .dv2node.go:focus-visible { border-color: var(--accent-ink); }
+.dv2node.go:active { transform: translateY(1px); }
+.dv2node.boss { border-style: solid; border-color: var(--accent-line); opacity: .9; }
+.dv2node.was { border-style: solid; opacity: .5; }
+.dv2quick { text-align: center; padding: 8px 6px 4px; }
+.dv2quick h3 { margin: 0 0 4px; }
+.dv2quick p { margin: 0 0 10px; }
+.dv2quick .btn { min-height: 44px; min-width: 160px; }
+
 .tmlinks a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; }
 .advgrid .tmwrap .tmform { margin: 0; }
 
@@ -6379,7 +6415,15 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .shelves .shpanel .itm__ic, .shelves .shpanel .itm__svg, .shelves .shpanel .itm__svg > svg { width: 32px; height: 32px; }
 }
 
-/* ===== 2.3.3 Crafting area map (includes/craft_map.php) ===== */
+/* v2.3.5 Health box on My Gnome (includes/health.php) */
+.hpcard { margin: 8px 0; }
+.hphead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.hpnum { font-variant-numeric: tabular-nums; font-weight: 700; }
+.hpbar { height: 12px; border-radius: 8px; background: var(--accent-soft); border: 1px solid var(--line); overflow: hidden; margin: 4px 0 6px; }
+.hpbar i { display: block; height: 100%; background: #c0443a; }
+.hpuse { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.hpuse .btn { min-height: 44px; }
+/* ===== 2.3.6 Crafting area map (includes/craft_map.php) ===== */
 .cmap-h { margin: 4px 0 0; font-size: 20px; }
 .cmap-sub { margin: 2px 0 10px; }
 .cmap-grid { list-style: none; margin: 0; padding: 0 0 96px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }

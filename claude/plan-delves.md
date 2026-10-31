@@ -36,3 +36,35 @@ Status: **not built.** Joshua picked mockup 1 (tile map) for the floors, with th
 5. Delve-only loot: 1 to 2 items per delve?
 6. Route: fixed per gnome per day (friends compare) or random each run?
 7. Floors hand-built for all 14 delves, or generated from the seed for some (cheaper, less memorable)?
+
+## Build plan v2 (2026-10-31, from the code + mockup 1 and 3 READMEs)
+Grounded in today's code: a delve is one `expeditions` row (kind `delve`, `depth` = rooms done, `DELVE_ROOMS` 5), `delve_start` / `delve_next` / `delve_chest` in `includes/landmarks.php`, map + walking in `includes/delve_map.php` (`walk_scene`: `map_key` `h:<name>` or `g11:..`, `state` JSON `{c:[room codes]}`, `seen`), grid helpers in `includes/tilemap.php` (`tm_parse`, `tm_gen`, `tm_validate`, `tm_reveal`). Pal re-runs: `pj_roll_delve` (5 fights from a seed).
+
+### Rules for the build
+- **Flag it.** New setting `delve_v2` (default 0). Off = today's delve, untouched. A delve already running keeps its rules: `map_key` prefix tells (`f:` = new floor, `h:`/`g..` = old).
+- **No schema change.** Route + floor state live in `walk_scene.state` JSON: `{v:2, route:{seed, nodes, path, at}, floor:{torch, found, picks, hp}, c:[]}`. Verify `map_key` column width fits `f:<slug>/<floor>` first.
+- **One expedition per delve, as now.** A stage is not a new row. `depth` counts stages cleared, so level scaling (`level .. level+DELVE_ROOMS+1`), the chest and the clear count (`landmark_clears`) keep working. Map `depth` to stage count (3 to 5) and keep chest value near today's so balance holds.
+- **Energy.** Enter = 1 (as now). The per-room energy goes away; torch fuel replaces it. Lantern tool = more fuel (instead of free rooms).
+- **Server walks.** Floor walking validated like `dm_walk` (BFS, torch cost per step, stop at trap/pickup). No client trust.
+- Roles: Sonnet codes, Haiku drafts floors, Opus reviews the 28 signature + boss floors (project rule).
+
+### Steps (each ends shippable, flag off)
+1. **Format + lint (S).** `data/delve_floors.txt`: `@slug/name`, `tier:` small|standard|large, `rule:` one line, `sig:` yes|no, rows (`# . , S` as now, `0-9` pickups, `K` key, `D` door, `W` hazard, `T` trap, `C` chest, `B` boss, `M` shrine). `dm_floors()` parser. `tools/lint_delve_floors.php`: size by tier, one S, solvable (BFS with key before door), all pickups reachable, `<7` finds, steps to clear within the torch budget x 1.3. `tests/delvefloors.sh`. Gate: 3 sample floors pass, bad ones fail.
+2. **Route generator (S).** `dv_route(seed, slug)`: 9 nodes in 4 to 5 rows, one path of 4 to 5 picks, typed (fight, treasure, mystery, puzzle, shrine, mole, boss), tier per node (large only treasure + boss), `?` hides unseen type. Draw a floor of that tier from the delve's pool, no repeats, one signature on the first clear, fall back to `tm_gen` if the pool is empty. Pure function, unit tested. Seed = per gnome per delve per day (Q6).
+3. **M slice (M, the first real play).** Existing 5 rooms become 5 tile floors on the old `tm_gen` layouts: torch + fog + LOS (`tm_reveal` with bands), pickups on the floor (find card), tap-to-walk, party strip (gnome + 2 pals, read-only), route menu with 2 branches between floors, state saved so leave/resume works. Fights stay today's fight screen (`combat`); trap/find/problem rooms become floor objects. Gate: Joshua plays one delve on phone (Firefox Android, dark).
+4. **Author 3 delves fully (M, pattern setter).** Pick Beaverdam Tunnels (flooded), Salt Mine Galleries (mine), Firefly Caves (grotto): one per mood. 12 floors each (5 small, 5 standard, 2 large/boss), signature + boss hand-polished by Opus, the rest Haiku draft + lint. Delve-only loot 1 to 2 items each. Gate: Joshua approves names + a screenshot of each.
+5. **Moods + sizes + pal skills (M).** Grotto glowcaps, Flooded water cost, Mine rails + cave-ins, lair-adjacent roamer. Grotto Glim spots traps, Lantern Lark +1 light via `ppal_skills`. Torch-at-0 = light shrinks to 1 (no fail).
+6. **Other 11 delves in waves of about 4 (L, mostly authoring).** Same pipeline. Partial rollout is fine (empty pool = generator).
+7. **Pal re-runs (S).** `pj_roll_delve` walks the same `dv_route` headlessly: Wayfinder takes the safe branch, Thornblade fights, pal never fights the guardian. Payout stays about 60% of a clear.
+
+### Tests to add
+`delvefloors.sh` (parser + lint on the real file), `delveroute.php` (determinism, no repeats, tier rules, fallback), extend `tests/delvemap.php` and `tests/paljobs.sh`; golden combat replay unchanged (fights reuse `gnome_combat`). Run suites one at a time (shared /tmp).
+
+### Risks
+- Authoring volume: 168 floors. Mitigate with waves + lint; ship with 8 per delve if Q4 says so.
+- Torch vs energy economy needs a sim (like `claude/catfish-sim.php`): steps per floor, finds per floor, loot per minute vs today's 5 rooms.
+- 15x15 under 400 px: 7-column viewport that scrolls with the gnome; test on phone first.
+- Once-a-day rule vs a longer run: keep run resumable across the day.
+
+### Suggested defaults (answer only if you disagree)
+Q1 once per delve per day. Q2 always 4 stages, 3 for delves under danger level 3. Q3 knocked out keeps what you carried except the current floor's pickups. Q4 start 8 floors per delve, grow to 12. Q5 yes, 1 delve-only item each. Q6 fixed per gnome per day (friends compare). Q7 hand-built signature + boss floors for all 14, generated-from-seed fill for the rest.

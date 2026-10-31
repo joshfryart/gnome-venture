@@ -609,6 +609,11 @@ function post_update_news(string $from): void
         "[list][*]The Satchel now has a [b]Quick[/b] bar for one-tap eating, opening and reading, and your things sit on foldable shelves. Tap one to see what it can do.\n"
         . "[*]Crafting shows what you can make now, a shopping list of what to gather for the next recipes, and the rest on shelves. After you make something, its recipe stays open.\n"
         . "[*]Much less scrolling on a phone.[/list]"],
+    '2.3.5' => ['❤️ Update 2.3.5: health stays with you',
+        "[list][*]Your health no longer resets when you leave the road or reach a stop. What you lose on an adventure (a road walk, wandering off the path, a delve or a lair) is still lost when the next one starts.\n"
+        . "[*]In a town (a village, market, hub or haven) and not out adventuring, you heal [b]1 a minute[/b].\n"
+        . "[*]Faster: rest by a haven fire (half), stay the night at a haven (full), rest at a stop's inn, a hot bath or a soak, drink a [b]Healing Potion[/b] or eat a home-cooked snack (both from [b]My Gnome[/b]), or level up (full).\n"
+        . "[*]If you are knocked out you wake up with half your health.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

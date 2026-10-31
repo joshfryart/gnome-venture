@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/health.php';   // v2.3.5: health that stays with the gnome (settings, regen)
 require_once __DIR__ . '/hollow_clock.php';   // v1.0.0: season, weather, part of the day (its constants are used by settings_schema)
 
 // ======================= Output & URLs =======================
@@ -630,7 +631,7 @@ function settings_schema(): array
 
         'travel_needs_visit' => ['label' => 'Travel: only fast-travel to regions a gnome has already walked to', 'type' => 'bool', 'default' => '1'],
         'gotm_thanks'        => ['label' => 'Garden of the Month: Petals for every other entry', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000000],
-    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + ico_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
+    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + hp_settings() + ico_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
 }
 
 /** v1.7.6: scale a mini-game's Petal payout by games_petals_percent (never below 1 if the game paid something). */

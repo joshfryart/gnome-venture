@@ -262,6 +262,7 @@ function add_xp(int $uid, int $n, string $source = ''): ?int
     $gained = $level - (int)$u['level'];
     q('UPDATE users SET xp = ?, level = ?, stat_points = stat_points + ? WHERE id = ?',
         [$xp, $level, $gained * (int)setting('stat_points_per_level'), $uid]);
+    if ($gained > 0) hp_full($uid);   // v2.3.5: a level up heals fully
     if ($earned > 0) mentors120_after_xp($uid, $earned, $source !== '' ? $source : (string)(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? 'other'), $level);   // v1.2.0: mentor share + graduation
     return $gained ? $level : null;
 }

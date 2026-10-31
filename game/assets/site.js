@@ -1007,6 +1007,7 @@ function gvFightScroll(ended) {
 }
 function gvFightScrollNow(ended) {
   if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
+  if (document.querySelector('.dv2strip') && !document.querySelector('.advgrid.fighting')) return;   // v2.3.1: the delve floor / route menu stays where it is (no jump after a tap)
   var card = document.querySelector('.panel.encounter');
   if (card && !card.getClientRects().length && ended) card = document.querySelector('.advgrid .choicelist');   // v2.1.11: the wander layout has no card box, centre the actions
   if (!card || !card.getClientRects().length) return;

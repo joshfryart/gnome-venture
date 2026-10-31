@@ -12,6 +12,10 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/tilemap.php';
+require_once __DIR__ . '/delve_floors.php';   // v2.3.1: the floor pool of the delve redo (pure functions)
+require_once __DIR__ . '/delve_route.php';    // v2.3.1: the route graph of the delve redo (pure functions)
+require_once __DIR__ . '/delve_stamp.php';    // v2.3.1: floors stamped from a delve's chambers (pure functions)
+require_once __DIR__ . '/delve_v2.php';       // v2.3.1: the delve redo engine (behind delve_v2)
 
 const DM_DELVE_SIZE = 11;
 const DM_LAIR_SIZE = 13;
@@ -22,6 +26,7 @@ function dm_settings(): array
 {
     return [
         'delve_map' => ['label' => 'Delves: map view', 'type' => 'bool', 'default' => '1'],   // v2.0.6: off = delves and lairs show only the simple list
+        'delve_v2' => ['label' => 'Delves: route menu and tile floors (the redo)', 'type' => 'bool', 'default' => '0'],   // v2.3.1: off = today's five rooms; running delves finish on their own rules
     ];
 }
 
@@ -66,6 +71,12 @@ function dm_on(): bool
 {
     $v = setting('delve_map');
     return ($v === '' || $v === '1') && dm_table_ok();
+}
+
+/** Are the new route menu and floors switched on? (Needs the map view. A delve already running keeps the rules it started with: see the map_key prefix.) */
+function dv_on(): bool
+{
+    return setting('delve_v2') === '1' && dm_on();
 }
 
 /** The player's choice for this session: 'map' (default) or 'list' (the old five-room flow). */

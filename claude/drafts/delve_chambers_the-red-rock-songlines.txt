@@ -1,0 +1,227 @@
+# Delve chambers: The Red Rock Songlines (the-red-rock-songlines). 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor (dry wash grit), W soft sand (slow, costs torch).
+# Shape language: spirals, concentric arcs, standing-stone rings, sinuous tracks, dry washes, rock shelters.
+
+# --- size 3 ---
+
+@the-red-rock-songlines/corner_stone_gate
+size: 3
+tags: stones,gate,corner,open
+.##
+,..
+...
+
+@the-red-rock-songlines/wash_elbow
+size: 3
+tags: dry,wash,pillar,bend
+,.#
+,,.
+.#,
+
+@the-red-rock-songlines/sinuous_s_bend
+size: 3
+tags: sinuous,track,bend,dry
+.##
+..#
+#..
+
+@the-red-rock-songlines/shelter_pocket
+size: 3
+tags: shelter,pocket,sand,tight
+##.
+.,.
+#W.
+
+@the-red-rock-songlines/wash_crossing
+size: 3
+tags: wash,open,crossing,rough
+,.,
+...
+,.,
+
+@the-red-rock-songlines/hairpin_wash
+size: 3
+tags: tight,hairpin,sand,rough
+#.,
+W#.
+,W.
+
+# --- size 5 ---
+
+@the-red-rock-songlines/spiral_song_line
+size: 5
+tags: hero,spiral,track,song,medium
+.....
+####.
+...#.
+.###.
+.....
+
+@the-red-rock-songlines/sand_hourglass
+size: 5
+tags: hero,hourglass,sand,pinch
+.....
+#...#
+##.##
+#WWW#
+.....
+
+@the-red-rock-songlines/stone_horseshoe_gate
+size: 5
+tags: hero,stones,horseshoe,gate,medium
+.....
+.###.
+.#...
+.#.#.
+.....
+
+@the-red-rock-songlines/braided_dry_wash
+size: 5
+tags: open,wash,braided,rough
+,,,,,
+.....
+.###.
+.....
+,,,,,
+
+@the-red-rock-songlines/zigzag_wash
+size: 5
+tags: sinuous,zigzag,wash,medium
+,,,..
+..###
+,,...
+###..
+,,,,.
+
+@the-red-rock-songlines/overhang_alcove
+size: 5
+tags: shelter,overhang,rough,alcove,medium
+#####
+##,,#
+#...#
+#,,,.
+.....
+
+@the-red-rock-songlines/wash_cross_corners
+size: 5
+tags: crossing,wash,rough,open
+.,,,.
+,,#,,
+,,,,,
+,,#,,
+.,,,.
+
+@the-red-rock-songlines/dune_ring
+size: 5
+tags: sand,crescent,dune,soft-sand
+,,,,.
+,WW#,
+,W##,
+,,,,,
+.,,,,
+
+@the-red-rock-songlines/pinch_pillars
+size: 5
+tags: pillars,pinch,corridor,rough,medium
+,,,,,
+,##.,
+..,..
+,.##,
+,,,,,
+
+@the-red-rock-songlines/twin_alcove_tight
+size: 5
+tags: tight,alcoves,twin,shelter
+#.,.#
+#...#
+##.##
+#...#
+#.,.#
+
+@the-red-rock-songlines/concentric_arc
+size: 5
+tags: arc,concentric,wall,curve,medium
+,,,,,
+,####
+,#...
+,#.##
+,....
+
+@the-red-rock-songlines/ladder_wash
+size: 5
+tags: wash,diagonal,rough,open
+,,.##
+,,..#
+.,,..
+#..,,
+##.,,
+
+@the-red-rock-songlines/bridge_gate
+size: 5
+tags: gate,bridge,ledges,open
+.#.#.
+.....
+##.##
+.....
+.#.#.
+
+@the-red-rock-songlines/spring_pools
+size: 5
+tags: oasis,pools,sand,ring,open
+#,,,#
+.W.W.
+,,.,,
+.W.W.
+#,,,#
+
+# --- size 6 ---
+
+@the-red-rock-songlines/stone_ring_six
+size: 6
+tags: hero,ring,stones,open-centre,open
+......
+..##..
+.#....
+.#..#.
+..##..
+......
+
+@the-red-rock-songlines/songline_crossing
+size: 6
+tags: hero,spiral,songline,sinuous
+......
+.####.
+.#..#.
+.#.##.
+.#....
+......
+
+@the-red-rock-songlines/winding_wash
+size: 6
+tags: winding,serpentine,wash,rough,medium
+......
+####.#
+......
+#.####
+......
+,,,,,,
+
+@the-red-rock-songlines/twin_arches
+size: 6
+tags: arches,twin,gate,hollow,medium
+##,,##
+#....#
+,.##.,
+,.##.,
+#....#
+##,,##
+
+@the-red-rock-songlines/sand_causeway
+size: 6
+tags: causeway,sand,spine,open
+..,,..
+..WW..
+#,WW,#
+#,WW,#
+..WW..
+..,,..

@@ -1,0 +1,222 @@
+# Delve chambers for Rose-red Canyon City (v1). Terrain only: no objects.
+# # wall, . floor, , rough floor, W cistern water (walkable, costs 2 torch).
+# Shape language: orderly streets and plazas, stepped terraces, colonnades, courtyards with a central feature, cisterns.
+# Quantity: 6 of size 3, 14 of size 5, 5 of size 6. Heroes: cistern_cross, courtyard_ring, horseshoe_forum, hourglass_pinch, twin_lobe_plaza.
+
+@rose-red-canyon-city/well_plaza
+size: 3
+tags: open,plaza,cistern
+.,.
+.W.
+...
+
+@rose-red-canyon-city/gate_arch
+size: 3
+tags: tight,gate,arch
+##.
+.,.
+..#
+
+@rose-red-canyon-city/step_corner
+size: 3
+tags: tight,steps,terrace,corner
+..#
+.,.
+,..
+
+@rose-red-canyon-city/cistern_corners
+size: 3
+tags: tight,cistern,colonnade
+.W.
+,,,
+.#.
+
+@rose-red-canyon-city/column_court
+size: 3
+tags: open,courtyard,column
+##.
+...
+.#.
+
+@rose-red-canyon-city/stair_run
+size: 3
+tags: stairs,diagonal,steps
+,#.
+..,
+..#
+
+@rose-red-canyon-city/cistern_cross
+size: 5
+tags: tight,cross,cistern,hero
+##.##
+#...#
+..W..
+#...#
+##.##
+
+@rose-red-canyon-city/courtyard_ring
+size: 5
+tags: medium,ring,courtyard,cistern,hero
+#...#
+#.W.#
+#.W.#
+#...#
+##.##
+
+@rose-red-canyon-city/horseshoe_forum
+size: 5
+tags: medium,horseshoe,forum,cistern,hero
+#.#.#
+#.#.#
+#...#
+#.W.#
+##.##
+
+@rose-red-canyon-city/ziggurat_plaza
+size: 5
+tags: medium,stepped,terrace,rough
+##.##
+#.W.#
+.....
+#,.,#
+##.##
+
+@rose-red-canyon-city/hourglass_plaza
+size: 5
+tags: medium,hourglass,neck,cistern
+.....
+#.W.#
+##.##
+#...#
+.....
+
+@rose-red-canyon-city/funnel_stair
+size: 5
+tags: medium,stairs,funnel
+.....
+.....
+#...#
+##.##
+##.##
+
+@rose-red-canyon-city/square_cistern_court
+size: 5
+tags: open,courtyard,cistern,colonnade
+#...#
+.....
+.#W#.
+.....
+#...#
+
+@rose-red-canyon-city/colonnade_street
+size: 5
+tags: open,colonnade,street,rhythm
+.#..#
+.....
+..#..
+.....
+#..#.
+
+@rose-red-canyon-city/colonnade_grid
+size: 5
+tags: medium,colonnade,grid,pillars
+.#.#.
+.....
+.#.#.
+.....
+.#.#.
+
+@rose-red-canyon-city/stepped_run
+size: 5
+tags: medium,steps,diagonal,terrace
+...##
+.,.##
+..,..
+##.,.
+##...
+
+@rose-red-canyon-city/cistern_channel
+size: 5
+tags: open,channel,cistern,diagonal
+WW...
+.WW..
+..WW.
+...WW
+.....
+
+@rose-red-canyon-city/gate_hub_tight
+size: 5
+tags: tight,gate,hub,crossroads
+##.##
+##...
+.....
+...##
+##.##
+
+@rose-red-canyon-city/stacked_terraces
+size: 5
+tags: medium,terraces,stacked,rough
+#...#
+##.##
+#,,,#
+##,##
+#...#
+
+@rose-red-canyon-city/basin_tight
+size: 5
+tags: tight,basin,cistern,rough
+#...#
+#WWW#
+#.,.#
+##.##
+##,##
+
+@rose-red-canyon-city/twin_lobe_plaza
+size: 6
+tags: medium,figure-eight,twin,plaza,cistern,hero
+...###
+.W.###
+....##
+###...
+###...
+###...
+
+@rose-red-canyon-city/colonnade_court_ring
+size: 6
+tags: open,ring,colonnade,courtyard,cistern
+......
+.#..#.
+.#WW#.
+.#WW#.
+......
+......
+
+@rose-red-canyon-city/terrace_stairs
+size: 6
+tags: open,stepped,terrace,stairs
+##..##
+#....#
+#.,,.#
+......
+......
+......
+
+@rose-red-canyon-city/hourglass_pinch
+size: 6
+tags: medium,hourglass,pinch,hero
+......
+#.WW.#
+##..##
+##..##
+#....#
+......
+
+@rose-red-canyon-city/cross_plaza
+size: 6
+tags: medium,cross,plaza,arms,cistern
+##..##
+##..##
+......
+..WW..
+##..##
+##..##
