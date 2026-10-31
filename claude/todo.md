@@ -1,6 +1,6 @@
-# Gnome Venture: to-do (updated 2026-10-31, latest built release 2.3.8 (branch ccr-f7f10010-mkvd2b, not on main), main at 2.3.7 `bcaf4b47`)
+# Gnome Venture: to-do (updated 2026-10-31, latest built release 2.3.8, on main `e2c038d1`)
 
-## NOW (2.3.8, 2026-10-31): Stamp passport shorter. BUILT on branch `ccr-f7f10010-mkvd2b`, slim zip `releases/GnomeVenture-2.3.8-web-update.zip` (needs 2.3.6+). Joshua uploads and says when to merge to main.
+## NOW (2.3.8, 2026-10-31): Stamp passport shorter. BUILT, on main `e2c038d1`, slim zip `releases/GnomeVenture-2.3.8-web-update.zip` (needs 2.3.6+). Joshua uploads.
 - **Joshua to check (phone and desktop):** Town > Stop tab: summary, Next up, folds (Titles earned, All sets, Stops by kind, Road Journal), current region opens, Not started yet fold, long stamp names wrap, bottom nav does not cover the end of the page, dark and light.
 - **Open follow-ups:** desktop region grid leaves an empty cell beside an opened left-column region (kept for keyboard order); status strip overflows at 768px site-wide (not this change); `PRODUCT.md` / `DESIGN.md` still do not exist for impeccable (`init` / `document`).
 
