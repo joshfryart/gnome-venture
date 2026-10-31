@@ -1,0 +1,47 @@
+{
+ "scene": "kitchen",
+ "w": 300,
+ "h": 200,
+ "hotspots": [
+  {
+   "id": "oven",
+   "label": "Bread oven",
+   "x": 4,
+   "y": 26,
+   "w": 80,
+   "h": 142
+  },
+  {
+   "id": "stove",
+   "label": "Stove",
+   "x": 86,
+   "y": 26,
+   "w": 66,
+   "h": 140
+  },
+  {
+   "id": "table",
+   "label": "Worktable",
+   "x": 154,
+   "y": 64,
+   "w": 94,
+   "h": 104
+  },
+  {
+   "id": "rack",
+   "label": "Pan rack",
+   "x": 160,
+   "y": 10,
+   "w": 86,
+   "h": 54
+  },
+  {
+   "id": "barrel",
+   "label": "Produce barrel",
+   "x": 250,
+   "y": 94,
+   "w": 50,
+   "h": 104
+  }
+ ]
+}
