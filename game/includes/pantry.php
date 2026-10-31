@@ -33,6 +33,31 @@ function pantry_jar_limit(int $uid): int
     return (int)user_building_bonus($uid, 'kitchen')['jars'];
 }
 
+/** The Pantry's rooms (v2.3.9): one set of jars per kind, each with pantry_jar_limit() jars, so a full Jam room never stops a Pickle batch. Kind = the jar timer in days. */
+const PANTRY_KINDS = ['jam' => ['Jam', [1]], 'chutney' => ['Chutney', [2]], 'pickle' => ['Pickle', [3]], 'ferment' => ['Ferment', [5, 7]], 'cordial' => ['Cordial', [14]]];
+
+/** The room a recipe (any row with cook_minutes) preserves in. */
+function pantry_kind(array $r): string
+{
+    $d = (int)round(pantry_seconds($r) / 86400);
+    foreach (PANTRY_KINDS as $k => [, $ds]) if (in_array($d, $ds, true)) return $k;
+    return 'jam';
+}
+
+/** Jars in use per room: kind => count (all five kinds present). */
+function pantry_busy_by_kind(int $uid): array
+{
+    $o = array_fill_keys(array_keys(PANTRY_KINDS), 0);
+    foreach (q('SELECT r.cook_minutes FROM pantry_jars j LEFT JOIN recipes r ON r.id = j.recipe_id WHERE j.user_id = ? AND j.collected_at IS NULL', [$uid])->fetchAll() as $row) $o[pantry_kind($row)]++;
+    return $o;
+}
+
+/** Free jars in one room. */
+function pantry_free(int $uid, string $kind): int
+{
+    return max(0, pantry_jar_limit($uid) - (pantry_busy_by_kind($uid)[$kind] ?? 0));
+}
+
 /** Jars in use: preserving, or done and waiting to be collected. */
 function pantry_busy(int $uid): int
 {
@@ -48,12 +73,13 @@ function pantry_ready_count(int $uid): int
 /** Jars in use, soonest first, with the preserve's name and seconds left (0 = ready). */
 function pantry_jars_list(int $uid): array
 {
-    $rows = q('SELECT j.id, j.qty, j.score, j.ready_at, i.name, i.id AS item_id FROM pantry_jars j
+    $rows = q('SELECT j.id, j.qty, j.score, j.ready_at, i.name, i.id AS item_id, r.cook_minutes FROM pantry_jars j
                LEFT JOIN recipes r ON r.id = j.recipe_id LEFT JOIN items i ON i.id = r.output_item_id
                WHERE j.user_id = ? AND j.collected_at IS NULL ORDER BY j.ready_at, j.id', [$uid])->fetchAll();
     foreach ($rows as &$r) {
         $r['left'] = max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
         $r['name'] = (string)($r['name'] ?? 'Preserve');
+        $r['kind'] = pantry_kind($r);
     }
     return $rows;
 }
@@ -103,7 +129,7 @@ function pantry_buy(array $u, int $plotId): array
     }
     $page = unlock_entries($uid, 'pantry');
     db()->commit();
-    return [true, '🫙 You fit a Pantry to your Kitchen: ' . pantry_jar_limit($uid) . ' jars for jam, pickles and cordials. Find it in Satchel → Crafting → Pantry.' . ($page ? ' 📖 New Almanac page!' : '')];
+    return [true, '🫙 You fit a Pantry to your Kitchen: ' . pantry_jar_limit($uid) . ' jars in each room (jam, chutney, pickles, ferments, cordials). Find it in Satchel → Crafting → Pantry.' . ($page ? ' 📖 New Almanac page!' : '')];
 }
 
 /**
@@ -128,8 +154,9 @@ function pantry_start(array $u, array $r, int|string $want): array
     $uid = (int)$u['id'];
     $limit = pantry_jar_limit($uid);
     if ($limit < 1) return [false, 'You need a 🫙 Pantry on a Kitchen first (🏠 Garden buildings → Kitchen).'];
-    $free = $limit - pantry_busy($uid);
-    if ($free < 1) return [false, 'All your jars are full. Collect a finished one, or wait for a timer.'];
+    $kind = pantry_kind($r);
+    $free = pantry_free($uid, $kind);
+    if ($free < 1) return [false, 'All ' . $limit . ' jars in the ' . PANTRY_KINDS[$kind][0] . ' room are full. Collect a finished one, or wait for a timer (the other rooms are separate).'];
     $energy = max(0, (int)$r['energy']);
     $stock = craft_stock($uid, (string)$r['ingredients']);
     $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);

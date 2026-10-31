@@ -328,6 +328,14 @@ function status_strip(array $u): string
     $glevel = (int)q_val('SELECT p.garden_level FROM plots p JOIN users u ON u.active_plot_id = p.id WHERE u.id = ?', [$u['id']]);
     // v1.6.3: the pills are built once. A computer shows them as the old scrolling row; a phone shows one slim line (level · season · festival, stat-point badge) that opens to the same pills.
     $lvlPill = '<span class="st lvl" title="Gnome experience">🌱 Gnome level <b>' . (int)$u['level'] . '</b> <small>(' . number_format((int)$u['xp']) . '/' . number_format(xp_for_level((int)$u['level'] + 1)) . ' XP)</small></span>';
+    require_once __DIR__ . '/health.php';
+    $hpPill = $hpLine = '';
+    if (hp_on()) {   // v2.3.9: health beside the level bar (live out on an adventure)
+        [$hpNow, $hpMax] = hp_display($u);
+        $hpTitle = 'Health ' . $hpNow . '/' . $hpMax;
+        $hpPill = '<span class="st hp" title="' . e($hpTitle) . '"><a href="' . e(url('gnome.php')) . '">❤️ ' . hp_bar_html($hpNow, $hpMax, 'hpbar-s') . ' <b>' . $hpNow . '</b>/' . $hpMax . '</a></span>';
+        $hpLine = '<a class="stl" href="' . e(url('gnome.php')) . '" title="' . e($hpTitle) . '">❤️ ' . hp_bar_html($hpNow, $hpMax, 'hpbar-s') . '</a>';
+    }
     $rest = hollow_chip(hollow_user_region($u))   // v1.0.0: season · weather · part of the day
         . ($glevel ? '<span class="st lvl glvl">🏡 Garden level <b>' . $glevel . '</b></span>' : '')
         . '<span class="st alm"><a href="' . e(url('book.php')) . '">📖 Almanac <b>' . $pages . '</b>/' . $total . '</a></span>'
@@ -341,12 +349,13 @@ function status_strip(array $u): string
     $fest = festival_active();
     $h = '<div class="statusstrip"><div class="statusin">'
         . '<span class="st energy" title="Energy' . ($enl !== '' ? ': ' . e($enl) : '') . '">⚡ <progress class="ebar" aria-label="Energy" max="' . $max . '" value="' . $energy . '"></progress> <b>' . $energy . '</b>/' . $max . ($enl !== '' ? ' <small>' . e(energy_next_text($u)) . '</small>' : '') . '</span>'
-        . $lvlPill . $rest . $statHot . $titleP
+        . $hpPill . $lvlPill . $rest . $statHot . $titleP
         . '</div>'
         // v1.6.3: phone line, no fold (Joshua: less info): level + small XP bar · season day + weather · festival icon · ready/stat badges
         . '<div class="stfold"><div class="stsum">'
         . '<a class="stl" href="' . e(url('gnome.php')) . '" title="Gnome level ' . (int)$u['level'] . ': ' . number_format((int)$u['xp']) . '/' . number_format(xp_for_level((int)$u['level'] + 1)) . ' XP">🌱 <b>' . (int)$u['level'] . '</b> '
         . '<progress class="xpbar" aria-label="XP to next level" max="' . max(1, xp_for_level((int)$u['level'] + 1) - xp_for_level((int)$u['level'])) . '" value="' . max(0, min((int)$u['xp'], xp_for_level((int)$u['level'] + 1)) - xp_for_level((int)$u['level'])) . '"></progress></a>'
+        . $hpLine
         . '<a class="stl" href="' . e(url('world.php?tab=seasons#seasons')) . '" title="' . e($hn['season_label'] . ' day ' . (int)$hn['season_day'] . ' · ' . $hn['weather_label']) . '">' . $hn['season_emoji'] . ' ' . e($hn['season_label']) . ' ' . (int)$hn['season_day'] . ' ' . $hn['weather_emoji'] . '</a>'
         . ($fest ? '<a class="stl" href="' . e(url('festival.php')) . '" aria-label="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '" title="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '">' . e($fest['icon']) . '</a>' : '')
         . ($pots > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '" title="Pots ready" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
@@ -466,6 +475,7 @@ function adventure_topbar(array $u): string
         $actions = $btn('attack', '⚔️ Attack')
             . (!empty($enc['used']) ? '<button class="btn small" disabled title="' . e($abDesc) . '">✨ ' . e($abName) . ' (used)</button>'
                                     : $btn('ability', '✨ ' . e($abName), '', ' title="' . e($abDesc . ' Once per fight.') . '"'))
+            . (function_exists('ppal_boons_on') && ppal_boons_on() ? implode('', array_map(fn($pa) => $pa['used'] ? '<button class="btn small" disabled>✨ ' . e($pa['title']) . ' (used)</button>' : $btn($pa['do'], '✨ ' . e($pa['title']), '', ' title="' . e($pa['sub']) . '"'), ppal_fight_actives($u, $enc))) : '')
             . $btn('flee', '🏃 Run')
             . (can_fight_on($exp) ? $btn('fighton', '⏩ Fight on') : '')   // v1.3.0
             . fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => $btn($do, $label, $extra, ' class="snackform"'));   // v1.4.0
@@ -483,6 +493,7 @@ function adventure_topbar(array $u): string
         $actionsRow = '<div class="choices advchoices">'
             . $cbtn('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage', [$hitPct . '%', choice_odds_class($hitPct)], 'primary')
             . (!empty($enc['used']) ? $cbtn('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : $cbtn('ability', '✨', $abName, 'Once per fight'))
+            . (function_exists('ppal_boons_on') && ppal_boons_on() ? implode('', array_map(fn($pa) => $pa['used'] ? $cbtn($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : $cbtn($pa['do'], '✨', $pa['title'], 'Once per fight'), ppal_fight_actives($u, $enc))) : '')
             . $cbtn('flee', '🏃', 'Run', 'No reward', [$runPct . '%', choice_odds_class($runPct)])
             . (can_fight_on($exp) ? $cbtn('fighton', '⏩', 'Fight on', 'Till done or half health') : '')
             . fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => $cbtn($do, '🎒', 'Snack', 'Heals; uses your turn', '', '', $extra))

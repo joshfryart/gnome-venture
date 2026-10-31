@@ -77,6 +77,11 @@ EXPH=$(db "SELECT hp FROM expeditions WHERE user_id=$SID ORDER BY id DESC LIMIT 
 chk "the walk starts with the gnome's health ($EXPH of $MAXHP), not full" "$([ "$EXPH" -ge 14 ] && [ "$EXPH" -le 16 ] && echo 1)"
 dbx "UPDATE users SET hp_at=datetime('now','-30 minutes') WHERE id=$SID"
 chk "while adventuring the clock does not run" "$([ "$(PHPR 'echo hp_get($u)[0];')" -le 16 ] && echo 1)"
+dbx "UPDATE expeditions SET hp=7 WHERE user_id=$SID AND status='active'"
+chk "out adventuring the bars show the LIVE expedition health (7), not the stored one" "$([ "$(PHPR 'echo hp_display($u)[0];')" = 7 ] && echo 1)"
+get gnome.php >/dev/null
+chk "My Gnome health bar is a <progress> carrying the value (no inline style)" "$(grep -q '<progress class="hpbar" aria-label="Health" max="[0-9]*" value="7"' $H && ! grep -q '<i style=' $H && echo 1)"
+chk "the top bar has a health bar next to the level bar" "$(grep -q 'class="st hp"' $H && grep -q 'progress class="hpbar hpbar-s"' $H && echo 1)"
 
 echo "== walking home keeps the damage; a knock-out wakes at half"
 PHPR '$exp = active_expedition((int)$u["id"]); $exp["hp"] = 7; save_exp($exp);' >/dev/null

@@ -61,19 +61,19 @@ chk "pantry = 1" "$(db "SELECT pantry FROM garden_buildings WHERE plot_id=$P")" 
 m=$(post $GP $GP -d do=pantry_buy); has "already has" "$m" "second purchase refused"; chk "no double charge" "$(coins)" 4400
 chk "Almanac: both pages unlocked" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id=ue.entry_id WHERE ue.user_id=$UID_ AND e.unlock_key='pantry'")" 2
 dbx "DELETE FROM garden_buildings WHERE plot_id=$P AND building='kitchen'"; dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect,pantry) VALUES ($P,'kitchen',datetime('now'),datetime('now'),1)"
-page "$GP?t=bld"; has "0/5 jars in use" "$(grep -o '[0-9]*/[0-9]* jars in use' /tmp/pk.html | head -1)" "Kitchen tile: Pantry with 5 jars"; has "2 pots" "$(grep -o '2 pots · 🫙 5' /tmp/pk.html | head -1)" "tile status shows pots and jars"
+page "$GP?t=bld"; has "0 jars in use (5 in each" "$(grep -o '[0-9]* jars in use (5 in each' /tmp/pk.html | head -1)" "Kitchen tile: Pantry with 5 jars"; has "2 pots" "$(grep -o '2 pots · 🫙 5' /tmp/pk.html | head -1)" "tile status shows pots and jars"
 echo "bad csrf buy: $(curl -s -b $C -X POST "$BASE/garden.php" -d csrf=x -d do=pantry_buy -o /dev/null -w '%{http_code}')"
 
 echo "== jars: 5 to start, a jar per batch, energy 1 a batch"
-page "$PT"; chk "jar strip" "$(grep -c 'class="p2jars jarstrip"' /tmp/pk.html)" 1; chk "5 free jars" "$(grep -o '+5 free' /tmp/pk.html | wc -l)" 1; has "0/5" "$(grep -o '[0-9]*/[0-9]* jars in use' /tmp/pk.html | head -1)" "0/5 in use"
+page "$PT"; chk "jar strip" "$(grep -c 'class="p2jars jarstrip"' /tmp/pk.html)" 1; chk "5 free jars" "$(grep -o '+5 free' /tmp/pk.html | wc -l)" 1; has "0 jars in use" "$(grep -o '[0-9]* jars in use' /tmp/pk.html | head -1)" "0 in use, 5 in each room"
 chk "$NPRE recipe rows on the tab" "$(grep -o 'class="p2row' /tmp/pk.html | wc -l)" $NPRE; chk "selected recipe tagged preserve" "$(grep -o '🫙 preserve' /tmp/pk.html | wc -l)" 1
 setE 60; S0=$(qty strawberry); m=$(makeit strawberry-jam 3)
 has "Preserving 3 batches of Strawberry Jam" "$m" "3 batches started"; chk "3 jars busy" "$(jars)" 3; chk "energy 60 -> 57" "$(energy)" 57; chk "strawberries taken (5 each)" "$(qty strawberry)" $((S0-15))
 chk "each jar holds 4 jam, ready in exactly 1 day" "$(db "SELECT DISTINCT qty||'/'||CAST((julianday(ready_at)-julianday(started_at))*86400+0.5 AS INTEGER) FROM pantry_jars")" "4/86400"
 chk "quality scores 0-100" "$(db "SELECT COUNT(*) FROM pantry_jars WHERE score < 1 OR score > 100")" 0
 m=$(makeit plum-jam 5); has "Only 2 fit" "$m" "5 asked, 2 free jars: clamped"; chk "5 jars busy" "$(jars)" 5; chk "energy -2" "$(energy)" 55
-m=$(makeit plum-jam 1); has "All your jars are full" "$m" "6th jar refused"; chk "still 5" "$(jars)" 5; chk "energy untouched" "$(energy)" 55
-page "$PT"; has "5/5 jars" "$(grep -o '[0-9]*/[0-9]* jars in use' /tmp/pk.html | head -1)" "strip: 5/5"; has "All jars are full" "$(grep -o 'All jars are full' /tmp/pk.html | head -1)" "cards say all jars are full"
+m=$(makeit plum-jam 1); has "Jam room are full" "$m" "6th jam jar refused"; chk "still 5" "$(jars)" 5; chk "energy untouched" "$(energy)" 55
+page "$PT"; has "5 jars in use" "$(grep -o '[0-9]* jars in use' /tmp/pk.html | head -1)" "strip: 5 in use"; page "$PT&k=jam"; has "room is full" "$(grep -o 'room is full' /tmp/pk.html | head -1)" "jam cards say the room is full"
 chk "jar timers shown" "$(grep -o 'data-jarleft' /tmp/pk.html | wc -l)" 5; chk "Collect forms hidden until ready" "$(grep -o 'class="potcollect" hidden' /tmp/pk.html | wc -l)" 5
 
 echo "== lazy timers: nothing before the time, collect after"
@@ -100,7 +100,7 @@ chk "Fair: best Preserves jar kept this month" "$(db "SELECT label FROM fair_bes
 m=$(post crafting.php "$PT" -d do=jar_collect -d jar_id=$J1); has "already empty" "$m" "second collect refused"; chk "jam not doubled" "$(qty strawberry-jam)" $((N0+4))
 m=$(post crafting.php "$PT" -d do=jar_collect_all); has "Collected 8 × Strawberry Jam" "$m" "collect all takes the other two"; chk "jam +12 in all" "$(qty strawberry-jam)" $((N0+12)); chk "plum jars still waiting" "$(jars)" 2
 chk "craft job +3 in all" "$(jobp craft)" 3; chk "cook job still 0" "$(jobp cook)" 0
-page "$PT"; has "2/5" "$(grep -o '[0-9]*/[0-9]* jars in use' /tmp/pk.html | head -1)" "strip: 2/5 now"
+page "$PT"; has "2 jars in use" "$(grep -o '[0-9]* jars in use' /tmp/pk.html | head -1)" "strip: 2 in use now"
 
 echo "== eating a preserve: energy like a meal, long small buff"
 give sauerkraut 3; give strawberry-jam 3; dbx "UPDATE users SET calling=NULL, calling_chapter=NULL, level=20, buff=NULL, buff_until=NULL, buff2=NULL, buff2_until=NULL WHERE id=$UID_"
@@ -115,9 +115,9 @@ page inventory.php; echo "satchel shows jam: $(grep -c 'Strawberry Jam' /tmp/pk.
 
 echo "== Kitchen III: +2 jars"
 dbx "UPDATE garden_buildings SET level=3 WHERE plot_id=$P AND building='kitchen'"; setE 60
-page "$PT"; has "2/7" "$(grep -o '[0-9]*/[0-9]* jars in use' /tmp/pk.html | head -1)" "strip: 2/7 at Kitchen III"
-m=$(makeit tomato-chutney 6); has "Only 5 fit" "$m" "7 jars - 2 busy = 5 free"; chk "7 busy" "$(jars)" 7
-m=$(makeit tomato-chutney 1); has "All your jars are full" "$m" "8th refused"
+page "$PT"; has "7 in each room" "$(grep -o '· [0-9]* in each room' /tmp/pk.html | head -1 | grep -o '[0-9]* in each room')" "strip: 7 per room at Kitchen III"
+m=$(makeit tomato-chutney 6); has "Preserving 6 batches" "$m" "the Chutney room is separate: 6 fit although 2 jam jars are busy"; chk "8 busy (2 jam + 6 chutney)" "$(jars)" 8
+m=$(makeit tomato-chutney 1); has "Preserving 1 batch" "$m" "7th chutney jar"; m=$(makeit tomato-chutney 1); has "Chutney room are full" "$m" "8th chutney refused, the room is full"
 chk "chutney takes 2 days" "$(db "SELECT DISTINCT CAST((julianday(ready_at)-julianday(started_at))*86400+0.5 AS INTEGER) FROM pantry_jars j JOIN recipes r ON r.id=j.recipe_id WHERE r.slug='tomato-chutney'")" 172800
 readyall; m=$(post crafting.php "$PT" -d do=jar_collect_all); has "Collected" "$m" "collected the lot"; chk "all jars empty" "$(jars)" 0
 page "$PT"; chk "7 free jars shown" "$(grep -o '+7 free' /tmp/pk.html | wc -l)" 1

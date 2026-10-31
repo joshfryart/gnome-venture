@@ -388,6 +388,7 @@ function settings_schema(): array
         'pj_min_level' => ['label' => 'Pal jobs: gnome level needed (v2.3.0)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 100],
         'pj_max_away' => ['label' => 'Pal jobs: pals out at once per gnome (v2.3.0)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],
         'pj_runs_per_day' => ['label' => 'Pal jobs: trips and delve runs per gnome per Hollow day (v2.3.0)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 50],
+        'ppal_boons' => ['label' => 'Puzzle Pals: pals with a Boon use it instead of their calling skill (needs take-along on) (v2.3.8)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'ppal_party_max' => ['label' => 'Puzzle Pals: pals a gnome can take along (v2.0.88)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 3],
         'ppal_roster_size' => ['label' => 'Puzzle Pals: pals per picture (6 = 3 common, 2 uncommon, 1 rare; authored rosters are cut to this) (v2.0.88)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 6],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],

@@ -622,6 +622,9 @@ function post_update_news(string $from): void
         "[list][*]The [b]Stamp passport[/b] (Town, Stop tab) is much shorter. You see your total, the three sets closest to done, and your current region.\n"
         . "[*]Titles, all sets, stops by kind and the Road Journal tuck into folds. Tap one to open it.\n"
         . "[*]Regions you have not started wait in one fold, and on a wide screen the sets and regions sit in columns.[/list]"],
+    '2.3.9' => ['❤️ Update 2.3.9: health bars and Pantry rooms',
+        "[list][*][b]Health[/b]: a health bar now sits next to your level bar at the top of every page, and the bar on My Gnome shows your real health, even while you are out adventuring.\n"
+        . "[*][b]Pantry[/b]: jam, chutney, pickles, ferments and cordials each have their own room of jars, so a full jam shelf never stops you pickling.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

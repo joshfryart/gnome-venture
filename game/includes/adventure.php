@@ -74,10 +74,11 @@ function gnome_combat(array $u, bool $pals = false): array
     $sk = [];   // v2.0.92: the pals' combat skills (ppal_skills); empty unless pals come along, so a gnome without pals fights exactly as before
     $pal = 0;   // v2.0.88: the Puzzle Pals road perk: +N Grit, Nimble and Hardiness modifiers in road, lair and delve fights (Treks and contests use other code)
     if ($pals && setting('ppal_party') === '1') { require_once __DIR__ . '/puzzle_pals.php'; if ((int)$u['level'] >= PPAL_PARTY_LEVEL) { $pal = ppal_perks($u)['road']; $sk = ppal_skills($u); } }
-    $grit = eff_mod($u, 'grit') + $pal;
-    $nim = eff_mod($u, 'nimble') + $pal;
+    $tonic = !empty($sk['tonic']) && active_buff($u) ? (int)$sk['tonic'] : 0;   // v2.3.8 Boon tonic: a meal or potion boost is on, so Grit and Nimble count more
+    $grit = eff_mod($u, 'grit') + $pal + $tonic;
+    $nim = eff_mod($u, 'nimble') + $pal + $tonic;
     return [   // v0.9.1: calling numbers now come from the tier table (calling_perk)
-        'max_hp' => max(10, 20 + 3 * $lvl + 5 * (eff_mod($u, 'hardiness') + $pal) + calling_perk($u, 'hp_bonus')),
+        'max_hp' => max(10, 20 + 3 * $lvl + 5 * (eff_mod($u, 'hardiness') + $pal) + calling_perk($u, 'hp_bonus') + ($sk['bulwark'] ?? 0)),
         'ac' => 10 + $nim + intdiv($lvl, 4) + calling_perk($u, 'def_bonus') + ($sk['foot'] ?? 0),
         'atk' => 2 + intdiv($lvl, 2) + max($grit, $nim + calling_perk($u, 'atk_nimble')) + calling_perk($u, 'atk_bonus'),
         'dmg_die' => 8,
@@ -539,7 +540,24 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         if (!$snack) { exp_log($exp, '🎒 ' . $why); return false; }
     }
 
+    // v2.3.8: a rare pal's active skill (Boons): once per fight, uses the turn; refused (nothing spent) when it is not along or already used
+    $palAct = null;
+    if (str_starts_with($action, 'palskill:')) {
+        require_once __DIR__ . '/puzzle_pals.php';
+        $want = substr($action, 9);
+        foreach (ppal_actives($u) as $a) if ($a['key'] === $want) $palAct = $a;
+        if (!$palAct) { exp_log($exp, '✨ That pal is not with you.'); return false; }
+        if (in_array($want, (array)($enc['pa'] ?? []), true)) {
+            exp_log($exp, '✨ ' . $palAct['pal'] . ' has already helped this fight.');
+            $exp['encounter'] = json_encode($enc);
+            return false;
+        }
+        $enc['pa'] = array_merge((array)($enc['pa'] ?? []), [$want]);
+        $action = 'palskill';
+    }
+
     $palSk = $gc['pal'] ?? [];   // v2.0.92: pal skills (mend, running, sip, ward); no dice
+    $kin = (int)($palSk['kindle'] ?? 0);   // v2.3.8 Boon kindle: the calling ability one step stronger
     if (!empty($palSk['mend']) && (int)$exp['hp'] < (int)$exp['max_hp']) {
         $mend = min((int)$palSk['mend'], (int)$exp['max_hp'] - (int)$exp['hp']);
         $exp['hp'] = (int)$exp['hp'] + $mend;
@@ -556,7 +574,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if ($enc['hp'] > 0) {
         switch ($action) {
             case 'flee':
-                if (flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
+                if (!empty($enc['pn']) || flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0) + (int)($palSk['slip'] ?? 0), (int)$c['level'])) {   // pn: Snare   // v1.3.0: level/3 (was /2)
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
                     $exp['encounter'] = null;
                     return true;
@@ -569,10 +587,48 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     $exp['encounter'] = json_encode($enc);
                     return false;
                 }
-                $heal = min((int)$exp['max_hp'] - (int)$exp['hp'], !empty($palSk['sip']) ? (int)round((int)$snack['heal'] * (100 + (int)$palSk['sip']) / 100) : (int)$snack['heal']);
+                $heal = min((int)$exp['max_hp'] - (int)$exp['hp'], (!empty($palSk['sip']) ? (int)round((int)$snack['heal'] * (100 + (int)$palSk['sip']) / 100) : (int)$snack['heal']) + (int)($palSk['feast'] ?? 0));
                 $exp['hp'] = (int)$exp['hp'] + $heal;
                 $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
                 exp_log($exp, '🎒 You gulp down the ' . $snack['name'] . ': +' . $heal . ' health.');
+                break;
+            case 'palskill':
+                switch ($palAct['active']) {
+                    case 'strike':
+                        $enc['hp'] -= $palAct['value'];
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' strikes the ' . $c['name'] . ' for ' . $palAct['value'] . '.');
+                        break;
+                    case 'shield':
+                        $enc['ps'] = 2; $enc['psv'] = (int)$palAct['value'];
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' shields you: the next 2 hits are ' . $palAct['value'] . ' lighter.');
+                        break;
+                    case 'snare':
+                        $enc['pn'] = 1;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' snares the way out: your next run will work.');
+                        break;
+                    case 'sap':
+                        $enc['hp'] -= $palAct['value'];
+                        $enc['poison'] = 1;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' saps the ' . $c['name'] . ' for ' . $palAct['value'] . ' and leaves it poisoned.');
+                        break;
+                    case 'daze':
+                        $enc['pd'] = 1;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' dazes the ' . $c['name'] . '.');
+                        break;
+                    case 'rouse':
+                        $enc['used'] = false;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' rouses you: your ability is ready again.');
+                        break;
+                    case 'gust':
+                        $enc['pgu'] = 3; $enc['pgv'] = (int)$palAct['value'];
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' whips up a gust: the ' . $c['name'] . ' will miss more.');
+                        break;
+                    case 'patch':
+                        $heal = min($palAct['value'], (int)$exp['max_hp'] - (int)$exp['hp']);
+                        $exp['hp'] = (int)$exp['hp'] + $heal;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' patches you up: +' . $heal . ' health.');
+                        break;
+                }
                 break;
             case 'ability':
                 if ($enc['used']) {
@@ -584,16 +640,16 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                 [$name] = CALLING_ABILITIES[$calling] ?? CALLING_ABILITIES[''];
                 switch ($calling) {
                     case 'rootwarden':
-                        $enc['bark'] = 3;
+                        $enc['bark'] = 3 + $kin;
                         if (calling_perk($u, 'bark_heal') > 0) {   // v0.9.1: Master Rootwardens heal 1d6 too
                             $heal = d(6);
                             $exp['hp'] = min((int)$exp['max_hp'], (int)$exp['hp'] + $heal);
                             exp_log($exp, '🌳 The bark knits your wounds: +' . $heal . ' health.');
                         }
-                        exp_log($exp, '🌳 Bark Skin! Damage halved for 3 rounds.');
+                        exp_log($exp, '🌳 Bark Skin! Damage halved for ' . (3 + $kin) . ' rounds.');
                         break;
                     case 'bloomcaller':
-                        $r = d(20) + eff_mod($u, 'charm');
+                        $r = d(20) + eff_mod($u, 'charm') + 2 * $kin;
                         if ($r >= 10 + intdiv((int)$c['level'], 2)) {
                             $peaceful = true;
                             $enc['hp'] = 0;
@@ -606,7 +662,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                         for ($i = 0; $i < 2; $i++) {
                             [, $tot, $crit] = attack_roll($gc, 0);
                             if ($tot >= (int)$c['defense']) {
-                                $dmg = damage($gc, $crit);
+                                $dmg = damage($gc, $crit, $kin);
                                 $enc['hp'] -= $dmg;
                                 exp_log($exp, '🗡️ Thorn Flurry hits for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
                             } else {
@@ -615,14 +671,14 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                         }
                         break;
                     case 'seedkeeper':
-                        $dmg = max(1, d(6) + d(6) + eff_mod($u, 'lore'));
+                        $dmg = max(1, d(6) + d(6) + eff_mod($u, 'lore') + 2 * $kin);
                         $enc['hp'] -= $dmg;
                         exp_log($exp, '🍄 Spore Burst engulfs the ' . $c['name'] . ' for ' . $dmg . '.');
                         break;
                     case 'wayfinder':
                         [, $tot, $crit] = attack_roll($gc, 0, true);
                         if ($tot >= (int)$c['defense']) {
-                            $dmg = damage($gc, $crit, 2);
+                            $dmg = damage($gc, $crit, 2 + 2 * $kin);
                             $enc['hp'] -= $dmg;
                             exp_log($exp, '🎯 Aimed Shot hits for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
                         } else {
@@ -630,7 +686,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                         }
                         break;
                     case 'brewroot':
-                        $dmg = d(6);
+                        $dmg = d(6) + 2 * $kin;
                         $enc['hp'] -= $dmg;
                         $enc['poison'] = 1;
                         exp_log($exp, '🧪 Bitter Brew splashes for ' . $dmg . ' and keeps burning.');
@@ -647,7 +703,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                 }
                 break;
             default: // attack
-                [$raw, $tot, $crit] = attack_roll($gc, 0);
+                [$raw, $tot, $crit] = attack_roll($gc, empty($enc['rd']) ? (int)($palSk['first'] ?? 0) : 0);   // v2.3.8: Boon first = to-hit on round 1 only
                 if ($tot >= (int)$c['defense']) {
                     $dmg = damage($gc, $crit);
                     $enc['hp'] -= $dmg;
@@ -665,9 +721,25 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     }
 
     // Creature's turn
-    if (foe_hits((int)$c['attack'], $gc['ac'])) {
+    $dazed = !empty($enc['pd']) && ($c['size'] ?? '') !== 'boss';   // v2.3.8 Daze: a creature loses its turn; a boss only has its next hit halved
+    $bossDaze = !empty($enc['pd']) && !$dazed;
+    if (!empty($enc['pd'])) $enc['pd'] = 0;
+    $gust = (int)($enc['pgu'] ?? 0) > 0 ? (int)($enc['pgv'] ?? 2) : 0;   // Gust: -2 to hit for 3 rounds (-4 from two pals)
+    if ($gust) $enc['pgu'] = (int)$enc['pgu'] - 1;
+    if ($dazed) {
+        exp_log($exp, '💫 The ' . $c['name'] . ' is dazed and loses its turn.');
+    } elseif (foe_hits((int)$c['attack'] - $gust, $gc['ac'])) {
         $dmg = foe_damage((int)$c['dmg_die'], (int)$c['dmg_bonus']);
         if ($enc['bark'] > 0) $dmg = max(1, intdiv($dmg, 2));
+        if ($bossDaze) $dmg = max(1, intdiv($dmg, 2));
+        if (!empty($palSk['guard']) && (int)($enc['pg'] ?? 0) < (int)$palSk['guard']) {   // v2.3.8 Boon guard: the first N hits of a fight are halved
+            $dmg = max(1, intdiv($dmg, 2));
+            $enc['pg'] = (int)($enc['pg'] ?? 0) + 1;
+        }
+        if ((int)($enc['ps'] ?? 0) > 0) {   // v2.3.8 shield active: the next 2 hits
+            $dmg = max(1, $dmg - (int)($enc['psv'] ?? 3));
+            $enc['ps'] = (int)$enc['ps'] - 1;
+        }
         if (!empty($palSk['ward'])) $dmg = max(1, $dmg - (int)$palSk['ward']);
         $exp['hp'] = (int)$exp['hp'] - $dmg;
         exp_log($exp, '💥 The ' . $c['name'] . ' hits you for ' . $dmg . '.');
@@ -675,6 +747,13 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         exp_log($exp, '🛡️ The ' . $c['name'] . ' misses you.');
     }
     if ($enc['bark'] > 0) $enc['bark']--;
+    $enc['rd'] = (int)($enc['rd'] ?? 0) + 1;
+    if (!empty($palSk['rally']) && empty($enc['pr']) && (int)$exp['hp'] > 0 && (int)$exp['hp'] * 10 <= (int)$exp['max_hp'] * 3) {   // v2.3.8 Boon rally: once a fight at 30% health or less
+        $enc['pr'] = 1;
+        $rh = min((int)$palSk['rally'], (int)$exp['max_hp'] - (int)$exp['hp']);
+        $exp['hp'] = (int)$exp['hp'] + $rh;
+        exp_log($exp, '🌱 Your pal rallies you: +' . $rh . ' health.');
+    }
     $exp['encounter'] = json_encode($enc);
 
     if ((int)$exp['hp'] <= 0) {
@@ -687,9 +766,11 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
 function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
 {
     $uid = (int)$u['id'];
+    $ps = ppal_boons_on() ? ppal_skills($u) : [];   // v2.3.8: Boons spoils (drop chance) and lesson (Fighting XP); [] with no pals along
     $xp = $peaceful ? intdiv((int)$c['xp'], 2) : (int)$c['xp'];
     $pct = outlevel_percent($u, max((int)($exp['level'] ?? 0), (int)$c['level']));   // v0.7.75: outgrown areas give less XP (drops unchanged); judged by the area, not a weaker creature in it
     $xp = outlevel_scale($xp, $pct);
+    if (!empty($ps['lesson'])) $xp = intdiv($xp * (100 + (int)$ps['lesson']), 100);
     [$xp, $lvl] = add_action_xp($uid, $xp, 'Fighting', (int)$u['level']);   // v0.9.7: action XP grows with the gnome's level (after the outgrown-area cut)
     require_once __DIR__ . '/jobs.php';
     $fx = ['size' => (string)($c['size'] ?? 'small'), 'peaceful' => $peaceful ? 1 : 0];
@@ -704,7 +785,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
         $scene = exp_scene($exp);
         $luckBonus = max(0, luck_mod($u)) * 2;
         foreach (q('SELECT * FROM creature_drops WHERE creature_id = ?', [$c['id']])->fetchAll() as $dr) {
-            if (random_int(1, 100) > min(100, (int)$dr['chance'] + $luckBonus)) continue;
+            if (random_int(1, 100) > min(100, (int)$dr['chance'] + $luckBonus + (int)($ps['spoils'] ?? 0))) continue;
             if ($dr['special'] === 'seed') {
                 exp_log($exp, give_local_seed($u, $scene) ?? give_find($u, $scene));
             } elseif ($dr['special'] === 'guide') {

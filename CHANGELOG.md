@@ -1,9 +1,26 @@
 # Changelog
 
+## 2.3.91
+- **Merge:** brings the 2.3.9 branch (Boons, health bars, Pantry rooms) together with `main`'s 2.3.8 (shorter Stamp passport).
+- **Here page:** a Puzzle Pal waiting at your spot now also shows its "Say hello" card on the Here page (rest stop and town square), not only on World > Go.
+- **Pal actives stack:** pals with the same active skill give one fight button at double (or more) strength, not a second button.
+
+## 2.3.9
+- **Puzzle Pal Boons** (from 2.3.8, still OFF: `ppal_boons`, needs `ppal_party`): all 570 pals have a Boon, rares have an active skill. Included here again so one zip carries everything since 2.3.4.
+- **Health bars:** the My Gnome bar is a `<progress>` that shows the live value (the old inline `style="width"` was blocked by the CSP, and the stored value was stale while out on a trip, `hp_display()`); new health bar beside the level bar in the top bar (`status_strip`, desktop pill and phone line, `hp_bar_html()`).
+- **Pantry rooms:** every kind (jam, chutney, pickle, ferment, cordial; `PANTRY_KINDS`, `pantry_kind()`) has its own set of jars, each with the same count the Pantry gave in total (`pantry_free()`, `pantry_busy_by_kind()`). Per-room counts on the Pantry tab and Kitchen tile. Tests updated in `tests/pantry.sh` (a full jam room does not stop chutney).
+- Player news entry added.
+
 ## 2.3.8
 - **Stamp passport, shorter.** Town > Stop tab, about 75% shorter on a phone (390px: 5800px to about 1400px) and on desktop (1366px: 4492px to about 1040px). One summary bar, a "Next up" list of the three closest sets, and closed folds for Titles earned, All sets and rewards, Stops by kind and the Road Journal. Regions are rows with a count and a bar; only your current region opens, with small stamp thumbnails. Regions with no stamps share a "Not started yet" fold. Desktop: sets and regions in columns that follow the tab width (container query `stoptab`), Road Journal beside Seasons & weather.
 - Built from the site's own parts: `h2.gx-h` / `.gx-note` headings, `.box` panels with `details.fold` rows. The Seasons & weather summary now reads "Seasons & weather" with Summer and the weather beside it, so it no longer wraps (shared `season_fold_html`; rest-stop Stop tab checked).
 - Files: `includes/stop_pass.php`, `includes/place_ui.php`, `includes/road_life.php` (journal is a closed fold), passport block of `style.css`. No schema change, no new settings. Tests: `stops100`, `roadkinds`, `roadlife`, `roadtext`, `villagers`. Not run: MySQL, phone check.
+
+## 2.3.8 (Boons build, folded into 2.3.9)
+- **Puzzle Pal Boons (OFF: setting `ppal_boons`, needs `ppal_party`).** Every one of the 570 pals has its own combat Boon instead of its calling skill: 16 effects (ward, edge, foot, mend, sip, petal, guard, bulwark, slip, feast, rally, first, kindle, spoils, lesson, tonic) in `includes/data/puzzle_pal_boons.txt`, sizes by rarity in `PPAL_EFFECTS`. Rosters are unique (no two share 4+ effect/rarity pairs). Pals of uploaded pictures get a seeded Boon (`ppal_seeded_boon`).
+- **Rare actives:** each rare has one once-per-fight skill (strike, shield, patch, snare, sap, daze, rouse, gust) as a fight button (`palskill:KEY`, three fight renders), uses the turn, no dice.
+- **Tools and tests:** `tools/lint_pal_boons.py` (`--require-boons` in `tests/puzzle_pals.sh`), `tools/pal_boons_draft.py`, `claude/pal-boons-sim.php`, Boon sections in `tests/puzzle_pals_party.php`. Design: `claude/brainstorm-pal-rosters.md`. No schema change, no player news (feature hidden).
+- Also: the Pal Book test no longer fails when a pal happens to wait on the map.
 
 ## 2.3.7
 - **Merge release.** Alchemy: 7 new potions (`includes/alchemy.php`; Strong Healing, Grand Healing Elixir, Lucky, Sage's, Stoneskin, Swiftfoot, Garden Tonic), each usable by the gnome (Satchel Drink, My Gnome Potions box, Garden Tonic on a plot) and some by pals; B icon set. Crafting map: per-object recipe tags (`?o=`), one recipe pass for the landing badges. Pantry: 11 new icons (B), hidden Brewroot Pomeroy task (needs `gourmand_open`), tests honour TMPDIR.
