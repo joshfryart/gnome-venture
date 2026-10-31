@@ -42,6 +42,15 @@ chk "level 10: page renders" "$(get paljobs.php)" 200
 chk "page lists pals" "$(grep -c 'class="pjrow pjpal' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "page has the send forms" "$(grep -c 'name="do" value="send_trip"' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "no inline style attributes" "$(grep -c ' style=' $H)" 0
+dbx "DELETE FROM ppal_jobs WHERE kind IN ('delve','trip')"; dbx "UPDATE ppal_found SET a_xp=0, status='home', hp=-1"
+get paljobs.php >/dev/null
+chk "v2.3.3: delve post tags low-Adventuring pals Risky" "$(grep -c 'class="pjrisky">Risky' $H | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "v2.3.3: delve form carries the risky warning (shown by CSS when a risky pal is picked)" "$(grep -c 'class="pjriskwarn"' $H)" 1
+chk "v2.3.3: risky pals are still sendable (not disabled)" "$(grep -o '<input type="radio" name="pal"[^>]*data-pj-risky="1"[^>]*>' $H | grep -c disabled)" 0
+chk "v2.3.3: garden post no longer gates tasks by level" "$(grep -c 'weeds from 3\|harvests at 9' $H)" 0
+dbx "UPDATE ppal_found SET a_xp=400"
+get paljobs.php >/dev/null
+chk "v2.3.3: Adventuring 5+ pals are not marked risky" "$(grep -c 'class="pjrisky"' $H)" 0
 chk "no raw row ids in the forms (pal id is the 16-hex hash)" "$(grep -o 'name="pal" value="[^"]*"' $H | grep -vc 'value="[0-9a-f]\{16\}"')" 0
 get paljobs.php >/dev/null
 PAL=$(grep -o 'name="pal" value="[0-9a-f]\{16\}"' $H | head -1 | sed 's/.*value="\(.*\)"/\1/')

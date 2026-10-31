@@ -131,7 +131,14 @@ for ($i = 0; $i < 300 && !$drank; $i++) { $r = pj_roll_trip($mid, $land, 'forage
 ok('a hurt pal drinks a packed potion', (bool)$drank && $drank['potions_used'] <= 3);
 $same1 = pj_roll_trip($mid, $land, 'forage', 3, 3, 1, 'x'); $same2 = pj_roll_trip($mid, $land, 'forage', 3, 3, 1, 'x');
 ok('same seed, same result', $same1 === $same2);
-ok('no rare finds below Adventuring 5', !array_filter(pj_roll_trip(array_merge($mid, ['a' => 1]), $land, 'forage', 3, 8, 0, 'r')['items'], fn($it) => q_val('SELECT rarity FROM gatherables WHERE item_id = ?', [$it[0]]) === 'rare'));
+$rland = (string)q_val("SELECT landscapes FROM gatherables WHERE rarity = 'rare' AND active = 1 AND tool = 'forage' AND landscapes <> 'any' LIMIT 1"); $rland = trim(explode(',', $rland)[0]);
+$rares = function (int $a) use ($mid, $rland): int { $n = 0; for ($i = 0; $i < 150; $i++) foreach (pj_roll_trip(array_merge($mid, ['a' => $a, 'hp' => 60, 'max' => 60]), $rland, 'forage', 3, 8, 0, 'r' . $i)['items'] as $it)
+    if (q_val('SELECT rarity FROM gatherables WHERE item_id = ?', [$it[0]]) === 'rare') $n += $it[1]; return $n; };
+$r1 = $rares(1); $r5 = $rares(5); $r10 = $rares(10);
+ok('v2.3.3: rare finds from Adventuring 1, more as the level grows', $r1 > 0 && $r5 > $r1 && $r10 > $r5, "$r1 / $r5 / $r10");
+ok('v2.3.3: rare scale is smooth (0.36 at 1, 1.0 at 5, 1.4 at 10)', abs(pj_rare_mult(1) - 0.36) < 0.001 && abs(pj_rare_mult(5) - 1.0) < 0.001 && abs(pj_rare_mult(10) - 1.4) < 0.001);
+ok('v2.3.3: delve rares possible at Adventuring 1', (function () use ($mid) { for ($i = 0; $i < 400; $i++) { $r = pj_roll_delve(array_merge($mid, ['a' => 1, 'hp' => 200, 'max' => 200]), ['level' => 10, 'name' => 'x'], 0, 'q' . $i);
+    foreach ($r['items'] as $it) if (q_val('SELECT rarity FROM gatherables WHERE item_id = ?', [$it[0]]) === 'rare') return true; } return false; })());
 q('UPDATE ppal_found SET hp = 0, hp_at = ? WHERE pal_uid = ?', [now(), $p4]);
 [$h0] = pj_trip_send($u, $p4, $land, 'forage', 1, 0); ok('a pal at 0 HP is not sent', $h0 === false);
 ok('rest regrows HP (1 per 6 min)', (function () use ($uid, $p4) { q('UPDATE ppal_found SET hp_at = ? WHERE pal_uid = ?', [gmdate('Y-m-d H:i:s', time() - 3600), $p4]); return pj_pal($uid, $p4)['hp'] >= 10; })());
@@ -231,6 +238,67 @@ q("UPDATE ppal_jobs SET ends_at = ? WHERE kind = 'garden' AND state = 'active'",
 ok('a garden stay never counts as loot', pj_home_count($u) === 0);
 q('DELETE FROM ppal_jobs WHERE id IN (?, ?)', [$fj, $dj2]); q("UPDATE ppal_jobs SET state = 'done' WHERE user_id = ?", [$uid]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);   // leave the runs and slots free for the page tests
 cfg(['pj_open' => 0]); ok('home notice hidden when pal jobs are closed', pj_home_notice_html($u) === ''); cfg(['pj_open' => 1]);
+
+echo "== v2.3.3: garden tasks from level 1, and a pal beside hired help (no double work, no double pay)\n";
+q("UPDATE ppal_jobs SET state = 'done' WHERE user_id = ?", [$uid]); q("UPDATE ppal_found SET status = 'home', g_xp = 0 WHERE user_id = ?", [$uid]);
+ok('Gardening 1 pal waters, weeds and harvests', pj_garden_skills(1) === ['water', 'weed', 'harvest']);
+ok('extra-crop odds grow smoothly (0 at 1, 36 at 10)', pj_garden_extra_pct(1) === 0 && pj_garden_extra_pct(5) === 16 && pj_garden_extra_pct(10) === 36);
+ok('visits come more often with Gardening', pj_garden_step(1) > pj_garden_step(8));
+ensure_helpers();
+$H = []; foreach (q('SELECT * FROM helpers ORDER BY wage')->fetchAll() as $hr) $H[(string)$hr['skills']] = $hr;
+$slow = q_one("SELECT * FROM plants WHERE kind <> 'cover' ORDER BY grow_minutes DESC, id LIMIT 1");   // the slowest crop stays thirsty, not ready
+$rad = q_one("SELECT * FROM plants WHERE slug = 'radish'");
+$T = q('SELECT id FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 3', [$plot])->fetchAll(PDO::FETCH_COLUMN);
+$ago = fn(int $h): string => gmdate('Y-m-d H:i:s', time() - $h * 3600);
+$setup = function (?array $helper) use ($uid, $plot, $p3, $T, $slow, $rad, $ago): int {
+    q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]);
+    q("DELETE FROM ppal_jobs WHERE kind = 'garden'");
+    q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+    q("UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, last_watered = NULL, weeds = 0, pest = NULL, method = 'dig', tilled = 0 WHERE plot_id = ?", [$plot]);
+    q("UPDATE plot_tiles SET tilled = 1, plant_id = ?, planted_at = ?, growth_updated_at = ?, growth_seconds = 0, last_watered = NULL WHERE id = ?", [$slow['id'], $ago(9), $ago(9), $T[0]]);   // thirsty
+    q("UPDATE plot_tiles SET tilled = 1, plant_id = ?, planted_at = ?, growth_updated_at = ?, growth_seconds = 999999, last_watered = ? WHERE id = ?", [$rad['id'], $ago(9), now(), now(), $T[1]]);   // ready
+    q("UPDATE plot_tiles SET tilled = 1, method = 'notill', weeds = 30, maint_at = ? WHERE id = ?", [now(), $T[2]]);   // weedy
+    if ($helper) db_insert('garden_hires', ['plot_id' => $plot, 'user_id' => $uid, 'helper_id' => $helper['id'], 'started_at' => $ago(9), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'last_visit' => $ago(9), 'paid' => (int)$helper['wage']]);
+    q("UPDATE ppal_found SET status = 'garden' WHERE pal_uid = ?", [$p3]);
+    return db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $p3, 'kind' => 'garden', 'target' => (string)$plot, 'plot_id' => $plot, 'day' => landmark_day(),
+        'started_at' => $ago(9), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'last_tick' => $ago(9), 'potions' => 0, 'state' => 'active', 'result' => null]);
+};
+// alone: the pal does all three
+$jid = $setup(null);
+load_plot($uid);
+ok('pal alone: harvested the ready square', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]));
+ok('pal alone: weeded the bed', (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$T[2]]) === 0);
+ok('pal alone: watered the thirsty square', q_val('SELECT last_watered FROM plot_tiles WHERE id = ?', [$T[0]]) !== null);
+ok('pal alone: tasks = water + weed + 2 x harvest', (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]) >= 4, (string)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]));
+require_once APP_ROOT . '/includes/social169.php';
+[, $tl, $pl] = load_plot($uid);
+ok('a friend finds nothing thirsty after the pal (need-gated, no double watering)', !array_filter(social169_thirsty($tl, $pl), fn($t) => (int)$t['id'] === (int)$T[0]));
+foreach ($H as $sk => $hr) {
+    $skills = explode(',', $sk);
+    $jid = $setup($hr);
+    $mine = pj_garden_hires($plot)[0]['skills'] ?? '?';
+    ok($hr['name'] . ' (' . $sk . '): the pal keeps only the other tasks', array_values(array_intersect(explode(',', $mine), $skills)) === [] && count(array_filter(explode(',', $mine))) === 3 - count($skills), $mine);
+    load_plot($uid);
+    $gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
+    $tasks = (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]);
+    $want = (in_array('weed', $skills, true) ? 0 : 1) + (in_array('harvest', $skills, true) ? 0 : 2);   // every hired helper waters, so the pal never does
+    ok($hr['name'] . ': pal tasks are only its own (' . $want . ')', $tasks === $want, "tasks $tasks, hire " . json_encode([$gh['waterings'], $gh['weedings'], $gh['harvests']]));
+    ok($hr['name'] . ': ready square harvested exactly once', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]) && (int)$gh['harvests'] + intdiv($tasks, 2) === 1, json_encode($gh));
+    ok($hr['name'] . ': weedy bed weeded exactly once', (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$T[2]]) === 0 && (int)$gh['weedings'] + ($tasks % 2) === 1);
+    ok($hr['name'] . ': the helper is still paid only its wage (no pay for the pal)', (int)$gh['paid'] === (int)$hr['wage']);
+}
+$all = $H['water,weed,harvest'];
+$setup($all); q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+[$gb, $gm] = pj_garden_send($u, $p3, $plot, 1);
+ok('a helper who does everything: sending a pal there is refused with a reason', $gb === false && str_contains((string)$gm, 'hired help'), (string)$gm);
+$setup($H['water']); q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+[$gb2, $gm2] = pj_garden_send($u, $p3, $plot, 1);
+ok('beside a water-only helper: sent, and the message says what the pal does', $gb2 === true && str_contains((string)$gm2, 'Weeds and harvests (your hired help does the rest)'), (string)$gm2);
+q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]); q("UPDATE ppal_jobs SET state = 'done' WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home', g_xp = 0 WHERE user_id = ?", [$uid]);
+q("UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, last_watered = NULL, weeds = 0, method = 'dig' WHERE plot_id = ?", [$plot]);
+$xtra = 0; for ($i = 0; $i < 200; $i++) $xtra += pj_garden_extra($uid, $rad, ['pj_job' => 1, 'pj_extra' => pj_garden_extra_pct(10)]);
+ok('Gardening 10 brings extra crops about a third of the time', $xtra > 40 && $xtra < 110, (string)$xtra);
+ok('Gardening 1 brings none', array_sum(array_map(fn() => pj_garden_extra($uid, $rad, ['pj_job' => 1, 'pj_extra' => 0]), range(1, 50))) === 0);
 
 echo "== MySQL safety (static: no MySQL here)\n";
 [$mt, $mi, $mc] = ppal_schema('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', 'INT UNSIGNED', ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');

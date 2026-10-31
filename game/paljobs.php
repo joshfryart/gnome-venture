@@ -69,7 +69,7 @@ $home = array_filter($pals, fn($p) => $p['status'] === 'home');
 usort($jobs, fn($a, $b) => [$a['state'] !== 'ready', $a['kind'] === 'garden', ts($a['ends_at'])] <=> [$b['state'] !== 'ready', $b['kind'] === 'garden', ts($b['ends_at'])]);
 $kindTxt = ['garden' => '🪴 Garden', 'trip' => '🧺 Gathering', 'delve' => '🕳️ Delve'];
 $jobLine = fn(array $j): string => match ($j['kind']) {
-    'garden' => $plotName[(int)$j['plot_id']] ?? 'a garden',
+    'garden' => ($plotName[(int)$j['plot_id']] ?? 'a garden') . ' · ' . strtolower(pj_garden_task_text(pj_garden_tasks((int)$j['plot_id']))),   // v2.3.3: hired help keeps its tasks
     'trip' => (LANDSCAPES[$j['target']][1] ?? $j['target']) . ' · ' . (TOOL_TYPES[$j['tool']][0] ?? $j['tool']) . ' · ' . pj_ago(ts($j['ends_at']) - ts($j['started_at'])),
     'delve' => ($delveName[(int)$j['target']] ?? 'a delve') . ((int)$j['potions'] ? ' · ' . (int)$j['potions'] . ' potion' . ((int)$j['potions'] > 1 ? 's' : '') : ''),
     default => '',
@@ -80,9 +80,9 @@ $anyReady = (bool)array_filter($jobs, fn($j) => $j['state'] === 'ready');
 
 // the board: [icon, title, length, what it does, what it pays, skill key, skill label, the small print]
 $posts = [
-    'garden' => ['🪴', 'Tend a garden', '1, 3 or 7 days', 'Waters, weeds and harvests while you are away. Works beside your hired helpers.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Waters at Gardening 1, weeds from 3, harvests at 9.'],
-    'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Rare finds need Adventuring 5. Unused potions come back.'],
-    'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Unused potions come back.'],
+    'garden' => ['🪴', 'Tend a garden', '1, 3 or 7 days', 'Waters, weeds and harvests while you are away. Your hired help keeps its own tasks; the pal does the rest.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
+    'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Higher Adventuring: more finds, more rares. Unused potions come back.'],
+    'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Risky below Adventuring ' . PJ_DELVE_SAFE . ': pack potions. Unused potions come back.'],
 ];
 $blocked = function (string $kind) use ($left, $maxAway, $runsLeft, $tools, $delves, $ranToday, $plots, $home): string {
     if ($left < 1) return 'All ' . $maxAway . ' jobs are taken. Collect one first.';
@@ -214,11 +214,11 @@ page_header('Pal Jobs');
           <fieldset class="pjpick">
             <legend><span>Send who?</span> <small class="muted"><?= $skTxt ?></small></legend>
             <ul class="pjfaces">
-              <?php foreach ($ranked as $p): $rest = $p['hp'] < 1; ?>
+              <?php foreach ($ranked as $p): $rest = $p['hp'] < 1; $risky = $kind === 'delve' && $p['a'] < PJ_DELVE_SAFE; ?>
               <li><label class="pjface<?= $rest ? ' is-resting' : '' ?>">
-                <input type="radio" name="pal" value="<?= e($p['uid']) ?>" required<?= $rest ? ' disabled' : '' ?><?= $p['active'] ? ' data-pj-party="1"' : '' ?>>
+                <input type="radio" name="pal" value="<?= e($p['uid']) ?>" required<?= $rest ? ' disabled' : '' ?><?= $p['active'] ? ' data-pj-party="1"' : '' ?><?= $risky ? ' data-pj-risky="1"' : '' ?>>
                 <?= ppal_img($p['key'], '', 'ppalimg pjimg', 32) ?>
-                <span class="pjnm"><?= e($p['name']) ?><?= $p['active'] ? ' <small class="pjparty">On party</small>' : '' ?></span>
+                <span class="pjnm"><?= e($p['name']) ?><?= $p['active'] ? ' <small class="pjparty">On party</small>' : '' ?><?= $risky ? ' <small class="pjrisky">Risky</small>' : '' ?></span>
                 <?php if ($rest): ?><span class="pjlv pjlv-rest">Resting</span>
                 <?php else: ?><meter class="pjfhp" min="0" max="<?= (int)$p['max'] ?>" low="<?= (int)ceil($p['max'] * 0.4) ?>" high="<?= (int)ceil($p['max'] * 0.4) ?>" optimum="<?= (int)$p['max'] ?>" value="<?= (int)$p['hp'] ?>" aria-hidden="true"></meter>
                 <span class="pjlv"><span class="vh"><?= $sk === 'g' ? 'Gardening' : 'Adventuring' ?> </span><?= (int)$p[$sk] ?><span class="vh">, HP <?= (int)$p['hp'] ?> of <?= (int)$p['max'] ?></span></span><?php endif; ?>
@@ -226,6 +226,7 @@ page_header('Pal Jobs');
               <?php endforeach; ?>
             </ul>
           </fieldset>
+          <?php if ($kind === 'delve'): ?><p class="pjriskwarn" role="note">⚠️ Below Adventuring <?= PJ_DELVE_SAFE ?> a pal often runs out of HP down there and comes home with little. Pack potions, or pick a stronger pal.</p><?php endif; ?>
           <label class="pjeq"><input type="checkbox" name="unequip" value="1"> <span>This pal is on your party (taken along). Take it off my party to send it out.</span></label>
           <div class="pjopts">
             <?php if ($kind === 'garden'): ?>

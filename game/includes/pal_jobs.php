@@ -66,6 +66,15 @@ function pj_max_hp(array $pal, int $aLevel): int
     return 12 + 4 * (int)$pal['hardiness'] + 3 * ($aLevel - 1);
 }
 
+/** v2.3.3: how a pal's level scales its rare finds (trips and delve chests): 0.36 at level 1, 1.0 at 5 (the old gate), 1.4 at 10. */
+function pj_rare_mult(int $lvl): float
+{
+    return min(1.4, 0.2 + 0.16 * max(1, $lvl));
+}
+
+/** v2.3.3: below this Adventuring level a delve re-run is marked risky on the send form (not blocked). */
+const PJ_DELVE_SAFE = 5;
+
 /** A fresh 16-hex id for a pal. */
 function pj_new_uid(): string { return bin2hex(random_bytes(8)); }
 
@@ -231,12 +240,46 @@ function pj_take_potions(int $uid, int $n): bool
 
 // ---------------- garden duty ----------------
 
-function pj_garden_skills(int $g): array
+/** v2.3.3: every pal waters, weeds and harvests from Gardening 1. Level shows in pj_garden_step (more visits) and pj_garden_extra_pct (extra crops). */
+function pj_garden_skills(int $g = 1): array
 {
-    $s = ['water'];
-    if ($g >= 3) $s[] = 'weed';
-    if ($g >= 9) $s[] = 'harvest';
-    return $s;
+    return ['water', 'weed', 'harvest'];
+}
+
+/**
+ * v2.3.3: the one rule when a pal shares a garden with hired help (garden_hires, the Tool Shed helpers): the hired helper keeps the tasks it was
+ * hired for, the pal does only the rest. So nothing is done twice and the pal earns XP only for its own tasks. Returns the pal's tasks there.
+ * Other helpers (a friend watering, a player job, a watering event) only act on a square that needs it, so they never double up with a pal.
+ */
+function pj_garden_tasks(int $plotId, int $g = 1): array
+{
+    require_once __DIR__ . '/hired_help.php';
+    $taken = [];
+    foreach (current_hires($plotId) as $h) foreach (helper_skills($h) as $sk) $taken[$sk] = true;
+    return array_values(array_filter(pj_garden_skills($g), fn($sk) => !isset($taken[$sk])));
+}
+
+/** "Waters, weeds and harvests" / "Weeds (your hired help does the rest)". */
+function pj_garden_task_text(array $tasks): string
+{
+    $w = ['water' => 'waters', 'weed' => 'weeds', 'harvest' => 'harvests'];
+    $t = array_map(fn($k) => $w[$k], $tasks);
+    $txt = count($t) > 1 ? implode(', ', array_slice($t, 0, -1)) . ' and ' . end($t) : (string)($t[0] ?? '');
+    return ucfirst($txt) . (count($tasks) < 3 ? ' (your hired help does the rest)' : '');
+}
+
+/** v2.3.3: chance (%) that a pal's harvest of a square brings one extra crop: 0 at Gardening 1, +4 a level, 36 at 10. */
+function pj_garden_extra_pct(int $g): int
+{
+    return 4 * (max(1, min(PJ_MAX_LEVEL, $g)) - 1);
+}
+
+/** load_plot calls this after a pal's harvest of one square: maybe one extra crop for the owner. Returns how many were added (0 or 1). */
+function pj_garden_extra(int $ownerId, array $plant, array $hire): int
+{
+    if (empty($hire['pj_job']) || empty($plant['produce_item_id']) || random_int(1, 100) > (int)($hire['pj_extra'] ?? 0)) return 0;
+    give_item($ownerId, (int)$plant['produce_item_id'], 1);
+    return 1;
 }
 
 /** Hours between a pal's visits: the hired-help setting, 1 less at Gardening 4 and again at 8. */
@@ -253,10 +296,11 @@ function pj_garden_send(array $u, string $palUid, int $plotId, int $days, bool $
     [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
     if (q_val("SELECT 1 FROM ppal_jobs WHERE plot_id = ? AND kind = 'garden' AND state = 'active'", [$plotId])) return [false, 'A pal is already tending that garden.'];
+    if (!pj_garden_tasks($plotId)) return [false, 'Your hired help already waters, weeds and harvests that garden. Send ' . $p['name'] . ' somewhere else.'];
     if (!pj_claim_pal($uid, $palUid, 'garden')) return [false, $p['name'] . ' is already out.'];
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'garden', 'target' => (string)$plotId, 'plot_id' => $plotId, 'day' => landmark_day(),
         'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $days * 86400), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => null]);
-    return [true, $p['name'] . ' heads to the garden for ' . $days . ' day' . ($days > 1 ? 's' : '') . '. Gardening level ' . $p['g'] . ': ' . implode(', ', pj_garden_skills($p['g'])) . '.'];
+    return [true, $p['name'] . ' heads to the garden for ' . $days . ' day' . ($days > 1 ? 's' : '') . '. ' . pj_garden_task_text(pj_garden_tasks($plotId, $p['g'])) . '.'];
 }
 
 /** Pseudo hire rows for load_plot (same fields hire_visits and helper_finish read), one per pal tending this garden. */
@@ -269,7 +313,7 @@ function pj_garden_hires(int $plotId): array
             $p = pj_pal((int)$j['user_id'], (string)$j['pal_uid']);
             if (!$p) continue;
             $out[] = ['id' => 0, 'pj_job' => (int)$j['id'], 'user_id' => (int)$j['user_id'], 'last_visit' => $j['last_tick'], 'ends_at' => $j['ends_at'],
-                'name' => $p['name'], 'icon' => '🧩', 'skills' => implode(',', pj_garden_skills($p['g'])), 'step_hours' => pj_garden_step($p['g']),
+                'name' => $p['name'], 'icon' => '🧩', 'skills' => implode(',', pj_garden_tasks($plotId, $p['g'])), 'step_hours' => pj_garden_step($p['g']), 'pj_extra' => pj_garden_extra_pct($p['g']),
                 'pj_key' => $p['key'], 'wage' => 0, 'paid' => 0];
         }
     } catch (Throwable $e) { error_log('pj_garden_hires: ' . $e->getMessage()); }
@@ -290,7 +334,7 @@ function pj_garden_finish(array $hire, array $visits, array $stats): ?string
     $did = [];
     if ($stats['water']) $did[] = 'watered ' . $stats['water'] . ' time' . ($stats['water'] > 1 ? 's' : '');
     if ($stats['weed']) $did[] = 'weeded ' . $stats['weed'] . ' bed' . ($stats['weed'] > 1 ? 's' : '');
-    if ($stats['harvest']) $did[] = 'harvested ' . $stats['harvest'] . ' crop' . ($stats['harvest'] > 1 ? 's' : '');
+    if ($stats['harvest']) $did[] = 'harvested ' . $stats['harvest'] . ' crop' . ($stats['harvest'] > 1 ? 's' : '') . (!empty($stats['extra']) ? ' (+' . (int)$stats['extra'] . ' extra)' : '');
     if (!$did && !$ended) return null;
     return '🧩 ' . $hire['name'] . ($did ? ' ' . implode(', ', $did) . ' while you were out.' : '') . ($ended ? ' Their stay is over and they have gone home.' : '');
 }
@@ -337,7 +381,8 @@ function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hour
     $used = 0;
     $items = [];
     $log = [];
-    $cands = array_values(array_filter(gather_candidates($land, $tool), fn($g) => (GATHER_RARITY[$g['rarity']][0] ?? 9) <= $tier && ($g['rarity'] !== 'rare' || $a >= 5)));
+    $cands = array_values(array_filter(gather_candidates($land, $tool), fn($g) => (GATHER_RARITY[$g['rarity']][0] ?? 9) <= $tier));   // v2.3.3: no level gate on rares
+    $wt = fn(array $g): int => $g['rarity'] === 'rare' ? max(1, (int)round(GATHER_RARITY['rare'][1] * pj_rare_mult($a))) : GATHER_RARITY[$g['rarity']][1];
     $done = 0;
     $fainted = false;
     for ($r = 1; $r <= $rounds; $r++) {
@@ -355,10 +400,10 @@ function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hour
         }
         $done = $r;
         if ($cands && $rng(100) < 50 + 3 * $a + 2 * (int)$pal['luck']) {
-            $tot = 0; foreach ($cands as $g) $tot += GATHER_RARITY[$g['rarity']][1];
+            $tot = 0; foreach ($cands as $g) $tot += $wt($g);
             $pick = $rng($tot);
             foreach ($cands as $g) {
-                $pick -= GATHER_RARITY[$g['rarity']][1];
+                $pick -= $wt($g);
                 if ($pick < 0) { $key = (int)$g['item_id']; $items[$key] = [$key, ($items[$key][1] ?? 0) + 1 + ($rng(100) < 5 * (int)$pal['luck'] ? 1 : 0), (string)$g['name']]; break; }
             }
         }
@@ -439,7 +484,7 @@ function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
         $coins = (int)round(random_int(20 + 5 * $lvl, 40 + 10 * $lvl) * 0.6);
         $n = 1 + ($rng(100) < 50 ? 1 : 0);
         for ($i = 0; $i < $n; $i++) {
-            $rare = $rng(100) < 20 + $lvl && $a >= 5;
+            $rare = $rng(100) < (int)round((20 + $lvl) * pj_rare_mult($a));   // v2.3.3: odds grow with Adventuring, no gate
             $it = q_one("SELECT i.id, i.name FROM gatherables g JOIN items i ON i.id = g.item_id WHERE g.active = 1 AND g.rarity = ? ORDER BY " . sql_random() . ' LIMIT 1', [$rare ? 'rare' : 'uncommon']);
             if ($it) $items[(int)$it['id']] = [(int)$it['id'], ($items[(int)$it['id']][1] ?? 0) + 1, (string)$it['name']];
         }

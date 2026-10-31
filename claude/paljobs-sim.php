@@ -68,10 +68,10 @@ foreach ([10, 15, 20] as $lvl) {
 
 echo "\n== Garden duty (no loot; worth the hired help it replaces)\n";
 $wage = []; foreach (HELPER_ROSTER as $hr) $wage[$hr[3]] = $hr[4];
-foreach ([1, 3, 4, 8, 9, 10] as $g) {
+foreach ([1, 4, 8, 10] as $g) {   // v2.3.3: all three tasks from Gardening 1
     $sk = implode(',', pj_garden_skills($g));
     $w = $wage[$sk] ?? ($wage['water,weed,harvest'] ?? 0);
-    printf("Gardening %2d: %-19s visit every %d h, worth %3d a day = %.1f an hour\n", $g, $sk, pj_garden_step($g), $w, $w / 24);
+    printf("Gardening %2d: %-19s visit every %d h, +1 crop on %2d%% of its harvests, worth %3d a day = %.1f an hour (+ extra crops)\n", $g, $sk, pj_garden_step($g), pj_garden_extra_pct($g), $w, $w / 24);
 }
 
 $away = (int)($argv[3] ?? 3); $cap = (int)($argv[4] ?? 6);   // the defaults of pj_max_away / pj_runs_per_day (a test copy may hold other values)

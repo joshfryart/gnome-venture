@@ -6383,4 +6383,7 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .pjhome { margin: 8px auto; text-align: center; font-size: .92em; }
 .pjhome a { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--line, currentColor); text-decoration: none; }
 .pjhome a:hover, .pjhome a:focus-visible { text-decoration: underline; }
+.pjrisky { margin-left: 4px; padding: 0 4px; font-size: 11px; font-weight: 700; border: 1px solid currentColor; border-radius: 4px; color: var(--danger); }
+.pjriskwarn { display: none; margin: 6px 0; font-size: .9em; text-align: center; }
+.pjform:has(input[data-pj-risky]:checked) .pjriskwarn { display: block; }
 /* ==== v2.3.3 pal jobs notice END ==== */
