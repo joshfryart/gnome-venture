@@ -90,10 +90,11 @@ post adventure.php -d do=go -d go=1,1 >/dev/null; get adventure.php >/dev/null
 chk "a tap with no floor is refused" "$(grep -q 'Pick a way on first' $H && echo 1)"
 
 echo "== play every stage: pick, light the floor, take everything, take the way down"
-CHQ=0; CHF=0
+CHQ=0; CHF=0; WD=
 for iter in $(seq 400); do
   [ "$(ESTATUS)" != active ] && break
   get adventure.php >/dev/null; cp $H $A
+  [ -z "$WD" ] && logline $EX | grep -q 'way down' && WD=1   # the log keeps 25 lines, so look while playing
   grep -q 'class="chestdata" hidden.* data-quick="1"' $A && CHQ=$((CHQ+1))
   grep -q 'class="chestdata"' $A && ! grep -q 'class="chestdata" hidden.* data-quick="1"' $A && CHF=$((CHF+1))
   if grep -q 'value="auto"' $A || grep -q 'value="attack"' $A || grep -q 'value="solve"' $A; then resolve; continue; fi
@@ -113,7 +114,7 @@ logline $EX > $A
 chk "the chest opened and the delve was cleared" "$(grep -q 'Delve cleared' $A && echo 1)"
 chk "a clear is recorded once" "$([ "$(db "SELECT clears FROM landmark_clears WHERE user_id=$SID AND landmark_id=$DID")" = 1 ] && echo 1)"
 chk "scene row removed when the delve ends" "$([ "$(SCENES)" = 0 ] && echo 1)"
-chk "log shows the way down" "$(grep -q 'way down' $A && echo 1)"
+chk "log showed the way down" "$WD"
 
 echo "== the torch burns per step; climbing out keeps loot"
 dbx "DELETE FROM landmark_uses WHERE user_id=$SID"
@@ -121,6 +122,8 @@ lmact -d do=delve -d lm=$DID
 EX=$(EXPID)
 T=$(tap); ids=${T#menu }; adv; post adventure.php -d do=route -d "pick=${ids%%,*}" >/dev/null
 adv; chk "a floor: tile map + torch + party strip" "$(grep -q 'class="tilemap tm-cave"' $A && grep -q 'dv2torch' $A && grep -q 'dv2party' $A && echo 1)"
+chk "torch bar has no style attribute (CSP)" "$(grep -q '<svg class="dv2bar"' $A && ! grep -q 'dv2bar.*style=' $A && echo 1)"
+chk "no water-drop tokens: hazards are ground with the delve's own icon" "$(! grep -q '<text[^>]*font-size="17"[^>]*>💧' $A && echo 1)"
 S0=$(dstate | jq1 '$j["st"]["f"]["t"]')
 php "$HERE/delve2.php" light "$GAME" $EX
 T=$(tap); adv; post adventure.php -d do=go -d "go=${T%% *}" >/dev/null

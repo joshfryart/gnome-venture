@@ -178,6 +178,7 @@ function dv2_pick(array $u, array &$exp, array &$sc, string $nodeId): array
     tm_reveal($sc['seen'], $sc['map']['w'], $sc['map']['h'], $sc['x'], $sc['y'], dv2_light($uid, $f['t']) + 1);
     $exp['level'] = dv2_level($sc, $exp, $node['kind'] === 'boss');
     exp_log($exp, ($node['kind'] === 'boss' ? '🛡️ The guardian’s hall. ' : '🔦 You step into the next chamber. ') . 'Danger level ' . (int)$exp['level'] . '.');
+    if ($f['k'] !== 'g' && ($af = dv_floors()[$f['k']] ?? null) && $af['title'] !== '') exp_log($exp, '📜 ' . $af['title'] . '. ' . $af['rule']);
     dv2_save($sc);
     return [true, ''];
 }
@@ -315,7 +316,7 @@ function dv2_party_html(array $u, array $exp, ?array $sc): string
         $f = $sc['st']['f'];
         $max = dv2_fuel((int)$u['id'], (string)$f['ti']);
         $pct = $max > 0 ? max(0, min(100, (int)round(100 * (int)$f['t'] / $max))) : 0;
-        $o .= '<span class="dv2torch" title="Each step burns the torch. At 0 the light shrinks, nothing else happens.">🔦<span class="dv2bar"><i style="width:' . $pct . '%"></i></span><b>' . (int)$f['t'] . '</b></span>';
+        $o .= '<span class="dv2torch" title="Each step burns the torch. At 0 the light shrinks, nothing else happens.">🔦<svg class="dv2bar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="' . $pct . '" height="10"/></svg><b>' . (int)$f['t'] . '</b></span>';
     }
     if ($exp['status'] === 'active' && !$exp['encounter']) {
         $o .= '<form method="post" class="inline dv2leave" data-confirm="Climb back out? You keep what you found, but this delve is done for today.">' . csrf_field() . '<input type="hidden" name="do" value="leave"><button class="btn ghost" aria-label="Climb back out">🪜 Leave</button></form>';
@@ -383,6 +384,7 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
     $land = (string)(exp_scene($exp)['land'] ?? 'forest');
     $uid = (int)$u['id'];
     $torch = (int)$sc['st']['f']['t'];
+    $haz = dv_hazard(dv2_slug((array)$sc['lm']));
     $got = $sc['st']['f']['got'];
     $tokens = [];
     foreach ($map['t'] as $y => $row) {
@@ -391,7 +393,6 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
             if (!tm_seen_get($sc['seen'], $w, $h, $x, $y) || ($x === $sc['x'] && $y === $sc['y'])) continue;
             $done = in_array($x . ',' . $y, $got, true);
             if (ctype_digit($t)) { if (!$done) $tokens[] = [$x, $y, '✨', 'gold', false]; continue; }
-            if ($t === 'W') { $tokens[] = [$x, $y, '💧', 'gold', false]; continue; }
             if (!isset(DV2_TOKEN[$t])) continue;
             if ($t === 'D') { $tokens[] = [$x, $y, '🚪', 'gold', !empty($sc['st']['f']['key']), empty($sc['st']['f']['key'])]; continue; }
             if ($t === 'C' && dv2_boss_floor($sc)) { $tokens[] = [$x, $y, '💰', 'ember', $done, !$done && !dv2_boss_down($sc)]; continue; }
@@ -419,7 +420,7 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
     $walk = dm_walk_take($exp, $sc);
     $light = dv2_light($uid, $torch) + 1;
     $svg = tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-        'light' => $light, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
+        'light' => $light, 'haz' => [$haz[0], $haz[2]], 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) {
         for ($i = 0; $i < DM_VIEW; $i++) {
@@ -439,6 +440,7 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
                 if ($live || $t === 'D') { $cls .= ' spot'; $label = ctype_digit($t) ? 'Something shiny' : (['F' => 'A creature', 'B' => 'The guardian', 'T' => 'A trap', 'C' => 'A chest', 'K' => 'A key', 'D' => 'A locked door', 'M' => 'A shrine', 'E' => 'The way down'][$t] ?? 'Something'); }
                 if ($me && $live) $tap = !$busy;
                 if ($t === 'S') $label = 'The way in';
+                if ($t === 'W') $label = $haz[1] . ', costs ' . DV_HAZARD_COST . ' torch a step';
             }
             if ($me) { $cls .= ' here'; $label = 'You are here'; }
             $dis = !$tap || ($me && !$live);
@@ -447,7 +449,8 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
     }
     $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
-    $legend = '<span>✨ Find</span><span>⚔️ Creature</span><span>🪤 Trap</span><span>🎁 Chest</span><span>🕳️ Way down</span>';
+    $legend = '<span>✨ Find</span><span>⚔️ Creature</span><span>🪤 Trap</span><span>🎁 Chest</span><span>🕳️ Way down</span>'
+        . (strpos(implode('', $map['t']), 'W') !== false ? '<span>' . $haz[0] . ' ' . e($haz[1]) . ' (' . DV_HAZARD_COST . ' torch)</span>' : '');
     return '<div class="tmwrap dv2wrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="go">'
         . '<div class="tilemap tm-cave" role="group" aria-label="Delve floor"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'

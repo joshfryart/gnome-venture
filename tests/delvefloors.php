@@ -70,5 +70,19 @@ $p = dv_floor_parse("stray line\n@a/b\ntier: small\n@a/b\n");
 ok('text outside a floor + duplicate name reported', count($p['errors']) === 2, json_encode($p['errors']));
 ok('hazard costs more torch', dv_step_cost('W') === DV_HAZARD_COST && dv_step_cost('.') === 1);
 
+echo "== hazards per delve\n";
+require_once $game . '/includes/delve_stamp.php';
+$slugs = array_unique(array_map(fn($c) => $c['slug'], ds_parse((string)file_get_contents($game . '/includes/data/delve_chambers.txt'))['chambers']));
+$miss = array_diff($slugs, array_keys(DV_HAZARD), ['any']);
+ok('every delve with chambers has its own hazard', !$miss, implode(',', $miss));
+$names = array_map(fn($h) => $h[1], DV_HAZARD);
+ok('hazard names are unique', count(array_unique($names)) === count($names));
+ok('unknown delve falls back to water', dv_hazard('nowhere') === DV_HAZARD_ANY);
+$hm = tm_parse(['#####', '#SWW#', '#.WE#', '#####']);
+$svg = tm_render_svg($hm, 'forest', ['px' => 1, 'py' => 1, 'seen' => str_repeat('f', strlen(tm_seen_new(5, 4))), 'x0' => 0, 'y0' => 0, 'cols' => 5, 'rows' => 4, 'light' => 3, 'haz' => ['🔥', '#8a3b1e'], 'tokens' => []]);
+ok('hazard tiles render as tinted ground with the delve icon', substr_count($svg, 'class="tmhazi"') === 3 && strpos($svg, '#8a3b1e') !== false && strpos($svg, '🔥') !== false);
+$svg = tm_render_svg($hm, 'forest', ['px' => 1, 'py' => 1, 'seen' => str_repeat('f', strlen(tm_seen_new(5, 4))), 'x0' => 0, 'y0' => 0, 'cols' => 5, 'rows' => 4, 'light' => 3, 'tokens' => []]);
+ok('no hazard layer without haz (old delves, lairs)', strpos($svg, 'tmhaz') === false);
+
 echo $fails ? "$fails FAILED\n" : "all delve floor tests passed\n";
 exit($fails ? 1 : 0);

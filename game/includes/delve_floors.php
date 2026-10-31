@@ -19,6 +19,17 @@ const DV_HAZARD_COST = 2;                                            // a hazard
 const DV_FOR = ['fight', 'treasure', 'mystery', 'puzzle', 'boss'];
 const DV_MAX_FINDS = 6;                                              // fewer than 7 finds a floor (the 7 dots are the progress bar)
 const DV_ROWCHARS = '#.,SE123456789KDWTCBMF';
+/** What the hazard tile W is in each delve: [icon, name, ground tint]. Icons are emoji placeholders until Joshua draws them (proposals in claude/art-delve-hazards/). */
+const DV_HAZARD = [
+    'beaverdam-tunnels' => ['💧', 'Shallow water', '#3f6f8c'], 'jaguar-root-caves' => ['🌧️', 'Drip pool', '#46705e'],
+    'mangrove-root-maze' => ['🌱', 'Tidal mud', '#5b5a3a'], 'salt-mine-galleries' => ['🧂', 'Brine puddle', '#a8a493'],
+    'firefly-caves' => ['🫧', 'Spring pool', '#4f8aa3'], 'anaconda-hollows' => ['🌿', 'Reedy creek', '#4c7a52'],
+    'sea-cave-smugglers-run' => ['🐚', 'Rock pool', '#4f7f86'], 'pirate-gull-grottoes' => ['🌊', 'Seawater', '#2f6680'],
+    'rose-red-canyon-city' => ['🏺', 'Cistern water', '#3c6a7a'], 'the-canopy-bridges' => ['🪵', 'Rotten planks', '#6b4a2b'],
+    'fynbos-fire-trails' => ['🔥', 'Embers', '#8a3b1e'], 'snowleopard-ledges' => ['🧊', 'Ice patch', '#9cc7d9'],
+    'the-long-wall-walk' => ['🪨', 'Loose stones', '#7a6f62'], 'the-red-rock-songlines' => ['🏜️', 'Soft sand', '#c29a5b'],
+];
+const DV_HAZARD_ANY = ['💧', 'Water', '#3f6f8c'];
 
 /** Parse floor text. Returns ['floors' => [key => floor], 'errors' => [strings]]. A floor is not linted here (see dv_floor_lint). */
 function dv_floor_parse(string $text): array
@@ -76,6 +87,12 @@ function dv_finds(array $map): array
         for ($x = 0, $n = strlen($row); $x < $n; $x++) if ($row[$x] >= '1' && $row[$x] <= '9') $out[] = [$x, $y];
     }
     return $out;
+}
+
+/** The hazard of a delve: [icon, name, tint]. */
+function dv_hazard(string $slug): array
+{
+    return DV_HAZARD[$slug] ?? DV_HAZARD_ANY;
 }
 
 /** Torch cost of stepping onto a tile. */
