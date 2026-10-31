@@ -4151,18 +4151,26 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .tmlinks { text-align: center; margin: 2px 0 8px; }
 /* v2.3.1 delve redo: torch + party strip, route menu, quick card (includes/delve_v2.php) */
 .dv2strip { margin: 6px 0 8px; display: grid; gap: 6px; }
-.dv2torch { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.dv2top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.dv2chip { font-size: 14px; color: var(--ink); padding: 2px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--accent-soft); white-space: nowrap; }
+.dv2torch { flex: 1 1 120px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.dv2leave { margin: 0 0 0 auto; }
+.dv2leave .btn { min-height: 44px; min-width: 44px; padding: 0 12px; }
 .dv2bar { flex: 1; height: 10px; border-radius: 6px; background: var(--accent-soft); border: 1px solid var(--line); overflow: hidden; }
 .dv2bar i { display: block; height: 100%; background: var(--accent); }
 .dv2party { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; }
 .dv2m { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--accent-soft); min-height: 32px; }
 .dv2m .palstk { width: 28px; height: 28px; image-rendering: pixelated; }
+.dv2status { display: none; }
+.dv2wrap .tmlegend { margin-top: 2px; }
+@media (max-width: 720px) { .advgrid:not(.fighting):has(.dv2strip) #advstage { display: none; } }
 .dv2route { margin: 6px 0; text-align: center; }
 .dv2lead { margin: 0 0 6px; font-weight: 700; color: var(--accent-ink); }
-.dv2row { display: flex; justify-content: center; gap: 8px; margin: 0 0 8px; flex-wrap: wrap; }
+.dv2row { display: flex; justify-content: center; gap: 8px; margin: 0 0 6px; flex-wrap: wrap; }
 .dv2node { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 88px; min-height: 56px; padding: 6px 10px; border: 2px dashed var(--line); border-radius: 12px; background: transparent; color: var(--muted); font: inherit; font-size: 13px; opacity: .75; }
 .dv2node small { font-size: 11px; opacity: .85; }
 .dv2node .dv2ico { font-size: 20px; line-height: 1; }
+.dv2node.unk { min-height: 30px; min-width: 44px; padding: 2px 6px; }
 .dv2node.go { border-style: solid; border-color: var(--accent-line); background: var(--accent-soft); color: var(--ink); opacity: 1; cursor: pointer; }
 .dv2node.go:hover, .dv2node.go:focus-visible { border-color: var(--accent-ink); }
 .dv2node.was { border-style: solid; opacity: .5; }

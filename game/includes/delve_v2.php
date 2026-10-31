@@ -285,14 +285,17 @@ const DV2_SIZE = ['small' => 'short', 'standard' => 'medium', 'large' => 'long']
 /** The strip under the map: the torch and your party (the gnome and the pals taken along, read only). */
 function dv2_party_html(array $u, array $exp, ?array $sc): string
 {
-    $o = '<div class="dv2strip">';
+    $o = '<div class="dv2strip"><div class="dv2top"><span class="dv2chip" title="Stage and danger level">Stage <b>' . min((int)$exp['steps_total'], (int)$exp['depth'] + 1) . '</b>/' . (int)$exp['steps_total'] . ' · ⚠️ ' . (int)$exp['level'] . '</span>';
     if ($sc && !empty($sc['st']['f'])) {
         $f = $sc['st']['f'];
         $max = dv2_fuel((int)$u['id'], (string)$f['ti']);
         $pct = $max > 0 ? max(0, min(100, (int)round(100 * (int)$f['t'] / $max))) : 0;
-        $o .= '<div class="dv2torch" title="Each step burns the torch. At 0 the light shrinks, nothing else happens."><span>🔦 Torch</span><span class="dv2bar"><i style="width:' . $pct . '%"></i></span><b>' . (int)$f['t'] . '</b></div>';
+        $o .= '<span class="dv2torch" title="Each step burns the torch. At 0 the light shrinks, nothing else happens.">🔦<span class="dv2bar"><i style="width:' . $pct . '%"></i></span><b>' . (int)$f['t'] . '</b></span>';
     }
-    $o .= '<div class="dv2party"><span class="dv2m">🧙 <b>You</b> ' . (int)$exp['hp'] . '/' . (int)$exp['max_hp'] . ' ❤️</span>';
+    if ($exp['status'] === 'active' && !$exp['encounter']) {
+        $o .= '<form method="post" class="inline dv2leave" data-confirm="Climb back out? You keep what you found, but this delve is done for today.">' . csrf_field() . '<input type="hidden" name="do" value="leave"><button class="btn ghost" aria-label="Climb back out">🪜 Leave</button></form>';
+    }
+    $o .= '</div><div class="dv2party"><span class="dv2m">🧙 <b>You</b> ' . (int)$exp['hp'] . '/' . (int)$exp['max_hp'] . ' ❤️</span>';
     try {
         require_once __DIR__ . '/puzzle_pals.php';
         if (ppal_party_on() && function_exists('ppal_equipped')) {
@@ -316,7 +319,9 @@ function dv2_menu_html(array $u, array $exp, array $sc, bool $busy): string
     $picked = $sc['st']['pk'];
     $o = '<div class="dv2route"><p class="dv2lead">' . ($at === null ? 'Which way down?' : 'Which way next?') . '</p>';
     $o .= '<form method="post" class="dv2routeform">' . csrf_field() . '<input type="hidden" name="do" value="route">';
+    $atRow = $at === null ? -1 : (int)dv_route_node($route, $at)['row'];
     foreach ($route['rows'] as $r => $row) {
+        if ($r <= $atRow) continue;   // rows behind you are not shown
         $o .= '<div class="dv2row" data-row="' . $r . '">';
         foreach ($row as $n) {
             $isChoice = in_array($n['id'], $choices, true);

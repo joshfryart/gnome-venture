@@ -178,7 +178,7 @@ page_header('On the mycelium');
 <?php $isExplore = ($last['kind'] ?? 'walk') === 'explore'; $kind = $last['kind'] ?? 'walk'; $isWalk = !in_array($kind, ['delve', 'lair', 'explore'], true);   // v2.0.51: a road walk gets the route ribbon instead of the heading, status line and route strip ?>
 <?php if ($kind === 'delve' || $kind === 'lair'): ?>
 <h1><?= $kind === 'delve' ? '🕳️' : '🐉' ?> <?= e($from['name']) ?></h1>
-<p class="status">
+<p class="status<?= $dv2Scene ? ' dv2status' : '' ?>">
   <?= $kind === 'delve' ? ($dv2Scene ? 'Stage <b>' . min((int)$last['steps_total'], (int)$last['depth'] + 1) . '</b>/' . (int)$last['steps_total'] : 'Room <b>' . (int)$last['depth'] . '</b>/' . DELVE_ROOMS) . ' · ' : '' ?>danger level <?= (int)$last['level'] ?>
 <?php elseif ($isExplore): [$tierName] = explore_tier((int)$last['depth']); ?>
 <h1>🌿 Off the path near <?= e($from['name']) ?></h1>
@@ -356,14 +356,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <?php if ($kind === 'delve' && (int)$exp['depth'] >= (int)$exp['steps_total']): ?>
     <h3>💰 The chest sits in the last chamber, unguarded at last.</h3>
     <div class="choicelist"><?= act_choice('chest', '💰', 'Open the chest', 'Everything in it is yours', '', 'primary') ?></div>
-  <?php elseif ($dv2Scene['map']): ?>
-    <h3><?= $dv2Scene['st']['f']['kd'] === 'boss' ? 'The guardian’s hall' : 'A chamber of the delve' ?></h3>
-    <p class="help">Tap a lit tile to walk. Each step burns the torch; when it is out your light shrinks, nothing worse. Find the way down (🕳️).</p>
-  <?php else: ?>
-    <h3><?= $dv2Scene['st']['q'] ? 'A quiet side chamber' : 'The tunnels branch…' ?></h3>
-    <p class="help"><?= $dv2Scene['st']['q'] ? '' : 'Pick a way. Nodes you have not reached stay a mystery.' ?></p>
   <?php endif; ?>
-  <div class="choicelist"><?= act_choice('leave', '🪜', 'Climb back out', 'Free · you keep what you found') ?></div>
 <?php elseif ($mapMode): // v2.0.6: nothing in front of you: walk the map ?>
   <?php if ($kind === 'delve' && (int)$exp['depth'] >= DELVE_ROOMS): ?>
     <h3>💰 The chest sits in the last room, unguarded at last.</h3>
@@ -464,7 +457,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
 <div class="gardenwrap">
 
 <details class="panel box advjournal"<?= $exp ? '' : ' open' ?>>
-  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small><?php if ($log): ?><span class="jpeek"><?= e((string)end($log)) ?></span><?php endif; ?></summary>
+  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small><?php if ($log && !$dv2Scene): ?><span class="jpeek"><?= e((string)end($log)) ?></span><?php endif; ?></summary>
   <ul class="journal">
     <?php foreach (array_reverse(array_slice($log, -25)) as $line): ?><li><?= e($line) ?></li><?php endforeach; ?>
   </ul>
