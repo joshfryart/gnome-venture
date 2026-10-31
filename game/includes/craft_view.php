@@ -8,6 +8,11 @@ require_once __DIR__ . '/almanac.php';
 
 function craft_view(array $u, string $tab): void
 {
+    if ($tab === '') {   // v2.3.3: no area picked yet: the picture map
+        require_once __DIR__ . '/craft_map.php';
+        craft_map_landing($u);
+        return;
+    }
     if (!isset(CRAFT_CATEGORIES[$tab])) $tab = 'cooking';
     if ($tab === 'pantry') {
         require_once __DIR__ . '/pantry_view.php';

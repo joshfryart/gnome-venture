@@ -37,20 +37,18 @@ $link = fn(int $id) => url($base . '&r=' . $id) . '#r' . $id;
 $close = fn() => url($base);
 $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   // v0.9.4: pots with timers (kitchen_pots 0 = instant)
 ?>
+<?php require_once __DIR__ . '/craft_map.php'; craft_area_header($tab); ?>
 <div class="pantry2 shelves shcraft">
 <div class="p2head shhead">
-  <?php // v1.6.3: category and Ready/Missing/To discover are two dropdowns in one row; every Crafting category (the Pantry too) stays one pick away ?>
-  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft">
-    <label>Make <select name="c" data-autosubmit>
-      <?php foreach (CRAFT_CATEGORIES as $k => [$l, $ic]): ?><option value="<?= e($k) ?>"<?= $k === $tab ? ' selected' : '' ?>><?= $ic ?> <?= e($l) ?> (<?= (int)($counts[$k]['have'] ?? 0) ?>/<?= (int)($counts[$k]['total'] ?? 0) ?>)</option><?php endforeach; ?>
-    </select></label>
+  <?php // v2.3.3: the area is picked on the map above (craft_map.php); this form keeps it and only filters the list ?>
+  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>">
     <label>List <select name="show" data-autosubmit>
       <option value=""<?= $show === '' ? ' selected' : '' ?>>🗂️ All shelves</option>
       <?php foreach (['ready' => ['✅ Ready', $n['ready']], 'missing' => ['📋 Missing', $n['missing']], 'unknown' => ['❔ To discover', $n['unknown']]] as $k => [$l, $c]): ?><option value="<?= $k ?>"<?= $show === $k ? ' selected' : '' ?>><?= $l ?> (<?= $c ?>)</option><?php endforeach; ?>
     </select></label>
     <button class="btn small pickgo">Go</button>
   </form>
-  <h2 class="p2title"><?= $icon ?> <?= e($label) ?> <small><?= $known ?>/<?= count($all) ?> recipes known</small></h2>
+  <h2 class="p2title" id="shelves"><?= $icon ?> <?= e($label) ?> <small><?= $known ?>/<?= count($all) ?> recipes known</small></h2>
   <details class="helpfold p2help"><summary>❓ How crafting works</summary><p class="help"><?= e($blurb) ?> One workbench for everything you make. A recipe appears once you’ve collected every ingredient:
     grown it, gathered it on an adventure, or carried it in your satchel. Once found, it stays found.<?= $tab === 'cooking' ? ' Dishes wait in the pot until you collect them. Snacks cook in minutes, meals take longer, feasts longest.' : '' ?></p></details>
 </div>

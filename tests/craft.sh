@@ -42,4 +42,9 @@ echo "== unknown recipe refused"; R4=$(db "SELECT id FROM recipes WHERE slug='mo
 echo "== bad csrf"; curl -s -b $C -X POST "$BASE/crafting.php" -d csrf=x -d recipe_id=$R -o /dev/null -w '%{http_code}\n'
 db "SELECT 'user_recipes: '||COUNT(*)||' made '||SUM(made) FROM user_recipes WHERE user_id=$UID_"
 page "book.php?ch=Recipes"; echo "almanac recipes tab: $(grep -oE 'Recipes <small>[^<]*' /tmp/c.html)"
+echo "== area map (2.3.3)"
+page "inventory.php?tab=craft"; N=$(grep -c 'class="cmap-card' /tmp/c.html); echo "landing cards: $N"; [ "$N" = 7 ] || echo "FAIL landing shows $N of 7 area cards"
+for k in cooking pantry tools garden potions building decor; do grep -q "href=\"[^\"]*tab=craft&amp;c=$k\"" /tmp/c.html || echo "FAIL no link to area $k"; done
+for k in cooking pantry tools garden potions building decor; do page "inventory.php?tab=craft&c=$k"; H=$(grep -c 'class="cmap-hs ' /tmp/c.html); [ "$H" = 5 ] || echo "FAIL $k scene has $H of 5 tappable objects"; grep -q 'aria-current="page"' /tmp/c.html || echo "FAIL $k strip has no current area"; grep -q 'All areas' /tmp/c.html || echo "FAIL $k has no All areas link"; grep -q 'name="c" data-autosubmit' /tmp/c.html && echo "FAIL $k still has the category select"; done
+page "inventory.php?tab=craft&c=cooking&q=soup"; echo "soup search: $(grep -c 'shpill' /tmp/c.html) pills"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/craft-php.log || echo "(none)"

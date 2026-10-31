@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.3
+- **Crafting area map.** The Crafting tab opens on a picture map: seven cards (Cooking, Pantry, Tools, Garden supplies, Potions, Building, Yard & decor), each a new Stitched Toy scene with a progress bar ("8 of 85 known") and a badge (needs the building (Locked), N ready, N jars done). Inside an area, an "All areas" button, a scrolling picture strip to switch area, and the area's scene with five tappable objects (oven, stove, anvil, cauldron...) that open that area's list filtered by what they make. All plain links, so it works without JS; labels show on hover, focus and on touch screens.
+- The Make dropdown is gone from Cooking, Pantry and every other area (the List dropdown stays).
+- Files: new `includes/craft_map.php`, `includes/data/craft_scenes.php` (hotspot boxes), 14 pictures in `assets/img/craftmap/`; `craft_view.php`, `craft_shelves.php`, `pantry_view.php`, `inventory.php`, a 2.3.3 block at the end of `style.css`. Art sources: `aseprite-source/scenes-pil/craft_*.py`, `aseprite-source/craftmap/`. Test: `tests/craft.sh` (area map section).
+
 ## 2.3.2
 - **Pal jobs: an equipped pal is not sent by accident.** A pal on your party shows an "On party" tag in the pickers. Picking one shows a "Take it off my party to send it out" box that must be ticked; without it the send is refused with a message. Works without JS (the server checks). Tests added in `tests/paljobs.php`.
 ## 2.3.1

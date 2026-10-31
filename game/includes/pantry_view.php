@@ -124,15 +124,10 @@ $when = function (array $r) use ($jarsFree): string {
 };
 
 ?>
+<?php require_once __DIR__ . '/craft_map.php'; craft_area_header($tab); ?>
 <div class="pantry2">
 <div class="p2head">
-  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat"><input type="hidden" name="tab" value="craft">
-    <label><span class="vh">Make</span><select name="c" data-autosubmit>
-      <?php foreach (CRAFT_CATEGORIES as $k => [$l, $ic]): ?><option value="<?= e($k) ?>"<?= $k === $tab ? ' selected' : '' ?>><?= $ic ?> <?= e($l) ?> (<?= (int)($counts[$k]['have'] ?? 0) ?>/<?= (int)($counts[$k]['total'] ?? 0) ?>)</option><?php endforeach; ?>
-    </select></label>
-    <button class="btn small pickgo">Go</button>
-  </form>
-  <h2 class="p2title">🫙 Pantry <small><?= count($jarsList) ?>/<?= $jarLimit ?> jars in use</small></h2>
+  <h2 class="p2title" id="shelves">🫙 Pantry <small><?= count($jarsList) ?>/<?= $jarLimit ?> jars in use</small></h2>
   <details class="helpfold p2help"><summary>❓ How the Pantry works</summary><p class="help">One jar holds one batch. Timers run in real days, even while you are away, and nothing spoils. Jam takes 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7, cordials 14. A recipe appears once you’ve collected every ingredient.</p></details>
 </div>
 

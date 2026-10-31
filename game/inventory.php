@@ -47,7 +47,7 @@ page_header(['craft' => 'Crafting', 'belt' => 'Toolbelt'][$view] ?? 'Satchel');
 <?php if ($view === 'craft') {
     refresh_energy($u);   // v0.7.88: the ×N buttons count the energy the gnome has now
     require_once __DIR__ . '/includes/craft_view.php';
-    craft_view($u, (string)($_GET['c'] ?? 'cooking'));
+    craft_view($u, (string)($_GET['c'] ?? ''));
     page_footer();
     exit;
 }
