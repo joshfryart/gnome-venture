@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Propose Boon effects (and the rare's active) for Puzzle Pal rosters.
-Usage: tools/pal_boons_draft.py [--gallery | SLUG ...]   (no names = the 14 gallery pictures without a Boon row yet)
+Usage: tools/pal_boons_draft.py [--kind haven|wonder|delve|lair | SLUG ...]   (no names = the 14 gallery pictures without a Boon row yet)
 Prints key|effect|active|? rows (name and line are written afterwards by the Opus review). Seeded by crc32(slug), so reruns give the same draft.
 Rules (claude/brainstorm-pal-rosters.md 3.2): 6 different effects per roster, no two rosters share 4 or more effects, each rare's (effect, active) pair unique,
 slot pools per rarity; among the legal drafts it prefers the one where most pals keep the effect their calling has today."""
@@ -11,6 +11,14 @@ COMMON_POOL = ['mend', 'sip', 'feast', 'petal', 'guard', 'bulwark', 'slip', 'fir
 UNCOMMON_POOL = ['ward', 'foot', 'bulwark', 'slip', 'guard', 'first', 'rally', 'feast', 'edge', 'mend']
 RARE_POOL = ['edge', 'first', 'rally', 'petal', 'foot', 'ward', 'bulwark', 'guard', 'mend', 'sip', 'slip', 'feast']
 ACTIVES = ['strike', 'shield', 'patch']
+ALL = ['ward', 'edge', 'foot', 'mend', 'sip', 'petal', 'guard', 'bulwark', 'slip', 'feast', 'rally', 'first', 'kindle', 'spoils', 'lesson', 'tonic']
+# Places lean (claude/brainstorm-pal-rosters.md 3.4): the effects a kind of place favours; the rare may use any effect of the lean list plus ward/edge/foot
+LEAN = {
+    'haven': ['sip', 'mend', 'spoils', 'lesson', 'ward', 'feast', 'guard', 'bulwark', 'petal'],
+    'wonder': ['petal', 'first', 'foot', 'kindle', 'slip', 'tonic', 'lesson', 'spoils', 'mend'],
+    'delve': ['guard', 'rally', 'mend', 'foot', 'bulwark', 'slip', 'tonic', 'ward', 'feast'],
+    'lair': ['edge', 'ward', 'rally', 'kindle', 'first', 'bulwark', 'guard', 'spoils', 'tonic'],
+}
 CALLING_EFFECT = {'rootwarden': 'ward', 'thornblade': 'edge', 'wayfinder': 'foot', 'seedkeeper': 'mend', 'brewroot': 'sip', 'bloomcaller': 'petal'}
 
 def load():
@@ -29,7 +37,9 @@ def load():
 def main():
     pals, boons = load()
     names = [a for a in sys.argv[1:] if not a.startswith('--')]
-    if not names: names = [s for s in pals if not s.startswith('pl-') and not all(p['key'] in boons for p in pals[s])]
+    kind = sys.argv[sys.argv.index('--kind') + 1] if '--kind' in sys.argv else ''
+    names = [a for a in names if a != kind]
+    if not names: names = [s for s in pals if (s.startswith('pl-' + kind + '-') if kind else not s.startswith('pl-')) and not all(p['key'] in boons for p in pals[s])]
     for attempt in range(60):   # a roster that finds no legal draft after the others: try another order (still deterministic)
         order = names[:] if attempt == 0 else random.Random(attempt).sample(names, len(names))
         out = draft(pals, boons, order)
@@ -51,6 +61,10 @@ def draft(pals, boons, names):
             pick, used = [], set()
             for p in pals[slug]:
                 pool = {'common': COMMON_POOL, 'uncommon': UNCOMMON_POOL, 'rare': RARE_POOL}[p['rarity']]
+                if slug.startswith('pl-'):
+                    kind = slug.split('-')[1]
+                    pool = LEAN.get(kind, ALL) if _ < 12000 else ALL   # lean first, then any of the 16
+                    if p['rarity'] == 'rare' and _ < 12000: pool = list(dict.fromkeys(pool + ['edge', 'foot', 'ward']))
                 opts = [e for e in pool if e not in used]
                 if not opts: break
                 e = rng.choice(opts); used.add(e); pick.append(e)
