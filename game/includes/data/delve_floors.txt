@@ -1,2 +1,191 @@
 # Delve floors (v2.3.1, the delve redo). Format and characters: see the top of includes/delve_floors.php. Check with: php tools/lint_delve_floors.php
 # A block: "@delve-slug/floor_name", then tier:, rule:, sig:, for:, optional title:, then the rows. The pool is empty until the floors are authored (step 4 of claude/checklist-delves.md).
+
+# Beaverdam Tunnels: 10 floors (4 small, 4 standard, 1 large, 1 boss). DRAFT names, titles and rule lines: waiting for Joshua.
+# Drafted by Haiku (claude/drafts/delve_floors_beaverdam.txt); dam_wall and log_jam redrawn in review (straight corridor, 3 dead rows).
+
+@beaverdam-tunnels/cross_junction
+tier: small
+rule: Four gnawed arms meet at a hub. The south arm is flooded and the shrine waits by the first find.
+sig: no
+for: fight,mystery
+title: The Cross Junction
+#########
+####S####
+####.####
+###.1M###
+#2.F.,.3#
+###.T.###
+####W####
+####E####
+#########
+
+@beaverdam-tunnels/gnawed_loop
+tier: small
+rule: A gnawed loop of tunnel. The shrine sits in a dead-end pocket off the top corridor.
+sig: no
+for: mystery,puzzle
+title: The Gnawed Loop
+#########
+#S....1.#
+#.####.##
+#.####M##
+#.####.##
+#..F.,..#
+#.####E.#
+#2.....T#
+#########
+
+@beaverdam-tunnels/flooded_pool
+tier: small
+rule: A flooded pool with dry ledges. The chest sits on the east ledge, and wading costs extra torch.
+sig: no
+for: fight,treasure
+title: The Flooded Pool
+#########
+#S..1...#
+#.WWWWW.#
+#.WWWWW.#
+#..F..C.#
+#.WWW.W.#
+#2..T...#
+#......E#
+#########
+
+@beaverdam-tunnels/twin_chambers
+tier: small
+rule: Two chambers joined by a gap. The shrine waits in one corner and a trap in the west room.
+sig: no
+for: fight,puzzle
+title: Twin Chambers
+#########
+#S..#...#
+#..1#.2.#
+#...#..M#
+#...,..F#
+#.T.#.E.#
+#...#.3.#
+#.....,.#
+#########
+
+@beaverdam-tunnels/dam_wall
+tier: standard
+rule: The dam splits the floor: dry gnawed halls to the west, the flooded pond behind it. One gnawed lane runs along the wall.
+sig: yes
+for: fight,mystery
+title: The Dam Wall
+#############
+#S...,..#WWW#
+#.##.##.#W2W#
+#..1..#.#WWW#
+##.##.#...WW#
+#..F..#.#W.W#
+#.###.#T#W.W#
+#.....#.#WWW#
+###.###.#.MW#
+#..,..#...W.#
+#.#.C.#.#WWW#
+#E....,.#.3.#
+#############
+
+@beaverdam-tunnels/lodge_ring
+tier: standard
+rule: A lodge ring around the chest room. The chest sits in the middle, and a trap guards the east ring.
+sig: yes
+for: treasure,fight
+title: The Lodge
+#############
+#S.1........#
+#.#########.#
+#.#########.#
+#.##.....##T#
+#.##.....##.#
+#.....C..##.#
+#F##.....##.#
+#.##.....##.#
+#.#########2#
+#.#########.#
+#.....E.....#
+#############
+
+@beaverdam-tunnels/log_jam
+tier: standard
+rule: A jam of gnawed logs: crooked lanes, dead-end branches, and wet logs that cost extra torch.
+sig: no
+for: fight,puzzle
+title: The Log Jam
+#############
+#S.....#...2#
+#.#.##.#.##.#
+#.#.1.#..#..#
+#.#.#.#..#..#
+#...W.......#
+#.#.###.###.#
+#..F..#.#...#
+#.###.#...#.#
+#.....#.#.T.#
+##.##.#.#.###
+#...W,..#..E#
+#############
+
+@beaverdam-tunnels/key_storehouse
+tier: standard
+rule: The key hides in the west hall, far from the storehouse door. Behind the door: a chest and finds.
+sig: no
+for: puzzle,mystery
+title: The Key Storehouse
+#############
+#S....#.....#
+#.....#..C..#
+#.....#.....#
+#.T...#...2.#
+#.....#.....#
+#.....D.....#
+#.....#..W..#
+#..F..#.....#
+#.....#.1...#
+#K....#....E#
+#....M#.....#
+#############
+
+@beaverdam-tunnels/lumber_store
+tier: large
+rule: The old lumber store: log stacks in two halves, the chest in the east yard, a foe by the north gap.
+sig: no
+for: treasure
+title: The Lumber Store
+###############
+#S......#.....#
+#.......#.....#
+#.....F.#..1..#
+#.............#
+#.##....#.....#
+#.......#..C..#
+#.##....#.....#
+#.......#.....#
+#.##....#.....#
+#...T.........#
+#.......#..2..#
+#.##....#.....#
+#.E.....#.....#
+###############
+
+@beaverdam-tunnels/guardian_hall
+tier: standard
+rule: The guardian sleeps in the pillared hall, and the chest lies right beside it. Wake it, then loot.
+sig: no
+for: boss
+title: The Guardian Hall
+#############
+#S..........#
+#.#.#.#.#.#.#
+#..T........#
+#.#.#.#.#.#.#
+#...F.......#
+#.#.#.#.#.#.#
+#.....W.....#
+#.#.#.#.#.#.#
+#.....BC....#
+#.#.#.#.#.#.#
+#.........1.#
+#############
