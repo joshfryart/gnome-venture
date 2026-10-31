@@ -13,7 +13,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/tilemap.php';
 
 const DV_TIERS = ['small' => 9, 'standard' => 13, 'large' => 15];
-const DV_TORCH = ['small' => 30, 'standard' => 42, 'large' => 50];   // torch fuel (steps) a floor starts with; at 0 the light shrinks, nothing fails. Tuned by claude/delve-torch-sim.php (was 40/55/70: never ran out)
+const DV_TORCH = ['small' => 30, 'standard' => 45, 'large' => 50];   // torch fuel (steps) a floor starts with; at 0 the light shrinks, nothing fails. Tuned by claude/delve-torch-sim.php (was 40/55/70: never ran out)
 const DV_TORCH_SLACK = 1.3;                                          // a floor must be clearable within fuel x this (lint)
 const DV_HAZARD_COST = 2;                                            // a hazard tile costs this many torch steps
 const DV_FOR = ['fight', 'treasure', 'mystery', 'puzzle', 'boss'];

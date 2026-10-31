@@ -9,7 +9,7 @@ $fog = (float)($argv[2] ?? 1.25);
 $game = dirname(__DIR__) . '/game';
 require $game . '/includes/delve_v2.php';
 $slugs = array_values(array_unique(array_map(fn($c) => $c['slug'], ds_chambers())));
-$cands = ['now' => DV_TORCH, 'A' => ['small' => 30, 'standard' => 45, 'large' => 60], 'B' => ['small' => 32, 'standard' => 48, 'large' => 64], 'C' => ['small' => 35, 'standard' => 50, 'large' => 65], 'D' => ['small' => 28, 'standard' => 42, 'large' => 50], 'E' => ['small' => 30, 'standard' => 42, 'large' => 50]];
+$cands = ['now' => DV_TORCH, 'A' => ['small' => 30, 'standard' => 45, 'large' => 60], 'B' => ['small' => 32, 'standard' => 48, 'large' => 64], 'C' => ['small' => 35, 'standard' => 50, 'large' => 65], 'D' => ['small' => 28, 'standard' => 42, 'large' => 50], 'E' => ['small' => 30, 'standard' => 42, 'large' => 50], 'F' => ['small' => 30, 'standard' => 45, 'large' => 50]];
 $need = [];   // tier => [torch needed, ...]
 $per = [];    // slug => [tier => [needed]]
 foreach ($slugs as $slug) {
