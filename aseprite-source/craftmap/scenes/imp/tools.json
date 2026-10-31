@@ -1,0 +1,47 @@
+{
+ "scene": "tools",
+ "w": 300,
+ "h": 200,
+ "hotspots": [
+  {
+   "id": "rack",
+   "label": "Tool rack",
+   "x": 2,
+   "y": 6,
+   "w": 90,
+   "h": 74
+  },
+  {
+   "id": "bench",
+   "label": "Workbench",
+   "x": 2,
+   "y": 80,
+   "w": 90,
+   "h": 108
+  },
+  {
+   "id": "anvil",
+   "label": "Anvil",
+   "x": 92,
+   "y": 44,
+   "w": 118,
+   "h": 144
+  },
+  {
+   "id": "toolbox",
+   "label": "Toolbox",
+   "x": 210,
+   "y": 12,
+   "w": 88,
+   "h": 76
+  },
+  {
+   "id": "grindstone",
+   "label": "Grindstone",
+   "x": 210,
+   "y": 88,
+   "w": 88,
+   "h": 100
+  }
+ ]
+}

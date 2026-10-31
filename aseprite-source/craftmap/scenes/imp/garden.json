@@ -1,0 +1,47 @@
+{
+ "scene": "garden",
+ "w": 300,
+ "h": 200,
+ "hotspots": [
+  {
+   "id": "can",
+   "label": "Watering can and trowels",
+   "x": 4,
+   "y": 14,
+   "w": 96,
+   "h": 82
+  },
+  {
+   "id": "sacks",
+   "label": "Sacks of loam",
+   "x": 6,
+   "y": 104,
+   "w": 92,
+   "h": 88
+  },
+  {
+   "id": "compost",
+   "label": "Compost bin",
+   "x": 102,
+   "y": 28,
+   "w": 96,
+   "h": 152
+  },
+  {
+   "id": "seeds",
+   "label": "Seed trays",
+   "x": 202,
+   "y": 14,
+   "w": 96,
+   "h": 82
+  },
+  {
+   "id": "barrow",
+   "label": "Mulch barrow",
+   "x": 202,
+   "y": 100,
+   "w": 96,
+   "h": 92
+  }
+ ]
+}
