@@ -18,6 +18,7 @@ BEAM = ramp('#7a4a1f', '#5c3420', '#9a6b3f')
 WOOD = ramp('#b07a3a', '#7a4a1f', '#d9a35a', '#8a5a2a', '#5c3420')
 BACK, BACK2 = '#c9945a', '#b8844c'
 GLASS = ramp('#e6dcea', '#b8a6c4', '#ffffff')
+BGLASS = ramp('#d6c6de', '#a894b6', '#f4eef6')   # bottle glass, a touch deeper than the jars so it reads against the plum wall
 PLUM = ramp('#7a2e7a', '#561c5a', '#a85aa8')
 JRED = ramp('#c8282e', '#8a1a24', '#e8604a')
 AMBER = ramp('#e8a317', '#b07a10', '#f5cf6a')
@@ -130,30 +131,38 @@ for row, base in enumerate((62, 106)):
         cv.fill(rect(jx + JW - 7, jy + 1, jx + JW - 5, jy + 5), '#e8a317')   # bow
         cv.dots([(jx + JW - 8, jy + 5), (jx + JW - 4, jy + 5)], '#b07a10')
 
-# ---------------------------------------------------------------- 2 cheese wheel hanging in a cord net, cloth tied over the top
-CHEESE = ramp('#f0b92b', '#c98a14', '#f8dc6a', '#d99a1f')
-RIND = ramp('#d98a1f', '#a8641a', '#f0b04a')
-hx0, hx1 = 132, 178
-CT, CB = 44, 80
-cord = rect(154, 10, 156, 30)
-wheel = (ell(hx0 - 2, CT - 8, hx1 + 2, CB + 8) & rect(0, CT, W, CB)) | rrect(hx0 + 8, CT, hx1 - 8, CB, 2)
-cloth = poly([(hx0 + 4, CT + 10), (155, 26), (hx1 - 4, CT + 10), (hx1 - 2, CT + 14), (hx0 + 2, CT + 14)])
-tuft = ell(149, 22, 161, 32)
-draw((cord, BEAM, dict(d=0)))
-draw((wheel, CHEESE, dict(d=3)), (cloth, CREAM, dict(d=2, contour=True)), (tuft, CREAM, dict(d=1, contour=True)))
-cv.fill(rect(hx0 + 2, CT + 14, hx1 - 2, CT + 15) & wheel, RIND['s'])   # rind edge under the cloth
-cv.fill(rect(hx0 + 2, CB - 3, hx1 - 2, CB - 1) & wheel, RIND['b'])   # bottom rind
-for (x, y, s_) in ((143, 72, 3), (166, 72, 3), (146, 57, 2), (167, 57, 2), (150, 72, 1)):   # cheese holes (eyes)
-    m = ell(x - s_, y - s_, x + s_, y + s_)
-    cv.fill(m, CHEESE['s'])
-    cv.fill(m & ~shift(m, 1, 1), RIND['s'])
-cord2 = (rect(154, CT + 14, 156, CB) | rect(hx0, 64, hx1, 65)) & wheel   # parcel cord tied round the wheel
-cv.fill(cord2, '#8a5a2a')
-cv.fill(cord2 & rect(0, 0, 154, H) & rect(0, 64, W, 64), '#b07a3a')
-cv.fill(rect(150, 31, 160, 32), '#9a6b3f')   # string round the cloth neck
-for x in range(hx0 + 6, hx1 - 5, 3):   # stitched hem of the cloth
-    cv.fill(rect(x, CT + 12, x + 1, CT + 12) & cloth, GOLD)
-cv.fill(rect(hx0 + 4, CT + 18, hx0 + 6, CT + 24), CHEESE['r'])
+# ---------------------------------------------------------------- 2 cheese wheel with a wedge cut out, hanging in a cloth sling knotted on a rope
+CHEESE = ramp('#f8e08a', '#e8b84a', '#fff3c8')
+RIND = ramp('#e8a317', '#c98a14', '#f5cf6a')
+CX, CY, CR = 155, 57, 20   # wheel centre and radius
+draw((line([(155, 10), (155, 25)], 2), BEAM, dict(d=0)))   # rope from the beam
+for y in range(12, 25, 3):   # rope twist
+    cv.fill(rect(155, y, 155, y), BEAM['r'])
+straps = line([(153, 28), (135, 52), (134, 68)], 4) | line([(157, 28), (175, 52), (176, 68)], 4)   # sling straps behind the wheel
+draw((straps, CREAM, dict(d=1)))
+wheel = ell(CX - CR, CY - CR, CX + CR, CY + CR)
+wedge = poly([(CX, CY), (CX + 30, CY - 30), (CX + 32, CY - 2), (CX + 30, CY + 1)])   # upper-right slice taken out
+wheel &= ~wedge
+draw((wheel, CHEESE, dict(d=2)))
+rind = wheel & ~(ell(CX - CR + 3, CY - CR + 3, CX + CR - 3, CY + CR - 3))
+cv.fill(rind, RIND['b'])
+cv.fill(rind & ~shift(rind, 1, 1) & ~shift(wheel, 1, 1), RIND['r'])   # lit rind upper left
+cv.fill(rind & ~shift(wheel, -1, -1), RIND['s'])
+cut = wheel & ~shift(wedge, -1, 0) & dil4(dil4(wedge)) & ~rind   # fresh cut faces along the slice
+cv.fill(cut, CHEESE['r'])
+cv.fill(wheel & dil4(wedge) & rect(0, CY - 1, W, CY + 1) & ~rind, CHEESE['s'])   # thickness under the flat cut
+for (x, y, w_, h_) in ((143, 47, 3, 3), (161, 62, 2, 2), (149, 60, 2, 2)):   # hard-pixel holes
+    cv.fill(rect(x, y, x + w_ - 1, y + h_ - 1), CHEESE['s'])
+    cv.fill(rect(x, y, x + w_ - 1, y) | rect(x, y, x, y + h_ - 1), RIND['s'])
+sling = (ell(CX - CR - 2, CY - CR - 6, CX + CR + 2, CY + CR + 3) & rect(0, CY + 12, W, H)) | rect(CX - CR - 1, CY + 9, CX - CR + 2, CY + 12) | rect(CX + CR - 2, CY + 9, CX + CR + 1, CY + 12)
+knot = ell(150, 22, 160, 31)
+ears = poly([(151, 25), (146, 19), (148, 27)]) | poly([(159, 25), (164, 19), (162, 27)])
+draw((sling, CREAM, dict(d=2)), (ears, CREAM, dict(d=1, contour=True)), (knot, CREAM, dict(d=2, contour=True)))
+for x in range(CX - CR + 1, CX + CR, 3):   # stitched hem along the top of the sling
+    cv.fill(rect(x, CY + 14, x + 1, CY + 14) & sling, GOLD)
+for (a_, b_) in (((144, 74), (150, 78)), ((160, 73), (165, 77))):   # fold creases
+    cv.fill(line([a_, b_]) & sling, CREAM['s'])
+cv.fill(rect(151, 26, 159, 26) & knot, CREAM['s'])   # knot crease
 
 # ---------------------------------------------------------------- 3 wall shelf of cordial bottles (right)
 shelf = rect(196, 86, 294, 90)
@@ -166,7 +175,7 @@ for k, (liq, tall) in enumerate(((ROSE, 50), (AMBER, 56), (HERB, 46), (CURR, 54)
     body = rrect(bx, top + 16, bx + 17, 85, 4)
     neck = rect(bx + 6, top + 4, bx + 11, top + 17) | ell(bx + 2, top + 10, bx + 15, top + 24)
     cork = rrect(bx + 5, top - 1, bx + 12, top + 5, 1)
-    draw((neck | body, GLASS, dict(d=2)), (cork, TAN, dict(d=1, contour=True)))
+    draw((neck | body, BGLASS, dict(d=2)), (cork, TAN, dict(d=1, contour=True)))
     liqm = rrect(bx + 2, top + 22, bx + 15, 83, 3)
     cv.fill(liqm, liq['b'])
     cv.fill(liqm & ~shift(liqm, -2, -2), liq['s'])
