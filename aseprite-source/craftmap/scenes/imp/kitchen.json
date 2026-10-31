@@ -15,9 +15,9 @@
    "id": "produce",
    "label": "Produce barrel",
    "x": 12,
-   "y": 100,
+   "y": 101,
    "w": 72,
-   "h": 88
+   "h": 91
   },
   {
    "id": "stove",

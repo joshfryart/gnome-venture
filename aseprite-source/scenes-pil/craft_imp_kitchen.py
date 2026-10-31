@@ -49,7 +49,7 @@ STEW = ramp('#e0701f', '#b8452f', '#f5a04a')
 WOOD = ramp('#b07a45', '#8a4f2a', '#d9a660', '#9a6438')
 DWOOD = ramp('#7a4a1f', '#5c3420', '#9a6b3f')
 BOARD = ramp('#d9a660', '#b07a45', '#ecc58a')
-BRICK = ramp('#c0603a', '#9a4428', '#e08a5a', '#a84e30')
+BRICK = ramp('#b86a4a', '#94503a', '#d08a66', '#a05a40')   # calmer than the pot: the hero owns the saturated red
 STONE = ramp('#d8cbb0', '#b0a084', '#f1ece0')
 COPPER = ramp('#d0743a', '#a04e24', '#f5b07a', '#b85e2c')
 CREAM = ramp('#f2e4c0', '#c9a96e', '#fff4d8')
@@ -78,9 +78,6 @@ def draw(*parts):
 
 
 # ---------------------------------------------------------------- room: ceiling beam, plaster wall, skirting, plank floor
-for _ in range(14):   # a few faint plaster patches, kept away from the objects' outlines
-    x, y = r(4, 290), r(14, 136)
-    cv.fill(rect(x, y, x + r(3, 7), y), WALL_S)
 cv.fill(rect(0, 0, W - 1, 7), DWOOD['b'])
 cv.fill(rect(0, 6, W - 1, 7), DWOOD['s'])
 cv.fill(rect(0, 0, W - 1, 0), DWOOD['r'])
@@ -147,11 +144,12 @@ cv.fill(rect(PX0 + 4, 82, PX0 + 5, 84), '#ffc27a')
 for sx in range(PX0 + 12, PX1 - 4, 6):   # stitched seam
     cv.fill(rect(sx, 90, sx + 2, 90), '#ffc27a')
 # wooden spoon standing in the stew
-draw((line([(150, 72), (164, 50)], 3), WOOD, {'d': 1}), (ell(160, 40, 172, 52), WOOD, {'d': 2}))
-# steam curls
-for pts in (((128, 64), (124, 56), (128, 48), (124, 40)), ((142, 62), (146, 54), (142, 46), (146, 38), (142, 32))):
-    cv.fill(line(list(pts), 3), STEAM['b'])
-    cv.fill(line([(x + 1, y) for x, y in pts], 1) & line(list(pts), 3), STEAM['s'])
+draw((line([(128, 72), (114, 52)], 3), WOOD, {'d': 1}), (ell(105, 40, 118, 54), WOOD, {'d': 2}))   # leans left, clear of the pipe
+# steam: two chunky outlined curls (read at thumb size, like the cooking tile)
+stm = blank()
+for px, py, s in ((140, 64, 7), (146, 56, 6), (140, 47, 5), (145, 39, 4), (141, 33, 3)):   # one merged plume, shrinking as it rises
+    stm |= ell(px - s, py - s * 3 // 4, px + s, py + s * 3 // 4)
+draw((stm & ~rect(0, 70, W, H), STEAM, {'d': 2}))
 
 # ---------------------------------------------------------------- LEFT TOP: brick bread oven built into the wall
 oven = ell(8, 14, 88, 82) | rect(8, 48, 88, 94)
@@ -173,26 +171,33 @@ for lx in (32, 50):   # two loaves baking
 draw((rect(4, 94, 92, 100), STONE, {'d': 2}))   # stone sill
 
 # ---------------------------------------------------------------- LEFT BOTTOM: barrel of produce
-BX0, BX1 = 18, 76
-shadow(BX0 - 2, 178, BX1 + 6, 186)
-barrel = rrect(BX0, 122, BX1, 182, 5) | ell(BX0 - 2, 132, BX1 + 2, 172)
+BX0, BX1, BY0, BY1 = 18, 76, 128, 186
+shadow(BX0 - 2, BY1 - 4, BX1 + 8, BY1 + 4)
+barrel = blank()
+for y in range(BY0, BY1 + 1):   # staved barrel: bulges in the middle
+    t = (y - BY0) / (BY1 - BY0)
+    hw = (BX1 - BX0) / 2 - 3 + int(round(4 * (1 - (2 * t - 1) ** 2)))
+    cx = (BX0 + BX1) / 2
+    barrel[y, int(cx - hw):int(cx + hw) + 1] = True
 draw((barrel, WOOD, {'d': 3}))
-for sx in range(BX0 + 9, BX1 - 4, 10):
-    cv.fill(barrel & rect(sx, 124, sx, 180), WOOD['s'])
-for hy in (130, 170):
+for k, sx in enumerate(range(BX0 + 8, BX1 - 4, 10)):
+    cv.fill(barrel & line([(sx + (k - 2), BY0 + 2), (sx + (k - 2) * 2, (BY0 + BY1) // 2), (sx + (k - 2), BY1 - 2)]), DWOOD['b'])
+for hy in (BY0 + 7, BY1 - 9):
     draw((barrel & rect(0, hy, W, hy + 3), IRON, {'d': 1, 'rim': False}))
     cv.fill(barrel & rect(0, hy, W, hy), IRON['r'])
-cv.fill(rect(BX0 + 2, 122, BX1 - 2, 124), WOOD['s'])
+cv.fill(rect(BX0 + 4, BY0, BX1 - 4, BY0 + 2), WOOD['s'])
 # heap: cabbage, apples, carrots
-draw((ell(22, 104, 46, 126), CABBAGE, {'d': 2}))
-cv.fill(line([(34, 108), (34, 124)]) | line([(28, 112), (34, 118)]) | line([(40, 112), (34, 118)]), CABBAGE['s'])
-for ax, ay in ((46, 112), (58, 108), (54, 118), (66, 116)):
+HY = BY0 - 20
+draw((ell(22, HY + 2, 46, HY + 24), CABBAGE, {'d': 2}))
+cv.fill(line([(34, HY + 6), (34, HY + 22)]) | line([(28, HY + 10), (34, HY + 16)]) | line([(40, HY + 10), (34, HY + 16)]), CABBAGE['s'])
+for ax, ay in ((44, HY + 10), (55, HY + 6), (52, HY + 16), (63, HY + 13)):
     draw((ell(ax, ay, ax + 10, ay + 9), APPLE, {'d': 2}))
     cv.fill(rect(ax + 5, ay - 2, ax + 5, ay), DWOOD['b'])
     cv.dots([(ax + 2, ay + 2), (ax + 3, ay + 2)], '#ffc27a')
-for cx0, cy0, cx1, cy1 in ((62, 104, 74, 124), (68, 102, 78, 122)):
-    draw((line([(cx0, cy0), (cx1, cy1)], 4), CARROT, {'d': 1}))
-    cv.fill(line([(cx0 - 2, cy0 - 5), (cx0, cy0)], 1) | line([(cx0 + 2, cy0 - 5), (cx0, cy0)], 1), '#4f9a45')
+for cx0, cy0 in ((64, HY + 2), (71, HY + 4)):   # carrots: tapered, tips down into the heap, leafy tops up
+    draw((poly([(cx0 - 3, cy0), (cx0 + 3, cy0), (cx0 + 5, cy0 + 18), (cx0 + 3, cy0 + 19)]), CARROT, {'d': 1}))
+    cv.dots([(cx0, cy0 + 6), (cx0 + 1, cy0 + 6), (cx0 + 2, cy0 + 11), (cx0 + 3, cy0 + 11)], CARROT['s'])
+    cv.fill(line([(cx0 - 2, cy0 - 6), (cx0, cy0 - 1)], 2) | line([(cx0 + 3, cy0 - 6), (cx0 + 1, cy0 - 1)], 2), '#4f9a45')
 
 # ---------------------------------------------------------------- RIGHT TOP: hanging rack of copper pans
 draw((rect(206, 16, 294, 20), DWOOD, {'d': 1}), (rect(210, 12, 214, 22) | rect(286, 12, 290, 22), DWOOD, {'d': 1}))
@@ -206,8 +211,10 @@ cv.dots([(218, 44), (219, 43), (220, 42)], COPPER['r'])
 # ladle
 draw((rect(251, 24, 253, 46), IRON, {'d': 1}), (ell(245, 44, 259, 56), IRON, {'d': 2}))
 # small saucepan
-draw((rect(274, 24, 278, 34), COPPER, {'d': 1}), (rrect(266, 34, 288, 54, 3), COPPER, {'d': 3}))
-cv.fill(rect(269, 38, 270, 48), COPPER['r'])
+draw((line([(276, 24), (276, 36)], 3), COPPER, {'d': 1}),   # saucepan hung by its long handle, body wider than tall
+     (rrect(264, 36, 290, 56, 4), COPPER, {'d': 3}),
+     (rect(262, 36, 292, 39), COPPER, {'d': 1, 'contour': True}))
+cv.fill(rect(267, 42, 268, 52), COPPER['r'])
 
 # ---------------------------------------------------------------- RIGHT BOTTOM: worktable with board, loaf and mixing bowl
 TX0, TX1 = 206, 294
@@ -229,7 +236,7 @@ draw((line([(280, 92), (290, 76)], 2), WOOD, {'d': 1}))   # spoon in the batter
 
 HOTSPOTS = [
     {'id': 'oven', 'label': 'Bread oven', 'x': 4, 'y': 10, 'w': 90, 'h': 90},
-    {'id': 'produce', 'label': 'Produce barrel', 'x': 12, 'y': 100, 'w': 72, 'h': 88},
+    {'id': 'produce', 'label': 'Produce barrel', 'x': 12, 'y': 101, 'w': 72, 'h': 91},
     {'id': 'stove', 'label': 'Stove', 'x': 100, 'y': 30, 'w': 98, 'h': 148},
     {'id': 'rack', 'label': 'Pan rack', 'x': 204, 'y': 10, 'w': 92, 'h': 52},
     {'id': 'table', 'label': 'Worktable', 'x': 202, 'y': 72, 'w': 96, 'h': 106},

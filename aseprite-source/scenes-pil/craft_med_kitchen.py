@@ -73,6 +73,11 @@ for y in range(FY, H, 12):
     cv.fill(rect(0, y, W - 1, y), FGROUT)
 cv.fill(rect(0, FY, W - 1, FY + 1), FGROUT)
 
+rug = ell(70, 170, 190, 197)
+for k, col in enumerate(('#c8643c', '#d9804a', '#c8643c', '#e09c62')):
+    cv.fill(ell(70 + k * 11, 170 + k * 3, 190 - k * 11, 197 - k * 3), col)
+cv.fill(rug & ~shift(rug, -1, -1), '#93422c')   # rug sits flat: one dark lower edge, no outline
+
 # ---------------------------------------------------------------- 1 domed clay bread oven (left)
 ox0, ox1 = 8, 76
 shadow(ox0 - 2, FY - 3, ox1 + 8, FY + 6)
@@ -174,32 +179,34 @@ dough = ell(212, 82, 236, 100)
 bowl = (ell(206, 78, 242, 122) & rect(0, 94, W, H)) | rrect(205, 92, 243, 96, 1)
 draw((dough, CREAM, dict(d=2)))
 cv.fill(rect(219, 85, 222, 86), '#fff3c8')
-draw((line([(230, 92), (244, 72)], 3) | ell(241, 66, 248, 74), WOOD, dict(d=1)))   # spoon in the dough
+draw((line([(230, 92), (241, 78)], 3) | ell(238, 72, 245, 80), WOOD, dict(d=1)))   # spoon in the dough
 draw((bowl, CREAM, dict(d=3)), (rect(208, 100, 240, 103) & bowl, RED, dict(d=0)))
 cv.fill(rect(206, 92, 242, 92), '#fff3c8')
 cv.dots([(210, 106), (210, 107), (211, 108)], '#fff3c8')
 
 # ---------------------------------------------------------------- 4 hanging pan rack (above the table)
-chain = rect(170, 8, 171, 18) | rect(238, 8, 239, 18)
-rail = rect(164, 18, 246, 21)
+chain = rect(168, 8, 169, 18) | rect(242, 8, 243, 18)
+rail = rect(162, 18, 250, 21)
 hooks = blank()
-for hxp in (178, 199, 222, 240):
+for hxp in (179, 205, 227, 245):
     hooks |= rect(hxp, 22, hxp + 1, 25)
 draw((chain | hooks, IRON, dict(d=0)), (rail, IRON, dict(d=1)))
-cv.fill(rect(164, 18, 246, 18), IRON['r'])
+cv.fill(rect(162, 18, 250, 18), IRON['r'])
 # frying pan
-draw((rect(177, 25, 180, 42), IRON, dict(d=1)), (ell(166, 40, 192, 66), COPPER, dict(d=3)))
-cv.fill(ell(171, 45, 187, 61), COPPER['s'])
-cv.fill(ell(172, 46, 187, 61) & ~shift(ell(172, 46, 187, 61), 2, 2), COPPER['bo'])
-cv.fill(rect(172, 47, 174, 48), COPPER['r'])
-cv.dots([(172, 49)], COPPER['r'])
+draw((rect(178, 25, 181, 40), IRON, dict(d=1)), (ell(164, 36, 196, 68), COPPER, dict(d=3)))
+inner = ell(170, 42, 190, 62)
+cv.fill(inner, COPPER['s'])
+cv.fill(inner & ~shift(inner, 2, 2), COPPER['bo'])
+cv.fill(rect(170, 44, 172, 45) | rect(169, 46, 170, 48), COPPER['r'])
+cv.dots([(171, 44)], '#ffc27a')
 # ladle
-draw((rect(198, 25, 200, 52), IRON, dict(d=1)), (ell(192, 50, 206, 62) & rect(0, 54, W, H), IRON, dict(d=2)))
+draw((rect(204, 25, 206, 54), IRON, dict(d=1)), (ell(198, 50, 212, 66) & rect(0, 56, W, H), IRON, dict(d=2)))
 # saucepan
-draw((rect(221, 25, 223, 34), COPPER, dict(d=1)), (rrect(210, 34, 234, 56, 3), COPPER, dict(d=3)), (rect(208, 34, 236, 37), COPPER, dict(d=1, contour=True)))
-cv.fill(rect(213, 41, 215, 42), COPPER['r'])
+sp = rrect(216, 38, 240, 60, 5) | rect(216, 38, 240, 50)
+draw((rect(226, 25, 229, 35), COPPER, dict(d=1)), (sp, COPPER, dict(d=3)), (rect(214, 35, 242, 38), COPPER, dict(d=1, contour=True)))
+cv.fill(rect(219, 42, 221, 43) | rect(219, 44, 219, 47), COPPER['r'])
 # wooden spoon pair
-draw((line([(240, 25), (240, 46)], 2) | ell(237, 44, 243, 54), WOOD, dict(d=1)))
+draw((line([(246, 25), (246, 48)], 2) | ell(242, 46, 250, 58), WOOD, dict(d=1)))
 
 # ---------------------------------------------------------------- 5 barrel of produce (right)
 bx0, bx1 = 252, 296
@@ -235,8 +242,8 @@ for (ax, ay) in ((256, 120), (266, 118)):
 HOTSPOTS = [
     ('oven', 'Bread oven', 4, 26, 80, 142),
     ('stove', 'Stove', 86, 26, 66, 140),
-    ('table', 'Worktable', 154, 64, 94, 104),
-    ('rack', 'Pan rack', 160, 10, 86, 54),
+    ('table', 'Worktable', 154, 70, 94, 98),
+    ('rack', 'Pan rack', 158, 10, 94, 60),
     ('barrel', 'Produce barrel', 250, 94, 50, 104),
 ]
 
