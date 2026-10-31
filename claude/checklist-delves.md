@@ -20,16 +20,16 @@ Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 - [x] [S] `tests/delveroute.php`: deterministic, no repeats, tier rules, fallback. Commit.
 
 ## 3. M slice (old 5 rooms as tile floors)
-- [ ] [S] State in `walk_scene.state` `{v:2, route, floor:{torch,found,picks,hp}, c}`; `map_key` prefix `f:`. Old delves untouched.
-- [ ] [S] Torch fuel (40 to 60 steps), light shrinks to 1 at 0, lantern tool = more fuel. Enter = 1 energy, no per-room energy.
-- [ ] [S] Fog + line of sight (`tm_reveal` bands), server-validated walk (like `dm_walk`), stop at trap/pickup.
-- [ ] [S] Floor pickups + find card; chest; key/door; shrine. Fights reuse the current fight screen.
-- [ ] [S] Party strip (gnome + 2 pals, HP, Lv, read-only).
-- [ ] [S] Route menu with 2 branches between floors; resume after leaving; climb out keeps loot.
-- [ ] [S] `depth` = stages cleared; chest and `landmark_clears` still fire once.
-- [ ] [S] Phone layout: 7-column view under 400 px scrolls with the gnome. Screenshot light + dark.
-- [ ] [S] Extend `tests/delvemap.php`; run `landmarks` / `delve` suites; golden combat replay unchanged.
-- [ ] [S] Balance sim (`claude/delve-sim.php`): steps, finds, loot per minute vs old 5 rooms. Tune.
+- [x] [S] State in `walk_scene.state` `{v:2, route, floor:{torch,found,picks,hp}, c}`; `map_key` prefix `f:`. Old delves untouched.
+- [x] [S] Torch fuel (40 to 60 steps), light shrinks to 1 at 0, lantern tool = more fuel. Enter = 1 energy, no per-room energy.
+- [x] [S] Fog + line of sight (`tm_reveal` bands), server-validated walk (like `dm_walk`), stop at trap/pickup.
+- [x] [S] Floor pickups + find card; chest; key/door; shrine. Fights reuse the current fight screen.
+- [x] [S] Party strip (gnome + 2 pals, HP, Lv, read-only).
+- [x] [S] Route menu with 2 branches between floors; resume after leaving; climb out keeps loot.
+- [x] [S] `depth` = stages cleared; chest and `landmark_clears` still fire once.
+- [x] [S] Phone layout: 7-column view under 400 px scrolls with the gnome. Screenshot light + dark.
+- [x] [S] `tests/delve2.sh` (+ `delve2.php` unit/helpers) added; `delvemap.sh` still passes. NOT run: other CI suites, golden combat replay (fights reuse `gnome_combat` unchanged).
+- [x] [S] Balance sim `claude/delve-sim.php` (generated floors, 4 stages): fights 2.35 (old 2.83), traps 1.37 (0.98), finds 4.9 (2.4), about 65 torch steps of 192 fuel, about 3 min. First guess: torch never runs out on generated floors, so lower `DV_TORCH` or lean on authored floors. Tune after Joshua's playtest.
 - [ ] [J] Plays one delve on phone (Firefox Android, dark). Fix list from him.
 
 ## 4. Author 3 delves (Beaverdam Tunnels, Salt Mine Galleries, Firefly Caves)

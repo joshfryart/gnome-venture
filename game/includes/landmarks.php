@@ -303,13 +303,17 @@ function delve_start(array $u, int $lmId): array
         return [false, 'You need 1 energy to go in.'];
     }
     $gc = gnome_combat($u, true);
+    $v2 = dv_on();   // v2.3.1: the route menu and tile floors (setting delve_v2); a delve that starts now keeps these rules to its end
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
-        'steps_total' => DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
+        'steps_total' => $v2 ? dv_stages((int)$lm['level']) : DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
         'log' => json_encode(array_values(array_filter(['🕳️ You light a lantern and step into ' . $lm['name'] . '.',
             ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $uid . '|' . now())) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
     ]);
-    if (dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');   // v2.0.6: the map (the simple list works the same without it)
+    if ($v2 && !dv2_scene_make($uid, $expId, $lm)) {   // could not make the route: this delve plays the old way
+        q('UPDATE expeditions SET steps_total = ? WHERE id = ?', [DELVE_ROOMS, $expId]);
+        if (dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');
+    } elseif (!$v2 && dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');   // v2.0.6: the map (the simple list works the same without it)
     return [true, '🕳️ Into the delve! (−1 energy)'];
 }
 
@@ -354,7 +358,7 @@ function delve_next(array $u, array &$exp): void
 /** The chest at the bottom (once the last room is clear). */
 function delve_chest(array $u, array &$exp): void
 {
-    if ($exp['encounter'] || (int)$exp['depth'] < DELVE_ROOMS || !empty($exp['_opened'])) return;
+    if ($exp['encounter'] || (int)$exp['depth'] < ((int)($exp['steps_total'] ?? 0) ?: DELVE_ROOMS) || !empty($exp['_opened'])) return;   // v2.3.1: steps_total = the stages of a v2 delve (DELVE_ROOMS for the old ones)
     $uid = (int)$u['id'];
     $lm = landmark_at((int)$exp['from_id']);
     $lvl = (int)($lm['level'] ?? 5);

@@ -73,6 +73,18 @@ if (is_post()) {
             if ($do === 'choose') explore_choose($u, $exp, (int)($_POST['option'] ?? -1));
         } elseif ($enc && $enc['type'] === 'meet') {   // v1.9.4: a villager or traveller met on the road
             if ($do === 'meet') road_meet_resolve($u, $exp, (int)($_POST['option'] ?? -1));
+        } elseif (($exp['kind'] ?? 'walk') === 'delve' && ($dv2 = dv2_scene($exp))) {   // v2.3.1: the route menu and tile floors
+            if ($do === 'route') {
+                [$gok, $gmsg] = dv2_pick($u, $exp, $dv2, (string)($_POST['pick'] ?? ''));
+            } elseif ($do === 'quick') {
+                [$gok, $gmsg] = dv2_quick($u, $exp, $dv2);
+            } elseif ($do === 'go') {
+                [$gx, $gy] = array_map('intval', array_pad(explode(',', (string)($_POST['go'] ?? ''), 2), 2, '0'));
+                [$gok, $gmsg] = dv2_walk($u, $exp, $dv2, $gx, $gy);
+            } elseif ($do === 'leave') { delve_leave($u, $exp); $gok = true; $gmsg = ''; }
+            elseif ($do === 'chest') { delve_chest($u, $exp); $gok = true; $gmsg = ''; }
+            else { $gok = true; $gmsg = ''; }
+            if (!$gok) flash($gmsg, 'err');
         } elseif (($exp['kind'] ?? 'walk') === 'delve') {
             if ($do === 'next') delve_next($u, $exp);
             elseif ($do === 'leave') delve_leave($u, $exp);
@@ -146,6 +158,7 @@ $gc = gnome_combat($u, true);
 $L = LANDSCAPES[$scene['land']] ?? ['🌱', 'Wilds', ''];
 $dmScene = ($exp && dm_on()) ? dm_scene($exp) : null;   // v2.0.6: a delve or lair that has a map (the list still works for it)
 $mapMode = $dmScene && dm_pref() === 'map';
+$dv2Scene = ($exp && ($exp['kind'] ?? '') === 'delve') ? dv2_scene($exp) : null;   // v2.3.1: a delve with the route menu and tile floors
 
 function act(string $do, string $label, string $extra = '', string $class = ''): string
 {
@@ -166,7 +179,7 @@ page_header('On the mycelium');
 <?php if ($kind === 'delve' || $kind === 'lair'): ?>
 <h1><?= $kind === 'delve' ? '🕳️' : '🐉' ?> <?= e($from['name']) ?></h1>
 <p class="status">
-  <?= $kind === 'delve' ? 'Room <b>' . (int)$last['depth'] . '</b>/' . DELVE_ROOMS . ' · ' : '' ?>danger level <?= (int)$last['level'] ?>
+  <?= $kind === 'delve' ? ($dv2Scene ? 'Stage <b>' . min((int)$last['steps_total'], (int)$last['depth'] + 1) . '</b>/' . (int)$last['steps_total'] : 'Room <b>' . (int)$last['depth'] . '</b>/' . DELVE_ROOMS) . ' · ' : '' ?>danger level <?= (int)$last['level'] ?>
 <?php elseif ($isExplore): [$tierName] = explore_tier((int)$last['depth']); ?>
 <h1>🌿 Off the path near <?= e($from['name']) ?></h1>
 <?php require_once __DIR__ . '/includes/seek.php'; echo seek_chip($u, $exp);   // v0.7.97 ?>
@@ -189,7 +202,13 @@ if ($wi && !$isWalk): ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
 <?php if ($exp): echo adventure_stage_html($u, $exp, $scene, $enc); endif; ?>
-<?php if ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
+<?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
+<?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc) ?>
+<?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>
+<?php else: ?><?= dv2_menu_html($u, $exp, $dv2Scene, (bool)$enc) ?>
+<?php endif; ?>
+<?= dv2_party_html($u, $exp, $dv2Scene) ?>
+<?php elseif ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($isWalk): ?>
@@ -333,6 +352,18 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <?php endforeach; ?>
   </div>
 
+<?php elseif ($dv2Scene): // v2.3.1: nothing in front of you ?>
+  <?php if ($kind === 'delve' && (int)$exp['depth'] >= (int)$exp['steps_total']): ?>
+    <h3>💰 The chest sits in the last chamber, unguarded at last.</h3>
+    <div class="choicelist"><?= act_choice('chest', '💰', 'Open the chest', 'Everything in it is yours', '', 'primary') ?></div>
+  <?php elseif ($dv2Scene['map']): ?>
+    <h3><?= $dv2Scene['st']['f']['kd'] === 'boss' ? 'The guardian’s hall' : 'A chamber of the delve' ?></h3>
+    <p class="help">Tap a lit tile to walk. Each step burns the torch; when it is out your light shrinks, nothing worse. Find the way down (🕳️).</p>
+  <?php else: ?>
+    <h3><?= $dv2Scene['st']['q'] ? 'A quiet side chamber' : 'The tunnels branch…' ?></h3>
+    <p class="help"><?= $dv2Scene['st']['q'] ? '' : 'Pick a way. Nodes you have not reached stay a mystery.' ?></p>
+  <?php endif; ?>
+  <div class="choicelist"><?= act_choice('leave', '🪜', 'Climb back out', 'Free · you keep what you found') ?></div>
 <?php elseif ($mapMode): // v2.0.6: nothing in front of you: walk the map ?>
   <?php if ($kind === 'delve' && (int)$exp['depth'] >= DELVE_ROOMS): ?>
     <h3>💰 The chest sits in the last room, unguarded at last.</h3>
