@@ -125,14 +125,15 @@ draw((fork, WOOD, {'d': 1}), (dgrip, WOOD, {'d': 1}))
 top = poly([(BX0, BY0), (FX, BY0), (FX + DX, BY0 - DY), (BX0 + DX, BY0 - DY)])
 back_rim = rect(BX0 + DX, BY0 - DY - 3, FX + DX, BY0 - DY)
 left_rim = poly([(BX0, BY0), (BX0 + 4, BY0), (BX0 + DX + 4, BY0 - DY - 3), (BX0 + DX, BY0 - DY - 3)])
+right_rim = poly([(FX - 3, BY0 + 3), (FX + DX, BY0 - DY - 3), (FX + DX, BY0 - DY + 1), (FX, BY0 + 4)])
 side = poly([(FX, BY0), (FX + DX, BY0 - DY), (FX + DX, BY1 - DY), (FX, BY1)])
-heap = ((ell(BX0 + 4, 88, BX0 + 44, 112) | ell(BX0 + 24, 78, FX - 14, 110) | ell(FX - 38, 84, FX + DX - 2, 108)) & ~rect(0, BY0 - 1, W, H)) | (top & ~back_rim & ~left_rim)
+heap = ((ell(BX0 + 4, 88, BX0 + 44, 112) | ell(BX0 + 24, 78, FX - 14, 110) | ell(FX - 40, 86, FX + 2, 108)) & ~rect(0, BY0 - 1, W, H)) | (top & ~back_rim & ~left_rim)
 slats, sslats = blank(), blank()
 for y in range(BY0 + 4, BY1 - 4, 14):
     slats |= rect(BX0 + 6, y, FX - 6, y + 10)
     sslats |= poly([(FX + 1, y), (FX + DX, y - DY), (FX + DX, y - DY + 10), (FX + 1, y + 10)])
 posts = rect(BX0, BY0, BX0 + 7, BY1) | rect(FX - 7, BY0, FX, BY1)
-draw((back_rim | left_rim, LEAF, {'d': 1}),
+draw((back_rim, LEAF, {'d': 1}),
      (side, COMPOST, {'flat': True}),
      (sslats, LEAFD, {'d': 1, 'rim': False}),
      (poly([(FX + DX - 4, BY0 - DY - 3), (FX + DX, BY0 - DY - 3), (FX + DX, BY1 - DY), (FX + DX - 4, BY1 - DY + 2)]), LEAFD, {'d': 1, 'rim': False}),
@@ -140,8 +141,10 @@ draw((back_rim | left_rim, LEAF, {'d': 1}),
      (rect(BX0, BY0, FX, BY1 - 2), COMPOST, {'flat': True}),
      (slats, LEAF, {'d': 2, 'contour': True}),
      (posts, LEAFD, {'d': 2, 'contour': True}),
-     (rect(BX0, BY0, FX, BY0 + 3), LEAF, {'d': 1, 'contour': True}))
-cv.fill(rect(BX0 + 1, BY0, FX - 1, BY0), '#b4e07a')   # sunlit top edge of the front rim: reads as a surface
+     (left_rim | right_rim, LEAF, {'d': 1}),
+     (rect(BX0, BY0 - 1, FX, BY0 + 3), LEAF, {'d': 1, 'contour': True}))
+cv.fill((left_rim | right_rim) & ~shift(left_rim | right_rim, 0, 1), '#b4e07a')   # lit top of the side rims
+cv.fill(rect(BX0 + 1, BY0 - 1, FX - 1, BY0 - 1), '#b4e07a')   # sunlit top edge of the front rim: reads as a surface
 cv.fill(back_rim & rect(0, BY0 - DY - 3, W, BY0 - DY - 3), LEAF['r'])
 cv.fill(slats & ~shift(slats, 0, 1), LEAF['r'])   # top lit edge on every slat
 cv.fill(rect(FX, BY0, FX, BY1), LEAFD['s'])   # front corner turns into shadow
@@ -153,6 +156,7 @@ for py in (BY0 + 8, BY1 - 8):   # nail heads on the posts
 cv.dots([(124, 98), (125, 98), (134, 94), (135, 94), (140, 90), (141, 90), (138, 99), (166, 100), (167, 100), (128, 101), (146, 100), (176, 92), (177, 92), (184, 95)], COMPOST['r'])
 draw((ell(155, 88, 165, 99), APPLE, {'d': 1}), (rect(159, 84, 160, 88), DWOOD, {'d': 0}))
 draw((ell(118, 92, 132, 101), SPROUT, {'d': 1}))
+cv.fill(line([(120, 97), (129, 96)]), SPROUT['s'])   # cabbage leaf vein
 # the sprout: proud and bright, the one thing that grows here
 draw((rect(150, 64, 152, 86), SPROUT, {'d': 0}),
      (ell(134, 58, 151, 69), SPROUT, {'d': 1}), (ell(152, 52, 169, 63), SPROUT, {'d': 1}))

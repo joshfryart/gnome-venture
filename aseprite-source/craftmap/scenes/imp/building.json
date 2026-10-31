@@ -7,17 +7,17 @@
    "id": "pulley",
    "label": "Crane pulley",
    "x": 14,
-   "y": 8,
+   "y": 6,
    "w": 78,
-   "h": 94
+   "h": 86
   },
   {
    "id": "sawhorse",
    "label": "Sawhorse",
    "x": 2,
-   "y": 102,
+   "y": 92,
    "w": 92,
-   "h": 88
+   "h": 98
   },
   {
    "id": "stones",
@@ -29,11 +29,11 @@
   },
   {
    "id": "rope",
-   "label": "Rope coils",
+   "label": "Rope coil",
    "x": 214,
-   "y": 10,
+   "y": 8,
    "w": 82,
-   "h": 98
+   "h": 101
   },
   {
    "id": "timber",

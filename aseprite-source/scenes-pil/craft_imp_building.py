@@ -1,8 +1,8 @@
 """Crafting area scene: BUILDING / builders' yard (variant imp). Usage: python3 -B aseprite-source/scenes-pil/craft_imp_building.py [outdir]
 Writes aseprite-source/craftmap/scenes/imp/building.png (1800 x 1200), building-thumb.png (450 x 300), building.json (hotspots) and building_hs.png.
-Brief: claude/craftmap-scene-brief.md (Round 2). Clean and clear, five big tap targets under a timber lean-to on a calm putty yard wall:
-hero = a pyramid of dressed grey stone blocks topped by a red marker pennant (centre, framed by an open gateway arch onto the sky);
-left = a crane pulley hanging from the roof beam over a sawhorse with a plank and saw; right = rope coils on a wall post over a timber stack.
+Brief: claude/craftmap-scene-brief.md (Round 2). Clean and clear, five big tap targets under a timber lean-to on a warm terracotta plaster yard wall:
+hero = a pyramid of dressed grey stone blocks topped by a red marker pennant (centre, backlit by a golden-hour sky through an open gateway arch);
+left = a crane pulley hanging from the roof beam over a sawhorse with a plank and saw; right = a rope coil on a peg over a timber stack.
 """
 import json
 import os
@@ -39,12 +39,13 @@ def save_scene(cv, name, hotspots, outdir=None):
 
 
 # ---------------------------------------------------------------- palette (stone grey / timber / rope tan / red accent)
-WALL, WALL_S, WALL_L = '#c2b496', '#ae9f80', '#d2c6aa'
-SKY, SKY_L, HILL, HILL_S = '#cde2e4', '#e4efec', '#a9c49a', '#93b088'
-FLOOR, FLOOR_S, FLOOR_L = '#8e7c64', '#776650', '#a6947a'
-SHADOW = '#64553f'
+WALL, WALL_S, WALL_L = '#b47e66', '#9c6a55', '#c4927a'   # warm terracotta lime-plaster: deeper, sets off grey stone and tan rope
+SKY, SKY_L, SKY_H = '#f2c88c', '#f6dcae', '#fbecc8'      # golden-hour sky through the gateway = warm backlight for the hero
+HILL, HILL_S = '#a9a76e', '#8f8d5c'
+FLOOR, FLOOR_S, FLOOR_L = '#80674f', '#69533f', '#967c62'
+SHADOW = '#4f3f33'
 STONE = ramp('#9aa3b4', '#717a8e', '#c9cfda', '#8891a4')
-STONE_T = ramp('#dfe3ea', '#b4bbc8', '#f4f6f8')   # lit top faces
+STONE_T = ramp('#e6e4e2', '#b8bcc6', '#fbf4e6')   # lit top faces
 WOOD = ramp('#b07a45', '#8a4f2a', '#d9a660', '#9a6438')
 DWOOD = ramp('#7a4a1f', '#5c3420', '#9a6b3f')
 PLANK = ramp('#d0a064', '#a8743e', '#ecc58a', '#b8854a')
@@ -109,12 +110,13 @@ arch = rect(AX0, 50, AX1, FY - 1) | ell(AX0, 20, AX1, 80)
 band = dil4(dil4(dil4(arch))) & ~arch & ~rect(0, FY, W, H)
 cv.fill(band, WALL_L)
 cv.fill(dil4(band) & ~band & ~arch & ~rect(0, FY, W, H), WALL_S)
-cv.fill(arch, SKY)
-cv.fill(arch & rect(0, 0, W, 58), SKY_L)
+cv.fill(arch, SKY_L)
+cv.fill(arch & rect(0, 104, W, H), SKY)
+cv.fill(arch & ell(104, 24, 196, 128), SKY_H)   # sunlit halo behind the stack (two hard steps)
+cv.fill(arch & ell(118, 40, 182, 116), '#fff6de')
 hill = arch & (ell(60, 116, 172, 176) | ell(136, 124, 250, 180))
 cv.fill(hill, HILL)
 cv.fill(hill & ~shift(hill, 0, 2), HILL_S)
-cv.fill(arch & rect(0, 0, W, 0) & ~shift(arch, 1, 1), SKY_L)
 
 sun = poly([(AX0, FY), (AX1, FY), (AX1 + 24, H - 1), (AX0 - 24, H - 1)])   # daylight falling in through the gateway
 cv.fill(sun, FLOOR_L)
@@ -159,7 +161,7 @@ flag = poly([(152, PTOP + 2), (184, PTOP + 11), (152, PTOP + 22)])
 draw((flag, RED, {'d': 2}))
 cv.fill(rect(153, PTOP + 5, 160, PTOP + 6), RED['r'])
 for sx, sy, s in ((122, 70, 2), (184, 78, 2), (128, 46, 1), (190, 40, 2), (111, 96, 1)):
-    sparkle(sx, sy, s)
+    sparkle(sx, sy, s, GOLD['b'])
 
 # ---------------------------------------------------------------- LEFT TOP: crane pulley hanging from the roof beam
 import math
@@ -176,17 +178,17 @@ draw((ell(PCX - 5, PCY - 5, PCX + 5, PCY + 5), IRON, {'d': 1}))
 cv.dots([(PCX - 2, PCY - 2)], IRON['r'])
 # rope over the wheel and down both sides
 ropearc = (ell(PCX - PR - 2, PCY - PR - 2, PCX + PR + 2, PCY + PR + 2) & ~ell(PCX - PR + 1, PCY - PR + 1, PCX + PR - 1, PCY + PR - 1)) & rect(0, 0, W, PCY)
-lstr = rect(PCX - PR - 2, PCY, PCX - PR + 1, 80)
-rstr = rect(PCX + PR - 1, PCY, PCX + PR + 2, 70)
+lstr = rect(PCX - PR - 2, PCY, PCX - PR + 1, 70)
+rstr = rect(PCX + PR - 1, PCY, PCX + PR + 2, 62)
 rope_m = ropearc | lstr | rstr
 draw((rope_m, ROPE, {'d': 1}))
 twist(lstr | rstr, ROPE['bo'])
-draw((ell(PCX + PR - 4, 68, PCX + PR + 5, 77), ROPE, {'d': 1}))   # knotted end
-cv.dots([(PCX + PR - 1, 71), (PCX + PR, 71)], ROPE['r'])
+draw((ell(PCX + PR - 4, 60, PCX + PR + 5, 69), ROPE, {'d': 1}))   # knotted end
+cv.dots([(PCX + PR - 1, 63), (PCX + PR, 63)], ROPE['r'])
 hk = PCX - PR
-hook = (ell(hk - 13, 80, hk + 7, 100) & ~ell(hk - 7, 85, hk + 1, 94) & ~rect(hk - 2, 80, W, 90)) | rect(hk - 3, 76, hk + 2, 84)
+hook = (ell(hk - 13, 70, hk + 7, 90) & ~ell(hk - 7, 75, hk + 1, 84) & ~rect(hk - 2, 70, W, 80)) | rect(hk - 3, 66, hk + 2, 74)
 draw((hook, IRON, {'d': 1}))
-cv.fill(rect(hk - 3, 76, hk + 2, 77), IRON['r'])
+cv.fill(rect(hk - 3, 66, hk + 2, 67), IRON['r'])
 
 # ---------------------------------------------------------------- LEFT BOTTOM: sawhorse with a plank and a handsaw in the cut
 shadow(6, 179, 92, 187)
@@ -195,18 +197,19 @@ for lx in (22, 70):
     legs |= line([(lx, 150), (lx - 8, 183)], 4) | line([(lx, 150), (lx + 8, 183)], 4)
 draw((legs, WOOD, {'d': 1}), (rect(14, 146, 78, 152), WOOD, {'d': 2, 'contour': True}))
 # handsaw: toe down in the kerf, handle up to the right. Built in blade coordinates u (toe -> heel) and v (towards the teeth)
-TX, TY = 56, 146
+TX, TY = 46, 146
 yy, xx = np.mgrid[0:H, 0:W]
 uu = ((xx - TX) - (yy - TY)) / 1.4142
 vv = ((xx - TX) + (yy - TY)) / 1.4142
-BL = 30
-blade = (yy < 138) & (uu >= 0) & (uu <= BL) & (vv <= 0.5) & (vv >= -(5 + 6 * uu / BL))
+BL = 40
+blade = (yy < 138) & (uu >= 0) & (uu <= BL) & (vv <= 0.5) & (vv >= -(6 + 8 * uu / BL))
 teeth = (yy < 138) & (uu >= 0) & (uu <= BL) & (vv > 0.5) & (vv <= 2.2) & (np.floor(uu) % 3 < 1.5)
-grip = (uu > BL - 1) & (uu <= BL + 15) & (vv <= 3) & (vv >= -14)
-grip &= ~((uu > BL + 4) & (uu < BL + 11) & (vv > -9) & (vv < -2))   # hand slot
-grip &= ~((uu > BL + 12) & (vv > 0))   # round off the far heel
+grip = (uu > BL - 1) & (uu <= BL + 17) & (vv <= 3) & (vv >= -17)
+grip &= ~((uu > BL + 5) & (uu < BL + 12) & (vv > -12) & (vv < -3))   # hand slot
+grip &= ~((uu > BL + 14) & (vv > 0)) & ~((uu > BL + 15) & (vv < -14))   # round off the heel corners
 draw((blade | teeth, STEEL, {'d': 1}), (grip, WOOD, {'d': 2, 'contour': True}))
-cv.fill(blade & (vv > -2) & (vv <= -1) & (uu > 3), STEEL['r'])
+cv.fill(blade & (vv > -3) & (vv <= -2) & (uu > 3), STEEL['r'])
+cv.dots([(int(TX + (BL + 8) / 1.4142 - 4), int(TY - (BL + 8) / 1.4142 - 4))], GOLD['b'])   # brass rivet
 cv.fill(teeth, STEEL['s'])
 plank = rect(4, 138, 88, 145)
 draw((plank, PLANK, {'d': 1}))
@@ -214,21 +217,24 @@ cv.fill(rect(5, 139, 87, 139), PLANK['r'])
 cv.fill(rect(16, 142, 40, 142), PLANK['s'])
 cv.fill(rect(TX, 138, TX, 141), UMB)   # the kerf
 
-# ---------------------------------------------------------------- RIGHT TOP: rope coils hung on a wall post
-draw((rect(248, 8, 258, 104), DWOOD, {'d': 2}))
-draw((rect(246, 96, 260, 99), IRON, {'d': 1}))
-loops = []
-for cx in (244, 262, 253):   # three loops fanned from one peg, the middle one in front
-    outer = ell(cx - 24, 22, cx + 24, 96)
-    loops.append(outer & ~ell(cx - 18, 29, cx + 18, 89))
+# ---------------------------------------------------------------- RIGHT TOP: one fat rope coil hung from a short peg (wall shows through the eye)
+RCX = 255
+draw((rect(RCX - 4, 8, RCX + 4, 26), DWOOD, {'d': 1}))   # peg bracket from the beam
+coil = ell(RCX - 33, 24, RCX + 33, 102) & ~ell(RCX - 18, 40, RCX + 18, 86)
+tail = line([(RCX + 18, 92), (RCX + 22, 100), (RCX + 21, 106)], 5)
 o = cv.obj()
-for m in loops:
-    o.part(m, ROPE, d=2, contour=True)
-o.part(rrect(244, 25, 262, 37, 3), ROPE, d=1, contour=True)   # binding turns at the neck
+o.part(coil, ROPE, d=3, contour=True)
+o.part(tail, ROPE, d=1, contour=True)
+o.part(rrect(RCX - 10, 20, RCX + 10, 34, 3), ROPE, d=1, contour=True)   # binding turns at the neck
 o.draw()
-for m in loops:
-    twist(m, ROPE['bo'])
-draw((rrect(249, 14, 257, 22, 2), DWOOD, {'d': 1}))   # peg head
+for k in (5, 10):   # two groove rings = three strands laid side by side
+    g = ell(RCX - 33 + k, 24 + k, RCX + 33 - k, 102 - k)
+    edge = coil & g & ~(shift(g, 1, 0) & shift(g, 0, 1)) & ~rect(RCX - 11, 19, RCX + 11, 35)
+    cv.fill(edge, ROPE['bo'])
+    cv.fill(shift(edge, -1, -1) & coil & ~edge & ~rect(RCX - 11, 19, RCX + 11, 35), ROPE['r'])   # lit lip above each groove
+for y in (24, 28, 32):
+    cv.fill(rect(RCX - 8, y, RCX + 8, y) & rrect(RCX - 10, 20, RCX + 10, 34, 3), ROPE['s'])
+cv.dots([(RCX - 4, 13), (RCX - 4, 14)], DWOOD['r'])
 
 # ---------------------------------------------------------------- RIGHT BOTTOM: stack of timber planks on bearers, lashed with rope
 shadow(206, 176, 298, 186)
@@ -250,10 +256,10 @@ draw((lash, ROPE, {'d': 1}))
 twist(lash, ROPE['bo'])
 
 HOTSPOTS = [
-    {'id': 'pulley', 'label': 'Crane pulley', 'x': 14, 'y': 8, 'w': 78, 'h': 94},
-    {'id': 'sawhorse', 'label': 'Sawhorse', 'x': 2, 'y': 102, 'w': 92, 'h': 88},
+    {'id': 'pulley', 'label': 'Crane pulley', 'x': 14, 'y': 6, 'w': 78, 'h': 86},
+    {'id': 'sawhorse', 'label': 'Sawhorse', 'x': 2, 'y': 92, 'w': 92, 'h': 98},
     {'id': 'stones', 'label': 'Stone blocks', 'x': 94, 'y': 36, 'w': 112, 'h': 152},
-    {'id': 'rope', 'label': 'Rope coils', 'x': 214, 'y': 10, 'w': 82, 'h': 98},
+    {'id': 'rope', 'label': 'Rope coil', 'x': 214, 'y': 8, 'w': 82, 'h': 101},
     {'id': 'timber', 'label': 'Timber stack', 'x': 206, 'y': 110, 'w': 92, 'h': 80},
 ]
 
