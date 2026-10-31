@@ -22,8 +22,8 @@ Route menu (pick the next stage) + tile-map floors (fog, torch, pickups, pal str
   1. Balance pass on the numbers: perks 8/15/30, Sip 10/20/40%, Cat Fish pal Kibble 4/8/16% (cap +50%); a second perk for rares (planned, not built).
   2. Skills for Treks (not wanted so far); an active skill button (rejected for now: needs fight state and golden-test care).
   3. Not checked: dark theme and wide screens for the new markers, the mycelium map by screenshot, the Say hello button in a real browser, MySQL CI (`ppal_spawns` + `users.ppal_spawn_day`), the full CI list on main. Known failing on base: `gather150`, `folkoverlay`.
-  4. Page mode (`ppal_find_mode` = page) is kept for rollback; remove it and `ppal_maybe_find` once map mode is settled.
-  5. Maybe: a "pal arrived" cue when the daily top-up adds pals (today a gnome only sees them on the map, the Go chip or the book).
+  4. DONE (2026-10-31, branch, not released, APP_VERSION unchanged): page mode removed, Joshua settled on map mode. See handoff.md "Map mode only".
+  5. DONE (same branch): the daily top-up sends a notice "N Puzzle Pals have arrived on your map" (not after a fresh release, not for the admin test).
 
 
 ## NOW (2.2.1, 2026-10-30): BUILT, now on main (merged with 2.2.2). Was on the work branch `ccr-b73ceb76-4mtdt1`. Slim + FULL + source zips in `releases/`. Joshua uploads (Admin > Update) and decides when main gets it.

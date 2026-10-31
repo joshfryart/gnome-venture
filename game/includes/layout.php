@@ -13,9 +13,6 @@ const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.p
     'festival.php', 'marketday.php', 'hollow.php', 'pals.php', 'index.php',   // v1.2.0: festival + market-day stalls, the Hollow, friends and the Today tabs update in place too
     'mushroom.php', 'letters.php', 'fair.php', 'pest.php', 'gourmand.php'];   // v1.4.0: the last three game pages update in place too
 
-// v2.0.88 Puzzle Pals: pages where a pal never turns up (the puzzle rooms and the pal book own the screen; the Treks stage; the event finisher). Admin pages, POSTs and Wren's tour are skipped anyway.
-const PPAL_QUIET_PAGES = ['puzzles.php', 'jigsaw.php', 'gifsaw.php', 'puzzlepals.php', 'paljobs.php', 'puzzles_api.php', 'rainbarrel.php', 'gnomebeds.php', 'trek.php', 'event.php'];
-
 function page_header(string $title, bool $admin = false): void
 {
     $u = current_user();
