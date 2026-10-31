@@ -85,12 +85,12 @@ WWWW.
 
 @jaguar-root-caves/twin_shaft_hall
 size: 5
-tags: dry,tunnel,twin-shaft,root
+tags: rough,tunnel,twin,den,converging
+.###.
+..#..
 #.#.#
-#.#.#
-#...#
-##.##
-.....
+#,,,#
+,,,,,
 
 @jaguar-root-caves/root_cross_mossy
 size: 5
@@ -139,12 +139,12 @@ tags: wet,twin-pool,root-split
 
 @jaguar-root-caves/root_span_pool
 size: 5
-tags: wet,ford,root-span
-.....
-WWWWW
-..#..
-WWWWW
-.....
+tags: wet,pool,root-span,radial,rough
+,.#..
+.WWW.
+#W,W#
+.WWW.
+..#.,
 
 @jaguar-root-caves/cistern_hollow
 size: 5
@@ -166,12 +166,12 @@ tags: dry,cage,roots,side-doors
 
 @jaguar-root-caves/moss_bowl
 size: 5
-tags: rough,moss,bowl,nest
-..,..
-.,,,.
-,,,,,
-.,,,.
-#...#
+tags: rough,moss,bowl,round
+##,.#
+#,,,.
+,,#,,
+.,,,#
+#.,##
 
 # --- size 6 ---
 
@@ -197,13 +197,13 @@ tags: wet,cavern,claw,pool
 
 @jaguar-root-caves/twin_hollow_roots
 size: 6
-tags: dry,tunnel,twin-root,hall
-#.##.#
-#.##.#
-#....#
-#....#
-##..##
-##..##
+tags: rough,den,twin,roots,loop
+##.###
+#,,.##
+#,#,..
+..,#,#
+##,,,#
+###.##
 
 @jaguar-root-caves/flooded_sprawl
 size: 6

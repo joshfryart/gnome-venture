@@ -63,12 +63,12 @@ tags: wet,pond,clearing,ring
 
 @mangrove-root-maze/winding_thicket
 size: 5
-tags: dry,thicket,winding,maze
-#.,##
-#.#.#
-,.,.#
-#.#.,
-#.###
+tags: wet,thicket,winding,roots
+#.W##
+#.#W.
+W..W#
+#W#..
+##.W#
 
 @mangrove-root-maze/stilt_roots_grid
 size: 5
@@ -90,12 +90,12 @@ WW.WW
 
 @mangrove-root-maze/coil_path
 size: 5
-tags: dry,coil,winding,roots
+tags: wet,coil,winding,bridge
 .....
-.####
-.#...
-.#.#.
-...#.
+#WWW.
+W.,W.
+W.WW.
+W....
 
 @mangrove-root-maze/hummock_pools
 size: 5
@@ -153,21 +153,21 @@ tags: dry,zigzag,stilts,rough
 
 @mangrove-root-maze/mud_flat_island
 size: 5
-tags: wet,mud,flat,island
-,,,,.
-,###,
-,###,
-,,,,.
-WWW,.
+tags: wet,mud,flat,island,moat
+.WWW.
+W,,,W
+.,#,.
+W,,,W
+.WWW#
 
 @mangrove-root-maze/narrow_thicket_gap
 size: 5
-tags: dry,thicket,narrow,gap
-#####
-#.###
-#...#
-###.,
-W..,.
+tags: wet,thicket,narrow,gap,diagonal
+###..
+##W.#
+,.W##
+.W###
+..###
 
 @mangrove-root-maze/flooded_root_hall
 size: 6
@@ -181,13 +181,13 @@ tags: wet,hall,room,pool
 
 @mangrove-root-maze/terrace_bank
 size: 6
-tags: mud,bank,steps,wet,rough
-.#....
-.##...
-.###..
-,,,##.
-,,,,,,
-WW,,,.
+tags: wet,mud,bank,terrace,steps,roots
+..,,WW
+.#,WW#
+,,#WW.
+,#WW.#
+WWW.,.
+#W.,..
 
 @mangrove-root-maze/channel_thicket
 size: 6

@@ -45,12 +45,12 @@ W.W
 
 @beaverdam-tunnels/log_pile_gaps
 size: 5
-tags: dry,log,pile,gaps
-#.#.#
+tags: dry,log,pile,gaps,bands
 .....
-#.#.#
+##.##
 .....
-#.#.#
+#.###
+.....
 
 @beaverdam-tunnels/gnawed_stumps
 size: 5
@@ -63,12 +63,12 @@ tags: dry,stumps,rough
 
 @beaverdam-tunnels/block_pillar_ring
 size: 5
-tags: dry,ring,pillar
-.....
+tags: dry,ring,log,pillar,notch,rough
+,....
 .###.
+.##..
 .###.
-.###.
-.....
+....,
 
 @beaverdam-tunnels/dam_wall_cut
 size: 5
@@ -108,12 +108,12 @@ W,,,.
 
 @beaverdam-tunnels/dead_end_nook
 size: 5
-tags: dry,nook,dead-end
-##.##
-##.##
-##.##
-.....
-.....
+tags: dry,nook,dead-end,gnawed,rough
+#####
+#,,.#
+#,#..
+##...
+..,..
 
 @beaverdam-tunnels/stepped_ledge
 size: 5
@@ -144,11 +144,11 @@ tags: dry,heap,chips,rough
 
 @beaverdam-tunnels/store_l_wide
 size: 5
-tags: dry,store,L-shape,lumber
+tags: dry,store,L-shape,log,rough
 .####
-.####
-.####
-.....
+.,,##
+..,..
+.###.
 .....
 
 @beaverdam-tunnels/pond_reeds
@@ -211,10 +211,10 @@ tags: dry,tunnel,maze,bend
 
 @beaverdam-tunnels/wide_crossroads
 size: 6
-tags: dry,crossroads,wide
-##..##
-##..##
-......
-......
-##..##
-##..##
+tags: wet,crossroads,pond,pinwheel
+##.###
+##.###
+..WW..
+..WW..
+###.##
+###.##

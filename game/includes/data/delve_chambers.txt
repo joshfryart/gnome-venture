@@ -48,12 +48,12 @@ W.W
 
 @beaverdam-tunnels/log_pile_gaps
 size: 5
-tags: dry,log,pile,gaps
-#.#.#
+tags: dry,log,pile,gaps,bands
 .....
-#.#.#
+##.##
 .....
-#.#.#
+#.###
+.....
 
 @beaverdam-tunnels/gnawed_stumps
 size: 5
@@ -66,12 +66,12 @@ tags: dry,stumps,rough
 
 @beaverdam-tunnels/block_pillar_ring
 size: 5
-tags: dry,ring,pillar
-.....
+tags: dry,ring,log,pillar,notch,rough
+,....
 .###.
+.##..
 .###.
-.###.
-.....
+....,
 
 @beaverdam-tunnels/dam_wall_cut
 size: 5
@@ -111,12 +111,12 @@ W,,,.
 
 @beaverdam-tunnels/dead_end_nook
 size: 5
-tags: dry,nook,dead-end
-##.##
-##.##
-##.##
-.....
-.....
+tags: dry,nook,dead-end,gnawed,rough
+#####
+#,,.#
+#,#..
+##...
+..,..
 
 @beaverdam-tunnels/stepped_ledge
 size: 5
@@ -147,11 +147,11 @@ tags: dry,heap,chips,rough
 
 @beaverdam-tunnels/store_l_wide
 size: 5
-tags: dry,store,L-shape,lumber
+tags: dry,store,L-shape,log,rough
 .####
-.####
-.####
-.....
+.,,##
+..,..
+.###.
 .....
 
 @beaverdam-tunnels/pond_reeds
@@ -214,13 +214,13 @@ tags: dry,tunnel,maze,bend
 
 @beaverdam-tunnels/wide_crossroads
 size: 6
-tags: dry,crossroads,wide
-##..##
-##..##
-......
-......
-##..##
-##..##
+tags: wet,crossroads,pond,pinwheel
+##.###
+##.###
+..WW..
+..WW..
+###.##
+###.##
 
 # Jaguar Root Caves: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
 # Terrain only: no objects. # wall, . floor, , mossy rough floor, W shallow puddle.
@@ -309,12 +309,12 @@ WWWW.
 
 @jaguar-root-caves/twin_shaft_hall
 size: 5
-tags: dry,tunnel,twin-shaft,root
+tags: rough,tunnel,twin,den,converging
+.###.
+..#..
 #.#.#
-#.#.#
-#...#
-##.##
-.....
+#,,,#
+,,,,,
 
 @jaguar-root-caves/root_cross_mossy
 size: 5
@@ -363,12 +363,12 @@ tags: wet,twin-pool,root-split
 
 @jaguar-root-caves/root_span_pool
 size: 5
-tags: wet,ford,root-span
-.....
-WWWWW
-..#..
-WWWWW
-.....
+tags: wet,pool,root-span,radial,rough
+,.#..
+.WWW.
+#W,W#
+.WWW.
+..#.,
 
 @jaguar-root-caves/cistern_hollow
 size: 5
@@ -390,12 +390,12 @@ tags: dry,cage,roots,side-doors
 
 @jaguar-root-caves/moss_bowl
 size: 5
-tags: rough,moss,bowl,nest
-..,..
-.,,,.
-,,,,,
-.,,,.
-#...#
+tags: rough,moss,bowl,round
+##,.#
+#,,,.
+,,#,,
+.,,,#
+#.,##
 
 # --- size 6 ---
 
@@ -421,13 +421,13 @@ tags: wet,cavern,claw,pool
 
 @jaguar-root-caves/twin_hollow_roots
 size: 6
-tags: dry,tunnel,twin-root,hall
-#.##.#
-#.##.#
-#....#
-#....#
-##..##
-##..##
+tags: rough,den,twin,roots,loop
+##.###
+#,,.##
+#,#,..
+..,#,#
+##,,,#
+###.##
 
 @jaguar-root-caves/flooded_sprawl
 size: 6
@@ -514,12 +514,12 @@ tags: wet,pond,clearing,ring
 
 @mangrove-root-maze/winding_thicket
 size: 5
-tags: dry,thicket,winding,maze
-#.,##
-#.#.#
-,.,.#
-#.#.,
-#.###
+tags: wet,thicket,winding,roots
+#.W##
+#.#W.
+W..W#
+#W#..
+##.W#
 
 @mangrove-root-maze/stilt_roots_grid
 size: 5
@@ -541,12 +541,12 @@ WW.WW
 
 @mangrove-root-maze/coil_path
 size: 5
-tags: dry,coil,winding,roots
+tags: wet,coil,winding,bridge
 .....
-.####
-.#...
-.#.#.
-...#.
+#WWW.
+W.,W.
+W.WW.
+W....
 
 @mangrove-root-maze/hummock_pools
 size: 5
@@ -604,21 +604,21 @@ tags: dry,zigzag,stilts,rough
 
 @mangrove-root-maze/mud_flat_island
 size: 5
-tags: wet,mud,flat,island
-,,,,.
-,###,
-,###,
-,,,,.
-WWW,.
+tags: wet,mud,flat,island,moat
+.WWW.
+W,,,W
+.,#,.
+W,,,W
+.WWW#
 
 @mangrove-root-maze/narrow_thicket_gap
 size: 5
-tags: dry,thicket,narrow,gap
-#####
-#.###
-#...#
-###.,
-W..,.
+tags: wet,thicket,narrow,gap,diagonal
+###..
+##W.#
+,.W##
+.W###
+..###
 
 @mangrove-root-maze/flooded_root_hall
 size: 6
@@ -632,13 +632,13 @@ tags: wet,hall,room,pool
 
 @mangrove-root-maze/terrace_bank
 size: 6
-tags: mud,bank,steps,wet,rough
-.#....
-.##...
-.###..
-,,,##.
-,,,,,,
-WW,,,.
+tags: wet,mud,bank,terrace,steps,roots
+..,,WW
+.#,WW#
+,,#WW.
+,#WW.#
+WWW.,.
+#W.,..
 
 @mangrove-root-maze/channel_thicket
 size: 6
@@ -744,12 +744,12 @@ tags: dry,rails,bend,cart
 
 @salt-mine-galleries/rubble_fall
 size: 5
-tags: dry,rubble,collapse,rough
-.,.,.
-,#,#,
-.,,,.
-#,.,#
+tags: rough,rubble,collapse,t-junction
 .....
+##,##
+#,,,#
+#,,,#
+##.##
 
 @salt-mine-galleries/brine_channel
 size: 5
@@ -798,12 +798,12 @@ tags: wet,pool,island,brine
 
 @salt-mine-galleries/brine_shore
 size: 5
-tags: wet,shore,brine,corner
-##...
+tags: wet,shore,brine,straight
+###..
+.....
+WWWW.
+WWWW.
 #....
-WW...
-WWW..
-WWW..
 
 @salt-mine-galleries/rubble_choke
 size: 5
@@ -816,11 +816,11 @@ tags: dry,rubble,choke,hourglass,rough
 
 @salt-mine-galleries/alcove_hall_wide
 size: 5
-tags: dry,hall,alcoves,two-door
-#.#.#
+tags: dry,hall,alcoves,wide
+#####
+.....
 #...#
-#...#
-#...#
+.....
 ##.##
 
 @salt-mine-galleries/pillar_bridge_row
@@ -873,13 +873,13 @@ tags: wet,basin,brine,pool
 
 @salt-mine-galleries/rubble_slope
 size: 6
-tags: rough,rubble,slope,collapse
-###...
+tags: rough,rubble,slope,steps
+####..
+####..
 ##,,..
-#,,,,.
-,,,,,.
-......
-......
+##,,..
+,,,,..
+,,,,..
 
 @salt-mine-galleries/cart_snake
 size: 6
@@ -956,12 +956,12 @@ tags: stalagmites,cluster,open
 
 @firefly-caves/winding_passage
 size: 5
-tags: passage,zigzag,bend,corridor
-.....
-###.#
+tags: passage,winding,curve,s-bend
+..###
 #...#
-#.###
-.....
+##.,#
+#...#
+###..
 
 @firefly-caves/diagonal_fissure
 size: 5
@@ -1001,21 +1001,21 @@ tags: pool,alcove,ledge,sunken
 
 @firefly-caves/glow_corridor_bend
 size: 5
-tags: corridor,bend,elbow,passage
-##...
-##...
-.....
+tags: corridor,bend,curve,glow
+###..
+#....
+#..,#
 ...##
-...##
+..###
 
 @firefly-caves/side_alcoves
 size: 5
-tags: alcove,wide,two-side,hall
-.###.
-.....
+tags: alcove,grotto,irregular,bulge
+.##..
+....#
+#.,..
 #...#
-#...#
-.....
+..###
 
 @firefly-caves/rough_cavern
 size: 5
@@ -1037,21 +1037,21 @@ tags: pillar,curve,bowed,nook
 
 @firefly-caves/twin_halls
 size: 5
-tags: halls,twin,pillars,gap
-#####
-.....
-#.#.#
-.....
-#####
+tags: halls,twin,round,figure-eight
+#.###
+...##
+#...#
+##...
+###.#
 
 @firefly-caves/fork_hall
 size: 5
-tags: fork,hall,pillars,junction
+tags: fork,hall,stalagmite,branching
+.##..
+..#..
+#...#
+#,.,#
 ##.##
-##.##
-.....
-.#.#.
-.....
 
 @firefly-caves/stalagmite_scatter
 size: 5

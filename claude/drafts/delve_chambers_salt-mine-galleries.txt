@@ -72,12 +72,12 @@ tags: dry,rails,bend,cart
 
 @salt-mine-galleries/rubble_fall
 size: 5
-tags: dry,rubble,collapse,rough
-.,.,.
-,#,#,
-.,,,.
-#,.,#
+tags: rough,rubble,collapse,t-junction
 .....
+##,##
+#,,,#
+#,,,#
+##.##
 
 @salt-mine-galleries/brine_channel
 size: 5
@@ -126,12 +126,12 @@ tags: wet,pool,island,brine
 
 @salt-mine-galleries/brine_shore
 size: 5
-tags: wet,shore,brine,corner
-##...
+tags: wet,shore,brine,straight
+###..
+.....
+WWWW.
+WWWW.
 #....
-WW...
-WWW..
-WWW..
 
 @salt-mine-galleries/rubble_choke
 size: 5
@@ -144,11 +144,11 @@ tags: dry,rubble,choke,hourglass,rough
 
 @salt-mine-galleries/alcove_hall_wide
 size: 5
-tags: dry,hall,alcoves,two-door
-#.#.#
+tags: dry,hall,alcoves,wide
+#####
+.....
 #...#
-#...#
-#...#
+.....
 ##.##
 
 @salt-mine-galleries/pillar_bridge_row
@@ -201,13 +201,13 @@ tags: wet,basin,brine,pool
 
 @salt-mine-galleries/rubble_slope
 size: 6
-tags: rough,rubble,slope,collapse
-###...
+tags: rough,rubble,slope,steps
+####..
+####..
 ##,,..
-#,,,,.
-,,,,,.
-......
-......
+##,,..
+,,,,..
+,,,,..
 
 @salt-mine-galleries/cart_snake
 size: 6

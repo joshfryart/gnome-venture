@@ -12,6 +12,7 @@ require_once __DIR__ . '/delve_floors.php';
 
 const DS_CELL = ['small' => 3, 'standard' => 5, 'large' => 6];
 const DS_ROWCHARS = '#.,W';
+const DS_WET_CAP = ['mangrove-root-maze' => 35];   // most of a floor that may be hazard terrain, percent (default 18): the flooded delves are allowed more
 
 /** Parse chamber text: ['chambers' => [key => [key, slug, name, size, tags, rows]], 'errors' => [..]]. */
 function ds_parse(string $text): array
@@ -175,7 +176,7 @@ function ds_floor(string $seed, string $slug, string $tier, array $objs, ?array 
         if (!$ok) continue;
         $rows = array_map(fn($r) => implode('', $r), $g);
         $all = implode('', $rows);
-        if (substr_count($all, 'W') * 100 > 18 * (strlen($all) - substr_count($all, '#'))) continue;   // too wet: more than 18% of the floor is water
+        if (substr_count($all, 'W') * 100 > (DS_WET_CAP[$slug] ?? 18) * (strlen($all) - substr_count($all, '#'))) continue;   // too wet: more than 18% (35% for the flooded delves) of the floor is hazard terrain
         $f = ['tier' => $tier, 'rule' => 'x', 'for' => [in_array('B', $objs, true) ? 'boss' : ($tier === 'large' ? 'treasure' : 'fight')], 'rows' => $rows, 'map' => tm_parse($rows)];
         if (!dv_floor_lint($f)) return $f['map'];
     }

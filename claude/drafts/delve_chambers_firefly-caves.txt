@@ -63,12 +63,12 @@ tags: stalagmites,cluster,open
 
 @firefly-caves/winding_passage
 size: 5
-tags: passage,zigzag,bend,corridor
-.....
-###.#
+tags: passage,winding,curve,s-bend
+..###
 #...#
-#.###
-.....
+##.,#
+#...#
+###..
 
 @firefly-caves/diagonal_fissure
 size: 5
@@ -108,21 +108,21 @@ tags: pool,alcove,ledge,sunken
 
 @firefly-caves/glow_corridor_bend
 size: 5
-tags: corridor,bend,elbow,passage
-##...
-##...
-.....
+tags: corridor,bend,curve,glow
+###..
+#....
+#..,#
 ...##
-...##
+..###
 
 @firefly-caves/side_alcoves
 size: 5
-tags: alcove,wide,two-side,hall
-.###.
-.....
+tags: alcove,grotto,irregular,bulge
+.##..
+....#
+#.,..
 #...#
-#...#
-.....
+..###
 
 @firefly-caves/rough_cavern
 size: 5
@@ -144,21 +144,21 @@ tags: pillar,curve,bowed,nook
 
 @firefly-caves/twin_halls
 size: 5
-tags: halls,twin,pillars,gap
-#####
-.....
-#.#.#
-.....
-#####
+tags: halls,twin,round,figure-eight
+#.###
+...##
+#...#
+##...
+###.#
 
 @firefly-caves/fork_hall
 size: 5
-tags: fork,hall,pillars,junction
+tags: fork,hall,stalagmite,branching
+.##..
+..#..
+#...#
+#,.,#
 ##.##
-##.##
-.....
-.#.#.
-.....
 
 @firefly-caves/stalagmite_scatter
 size: 5
