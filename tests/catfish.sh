@@ -45,7 +45,7 @@ curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: no Cat Fish link while off
 setg festivals_on 0   # a running festival doubles Yarn from a Nap; keep the checks date-independent
 setg catfish_open 1
 ok "gate on: player gets the page" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
-curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish link shows" "$(grep -c 'href="[^"]*catfish.php"' $W/h.html)" 1
+curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish tile shows (the menu has its own Whisker Pond link too, so count the tile)" "$(grep -c 'class="gtile[^"]*" href="[^"]*catfish.php"' $W/h.html)" 1
 
 # shelter page, no cat yet
 curl -s -b $W/p $BASE/catfish.php > $W/c0.html
@@ -489,11 +489,14 @@ cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.p
 cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
 setg festivals_on 1; setg fest_opening_day_start "$TD"; setg fest_opening_day_end "$TM"
 curl -s -b $W/p $BASE/festival.php >/dev/null   # the page makes the jar
+jar() { dbv "SELECT COALESCE(SUM(amount),0) FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')"; }
+J0=$(jar)   # other things the gnome did earlier in this run may already be in the jar, so measure the change, not the total
 for i in 1 2 3 4; do cfpost -d do=bunting >/dev/null; done
 ok "bunting: 1 Yarn each, three a day (ys 12 + 3)" "$(mget ys)" 15
-ok "bunting: +3 each in the festival jar (9)" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+ok "bunting: +3 each in the festival jar (+9)" "$(( $(jar) - J0 ))" 9
+J1=$(jar)
 dbx "UPDATE catfish_state SET yarn=12, meta='{\"extra\":2,\"ys\":12}' WHERE user_id=$UID_"
-cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(( $(jar) - J1 ))" 0
 setg festivals_on 0
 
 # 4g. Rod Tune-up, Catnip Hour, Mood Treat, Cat bio, Collar tint, Seasonal room
