@@ -18,8 +18,8 @@ const fs = require('fs');
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
   let fails = 0;
   const say = (ok, msg) => { if (!ok) fails++; console.log((ok ? 'ok   ' : 'FAIL ') + msg); };
-  const pages = [['satchel', '/inventory.php'], ['shop-buy', '/shop.php?id=' + shop], ['shop-sell', '/shop.php?id=' + shop + '&tab=sell'], ['curio', '/shop.php?id=' + curio],
-    ['craft', '/inventory.php?tab=craft&c=cooking&show=ready'], ['craft-missing', '/inventory.php?tab=craft&c=cooking&show=missing']];
+  // the Satchel and Crafting left the item squares for Shelves (pills); the squares are checked where they still are
+  const pages = [['shop-buy', '/shop.php?id=' + shop], ['shop-sell', '/shop.php?id=' + shop + '&tab=sell'], ['curio', '/shop.php?id=' + curio]];
   if (NPC) pages.push(['gift', '/villagers.php?id=' + NPC]);
   pages.push(['garden-seed', '/garden.php'], ['garden-soil', '/garden.php']);
   if (SPOT) pages.push(['town-seed', '/town.php?hub=1&spot=' + SPOT]);

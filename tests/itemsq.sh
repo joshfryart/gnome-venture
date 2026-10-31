@@ -29,29 +29,28 @@ SH=$(db "SELECT s.id FROM shops s JOIN locations l ON l.id=s.location_id WHERE l
 HH=$(db "SELECT id FROM shops WHERE slug='hedge-and-hearth'"); DP=$(db "SELECT id FROM shops WHERE slug='the-dye-pot'")
 rm -f $J; curl -s -c $J -b $J $BASE/login.php > $H; curl -s -c $J -b $J -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
 
-echo "== Satchel"
+echo "== Satchel (Shelves: a pill per item, its panel inline; the item squares left the Satchel in the Shelves port)"
 curl -s -b $J "$BASE/inventory.php" > $H
 N=$(db "SELECT COUNT(*) FROM user_items WHERE user_id=$SID AND qty>0")
-chk "one card per item" "$(n '<details class="itile itmcell" id="i[0-9]+"' $H)" "$N"
-chk "every card is a square summary" "$(n '<summary class="itm itm--[culr]' $H)" "$N"
-chk "every square has a window, ribbon and foot" "$(n 'class="itm__rib"><span class="itm__name">' $H)" "$N"
-has "grouped by type" 'class="itm-h"' $H
-has "count corner up to x9,999" '×9,999</b>' $H
-has "kind words lifted into a chip" 'class="itm__kind">Seeds<span class="vh">' $H
-has "long name keeps its own words" '<span class="itm__name">Goat Cheese and Quail Egg Tart</span>' $H
-has "long-name face step" 'itm--xlong' $H
-has "rarity word" 'class="itm__rar">\(Uncommon\|Rare\|Legendary\)<' $H
-has "tool in use" 'class="itm__use">In use</span>' $H
-has "spare tool" 'class="itm__note">Spare</span>' $H
-has "broken tool on stone felt" 'itm--[culr][a-z -]* is-off"[^>]*><span class="itm__win">' $H
-has "Broken lifted into a chip" 'class="itm__kind">Broken<span class="vh"> (Broken Masterwork Harvest Cart)' $H
-has "Guide lifted into a chip" 'class="itm__kind">Guide<span class="vh">' $H
+chk "one pill per item" "$(n '<a class="shpill[^"]*" id="i[0-9]+"' $H)" "$N"
+chk "one panel per item" "$(n 'class="shpanel[^"]*" id="shp-i[0-9]+"' $H)" "$N"
+chk "every panel starts closed" "$(n 'id="shp-i[0-9]+" role="region" aria-label="[^"]*" hidden>' $H)" "$N"
+has "grouped by type" 'class="shshelf sh-seed"' $H
+has "count up to x9,999" '<small>×9,999' $H
+has "long name keeps its own words" '<b>Goat Cheese and Quail Egg Tart</b>' $H
+has "rarity word" 'class="tag rarword r[ULR]">\(Uncommon\|Rare\|Legendary\)<' $H
+has "tool in use" '<span class="tag shok">In use</span>' $H
+has "spare tool" '<span class="tag">Spare</span>' $H
+has "broken tool dimmed" 'class="shpill off" id="i[0-9]*"' $H
+has "Broken tool kind" ' Broken tool</span>' $H
+has "Guide kind" ' Guide</span>' $H
+has "mend form in the panel" 'name="do" value="mend"' $H
 hasnt "no style= attribute" '\sstyle=' $H
-hasnt "old tile markup gone" 'class="(iicon|iname|iqty)"' $H
+hasnt "old tile markup gone" 'class="(iicon|iname|iqty|itile)' $H
 curl -s -b $J "$BASE/inventory.php?open=$(db "SELECT id FROM items WHERE slug='geode'")" > $H
-has "?open= opens that card" '<details class="itile itmcell" id="i[0-9]*" open>' $H
+chk "?open= opens that panel" "$(n 'id="shp-i[0-9]+" role="region" aria-label="Geode">' $H)" 1
 curl -s -b $J "$BASE/inventory.php?sort=az" > $H
-chk "other sorts: one grid" "$(n 'class="itms"' $H)" 1
+chk "other sorts: one shelf" "$(n 'class="shshelf ' $H)" 1
 
 echo "== shop Buy / Sell"
 curl -s -b $J "$BASE/shop.php?id=$SH" > $H
@@ -109,20 +108,19 @@ GREEN=$(db "SELECT id FROM town_spots WHERE slug='hub-green'")
 
 echo "== crafting ingredients (inventory.php?tab=craft)"
 curl -s -b $J "$BASE/inventory.php?tab=craft&c=cooking&show=ready" > $H
-I=$(n 'class="itm itm--[culr][^"]* ccing"' $H)
-echo "  ingredient squares: $I"; [ "$I" -ge 4 ] || echo "FAIL too few ingredient squares ($I)"
-chk "every ingredient square says uses / short" "$(n 'class="itm__(ok|short)">' $H)" "$I"
-chk "every ingredient square counts what you have" "$(n '<b class="itm__n"><span class="vh">You have </span>' $H)" "$I"
-has "uses N chip (the tick may be drawn as an icon)" 'class="itm__ok">\(✔\|<img [^>]*>\) uses 3</span>' $H
-has "have count in the corner" '<span class="vh">You have </span>×14</b>' $H
-has "have / need words for screen readers" '<span class="vh">enough: you have 14, the recipe needs 3</span>' $H
-has "ingredients in an item grid" '<div class="itmwrap"><div class="itms itms--flush ccings">' $H
-has "make forms kept" 'class="ccbtns"><input type="hidden" name="csrf"' $H
+# Shelves: a known recipe's panel lists its ingredients as You have / Still need lines (the squares stay for recipes still to discover)
+I=$(n '<li class="(ok|short)"><span class="p2ic"' $H)
+echo "  ingredient lines: $I"; [ "$I" -ge 4 ] || echo "FAIL too few ingredient lines ($I)"
+chk "every line says have / need" "$(n '<b>(✔|✖|<img [^>]*>) [0-9,]+/[0-9,]+</b>' $H)" "$I"
+has "have / need counts (the tick may be drawn as an icon)" '<b>\(✔\|<img [^>]*>\) 14/3</b>' $H
+has "have / need words for screen readers" '<span class="vh"> enough</span>' $H
+has "You have / Still need columns" '<div class="shhave"><h4>.* You have</h4>.*<div class="shneed"><h4>.* Still need</h4>' $H
+has "make forms kept" 'class="ccbtns p2make"><input type="hidden" name="csrf"' $H
 hasnt "no style= attribute" '\sstyle=' $H
 hasnt "old chips gone" 'class="ccchip' $H
 curl -s -b $J "$BASE/inventory.php?tab=craft&c=cooking&show=missing" > $H
-has "missing: short N chip" 'class="itm__short">\(✖\|<img [^>]*>\) short 2</span>' $H
-has "missing: not enough words" '<span class="vh">not enough: you have 1, the recipe needs 3</span>' $H
+has "missing: short line" '<li class="short">.*<b>\(✖\|<img [^>]*>\) 1/3</b>' $H
+has "missing: not enough words" '<span class="vh"> not enough</span>' $H
 hasnt "missing: no style= attribute" '\sstyle=' $H
 curl -s -b $J "$BASE/inventory.php?tab=craft&c=cooking&show=unknown" > $H
 has "to discover: found ingredient ticked" 'is-done ccing"' $H

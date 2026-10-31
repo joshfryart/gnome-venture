@@ -2026,3 +2026,63 @@ document.addEventListener('animationend', function (ev) {
     a.addEventListener('click', function () { try { sessionStorage.setItem('p2open', '1'); } catch (e) {} });
   });
 })();
+
+/* Shelves (the Satchel and the Crafting tabs other than the Pantry): a pill opens its panel in place (every panel is already in the page,
+   hidden), one at a time, and the address follows so a reload keeps it; the shelves remember being folded for this tab (sessionStorage);
+   the search box filters the pills as you type (Enter still searches on the server). Without script the pills and ✕ are plain links. */
+(function () {
+  var root = document.querySelector('.shelves');
+  if (!root) return;
+  function shut(p) {
+    var panel = document.getElementById(p.getAttribute('data-pick'));
+    if (panel) panel.hidden = true;
+    p.classList.remove('sel'); p.setAttribute('aria-expanded', 'false');
+  }
+  function closeUrl() { var x = root.querySelector('.shpanel [data-close]'); return x ? x.getAttribute('href') : null; }
+  root.addEventListener('click', function (ev) {
+    var t = ev.target.closest ? ev.target.closest('a.shpill, .shpanel [data-close]') : null;
+    if (!t || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
+    ev.preventDefault();
+    var pill = t.classList.contains('shpill') ? t : document.querySelector('a.shpill[data-pick="' + t.closest('.shpanel').id + '"]');
+    var was = pill && pill.classList.contains('sel');
+    root.querySelectorAll('a.shpill.sel').forEach(shut);
+    if (!pill || was || !t.classList.contains('shpill')) { var u = closeUrl(); if (u) history.replaceState(null, '', u); if (pill) pill.focus(); return; }
+    var panel = document.getElementById(pill.getAttribute('data-pick'));
+    if (!panel) return;
+    panel.hidden = false; pill.classList.add('sel'); pill.setAttribute('aria-expanded', 'true');
+    history.replaceState(null, '', pill.getAttribute('href').split('#')[0]);
+    var r = panel.getBoundingClientRect(), bar = document.querySelector('.bottombar');
+    var bottom = window.innerHeight - (bar && bar.offsetParent ? bar.offsetHeight : 0);
+    if (r.bottom > bottom) window.scrollBy(0, Math.min(r.bottom - bottom + 8, r.top - 90));
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Escape') return;
+    var x = root.querySelector('.shpanel:not([hidden]) [data-close]');
+    if (x) x.click();
+  });
+  // folded shelves, per tab; a search or a picked list opens every shelf, so the remembered state waits for the plain page
+  var plain = !/[?&](q|show)=/.test(location.search);
+  root.querySelectorAll('details.shshelf').forEach(function (d) {
+    var k = 'shf:' + d.getAttribute('data-shelf');
+    try { var v = sessionStorage.getItem(k); if (plain && v !== null && !d.querySelector('.shpill.sel')) d.open = v === '1'; } catch (e) {}
+    d.addEventListener('toggle', function () { if (plain) try { sessionStorage.setItem(k, d.open ? '1' : '0'); } catch (e) {} });
+  });
+  // live filter
+  var q = root.querySelector('input[data-shfilter]'), none = root.querySelector('.shnone');
+  if (q) q.addEventListener('input', function () {
+    var v = q.value.trim().toLowerCase(), any = false;
+    root.querySelectorAll('details.shshelf').forEach(function (d) {
+      var n = 0;
+      d.querySelectorAll('a.shpill').forEach(function (p) {
+        var hit = v === '' || (p.getAttribute('data-hay') || '').indexOf(v) >= 0;
+        p.hidden = !hit;
+        if (!hit && p.classList.contains('sel')) shut(p);
+        if (hit) n++;
+      });
+      d.hidden = n === 0;
+      if (v !== '' && n) d.open = true;
+      if (n) any = true;
+    });
+    if (none) none.hidden = any;
+  });
+})();

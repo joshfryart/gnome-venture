@@ -140,7 +140,7 @@ echo "-- timer"
 m=$(post crafting.php $CP -d do=collect_all); has "No pot is ready yet" "$m" "collect all: nothing ready"
 P1=$(db "SELECT id FROM cook_pots WHERE collected_at IS NULL ORDER BY id LIMIT 1")
 m=$(post crafting.php $CP -d do=collect -d pot_id=$P1); has "ready yet" "$m" "single collect before time refused"; chk "pot still there" "$(potsn)" 2
-page "$CP"; echo "pots strip: $(grep -c 'class="potstrip"' $TD/ck.html) strip, $(grep -c 'data-potleft' $TD/ck.html) timers, hidden Collect forms: $(grep -c 'class="potcollect" hidden' $TD/ck.html)"
+page "$CP"; echo "pots strip: $(grep -c 'aria-label="Pots"' $TD/ck.html) strip, $(grep -c 'data-potleft' $TD/ck.html) timers, hidden Collect forms: $(grep -c 'class="potcollect" hidden' $TD/ck.html)"
 dbx "UPDATE cook_pots SET ready_at=datetime('now','-1 minute') WHERE id=$P1"
 page "garden.php?t=bld"; has "> 1 ready</a>" "$(grep -o '> [0-9]* ready</a>' $TD/ck.html | head -1)" "status badge: 1 ready"   # the 🍳 is now an <img> icon
 echo "-- collect one"
@@ -204,7 +204,7 @@ dbx "REPLACE INTO settings (name,value) VALUES ('kitchen_pots','0')"; dbx "UPDAT
 m=$(cookit $SOUP 2); has "Made 2 × Green Pea Soup" "$m" "instant: made at once"
 chk "soup +2 at once" "$(qty $SOUP)" $((S0+2)); chk "no pot left waiting" "$(potsn)" 0; chk "energy -2" "$(energy)" 58; chk "job +2" "$(jobp)" $((J0+2))
 m=$(cookit mint-tea 7); chk "instant snack x7" "$(qty mint-tea)" $((M0+7)); chk "instant: still no pots waiting" "$(potsn)" 0
-page "$CP"; chk "no pots strip when pots are off" "$(grep -c 'class="potstrip"' $TD/ck.html)" 0
+page "$CP"; chk "no pots strip when pots are off" "$(grep -c 'aria-label="Pots"' $TD/ck.html)" 0
 dbx "DELETE FROM settings WHERE name='kitchen_pots'"
 dbx "UPDATE users SET calling=NULL, calling_chapter=NULL WHERE id=$UID_"
 dbx "UPDATE user_jobs SET status='done' WHERE user_id=$UID_ AND kind='cook'"

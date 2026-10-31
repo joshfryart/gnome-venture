@@ -14,7 +14,7 @@ UID_=$(db "SELECT id FROM users WHERE username='sprout'")
 echo "== recipe counts by category"; db "SELECT category, COUNT(*), SUM(slug IS NULL) FROM recipes GROUP BY category"
 db "SELECT 'recipe almanac pages: '||COUNT(*) FROM encyclopedia_entries WHERE chapter='Recipes'"
 echo "kitchen.php -> $(curl -s -b $C -o /dev/null -w '%{http_code} %{redirect_url}' $BASE/kitchen.php)"
-for c in cooking tools garden; do page "inventory.php?tab=craft&c=$c&show=unknown"; echo "$c: unknown cards=$(grep -c 'class="ccard unk"' /tmp/c.html) ready+missing chips: $(grep -oE '(Ready|Missing|Unknown|Not yet)[^<(]*\([0-9]+\)' /tmp/c.html | tr '\n' ' ')"; done
+for c in cooking tools garden; do page "inventory.php?tab=craft&c=$c&show=unknown"; echo "$c: unknown cards=$(grep -c 'class="shpill unk' /tmp/c.html) ready+missing chips: $(grep -oE '(Ready|Missing|Unknown|Not yet)[^<(]*\([0-9]+\)' /tmp/c.html | tr '\n' ' ')"; done
 echo "== garden supplies, no building: give 3 bladderwrack"
 give bladderwrack 3; dbx "UPDATE users SET energy=100 WHERE id=$UID_"
 R=$(db "SELECT id FROM recipes WHERE slug='seaweed-compost'")

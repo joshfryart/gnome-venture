@@ -6246,3 +6246,135 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .pantry2 .p2sheet > summary { min-height: 56px; }
   .pantry2 .p2sheet:not([open]) + .p2acts { display: none; }
 }
+
+/* ===== Shelves (mockup design 3): the Satchel tab and the Crafting tabs other than the Pantry. Scoped under .shelves; the wrapper also carries
+   .pantry2, so the shipped Pantry pieces (.p2head, .p2search, .p2ic / .p2big, .p2jar chips, .p2fit, .p2ingcmp, .p2make, .p2note) apply as they are.
+   A quick bar / shopping list on top, foldable shelves (<details>) of pills, the picked pill's panel opens inline under its row. ===== */
+.shelves .p2head { grid-template-columns: minmax(0, 1fr) minmax(280px, 420px); }
+.shelves .shpick { margin: 0; }
+.shelves .shpick label { font-size: 12px; }
+.shelves .shpick select { min-height: 44px; font-size: 14px; }
+
+/* strip: energy, Petals, pots (each keeps .pot + data-potleft so site.js ticks it and shows Collect), the station */
+.shelves .shstation { margin: 8px 0 10px; }
+.shelves .shstat .p2jt b { font-variant-numeric: tabular-nums; }
+.shelves .shstat.empty { color: var(--muted); }
+.shelves .shstat.done { border-color: var(--brand); }
+.shelves .p2jar.pot { flex-direction: row; text-align: left; border-radius: 0; padding: 2px 10px 2px 4px; }
+.shelves .p2jar.pot.done { padding-right: 4px; }
+.shelves .p2all .btn.small { min-height: 40px; padding: 2px 12px; }
+.shelves .shbelt a { display: inline-block; padding: 10px 0; }
+.shelves .p2jar.pot .shpn { display: inline-block; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+
+/* quick bar (Satchel) and shopping list (Crafting): one row of small cards */
+.shelves .shquick { margin: 8px 0 10px; padding: 8px 10px 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.shelves .shqh { margin: 0 0 6px; font-size: 15px; }
+.shelves .shqh small { font-weight: 500; color: var(--muted); font-size: 12px; }
+.shelves .shqrow { display: flex; flex-wrap: wrap; gap: 6px; }
+.shelves .shqi { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 4px; background: var(--surface-2); border: 1px solid var(--line); }
+.shelves .shqt { display: grid; line-height: 1.2; padding-right: 4px; }
+.shelves .shqi b { font-size: 13px; white-space: nowrap; }
+.shelves .shqi small { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.shelves .shqi form { margin: 0; }
+.shelves .shqi .btn.small { min-height: 40px; padding: 4px 12px; white-space: nowrap; }
+.shelves .shtaste { color: #f5cf6a; font-weight: 700; }
+
+/* search */
+.shelves .shsearch { margin: 4px 0 8px; }
+
+/* shelves */
+.shelves .shshelf { margin: 0; border-top: 1px solid var(--line); }
+.shelves .shshelf:last-of-type { border-bottom: 1px solid var(--line); }
+.shelves .shsum { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 4px 2px; cursor: pointer; list-style: none; }
+.shelves .shsum::-webkit-details-marker { display: none; }
+.shelves .shsum b { font-size: 16px; }
+.shelves .shsum small { flex: 1; color: var(--muted); font-size: 13px; }
+.shelves .shsi { width: 28px; text-align: center; font-size: 20px; }
+.shelves .shpeek { display: inline-flex; gap: 2px; opacity: .85; }
+.shelves .shshelf[open] .shpeek { display: none; }
+.shelves .shchev { display: grid; place-items: center; flex: none; width: 40px; height: 40px; color: var(--muted); transition: transform .15s; }
+.shelves .shshelf:not([open]) .shchev { transform: rotate(-90deg); }
+.shelves .shpills { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); grid-auto-flow: row dense; gap: 6px; padding: 0 0 12px; }
+
+/* a pill: icon, name, one small line; a stripe on the left says ready / short / in use */
+.shelves .shpill { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 48px; padding: 4px 8px 4px 6px; color: var(--ink); text-decoration: none;
+  background: var(--surface); border: 1px solid var(--line); }
+.shelves .shpill:hover { text-decoration: none; border-color: var(--line-2); }
+.shelves .shpill.ok, .shelves .shpill.use { box-shadow: inset 3px 0 0 var(--brand); }
+.shelves .shpill.miss { box-shadow: inset 3px 0 0 var(--danger); }
+.shelves .shpill.unk, .shelves .shpill.off { opacity: .72; }
+.shelves .shpill.sel { border-color: var(--accent); background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); opacity: 1; }
+.shelves .shpt { display: grid; min-width: 0; line-height: 1.25; }
+.shelves .shpt b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shelves .shpt small { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shelves .shpill.miss .shpt small { color: var(--danger-ink); }
+.shelves .shnew { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: var(--accent); box-shadow: 0 0 0 2px var(--ol); }
+.shelves .shnew.taste { background: #f5cf6a; }
+.shelves .shpill[hidden], .shelves .shshelf[hidden] { display: none; }
+
+/* the open panel: spans the row under its pill */
+.shelves .shpanel { grid-column: 1 / -1; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--accent); box-shadow: var(--shadow); }
+.shelves .shpanel[hidden] { display: none; }
+.shelves .shpanel.ok { border-color: var(--brand); }
+.shelves .shdh { display: flex; align-items: center; gap: 14px; }
+.shelves .shpanel .p2name { font-size: 19px; }
+.shelves .shpanel .p2tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.shelves .shx { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin-left: auto; color: var(--muted); font-size: 18px; text-decoration: none; border: 1px solid var(--line); }
+.shelves .shx:hover { color: var(--ink); text-decoration: none; }
+.shelves .shdesc { font-size: 14px; margin: 10px 0 0; }
+.shelves .shdesc p { margin: 0 0 6px; }
+.shelves .shfacts { margin: 8px 0 0; padding-left: 18px; font-size: 13px; color: var(--muted); }
+.shelves .shnote { margin: 6px 0 0; }
+.shelves .shok { color: var(--brand-ink); }
+.shelves .shpanel .wearbox { margin-top: 8px; font-size: 13px; }
+.shelves .shpanel .wearbox form { margin: 6px 0 0; }
+.shelves .shpanel .wearbox .btn { min-height: 44px; padding: 8px 16px; }
+.shelves .shpanel .arrbig { margin-top: 8px; }
+.shelves .shpanel .p2fit { margin: 10px 0 0; }
+.shelves .shpanel .p2ings { padding-top: 12px; }
+.shelves .shacts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.shelves .shacts form { margin: 0; }
+.shelves .shacts .btn { min-height: 44px; padding: 8px 16px; }
+.shelves .shacts .p2make { flex: 1 1 100%; }
+
+/* You have / Still need */
+.shelves .shhn { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
+.shelves .shhn h4 { margin: 0 0 4px; font: 800 12px/1.3 var(--font); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.shelves .shhave h4 { color: var(--brand-ink); }
+.shelves .shneed h4 { color: var(--danger-ink); }
+.shelves .shhn .p2ingcmp { display: flex; flex-direction: column; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.shelves .shhn .p2ingcmp li { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 8px 0 2px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; }
+.shelves .shhn .p2ingcmp li .p2in { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shelves .shhn .p2ingcmp li.short { border-color: var(--danger); }
+.shelves .shhn .p2ingcmp li.short b { color: var(--danger-ink); }
+.shelves .shhn .p2ingcmp li.ok b { color: var(--brand-ink); }
+.shelves .shhn .p2ingcmp .p2ic, .shelves .shhn .p2ingcmp .p2ic img, .shelves .shhn .p2ingcmp .p2ic svg { width: 28px; height: 28px; }
+
+/* phone: two pills to a row, the quick bar scrolls sideways, panels reach the screen edges */
+@media (max-width: 720px) {
+  .shelves .p2head { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cat" "title" "help"; }
+  .shelves .shqrow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -10px; padding: 0 10px; }
+  .shelves .shqi { flex: none; }
+  .shelves .shstation .p2jarrow { flex-wrap: wrap; overflow: visible; }
+  .shelves .shpeek { display: none; }
+  .shelves .shsum b { white-space: nowrap; }
+  .shelves .shpills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shelves .shpill .p2ic, .shelves .shpill .p2ic img, .shelves .shpill .p2ic svg { width: 28px; height: 28px; }
+  .shelves .shpt b { font-size: 13px; }
+  .shelves .shpanel { padding: 10px; margin: 0 calc(-1 * var(--gut) + 4px); }
+  .shelves .shpanel .p2big { width: 48px; height: 48px; }
+  .shelves .shpanel .p2big img { width: 64px; height: 64px; margin: -8px; }   /* keep 1:1 pixels: 64 art inside a 48 box */
+  .shelves .shpanel .p2big svg { width: 48px; height: 48px; }
+  .shelves .shpanel .p2name { font-size: 17px; }
+  .shelves .shpanel .p2tags { display: none; }
+  .shelves .shpanel .shfacts { display: none; }
+  .shelves .shhn { gap: 6px; }
+  .shelves .shhn .p2ingcmp li { font-size: 12px; padding-right: 4px; }
+  .shelves .shacts .btn { flex: 1 1 0; padding: 6px; }
+  .shelves .shacts > form:not(.p2make) { flex: 1 1 0; display: flex; }
+  .shelves .shacts > form:not(.p2make) .btn { flex: 1; }
+  .shelves .shacts .p2make .btn { min-height: 44px; }
+  .shelves .shpanel .itms { gap: 10px 6px; }
+  .shelves .shpanel .itm__win { height: 58px; }
+  .shelves .shpanel .itm__ic, .shelves .shpanel .itm__svg, .shelves .shpanel .itm__svg > svg { width: 32px; height: 32px; }
+}
