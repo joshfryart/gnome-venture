@@ -137,11 +137,16 @@ function hp_use(array $u, string $what, int $itemId): array
     if ($hp >= $max) return [false, 'You’re not hurt.'];
     require_once __DIR__ . '/adventure.php';
     require_once __DIR__ . '/pal_jobs.php';
-    if ($what === 'potion') {
-        $id = pj_potion_id();
-        if ($itemId !== $id || !give_item($uid, $id, -1)) return [false, 'You have no Healing Potion.'];
-        $n = hp_heal_pct($u, hp_pct('hp_potion_percent', 50));
-        return [true, '🧪 You drink a Healing Potion: +' . $n . ' health.'];
+    if ($what === 'potion') {   // a Healing Potion or a stronger tier (alchemy.php ALCHEMY_HEAL)
+        foreach (array_keys(ALCHEMY_HEAL) as $slug) {
+            $id = alchemy_item_id($slug);
+            if (!$id || $itemId !== $id) continue;
+            $name = (string)q_val('SELECT name FROM items WHERE id = ?', [$id]);
+            if (!give_item($uid, $id, -1)) return [false, 'You have no ' . $name . '.'];
+            $n = hp_heal_pct($u, alchemy_gnome_pct($slug));
+            return [true, '🧪 You drink a ' . $name . ': +' . $n . ' health.'];
+        }
+        return [false, 'You have no Healing Potion.'];
     }
     foreach (fight_snacks($u) as $s) {
         if ($s['id'] !== $itemId) continue;
@@ -172,10 +177,8 @@ function hp_card_html(array $u): string
             require_once __DIR__ . '/adventure.php';
             require_once __DIR__ . '/pal_jobs.php';
             $btn = fn(string $what, int $id, string $label) => '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="heal"><input type="hidden" name="what" value="' . $what . '"><input type="hidden" name="item" value="' . $id . '"><button class="btn small">' . $label . '</button></form> ';
-            $pid = pj_potion_id();
-            $have = $pid ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $pid]) : 0;
             $b = '';
-            if ($have > 0) $b .= $btn('potion', $pid, '🧪 Healing Potion ×' . $have . ' (+' . hp_pct('hp_potion_percent', 50) . '%)');
+            foreach (alchemy_heals($uid) as $hv) $b .= $btn('potion', $hv['id'], '🧪 ' . e($hv['name']) . ' ×' . $hv['qty'] . ' (+' . $hv['pct'] . '%)');
             foreach (fight_snacks($u) as $s) $b .= $btn('snack', $s['id'], '🎒 ' . e($s['name']) . ' ×' . $s['qty'] . ' (+' . $s['heal'] . ')');
             if ($b !== '') $h .= '<div class="hpuse">' . $b . '</div>';
         }

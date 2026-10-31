@@ -14,7 +14,7 @@ const CRAFT_CATEGORIES = [
     'pantry' => ['Pantry', '🫙', 'kitchen', 'Jam, pickles, sauerkraut and cordials from your harvests, kept in the jars of a Pantry (a Kitchen add-on). They take real days, never spoil, and sell for more than the crops.'],
     'tools'   => ['Tools', '🔨', 'tool_shed', 'Upgrade your tools with things you gather on adventures. Masterwork tools can only be made here.'],
     'garden'  => ['Garden supplies', '🪴', null, 'Compost, loam and mulch from gathered materials. No building needed.'],
-    'potions' => ['Potions', '🧪', null, 'Healing Potions for Puzzle Pals out on jobs. No building needed.'],
+    'potions' => ['Potions', '🧪', null, 'Healing potions for you and your pals, draughts and brews for a short boost, and a tonic for the soil. No building needed.'],
     'building' => ['Building', '🧱', null, 'Dressed stone, timber and rope for repairing the Hollow’s ruined landmarks (take on a repair at the place itself). No building needed.'],
     'decor' => ['Yard & decor', '🏡', null, 'Paths, fences and ornaments for your yard, from things you gather. No building needed. Place them with ✏️ Design yard.'],
 ];

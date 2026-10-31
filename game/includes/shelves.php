@@ -19,6 +19,7 @@ require_once __DIR__ . '/almanac.php';
 require_once __DIR__ . '/gardens.php';
 require_once __DIR__ . '/item_square.php';
 require_once __DIR__ . '/catalog.php';
+require_once __DIR__ . '/alchemy.php';   // potion tiers (Drink buttons)
 
 // the Satchel's types, in the order of its Show list (icon, label)
 const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'produce' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'food' => ['🍲', 'Food'], 'soil' => ['🪱', 'Soil'],
@@ -90,7 +91,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $b .= tool_wear_html($uid, $i, $wear, $hid);   // uses left, and the mend form for a worn or broken tool
         $acts = []; $quick = null;
         if ((int)$i['edible']) {
-            $verb = !empty($fx['tea']) ? '☕ Drink' : '😋 Eat';
+            $verb = !empty($fx['tea']) ? '☕ Drink' : ($i['category'] === 'supply' ? '🧪 Drink' : '😋 Eat');   // supply: Alchemy potions
             $b .= '<p class="help shnote">' . ($i['tasted'] ? '🍴 Tasted' : '✨ Never tasted') . ($perm ? ' — rare! Eating it raises a stat permanently.' : '') . '</p>';
             $acts[] = sh_bag_form('eat', $id, $verb, $hid);
             if ($untasted) $quick = sh_bag_form('eat', $id, $verb, $hid, 'btn small', true);
@@ -107,6 +108,12 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         } elseif ($i['category'] === 'packet') {
             $acts[] = sh_bag_form('open_packet', $id, '📦 Open the packet', $hid);
             $quick = sh_bag_form('open_packet', $id, '📦 Open', $hid, 'btn small', true);
+        }
+        if (isset(ALCHEMY_HEAL[(string)$i['slug']])) {   // Alchemy healing tiers: drink one to heal (pals: Pal Jobs)
+            $acts[] = sh_bag_form('drink_heal', $id, '🧪 Drink (+' . alchemy_gnome_pct((string)$i['slug']) . '% health)', $hid);
+            $quick ??= sh_bag_form('drink_heal', $id, '🧪 Drink', $hid, 'btn small', true);
+        } elseif ($i['slug'] === 'garden-tonic') {
+            $acts[] = '<a class="btn" href="' . e(url('garden.php')) . '">🪴 Pour on a garden square</a>';
         }
         if ($i['category'] === 'decor') $acts[] = '<a class="btn" href="' . e(url('yard.php')) . '">✏️ Place it in your yard</a>';
         if ($i['category'] === 'guide') {

@@ -6504,3 +6504,9 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .dv2bar { min-width: 40px; }
 .dv2bar rect { fill: var(--accent); }
 /* === end delve v2 hazards === */
+
+
+/* ===== Alchemy potions (Lucky Draught box on a pal trip) ===== */
+.pjluck{display:flex; align-items:flex-start; gap:8px; margin:10px 0 0; font-size:14px}
+.pjluck input{margin:3px 0 0; width:20px; height:20px; flex:none}
+/* ===== end Alchemy potions ===== */

@@ -26,10 +26,10 @@ if (is_post()) {
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
     $res = match ($do) {
         'send_garden' => pj_garden_send($u, $pal, (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
-        'send_trip' => pj_trip_send($u, $pal, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq),
+        'send_trip' => pj_trip_send($u, $pal, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
         'send_delve' => pj_delve_send($u, $pal, (int)($_POST['delve'] ?? 0), $pots, $unq),
         'recall' => pj_recall($u, (int)($_POST['job'] ?? 0)),
-        'heal' => pj_heal($u, $pal),
+        'heal' => pj_heal($u, $pal, (string)($_POST['potion'] ?? PJ_POTION)),
         'collect' => pj_collect($u, (int)($_POST['job'] ?? 0)),
         default => [false, 'Nothing to do.'],
     };
@@ -50,6 +50,8 @@ $delves = pj_cleared_delves($uid);
 $ranToday = array_map('intval', q("SELECT target FROM ppal_jobs WHERE user_id = ? AND kind = 'delve' AND day = ?", [$uid, landmark_day()])->fetchAll(PDO::FETCH_COLUMN));
 $tools = pj_tools($uid);
 $potions = pj_potion_count($uid);
+$heals = alchemy_heals($uid);   // healing tiers held (Strong, Grand)
+$lucky = alchemy_count($uid, ALCHEMY_LUCK);
 $maxAway = pj_max_away();
 $left = $maxAway - count($jobs);
 $runsLeft = max(0, pj_runs_per_day() - pj_runs_today($uid));
@@ -187,7 +189,8 @@ page_header('Pal Jobs');
           </div>
           <?php if ($p['hp'] < $p['max']): ?>
           <form method="post" action="<?= e(url('paljobs.php')) ?>" class="pjheal"><?= csrf_field() ?><input type="hidden" name="do" value="heal"><input type="hidden" name="pal" value="<?= e($p['uid']) ?>">
-            <button class="btn small ghost"<?= $potions < 1 ? ' disabled title="You have no Healing Potion."' : '' ?> aria-label="Give <?= e($p['name']) ?> a potion, plus <?= PJ_POTION_HEAL ?> HP">🧪 +<?= PJ_POTION_HEAL ?> HP</button></form>
+            <button class="btn small ghost"<?= $potions < 1 ? ' disabled title="You have no Healing Potion."' : '' ?> aria-label="Give <?= e($p['name']) ?> a potion, plus <?= PJ_POTION_HEAL ?> HP">🧪 +<?= PJ_POTION_HEAL ?> HP</button>
+            <?php foreach ($heals as $hs => $hv): if ($hs === PJ_POTION) continue; ?><button class="btn small ghost" name="potion" value="<?= e($hs) ?>" aria-label="Give <?= e($p['name']) ?> a <?= e($hv['name']) ?>, <?= e(alchemy_pal_label($hs)) ?>">🧪 <?= e(alchemy_pal_label($hs)) ?> <small>×<?= $hv['qty'] ?></small></button><?php endforeach; ?></form>
           <?php endif; ?>
         </li>
         <?php endforeach; ?>
@@ -237,6 +240,7 @@ page_header('Pal Jobs');
             <div class="pjfield"><label for="pjtool">Tool</label><select id="pjtool" name="tool"><?php foreach ($tools as $t => $tier): ?><option value="<?= e($t) ?>"><?= e(TOOL_TYPES[$t][0] ?? $t) ?> (tier <?= (int)$tier ?>)</option><?php endforeach; ?></select></div>
             <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
             <?= $potionField('trip') ?>
+            <?php if ($lucky > 0): ?><label class="pjluck"><input type="checkbox" name="luck" value="1"> <span>🍀 Pack a Lucky Draught (Luck +<?= ALCHEMY_LUCK_PAL ?> for the trip, you have <?= $lucky ?>)</span></label><?php endif; ?>
             <?php else: ?>
             <div class="pjfield"><label for="pjdelve">Delve</label><select id="pjdelve" name="delve"><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></div>
             <?= $potionField('delve') ?>
