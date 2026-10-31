@@ -8857,6 +8857,18 @@ body.pz-play .lp #game{text-align:left}
 @media (max-width:340px){.pjcounts{gap:4px}.pjcounts .chip{padding:2px 5px;font-size:13px;gap:4px}.pjcounts a{margin:-6px -5px;padding:0 5px}}
 .pjcounts a{display:inline-flex; align-items:center; gap:6px; min-height:var(--tap); margin:-6px -8px; padding:0 8px; font-weight:700}
 
+
+/* tabs (JS adds .pj-tabbed; without JS the sections stack) */
+.pjtabs{display:flex; gap:0; margin:0 0 14px; border-bottom:2px solid var(--line-2)}
+.pjtab{position:relative; flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:var(--tap); margin:0 -2px -2px 0; padding:0 10px; font:inherit; font-weight:700; color:var(--ink-2); background:var(--surface-2); border:2px solid var(--line-2); border-radius:0; cursor:pointer; white-space:nowrap}
+.pjtab:hover{color:var(--ink); background:var(--surface)}
+.pjtab[aria-selected="true"]{color:var(--on-fill); background:var(--brand-fill); border-color:var(--ol); z-index:1}
+.pjtab:focus-visible{outline:3px solid var(--focus); outline-offset:-5px}
+.pjtabn{font-style:normal; font-variant-numeric:tabular-nums; min-width:22px; padding:0 5px; font-size:13px; line-height:20px; text-align:center; background:var(--surface); color:var(--ink); border:1px solid var(--line-2)}
+.pjtabn:empty{display:none}
+.pjtab.has-ready .pjtabn{background:var(--accent); border-color:var(--ol); color:var(--ol)}
+.pj-tabbed .pjgrid{display:block}
+.pj-tabbed [role="tabpanel"][hidden]{display:none}
 /* the two panels */
 .pjgrid{display:grid; gap:0 16px}
 @container pjpage (min-width:680px){ .pjgrid{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); align-items:stretch} }
@@ -9141,6 +9153,54 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
     update(f);
   });
 })();
+
+  /* tabs: Out / At home / Jobs. Without JS all three stack as before. */
+  (function () {
+    var root = document.querySelector('.pjpage');
+    if (!root) return;
+    var secs = [['out', 'Out', root.querySelector('.pjledger')], ['home', 'At home', root.querySelector('.pjathome')], ['jobs', 'Jobs', root.querySelector('#pjboard')]]
+      .filter(function (x) { return x[2]; });
+    if (secs.length < 3) return;
+    var list = document.createElement('div');
+    list.className = 'pjtabs'; list.setAttribute('role', 'tablist'); list.setAttribute('aria-label', 'Pal Jobs');
+    var tabs = secs.map(function (x) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'pjtab'; b.id = 'pjtab-' + x[0]; b.setAttribute('role', 'tab');
+      b.setAttribute('aria-controls', x[2].id || (x[2].id = 'pjpanel-' + x[0]));
+      b.innerHTML = '<span>' + x[1] + '</span><i class="pjtabn" data-n></i>';
+      x[2].setAttribute('role', 'tabpanel'); x[2].setAttribute('aria-labelledby', b.id);
+      list.appendChild(b);
+      return b;
+    });
+    var top = root.querySelector('.pjtop');
+    top.parentNode.insertBefore(list, top.nextSibling);
+    root.classList.add('pj-tabbed');
+    var show = function (i, focus) {
+      secs.forEach(function (x, k) { x[2].hidden = k !== i; tabs[k].setAttribute('aria-selected', k === i ? 'true' : 'false'); tabs[k].tabIndex = k === i ? 0 : -1; });
+      if (focus) tabs[i].focus();
+    };
+    var count = function () {
+      var out = secs[0][2].querySelectorAll('.pjrow:not(.pjfree)').length, home = secs[1][2].querySelectorAll('.pjrow').length, ready = secs[0][2].querySelectorAll('.is-ready').length;
+      tabs[0].querySelector('[data-n]').textContent = out ? out : '';
+      tabs[1].querySelector('[data-n]').textContent = home ? home : '';
+      tabs[0].classList.toggle('has-ready', ready > 0);
+      tabs[0].setAttribute('aria-label', 'Out' + (out ? ', ' + out : '') + (ready ? ', ' + ready + ' ready to collect' : ''));
+    };
+    tabs.forEach(function (b, i) {
+      b.addEventListener('click', function () { show(i); });
+      b.addEventListener('keydown', function (ev) {
+        var d = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+        if (ev.key === 'Home') { ev.preventDefault(); show(0, true); } else if (ev.key === 'End') { ev.preventDefault(); show(2, true); }
+        else if (d) { ev.preventDefault(); show((i + d + 3) % 3, true); }
+      });
+    });
+    root.addEventListener('click', function (ev) {   // "Pick a job" on a free slot
+      var a = ev.target.closest && ev.target.closest('a[href="#pjboard"]');
+      if (a) { ev.preventDefault(); show(2); secs[2][2].scrollIntoView(); tabs[2].focus(); }
+    });
+    count(); setInterval(count, 1000);
+    show(location.hash === '#pjboard' || !secs[0][2].querySelector('.pjrow:not(.pjfree)') ? 2 : 0);
+  })();
 
 /* ===== pj JS END ===== */
 });</script>

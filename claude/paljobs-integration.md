@@ -319,3 +319,9 @@ page_header('Pal Jobs');
 ## Update: counts row is one line
 Chips: `N runs left` (title: trips and delves left today), `N Potions` (links to Crafting, Potions tab), `Pal Book`. CSS: `.pjcounts{display:flex; flex-wrap:nowrap; gap:6px}`, chips `white-space:nowrap; padding:2px 8px`. Check 320px.
 At max-width 340px: chip padding 2px 5px, font 13px, gap 4px (fits 320px).
+
+## Update: tabs (Out · At home · Jobs)
+- Row 1: h1 + chips. Row 2: `.pjtabs` (role=tablist), built by `assets/paljobs.js` from the existing `.pjledger`, `.pjathome`, `#pjboard` sections. **No PHP markup change.** Without JS all three stack as before.
+- Tabs show counts (`Out 3`, `At home 9`); the Out count turns gold when a pal is ready to collect. Default tab: Out, or Jobs if nobody is out or the URL is `#pjboard`. Free-slot "Pick a job" links switch to Jobs.
+- Keys: Left/Right/Home/End. `aria-selected`, `aria-controls`, `role=tabpanel` set by JS.
+- CSS: `.pjtabs`, `.pjtab`, `.pjtabn`, `.pj-tabbed .pjgrid{display:block}` (the 2-column desktop grid is not used in tabbed mode). Tab height 44px.
