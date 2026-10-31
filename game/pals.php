@@ -47,12 +47,12 @@ $outgoing = pal_requests_out($uid);
 if ($tab === 'friends' && $incoming && !isset($_GET['tab'])) $tab = 'requests';
 $friends = $tab === 'friends' ? pal_list($uid) : [];
 $tl = fn(string $t) => e(url('pals.php?tab=' . $t));
-page_header('Gnome friends');
+page_header('Friends');
 ?>
-<h1>🤝 Gnome friends</h1>
+<h1>🤝 Friends</h1>
 <p class="help">Friends can send each other a seed or seedling once a day, and their names sit together here. Sign the guestbook of any open garden. No chat, only little signs that you were there.</p>
 <nav class="tabs">
-  <a class="<?= $tab === 'friends' ? 'on' : '' ?>" href="<?= $tl('friends') ?>">🤝 Gnome friends <small><?= pal_count($uid) ?></small></a>
+  <a class="<?= $tab === 'friends' ? 'on' : '' ?>" href="<?= $tl('friends') ?>">🤝 Friends <small><?= pal_count($uid) ?></small></a>
   <a class="<?= $tab === 'requests' ? 'on' : '' ?>" href="<?= $tl('requests') ?>">📨 Requests<?= $incoming ? ' <small>' . count($incoming) . '</small>' : '' ?></a>
   <a class="<?= $tab === 'find' ? 'on' : '' ?>" href="<?= $tl('find') ?>">🔎 Find a gnome</a>
   <a class="<?= $tab === 'mentor' ? 'on' : '' ?>" href="<?= $tl('mentor') ?>">🎓 Gnome mentor</a>

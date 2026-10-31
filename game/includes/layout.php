@@ -651,6 +651,7 @@ function nav_sheet(array $u, string $page): string
     $tile = function (string $file, string $icon, string $label, string $badge = '', string $slug = '') use ($page): string {
         $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
         if ($page === 'folk.php') $cur = 'villagers.php';   // v2.0.39: villagers have their own page   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
+        if (in_array($page, ['catfish.php', 'puzzles.php', 'jigsaw.php', 'gifsaw.php', 'rainbarrel.php', 'gnomebeds.php'], true)) $cur = 'games.php';   // polish: Cat Fish and the puzzle pages sit under Games, so Games lights up
         $on = $cur === $file;
         $bar = in_array($file, ['garden.php', 'world.php', 'inventory.php', 'town.php', 'jobs.php'], true);   // v1.0.0.1: already in the phone's bottom bar, so the phone sheet skips it
         return '<a class="navtile' . ($on ? ' on' : '') . ($bar ? ' inbar' : '') . '" href="' . e(url($file)) . '"' . ($on ? ' aria-current="page"' : '') . '><span class="nti">' . ($slug !== '' ? nav_icon($slug, $icon, 20) : e($icon)) . '</span>'
@@ -664,10 +665,9 @@ function nav_sheet(array $u, string $page): string
             ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
         'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
-        'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Gnome friends', $b['pals'] ?? '', 'friends']],
+        'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
     ];
-    require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Hobbies: Whisker Pond (Cat Fish) and Puzzle Pals tiles once each is open, after Games
-    if (catfish_open()) $groups['Hobbies'][] = ['catfish.php', '🐟', 'Whisker Pond', '', 'catfish'];
+    require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Hobbies: Puzzle Pals tile once open, after Games (Cat Fish and Puzzles are tiles on the Games page)
     if (ppal_open() && !is_guest($u)) $groups['Hobbies'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];
     require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
     if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);

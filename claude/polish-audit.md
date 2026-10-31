@@ -39,6 +39,12 @@ Checked after: audit rerun, 216 loads, no page-level overflow; suites town, stop
 
 Still open: 5 (menu has 19 tiles, needs your call on which to fold), 6 (CSS weight: tokens, breakpoints, split; Phase 1). The `.side .ntl` rule is still written three times; left because the copies sit in different media blocks and I did not verify they are identical.
 
+## Villagers and menu merge (unreleased, same branch)
+- **Villagers:** `villagers.php` was already the one page. Left to do was cleanup: all ~25 `folk.php?id=` links now point at `villagers.php?id=`; `folk.php` is a stub (GET redirects, POST handler kept for old scripts) with its dead page template deleted (114 to 35 lines); the unreachable "Villagers you know" branch in `town.php` and `town_known_html()` in `place_ui.php` are gone (the redirect on `town.php:54` always fired first). Tests that asserted the old link now assert the new one. 14 suites pass (villagers folkoverlay town stops100 flowers friends scenes social100 roadlife market100 mentors120 calling pantry stopkinds).
+- **Menu:** removed the "Whisker Pond" tile (Games already has the Cat Fish tile, and the page title is "Cat Fish", so the name did not even match); Games now lights up on `catfish.php`, `puzzles.php`, `jigsaw.php`, `gifsaw.php`, `rainbarrel.php`, `gnomebeds.php`; "Gnome friends" renamed "Friends" (menu, page title, tab, Admin icon label, mentor notice text). Menu is 19 tiles with everything on (was 20). 14 suites pass (friends social100 comm mentors120 games2 games140 catfish puzzles jigsaw security190 images landing prog help).
+- **CSS:** the three truncating `.side .ntl` rules (`max-width 720`, `min-width 1200`, `721-1199`; the last two are two halves of one desktop rule) lost their `overflow/ellipsis/nowrap` lines; one wrap rule at the end replaces them.
+- **Not done:** Here/World merge, Puzzle Pals tile, Satchel+Crafting fold (need your call); Orders, Contests, Pal pages (plan section 7 items 3-5); Phase 1 token, breakpoint and `style.css` split work (large, needs its own release).
+
 ## What this changes in the plan
 - World already has the tabs Go, Map, Gather, Shops (plus Wander and Rest stop buttons), so part of the PDF's "Go replaces Here + Travel" is done. `world.php?tab=travel` still renders as its own tab. Phase 2 should start from what is live, not from the PDF's "current state".
 - `gather.php`, `adventure.php`, `folk.php`, `mentor.php`, `back.php` are already redirect stubs.

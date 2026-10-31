@@ -242,7 +242,7 @@ footer a { color: inherit; }
   .side .navtiles { grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .side a.navtile { position: relative; min-height: 54px; padding: 6px 2px; font-size: 11.5px; gap: 1px; }
   .side .nti { font-size: 20px; }
-  .side .ntl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .side .ntl { max-width: 100%; }
   .side .ntb { position: absolute; top: -5px; right: -3px; margin: 0; padding: 0 5px; font-size: 10px; line-height: 16px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 0 0 2px var(--surface); }
   .side h3 { margin: 8px 2px 4px; font-size: 11px; }
   .side details.navstaff { margin: 8px 0 0; padding-top: 2px; }
@@ -1725,7 +1725,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
   .side a.navtile.on, body[data-area] .side a.navtile.on { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-ink); font-weight: 700; }
   .side .nti { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; line-height: 1; flex: none; }
   .side .nti .phimg { width: 20px; height: 20px; display: block; }
-  .side .ntl { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side .ntl { flex: 1 1 auto; min-width: 0; }
   .side .ntb { position: absolute; top: -6px; right: 6px; margin: 0; padding: 0 6px; font-size: 10px; line-height: 16px; max-width: 80%; overflow: hidden; text-overflow: ellipsis;
     background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--accent-line); border-radius: var(--pill); font-weight: 600; }
   .side a.navfeedback { display: inline-flex; gap: 5px; width: calc(50% - 4px); margin: 8px 0 0; min-height: 38px; font-size: 12px; white-space: nowrap; vertical-align: middle; border-radius: 0; padding: 4px 6px; justify-content: center; }
@@ -3408,7 +3408,7 @@ body[data-area] main .todayhead h1, .todayhead h1 { border-bottom: 0; padding-bo
   .side a.navtile.on, body[data-area] .side a.navtile.on { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-ink); font-weight: 700; }
   .side .nti { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; line-height: 1; flex: none; }
   .side .nti .phimg { width: 20px; height: 20px; display: block; }
-  .side .ntl { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side .ntl { flex: 1 1 auto; min-width: 0; }
   .side .ntb { position: absolute; top: -6px; right: 6px; margin: 0; padding: 0 6px; font-size: 10px; line-height: 16px; max-width: 80%; overflow: hidden; text-overflow: ellipsis;
     background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--accent-line); border-radius: var(--pill); font-weight: 600; }
   .side a.navfeedback { display: inline-flex; gap: 5px; width: calc(50% - 4px); margin: 8px 0 0; min-height: 38px; font-size: 12px; white-space: nowrap; vertical-align: middle; border-radius: 0; padding: 4px 6px; justify-content: center; }
@@ -6590,8 +6590,8 @@ progress.hpbar.hpbar-s { display: inline-block; width: 56px; max-width: 56px; he
   .ph { grid-template-columns: minmax(0, 1fr); }
   .ph-art { box-shadow: 0 2px 0 0 var(--ol); }
 }
-/* 3. menu labels wrap to two lines instead of "Whisker Po..." */
-.side .ntl { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 1.15; }
+/* 3. menu labels wrap to two lines instead of "Whisker Po..." (the three truncating .side .ntl rules above were trimmed to match) */
+.side .ntl { overflow-wrap: anywhere; line-height: 1.15; }
 /* 4. small hit areas: logo, footer links and the status badge get a 44px target without changing how they look */
 .banner .logo { display: inline-flex; align-items: center; min-height: var(--tap); }
 footer a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
