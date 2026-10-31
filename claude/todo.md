@@ -1,4 +1,10 @@
-# Gnome Venture: to-do (updated 2026-10-31, latest built release 2.3.8, on main `e2c038d1`)
+# Gnome Venture: to-do (updated 2026-10-31, code on main is 2.3.91 `0e1719b1` (2.3.91 zip NOT built yet))
+
+## NOW (2.3.91, 2026-10-31): merge + two fixes. ON MAIN (`0e1719b1`), NO ZIP YET (build slim + manifest `tests/manifests/2.3.91.txt`; the 2.3.9 zip lacks the Stamp passport). Not run: full CI, MySQL, phone check.
+- **Merged** the 2.3.9 branch (Boons, health bars, Pantry rooms) with main's 2.3.8 (Stamp passport); changelog keeps both.
+- **Pal active skills stack:** the same active from two pals = ONE fight button at double value (`ppal_actives()` groups by active; shield/gust carry their value in `enc.psv`/`enc.pgv`). Snare, daze, rouse are on/off, so no extra. Test in `tests/puzzle_pals_party.php`. Player news entry for 2.3.91 not added.
+- **Waiting Puzzle Pal also shows on the Here page** (`town.php`, rest stop and town square), not only World > Go.
+- **PARKED (Joshua: skip for now): road-stop "do" activities rework.** He dislikes "come back, 1 of 3" tasks (kind `tend`, `stops.php:864`, `local.php:149,249`; `collect` shows "N of M"). Options (Opus review): A tend as a one-visit scene of 2-3 beats; **B richer checks (recommended)**: option tokens that spend an item, favour a calling, use a pal perk, or take a risky bet, then convert the 88 tend rows to checks with 3 approaches (no schema change; update `tools/lint_stop_acts.py`, `tests/stopkinds.sh`, leftover `stop_prog` tend rows); C villager requests from the satchel (new `ask` kind); D hide the counter only. Move collect's "N of M" to the passport/almanac. Data: `includes/data/stop_acts*.txt` (~860 rows), resolver `stop_do()` `stops.php:723`.
 
 ## NOW (2.3.8, 2026-10-31): Stamp passport shorter. BUILT, on main `e2c038d1`, slim zip `releases/GnomeVenture-2.3.8-web-update.zip` (needs 2.3.6+). Joshua uploads.
 - **Joshua to check (phone and desktop):** Town > Stop tab: summary, Next up, folds (Titles earned, All sets, Stops by kind, Road Journal), current region opens, Not started yet fold, long stamp names wrap, bottom nav does not cover the end of the page, dark and light.
