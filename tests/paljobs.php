@@ -234,6 +234,7 @@ $e = q_one('SELECT g_xp, a_xp FROM ppal_found WHERE pal_uid = ?', [$p2]);
 ok('5 h equipped = 5 XP of each kind', (int)$e['g_xp'] === 5 && (int)$e['a_xp'] === 5, json_encode($e));
 pj_settle_equip($uid);
 ok('settling twice does not pay twice', (int)q_val('SELECT g_xp FROM ppal_found WHERE pal_uid = ?', [$p2]) === 5);
+q("UPDATE ppal_found SET hp = 100, hp_at = ? WHERE pal_uid = ?", [now(), $p2]);   // the delve re-run above may have fainted it: keep this check deterministic
 [$eqa, $eqm2] = pj_can_send($u, $p2);
 ok('an equipped pal is not sent without agreeing', $eqa === null && str_contains($eqm2, 'party'), $eqm2);
 [$eqb] = pj_can_send($u, $p2, true);
