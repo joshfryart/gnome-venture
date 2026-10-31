@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delve: Mossroot Hollow (mockup 2: Dig down)</title>
+<link rel="stylesheet" href="mock.css">
+<script src="mock.js" defer></script>
+</head>
+<body>
+
+<header class="bar">
+  <a class="logo" href="#">Gnome Venture</a>
+  <span class="pill">⚡ 9/10</span>
+  <span class="pill coin"><img src="../../../game/assets/img/items/petal.png" alt="" width="18" height="18"> 1,240</span>
+  <button class="themebtn" type="button" id="themebtn" aria-label="Switch light or dark">🌙</button>
+</header>
+
+<main class="delve" id="delve">
+
+  <div class="dv-head">
+    <h1>Mossroot Hollow</h1>
+    <p class="dv-sub">A delve · danger 4 to 10</p>
+  </div>
+
+  <!-- sticky readout: depth, light, health. Light is the one resource that decides how deep you can go. -->
+  <div class="readout" id="readout">
+    <div class="ro-depth"><span class="ro-k">Depth</span><b id="ro-depth">2</b><span class="ro-of">/5</span></div>
+    <div class="ro-light">
+      <span class="ro-k">Light</span>
+      <span class="pips" id="pips" aria-label="Light 5 of 8"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span>
+    </div>
+    <div class="ro-hp"><span class="ro-k">❤️</span><progress id="ro-hp" max="40" value="31"></progress><b id="ro-hpn">31</b></div>
+  </div>
+
+  <div class="dv-grid">
+
+    <!-- ===== HERO: the cut-away ===== -->
+    <section class="shaft" aria-label="The delve, cut away">
+      <div class="railhead"><span>danger</span><span>loot</span></div>
+      <ol class="strata" id="strata">
+
+        <li class="st s-surface" data-layer="0">
+          <div class="g"><b>0</b></div>
+          <div class="band">
+            <span class="sky"></span>
+            <span class="hole" aria-hidden="true"></span>
+            <span class="bandname">Mossroot Hollow</span>
+          </div>
+          <div class="x"></div>
+        </li>
+
+        <li class="st s-roots" data-layer="1" data-name="Root tangle" data-danger="4" data-mult="×1">
+          <div class="g"><b>−1</b><small>4</small></div>
+          <div class="band"><span class="bandname">Root tangle</span><span class="anchor" title="Anchor">Anchor</span><span class="dug" aria-hidden="true"><img src="../../../game/assets/img/ph/acorn-cap.png" alt="" width="24" height="24"></span></div>
+          <div class="x">×1</div>
+        </li>
+
+        <li class="st s-clay" data-layer="2" data-name="Red clay" data-danger="5" data-mult="×1.5">
+          <div class="g"><b>−2</b><small>5</small></div>
+          <div class="band"><span class="bandname">Red clay</span></div>
+          <div class="x">×1.5</div>
+        </li>
+
+        <li class="st s-crystal" data-layer="3" data-name="Crystal vein" data-danger="6" data-mult="×2">
+          <div class="g"><b>−3</b><small>6</small></div>
+          <div class="band"><span class="bandname">Crystal vein</span><span class="peek"><img src="../../../game/assets/img/ph/geode.png" alt="" width="24" height="24"> gems</span></div>
+          <div class="x">×2</div>
+        </li>
+
+        <li class="st s-bones" data-layer="4" data-name="Old bones" data-danger="7" data-mult="×2.5">
+          <div class="g"><b>−4</b><small>7</small></div>
+          <div class="band"><span class="bandname">Old bones</span><span class="peek"><img src="../../../game/assets/img/ph/pale-scale.png" alt="" width="24" height="24"> relics</span></div>
+          <div class="x">×2.5</div>
+        </li>
+
+        <li class="st s-ember" data-layer="5" data-name="Ember deep" data-danger="10" data-mult="×4">
+          <div class="g"><b>−5</b><small>10</small></div>
+          <div class="band"><span class="bandname">Ember deep</span><span class="peek"><img src="../../../game/assets/img/chest.png" alt="" width="28" height="28"> chest</span></div>
+          <div class="x">×4</div>
+        </li>
+      </ol>
+
+      <!-- The working strip: moved into whichever layer you stand in -->
+      <div class="strip" id="here">
+        <button class="tun west" type="button" data-act="west">
+          <span class="tun-ico"><img src="../../../game/assets/img/ph/geode.png" alt="" width="28" height="28"></span>
+          <span class="tun-t">West</span><span class="tun-s" id="west-s">Poke about</span>
+        </button>
+        <div class="crew" aria-label="Your gnome and Puzzle Pals">
+          <span class="pal p1"><img src="../../../game/assets/img/puzzles/pals/dw-lantern-lark.png" alt="Lantern Lark" width="32" height="32"></span>
+          <span class="gnome" aria-hidden="true">
+            <img src="../../../game/assets/img/gnome/gnome-shadow.png" alt="" width="48" height="60">
+            <img src="../../../game/assets/img/gnome/gnome-body.png" alt="" width="48" height="60">
+            <img src="../../../game/assets/img/gnome/gnome-face.png" alt="" width="48" height="60">
+            <img class="beard" src="../../../game/assets/img/gnome/gnome-beard.png" alt="" width="48" height="60">
+            <img class="hat" src="../../../game/assets/img/gnome/gnome-hat.png" alt="" width="48" height="60">
+            <img src="../../../game/assets/img/gnome/gnome-band.png" alt="" width="48" height="60">
+          </span>
+          <span class="pal p2"><img src="../../../game/assets/img/puzzles/pals/cs-grotto-glim.png" alt="Grotto Glim" width="32" height="32"></span>
+        </div>
+        <button class="tun east" type="button" data-act="east">
+          <span class="tun-ico"><img id="east-img" src="../../../game/assets/img/ph/creature-clay-crawler.png" alt="" width="28" height="28"></span>
+          <span class="tun-t">East</span><span class="tun-s" id="east-s">Something stirs</span>
+        </button>
+        <div class="down">
+          <button class="btn dig" type="button" data-act="dig" id="digbtn">⛏️ Dig down <span class="cost lt">1</span></button>
+          <button class="btn ghost" type="button" data-act="rope" id="ropebtn">🪢 Rope <span class="cost lt">2</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SIDE: the decision, the party, the rules ===== -->
+    <div class="side">
+
+      <section class="card decide" aria-labelledby="decide-h">
+        <h2 id="decide-h">Climb out, or press on?</h2>
+        <div class="sack">
+          <div class="tray safe">
+            <h3>Safe <small>above the anchor</small></h3>
+            <ul class="loot" id="loot-safe"></ul>
+          </div>
+          <div class="tray risk">
+            <h3>At risk <small>lost if knocked out</small></h3>
+            <ul class="loot" id="loot-risk"></ul>
+          </div>
+        </div>
+        <p class="next" id="next"><span>Next:</span> <b>Crystal vein</b> · danger 6 · loot ×2</p>
+        <div class="acts">
+          <button class="btn ghost" type="button" data-act="climb" id="climbbtn">🪜 Climb out <span class="cost" id="climb-n">keep 4</span></button>
+          <button class="btn ghost" type="button" data-act="anchor" id="anchorbtn">📌 Anchor <span class="cost lt">1</span></button>
+        </div>
+      </section>
+
+      <section class="card party" aria-labelledby="party-h">
+        <h2 id="party-h">Party</h2>
+        <ul class="members">
+          <li class="m you">
+            <span class="face gn"><img src="../../../game/assets/img/gnome/gnome-body.png" alt="" width="36" height="45"><img src="../../../game/assets/img/gnome/gnome-face.png" alt="" width="36" height="45"><img class="beard" src="../../../game/assets/img/gnome/gnome-beard.png" alt="" width="36" height="45"><img class="hat" src="../../../game/assets/img/gnome/gnome-hat.png" alt="" width="36" height="45"></span>
+            <span class="who"><b>Pip</b><span class="lv">Lv 18</span></span>
+            <progress class="hp" id="hp-you" max="40" value="31"></progress><small class="hpn" id="hpn-you">31/40</small>
+          </li>
+          <li class="m">
+            <span class="face"><img src="../../../game/assets/img/puzzles/pals/dw-lantern-lark.png" alt="" width="36" height="36"></span>
+            <span class="who"><b>Lantern Lark</b><span class="lv">Lv 6</span></span>
+            <progress class="hp" id="hp-p1" max="18" value="14"></progress><small class="hpn" id="hpn-p1">14/18</small>
+            <small class="perk">+1 light at the start</small>
+          </li>
+          <li class="m">
+            <span class="face"><img src="../../../game/assets/img/puzzles/pals/cs-grotto-glim.png" alt="" width="36" height="36"></span>
+            <span class="who"><b>Grotto Glim</b><span class="lv">Lv 4</span></span>
+            <progress class="hp low" id="hp-p2" max="16" value="5"></progress><small class="hpn" id="hpn-p2">5/16</small>
+            <small class="perk">Sees one layer further</small>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card journal" aria-labelledby="log-h">
+        <h2 id="log-h">Journal</h2>
+        <ol class="log" id="log">
+          <li>📌 You hammer an anchor into the roots.</li>
+          <li>⛏️ You dig into the red clay. It sticks to your boots.</li>
+          <li>🌰 West tunnel: an Acorn cap and 12 Petals.</li>
+        </ol>
+      </section>
+
+      <details class="fold">
+        <summary>How digging works</summary>
+        <ul>
+          <li><b>Light</b> pays for every dig. At 0 you can only climb.</li>
+          <li><b>Deeper</b> layers are harder and pay more (×1 to ×4).</li>
+          <li><b>Anchors</b> make everything found above them safe.</li>
+          <li><b>Knocked out?</b> You keep what is safe. The rest stays down there.</li>
+          <li><b>Pals</b> fight beside you. A pal at 0 just sits out.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</main>
+
+<dialog id="dlg-climb" class="dlg" aria-labelledby="dlg-climb-h">
+  <h2 id="dlg-climb-h">🪜 Climb out?</h2>
+  <p>You carry everything up with you.</p>
+  <ul class="loot big" id="dlg-loot"></ul>
+  <p class="muted" id="dlg-deeper">The Crystal vein is just below.</p>
+  <div class="acts">
+    <button class="btn" type="button" data-act="climb-go">Climb out</button>
+    <button class="btn ghost" type="button" data-close>Stay down</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-event" class="dlg" aria-labelledby="dlg-event-h">
+  <div class="ev-art" id="ev-art"></div>
+  <h2 id="dlg-event-h">West tunnel</h2>
+  <p id="ev-text">You find a geode.</p>
+  <div class="acts"><button class="btn" type="button" data-close>On we go</button></div>
+</dialog>
+
+</body>
+</html>

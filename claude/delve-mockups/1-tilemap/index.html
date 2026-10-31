@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mossgrave Delve · Gnome Venture (mockup 1: tile map)</title>
+<!-- the real game sheet (tokens, header, buttons, folds), then the mockup's own block -->
+<link rel="stylesheet" href="../../../game/assets/style.css">
+<link rel="stylesheet" href="mock.css">
+<script src="mock.js" defer></script>
+</head>
+<body class="game dvpage" data-area="world">
+<a class="skip" href="#main">Skip to content</a>
+<header class="banner"><div class="bannerin">
+  <a class="logo" href="#main">Gnome Venture</a>
+  <div class="userbar">
+    <span class="hdr-pill hdr-energy" role="img" aria-label="Energy 7 of 10">⚡ 7/10</span>
+    <span class="hdr-pill hdr-coins" role="img" aria-label="1,240 Petals">🪙 1,240</span>
+    <button type="button" class="hdr-pill dvtheme" id="dvTheme" aria-label="Switch light or dark">◐</button>
+  </div>
+</div></header>
+
+<div class="wrap">
+<main id="main" tabindex="-1" class="dv">
+
+  <div class="dvhead">
+    <h1>Mossgrave Delve</h1>
+    <p class="dvmeta">Danger 6 · Floor 1 of 2</p>
+  </div>
+
+  <div class="dvlay">
+
+    <!-- HUD: you, torch, pockets -->
+    <section class="dvhud" aria-label="Your pockets">
+      <div class="dvrow dvhp" title="Your health">
+        <img class="dvi" src="../../../game/assets/img/ico/ico-heart-red.png" alt="Health" width="24" height="24">
+        <span class="dvbar dvhpbar" aria-hidden="true"><span id="hpFill" class="dvfill w70"></span></span>
+        <b id="hpNum" class="dvnum">14/20</b>
+      </div>
+      <div class="dvrow dvtorch" title="Torch: each step burns a little. Low torch, smaller light.">
+        <img class="dvi" src="../../../game/assets/img/ico/ico-fire.png" alt="Torch" width="24" height="24">
+        <span class="dvsegs" id="torchSegs" aria-hidden="true"></span>
+        <b id="torchNum" class="dvnum">R3</b>
+      </div>
+      <div class="dvpockets">
+        <button type="button" class="dvpk" id="potionBtn" aria-label="Drink a potion (2 left)">
+          <img src="../../../game/assets/img/ico/ico-test-tube.png" alt="" width="32" height="32"><span class="dvct" id="potionCt">2</span>
+        </button>
+        <span class="dvpk dvkey" id="keySlot" role="img" aria-label="No key yet">
+          <img src="../../../game/assets/img/ico/ico-key.png" alt="" width="32" height="32">
+        </span>
+        <button type="button" class="dvpk" id="bagBtn" aria-label="Loot bag">
+          <img src="../../../game/assets/img/ico/ico-handbag.png" alt="" width="32" height="32"><span class="dvct" id="bagCt">0</span>
+        </button>
+        <span class="dvfinds" id="finds" role="img" aria-label="Finds on this floor"></span>
+      </div>
+    </section>
+
+    <!-- minimap -->
+    <section class="dvmini" aria-label="Floor map">
+      <div class="dvminimap" id="mini" aria-hidden="true"></div>
+      <p class="dvcap">Floor 1</p>
+    </section>
+
+    <!-- the map itself -->
+    <section class="dvmapbox" aria-label="Delve map">
+      <div class="dvmap" id="map" role="grid" aria-label="Tap a lit tile to walk there"></div>
+      <div class="dvfind" id="find" role="status" aria-live="polite" hidden>
+        <span class="dvburst" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <img id="findImg" src="../../../game/assets/img/ico/ico-mushroom.png" alt="" width="64" height="64">
+        <span class="dvfindtx"><b id="findName">Glowcap</b><small id="findNote">into your bag</small></span>
+      </div>
+    </section>
+
+    <!-- what is next to you: one verb at most -->
+    <section class="dvctx" id="ctx" aria-live="polite">
+      <img id="ctxImg" class="dvctximg" src="../../../game/assets/img/ico/ico-shrine.png" alt="" width="32" height="32">
+      <span class="dvctxtx"><b id="ctxName">Moss shrine</b><small id="ctxNote">Rest: heal and relight</small></span>
+      <button type="button" class="btn" id="ctxBtn">Rest</button>
+    </section>
+    <p class="dvlog" id="log" aria-live="polite">Water drips somewhere east.</p>
+
+    <!-- Puzzle Pals party -->
+    <section class="dvparty" aria-label="Your party">
+      <div class="dvpal me">
+        <span class="dvpic"><img src="../../../game/assets/img/trek/trek-me.png" alt="" width="38" height="40"></span>
+        <span class="dvlv">Lv 18</span>
+        <b>Bramble</b>
+        <span class="dvbar sm" aria-hidden="true"><span id="meFill" class="dvfill w70"></span></span>
+        <small id="meHp">14/20</small>
+      </div>
+      <div class="dvpal">
+        <span class="dvpic"><img src="../../../game/assets/img/puzzles/pals/dw-lantern-lark.png" alt="" width="64" height="64"></span>
+        <span class="dvlv">Lv 7</span>
+        <b>Lantern Lark</b>
+        <span class="dvbar sm" aria-hidden="true"><span id="p1Fill" class="dvfill w90"></span></span>
+        <small class="dvperk"><img src="../../../game/assets/img/ico/ico-fire.png" alt="" width="16" height="16">Light +1</small>
+      </div>
+      <div class="dvpal">
+        <span class="dvpic"><img src="../../../game/assets/img/puzzles/pals/cs-grotto-glim.png" alt="" width="64" height="64"></span>
+        <span class="dvlv">Lv 4</span>
+        <b>Grotto Glim</b>
+        <span class="dvbar sm" aria-hidden="true"><span id="p2Fill" class="dvfill w40 low"></span></span>
+        <small class="dvperk"><img src="../../../game/assets/img/trek/trek-bang.png" alt="" width="16" height="16">Spots traps</small>
+      </div>
+    </section>
+
+    <section class="dvmore">
+      <details class="fold">
+        <summary>How delves work</summary>
+        <ul class="dvrules">
+          <li>Tap a lit tile to walk. Walking is free; the torch burns.</li>
+          <li>Things show up as your light reaches them.</li>
+          <li>Find the key, open the hoard, or go deeper.</li>
+          <li>Climb out any time. You keep your bag.</li>
+        </ul>
+      </details>
+      <button type="button" class="btn ghost small" id="leaveBtn">Climb out</button>
+    </section>
+  </div>
+</main>
+</div>
+
+<!-- chest: the one big moment -->
+<dialog class="dvdlg dvchest" id="chestDlg" aria-labelledby="chestTitle">
+  <div class="dvchestart" aria-hidden="true">
+    <img class="body" src="../../../game/assets/img/chest-body.png" alt="" width="128" height="128">
+    <img class="lid" src="../../../game/assets/img/chest-lid.png" alt="" width="128" height="128">
+    <span class="dvrays"></span>
+  </div>
+  <h2 id="chestTitle">Old chest</h2>
+  <ul class="dvloot" id="chestLoot"></ul>
+  <form method="dialog" class="dvbtns"><button class="btn" value="take">Take it all</button></form>
+</dialog>
+
+<dialog class="dvdlg" id="bagDlg" aria-labelledby="bagTitle">
+  <h2 id="bagTitle">Loot bag</h2>
+  <ul class="dvloot list" id="bagList"></ul>
+  <p class="dvempty" id="bagEmpty">Nothing yet. Go look.</p>
+  <form method="dialog" class="dvbtns"><button class="btn ghost">Close</button></form>
+</dialog>
+
+<dialog class="dvdlg" id="fightDlg" aria-labelledby="fightTitle">
+  <img class="dvfoe" src="../../../game/assets/img/ico/ico-spider.png" alt="" width="128" height="128">
+  <h2 id="fightTitle">Cave spider · Lv 6</h2>
+  <p class="dvsub">Today's fight screen opens here, with your pals beside you.</p>
+  <form method="dialog" class="dvbtns"><button class="btn ghost" value="no">Back off</button><button class="btn" value="win">Win (demo)</button></form>
+</dialog>
+
+<dialog class="dvdlg" id="leaveDlg" aria-labelledby="leaveTitle">
+  <h2 id="leaveTitle">Climb out?</h2>
+  <p class="dvsub">You keep your bag. The hoard stays shut.</p>
+  <form method="dialog" class="dvbtns"><button class="btn ghost" value="no">Stay</button><button class="btn" value="yes">Climb out</button></form>
+</dialog>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delve: route map (mockup 3) · Gnome Venture</title>
+<link rel="stylesheet" href="mock.css">
+<script src="mock.js" defer></script>
+</head>
+<body data-mood="grotto">
+
+<header class="bar">
+  <span class="logo">Gnome Venture</span>
+  <span class="pill"><img src="../../../game/assets/img/ico/ico-lightning.png" alt="">8/10</span>
+  <span class="pill gold"><img src="../../../game/assets/img/ico/ico-coin.png" alt="">1,240</span>
+  <button class="pill themebtn" type="button" id="themeBtn" aria-label="Switch light or dark">
+    <img src="../../../game/assets/img/ico/ico-moon.png" alt="" class="moon"><img src="../../../game/assets/img/ico/ico-sun.png" alt="" class="sun">
+  </button>
+</header>
+
+<main class="delve">
+
+  <!-- ===== The delve: name, mood, danger ===== -->
+  <section class="hero" aria-labelledby="dname">
+    <div class="hero-art">
+      <img class="banner b-grotto" src="../../../game/assets/img/wonders/delve-firefly-caves.png" alt="">
+      <img class="banner b-mine" src="../../../game/assets/img/wonders/delve-salt-mine-galleries.png" alt="">
+      <img class="banner b-flood" src="../../../game/assets/img/wonders/delve-mangrove-root-maze.png" alt="">
+    </div>
+    <div class="hero-text">
+      <h1 id="dname"><span class="m-grotto">Firefly Caves</span><span class="m-mine">Salt Mine Galleries</span><span class="m-flood">Mangrove Root Maze</span></h1>
+      <p class="mood">
+        <img src="../../../game/assets/img/ico/ico-mushroom.png" alt="" class="m-grotto"><img src="../../../game/assets/img/ico/ico-pick.png" alt="" class="m-mine"><img src="../../../game/assets/img/ico/ico-droplet.png" alt="" class="m-flood">
+        <b class="m-grotto">Glowgrotto</b><b class="m-mine">Old mine</b><b class="m-flood">Flooded roots</b>
+        <span class="m-grotto">Dark rows stay hidden. Glowcaps light one more.</span>
+        <span class="m-mine">Carts skip a row once. More chests, more traps.</span>
+        <span class="m-flood">Water rises each room. Shrines dry you off.</span>
+      </p>
+      <p class="tags">
+        <span class="tag">Danger 6–9</span>
+        <span class="tag">Floor 1 of 1</span>
+        <span class="tag good">Cleared ×2</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- demo switches (not part of the real screen) -->
+  <nav class="demo" aria-label="Mockup switches">
+    <div class="seg" role="group" aria-label="Mood">
+      <span class="seglbl">Mood</span>
+      <button type="button" data-set-mood="grotto" aria-pressed="true">Grotto</button>
+      <button type="button" data-set-mood="mine" aria-pressed="false">Mine</button>
+      <button type="button" data-set-mood="flood" aria-pressed="false">Flooded</button>
+    </div>
+    <div class="seg" role="group" aria-label="Visit">
+      <span class="seglbl">Visit</span>
+      <button type="button" data-set-mode="first" aria-pressed="true">First</button>
+      <button type="button" data-set-mode="replay" aria-pressed="false">Replay</button>
+      <button type="button" data-set-mode="pal" aria-pressed="false">Pal sent</button>
+    </div>
+  </nav>
+
+    <!-- party strip -->
+    <div class="party" aria-label="Your party">
+      <div class="mem you">
+        <div class="face gnome" aria-hidden="true">
+          <img src="../../../game/assets/img/gnome/gnome-body.png" alt="">
+          <img src="../../../game/assets/img/gnome/gnome-face.png" alt="">
+          <img src="../../../game/assets/img/gnome/gnome-beard.png" alt="">
+          <img src="../../../game/assets/img/gnome/gnome-hat.png" alt="" class="hat">
+        <span class="lv">Lv 12</span></div>
+        <div class="who"><b>Pip</b>
+          <span class="hp" role="meter" aria-label="Pip health" aria-valuemin="0" aria-valuemax="24" aria-valuenow="18"><i class="f75"></i></span><small>18/24</small></div>
+      </div>
+      <div class="mem pal glim">
+        <div class="face"><img src="../../../game/assets/img/puzzles/pals/rr-glimmer-frog.png" alt=""><span class="lv">Lv 3</span></div>
+        <div class="who"><b>Glim</b>
+          <span class="hp" role="meter" aria-label="Glim health" aria-valuemin="0" aria-valuemax="12" aria-valuenow="9"><i class="f75"></i></span><small class="hpnum">9/12</small>
+          <small class="away">Out delving</small></div>
+      </div>
+      <div class="mem pal">
+        <div class="face"><img src="../../../game/assets/img/puzzles/pals/mm-toadstool-tuck.png" alt=""><span class="lv">Lv 2</span></div>
+        <div class="who"><b>Tuck</b>
+          <span class="hp low" role="meter" aria-label="Tuck health" aria-valuemin="0" aria-valuemax="10" aria-valuenow="3"><i class="f30"></i></span><small>3/10</small></div>
+      </div>
+    </div>
+
+    <!-- pal-run banner (only in "Pal sent") -->
+    <p class="palnote only-pal"><img src="../../../game/assets/img/puzzles/pals/rr-glimmer-frog.png" alt=""> <span><b>Glim is down there.</b> Back at 4:10 pm with what it finds.</span></p>
+    <p class="palnote only-replay"><img src="../../../game/assets/img/ico/ico-map-pin.png" alt=""> <span><b>You know this place.</b> Whole map shown, 2 rooms changed.</span></p>
+
+  <div class="cols">
+  <!-- ===== Left: the route ===== -->
+  <section class="mapcol" aria-label="The route down">
+
+    <div class="routewrap">
+    <div class="route" id="route" data-mode="first">
+      <svg class="paths" viewBox="0 0 500 700" preserveAspectRatio="none" aria-hidden="true">
+        <path class="e taken" d="M250 50 Q190 85 150 150"/>
+        <path class="e far pal" d="M250 50 Q320 90 350 150"/>
+        <path class="e far" d="M150 150 Q85 185 50 250"/>
+        <path class="e taken" d="M150 150 Q215 190 250 250"/>
+        <path class="e far" d="M350 150 Q290 185 250 250"/>
+        <path class="e far pal" d="M350 150 Q420 190 450 250"/>
+        <path class="e far" d="M50 250 Q80 315 150 350"/>
+        <path class="e open" d="M250 250 Q185 285 150 350"/>
+        <path class="e open" d="M250 250 Q320 290 350 350"/>
+        <path class="e far pal" d="M450 250 Q415 315 350 350"/>
+        <path class="e fog" d="M150 350 Q85 385 50 450"/>
+        <path class="e fog" d="M150 350 Q215 390 250 450"/>
+        <path class="e fog" d="M350 350 Q285 385 250 450"/>
+        <path class="e fog pal" d="M350 350 Q420 390 450 450"/>
+        <path class="e fog" d="M50 450 Q80 515 150 550"/>
+        <path class="e fog" d="M250 450 Q190 490 150 550"/>
+        <path class="e fog" d="M250 450 Q315 485 350 550"/>
+        <path class="e fog" d="M450 450 Q420 515 350 550"/>
+        <path class="e fog" d="M150 550 Q190 620 250 650"/>
+        <path class="e fog" d="M350 550 Q310 620 250 650"/>
+        <path class="e short" d="M350 150 Q300 250 350 350"/>
+      </svg>
+
+      <!-- row 0 -->
+      <button type="button" class="node entry r0 c2" data-state="done" data-name="The way in" data-line="Roots arch over the door." data-risk="0" aria-label="The way in, done">
+        <img src="../../../game/assets/img/ico/ico-hole.png" alt=""></button>
+      <!-- row 1 -->
+      <button type="button" class="node shrine r1 c1" data-state="done" data-name="Moss shrine" data-line="You rested. +6 HP." data-risk="0" aria-label="Shrine, done">
+        <img src="../../../game/assets/img/ico/ico-shrine.png" alt=""></button>
+      <button type="button" class="node treasure r1 c3" data-state="far" data-name="Amber nook" data-line="Something glints in a crack." data-risk="1" data-reward="Amber, petals" aria-label="Treasure">
+        <img src="../../../game/assets/img/ico/ico-gift.png" alt=""><i class="risk" data-r="1"></i>
+        <span class="loot only-pal">+2 amber</span></button>
+      <!-- row 2 -->
+      <button type="button" class="node mystery r2 c0" data-state="far" data-name="Strange hum" data-line="Could be anything." data-risk="1" data-reward="?" aria-label="Mystery">
+        <img src="../../../game/assets/img/ico/ico-question.png" alt=""><i class="risk" data-r="1"></i>
+        <span class="new only-replay">New</span></button>
+      <button type="button" class="node fight r2 c2" data-state="here" data-name="Echo bat roost" data-line="You are here." data-risk="2" aria-label="Fight, you are here">
+        <img src="../../../game/assets/img/ico/ico-sword.png" alt=""><i class="risk" data-r="2"></i>
+        <img class="youpin" src="../../../game/assets/img/ico/ico-gnome-hat.png" alt=""></button>
+      <button type="button" class="node fight r2 c4" data-state="far" data-name="Cistern newts" data-line="Slippery, but slow." data-risk="2" data-reward="Petals, XP" aria-label="Fight">
+        <img src="../../../game/assets/img/ico/ico-sword.png" alt=""><i class="risk" data-r="2"></i>
+        <span class="loot only-pal">Snuck by</span></button>
+      <!-- row 3: where you can go next -->
+      <button type="button" class="node puzzle r3 c1" data-state="next" data-room="puzzle" data-name="Rune door" data-line="Tiles that slide. A door that sulks." data-risk="1" data-reward="Chest key, XP" aria-label="Puzzle room, you can go here">
+        <img src="../../../game/assets/img/ico/ico-puzzle.png" alt=""><i class="risk" data-r="1"></i></button>
+      <button type="button" class="node merchant r3 c3" data-state="next" data-room="merchant" data-name="Mo the mole" data-line="A mole with a cart and opinions." data-risk="0" data-reward="Trades, a tip" aria-label="Merchant mole, you can go here">
+        <img src="../../../game/assets/img/folk/mole.png" alt="">
+        <span class="loot only-pal">Boss tip</span></button>
+      <!-- row 4 -->
+      <button type="button" class="node fight r4 c0" data-state="fog" data-name="Spadefoot toads" data-line="Croaking in the dark." data-risk="2" data-reward="Petals" aria-label="Unknown room">
+        <img src="../../../game/assets/img/ico/ico-sword.png" alt=""><i class="risk" data-r="2"></i></button>
+      <button type="button" class="node treasure r4 c2" data-state="fog" data-name="Glowworm hoard" data-line="Gems where the worms sleep." data-risk="1" data-reward="Gem" aria-label="Unknown room">
+        <img src="../../../game/assets/img/ico/ico-gem.png" alt=""><i class="risk" data-r="1"></i>
+        <span class="new only-replay">New</span></button>
+      <button type="button" class="node mystery r4 c4" data-state="fog" data-name="Sealed door" data-line="Glim found it. It needs you." data-risk="1" data-reward="?" aria-label="Unknown room">
+        <img src="../../../game/assets/img/ico/ico-door.png" alt=""><i class="risk" data-r="1"></i>
+        <span class="loot only-pal stop">Needs you</span></button>
+      <!-- row 5 -->
+      <button type="button" class="node shrine r5 c1" data-state="fog" data-name="Still pool" data-line="Rest, or ask a boon." data-risk="0" data-reward="HP, a boon" aria-label="Unknown room">
+        <img src="../../../game/assets/img/ico/ico-shrine.png" alt=""></button>
+      <button type="button" class="node fight elite r5 c3" data-state="fog" data-name="Mole cricket swarm" data-line="Big, loud, worth it." data-risk="3" data-reward="Rare find" aria-label="Unknown room">
+        <img src="../../../game/assets/img/ico/ico-skull.png" alt=""><i class="risk" data-r="3"></i></button>
+      <!-- row 6: the guardian -->
+      <button type="button" class="node boss r6 c2" data-state="boss" data-name="The Lantern Moth" data-line="Guards the chest. Hates the dark less than you do." data-risk="3" data-reward="The chest" aria-label="Guardian and chest">
+        <img src="../../../game/assets/img/ico/ico-crown.png" alt=""><i class="risk" data-r="3"></i>
+        <span class="new only-replay done">Bested ×2</span></button>
+    </div>
+    </div>
+
+    <details class="fold legend">
+      <summary>What the rooms are</summary>
+      <ul>
+        <li><img src="../../../game/assets/img/ico/ico-sword.png" alt="">Fight · <img src="../../../game/assets/img/ico/ico-skull.png" alt="">Tough fight</li>
+        <li><img src="../../../game/assets/img/ico/ico-gift.png" alt="">Treasure · <img src="../../../game/assets/img/ico/ico-shrine.png" alt="">Shrine (rest)</li>
+        <li><img src="../../../game/assets/img/ico/ico-puzzle.png" alt="">Puzzle · <img src="../../../game/assets/img/folk/mole.png" alt="">Mole trader</li>
+        <li><img src="../../../game/assets/img/ico/ico-question.png" alt="">Mystery · <img src="../../../game/assets/img/ico/ico-crown.png" alt="">Guardian + chest</li>
+        <li><i class="risk demo" data-r="2"></i> Red stitches = danger</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- ===== Right: the room you are in ===== -->
+  <section class="roomcol">
+    <article class="room" id="room" aria-live="polite">
+      <div class="room-art fight-art">
+        <img class="room-who" src="../../../game/assets/img/ph/creature-echo-bat.png" alt="Echo bats">
+      </div>
+      <div class="room-body">
+        <h2>Echo bat roost</h2>
+        <p class="line">Hundreds of bats, all upside down, all awake.</p>
+        <ul class="choices">
+          <li><button type="button" class="btn">
+            <img src="../../../game/assets/img/ico/ico-sword.png" alt=""><span>Fight<small>Danger 7 · petals, XP</small></span></button></li>
+          <li><button type="button" class="choice">
+            <img src="../../../game/assets/img/ico/ico-music.png" alt=""><span>Hum them to sleep<small>Glim helps · 70% · sneak past</small></span><b class="odds">70%</b></button></li>
+          <li><button type="button" class="choice">
+            <img src="../../../game/assets/img/ico/ico-mushroom.png" alt=""><span>Offer a glowcap<small>−1 glowcap · they light the next row</small></span><b class="odds sure">Sure</b></button></li>
+        </ul>
+      </div>
+    </article>
+
+    <div class="leave">
+      <button type="button" class="btn ghost"><img src="../../../game/assets/img/ico/ico-ladder.png" alt="">Climb out</button>
+      <p class="bag"><img src="../../../game/assets/img/ico/ico-coin.png" alt="">34 <img src="../../../game/assets/img/ico/ico-gem.png" alt="">1 <img src="../../../game/assets/img/ico/ico-mushroom.png" alt="">2</p>
+    </div>
+
+    <details class="fold">
+      <summary>Coming back later</summary>
+      <ul class="notes">
+        <li><b>Replay:</b> the map stays drawn. Two rooms change each visit. Ropes you tied become shortcuts.</li>
+        <li><b>Send a pal:</b> cleared delves only. It sneaks, never fights the guardian, brings finds home and marks doors for you.</li>
+        <li><b>Mood</b> changes each season: same caves, new rule.</li>
+      </ul>
+    </details>
+    <details class="fold">
+      <summary>Journal</summary>
+      <ul class="notes log">
+        <li>You light a lantern and step into Firefly Caves.</li>
+        <li>Moss shrine: you rest. +6 HP.</li>
+        <li>Echo bat roost. Bats, everywhere.</li>
+      </ul>
+    </details>
+  </section>
+  </div>
+</main>
+
+<!-- peek at a room before you choose it -->
+<dialog class="peek" id="peek" aria-labelledby="peekName">
+  <form method="dialog">
+    <button class="x" value="close" aria-label="Close">×</button>
+    <div class="peek-head"><span class="peek-ico" id="peekIco"></span><div><h3 id="peekName">Room</h3><p id="peekLine" class="line"></p></div></div>
+    <dl class="peek-facts">
+      <div><dt>Danger</dt><dd><i class="risk" id="peekRisk" data-r="1"></i><span id="peekRiskTxt"></span></dd></div>
+      <div><dt>Could find</dt><dd id="peekReward"></dd></div>
+    </dl>
+    <p class="peek-btns"><button class="btn" value="go" id="peekGo">Go this way</button><button class="btn ghost" value="close">Not yet</button></p>
+  </form>
+</dialog>
+
+<!-- room cards the demo swaps in -->
+<template id="room-puzzle">
+  <div class="room-art puzzle-art">
+    <img class="room-who" src="../../../game/assets/img/ico/ico-door.png" alt="A rune door">
+  </div>
+  <div class="room-body">
+    <h2>Rune door</h2>
+    <p class="line">Nine tiles, one glowing. The door sulks.</p>
+    <ul class="choices">
+      <li><button type="button" class="btn"><img src="../../../game/assets/img/ico/ico-puzzle.png" alt=""><span>Slide the tiles<small>About 1 min · chest key</small></span></button></li>
+      <li><button type="button" class="choice"><img src="../../../game/assets/img/ico/ico-hammer.png" alt=""><span>Bash it open<small>−3 HP · one find cracks</small></span><b class="odds sure">Sure</b></button></li>
+      <li><button type="button" class="choice"><img src="../../../game/assets/img/puzzles/pals/mm-toadstool-tuck.png" alt=""><span>Tuck sniffs a way round<small>Skip it · no key</small></span><b class="odds">80%</b></button></li>
+    </ul>
+  </div>
+</template>
+<template id="room-merchant">
+  <div class="room-art merchant-art">
+    <img class="room-who" src="../../../game/assets/img/folk/mole.png" alt="Mo the mole">
+  </div>
+  <div class="room-body">
+    <h2>Mo the mole</h2>
+    <p class="line">“Lamp oil, poultice, gossip. Pick one, I’m busy.”</p>
+    <ul class="choices">
+      <li><button type="button" class="choice"><img src="../../../game/assets/img/ico/ico-lantern.png" alt=""><span>Lamp oil<small>2 amber · see one row deeper</small></span><b class="odds">2 <img src="../../../game/assets/img/ico/ico-gem.png" alt="amber"></b></button></li>
+      <li><button type="button" class="choice"><img src="../../../game/assets/img/ico/ico-heart-red.png" alt=""><span>Poultice<small>+8 HP for everyone</small></span><b class="odds">40 <img src="../../../game/assets/img/ico/ico-coin.png" alt="petals"></b></button></li>
+      <li><button type="button" class="choice"><img src="../../../game/assets/img/ico/ico-speech.png" alt=""><span>Ask about the guardian<small>Learn its weak spot</small></span><b class="odds sure">Free</b></button></li>
+    </ul>
+  </div>
+</template>
+
+</body>
+</html>

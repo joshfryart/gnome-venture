@@ -1,0 +1,10 @@
+# Delve mockup 2: Dig down (side-on cross-section)
+Open `index.html` (art loads from `../../../game/assets/img`). `?theme=dark`, `?depth=1..5` for states. Shots: `phone.png` (412, dark), `desktop.png` (1400, light).
+
+**Concept.** The delve is a cut-away of the earth: Root tangle, Red clay, Crystal vein, Old bones, Ember deep. The shaft is the hero: a left rail (depth and danger) and a right rail (loot ×1 to ×4). You stand in a layer that opens into a strip: West tunnel (find), East tunnel (fight), Dig down (1 light), Rope down (2 light, skips the trap roll). Layers you cannot light stay dark.
+**Push your luck.** Light (lantern pips) pays for every move; at 0 you can only climb. Loot sits in two trays: Safe (above your anchor) and At risk. Anchor costs 1 light and makes everything safe. Knocked out = you lose the at-risk tray. Climb out opens a `<dialog>` showing the full haul.
+**Puzzle Pals.** Up to 2 pals stand beside the gnome in the strip and in a Party card (HP bar, Lv badge, perk line). A pal at 0 HP greys out and stops its perk (Grotto Glim's "see one layer further").
+
+**What changes vs today.** Today: 5 rooms in a row (or an 11x11 tile map), 1 energy per room (free with a lantern), and you keep everything even if knocked out. New: 5 layers with a side choice each, a light budget instead of energy per room, anchors, and real loss below the anchor. `delve_next`/`delve_chest`/creature picks/`delve_rooms.txt` lines can be reused per layer; `walk_scene` state becomes `{depth, light, anchor, used, risk[]}`; the tile map (`delve_map.php`) would be retired for delves.
+**Risks.** Losing loot is new and less cosy: keep the loss to the at-risk tray, never Petals already banked, and show it before every dig. Pals in fights need the party combat mode `plan-puzzle-pals.md` left out (P2). Lantern tiers must map to starting light (balance sim needed). Strata art is CSS gradients now; real pixel strips per landscape would be ~5 x 14 regions of art.
+**Effort.** L (new delve state + rules, pal combat, art). An M slice: same 5 rooms re-skinned as layers with the light pips and climb dialog, no loss and no pals.

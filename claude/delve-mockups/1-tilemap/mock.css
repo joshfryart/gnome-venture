@@ -1,0 +1,250 @@
+/* Delve mockup 1: top-down tile map. Loaded after game/assets/style.css; uses its tokens (--frame, --thread, --felt ...).
+   Pixel rules (art guide Part D): hard edges, no radius, no blurred shadows, whole-number tile scales (42 px = 1x, 84 px = 2x). */
+
+.dvpage main.dv { width: 100%; max-width: 1180px; margin: 0 auto; }
+.dvtheme { cursor: pointer; font: 700 16px/1 var(--font); min-width: 34px; justify-content: center; }
+
+/* cave colours: the map stays a cave in both themes; only the chrome around it follows the theme */
+.dv { --fog: #2a1a10; --fog-dot: #3d2a1c; --cave-edge: #4a2c1a; --torch: #f5cf6a; --t: 42px; --obj: 30px; --me: 38px; --mc: 6px; }
+
+/* ---- heading ---- */
+.dvhead { text-align: center; margin: 0 0 10px; }
+.dvhead h1 { display: inline-block; margin: 0 0 4px; padding-left: 6px; padding-right: 6px; }
+.dvmeta { margin: 0; color: var(--muted); font-size: 14px; font-weight: 600; }
+
+/* ---- layout: phone = one column; HUD and minimap share the top row ---- */
+.dvlay { display: grid; gap: 12px; justify-content: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "hud mini" "map map" "ctx ctx" "log log" "party party" "more more"; }
+.dvhud { grid-area: hud; } .dvmini { grid-area: mini; } .dvmapbox { grid-area: map; } .dvctx { grid-area: ctx; }
+.dvlog { grid-area: log; } .dvparty { grid-area: party; } .dvmore { grid-area: more; }
+
+/* ---- HUD ---- */
+.dvhud, .dvmini, .dvctx, .dvpal { background: var(--surface); box-shadow: var(--frame); }
+.dvhud { padding: 8px 10px; display: grid; gap: 6px; align-content: center; min-width: 0; }
+.dvrow { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dvi { width: 24px; height: 24px; flex: none; image-rendering: auto; }
+.dvnum { font: 800 13px/1 var(--font); font-variant-numeric: tabular-nums; color: var(--ink); min-width: 38px; text-align: right; }
+.dvbar { position: relative; flex: 1; min-width: 0; height: 12px; background: var(--fog); box-shadow: 0 0 0 2px var(--ol); }
+.dvbar.sm { height: 8px; flex: none; width: 100%; }
+.dvfill { display: block; height: 100%; background: #7ab55c; box-shadow: inset 0 2px 0 0 #a4b86a, inset 0 -2px 0 0 #2f5a2a; transition: width .4s steps(4); }
+.dvhpbar .dvfill { background: #d6322b; box-shadow: inset 0 2px 0 0 #f08a24, inset 0 -2px 0 0 #a8241f; }
+.dvfill.low { background: #e0501f; box-shadow: inset 0 2px 0 0 #f08a24, inset 0 -2px 0 0 #a8241f; }
+.dvfill.w0 { width: 0%; } .dvfill.w5 { width: 5%; } .dvfill.w10 { width: 10%; } .dvfill.w15 { width: 15%; } .dvfill.w20 { width: 20%; } .dvfill.w25 { width: 25%; } .dvfill.w30 { width: 30%; } .dvfill.w35 { width: 35%; } .dvfill.w40 { width: 40%; } .dvfill.w45 { width: 45%; } .dvfill.w50 { width: 50%; } .dvfill.w55 { width: 55%; } .dvfill.w60 { width: 60%; } .dvfill.w65 { width: 65%; } .dvfill.w70 { width: 70%; } .dvfill.w75 { width: 75%; } .dvfill.w80 { width: 80%; } .dvfill.w85 { width: 85%; } .dvfill.w90 { width: 90%; } .dvfill.w95 { width: 95%; } .dvfill.w100 { width: 100%; }
+.dvsegs { flex: 1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; height: 12px; min-width: 0; }
+.dvsegs i { background: var(--fog); box-shadow: inset 0 0 0 1px var(--fog-dot); }
+.dvsegs i.on { background: #f08a24; box-shadow: inset 0 2px 0 0 #f5cf6a; }
+.dvsegs i.on.low { background: #d6322b; box-shadow: inset 0 2px 0 0 #f08a24; animation: dvLow 1s steps(2) infinite; }
+.dvpockets { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dvpk { position: relative; display: inline-grid; place-items: center; width: var(--tap); height: var(--tap); padding: 0; margin: 0; border: 0;
+  background: var(--surface-2); box-shadow: var(--frame-lite); cursor: pointer; color: inherit; }
+.dvpk img { width: 32px; height: 32px; }
+.dvpk:hover:not(:disabled) { background: var(--accent-soft); }
+.dvpk:disabled { cursor: default; }
+.dvpk:disabled img { opacity: .55; }
+.dvct { position: absolute; right: -4px; bottom: -4px; min-width: 18px; padding: 1px 4px; background: var(--badge-bg); color: var(--on-fill);
+  font: 800 11px/14px var(--font); text-align: center; box-shadow: 0 0 0 2px var(--ol); }
+.dvkey { cursor: default; }
+.dvkey img { filter: grayscale(1) brightness(.5); opacity: .45; }
+.dvkey.got { background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent); }
+.dvkey.got img { filter: none; opacity: 1; animation: dvPop .5s cubic-bezier(.2, 1.6, .4, 1); }
+.dvpk.bump { animation: dvBump .5s cubic-bezier(.2, 1.6, .4, 1); }
+.dvfinds { display: inline-flex; gap: 3px; margin-left: auto; padding-left: 4px; }
+.dvfinds i { width: 8px; height: 8px; background: var(--fog); box-shadow: 0 0 0 1px var(--line-2); transform: rotate(45deg); }
+.dvfinds i.on { background: var(--accent); box-shadow: 0 0 0 1px #b07a10; }
+
+/* ---- minimap ---- */
+.dvmini { padding: 8px; display: grid; justify-items: center; align-content: center; gap: 4px; }
+.dvminimap { display: grid; grid-template-columns: repeat(15, var(--mc)); grid-auto-rows: var(--mc); background: var(--fog); box-shadow: 0 0 0 2px var(--ol); }
+.dvminimap i.f { background: #9a6b3f; }
+.dvminimap i.w { background: #4a2c1a; }
+.dvminimap i.item { background: #7ab55c; }
+.dvminimap i.gold { background: #e8a317; }
+.dvminimap i.ember { background: #e0501f; }
+.dvminimap i.poi { background: #a9d6ea; }
+.dvminimap i.me { background: #f2e4c0; box-shadow: 0 0 0 1px #2a1a10; animation: dvLow 1.2s steps(2) infinite; position: relative; z-index: 1; }
+.dvcap { margin: 0; font: 700 11px/1 var(--font); color: var(--muted); letter-spacing: .04em; }
+
+/* ---- the map ---- */
+.dvmapbox { position: relative; justify-self: center; padding: 6px; background: var(--felt) url("../../../game/assets/img/ui/felt-umber.png") 0 0 / 32px 32px repeat;
+  image-rendering: pixelated; box-shadow: var(--frame); }
+.dvmapbox::before, .dvmapbox::after { content: ''; position: absolute; left: 6px; right: 6px; height: 2px; background: var(--hem); pointer-events: none; }
+.dvmapbox::before { top: 2px; } .dvmapbox::after { bottom: 2px; }
+.dvmap { --cols: 9; --rows: 9; display: grid; grid-template-columns: repeat(var(--cols), var(--t)); grid-auto-rows: var(--t);
+  background: var(--fog);
+  box-shadow: 0 0 0 2px var(--ol); overflow: hidden; }
+@media (max-width: 399px) { .dvmap { --cols: 7; } }
+.dvmap.walking { pointer-events: none; }
+.dvmap.hurt { animation: dvHurt .3s steps(3); }
+
+.t { position: relative; display: block; width: var(--t); height: var(--t); padding: 0; margin: 0; border: 0; background: transparent 0 0 / 100% 100% no-repeat;
+  image-rendering: pixelated; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent; }
+.t.fog { background: transparent; cursor: default; }
+.t.f1 { background-image: url("../../../game/assets/img/trek/trek-floor-u-1.png"); }
+.t.f2 { background-image: url("../../../game/assets/img/trek/trek-floor-u-2.png"); }
+.t.f3 { background-image: url("../../../game/assets/img/trek/trek-floor-u-3.png"); }
+.t.roots { background-image: url("../../../game/assets/img/trek/trek-roots-u.png"); }
+.t.mud { background-image: url("../../../game/assets/img/trek/trek-mud-u.png"); }
+.t.wall { cursor: default; }
+/* walls auto-join from the trek sheet (RPG Maker A2 style): four 21 px quarters per tile, picked by the 8 neighbours in mock.js */
+.t .q { position: absolute; width: 50%; height: 50%; background: url("../../../game/assets/img/trek/trek-wall-u-auto.png") 0 0 / 400% 600% no-repeat; image-rendering: pixelated; pointer-events: none; }
+.t .q.tl { left: 0; top: 0; } .t .q.tr { right: 0; top: 0; } .t .q.bl { left: 0; bottom: 0; } .t .q.br { right: 0; bottom: 0; }
+.t .q.s00 { background-position: 0.0% 0%; } .t .q.s10 { background-position: 33.333% 0%; } .t .q.s20 { background-position: 66.667% 0%; } .t .q.s30 { background-position: 100.0% 0%; }
+.t .q.s01 { background-position: 0.0% 20%; } .t .q.s11 { background-position: 33.333% 20%; } .t .q.s21 { background-position: 66.667% 20%; } .t .q.s31 { background-position: 100.0% 20%; }
+.t .q.s02 { background-position: 0.0% 40%; } .t .q.s12 { background-position: 33.333% 40%; } .t .q.s22 { background-position: 66.667% 40%; } .t .q.s32 { background-position: 100.0% 40%; }
+.t .q.s03 { background-position: 0.0% 60%; } .t .q.s13 { background-position: 33.333% 60%; } .t .q.s23 { background-position: 66.667% 60%; } .t .q.s33 { background-position: 100.0% 60%; }
+.t .q.s04 { background-position: 0.0% 80%; } .t .q.s14 { background-position: 33.333% 80%; } .t .q.s24 { background-position: 66.667% 80%; } .t .q.s34 { background-position: 100.0% 80%; }
+.t .q.s05 { background-position: 0.0% 100%; } .t .q.s15 { background-position: 33.333% 100%; } .t .q.s25 { background-position: 66.667% 100%; } .t .q.s35 { background-position: 100.0% 100%; }
+
+/* light: three hard bands from the torch, then memory (seen, not lit). No soft gradient: steps, like the art. */
+.t.l2 { filter: brightness(.84); }
+.t.l3 { filter: brightness(.64) saturate(.8); animation: dvFlicker 1.6s steps(2) infinite; }
+.t.dim { filter: brightness(.36) saturate(.45) sepia(.35); }
+.t.wall.dim { filter: brightness(.42) saturate(.4) sepia(.3); }
+.t.l1::after { content: ''; position: absolute; inset: 0; background: rgba(245, 207, 106, .13); pointer-events: none; }
+.t.new { animation: dvReveal .42s steps(3) both; }
+.t.new.n2 { animation-delay: .05s; } .t.new.n3 { animation-delay: .1s; } .t.new.n4 { animation-delay: .15s; }
+.t:not(.fog):not(.wall):not(.me):hover { box-shadow: inset 0 0 0 2px rgba(242, 228, 192, .55); }
+.t:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; z-index: 2; }
+.t.nope { animation: dvHurt .3s steps(3); }
+
+/* things on tiles */
+.t .obj { position: absolute; left: 50%; top: 50%; width: var(--obj); height: var(--obj); margin: calc(var(--obj) / -2) 0 0 calc(var(--obj) / -2); pointer-events: none; image-rendering: auto; }
+.t.pick .obj { animation: dvBob 1.4s steps(2) infinite; }
+.t.pick::before { content: ''; position: absolute; left: 50%; bottom: 6px; width: 18px; height: 4px; margin-left: -9px; background: rgba(42, 26, 16, .42); }
+.t.foe::before { content: ''; position: absolute; inset: 4px; background: url("../../../game/assets/img/trek/trek-token-ember.png") center / 100% 100% no-repeat; image-rendering: pixelated; }
+.t.foe .obj { animation: dvBob .9s steps(2) infinite; }
+.t.trap .obj { width: 24px; height: 24px; margin: -12px 0 0 -12px; image-rendering: pixelated; animation: dvLow 1s steps(2) infinite; }
+.t .o-C, .t .o-B { image-rendering: auto; }
+.t .o-B { --obj: calc(var(--t) * .92); }
+.t.near { outline: 2px dashed var(--torch); outline-offset: -4px; }
+.t.dim .obj { animation: none; }
+.t.me { cursor: default; z-index: 1; }
+.t .meimg { position: absolute; left: 50%; bottom: 1px; width: var(--me); height: auto; margin-left: calc(var(--me) / -2); image-rendering: pixelated; pointer-events: none; }
+.dvmap.walking .meimg { animation: dvStep .12s steps(2) infinite; }
+
+/* ---- the find moment: art jumps out, a felt card rises over the bottom of the map ---- */
+.dvfind { position: absolute; left: 50%; bottom: 18px; z-index: 5; display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100% - 24px);
+  padding: 8px 16px 8px 10px; margin: 0; transform: translateX(-50%); background: var(--felt); color: var(--felt-ink); box-shadow: 0 0 0 2px var(--ol), 4px 4px 0 0 rgba(42, 26, 16, .5); }
+.dvfind::before { content: ''; position: absolute; left: 4px; right: 4px; top: 3px; height: 2px; background: var(--hem); }
+.dvfind img { position: relative; width: 64px; height: 64px; margin-top: -30px; image-rendering: pixelated; }
+.dvfindtx { display: grid; text-align: left; line-height: 1.2; }
+.dvfindtx b { font-size: 17px; font-weight: 800; color: var(--thread-bright); }
+.dvfindtx small { color: var(--felt-muted); font-size: 13px; }
+.dvfind.go { animation: dvRise .5s cubic-bezier(.16, 1, .3, 1) both, dvSink .3s ease-in 2.3s forwards; }
+.dvfind.go img { animation: dvPop .6s cubic-bezier(.2, 1.7, .4, 1) .08s both; }
+.dvburst { position: absolute; left: 42px; top: 2px; width: 0; height: 0; }
+.dvburst i { position: absolute; width: 6px; height: 6px; background: var(--thread-bright); opacity: 0; }
+.dvfind.go .dvburst i { animation: dvSpark .6s steps(4) .12s both; }
+.dvburst i:nth-child(1) { --dx: -38px; --dy: -30px; } .dvburst i:nth-child(2) { --dx: 34px; --dy: -34px; background: #f2e4c0; }
+.dvburst i:nth-child(3) { --dx: -46px; --dy: 4px; background: #7ab55c; } .dvburst i:nth-child(4) { --dx: 44px; --dy: 0; }
+.dvburst i:nth-child(5) { --dx: -10px; --dy: -50px; background: #f6b8cf; } .dvburst i:nth-child(6) { --dx: 14px; --dy: -46px; background: #a9d6ea; }
+
+/* ---- what is next to you ---- */
+.dvctx { display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 8px 10px; justify-self: center; width: 100%; max-width: 560px; }
+.dvctximg { width: 32px; height: 32px; flex: none; image-rendering: auto; }
+.dvctxtx { flex: 1; display: grid; min-width: 0; line-height: 1.25; text-align: left; }
+.dvctxtx b { font-weight: 800; }
+.dvctxtx small { color: var(--muted); font-size: 13px; }
+.dvctx .btn { flex: none; min-width: 112px; }
+.dvctx.idle .dvctximg { width: 24px; height: 24px; image-rendering: pixelated; opacity: .7; }
+.dvlog { margin: -4px 0 0; text-align: center; color: var(--muted); font-size: 14px; font-style: italic; min-height: 21px; }
+.dvlog.say { animation: dvLog .6s steps(3); }
+
+/* ---- Puzzle Pals party ---- */
+.dvparty { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; justify-self: center; width: 100%; max-width: 560px; }
+.dvpal { position: relative; display: grid; justify-items: center; align-content: start; gap: 4px; padding: 8px 6px 8px; text-align: center; min-width: 0; }
+.dvpal.me { background: var(--brand-soft); }
+.dvpic { display: grid; place-items: center; width: 64px; height: 64px; }
+.dvpic img { image-rendering: pixelated; }
+.dvpal b { font-size: 13px; line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
+.dvpal small { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dvperk { display: inline-flex; align-items: center; gap: 3px; }
+.dvperk img { width: 16px; height: 16px; image-rendering: pixelated; }
+.dvlv { position: absolute; top: 6px; right: 6px; padding: 2px 5px; background: var(--felt); color: var(--thread-bright); font: 800 11px/1.2 var(--font); box-shadow: 0 0 0 2px var(--ol); }
+.dvpal .dvbar.sm { width: calc(100% - 12px); }
+
+.dvmore { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 16px; }
+.dvmore details.fold { margin: 0; }
+.dvrules { margin: 0 0 8px; padding-left: 20px; text-align: left; color: var(--ink-2); font-size: 14px; }
+
+/* ---- dialogs ---- */
+dialog.dvdlg { width: min(380px, calc(100% - 24px)); max-width: none; margin: auto; border: 0; padding: 18px 16px 16px; background: var(--surface); color: var(--ink);
+  box-shadow: var(--shadow-2); text-align: center; overscroll-behavior: contain; }
+dialog.dvdlg::backdrop { background: rgba(42, 26, 16, .6); }
+.dvdlg h2 { margin: 6px 0 10px; }
+.dvsub { color: var(--muted); font-size: 14px; }
+.dvbtns { display: flex; justify-content: center; gap: 8px; margin: 12px 0 0; }
+.dvfoe { width: 96px; height: 96px; image-rendering: pixelated; }
+.dvchestart { position: relative; width: 128px; height: 128px; margin: -4px auto 0; }
+.dvchestart img { position: absolute; inset: 0; width: 128px; height: 128px; image-rendering: pixelated; z-index: 1; }
+.dvchest.open .lid { animation: dvLid .7s cubic-bezier(.2, 1.6, .4, 1) .15s both; }
+.dvrays { position: absolute; left: 50%; top: 46%; width: 260px; height: 260px; margin: -130px 0 0 -130px; opacity: 0; z-index: 0;
+  background: repeating-conic-gradient(rgba(245, 207, 106, .38) 0 10deg, transparent 10deg 30deg); clip-path: circle(50%); }
+.dvchest.open .dvrays { animation: dvRays .5s steps(3) .3s forwards, dvSpin 18s linear .3s infinite; }
+.dvchest.big .dvrays { background: repeating-conic-gradient(rgba(245, 207, 106, .55) 0 10deg, transparent 10deg 22deg); }
+.dvloot { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); gap: 8px; margin: 0; padding: 0; }
+.dvloot li { display: grid; justify-items: center; gap: 2px; padding: 8px 4px; background: var(--surface-2); box-shadow: var(--frame-lite); }
+.dvloot li img { width: 48px; height: 48px; image-rendering: pixelated; }
+.dvloot li b { font-size: 13px; line-height: 1.2; }
+.dvloot li span { font: 800 13px/1 var(--font); color: var(--accent-ink); }
+.dvloot li.r-r { box-shadow: 0 0 0 2px var(--r-r); }
+.dvloot li.r-l { box-shadow: 0 0 0 2px var(--accent); background: var(--accent-soft); }
+.dvchest.open .dvloot li { animation: dvPop .45s cubic-bezier(.2, 1.6, .4, 1) both; }
+.dvloot li.d0 { animation-delay: .55s !important; } .dvloot li.d1 { animation-delay: .7s !important; } .dvloot li.d2 { animation-delay: .85s !important; } .dvloot li.d3 { animation-delay: 1s !important; }
+.dvloot.list { grid-template-columns: 1fr; }
+.dvloot.list li { grid-template-columns: 32px 1fr auto; align-items: center; justify-items: start; padding: 6px 10px; gap: 10px; }
+.dvloot.list li img { width: 32px; height: 32px; }
+.dvempty { color: var(--muted); }
+
+/* ---- motion ---- */
+@keyframes dvReveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dvFlicker { 50% { filter: brightness(.58) saturate(.8); } }
+@keyframes dvLow { 50% { opacity: .55; } }
+@keyframes dvBob { 50% { transform: translateY(-2px); } }
+@keyframes dvStep { 50% { transform: translateY(-2px); } }
+@keyframes dvHurt { 33% { transform: translateX(-4px); } 66% { transform: translateX(4px); } }
+@keyframes dvPop { from { transform: scale(.4) translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes dvBump { 40% { transform: translateY(-6px); } }
+@keyframes dvRise { from { transform: translate(-50%, 24px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+@keyframes dvSink { to { transform: translate(-50%, 10px); opacity: 0; } }
+@keyframes dvSpark { 0% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)); } }
+@keyframes dvLid { from { transform: none; } to { transform: translateY(-30px) rotate(-10deg); } }
+@keyframes dvRays { to { opacity: 1; } }
+@keyframes dvSpin { to { transform: rotate(360deg); } }
+@keyframes dvLog { 0% { color: var(--accent-ink); } }
+@media (prefers-reduced-motion: reduce) {
+  .dv *, .dvdlg * { animation-duration: .01s !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+
+/* ---- light theme: the cave keeps its dark, the chrome goes cream ---- */
+:root:not([data-theme="dark"]) .dvmap { box-shadow: 0 0 0 2px var(--ol); }
+
+/* ---- 820 px and up: the same 9 columns at 2x, 7 rows so it fits a laptop screen ---- */
+@media (min-width: 820px) {
+  .dv { --t: 84px; --obj: 64px; --me: 76px; --mc: 8px; }
+  .dvmap { --cols: 9; --rows: 7; }
+  .t .obj { image-rendering: pixelated; }
+  .t.trap .obj { width: 48px; height: 48px; margin: -24px 0 0 -24px; }
+  .t.pick::before { width: 36px; height: 6px; margin-left: -18px; bottom: 12px; }
+  .t.foe::before { inset: 8px; }
+  .t.near { outline-width: 4px; outline-offset: -8px; }
+  .dvfind img { width: 96px; height: 96px; margin-top: -48px; }
+  .dvfindtx b { font-size: 20px; }
+  .dvlay { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "map map" "ctx ctx" "log log" "hud mini" "party party" "more more"; }
+  .dvmini { justify-self: start; }
+  .dvhud { max-width: 420px; justify-self: end; width: 100%; }
+}
+/* ---- 1200 px and up: map left, a side column with HUD, minimap and party ---- */
+@media (min-width: 1200px) {
+  .dvlay { grid-template-columns: auto 360px; align-items: start; justify-content: center; column-gap: 24px;
+    grid-template-rows: auto auto 1fr auto auto;
+    grid-template-areas: "map hud" "map mini" "map party" "ctx more" "log ."; }
+  .dvhud, .dvmini, .dvparty { align-self: start; }
+  .dvhud { max-width: none; justify-self: stretch; }
+  .dvmini { justify-self: stretch; }
+  .dv { --mc: 13px; }
+  .dvctx { max-width: none; }
+  .dvparty { max-width: none; }
+  .dvmore { justify-content: flex-start; }
+}

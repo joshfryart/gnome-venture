@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firefly Caves · Delve (mockup 4: diorama)</title>
+<link rel="stylesheet" href="mock.css">
+<script src="mock.js" defer></script>
+</head>
+<body>
+<header class="bar">
+  <span class="logo">Gnome Venture</span>
+  <span class="bar-pills"><span class="pill">⚡ 23</span><span class="pill gold">🌸 412</span>
+  <button class="pill thb" id="theme" type="button" aria-label="Switch light or dark">◐</button></span>
+</header>
+
+<main class="delve" id="delve" data-mode="explore" data-oil="6" data-stir="3" data-secret="0">
+  <div class="dv-head">
+    <a class="dv-back" href="#">← World</a>
+    <h1>Firefly Caves</h1>
+    <p class="dv-sub">
+      <span class="pips" aria-label="Chamber 2 of 5"><i class="done"></i><i class="here"></i><i></i><i></i><i class="boss"></i></span>
+      <span>Chamber <b>2</b>/5</span><span class="dot">·</span><span>Danger 6</span>
+    </p>
+    <button class="btn ghost small dv-out" type="button" data-open="dlg-out">🪜 Climb out</button>
+  </div>
+
+  <div class="dv-grid">
+    <section class="stagecol" aria-label="The chamber">
+      <div class="oil" id="oil">
+        <img class="oil-lamp pix" src="../../../game/assets/img/ph/glowcap-lantern.png" alt="" width="32" height="32">
+        <span class="oil-label">Lantern oil</span>
+        <ol class="oil-cells" aria-hidden="true"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+        <b class="oil-n" id="oil-n" role="status" aria-label="Oil left">6</b>
+        <details class="tip"><summary aria-label="How the lantern works">?</summary>
+          <div class="tip-body">
+            <p>Every action burns <b>1 oil</b>. The light shrinks.</p>
+            <p><span class="key quiet">Quiet</span> finds secrets, some refill oil.<br><span class="key loud">Loud</span> grabs more but wakes things.</p>
+            <p>At 0 oil: climb out, or feel your way (harder rolls).</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="scene" id="scene">
+        <svg class="sc-art" viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true">
+          <rect class="c-void" width="160" height="120"/>
+          <!-- far wall strata -->
+          <rect class="c-wall" x="0" y="10" width="160" height="70"/>
+          <rect class="c-strata" x="14" y="40" width="44" height="2"/><rect class="c-strata" x="84" y="52" width="40" height="2"/>
+          <rect class="c-strata" x="20" y="58" width="30" height="2"/><rect class="c-strata" x="96" y="30" width="26" height="2"/>
+          <rect class="c-strata2" x="60" y="62" width="22" height="2"/><rect class="c-strata2" x="36" y="50" width="12" height="2"/>
+          <!-- exit tunnel -->
+          <polygon class="c-hole" points="128,58 128,40 130,40 130,34 134,34 134,30 142,30 142,34 146,34 146,40 148,40 148,58"/>
+          <rect class="c-holeglow" x="134" y="40" width="8" height="18"/>
+          <rect class="c-holeglow2" x="136" y="46" width="4" height="12"/>
+          <!-- crack -->
+          <polyline class="c-crack" points="72,16 74,22 71,28 75,34 72,40 76,46 74,52"/>
+          <polyline class="c-crackglow" points="72,16 74,22 71,28 75,34 72,40 76,46 74,52"/>
+          <!-- ceiling + stalactites -->
+          <polygon class="c-rock" points="0,0 160,0 160,14 150,14 150,18 140,18 140,12 128,12 128,20 120,20 120,12 104,12 104,16 92,16 92,10 80,10 80,13 64,13 64,9 48,9 48,14 36,14 36,20 28,20 28,12 16,12 16,17 8,17 8,22 0,22"/>
+          <polygon class="c-rock" points="30,20 34,20 34,26 33,26 33,31 31,31 31,26 30,26"/>
+          <polygon class="c-rock" points="54,13 58,13 58,18 57,18 57,24 55,24 55,18 54,18"/>
+          <polygon class="c-rock" points="98,15 102,15 102,21 101,21 101,27 99,27 99,21 98,21"/>
+          <polygon class="c-rock" points="122,19 126,19 126,24 125,24 125,29 123,29 123,24 122,24"/>
+          <rect class="c-drip" x="100" y="30" width="1" height="2"/>
+          <!-- side walls -->
+          <polygon class="c-rock" points="0,22 10,22 10,40 14,40 14,70 10,70 10,96 0,96"/>
+          <polygon class="c-rock" points="160,14 152,14 152,30 149,30 149,62 154,62 154,96 160,96"/>
+          <rect class="c-rocklit" x="10" y="40" width="2" height="30"/><rect class="c-rocklit" x="14" y="40" width="1" height="30"/>
+          <!-- moss ledge with glowcaps -->
+          <polygon class="c-ledge" points="14,34 44,34 44,37 40,37 40,39 18,39 18,37 14,37"/>
+          <rect class="c-moss" x="14" y="32" width="30" height="3"/>
+          <rect class="c-moss2" x="18" y="31" width="8" height="2"/><rect class="c-moss2" x="32" y="31" width="10" height="2"/>
+          <rect class="c-moss2" x="21" y="39" width="1" height="4"/><rect class="c-moss2" x="35" y="39" width="1" height="6"/><rect class="c-moss2" x="28" y="39" width="1" height="2"/>
+          <g class="glowcaps">
+            <rect class="c-stem" x="21" y="27" width="1" height="4"/><rect class="c-cap" x="19" y="25" width="5" height="2"/><rect class="c-cap" x="20" y="24" width="3" height="1"/>
+            <rect class="c-stem" x="27" y="28" width="1" height="3"/><rect class="c-cap" x="26" y="27" width="3" height="1"/>
+            <rect class="c-stem" x="37" y="26" width="1" height="5"/><rect class="c-cap" x="35" y="24" width="5" height="2"/><rect class="c-cap" x="36" y="23" width="3" height="1"/>
+            <rect class="c-stem" x="41" y="28" width="1" height="3"/><rect class="c-cap" x="40" y="27" width="3" height="1"/>
+          </g>
+          <!-- floor -->
+          <polygon class="c-floor" points="0,96 10,96 10,80 22,80 22,76 60,76 60,74 110,74 110,76 146,76 146,80 154,80 154,96 160,96 160,120 0,120"/>
+          <rect class="c-floorlit" x="22" y="76" width="38" height="1"/><rect class="c-floorlit" x="60" y="74" width="50" height="1"/><rect class="c-floorlit" x="110" y="76" width="36" height="1"/>
+          <polygon class="c-floor2" points="0,108 18,108 18,104 70,104 70,106 120,106 120,103 160,103 160,120 0,120"/>
+          <rect class="c-pebble" x="38" y="88" width="3" height="2"/><rect class="c-pebble" x="84" y="84" width="2" height="1"/>
+          <rect class="c-pebble" x="128" y="92" width="4" height="2"/><rect class="c-pebble" x="66" y="98" width="2" height="2"/>
+          <rect class="c-pebble2" x="118" y="84" width="2" height="1"/><rect class="c-pebble2" x="50" y="94" width="2" height="1"/>
+          <!-- puddle -->
+          <polygon class="c-pool" points="92,95 96,95 96,94 110,94 110,95 114,95 114,98 108,98 108,99 98,99 98,98 92,98"/>
+          <rect class="c-poollit" x="98" y="96" width="6" height="1"/><rect class="c-poollit" x="106" y="95" width="2" height="1"/>
+        </svg>
+
+        <!-- creatures and things (real game art) -->
+        <span class="spr beetle" id="beetle"><img class="pix" src="../../../game/assets/img/ph/creature-bellcap-beetle.png" alt="Bellcap Beetle, asleep"></span>
+        <span class="zzz" aria-hidden="true"><i class="z1">z</i><i class="z2">z</i><i class="z3">Z</i></span>
+        <span class="spr chest" id="chest"><img class="pix" src="../../../game/assets/img/chest.png" alt="An old chest"></span>
+        <span class="spr bead" aria-hidden="true"><img class="pix" src="../../../game/assets/img/ph/glowing-bead.png" alt=""></span>
+
+        <span class="spr gnome" aria-label="You">
+          <img class="pix" src="../../../game/assets/img/gnome/gnome-shadow.png" alt="">
+          <img class="pix" src="../../../game/assets/img/gnome/gnome-body.png" alt="">
+          <img class="pix" src="../../../game/assets/img/gnome/gnome-face.png" alt="">
+          <img class="pix" src="../../../game/assets/img/gnome/gnome-beard.png" alt="">
+          <img class="pix" src="../../../game/assets/img/gnome/gnome-hat.png" alt="">
+          <i class="hat-tint"></i>
+          <img class="pix" src="../../../game/assets/img/gnome/gnome-band.png" alt="">
+        </span>
+        <span class="spr pal1"><img class="pix" src="../../../game/assets/img/puzzles/pals/cs-grotto-glim.png" alt="Grotto Glim"></span>
+        <span class="spr pal2"><img class="pix" src="../../../game/assets/img/puzzles/pals/dw-lantern-lark.png" alt="Lantern Lark"></span>
+        <span class="spr lamp" aria-hidden="true"><img class="pix" src="../../../game/assets/img/ph/glowcap-lantern.png" alt=""></span>
+
+        <span class="flies" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="dark" aria-hidden="true"></span>
+        <span class="warm" aria-hidden="true"></span>
+
+        <!-- hotspots -->
+        <button class="hs quiet" type="button" data-hs="moss" aria-pressed="true"><span class="hs-dot"></span><span class="hs-lab">Glowing moss</span></button>
+        <button class="hs quiet" type="button" data-hs="crack" aria-pressed="false"><span class="hs-dot"></span><span class="hs-lab">The crack</span></button>
+        <button class="hs loud" type="button" data-hs="chest" aria-pressed="false"><span class="hs-dot"></span><span class="hs-lab">Old chest</span></button>
+        <button class="hs loud" type="button" data-hs="beetle" aria-pressed="false"><span class="hs-dot"></span><span class="hs-lab">Sleeping beetle</span></button>
+        <button class="hs path" type="button" data-hs="exit" aria-pressed="false"><span class="hs-dot"></span><span class="hs-lab">Tunnel down</span></button>
+        <button class="hs secret" type="button" data-hs="nook" aria-pressed="false"><span class="hs-dot"></span><span class="hs-lab">Hidden nook</span></button>
+
+        <p class="sc-room">The Glowcap Gallery</p>
+        <p class="sc-banner" id="banner" role="status">Your turn</p>
+        <span class="foe-hp" aria-label="Beetle health"><b>Bellcap Beetle</b><progress id="foe-bar" max="12" value="12"></progress></span>
+        <span class="you-hp" aria-label="Your health"><b>Pip</b><progress id="you-bar" max="18" value="14"></progress></span>
+        <span class="pop" id="pop" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="tray" id="tray" aria-live="polite">
+        <div class="tc-head"><span class="tc-ico">🍄</span><h2 id="tc-title">Glowing moss</h2><span class="key quiet">Quiet</span></div>
+        <p class="tc-line" id="tc-line">Soft blue light. Are those letters?</p>
+        <div class="tc-acts" id="tc-acts">
+          <button class="act primary" type="button"><span class="a-ico">📖</span><span class="a-txt"><b>Read it</b><small>Lore · <span class="oilico"></span>1</small></span><span class="odds hi">70%</span></button>
+          <button class="act" type="button"><span class="a-ico">🧺</span><span class="a-txt"><b>Scrape some</b><small>+2 moss · wakes 1 · <span class="oilico"></span>1</small></span><span class="odds sure">sure</span></button>
+        </div>
+      </section>
+
+      <section class="party" aria-label="Party">
+        <h2 class="mini-h">Party</h2>
+        <ul class="party-row">
+          <li class="mem you">
+            <span class="mem-pic gnome-mini" aria-hidden="true">
+              <img class="pix" src="../../../game/assets/img/gnome/gnome-body.png" alt=""><img class="pix" src="../../../game/assets/img/gnome/gnome-face.png" alt=""><img class="pix" src="../../../game/assets/img/gnome/gnome-beard.png" alt=""><img class="pix" src="../../../game/assets/img/gnome/gnome-hat.png" alt=""><i class="hat-tint"></i><img class="pix" src="../../../game/assets/img/gnome/gnome-band.png" alt="">
+            </span>
+            <span class="mem-name">Pip</span><span class="lv">Lv 12</span>
+            <progress class="hp" id="hp-you" max="18" value="14"></progress><span class="hp-n" id="hpn-you">14/18</span>
+          </li>
+          <li class="mem">
+            <span class="mem-pic"><img class="pix" src="../../../game/assets/img/puzzles/pals/cs-grotto-glim.png" alt=""></span>
+            <span class="mem-name">Glim</span><span class="lv">Lv 6</span>
+            <progress class="hp" id="hp-glim" max="10" value="9"></progress><span class="hp-n" id="hpn-glim">9/10</span>
+          </li>
+          <li class="mem">
+            <span class="mem-pic"><img class="pix" src="../../../game/assets/img/puzzles/pals/dw-lantern-lark.png" alt=""></span>
+            <span class="mem-name">Lark</span><span class="lv">Lv 4</span>
+            <progress class="hp" id="hp-lark" max="8" value="8"></progress><span class="hp-n" id="hpn-lark">8/8</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="journal" aria-label="Journal">
+        <h2 class="mini-h">Journal</h2>
+        <ol class="j-list" id="j-list">
+          <li><span>🕯️</span>Lark lights the lantern.</li>
+          <li><span>🚪</span>Chamber 2: glowcaps hum on the walls.</li>
+          <li><span>🎁</span>Chamber 1: 2 Cave pearls.</li>
+        </ol>
+        <details class="fold j-more"><summary>Whole journal</summary>
+          <ol class="j-list old"><li><span>🪜</span>You climb down into Firefly Caves.</li><li><span>🎲</span>Nimble 14 vs 11: you slip past a drip trap.</li></ol>
+        </details>
+      </section>
+    </aside>
+  </div>
+
+  <details class="fold mock-states">
+    <summary>Mockup states</summary>
+    <p><a href="?">Explore</a> · <a href="?state=fight">Fight</a> · <a href="?state=dark">Out of oil</a> · <a href="?state=secret">Secret found</a></p>
+  </details>
+</main>
+
+<dialog id="dlg-out" class="dlg">
+  <h2>Climb out?</h2>
+  <p>You keep what you found. The chest stays shut.</p>
+  <form method="dialog" class="dlg-acts"><button class="btn" value="out">🪜 Climb out</button><button class="btn ghost" value="stay">Stay</button></form>
+</dialog>
+<dialog id="dlg-next" class="dlg">
+  <h2>Chamber 3: The Drip Hall</h2>
+  <p>Down you go. (The mockup ends here.)</p>
+  <form method="dialog" class="dlg-acts"><button class="btn" value="again">Play chamber 2 again</button></form>
+</dialog>
+</body>
+</html>
