@@ -287,7 +287,7 @@ const DV2_SIZE = ['small' => 'short', 'standard' => 'medium', 'large' => 'long']
 /** The strip under the map: the torch and your party (the gnome and the pals taken along, read only). */
 function dv2_party_html(array $u, array $exp, ?array $sc): string
 {
-    $o = '<div class="dv2strip"><div class="dv2top"><span class="dv2chip" title="Stage and danger level">Stage <b>' . min((int)$exp['steps_total'], (int)$exp['depth'] + 1) . '</b>/' . (int)$exp['steps_total'] . ' · ⚠️ ' . (int)$exp['level'] . '</span>';
+    $o = '<div class="dv2strip"><div class="dv2top"><span class="dv2chip">Stage <b>' . min((int)$exp['steps_total'], (int)$exp['depth'] + 1) . '</b>/' . (int)$exp['steps_total'] . ' · danger ' . (int)$exp['level'] . '</span>';
     if ($sc && !empty($sc['st']['f'])) {
         $f = $sc['st']['f'];
         $max = dv2_fuel((int)$u['id'], (string)$f['ti']);
@@ -330,10 +330,10 @@ function dv2_menu_html(array $u, array $exp, array $sc, bool $busy): string
             $was = in_array($n['id'], $picked, true);
             $known = $isChoice || $was || $n['kind'] === 'boss';
             [$ico, $label] = $known ? DV2_KIND[$n['kind']] : ['❔', 'Unknown'];
-            $size = $known && isset($n['tier']) ? ' <small>' . DV2_SIZE[$n['tier']] . '</small>' : '';
-            $cls = 'dv2node' . ($isChoice ? ' go' : '') . ($was ? ' was' : '') . (!$known ? ' unk' : '');
-            if ($isChoice) $o .= '<button type="submit" class="' . $cls . '" name="pick" value="' . e($n['id']) . '"><span class="dv2ico">' . $ico . '</span>' . e($label) . $size . '</button>';
-            else $o .= '<span class="' . $cls . '"><span class="dv2ico">' . $ico . '</span>' . ($known ? e($label) : '') . $size . '</span>';
+            $size = $known && isset($n['tier']) && $n['kind'] !== 'boss' ? ' <small>' . DV2_SIZE[$n['tier']] . '</small>' : '';
+            $cls = 'dv2node' . ($isChoice ? ' go' : '') . ($was ? ' was' : '') . (!$known ? ' unk' : '') . ($n['kind'] === 'boss' ? ' boss' : '');
+            if ($isChoice) $o .= '<button type="submit" class="' . $cls . '" name="pick" value="' . e($n['id']) . '"><span class="dv2ico" aria-hidden="true">' . $ico . '</span>' . e($label) . $size . '</button>';
+            else $o .= '<span class="' . $cls . '"' . ($known ? '' : ' role="img" aria-label="Not yet seen"') . '><span class="dv2ico" aria-hidden="true">' . $ico . '</span>' . ($known ? e($label) : '') . $size . '</span>';
         }
         $o .= '</div>';
     }
