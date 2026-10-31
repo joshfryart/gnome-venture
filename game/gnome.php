@@ -27,6 +27,12 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect('gnome.php');
     }
+    if ($do === 'drink') {   // Alchemy boost potions, from the Potions box
+        require_once __DIR__ . '/includes/alchemy.php';
+        [$ok, $msg] = alchemy_drink($u, (int)($_POST['item'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('gnome.php');
+    }
     if ($do === 'stat') {
         $sk = (string)($_POST['stat'] ?? '');
         [$ok, $msg] = spend_stat_point($u, $sk);
@@ -112,7 +118,7 @@ page_header('My Gnome');
   </div>
 </div>
 
-<?php if ($tab === 'overview' && !is_guest($u)) echo hp_card_html($u);   // v2.3.5 ?>
+<?php if ($tab === 'overview' && !is_guest($u)) { echo hp_card_html($u); require_once __DIR__ . '/includes/alchemy.php'; echo alchemy_card_html($u); }   // v2.3.5; Alchemy potions ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>
 <section class="palstrip" aria-label="Pals along">
   <div class="palhead"><b>🐾 Pals along · <?= count($eq) ?> of <?= ppal_party_max() ?></b>

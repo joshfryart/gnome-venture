@@ -100,3 +100,38 @@ function alchemy_count(int $uid, string $slug): int
     $id = alchemy_item_id($slug);
     return $id ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]) : 0;
 }
+
+/** Drink a boost potion (an edible ALCHEMY_ITEMS entry) from My Gnome. Returns [ok, message]. */
+function alchemy_drink(array $u, int $itemId): array
+{
+    $slug = (string)q_val('SELECT slug FROM items WHERE id = ?', [$itemId]);
+    if (empty(ALCHEMY_ITEMS[$slug][4])) return [false, 'That isn’t a potion you can drink.'];
+    require_once __DIR__ . '/gnome.php';
+    [$ok, $msgs] = eat_item($u, $itemId);
+    return [$ok, implode(' ', $msgs)];
+}
+
+/** My Gnome: the boost potions and Garden Tonic this gnome holds, with Drink buttons ('' when none). Healing tiers live in the Health box. */
+function alchemy_card_html(array $u): string
+{
+    require_once __DIR__ . '/crafting.php';   // buff_text
+    $uid = (int)$u['id'];
+    $slugs = array_keys(ALCHEMY_ITEMS);
+    $ph = implode(',', array_fill(0, count($slugs), '?'));
+    $rows = q("SELECT i.id, i.slug, i.name, i.effects, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id
+               WHERE ui.user_id = ? AND ui.qty > 0 AND i.slug IN ($ph) ORDER BY i.name", array_merge([$uid], $slugs))->fetchAll();
+    $b = '';
+    foreach ($rows as $r) {
+        $slug = (string)$r['slug'];
+        if (isset(ALCHEMY_HEAL[$slug])) continue;
+        if (!empty(ALCHEMY_ITEMS[$slug][4])) {
+            $b .= '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="drink"><input type="hidden" name="item" value="' . (int)$r['id'] . '">'
+                . '<button class="btn small">🧪 ' . e($r['name']) . ' ×' . (int)$r['qty'] . ' ' . e(buff_text((string)$r['effects'], $u)) . '</button></form> ';
+        } elseif ($slug === 'garden-tonic') {
+            $b .= '<a class="btn small alt" href="' . e(url('garden.php')) . '">🪴 Garden Tonic ×' . (int)$r['qty'] . ': pour it on a square</a> ';
+        }
+    }
+    if ($b === '') return '';
+    return '<section class="box hpcard" aria-label="Potions"><div class="hphead"><b>🧪 Potions</b></div>'
+        . '<p class="help">A drink takes the place of your meal buff.</p><div class="hpuse">' . $b . '</div></section>';
+}

@@ -16,6 +16,11 @@ if (is_post()) {
         refresh_energy($u);
         [$ok, $msgs] = eat_item($u, (int)($_POST['item_id'] ?? 0));
         if ($msgs) flash(implode(' ', $msgs), $ok ? 'ok' : 'err');   // one message box for the whole meal
+    } elseif (($_POST['do'] ?? '') === 'drink_heal') {   // Alchemy: a healing tier, from the Satchel
+        require_once __DIR__ . '/includes/health.php';
+        require_once __DIR__ . '/includes/adventure.php';   // hp_use reads active_expedition()
+        [$ok, $msg] = hp_use($u, 'potion', (int)($_POST['item_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
     } elseif (($_POST['do'] ?? '') === 'open_packet') {   // v0.9.9: open a seed packet
         require_once __DIR__ . '/includes/flowers.php';
         [$ok, $msg] = packet_open($u, (int)($_POST['item_id'] ?? 0));

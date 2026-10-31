@@ -58,5 +58,16 @@ give bladderwrack 2; give meadowsweet 1; give sphagnum 1; R7=$(db "SELECT id FRO
 T=$(db "SELECT COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='garden-tonic'),0)"); [ "$T" = 2 ] || echo "FAIL garden tonic makes $T (want 2)"
 page "inventory.php?tab=craft&c=potions"; for w in draught tonic healing elixir brew; do grep -q "c=potions&amp;q=$w#shelves" /tmp/c.html || echo "FAIL potions scene has no q=$w object"; done
 page "inventory.php?tab=craft&c=potions&q=healing"; echo "healing search: $(grep -c 'shpill' /tmp/c.html) pills"
+echo "-- player uses: Satchel Drink for a healing tier, My Gnome Potions box, tonic pointer"
+dbx "UPDATE users SET hp=1, hp_at=datetime('now') WHERE id=$UID_"
+page "inventory.php"; grep -q 'Drink (+75% health)' /tmp/c.html || echo "FAIL satchel has no Drink for the Strong Healing Potion"
+grep -q 'Pour on a garden square' /tmp/c.html || echo "FAIL satchel has no Garden Tonic pointer"
+SID=$(db "SELECT id FROM items WHERE slug='strong-healing-potion'")
+curl -s -c $C -b $C -X POST "$BASE/inventory.php" --data-urlencode "csrf=$(csrf /tmp/c.html)" -d do=drink_heal -d item_id=$SID -o /dev/null
+HP=$(db "SELECT COALESCE(hp,'full') FROM users WHERE id=$UID_"); [ "$HP" != 1 ] && echo "satchel drink healed: hp $HP" || echo "FAIL satchel Drink did not heal (hp $HP)"
+give lucky-draught 1; page "gnome.php"; grep -q 'aria-label="Potions"' /tmp/c.html || echo "FAIL My Gnome has no Potions box ($(grep -o '<title>[^<]*' /tmp/c.html), $(grep -c hpcard /tmp/c.html) cards, $(wc -c < /tmp/c.html) bytes)"
+LID=$(db "SELECT id FROM items WHERE slug='lucky-draught'")
+curl -s -c $C -b $C -X POST "$BASE/gnome.php" --data-urlencode "csrf=$(csrf /tmp/c.html)" -d do=drink -d item=$LID -o /dev/null
+B=$(db "SELECT buff FROM users WHERE id=$UID_"); [ "$B" = '{"luck":6}' ] && echo "My Gnome drink: buff $B" || echo "FAIL My Gnome drink buff: $B"
 php "$(dirname "$0")/alchemy.php" "$GAME" || echo "FAIL alchemy.php"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/craft-php.log || echo "(none)"

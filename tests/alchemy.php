@@ -119,6 +119,37 @@ for ($i = 0; $i < 60; $i++) {
 }
 ok("luck finds more over 60 trips ($a plain, $b lucky)", $b > $a);
 
+echo "== every potion has a player use\n";
+$u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+foreach (array_keys(ALCHEMY_ITEMS) + ['x' => 'healing-potion'] as $slug) {
+    $it = q_one('SELECT * FROM items WHERE slug = ?', [$slug]);
+    ok("$slug icon is the installed png", str_contains(item_icon($it), 'assets/img/ph/' . $slug . '.png'), item_icon($it));
+    $use = isset(ALCHEMY_HEAL[$slug]) ? 'heal' : (!empty(ALCHEMY_ITEMS[$slug][4]) ? 'drink' : ($it['category'] === 'soil' ? 'soil' : ''));
+    ok("$slug has a use ($use)", $use !== '');
+}
+foreach (['sages-draught', 'stoneskin-brew', 'swiftfoot-elixir', 'lucky-draught'] as $slug) {
+    give_item($uid, alchemy_item_id($slug), 1);
+    [$dk, $dm] = alchemy_drink($u, alchemy_item_id($slug));
+    $buff = json_decode((string)q_val('SELECT buff FROM users WHERE id = ?', [$uid]), true) ?: [];
+    ok("drink $slug from My Gnome", $dk && $buff === array_diff_key(ALCHEMY_ITEMS[$slug][5]['temp'], ['minutes' => 1]), $dm . ' ' . json_encode($buff));
+}
+[$dk] = alchemy_drink($u, alchemy_item_id('strong-healing-potion'));
+ok('alchemy_drink refuses a healing tier (Health box does those)', $dk === false);
+[$dk] = alchemy_drink($u, (int)q_val("SELECT id FROM items WHERE slug = 'chanterelle'"));
+ok('alchemy_drink refuses a non-potion', $dk === false);
+give_item($uid, alchemy_item_id('sages-draught'), 1); give_item($uid, alchemy_item_id('garden-tonic'), 1);
+$card = alchemy_card_html($u);
+ok('My Gnome Potions box: drink button and tonic link', str_contains($card, 'Sage’s Draught ×') && str_contains($card, 'name="do" value="drink"') && str_contains($card, 'Garden Tonic ×'), strip_tags($card));
+// Garden Tonic on the gnome's own plot
+$tonic = alchemy_item_id('garden-tonic');
+$t = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? AND user_id = ? AND plant_id IS NULL ORDER BY y, x LIMIT 1', [active_plot_id($uid), $uid]);
+q('UPDATE plot_tiles SET tilled = 1, feed_hours = 0, fertility = 40, n = 40, p = 40, k = 40 WHERE id = ?', [$t['id']]);
+q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]);
+$before = have($uid, 'garden-tonic');
+[$gk, $gm] = garden_action($uid, 'soil', (int)$t['x'], (int)$t['y'], $tonic);
+ok('pour Garden Tonic on a square', $gk === true && have($uid, 'garden-tonic') === $before - 1, implode(' ', (array)$gm));
+ok('the square is feeding', (int)q_val('SELECT feed_hours FROM plot_tiles WHERE id = ?', [$t['id']]) > 0);
+
 echo "== scene hotspots: every potions object finds a recipe, every recipe has an object\n";
 $hot = (require APP_ROOT . '/includes/data/craft_scenes.php')['potions']['hot'];
 $names = q("SELECT name FROM recipes WHERE category = 'potions'")->fetchAll(PDO::FETCH_COLUMN);
