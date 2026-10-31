@@ -9,7 +9,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, '..', 'game', 'includes', 'data')
 SRC = open(os.path.join(HERE, '..', 'game', 'includes', 'puzzle_pals.php'), encoding='utf-8').read()
 EFFECTS = set(re.findall(r"^\s*'([a-z]+)' => \['[^']+', \[", SRC.split('const PPAL_EFFECTS = [', 1)[1].split('];', 1)[0], re.M))
-ACTIVES = set(re.findall(r"'([a-z]+)'", SRC.split('const PPAL_ACTIVES = [', 1)[1].split('];', 1)[0]))
+ACTIVES = set(re.findall(r"^\s*'([a-z]+)' => \[\d", SRC.split('const PPAL_ACTIVES = [', 1)[1].split('];', 1)[0], re.M))
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]

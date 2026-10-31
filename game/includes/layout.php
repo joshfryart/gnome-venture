@@ -466,6 +466,7 @@ function adventure_topbar(array $u): string
         $actions = $btn('attack', '⚔️ Attack')
             . (!empty($enc['used']) ? '<button class="btn small" disabled title="' . e($abDesc) . '">✨ ' . e($abName) . ' (used)</button>'
                                     : $btn('ability', '✨ ' . e($abName), '', ' title="' . e($abDesc . ' Once per fight.') . '"'))
+            . (function_exists('ppal_boons_on') && ppal_boons_on() ? implode('', array_map(fn($pa) => $pa['used'] ? '<button class="btn small" disabled>✨ ' . e($pa['title']) . ' (used)</button>' : $btn($pa['do'], '✨ ' . e($pa['title']), '', ' title="' . e($pa['sub']) . '"'), ppal_fight_actives($u, $enc))) : '')
             . $btn('flee', '🏃 Run')
             . (can_fight_on($exp) ? $btn('fighton', '⏩ Fight on') : '')   // v1.3.0
             . fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => $btn($do, $label, $extra, ' class="snackform"'));   // v1.4.0
@@ -483,6 +484,7 @@ function adventure_topbar(array $u): string
         $actionsRow = '<div class="choices advchoices">'
             . $cbtn('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage', [$hitPct . '%', choice_odds_class($hitPct)], 'primary')
             . (!empty($enc['used']) ? $cbtn('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : $cbtn('ability', '✨', $abName, 'Once per fight'))
+            . (function_exists('ppal_boons_on') && ppal_boons_on() ? implode('', array_map(fn($pa) => $pa['used'] ? $cbtn($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : $cbtn($pa['do'], '✨', $pa['title'], 'Once per fight'), ppal_fight_actives($u, $enc))) : '')
             . $cbtn('flee', '🏃', 'Run', 'No reward', [$runPct . '%', choice_odds_class($runPct)])
             . (can_fight_on($exp) ? $cbtn('fighton', '⏩', 'Fight on', 'Till done or half health') : '')
             . fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => $cbtn($do, '🎒', 'Snack', 'Heals; uses your turn', '', '', $extra))

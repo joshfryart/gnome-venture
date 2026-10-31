@@ -539,6 +539,22 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         if (!$snack) { exp_log($exp, '🎒 ' . $why); return false; }
     }
 
+    // v2.3.8: a rare pal's active skill (Boons): once per fight, uses the turn; refused (nothing spent) when it is not along or already used
+    $palAct = null;
+    if (str_starts_with($action, 'palskill:')) {
+        require_once __DIR__ . '/puzzle_pals.php';
+        $want = substr($action, 9);
+        foreach (ppal_actives($u) as $a) if ($a['key'] === $want) $palAct = $a;
+        if (!$palAct) { exp_log($exp, '✨ That pal is not with you.'); return false; }
+        if (in_array($want, (array)($enc['pa'] ?? []), true)) {
+            exp_log($exp, '✨ ' . $palAct['pal'] . ' has already helped this fight.');
+            $exp['encounter'] = json_encode($enc);
+            return false;
+        }
+        $enc['pa'] = array_merge((array)($enc['pa'] ?? []), [$want]);
+        $action = 'palskill';
+    }
+
     $palSk = $gc['pal'] ?? [];   // v2.0.92: pal skills (mend, running, sip, ward); no dice
     if (!empty($palSk['mend']) && (int)$exp['hp'] < (int)$exp['max_hp']) {
         $mend = min((int)$palSk['mend'], (int)$exp['max_hp'] - (int)$exp['hp']);
@@ -573,6 +589,23 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                 $exp['hp'] = (int)$exp['hp'] + $heal;
                 $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
                 exp_log($exp, '🎒 You gulp down the ' . $snack['name'] . ': +' . $heal . ' health.');
+                break;
+            case 'palskill':
+                switch ($palAct['active']) {
+                    case 'strike':
+                        $enc['hp'] -= $palAct['value'];
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' strikes the ' . $c['name'] . ' for ' . $palAct['value'] . '.');
+                        break;
+                    case 'shield':
+                        $enc['ps'] = 2;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' shields you: the next 2 hits are ' . $palAct['value'] . ' lighter.');
+                        break;
+                    case 'patch':
+                        $heal = min($palAct['value'], (int)$exp['max_hp'] - (int)$exp['hp']);
+                        $exp['hp'] = (int)$exp['hp'] + $heal;
+                        exp_log($exp, '✨ ' . $palAct['pal'] . ' patches you up: +' . $heal . ' health.');
+                        break;
+                }
                 break;
             case 'ability':
                 if ($enc['used']) {
@@ -671,6 +704,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         if (!empty($palSk['guard']) && (int)($enc['pg'] ?? 0) < (int)$palSk['guard']) {   // v2.3.8 Boon guard: the first N hits of a fight are halved
             $dmg = max(1, intdiv($dmg, 2));
             $enc['pg'] = (int)($enc['pg'] ?? 0) + 1;
+        }
+        if ((int)($enc['ps'] ?? 0) > 0) {   // v2.3.8 shield active: the next 2 hits
+            $dmg = max(1, $dmg - 3);
+            $enc['ps'] = (int)$enc['ps'] - 1;
         }
         if (!empty($palSk['ward'])) $dmg = max(1, $dmg - (int)$palSk['ward']);
         $exp['hp'] = (int)$exp['hp'] - $dmg;

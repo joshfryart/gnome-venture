@@ -986,8 +986,12 @@ const PPAL_EFFECTS = [
     'petal' => ['Lucky Petal', [1, 2, 4], 'Adds %d%% to your chance of a critical hit', 6],
     'guard' => ['Guard', [1, 1, 2], 'Halves the first %d hit(s) you take in each fight', 3],
 ];
-/** Active skills a rare may have (row column 4; the fight button arrives in a later release). */
-const PPAL_ACTIVES = ['strike', 'shield', 'patch', 'snare', 'sap', 'daze', 'rouse', 'gust'];
+/** Active skills a rare may have (row column 4): once per fight, uses your turn, fixed numbers, no dice. Value and sentence. More arrive with the rosters that use them (the lint reads this list). */
+const PPAL_ACTIVES = [
+    'strike' => [6, 'A hit that cannot miss, for %d damage'],
+    'shield' => [3, 'The next 2 hits you take are %d lighter'],
+    'patch' => [10, 'Heals you %d now'],
+];
 
 function ppal_boons_on(): bool
 {
@@ -1008,6 +1012,27 @@ function ppal_boon_data(): array
         $d[$c[0]] = ['name' => $c[1], 'effect' => $c[2], 'active' => $c[3] === '-' ? '' : $c[3], 'line' => $c[4]];
     }
     return $d;
+}
+
+/** The actives of the pals taken along: [['key' => pal key, 'pal' => pal name, 'active' => 'strike', 'value' => 6, 'text' => sentence], ...]. [] unless Boons and take-along are on. */
+function ppal_actives(int|array $u): array
+{
+    $o = [];
+    if (!ppal_boons_on()) return $o;
+    foreach (ppal_equipped($u) as $e) {
+        $b = ppal_boon($e['pal']);
+        if ($b && $b['active'] !== '' && isset(PPAL_ACTIVES[$b['active']]))
+            $o[] = ['key' => (string)$e['pal']['key'], 'pal' => (string)$e['pal']['name'], 'active' => $b['active'], 'value' => PPAL_ACTIVES[$b['active']][0], 'text' => sprintf(PPAL_ACTIVES[$b['active']][1], PPAL_ACTIVES[$b['active']][0])];
+    }
+    return $o;
+}
+
+/** The fight buttons for the party's actives: [['do' => 'palskill:KEY', 'title' => 'Strike', 'sub' => 'Samara Spin: ...', 'used' => bool], ...]. */
+function ppal_fight_actives(int|array $u, array $enc): array
+{
+    $o = [];
+    foreach (ppal_actives($u) as $a) $o[] = ['do' => 'palskill:' . $a['key'], 'title' => ucfirst($a['active']), 'sub' => $a['pal'] . ': ' . $a['text'] . '. Once per fight.', 'used' => in_array($a['key'], (array)($enc['pa'] ?? []), true)];
+    return $o;
 }
 
 /** This pal's Boon row, or null when Boons are off, the pal has none, or the row passed has no key (then it plays by its calling as before). */

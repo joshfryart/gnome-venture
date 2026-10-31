@@ -3,6 +3,7 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/scene.php';   // v2.0.43: the stage
+require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.3.8: pal actives on the fight buttons
 $u = require_login();
 $uid = (int)$u['id'];
 
@@ -56,7 +57,7 @@ if (is_post()) {
         road_bind($u, $exp);   // v1.9.3: the recent-picks memory, read after the lock above and written (road_flush) before the commit below
         $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
         if ($enc && $enc['type'] === 'creature') {
-            if (in_array($do, ['attack', 'ability', 'flee'], true)) {
+            if (in_array($do, ['attack', 'ability', 'flee'], true) || preg_match('/^palskill:[a-z0-9_-]{1,48}$/', $do)) {   // v2.3.8: palskill:KEY = a rare pal's active
                 combat_turn($u, $exp, $do);
             } elseif ($do === 'snack') {   // v1.4.0: one home-cooked snack, same transaction and lock as the rest
                 combat_turn($u, $exp, 'snack', (int)($_POST['item'] ?? 0));
@@ -285,6 +286,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <div class="fightbtns choicelist">
   <?= act_choice('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage · +' . $gc['atk'] . ' vs 🛡️ ' . (int)$c['defense'], [$hitPct . '%', choice_odds_class($hitPct)], 'primary') ?>
   <?= $enc['used'] ? act_choice('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : act_choice('ability', '✨', $abName, $abDesc . ' Once per fight.') ?>
+  <?php if (ppal_boons_on()): foreach (ppal_fight_actives($u, $enc) as $pa): ?><?= $pa['used'] ? act_choice($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : act_choice($pa['do'], '✨', $pa['title'], $pa['sub']) ?><?php endforeach; endif; ?>
   <?= act_choice('flee', '🏃', 'Run', 'Slip away, no reward · Nimble check', [$runPct . '%', choice_odds_class($runPct)]) ?>
   <?php if (can_fight_on($exp)): ?><?= act_choice('fighton', '⏩', 'Fight on', 'Keeps attacking (no ability) until the fight ends, you drop under half health, or 30 rounds.') ?><?php endif; ?>
   <?= fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => act_choice($do, '🎒', 'Snack', 'Eats a home-cooked snack: heals ' . (int)setting('fight_snack_heal_mult') . '× its energy. Uses your turn; ' . snack_limit($u) . ' a fight.', '', '', $extra)) ?>   <?php // v1.4.0 ?>

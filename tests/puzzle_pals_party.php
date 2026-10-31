@@ -178,6 +178,32 @@ equip($uid, ['mw-bark-badger'], $pid);
 ok('Borrowed Coat (ward 2): the same hit does 8', str_contains($logB, 'hits you for 8'), $logB);
 equip($uid, [], $pid);
 q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+// rare actives (B3): Strike 6 that cannot miss, once per fight, uses the turn
+equip($uid, ['mw-samara-spin'], $pid);
+$act = ppal_actives($u());
+ok('Samara Spin offers Strike 6; commons offer none', count($act) === 1 && $act[0]['key'] === 'mw-samara-spin' && $act[0]['active'] === 'strike' && $act[0]['value'] === 6, json_encode($act));
+$fb = ppal_fight_actives($u(), ['pa' => []]);
+ok('fight button is palskill:KEY, then shown as used', $fb[0]['do'] === 'palskill:mw-samara-spin' && $fb[0]['used'] === false && ppal_fight_actives($u(), ['pa' => ['mw-samara-spin']])[0]['used'] === true);
+q('UPDATE creatures SET attack = -200 WHERE id = ?', [$crId]);   // it never hits back
+$encA = ['type' => 'creature', 'id' => $crId, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+$expA = ['id' => 79, 'status' => 'active', 'hp' => 900, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($encA), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+combat_turn($u(), $expA, 'palskill:mw-samara-spin'); $eA = json_decode((string)$expA['encounter'], true);
+ok('Strike takes exactly 6 and is marked used', $eA['hp'] === 894 && $eA['pa'] === ['mw-samara-spin'], json_encode($eA));
+$logBefore = (string)$expA['log'];
+$r2 = combat_turn($u(), $expA, 'palskill:mw-samara-spin'); $eA2 = json_decode((string)$expA['encounter'], true);
+ok('a second use is refused: no damage, no spend, a log line', $r2 === false && $eA2['hp'] === 894 && str_contains((string)$expA['log'], 'already helped'));
+$r3 = combat_turn($u(), $expA, 'palskill:mw-nobody');
+ok('a pal that is not along is refused', $r3 === false && str_contains((string)$expA['log'], 'not with you') && json_decode((string)$expA['encounter'], true)['hp'] === 894);
+set_setting('ppal_boons', '0'); setting('__reload__');
+ok('Boons off: no actives and the action is refused', ppal_actives($u()) === [] && combat_turn($u(), $expA, 'palskill:mw-samara-spin') === false);
+set_setting('ppal_boons', '1'); setting('__reload__');
+// Strike can finish a creature
+$encK = $encA; $encK['hp'] = 5; $encK['max'] = 5;
+$expK = ['id' => 80, 'status' => 'active', 'hp' => 900, 'max_hp' => 900, 'log' => '[]', 'encounter' => json_encode($encK), 'from_id' => $fromId, 'level' => 5, 'kind' => 'explore', 'step' => 1, 'depth' => 1];
+$rK = combat_turn($u(), $expK, 'palskill:mw-samara-spin');
+ok('Strike that finishes the creature wins the fight', $rK === true && str_contains((string)$expK['log'], 'defeated'), (string)$expK['log']);
+q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+equip($uid, [], $pid);
 ok('Boons on, no pals along: gnome_combat unchanged', gnome_combat($u(), true) === $base);
 set_setting('ppal_boons', '0'); setting('__reload__'); reset_all();
 set_setting('ppal_party', '0'); setting('__reload__'); reset_all();

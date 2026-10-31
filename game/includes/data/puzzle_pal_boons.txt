@@ -1,5 +1,5 @@
 # Puzzle Pal Boons (v2.3.8, claude/brainstorm-pal-rosters.md). One row per pal: key|boon name|effect|active|line
-# effect: ward edge foot mend sip petal guard (values come from PPAL_EFFECTS by rarity). active: only on a rare (strike shield patch snare sap daze rouse gust) or -
+# effect: ward edge foot mend sip petal guard (values come from PPAL_EFFECTS by rarity). active: only on a rare (strike shield patch, see PPAL_ACTIVES) or -
 # A pal without a row here plays by its calling's skill. Used only when the setting ppal_boons is 1. Check with tools/lint_pal_boons.py.
 mw-acorn-nip|Acorn Cache|mend|-|Patches you up with an acorn it found again.
 mw-leaf-tuck|Leaf Pile|guard|-|Burrows into red leaves so the first blow lands soft.
