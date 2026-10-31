@@ -178,6 +178,14 @@ equip($uid, ['mw-bark-badger'], $pid);
 ok('Borrowed Coat (ward 2): the same hit does 8', str_contains($logB, 'hits you for 8'), $logB);
 equip($uid, [], $pid);
 q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+// every authored pal has a Boon row; a generated pal gets a seeded one (always the same)
+$missing = 0; $nAuth = 0;
+foreach (ppal_data() as $pics) foreach ($pics as $pp) { $nAuth++; if (!isset(ppal_boon_data()[$pp['key']])) $missing++; }
+ok('all ' . $nAuth . ' authored pals have a Boon row', $nAuth === 570 && $missing === 0, "$missing missing of $nAuth");
+$gen = ['key' => 'up-test-pal-1', 'rarity' => 'rare', 'calling' => 'seedkeeper'];
+$g1 = ppal_boon($gen); $g2 = ppal_boon($gen);
+ok('a generated rare gets a seeded Boon and an active, the same every time', $g1 !== null && $g1 === $g2 && isset(PPAL_EFFECTS[$g1['effect']]) && isset(PPAL_ACTIVES[$g1['active']]), json_encode($g1));
+ok('a generated common gets an effect and no active', ($c1 = ppal_boon(['key' => 'up-test-pal-2', 'rarity' => 'common'])) !== null && $c1['active'] === '' && ppal_boon(['rarity' => 'common']) === null);
 // the other wired effects (a test row stands in for the Boon: $GLOBALS['ppal_boon_test'])
 $T = fn(string $e) => ['name' => 'Test ' . $e, 'effect' => $e, 'active' => '', 'line' => ''];
 $GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('bulwark')];

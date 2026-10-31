@@ -1049,10 +1049,24 @@ function ppal_fight_actives(int|array $u, array $enc): array
     return $o;
 }
 
+/** A pal of a generated roster (uploaded pictures, no authored rows) has no row: its Boon is drawn from crc32(key) by rarity, always the same one. Null for a row without a key or a rarity. */
+function ppal_seeded_boon(array $pal): ?array
+{
+    $k = (string)($pal['key'] ?? '');
+    $pools = ['common' => ['mend', 'sip', 'feast', 'petal', 'guard', 'bulwark', 'slip', 'first'], 'uncommon' => ['ward', 'foot', 'bulwark', 'slip', 'guard', 'first', 'rally', 'feast', 'edge', 'mend'],
+        'rare' => ['edge', 'first', 'rally', 'petal', 'foot', 'ward', 'bulwark', 'guard', 'mend', 'sip', 'slip', 'feast', 'kindle', 'spoils', 'lesson', 'tonic']];
+    $rar = (string)($pal['rarity'] ?? '');
+    if ($k === '' || !isset($pools[$rar])) return null;
+    $h = ppal_h($k . ':boon');
+    $e = $pools[$rar][$h % count($pools[$rar])];
+    $act = $rar === 'rare' ? array_keys(PPAL_ACTIVES)[intdiv($h, 7) % count(PPAL_ACTIVES)] : '';
+    return ['name' => PPAL_EFFECTS[$e][0], 'effect' => $e, 'active' => $act, 'line' => ''];
+}
+
 /** This pal's Boon row, or null when Boons are off, the pal has none, or the row passed has no key (then it plays by its calling as before). */
 function ppal_boon(array $pal): ?array
 {
-    return ppal_boons_on() && isset($pal['key']) ? ($GLOBALS['ppal_boon_test'][(string)$pal['key']] ?? ppal_boon_data()[(string)$pal['key']] ?? null) : null;   // ppal_boon_test: tests swap a Boon in
+    return ppal_boons_on() && isset($pal['key']) ? ($GLOBALS['ppal_boon_test'][(string)$pal['key']] ?? ppal_boon_data()[(string)$pal['key']] ?? ppal_seeded_boon($pal)) : null;   // ppal_boon_test: tests swap a Boon in
 }
 
 /** One pal's skills as [kind => value]: its Boon's effect by rarity, else its calling's skill by rarity plus (rare) the second calling's at common strength. Pure apart from the setting. */

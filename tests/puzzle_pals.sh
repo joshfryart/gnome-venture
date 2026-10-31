@@ -25,6 +25,7 @@ go() { local pcs; case $2 in easy) pcs=24;; advanced) pcs=96;; *) pcs=216;; esac
 
 echo "== lint tool, data, generator, schema (tests/puzzle_pals.php)"
 OUT=$(python3 $HERE/../tools/lint_puzzle_pals.py 2>&1); ok "lint passes on the shipped data" "$(echo "$OUT" | tail -1 | grep -c ' 0 problems')" 1
+ok "Boon lint passes, every pal has a Boon" "$(python3 $HERE/../tools/lint_pal_boons.py --require-boons 2>&1 | tail -1 | grep -c " 0 problems")" 1
 cp $GAME/includes/data/puzzle_pals.txt $W/bad.txt
 echo 'maplewold|mw-acorn-nip|Acorn Nip|common|seedkeeper|9|1|1|0|1-5|corner-TT|round|-|Dupe key, big stats, apostrophe isn'"'"'t curly.' >> $W/bad.txt
 echo 'nowhere|x1|Nope|rare|badcalling|1|1|1|0|20-5|corner-TT|round|-|bad picture, rarity shape, piece.' >> $W/bad.txt
