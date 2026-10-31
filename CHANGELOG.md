@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.7
+- **Merge release.** Alchemy: 7 new potions (`includes/alchemy.php`; Strong Healing, Grand Healing Elixir, Lucky, Sage's, Stoneskin, Swiftfoot, Garden Tonic), each usable by the gnome (Satchel Drink, My Gnome Potions box, Garden Tonic on a plot) and some by pals; B icon set. Crafting map: per-object recipe tags (`?o=`), one recipe pass for the landing badges. Pantry: 11 new icons (B), hidden Brewroot Pomeroy task (needs `gourmand_open`), tests honour TMPDIR.
+- **Puzzle Pals: page mode removed** (map mode only; settings `ppal_find_mode`, `ppal_chance`, `ppal_cooldown_minutes`, `ppal_daily_max` gone), "pal arrived" notice on the daily top-up.
+- **Pal Jobs:** no level gates (every pal does every task from level 1; level scales yield), Risky tag for delve jobs below Adventuring 5, pals work after hired garden help instead of being refused, "N pals home with loot" notice on Today and My Gnome, clearer Collect receipt.
+- **Delve v2 (still OFF):** each delve has its own hazard with a real effect (health or torch), wandering creatures (`dv_enc_steps`, `dv_enc_chance`, `dv_enc_cap`), torch fuel 30/45/50, pal re-runs walk the gnome's route, 26 authored floors (Beaverdam, Salt Mine, Firefly Caves; names DRAFT).
+
 ## 2.3.6
 - **Crafting area map.** The Crafting tab opens on a picture map: seven cards (Cooking, Pantry, Tools, Garden supplies, Potions, Building, Yard & decor), each a new Stitched Toy scene with a progress bar ("8 of 85 known") and a badge (needs the building (Locked), N ready, N jars done). Inside an area, an "All areas" button, a scrolling picture strip to switch area, and the area's scene with five tappable objects (oven, stove, anvil, cauldron...) that open that area's list filtered by what they make. All plain links, so it works without JS; labels show on hover, focus and on touch screens.
 - The Make dropdown is gone from Cooking, Pantry and every other area (the List dropdown stays).
