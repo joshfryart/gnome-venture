@@ -68,13 +68,12 @@ c:paint({
   "gg....",
   "g.....",
 }, 21, 35, { g = POT.gloss, d = POT.dot })
--- glass window streak: a 1 px arc on the left wall of the bulb, top to middle
+-- glass window streak: an arc inside the empty upper bulb
 c:paint({
-  "....gg",
-  "..ggg.",
-  ".gg...",
+  "...ggg",
+  ".ggg..",
   "gg....",
-}, 18, 25, { g = GLASS.gloss })
+}, 20, 27, { g = GLASS.gloss })
 c:paint({ "g", "g", "g" }, 28, 16, { g = GLASS.gloss })              -- neck glint
 c:seam({ { 25, 20 }, { 33, 20 } }, { gap = GOLD.shade })            -- twine thread
 c:button(34, 19)                                                    -- twine knot button

@@ -38,7 +38,7 @@ local STEAM = felt("#f1ece0", { gloss = "#fff3c8", dot = "#ffffff", rim = "#fff3
 local c = GV.canvas{ w = 64, h = 64, mode = "icon" }
 
 -- shapes
-local steam = c:line({ {21, 21}, {18, 18}, {17, 15}, {19, 12}, {21, 10}, {20, 7} }, 3)
+local steam = c:line({ {24, 21}, {20, 18}, {19, 15}, {21, 12}, {24, 10}, {25, 8}, {24, 7} }, 3)
 local spoonBowl = rell(c, 46.5, 13.5, 6, 4.2, -0.85)
 local spoonStem = c:line({ {43, 17}, {35, 26} }, 3)
 local rimBack = c:ellipse(31.5, 24, 21, 5.5)
