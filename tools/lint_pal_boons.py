@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Lint the Puzzle Pal Boons (game/includes/data/puzzle_pal_boons.txt) against puzzle_pals.txt and the effect list in includes/puzzle_pals.php.
-Usage: tools/lint_pal_boons.py [BOONS.txt] [--require-boons]
+Usage: tools/lint_pal_boons.py [DRAFT.txt ...] [--require-boons]   (the live puzzle_pal_boons.txt is always read; drafts are checked together with it)
 Checks: 5 columns, one row per key, key is a pal, effect and active valid (read from PPAL_EFFECTS / PPAL_ACTIVES in puzzle_pals.php), active only on a rare,
 name unique and <= 24 chars, line <= 120 chars, curly apostrophes, no '|'; per roster: 6 different effects, and no two rosters share 4 or more of their effects (as a set);
 each rare's (effect, active) pair is unique. --require-boons: every pal needs a row. Prints a fingerprint per roster. Exit 1 on any problem."""
@@ -13,13 +13,18 @@ ACTIVES = set(re.findall(r"^\s*'([a-z]+)' => \[\d", SRC.split('const PPAL_ACTIVE
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
-    path = args[0] if args else os.path.join(DATA, 'puzzle_pal_boons.txt')
+    paths = [os.path.join(DATA, 'puzzle_pal_boons.txt')] + args
     pals = {}
     for l in open(os.path.join(DATA, 'puzzle_pals.txt'), encoding='utf-8').read().splitlines():
         c = l.split('|')
         if l.strip() and l[0] != '#' and len(c) == 14: pals[c[1]] = (c[0], c[3])
     bad, rows, names = [], {}, {}
-    for n, l in enumerate(open(path, encoding='utf-8').read().splitlines(), 1):
+    pal_names = {}
+    for l in open(os.path.join(DATA, 'puzzle_pals.txt'), encoding='utf-8').read().splitlines():
+        c = l.split('|')
+        if l.strip() and l[0] != '#' and len(c) == 14: pal_names[c[2].lower()] = c[1]
+    lines_all = [(path, n, l) for path in paths for n, l in enumerate(open(path, encoding='utf-8').read().splitlines(), 1)]
+    for path, n, l in lines_all:
         if not l.strip() or l[0] == '#': continue
         c = l.split('|')
         if len(c) != 5: bad.append('line %d: %d columns, want 5' % (n, len(c))); continue
@@ -30,6 +35,7 @@ def main():
         if act != '-' and act not in ACTIVES: bad.append('line %d: %s: unknown active %s' % (n, key, act))
         if act != '-' and pals[key][1] != 'rare': bad.append('line %d: %s: only a rare may have an active' % (n, key))
         if len(name) > 24 or not name: bad.append('line %d: %s: name length' % (n, key))
+        if name.lower() in pal_names: bad.append('line %d: %s: name %s is a pal name' % (n, key, name))
         if name.lower() in names: bad.append('line %d: name %s also on %s' % (n, name, names[name.lower()]))
         names[name.lower()] = key
         if len(line) > 120: bad.append('line %d: %s: line over 120 chars' % (n, key))

@@ -178,6 +178,23 @@ equip($uid, ['mw-bark-badger'], $pid);
 ok('Borrowed Coat (ward 2): the same hit does 8', str_contains($logB, 'hits you for 8'), $logB);
 equip($uid, [], $pid);
 q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+// the other wired effects (a test row stands in for the Boon: $GLOBALS['ppal_boon_test'])
+$T = fn(string $e) => ['name' => 'Test ' . $e, 'effect' => $e, 'active' => '', 'line' => ''];
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('bulwark')];
+equip($uid, ['mw-acorn-nip'], $pid);
+ok('bulwark (common 2): max health +2 on the road', gnome_combat($u(), true)['max_hp'] === $base['max_hp'] + ppal_perks($u())['road'] * 5 + 2, json_encode([$base['max_hp'], gnome_combat($u(), true)['max_hp']]));
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('rally')];
+q('UPDATE creatures SET attack = 200, dmg_die = 1, dmg_bonus = 9 WHERE id = ?', [$crId]);   // hits for 10
+$encR = ['type' => 'creature', 'id' => $crId, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => 900, 'max' => 900, 'bark' => 0, 'poison' => 0, 'used' => false];
+$expR = ['id' => 81, 'status' => 'active', 'hp' => 40, 'max_hp' => 100, 'log' => '[]', 'encounter' => json_encode($encR), 'from_id' => $fromId, 'level' => 5, 'kind' => 'walk', 'step' => 1];
+combat_turn($u(), $expR, 'attack'); $hr1 = (int)$expR['hp'];   // 40 - 10 = 30: at 30% -> rally 4 once
+combat_turn($u(), $expR, 'attack'); $hr2 = (int)$expR['hp'];   // 34 - 10 = 24, no second rally
+ok('rally (common 4): once a fight at 30% health or less (' . $hr1 . ' then ' . $hr2 . ')', $hr1 === 34 && $hr2 === 24 && str_contains((string)$expR['log'], 'rallies you: +4'), (string)$expR['log']);
+$GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('first')];
+ok('first / slip / feast sum from the party like the rest', ppal_skills($u())['first'] === 2 && ($GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('slip')]) && ppal_skills($u())['slip'] === 1 && ($GLOBALS['ppal_boon_test'] = ['mw-acorn-nip' => $T('feast')]) && ppal_skills($u())['feast'] === 1);
+unset($GLOBALS['ppal_boon_test']);
+q('UPDATE creatures SET attack = ?, dmg_die = ?, dmg_bonus = ? WHERE id = ?', [(int)$cr['attack'], (int)$cr['dmg_die'], (int)$cr['dmg_bonus'], $crId]);
+equip($uid, [], $pid);
 // rare actives (B3): Strike 6 that cannot miss, once per fight, uses the turn
 equip($uid, ['mw-samara-spin'], $pid);
 $act = ppal_actives($u());

@@ -985,6 +985,11 @@ const PPAL_EFFECTS = [
     'sip' => ['Sip', [10, 20, 40], 'Snacks heal %d%% more', 60],
     'petal' => ['Lucky Petal', [1, 2, 4], 'Adds %d%% to your chance of a critical hit', 6],
     'guard' => ['Guard', [1, 1, 2], 'Halves the first %d hit(s) you take in each fight', 3],
+    'bulwark' => ['Bulwark', [2, 4, 8], 'Adds %d to your health on the road', 12],
+    'slip' => ['Slip Away', [1, 2, 3], 'Adds %d to running away', 4],
+    'feast' => ['Feast', [1, 2, 4], 'Snacks heal %d more', 8],
+    'rally' => ['Rally', [4, 7, 12], 'Once a fight, at 30%% health or less, heals you %d', 12],
+    'first' => ['First Strike', [2, 3, 5], 'Adds %d to your first attack of a fight', 6],
 ];
 /** Active skills a rare may have (row column 4): once per fight, uses your turn, fixed numbers, no dice. Value and sentence. More arrive with the rosters that use them (the lint reads this list). */
 const PPAL_ACTIVES = [
@@ -1038,7 +1043,7 @@ function ppal_fight_actives(int|array $u, array $enc): array
 /** This pal's Boon row, or null when Boons are off, the pal has none, or the row passed has no key (then it plays by its calling as before). */
 function ppal_boon(array $pal): ?array
 {
-    return ppal_boons_on() && isset($pal['key']) ? (ppal_boon_data()[(string)$pal['key']] ?? null) : null;
+    return ppal_boons_on() && isset($pal['key']) ? ($GLOBALS['ppal_boon_test'][(string)$pal['key']] ?? ppal_boon_data()[(string)$pal['key']] ?? null) : null;   // ppal_boon_test: tests swap a Boon in
 }
 
 /** One pal's skills as [kind => value]: its Boon's effect by rarity, else its calling's skill by rarity plus (rare) the second calling's at common strength. Pure apart from the setting. */
@@ -1073,8 +1078,8 @@ function ppal_skill_line(array $pal): string
 }
 
 /**
- * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)] and, only when a Boon gives it,
- * 'guard' (hits halved a fight), summed over the party and capped (PPAL_EFFECTS). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
+ * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)] and, only when a Boon gives them,
+ * 'guard' (hits halved a fight), 'bulwark' (max health), 'slip' (running), 'feast' (snack HP), 'rally' (once-a-fight heal), 'first' (round-1 to-hit), summed over the party and capped (PPAL_EFFECTS). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
  */
 function ppal_skills(int|array $u): array
 {
@@ -1082,7 +1087,7 @@ function ppal_skills(int|array $u): array
     foreach (ppal_equipped($u) as $e) foreach (ppal_pal_skills($e['pal']) as $k => $v) $t[$k] = ($t[$k] ?? 0) + $v;
     if (!$t) return [];
     $o = ['ward' => $t['ward'] ?? 0, 'edge' => $t['edge'] ?? 0, 'foot' => $t['foot'] ?? 0, 'mend' => $t['mend'] ?? 0, 'sip' => $t['sip'] ?? 0, 'petal' => $t['petal'] ?? 0];
-    if (!empty($t['guard'])) $o['guard'] = $t['guard'];
+    foreach (['guard', 'bulwark', 'slip', 'feast', 'rally', 'first'] as $k) if (!empty($t[$k])) $o[$k] = $t[$k];
     foreach ($o as $k => $v) $o[$k] = min(PPAL_EFFECTS[$k][3], $v);
     return array_sum($o) > 0 ? $o : [];
 }

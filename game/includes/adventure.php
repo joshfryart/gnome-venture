@@ -77,7 +77,7 @@ function gnome_combat(array $u, bool $pals = false): array
     $grit = eff_mod($u, 'grit') + $pal;
     $nim = eff_mod($u, 'nimble') + $pal;
     return [   // v0.9.1: calling numbers now come from the tier table (calling_perk)
-        'max_hp' => max(10, 20 + 3 * $lvl + 5 * (eff_mod($u, 'hardiness') + $pal) + calling_perk($u, 'hp_bonus')),
+        'max_hp' => max(10, 20 + 3 * $lvl + 5 * (eff_mod($u, 'hardiness') + $pal) + calling_perk($u, 'hp_bonus') + ($sk['bulwark'] ?? 0)),
         'ac' => 10 + $nim + intdiv($lvl, 4) + calling_perk($u, 'def_bonus') + ($sk['foot'] ?? 0),
         'atk' => 2 + intdiv($lvl, 2) + max($grit, $nim + calling_perk($u, 'atk_nimble')) + calling_perk($u, 'atk_bonus'),
         'dmg_die' => 8,
@@ -572,7 +572,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if ($enc['hp'] > 0) {
         switch ($action) {
             case 'flee':
-                if (flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
+                if (flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0) + (int)($palSk['slip'] ?? 0), (int)$c['level'])) {   // v1.3.0: level/3 (was /2)
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
                     $exp['encounter'] = null;
                     return true;
@@ -585,7 +585,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     $exp['encounter'] = json_encode($enc);
                     return false;
                 }
-                $heal = min((int)$exp['max_hp'] - (int)$exp['hp'], !empty($palSk['sip']) ? (int)round((int)$snack['heal'] * (100 + (int)$palSk['sip']) / 100) : (int)$snack['heal']);
+                $heal = min((int)$exp['max_hp'] - (int)$exp['hp'], (!empty($palSk['sip']) ? (int)round((int)$snack['heal'] * (100 + (int)$palSk['sip']) / 100) : (int)$snack['heal']) + (int)($palSk['feast'] ?? 0));
                 $exp['hp'] = (int)$exp['hp'] + $heal;
                 $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
                 exp_log($exp, '🎒 You gulp down the ' . $snack['name'] . ': +' . $heal . ' health.');
@@ -680,7 +680,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                 }
                 break;
             default: // attack
-                [$raw, $tot, $crit] = attack_roll($gc, 0);
+                [$raw, $tot, $crit] = attack_roll($gc, empty($enc['rd']) ? (int)($palSk['first'] ?? 0) : 0);   // v2.3.8: Boon first = to-hit on round 1 only
                 if ($tot >= (int)$c['defense']) {
                     $dmg = damage($gc, $crit);
                     $enc['hp'] -= $dmg;
@@ -716,6 +716,13 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         exp_log($exp, '🛡️ The ' . $c['name'] . ' misses you.');
     }
     if ($enc['bark'] > 0) $enc['bark']--;
+    $enc['rd'] = (int)($enc['rd'] ?? 0) + 1;
+    if (!empty($palSk['rally']) && empty($enc['pr']) && (int)$exp['hp'] > 0 && (int)$exp['hp'] * 10 <= (int)$exp['max_hp'] * 3) {   // v2.3.8 Boon rally: once a fight at 30% health or less
+        $enc['pr'] = 1;
+        $rh = min((int)$palSk['rally'], (int)$exp['max_hp'] - (int)$exp['hp']);
+        $exp['hp'] = (int)$exp['hp'] + $rh;
+        exp_log($exp, '🌱 Your pal rallies you: +' . $rh . ' health.');
+    }
     $exp['encounter'] = json_encode($enc);
 
     if ((int)$exp['hp'] <= 0) {
