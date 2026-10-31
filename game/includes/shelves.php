@@ -90,7 +90,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $b .= tool_wear_html($uid, $i, $wear, $hid);   // uses left, and the mend form for a worn or broken tool
         $acts = []; $quick = null;
         if ((int)$i['edible']) {
-            $verb = !empty($fx['tea']) ? '☕ Drink' : '😋 Eat';
+            $verb = !empty($fx['tea']) ? '☕ Drink' : ($i['category'] === 'supply' ? '🧪 Drink' : '😋 Eat');   // supply: Alchemy potions
             $b .= '<p class="help shnote">' . ($i['tasted'] ? '🍴 Tasted' : '✨ Never tasted') . ($perm ? ' — rare! Eating it raises a stat permanently.' : '') . '</p>';
             $acts[] = sh_bag_form('eat', $id, $verb, $hid);
             if ($untasted) $quick = sh_bag_form('eat', $id, $verb, $hid, 'btn small', true);

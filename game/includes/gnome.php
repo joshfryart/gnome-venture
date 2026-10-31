@@ -407,7 +407,7 @@ function eat_item(array $u, int $itemId): array
         db()->commit();
         return [true, array_merge(['☕ You drink the ' . $item['name'] . '. Lovely.'], $lines)];
     }
-    $msgs[] = '😋 You eat the ' . $item['name'] . '.' . ($firstTaste ? ' 🍴 First taste, added to your list.' : '');
+    $msgs[] = ($item['category'] === 'supply' ? '🧪 You drink the ' : '😋 You eat the ') . $item['name'] . '.' . ($firstTaste ? ' 🍴 First taste, added to your list.' : '');
 
     // Permanent bonus: once per item per gnome, capped per stat
     if (!empty($fx['perm']) && is_array($fx['perm'])) {
@@ -465,7 +465,7 @@ function eat_item(array $u, int $itemId): array
                 if ($rows > 0) break;
             }
             $parts = array_map(fn($s, $n) => GNOME_STATS[$s][0] . ' +' . $n, array_keys($buff), $buff);
-            $msgs[] = $rows > 0 ? '🍽️ Meal buff for ' . nice_minutes($minutes) . ': ' . implode(', ', $parts) . '.'
+            $msgs[] = $rows > 0 ? ($item['category'] === 'supply' ? '🧪 Potion buff for ' : '🍽️ Meal buff for ') . nice_minutes($minutes) . ': ' . implode(', ', $parts) . '.'
                 : '🍽️ The meal boost didn’t settle (you ate two things at once). Eat another for the boost.';
         }
     }

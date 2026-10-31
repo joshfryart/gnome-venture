@@ -14,6 +14,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/puzzle_pals.php';
 require_once __DIR__ . '/gathering.php';   // gather_candidates, GATHER_RARITY, tool_tier, LANDSCAPES
 require_once __DIR__ . '/landmarks.php';   // landmark_day, DELVE_ROOMS
+require_once __DIR__ . '/alchemy.php';     // the other potions: healing tiers, Lucky Draught
 
 const PJ_MAX_LEVEL = 10;
 const PJ_XP = [0, 30, 80, 150, 250, 380, 540, 730, 950, 1200];   // XP needed for level 1..10
@@ -155,6 +156,7 @@ function pj_ensure_content(): void
         db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => 45, 'price_max' => 60,
             'max_stock' => 12, 'restock_chance' => 60, 'current_stock' => 0, 'current_price' => 50]);
     }
+    alchemy_ensure_items();   // the Alchemy Table's other potions (their recipes are in data/crafts.txt)
 }
 
 // ---------------- the random roll (seeded, so a job's result is fixed when it starts) ----------------
@@ -327,10 +329,11 @@ function pj_tools(int $uid): array
  * Roll a whole trip now. Returns ['rounds' => done, 'items' => [[item_id, qty, name]...], 'hp' => left, 'potions_used' => n, 'fainted' => bool, 'log' => [lines]].
  * Each round (30 minutes of the trip): a danger roll, then a find roll. Rare finds need Adventuring 5. A hurt pal drinks a potion at 40% HP; 0 HP ends the trip.
  */
-function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hours, int $potions, string $seed): array
+function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hours, int $potions, string $seed, int $luckBonus = 0): array
 {
     $rng = pj_rng($seed);
     $pal = $p['pal'];
+    $pal['luck'] = (int)($pal['luck'] ?? 0) + max(0, $luckBonus);   // a Lucky Draught packed for the trip
     $a = $p['a'];
     $rounds = $hours * 2;
     $hp = $p['hp'];
@@ -366,7 +369,7 @@ function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hour
     return ['rounds' => $done, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => array_slice($log, 0, 12)];
 }
 
-function pj_trip_send(array $u, string $palUid, string $land, string $tool, int $hours, int $potions, bool $unequip = false): array
+function pj_trip_send(array $u, string $palUid, string $land, string $tool, int $hours, int $potions, bool $unequip = false, bool $luck = false): array
 {
     $uid = (int)$u['id'];
     if (!isset(LANDSCAPES[$land])) return [false, 'Pick a place to go.'];
@@ -379,14 +382,17 @@ function pj_trip_send(array $u, string $palUid, string $land, string $tool, int 
     if (pj_runs_today($uid) >= pj_runs_per_day()) return [false, 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').'];
     if (!gather_candidates($land, $tool)) return [false, 'Nothing for that tool grows there.'];
     $seed = bin2hex(random_bytes(6));
-    if (!pj_take_potions($uid, $potions)) return [false, 'You do not have ' . $potions . ' Healing Potion' . ($potions === 1 ? '' : 's') . '.'];
-    if (!pj_claim_pal($uid, $palUid, 'trip')) { if ($potions) give_item($uid, pj_potion_id(), $potions); return [false, $p['name'] . ' is already out.']; }
-    $res = pj_roll_trip($p, $land, $tool, $tier, $hours, $potions, $seed);
+    $luckId = $luck ? alchemy_item_id(ALCHEMY_LUCK) : 0;
+    if ($luck && (!$luckId || !give_item($uid, $luckId, -1))) return [false, 'You do not have a Lucky Draught.'];
+    if (!pj_take_potions($uid, $potions)) { if ($luck) give_item($uid, $luckId, 1); return [false, 'You do not have ' . $potions . ' Healing Potion' . ($potions === 1 ? '' : 's') . '.']; }
+    if (!pj_claim_pal($uid, $palUid, 'trip')) { if ($potions) give_item($uid, pj_potion_id(), $potions); if ($luck) give_item($uid, $luckId, 1); return [false, $p['name'] . ' is already out.']; }
+    $res = pj_roll_trip($p, $land, $tool, $tier, $hours, $potions, $seed, $luck ? ALCHEMY_LUCK_PAL : 0);
     $res['potions_back'] = $potions - $res['potions_used'];
+    if ($luck) $res['luck'] = ALCHEMY_LUCK_PAL;
     $secs = $res['fainted'] ? max(600, (int)($hours * 3600 * ($res['rounds'] / ($hours * 2)))) : $hours * 3600;
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'trip', 'target' => $land, 'plot_id' => null, 'day' => landmark_day(), 'tool' => $tool,
         'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $secs), 'last_tick' => now(), 'potions' => $potions, 'state' => 'active', 'result' => json_encode($res)]);
-    return [true, $p['name'] . ' heads out to the ' . strtolower(LANDSCAPES[$land][1]) . ' with a ' . (TOOL_TYPES[$tool][0] ?? $tool) . ' tool' . ($potions ? ' and ' . $potions . ' potion' . ($potions > 1 ? 's' : '') : '') . '. Back in ' . pj_ago($secs) . '.'];
+    return [true, $p['name'] . ' heads out to the ' . strtolower(LANDSCAPES[$land][1]) . ' with a ' . (TOOL_TYPES[$tool][0] ?? $tool) . ' tool' . ($potions ? ' and ' . $potions . ' potion' . ($potions > 1 ? 's' : '') : '') . ($luck ? ', sipping a Lucky Draught' : '') . '. Back in ' . pj_ago($secs) . '.'];
 }
 
 // ---------------- delve re-runs ----------------
@@ -494,16 +500,18 @@ function pj_collect(array $u, int $jobId): array
     return [true, $lines];
 }
 
-/** Give a pal at home a potion to drink. */
-function pj_heal(array $u, string $palUid): array
+/** Give a pal at home a potion to drink: a Healing Potion, or a stronger tier (ALCHEMY_HEAL). */
+function pj_heal(array $u, string $palUid, string $slug = PJ_POTION): array
 {
     $uid = (int)$u['id'];
     if (!pj_open($u)) return [false, 'Pal jobs open at gnome level ' . pj_min_level() . '.'];
     $p = pj_pal($uid, $palUid);
     if (!$p || $p['status'] !== 'home') return [false, 'That pal is not at home.'];
     if ($p['hp'] >= $p['max']) return [false, $p['name'] . ' is already well.'];
-    if (!pj_take_potions($uid, 1)) return [false, 'You have no Healing Potion.'];
-    $hp = min($p['max'], $p['hp'] + PJ_POTION_HEAL);
+    if (!isset(ALCHEMY_HEAL[$slug])) $slug = PJ_POTION;
+    $id = alchemy_item_id($slug);
+    if (!$id || !give_item($uid, $id, -1)) return [false, 'You have no ' . (q_val('SELECT name FROM items WHERE id = ?', [$id]) ?: 'Healing Potion') . '.'];
+    $hp = min($p['max'], $p['hp'] + alchemy_pal_heal($slug, $p['max']));
     q("UPDATE ppal_found SET hp = ?, hp_at = ? WHERE user_id = ? AND pal_uid = ? AND status = 'home'", [$hp, now(), $uid, $palUid]);
     return [true, $p['name'] . ' feels better (' . $hp . '/' . $p['max'] . ' HP).'];
 }

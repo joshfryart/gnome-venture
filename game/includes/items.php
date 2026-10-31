@@ -265,6 +265,7 @@ function item_emoji(array $i): string
  */
 const NAME_EMOJI = [
     // names that contain another word come first
+    'potion' => '🧪', 'elixir' => '🧪', 'draught' => '🧪', 'stoneskin brew' => '🧪', 'tonic' => '🧪',   // Alchemy Table potions
     'sweet potato' => '🍠', 'eggplant' => '🍆', 'peanut' => '🥜', 'grapefruit' => '🍊', 'candle' => '🕯️', 'watering can' => '🚿', 'crystal' => '💎', 'gall' => '🌰', 'sea glass' => '🔮',
     // dishes
     'feast' => '🍽️', 'pie' => '🥧', 'tart' => '🥧', 'crumble' => '🥧', 'cake' => '🍰', 'muffin' => '🧁', 'cookie' => '🍪', 'biscuit' => '🍪',

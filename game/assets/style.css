@@ -6492,3 +6492,9 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .hs-decor-birdbath { left: 30.67%; top: 16%; width: 38.67%; height: 78%; }
 .hs-decor-fence { left: 69.33%; top: 32%; width: 30%; height: 35%; }
 .hs-decor-path { left: 71.33%; top: 67%; width: 28.67%; height: 33%; }
+
+
+/* ===== Alchemy potions (Lucky Draught box on a pal trip) ===== */
+.pjluck{display:flex; align-items:flex-start; gap:8px; margin:10px 0 0; font-size:14px}
+.pjluck input{margin:3px 0 0; width:20px; height:20px; flex:none}
+/* ===== end Alchemy potions ===== */

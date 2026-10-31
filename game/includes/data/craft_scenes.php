@@ -30,11 +30,11 @@ return [
     ["barrow", "Mulch barrow", 67.33, 50.00, 32.00, 46.00, "q=chips"],
   ]],
   'potions' => ['alt' => "Alchemy station scene", 'hot' => [
-    ["flasks", "Potion shelf", 1.33, 4.00, 32.00, 38.00, "q=potion"],
-    ["mortar", "Mortar and pestle", 2.67, 42.00, 28.00, 52.00, "q=potion"],
-    ["cauldron", "Cauldron", 34.00, 16.00, 33.33, 79.00, "q=potion"],
-    ["book", "Spellbook", 70.00, 6.00, 28.67, 34.00, "q=potion"],
-    ["still", "Copper still", 68.67, 42.00, 30.67, 52.00, "q=potion"],
+    ["flasks", "Potion shelf", 1.33, 4.00, 32.00, 38.00, "q=draught"],
+    ["mortar", "Mortar and pestle", 2.67, 42.00, 28.00, 52.00, "q=tonic"],
+    ["cauldron", "Cauldron", 34.00, 16.00, 33.33, 79.00, "q=healing"],
+    ["book", "Spellbook", 70.00, 6.00, 28.67, 34.00, "q=elixir"],
+    ["still", "Copper still", 68.67, 42.00, 30.67, 52.00, "q=brew"],
   ]],
   'building' => ['alt' => "Builders\u2019 yard scene", 'hot' => [
     ["pulley", "Crane pulley", 4.67, 3.00, 26.00, 43.00, "q=rope"],

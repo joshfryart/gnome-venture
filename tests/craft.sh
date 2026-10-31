@@ -47,4 +47,16 @@ page "inventory.php?tab=craft"; N=$(grep -c 'class="cmap-card' /tmp/c.html); ech
 for k in cooking pantry tools garden potions building decor; do grep -q "href=\"[^\"]*tab=craft&amp;c=$k\"" /tmp/c.html || echo "FAIL no link to area $k"; done
 for k in cooking pantry tools garden potions building decor; do page "inventory.php?tab=craft&c=$k"; H=$(grep -c 'class="cmap-hs ' /tmp/c.html); [ "$H" = 5 ] || echo "FAIL $k scene has $H of 5 tappable objects"; grep -q 'aria-current="page"' /tmp/c.html || echo "FAIL $k strip has no current area"; grep -q 'All areas' /tmp/c.html || echo "FAIL $k has no All areas link"; grep -q 'name="c" data-autosubmit' /tmp/c.html && echo "FAIL $k still has the category select"; done
 page "inventory.php?tab=craft&c=cooking&q=soup"; echo "soup search: $(grep -c 'shpill' /tmp/c.html) pills"
+echo "== Alchemy Table potions"
+N=$(db "SELECT COUNT(*) FROM recipes WHERE category='potions'"); echo "potion recipes: $N"; [ "$N" = 8 ] || echo "FAIL $N of 8 potion recipes"
+give healing-potion 2; give pine-resin 1; R6=$(db "SELECT id FROM recipes WHERE slug='strong-healing-potion'")
+page "inventory.php?tab=craft&c=potions"   # discovers it
+echo "strong potion: $(make potions $R6)"
+S=$(db "SELECT COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='strong-healing-potion'),0)||'/'||COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='healing-potion'),0)")
+[ "$S" = "1/0" ] || echo "FAIL strong/healing after make: $S (want 1/0)"
+give bladderwrack 2; give meadowsweet 1; give sphagnum 1; R7=$(db "SELECT id FROM recipes WHERE slug='garden-tonic'"); page "inventory.php?tab=craft&c=potions"; make potions $R7 >/dev/null
+T=$(db "SELECT COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='garden-tonic'),0)"); [ "$T" = 2 ] || echo "FAIL garden tonic makes $T (want 2)"
+page "inventory.php?tab=craft&c=potions"; for w in draught tonic healing elixir brew; do grep -q "c=potions&amp;q=$w#shelves" /tmp/c.html || echo "FAIL potions scene has no q=$w object"; done
+page "inventory.php?tab=craft&c=potions&q=healing"; echo "healing search: $(grep -c 'shpill' /tmp/c.html) pills"
+php "$(dirname "$0")/alchemy.php" "$GAME" || echo "FAIL alchemy.php"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/craft-php.log || echo "(none)"
