@@ -30,16 +30,20 @@ Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 - [x] [S] Phone layout: 7-column view under 400 px scrolls with the gnome. Screenshot light + dark.
 - [x] [S] `tests/delve2.sh` (+ `delve2.php` unit/helpers) added; `delvemap.sh` still passes. NOT run: other CI suites, golden combat replay (fights reuse `gnome_combat` unchanged).
 - [x] [S] Balance sim `claude/delve-sim.php` (generated floors, 4 stages): fights 2.35 (old 2.83), traps 1.37 (0.98), finds 4.9 (2.4), about 65 torch steps of 192 fuel, about 3 min. First guess: torch never runs out on generated floors, so lower `DV_TORCH` or lean on authored floors. Tune after Joshua's playtest.
+- [x] [S] Torch tuned (2026-10-31) by `claude/delve-torch-sim.php`: `DV_TORCH` 30/45/50 (was 40/55/70, never ran out). A thorough player in fog runs dark on about 11% small / 16% standard / 10% large floors; lantern 1 cuts that to 2-4%. Hazard torch effects come on top (sim does not count them).
 - [ ] [J] Plays one delve on phone (Firefox Android, dark). Fix list from him.
 
 ## 3b. Chamber stamper (added 2026-10-31, instead of drawing 168 full grids)
 - [x] [S] `includes/delve_stamp.php` (chambers 3/5/6, 2x2 stamp, doorways, objects), `tools/lint_delve_chambers.php`, `tests/delvestamp.sh`, data `includes/data/delve_chambers.txt`.
 - [x] [H] 25 Beaverdam chambers (6 of 3x3, 14 of 5x5, 5 of 6x6) in the data file. Generated delve floors for Beaverdam now use them (any other delve still uses tm_gen).
 - [ ] [H] Chambers for the other 13 delves (about 25 each), Sonnet lints + reviews, Joshua approves the look. Wave 1 DONE (Jaguar Root Caves, Mangrove Root Maze, Salt Mine Galleries, Firefly Caves; 125 chambers total in the data file). Wave 2 DONE (the other 9 delves; 350 chambers, 14 delves x 25; 11 near-copies fixed by hand; per-delve wet caps in `DS_WET_CAP`). Joshua still to review the look and approve.
-- [ ] [S] Per-delve hazard icon/name for W (brine, embers, ice...) instead of the shared 💧.
+- [x] [S] Per-delve hazard for W (2026-10-31): `DV_HAZARD` (emoji placeholder, name, ground tint) + `DV_HAZARD_FX` (health or torch a tile, log + flash; health never below 1) in delve_floors.php; W drawn as tinted ground with a small icon (`haz` in `tm_render_svg`), legend + tile label say the effect. Torch bar now an SVG (the old `style=` width was blocked by CSP).
+- [x] [S] Wandering creatures while walking a floor (2026-10-31): `dv2_enc_step` in delve_v2.php, settings `dv_enc_steps` 6 / `dv_enc_chance` 25 / `dv_enc_cap` 2; level between stage and gnome (stage-2..stage+3), creature from the delve's landscape pool, never back to back, none next to S/E/M, none on the guardian's floor.
+- [ ] [J] Art for the 14 hazard icons and any wandering-creature marker: NOT drawn (Joshua's call); emoji placeholders in `DV_HAZARD`.
 - [ ] [S] Maybe: more doorway/shape variety, signature set pieces (dam wall, lodge) as full 13x13 authored floors in the pool.
 
 ## 4. Author 3 delves (Beaverdam Tunnels, Salt Mine Galleries, Firefly Caves)
+- [x] (2026-10-31) 26 floors in `delve_floors.txt`, lint clean: Beaverdam 10 (Haiku draft, dam_wall + log_jam redrawn), Salt Mine 8, Firefly 8 (Opus, draft copy in `claude/drafts/delve_floors_salt_firefly.txt`). Names, titles, rule lines are DRAFT. The floor title + rule now go in the log when an authored floor opens. Delve-only loot not wired.
 - [ ] [H] Per delve: draft 8 floors (4 small, 3 standard, 1 large/boss) from name + landscape + rule list. Names, rule lines, signature creature, 1 delve-only item name.
 - [ ] [S] Lint all; reject and send back failures to Haiku; Sonnet hand-fixes signature + boss floors; check uniqueness (no copied layouts, names unique).
 - [ ] [S] Wire delve-only loot (item rows with placeholder icon).
@@ -59,8 +63,8 @@ Tag: [S] Sonnet, [H] Haiku, [J] Joshua.
 - [ ] [S] Commit per wave. Empty pool = generator fallback, so partial is safe.
 
 ## 7. Pal re-runs
-- [ ] [S] `pj_roll_delve` walks `dv_route` headlessly (Wayfinder safe branch, Thornblade fights, never the guardian); payout ~60%.
-- [ ] [S] Update `tests/paljobs.sh`.
+- [x] [S] `pj_roll_delve_route` walks today's `dv_route` headlessly when `delve_v2` is on (Wayfinder safe branch, Thornblade fights, never the guardian); payout ~60%; collect names the way taken.
+- [x] [S] `tests/paljobs.php` route section.
 
 ## 8. Ship
 - [ ] [S] `tools/check_versions.sh`, lint all php, full CI list one suite at a time, upgrade check.

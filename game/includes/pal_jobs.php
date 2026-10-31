@@ -487,6 +487,92 @@ function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
     return ['rounds' => $rooms, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => $log];
 }
 
+/** How a pal picks its way on a route, by calling: first kind in the list wins (Wayfinder the safe way, Thornblade the fights). Others go as the seed falls. */
+const PJ_ROUTE_PREF = [
+    'wayfinder' => ['shrine', 'treasure', 'mole', 'puzzle', 'mystery', 'fight'],
+    'thornblade' => ['fight', 'treasure', 'mystery', 'puzzle', 'mole', 'shrine'],
+];
+
+/**
+ * Delve redo (setting delve_v2 on): the pal walks today's route of the delve (dv_route, the same route the gnome sees today) with no screen.
+ * Every row but the guardian's: a fight floor is two fights, a mystery or puzzle floor a trap, a treasure floor an extra find, a shrine heals, Mo finds
+ * a few Petals. The pal turns back at the guardian's hall (never fights it) and brings home about 60% of a clear, as before.
+ * Same result keys as pj_roll_delve ('rounds' is scaled to DELVE_ROOMS so the time out and the XP stay the same), plus 'path' (the node kinds taken).
+ */
+function pj_roll_delve_route(array $p, array $lm, int $potions, string $seed, string $routeSeed): array
+{
+    require_once __DIR__ . '/delve_v2.php';
+    $rng = pj_rng($seed);
+    $pal = $p['pal'];
+    $a = $p['a'];
+    $lvl = max(1, (int)$lm['level']);
+    $route = dv_route($routeSeed, dv2_slug($lm), dv_stages($lvl));
+    $pref = PJ_ROUTE_PREF[$pal['calling'] ?? ''] ?? null;
+    $power = (int)$pal['grit'] + (int)$pal['nimble'] + 2 * $a;
+    $hp = $p['hp'];
+    $used = 0;
+    $log = [];
+    $path = [];
+    $done = 0;
+    $fainted = false;
+    $extraFinds = 0;
+    $moleCoins = 0;
+    $walk = $route['stages'] - 1;   // the guardian's row is left alone
+    $at = null;
+    for ($r = 0; $r < $walk && !$fainted; $r++) {
+        $choices = dv_route_choices($route, $at);
+        if (!$choices) break;
+        if ($pref) {
+            usort($choices, fn($x, $y) => array_search(dv_route_node($route, $x)['kind'], $pref, true) <=> array_search(dv_route_node($route, $y)['kind'], $pref, true));
+            $at = $choices[0];
+        } else {
+            $at = $choices[$rng(count($choices))];
+        }
+        $kind = dv_route_node($route, $at)['kind'];
+        $path[] = $kind;
+        $foe = $lvl + $r + 1;
+        $label = 'Stage ' . ($r + 1) . ' (' . $kind . ')';
+        if ($kind === 'fight') {
+            for ($k = 0; $k < 2; $k++) {
+                $win = max(25, min(92, 55 + 5 * ($power - $foe)));
+                if ($rng(100) >= $win) { $dmg = 3 + $rng(4) + intdiv($foe, 3); $hp -= $dmg; $log[] = $label . ': a tough fight, -' . $dmg . ' HP.'; }
+                else $log[] = $label . ': won a fight.';
+            }
+        } elseif ($kind === 'mystery' || $kind === 'puzzle') {
+            if ($rng(100) < 35) { $dmg = 2 + $rng(3) + intdiv($foe, 4); $hp -= $dmg; $log[] = $label . ': sprang a trap, -' . $dmg . ' HP.'; }
+            else $log[] = $label . ': slipped past a trap.';
+        } elseif ($kind === 'treasure') {
+            $extraFinds++;
+            $log[] = $label . ': found a cache.';
+        } elseif ($kind === 'shrine') {
+            $hp = $p['max'];
+            $log[] = $label . ': rested at the shrine.';
+        } else {
+            $moleCoins += 5 + $lvl;
+            $log[] = $label . ': Mo the mole found a few Petals.';
+        }
+        while ($hp > 0 && $hp <= intdiv($p['max'] * 4, 10) && $potions - $used > 0) {
+            $used++; $hp = min($p['max'], $hp + PJ_POTION_HEAL); $log[] = 'Drank a potion.';
+        }
+        if ($hp <= 0) { $hp = 0; $fainted = true; $log[] = 'Out of HP: heading home.'; break; }
+        $done = $r + 1;
+    }
+    if (!$fainted) $log[] = 'Turned back at the guardian’s hall with the loot.';
+    $coins = 0;
+    $items = [];
+    if (!$fainted) {
+        $coins = (int)round(random_int(20 + 5 * $lvl, 40 + 10 * $lvl) * 0.6) + $moleCoins;
+        $n = 1 + ($rng(100) < 50 ? 1 : 0) + $extraFinds;
+        for ($i = 0; $i < $n; $i++) {
+            $rare = $rng(100) < 20 + $lvl && $a >= 5;
+            $it = q_one("SELECT i.id, i.name FROM gatherables g JOIN items i ON i.id = g.item_id WHERE g.active = 1 AND g.rarity = ? ORDER BY " . sql_random() . ' LIMIT 1', [$rare ? 'rare' : 'uncommon']);
+            if ($it) $items[(int)$it['id']] = [(int)$it['id'], ($items[(int)$it['id']][1] ?? 0) + 1, (string)$it['name']];
+        }
+    }
+    $rounds = $walk > 0 ? (int)round(DELVE_ROOMS * $done / $walk) : 0;
+    return ['rounds' => $rounds, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => $log, 'path' => $path];
+}
+
 function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $unequip = false): array
 {
     $uid = (int)$u['id'];
@@ -500,7 +586,13 @@ function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $
     if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'delve' AND target = ? AND day = ?", [$uid, (string)$lmId, landmark_day()])) return [false, 'That delve needs a day to settle.'];
     if (!pj_take_potions($uid, $potions)) return [false, 'You do not have ' . $potions . ' Healing Potion' . ($potions === 1 ? '' : 's') . '.'];
     if (!pj_claim_pal($uid, $palUid, 'delve')) { if ($potions) give_item($uid, pj_potion_id(), $potions); return [false, $p['name'] . ' is already out.']; }
-    $res = pj_roll_delve($p, $lm, $potions, bin2hex(random_bytes(6)));
+    require_once __DIR__ . '/delve_map.php';
+    if (dv_on()) {
+        require_once __DIR__ . '/delve_v2.php';
+        $res = pj_roll_delve_route($p, $lm, $potions, bin2hex(random_bytes(6)), dv2_seed($uid, $lmId));
+    } else {
+        $res = pj_roll_delve($p, $lm, $potions, bin2hex(random_bytes(6)));
+    }
     $res['potions_back'] = $potions - $res['potions_used'];
     $secs = $res['fainted'] ? max(600, (int)(3600 * $res['rounds'] / DELVE_ROOMS)) : 3600;
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'delve', 'target' => (string)$lmId, 'plot_id' => null, 'day' => landmark_day(), 'tool' => null,
@@ -542,6 +634,7 @@ function pj_collect(array $u, int $jobId): array
         pj_add_xp($uid, $p['key'], 0, $xp);
         $lv = pj_level($p['axp'] + $xp);
         if ($xp > 0) $lines[] = '⭐ +' . $xp . ' Adventuring XP' . ($lv > $p['a'] ? ': now level ' . $lv . '!' : '');
+        if (!empty($r['path'])) { require_once __DIR__ . '/delve_v2.php'; $lines[] = '🗺️ ' . $p['name'] . ' took the ' . implode(', ', array_map(fn($k) => DV2_KIND[$k][1] ?? $k, $r['path'])) . ' way' . (empty($r['fainted']) ? ' and turned back at the guardian.' : '.'); }
     }
     return [true, $lines, $head];
 }

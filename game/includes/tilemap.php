@@ -356,6 +356,7 @@ function tm_dot(float $cx, float $cy, float $r): string
  * The picture of a window of the map: ONE svg. $theme = a landscape name (or 'cave'). $state:
  *   px, py   the walker (the lantern is centred on it)      seen   the fog bitset
  *   x0, y0, cols, rows   the window (see tm_window)          light  radius in tiles that is lit now (the rest of what was seen is dimmer)
+ *   haz      [icon, tint] optional: W tiles get a tinted bed and a small icon (delve v2 hazards)
  *   tokens   [[x, y, icon, ring ('gold'|'ember'), done, locked]]    walk   ['p' => [[x,y], ...]] the path just walked, or null
  *   me       inner svg of the walker's picture ('' = a plain gnome emoji)
  * Never draws a tile that has not been seen.
@@ -408,6 +409,7 @@ function tm_render_svg(array $map, string $theme, array $state): string
             $add('bed', tm_rr($X + 2, $Y + 2, $C - 4, $C - 4, 8));
             if ($hh % 3 === 0) $add('arc', 'M' . ($X + 10 + $hh % 8) . ' ' . ($Y + 28) . 'q6-5 12 0');
             if ($t === ',' || $hh % 5 === 0) $add('peb', 'M' . ($X + 8 + $hh % 20) . ' ' . ($Y + 12 + ($hh >> 4) % 18) . 'a3 2 0 1 0 6 0a3 2 0 1 0-6 0M' . ($X + 24 + $hh % 12) . ' ' . ($Y + 30 - ($hh >> 5) % 8) . 'a2.6 1.8 0 1 0 5.2 0a2.6 1.8 0 1 0-5.2 0');
+            if ($t === 'W' && isset($state['haz'])) $add('haz', tm_rr($X + 3, $Y + 3, $C - 6, $C - 6, 9));
             if ($t === 'S') $add('stair', 'M' . ($X + 12) . ' ' . ($Y + 8) . 'h18M' . ($X + 12) . ' ' . ($Y + 16) . 'h18M' . ($X + 12) . ' ' . ($Y + 24) . 'h18M' . ($X + 12) . ' ' . ($Y + 32) . 'h18');
             if (max(abs($x - $px), abs($y - $py)) > ($state['dim'] ?? $light)) $add('dim', $sq);
         }
@@ -422,6 +424,7 @@ function tm_render_svg(array $map, string $theme, array $state): string
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="#05040a"/>';
     $fills = ['rock' => $P['rock'], 'floor' => $P['floor'], 'bed' => $P['bed'], 'rock2' => $P['rock2'], 'rock3' => $P['rock3']];
     foreach ($fills as $layer => $col) if (isset($L[$layer])) $o .= '<path fill="' . $col . '" d="' . $L[$layer] . '"/>';
+    if (isset($L['haz'])) $o .= '<path class="tmhaz" fill="' . htmlspecialchars((string)$state['haz'][1], ENT_QUOTES, 'UTF-8') . '" opacity=".6" d="' . $L['haz'] . '"/>';
     $dots = ['speck_lit' => [$P['rock3'], '.8'], 'speck' => [$P['ink'], '.5'], 'moss' => [$P['moss'], '.9'], 'peb' => [$P['dot'], '.45']];
     foreach ($dots as $layer => [$col, $op]) if (isset($L[$layer])) $o .= '<path fill="' . $col . '" opacity="' . $op . '" d="' . $L[$layer] . '"/>';
     $strokes = ['crack' => [$P['ink'], '1.3', '.6'], 'arc' => [$P['rock3'], '1.5', '.35'], 'stair' => [$P['cream'], '2.4', '.8']];
@@ -450,6 +453,15 @@ function tm_render_svg(array $map, string $theme, array $state): string
         $cy = ($ty - $y0) * $C + $C / 2;
         $o .= '<g class="tmtok' . ($done ? ' done' : '') . ($locked ? ' locked' : '') . '"' . ($done ? ' opacity=".55"' : '') . '><circle cx="' . $cx . '" cy="' . $cy . '" r="16" fill="' . ($locked ? '#9a8f80' : $P['cream']) . '" stroke="' . ($ring === 'ember' ? $P['ember'] : $P['gold']) . '" stroke-width="2.5"/>'
             . '<text x="' . $cx . '" y="' . tm_n($cy + 6) . '" font-size="17" text-anchor="middle">' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '</text></g>';
+    }
+    // hazard tiles: a small icon on the tinted bed (no disc: it is ground, not a thing to pick up)
+    if (isset($state['haz'])) {
+        for ($y = $y0; $y < $y0 + $rows; $y++) {
+            for ($x = $x0; $x < $x0 + $cols; $x++) {
+                if (tm_tile($map, $x, $y) !== 'W' || !$vis($x, $y) || ($x === $px && $y === $py)) continue;
+                $o .= '<text class="tmhazi" x="' . (($x - $x0) * $C + $C / 2) . '" y="' . tm_n(($y - $y0) * $C + $C / 2 + 5) . '" font-size="13" text-anchor="middle" opacity=".85">' . htmlspecialchars((string)$state['haz'][0], ENT_QUOTES, 'UTF-8') . '</text>';
+            }
+        }
     }
     // the walker
     $o .= '<g class="tmme" transform="translate(' . tm_n($lx) . ' ' . tm_n($ly) . ')"><ellipse cy="14" rx="12" ry="4" fill="#000" opacity=".3"/><circle r="17" fill="' . $P['cream'] . '" stroke="' . $P['gold'] . '" stroke-width="3"/>'

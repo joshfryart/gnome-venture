@@ -6499,3 +6499,8 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .pjriskwarn { display: none; margin: 6px 0; font-size: .9em; text-align: center; }
 .pjform:has(input[data-pj-risky]:checked) .pjriskwarn { display: block; }
 /* ==== v2.3.3 pal jobs notice END ==== */
+
+/* === delve v2 hazards + torch bar (delve redo agent) === */
+.dv2bar { min-width: 40px; }
+.dv2bar rect { fill: var(--accent); }
+/* === end delve v2 hazards === */

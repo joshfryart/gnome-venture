@@ -1,0 +1,293 @@
+# Salt Mine Galleries: 8 floors (4 small, 3 standard, 1 boss). DRAFT names, titles and rule lines: waiting for Joshua. W = brine puddle.
+# Mood: rails (long straight lines), cave-ins (rubble ","), salt pillars.
+
+@salt-mine-galleries/cart_siding
+tier: small
+rule: An old cart siding. The salt room hides a chest, and a brine puddle sits on the west track.
+sig: no
+for: fight,treasure
+title: The Cart Siding
+#########
+#S......#
+#.#####.#
+#.#1..#.#
+#.#.F.C.#
+#.#,,##.#
+#.W.T.#.#
+#.....#E#
+#########
+
+@salt-mine-galleries/brine_cut
+tier: small
+rule: A locked tool store off a brine cut. The key lies in the rubble by the way in.
+sig: no
+for: mystery,puzzle
+title: The Brine Cut
+#########
+#S.,#...#
+#..,#.2.#
+#WW.D.T.#
+#WW.#...#
+#.K.#####
+#..,..1E#
+#.......#
+#########
+
+@salt-mine-galleries/salt_pillars
+tier: small
+rule: A room of salt pillars left to hold the roof. Something waits between them.
+sig: no
+for: fight,mystery
+title: The Salt Pillars
+#########
+#S..,...#
+#.#.#.#.#
+#..F..1.#
+#.#.#.#.#
+#.,.T...#
+#.#.#.#.#
+#2.....E#
+#########
+
+@salt-mine-galleries/collapsed_drift
+tier: small
+rule: A drift half fallen in. Climb the rubble for the chest; the way down is past the lower seam.
+sig: no
+for: treasure,puzzle
+title: The Collapsed Drift
+#########
+#S,,#..C#
+#.#,#.#.#
+#.#,,,#.#
+#.##.##.#
+#1.....T#
+###.#####
+#E..,..2#
+#########
+
+@salt-mine-galleries/rail_gallery
+tier: standard
+rule: Two long rail lines round the old weigh room. The only way into it is past the lower seam.
+sig: yes
+for: fight,treasure
+title: The Rail Gallery
+#############
+#S..........#
+#.#########.#
+#.#,,,1,,,#.#
+#.#.#####.#.#
+#...#.C.#...#
+###.#...#.###
+#...#.F.#...#
+#.#.##.##.#.#
+#.#,,,2,,,#.#
+#.#########.#
+#.....T....E#
+#############
+
+@salt-mine-galleries/brine_lake
+tier: standard
+rule: The brine lake floods the east galleries. The key to the lake door is in the west shafts.
+sig: no
+for: mystery,puzzle
+title: The Brine Lake
+#############
+#S...#......#
+#.,..#.WWW..#
+#..1.#.WWW.3#
+#....D.WW...#
+###.##..W...#
+#..T..#.....#
+#.#K#.#.#####
+#.#.#.#.....#
+#...#.#..M..#
+#.###.#####.#
+#..,..F#...E#
+#############
+
+@salt-mine-galleries/salt_chapel
+tier: standard
+rule: Miners carved a chapel in the salt. The shrine sits in the middle, four halls around it.
+sig: no
+for: fight,mystery
+title: The Salt Chapel
+#############
+#S..#...#...#
+#...#.1.#.F.#
+#,#...#...#,#
+#...#####...#
+##.##,M,##.##
+#.....,.....#
+##.##,,,##.##
+#...#####...#
+#,#...#...#,#
+#.T.#.2.#...#
+#...#...#..E#
+#############
+
+@salt-mine-galleries/salt_throne
+tier: standard
+rule: The guardian sits on a throne of salt in the deepest room. The chest is right behind it.
+sig: no
+for: boss
+title: The Salt Throne
+#############
+#S....#.....#
+#.##..#..1..#
+#.#.......#.#
+#.#.#####.#.#
+#...#,,,#...#
+###.#,B,#.###
+#...#,C,#...#
+#.#.##.##.#.#
+#.#.......#.#
+#.##.T....#.#
+#.....#.....#
+#############
+
+# Firefly Caves: 8 floors (4 small, 3 standard, 1 boss). DRAFT names, titles and rule lines: waiting for Joshua. W = spring pool.
+# Mood: round grottoes, spring pools, glow.
+
+@firefly-caves/glow_pocket
+tier: small
+rule: A small grotto lit by fireflies. A spring pool fills the west side.
+sig: no
+for: fight,mystery
+title: The Glow Pocket
+#########
+##S..,###
+#..,...##
+#.WW.1..#
+#.WW.F..#
+##...T..#
+###..,.##
+###..E###
+#########
+
+@firefly-caves/spring_steps
+tier: small
+rule: Spring water runs down a stair of rock. The chest sits on a dry step.
+sig: no
+for: treasure,puzzle
+title: The Spring Steps
+#########
+#S..#####
+#.W..1###
+#.WW...##
+##.WW..C#
+##..WW..#
+###2..W.#
+####...E#
+#########
+
+@firefly-caves/twin_glows
+tier: small
+rule: Two glowing rooms and a door between them. The key is in the first room.
+sig: no
+for: fight,puzzle
+title: The Twin Glows
+#########
+#S.,#,..#
+#...#.1.#
+#.F.D.T.#
+#.K.#...#
+#...#..E#
+#,..#.2.#
+#.,.#...#
+#########
+
+@firefly-caves/moth_ring
+tier: small
+rule: Pools ring a dry island where the moths gather. The chest is in the middle.
+sig: no
+for: treasure,mystery
+title: The Moth Ring
+#########
+#S.....##
+#.##W#..#
+#.#1..#.#
+#.W.C.W.#
+#.#..2#.#
+#..#W##.#
+##.....E#
+#########
+
+@firefly-caves/firefly_hall
+tier: standard
+rule: The great hall of the fireflies. A ring of spring water guards the glowing middle.
+sig: yes
+for: fight,treasure
+title: The Firefly Hall
+#############
+#S..,....,..#
+#.##.....##.#
+#.#..WWW..#.#
+#...WW1WW...#
+#..W.....W..#
+#..W..C..W..#
+#..W..F..W..#
+#...WW.WW...#
+#.#..W.W..#.#
+#.##.....##.#
+#..,..2..,.E#
+#############
+
+@firefly-caves/drip_maze
+tier: standard
+rule: Narrow drip passages wind through the rock. Listen for the trap clicking in the dark.
+sig: no
+for: mystery,puzzle
+title: The Drip Maze
+#############
+#S.#...#....#
+#..#.#.#.##.#
+#.##.#...#..#
+#....###.#.##
+##.#...#.#..#
+#..#.1.#.##.#
+#.##...#..T.#
+#..W.#.##.#.#
+##.WW#..#.#.#
+#..#2..##...#
+#.,.#.....#E#
+#############
+
+@firefly-caves/glowcap_garden
+tier: standard
+rule: Glowcaps grow thick by the old door. The key lies among them, and a shrine waits beyond.
+sig: no
+for: mystery,fight
+title: The Glowcap Garden
+#############
+#S...,..#...#
+#.,.....#.3.#
+#..#.#..#...#
+#.....,.D..M#
+#,.#.#..#...#
+#...F...###.#
+###.#####...#
+#.....K.#.2.#
+#.WW....#...#
+#..W.T..#...#
+#.....,.#..E#
+#############
+
+@firefly-caves/glow_queen
+tier: standard
+rule: The guardian rests where the brightest swarm circles. Its chest glows at its feet.
+sig: no
+for: boss
+title: The Swarm Hall
+#############
+#S.,..W..,..#
+#.##.WWW.##.#
+#.#...W...#.#
+#...#...#...#
+#.W...B...W.#
+#.W..,C,..W.#
+#...#...#...#
+#.#...T...#.#
+#.##.....##.#
+#..1.....2..#
+#...........#
+#############

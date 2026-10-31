@@ -13,12 +13,44 @@ declare(strict_types=1);
 require_once __DIR__ . '/tilemap.php';
 
 const DV_TIERS = ['small' => 9, 'standard' => 13, 'large' => 15];
-const DV_TORCH = ['small' => 40, 'standard' => 55, 'large' => 70];   // torch fuel (steps) a floor starts with; at 0 the light shrinks, nothing fails
+const DV_TORCH = ['small' => 30, 'standard' => 45, 'large' => 50];   // torch fuel (steps) a floor starts with; at 0 the light shrinks, nothing fails. Tuned by claude/delve-torch-sim.php (was 40/55/70: never ran out)
 const DV_TORCH_SLACK = 1.3;                                          // a floor must be clearable within fuel x this (lint)
 const DV_HAZARD_COST = 2;                                            // a hazard tile costs this many torch steps
 const DV_FOR = ['fight', 'treasure', 'mystery', 'puzzle', 'boss'];
 const DV_MAX_FINDS = 6;                                              // fewer than 7 finds a floor (the 7 dots are the progress bar)
 const DV_ROWCHARS = '#.,SE123456789KDWTCBMF';
+/** What the hazard tile W is in each delve: [icon, name, ground tint]. Icons are emoji placeholders until Joshua draws them (proposals in claude/art-delve-hazards/). */
+const DV_HAZARD = [
+    'beaverdam-tunnels' => ['💧', 'Shallow water', '#3f6f8c'], 'jaguar-root-caves' => ['🌧️', 'Drip pool', '#46705e'],
+    'mangrove-root-maze' => ['🌱', 'Tidal mud', '#5b5a3a'], 'salt-mine-galleries' => ['🧂', 'Brine puddle', '#a8a493'],
+    'firefly-caves' => ['🫧', 'Spring pool', '#4f8aa3'], 'anaconda-hollows' => ['🌿', 'Reedy creek', '#4c7a52'],
+    'sea-cave-smugglers-run' => ['🐚', 'Rock pool', '#4f7f86'], 'pirate-gull-grottoes' => ['🌊', 'Seawater', '#2f6680'],
+    'rose-red-canyon-city' => ['🏺', 'Cistern water', '#3c6a7a'], 'the-canopy-bridges' => ['🪵', 'Rotten planks', '#6b4a2b'],
+    'fynbos-fire-trails' => ['🔥', 'Embers', '#8a3b1e'], 'snowleopard-ledges' => ['🧊', 'Ice patch', '#9cc7d9'],
+    'the-long-wall-walk' => ['🪨', 'Loose stones', '#7a6f62'], 'the-red-rock-songlines' => ['🏜️', 'Soft sand', '#c29a5b'],
+];
+const DV_HAZARD_ANY = ['💧', 'Water', '#3f6f8c'];
+/**
+ * What a hazard tile does to you, on top of its torch step cost: [kind, amount a tile, log line]. kind 'hp' = health lost a tile (never below 1:
+ * terrain never knocks you out), 'torch' = extra torch lost a tile. The amount grows by 1 every 8 danger levels (dv_hazard_fx).
+ */
+const DV_HAZARD_FX = [
+    'beaverdam-tunnels' => ['torch', 2, '💧 Cold water soaks your boots and spits at your torch.'],
+    'jaguar-root-caves' => ['torch', 2, '🌧️ Drips hiss on your torch as you splash through.'],
+    'mangrove-root-maze' => ['torch', 3, '🌱 The tidal mud sucks at your feet. Slow going.'],
+    'salt-mine-galleries' => ['hp', 1, '🧂 The brine stings every scratch you have.'],
+    'firefly-caves' => ['torch', 2, '🫧 Spring spray hisses on your torch.'],
+    'anaconda-hollows' => ['torch', 2, '🌿 You wade the reedy creek, torch held high.'],
+    'sea-cave-smugglers-run' => ['hp', 1, '🐚 Sharp shells nip your toes in the rock pool.'],
+    'pirate-gull-grottoes' => ['torch', 3, '🌊 A wave slaps over your torch.'],
+    'rose-red-canyon-city' => ['torch', 2, '🏺 You wade the old cistern; the damp gets at your torch.'],
+    'the-canopy-bridges' => ['hp', 2, '🪵 A rotten plank gives way. You catch yourself, scraped.'],
+    'fynbos-fire-trails' => ['hp', 2, '🔥 The embers singe you.'],
+    'snowleopard-ledges' => ['hp', 1, '🧊 You slip on the ice and land hard.'],
+    'the-long-wall-walk' => ['hp', 1, '🪨 Loose stones roll under you. You stumble.'],
+    'the-red-rock-songlines' => ['torch', 3, '🏜️ Soft sand drags at every step.'],
+];
+const DV_HAZARD_FX_ANY = ['torch', 2, '💧 Water splashes at your torch.'];
 
 /** Parse floor text. Returns ['floors' => [key => floor], 'errors' => [strings]]. A floor is not linted here (see dv_floor_lint). */
 function dv_floor_parse(string $text): array
@@ -76,6 +108,19 @@ function dv_finds(array $map): array
         for ($x = 0, $n = strlen($row); $x < $n; $x++) if ($row[$x] >= '1' && $row[$x] <= '9') $out[] = [$x, $y];
     }
     return $out;
+}
+
+/** The hazard of a delve: [icon, name, tint]. */
+function dv_hazard(string $slug): array
+{
+    return DV_HAZARD[$slug] ?? DV_HAZARD_ANY;
+}
+
+/** The effect of a delve's hazard at a danger level: ['kind' => 'hp'|'torch', 'n' => amount a tile, 'line' => log line]. */
+function dv_hazard_fx(string $slug, int $level = 1): array
+{
+    [$kind, $n, $line] = DV_HAZARD_FX[$slug] ?? DV_HAZARD_FX_ANY;
+    return ['kind' => $kind, 'n' => $n + intdiv(max(0, $level - 1), 8), 'line' => $line];
 }
 
 /** Torch cost of stepping onto a tile. */
