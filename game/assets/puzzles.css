@@ -315,18 +315,191 @@ body.pz-play .lp #game{text-align:left}
 .ppaltake{margin:4px 0 0}
 .ppalperk{font-size:11px}
 :root[data-theme="dark"] .ppalslots li{background:var(--felt)}
-/* v2.3.0: pal jobs */
-.pjpage .pjlist{list-style:none; margin:0; padding:0; display:grid; gap:8px}
-.pjrow{display:flex; align-items:center; gap:10px; padding:6px; background:var(--surface-2)}
-.pjrow .pjwho{flex:1; min-width:0}
-.pjhead{display:flex; align-items:center; gap:10px}
-.pjhead h3{margin:0}
-.pjpal meter{width:90px; vertical-align:middle}
-.pjsend{margin-top:8px}
-.pjsend summary{cursor:pointer; font-weight:700}
-.pjform{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:10px 0; padding-top:8px; border-top:1px solid var(--line)}
-.pjform b{flex:1 0 100%}
-.pjform small{flex:1 0 100%}
-.pjform select,.pjnum{max-width:100%}
-.pjnum{width:56px}
-.pjheal{margin-top:6px}
+/* ===== pj BEGIN: replaces game/assets/puzzles.css lines 318-332 (the old v2.3.0 pal jobs block) ===== */
+/* v2.3.1: pal jobs (paljobs.php + assets/paljobs.js). One screen: the ledger (pals out) beside the pals at home, then the job board.
+   Built on the site kit: .box panels, .btn, .chip, .flash, .ppalrar, .vh, the --frame / --st-h stitch tokens. Only tokens, so light and dark both follow.
+   The page is a size container: two columns once the page column (not the window) is wide enough, so the side menu and the right rail are allowed for. */
+.pjpage{--pj-ease:cubic-bezier(.16,1,.3,1); container:pjpage / inline-size}
+.pjpage .pjimg{width:44px; height:44px}
+.pjpage h2{margin:0}
+.pjpage h3{margin:0}
+
+/* today: the two daily limits + the way back to the book */
+.pjcounts{list-style:none; margin:0 0 14px; padding:0; gap:6px; display:flex; flex-wrap:nowrap; justify-content:center}
+.pjcounts .chip{display:inline-flex; align-items:center; gap:5px; min-height:34px; padding:2px 8px; font-size:14px; white-space:nowrap; flex:0 1 auto; min-width:0}
+.pjcounts b{font-size:16px; font-variant-numeric:tabular-nums}
+.pjcounts .pjnone-left b{color:var(--danger-ink)}
+@media (max-width:340px){.pjcounts{gap:4px}.pjcounts .chip{padding:2px 5px;font-size:13px;gap:4px}.pjcounts a{margin:-6px -5px;padding:0 5px}}
+.pjcounts a{display:inline-flex; align-items:center; gap:6px; min-height:var(--tap); margin:-6px -8px; padding:0 8px; font-weight:700}
+
+
+
+/* unfold button */
+.pjopen{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:12px}
+.pjopen::after{content:''; width:0; height:0; border:6px solid transparent; border-top:7px solid currentColor; border-bottom:0; transition:transform .2s cubic-bezier(.16,1,.3,1)}
+.pjopen[aria-expanded="true"]::after{transform:rotate(180deg)}
+.pjopen[aria-expanded="true"]{background:var(--surface-2); color:var(--ink)}
+.pjopen + .pjform{margin-top:8px}
+@media (prefers-reduced-motion:reduce){ .pjopen::after{transition:none} }
+/* tabs (JS adds .pj-tabbed; without JS the sections stack) */
+.pjtabs{display:flex; gap:0; margin:0 0 14px; border-bottom:2px solid var(--line-2)}
+.pjtab{position:relative; flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:var(--tap); margin:0 -2px -2px 0; padding:0 10px; font:inherit; font-weight:700; color:var(--ink-2); background:var(--surface-2); border:2px solid var(--line-2); border-radius:0; cursor:pointer; white-space:nowrap}
+.pjtab:hover{color:var(--ink); background:var(--surface)}
+.pjtab[aria-selected="true"]{color:var(--on-fill); background:var(--brand-fill); border-color:var(--ol); z-index:1}
+.pjtab:focus-visible{outline:3px solid var(--focus); outline-offset:-5px}
+.pjtabn{font-style:normal; font-variant-numeric:tabular-nums; min-width:22px; padding:0 5px; font-size:13px; line-height:20px; text-align:center; background:var(--surface); color:var(--ink); border:1px solid var(--line-2)}
+.pjtabn:empty{display:none}
+.pjtab.has-ready .pjtabn{background:var(--accent); border-color:var(--ol); color:var(--ol)}
+.pj-tabbed .pjgrid{display:block}
+.pj-tabbed [role="tabpanel"][hidden]{display:none}
+/* the two panels */
+.pjgrid{display:grid; gap:0 16px}
+@container pjpage (min-width:680px){ .pjgrid{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); align-items:stretch} }
+.pjpanel{display:flex; flex-direction:column}
+.pjpanelhd{position:relative; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; min-height:36px; padding-bottom:10px}
+.pjpanelhd::after{content:''; position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--st-h)}
+.pjslots{display:inline-flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-2)}
+.pjslots b{font-variant-numeric:tabular-nums}
+.pjdots{display:inline-flex; gap:4px}
+.pjdots i{width:12px; height:12px; background:var(--surface-2); box-shadow:inset 0 0 0 2px var(--line-2)}
+.pjdots i.on{background:var(--brand); box-shadow:inset 0 0 0 2px var(--ol)}
+.pjrows{list-style:none; margin:0; padding:0; flex:1 0 auto}
+.pjrow{display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:4px 12px; align-items:center; padding:10px 0; border-top:1px solid var(--line)}
+.pjrow:first-child{border-top:0}
+.pjwho{min-width:0}
+.pjwho > b{display:block; font-size:16px; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pjwho small{display:block; line-height:1.35; color:var(--muted)}
+.pjfoot{margin:0; padding:10px 0 0; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+.pjnone{margin:12px 0}
+
+/* ledger rows: picture, who + what, the bar under them, the time (or the button) on the right */
+.pjledger .pjimg{grid-row:1 / 3}
+.pjact{grid-column:3; grid-row:1 / 3; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; min-width:96px; text-align:right}
+.pjact form{margin:0}
+.pjact small{white-space:nowrap}
+.pjeta{font-size:17px; font-weight:800; line-height:1.2; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pjeta-date{font-size:14px}
+progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-width:none; height:8px; margin:4px 0 2px}
+.pj-garden progress.pjbar{--fill:var(--brand-line)}
+.pjrow.is-ready progress.pjbar{--fill:var(--brand)}
+.pjrow.is-ready{margin:0 -16px; padding:10px 16px; background:var(--brand-soft); border-top-color:transparent}
+.pjrow.is-ready + .pjrow{border-top-color:transparent}
+.pjrow.is-ready .pjeta{color:var(--brand-ink)}
+.pjrow.is-ready .pjwho small{color:var(--ink-2)}
+.pjrow.pjfree{grid-template-columns:44px minmax(0,1fr); color:var(--muted)}
+.pjph{width:44px; height:44px; background:repeating-linear-gradient(45deg, transparent 0 4px, var(--surface-2) 4px 8px); box-shadow:inset 0 0 0 2px var(--line)}
+.pjfree a{display:inline-flex; align-items:center; min-height:var(--tap); padding:0 4px; font-weight:700}
+
+/* the one authored moment: a collect receipt unrolls like a note pulled from the satchel (once, on the page after Collect) */
+.pjreceipt{margin:12px 2px 4px}
+.pjreceipt ul{margin:4px 0 0; padding-left:18px}
+.pjreceipt{animation:pjunroll .56s var(--pj-ease) backwards}
+.pjreceipt li{animation:pjline .4s var(--pj-ease) backwards}
+.pjreceipt .pjl0{animation-delay:.16s} .pjreceipt .pjl1{animation-delay:.23s} .pjreceipt .pjl2{animation-delay:.3s} .pjreceipt .pjl3{animation-delay:.37s}
+.pjreceipt .pjl4{animation-delay:.44s} .pjreceipt .pjl5{animation-delay:.51s} .pjreceipt .pjl6{animation-delay:.58s} .pjreceipt .pjl7{animation-delay:.65s}
+@keyframes pjunroll{from{clip-path:inset(0 0 100% 0); transform:translateY(-6px)} to{clip-path:inset(0); transform:none}}
+@keyframes pjline{from{opacity:0; transform:translateX(-6px)} to{opacity:1; transform:none}}
+
+/* at home */
+.pjnmrow{display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 8px; min-width:0}
+.pjnmrow b{font-size:16px; line-height:1.25; overflow-wrap:anywhere}
+.pjstats{display:flex; flex-wrap:wrap; align-items:center; gap:2px 12px; font-size:14px; color:var(--ink-2)}
+.pjsk{display:inline-flex; align-items:center; gap:4px; font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pjhp{display:inline-flex; align-items:center; gap:6px; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pjrest{color:var(--danger-ink); font-weight:700; white-space:nowrap}
+.pjheal{margin:0}
+.pjheal .btn{padding:4px 10px; white-space:nowrap}
+
+/* hp meters: pixel bars, green from 40% up, gold below (low = high = 40% of max in the markup) */
+.pjpage meter{-webkit-appearance:none; appearance:none; flex:none; width:48px; height:10px; background:var(--surface-2); box-shadow:inset 0 0 0 2px var(--line-2); vertical-align:middle}
+.pjpage meter::-webkit-meter-bar{background:var(--surface-2); border:0; border-radius:0; box-shadow:inset 0 0 0 2px var(--line-2); height:10px}
+.pjpage meter::-webkit-meter-optimum-value{background:var(--brand); border-radius:0; box-shadow:inset 0 0 0 2px var(--line-2)}
+.pjpage meter::-webkit-meter-suboptimum-value, .pjpage meter::-webkit-meter-even-less-good-value{background:var(--accent); border-radius:0; box-shadow:inset 0 0 0 2px var(--line-2)}
+.pjpage meter::-moz-meter-bar{background:var(--accent)}
+.pjpage meter:-moz-meter-optimum::-moz-meter-bar{background:var(--brand)}
+
+/* the board */
+.pjboard{margin-top:8px}
+.pjboardhd{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:2px 12px; margin:0 0 14px}
+.pjboardhd p{margin:0; font-size:14px}
+.pjposts{display:grid; gap:20px 16px}
+@container pjpage (min-width:900px){ .pjposts{grid-template-columns:repeat(3,minmax(0,1fr)); align-items:start} }
+.pjpost{position:relative; margin:0; padding-top:18px; container:pjpost / inline-size}
+.pjpost::before{content:''; position:absolute; top:-6px; left:50%; width:12px; height:12px; margin-left:-6px; background:var(--danger); box-shadow:0 0 0 2px var(--ol)}   /* the pin */
+.pjpost:has(input[name="pal"]:checked){box-shadow:0 0 0 3px var(--ink), 3px 5px 0 0 var(--drop), 5px 3px 0 0 var(--drop)}
+.pjposthd{display:flex; align-items:center; gap:10px}
+.pjico{display:grid; place-items:center; flex:none; width:40px; height:40px; background:var(--surface-2); box-shadow:var(--frame-lite)}
+.pjico .ico{width:24px; height:24px; vertical-align:0}
+.pjlen{margin:0; font-size:14px; font-weight:700; color:var(--brand-ink)}
+.pjdesc{margin:10px 0 2px; max-width:60ch}
+.pjpays{margin:0; font-size:14px}
+.pjform, .pjblocked{position:relative; margin:12px 0 0; padding-top:12px}
+.pjform::before, .pjblocked::before{content:''; position:absolute; left:0; right:0; top:0; height:2px; background:var(--st-h)}
+.pjblocked{display:flex; align-items:flex-start; gap:8px; font-size:14px; color:var(--ink-2)}
+.pjblocked .ico{margin-top:3px}
+
+/* send who? one radio per pal; the whole row is the label */
+.pjpick{min-width:0; margin:0; padding:0; border:0}
+.pjpick legend{display:flex; justify-content:space-between; align-items:baseline; gap:8px; width:100%; margin:0 0 6px; padding:0; font-size:14px; font-weight:700}
+.pjpick legend small{display:inline-flex; align-items:center; gap:4px; font-weight:400; white-space:nowrap}
+.pjfaces{list-style:none; margin:0; padding:2px; display:grid; gap:8px}
+@container pjpost (min-width:520px){ .pjfaces{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.pjface{display:grid; grid-template-columns:20px 32px minmax(0,1fr) 44px 22px; align-items:center; gap:8px; min-height:var(--tap); padding:4px 10px 4px 8px;
+  background:var(--surface); box-shadow:var(--frame-lite); cursor:pointer; font-size:14px}
+.pjface:hover{background:var(--surface-2)}
+.pjface input{margin:0}
+.pjface .pjimg{width:32px; height:32px}
+.pjnm{font-weight:700; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pjface meter{width:44px; height:8px}
+.pjface meter::-webkit-meter-bar{height:8px}
+.pjlv{font-size:17px; font-weight:800; text-align:right; font-variant-numeric:tabular-nums}
+.pjface:has(input:checked){background:var(--brand-fill); color:var(--on-fill); box-shadow:0 0 0 2px var(--ol), 2px 4px 0 0 var(--drop), 4px 2px 0 0 var(--drop)}
+.pjface:has(input:checked) input{accent-color:var(--on-fill)}
+.pjface:has(input:checked) meter{background:transparent; box-shadow:inset 0 0 0 2px var(--on-fill)}
+.pjface:has(input:checked) meter::-webkit-meter-bar{background:transparent; box-shadow:inset 0 0 0 2px var(--on-fill)}
+.pjface:has(input:checked) meter::-webkit-meter-optimum-value, .pjface:has(input:checked) meter::-webkit-meter-suboptimum-value, .pjface:has(input:checked) meter::-webkit-meter-even-less-good-value{background:var(--on-fill)}
+.pjface:has(input:checked) meter::-moz-meter-bar{background:var(--on-fill)}
+.pjface:has(input:focus-visible){outline:3px solid var(--focus); outline-offset:2px}
+.pjface.is-resting{cursor:not-allowed; background:var(--surface-2); box-shadow:inset 0 0 0 2px var(--line)}
+.pjface.is-resting .pjimg{filter:grayscale(.85) opacity(.7)}
+.pjface.is-resting .pjnm{color:var(--muted)}
+.pjlv-rest{grid-column:4 / 6; font-size:13px; font-weight:700; color:var(--danger-ink)}
+.pjmore{min-height:var(--tap); padding:0 4px; font-weight:700}
+
+/* the options: hidden until a pal is picked (browsers without :has show them all the time, which still works) */
+.pjopts{display:grid; gap:12px; margin-top:14px; padding-top:12px; border-top:1px solid var(--line)}
+.pjform:not(:has(input[name="pal"]:checked)) .pjopts{display:none}
+@container pjpost (min-width:520px){ .pjopts{grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end} .pjopts > p, .pjopts > .pjgo, .pjopts > .pjsend{grid-column:1 / -1} }
+.pjfield{display:grid; gap:4px; min-width:0; margin:0; padding:0; border:0}
+.pjfield > label, .pjfield > legend{padding:0; font-size:13px; font-weight:700; color:var(--ink-2)}
+.pjfield select{width:100%}
+.pjsegs{display:flex}
+.pjsegs label{position:relative; flex:1 1 0; min-width:0}
+.pjsegs label + label{margin-left:-2px}
+.pjsegs input{position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:pointer}
+.pjsegs span{display:flex; align-items:center; justify-content:center; min-height:var(--tap); padding:0 8px; font-size:14px; font-weight:700; white-space:nowrap;
+  background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 2px var(--line-2)}
+.pjsegs label:hover span{background:var(--surface-2)}
+.pjsegs input:checked + span{position:relative; background:var(--brand-fill); color:var(--on-fill); box-shadow:inset 0 0 0 2px var(--ol)}
+.pjsegs input:focus-visible + span{position:relative; z-index:1; outline:3px solid var(--focus); outline-offset:2px}
+.pjstep{display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px}
+.pjstep input{width:72px; text-align:center; font-weight:800; font-variant-numeric:tabular-nums}
+.pjstepper{display:flex}
+.pjstepper input{width:56px; margin:0 -2px; -moz-appearance:textfield; appearance:textfield}
+.pjstepper input::-webkit-inner-spin-button, .pjstepper input::-webkit-outer-spin-button{-webkit-appearance:none; margin:0}
+.pjstepper button{width:var(--tap); min-height:var(--tap); padding:0; font:800 18px/1 var(--font); color:var(--ink); background:var(--surface); border:0; box-shadow:inset 0 0 0 2px var(--line-2); cursor:pointer}
+.pjstepper button:hover:not(:disabled){background:var(--surface-2)}
+.pjstepper button:disabled{color:var(--line-2); background:var(--surface-2); cursor:not-allowed; opacity:1}
+.pjhint{margin:0; font-size:13px}
+.pjback{margin:0; font-size:13px; font-weight:700; color:var(--ink-2)}
+.pjgo{display:flex; align-items:center; gap:4px}
+.pjgo .btn{flex:1 1 auto; min-width:0; margin:2px 0 6px}
+.pjsend{width:100%}
+.pjgo .pjsend{width:auto}
+.pjsend span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+/* no pals yet */
+.pjempty{max-width:520px}
+.pjempty .btn{margin-top:4px}
+
+/* ===== pj END ===== */
