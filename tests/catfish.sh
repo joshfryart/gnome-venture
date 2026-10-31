@@ -764,7 +764,7 @@ ok "admin never opened Cat Fish: no catfish_state row before" "$(dbv "SELECT COU
 curl -s -b $W/a -o /dev/null $BASE/garden.php
 ok "garden visit by a fresh gnome: no catfish_state row created" "$(dbv "SELECT COUNT(*) FROM catfish_state WHERE user_id=$ADM")" 0
 
-# Puzzle Pals bonus through view.kph: 2% per pal, 10 pals max (+20%), ppal_open and gnome level PPAL_PARTY_LEVEL (1) or more
+# Puzzle Pals bonus through view.kph: +4% a common pal (the test pals have no roster entry, so each counts as common), best 10 pals count (+40% here; the +50% cap needs rarer pals), needs ppal_open, no gnome level
 LV=$(dbv "SELECT level FROM users WHERE id=$UID_")
 setg puzzles_open 1; setg jigsaw_open 1; setg ppal_open 1
 dbx "UPDATE users SET level=1 WHERE id=$UID_"
@@ -777,11 +777,11 @@ ppal_fill 5; KB=$(kp)
 ok "ppal_open off: 5 found pals leave view.kph unchanged" "$(kp_eq $KB $KA)" y
 setg ppal_open 1
 KC=$(kp)
-ok "ppal_open on, 5 pals: view.kph is x1.10 (within 0.2)" "$(kp_eq $KC $(awk "BEGIN{print $KA*1.10}"))" y
+ok "ppal_open on, 5 pals: view.kph is x1.20 (within 0.2)" "$(kp_eq $KC $(awk "BEGIN{print $KA*1.20}"))" y
 ppal_fill 15; KD=$(kp)
-ok "ppal_open on, 15 pals: view.kph is capped at x1.20 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.20}"))" y
+ok "ppal_open on, 15 pals: only the best 10 count, view.kph is x1.40 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.40}"))" y
 dbx "UPDATE users SET level=0 WHERE id=$UID_"; KE=$(kp)
-ok "the Pals bonus needs no gnome level (level 0 still x1.20, within 0.2)" "$(kp_eq $KE $(awk "BEGIN{print $KA*1.20}"))" y
+ok "the Pals bonus needs no gnome level (level 0 still x1.40, within 0.2)" "$(kp_eq $KE $(awk "BEGIN{print $KA*1.40}"))" y
 dbx "UPDATE users SET level=$LV WHERE id=$UID_; DELETE FROM ppal_found WHERE user_id=$UID_"
 setg ppal_open 0; dbx "DELETE FROM settings WHERE name IN ('ppal_open','puzzles_open','jigsaw_open')"
 
