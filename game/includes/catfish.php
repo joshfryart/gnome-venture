@@ -735,7 +735,7 @@ const CATFISH_PAL_MAX = 10;             // ...the best this many pals count
 const CATFISH_PAL_CAP = 0.5;            // ...and the total stops at +50% (the perk cap)
 
 /** Extra Kibble multiplier outside the Yarn maths: Puzzle Pals found (ppal_open). 1.0 when none. One cheap count per call, cached per request. */
-function catfish_extra_mult(int $uid): float
+function catfish_extra_mult(int $uid, ?array $s = null): float   // $s: the caller's catfish_state() row; passing it saves re-reading that row for the Buddy
 {
     static $cache = [];
     if (isset($cache[$uid])) return $cache[$uid] * (1 + catfish_pet_bonus($uid)['kibble_pct'] / 100);   // room things (2.2.x): their Kibble % is summed, never capped, and not cached with the rest (a swap changes it at once)
@@ -744,8 +744,14 @@ function catfish_extra_mult(int $uid): float
         require_once __DIR__ . '/puzzle_pals.php';
         if (ppal_open()) {   // no ppal_ensure() here: this runs inside the tick lock, and creating tables there would end the transaction. A missing table is caught below.
             $steps = [];
-            foreach (q('SELECT pal_key, pic_id FROM ppal_found WHERE user_id = ?', [$uid])->fetchAll() as $f) {
-                $pic = ppal_pic((int)$f['pic_id']);
+            $found = q('SELECT pal_key, pic_id FROM ppal_found WHERE user_id = ?', [$uid])->fetchAll();
+            $pics = [];   // one query for every picture these pals come from (was one per picture); same still-only filter as ppal_pic()
+            if ($found) {
+                $ids = array_values(array_unique(array_map(static fn($f) => (int)$f['pic_id'], $found)));
+                foreach (q("SELECT * FROM puzzle_pics WHERE kind = 'still' AND id IN (" . implode(',', array_fill(0, count($ids), '?')) . ')', $ids)->fetchAll() as $pr) $pics[(int)$pr['id']] = $pr;
+            }
+            foreach ($found as $f) {
+                $pic = $pics[(int)$f['pic_id']] ?? null;
                 $pal = $pic ? ppal_find_pal($pic, (string)$f['pal_key']) : null;
                 $steps[] = $pal ? (CATFISH_PAL_STEP[$pal['rarity']] ?? CATFISH_PAL_STEP['common']) : CATFISH_PAL_STEP['common'];
             }
@@ -754,8 +760,8 @@ function catfish_extra_mult(int $uid): float
         }
     } catch (Throwable $e) {}
     try {   // a Buddy: an owned cat that is not the playing one
-        $r = q_one('SELECT meta, active_cat_id FROM catfish_state WHERE user_id = ?', [$uid]);
-        $meta = $r ? json_decode((string)$r['meta'], true) : null;
+        if ($s !== null && is_array($s['meta'] ?? null)) { $meta = $s['meta']; $r = ['active_cat_id' => $s['active_cat_id'] ?? 0]; }   // already loaded and decoded by catfish_state()
+        else { $r = q_one('SELECT meta, active_cat_id FROM catfish_state WHERE user_id = ?', [$uid]); $meta = $r ? json_decode((string)$r['meta'], true) : null; }
         $b = is_array($meta) && !empty($meta['buddyon']) ? (int)($meta['buddy'] ?? 0) : 0;
         if ($b > 0 && $b !== (int)$r['active_cat_id'] && q_val('SELECT 1 FROM cats WHERE id = ? AND user_id = ?', [$b, $uid])) $m *= 1 + CATFISH_BUDDY_PCT;
     } catch (Throwable $e) {}
@@ -826,7 +832,7 @@ function catfish_tick(int $uid): array
         if (!$cat || $gap < 1) return $s;
         $away = $gap > CATFISH_AWAY_AFTER;
         $secs = $away ? min($gap, catfish_offline_cap($cat, (int)($s['meta']['away'] ?? 0), 60 * catfish_pet_bonus($uid)['away_min'])) : $gap;
-        $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
+        $eff = catfish_kph($s['up'], $cat, !$away, (int)$s['yarn'], catfish_extra_mult($uid, $s)) * ($away ? 0.5 : 1);   // Kibble per hour actually paid
         $base = (int)floor(min($eff * $secs / 3600, PHP_INT_MAX >> 4));
         if ($base < 1) return $s;   // nothing whole earned yet: leave last_tick alone so the part-earned fraction is kept
         $tick = $secs < $gap ? $now : min($now, (int)$s['last_tick'] + (int)ceil($base * 3600 / $eff));   // clamped away time is dropped; otherwise move the clock only by the seconds paid
@@ -876,7 +882,7 @@ function catfish_play(int $uid, $n, $seq): array
         $got = ($n < 1 || $n > CATFISH_PLAY_BATCH) ? 0 : (int)min($n, floor($tokens), max(0, $last - $pc));
         $paid = 0;
         if ($got > 0) {
-            $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid));
+            $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid, $s));
             $dbl = catfish_catnip_left($m, $now) > 0 ? CATFISH_CATNIP_MULT : 1;   // Catnip Hour
             $tap = catfish_pet_bonus($uid)['tap'];   // 2.2.x rod charm: the first taps of the day pay more
             for ($i = 1; $i <= $got; $i++) $paid += catfish_pet_tap_value(catfish_play_value($kph, $pc + $i), $pc + $i, $tap) * $dbl;
@@ -1443,7 +1449,7 @@ function catfish_view(int $uid, int $got = 0, int $paid = 0): array
         $ups[] = ['key' => $key, 'branch' => $branch, 'name' => $name, 'icon' => $icon, 'owned' => $n, 'cost' => $cost, 'cost10' => catfish_cost_n($key, $n, 10), 'can' => (int)$s['kibble'] >= $cost,
             'gives' => $a > 0 ? '+' . $a . ' Kibble/h each' : '+' . rtrim(rtrim(number_format($p * 100, 1), '0'), '.') . '% each', 'mult' => catfish_milestone_mult($n, ($cat['tune'] ?? '') === $branch)];
     }
-    $kphNow = $cat ? catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid)) : 0.0;
+    $kphNow = $cat ? catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid, $s)) : 0.0;
     return ['bulk' => !empty($s['meta']['bulk']), 'kibble' => (int)$s['kibble'], 'yarn' => (int)$s['yarn'], 'spend' => catfish_spendable($s), 'naps' => (int)$s['naps'], 'gained' => (int)$s['gained'],
         'kph' => $cat ? round($kphNow, 1) : 0, 'play' => catfish_play_view($s, $cat, $kphNow, $got, $paid), 'run' => (int)$s['run_kibble'], 'nap_yarn' => catfish_nap_yarn((int)$s['run_kibble'], catfish_run_cat($s, $cat)) * catfish_festival_mult(), 'cat' => $cat, 'ups' => $ups, 'now' => time()];
 }
