@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.3
+- **Delve redo (first playable cut, OFF by default).** New setting `delve_v2` (Admin > Settings, "Delves: route menu and tile floors"). Off: delves play exactly as before and a delve already running finishes on the rules it started with. On: a delve is 3 or 4 stages. You pick the next stage from a small route menu (creature, treasure, mystery, puzzle, shrine, Mo the mole, then the guardian), each floor is a tile map with fog and a torch (each step burns it; at 0 your light shrinks, nothing else happens), with finds, creatures, traps, chests, keys and doors, shrines and the way down on it. Your gnome and the pals taken along show in a strip under the map. One expedition per delve, one energy to go in (no per-room energy), the same guardian chest and clear count. The route is the same for a gnome and delve all day.
+- Each of the 14 delves has its own chamber library (25 hand-made terrain chambers each, `includes/data/delve_chambers.txt`); floors are 4 chambers stamped in a 2x2 grid with doorways and objects. Authored floors can be added to `includes/data/delve_floors.txt` (empty for now) and are used first. Lint tools: `tools/lint_delve_floors.php`, `tools/lint_delve_chambers.php`, `tools/check_chamber_dups.php`.
+- Tests: `delve2`, `delvefloors`, `delveroute`, `delvestamp` (new), `delvemap` unchanged. Plan and checklist: `claude/plan-delves.md`, `claude/checklist-delves.md`.
 ## 2.3.2
 - **Pal jobs: an equipped pal is not sent by accident.** A pal on your party shows an "On party" tag in the pickers. Picking one shows a "Take it off my party to send it out" box that must be ticked; without it the send is refused with a message. Works without JS (the server checks). Tests added in `tests/paljobs.php`.
 ## 2.3.1

@@ -12,7 +12,7 @@
 ## NEXT (complements Pal jobs): Alchemy Table in Crafting
 Own station for potions (today the "no building needed" Potions tab in `includes/crafting.php`, `inventory.php?tab=craft&c=potions`). Pal Jobs "N Potions" chip links there. Ideas: build/upgrade the table, more recipes (Healing tiers, trip luck, garden boost), batch craft, show potion stock. Not built.
 
-## NEXT BIG: Delve redo (planned, not built): `claude/plan-delves.md`
+## NEXT BIG: Delve redo (2.3.3 built, OFF; flip `delve_v2` to test): `claude/plan-delves.md`, checklist `claude/checklist-delves.md`
 Route menu (pick the next stage) + tile-map floors (fog, torch, pickups, pal strip), each stage 5 min at most, each delve has its own pool of about 12 floors (`data/delve_floors.txt`, 168 total). Mockups on branch `ccr-5e82e48d-1d6u8o` (`claude/delve-mockups/`), gallery https://claude.ai/artifact/TWQYNTxPecKASSqhSsx6ye. First (plan v2 in the plan file, flag `delve_v2`): floor format + lint, route generator, M step (existing 5 rooms as tile floors with torch + fog + route menu), then author 3 delves. Joshua's 7 open questions are at the end of the plan file.
 
 ## NOW (2.2.2 to 2.2.4, 2026-10-30): Puzzle Pals on the map, bigger perks, combat skills. BUILT, on main (`79a83035`), slim zips in `releases/`. Joshua uploads. Still OFF for players (`ppal_open`; `ppal_party` for take along, perks, skills).

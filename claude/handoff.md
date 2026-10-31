@@ -1,5 +1,7 @@
 # Gnome Venture handoff (current as of 2026-10-31; latest BUILT release 2.3.2 (Pal Jobs); main is 2.3.2)
 
+**2.3.3 (BUILT 2026-10-31, branch ccr-fda68878-n8wj4g, pushed to main on Joshua's word; slim zip `releases/GnomeVenture-2.3.3-web-update.zip`, needs 2.3.1+, manifest `tests/manifests/2.3.3.txt`): DELVE REDO first playable cut, OFF by default (setting `delve_v2`).** Read `claude/plan-delves.md` (design) and `claude/checklist-delves.md` (what is done / next, model split Haiku+Sonnet, Joshua draws all art). Built: floor format + lint (`includes/delve_floors.php`), route generator (`delve_route.php`), engine + UI (`delve_v2.php`; adventure.php/landmarks.php branch on `dv2_scene`), chamber stamper (`delve_stamp.php`, data `delve_chambers.txt` = 350 chambers, 25 per delve, `DS_WET_CAP` per delve), authored-floor pool `delve_floors.txt` (EMPTY; 10 Beaverdam floors wait in `claude/drafts/delve_floors_beaverdam.txt`). Tests: delve2, delvefloors, delveroute, delvestamp (pure PHP ones need no install), delvemap, pjobs, roadlife, scenes, images pass. Joshua to play one delve on phone with `delve_v2` on. Not done: per-delve hazard icons (W is always a water drop), pal re-runs on the new route (step 7), tuning torch fuel, Opus identity pass on wave 2 chambers, approval of names/looks, other CI suites + MySQL + upgrade check not run.
+
 
 
 
