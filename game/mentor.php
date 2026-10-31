@@ -55,7 +55,7 @@ page_header($npc['name']);
 ?>
 <p class="crumbs">📜 <a href="<?= e(url('gnome.php?tab=calling')) ?>">My calling</a> › Calling mentor › <b><?= e($npc['name']) ?></b></p>
 <div class="box npchead">
-  <div class="jintro"><a href="<?= e(url('folk.php?id=' . $nid)) ?>"><?= npc_portrait($npc, 'small') ?></a>
+  <div class="jintro"><a href="<?= e(url('villagers.php?id=' . $nid)) ?>"><?= npc_portrait($npc, 'small') ?></a>
     <div>
       <h1><?= npc_icon($npc['species']) ?> <?= e($npc['name']) ?></h1>
       <p class="muted"><?= e(strtolower(trim((string)$npc['personality'] . ' ' . (string)$npc['species']))) ?> · calling mentor of the <?= e($name) ?>s</p>

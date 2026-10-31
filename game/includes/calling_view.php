@@ -43,7 +43,7 @@ function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $
           <p class="muted">🔒 <?= e((string)$st['why']) ?></p>
         <?php else: ?>
           <?php if ($st['state'] !== 'done'): ?>
-            <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('folk.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
+            <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('villagers.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
               <div class="ptext"><?= format_text((string)$ch['intro']) ?></div></div>
           <?php endif; ?>
           <ol class="jtasks">

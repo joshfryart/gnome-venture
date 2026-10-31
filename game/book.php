@@ -357,7 +357,7 @@ page_header('My Almanac');
         </div></div>
         <?php if ($sel['bio']): ?><div class="ptext"><p><?= e($sel['bio']) ?></p></div><?php endif; ?>
         <p><b>🎁 Tastes:</b> <?= $tastes ? e(implode(' · ', $tastes)) : '<span class="muted">not discovered yet: try a few gifts</span>' ?></p>
-        <p class="help">First met: <?= $sel['first_at'] ? e(hollow_date('j F Y', (int)strtotime($sel['first_at'] . ' UTC'))) : 'a while ago' ?> · <a href="<?= e(url('folk.php?id=' . (int)$sel['id'])) ?>">Open their page (chat, gifts, where they are) →</a></p>
+        <p class="help">First met: <?= $sel['first_at'] ? e(hollow_date('j F Y', (int)strtotime($sel['first_at'] . ' UTC'))) : 'a while ago' ?> · <a href="<?= e(url('villagers.php?id=' . (int)$sel['id'])) ?>">Open their page (chat, gifts, where they are) →</a></p>
       </article>
     <?php endif; ?>
     <?php $lastR = null; foreach ($everyone as $n):

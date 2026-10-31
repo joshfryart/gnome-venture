@@ -629,7 +629,7 @@ function orders_board_box(int $uid, string $town, bool $hub, int $sid): void
           $done = order_done($uid, (int)$n['id'], $o['cycle']);
           $c = $done ? null : order_check($uid, $o); ?>
         <div class="favour order d<?= (int)$o['diff'] ?><?= $done ? ' done' : '' ?>"><span class="ficon"><?= npc_icon($n['species']) ?></span>
-          <div><b><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “<?= e($o['text']) ?>”
+          <div><b><a href="<?= e(url('villagers.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “<?= e($o['text']) ?>”
             <br><small>
               <span class="tag" role="img" aria-label="Difficulty: <?= (int)$o['diff'] ?> of 3" title="Difficulty"><?= str_repeat('★', $o['diff']) . str_repeat('☆', 3 - $o['diff']) ?></span>
               <?php if ($o['bar']): ?><span class="tag"><?= e($o['bar']) ?></span> <?php endif; ?>

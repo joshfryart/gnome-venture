@@ -61,7 +61,7 @@ dbx "UPDATE users SET location_id=$HUBQ WHERE id=$SID"
 page 'town.php?view=villagers'
 chk "town villagers view has the overlay mount" "$(grep -q 'id="folkov"' /tmp/fo.html && echo 1)"
 if grep -q 'data-folk-npc' /tmp/fo.html; then
-  chk "Chat is a link to the villager page AND opens the overlay" "$(grep -q '<a class="fbtn" href="[^"]*folk.php?id=[0-9]*" data-folk-npc=' /tmp/fo.html && echo 1)"
+  chk "Chat is a link to the villager page AND opens the overlay" "$(grep -q '<a class="fbtn" href="[^"]*villagers.php?id=[0-9]*" data-folk-npc=' /tmp/fo.html && echo 1)"
 else echo "  note: nobody is out and about in this town right now (rows not checked)"; fi
 NID=$(db "SELECT id FROM npcs WHERE active=1 LIMIT 1" | tr -d ' ')
 chk "villagers.php still answers the panel in JSON" "$(fetchj "villagers.php?id=$NID" | grep -qE '"ok":(true|false)' && echo 1)"

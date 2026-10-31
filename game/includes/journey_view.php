@@ -62,7 +62,7 @@ function journey_chapter_box(array $u, array $ch, array $st, string $back = ''):
         <?php if (!$row): ?>
           <p class="muted">🔒 This chapter starts when you first reach <?= e($ch['region']) ?> (recommended gnome level <?= (int)$ch['min_level'] ?>). Walk the roads there from a neighbouring region.</p>
         <?php else: ?>
-          <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('folk.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
+          <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('villagers.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
             <div class="ptext"><?= format_text((string)$ch['intro']) ?></div></div>
           <?php if (!$row['done_at'] && trim((string)($ch['locks'] ?? '')) !== ''):   // v0.7.66: what stays closed until it's done
               $names = [];

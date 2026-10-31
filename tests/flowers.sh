@@ -76,7 +76,7 @@ chk "arrangement gone" "$(qty $AID)" 0
 echo "== gift: better than a single flower"
 post arrange.php -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[5]=$L" -d "slot[6]=$D"
 AID=$(db "SELECT id FROM items WHERE category='arrangement' ORDER BY id DESC LIMIT 1")
-get "shop.php?id=$FL"; NPC=$(grep -o 'folk.php?id=[0-9]*' $T/p.html | head -1 | grep -o '[0-9]*$')
+get "shop.php?id=$FL"; NPC=$(grep -o 'villagers.php?id=[0-9]*' $T/p.html | head -1 | grep -o '[0-9]*$')
 dbx "DELETE FROM npc_friends WHERE user_id=$SID"
 post "villagers.php?id=$NPC" -d id=$NPC -d do=gift -d item_id=$AID   # v2.0.39: gifts are given on the Villagers page (folk.php only redirects GETs)
 GP=$(db "SELECT points FROM npc_friends WHERE user_id=$SID AND npc_id=$NPC")

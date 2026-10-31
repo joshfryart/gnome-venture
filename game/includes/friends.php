@@ -257,7 +257,7 @@ function known_tastes(array $f, array $npc): array
 /**
  * v2.0.67: the gift picker (approved mockup 4): a <dialog class="picker giftpick"> of item squares, the tastes you have found as chips,
  * one picked (aria-pressed, site.js "gift picker"), then "Give it". $giftable = items rows + qty. $action / $hidden / $formAttrs: where the
- * give form posts (folk.php: itself; the Villagers panel: villagers.php with the id and data-vform for the in-place post).
+ * give form posts (villagers.php: itself; the Villagers panel: villagers.php with the id and data-vform for the in-place post).
  */
 function gift_picker_html(array $npc, array $f, array $giftable, bool $bday, string $action = '', string $hidden = '', string $formAttrs = ''): string
 {

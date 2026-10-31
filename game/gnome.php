@@ -281,7 +281,7 @@ page_header('My Gnome');
           <div class="grow"><h3><?= e($selNpc['name']) ?></h3><p class="muted"><?= e((string)$selNpc['species']) ?></p>
             <p><span class="hearts" aria-hidden="true"><?= $hearts((int)$f['points']) ?></span> <?= e($lv['name']) ?><?= $lv['discount'] ? ' · ' . (int)$lv['discount'] . '% off' : '' ?></p>
             <p><b>You know:</b> <?= e($tastes ? implode(' · ', $tastes) : 'Nothing yet. Talk to them or bring a gift.') ?></p>
-            <p><a class="btn small" href="<?= e(url('folk.php?id=' . (int)$selNpc['id'])) ?>">Go and visit</a> <a class="btn small ghost" href="<?= e($gurl('folk')) ?>">Close</a></p></div>
+            <p><a class="btn small" href="<?= e(url('villagers.php?id=' . (int)$selNpc['id'])) ?>">Go and visit</a> <a class="btn small ghost" href="<?= e($gurl('folk')) ?>">Close</a></p></div>
         </div>
       <?php elseif ($selNpc): ?><div class="folkcard"><div class="polaroid big qp" aria-hidden="true">?</div><div class="grow"><b>Not met yet.</b><br>Look for them in the villages and towns you visit.<p><a class="btn small ghost" href="<?= e($gurl('folk')) ?>">Close</a></p></div></div><?php endif; ?>
       <div class="wall">
