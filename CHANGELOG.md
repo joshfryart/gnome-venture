@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.8
+- **Puzzle Pal Boons (OFF: setting `ppal_boons`, needs `ppal_party`).** Every one of the 570 pals has its own combat Boon instead of its calling skill: 16 effects (ward, edge, foot, mend, sip, petal, guard, bulwark, slip, feast, rally, first, kindle, spoils, lesson, tonic) in `includes/data/puzzle_pal_boons.txt`, sizes by rarity in `PPAL_EFFECTS`. Rosters are unique (no two share 4+ effect/rarity pairs). Pals of uploaded pictures get a seeded Boon (`ppal_seeded_boon`).
+- **Rare actives:** each rare has one once-per-fight skill (strike, shield, patch, snare, sap, daze, rouse, gust) as a fight button (`palskill:KEY`, three fight renders), uses the turn, no dice.
+- **Tools and tests:** `tools/lint_pal_boons.py` (`--require-boons` in `tests/puzzle_pals.sh`), `tools/pal_boons_draft.py`, `claude/pal-boons-sim.php`, Boon sections in `tests/puzzle_pals_party.php`. Design: `claude/brainstorm-pal-rosters.md`. No schema change, no player news (feature hidden).
+- Also: the Pal Book test no longer fails when a pal happens to wait on the map.
+
 ## 2.3.7
 - **Merge release.** Alchemy: 7 new potions (`includes/alchemy.php`; Strong Healing, Grand Healing Elixir, Lucky, Sage's, Stoneskin, Swiftfoot, Garden Tonic), each usable by the gnome (Satchel Drink, My Gnome Potions box, Garden Tonic on a plot) and some by pals; B icon set. Crafting map: per-object recipe tags (`?o=`), one recipe pass for the landing badges. Pantry: 11 new icons (B), hidden Brewroot Pomeroy task (needs `gourmand_open`), tests honour TMPDIR.
 - **Puzzle Pals: page mode removed** (map mode only; settings `ppal_find_mode`, `ppal_chance`, `ppal_cooldown_minutes`, `ppal_daily_max` gone), "pal arrived" notice on the daily top-up.
