@@ -277,23 +277,41 @@ foreach ($H as $sk => $hr) {
     $skills = explode(',', $sk);
     $jid = $setup($hr);
     $mine = pj_garden_hires($plot)[0]['skills'] ?? '?';
-    ok($hr['name'] . ' (' . $sk . '): the pal keeps only the other tasks', array_values(array_intersect(explode(',', $mine), $skills)) === [] && count(array_filter(explode(',', $mine))) === 3 - count($skills), $mine);
+    ok($hr['name'] . ' (' . $sk . '): the pal still has all three tasks (works after the helper)', $mine === 'water,weed,harvest', $mine);
     load_plot($uid);
     $gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
     $tasks = (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]);
-    $want = (in_array('weed', $skills, true) ? 0 : 1) + (in_array('harvest', $skills, true) ? 0 : 2);   // every hired helper waters, so the pal never does
-    ok($hr['name'] . ': pal tasks are only its own (' . $want . ')', $tasks === $want, "tasks $tasks, hire " . json_encode([$gh['waterings'], $gh['weedings'], $gh['harvests']]));
+    $want = (in_array('weed', $skills, true) ? 0 : 1) + (in_array('harvest', $skills, true) ? 0 : 2);   // same visit times: the helper waters first, so nothing is dry for the pal
+    ok($hr['name'] . ': the pal does only what the helper left (' . $want . ')', $tasks === $want, "tasks $tasks, hire " . json_encode([$gh['waterings'], $gh['weedings'], $gh['harvests']]));
     ok($hr['name'] . ': ready square harvested exactly once', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]) && (int)$gh['harvests'] + intdiv($tasks, 2) === 1, json_encode($gh));
     ok($hr['name'] . ': weedy bed weeded exactly once', (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$T[2]]) === 0 && (int)$gh['weedings'] + ($tasks % 2) === 1);
     ok($hr['name'] . ': the helper is still paid only its wage (no pay for the pal)', (int)$gh['paid'] === (int)$hr['wage']);
 }
 $all = $H['water,weed,harvest'];
+// a helper who does all three, visits due at the same times as the pal: the helper acts first, the pal finds nothing left
+$jid = $setup($all);
+load_plot($uid);
+$gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
+ok('all-three helper + pal, same visits: helper first, pal has nothing left (0 tasks)', (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]) === 0, json_encode($gh));
+ok('all-three helper + pal: one harvest, one weeding, square watered', (int)$gh['harvests'] === 1 && (int)$gh['weedings'] === 1 && (int)$gh['waterings'] >= 1 && !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]));
+// the same helper with no visit due yet: the pal picks up the leftovers on its own visits
+$jid = $setup($all);
+q('UPDATE garden_hires SET last_visit = ? WHERE plot_id = ?', [now(), $plot]);
+$rq0 = (int)q_val('SELECT COALESCE(SUM(qty), 0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rad['produce_item_id']]);
+load_plot($uid);
+$gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
+$tk = (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]);
+ok('all-three helper not due: the pal harvests, weeds and waters the leftovers', $tk >= 4 && (int)$gh['harvests'] === 0 && (int)$gh['weedings'] === 0 && (int)$gh['waterings'] === 0, "pal $tk, hire " . json_encode([$gh['waterings'], $gh['weedings'], $gh['harvests']]));
+ok('leftovers: the ready square is harvested once and the crop is paid once', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]) && (int)q_val('SELECT COALESCE(SUM(qty), 0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rad['produce_item_id']]) > $rq0);
+load_plot($uid);
+ok('loading again does nothing twice (no new tasks, helper still idle)', (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]) === $tk && (int)q_val('SELECT harvests FROM garden_hires WHERE plot_id = ?', [$plot]) === 0);
+// sending is never refused because of hired help
 $setup($all); q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
 [$gb, $gm] = pj_garden_send($u, $p3, $plot, 1);
-ok('a helper who does everything: sending a pal there is refused with a reason', $gb === false && str_contains((string)$gm, 'hired help'), (string)$gm);
-$setup($H['water']); q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+ok('a helper who does everything: the pal can still be sent, and is told it works after the helper', $gb === true && str_contains((string)$gm, 'working after your hired help'), (string)$gm);
+q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]);
 [$gb2, $gm2] = pj_garden_send($u, $p3, $plot, 1);
-ok('beside a water-only helper: sent, and the message says what the pal does', $gb2 === true && str_contains((string)$gm2, 'Weeds and harvests (your hired help does the rest)'), (string)$gm2);
+ok('no hired help: the message does not mention it', $gb2 === true && !str_contains((string)$gm2, 'hired help'), (string)$gm2);
 q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]); q("UPDATE ppal_jobs SET state = 'done' WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home', g_xp = 0 WHERE user_id = ?", [$uid]);
 q("UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, last_watered = NULL, weeds = 0, method = 'dig' WHERE plot_id = ?", [$plot]);
 $xtra = 0; for ($i = 0; $i < 200; $i++) $xtra += pj_garden_extra($uid, $rad, ['pj_job' => 1, 'pj_extra' => pj_garden_extra_pct(10)]);

@@ -247,25 +247,21 @@ function pj_garden_skills(int $g = 1): array
 }
 
 /**
- * v2.3.3: the one rule when a pal shares a garden with hired help (garden_hires, the Tool Shed helpers): the hired helper keeps the tasks it was
- * hired for, the pal does only the rest. So nothing is done twice and the pal earns XP only for its own tasks. Returns the pal's tasks there.
- * Other helpers (a friend watering, a player job, a watering event) only act on a square that needs it, so they never double up with a pal.
+ * v2.3.3: a pal and hired help (garden_hires, the Tool Shed helpers) work TOGETHER. A pal can always be sent; it keeps all three tasks.
+ * load_plot runs the hired helpers first, then the pal on whatever is still undone at its own visit times (a square still dry, weeds still there,
+ * a crop still ripe). Each action happens once: helper_water_tile only waters a dry square, a bed is weeded once a load, a harvested square is skipped.
+ * The pal earns XP only for what it did itself. Other helpers (a friend watering, a player job, a watering event) also act only where a square needs it.
  */
-function pj_garden_tasks(int $plotId, int $g = 1): array
+function pj_garden_has_help(int $plotId): bool
 {
     require_once __DIR__ . '/hired_help.php';
-    $taken = [];
-    foreach (current_hires($plotId) as $h) foreach (helper_skills($h) as $sk) $taken[$sk] = true;
-    return array_values(array_filter(pj_garden_skills($g), fn($sk) => !isset($taken[$sk])));
+    return (bool)current_hires($plotId);
 }
 
-/** "Waters, weeds and harvests" / "Weeds (your hired help does the rest)". */
-function pj_garden_task_text(array $tasks): string
+/** "Waters, weeds and harvests" + " after your hired help" when the garden has some. */
+function pj_garden_task_text(int $plotId): string
 {
-    $w = ['water' => 'waters', 'weed' => 'weeds', 'harvest' => 'harvests'];
-    $t = array_map(fn($k) => $w[$k], $tasks);
-    $txt = count($t) > 1 ? implode(', ', array_slice($t, 0, -1)) . ' and ' . end($t) : (string)($t[0] ?? '');
-    return ucfirst($txt) . (count($tasks) < 3 ? ' (your hired help does the rest)' : '');
+    return 'Waters, weeds and harvests' . (pj_garden_has_help($plotId) ? ', working after your hired help' : '');
 }
 
 /** v2.3.3: chance (%) that a pal's harvest of a square brings one extra crop: 0 at Gardening 1, +4 a level, 36 at 10. */
@@ -296,11 +292,10 @@ function pj_garden_send(array $u, string $palUid, int $plotId, int $days, bool $
     [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
     if (q_val("SELECT 1 FROM ppal_jobs WHERE plot_id = ? AND kind = 'garden' AND state = 'active'", [$plotId])) return [false, 'A pal is already tending that garden.'];
-    if (!pj_garden_tasks($plotId)) return [false, 'Your hired help already waters, weeds and harvests that garden. Send ' . $p['name'] . ' somewhere else.'];
     if (!pj_claim_pal($uid, $palUid, 'garden')) return [false, $p['name'] . ' is already out.'];
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'garden', 'target' => (string)$plotId, 'plot_id' => $plotId, 'day' => landmark_day(),
         'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $days * 86400), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => null]);
-    return [true, $p['name'] . ' heads to the garden for ' . $days . ' day' . ($days > 1 ? 's' : '') . '. ' . pj_garden_task_text(pj_garden_tasks($plotId, $p['g'])) . '.'];
+    return [true, $p['name'] . ' heads to the garden for ' . $days . ' day' . ($days > 1 ? 's' : '') . '. ' . pj_garden_task_text($plotId) . '.'];
 }
 
 /** Pseudo hire rows for load_plot (same fields hire_visits and helper_finish read), one per pal tending this garden. */
@@ -313,7 +308,7 @@ function pj_garden_hires(int $plotId): array
             $p = pj_pal((int)$j['user_id'], (string)$j['pal_uid']);
             if (!$p) continue;
             $out[] = ['id' => 0, 'pj_job' => (int)$j['id'], 'user_id' => (int)$j['user_id'], 'last_visit' => $j['last_tick'], 'ends_at' => $j['ends_at'],
-                'name' => $p['name'], 'icon' => '🧩', 'skills' => implode(',', pj_garden_tasks($plotId, $p['g'])), 'step_hours' => pj_garden_step($p['g']), 'pj_extra' => pj_garden_extra_pct($p['g']),
+                'name' => $p['name'], 'icon' => '🧩', 'skills' => implode(',', pj_garden_skills($p['g'])), 'step_hours' => pj_garden_step($p['g']), 'pj_extra' => pj_garden_extra_pct($p['g']),
                 'pj_key' => $p['key'], 'wage' => 0, 'paid' => 0];
         }
     } catch (Throwable $e) { error_log('pj_garden_hires: ' . $e->getMessage()); }
