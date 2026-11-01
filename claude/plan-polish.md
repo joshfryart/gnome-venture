@@ -142,3 +142,21 @@ Villagers (1) with Phase 2 of the plan, then Go/Here (2) and Orders (3), then Pa
 - **Orders (item 3): already consolidated, no change.** Market Day only links to Tasks > Orders; the Town Orders tab lists that town's orders and links to the full board. The "three places" claim above was overstated.
 - **Contests hub (item 4): already a hub** (`games.php?tab=contests` cards). Added: Fair, Show and Garden of the Month now light up the Games menu tile.
 - **Pals (item 5):** Pal Book and Pal Jobs share one tab row (`ppal_hub_tabs_html`), the Pal Jobs page lights up the Puzzle Pals tile; "Friends" rename done earlier.
+
+### Phase 2 status check, 2026-11-01 (code read, not guessed)
+The PDF's plan was mostly built in 2.0.60 to 2.0.67. Against the live code:
+
+| PDF item | State |
+|---|---|
+| Shared components in `includes/place_ui.php` (go panel, season fold, land card, place tabs, place header, villager row, main-stop tabs) | built |
+| One Go surface: World tabs Go, Map, Gather, Shops; Travel folds into Go (`?tab=travel` redirects to Go with the fold open) | built |
+| Seasons and Land for Sale on the Stop tab; `seasons.php` and `passport.php` redirect | built |
+| Villagers: one page (`villagers.php`), main stops show who is in town inline; dead Town list removed in this polish pass | built |
+| Passport: Town > Stop tab, one link from stops | built |
+| Orders back in town (per-town tab) with the full board in Tasks | built |
+| Context bar World / place / Mossbottom replacing chip rows | built (the tab strip under the header) |
+| Phone bottom bar (Garden, World, Satchel, Here, Tasks, More) | built |
+
+Defaults applied for the six open decisions (none needed a code change): main-stop Villagers = who is in town now, global list on `villagers.php`; Here stays a menu tile and bottom-bar tab; bottom tab bar OK; Orders tab in town; place art on headers; Mossbottom is a tab in the context bar; Land for Sale per stop (Stop tab).
+Still open and not worth doing without player data: dropping the "Here" menu tile (it is also in the phone bottom bar and the World context bar), and merging Villagers into World. Left as is.
+Tests pass: town stops100 roads roads097 roadlife roadtext explore adventure landmarks stopkinds villagers.
