@@ -58,7 +58,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     You can still discover recipes in the meantime.</div>
 <?php endif; ?>
 <section class="p2jars shstation" aria-label="<?= $potsOn ? 'Pots' : 'Station' ?>">
-  <div class="p2jarrow">
+  <div class="p2jarrow<?= $potsOn ? ' p2shelf' : '' ?>">
     <?php if ($potsOn):
         $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0));
         $outItems = [];

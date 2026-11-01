@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.5
+- **Pantry jars are square slots on shelves:** one shelf per kind that has jars (Jam, Chutney, Pickle, Ferment, Cordial), with its count (3/5), each jar a small square (dish and time, "Ready!" with Collect, or an empty jar), standing on a wooden plank. Smaller than the old chips. Cooking pots stand on a plank the same way and are a little smaller.
+
 ## 2.4.4
 - **Cooking page:** the energy and Petals chips are gone (the top bar already shows them). Each pot is now a square tile: the dish and time left, "Ready!" with a Collect button, or an "Empty" pot (one tile per free pot instead of "+N free pots"). "Collect all" still appears when two or more are ready.
 

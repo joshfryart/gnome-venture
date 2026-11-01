@@ -152,20 +152,29 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
 
 <?php if ($jarLimit > 0): ?>
 <section class="p2jars jarstrip" aria-label="Pantry jars">
-  <div class="p2jarrow">
-    <?php foreach ($jarsList as $j): $done = $j['left'] <= 0; ?>
-      <div class="p2jar jar <?= $done ? 'done' : 'busy' ?>" title="<?= e($j['name']) ?> ×<?= (int)$j['qty'] ?>">
+  <?php // v2.4.4: jars stand on shelves, one shelf per kind that has jars (and the room you are looking at), square slots in a row
+  $roomK = $kind !== '' ? $kind : ($sel ? pantry_kind($sel) : 'jam');
+  $byKind = [];
+  foreach ($jarsList as $j) $byKind[(string)$j['kind']][] = $j;
+  $shelves = array_keys($byKind);
+  if (!$shelves) $shelves[] = $roomK;   // no jars at all: show the room you are looking at, empty
+  usort($shelves, fn($x, $y) => array_search($x, array_keys(P2_KINDS), true) <=> array_search($y, array_keys(P2_KINDS), true));
+  foreach ($shelves as $sk): $row = $byKind[$sk] ?? []; $freeN = $freeIn($sk); ?>
+  <div class="p2shelf" aria-label="<?= e(P2_KINDS[$sk][0] ?? $sk) ?> room">
+    <span class="shlbl"><?= e(P2_KINDS[$sk][0] ?? $sk) ?><b><?= count($row) ?>/<?= $jarLimit ?></b></span>
+    <?php foreach ($row as $j): $done = $j['left'] <= 0; ?>
+      <div class="p2jar jar jarsq <?= $done ? 'done' : 'busy' ?>" title="<?= e($j['name']) ?> ×<?= (int)$j['qty'] ?>">
         <span class="p2ic"><?= $pic((int)$j['item_id'], 'sm') ?></span>
-        <span class="p2jt"><span class="vh"><?= e($j['name']) ?> ×<?= (int)$j['qty'] ?>: </span><span class="potleft" data-jarleft="<?= (int)$j['left'] ?>"><?= $done ? 'Ready!' : e(pantry_time_text((int)$j['left'])) ?></span></span>
+        <span class="shpn"><span class="vh"><?= e($j['name']) ?> ×<?= (int)$j['qty'] ?>: </span><?= e($j['name']) ?></span>
+        <span class="potleft" data-jarleft="<?= (int)$j['left'] ?>"><?= $done ? 'Ready!' : e(pantry_time_text((int)$j['left'])) ?></span>
         <form method="post" action="<?= e(url('crafting.php?c=pantry')) ?>" class="potcollect"<?= $done ? '' : ' hidden' ?>><?= csrf_field() ?>
           <input type="hidden" name="do" value="jar_collect"><input type="hidden" name="jar_id" value="<?= (int)$j['id'] ?>"><button class="btn small">Collect</button></form>
       </div>
     <?php endforeach; ?>
-    <?php $roomK = $kind !== '' ? $kind : ($sel ? pantry_kind($sel) : 'jam'); ?>
-    <?php if ($freeIn($roomK) > 0): ?><div class="p2jar empty"><span class="p2ic" aria-hidden="true">🫙</span><span class="p2jt">+<?= $freeIn($roomK) ?> free</span></div><?php endif; ?>
-    <form method="post" action="<?= e(url('crafting.php?c=pantry')) ?>" class="p2all" data-jarall<?= $jr >= 2 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="jar_collect_all"><button class="btn small alt">Collect all</button></form>
+    <?php for ($fi = 0; $fi < $freeN; $fi++): ?><div class="p2jar jar jarsq empty" title="Empty jar"><span class="p2ic" aria-hidden="true">🫙</span><span class="shpn">Empty</span><span class="potleft">free</span></div><?php endfor; ?>
   </div>
-  <p class="help p2rooms"><?php foreach (P2_KINDS as $pk => [$pl]): ?><span class="p2room<?= $freeIn($pk) < 1 ? ' full' : '' ?>"><?= e($pl) ?> <b><?= (int)($busyBy[$pk] ?? 0) ?>/<?= $jarLimit ?></b></span> <?php endforeach; ?></p>
+  <?php endforeach; ?>
+  <form method="post" action="<?= e(url('crafting.php?c=pantry')) ?>" class="p2all" data-jarall<?= $jr >= 2 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="jar_collect_all"><button class="btn small alt">Collect all</button></form>
 </section>
 <?php else: [$pc, $pm] = pantry_cost(); ?>
   <div class="box notice">You need a <b>🫙 Pantry</b> to make these: an add-on for your Kitchen (<?= money($pc) ?><?= $pm ? ' + ' . e(upgrade_mats_text($pm)) : '' ?>).</div>
