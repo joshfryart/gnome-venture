@@ -1,5 +1,10 @@
 # Gnome Venture: to-do (updated 2026-11-01, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
+## TODO (Joshua, 2026-11-01): Pal Jobs, send several pals at once
+- Joshua runs live with `pj_max_away` = 10 (code max is 10, `pal_jobs.php:46`; default 3). Sending ten pals means ten separate forms and page loads on `paljobs.php` (one `send_<kind>` form per pal, `paljobs.php:216`).
+- **Want:** select multiple pals in one go (checkboxes or "Select all free pals" plus a single Send), same job kind, tool/land/length applied to all. Respect `pj_max_away` and `pj_runs_per_day` (stop at the cap, say how many went); one receipt listing each pal's start. Same for Collect: a "Collect all" button for finished jobs (receipt per pal).
+- Watch: garden duty is one pal per garden, so a batch send of garden duty must refuse the extras; delve re-runs are once a day per delve, so skip pals whose delve is used; pals at 0 HP or already away stay unticked. Add a case to `tests/paljobs.sh` and `claude/paljobs-sim.php`.
+
 ## NOW (2.3.93, 2026-11-01): polish release. BUILT on branch `ccr-6b3ba1b1-2c15cp` (not merged to main), slim zip `releases/GnomeVenture-2.3.93-web-update.zip` (needs 2.3.91+, manifest `tests/manifests/2.3.93.txt`). Joshua uploads. Plan `claude/plan-polish.md`, findings `claude/polish-audit.md`, changelog entry 2.3.93. Not run: MySQL, `upgrade_check.sh`, phone.
 - **Joshua to check (phone, dark and light):** status strip (wraps at tablet and desktop widths), World header at 768 px, menu labels (no "Whisker Po..."), "Whisker Pond" tile gone and Games lit on Cat Fish / puzzle pages, Friends rename, My Gnome tabs on two rows, Pal Book + Pal Jobs tab row, 430 px phone header and tabs, Almanac at 721-760 px, map keyboard focus ring.
 - **Joshua to answer:** is `PRODUCT.md` right (items marked "(confirm)")? Keep the two swipe rows (Crafting quick bar, World route line) or make them wrap?
