@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Satchel: one heading, readable tiles</title><style>
+:root{--bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;--line:#c9a96e;--line-2:#9a6b3f;--brand:#2f5a2a;--brand-soft:#c8d09f;--accent:#e8a317;--accent-soft:#fff3c8;--accent-ink:#7a4a1f;--danger:#a8241f;--focus:#25637d;--felt:#3d2a1c;--felt-ink:#f2e4c0;--on-fill:#f2e4c0;--drop:#c9a96e;--tap:44px;
+--page:#e7dfcb;--note:#a8241f;--ok:#2f5a2a}
+@media (prefers-color-scheme:dark){:root{--page:#1b110a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:16px}
+@media (prefers-color-scheme:dark){body{color:#f2e4c0}}
+h1{font-size:1.4rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 8px}
+.lead{margin:0 0 16px;max-width:70ch}
+.compare{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.col{flex:0 0 auto}
+.tag{display:inline-block;font-weight:700;font-size:13px;padding:2px 10px;margin:0 0 8px;background:var(--felt);color:var(--felt-ink)}
+.tag.after{background:var(--brand)}
+.tag.before{background:var(--danger)}
+.phone{width:390px;border:2px solid var(--ink);background:var(--bg);position:relative;overflow:hidden;box-shadow:6px 6px 0 var(--drop)}
+.desk{width:1200px;border:2px solid var(--ink);background:var(--bg);position:relative;box-shadow:6px 6px 0 var(--drop)}
+.scrollx{overflow-x:auto;max-width:100%;padding-bottom:10px}
+/* app chrome, copied from tokens */
+.hdr{display:flex;align-items:center;gap:6px;height:52px;padding:0 16px;background:var(--felt);border-bottom:2px dashed var(--accent);color:var(--felt-ink)}
+.hdr .logo{font-weight:700;font-size:18px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.hdr .sp{flex:1}
+.pill{display:inline-flex;align-items:center;height:34px;padding:0 8px;background:#2a1a10;color:#f5cf6a;font-weight:600;font-size:14px;white-space:nowrap}
+.pill.coin{background:#f5cf6a;color:#2a1a10}
+.mbtn{width:44px;height:44px;background:#2a1a10;color:var(--felt-ink);border:0;font-size:22px;display:inline-flex;align-items:center;justify-content:center;font-family:inherit}
+.strip{display:flex;justify-content:center;gap:12px;align-items:center;min-height:36px;padding:4px 16px;font-size:13px;background:var(--bg);border-bottom:1px solid var(--line);color:var(--ink)}
+.strip a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:4px;position:relative}
+.strip .bar{width:56px;height:6px;background:var(--surface-2);border:1px solid var(--line-2);display:inline-block}
+.strip .bar i{display:block;height:100%;width:62%;background:var(--brand)}
+.badge{background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent);padding:1px 8px;font-weight:600}
+.body{padding:12px 16px;min-height:300px}
+.card{background:var(--surface);border:2px solid var(--line);box-shadow:2px 2px 0 var(--drop);padding:10px 12px;margin:0 0 10px;color:var(--ink)}
+.ph{height:12px;background:var(--surface-2);margin:6px 0}
+.bar5{display:flex;height:56px;background:var(--surface);border-top:2px solid var(--line);color:var(--ink-2)}
+.bar5 a,.bar5 b{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font:500 12px/1.1 inherit;gap:2px;border-top:3px solid transparent;margin-top:-2px;font-weight:500}
+.bar5 .on{border-top-color:var(--brand);color:var(--brand);font-weight:700}
+.bar5 span{font-size:20px;line-height:1}
+.mark{position:absolute;font:700 11px/1.2 system-ui;color:#fff;background:var(--note);padding:2px 6px;z-index:5;white-space:nowrap}
+.mark.g{background:var(--ok)}
+.hit{outline:2px dashed var(--focus);outline-offset:0;background:rgba(37,99,125,.12)}
+.notes{margin:12px 0 0;padding:0 0 0 18px;max-width:70ch;font-size:14px}
+.notes li{margin:2px 0}
+a.back{color:inherit}
+.tabs4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 8px}
+.tabs4 span{background:var(--surface-2);border:2px solid var(--line);text-align:center;font-size:12.5px;line-height:1.1;padding:5px 2px;min-height:48px}
+.tabs4 .on{background:var(--brand);color:var(--on-fill);border-color:var(--brand);font-weight:600}
+.search{border:2px solid var(--line);background:var(--surface);padding:10px;min-height:44px;font-size:15px;color:var(--muted);margin:0 0 10px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.tile{aspect-ratio:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;background:var(--surface);border:2px solid var(--line);box-shadow:0 3px 0 rgba(0,0,0,.3);padding:2px}
+.tile .ti{font-size:1.6rem;line-height:1}
+.tile.empty{border-style:dashed;box-shadow:none}
+.tile .tb{position:absolute;top:2px;right:2px;font:700 .62rem/1 system-ui;font-style:normal;background:#2e8b3a;color:#fff;border-radius:9px;padding:2px 5px}
+.b .tile b{font-size:.74rem}.b .tile small{font-size:.66rem;color:var(--muted)}.b .tile.empty{opacity:.45}.a .tile b{font-size:13px}.a .tile small{font-size:12px;color:var(--muted)}.a .tile.empty{color:var(--muted);opacity:1}.a .tile .tb{font-size:11px;background:var(--brand);color:var(--on-fill);border-radius:0}</style></head><body>
+<p><a class="back" href="index.html">&larr; All mockups</a></p><h1>Satchel: one heading, readable tiles</h1><p class="lead">The Satchel landing page at 390px. Same grid, same sheets; less repetition and legible type.</p><div class="compare"><div class="col b"><span class="tag before">BEFORE</span><div class="phone"><div class="hdr"><span class="logo">Gnome Venture</span><span class="pill">⚡ 18/30</span><span class="pill coin">🪙 1,240</span></div><div class="body" style="min-height:420px"><h1 style="font-size:1.4rem;margin:8px 0">👜 Your Satchel</h1><div class="tabs4"><span class="on">👜<br>Satchel</span><span>🔨<br>Crafting</span><span>🧰<br>Belt</span><span>💐<br>Arrange</span></div><h2 class="p2" style="margin:8px 0">👜 Satchel <small style="font-weight:400;color:var(--muted)">24 kinds · 81 things</small></h2><div class="search">🔍 Search 24 things in your satchel…</div><div class="tiles"><div class="tile"><span class="ti">🌱</span><b>Seeds</b><small>3 · ×9</small></div><div class="tile"><span class="ti">🥕</span><b>Crops</b><small>6 · ×21</small></div><div class="tile"><span class="ti">🌸</span><b>Flowers</b><small>2 · ×4</small></div><div class="tile"><span class="ti">🍲</span><b>Food</b><small>5 · ×12</small><i class="tb">new</i></div><div class="tile empty"><span class="ti">🪱</span><b>Soil</b><small>none</small></div><div class="tile"><span class="ti">🧰</span><b>Tools</b><small>3 · ×3</small></div><div class="tile"><span class="ti">🪵</span><b>Materials</b><small>4 · ×30</small></div><div class="tile"><span class="ti">🧪</span><b>More</b><small>1 · ×2</small></div></div><p style="font-size:13px;margin:8px 0"><a style="color:var(--muted)">🧰 Your toolbelt →</a></p></div><div class="bar5"><a><span>🌱</span>Garden</a><a><span>🌍</span>World</a><a class="on"><span>👜</span>Satchel</a><a><span>📍</span>Here</a><a><span>📋</span>Tasks</a><b><span>☰</span>More</b></div><span class="mark" style="top:170px;right:12px">2nd “Satchel” heading</span><span class="mark" style="bottom:66px;left:12px">Belt is already a tab</span><span class="mark" style="top:300px;right:12px">10.6px labels, 45% opacity</span></div></div><div class="col a"><span class="tag after">AFTER</span><div class="phone"><div class="hdr"><span class="logo">Gnome Venture</span><span class="pill">⚡ 18/30</span><span class="pill coin">🪙 1,240</span></div><div class="body" style="min-height:420px"><h1 style="font-size:1.4rem;margin:8px 0">👜 Your Satchel</h1><div class="tabs4"><span class="on">👜<br>Satchel</span><span>🔨<br>Crafting</span><span>🧰<br>Belt</span><span>💐<br>Arrange</span></div><p style="margin:0 0 8px;color:var(--muted);font-size:14px">24 kinds · 81 things</p><div class="search">🔍 Search 24 things in your satchel…</div><div class="tiles"><div class="tile"><span class="ti">🌱</span><b>Seeds</b><small>3 · ×9</small></div><div class="tile"><span class="ti">🥕</span><b>Crops</b><small>6 · ×21</small></div><div class="tile"><span class="ti">🌸</span><b>Flowers</b><small>2 · ×4</small></div><div class="tile"><span class="ti">🍲</span><b>Food</b><small>5 · ×12</small><i class="tb">new</i></div><div class="tile empty"><span class="ti">🪱</span><b>Soil</b><small>none</small></div><div class="tile"><span class="ti">🧰</span><b>Tools</b><small>3 · ×3</small></div><div class="tile"><span class="ti">🪵</span><b>Materials</b><small>4 · ×30</small></div><div class="tile"><span class="ti">🧪</span><b>More</b><small>1 · ×2</small></div></div></div><div class="bar5"><a><span>🌱</span>Garden</a><a><span>🌍</span>World</a><a class="on"><span>👜</span>Satchel</a><a><span>📍</span>Here</a><a><span>📋</span>Tasks</a><b><span>☰</span>More</b></div><span class="mark g" style="top:170px;right:12px">counts line, no repeat</span><span class="mark g" style="top:300px;right:12px">≥12px, solid colour</span></div></div></div><ul class="notes"><li><b>P2-2</b> One heading, counts as a plain line, the Belt link at the bottom removed (Belt is a tab).</li><li><b>P1-4</b> Tile labels 13px, counts 12px, badge 11px on the brand fill (6.4:1, was 4.3:1), empty tiles dashed instead of 45% opacity.</li><li>Tile size, grid and the dialog sheets are unchanged.</li></ul></body></html>
