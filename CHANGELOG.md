@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.98
+- **Pal Jobs:** the job options and the Send button are always shown. Send is greyed and says "Tick a pal to send" until you tick one (before, they were hidden until a pal was ticked, so a card looked like it had no Send).
+
 ## 2.3.97
 - Test release: version bump only, to check Back up and install from 2.3.96.
 

@@ -471,9 +471,9 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 .pjlv-rest{grid-column:4 / 6; font-size:13px; font-weight:700; color:var(--danger-ink)}
 .pjmore{min-height:var(--tap); padding:0 4px; font-weight:700}
 
-/* the options: hidden until a pal is picked (browsers without :has show them all the time, which still works) */
+/* the options are always shown (v2.3.98); Send stays greyed until a pal is ticked */
 .pjopts{display:grid; gap:12px; margin-top:14px; padding-top:12px; border-top:1px solid var(--line)}
-.pjform:not(:has(input[name="pals[]"]:checked)) .pjopts{display:none}
+.pjsend:disabled,[data-pj-send]:disabled{opacity:.55;cursor:not-allowed}
 @container pjpost (min-width:520px){ .pjopts{grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end} .pjopts > p, .pjopts > .pjgo, .pjopts > .pjsend{grid-column:1 / -1} }
 .pjfield{display:grid; gap:4px; min-width:0; margin:0; padding:0; border:0}
 .pjfield > label, .pjfield > legend{padding:0; font-size:13px; font-weight:700; color:var(--ink-2)}

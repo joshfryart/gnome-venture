@@ -51,7 +51,8 @@ document.addEventListener("DOMContentLoaded",function(){
   function update(f) {
     var p = picked(f), kind = f.getAttribute('data-pj-kind'), send = f.querySelector('[data-pj-send] span'), back = f.querySelector('[data-pj-back]');
     var n = pickedAll(f).length;
-    if (send) send.textContent = n > 1 ? 'Send ' + n + ' pals' : (p ? 'Send ' + nameOf(p) : 'Send');
+    if (send) send.textContent = n > 1 ? 'Send ' + n + ' pals' : (p ? 'Send ' + nameOf(p) : 'Tick a pal to send');
+    var sb = f.querySelector('[data-pj-send]'); if (sb) sb.disabled = n < 1;   // v2.3.98: always visible, live once a pal is ticked
     if (!back) return;
     var t = now();
     if (kind === 'garden') back.textContent = 'Back on ' + day(t + checkedVal(f, 'days') * 864e5) + '.';
