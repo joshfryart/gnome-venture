@@ -22,7 +22,7 @@ require_once __DIR__ . '/catalog.php';
 require_once __DIR__ . '/alchemy.php';   // potion tiers (Drink buttons)
 
 // the Satchel's types, in the order of its Show list (icon, label)
-const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'crops' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'kitchen' => ['🍲', 'Kitchen'], 'soil' => ['🪱', 'Soil'],
+const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'crops' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'kitchen' => ['🍲', 'Food'], 'soil' => ['🪱', 'Soil'],
     'tool' => ['🧰', 'Tools'], 'material' => ['🪵', 'Materials'], 'more' => ['🧪', 'More']];
 /** v2.5.0: item category => [group, kind word, chip label]. One home per kind of thing (Soil holds mulch, Tools holds broken tools...). */
 const SH_BAG_CATS = ['seed' => ['seed', 'Seed', 'Seeds'], 'packet' => ['seed', 'Seed packet', 'Packets'], 'produce' => ['crops', 'Crop', 'Crops'], 'forage' => ['crops', 'Find', 'Finds'],

@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.4.6
-- **Satchel is 8 square tiles** (about 920 px tall page, was about 1500): Seeds, Crops, Flowers, Kitchen, Soil, Tools, Materials, More. Tap a tile and a sheet opens with that group's things: search, chips (for example Soil / Mulch, Tools / Broken, Untasted), sort, and the same item panels and buttons. Typing in the page search counts matches on each tile; Enter or any other filter shows the plain list as before. Quick actions stay under the tiles.
+- **Satchel is 8 square tiles** (about 920 px tall page, was about 1500): Seeds, Crops, Flowers, Food, Soil, Tools, Materials, More. Tap a tile and a sheet opens with that group's things: search, chips (for example Soil / Mulch, Tools / Broken, Untasted), sort, and the same item panels and buttons. Typing in the page search counts matches on each tile; Enter or any other filter shows the plain list as before. Quick actions stay under the tiles.
 - **One home per thing:** mulch, Food Scrap, Cardboard Sheet and Garden Tonic sit with Soil; broken tools with Tools; parts and decor are Materials; supplies, guides and the rest are More; crops and finds share Crops; flowers and arrangements share Flowers.
 - Crafting pages drop the shopping list (a popover's Missing tab already says what you lack).
 - Tests: `itemsq.sh` covers tiles, sheets and the plain list. Plan: `claude/plan-satchel-layout.md`.
