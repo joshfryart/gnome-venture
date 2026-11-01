@@ -6605,3 +6605,16 @@ footer a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
   .gvtabs a { flex: 1 1 auto; justify-content: center; }
 }
 /* ===== end polish ===== */
+
+/* v2.3.100: garden square panel: status chips, one Next line, small N-P-K badges */
+.sqchips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0}
+.sqchip{border:1px solid var(--line); background:var(--bg-2,transparent); padding:3px 9px; font-weight:700; font-size:.9rem; border-radius:0}
+.sqchip.warn{border-color:#e08a2d; color:#e08a2d} .sqchip.ok{border-color:#58b34a}
+.sqnext{margin:6px 0; padding:6px 10px; border-left:4px solid var(--accent,#f5c542); background:var(--accent-soft,rgba(245,197,66,.12))}
+.npkrow{display:inline-flex; gap:6px; flex-wrap:wrap}
+.npkchip{display:inline-flex; align-items:center; gap:3px; border:2px solid var(--line); padding:2px 6px 2px 2px; font-weight:700; font-size:.85rem}
+.npkchip .npkb{margin:0; min-width:1.5em}
+.npkchip.need{border-color:var(--accent,#f5c542); box-shadow:0 0 0 2px rgba(245,197,66,.35)}
+.npkchip.low .npkm{color:#e0704f}
+.npkleg{display:block; margin-top:4px}
+details.whycare{margin:6px 0} details.whycare > summary{cursor:pointer; min-height:36px; display:flex; align-items:center; color:var(--ink-2)}

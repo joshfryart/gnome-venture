@@ -533,7 +533,7 @@ function tile_view(array $t, array $plants, bool $owner = true): array
         $badge .= '<em class="pestb" aria-hidden="true">' . e($pd['icon']) . '</em>';
         $label .= ' · ' . e((string)$pd['name']) . ' (slowing it down)';
     }
-    if ($owner) $label .= ' · fertility ' . (int)$t['fertility'];
+    if ($owner) $label .= ' · soil ' . (function_exists('soil_words') ? soil_words($t)['fertility'] : 'fertility ' . (int)$t['fertility']);   // v2.3.100: same word as the panel
     if ($cls !== 'wild' || $icon !== '') {
         if (str_contains($cls, 'thirsty')) $badge .= '<i>💧</i>';
     }

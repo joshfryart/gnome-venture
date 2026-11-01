@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.100
+- **Garden square panel is much shorter** (planted square on a phone: about 1090 px down to about 600 px, plus the closed fold).
+- Status chips (soil word, low nutrient, care stars or no-till grade, improver working) and ONE "Next:" line (water or harvest now, low nutrient fix, add compost, no-till fix, till it first) replace the repeated advice.
+- "Soil details" is closed by default, one fertility word scale everywhere (also in the yard tile titles), N, P and K are three small colour badges (green, orange, purple; low = ▼, high = ▲; the crop's nutrient gets a ring), the Watered row and repeated compost help are gone, and care details sit behind "How care works".
+- Test: `beds.sh` covers the panel. Assessment: `claude/soil-display-assessment.md`.
+
 ## 2.3.99
 - **Pal Jobs, gathering trips:** the Tool pickers only offer tools that can gather in the chosen land (greyed out and hidden otherwise), and the land list only shows lands where one of your tools works. Applies to the job default and to each pal's own pick. Changing the land switches an unusable tool to one that works.
 

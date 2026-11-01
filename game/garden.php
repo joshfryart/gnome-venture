@@ -536,11 +536,30 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
         $w = soil_words($sel);
         $method = $sel['method'] === 'notill' ? '🍂 No-till bed' : ((int)$sel['tilled'] ? '⛏️ Tilled' : '🌾 Wild ground'); ?>
       <h3>Square <?= (int)$sel['x'] + 1 ?>, <?= (int)$sel['y'] + 1 ?> · <?= $method ?> <a class="backtoyard" href="#yard">⬆ yard</a></h3>
-      <?php   // v1.6.2: two plain lines first; the numbers are behind "Soil details"
+      <?php   // v2.3.100: one status line, a row of chips and ONE "Next:" line; the numbers are behind "Soil details"
           $sumWord = $sel['method'] === 'notill' ? 'No-till bed' : ((int)$sel['tilled'] ? 'Tilled' : 'Wild ground');
           $sumState = $p ? ($p['kind'] === 'cover' ? 'cover crop growing' : 'growing ' . $p['name']) : (ts($sel['settle_until']) > time() ? 'settling' : (tile_plantable($sel) ? 'ready to plant' : ((int)$sel['tilled'] ? 'ready for soil care' : 'till it first')));
-          $fw = (int)$sel['fertility'] < 40 ? 'tired' : ((int)$sel['fertility'] < 65 ? 'okay' : 'good'); ?>
-      <p class="sqsum"><b><?= e($sumWord) ?> · <?= e($sumState) ?></b><br><span class="muted">Soil: <?= $fw ?><?= $fw === 'tired' && (int)$sel['tilled'] ? ' · add compost' : '' ?></span></p>
+          $fertLow = (int)$sel['fertility'] < 40;
+          $chips = [];
+          $chips[] = ['soil ' . $w['fertility'], $fertLow ? 'warn' : 'ok', '🌱'];
+          $pNeed = $p ? (string)($p['nutrient'] ?? '') : '';
+          if ($pNeed !== '' && isset(NUTRIENTS[$pNeed]) && (int)($sel[$pNeed] ?? 50) < 35) $chips[] = [NUTRIENTS[$pNeed][1] . ' ▼ low', 'warn', ''];
+          if ($sel['method'] === 'notill') { $gi0 = grade_index($sel); $pb0 = bed_problems($sel); $chips[] = ['grade ' . grade_name($gi0), $pb0 ? 'warn' : 'ok', '🍂']; if ($pb0) $chips[] = [count($pb0) . ' to fix', 'warn', '⚠️']; }
+          elseif (care_stars_for(care_points($sel)) > 0 || (int)$sel['tilled']) { $cs0 = care_stars_for(care_points($sel)); $chips[] = ['care ' . ($cs0 ? '★' . $cs0 : '☆'), $cs0 ? 'ok' : 'warn', '']; }
+          if ((int)$sel['feed_hours'] > 0) $chips[] = ['improver working', 'ok', '🪱'];
+          // the one next step, most urgent first
+          $next = '';
+          if ($p && !empty($info0 = tile_info($sel, $p))) {
+              if ($info0['ready']) $next = ($p['kind'] === 'cover' ? 'Dig it in' : 'Harvest it') . ' now.';
+              elseif ($info0['thirsty'] && empty($info0['rain'])) $next = 'Water it now.';
+          }
+          if ($next === '' && $pNeed !== '' && isset(NUTRIENTS[$pNeed]) && (int)($sel[$pNeed] ?? 50) < 35) $next = NUTRIENTS[$pNeed][0] . ' is low: ' . ['n' => 'worm tea, fern tea, or beans or a cover crop first.', 'p' => 'shell meal or rock dust.', 'k' => 'kelp meal or wood ash.'][$pNeed];
+          elseif ($fertLow && (int)$sel['tilled'] && (int)$sel['feed_hours'] <= 0) $next = ($next !== '' ? $next . ' Then add' : 'Add') . ' compost: the soil is tired.';
+          elseif ($sel['method'] === 'notill' && !empty($pb0)) $next = ['mulch' => 'Add mulch.', 'weeds' => 'Pull the weeds.', 'moisture' => 'Water the bed.', 'fertility' => 'Add compost.'][array_key_first($pb0)] ?? 'This bed needs care.';
+          elseif (!(int)$sel['tilled'] && $sel['method'] !== 'notill') $next = 'Till it first.'; ?>
+      <p class="sqsum"><b><?= e($sumWord) ?> · <?= e($sumState) ?></b></p>
+      <p class="sqchips"><?php foreach ($chips as [$ct, $cc, $ci]): ?><span class="sqchip <?= $cc ?>"><?= $ci ? $ci . ' ' : '' ?><?= e($ct) ?></span> <?php endforeach; ?></p>
+      <?php if ($next !== ''): ?><p class="sqnext"><b>Next:</b> <?= e($next) ?></p><?php endif; ?>
       <?php $yb = yard_tile_bonuses($sel); if ($yb): ?>
         <p class="yardbonus"><?php foreach (array_keys($yb) as $bk): ?><span class="tag" title="<?= e(YARD_BONUSES[$bk][3]) ?>"><?= YARD_BONUSES[$bk][0] ?> <?= e(YARD_BONUSES[$bk][1]) ?></span> <?php endforeach; ?></p>
       <?php endif; ?>
@@ -552,7 +571,6 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
         <?php if ($lt = perennial_life_text($sel, $p)): ?><p class="help lifeline"><?= e($lt) ?></p><?php endif; ?>
         <?php if (isset(NUTRIENTS[(string)($p['nutrient'] ?? '')])): $nu = (string)$p['nutrient']; $nv = (int)($sel[$nu] ?? 50); ?>
           <p class="help">Feeds on <?= e(strtolower(NUTRIENTS[$nu][0])) ?> (<?= NUTRIENTS[$nu][1] ?>): growing at <?= (int)round(nutrient_speed($sel) * 100) ?>% speed from it.
-            <?= $nv < 35 ? 'Running low. ' . ['n' => 'Worm tea, fern tea, or grow beans or a cover crop first.', 'p' => 'Try shell meal or rock dust.', 'k' => 'Try kelp meal or wood ash.'][$nu] : '' ?>
             <?= $p['kind'] === 'legume' ? 'Beans give nitrogen back when harvested.' : '' ?></p>
         <?php endif; ?>
         <?= tile_fx_html($sel, $p, $plants) /* v1.0.0: season, weather, pests, companions */ ?>
@@ -615,17 +633,15 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
         <?php if ($mulches) echo tool_action_form('mulch', $sel, 'Add mulch', ENERGY_COST['mulch'], item_select($mulches, fn($i) => $i['name'] . ' ×' . $i['qty'], 'mulch')); ?>
       <?php endif; ?>
       </div>
-      <details class="soildet"<?= $p ? ' open' : '' ?>><summary>Soil details</summary>   <?php /* v1.6.2 */ ?>
+      <details class="soildet"><summary>Soil details <small class="muted">fertility, life, water, N-P-K<?= $sel['method'] === 'notill' ? '' : ', care' ?></small></summary>   <?php /* v1.6.2 */ ?>
       <table class="kv soil">
         <tr><th>Fertility</th><td><?= e($w['fertility']) ?> <b><?= (int)$sel['fertility'] ?></b>/100</td></tr>
         <tr><th>Soil life</th><td><?= $hasKit ? (int)$sel['soil_life'] . '/100' : e($w['life']) ?></td></tr>
-        <?php if ($p && empty($info['ready'])): ?><tr><th>💧 Watered</th><td><?= $info['thirsty'] ? '<b class="bad">No, thirsty</b>' : 'Yes, for another ' . nice_time($info['wet_left']) ?></td></tr><?php endif; ?>
         <tr><th title="How well the soil holds water. Better soil makes each watering last longer (up to twice as long). Mulch, compost and no-till beds improve it; watering helps a little.">Holds water</th><td><?= $hasKit ? (int)$sel['moisture'] . '/100' : e($w['moisture']) ?></td></tr>
-        <?php $need = $p ? (string)($p['nutrient'] ?? '') : '';
-        foreach (NUTRIENTS as $nu => [$nName, $nLetter, $nIcon]): $nv = (int)($sel[$nu] ?? 50); ?>
-          <tr class="npk<?= $need === $nu ? ' need' : '' ?><?= $nv < 35 ? ' low' : '' ?>"><th><span class="npkb <?= $nu ?>"><?= $nLetter ?></span> <?= e($nName) ?></th>
-            <td><?= $hasKit ? $nv . '/100' : e(nutrient_word($nv)) ?><?= $need === $nu ? ' ← ' . e($p['name']) . ' feeds on this' : '' ?></td></tr>
-        <?php endforeach; ?>
+        <?php $need = $p ? (string)($p['nutrient'] ?? '') : ''; ?>
+        <tr><th>N · P · K</th><td><span class="npkrow"><?php foreach (NUTRIENTS as $nu => [$nName, $nLetter, $nIcon]): $nv = (int)($sel[$nu] ?? 50);
+            $mark = $nv < 35 ? '▼' : ($nv >= 65 ? '▲' : '●'); ?><span class="npkchip<?= $need === $nu ? ' need' : '' ?><?= $nv < 35 ? ' low' : '' ?>" title="<?= e($nName . ': ' . nutrient_word($nv) . ($need === $nu ? ' (' . $p['name'] . ' feeds on this)' : '')) ?>"><span class="npkb <?= $nu ?>"><?= $nLetter ?></span><span class="npkm"><?= $hasKit ? $nv : $mark ?></span><?= $need === $nu ? '<span class="npkcrop" aria-hidden="true">←🌱</span>' : '' ?></span><?php endforeach; ?></span>
+          <span class="help npkleg">● ok · ▼ low · ▲ high<?= $need !== '' ? ' · ring = crop food' : '' ?></span></td></tr>
       </table>
       <?php if (!$hasKit): ?><p class="help">A Soil Test Kit from the Mossbottom hub shows exact numbers.</p><?php endif; ?>
       <?php if (tool_tier($uid, 'soiltest') >= 2 && (int)$sel['tilled'] && !$p && ($best = probe_best_crops($u, $sel))): ?>
@@ -637,8 +653,6 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
             npk_text(['n' => (int)($sel['feed_n'] ?? 0), 'p' => (int)($sel['feed_p'] ?? 0), 'k' => (int)($sel['feed_k'] ?? 0)])]); ?>
         <p class="feeding">🪱 Soil improver working in<?= $hasKit && $still ? ': ' . e(implode(', ', $still)) . ' still to come' : '' ?>.
           Ready for more in <?= nice_time(feed_seconds_left($sel)) ?>.</p>
-      <?php elseif ((int)$sel['tilled']): ?>
-        <p class="help">Compost and other soil improvers take a short time to work in, one at a time.</p>
       <?php endif; ?>
       <?php if ($sel['method'] !== 'notill'):   // v0.8.7: soil care stars for tilled squares
           $cp = care_points($sel); $cs = care_stars_for($cp); $steps = care_steps();
@@ -659,9 +673,9 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
           <li class="<?= $lifeOk ? 'good' : 'bad' ?>">Soil life <?= $lifeOk ? '✔' : '— too low, it needs to be lively' ?></li>
           <li class="<?= $todayDone ? 'good' : 'muted' ?>"><?= $todayDone ? 'Point earned today ✔' : 'No point earned today yet' ?></li>
         </ul>
-        <p class="help">A harvest with both earns a point. Each star makes crops here grow <?= (int)setting('care_growth_percent') ?>% faster
+<details class="whycare"><summary>How care works</summary>        <p class="help">A harvest with both earns a point. Each star makes crops here grow <?= (int)setting('care_growth_percent') ?>% faster
           and tilling less harmful: the next till costs <?= care_till_damage($sel) ?> soil life. Left as wild ground, a square loses a star every <?= (int)setting('care_decay_days') ?> days.
-          <?= $cs >= 2 ? 'Turning it into a no-till bed starts it at grade ' . e(grade_name(intdiv($cs, 2))) . '.' : '' ?></p>
+          <?= $cs >= 2 ? 'Turning it into a no-till bed starts it at grade ' . e(grade_name(intdiv($cs, 2))) . '.' : '' ?></p></details>
       <?php endif; ?>
       </details>
       <?php if ($sel['method'] === 'notill'):
