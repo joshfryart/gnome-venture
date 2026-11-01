@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.4
+- **Cooking page:** the energy and Petals chips are gone (the top bar already shows them). Each pot is now a square tile: the dish and time left, "Ready!" with a Collect button, or an "Empty" pot (one tile per free pot instead of "+N free pots"). "Collect all" still appears when two or more are ready.
+
 ## 2.4.3
 - **My Gnome is slimmer on phones** (Overview with pals: about 1700 px down to about 1085 px): Health is one slim line inside the gnome card (heart, bar, hp/max; the potion and snack buttons sit in a closed "Heal" drawer when you are hurt), tabs fit in two rows, fact tiles are two columns, pal slots are smaller, "How to meet your first pals" is a closed fold.
 - **Link to Today** (📅 Today →) beside "See your profile as others do" on My Gnome.

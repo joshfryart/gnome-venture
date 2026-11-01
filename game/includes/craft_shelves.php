@@ -59,22 +59,21 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
 <?php endif; ?>
 <section class="p2jars shstation" aria-label="<?= $potsOn ? 'Pots' : 'Station' ?>">
   <div class="p2jarrow">
-    <span class="p2jar shstat"><span class="p2ic" aria-hidden="true">⚡</span><span class="p2jt"><b><?= (int)$u['energy'] ?></b> energy</span></span>
-    <span class="p2jar shstat"><span class="p2ic" aria-hidden="true">🌸</span><span class="p2jt"><?= money((int)$u['coins']) ?></span></span>
     <?php if ($potsOn):
         $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0));
         $outItems = [];
         foreach (q("SELECT i.* FROM items i JOIN recipes r ON r.output_item_id = i.id WHERE r.category = 'cooking'")->fetchAll() as $it) $outItems[(int)$it['id']] = $it;
         foreach ($pots as $p): $done = $p['left'] <= 0; ?>
-      <div class="p2jar pot <?= $done ? 'done' : 'busy' ?>" title="<?= e($p['name']) ?>">
+      <div class="p2jar pot potsq <?= $done ? 'done' : 'busy' ?>" title="<?= e($p['name']) ?>">
         <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🍲' ?></span>
-        <span class="p2jt"><span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span> <span class="potleft" data-potleft="<?= (int)$p['left'] ?>"><?= $done ? 'Ready!' : e(energy_clock((int)$p['left'])) ?></span></span>
+        <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>
+        <span class="potleft" data-potleft="<?= (int)$p['left'] ?>"><?= $done ? 'Ready!' : e(energy_clock((int)$p['left'])) ?></span>
         <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="potcollect"<?= $done ? '' : ' hidden' ?>><?= csrf_field() ?>
           <input type="hidden" name="do" value="collect"><input type="hidden" name="pot_id" value="<?= (int)$p['id'] ?>"><button class="btn small">Collect</button></form>
       </div>
     <?php endforeach;
         $free = max(0, $lim - count($pots)); ?>
-    <?php if ($free): ?><div class="p2jar empty"><span class="p2ic" aria-hidden="true">🫕</span><span class="p2jt">+<?= $free ?> free pot<?= $free > 1 ? 's' : '' ?></span></div><?php endif; ?>
+    <?php for ($fi = 0; $fi < $free; $fi++): ?><div class="p2jar pot potsq empty" title="Empty pot"><span class="p2ic" aria-hidden="true">🫕</span><span class="shpn">Empty</span><span class="potleft">free</span></div><?php endfor; ?>
     <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="p2all" data-potall<?= $readyN >= 2 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="collect_all"><button class="btn small alt">Collect all</button></form>
     <?php elseif ($stations[$tab] === 0): $b = BUILDINGS[$building]; ?>
       <span class="p2jar shstat empty"><span class="p2ic" aria-hidden="true">🔒</span><span class="p2jt"><?= e($b[0]) ?> needed</span></span>
