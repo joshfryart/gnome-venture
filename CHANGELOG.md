@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.93
+- **Polish pass** (audit and notes in `claude/polish-audit.md`, plan in `claude/plan-polish.md`). Look and navigation only; no database change, no new settings.
+- **Status strip** no longer scrolls sideways on tablet and desktop: the chips wrap to a second row. **World header** image stacks above the title between 721 and 999 px (it covered the title at 768 px). **Menu labels** wrap instead of being cut ("Whisker Po...", "Gnome frie..."). **My Gnome / Mentor tabs** wrap onto rows on phones (7 tabs, 299 px of them were out of sight).
+- **Menu:** the duplicate "Whisker Pond" tile is gone (Cat Fish is a tile on Games; its page name is Cat Fish); Games lights up on Cat Fish, Puzzles, Jigsaw, GIFsaw, Rain Barrel, Gnome Beds, Fair, Village Show and Garden of the Month; Pal Jobs lights up Puzzle Pals. "Gnome friends" is now "Friends".
+- **Pals:** Pal Book and Pal Jobs share one tab row.
+- **Villagers:** every villager link goes to `villagers.php`; `folk.php` is a redirect stub (POST kept); the dead "Villagers you know" list in Town and the unused `folk.php` page template are removed.
+- **Tap targets and focus:** logo, footer links and the status badge have 44 px hit areas; keyboard focus draws a dashed ring on the world, region and mycelium map links (it only changed fill opacity before).
+- **CSS:** width breakpoints 24 down to 17 (430 px phones now get the compact header and tab labels of 412 px phones; Almanac spread at 721-760 px has more padding); three min/max pairs that both applied at one exact width fixed. New `tests/css_lint.sh` in CI.
+- **Tests:** `gather150` assertions updated for per-landscape scene art and the gather form id; `tests/polish_audit.js` added; landing shots regenerated.
+- **Docs:** `PRODUCT.md`, `DESIGN.md` (drafts, marked where inferred), `claude/css-map.md`, `claude/ci-2.3.92.md`.
+- No player news entry. Not run: MySQL, phone check (Joshua).
 ## 2.3.92
 - **Cat Fish, fewer queries:** `catfish_extra_mult()` takes the caller's `catfish_state()` row for the Buddy check instead of reading it again, and loads the pictures behind a gnome's found Puzzle Pals with one `IN (...)` query instead of one per picture. No change to what players see or earn.
 - **Tests:** `tests/catfish.sh` passes again (0 failed): the Puzzle Pals bonus checks use the 2.2.3 values (+4% a common pal, best 10 count), the hub check counts the Games tile, not the menu's own link, and the bunting checks measure the jar's change, not its total.

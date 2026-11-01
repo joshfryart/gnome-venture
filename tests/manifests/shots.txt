@@ -1,13 +1,13 @@
-version 2.3.92
-shot-almanac-dark.png 824x1120 38100
-shot-almanac.png 824x1120 38943
-shot-games-dark.png 824x1120 34339
-shot-games.png 824x1120 35168
-shot-garden-dark.png 824x1120 34085
-shot-garden.png 824x1120 34960
-shot-satchel-dark.png 824x1120 40452
-shot-satchel.png 824x1120 40340
-shot-town-dark.png 824x1120 34647
-shot-town.png 824x1120 32935
-shot-world-dark.png 824x1120 35576
-shot-world.png 824x1120 35611
+version 2.3.93
+shot-almanac-dark.png 824x1120 38026
+shot-almanac.png 824x1120 38877
+shot-games-dark.png 824x1120 34140
+shot-games.png 824x1120 34983
+shot-garden-dark.png 824x1120 33991
+shot-garden.png 824x1120 34868
+shot-satchel-dark.png 824x1120 39644
+shot-satchel.png 824x1120 39458
+shot-town-dark.png 824x1120 33129
+shot-town.png 824x1120 32820
+shot-world-dark.png 824x1120 35508
+shot-world.png 824x1120 35534
