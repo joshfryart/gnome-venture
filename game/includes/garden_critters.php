@@ -415,7 +415,7 @@ function critter_panel_html(array $u, array $plot, string $b): string
             $ready += (int)$c['held'];
             $line = [];
             $unitC = critter_food_unit($b, array_fill_keys(array_filter(array_map('trim', explode(',', (string)$k['foods']))), true));   // v1.6.3
-            if ($eats) $line[] = '🍽️ ' . (int)$c['meals'] . '/' . ((int)$k['meals_per'] > 0 ? (int)$k['meals_per'] . ' ' . $unitC : $cap);   // v1.6.3: feeder against what one gift needs
+            if ($eats) $line[] = '🍽️ ' . (int)$c['meals'] . '/' . $cap . ((int)$k['meals_per'] > 0 ? ' · ' . (int)$k['meals_per'] . ' ' . $unitC . ' per gift' : '');   // v1.6.3: feeder against what one gift needs
             if (($gl = critter_gift_line($c, $k, $unitC)) !== '') $line[] = '⏳ ' . $gl;   // v1.6.3
             if ((int)$c['held'] > 0) $line[] = '🎁 ' . (int)$c['held'];
             if ($c['kind'] === 'tadpole' && $c['grows_at']) $line[] = $c['fed_at'] ? '🌱 growing up in ' . nice_time(max(60, ts($c['grows_at']) - time())) : '🌱 needs a feed to grow';

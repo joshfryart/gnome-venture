@@ -1,7 +1,7 @@
 # Gnome Venture: to-do (updated 2026-11-01, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
-## TODO (Joshua, 2026-11-01): worms can be overfed
-- Joshua noticed the worm farm accepts more food than it should, so you can overfeed worms. Find the feed action (animals code, `includes/animals120.php` and the Garden > Animals tab), cap feeding at what the farm holds or can eat (like the soil improver rule: refuse with a message such as "They are full, try again in N h"), and add a test to `tests/animals120.sh`. Not looked at yet; exact limit and repro still to confirm.
+## DONE-ish (2026-11-01): worm "6/4"
+- Not overfeeding: the feeder cap is `critter_meals_cap` (6, tested in `tests/garden100.php`), the worm needs 4 per gift, and the card showed meals/needed ("6/4"). Card now reads `6/6 · 4 scraps per gift`. Feeding when full is already refused ("Everyone is full already"). If Joshua wants the cap itself lower (e.g. one gift = 4), say so: change the setting or cap per animal at `meals_per`.
 
 ## TODO (Joshua, 2026-11-01): Pal Jobs, send several pals at once
 - Joshua runs live with `pj_max_away` = 10 (code max is 10, `pal_jobs.php:46`; default 3). Sending ten pals means ten separate forms and page loads on `paljobs.php` (one `send_<kind>` form per pal, `paljobs.php:216`).
