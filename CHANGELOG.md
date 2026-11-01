@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.2
+- **Trip strip ("Heading to ...") is one slim line:** about 28 px tall (was about 95 px on a phone): destination on the left, stops left or leg on the right, hairline progress bar underneath. Style only.
+
 ## 2.4.1
 - **Crafting pages are shorter:** the recipe list under the scene is a closed fold ("All recipes · N ready · N missing · N to discover") that opens by itself for a tapped object, a search, a List pick or an open recipe. Pantry keeps its jar strip visible. Smaller area thumbnails on phones.
 - **Tiny green ! on scene objects** you can make something with right now (also in the object's accessible label).
