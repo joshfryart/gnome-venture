@@ -6,7 +6,6 @@ Investigation only. No game code changed. Not committed. Paths under `game/`.
 - Satchel food already shows buff and energy: `items.php:109` (in `item_facts()`), shown at `shelves.php:90`.
 - Cooking cards show both (`shelves.php:209`). Pantry jars too (`pantry_view.php:203`). Potion drinks too (`alchemy.php:129`).
 - Missing: the shop sheet in `shop_tile()` (`shop_tiles.php`, sheet near `:118`). No caller builds buff text for it.
-- Missing: craft cards never show the dish description. Only the buff subtitle.
 
 ## 2. Scene objects today
 - Data: `includes/data/craft_scenes.php:6-54`. Row = `[id, label, x%, y%, w%, h%, globs | query]`.
@@ -17,7 +16,7 @@ Investigation only. No game code changed. Not committed. Paths under `game/`.
 - Potions objects use `q=` links, not globs. Out of scope.
 
 ## 3. Recipe data and states
-- Tables (`schema.php:143-163`): `recipes` (ingredients JSON, energy, category, slug, output_item_id). `user_recipes` (user, recipe, learned_at).
+- Tables (`schema.php:143-163`): `recipes` (ingredients JSON, energy, category, slug). `user_recipes` (user, recipe, learned_at).
 - Known: `craft_recipes()` (`crafting.php:105-144`). Row in `user_recipes` = known. Inserted on read once all ingredients were seen (`:131-138`).
 - `can` = ingredients held only (`:123-141`). Energy, building, pots are not in it.
 - Shelf status: `sh_craft_entries()` (`shelves.php:175`). `ok` = `can` and not a feast without Kitchen III.
@@ -32,7 +31,6 @@ Investigation only. No game code changed. Not committed. Paths under `game/`.
 - Home dishes: `dish_energy()` (`gnome.php:371`). Minutes: `buff_minutes()` (`gnome.php:350`).
 - Satchel list: `item_facts()` (`items.php:81-130`), line 109 calls `buff_text()` when edible.
 - No single function covers every surface. Two builders: `buff_text()` (text) and `item_facts()` (list).
-- Gap: home-cooked energy shows x115 but not the Brewroot `meal_energy_pct` perk added in `eat_item()` (`gnome.php` ~477).
 
 ## 5. Plan
 **Data flow.** `craft_shelves()` already builds `$all` via `sh_craft_entries`. The popover reuses it: filter by `craft_tag_match()`, split into tabs. No new query.
@@ -42,25 +40,18 @@ Investigation only. No game code changed. Not committed. Paths under `game/`.
 - Missing: known, not Can craft.
 - Unknown: not known.
 
-**Endpoint.** None. Render all popovers into the page (5 small lists). No JSON, no fragment. CSP unchanged.
-
 **Markup.**
 - One `<dialog class="picker craftpop" id="pop-<area>-<id>" aria-labelledby="...">` per tagged object.
 - Place after `craft_area_header()`, before `.shelves`, so shelf handlers (`site.js:2030-2066`) never see it.
 - Tabs: `role="tablist"` buttons with counts. Rows: `<a href="?c=<area>&r=<id>#r<id>">`, no `id` (clashes with pills).
 
-**Hotspot.** Keep `href="?o=<id>"` as no-JS fallback. Add `data-pop="pop-<area>-<id>"`. JS handles plain clicks only.
+**Hotspot.** Keep `href="?o=<id>"` as no-JS fallback (dialogs stay hidden, so no-JS is unchanged). Add `data-pop`. JS handles plain clicks only.
 
-**JS.** New `assets/craftpop.js`, loaded only on the Satchel page (check how `chest.js` is included).
-- Open with `gvOpenDlg()` (`site.js:2-4`). Close: native Esc, Android back, backdrop.
-- Do not reuse `gvGarden()` picker wiring (`site.js:1230-1240`, garden only).
-- Tab switch toggles `hidden`. Return focus to the hotspot on close.
+**JS.** New `assets/craftpop.js`, loaded only on the Satchel page (check how `chest.js` is included). Open with `gvOpenDlg()` (`site.js:2-4`). Native Esc and backdrop close. Do not reuse `gvGarden()` picker wiring (garden only). Tabs toggle `hidden`. Return focus to the hotspot.
 
 **CSS.** `.craftpop` block after the `.cmap-*` rules (`style.css:6488-6515`). Reuse `dialog.picker`, `.pickbox`, `.pickhead`, `--tap`. Tabs at least 44px. Hotspots already exceed 44px at 390px (smallest about 88px tall). Check at 360px.
 
-**A11y.** `showModal()` gives focus trap, Esc, inert page. Tabs use `aria-selected`; arrow keys optional. Rows are real link text.
-
-**No-JS.** Dialogs stay hidden. Hotspots go to the `?o=` list, as today.
+**A11y.** `showModal()` gives focus trap, Esc, inert page. Tabs use `aria-selected`. Rows are real link text.
 
 **Food text.**
 1. Add `item_food_line(array $item, bool $homeCooked)` in `crafting.php` beside `buff_text()`. Same output.
