@@ -78,7 +78,10 @@ get paljobs.php >/dev/null
 chk "receipt head says where the pal came back from" "$(grep -c '<b>[^<]* is back from the forest\.</b>' $H)" 1
 get gnome.php >/dev/null
 chk "My Gnome: notice gone once collected" "$(grep -c 'class="pjhome"' $H)" 0
-echo "== v2.3.94: several pals at once, Collect all"
+echo "== v2.3.95: several pals at once, Collect all"
+chk "v2.3.95: page CSS keys on the pals[] checkboxes (a stale name=pal selector hid the options and Send)" "$(grep -c 'input\[name="pal"\]' $GAME/assets/puzzles.css)" 0
+get paljobs.php >/dev/null
+chk "v2.3.95: each pal can carry its own place/tool (over[..])" "$(grep -c 'name="over\[' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 dbx "DELETE FROM ppal_jobs"; dbx "UPDATE ppal_found SET status='home', hp=20"
 PALS=$(db "SELECT pal_uid FROM ppal_found WHERE user_id=$SID AND status='home' ORDER BY id LIMIT 3")
 P1=$(echo "$PALS" | sed -n 1p); P2=$(echo "$PALS" | sed -n 2p); P3=$(echo "$PALS" | sed -n 3p)

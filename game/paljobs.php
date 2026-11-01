@@ -26,20 +26,25 @@ if (is_post()) {
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
     // v2.3.94: several pals at once. Ticked pals (pals[]) get the same job; each send still checks its own rules (slots, runs per day, one gardener per garden, one re-run per delve per day).
     $picked = array_values(array_unique(array_filter(array_map('strval', array_merge((array)($_POST['pals'] ?? []), $pal !== '' ? [$pal] : [])), fn($x) => $x !== '')));
-    if (in_array($do, ['send_garden', 'send_trip', 'send_delve'], true) && count($picked) > 1) {
+    if (in_array($do, ['send_garden', 'send_trip', 'send_delve'], true) && count($picked) > 0) {
         $sent = 0; $why = [];
+        $ov = (array)($_POST['over'] ?? []);   // over[<pal>][plot|land|tool|delve]: this pal's own pick; empty = the job's default
+        $pick = fn(string $pu, string $k, $dflt) => (is_array($ov[$pu] ?? null) && is_string($ov[$pu][$k] ?? null) && $ov[$pu][$k] !== '') ? $ov[$pu][$k] : $dflt;
         foreach ($picked as $pu) {
             $one = match ($do) {
-                'send_garden' => pj_garden_send($u, $pu, (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
-                'send_trip' => pj_trip_send($u, $pu, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
-                default => pj_delve_send($u, $pu, (int)($_POST['delve'] ?? 0), $pots, $unq),
+                'send_garden' => pj_garden_send($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
+                'send_trip' => pj_trip_send($u, $pu, (string)$pick($pu, 'land', $_POST['land'] ?? ''), (string)$pick($pu, 'tool', $_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
+                default => pj_delve_send($u, $pu, (int)$pick($pu, 'delve', $_POST['delve'] ?? 0), $pots, $unq),
             };
             $pn = (string)(pj_pal($uid, $pu)['name'] ?? 'A pal');
+            if (count($picked) === 1) { flash((string)$one[1], $one[0] ? 'ok' : 'err'); $sent = -1; continue; }
             if ($one[0]) { $sent++; flash($pn . ': ' . (string)$one[1], 'ok'); }
             else $why[] = $pn . ': ' . (string)$one[1];
         }
-        foreach ($why as $w) flash($w, 'err');
-        flash($sent . ' of ' . count($picked) . ' pals sent.', $sent ? 'ok' : 'err');
+        if ($sent >= 0) {
+            foreach ($why as $w) flash($w, 'err');
+            flash($sent . ' of ' . count($picked) . ' pals sent.', $sent ? 'ok' : 'err');
+        }
         redirect('paljobs.php');
     }
     if ($do === 'collect_all') {
@@ -262,7 +267,21 @@ page_header('Pal Jobs');
                 <?php if ($rest): ?><span class="pjlv pjlv-rest">Resting</span>
                 <?php else: ?><meter class="pjfhp" min="0" max="<?= (int)$p['max'] ?>" low="<?= (int)ceil($p['max'] * 0.4) ?>" high="<?= (int)ceil($p['max'] * 0.4) ?>" optimum="<?= (int)$p['max'] ?>" value="<?= (int)$p['hp'] ?>" aria-hidden="true"></meter>
                 <span class="pjlv"><span class="vh"><?= $sk === 'g' ? 'Gardening' : 'Adventuring' ?> </span><?= (int)$p[$sk] ?><span class="vh">, HP <?= (int)$p['hp'] ?> of <?= (int)$p['max'] ?></span></span><?php endif; ?>
-              </label></li>
+              </label>
+              <?php if (count($ranked) > 0 && !$rest): ?>
+              <div class="pjover">
+                <?php if ($kind === 'garden' && count($plotName) > 1): ?>
+                <label>Garden<select name="over[<?= e($p['uid']) ?>][plot]"><option value="">As above</option><?php foreach ($plotName as $id => $nm): ?><option value="<?= $id ?>"><?= e($nm) ?></option><?php endforeach; ?></select></label>
+                <?php elseif ($kind === 'trip'): ?>
+                <label>Where<select name="over[<?= e($p['uid']) ?>][land]"><option value="">As above</option><?php foreach (LANDSCAPES as $k => $L): ?><option value="<?= e($k) ?>"><?= e($L[1]) ?></option><?php endforeach; ?></select></label>
+                <label>Tool<select name="over[<?= e($p['uid']) ?>][tool]"><option value="">As above</option><?php foreach ($tools as $t => $tier): ?><option value="<?= e($t) ?>"><?= e(TOOL_TYPES[$t][0] ?? $t) ?> (tier <?= (int)$tier ?>)</option><?php endforeach; ?></select></label>
+                <?php elseif ($kind === 'delve'): ?>
+                <label>Delve<select name="over[<?= e($p['uid']) ?>][delve]"><option value="">As above</option><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></label>
+                <?php endif; ?>
+              </div>
+              <?php endif; ?>
+              </li>
+
               <?php endforeach; ?>
             </ul>
           </fieldset>
@@ -273,7 +292,7 @@ page_header('Pal Jobs');
             <div class="pjfield"><label for="pjplot">Garden</label><select id="pjplot" name="plot"><?php foreach ($plotName as $id => $nm): ?><option value="<?= $id ?>"><?= e($nm) ?></option><?php endforeach; ?></select></div>
             <?= $seg('days', 'For', PJ_GARDEN_DAYS, 3, fn($d) => $d . ' day' . ($d > 1 ? 's' : '')) ?>
             <?php elseif ($kind === 'trip'): ?>
-            <div class="pjfield"><label for="pjland">Where</label><select id="pjland" name="land"><?php foreach (LANDSCAPES as $k => $L): ?><option value="<?= e($k) ?>"><?= e($L[1]) ?></option><?php endforeach; ?></select></div>
+            <div class="pjfield"><label for="pjland">Where (default)</label><select id="pjland" name="land"><?php foreach (LANDSCAPES as $k => $L): ?><option value="<?= e($k) ?>"><?= e($L[1]) ?></option><?php endforeach; ?></select></div>
             <div class="pjfield"><label for="pjtool">Tool</label><select id="pjtool" name="tool"><?php foreach ($tools as $t => $tier): ?><option value="<?= e($t) ?>"><?= e(TOOL_TYPES[$t][0] ?? $t) ?> (tier <?= (int)$tier ?>)</option><?php endforeach; ?></select></div>
             <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
             <?= $potionField('trip') ?>

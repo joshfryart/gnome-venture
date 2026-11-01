@@ -338,7 +338,7 @@ body.pz-play .lp #game{text-align:left}
 .pjparty{margin-left:4px; padding:0 4px; font-size:11px; font-weight:700; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--accent-line)}
 .pjeq{display:none; align-items:flex-start; gap:8px; margin:10px 0 0; padding:8px 10px; font-size:14px; background:var(--accent-soft); color:var(--accent-ink); border:2px solid var(--accent-line)}
 .pjeq input{margin:3px 0 0; width:20px; height:20px; flex:none}
-.pjform:has(input[name="pal"][data-pj-party]:checked) .pjeq{display:flex}
+.pjform:has(input[name="pals[]"][data-pj-party]:checked) .pjeq{display:flex}
 /* unfold button */
 .pjopen{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; margin-top:12px}
 .pjopen::after{content:''; width:0; height:0; border:6px solid transparent; border-top:7px solid currentColor; border-bottom:0; transition:transform .2s cubic-bezier(.16,1,.3,1)}
@@ -431,7 +431,7 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 @container pjpage (min-width:900px){ .pjposts{grid-template-columns:repeat(3,minmax(0,1fr)); align-items:start} }
 .pjpost{position:relative; margin:0; padding-top:18px; container:pjpost / inline-size}
 .pjpost::before{content:''; position:absolute; top:-6px; left:50%; width:12px; height:12px; margin-left:-6px; background:var(--danger); box-shadow:0 0 0 2px var(--ol)}   /* the pin */
-.pjpost:has(input[name="pal"]:checked){box-shadow:0 0 0 3px var(--ink), 3px 5px 0 0 var(--drop), 5px 3px 0 0 var(--drop)}
+.pjpost:has(input[name="pals[]"]:checked){box-shadow:0 0 0 3px var(--ink), 3px 5px 0 0 var(--drop), 5px 3px 0 0 var(--drop)}
 .pjposthd{display:flex; align-items:center; gap:10px}
 .pjico{display:grid; place-items:center; flex:none; width:40px; height:40px; background:var(--surface-2); box-shadow:var(--frame-lite)}
 .pjico .ico{width:24px; height:24px; vertical-align:0}
@@ -473,7 +473,7 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 
 /* the options: hidden until a pal is picked (browsers without :has show them all the time, which still works) */
 .pjopts{display:grid; gap:12px; margin-top:14px; padding-top:12px; border-top:1px solid var(--line)}
-.pjform:not(:has(input[name="pal"]:checked)) .pjopts{display:none}
+.pjform:not(:has(input[name="pals[]"]:checked)) .pjopts{display:none}
 @container pjpost (min-width:520px){ .pjopts{grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end} .pjopts > p, .pjopts > .pjgo, .pjopts > .pjsend{grid-column:1 / -1} }
 .pjfield{display:grid; gap:4px; min-width:0; margin:0; padding:0; border:0}
 .pjfield > label, .pjfield > legend{padding:0; font-size:13px; font-weight:700; color:var(--ink-2)}
@@ -508,3 +508,9 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 .pjempty .btn{margin-top:4px}
 
 /* ===== pj END ===== */
+
+/* v2.3.95: a ticked pal can get its own place / tool / garden / delve instead of the job's default */
+.pjover{display:none;flex-wrap:wrap;gap:.4rem;padding:.35rem .5rem .6rem 3.2rem}
+.pjfaces li:has(input[name="pals[]"]:checked) .pjover{display:flex}
+.pjover label{display:flex;flex-direction:column;font-size:.8rem;gap:.15rem;flex:1 1 9rem}
+.pjover select{width:100%;min-height:2.4rem}

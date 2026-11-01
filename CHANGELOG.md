@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.95
+- **Pal Jobs fix:** in 2.3.94 the job options and the Send button never appeared after ticking pals (the page styles still looked for the old single-pal picker). Fixed.
+- **Per-pal choices:** each ticked pal can have its own Where and Tool (trips), Garden (gardens) or Delve, or "As above" to use the job's default. Length and potions stay shared.
+- Test checks the styles match the checkboxes.
+
 ## 2.3.94
 - **Playtest fixes:** batch plant tries the next picked seed when one needs richer soil; harvest says the square is bare and needs tilling; plant list and shop seeds show XP per harvest; Crafting refuses quantity 0, negative or text; garden names cannot use `<` or `>`; Adventure shows fresh energy; Jobs show when each period ends and that progress does not carry over; repeated flash messages no longer stack (log capped at 20).
 - **Double taps:** a form sent twice within 2 seconds is done once (browser and server). The server sends you back to the same page and says "Already done: that was sent twice."
