@@ -143,4 +143,31 @@
     });
   }
   if (window.MutationObserver) new MutationObserver(scan).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
+
+  /* Phone: keep the map / fight stage in view. The in-place page swap keeps the old scroll position, and the map folds away when a fight
+     starts, so the page got shorter and left the gnome scrolled past everything. When the view changes between map and fight (or the
+     fight map folds), put the stage just under the header. */
+  var phone = function () { return window.matchMedia && window.matchMedia('(max-width: 720px)').matches; };
+  var lastView = '', lastFold = null;
+  function viewNow() { return document.querySelector('.trekfightcol') ? 'fight' : document.querySelector('.trekmapcol, .trekplay') ? 'map' : ''; }
+  function toStage() {
+    if (!phone()) return;
+    var t = document.getElementById('trekstage') || document.querySelector('.trekfightcol') || document.querySelector('.trekmapcol');
+    if (!t || !t.getClientRects().length) return;
+    var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
+    var r = t.getBoundingClientRect();
+    if (r.top >= hdr && r.top < window.innerHeight * 0.35) return;   // already well placed
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: Math.max(0, window.scrollY + r.top - hdr - 8), behavior: reduce ? 'auto' : 'smooth' });
+  }
+  function watchView() {
+    var v = viewNow(), fm = document.querySelector('details.tkfmap'), fold = fm ? fm.open : null;
+    var changed = v && v !== lastView, folded = v === 'fight' && lastFold === true && fold === false;
+    lastView = v; lastFold = fold;
+    if (changed || folded) setTimeout(toStage, 60);   // after layout settles
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(watchView).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
+    lastView = viewNow(); var f0 = document.querySelector('details.tkfmap'); lastFold = f0 ? f0.open : null;   // initial state: no jump on page load
+  }
 })();
