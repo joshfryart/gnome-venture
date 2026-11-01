@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.97
+- Test release: version bump only, to check Back up and install from 2.3.96.
+
 ## 2.3.96
 - **Fix:** "Back up and install" (and every other button that asks "Are you sure?") did nothing in 2.3.94 and 2.3.95. The new double-tap guard counted the first, cancelled submit as sent and then swallowed the OK. The guard now only counts a form once the submit really goes through. Checked in a browser: confirm then OK submits, Cancel then retry submits, a double tap posts once.
 
