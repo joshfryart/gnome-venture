@@ -42,18 +42,11 @@ $link = fn(int $id) => url($base . '&r=' . $id) . '#r' . $id;
 $close = fn() => url($base);
 $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   // v0.9.4: pots with timers (kitchen_pots 0 = instant)
 ?>
-<?php craft_area_header($tab); ?>
+<?php craft_area_header($tab, craft_can_by_obj($tab, $all, $slugOf)); ?>
 <?= craft_pop_html($tab, $all, $slugOf) /* v2.4.0: outside .shelves so the shelf handlers never see the dialogs */ ?>
 <div class="pantry2 shelves shcraft">
 <div class="p2head shhead">
   <?php // v2.3.3: the area is picked on the map above (craft_map.php); this form keeps it and only filters the list ?>
-  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>"><?php if ($obj): ?><input type="hidden" name="o" value="<?= e($obj['id']) ?>"><?php endif; ?>
-    <label>List <select name="show" data-autosubmit>
-      <option value=""<?= $show === '' ? ' selected' : '' ?>>🗂️ All shelves</option>
-      <?php foreach (['ready' => ['✅ Ready', $n['ready']], 'missing' => ['📋 Missing', $n['missing']], 'unknown' => ['❔ To discover', $n['unknown']]] as $k => [$l, $c]): ?><option value="<?= $k ?>"<?= $show === $k ? ' selected' : '' ?>><?= $l ?> (<?= $c ?>)</option><?php endforeach; ?>
-    </select></label>
-    <button class="btn small pickgo">Go</button>
-  </form>
   <h2 class="p2title" id="shelves"><?= $icon ?> <?= e($label) ?> <small><?= $known ?>/<?= count($all) ?> recipes known</small></h2>
   <details class="helpfold p2help"><summary>❓ How crafting works</summary><p class="help"><?= e($blurb) ?> One workbench for everything you make. A recipe appears once you’ve collected every ingredient:
     grown it, gathered it on an adventure, or carried it in your satchel. Once found, it stays found.<?= $tab === 'cooking' ? ' Dishes wait in the pot until you collect them. Snacks cook in minutes, meals take longer, feasts longest.' : '' ?></p></details>
@@ -92,6 +85,17 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <?php endif; ?>
   </div>
 </section>
+<?php // v2.4.0: the long list is a closed fold: the scene popovers do the crafting. It opens by itself for a tapped object, a search, a List pick or an open recipe (and without JS) ?>
+<details class="craftall" id="shelves-all"<?= ($obj || $qs !== '' || $show !== '' || $selId > 0) ? ' open' : '' ?>><summary><b>All recipes</b> <small class="muted"><?= $n['ready'] ?> ready · <?= $n['missing'] ?> missing · <?= $n['unknown'] ?> to discover</small></summary>
+<div class="p2head shhead craftallhd">
+  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>"><?php if ($obj): ?><input type="hidden" name="o" value="<?= e($obj['id']) ?>"><?php endif; ?>
+    <label>List <select name="show" data-autosubmit>
+      <option value=""<?= $show === '' ? ' selected' : '' ?>>🗂️ All shelves</option>
+      <?php foreach (['ready' => ['✅ Ready', $n['ready']], 'missing' => ['📋 Missing', $n['missing']], 'unknown' => ['❔ To discover', $n['unknown']]] as $k => [$l, $c]): ?><option value="<?= $k ?>"<?= $show === $k ? ' selected' : '' ?>><?= $l ?> (<?= $c ?>)</option><?php endforeach; ?>
+    </select></label>
+    <button class="btn small pickgo">Go</button>
+  </form>
+</div>
 <?php // shopping list: what the "one trip away" recipes still need, summed (the most wanted first)
 $shop = []; $closeN = 0;
 foreach ($all as $e) if ($e['group'] === 'close') { $closeN++; foreach ($e['ings'] as $i) if ($i['have'] < $i['qty']) {
@@ -115,6 +119,7 @@ if ($shop): ?>
 <?php endif; ?>
 <?= sh_shelves($shown, $defs, $open, $selId, 'craft-' . $tab, $link, $close, false) ?>
 <p class="muted shnone" hidden>Nothing matches.</p>
+</details>
 </div>
 <?php
 }

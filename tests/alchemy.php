@@ -152,13 +152,14 @@ ok('the square is feeding', (int)q_val('SELECT feed_hours FROM plot_tiles WHERE 
 
 echo "== scene hotspots: every potions object finds a recipe, every recipe has an object\n";
 $hot = (require APP_ROOT . '/includes/data/craft_scenes.php')['potions']['hot'];
-$names = q("SELECT name FROM recipes WHERE category = 'potions'")->fetchAll(PDO::FETCH_COLUMN);
+$slugs = q("SELECT slug FROM recipes WHERE category = 'potions'")->fetchAll(PDO::FETCH_COLUMN);
+$names = $slugs;
 $hit = [];
-foreach ($hot as [$id, , , , , , $to]) {
-    $w = substr($to, 2);
-    $m = array_filter($names, fn($nm) => mb_stripos($nm, $w) !== false);
-    ok("$id ($to) matches a recipe", str_starts_with($to, 'q=') && $m);
-    foreach ($m as $nm) $hit[$nm] = true;
+require_once APP_ROOT . '/includes/craft_map.php';
+foreach ($hot as [$id, , , , , , $to]) {   // v2.4.0: tag lists (popovers), not q= searches
+    $m = array_filter($slugs, fn($sl) => is_array($to) && craft_tag_match($to, $sl));
+    ok("$id matches 2+ recipes", is_array($to) && count($m) >= 2);
+    foreach ($m as $sl) $hit[$sl] = true;
 }
 ok('every potion recipe is behind an object', count($hit) === count($names), implode(', ', array_diff($names, array_keys($hit))));
 

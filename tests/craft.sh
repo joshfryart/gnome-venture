@@ -68,7 +68,7 @@ S=$(db "SELECT COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.i
 [ "$S" = "1/0" ] || echo "FAIL strong/healing after make: $S (want 1/0)"
 give bladderwrack 2; give meadowsweet 1; give sphagnum 1; R7=$(db "SELECT id FROM recipes WHERE slug='garden-tonic'"); page "inventory.php?tab=craft&c=potions"; make potions $R7 >/dev/null
 TQ=$(db "SELECT COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='garden-tonic'),0)"); [ "$TQ" = 2 ] || echo "FAIL garden tonic makes $TQ (want 2)"
-page "inventory.php?tab=craft&c=potions"; for w in draught tonic healing elixir brew; do grep -q "c=potions&amp;q=$w#shelves" $T/c.html || echo "FAIL potions scene has no q=$w object"; done
+page "inventory.php?tab=craft&c=potions"; for w in flasks mortar cauldron book still; do grep -q "c=potions&amp;o=$w#shelves" $T/c.html || echo "FAIL potions scene has no o=$w object"; done   # v2.4.0: tag lists + popovers (were q= searches)
 page "inventory.php?tab=craft&c=potions&q=healing"; echo "healing search: $(grep -c 'shpill' $T/c.html) pills"
 echo "-- player uses: Satchel Drink for a healing tier, My Gnome Potions box, tonic pointer"
 dbx "UPDATE users SET hp=1, hp_at=datetime('now') WHERE id=$UID_"

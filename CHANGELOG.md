@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.1
+- **Crafting pages are shorter:** the recipe list under the scene is a closed fold ("All recipes · N ready · N missing · N to discover") that opens by itself for a tapped object, a search, a List pick or an open recipe. Pantry keeps its jar strip visible. Smaller area thumbnails on phones.
+- **Tiny green ! on scene objects** you can make something with right now (also in the object's accessible label).
+- **Potions area gets popovers** like the others (Potion shelf, Mortar, Cauldron, Spellbook, Copper still).
+- Tests: `craft.sh` and `alchemy.php` updated for the potions objects.
+
 ## 2.4.0
 - **Crafting scene popovers:** tap an object in a crafting scene (Stove, Bread oven, Jam cupboard, Workbench...) and a sheet slides up with what you can make there, in three tabs: **Can craft** (craft right in the sheet), **Missing** (what is lacking, in red) and **Unknown** (a hint). Works in every area except Potions. Without JS the object still filters the shelf list as before.
 - **"Ready" is now honest:** a recipe that needed a building or more energy than you have used to sit in Ready. Ready now means you can make it right now; the rest moves to Missing.

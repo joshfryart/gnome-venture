@@ -108,7 +108,7 @@ function craft_map_landing(array $u): void
 }
 
 /** Inside an area: "All areas", the picture strip and the scene with tappable objects. $tab = the open area. */
-function craft_area_header(string $tab): void
+function craft_area_header(string $tab, array $canBy = []): void
 {
     $scenes = craft_scenes();
     $sc = $scenes[$tab] ?? null;
@@ -127,7 +127,7 @@ function craft_area_header(string $tab): void
   <img src="<?= e(url('assets/img/craftmap/' . $tab . '.png')) ?>" alt="<?= e($sc['alt']) ?>" width="900" height="600">
   <?php $pick = (string)($_GET['o'] ?? '');
   foreach ($sc['hot'] as [$id, $label, $x, $y, $w, $h, $to]): $tag = is_array($to); ?>
-    <a class="cmap-hs hs-<?= e($tab . '-' . $id) ?>" href="<?= e(url($qs($tag ? 'o=' . $id : $to))) ?>"<?= $tag ? ' data-pop="pop-' . e($tab . '-' . $id) . '"' : '' ?> aria-label="<?= e($label) ?>"<?= $tag && $pick === $id ? ' aria-current="true"' : '' ?>><span><?= e($label) ?></span></a>
+    <a class="cmap-hs hs-<?= e($tab . '-' . $id) ?>" href="<?= e(url($qs($tag ? 'o=' . $id : $to))) ?>"<?= $tag ? ' data-pop="pop-' . e($tab . '-' . $id) . '"' : '' ?> aria-label="<?= e($label) . (!empty($canBy[$id]) ? ': ' . (int)$canBy[$id] . ' you can make now' : '') ?>"<?= $tag && $pick === $id ? ' aria-current="true"' : '' ?>><span><?= e($label) ?></span><?= !empty($canBy[$id]) ? '<b class="cmap-bang" aria-hidden="true" title="' . (int)$canBy[$id] . ' you can make now">!</b>' : '' ?></a>
   <?php endforeach; ?>
 </figure>
 <?php endif;
@@ -175,4 +175,16 @@ function craft_pop_html(string $tab, array $all, array $slugOf): string
         $h .= '</div></dialog>';
     }
     return $h;
+}
+
+
+/** v2.4.0: scene object id => how many recipes you can make right now with it (status ok), for the green "!" on the object. */
+function craft_can_by_obj(string $tab, array $all, array $slugOf): array
+{
+    $out = [];
+    foreach (craft_scenes()[$tab]['hot'] ?? [] as [$id, , , , , , $to]) {
+        if (!is_array($to)) continue;
+        foreach ($all as $e) if ($e['status'] === 'ok' && craft_tag_match($to, $slugOf[(int)$e['id']] ?? '')) $out[$id] = ($out[$id] ?? 0) + 1;
+    }
+    return $out;
 }

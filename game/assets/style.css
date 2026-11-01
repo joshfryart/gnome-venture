@@ -6639,3 +6639,23 @@ dialog.craftpop .pickbox { width: min(560px, 100%); max-height: 82vh; border-bot
 .cpact .p2note { display: none; }
 .cpempty { padding: 12px 0; }
 .sfood{margin:4px 0;font-weight:600;color:var(--good,#2f8a3a)}
+
+/* v2.4.0: crafting area page: shorter header (smaller thumbs, one-line labels) and the recipe list as a closed fold */
+@media (max-width: 720px) {
+  .cmap-in { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+  .cmap-in .cmap-all { flex: none; padding: 6px 10px; font-size: .85rem; min-height: 44px; }
+  .cmap-in .cmap-strip { flex: 1 1 auto; min-width: 0; padding-bottom: 0; }
+  .cmap-strip a { width: 58px; font-size: .7rem; gap: 1px; padding: 2px; }
+  .cmap-strip a span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .cmap-strip img { width: 50px; height: 33px; }
+}
+details.craftall { margin: 10px 0; }
+details.craftall > summary { cursor: pointer; min-height: 48px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid var(--line); background: var(--surface); }
+details.craftall > summary::before { content: '▸'; width: 1.1em; }
+details.craftall[open] > summary::before { content: '▾'; }
+details.craftall > summary::-webkit-details-marker { display: none; }
+.craftallhd { margin-top: 8px; }
+
+/* v2.4.0: tiny green ! on a scene object you can make something with right now */
+.cmap-hs { position: absolute; }
+.cmap-bang { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; background: #2e8b3a; color: #fff; border: 2px solid #fff; border-radius: 50%; font: 800 14px/1 var(--font, sans-serif); box-shadow: 0 1px 3px rgba(0,0,0,.5); pointer-events: none; }

@@ -131,8 +131,7 @@ $when = function (array $r) use ($freeIn): string {
 };
 
 ?>
-<?php craft_area_header($tab);
-// v2.4.0: scene-object popovers (craft_pop_html in craft_map.php): the same make forms as the list, split into Can craft / Missing / Unknown
+<?php // v2.4.0: scene-object popovers (craft_pop_html in craft_map.php): the same make forms as the list, split into Can craft / Missing / Unknown
 $popAll = []; $popSlug = [];
 foreach ($recipes as $r) {
     $acts = $r['known'] ? $make($r) : '';
@@ -143,6 +142,7 @@ foreach ($recipes as $r) {
         'acts' => $acts, 'why' => $r['known'] && !$canNow ? ($r['can'] ? trim(html_entity_decode(strip_tags($acts))) : implode(', ', array_map(fn($i) => $i['name'] . ' ' . (int)$i['have'] . '/' . (int)$i['qty'], array_filter($r['ings'], fn($i) => $i['have'] < $i['qty'])))) : '',
         'found' => count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found'];
 }
+craft_area_header($tab, craft_can_by_obj($tab, $popAll, $popSlug));
 echo craft_pop_html($tab, $popAll, $popSlug); ?>
 <div class="pantry2">
 <div class="p2head">
@@ -171,6 +171,8 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
   <div class="box notice">You need a <b>🫙 Pantry</b> to make these: an add-on for your Kitchen (<?= money($pc) ?><?= $pm ? ' + ' . e(upgrade_mats_text($pm)) : '' ?>).</div>
 <?php endif; ?>
 
+<?php // v2.4.0: the recipe list is a closed fold (the scene popovers do the work); the jar strip above stays visible ?>
+<details class="craftall" id="shelves-all"<?= ($obj || $qs !== '' || isset($_GET['show']) || $kind !== '' || $selId > 0) ? ' open' : '' ?>><summary><b>All preserves</b> <small class="muted"><?= count($ready) ?> ready · <?= count($missing) ?> missing · <?= count($unknown) ?> to discover</small></summary>
 <form method="get" action="<?= e(url('inventory.php')) ?>" class="p2search" role="search"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="pantry">
   <?php if ($show !== 'known'): ?><input type="hidden" name="show" value="<?= e($show) ?>"><?php endif; ?>
   <?php if ($kind !== ''): ?><input type="hidden" name="k" value="<?= e($kind) ?>"><?php endif; ?>
@@ -225,6 +227,7 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
   <?php endif; ?>
 </div>
 <?php endif; ?>
+</details>
 </div>
 <?php
 }
