@@ -728,7 +728,7 @@ a.tile.sending { opacity: .55; }
 .tocjump { float: right; font-size: 13px; padding: 6px 12px; border: 1px solid var(--line-2); border-radius: var(--pill); text-decoration: none; background: var(--surface); }
 @media (min-width: 721px) { .tocjump { display: none; } }
 a.glink { color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; }
-@media (min-width: 761px) {
+@media (min-width: 721px) {
   .book { padding: 18px 20px; }
   .book .spread { grid-template-columns: 1fr 1fr; position: relative; }
   .book .leaf.left { border-bottom: 0; border-right: 1px solid var(--line); }
@@ -900,7 +900,7 @@ form.option .optbtn { display: flex; width: 100%; max-width: 420px; align-items:
 .duel .fwho { min-width: 0; line-height: 1.25; }
 .duel .fwho b { overflow-wrap: anywhere; }
 @keyframes lowpulse { 50% { box-shadow: 0 0 0 4px rgba(174, 42, 42, .2); } }
-@media (max-width: 560px) { .duel .fighter { font-size: 13px; } .duel .fighter svg.gnomeart { width: 30px; height: 30px; } .duel .foeicon { font-size: 24px; width: 30px; } }
+@media (max-width: 520px) { .duel .fighter { font-size: 13px; } .duel .fighter svg.gnomeart { width: 30px; height: 30px; } .duel .foeicon { font-size: 24px; width: 30px; } }
 .fightgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .fcard { border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px; background: var(--surface); min-width: 0; font-size: 14px; }
 .fcard.foe { border-color: var(--danger-line); background: var(--danger-soft); }
@@ -1013,7 +1013,7 @@ a.rend:hover b { text-decoration: underline; }
 .gamecard h2 { margin-top: 0; }
 .gamecard ol.top { margin: 4px 0 0; padding-left: 20px; }
 .gtiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0 12px; }
-@media (min-width: 561px) { .gtiles { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
+@media (min-width: 521px) { .gtiles { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
 .gtile { display: grid; grid-template-columns: 38px 1fr; column-gap: 8px; align-items: center; min-height: 64px; padding: 8px 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
 .gtile:hover, .gtile:focus-visible { border-color: var(--brand); }
 .gticon { grid-row: 1 / span 3; font-size: 30px; line-height: 1; text-align: center; }
@@ -1096,7 +1096,7 @@ a.rend:hover b { text-decoration: underline; }
 
 /* ---- Community garden, pumpkin carving, shows ---- */
 .commwrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; }
-@media (min-width: 801px) { .commwrap { grid-template-columns: minmax(0, 1fr) 300px; } }
+@media (min-width: 900px) { .commwrap { grid-template-columns: minmax(0, 1fr) 300px; } }
 .commgrid { display: grid; gap: 4px; background: var(--plot); padding: 8px; border-radius: var(--radius); }
 .commgrid.g5 { grid-template-columns: repeat(5, 1fr); } .commgrid.g6 { grid-template-columns: repeat(6, 1fr); }
 .commgrid.g7 { grid-template-columns: repeat(7, 1fr); } .commgrid.g8 { grid-template-columns: repeat(8, 1fr); }
@@ -2179,8 +2179,8 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
   .st-folds > details[open] { grid-column: 1 / -1; }
   .roadjournal .rj-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px 20px; }
 }
-@media (min-width: 561px) { .st-tiles, .st-folks { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 960px) { .st-tiles { grid-template-columns: 1fr 1fr 1fr; } .st-folks { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 521px) { .st-tiles, .st-folks { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .st-tiles { grid-template-columns: 1fr 1fr 1fr; } .st-folks { grid-template-columns: repeat(3, 1fr); } }
 
 /* ===== v1.0.0 wave 2a: the garden lives (seasons, weather, pests, companions, animals) ===== */
 :root {
@@ -2353,7 +2353,7 @@ select.snackpick option { background: var(--surface, #fff3c8); color: var(--ink)
 .fightbtns { gap: 6px; }
 .fightbtns .btn { min-height: 34px; padding: 3px 12px; font-size: 14px; }
 .fightbtns form.snackform .btn { min-height: 32px; padding: 2px 10px; font-size: 13px; }
-@media (max-width: 480px) { select.snackpick { max-width: 10.5em; } }
+@media (max-width: 520px) { select.snackpick { max-width: 10.5em; } }
 /* ===== v1.4.0: games (append to style.css, section "pages"). Seed Spitting, Worm Hunting, Seed Memory. ===== */
 
 /* --- Seed Spitting (assets/spit.js) --- */
@@ -3213,7 +3213,7 @@ form.curio .choice-sub { font-size: 12px; }
   .hdr-pill { padding: 0 7px; gap: 3px; }
 }
 /* v1.6.9: the world map on a wide screen stays a readable size instead of filling the column */
-@media (min-width: 700px) { .mycworldbox .mycwrapr { max-width: 460px; } }
+@media (min-width: 721px) { .mycworldbox .mycwrapr { max-width: 460px; } }
 
 /* v1.7.0: garden "Need help?" fold */
 .needhelp ul { margin: 2px 0 6px; padding-left: 18px; font-size: 14px; }
@@ -4047,7 +4047,7 @@ h3.roadline { font-size: 16px; font-weight: 500; font-style: italic; line-height
 .roadresult .rr-sub { font-size: 12.5px; color: var(--muted); line-height: 1.3; overflow-wrap: anywhere; }
 :root[data-theme="dark"] .roadresult .rr-sub { color: var(--ink-2); }
 .encounter form.choiceform .choice-sub { white-space: normal; }
-@media (max-width: 480px) {
+@media (max-width: 520px) {
   .encounter .choicelist { max-width: none; }
   .roadresult { padding: 8px 10px; }
 }
@@ -4267,7 +4267,7 @@ dialog.tkscene::backdrop { background: rgba(42, 26, 16, .72); backdrop-filter: b
 .tksdot.past { background: var(--brand-line); }
 .tksdot.on { background: var(--brand); transform: scale(1.3); }
 .tksbtn { min-width: 120px; min-height: 44px; }
-@media (max-width: 480px) {
+@media (max-width: 520px) {
   .tkscard { --pw: 72px; padding: 12px 10px 10px; }
   .tksstage { height: 88px; }
   .tksav { width: 48px; height: 48px; font-size: 26px; }
@@ -4351,7 +4351,7 @@ dialog.tkcamp::backdrop { background: rgba(42, 26, 16, .72); backdrop-filter: bl
 .tkcfoot { position: sticky; bottom: -12px; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 2px; padding: 8px 0 2px; background: var(--surface); }
 .tkcauto { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: var(--muted); }
 .tkcclose { min-width: 120px; min-height: 44px; }
-@media (max-width: 480px) {
+@media (max-width: 520px) {
   .tkccard { padding: 12px 10px 10px; }
   .tkcmem { grid-template-columns: 30px minmax(0, 1fr) 64px auto; gap: 6px; padding: 6px; }
   .tkcico { width: 30px; height: 30px; font-size: 20px; }
@@ -4583,7 +4583,7 @@ a.skip { background: var(--felt); color: var(--felt-ink); border-radius: 0; box-
 .bannerin::after { content: ''; position: absolute; left: 0; right: 0; bottom: 4px; height: 2px; background: var(--hem); pointer-events: none; }
 .banner .logo { display: inline-flex; align-items: center; gap: 8px; color: var(--felt-ink); font-weight: 800; letter-spacing: .01em; text-shadow: 2px 2px 0 var(--ol); }
 .banner .logo::before { content: ''; flex: none; width: 24px; height: 24px; background: url("img/ui/button.png") 0 0 / 24px 24px no-repeat; image-rendering: pixelated; }
-@media (max-width: 420px) { .banner .logo::before { display: none; } }   /* phones: the name needs the room */
+@media (max-width: 440px) { .banner .logo::before { display: none; } }   /* phones: the name needs the room */
 .banner .logo small { background: var(--felt-2); color: var(--thread-bright); border-radius: 0; text-shadow: none; box-shadow: 0 0 0 2px var(--ol); }
 .banner .tagline { color: var(--felt-muted); }
 .userbar, .userbar .linkbtn { color: var(--felt-ink); }
@@ -5148,7 +5148,7 @@ body[data-area] main .routebox .legname { border-bottom: 0; padding-bottom: 0; }
 .psw a.on { color: var(--felt-ink); background: var(--felt-2); box-shadow: inset 0 -4px 0 0 var(--thread-bright), inset 2px 0 0 0 var(--ol); }
 .psw a.on:first-child { box-shadow: inset 0 -4px 0 0 var(--thread-bright); }
 main .psw a:hover { text-decoration: none; color: var(--felt-ink); }
-@media (max-width: 420px) { .psw a { font-size: 13px; gap: 4px; padding: 4px 4px; } .psw a small { display: none; } }
+@media (max-width: 440px) { .psw a { font-size: 13px; gap: 4px; padding: 4px 4px; } .psw a small { display: none; } }
 
 /* ---- 2. Place header: scene art + a felt name sign (kicker, name, one line, chips) ----
    v2.0.65: the name was plain left-aligned text with the page-title ribbon under it; now it is an umber felt sign
@@ -5186,7 +5186,7 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
   .pcols > .pmain { grid-column: 1; grid-row: 1; }
 }
 /* switcher on phones: three equal buttons, no icons, so names are not cut */
-@media (max-width: 420px) { .psw { grid-template-columns: repeat(3, minmax(0, 1fr)); } .psw a .ico { display: none; } }
+@media (max-width: 440px) { .psw { grid-template-columns: repeat(3, minmax(0, 1fr)); } .psw a .ico { display: none; } }
 
 /* main-stop tabs (5): three per row on phones so labels and badges fit */
 @media (max-width: 720px) { nav.tabs.mst:not(:has(> :nth-child(6))) { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(3, minmax(0, 1fr)); } nav.tabs.mst a { justify-content: center; } }
@@ -5340,7 +5340,7 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 .docards { gap: 10px 8px; }
 .docards .gcard__label { font-size: 12px; }
 .docards .gcard__meta { font-size: 11px; }
-@media (max-width: 399px) { .docards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 400px) { .docards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 /* picked: green felt, gold sign, gold leaf */
 .gx .gcard[aria-pressed="true"] { border-image-source: url("img/gather/felt-sel.png"); }
 .gx .gcard[aria-pressed="true"] .gcard__ribbon { border-image-source: url("img/gather/ribbon-sel.png"); color: var(--gx-sign-ink-sel); }
@@ -5940,7 +5940,7 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
 .rcard__meta .rchip--bad { background: var(--rc-bad); color: #fff3c8; box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 .rcard__go { grid-area: go; align-self: end; padding: 4px 10px; background: #e0aa48; color: #2a1a10; font: 800 14px/1.2 var(--font);
   box-shadow: 0 0 0 2px var(--ol), inset 0 2px 0 #f5cf6a, inset 0 -3px 0 #b07a28; }
-@media (max-width: 380px) { .rcard { grid-template-columns: 76px minmax(0, 1fr) auto; } }
+@media (max-width: 400px) { .rcard { grid-template-columns: 76px minmax(0, 1fr) auto; } }
 .gopanel .gx-actions.goextra { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .gopanel .goextra .gotileform { display: contents; }
 .gopanel .goextra .gbtn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-align: center; text-decoration: none; }
@@ -6512,7 +6512,7 @@ progress.hpbar.hpbar-s { display: inline-block; width: 56px; max-width: 56px; he
 .cmap-hs:hover, .cmap-hs:focus-visible { border-color: var(--accent); background: rgba(232, 163, 23, .18); }
 .cmap-hs:hover span, .cmap-hs:focus-visible span { opacity: 1; }
 @media (hover: none) { .cmap-hs span { opacity: .92; font-size: 10px; } }
-@media (min-width: 700px) { .cmap-scene { max-width: 640px; } }
+@media (min-width: 721px) { .cmap-scene { max-width: 640px; } }
 .hs-cooking-oven { left: 1.33%; top: 5%; width: 30%; height: 45%; }
 .hs-cooking-produce { left: 4%; top: 50.5%; width: 24%; height: 45.5%; }
 .hs-cooking-stove { left: 33.33%; top: 15%; width: 32.67%; height: 74%; }
