@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.61 (in progress, not built)
+- **Pals can man crafting stations.** New Pal Jobs card "Man a station": pick a station (an object of a crafting area, e.g. Cooking · Stove), tick the pal(s), choose Everything it can make or up to 5 chosen recipes, and 1, 3 or 8 hours. No energy is spent. Slower than you: one make per 60 minutes at Crafting level 1 (24 at level 10), plus a chance of an extra output as the pal's new Crafting skill grows. Ingredients are taken at send; the dishes arrive when you collect. One pal per station; cooking holds one of your pots; own daily cap (`pj_stations_per_day`, default 4). Pantry jars come later.
+- XP from a shift is split: half to you (Crafting XP), half to the pal's Crafting skill.
+- Crafting popovers get a "🧩 Let a pal work here" link that opens Pal Jobs on that station.
+- Satchel: the Kitchen tile is now called Food.
+
 ## 2.4.6
 - **Satchel is 8 square tiles** (about 920 px tall page, was about 1500): Seeds, Crops, Flowers, Food, Soil, Tools, Materials, More. Tap a tile and a sheet opens with that group's things: search, chips (for example Soil / Mulch, Tools / Broken, Untasted), sort, and the same item panels and buttons. Typing in the page search counts matches on each tile; Enter or any other filter shows the plain list as before. Quick actions stay under the tiles.
 - **One home per thing:** mulch, Food Scrap, Cardboard Sheet and Garden Tonic sit with Soil; broken tools with Tools; parts and decor are Materials; supplies, guides and the rest are More; crops and finds share Crops; flowers and arrangements share Flowers.

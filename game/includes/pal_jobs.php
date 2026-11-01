@@ -44,6 +44,7 @@ function pj_open(?array $u = null): bool
 }
 
 function pj_max_away(): int { $v = setting('pj_max_away'); return $v === '' ? 3 : max(1, min(10, (int)$v)); }
+function pj_stations_per_day(): int { $v = setting('pj_stations_per_day'); return $v === '' ? 4 : max(1, min(30, (int)$v)); }   // v2.4.61: station shifts have their own daily cap
 function pj_runs_per_day(): int { $v = setting('pj_runs_per_day'); return $v === '' ? 6 : max(1, min(50, (int)$v)); }
 
 // ---------------- levels, hp, ids ----------------
@@ -94,6 +95,13 @@ function pj_add_xp(int $uid, string $key, int $g, int $a): void
     q('UPDATE ppal_found SET g_xp = g_xp + ?, a_xp = a_xp + ? WHERE user_id = ? AND pal_key = ?', [max(0, $g), max(0, $a), $uid, $key]);
 }
 
+/** v2.4.61: Crafting XP for one pal (station shifts). */
+function pj_add_c_xp(int $uid, string $key, int $c): void
+{
+    if ($c <= 0) return;
+    q('UPDATE ppal_found SET c_xp = c_xp + ? WHERE user_id = ? AND pal_key = ?', [$c, $uid, $key]);
+}
+
 /** Equipped pals earn 1 XP of each kind per hour at home. Settled when the jobs page loads or a pal is sent. */
 function pj_settle_equip(int $uid): void
 {
@@ -124,7 +132,7 @@ function pj_pals(int $uid): array
         $hp = (int)$r['hp'] < 0 ? $max : (int)$r['hp'];
         if ($r['status'] === 'home' && $hp < $max && $r['hp_at']) $hp = min($max, $hp + intdiv(time() - ts($r['hp_at']), 360));
         $out[(string)$r['pal_uid']] = ['uid' => (string)$r['pal_uid'], 'key' => (string)$r['pal_key'], 'pal' => $pal, 'pic' => $pic, 'name' => $pal['name'],
-            'g' => pj_level((int)$r['g_xp']), 'a' => $a, 'gxp' => (int)$r['g_xp'], 'axp' => (int)$r['a_xp'], 'hp' => max(0, $hp), 'max' => $max,
+            'g' => pj_level((int)$r['g_xp']), 'a' => $a, 'gxp' => (int)$r['g_xp'], 'axp' => (int)$r['a_xp'], 'c' => pj_level((int)($r['c_xp'] ?? 0)), 'cxp' => (int)($r['c_xp'] ?? 0), 'hp' => max(0, $hp), 'max' => $max,
             'status' => (string)$r['status'], 'active' => (int)$r['active'] === 1];
     }
     return $out;
@@ -435,6 +443,124 @@ function pj_trip_send(array $u, string $palUid, string $land, string $tool, int 
     return [true, $p['name'] . ' heads out to the ' . strtolower(LANDSCAPES[$land][1]) . ' with a ' . (TOOL_TYPES[$tool][0] ?? $tool) . ' tool' . ($potions ? ' and ' . $potions . ' potion' . ($potions > 1 ? 's' : '') : '') . ($luck ? ', sipping a Lucky Draught' : '') . '. Back in ' . pj_ago($secs) . '.'];
 }
 
+// ---------------- station shifts (v2.4.61): a pal mans one object of a crafting area ----------------
+
+/** Minutes a pal needs for one make: 60 at Crafting level 1, 24 at level 10 (a gnome makes it at once, so pals are slower). */
+function pj_station_minutes(int $c): int { return max(20, 60 - 4 * (max(1, $c) - 1)); }
+
+/** Chance in percent of one extra output per make: 4 per Crafting level above 1 (cap 36). */
+function pj_station_extra_pct(int $c): int { return min(36, 4 * (max(1, $c) - 1)); }
+
+/** The scene object [id, label, globs] of an area, or null (only objects with a tag list count). */
+function pj_station_object(string $area, string $obj): ?array
+{
+    require_once __DIR__ . '/craft_map.php';
+    foreach (craft_scenes()[$area]['hot'] ?? [] as [$id, $label, , , , , $to]) if ($id === $obj && is_array($to)) return ['id' => $id, 'label' => $label, 'globs' => $to];
+    return null;
+}
+
+/** Every station (area + object) with its label, for the board: [ 'cooking:stove' => ['Cooking', 'Stove'], ... ]. Pantry is later; Potions have no building so are included. */
+function pj_station_list(): array
+{
+    require_once __DIR__ . '/craft_map.php';
+    $out = [];
+    foreach (CRAFT_CATEGORIES as $area => [$label]) {
+        if ($area === 'pantry') continue;
+        foreach (craft_scenes()[$area]['hot'] ?? [] as [$id, $ol, , , , , $to]) if (is_array($to)) $out[$area . ':' . $id] = [$label, $ol];
+    }
+    return $out;
+}
+
+/** Known recipes of an area that an object makes (rows from craft_recipes with 'ings'). */
+function pj_station_recipes(int $uid, string $area, array $globs): array
+{
+    $out = [];
+    foreach (craft_recipes($uid, $area) as $r) if ($r['known'] && craft_tag_match($globs, (string)($r['slug'] ?? ''))) $out[(int)$r['id']] = $r;
+    return $out;
+}
+
+/**
+ * Man a station: the pal works for $hours and makes what its object makes (mode 'all') or the chosen known recipes (up to 5), one make per
+ * pj_station_minutes(). No energy is spent. Ingredients are taken NOW (one ledger, so recipes that share an item cannot both spend it); the output is
+ * fixed now and arrives when the shift is collected. Cooking holds one of your pots. Pantry is not included yet.
+ */
+function pj_station_send(array $u, string $palUid, string $area, string $obj, string $mode, array $recipeIds, int $hours, bool $unequip = false): array
+{
+    $uid = (int)$u['id'];
+    require_once __DIR__ . '/crafting.php';
+    if (!in_array($hours, PJ_TRIP_HOURS, true)) return [false, 'Pick 1, 3 or 8 hours.'];
+    if ($area === 'pantry' || !isset(CRAFT_CATEGORIES[$area])) return [false, 'Pals cannot work that area yet.'];
+    $o = pj_station_object($area, $obj);
+    if (!$o) return [false, 'Pick a station.'];
+    $stations = craft_stations($uid);
+    if (($stations[$area] ?? 0) === 0) return [false, 'You need the building for that area first.'];
+    [$p, $err] = pj_can_send($u, $palUid, $unequip);
+    if (!$p) return [false, $err];
+    $target = $area . ':' . $obj;
+    if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target = ? AND state IN ('active','ready')", [$uid, $target])) return [false, 'A pal is already working at the ' . $o['label'] . '.'];
+    if ((int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND day = ?", [$uid, landmark_day()]) >= pj_stations_per_day()) return [false, 'Your pals have worked enough shifts today (' . pj_stations_per_day() . ').'];
+    $all = pj_station_recipes($uid, $area, $o['globs']);
+    if ($mode === 'chosen') {
+        $ids = array_values(array_unique(array_map('intval', $recipeIds)));
+        if (!$ids) return [false, 'Tick the recipes the pal should make, or pick "everything".'];
+        if (count($ids) > 5) return [false, 'Pick up to 5 recipes.'];
+        $plan = array_values(array_filter(array_map(fn($id) => $all[$id] ?? null, $ids)));
+        if (count($plan) !== count($ids)) return [false, 'You can only pick recipes you know that this station makes.'];
+    } else $plan = array_values($all);
+    if (!$plan) return [false, 'You know no recipes for the ' . $o['label'] . ' yet.'];
+    $cookingArea = $area === 'cooking';
+    if ($cookingArea && cook_pots_on()) {
+        if ((int)($stations['cooking'] ?? 0) === 0 || cook_pots_busy($uid) >= cook_pot_limit($u)) return [false, 'All your pots are busy. A pal needs a free pot.'];
+    }
+    $kitchen3 = !$cookingArea || user_building_bonus($uid, 'kitchen')['feasts'];
+    $c = (int)$p['c'];
+    $cap = max(1, intdiv($hours * 60, pj_station_minutes($c)));
+    $have = [];
+    foreach (q('SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) $have[(string)$r['slug']] = (int)$r['qty'];
+    $rng = pj_rng(bin2hex(random_bytes(6)));
+    $made = []; $takes = []; $makes = 0; $stopped = '';
+    $outItem = [];
+    for ($guard = 0; $makes < $cap && $guard < 200; $guard++) {
+        $did = false;
+        foreach ($plan as $r) {
+            if ($makes >= $cap) break;
+            if (str_starts_with((string)$r['slug'], 'feast-') && !$kitchen3) continue;
+            $need = json_decode((string)$r['ingredients'], true) ?: [];
+            $ok = $need !== [];
+            foreach ($need as $slug => $q) if (($have[(string)$slug] ?? 0) < (int)$q) { $ok = false; break; }
+            if (!$ok) continue;
+            foreach ($need as $slug => $q) { $have[(string)$slug] -= (int)$q; $takes[(string)$slug] = ($takes[(string)$slug] ?? 0) + (int)$q; }
+            $n = max(1, (int)$r['output_qty']) + ($rng(100) < pj_station_extra_pct($c) ? 1 : 0);
+            $made[(int)$r['output_item_id']] = ($made[(int)$r['output_item_id']] ?? 0) + $n;
+            $outItem[(int)$r['output_item_id']] = (string)$r['out_name'];
+            $makes++; $did = true;
+            $xpBase = ($area === 'tools' ? 15 : 5);
+            $xpTotal = ($xpTotal ?? 0) + $xpBase;
+            $slugsMade[(string)$r['slug']] = ($slugsMade[(string)$r['slug']] ?? 0) + 1;
+        }
+        if (!$did) break;
+    }
+    if ($makes < 1) {
+        $r0 = $plan[0];
+        $stock = craft_stock($uid, (string)$r0['ingredients']);
+        return [false, (craft_short_text($stock, 0, 999, 1) ?: 'Nothing in the plan can be made right now.') . ' Nothing was used.'];
+    }
+    db()->beginTransaction();
+    foreach ($takes as $slug => $qty) {
+        $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        if (!$iid || !give_item($uid, $iid, -$qty)) { db()->rollBack(); return [false, 'Something changed in your satchel. Nothing was used.']; }
+    }
+    if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }
+    $items = [];
+    foreach ($made as $iid => $q) $items[] = [$iid, $q, $outItem[$iid]];
+    $stopTxt = $makes < $cap ? 'Stopped after ' . $makes . ': out of ingredients for the rest.' : '';
+    db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => $target, 'plot_id' => null, 'day' => landmark_day(),
+        'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $hours * 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
+        'result' => json_encode(['items' => $items, 'makes' => $makes, 'hp' => (int)$p['hp'], 'rounds' => 0, 'xp_base' => (int)($xpTotal ?? 0), 'area' => $area, 'obj' => $o['label'], 'stop' => $stopTxt])]);
+    db()->commit();
+    return [true, $p['name'] . ' takes the ' . $o['label'] . ' for ' . $hours . ' h: ' . $makes . ' make' . ($makes === 1 ? '' : 's') . ', no energy used.' . ($stopTxt !== '' ? ' ' . $stopTxt : '')];
+}
+
 // ---------------- delve re-runs ----------------
 
 /** Delves this gnome has cleared at least once: list of landmark rows (id, name, level, landscape) with clears. */
@@ -625,17 +751,23 @@ function pj_collect(array $u, int $jobId): array
     $where = $j['kind'] === 'delve' ? (string)(q_val('SELECT name FROM landmarks WHERE id = ?', [(int)$j['target']]) ?: 'the delve')
         : 'the ' . strtolower((string)(LANDSCAPES[$j['target']][1] ?? 'wilds'));
     $fainted = !empty($r['fainted']);
-    $head = $fainted ? $name . ' came home early from ' . $where . '.' : $name . ' is back from ' . $where . '.';
+    $isStation = $j['kind'] === 'station';
+    $head = $isStation ? $name . ' finished a shift at the ' . (string)($r['obj'] ?? 'station') . '.' : ($fainted ? $name . ' came home early from ' . $where . '.' : $name . ' is back from ' . $where . '.');
     $lines = [];
     if ($fainted) $lines[] = '😵 Out of HP, so ' . $name . ' turned back. Let them rest or give a potion.';
     if (!empty($r['coins'])) { give_petals($uid, (int)$r['coins'], 'pal delve'); $lines[] = '💰 ' . money((int)$r['coins']); }
     foreach ($r['items'] ?? [] as [$iid, $qty, $iname]) { give_item($uid, (int)$iid, (int)$qty); $lines[] = '🎁 ' . $iname . ' ×' . (int)$qty; }
-    if (empty($r['coins']) && empty($r['items'])) $lines[] = '🍃 No finds this time.';
+    if (empty($r['coins']) && empty($r['items'])) $lines[] = $isStation ? '🍃 Nothing was made.' : '🍃 No finds this time.';
+    if ($isStation && !empty($r['stop'])) $lines[] = 'ℹ️ ' . $r['stop'];
     $used = (int)($r['potions_used'] ?? 0);
     $back = (int)($r['potions_back'] ?? 0);
     if ($back) give_item($uid, pj_potion_id(), $back);
     if ($used || $back) $lines[] = '🧪 ' . ($used ? 'Drank ' . $used . ' potion' . ($used > 1 ? 's' : '') : '') . ($used && $back ? ', ' : '') . ($back ? $back . ' back in your satchel' : '') . '.';
-    if ($p) {
+    if ($isStation && $p) {   // v2.4.61: the XP of those makes is split: half to the gnome (Crafting XP), half to the pal's Crafting skill
+        $base = (int)($r['xp_base'] ?? 0); $palXp = intdiv($base, 2); $gnomeXp = $base - $palXp;
+        if ($gnomeXp > 0) { [$gx] = add_action_xp($uid, $gnomeXp, 'Crafting', (int)$u['level']); $lines[] = '⭐ +' . $gx . ' Crafting XP for you'; }
+        if ($palXp > 0) { pj_add_c_xp($uid, $p['key'], $palXp); $lv = pj_level($p['cxp'] + $palXp); $lines[] = '⭐ +' . $palXp . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
+    } elseif ($p) {
         $xp = $j['kind'] === 'delve' ? 4 * (int)($r['rounds'] ?? 0) + ($fainted ? 0 : 10) : 2 * (int)($r['rounds'] ?? 0);
         pj_add_xp($uid, $p['key'], 0, $xp);
         $lv = pj_level($p['axp'] + $xp);

@@ -514,3 +514,8 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 .pjfaces li:has(input[name="pals[]"]:checked) .pjover{display:flex}
 .pjover label{display:flex;flex-direction:column;font-size:.8rem;gap:.15rem;flex:1 1 9rem}
 .pjover select{width:100%;min-height:2.4rem}
+
+/* v2.4.61: station shifts on the Pal Jobs board */
+.pjrecipes { display: flex; flex-wrap: wrap; gap: 6px; }
+.pjrecipe { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 10px; border: 2px solid var(--line); background: var(--surface); }
+.pjrecipe[hidden] { display: none; }

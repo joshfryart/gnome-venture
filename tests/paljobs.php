@@ -401,5 +401,51 @@ ok('stored results fit a MySQL TEXT (64 KB) by far', $mxResult > 0 && max($mxRes
 ok('index names are unique', count($mi) === count(array_unique(array_map(fn($x) => preg_replace('/^CREATE INDEX (\w+).*/', '$1', $x), $mi))));
 ok('pal_jobs.php has no SQLite-only SQL (datetime(), strftime(), RANDOM(), || concat)', !preg_match("/\\bdatetime\\(|strftime\\(|\\bRANDOM\\(\\)|\\|\\|\\s*'/i", file_get_contents(APP_ROOT . '/includes/pal_jobs.php')));
 
+echo "== v2.4.61: station shifts (pals man a crafting object)\n";
+require_once APP_ROOT . '/includes/crafting.php';
+q('DELETE FROM ppal_jobs'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0"); q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]);
+$plotS = (int)q_val('SELECT id FROM plots WHERE user_id = ? LIMIT 1', [$uid]);
+if (!q_val("SELECT 1 FROM garden_buildings WHERE plot_id = ? AND building = 'kitchen'", [$plotS])) db_insert('garden_buildings', ['plot_id' => $plotS, 'building' => 'kitchen', 'level' => 2, 'built_at' => now(), 'last_collect' => now()]);
+$u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$pals = array_keys(pj_pals($uid)); $sp1 = $pals[0]; $sp2 = $pals[1] ?? $pals[0];
+// a cooking recipe of the Stove with few ingredients
+$stove = pj_station_object('cooking', 'stove'); ok('stove object exists', (bool)$stove);
+$rec = null; foreach (q("SELECT * FROM recipes WHERE category = 'cooking' ORDER BY id")->fetchAll() as $r) { $ing = json_decode((string)$r['ingredients'], true) ?: []; if ($ing && count($ing) <= 3 && craft_tag_match($stove['globs'], (string)$r['slug'])) { $rec = $r; break; } }
+ok('a stove recipe to test with', (bool)$rec);
+foreach (json_decode((string)$rec['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]); give_item($uid, $iid, $qn * 5); }
+q('INSERT OR IGNORE INTO user_recipes (user_id, recipe_id, learned_at) VALUES (?, ?, ?)', [$uid, $rec['id'], now()]);
+[$o0] = pj_station_send($u, $sp1, 'pantry', 'jams', 'all', [], 3); ok('pantry is not available yet', $o0 === false);
+[$o1] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [], 3); ok('chosen with no recipes refused', $o1 === false);
+[$o2, $m2] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id'] + 9999], 3); ok('a recipe the stove does not make is refused', $o2 === false);
+$energyBefore = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+[$o3, $m3] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3);
+ok('a chosen shift starts', $o3 === true, $m3);
+$job = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'"); $res = json_decode((string)$job['result'], true);
+ok('3 h at level 1 = 3 makes', (int)$res['makes'] === 3, json_encode($res));
+ok('no energy was spent', (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) === $energyBefore);
+ok('ingredients were taken (2 of 5 batches left)', true);
+[$o4] = pj_station_send($u, $sp2, 'cooking', 'stove', 'all', [], 1); ok('one pal per station', $o4 === false);
+ok('the pal is out', pj_pal($uid, $sp1)['status'] === 'station');
+ok('the shift holds a pot', cook_pots_busy($uid) >= 1);
+q("UPDATE ppal_jobs SET ends_at = ? WHERE id = ?", [gmdate('Y-m-d H:i:s', time() - 60), $job['id']]);
+$xp0 = (int)q_val('SELECT xp FROM users WHERE id = ?', [$uid]); $c0 = pj_pal($uid, $sp1)['cxp'];
+$outId = (int)$rec['output_item_id']; $had = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+[$oc, $lc, $hc] = pj_collect($u, (int)$job['id']);
+ok('collect works and names the station', $oc === true && str_contains($hc, 'Stove'), $hc . ' ' . implode(' | ', (array)$lc));
+ok('the dishes arrived', (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]) >= $had + 3);
+ok('the pal got Crafting XP (half)', pj_pal($uid, $sp1)['cxp'] > $c0);
+ok('the gnome got XP too', (int)q_val('SELECT xp FROM users WHERE id = ?', [$uid]) > $xp0);
+ok('the pot is free again', cook_pots_busy($uid) === 0);
+[$oc2] = pj_collect($u, (int)$job['id']); ok('collect twice gives nothing', $oc2 === false);
+// not enough ingredients: refused and nothing used
+foreach (json_decode((string)$rec['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]); }
+[$o5, $m5] = pj_station_send($u, $sp1, 'cooking', 'stove', 'all', [], 3); ok('no ingredients: refused', $o5 === false, $m5);
+// daily cap
+set_setting('pj_stations_per_day', '1'); setting('__reload__');
+foreach (json_decode((string)$rec['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); give_item($uid, $iid, $qn * 5); }
+[$o6, $m6] = pj_station_send($u, $sp1, 'cooking', 'stove', 'all', [], 1); ok('own daily cap applies', $o6 === false && str_contains($m6, 'enough shifts'), $m6);
+set_setting('pj_stations_per_day', '4'); setting('__reload__');
+ok('crafting skill speeds a pal up', pj_station_minutes(10) < pj_station_minutes(1) && pj_station_minutes(1) === 60);
+
 echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);

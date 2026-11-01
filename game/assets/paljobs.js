@@ -124,6 +124,18 @@ document.addEventListener("DOMContentLoaded",function(){
       }
       update(f);
     });
+    /* v2.4.61: station shifts: only the recipes the chosen station makes are shown */
+    var gSt = f.querySelector('[data-pj-gstation]');
+    if (gSt) {
+      var showRecipes = function () {
+        f.querySelectorAll('.pjrecipe').forEach(function (r) {
+          var on = (r.getAttribute('data-st') || '').split(' ').indexOf(gSt.value) > -1;
+          r.hidden = !on;
+          if (!on) { var cb = r.querySelector('input'); if (cb) cb.checked = false; }
+        });
+      };
+      gSt.addEventListener('change', showRecipes); showRecipes();
+    }
     /* v2.3.99: a tool picker only offers tools that can gather in the chosen land (options carry data-lands) */
     var gLand = f.querySelector('[data-pj-gland]'), gTool = f.querySelector('[data-pj-gtool]');
     if (gLand && gTool) {

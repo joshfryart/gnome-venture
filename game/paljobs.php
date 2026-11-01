@@ -12,6 +12,8 @@ require_once __DIR__ . '/includes/puzzles.php';
 require_once __DIR__ . '/includes/puzzle_games.php';
 require_once __DIR__ . '/includes/jigsaw.php';
 require_once __DIR__ . '/includes/pal_jobs.php';
+require_once __DIR__ . '/includes/crafting.php';   // v2.4.61: station shifts (craft_stations, craft_recipes)
+require_once __DIR__ . '/includes/craft_map.php';
 $u = require_login();
 if (!ppal_open() || is_guest($u)) { flash('Puzzle Pals are coming soon.', 'err'); redirect('games.php'); }
 $uid = (int)$u['id'];
@@ -26,7 +28,7 @@ if (is_post()) {
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
     // v2.3.94: several pals at once. Ticked pals (pals[]) get the same job; each send still checks its own rules (slots, runs per day, one gardener per garden, one re-run per delve per day).
     $picked = array_values(array_unique(array_filter(array_map('strval', array_merge((array)($_POST['pals'] ?? []), $pal !== '' ? [$pal] : [])), fn($x) => $x !== '')));
-    if (in_array($do, ['send_garden', 'send_trip', 'send_delve'], true) && count($picked) > 0) {
+    if (in_array($do, ['send_garden', 'send_trip', 'send_delve', 'send_station'], true) && count($picked) > 0) {
         $sent = 0; $why = [];
         $ov = (array)($_POST['over'] ?? []);   // over[<pal>][plot|land|tool|delve]: this pal's own pick; empty = the job's default
         $pick = fn(string $pu, string $k, $dflt) => (is_array($ov[$pu] ?? null) && is_string($ov[$pu][$k] ?? null) && $ov[$pu][$k] !== '') ? $ov[$pu][$k] : $dflt;
@@ -34,6 +36,7 @@ if (is_post()) {
             $one = match ($do) {
                 'send_garden' => pj_garden_send($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
                 'send_trip' => pj_trip_send($u, $pu, (string)$pick($pu, 'land', $_POST['land'] ?? ''), (string)$pick($pu, 'tool', $_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
+                'send_station' => (function () use ($u, $pu, $unq, $pick): array { [$ar, $ob] = array_pad(explode(':', (string)$pick($pu, 'station', $_POST['station'] ?? ''), 2), 2, ''); return pj_station_send($u, $pu, $ar, $ob, (string)($_POST['mode'] ?? 'all'), (array)($_POST['recipes'] ?? []), (int)($_POST['hours'] ?? 0), $unq); })(),
                 default => pj_delve_send($u, $pu, (int)$pick($pu, 'delve', $_POST['delve'] ?? 0), $pots, $unq),
             };
             $pn = (string)(pj_pal($uid, $pu)['name'] ?? 'A pal');
@@ -128,11 +131,13 @@ $home = array_filter($pals, fn($p) => $p['status'] === 'home');
 
 // the ledger: ready first, then soonest back; garden stays last (they end on a date, not a countdown)
 usort($jobs, fn($a, $b) => [$a['state'] !== 'ready', $a['kind'] === 'garden', ts($a['ends_at'])] <=> [$b['state'] !== 'ready', $b['kind'] === 'garden', ts($b['ends_at'])]);
-$kindTxt = ['garden' => '🪴 Garden', 'trip' => '🧺 Gathering', 'delve' => '🕳️ Delve'];
+$kindTxt = ['garden' => '🪴 Garden', 'trip' => '🧺 Gathering', 'delve' => '🕳️ Delve', 'station' => '🍳 Station'];
+$stationList = pj_station_list();
 $jobLine = fn(array $j): string => match ($j['kind']) {
     'garden' => ($plotName[(int)$j['plot_id']] ?? 'a garden') . ' · ' . strtolower(pj_garden_task_text((int)$j['plot_id'])),   // v2.3.3: works after your hired help
     'trip' => (LANDSCAPES[$j['target']][1] ?? $j['target']) . ' · ' . (TOOL_TYPES[$j['tool']][0] ?? $j['tool']) . ' · ' . pj_ago(ts($j['ends_at']) - ts($j['started_at'])),
     'delve' => ($delveName[(int)$j['target']] ?? 'a delve') . ((int)$j['potions'] ? ' · ' . (int)$j['potions'] . ' potion' . ((int)$j['potions'] > 1 ? 's' : '') : ''),
+    'station' => (($stationList[$j['target']][0] ?? '') . ' · ' . ($stationList[$j['target']][1] ?? 'station') . ' · ' . (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes'),
     default => '',
 };
 $nextBack = null;
@@ -143,12 +148,24 @@ $anyReady = (bool)array_filter($jobs, fn($j) => $j['state'] === 'ready');
 $posts = [
     'garden' => ['🪴', 'Tend a garden', '1, 3 or 7 days', 'Waters, weeds and harvests while you are away. Works after your hired help, on whatever is still undone.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
     'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Higher Adventuring: more finds, more rares. Unused potions come back.'],
+    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'A pal works one object of a crafting area (Stove, Workbench...): it makes everything that object makes, or recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking holds one of your pots.', 'Ingredients taken now; XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'One pal per station. Only recipes you know. Pantry jars: later.'],
     'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Risky below Adventuring ' . PJ_DELVE_SAFE . ': pack potions. Unused potions come back.'],
 ];
-$blocked = function (string $kind) use ($left, $maxAway, $runsLeft, $tools, $delves, $ranToday, $plots, $home): string {
+$stSt = craft_stations($uid);
+$stOk = array_filter($stationList, fn($v, $k) => ($stSt[explode(':', $k)[0]] ?? 0) !== 0, ARRAY_FILTER_USE_BOTH);   // v2.4.61: stations whose building you have
+$stRecipes = [];   // recipe id => [row, 'area:obj' list]
+if ($stOk) foreach (array_unique(array_map(fn($k) => explode(':', $k)[0], array_keys($stOk))) as $ar) {
+    foreach (array_keys(array_filter($stOk, fn($v, $k) => str_starts_with($k, $ar . ':'), ARRAY_FILTER_USE_BOTH)) as $sk2) {
+        $o2 = pj_station_object($ar, explode(':', $sk2)[1]);
+        foreach (pj_station_recipes($uid, $ar, $o2['globs']) as $rid => $rr) { $stRecipes[$rid]['r'] = $rr; $stRecipes[$rid]['st'][] = $sk2; }
+    }
+}
+$blocked = function (string $kind) use ($stOk, $left, $maxAway, $runsLeft, $tools, $delves, $ranToday, $plots, $home): string {
     if ($left < 1) return 'All ' . $maxAway . ' jobs are taken. Collect one first.';
-    if ($kind !== 'garden' && $runsLeft < 1) return 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').';
+    if (!in_array($kind, ['garden', 'station'], true) && $runsLeft < 1) return 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').';
     if ($kind === 'garden' && !$plots) return 'Pals tend your gardens. Start one first.';
+    if ($kind === 'station' && !$stOk) return 'You need a Kitchen or Tool Shed (or another crafting building) first.';
+    if ($kind === 'station' && $left < 1) return 'All jobs are taken. Collect one first.';
     if ($kind === 'trip' && !$tools) return 'Trips need a gathering tool in your satchel.';
     if ($kind === 'trip' && !$GLOBALS['tripLands']) return 'None of your tools can gather anywhere yet.';
     if ($kind === 'delve' && !$delves) return 'Clear a delve yourself first, then a pal can re-run it.';
@@ -287,7 +304,7 @@ page_header('Pal Jobs');
                 <span class="pjnm"><?= e($p['name']) ?><?= $p['active'] ? ' <small class="pjparty">On party</small>' : '' ?><?= $risky ? ' <small class="pjrisky">Risky</small>' : '' ?></span>
                 <?php if ($rest): ?><span class="pjlv pjlv-rest">Resting</span>
                 <?php else: ?><meter class="pjfhp" min="0" max="<?= (int)$p['max'] ?>" low="<?= (int)ceil($p['max'] * 0.4) ?>" high="<?= (int)ceil($p['max'] * 0.4) ?>" optimum="<?= (int)$p['max'] ?>" value="<?= (int)$p['hp'] ?>" aria-hidden="true"></meter>
-                <span class="pjlv"><span class="vh"><?= $sk === 'g' ? 'Gardening' : 'Adventuring' ?> </span><?= (int)$p[$sk] ?><span class="vh">, HP <?= (int)$p['hp'] ?> of <?= (int)$p['max'] ?></span></span><?php endif; ?>
+                <span class="pjlv"><span class="vh"><?= $sk === 'g' ? 'Gardening' : ($sk === 'c' ? 'Crafting' : 'Adventuring') ?> </span><?= (int)$p[$sk] ?><span class="vh">, HP <?= (int)$p['hp'] ?> of <?= (int)$p['max'] ?></span></span><?php endif; ?>
               </label>
               <?php if (count($ranked) > 0 && !$rest): ?>
               <div class="pjover">
@@ -296,6 +313,8 @@ page_header('Pal Jobs');
                 <?php elseif ($kind === 'trip'): ?>
                 <label>Where<select name="over[<?= e($p['uid']) ?>][land]" data-pj-pland><?= $landOpts('As above') ?></select></label>
                 <label>Tool<select name="over[<?= e($p['uid']) ?>][tool]" data-pj-ptool><?= $toolOpts($firstLand, 'As above') ?></select></label>
+                <?php elseif ($kind === 'station'): ?>
+                <label>Station<select name="over[<?= e($p['uid']) ?>][station]"><option value="">As above</option><?php foreach ($stOk as $sv => [$sa, $so]): ?><option value="<?= e($sv) ?>"><?= e($sa . ' · ' . $so) ?></option><?php endforeach; ?></select></label>
                 <?php elseif ($kind === 'delve'): ?>
                 <label>Delve<select name="over[<?= e($p['uid']) ?>][delve]"><option value="">As above</option><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></label>
                 <?php endif; ?>
@@ -318,12 +337,19 @@ page_header('Pal Jobs');
             <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
             <?= $potionField('trip') ?>
             <?php if ($lucky > 0): ?><label class="pjluck"><input type="checkbox" name="luck" value="1"> <span>🍀 Pack a Lucky Draught (Luck +<?= ALCHEMY_LUCK_PAL ?> for the trip, you have <?= $lucky ?>)</span></label><?php endif; ?>
+            <?php elseif ($kind === 'station'): ?>
+            <div class="pjfield"><label for="pjstation">Station</label><select id="pjstation" name="station" data-pj-gstation><?php foreach ($stOk as $sv => [$sa, $so]): ?><option value="<?= e($sv) ?>"<?= (string)($_GET['station'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sa . ' · ' . $so) ?></option><?php endforeach; ?></select></div>
+            <fieldset class="pjfield pjseg"><legend>Make</legend><div class="pjsegs"><label><input type="radio" name="mode" value="all" checked><span>Everything it can</span></label><label><input type="radio" name="mode" value="chosen"><span>Chosen recipes</span></label></div></fieldset>
+            <fieldset class="pjfield pjrecipes" data-pj-recipes><legend>Recipes <small class="muted">(for "Chosen", up to 5)</small></legend>
+              <?php foreach ($stRecipes as $rid => $rx): ?><label class="pjrecipe" data-st="<?= e(implode(' ', $rx['st'])) ?>"><input type="checkbox" name="recipes[]" value="<?= (int)$rid ?>"> <span><?= e((string)$rx['r']['name']) ?></span></label>
+              <?php endforeach; ?><?php if (!$stRecipes): ?><small class="muted">You know no recipes for these stations yet.</small><?php endif; ?></fieldset>
+            <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
             <?php else: ?>
             <div class="pjfield"><label for="pjdelve">Delve</label><select id="pjdelve" name="delve"><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></div>
             <?= $potionField('delve') ?>
             <?php endif; ?>
             <p class="pjhint muted"><?= e($why) ?></p>
-            <p class="pjback" data-pj-back aria-live="polite"><?= $kind === 'garden' ? 'Back when the days are up.' : ($kind === 'trip' ? 'Back when the hours are up, sooner if HP runs out.' : 'Back in about an hour.') ?></p>
+            <p class="pjback" data-pj-back aria-live="polite"><?= $kind === 'garden' ? 'Back when the days are up.' : ($kind === 'trip' ? 'Back when the hours are up, sooner if HP runs out.' : ($kind === 'station' ? 'Back when the shift ends; the makes wait for you.' : 'Back in about an hour.')) ?></p>
             <button class="btn pjsend" data-pj-send>Send</button>
           </div>
         </form>

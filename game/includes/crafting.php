@@ -304,7 +304,11 @@ function cook_pot_limit(array $u): int
 /** Pots in use: cooking, or done and waiting to be collected. */
 function cook_pots_busy(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid]);
+    $n = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid]);
+    try {   // v2.4.61: a pal manning a cooking station holds one pot until you collect its shift
+        $n += (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%' AND state IN ('active','ready')", [$uid]);
+    } catch (Throwable $e) {}
+    return $n;
 }
 
 /** Pots whose timer has run out and that are still waiting to be collected (the nav badge). */

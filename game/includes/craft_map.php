@@ -154,6 +154,7 @@ function craft_pop_html(string $tab, array $all, array $slugOf): string
         $dom = 'pop-' . $tab . '-' . $id;
         $h .= '<dialog class="picker craftpop" id="' . e($dom) . '" aria-labelledby="' . e($dom) . '-t"><div class="pickbox">'
             . '<div class="pickhead"><h3 id="' . e($dom) . '-t">' . e($label) . '</h3><button type="button" class="pickx" data-pop-close aria-label="Close">✕</button></div>'
+            . ($tab !== 'pantry' ? '<p class="cppal"><a href="' . e(url('paljobs.php?station=' . $tab . ':' . $id . '#pjt-station')) . '">🧩 Let a pal work here</a></p>' : '')
             . '<div class="cptabs" role="tablist">';
         foreach (['can' => 'Can craft', 'miss' => 'Missing', 'unk' => 'Unknown'] as $k => $tl)
             $h .= '<button type="button" role="tab" class="cptab" data-ptab="' . $k . '" aria-selected="' . ($k === $first ? 'true' : 'false') . '">' . $tl . ' <small>' . count($tabs[$k]) . '</small></button>';

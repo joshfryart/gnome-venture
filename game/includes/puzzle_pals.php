@@ -101,7 +101,7 @@ function ppal_schema(string $PK, string $ID, string $END): array
     $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0'], ['users', 'ppal_spawn_day', 'VARCHAR(10) NULL'],
         ['ppal_found', 'pal_uid', 'VARCHAR(16) NULL'], ['ppal_found', 'g_xp', 'INT NOT NULL DEFAULT 0'], ['ppal_found', 'a_xp', 'INT NOT NULL DEFAULT 0'],
         ['ppal_found', 'hp', 'INT NOT NULL DEFAULT -1'], ['ppal_found', 'hp_at', 'DATETIME NULL'], ['ppal_found', 'status', "VARCHAR(8) NOT NULL DEFAULT 'home'"],
-        ['ppal_found', 'eq_since', 'DATETIME NULL']];
+        ['ppal_found', 'eq_since', 'DATETIME NULL'], ['ppal_found', 'c_xp', 'INT NOT NULL DEFAULT 0']];
     return [$t, $i, $c];
 }
 
