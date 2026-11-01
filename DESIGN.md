@@ -36,7 +36,7 @@ typography:
     lineHeight: 1.5
   heading:
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
-    fontWeight: 600
+    fontWeight: 800
     lineHeight: 1.25
 rounded:
   none: "0"
@@ -71,13 +71,14 @@ components:
 - **Area hues:** `body[data-area]` sets `--area*` per page family: garden moss, world water, kitchen ember, book dusk purple, market gold, community petal. Pages without an area (admin) use brand.
 - **Game art tokens** (soil, plot, rarity `--r-c/u/r/l`, map sea/road) are separate from text colours and do not change in dark mode except the map.
 - Focus ring `--focus #25637d` (light), `#a9d6ea` (dark).
+- Tokens added: `--bg-2`, `--card`, `--panel`, `--good`, `--bad` (first `:root` block of style.css; values are the old var() fallbacks).
 
 ## Typography
-One system sans stack for everything (`--font`), monospace only for code. Body 1rem / 1.5 (15px root on desktop, 16px on phone). Headings weight 600, line-height 1.25. Pixel-style display lettering is art, not font. Keep lines short; long text goes in a fold.
+One system sans stack for everything (`--font`), monospace only for code. Body 1rem / 1.5 (15px root on desktop, 16px on phone). Headings weight 800, line-height 1.25. Pixel-style display lettering is art, not font. Keep lines short; long text goes in a fold.
 
 ## Layout
 - Tokens: `--gut 16px` phone, `24px` from 721 px; `--maxw 1392px`; `--hdr 52px / 60px`; `--bar 56px` bottom bar; `--strip 44px` status strip.
-- One main breakpoint, 720/721 px. Straggler breakpoints at 1000, 1200, 520 and 480 px exist (consolidate in the polish plan).
+- One main breakpoint, 720/721 px. Straggler breakpoints exist and are not consolidated yet: style.css uses 380, 400, 440, 520/521, 600/601, 801, 899/900, 999/1000, 1200, 1500 and 1600 px; puzzles.css 340, 359, 560, 640; catfish.css 380, 519; landing.css 540, 800. There is no 480 px query.
 - Phone: slim header, status strip, content, bottom bar (Garden, World, Satchel, Here, Tasks, More) and a menu sheet. Desktop: header, status strip, left menu of grouped icon tiles, content, right rail.
 - Equal tile grids for action buttons; filters with many options are a `<select>` in a GET form.
 
