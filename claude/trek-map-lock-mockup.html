@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trek map-lock mockup</title>
+<style>
+:root{--ink:#2a2118;--bg:#f4ecd8;--card:#fffaf0;--line:#cdbb94;--accent:#7a5a36;--danger:#b5412f;--ok:#4f7a3a}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.35 system-ui,sans-serif;background:#ddd;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:760px}
+.ctl button{padding:6px 10px;border:1px solid #888;background:#fff;border-radius:6px;cursor:pointer}
+.ctl button.on{background:#333;color:#fff}
+.note{max-width:420px;font-size:13px;color:#444;text-align:center;min-height:36px}
+/* phone frame: the app shell is exactly one screen, the page never scrolls */
+.phone{width:390px;height:760px;background:var(--bg);border:8px solid #222;border-radius:30px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.hud{display:flex;gap:8px;align-items:center;padding:6px 10px;background:var(--card);border-bottom:1px solid var(--line);font-size:13px;flex:none}
+.hud .chip{display:flex;align-items:center;gap:4px}
+.hud progress{width:44px;height:8px}
+.hud .sp{flex:1}
+.mapwrap{flex:none;padding:6px 8px 0}
+.map{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:#1b1610;border:3px solid #1b1610;border-radius:8px;width:100%}
+.t{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:16px;background:#d9c79d}
+.t.w{background:#5d6670}.t.m{background:#a07c52}.t.r{background:#9bb069}.t.f{background:#03050a}.t.s{background:#8a5a44}
+.t.me{outline:3px solid #e0a020;outline-offset:-3px}
+.t.foe{animation:pulse 1s infinite}
+@keyframes pulse{50%{filter:brightness(1.3)}}
+.slot{flex:1;min-height:0;position:relative;padding:6px 8px}
+/* the strip under the map: one line of "what is going on", fixed height so nothing moves */
+.strip{height:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;overflow:hidden;font-size:14px}
+.strip b{display:block}
+.foes{display:flex;gap:8px;margin-top:4px}
+.foe{flex:1;border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:#fff;font-size:13px}
+.foe progress{width:100%;height:8px;--c:var(--danger)}
+.dock{flex:none;display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid var(--line)}
+.dock button{flex:1;min-height:44px;border:1px solid var(--accent);background:#fff;border-radius:8px;font-size:14px;cursor:pointer}
+.dock button.pri{background:var(--accent);color:#fff}
+.dock button .badge{display:inline-block;min-width:16px;padding:0 4px;border-radius:8px;background:var(--danger);color:#fff;font-size:11px;margin-left:2px}
+/* bottom sheet: covers only the lower part, map stays visible above */
+.sheet{position:absolute;left:0;right:0;bottom:0;height:calc(100% - 330px);min-height:230px;background:var(--card);border-top:2px solid var(--accent);border-radius:14px 14px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.25);transform:translateY(105%);transition:transform .2s;display:flex;flex-direction:column;z-index:5}
+.sheet.open{transform:none}
+.sheet header{display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);font-weight:700}
+.sheet header span{flex:1}
+.sheet header button{border:0;background:#eee;border-radius:6px;min-width:36px;min-height:32px}
+.sheet .body{padding:10px 12px;overflow:auto;flex:1;font-size:14px}
+.tabs{display:flex;gap:4px;padding:6px 12px 0}
+.tabs button{flex:1;padding:6px;border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;background:#eee}
+.tabs button.on{background:#fff;font-weight:700}
+.row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted var(--line)}
+.fightbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.fightbtns button{min-height:44px;border:1px solid var(--accent);background:#fff;border-radius:8px}
+</style></head><body>
+<div class="ctl" id="ctl">
+ <button data-s="explore" class="on">1 Exploring</button>
+ <button data-s="spot">2 Spot card</button>
+ <button data-s="fight">3 Fight</button>
+ <button data-s="party">4 Party sheet</button>
+ <button data-s="log">5 Log sheet</button>
+</div>
+<div class="note" id="note"></div>
+<div class="phone" id="phone">
+ <div class="hud"><span class="chip">🧑 Moss <progress value="8" max="10"></progress></span><span class="chip">🐿️ Pip <progress value="5" max="10"></progress></span><span class="sp"></span><span>😴 Fresh</span></div>
+ <div class="mapwrap"><div class="map" id="map"></div></div>
+ <div class="slot"><div class="strip" id="strip"></div></div>
+ <div class="dock" id="dock"></div>
+ <div class="sheet" id="sheet"><div class="tabs" id="tabs"></div><header><span id="stitle"></span><button id="sx" aria-label="Close">✕</button></header><div class="body" id="sbody"></div></div>
+</div>
+<script>
+var T='mmrfsfmrmf...'.length;
+var layout=[
+ 'wwwwwwwww',
+ 'wffffffrw',
+ 'wfmrrrmfw',
+ 'wfrfsfrfw',
+ 'wfrrmrrfw',
+ 'wmfrrrfmw',
+ 'wffrsrffw',
+ 'wfffrffrw',
+ 'wwwwwwwww'];
+function cls(c){return {w:'w',m:'m',r:'r',f:'f',s:'s'}[c]||''}
+function drawMap(foeAt,me){var h='';for(var y=0;y<9;y++)for(var x=0;x<9;x++){var c=layout[y][x],k=cls(c),e='';
+ if(x==4&&y==4){k+=' me';e='🧙'}if(foeAt&&x==5&&y==4){k+=' foe';e='🐛'}if(c=='s')e=e||'❗';h+='<div class="t '+k+'">'+e+'</div>'}
+ document.getElementById('map').innerHTML=h}
+var S={
+ explore:{note:'The map never moves. HUD on top (one line), a fixed-height strip under it, a dock of big buttons at the bottom. Nothing appears or disappears above the map.',foe:0,
+  strip:'<b>Mossy Path</b>Tap a tile to walk. Spots (❗) open a card.',dock:[['🧭 Map','pri'],['🧑‍🤝‍🧑 Party',''],['🎒 Pack',''],['📜 Log','']],sheet:null},
+ spot:{note:'A spot, event or milestone is a bottom sheet over the lower part only. The map stays in view above it. Closing it changes nothing in the layout.',foe:0,
+  strip:'<b>Mossy Path</b>You are at a spot.',dock:[['🧭 Map','pri'],['🧑‍🤝‍🧑 Party',''],['🎒 Pack',''],['📜 Log','']],
+  sheet:{title:'❗ The Wilting Gate',tabs:0,body:'<p>A gate hangs open. Something has chewed the roots.</p><div class="fightbtns"><button>🔍 Look closer</button><button>⚔️ Hunt</button><button>⛺ Camp</button><button>↩ Leave</button></div>'}},
+ fight:{note:'A fight keeps the map where it is. Foes and the round feed take the strip. The attack choices are a sheet that is already open at a fixed height. Nothing folds and nothing scrolls.',foe:1,
+  strip:'<b>Round 2</b><div class="foes"><div class="foe">🐛 Blight Grub<progress value="6" max="10"></progress></div><div class="foe">🐛 Blight Grub<progress value="9" max="10"></progress></div></div><div style="font-size:13px;margin-top:4px">Pip nips a grub for 3.</div>',
+  dock:[['⚔️ Fight','pri'],['🧑‍🤝‍🧑 Party',''],['🎒 Pack',''],['📜 Log','']],
+  sheet:{title:'⚔️ Your turn',tabs:0,body:'<div class="fightbtns"><button>🗡️ Attack</button><button>🛡️ Guard</button><button>🍎 Snack</button><button>🏃 Retreat</button></div><p style="font-size:13px;margin-top:8px">Plan each turn and Auto replay open as before. The replay stage uses the same spot.</p>'}},
+ party:{note:'Party, Pack and Log reuse the existing drawer, now as a bottom sheet with tabs. Same height as every other sheet.',foe:0,
+  strip:'<b>Mossy Path</b>Tap a tile to walk.',dock:[['🧭 Map',''],['🧑‍🤝‍🧑 Party','pri'],['🎒 Pack',''],['📜 Log','']],
+  sheet:{title:'🧑‍🤝‍🧑 Party',tabs:1,body:'<div class="row"><span>🧑 Moss (L3)</span><span>HP 8/10</span></div><div class="row"><span>🐿️ Pip</span><span>HP 5/10</span></div><div class="row"><span>Fatigue</span><span>Fresh</span></div>'}},
+ log:{note:'The last line of the log still shows in the strip (live region for screen readers). The full log is a sheet.',foe:0,
+  strip:'<b>Mossy Path</b>You found a mushroom.',dock:[['🧭 Map',''],['🧑‍🤝‍🧑 Party',''],['🎒 Pack',''],['📜 Log','pri']],
+  sheet:{title:'📜 Log',tabs:1,body:'<div class="row"><span>You found a mushroom.</span></div><div class="row"><span>Pip nips a grub for 3.</span></div><div class="row"><span>Fight won.</span></div>'}}
+};
+function show(k){var s=S[k];document.getElementById('note').textContent=s.note;drawMap(s.foe);
+ document.getElementById('strip').innerHTML=s.strip;
+ document.getElementById('dock').innerHTML=s.dock.map(function(d){return '<button class="'+d[1]+'">'+d[0]+'</button>'}).join('');
+ var sh=document.getElementById('sheet');
+ if(s.sheet){document.getElementById('stitle').textContent=s.sheet.title;document.getElementById('sbody').innerHTML=s.sheet.body;
+  document.getElementById('tabs').innerHTML=s.sheet.tabs?'<button class="'+(k=='party'?'on':'')+'">Party</button><button>Pack</button><button class="'+(k=='log'?'on':'')+'">Log</button>':'';
+  document.getElementById('tabs').style.display=s.sheet.tabs?'flex':'none';sh.classList.add('open')}else sh.classList.remove('open');
+ [].forEach.call(document.querySelectorAll('#ctl button'),function(b){b.classList.toggle('on',b.dataset.s==k)})}
+document.getElementById('ctl').addEventListener('click',function(e){if(e.target.dataset.s)show(e.target.dataset.s)});
+document.getElementById('sx').addEventListener('click',function(){document.getElementById('sheet').classList.remove('open')});
+show('explore');
+</script></body></html>

@@ -6768,3 +6768,17 @@ details.craftall > summary::-webkit-details-marker { display: none; }
 .shbagpop .shshelf { border: 0; padding: 0; margin: 0; }
 
 .cppal { margin: 4px 12px 0; font-size: .85rem; }
+
+/* v2.4.63 trek fight on phones: the figures on the scene already carry the HP bars, so the health rows are hidden (still in the page for the replay),
+   and the round heading + action buttons sit straight under the scene. What happened, boss hint and the party chips follow. */
+@media (max-width: 720px) {
+  .trekfightcol > .tkleft { order: 0; }
+  .trekfightcol > .trekfight { order: 1; }
+  .trekfightcol > .trekhud { order: 2; }
+  .trekfight > * { order: 5; }
+  .trekfight > h3 { order: 0; }
+  .trekfight > .trekactform { order: 1; }
+  .trekfight > .trekboss { order: 2; }
+  .trekfight > .trekwhat { order: 3; }
+  .trekfight > .trekhealth { display: none; }
+}

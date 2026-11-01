@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.63
+- **Trek fight on phones is shorter.** The health rows under the scene are hidden (the figures already show the HP bars), and the Round heading and the action buttons (Fight, Auto 1, Auto, Run, Change plan) now sit right under the scene. What happened, the boss hint and the party chips come after.
+
 ## 2.4.62
 - **Trek on phones keeps the stage in view.** When a walk turns into a fight (or the fight ends), and when the fight map folds away, the page now scrolls the stage to just under the header instead of leaving you down the page with nothing to look at.
 
