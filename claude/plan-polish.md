@@ -137,3 +137,8 @@ Evidence: `game/includes/layout.php` `nav_sheet()` (menu groups and the 5-tab ph
 
 ### E. Suggested order
 Villagers (1) with Phase 2 of the plan, then Go/Here (2) and Orders (3), then Pal naming (5), then Contests hub (4), then menu fold (8, 9) once the pages beneath are stable.
+
+### Update 2026-11-01 (cheap merges)
+- **Orders (item 3): already consolidated, no change.** Market Day only links to Tasks > Orders; the Town Orders tab lists that town's orders and links to the full board. The "three places" claim above was overstated.
+- **Contests hub (item 4): already a hub** (`games.php?tab=contests` cards). Added: Fair, Show and Garden of the Month now light up the Games menu tile.
+- **Pals (item 5):** Pal Book and Pal Jobs share one tab row (`ppal_hub_tabs_html`), the Pal Jobs page lights up the Puzzle Pals tile; "Friends" rename done earlier.

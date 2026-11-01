@@ -651,7 +651,8 @@ function nav_sheet(array $u, string $page): string
     $tile = function (string $file, string $icon, string $label, string $badge = '', string $slug = '') use ($page): string {
         $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
         if ($page === 'folk.php') $cur = 'villagers.php';   // v2.0.39: villagers have their own page   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
-        if (in_array($page, ['catfish.php', 'puzzles.php', 'jigsaw.php', 'gifsaw.php', 'rainbarrel.php', 'gnomebeds.php'], true)) $cur = 'games.php';   // polish: Cat Fish and the puzzle pages sit under Games, so Games lights up
+        if (in_array($page, ['catfish.php', 'puzzles.php', 'jigsaw.php', 'gifsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'fair.php', 'show.php', 'gotm.php'], true)) $cur = 'games.php';
+        if ($page === 'paljobs.php') $cur = 'puzzlepals.php';   // polish: Pal jobs is a tab of the Pals hub   // polish: Cat Fish and the puzzle pages sit under Games, so Games lights up
         $on = $cur === $file;
         $bar = in_array($file, ['garden.php', 'world.php', 'inventory.php', 'town.php', 'jobs.php'], true);   // v1.0.0.1: already in the phone's bottom bar, so the phone sheet skips it
         return '<a class="navtile' . ($on ? ' on' : '') . ($bar ? ' inbar' : '') . '" href="' . e(url($file)) . '"' . ($on ? ' aria-current="page"' : '') . '><span class="nti">' . ($slug !== '' ? nav_icon($slug, $icon, 20) : e($icon)) . '</span>'

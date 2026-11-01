@@ -1210,3 +1210,14 @@ function ppal_admin_spawn(array $u): string
     $w = ppal_spawns($uid)[reset($new)];
     return $w['pal']['name'] . ' (' . $w['pal']['rarity'] . ') now waits at ' . $w['loc'] . ' (level ' . $w['level'] . '). Open the map or the Pal Book.';
 }
+
+/** Polish: one tab row shared by the Pal Book and Pal Jobs pages ($cur = 'book' or 'jobs'). Empty until Pal jobs are open and a pal is found. */
+function ppal_hub_tabs_html(string $cur): string
+{
+    require_once __DIR__ . '/pal_jobs.php';
+    $u = current_user();
+    if (!$u || !pj_open($u)) return '';
+    return '<nav class="tabs ppaltabs" aria-label="Pals">'
+        . '<a href="' . e(url('puzzlepals.php')) . '"' . ($cur === 'book' ? ' class="on" aria-current="page"' : '') . '>📖 Pal Book</a>'
+        . '<a href="' . e(url('paljobs.php')) . '"' . ($cur === 'jobs' ? ' class="on" aria-current="page"' : '') . '>🧭 Pal jobs</a></nav>';
+}
