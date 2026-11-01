@@ -10,28 +10,24 @@ Read-only on game code. Facts cite file:line. "Proposal" = my design, not in cod
 - Collect `pj_collect` (pal_jobs.php:615-646): ready -> done claim (line 621). Items loop reads `result.items` as [item_id, qty, name] (line 632). Receipt title (line 625) falls to "the wilds" for a non-trip target.
 - Home pill `pj_home_count` (pal_jobs.php:652-656) counts kind IN (trip, delve) only.
 - Pal skills: `g_xp`, `a_xp` columns on ppal_found (puzzle_pals.php:102-103). Level from PJ_XP, 1-10 (pal_jobs.php:20, 51-56).
-- `pj_add_xp($uid, $key, $g, $a)` (pal_jobs.php:91-95). `pj_pals()` exposes g, a, gxp, axp (pal_jobs.php:113-131).
-- Equipped pals earn 1 of each skill per hour, cap 24 (pal_jobs.php:26, 98-107).
-- HP: `12 + 4*hardiness + 3*(A-1)` (pal_jobs.php:65-68). A station pal does not fight, so HP stays put.
+- `pj_add_xp($uid, $key, $g, $a)` (91-95). `pj_pals()` exposes g, a, gxp, axp (113-131). Equipped pals earn 1 of each per hour, cap 24 (26, 98-107).
+- HP: `12 + 4*hardiness + 3*(A-1)` (65-68). A station pal does not fight, so HP stays put.
 - Pal `calling` exists (PPAL_CALLINGS, puzzle_pals.php:15). `brewroot` maps to perk `gather` (puzzle_pals.php:18).
 - Migration: `ppal_ensure()` ALTERs any column listed in `ppal_schema()` $c that is missing (puzzle_pals.php:122-124). Fresh installs use the same list (puzzle_pals.php:47). So a new column = one row in $c. No version gate.
 
 ## 2. Crafting-side facts
 - 7 areas (crafting.php:12-20). Scenes: 5 tagged objects each, so 35 slots (includes/data/craft_scenes.php).
-- Tags are fnmatch globs; `craft_tag_match` (craft_map.php:18-22).
-- One recipe can sit on several objects. Example: `*-tea` is on Stove, Watering can, Seed trays (craft_scenes.php:9, 28, 31).
+- Tags are fnmatch globs (`craft_tag_match`, craft_map.php:18-22). One recipe can sit on several objects: `*-tea` is on Stove, Watering can, Seed trays (craft_scenes.php:9, 28, 31).
 - `craft_stations()` (crafting.php:94-102): plot id for kitchen and tool_shed, -1 for no building (garden, potions, building, decor), 0 missing. So plot_id is NULL for 4 areas. The slot key must be target text "area:object".
 - Known recipe = a user_recipes row (crafting.php:217). `craft_recipes()` learns when all ingredients were seen (crafting.php:105-144).
 - `craft()` gates: station (221-225), feast needs Kitchen III (227-229), pantry branch (230), cooking branch (231-242).
 - Energy `craft_energy_cost` (crafting.php:172-179). Cooking energy by tier (snack 0, meal 1, feast 2 by default).
 - Ingredients: `craft_stock` (150-169), `craft_fit` (182-189), `craft_short_text` (192-204).
 - Instant areas: one transaction, energy and ingredients taken, output at once (crafting.php:257-270). XP 15 per tools make, else 5 (line 273).
-- Pots: `cook_start` (crafting.php:353) writes cook_pots rows. Limit `cook_pot_limit` (293-302), busy `cook_pots_busy` (305-308). Default '2,3,4' (functions.php:540).
-- Jars: PANTRY_KINDS (pantry.php:37) run 1 to 14 real days. `pantry_start` (pantry.php:152-158) checks the room's free jars.
-- Quality hooks: `gourmand_dish_score` (crafting.php:382, gourmand.php:260) and `market_note_quality` (market100.php:373).
-- Popover: `craft_pop_html` (craft_map.php:142-178) with tabs Can craft / Missing / Unknown. Header line 156. Row actions line 171.
-- Row actions come from `sh_craft_entries` (shelves.php:160-200), built per RECIPE, not per object. A per-object "let a pal cook" button needs per-object actions.
-- Hotspots: `craft_area_header` (craft_map.php:111-134), "!" badge from `craft_can_by_obj` (182-190).
+- Pots: `cook_start` (353) writes cook_pots rows. `cook_pot_limit` (293-302), `cook_pots_busy` (305-308). Default '2,3,4' (functions.php:540).
+- Jars: PANTRY_KINDS (pantry.php:37), 1 to 14 real days. `pantry_start` (152-158) checks the room's free jars.
+- Quality hooks: `gourmand_dish_score` (crafting.php:382) and `market_note_quality` (market100.php:373).
+- Popover: `craft_pop_html` (craft_map.php:142-178), tabs Can craft / Missing / Unknown. Row actions (line 171) come from `sh_craft_entries` (shelves.php:160-200), built per RECIPE. A per-object "let a pal cook" button needs per-object actions.
 
 ## 3. Options
 ### A. Pot Hand (send-time only)
