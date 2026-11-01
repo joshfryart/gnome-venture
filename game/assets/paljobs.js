@@ -44,12 +44,14 @@ document.addEventListener("DOMContentLoaded",function(){
 
   /* 2-5. the job posts */
   var forms = Array.prototype.slice.call(root.querySelectorAll('form.pjform'));
-  function picked(f) { return f.querySelector('input[name="pal"]:checked'); }
+  function picked(f) { return f.querySelector('input[name="pals[]"]:checked'); }
+  function pickedAll(f) { return f.querySelectorAll('input[name="pals[]"]:checked'); }   // v2.3.95: several pals per job
   function nameOf(input) { var n = input && input.closest('.pjface').querySelector('.pjnm'); return n ? n.textContent : ''; }
   function checkedVal(f, name) { var r = f.querySelector('input[name="' + name + '"]:checked'); return r ? +r.value : 0; }
   function update(f) {
     var p = picked(f), kind = f.getAttribute('data-pj-kind'), send = f.querySelector('[data-pj-send] span'), back = f.querySelector('[data-pj-back]');
-    if (send) send.textContent = p ? 'Send ' + nameOf(p) : 'Send';
+    var n = pickedAll(f).length;
+    if (send) send.textContent = n > 1 ? 'Send ' + n + ' pals' : (p ? 'Send ' + nameOf(p) : 'Send');
     if (!back) return;
     var t = now();
     if (kind === 'garden') back.textContent = 'Back on ' + day(t + checkedVal(f, 'days') * 864e5) + '.';
@@ -71,7 +73,7 @@ document.addEventListener("DOMContentLoaded",function(){
       cancel.textContent = 'Cancel';
       cancel.addEventListener('click', function () {
         var p = picked(f);
-        if (p) { p.checked = false; update(f); p.focus(); }
+        if (p) { pickedAll(f).forEach(function (c) { c.checked = false; }); update(f); p.focus(); }
       });
       go.appendChild(cancel);
     }
@@ -116,13 +118,13 @@ document.addEventListener("DOMContentLoaded",function(){
       sync();
     });
     f.addEventListener('change', function (ev) {
-      if (ev.target.name === 'pal' && ev.target.checked) {   // one draft at a time
-        forms.forEach(function (o) { if (o !== f && picked(o)) { picked(o).checked = false; update(o); } });
+      if (ev.target.name === 'pals[]' && ev.target.checked) {   // one draft at a time
+        forms.forEach(function (o) { if (o !== f && picked(o)) { pickedAll(o).forEach(function (c) { c.checked = false; }); update(o); } });
       }
       update(f);
     });
     f.addEventListener('keydown', function (ev) {   // Esc closes the draft
-      if (ev.key === 'Escape' && picked(f)) { var p = picked(f); p.checked = false; update(f); p.focus(); }
+      if (ev.key === 'Escape' && picked(f)) { var p = picked(f); pickedAll(f).forEach(function (c) { c.checked = false; }); update(f); p.focus(); }
     });
     f.addEventListener('submit', function () {   // a second tap does nothing (the server is safe anyway: the pal is claimed in one UPDATE)
       if (btn) { setTimeout(function () { btn.disabled = true; }, 0); }
@@ -150,7 +152,7 @@ document.addEventListener("DOMContentLoaded",function(){
     forms.forEach(function (f) {   // an equipped pal needs the "take off my party" box ticked (it is only shown for such a pal)
       var cb = f.querySelector('input[name="unequip"]');
       if (!cb) return;
-      f.addEventListener('change', function () { var p = f.querySelector('input[name="pal"]:checked'); cb.required = !!(p && p.hasAttribute('data-pj-party')); if (!cb.required) cb.checked = false; });
+      f.addEventListener('change', function () { var p = f.querySelector('input[name="pals[]"][data-pj-party]:checked'); cb.required = !!p; if (!cb.required) cb.checked = false; });
     });
     forms.forEach(function (f, i) {
       f.setAttribute('autocomplete', 'off');   // Firefox would restore a half-filled form after a reload or Back
@@ -165,12 +167,12 @@ document.addEventListener("DOMContentLoaded",function(){
         if (!f.hidden) { close(f); return; }
         forms.forEach(function (o) { if (o !== f && !o.hidden) close(o); });
         f.hidden = false; b.setAttribute('aria-expanded', 'true');
-        var first = f.querySelector('input[name="pal"]:not(:disabled)');
+        var first = f.querySelector('input[name="pals[]"]:not(:disabled)');
         if (first) first.focus({ preventScroll: true });
         f.scrollIntoView({ block: 'nearest' });
       });
       f.addEventListener('keydown', function (ev) {   // Esc folds the form (the draft clear above runs first on the same key)
-        if (ev.key === 'Escape' && !f.querySelector('input[name="pal"]:checked')) close(f, true);
+        if (ev.key === 'Escape' && !f.querySelector('input[name="pals[]"]:checked')) close(f, true);
       });
       f.querySelectorAll('.linkbtn').forEach(function (c) {   // Cancel folds the form too
         c.addEventListener('click', function () { setTimeout(function () { close(f, true); }, 0); });

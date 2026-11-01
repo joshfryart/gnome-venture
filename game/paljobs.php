@@ -24,10 +24,44 @@ if (is_post()) {
     $pots = (int)($_POST['potions'] ?? 0);
     $unq = !empty($_POST['unequip']);   // v2.3.2: the player agreed to take an equipped pal off the party
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
+    // v2.3.95: several pals at once. Ticked pals (pals[]) get the same job; each send still checks its own rules (slots, runs per day, one gardener per garden, one re-run per delve per day).
+    $picked = array_values(array_unique(array_filter(array_map('strval', array_merge((array)($_POST['pals'] ?? []), $pal !== '' ? [$pal] : [])), fn($x) => $x !== '')));
+    if (in_array($do, ['send_garden', 'send_trip', 'send_delve'], true) && count($picked) > 1) {
+        $sent = 0; $why = [];
+        foreach ($picked as $pu) {
+            $one = match ($do) {
+                'send_garden' => pj_garden_send($u, $pu, (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
+                'send_trip' => pj_trip_send($u, $pu, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
+                default => pj_delve_send($u, $pu, (int)($_POST['delve'] ?? 0), $pots, $unq),
+            };
+            $pn = (string)(pj_pal($uid, $pu)['name'] ?? 'A pal');
+            if ($one[0]) { $sent++; flash($pn . ': ' . (string)$one[1], 'ok'); }
+            else $why[] = $pn . ': ' . (string)$one[1];
+        }
+        foreach ($why as $w) flash($w, 'err');
+        flash($sent . ' of ' . count($picked) . ' pals sent.', $sent ? 'ok' : 'err');
+        redirect('paljobs.php');
+    }
+    if ($do === 'collect_all') {
+        $heads = []; $lines = []; $n = 0;
+        foreach (pj_jobs($uid) as $jr) {
+            if ($jr['state'] !== 'ready') continue;
+            $one = pj_collect($u, (int)$jr['id']);
+            if (!$one[0]) continue;
+            $n++;
+            $heads[] = (string)($one[2] ?? '');
+            foreach ((array)$one[1] as $l) $lines[] = (string)$l;
+        }
+        if ($n) {
+            foreach ($lines as $l) flash($l, 'ok');
+            $_SESSION['pj_receipt'] = ['pal' => '', 'head' => 'Collected ' . $n . ' job' . ($n > 1 ? 's' : '') . '.', 'lines' => array_merge($heads, $lines)];
+        } else flash('Nothing to collect.', 'err');
+        redirect('paljobs.php');
+    }
     $res = match ($do) {
-        'send_garden' => pj_garden_send($u, $pal, (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
-        'send_trip' => pj_trip_send($u, $pal, (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
-        'send_delve' => pj_delve_send($u, $pal, (int)($_POST['delve'] ?? 0), $pots, $unq),
+        'send_garden' => pj_garden_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
+        'send_trip' => pj_trip_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
+        'send_delve' => pj_delve_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['delve'] ?? 0), $pots, $unq),
         'recall' => pj_recall($u, (int)($_POST['job'] ?? 0)),
         'heal' => pj_heal($u, $pal, (string)($_POST['potion'] ?? PJ_POTION)),
         'collect' => pj_collect($u, (int)($_POST['job'] ?? 0)),
@@ -131,6 +165,9 @@ page_header('Pal Jobs');
         <span class="pjslots"><span><b><?= count($jobs) ?></b> of <?= $maxAway ?> out</span>
           <span class="pjdots" aria-hidden="true"><?php for ($i = 0; $i < $maxAway; $i++): ?><i<?= $i < count($jobs) ? ' class="on"' : '' ?>></i><?php endfor; ?></span></span>
       </header>
+      <?php if (count(array_filter($jobs, fn($j) => $j['state'] === 'ready')) > 1): ?>
+      <form method="post" action="<?= e(url('paljobs.php')) ?>" class="pjcollectall"><?= csrf_field() ?><button class="btn small" name="do" value="collect_all">Collect all (<?= count(array_filter($jobs, fn($j) => $j['state'] === 'ready')) ?>)</button></form>
+      <?php endif; ?>
       <?php if ($receipt && $receipt['lines']): $rp = $pals[$receipt['pal']] ?? null; ?>
       <div class="flash pjreceipt" role="status">
         <b><?= ($receipt['head'] ?? '') !== '' ? e($receipt['head']) : ($rp ? e($rp['name']) . ' is home.' : 'Collected.') ?></b>
@@ -215,11 +252,11 @@ page_header('Pal Jobs');
         <?php else: ?>
         <form method="post" action="<?= e(url('paljobs.php')) ?>" class="pjform" data-pj-kind="<?= $kind ?>"><?= csrf_field() ?><input type="hidden" name="do" value="send_<?= $kind ?>">
           <fieldset class="pjpick">
-            <legend><span>Send who?</span> <small class="muted"><?= $skTxt ?></small></legend>
+            <legend><span>Send who?</span> <small class="muted">tick one or more</small> <small class="muted"><?= $skTxt ?></small></legend>
             <ul class="pjfaces">
               <?php foreach ($ranked as $p): $rest = $p['hp'] < 1; $risky = $kind === 'delve' && $p['a'] < PJ_DELVE_SAFE; ?>
               <li><label class="pjface<?= $rest ? ' is-resting' : '' ?>">
-                <input type="radio" name="pal" value="<?= e($p['uid']) ?>" required<?= $rest ? ' disabled' : '' ?><?= $p['active'] ? ' data-pj-party="1"' : '' ?><?= $risky ? ' data-pj-risky="1"' : '' ?>>
+                <input type="checkbox" name="pals[]" value="<?= e($p['uid']) ?>"<?= $rest ? ' disabled' : '' ?><?= $p['active'] ? ' data-pj-party="1"' : '' ?><?= $risky ? ' data-pj-risky="1"' : '' ?>>
                 <?= ppal_img($p['key'], '', 'ppalimg pjimg', 32) ?>
                 <span class="pjnm"><?= e($p['name']) ?><?= $p['active'] ? ' <small class="pjparty">On party</small>' : '' ?><?= $risky ? ' <small class="pjrisky">Risky</small>' : '' ?></span>
                 <?php if ($rest): ?><span class="pjlv pjlv-rest">Resting</span>

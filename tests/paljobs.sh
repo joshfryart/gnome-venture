@@ -46,14 +46,14 @@ dbx "DELETE FROM ppal_jobs WHERE kind IN ('delve','trip')"; dbx "UPDATE ppal_fou
 get paljobs.php >/dev/null
 chk "v2.3.3: delve post tags low-Adventuring pals Risky" "$(grep -c 'class="pjrisky">Risky' $H | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "v2.3.3: delve form carries the risky warning (shown by CSS when a risky pal is picked)" "$(grep -c 'class="pjriskwarn"' $H)" 1
-chk "v2.3.3: risky pals are still sendable (not disabled)" "$(grep -o '<input type="radio" name="pal"[^>]*data-pj-risky="1"[^>]*>' $H | grep -c disabled)" 0
+chk "v2.3.3: risky pals are still sendable (not disabled)" "$(grep -o '<input type="checkbox" name="pals\[\]"[^>]*data-pj-risky="1"[^>]*>' $H | grep -c disabled)" 0
 chk "v2.3.3: garden post no longer gates tasks by level" "$(grep -c 'weeds from 3\|harvests at 9' $H)" 0
 dbx "UPDATE ppal_found SET a_xp=400"
 get paljobs.php >/dev/null
 chk "v2.3.3: Adventuring 5+ pals are not marked risky" "$(grep -c 'class="pjrisky"' $H)" 0
-chk "no raw row ids in the forms (pal id is the 16-hex hash)" "$(grep -o 'name="pal" value="[^"]*"' $H | grep -vc 'value="[0-9a-f]\{16\}"')" 0
+chk "no raw row ids in the forms (pal id is the 16-hex hash)" "$(grep -o 'name="pals\[\]" value="[^"]*"' $H | grep -vc 'value="[0-9a-f]\{16\}"')" 0
 get paljobs.php >/dev/null
-PAL=$(grep -o 'name="pal" value="[0-9a-f]\{16\}"' $H | head -1 | sed 's/.*value="\(.*\)"/\1/')
+PAL=$(grep -o 'name="pals\[\]" value="[0-9a-f]\{16\}"' $H | head -1 | sed 's/.*value="\(.*\)"/\1/')
 dbx "UPDATE ppal_found SET status='home', hp=-1"; dbx "DELETE FROM ppal_jobs"
 get paljobs.php >/dev/null
 PLOT=$(db "SELECT id FROM plots LIMIT 1")
@@ -78,6 +78,25 @@ get paljobs.php >/dev/null
 chk "receipt head says where the pal came back from" "$(grep -c '<b>[^<]* is back from the forest\.</b>' $H)" 1
 get gnome.php >/dev/null
 chk "My Gnome: notice gone once collected" "$(grep -c 'class="pjhome"' $H)" 0
+echo "== v2.3.95: several pals at once, Collect all"
+dbx "DELETE FROM ppal_jobs"; dbx "UPDATE ppal_found SET status='home', hp=20"
+PALS=$(db "SELECT pal_uid FROM ppal_found WHERE user_id=$SID AND status='home' ORDER BY id LIMIT 3")
+P1=$(echo "$PALS" | sed -n 1p); P2=$(echo "$PALS" | sed -n 2p); P3=$(echo "$PALS" | sed -n 3p)
+get paljobs.php >/dev/null
+chk "two pals to one garden: one goes, the second is refused (one gardener per garden)" "$(post paljobs.php -d do=send_garden -d "pals[]=$P1" -d "pals[]=$P2" -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 1
+get paljobs.php >/dev/null
+chk "result line says how many went" "$(grep -c '1 of 2 pals sent' $H | awk '{print ($1>0)?"yes":"no"}')" yes
+dbx "DELETE FROM ppal_jobs"; dbx "UPDATE ppal_found SET status='home'"
+for PX in $P1 $P2; do
+dbx "UPDATE ppal_found SET status='trip' WHERE pal_uid='$PX'"
+dbx "INSERT INTO ppal_jobs (user_id, pal_uid, kind, target, day, tool, started_at, ends_at, last_tick, potions, tasks, state, result) VALUES ($SID, '$PX', 'trip', 'forest', '', 'forage', datetime('now','-2 hours'), datetime('now','-1 minutes'), datetime('now'), 0, 0, 'active', '{\"rounds\":2,\"items\":[],\"hp\":5,\"potions_used\":0,\"potions_back\":0,\"fainted\":false}')"
+done
+get paljobs.php >/dev/null
+chk "Collect all button shows with 2 ready jobs" "$(grep -c 'value="collect_all"' $H)" 1
+chk "POST collect_all redirects" "$(post paljobs.php -d do=collect_all)" 302
+chk "both jobs collected" "$(db "SELECT COUNT(*) FROM ppal_jobs WHERE state='done'")" 2
+get paljobs.php >/dev/null
+chk "one receipt for both" "$(grep -c 'Collected 2 jobs' $H)" 1
 chk "PHP log clean" "$(grep -c 'Warning\|Fatal\|Notice\|Deprecated' $LOG)" 0
 [ $FAILS = 0 ] && echo "all pal job page tests passed" || echo "$FAILS FAILED"
 exit $FAILS
