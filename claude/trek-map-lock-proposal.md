@@ -16,6 +16,14 @@ DOCK       Map | Party | Pack | Log  (+ Fight when in a fight)
 SHEET      bottom sheet, up to ~55% of screen, covers STRIP and DOCK area, not the map
 ```
 
+## Reconciled with the 2.4.63 battle layout
+- Scene (with HP bars on the figures) is the top of the fight. The health rows stay hidden, as in 2.4.63.
+- Round heading, plan line, Fight button and Auto 1 / Auto / Run sit straight under the scene (same order as 2.4.63).
+- The map does not vanish: it becomes a 5x5 thumbnail (centred on the gnome) beside "What happened". Replaces the "Where it began" fold.
+- The app header and bottom nav stay; the Trek area between them is fixed height and does not scroll. Only sheets scroll.
+- Party / Pack / Log stay in the dock as tabbed sheets. Foe pop-over, Plan sheet and Auto replay stay dialogs.
+- Mockup v2 shows this on a real-size phone (390x800 incl. header and nav).
+
 ## What becomes a sheet
 - Spot, event, crew and milestone cards, and the legend.
 - Party, Pack and Log (the existing `aside.tkdrawer`, restyled as a tabbed bottom sheet).
