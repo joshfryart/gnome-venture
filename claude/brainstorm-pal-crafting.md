@@ -79,16 +79,13 @@ Read-only on game code. Facts cite file:line. "Proposal" = my design, not in cod
 - Pal list ranked by Crafting, the same way as today (paljobs.php:36 sort key).
 - Ledger: "Bramble · Bread oven · 3 h · 4 makes". Add a case to jobLine (paljobs.php:132-137) and kindTxt (line 131).
 - Pal Book chips: add "🍳 Crafting N" next to 🪴 and 🧭 (paljobs.php:246-247).
-- Popover: header button "Post a pal here" (craft_map.php:156). When one is out: "Bramble is here · 2 h left".
-- Can craft rows: "Let a pal cook this" beside Make (craft_map.php:171, shelves.php:198).
-- Hotspot: small 🧩 badge on a posted object (pattern of craft_map.php:128-130).
+- Popover: header button "Post a pal here" (craft_map.php:156), or "Bramble is here · 2 h left" when one is out. Can craft rows: "Let a pal cook this" beside Make (craft_map.php:171, shelves.php:198). Hotspot gets a 🧩 badge (pattern of 128-130).
 
 ## 6. Test plan and migration
 - Migration: add ['ppal_found', 'c_xp', 'INT NOT NULL DEFAULT 0'] to $c (puzzle_pals.php:101-104). ppal_ensure adds it to old databases. No new table. Existing idx_ppal_jobs_user covers the state filter.
 - tests/paljobs.sh, new block after line 104: seed user_items, a kitchen garden_buildings row, a user_recipes row. Then POST send_station and check: ingredients and energy taken; second send to the same object refused; unknown recipe refused; no-kitchen refused; collect gives items once; second collect refused; c_xp grows; no inline style attribute.
 - tests/craft_tags.php: existing check (every tagged recipe lands on an object) still holds. Add: each object has at least one recipe.
-- claude/paljobs-sim.php: a station section. Plan per Crafting level and hours. Value uses the sim's worth() and 62% price rule (sim lines 15-17, 25).
-- Plan function pal_jobs.php: pure given a stock map, so unit-testable (shared-ingredient ledger case).
+- claude/paljobs-sim.php: a station section (plan per Crafting level and hours, using worth() and the 62% price rule, sim lines 15-17, 25). Make pj_station_plan pure, so the shared-ingredient ledger is unit-testable.
 - MySQL not run before (handoff). Run the sqlite and MySQL paths both.
 
 ## 7. Recommendation: Option B
