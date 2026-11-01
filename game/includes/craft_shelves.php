@@ -43,6 +43,7 @@ $close = fn() => url($base);
 $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   // v0.9.4: pots with timers (kitchen_pots 0 = instant)
 ?>
 <?php craft_area_header($tab); ?>
+<?= craft_pop_html($tab, $all, $slugOf) /* v2.4.0: outside .shelves so the shelf handlers never see the dialogs */ ?>
 <div class="pantry2 shelves shcraft">
 <div class="p2head shhead">
   <?php // v2.3.3: the area is picked on the map above (craft_map.php); this form keeps it and only filters the list ?>

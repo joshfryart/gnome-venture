@@ -499,6 +499,13 @@ function cook_collect_msg(array $infos, string $verb, string $spent = ''): strin
 }
 
 /** Short text for a food's energy and buff: "⚡+4 (🛡️ Hardiness +3 for 6 h)". v0.9.1a: buff in brackets, time adjusted for $u when given. */
+/** v2.4.0: the one food line every surface shows: "⚡+12 energy · ✨ ..." (or '' if the item gives neither). $homeCooked = dishes at cook_energy_percent (the Brewroot perk stays hidden). */
+function item_food_line(?string $effects, ?array $u = null, bool $homeCooked = false): string
+{
+    $t = buff_text($effects, $u, $homeCooked);
+    return $t === '' ? '' : $t;
+}
+
 function buff_text(?string $effects, ?array $u = null, bool $homeCooked = false): string
 {
     $fx = json_decode((string)$effects, true) ?: [];

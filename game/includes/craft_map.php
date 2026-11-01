@@ -127,8 +127,52 @@ function craft_area_header(string $tab): void
   <img src="<?= e(url('assets/img/craftmap/' . $tab . '.png')) ?>" alt="<?= e($sc['alt']) ?>" width="900" height="600">
   <?php $pick = (string)($_GET['o'] ?? '');
   foreach ($sc['hot'] as [$id, $label, $x, $y, $w, $h, $to]): $tag = is_array($to); ?>
-    <a class="cmap-hs hs-<?= e($tab . '-' . $id) ?>" href="<?= e(url($qs($tag ? 'o=' . $id : $to))) ?>" aria-label="<?= e($label) ?>"<?= $tag && $pick === $id ? ' aria-current="true"' : '' ?>><span><?= e($label) ?></span></a>
+    <a class="cmap-hs hs-<?= e($tab . '-' . $id) ?>" href="<?= e(url($qs($tag ? 'o=' . $id : $to))) ?>"<?= $tag ? ' data-pop="pop-' . e($tab . '-' . $id) . '"' : '' ?> aria-label="<?= e($label) ?>"<?= $tag && $pick === $id ? ' aria-current="true"' : '' ?>><span><?= e($label) ?></span></a>
   <?php endforeach; ?>
 </figure>
 <?php endif;
+}
+
+
+/**
+ * v2.4.0: one popover (<dialog>) per tagged scene object: what you can make with it, in three tabs (Can craft / Missing / Unknown).
+ * $all = the entries from sh_craft_entries() (status ok | miss | unk), $slugOf = recipe id => slug. Craft right in the popover (same forms as the shelf).
+ * The dialogs are hidden until craftpop.js opens them; without JS the hotspot link (?o=) still filters the shelf list.
+ */
+function craft_pop_html(string $tab, array $all, array $slugOf): string
+{
+    $h = '';
+    foreach (craft_scenes()[$tab]['hot'] ?? [] as [$id, $label, , , , , $to]) {
+        if (!is_array($to)) continue;
+        $tabs = ['can' => [], 'miss' => [], 'unk' => []];
+        foreach ($all as $e) {
+            if (!craft_tag_match($to, $slugOf[(int)$e['id']] ?? '')) continue;
+            $tabs[$e['status'] === 'ok' ? 'can' : ($e['status'] === 'unk' ? 'unk' : 'miss')][] = $e;
+        }
+        if (!array_filter($tabs)) continue;
+        $first = $tabs['can'] ? 'can' : ($tabs['miss'] ? 'miss' : 'unk');
+        $dom = 'pop-' . $tab . '-' . $id;
+        $h .= '<dialog class="picker craftpop" id="' . e($dom) . '" aria-labelledby="' . e($dom) . '-t"><div class="pickbox">'
+            . '<div class="pickhead"><h3 id="' . e($dom) . '-t">' . e($label) . '</h3><button type="button" class="pickx" data-pop-close aria-label="Close">✕</button></div>'
+            . '<div class="cptabs" role="tablist">';
+        foreach (['can' => 'Can craft', 'miss' => 'Missing', 'unk' => 'Unknown'] as $k => $tl)
+            $h .= '<button type="button" role="tab" class="cptab" data-ptab="' . $k . '" aria-selected="' . ($k === $first ? 'true' : 'false') . '">' . $tl . ' <small>' . count($tabs[$k]) . '</small></button>';
+        $h .= '</div>';
+        foreach ($tabs as $k => $rows) {
+            $h .= '<div class="cppanel" role="tabpanel" data-ppanel="' . $k . '"' . ($k === $first ? '' : ' hidden') . '>';
+            if (!$rows) $h .= '<p class="muted cpempty">' . ['can' => 'Nothing you can make right now.', 'miss' => 'Nothing missing.', 'unk' => 'Nothing left to discover here.'][$k] . '</p>';
+            foreach ($rows as $e) {
+                $ico = $k === 'unk' ? '❔' : ($e['item'] ? str_replace(' alt="-"', ' alt=""', item_icon($e['item'], 'lg', '-')) : '');
+                $h .= '<div class="cprow"><span class="cpico" aria-hidden="true">' . $ico . '</span><div class="cpin"><b>' . e($k === 'unk' ? '???' : $e['name']) . '</b>';
+                if ($k !== 'unk' && $e['food'] !== '') $h .= '<span class="cpfx">' . e($e['food']) . '</span>';
+                if ($k !== 'unk' && $e['desc'] !== '') $h .= '<span class="cpdesc muted">' . e($e['desc']) . '</span>';
+                if ($k === 'miss') $h .= '<span class="cpneed">' . e($e['why']) . '</span>';
+                if ($k === 'unk') $h .= '<span class="cpneed muted">' . e($e['found']) . '. Collect them all to discover it.</span>';
+                $h .= '</div>' . ($k === 'can' ? '<div class="cpact">' . $e['acts'] . '</div>' : '') . '</div>';
+            }
+            $h .= '</div>';
+        }
+        $h .= '</div></dialog>';
+    }
+    return $h;
 }

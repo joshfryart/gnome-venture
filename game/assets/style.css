@@ -6618,3 +6618,24 @@ footer a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
 .npkchip.low .npkm{color:#e0704f}
 .npkleg{display:block; margin-top:4px}
 details.whycare{margin:6px 0} details.whycare > summary{cursor:pointer; min-height:36px; display:flex; align-items:center; color:var(--ink-2)}
+
+/* v2.4.0: crafting scene popover: a sheet from the bottom with 3 tabs */
+dialog.craftpop { align-items: flex-end; padding: 0; }
+dialog.craftpop .pickbox { width: min(560px, 100%); max-height: 82vh; border-bottom: 0; }
+.cptabs { display: flex; gap: 6px; padding: 8px 12px 0; }
+.cptab { flex: 1; min-height: 44px; padding: 4px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
+.cptab small { display: block; font-weight: 400; font-size: .75rem; }
+.cptab[aria-selected="true"] { background: var(--accent, #a8231f); color: var(--on-fill, #fff); border-color: var(--accent, #a8231f); }
+.cppanel { overflow-y: auto; overscroll-behavior: contain; padding: 8px 12px 14px; flex: 1 1 auto; min-height: 0; }
+.cprow { display: flex; gap: 10px; align-items: center; border: 2px solid var(--line); padding: 8px; margin-bottom: 8px; }
+.cpico { flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.cpin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cpfx { font-size: .85rem; color: var(--good, #2f8a3a); font-weight: 600; }
+.cpdesc, .cpneed { font-size: .8rem; }
+.cpneed:not(.muted) { color: var(--bad, #c0392b); font-weight: 600; }
+.cpact { flex: none; }
+.cpact .ccbtns { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.cpact .btn { min-height: 44px; }
+.cpact .p2note { display: none; }
+.cpempty { padding: 12px 0; }
+.sfood{margin:4px 0;font-weight:600;color:var(--good,#2f8a3a)}

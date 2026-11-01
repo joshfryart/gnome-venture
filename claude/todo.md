@@ -1,9 +1,11 @@
 # Gnome Venture: to-do (updated 2026-11-01, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
 
-## NEXT RELEASE: 2.4.0 (Joshua, 2026-11-01): NOT BUILT YET, more work first
-- main is at APP_VERSION 2.3.100 (code only; the 2.3.100 zip was removed). Roll 2.3.100 (shorter garden square panel: chips, Next line, closed soil fold, N-P-K badges) into 2.4.0. When Joshua says go: bump APP_VERSION to 2.4.0, finish the CHANGELOG entry, `bash tests/build_update.sh 2.4.0 2.3.99 $PWD/releases` (slim vs 2.3.99), run the full CI list, push main.
-- Still open for it: compact the garden select-mode bar (46 to 343 px); Pal Jobs follow-ups ("select all free pals", `claude/paljobs-sim.php` case); live site was hand-fixed to 2.3.97+ (check `check-files.php` pattern if an install ever looks stale: slim zips extract to the SITE ROOT, no `game/` folder).
+## NOW (2.4.0, 2026-11-01): BUILT, on main. Slim zip `releases/GnomeVenture-2.4.0-web-update.zip` (needs 2.3.97+, 16 files), manifest `tests/manifests/2.4.0.txt`. FULL and source zips built locally only (not committed, 88 MB).
+- Contents: crafting scene popovers (Can craft / Missing / Unknown, craft inline; not Potions), honest Ready rule, food energy+buff on the shop sheet and craft cards, shorter garden square panel (chips, Next line, closed fold, N-P-K badges), Pal Jobs multi-send/collect-all/per-pal Where+Tool/tools only where they work. Changelog 2.4.0.
+- Not run: full CI list, MySQL, upgrade_check, phone check. Joshua to check: tap Stove on phone, Missing tab text, shop sheet food line, Potions area still plain links.
+- Open: compact the garden select-mode bar (46 to 343 px); Pal Jobs "select all free pals" and `claude/paljobs-sim.php` case; landing "N ready" badge still counts ingredients only (not building/energy). If an install looks stale on the live site: slim zips extract to the SITE ROOT (no `game/` folder); `check-files.php` pattern compares sha1s.
+
 ## DONE-ish (2026-11-01): worm "6/4"
 - Not overfeeding: the feeder cap is `critter_meals_cap` (6, tested in `tests/garden100.php`), the worm needs 4 per gift, and the card showed meals/needed ("6/4"). Card now reads `6/6 · 4 scraps per gift`. Feeding when full is already refused ("Everyone is full already"). If Joshua wants the cap itself lower (e.g. one gift = 4), say so: change the setting or cap per animal at `meals_per`.
 

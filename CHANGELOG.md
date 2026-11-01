@@ -1,6 +1,12 @@
 # Changelog
 
-## 2.4.0 (in progress, not released; includes the 2.3.100 garden panel work)
+## 2.4.0
+- **Crafting scene popovers:** tap an object in a crafting scene (Stove, Bread oven, Jam cupboard, Workbench...) and a sheet slides up with what you can make there, in three tabs: **Can craft** (craft right in the sheet), **Missing** (what is lacking, in red) and **Unknown** (a hint). Works in every area except Potions. Without JS the object still filters the shelf list as before.
+- **"Ready" is now honest:** a recipe that needed a building or more energy than you have used to sit in Ready. Ready now means you can make it right now; the rest moves to Missing.
+- **Food shows what it gives:** energy and buff on the shop sheet for every edible item, on craft cards and in the popover (satchel, cooking cards and pantry jars already did).
+- **Garden square panel is much shorter** (planted square on a phone: about 1090 px down to about 600 px, plus the closed fold). Status chips and ONE "Next:" line replace the repeated advice; "Soil details" is closed by default; one fertility word everywhere (also in yard tile titles); N, P and K are small colour badges (low = ▼, high = ▲, the crop's nutrient gets a ring).
+- Also rolled in since 2.3.97: Pal Jobs send/collect several pals, per-pal Where/Tool, Send always visible, tools offered only where they work.
+- Tests: `craft.sh` (popovers), `beds.sh` (square panel). Notes: `claude/plan-craft-popover.md`, `claude/soil-display-assessment.md`.
 - **Garden square panel is much shorter** (planted square on a phone: about 1090 px down to about 600 px, plus the closed fold).
 - Status chips (soil word, low nutrient, care stars or no-till grade, improver working) and ONE "Next:" line (water or harvest now, low nutrient fix, add compost, no-till fix, till it first) replace the repeated advice.
 - "Soil details" is closed by default, one fertility word scale everywhere (also in the yard tile titles), N, P and K are three small colour badges (green, orange, purple; low = ▼, high = ▲; the crop's nutrient gets a ring), the Watered row and repeated compost help are gone, and care details sit behind "How care works".

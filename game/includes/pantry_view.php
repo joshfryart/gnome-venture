@@ -131,7 +131,19 @@ $when = function (array $r) use ($freeIn): string {
 };
 
 ?>
-<?php craft_area_header($tab); ?>
+<?php craft_area_header($tab);
+// v2.4.0: scene-object popovers (craft_pop_html in craft_map.php): the same make forms as the list, split into Can craft / Missing / Unknown
+$popAll = []; $popSlug = [];
+foreach ($recipes as $r) {
+    $acts = $r['known'] ? $make($r) : '';
+    $canNow = $r['known'] && str_contains($acts, 'p2make');
+    $popSlug[(int)$r['id']] = (string)($r['slug'] ?? '');
+    $popAll[] = ['id' => (int)$r['id'], 'name' => (string)$r['name'], 'status' => !$r['known'] ? 'unk' : ($canNow ? 'ok' : 'miss'),
+        'item' => $outItems[(int)$r['output_item_id']] ?? null, 'food' => $r['known'] ? item_food_line((string)$r['effects'], $u, false) : '', 'desc' => $r['known'] ? (string)($r['description'] ?? '') : '',
+        'acts' => $acts, 'why' => $r['known'] && !$canNow ? ($r['can'] ? trim(html_entity_decode(strip_tags($acts))) : implode(', ', array_map(fn($i) => $i['name'] . ' ' . (int)$i['have'] . '/' . (int)$i['qty'], array_filter($r['ings'], fn($i) => $i['have'] < $i['qty'])))) : '',
+        'found' => count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found'];
+}
+echo craft_pop_html($tab, $popAll, $popSlug); ?>
 <div class="pantry2">
 <div class="p2head">
   <h2 class="p2title" id="shelves">🫙 Pantry <small><?= count($jarsList) ?> jars in use · <?= $jarLimit ?> in each room</small></h2>
