@@ -100,7 +100,7 @@ POT=$(PHPR 'require_once "'$GAME'/includes/pal_jobs.php"; echo pj_potion_id();')
 dbx "UPDATE users SET hp=5, hp_at=NULL WHERE id=$SID"
 PHPR 'require_once "'$GAME'/includes/pal_jobs.php"; give_item((int)$u["id"], pj_potion_id(), 2);' >/dev/null
 get gnome.php >/dev/null
-chk "My Gnome shows the Health box with the potion button" "$(grep -q 'class="box hpcard"' $H && grep -q 'name="what" value="potion"' $H && echo 1)"
+chk "My Gnome shows the Health line (in the gnome card) with the potion button in its Heal drawer" "$(grep -q 'class="ghealth"' $H && grep -q 'class="ghheal"' $H && grep -q 'name="what" value="potion"' $H && echo 1)"
 post gnome.php -d do=heal -d what=potion -d item=$POT >/dev/null
 HP2=$(PHPR 'echo hp_get($u)[0];')
 chk "a Healing Potion heals half of max ($HP2 of $MAXHP)" "$([ "$HP2" -ge $((5 + MAXHP / 2 - 1)) ] && [ "$(db "SELECT qty FROM user_items WHERE user_id=$SID AND item_id=$POT")" = 1 ] && echo 1)"

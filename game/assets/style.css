@@ -6149,6 +6149,40 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .gvpage .statsel { font-size: 13px; padding: 6px 10px; }
 }
 .gvpage .box > .radar { display: block; margin: 4px auto; }
+/* My Gnome overview, phones (v2.4.3 slim-down): denser card, one-line stats and pal slots, tabs in two rows of four */
+@media (max-width: 720px) {
+  .gvpage .gnomehead .status, .gvpage .gnomehead .help { font-size: 12px; }
+  .gvpage .gnomehead .ghline { font-size: 12px; }
+  .gvpage .gnomehead .ghline .hpbar { height: 6px; }
+  .gvpage .gnomehead .ghline .hpnum { font-size: 12px; }
+  .gvpage .gnomehead .ghheal summary { min-height: 30px; font-size: 12px; }
+  .gvpage .gnomehead .ghheal .help { font-size: 11px; line-height: 1.3; }
+  .gvrow { margin-top: 4px; }
+  .gvpage .fold.box { padding: 6px 10px; }
+  .gvpage .fold.box > summary { min-height: 34px; display: flex; align-items: center; }
+  .gvtabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: 100%; overflow: visible; }
+  .gvtabs a { min-height: 32px; min-width: 0; padding: 3px 4px; gap: 3px; font-size: 12px; line-height: 1.15; justify-content: center; text-align: center; white-space: normal; }
+  .gvpage .flash.ok { margin: 0 0 8px; padding: 5px 9px; font-size: 13px; }
+  .gvpage .box { margin-bottom: 8px; }
+  .gvpage .box h3 { margin: 0 0 2px; font-size: 15px; }
+  .gvpage .box > .radar { width: 180px; }
+  .gvpage .box > .radar .rlab { font-size: 14px; }
+  .gvpage .box > .help { margin: 0 0 2px; }
+  .gvpage .factrow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 4px 0 8px; }
+  .gvpage .fact { flex-direction: row; justify-content: flex-start; align-items: center; gap: 6px; min-width: 0; padding: 3px 6px; text-align: left; }
+  .gvpage .fact span { flex: none; font-size: 16px; line-height: 1; }
+  .gvpage .fact b { flex: none; font-size: 14px; }
+  .gvpage .fact small { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+  .gvpage .palstrip { margin: 4px 0 6px; }
+  .gvpage .palhead { gap: 2px 8px; }
+  .gvpage .palhead a { font-size: 12px; }
+  .gvpage .palslots { gap: 6px; margin-top: 4px; }
+  .gvpage .palslot { min-height: 36px; padding: 2px 6px 2px 3px; }
+  .gvpage .palslot > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .gvpage .palslot small { font-size: 11px; }
+  .gvpage .palslot .palstk, .gvpage .palslot img { width: 28px; height: 28px; }
+  .gvpage .perkbox { padding: 6px 8px; margin: 6px 0; }
+}
 
 /* ===== v2.1.11 phone wander layout: map left, place + result + story right, actions in 2 rows, gather and notes in folds ===== */
 .wanderinfo { display: none; }
@@ -6479,6 +6513,18 @@ progress.hpbar.hpbar-s { display: inline-block; width: 56px; max-width: 56px; he
 .stsum progress.hpbar-s { width: 40px; max-width: 40px; height: 6px; }
 .hpuse { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .hpuse .btn { min-height: 44px; }
+/* My Gnome: health is one slim line inside the gnome card; hurt, a closed Heal drawer under it */
+.ghealth { margin-top: 4px; }
+.ghline { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.ghicon { flex: none; line-height: 1; }
+.ghline .hpbar { flex: 1 1 auto; min-width: 0; height: 8px; margin: 0; }
+.ghline .hpnum { flex: none; font-size: 13px; }
+.ghheal { margin-top: 2px; }
+.ghheal summary { cursor: pointer; color: var(--muted); font-size: 12px; min-height: 36px; display: flex; align-items: center; }
+.ghheal .help { margin: 0 0 4px; font-size: 12px; }
+.ghheal .hpuse { margin-top: 2px; }
+.gpalhow summary { cursor: pointer; color: var(--muted); font-size: 12px; min-height: 36px; display: flex; align-items: center; }
+.gpalhow .palhowto { margin: 2px 0 6px; }
 /* ===== 2.3.6 Crafting area map (includes/craft_map.php) ===== */
 .cmap-h { margin: 4px 0 0; font-size: 20px; }
 .cmap-sub { margin: 2px 0 10px; }
@@ -6665,3 +6711,15 @@ details.craftall > summary::-webkit-details-marker { display: none; }
 .tripstrip .tskick { flex: 1 1 auto; min-width: 0; font-size: .8rem; }
 .tripstrip .tsline { flex: none; font-size: .72rem; max-width: 55%; }
 .tripstrip .tsbar { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 3px; border: 0; border-radius: 0; }
+
+/* v2.4.3: the crafting area strip never scrolls: all areas share the row, thumbnails shrink to fit */
+.cmap-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 76px); overflow: visible; gap: 4px; }
+.cmap-strip li { min-width: 0; }
+.cmap-strip a { width: auto; min-width: 0; }
+.cmap-strip img { width: 100%; height: auto; aspect-ratio: 68 / 45; }
+.cmap-strip a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 720px) {
+  .cmap-strip { grid-auto-columns: minmax(0, 1fr); gap: 2px; }
+  .cmap-strip a { width: auto; font-size: .62rem; padding: 2px 1px; }
+  .cmap-strip img { width: 100%; height: auto; border-width: 1px; }
+}

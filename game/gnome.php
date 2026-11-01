@@ -108,18 +108,19 @@ page_header('My Gnome');
   <?= gnome_avatar_pals($u, 90) ?>
   <div>
     <h1><?= e(gnome_name($u)) ?><?= $u['title'] ? ' <small class="title">“' . e($u['title']) . '”</small>' : '' ?></h1>
-    <p class="help"><a href="<?= e(url('profile.php')) ?>">👤 See your profile as others do</a></p>
+    <p class="help"><a href="<?= e(url('profile.php')) ?>">👤 See your profile as others do</a> · <a href="<?= e(url('index.php?today=1')) ?>">📅 Today →</a></p>
     <p><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) . ' · ' : '' ?>Garden gnome<?= $home ? ' of ' . e($home['gnomish_name']) : '' ?></p>
     <p class="status">
       🧑‍🌾 Gnome level <b><?= (int)$u['level'] ?></b> (<?= (int)$u['xp'] ?>/<?= xp_for_level((int)$u['level'] + 1) ?> XP)
       · 🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?>
       · ⚡ <?= (int)$u['energy'] ?>/<?= max_energy($u) ?> energy
     </p>
+    <?php if (!is_guest($u)) echo hp_card_html($u); ?>
   </div>
 </div>
 
 <?php if ($palsOn) { require_once __DIR__ . '/includes/pal_jobs.php'; echo pj_home_notice_html($u); }   // v2.3.3: pals back from a trip or delve ?>
-<?php if ($tab === 'overview' && !is_guest($u)) { echo hp_card_html($u); require_once __DIR__ . '/includes/alchemy.php'; echo alchemy_card_html($u); }   // v2.3.5; Alchemy potions ?>
+<?php if ($tab === 'overview' && !is_guest($u)) { require_once __DIR__ . '/includes/alchemy.php'; echo alchemy_card_html($u); }   // Alchemy potions (Health is in the gnome card above) ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>
 <section class="palstrip" aria-label="Pals along">
   <div class="palhead"><b>🐾 Pals along · <?= count($eq) ?> of <?= ppal_party_max() ?></b>
@@ -135,7 +136,7 @@ page_header('My Gnome');
         </a>
       <?php endfor; ?>
     </div>
-    <?php if ((int)$palBook['found'] === 0 && $pick === null) echo ppal_howto_html(); ?>
+    <?php if ((int)$palBook['found'] === 0 && $pick === null): ?><details class="gpalhow"><summary>How to meet your first pals</summary><?= ppal_howto_html() ?></details><?php endif; ?>
   <?php endif; ?>
 </section>
 <?php if ($pick !== null): $cur = $eq[$pick] ?? null; $eqKeys = array_map(fn($x) => $x['pal']['key'], $eq); ?>

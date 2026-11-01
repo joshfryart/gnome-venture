@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.3
+- **My Gnome is slimmer on phones** (Overview with pals: about 1700 px down to about 1085 px): Health is one slim line inside the gnome card (heart, bar, hp/max; the potion and snack buttons sit in a closed "Heal" drawer when you are hurt), tabs fit in two rows, fact tiles are two columns, pal slots are smaller, "How to meet your first pals" is a closed fold.
+- **Link to Today** (📅 Today →) beside "See your profile as others do" on My Gnome.
+- **Crafting area strip never scrolls:** all seven areas share one row on a phone, thumbnails shrink to fit.
+
 ## 2.4.2
 - **Trip strip ("Heading to ...") is one slim line:** about 28 px tall (was about 95 px on a phone): destination on the left, stops left or leg on the right, hairline progress bar underneath. Style only.
 

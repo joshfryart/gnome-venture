@@ -174,30 +174,28 @@ function hp_bar_html(int $hp, int $max, string $cls = ''): string
     return '<progress class="hpbar' . ($cls !== '' ? ' ' . $cls : '') . '" aria-label="Health" max="' . $max . '" value="' . max(0, min($max, $hp)) . '"></progress>';
 }
 
-/** The Health box of My Gnome: bar, how it comes back, and the potion and snacks. */
+/** The Health line of My Gnome, inside the gnome card: heart, a thin bar, hp/max. Full health has the status sentence as a tooltip;
+ *  hurt, a closed "Heal" drawer under the line holds how it comes back and the potions and snacks. */
 function hp_card_html(array $u): string
 {
     if (!hp_on()) return '';
     $uid = (int)$u['id'];
     [$hp, $max] = hp_display($u);
     $out = active_expedition($uid) !== null;
-    $h = '<section class="box hpcard" aria-label="Health"><div class="hphead"><b>❤️ Health</b> <span class="hpnum">' . $hp . '/' . $max . '</span></div>'
-        . hp_bar_html($hp, $max);
-    if ($hp >= $max) {
-        $h .= '<p class="help">You’re in good shape.</p>';
-    } else {
-        $rate = hp_regen_rate();
-        $h .= '<p class="help">' . ($out ? 'You’re out on an adventure: heal up when you’re back. '
-            : ($rate > 0 ? 'You heal ' . $rate . ' a minute while you’re in a town and not adventuring. ' : '')) . 'Resting at a haven, an inn or a hot spring heals more, and so do snacks and Healing Potions.</p>';
-        if (!$out) {
-            require_once __DIR__ . '/adventure.php';
-            require_once __DIR__ . '/pal_jobs.php';
-            $btn = fn(string $what, int $id, string $label) => '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="heal"><input type="hidden" name="what" value="' . $what . '"><input type="hidden" name="item" value="' . $id . '"><button class="btn small">' . $label . '</button></form> ';
-            $b = '';
-            foreach (alchemy_heals($uid) as $hv) $b .= $btn('potion', $hv['id'], '🧪 ' . e($hv['name']) . ' ×' . $hv['qty'] . ' (+' . $hv['pct'] . '%)');
-            foreach (fight_snacks($u) as $s) $b .= $btn('snack', $s['id'], '🎒 ' . e($s['name']) . ' ×' . $s['qty'] . ' (+' . $s['heal'] . ')');
-            if ($b !== '') $h .= '<div class="hpuse">' . $b . '</div>';
-        }
+    $line = '<div class="ghline"><span class="ghicon" aria-hidden="true">❤️</span>' . hp_bar_html($hp, $max)
+        . '<span class="hpnum">' . $hp . '/' . $max . '</span></div>';
+    if ($hp >= $max) return '<div class="ghealth" title="You’re in good shape.">' . $line . '</div>';
+    $rate = hp_regen_rate();
+    $h = '<details class="ghheal"><summary>Heal</summary><p class="help">' . ($out ? 'You’re out on an adventure: heal up when you’re back. '
+        : ($rate > 0 ? 'You heal ' . $rate . ' a minute while you’re in a town and not adventuring. ' : '')) . 'Resting at a haven, an inn or a hot spring heals more, and so do snacks and Healing Potions.</p>';
+    if (!$out) {
+        require_once __DIR__ . '/adventure.php';
+        require_once __DIR__ . '/pal_jobs.php';
+        $btn = fn(string $what, int $id, string $label) => '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="heal"><input type="hidden" name="what" value="' . $what . '"><input type="hidden" name="item" value="' . $id . '"><button class="btn small">' . $label . '</button></form> ';
+        $b = '';
+        foreach (alchemy_heals($uid) as $hv) $b .= $btn('potion', $hv['id'], '🧪 ' . e($hv['name']) . ' ×' . $hv['qty'] . ' (+' . $hv['pct'] . '%)');
+        foreach (fight_snacks($u) as $s) $b .= $btn('snack', $s['id'], '🎒 ' . e($s['name']) . ' ×' . $s['qty'] . ' (+' . $s['heal'] . ')');
+        if ($b !== '') $h .= '<div class="hpuse">' . $b . '</div>';
     }
-    return $h . '</section>';
+    return '<div class="ghealth">' . $line . $h . '</details></div>';
 }
