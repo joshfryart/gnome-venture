@@ -95,22 +95,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <button class="btn small pickgo">Go</button>
   </form>
 </div>
-<?php // shopping list: what the "one trip away" recipes still need, summed (the most wanted first)
-$shop = []; $closeN = 0;
-foreach ($all as $e) if ($e['group'] === 'close') { $closeN++; foreach ($e['ings'] as $i) if ($i['have'] < $i['qty']) {
-    $shop[$i['slug']] ??= ['name' => $i['name'], 'need' => 0, 'have' => (int)$i['have'], 'for' => 0, 'it' => $e['icons'][$i['slug']] ?? null];
-    $shop[$i['slug']]['need'] = max($shop[$i['slug']]['need'], (int)$i['qty']); $shop[$i['slug']]['for']++;
-} }
-uasort($shop, fn($a, $b) => $b['for'] <=> $a['for']);
-if ($shop): ?>
-<section class="shquick shshop" aria-label="Shopping list"><h3 class="shqh">🧺 Shopping list <small>gather these to unlock <?= $closeN ?> more</small></h3>
-  <div class="shqrow">
-    <?php foreach (array_slice($shop, 0, 12, true) as $x): ?>
-      <div class="shqi"><span class="p2ic" aria-hidden="true"><?= $x['it'] ? sh_icon($x['it'], 'sm') : '❔' ?></span><span class="shqt"><b><?= e($x['name']) ?></b><small><?= $x['have'] ?>/<?= $x['need'] ?> · for <?= $x['for'] ?></small></span></div>
-    <?php endforeach; ?>
-  </div>
-</section>
-<?php endif; ?>
+<?php // v2.5.0: the shopping list is gone: a popover's Missing tab already says what you lack ?>
 <?= sh_search($qs, '<input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="' . e($tab) . '">' . ($show !== '' ? '<input type="hidden" name="show" value="' . e($show) . '">' : ''), '🔍 Search ' . $known . ' recipes or an ingredient…') ?>
 <?php if ($obj) echo craft_obj_line($obj, url('inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs], 'strlen'))) . '#shelves', count($shown)); ?>
 <?php if (!$shown): ?>

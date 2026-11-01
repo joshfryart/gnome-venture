@@ -22,8 +22,15 @@ require_once __DIR__ . '/catalog.php';
 require_once __DIR__ . '/alchemy.php';   // potion tiers (Drink buttons)
 
 // the Satchel's types, in the order of its Show list (icon, label)
-const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'produce' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'food' => ['🍲', 'Food'], 'soil' => ['🪱', 'Soil'],
-    'mulch' => ['🍂', 'Mulch'], 'forage' => ['🍄', 'Finds'], 'tool' => ['🧰', 'Tools'], 'decor' => ['🏡', 'Decor'], 'arrangement' => ['💐', 'Arrangements'], 'other' => ['📦', 'Other']];
+const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'crops' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'kitchen' => ['🍲', 'Kitchen'], 'soil' => ['🪱', 'Soil'],
+    'tool' => ['🧰', 'Tools'], 'material' => ['🪵', 'Materials'], 'more' => ['🧪', 'More']];
+/** v2.5.0: item category => [group, kind word, chip label]. One home per kind of thing (Soil holds mulch, Tools holds broken tools...). */
+const SH_BAG_CATS = ['seed' => ['seed', 'Seed', 'Seeds'], 'packet' => ['seed', 'Seed packet', 'Packets'], 'produce' => ['crops', 'Crop', 'Crops'], 'forage' => ['crops', 'Find', 'Finds'],
+    'flower' => ['flower', 'Flower', 'Flowers'], 'arrangement' => ['flower', 'Arrangement', 'Arrangements'], 'food' => ['kitchen', 'Food', 'Food'],
+    'soil' => ['soil', 'Soil', 'Soil'], 'mulch' => ['soil', 'Mulch', 'Mulch'], 'tool' => ['tool', 'Tool', 'Tools'], 'broken' => ['tool', 'Broken tool', 'Broken'],
+    'part' => ['material', 'Part', 'Parts'], 'decor' => ['material', 'Decor', 'Decor'], 'supply' => ['more', 'Supply', 'Supplies'], 'guide' => ['more', 'Guide', 'Guides'], 'misc' => ['more', 'Misc', 'Other']];
+/** slugs that live elsewhere than their category says (garden helpers sit with the soil) */
+const SH_BAG_SLUGS = ['food-scrap' => 'soil', 'cardboard-sheet' => 'soil', 'garden-tonic' => 'soil'];
 const SH_TIERS = ['snack' => ['🥨', 'snack'], 'meal' => ['🍲', 'meal'], 'feast' => ['🍳', 'feast']];
 
 /** an item's picture for a pill or panel: decorative (the name is right beside it), so an empty alt */
@@ -32,10 +39,10 @@ function sh_icon(array $item, string $size): string
     return str_replace(' alt="-"', ' alt=""', item_icon($item, $size, '-'));
 }
 
-/** the Satchel shelf an item sits on: Broken tools with the tools, seed packets with the seeds */
+/** the Satchel group an item sits in (SH_BAG_CATS, with a few slugs moved to the group of what they are used for) */
 function sh_bag_group(array $i): string
 {
-    return $i['category'] === 'broken' ? 'tool' : ($i['category'] === 'packet' ? 'seed' : (isset(SH_BAG_GROUPS[$i['category']]) ? (string)$i['category'] : 'other'));
+    return SH_BAG_SLUGS[(string)($i['slug'] ?? '')] ?? (SH_BAG_CATS[(string)$i['category']][0] ?? 'more');
 }
 
 /** a one-button POST form to inventory.php (the fields the Satchel always sent; $quick: the quick bar, which does not open the item afterwards) */
@@ -82,7 +89,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $flag = $perm ? 'Rare taste!' : ((string)($i['got_at'] ?? '') >= $newSince ? 'New' : '');
         $price = (int)$i['base_price'];
         [$gIc, $gL] = SH_BAG_GROUPS[$g];
-        $kind = $broken ? 'Broken tool' : ($i['category'] === 'packet' ? 'Seed packet' : ($i['category'] === 'guide' ? 'Guide' : ($g === 'other' ? ucfirst((string)$i['category']) : rtrim($gL, 's'))));
+        $kind = SH_BAG_CATS[(string)$i['category']][1] ?? ucfirst((string)$i['category']);
         // the panel: the same words and buttons the old pop-up had
         $b = '<div class="shdesc">' . desc_html((string)$i['description']) . '</div>';
         if ($i['category'] === 'seed' && ($sp = $IL['seed'][$id] ?? null) && plant_unstudied($u, $sp))
@@ -268,7 +275,7 @@ function sh_shelves(array $entries, array $defs, array $open, int $selId, string
             $isSel = $selId === $e['id'];
             $pid = ($surface === 'bag' ? 'i' : 'r') . $e['id'];
             $o .= '<a class="shpill ' . e($e['status']) . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '"'
-                . ' aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '">'
+                . ' aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '" data-cat="' . e((string)($e['item']['category'] ?? '')) . '" data-qty="' . (int)($e['count'] ?? 0) . '" data-name="' . e(mb_strtolower((string)$e['name'])) . '" data-got="' . e((string)($e['item']['got_at'] ?? '')) . '"' . (!empty($e['untasted']) ? ' data-un="1"' : '') . '>'
                 . '<span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'sm') : '❔') . '</span>'
                 . '<span class="shpt"><b>' . e($e['name']) . '</b><small>' . $e['small'] . '</small></span>'
                 . ($e['flag'] !== '' ? '<i class="shnew' . ($e['flag'] === 'Rare taste!' ? ' taste' : '') . '" aria-hidden="true"></i><span class="vh"> (' . e($e['flag']) . ')</span>' : '') . "</a>\n";

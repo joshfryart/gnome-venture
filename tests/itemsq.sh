@@ -170,4 +170,15 @@ if command -v node >/dev/null && NODE_PATH=${NODE_PATH:-$(npm root -g 2>/dev/nul
   ISQ_CSS2="$HERE/../claude/build/css-items2.css" ISQ_NPC=$NID ISQ_SPOT=$GREEN ISQ_MARKET=$MK NODE_PATH=${NODE_PATH:-$(npm root -g 2>/dev/null)} node "$HERE/itemsq_check.js" "$BASE" "$SH" "$HH" "$HERE/../claude/build/css-items.css" $SHOTS
 else echo "skip: no node + playwright here"; fi
 
+echo "== v2.5.0: Satchel tiles and sheets"
+curl -s -b $J "$BASE/inventory.php" > $H
+chk "landing shows 8 tiles (full or empty)" "$(n 'class="shtile( empty)?"' $H)" 8
+has "tiles are links to ?cat= (no-JS list)" 'data-shpop="shd-' $H
+has "a sheet has search, sort and the same pills" 'data-shpd-filter' $H
+hasnt "no inline style/script in a sheet" '<dialog class="picker craftpop shbagpop"[^>]*style=' $H
+curl -s -b $J "$BASE/inventory.php?cat=soil" > $H
+has "?cat=soil still shows the plain list" 'class="shpill' $H
+hasnt "plain list has no tiles" 'class="shtiles"' $H
+curl -s -b $J "$BASE/inventory.php?q=a" > $H
+hasnt "?q= search shows the plain list, not tiles" 'class="shtiles"' $H
 grep -hE 'PHP (Warning|Notice|Deprecated|Fatal)' /tmp/isq-php.log | head -5 | sed 's/^/FAIL php: /'
