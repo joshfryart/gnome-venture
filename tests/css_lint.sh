@@ -2,9 +2,9 @@
 # Polish Phase 1 guard: css_lint.sh GAME PORT ROUTER (only GAME is used). Checks game/assets/style.css:
 #  - braces balance
 #  - no (min-width: N) equal to a (max-width: N): at exactly N px both would apply (use N+1)
-#  - the number of distinct width breakpoints does not grow past the ratchet (24 on 2026-10-31; lower it as they are merged)
+#  - the number of distinct width breakpoints does not grow past the ratchet (17 on 2026-11-01; lower it as they are merged)
 #  - map links that switch the outline off (.worldmap a.region, .regionmap a, .mycsvg a) keep a :focus-visible ring on their .hit/.mhit
-GAME=${1:-$(dirname "$0")/../game}; CSS=$GAME/assets/style.css; RATCHET=24
+GAME=${1:-$(dirname "$0")/../game}; CSS=$GAME/assets/style.css; RATCHET=17
 python3 - "$CSS" "$RATCHET" <<'PY'
 import re, sys
 css, ratchet = open(sys.argv[1]).read(), int(sys.argv[2]); bad = 0

@@ -72,6 +72,22 @@ Not done in Phase 1 (each needs its own release and screenshot diffs):
 - **Split `style.css`:** use `claude/css-map.md`; the file is one request today and CanSpace shared hosting has no build step, so a split means more requests unless pages load only the files they need.
 - **Phone dark/light contrast on art** and a keyboard-order pass: not measured.
 
+## Breakpoint merge (unreleased, same branch)
+Width breakpoints in `@media`: **24 to 17** (380 400 440 520/521 600/601 720/721 801 899/900 999/1000 1199/1200 1500 1600). Colour tokens and the `style.css` split were left alone, as asked.
+
+| Was | Now | Where it changes things |
+|---|---|---|
+| max 399, 420 | 400, 440 | 421-440 px (430 px phones) now get the compact header and tab labels already used at 412 px: logo icon hidden, World tabs show "Mossbottom" instead of "Mossbot..." |
+| max 480, 560 | 520 | 481-520 and 521-560 px |
+| min 561 | 521 | 521-560 px (Festival, Games tiles, stop tiles go two columns a little earlier) |
+| min 700, 761 | 721 | 700-720 px and 721-760 px (Almanac book spread, Crafting scene, mycelium box); at 740 px the Almanac page is 78 px taller from slightly larger padding |
+| min 960 | 1000 | 960-999 px (stop tiles) |
+
+Reverted after the screenshot diff: `max 380 -> 400` (World page 54 px shorter at 390 and 400 px, the common iPhone widths) and `min 801 -> 900` (Community page at 850 px went from 936 to 1358 px tall). Those two stay as their own breakpoints.
+
+Method: full-page screenshots of 24 pages at 24 widths (360 to 1600), before and after, compared by pixels with a noise baseline (energy, coin and clock text change between runs, jigsaw pieces are random). Real differences: header and tabs at 430/440, Almanac at 740, Festival at 540. Not covered: pages that need data the seed lacks (fights, delves, expeditions), logged-out pages, and dark theme (merged rules are not theme specific, but not looked at).
+`tests/css_lint.sh` ratchet lowered to 17. Checked: css_lint images security190 scenes town gather150 landing villagers stopthemes trekshell pass.
+
 ## What this changes in the plan
 - World already has the tabs Go, Map, Gather, Shops (plus Wander and Rest stop buttons), so part of the PDF's "Go replaces Here + Travel" is done. `world.php?tab=travel` still renders as its own tab. Phase 2 should start from what is live, not from the PDF's "current state".
 - `gather.php`, `adventure.php`, `folk.php`, `mentor.php`, `back.php` are already redirect stubs.
