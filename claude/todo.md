@@ -1,4 +1,10 @@
-# Gnome Venture: to-do (updated 2026-10-31, code on main is 2.3.91 `d9e3ab3e` (2.3.91 slim zip built))
+# Gnome Venture: to-do (updated 2026-11-01, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
+
+## NOW (2.3.93, 2026-11-01): polish release. BUILT on branch `ccr-6b3ba1b1-2c15cp` (not merged to main), slim zip `releases/GnomeVenture-2.3.93-web-update.zip` (needs 2.3.91+, manifest `tests/manifests/2.3.93.txt`). Joshua uploads. Plan `claude/plan-polish.md`, findings `claude/polish-audit.md`, changelog entry 2.3.93. Not run: MySQL, `upgrade_check.sh`, phone.
+- **Joshua to check (phone, dark and light):** status strip (wraps at tablet and desktop widths), World header at 768 px, menu labels (no "Whisker Po..."), "Whisker Pond" tile gone and Games lit on Cat Fish / puzzle pages, Friends rename, My Gnome tabs on two rows, Pal Book + Pal Jobs tab row, 430 px phone header and tabs, Almanac at 721-760 px, map keyboard focus ring.
+- **Joshua to answer:** is `PRODUCT.md` right (items marked "(confirm)")? Keep the two swipe rows (Crafting quick bar, World route line) or make them wrap?
+- **Left on purpose:** colour tokens (572 literal colour uses, dark-mode risk), splitting `style.css` (see `claude/css-map.md`), merging Here into World, Satchel + Crafting fold, Puzzle Pals tile, player news entry for 2.3.91 and 2.3.93.
+- **Open follow-ups:** breakpoints 17 (ratchet in `tests/css_lint.sh`; 801, 1500, 1600, 380, 600/601 are single-component), CSS lint for focus rings only covers the three map types, `tests/combat_math_golden.php` fails `php -l` (it declares a `random_int()` stub on purpose, harmless).
 
 ## NOW (2.3.91, 2026-10-31): merge + two fixes. ON MAIN (`d9e3ab3e`), slim zip BUILT `releases/GnomeVenture-2.3.91-web-update.zip` (needs 2.3.7+, manifest `tests/manifests/2.3.91.txt`), Joshua uploads; it replaces the 2.3.9 zip, which lacks the Stamp passport. Not run: full CI, MySQL, phone check.
 - **Merged** the 2.3.9 branch (Boons, health bars, Pantry rooms) with main's 2.3.8 (Stamp passport); changelog keeps both.
