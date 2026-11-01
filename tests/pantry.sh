@@ -65,7 +65,7 @@ page "$GP?t=bld"; has "0 jars in use (5 in each" "$(grep -o '[0-9]* jars in use 
 echo "bad csrf buy: $(curl -s -b $C -X POST "$BASE/garden.php" -d csrf=x -d do=pantry_buy -o /dev/null -w '%{http_code}')"
 
 echo "== jars: 5 to start, a jar per batch, energy 1 a batch"
-page "$PT"; chk "jar strip" "$(grep -c 'class="p2jars jarstrip"' /tmp/pk.html)" 1; chk "5 free jars" "$(grep -o '+5 free' /tmp/pk.html | wc -l)" 1; has "0 jars in use" "$(grep -o '[0-9]* jars in use' /tmp/pk.html | head -1)" "0 in use, 5 in each room"
+page "$PT"; chk "jar strip" "$(grep -c 'class="p2jars jarstrip"' /tmp/pk.html)" 1; chk "5 free jars" "$(grep -o 'title="Empty jar"' /tmp/pk.html | wc -l | tr -d ' ')" 5; has "0 jars in use" "$(grep -o '[0-9]* jars in use' /tmp/pk.html | head -1)" "0 in use, 5 in each room"
 chk "$NPRE recipe rows on the tab" "$(grep -o 'class="p2row' /tmp/pk.html | wc -l)" $NPRE; chk "selected recipe tagged preserve" "$(grep -o '🫙 preserve' /tmp/pk.html | wc -l)" 1
 setE 60; S0=$(qty strawberry); m=$(makeit strawberry-jam 3)
 has "Preserving 3 batches of Strawberry Jam" "$m" "3 batches started"; chk "3 jars busy" "$(jars)" 3; chk "energy 60 -> 57" "$(energy)" 57; chk "strawberries taken (5 each)" "$(qty strawberry)" $((S0-15))
@@ -120,7 +120,7 @@ m=$(makeit tomato-chutney 6); has "Preserving 6 batches" "$m" "the Chutney room 
 m=$(makeit tomato-chutney 1); has "Preserving 1 batch" "$m" "7th chutney jar"; m=$(makeit tomato-chutney 1); has "Chutney room are full" "$m" "8th chutney refused, the room is full"
 chk "chutney takes 2 days" "$(db "SELECT DISTINCT CAST((julianday(ready_at)-julianday(started_at))*86400+0.5 AS INTEGER) FROM pantry_jars j JOIN recipes r ON r.id=j.recipe_id WHERE r.slug='tomato-chutney'")" 172800
 readyall; m=$(post crafting.php "$PT" -d do=jar_collect_all); has "Collected" "$m" "collected the lot"; chk "all jars empty" "$(jars)" 0
-page "$PT"; chk "7 free jars shown" "$(grep -o '+7 free' /tmp/pk.html | wc -l)" 1
+page "$PT"; chk "7 free jars shown" "$(grep -o 'title="Empty jar"' /tmp/pk.html | wc -l | tr -d ' ')" 7
 
 echo "== Harvest Fair Preserves class (page)"
 page fair.php; has "Preserves" "$(grep -o '<h2>🫙 Preserves</h2>' /tmp/pk.html | head -1 | sed 's/<[^>]*>//g')" "Fair page has the class"; has "$(db "SELECT label FROM fair_best WHERE user_id=$UID_ AND cat='preserve'")" "$(grep -o 'Your best: <b>[^<]*' /tmp/pk.html | tail -1)" "your best is a jar"
