@@ -148,6 +148,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
               . (str_contains($sc, 'chip-in') ? '🌿 in season' : '🍂 off season') . ' · price ' . $arrow . '</span>';
       } elseif ($bc !== '') $tags[] = $bc;
       elseif ($sc !== '') $tags[] = $sc;
+      if ($s['plant_id'] && ($xpH = (int)q_val('SELECT xp_per_harvest FROM plants WHERE id = ?', [(int)$s['plant_id']])) > 0) $tags[] = '<span class="tag" title="XP for each harvest of this crop">⭐ +' . $xpH . ' XP / harvest</span>';   // v2.3.94
       if ($read) $tags[] = '<span class="tag good">✔ read</span>';
       elseif ($gkey !== '' && !empty($owned[(int)$s['iid']])) $tags[] = '<span class="tag">in satchel</span>';
       if ($unknown) $tags[] = '<span class="tag" title="Unstudied: grows slower and gives less until you study its region">📕 unstudied <small class="muted">grows slower</small></span>';

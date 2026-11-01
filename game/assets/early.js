@@ -29,3 +29,11 @@ document.documentElement.className += ' js';
       .catch(function () {});
   });
 })();
+
+/* v2.3.94: a form that was just sent cannot be sent again for 2 seconds (double taps on Buy, Sell, Harvest...). */
+document.addEventListener('submit', function (ev) {
+  var f = ev.target;
+  if (!f || !f.tagName || ev.defaultPrevented) return;
+  if (f.getAttribute('data-sent') && Date.now() - Number(f.getAttribute('data-sent')) < 2000) { ev.preventDefault(); return; }
+  f.setAttribute('data-sent', String(Date.now()));
+});

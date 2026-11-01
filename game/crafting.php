@@ -28,7 +28,9 @@ if (is_post()) {
         redirect('inventory.php?tab=craft&c=pantry');
     }
     // v0.7.88: qty is 1, 2, 5 or 'all' (as many as fit). craft() clamps it to what the stock and energy allow.
-    $want = ($_POST['qty'] ?? '') === 'all' ? 'all' : max(1, (int)($_POST['qty'] ?? 1));
+    $qtyIn = $_POST['qty'] ?? '1';
+    $want = $qtyIn === 'all' ? 'all' : (is_string($qtyIn) && ctype_digit($qtyIn) && (int)$qtyIn >= 1 ? (int)$qtyIn : 0);
+    if ($want === 0) { flash('Pick how many to make: 1 or more.', 'err'); redirect('inventory.php?tab=craft'); }   // v2.3.94: 0, -1 and "abc" no longer craft one by surprise
     [$ok, $msg] = craft($u, (int)($_POST['recipe_id'] ?? 0), $want);
     flash($msg, $ok ? 'ok' : 'err');
     if ($ok) foreach (check_milestones($uid) as $m) flash($m);

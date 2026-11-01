@@ -226,7 +226,7 @@ $byCat = function (string $cat) use ($uid): array {
     return q('SELECT i.id, i.name, ui.qty, i.effects FROM user_items ui JOIN items i ON i.id = ui.item_id
               WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = ? ORDER BY i.name', [$uid, $cat])->fetchAll();
 };
-$seeds = q('SELECT i.id, i.name, ui.qty, p.id AS plant_id, p.min_soil, p.perennial, p.kind, p.nutrient, p.seasons FROM user_items ui
+$seeds = q('SELECT i.id, i.name, ui.qty, p.id AS plant_id, p.xp_per_harvest, p.min_soil, p.perennial, p.kind, p.nutrient, p.seasons FROM user_items ui
             JOIN items i ON i.id = ui.item_id JOIN plants p ON p.seed_item_id = i.id
             WHERE ui.user_id = ? AND ui.qty > 0 ORDER BY i.name', [$uid])->fetchAll();
 // v0.8.6: during Wren's tour the quick radish comes first (the tour says radishes are quickest)
@@ -596,6 +596,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
           <?php if ($plantable): ?>
             <?= tool_action_form('plant', $sel, 'Plant', ENERGY_COST['plant'], item_select($plantable, fn($s) =>
                 $s['name'] . ' ×' . $s['qty']
+                . (isset($s['xp_per_harvest']) ? ' · +' . (int)$s['xp_per_harvest'] . ' XP' : '')   // v2.3.94: what a harvest pays
                 . (empty($s['sapling']) && empty($known[(int)$s['plant_id']]) ? ' 📕 unstudied' : '')
                 . (!empty($s['perennial']) ? ' 🔄 Perennial' : '')
                 . ((int)$s['min_soil'] > (int)$sel['fertility'] ? ' (needs fertility ' . $s['min_soil'] . ')' : ''), 'seed')) ?>

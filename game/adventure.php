@@ -144,6 +144,7 @@ if (is_post()) {
     }
     redirect(safe_back('adventure.php'));
 }
+refresh_energy($u);   // v2.3.94: a GET showed the energy from the last POST ("too tired" after a rest)
 
 // Show the last finished expedition's log if there's no active one
 $last = $exp ?: q_one('SELECT * FROM expeditions WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$uid]);

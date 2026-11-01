@@ -107,7 +107,12 @@ function safe_back(string $default): string
 
 function flash(string $msg, string $type = 'ok'): void
 {
-    $_SESSION['flash'][] = ['msg' => $msg, 'type' => $type];
+    $q = $_SESSION['flash'] ?? [];
+    $last = end($q);
+    if ($last && $last['msg'] === $msg && $last['type'] === $type) return;   // v2.3.94: no stacked repeats
+    if (count($q) >= 20) array_shift($q);                                    // and the queue is capped
+    $q[] = ['msg' => $msg, 'type' => $type];
+    $_SESSION['flash'] = $q;
 }
 
 /**
@@ -210,6 +215,19 @@ function csrf_check(): void
     if (!is_string($sent) || !hash_equals(csrf_token(), $sent)) {
         http_response_code(400);
         exit('Your form expired or was invalid. Go back, refresh the page and try again.');
+    }
+    // v2.3.94: the exact same form sent twice within 2 seconds (a double tap, a re-sent request) is done once.
+    // Plain form posts only: the fetch() game APIs send JSON/ajax and are left alone.
+    if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) && str_contains((string)($_SERVER['HTTP_ACCEPT'] ?? ''), 'text/html')) {
+        $body = $_POST; unset($body['csrf']);
+        ksort($body);
+        $fp = md5(($_SERVER['SCRIPT_NAME'] ?? '') . '|' . json_encode($body));
+        $prev = $_SESSION['last_post'] ?? null;
+        $_SESSION['last_post'] = [$fp, microtime(true)];
+        if ($prev && $prev[0] === $fp && microtime(true) - (float)$prev[1] < 2.0) {
+            header('Location: ' . (string)($_SERVER['HTTP_REFERER'] ?? ($_SERVER['SCRIPT_NAME'] ?? '/')), true, 303);
+            exit;
+        }
     }
 }
 

@@ -208,8 +208,13 @@ function msglog_render(): array
     }
     foreach (take_prizes() as $pz) $add[] = ['k' => 'prize'] + $pz;
     foreach (take_flashes() as $f) if ($f['msg'] !== '') $add[] = ['k' => 'flash', 'type' => $f['type'] === 'err' ? 'err' : 'ok', 'msg' => $f['msg']];
-    foreach (array_reverse($add) as $m) array_unshift($log, $m + ['t' => time(), 'new' => 1]);
-    $log = array_slice($log, 0, 30);
+    foreach (array_reverse($add) as $m) {
+        if (($m['k'] ?? '') === 'flash') {   // v2.3.94: a repeat replaces the older line, so the log is not 20 copies of "Pick some squares first"
+            $log = array_values(array_filter($log, fn($o) => !(($o['k'] ?? '') === 'flash' && $o['msg'] === $m['msg'])));
+        }
+        array_unshift($log, $m + ['t' => time(), 'new' => 1]);
+    }
+    $log = array_slice($log, 0, 20);
     $_SESSION['msglog'] = $log;
     $lis = '';
     $new = 0;

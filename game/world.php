@@ -33,7 +33,7 @@ if (is_post()) {
             flash('Welcome home! You’ve received seeds from your home region.');
         }
     }
-    redirect('world.php');
+    redirect(active_expedition((int)$u['id']) ? 'adventure.php' : 'world.php');   // v2.3.94: a walk (or a villager met on the road) waits on the adventure page
 }
 require_once __DIR__ . '/includes/items.php';   // v1.5.2: ph_or_emoji
 

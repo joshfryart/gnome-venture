@@ -457,6 +457,23 @@ function garden_batch_action(int $uid, string $action, array $squares, array $qu
                 if ($qi >= count($queue)) { $stop = 'You ran out of ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$item]) . '.'; break 2; }
                 continue;
             }
+            // v2.3.94: a seed that needs richer soil than this square has no longer blocks the whole batch: try the next seed picked
+            if ($action === 'plant' && str_contains($err, 'needs richer soil')) {
+                $alt = false;
+                for ($j = $qi + 1; $j < count($queue); $j++) {
+                    if ($queue[$j][1] > 0 && ($used[$queue[$j][0]] ?? 0) >= $queue[$j][1]) continue;
+                    [$ok2, $m2] = garden_action($uid, $action, (int)$x, (int)$y, (int)$queue[$j][0]);
+                    if ($ok2) {
+                        $done++;
+                        $used[(int)$queue[$j][0]] = ($used[(int)$queue[$j][0]] ?? 0) + 1;
+                        foreach ($m2 as $line) if (!preg_match('/^(You till the soil|You plant |You water |You work |You spread |You pile |🌿 You pull|You dig up |🍂 You lay cardboard)/u', $line)) $other[] = $line;
+                        $alt = true;
+                        break;
+                    }
+                    if (str_contains((string)end($m2), 'too tired')) { $stop = (string)end($m2); break 3; }
+                }
+                if ($alt) break;
+            }
             $skipped[$err] = ($skipped[$err] ?? 0) + 1;
             break;
         }
@@ -475,7 +492,7 @@ function garden_batch_action(int $uid, string $action, array $squares, array $qu
     }
     foreach (array_values(array_unique($other)) as $line) $msgs[] = $line;
     foreach ($skipped as $why => $n) $msgs[] = 'Skipped ' . $n . ' square' . ($n === 1 ? '' : 's') . ': ' . $why;
-    if ($stop) $msgs[] = $stop;
+    if ($stop) $msgs[] = $stop . ($done && str_contains($stop, 'too tired') ? ' The squares you finished stay finished.' : '');
     if (!$done && !$msgs) $msgs[] = 'Nothing to do on those squares.';
     return [$done > 0, $msgs];
 }
@@ -1242,6 +1259,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             [$notill ? 1 : 0, clamp100($f), clamp100($l), clamp100($m), $score, $t['id'], $p['id']])->rowCount();
     }
     if (!$claimed) throw new UserError('Not ready yet.');
+    if ($t['method'] !== 'notill' && !((int)$p['perennial'] && !$isCover && !$lastHarvest)) $msgs[] = '🌱 The square is bare ground again: till it before you replant.';   // v2.3.94
     if ($t['method'] !== 'notill' && ($cm = care_after_harvest($t))) $msgs[] = $cm;   // v0.8.7: soil care on tilled squares
     fair_record($u, $t, $p);   // v0.8.1: the Grand Harvest Fair keeps your best of the month (tile as it was before harvest)
     if (!$isCover && ($hl = heap_add((int)$t['plot_id']))) $msgs[] = $hl;   // v0.7.95: the trimmings go on the compost heap (cover crops already feed the soil)

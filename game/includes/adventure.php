@@ -233,13 +233,20 @@ function start_expedition(array $u, int $routeId): array
         $walk = climate_fx((int)q_val('SELECT region_id FROM locations WHERE id = ?', [$to]))['walk'] ?? 0;
         if ($walk) $mins = max(0, (int)round($mins * (1 + $walk / 100)));
     }
-    db_insert('expeditions', [
+    $newExp = db_insert('expeditions', [
         'level' => random_int($min, $max), 'scaled' => $scaled ? 1 : 0,
         'user_id' => $u['id'], 'from_id' => $here['id'], 'to_id' => $to, 'route_id' => $route['id'],
         'steps_total' => $route['steps'], 'step' => 0, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'],
         'log' => json_encode(['🍄 You step onto the mycelium thread at ' . $here['name'] . '.' . ($quickWalk ? ' 💨 A quick walk: you know this road well.' : '')]),
         'started_at' => now(), 'arrive_at' => gmdate('Y-m-d H:i:s', time() + ($quick ? 0 : $mins * 60)),
     ]);
+    // v2.3.94: two walks started in the same instant (two tabs): keep the first, drop this one and give the energy back
+    if ((int)q_val("SELECT COUNT(*) FROM expeditions WHERE user_id = ? AND status = 'active'", [$u['id']]) > 1
+        && (int)q_val("SELECT MIN(id) FROM expeditions WHERE user_id = ? AND status = 'active'", [$u['id']]) !== $newExp) {
+        q('DELETE FROM expeditions WHERE id = ?', [$newExp]);
+        if ($cost > 0) q('UPDATE users SET energy = energy + ? WHERE id = ?', [$cost, $u['id']]);
+        return [false, 'You’re already on the road.'];
+    }
     return [true, '🍄 You step onto the mycelium. ' . ($quickWalk && !$quick ? '💨 Quick walk. ' : '') . ($cost ? '(−' . $cost . ' energy)' : ($roadFree ? '🧭 A Wayfinder knows the road: no energy used.' : '🦯 Your staff makes light work of it: no energy used.'))
         . ($staffWear ? ' ' . $staffWear : '')];
 }

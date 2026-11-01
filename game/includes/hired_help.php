@@ -93,6 +93,7 @@ function hire_helper(array $u, int $plotId, int $helperId, int $days): array
     if (!$h) return [false, 'That helper isn’t available.'];
     $cost = (int)$h['wage'] * $days;
     db()->beginTransaction();
+    q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v2.3.94: lock this gnome so two hires cannot both take the last slot
     $n = count(current_hires($plotId));
     if ($n >= helper_slots($plotId)) {
         db()->rollBack();

@@ -433,6 +433,7 @@ function rename_garden(int $uid, int $plotId, string $name): array
 {
     $name = trim(preg_replace('/\s+/', ' ', $name));
     if ($name === '' || mb_strlen($name) > 40) return [false, 'Garden names need 1–40 characters.'];
+    if (preg_match('/[<>]/', $name)) return [false, 'Garden names cannot use < or >.'];   // v2.3.94
     require_once __DIR__ . '/moderation.php';
     if ($bad = text_problem(q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: [], $name)) return [false, $bad];
     q('UPDATE plots SET garden_name = ? WHERE id = ? AND user_id = ?', [$name, $plotId, $uid]);
