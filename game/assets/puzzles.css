@@ -516,6 +516,9 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 .pjover select{width:100%;min-height:2.4rem}
 
 /* v2.4.61: station shifts on the Pal Jobs board */
-.pjrecipes { display: flex; flex-wrap: wrap; gap: 6px; }
+.pjrecipes > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.pjrq { width: 100%; min-height: 44px; margin: 4px 0; padding: 6px 10px; border: 2px solid var(--line); background: var(--surface); color: inherit; font: inherit; }
+.pjrlist { display: flex; flex-wrap: wrap; gap: 6px; max-height: 210px; overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
 .pjrecipe { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 10px; border: 2px solid var(--line); background: var(--surface); }
-.pjrecipe[hidden] { display: none; }
+.pjrecipe[hidden], .pjrecipes[hidden] { display: none; }
+.pjrecipe input:disabled + span { opacity: .45; }

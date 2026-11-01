@@ -124,17 +124,31 @@ document.addEventListener("DOMContentLoaded",function(){
       }
       update(f);
     });
-    /* v2.4.61: station shifts: only the recipes the chosen station makes are shown */
-    var gSt = f.querySelector('[data-pj-gstation]');
-    if (gSt) {
-      var showRecipes = function () {
-        f.querySelectorAll('.pjrecipe').forEach(function (r) {
-          var on = (r.getAttribute('data-st') || '').split(' ').indexOf(gSt.value) > -1;
-          r.hidden = !on;
-          if (!on) { var cb = r.querySelector('input'); if (cb) cb.checked = false; }
+    /* v2.4.61: station shifts: the recipe picker is a fold (only for "Chosen"), a scrolling list of the recipes the station makes, with a filter and a 5-pick limit */
+    var gSt = f.querySelector('[data-pj-gstation]'), rbox = f.querySelector('[data-pj-recipes]');
+    if (gSt && rbox) {
+      var rq = rbox.querySelector('[data-pj-rfilter]'), cnt = rbox.querySelector('[data-pj-rcount]'), none = rbox.querySelector('.pjrnone');
+      var modes = f.querySelectorAll('input[name="mode"]');
+      var chosenMode = function () { var m = f.querySelector('input[name="mode"]:checked'); return !m || m.value === 'chosen'; };
+      var refresh = function () {
+        var q = ((rq && rq.value) || '').trim().toLowerCase(), picked = 0, shown = 0;
+        rbox.querySelectorAll('.pjrecipe').forEach(function (r) {
+          var cb = r.querySelector('input'), on = (r.getAttribute('data-st') || '').split(' ').indexOf(gSt.value) > -1;
+          if (!on && cb.checked) cb.checked = false;
+          if (cb.checked) picked++;
+          r.hidden = !on || (q !== '' && (r.getAttribute('data-name') || '').indexOf(q) < 0);
+          if (!r.hidden) shown++;
         });
+        rbox.querySelectorAll('.pjrecipe input').forEach(function (cb) { cb.disabled = !cb.checked && picked >= 5; });   // up to 5
+        if (cnt) cnt.textContent = picked + ' of 5';
+        if (none) none.hidden = shown > 0;
+        rbox.hidden = !chosenMode();
       };
-      gSt.addEventListener('change', showRecipes); showRecipes();
+      gSt.addEventListener('change', refresh);
+      modes.forEach(function (m) { m.addEventListener('change', function () { refresh(); if (chosenMode()) rbox.open = true; }); });
+      rbox.addEventListener('change', refresh);
+      if (rq) rq.addEventListener('input', refresh);
+      refresh();
     }
     /* v2.3.99: a tool picker only offers tools that can gather in the chosen land (options carry data-lands) */
     var gLand = f.querySelector('[data-pj-gland]'), gTool = f.querySelector('[data-pj-gtool]');

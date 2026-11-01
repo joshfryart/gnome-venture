@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.4.61 (in progress, not built)
-- **Pals can man crafting stations.** New Pal Jobs card "Man a station": pick a station (an object of a crafting area, e.g. Cooking · Stove), tick the pal(s), choose Everything it can make or up to 5 chosen recipes, and 1, 3 or 8 hours. No energy is spent. Slower than you: one make per 60 minutes at Crafting level 1 (24 at level 10), plus a chance of an extra output as the pal's new Crafting skill grows. Ingredients are taken at send; the dishes arrive when you collect. One pal per station; cooking holds one of your pots; own daily cap (`pj_stations_per_day`, default 4). Pantry jars come later.
+- **Pals can man crafting stations.** New Pal Jobs card "Man a station": pick a station (an object of a crafting area, e.g. Cooking · Stove), tick the pal(s), choose Everything it can make or up to 5 chosen recipes (a closed picker with a filter and a scrolling list, so long recipe lists stay short), and 1, 3 or 8 hours. No energy is spent. Slower than you: one make per 60 minutes at Crafting level 1 (24 at level 10), plus a chance of an extra output as the pal's new Crafting skill grows. Ingredients are taken at send; the dishes arrive when you collect. One pal per station; cooking holds one of your pots; own daily cap (`pj_stations_per_day`, default 4). Pantry jars come later.
 - XP from a shift is split: half to you (Crafting XP), half to the pal's Crafting skill.
 - Crafting popovers get a "🧩 Let a pal work here" link that opens Pal Jobs on that station.
 - Satchel: the Kitchen tile is now called Food.

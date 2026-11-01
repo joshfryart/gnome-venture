@@ -340,9 +340,11 @@ page_header('Pal Jobs');
             <?php elseif ($kind === 'station'): ?>
             <div class="pjfield"><label for="pjstation">Station</label><select id="pjstation" name="station" data-pj-gstation><?php foreach ($stOk as $sv => [$sa, $so]): ?><option value="<?= e($sv) ?>"<?= (string)($_GET['station'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sa . ' · ' . $so) ?></option><?php endforeach; ?></select></div>
             <fieldset class="pjfield pjseg"><legend>Make</legend><div class="pjsegs"><label><input type="radio" name="mode" value="all" checked><span>Everything it can</span></label><label><input type="radio" name="mode" value="chosen"><span>Chosen recipes</span></label></div></fieldset>
-            <fieldset class="pjfield pjrecipes" data-pj-recipes><legend>Recipes <small class="muted">(for "Chosen", up to 5)</small></legend>
-              <?php foreach ($stRecipes as $rid => $rx): ?><label class="pjrecipe" data-st="<?= e(implode(' ', $rx['st'])) ?>"><input type="checkbox" name="recipes[]" value="<?= (int)$rid ?>"> <span><?= e((string)$rx['r']['name']) ?></span></label>
-              <?php endforeach; ?><?php if (!$stRecipes): ?><small class="muted">You know no recipes for these stations yet.</small><?php endif; ?></fieldset>
+            <details class="pjfield pjrecipes" data-pj-recipes><summary>Chosen recipes <small class="muted" data-pj-rcount>0 of 5</small></summary>
+              <input type="search" class="pjrq" data-pj-rfilter placeholder="🔍 Find a recipe…" aria-label="Find a recipe" autocomplete="off">
+              <div class="pjrlist"><?php foreach ($stRecipes as $rid => $rx): ?><label class="pjrecipe" data-st="<?= e(implode(' ', $rx['st'])) ?>" data-name="<?= e(mb_strtolower((string)$rx['r']['name'])) ?>"><input type="checkbox" name="recipes[]" value="<?= (int)$rid ?>"> <span><?= e((string)$rx['r']['name']) ?></span></label>
+              <?php endforeach; ?><?php if (!$stRecipes): ?><small class="muted">You know no recipes for these stations yet.</small><?php endif; ?></div>
+              <p class="muted pjrnone" hidden>No recipe matches.</p></details>
             <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
             <?php else: ?>
             <div class="pjfield"><label for="pjdelve">Delve</label><select id="pjdelve" name="delve"><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></div>
