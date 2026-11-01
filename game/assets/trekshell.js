@@ -152,7 +152,7 @@
   function viewNow() { return document.querySelector('.trekfightcol') ? 'fight' : document.querySelector('.trekmapcol, .trekplay') ? 'map' : ''; }
   function toStage() {
     if (!phone()) return;
-    var t = document.getElementById('trekstage') || document.querySelector('.trekfightcol') || document.querySelector('.trekmapcol');
+    var t = viewNow() === 'map' ? document.querySelector('.trekmapcol') : (document.getElementById('trekstage') || document.querySelector('.trekfightcol'));   // v2.4.64: map view lands on the sticky map
     if (!t || !t.getClientRects().length) return;
     var hdr = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hdr'), 10) || 52;
     var r = t.getBoundingClientRect();

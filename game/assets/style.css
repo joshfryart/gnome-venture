@@ -6782,3 +6782,26 @@ details.craftall > summary::-webkit-details-marker { display: none; }
   .trekfight > .trekwhat { order: 3; }
   .trekfight > .trekhealth { display: none; }
 }
+
+/* ===== v2.4.64 Trek on phones: the map stays put =====
+   Map view: the map sticks under the header, the latest line and the Sneak/Camp/Leave buttons follow it, then the cards that need a tap
+   (event, crew, milestone, spot), the party chips, the scene and the key. New cards no longer push the map down.
+   Fight view: the scene, then the actions (2.4.63), then what happened, then a small map of where it began (no fold).
+   Party / Pack / Log open as a bottom sheet over the lower half, so the map stays in view above it. */
+@media (max-width: 720px) {
+  .trekplay > *, .trekcol > * { order: 6; }
+  .trekplay .trekmapcol { order: 0; position: sticky; top: calc(var(--hdr) + 2px); z-index: 3; width: min(100%, 50dvh); margin-inline: auto; padding: 2px 0 4px; background: var(--bg); }
+  .trekplay .trekLatest { order: 1; }
+  .trekplay .trekacts { order: 2; }
+  .trekplay .trekhud, .trekplay .trektut, .trekplay .trekev, .trekplay .trekspot { order: 3; }
+  .trekplay > #trekstage { order: 7; }
+  /* fight: map of where it began, always shown, small */
+  .trekfightcol > .tkleft { display: contents; }
+  .trekfightcol > #trekstage, .trekfightcol > .tkleft > #trekstage { order: 0; }
+  .trekfightcol > details.tkfmap, .trekfightcol > details.tkfmap.late, .trekfightcol > .tkleft > details.tkfmap, .trekfightcol > .tkleft > details.tkfmap.late { display: block; order: 3; width: 132px; margin: 0 auto; }
+  details.tkfmap > summary { display: none; }
+  .tkfmapbox { margin-top: 0; }
+  .tkfmapbox .trekmap .tile { font-size: 8px; }
+  /* Party / Pack / Log: bottom sheet */
+  .tkdrawer { top: auto; right: 0; left: 0; bottom: 0; width: 100vw; height: 48dvh; border-left: 0; border-top: var(--px, 2px) solid var(--ol, #2a1a10); border-radius: 14px 14px 0 0; box-shadow: 0 -6px 0 rgba(42, 26, 16, .25); }
+}

@@ -372,7 +372,7 @@
   /* ---- first sight of the foes ---- */
   function foldMap(box) {   /* after a walk into a fight: the map folds away once the pop-over is done (the summary reopens it) */
     var d = document.querySelector('details.tkfmap');
-    if (d && box.isConnected && !(window.matchMedia && window.matchMedia('(min-width: 1000px)').matches)) d.removeAttribute('open');   /* v2.0.13: on desktop the map stays open in column 1 */
+    if (d && box.isConnected && !(window.matchMedia && window.matchMedia('(min-width: 1000px), (max-width: 720px)').matches)) d.removeAttribute('open');   /* v2.4.64: phones keep the small map shown, no fold */   /* v2.0.13: on desktop the map stays open in column 1 */
   }
   function unhold() {   /* v2.0.14: round 1: the fight panel stays faded until the foe pop-over is done (CSS lets go by itself after 8 s) */
     var c = document.querySelector('.trekfightcol.tkhold');

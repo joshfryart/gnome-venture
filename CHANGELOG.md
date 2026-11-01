@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.64
+- **Trek on phones: the map stays put.** Map view: the map sticks under the header (at most half the screen tall); the latest line and Sneak / Camp / Leave follow it, then the cards that need a tap (event, crew, milestone, spot), the party chips, the scene and the map key. New cards no longer push the map down.
+- Fight view: the "Where it began" map is no longer a fold that opens and closes; a small map is always shown under What happened, so the page height stays the same all fight.
+- Party, Pack and Log open as a bottom sheet over the lower half (was a tall panel), so the map stays visible above it.
+- Moving between map and fight scrolls to the map (map view) or the scene (fight). Desktop unchanged.
+
 ## 2.4.63
 - **Trek fight on phones is shorter.** The health rows under the scene are hidden (the figures already show the HP bars), and the Round heading and the action buttons (Fight, Auto 1, Auto, Run, Change plan) now sit right under the scene. What happened, the boss hint and the party chips come after.
 
