@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Style Components</title>
+<style>
+:root{--pbg:#f1ece0;--pink:#2a1a10;--pmuted:#74462a;--pline:#c9a96e;--psurf:#fff3c8}
+@media (prefers-color-scheme:dark){:root{--pbg:#2a1a10;--pink:#f2e4c0;--pmuted:#c9a96e;--pline:#74462a;--psurf:#3d2a1c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pbg);color:var(--pink);font:400 1rem/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.page{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.25;margin:0 0 6px;font-weight:700}
+h2{font-size:18px;line-height:1.25;margin:28px 0 8px;font-weight:700}
+.lede{color:var(--pmuted);margin:0 0 14px;max-width:70ch}
+.note{font-size:13px;color:var(--pmuted);margin:6px 0 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rowlabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--pmuted);margin:18px 0 6px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+/* themed panels: the DESIGN.md tokens, scoped */
+.th{--px:2px;padding:16px;border:2px solid var(--line);min-width:0}
+.th.light{--bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;--line:#c9a96e;--line-2:#9a6b3f;--brand:#2f5a2a;--brand-ink:#2f5a2a;--brand-soft:#c8d09f;--accent:#e8a317;--accent-ink:#7a4a1f;--danger:#a8241f;--danger-fill:#a8241f;--danger-soft:#f6b8cf;--info-soft:#a9d6ea;--info-ink:#1f4a6a;--focus:#25637d;--felt:#3d2a1c;--felt-ink:#f2e4c0;--on-fill:#f2e4c0;--ol:#2a1a10;--drop:#c9a96e;--edge-lt:#74462a;--edge-dk:#2a1a10;--thread:#e8a317;--thread-bright:#f5cf6a;--area-solid:#2f5a2a;--btn-hi:#4f9a45;--btn-lo:#1f3f3a;--btn-hover:#2f6a3a;background:var(--bg);color:var(--ink)}
+.th.dark{--bg:#2a1a10;--surface:#3d2a1c;--surface-2:#4a2c1a;--ink:#f2e4c0;--ink-2:#c9a96e;--muted:#c9a96e;--line:#74462a;--line-2:#9a6b3f;--brand:#7ab55c;--brand-ink:#a4b86a;--brand-soft:#1f3f3a;--accent:#e8a317;--accent-ink:#f5cf6a;--danger:#f08a24;--danger-fill:#a8241f;--danger-soft:#6b1b2c;--info-soft:#1f4a6a;--info-ink:#a9d6ea;--focus:#a9d6ea;--felt:#3d2a1c;--felt-ink:#f2e4c0;--on-fill:#f2e4c0;--ol:#2a1a10;--drop:#291d4a;--edge-lt:#9a6b3f;--edge-dk:#74462a;--thread:#f5cf6a;--thread-bright:#f5cf6a;--area-solid:#2f5a2a;--btn-hi:#4f9a45;--btn-lo:#1f3f3a;--btn-hover:#2f6a3a;background:var(--bg);color:var(--ink)}
+.th h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.th .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 14px}
+.frame{box-shadow:0 -2px 0 0 var(--edge-lt),-2px 0 0 0 var(--edge-lt),0 2px 0 0 var(--edge-dk),2px 0 0 0 var(--edge-dk),2px 4px 0 0 var(--drop),4px 2px 0 0 var(--drop)}
+.frame-lite{box-shadow:0 -2px 0 0 var(--line),-2px 0 0 0 var(--line),0 2px 0 0 var(--line-2),2px 0 0 0 var(--line-2)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;margin-left:6px;vertical-align:middle;background:var(--psurf);color:var(--pink);box-shadow:0 0 0 1px var(--pline)}
+.tag.bad{background:#f6b8cf;color:#6b1b2c}.tag.ok{background:#c8d09f;color:#2f5a2a}
+
+button{font:inherit;cursor:pointer}
+/* BEFORE (reproduced from game/assets) */
+.b-btn{--b-bg:var(--brand);--b-hi:#4f9a45;--b-lo:#1f3f3a;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;margin:2px 0 6px;border:0;background:var(--b-bg);color:var(--on-fill);font:700 15px/1.25 system-ui,sans-serif;box-shadow:inset 0 2px 0 0 var(--b-hi),inset 0 -2px 0 0 var(--b-lo),0 -2px 0 0 var(--ol),-2px 0 0 0 var(--ol),0 2px 0 0 var(--ol),2px 0 0 0 var(--ol),2px 4px 0 0 var(--drop),4px 2px 0 0 var(--drop)}
+.b-btn.red{--b-bg:#a8241f;--b-hi:#d6322b;--b-lo:#6b1b2c}
+.b-btn.ghost{--b-bg:var(--surface);--b-hi:#fff3c8;--b-lo:var(--surface-2);color:var(--ink)}
+.th.dark .b-btn.ghost{--b-bg:var(--surface-2);--b-hi:#74462a;--b-lo:#3d2a1c}
+.b-fbtn{min-height:44px;padding:6px 12px;border:0;background:#e0aa48;color:#2a1a10;font:800 14px/1.2 system-ui,sans-serif;box-shadow:0 0 0 2px var(--ol),inset 0 2px 0 #f5cf6a,inset 0 -3px 0 #b07a28,2px 2px 0 2px rgba(42,26,16,.55)}
+.b-cf{font:inherit;font-size:.9rem;padding:.4rem .7rem;border:1px solid #ddd;border-radius:8px;background:transparent;color:inherit}
+.b-pzon{font-size:14px;min-height:36px;padding:4px 12px;border:1px solid transparent;border-radius:999px;background:#e8a317;color:#fff}
+.b-tab{min-height:36px;padding:6px 14px;border:0;background:var(--surface);color:var(--ink);font:600 14px/1.2 system-ui,sans-serif}
+.b-tab.on{background:var(--area-solid);color:var(--on-fill);font-weight:800}
+.b-leather{display:inline-grid;grid-auto-flow:column;gap:2px;padding:4px 4px 0;background:#6b4a2b;box-shadow:inset 0 -3px 0 #3d2a1c}
+.b-leather span{min-width:54px;min-height:54px;display:flex;align-items:center;justify-content:center;color:#f2e4c0;font:600 12px system-ui}
+.b-leather span.on{background:var(--bg);color:var(--ink);box-shadow:inset 0 3px 0 var(--accent)}
+.b-gv{display:inline-flex;gap:4px}.b-gv span{min-height:32px;padding:3px 8px;font-size:12px;background:var(--surface-2);color:var(--ink);display:inline-flex;align-items:center}
+.b-chip{display:inline-block;background:var(--surface);border:1px solid var(--line);padding:1px 10px;font-size:13px}
+.b-cfbadge{display:inline-block;padding:.1rem .5rem;border:1px solid #ddd;border-radius:999px;font-size:.85rem}
+.b-card{background:var(--surface);padding:14px 16px;box-shadow:0 0 0 2px var(--ol);}
+.b-cfcard{background:var(--surface);padding:.5rem .6rem;border:1px solid #ddd;border-radius:12px}
+/* AFTER: one set, tokens only */
+.btn{--b-bg:var(--brand);--b-hi:var(--btn-hi);--b-lo:var(--btn-lo);--b-ink:var(--on-fill);display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;margin:2px 0 6px;border:0;background:var(--b-bg);color:var(--b-ink);font:700 15px/1.25 system-ui,sans-serif;text-decoration:none;box-shadow:inset 0 2px 0 0 var(--b-hi),inset 0 -2px 0 0 var(--b-lo),0 -2px 0 0 var(--ol),-2px 0 0 0 var(--ol),0 2px 0 0 var(--ol),2px 0 0 0 var(--ol),2px 4px 0 0 var(--drop),4px 2px 0 0 var(--drop)}
+.btn:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.btn.ghost{--b-bg:var(--surface);--b-hi:var(--surface);--b-lo:var(--surface-2);--b-ink:var(--ink)}
+.btn.gold{--b-bg:var(--accent);--b-hi:var(--thread-bright);--b-lo:#b07a10;--b-ink:var(--ol)}
+.btn.danger{--b-bg:var(--danger-fill);--b-hi:#d6322b;--b-lo:#6b1b2c}
+.btn.small{min-height:36px;padding:4px 12px;font-size:14px}
+.th.dark .btn.ghost{--b-bg:var(--surface-2);--b-hi:var(--edge-lt);--b-lo:var(--surface)}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;padding:4px 6px 8px 4px}
+.tabs a,.tabs button{min-height:36px;padding:6px 14px;border:0;background:var(--surface);color:var(--ink);font:600 14px/1.2 system-ui,sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.tabs .frame-lite{}
+.tabs .on{background:var(--area-solid);color:var(--on-fill);font-weight:700}
+.tabs.felt{background:var(--felt);padding:8px 10px;gap:8px;border-bottom:0;box-shadow:inset 0 -2px 0 0 var(--thread)}
+.tabs.felt a{background:transparent;color:var(--felt-ink);box-shadow:none}
+.tabs.felt a.on{background:var(--bg);color:var(--ink);box-shadow:inset 0 3px 0 var(--accent)}
+.chip{display:inline-block;background:var(--surface);color:var(--ink);padding:1px 10px;font-size:13px;margin:2px}
+.chip.on{background:var(--accent);color:var(--ol);font-weight:700}
+.card{background:var(--surface);color:var(--ink);padding:14px 16px;margin-bottom:6px}
+.card h4{margin:0 0 4px;font-size:16px;line-height:1.25}
+.card p{margin:0 0 8px;font-size:14px;color:var(--ink-2)}
+</style></head><body><div class="page">
+<h1>Components: one button, tab, chip and card set</h1>
+<p class="lede">Current state (top) reproduced from style.css, puzzles.css and catfish.css; proposed state (bottom) uses only DESIGN.md tokens and hard pixel corners. Light left, dark right.</p>
+<div class="rowlabel">Before <span class="tag bad">current</span></div>
+<div class="grid2"><div class="th light">
+<h3>Buttons: 4 families, 3 corner styles</h3>
+<div class="row"><button class="b-btn">Plant seeds</button><button class="b-btn ghost">Cancel</button><button class="b-btn red">Discard</button><button class="b-fbtn">Go (fbtn)</button><button class="b-cf">Cat Fish tab</button><button class="b-pzon">Jigsaw chip on</button></div>
+<h3>Tabs: 14 systems</h3>
+<div class="row"><span style="display:inline-flex;gap:10px"><button class="b-tab on">Garden</button><button class="b-tab">Seeds</button></span><span class="b-leather"><span class="on">Do</span><span>Town</span><span>Shop</span></span><span class="b-gv"><span>Mind</span><span>Body</span><span>Kit</span></span></div>
+<h3>Chips and cards</h3>
+<div class="row"><span class="b-chip">Energy 8</span><span class="b-cfbadge">Cat Fish badge</span></div>
+<div class="row" style="align-items:stretch"><div class="b-card" style="flex:1 1 150px"><b>Site card</b><br><small>2px ink outline only</small></div><div class="b-cfcard" style="flex:1 1 150px"><b>Cat Fish card</b><br><small>12px radius, #ddd line</small></div></div>
+</div><div class="th dark">
+<h3>Buttons: 4 families, 3 corner styles</h3>
+<div class="row"><button class="b-btn">Plant seeds</button><button class="b-btn ghost">Cancel</button><button class="b-btn red">Discard</button><button class="b-fbtn">Go (fbtn)</button><button class="b-cf">Cat Fish tab</button><button class="b-pzon">Jigsaw chip on</button></div>
+<h3>Tabs: 14 systems</h3>
+<div class="row"><span style="display:inline-flex;gap:10px"><button class="b-tab on">Garden</button><button class="b-tab">Seeds</button></span><span class="b-leather"><span class="on">Do</span><span>Town</span><span>Shop</span></span><span class="b-gv"><span>Mind</span><span>Body</span><span>Kit</span></span></div>
+<h3>Chips and cards</h3>
+<div class="row"><span class="b-chip">Energy 8</span><span class="b-cfbadge">Cat Fish badge</span></div>
+<div class="row" style="align-items:stretch"><div class="b-card" style="flex:1 1 150px"><b>Site card</b><br><small>2px ink outline only</small></div><div class="b-cfcard" style="flex:1 1 150px"><b>Cat Fish card</b><br><small>12px radius, #ddd line</small></div></div>
+</div></div>
+<div class="rowlabel">After <span class="tag ok">proposed</span></div>
+<div class="grid2"><div class="th light">
+<h3>Buttons: one .btn, four variants, tokens only</h3>
+<div class="row"><button class="btn">Plant seeds</button><button class="btn ghost">Cancel</button><button class="btn danger">Discard</button><button class="btn gold">Go</button><button class="btn ghost small">Small</button></div>
+<h3>Tabs: one .tabs, one felt variant</h3>
+<div class="row" style="display:block"><nav class="tabs"><a class="on frame" href="#">Garden</a><a class="frame-lite" href="#">Seeds</a><a class="frame-lite" href="#">Tools</a></nav>
+<nav class="tabs felt" style="margin-top:8px"><a class="on" href="#">Do</a><a href="#">Town</a><a href="#">Shop</a></nav></div>
+<h3>Chips and cards</h3>
+<div class="row"><span class="chip frame-lite">Energy 8</span><span class="chip frame-lite on">Cat Fish badge</span></div>
+<div class="row" style="align-items:stretch"><div class="card frame" style="flex:1 1 150px"><h4>Site card</h4><p>stitched frame</p></div><div class="card frame" style="flex:1 1 150px"><h4>Cat Fish card</h4><p>same card, same frame</p></div></div>
+</div><div class="th dark">
+<h3>Buttons: one .btn, four variants, tokens only</h3>
+<div class="row"><button class="btn">Plant seeds</button><button class="btn ghost">Cancel</button><button class="btn danger">Discard</button><button class="btn gold">Go</button><button class="btn ghost small">Small</button></div>
+<h3>Tabs: one .tabs, one felt variant</h3>
+<div class="row" style="display:block"><nav class="tabs"><a class="on frame" href="#">Garden</a><a class="frame-lite" href="#">Seeds</a><a class="frame-lite" href="#">Tools</a></nav>
+<nav class="tabs felt" style="margin-top:8px"><a class="on" href="#">Do</a><a href="#">Town</a><a href="#">Shop</a></nav></div>
+<h3>Chips and cards</h3>
+<div class="row"><span class="chip frame-lite">Energy 8</span><span class="chip frame-lite on">Cat Fish badge</span></div>
+<div class="row" style="align-items:stretch"><div class="card frame" style="flex:1 1 150px"><h4>Site card</h4><p>stitched frame</p></div><div class="card frame" style="flex:1 1 150px"><h4>Cat Fish card</h4><p>same card, same frame</p></div></div>
+</div></div>
+<h2>What changed</h2>
+<ul>
+<li><b>Red button in dark:</b> before, <code>.btn.red</code> hard-codes #a8241f but <code>--danger</code> flips to orange #f08a24 in dark, so any rule that uses the token disagrees with the button. After: a separate <code>--danger-fill</code> that stays ember red.</li>
+<li><b>Gold button:</b> <code>.fbtn</code> uses #e0aa48 / #b07a28 (not in the palette); after it is <code>.btn.gold</code> on <code>--accent</code> / <code>--thread-bright</code>.</li>
+<li><b>Cat Fish and Jigsaw controls:</b> 8px, 12px and 999px radii become hard corners; white-on-gold chip (2.17:1) becomes ink-on-gold (7.72:1).</li>
+<li><b>Tabs:</b> the felt/leather strip, the pill tabs and the My Gnome tab row collapse into <code>.tabs</code> + <code>.tabs.felt</code>.</li>
+</ul>
+<p class="note">Static review mockup. Palette from DESIGN.md; counts from docs/studio-review/style-review.md (game/assets/*.css at v2.4.63). Nothing here is applied to game/.</p>
+</div></body></html>
