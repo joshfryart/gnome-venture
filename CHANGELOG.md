@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.3.99
+- **Pal Jobs, gathering trips:** the Tool pickers only offer tools that can gather in the chosen land (greyed out and hidden otherwise), and the land list only shows lands where one of your tools works. Applies to the job default and to each pal's own pick. Changing the land switches an unusable tool to one that works.
+
 ## 2.3.98
 - **Pal Jobs:** the job options and the Send button are always shown. Send is greyed and says "Tick a pal to send" until you tick one (before, they were hidden until a pal was ticked, so a card looked like it had no Send).
 

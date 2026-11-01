@@ -124,6 +124,40 @@ document.addEventListener("DOMContentLoaded",function(){
       }
       update(f);
     });
+    /* v2.3.99: a tool picker only offers tools that can gather in the chosen land (options carry data-lands) */
+    var gLand = f.querySelector('[data-pj-gland]'), gTool = f.querySelector('[data-pj-gtool]');
+    if (gLand && gTool) {
+      var fit = function (sel, land, keepBlank) {   // disable tools that cannot gather in `land`; make sure the pick is a valid one
+        var firstOk = null;
+        Array.prototype.forEach.call(sel.options, function (o) {
+          if (o.value === '') return;
+          var ok = !land || (o.getAttribute('data-lands') || '').split(' ').indexOf(land) > -1;
+          o.disabled = !ok; o.hidden = !ok;
+          if (ok && !firstOk) firstOk = o;
+        });
+        var cur = sel.options[sel.selectedIndex];
+        if (cur && cur.value !== '' && cur.disabled && firstOk) sel.value = firstOk.value;
+        else if (cur && cur.value === '' && !keepBlank && firstOk) sel.value = firstOk.value;
+      };
+      var refit = function () {
+        fit(gTool, gLand.value, false);
+        f.querySelectorAll('.pjover').forEach(function (box) {
+          var pl = box.querySelector('[data-pj-pland]'), pt = box.querySelector('[data-pj-ptool]');
+          if (!pt) return;
+          var land = (pl && pl.value) || gLand.value;
+          fit(pt, land, true);
+          if (pt.value === '' && gTool.options[gTool.selectedIndex].disabled) pt.value = '';
+          var asAbove = pt.options[0];
+          if (asAbove && asAbove.value === '') {   // "As above" is only fine if the default tool can gather in this pal's land
+            var gt = gTool.options[gTool.selectedIndex], okAbove = gt && (gt.getAttribute('data-lands') || '').split(' ').indexOf(land) > -1;
+            asAbove.disabled = !okAbove; asAbove.hidden = !okAbove;
+            if (!okAbove && pt.value === '') { var first = Array.prototype.find.call(pt.options, function (o) { return o.value !== '' && !o.disabled; }); if (first) pt.value = first.value; }
+          }
+        });
+      };
+      f.addEventListener('change', function (ev) { if (ev.target.matches('[data-pj-gland],[data-pj-gtool],[data-pj-pland],[data-pj-ptool]')) refit(); });
+      refit();
+    }
     f.addEventListener('keydown', function (ev) {   // Esc closes the draft
       if (ev.key === 'Escape' && picked(f)) { var p = picked(f); pickedAll(f).forEach(function (c) { c.checked = false; }); update(f); p.focus(); }
     });

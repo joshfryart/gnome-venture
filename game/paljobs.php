@@ -88,6 +88,26 @@ $plots = q('SELECT id, garden_name FROM plots WHERE user_id = ? ORDER BY id', [$
 $delves = pj_cleared_delves($uid);
 $ranToday = array_map('intval', q("SELECT target FROM ppal_jobs WHERE user_id = ? AND kind = 'delve' AND day = ?", [$uid, landmark_day()])->fetchAll(PDO::FETCH_COLUMN));
 $tools = pj_tools($uid);
+// v2.3.99: which lands each owned tool can gather in (gather_candidates), so the pickers only offer what works
+$toolLands = [];
+foreach ($tools as $t => $tier) foreach (array_keys(LANDSCAPES) as $lk) if (gather_candidates($lk, $t)) $toolLands[$t][] = $lk;
+$landTools = [];
+foreach ($toolLands as $t => $ls) foreach ($ls as $lk) $landTools[$lk][] = $t;
+$tripLands = array_values(array_filter(array_keys(LANDSCAPES), fn($lk) => !empty($landTools[$lk])));
+$firstLand = $tripLands[0] ?? '';
+$toolOpts = function (string $land, string $withBlank = '') use ($tools, $toolLands): string {
+    $h = $withBlank !== '' ? '<option value="">' . e($withBlank) . '</option>' : '';
+    foreach ($tools as $t => $tier) {
+        $ok = $land === '' || in_array($land, $toolLands[$t] ?? [], true);
+        $h .= '<option value="' . e($t) . '" data-lands="' . e(implode(' ', $toolLands[$t] ?? [])) . '"' . ($ok ? '' : ' disabled hidden') . '>' . e(TOOL_TYPES[$t][0] ?? $t) . ' (tier ' . (int)$tier . ')</option>';
+    }
+    return $h;
+};
+$landOpts = function (string $withBlank = '') use ($tripLands): string {
+    $h = $withBlank !== '' ? '<option value="">' . e($withBlank) . '</option>' : '';
+    foreach ($tripLands as $lk) $h .= '<option value="' . e($lk) . '">' . e(LANDSCAPES[$lk][1]) . '</option>';
+    return $h;
+};
 $potions = pj_potion_count($uid);
 $heals = alchemy_heals($uid);   // healing tiers held (Strong, Grand)
 $lucky = alchemy_count($uid, ALCHEMY_LUCK);
@@ -130,6 +150,7 @@ $blocked = function (string $kind) use ($left, $maxAway, $runsLeft, $tools, $del
     if ($kind !== 'garden' && $runsLeft < 1) return 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').';
     if ($kind === 'garden' && !$plots) return 'Pals tend your gardens. Start one first.';
     if ($kind === 'trip' && !$tools) return 'Trips need a gathering tool in your satchel.';
+    if ($kind === 'trip' && !$GLOBALS['tripLands']) return 'None of your tools can gather anywhere yet.';
     if ($kind === 'delve' && !$delves) return 'Clear a delve yourself first, then a pal can re-run it.';
     if ($kind === 'delve' && !array_diff(array_map(fn($d) => (int)$d['id'], $delves), $ranToday)) return 'Every delve you have cleared needs a day to settle.';
     if (!$home) return 'Everyone is out on a job.';
@@ -273,8 +294,8 @@ page_header('Pal Jobs');
                 <?php if ($kind === 'garden' && count($plotName) > 1): ?>
                 <label>Garden<select name="over[<?= e($p['uid']) ?>][plot]"><option value="">As above</option><?php foreach ($plotName as $id => $nm): ?><option value="<?= $id ?>"><?= e($nm) ?></option><?php endforeach; ?></select></label>
                 <?php elseif ($kind === 'trip'): ?>
-                <label>Where<select name="over[<?= e($p['uid']) ?>][land]"><option value="">As above</option><?php foreach (LANDSCAPES as $k => $L): ?><option value="<?= e($k) ?>"><?= e($L[1]) ?></option><?php endforeach; ?></select></label>
-                <label>Tool<select name="over[<?= e($p['uid']) ?>][tool]"><option value="">As above</option><?php foreach ($tools as $t => $tier): ?><option value="<?= e($t) ?>"><?= e(TOOL_TYPES[$t][0] ?? $t) ?> (tier <?= (int)$tier ?>)</option><?php endforeach; ?></select></label>
+                <label>Where<select name="over[<?= e($p['uid']) ?>][land]" data-pj-pland><?= $landOpts('As above') ?></select></label>
+                <label>Tool<select name="over[<?= e($p['uid']) ?>][tool]" data-pj-ptool><?= $toolOpts($firstLand, 'As above') ?></select></label>
                 <?php elseif ($kind === 'delve'): ?>
                 <label>Delve<select name="over[<?= e($p['uid']) ?>][delve]"><option value="">As above</option><?php foreach ($delves as $d): $ran = in_array((int)$d['id'], $ranToday, true); ?><option value="<?= (int)$d['id'] ?>"<?= $ran ? ' disabled' : '' ?>><?= e($delveName[(int)$d['id']]) ?><?= $ran ? ' · re-run today' : '' ?></option><?php endforeach; ?></select></label>
                 <?php endif; ?>
@@ -292,8 +313,8 @@ page_header('Pal Jobs');
             <div class="pjfield"><label for="pjplot">Garden</label><select id="pjplot" name="plot"><?php foreach ($plotName as $id => $nm): ?><option value="<?= $id ?>"><?= e($nm) ?></option><?php endforeach; ?></select></div>
             <?= $seg('days', 'For', PJ_GARDEN_DAYS, 3, fn($d) => $d . ' day' . ($d > 1 ? 's' : '')) ?>
             <?php elseif ($kind === 'trip'): ?>
-            <div class="pjfield"><label for="pjland">Where (default)</label><select id="pjland" name="land"><?php foreach (LANDSCAPES as $k => $L): ?><option value="<?= e($k) ?>"><?= e($L[1]) ?></option><?php endforeach; ?></select></div>
-            <div class="pjfield"><label for="pjtool">Tool</label><select id="pjtool" name="tool"><?php foreach ($tools as $t => $tier): ?><option value="<?= e($t) ?>"><?= e(TOOL_TYPES[$t][0] ?? $t) ?> (tier <?= (int)$tier ?>)</option><?php endforeach; ?></select></div>
+            <div class="pjfield"><label for="pjland">Where (default)</label><select id="pjland" name="land" data-pj-gland><?= $landOpts() ?></select></div>
+            <div class="pjfield"><label for="pjtool">Tool</label><select id="pjtool" name="tool" data-pj-gtool><?= $toolOpts($firstLand) ?></select></div>
             <?= $seg('hours', 'Hours', PJ_TRIP_HOURS, 3, fn($h) => $h . ' h') ?>
             <?= $potionField('trip') ?>
             <?php if ($lucky > 0): ?><label class="pjluck"><input type="checkbox" name="luck" value="1"> <span>🍀 Pack a Lucky Draught (Luck +<?= ALCHEMY_LUCK_PAL ?> for the trip, you have <?= $lucky ?>)</span></label><?php endif; ?>
