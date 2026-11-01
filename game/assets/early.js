@@ -30,10 +30,16 @@ document.documentElement.className += ' js';
   });
 })();
 
-/* v2.3.94: a form that was just sent cannot be sent again for 2 seconds (double taps on Buy, Sell, Harvest...). */
+/* v2.3.94: a form that was just sent cannot be sent again for 2 seconds (double taps on Buy, Sell, Harvest...).
+   v2.3.96: it is only counted as "sent" once nothing cancelled the submit. The confirm dialog (site.js) stops its first submit and re-submits on OK,
+   which the first version of this guard swallowed (Back up and install did nothing). */
 document.addEventListener('submit', function (ev) {
   var f = ev.target;
+  if (!f || !f.tagName) return;
+  if (f.getAttribute('data-sent') && Date.now() - Number(f.getAttribute('data-sent')) < 2000) { ev.preventDefault(); ev.stopImmediatePropagation(); }
+}, true);
+window.addEventListener('submit', function (ev) {
+  var f = ev.target;
   if (!f || !f.tagName || ev.defaultPrevented) return;
-  if (f.getAttribute('data-sent') && Date.now() - Number(f.getAttribute('data-sent')) < 2000) { ev.preventDefault(); return; }
   f.setAttribute('data-sent', String(Date.now()));
 });
