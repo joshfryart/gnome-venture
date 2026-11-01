@@ -5,12 +5,10 @@
    "Write it on the board" from turning into a full page reload. */
 (function () {
   'use strict';
-  var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var rmq = window.gvFx.rmq;
   var KEY = 'gvMarrowSeen';
   var hadGuess = null;   // did the last-seen scale already hold a guess? (null = first look)
 
-  function seenGet() { try { return window.localStorage.getItem(KEY); } catch (e) { return null; } }
-  function seenSet(v) { try { window.localStorage.setItem(KEY, v); } catch (e) { /* private mode */ } }
   function angle(kg) { return -120 + (Math.max(8, Math.min(40, kg)) - 8) / 32 * 240; }
 
   function bounceCrop(stage) {
@@ -47,7 +45,7 @@
     if (!stage || rmq.matches) return;
     if (btn) { btn.hidden = false; btn.addEventListener('click', function () { swing(stage, btn); }); }
     var day = box.getAttribute('data-day') || '';
-    if (seenGet() !== day) { seenSet(day); swing(stage, btn); }
+    if (window.gvFx.seenGet(KEY) !== day) { window.gvFx.seenSet(KEY, day); swing(stage, btn); }
   }
 
   /* ---- today: guess marker + slider ---- */

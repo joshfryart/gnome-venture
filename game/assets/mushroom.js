@@ -5,7 +5,7 @@
    from turning into a full page reload while the first is still being sent. */
 (function () {
   'use strict';
-  var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var rmq = window.gvFx.rmq;
   var prev = null;      // the last live board: { open:{i:1}, flags:{i:1} }
   var lastTap = -1;     // the square you last tapped
 
@@ -23,7 +23,6 @@
       setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 800);
     }
   }
-  function centre(el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
   function petals() {
     if (rmq.matches) return;
     for (var i = 0; i < 34; i++) {
@@ -54,7 +53,7 @@
         c.classList.add('toadin');
         if (c.classList.contains('boom')) {
           board.classList.add('shake');
-          setTimeout(function () { if (!c.isConnected) return; var m = centre(c); burst(m[0], m[1], 'spore', 12); }, 120);
+          setTimeout(function () { if (!c.isConnected) return; var m = window.gvFx.centre(c); burst(m[0], m[1], 'spore', 12); }, 120);
         }
       });
       return;
@@ -91,7 +90,7 @@
       board.classList.add('rustling');
       lastTap = parseInt(b.getAttribute('data-i'), 10);
       b.classList.add('pressed');
-      var c = centre(b);
+      var c = window.gvFx.centre(b);
       burst(c[0], c[1], 'leaf', 6);
     });
   }

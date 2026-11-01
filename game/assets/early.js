@@ -43,3 +43,11 @@ window.addEventListener('submit', function (ev) {
   if (!f || !f.tagName || ev.defaultPrevented) return;
   f.setAttribute('data-sent', String(Date.now()));
 });
+
+/* Helpers the small game scripts share (memory, mushroom, worms, marrow, race). Non-deferred, so window.gvFx exists before any of them run. */
+window.gvFx = {
+  rmq: window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false },
+  centre: function (el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; },
+  seenGet: function (key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } },
+  seenSet: function (key, v) { try { window.localStorage.setItem(key, v); } catch (e) { /* private mode: replay next time */ } }
+};

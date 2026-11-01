@@ -4,7 +4,7 @@
    you win, and it stops a fast second tap from turning into a full page reload while the first is still being sent. */
 (function () {
   'use strict';
-  var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var rmq = window.gvFx.rmq;
   var prev = null;   // what the last board looked like: { total, up:{i:1}, matched:{i:1} }
 
   function burst(x, y, kind, n) {
@@ -21,7 +21,6 @@
       setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 800);
     }
   }
-  function centre(el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
 
   function petals() {
     if (rmq.matches) return;
@@ -55,7 +54,7 @@
         if (isNew && !rmq.matches) c.classList.add('flipin');
         if (same && c.classList.contains('matched') && !prev.matched[i]) {
           c.classList.add('settle');
-          setTimeout(function () { if (!c.isConnected) return; var m = centre(c); burst(m[0], m[1], 'leaf', 7); }, 420);
+          setTimeout(function () { if (!c.isConnected) return; var m = window.gvFx.centre(c); burst(m[0], m[1], 'leaf', 7); }, 420);
         }
       } else if (same && prev.up[i] && !rmq.matches) {
         c.classList.add('flipback');   // a miss turning back over
@@ -71,7 +70,7 @@
       board.setAttribute('data-wait', '1'); guard = Date.now();
       board.classList.add('turning');
       b.classList.add('pressed');
-      var c = centre(b);
+      var c = window.gvFx.centre(b);
       burst(c[0], c[1], 'leaf', 3);
     });
   }
