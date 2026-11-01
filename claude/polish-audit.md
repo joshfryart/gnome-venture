@@ -152,3 +152,10 @@ Columns are counts of controls under 44 px (phone / tablet / desktop, light them
 | `adventure.php` | 34 | 64 | 64 | 2192 | redirects to world.php; 1 JS-set style attrs |
 | `back.php` | 30 | 53 | 53 | 1171 | redirects to gnome.php |
 | `admin/index.php` | 40 | 134 | 133 | 4587 |  |
+
+## Phase 3 section passes (2026-11-01): what the evidence supported
+Method: dark-phone screenshots of 16 pages across Garden, Economy, Player, Puzzles & Pals, Catfish, Trek looked at by eye; every `overflow-x: auto|scroll` element measured on 30 pages at 360, 412 and 768 px; PHP server log from all audit traffic (about 331,000 lines) searched for warnings.
+- **Log:** no PHP warnings, notices, deprecations or fatals.
+- **Visual:** no broken layouts found in dark phone on those pages. Not looked at: Delve, Admin pages beyond the index, fights in progress, empty states, dark tablet and desktop.
+- **Sideways-scroll strips (rule 2):** three found. Fixed one: the My Gnome / Mentor section tabs hid 299 px of tabs on a 412 px phone (7 tabs); they now wrap onto two rows, nothing hidden. Left two on purpose, both swipe rows by design: the Crafting quick bar (`.shelves .shqrow`, +82 px at 412) and the World route line (`.metroline`, +42 px at 412 and +74 px at 768). Turning them into wrapping rows would make them tall with many items. If you want rule 2 applied there too, say so.
+- **Not done (no evidence of a defect, or needs your eyes):** per-section copy changes, art gaps (stepping stones, Building scene, Tools sledge, 14 hazard icons), delve v2 pal skill buttons (a feature), player news entry for 2.3.91.
