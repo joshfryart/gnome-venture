@@ -210,12 +210,41 @@ function pj_settle(int $uid): void
 {
     if (!ppal_ensure()) return;
     pj_settle_equip($uid);
+    foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND state = 'active'", [$uid])->fetchAll() as $j) pj_station_tick($j);   // v2.4.64: play out the makes that are due
     foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND ends_at <= ?", [$uid, now()])->fetchAll() as $j) {
         if ($j['kind'] === 'garden') { pj_garden_close($j); continue; }
         if (q("UPDATE ppal_jobs SET state = 'ready' WHERE id = ? AND state = 'active'", [$j['id']])->rowCount() !== 1) continue;
         $r = json_decode((string)$j['result'], true) ?: [];
         q("UPDATE ppal_found SET status = 'home', hp = ?, hp_at = ? WHERE user_id = ? AND pal_uid = ?", [max(0, (int)($r['hp'] ?? 0)), now(), $uid, $j['pal_uid']]);
     }
+    pj_cook_renew($uid);
+}
+
+/**
+ * v2.4.64: "Always cook" (account settings, users.pal_cook): a finished cooking shift is collected for you and the same pal starts the same shift again,
+ * so one pot keeps working. If the pal cannot start again (no ingredients at all, no free pot, hurt) it stays home and the dishes are already in your satchel.
+ */
+function pj_cook_renew(int $uid): void
+{
+    static $busy = false;
+    if ($busy || !(int)q_val('SELECT pal_cook FROM users WHERE id = ?', [$uid])) return;
+    $busy = true;
+    try {
+        $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+        foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND state = 'ready' AND target LIKE 'cooking:%'", [$uid])->fetchAll() as $j) {
+            $r = json_decode((string)$j['result'], true) ?: [];
+            if (empty($r['lazy'])) continue;
+            [$ok, $lines, $head] = pj_collect($u, (int)$j['id']);
+            if (!$ok) continue;
+            $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+            [, $again] = array_pad(explode(':', (string)$j['target'], 2), 2, '');
+            $sent = pj_station_send($u, (string)$j['pal_uid'], 'cooking', $again, (string)($r['mode'] ?? 'all'), (array)($r['plan'] ?? []), (int)($r['hours'] ?? 1), true, true);
+            if (session_status() === PHP_SESSION_ACTIVE && function_exists('flash')) {
+                $got = []; foreach ((array)($r['items'] ?? []) as [, $q, $nm]) $got[] = $nm . ' ×' . (int)$q;
+                flash($head . ($got ? ' ' . implode(', ', $got) . '.' : '') . ($sent[0] ? ' Cooking again.' : ' Resting: ' . $sent[1]), 'ok');
+            }
+        }
+    } finally { $busy = false; }
 }
 
 /** Send a pal out: claim it (home to away) in one conditional UPDATE, so two tabs cannot send it twice. */
@@ -479,12 +508,104 @@ function pj_station_recipes(int $uid, string $area, array $globs): array
     return $out;
 }
 
+/** The recipe rows (with 'ings') a shift will cook, by id, among the known recipes the object makes. */
+function pj_station_plan(int $uid, string $area, array $globs, array $ids): array
+{
+    $all = pj_station_recipes($uid, $area, $globs);
+    return $ids ? array_values(array_filter(array_map(fn($id) => $all[$id] ?? null, $ids))) : array_values($all);
+}
+
+/** Satchel stock by item slug. */
+function pj_stock_by_slug(int $uid): array
+{
+    $have = [];
+    foreach (q('SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) $have[(string)$r['slug']] = (int)$r['qty'];
+    return $have;
+}
+
+/** First recipe of the plan, from position $rot on (so a mixed plan takes turns), that $have covers; null = none. Sets $rot to the next turn. */
+function pj_station_pick(array $plan, array $have, bool $kitchen3, int &$rot): ?array
+{
+    $n = count($plan);
+    for ($k = 0; $k < $n; $k++) {
+        $r = $plan[($rot + $k) % $n];
+        if (str_starts_with((string)$r['slug'], 'feast-') && !$kitchen3) continue;
+        $need = json_decode((string)$r['ingredients'], true) ?: [];
+        if (!$need) continue;
+        foreach ($need as $slug => $q) if (($have[(string)$slug] ?? 0) < (int)$q) continue 2;
+        $rot = ($rot + $k + 1) % $n;
+        return $r;
+    }
+    return null;
+}
+
+/**
+ * v2.4.64: a shift works one make at a time. Each make takes its ingredients when it STARTS and pays out pj_station_minutes() later; the next one
+ * starts right after. Short on ingredients: the pal waits (no ingredients taken, no time counted) and tries again the next time this runs
+ * (jobs page, collect, any send). Nothing new starts that could not finish before the shift ends. Lazy: it plays out whatever is due by now, so call it
+ * before reading a shift. Returns the shift's result array (or [] for a shift made before v2.4.64, which was fixed up front).
+ */
+function pj_station_tick(array $j): array
+{
+    $r = json_decode((string)$j['result'], true) ?: [];
+    if (empty($r['lazy']) || !in_array($j['state'], ['active', 'ready'], true)) return $r;
+    $uid = (int)$j['user_id'];
+    $old = (string)$j['result'];
+    $endTs = ts($j['ends_at']); $now = time(); $cap = min($now, $endTs);
+    $mins = max(1, (int)($r['mins'] ?? 60)) * 60;
+    $area = (string)($r['area_key'] ?? ''); $objId = (string)($r['obj_key'] ?? '');
+    $o = pj_station_object($area, $objId);
+    if (!$o) return $r;
+    $plan = pj_station_plan($uid, $area, $o['globs'], array_map('intval', (array)($r['plan'] ?? [])));
+    $byId = []; foreach ($plan as $row) $byId[(int)$row['id']] = $row;
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    if (!$u) return $r;
+    $kitchen3 = $area !== 'cooking' || user_building_bonus($uid, 'kitchen')['feasts'];
+    $have = pj_stock_by_slug($uid);
+    $takes = []; $changed = false;
+    $made = []; foreach ((array)($r['items'] ?? []) as [$iid, $q, $nm]) $made[(int)$iid] = [(int)$q, (string)$nm];
+    $rot = (int)($r['rot'] ?? 0);
+    $cur = $r['cur'] ?? null; $next = (int)($r['next'] ?? ts($j['started_at']));
+    for ($guard = 0; $guard < 300; $guard++) {
+        if (is_array($cur)) {
+            if ((int)$cur['done'] > $cap) break;
+            $row = $byId[(int)$cur['rid']] ?? null;
+            if ($row) {
+                $iid = (int)$row['output_item_id'];
+                $n = max(1, (int)$row['output_qty']) + (random_int(1, 100) <= pj_station_extra_pct((int)($r['c'] ?? 1)) ? 1 : 0);
+                $made[$iid] = [($made[$iid][0] ?? 0) + $n, (string)$row['out_name']];
+                $r['makes'] = (int)($r['makes'] ?? 0) + 1;
+                $r['xp_base'] = (int)($r['xp_base'] ?? 0) + ($area === 'tools' ? 15 : 5);
+            }
+            $next = (int)$cur['done']; $cur = null; $changed = true;
+            continue;
+        }
+        if ($next > $now || $next + $mins > $endTs) break;   // not due yet, or no time for another
+        $row = pj_station_pick($plan, $have, $kitchen3, $rot);
+        if (!$row) { if (empty($r['waiting']) || $next < $now) $changed = true; $r['waiting'] = 1; $next = $now; break; }
+        foreach (json_decode((string)$row['ingredients'], true) ?: [] as $slug => $q) { $have[(string)$slug] -= (int)$q; $takes[(string)$slug] = ($takes[(string)$slug] ?? 0) + (int)$q; }
+        $cur = ['rid' => (int)$row['id'], 'done' => $next + $mins]; $r['waiting'] = 0; $changed = true;
+    }
+    if (!$changed) return $r;
+    $r['cur'] = $cur; $r['next'] = $next; $r['rot'] = $rot;
+    $r['items'] = []; foreach ($made as $iid => [$q, $nm]) $r['items'][] = [$iid, $q, $nm];
+    $r['stop'] = !empty($r['waiting']) ? 'Waited for ingredients.' : '';
+    // claim the new state first (a second tab loses the race and takes nothing), then take what the new makes need
+    if (q('UPDATE ppal_jobs SET result = ? WHERE id = ? AND result = ?', [json_encode($r), (int)$j['id'], $old])->rowCount() !== 1) return json_decode($old, true) ?: [];
+    foreach ($takes as $slug => $qty) {
+        $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        if ($iid) give_item($uid, $iid, -$qty);
+    }
+    return $r;
+}
+
 /**
  * Man a station: the pal works for $hours and makes what its object makes (mode 'all') or the chosen known recipes (up to 5), one make per
- * pj_station_minutes(). No energy is spent. Ingredients are taken NOW (one ledger, so recipes that share an item cannot both spend it); the output is
- * fixed now and arrives when the shift is collected. Cooking holds one of your pots. Pantry is not included yet.
+ * pj_station_minutes(), taking each make's ingredients as it starts (v2.4.64; see pj_station_tick), so a shift that runs dry just waits. No energy is spent.
+ * The dishes arrive when the shift is collected. Cooking holds one of your pots. Pantry is not included yet. $auto: a renewal for the
+ * "always cook" setting, which does not count against the daily shift cap.
  */
-function pj_station_send(array $u, string $palUid, string $area, string $obj, string $mode, array $recipeIds, int $hours, bool $unequip = false): array
+function pj_station_send(array $u, string $palUid, string $area, string $obj, string $mode, array $recipeIds, int $hours, bool $unequip = false, bool $auto = false): array
 {
     $uid = (int)$u['id'];
     require_once __DIR__ . '/crafting.php';
@@ -498,8 +619,9 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     if (!$p) return [false, $err];
     $target = $area . ':' . $obj;
     if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target = ? AND state IN ('active','ready')", [$uid, $target])) return [false, 'A pal is already working at the ' . $o['label'] . '.'];
-    if ((int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND day = ?", [$uid, landmark_day()]) >= pj_stations_per_day()) return [false, 'Your pals have worked enough shifts today (' . pj_stations_per_day() . ').'];
+    if (!$auto && (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND day = ? AND result NOT LIKE '%\"auto\":1%'", [$uid, landmark_day()]) >= pj_stations_per_day()) return [false, 'Your pals have worked enough shifts today (' . pj_stations_per_day() . ').'];
     $all = pj_station_recipes($uid, $area, $o['globs']);
+    $ids = [];
     if ($mode === 'chosen') {
         $ids = array_values(array_unique(array_map('intval', $recipeIds)));
         if (!$ids) return [false, 'Tick the recipes the pal should make, or pick "everything".'];
@@ -508,57 +630,28 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
         if (count($plan) !== count($ids)) return [false, 'You can only pick recipes you know that this station makes.'];
     } else $plan = array_values($all);
     if (!$plan) return [false, 'You know no recipes for the ' . $o['label'] . ' yet.'];
-    $cookingArea = $area === 'cooking';
-    if ($cookingArea && cook_pots_on()) {
+    if ($area === 'cooking' && cook_pots_on()) {
         if ((int)($stations['cooking'] ?? 0) === 0 || cook_pots_busy($uid) >= cook_pot_limit($u)) return [false, 'All your pots are busy. A pal needs a free pot.'];
     }
-    $kitchen3 = !$cookingArea || user_building_bonus($uid, 'kitchen')['feasts'];
-    $c = (int)$p['c'];
-    $cap = max(1, intdiv($hours * 60, pj_station_minutes($c)));
-    $have = [];
-    foreach (q('SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ?', [$uid])->fetchAll() as $r) $have[(string)$r['slug']] = (int)$r['qty'];
-    $rng = pj_rng(bin2hex(random_bytes(6)));
-    $made = []; $takes = []; $makes = 0; $stopped = '';
-    $outItem = [];
-    for ($guard = 0; $makes < $cap && $guard < 200; $guard++) {
-        $did = false;
-        foreach ($plan as $r) {
-            if ($makes >= $cap) break;
-            if (str_starts_with((string)$r['slug'], 'feast-') && !$kitchen3) continue;
-            $need = json_decode((string)$r['ingredients'], true) ?: [];
-            $ok = $need !== [];
-            foreach ($need as $slug => $q) if (($have[(string)$slug] ?? 0) < (int)$q) { $ok = false; break; }
-            if (!$ok) continue;
-            foreach ($need as $slug => $q) { $have[(string)$slug] -= (int)$q; $takes[(string)$slug] = ($takes[(string)$slug] ?? 0) + (int)$q; }
-            $n = max(1, (int)$r['output_qty']) + ($rng(100) < pj_station_extra_pct($c) ? 1 : 0);
-            $made[(int)$r['output_item_id']] = ($made[(int)$r['output_item_id']] ?? 0) + $n;
-            $outItem[(int)$r['output_item_id']] = (string)$r['out_name'];
-            $makes++; $did = true;
-            $xpBase = ($area === 'tools' ? 15 : 5);
-            $xpTotal = ($xpTotal ?? 0) + $xpBase;
-            $slugsMade[(string)$r['slug']] = ($slugsMade[(string)$r['slug']] ?? 0) + 1;
-        }
-        if (!$did) break;
-    }
-    if ($makes < 1) {
-        $r0 = $plan[0];
-        $stock = craft_stock($uid, (string)$r0['ingredients']);
+    $kitchen3 = $area !== 'cooking' || user_building_bonus($uid, 'kitchen')['feasts'];
+    $rot = 0;
+    if (!pj_station_pick($plan, pj_stock_by_slug($uid), $kitchen3, $rot)) {
+        $stock = craft_stock($uid, (string)$plan[0]['ingredients']);
         return [false, (craft_short_text($stock, 0, 999, 1) ?: 'Nothing in the plan can be made right now.') . ' Nothing was used.'];
     }
+    $c = (int)$p['c'];
     db()->beginTransaction();
-    foreach ($takes as $slug => $qty) {
-        $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
-        if (!$iid || !give_item($uid, $iid, -$qty)) { db()->rollBack(); return [false, 'Something changed in your satchel. Nothing was used.']; }
-    }
     if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }
-    $items = [];
-    foreach ($made as $iid => $q) $items[] = [$iid, $q, $outItem[$iid]];
-    $stopTxt = $makes < $cap ? 'Stopped after ' . $makes . ': out of ingredients for the rest.' : '';
-    db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => $target, 'plot_id' => null, 'day' => landmark_day(),
+    $jid = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => $target, 'plot_id' => null, 'day' => landmark_day(),
         'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $hours * 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
-        'result' => json_encode(['items' => $items, 'makes' => $makes, 'hp' => (int)$p['hp'], 'rounds' => 0, 'xp_base' => (int)($xpTotal ?? 0), 'area' => $area, 'obj' => $o['label'], 'stop' => $stopTxt])]);
+        'result' => json_encode(['lazy' => 1, 'auto' => $auto ? 1 : 0, 'mode' => $mode === 'chosen' ? 'chosen' : 'all', 'plan' => $ids, 'hours' => $hours, 'mins' => pj_station_minutes($c), 'c' => $c,
+            'next' => time(), 'cur' => null, 'rot' => 0, 'waiting' => 0, 'items' => [], 'makes' => 0, 'hp' => (int)$p['hp'], 'rounds' => 0, 'xp_base' => 0,
+            'area' => $area, 'area_key' => $area, 'obj_key' => $obj, 'obj' => $o['label'], 'stop' => ''])]);
+    $row = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [(int)$jid]);
+    $res = $row ? pj_station_tick($row) : [];
+    if (empty($res['cur'])) { db()->rollBack(); return [false, 'Something changed in your satchel. Nothing was used.']; }
     db()->commit();
-    return [true, $p['name'] . ' takes the ' . $o['label'] . ' for ' . $hours . ' h: ' . $makes . ' make' . ($makes === 1 ? '' : 's') . ', no energy used.' . ($stopTxt !== '' ? ' ' . $stopTxt : '')];
+    return [true, $p['name'] . ' takes the ' . $o['label'] . ' for ' . $hours . ' h, one make every ' . pj_ago(pj_station_minutes($c) * 60) . ', no energy used. Ingredients are taken as each make starts; if you run short, ' . $p['name'] . ' waits.'];
 }
 
 // ---------------- delve re-runs ----------------

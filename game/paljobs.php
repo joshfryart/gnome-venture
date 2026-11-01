@@ -51,18 +51,36 @@ if (is_post()) {
         redirect('paljobs.php');
     }
     if ($do === 'collect_all') {
-        $heads = []; $lines = []; $n = 0;
+        // Merge every receipt line into totals: same item summed, XP summed per kind, potions summed; one head per pal.
+        $n = 0; $heads = []; $items = []; $coins = 0; $xp = []; $other = []; $drank = 0; $back = 0; $lv = [];
         foreach (pj_jobs($uid) as $jr) {
             if ($jr['state'] !== 'ready') continue;
             $one = pj_collect($u, (int)$jr['id']);
             if (!$one[0]) continue;
             $n++;
-            $heads[] = (string)($one[2] ?? '');
-            foreach ((array)$one[1] as $l) $lines[] = (string)$l;
+            foreach ((array)$one[1] as $l) {
+                $l = (string)$l;
+                if (preg_match('/^🎁 (.+) ×(\d+)$/u', $l, $m)) $items[$m[1]] = ($items[$m[1]] ?? 0) + (int)$m[2];
+                elseif (preg_match('/^💰 (\d+)/u', $l, $m)) $coins += (int)$m[1];
+                elseif (preg_match('/^⭐ \+(\d+) (Adventuring|Crafting) XP( for you| for (.+?))?(: now level (\d+)!)?$/u', $l, $m)) {
+                    $k = $m[2] . (($m[3] ?? '') !== '' ? $m[3] : ''); $xp[$k] = ($xp[$k] ?? 0) + (int)$m[1];
+                    if (($m[6] ?? '') !== '') $lv[$k] = (int)$m[6];
+                } elseif (preg_match('/^🧪 (?:Drank (\d+) potions?)?(?:, )?(?:(\d+) back in your satchel)?\.$/u', $l, $m)) { $drank += (int)($m[1] ?? 0); $back += (int)($m[2] ?? 0); }
+                elseif (!str_starts_with($l, '🍃') && !str_starts_with($l, '🗺️') && !isset($other[$l])) $other[$l] = $l;
+            }
         }
         if ($n) {
+            $lines = [];
+            if ($coins) $lines[] = '💰 ' . money($coins);
+            arsort($items);
+            foreach ($items as $nm => $q) $lines[] = '🎁 ' . $nm . ' ×' . $q;
+            foreach ($xp as $k => $v) $lines[] = '⭐ +' . $v . ' ' . (str_contains($k, 'Crafting') ? 'Crafting XP' . substr($k, strlen('Crafting')) : 'Adventuring XP') . (isset($lv[$k]) ? ': now level ' . $lv[$k] . '!' : '');
+            if ($drank || $back) $lines[] = '🧪 ' . ($drank ? 'Drank ' . $drank . ' potion' . ($drank > 1 ? 's' : '') : '') . ($drank && $back ? ', ' : '') . ($back ? $back . ' back in your satchel' : '') . '.';
+            foreach ($other as $l) $lines[] = $l;
+            if (!$items && !$coins) $lines[] = '🍃 No finds this time.';
+            $head = 'Collected ' . $n . ' job' . ($n > 1 ? 's' : '') . '.';
             foreach ($lines as $l) flash($l, 'ok');
-            $_SESSION['pj_receipt'] = ['pal' => '', 'head' => 'Collected ' . $n . ' job' . ($n > 1 ? 's' : '') . '.', 'lines' => array_merge($heads, $lines)];
+            $_SESSION['pj_receipt'] = ['pal' => '', 'head' => $head, 'lines' => $lines];
         } else flash('Nothing to collect.', 'err');
         redirect('paljobs.php');
     }
@@ -137,7 +155,7 @@ $jobLine = fn(array $j): string => match ($j['kind']) {
     'garden' => ($plotName[(int)$j['plot_id']] ?? 'a garden') . ' · ' . strtolower(pj_garden_task_text((int)$j['plot_id'])),   // v2.3.3: works after your hired help
     'trip' => (LANDSCAPES[$j['target']][1] ?? $j['target']) . ' · ' . (TOOL_TYPES[$j['tool']][0] ?? $j['tool']) . ' · ' . pj_ago(ts($j['ends_at']) - ts($j['started_at'])),
     'delve' => ($delveName[(int)$j['target']] ?? 'a delve') . ((int)$j['potions'] ? ' · ' . (int)$j['potions'] . ' potion' . ((int)$j['potions'] > 1 ? 's' : '') : ''),
-    'station' => (($stationList[$j['target']][0] ?? '') . ' · ' . ($stationList[$j['target']][1] ?? 'station') . ' · ' . (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes'),
+    'station' => (($stationList[$j['target']][0] ?? '') . ' · ' . ($stationList[$j['target']][1] ?? 'station') . ' · ' . (function (array $rj): string { $n = (int)($rj['makes'] ?? 0); return $n . ' made' . (!empty($rj['waiting']) ? ' · waiting for ingredients' : ''); })(json_decode((string)$j['result'], true) ?: [])),
     default => '',
 };
 $nextBack = null;
@@ -148,7 +166,7 @@ $anyReady = (bool)array_filter($jobs, fn($j) => $j['state'] === 'ready');
 $posts = [
     'garden' => ['🪴', 'Tend a garden', '1, 3 or 7 days', 'Waters, weeds and harvests while you are away. Works after your hired help, on whatever is still undone.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
     'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Higher Adventuring: more finds, more rares. Unused potions come back.'],
-    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'A pal works one object of a crafting area (Stove, Workbench...): it makes everything that object makes, or recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking holds one of your pots.', 'Ingredients taken now; XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'One pal per station. Only recipes you know. Pantry jars: later.'],
+    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'A pal works one object of a crafting area (Stove, Workbench...): it makes everything that object makes, or recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking holds one of your pots. If you run out of ingredients the pal waits and tries again. Account settings: Pals can keep cooking shift after shift.', 'Ingredients taken as each make starts; XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'One pal per station. Only recipes you know. Pantry jars: later.'],
     'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Risky below Adventuring ' . PJ_DELVE_SAFE . ': pack potions. Unused potions come back.'],
 ];
 $stSt = craft_stations($uid);
@@ -351,7 +369,7 @@ page_header('Pal Jobs');
             <?= $potionField('delve') ?>
             <?php endif; ?>
             <p class="pjhint muted"><?= e($why) ?></p>
-            <p class="pjback" data-pj-back aria-live="polite"><?= $kind === 'garden' ? 'Back when the days are up.' : ($kind === 'trip' ? 'Back when the hours are up, sooner if HP runs out.' : ($kind === 'station' ? 'Back when the shift ends; the makes wait for you.' : 'Back in about an hour.')) ?></p>
+            <p class="pjback" data-pj-back aria-live="polite"><?= $kind === 'garden' ? 'Back when the days are up.' : ($kind === 'trip' ? 'Back when the hours are up, sooner if HP runs out.' : ($kind === 'station' ? 'Back when the shift ends; the makes wait for you (or collect early to take what is done).' : 'Back in about an hour.')) ?></p>
             <button class="btn pjsend" data-pj-send>Send</button>
           </div>
         </form>

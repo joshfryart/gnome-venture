@@ -1430,6 +1430,7 @@ function schema_statements(string $driver): array
         ['users', 'calling_changes', 'INT NOT NULL DEFAULT 0'],       // v0.9.1a: paid changes of calling so far (cost doubles)
         ['users', 'calling_qt', 'INT NOT NULL DEFAULT 0'],            // v0.9.4: calling chapters finished for the current calling (0-2); tier = min(level tier, 1 + this)
         ['users', 'easy_roads', 'INT NOT NULL DEFAULT 1'],            // v0.9.7: easy roads (near-home encounters stay a few levels below you, no bosses); upgrade_097_roads turns it off for gnomes already past easy_roads_below
+        ['users', 'pal_cook', 'INT NOT NULL DEFAULT 0'],             // v2.4.64: 0 = pals never cook on their own; 1 = a pal on a cooking shift keeps the same station going shift after shift
         ['users', 'calling_chapter', 'INT NULL'],                     // v0.9.4: the calling chapter in progress (NULL = none; calling_event exits at once)
         ['users', 'buff2', 'TEXT NULL'],                              // v0.9.1: second meal buff (Brewroot master)
         ['users', 'buff2_until', 'DATETIME NULL'],

@@ -421,15 +421,18 @@ $energyBefore = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
 [$o3, $m3] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3);
 ok('a chosen shift starts', $o3 === true, $m3);
 $job = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'"); $res = json_decode((string)$job['result'], true);
-ok('3 h at level 1 = 3 makes', (int)$res['makes'] === 3, json_encode($res));
+ok('first make starts at once, nothing banked yet', !empty($res['cur']) && (int)$res['makes'] === 0, json_encode($res));
 ok('no energy was spent', (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) === $energyBefore);
-ok('ingredients were taken (2 of 5 batches left)', true);
+$ing0 = json_decode((string)$rec['ingredients'], true); $s0 = array_key_first($ing0);
+ok('only the first make took ingredients (4 of 5 batches left)', (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = (SELECT id FROM items WHERE slug = ?)', [$uid, $s0]) === $ing0[$s0] * 4);
 [$o4] = pj_station_send($u, $sp2, 'cooking', 'stove', 'all', [], 1); ok('one pal per station', $o4 === false);
 ok('the pal is out', pj_pal($uid, $sp1)['status'] === 'station');
 ok('the shift holds a pot', cook_pots_busy($uid) >= 1);
-q("UPDATE ppal_jobs SET ends_at = ? WHERE id = ?", [gmdate('Y-m-d H:i:s', time() - 60), $job['id']]);
+// pretend the 3 h passed: move the whole shift back in time, then collect (settle plays out the makes)
+$shift = 3 * 3600 + 60; $rj = json_decode((string)$job['result'], true); $rj['next'] -= $shift; $rj['cur']['done'] -= $shift;
+q("UPDATE ppal_jobs SET started_at = ?, ends_at = ?, result = ? WHERE id = ?", [gmdate('Y-m-d H:i:s', time() - $shift), gmdate('Y-m-d H:i:s', time() - 60), json_encode($rj), $job['id']]);
 $xp0 = (int)q_val('SELECT xp FROM users WHERE id = ?', [$uid]); $c0 = pj_pal($uid, $sp1)['cxp'];
-$outId = (int)$rec['output_item_id']; $had = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
+pj_settle($uid); $outId = (int)$rec['output_item_id']; $had = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
 [$oc, $lc, $hc] = pj_collect($u, (int)$job['id']);
 ok('collect works and names the station', $oc === true && str_contains($hc, 'Stove'), $hc . ' ' . implode(' | ', (array)$lc));
 ok('the dishes arrived', (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]) >= $had + 3);
@@ -446,6 +449,28 @@ foreach (json_decode((string)$rec['ingredients'], true) as $slug => $qn) { $iid 
 [$o6, $m6] = pj_station_send($u, $sp1, 'cooking', 'stove', 'all', [], 1); ok('own daily cap applies', $o6 === false && str_contains($m6, 'enough shifts'), $m6);
 set_setting('pj_stations_per_day', '4'); setting('__reload__');
 ok('crafting skill speeds a pal up', pj_station_minutes(10) < pj_station_minutes(1) && pj_station_minutes(1) === 60);
+
+// v2.4.64: a shift that runs dry waits, then resumes when ingredients return; "always cook" renews the shift
+echo "== v2.4.64: waiting and always-cook\n";
+q('DELETE FROM ppal_jobs'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0");
+$ingR = json_decode((string)$rec['ingredients'], true); $iidOf = fn($sl) => (int)q_val('SELECT id FROM items WHERE slug = ?', [$sl]);
+foreach ($ingR as $sl => $qn) { q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iidOf($sl)]); give_item($uid, $iidOf($sl), $qn); }   // exactly one batch
+$u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+set_setting('pj_stations_per_day', '9'); setting('__reload__');
+[$w1, $wm] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3); ok('one batch is enough to start', $w1 === true, $wm);
+$wj = q_one("SELECT * FROM ppal_jobs WHERE state = 'active'");
+$shiftW = 3600 + 30; $rw = json_decode((string)$wj['result'], true); $rw['next'] -= $shiftW; $rw['cur']['done'] -= $shiftW;
+q('UPDATE ppal_jobs SET started_at = ?, result = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - $shiftW), json_encode($rw), $wj['id']]);
+pj_settle($uid); $rw = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$wj['id']]), true);
+ok('first make banked, then waiting (no ingredients)', (int)$rw['makes'] === 1 && !empty($rw['waiting']) && empty($rw['cur']), json_encode($rw));
+foreach ($ingR as $sl => $qn) give_item($uid, $iidOf($sl), $qn * 2);
+pj_settle($uid); $rw = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$wj['id']]), true);
+ok('ingredients back: it cooks again', !empty($rw['cur']) && empty($rw['waiting']), json_encode($rw));
+q('UPDATE users SET pal_cook = 1 WHERE id = ?', [$uid]);
+q('UPDATE ppal_jobs SET ends_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 5), $wj['id']]);
+pj_settle($uid);
+ok('always cook: old shift collected and a new one started', (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE state = 'done'") === 1 && (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE state = 'active'") === 1);
+q('UPDATE users SET pal_cook = 0 WHERE id = ?', [$uid]);
 
 echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);

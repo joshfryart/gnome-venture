@@ -27,6 +27,10 @@ if (is_post()) {
             q('UPDATE users SET easy_roads = ? WHERE id = ?', [empty($_POST['easy_roads']) ? 0 : 1, $u['id']]);
             return [true, empty($_POST['easy_roads']) ? 'Easy roads are off: roads next to home match your level and can be tough.' : 'Easy roads are on: roads next to home stay a few levels below you, with no legendary creatures.'];
         })(),
+        'pal_cook' => (function () use ($u) {   // v2.4.64
+            q('UPDATE users SET pal_cook = ? WHERE id = ?', [(string)($_POST['pal_cook'] ?? '') === 'always' ? 1 : 0, $u['id']]);
+            return [true, (string)($_POST['pal_cook'] ?? '') === 'always' ? 'Pals on a cooking shift will keep cooking, shift after shift.' : 'Pals stop when a cooking shift ends.'];
+        })(),
         'resend' => (function () use ($u) {
             if (!empty($u['email_verified_at'])) return [true, 'Your email is already confirmed.'];
             if (rate_limited('verify:' . $u['id'], 3, 60)) return [false, 'Too many emails. Try again in an hour.'];
@@ -90,6 +94,14 @@ page_header('Account');
     <p class="help">Hidden gnomes can still do everything in town, but others won’t see them or be able to wave, share or challenge them.</p>
     <label class="check"><input type="checkbox" name="garden_private" value="1" <?= (int)$u['garden_public'] === 1 ? '' : 'checked' ?>> Keep my gardens private (no visitors, no Garden of the Month)</label>
     <p class="help">Visitors can only look, never touch. Your <a href="<?= e(url('profile.php')) ?>">profile</a> shows your name, level and ribbons either way.</p>
+    <button class="btn small">Save</button></form>
+</div>
+<div class="box narrow">
+  <h2>Pals</h2>
+  <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="do" value="pal_cook">
+    <label class="check"><input type="radio" name="pal_cook" value="never" <?= (int)($u['pal_cook'] ?? 0) !== 1 ? 'checked' : '' ?>> <span>Never cook on their own: a cooking shift ends when its hours are up</span></label>
+    <label class="check"><input type="radio" name="pal_cook" value="always" <?= (int)($u['pal_cook'] ?? 0) === 1 ? 'checked' : '' ?>> <span>Always cook: when a cooking shift ends, the pal collects it and starts the same shift again</span></label>
+    <p class="help">A pal on a cooking shift makes one dish at a time and takes ingredients for each dish as it starts. If you run out, it waits and tries again. It still holds one pot and does not use energy.</p>
     <button class="btn small">Save</button></form>
 </div>
 <div class="box narrow">
