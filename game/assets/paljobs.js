@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded",function(){
   /* 2-5. the job posts */
   var forms = Array.prototype.slice.call(root.querySelectorAll('form.pjform'));
   function picked(f) { return f.querySelector('input[name="pals[]"]:checked'); }
-  function pickedAll(f) { return f.querySelectorAll('input[name="pals[]"]:checked'); }   // v2.3.95: several pals per job
+  function pickedAll(f) { return f.querySelectorAll('input[name="pals[]"]:checked'); }   // v2.3.94: several pals per job
   function nameOf(input) { var n = input && input.closest('.pjface').querySelector('.pjnm'); return n ? n.textContent : ''; }
   function checkedVal(f, name) { var r = f.querySelector('input[name="' + name + '"]:checked'); return r ? +r.value : 0; }
   function update(f) {

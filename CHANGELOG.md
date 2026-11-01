@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.94
+- **Playtest fixes:** batch plant tries the next picked seed when one needs richer soil; harvest says the square is bare and needs tilling; plant list and shop seeds show XP per harvest; Crafting refuses quantity 0, negative or text; garden names cannot use `<` or `>`; Adventure shows fresh energy; Jobs show when each period ends and that progress does not carry over; repeated flash messages no longer stack (log capped at 20).
+- **Double taps:** a form sent twice within 2 seconds is done once (browser and server). The server sends you back to the same page and says "Already done: that was sent twice."
+- **Races:** two walks started at once keep only the first (energy refunded); two hires cannot take the last helper slot.
+- **Pal Jobs:** tick several pals and send them on the same job in one go (each keeps its own limits; "N of M pals sent"). "Collect all" when 2 or more jobs are ready, with one receipt.
+- **Animals:** the feeder card shows its cap and the per-gift need ("6/6 · 4 scraps per gift") instead of "6/4".
+- **Tests:** `paljobs` covers multi-send and Collect all; `walk` listed as self-installing in `ci_suites.sh`. Report: `claude/playtest-report.md`.
+
 ## 2.3.93
 - **Polish pass** (audit and notes in `claude/polish-audit.md`, plan in `claude/plan-polish.md`). Look and navigation only; no database change, no new settings.
 - **Status strip** no longer scrolls sideways on tablet and desktop: the chips wrap to a second row. **World header** image stacks above the title between 721 and 999 px (it covered the title at 768 px). **Menu labels** wrap instead of being cut ("Whisker Po...", "Gnome frie..."). **My Gnome / Mentor tabs** wrap onto rows on phones (7 tabs, 299 px of them were out of sight).

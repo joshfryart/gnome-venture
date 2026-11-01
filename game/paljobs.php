@@ -24,7 +24,7 @@ if (is_post()) {
     $pots = (int)($_POST['potions'] ?? 0);
     $unq = !empty($_POST['unequip']);   // v2.3.2: the player agreed to take an equipped pal off the party
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
-    // v2.3.95: several pals at once. Ticked pals (pals[]) get the same job; each send still checks its own rules (slots, runs per day, one gardener per garden, one re-run per delve per day).
+    // v2.3.94: several pals at once. Ticked pals (pals[]) get the same job; each send still checks its own rules (slots, runs per day, one gardener per garden, one re-run per delve per day).
     $picked = array_values(array_unique(array_filter(array_map('strval', array_merge((array)($_POST['pals'] ?? []), $pal !== '' ? [$pal] : [])), fn($x) => $x !== '')));
     if (in_array($do, ['send_garden', 'send_trip', 'send_delve'], true) && count($picked) > 1) {
         $sent = 0; $why = [];

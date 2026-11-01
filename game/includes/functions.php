@@ -225,7 +225,7 @@ function csrf_check(): void
         $prev = $_SESSION['last_post'] ?? null;
         $_SESSION['last_post'] = [$fp, microtime(true)];
         if ($prev && $prev[0] === $fp && microtime(true) - (float)$prev[1] < 2.0) {
-            // v2.3.95: go back to the page the form was on: same-site Referer only, else this very URL (query string kept)
+            // v2.3.94: go back to the page the form was on: same-site Referer only, else this very URL (query string kept)
             $ref = (string)($_SERVER['HTTP_REFERER'] ?? '');
             $rp = $ref !== '' ? parse_url($ref) : false;
             $back = ($rp && isset($rp['host']) && strcasecmp($rp['host'], (string)preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? ''))) === 0)
