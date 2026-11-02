@@ -6651,3 +6651,11 @@ details.craftall > summary::-webkit-details-marker { display: none; }
 /* P2-2: the count line under the page title (replaces the repeated "Satchel" heading) */
 .shelves .p2title.shcount { font-size: 14px; font-weight: 500; color: var(--muted); }
 /* ===== end studio UX review ===== */
+/* v2.4.70: pal pot is a button that opens a pop-up; recall confirm box */
+.shelves button.p2jar.palpot { font: inherit; color: inherit; cursor: pointer; }
+.palpotpop .pickbox { padding: 0 12px 12px; }
+.palpotpop .potpick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.pjrecall { display: inline-block; vertical-align: middle; }
+.pjrecall > summary { cursor: pointer; list-style: none; }
+.pjrecall > summary::-webkit-details-marker { display: none; }
+.pjrecall[open] { display: block; margin-top: 6px; }

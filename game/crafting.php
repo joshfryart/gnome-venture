@@ -27,6 +27,12 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect('inventory.php?tab=craft&c=cooking');
     }
+    if ($act === 'pal_recall') {   // send a tending pal home early from its pot pop-up
+        require_once __DIR__ . '/includes/pal_jobs.php';
+        [$ok, $msg] = pj_recall($u, (int)($_POST['job_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('inventory.php?tab=craft&c=cooking');
+    }
     if ($act === 'cook_again') {   // v2.4.67: cook the last dish again, as many as the free pots, stock and energy allow
         $rid = (int)q_val("SELECT r.id FROM recipes r JOIN users u ON u.last_cooked_id = r.output_item_id WHERE u.id = ? AND r.category = 'cooking'", [$uid]);
         [$ok, $msg] = $rid > 0 ? craft($u, $rid, 'all') : [false, 'Cook something once first.'];

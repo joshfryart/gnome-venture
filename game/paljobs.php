@@ -131,6 +131,13 @@ $home = array_filter($pals, fn($p) => $p['status'] === 'home');
 
 // the ledger: ready first, then soonest back; garden stays last (they end on a date, not a countdown)
 usort($jobs, fn($a, $b) => [$a['state'] !== 'ready', $a['kind'] === 'garden', ts($a['ends_at'])] <=> [$b['state'] !== 'ready', $b['kind'] === 'garden', ts($b['ends_at'])]);
+// v2.4.70: any active job can be called home early (a confirm box says what it costs)
+$recallBox = function (array $j): string {
+    [$can, $txt] = pj_recall_preview($j);
+    if ($txt === '') return '';
+    return '<details class="pjrecall"><summary class="btn small ghost">Call home</summary><p class="muted">' . e($txt) . '</p>'
+        . ($can ? '<form method="post" action="' . e(url('paljobs.php')) . '">' . csrf_field() . '<input type="hidden" name="job" value="' . (int)$j['id'] . '"><button class="btn small" name="do" value="recall">Call home now</button></form>' : '') . '</details>';
+};
 $kindTxt = ['garden' => '🪴 Garden', 'trip' => '🧺 Gathering', 'delve' => '🕳️ Delve', 'station' => '🍳 Station'];
 $stationList = pj_station_list();
 $jobLine = fn(array $j): string => match ($j['kind']) {
@@ -233,11 +240,12 @@ page_header('Pal Jobs');
             <form method="post" action="<?= e(url('paljobs.php')) ?>"><?= csrf_field() ?><input type="hidden" name="job" value="<?= (int)$j['id'] ?>"><button class="btn small" name="do" value="collect">Collect</button></form>
             <?php elseif ($j['kind'] === 'garden'): ?>
             <span class="pjeta pjeta-date">until <?= e(puzzle_local((string)$j['ends_at'], 'j M, H:i')) ?></span>
-            <form method="post" action="<?= e(url('paljobs.php')) ?>"><?= csrf_field() ?><input type="hidden" name="job" value="<?= (int)$j['id'] ?>"><button class="btn small ghost" name="do" value="recall">Call home</button></form>
+            <?= $recallBox($j) ?>
             <?php else: ?>
             <span class="pjeta" data-pj-eta><?= e(pj_ago($t1 - $now)) ?></span>
             <small class="muted" data-pj-hide-at-zero>back at <?= e(puzzle_local((string)$j['ends_at'], 'H:i')) ?></small>
             <form method="post" action="<?= e(url('paljobs.php')) ?>" hidden data-pj-show-at-zero><?= csrf_field() ?><input type="hidden" name="job" value="<?= (int)$j['id'] ?>"><button class="btn small" name="do" value="collect">Collect</button></form>
+            <?= $recallBox($j) ?>
             <?php endif; ?>
           </div>
           <progress class="pjbar" max="100" value="<?= $pct ?>" aria-label="<?= e($p['name']) ?>: <?= $pct ?>% of the way"></progress>

@@ -74,18 +74,28 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
                 $palOpts[(string)($jr['target'] ?? '')] = $po ? pj_station_recipes($uid, $pa, $po['globs']) : [];
             }
             $opts = $palOpts[(string)($jr['target'] ?? '')]; ?>
-      <div class="p2jar pot potsq palpot <?= $done && empty($p['idle']) ? 'done' : 'busy' ?>" title="<?= e($p['pal'] . ' is tending this pot') ?>">
+      <button type="button" class="p2jar pot potsq palpot <?= $done && empty($p['idle']) ? 'done' : 'busy' ?>" data-palpot="palpot-<?= (int)$p['job'] ?>" title="<?= e($p['pal'] . ' is tending this pot') ?>">
         <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🧩' ?></span>
         <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>
         <span class="potleft">🧩 <?= e($p['pal']) ?> is tending this pot<?= !empty($p['idle']) ? '' : ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left']))) ?></span>
+      </button>
+      <dialog class="picker craftpop shbagpop palpotpop" id="palpot-<?= (int)$p['job'] ?>" aria-labelledby="palpot-<?= (int)$p['job'] ?>-t"><div class="pickbox">
+        <div class="pickhead"><h3 id="palpot-<?= (int)$p['job'] ?>-t">🧩 <?= e($p['pal']) ?> at the pot</h3><button type="button" class="pickx" data-shpd-close aria-label="Close">✕</button></div>
+        <p><b>Cooking now:</b> <?= !empty($p['idle']) ? '<span class="muted">nothing yet (waits for the next check)</span>' : e($p['name']) . ((int)$p['dishes'] > 0 ? ' ×' . (int)$p['dishes'] : '') . ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left'])) . ' left') ?></p>
         <?php if (empty($p['locked'])): ?>
         <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="potpick"><?= csrf_field() ?>
           <input type="hidden" name="do" value="pal_pot_recipe"><input type="hidden" name="job_id" value="<?= (int)$p['job'] ?>">
-          <label><span class="muted">Cooks next</span> <select name="recipe_id" aria-label="What <?= e($p['pal']) ?> cooks next">
+          <label><b>Cooks next</b> <select name="recipe_id" aria-label="What <?= e($p['pal']) ?> cooks next">
             <?php foreach ($opts as $rid => $rx): ?><option value="<?= (int)$rid ?>"<?= (int)$rid === (int)$p['plan'] ? ' selected' : '' ?>><?= e((string)$rx['name']) ?></option><?php endforeach; ?>
           </select></label> <button class="btn small">Set</button></form>
-        <?php else: ?><a class="rgo" href="<?= e(url('paljobs.php')) ?>">Collect the shift →</a><?php endif; ?>
-      </div>
+        <p class="muted">Kept until you change it or the shift ends.</p>
+        <?php $pj = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [(int)$p['job']]); [$canR, $txtR] = $pj ? pj_recall_preview($pj) : [false, '']; if ($canR): ?>
+        <details class="pjrecall"><summary class="btn small ghost">Send home early</summary><p class="muted"><?= e($txtR) ?></p>
+          <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="pal_recall"><input type="hidden" name="job_id" value="<?= (int)$p['job'] ?>"><button class="btn small">Send home now</button></form></details>
+        <?php endif; ?>
+        <?php else: ?><p><a class="rgo" href="<?= e(url('paljobs.php')) ?>">Collect the shift →</a></p><?php endif; ?>
+        <noscript><p><a href="<?= e(url('paljobs.php')) ?>">Manage on the Pal Jobs page</a></p></noscript>
+      </div></dialog>
     <?php continue; endif; ?>
       <div class="p2jar pot potsq <?= $done ? 'done' : 'busy' ?>" title="<?= e($p['name']) ?>">
         <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🍲' ?></span>

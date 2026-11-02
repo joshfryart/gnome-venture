@@ -490,5 +490,56 @@ for ($i = 0; $i < $lim; $i++) db_insert('cook_pots', ['user_id' => $uid, 'recipe
 q("UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL", [now()]);
 ok('crafting skill speeds a pal up', pj_station_minutes(10) < pj_station_minutes(1) && pj_station_minutes(1) === 60);
 
+echo "== v2.4.70: calling pals home early\n";
+q('DELETE FROM ppal_jobs'); q('DELETE FROM cook_pots'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0");
+$iid0 = (int)q_val("SELECT id FROM items ORDER BY id LIMIT 1");
+$mkTrip = fn(string $kind, int $doneSecs, int $totalSecs, string $pal, array $extra = []) => db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $pal, 'kind' => $kind, 'target' => 'forest', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'forage',
+    'started_at' => gmdate('Y-m-d H:i:s', time() - $doneSecs), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $totalSecs - $doneSecs), 'last_tick' => now(), 'potions' => 2, 'state' => 'active',
+    'result' => json_encode($extra + ['items' => [[$iid0, 10, 'Thing']], 'coins' => 100, 'rounds' => 4, 'hp' => 20, 'potions_used' => 2, 'potions_back' => 0, 'fainted' => false])]);
+q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$sp1]);
+$jt = $mkTrip('trip', 1800, 3600, $sp1);
+[$pv1, $pvt] = pj_recall_preview(q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$jt])); ok('preview says what is kept (half of the half done)', $pv1 === true && str_contains($pvt, '2 of 10'), $pvt);
+[$rt, $rm] = pj_recall($u, $jt);
+$rj = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$jt]); $rr = json_decode((string)$rj['result'], true);
+ok('a trip called home at 50% is ready now', $rt === true && $rj['state'] === 'ready' && pj_pal($uid, $sp1)['status'] === 'home', $rm);
+ok('it keeps 25% of the loot (50% of the half done)', $rr['items'][0][1] === 2 && (int)$rr['coins'] === 25 && !empty($rr['recalled']), json_encode($rr));
+ok('potions drunk scale by time done, the rest come back', (int)$rr['potions_used'] === 1 && (int)$rr['potions_back'] === 1, json_encode($rr));
+$had = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid0]);
+[$cok, $cl] = pj_collect($u, $jt); ok('collect pays the scaled loot', $cok && (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid0]) === $had + 2, implode(' | ', (array)$cl));
+q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$sp1]);
+$jd = $mkTrip('trip', 100, 3600, $sp1);
+[$re] = pj_recall($u, $jd); ok('called home under 10% is refused and the job runs on', $re === false && q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$jd]) === 'active');
+[$re2] = pj_recall($u, $jd + 999); ok('an unknown job is refused', $re2 === false);
+q("UPDATE ppal_jobs SET state = 'done' WHERE id = ?", [$jd]); q("UPDATE ppal_found SET status = 'home' WHERE pal_uid = ?", [$sp1]);
+q("UPDATE ppal_found SET status = 'delve' WHERE pal_uid = ?", [$sp1]);
+$jv = $mkTrip('delve', 3000, 3600, $sp1);
+[$rv] = pj_recall($u, $jv); ok('a delve can be called home too', $rv === true && q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$jv]) === 'ready');
+[$rv2] = pj_recall($u, $jv); ok('calling home twice does nothing', $rv2 === false);
+q('DELETE FROM ppal_jobs'); q("UPDATE ppal_found SET status = 'home', hp = 30");
+// a pal at a pot, recalled mid-cook: half the dishes, the pot is the gnome's again
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
+[$ps] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3); ok('a pal takes a pot', $ps === true);
+$pj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'");
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 700), $pj['id']]); pj_settle($uid);
+$pp = q_one('SELECT * FROM cook_pots WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]); ok('a cook is in the pal pot', (bool)$pp);
+q('UPDATE cook_pots SET dishes = 5 WHERE id = ?', [$pp['id']]);
+[$pr, $prm] = pj_recall($u, (int)$pj['id']);
+ok('recalled: job ready, pal home', $pr === true && q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$pj['id']]) === 'ready' && pj_pal($uid, $sp1)['status'] === 'home', $prm);
+$pp2 = q_one('SELECT * FROM cook_pots WHERE id = ?', [$pp['id']]);
+ok('the cook in the pot lost half its dishes (5 -> 2) and is the gnome\'s', (int)$pp2['dishes'] === 2 && $pp2['pal_uid'] === null && $pp2['collected_at'] === null, json_encode($pp2));
+ok('the pot counts once, as the gnome\'s', cook_pots_busy($uid) === 1);
+[, $pcl] = pj_collect($u, (int)$pj['id']); ok('collect tells how many dishes were lost', str_contains(implode(' ', (array)$pcl), '3 dishes'), implode(' | ', (array)$pcl));
+q('UPDATE cook_pots SET collected_at = ?', [now()]);
+// one dish in the pot: half is 0, so the dish is lost
+q("UPDATE ppal_found SET status = 'home', hp = 30"); foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
+pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3); $pj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'");
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 700), $pj['id']]); pj_settle($uid);
+q('UPDATE cook_pots SET dishes = 1 WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]);
+pj_recall($u, (int)$pj['id']);
+ok('a one-dish cook is lost and the pot is free', cook_pots_busy($uid) === 0);
+$gj = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $sp1, 'kind' => 'garden', 'target' => '', 'plot_id' => $plotS, 'day' => landmark_day(), 'tool' => null, 'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => '{}']);
+q("UPDATE ppal_found SET status = 'garden' WHERE pal_uid = ?", [$sp1]);
+[$gr] = pj_recall($u, $gj); ok('a gardener comes home with no loss', $gr === true && pj_pal($uid, $sp1)['status'] === 'home');
+
 echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);

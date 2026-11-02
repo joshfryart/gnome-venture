@@ -356,14 +356,73 @@ function pj_garden_close(array $job): void
     }
 }
 
-/** Send a garden pal home early. */
+/** Fraction of its time a job has run (0..1). */
+function pj_job_frac(array $j): float
+{
+    $t0 = pj_ts((string)$j['started_at']); $t1 = pj_ts((string)$j['ends_at']);
+    return max(0.0, min(1.0, (time() - $t0) / max(1, $t1 - $t0)));
+}
+
+/** Below this share of its time a trip, delve or old shift cannot be called home (the scaled haul would be nothing). */
+const PJ_RECALL_MIN = 0.10;
+
+/**
+ * What a recall keeps of a loot job's result: coins, items, makes and XP scale by (time done) x 50%. Rounds scale by time done. Potions drunk scale
+ * by time done (the rest come back). Items that round to 0 drop out.
+ */
+function pj_recall_scale(array $r, float $frac, int $potions): array
+{
+    $keep = $frac * 0.5;
+    if (!empty($r['coins'])) $r['coins'] = (int)floor((int)$r['coins'] * $keep);
+    $items = [];
+    foreach ($r['items'] ?? [] as [$iid, $qty, $name]) if (($q = (int)floor((int)$qty * $keep)) > 0) $items[] = [$iid, $q, $name];
+    $r['items'] = $items;
+    foreach (['makes', 'xp_base'] as $k) if (isset($r[$k])) $r[$k] = (int)floor((int)$r[$k] * $keep);
+    $r['rounds'] = (int)floor((int)($r['rounds'] ?? 0) * $frac);
+    $used = (int)ceil((int)($r['potions_used'] ?? 0) * $frac);
+    $r['potions_used'] = $used; $r['potions_back'] = max(0, $potions - $used);
+    $r['recalled'] = true;
+    return $r;
+}
+
+/** Words for the confirm box: what calling this job home early costs. [can, text]. */
+function pj_recall_preview(array $j): array
+{
+    if ($j['state'] !== 'active') return [false, ''];
+    $r = json_decode((string)$j['result'], true) ?: [];
+    if ($j['kind'] === 'garden') return [true, 'Your pal comes home now. Nothing is lost.'];
+    if (($j['tool'] ?? '') === 'passive') {
+        $served = (int)($r['served'] ?? 0);
+        return [true, 'Dishes already served (' . $served . ') stay in your satchel. A dish still cooking loses half its dishes (rounded down) and the pot is yours again.'];
+    }
+    $f = pj_job_frac($j);
+    if ($f < PJ_RECALL_MIN) return [false, 'Too early: wait until about ' . (int)(PJ_RECALL_MIN * 100) . '% of the time has passed.'];
+    $s = pj_recall_scale($r, $f, (int)$j['potions']);
+    $n0 = array_sum(array_map(fn($i) => (int)$i[1], $r['items'] ?? [])); $n1 = array_sum(array_map(fn($i) => (int)$i[1], $s['items']));
+    $txt = 'Done ' . (int)round($f * 100) . '% so far; you keep half of that: ' . $n1 . ' of ' . $n0 . ' items' . (!empty($r['coins']) ? ', ' . money((int)$s['coins']) . ' of ' . money((int)$r['coins']) : '') . '.';
+    return [true, $txt];
+}
+
+/** Call a pal home early. Garden: no loss. Pot: the cook in the pot loses half. Others: half of what the time so far earned. Returns [ok, message]. */
 function pj_recall(array $u, int $jobId): array
 {
     $uid = (int)$u['id'];
-    $j = q_one("SELECT * FROM ppal_jobs WHERE id = ? AND user_id = ? AND kind = 'garden' AND state = 'active'", [$jobId, $uid]);
+    pj_settle($uid);
+    $j = q_one("SELECT * FROM ppal_jobs WHERE id = ? AND user_id = ? AND state = 'active'", [$jobId, $uid]);
     if (!$j) return [false, 'No pal to call home.'];
-    pj_garden_close($j);
-    return [true, 'Your pal comes home from the garden.'];
+    $p = pj_pal($uid, (string)$j['pal_uid']); $name = $p['name'] ?? 'Your pal';
+    if ($j['kind'] === 'garden') { pj_garden_close($j); return [true, $name . ' comes home from the garden.']; }
+    $r = json_decode((string)$j['result'], true) ?: [];
+    $passive = $j['kind'] === 'station' && ($j['tool'] ?? '') === 'passive';
+    if (!$passive) {
+        [$can, $why] = pj_recall_preview($j);
+        if (!$can) return [false, $why];
+        $r = pj_recall_scale($r, pj_job_frac($j), (int)$j['potions']);
+    }
+    if (q("UPDATE ppal_jobs SET state = 'ready', ends_at = ?, result = ? WHERE id = ? AND state = 'active'", [now(), json_encode($r), $jobId])->rowCount() !== 1) return [false, 'Already home.'];
+    q("UPDATE ppal_found SET status = 'home', hp = ?, hp_at = ? WHERE user_id = ? AND pal_uid = ?", [max(0, (int)($r['hp'] ?? 0)), now(), $uid, $j['pal_uid']]);
+    if ($passive) pj_passive_finish($uid, $jobId, true);
+    return [true, $name . ' comes home early. Collect to get what they brought.'];
 }
 
 // ---------------- gathering trips ----------------
@@ -632,12 +691,12 @@ function pj_passive_tick(int $uid, array $j): void
 function pj_passive_save($jobId, array $r): void
 {
     $cur = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$jobId]), true) ?: [];
-    foreach (['served', 'cooks', 'skipped', 'pal_xp', 'last'] as $k) if (isset($r[$k])) $cur[$k] = $r[$k];
+    foreach (['served', 'cooks', 'skipped', 'pal_xp', 'last', 'lost'] as $k) if (isset($r[$k])) $cur[$k] = $r[$k];
     q('UPDATE ppal_jobs SET result = ? WHERE id = ?', [json_encode($cur), $jobId]);
 }
 
 /** A passive shift is over: serve a finished pot, then let go of any pot still cooking (it becomes the gnome's own to collect). */
-function pj_passive_finish(int $uid, int $jobId): void
+function pj_passive_finish(int $uid, int $jobId, bool $recall = false): void
 {
     $j = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$jobId]);
     $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
@@ -648,6 +707,12 @@ function pj_passive_finish(int $uid, int $jobId): void
     if ($pot && pj_ts((string)$pot['ready_at']) <= time()) {
         [$ok, , $info] = cook_collect_one($u, (int)$pot['id'], true);
         if ($ok) { $r['served'] = (int)($r['served'] ?? 0) + (int)$info['dishes']; $r['cooks'] = (int)($r['cooks'] ?? 0) + 1; $r['pal_xp'] = (int)($r['pal_xp'] ?? 0) + 3; $r['last'] = (string)$info['name']; }
+    }
+    if ($recall && ($pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]))) {   // recalled mid-cook: half the dishes are lost
+        $half = intdiv((int)$pot['dishes'], 2);
+        if ($half < 1) q('UPDATE cook_pots SET collected_at = ? WHERE id = ?', [now(), $pot['id']]);
+        else q('UPDATE cook_pots SET dishes = ? WHERE id = ?', [$half, $pot['id']]);
+        $r['lost'] = (int)$pot['dishes'] - $half;
     }
     q('UPDATE cook_pots SET pal_uid = NULL WHERE user_id = ? AND pal_uid = ? AND collected_at IS NULL', [$uid, $j['pal_uid']]);
     pj_passive_save($jobId, $r);
@@ -872,11 +937,13 @@ function pj_collect(array $u, int $jobId): array
     foreach ($r['items'] ?? [] as [$iid, $qty, $iname]) { give_item($uid, (int)$iid, (int)$qty); $lines[] = '🎁 ' . $iname . ' ×' . (int)$qty; }
     if ($isPassive) {
         $lines[] = !empty($r['cooks']) ? '🍲 ' . $name . ' served ' . (int)$r['served'] . ' dish' . ((int)$r['served'] === 1 ? '' : 'es') . ' from ' . (int)$r['cooks'] . ' cook' . ((int)$r['cooks'] === 1 ? '' : 's') . ' (already in your satchel).' : '🍃 Nothing was cooked.';
+        if (!empty($r['lost'])) $lines[] = 'ℹ️ Called home early: ' . (int)$r['lost'] . ' dish' . ((int)$r['lost'] === 1 ? '' : 'es') . ' in the pot were lost.';
         if (!empty($r['skipped'])) $lines[] = 'ℹ️ ' . (int)$r['skipped'] . ' check' . ((int)$r['skipped'] === 1 ? '' : 's') . ' skipped: missing ingredients or no dish chosen.';
         if ($p && ($px = (int)($r['pal_xp'] ?? 0)) > 0) { pj_add_c_xp($uid, $p['key'], $px); $lv = pj_level($p['cxp'] + $px); $lines[] = '⭐ +' . $px . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
         return [true, $lines, $head];
     }
     if (empty($r['coins']) && empty($r['items'])) $lines[] = $isStation ? '🍃 Nothing was made.' : '🍃 No finds this time.';
+    if (!empty($r['recalled'])) $lines[] = 'ℹ️ Called home early: half of what was earned so far.';
     if ($isStation && !empty($r['stop'])) $lines[] = 'ℹ️ ' . $r['stop'];
     $used = (int)($r['potions_used'] ?? 0);
     $back = (int)($r['potions_back'] ?? 0);
@@ -887,7 +954,7 @@ function pj_collect(array $u, int $jobId): array
         if ($gnomeXp > 0) { [$gx] = add_action_xp($uid, $gnomeXp, 'Crafting', (int)$u['level']); $lines[] = '⭐ +' . $gx . ' Crafting XP for you'; }
         if ($palXp > 0) { pj_add_c_xp($uid, $p['key'], $palXp); $lv = pj_level($p['cxp'] + $palXp); $lines[] = '⭐ +' . $palXp . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
     } elseif ($p) {
-        $xp = $j['kind'] === 'delve' ? 4 * (int)($r['rounds'] ?? 0) + ($fainted ? 0 : 10) : 2 * (int)($r['rounds'] ?? 0);
+        $xp = $j['kind'] === 'delve' ? 4 * (int)($r['rounds'] ?? 0) + ($fainted || !empty($r['recalled']) ? 0 : 10) : 2 * (int)($r['rounds'] ?? 0);
         pj_add_xp($uid, $p['key'], 0, $xp);
         $lv = pj_level($p['axp'] + $xp);
         if ($xp > 0) $lines[] = '⭐ +' . $xp . ' Adventuring XP' . ($lv > $p['a'] ? ': now level ' . $lv . '!' : '');

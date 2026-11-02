@@ -58,6 +58,11 @@
     var chip = t.closest('.shpdchip');
     if (chip) { d.querySelectorAll('.shpdchip').forEach(function (c) { c.classList.toggle('on', c === chip); }); apply(d); }
   });
+  document.addEventListener('click', function (ev) {   // v2.4.70: a pal's pot opens its pop-up (what it cooks now and next, send home early)
+    var b = ev.target.closest ? ev.target.closest('[data-palpot]') : null; if (!b) return;
+    var d = document.getElementById(b.getAttribute('data-palpot'));
+    if (d && window.gvOpenDlg) { back = b; gvOpenDlg(d); }
+  });
   document.addEventListener('input', function (ev) {
     var t = ev.target, d = dlgOf(t);
     if (d && t.matches('[data-shpd-filter]')) { apply(d); return; }
