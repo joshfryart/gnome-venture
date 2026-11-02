@@ -331,11 +331,31 @@ function picker_html(string $kind, string $title, array $items, callable $icon, 
         }
         $cards .= item_square(['item' => $row ?? [], 'name' => $row ? (string)$row['name'] : (string)$i['name'], 'icon' => $row ? '' : (string)$icon($i), 'rarity' => $row ? '' : 'C',
             'count' => $kind === 'cellar' ? null : (int)$i['qty'], 'chips' => $chips, 'pressed' => false, 'class' => 'pcard',
-            'attrs' => ['data-id' => (int)$i['id'], 'data-qty' => (int)$i['qty']], 'vh' => $tail]);
+            'attrs' => ['data-id' => (int)$i['id'], 'data-qty' => (int)$i['qty']] + ($kind === 'seed' ? ['data-pk' => (string)($i['kind'] ?? ''), 'data-nm' => mb_strtolower((string)$i['name']), 'data-in' => !empty($i['_in']) ? '1' : '0'] : []), 'vh' => $tail]);
+    }
+    $filter = '';   // v2.4.87: seed picker search + type chips + in-season toggle (shown from 5 seeds up)
+    if ($kind === 'seed' && count($items) >= 5) {
+        $kinds = []; foreach ($items as $i) $kinds[(string)($i['kind'] ?? '')] = 1;
+        $kl = ['vegetable' => 'Veg', 'herb' => 'Herbs', 'flower' => 'Flowers', 'tree' => 'Trees'];
+        $ks = array_values(array_filter(array_keys($kinds), fn($k) => $k !== '')); usort($ks, fn($x, $y) => strcmp($kl[$x] ?? ucfirst($x), $kl[$y] ?? ucfirst($y)));
+        if (count($ks) > 5) {   // many kinds: a <select>, not a wall of chips (DESIGN.md)
+            $chips = '<select class="pfsel" aria-label="Seed type"><option value="" data-l="All types">All types</option>';
+            foreach ($ks as $k) $chips .= '<option value="' . e($k) . '" data-l="' . e($kl[$k] ?? ucfirst($k)) . '">' . e($kl[$k] ?? ucfirst($k)) . '</option>';
+            $chips = '<div class="pfchips">' . $chips . '</select></div>';
+        } else {
+            $chips = '<div class="pfchips" role="group" aria-label="Seed type"><button type="button" class="pfchip" data-pk="" aria-pressed="true">All <small></small></button>';
+            foreach ($ks as $k) $chips .= '<button type="button" class="pfchip" data-pk="' . e($k) . '" aria-pressed="false">' . e($kl[$k] ?? ucfirst($k)) . ' <small></small></button>';
+            $chips .= '</div>';
+        }
+        $filter = '<div class="pickfilter"><div class="pfsearch"><input type="search" class="pfq" placeholder="Search seeds…" aria-label="Search seeds" autocomplete="off"><button type="button" class="pfx" aria-label="Clear search">✕</button></div>'
+            . $chips
+            . '<label class="pfin"><input type="checkbox" class="pfnow"> In season only</label></div>';
     }
     return '<dialog class="picker" data-kind="' . e($kind) . '" aria-label="' . e($title) . '"><div class="pickbox">'
         . '<div class="pickhead"><b>' . e($title) . '</b> <span class="pickhint muted"></span><button type="button" class="pickx" aria-label="Close">✕</button></div>'
+        . $filter
         . ($cards !== '' ? item_grid($cards, 'pickgrid') : '<p class="muted">You don’t have any.</p>')
+        . ($filter !== '' ? '<p class="muted pfempty" hidden>No seeds match. Clear the search or filter.</p>' : '')
         . '<div class="pickfoot"><span class="picksum muted"></span><button type="button" class="btn" data-go>' . e($go) . '</button></div></div></dialog>';
 }
 
@@ -459,7 +479,10 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
             $flags[] = (int)$t['x'] . '-' . (int)$t['y'] . ':' . $f . ':' . ($pl ? (int)$t['plant_id'] : 0);   // v0.9.1a: plant id for "select all of this crop"
             if ($pl) $pnames[(int)$t['plant_id']] = (int)$t['plant_id'] . ':' . str_replace([',', ':'], ' ', (string)$pl['name']);
         }
-        $plantableSeeds = $seeds;   // v0.7.65: anything can be planted; unstudied ones are marked
+        $plantableSeeds = $seeds; $ghOn = building_level((int)$plot['id'], 'greenhouse') > 0;
+        foreach ($plantableSeeds as &$ps) $ps['_in'] = empty($ps['sapling']) ? plant_season_state($ps, hollow_today(), $ghOn) === 'in' : true;   // v2.4.87: for the in-season toggle
+        unset($ps);
+          // v0.7.65: anything can be planted; unstudied ones are marked
         $costs = []; foreach (['plant', 'soil', 'mulch', 'till', 'water', 'harvest', 'dig', 'sheet'] as $a) $costs[] = $a . ':' . action_cost($uid, $a); ?>
     <div class="selbar" data-tiles="<?= e(implode(',', $flags)) ?>" data-costs="<?= e(implode(',', $costs)) ?>" data-hcosts="<?= e(implode(',', $hcosts)) ?>" data-pnames="<?= e(implode(',', $pnames)) ?>" hidden>
       <button type="button" class="btn small" data-sel="on">☑️ Select squares</button>
