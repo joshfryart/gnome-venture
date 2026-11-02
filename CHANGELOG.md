@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.67
+- **Cooking: less waiting, less tapping.** Pots are now 3 / 4 / 5 for Kitchen I / II / III (was 2 / 3 / 4). A pot now holds 1 / 3 / 5 meals and 1 / 1 / 2 feasts by Kitchen level (snacks still 5). New **Cook again** button on the pots row repeats the last dish into the free pots. Settings: `kitchen_pots`, `meal_batch_kitchen`, `feast_batch_kitchen`. Energy regen and max energy are unchanged.
+
 ## 2.4.66
 - **Studio review follow-up (no gameplay changes).** Phone header: the duplicate menu button is hidden (More in the bottom bar opens the same menu). Status-line links get 44 px tap areas. Satchel loses the repeated heading and the Belt link, and its tile labels and badges are larger. 182 unused CSS rules are removed (about 14 KB). `item_id_by_slug()` replaces 51 identical slug lookups. The zoom and pan blocks in `site.js` share one factory, and petals and burst are shared in `window.gvFx`.
 ## 2.4.65

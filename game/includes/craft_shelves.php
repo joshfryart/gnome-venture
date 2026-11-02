@@ -74,6 +74,9 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <?php endforeach;
         $free = max(0, $lim - count($pots)); ?>
     <?php for ($fi = 0; $fi < $free; $fi++): ?><div class="p2jar pot potsq empty" title="Empty pot"><span class="p2ic" aria-hidden="true">🫕</span><span class="shpn">Empty</span><span class="potleft">free</span></div><?php endfor; ?>
+    <?php if ($free > 0 && ($lastDish = (string)q_val('SELECT i.name FROM users u JOIN items i ON i.id = u.last_cooked_id WHERE u.id = ?', [(int)$u['id']])) !== ''): ?>
+    <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="p2all"><?= csrf_field() ?><input type="hidden" name="do" value="cook_again"><button class="btn small">Cook again: <?= e($lastDish) ?></button></form>
+    <?php endif; ?>
     <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="p2all" data-potall<?= $readyN >= 2 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="collect_all"><button class="btn small alt">Collect all</button></form>
     <?php elseif ($stations[$tab] === 0): $b = BUILDINGS[$building]; ?>
       <span class="p2jar shstat empty"><span class="p2ic" aria-hidden="true">🔒</span><span class="p2jt"><?= e($b[0]) ?> needed</span></span>

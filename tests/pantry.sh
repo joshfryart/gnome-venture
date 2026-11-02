@@ -61,7 +61,7 @@ chk "pantry = 1" "$(db "SELECT pantry FROM garden_buildings WHERE plot_id=$P")" 
 m=$(post $GP $GP -d do=pantry_buy); has "already has" "$m" "second purchase refused"; chk "no double charge" "$(coins)" 4400
 chk "Almanac: both pages unlocked" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id=ue.entry_id WHERE ue.user_id=$UID_ AND e.unlock_key='pantry'")" 2
 dbx "DELETE FROM garden_buildings WHERE plot_id=$P AND building='kitchen'"; dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect,pantry) VALUES ($P,'kitchen',datetime('now'),datetime('now'),1)"
-page "$GP?t=bld"; has "0 jars in use (5 in each" "$(grep -o '[0-9]* jars in use (5 in each' /tmp/pk.html | head -1)" "Kitchen tile: Pantry with 5 jars"; has "2 pots" "$(grep -o '2 pots · 🫙 5' /tmp/pk.html | head -1)" "tile status shows pots and jars"
+page "$GP?t=bld"; has "0 jars in use (5 in each" "$(grep -o '[0-9]* jars in use (5 in each' /tmp/pk.html | head -1)" "Kitchen tile: Pantry with 5 jars"; has "3 pots" "$(grep -o '3 pots · 🫙 5' /tmp/pk.html | head -1)" "tile status shows pots and jars"
 echo "bad csrf buy: $(curl -s -b $C -X POST "$BASE/garden.php" -d csrf=x -d do=pantry_buy -o /dev/null -w '%{http_code}')"
 
 echo "== jars: 5 to start, a jar per batch, energy 1 a batch"

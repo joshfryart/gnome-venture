@@ -537,7 +537,9 @@ function settings_schema(): array
         'cook_energy_tiers'  => ['label' => 'Cooking: energy to cook one dish: snack, meal, feast (comma separated)', 'type' => 'text', 'default' => '0,1,2'],
         'cook_minutes_tiers' => ['label' => 'Cooking: cook time in minutes: snack, meal, feast (used for new recipes; each recipe keeps its own in Admin → Recipes)', 'type' => 'text', 'default' => '3,15,45'],
         'snack_batch_max'    => ['label' => 'Cooking: snacks made in one go (new recipes; each recipe keeps its own in Admin → Recipes)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 100],
-        'kitchen_pots'       => ['label' => 'Cooking: pots for Kitchen level I, II, III (comma separated; 0 = no pots, dishes are cooked instantly)', 'type' => 'text', 'default' => '2,3,4'],   // v0.9.4 part 2
+        'kitchen_pots'       => ['label' => 'Cooking: pots for Kitchen level I, II, III (comma separated; 0 = no pots, dishes are cooked instantly)', 'type' => 'text', 'default' => '3,4,5'],   // v0.9.4 part 2; v2.4.67 was 2,3,4
+        'meal_batch_kitchen' => ['label' => 'Cooking: meals made in one pot for Kitchen level I, II, III (comma separated; a recipe\'s own batch size still counts if bigger)', 'type' => 'text', 'default' => '1,3,5'],   // v2.4.67
+        'feast_batch_kitchen' => ['label' => 'Cooking: feasts made in one pot for Kitchen level I, II, III (comma separated)', 'type' => 'text', 'default' => '1,1,2'],   // v2.4.67
         'stack_kitchen_buff_pct' => ['label' => 'Stacking: meal buff time, % extra per Kitchen level in your other gardens (the best Kitchen counts fully)', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 100],
         'stack_kitchen_buff_max' => ['label' => 'Stacking: most meal buff time bonus (%) all Kitchens can give together', 'type' => 'int', 'default' => '100', 'min' => 0, 'max' => 1000],
         'stack_kitchen_xp_pct' => ['label' => 'Stacking: cooking XP, % extra per Kitchen level in your other gardens', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 100],

@@ -129,6 +129,7 @@ dbx "INSERT OR IGNORE INTO user_calling_tasks (user_id,task_id,progress) SELECT 
 jobp() { db "SELECT progress FROM user_jobs WHERE user_id=$UID_ AND kind='cook'"; }
 callp() { db "SELECT ut.progress FROM user_calling_tasks ut JOIN calling_tasks t ON t.id=ut.task_id WHERE ut.user_id=$UID_ AND t.chapter_id=$CH AND t.kind='cook' AND t.spec='tier=meal/feast' ORDER BY t.sort_order LIMIT 1"; }
 SOUP=green-pea-soup
+dbx "REPLACE INTO settings (name,value) VALUES ('kitchen_pots','2,3,4')"; dbx "REPLACE INTO settings (name,value) VALUES ('meal_batch_kitchen','1,1,1')"; dbx "REPLACE INTO settings (name,value) VALUES ('feast_batch_kitchen','1,1,1')"   # v2.4.67: the old numbers pin the checks below; the new defaults are checked at the end
 
 echo "-- start: Kitchen I has 2 pots"
 S0=$(qty $SOUP); m=$(cookit $SOUP 5)
@@ -164,8 +165,8 @@ m=$(collectall); has "Collected 7 × Mint Tea (+2 XP" "$m" "snack XP 1 per pot"
 chk "mint tea +7" "$(qty mint-tea)" $((M0+7)); chk "job still 2 (snack is not a meal)" "$(jobp)" 2; chk "calling task still 2" "$(callp)" 2
 m=$(cookit mint-tea 3); chk "snack x3 = one pot of 3" "$(db "SELECT makes FROM cook_pots WHERE collected_at IS NULL")" 3; collectall >/dev/null
 echo "-- Kitchen level sets the pot count"
-KL 2; setE 60; cookit $SOUP 9 >/dev/null; chk "Kitchen II: 3 pots" "$(potsn)" 3; collectall >/dev/null
-KL 3; setE 60; cookit $SOUP 9 >/dev/null; chk "Kitchen III: 4 pots" "$(potsn)" 4
+stock $SOUP 300; KL 2; setE 100; cookit $SOUP 9 >/dev/null; chk "Kitchen II: 3 pots" "$(potsn)" 3; collectall >/dev/null
+stock $SOUP 300; KL 3; setE 100; cookit $SOUP 9 >/dev/null; chk "Kitchen III: 4 pots" "$(potsn)" 4
 collectall >/dev/null
 echo "-- feast: Petals fee"
 C0=$(db "SELECT coins FROM users WHERE id=$UID_"); setE 10; m=$(cookit feast-harvest-pie 1)
@@ -205,7 +206,13 @@ m=$(cookit $SOUP 2); has "Made 2 × Green Pea Soup" "$m" "instant: made at once"
 chk "soup +2 at once" "$(qty $SOUP)" $((S0+2)); chk "no pot left waiting" "$(potsn)" 0; chk "energy -2" "$(energy)" 58; chk "job +2" "$(jobp)" $((J0+2))
 m=$(cookit mint-tea 7); chk "instant snack x7" "$(qty mint-tea)" $((M0+7)); chk "instant: still no pots waiting" "$(potsn)" 0
 page "$CP"; chk "no pots strip when pots are off" "$(grep -c 'aria-label="Pots"' $TD/ck.html)" 0
-dbx "DELETE FROM settings WHERE name='kitchen_pots'"
+dbx "DELETE FROM settings WHERE name IN ('kitchen_pots','meal_batch_kitchen','feast_batch_kitchen')"
+echo "-- v2.4.67 defaults: pots 3,4,5; meals 1,3,5 per pot; Cook again"
+dbx "UPDATE users SET calling=NULL, calling_chapter=NULL WHERE id=$UID_"; stock $SOUP 20; collectall >/dev/null
+stock $SOUP 300; KL 1; setE 100; cookit $SOUP 9 >/dev/null; chk "Kitchen I: 3 pots, 1 meal each" "$(db "SELECT group_concat(makes) FROM cook_pots WHERE collected_at IS NULL")" 1,1,1; collectall >/dev/null
+stock $SOUP 300; KL 2; setE 100; cookit $SOUP 20 >/dev/null; chk "Kitchen II: 4 pots, 3 meals each" "$(db "SELECT group_concat(makes) FROM (SELECT makes FROM cook_pots WHERE collected_at IS NULL ORDER BY id)")" 3,3,3,3; collectall >/dev/null
+stock $SOUP 300; KL 3; setE 100; cookit $SOUP 40 >/dev/null; chk "Kitchen III: 5 pots, 5 meals each" "$(db "SELECT group_concat(makes) FROM (SELECT makes FROM cook_pots WHERE collected_at IS NULL ORDER BY id)")" 5,5,5,5,5; collectall >/dev/null
+stock $SOUP 300; KL 1; setE 100; cookit $SOUP 1 >/dev/null; collectall >/dev/null; m=$(post crafting.php $CP -d do=cook_again); chk "Cook again fills the 3 free pots" "$(potsn)" 3
 dbx "UPDATE users SET calling=NULL, calling_chapter=NULL WHERE id=$UID_"
 dbx "UPDATE user_jobs SET status='done' WHERE user_id=$UID_ AND kind='cook'"
 

@@ -301,6 +301,19 @@ function cook_pot_limit(array $u): int
     return max(1, $v[min($kl, count($v)) - 1]) + $kb['pots'] + max(0, calling_perk($u, 'extra_pot'));
 }
 
+/** v2.4.67: makes one pot of this recipe holds: the recipe's batch_max, or the Kitchen level's meal / feast size if bigger (snacks keep their own). */
+function cook_chunk(array $u, array $r): int
+{
+    $chunk = max(1, (int)$r['batch_max']);
+    $key = ['meal' => 'meal_batch_kitchen', 'feast' => 'feast_batch_kitchen'][(string)($r['tier'] ?? '')] ?? '';
+    if ($key === '') return $chunk;
+    require_once __DIR__ . '/gardens.php';
+    $kl = user_building_bonus((int)$u['id'], 'kitchen')['best'];
+    $v = array_values(array_filter(array_map('trim', explode(',', (string)setting($key))), fn($x) => $x !== ''));
+    if ($kl < 1 || !$v) return $chunk;
+    return max($chunk, (int)$v[min($kl, count($v)) - 1]);
+}
+
 /** Pots in use: cooking, or done and waiting to be collected. */
 function cook_pots_busy(int $uid): int
 {
@@ -359,7 +372,7 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
     $uid = (int)$u['id'];
     $tier = (string)($r['tier'] ?: 'meal');
     $pots = cook_pots_on();
-    $chunk = max(1, (int)$r['batch_max']);
+    $chunk = cook_chunk($u, $r);
     $free = $pots ? cook_pot_limit($u) - cook_pots_busy($uid) : 0;
     $none = ['ids' => [], 'qty' => 0, 'cost' => 0, 'fee' => 0, 'clamped' => false];
     if ($pots && $free < 1) return [false, 'All your pots are busy. Collect a finished one, or wait for a timer.', $none];

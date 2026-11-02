@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.4.66');
+define('APP_VERSION', '2.4.67');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -88,6 +88,9 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         db_migrate(db(), (string)($CONFIG['db']['driver'] ?? 'mysql'));
         boot_step('energy_rescale_world', function () {
             energy_rescale_world();  // v0.7.23: older worlds' energy numbers (before new content is added in the new scale)
+        });
+        boot_step('kitchen_pots_2467', function () {   // v2.4.67: new default pots 3,4,5, only if the row still holds the old default
+            if (q_val("SELECT value FROM settings WHERE name = 'kitchen_pots'") === '2,3,4') set_setting('kitchen_pots', '3,4,5');
         });
         boot_step('ensure_tools', function () {
             require_once __DIR__ . '/tools.php';

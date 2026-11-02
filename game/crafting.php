@@ -21,6 +21,13 @@ if (is_post()) {
         if ($ok) foreach (check_milestones($uid) as $m) flash($m);
         redirect('inventory.php?tab=craft&c=cooking');
     }
+    if ($act === 'cook_again') {   // v2.4.67: cook the last dish again, as many as the free pots, stock and energy allow
+        $rid = (int)q_val("SELECT r.id FROM recipes r JOIN users u ON u.last_cooked_id = r.output_item_id WHERE u.id = ? AND r.category = 'cooking'", [$uid]);
+        [$ok, $msg] = $rid > 0 ? craft($u, $rid, 'all') : [false, 'Cook something once first.'];
+        flash($msg, $ok ? 'ok' : 'err');
+        if ($ok) foreach (check_milestones($uid) as $m) flash($m);
+        redirect('inventory.php?tab=craft&c=cooking');
+    }
     if ($act === 'jar_collect' || $act === 'jar_collect_all') {   // v0.9.8: take finished preserves out of the Pantry jars
         [$ok, $msg] = $act === 'jar_collect_all' ? pantry_collect_all($u) : array_slice(pantry_collect_one($u, (int)($_POST['jar_id'] ?? 0)), 0, 2);
         flash($msg, $ok ? 'ok' : 'err');
