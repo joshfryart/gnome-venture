@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.73
+- **Pal Jobs: Collect all opens the chest.** Petals, XP and finds from every ready pal are totalled and shown with the chest animation. The long list of lines is replaced by a short row of chips (Petals, finds, XP, potions, dishes served).
+- **Shops on phones.** The basket bar is slimmer: its item list is capped at about two rows and scrolls inside itself, so a full basket no longer scrolls the page. Shop squares are 4 across on screens up to 520px.
 ## 2.4.72
 - **Fix: expired guest gardens now get deleted.** They were only swept when a guest loaded a page or a new guest was made, so with no guest traffic they stayed forever. Any page load now sweeps them (at most once every 10 minutes).
 ## 2.4.71

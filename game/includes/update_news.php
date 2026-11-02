@@ -625,6 +625,8 @@ function post_update_news(string $from): void
     '2.3.9' => ['❤️ Update 2.3.9: health bars and Pantry rooms',
         "[list][*][b]Health[/b]: a health bar now sits next to your level bar at the top of every page, and the bar on My Gnome shows your real health, even while you are out adventuring.\n"
         . "[*][b]Pantry[/b]: jam, chutney, pickles, ferments and cordials each have their own room of jars, so a full jam shelf never stops you pickling.[/list]"],
+    '2.4.73' => ['🧺 Update 2.4.73: Collect all opens the chest, slimmer shop basket',
+        "[list][*][b]Pal Jobs[/b]: [b]Collect all[/b] now opens the chest with everything your pals found, and the long list is a few short chips.\n[*][b]Shops on phones[/b]: the basket bar stays slim (its list scrolls inside) and shop squares sit four across.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
