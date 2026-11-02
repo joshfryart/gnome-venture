@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/alchemy.php';     // alchemy_item_id(): trek_item_id() delegates to it
 require_once __DIR__ . '/adventure.php';   // gnome_combat, scale_creature, outlevel_*, snack helpers
 require_once __DIR__ . '/friends.php';     // friendship(), friend_add()
 require_once __DIR__ . '/trek_data.php';
@@ -255,8 +256,7 @@ function trek_seen_reveal(array &$run, int $x, int $y, int $r = 2): void
 
 function trek_item_id(string $slug): int
 {
-    static $ids = [];
-    return $ids[$slug] ??= (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    return alchemy_item_id($slug);   // same slug to id lookup; alchemy.php is required at the top of this file
 }
 
 function trek_item_name(int $itemId): string

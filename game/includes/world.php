@@ -229,26 +229,6 @@ function staff_on_duty(int $shopId): array
     return array_values($out);
 }
 
-/** NPCs at a location right now who aren't working. */
-function npcs_around(int $locationId): array
-{
-    $hour = hollow_hour();
-    $day = hollow_dow();
-    $out = [];
-    foreach (q("SELECT n.id, n.name, n.species, s.activity, s.days, s.start_hour, s.end_hour FROM npc_schedules s
-                JOIN npcs n ON n.id = s.npc_id WHERE s.location_id = ? AND s.activity <> 'working' AND n.active = 1", [$locationId])->fetchAll() as $r) {
-        if (in_array($day, schedule_days($r['days']), true) && in_array($hour, schedule_hours((int)$r['start_hour'], (int)$r['end_hour']), true)) {
-            $out[] = $r;
-        }
-    }
-    return $out;
-}
-
-function shop_region_name(array $shop): ?string
-{
-    return $shop['location_id'] ? q_val('SELECT region FROM locations WHERE id = ?', [$shop['location_id']]) : null;
-}
-
 /** The Gnomish name of the region the player is currently in (or HUB_REGION). */
 function player_location(array $u): string
 {

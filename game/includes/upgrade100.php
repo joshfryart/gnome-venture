@@ -49,13 +49,6 @@ function upgrade_100_failed(): array
     return $out;
 }
 
-function upgrade_100_pending(): array
-{
-    $out = [];
-    foreach (UPGRADE_100_STEPS as $name => [$flag, $label]) if (setting($flag) !== '1') $out[] = $name;
-    return $out;
-}
-
 /** Run a bulk loop in one transaction (when none is open). */
 function upgrade_tx(callable $fn)
 {

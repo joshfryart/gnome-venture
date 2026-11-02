@@ -410,11 +410,6 @@ function tool_free_mends(int $uid): int
     return $lv >= 3 ? 2 : ($lv >= 1 ? 1 : 0);
 }
 
-function tool_shed_owned(int $uid): bool
-{
-    return (bool)q_val("SELECT 1 FROM garden_buildings gb JOIN plots p ON p.id = gb.plot_id WHERE p.user_id = ? AND gb.building = 'tool_shed'", [$uid]);
-}
-
 /**
  * v0.7.86: mend a worn tool, or a Broken copy, in the Satchel. Costs tool_mend_cost. A Tool Shed in any of the gnome's
  * gardens makes the first mend of each Hollow day free. Returns [ok, message].

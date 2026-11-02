@@ -298,14 +298,6 @@ function dm_walk_take(array $exp, array $sc): ?array
     return $last[0] === $sc['x'] && $last[1] === $sc['y'] ? ['p' => $p] : null;
 }
 
-/** What the tile under the player is, in words, for the line under the map. */
-function dm_here_note(array $sc, array $exp): string
-{
-    $t = tm_tile($sc['map'], $sc['x'], $sc['y']);
-    if ($t === 'S') return 'You are at the entrance.';
-    return '';
-}
-
 /**
  * The whole map block: the picture, the grid of buttons over it (a form: name="go" value="x,y"), the legend and the link to the list.
  * $busy = something is in front of you (a fight or a trap): the buttons rest.

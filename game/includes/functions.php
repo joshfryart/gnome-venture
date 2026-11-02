@@ -934,21 +934,6 @@ function region_select(string $name, int $selected = 0): string
     return $html . '</select>';
 }
 
-/** A <select> of every starting zone in a region. */
-function zone_select(string $name, int $regionId, int $selected = 0): string
-{
-    $icons = ['coast' => '🌊', 'mountain' => '⛰️', 'forest' => '🌲', 'desert' => '🏜️',
-        'rainforest' => '🌴', 'grassland' => '🌾', 'wetland' => '🪷', 'tundra' => '❄️', 'island' => '🏝️'];
-    $html = '<select name="' . e($name) . '" required><option value="">— choose —</option>';
-    foreach (q('SELECT id, zone_num, landscape, name, difficulty FROM zones WHERE region_id = ? ORDER BY zone_num', [$regionId])->fetchAll() as $z) {
-        $icon = $icons[$z['landscape']] ?? '📍';
-        $tag = $z['difficulty'] === 'easy' ? ' (starter)' : ' (' . $z['difficulty'] . ')';
-        $html .= '<option value="' . (int)$z['id'] . '"' . ((int)$z['id'] === $selected ? ' selected' : '') . '>'
-            . $icon . ' ' . e($z['name']) . $tag . '</option>';
-    }
-    return $html . '</select>';
-}
-
 /** Which hours (0-23) a schedule row covers. end < start means it runs past midnight. */
 /** The Hollow's clock: NPC shifts and opening hours follow setting game_timezone (default Atlantic time). */
 /**

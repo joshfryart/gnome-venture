@@ -78,11 +78,6 @@ function game_save(int $uid, string $game, array $state): void
     }
 }
 
-function game_clear(int $uid, string $game): void
-{
-    q('DELETE FROM game_state WHERE user_id = ? AND game = ?', [$uid, $game]);
-}
-
 function game_score(int $uid, string $game, int $score): void
 {
     db_insert('game_scores', ['user_id' => $uid, 'game' => $game, 'score' => $score, 'day' => game_day(), 'week' => job_period_key('weekly'), 'played_at' => now()]);

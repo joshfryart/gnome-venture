@@ -15,14 +15,6 @@ function today_social_prepare(array $u): void
     hollow_goal_settle_flash((int)$u['id']);
 }
 
-/** The welcome-back call, which goes right under the greeting. */
-function today_social_top(array $u): string
-{
-    require_once __DIR__ . '/welcome_back.php';
-    require_once __DIR__ . '/tour.php';
-    return (welcome_back_due($u) && helper_slot($u) === 'back') ? '<a class="box notice wbcall" href="' . e(url('back.php')) . '"><b>👋 Welcome back!</b> See what grew and what happened while you were away. <span class="tgo">Open →</span></a>' : '';
-}
-
 /** The one compact "Hollow today" box that goes under the main Today grid. */   // v1.0.2
 /** v1.2.0: $part 'home' = First Week + daily card only (Home tab); 'hollow' = jars + Pulse (Hollow tab); 'all' = everything. */
 function today_social_html(array $u, string $part = 'all'): string

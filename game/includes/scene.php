@@ -218,13 +218,6 @@ function scene_shop_key(array $shop): string
     return '';
 }
 
-/** A shop's banner/interior strip (old 4:1 banner; shop.php now shows the interior in its place header). '' if none is drawn. */
-function scene_shop_banner(array $shop): string
-{
-    $k = scene_shop_key($shop);
-    return $k !== '' ? '<div class="scene-bannerwrap">' . scene_banner($k, (string)($shop['name'] ?? ''), 'shop') . '</div>' : '';
-}
-
 /** Which of the six home interiors a villager has (stable per villager). */
 function npc_home_key(array $npc): string
 {

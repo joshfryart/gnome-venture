@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/tilemap.php';   // tm_h() / tm_n(): tk_h() and tk_n() delegate to them
 // v1.8.10: the Treks map art. ONE inline SVG for the visible window (colours only from assets/img/ph/palette.json).
 // Open zones: "Hedge Knit, Black Rows" (grey hedge bands that join their neighbours, inset beds). Underground zones: "Root Knot".
 // Every layer is a single <path> per colour (rounded blocks and bars of the same winding, so they merge into one smooth shape).
@@ -39,12 +40,12 @@ function tk_quarter(int $sx, int $sy, bool $nv, bool $nh, bool $dg): array
 /** Deterministic little number from a tile (so the details do not jump when the window moves). */
 function tk_h(int $x, int $y, int $k = 0): int
 {
-    return (($x * 73856093) ^ ($y * 19349663) ^ ($k * 83492791)) & 0xffff;
+    return tm_h($x, $y, $k);
 }
 
 function tk_n(float $v): string
 {
-    return rtrim(rtrim(number_format($v, 1, '.', ''), '0'), '.');
+    return tm_n($v);
 }
 
 /** A clockwise rounded rectangle as path data (all pieces share the winding, so overlapping pieces merge). */

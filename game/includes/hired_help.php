@@ -53,13 +53,6 @@ function helper_skill_text(array $h): string
     return implode(', ', array_map(fn($s) => HELP_SKILLS[$s][0] . ' ' . HELP_SKILLS[$s][1], helper_skills($h)));
 }
 
-/** The active hire for a garden, joined with its helper, or null. */
-function current_hire(int $plotId): ?array
-{
-    return q_one('SELECT g.*, h.name, h.species, h.icon, h.skills, h.wage, h.bio FROM garden_hires g JOIN helpers h ON h.id = g.helper_id
-                  WHERE g.plot_id = ? AND g.active = 1 ORDER BY g.id DESC LIMIT 1', [$plotId]) ?: null;
-}
-
 /** v0.7.99: every helper staying in this garden (a Tool Shed holds 1, 2 or 3 by its level). */
 function current_hires(int $plotId): array
 {

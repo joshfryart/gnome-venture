@@ -249,11 +249,6 @@ function pal_stamps_at(int $plotId, int $limit = 14): array
               WHERE s.plot_id = ? AND u.deleted_at IS NULL AND ' . gnome_in_play_sql('u') . ' ORDER BY s.id DESC LIMIT ' . (int)$limit, [$plotId])->fetchAll();
 }
 
-function pal_stamp_count(int $plotId): int
-{
-    return (int)q_val('SELECT COUNT(*) FROM garden_stamps WHERE plot_id = ?', [$plotId]);
-}
-
 /** The owner tidies a stamp off their guestbook. */
 function pal_stamp_remove(array $u, int $stampId): array
 {

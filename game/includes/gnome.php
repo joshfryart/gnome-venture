@@ -196,11 +196,6 @@ function eff_mod(array $u, string $stat): int
     return stat_mod(eff_stat($u, $stat));
 }
 
-function is_calling(array $u, string $calling): bool
-{
-    return ($u['calling'] ?? null) === $calling;
-}
-
 function max_energy(array $u): int
 {
     // v0.7.23: 10 at level 1, +5 a level (settings), +1 per Hardiness modifier point

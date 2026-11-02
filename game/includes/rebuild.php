@@ -72,16 +72,6 @@ function ensure_building_items(): void
     }
 }
 
-/** Landmarks in this gnome's home region that are in ruins (havens, wonders, delves), for a job offer. */
-function rebuild_targets(array $u): array
-{
-    $rid = (int)($u['region_id'] ?? 0);
-    if (!$rid) return [];
-    // v0.7.88: ruins are per gnome: only the ones this gnome hasn't made safe yet
-    return q("SELECT m.id, m.name AS item_name, m.kind FROM landmarks m WHERE m.region_id = ? AND m.kind IN ('haven', 'wonder', 'delve') AND m.ruined = 1
-              AND NOT EXISTS (SELECT 1 FROM landmark_rebuilds b WHERE b.landmark_id = m.id AND b.user_id = ?) ORDER BY m.id", [$rid, (int)$u['id']])->fetchAll();
-}
-
 /** Things in the satchel that count for a need: [[item_id, name, qty], …], cheapest first. */
 function rebuild_supply(int $uid, array $need): array
 {

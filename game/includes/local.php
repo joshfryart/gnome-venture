@@ -12,17 +12,6 @@ require_once __DIR__ . '/stop_folk.php';
 require_once __DIR__ . '/stop_pass.php';
 require_once __DIR__ . '/stop_adopt.php';
 
-/** The place's level, for reward scaling (kept for older callers). */
-function local_level(array $loc): int
-{
-    return stop_level($loc);
-}
-
-function local_visit_key(array $u): string
-{
-    return stop_visit_key($u);
-}
-
 /** Everything the POST can do at a stop. $kind is an activity slug, or _chat _errand _deliver _drop _adopt _give _perk _release. */
 function local_do(array $u, array $loc, string $kind, array $in): array
 {

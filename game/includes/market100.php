@@ -855,29 +855,6 @@ function market_sell_wanted(array $u, string $town, int $itemId, int $qty): arra
     return [$r[0], $r[1]];
 }
 
-/** Today page card + town square banner data. Returns HTML of one small card (or ''). */
-function market_today_card(array $u, string $town): string
-{
-    $uid = (int)$u['id'];
-    $h = '';
-    $open = setting('orders_on') === '1' ? orders_open_count($uid, $town) : 0;
-    if (setting('orders_on') === '1') {
-        $b = array_values(array_filter(orders_board($town), fn($x) => !order_done($uid, (int)$x['npc']['id'], $x['o']['cycle'])));
-        $h .= '<a class="box tcard" href="' . e(url('jobs.php?t=orders#orders')) . '"><h3>📜 Orders</h3><p>';
-        if ($b) {
-            foreach (array_slice($b, 0, 3) as $x) $h .= e($x['npc']['name']) . ': ' . (int)$x['o']['qty'] . ' × ' . e($x['o']['item_name']) . ($x['o']['minq'] ? ' <small class="muted">' . e(market_grade($x['o']['minq'])) . '+</small>' : '') . ' <small class="muted">⏳' . (int)$x['o']['days_left'] . 'd</small><br>';
-            if ($open > 3) $h .= '<span class="muted">and ' . ($open - 3) . ' more</span>';
-        } else $h .= '<span class="muted">Nothing open in ' . e($town) . ' right now.</span>';
-        $h .= '</p><span class="tgo">Order board →</span></a>';
-    }
-    if (market_day_on()) {
-        $h .= '<a class="box tcard marketcard" href="' . e(url('marketday.php')) . '"><h3>🧺 Market day!</h3><p><b>Stalls are up in ' . e($town) . '.</b><br>Wanted goods pay more, and the best-basket judging is on.</p><span class="tgo">To the market →</span></a>';
-    } elseif (($d = market_days_until()) > 0) {
-        $h .= '<a class="box tcard marketcard" href="' . e(url('marketday.php')) . '"><h3>🧺 Market day</h3><p class="muted">' . MARKET_WEEKDAYS[max(0, min(6, mk_int('market_day', 6)))] . ' (in ' . $d . ' day' . ($d === 1 ? '' : 's') . '). Stock up on goods to sell and show.</p><span class="tgo">What’s wanted →</span></a>';
-    }
-    return $h;
-}
-
 /** Right-rail box: market day now, or when the next one is, and the week’s wanted goods. */
 function market_rail_section(): string
 {

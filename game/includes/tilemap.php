@@ -40,12 +40,6 @@ function tm_tile(array $map, int $x, int $y): string
     return ($x < 0 || $y < 0 || $x >= $map['w'] || $y >= $map['h']) ? ' ' : $map['t'][$y][$x];
 }
 
-/** Spot tiles of a map: [code => [x, y]]. */
-function tm_spots(array $map): array
-{
-    return $map['spots'];
-}
-
 /** Can a walker stand here? $gate = fn(int $x, int $y, string $tile): bool may close tiles (locked doors, rooms not yet open). */
 function tm_walkable(array $map, int $x, int $y, ?callable $gate = null): bool
 {
