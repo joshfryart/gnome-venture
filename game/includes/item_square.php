@@ -101,7 +101,7 @@ function item_square(array $o): string
 
     $priceH = '';
     $foot = $rl !== 'C' ? '<span class="itm__rar">' . e(RARITY_WORDS[$rl]) . '</span>' : '';
-    if ($kind !== '') $foot .= '<span class="itm__kind">' . e($kind) . '<span class="vh"> (' . e($full) . ')</span></span>';
+    if ($kind !== '') $foot .= '<span class="itm__kind' . (in_array($kind, ['Seeds', 'Seed packet'], true) ? ' itm__kind--quiet' : '') . '">' . e($kind) . '<span class="vh"> (' . e($full) . ')</span></span>';
     if (isset($o['price']) && $o['price'] !== null) {
         $tr = (string)($o['trend'] ?? '');
         $arrow = $tr === 'up' ? '↑' : ($tr === 'down' ? '↓' : '');

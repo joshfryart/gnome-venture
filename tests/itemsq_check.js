@@ -99,7 +99,7 @@ const fs = require('fs');
             const rib = it.querySelector('.itm__rib'), rr = R(rib), rs = getComputedStyle(rib);
             const box = { l: rr.left + parseFloat(rs.borderLeftWidth) - .5, r: rr.right - parseFloat(rs.borderRightWidth) + .5 };
             const nr = R(nm); if (nr.left < box.l || nr.right > box.r) out.escape.push(name + ': name outside its ribbon');
-            for (const ch of it.querySelectorAll('.itm__foot > :not(.vh):not(.itm__rar)')) {
+            for (const ch of it.querySelectorAll('.itm__foot > :not(.vh):not(.itm__rar):not(.itm__kind--quiet)')) {
               const cr = R(ch); if (!cr.width) continue;
               if (cr.left < k.left - .5 || cr.right > k.right + .5) out.escape.push(name + ': chip "' + ch.textContent.trim() + '" outside the square');
               if (ch.scrollWidth > ch.clientWidth + 1) out.escape.push(name + ': chip "' + ch.textContent.trim() + '" overflows');

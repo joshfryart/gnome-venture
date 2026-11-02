@@ -152,7 +152,7 @@ done
 chk "soil: one square per soil improver" "$(pk soil | grep -o 'pcard" type="button"' | wc -l | tr -d ' ')" "$(db "SELECT COUNT(*) FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$SID AND ui.qty>0 AND i.category='soil'")"
 chk "seed: step buttons on every seed" "$(pk seed | grep -o '<span class="pcbtns" hidden><i data-step="-1" role="button"' | wc -l | tr -d ' ')" "$(pk seed | grep -o 'pcard" type="button"' | wc -l | tr -d ' ')"
 pk soil | grep -q 'class="itm__note">' && echo "ok   soil: what it does as a note" || echo "FAIL soil: no note chip"
-pk seed | grep -q 'class="itm__kind">Seeds' && echo "ok   seed: Seeds lifted into a chip" || echo "FAIL seed: no Seeds chip"
+pk seed | grep -q 'class="itm__kind itm__kind--quiet">Seeds' && echo "ok   seed: Seeds lifted into a chip" || echo "FAIL seed: no Seeds chip"
 hasnt "no style= attribute" '\sstyle=' $H
 
 echo "== town picker (bird seed / picnic) and market-day basket"

@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.78
+- **Item tiles: count always on the ribbon, quieter chips.** The ×# count now sits right on the name ribbon even when chips are shown (they stack above it; they had been pushing the count up). The "Seeds" chip is no longer drawn (the picture says it; screen readers still hear it) and the Wanted chip is faded.
 ## 2.4.77
 - **Item tiles: 3 across on phones.** Phone squares are larger (3 per row, was 4) with bigger names, price chips, counts and pictures. Desktop is unchanged (4 to 6 across).
 ## 2.4.76
