@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.69
+- **Pals cook passively, one pot each.** A pal sent to the Stove now holds one pot for the whole shift (no ingredients taken up front) and checks it every 10 minutes: it serves a finished dish into your satchel and starts one batch of its chosen recipe. Send as many pals as you have free pots; you can't use a pal's pot while it works. A dish still cooking at shift end becomes your own pot to collect. Checks run when you next load a page (no timer), up to 60 caught up per load.
+- **Pal shown on its pot.** A pot a pal tends says "🧩 {pal} is tending this pot" on the Kitchen shelf and in the right rail, instead of "Empty". Each of those pots has a **Cooks next** picker that sticks until you change it or the shift ends.
+- Cooking shifts no longer count toward the daily station-shift cap. New column `cook_pots.pal_uid`.
 ## 2.4.68
 - **Cooking pots tidy.** Pots are small squares, centred, and wrap to a second row when there are more. Cook again and Collect all sit centred under the pots.
 ## 2.4.67
