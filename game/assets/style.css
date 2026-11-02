@@ -6752,3 +6752,19 @@ details.plantmore > summary, details.soildet > summary { justify-content: center
 .sqactions form.toolform, .sqactions form.inline { display: flex; flex-wrap: wrap; justify-content: center; }
 .sqchips { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
 .soiltop .gradebox .grade.big { display: none; }   /* the grade is in the words beside it */
+/* v2.4.84: no-till: soil grade and N-P-K share one line; the checks are a 2-column grid; the actions are an aligned 2-column grid */
+.soilrow { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 4px 0 8px; }
+.soilrow .gradebox { margin: 0; flex: 1 1 40%; }
+.soilrow .npkwrap { margin: 0; flex: 1 1 50%; }
+.soilrow .gradebox progress { width: 100%; max-width: 130px; }
+.soilrow .gradebox b { font-size: 15px; }
+.soiltop .upkeep:not(.upkeepchips) { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0; }
+.soiltop .upkeep:not(.upkeepchips) li { margin: 0; padding: 6px 8px; font-size: 13px; font-weight: 700; background: rgba(255, 243, 200, .08); box-shadow: inset 0 0 0 1px var(--line); display: flex; align-items: center; justify-content: center; text-align: center; }
+.soiltop .upkeep:not(.upkeepchips) li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.sqactions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 360px; margin: 8px auto 0; }
+.sqactions > * { margin: 0; min-width: 0; }
+.sqactions > p, .sqactions > .help, .sqactions > details { grid-column: 1 / -1; }
+.sqactions > form { display: flex; }
+.sqactions > form > .btn { flex: 1; }
+.sqactions > form:has(select) { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 130px; }
+.sqactions > form select, .sqactions > form .pickbtn { width: 100%; min-height: 48px; }

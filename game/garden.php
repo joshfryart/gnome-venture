@@ -570,9 +570,9 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
         <span><small>Soil life</small> <b><?= $hasKit ? (int)$sel['soil_life'] . '/100' : e($w['life']) ?></b></span>
         <span title="How well the soil holds water. Better soil makes each watering last longer (up to twice as long). Mulch, compost and no-till beds improve it; watering helps a little."><small>Holds water</small> <b><?= $hasKit ? (int)$sel['moisture'] . '/100' : e($w['moisture']) ?></b></span></p>
         <?php $need = $p ? (string)($p['nutrient'] ?? '') : ''; ?>
-        <p class="npkwrap"><span class="npkrow"><?php foreach (NUTRIENTS as $nu => [$nName, $nLetter, $nIcon]): $nv = (int)($sel[$nu] ?? 50);
+        <?php ob_start(); ?><p class="npkwrap"><span class="npkrow"><?php foreach (NUTRIENTS as $nu => [$nName, $nLetter, $nIcon]): $nv = (int)($sel[$nu] ?? 50);
             $mark = $nv < 35 ? '▼' : ($nv >= 65 ? '▲' : '●'); ?><span class="npkchip<?= $need === $nu ? ' need' : '' ?><?= $nv < 35 ? ' low' : '' ?>" title="<?= e($nName . ': ' . nutrient_word($nv) . ($need === $nu ? ' (' . $p['name'] . ' feeds on this)' : '')) ?>"><span class="npkb <?= $nu ?>"><?= $nLetter ?></span><span class="npkm"><?= $hasKit ? $nv : $mark ?></span><?= $need === $nu ? '<span class="npkcrop" aria-hidden="true">←🌱</span>' : '' ?></span><?php endforeach; ?></span>
-          <small class="npkleg" title="● ok · ▼ low · ▲ high<?= $need !== '' ? ' · ring = what the crop feeds on' : '' ?>">N·P·K ● ok ▼ low ▲ high<?= $need !== '' ? ' · ring = crop food' : '' ?></small></p>
+          <small class="npkleg" title="● ok · ▼ low · ▲ high<?= $need !== '' ? ' · ring = what the crop feeds on' : '' ?>">● ok ▼ low ▲ high<?= $need !== '' ? ' · ring = crop food' : '' ?></small></p><?php $npkHtml = ob_get_clean(); if ($sel['method'] !== 'notill') echo $npkHtml; ?>
 
       <?php if ($sel['method'] !== 'notill'):   // v0.8.7: soil care stars for tilled squares
           $cp = care_points($sel); $cs = care_stars_for($cp); $steps = care_steps();
@@ -597,6 +597,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
           $gi = grade_index($sel);
           $into = (int)$sel['bed_score'] - $gi * GRADE_STEP;
           $probs = bed_problems($sel); ?>
+        <div class="soilrow">
         <div class="gradebox">
           <span class="grade big g<?= $gi ?>"><?= e(grade_name($gi)) ?></span>
           <div>
@@ -605,6 +606,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
               <span class="help"><?= max(0, GRADE_STEP - $into) ?> points to <?= e(grade_name($gi + 1)) ?></span>
             <?php else: ?><span class="help">The finest soil there is. Keep it that way!</span><?php endif; ?>
           </div>
+        <?= $npkHtml ?></div>
         </div>
         <ul class="upkeep">
           <li class="<?= isset($probs['mulch']) ? 'bad' : ((int)$sel['mulch'] < 24 ? 'warn' : 'good') ?>">Mulch: <?= e(mulch_text((int)$sel['mulch'])) ?> <?= isset($probs['mulch']) ? '— add mulch' : ((int)$sel['mulch'] < 24 ? '— top up soon' : '✔') ?></li>
@@ -618,8 +620,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
             $graceLeft = (int)setting('notill_checkpoint_days') * 24 - (int)$sel['neglect_hours']; ?>
           <p class="checkpoint">🛡️ Checkpoint <?= checkpoint_name((int)$sel['checkpoint']) ?> — this bed can’t fall below grade <?= checkpoint_name((int)$sel['checkpoint']) ?><?= (int)$sel['neglect_hours'] > 0 ? '. Neglected for ' . nice_time((int)$sel['neglect_hours'] * 3600) . '; the checkpoint is lost after ' . nice_time($graceLeft * 3600) . ' more.' : ' unless tilled or neglected for ' . (int)setting('notill_checkpoint_days') . ' days straight.' ?></p>
         <?php endif; ?>
-        <?php if ((int)$sel['weeds'] >= 5) echo tool_action_form('weed', $sel, 'Pull weeds', ENERGY_COST['weed']); ?>
-        <?php if (!$sel['plant_id']) echo tool_action_form('water', $sel, 'Water bed', ENERGY_COST['water']); ?>
+        <?php $ntForms = ((int)$sel['weeds'] >= 5 ? tool_action_form('weed', $sel, 'Pull weeds', ENERGY_COST['weed']) : '') . (!$sel['plant_id'] ? tool_action_form('water', $sel, 'Water bed', ENERGY_COST['water']) : ''); ?>
       <?php endif; ?>
       </div>
       <?php if ($p):
@@ -656,6 +657,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
       <?php endif; ?>
       <div class="sqactions">
       <?php if (ts($sel['settle_until']) > time()): ?><p>🍂 Settling — ready to plant in <?= nice_time(ts($sel['settle_until']) - time()) ?>.</p><?php endif; ?>
+      <?= $ntForms ?? '' ?>
 
       <?php if ($p): ?>
       <?php else: ?>
