@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.71
+- **Fix: road traveller chat crashed.** Stopping to chat with a travelling villager on an expedition threw "undefined function npc_icon()" (a white error page) unless another page had loaded the NPC file first. The chat now loads it itself.
 ## 2.4.70
 - **Pal pot pop-up.** Tap a pal's pot in the Kitchen to open a pop-up: what it is cooking now (dish, time left), a **Cooks next** picker (kept until changed or the shift ends) and **Send home early**.
 - **Call any pal home early.** Every active job (gathering, delve, garden, pot, old shifts) has **Call home** on the Pal Jobs page, with a confirm box that says the cost. Trips and delves keep half of what the time so far earned (needs 10% of the time done). A pot pal keeps the dishes already served; a dish still cooking loses half (rounded down) and the pot is yours again. Gardeners lose nothing.
