@@ -1,7 +1,7 @@
 # Gnome Venture: to-do (updated 2026-11-02, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
 
-## NOW (2.4.65, 2026-11-02): STUDIO REVIEW CLEANUP. NOT BUILT, branch ccr-c58baef6-w75eu7
+## NOW (2.4.65, 2026-11-02): STUDIO REVIEW CLEANUP. BUILT, merged with 2.4.64, branch ccr-c58baef6-w75eu7; slim zip releases/GnomeVenture-2.4.65-web-update.zip (needs 2.3.97+, 51 files), manifest tests/manifests/2.4.65.txt. Joshua uploads
 - **No gameplay changes. No zip built (ask Joshua first). Not committed.** Version numbering is Joshua's call; 2.4.64 belongs to branch ccr-183e3f79-k0661b and may need merging first.
 - **What changed (CHANGELOG 2.4.65):** contrast fixes to 4.5:1 (selected recipe tab and filter chip, puzzle chip, warn/low/effect chips); undefined tokens `--bg-2 --good --bad --card --panel` now defined; 8 duplicate CSS rules removed; 15 hex literals to tokens; shared JS helpers in `window.gvFx` (early.js); 21 unused PHP functions removed (`git show cb4c4a3c`); `trek_item_id`/`tk_h`/`tk_n` now delegate.
 - **Reports:** `docs/studio-review/` (ux-review.md, style-review.md, code-review.md, mockups/ index.html with before/after mockups).
