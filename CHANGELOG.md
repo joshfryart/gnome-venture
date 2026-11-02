@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.72
+- **Fix: expired guest gardens now get deleted.** They were only swept when a guest loaded a page or a new guest was made, so with no guest traffic they stayed forever. Any page load now sweeps them (at most once every 10 minutes).
 ## 2.4.71
 - **Fix: road traveller chat crashed.** Stopping to chat with a travelling villager on an expedition threw "undefined function npc_icon()" (a white error page) unless another page had loaded the NPC file first. The chat now loads it itself.
 ## 2.4.70
