@@ -1223,6 +1223,38 @@ function gvGarden() {
     pk.querySelector('[data-go]') && pk.querySelector('[data-go]').addEventListener('click', function () { if (pk.ongo) pk.ongo(); });
   });
 
+  // v2.4.87: seed picker filter: search + type chips + in-season toggle (hides with .pf-off, so it never fights the [hidden] the square panel sets)
+  document.querySelectorAll('.picker .pickfilter:not(.wired)').forEach(function (f) {
+    f.classList.add('wired');
+    var pk = f.closest('.picker'), q = f.querySelector('.pfq'), now = f.querySelector('.pfnow'), type = '';
+    var chips = f.querySelectorAll('.pfchip'), sel = f.querySelector('.pfsel'), empty = pk.querySelector('.pfempty');
+    function ok(c, t) {
+      return (!t || c.getAttribute('data-pk') === t) && (c.getAttribute('data-nm') || '').indexOf(q.value.trim().toLowerCase()) >= 0 && (!now.checked || c.getAttribute('data-in') === '1');
+    }
+    function apply() {
+      var cards = pk.querySelectorAll('.pcard'), shown = 0;
+      cards.forEach(function (c) { var o = ok(c, type); c.classList.toggle('pf-off', !o); if (o && !c.hidden) shown++; });
+      chips.forEach(function (b) {
+        var t = b.getAttribute('data-pk'), n = 0;
+        cards.forEach(function (c) { if (!c.hidden && ok(c, t)) n++; });
+        b.querySelector('small').textContent = n;
+        b.setAttribute('aria-pressed', t === type ? 'true' : 'false');
+      });
+      if (sel) Array.prototype.forEach.call(sel.options, function (o) {
+        var n = 0, t = o.value;
+        cards.forEach(function (c) { if (!c.hidden && ok(c, t)) n++; });
+        o.textContent = o.getAttribute('data-l') + ' (' + n + ')';
+      });
+      if (empty) empty.hidden = shown > 0;
+    }
+    q.addEventListener('input', apply);
+    now.addEventListener('change', apply);
+    f.querySelector('.pfx').addEventListener('click', function () { q.value = ''; apply(); q.focus(); });
+    if (sel) sel.addEventListener('change', function () { type = sel.value; apply(); });
+    chips.forEach(function (b) { b.addEventListener('click', function () { type = b.getAttribute('data-pk'); apply(); }); });
+    apply();
+  });
+
   if (!bar || !yard || bar.classList.contains('wired')) return;
   bar.classList.add('wired');
   bar.hidden = false;

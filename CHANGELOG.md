@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.89
+- **Seed picker: search, type filter, in-season toggle (restored).** "Choose seeds" (Plant…) has a search box, a type filter (chips for 5 types or fewer, a drop-down for more) with live counts, and an "In season only" checkbox (off by default: off-season seeds can still be planted). Shown from 5 seeds up. Re-applied on top of 2.4.88 after the 2.4.87 build was not carried into main.
+
 ## 2.4.88
 - **Fix: Jigsaw best times and tier badges could vanish.** Starting a Rain Barrel or Gnome Beds run had a 1 in 50 chance of purging every `puzzle_runs` row older than 14 days, including finished Jigsaw runs (which hold personal bests). The purge now leaves Jigsaw rows alone.
 - **Expert before Advanced now frees the pals.** Finishing a picture at Expert first used to give only the trophy and no pals. Whichever of Advanced or Expert you finish first frees the picture's pals (once); Expert also still earns the trophy, and the win card shows both lines when both are new.

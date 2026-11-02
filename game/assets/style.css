@@ -6777,3 +6777,22 @@ details.plantmore > summary, details.soildet > summary { justify-content: center
 .sqactions > form:has(select) { grid-template-columns: 1fr 120px; }
 .sqactions > form select, .sqactions > form .pickbtn { min-height: 40px; font-size: 14px; }
 .sqactions .pickbtn { padding: 4px 8px; }
+
+/* v2.4.87: seed picker filter (search, type chips, in-season toggle) */
+.pickfilter { padding: 10px 12px 0; text-align: center; border-bottom: 1px solid var(--line); }
+.pfsearch { display: flex; }
+.pfsearch .pfq { flex: 1; min-width: 0; min-height: var(--tap); border: 2px solid var(--muted); border-right: 0; background: var(--bg); color: var(--ink); padding: 0 12px; font: inherit; border-radius: 0; }
+.pfsearch .pfq::-webkit-search-cancel-button { display: none; }
+.pfsearch .pfx { width: var(--tap); min-height: var(--tap); border: 2px solid var(--muted); background: var(--surface-2); color: var(--ink); font-size: 16px; cursor: pointer; border-radius: 0; }
+.pfchips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 10px 0 4px; }
+.pfchip { min-height: var(--tap); padding: 0 7px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font: 700 14px/1.2 var(--font); cursor: pointer; border-radius: 0; }
+.pfchip small { font-weight: 400; color: var(--muted); }
+.pfchip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--felt-ink, #f2e4c0); }
+.pfchip[aria-pressed="true"] small { color: inherit; }
+.pfin { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); font-weight: 700; font-size: 14px; cursor: pointer; }
+.pfin input { width: 20px; height: 20px; accent-color: var(--brand); }
+.pcard.pf-off { display: none !important; }
+.pfempty { text-align: center; padding: 16px 12px; margin: 0; }
+.pfsearch .pfq:focus, .pfx:focus-visible, .pfchip:focus-visible, .pfin input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.pfsel { width: 100%; min-height: var(--tap); border: 2px solid var(--muted); background: var(--bg); color: var(--ink); font: inherit; padding: 0 8px; border-radius: 0; }
+.pickfilter .pfchips:has(.pfsel) { padding: 8px 0 0; }
