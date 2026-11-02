@@ -6768,3 +6768,12 @@ details.plantmore > summary, details.soildet > summary { justify-content: center
 .sqactions > form > .btn { flex: 1; }
 .sqactions > form:has(select) { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 130px; }
 .sqactions > form select, .sqactions > form .pickbtn { width: 100%; min-height: 48px; }
+/* v2.4.85: slim action rows. A tool form with a second (row / ×3) button takes a full row, the two buttons side by side; buttons are thin; single-button forms pair up */
+.sqactions { gap: 6px; max-width: 380px; }
+.sqactions .btn { min-height: 40px; padding: 4px 8px; font-size: 14px; line-height: 1.2; }
+.sqactions .btn .cost { font-size: 12px; }
+.sqactions > form.toolform:has(.btn.alt) { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sqactions > form.toolform > input { display: none; }
+.sqactions > form:has(select) { grid-template-columns: 1fr 120px; }
+.sqactions > form select, .sqactions > form .pickbtn { min-height: 40px; font-size: 14px; }
+.sqactions .pickbtn { padding: 4px 8px; }

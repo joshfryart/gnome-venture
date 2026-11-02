@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.85
+- **Square panel: slimmer action buttons, settle time in the status line.** Action buttons are thinner (40 px). A tool with a row / ×3 reach now shows its two buttons side by side on one row ("Water bed" + "Whole row ⚡1 each"; the repeated name is gone). A settling bed's status line now says "Settling · ready to plant in 15 min" (the separate Settling note is gone).
 ## 2.4.84
 - **Square panel: no-till tidy.** The soil grade (with its bar) and the N-P-K chips share one line; the mulch / weeds / moisture / fertility / roots checks are a 2-column grid of small boxes; Water bed, Till, Work in and Add mulch sit in an aligned grid (Water bed and Till side by side, each picker row the same width).
 ## 2.4.83

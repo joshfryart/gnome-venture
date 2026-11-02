@@ -297,7 +297,7 @@ function tool_action_form(string $do, array $t, string $label, int $unused = 0, 
     if ($reach > 1) {
         $each = $do === 'harvest' ? harvest_cost_range($t, $reach) : (string)$cost;
         $btns .= ' <button class="btn act alt" name="reach" value="' . ($reach >= 99 ? 'row' : 'three') . '">'
-            . e($label) . ($reach >= 99 ? ' whole row' : ' ×3') . ' <span class="cost">⚡' . $each . ' each</span></button>';
+            . ($reach >= 99 ? 'Whole row' : '×3') . ' <span class="cost">⚡' . $each . ' each</span></button>';   // v2.4.85: sits next to its main button, so no repeated name
     }
     return '<form method="post" class="inline toolform"' . ($confirm ? ' data-confirm="' . e($confirm) . '"' : '') . '>' . csrf_field()
         . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="x" value="' . (int)$t['x'] . '">'
@@ -542,7 +542,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
       <h3 class="sqh">Square <?= (int)$sel['x'] + 1 ?>, <?= (int)$sel['y'] + 1 ?> · <?= $method ?> <a class="backtoyard" href="#yard">⬆ yard</a></h3>
       <?php   // v2.3.100: one status line, a row of chips and ONE "Next:" line; the numbers are behind "Soil details"
           $sumWord = $sel['method'] === 'notill' ? 'No-till bed' : ((int)$sel['tilled'] ? 'Tilled' : 'Wild ground');
-          $sumState = $p ? ($p['kind'] === 'cover' ? 'cover crop growing' : 'growing ' . $p['name']) : (ts($sel['settle_until']) > time() ? 'settling' : (tile_plantable($sel) ? 'ready to plant' : ((int)$sel['tilled'] ? 'ready for soil care' : 'till it first')));
+          $sumState = $p ? ($p['kind'] === 'cover' ? 'cover crop growing' : 'growing ' . $p['name']) : (ts($sel['settle_until']) > time() ? 'settling · ready to plant in ' . nice_time(ts($sel['settle_until']) - time()) : (tile_plantable($sel) ? 'ready to plant' : ((int)$sel['tilled'] ? 'ready for soil care' : 'till it first')));
           $fertLow = (int)$sel['fertility'] < 40;
           $chips = [];
           $pNeed = $p ? (string)($p['nutrient'] ?? '') : '';
@@ -656,7 +656,6 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
       </div>
       <?php endif; ?>
       <div class="sqactions">
-      <?php if (ts($sel['settle_until']) > time()): ?><p>🍂 Settling — ready to plant in <?= nice_time(ts($sel['settle_until']) - time()) ?>.</p><?php endif; ?>
       <?= $ntForms ?? '' ?>
 
       <?php if ($p): ?>
