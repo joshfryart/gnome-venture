@@ -841,6 +841,57 @@ document.addEventListener('toggle', function (ev) {
   }
 }, true);
 
+/* The zoom and pan core the three map zooms share (world map, region map, mycelium region map): the view box and its clamp, the wheel,
+   one-finger drag, two-finger pinch, and a tap that is not a drag. A map passes what differs: its zoom limit (maxZ), what a zoom draws (render),
+   whether the wheel needs Ctrl / Alt (wheelModifier), and what a tap does (onTap). */
+function gvZoomPan(svg, o) {
+  var W = o.W, H = o.H, v = o.view;
+  function zoom() { return W / v[2]; }
+  function apply() {
+    var z = Math.max(1, Math.min(o.maxZ(), W / v[2])), w = W / z, h = H / z;
+    var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
+    v = [cx - w / 2, cy - h / 2, w, h];
+    svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
+    o.render(z, v);
+  }
+  function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
+  function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+  svg.addEventListener('wheel', function (ev) {
+    if (o.wheelModifier) { if (!ev.ctrlKey && !ev.altKey) return; }   // a plain wheel keeps scrolling the page; Ctrl / Alt + wheel zooms
+    else if (ev.deltaY > 0 && zoom() <= 1.01) return;   // all the way out: let the page scroll
+    ev.preventDefault();
+    var p = toMap(ev.clientX, ev.clientY);
+    zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
+  }, { passive: false });
+  var pts = {}, moved = 0, pinch = null;
+  svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
+  svg.addEventListener('pointermove', function (ev) {
+    if (!pts[ev.pointerId]) return;
+    var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
+    pts[ev.pointerId] = [ev.clientX, ev.clientY];
+    if (ids.length === 1) {
+      var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
+      moved += Math.abs(dx) + Math.abs(dy);
+      if (moved > 6 && zoom() > 1.01) {
+        if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
+        v[0] -= dx / r.width * v[2]; v[1] -= dy / r.height * v[3]; apply();
+      }
+    } else if (ids.length === 2) {
+      var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+      if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
+      pinch = d; moved = 99;
+    }
+  });
+  function up(ev) { delete pts[ev.pointerId]; pinch = null; }
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', up);
+  svg.addEventListener('click', function (ev) {   // a drag isn't a tap
+    if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; return; }
+    if (o.onTap) o.onTap(ev);
+  }, true);
+  return { apply: apply, zoom: zoom, zoomAt: zoomAt, toMap: toMap, view: function () { return v; }, show: function (nv) { v = nv; apply(); } };
+}
+
 /* v0.7.53: the world map zooms (buttons, wheel, pinch, drag) and shows more as you get closer */
 function gvMaps() {
   document.querySelectorAll('.mapzoom:not(.on)').forEach(function (box) {
@@ -850,105 +901,65 @@ function gvMaps() {
     if (box.parentNode && box.parentNode.classList) box.parentNode.classList.add('zoomable');
     var ctl = box.querySelector('.mapctl'), card = box.querySelector('.mapcard'), goForm = box.querySelector('form.mapgo');
     ctl.hidden = false;
-    var W = 1000, H = 560, v = null;
+    var W = 1000, H = 560;
     function pxPer() { return (svg.getBoundingClientRect().width || Math.min(window.innerWidth - 32, 1000)) / W; }   // screen pixels per map unit
     function maxZ() { return Math.max(8, 4 / pxPer()); }
     var me = (box.getAttribute('data-me') || '500,280').split(',').map(Number);
+    var v = null;
     try { v = JSON.parse(sessionStorage.getItem('gvMapView') || 'null'); } catch (e) { v = null; }
-    function zoom() { return W / v[2]; }
-    function apply() {
-      var z = Math.max(1, Math.min(maxZ(), W / v[2])), w = W / z, h = H / z;
-      var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
-      v = [cx - w / 2, cy - h / 2, w, h];
-      svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
-      var px = pxPer(), seen = z * px;   // how big the map really is on screen decides how much detail shows
-      svg.style.setProperty('--zs', (Math.pow(z, -0.8) * Math.min(1.8, Math.max(1, 0.8 / px))).toFixed(3));   // small screens: bigger markers
-      svg.classList.toggle('z2', seen >= 1.4);
-      svg.classList.toggle('z3', seen >= 2.8);
-      svg.classList.toggle('zoomed', z > 1.02);
-      try { sessionStorage.setItem('gvMapView', JSON.stringify(v)); } catch (e) { /* private window: fine */ }
-    }
-    function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
-    function centre(x, y, z) { v = [x - W / z / 2, y - H / z / 2, W / z, H / z]; apply(); }
-    function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
-    if (v && v.length === 4) apply(); else centre(me[0], me[1], window.innerWidth < 720 ? Math.max(2, 1.5 / pxPer()) : 1);
+    var zp = gvZoomPan(svg, {
+      W: W, H: H, view: v, maxZ: maxZ,
+      render: function (z, v) {
+        var px = pxPer(), seen = z * px;   // how big the map really is on screen decides how much detail shows
+        svg.style.setProperty('--zs', (Math.pow(z, -0.8) * Math.min(1.8, Math.max(1, 0.8 / px))).toFixed(3));   // small screens: bigger markers
+        svg.classList.toggle('z2', seen >= 1.4);
+        svg.classList.toggle('z3', seen >= 2.8);
+        svg.classList.toggle('zoomed', z > 1.02);
+        try { sessionStorage.setItem('gvMapView', JSON.stringify(v)); } catch (e) { /* private window: fine */ }
+      },
+      onTap: function (ev) {
+        var m = ev.target.closest('.mk.place');
+        if (!m) { card.hidden = true; return; }
+        ev.preventDefault();
+        card.textContent = '';
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = 'mapcardx'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close');
+        x.addEventListener('click', function () { card.hidden = true; });
+        var h = document.createElement('b'); h.textContent = m.getAttribute('data-name');
+        var p = document.createElement('p'); p.className = 'help'; p.textContent = m.getAttribute('data-what');
+        card.appendChild(x); card.appendChild(h); card.appendChild(p);
+        var route = m.getAttribute('data-route'), q = document.createElement('p');
+        if (m.getAttribute('data-here')) { if (window.gvIcoLine) gvIcoLine(q, 'ico-gnome-hat', ' You are here.'); else q.textContent = '🎩 You are here.'; }
+        else if (route && goForm) {
+          var go = document.createElement('button');
+          go.type = 'button'; go.className = 'btn small';
+          go.textContent = 'Go → (' + m.getAttribute('data-steps') + ' steps)';
+          go.addEventListener('click', function () { goForm.querySelector('[name=route_id]').value = route; goForm.submit(); });
+          q.appendChild(go);
+        } else if (m.getAttribute('data-go')) {   // v0.7.98: directions there (the first walk only)
+          var a = document.createElement('a');
+          a.className = 'btn small alt'; a.href = m.getAttribute('data-go'); if (window.gvIcoLine) gvIcoLine(a, 'ico-compass', ' How do I get there?'); else a.textContent = '🧭 How do I get there?';
+          q.appendChild(a);
+        } else q.textContent = 'Not next to you: walk the roads to get here.';
+        q.className = q.className || 'muted';
+        card.appendChild(q);
+        card.hidden = false;
+      }
+    });
+    function centre(x, y, z) { zp.show([x - W / z / 2, y - H / z / 2, W / z, H / z]); }
+    if (zp.view() && zp.view().length === 4) zp.apply(); else centre(me[0], me[1], window.innerWidth < 720 ? Math.max(2, 1.5 / pxPer()) : 1);
     var fold = box.closest('details');
-    if (fold) fold.addEventListener('toggle', function () { if (fold.open) apply(); });
-    window.addEventListener('resize', apply);
-
+    if (fold) fold.addEventListener('toggle', function () { if (fold.open) zp.apply(); });
+    window.addEventListener('resize', zp.apply);
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');
       if (!b) return;
-      var k = b.getAttribute('data-z'), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2;
-      if (k === 'in') zoomAt(1.6, cx, cy);
-      else if (k === 'out') zoomAt(1 / 1.6, cx, cy);
-      else if (k === 'me') centre(me[0], me[1], Math.max(zoom(), 3 / pxPer()));
+      var k = b.getAttribute('data-z'), vw = zp.view(), cx = vw[0] + vw[2] / 2, cy = vw[1] + vw[3] / 2;
+      if (k === 'in') zp.zoomAt(1.6, cx, cy);
+      else if (k === 'out') zp.zoomAt(1 / 1.6, cx, cy);
+      else if (k === 'me') centre(me[0], me[1], Math.max(zp.zoom(), 3 / pxPer()));
       else centre(500, 280, 1);
     });
-    svg.addEventListener('wheel', function (ev) {
-      if (ev.deltaY > 0 && zoom() <= 1.01) return;   // all the way out: let the page scroll
-      ev.preventDefault();
-      var p = toMap(ev.clientX, ev.clientY);
-      zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
-    }, { passive: false });
-
-    var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
-    svg.addEventListener('pointermove', function (ev) {
-      if (!pts[ev.pointerId]) return;
-      var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
-      pts[ev.pointerId] = [ev.clientX, ev.clientY];
-      if (ids.length === 1) {
-        var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 6 && zoom() > 1.01) {
-          if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
-          v[0] -= dx / r.width * v[2];
-          v[1] -= dy / r.height * v[3];
-          apply();
-        }
-      } else if (ids.length === 2) {
-        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-        var mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-        if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
-        pinch = d;
-        moved = 99;
-      }
-    });
-    function up(ev) { delete pts[ev.pointerId]; pinch = null; }
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
-
-    // A drag isn't a tap; a tap on a place opens its card
-    svg.addEventListener('click', function (ev) {
-      if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; return; }
-      var m = ev.target.closest('.mk.place');
-      if (!m) { card.hidden = true; return; }
-      ev.preventDefault();
-      card.textContent = '';
-      var x = document.createElement('button');
-      x.type = 'button'; x.className = 'mapcardx'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close');
-      x.addEventListener('click', function () { card.hidden = true; });
-      var h = document.createElement('b'); h.textContent = m.getAttribute('data-name');
-      var p = document.createElement('p'); p.className = 'help'; p.textContent = m.getAttribute('data-what');
-      card.appendChild(x); card.appendChild(h); card.appendChild(p);
-      var route = m.getAttribute('data-route'), q = document.createElement('p');
-      if (m.getAttribute('data-here')) { if (window.gvIcoLine) gvIcoLine(q, 'ico-gnome-hat', ' You are here.'); else q.textContent = '🎩 You are here.'; }
-      else if (route && goForm) {
-        var go = document.createElement('button');
-        go.type = 'button'; go.className = 'btn small';
-        go.textContent = 'Go → (' + m.getAttribute('data-steps') + ' steps)';
-        go.addEventListener('click', function () { goForm.querySelector('[name=route_id]').value = route; goForm.submit(); });
-        q.appendChild(go);
-      } else if (m.getAttribute('data-go')) {   // v0.7.98: directions there (the first walk only)
-        var a = document.createElement('a');
-        a.className = 'btn small alt'; a.href = m.getAttribute('data-go'); if (window.gvIcoLine) gvIcoLine(a, 'ico-compass', ' How do I get there?'); else a.textContent = '🧭 How do I get there?';
-        q.appendChild(a);
-      } else q.textContent = 'Not next to you: walk the roads to get here.';
-      q.className = q.className || 'muted';
-      card.appendChild(q);
-      card.hidden = false;
-    }, true);
   });
 }
 /* v1.6.0: mycelium maps: the All / Folk / Quests / Gathering chips show or hide the overlays (CSS keys off data-f on .mycbox).
@@ -1057,59 +1068,27 @@ function gvRegionZoom() {
     if (!svg || !ctl) return;
     box.classList.add('on');
     ctl.hidden = false;
-    var vb = (svg.getAttribute('viewBox') || '0 0 400 300').split(/\s+/).map(Number), W = vb[2], H = vb[3], v = [0, 0, W, H];
-    function zoom() { return W / v[2]; }
-    function apply() {
-      var z = Math.max(1, Math.min(6, W / v[2])), w = W / z, h = H / z;
-      var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
-      v = [cx - w / 2, cy - h / 2, w, h];
-      svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
-      // v2.0.61: markers and names shrink on the map as it zooms (so they spread apart) but grow on screen; a narrow phone gets them a little bigger
-      var px = (svg.getBoundingClientRect().width || W) / W;
-      svg.style.setProperty('--zs', (Math.pow(z, -0.75) * Math.min(1.25, Math.max(1, 0.9 / px))).toFixed(3));
-      svg.classList.toggle('zoomed', z > 1.02);
-      svg.classList.toggle('z2', z >= 1.9);
-    }
-    function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
-    function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    var vb = (svg.getAttribute('viewBox') || '0 0 400 300').split(/\s+/).map(Number), W = vb[2], H = vb[3];
+    var view = [0, 0, W, H];
     var fo = (svg.getAttribute('data-focus') || '').split(' ').map(Number);   // v2.0.84: the Go tab opens zoomed in on you
-    if (fo.length === 3 && fo[2] > 1) v = [fo[0] - W / fo[2] / 2, fo[1] - H / fo[2] / 2, W / fo[2], H / fo[2]];
-    apply();
+    if (fo.length === 3 && fo[2] > 1) view = [fo[0] - W / fo[2] / 2, fo[1] - H / fo[2] / 2, W / fo[2], H / fo[2]];
+    var zp = gvZoomPan(svg, {
+      W: W, H: H, view: view, maxZ: function () { return 6; },
+      render: function (z) {
+        // v2.0.61: markers and names shrink on the map as it zooms (so they spread apart) but grow on screen; a narrow phone gets them a little bigger
+        var px = (svg.getBoundingClientRect().width || W) / W;
+        svg.style.setProperty('--zs', (Math.pow(z, -0.75) * Math.min(1.25, Math.max(1, 0.9 / px))).toFixed(3));
+        svg.classList.toggle('zoomed', z > 1.02);
+        svg.classList.toggle('z2', z >= 1.9);
+      }
+    });
+    zp.apply();
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');
       if (!b) return;
-      var k = b.getAttribute('data-z'), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2;
-      if (k === 'in') zoomAt(1.6, cx, cy); else if (k === 'out') zoomAt(1 / 1.6, cx, cy); else { v = [0, 0, W, H]; apply(); }
+      var k = b.getAttribute('data-z'), vw = zp.view(), cx = vw[0] + vw[2] / 2, cy = vw[1] + vw[3] / 2;
+      if (k === 'in') zp.zoomAt(1.6, cx, cy); else if (k === 'out') zp.zoomAt(1 / 1.6, cx, cy); else zp.show([0, 0, W, H]);
     });
-    svg.addEventListener('wheel', function (ev) {
-      if (ev.deltaY > 0 && zoom() <= 1.01) return;
-      ev.preventDefault();
-      var p = toMap(ev.clientX, ev.clientY);
-      zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
-    }, { passive: false });
-    var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
-    svg.addEventListener('pointermove', function (ev) {
-      if (!pts[ev.pointerId]) return;
-      var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
-      pts[ev.pointerId] = [ev.clientX, ev.clientY];
-      if (ids.length === 1) {
-        var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 6 && zoom() > 1.01) {
-          if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
-          v[0] -= dx / r.width * v[2]; v[1] -= dy / r.height * v[3]; apply();
-        }
-      } else if (ids.length === 2) {
-        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-        if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
-        pinch = d; moved = 99;
-      }
-    });
-    function up(ev) { delete pts[ev.pointerId]; pinch = null; }
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
-    svg.addEventListener('click', function (ev) { if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; } }, true);
   });
 }
 
@@ -1121,52 +1100,20 @@ function gvMycZoom() {
     if (!svg || !ctl) return;
     box.classList.add('on');
     ctl.hidden = false;
-    var vb = (svg.getAttribute('viewBox') || '0 0 360 300').split(/\s+/).map(Number), W = vb[2], H = vb[3], v = [0, 0, W, H];
-    function apply() {
-      var z = Math.max(1, Math.min(5, W / v[2])), w = W / z, h = H / z;
-      var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
-      v = [cx - w / 2, cy - h / 2, w, h];
-      svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
-      svg.classList.toggle('zoomed', z > 1.02);
-      svg.classList.toggle('zn', z >= 1.5);
-    }
-    function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
-    function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    var vb = (svg.getAttribute('viewBox') || '0 0 360 300').split(/\s+/).map(Number), W = vb[2], H = vb[3];
+    var zp = gvZoomPan(svg, {
+      W: W, H: H, view: [0, 0, W, H], maxZ: function () { return 5; }, wheelModifier: true,
+      render: function (z) {
+        svg.classList.toggle('zoomed', z > 1.02);
+        svg.classList.toggle('zn', z >= 1.5);
+      }
+    });
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-mz]');
       if (!b) return;
-      var k = b.getAttribute('data-mz'), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2;
-      if (k === 'in') zoomAt(1.5, cx, cy); else if (k === 'out') zoomAt(1 / 1.5, cx, cy); else { v = [0, 0, W, H]; apply(); }
+      var k = b.getAttribute('data-mz'), vw = zp.view(), cx = vw[0] + vw[2] / 2, cy = vw[1] + vw[3] / 2;
+      if (k === 'in') zp.zoomAt(1.5, cx, cy); else if (k === 'out') zp.zoomAt(1 / 1.5, cx, cy); else zp.show([0, 0, W, H]);
     });
-    svg.addEventListener('wheel', function (ev) {
-      if (!ev.ctrlKey && !ev.altKey) return;   // a plain wheel keeps scrolling the page; Ctrl / Alt + wheel zooms
-      ev.preventDefault();
-      var p = toMap(ev.clientX, ev.clientY);
-      zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
-    }, { passive: false });
-    var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });
-    svg.addEventListener('pointermove', function (ev) {
-      if (!pts[ev.pointerId]) return;
-      var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
-      pts[ev.pointerId] = [ev.clientX, ev.clientY];
-      if (ids.length === 1) {
-        var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 6 && W / v[2] > 1.01) {
-          if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
-          v[0] -= dx / r.width * v[2]; v[1] -= dy / r.height * v[3]; apply();
-        }
-      } else if (ids.length === 2) {
-        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-        if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
-        pinch = d; moved = 99;
-      }
-    });
-    function up(ev) { delete pts[ev.pointerId]; pinch = null; }
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
-    svg.addEventListener('click', function (ev) { if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; } }, true);
   });
 }
 

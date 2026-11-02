@@ -49,5 +49,33 @@ window.gvFx = {
   rmq: window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false },
   centre: function (el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; },
   seenGet: function (key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } },
-  seenSet: function (key, v) { try { window.localStorage.setItem(key, v); } catch (e) { /* private mode: replay next time */ } }
+  seenSet: function (key, v) { try { window.localStorage.setItem(key, v); } catch (e) { /* private mode: replay next time */ } },
+  burst: function (x, y, kind, n) {
+    if (window.gvFx.rmq.matches) return;
+    for (var i = 0; i < n; i++) {
+      var p = document.createElement('span');
+      p.className = 'dirtbit ' + kind;
+      var a = Math.random() * Math.PI * 2, d = 16 + Math.random() * 24;
+      p.style.left = x + 'px'; p.style.top = y + 'px';
+      p.style.setProperty('--dx', Math.round(Math.cos(a) * d) + 'px');
+      p.style.setProperty('--dy', Math.round(Math.sin(a) * d - 14) + 'px');
+      p.style.setProperty('--sz', (4 + Math.random() * 4).toFixed(1) + 'px');
+      document.body.appendChild(p);
+      setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 800);
+    }
+  },
+  petals: function () {
+    if (window.gvFx.rmq.matches) return;
+    for (var i = 0; i < 34; i++) {
+      var p = document.createElement('span');
+      p.className = 'petal p' + (i % 4);
+      p.style.setProperty('--x', Math.round(Math.random() * 100) + 'vw');
+      p.style.setProperty('--dx', Math.round(Math.random() * 120 - 60) + 'px');
+      p.style.setProperty('--r', Math.round(240 + Math.random() * 420) + 'deg');
+      p.style.setProperty('--t', (2.2 + Math.random() * 1.6).toFixed(2) + 's');
+      p.style.setProperty('--dl', (Math.random() * 0.7).toFixed(2) + 's');
+      document.body.appendChild(p);
+      setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 4600);
+    }
+  }
 };
