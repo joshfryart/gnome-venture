@@ -746,6 +746,8 @@ gvAdvFold();
         gvGarden();
         gvAlmTabs();
         gvWanderFolds();
+        gvShelves();   // v2.4.67: the swapped-in Satchel / Crafting shelves get their handlers
+        if (window.gvShpopAfterSwap) window.gvShpopAfterSwap();   // and a Satchel sheet that was open opens again
         if (after) after();
       })
       .catch(function () { busy = false; fallback(); });
@@ -1977,10 +1979,12 @@ document.addEventListener('animationend', function (ev) {
 
 /* Shelves (the Satchel and the Crafting tabs other than the Pantry): a pill opens its panel in place (every panel is already in the page,
    hidden), one at a time, and the address follows so a reload keeps it; the shelves remember being folded for this tab (sessionStorage);
-   the search box filters the pills as you type (Enter still searches on the server). Without script the pills and ✕ are plain links. */
-(function () {
+   the search box filters the pills as you type (Enter still searches on the server). Without script the pills and ✕ are plain links.
+   v2.4.67: a function, so an in-place swap (eating from the Satchel) can wire the fresh .shelves again. */
+function gvShelves() {
   var root = document.querySelector('.shelves');
-  if (!root) return;
+  if (!root || root.hasAttribute('data-shwired')) return;
+  root.setAttribute('data-shwired', '1');
   function shut(p) {
     var panel = document.getElementById(p.getAttribute('data-pick'));
     if (panel) panel.hidden = true;
@@ -2033,4 +2037,5 @@ document.addEventListener('animationend', function (ev) {
     });
     if (none) none.hidden = any;
   });
-})();
+}
+gvShelves();

@@ -35,7 +35,9 @@ if (is_post()) {
     $iid = (int)($_POST['item_id'] ?? 0);
     $srt = preg_match('/^[a-z]{2,6}$/', (string)($_POST['sort'] ?? '')) ? '&sort=' . $_POST['sort'] : '';
     $quick = !empty($_POST['quick']);   // the Satchel's quick bar: stay at the top, nothing opened
-    redirect('inventory.php?cat=' . $back . $srt . ($iid && !$quick ? '&open=' . $iid . '#i' . $iid : ''));
+    $sheet = '';   // v2.4.67: the sheet the item sat in, so it opens again even when the last one was just used up
+    if ($iid && !$quick && ($it = q_one('SELECT slug, category FROM items WHERE id = ?', [$iid]))) { require_once __DIR__ . '/includes/shelves.php'; $sheet = sh_bag_group($it); }
+    redirect('inventory.php?cat=' . $back . $srt . ($iid && !$quick ? '&open=' . $iid . ($sheet !== '' ? '&sheet=' . $sheet : '') . '#i' . $iid : ''));
 }
 
 $tabNow = (string)($_GET['tab'] ?? '');

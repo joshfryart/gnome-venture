@@ -48,6 +48,7 @@ if ($cat === 'untasted') usort($shown, fn($a, $b) => [$b['perm'], 0] <=> [$a['pe
 if ($sort === 'type' && $cat !== 'untasted') { $defs = SH_BAG_GROUPS; $open = array_fill_keys(array_keys(SH_BAG_GROUPS), true); }
 else { foreach ($shown as &$e) $e['group'] = 'list'; unset($e); $defs = ['list' => $cat === 'untasted' ? ['✨', 'Untasted'] : [explode(' ', $sorts[$sort], 2)[0], explode(' ', $sorts[$sort], 2)[1]]]; $open = ['list' => true]; }
 $selId = (int)($_GET['open'] ?? 0);
+$selSheet = preg_match('/^[a-z]{2,12}$/', (string)($_GET['sheet'] ?? '')) ? (string)$_GET['sheet'] : '';   // v2.4.67
 $landing = $cat === 'all' && $sort === 'type' && $qs === '' && $all;   // v2.5.0: the tile page; any other choice shows the list as before
 $base = 'inventory.php?' . http_build_query(array_filter(['cat' => $cat === 'all' ? '' : $cat, 'sort' => $sort === 'type' ? '' : $sort, 'q' => $qs], 'strlen'));
 $link = fn(int $id) => url($base . (str_ends_with($base, '?') ? '' : '&') . 'open=' . $id) . '#i' . $id;
@@ -84,7 +85,7 @@ $things = array_sum(array_map(fn($e) => $e['count'], $all));
   foreach (SH_BAG_GROUPS as $gk => [$gi, $gl]): $rows = $byG[$gk] ?? []; if (!$rows) continue;
     $subs = [];
     foreach ($rows as $e) { $c = (string)($e['item']['category'] ?? ''); if (isset(SH_BAG_CATS[$c])) $subs[$c] = SH_BAG_CATS[$c][2]; }
-    $hasSel = $selId > 0 && in_array($selId, array_column($rows, 'id'), true); ?>
+    $hasSel = $selId > 0 && (in_array($selId, array_column($rows, 'id'), true) || $gk === $selSheet); ?>
 <dialog class="picker craftpop shbagpop" id="shd-<?= e($gk) ?>" aria-labelledby="shd-<?= e($gk) ?>-t"<?= $hasSel ? ' data-autoopen="1"' : '' ?>><div class="pickbox">
   <div class="pickhead"><h3 id="shd-<?= e($gk) ?>-t"><?= $gi ?> <?= e($gl) ?> <small class="muted"><?= count($rows) ?> kind<?= count($rows) === 1 ? '' : 's' ?> · ×<?= number_format(array_sum(array_column($rows, 'count'))) ?></small></h3><button type="button" class="pickx" data-shpd-close aria-label="Close">✕</button></div>
   <div class="shpdctl">

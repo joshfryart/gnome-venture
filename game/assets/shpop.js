@@ -81,5 +81,13 @@
   document.addEventListener('close', function (ev) {
     if (ev.target.classList && ev.target.classList.contains('shbagpop') && back) { try { back.focus(); } catch (e) {} back = null; }
   }, true);
-  document.querySelectorAll('dialog.shbagpop[data-autoopen]').forEach(function (d) { if (window.gvOpenDlg) gvOpenDlg(d); });   // back from using an item: reopen its sheet
+  function autoOpen() {   // back from using an item: reopen its sheet, with the used item's panel in view
+    document.querySelectorAll('dialog.shbagpop[data-autoopen]').forEach(function (d) {
+      if (!window.gvOpenDlg) return;
+      gvOpenDlg(d);
+      var sel = d.querySelector('a.shpill.sel'); if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+    });
+  }
+  window.gvShpopAfterSwap = autoOpen;   // v2.4.67: site.js calls this after an in-place swap (eat, read, mend from the Satchel)
+  autoOpen();
 })();
