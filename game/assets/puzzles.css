@@ -399,6 +399,8 @@ progress.pjbar{--fill:var(--accent); grid-column:2; grid-row:2; width:100%; max-
 .pjreceipt{margin:12px 2px 4px}
 .pjreceipt ul{margin:4px 0 0; padding-left:18px}
 .pjreceipt{animation:pjunroll .56s var(--pj-ease) backwards}
+.pjreceipt .pjchips{display:flex; flex-wrap:wrap; gap:6px; padding:0; list-style:none}
+.pjreceipt .pjchips li{padding:4px 10px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--line); font-weight:700; font-size:14px}
 .pjreceipt li{animation:pjline .4s var(--pj-ease) backwards}
 .pjreceipt .pjl0{animation-delay:.16s} .pjreceipt .pjl1{animation-delay:.23s} .pjreceipt .pjl2{animation-delay:.3s} .pjreceipt .pjl3{animation-delay:.37s}
 .pjreceipt .pjl4{animation-delay:.44s} .pjreceipt .pjl5{animation-delay:.51s} .pjreceipt .pjl6{animation-delay:.58s} .pjreceipt .pjl7{animation-delay:.65s}

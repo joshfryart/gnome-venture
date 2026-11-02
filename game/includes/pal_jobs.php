@@ -932,15 +932,17 @@ function pj_collect(array $u, int $jobId): array
     $isPassive = $isStation && ($j['tool'] ?? '') === 'passive';
     $head = $isStation ? $name . ' finished a shift at the ' . (string)($r['obj'] ?? 'station') . '.' : ($fainted ? $name . ' came home early from ' . $where . '.' : $name . ' is back from ' . $where . '.');
     $lines = [];
+    $tot = ['coins' => 0, 'items' => [], 'axp' => 0, 'cxp' => 0, 'used' => 0, 'back' => 0, 'served' => 0];   // v2.5: totals, so Collect all can show one chest and a few chips
     if ($fainted) $lines[] = '😵 Out of HP, so ' . $name . ' turned back. Let them rest or give a potion.';
-    if (!empty($r['coins'])) { give_petals($uid, (int)$r['coins'], 'pal delve'); $lines[] = '💰 ' . money((int)$r['coins']); }
-    foreach ($r['items'] ?? [] as [$iid, $qty, $iname]) { give_item($uid, (int)$iid, (int)$qty); $lines[] = '🎁 ' . $iname . ' ×' . (int)$qty; }
+    if (!empty($r['coins'])) { give_petals($uid, (int)$r['coins'], 'pal delve'); $tot['coins'] += (int)$r['coins']; $lines[] = '💰 ' . money((int)$r['coins']); }
+    foreach ($r['items'] ?? [] as [$iid, $qty, $iname]) { give_item($uid, (int)$iid, (int)$qty); $tot['items'][(int)$iid] = ($tot['items'][(int)$iid] ?? 0) + (int)$qty; $lines[] = '🎁 ' . $iname . ' ×' . (int)$qty; }
     if ($isPassive) {
+        $tot['served'] = (int)($r['served'] ?? 0);
         $lines[] = !empty($r['cooks']) ? '🍲 ' . $name . ' served ' . (int)$r['served'] . ' dish' . ((int)$r['served'] === 1 ? '' : 'es') . ' from ' . (int)$r['cooks'] . ' cook' . ((int)$r['cooks'] === 1 ? '' : 's') . ' (already in your satchel).' : '🍃 Nothing was cooked.';
         if (!empty($r['lost'])) $lines[] = 'ℹ️ Called home early: ' . (int)$r['lost'] . ' dish' . ((int)$r['lost'] === 1 ? '' : 'es') . ' in the pot were lost.';
         if (!empty($r['skipped'])) $lines[] = 'ℹ️ ' . (int)$r['skipped'] . ' check' . ((int)$r['skipped'] === 1 ? '' : 's') . ' skipped: missing ingredients or no dish chosen.';
-        if ($p && ($px = (int)($r['pal_xp'] ?? 0)) > 0) { pj_add_c_xp($uid, $p['key'], $px); $lv = pj_level($p['cxp'] + $px); $lines[] = '⭐ +' . $px . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
-        return [true, $lines, $head];
+        if ($p && ($px = (int)($r['pal_xp'] ?? 0)) > 0) { pj_add_c_xp($uid, $p['key'], $px); $tot['cxp'] += $px; $lv = pj_level($p['cxp'] + $px); $lines[] = '⭐ +' . $px . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
+        return [true, $lines, $head, $tot];
     }
     if (empty($r['coins']) && empty($r['items'])) $lines[] = $isStation ? '🍃 Nothing was made.' : '🍃 No finds this time.';
     if (!empty($r['recalled'])) $lines[] = 'ℹ️ Called home early: half of what was earned so far.';
@@ -948,19 +950,20 @@ function pj_collect(array $u, int $jobId): array
     $used = (int)($r['potions_used'] ?? 0);
     $back = (int)($r['potions_back'] ?? 0);
     if ($back) give_item($uid, pj_potion_id(), $back);
+    $tot['used'] = $used; $tot['back'] = $back;
     if ($used || $back) $lines[] = '🧪 ' . ($used ? 'Drank ' . $used . ' potion' . ($used > 1 ? 's' : '') : '') . ($used && $back ? ', ' : '') . ($back ? $back . ' back in your satchel' : '') . '.';
     if ($isStation && $p) {   // v2.4.61: the XP of those makes is split: half to the gnome (Crafting XP), half to the pal's Crafting skill
         $base = (int)($r['xp_base'] ?? 0); $palXp = intdiv($base, 2); $gnomeXp = $base - $palXp;
-        if ($gnomeXp > 0) { [$gx] = add_action_xp($uid, $gnomeXp, 'Crafting', (int)$u['level']); $lines[] = '⭐ +' . $gx . ' Crafting XP for you'; }
-        if ($palXp > 0) { pj_add_c_xp($uid, $p['key'], $palXp); $lv = pj_level($p['cxp'] + $palXp); $lines[] = '⭐ +' . $palXp . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
+        if ($gnomeXp > 0) { [$gx] = add_action_xp($uid, $gnomeXp, 'Crafting', (int)$u['level']); $tot['cxp'] += $gx; $lines[] = '⭐ +' . $gx . ' Crafting XP for you'; }
+        if ($palXp > 0) { pj_add_c_xp($uid, $p['key'], $palXp); $tot['cxp'] += $palXp; $lv = pj_level($p['cxp'] + $palXp); $lines[] = '⭐ +' . $palXp . ' Crafting XP for ' . $p['name'] . ($lv > $p['c'] ? ': now level ' . $lv . '!' : ''); }
     } elseif ($p) {
         $xp = $j['kind'] === 'delve' ? 4 * (int)($r['rounds'] ?? 0) + ($fainted || !empty($r['recalled']) ? 0 : 10) : 2 * (int)($r['rounds'] ?? 0);
-        pj_add_xp($uid, $p['key'], 0, $xp);
+        pj_add_xp($uid, $p['key'], 0, $xp); $tot['axp'] += $xp;
         $lv = pj_level($p['axp'] + $xp);
         if ($xp > 0) $lines[] = '⭐ +' . $xp . ' Adventuring XP' . ($lv > $p['a'] ? ': now level ' . $lv . '!' : '');
         if (!empty($r['path'])) { require_once __DIR__ . '/delve_v2.php'; $lines[] = '🗺️ ' . $p['name'] . ' took the ' . implode(', ', array_map(fn($k) => DV2_KIND[$k][1] ?? $k, $r['path'])) . ' way' . (empty($r['fainted']) ? ' and turned back at the guardian.' : '.'); }
     }
-    return [true, $lines, $head];
+    return [true, $lines, $head, $tot];
 }
 
 /**

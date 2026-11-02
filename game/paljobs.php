@@ -51,18 +51,35 @@ if (is_post()) {
         redirect('paljobs.php');
     }
     if ($do === 'collect_all') {
-        $heads = []; $lines = []; $n = 0;
+        // v2.5: one chest and a few chips instead of a long list of lines
+        $n = 0; $sum = ['coins' => 0, 'items' => [], 'axp' => 0, 'cxp' => 0, 'used' => 0, 'back' => 0, 'served' => 0, 'fainted' => 0];
         foreach (pj_jobs($uid) as $jr) {
             if ($jr['state'] !== 'ready') continue;
             $one = pj_collect($u, (int)$jr['id']);
             if (!$one[0]) continue;
             $n++;
-            $heads[] = (string)($one[2] ?? '');
-            foreach ((array)$one[1] as $l) $lines[] = (string)$l;
+            $t = (array)($one[3] ?? []);
+            foreach (['coins', 'axp', 'cxp', 'used', 'back', 'served'] as $k) $sum[$k] += (int)($t[$k] ?? 0);
+            foreach ((array)($t['items'] ?? []) as $iid => $qty) $sum['items'][$iid] = ($sum['items'][$iid] ?? 0) + (int)$qty;
+            if (str_contains((string)($one[2] ?? ''), 'came home early')) $sum['fainted']++;
         }
         if ($n) {
-            foreach ($lines as $l) flash($l, 'ok');
-            $_SESSION['pj_receipt'] = ['pal' => '', 'head' => 'Collected ' . $n . ' job' . ($n > 1 ? 's' : '') . '.', 'lines' => array_merge($heads, $lines)];
+            $chips = [];
+            if ($sum['coins']) $chips[] = '💰 ' . money($sum['coins']);
+            if ($sum['items']) $chips[] = '🎁 ' . array_sum($sum['items']) . ' find' . (array_sum($sum['items']) === 1 ? '' : 's');
+            if ($sum['axp']) $chips[] = '⭐ +' . $sum['axp'] . ' Adventuring XP';
+            if ($sum['cxp']) $chips[] = '⭐ +' . $sum['cxp'] . ' Crafting XP';
+            if ($sum['served']) $chips[] = '🍲 ' . $sum['served'] . ' dish' . ($sum['served'] === 1 ? '' : 'es') . ' served';
+            if ($sum['used'] || $sum['back']) $chips[] = '🧪 ' . $sum['used'] . ' drunk, ' . $sum['back'] . ' back';
+            if ($sum['fainted']) $chips[] = '😵 ' . $sum['fainted'] . ' came home early';
+            flash($n . ' job' . ($n > 1 ? 's' : '') . ' home' . ($chips ? ': ' . implode(' · ', $chips) : '') . '.', 'ok');
+            $_SESSION['pj_receipt'] = ['pal' => '', 'head' => 'Collected ' . $n . ' job' . ($n > 1 ? 's' : '') . '.', 'lines' => [], 'chips' => $chips];
+            if ($sum['coins'] || $sum['items']) {
+                require_once __DIR__ . '/includes/chest.php';
+                $its = [];
+                foreach ($sum['items'] as $iid => $qty) $its[] = [(int)$iid, (int)$qty, 'common'];
+                chest_note($sum['coins'], $sum['axp'] + $sum['cxp'], $its, ['title' => 'Your pals are home!', 'done' => 'Your pals brought back…']);
+            }
         } else flash('Nothing to collect.', 'err');
         redirect('paljobs.php');
     }
@@ -218,7 +235,10 @@ page_header('Pal Jobs');
       <?php if (count(array_filter($jobs, fn($j) => $j['state'] === 'ready')) > 1): ?>
       <form method="post" action="<?= e(url('paljobs.php')) ?>" class="pjcollectall"><?= csrf_field() ?><button class="btn small" name="do" value="collect_all">Collect all (<?= count(array_filter($jobs, fn($j) => $j['state'] === 'ready')) ?>)</button></form>
       <?php endif; ?>
-      <?php if ($receipt && $receipt['lines']): $rp = $pals[$receipt['pal']] ?? null; ?>
+      <?php if ($receipt && !empty($receipt['chips'])): ?>
+      <div class="flash pjreceipt" role="status"><b><?= e((string)$receipt['head']) ?></b>
+        <ul class="pjchips"><?php foreach ($receipt['chips'] as $i => $c): ?><li class="pjl<?= min($i, 7) ?>"><?= e($c) ?></li><?php endforeach; ?></ul></div>
+      <?php elseif ($receipt && $receipt['lines']): $rp = $pals[$receipt['pal']] ?? null; ?>
       <div class="flash pjreceipt" role="status">
         <b><?= ($receipt['head'] ?? '') !== '' ? e($receipt['head']) : ($rp ? e($rp['name']) . ' is home.' : 'Collected.') ?></b>
         <ul><?php foreach ($receipt['lines'] as $i => $l): ?><li class="pjl<?= min($i, 7) ?>"><?= e($l) ?></li><?php endforeach; ?></ul>

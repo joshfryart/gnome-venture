@@ -5664,6 +5664,16 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 :root[data-theme] .shopwrap > .basket .btn.bclear { --b-bg: #f2e4c0; --b-hi: #fff3c8; --b-lo: #c9a96e; --b-ink: #2a1a10; --b-hover: #fff3c8; }
 :root[data-theme] .shopwrap > .basket .btn.bgo { --b-bg: #e0aa48; --b-hi: #f5cf6a; --b-lo: #b07a28; --b-ink: #2a1a10; --b-hover: #f5cf6a; }
 
+/* v2.5: phone: the basket stays slim (its list scrolls inside itself, never grows past ~2 rows) and the shop squares sit 4 across */
+.shopwrap > .basket .blist { max-height: 84px; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-wrap: wrap; gap: 4px; }
+.shopwrap > .basket .bchip { min-height: 36px; margin: 0; padding: 2px 8px; font-size: 13px; }
+.shopwrap > .basket .bfoot { gap: 6px; flex-wrap: nowrap; }
+.shopwrap > .basket .bfoot .btn { min-height: 40px; padding-inline: 10px; white-space: nowrap; }
+@media (max-width: 520px) {
+  .shopwrap .itms { --itm-cols: 4; gap: 14px 6px; }
+  .shopwrap > .basket { padding: 6px 8px 8px; }
+}
+
 /* ===== 2.0.67: item squares, pickers and crafting ===== */
 /* ===== v2.0.67 item squares, wave 2: crafting ingredients, the gift picker, garden / town pickers, market-day basket =====
    For the lead to append to game/assets/style.css AFTER the wave 1 block (claude/build/css-items.css). Same .itm markup from item_square();
