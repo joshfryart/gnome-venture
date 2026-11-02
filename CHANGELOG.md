@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.88
+- **Fix: Jigsaw best times and tier badges could vanish.** Starting a Rain Barrel or Gnome Beds run had a 1 in 50 chance of purging every `puzzle_runs` row older than 14 days, including finished Jigsaw runs (which hold personal bests). The purge now leaves Jigsaw rows alone.
+- **Expert before Advanced now frees the pals.** Finishing a picture at Expert first used to give only the trophy and no pals. Whichever of Advanced or Expert you finish first frees the picture's pals (once); Expert also still earns the trophy, and the win card shows both lines when both are new.
+- **Fix: delve map ghost buttons.** Cells outside the map (near a left or right edge) could alias into the next row and show as invisible "Walk here" buttons. They are now disabled, and the path preview ignores out-of-range targets.
+- **Fix: Jigsaw saves.** Changing tier on a picture that was still loading, then leaving, could make the next picture skip its saved go and delete it. A pending save also no longer rewrites the old tier's save after a tier change.
+
 ## 2.4.86
 - **Fix: Today / Home crashed (`Unknown column 'pal_uid'`).** The Welcome back and daily card checks filtered Pantry jars and drying racks on a column only the cooking pots have.
 - **Admin Tools and update backups now report real failures.** SQL and SQLite backups are built first and checked (a failure shows a red error and downloads nothing; a good SQL file ends with an `END OF BACKUP` line). Delete image, clear logs, and the test pal button no longer say OK when they failed. Update backups check every write.

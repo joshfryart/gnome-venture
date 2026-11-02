@@ -75,7 +75,11 @@ ok "Expert again: still one trophy" "$(tro $MAP)/$(echo "$R" | js ppal)" "1/NULL
 R=$(go jig-sunsprinkle expert 1000)
 ok "Expert too fast: rejected, no trophy" "$(echo "$R" | js rejected)/$(tro $SUN)" "true/0"
 R=$(go jig-sunsprinkle expert)
-ok "Expert without a release: trophy only" "$(tro $SUN)/$(rel $SUN)" "1/0"
+ok "Expert before Advanced: a trophy AND the roster is released (src free)" "$(tro $SUN)/$(rel $SUN)/$(dbv "SELECT src FROM ppal_releases WHERE user_id=$UID_ AND pic_id=$SUN")" "1/1/free"
+ok "Expert before Advanced: the win card reports both the trophy and the release" "$(echo "$R" | php -r '$j=json_decode(stream_get_contents(STDIN),true); echo var_export($j["ppal"]["trophy"]??null,true),"/",(int)($j["ppal"]["released"]??0)>0?"y":"n";')" "true/y"
+R=$(go jig-sunsprinkle advanced)
+ok "Advanced after an Expert release: still 1 release, nothing new in the response" "$(rel $SUN)/$(echo "$R" | js ppal)" "1/NULL"
+dbx "DELETE FROM ppal_releases WHERE pic_id=$SUN"   # reset so the tournament checks below start from an unreleased picture
 ok "trophy row is per user and picture (UNIQUE)" "$(dbv "SELECT COUNT(*) FROM (SELECT user_id,pic_id FROM ppal_trophies GROUP BY 1,2 HAVING COUNT(*)>1)")" 0
 ok "ppal_party off: no trophy unit" "$(php -r '$_SERVER["SCRIPT_NAME"]="/index.php"; require $argv[1]."/includes/bootstrap.php"; require APP_ROOT."/includes/puzzle_pals.php"; echo ppal_trophy_unit((int)$argv[2], (int)$argv[3]);' $GAME $UID_ $MAP)" 0
 setg ppal_party 1
