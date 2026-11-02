@@ -83,7 +83,7 @@ function ensure_nutrients(): int
     $added = 0;
     $shop = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");
     foreach (NPK_ITEMS as [$slug, $name, $price, $rarity, $fx, $desc, $sold]) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if (!$id) {
             $id = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'soil', 'base_price' => $price,
                 'rarity' => $rarity, 'description' => $desc, 'effects' => json_encode($fx)]);

@@ -386,7 +386,7 @@ function give_find(array $u, array $scene): string
         $finds = LANDSCAPE_FINDS[$scene['land']] ?? [];
         if ($finds) {
             [$name] = road_pick($finds, 'fd', 0) ?? $finds[0];   // v1.9.3: not the same find three times running
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [slugify($name)]);
+            $iid = item_id_by_slug(slugify($name));
             if ($iid) {
                 $two = $rich && random_int(1, 100) <= $rich;
                 give_item($uid, $iid, $two ? 2 : 1);
@@ -797,7 +797,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
                 exp_log($exp, give_local_seed($u, $scene) ?? give_find($u, $scene));
             } elseif ($dr['special'] === 'guide') {
                 $rCode = $scene['region_id'] ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$scene['region_id']]) : '';
-                $gid = $rCode ? (int)q_val('SELECT id FROM items WHERE slug = ?', [guide_item_slug($rCode)]) : 0;
+                $gid = $rCode ? item_id_by_slug(guide_item_slug($rCode)) : 0;
                 if ($gid) {
                     give_item($uid, $gid, 1);
                     exp_log($exp, '📗 The ' . $c['name'] . ' was guarding a Gardening Guide!');

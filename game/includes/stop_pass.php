@@ -78,7 +78,7 @@ function stop_grant(int $uid, string $spec): array
         if ($k === 'c' && (int)$p[0] > 0) { q('UPDATE users SET coins = coins + ? WHERE id = ?', [(int)$p[0], $uid]); $lines[] = (int)$p[0] . ' ' . setting('currency_name'); }
         elseif ($k === 'xp' && (int)$p[0] > 0) { add_xp($uid, (int)$p[0], 'rest_stop'); $lines[] = (int)$p[0] . ' XP'; }
         elseif ($k === 'item') {
-            $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$p[0] ?? '']);
+            $id = item_id_by_slug($p[0] ?? '');
             $n = max(1, (int)($p[1] ?? 1));
             if ($id && give_item($uid, $id, $n)) $lines[] = $n . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$id]);
         }

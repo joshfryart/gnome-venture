@@ -121,7 +121,7 @@ function pantry_buy(array $u, int $plotId): array
         return [false, 'A Pantry costs ' . money($coins) . ($mats ? ' and ' . upgrade_mats_text($mats) : '') . '.'];
     }
     foreach ($mats as $slug => $qty) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if (!$id || !give_item($uid, $id, -$qty)) {
             db()->rollBack();
             return [false, 'You need ' . upgrade_mats_text($mats) . ' for a Pantry (Satchel → Crafting → Building makes Timber Planks).'];

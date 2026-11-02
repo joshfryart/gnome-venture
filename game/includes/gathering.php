@@ -30,7 +30,7 @@ function ensure_gatherables(): int
         [$slug, $name, $lands, $tool, $rarity, $price, $stat, $desc] = $f;
         $cond = $f[8] ?? '';   // v1.9.3: optional last column: when it turns up more often (or "!" = only then)
         if (!isset(TOOL_TYPES[$tool]) || !isset(GATHER_RARITY[$rarity])) continue;
-        $itemId = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $itemId = item_id_by_slug($slug);
         if (!$itemId) {
             $edible = $stat !== '-' && isset(GNOME_STATS_KEYS[$stat]);
             $itemId = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'forage',

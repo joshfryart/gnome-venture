@@ -33,7 +33,7 @@ function seed_starter_content(): void
 
     // All real-world regions, zones, crops and their Almanac pages
     import_catalog();
-    $id = fn(string $slug) => (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $id = fn(string $slug) => item_id_by_slug($slug);
 
     $soup = $id('garden-vegetable-soup');
 

@@ -183,7 +183,7 @@ function ensure_shop_food(): void
 {
     foreach (q("SELECT i.*, st.id AS stock_id, st.price_min FROM shop_stock st JOIN items i ON i.id = st.item_id WHERE i.category = 'food' AND i.slug NOT LIKE 'bought-%'")->fetchAll() as $row) {
         $slug = mb_substr('bought-' . $row['slug'], 0, 80);
-        $vid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $vid = item_id_by_slug($slug);
         if (!$vid) {
             $vid = db_insert('items', ['name' => mb_substr($row['name'] . ' (shop-bought)', 0, 80), 'slug' => $slug, 'category' => 'food',
                 'description' => trim((string)$row['description']) . ' Bought at a shop: less filling than home cooking, and worth less.',

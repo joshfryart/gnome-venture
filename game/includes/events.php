@@ -121,7 +121,7 @@ function apply_event_effect(array $u, string $effect): array
                 $lines[] = '+' . money($n);
                 break;
             case 'item':
-                $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$p[1] ?? '']);
+                $id = item_id_by_slug($p[1] ?? '');
                 if ($id) { give_item($uid, $id, max(1, (int)($p[2] ?? 1))); $lines[] = '+' . max(1, (int)($p[2] ?? 1)) . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$id]); }
                 break;
             case 'rand':

@@ -1361,7 +1361,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
     // A+ and S beds sometimes turn up treasure in the soil.
     if ($g >= 9 && random_int(1, 100) <= ($g === 10 ? 20 : 10)) {
         $find = random_int(1, 3) === 1 ? 'rich-loam' : 'worm-castings';
-        $fid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$find]);
+        $fid = item_id_by_slug($find);
         if ($fid) {
             give_item($uid, $fid, 1);
             $msgs[] = '✨ Your thriving soil turned up ' . q_val('SELECT name FROM items WHERE id = ?', [$fid]) . '!';
@@ -1479,7 +1479,7 @@ function expand_plot(int $uid): array
         return [false, 'Adding beds costs ' . number_format($cost) . ' ' . setting('currency_name') . ($items ? ' and ' . upgrade_mats_text($items) : '') . '.'];
     }
     foreach ($items as $slug => $qty) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if (!$id || !give_item($uid, $id, -$qty)) {
             db()->rollBack();
             return [false, 'You need ' . upgrade_mats_text($items) . ' for that.'];

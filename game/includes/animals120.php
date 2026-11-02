@@ -99,7 +99,7 @@ function animals120_pages(): void
         if (q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', [$key])) continue;
         $eid = db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => $cat, 'title' => $title, 'body' => $body, 'unlock_key' => $key, 'hint' => $hint, 'sort_order' => $sort]);
         if (str_starts_with($key, 'item:')) {   // anyone who already holds the item
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [substr($key, 5)]);
+            $iid = item_id_by_slug(substr($key, 5));
             if ($iid) foreach (q('SELECT user_id FROM user_items WHERE item_id = ?', [$iid])->fetchAll(PDO::FETCH_COLUMN) as $uid) {
                 try { db_insert('user_encyclopedia', ['user_id' => $uid, 'entry_id' => $eid, 'unlocked_at' => now()]); } catch (PDOException $e) {}
             }

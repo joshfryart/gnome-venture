@@ -262,13 +262,13 @@ function breeding110_import(): array
             $seedPrice = (int)round(1.5 * max((int)($seedA['base_price'] ?? 10), (int)($seedB['base_price'] ?? 10)));
             $prodPrice = (int)round(1.5 * max((int)($prA['base_price'] ?? 10), (int)($prB['base_price'] ?? 10)));
             $treeLike = in_array($kind, ['tree', 'nut'], true);
-            $seedId = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug . '-seed']);
+            $seedId = item_id_by_slug($slug . '-seed');
             if (!$seedId) {
                 $seedId = db_insert('items', ['name' => $name . ($treeLike ? ' Seedling' : ($isFlower && (int)$A['perennial'] ? ' Cutting' : ' Seeds')), 'slug' => $slug . '-seed', 'category' => 'seed',
                     'rarity' => $rarity, 'base_price' => $seedPrice, 'description' => 'A hybrid! Plant it to grow ' . $name . '. Hybrids do not make their own seeds: cross the parents again, or trade for more.', 'tradable' => 1]);
             }
             $pslug = $isFlower ? 'cut-' . $slug : $slug;
-            $produceId = (int)q_val('SELECT id FROM items WHERE slug = ?', [$pslug]);
+            $produceId = item_id_by_slug($pslug);
             if (!$produceId) {
                 $src = ($prA && (!$prB || (int)$prA['base_price'] >= (int)$prB['base_price'])) ? $prA : $prB;
                 $edible = $isFlower ? 0 : (int)(($prA['edible'] ?? 0) || ($prB['edible'] ?? 0));

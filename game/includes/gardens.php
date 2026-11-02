@@ -302,7 +302,7 @@ function upgrade_building(array $u, int $plotId, string $b): array
         return [false, 'That upgrade costs ' . money($coins) . '.'];
     }
     foreach ($mats as $slug => $qty) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if (!$id || !give_item($uid, $id, -$qty)) {
             db()->rollBack();
             return [false, 'You need ' . upgrade_mats_text($mats) . ' for that.'];
@@ -512,7 +512,7 @@ function collect_building(array $u, int $plotId, string $b): array
     if ($n < 1 && $heap < 1) return [false, 'Nothing ready yet. Check back tomorrow.'];
     $uid = (int)$u['id'];
     $lv = max(1, (int)($row['level'] ?? 1));
-    $item = fn(string $slug) => (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $item = fn(string $slug) => item_id_by_slug($slug);
     $name = fn(int $id) => (string)q_val('SELECT name FROM items WHERE id = ?', [$id]);
     db()->beginTransaction();
     $got = [];

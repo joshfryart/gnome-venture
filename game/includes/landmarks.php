@@ -378,7 +378,7 @@ function delve_chest(array $u, array &$exp): void
     }
     if (random_int(1, 100) <= 15 && $lm) {
         $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [$lm['region_id']]);
-        $gid = $code ? (int)q_val('SELECT id FROM items WHERE slug = ?', [guide_item_slug($code)]) : 0;
+        $gid = $code ? item_id_by_slug(guide_item_slug($code)) : 0;
         if ($gid) { give_item($uid, $gid, 1); exp_log($exp, '📗 Tucked under the gold: a Gardening Guide!'); $loot[$gid] = [$gid, ($loot[$gid][1] ?? 0) + 1, 'rare']; }
     }
     add_xp($uid, 10 + 2 * $lvl);

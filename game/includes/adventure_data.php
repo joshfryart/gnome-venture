@@ -319,7 +319,7 @@ function import_creatures_txt(array &$stats, string $file = 'creatures.txt'): vo
                 $names[] = $dname === '*seed' ? 'a local seed' : 'a gardening guide';
                 continue;
             }
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [slugify($dname)]);
+            $iid = item_id_by_slug(slugify($dname));
             if (!$iid) {
                 $iid = db_insert('items', ['name' => $dname, 'slug' => slugify($dname), 'category' => 'part',
                     'rarity' => min(95, max(5, 100 - (int)$chance + $level)), 'base_price' => max(5, (int)round($level * 4 * (110 - (int)$chance) / 60)),

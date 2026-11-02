@@ -609,7 +609,7 @@ function stop_rewards(array $u, array $loc, string $spec, float $f = 1.0, string
                 if ($n > 0) { apply_event_effect(q_one('SELECT * FROM users WHERE id = ?', [$uid]), 'energy:' . $n); $lines[] = '+' . $n . ' energy'; }
                 break;
             case 'item':
-                $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$p[0] ?? '']);
+                $id = item_id_by_slug($p[0] ?? '');
                 $qty = max(1, (int)($p[1] ?? 1));
                 if ($id && give_item($uid, $id, $qty)) $lines[] = '+' . $qty . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$id]);
                 break;
@@ -811,10 +811,10 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 break;
             case 'craft':   // v2.0.78: make something from what you carry (no dice)
                 [$ins, [$os, $oq]] = stop_craft_parts($spec);
-                $oid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$os]);
+                $oid = item_id_by_slug($os);
                 if (!$ins || !$oid) throw new UserError('Nothing to make today.');
                 foreach ($ins as [$is, $iq]) {
-                    $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$is]);
+                    $iid = item_id_by_slug($is);
                     if (!$iid || !give_item($uid, $iid, -$iq)) throw new UserError('You don’t have ' . $iq . ' × ' . ((string)q_val('SELECT name FROM items WHERE slug = ?', [$is]) ?: $is) . '.');
                     $lines[] = '−' . $iq . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]);
                 }
@@ -895,7 +895,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 break;
             case 'buy':
                 [$bs, $bq, $bp] = array_pad(explode(':', $spec), 3, '');
-                $bid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$bs]);
+                $bid = item_id_by_slug($bs);
                 $bq = max(1, (int)$bq);
                 $bp = max(0, (int)$bp);
                 if (!$bid) throw new UserError('Nothing to buy today.');
@@ -910,8 +910,8 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 [$g, $r] = array_pad(explode('>', $spec), 2, '');
                 [$gs, $gq] = array_pad(explode(':', $g), 2, '1');
                 [$rs, $rq] = array_pad(explode(':', $r), 2, '1');
-                $gid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$gs]);
-                $rid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$rs]);
+                $gid = item_id_by_slug($gs);
+                $rid = item_id_by_slug($rs);
                 if (!$gid || !$rid) throw new UserError('Nothing to swap today.');
                 if (!give_item($uid, $gid, -max(1, (int)$gq))) throw new UserError('You need ' . max(1, (int)$gq) . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$gid]) . '.');
                 give_item($uid, $rid, max(1, (int)$rq));

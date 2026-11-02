@@ -92,7 +92,7 @@ function alchemy_pal_label(string $slug): string
 function alchemy_item_id(string $slug): int
 {
     static $ids = [];
-    return $ids[$slug] ??= (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    return $ids[$slug] ??= item_id_by_slug($slug);
 }
 
 function alchemy_count(int $uid, string $slug): int

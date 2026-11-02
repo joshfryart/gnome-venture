@@ -1050,7 +1050,7 @@ function upgrade_095_yard(): void
     if ($shop) {
         foreach (DECOR as $slug => $d) {
             if (!$d[9]) continue;
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+            $iid = item_id_by_slug($slug);
             if (!$iid || q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $iid])) continue;
             $p = (int)$d[6];
             db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $iid, 'price_min' => max(1, (int)floor($p * 0.9)), 'price_max' => (int)ceil($p * 1.2),
@@ -1076,7 +1076,7 @@ function ensure_yards(): void
             'restock_minutes' => 45]);
         foreach (DECOR as $slug => $d) {
             if (!$d[9]) continue;
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+            $iid = item_id_by_slug($slug);
             if (!$iid) continue;
             $p = (int)$d[6];
             db_insert('shop_stock', ['shop_id' => $shopId, 'item_id' => $iid, 'price_min' => max(1, (int)floor($p * 0.9)), 'price_max' => (int)ceil($p * 1.2),

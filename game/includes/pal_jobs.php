@@ -150,7 +150,7 @@ function pj_pal(int $uid, string $palUid): ?array
 function pj_potion_id(): int
 {
     static $id = null;
-    return $id ??= (int)q_val('SELECT id FROM items WHERE slug = ?', [PJ_POTION]);
+    return $id ??= item_id_by_slug(PJ_POTION);
 }
 
 function pj_potion_count(int $uid): int
@@ -162,7 +162,7 @@ function pj_potion_count(int $uid): int
 /** Make the Healing Potion item, its recipe (data/crafts.txt) and a shelf in Twigg's shop. Adds only; safe to repeat. */
 function pj_ensure_content(): void
 {
-    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [PJ_POTION]);
+    $id = item_id_by_slug(PJ_POTION);
     if (!$id) {
         $id = db_insert('items', ['name' => 'Healing Potion', 'slug' => PJ_POTION, 'category' => 'supply', 'rarity' => 10, 'base_price' => 40,
             'description' => 'A sweet green tonic. Pack some for a pal going out; it drinks one when it is hurt (+' . PJ_POTION_HEAL . ' HP). Or give it to a pal at home.',
@@ -547,7 +547,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     }
     db()->beginTransaction();
     foreach ($takes as $slug => $qty) {
-        $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $iid = item_id_by_slug($slug);
         if (!$iid || !give_item($uid, $iid, -$qty)) { db()->rollBack(); return [false, 'Something changed in your satchel. Nothing was used.']; }
     }
     if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }

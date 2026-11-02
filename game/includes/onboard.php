@@ -56,7 +56,7 @@ function village_welcome_pack(int $villageId): array
     $pick = fn(array $rows, string $salt) => $rows ? $rows[crc32($v['slug'] . $salt) % count($rows)] : null;
     $out = [];
     foreach (LANDSCAPE_FINDS[$v['landscape']] ?? [] as [$name]) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [slugify($name)]);
+        $id = item_id_by_slug(slugify($name));
         if ($id) $out[] = [$id, $name, 1, 'find', $name, LANDSCAPES[$v['landscape']][0] ?? '✨'];
     }
     $seed = $pick(q("SELECT i.id, i.name, p.kind, p.name AS plant FROM plant_regions pr JOIN plants p ON p.id = pr.plant_id

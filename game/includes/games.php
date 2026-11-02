@@ -290,7 +290,7 @@ function worm_dig(array $u, int $i): array
     $qty = $what === 'night' ? 3 : 1;
     $msg = $icon . ' ' . $label . '.';
     if ($slug && !($what === 'rock' && !tool_tier($uid, 'pick'))) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if ($id) {
             give_item($uid, $id, $qty);
             $s['found'][$slug] = ($s['found'][$slug] ?? 0) + $qty;

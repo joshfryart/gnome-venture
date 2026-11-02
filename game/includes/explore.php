@@ -362,7 +362,7 @@ function explore_choose(array $u, array &$exp, int $option): void
             $exp['hp'] = max(1, (int)$exp['hp'] + (int)($p[1] ?? 0));
             $lines[] = (int)($p[1] ?? 0) . ' ❤️';
         } elseif ($p[0] === 'take') {   // v2.0.79: hand over goods (a trade, a toll in kind): take:slug:qty
-            $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [(string)($p[1] ?? '')]);
+            $tid = item_id_by_slug((string)($p[1] ?? ''));
             $tq = max(1, (int)($p[2] ?? 1));
             if (!$tid || !give_item($uid, $tid, -$tq)) {
                 $exp['encounter'] = null;

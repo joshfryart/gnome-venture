@@ -228,7 +228,7 @@ function ensure_tools(): int
         $desc = TOOL_TIERS[$tier] . ' ' . strtolower(TOOL_TYPES[$type][0]) . ' tool' . (in_array($type, GATHER_TOOLS, true) ? ' for adventures' : '')
             . '. ' . $flavour . ' ' . tool_tier_text($type, $tier);
         $fx = json_encode(['tool' => $type, 'tier' => $tier]);
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if (!$id) {
             $id = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'tool', 'base_price' => $price,
                 'rarity' => $rarity, 'description' => $desc, 'effects' => $fx]);
@@ -369,7 +369,7 @@ function tool_break(int $uid, array $tool): string
 function broken_item_id(array $tool): int
 {
     $slug = 'broken-' . $tool['slug'];
-    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $id = item_id_by_slug($slug);
     if ($id) return $id;
     return db_insert('items', ['name' => 'Broken ' . $tool['name'], 'slug' => $slug, 'category' => 'broken',
         'base_price' => max(1, (int)round((int)$tool['base_price'] * 0.1)), 'rarity' => 1, 'tradable' => 1, 'edible' => 0,

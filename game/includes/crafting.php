@@ -39,7 +39,7 @@ function ensure_crafts(): int
         [$slug, $name, $cat, $makes, $ingr, $energy] = $r;
         if (!isset(CRAFT_CATEGORIES[$cat]) || q_val('SELECT 1 FROM recipes WHERE slug = ?', [$slug])) continue;
         [$outSlug, $outQty] = array_map('trim', explode(':', $makes) + [1 => 1]);
-        $outId = (int)q_val('SELECT id FROM items WHERE slug = ?', [$outSlug]);
+        $outId = item_id_by_slug($outSlug);
         if (!$outId) continue;   // output item missing (e.g. deleted in admin): skip quietly
         $ing = [];
         foreach (explode(',', $ingr) as $pair) {

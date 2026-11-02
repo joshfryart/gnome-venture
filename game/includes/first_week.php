@@ -155,7 +155,7 @@ function first_week_claim(array $u, int $day): array
     $lines = [money($coins), $xp . ' XP'];
     if ($item !== '') {
         [$slug, $qty] = explode(':', $item) + [1 => '1'];
-        if ($iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug])) { give_item($uid, $iid, max(1, (int)$qty)); $lines[] = first_week_item_text($item); }
+        if ($iid = item_id_by_slug($slug)) { give_item($uid, $iid, max(1, (int)$qty)); $lines[] = first_week_item_text($item); }
     }
     if ($day === 7) {
         q("UPDATE users SET title = ? WHERE id = ? AND (title IS NULL OR title = '')", [FIRST_WEEK_TITLE, $uid]);

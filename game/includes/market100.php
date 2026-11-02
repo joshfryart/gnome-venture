@@ -494,7 +494,7 @@ function npc_order(array $npc, ?string $date = null): ?array
             $diff = 2; $qty = 3 + $h('qty') % 4;
             $name = 'Dried ' . $fl['pname']; $unit = max(10, (int)round((int)$fl['base_price'] * max(50, mk_int('dried_price_pct', 130)) / 100));
             $text = 'Could you hang and dry ' . $qty . ' × ' . $fl['pname'] . ' for me? I need ' . $qty . ' × ' . $name . '.';
-            $itemId = (int)q_val('SELECT id FROM items WHERE slug = ?', ['dried-' . $fl['pslug']]) ?: -1;
+            $itemId = item_id_by_slug('dried-' . $fl['pslug']) ?: -1;
             break;
     }
     // deadline

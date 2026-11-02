@@ -414,7 +414,7 @@ function arrangement_leaders(string $week, int $limit = 5): array
 function dried_item(array $cut): int
 {
     $slug = 'dried-' . flower_item_slug($cut);
-    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $id = item_id_by_slug($slug);
     if ($id) return $id;
     $name = preg_replace('/^Cut\s+/u', '', (string)$cut['name']);
     return db_insert('items', ['name' => 'Dried ' . $name, 'slug' => $slug, 'category' => 'flower', 'rarity' => (int)$cut['rarity'],
@@ -501,7 +501,7 @@ function dry_collect_all(array $u): array
 function packet_item(array $p): int
 {
     $slug = $p['slug'] . '-packet';
-    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $id = item_id_by_slug($slug);
     if ($id) return $id;
     $n = max(1, (int)setting('packet_seeds'));
     $seedPrice = (int)q_val('SELECT base_price FROM items WHERE id = ?', [$p['seed_item_id']]);

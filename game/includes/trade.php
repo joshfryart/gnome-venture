@@ -324,7 +324,7 @@ function buy_listing(array $u, int $listingId, int $qty): array
 function sapling_item(array $p): int
 {
     $slug = $p['slug'] . '-sapling';
-    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $id = item_id_by_slug($slug);
     if ($id) return $id;
     $word = in_array($p['kind'], ['tree', 'nut', 'fruit'], true) || (int)$p['perennial'] ? 'Sapling' : 'Seedling';
     $seedPrice = (int)q_val('SELECT base_price FROM items WHERE id = ?', [$p['seed_item_id']]);

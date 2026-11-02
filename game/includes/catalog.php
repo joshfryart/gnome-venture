@@ -122,7 +122,7 @@ function import_catalog(): array
         'bamboo-shoot', 'egusi', 'wild-rice'];
     $statByKind = ['vegetable' => 'hardiness', 'tuber' => 'grit', 'legume' => 'grit', 'grain' => 'grit',
         'fruit' => 'nimble', 'tree' => 'nimble', 'nut' => 'lore', 'herb' => 'sense', 'spice' => 'charm'];
-    $itemId = fn(string $slug): int => (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $itemId = fn(string $slug): int => item_id_by_slug($slug);
 
     $own = !db()->inTransaction();   // the installer already wraps everything in one transaction
     if ($own) db()->beginTransaction();
@@ -388,7 +388,7 @@ function import_markets(array $regions, array $regionIds, array $regionById, arr
         $rslug = strtolower($code);
 
         // Guide item
-        $guideId = (int)q_val('SELECT id FROM items WHERE slug = ?', [guide_item_slug($code)]);
+        $guideId = item_id_by_slug(guide_item_slug($code));
         if (!$guideId) {
             $guideId = db_insert('items', ['name' => 'Gardening Guide: ' . $gnomish, 'slug' => guide_item_slug($code),
                 'category' => 'guide', 'rarity' => 85, 'base_price' => 1800, 'tradable' => 1,
