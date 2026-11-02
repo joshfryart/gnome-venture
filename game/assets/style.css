@@ -5664,15 +5664,12 @@ details.itmcell::details-content { position: absolute; inset: 100% 0 auto 0; }
 :root[data-theme] .shopwrap > .basket .btn.bclear { --b-bg: #f2e4c0; --b-hi: #fff3c8; --b-lo: #c9a96e; --b-ink: #2a1a10; --b-hover: #fff3c8; }
 :root[data-theme] .shopwrap > .basket .btn.bgo { --b-bg: #e0aa48; --b-hi: #f5cf6a; --b-lo: #b07a28; --b-ink: #2a1a10; --b-hover: #f5cf6a; }
 
-/* v2.5: phone: the basket stays slim (its list scrolls inside itself, never grows past ~2 rows) and the shop squares sit 4 across */
+/* v2.4.73: the basket stays slim (its list scrolls inside itself, never grows past ~2 rows) */
 .shopwrap > .basket .blist { max-height: 84px; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-wrap: wrap; gap: 4px; }
 .shopwrap > .basket .bchip { min-height: 36px; margin: 0; padding: 2px 8px; font-size: 13px; }
 .shopwrap > .basket .bfoot { gap: 6px; flex-wrap: nowrap; }
 .shopwrap > .basket .bfoot .btn { min-height: 40px; padding-inline: 10px; white-space: nowrap; }
-@media (max-width: 520px) {
-  .shopwrap .itms { --itm-cols: 4; gap: 14px 6px; }
-  .shopwrap > .basket { padding: 6px 8px 8px; }
-}
+@media (max-width: 520px) { .shopwrap > .basket { padding: 6px 8px 8px; } }
 
 /* ===== 2.0.67: item squares, pickers and crafting ===== */
 /* ===== v2.0.67 item squares, wave 2: crafting ingredients, the gift picker, garden / town pickers, market-day basket =====
@@ -6166,9 +6163,6 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .pantry2 .p2make .btn, .pantry2 .p2make .btn[value="1"] { flex: 1 1 0; padding: 8px 6px; }
   /* compact squares in the sheet: art at 32 (exact half of the 64 px source), shorter window, same frame / count / chips */
   .pantry2 .p2det .itms { gap: 10px 6px; }
-  .pantry2 .p2det .itm__win { height: 58px; }
-  .pantry2 .p2det .itm__ic, .pantry2 .p2det .itm__svg, .pantry2 .p2det .itm__svg > svg { width: 32px; height: 32px; }
-  .pantry2 .p2det .itm__emo { font-size: 26px; }
 }
 
 /* Pantry sheet, slimmer on phones: one line per ingredient instead of the big squares; smaller title, tighter strip and buttons */
@@ -6330,8 +6324,6 @@ label.itmcell > input:checked + .itm::after { width: 30px; height: 30px; top: -1
   .shelves .shacts > form:not(.p2make) .btn { flex: 1; }
   .shelves .shacts .p2make .btn { min-height: 44px; }
   .shelves .shpanel .itms { gap: 10px 6px; }
-  .shelves .shpanel .itm__win { height: 58px; }
-  .shelves .shpanel .itm__ic, .shelves .shpanel .itm__svg, .shelves .shpanel .itm__svg > svg { width: 32px; height: 32px; }
 }
 
 /* v2.3.5 Health box on My Gnome (includes/health.php) */
@@ -6669,3 +6661,41 @@ details.craftall > summary::-webkit-details-marker { display: none; }
 .pjrecall > summary { cursor: pointer; list-style: none; }
 .pjrecall > summary::-webkit-details-marker { display: none; }
 .pjrecall[open] { display: block; margin-top: 6px; }
+
+/* ===== v2.4.74: square item tiles. One square per item: the picture fills it, the rarity gem sits top left, the price chip top right, the count
+   bottom right and the name on a slightly faded ribbon along the bottom. Other chips (in basket, have / need, notes) stack bottom left above the ribbon.
+   State badges (picked, wanted, locked, done) move to the bottom left corner so they never cover the price. ===== */
+.itms { --itm-cols: 4; gap: 14px 8px; }
+@container (min-width: 520px) { .itms { --itm-cols: 5; gap: 16px 10px; } }
+@container (min-width: 680px) { .itms { --itm-cols: 6; } }
+@container (min-width: 840px) { .itms { --itm-cols: 8; max-width: 1080px; margin-inline: auto; } }
+details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-rows: none; }
+.itm, label.itmcell > .itm, details.itmcell > summary.itm { display: block; grid-row: auto; grid-template-rows: none; box-sizing: border-box; width: 100%; aspect-ratio: 1; min-height: 0; padding: 0;
+  border-width: 9px; border-image-width: 9px; font-size: inherit; }
+.itm__win { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; height: auto; margin: 0; padding: 0;
+  border-width: 4px; border-image-width: 4px; }
+.itm__ic, .itm__svg { width: 100%; max-width: 64px; height: auto; aspect-ratio: 1; }
+.itm__svg > svg { width: 100%; height: 100%; }
+.itm__emo { width: 100%; height: 76%; font-size: 34px; }
+.itm__emo .ico { width: 38px; height: 38px; }
+.itm__gem { left: -7px; top: -7px; bottom: auto; z-index: 3; width: 20px; height: 20px; }
+.itm--u .itm__gem { width: 20px; height: 22px; }
+.itm--r .itm__gem { width: 22px; height: 22px; }
+.itm--l .itm__gem { width: 24px; height: 24px; left: -8px; top: -8px; }
+.itm__n { right: -6px; bottom: 22px; padding: 2px 4px 1px; background: rgba(42, 26, 16, .8); font-size: 10px; box-shadow: 0 0 0 1px var(--itm-count-ink); }
+.itm__rib { position: absolute; z-index: 2; left: -6px; right: -6px; bottom: -6px; min-height: 0; margin: 0; opacity: .88;
+  border-width: 4px 5px; border-image-width: 4px 5px; }
+.itm__name { padding: 1px 1px 0; font-size: 10px; line-height: 1.1; -webkit-line-clamp: 3; }
+.itm--long .itm__name { font-size: 9.5px; }
+.itm--xlong .itm__name { font-size: 9px; letter-spacing: 0; -webkit-line-clamp: 4; }
+@container (min-width: 520px) { .itm__name { font-size: 11px; } .itm--long .itm__name { font-size: 10.5px; } .itm--xlong .itm__name { font-size: 10px; } }
+.itm__price { position: absolute; z-index: 3; top: -6px; right: -6px; display: inline-flex; align-items: center; padding: 2px 3px; font: 800 10px/1 var(--font); white-space: nowrap; }
+.itm__pet { width: 9px; height: 10px; margin-left: 1px; }
+.itm__foot { position: absolute; z-index: 2; left: 2px; right: 2px; bottom: 22px; display: flex; flex-wrap: wrap; align-content: flex-end; justify-content: flex-start; gap: 2px; font-size: 9px; line-height: 1.2; }
+.itm:has(.itm__foot > :is(.itm__want, .itm__inb, .itm__use, .itm__ok, .itm__short, .itm__note, .itm__taste, .itm__kind)) .itm__n { bottom: 37px; }
+.itm__foot > * { max-width: 100%; padding: 0 3px; white-space: normal; overflow-wrap: anywhere; }
+.itm__rar { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* the gem shows the rarity; the word stays for screen readers */
+.itm__flag { top: -7px; left: 14px; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; font-size: 9px; }
+.itm::after, .itm.is-want::after, .itm.is-use::after, label.itmcell > input:checked + .itm::after { top: auto; right: auto; left: -10px; bottom: -10px; width: 24px; height: 24px; }
+.itm.is-locked::after { top: auto; right: auto; left: -9px; bottom: -11px; width: 21px; height: 26px; }
+.itms:has(.pcbtns) { --itm-cols: 3; }   /* the garden seed picker has 44 px step buttons in each square: three across keeps them inside */

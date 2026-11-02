@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.74
+- **Square item tiles everywhere.** Shop, Satchel, crafting, pickers and market tiles are now squares, 4 across on phones (3 in the garden seed picker). Rarity shield top left, price chip (arrow + Petal) top right, count bottom right, name on a slightly faded ribbon along the bottom. Other chips (in basket, have / need, notes, kind) stack bottom left; state badges moved to the bottom left corner. The rarity word is for screen readers only. `tests/itemsq_check.js` expects 3 or 4 columns.
 ## 2.4.73
 - **Pal Jobs: Collect all opens the chest.** Petals, XP and finds from every ready pal are totalled and shown with the chest animation. The long list of lines is replaced by a short row of chips (Petals, finds, XP, potions, dishes served).
 - **Shops on phones.** The basket bar is slimmer: its item list is capped at about two rows and scrolls inside itself, so a full basket no longer scrolls the page. Shop squares are 4 across on screens up to 520px.

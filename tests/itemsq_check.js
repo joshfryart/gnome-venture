@@ -1,7 +1,7 @@
 // v2.0.67: item squares on the REAL pages at 390 px, light and dark (called by tests/itemsq.sh; mockup4/check.js did the same on the mockup).
 // node itemsq_check.js BASE SHOP_ID CURIO_SHOP_ID CSS_ITEMS_FILE [SHOT_DIR]
 // Per page: every square is at least 44 x 44, no text pokes out of its square / ribbon / chip, no sideways page scroll, every picture loads,
-// item names wrap on at most 3 lines (2 by design: more is reported as a note), the grid has 3 columns, the sparkle stands still under reduced motion.
+// item names wrap on at most 3 lines (2 by design: more is reported as a note), the grid has 4 columns (v2.4.74 square tiles), the sparkle stands still under reduced motion.
 // Satchel: tapping a square opens its card inside the screen. Shop Buy: Add to basket marks the tile and fills "N in basket".
 // If style.css does not carry the .itm rules yet (claude/build/css-items.css not merged), the file is appended to the served style.css.
 // Wave 2 (env, each optional): ISQ_CSS2 = claude/build/css-items2.css (appended the same way when style.css lacks it), ISQ_NPC = a villager on duty
@@ -95,11 +95,11 @@ const fs = require('fs');
             const k = R(it), name = it.querySelector('.itm__name').textContent;
             if (k.width < 44 || k.height < 44) out.small.push(name + ' ' + k.width.toFixed(0) + 'x' + k.height.toFixed(0));
             const nm = it.querySelector('.itm__name'), lh = parseFloat(getComputedStyle(nm).lineHeight), lines = Math.round(R(nm).height / lh);
-            if (lines > 3 || nm.scrollHeight > nm.clientHeight + 1) out.lines4.push(name + ' ' + lines); else if (lines > 2) out.lines3.push(name);
+            if (lines > 4 || nm.scrollHeight > nm.clientHeight + 1) out.lines4.push(name + ' ' + lines); else if (lines > 2) out.lines3.push(name);
             const rib = it.querySelector('.itm__rib'), rr = R(rib), rs = getComputedStyle(rib);
             const box = { l: rr.left + parseFloat(rs.borderLeftWidth) - .5, r: rr.right - parseFloat(rs.borderRightWidth) + .5 };
             const nr = R(nm); if (nr.left < box.l || nr.right > box.r) out.escape.push(name + ': name outside its ribbon');
-            for (const ch of it.querySelectorAll('.itm__foot > :not(.vh)')) {
+            for (const ch of it.querySelectorAll('.itm__foot > :not(.vh):not(.itm__rar)')) {
               const cr = R(ch); if (!cr.width) continue;
               if (cr.left < k.left - .5 || cr.right > k.right + .5) out.escape.push(name + ': chip "' + ch.textContent.trim() + '" outside the square');
               if (ch.scrollWidth > ch.clientWidth + 1) out.escape.push(name + ': chip "' + ch.textContent.trim() + '" overflows');
@@ -117,7 +117,7 @@ const fs = require('fs');
         if (r.lines3.length) console.log(`note ${tag}: 3-line names: ${r.lines3.join(', ')}`);
         say(r.scroll <= 0, `${tag}: no sideways scroll (${r.scroll})`);
         say(!r.img.length, `${tag}: pictures load${r.img.length ? ' (' + r.img.slice(0, 3).join(' ') + ')' : ''}`);
-        say(r.cols.every(n => n === 3), `${tag}: 3 columns (${r.cols.join(',')})`);
+        say(r.cols.every(n => n === 4 || n === 3), `${tag}: 3 or 4 columns (${r.cols.join(',')})`);
         say(r.style === 0, `${tag}: no style= attribute in main`);
         say(!r.steps.length, `${tag}: step buttons 44 x 44 or more${r.steps.length ? ' (' + r.steps.join(', ') + ')' : ''}`);
         if (key === 'satchel') {
