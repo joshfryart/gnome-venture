@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.76
+- **Item tiles are bigger on desktop.** Wide screens now show 4 to 6 squares across (was up to 8), with larger names, price chips, counts and pictures, so they read like the phone version.
 ## 2.4.75
 - **Item tiles: the count always sits on top of the name ribbon.** The ×# count (and the chips above the ribbon) now ride the ribbon's top edge, so a two- or three-line name no longer covers the count.
 ## 2.4.74
