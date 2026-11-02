@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.68
+- **Cooking pots tidy.** Pots are small squares, centred, and wrap to a second row when there are more. Cook again and Collect all sit centred under the pots.
 ## 2.4.67
 - **Cooking: less waiting, less tapping.** Pots are now 3 / 4 / 5 for Kitchen I / II / III (was 2 / 3 / 4). A pot now holds 1 / 3 / 5 meals and 1 / 1 / 2 feasts by Kitchen level (snacks still 5). New **Cook again** button on the pots row repeats the last dish into the free pots. Settings: `kitchen_pots`, `meal_batch_kitchen`, `feast_batch_kitchen`. Energy regen and max energy are unchanged.
 - **Blossom Cherry is now 2 × 2** like the oak and willow (was one square). Cherries already placed stay 1 × 1 until you place them again.

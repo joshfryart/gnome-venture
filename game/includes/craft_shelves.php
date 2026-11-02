@@ -74,6 +74,7 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <?php endforeach;
         $free = max(0, $lim - count($pots)); ?>
     <?php for ($fi = 0; $fi < $free; $fi++): ?><div class="p2jar pot potsq empty" title="Empty pot"><span class="p2ic" aria-hidden="true">🫕</span><span class="shpn">Empty</span><span class="potleft">free</span></div><?php endfor; ?>
+    </div><div class="p2potacts">
     <?php if ($free > 0 && ($lastDish = (string)q_val('SELECT i.name FROM users u JOIN items i ON i.id = u.last_cooked_id WHERE u.id = ?', [(int)$u['id']])) !== ''): ?>
     <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="p2all"><?= csrf_field() ?><input type="hidden" name="do" value="cook_again"><button class="btn small">Cook again: <?= e($lastDish) ?></button></form>
     <?php endif; ?>

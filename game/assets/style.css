@@ -6567,6 +6567,12 @@ details.craftall > summary::-webkit-details-marker { display: none; }
 .pantry2 .p2jar.jarsq .shpn { max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.1; }
 .pantry2 .p2jar.jarsq .potcollect { width: 100%; margin: 0; }
 .pantry2 .p2shelf.p2jarrow .p2jar.potsq { min-height: 92px; width: 70px; }
+/* v2.4.67: pots stand centred, a little square, wrapping to a second row when there are many; Cook again and Collect all sit centred below */
+.pantry2 .p2shelf.p2jarrow { justify-content: center; flex-wrap: wrap; }
+.pantry2 .p2shelf.p2jarrow .p2jar.potsq { flex: 0 0 auto; width: 76px; min-height: 0; max-width: none; aspect-ratio: 1 / 1; }
+.pantry2 .p2potacts { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.pantry2 .p2potacts .p2all { margin: 0 0 8px; }
+.pantry2 .p2potacts .p2all .btn.small { min-width: 150px; }
 
 /* v2.5.0: Satchel tiles and their sheets */
 .shtiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin: 8px 0 12px; }
