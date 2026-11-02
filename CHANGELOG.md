@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.65
+- **Studio review cleanup (no gameplay changes).** Contrast fixes: the selected recipe tab and filter chip, the puzzle chip, and the warn, low and effect chips now reach at least 4.5:1. Five undefined CSS tokens (`--bg-2`, `--good`, `--bad`, `--card`, `--panel`) are now defined, 8 duplicate CSS rules are gone, and 15 hex literals use tokens. Shared JS helpers (reduced-motion probe, centre, seen) now live in `window.gvFx` in `early.js`. 21 unused PHP functions are removed, and `trek_item_id`, `tk_h` and `tk_n` now delegate. Reports: `docs/studio-review/`.
+
 ## 2.4.63
 - **Trek fight on phones is shorter.** The health rows under the scene are hidden (the figures already show the HP bars), and the Round heading and the action buttons (Fight, Auto 1, Auto, Run, Change plan) now sit right under the scene. What happened, the boss hint and the party chips come after.
 

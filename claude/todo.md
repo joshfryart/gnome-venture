@@ -1,5 +1,26 @@
-# Gnome Venture: to-do (updated 2026-11-01, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
+# Gnome Venture: to-do (updated 2026-11-02, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
+
+## NOW (2.4.65, 2026-11-02): STUDIO REVIEW CLEANUP. NOT BUILT, branch ccr-c58baef6-w75eu7
+- **No gameplay changes. No zip built (ask Joshua first). Not committed.** Version numbering is Joshua's call; 2.4.64 belongs to branch ccr-183e3f79-k0661b and may need merging first.
+- **What changed (CHANGELOG 2.4.65):** contrast fixes to 4.5:1 (selected recipe tab and filter chip, puzzle chip, warn/low/effect chips); undefined tokens `--bg-2 --good --bad --card --panel` now defined; 8 duplicate CSS rules removed; 15 hex literals to tokens; shared JS helpers in `window.gvFx` (early.js); 21 unused PHP functions removed (`git show cb4c4a3c`); `trek_item_id`/`tk_h`/`tk_n` now delegate.
+- **Reports:** `docs/studio-review/` (ux-review.md, style-review.md, code-review.md, mockups/ index.html with before/after mockups).
+- **DONE:** the items above. Commits `90acc43d`, `d4997383`, `ab96a526` (reports), `5271fd68` (JS), `04c2496f` (CSS), `cb4c4a3c` (PHP).
+- **OPEN (not yet applied):**
+  - UX P1-1: duplicate phone menu button (two buttons open the same menu).
+  - UX P1-3: status line hit areas about 18 px on a phone (target 44 px).
+  - UX P1-4 / P2-2: Satchel tiles use 10.6-11.8 px text at 35-45% opacity; Satchel heading repeats its name; Belt link.
+  - UX P2-1: desktop (1200 px+) strip duplicates (petals in header pill and sidebar). Confirm on the live page first.
+  - Dead selectors: 213 high-confidence rules (~16 KB) in style.css; verify before deleting (token grep incl. tests/, claude/*.html, BBCode renderer; crawl; screenshot diff at 412 and 1280).
+  - ~380 hex literals skipped on purpose (dark-mode risk).
+  - Breakpoint consolidation (12 stragglers in style.css, plus puzzles, catfish, landing); needs screenshots at 360, 412, 521, 768, 1024, 1280.
+  - 4 button families and 12+ tab families (design decision).
+  - catfish.css radii (8/12/999 px vs `--radius 0`) and its greys.
+  - Remaining code P3+: `item_id_by_slug()` helper (82 lookups), petals/burst merges (memory, mushroom, letters), site.js zoom factory (three zoom blocks), upgrade call sequence dedupe (optional).
+- **Joshua to check on phone:** selected tabs and chips legible in light and dark; reduced motion on memory, mushroom, worms, marrow and race pages; nothing else changed.
+- **Not run:** full CI, MySQL, `upgrade_check.sh`, phone.
+- **Toolkit note:** the Studio toolkit is installed in `.claude/` (agents, skills and rules pinned to sonnet/haiku). Hooks and settings.json were deliberately NOT installed. `.claude/` is gitignored, so it was force-added.
+- **update_news:** none needed (no player-visible features).
 
 ## NOW (2.4.61, 2026-11-01): BUILT, on main (`b5b9b100`). Slim zip `releases/GnomeVenture-2.4.61-web-update.zip` (needs 2.3.97+, 23 files), manifest `tests/manifests/2.4.61.txt`. Joshua uploads. Rule from Joshua: ASK before building any zip. Version numbers are Joshua's call (2.4.6 then 2.4.61, not 2.5.0).
 - **What 2.4.x added since 2.3.93** (details in CHANGELOG): playtest fixes + double-submit guard (2.3.94, 2.3.96 fixed it swallowing confirm buttons); Pal Jobs multi-send, Collect all, per-pal Where/Tool, Send always visible, tools only where they work (2.3.94-2.3.99); crafting scene popovers (Can craft / Missing / Unknown, craft inline), honest Ready rule, food energy+buff text (2.4.0); crafting pages tidy, closed recipe fold, green ! on craftable objects, Potions popovers (2.4.1); slim trip strip (2.4.2); slimmer My Gnome + Today link, area strip fits (2.4.3); square pot tiles (2.4.4); pantry jars on shelves (2.4.5); Satchel as 8 tiles with sheets (2.4.6); pals man crafting stations + Satchel Food tile (2.4.61).
