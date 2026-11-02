@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.86
+- **Fix: Today / Home crashed (`Unknown column 'pal_uid'`).** The Welcome back and daily card checks filtered Pantry jars and drying racks on a column only the cooking pots have.
+- **Admin Tools and update backups now report real failures.** SQL and SQLite backups are built first and checked (a failure shows a red error and downloads nothing; a good SQL file ends with an `END OF BACKUP` line). Delete image, clear logs, and the test pal button no longer say OK when they failed. Update backups check every write.
+
 ## 2.4.85
 - **Square panel: slimmer action buttons, settle time in the status line.** Action buttons are thinner (40 px). A tool with a row / ×3 reach now shows its two buttons side by side on one row ("Water bed" + "Whole row ⚡1 each"; the repeated name is gone). A settling bed's status line now says "Settling · ready to plant in 15 min" (the separate Settling note is gone).
 ## 2.4.84
