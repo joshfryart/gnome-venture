@@ -1263,7 +1263,17 @@ function gvGarden() {
     paint();
   }
   onBtn.addEventListener('click', function () { setOn(true); });
-  bar.querySelector('[data-sel="off"]').addEventListener('click', function () { setOn(false); });
+  bar.querySelector('[data-sel="off"]').addEventListener('click', function () { try { sessionStorage.removeItem('gvgsel'); } catch (e) {} setOn(false); });
+  /* v2.4.80: after a batch action (Mulch, Sheet mulch, Work in, Water ...) the page reloads: pick up where you were, same squares still selected,
+     so sheet mulch then mulch then water needs no re-selecting. Only within a minute of the action; Done clears it. */
+  try {
+    var kept = JSON.parse(sessionStorage.getItem('gvgsel') || 'null');
+    if (kept && Date.now() - kept.t < 60000 && kept.k && kept.k.length) {
+      setOn(true);
+      kept.k.forEach(function (k) { if (flags.hasOwnProperty(k)) picked[k] = true; });
+      paint();
+    }
+  } catch (e) {}
   yard.addEventListener('click', function (ev) {
     if (!on) return;
     var a = ev.target.closest('a.tile');
@@ -1308,10 +1318,11 @@ function gvGarden() {
     form.querySelector('[name=act]').value = act;
     form.querySelector('[name=item_id]').value = '';
     if (extra) extra(add, form);
+    try { sessionStorage.setItem('gvgsel', JSON.stringify({ t: Date.now(), k: Object.keys(picked) })); } catch (e) {}   // v2.4.80: keep the picked squares across the reload
     closeAll();
     sendForm(form);
   }
-  bar.querySelectorAll('[data-act]').forEach(function (b) {
+  bar.querySelectorAll('[data-act]:not([data-open])').forEach(function (b) {   // v2.4.80: Sheet mulch… has data-act too but opens the picker; it was also submitting at once with no mulch chosen, which reloaded the page and closed every menu
     b.addEventListener('click', function () {
       var ask = b.getAttribute('data-ask');   // v0.7.61: e.g. dig up asks first
       var askif = b.getAttribute('data-askif');   // v1.6.2: only when a picked square has this flag (till: a no-till bed)

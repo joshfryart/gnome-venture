@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.80
+- **Fix: Sheet mulch in Select squares closed every menu.** The Sheet mulch… button was also wired as an instant action, so it submitted at once with no mulch chosen and reloaded the page. It now opens the mulch picker like Mulch… does.
+- **Select squares stays on after an action.** After Mulch, Sheet mulch, Work in, Water and the rest, the same squares stay selected so you can chain the next step without re-picking. **Done** clears it.
 ## 2.4.79
 - **Item tiles: chips and count share one line.** The Wanted / in basket / short chips sit on the left and the ×# count on the right, on one line right above the name ribbon (they no longer stack and push the count up).
 ## 2.4.78

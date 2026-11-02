@@ -141,6 +141,7 @@ has "open button" 'data-giftopen="1">' $H
 hasnt "no style= attribute" '\sstyle=' $H
 
 echo "== garden pickers (garden.php)"
+grep -q "\[data-act\]:not(\[data-open\])" $GAME/assets/site.js && echo "ok   select bar: Sheet mulch (data-open + data-act) is not also wired as an instant action" || echo "FAIL select bar: Sheet mulch fires at once with no mulch chosen and reloads the page (closing every menu)"
 curl -s -b $J "$BASE/garden.php" > $H
 pk() { tr '\n' ' ' < $H | grep -o "<dialog class=\"picker\" data-kind=\"$1\".*" | sed 's/<\/dialog>.*//'; }
 for k in seed soil mulch; do
