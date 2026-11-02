@@ -6707,3 +6707,7 @@ details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-r
   .itm__ic, .itm__svg { max-width: 96px; } .itm__emo { font-size: 48px; }
 .itm__kind--quiet { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* "Seeds" is plain from the picture: screen readers only */
 .itm__want { opacity: .72; }
+/* v2.4.80: seed picker: the count is a green chip in the tile's foot; the popover (dialog.seedpop) holds the info and the quantity */
+.pickgrid .itm .pccount:not([hidden]) { position: static; min-width: 0; padding: 1px 5px; background: var(--itm-ok); color: var(--itm-ok-ink); font: 800 11px/1.3 var(--font); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
+dialog.seedpop .stags .tag { font-size: 12px; }
+dialog.seedpop .sline b { font-weight: 700; font-size: 14px; }

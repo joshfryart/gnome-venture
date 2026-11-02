@@ -1349,7 +1349,7 @@ function gvGarden() {
           c.classList.toggle('on', kind === 'seed' ? cn > 0 : choice === id);
           if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false');   // v2.0.67: item squares
           var badge = c.querySelector('.pccount');
-          badge.hidden = !(kind === 'seed' && cn > 0); badge.textContent = cn;
+          badge.hidden = !(kind === 'seed' && cn > 0); badge.textContent = cn + ' planting';
           var btns = c.querySelector('.pcbtns'); if (btns) btns.hidden = !(cn > 0);
         });
         var t = kind === 'seed' ? Math.min(total(), n) : (choice ? n : 0);
@@ -1357,16 +1357,54 @@ function gvGarden() {
                                           : (choice ? n + ' squares · ⚡ up to ' + n * (costs[act] || 1) : 'Tap one to choose it');
         go.disabled = !t;
       }
+      /* v2.4.80: seeds: tapping a square opens a popover with what the seed needs and how many to plant (− / + / All), instead of tap-to-count on the square */
+      var pop = null;
+      function seedPop() {
+        if (pop) return pop;
+        pop = document.createElement('dialog'); pop.className = 'isheet seedpop'; pop.setAttribute('aria-label', 'How many to plant');
+        pop.innerHTML = '<button type="button" class="sheetx" data-spx aria-label="Close">✕</button><div class="shead"><span class="sico" aria-hidden="true"></span><b class="sname"></b> <span class="rarword"></span></div>'
+          + '<p class="stags"></p><div class="qctl"><button type="button" class="qbtn" data-sq="-1" aria-label="One less">−</button><input type="number" class="qin" min="0" inputmode="numeric" aria-label="How many to plant">'
+          + '<button type="button" class="qbtn" data-sq="1" aria-label="One more">+</button><button type="button" class="qbtn qmax" data-sq="max">All</button></div>'
+          + '<p class="sline"><b class="sleft"></b></p><button type="button" class="btn sgo" data-spx>Done</button>';
+        pk.appendChild(pop);
+        return pop;
+      }
+      function openSeedPop(card) {
+        var id = card.getAttribute('data-id'), qty = +card.getAttribute('data-qty'), d = seedPop();
+        var win = card.querySelector('.itm__win'), pic = win && win.querySelector('.itm__ic, .itm__svg, .itm__emo');
+        d.querySelector('.sico').innerHTML = pic ? pic.outerHTML : '';
+        d.querySelector('.sname').textContent = (card.querySelector('.itm__name') || {}).textContent || '';
+        var rar = card.querySelector('.itm__rar'); d.querySelector('.rarword').textContent = rar ? rar.textContent : '';
+        var tg = d.querySelector('.stags'); tg.textContent = '';
+        [(card.querySelector('.pcinfo') || {}).innerHTML, (card.querySelector('.pcmore') || {}).innerHTML].forEach(function (h) {
+          (h || '').split(' · ').forEach(function (part) { if (part.replace(/<[^>]*>/g, '').trim()) { var t = document.createElement('span'); t.className = 'tag'; t.innerHTML = part; tg.appendChild(t); } });
+        });
+        var inp = d.querySelector('.qin'), left = d.querySelector('.sleft');
+        function room() { return n - (total() - (counts[id] || 0)); }
+        function max() { return Math.max(0, Math.min(qty, room())); }
+        function set(v) {
+          v = Math.max(0, Math.min(max(), Math.floor(+v || 0)));
+          if (v) { counts[id] = v; if (order.indexOf(id) < 0) order.push(id); } else { delete counts[id]; order = order.filter(function (o) { return o !== id; }); }
+          inp.value = v; inp.max = max();
+          left.textContent = Math.min(total(), n) + ' of ' + n + ' squares · ⚡ up to ' + Math.min(total(), n) * (costs[act] || 1) + (qty ? ' · you have ' + qty : '');
+          show();
+        }
+        var cur = counts[id] || 0;
+        d.onclick = function (ev) {
+          var t = ev.target;
+          if (t.closest('[data-spx]') || t === d) { gvCloseDlg(d); return; }
+          var q = t.closest('[data-sq]'); if (!q) return;
+          var s = q.getAttribute('data-sq'), v = +inp.value || 0;
+          set(s === 'max' ? max() : v + (+s));
+        };
+        inp.oninput = function () { set(inp.value); };
+        set(cur > 0 ? cur : (room() > 0 ? Math.min(qty, total() ? 1 : room()) : 0));   // v1.6.2: the first pick fills every picked square
+        gvOpenDlg(d);
+      }
       pk.onpick = function (card, step) {
         var id = card.getAttribute('data-id'), qty = +card.getAttribute('data-qty');
-        if (kind !== 'seed') { choice = id; show(); return; }
-        var cur = counts[id] || 0, room = n - total();
-        var s = step ? step.getAttribute('data-step') : '+1';
-        if (s === '-1') cur = Math.max(0, cur - 1);
-        else if (s === 'max') cur = Math.min(qty, cur + room);
-        else if (room > 0) cur = Math.min(qty, cur + (cur === 0 && !total() ? room : 1));   // v1.6.2: the first tap fills every picked square
-        if (cur) { counts[id] = cur; if (order.indexOf(id) < 0) order.push(id); } else { delete counts[id]; order = order.filter(function (o) { return o !== id; }); }
-        show();
+        if (kind === 'seed') { openSeedPop(card); return; }
+        choice = id; show();
       };
       pk.ongo = function () {
         submit(act, function (add, f) {
@@ -1536,7 +1574,7 @@ document.addEventListener('click', function (ev) {
   if (x) { gvCloseDlg(x.closest('dialog')); return; }
   if (t.tagName === 'DIALOG' && t.classList.contains('isheet')) { gvCloseDlg(t); return; }   // tap on the dimmed backdrop
   var q = t.closest('.qbtn');
-  if (q) {
+  if (q && q.closest('.sheetform')) {   // v2.4.80: the seed popover has its own - / + / All
     var form = q.closest('form'), inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 1, d = q.getAttribute('data-q');
     var cur = Math.max(1, +inp.value || 1);
     inp.value = d === 'max' ? max : Math.max(1, Math.min(max, cur + (+d)));

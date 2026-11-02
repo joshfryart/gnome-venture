@@ -321,10 +321,14 @@ function picker_html(string $kind, string $title, array $items, callable $icon, 
     foreach ($items as $i) {
         $row = $rows[(int)$i['id']] ?? null;
         $chips = [];
-        if (($in = (string)$info($i)) !== '') $chips[] = ['note', $in];
-        if ($more && ($mt = (string)$more($i)) !== '') $chips[] = ['note', '<small class="pcmore">' . $mt . '</small>'];
-        $tail = '<span class="pccount" hidden></span>'
-            . ($kind === 'seed' ? '<span class="pcbtns" hidden><i data-step="-1" role="button" aria-label="One fewer">−</i><i data-step="max" role="button" aria-label="Fill the rest">all</i></span>' : '');
+        $inf = (string)$info($i); $mt = $more ? (string)$more($i) : '';
+        if ($kind === 'seed') {   // v2.4.80: the seed squares stay clean; what it needs and how it grows ride in a hidden span the quantity popover reads
+            $tail = '<span class="pccount" hidden></span><span class="pcinfo" hidden>' . $inf . '</span><span class="pcmore" hidden>' . $mt . '</span>';
+        } else {
+            if ($inf !== '') $chips[] = ['note', $inf];
+            if ($mt !== '') $chips[] = ['note', '<small class="pcmore">' . $mt . '</small>'];
+            $tail = '<span class="pccount" hidden></span>';
+        }
         $cards .= item_square(['item' => $row ?? [], 'name' => $row ? (string)$row['name'] : (string)$i['name'], 'icon' => $row ? '' : (string)$icon($i), 'rarity' => $row ? '' : 'C',
             'count' => $kind === 'cellar' ? null : (int)$i['qty'], 'chips' => $chips, 'pressed' => false, 'class' => 'pcard',
             'attrs' => ['data-id' => (int)$i['id'], 'data-qty' => (int)$i['qty']], 'vh' => $tail]);

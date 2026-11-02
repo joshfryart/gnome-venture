@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.4.80
+- **Garden seed picker: a popover for the details.** Seed squares are clean now (picture, name, how many you have, a green "N planting" chip once picked). Tapping one opens a popover with what the seed needs (season, regrows, unstudied, soil) and a − / number / + / All box for how many to plant; Done closes it. The Seedling / Cutting / Seeds chips are no longer drawn on tiles (screen readers still hear them).
 - **Fix: Sheet mulch in Select squares closed every menu.** The Sheet mulch… button was also wired as an instant action, so it submitted at once with no mulch chosen and reloaded the page. It now opens the mulch picker like Mulch… does.
 - **Select squares stays on after an action.** After Mulch, Sheet mulch, Work in, Water and the rest, the same squares stay selected so you can chain the next step without re-picking. **Done** clears it.
 ## 2.4.79
