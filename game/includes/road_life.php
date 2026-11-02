@@ -667,6 +667,7 @@ function road_meet_resolve(array $u, array &$exp, int $option): void
 function road_traveller_chat(array $u, int $npcId, string $line): string
 {
     require_once __DIR__ . '/friends.php';
+    require_once __DIR__ . '/npc_life.php';   // npc_icon()
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
     if (!$npc) return 'They have gone on ahead.';
