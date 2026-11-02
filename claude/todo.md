@@ -1,4 +1,15 @@
-# Gnome Venture: to-do (updated 2026-11-02, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
+# Gnome Venture: to-do (updated 2026-11-02, main = 2.4.70 `db90e6dd`)
+
+## NOW (2.4.70, 2026-11-02): PAL PASSIVE COOKING + RECALL. BUILT, on main (`db90e6dd`) and branch `ccr-02b9002a-63vq2o`. Slim zips `releases/GnomeVenture-2.4.69-web-update.zip` (needs 2.4.66+) and `-2.4.70-` (needs 2.4.68+), manifests `tests/manifests/2.4.69.txt`, `2.4.70.txt`. Joshua uploads. Older zips moved to `releases/archive/`.
+- **DONE (CHANGELOG 2.4.69, 2.4.70):** cooking shifts are passive only: one pal per free pot, pot locked to the gnome, no ingredients up front; every 10 min (real time, lazy on page load, max 60 caught up) the pal serves a finished dish and starts one batch of its chosen recipe (`result.plan`). Pot card shows "{pal} is tending this pot" (shelf, rail). Tap it for a pop-up: cooking now, **Cooks next** picker (kept until changed or shift ends), **Send home early**. **Call home** on every active job (Pal Jobs page): trips/delves keep 50% of time-done loot (blocked under 10%); pot: served dishes stay, the cook in the pot loses half, pot freed; garden no loss. Column `cook_pots.pal_uid`. Tests: `tests/paljobs.php` (new blocks "station shifts" and "v2.4.70").
+- **OPEN / ideas:**
+  - Joshua to check on phone: pot pop-up open/close, picker Set, Send home early, Call home boxes on Pal Jobs; a pal at a pot while other pot is player's.
+  - Ticks only run on page load (no cron): a pal can start a dish up to 10 min after its pot frees. A real timer would need a cron.
+  - Auto-serve gives cooking XP to the gnome at once (alternative: dishes wait in pot until shift end).
+  - `pj_max_away` still caps pals out at once (default 3), so pots-many-pals is limited by it; raise setting if wanted. Cooking skips the daily station cap.
+  - Old up-front cooking shifts (tool NULL) still collect as before and show as locked pot rows; none are created now.
+  - Non-cooking stations unchanged (up-front, one pal per station).
+- **Not run:** MySQL (`cook_pots.pal_uid` via the column list in schema.php), `upgrade_check.sh`, full CI, phone.
 
 
 ## NOW (2.4.66, 2026-11-02): STUDIO REVIEW FOLLOW-UP. BUILT: slim zip releases/GnomeVenture-2.4.66-web-update.zip (needs 2.4.65+, 44 files), manifest tests/manifests/2.4.66.txt. Joshua uploads
