@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.66
+- **Studio review follow-up (no gameplay changes).** Phone header: the duplicate menu button is hidden (More in the bottom bar opens the same menu). Status-line links get 44 px tap areas. Satchel loses the repeated heading and the Belt link, and its tile labels and badges are larger. 182 unused CSS rules are removed (about 14 KB). `item_id_by_slug()` replaces 51 identical slug lookups. The zoom and pan blocks in `site.js` share one factory, and petals and burst are shared in `window.gvFx`.
 ## 2.4.65
 - **Studio review cleanup (no gameplay changes).** Contrast fixes: the selected recipe tab and filter chip, the puzzle chip, and the warn, low and effect chips now reach at least 4.5:1. Five undefined CSS tokens (`--bg-2`, `--good`, `--bad`, `--card`, `--panel`) are now defined, 8 duplicate CSS rules are gone, and 15 hex literals use tokens. Shared JS helpers (reduced-motion probe, centre, seen) now live in `window.gvFx` in `early.js`. 21 unused PHP functions are removed, and `trek_item_id`, `tk_h` and `tk_n` now delegate. Reports: `docs/studio-review/`.
 ## 2.4.64

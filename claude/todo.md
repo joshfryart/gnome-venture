@@ -1,6 +1,22 @@
 # Gnome Venture: to-do (updated 2026-11-02, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
 
+## NOW (2.4.66, 2026-11-02): STUDIO REVIEW FOLLOW-UP. NOT BUILT
+- **Prepared, not built. Not committed. No zip (ask Joshua first).** No gameplay changes. Version set in `bootstrap.php` only.
+- **DONE (CHANGELOG 2.4.66):** phone header menu button hidden (More opens the same menu); status-line links 44 px tap areas; Satchel repeated heading and Belt link removed, tile labels and badges larger; 182 unused CSS rules removed (~14 KB); `item_id_by_slug()` replaces 51 identical lookups; `site.js` zoom and pan share one factory; petals and burst shared in `gvFx`.
+- **OPEN:**
+  - P2-1: desktop (1200 px+) strip duplicates (petals in header pill and sidebar). Needs a live check first.
+  - ~380 hex literals skipped on purpose (dark-mode risk).
+  - Breakpoint consolidation (17, ratchet in `tests/css_lint.sh`).
+  - Button and tab family unification (design decision).
+  - `catfish.css` radii (8/12/999 px vs `--radius 0`) and its greys.
+  - Remaining ~24 inline slug lookups with different query text; the bootstrap and seed upgrade lists differ.
+  - `letters.js` petals and worms burst differ (not merged).
+  - Hyphen-prefix CSS classes are kept alive, so ~30 rules may still be dead.
+  - Ask Joshua before building the zip.
+- **Joshua to check on phone:** header has no duplicate menu; More opens the menu; status links easy to tap; Satchel tiles legible ('Materials' at 13px in an 84px tile is unverified); World, region and mycelium map zoom and pinch (mycelium Ctrl-wheel and two-finger pinch not exercised); memory and mushroom games petals.
+- **Not run:** MySQL, `upgrade_check.sh`, full CI, phone.
+
 ## NOW (2.4.65, 2026-11-02): STUDIO REVIEW CLEANUP. BUILT, merged with 2.4.64, branch ccr-c58baef6-w75eu7; slim zip releases/GnomeVenture-2.4.65-web-update.zip (needs 2.3.97+, 51 files), manifest tests/manifests/2.4.65.txt. Joshua uploads
 - **No gameplay changes. No zip built (ask Joshua first). Not committed.** Version numbering is Joshua's call; 2.4.64 belongs to branch ccr-183e3f79-k0661b and may need merging first.
 - **What changed (CHANGELOG 2.4.65):** contrast fixes to 4.5:1 (selected recipe tab and filter chip, puzzle chip, warn/low/effect chips); undefined tokens `--bg-2 --good --bad --card --panel` now defined; 8 duplicate CSS rules removed; 15 hex literals to tokens; shared JS helpers in `window.gvFx` (early.js); 21 unused PHP functions removed (`git show cb4c4a3c`); `trek_item_id`/`tk_h`/`tk_n` now delegate.
