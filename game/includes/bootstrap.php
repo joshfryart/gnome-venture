@@ -92,6 +92,14 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         boot_step('kitchen_pots_2467', function () {   // v2.4.67: new default pots 3,4,5, only if the row still holds the old default
             if (q_val("SELECT value FROM settings WHERE name = 'kitchen_pots'") === '2,3,4') set_setting('kitchen_pots', '3,4,5');
         });
+        boot_step('cherry_2x2_2467', function () {   // v2.4.67: the Blossom Cherry grows to 2 x 2 like the oak and willow (placed ones stay 1 x 1 until placed again)
+            $it = q_one("SELECT id, effects, description FROM items WHERE slug = 'blossom-cherry'");
+            $fx = $it ? json_decode((string)$it['effects'], true) : null;
+            if (is_array($fx) && (int)($fx['decor']['w'] ?? 0) === 1 && (int)($fx['decor']['h'] ?? 0) === 1) {
+                $fx['decor']['w'] = 2; $fx['decor']['h'] = 2;
+                q('UPDATE items SET effects = ?, description = ? WHERE id = ?', [json_encode($fx, JSON_UNESCAPED_UNICODE), str_replace('Clouds of pink petals.', 'Clouds of pink petals, 2 × 2.', (string)$it['description']), (int)$it['id']]);
+            }
+        });
         boot_step('ensure_tools', function () {
             require_once __DIR__ . '/tools.php';
             require_once __DIR__ . '/gathering.php';
