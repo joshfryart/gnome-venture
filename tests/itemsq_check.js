@@ -1,7 +1,7 @@
 // v2.0.67: item squares on the REAL pages at 390 px, light and dark (called by tests/itemsq.sh; mockup4/check.js did the same on the mockup).
 // node itemsq_check.js BASE SHOP_ID CURIO_SHOP_ID CSS_ITEMS_FILE [SHOT_DIR]
 // Per page: every square is at least 44 x 44, no text pokes out of its square / ribbon / chip, no sideways page scroll, every picture loads,
-// item names wrap on at most 3 lines (2 by design: more is reported as a note), the grid has 4 columns (v2.4.74 square tiles), the sparkle stands still under reduced motion.
+// item names wrap on at most 3 lines (2 by design: more is reported as a note), the grid has 3 columns, the sparkle stands still under reduced motion.
 // Satchel: tapping a square opens its card inside the screen. Shop Buy: Add to basket marks the tile and fills "N in basket".
 // If style.css does not carry the .itm rules yet (claude/build/css-items.css not merged), the file is appended to the served style.css.
 // Wave 2 (env, each optional): ISQ_CSS2 = claude/build/css-items2.css (appended the same way when style.css lacks it), ISQ_NPC = a villager on duty
@@ -117,7 +117,7 @@ const fs = require('fs');
         if (r.lines3.length) console.log(`note ${tag}: 3-line names: ${r.lines3.join(', ')}`);
         say(r.scroll <= 0, `${tag}: no sideways scroll (${r.scroll})`);
         say(!r.img.length, `${tag}: pictures load${r.img.length ? ' (' + r.img.slice(0, 3).join(' ') + ')' : ''}`);
-        say(r.cols.every(n => n === 4 || n === 3), `${tag}: 3 or 4 columns (${r.cols.join(',')})`);
+        say(r.cols.every(n => n === 3), `${tag}: 3 columns (${r.cols.join(',')})`);
         say(r.style === 0, `${tag}: no style= attribute in main`);
         say(!r.steps.length, `${tag}: step buttons 44 x 44 or more${r.steps.length ? ' (' + r.steps.join(', ') + ')' : ''}`);
         if (key === 'satchel') {

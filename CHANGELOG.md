@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.77
+- **Item tiles: 3 across on phones.** Phone squares are larger (3 per row, was 4) with bigger names, price chips, counts and pictures. Desktop is unchanged (4 to 6 across).
 ## 2.4.76
 - **Item tiles are bigger on desktop.** Wide screens now show 4 to 6 squares across (was up to 8), with larger names, price chips, counts and pictures, so they read like the phone version.
 ## 2.4.75
