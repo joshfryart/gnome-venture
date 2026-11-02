@@ -1304,6 +1304,7 @@ function schema_statements(string $driver): array
     // Columns added after v0.7.0 (fresh install). Older installs get them via "Upgrade database".
     $c = [
         ['users', 'gnome_name', 'VARCHAR(30) NULL'],
+        ['cook_pots', 'pal_uid', 'VARCHAR(16) NULL'],                  // pal passive cooking: the pal tending this pot (NULL = the gnome's own pot)
         ['users', 'theme', "VARCHAR(8) NOT NULL DEFAULT 'dark'"],      // v1.6.5: dark / light / auto
         ['users', 'hp', 'INT NULL'],                                   // v2.3.5: the gnome's health (NULL = full), see includes/health.php
         ['users', 'hp_at', 'DATETIME NULL'],                           // v2.3.5: when the town health clock last ran (NULL = stopped)

@@ -314,12 +314,16 @@ function cook_chunk(array $u, array $r): int
     return max($chunk, (int)$v[min($kl, count($v)) - 1]);
 }
 
-/** Pots in use: cooking, or done and waiting to be collected. */
+/**
+ * Pots in use: cooking, or done and waiting to be collected. A pal tending a pot (passive cooking) holds exactly one: the job counts it, so the pal's own
+ * cook_pots rows (pal_uid set) are not counted again. Old up-front shifts (tool NULL) hold a pot until collected.
+ */
 function cook_pots_busy(int $uid): int
 {
-    $n = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid]);
-    try {   // v2.4.61: a pal manning a cooking station holds one pot until you collect its shift
-        $n += (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%' AND state IN ('active','ready')", [$uid]);
+    $n = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL', [$uid]);
+    try {
+        $n += (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%'
+            AND ((tool = 'passive' AND state = 'active') OR (tool IS NULL AND state IN ('active','ready')))", [$uid]);
     } catch (Throwable $e) {}
     return $n;
 }
@@ -327,18 +331,51 @@ function cook_pots_busy(int $uid): int
 /** Pots whose timer has run out and that are still waiting to be collected (the nav badge). */
 function cook_ready_count(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, now()]);
+    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, now()]);
 }
 
-/** Pots in use, oldest first, with the dish name and seconds left (0 = ready). */
+/**
+ * Pots in use, oldest first, with the dish name and seconds left (0 = ready). A pot a pal tends has 'pal' (name), 'job' (ppal_jobs id), 'plan' (recipe id the pal
+ * cooks next), 'plan_name' and a 'pal_uid'; a pal between two cooks gets an idle row (id 0, 'idle' true). Old up-front shifts show as locked rows too.
+ */
 function cook_pots_list(int $uid): array
 {
-    $rows = q('SELECT p.id, p.makes, p.dishes, p.ready_at, i.name, i.id AS item_id FROM cook_pots p
+    $rows = q('SELECT p.id, p.makes, p.dishes, p.ready_at, p.pal_uid, i.name, i.id AS item_id FROM cook_pots p
                LEFT JOIN recipes r ON r.id = p.recipe_id LEFT JOIN items i ON i.id = r.output_item_id
                WHERE p.user_id = ? AND p.collected_at IS NULL ORDER BY p.id', [$uid])->fetchAll();
+    $jobs = [];
+    try {
+        foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%' AND ((tool = 'passive' AND state = 'active') OR (tool IS NULL AND state IN ('active','ready'))) ORDER BY id", [$uid])->fetchAll() as $j) $jobs[] = $j;
+    } catch (Throwable $e) {}
+    $names = [];
+    if ($jobs) {
+        require_once __DIR__ . '/pal_jobs.php';
+        foreach (pj_pals($uid) as $pu => $pp) $names[(string)$pu] = (string)$pp['name'];
+    }
+    $byPal = [];
+    foreach ($jobs as $j) if ($j['tool'] === 'passive') $byPal[(string)$j['pal_uid']] = $j;
+    $planName = function (array $j): array {
+        $pid = (int)(json_decode((string)$j['result'], true)['plan'] ?? 0);
+        return [$pid, $pid > 0 ? (string)q_val('SELECT i.name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pid]) : ''];
+    };
     foreach ($rows as &$r) {
         $r['left'] = max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
         $r['name'] = (string)($r['name'] ?? 'Dish');
+        if ($r['pal_uid'] && isset($byPal[(string)$r['pal_uid']])) {
+            $j = $byPal[(string)$r['pal_uid']]; [$pid, $pn] = $planName($j);
+            $r += ['pal' => $names[(string)$r['pal_uid']] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn];
+            unset($byPal[(string)$r['pal_uid']]);
+        }
+    }
+    unset($r);
+    foreach ($byPal as $pu => $j) {   // a tending pal with no pot cooking right now
+        [$pid, $pn] = $planName($j);
+        $rows[] = ['id' => 0, 'makes' => 0, 'dishes' => 0, 'ready_at' => '', 'pal_uid' => $pu, 'name' => $pn !== '' ? $pn : 'Nothing chosen', 'item_id' => 0, 'left' => 0, 'idle' => true,
+            'pal' => $names[$pu] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn];
+    }
+    foreach ($jobs as $j) if ($j['tool'] === null) {   // old shift: the pot is held until collected
+        $rows[] = ['id' => 0, 'makes' => 0, 'dishes' => 0, 'ready_at' => '', 'pal_uid' => (string)$j['pal_uid'], 'name' => 'Shift', 'item_id' => 0, 'left' => 0, 'idle' => true, 'locked' => true,
+            'pal' => $names[(string)$j['pal_uid']] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => 0, 'plan_name' => ''];
     }
     return $rows;
 }
@@ -441,11 +478,12 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
  * recipe page, Food Scraps (1 per cook_scraps_per ingredient items) and one 'cook' job event per pot. Returns [ok, message, info];
  * info: name, dishes, xp, scraps, extra, page.
  */
-function cook_collect_one(array $u, int $potId): array
+function cook_collect_one(array $u, int $potId, bool $byPal = false): array
 {
     $uid = (int)$u['id'];
     $pot = q_one('SELECT * FROM cook_pots WHERE id = ? AND user_id = ? AND collected_at IS NULL', [$potId, $uid]);
     if (!$pot) return [false, 'That pot is already empty.', []];
+    if (!$byPal && $pot['pal_uid'] !== null && $pot['pal_uid'] !== '') return [false, 'A pal is tending that pot. They serve it at their next check.', []];
     if ($pot['ready_at'] > now()) return [false, 'That pot isn’t ready yet.', []];
     $r = q_one('SELECT r.*, i.name AS out_name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pot['recipe_id']]);
     db()->beginTransaction();
@@ -489,7 +527,7 @@ function cook_collect_all(array $u): array
 {
     $done = [];
     foreach (cook_pots_list((int)$u['id']) as $p) {
-        if ($p['left'] > 0) continue;
+        if ($p['left'] > 0 || !empty($p['pal_uid']) || (int)$p['id'] < 1) continue;
         $res = cook_collect_one($u, (int)$p['id']);
         if ($res[0]) $done[] = $res[2];
     }

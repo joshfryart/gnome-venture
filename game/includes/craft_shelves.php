@@ -60,10 +60,33 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
 <section class="p2jars shstation" aria-label="<?= $potsOn ? 'Pots' : 'Station' ?>">
   <div class="p2jarrow<?= $potsOn ? ' p2shelf' : '' ?>">
     <?php if ($potsOn):
-        $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0));
+        require_once __DIR__ . '/pal_jobs.php';
+        try { pj_settle($uid); } catch (Throwable $e) {}   // pals tending pots check them when you look
+        $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0 && empty($p['pal'])));
+        $palOpts = [];   // recipes a tending pal can be set to, per station
         $outItems = [];
         foreach (q("SELECT i.* FROM items i JOIN recipes r ON r.output_item_id = i.id WHERE r.category = 'cooking'")->fetchAll() as $it) $outItems[(int)$it['id']] = $it;
-        foreach ($pots as $p): $done = $p['left'] <= 0; ?>
+        foreach ($pots as $p): $done = $p['left'] <= 0;
+          if (!empty($p['pal'])): // a pal tends this pot: its dish is the pal's choice, changed here and kept until changed or the shift ends
+            $jr = q_one('SELECT target FROM ppal_jobs WHERE id = ?', [(int)$p['job']]);
+            if (!isset($palOpts[(string)($jr['target'] ?? '')])) {
+                [$pa, $pb] = array_pad(explode(':', (string)($jr['target'] ?? ''), 2), 2, ''); $po = pj_station_object($pa, $pb);
+                $palOpts[(string)($jr['target'] ?? '')] = $po ? pj_station_recipes($uid, $pa, $po['globs']) : [];
+            }
+            $opts = $palOpts[(string)($jr['target'] ?? '')]; ?>
+      <div class="p2jar pot potsq palpot <?= $done && empty($p['idle']) ? 'done' : 'busy' ?>" title="<?= e($p['pal'] . ' is tending this pot') ?>">
+        <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🧩' ?></span>
+        <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>
+        <span class="potleft">🧩 <?= e($p['pal']) ?> is tending this pot<?= !empty($p['idle']) ? '' : ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left']))) ?></span>
+        <?php if (empty($p['locked'])): ?>
+        <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="potpick"><?= csrf_field() ?>
+          <input type="hidden" name="do" value="pal_pot_recipe"><input type="hidden" name="job_id" value="<?= (int)$p['job'] ?>">
+          <label><span class="muted">Cooks next</span> <select name="recipe_id" aria-label="What <?= e($p['pal']) ?> cooks next">
+            <?php foreach ($opts as $rid => $rx): ?><option value="<?= (int)$rid ?>"<?= (int)$rid === (int)$p['plan'] ? ' selected' : '' ?>><?= e((string)$rx['name']) ?></option><?php endforeach; ?>
+          </select></label> <button class="btn small">Set</button></form>
+        <?php else: ?><a class="rgo" href="<?= e(url('paljobs.php')) ?>">Collect the shift →</a><?php endif; ?>
+      </div>
+    <?php continue; endif; ?>
       <div class="p2jar pot potsq <?= $done ? 'done' : 'busy' ?>" title="<?= e($p['name']) ?>">
         <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🍲' ?></span>
         <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>

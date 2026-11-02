@@ -726,9 +726,10 @@ function right_rail(array $u): string
     $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . $today . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
     $pots = cook_pots_list($uid);
     if ($pots) {
-        $rd = count(array_filter($pots, fn($p) => $p['left'] <= 0));
+        $rd = count(array_filter($pots, fn($p) => $p['left'] <= 0 && empty($p['pal'])));
         $h .= '<section class="rbox rpots" aria-labelledby="rt-pots"><h3 id="rt-pots">🍳 Pots' . ($rd ? ' <b class="rbadge">' . $rd . ' ready</b>' : '') . '</h3><ul class="rlist">';
         foreach ($pots as $p) {
+            if (!empty($p['pal'])) { $h .= '<li><span>' . e($p['name']) . '</span> <small class="rtime">🧩 ' . e($p['pal']) . ' tending</small></li>'; continue; }
             $h .= '<li><span>' . e($p['name']) . '</span> ' . ($p['left'] <= 0
                 ? '<a class="rgo" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '">Ready, collect</a>'
                 : '<small class="rtime">' . e(effect_time($p['left'])) . '</small>') . '</li>';

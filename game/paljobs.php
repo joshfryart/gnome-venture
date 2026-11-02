@@ -137,7 +137,7 @@ $jobLine = fn(array $j): string => match ($j['kind']) {
     'garden' => ($plotName[(int)$j['plot_id']] ?? 'a garden') . ' · ' . strtolower(pj_garden_task_text((int)$j['plot_id'])),   // v2.3.3: works after your hired help
     'trip' => (LANDSCAPES[$j['target']][1] ?? $j['target']) . ' · ' . (TOOL_TYPES[$j['tool']][0] ?? $j['tool']) . ' · ' . pj_ago(ts($j['ends_at']) - ts($j['started_at'])),
     'delve' => ($delveName[(int)$j['target']] ?? 'a delve') . ((int)$j['potions'] ? ' · ' . (int)$j['potions'] . ' potion' . ((int)$j['potions'] > 1 ? 's' : '') : ''),
-    'station' => (($stationList[$j['target']][0] ?? '') . ' · ' . ($stationList[$j['target']][1] ?? 'station') . ' · ' . (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes'),
+    'station' => (($stationList[$j['target']][0] ?? '') . ' · ' . ($stationList[$j['target']][1] ?? 'station') . ' · ' . (($j['tool'] ?? '') === 'passive' ? 'tends a pot' : (int)(json_decode((string)$j['result'], true)['makes'] ?? 0) . ' makes')),
     default => '',
 };
 $nextBack = null;
@@ -148,7 +148,7 @@ $anyReady = (bool)array_filter($jobs, fn($j) => $j['state'] === 'ready');
 $posts = [
     'garden' => ['🪴', 'Tend a garden', '1, 3 or 7 days', 'Waters, weeds and harvests while you are away. Works after your hired help, on whatever is still undone.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
     'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Higher Adventuring: more finds, more rares. Unused potions come back.'],
-    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'A pal works one object of a crafting area (Stove, Workbench...): it makes everything that object makes, or recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking holds one of your pots.', 'Ingredients taken now; XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'One pal per station. Only recipes you know. Pantry jars: later.'],
+    'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'A pal works one object of a crafting area (Stove, Workbench...): it makes everything that object makes, or recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking is passive: the pal holds one of your pots (you cannot use it meanwhile) and checks it every 10 minutes, cooking one batch at a time from your satchel. Pick the dish on the pot in your Kitchen.', 'Ingredients taken now (other stations); XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'Other stations: one pal each. Cooking: one pal per free pot. Only recipes you know.'],
     'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Risky below Adventuring ' . PJ_DELVE_SAFE . ': pack potions. Unused potions come back.'],
 ];
 $stSt = craft_stations($uid);
