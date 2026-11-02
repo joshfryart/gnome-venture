@@ -64,3 +64,4 @@ vendor/
 
 # Dev mail log and other runtime text files (may hold reset/verify links)
 game/data/*.txt
+playtest-out/
