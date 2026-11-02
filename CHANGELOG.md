@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.83
+- **Square panel: soil info up top, everything centred.** Fertility, soil life and water, the N-P-K chips and the soil care (or no-till grade) checks now sit right under the heading in one box instead of behind "Soil details". The fold is now "More soil details" (tips, how care works, the Soil Probe). The soil / care chips row is gone (the box says it), and the big grade letter is hidden. Text, chips, icons and buttons in the panel are centred.
 ## 2.4.82
 - **Square panel, tidier.** The heading is now one line plus a status line (no more "Tilled" twice). The plant card is: name and tags, season / weather chips, the progress bar, ONE status line ("Growing · about 22 min left · water lasts 11h"), then Water / Dig up side by side; the long text (unstudied note, life, what it feeds on) is behind **About this plant**.
 - **Soil details, consolidated.** Fertility, soil life and water holds sit on one row; N-P-K has a one-line legend; the big care star box is gone (the stars are in the title) and the three care checks are small chips ("✔ Improver added", "✖ Soil life too low").
