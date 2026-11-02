@@ -57,7 +57,7 @@ $things = array_sum(array_map(fn($e) => $e['count'], $all));
 <div class="pantry2 shelves shbag<?= $landing ? ' shbagtiles' : '' ?>">
 <?php if ($landing): // v2.5.0: 8 square tiles; each opens a sheet with that group's things (search, chips, sort inside) ?>
 <?= sh_search('', '', '🔍 Search ' . count($all) . ' things in your satchel…') ?>
-<h2 class="p2title">👜 Satchel <small><?= count($all) ?> kind<?= count($all) === 1 ? '' : 's' ?> · <?= number_format($things) ?> thing<?= $things === 1 ? '' : 's' ?></small></h2>
+<p class="muted p2title shcount"><?= count($all) ?> kind<?= count($all) === 1 ? '' : 's' ?> · <?= number_format($things) ?> thing<?= $things === 1 ? '' : 's' ?></p>
 <?php
   $byG = [];
   foreach ($all as $e) $byG[$e['group']][] = $e;
@@ -111,7 +111,7 @@ $things = array_sum(array_map(fn($e) => $e['count'], $all));
     </select></label>
     <button class="btn small pickgo">Go</button>
   </form>
-  <h2 class="p2title">👜 Satchel <small><?= count($all) ?> kind<?= count($all) === 1 ? '' : 's' ?> · <?= number_format($things) ?> thing<?= $things === 1 ? '' : 's' ?></small></h2>
+  <p class="muted p2title shcount"><?= count($all) ?> kind<?= count($all) === 1 ? '' : 's' ?> · <?= number_format($things) ?> thing<?= $things === 1 ? '' : 's' ?></p>
 </div>
 <?php if (!$all): ?><p class="muted">Empty. Time to visit the market!</p><?php endif; ?>
 <?php $quick = array_values(array_filter($all, fn($e) => $e['quick'] !== null));
@@ -133,7 +133,6 @@ $things = array_sum(array_map(fn($e) => $e['count'], $all));
 <?= sh_shelves($shown, $defs, $open, $selId, 'bag', $link, $close, true) ?>
 <p class="muted shnone" hidden>Nothing matches.</p>
 <?php endif; ?>
-<p class="help shbelt"><a href="<?= e(url('inventory.php?tab=belt')) ?>">🧰 Your toolbelt →</a></p>
 </div>
 <?php
 }

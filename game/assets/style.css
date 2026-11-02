@@ -6626,3 +6626,22 @@ details.craftall > summary::-webkit-details-marker { display: none; }
   /* Party / Pack / Log: bottom sheet */
   .tkdrawer { top: auto; right: 0; left: 0; bottom: 0; width: 100vw; height: 48dvh; border-left: 0; border-top: var(--px, 2px) solid var(--ol, #2a1a10); border-radius: 14px 14px 0 0; box-shadow: 0 -6px 0 rgba(42, 26, 16, .25); }
 }
+
+/* ===== studio UX review (docs/studio-review/ux-review.md): P1-1, P1-3, P1-4, P2-2 ===== */
+/* P1-1: on a phone the bottom bar's More opens the menu, so the header's copy is hidden (desktop keeps it; More keeps aria-controls) */
+@media (max-width: 720px) {
+  body.game:has(.bottombar) header .menubtn { display: none; }
+  /* P1-3: phone status-line links get a 44px tap area; the 36px row and the text stay as they are */
+  .stsum { overflow: clip visible; }
+  .stsum .stl { position: relative; }
+  .stsum .stl::after { content: ''; position: absolute; inset: -14px -6px; }
+}
+/* P1-4: Satchel tiles: legible labels, empty and dim tiles no longer fade into the page */
+.shtile b { font-size: 13px; }
+.shtile small { font-size: 12px; }
+.shtile.empty { opacity: 1; color: var(--muted); }
+.shtile.dim { opacity: .6; }
+.shtile .shtb, .shtile .shtm { font-size: 11px; }
+/* P2-2: the count line under the page title (replaces the repeated "Satchel" heading) */
+.shelves .p2title.shcount { font-size: 14px; font-weight: 500; color: var(--muted); }
+/* ===== end studio UX review ===== */
