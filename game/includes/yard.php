@@ -522,8 +522,7 @@ function tile_view(array $t, array $plants, bool $owner = true): array
     if ($t['method'] === 'notill') {
         $cls .= ' nt';
         $gi = grade_index($t);
-        $badge = '<b class="grade g' . $gi . '">' . e(grade_name($gi)) . ($owner && (int)$t['checkpoint'] > 0 ? '🛡' : '') . '</b>'
-            . ($owner && bed_problems($t) ? '<s>⚠️</s>' : '');
+        $badge = ($owner && bed_problems($t) ? '<s>⚠️</s>' : '');   // v2.4.81: the grade letter is no longer drawn on the square (like the care stars of tilled beds); it stays in the label and the panel
         $label .= ' · grade ' . grade_name($gi) . ($owner && bed_problems($t) ? ' · needs care' : '');
     }
     elseif (($cs = care_stars($t)) > 0) {   // v0.8.7: soil care stars on tilled (or wild) squares
