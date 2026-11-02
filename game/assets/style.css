@@ -6682,8 +6682,10 @@ details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-r
 .itm--u .itm__gem { width: 20px; height: 22px; }
 .itm--r .itm__gem { width: 22px; height: 22px; }
 .itm--l .itm__gem { width: 24px; height: 24px; left: -8px; top: -8px; }
-.itm__n { right: -6px; bottom: 22px; padding: 2px 4px 1px; background: rgba(42, 26, 16, .8); font-size: 10px; box-shadow: 0 0 0 1px var(--itm-count-ink); }
-.itm__rib { position: absolute; z-index: 2; left: -6px; right: -6px; bottom: -6px; min-height: 0; margin: 0; opacity: .88;
+.itm__stack { position: absolute; z-index: 2; left: -6px; right: -6px; bottom: -6px; display: flex; flex-direction: column; align-items: stretch; }   /* count and chips ride on top of the ribbon, whatever height its name makes it */
+.itm__mid { display: flex; flex-direction: column-reverse; align-items: stretch; gap: 2px; min-width: 0; padding: 0 5px 3px 6px; }   /* count straight on the ribbon, chips above it */
+.itm__n { position: static; flex: none; align-self: flex-end; padding: 2px 4px 1px; background: rgba(42, 26, 16, .8); font-size: 10px; box-shadow: 0 0 0 1px var(--itm-count-ink); }
+.itm__rib { position: relative; min-height: 0; margin: 0; opacity: .88;
   border-width: 4px 5px; border-image-width: 4px 5px; }
 .itm__name { padding: 1px 1px 0; font-size: 10px; line-height: 1.1; -webkit-line-clamp: 3; }
 .itm--long .itm__name { font-size: 9.5px; }
@@ -6691,8 +6693,7 @@ details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-r
 @container (min-width: 520px) { .itm__name { font-size: 11px; } .itm--long .itm__name { font-size: 10.5px; } .itm--xlong .itm__name { font-size: 10px; } }
 .itm__price { position: absolute; z-index: 3; top: -6px; right: -6px; display: inline-flex; align-items: center; padding: 2px 3px; font: 800 10px/1 var(--font); white-space: nowrap; }
 .itm__pet { width: 9px; height: 10px; margin-left: 1px; }
-.itm__foot { position: absolute; z-index: 2; left: 2px; right: 2px; bottom: 22px; display: flex; flex-wrap: wrap; align-content: flex-end; justify-content: flex-start; gap: 2px; font-size: 9px; line-height: 1.2; }
-.itm:has(.itm__foot > :is(.itm__want, .itm__inb, .itm__use, .itm__ok, .itm__short, .itm__note, .itm__taste, .itm__kind)) .itm__n { bottom: 37px; }
+.itm__foot { position: static; flex: none; min-width: 0; display: flex; flex-wrap: wrap; align-content: flex-end; justify-content: flex-start; gap: 2px; font-size: 9px; line-height: 1.2; }
 .itm__foot > * { max-width: 100%; padding: 0 3px; white-space: normal; overflow-wrap: anywhere; }
 .itm__rar { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* the gem shows the rarity; the word stays for screen readers */
 .itm__flag { top: -7px; left: 14px; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; font-size: 9px; }

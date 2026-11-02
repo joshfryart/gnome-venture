@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.75
+- **Item tiles: the count always sits on top of the name ribbon.** The ×# count (and the chips above the ribbon) now ride the ribbon's top edge, so a two- or three-line name no longer covers the count.
 ## 2.4.74
 - **Square item tiles everywhere.** Shop, Satchel, crafting, pickers and market tiles are now squares, 4 across on phones (3 in the garden seed picker). Rarity shield top left, price chip (arrow + Petal) top right, count bottom right, name on a slightly faded ribbon along the bottom. Other chips (in basket, have / need, notes, kind) stack bottom left; state badges moved to the bottom left corner. The rarity word is for screen readers only. `tests/itemsq_check.js` expects 3 or 4 columns.
 ## 2.4.73
