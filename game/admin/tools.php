@@ -19,29 +19,57 @@ if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
     if ($do === 'dump') {
-        admin_log('backup', 'sql', '');
         @set_time_limit(300);
+        // Build the whole file first, so a failure becomes an error message, not a cut-off download that looks fine.
+        $tmp = APP_ROOT . '/data/backup-' . bin2hex(random_bytes(6)) . '.sql';
+        try {
+            $pdo = db();
+            $fh = fopen($tmp, 'wb');
+            if (!$fh) throw new RuntimeException('Could not write to the data folder.');
+            $w = function (string $s) use ($fh): void { if (fwrite($fh, $s) === false) throw new RuntimeException('Disk write failed (disk full?).'); };
+            $w("-- Gnome Venture backup, v" . APP_VERSION . ", " . now() . " UTC\n-- Restore into an EMPTY database after running install, or with phpMyAdmin's Import.\n\n");
+            $nt = 0;
+            foreach (all_tables($driver) as $t) {
+                if (!preg_match('/^[A-Za-z0-9_]+$/', $t)) continue;
+                $w("DELETE FROM $t;\n");
+                $st = $pdo->query("SELECT * FROM $t");
+                while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
+                    $vals = array_map(fn($v) => $v === null ? 'NULL' : $pdo->quote((string)$v), array_values($row));
+                    $w('INSERT INTO ' . $t . ' (' . implode(', ', array_keys($row)) . ') VALUES (' . implode(', ', $vals) . ");\n");
+                }
+                $w("\n");
+                $nt++;
+            }
+            if ($nt === 0) throw new RuntimeException('No tables found.');
+            $w("-- END OF BACKUP ($nt tables)\n");
+            if (!fclose($fh)) throw new RuntimeException('Could not finish writing the backup.');
+        } catch (Throwable $e) {
+            @unlink($tmp);
+            error_log('Backup failed: ' . $e->getMessage());
+            flash('Backup FAILED: ' . $e->getMessage() . ' Nothing was downloaded.', 'err');
+            redirect('admin/tools.php');
+        }
+        admin_log('backup', 'sql', '');
         header('Content-Type: application/sql; charset=utf-8');
         header('Content-Disposition: attachment; filename="sproutling-backup-' . gmdate('Y-m-d-His') . '.sql"');
+        header('Content-Length: ' . filesize($tmp));
         header('X-Content-Type-Options: nosniff');
-        $pdo = db();
-        echo "-- Gnome Venture backup, v" . APP_VERSION . ", " . now() . " UTC\n-- Restore into an EMPTY database after running install, or with phpMyAdmin's Import.\n\n";
-        foreach (all_tables($driver) as $t) {
-            if (!preg_match('/^[A-Za-z0-9_]+$/', $t)) continue;
-            echo "DELETE FROM $t;\n";
-            $st = $pdo->query("SELECT * FROM $t");
-            while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
-                $vals = array_map(fn($v) => $v === null ? 'NULL' : $pdo->quote((string)$v), array_values($row));
-                echo 'INSERT INTO ' . $t . ' (' . implode(', ', array_keys($row)) . ') VALUES (' . implode(', ', $vals) . ");\n";
-            }
-            echo "\n";
-        }
+        readfile($tmp);
+        @unlink($tmp);
         exit;
     }
     if ($do === 'sqlite' && $driver === 'sqlite') {
-        admin_log('backup', 'sqlite', '');
         $tmp = APP_ROOT . '/data/backup-' . bin2hex(random_bytes(6)) . '.sqlite';
-        db()->exec('VACUUM INTO ' . db()->quote($tmp));   // a clean, consistent copy even while the game is running
+        try {
+            db()->exec('VACUUM INTO ' . db()->quote($tmp));   // a clean, consistent copy even while the game is running
+            if (!is_file($tmp) || filesize($tmp) < 1) throw new RuntimeException('The copy came out empty.');
+        } catch (Throwable $e) {
+            @unlink($tmp);
+            error_log('SQLite backup failed: ' . $e->getMessage());
+            flash('Backup FAILED: ' . $e->getMessage() . ' Nothing was downloaded.', 'err');
+            redirect('admin/tools.php');
+        }
+        admin_log('backup', 'sqlite', '');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="sproutling-' . gmdate('Y-m-d-His') . '.sqlite"');
         header('Content-Length: ' . filesize($tmp));
@@ -52,9 +80,14 @@ if (is_post()) {
     if ($do === 'delete_image') {
         $name = (string)($_POST['name'] ?? '');
         if (preg_match('/^[a-f0-9]{24}\.(png|jpg|gif|webp)$/', $name) && is_file(APP_ROOT . '/uploads/' . $name)) {
-            @unlink(APP_ROOT . '/uploads/' . $name);
-            admin_log('delete_upload', $name, '');
-            flash('Image deleted. (Any post still using it will just skip it.)');
+            if (@unlink(APP_ROOT . '/uploads/' . $name)) {
+                admin_log('delete_upload', $name, '');
+                flash('Image deleted. (Any post still using it will just skip it.)');
+            } else {
+                flash('Could not delete that image (file permissions?).', 'err');
+            }
+        } else {
+            flash('Image not found, nothing deleted.', 'err');
         }
         redirect('admin/tools.php#images');
     }
@@ -65,18 +98,19 @@ if (is_post()) {
     }
     if ($do === 'test_ppal') {   // v2.2.4: pals wait on the map: put one on yours (with nothing released it releases the first picture with a roster)
         require_once __DIR__ . '/../includes/puzzle_pals.php';
-        flash(ppal_admin_spawn(current_user() ?: []));
+        $msg = ppal_admin_spawn(current_user() ?: []);
+        flash($msg, str_contains($msg, ' now waits at ') ? 'ok' : 'err');
         redirect('admin/tools.php');
     }
     if ($do === 'clear_errors') {
-        @file_put_contents(APP_ROOT . '/data/error-log.txt', '');
-        @unlink(APP_ROOT . '/data/error-log.txt.1');
-        flash('Error log cleared.');
+        $okc = @file_put_contents(APP_ROOT . '/data/error-log.txt', '') !== false;
+        if (is_file(APP_ROOT . '/data/error-log.txt.1')) $okc = @unlink(APP_ROOT . '/data/error-log.txt.1') && $okc;
+        flash($okc ? 'Error log cleared.' : 'Could not clear the error log (file permissions?).', $okc ? 'ok' : 'err');
         redirect('admin/tools.php#errors');
     }
     if ($do === 'clear_mail') {
-        @file_put_contents(APP_ROOT . '/data/mail-log.txt', '');
-        flash('Mail log cleared.');
+        $okc = @file_put_contents(APP_ROOT . '/data/mail-log.txt', '') !== false;
+        flash($okc ? 'Mail log cleared.' : 'Could not clear the mail log (file permissions?).', $okc ? 'ok' : 'err');
         redirect('admin/tools.php');
     }
 }

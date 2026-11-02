@@ -36,8 +36,8 @@ function welcome_back_summary(array $u): array
     arsort($crops);
     $now = now();
     $potsReady = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, $now]);
-    $jarsReady = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, $now]);
-    $racksReady = (int)q_val('SELECT COUNT(*) FROM dry_racks WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, $now]);
+    $jarsReady = (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, $now]);
+    $racksReady = (int)q_val('SELECT COUNT(*) FROM dry_racks WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, $now]);
     $notices = q('SELECT text, created_at FROM notices WHERE user_id = ? AND created_at > ? ORDER BY id DESC LIMIT 8', [$uid, $since])->fetchAll();
     $noticeN = (int)q_val('SELECT COUNT(*) FROM notices WHERE user_id = ? AND created_at > ?', [$uid, $since]);
     $goal = null;
@@ -88,7 +88,7 @@ function daily_card(array $u): ?array
     if (q_val('SELECT 1 FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, $now])) {
         $opts[] = ['pot', '🍲', 'A pot on your stove is ready. Collect it while it’s warm.', 'inventory.php?tab=craft&c=cooking', 'To the kitchen'];
     }
-    if (q_val('SELECT 1 FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, $now])) {
+    if (q_val('SELECT 1 FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, $now])) {
         $opts[] = ['jar', '🫙', 'A jar in your Pantry has finished. Take a look.', 'inventory.php?tab=craft&c=pantry', 'To the Pantry'];
     }
     if (q_val("SELECT 1 FROM player_friends WHERE friend_id = ? AND status = 'pending' LIMIT 1", [$uid])) {
