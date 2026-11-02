@@ -1,4 +1,4 @@
-# Gnome Venture handoff (current as of 2026-11-02; latest BUILT 2.4.65; prepared (not built) 2.4.66; slim zip in releases/; main is 2.4.63 at `5690b6c4`)
+# Gnome Venture handoff (current as of 2026-11-02; latest BUILT 2.4.65; latest BUILT 2.4.66 (slim zip, needs 2.4.65+); slim zip in releases/; main is 2.4.63 at `5690b6c4`)
 
 **2.4.66 (2026-11-02, branch `ccr-c58baef6-w75eu7`, PREPARED, NOT BUILT, NOT committed; no gameplay changes).** Studio review follow-up: phone header menu button hidden, 44 px status links, Satchel tidy, 182 dead CSS rules removed, `item_id_by_slug()`, shared zoom factory in `site.js` and shared petals/burst in `gvFx`. DONE and OPEN lists are in the `claude/todo.md` NOW block. Build only when Joshua says so (ASK first): `bash tests/build_update.sh 2.4.66 2.3.97 $PWD/releases slim`.
 

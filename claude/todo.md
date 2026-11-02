@@ -1,7 +1,7 @@
 # Gnome Venture: to-do (updated 2026-11-02, branch ccr-6b3ba1b1-2c15cp: 2.3.93 polish release built, not merged to main)
 
 
-## NOW (2.4.66, 2026-11-02): STUDIO REVIEW FOLLOW-UP. NOT BUILT
+## NOW (2.4.66, 2026-11-02): STUDIO REVIEW FOLLOW-UP. BUILT: slim zip releases/GnomeVenture-2.4.66-web-update.zip (needs 2.4.65+, 44 files), manifest tests/manifests/2.4.66.txt. Joshua uploads
 - **Prepared, not built. Not committed. No zip (ask Joshua first).** No gameplay changes. Version set in `bootstrap.php` only.
 - **DONE (CHANGELOG 2.4.66):** phone header menu button hidden (More opens the same menu); status-line links 44 px tap areas; Satchel repeated heading and Belt link removed, tile labels and badges larger; 182 unused CSS rules removed (~14 KB); `item_id_by_slug()` replaces 51 identical lookups; `site.js` zoom and pan share one factory; petals and burst shared in `gvFx`.
 - **OPEN:**
