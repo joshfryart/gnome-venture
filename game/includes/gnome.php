@@ -248,15 +248,25 @@ function add_xp(int $uid, int $n, string $source = ''): ?int
             }
         } catch (Throwable $e) { /* the log is optional */ }
     }
+    // v2.4.67: add the XP in the database (two awards at once no longer overwrite each other), then claim the level-up by the old level
+    q('UPDATE users SET xp = xp + ? WHERE id = ?', [$n, $uid]);
     $u = q_one('SELECT level, xp FROM users WHERE id = ?', [$uid]);
-    $xp = (int)$u['xp'] + $n;
+    $xp = (int)$u['xp'];
     $level = (int)$u['level'];
-    while ($xp >= xp_for_level($level + 1)) {
-        $level++;
+    $gained = 0;
+    $newLevel = $level;
+    while ($xp >= xp_for_level($newLevel + 1)) {
+        $newLevel++;
     }
-    $gained = $level - (int)$u['level'];
-    q('UPDATE users SET xp = ?, level = ?, stat_points = stat_points + ? WHERE id = ?',
-        [$xp, $level, $gained * (int)setting('stat_points_per_level'), $uid]);
+    if ($newLevel > $level) {
+        if (q('UPDATE users SET level = ?, stat_points = stat_points + ? WHERE id = ? AND level = ?',
+            [$newLevel, ($newLevel - $level) * (int)setting('stat_points_per_level'), $uid, $level])->rowCount() === 1) {
+            $gained = $newLevel - $level;
+            $level = $newLevel;
+        } else {
+            $level = (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]);   // another award levelled the gnome first
+        }
+    }
     if ($gained > 0) hp_full($uid);   // v2.3.5: a level up heals fully
     if ($earned > 0) mentors120_after_xp($uid, $earned, $source !== '' ? $source : (string)(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? 'other'), $level);   // v1.2.0: mentor share + graduation
     return $gained ? $level : null;

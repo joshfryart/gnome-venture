@@ -413,6 +413,7 @@ function settings_schema(): array
         'pj_min_level' => ['label' => 'Pal jobs: gnome level needed (v2.3.0)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 100],
         'pj_max_away' => ['label' => 'Pal jobs: pals out at once per gnome (v2.3.0)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],
         'pj_runs_per_day' => ['label' => 'Pal jobs: trips and delve runs per gnome per Hollow day (v2.3.0)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 50],
+        'ppal_delve_coin_pct' => ['label' => 'Pal Jobs: Petals a pal brings from a delve, as a percent of a player chest (v2.4.67; was 60)', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 200],
         'ppal_boons' => ['label' => 'Puzzle Pals: pals with a Boon use it instead of their calling skill (needs take-along on) (v2.3.8)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'ppal_party_max' => ['label' => 'Puzzle Pals: pals a gnome can take along (v2.0.88)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 3],
         'ppal_roster_size' => ['label' => 'Puzzle Pals: pals per picture (6 = 3 common, 2 uncommon, 1 rare; authored rosters are cut to this) (v2.0.88)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 6],
@@ -517,9 +518,9 @@ function settings_schema(): array
         'regrow_yield_percent' => ['label' => 'Perennials: harvests after the first give this % of the crop', 'type' => 'int', 'default' => '75', 'min' => 1, 'max' => 100],
         'regrow_xp_percent'  => ['label' => 'Perennials: harvests after the first give this % of the XP', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 100],
         'xp_steep_from'      => ['label' => 'Gnome levels: from this level on, each level needs extra XP', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],
-        'xp_steep_percent'   => ['label' => 'Gnome levels: extra XP needed per level past that point (%)', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 1000],   // v0.9.1: 10 -> 20
+        'xp_steep_percent'   => ['label' => 'Gnome levels: extra XP needed per level past that point (%)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 1000],   // v0.9.1: 10 -> 20
         // v0.9.7 mid/late game: action XP, easy roads, quick walks on roads far below you
-        'xp_action_scale_percent' => ['label' => 'Gnome levels: action XP (harvest, cook, craft, fight): extra % per gnome level past the XP-steep level (quest, chapter and milestone XP are not scaled)', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 1000],
+        'xp_action_scale_percent' => ['label' => 'Gnome levels: action XP (harvest, cook, craft, fight): extra % per gnome level past the XP-steep level (quest, chapter and milestone XP are not scaled)', 'type' => 'int', 'default' => '9', 'min' => 0, 'max' => 1000],
         'easy_roads_below'   => ['label' => 'Easy roads: on by default for gnomes below this level (used when upgrading older worlds; new gnomes start with it on; anyone can switch it any time on My Gnome)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 1000],
         'easy_roads_gap'     => ['label' => 'Easy roads: near-home encounters stay this many levels below the gnome (never bosses)', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 100],
         'low_road_gap'       => ['label' => 'Quick walks: a road whose top level is this many levels (or more) below the gnome is a quick walk', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],

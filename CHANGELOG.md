@@ -3,6 +3,8 @@
 ## 2.4.67
 - **Cooking: less waiting, less tapping.** Pots are now 3 / 4 / 5 for Kitchen I / II / III (was 2 / 3 / 4). A pot now holds 1 / 3 / 5 meals and 1 / 1 / 2 feasts by Kitchen level (snacks still 5). New **Cook again** button on the pots row repeats the last dish into the free pots. Settings: `kitchen_pots`, `meal_batch_kitchen`, `feast_batch_kitchen`. Energy regen and max energy are unchanged.
 - **Blossom Cherry is now 2 × 2** like the oak and willow (was one square). Cherries already placed stay 1 × 1 until you place them again.
+- **Fixes.** XP awards at the same moment no longer overwrite each other (XP is added in the database; the level-up is claimed once). A double tap or second tab on a garden square now sees what the first one did, so it can't spend items or energy twice. Pal delve Petals are 40% of a player chest (was 60%; setting `ppal_delve_coin_pct`).
+- **Gentler late levels.** Steepness past level 10 is 15% (was 20%) and action XP grows 9% per level past 10 (was 5%). Gnomes already above the new thresholds level up on their next XP.
 - **Satchel: using an item keeps your place.** Eating, reading or mending from a Satchel sheet no longer closes the sheet. It stays open with the item's panel (or the sheet, if you used the last one). Pills and panels keep working after the in-place update.
 
 ## 2.4.66

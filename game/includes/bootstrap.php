@@ -100,6 +100,10 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 q('UPDATE items SET effects = ?, description = ? WHERE id = ?', [json_encode($fx, JSON_UNESCAPED_UNICODE), str_replace('Clouds of pink petals.', 'Clouds of pink petals, 2 × 2.', (string)$it['description']), (int)$it['id']]);
             }
         });
+        boot_step('xp_curve_2467', function () {   // v2.4.67: gentler climb, only where the row still holds the old default
+            if (q_val("SELECT value FROM settings WHERE name = 'xp_steep_percent'") === '20') set_setting('xp_steep_percent', '15');
+            if (q_val("SELECT value FROM settings WHERE name = 'xp_action_scale_percent'") === '5') set_setting('xp_action_scale_percent', '9');
+        });
         boot_step('ensure_tools', function () {
             require_once __DIR__ . '/tools.php';
             require_once __DIR__ . '/gathering.php';

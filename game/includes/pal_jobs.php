@@ -608,7 +608,7 @@ function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
     }
     $coins = 0; $items = [];
     if (!$fainted) {
-        $coins = (int)round(random_int(20 + 5 * $lvl, 40 + 10 * $lvl) * 0.6);
+        $coins = (int)round(random_int(20 + 5 * $lvl, 40 + 10 * $lvl) * max(0, (int)setting('ppal_delve_coin_pct')) / 100);
         $n = 1 + ($rng(100) < 50 ? 1 : 0);
         for ($i = 0; $i < $n; $i++) {
             $rare = $rng(100) < (int)round((20 + $lvl) * pj_rare_mult($a));   // v2.3.3: odds grow with Adventuring, no gate
@@ -693,7 +693,7 @@ function pj_roll_delve_route(array $p, array $lm, int $potions, string $seed, st
     $coins = 0;
     $items = [];
     if (!$fainted) {
-        $coins = (int)round(random_int(20 + 5 * $lvl, 40 + 10 * $lvl) * 0.6) + $moleCoins;
+        $coins = (int)round(random_int(20 + 5 * $lvl, 40 + 10 * $lvl) * max(0, (int)setting('ppal_delve_coin_pct')) / 100) + $moleCoins;
         $n = 1 + ($rng(100) < 50 ? 1 : 0) + $extraFinds;
         for ($i = 0; $i < $n; $i++) {
             $rare = $rng(100) < 20 + $lvl && $a >= 5;

@@ -975,6 +975,12 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
 
     db()->beginTransaction();
     try {
+        // v2.4.67: claim the square (a write lock) and read it again, so a double tap or a second tab sees what the first one did
+        q('UPDATE plot_tiles SET x = x WHERE plot_id = ? AND user_id = ? AND x = ? AND y = ?', [(int)$t['plot_id'], $uid, $x, $y]);
+        $fresh = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? AND user_id = ? AND x = ? AND y = ?', [(int)$t['plot_id'], $uid, $x, $y]);
+        if (!$fresh) throw new UserError('That square isn’t part of your plot.');
+        $p = $fresh['plant_id'] ? q_one('SELECT * FROM plants WHERE id = ?', [$fresh['plant_id']]) : null;
+        $t = feed_tick(bed_tick(tile_grow(annotate_tile($fresh, $p), $p), $u));
         // 1. Check the rules
         switch ($action) {
             case 'till':
