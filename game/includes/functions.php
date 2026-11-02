@@ -699,6 +699,13 @@ function set_setting(string $name, string $value): void
 
 function load_current_user(): ?array
 {
+    // v2.4.71: expired guest gardens were only swept when a guest loaded a page (or one was made), so with no guest traffic they stayed forever.
+    // Any page load now sweeps them, at most once every 10 minutes.
+    if ((int)setting('guest_last_sweep') < time() - 600) {
+        set_setting('guest_last_sweep', (string)time());
+        require_once __DIR__ . '/guest.php';
+        try { guest_purge(true); } catch (Throwable $e) { error_log('guest sweep: ' . $e->getMessage()); }
+    }
     $id = (int)($_SESSION['uid'] ?? 0);
     if (!$id) {
         return null;
