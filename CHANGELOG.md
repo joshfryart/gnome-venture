@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.82
+- **Square panel, tidier.** The heading is now one line plus a status line (no more "Tilled" twice). The plant card is: name and tags, season / weather chips, the progress bar, ONE status line ("Growing · about 22 min left · water lasts 11h"), then Water / Dig up side by side; the long text (unstudied note, life, what it feeds on) is behind **About this plant**.
+- **Soil details, consolidated.** Fertility, soil life and water holds sit on one row; N-P-K has a one-line legend; the big care star box is gone (the stars are in the title) and the three care checks are small chips ("✔ Improver added", "✖ Soil life too low").
 ## 2.4.81
 - **No-till grade letter hidden on the yard.** The grade (F, D+, A ...) is no longer drawn on each no-till square, the same as the soil-care stars on tilled beds. It is still in the square's label and in the bed panel; the ⚠️ marker for a bed that needs care stays.
 ## 2.4.80

@@ -6711,3 +6711,23 @@ details.itmcell, label.itmcell { display: block; grid-row: auto; grid-template-r
 .pickgrid .itm .pccount:not([hidden]) { position: static; min-width: 0; padding: 1px 5px; background: var(--itm-ok); color: var(--itm-ok-ink); font: 800 11px/1.3 var(--font); box-shadow: 0 0 0 1px rgba(42, 26, 16, .6); }
 dialog.seedpop .stags .tag { font-size: 12px; }
 dialog.seedpop .sline b { font-weight: 700; font-size: 14px; }
+
+/* v2.4.82: square panel, tidier: one heading + status line, plant card with chips / bar / one status line / buttons in a row (prose behind "About this plant"),
+   soil details with the three stats on one line, a short N-P-K legend and the care checks as chips */
+.sqh { margin-bottom: 2px; }
+.sqsum { margin: 2px 0 6px; }
+.plantinfo .pihead { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 0 0 4px; }
+.plantinfo .pistat { margin: 4px 0 8px; font-weight: 600; }
+.plantinfo .piact { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.plantinfo .piact > form { margin: 0; }
+details.plantmore { margin-top: 8px; }
+details.plantmore > summary { cursor: pointer; font-weight: 700; min-height: 36px; display: flex; align-items: center; }
+details.plantmore p { margin: 4px 0; }
+.soilstats { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 6px; }
+.soilstats > span { flex: 1 1 28%; min-width: 0; padding: 4px 6px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+.soilstats small { display: block; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.npkwrap { margin: 4px 0 8px; }
+.npkwrap .npkleg { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.carebox { margin: 6px 0 4px; }
+.upkeepchips { display: flex; flex-wrap: wrap; gap: 4px; padding: 0; list-style: none; margin: 4px 0 6px; }
+.upkeepchips li { padding: 2px 8px; font-size: 12px; font-weight: 700; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
