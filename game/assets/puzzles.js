@@ -549,9 +549,10 @@ function pStart(){
 /* v2.0.88 Puzzle Pals: what a finished go released or earned (the server sends r.ppal only the first time) */
 function ppalLine(r){
   var p=r&&r.ppal; if(!p) return '';
-  if(p.trophy) return ' \ud83c\udfc6 An Expert trophy for '+p.title+'! It goes on your profile shelf.';
-  if(p.released) return ' The magic of the jigsaw is loose! '+p.released+' Puzzle Pals from '+p.title+' will wait at places on the map. Look for their stickers!';
-  return '';
+  var s='';
+  if(p.trophy) s+=' \ud83c\udfc6 An Expert trophy for '+p.title+'! It goes on your profile shelf.';
+  if(p.released) s+=' The magic of the jigsaw is loose! '+p.released+' Puzzle Pals from '+p.title+' will wait at places on the map. Look for their stickers!';
+  return s;
 }
 function pFinish(){
   var g=G, tk=g.ptok; g.ptok=null; if(!tk) return;
@@ -584,7 +585,7 @@ function startRun(){
 countSel.addEventListener('change',function(){
   if(!curId) return;
   saveCount(curId,parseInt(countSel.value,10)); setHash(curId,parseInt(countSel.value,10),true);
-  if(MODE && !TOUR){ clearSave(curId,G?G.total:0); clearSave(curId,parseInt(countSel.value,10)); skipResume=true; }   /* v2.0.87 E: a new tier starts fresh */
+  if(MODE && !TOUR){ if(G){ clearTimeout(saveT); G.dirty=false; } clearSave(curId,G?G.total:0); clearSave(curId,parseInt(countSel.value,10)); skipResume=true; }   /* v2.0.87 E: a new tier starts fresh */
   if(curUrl) start(curUrl);
 });
 if($('nexttier')) $('nexttier').addEventListener('click',function(){ var n=parseInt(this.getAttribute('data-n'),10); if(n&&curId){ setHash(curId,n,false); route(); } });
@@ -754,6 +755,7 @@ function resetStage(){
   for(var i=0;i<old.length;i++) old[i].remove();
   lift.style.transform=''; lift.className='';
   curUrl=null; curStill=null;
+  skipResume=false;
   G=null; curId=null; laidOnce=false; lastSW=0; lastSH=0;
   ghost.removeAttribute('src'); finalImg.removeAttribute('src'); finalImg.classList.remove('on'); finalImg.style.clipPath='';
   win.hidden=true; stage.classList.remove('won'); $('lk').hidden=true;

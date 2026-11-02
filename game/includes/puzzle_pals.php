@@ -320,8 +320,8 @@ function ppal_pal_units(array $pal, int $uid, int $picId): int
 }
 
 /**
- * A timed jigsaw was just DONE (server-verified by the caller: min time, drops, single-use token). Advanced (96) releases the picture's roster; Expert (216)
- * earns its trophy; Easy does nothing. Once per (gnome, picture) each. Skips guests, a closed feature, and (for players) a roster whose art is not ready.
+ * A timed jigsaw was just DONE (server-verified by the caller: min time, drops, single-use token). Advanced (96) or Expert (216), whichever is first, releases the
+ * picture's roster; Expert also earns its trophy; Easy does nothing. Once per (gnome, picture) each. Skips guests, a closed feature, and (for players) a roster whose art is not ready.
  * $src 'free' | 'tourney'. Returns what is NEW for the win card: ['title', 'released' => pals, 'trophy' => bool], or [] (also on any error: never breaks a finish).
  */
 function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $runId = 0): array
@@ -332,22 +332,29 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
         $pic = q_one("SELECT * FROM puzzle_pics WHERE id = ? AND kind = 'still'", [$picId]);
         if (!$pic) return [];
         $src = $src === 'tourney' ? 'tourney' : 'free';
-        $out = [];
-        if ($tier === 'advanced') {
-            if (!ppal_roster($pic) || (!is_admin() && !ppal_art_ready($pic))) return [];
+        // Advanced or Expert: whichever is finished first releases the roster (once per gnome and picture). Expert also earns the trophy.
+        $released = 0;
+        if (ppal_roster($pic) && (is_admin() || ppal_art_ready($pic))) {
             try {
                 db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => $picId, 'released_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
-            } catch (Throwable $e) { return []; }   // UNIQUE: released already
-            $out = ['title' => (string)$pic['title'], 'released' => count(ppal_roster($pic)), 'trophy' => false, 'mode' => 'map'];
+                $released = count(ppal_roster($pic));
+            } catch (Throwable $e) {}   // UNIQUE: released already
+        }
+        if ($released) {
             try { q('UPDATE users SET ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable $e) {}   // v2.0.92: the new roster gets its map spawns on the next page
             require_once __DIR__ . '/trade.php';
-            notify($uid, '🧩 The magic of the jigsaw is loose! ' . $out['released'] . ' Puzzle Pals from ' . $pic['title'] . ' will wait at places on the map. Look for their stickers.');
-        } else {
+            notify($uid, '🧩 The magic of the jigsaw is loose! ' . $released . ' Puzzle Pals from ' . $pic['title'] . ' will wait at places on the map. Look for their stickers.');
+        }
+        $trophy = false;
+        if ($tier === 'expert') {
             try {
                 db_insert('ppal_trophies', ['user_id' => $uid, 'pic_id' => $picId, 'earned_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
-            } catch (Throwable $e) { return []; }   // UNIQUE: trophy already
-            $out = ['title' => (string)$pic['title'], 'released' => 0, 'trophy' => true];
+                $trophy = true;
+            } catch (Throwable $e) {}   // UNIQUE: trophy already
         }
+        if (!$released && !$trophy) return [];
+        $out = ['title' => (string)$pic['title'], 'released' => $released, 'trophy' => $trophy];
+        if ($released) $out['mode'] = 'map';
         return $out;
     } catch (Throwable $e) {
         error_log('ppal_on_solve: ' . $e->getMessage());

@@ -371,7 +371,7 @@ function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
             $cls = 'tmt' . (($i === 0 || $j === 0 || $i === DM_VIEW - 1 || $j === DM_VIEW - 1) ? ' ring' : '');
             $label = '';
             $me = $x === $sc['x'] && $y === $sc['y'];
-            $tap = isset($lit[$y * $w + $x]) && !$busy;
+            $tap = $x >= 0 && $x < $w && $y >= 0 && $y < $h && isset($lit[$y * $w + $x]) && !$busy;
             if (!$seenIt || $t === ' ') $cls .= ' fog';
             elseif ($t === '#') $cls .= ' wall';
             else {

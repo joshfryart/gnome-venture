@@ -340,7 +340,7 @@ function pz_run_start(array $u, string $game, string $mode, int $size, array $si
     if (!pzgames_ensure()) return [false, 'Puzzles aren’t ready yet.', 0, 0, ''];
     $uid = (int)$u['id'];
     $day = game_day();
-    if (random_int(1, 50) === 1) q('DELETE FROM puzzle_runs WHERE started_at < ?', [gmdate('Y-m-d H:i:s', time() - 14 * 86400)]);   // old runs (the daily wins and streaks live in puzzle_wins)
+    if (random_int(1, 50) === 1) q("DELETE FROM puzzle_runs WHERE game <> 'jigsaw' AND started_at < ?", [gmdate('Y-m-d H:i:s', time() - 14 * 86400)]);   // old runs (the daily wins and streaks live in puzzle_wins; jigsaw rows hold personal bests)
     if ($mode !== 'practice') { $mode = 'daily'; $size = $dailySize; }
     if (!isset($sizes[$size])) $size = $dailySize;
     $n = (int)q_val("SELECT COUNT(*) FROM puzzle_runs WHERE user_id = ? AND game = ? AND day = ? AND mode = ?", [$uid, $game, $day, $mode]);

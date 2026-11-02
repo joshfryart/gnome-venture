@@ -43,8 +43,10 @@
     if (!pv || !btn || btn.disabled) { clearPreview(box); return; }
     var xy = (btn.value || '').split(',');
     var tx = parseInt(xy[0], 10), ty = parseInt(xy[1], 10);
+    var mw = num(box, 'data-mw'), mh = num(box, 'data-mh');
+    if (tx < 0 || ty < 0 || tx >= mw || ty >= mh) { clearPreview(box); return; }
     var T = num(box, 'data-tile') || 42, x0 = num(box, 'data-x0'), y0 = num(box, 'data-y0');
-    var path = bfs(box.getAttribute('data-open') || '', num(box, 'data-mw'), num(box, 'data-mh'), num(box, 'data-px'), num(box, 'data-py'), tx, ty);
+    var path = bfs(box.getAttribute('data-open') || '', mw, mh, num(box, 'data-px'), num(box, 'data-py'), tx, ty);
     clearPreview(box);
     for (var i = 0; i < path.length; i++) {
       var c = document.createElementNS(NS, 'circle');
