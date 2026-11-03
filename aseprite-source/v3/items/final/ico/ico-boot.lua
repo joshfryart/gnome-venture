@@ -26,12 +26,17 @@ local nU = X.pillow(upper, 3.6)
 upper:each(function(x, y)
   local k = K(x, y)
   local n = nU[k]
-  local nx, ny, nz = n[1], n[2], n[3]
-  if y < 35 then nx = nx + (x - 24.5) / 9 end                -- round shaft
-  if x > 36 then                                              -- domed toe
-    local u, v = (x - 44) / 12, (y - 42) / 7
-    nx, ny = nx + u * 0.9, ny + v * 0.8
-  end
+  -- shaft: true cylinder across x (lit left, shade right)
+  local u = max(-0.95, min(0.95, (x - 25) / 9.5))
+  local sx, sy, sz = u, -0.1, math.sqrt(1 - u * u)
+  -- foot: ellipsoid dome around the vamp/toe, blended in below the ankle
+  local du, dv = (x - 38) / 16, (y - 43) / 9
+  local q = max(0.05, 1 - du * du - dv * dv)
+  local fx, fy, fz = du, dv, math.sqrt(q)
+  local w = max(0, min(1, (y - 31) / 7)) * max(0, min(1, (x - 24) / 8))
+  local nx = sx * (1 - w) + fx * w + n[1] * 0.5
+  local ny = sy * (1 - w) + fy * w + n[2] * 0.5
+  local nz = sz * (1 - w) + fz * w
   nU[k] = { A.norm(nx, ny, nz) }
 end)
 -- grain speckle
@@ -40,7 +45,9 @@ upper:shrink(2):each(function(x, y)
   local k = K(x, y)
   if h < 0.035 then bias[k] = (bias[k] or 0) - 1 elseif h > 0.975 then bias[k] = (bias[k] or 0) + 1 end
 end)
-local iU = A.shadeN(c, upper, nU, LE, { bias = bias, cuts = { 0.2, 0.36, 0.52, 0.68, 0.84 } })
+local iU = A.shadeN(c, upper, nU, LE, { bias = bias, wrap = 0.15, cuts = { 0.14, 0.3, 0.46, 0.62, 0.95 } })
+-- tongue strip behind the laces (darker, recessed)
+for y = 15, 30 do for x = 32, 33 do if upper:has(x, y) then A.setI(c, iU, LE, x, y, (x == 32) and 2 or 3) end end end
 
 -- cool bounce under the toe
 upper:each(function(x, y)
