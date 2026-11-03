@@ -24,3 +24,6 @@ Batch 1: about 58k tokens per item (two passes). Batch 2: about 71k per item (si
 
 ## Known weak spots to fix later
 Seeds at 16 px reduce to a blob; ginseng seed leaf looks like cannabis; badger claw reads as a horn; hedgehog model looks like messy-haired kid; recolour rig loses eye contrast on dark skin.
+
+## Run 2 is split in 3 parts (2026-11-03)
+`rollout/run2-part1.json`, `part2`, `part3` (140 items each). Ready-to-paste Workflow args: `rollout/run2-part1.args.json` (tag B1), `part2` (B2), `part3` (B3). Launch each with the Workflow tool, `scriptPath` = `aseprite-source/v3/rollout/items-run.js` (single Opus pass, NO fix round, Sonnet drafts first), args = the contents of the args file. Different AIs can take different parts in parallel (they write to different files; they share the concurrency limit). Verify with `python3 rollout/check.py run2-part1.json`.
