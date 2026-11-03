@@ -1,0 +1,17 @@
+local D = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_dA6.lua")
+local HP, INK, CR, floor = D.HP, D.INK, D.CR, math.floor
+-- ico-mailbox: blue arched mailbox on a wooden post, red flag up, letter sticking out. quirk: a small bird perches on the roof.
+local c = D.new("ico-mailbox")
+D.lit(c:rect(28, 38, 34, 60), "wood", 1.5)
+D.lit(c:rect(22, 56, 40, 60), "wood", 1.5)
+local body = c:rect(10, 24, 50, 42):add(D.ell(30, 26, 20, 11)):cut(c:rect(0, 0, 63, 14))
+body:add(c:rect(10, 28, 50, 42))
+D.lit(body, D.BLUE, 5)
+D.fill(c:rect(11, 41, 49, 41), D.BLUE[1])
+D.lit(c:rect(44, 28, 49, 41), D.BLUE, 1)
+D.fill(D.ell(44, 33, 3, 4), D.BLUE[1])
+D.lit(c:rect(51, 14, 54, 38), D.RED, 1)
+D.lit(c:rect(51, 14, 59, 21), D.RED, 1.5)
+D.lit(c:poly{{8,36},{18,32},{20,40},{10,43}}, D.CREAM, 1)
+D.lit(D.ell(24, 16, 4, 3.5), D.ORG, 2) D.fill(D.ell(28, 14, 2.2, 2.2), D.ORG[4]) D.px(30, 14, D.GOLD[4]) D.px(29, 13, INK)
+D.fin()
