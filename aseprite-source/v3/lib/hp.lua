@@ -131,7 +131,7 @@ local function shadeSet(m, list, band)
   return sh
 end
 
--- c:part(mask, ramp, {band=2|3, noshade, pop={x,y,horizontal}, nopop, inner=true})
+-- c:part(mask, ramp, {band=2|3, noshade, pop={x,y,horizontal}, nopop, inner=true, sep=false})
 function Canvas:part(m, rampOrName, o)
   o = o or {}
   local r = ramp(rampOrName)
@@ -139,6 +139,7 @@ function Canvas:part(m, rampOrName, o)
   m:each(function(x, y) if inb(self, x, y) then list[#list+1] = { x, y } end end)
   if #list == 0 then return m end
   local col = {}
+  local tok = { r = r } -- owner token: one per part (ramp in .r)
   for _, p in ipairs(list) do col[K(p[1], p[2])] = r.base end
   -- inner line where touching a different earlier solid part
   local inner = {}
@@ -148,7 +149,9 @@ function Canvas:part(m, rampOrName, o)
         local nx, ny = p[1] + d[1], p[2] + d[2]
         if not m:has(nx, ny) and inb(self, nx, ny) then
           local ow = self.own[ny * self.w + nx]
-          if type(ow) == "table" and ow ~= r then inner[K(p[1], p[2])] = true break end
+          -- fix: ground shadow is not a part (was giving a doubled deep+ink line on the underside);
+          -- o.sep: also separate from earlier parts of the SAME ramp (rule 2: line where similar colours touch)
+          if type(ow) == "table" and ow ~= SHADOW and (ow.r ~= r or (o.sep and ow ~= tok)) then inner[K(p[1], p[2])] = true break end
         end
       end
     end
@@ -191,7 +194,7 @@ function Canvas:part(m, rampOrName, o)
       if pop[3] then col[K(pop[1] + 1, pop[2])] = r.hi else col[K(pop[1], pop[2] + 1)] = r.hi end
     end
   end
-  for k, hex in pairs(col) do local x, y = XY(k) if m:has(x, y) then self:put(x, y, hex, r) end end
+  for k, hex in pairs(col) do local x, y = XY(k) if m:has(x, y) then self:put(x, y, hex, tok) end end
   return m
 end
 
