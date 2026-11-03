@@ -12,7 +12,7 @@ local POD = { "#4a3226", "#74523a", "#9e7a4c", "#c4a062", "#e0c47e", "#f4e2a8" }
 local RED = { "#2e1020", "#4e1828", "#742432", "#9c3438", "#c4544a", "#e8866a" }
 local PEG = { "#5e4a36", "#8c7650", "#b8a374", "#dccb98", "#f2e6be" }
 local SOIL = { "#3a2622", "#5c3c2e", "#7e5638" }
-local COOL = "#6a4866"
+local COOL = "#7a3a5a"
 local CUTS = { 0.2, 0.36, 0.52, 0.68, 0.84 }
 
 -- seeds (drawn into masks first so the pod can be shaded by them)
