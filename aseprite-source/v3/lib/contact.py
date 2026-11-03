@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Contact sheet: python3 contact.py out.html a.png b.png ...   |   contact.py --compare out.html orig.png new.png [orig2 new2 ...]"""
+"""Contact sheet: python3 contact.py out.html a.png b.png ...   |   contact.py --compare out.html orig.png new.png [orig2 new2 ...]
+   |   contact.py --compare --p1 out.html orig.png p1.png new.png [...]  (triples: orig, pass 1, final)"""
 import sys, os, base64, html
 from PIL import Image
 
@@ -36,10 +37,17 @@ img{image-rendering:pixelated;display:block}"""
 def main(a):
     cmp_ = False
     if a and a[0] == "--compare": cmp_, a = True, a[1:]
+    p1 = False
+    if a and a[0] == "--p1": p1, a = True, a[1:]
     if len(a) < 2: sys.exit(__doc__)
     out, files = a[0], a[1:]
     body = ""
-    if cmp_:
+    if cmp_ and p1:
+        if len(files) % 3: sys.exit("--compare --p1 needs triples")
+        for i in range(0, len(files), 3):
+            o, q, n = files[i:i + 3]
+            body += '<div class="pair">%s%s%s</div>' % (item(o, " (orig)"), item(q, " (pass 1)"), item(n, " (final)"))
+    elif cmp_:
         if len(files) % 2: sys.exit("--compare needs pairs")
         for i in range(0, len(files), 2):
             o, n = files[i], files[i + 1]

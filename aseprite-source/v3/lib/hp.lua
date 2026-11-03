@@ -287,6 +287,21 @@ end
 ---------------------------------------------------------------- output
 local function toImage(c, scale)
   scale = scale or 1
+  if scale ~= floor(scale) then -- fractional nearest-neighbour (e.g. 1.5 for region thumbs)
+    local W, H = floor(c.w * scale + .5), floor(c.h * scale + .5)
+    local img = Image(W, H, ColorMode.RGB)
+    img:clear(app.pixelColor.rgba(0, 0, 0, 0))
+    local cache = {}
+    for ty = 0, H - 1 do for tx = 0, W - 1 do
+      local h = c.pix[min(c.h - 1, floor(ty / scale)) * c.w + min(c.w - 1, floor(tx / scale))]
+      if h then
+        local v = cache[h]
+        if not v then local r, g, b = hexrgb(h) v = app.pixelColor.rgba(r, g, b, 255) cache[h] = v end
+        img:putPixel(tx, ty, v)
+      end
+    end end
+    return img
+  end
   local img = Image(c.w * scale, c.h * scale, ColorMode.RGB)
   img:clear(app.pixelColor.rgba(0, 0, 0, 0))
   local cache = {}
@@ -313,8 +328,9 @@ function Canvas:save(o)
     spr:saveAs(o.aseprite) spr:close()
   end
   if o.png then
-    local spr = Sprite(self.w * scale, self.h * scale, ColorMode.RGB)
-    spr.cels[1].image = toImage(self, scale)
+    local img = toImage(self, scale)
+    local spr = Sprite(img.width, img.height, ColorMode.RGB)
+    spr.cels[1].image = img
     spr:saveCopyAs(o.png) spr:close()
   end
   return self
@@ -405,6 +421,69 @@ function HP.assertClean(c)
     error(string.format("HP.assertClean: offPalette=%d semi=%d blackWhite=%d", r.offPalette, r.semi, r.blackWhite), 2)
   end
   return r
+end
+
+---------------------------------------------------------------- scene helpers (opaque canvases)
+-- c:rim(mask, hex[, clipMask]) 1px ring just outside mask (4-neighbour). Ink edge / deep-tone edge
+-- for objects in opaque scenes, where finish{outline} has no transparent pixels to work on.
+function Canvas:rim(m, hex, clip)
+  local r = m:grow(1):cut(m)
+  if clip then r:clip(clip) end
+  self:fillMask(r, hex) return r
+end
+-- c:edgeIn(mask, hex) 1px line on the mask's own inner border (keeps the silhouette size).
+function Canvas:edgeIn(m, hex) local e = m:edge() self:fillMask(e, hex) return e end
+-- c:stripes(y0, y1, {hex,..}[, {weight,..}]) flat full-width bands, top to bottom, any ramps.
+function Canvas:stripes(y0, y1, cols, wts)
+  local tot, acc, h = 0, 0, y1 - y0 + 1
+  for i = 1, #cols do tot = tot + (wts and wts[i] or 1) end
+  local y = y0
+  for i, hex in ipairs(cols) do
+    acc = acc + (wts and wts[i] or 1)
+    local ye = (i == #cols) and y1 or (y0 + floor(h * acc / tot + .5) - 1)
+    for yy = y, ye do for x = 0, self.w - 1 do self:put(x, yy, hex) end end
+    y = ye + 1
+  end
+  return self
+end
+-- c:terrain(f, hex[, ybot, x0, x1]) fill each column x from f(x) down to ybot (default bottom). Returns mask.
+function Canvas:terrain(f, hex, ybot, x0, x1)
+  local m = HP.mask()
+  for x = x0 or 0, x1 or self.w - 1 do
+    for y = max(0, floor(f(x) + .5)), ybot or self.h - 1 do m:set(x, y) end
+  end
+  if hex then self:fillMask(m, hex) end
+  return m
+end
+-- c:cloud(x, y, w[, top, under]) puff cloud: 3 bumps, flat bottom, (x,y) = bottom-left, w >= 12.
+-- top = body colour (cream), under = 1 row flat underside tone (sky.hi / petal.hi). Returns mask.
+function Canvas:cloud(x, y, w, top, under)
+  local a = floor(w * .22 + .5)
+  local m = mEllipse(x + a, y - a + 1, a, a)
+    :add(mEllipse(x + floor(w * .48), y - floor(w * .3), floor(w * .27), floor(w * .3)))
+    :add(mEllipse(x + w - a - 1, y - a + 2, a, a - 1))
+    :clip(mRect(x, y - w, x + w - 1, y))
+  m:add(mRect(x + 1, y - 1, x + w - 2, y))
+  self:fillMask(m, top or P.cream)
+  if under then for xx = x, x + w - 1 do if m:has(xx, y) then self:put(xx, y, under) end end end
+  return m
+end
+-- HP.cells(c, cols, rows[, quiet]) distinct colours per grid cell (jigsaw check). Returns {min=,grid={{..}}}.
+function HP.cells(c, cols, rows, quiet)
+  local cw, ch, res, mn = c.w // cols, c.h // rows, {}, 1e9
+  for r = 0, rows - 1 do
+    res[r + 1] = {}
+    for q = 0, cols - 1 do
+      local set, n = {}, 0
+      for y = r * ch, (r + 1) * ch - 1 do for x = q * cw, (q + 1) * cw - 1 do
+        local h = c.pix[y * c.w + x] if h and not set[h] then set[h] = true n = n + 1 end
+      end end
+      res[r + 1][q + 1] = n mn = min(mn, n)
+    end
+    if not quiet then print(string.format("  cells row %d: %s", r, table.concat(res[r + 1], " "))) end
+  end
+  if not quiet then print("  cells min distinct: " .. mn) end
+  return { min = mn, grid = res }
 end
 
 return HP

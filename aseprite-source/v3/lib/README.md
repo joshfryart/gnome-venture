@@ -15,7 +15,7 @@ Mask methods: `:add(m) :cut(m) :clip(m)` (mutate, return self), `:copy() :shift(
 `c:fillMask(mask, hex)` flat fill.
 
 ## Painting
-- `c:part(mask, ramp|"name", opts)` base, then ONE shade band lower-right (`band` default 2, 3 if mask >=600 px; auto-reduced if it would cover >45%; `noshade`), then the single pop (2x1 `hi`, upper-left interior; `pop={x=,y=,horizontal=true}`, `nopop`), then 1px `deep` line on pixels touching an earlier part of a different ramp (`inner=false` disables). Later parts paint over earlier ones.
+- `c:part(mask, ramp|"name", opts)` base, then ONE shade band lower-right (`band` default 2, 3 if mask >=600 px; auto-reduced if it would cover >45%; `noshade`), then the single pop (2x1 `hi`, upper-left interior; `pop={x=,y=,horizontal=true}`, `nopop`), then 1px `deep` line on pixels touching an earlier part of a different ramp (`inner=false` disables; `sep=true` also separates from earlier parts of the SAME ramp, e.g. a heap of berries). Ground shadow never triggers the inner line. Later parts paint over earlier ones.
 - `c:px(x,y,hex)`, `c:paint(rows,x,y,map)` (map char -> "#hex" | "ramp.tone"; `.`/space = skip), `c:sparkle(x,y)` (cream plus, centre x,y)
 - `c:eyeSmall(x,y)` top-left of 2x3 ink pill + cream glint upper-left; `c:eyeLocked(x,y)` top-left of 5x5 cream disc (cut corners), 3x3 ink pupil, glint on pupil upper-left
 - `c:cheek(x,y)` 2x1 petal base (top-left); `c:stitch(points)` gold dashes 2 on 1 off along polyline; `c:button(x,y)` 3x3 gold centred
@@ -29,4 +29,4 @@ Mask methods: `:add(m) :cut(m) :clip(m)` (mutate, return self), `:copy() :shift(
 - `HP.report(c|Image)` prints and returns {w,h,bbox,margin,distinct,offPalette,semi,blackWhite,isolated}; `HP.assertClean(c)` errors on off-palette / semi / pure black or white (ink and cream allowed).
 
 ## contact.py
-`python3 contact.py out.html a.png b.png ...`; `python3 contact.py --compare out.html orig.png new.png [o2 n2 ...]`. Standalone HTML, pixelated, 100% / x2-x4 / 50% on grey and dark.
+`python3 contact.py out.html a.png b.png ...`; `python3 contact.py --compare out.html orig.png new.png [o2 n2 ...]`; `--compare --p1 out.html orig p1 final [...]` for triples. Standalone HTML, pixelated, 100% / x2-x4 / 50% on grey and dark.
