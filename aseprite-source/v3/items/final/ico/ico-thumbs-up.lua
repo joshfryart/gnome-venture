@@ -70,8 +70,6 @@ end)
 -- rolled lip: a lighter 2 px band at the cuff opening
 for y = 28, 56 do c:put(16, y, M[5]) c:put(17, y, M[3]) c:put(18, y, M[2]) end
 c:put(16, 28, M[6]) c:put(16, 29, M[6])
--- loose yarn twist at the bottom of the cuff
-c:put(10, 58, M[4]) c:put(11, 59, M[2])
 
 -- quirk: tiny gold ring on the little finger
 for y = 49, 55 do c:put(39, y, D.GOLD[4]) c:put(40, y, D.GOLD[2]) end
