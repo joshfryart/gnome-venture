@@ -40,3 +40,8 @@ Future villages need one 160x100 scene each (fallback: landscape emoji on a flat
 - Hiding Wren's text behind "More" may drop the gentle-roads/level info; confirm with game-designer.
 - Emoji vary by platform; real item icons (name_emoji) may differ in width.
 - Mockup uses inline style for swatch colours; production must use classes/data attributes (CSP).
+
+## Update: Wren bubble + welcome basket
+- Wren portrait (72x72) now sits inside the speech-bubble box, tail pointing down-left. One shared component, all 3 steps.
+- Step 2: village cards lose their item icons. A woven "welcome basket" sits below the cards; it holds the selected village's items as big slots with x-N badges and names. Tapping a card swaps the contents (items drop in with a short staggered pop, off under prefers-reduced-motion). `aria-live=polite` announces the change.
+- Extra art: none required (basket is CSS weave; optional pixel basket rim later). Mockup states: `index.html#s2` (Poppyburrow), `#s2h` (Honeybrook); screenshots step2.png, step2-honeybrook.png.

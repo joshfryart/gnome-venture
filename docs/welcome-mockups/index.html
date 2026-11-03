@@ -24,10 +24,12 @@ body.only .frame.show{display:flex}
 .ph{border:2px solid #e00;background:repeating-linear-gradient(45deg,rgba(238,0,0,.05) 0 6px,transparent 6px 12px);display:flex;align-items:flex-end;justify-content:center;font-size:11px;line-height:1.2;color:#e00;font-weight:700;padding:3px;text-align:center}
 .ex{border:2px dashed var(--line-2);background:var(--brand-soft);display:flex;align-items:flex-end;justify-content:center;font-size:11px;color:var(--ink-2);padding:3px;text-align:center}
 /* Wren */
-.wren{display:flex;align-items:flex-start;gap:8px;width:100%;text-align:left}
-.wren .ph{flex:0 0 96px;height:96px}
-.bubble{flex:1;background:var(--surface);border:2px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;padding:10px 12px;font-size:15px;line-height:1.35;position:relative}
-.bubble:before{content:"";position:absolute;left:-10px;top:30px;width:10px;height:12px;background:var(--ol);clip-path:polygon(100% 0,0 50%,100% 100%)}
+.wren{width:100%;text-align:left;position:relative;padding-bottom:12px}
+.bubble{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:2px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;padding:10px;font-size:15px;line-height:1.35;position:relative}
+.bubble .ph{flex:0 0 72px;height:72px}
+.bubble .txt{flex:1;min-width:0}
+.bubble:before{content:"";position:absolute;left:28px;bottom:-14px;width:18px;height:14px;background:var(--ol);clip-path:polygon(0 0,100% 0,0 100%)}
+.bubble:after{content:"";position:absolute;left:31px;bottom:-9px;width:12px;height:10px;background:var(--surface);clip-path:polygon(0 0,100% 0,0 100%)}
 .bubble b{color:var(--brand)}
 .more{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);min-width:var(--tap);padding:0 10px;color:var(--muted);font-weight:700;font-size:14px;background:none;border:0;cursor:pointer}
 /* stage */
@@ -50,6 +52,19 @@ body.only .frame.show{display:flex}
 .slot{width:36px;height:36px;background:var(--surface-2);border:2px solid var(--line-2);display:grid;place-items:center;font-size:20px;position:relative}
 .plus{font-size:12px;font-weight:700;color:var(--muted);padding:0 4px}
 .hint{font-size:13px;color:var(--muted);margin:0}
+/* welcome basket */
+.basket{width:100%;position:relative;margin-top:2px}
+.basket .lid{display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:15px;color:var(--ink-2);min-height:28px}
+.basket .weave{border:2px solid var(--ol);border-top:0;background:repeating-linear-gradient(90deg,#d9b27a 0 10px,#c79c60 10px 12px),#d9b27a;box-shadow:var(--drop) 3px 3px 0;padding:10px 10px 12px;position:relative}
+.basket .weave:before{content:"";position:absolute;left:-2px;right:-2px;top:-8px;height:10px;background:#a9743f;border:2px solid var(--ol)}
+.basket .inner{background:var(--surface-2);border:2px solid var(--ol);padding:10px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px 6px;min-height:150px;align-content:start}
+.basket .item{display:flex;flex-direction:column;align-items:center;gap:4px;animation:pop .25s ease-out both}
+.basket .item .slot{width:52px;height:52px;font-size:28px;background:var(--surface);border-color:var(--ol)}
+.basket .item .badge{font-size:11px;line-height:16px;padding:0 4px}
+.basket .item small{font-size:11px;line-height:1.1;color:var(--ink-2);text-align:center}
+.basket .art{position:absolute;right:0;top:-2px;width:84px;height:30px;font-size:9px;padding:1px;align-items:center;background:var(--bg)}
+@keyframes pop{from{transform:translateY(-14px) scale(.7);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.basket .item{animation:none}}
 /* pack tiles */
 .packs{width:100%;display:flex;flex-direction:column;gap:10px}
 .pack{background:var(--surface);border:2px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;padding:8px;text-align:left}
@@ -77,9 +92,8 @@ body.only .frame.show{display:flex}
   <div class="main">
     <div class="prog" role="img" aria-label="Step 1 of 3: your gnome"><i class="now">🧙</i><b></b><i>🏡</i><b></b><i>🌱</i></div>
     <div class="wren">
-      <div class="ph">Wren portrait 96x96</div>
-      <div class="bubble">Well now! A brand-new gnome, fresh out of the toadstool. <b>Who are you?</b>
-        <button class="more" aria-expanded="false">More ▾</button></div>
+      <div class="bubble"><div class="ph">Wren portrait 72x72</div><div class="txt">Well now! A brand-new gnome, fresh out of the toadstool. <b>Who are you?</b>
+        <button class="more" aria-expanded="false">More ▾</button></div></div>
     </div>
     <div class="stage">
       <div class="ph bg">Stage backdrop (meadow + mushroom ring) 380x230</div>
@@ -112,23 +126,23 @@ body.only .frame.show{display:flex}
   <div class="main">
     <div class="prog" role="img" aria-label="Step 2 of 3: village"><i class="done">✓</i><b class="done"></b><i class="now">🏡</i><b></b><i>🌱</i></div>
     <div class="wren">
-      <div class="ph">Wren portrait 96x96</div>
-      <div class="bubble">Lovely to meet you, <b>Bramble</b>! Where shall we plant your first garden in the <b>Maplewold</b>?
-        <button class="more" aria-expanded="false">More ▾</button></div>
+      <div class="bubble"><div class="ph">Wren portrait 72x72</div><div class="txt">Lovely to meet you, <b>Bramble</b>! Where shall we plant your first garden in the <b>Maplewold</b>?
+        <button class="more" aria-expanded="false">More ▾</button></div></div>
     </div>
     <div class="vcards" role="radiogroup" aria-label="Village">
-      <div class="vcard on" role="radio" aria-checked="true" tabindex="0">
+      <div class="vcard on" role="radio" aria-checked="true" tabindex="0" data-v="poppy">
         <div class="ph">Poppyburrow village scene 160x100</div>
         <h3>Poppyburrow</h3>
-        <div class="heroes"><span class="slot">🫛</span><span class="slot">🥕</span><span class="slot">🍓</span><span class="plus">+5</span></div>
       </div>
-      <div class="vcard" role="radio" aria-checked="false" tabindex="0">
+      <div class="vcard" role="radio" aria-checked="false" tabindex="0" data-v="honey">
         <div class="ph">Honeybrook village scene 160x100</div>
         <h3>Honeybrook</h3>
-        <div class="heroes"><span class="slot">🌻</span><span class="slot">🍯</span><span class="slot">🫐</span><span class="plus">+4</span></div>
       </div>
     </div>
-    <p class="hint">Each village sends you off with its own welcome basket.</p>
+    <div class="basket" aria-live="polite">
+      <div class="lid"><span>🧺</span><span id="bk-title">Poppyburrow's welcome basket</span></div>
+      <div class="weave"><div class="inner" id="bk"></div></div>
+    </div>
     <p class="hint">Roads here are gentle. Further out, the world gets wilder.</p>
   </div>
   <div class="cta"><button class="btn">Next: name your garden →</button><a class="back" href="#s1">← Back</a></div>
@@ -140,8 +154,7 @@ body.only .frame.show{display:flex}
   <div class="main">
     <div class="prog" role="img" aria-label="Step 3 of 3: first garden"><i class="done">✓</i><b class="done"></b><i class="done">✓</i><b class="done"></b><i class="now">🌱</i></div>
     <div class="wren">
-      <div class="ph">Wren portrait 96x96</div>
-      <div class="bubble"><b>Poppyburrow</b> it is! Every good garden needs a name.</div>
+      <div class="bubble"><div class="ph">Wren portrait 72x72</div><div class="txt"><b>Poppyburrow</b> it is! Every good garden needs a name.</div></div>
     </div>
     <input class="nameinput" aria-label="Garden name" value="Bramble's Garden">
     <div class="stats">
@@ -162,6 +175,14 @@ body.only .frame.show{display:flex}
 </section>
 </div>
 <script>
-if (/^#s[123]$/.test(location.hash)) { document.body.classList.add('only'); document.querySelector(location.hash).classList.add('show'); }
+if (/^#s[123]h?$/.test(location.hash)) { document.body.classList.add('only'); document.querySelector(location.hash.replace('h','')).classList.add('show'); }
+
+const BK={
+ poppy:{n:"Poppyburrow",i:[["☘️","Four-leaf Clover",1],["🍯","Wild Honeycomb",1],["🍓","Wild Strawberries",1],["🌾","Meadowsweet",1],["🌾","Wild Rice Seeds",2],["🍓","Raspberry",2]]},
+ honey:{n:"Honeybrook",i:[["☘️","Four-leaf Clover",1],["🍯","Wild Honeycomb",1],["🍓","Wild Strawberries",1],["🌾","Meadowsweet",1],["🌳","Apple Seedling",2],["🍎","Apple",2]]}};
+function fill(k){const b=document.getElementById('bk');if(!b)return;document.getElementById('bk-title').textContent=BK[k].n+"'s welcome basket";
+ b.innerHTML=BK[k].i.map((x,j)=>`<div class="item" style="animation-delay:${j*60}ms"><span class="slot">${x[0]}<i class="badge">×${x[2]}</i></span><small>${x[1]}</small></div>`).join('');}
+document.querySelectorAll('.vcard').forEach(c=>{const pick=()=>{document.querySelectorAll('.vcard').forEach(o=>{o.classList.toggle('on',o===c);o.setAttribute('aria-checked',o===c)});fill(c.dataset.v)};c.addEventListener('click',pick);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}})});
+const first=location.hash==='#s2h'?'honey':'poppy';document.querySelectorAll('.vcard').forEach(o=>{o.classList.toggle('on',o.dataset.v===first);o.setAttribute('aria-checked',o.dataset.v===first)});fill(first);
 </script>
 </body></html>
