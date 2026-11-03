@@ -38,7 +38,7 @@ A.map(c, { "4555", "3.24", "3..4", "3224", "2..3", "2..3" }, 21, 19, { ["2"] = W
 
 -- top roll: paper cylinder on a dowel with knobs
 local rm, rn = X.cyl(17, 12.5, 47, 12.5, function() return 3.3 end)
-local ridx = A.shade(c, rm, rn, PA, { tok = ptok })
+local ridx = A.shade(c, rm, rn, PA, { tok = ptok, cuts = { 0.3, 0.46, 0.62, 0.78, 0.92 } })
 -- paper end edges (spiral lip)
 for y = 10, 15 do A.step(c, ridx, PA, 17, y, -1, ptok) A.step(c, ridx, PA, 47, y, -2, ptok) end
 for _, e in ipairs{ { 11, 16 }, { 48, 53 } } do
@@ -55,7 +55,7 @@ c:put(9, 11, WD[6], wtok) c:put(10, 10, WD[6], wtok)
 
 -- bottom curl: thicker roll, right end shows the paper spiral
 local bm, bnn = X.cyl(18, 49.5, 46, 49.5, function() return 3.6 end)
-local bidx = A.shade(c, bm, bnn, PA, { tok = ptok })
+local bidx = A.shade(c, bm, bnn, PA, { tok = ptok, cuts = { 0.3, 0.46, 0.62, 0.78, 0.92 } })
 for x = 20, 44 do A.step(c, bidx, PA, x, 46, 1, ptok) end        -- lip where the sheet wraps over
 for y = 47, 52 do A.step(c, bidx, PA, 18, y, -1, ptok) end
 -- spiral end cap at the right
@@ -75,13 +75,14 @@ A.map(c, spiral, 45, 46, cp, ptok)
 -- quirk: bookworm peeking out of the spiral hole
 local qtok = A.tok("worm")
 A.map(c, {
-  ".34.",
-  "3443",
-  "2332",
-  "122.",
-}, 47, 44, { ["1"] = WORM[1], ["2"] = WORM[2], ["3"] = WORM[3], ["4"] = WORM[4] }, qtok)
-c:put(49, 45, A.INK, qtok)
-c:put(50, 46, "#f5809f", qtok)
+  ".344",
+  "34443",
+  "23332",
+  ".122.",
+}, 48, 47, { ["1"] = WORM[1], ["2"] = WORM[2], ["3"] = WORM[3], ["4"] = WORM[4] }, qtok)
+c:put(50, 48, A.INK, qtok) c:put(50, 47, A.INK, qtok)
+c:put(51, 49, "#f5809f", qtok)
+c:put(52, 49, WORM[1], qtok)
 
 -- wax seal with ribbon tails, pressed onto the sheet bottom
 local rtok = A.tok("ribbon")
