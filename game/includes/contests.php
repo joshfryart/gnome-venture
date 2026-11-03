@@ -216,8 +216,9 @@ function contests_hub_rows(array $u): array
     $rows = [];
     // Village Show (weekly)
     $crop = show_crop();
-    $in = (bool)q_val('SELECT 1 FROM show_entries WHERE week = ? AND user_id = ?', [job_period_key('weekly'), $uid]);
-    $rows[] = ['🏅', 'Village Show', 'This week: ' . SHOW_CROPS[$crop][0] . '.',
+    $in = (bool)q_val('SELECT 1 FROM show_entries WHERE week = ? AND user_id = ? UNION ALL SELECT 1 FROM arrangement_entries WHERE week = ? AND user_id = ?',
+        [job_period_key('weekly'), $uid, job_period_key('weekly'), $uid]);   // T2.1: the Arrangements class is on the same page
+    $rows[] = ['🏅', 'Village Show', 'This week: ' . SHOW_CROPS[$crop][0] . ', and flower arrangements.',
         'Closes in ' . nice_time(job_period_left('weekly')), $in, 'show.php', $in ? 'View' : 'Enter'];
     // Grand Harvest Fair (monthly)
     $n = (int)q_val('SELECT COUNT(*) FROM fair_entries WHERE user_id = ? AND month = ?', [$uid, job_period_key('monthly')]);

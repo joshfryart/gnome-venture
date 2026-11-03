@@ -55,7 +55,7 @@ BPLOT=$(db "SELECT id FROM plots WHERE user_id=$BID"); TPLOT=$(db "SELECT id FRO
 A=$T/a; B=$T/b; TH=$T/t; login $A sprout; login $B bloom; login $TH thistle
 
 echo "== 1. townsfolk on every board"
-for pg in show.php fair.php gotm.php 'arrange.php?t=show' race.php; do get $A "$pg" >/dev/null; n=$(grep -c 'class="tfolk"' $H); gt "townsfolk on $pg" "$n" 0; done
+for pg in show.php fair.php gotm.php race.php; do get $A "$pg" >/dev/null; n=$(grep -c 'class="tfolk"' $H); gt "townsfolk on $pg" "$n" 0; done
 dbx "UPDATE settings SET value='1' WHERE name='carving_always'" ; dbx "INSERT OR IGNORE INTO settings (name,value) VALUES ('carving_always','1')"
 get $A carve.php >/dev/null; gt "townsfolk on carve.php" "$(grep -c 'class="tfolk"' $H)" 0
 get $A show.php >/dev/null; has "show note says gnomes only" $H 'Prizes and places are for gnomes only'
@@ -247,7 +247,7 @@ dbx "UPDATE settings SET value='2001-01-01' WHERE name='fest_opening_day_start'"
 get $A festival.php >/dev/null; has "switched off" $H 'No festival is on right now'; dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('festivals_on','1')"
 
 echo "== 7. pages render in both modes, no PHP errors"
-for pg in 'index.php?today=1' 'community.php?t=jar' 'community.php?t=about' pals.php 'pals.php?tab=requests' 'pals.php?tab=find' 'pals.php?tab=blocked' firstweek.php festival.php show.php fair.php gotm.php 'arrange.php?t=show' race.php carve.php 'profile.php?id='$BID 'profile.php?id='$QID "visit.php?g=$BPLOT" 'book.php?ch=Journey' games.php; do
+for pg in 'index.php?today=1' 'community.php?t=jar' 'community.php?t=about' pals.php 'pals.php?tab=requests' 'pals.php?tab=find' 'pals.php?tab=blocked' firstweek.php festival.php show.php fair.php gotm.php race.php carve.php 'profile.php?id='$BID 'profile.php?id='$QID "visit.php?g=$BPLOT" 'book.php?ch=Journey' games.php; do
   code=$(get $A "$pg"); [ "$code" = 200 ] && echo "  ok   $pg" || { echo "  FAIL $pg -> $code"; FAILS=$((FAILS+1)); }
 done
 echo "== php errors"

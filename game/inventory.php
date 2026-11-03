@@ -7,6 +7,12 @@ $u = require_login();
 require_once __DIR__ . '/includes/items.php';
 require_once __DIR__ . '/includes/crafting.php';
 require_once __DIR__ . '/includes/tools.php';
+if (($_GET['tab'] ?? '') === 'arrange') {   // T2.1: Arranging is a Satchel tab (it was arrange.php); its own buttons and live score
+    require_once __DIR__ . '/includes/arrange_view.php';
+    flowers_boot();
+    if (arrange_tab() === 'preview') arrange_preview($u);
+    if (is_post()) arrange_post($u);
+}
 if (is_post()) {
     csrf_check();
     if (($_POST['do'] ?? '') === 'read') {
@@ -41,17 +47,23 @@ if (is_post()) {
 }
 
 $tabNow = (string)($_GET['tab'] ?? '');
-$view = in_array($tabNow, ['craft', 'belt'], true) ? $tabNow : 'bag';   // v0.7.61: Satchel and Crafting share one page; v0.7.88: and the Toolbelt
-page_header(['craft' => 'Crafting', 'belt' => 'Toolbelt'][$view] ?? 'Satchel');
+$view = in_array($tabNow, ['craft', 'belt', 'arrange'], true) ? $tabNow : 'bag';   // v0.7.61: Satchel and Crafting share one page; v0.7.88: and the Toolbelt; T2.1: and Arranging
+page_header(['craft' => 'Crafting', 'belt' => 'Toolbelt', 'arrange' => 'Arranging'][$view] ?? 'Satchel');
 ?>
 <h1>👜 Your Satchel</h1>
 <nav class="tabs bagtabs tabs4">   <?php // v1.6.3: four equal columns, one row (icon over a short word) ?>
   <a class="<?= $view === 'bag' ? 'on' : '' ?>" href="<?= e(url('inventory.php')) ?>"><span aria-hidden="true">👜</span> Satchel</a>
   <a class="<?= $view === 'craft' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=craft')) ?>"><span aria-hidden="true">🔨</span> Crafting</a>
   <a class="<?= $view === 'belt' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=belt')) ?>"><span aria-hidden="true">🧰</span> Belt</a>
-  <a href="<?= e(url('arrange.php')) ?>"><span aria-hidden="true">💐</span> Arrange</a>
+  <a class="<?= $view === 'arrange' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=arrange')) ?>"><span aria-hidden="true">💐</span> Arrange</a>
 </nav>
-<?php if ($view === 'craft') {
+<?php if ($view === 'arrange') {
+    refresh_energy($u);
+    arrange_view($u, arrange_tab());
+    page_footer();
+    exit;
+}
+if ($view === 'craft') {
     refresh_energy($u);   // v0.7.88: the ×N buttons count the energy the gnome has now
     require_once __DIR__ . '/includes/craft_view.php';
     craft_view($u, (string)($_GET['c'] ?? ''));

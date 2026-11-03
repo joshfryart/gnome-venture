@@ -8,6 +8,7 @@ const UPGRADE_249_STEPS = [
     'bedgrowth' => 'Add 4 beds: price growth becomes 20% (only if it was still the old 50)',
     'marrowmax' => 'Guess the Weight: the jackpot grows to 10,000 at most (only if it was still the old 25,000)',
     'marrowgrow' => 'Guess the Weight: the jackpot grows 500 a day (only if it was still the old 1,000)',
+    'faircats' => 'Harvest Fair: this month\'s open Vegetables, Fruit, Grains and Herbs rows become one Produce row per gnome (their best)',
 ];
 
 /** Run every step that has not been done yet. Returns the names of the steps that are done afterwards. */
@@ -22,6 +23,10 @@ function upgrade_249_run(): array
                 if ($name === 'bedgrowth') q("UPDATE settings SET value = '20' WHERE name = 'bed_add_growth_pct' AND value = '50'");
                 if ($name === 'marrowmax') q("UPDATE settings SET value = '10000' WHERE name = 'marrow_jackpot_max' AND value = '25000'");
                 if ($name === 'marrowgrow') q("UPDATE settings SET value = '500' WHERE name = 'marrow_jackpot_grow' AND value = '1000'");
+                if ($name === 'faircats') {   // T2.1: six fair classes become three
+                    require_once __DIR__ . '/jobs.php'; require_once __DIR__ . '/fair.php';
+                    fair_merge_old_classes(job_period_key('monthly'));
+                }
             });
             set_setting($flag, '1');
             setting('__reload__');

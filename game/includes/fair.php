@@ -7,15 +7,14 @@ declare(strict_types=1);
  * the top 3 win ribbons and Petals, and the best entry of all wins Best in Show.
  */
 
-/** key => [icon, label, plant kinds that count for this category] */
+/** key => [icon, label, plant kinds that count for this category]. T2.1: three classes (was six), so each class has more gnomes in it. */
 const FAIR_CATS = [
-    'veg' => ['🥕', 'Vegetables', ['vegetable', 'tuber', 'legume']],
-    'fruit' => ['🍎', 'Fruit', ['fruit', 'tree', 'nut']],
+    'produce' => ['🧺', 'Produce', ['vegetable', 'tuber', 'legume', 'fruit', 'tree', 'nut', 'grain', 'herb', 'spice']],
     'flower' => ['🌻', 'Flowers', ['flower']],
-    'grain' => ['🌾', 'Grains', ['grain']],
-    'herb' => ['🌿', 'Herbs & spices', ['herb', 'spice']],
     'preserve' => ['🫙', 'Preserves', []],   // v0.9.8: no plant kinds: the best jar from your Pantry this month (see fair_keep_best, pantry_collect_one)
 ];
+/** T2.1: the classes before Produce. Labels only, so old ribbons and unjudged old months still read right; nobody can enter them. */
+const FAIR_CATS_OLD = ['veg' => 'Vegetables', 'fruit' => 'Fruit', 'grain' => 'Grains', 'herb' => 'Herbs & spices'];
 const FAIR_BIS = 'bis';                                  // Best in Show: a ribbon row only, never an entry
 const FAIR_XP = [1 => 30, 2 => 20, 3 => 10];              // XP for 1st, 2nd, 3rd (Petals come from settings)
 const FAIR_COLOURS = [1 => 'blue', 2 => 'red', 3 => 'yellow'];
@@ -31,7 +30,7 @@ function fair_cat(string $kind): ?string
 
 function fair_cat_label(string $cat): string
 {
-    return $cat === FAIR_BIS ? 'Best in Show' : FAIR_CATS[$cat][1];
+    return $cat === FAIR_BIS ? 'Best in Show' : (FAIR_CATS[$cat][1] ?? FAIR_CATS_OLD[$cat] ?? ucfirst($cat));
 }
 
 function fair_medal(int $place, string $cat): string
@@ -121,7 +120,7 @@ function fair_enter(array $u, string $cat): array
     $month = job_period_key('monthly');
     $best = q_one('SELECT b.score, b.plant_id, b.label, COALESCE(p.name, b.label) AS crop FROM fair_best b LEFT JOIN plants p ON p.id = b.plant_id
                    WHERE b.user_id = ? AND b.month = ? AND b.cat = ?', [$uid, $month, $cat]);
-    if (!$best) return [false, $cat === 'preserve' ? 'Collect a jar from your Pantry first. Your best one goes in.' : 'Harvest a ' . strtolower($label) . ' crop first. Your best one goes in.'];
+    if (!$best) return [false, $cat === 'preserve' ? 'Collect a jar from your Pantry first. Your best one goes in.' : 'Harvest ' . ($cat === 'produce' ? 'a vegetable, fruit, grain or herb' : 'a ' . strtolower($label) . ' crop') . ' first. Your best one goes in.'];
     $crop = (string)($best['crop'] ?? 'crop');
     $entry = q_one('SELECT id, score FROM fair_entries WHERE user_id = ? AND month = ? AND cat = ?', [$uid, $month, $cat]);
     if ($entry) {
@@ -172,7 +171,7 @@ function fair_judge(string $month): void
     }
     // v0.8.6: a small class (fewer gnomes than fair_min_entries) pays half prizes, and Best in Show needs that many gnomes in the whole fair
     $minEntries = max(1, (int)setting('fair_min_entries'));
-    foreach (array_keys(FAIR_CATS) as $cat) {
+    foreach (array_unique(array_merge(array_keys(FAIR_CATS), array_keys($byCat))) as $cat) {   // T2.1: an old month's old classes are judged too
         $rank = 0;
         $half = count($byCat[$cat] ?? []) < $minEntries;
         foreach ($byCat[$cat] ?? [] as $r) {
@@ -230,4 +229,26 @@ function fair_ribbons_html(int $uid): string
         $h .= '<span class="fair-ribbon" role="img" aria-label="' . e($title) . '" title="' . e($title) . '">' . $medal . '</span>';
     }
     return $h . '</div>';
+}
+
+/**
+ * T2.1 switchover (upgrade step upg249_faircats): this month's open Vegetables, Fruit, Grains and Herbs rows become one Produce row per gnome,
+ * keeping that gnome's best score (ties: the earlier one). fair_best and unjudged fair_entries only. Older unjudged months keep their old
+ * classes and are judged as they were entered. Safe to run again: once merged there is nothing left to merge.
+ */
+function fair_merge_old_classes(string $month): void
+{
+    $old = array_keys(FAIR_CATS_OLD);
+    $in = implode(',', array_fill(0, count($old), '?'));
+    foreach (['fair_best' => '', 'fair_entries' => ' AND placed IS NULL'] as $table => $open) {
+        $rows = q("SELECT id, user_id, cat FROM $table WHERE month = ? AND (cat IN ($in) OR cat = 'produce')$open ORDER BY user_id, score DESC, at, id",
+            array_merge([$month], $old))->fetchAll();
+        $keep = [];
+        foreach ($rows as $r) {
+            $who = (int)$r['user_id'];
+            if (!isset($keep[$who])) { $keep[$who] = $r; continue; }
+            q("DELETE FROM $table WHERE id = ?", [$r['id']]);   // a lower one: the gnome's best goes on as Produce
+        }
+        foreach ($keep as $r) if ($r['cat'] !== 'produce') q("UPDATE $table SET cat = 'produce' WHERE id = ?", [$r['id']]);
+    }
 }

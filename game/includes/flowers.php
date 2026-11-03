@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * v0.9.9 part A: flowers. Arranging cut and dried flowers into an Arrangement (a one-off item that draws itself as SVG), the weekly
  * Arrangements show, a drying rack (real hours, lazy like the Pantry jars), seed packets for mastered flowers, and volunteer shifts at
- * the florists. Art: flower_art.php. Page: arrange.php. Nothing here needs cron: every timer is a ready_at that is checked when read.
+ * the florists. Art: flower_art.php. Pages: the Satchel's Arrange tab (includes/arrange_view.php) and the Village Show (show.php). Nothing here needs cron: every timer is a ready_at that is checked when read.
  */
 require_once __DIR__ . '/flower_art.php';
 require_once __DIR__ . '/trade.php';       // mastered_plants(), notify()

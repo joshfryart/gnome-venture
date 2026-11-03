@@ -160,7 +160,7 @@ ok('notice names the preserve and the class', str_contains($note, 'Kimchi') && s
 $c1 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$a]);
 fair_judge($prev);
 ok('judging again pays nothing more', (int)q_val('SELECT coins FROM users WHERE id = ?', [$a]) === $c1);
-ok('fair_cat() never routes a harvest to Preserves', fair_cat('vegetable') === 'veg' && fair_cat('preserve') === null);
+ok('fair_cat() never routes a harvest to Preserves', fair_cat('vegetable') === 'produce' && fair_cat('preserve') === null);
 ok('ribbon label reads Preserves', fair_cat_label('preserve') === 'Preserves');
 
 echo "== jobs and callings: a preserve is a craft, never a meal\n";

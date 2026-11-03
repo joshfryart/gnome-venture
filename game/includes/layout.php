@@ -668,7 +668,7 @@ function nav_sheet(array $u, string $page): string
     $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
     $groups = [
         'You' => [['gnome.php', '🧙', 'My Gnome', '', 'gnome'], ['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
-        'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'], ['arrange.php', '💐', 'Arranging', '', 'arranging'],
+        'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'],   // T2.1: no Arranging tile (Satchel → Arrange, and the show is on the Village Show page)
             ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
         'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)

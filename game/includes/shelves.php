@@ -111,7 +111,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         }
         if ($i['category'] === 'arrangement' && ($comp = arrangement_of($i))) {
             $b .= '<div class="arrbig">' . arrangement_svg($comp, 'full', (string)$i['name']) . '</div>';
-            $acts[] = '<a class="btn alt" href="' . e(url('arrange.php?t=show')) . '">🎗️ Enter the weekly show</a>';
+            $acts[] = '<a class="btn alt" href="' . e(url('show.php#arrangements')) . '">🎗️ Enter the weekly show</a>';
         } elseif ($i['category'] === 'packet') {
             $acts[] = sh_bag_form('open_packet', $id, '📦 Open the packet', $hid);
             $quick = sh_bag_form('open_packet', $id, '📦 Open', $hid, 'btn small', true);
