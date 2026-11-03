@@ -1,118 +1,130 @@
--- ico-sword (final, Opus). Slim arming sword on the diagonal, tip upper-right.
--- Blade: diamond cross-section (lit upper-left bevel, shaded lower-right bevel), a sunk fuller with a dark
--- groove and lit lip, bright honed edge on the lit side, cool reflected light on the shade edge, a specular
--- streak and one glint near the tip. Gold crossguard with down-swept quillons and a ruby boss; leather grip
--- wrapped in a twisted cord (diagonal bands); gold pommel ball. AO on the blade and grip where they meet the guard.
--- quirk: the end of the grip cord has come loose and dangles.
+-- ico-sword (final, Opus, aR0_0). Slim arming sword on the diagonal, tip upper-right, bold enough for 16 px.
+-- Blade: diamond section toned per diagonal row (bright honed edge on the lit side, lit bevel, ridge, shade bevel,
+-- cool reflected light on the shade edge), a sunk fuller (dark wall, deep groove, lit lip) that stops short of the
+-- tip, a specular streak and one cream glint. Gold crossguard with forward-swept quillons ending in balls and a
+-- ruby boss; leather grip in a twisted cord wrap; gold pommel ball with a bevel ring. AO where blade, grip and
+-- pommel meet the guard.
+-- quirk: a little red tassel hangs from the pommel, its cord knotted.
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local A = dofile(DIR .. "/../_helpers/_aA10_4.lua")
+local A = dofile(DIR .. "/../_helpers/_aR0_0.lua")
 local HP, X, K = A.HP, A.X, A.K
 local floor, sqrt, max, min, abs = math.floor, math.sqrt, math.max, math.min, math.abs
 local c = A.new("ico-sword")
-local ST = { "#2e2c47", "#464766", "#686a88", "#9294ad", "#bec0d2", "#e4e6f0" }
-local GD = { "#6a3418", "#9a5520", "#cf8524", "#f0b030", "#ffd45a", "#fff0a0" }
-local LT = { "#2a1714", "#43251c", "#613722", "#814d2a", "#a46a36", "#c98a4a" }
-local CORD = { "#6a2e2a", "#a04a34", "#d27448", "#f0a06a" }
-local RUBY = { "#5e1530", "#a0203a", "#e8493b", "#ff9a7a" }
-local BOUNCE, SPEC = "#7a8cc0", "#fff4d6"
-local btok, gtok, ltok, ctok = { r = { name = "blade" } }, { r = { name = "gold" } }, { r = { name = "leath" } }, { r = { name = "cord" } }
+local ST = { "#2c2b46", "#46486a", "#6a6d90", "#979ab6", "#c4c7da", "#eceef6" }
+local GD = { "#6a3418", "#9a561e", "#cf8524", "#f2b232", "#ffd85e", "#fff2a6" }
+local LT = { "#2a1714", "#44261c", "#633923", "#86512c", "#aa6e3a", "#cf9050" }
+local RB = { "#4e1030", "#8a1a3a", "#c62a40", "#ee4a48", "#ff8a72", "#ffd0b8" }
+local TS = { "#5e1a30", "#9a2a3a", "#d0443e", "#f2725a" }
+local BOUNCE, SPEC = "#8396c8", "#fff4d6"
+local btok, gtok, ltok, rtok, ttok = { r = { name = "blade" } }, { r = { name = "gold" } }, { r = { name = "leath" } },
+  { r = { name = "ruby" } }, { r = { name = "tassel" } }
 
-local F = A.frame(12, 52, 1, -1)           -- u from the pommel toward the tip, v>0 lower-right
-local UMAX = 57
--- blade mask: u 17..UMAX, half width 2.7, tapering to the point over the last 9
-local bm, BV = HP.mask(), {}
+local F = A.frame(13, 51, 1, -1)   -- u: pommel -> tip ; v > 0 lower-right (shade side)
+local UMAX = 56.5
+local function rnd(x, y) return floor(x + .5), floor(y + .5) end
+
+-- blade
+local bm, BU, BJ = HP.mask(), {}, {}
 for y = 0, 63 do for x = 0, 63 do
   local u, v = F.UV(x, y)
-  if u >= 16.5 and u <= UMAX then
-    local w = 2.75
-    if u > UMAX - 10 then w = 2.75 * ((UMAX - u) / 10) ^ 0.8 + 0.15 end
-    if abs(v) <= w then bm:set(x, y) BV[K(x, y)] = { u, v, w } end
+  if u >= 17 and u <= UMAX then
+    local w = 3.0
+    if u > UMAX - 11 then w = 3.0 * ((UMAX - u) / 11) ^ 0.85 + 0.1 end
+    if u > UMAX - 1.2 then w = -1 end
+    if abs(v) <= w then bm:set(x, y) BU[K(x, y)] = u BJ[K(x, y)] = floor(v / 0.7071 + 0.5) end
   end
 end end
--- diamond section, toned per diagonal row j (v = j * 0.707 at 45 degrees): crisp bevels and fuller
+local OUTER = { [-4] = 6, [-3] = 5, [-2] = 5, [-1] = 5, [0] = 4, [1] = 3, [2] = 3, [3] = 3, [4] = 2 }
+local FULL  = { [0] = 1, [1] = 4 }
 local bidx = {}
-local ROW = { [-3] = 6, [-2] = 5, [-1] = 5, [0] = 2, [1] = 4, [2] = 3, [3] = 2 }
-bm:each(function(x, y) local k = K(x, y) local u, v = BV[k][1], BV[k][2]
-  local j = floor(v / 0.7071 + 0.5)
-  local i = ROW[j] or 3
-  local inFuller = u > 20.5 and u < 44
-  if not inFuller and (j == 0 or j == 1) then i = (j == 0) and 4 or 3 end
-  if u < 18.6 then i = max(1, i - 1) end
-  bidx[k] = i
-  c:put(x, y, ST[i], btok)
+bm:each(function(x, y) local k = K(x, y) local u, j = BU[k], BJ[k]
+  local i = OUTER[j] or 3
+  if u > 20 and u < 43 and FULL[j] then i = FULL[j] end
+  if u > 43 and u < 44.6 and j == 0 then i = 2 end            -- rounded end of the fuller
+  if u < 19.2 then i = max(1, i - 1) end                       -- AO at the guard
+  bidx[k] = i c:put(x, y, ST[i], btok)
 end)
-bm:edge():each(function(x, y) local k = K(x, y) local u, v = BV[k][1], BV[k][2]
-  if u > 19 and v > 0.5 and u < UMAX - 3 then c:put(x, y, BOUNCE, btok) end end)
--- specular streak on the lit bevel + glint near the tip
-for u = 25, 37 do local x, y = F.W(u, -1.414) c:put(floor(x + .5), floor(y + .5), ST[6], btok) end
-do local x, y = F.W(49, -1.414) c:put(floor(x + .5), floor(y + .5), SPEC, btok) end
+-- shade edge reflected light; outermost lit edge bright
+bm:edge():each(function(x, y) local k = K(x, y) local u = BU[k]
+  local _, v = F.UV(x, y)
+  if v > 0.6 and u > 20 and u < UMAX - 2 then c:put(x, y, BOUNCE, btok) end end)
+-- specular streak on the lit bevel and a glint near the tip
+for u = 24, 37 do local x, y = rnd(F.W(u, -2.0)) if bm:has(x, y) then c:put(x, y, ST[6], btok) end end
+do local x, y = rnd(F.W(47.5, -1.2)) c:put(x, y, SPEC, btok) end
 
--- grip: leather cylinder u 4.5..15, cord wraps as diagonal bands
-local ax, ay = F.W(4.5, 0) local bx, by = F.W(15.2, 0)
-local gm, gn, GT, GS = X.cyl(ax, ay, bx, by, function(t) return 1.9 - abs(t - 0.5) * 0.5 end)
+-- grip: leather in a twisted cord wrap
+local ax, ay = F.W(4.6, 0) local bx, by = F.W(15.0, 0)
+local gm, gn, GT, GS = X.cyl(ax, ay, bx, by, function(t) return 1.75 end)
 gm:cut(bm)
-local gidx = A.shade(c, gm, gn, LT, { amb = 0.1, wrap = 0.25, tok = ltok })
+local gb = {}
+gm:each(function(x, y) local k = K(x, y) local t = GT[k] if t > 0.86 or t < 0.08 then gb[k] = -1 end end)
+local gidx = A.shade(c, gm, gn, LT, { amb = 0.12, wrap = 0.3, bias = gb, tok = ltok })
 gm:each(function(x, y) local k = K(x, y)
   local u = F.UV(x, y)
-  local ph = (u + GS[k] * 1.3) / 2.2
-  local f = ph - floor(ph)
+  local f = ((u + GS[k] * 1.6) / 2.3) % 1
   local i = gidx[k] or 3
-  if f < 0.22 then c:put(x, y, LT[max(1, i - 2)], ltok)            -- gap between turns
-  elseif f < 0.5 then c:put(x, y, CORD[min(4, max(1, i - 1))], ctok) -- cord turn
-  end
+  if f < 0.24 then c:put(x, y, LT[max(1, i - 2)], ltok)
+  elseif f > 0.36 and f < 0.62 and GS[k] < 0.2 then c:put(x, y, LT[min(6, i + 1)], ltok) end
 end)
 
--- crossguard: two down-swept quillons along v, centred at u = 16
-local cg = HP.mask()
-local cgn, CGs = {}, {}
-local function quillon(side)
-  local p = { F.P(16, 0), F.P(16, side * 4), F.P(15.6, side * 6.5), F.P(14.8, side * 8.6) }
-  local m, n, T, S = A.tube(p, function(t) return t > 0.86 and 1.9 or 1.45 end)
-  for k, v in pairs(n) do cgn[k] = v CGs[k] = T[k] end
-  cg:add(m)
-end
-quillon(-1) quillon(1)
--- boss block at the centre (bevelled diamond)
-local boss = HP.mask()
+-- crossguard: forward-swept bar with ball ends
+local cg, cgn = HP.mask(), {}
 for y = 0, 63 do for x = 0, 63 do
   local u, v = F.UV(x, y)
-  if abs(u - 16) + abs(v) * 0.9 <= 2.6 then boss:set(x, y) end
+  if abs(v) <= 8.2 then
+    local u0 = 16.2 + 0.035 * v * v
+    local s = (u - u0) / 1.55
+    if abs(s) <= 1 then cg:set(x, y)
+      local sn = max(-0.95, min(0.95, s))
+      cgn[K(x, y)] = { A.norm(F.dx * sn, F.dy * sn, sqrt(1 - sn * sn)) } end
+  end
 end end
-local bsn = X.pillow(boss, 1.6)
-local gb = {}
-X.ao(gb, cg:copy():cut(boss), boss, 1, -1)
-cg:cut(boss)
-local cidx = A.shade(c, cg, cgn, GD, { amb = 0.1, wrap = 0.3, bias = gb, tok = gtok })
-A.shade(c, boss, bsn, GD, { amb = 0.12, wrap = 0.3, tok = gtok })
--- quillon end knobs: bright cap
-for _, sd in ipairs({ -1, 1 }) do local x, y = F.W(14.8, sd * 8.6) local xi, yi = floor(x + .5), floor(y + .5)
-  if sd < 0 then c:put(xi, yi, GD[6], gtok) else c:put(xi, yi, GD[3], gtok) end end
--- ruby set in the boss
-do local x, y = F.W(16, 0) local xi, yi = floor(x + .5), floor(y + .5)
-  c:put(xi, yi, RUBY[3], gtok) c:put(xi - 1, yi, RUBY[4], gtok) c:put(xi, yi + 1, RUBY[2], gtok) c:put(xi - 1, yi + 1, RUBY[3], gtok)
-  c:put(xi, yi - 1, RUBY[3], gtok) c:put(xi + 1, yi, RUBY[2], gtok) c:put(xi - 1, yi - 1, SPEC, gtok) end
--- contact: dark row on the blade and grip where they touch the guard
-A.touch(bm, cg:copy():add(boss)):each(function(x, y) c:put(x, y, ST[1], btok) end)
-A.touch(gm, cg:copy():add(boss)):each(function(x, y) c:put(x, y, LT[1], ltok) end)
-
--- pommel ball
+for _, sd in ipairs({ -1, 1 }) do
+  local v = sd * 8.6 local u0 = 16.2 + 0.035 * v * v
+  local cx, cy = F.W(u0, v)
+  local em = HP.ellipse(cx - 0.5, cy - 0.5, 2.0, 2.0)
+  local en = X.sphere(cx - 0.5, cy - 0.5, 2.0, em)
+  em:each(function(x, y) cg:set(x, y) cgn[K(x, y)] = en[K(x, y)] end)
+end
+local cidx = A.shade(c, cg, cgn, GD, { amb = 0.12, wrap = 0.3, tok = gtok })
+-- ruby boss
 do
-  local px, py = F.W(2.4, 0)
-  local pm = c:ellipse(px, py, 2.6, 2.6)
-  pm:cut(gm)
-  local pn = X.sphere(px, py, 2.6, pm)
-  local pidx = A.shade(c, pm, pn, GD, { amb = 0.1, wrap = 0.25, tok = gtok })
-  A.touch(gm, pm):each(function(x, y) c:put(x, y, LT[1], ltok) end)
-  c:put(floor(px - 1.2 + .5), floor(py - 1.2 + .5), GD[6], gtok)
-  c:put(floor(px - 0.6 + .5), floor(py - 1.5 + .5), SPEC, gtok)
+  local cx, cy = F.W(16.4, 0)
+  local rm = HP.ellipse(cx - 0.5, cy - 0.5, 1.6, 1.6)
+  local ring = rm:grow(1):cut(rm)
+  ring:each(function(x, y) c:put(x, y, GD[2], gtok) end)
+  local rn = X.sphere(cx - 0.5, cy - 0.5, 1.6, rm)
+  A.shade(c, rm, rn, RB, { amb = 0.15, wrap = 0.3, tok = rtok })
+  local sx, sy = A.specAt(rm, rn, 30) c:put(sx, sy, RB[6], rtok)
 end
 
--- quirk: loose cord end dangling from the grip (2 px wide, twisted)
-do
-  local p = { F.P(6.5, 1.6), F.P(6.0, 3.5), F.P(4.5, 5.5), F.P(5.5, 8.0) }
-  local cm = A.tube(p, function(t) return 1.0 - t * 0.2 end)
-  cm:cut(gm)
-  cm:each(function(x, y) local f = ((x + y) % 3)
-    c:put(x, y, f == 0 and CORD[1] or (f == 1 and CORD[3] or CORD[2]), ctok) end)
-end
+-- pommel: gold ball with a bevel ring toward the grip
+local px, py = F.W(1.8, 0)
+local pm = HP.ellipse(px - 0.5, py - 0.5, 3.1, 3.1)
+pm:cut(gm)
+local pn = X.sphere(px - 0.5, py - 0.5, 3.1, pm)
+local pb = {}
+pm:each(function(x, y) local u = F.UV(x, y) if u > 3.6 then pb[K(x, y)] = -1 end end)
+A.shade(c, pm, pn, GD, { amb = 0.1, wrap = 0.25, bias = pb, tok = gtok })
+do local sx, sy = A.specAt(pm, pn, 30) c:put(sx, sy, GD[6], gtok) end
+-- neck ring between grip and pommel
+for v = -1.6, 1.6, 0.5 do local x, y = rnd(F.W(4.4, v)) c:put(x, y, v < 0 and GD[4] or GD[2], gtok) end
+
+-- quirk: knotted red tassel hanging from the pommel
+local tx, ty = rnd(F.W(-1.6, 0.9))
+local T = {
+  ".ab.",
+  ".bc.",
+  "..b.",
+  ".abc",
+  ".bcc",
+  "abbc",
+  "abcd",
+  "a.c.",
+}
+local TP = { a = TS[3], b = TS[2], c = TS[1], d = TS[1] }
+T[1] = ".ab."
+A.map(c, T, tx - 2, ty + 1, { a = TS[4], b = TS[3], c = TS[2], d = TS[1] }, ttok)
+c:put(tx - 1, ty + 4, GD[5], gtok) c:put(tx, ty + 4, GD[4], gtok)  -- gold cap on the tassel
+
 A.save(c, "ico-sword")
