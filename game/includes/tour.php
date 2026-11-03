@@ -207,7 +207,7 @@ function tour_box(int $step, int $ask = 0, int $arrived = 0): string
     [, $title, $text, $label, $link] = TOUR_STEPS[$step - 1];
     $fill = function (string $t): string {
         if (str_contains($t, '{energy}')) {   // v0.9.4: say what energy is
-            $t = str_replace('{energy}', (setting('tour_free_actions') === '1' ? 'Free during the tour. Later it costs 1 energy, and yours comes back ' : 'Costs 1 energy, and yours comes back ') . energy_rate_text() . '.', $t);
+            $t = str_replace('{energy}', (setting('tour_free_actions') === '1' ? 'Free during the tour.' : 'Costs 1 energy.') . "\n" . 'You recharge ' . energy_rate_text() . '.', $t);
         }
         // v0.7.85: placeholders filled from live data (the radish's real grow time)
         return str_contains($t, '{radish}') ? str_replace('{radish}', tour_grow_text('radish', 'a few minutes'), $t) : $t;

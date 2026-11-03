@@ -8833,7 +8833,7 @@ e4e8270d72dfd017f8d5279be77e6cbe5ae1c7bb  includes/stops.php
 a32ff5e0476e3e88e1c2c084075bd45714a7de01  includes/today_social.php
 363a1907460243c9fc225e8b983b4036fa216603  includes/today_view.php
 84b3db32297d86d2e4319b43a1ddb188ed8917c4  includes/tools.php
-7d6767b67395e3f3c81859e58f491719ed6512f1  includes/tour.php
+802c79fd1a00a7404e86afb49c92f833704a39f8  includes/tour.php
 d3ba56f57705de85e61a5701cd785892d5d1959d  includes/town.php
 109b6c5642cc97e18f0f076b1afafa9bd4f285e4  includes/town_social.php
 7d8734a96a8759ae15db447e7f1497310125e9dc  includes/townsfolk.php
