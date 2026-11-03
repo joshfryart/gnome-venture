@@ -70,16 +70,16 @@ give bladderwrack 2; give meadowsweet 1; give sphagnum 1; R7=$(db "SELECT id FRO
 TQ=$(db "SELECT COALESCE((SELECT qty FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$UID_ AND i.slug='garden-tonic'),0)"); [ "$TQ" = 2 ] || echo "FAIL garden tonic makes $TQ (want 2)"
 page "inventory.php?tab=craft&c=potions"; for w in flasks mortar cauldron book still; do grep -q "c=potions&amp;o=$w#shelves" $T/c.html || echo "FAIL potions scene has no o=$w object"; done   # v2.4.0: tag lists + popovers (were q= searches)
 page "inventory.php?tab=craft&c=potions&q=healing"; echo "healing search: $(grep -c 'shpill' $T/c.html) pills"
-echo "-- player uses: Satchel Drink for a healing tier, My Gnome Potions box, tonic pointer"
+echo "-- player uses: Satchel Drink for a healing tier, no My Gnome Potions box, Satchel boost potion, tonic pointer"
 dbx "UPDATE users SET hp=1, hp_at=datetime('now') WHERE id=$UID_"
 page "inventory.php"; grep -q 'Drink (+75% health)' $T/c.html || echo "FAIL satchel has no Drink for the Strong Healing Potion"
 grep -q 'Pour on a garden square' $T/c.html || echo "FAIL satchel has no Garden Tonic pointer"
 SID=$(db "SELECT id FROM items WHERE slug='strong-healing-potion'")
 curl -s -c $C -b $C -X POST "$BASE/inventory.php" --data-urlencode "csrf=$(csrf $T/c.html)" -d do=drink_heal -d item_id=$SID -o /dev/null
 HP=$(db "SELECT COALESCE(hp,'full') FROM users WHERE id=$UID_"); [ "$HP" != 1 ] && echo "satchel drink healed: hp $HP" || echo "FAIL satchel Drink did not heal (hp $HP)"
-give lucky-draught 1; page "gnome.php"; grep -q 'aria-label="Potions"' $T/c.html || echo "FAIL My Gnome has no Potions box ($(grep -o '<title>[^<]*' $T/c.html), $(grep -c hpcard $T/c.html) cards, $(wc -c < $T/c.html) bytes)"
+give lucky-draught 1; page "gnome.php"; grep -q 'aria-label="Potions"' $T/c.html && echo "FAIL My Gnome still has a Potions box"; page "inventory.php"
 LID=$(db "SELECT id FROM items WHERE slug='lucky-draught'")
-curl -s -c $C -b $C -X POST "$BASE/gnome.php" --data-urlencode "csrf=$(csrf $T/c.html)" -d do=drink -d item=$LID -o /dev/null
-B=$(db "SELECT buff FROM users WHERE id=$UID_"); [ "$B" = '{"luck":6}' ] && echo "My Gnome drink: buff $B" || echo "FAIL My Gnome drink buff: $B"
+curl -s -c $C -b $C -X POST "$BASE/inventory.php" --data-urlencode "csrf=$(csrf $T/c.html)" -d do=eat -d item_id=$LID -o /dev/null
+B=$(db "SELECT buff FROM users WHERE id=$UID_"); [ "$B" = '{"luck":6}' ] && echo "Satchel drink: buff $B" || echo "FAIL Satchel drink buff: $B"
 php "$(dirname "$0")/alchemy.php" "$GAME" || echo "FAIL alchemy.php"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' $T/craft-php.log || echo "(none)"
