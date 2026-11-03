@@ -131,15 +131,14 @@ foreach (['sages-draught', 'stoneskin-brew', 'swiftfoot-elixir', 'lucky-draught'
     give_item($uid, alchemy_item_id($slug), 1);
     [$dk, $dm] = alchemy_drink($u, alchemy_item_id($slug));
     $buff = json_decode((string)q_val('SELECT buff FROM users WHERE id = ?', [$uid]), true) ?: [];
-    ok("drink $slug from My Gnome", $dk && $buff === array_diff_key(ALCHEMY_ITEMS[$slug][5]['temp'], ['minutes' => 1]), $dm . ' ' . json_encode($buff));
+    ok("drink $slug", $dk && $buff === array_diff_key(ALCHEMY_ITEMS[$slug][5]['temp'], ['minutes' => 1]), $dm . ' ' . json_encode($buff));
 }
 [$dk] = alchemy_drink($u, alchemy_item_id('strong-healing-potion'));
 ok('alchemy_drink refuses a healing tier (Health box does those)', $dk === false);
 [$dk] = alchemy_drink($u, (int)q_val("SELECT id FROM items WHERE slug = 'chanterelle'"));
 ok('alchemy_drink refuses a non-potion', $dk === false);
-give_item($uid, alchemy_item_id('sages-draught'), 1); give_item($uid, alchemy_item_id('garden-tonic'), 1);
-$card = alchemy_card_html($u);
-ok('My Gnome Potions box: drink button and tonic link', str_contains($card, 'Sage’s Draught ×') && str_contains($card, 'name="do" value="drink"') && str_contains($card, 'Garden Tonic ×'), strip_tags($card));
+give_item($uid, alchemy_item_id('garden-tonic'), 1);
+ok('My Gnome no longer has a Potions box', !function_exists('alchemy_card_html'));
 // Garden Tonic on the gnome's own plot
 $tonic = alchemy_item_id('garden-tonic');
 $t = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? AND user_id = ? AND plant_id IS NULL ORDER BY y, x LIMIT 1', [active_plot_id($uid), $uid]);
