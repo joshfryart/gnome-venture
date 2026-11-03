@@ -21,10 +21,13 @@ Mask methods: `:add(m) :cut(m) :clip(m)` (mutate, return self), `:copy() :shift(
 - `c:cheek(x,y)` 2x1 petal base (top-left); `c:stitch(points)` gold dashes 2 on 1 off along polyline; `c:button(x,y)` 3x3 gold centred
 - `c:groundShadow(cx,cy,rx,ry)` 2-tone stone ellipse; draw FIRST. Not outlined itself, but the object's outline overwrites it where they meet.
 - Scenes: `c:bands(y0,y1,rampName,n)` n<=4 flat bands, darkest on top; `c:hem(y[,x0,x1])` gold 2-on-1-off.
+- Opaque scenes (finish can't outline there): `c:rim(mask, hex[, clip])` 1px ring just outside the mask (ink edge for near-plane objects, `<ramp>.deep` edge for the hero; paint the rim first, then the object); `c:edgeIn(mask, hex)` same on the mask's own border.
+- `c:stripes(y0,y1,{hex,..}[,{w,..}])` flat full-width bands from any ramps (sunrise skies), optional weights. `c:terrain(f, hex[, ybot, x0, x1])` fills each column from `f(x)` down (hills, ridges); returns the mask. `c:cloud(x, y, w[, top, under])` 3-bump flat-bottom puff, (x,y) = bottom-left, top of the cloud is about `y - 0.6w`.
+- `HP.cells(c, cols, rows)` prints/returns distinct colours per grid cell (jigsaw check, regions use 6x4).
 - `c:finish{outline=true}` one 1px ink outline on every transparent (or shadow) pixel 4-adjacent to a painted object pixel, inside the canvas only. `outline=false` skips (scenes). Call once, last.
 
 ## Output
-- `c:save{aseprite=path, png=path, scale=n}`: .aseprite always native size; PNG nearest-neighbour scaled (default `scale` from HP.canvas). Folders are created.
+- `c:save{aseprite=path, png=path, scale=n}`: .aseprite always native size; PNG nearest-neighbour scaled (default `scale` from HP.canvas; fractional allowed, e.g. `scale=1.5` for region thumbs). Folders are created.
 - `HP.sheet{cellw=,cellh=,frames={c1,c2..},tags={{name="idle",from=1,to=2}}}:save{aseprite=,png=,scale=}` horizontal strip PNG + multi-frame .aseprite with tags.
 - `HP.report(c|Image)` prints and returns {w,h,bbox,margin,distinct,offPalette,semi,blackWhite,isolated}; `HP.assertClean(c)` errors on off-palette / semi / pure black or white (ink and cream allowed).
 
