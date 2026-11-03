@@ -41,11 +41,11 @@ if (is_post()) {
     $stTab = ($do === 'local' && in_array($_POST['t'] ?? '', ['folk', 'stop'], true)) ? 't=' . $_POST['t'] : '';   // v1.3.0: rest-stop forms come back to their tab
     if ($stTab) redirect('town.php?' . $stTab);
     if (!$spot && ($_POST['view'] ?? '') === 'orders') redirect('town.php?' . ($hub ? 'hub=1&' : '') . 'view=orders');   // v2.0.67: the town's Orders tab
-    if (!$spot && ($_POST['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: the order board moved to Tasks
+    if (!$spot && ($_POST['view'] ?? '') === 'quests') redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: the order board moved to Tasks
     redirect('town.php?' . ($hub ? 'hub=1&' : '') . ($spot ? 'spot=' . $spot : ''));
 }
 
-if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: orders, Journey and repairs live on the Tasks page
+if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: orders, Journey and repairs live on the Tasks page
 refresh_energy($u);
 if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }   // v0.9.1a
 $viewReq = (string)($_GET['view'] ?? '');
@@ -55,7 +55,7 @@ if ($viewReq === 'villagers' && !$hub && !in_array(player_node($u)['kind'], ['ma
 $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if (!$inTown && $viewReq === 'shops') redirect('world.php?tab=markets');   // v2.0.67: Shops and Orders are town views; away from a town the old pages show them
-if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=orders');
+if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=requests');
 if ($viewReq === 'passport') {   // v2.0.4 menu folds: Passport works from anywhere (Villagers away from a town is villagers.php, see above)
     require_once __DIR__ . '/includes/stop_pass.php';
     page_header('Stamp passport');

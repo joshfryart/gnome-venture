@@ -115,6 +115,6 @@ if ($wanted) {
 <?php endif; ?>
 <?php endif; ?>
 
-<p><a class="btn alt" href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : '') . '#orders')) ?>">📜 Order board</a>
+<p><a class="btn alt" href="<?= e(url('jobs.php?t=requests' . ($hub ? '&hub=1' : '') . '#orders')) ?>">📜 Order board</a>
   <a class="btn alt" href="<?= e(url('world.php?tab=markets')) ?>">🏪 Shops</a></p>
 <?php page_footer();

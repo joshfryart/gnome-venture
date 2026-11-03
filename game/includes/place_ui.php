@@ -287,7 +287,7 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     }
     require_once __DIR__ . '/road_life.php';
     $h .= stop_passport_html($u, $tf);
-    $h .= '<p class="gx-note">📜 <a href="' . e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
+    $h .= '<p class="gx-note">📜 <a href="' . e(url('jobs.php?t=requests' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
     $h .= '<div class="st-folds">' . road_journal_html($uid) . season_fold_html($u) . '</div>' . land_card_html($u, $node, $nodeRegion);
     return $h . '</div>';
 }
@@ -301,7 +301,7 @@ function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount 
         'square' => ['🏘️ ' . ($inTown ? 'Square' : 'Here'), url('town.php' . ($hub ? '?hub=1' : '')), ''],
         'villagers' => ['👥 Villagers', url('town.php?' . $q . 'view=villagers'), $folkCount > 0 ? (string)$folkCount : ''],
         'shops' => ['🏪 Shops', $inTown ? url('town.php?' . $q . 'view=shops') : url('world.php?tab=markets'), ''],
-        'orders' => ['📜 Orders', $inTown ? url('town.php?' . $q . 'view=orders') : url('jobs.php?t=orders' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
+        'orders' => ['📜 Orders', $inTown ? url('town.php?' . $q . 'view=orders') : url('jobs.php?t=requests' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
         'stop' => ['🛂 Stop', url('town.php?' . $q . 'view=stop'), ''],
     ];
 }

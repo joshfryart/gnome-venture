@@ -13,7 +13,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/player_jobs.php';
 require_once __DIR__ . '/calling_quests.php';   // v0.9.4: job_event() forwards to calling_event()
 
-const JOB_PERIODS = ['daily' => ['Daily', '☀️', 5], 'weekly' => ['Weekly', '📅', 5], 'monthly' => ['Monthly', '🌕', 3]];
+const JOB_PERIODS = ['daily' => ['Daily', '☀️', 3], 'weekly' => ['Weekly', '📅', 3], 'monthly' => ['Monthly', '🌕', 2]];   // [label, icon, offers shown]; T2.2: 3/3/2 (was 5/5/3)
 const JOB_KINDS = ['harvest', 'harvest_crop', 'deliver_crop', 'deliver_gather', 'deliver_dish', 'water', 'gather', 'cook', 'craft', 'defeat', 'grade', 'rebuild'];
 
 /** Period key for now. v1.2.2: the day turns over at midnight Hollow time (game_timezone), not a fixed UTC hour. Same key formats as before. */

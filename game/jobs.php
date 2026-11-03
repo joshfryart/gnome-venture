@@ -7,15 +7,16 @@ $u = require_login();
 $uid = (int)$u['id'];
 
 settle_player_jobs();
-// v1.7.2 tasks: one Tasks page, tabs ?t= jobs | quests | orders | errands. Inside Jobs, ?p= is daily | weekly | monthly | post.
-// Old links keep working: ?s=quests, and ?t=daily|weekly|monthly|post (the old Job Board sub-tabs).
+// v1.7.2 tasks: one Tasks page, tabs ?t= jobs | quests | requests. Inside Jobs, ?p= is daily | weekly | monthly | post.
+// Old links keep working: ?s=quests, ?t=daily|weekly|monthly|post (the old Job Board sub-tabs), and ?t=orders|errands (T2.2: now one Requests tab).
 $T = (string)($_GET['t'] ?? '');
 $tab = (string)($_GET['p'] ?? 'daily');
 if (($_GET['s'] ?? '') === 'quests') $T = 'quests';
 if (isset(JOB_PERIODS[$T]) || $T === 'post') { $tab = $T; $T = 'jobs'; }
-if (!in_array($T, ['jobs', 'quests', 'orders', 'errands'], true)) $T = 'jobs';
-if (!isset(JOB_PERIODS[$tab]) && $tab !== 'post') $tab = 'daily';
 $hub = !empty($_GET['hub']) || !empty($_POST['hub']);
+if (!is_post() && in_array($T, ['orders', 'errands'], true)) redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // T2.2: old Orders / Errands tab links
+if (!in_array($T, ['jobs', 'quests', 'requests'], true)) $T = 'jobs';
+if (!isset(JOB_PERIODS[$tab]) && $tab !== 'post') $tab = 'daily';
 
 if (is_post()) {
     csrf_check();
@@ -34,7 +35,7 @@ if (is_post()) {
         require_once __DIR__ . '/includes/quests_view.php';
         [$ok, $msg] = tasks_order_post($u, $do, (int)($_POST['npc'] ?? 0), $hub);
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));
+        redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));
     }
     $period = (string)($_POST['period'] ?? '');
     if (!isset(JOB_PERIODS[$period])) redirect('jobs.php?t=jobs&p=' . $tab);
@@ -74,14 +75,13 @@ $cnt = tasks_counts($u, $hub);
 $tq = $hub ? '&hub=1' : '';
 ?>
 <h1>📋 Tasks</h1>
-<nav class="tabs tabs4 jqtabs">
-  <?php foreach (['jobs' => ['📋', 'Jobs'], 'quests' => ['📜', 'Quests'], 'orders' => ['📌', 'Orders'], 'errands' => ['🧺', 'Errands']] as $tk => [$ti, $tl]): ?>
-    <a class="<?= $T === $tk ? 'on' : '' ?>" href="<?= e(url('jobs.php?t=' . $tk . ($tk === 'orders' ? $tq : ''))) ?>"><span aria-hidden="true"><?= $ti ?></span><?= $tl ?><?= !empty($cnt[$tk]) ? '<small>' . (int)$cnt[$tk] . '</small>' : '' ?></a>
+<nav class="tabs tabs4 tabs3 jqtabs">
+  <?php foreach (['jobs' => ['📋', 'Jobs'], 'quests' => ['📜', 'Quests'], 'requests' => ['📌', 'Requests']] as $tk => [$ti, $tl]): ?>
+    <a class="<?= $T === $tk ? 'on' : '' ?>" href="<?= e(url('jobs.php?t=' . $tk . ($tk === 'requests' ? $tq : ''))) ?>"><span aria-hidden="true"><?= $ti ?></span><?= $tl ?><?= !empty($cnt[$tk]) ? '<small>' . (int)$cnt[$tk] . '</small>' : '' ?></a>
   <?php endforeach; ?>
 </nav>
 <?php if ($T === 'quests'): tasks_quests($u); page_footer(); return; endif;
-if ($T === 'orders'): tasks_orders($u, $hub); page_footer(); return; endif;
-if ($T === 'errands'): tasks_errands($u); page_footer(); return; endif; ?>
+if ($T === 'requests'): tasks_requests($u, $hub); page_footer(); return; endif; ?>
 <p class="help">Hold one daily, one weekly and one monthly job at a time. Dailies finished: <b><?= (int)$u['job_dailies'] ?></b>
   (every <?= (int)setting('job_streak_every') ?> earns a <?= money((int)setting('job_streak_bonus_coins')) ?> bonus; missing a day never resets it).</p>
 <nav class="tabs jobtabs">

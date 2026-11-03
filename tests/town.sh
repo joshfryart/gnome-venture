@@ -33,7 +33,7 @@ curl -s -b $C "$BASE/town.php?view=orders" -o /tmp/t.html; O=$(grep -o 'class="o
 NPC=$(grep -o 'name="npc" value="[0-9]*"' /tmp/t.html | head -1 | grep -o '[0-9]*'); if [ -n "$NPC" ]; then
   loc=$(curl -s -b $C -c $C -X POST $BASE/town.php --data-urlencode "csrf=$(csrf /tmp/t.html)" -d do=order -d npc=$NPC -d spot=0 -d view=orders -o /dev/null -w '%{redirect_url}'); echo "  deliver comes back to: ${loc##*/}"; case "$loc" in *view=orders*) ;; *) echo "FAIL deliver from the Orders tab went to $loc";; esac; fi
 curl -s -b $C "$BASE/town.php?view=villagers" -o /tmp/t.html; echo "  villagers: rows=$(grep -o '<li class="vlcard">' /tmp/t.html | wc -l)"; grep -q 'class="vrow"' /tmp/t.html && echo "FAIL villagers tab still has old rows"
-for u in "world.php?tab=markets" "jobs.php?t=orders"; do echo "  old link $u -> $(curl -s -b $C "$BASE/$u" -o /dev/null -w '%{http_code}')"; done
+for u in "world.php?tab=markets" "jobs.php?t=orders" "jobs.php?t=errands" "jobs.php?t=requests"; do echo "  old link $u -> $(curl -s -b $C "$BASE/$u" -o /dev/null -w '%{http_code}')"; done
 echo "  town.php?view=quests -> $(curl -s -b $C "$BASE/town.php?view=quests" -o /dev/null -w '%{http_code} %{redirect_url}' | sed 's#http://[^/]*/##')"
 K=$(db "SELECT lower(code) FROM regions WHERE gnomish_name='$HERE'")
 echo "== shared actions"; act $K-bench; act $K-bench; act $K-birds; act $K-picnic; act $K-drink; act $K-read; act $K-read

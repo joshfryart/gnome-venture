@@ -7,6 +7,7 @@
 - **Faster first week (T1.3).** Wren's tour now gives 100 XP (gnome level 2 at the end). First Week XP 10/10/15/15/20/20/40 -> 40/40/50/50/30/30/60.
 - **Honest streak copy (T1.4).** Daily jobs settings say "a lifetime count, never resets". Rain Barrel and Gnome Beds show "Solved N times" instead of "Streak: N days" (`pz_streak()` replaced by `pz_solved()`).
 - **First Week day 5 (T1.5).** The friend-request and guestbook tasks are gone (a world may have no other open garden to sign); the card asks for a chat with a second townsperson (`talk2`). Pay unchanged.
+- **Calmer Tasks (T2.2).** Orders and Errands are one **Requests** tab (Tasks is now Jobs / Quests / Requests): town orders and rest-stop errands, soonest deadline first, each errand with its days left. Old `jobs.php?t=orders` and `?t=errands` links redirect to `?t=requests` (hub kept); orders and errands already taken are untouched (same tables). The job board shows 3 daily, 3 weekly and 2 monthly offers (`JOB_PERIODS` 5/5/3 -> 3/3/2); the 7-dailies bonus is unchanged.
 - **Upgrade steps** in `includes/upgrade249.php` (`upg249_bedgrowth`, `upg249_marrowmax`, `upg249_marrowgrow`) rewrite a stored setting only while it still holds the old default.
 
 ## 2.4.89

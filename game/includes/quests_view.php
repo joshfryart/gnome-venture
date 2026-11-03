@@ -2,7 +2,8 @@
 declare(strict_types=1);
 /**
  * v1.1.0: the Quests half of Jobs & Quests (jobs.php?t=quests). One short line per thing on the go, each linking to where it's
- * done: Wren's Journey chapters, the calling questline and landmark repairs (full boxes). v1.7.2: errands and orders have their own Tasks tabs.
+ * done: Wren's Journey chapters, the calling questline and landmark repairs (full boxes). v1.7.2: errands and orders have their own Tasks tab
+ * (T2.2: one Requests tab for both, soonest deadline first).
  */
 require_once __DIR__ . '/journey.php';
 
@@ -61,7 +62,7 @@ function tasks_in_town(array $u, bool $hub): bool
 function tasks_counts(array $u, bool $hub = false): array
 {
     $uid = (int)$u['id'];
-    $c = ['jobs' => 0, 'quests' => 0, 'orders' => 0, 'errands' => 0];
+    $c = ['jobs' => 0, 'quests' => 0, 'orders' => 0, 'errands' => 0, 'requests' => 0];   // T2.2: requests = orders ready + errands carried (one tab); the nav badge still uses orders only
     try {
         foreach (array_keys(JOB_PERIODS) as $pk) {
             $j = current_job($uid, $pk);
@@ -89,6 +90,7 @@ function tasks_counts(array $u, bool $hub = false): array
     } catch (Throwable $e) {
         // a badge is never worth a broken page
     }
+    $c['requests'] = $c['orders'] + $c['errands'];
     return $c;
 }
 
@@ -97,7 +99,7 @@ function tasks_quests(array $u): void
     quests_overview($u);
 }
 
-/** POST do=order|favour from the Orders tab. Same rules as the town square. */
+/** POST do=order|favour from the Requests tab. Same rules as the town square. */
 function tasks_order_post(array $u, string $do, int $npc, bool $hub): array
 {
     require_once __DIR__ . '/town.php';
@@ -109,14 +111,46 @@ function tasks_order_post(array $u, string $do, int $npc, bool $hub): array
     return $do === 'order' ? order_deliver($u, $npc, $town) : favour_deliver($u, $npc, $town);
 }
 
+/**
+ * T2.2: the Requests tab. Town orders and rest-stop errands are two stores (orders board, stop_errands) behind one view.
+ * Errands are listed soonest deadline first; whichever of the two has the nearer deadline is shown first.
+ */
+function tasks_requests(array $u, bool $hub): void
+{
+    require_once __DIR__ . '/stop_folk.php';
+    $errands = stop_errands_active((int)$u['id']);
+    $today = hollow_date('Y-m-d');   // counted like order deadlines: the last day is "1 day left"
+    foreach ($errands as &$x) $x['days_left'] = max(1, hollow_day_number((string)$x['expires_day']) - hollow_day_number($today) + 1);
+    unset($x);
+    usort($errands, fn($a, $b) => [$a['days_left'], (int)$a['id']] <=> [$b['days_left'], (int)$b['id']]);
+    $orderSoon = PHP_INT_MAX;
+    if (setting('orders_on') === '1' && tasks_in_town($u, $hub)) {
+        try {
+            require_once __DIR__ . '/town.php';
+            foreach (orders_board(town_for($u, $hub)) as $b) {
+                if (!order_done((int)$u['id'], (int)$b['npc']['id'], $b['o']['cycle'])) $orderSoon = min($orderSoon, (int)$b['o']['days_left']);
+            }
+        } catch (Throwable $e) {
+            // the sort order is never worth a broken page
+        }
+    }
+    echo '<h2>📌 Requests</h2><p class="help">Orders pinned on town boards and errands from rest-stop villagers, soonest deadline first.</p>';
+    if ($errands && $errands[0]['days_left'] < $orderSoon) {
+        tasks_errands_box($errands);
+        tasks_orders($u, $hub);
+    } else {
+        tasks_orders($u, $hub);
+        tasks_errands_box($errands);
+    }
+}
+
 function tasks_orders(array $u, bool $hub): void
 {
     $uid = (int)$u['id'];
     require_once __DIR__ . '/town.php';
     require_once __DIR__ . '/town_social.php';
-    echo '<h2>📌 Orders</h2>';
     if (!tasks_in_town($u, $hub)) {
-        echo '<div class="box"><p class="muted">Orders are pinned on a town’s board. Walk to a town to see and fill them.</p><a class="btn small" href="' . e(url('world.php')) . '">🌍 To the map →</a></div>';
+        echo '<div class="box"><h3>📜 Orders</h3><p class="muted">Orders are pinned on a town’s board. Walk to a town to see and fill them.</p><a class="btn small" href="' . e(url('world.php')) . '">🌍 To the map →</a></div>';
         return;
     }
     $town = town_for($u, $hub);
@@ -142,12 +176,10 @@ function tasks_orders(array $u, bool $hub): void
 <?php
 }
 
-/** Rest-stop errands the gnome carries: read-only. They're done at the stop. */
-function tasks_errands(array $u): void
+/** Rest-stop errands the gnome carries (already sorted), read-only. They're done at the stop. */
+function tasks_errands_box(array $list): void
 {
-    require_once __DIR__ . '/stop_folk.php';
-    $list = stop_errands_active((int)$u['id']);
-    echo '<h2>🧺 Errands</h2>';
+    echo '<h3>🧺 Errands</h3>';
     if (!$list) {
         echo '<div class="box"><p class="muted">No errands carried. Villagers at rest stops ask for them.</p></div>';
         return;
@@ -157,7 +189,8 @@ function tasks_errands(array $u): void
         $what = $x['target']
             ? ($x['kind'] === 'escort' ? 'Walk a traveller to ' : 'Take a parcel to ') . '<b>' . e((string)$x['target']) . '</b> at <b>' . e((string)$x['target_place']) . '</b>'
             : 'Bring ' . (int)$x['qty'] . ' × ' . e((string)($x['item_name'] ?? 'something')) . ' to <b>' . e((string)$x['giver']) . '</b> at <b>' . e((string)$x['giver_place']) . '</b>';
-        echo '<li>🧺 ' . $what . '<br><small class="muted">From ' . e((string)$x['giver']) . ' (' . e((string)$x['giver_place']) . ') · '
+        $dl = (int)($x['days_left'] ?? 1);
+        echo '<li>🧺 ' . $what . ' <span class="tag' . ($dl <= 1 ? ' warn' : '') . '">⏳ ' . $dl . ' day' . ($dl === 1 ? '' : 's') . ' left</span><br><small class="muted">From ' . e((string)$x['giver']) . ' (' . e((string)$x['giver_place']) . ') · '
             . money((int)$x['coins']) . ', ' . (int)$x['xp'] . ' XP · until ' . e(date('D j M', strtotime($x['expires_day'] . ' UTC'))) . '</small></li>';
     }
     echo '</ul></div><p class="help">Hand them in when you reach the stop: open the villager there.</p>';
