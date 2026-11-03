@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.95
+- **Fix: Admin "Fresh start" now wipes everything.** It left cats behind (and puzzle pals, treks, puzzles, stops, hybrids). New `FRESH_LAZY_TABLES` in `includes/fresh_start.php` clears `cats`, `catfish_state`, `cat_book`, `cat_ribbons`, `catfish_items`, `ppal_*`, `user_hybrids`, `trek_ms`, `trek_runs`, `stop_prog`, `puzzle_*`, `jigsaw_unlocks`, plus `ppal_jobs` and `garden_react_notes` on the player's plots. These tables are made on first use, so a missing table is skipped.
+
 ## 2.4.93
 - **Home header no longer overflows on phones.** The place, weather and Calling lines wrap inside the box; the boosts line shows two boosts and a count (full list with times on Stats).
 - **Calling card wording trimmed:** one legend line instead of a note on every task; tile says "Not started" / "Active".
