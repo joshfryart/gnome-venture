@@ -1,5 +1,14 @@
 # Changelog
 
+## Next version (unreleased; version number is the owner's call)
+- **Patch note: a full garden is now within reach, and the shows stop paying for being alone.** Adding beds costs far less (all 144 beds about 31,600 Petals, not 170 million), and a quiet show week thanks every entrant instead of crowning the only one.
+- **Beds are priced by beds owned (T1.1).** `bed_add_cost()` uses `k = (beds - start²) / 4`, multiplier `min(6, (1 + growth)^k)`, Petals `round(200 x mult x n/4)`, planks `ceil(2 x mult x n/4)` (12 at most). A partial buy (fewer than 4 beds of room) pays per bed and no longer jumps the curve. `bed_add_growth_pct` default 50 -> 20. `bed_adds` is still written, for history only.
+- **No prizes for being alone (T1.2).** Village Show and Arrangements show: with fewer than `fair_min_entries` (3) gnomes entered, nobody is placed (`placed` 0), every entrant gets 100 Petals and 10 XP, no ribbon ("a quiet week"). Guess the Weight: the closest-guess consolation needs 2 or more guessers; `marrow_jackpot_max` 25,000 -> 10,000, `marrow_jackpot_grow` 1,000 -> 500 (a pot already above the new cap is not cut, it waits to be won).
+- **Faster first week (T1.3).** Wren's tour now gives 100 XP (gnome level 2 at the end). First Week XP 10/10/15/15/20/20/40 -> 40/40/50/50/30/30/60.
+- **Honest streak copy (T1.4).** Daily jobs settings say "a lifetime count, never resets". Rain Barrel and Gnome Beds show "Solved N times" instead of "Streak: N days" (`pz_streak()` replaced by `pz_solved()`).
+- **First Week day 5 (T1.5).** The friend-request and guestbook tasks are gone (a world may have no other open garden to sign); the card asks for a chat with a second townsperson (`talk2`). Pay unchanged.
+- **Upgrade steps** in `includes/upgrade249.php` (`upg249_bedgrowth`, `upg249_marrowmax`, `upg249_marrowgrow`) rewrite a stored setting only while it still holds the old default.
+
 ## 2.4.89
 - **Seed picker: search, type filter, in-season toggle (restored).** "Choose seeds" (Plant…) has a search box, a type filter (chips for 5 types or fewer, a drop-down for more) with live counts, and an "In season only" checkbox (off by default: off-season seeds can still be planted). Shown from 5 seeds up. Re-applied on top of 2.4.88 after the 2.4.87 build was not carried into main.
 
