@@ -63,6 +63,67 @@ echo "finished: qt=$(db "SELECT calling_qt FROM users WHERE username='sprout'") 
 echo "mentor.php after finish -> $(get 'mentor.php?m=burdock-deepdelve')"; grep -q 'Well done' $H && echo "  outro shown"
 echo "elsewhere: mentor away -> $(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SET location=\"Mistmoor\" WHERE username=\"sprout\"");' ; get 'mentor.php?m=burdock-deepdelve')"; grep -q 'need to be in their town' $H && echo "  away note shown"
 echo "other mentors + pages -> $(for m in zinnia-fuzzbottom bracken-spurwing sorrel-inkcap tumble-waymarsh juniper-kettleby; do get "mentor.php?m=$m"; echo -n ' '; done) $(get 'mentor.php?m=nobody') $(get admin/callings.php)"
+echo "== not started: clear start state + free trip to the mentor (next version)"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite");
+$p->exec("UPDATE calling_chapters SET active=0 WHERE slug=\"t-http\"");
+$p->exec("INSERT INTO calling_chapters (slug,calling,tier,title,mentor_slug,reward_coins,reward_xp,intro,outro,active) VALUES (\"t-trip\",\"rootwarden\",2,\"Trip Test Chapter\",\"burdock-deepdelve\",300,100,\"Hello again.\",\"Done.\",1)");
+$id=$p->lastInsertId();
+$p->exec("INSERT INTO calling_tasks (chapter_id,sort_order,mode,kind,spec,qty,label) VALUES ($id,1,\"event\",\"depth\",\"\",5,\"Reach 5 steps off the road\")");
+$p->exec("INSERT INTO calling_tasks (chapter_id,sort_order,mode,kind,spec,qty,label) VALUES ($id,2,\"state\",\"regions\",\"\",3,\"Visit 3 regions\")");
+$p->exec("DELETE FROM region_visits WHERE user_id=(SELECT id FROM users WHERE username=\"sprout\") AND region_id=(SELECT id FROM regions WHERE code=\"EE\")");
+$p->exec("DELETE FROM plots WHERE user_id=(SELECT id FROM users WHERE username=\"sprout\") AND region_id=(SELECT id FROM regions WHERE code=\"EE\")");
+$p->exec("UPDATE users SET calling_qt=0, calling_chapter=NULL, energy=37, coins=1234, location=\"Mistmoor\", location_id=(SELECT id FROM locations WHERE kind=\"market\" AND region=\"Mistmoor\") WHERE username=\"sprout\"");'
+TID=$(db "SELECT id FROM calling_chapters WHERE slug='t-trip'")
+MKT=$(db "SELECT id FROM locations WHERE kind='market' AND region='Birchbramble Steppe' ORDER BY id LIMIT 1")
+AWAY="Mistmoor #$(db "SELECT id FROM locations WHERE kind='market' AND region='Mistmoor' ORDER BY id LIMIT 1") e37 c1234"
+loc() { db "SELECT COALESCE(location,'') || ' #' || COALESCE(location_id,0) || ' e' || energy || ' c' || coins FROM users WHERE username='sprout'"; }
+check() { if eval "$2"; then echo "  ok   $1"; else echo "  FAIL $1"; fi; }   # check "what" 'shell test'
+has() { grep -qE "$1" $H; }
+TRIPBTN='name="do" value="trip"'
+# Arrange: chapter on offer, Birchbramble Steppe never visited. Act: open the mentor page, try the trip. Assert: text yes, button no, no move.
+get 'mentor.php?m=burdock-deepdelve' >/dev/null
+check "card: not-started line names mentor and town" "has 'Visit Burdock Deepdelve in Birchbramble Steppe to start'"
+check "card: Not started badge" "has 'chip-off cbadge\">.{0,400}Not started</span>'"
+check "card: event task says it counts once taken" "has 'Counts after you start'"
+check "card: state tasks show progress now" "has 'show your progress now'"
+check "undiscovered town: no trip button" "! has '$TRIPBTN'"
+check "undiscovered town: hint shown" "has 'haven’t been to Birchbramble Steppe yet'"
+post mentor.php -d do=trip -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
+check "undiscovered town: trip refused, nothing moves" "[ \"\$(loc)\" = \"$AWAY\" ]"
+# Arrange: the town is visited now.
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("INSERT INTO region_visits (user_id,region_id,first_at) VALUES ((SELECT id FROM users WHERE username=\"sprout\"),(SELECT id FROM regions WHERE code=\"EE\"),datetime(\"now\"))");'
+get 'gnome.php?tab=calling' >/dev/null
+check "calling tab: not-started line" "has 'Visit Burdock Deepdelve in Birchbramble Steppe to start'"
+check "calling tab: trip button" "has 'Travel to Burdock Deepdelve \(free\)'"
+get 'gnome.php?tab=gnome' >/dev/null; check "My Gnome tile: Chapter not started" "has 'Chapter not started'"
+get 'jobs.php?t=journey' >/dev/null; check "Journey tab: not-started line" "has 'Visit Burdock Deepdelve in Birchbramble Steppe to start</a>'"
+# Arrange: on a walk (an active expedition, as delves, lairs and the wilds are too).
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $u=$p->query("SELECT id, location_id FROM users WHERE username=\"sprout\"")->fetch(); $p->exec("INSERT INTO expeditions (user_id,from_id,to_id,route_id,steps_total,hp,max_hp,status,started_at,arrive_at) VALUES ($u[0],$u[1],$u[1],1,3,10,10,\"active\",datetime(\"now\"),datetime(\"now\"))");'
+get 'mentor.php?m=burdock-deepdelve' >/dev/null
+check "on a walk: no trip button" "! has '$TRIPBTN'"
+check "on a walk: says why" "has 'Finish your walk first'"
+post mentor.php -d do=trip -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
+check "on a walk: trip refused, nothing moves" "[ \"\$(loc)\" = \"$AWAY\" ]"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("DELETE FROM expeditions WHERE status=\"active\"");'
+# Act: the free trip. Assert: moved to the mentor town's market, energy and Petals unchanged, no calling progress made.
+get 'mentor.php?m=burdock-deepdelve' >/dev/null; check "visited, free: trip button shown" "has 'Travel to Burdock Deepdelve \(free\)'"
+post mentor.php -d do=trip -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
+check "trip moves free: $(loc)" "[ \"\$(loc)\" = \"Birchbramble Steppe #$MKT e37 c1234\" ]"
+check "trip makes no calling progress rows" "[ \"\$(db \"SELECT COUNT(*) FROM user_calling_tasks WHERE task_id IN (SELECT id FROM calling_tasks WHERE chapter_id=$TID)\")\" = 0 ]"
+get 'mentor.php?m=burdock-deepdelve' >/dev/null
+check "flash says free trip" "has 'You travel to Birchbramble Steppe for free'"
+check "mentor here now, take-on button at the top" "has 'Burdock Deepdelve is here' && has 'Take on this chapter'"
+check "already there: no trip button" "! has '$TRIPBTN'"
+post mentor.php -d do=start -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
+check "started" "[ \"\$(db \"SELECT calling_chapter FROM users WHERE username='sprout'\")\" = $TID ]"
+get 'mentor.php?m=burdock-deepdelve' >/dev/null
+check "card: Active badge" "has 'chip-in cbadge\">.{0,400}Active</span>'"
+check "started: no not-started line" "! has 'cstart-head|Not started: visit'"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SET location=\"Mistmoor\", location_id=(SELECT id FROM locations WHERE kind=\"market\" AND region=\"Mistmoor\") WHERE username=\"sprout\"");'
+get 'mentor.php?m=burdock-deepdelve' >/dev/null; check "started, away: no trip button" "! has '$TRIPBTN'"
+post mentor.php -d do=trip -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
+check "started: trip refused, nothing moves" "[ \"\$(loc)\" = \"$AWAY\" ]"
+get 'gnome.php?tab=gnome' >/dev/null; check "My Gnome tile: Chapter active" "has 'Chapter active'"
 echo "== admin page (as admin)"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
 echo "admin/callings.php -> $(get admin/callings.php)"; grep -q 'Thorn Master' $H && echo "  lists chapters"; grep -q 'Import calling quests' $H && echo "  import button"

@@ -182,10 +182,14 @@ $onGnome = $tab !== 'today';
     $tastedN = (int)q_val('SELECT COUNT(*) FROM user_tasted WHERE user_id = ?', [$uid]);
     $knownN = (int)q_val('SELECT COUNT(*) FROM npc_friends WHERE user_id = ? AND points > 0', [$uid]);
     $tileTxt = ['stats' => 'Stats', 'calling' => $u['calling'] ? CALLINGS[$u['calling']][0] : ((int)$u['level'] >= $callingLevel ? 'Calling: choose!' : 'Calling'),
-        'pals' => 'Pals' . ($palT > 0 ? ' ' . $palF . '/' . $palT : ''), 'foods' => 'Foods ' . $tastedN, 'folk' => 'Villagers ' . $knownN, 'gardens' => 'Gardens ' . count($gardens) . '/' . max_gardens($u)]; ?>
+        'pals' => 'Pals' . ($palT > 0 ? ' ' . $palF . '/' . $palT : ''), 'foods' => 'Foods ' . $tastedN, 'folk' => 'Villagers ' . $knownN, 'gardens' => 'Gardens ' . count($gardens) . '/' . max_gardens($u)];
+    // next version: the Calling tile says whether a chapter is on the go or on offer and not taken yet
+    require_once __DIR__ . '/includes/calling_view.php';
+    $tileSub = ['calling' => !empty($u['calling_chapter']) && setting('calling_quests') === '1' ? '<small class="gvsub on">Chapter active</small>'
+        : (calling_offered($u) ? '<small class="gvsub">Chapter not started</small>' : '')]; ?>
 <h2 class="gvhead">Your gnome</h2>
 <nav class="gvtiles" aria-label="Your gnome">
-  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
+  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
 </nav>
 <?php else: ?>
 <p class="gvback"><a class="gvbacklink" href="<?= e($gurl('gnome')) ?>">← My Gnome</a> <span class="muted">· <?= e($SUBS[$tab][1]) ?></span></p>

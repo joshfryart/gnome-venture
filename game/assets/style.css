@@ -3831,7 +3831,8 @@ dialog.tkr .tkrcard { max-height: calc(100dvh - 24px); overflow-y: auto; }
 .todaypage .todaygrid { margin-bottom: 6px; }
 .todayhollow > .box { margin: 0; }
 .todayhead .tline { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 10px; align-items: center; }
-.todayhead .tline > span, .todayhead .tline > a { white-space: nowrap; }
+.todayhead .tline > span, .todayhead .tline > a { white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
+.todayhead p, .todayhead .todayfx a { overflow-wrap: anywhere; min-width: 0; max-width: 100%; }
 .todayhead .tline .chip { margin: 0; }
 .tcard .jhint { display: none; }   /* phone: the Journey page has the hint */
 .tcard .tacts { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; margin-top: auto; }
@@ -6898,3 +6899,12 @@ nav.gvtiles a.sending { opacity: .6; }
 }
 @media (min-width: 1000px) { .hometoday .todaygrid.g8 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 /* ===== end home page ===== */
+/* Next version: calling chapter state. A chapter on offer but not taken says so at the top of its card, with the way to the mentor. */
+.cbadge { font-weight: 700; vertical-align: middle; }
+.cstart { margin: 6px 0 12px; padding: 8px 12px; border-left: 4px solid var(--accent-line); background: var(--accent-soft); border-radius: var(--radius-sm); color: var(--ink); }
+.cstart p { margin: 4px 0; }
+.cstart .cstart-head b { color: var(--accent-ink); }
+.cstart form { margin: 8px 0 2px; }
+.cstart .help { color: var(--ink-2); }
+nav.gvtiles .gvsub { font-size: 12px; line-height: 1.2; color: var(--accent-ink); font-weight: 700; }
+nav.gvtiles .gvsub.on { color: var(--brand-ink); }

@@ -73,7 +73,7 @@ function today_head_html(array $u, array $c, array $o = []): string
         . "\n  <div>\n    " . '<h1>' . e($c['hello']) . ', ' . e(gnome_name($u)) . '!</h1>'
         . "\n    " . '<p class="todayfx tline"><span>📍 ' . e(player_location($u)) . '</span> <span>' . hollow_chip(hollow_user_region($u), 'hollow') . '</span>'
         . ($fc ? ' <span class="muted">Tomorrow: ' . e($fc[1]['emoji'] . ' ' . $fc[1]['wlabel']) . '</span>' : '')
-        . ($fx ? ' <a href="' . e(url('gnome.php?tab=stats#effects')) . '">✨ ' . implode(' ', array_map(fn($f) => e($f[0] . ' ' . $f[2] . ' (' . effect_time($f[3]) . ')'), $fx)) . '</a>' : '') . '</p>'
+        . ($fx ? ' <a href="' . e(url('gnome.php?tab=stats#effects')) . '">✨ ' . implode(' ', array_map(fn($f) => e($f[0] . ' ' . $f[2]), array_slice($fx, 0, 2))) . (count($fx) > 2 ? ' +' . (count($fx) - 2) : '') . '</a>' : '') . '</p>'   // two boosts at most: the full list with times is on Stats
         . "\n    " . ($ds ? '<p class="todayfx"><a href="' . e(url('world.php#gopanel')) . '">🏁 Heading to ' . e(dest_name((int)$u['id'], $ds[0])) . ' · ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') . ' left</a></p>' : '')
         . "\n    " . calling_today_line($u)
         . "\n  </div>\n</div>\n";

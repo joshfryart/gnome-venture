@@ -242,12 +242,22 @@ function can_reach(array $u, ?string $regionName): bool
     return $regionName === HUB_REGION || $regionName === player_location($u);
 }
 
+/**
+ * Why this gnome can't fast-travel right now, or '' if they can. A road walk, a trip into the wilds, a delve and a lair are all
+ * active expeditions; a trek and a community tending shift hold the gnome too. Shared by travel_to() and the free trip to a calling mentor.
+ */
+function travel_blocked(array $u): string
+{
+    if (q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active'", [$u['id']])) return 'Finish your walk first.';
+    require_once __DIR__ . '/trek_data.php';
+    if (trek_inside((int)$u['id'])) return 'You’re on a trek. Leave the trek first.';   // v1.9.4: no fast travel inside a trek (gathering is fine)
+    if (ts($u['community_shift_until'] ?? null) > time()) return 'You’re on a tending shift at the community garden. Finish or end it first.';   // v0.7.85
+    return '';
+}
+
 function travel_to(array $u, int $regionId): array
 {
-    if (q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active'", [$u['id']])) return [false, 'Finish your walk first.'];
-    require_once __DIR__ . '/trek_data.php';
-    if (trek_inside((int)$u['id'])) return [false, 'You’re on a trek. Leave the trek first.'];   // v1.9.4: no fast travel inside a trek (gathering is fine)
-    if (ts($u['community_shift_until'] ?? null) > time()) return [false, 'You’re on a tending shift at the community garden. Finish or end it first.'];   // v0.7.85
+    if (($why = travel_blocked($u)) !== '') return [false, $why];
     $target =q_one('SELECT * FROM regions WHERE id = ?', [$regionId]);
     if (!$target) return [false, 'There’s no such place.'];
     if ($target['gnomish_name'] === player_location($u)) return [false, 'You’re already here.'];
