@@ -31,7 +31,7 @@ Missing portraits, exact list (stop folk are made from species per biome, `inclu
 2. **One outline.** 1 px, warm ink `#2b1c26`, only around the outside of the whole object. No 3-tone outline, no 1 px pure black border, no cream halo. Inside, separate parts with a 1 px line in the **darker neighbour tone of that part**, only where two similar colours touch.
 3. **Four tones per colour, hard pixels.** `hi / base / shade / deep` (palette below). Light is **upper left**. Shade is **one flat band** (at least 2 px wide) on the lower right. `deep` is for outlines inside the object and the underside. No bounce, rim, contact or second crescent.
 4. **One pop.** One highlight per object: a 2x1 or 1x2 `hi` mark upper left, plus at most one 1 px `cream` sparkle. That is the whole gloss.
-5. **Colour.** Fewer, cleaner, happier. Max 6 ramps per object, max 16 colours per 64 px sprite. Saturated base, cool-violet shadows, warm-yellow lights. No dither, no gradients, no semi-transparent pixels, no pure black or white.
+5. **Colour.** Cleaner and happier, but **not capped**: use as many colours and ramps as the piece needs. Keep the palette as a starting point, not a cage (tweak, extend, or add ramps freely). Saturated base, cool-violet shadows, warm-yellow lights. Still hard pixels: no dither, no gradients, no semi-transparent pixels. Avoid pure black and white.
 6. **Cute proportions.** Head about 55-60% of the figure. Eyes low and wide. Cheeks (2x1 `petal` base) allowed on characters. Mouths 1-3 px.
 7. **Eyes.** Portraits (80x100): the locked v06 eye (5x5 `cream` disc with cut corners, 3x3 `ink` pupil, 1 px `cream` glint upper-left). Sprites 64 px and below: 2 wide x 3 tall `ink` pill with a 1 px `cream` glint. Never anything else.
 8. **Quirk tag.** Every asset carries ONE odd, charming tell: a snail riding the hat, a bite out of the biscuit, a patch on the knee, a leaf umbrella, a crooked flag. Chosen per asset, written in its spec line `quirk:`. Not a repeated gag.
@@ -39,7 +39,7 @@ Missing portraits, exact list (stop folk are made from species per biome, `inclu
 10. **Clear at size.** Check every file at 100%, 50% and 25%. The main colour, the eyes and the silhouette must survive.
 
 ## 4. Palette: Hearth Pop 50
-`ink #2b1c26` · `cream #fff4d6`. Eleven 4-step ramps plus sky. Use only these. If a subject needs another colour, add a ramp by this recipe: base saturated; hi = hue toward yellow, +25% light; shade = hue toward violet, -20% light; deep = hue toward violet, -45% light.
+`ink #2b1c26` · `cream #fff4d6`. Eleven 4-step ramps plus sky. This is the **default** set, not a limit: colours outside it are fine when the piece looks better. For new ramps use this recipe: base saturated; hi = hue toward yellow, +25% light; shade = hue toward violet, -20% light; deep = hue toward violet, -45% light.
 
 | ramp | hi | base | shade | deep | use |
 |---|---|---|---|---|---|
@@ -56,7 +56,7 @@ Missing portraits, exact list (stop folk are made from species per biome, `inclu
 | skin B | `#d9a070` | `#b57850` | `#8a5638` | `#55332a` | faces |
 | skin C | `#a8704a` | `#84523a` | `#5e3a2e` | `#3a2420` | faces |
 
-Machine copy: `v3/lib/palette.lua` (and `v3/lib/hearth-pop-50.gpl` for Aseprite's palette panel).
+Status: relaxed 2026-11-03, palette and colour counts are guidance only. Machine copy: `v3/lib/palette.lua` (and `v3/lib/hearth-pop-50.gpl` for Aseprite's palette panel).
 
 ## 5. Per section
 
@@ -103,7 +103,7 @@ Machine copy: `v3/lib/palette.lua` (and `v3/lib/hearth-pop-50.gpl` for Aseprite'
 Folders: `aseprite-source/v3/lib`, `v3/items`, `v3/portraits`, `v3/models`, `v3/scenes` (lua, aseprite, png together), `v3/review` (contact sheets).
 
 ## 7. Checks (every file)
-- Only palette colours; zero semi-transparent pixels; zero `#000000` / `#ffffff`.
+- Zero semi-transparent pixels; no pure `#000000` / `#ffffff`. Off-palette colours are allowed (no colour-count cap).
 - 1 px ink outline outside only; no halo; no stray single pixels (no isolated pixel unless it is the pop or the sparkle).
 - Light upper-left; one shade band; one pop.
 - Rule 7 eyes exactly.

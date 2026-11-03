@@ -29,7 +29,7 @@ Mask methods: `:add(m) :cut(m) :clip(m)` (mutate, return self), `:copy() :shift(
 ## Output
 - `c:save{aseprite=path, png=path, scale=n}`: .aseprite always native size; PNG nearest-neighbour scaled (default `scale` from HP.canvas; fractional allowed, e.g. `scale=1.5` for region thumbs). Folders are created.
 - `HP.sheet{cellw=,cellh=,frames={c1,c2..},tags={{name="idle",from=1,to=2}}}:save{aseprite=,png=,scale=}` horizontal strip PNG + multi-frame .aseprite with tags.
-- `HP.report(c|Image)` prints and returns {w,h,bbox,margin,distinct,offPalette,semi,blackWhite,isolated}; `HP.assertClean(c)` errors on off-palette / semi / pure black or white (ink and cream allowed).
+- `HP.report(c|Image)` prints and returns {w,h,bbox,margin,distinct,offPalette,semi,blackWhite,isolated}; `HP.assertClean(c)` errors on semi-transparent / pure black or white; off-palette colours are only reported (relaxed 2026-11-03).
 
 ## contact.py
 `python3 contact.py out.html a.png b.png ...`; `python3 contact.py --compare out.html orig.png new.png [o2 n2 ...]`; `--compare --p1 out.html orig p1 final [...]` for triples. Standalone HTML, pixelated, 100% / x2-x4 / 50% on grey and dark.

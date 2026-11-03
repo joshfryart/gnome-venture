@@ -417,8 +417,9 @@ function HP.report(c, quiet)
 end
 function HP.assertClean(c)
   local r = HP.report(c, true)
-  if r.offPalette > 0 or r.semi > 0 or r.blackWhite > 0 then
-    error(string.format("HP.assertClean: offPalette=%d semi=%d blackWhite=%d", r.offPalette, r.semi, r.blackWhite), 2)
+  -- v3 relaxed 2026-11-03: off-palette colours allowed (report only); semi-transparent and pure black/white still errors.
+  if r.semi > 0 or r.blackWhite > 0 then
+    error(string.format("HP.assertClean: semi=%d blackWhite=%d", r.semi, r.blackWhite), 2)
   end
   return r
 end
