@@ -71,12 +71,12 @@ function calling_start_block(array $u, array $ch, array $st, ?array $npc, bool $
         if ($why === '') {
             $h .= '<form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="trip">' . $hid
                 . '<button class="btn gold">🧭 Travel to ' . e($name) . ' (free)</button></form>'
-                . '<small class="muted">No Petals, no energy.</small>';
+                . '<small class="muted">Free.</small>';
         } else {
             $h .= '<p class="help">📍 ' . e($why) . '</p>';
         }
     }
-    $h .= '<p class="help">⏳ Harvest, depth, wonder… tasks count only after you start.<br>💡 Region, place, road… tasks show your progress now.</p>';
+    $h .= '<p class="help">⏳ = counts after you start.</p>';
     return $h . '</div>';
 }
 
@@ -104,8 +104,8 @@ function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $
               <li class="<?= $done ? 'done' : '' ?><?= $isGive ? ' stage' : '' ?>">
                 <span class="jtick"><?= $done ? '✅' : ($isGive ? '📦' : '⬜') ?></span>
                 <span class="jlabel"><?= e((string)$t['label']) ?><?php if (!$isGive && !$done && $tk['goal'] > 1): ?> <small class="muted">(<?= (int)$tk['now'] ?>/<?= (int)$tk['goal'] ?>)</small><?php endif; ?></span>
-                <?php if ($t['mode'] === 'state' && !$done && $st['state'] !== 'done'): ?><small class="jwhy">💡 Counts what you have done already, even before you took the chapter.</small><?php endif; ?>
-                <?php if ($t['mode'] === 'event' && $st['state'] === 'available'): ?><small class="jwhy">⏳ Counts after you start.</small><?php endif; ?>
+                
+                <?php if ($t['mode'] === 'event' && $st['state'] === 'available'): ?><small class="jwhy">⏳ After you start</small><?php endif; ?>
                 <?php if ($isGive && !$done && $st['state'] === 'active'):
                     $needs = journey_need_status($u, (string)$t['spec']); $ok = !array_filter($needs, fn($x) => $x[2] < $x[1]); ?>
                   <span class="jneeds"><?php foreach ($needs as [$label, $need, $have]): ?><span class="chip <?= $have >= $need ? 'good' : 'bad' ?>"><?= $have >= $need ? '✔' : '✖' ?> <?= e($label) ?>: <?= min($have, $need) ?>/<?= $need ?></span> <?php endforeach; ?></span>

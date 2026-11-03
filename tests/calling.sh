@@ -84,8 +84,8 @@ TRIPBTN='name="do" value="trip"'
 get 'mentor.php?m=burdock-deepdelve' >/dev/null
 check "card: not-started line names mentor and town" "has 'Visit Burdock Deepdelve in Birchbramble Steppe to start'"
 check "card: Not started badge" "has 'chip-off cbadge\">.{0,400}Not started</span>'"
-check "card: event task says it counts once taken" "has 'Counts after you start'"
-check "card: state tasks show progress now" "has 'show your progress now'"
+check "card: event task says it counts once taken" "has 'After you start'"
+check "card: legend says event tasks count after you start" "has 'counts after you start'"
 check "undiscovered town: no trip button" "! has '$TRIPBTN'"
 check "undiscovered town: hint shown" "has 'haven’t been to Birchbramble Steppe yet'"
 post mentor.php -d do=trip -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
@@ -95,7 +95,7 @@ php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("INSERT INTO reg
 get 'gnome.php?tab=calling' >/dev/null
 check "calling tab: not-started line" "has 'Visit Burdock Deepdelve in Birchbramble Steppe to start'"
 check "calling tab: trip button" "has 'Travel to Burdock Deepdelve \(free\)'"
-get 'gnome.php?tab=gnome' >/dev/null; check "My Gnome tile: Chapter not started" "has 'Chapter not started'"
+get 'gnome.php?tab=gnome' >/dev/null; check "My Gnome tile: Chapter not started" "has 'Not started'"
 get 'jobs.php?t=journey' >/dev/null; check "Journey tab: not-started line" "has 'Visit Burdock Deepdelve in Birchbramble Steppe to start</a>'"
 # Arrange: on a walk (an active expedition, as delves, lairs and the wilds are too).
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $u=$p->query("SELECT id, location_id FROM users WHERE username=\"sprout\"")->fetch(); $p->exec("INSERT INTO expeditions (user_id,from_id,to_id,route_id,steps_total,hp,max_hp,status,started_at,arrive_at) VALUES ($u[0],$u[1],$u[1],1,3,10,10,\"active\",datetime(\"now\"),datetime(\"now\"))");'
@@ -123,7 +123,7 @@ php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SE
 get 'mentor.php?m=burdock-deepdelve' >/dev/null; check "started, away: no trip button" "! has '$TRIPBTN'"
 post mentor.php -d do=trip -d "ch=$TID" -d m=burdock-deepdelve >/dev/null
 check "started: trip refused, nothing moves" "[ \"\$(loc)\" = \"$AWAY\" ]"
-get 'gnome.php?tab=gnome' >/dev/null; check "My Gnome tile: Chapter active" "has 'Chapter active'"
+get 'gnome.php?tab=gnome' >/dev/null; check "My Gnome tile: Chapter active" "has 'Active'"
 echo "== admin page (as admin)"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
 echo "admin/callings.php -> $(get admin/callings.php)"; grep -q 'Thorn Master' $H && echo "  lists chapters"; grep -q 'Import calling quests' $H && echo "  import button"

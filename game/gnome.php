@@ -185,8 +185,8 @@ $onGnome = $tab !== 'today';
         'pals' => 'Pals' . ($palT > 0 ? ' ' . $palF . '/' . $palT : ''), 'foods' => 'Foods ' . $tastedN, 'folk' => 'Villagers ' . $knownN, 'gardens' => 'Gardens ' . count($gardens) . '/' . max_gardens($u)];
     // next version: the Calling tile says whether a chapter is on the go or on offer and not taken yet
     require_once __DIR__ . '/includes/calling_view.php';
-    $tileSub = ['calling' => !empty($u['calling_chapter']) && setting('calling_quests') === '1' ? '<small class="gvsub on">Chapter active</small>'
-        : (calling_offered($u) ? '<small class="gvsub">Chapter not started</small>' : '')]; ?>
+    $tileSub = ['calling' => !empty($u['calling_chapter']) && setting('calling_quests') === '1' ? '<small class="gvsub on">Active</small>'
+        : (calling_offered($u) ? '<small class="gvsub">Not started</small>' : '')]; ?>
 <h2 class="gvhead">Your gnome</h2>
 <nav class="gvtiles" aria-label="Your gnome">
   <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
