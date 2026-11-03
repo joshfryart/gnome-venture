@@ -304,7 +304,7 @@ function refresh_energy(array &$u): void
         $new = min($max, (int)$u['energy'] + $ticks * $amt);
         $stamp = $new >= $max ? time() : $last + $ticks * $per;
         $stampStr = gmdate('Y-m-d H:i:s', $stamp);
-        // v2.4.98: add the ticks (don't overwrite with a stale total, which would hand back energy spent meanwhile) and only
+        // v2.4.97: add the ticks (don't overwrite with a stale total, which would hand back energy spent meanwhile) and only
         // when the stamp is still the one we read, so two tabs can't credit the same ticks twice.
         $won = q('UPDATE users SET energy = CASE WHEN energy + ? > ? THEN ? ELSE energy + ? END, energy_updated_at = ? WHERE id = ? AND energy_updated_at = ?',
             [$ticks * $amt, $max, $max, $ticks * $amt, $stampStr, $u['id'], (string)$u['energy_updated_at']])->rowCount() === 1;
@@ -726,7 +726,7 @@ function tile_grow(array $t, ?array $p, ?int $at = null): array
 }
 
 /**
- * v2.4.98: write a square only if it is still what this request read. $raw is the row as loaded (before annotate_tile).
+ * v2.4.97: write a square only if it is still what this request read. $raw is the row as loaded (before annotate_tile).
  * Locks the row (README race pattern), re-reads it and compares; if another tab or visitor changed it meanwhile, nothing is written,
  * $raw becomes the fresh row, and false comes back so the caller can show the fresh square instead of overwriting it with an old copy.
  */
@@ -874,7 +874,7 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
     $hv = $hs = $hst = [];
     foreach ($hires as $k => $hh) { $hv[$k] = hire_visits($hh); $hs[$k] = helper_skills($hh); $hst[$k] = ['water' => 0, 'weed' => 0, 'harvest' => 0]; }
     foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$plotId])->fetchAll() as $t) {
-        $raw = $t;   // v2.4.98: the row as the database held it, to check before any write
+        $raw = $t;   // v2.4.97: the row as the database held it, to check before any write
         $p = null;
         if ($t['plant_id']) {
             $pid = (int)$t['plant_id'];
@@ -907,7 +907,7 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
             $capped = !$p || (int)$t['growth_seconds'] >= (int)$p['grow_minutes'] * 60;
             if (growth_sig($t) !== $origSig || ((string)$t['growth_updated_at'] !== $origClock && (!$capped || time() - (ts($origClock) ?: 0) > 3600))) {
                 $keep = $t;
-                if (!tile_write_guarded($raw, fn() => save_growth($keep))) {   // v2.4.98: someone changed this square meanwhile; show theirs, don't overwrite it
+                if (!tile_write_guarded($raw, fn() => save_growth($keep))) {   // v2.4.97: someone changed this square meanwhile; show theirs, don't overwrite it
                     $t = feed_tick(bed_tick(tile_grow(annotate_tile($raw, $p), $p), $ownerRow));
                 }
             }

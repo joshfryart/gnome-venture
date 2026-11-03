@@ -145,7 +145,7 @@ function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?a
     $write = fn() => q('UPDATE plot_tiles SET last_watered = ?, growth_seconds = ?, growth_updated_at = ? WHERE id = ?',
         [$t['last_watered'], $t['growth_seconds'], $t['growth_updated_at'], $t['id']]);
     if ($raw === null) { $write(); return $t; }
-    if (tile_write_guarded($raw, $write)) {   // v2.4.98: only if nobody changed the square since it was read
+    if (tile_write_guarded($raw, $write)) {   // v2.4.97: only if nobody changed the square since it was read
         $raw = array_merge($raw, ['last_watered' => $t['last_watered'], 'growth_seconds' => $t['growth_seconds'], 'growth_updated_at' => $t['growth_updated_at']]);
         return $t;
     }

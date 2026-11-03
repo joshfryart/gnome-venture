@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.97
+- **Fix: a second tab or visitor can no longer overwrite your garden with an old copy.** `load_plot()` and `helper_water_tile()` lock the square and check it is unchanged before saving (`tile_write_guarded()` in `includes/garden_logic.php`); if it changed, nothing is written and the fresh square is shown. Closes a perennial re-harvest and weeding, mulch or compost being undone by a stale page load.
+- **Fix: energy refresh no longer refunds spent energy or credits ticks twice.** `refresh_energy()` adds the ticks (capped at the maximum) and only when `energy_updated_at` is still the value it read.
+- **Tests.** `tests/garden100.php` has a "v2.4.97 stale writes" block: stale square rejected, fresh row handed back, unchanged square written, no open transaction, spend kept across a refresh, no double credit.
+- Not changed: helper visit totals can still double-count when two tabs load at once (cosmetic; harvests are still claimed).
+
 ## 2.4.96
 - **New-player Welcome flow redesigned for phones (`welcome.php`).** Progress tiles with pixel icons (done tiles link back), Wren's portrait bubble with the long copy behind a **More** toggle, a sticky bottom bar with one big button and Back. **Step 1:** meadow stage with the live gnome, name box, 44 px hat and beard colour tiles (checkmark on the chosen one, name on title and label). **Step 2:** village cards with scene art (Poppyburrow, Honeybrook; other villages get a landscape-colour card with its emoji until they get art at `assets/img/villages/<name>.png`), and the village's welcome basket drawn top-down with item slots (picture, ×N badge, name). Every village's basket is on the page and the picked one shows (`assets/welcome.js`); without script the checked one is shown. Items pop in with a short stagger, none with reduced motion. **Step 3:** name, Petals / plot / energy tiles, and three pack cards (seeds, village basket, everyday kit) with five slots each; tap a card for the full list.
 - **Same fields and rules.** `do=gnome` / `place` / `finish` and every field name are unchanged; the live gnome preview still works; no inline styles (CSP). New art in `assets/img/welcome/` and `assets/img/villages/` (11 PNGs). New `pack_slots()`, `pack_icon()`, `swatch_tile()` in `includes/onboard.php`; the old `.wsteps`, `.zonecard`, `.villagepick` styles are gone.

@@ -545,7 +545,7 @@ ok('beds keep their crops through frost, storm, heat, rain and pests', (int)q_va
 ok('growth never goes backwards', (int)q_val('SELECT MIN(growth_seconds) FROM plot_tiles WHERE plant_id IS NOT NULL AND plot_id = ?', [$plotS]) >= 0);
 cfg(['weather_force' => '', 'season_force' => '', 'pest_chance' => 10, 'biddy_chance' => 40]);
 
-echo "== v2.4.98 stale writes\n";
+echo "== v2.4.97 stale writes\n";
 $plotW = mkplot();
 [$tw, $pw] = put($plotW, 1, 1, 'tomato', ['weeds' => 0]);
 $raw = tile($plotW, 1, 1);
