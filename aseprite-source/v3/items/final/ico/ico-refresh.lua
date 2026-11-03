@@ -22,7 +22,7 @@ local function head(a)
   local px, py = cx + cos(t) * rm, cy + sin(t) * rm
   local tx, ty = -sin(t), cos(t)
   local nx, ny = cos(t), sin(t)
-  return c:poly{ { floor(px + nx * 10 + .5), floor(py + ny * 10 + .5) }, { floor(px - nx * 10 + .5), floor(py - ny * 10 + .5) }, { floor(px + tx * 11 + .5), floor(py + ty * 11 + .5) } }
+  return c:poly{ { floor(px + nx * 12 + .5), floor(py + ny * 12 + .5) }, { floor(px - nx * 12 + .5), floor(py - ny * 12 + .5) }, { floor(px + tx * 13 + .5), floor(py + ty * 13 + .5) } }
 end
 local a1 = arc(200, 340):add(head(342))
 local a2 = arc(20, 160):add(head(162))
