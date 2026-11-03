@@ -58,7 +58,7 @@
 
     var timers = [], raf = [], done = false, closed = false;
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-    function setCoins(v) { if (!coins) { tc.textContent = ''; return; } gvIcoLine(tc, 'ico-coin', ' +' + v.toLocaleString() + ' ' + cur); }
+    function setCoins(v) { if (!coins) { tc.textContent = ''; return; } gvIcoLine(tc, 'ico-petal', ' +' + v.toLocaleString() + ' ' + cur); }
     function setXp(v) { if (!xp) { tx.textContent = ''; return; } gvIcoLine(tx, 'ico-star', ' +' + v + ' XP', 'Star'); }
     function count(set, to, ms) {
       var t0 = null;

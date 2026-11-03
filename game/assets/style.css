@@ -6797,3 +6797,25 @@ details.plantmore > summary, details.soildet > summary { justify-content: center
 .pfsearch .pfq:focus, .pfx:focus-visible, .pfchip:focus-visible, .pfin input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
 .pfsel { width: 100%; min-height: var(--tap); border: 2px solid var(--muted); background: var(--bg); color: var(--ink); font: inherit; padding: 0 8px; border-radius: 0; }
 .pickfilter .pfchips:has(.pfsel) { padding: 8px 0 0; }
+
+/* ===== v2.4.91 owner UI items ===== */
+/* A: Petals are shown once on desktop: the header pill. The menu's status line keeps only the destination (phones unchanged: the sheet still shows Petals) */
+@media (min-width: 721px) {
+  .side .navstatus .navpetals { display: none; }
+  .side .navstatus.nodest { display: none; }
+}
+/* C: Satchel tiles. Icons were 1.1em of 1.6rem (26-28px) = 0.41-0.44x of the 64px art with nearest-neighbour, so outline pixels dropped or doubled.
+   Now whole-number fractions of the art: 32px on phones and small tablets (1:1 on 2x screens), 64px from 900px where tiles are 130px+ (1:1). Smooth only where the art is halved on 1x screens. */
+.shtile .shti { display: block; height: 32px; font-size: 28px; line-height: 32px; }
+.shtile .shti .ico { width: 32px; height: 32px; vertical-align: top; image-rendering: pixelated; }
+@media (max-resolution: 1.5dppx) { .shtile .shti .ico { image-rendering: auto; } }
+.shtile { gap: 4px; }
+.shtile b { font-size: 14px; line-height: 1.2; }
+.shtile small { font-size: 13px; line-height: 1.2; }
+@media (min-width: 900px) {
+  .shtile .shti { height: 64px; font-size: 52px; line-height: 64px; }
+  .shtile .shti .ico, .shtile .shti .ico[src] { width: 64px; height: 64px; image-rendering: pixelated; }
+  .shtile b { font-size: 16px; }
+  .shtile small { font-size: 14px; }
+}
+/* ===== end v2.4.91 owner UI items ===== */

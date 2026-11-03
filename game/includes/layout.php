@@ -685,8 +685,8 @@ function nav_sheet(array $u, string $page): string
     $ds = function_exists('dest_status') ? dest_status($u) : null;
     $h = '<div class="navhead"><a class="navme" href="' . e(url('gnome.php')) . '">' . gnome_avatar_pals($u, 40) . '<span><b>' . e(gnome_name($u)) . '</b></span></a>'
         . '<button type="button" class="navx" aria-label="Close the menu">✕</button></div>'
-        . '<div class="navrow"><p class="navstatus">' . money((int)$u['coins'])
-        . ($ds ? ' · 🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'
+        . '<div class="navrow"><p class="navstatus' . ($ds ? '' : ' nodest') . '"><span class="navpetals">' . money((int)$u['coins']) . ($ds ? ' · ' : '') . '</span>'   // v2.4.91: Petals hidden from 721px (the header pill shows them)
+        . ($ds ? '🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'
         . '<a class="navhome" href="' . e(url('index.php?today=1')) . '"><span class="nti">' . nav_icon('today', '🏠', 20) . '</span> Today</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to Today   // v1.0.0.1: one row on a phone
     foreach ($groups as $name => $tiles) {
         // menu icons: the groups stay open on every screen (no folding any more)
