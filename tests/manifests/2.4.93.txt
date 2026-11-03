@@ -15,7 +15,7 @@ f8fd8882bbcdcf8b59fa514cfb8b75a03e7d8e7e  admin/log.php
 f9ca48fabb811c5e973f057aaab36c99dfddc8fd  admin/mentors.php
 6782e606d50d6b1bc5a385ce7d6ab90e1fc8a7af  admin/preview.php
 e85bca285e04fc70689274b3cbcc6f0d0fe9d7c5  admin/puzzles.php
-5ac5c3947e9c971edfde471802c6865927c83a94  admin/retention.php
+a934c3712b0d456322ac0473a7702756cdbc0841  admin/retention.php
 86168e4fccc1e0669c6feda1e3720a11bc64323d  admin/road_text.php
 9ff0acf7a10edc6d90e7777756f909909ee47183  admin/settings.php
 6041353c62510338eec4ea627c8a3056f9b76311  admin/texts.php
@@ -24,8 +24,8 @@ c13fdc4990df845ac7fe5ed0e583c0d9bec0b74e  admin/tools.php
 332ef581f9eedab593ad1c0ffcf07e4109e9c451  admin/treks.php
 f7d7bcb2bcf0118c9a62b40d57280ea8f729b4bd  admin/update.php
 a8ee7d16da7542d10b9cef727b4ce44a676435f8  admin/upload.php
-e0878da864bb3fc4cfe985ba9a1e180b353ff47f  admin/usage.php
-01cb811f578084801c0eb8655f11702e8e679e6e  admin/xp.php
+73e7fe6cea31bdbdf599b167924063b923d808a4  admin/usage.php
+2fa33c506c6c2bde71c0721d1417099f0965aa1d  admin/xp.php
 9b27586201c2d28a0f22eed85e80fe9c0c4dc79f  adventure.php
 ad5c4b3bc413c8b4a5d70e6f8acf928452a6668d  arrange.php
 f57d909ce44120d1309db50d32229995dc322ab4  assets/admin.css
@@ -8603,7 +8603,7 @@ bdbb0efe307da542813a164166b6eb64564a4aa0  folk.php
 e9e921169c0b5a43c2576f2b2eb33bfdbd47ccfa  hollow.php
 f501a3307e83832e730da850b05286b4bfba1a07  includes/.htaccess
 66e922f1e00c40e97598da9fa4852dffe1ba06ec  includes/account.php
-4ce071427ca1a8a93f3b2ce0bd8dc4cd1f0a2e4e  includes/admin_helpers.php
+7b66c6492664f02fa71dd54ec05ccc7ac8b15b62  includes/admin_helpers.php
 0693fb7382f3d305fcd8b75ad45d1e94fa586645  includes/admin_menu.php
 d1f64aeeaf1c5ccf3a60fe86f43d2f785014be19  includes/admin_puzzle_ui.php
 84628ff4bb06c144897787046c710cf7b1070057  includes/admin_resources.php
@@ -8616,7 +8616,7 @@ be0e8d16769d563bf658341fcdf2bd0f71fbf4fd  includes/adventure.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 412f3c8897959f508154cd42dc5b22ed7bd1a13b  includes/arrange_view.php
 0fa370c08e0a6e66183d20c2767d4d6feb2106c3  includes/art_upload.php
-2dd92043c422294a309ba3b2eec8c6be1cbd8173  includes/bootstrap.php
+82650b0b4beb15eb7c02ba076d1da4b363b432c6  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 ebec686c7270cb4e38d7d44e2ec21d216c029da9  includes/calling_view.php
@@ -8741,7 +8741,7 @@ b1ab55b509b54a92be646d4da25e4b8162b17949  includes/flowers.php
 bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 b7532a1819c9b65218a2c7048cdf3a943b1cc1cd  includes/fresh_start.php
 ef4bf4058febd5f67362680afaa96640b84f2c24  includes/friends.php
-52b1e3894026422b633d3ed0030e9ae702bcbb9c  includes/functions.php
+5d79eadb956998ccc790850244cbece45b6fec40  includes/functions.php
 858f431b3a94d67bfb5d97b6cc41dc5de96f11b7  includes/games.php
 40b9f85f2555cfb4aa817b1787c3eebdc3f6e27b  includes/garden_critters.php
 26b6b870c76eb1eab2f25da9eafe2a6beec400c9  includes/garden_fx.php
