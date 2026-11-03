@@ -1,6 +1,6 @@
 # Changelog
 
-## Next version (unreleased)
+## 2.4.91
 - **Petals show once on desktop.** From 721 px the menu's status line no longer repeats the Petals count (the header pill shows it); the destination line stays. Phones are unchanged: the menu sheet still shows Petals.
 - **Petals have a petal icon.** New `ico-petal` (pixel PNG drawn with gvlib, `aseprite-source/final/scripts/ico/ico-petal.lua`; SVG fallback from `tests/gen_ico_petal.py`) replaces the coin for 🪙 everywhere (header pill, prizes, treks, games, the chest reveal), read as "Petals" by screen readers. `💱` (admin Trade) keeps the coin. `users.coins` is unchanged.
 - **Crisper Satchel tiles.** Tile icons were 26-28 px (0.41-0.44x of the 64 px art, nearest-neighbour), which dropped and doubled outline pixels. They are now 32 px on phones (1:1 on 2x screens, smooth halving on 1x) and 64 px from 900 px; labels 14/13 px on phones, 16/14 px on desktop.
