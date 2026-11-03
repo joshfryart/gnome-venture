@@ -101,15 +101,18 @@ function tour_messages(?string $add = null): array
     return $out;
 }
 
+const TOUR_REWARD_XP = 100;   // level 2 needs 100 XP
+
 function tour_reward(int $uid): void
 {
     $coins = (int)setting('tour_reward_coins');
     if ($coins > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$coins, $uid]);
     $castings = (int)q_val("SELECT id FROM items WHERE slug = 'worm-castings'");
     if ($castings) give_item($uid, $castings, 2);
+    add_xp($uid, TOUR_REWARD_XP, 'tour');   // the tour ends at gnome level 2 (bigger energy bar, healed): level-up before the energy note below
     // v0.8.6: a prize pop-up, so the end of the tour isn't lost among the harvest messages
     prize('🐦', 'Wren’s tour done!', '“You’re a proper gardener now!”',
-        [$coins > 0 ? '+' . money($coins) : '', $castings ? '+2 Worm Castings' : '', tour_energy_note($uid), first_week_intro_line($uid)]);   // v1.0.0: the First Week starts here
+        [$coins > 0 ? '+' . money($coins) : '', '+' . TOUR_REWARD_XP . ' XP', $castings ? '+2 Worm Castings' : '', tour_energy_note($uid), first_week_intro_line($uid)]);   // v1.0.0: the First Week starts here
 }
 
 /** v1.6.2: one line on what energy buys, said once when the tour ends (the tour's actions were free). */

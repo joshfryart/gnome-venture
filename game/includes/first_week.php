@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * v1.0.0 wave 3: Wren's First Week.
  * After Wren's tour a gnome gets seven small cards, one unlocking each day (Hollow days since the tour ended).
- * Each card has two little goals that tick themselves off from what the gnome has really done, points at one key feature, and pays a gentle
- * reward when both are ticked. Cards never expire and never take anything away: a skipped day only means more cards are waiting.
+ * Each card has one or two little goals that tick themselves off from what the gnome has really done, points at one key feature, and pays a gentle
+ * reward when all are ticked. Cards never expire and never take anything away: a skipped day only means more cards are waiting.
  * The last card gives a keepsake title.
  */
 
@@ -17,31 +17,30 @@ const FIRST_WEEK = [
     1 => ['Settle in', 'Welcome to your first week! Two small things to get the soil under your nails.',
           ['harvest' => ['Harvest a crop', 'garden.php', 'Plant a quick radish, water it, and pick it when it is ready.'],
            'read' => ['Read three Almanac pages', 'book.php', 'Open the Almanac and read three pages. The Getting started chapter is a good one.']],
-          50, 10, 'plain-compost:3'],
+          50, 40, 'plain-compost:3'],
     2 => ['Meet the neighbours', 'Gnomes are lovely company. Say hello and look at what needs doing.',
           ['talk' => ['Chat with a townsperson', 'town.php?view=villagers', 'Open Town → Villagers, pick someone who is about, and press Talk.'],
            'job' => ['Take a job from the Job Board', 'jobs.php', 'Pick any daily job. Doing your usual gardening usually finishes it.']],
-          60, 10, ''],
+          60, 40, ''],
     3 => ['Out and about', 'The Hollow is bigger than one garden. Take a short walk.',
           ['walk' => ['Walk to another stop on the road', 'world.php', 'Open World and tap a stop along the road.'],
            'gather' => ['Gather something wild', 'world.php', 'At a stop, open the Gather tab and forage. Finds fill your Almanac.']],
-          70, 15, 'worm-castings:2'],
+          70, 50, 'worm-castings:2'],
     4 => ['Kitchen day', 'Home cooking beats anything from a shop. Put a pot on.',
           ['cook' => ['Cook something', 'inventory.php?tab=craft&c=cooking', 'Open Satchel → Crafting → Cooking. A simple dish is fine.'],
            'town' => ['Do something in a town square', 'town.php', 'Open Town and try a stall, a bench or a wishing well.']],
-          80, 15, ''],
-    5 => ['Together', 'You are not on your own out here. Make a friend and leave a mark.',
-          ['stamp' => ['Sign another gnome’s garden guestbook', 'gotm.php', 'Visit a garden from Garden of the Month or a friend’s page, and sign the guestbook.'],
-           'pal' => ['Send (or accept) a gnome friend request', 'pals.php', 'Open someone’s profile and press Add friend. You can also accept a waiting request.']],
-          90, 20, 'rich-loam:2'],
+          80, 50, ''],
+    5 => ['Together', 'You are not on your own out here. Get to know one more face in town.',   // not a guestbook sign: a world may have no other open garden to sign
+          ['talk2' => ['Chat with a second townsperson', 'town.php?view=villagers', 'Open Town → Villagers and press Talk with someone you have not chatted with yet.']],
+          90, 30, 'rich-loam:2'],
     6 => ['The Hollow together', 'Everyone helps fill the jar, and there is always a ribbon to chase.',
           ['jar' => ['Put something in the Hollow jar', 'community.php?t=jar', 'Whatever the week’s goal is, doing it counts. Check the jar on the Together page.'],
            'contest' => ['Enter a contest', 'games.php?tab=contests', 'The Village Show enters you automatically when you harvest the week’s crop. Or try the Fair.']],
-          100, 20, ''],
+          100, 30, ''],
     7 => ['Make it yours', 'One last card. Your garden, your story.',
           ['decor' => ['Put a decoration in your yard', 'garden.php', 'Buy a little decoration at the Hedge & Hearth, then use ✏️ Design yard.'],
            'journey' => ['Hand in a stage of Wren’s Journey', 'book.php?ch=Journey', 'Your first chapter has a project to build. Hand in the first stage when you have the materials.']],
-          250, 40, 'rich-loam:3'],
+          250, 60, 'rich-loam:3'],
 ];
 
 const FIRST_WEEK_TITLE = 'Sprout of the Hollow';
@@ -77,13 +76,12 @@ function first_week_check(int $uid, string $key): bool
         'harvest' => (bool)q_val('SELECT 1 FROM user_plant_knowledge WHERE user_id = ? AND knowledge > 0 LIMIT 1', [$uid]),
         'read' => (int)q_val('SELECT COUNT(*) FROM user_encyclopedia WHERE user_id = ? AND read_at IS NOT NULL', [$uid]) >= 3,
         'talk' => (bool)q_val('SELECT 1 FROM npc_friends WHERE user_id = ? AND talks > 0 LIMIT 1', [$uid]),
+        'talk2' => (int)q_val('SELECT COUNT(*) FROM npc_friends WHERE user_id = ? AND talks > 0', [$uid]) >= 2,
         'job' => (bool)q_val('SELECT 1 FROM user_jobs WHERE user_id = ? LIMIT 1', [$uid]),
         'walk' => (int)q_val("SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE ue.user_id = ? AND e.unlock_key LIKE 'village:%'", [$uid]) >= 2,
         'gather' => (bool)q_val("SELECT 1 FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE ue.user_id = ? AND e.unlock_key LIKE 'gather:%' LIMIT 1", [$uid]),
         'cook' => (bool)q_val('SELECT 1 FROM cook_pots WHERE user_id = ? LIMIT 1', [$uid]),
         'town' => (bool)q_val('SELECT 1 FROM town_uses WHERE user_id = ? LIMIT 1', [$uid]),
-        'stamp' => (bool)q_val('SELECT 1 FROM garden_stamps WHERE user_id = ? LIMIT 1', [$uid]),
-        'pal' => (bool)q_val("SELECT 1 FROM player_friends WHERE (user_id = ? OR friend_id = ?) AND status IN ('pending', 'accepted') LIMIT 1", [$uid, $uid]),
         'jar' => (bool)q_val('SELECT 1 FROM hollow_goal_contrib WHERE user_id = ? LIMIT 1', [$uid]),
         'contest' => (bool)q_val('SELECT 1 FROM show_entries WHERE user_id = ? UNION ALL SELECT 1 FROM fair_entries WHERE user_id = ? UNION ALL SELECT 1 FROM gotm_entries WHERE user_id = ?
                                   UNION ALL SELECT 1 FROM arrangement_entries WHERE user_id = ? UNION ALL SELECT 1 FROM carvings WHERE user_id = ? LIMIT 1', [$uid, $uid, $uid, $uid, $uid]),
