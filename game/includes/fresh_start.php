@@ -55,6 +55,14 @@ const FRESH_USER_TABLES = [
     'item_quality' => 'user_id', 'gourmand_ledger' => 'user_id',   // next version
 ];
 
+/** Same, for tables that are created on first use by their feature: a missing table is skipped. */
+const FRESH_LAZY_TABLES = [
+    'cats' => 'user_id', 'catfish_state' => 'user_id', 'cat_book' => 'user_id', 'cat_ribbons' => 'user_id', 'catfish_items' => 'user_id',
+    'ppal_releases' => 'user_id', 'ppal_found' => 'user_id', 'ppal_trophies' => 'user_id', 'ppal_spawns' => 'user_id', 'ppal_jobs' => 'user_id',
+    'user_hybrids' => 'user_id', 'trek_ms' => 'user_id', 'trek_runs' => 'user_id', 'stop_prog' => 'user_id',
+    'puzzle_attempts' => 'user_id', 'puzzle_runs' => 'user_id', 'puzzle_wins' => 'user_id', 'jigsaw_unlocks' => 'user_id',
+];
+
 /**
  * Wipe one player's progress. Returns [true, summary] or [false, why]. Never touches other players' own data
  * apart from cancelling/refunding what the reset player had open with them.
@@ -106,6 +114,14 @@ function fresh_start_player(int $uid): array
         foreach (q('SELECT plot_id, COUNT(*) AS c FROM garden_admires WHERE user_id = ? GROUP BY plot_id', [$uid])->fetchAll() as $v) {
             q('UPDATE plots SET admired = CASE WHEN admired > ? THEN admired - ? ELSE 0 END WHERE id = ?', [(int)$v['c'], (int)$v['c'], $v['plot_id']]);
         }
+
+        // Tables made lazily by their own feature (may not exist yet on this install): cats, puzzle pals, treks, puzzles, stops, hybrids.
+        $plotIds = 'SELECT id FROM plots WHERE user_id = ?';
+        foreach (FRESH_LAZY_TABLES as $t => $col) {
+            try { $del("DELETE FROM $t WHERE $col = ?", [$uid]); } catch (Throwable $e) {}
+        }
+        try { $del("DELETE FROM ppal_jobs WHERE plot_id IN ($plotIds)", [$uid]); } catch (Throwable $e) {}
+        try { $del("DELETE FROM garden_react_notes WHERE plot_id IN ($plotIds)", [$uid]); } catch (Throwable $e) {}
 
         market_fresh_start($uid);   // v1.0.0 wave 2b: item quality, orders, market buys, baskets
         social_fresh_start($uid);   // v1.0.0 wave 3: friends, blocks, stamps, goal shares, First Week, festival rows (before the gardens go)
