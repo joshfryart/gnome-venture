@@ -45,25 +45,35 @@ cb:each(function(x, y) local q = (y - 40) + 0.04 * (x - 44) ^ 2
 
 -- cerebrum height field: dome + gyri
 local d = X.dist(cer)
-local function gyri(x, y)
-  local f1 = sin(0.5 * x + 2.0 * sin(0.24 * y + 0.4))
-  local f2 = sin(0.48 * y + 1.8 * sin(0.27 * x + 1.3))
-  return f1 + f2
-end
--- lateral fissure (polyline) and central sulcus
-local fis = A.stroke({ { 14, 35 }, { 21, 33 }, { 29, 30 }, { 36, 26 } }, 0.7)
-local cen = A.stroke({ { 33, 13 }, { 31, 18 }, { 33, 22 }, { 31, 26 } }, 0.6)
+-- sulci drawn as hand-placed meandering grooves; gyri bulge between them
+local SUL = {
+  { { 13, 36 }, { 20, 33 }, { 27, 31 }, { 33, 28 }, { 39, 27 } },           -- lateral fissure
+  { { 33, 12 }, { 31, 17 }, { 34, 21 }, { 32, 26 } },                       -- central sulcus
+  { { 13, 22 }, { 18, 20 }, { 22, 24 }, { 27, 21 }, { 28, 15 } },
+  { { 11, 29 }, { 16, 26 }, { 21, 29 }, { 27, 26 } },
+  { { 19, 12 }, { 22, 16 }, { 25, 13 } },
+  { { 37, 13 }, { 39, 18 }, { 44, 17 }, { 48, 21 } },
+  { { 36, 22 }, { 40, 24 }, { 45, 23 }, { 51, 28 } },
+  { { 41, 29 }, { 45, 32 }, { 50, 31 } },
+  { { 17, 40 }, { 23, 37 }, { 28, 39 }, { 34, 35 } },
+  { { 37, 32 }, { 40, 36 } },
+}
+local fis = A.stroke(SUL[1], 0.7)
+local cen = A.stroke(SUL[2], 0.55)
+local grooves = HP.mask()
+for i, l in ipairs(SUL) do A.stroke(l, i == 1 and 0.7 or 0.5, grooves) end
+grooves:clip(cer:shrink(1))
+local dg = X.dist(cer:copy():cut(grooves))
 local G2 = {}
-cer:each(function(x, y) local g = abs(gyri(x, y))
-  if fis:has(x, y) or cen:has(x, y) then g = 0 end
-  G2[K(x, y)] = g end)
+cer:each(function(x, y) local k = K(x, y) G2[k] = grooves:has(x, y) and 0 or min(1, (dg[k] or 0) / 2.2) end)
 local function H(x, y)
   local v = d[K(x, y)]
   if not v then return 0 end
   local R = 7
   local t = min(v + 0.5, R) / R
   local dome = R * sqrt(1 - (1 - t) ^ 2)
-  return dome + 1.5 * min(1, G2[K(x, y)] / 0.7)
+  local g = G2[K(x, y)]
+  return dome + 2.2 * sqrt(g)
 end
 local n = {}
 cer:each(function(x, y)
@@ -76,8 +86,8 @@ local ctok = { r = { name = "cerebrum" } }
 local idx = A.shade(c, cer, n, PINK, { tok = ctok, amb = 0.1, wrap = 0.3, cuts = { 0.14, 0.32, 0.5, 0.68, 0.86 } })
 -- grooves: darkest at the bottom of each fold
 cer:each(function(x, y) local k = K(x, y)
-  if (fis:has(x, y) or cen:has(x, y)) and d[k] > 0.6 then A.step(c, idx, PINK, x, y, -3, ctok)
-  elseif G2[k] < 0.2 and d[k] > 0.6 then A.step(c, idx, PINK, x, y, -2, ctok) end end)
+  if fis:has(x, y) and grooves:has(x, y) then A.step(c, idx, PINK, x, y, -3, ctok)
+  elseif grooves:has(x, y) then A.step(c, idx, PINK, x, y, -2, ctok) end end)
 -- overall form: lower-right of the cerebrum one step darker (shade side), crown kept
 cer:each(function(x, y) local k = K(x, y)
   local dx, dy = (x - CX) / RX, (y - CY) / RY
@@ -87,7 +97,7 @@ cer:each(function(x, y) if not cer:has(x, y + 1) and not cer:has(x + 1, y + 1) a
 -- wet gloss: brightest gyri tops on the crown get the hi; one cream glint
 local sp = X.spec(n, 30)
 cer:each(function(x, y) local k = K(x, y)
-  if sp[k] > 0.55 and y < 24 and x < 32 and G2[k] > 0.9 then c:put(x, y, PINK[6], ctok) end end)
+  if sp[k] > 0.5 and y < 26 and x < 34 and G2[k] > 0.8 then c:put(x, y, PINK[6], ctok) end end)
 c:put(19, 17, A.SPEC, ctok) c:put(20, 17, PINK[6], ctok)
 
 -- quirk: sticking plaster on the crown (diagonal, two dotted pads)

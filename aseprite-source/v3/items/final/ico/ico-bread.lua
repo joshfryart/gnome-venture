@@ -85,7 +85,7 @@ end)
 face:each(function(x, y) if not face:has(x - 1, y) and loaf:has(x - 1, y) then A.step(c, idx, CRUST, x - 1, y, -1, ctok) end end)
 
 -- quirk: two crumbs falling from the bite
-do local x, y = scr(RX + 0.5, 6.5) x, y = floor(x + .5), floor(y + .5)
+do local x, y = scr(RX - 1.5, 6.5) x, y = floor(x + .5), floor(y + .5)
   A.map(c, { "hc", "cd" }, x, y + 1, { h = CRUMB[4], c = CRUMB[3], d = CRUST[4] }, mtok)
   A.map(c, { "hd" }, x + 4, y + 2, { h = CRUMB[3], d = CRUST[4] }, mtok)
 end

@@ -1,22 +1,52 @@
+-- ico-rain (final pass, Opus). A heavy rain cloud: four puffs over a flat, shadowed belly, cool slate 6-tone ramp
+-- lit per pixel from a puff height field, crease lines where the front puffs sit on the back ones, a pale rim light
+-- on the top. Below it three slanting glassy teardrops (6-tone blue, bright rim upper-left, pale core, one cream glint)
+-- falling in a staggered line.
+-- quirk: the last drop has just landed and thrown up a little splash crown on a puddle.
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local D = dofile(DIR .. "/../_helpers/_dA8.lua")
-local HP, X, INK, CREAM = D.HP, D.X, D.INK, D.CREAM
-local floor, sin, cos, sqrt, max, min, abs, pi = math.floor, math.sin, math.cos, math.sqrt, math.max, math.min, math.abs, math.pi
--- ico-rain: puffy grey cloud with a flat underside and slanting blue raindrops.
--- quirk: one drop has already hit the ground and bounced into a tiny splash crown.
-local c = D.new("ico-rain")
-local cl = c:ellipse(20, 26, 10, 9):add(c:ellipse(33, 20, 12, 12)):add(c:ellipse(46, 27, 10, 9)):add(c:rect(14, 28, 52, 35))
-cl:cut(c:rect(0, 36, 63, 63))
-D.lit(c, cl, D.GRY, 11, { amb = 0.1 })
-D.rect(c, 14, 35, 52, 35, D.GRY[2])
-D.pts(c, { {27, 14}, {28, 13}, {29, 13}, {18, 21}, {17, 22} }, D.GRY[6])
-local function drop(x, y)
-  local m = c:poly{ {x + 1, y}, {x + 3, y + 4}, {x + 3, y + 5}, {x + 2, y + 6}, {x, y + 6}, {x - 1, y + 5}, {x - 1, y + 4} }
-  D.lit(c, m, D.BLU, 2, { amb = 0.1 })
-  c:px(x, y + 4, D.BLU[6])
+local A = dofile(DIR .. "/../_helpers/_aA8_5.lua")
+local HP, X, K = A.HP, A.X, A.K
+local floor, sqrt, max, min, abs = math.floor, math.sqrt, math.max, math.min, math.abs
+local c = A.new("ico-rain")
+local SLATE = { "#2f3352", "#484d74", "#666c96", "#8b92b8", "#b7bdd8", "#e2e6f4" }
+local BLU   = { "#1d2c63", "#28509a", "#3478c8", "#55a2e6", "#92d0f6", "#d6f2ff" }
+
+-- cloud
+local bumps = { { 19, 22, 7 }, { 30, 15, 10 }, { 43, 19, 8 }, { 25, 24, 6, true }, { 40, 25, 6, true } }
+local cm, cidx = A.cloud(c, bumps, 30, 11, 52, SLATE, { baseH = 8 })
+-- rim light on the very top edge of the big puff (one row, upper-left arc)
+cm:each(function(x, y)
+  if not cm:has(x, y - 1) and x < 34 and x > 22 and (cidx[K(x, y)] or 0) >= 5 then c:put(x, y, SLATE[6]) end
+end)
+c:sparkle(26, 9)
+
+-- raindrops: slanting teardrop (point up-right), sphere-lit round bottom
+local function drop(bx, by, small)
+  local r = small and 2 or 3
+  local m = HP.ellipse(bx, by, r, r)
+  local tipx, tipy = bx + 2, by - (small and 5 or 8)
+  m:add(HP.poly{ { bx - r + 0.2, by - 0.4 }, { tipx + 0.5, tipy }, { tipx + 1.2, tipy + 0.6 }, { bx + r + 0.8, by + 0.2 } })
+  local n = X.sphere(bx - 0.3, by - 1.2, r + 2, m)
+  local idx = A.shade(c, m, n, BLU, { amb = 0.12, wrap = 0.3 })
+  -- glass: bright rim on the upper-left edge, pale core, darker lower-right lip, one glint
+  m:edge():each(function(x, y)
+    if x <= bx - 1 and y <= by then c:put(x, y, BLU[5]) end
+    if x >= bx + 1 and y >= by + 1 then c:put(x, y, BLU[2]) end
+  end)
+  c:put(floor(bx), floor(by), BLU[5]) c:put(floor(bx) + 1, floor(by), BLU[4])
+  c:put(floor(bx) - 1, floor(by) - 1, A.CREAM)
+  return m
 end
-drop(16, 40) drop(28, 42) drop(40, 40) drop(22, 50) drop(34, 52) drop(46, 49)
--- splash
-D.pts(c, { {52, 58}, {53, 58}, {54, 58}, {55, 58}, {56, 58}, {50, 56}, {51, 57}, {58, 56}, {57, 57} }, D.BLU[4])
-D.pts(c, { {53, 59}, {54, 59}, {55, 59}, {52, 55}, {58, 55} }, D.BLU[2])
-D.fin()
+drop(19, 41) drop(32, 44) drop(45, 41)
+-- quirk: splash crown on a puddle under the right column
+local px, py = 46, 52
+local pud = HP.ellipse(px, py, 5, 1)
+c:fillMask(pud, BLU[3])
+for x = px - 4, px + 1 do c:put(x, py - 1, BLU[4]) end
+c:put(px - 3, py - 1, BLU[5]) c:put(px + 3, py + 1, BLU[2]) c:put(px + 4, py, BLU[2])
+-- crown: two flung droplets + rising prongs
+c:put(px - 2, py - 2, BLU[4]) c:put(px - 3, py - 3, BLU[5])
+c:put(px + 2, py - 2, BLU[3]) c:put(px + 3, py - 3, BLU[4])
+c:put(px, py - 2, BLU[5]) c:put(px, py - 3, BLU[6])
+c:put(px - 5, py - 5, BLU[5]) c:put(px + 5, py - 5, BLU[4])
+A.save(c, "ico-rain")
