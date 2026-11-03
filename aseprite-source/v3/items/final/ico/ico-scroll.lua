@@ -21,6 +21,7 @@ local sb = {}
 sheet:each(function(x, y) local k = K(x, y)
   if y <= 17 then sb[k] = (y == 16 or y == 15) and -2 or -1 end      -- AO under top roll
   if y >= 45 then sb[k] = (y == 47) and -2 or -1 end                 -- AO above bottom curl
+  if x >= 43 then sb[k] = (sb[k] or 0) - 1 end                       -- page curves away on the right
 end)
 local sn = A.bulge(X.pillow(sheet, 2), 26, 22, 22, 40, 0.35)
 local sidx = A.shade(c, sheet, sn, PA, { tok = ptok, bias = sb, cuts = { 0.14, 0.28, 0.44, 0.6, 0.78 } })
@@ -38,7 +39,9 @@ A.map(c, { "4555", "3.24", "3..4", "3224", "2..3", "2..3" }, 21, 19, { ["2"] = W
 
 -- top roll: paper cylinder on a dowel with knobs
 local rm, rn = X.cyl(17, 12.5, 47, 12.5, function() return 3.3 end)
-local ridx = A.shade(c, rm, rn, PA, { tok = ptok, cuts = { 0.3, 0.46, 0.62, 0.78, 0.92 } })
+local rb = {}
+rm:each(function(x, y) rb[K(x, y)] = (y >= 15 and -2) or (y >= 14 and -1) or (y <= 10 and 1) or nil end)
+local ridx = A.shade(c, rm, rn, PA, { tok = ptok, bias = rb, cuts = { 0.3, 0.46, 0.62, 0.78, 0.92 } })
 -- paper end edges (spiral lip)
 for y = 10, 15 do A.step(c, ridx, PA, 17, y, -1, ptok) A.step(c, ridx, PA, 47, y, -2, ptok) end
 for _, e in ipairs{ { 11, 16 }, { 48, 53 } } do
@@ -55,7 +58,9 @@ c:put(9, 11, WD[6], wtok) c:put(10, 10, WD[6], wtok)
 
 -- bottom curl: thicker roll, right end shows the paper spiral
 local bm, bnn = X.cyl(18, 49.5, 46, 49.5, function() return 3.6 end)
-local bidx = A.shade(c, bm, bnn, PA, { tok = ptok, cuts = { 0.3, 0.46, 0.62, 0.78, 0.92 } })
+local bb2 = {}
+bm:each(function(x, y) bb2[K(x, y)] = (y >= 52 and -2) or (y >= 51 and -1) or nil end)
+local bidx = A.shade(c, bm, bnn, PA, { tok = ptok, bias = bb2, cuts = { 0.3, 0.46, 0.62, 0.78, 0.92 } })
 for x = 20, 44 do A.step(c, bidx, PA, x, 46, 1, ptok) end        -- lip where the sheet wraps over
 for y = 47, 52 do A.step(c, bidx, PA, 18, y, -1, ptok) end
 -- spiral end cap at the right
@@ -72,17 +77,16 @@ local spiral = {
 local cp = { ["1"] = PA[1], ["2"] = PA[2], ["3"] = PA[3], ["4"] = PA[4], ["5"] = PA[5] }
 A.map(c, spiral, 45, 46, cp, ptok)
 
--- quirk: bookworm peeking out of the spiral hole
+-- quirk: bookworm rearing up out of the spiral hole
 local qtok = A.tok("worm")
-A.map(c, {
-  ".344",
-  "34443",
-  "23332",
-  ".122.",
-}, 48, 47, { ["1"] = WORM[1], ["2"] = WORM[2], ["3"] = WORM[3], ["4"] = WORM[4] }, qtok)
-c:put(50, 48, A.INK, qtok) c:put(50, 47, A.INK, qtok)
-c:put(51, 49, "#f5809f", qtok)
-c:put(52, 49, WORM[1], qtok)
+local wm, wn, WT = A.tube({ { 47, 49 }, { 48, 44 }, { 50, 41 }, { 52, 41 } }, function(t) return 1.25 end)
+local widx = A.shade(c, wm, wn, WORM, { tok = qtok, cuts = { 0.3, 0.55, 0.8 } })
+-- body rings
+wm:each(function(x, y) local t = WT[K(x, y)] if t > 0.2 and t < 0.8 and floor(t * 12) % 3 == 0 then A.step(c, widx, WORM, x, y, -1, qtok) end end)
+local hm = A.ellM(52.5, 40.5, 1.9, 1.9)
+A.shade(c, hm, X.sphere(52, 40, 2.2, hm), WORM, { tok = qtok, cuts = { 0.3, 0.55, 0.8 } })
+c:put(53, 39, A.INK, qtok) c:put(53, 40, A.INK, qtok) c:put(52, 39, WORM[4], qtok)
+c:put(54, 41, "#f5809f", qtok)
 
 -- wax seal with ribbon tails, pressed onto the sheet bottom
 local rtok = A.tok("ribbon")
