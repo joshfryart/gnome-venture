@@ -131,7 +131,7 @@ c:paint({
   ".whhm.",
   "wwwwwm",
   ".nssnc",
-}, 38, 49, { w = "#c97f4c", h = "#efb57e", m = "#a3603c", s = "#8a4c32", n = "#55291f", c = "#9c6240" })
+}, 38, 49, { w = "#c97f4c", h = "#efb57e", m = "#a3603c", s = "#7e432d", n = "#4f2620", c = "#9c6240" })
 -- laugh lines + soft open smile
 pts({ {36,53},{36,54},{45,54},{45,55} }, "#a06640")
 c:paint({ "i.....i", ".iDPDi.", "..iii.." }, 37, 56, { i = "skinB.deep", D = "ember.deep", P = "petal.base" })
