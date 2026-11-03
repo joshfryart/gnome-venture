@@ -1,16 +1,38 @@
--- progress-house FIRST DRAFT. 18x18 icon: cottage with a round door. quirk: one wonky chimney.
-local d = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local HP = dofile(d .. "/../lib/hp.lua")
-local P = HP.P
-local out = app.params.out or (d .. "/")
-local NAME = "progress-house"
+-- progress-house FINAL (= pass B; history: progress-house.pA.lua, progress-house.pB.lua). 18x18 progress icon: cottage, red tiled roof, cream walls, round door.
+-- B: roof re-cut wider with a deep eave and tile-course marks, arched (round-topped) door with lit edge and gold knob,
+-- stone chimney, framed window, darker wall base; smoke puff detached and outlined. Matched set with
+-- progress-gnome / progress-sprout (same red as the gnome hat). quirk: a little puff of chimney smoke.
+local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local HP = dofile(DIR .. "/../lib/hp.lua")
+local out = app.params.out or (DIR .. "/")
+local NAME = app.params.name or "progress-house"
 local c = HP.canvas{ w = 18, h = 18, scale = 1, name = NAME }
-c:part(c:rect(12, 1, 14, 6), "stone", { band = 1, nopop = true })
-c:part(c:rect(3, 8, 14, 16), { hi = P.cream, base = P.cream, shade = "#ead7b4", deep = P.wood.base }, { band = 1, nopop = true })
-c:part(c:poly{ {0,8},{8,1},{16,8} }, "ember", { band = 2, pop = { x = 5, y = 5 } })
-c:part(c:ellipse(8.5, 13.5, 2.5, 3), "wood", { band = 1, nopop = true })
-c:px(9, 14, P.gold.hi)
-c:part(c:rect(12, 10, 13, 11), "sea", { band = 1, nopop = true, inner = false })
+c:paint({
+  "..................",
+  "...........WW.....",
+  "..........Ww......",
+  "...........Sxz....",
+  ".......Rr..Sxz....",
+  "......RRrr.Sxz....",
+  ".....RRrrrrrrr....",
+  "....RRrrrrrrrrs...",
+  "...Rrssrssrssrss..",
+  "..RRrrrrrrrrrrrrs.",
+  "..ddddddddddddddd.",
+  "...CCcccbbtccccq..",
+  "...CAAcbBbbtcccq..",
+  "...CAacbBbbtcccq..",
+  "...ccccbbbYtcccq..",
+  "...ccccbbbbtcccq..",
+  "...qqqqbbbbtqqqq..",
+  "..................",
+}, 0, 0, {
+  W = "cream", w = "stone.hi", x = "stone.base", z = "stone.shade",
+  R = "ember.hi", r = "ember.base", s = "ember.shade", d = "ember.deep",
+  C = "cream", c = "#f3e2bd", q = "#d9bf92",
+  B = "wood.hi", b = "wood.base", t = "wood.shade", u = "wood.deep",
+  A = "sea.hi", a = "sea.base", Y = "gold.hi", S = "stone.hi",
+})
 c:finish{ outline = true }
 HP.report(c) HP.assertClean(c)
 c:save{ aseprite = out .. NAME .. ".aseprite", png = out .. NAME .. ".png", scale = 1 }

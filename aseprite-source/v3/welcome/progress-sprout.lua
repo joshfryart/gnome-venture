@@ -1,15 +1,36 @@
--- progress-sprout FIRST DRAFT. 18x18 icon: sprout in soil. quirk: a droplet on the left leaf.
-local d = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local HP = dofile(d .. "/../lib/hp.lua")
-local P = HP.P
-local out = app.params.out or (d .. "/")
-local NAME = "progress-sprout"
+-- progress-sprout FINAL (= pass B; history: progress-sprout.pA.lua, progress-sprout.pB.lua). 18x18 progress icon: two-leaf sprout in a mound of soil.
+-- B: leaves re-cut as pointed ovals with midribs and a lit upper edge, stem 2 px with a lit side, soil mound with
+-- clods and a deep underside, dewdrop with glint. Matched set with progress-gnome / progress-house.
+-- quirk: a dewdrop on the left leaf.
+local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local HP = dofile(DIR .. "/../lib/hp.lua")
+local out = app.params.out or (DIR .. "/")
+local NAME = app.params.name or "progress-sprout"
 local c = HP.canvas{ w = 18, h = 18, scale = 1, name = NAME }
-c:part(c:ellipse(9, 14, 7, 3):clip(c:rect(0, 11, 17, 17)), "wood", { band = 1, pop = { x = 5, y = 13 } })
-c:part(c:rect(8, 6, 9, 12), "moss", { band = 1, nopop = true })
-c:part(c:poly{ {8,8},{1,3},{4,1},{8,4} }, "moss", { band = 1, pop = { x = 3, y = 3 } })
-c:part(c:poly{ {9,6},{12,0},{17,2},{15,6} }, "moss", { band = 1, pop = { x = 13, y = 2 } })
-c:px(3, 6, P.sea.hi)
+c:paint({
+  "..................",
+  "..........GGgg....",
+  "..GG.....GGggggg..",
+  ".GAGg...GGgggghh..",
+  ".GagggG.Gghhhgh...",
+  "..gghggGghgggh....",
+  "...gggghghhhj.....",
+  ".....hhjgh........",
+  "........Gh........",
+  "........gh........",
+  "........gh........",
+  "....BBbbGhbbbt....",
+  "..BBbbbbghbbbbtt..",
+  ".BbbbubbbbbbbbPtt.",
+  ".bbbbbbbbbtbbbQtt.",
+  ".tbbbbbbbbbbbtttu.",
+  "..uutttttttttuuu..",
+  "..................",
+}, 0, 0, {
+  G = "moss.hi", g = "moss.base", h = "moss.shade", j = "moss.deep",
+  B = "wood.hi", b = "wood.base", t = "wood.shade", u = "wood.deep",
+  A = "sea.hi", a = "sea.base", P = "stone.hi", Q = "stone.shade",
+})
 c:finish{ outline = true }
 HP.report(c) HP.assertClean(c)
 c:save{ aseprite = out .. NAME .. ".aseprite", png = out .. NAME .. ".png", scale = 1 }
