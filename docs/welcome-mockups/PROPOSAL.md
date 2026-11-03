@@ -44,4 +44,4 @@ Future villages need one 160x100 scene each (fallback: landscape emoji on a flat
 ## Update: Wren bubble + welcome basket
 - Wren portrait (72x72) now sits inside the speech-bubble box, tail pointing down-left. One shared component, all 3 steps.
 - Step 2: village cards lose their item icons. A woven "welcome basket" sits below the cards; it holds the selected village's items as big slots with x-N badges and names. Tapping a card swaps the contents (items drop in with a short staggered pop, off under prefers-reduced-motion). `aria-live=polite` announces the change.
-- Extra art: none required (basket is CSS weave; optional pixel basket rim later). Mockup states: `index.html#s2` (Poppyburrow), `#s2h` (Honeybrook); screenshots step2.png, step2-honeybrook.png.
+- Basket: red-outline art placeholder "handle + woven body, open top" 380x250 behind a CSS-drawn stand-in (arched handle, tapered woven body). Items sit inside the open top. Final pixel art drops in as the background; item grid stays 3 columns.
