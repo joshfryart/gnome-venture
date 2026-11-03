@@ -1,28 +1,56 @@
--- bilberries: an upright zig-zag bilberry sprig, five dusky-bloomed berries on short pedicels, small oval leaves. quirk: a green caterpillar is inching along the stem.
-local D = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_dA15.lua")
-local HP, X, K = D.HP, D.X, D.K
-local floor, max, min, abs, sqrt, sin, cos, pi = math.floor, math.max, math.min, math.abs, math.sqrt, math.sin, math.cos, math.pi
-local c = D.new("bilberries")
-local B = { "#1a1238", "#2c2060", "#42368a", "#5a4aa8", "#8678c8", "#b8aee8" }
--- zig-zag stem
-local pts = { {30,56}, {24,46}, {36,36}, {26,26}, {34,14} }
-for i = 1, #pts - 1 do D.ln(pts[i][1], pts[i][2], pts[i+1][1], pts[i+1][2], "#5a8a40") D.ln(pts[i][1] + 1, pts[i][2], pts[i+1][1] + 1, pts[i+1][2], "#3a6a38") end
+-- bilberries (final, Opus single pass). A short arching woody twig with three small oval leaves; six dusky
+-- bilberries hang on thin pedicels below it, each with air around it.
+-- Material: per-pixel sphere light (6-tone dusky blue-violet), waxy bloom flecks on the mid tones, a crown navel,
+-- one cream glint each, cool reflected light lower-right. Twig: lit tube with bark nicks and a pale snapped end.
+-- Leaves: folded blades with midrib + side veins and a dark base where they meet the twig.
+-- quirk: one berry has split and is weeping a single drop of crimson juice.
+local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aR20_0.lua")
+local HP, X, K = A.HP, A.X, A.K
+local floor = math.floor
+local c = A.new("bilberries")
+local BER  = { "#1a1438", "#2a2560", "#3d3f8a", "#5560a8", "#7d8cc6", "#b3c0e6" }
+local LEAF = { "#173f36", "#22593f", "#2f7848", "#47984e", "#6cb858", "#a2d672" }
+local BARK = { "#3a2424", "#5b3a2e", "#80553a", "#a87a4e", "#c9a070" }
+local PED  = "#4f7a3a"
+
+-- twig (behind everything)
+local tm, tn, TT, TS = A.tube({ {10, 19}, {20, 12}, {36, 9}, {52, 14} }, function(t) return 1.6 - 0.7 * t end)
+local ttok = { r = { name = "twig" } }
+A.tone(c, tm, tn, BARK, { cuts = { 0.25, 0.45, 0.65, 0.85 }, amb = 0.15, wrap = 0.3, tok = ttok })
+for _, p in ipairs{ {17, 14}, {27, 10}, {41, 10} } do c:put(p[1], p[2], BARK[1], ttok) c:put(p[1] + 1, p[2], BARK[4], ttok) end
+c:put(9, 19, BARK[5], ttok) c:put(9, 20, BARK[4], ttok)               -- pale snapped end
+
 -- leaves
-D.lf(14, 40, 5.5, 3, -.5, D.LEAF2) D.lf(46, 32, 5.5, 3, .6, D.LEAF2) D.lf(16, 24, 5, 2.8, -.4, D.LEAF2) D.lf(44, 14, 4.5, 2.6, .5, D.LEAF2)
-D.ln(24, 46, 17, 42, "#c8e898") D.ln(36, 36, 43, 33, "#c8e898") D.ln(26, 26, 19, 24, "#c8e898") D.ln(34, 14, 41, 14, "#c8e898")
--- berries
-local bs = { {18,52,5,26,50}, {44,46,5.5,35,44}, {22,35,5,25,35}, {44,22,5,32,25}, {26,10,4.6,29,15} }
-for i, b in ipairs(bs) do
-  D.ln(b[4], b[5], floor(b[1]), floor(b[2]), "#4a7a38")
-  local m = D.ell(b[1], b[2], b[3], b[3], 0)
-  D.lit(m, B, b[3] - .3, { wrap = .3 })
-  m:each(function(x, y) if x + y < b[1] + b[2] + 2 and X.hash(floor(x / 2), floor(y / 2), i) > .55 then local cc = c:get(x, y) end end)
-  c:px(floor(b[1] - b[3] * .45), floor(b[2] - b[3] * .5), "#f4f2ff") c:px(floor(b[1] - b[3] * .45) + 1, floor(b[2] - b[3] * .5), B[6])
-  -- crown dot
-  c:paint({ "x.x", ".x.", "x.x" }, floor(b[1] + 1), floor(b[2] + 1), { x = B[1] })
-  c:px(floor(b[1] + b[3] * .5), floor(b[2] + b[3] * .6), "#4a76b8")
+A.leaf(c, 22, 12, 16, 5, 9, 3, 3.0, LEAF, { veins = { 0.35, 0.6 } })
+A.leaf(c, 34, 10, 37, 3, 43, 1, 2.6, LEAF, { veins = { 0.4, 0.65 } })
+A.leaf(c, 48, 13, 54, 9, 57, 3, 2.8, LEAF, { veins = { 0.35, 0.62 } })
+
+-- berries {cx, cy, r, attach x on twig}
+local bs = { {15, 30, 5, 15}, {28, 25, 5.5, 26}, {41, 27, 5, 39}, {21, 41, 5.5, 18}, {35, 41, 6, 33}, {48, 39, 4.5, 47} }
+-- pedicels first (thin green stalks with a darker joint at the twig)
+for _, b in ipairs(bs) do
+  local ax = b[4]
+  local ay
+  for y = 0, 63 do if tm:has(ax, y) then ay = y end end
+  ay = ay or 14
+  A.line(c, ax, ay + 1, b[1] - 1, b[2] - b[3] + 1, PED)
+  c:put(ax, ay + 1, "#2e5a34")
 end
--- caterpillar
-for i, p in ipairs{ {27,45}, {28,44}, {29,43}, {30,42} } do c:px(p[1], p[2], i % 2 == 0 and "#68b454" or "#9ccc68") end
-c:px(31, 41, "#42944a") c:px(31, 42, D.INK)
-D.fin()
+local split = 5
+for i, b in ipairs(bs) do
+  local m, n, idx, tok = A.berry(c, b[1], b[2], b[3], BER, { bloom = true, crown = true, bounce = "#5a6ab8", spec = "#f2f4ff" })
+  -- little calyx collar where the pedicel enters
+  local tx, ty = floor(b[1] - 1), floor(b[2] - b[3] + 1)
+  c:put(tx, ty, "#2e5a34", tok) c:put(tx + 1, ty, BER[1], tok)
+  if i == split then
+    -- split: jagged crimson slit on the lower right, flesh lit on its upper lip
+    local slit = { {37, 43}, {38, 44}, {38, 45}, {39, 46} }
+    for _, p in ipairs(slit) do c:put(p[1], p[2], "#8a1a46", tok) c:put(p[1] - 1, p[2], "#c8336a", tok) end
+    c:put(36, 43, "#e0608a", tok)
+  end
+end
+-- the juice drop hanging under the split berry
+local drop = { {38, 47, "#8a1a46"}, {38, 48, "#c8336a"}, {39, 48, "#8a1a46"}, {38, 49, "#a82456"}, {39, 49, "#6e1438"}, {38, 50, "#6e1438"} }
+for _, d in ipairs(drop) do c:put(d[1], d[2], d[3]) end
+c:put(37, 48, "#ff8ab0")
+A.fin(c, "bilberries")

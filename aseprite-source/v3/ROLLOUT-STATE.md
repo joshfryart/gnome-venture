@@ -2,7 +2,10 @@
 
 Guide: `../art-style-guide-v3.md`. Approved by Josh: rework all static 64x64 items (1,676 files), single Opus pass, Sonnet drafts the Lua first. **From run 2 on there is NO fix round** (Josh's cost cut; runs 1 and the batches used one). Run 1 used the old prompt.
 
-## Correction (2026-11-03 21:10 UTC)
+## Correction, RESOLVED (2026-11-03)
+Run 1 is now fully done: all 406 items have Opus art (verified: every `.lua` references an Opus helper `_aA*`/`_aR*` in `items/final/_helpers/`). The text below is history.
+
+### Original correction (21:10 UTC)
 Run 1 hit the 5-hour usage limit: 38 Opus groups (150 items, list in `rollout/run1-failed.json`) kept only their Sonnet DRAFT art (files exist but are draft quality). The before/after PDF `../Hearth-Pop-Before-After.pdf` shows those drafts as if final, so rebuild it after the re-run. A re-run (tag R, `skipDraft: true`, items from run1-failed.json) was started at 21:10 UTC. When it finishes, verify, commit, and rebuild the PDF. Beware: `check.py` only proves a file exists, not that Opus finished it.
 
 ## Done
