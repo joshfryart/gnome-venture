@@ -948,5 +948,5 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
 <?= sign_panel_html($u, $plot) /* v0.9.7: garden signpost */ ?>
 <?php endif; /* v1.4.0: end of the Grow tab */ ?>
 
-<p class="help">Your gnome’s stats, calling and meal buffs are on <a href="<?= e(url('gnome.php')) ?>">My Gnome</a>.</p>
+<p class="help">Your gnome’s stats, calling and meal buffs are on the home page’s <a href="<?= e(url('gnome.php?tab=gnome')) ?>">My Gnome</a> tab.</p>
 <?php page_footer();

@@ -629,6 +629,13 @@ function post_update_news(string $from): void
         "[list][*][b]Pal Jobs[/b]: [b]Collect all[/b] now opens the chest with everything your pals found, and the long list is a few short chips.\n[*][b]Shops on phones[/b]: the basket bar stays slim (its list scrolls inside) and shop squares sit four across.[/list]"],
     '2.4.74' => ['🟫 Update 2.4.74: square item tiles',
         "Every item tile is now a neat square, four across on phones. The rarity shield is top left, the price (with its ↑ / ↓ arrow) top right, how many you have bottom right, and the name sits on a slightly see-through ribbon so you see more of the picture."],
+    // next version (unreleased): keyed 2.4.92; change the key if the release gets another number
+    '2.4.92' => ['🏠 Update 2.4.92: Today and My Gnome are one home page',
+        "[list][*][b]One home page[/b]: your greeting, the weather and tomorrow's forecast sit at the top, with two tabs under them: [b]Today[/b] and [b]My Gnome[/b].\n"
+        . "[*][b]Today[/b] (where you land): the news, your garden, Wren's Journey, jobs, the town or rest stop and Adventure cards, and the Hollow jar on one line.\n"
+        . "[*][b]My Gnome[/b]: your level, gardens, energy and health (with Heal), the pals you take along, and tiles for Stats, Calling, Pals, Foods, Villagers and Gardens.\n"
+        . "[*][b]Hat and beard dyes[/b] are now on the Stats page. In the menu, [b]🏠 Home[/b] takes you here.\n"
+        . "[*]Other gnomes still only see your profile, never your Today.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
