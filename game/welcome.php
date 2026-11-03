@@ -95,124 +95,164 @@ if (!isset($STEPS[$step]) || !in_array($step, $ok, true)) {
 $preview = ['hat_color' => $wf['hat'], 'beard_color' => $wf['beard'], 'gnome_name' => $wf['name'], 'username' => $u['username']];
 $region = $wf['region_id'] ? q_one('SELECT * FROM regions WHERE id = ?', [$wf['region_id']]) : null;
 
-/** Seed chips: "🫛 Soybean ×2" */
+/** Seed chips: "🫛 Soybean ×2" (kept for callers outside the redesigned welcome flow) */
 function seed_chips(array $list): string
 {
     $out = '';
     foreach ($list as $s) {
         $label = $s[4] ?? $s[1];
-        // v0.8.6: the item's own picture (Raspberry 🍓, Trowel 🪏) for baskets and starter kit; seeds stay 🌱 or their crop kind
-        if (empty($s[5]) && isset($s[3])) $icon = catalog_kind_icon($s[3]);
-        elseif (preg_match('/\bseeds?\b/i', $label)) $icon = '🌱';
-        else $icon = name_emoji($label) ?: (!empty($s[5]) ? $s[5] : '🎒');
-        $out .= '<span class="chip">' . $icon . ' ' . e($label) . ' <b>×' . (int)$s[2] . '</b></span>';
+        $out .= '<span class="chip">' . pack_icon($s) . ' ' . e($label) . ' <b>×' . (int)$s[2] . '</b></span>';
     }
     return $out;
+}
+
+/** v2.4.96: progress bar (three icon tiles joined by bars); done tiles link back to their step. */
+function welcome_progress(array $STEPS, array $ok, string $step): string
+{
+    $keys = array_keys($STEPS);
+    $cur = (int)array_search($step, $keys, true);
+    $icons = ['gnome' => 'progress-gnome', 'place' => 'progress-house', 'garden' => 'progress-sprout'];
+    $out = '<div class="wprog" role="group" aria-label="Step ' . ($cur + 1) . ' of 3: ' . e($STEPS[$step]) . '">';
+    foreach ($keys as $i => $key) {
+        $state = $i < $cur ? 'done' : ($i === $cur ? 'now' : 'todo');
+        $inner = $state === 'done' ? '<span class="tick" aria-hidden="true">✓</span>'
+            : '<img class="pxl" src="' . e(url('assets/img/welcome/' . $icons[$key] . '.png')) . '" width="18" height="18" alt="">';
+        $label = ($i + 1) . '. ' . $STEPS[$key];
+        if ($i) $out .= '<b class="bar' . ($i <= $cur ? ' done' : '') . '" aria-hidden="true"></b>';
+        if ($state === 'done' && in_array($key, $ok, true)) {
+            $out .= '<a class="tile done" href="' . e(url('welcome.php?step=' . $key)) . '" title="' . e($label) . '" aria-label="' . e($label . ' (done, go back)') . '">' . $inner . '</a>';
+        } else {
+            $out .= '<span class="tile ' . $state . '" title="' . e($label) . '"' . ($state === 'now' ? ' aria-current="step"' : '') . '>' . $inner . '</span>';
+        }
+    }
+    return $out . '</div>';
+}
+
+/** v2.4.96: Wren's bubble: portrait, one or two short sentences ($short is trusted HTML), long copy behind "More". */
+function welcome_wren(string $short, string $more = ''): string
+{
+    return '<div class="wren"><div class="bubble"><img class="pxl wrenpic" src="' . e(url('assets/img/welcome/wren-portrait.png')) . '" width="72" height="72" alt="Wren Thimblewick">'
+        . '<div class="txt"><p>' . $short . '</p>'
+        . ($more !== '' ? '<details class="wmore"><summary>More</summary><div>' . $more . '</div></details>' : '')
+        . '</div></div></div>';
+}
+
+/** v2.4.96: the sticky bottom bar: one primary button and a Back link. */
+function welcome_cta(string $btn, string $backHref = '', string $backText = '← Back'): string
+{
+    return '<div class="wcta"><button class="btn">' . $btn . '</button>'
+        . ($backHref !== '' ? '<a class="wback" href="' . e(url($backHref)) . '">' . e($backText) . '</a>' : '') . '</div>';
 }
 
 page_header('Welcome to the Hollow');
 ?>
 <div class="welcomeflow">
-<ol class="wsteps">
-  <?php $i = 0; foreach ($STEPS as $key => $label): $i++;
-      $state = $key === $step ? 'now' : (in_array($key, $ok, true) && array_search($key, array_keys($STEPS)) < array_search($step, array_keys($STEPS)) ? 'done' : ''); ?>
-    <li class="<?= $state ?>"><?php if ($state === 'done' || ($state === '' && in_array($key, $ok, true))): ?>
-      <a href="<?= e(url('welcome.php?step=' . $key)) ?>"><span><?= $i ?></span> <?= e($label) ?></a>
-    <?php else: ?><span><?= $i ?></span> <?= e($label) ?><?php endif; ?></li>
-  <?php endforeach; ?>
-</ol>
+<?= welcome_progress($STEPS, $ok, $step) ?>
 <?php foreach ($errors as $err): ?><div class="flash err"><?= e($err) ?></div><?php endforeach; ?>
 
 <?php if ($step === 'gnome'): ?>
-  <div class="box wren">
-    <p class="say"><b>🐦 Wren Thimblewick:</b> “Well now! A brand-new gnome, fresh out of the toadstool. I’m Wren. I travel the
-      fourteen regions of the Hollow collecting seeds and stories. Before I show you around, tell me who you are.”</p>
-  </div>
-  <form method="post" class="box form gnomemaker" data-gnome-preview>
+  <?= welcome_wren('Well now! A brand-new gnome, fresh out of the toadstool. <b>Who are you?</b>',
+      '<p>I’m Wren. I travel the fourteen regions of the Hollow collecting seeds and stories. Before I show you around, tell me who you are.</p>'
+      . '<p>This is the name other players and NPCs will see. Your log-in name stays private.</p>'
+      . '<p>When your gnome takes up a calling at level 5, the calling’s hat colour takes over.</p>') ?>
+  <form method="post" class="wform" data-gnome-preview>
     <?= csrf_field() ?><input type="hidden" name="do" value="gnome">
-    <div class="avatarcol"><?= gnome_avatar($preview, 120) ?></div>
-    <div>
-      <label>Your gnome’s name
-        <input name="gnome_name" value="<?= e($wf['name']) ?>" required maxlength="24" placeholder="e.g. Bramble Puddlefoot" autocomplete="off"></label>
-      <p class="help">This is the name other players and NPCs will see. Your log-in name stays private.</p>
-      <fieldset class="swatches"><legend>Hat</legend>
-        <?php foreach (HAT_COLORS as $c => $label): ?>
-          <label title="<?= e($label) ?>"><input type="radio" name="hat" value="<?= e($c) ?>" data-part="hat"<?= $wf['hat'] === $c ? ' checked' : '' ?>> <?= swatch($c) ?> <span><?= e($label) ?></span></label>
-        <?php endforeach; ?>
-      </fieldset>
-      <p class="help">When your gnome takes up a calling at level 5, the calling’s hat colour takes over.</p>
-      <fieldset class="swatches"><legend>Beard</legend>
-        <?php foreach (BEARD_COLORS as $c => $label): ?>
-          <label title="<?= e($label) ?>"><input type="radio" name="beard" value="<?= e($c) ?>" data-part="beard"<?= $wf['beard'] === $c ? ' checked' : '' ?>> <?= swatch($c) ?> <span><?= e($label) ?></span></label>
-        <?php endforeach; ?>
-      </fieldset>
-      <button class="btn">Next: pick your village →</button>
+    <div class="wstage">
+      <img class="pxl wstagebg" src="<?= e(url('assets/img/welcome/stage-backdrop.png')) ?>" width="380" height="230" alt="">
+      <div class="wgnome"><?= gnome_avatar($preview, 160) ?></div>
     </div>
+    <input class="wname" name="gnome_name" value="<?= e($wf['name']) ?>" required maxlength="24" placeholder="Your gnome’s name, e.g. Bramble Puddlefoot" aria-label="Your gnome’s name" autocomplete="off">
+    <fieldset class="wrow"><legend class="sr">Hat colour</legend>
+      <span class="rowico" aria-hidden="true">🎩</span>
+      <?php foreach (HAT_COLORS as $c => $label): echo swatch_tile('hat', $c, $c, $label . ' hat', $wf['hat'] === $c, 'hat'); endforeach; ?>
+    </fieldset>
+    <fieldset class="wrow"><legend class="sr">Beard colour</legend>
+      <span class="rowico" aria-hidden="true">🧔</span>
+      <?php foreach (BEARD_COLORS as $c => $label): echo swatch_tile('beard', $c, $c, $label . ' beard', $wf['beard'] === $c, 'beard'); endforeach; ?>
+    </fieldset>
+    <?= welcome_cta('Next: pick your village →') ?>
   </form>
 
-<?php elseif ($step === 'place' && $region): ?>
-  <div class="box wren">
-    <p class="say"><b>🐦 Wren:</b> “Lovely to meet you, <?= e($wf['name']) ?>! Every gnome’s journey starts here in <b><?= e($region['gnomish_name']) ?></b>.
-      Its villages sit along the mycelium roads between the towns, and the roads here are gentle. Further out, the world gets wilder:
-      each region has a recommended level, and once you’ve walked somewhere you can travel straight back any time.
-      Where shall we plant your first garden?”</p>
-    <p class="help">The locals send you off with: <span class="chips small"><?= seed_chips(home_seed_list((int)$region['id'])) ?></span></p>
-  </div>
-  <form method="post" class="form">
-    <?= csrf_field() ?><input type="hidden" name="do" value="place">
-    <?php $default = (int)$wf['village_id'] ?: (int)first_village((int)$region['id']);
-    foreach (q('SELECT * FROM zones WHERE region_id = ? ORDER BY zone_num', [$region['id']])->fetchAll() as $z):
-        $L = LANDSCAPES[$z['landscape']] ?? ['📍', ucfirst((string)$z['landscape']), ''];
-        $villages = q("SELECT l.id, l.name FROM locations l WHERE l.zone_id = ? AND l.kind = 'village'
+<?php elseif ($step === 'place' && $region):
+    $default = (int)$wf['village_id'] ?: (int)first_village((int)$region['id']);
+    $cards = [];
+    foreach (q('SELECT * FROM zones WHERE region_id = ? ORDER BY zone_num', [$region['id']])->fetchAll() as $z) {
+        $villages = q("SELECT l.id, l.name, l.slug FROM locations l WHERE l.zone_id = ? AND l.kind = 'village'
                        AND EXISTS (SELECT 1 FROM routes r WHERE r.kind = 'road' AND (r.a_id = l.id OR r.b_id = l.id)) ORDER BY l.sort_order", [$z['id']])->fetchAll();
         if ($gentleAny) $villages = array_values(array_filter($villages, fn($v) => gentle_start_village((int)$v['id'])));
-        if (!$villages) continue;   // only villages on the roads (v0.7.24)
-        $lms = q('SELECT kind, name FROM landmarks WHERE zone_id = ? ORDER BY kind, name', [$z['id']])->fetchAll(); ?>
-      <div class="box zonecard d-<?= e($z['difficulty']) ?>">
-        <h3><?= $L[0] ?> <?= e($z['name']) ?>
-</h3>
-        <p class="muted"><?= e($L[1]) ?>. <?= e($L[2]) ?></p>
-        <p class="help">Each village sends you off with its own welcome basket:</p>
-        <div class="villagepick">
-          <?php foreach ($villages as $v): ?>
-            <label><input type="radio" name="village_id" value="<?= (int)$v['id'] ?>" required<?= (int)$v['id'] === $default ? ' checked' : '' ?>>
-              <span><b>🏡 <?= e($v['name']) ?></b><span class="chips small"><?= seed_chips(village_welcome_pack((int)$v['id'])) ?></span></span></label>
-          <?php endforeach; ?>
-        </div>
-      </div>
-    <?php endforeach; ?>
-    <p><button class="btn">Next: name your garden →</button>
-      <a href="<?= e(url('welcome.php?step=gnome')) ?>">← back to your gnome</a></p>
+        foreach ($villages as $v) $cards[] = $v + ['landscape' => (string)$z['landscape']];   // only villages on the roads (v0.7.24)
+    }
+    $ids = array_map(fn($v) => (int)$v['id'], $cards);
+    if (!in_array($default, $ids, true) && $ids) $default = $ids[0];
+    $short = 'Lovely to meet you, <b>' . e($wf['name']) . '</b>! Where shall we plant your first garden in the <b>' . e($region['gnomish_name']) . '</b>?';
+    $more = '<p>Every gnome’s journey starts here in <b>' . e($region['gnomish_name']) . '</b>. Its villages sit along the mycelium roads between the towns, and the roads here are gentle. '
+        . 'Further out, the world gets wilder: each region has a recommended level, and once you’ve walked somewhere you can travel straight back any time.</p>'
+        . '<p>The locals send you off with: <span class="chips small">' . seed_chips(home_seed_list((int)$region['id'])) . '</span></p>'; ?>
+  <?= welcome_wren($short, $more) ?>
+  <form method="post" class="wform">
+    <?= csrf_field() ?><input type="hidden" name="do" value="place">
+    <div class="vcards" role="radiogroup" aria-label="Village">
+      <?php foreach ($cards as $v): $L = LANDSCAPES[$v['landscape']] ?? ['📍', ucfirst($v['landscape']), ''];
+          $vslug = preg_replace('/[^a-z0-9-]/', '', strtolower(slugify((string)$v['name'])));
+          $art = 'assets/img/villages/' . $vslug . '.png'; ?>
+        <label class="vcard"><input type="radio" name="village_id" value="<?= (int)$v['id'] ?>" required data-vname="<?= e($v['name']) ?>"<?= (int)$v['id'] === $default ? ' checked' : '' ?>>
+          <?php if ($vslug !== '' && is_file(APP_ROOT . '/' . $art)): ?>
+            <img class="pxl vil" src="<?= e(url($art)) ?>" width="160" height="100" alt="">
+          <?php else: ?>
+            <span class="vil vfall ls-<?= e(preg_replace('/[^a-z]/', '', $v['landscape'])) ?>" aria-hidden="true"><?= $L[0] ?></span>
+          <?php endif; ?>
+          <span class="vname"><?= e($v['name']) ?></span></label>
+      <?php endforeach; ?>
+    </div>
+    <div class="wbaskets" aria-live="polite" aria-atomic="true">
+      <?php foreach ($cards as $v): $pack = village_welcome_pack((int)$v['id']); ?>
+        <section class="wbgroup" data-village="<?= (int)$v['id'] ?>"<?= (int)$v['id'] === $default ? '' : ' hidden' ?>>
+          <h3 class="wbtitle"><span aria-hidden="true">🧺</span> <?= e($v['name']) ?>’s welcome basket</h3>
+          <div class="wbasket">
+            <img class="pxl wbart" src="<?= e(url('assets/img/welcome/welcome-basket-topdown.png')) ?>" width="380" height="330" alt="">
+            <div class="wbfloor"><div class="wbitems"><?= pack_slots($pack, true) ?></div></div>
+          </div>
+        </section>
+      <?php endforeach; ?>
+    </div>
+    <p class="whint">Roads here are gentle. Further out, the world gets wilder.</p>
+    <?= welcome_cta('Next: name your garden →', 'welcome.php?step=gnome') ?>
   </form>
 
 <?php elseif ($step === 'garden' && $region):
     $village = q_one('SELECT l.name, z.name AS zone, z.landscape FROM locations l JOIN zones z ON z.id = l.zone_id WHERE l.id = ?', [$wf['village_id']]);
     $gname = $wf['garden'] !== '' ? $wf['garden'] : $wf['name'] . '’s Garden';
-    $kit = array_map(fn($s) => [$s[0], $s[1], $s[2]], starter_item_list()); ?>
-  <div class="box wren">
-    <p class="say"><b>🐦 Wren:</b> “<?= e($village['name'] ?? 'Your village') ?> it is! The villagers have set aside a little
-      <?= (int)setting('starting_plot_size') ?>×<?= (int)setting('starting_plot_size') ?> patch of ground for you. Every good garden needs a name.”</p>
-  </div>
-  <form method="post" class="box form summary">
+    $kit = array_map(fn($s) => [$s[0], $s[1], $s[2]], starter_item_list());
+    $vname = (string)($village['name'] ?? 'your village');
+    $plot = (int)setting('starting_plot_size');
+    $packs = [
+        ['pack-seeds', e($region['gnomish_name']) . ' seeds', home_seed_list((int)$region['id']), 'Seeds from ' . e($region['gnomish_name']) . '. You already know how to grow these.'],
+        ['pack-basket', e($vname) . ' basket', village_welcome_pack((int)$wf['village_id']), 'A welcome basket from ' . e($vname) . '.'],
+        ['pack-kit', 'Everyday kit', $kit, 'Everyday seeds and tools every new gnome gets.'],
+    ];
+    $more = '<p>' . LANDSCAPES[$village['landscape'] ?? '']['0'] . ' ' . e($village['name'] ?? '') . ', ' . e($village['zone'] ?? '') . ' in <b>' . e($region['gnomish_name']) . '</b> <span class="muted">(' . e($region['real_name']) . ')</span>.</p>'
+        . '<p>Plus ' . money((int)setting('starting_coins')) . ', your Almanac, and a ' . $plot . '×' . $plot . ' garden plot.</p>'
+        . '<p>⚡ ' . (int)setting('max_energy') . ' energy to start, then ' . e(energy_rate_text()) . '. Gardening spends it; eating food gives it back.</p>'; ?>
+  <?= welcome_wren(e($vname) . ' it is! The villagers have set aside a little <b>' . $plot . '×' . $plot . '</b> patch of ground for you. Every good garden needs a name.', $more) ?>
+  <form method="post" class="wform">
     <?= csrf_field() ?><input type="hidden" name="do" value="finish">
-    <div class="avatarcol"><?= gnome_avatar($preview, 110) ?><p><b><?= e($wf['name']) ?></b></p></div>
-    <div>
-      <p>🌍 <b><?= e($region['gnomish_name']) ?></b> <span class="muted">(<?= e($region['real_name']) ?>)</span><br>
-        <?= LANDSCAPES[$village['landscape'] ?? '']['0'] ?? '📍' ?> <?= e($village['name'] ?? '') ?>, <?= e($village['zone'] ?? '') ?>
-        · <a href="<?= e(url('welcome.php?step=place')) ?>">change</a></p>
-      <label>Name your first garden
-        <input name="garden_name" value="<?= e($gname) ?>" required maxlength="40"></label>
-      <h3>What you’ll start with</h3>
-      <p class="help">Seeds from <?= e($region['gnomish_name']) ?>. You already know how to grow these.</p>
-      <p class="chips"><?= seed_chips(home_seed_list((int)$region['id'])) ?></p>
-      <p class="help">A welcome basket from <?= e($village['name'] ?? 'your village') ?>.</p>
-      <p class="chips"><?= seed_chips(village_welcome_pack((int)$wf['village_id'])) ?></p>
-      <p class="help">Everyday seeds and tools every new gnome gets.</p>
-      <p class="chips"><?= seed_chips($kit) ?></p>
-      <p class="help">Plus <?= money((int)setting('starting_coins')) ?>, your Almanac, and a <?= (int)setting('starting_plot_size') ?>×<?= (int)setting('starting_plot_size') ?> garden plot.</p>
-      <p class="help">⚡ <?= (int)setting('max_energy') ?> energy to start, then <?= e(energy_rate_text()) ?>. Gardening spends it; eating food gives it back.</p>
-      <button class="btn">🌱 Plant my first garden</button>
+    <input class="wname" name="garden_name" value="<?= e($gname) ?>" required maxlength="40" aria-label="Name your first garden">
+    <div class="wstats">
+      <div class="wstat"><span class="ic" aria-hidden="true">🌸</span><b><?= number_format((int)setting('starting_coins')) ?></b><small><?= e(setting('currency_name')) ?></small></div>
+      <div class="wstat"><span class="ic" aria-hidden="true">▦</span><b><?= $plot ?>×<?= $plot ?></b><small>plot</small></div>
+      <div class="wstat"><span class="ic" aria-hidden="true">⚡</span><b><?= (int)setting('max_energy') ?></b><small>energy</small></div>
     </div>
+    <div class="wpacks">
+      <?php foreach ($packs as [$icon, $title, $list, $note]): ?>
+        <details class="wpack">
+          <summary><span class="whead"><img class="pxl pk" src="<?= e(url('assets/img/welcome/' . $icon . '.png')) ?>" width="32" height="32" alt=""><span class="ptitle"><?= $title ?></span><span class="pn"><?= count($list) ?></span></span>
+            <span class="wgrid"><?= pack_slots($list, false, 5) ?></span></summary>
+          <p class="help"><?= $note ?></p>
+          <p class="chips"><?= seed_chips($list) ?></p>
+        </details>
+      <?php endforeach; ?>
+    </div>
+    <?= welcome_cta('🌱 Plant my first garden', 'welcome.php?step=place', '← Change village') ?>
   </form>
 <?php endif; ?>
 </div>

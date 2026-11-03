@@ -67,6 +67,7 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* 2.2.x: the Cat Fish pet shops (shop.php) set gv_catfish_css */ ?>
 <?php if (!$admin && $page === 'catfish.php'): ?><link rel="stylesheet" href="<?= e(url('assets/catfish.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/catfish.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* Cat Fish: assets/catfish.css + assets/catfish.js */ ?>
+<?php if (!$admin && $page === 'welcome.php'): ?><script src="<?= e(url('assets/welcome.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v2.4.96: basket swap */ ?>
 <?php if (!$admin && $page === 'pest.php'): ?><script src="<?= e(url('assets/pest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.8: assets/pest.js (Pest Patrol) */ ?>
 <?php if (!$admin && $page === 'adventure.php'): ?><script src="<?= e(url('assets/stage.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/hoop.js?v=' . APP_VERSION)) ?>" defer></script>

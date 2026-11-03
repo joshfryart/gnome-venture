@@ -754,16 +754,10 @@ ul.effects .efi { display: inline-block; width: 1.4em; text-align: center; }
 .ings li.bad { color: var(--danger); }
 .unstudied { color: var(--accent-ink); }
 
-/* ---- Welcome flow ---- */
-.wsteps { display: flex; gap: 6px; list-style: none; padding: 0; margin: 0 0 12px; flex-wrap: wrap; }
-.wsteps li { flex: 1 1 120px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 12px; color: var(--muted); font-size: 14px; }
-.wsteps li span { display: inline-block; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 0; background: var(--muted); color: var(--on-fill); font-weight: 700; font-size: 12px; }
-.wsteps li.now { border-color: var(--brand); color: var(--brand-ink); font-weight: 600; }
-.wsteps li.now span, .wsteps li.done span { background: var(--brand-fill); }
-.wsteps li a { text-decoration: none; }
+/* ---- Welcome flow (v2.4.96 redesign: see the block at the end of this file) ---- */
 .wren .say { margin: 0; font-size: 15px; }
-.gnomemaker, .summary { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
-.gnomemaker > div:last-child, .summary > div:last-child { flex: 1; min-width: 240px; }
+.gnomemaker { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.gnomemaker > div:last-child { flex: 1; min-width: 240px; }
 .avatarcol { text-align: center; flex: 0 0 130px; background: var(--brand-soft); border-radius: var(--radius); padding: 10px 0 4px; }
 .avatarcol p { margin: 4px 0 6px; }
 .swatches { border: 0; padding: 0; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -773,14 +767,6 @@ ul.effects .efi { display: inline-block; width: 1.4em; text-align: center; }
 .swatches label:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); }
 .swatches input:focus-visible + svg { outline: 2px solid var(--focus); border-radius: 0; }
 .swatches svg { display: block; }
-.zonecard h3 { margin: 0 0 4px; }
-.zonecard.d-easy { border-color: var(--brand-line); }
-.zonecard.d-hard { border-color: var(--danger-line); }
-.villagepick { display: flex; flex-wrap: wrap; gap: 8px; }
-.form .villagepick label { display: inline-flex; align-items: flex-start; gap: 6px; font-weight: 400; margin: 0; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--radius-sm); padding: 8px 12px; min-height: var(--tap); cursor: pointer; }
-.villagepick label:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); }
-.villagepick input { width: auto !important; margin: 0 !important; display: inline !important; }
-.villagepick label > span { display: flex; flex-direction: column; gap: 4px; }
 .feeding { background: var(--surface-2); border-radius: var(--radius-sm); padding: 6px 10px; font-size: 14px; }
 .tourbox { display: flex; gap: 12px; align-items: flex-start; background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; }
 .tourbox .bird { font-size: 30px; line-height: 1; }
@@ -6908,3 +6894,102 @@ nav.gvtiles a.sending { opacity: .6; }
 .cstart .help { color: var(--ink-2); }
 nav.gvtiles .gvsub { font-size: 12px; line-height: 1.2; color: var(--accent-ink); font-weight: 700; }
 nav.gvtiles .gvsub.on { color: var(--brand-ink); }
+
+
+/* ===== v2.4.96 Welcome flow: progress, Wren bubble, stage, village cards, basket, packs, sticky bar ===== */
+.pxl { image-rendering: pixelated; }
+.welcomeflow { max-width: 460px; margin: 0 auto; }
+.welcomeflow .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.welcomeflow .wform { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.wprog { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 14px; }
+.wprog .tile { width: var(--tap); height: var(--tap); display: grid; place-items: center; background: var(--surface); border: 2px solid var(--line-2); color: var(--muted); text-decoration: none; }
+.wprog .tile img { width: 36px; height: 36px; display: block; }
+.wprog .tile.todo img { opacity: .6; }
+.wprog .tile.done { background: var(--brand-fill); border-color: var(--ol); color: var(--on-fill); }
+.wprog .tile.now { background: var(--brand-soft); border-color: var(--brand); box-shadow: 0 0 0 2px var(--ol); }
+.wprog .tick { font-weight: 900; font-size: 20px; line-height: 1; }
+.wprog .bar { width: 16px; height: 4px; background: var(--line); }
+.wprog .bar.done { background: var(--brand); }
+a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpack summary:focus-visible, .wcta .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* Wren */
+.welcomeflow .wren { position: relative; margin: 0 0 22px; }
+.welcomeflow .bubble { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border: 2px solid var(--ol); box-shadow: var(--drop) 3px 3px 0; padding: 10px; font-size: 15px; line-height: 1.35; position: relative; }
+.welcomeflow .wrenpic { flex: 0 0 72px; width: 72px; height: 72px; }
+.welcomeflow .bubble .txt { flex: 1; min-width: 0; }
+.welcomeflow .bubble p { margin: 0 0 4px; }
+.welcomeflow .bubble b { color: var(--brand-ink); }
+.welcomeflow .bubble::before { content: ""; position: absolute; left: 28px; bottom: -14px; width: 18px; height: 14px; background: var(--ol); clip-path: polygon(0 0, 100% 0, 0 100%); }
+.welcomeflow .bubble::after { content: ""; position: absolute; left: 31px; bottom: -9px; width: 12px; height: 10px; background: var(--surface); clip-path: polygon(0 0, 100% 0, 0 100%); }
+.wmore summary { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 10px 0 0; color: var(--muted); font-weight: 700; font-size: 14px; cursor: pointer; list-style: none; }
+.wmore summary::-webkit-details-marker { display: none; }
+.wmore summary::after { content: " ▾"; }
+.wmore[open] summary::after { content: " ▴"; }
+.wmore > div { font-size: 14px; }
+.wmore .chips { display: inline; }
+/* name input */
+.wname { width: 100%; min-height: var(--tap); border: 2px solid var(--ol); background: var(--surface); color: var(--ink); padding: 0 12px; font: inherit; text-align: center; border-radius: 0; }
+.wname:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* step 1: stage and swatches */
+.wstage { position: relative; width: 100%; aspect-ratio: 380 / 230; display: grid; place-items: end center; overflow: hidden; border: 2px solid var(--ol); }
+.wstagebg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wgnome { position: relative; width: 160px; height: 160px; margin-bottom: 10px; }
+.wgnome svg { display: block; width: 160px; height: 160px; }
+.wrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; border: 0; padding: 0; margin: 0; min-width: 0; }
+.wrow .rowico { font-size: 22px; width: 32px; text-align: center; }
+.wrow .sw { position: relative; width: var(--tap); height: var(--tap); border: 2px solid var(--ol); padding: 0; margin: 0; cursor: pointer; display: block; background: var(--surface); }
+.wrow .sw svg { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+.wrow .sw input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.wrow .sw .tick { position: absolute; inset: 0; display: none; place-items: center; color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; font-weight: 900; font-size: 20px; pointer-events: none; }
+.wrow .sw:has(input:checked) { box-shadow: 0 0 0 2px var(--bg), 0 0 0 5px var(--brand); }
+.wrow .sw:has(input:checked) .tick { display: grid; }
+.wrow .sw:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 4px; }
+/* step 2: village cards */
+.vcards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; background: var(--surface); border: 3px solid var(--ol); box-shadow: var(--drop) 3px 3px 0; padding: 6px; min-height: var(--tap); cursor: pointer; margin: 0; font-weight: 400; }
+.vcard input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.vcard .vil { width: 160px; max-width: 100%; height: 100px; object-fit: contain; }
+.vcard .vfall { display: grid; place-items: center; font-size: 40px; border: 2px solid var(--ol); background: var(--brand-soft); }
+.vfall.ls-coast { background: #a9d6ea; } .vfall.ls-mountain { background: #c9c5bc; } .vfall.ls-forest { background: #7ab55c; } .vfall.ls-desert { background: #f5cf6a; }
+.vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
+.vcard .vname { font-weight: 700; font-size: 16px; color: var(--ink); text-align: center; }
+.vcard:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand), var(--drop) 4px 4px 0; }
+.vcard:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+/* slots (shared) */
+.slot { position: relative; display: grid; place-items: center; width: 46px; height: 46px; background: var(--surface); border: 2px solid var(--ol); font-size: 26px; line-height: 1; }
+.slot .ico { display: grid; place-items: center; }
+.slot img.pxl { width: 32px; height: 32px; }
+.slot .badge { position: absolute; right: -4px; bottom: -4px; background: var(--badge-bg); color: var(--on-fill); font-size: 11px; font-weight: 700; font-style: normal; padding: 0 4px; line-height: 15px; border: 1px solid var(--ol); }
+/* basket: art is the background, items rest on the floor (52% x 50%, centred) */
+.wbtitle { margin: 4px 0 6px; font-size: 16px; text-align: center; color: var(--ink-2); }
+.wbasket { position: relative; width: 100%; max-width: 380px; margin: 0 auto; aspect-ratio: 380 / 330; }
+.wbart { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wbfloor { position: absolute; left: 22%; top: 25%; width: 56%; height: 50%; display: flex; align-items: center; justify-content: center; }
+.wbitems { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 2px; width: 100%; max-height: 100%; overflow-y: auto; overflow-x: hidden; align-content: center; }
+.witem { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; animation: wpop .25s ease-out both; }
+.witem small { font-size: 10px; line-height: 1.1; color: #2a1a10; text-align: center; background: rgba(255, 243, 200, .92); padding: 0 1px; max-width: 100%; overflow-wrap: break-word; letter-spacing: -.2px; }
+.witem:nth-child(2) { animation-delay: 60ms; } .witem:nth-child(3) { animation-delay: 120ms; } .witem:nth-child(4) { animation-delay: 180ms; }
+.witem:nth-child(5) { animation-delay: 240ms; } .witem:nth-child(6) { animation-delay: 300ms; }
+@keyframes wpop { from { transform: translateY(-16px) scale(.7); opacity: 0; } to { transform: none; opacity: 1; } }
+.whint { margin: 0; font-size: 13px; color: var(--muted); text-align: center; }
+/* step 3: stats and packs */
+.wstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.wstat { background: var(--surface); border: 2px solid var(--ol); padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: var(--tap); }
+.wstat .ic { font-size: 24px; line-height: 1.1; } .wstat b { font-size: 18px; } .wstat small { font-size: 11px; color: var(--muted); }
+.wpacks { display: flex; flex-direction: column; gap: 10px; }
+.wpack { background: var(--surface); border: 2px solid var(--ol); box-shadow: var(--drop) 3px 3px 0; padding: 8px; }
+.wpack summary { list-style: none; cursor: pointer; display: block; }
+.wpack summary::-webkit-details-marker { display: none; }
+.wpack .whead { display: flex; align-items: center; gap: 8px; min-height: var(--tap); font-weight: 700; }
+.wpack .pk { width: 32px; height: 32px; flex: 0 0 32px; }
+.wpack .pn { margin-left: auto; font-size: 13px; color: var(--muted); }
+.wpack .pn::after { content: " ▾"; }
+.wpack[open] .pn::after { content: " ▴"; }
+.wpack .wgrid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.wpack .help { margin: 8px 0 4px; }
+.wpack .chips { margin: 0; }
+/* sticky bottom bar */
+.wcta { position: sticky; bottom: 0; z-index: 5; margin: 8px calc(-1 * var(--gut)) 0; padding: 10px var(--gut) calc(8px + var(--sab)); background: var(--felt); border-top: 2px dashed var(--thread); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.wcta .btn { width: 100%; min-height: 48px; font-size: 17px; font-weight: 700; }
+.wcta .wback { color: var(--felt-ink); font-size: 14px; min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 16px; text-decoration: none; }
+.wcta .wback:hover { text-decoration: underline; }
+@media (prefers-reduced-motion: reduce) { .witem { animation: none; } }
