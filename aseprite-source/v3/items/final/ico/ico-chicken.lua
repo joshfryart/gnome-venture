@@ -9,7 +9,7 @@ D.fill(c:rect(24, 48, 25, 56), "#f0a030") D.fill(c:rect(33, 48, 34, 56), "#f0a03
 D.fill(c:rect(22, 56, 27, 57), "#d98322") D.fill(c:rect(31, 56, 36, 57), "#d98322")
 D.lit(c:poly{ {10, 22}, {18, 28}, {18, 40}, {8, 36}, {5, 26} }, D.FUR, 2)
 D.lit(ell(29, 38, 16, 13, 0.2), D.FUR, 8, { amb = 0.1 })
-D.lit(ell(26, 40, 9, 6, 0.3), D.FUR, 4, { bias = -1 })
+D.lit(ell(26, 40, 9, 6, 0.3), D.FUR, 4)
 D.poly(c, { {20, 38}, {27, 40}, {33, 38} }, D.FUR[1]) D.poly(c, { {21, 42}, {28, 43}, {32, 41} }, D.FUR[2])
 D.lit(c:ellipse(42, 22, 8, 8), D.FUR, 6, { amb = 0.1 })
 D.lit(c:rect(36, 11, 44, 15):add(c:ellipse(38, 12, 3, 3)):add(c:ellipse(43, 12, 3, 3)), D.RED, 2)
