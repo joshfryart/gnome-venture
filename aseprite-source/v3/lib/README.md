@@ -31,5 +31,8 @@ Mask methods: `:add(m) :cut(m) :clip(m)` (mutate, return self), `:copy() :shift(
 - `HP.sheet{cellw=,cellh=,frames={c1,c2..},tags={{name="idle",from=1,to=2}}}:save{aseprite=,png=,scale=}` horizontal strip PNG + multi-frame .aseprite with tags.
 - `HP.report(c|Image)` prints and returns {w,h,bbox,margin,distinct,offPalette,semi,blackWhite,isolated}; `HP.assertClean(c)` errors on semi-transparent / pure black or white; off-palette colours are only reported (relaxed 2026-11-03).
 
+## Layer split / recolour rigs (2026-11-03, no hp.lua change)
+`v3/models/rig/gnome-rig.lua` shows the pattern. It loads an unchanged model script with `load(src, "@"..path, "t", env)`. A patched `dofile` wraps `HP.canvas` so that `c.put` records a per-pixel layer: the innermost `frame()` line is found with `debug.getinfo` and mapped to a section through anchor strings. `HP.sheet` is stubbed so that it captures the frames without saving. Each pixel goes to the layer that painted it last (disjoint layers, exact restack). Tint layers are written in marker greys `#f0f0f0/#b4b4b4/#787878/#3c3c3c` (hi/base/shade/deep) and recoloured by palette mapping (`rig/recolor.py`, `rig/recolor.js`).
+
 ## contact.py
 `python3 contact.py out.html a.png b.png ...`; `python3 contact.py --compare out.html orig.png new.png [o2 n2 ...]`; `--compare --p1 out.html orig p1 final [...]` for triples. Standalone HTML, pixelated, 100% / x2-x4 / 50% on grey and dark.

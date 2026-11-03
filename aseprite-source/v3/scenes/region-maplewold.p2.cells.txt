@@ -1,0 +1,5 @@
+  cells row 0: 11 19 16 18 16 15
+  cells row 1: 11 17 19 14 10 15
+  cells row 2: 9 18 20 12 10 19
+  cells row 3: 11 20 12 10 14 11
+  cells min distinct: 9
