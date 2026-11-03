@@ -34,7 +34,7 @@ body.only .frame.show{display:flex}
 .more{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);min-width:var(--tap);padding:0 10px;color:var(--muted);font-weight:700;font-size:14px;background:none;border:0;cursor:pointer}
 /* stage */
 .stage{position:relative;width:100%;height:230px;display:grid;place-items:center}
-.stage .ph.bg{position:absolute;inset:0}
+.stage .ph.bg{position:absolute;inset:0;align-items:flex-start;justify-content:flex-start;text-align:left}
 .stage .ex{position:relative;width:160px;height:200px;align-items:center}
 .nameinput{width:100%;min-height:var(--tap);border:2px solid var(--ol);background:#fff;padding:0 12px;font:inherit;text-align:center}
 .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
@@ -52,20 +52,19 @@ body.only .frame.show{display:flex}
 .slot{width:36px;height:36px;background:var(--surface-2);border:2px solid var(--line-2);display:grid;place-items:center;font-size:20px;position:relative}
 .plus{font-size:12px;font-weight:700;color:var(--muted);padding:0 4px}
 .hint{font-size:13px;color:var(--muted);margin:0}
-/* welcome basket: art placeholder (handle + woven body) with items inside */
-.basket{width:100%;position:relative;padding-top:44px}
-.basket .lid{position:absolute;top:0;left:0;right:0;text-align:center;font-weight:700;font-size:15px;color:var(--ink-2);z-index:2}
-.basket .stagebk{position:relative;min-height:250px;padding:34px 34px 46px}
-.basket .art{position:absolute;inset:0;border:2px solid #e00;background:repeating-linear-gradient(45deg,rgba(238,0,0,.05) 0 6px,transparent 6px 12px);clip-path:none;display:flex;align-items:flex-end;justify-content:center;font-size:11px;font-weight:700;color:#e00;padding:4px;text-align:center;z-index:0}
-.basket .handle{position:absolute;left:56px;right:56px;top:-4px;height:56px;border:6px solid #a9743f;border-bottom:0;border-radius:60px 60px 0 0;z-index:0;outline:0}
-.basket .body{position:relative;z-index:1;margin:0 auto;width:100%;background:repeating-linear-gradient(90deg,#d9b27a 0 10px,#c79c60 10px 12px),#d9b27a;border:3px solid var(--ol);border-radius:0 0 46px 46px;clip-path:polygon(0 0,100% 0,92% 100%,8% 100%);padding:12px 22px 28px;box-shadow:var(--drop) 3px 3px 0}
-.basket .body:before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:#a9743f;border-bottom:2px solid var(--ol)}
-.basket .inner{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:10px 4px;padding-top:14px;min-height:150px;align-content:start}
-.basket .item{display:flex;flex-direction:column;align-items:center;gap:3px;animation:pop .25s ease-out both}
-.basket .item .slot{width:50px;height:50px;font-size:28px;background:var(--surface);border-color:var(--ol)}
-.basket .item .badge{font-size:11px;line-height:16px;padding:0 4px}
-.basket .item small{font-size:11px;line-height:1.1;color:var(--ink);text-align:center;background:rgba(255,243,200,.85);padding:0 2px}
-@keyframes pop{from{transform:translateY(-14px) scale(.7);opacity:0}to{transform:none;opacity:1}}
+/* welcome basket: TOP-DOWN view. Art = round woven rim + inner floor, items rest on the floor */
+.basket{width:100%;position:relative;padding-top:30px}
+.basket .lid{position:absolute;top:0;left:0;right:0;text-align:center;font-weight:700;font-size:15px;color:var(--ink-2)}
+.basket .stagebk{position:relative;width:100%;aspect-ratio:1/0.86;display:grid;place-items:center}
+.basket .art{position:absolute;inset:0;border:2px solid #e00;background:repeating-linear-gradient(45deg,rgba(238,0,0,.05) 0 6px,transparent 6px 12px);display:flex;align-items:flex-start;justify-content:flex-start;font-size:11px;font-weight:700;color:#e00;padding:4px;text-align:left;z-index:0}
+.basket .rim{position:relative;z-index:1;width:92%;aspect-ratio:1/0.8;border-radius:50%;background:repeating-conic-gradient(#c79c60 0 6deg,#d9b27a 6deg 12deg);border:3px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;display:grid;place-items:center}
+.basket .floor{width:84%;height:80%;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#e9d7a8,#b98d54);border:3px solid var(--ol);box-shadow:inset 0 6px 0 rgba(0,0,0,.18);display:grid;place-items:center;padding:0 6%}
+.basket .inner{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 4px;width:100%}
+.basket .item{display:flex;flex-direction:column;align-items:center;gap:2px;animation:pop .25s ease-out both}
+.basket .item .slot{width:46px;height:46px;font-size:26px;background:var(--surface);border-color:var(--ol)}
+.basket .item .badge{font-size:11px;line-height:15px;padding:0 4px}
+.basket .item small{font-size:10px;line-height:1.1;color:var(--ink);text-align:center;background:rgba(255,243,200,.9);padding:0 2px}
+@keyframes pop{from{transform:translateY(-16px) scale(.7);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.basket .item{animation:none}}
 /* pack tiles */
 .packs{width:100%;display:flex;flex-direction:column;gap:10px}
@@ -144,9 +143,8 @@ body.only .frame.show{display:flex}
     <div class="basket" aria-live="polite">
       <div class="lid"><span>🧺</span> <span id="bk-title">Poppyburrow's welcome basket</span></div>
       <div class="stagebk">
-        <div class="art">Welcome basket art (handle + woven body, open top) 380x250</div>
-        <div class="handle"></div>
-        <div class="body"><div class="inner" id="bk"></div></div>
+        <div class="art">Welcome basket art, TOP-DOWN (round woven rim + empty floor) 380x330</div>
+        <div class="rim"><div class="floor"><div class="inner" id="bk"></div></div></div>
       </div>
     </div>
     <p class="hint">Roads here are gentle. Further out, the world gets wilder.</p>
@@ -169,12 +167,12 @@ body.only .frame.show{display:flex}
       <div class="stat"><span class="ic">⚡</span><b>20</b><small>energy</small></div>
     </div>
     <div class="packs">
-      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Maplewold seeds <span class="n">8 ▾</span></header>
-        <div class="grid"><span class="slot">🫛<i class="badge">×2</i></span><span class="slot">🥕<i class="badge">×2</i></span><span class="slot">🍓<i class="badge">×1</i></span><span class="slot">🌽<i class="badge">×2</i></span><span class="slot">🍅<i class="badge">×3</i></span></div></div>
-      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Village basket <span class="n">5 ▾</span></header>
-        <div class="grid"><span class="slot">🍓<i class="badge">×3</i></span><span class="slot">🫐<i class="badge">×2</i></span><span class="slot">🌻<i class="badge">×1</i></span><span class="slot">🍯<i class="badge">×1</i></span><span class="slot">🥚<i class="badge">×2</i></span></div></div>
-      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Everyday kit <span class="n">7 ▾</span></header>
-        <div class="grid"><span class="slot">🪏<i class="badge">×1</i></span><span class="slot">💧<i class="badge">×1</i></span><span class="slot">🌱<i class="badge">×6</i></span><span class="slot">📖<i class="badge">×1</i></span><span class="plus">+3</span></div></div>
+      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Maplewold seeds <span class="n">6 ▾</span></header>
+        <div class="grid"><span class="slot">🫘<i class="badge">×2</i></span><span class="slot">🫘<i class="badge">×2</i></span><span class="slot">🌾<i class="badge">×2</i></span><span class="slot">🫘<i class="badge">×2</i></span><span class="slot">🌸<i class="badge">×1</i></span></div></div>
+      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Poppyburrow basket <span class="n">6 ▾</span></header>
+        <div class="grid"><span class="slot">☘️<i class="badge">×1</i></span><span class="slot">🍯<i class="badge">×1</i></span><span class="slot">🍓<i class="badge">×1</i></span><span class="slot">🌾<i class="badge">×1</i></span><span class="slot">🌾<i class="badge">×2</i></span></div></div>
+      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Everyday kit <span class="n">14 ▾</span></header>
+        <div class="grid"><span class="slot">🌱<i class="badge">×6</i></span><span class="slot">🌱<i class="badge">×4</i></span><span class="slot">🪏<i class="badge">×1</i></span><span class="slot">💧<i class="badge">×1</i></span><span class="slot">🧺<i class="badge">×6</i></span></div></div>
     </div>
   </div>
   <div class="cta"><button class="btn">🌱 Plant my first garden</button><a class="back" href="#s2">← Change village</a></div>
