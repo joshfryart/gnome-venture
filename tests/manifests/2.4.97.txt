@@ -8575,7 +8575,7 @@ c669ec571e848d73050df20b531f62404cb825ba  assets/race.js
 e0a44d521e7397e9e26157c8bade0490e6f7b729  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-fff607a9bc526b00f110bba1291c170ce54d2279  assets/style.css
+81485bd54fa7a8882df919fad9aa573c88f6e002  assets/style.css
 e1f89c01e8da7da7b212bf05cdedf9b772237d27  assets/tilemap.js
 a48a5bcd24b97d26a62911ccb9a486bda9b5ed90  assets/tour.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
@@ -8833,7 +8833,7 @@ e4e8270d72dfd017f8d5279be77e6cbe5ae1c7bb  includes/stops.php
 a32ff5e0476e3e88e1c2c084075bd45714a7de01  includes/today_social.php
 363a1907460243c9fc225e8b983b4036fa216603  includes/today_view.php
 84b3db32297d86d2e4319b43a1ddb188ed8917c4  includes/tools.php
-6a2bd4589760bbb9a23917fa201ed8048c8f8f0c  includes/tour.php
+7d6767b67395e3f3c81859e58f491719ed6512f1  includes/tour.php
 d3ba56f57705de85e61a5701cd785892d5d1959d  includes/town.php
 109b6c5642cc97e18f0f076b1afafa9bd4f285e4  includes/town_social.php
 7d8734a96a8759ae15db447e7f1497310125e9dc  includes/townsfolk.php

@@ -7016,3 +7016,7 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 @keyframes tourpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 203, 46, .7); } 50% { box-shadow: 0 0 0 10px rgba(255, 203, 46, 0); } }
 @keyframes tourpoint { 0%, 100% { margin-bottom: 0; } 50% { margin-bottom: -5px; } }
 @media (prefers-reduced-motion: reduce) { .tourhl, .tourhl::before { animation: none; } }
+/* v2.4.97: Wren's bullets are petals */
+.tourbox .tourlist { list-style: none; margin: 0 0 6px; padding: 0; }
+.tourbox .tourlist li { position: relative; padding: 2px 0 2px 24px; line-height: 1.35; }
+.tourbox .tourlist li::before { content: ""; position: absolute; left: 2px; top: 4px; width: 16px; height: 16px; background: url("img/ico/ico-petal.png") center / contain no-repeat; image-rendering: pixelated; }

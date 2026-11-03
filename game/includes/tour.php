@@ -9,16 +9,16 @@ declare(strict_types=1);
 
 /** [event, title, what Wren says, link label, link] */
 const TOUR_STEPS = [
-    ['till', 'Till a square', 'Open your garden, tap a square of wild ground and press Till. A trowel is already in your satchel. {energy}', 'Go to my garden', 'garden.php'],
-    ['soil', 'Work in some compost', 'Pick the square you tilled and work in some Plain Compost. It feeds the soil slowly, over about a day, so plant right away. You don’t need to wait for it. {energy}', 'Go to my garden', 'garden.php', 1],   // 6th: 1 = can be skipped (rich soil has no Work in button)
-    ['plant', 'Plant a seed', 'Choose the tilled square and plant one of your seeds. Radishes and lettuce are the quickest: a radish takes {radish} of watered growing. {energy}', 'Go to my garden', 'garden.php'],
-    ['water', 'Water it', 'Plants only grow while they’re watered. One watering lasts several hours, so you can come and go as you please. {energy}', 'Go to my garden', 'garden.php'],
-    ['eat', 'Eat your welcome snack', 'Open your satchel and eat a crop from your welcome basket. Even raw crops give a little energy and a short buff, so a hungry gnome can always eat something from the satchel. Cooked dishes give much more.', 'Open my satchel', 'inventory.php'],
-    ['visit:book', 'Open your Almanac', 'Your Almanac fills itself in as you grow crops, cut flowers, visit villages and meet creatures. Milestones in it pay rewards.', 'Open my Almanac', 'book.php'],
-    ['visit:gnome', 'Meet your gnome', 'Here are your stats, your gnome level and your gardens. At level 5 you’ll choose a calling: it gives you a new hat and perks that grow as you level up.', 'See my gnome', 'gnome.php?tab=gnome'],
-    ['visit:world', 'Look around the world', 'This is where you are. Tap a stop on the road to head there, wander off the path for finds, or open the Gather tab to forage close by. Places you’ve walked to are one tap away under Fast travel.', 'Look around', 'world.php'],
-    ['visit:shop', 'Visit a shop', 'Shops are staffed around the clock and restock every so often. Twigg’s Seed Emporium in Mossbottom is open to everyone, wherever you are. Tap an item to fill your basket.', 'Find a shop', '{twigg}'],
-    ['harvest', 'Harvest your first crop', 'When your plant is ready, harvest it from your garden. You might save some seeds, and your Almanac gets a new page. Then the Hollow is yours to explore!', 'Go to my garden', 'garden.php'],
+    ['till', 'Till a square', "Wild ground needs tilling before it grows anything.\nYour trowel is already in your satchel.\n{energy}", 'Go to my garden', 'garden.php'],
+    ['soil', 'Work in some compost', "Compost feeds the soil slowly, over about a day.\nNo need to wait: plant right after.\n{energy}", 'Go to my garden', 'garden.php', 1],   // 6th: 1 = can be skipped (rich soil has no Work in button)
+    ['plant', 'Plant a seed', "Radishes and lettuce are quickest: a radish takes {radish} of watered growing.\nThe seed shown is fine.\n{energy}", 'Go to my garden', 'garden.php'],
+    ['water', 'Water it', "Plants only grow while watered.\nOne watering lasts several hours, so come and go as you like.\n{energy}", 'Go to my garden', 'garden.php'],
+    ['eat', 'Eat your welcome snack', "Open your satchel and eat a crop from your welcome basket.\nEven raw crops give a little energy and a short buff.\nCooked dishes give much more.", 'Open my satchel', 'inventory.php'],
+    ['visit:book', 'Open your Almanac', "Your Almanac fills itself in as you:\ngrow crops and cut flowers\nvisit villages and meet creatures\nMilestones in it pay rewards.", 'Open my Almanac', 'book.php'],
+    ['visit:gnome', 'Meet your gnome', "Here you will find:\nyour stats and gnome level\nyour gardens\nAt level 5 you choose a calling: a new hat and perks that grow with you.", 'See my gnome', 'gnome.php?tab=gnome'],
+    ['visit:world', 'Look around the world', "This is where you are.\nTap a stop on the road to head there.\nWander off the path for finds.\nOpen Gather to forage close by.\nPlaces you have walked to are one tap away under Fast travel.", 'Look around', 'world.php'],
+    ['visit:shop', 'Visit a shop', "Shops are staffed around the clock and restock now and then.\nTwigg’s Seed Emporium in Mossbottom is open to everyone, wherever you are.\nTap an item to fill your basket.", 'Find a shop', '{twigg}'],
+    ['harvest', 'Harvest your first crop', "When your plant is ready:\nYou might save some seeds.\nYour Almanac gets a new page.\nThen the Hollow is yours to explore!", 'Go to my garden', 'garden.php'],
 ];
 
 /** v2.4.97: where to point on each step, most specific first: [CSS selector, hint]. tour.js rings the first one that is on the page. */
@@ -176,6 +176,16 @@ function first_week_intro_line(int $uid): string
     return first_week_start($uid) !== null ? 'Next: Wren’s First Week. A small card unlocks each day on the Today page.' : 'Next: wander the roads, cook what you grow, and fill your Almanac.';
 }
 
+/** v2.4.97: Wren's words: the first line is a sentence, the lines after it are petal bullets (one point each). */
+function tour_text_html(string $t): string
+{
+    $lines = array_values(array_filter(array_map('trim', explode("\n", $t)), fn($l) => $l !== ''));
+    if (!$lines) return '';
+    $h = '<p class="tbtext">' . e(array_shift($lines)) . '</p>';
+    if ($lines) $h .= '<ul class="tourlist">' . implode('', array_map(fn($l) => '<li>' . e($l) . '</li>', $lines)) . '</ul>';
+    return $h;
+}
+
 /** The tour card shown at the top of game pages. tour.js turns it into Wren's speech bubble and rings what to tap; without script it stays a plain card.
  *  $ask: tour_ask (1 = the "now or later?" question, 2 = paused). $arrived: the visit step just finished by opening this page (its words show first). */
 function tour_box(int $step, int $ask = 0, int $arrived = 0): string
@@ -188,7 +198,7 @@ function tour_box(int $step, int $ask = 0, int $arrived = 0): string
         . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="' . $cls . '">' . $label . '</button></form> ';
     if ($ask === 1) {   // v2.4.97: right after the garden is named
         return '<div id="wrentour" data-step="0"><div class="tourbox tourask"><span class="bird" aria-hidden="true">🐦</span><div>'
-            . '<h3>Wren’s tour</h3><p>Your garden is made! Shall I show you around now, or would you rather look around yourself and have me ask again next time?</p>'
+            . '<h3>Wren’s tour</h3><p>Your garden is made!</p><ul class="tourlist"><li>Show you around now?</li><li>Or look around yourself: I will ask again next time.</li></ul>'
             . '<p class="tourbtns">' . $post('start', 'Show me now', 'btn') . $post('later', 'Later', 'btn alt') . '</p>' . $skip . '</div></div></div>';
     }
     if ($ask === 2) {   // said "later": a quiet one-liner until the next login
@@ -197,8 +207,7 @@ function tour_box(int $step, int $ask = 0, int $arrived = 0): string
     [, $title, $text, $label, $link] = TOUR_STEPS[$step - 1];
     $fill = function (string $t): string {
         if (str_contains($t, '{energy}')) {   // v0.9.4: say what energy is
-            $t = str_replace('{energy}', (setting('tour_free_actions') === '1' ? 'This one is free during the tour; later each of these costs 1 energy' : 'Each of these costs 1 energy')
-                . ', and yours comes back ' . energy_rate_text() . '.', $t);
+            $t = str_replace('{energy}', (setting('tour_free_actions') === '1' ? 'Free during the tour. Later it costs 1 energy, and yours comes back ' : 'Costs 1 energy, and yours comes back ') . energy_rate_text() . '.', $t);
         }
         // v0.7.85: placeholders filled from live data (the radish's real grow time)
         return str_contains($t, '{radish}') ? str_replace('{radish}', tour_grow_text('radish', 'a few minutes'), $t) : $t;
@@ -216,7 +225,7 @@ function tour_box(int $step, int $ask = 0, int $arrived = 0): string
     $go = !$atLink ? '<a class="btn small tourgo" href="' . e(url($link)) . '">' . e($label) . ' →</a>' : '';
     $arr = '';
     if ($arrived >= 1 && $arrived <= $n) {   // a visit step finishes before the page is drawn: say what it was about, here
-        $arr = '<div class="tourbox tourarr"><span class="bird" aria-hidden="true">🐦</span><div><h3>' . e(TOUR_STEPS[$arrived - 1][1]) . '</h3><p>' . e($fill(TOUR_STEPS[$arrived - 1][2])) . '</p></div></div>';
+        $arr = '<div class="tourbox tourarr"><span class="bird" aria-hidden="true">🐦</span><div><h3>' . e(TOUR_STEPS[$arrived - 1][1]) . '</h3>' . tour_text_html($fill(TOUR_STEPS[$arrived - 1][2])) . '</div></div>';
     }
     $targets = TOUR_TARGETS[TOUR_STEPS[$step - 1][0]] ?? [];
     $next = !empty(TOUR_STEPS[$step - 1][5]) ? '<div class="tournext"><form method="post" action="' . e(url('tour.php')) . '" class="inline">' . csrf_field()
@@ -224,7 +233,7 @@ function tour_box(int $step, int $ask = 0, int $arrived = 0): string
     return '<div id="wrentour" data-step="' . $step . '" data-targets="' . e(json_encode($targets, JSON_UNESCAPED_UNICODE)) . '">' . $arr
         . '<div class="tourbox tourcur"><span class="bird" aria-hidden="true">🐦</span><div>'
         . '<h3>Wren’s tour · ' . $step . ' of ' . $n . ': ' . e($title) . '</h3>'
-        . '<p class="tbtext">' . e($text) . '</p>'
+        . tour_text_html($text)
         . '<p class="tourhint" aria-live="polite"></p>'
         . ($go !== '' ? '<p>' . $go . '</p>' : '')
         . $next . $skip . '</div></div></div>';
