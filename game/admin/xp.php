@@ -4,6 +4,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';   // v1.6.3
 $me = require_admin();
+stats_reset_handle('xp', 'xp.php');   // v2.4.94
 
 $days = [];
 for ($i = 0; $i < 7; $i++) $days[] = hollow_date('Y-m-d', time() - $i * 86400);
@@ -91,4 +92,5 @@ page_header('XP sources', true);
   <?php endforeach; ?>
 </table>
 <?php endif; ?>
+<?php stats_reset_box('xp', 'Clears the XP log this page reads from. Gnome XP and levels are not touched; the report starts empty and fills again as players earn XP.', 'Clear the XP sources log? Players keep all their XP and levels.'); ?>
 <?php page_footer();
