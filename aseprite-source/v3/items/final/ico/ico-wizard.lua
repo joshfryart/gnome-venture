@@ -1,0 +1,25 @@
+local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local D = dofile(DIR .. "/../_helpers/_dA11.lua")
+local HP, INK, CREAM = D.HP, D.INK, D.CREAM
+local floor, sin, cos, sqrt, max, min, abs, pi = math.floor, math.sin, math.cos, math.sqrt, math.max, math.min, math.abs, math.pi
+-- ico-wizard: bearded wizard face under a tall purple hat with moon and star.
+-- quirk: the hat tip flops over and a little gold star dangles from it.
+local c = D.new("ico-wizard")
+D.lit(c, c:poly{ {23, 46}, {41, 46}, {43, 54}, {32, 60}, {21, 54} }, D.CRM, 4)
+D.lit(c, c:ellipse(32, 45, 10, 9), D.SKIN, 5)
+D.lit(c, c:ellipse(32, 47, 3.5, 3), D.SKIN, 2)
+c:fillMask(c:rect(30, 49, 34, 49), D.SKIN[1])
+D.lit(c, c:ellipse(27.5, 51, 5, 2.5), D.CRM, 2) D.lit(c, c:ellipse(36.5, 51, 5, 2.5), D.CRM, 2)
+c:eyeSmall(25, 40) c:eyeSmall(37, 40)
+local pts = D.bez({ {32, 36}, {28, 22}, {34, 12}, {47, 12} }, 20)
+local hat = D.swept(c, pts, function(t) return 15 * (1 - t) ^ 0.9 + 1.5 end)
+hat:clip(c:rect(0, 0, 63, 37))
+D.lit(c, hat, D.PURP, 6)
+D.lit(c, c:ellipse(32, 36, 23, 4.5), D.PURP, 3)
+c:fillMask(c:rect(14, 38, 50, 38), D.PURP[1])
+c:fillMask(c:rect(17, 33, 47, 34), D.GOLD[4])
+c:fillMask(D.star(c, 30, 26, 4, 2, 5), D.YEL[5])
+c:fillMask(c:ellipse(39, 25, 3, 3), D.YEL[4]) c:fillMask(c:ellipse(40, 24, 2.5, 2.5), D.PURP[4])
+c:fillMask(c:rect(48, 15, 48, 18), CREAM)
+D.lit(c, D.star(c, 49, 22, 4, 2, 5), D.YEL, 1)
+D.fin()

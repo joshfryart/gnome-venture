@@ -1,0 +1,15 @@
+local D = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\\\][^/\\\\]*$") .. "/../_helpers/_dA16.lua")
+local floor, sin, cos = math.floor, math.sin, math.cos
+local c = D.new("blackcurrant-cordial")
+-- blackcurrant-cordial: slim squat bottle of deep purple cordial with a black cap, label with a currant, ground shadow. quirk: a drip runs down the neck from the cap.
+D.shadow(32, 57, 14, 2)
+local m = D.vbody(20, 26, 44, 55, 5, D.JAM)
+D.vbody(27, 12, 37, 28, 1, D.GLASS)
+D.c:fillMask(D.c:rect(28, 18, 36, 28), "#34123e") 
+D.vbody(26, 8, 38, 14, 1, D.BLK)
+D.ln(27, 11, 37, 11, "#3e2f44") D.px(28, 9, "#7c6a82")
+D.c:fillMask(D.c:rect(23, 36, 41, 49), "#fbf0c8") D.c:fillMask(D.c:rect(23, 36, 41, 37), "#d8bd7c")
+D.E(32, 43, 3, 3, 0, D.INDIGO, 1.5) D.px(32, 39, "#6ab455") D.px(33, 40, "#6ab455")
+D.px(23, 30, "#cc7cc0") D.px(23, 31, "#cc7cc0") D.px(24, 30, "#fff4d6")
+D.ln(36, 15, 36, 22, "#7a2870") D.px(36, 23, "#a04898")
+D.fin()

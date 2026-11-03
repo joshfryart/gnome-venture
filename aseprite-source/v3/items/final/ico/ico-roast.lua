@@ -1,0 +1,18 @@
+-- ico-roast first draft. glazed drumstick on a bone. quirk: one bite taken out of the meat, pale flesh showing
+local D = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_dA9.lua")
+local c = D.new("ico-roast")
+D.cyl(c, 24, 36, 11, 51, function(t) return 2.6 end, D.CRM)
+D.lit(c, c:ellipse(10, 50, 3, 3), D.CRM, 2) D.lit(c, c:ellipse(14, 54, 3, 3), D.CRM, 2)
+D.R(c, 11, 51, 12, 52, D.CRM[3])
+local meat = D.ell(37, 24, 16, 13, -0.55)
+local bite = D.ell(50, 13, 6, 5)
+local flesh = D.ell(37, 24, 16, 13, -0.55):clip(D.ell(50, 13, 8, 7)):cut(bite)
+meat:cut(bite)
+D.lit(c, meat, D.BRN, 5, { amb = 0.05 })
+-- re-tone meat in orange-brown roast ramp
+D.lit(c, meat, { "#4a2418", "#7a3a20", "#a8541f", "#c97a2a", "#e0a048", "#f6cc78" }, 5)
+D.lit(c, flesh, D.CRM, 1.2)
+D.pts(c, { {45, 16}, {47, 18}, {49, 19} }, "#d4b48a")
+D.R(c, 28, 17, 31, 18, "#fff0a0") c:px(32, 17, "#fff0a0")
+D.pts(c, { {33, 30}, {34, 30}, {35, 31}, {26, 29}, {27, 30} }, "#7a3a20")
+D.fin()

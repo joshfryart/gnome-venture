@@ -1,0 +1,15 @@
+-- ico-signpost first draft. wooden post with two pointer boards. quirk: a little robin perches on the top board tip
+local D = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_dA9.lua")
+local c = D.new("ico-signpost")
+c:groundShadow(32, 58, 12, 2)
+D.lit(c, c:rect(28, 8, 35, 58), "wood", 3)
+D.lit(c, c:poly{ {12, 14}, {44, 14}, {54, 22}, {44, 30}, {12, 30} }, D.TAN, 3)
+D.lit(c, c:poly{ {52, 34}, {20, 34}, {10, 42}, {20, 50}, {52, 50} }, { "#3a2030", "#5a2e1e", "#7a4026", "#9a5832", "#b8743e", "#d89a5c" }, 3)
+D.polyline(c, { {16, 20}, {40, 20} }, "#8a5a38") D.polyline(c, { {16, 25}, {36, 25} }, "#8a5a38")
+D.polyline(c, { {24, 40}, {46, 40} }, "#5a2e1e") D.polyline(c, { {28, 45}, {46, 45} }, "#5a2e1e")
+D.pts(c, { {15, 18}, {41, 28}, {47, 36}, {16, 48} }, "#2b1c26")
+-- robin
+D.lit(c, D.ell(47, 9, 4, 3), D.RED, 1.5) D.lit(c, c:ellipse(51, 7, 2.5, 2.5), D.BRN, 1.2)
+c:px(52, 6, "#2b1c26") D.pts(c, { {54, 8} }, "#ffd45a")
+D.R(c, 42, 8, 43, 10, "#51302b")
+D.fin()
