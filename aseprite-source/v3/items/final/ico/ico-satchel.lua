@@ -16,7 +16,7 @@ local STEM = { "#2e6a48", "#4f9a55", "#86c46a" }
 c:groundShadow(32, 56, 19, 2)
 
 -- shoulder strap (behind the body)
-local sm, sn, ST, SS = A.tube({ { 18, 34 }, { 15, 3 }, { 49, 3 }, { 46, 34 } }, function(t) return 1.75 end)
+local sm, sn, ST, SS = A.tube({ { 20, 34 }, { 17, 2 }, { 47, 2 }, { 44, 34 } }, function(t) return 1.75 end)
 local stok = A.tok("strap")
 local sidx = A.shade(c, sm, sn, STR, { tok = stok })
 sm:each(function(x, y) local k = K(x, y)
@@ -25,35 +25,35 @@ sm:each(function(x, y) local k = K(x, y)
 end)
 
 -- body
-local body = c:rrect(13, 25, 51, 54, 4)
-local bn = X.pillow(body, 4)
+local body = c:rrect(15, 25, 49, 54, 5)
+local bn = A.bulge(X.pillow(body, 4), 26, 30, 22, 30, 0.55)
 local btok = A.tok("body")
 local flap = HP.mask()
-for y = 22, 41 do for x = 13, 51 do
+for y = 22, 41 do for x = 15, 49 do
   local ok = true
   local r = 8
   if y > 41 - r then
     local dy = y - (41 - r)
-    if x < 13 + r then local dx = (13 + r) - x ok = dx * dx + dy * dy <= r * r + 2 end
-    if x > 51 - r then local dx = x - (51 - r) ok = dx * dx + dy * dy <= r * r + 2 end
+    if x < 15 + r then local dx = (15 + r) - x ok = dx * dx + dy * dy <= r * r + 2 end
+    if x > 49 - r then local dx = x - (49 - r) ok = dx * dx + dy * dy <= r * r + 2 end
   end
-  if y == 22 and (x < 16 or x > 48) then ok = false end
-  if y == 23 and (x < 14 or x > 50) then ok = false end
+  if y == 22 and (x < 18 or x > 46) then ok = false end
+  if y == 23 and (x < 16 or x > 48) then ok = false end
   if ok then flap:set(x, y) end
 end end
 local bb = {}
 A.cast(bb, body, flap, 0, 2, -2)
 A.cast(bb, body, flap, 0, 1, -1)
 -- lower body: slight bulge from the seam
-body:each(function(x, y) if y >= 52 then local k = K(x, y) bb[k] = (bb[k] or 0) - 1 end end)
+body:each(function(x, y) local k = K(x, y) bb[k] = (bb[k] or 0) - 1 + (y >= 52 and -1 or 0) end)
 local bidx = A.shade(c, body, bn, LEA, { tok = btok, bias = bb })
 -- side gussets: darker vertical fold lines near the edges
 for y = 30, 52 do
-  A.step(c, bidx, LEA, 15, y, -1, btok)
-  A.step(c, bidx, LEA, 49, y, -1, btok)
+  A.step(c, bidx, LEA, 17, y, -1, btok)
+  A.step(c, bidx, LEA, 47, y, -1, btok)
 end
 -- bottom seam row
-for x = 16, 48 do A.step(c, bidx, LEA, x, 51, -1, btok) end
+for x = 18, 46 do A.step(c, bidx, LEA, x, 51, -1, btok) end
 
 -- quirk: lavender sprig behind the flap at the right, drawn before the flap so the flap covers its foot
 local ltok = A.tok("lavender")
@@ -68,16 +68,16 @@ c:put(47, 15, LAV[3], ltok) c:put(48, 14, LAV[4], ltok) c:put(48, 16, LAV[2], lt
 c:put(43, 20, STEM[2], ltok) c:put(44, 20, STEM[3], ltok) c:put(42, 19, STEM[2], ltok)
 
 -- flap
-local fn = X.pillow(flap, 3)
+local fn = A.bulge(X.pillow(flap, 3), 24, 22, 22, 26, 0.6)
 local ftok = A.tok("flap")
 local fb = {}
 local fidx = A.shade(c, flap, fn, LEA, { tok = ftok, bias = fb, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 } })
 -- flap lip: bright edge row along the bottom curve, then the stitch inset
 flap:edge():each(function(x, y) if y >= 36 and not flap:has(x, y + 1) then A.step(c, fidx, LEA, x, y, 1, ftok) end end)
 -- fold where the flap bends over the top
-for x = 16, 48 do A.step(c, fidx, LEA, x, 25, -1, ftok) end
-for x = 17, 47 do A.step(c, fidx, LEA, x, 24, 1, ftok) end
-c:stitch{ { 16, 28 }, { 16, 34 }, { 18, 36 }, { 22, 38 }, { 42, 38 }, { 46, 36 }, { 48, 34 }, { 48, 28 } }
+for x = 18, 46 do A.step(c, fidx, LEA, x, 25, -1, ftok) end
+for x = 19, 45 do A.step(c, fidx, LEA, x, 24, 1, ftok) end
+c:stitch{ { 18, 28 }, { 18, 34 }, { 20, 36 }, { 24, 38 }, { 40, 38 }, { 44, 36 }, { 46, 34 }, { 46, 28 } }
 -- leather scuffs (grain): a few pale and dark nicks
 for _, p in ipairs{ { 20, 31, 1 }, { 21, 31, 1 }, { 39, 29, -1 }, { 24, 46, 1 }, { 41, 49, -1 }, { 42, 49, -1 }, { 19, 44, 1 } } do
   if flap:has(p[1], p[2]) then A.step(c, fidx, LEA, p[1], p[2], p[3], ftok) else A.step(c, bidx, LEA, p[1], p[2], p[3], btok) end
