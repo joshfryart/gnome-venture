@@ -646,7 +646,7 @@ function nav_sheet(array $u, string $page): string
                 (SELECT 1 FROM fair_entries e WHERE e.user_id = f.user_id AND e.month = f.month AND e.cat = f.cat AND e.score >= f.score)', [$uid, job_period_key('monthly')]);
             require_once __DIR__ . '/quests_view.php';   // v1.7.5: the Tasks badge = jobs + quests + orders ready (not errands carried), same sums as the tab badges
             $tc = tasks_counts($u);
-            $b['jobs'] = (int)$tc['jobs'] + (int)$tc['quests'] + (int)$tc['orders'];
+            $b['jobs'] = (int)$tc['jobs'] + (int)$tc['journey'] + (int)$tc['orders'];
             $np = (int)q_val("SELECT COUNT(*) FROM player_friends WHERE friend_id = ? AND status = 'pending'", [$uid]);   // v1.0.0
             $b['pals'] = $np ? $np . ' new' : '';
         } catch (Throwable $e) {

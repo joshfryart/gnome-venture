@@ -23,7 +23,7 @@ Solo-developed. Releases are slim zips uploaded by Joshua through Admin > Update
 ## Capabilities and Constraints
 - Shared hosting: no cron, no build step, weather and time computed on view.
 - No framework; changes must keep working on PHP 8.1 and MySQL as well as SQLite.
-- Old URLs must keep working (redirect stubs exist: `kitchen.php`, `passport.php`, `seasons.php`, `crafting.php`).
+- Old URLs must keep working (redirect stubs exist: `kitchen.php`, `passport.php`, `seasons.php`, `arrange.php`, and old `jobs.php?t=orders|errands|quests` links; `crafting.php` is a live page that also serves the Satchel Crafting tab).
 - Core and Player & Progression function signatures are shared by every section (see graphify-out/SECTIONS.md).
 
 ## Brand Commitments

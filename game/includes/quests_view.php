@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * v1.1.0: the Quests half of Jobs & Quests (jobs.php?t=quests). One short line per thing on the go, each linking to where it's
+ * v1.1.0: the Journey half of Jobs & Journey (jobs.php?t=journey). One short line per thing on the go, each linking to where it's
  * done: Wren's Journey chapters, the calling questline and landmark repairs (full boxes). v1.7.2: errands and orders have their own Tasks tab
  * (T2.2: one Requests tab for both, soonest deadline first).
  */
@@ -22,7 +22,7 @@ function quests_overview(array $u): void
         $hf = '';   // v1.7.5: hand-in / finish right here (journey.php sends you back to this tab)
         if ($rd !== '') {
             $hf = '<form method="post" action="' . e(url('journey.php')) . '" class="inline jqhand">' . csrf_field() . '<input type="hidden" name="do" value="' . ($rd === 'finish' ? 'finish' : 'hand_in') . '">'
-                . '<input type="hidden" name="ch" value="' . (int)$ch['id'] . '"><input type="hidden" name="back" value="jobs.php?t=quests">'
+                . '<input type="hidden" name="ch" value="' . (int)$ch['id'] . '"><input type="hidden" name="back" value="jobs.php?t=journey">'
                 . '<button class="btn small' . ($rd === 'finish' ? ' gold' : '') . '">' . ($rd === 'finish' ? '📜 Finish the chapter' : '✋ Hand in') . '</button></form>';
         }
         $rows .= '<li><a href="' . e(url('book.php?ch=Journey&j=' . (int)$ch['id'])) . '">' . e((string)$ch['project_icon']) . ' ' . e($ch['region']) . ': ' . e($ch['title']) . '</a>'
@@ -42,7 +42,7 @@ function quests_overview(array $u): void
     foreach (repair_list($uid) as $k => $rp) {
         $any = true;
         if ($k === 0) echo '<h2 id="repairs">🔨 Your repairs</h2>';
-        echo '<div class="box">' . repair_box($u, $rp, 'jobs.php?t=quests') . '</div>';
+        echo '<div class="box">' . repair_box($u, $rp, 'jobs.php?t=journey') . '</div>';
     }
 
     if (!$any) echo '<p class="muted">No quests on the go. Walk to a new region to start a Journey chapter.</p>';
@@ -62,7 +62,7 @@ function tasks_in_town(array $u, bool $hub): bool
 function tasks_counts(array $u, bool $hub = false): array
 {
     $uid = (int)$u['id'];
-    $c = ['jobs' => 0, 'quests' => 0, 'orders' => 0, 'errands' => 0, 'requests' => 0];   // T2.2: requests = orders ready + errands carried (one tab); the nav badge still uses orders only
+    $c = ['jobs' => 0, 'journey' => 0, 'orders' => 0, 'errands' => 0, 'requests' => 0];   // T2.2: requests = orders ready + errands carried (one tab); the nav badge still uses orders only
     try {
         foreach (array_keys(JOB_PERIODS) as $pk) {
             $j = current_job($uid, $pk);
@@ -73,9 +73,9 @@ function tasks_counts(array $u, bool $hub = false): array
                 && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $j['target_item_id']]) > 0) $c['jobs']++;
         }
         require_once __DIR__ . '/journey.php';
-        foreach (journey_chapters() as $ch) if (journey_ready($u, journey_status($u, $ch)) !== '') $c['quests']++;
+        foreach (journey_chapters() as $ch) if (journey_ready($u, journey_status($u, $ch)) !== '') $c['journey']++;
         require_once __DIR__ . '/rebuild.php';
-        foreach (repair_list($uid) as $rp) if (repair_ready($u, $rp)) $c['quests']++;
+        foreach (repair_list($uid) as $rp) if (repair_ready($u, $rp)) $c['journey']++;
         require_once __DIR__ . '/stop_folk.php';
         $c['errands'] = count(stop_errands_active($uid));
         if (setting('orders_on') === '1' && tasks_in_town($u, $hub)) {

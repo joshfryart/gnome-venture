@@ -162,7 +162,7 @@ $wide8 = count($cards) + ($slotHtml ? 1 : 0) > 6;
 <?php endforeach; ?>
 </div>
 <?php if ($nRepairs): ?>
-  <p class="help"><a href="<?= e(url('jobs.php?t=quests#repairs')) ?>">🔨 <?= $nRepairs ?> repair<?= $nRepairs === 1 ? '' : 's' ?> under way</a></p>
+  <p class="help"><a href="<?= e(url('jobs.php?t=journey#repairs')) ?>">🔨 <?= $nRepairs ?> repair<?= $nRepairs === 1 ? '' : 's' ?> under way</a></p>
 <?php endif; ?>
 </div>
 <div class="todayhollow" id="hollowtoday"><?= today_social_html($u, 'hollow') ?></div>

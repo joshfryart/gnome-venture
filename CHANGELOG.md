@@ -1,6 +1,8 @@
 # Changelog
 
 ## Next version (unreleased)
+- **Tasks: the Quests tab is now Journey.** Tab key `?t=journey` (old `?t=quests` and `?s=quests` links redirect there, like Orders and Errands go to Requests). Repair links, the nav badge count and the tests follow. Help text that pointed at "the town square's Quests tab" now says Tasks → Journey, and "Satchel → Arranging" now says Satchel → Arrange.
+- **Docs.** README, PRODUCT and the to-do header no longer say Treks stop at Chapter II-b (Chapter III is built, `trek_chapters_open` defaults to 3) or that `crafting.php` is a redirect stub. The 2.3.7 update note no longer mentions the removed My Gnome Potions box.
 - **My Gnome: the Potions box is gone.** Boost potions and Garden Tonic are used from the Satchel (Garden Tonic: pour it from the Garden). `alchemy_card_html()` and the `do=drink` handler on `gnome.php` are removed.
 
 ## 2.4.90

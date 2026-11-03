@@ -54,7 +54,7 @@ Phone (412px, dark theme):
 - **Puzzles** (Games > Puzzles, switched on per game in Admin > Settings; admins see them first): **Jigsaw** (classic picture jigsaws in three fixed sizes, Easy 24 / Advanced 96 / Expert 216 pieces; 14 region pictures plus a picture for each of the 81 unique locations, unlocked the first time a gnome visits; personal bests, save and resume, tournaments and three-size cups), **GIFsaw** (animated jigsaws with free piece counts and tournaments), Rain Barrel and Gnome Beds (daily puzzles). Jeff hosts, his twin Ffej makes mischief, the Old Wizard gives hints. Tournaments are timed on the server; prizes are cosmetic trophies and badges. Admin > Jigsaw and Admin > GIFsaw manage pictures, uploads and tournaments.
 - **Games**: Worm Hunting, Seed Memory, Snail Race, Seed Spitting, Guess the Weight, Mushroom Sweeper, Lost Letters, Pest Patrol, Harvest Fair, Village Show, Pumpkin Carving, gathering practice.
 - **Social**: gnome friends, guestbook stamps, gifts, watering for friends, Hollow Goals, Almanac (encyclopedia), passport.
-- **Treks** (behind L15 gate and `trek_open` setting; admins only by default): NeoQuest-style party campaign. Chapter I "The Wilting Rows" and Chapter II-a/II-b "The Weeping Clay" are built. Story text is written in admin (Trek text).
+- **Treks** (behind L15 gate and `trek_open` setting; admins only by default): NeoQuest-style party campaign. Chapter I "The Wilting Rows", Chapter II-a/II-b "The Weeping Clay" and Chapter III-a/III-b "The Knock Below" are built; players may go down to the chapter set by `trek_chapters_open` (default 3). Story text is written in admin (Trek text).
 - **Guests**: "Play as a guest" makes a throwaway garden (no email); guests never appear to other players and are purged when idle.
 - **Admin**: settings (labels "Feature: text"), users, retention, XP log, images, hybrids, treks, trek text, Jigsaw and GIFsaw puzzles, in-place updater.
 
@@ -99,7 +99,7 @@ Full history: [CHANGELOG.md](CHANGELOG.md).
 
 ## Open work
 - Live/MySQL watch: hybrid CAST, mentor tables, InnoDB row locks, trek tables.
-- Treks: standalone story campaign; Chapter II-b balance watch; Chapters III–VI not built.
+- Treks: standalone story campaign; Chapter II-b balance watch; Chapters I to III are built, IV–VI not built.
 - Puzzles: the weekly Jigsaw schedule and **Puzzle Pals** (collectable puzzle-piece companions released by an Advanced solve, found on pages, passive perks for gnomes level 15+) are planned for the next release: `claude/plan-puzzle-pals.md`, `claude/plan-jigsaw.md`.
 - Road: region packs, road text admin editor, 146 villages share 9 descriptions.
 - Ideas parked: growing villages, caravans, Hall of Fame, public region pages, postcards, admin 2FA, CAPTCHA.

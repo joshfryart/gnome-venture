@@ -350,7 +350,7 @@ function repair_start(array $u, int $lmId): array
     } catch (PDOException $e) {
         return [false, 'You’re already repairing this.'];   // a double click
     }
-    return [true, '🔨 You start making ' . $lm['name'] . ' safe for yourself: clearing your own path in, shoring up your corner, earning the keeper’s trust. Hand in each stage when you have the materials, here, from the Job Board or from a town square’s Quests tab. Each one pays ' . money($coins) . ' and ' . $xp . ' XP.'];
+    return [true, '🔨 You start making ' . $lm['name'] . ' safe for yourself: clearing your own path in, shoring up your corner, earning the keeper’s trust. Hand in each stage when you have the materials, here, from the Job Board or from Tasks → Journey. Each one pays ' . money($coins) . ' and ' . $xp . ' XP.'];
 }
 
 /**

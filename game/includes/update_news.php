@@ -615,7 +615,7 @@ function post_update_news(string $from): void
         . "[*]Faster: rest by a haven fire (half), stay the night at a haven (full), rest at a stop's inn, a hot bath or a soak, drink a [b]Healing Potion[/b] or eat a home-cooked snack (both from [b]My Gnome[/b]), or level up (full).\n"
         . "[*]If you are knocked out you wake up with half your health.[/list]"],
     '2.3.7' => ['🧪 Update 2.3.7: more potions, smarter crafting map',
-        "[list][*][b]Alchemy[/b]: seven new potions. Strong Healing Potion and Grand Healing Elixir, Lucky, Sage's, Stoneskin and Swiftfoot draughts, and a Garden Tonic for your soil. Drink them from the Satchel or the new Potions box on My Gnome.\n"
+        "[list][*][b]Alchemy[/b]: seven new potions. Strong Healing Potion and Grand Healing Elixir, Lucky, Sage's, Stoneskin and Swiftfoot draughts, and a Garden Tonic for your soil. Drink them from the Satchel.\n"
         . "[*][b]Crafting map[/b]: tap an object in a scene (a cheese wheel, the anvil, the seed trays) and you see just the recipes it makes.\n"
         . "[*]Eleven Pantry preserves have new pictures.[/list]"],
     '2.3.8' => ['🛂 Update 2.3.8: a shorter Stamp passport',
