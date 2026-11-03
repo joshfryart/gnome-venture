@@ -43,7 +43,7 @@ for y = 18, 40 do for x = 14, 50 do
   end
 end end
 -- nut-top sliver revealed on the high (left) side under the tilted rim
-nut:add(cap:copy():shift(0, 2):cut(cap):clip(c:rect(22, 30, 30, 38)))
+nut:add(cap:copy():shift(0, 2):cut(cap):clip(c:rect(22, 30, 30, 38)):clip(c:ellipse(CX, 40, 8, 11)))
 nn = A.body(nut, CX - 0.5, 41, 11, 4, 0.7)
 for k, a in pairs(nn) do nn[k] = { A.norm(a[1] * 1.15, a[2] * 0.7, a[3]) } end
 nut:cut(cap)
@@ -56,7 +56,7 @@ A.leaf(c, capTopX + 1.5, capTopY - 2.5, capTopX + 8, capTopY - 13, capTopX + 19,
   tok = LT, vs = 3.4,
   wfn = function(t) if t > 0.985 then return -1 end
     local base = 4.2 * sin(pi * min(1, t * 0.97 + 0.05)) ^ 0.7
-    return max(0.4, base * (0.72 + 0.28 * cos(t * 26))) end })
+    return max(0.4, base * (0.8 + 0.2 * cos(t * 21))) end })
 A.stem(c, { {capTopX, capTopY + 1}, {capTopX, capTopY - 1.5}, {capTopX + 0.6, capTopY - 3}, {capTopX + 2, capTopY - 4.2} },
   function(t) return 1.3 - 0.35 * t end, STEM)
 
