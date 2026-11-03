@@ -303,9 +303,14 @@ function refresh_energy(array &$u): void
     if ($ticks > 0) {
         $new = min($max, (int)$u['energy'] + $ticks * $amt);
         $stamp = $new >= $max ? time() : $last + $ticks * $per;
-        q('UPDATE users SET energy = ?, energy_updated_at = ? WHERE id = ?', [$new, gmdate('Y-m-d H:i:s', $stamp), $u['id']]);
-        $u['energy'] = $new;
-        $u['energy_updated_at'] = gmdate('Y-m-d H:i:s', $stamp);
+        $stampStr = gmdate('Y-m-d H:i:s', $stamp);
+        // v2.4.98: add the ticks (don't overwrite with a stale total, which would hand back energy spent meanwhile) and only
+        // when the stamp is still the one we read, so two tabs can't credit the same ticks twice.
+        $won = q('UPDATE users SET energy = CASE WHEN energy + ? > ? THEN ? ELSE energy + ? END, energy_updated_at = ? WHERE id = ? AND energy_updated_at = ?',
+            [$ticks * $amt, $max, $max, $ticks * $amt, $stampStr, $u['id'], (string)$u['energy_updated_at']])->rowCount() === 1;
+        $row = q_one('SELECT energy, energy_updated_at FROM users WHERE id = ?', [$u['id']]);
+        if ($row) { $u['energy'] = (int)$row['energy']; $u['energy_updated_at'] = $row['energy_updated_at']; }
+        elseif ($won) { $u['energy'] = $new; $u['energy_updated_at'] = $stampStr; }
     }
 }
 
@@ -720,6 +725,32 @@ function tile_grow(array $t, ?array $p, ?int $at = null): array
     return $t;
 }
 
+/**
+ * v2.4.98: write a square only if it is still what this request read. $raw is the row as loaded (before annotate_tile).
+ * Locks the row (README race pattern), re-reads it and compares; if another tab or visitor changed it meanwhile, nothing is written,
+ * $raw becomes the fresh row, and false comes back so the caller can show the fresh square instead of overwriting it with an old copy.
+ */
+function tile_write_guarded(array &$raw, callable $write): bool
+{
+    $own = !db()->inTransaction();
+    if ($own) db()->beginTransaction();
+    try {
+        q('UPDATE plot_tiles SET id = id WHERE id = ?', [$raw['id']]);
+        $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$raw['id']]);
+        if (!$fresh || $fresh != $raw) {
+            if ($own) db()->rollBack();
+            if ($fresh) $raw = $fresh;
+            return false;
+        }
+        $write();
+        if ($own) db()->commit();
+        return true;
+    } catch (Throwable $e) {
+        if ($own && db()->inTransaction()) db()->rollBack();
+        throw $e;
+    }
+}
+
 /** Save growth, the no-till upkeep clock and the soil feeding clock. */
 function save_growth(array $t): void
 {
@@ -843,13 +874,14 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
     $hv = $hs = $hst = [];
     foreach ($hires as $k => $hh) { $hv[$k] = hire_visits($hh); $hs[$k] = helper_skills($hh); $hst[$k] = ['water' => 0, 'weed' => 0, 'harvest' => 0]; }
     foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$plotId])->fetchAll() as $t) {
+        $raw = $t;   // v2.4.98: the row as the database held it, to check before any write
         $p = null;
         if ($t['plant_id']) {
             $pid = (int)$t['plant_id'];
             $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]);
         }
         $t = annotate_tile($t, $p);
-        foreach ($hires as $k => $hh) if ($hv[$k] && in_array('water', $hs[$k], true)) $t = helper_water_tile($t, $p, $hv[$k], $hst[$k]);
+        foreach ($hires as $k => $hh) if ($hv[$k] && in_array('water', $hs[$k], true)) $t = helper_water_tile($t, $p, $hv[$k], $hst[$k], $raw);
         if ($p || $t['method'] === 'notill' || (int)$t['feed_hours'] > 0) {
             $origSig = growth_sig($t);   // v1.2.2: what the database holds now (helper_water_tile has already saved its own changes)
             $origClock = (string)$t['growth_updated_at'];
@@ -873,7 +905,12 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
             // as before so a later watering can't be counted over time it spent dry.
             // The clock is still saved at least once an hour, so the day-by-day replay (seasons, frost, pests) never has to cover a long gap.
             $capped = !$p || (int)$t['growth_seconds'] >= (int)$p['grow_minutes'] * 60;
-            if (growth_sig($t) !== $origSig || ((string)$t['growth_updated_at'] !== $origClock && (!$capped || time() - (ts($origClock) ?: 0) > 3600))) save_growth($t);
+            if (growth_sig($t) !== $origSig || ((string)$t['growth_updated_at'] !== $origClock && (!$capped || time() - (ts($origClock) ?: 0) > 3600))) {
+                $keep = $t;
+                if (!tile_write_guarded($raw, fn() => save_growth($keep))) {   // v2.4.98: someone changed this square meanwhile; show theirs, don't overwrite it
+                    $t = feed_tick(bed_tick(tile_grow(annotate_tile($raw, $p), $p), $ownerRow));
+                }
+            }
         }
         $best = max($best, grade_index($t));
         $tiles[(int)$t['y']][(int)$t['x']] = $t;

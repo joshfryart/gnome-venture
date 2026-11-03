@@ -545,5 +545,33 @@ ok('beds keep their crops through frost, storm, heat, rain and pests', (int)q_va
 ok('growth never goes backwards', (int)q_val('SELECT MIN(growth_seconds) FROM plot_tiles WHERE plant_id IS NOT NULL AND plot_id = ?', [$plotS]) >= 0);
 cfg(['weather_force' => '', 'season_force' => '', 'pest_chance' => 10, 'biddy_chance' => 40]);
 
+echo "== v2.4.98 stale writes\n";
+$plotW = mkplot();
+[$tw, $pw] = put($plotW, 1, 1, 'tomato', ['weeds' => 0]);
+$raw = tile($plotW, 1, 1);
+$mine = $raw;
+q('UPDATE plot_tiles SET weeds = 7 WHERE id = ?', [$raw['id']]);   // another tab weeds/changes the square after we read it
+$won = tile_write_guarded($raw, fn() => q('UPDATE plot_tiles SET weeds = 99 WHERE id = ?', [$mine['id']]));
+ok('a stale square is not written back', !$won && (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$mine['id']]) === 7);
+ok('the guard hands back the fresh row', (int)$raw['weeds'] === 7);
+$won = tile_write_guarded($raw, fn() => q('UPDATE plot_tiles SET weeds = 3 WHERE id = ?', [$mine['id']]));
+ok('an unchanged square is written', $won && (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$mine['id']]) === 3);
+ok('the guard leaves no transaction open', !db()->inTransaction());
+
+[$per, $amt] = [energy_tick()[1], energy_tick()[0]];
+$stamp = gmdate('Y-m-d H:i:s', time() - 5 * $per - 2);
+q('UPDATE users SET energy = 10, energy_updated_at = ? WHERE id = ?', [$stamp, $uid]);
+$ua = q_one('SELECT * FROM users WHERE id = ?', [$uid]);   // tab A and tab B both read here
+$ub = $ua;
+spend_energy($uid, 4);                                      // a spend lands meanwhile: 10 -> 6
+refresh_energy($ua);
+$e1 = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+ok('a refresh adds ticks and keeps the spend', $e1 === 6 + 5 * $amt, "got $e1");
+refresh_energy($ub);                                        // tab B refreshes from the same old read
+$e2 = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+ok('a second tab does not credit the same ticks twice', $e2 === $e1, "got $e2, wanted $e1");
+ok('the second tab sees the current energy', (int)$ub['energy'] === $e2);
+q('UPDATE users SET energy = 500 WHERE id = ?', [$uid]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
