@@ -438,5 +438,6 @@ function explore_come_back(array $u, string $how): array
         'scaled' => 0, 'log' => json_encode(['🌿 You slip back into the wild mycelium, ' . $depth . ' step' . ($depth === 1 ? '' : 's') . ' out from ' . $from['name'] . '.']),
         'started_at' => now(), 'arrive_at' => now(),
     ]);
+    calling_event($uid, 'depth', '', $depth);   // slipping back in at depth N counts as being N steps off the road (highest counts)
     return [true, '🌿 Back into the wilds.'];
 }

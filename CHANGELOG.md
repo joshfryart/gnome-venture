@@ -1,5 +1,8 @@
 # Changelog
 
+## Next version (unreleased)
+- **Fix: "Reach N steps off the road" now counts when you slip back into the wilds.** Coming back from a place found off the path put you at your old depth without telling the Calling, so a gnome already 7 steps out only counted after the next step. (Event tasks, like this one, still count only from the moment the chapter is taken.)
+
 ## 2.4.92
 - **Today and My Gnome are one home page (`gnome.php`).** A shared header (avatar, "Good morning, Name!", place, weather, tomorrow, boosts, trip and calling lines) and two tabs under it: **TODAY** (default; news, the six cards, a one-line Hollow box: jar % · festival % · who is about · Open, Wren's tip; the prize pop-up still pays before the page starts) and **MY GNOME** (`?tab=gnome`: rank and title, level and XP, gardens, energy, health bar with Heal, "See your profile as others do", Pals along with the picker and Pal Book, and a "Your gnome" tile row to Stats (stat-point badge), Calling, Pals, Foods, Villagers and Gardens). The sub-pages keep their `?tab=` addresses and get a "← My Gnome" back link. Tabs are plain links (work without script) and load in place. Phone first; the open tab has a gold top bar; light and dark.
 - **Moved / cut.** Hat and beard dyes and a "Your record" line (ribbons, community help, lairs, delves) move to Stats. The Overview tab's stats chart, fact row and stat-point flash, the "Your gnome" filler card and the "📅 Today →" link are gone. `?tab=overview` opens MY GNOME; `?dye=1` with no tab opens Stats.
