@@ -268,7 +268,7 @@ local function foliage(shape, pick, o)
     i = i + 1
     local cx = x + (hash(i, 91) % 5) - 2 + ((y // (step - 1)) % 2) * floor(step / 2)
     local cy = y + (hash(i, 93) % 3) - 1
-    if shape:has(cx, cy) and hash(i, 97) % 23 ~= 0 then
+    if shape:has(cx, cy) and (not o.skip or hash(i, 97) % o.skip ~= 0) then
       local edge = not shape:has(cx - step, cy) or not shape:has(cx + step, cy) or not shape:has(cx, cy - step) or not shape:has(cx, cy + step)
       local r = r0 + hash(i, 95) % 4 - 1
       if edge then r = r - 1 end
@@ -450,6 +450,20 @@ do
   -- axe leaning on the pile
   fm(c:line({ { 200, 108 }, { 197, 96 } }, 1), P.wood.base)
   local head = c:poly{ { 195, 95 }, { 199, 94 }, { 200, 98 }, { 196, 98 } } rim(head, INK) fm(head, P.stone.hi) px(199, 97, P.stone.shade)
+  -- gnome laundry line strung between two birches: hat, tunic, striped sock, scarf
+  local ln = {}
+  for x = 11, 45 do ln[#ln + 1] = { x, 74 + floor(4 * math.sin((x - 11) / 34 * math.pi) + .5) } end
+  fm(c:line(ln, 1), P.stone.deep)
+  local function ly(x) return 74 + floor(4 * math.sin((x - 11) / 34 * math.pi) + .5) end
+  local hat = c:poly{ { 14, ly(14) + 1 }, { 21, ly(21) + 1 }, { 19, ly(14) + 9 }, { 17, ly(14) + 10 } }
+  local tun = Rm(25, ly(25) + 1, 31, ly(25) + 9):add(Rm(23, ly(25) + 1, 33, ly(25) + 3))
+  local sock = Rm(35, ly(35) + 1, 37, ly(35) + 7):add(Rm(35, ly(35) + 6, 40, ly(35) + 8))
+  local scf = Rm(42, ly(42) + 1, 43, ly(42) + 10)
+  local all = hat:copy():add(tun):add(sock):add(scf)
+  rim(all, INK)
+  form(hat, P.ember, { s = 1 }) form(tun, P.sea, { s = 1 }) form(scf, P.gold, { s = 0 })
+  sock:each(function(x, y) px(x, y, (y % 2 == 0) and P.petal.base or P.cream) end)
+  for _, q in ipairs({ 16, 20, 26, 30, 36, 42 }) do px(q, ly(q), P.wood.base) px(q, ly(q) - 1, P.wood.base) end
   -- hay bale left
   local hay = c:rrect(4, 100, 26, 114, 4)
   rim(hay, INK) form(hay, P.gold, { s = 2, l = 1 })
@@ -459,7 +473,7 @@ end
 
 ------------------------------------------------------------------ MAPLE (hero tree, right)
 do
-  local trunk = c:poly{ { 252, 60 }, { 278, 60 }, { 282, 120 }, { 296, 150 }, { 300, 152 }, { 300, 154 }, { 236, 154 }, { 244, 140 }, { 250, 118 } }
+  local trunk = c:poly{ { 254, 40 }, { 276, 40 }, { 282, 120 }, { 296, 150 }, { 300, 152 }, { 300, 154 }, { 236, 154 }, { 244, 140 }, { 250, 118 } }
   local branches = c:line({ { 258, 70 }, { 236, 52 }, { 222, 46 } }, 4):add(c:line({ { 272, 66 }, { 284, 54 } }, 4))
   local tr = trunk:copy():add(branches)
   rim(tr, INK)
@@ -503,7 +517,7 @@ do
   foliage(shape, function(x, y)
     local v = sin(x / 14 + y / 30) + cos(y / 11 - x / 40)
     return v > 0.7 and P.gold or v < -0.5 and P.ember or ORANGE
-  end, { r = 7, step = 8, accent = P.gold.hi, accent2 = P.ember.base, inner = "#5a2430",
+  end, { r = 7, step = 8, skip = 23, accent = P.gold.hi, accent2 = P.ember.base, inner = "#5a2430",
     lit = function(x, y) return (x - 196) + y * 1.4 < 46 end, dark = function(x, y) return y > 58 or (x > 284 and y > 36) end })
   -- a few branch tips showing through the lower canopy
   for _, bl in ipairs({ { { 230, 66 }, { 224, 72 } }, { { 268, 70 }, { 262, 76 } } }) do
@@ -519,6 +533,12 @@ do
   fm(E(284, 95, 1, 2), ORANGE.deep)
   form(sqb, ORANGE, { s = 1 }) fm(sqe, ORANGE.shade) fm(Rm(288, 98, 289, 101), P.cream)
   px(289, 93, INK) px(290, 95, INK) local ac = E(290, 98, 1, 1) fm(ac, P.wood.base) px(290, 97, P.moss.shade)
+  -- ladder leaning on the trunk up to the owl's hollow
+  local rails = c:line({ { 286, 152 }, { 274, 104 } }, 1):add(c:line({ { 293, 151 }, { 281, 103 } }, 1))
+  local rungs = HP.mask()
+  for t = 0.1, 0.95, 0.12 do rungs:add(c:line({ { 286 - 12 * t, 152 - 48 * t }, { 293 - 12 * t, 151 - 48 * t } }, 1)) end
+  local lad = rails:copy():add(rungs)
+  rim(lad, INK) fm(rungs, P.wood.shade) fm(rails, P.wood.hi)
   -- birdhouse on trunk
   local bh = Rm(276, 76, 282, 84) rim(bh, INK) form(bh, P.sea, { s = 1 })
   fm(c:poly{ { 274, 77 }, { 279, 71 }, { 284, 77 } }, P.ember.base) fm(E(279, 80, 1, 1), INK)
@@ -643,7 +663,7 @@ local function gnome(x, y, o)
   local tunic = c:poly{ { x - 6, y - 2 }, { x + 6, y - 2 }, { x + 4, y - 13 }, { x - 4, y - 13 } }
   local beard = c:poly{ { x - 5, y - 15 }, { x + 5, y - 15 }, { x + 5, y - 11 }, { x + 1, y - 6 }, { x - 1, y - 6 }, { x - 5, y - 11 } }
   local face = E(x, y - 16, 4.5, 2.5)
-  local hat = c:poly{ { x - 6, y - 18 }, { x + 6, y - 18 }, { x + 2 * f, y - 27 }, { x - 1 * f, y - 30 }, { x - 4 * f, y - 28 }, { x - 3, y - 23 } }
+  local hat = c:poly{ { x - 6 * f, y - 18 }, { x + 6 * f, y - 18 }, { x + 2 * f, y - 27 }, { x - 1 * f, y - 30 }, { x - 4 * f, y - 28 }, { x - 3 * f, y - 23 } }
   hat:add(E(x, y - 18, 6.5, 1.5))
   local arms, hands = HP.mask(), HP.mask()
   local prop = HP.mask()
@@ -668,10 +688,10 @@ local function gnome(x, y, o)
   form(beard, BEARD, { s = 1, l = 1 })
   form(face, P.skinA, { s = 1 })
   fm(E(x + f * 0.5, y - 15, 1.5, 1), P.skinA.shade) px(x + f * 0.5 - 0.5, y - 16, P.skinA.hi)
-  px(x - 2, y - 17, INK) px(x + 2, y - 17, INK)
-  px(x - 3, y - 15, P.petal.base) px(x + 3, y - 15, P.petal.base)
   form(hat, P.ember, { s = 2, l = 1 })
   fm(Rm(x - 6, y - 18, x + 6, y - 18):clip(hat), P.ember.deep)
+  px(x - 2, y - 16, INK) px(x + 2, y - 16, INK)
+  px(x - 3, y - 15, P.petal.base) px(x + 3, y - 15, P.petal.base)
   form(hands, P.skinA, { s = 0 })
   if o.pose == "carry" then
     form(prop, PUMP, { s = 1, l = 1, deep = true })
@@ -699,13 +719,13 @@ end
 -- 4: fishing in a rowboat on the pond
 do
   local boat = c:poly{ { 238, 176 }, { 270, 176 }, { 266, 184 }, { 242, 184 } }
-  gnome(254, 178, { pose = "fish", f = 1, noboots = true })
+  gnome(254, 178, { pose = "fish", f = -1, noboots = true })
   rim(boat, INK)
   form(boat, P.wood, { s = 2, deep = true })
   fm(Rm(239, 176, 269, 177), P.wood.hi)
-  fm(c:line({ { 262, 167 }, { 280, 150 } }, 1), P.wood.deep)
-  fm(c:line({ { 280, 150 }, { 284, 160 }, { 284, 176 } }, 1), P.stone.hi)
-  px(284, 177, P.ember.base) px(284, 178, P.cream)
+  fm(c:line({ { 246, 167 }, { 230, 150 } }, 1), P.wood.deep)
+  fm(c:line({ { 230, 150 }, { 228, 160 }, { 228, 177 } }, 1), P.stone.hi)
+  px(228, 178, P.ember.base) px(228, 179, P.cream)
 end
 
 ------------------------------------------------------------------ SCARECROW + CROW (r2 c1)
@@ -754,14 +774,14 @@ do
   fm(Rm(262, 196, 299, 196):clip(lodge:grow(1)), P.wood.deep)
   local door = E(288, 196, 4, 4):clip(Rm(280, 190, 296, 196)) fm(door, "#2a1a20")
   -- beaver sitting on the lodge flank, flat tail
-  local bvb = E(272, 179, 3.5, 4)
-  local bvh = E(274, 174, 2.5, 2.5)
-  local bvt = E(267, 185, 3.5, 1.5)
+  local bvb = E(290, 175, 3.5, 4)
+  local bvh = E(292, 170, 2.5, 2.5)
+  local bvt = E(285, 181, 3.5, 1.5)
   local bv = bvb:copy():add(bvh):add(bvt)
   rim(bv, INK)
-  fm(bvt, "#5a3a2e") px(266, 185, "#3e2822") px(268, 185, "#3e2822")
+  fm(bvt, "#5a3a2e") px(284, 181, "#3e2822") px(286, 181, "#3e2822")
   form(bvb, BEAR, { s = 1, l = 1 }) form(bvh, BEAR, { s = 1 })
-  px(275, 173, INK) px(276, 175, P.cream) px(276, 174, BEAR.deep) fm(Rm(271, 179, 273, 181), "#c48a58")
+  px(293, 169, INK) px(294, 171, P.cream) px(294, 170, BEAR.deep) fm(Rm(289, 175, 291, 177), "#c48a58")
   -- cattails on the west bank
   for i, x in ipairs({ 170, 177, 183, 190 }) do
     local top = 160 + (i * 7) % 9
@@ -806,8 +826,9 @@ do
   reflect(186, 232, 126, 7, false)   -- bridge over the stream
   reflect(166, 194, 192, 6, true)    -- cattails
   -- ripple rings round the gnome's bobber and the boat
-  fm(E(284, 179, 4, 1):edge():clip(water), P.sea.hi)
-  fm(E(284, 179, 7, 2):edge():clip(water):cut(Rm(281, 176, 287, 182)), "#8ad6d6")
+  local function wet(m) local r = HP.mask() m:each(function(x, y) if WATER[c:get(x, y) or ""] then r:set(x, y) end end) return r end
+  fm(wet(E(228, 180, 4, 1):edge()):cut(Rm(227, 177, 229, 180)), P.sea.hi)
+  fm(wet(E(228, 180, 7, 2):edge()):cut(Rm(225, 177, 231, 183)), "#8ad6d6")
   -- glints
   for _, g in ipairs({ { 200, 182 }, { 230, 196 }, { 210, 104 }, { 256, 160 } }) do
     if water:has(g[1], g[2]) then px(g[1], g[2], P.cream) px(g[1] + 1, g[2], P.sea.hi) end
