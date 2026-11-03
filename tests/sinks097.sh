@@ -131,14 +131,14 @@ echo -n "  wear a dye not owned: "; postf $A gnome.php gnome.php -d do=dye -d ha
 chk "hat unchanged" "$(db "SELECT COALESCE(hat_dye,'none') FROM users WHERE id=$SID")" none
 echo -n "  wear a made-up colour: "; postf $A gnome.php gnome.php -d do=dye -d beard='#abcdef'
 chk "beard unchanged" "$(db "SELECT beard_color FROM users WHERE id=$SID")" "$(db "SELECT beard_color FROM users WHERE id=$SID")"
-chk "gnome page has the dye picker" "$(curl -s -b $A "$BASE/gnome.php" | grep -o 'class="swatches"' | wc -l)" 2
+chk "gnome page (Stats) has the dye picker" "$(curl -s -b $A "$BASE/gnome.php?tab=stats" | grep -o 'class="swatches"' | wc -l)" 2
 echo -n "  wear owned hat + beard dyes: "; postf $A gnome.php gnome.php -d do=dye -d hat='#e75480' -d beard='#d4af37'
 chk "hat dye saved" "$(db "SELECT hat_dye FROM users WHERE id=$SID")" "#e75480"
 chk "beard saved" "$(db "SELECT beard_color FROM users WHERE id=$SID")" "#d4af37"
-curl -s -b $A "$BASE/gnome.php" > /tmp/s97.html
+curl -s -b $A "$BASE/gnome.php?tab=stats" > /tmp/s97.html
 # v2.0.x: avatars are tinted pixel sprites; the dye shows up as one tint filter (id tint-<hex>-<id>) per avatar drawn (header, nav, picker)
 chk "avatars drawn with the hat dye and beard dye (3 avatars)" "$(grep -o 'id="tint-e75480-' /tmp/s97.html | wc -l)|$(grep -o 'id="tint-d4af37-' /tmp/s97.html | wc -l)" "3|3"
-chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php" | grep -o 'id="tint-e75480-' | wc -l)" 3
+chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php?tab=stats" | grep -o 'id="tint-e75480-' | wc -l)" 3
 dbx "UPDATE users SET calling=NULL WHERE id=$SID"
 chk "other gnomes see the dye (profile)" "$(curl -s -b $B "$BASE/profile.php?id=$SID" | grep -o 'id="tint-e75480-' | wc -l)" 1
 echo -n "  back to no dye + a starter beard colour: "; postf $A gnome.php gnome.php -d do=dye -d hat=none -d beard='#f4f1ea'

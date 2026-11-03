@@ -33,7 +33,7 @@ echo "== pages with an open chapter"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SET level=15, calling=\"rootwarden\", calling_qt=0 WHERE username=\"sprout\"");'
 for pg in gnome.php 'book.php?ch=Callings' 'book.php?ch=Milestones' garden.php town.php profile.php?u=sprout jobs.php index.php; do echo "$pg -> $(get "$pg")"; done
 grep -o 'Journeyman[^<]*chapter[^<]*' $H | head -1
-get gnome.php >/dev/null; grep -oE 'Journeyman \(level 15 and a chapter\)' $H | head -1; grep -oE 'Your calling grows stronger[^<]*' $H | head -1
+get 'gnome.php?tab=calling' >/dev/null; grep -oE 'Journeyman \(level 15 and a chapter\)' $H | head -1; grep -oE 'Your calling grows stronger[^<]*' $H | head -1
 echo "== mentor page over HTTP (own test chapter, rootwarden, in Birchbramble Steppe)"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite");
 $p->exec("UPDATE calling_chapters SET active=0 WHERE calling=\"rootwarden\"");

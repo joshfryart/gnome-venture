@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const [BASE, OUT] = process.argv.slice(2);
 const PAGES = [
-  'index.php', 'index.php?today=1', 'gnome.php', 'gnome.php?tab=calling', 'book.php', 'inventory.php', 'inventory.php?tab=craft', 'inventory.php?tab=belt',
+  'index.php', 'gnome.php', 'gnome.php?tab=gnome', 'gnome.php?tab=stats', 'gnome.php?tab=calling', 'book.php', 'inventory.php', 'inventory.php?tab=craft', 'inventory.php?tab=belt',
   'garden.php', 'yard.php', 'inventory.php?tab=arrange', 'games.php', 'games.php?tab=contests', 'puzzles.php', 'jigsaw.php', 'gifsaw.php',
   'world.php', 'world.php?tab=map', 'world.php?tab=gather', 'world.php?tab=shops', 'world.php?tab=travel', 'town.php', 'town.php?view=passport', 'town.php?t=orders',
   'villagers.php', 'folk.php', 'market.php', 'marketday.php', 'jobs.php', 'jobs.php?t=journey', 'jobs.php?t=requests', 'community.php', 'community.php?t=jar',

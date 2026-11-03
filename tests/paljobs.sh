@@ -61,23 +61,24 @@ chk "POST send_garden redirects" "$(post paljobs.php -d do=send_garden -d pal=$P
 chk "garden job stored" "$(db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 1
 chk "a bad hash is refused (no job)" "$(get paljobs.php >/dev/null; post paljobs.php -d do=send_garden -d pal=ffffffffffffffff -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs")" 1
 chk "POST without csrf is refused" "$(curl -s -c $C -b $C -X POST "$BASE/paljobs.php" -d do=recall -d job=1 -o /dev/null -w "%{http_code}")" 400
-echo "== v2.3.3: pals home with loot (Today, My Gnome) + Collect receipt"
+echo "== v2.3.3: pals home with loot (home page: TODAY and MY GNOME tabs) + Collect receipt"
 SID=$(db "SELECT id FROM users WHERE username='sprout'")
 PAL2=$(db "SELECT pal_uid FROM ppal_found WHERE user_id=$SID AND status='home' ORDER BY id DESC LIMIT 1")
 dbx "UPDATE ppal_found SET status='trip' WHERE pal_uid='$PAL2'"
 dbx "INSERT INTO ppal_jobs (user_id, pal_uid, kind, target, day, tool, started_at, ends_at, last_tick, potions, tasks, state, result) VALUES ($SID, '$PAL2', 'trip', 'forest', '', 'forage', datetime('now','-2 hours'), datetime('now','-1 minutes'), datetime('now'), 0, 0, 'active', '{\"rounds\":2,\"items\":[],\"hp\":5,\"potions_used\":0,\"potions_back\":0,\"fainted\":false}')"
 JOB=$(db "SELECT MAX(id) FROM ppal_jobs")
 get gnome.php >/dev/null
-chk "My Gnome: notice links to the jobs page" "$(grep -c 'class="pjhome"><a href="[^"]*paljobs.php">.* 1 pal home with loot' $H)" 1
-get 'index.php?today=1' >/dev/null
-chk "Today: notice shows" "$(grep -c 'class="pjhome"' $H)" 1
-chk "Today: no inline style attributes" "$(grep -c ' style=' $H)" 0
+chk "home (TODAY tab): the notice links to the jobs page" "$(grep -c 'class="pjhome"><a href="[^"]*paljobs.php">.* 1 pal home with loot' $H)" 1
+chk "home (TODAY tab): the notice is drawn once (no double render)" "$(grep -o 'class="pjhome"' $H | wc -l | tr -d ' ')" 1
+chk "home (TODAY tab): no inline style attributes" "$(grep -c ' style=' $H)" 0
+get 'gnome.php?tab=gnome' >/dev/null
+chk "home (MY GNOME tab): the notice is drawn once" "$(grep -o 'class="pjhome"' $H | wc -l | tr -d ' ')" 1
 get paljobs.php >/dev/null
 chk "POST collect redirects" "$(post paljobs.php -d do=collect -d job=$JOB)" 302
 get paljobs.php >/dev/null
 chk "receipt head says where the pal came back from" "$(grep -c '<b>[^<]* is back from the forest\.</b>' $H)" 1
 get gnome.php >/dev/null
-chk "My Gnome: notice gone once collected" "$(grep -c 'class="pjhome"' $H)" 0
+chk "home: notice gone once collected" "$(grep -c 'class="pjhome"' $H)" 0
 echo "== v2.3.95: several pals at once, Collect all"
 chk "v2.3.95: page CSS keys on the pals[] checkboxes (a stale name=pal selector hid the options and Send)" "$(grep -c 'input\[name="pal"\]' $GAME/assets/puzzles.css)" 0
 get paljobs.php >/dev/null

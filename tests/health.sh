@@ -79,7 +79,7 @@ dbx "UPDATE users SET hp_at=datetime('now','-30 minutes') WHERE id=$SID"
 chk "while adventuring the clock does not run" "$([ "$(PHPR 'echo hp_get($u)[0];')" -le 16 ] && echo 1)"
 dbx "UPDATE expeditions SET hp=7 WHERE user_id=$SID AND status='active'"
 chk "out adventuring the bars show the LIVE expedition health (7), not the stored one" "$([ "$(PHPR 'echo hp_display($u)[0];')" = 7 ] && echo 1)"
-get gnome.php >/dev/null
+get 'gnome.php?tab=gnome' >/dev/null
 chk "My Gnome health bar is a <progress> carrying the value (no inline style)" "$(grep -q '<progress class="hpbar" aria-label="Health" max="[0-9]*" value="7"' $H && ! grep -q '<i style=' $H && echo 1)"
 chk "the top bar has a health bar next to the level bar" "$(grep -q 'class="st hp"' $H && grep -q 'progress class="hpbar hpbar-s"' $H && echo 1)"
 
@@ -99,13 +99,13 @@ MAXHP=$(PHPR 'echo hp_max($u);'); echo "   max health after the level up: $MAXHP
 POT=$(PHPR 'require_once "'$GAME'/includes/pal_jobs.php"; echo pj_potion_id();')
 dbx "UPDATE users SET hp=5, hp_at=NULL WHERE id=$SID"
 PHPR 'require_once "'$GAME'/includes/pal_jobs.php"; give_item((int)$u["id"], pj_potion_id(), 2);' >/dev/null
-get gnome.php >/dev/null
+get 'gnome.php?tab=gnome' >/dev/null
 chk "My Gnome shows the Health line (in the gnome card) with the potion button in its Heal drawer" "$(grep -q 'class="ghealth"' $H && grep -q 'class="ghheal"' $H && grep -q 'name="what" value="potion"' $H && echo 1)"
 post gnome.php -d do=heal -d what=potion -d item=$POT >/dev/null
 HP2=$(PHPR 'echo hp_get($u)[0];')
 chk "a Healing Potion heals half of max ($HP2 of $MAXHP)" "$([ "$HP2" -ge $((5 + MAXHP / 2 - 1)) ] && [ "$(db "SELECT qty FROM user_items WHERE user_id=$SID AND item_id=$POT")" = 1 ] && echo 1)"
 dbx "UPDATE users SET hp=NULL, hp_at=NULL WHERE id=$SID"
-get gnome.php >/dev/null; post gnome.php -d do=heal -d what=potion -d item=$POT >/dev/null
+get 'gnome.php?tab=gnome' >/dev/null; post gnome.php -d do=heal -d what=potion -d item=$POT >/dev/null
 chk "unhurt: the potion is not wasted" "$([ "$(db "SELECT qty FROM user_items WHERE user_id=$SID AND item_id=$POT")" = 1 ] && echo 1)"
 dbx "UPDATE users SET hp=3, hp_at=NULL WHERE id=$SID"
 N=$(PHPR 'echo hp_heal_pct($u, 50);')
