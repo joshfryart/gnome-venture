@@ -16,7 +16,7 @@ local FL = { "#7a5a3c", "#b8955e", "#dcc088", "#efdcaa", "#fff0cc" }            
 local CUTS = { 0.2, 0.36, 0.52, 0.68, 0.84 }
 
 local P = { { 17, 51 }, { 25, 41 }, { 36, 26 }, { 46, 11 } }
-local function W(t) return 0.5 + 6.6 * (1 - t ^ 1.8) end
+local function W(t) return 0.9 + 6.2 * (1 - t ^ 1.8) end
 local m, n, T, S = G.tube(P, W)
 do -- flatten the base: drop the round cap behind the cut
   local ax, ay = G.bez(P, 0) local bx, by = G.bez(P, 0.02) local l = sqrt((bx-ax)^2 + (by-ay)^2)
@@ -45,15 +45,15 @@ m:each(function(x, y) local k = K(x, y)
   SJ[k] = j
   local R = rampOf(j)
   local i = 1 for q, cu in ipairs(CUTS) do if v[k] >= cu then i = q + 1 end end
-  if j % 2 == 1 and j <= 4 then i = i - 0 end
+  if j % 2 == 1 then i = i + 1 end        -- alternate sheaths a step paler so the scales read
   local crease, lip = false, false
   if j < #B then local d = (bnd(j + 1, s) - t) * len if d < 1.0 then lip = true end end
   if j > 0 then local d = (t - bnd(j, s)) * len if d < 1.0 then crease = true elseif d < 2.2 then i = i - 1 end end
   -- lengthwise hair striations on the brown sheaths
-  if j <= 4 and not lip and abs(s) < 0.75 then local f = (s * 3.2 + 10) % 1 if f < 0.12 and i > 3 then i = i - 1 end end
+  if j <= 3 and not lip and s > -0.6 and s < 0.5 then local f = (s * 2.6 + 10) % 1 if f < 0.1 and i > 3 then i = i - 1 end end
   -- dark hairy mottling on the lower sheaths
-  local speck = j <= 3 and X.hash(x, y, 11) > 0.94 and not lip
-  if lip then i = i + 2 end
+  local speck = j <= 2 and X.hash(x, y, 11) > 0.965 and not lip and abs(s) < 0.6
+  if lip then i = max(i + 1, 5) end
   if speck then i = i - 2 end
   i = max(1, min(6, i))
   if crease then i = (s > -0.2) and 1 or 2 end
@@ -82,6 +82,11 @@ do
     function(t) return 1.2 * (1 - t) + 0.25 end)
   tm:cut(m)
   X.tone(c, tm, X.light(tn, { amb = 0.15, wrap = 0.3 }), GR, { cuts = CUTS, tok = btok })
+  local x2, y2 = frame(0.86)
+  local um, un = G.tube({ { x2, y2 }, { x2 + tx * 2 + px * 1, y2 + ty * 2 + py * 1 }, { x2 + tx * 3.5 + px * 2.5, y2 + ty * 3.5 + py * 2.5 }, { x2 + tx * 4.5 + px * 4, y2 + ty * 4.5 + py * 4 } },
+    function(t) return 1.1 * (1 - t) + 0.25 end)
+  um:cut(m):cut(tm)
+  X.tone(c, um, X.light(un, { amb = 0.15, wrap = 0.3 }), GR, { cuts = CUTS, tok = btok })
 end
 
 -- cut base: flat elliptical face (faces lower-left, a little turned from the light) with end-grain rings
@@ -116,8 +121,8 @@ do
   local x, y, tx, ty, px, py = frame(t0)
   local w = W(t0)
   local ax, ay = x - px * (w - 0.6), y - py * (w - 0.6)
-  local pp = { { ax + tx * 1, ay + ty * 1 }, { ax - px * 3 + tx * 3, ay - py * 3 + ty * 3 }, { ax - px * 6 + tx * 2, ay - py * 6 + ty * 2 }, { ax - px * 6.5 - tx * 1.5, ay - py * 6.5 - ty * 1.5 } }
-  local qm, qn, QT, QS = G.tube(pp, function(t) return 2.5 * (1 - t) ^ 0.9 + 0.35 end)
+  local pp = { { ax + tx * 1, ay + ty * 1 }, { ax - px * 2.5 + tx * 3, ay - py * 2.5 + ty * 3 }, { ax - px * 5 + tx * 2.5, ay - py * 5 + ty * 2.5 }, { ax - px * 5 - tx * 0.5, ay - py * 5 - ty * 0.5 } }
+  local qm, qn, QT, QS = G.tube(pp, function(t) return 2.0 * (1 - t) ^ 0.9 + 0.4 end)
   qm:cut(m)
   local qtok = { r = { name = "peel" } }
   local qv = X.light(qn, { amb = 0.15, wrap = 0.3 })
@@ -125,7 +130,7 @@ do
   qm:each(function(xx, yy) local k = K(xx, yy)
     local i = 1 for q, cu in ipairs(CUTS) do if qv[k] >= cu then i = q + 1 end end
     -- outer (brown) face where it still faces away, glossy pale inner face on the curl
-    local R = (QT[k] < 0.55) and SH or INNER
+    local R = (QT[k] < 0.6 or QS[k] > 0.3) and SH or INNER
     if QT[k] > 0.85 then i = i - 1 end
     c:put(xx, yy, R[max(1, min(6, i))], qtok)
   end)
