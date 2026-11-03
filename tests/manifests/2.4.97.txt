@@ -8572,11 +8572,12 @@ c669ec571e848d73050df20b531f62404cb825ba  assets/race.js
 666aedf59738eacfc535eab531f07397593a5862  assets/rainbarrel.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
 2ee16d960cfb3d650b85b6bce22b8bdae2be7732  assets/shpop.js
-ebf232a9fe0b11fd2de3a3fff48cad686638cdbb  assets/site.js
+e0a44d521e7397e9e26157c8bade0490e6f7b729  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-128d977f6624cebf1c24d9d26eea9f955062a61a  assets/style.css
+fff607a9bc526b00f110bba1291c170ce54d2279  assets/style.css
 e1f89c01e8da7da7b212bf05cdedf9b772237d27  assets/tilemap.js
+a48a5bcd24b97d26a62911ccb9a486bda9b5ed90  assets/tour.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
 5c34a4d0a98b2c0d8ee34601bfeddb79428ccfb0  assets/trekfight.js
 6815dcc17e23fd822b9594c9d6ad587771a0e6d3  assets/trekmap.js
@@ -8751,7 +8752,7 @@ eea2d420cfd5afa6c82b6328fc57d804ff7efa27  includes/delve_v2.php
 54ba5e1823ce3b62982f860e9603344c7f1e08a5  includes/flower_art.php
 b1ab55b509b54a92be646d4da25e4b8162b17949  includes/flowers.php
 bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
-543e07a34685d550a7d641a2b2511ce1f963c10b  includes/fresh_start.php
+30ab95048cc819893b09a553628a7e93bf334b9a  includes/fresh_start.php
 ef4bf4058febd5f67362680afaa96640b84f2c24  includes/friends.php
 52b1e3894026422b633d3ed0030e9ae702bcbb9c  includes/functions.php
 858f431b3a94d67bfb5d97b6cc41dc5de96f11b7  includes/games.php
@@ -8778,7 +8779,7 @@ e73c0cf1d5da5a7db36d42b08ca0ec66d655e560  includes/jigsaw.php
 da2d4be912c09716c38bd4d973ef05b77610cd7a  includes/journey.php
 b6763f9cbef5b961ac723c50de2b6a5ee926cfc5  includes/journey_view.php
 8d52895e3dc5a2e4b28ea753fe84983ce23fbf2c  includes/landmarks.php
-9b581769c040d1ecd084281dfaf8b5f3924371b6  includes/layout.php
+b3ef27496f1c953139eb1e0560254a55c5aa6bbc  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
 5dcf787a6fbb12f3cdf57554b030899d722bf130  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
@@ -8791,7 +8792,7 @@ a9b29ab362a5b11d83b52f2196d8379323396a01  includes/mentors120.php
 e4c1a9e8ea5d9124b219ab59cf6f461ff10f8b82  includes/mushroom.php
 e77b2781d82bddbac6d73b0c9965483bf87fc0f9  includes/npc_life.php
 4d636ac5cec74837372f0e7dda997ca14f6a6157  includes/nutrients.php
-13070f733caa5c028d8b0d29395cf8d565345b06  includes/onboard.php
+7de87daca3379d6f3a61f308118124444187d2d3  includes/onboard.php
 381a3e57660240ebce454ead2e416d6a57eef7ea  includes/pal_jobs.php
 2a8927357c230227549f252e2cc341db4d7fb294  includes/pals.php
 bc16dfb6993ec362744e33fe11170af94f8dd81f  includes/pantry.php
@@ -8813,7 +8814,7 @@ b1dad237fd592adc418c2f8035a78a6151dc019c  includes/road_life.php
 a2c5515ae8b0cbc2a5bca6cd62c5371624482c54  includes/roads.php
 17614f3b341cd35cdb0daf62a8d140658f3125b9  includes/satchel_view.php
 d5ea997b8ed02d419e95168a0a03a3d78939a04a  includes/scene.php
-280a271f71f4fe9131627f09b95f030518c41760  includes/schema.php
+0e9669e51a74b6b060103e6328e3901bba8eedc8  includes/schema.php
 67247a0f7a8ed71d5fcca2ac58b1af342c952b29  includes/seed.php
 03b02ea8a546703d9b4e857d69a00ebda346c714  includes/seek.php
 765600f988f330ae2bf58c4ea9de232b92b97f1e  includes/seo.php
@@ -8832,7 +8833,7 @@ e4e8270d72dfd017f8d5279be77e6cbe5ae1c7bb  includes/stops.php
 a32ff5e0476e3e88e1c2c084075bd45714a7de01  includes/today_social.php
 363a1907460243c9fc225e8b983b4036fa216603  includes/today_view.php
 84b3db32297d86d2e4319b43a1ddb188ed8917c4  includes/tools.php
-82256b91045f00d72af44ca3c09e93231bbb59d8  includes/tour.php
+6a2bd4589760bbb9a23917fa201ed8048c8f8f0c  includes/tour.php
 d3ba56f57705de85e61a5701cd785892d5d1959d  includes/town.php
 109b6c5642cc97e18f0f076b1afafa9bd4f285e4  includes/town_social.php
 7d8734a96a8759ae15db447e7f1497310125e9dc  includes/townsfolk.php
@@ -8908,7 +8909,7 @@ e9497a155d3d3eec3ec58b5a0ba19aa41a0a67a6  seasons.php
 3856dee22873d71c2bd8259f3c83f5972846c006  stopfolk.php
 484e6ecf35a705dc2c5d967706941d68bfd7d3f1  tend.php
 5d173bbbf6369d61029dd97e128c94e661be27d9  theme.php
-2418e209b75deb27ecec7e072b2dc3862e8bfb2b  tour.php
+71a752efcd7fb3ee4eba6ae9d85a3ed138345d83  tour.php
 7bdef11d390b9f1f05d015f7fc05fbcbcbcc2f54  town.php
 ba172fecbe4e38a22c426c7af8cfbd1371a2e18e  trek.php
 c1cb29a78dbd8dd0dd457266037276b80399475f  unsub.php

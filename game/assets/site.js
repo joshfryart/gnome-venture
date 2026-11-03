@@ -744,6 +744,7 @@ gvAdvFold();
         gvMetro();
         gvRouteFade();   // v2.0.57
         gvGarden();
+        document.dispatchEvent(new Event('gv:swapped'));   // v2.4.97: Wren's tour bubble re-aims after an in-place page swap
         gvAlmTabs();
         gvWanderFolds();
         gvShelves();   // v2.4.67: the swapped-in Satchel / Crafting shelves get their handlers

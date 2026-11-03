@@ -17,8 +17,8 @@ function onboard_create(int $uid, string $name, string $hat, string $beard, int 
     db()->beginTransaction();
     try {
         // Only once: the WHERE onboarded = 0 stops a double click making two gardens.
-        $claimed = q('UPDATE users SET gnome_name = ?, hat_color = ?, beard_color = ?, region_id = ?, onboarded = 1, tour_step = ?
-                      WHERE id = ? AND onboarded = 0', [$name, $hat, $beard, $regionId, $tourStep, $uid])->rowCount() === 1;
+        $claimed = q('UPDATE users SET gnome_name = ?, hat_color = ?, beard_color = ?, region_id = ?, onboarded = 1, tour_step = ?, tour_ask = ?
+                      WHERE id = ? AND onboarded = 0', [$name, $hat, $beard, $regionId, $tourStep, $tourStep > 0 ? 1 : 0, $uid])->rowCount() === 1;
         if ($claimed) {
             setup_new_player($uid, $villageId, $garden);
             foreach (village_welcome_pack($villageId) as [$itemId, , $qty]) {

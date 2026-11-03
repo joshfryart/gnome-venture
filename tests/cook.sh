@@ -100,10 +100,10 @@ echo "strip low-energy line: $(grep -c 'class="st lowenergy"' $TD/ck.html)  stri
 setE 10; page garden.php; echo "full energy: low line $(grep -c 'class="st lowenergy"' $TD/ck.html), countdown $(grep -c 'Next +1 in' $TD/ck.html)"
 
 echo "== tour step 5 is eat; tour-free actions"
-dbx "UPDATE users SET tour_step=5 WHERE id=$UID_"; setE 10; give apple 1
+dbx "UPDATE users SET tour_step=5, tour_ask=0 WHERE id=$UID_"; setE 10; give apple 1
 page inventory.php; echo "tour box: $(grep -oE '<h3>Wren’s tour[^<]*' $TD/ck.html)"
 eat apple; chk "tour moved on after eating" "$(db "SELECT tour_step FROM users WHERE id=$UID_")" 6
-dbx "UPDATE users SET tour_step=1 WHERE id=$UID_"; setE 0
+dbx "UPDATE users SET tour_step=1, tour_ask=0 WHERE id=$UID_"; setE 0
 page "garden.php?sel=2-2"; curl -s -c $C -b $C -X POST $BASE/garden.php --data-urlencode "csrf=$(csrf $TD/ck.html)" -d do=till -d x=2 -d y=2 -o /dev/null
 chk "tour till with 0 energy works" "$(db "SELECT tour_step FROM users WHERE id=$UID_")" 2
 dbx "UPDATE users SET tour_step=0 WHERE id=$UID_"

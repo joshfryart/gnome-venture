@@ -6993,3 +6993,26 @@ a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpac
 .wcta .wback { color: var(--felt-ink); font-size: 14px; min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 16px; text-decoration: none; }
 .wcta .wback:hover { text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) { .witem { animation: none; } }
+
+/* v2.4.97: Wren's tour as a speech bubble (assets/tour.js). Without script the card stays a plain card at the top of the page. */
+.tourbox[hidden] { display: none; }
+.tourbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.tournext { margin: 0 0 4px; }
+.tourhint { margin: 0 0 6px; font-weight: 700; }
+.tourhint:empty { display: none; }
+body.game.tourbub { padding-bottom: calc(var(--bar) + var(--sab) + 240px); }
+body.tourbub #wrentour.tour-on { position: fixed; left: 8px; right: 8px; bottom: calc(var(--bar) + var(--sab) + 10px); z-index: 60; max-height: 46vh; overflow-y: auto;
+  background: var(--surface); border: 2px solid var(--accent-line); border-radius: var(--radius); box-shadow: var(--shadow-2); }
+body.tourbub #wrentour.tour-on .tourbox { margin: 0; border: 0; background: transparent; padding: 8px 12px 4px; }
+body.tourbub #wrentour.tour-on .tourchip { margin: 0; border: 0; background: transparent; }
+body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 22px; bottom: -9px; width: 14px; height: 14px; background: var(--surface);
+  border-right: 2px solid var(--accent-line); border-bottom: 2px solid var(--accent-line); transform: rotate(45deg); }
+@media (min-width: 721px) {
+  body.game.tourbub { padding-bottom: 260px; }
+  body.tourbub #wrentour.tour-on { left: auto; right: 20px; bottom: 20px; width: 400px; }
+}
+.tourhl { outline: 4px solid #ffcb2e; outline-offset: 3px; border-radius: 6px; position: relative; z-index: 5; animation: tourpulse 1.2s ease-in-out infinite; }
+.tourhl::before { content: "👆"; position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); font-size: 22px; line-height: 1; pointer-events: none; animation: tourpoint 1.2s ease-in-out infinite; }
+@keyframes tourpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 203, 46, .7); } 50% { box-shadow: 0 0 0 10px rgba(255, 203, 46, 0); } }
+@keyframes tourpoint { 0%, 100% { margin-bottom: 0; } 50% { margin-bottom: -5px; } }
+@media (prefers-reduced-motion: reduce) { .tourhl, .tourhl::before { animation: none; } }

@@ -20,6 +20,7 @@ function page_header(string $title, bool $admin = false): void
     $onboarding = $u && (int)($u['onboarded'] ?? 1) === 0;
     // Wren's tour: opening the page a step asks for completes that step.
     $tourStep = $u ? (int)($u['tour_step'] ?? 0) : 0;
+    $tourArrived = 0;
     $page = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
     if ($u && !$onboarding) {
         require_once __DIR__ . '/trade.php';
@@ -37,8 +38,15 @@ function page_header(string $title, bool $admin = false): void
         $eventHtml = event_box_html();
     }
     if (!$admin && $tourStep > 0 && isset(TOUR_PAGES[$page]) && !($page === 'gnome.php' && !empty($GLOBALS['gv_today_page']))) {   // next version: the home page's TODAY tab is not "meeting your gnome"; its MY GNOME tab is
+        $before = $tourStep;
         $tourStep = tour_event((int)$u['id'], TOUR_PAGES[$page]);
+        if ($tourStep !== $before) $tourArrived = $before;   // v2.4.97: the visit step this page just finished: its words show in the bubble
         foreach (tour_messages() as $m) flash($m);
+    }
+    $tourAsk = $u ? (int)($u['tour_ask'] ?? 0) : 0;
+    if ($tourStep > 0 && $tourAsk === 2 && empty($_SESSION['tour_later']) && !$admin) {   // v2.4.97: said "later" in an earlier login: ask again
+        q('UPDATE users SET tour_ask = 1 WHERE id = ? AND tour_ask = 2', [$u['id']]);
+        $tourAsk = 1;
     }
     // v0.7.54: messages go into a list (left side on a computer, a fold under the top bar on a phone) instead of the top of the page
     $useLog = $u && !$admin && !$onboarding;
@@ -86,6 +94,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v2.0.11: assets/trekcamp.js (the camp pop-over) */ ?>
 <?php if (!$admin && $page === 'adventure.php'): ?><script src="<?= e(url('assets/tilemap.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v2.0.6: assets/tilemap.js (walk the token on a delve or lair map) */ ?>
+<?php if (!$admin && !$onboarding && $tourStep > 0): ?><script src="<?= e(url('assets/tour.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* v2.4.97: Wren's tour bubble and rings */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/fighton.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: Fight on replay, for the fight card and the walk bar */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>
@@ -171,7 +181,7 @@ if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.p
   <div class="flash <?= e($f['type']) ?>" role="<?= $f['type'] === 'err' ? 'alert' : 'status' ?>"><?= e($f['msg']) ?></div>
 <?php endforeach; ?>
 <?php endif;
-    if (!$admin && !$onboarding && $tourStep > 0) echo tour_box($tourStep);
+    if (!$admin && !$onboarding && $tourStep > 0) echo tour_box($tourStep, $tourAsk, $tourArrived);
 }
 
 /** "just now", "5 min ago", "2 h ago", "3 days ago". Self-contained: layout.php runs on every page (v0.7.60 fix). */

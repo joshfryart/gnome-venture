@@ -10,7 +10,7 @@ declare(strict_types=1);
 /** [event, title, what Wren says, link label, link] */
 const TOUR_STEPS = [
     ['till', 'Till a square', 'Open your garden, tap a square of wild ground and press Till. A trowel is already in your satchel. {energy}', 'Go to my garden', 'garden.php'],
-    ['soil', 'Work in some compost', 'Pick the square you tilled and work in some Plain Compost. It feeds the soil slowly, over about a day, so plant right away. You don’t need to wait for it. {energy}', 'Go to my garden', 'garden.php'],
+    ['soil', 'Work in some compost', 'Pick the square you tilled and work in some Plain Compost. It feeds the soil slowly, over about a day, so plant right away. You don’t need to wait for it. {energy}', 'Go to my garden', 'garden.php', 1],   // 6th: 1 = can be skipped (rich soil has no Work in button)
     ['plant', 'Plant a seed', 'Choose the tilled square and plant one of your seeds. Radishes and lettuce are the quickest: a radish takes {radish} of watered growing. {energy}', 'Go to my garden', 'garden.php'],
     ['water', 'Water it', 'Plants only grow while they’re watered. One watering lasts several hours, so you can come and go as you please. {energy}', 'Go to my garden', 'garden.php'],
     ['eat', 'Eat your welcome snack', 'Open your satchel and eat a crop from your welcome basket. Even raw crops give a little energy and a short buff, so a hungry gnome can always eat something from the satchel. Cooked dishes give much more.', 'Open my satchel', 'inventory.php'],
@@ -19,6 +19,20 @@ const TOUR_STEPS = [
     ['visit:world', 'Look around the world', 'This is where you are. Tap a stop on the road to head there, wander off the path for finds, or open the Gather tab to forage close by. Places you’ve walked to are one tap away under Fast travel.', 'Look around', 'world.php'],
     ['visit:shop', 'Visit a shop', 'Shops are staffed around the clock and restock every so often. Twigg’s Seed Emporium in Mossbottom is open to everyone, wherever you are. Tap an item to fill your basket.', 'Find a shop', '{twigg}'],
     ['harvest', 'Harvest your first crop', 'When your plant is ready, harvest it from your garden. You might save some seeds, and your Almanac gets a new page. Then the Hollow is yours to explore!', 'Go to my garden', 'garden.php'],
+];
+
+/** v2.4.97: where to point on each step, most specific first: [CSS selector, hint]. tour.js rings the first one that is on the page. */
+const TOUR_TARGETS = [
+    'till' => [['.sqactions .toolform:has(input[value=till]) button[value=one]', 'Press Till.'], ['#yard a.tile.wild', 'Tap a square of wild ground.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'soil' => [['.sqactions .toolform:has(input[value=soil]) button[value=one]', 'Press Work in. The compost shown is fine.'], ['#yard a.tile.tilled', 'Tap your tilled square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'plant' => [['.sqactions .toolform:has(input[value=plant]) button[value=one]', 'Press Plant. The seed shown is fine.'], ['#yard a.tile.tilled', 'Tap your tilled square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'water' => [['.piact .toolform:has(input[value=water]) button[value=one]', 'Press Water.'], ['#yard a.tile.planted', 'Tap your planted square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
+    'eat' => [['.shquick .shf:has(input[value=eat]) button', 'Tap Eat.'], ['.bottombar a[href$="inventory.php"]:not(.on)', 'Tap Satchel.'], ['.navtile[href$="inventory.php"]', 'Tap Satchel.']],
+    'visit:book' => [['.statusstrip .st.alm a', 'Tap Almanac.'], ['.navtile[href$="book.php"]', 'Tap Almanac.']],
+    'visit:gnome' => [['.statusstrip a.stl[href*="tab=gnome"]', 'Tap your level.'], ['.navme', 'Tap your gnome.']],
+    'visit:world' => [['.bottombar a[href$="world.php"]:not(.on)', 'Tap World.'], ['.navtile[href$="world.php"]', 'Tap World.']],
+    'visit:shop' => [['#wrentour .tourgo', 'Tap this button.']],
+    'harvest' => [['.piact .toolform:has(input[value=harvest]) button[value=one]', 'Press Harvest.'], ['#yard a.tile.ready', 'Tap the ready square.'], ['.gardentabnav a[href$="garden.php"]', 'Tap Beds.'], ['.bottombar a[href$="garden.php"]:not(.on)', 'Tap Garden.'], ['.navtile[href$="garden.php"]', 'Tap Garden.']],
 ];
 
 const TOUR_PAGES = ['book.php' => 'visit:book', 'gnome.php' => 'visit:gnome',
@@ -41,20 +55,44 @@ function tour_action_is_free(int $uid, string $action): bool
 {
     if (setting('tour_free_actions') !== '1') return false;
     if ($action === 'sheet') $action = 'till';
-    $step = (int)q_val('SELECT tour_step FROM users WHERE id = ?', [$uid]);
-    return $step >= 1 && $step <= count(TOUR_STEPS) && TOUR_STEPS[$step - 1][0] === $action;
+    [$step, $ask] = tour_state($uid);
+    return $ask === 0 && $step >= 1 && $step <= count(TOUR_STEPS) && TOUR_STEPS[$step - 1][0] === $action;
+}
+
+/** [tour_step, tour_ask] for a gnome. tour_ask: 1 = Wren is asking "tour now or later?", 2 = said later (asked again next login), 0 = answered. */
+function tour_state(int $uid): array
+{
+    $r = q_one('SELECT tour_step, tour_ask FROM users WHERE id = ?', [$uid]);
+    return [(int)($r['tour_step'] ?? 0), (int)($r['tour_ask'] ?? 0)];
+}
+
+/** v2.4.97: the answer to Wren's question ('start' or 'later'), and the one-step skip for a step the gnome cannot do. */
+function tour_answer(int $uid, string $do): void
+{
+    if ($do === 'start') {
+        q('UPDATE users SET tour_ask = 0 WHERE id = ? AND tour_step > 0', [$uid]);
+        unset($_SESSION['tour_later']);
+    } elseif ($do === 'later') {
+        q('UPDATE users SET tour_ask = 2 WHERE id = ? AND tour_step > 0 AND tour_ask = 1', [$uid]);
+        $_SESSION['tour_later'] = 1;   // asked again on the next login (page_header)
+    } elseif ($do === 'nextstep') {   // "Can't see it? Skip this step": no reward difference, the tour just moves on
+        [$step, $ask] = tour_state($uid);
+        if ($ask === 0 && $step >= 1 && $step < count(TOUR_STEPS) && !empty(TOUR_STEPS[$step - 1][5])) {
+            q('UPDATE users SET tour_step = ? WHERE id = ? AND tour_step = ?', [$step + 1, $uid, $step]);
+        }
+    }
 }
 
 /** Something happened. If it's what the current tour step is waiting for, move on. Returns the new step. */
 function tour_event(int $uid, string $event): int
 {
     if ($event === 'sheet') $event = 'till';   // sheet mulching a no-till bed counts as preparing the ground
-    $step = (int)q_val('SELECT tour_step FROM users WHERE id = ?', [$uid]);
-    if ($step < 1 || $step > count(TOUR_STEPS) || TOUR_STEPS[$step - 1][0] !== $event) return $step;
+    [$step, $ask] = tour_state($uid);
+    if ($ask !== 0 || $step < 1 || $step > count(TOUR_STEPS) || TOUR_STEPS[$step - 1][0] !== $event) return $step;   // v2.4.97: nothing counts until Wren's "now or later?" is answered
     $next = $step + 1;
     if ($next > count(TOUR_STEPS)) {
         // Only the request that actually moves the step pays the reward.
-        if (q('UPDATE users SET tour_step = 0 WHERE id = ? AND tour_step = ?', [$uid, $step])->rowCount() === 1) {
+        if (q('UPDATE users SET tour_step = 0, tour_ask = 0 WHERE id = ? AND tour_step = ?', [$uid, $step])->rowCount() === 1) {
             tour_reward($uid);
         }
         return 0;
@@ -126,7 +164,7 @@ function tour_energy_note(int $uid): string
 
 function tour_skip(int $uid): void
 {
-    q('UPDATE users SET tour_step = 0 WHERE id = ?', [$uid]);
+    q('UPDATE users SET tour_step = 0, tour_ask = 0 WHERE id = ?', [$uid]);
     require_once __DIR__ . '/first_week.php';
     first_week_start($uid);   // v1.0.0: skipping the tour still gets the First Week
 }
@@ -138,41 +176,56 @@ function first_week_intro_line(int $uid): string
     return first_week_start($uid) !== null ? 'Next: Wren’s First Week. A small card unlocks each day on the Today page.' : 'Next: wander the roads, cook what you grow, and fill your Almanac.';
 }
 
-/** The tour card shown at the top of game pages. */
-function tour_box(int $step): string
+/** The tour card shown at the top of game pages. tour.js turns it into Wren's speech bubble and rings what to tap; without script it stays a plain card.
+ *  $ask: tour_ask (1 = the "now or later?" question, 2 = paused). $arrived: the visit step just finished by opening this page (its words show first). */
+function tour_box(int $step, int $ask = 0, int $arrived = 0): string
 {
     if ($step < 1 || $step > count(TOUR_STEPS)) return '';
-    [, $title, $text, $label, $link] = TOUR_STEPS[$step - 1];
-    if (str_contains($text, '{energy}')) {   // v0.9.4: say what energy is
-        $text = str_replace('{energy}', (setting('tour_free_actions') === '1' ? 'This one is free during the tour; later each of these costs 1 energy' : 'Each of these costs 1 energy')
-            . ', and yours comes back ' . energy_rate_text() . '.', $text);
+    $n = count(TOUR_STEPS);
+    $skip = '<form method="post" action="' . e(url('tour.php')) . '" class="inline" data-confirm="Skip the rest of Wren’s tour? You won’t get the reward at the end.">'
+        . csrf_field() . '<input type="hidden" name="do" value="skip"><button class="skip">Skip the tour</button></form>';
+    $post = fn(string $do, string $label, string $cls = 'btn small') => '<form method="post" action="' . e(url('tour.php')) . '" class="inline">'
+        . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="' . $cls . '">' . $label . '</button></form> ';
+    if ($ask === 1) {   // v2.4.97: right after the garden is named
+        return '<div id="wrentour" data-step="0"><div class="tourbox tourask"><span class="bird" aria-hidden="true">🐦</span><div>'
+            . '<h3>Wren’s tour</h3><p>Your garden is made! Shall I show you around now, or would you rather look around yourself and have me ask again next time?</p>'
+            . '<p class="tourbtns">' . $post('start', 'Show me now', 'btn') . $post('later', 'Later', 'btn alt') . '</p>' . $skip . '</div></div></div>';
     }
-    // v0.7.85: placeholders filled from live data (the radish's real grow time, Twigg’s shop page)
-    if (str_contains($text, '{radish}')) $text = str_replace('{radish}', tour_grow_text('radish', 'a few minutes'), $text);
-    if (str_contains($link, '{twigg}')) {
+    if ($ask === 2) {   // said "later": a quiet one-liner until the next login
+        return '<div id="wrentour" data-step="0"><div class="tourchip"><span class="tcmore">🐦 Wren’s tour is waiting.</span> ' . $post('start', 'Start it') . '</div></div>';
+    }
+    [, $title, $text, $label, $link] = TOUR_STEPS[$step - 1];
+    $fill = function (string $t): string {
+        if (str_contains($t, '{energy}')) {   // v0.9.4: say what energy is
+            $t = str_replace('{energy}', (setting('tour_free_actions') === '1' ? 'This one is free during the tour; later each of these costs 1 energy' : 'Each of these costs 1 energy')
+                . ', and yours comes back ' . energy_rate_text() . '.', $t);
+        }
+        // v0.7.85: placeholders filled from live data (the radish's real grow time)
+        return str_contains($t, '{radish}') ? str_replace('{radish}', tour_grow_text('radish', 'a few minutes'), $t) : $t;
+    };
+    $text = $fill($text);
+    if (str_contains($link, '{twigg}')) {   // Twigg’s shop page
         $tw = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");
         $link = str_replace('{twigg}', $tw ? 'shop.php?id=' . $tw : 'shop.php', $link);
     }
     $here = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
-    $n = count(TOUR_STEPS);
-    [$lp, $lq] = array_pad(explode('?', $link, 2), 2, '');   // next version: a link with a ?tab= (My Gnome) counts as "here" only on that tab
+    [$lp, $lq] = array_pad(explode('?', $link, 2), 2, '');   // a link with a ?tab= (My Gnome) counts as "here" only on that tab
     parse_str($lq, $lqa);
     $atLink = $here === $lp;
     foreach ($lqa as $k => $v) if (!is_string($v) || (string)($_GET[$k] ?? '') !== $v) $atLink = false;
-    $go = !$atLink ? '<a class="btn small" href="' . e(url($link)) . '">' . e($label) . ' →</a>' : '';
-    $skip = '<form method="post" action="' . e(url('tour.php')) . '" class="inline" data-confirm="Skip the rest of Wren’s tour? You won’t get the reward at the end.">'
-        . csrf_field() . '<input type="hidden" name="do" value="skip"><button class="skip">Skip the tour</button></form>';
-    // v1.6.2: the big card shows the first time this step is seen (per login); after that a one-line chip that opens on tap
-    $seen = (int)($_SESSION['tour_seen'] ?? 0);
-    $_SESSION['tour_seen'] = max($seen, $step);
-    if ($step <= $seen) {
-        return '<div class="tourchip"><details><summary>🐦 Tour ' . $step . '/' . $n . ': ' . e($title) . ' <span class="tcmore">More ›</span></summary>'
-            . '<p>' . e($text) . '</p><p>' . $go . ' ' . $skip . '</p></details>'
-            . ($go !== '' ? '<a class="tcnext" href="' . e(url($link)) . '">Next ›</a>' : '') . '</div>';
+    $go = !$atLink ? '<a class="btn small tourgo" href="' . e(url($link)) . '">' . e($label) . ' →</a>' : '';
+    $arr = '';
+    if ($arrived >= 1 && $arrived <= $n) {   // a visit step finishes before the page is drawn: say what it was about, here
+        $arr = '<div class="tourbox tourarr"><span class="bird" aria-hidden="true">🐦</span><div><h3>' . e(TOUR_STEPS[$arrived - 1][1]) . '</h3><p>' . e($fill(TOUR_STEPS[$arrived - 1][2])) . '</p></div></div>';
     }
-    return '<div class="tourbox"><span class="bird" aria-hidden="true">🐦</span><div>'
+    $targets = TOUR_TARGETS[TOUR_STEPS[$step - 1][0]] ?? [];
+    $next = !empty(TOUR_STEPS[$step - 1][5]) ? '<div class="tournext"><form method="post" action="' . e(url('tour.php')) . '" class="inline">' . csrf_field()
+        . '<input type="hidden" name="do" value="nextstep"><button class="skip">Can’t see it? Skip this step</button></form></div>' : '';
+    return '<div id="wrentour" data-step="' . $step . '" data-targets="' . e(json_encode($targets, JSON_UNESCAPED_UNICODE)) . '">' . $arr
+        . '<div class="tourbox tourcur"><span class="bird" aria-hidden="true">🐦</span><div>'
         . '<h3>Wren’s tour · ' . $step . ' of ' . $n . ': ' . e($title) . '</h3>'
-        . '<p>' . e($text) . '</p>'
+        . '<p class="tbtext">' . e($text) . '</p>'
+        . '<p class="tourhint" aria-live="polite"></p>'
         . ($go !== '' ? '<p>' . $go . '</p>' : '')
-        . $skip . '</div></div>';
+        . $next . $skip . '</div></div></div>';
 }

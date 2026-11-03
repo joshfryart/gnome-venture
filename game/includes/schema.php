@@ -1313,6 +1313,7 @@ function schema_statements(string $driver): array
         ['users', 'beard_color', 'VARCHAR(7) NULL'],
         ['users', 'onboarded', 'INT NOT NULL DEFAULT 1'],      // existing players skip the welcome flow
         ['users', 'tour_step', 'INT NOT NULL DEFAULT 0'],
+        ['users', 'tour_ask', 'TINYINT NOT NULL DEFAULT 0'],   // v2.4.97: Wren asks "tour now or later?" (1 = asking, 2 = said later, 0 = answered)
         ['plot_tiles', 'feed_fert', 'INT NOT NULL DEFAULT 0'],
         ['plot_tiles', 'feed_life', 'INT NOT NULL DEFAULT 0'],
         ['plot_tiles', 'feed_hours', 'INT NOT NULL DEFAULT 0'],
