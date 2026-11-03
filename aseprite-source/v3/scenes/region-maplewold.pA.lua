@@ -131,7 +131,7 @@ local streamPts = { { 222, 86 }, { 214, 98 }, { 206, 112 }, { 204, 126 }, { 210,
 local stream = c:line(streamPts, 7)
 local pond = E(240, 182, 64, 24):add(E(200, 190, 34, 14)):add(E(290, 168, 22, 16))
 local water = stream:copy():add(pond)
-rim(water:grow(1), P.wood.shade) rim(water, "#8a6a4a")
+rim(water, P.wood.shade)
 fm(water, P.sea.base)
 -- depth band and ripples
 water:each(function(x, y) if not water:has(x - 3, y - 3) then end end)
@@ -180,9 +180,13 @@ do
   local pk = { { 12, 124, 4 }, { 38, 122, 4 }, { 66, 120, 4 }, { 22, 136, 5 }, { 52, 134, 5 }, { 80, 133, 4 },
     { 8, 152, 6 }, { 40, 151, 6 }, { 72, 150, 6 }, { 24, 174, 8 }, { 62, 172, 7 }, { 94, 176, 6 }, { 8, 194, 8 }, { 46, 194, 9 }, { 84, 196, 7 } }
   local function leaf(x, y, r, flip)
-    local m = E(x, y, r, r * 0.7)
-    rim(m, P.moss.deep) form(m, P.moss, { s = 1, l = 1 })
-    fm(c:line({ { x - r + 1, y }, { x + r - 1, y } }, 1), P.moss.shade)
+    for j, d in ipairs({ { 0, 0, 1 }, { -r + 1, -2, 0.7 }, { r - 1, -1, 0.75 } }) do
+      local rr = math.max(2, floor(r * d[3]))
+      local lx, ly = x + d[1], y + d[2]
+      local m = c:poly{ { lx - rr, ly }, { lx - 1, ly - rr + 1 }, { lx + 1, ly - rr }, { lx + rr, ly - 1 }, { lx + 1, ly + rr - 1 } }
+      rim(m, P.moss.deep) form(m, P.moss, { s = 1, l = 1 })
+      fm(c:line({ { lx - rr + 1, ly }, { lx + rr - 2, ly - 1 } }, 1), P.moss.shade)
+    end
   end
   for i, p in ipairs(pk) do
     local x, y, r = p[1], p[2], p[3]
@@ -242,8 +246,50 @@ local function leafy(clumps, R, accent, rimc)
   end
   return all
 end
+-- foliage(shape, pick, o): canopy built from many small leaf clumps (top first), each lit upper-left,
+-- shaded lower-right, deep under-edge; whole canopy ink-rimmed. pick(cx,cy) -> ramp; o.dark(cx,cy) -> true = shadow side
+local function foliage(shape, pick, o)
+  o = o or {}
+  local step, r0 = o.step or 7, o.r or 5
+  local blobs = {}
+  local x0, y0, x1, y1 = shape:bbox()
+  local i = 0
+  for y = y0, y1, step - 1 do for x = x0, x1, step do
+    i = i + 1
+    local cx = x + (hash(i, 91) % 5) - 2 + ((y // (step - 1)) % 2) * floor(step / 2)
+    local cy = y + (hash(i, 93) % 3) - 1
+    if shape:has(cx, cy) then blobs[#blobs + 1] = { cx, cy, r0 + hash(i, 95) % 3 - 1 } end
+  end end
+  local all = HP.mask()
+  local ms = {}
+  for k, b in ipairs(blobs) do ms[k] = E(b[1], b[2], b[3], b[3] * 0.85) all:add(ms[k]) end
+  rim(all, o.rimc or INK)
+  for k, b in ipairs(blobs) do
+    local m, R = ms[k], pick(b[1], b[2])
+    local dark = o.dark and o.dark(b[1], b[2])
+    local hi, base, sh, dp = R.hi, R.base, R.shade, R.deep
+    if dark then hi, base, sh = R.base, R.shade, R.deep end
+    fm(m, base)
+    m:each(function(x, y)
+      if not m:has(x + 2, y + 2) then px(x, y, sh) end
+      if not m:has(x - 1, y - 2) and not dark then px(x, y, hi) end
+      if not m:has(x, y + 1) then px(x, y, dp) end
+    end)
+    -- 2px leaf marks
+    for j = 0, 1 do
+      local lx, ly = b[1] - 2 + hash(k, j + 101) % 4, b[2] - 2 + hash(j + 103, k) % 3
+      if m:has(lx, ly) and m:has(lx + 1, ly - 1) then local col = (j == 0) and hi or (o.accent or sh) px(lx, ly, col) px(lx + 1, ly - 1, col) end
+    end
+  end
+  return all
+end
 for _, b in ipairs({ { 6, 18, 112, 5 }, { 26, 28, 108, 4 }, { 46, 22, 115, 5 }, { -2, 30, 104, 4 } }) do birch(b[1], b[2], b[3], b[4]) end
-leafy({ { 4, 10, 14, 10 }, { 22, 4, 13, 9 }, { 38, 14, 14, 10 }, { 56, 8, 12, 9 }, { 14, 26, 11, 7 }, { 50, 28, 10, 7 }, { 30, 30, 9, 6 } }, P.gold, P.ember.base, P.gold.deep)
+do
+  local sh = HP.mask()
+  for _, k in ipairs({ { 4, 8, 16, 12 }, { 24, 2, 14, 10 }, { 40, 12, 15, 11 }, { 58, 6, 12, 10 }, { 14, 26, 12, 8 }, { 50, 28, 11, 8 }, { 30, 30, 10, 7 } }) do sh:add(E(k[1], k[2], k[3], k[4])) end
+  foliage(sh, function(x, y) return (sin(x / 9) + cos(y / 7) > 1.1) and ORANGE or P.gold end,
+    { r = 5, step = 7, accent = P.ember.base, dark = function(x, y) return y > 30 and x > 20 end })
+end
 
 ------------------------------------------------------------------ COTTAGE (hero, centre)
 do
@@ -370,17 +416,15 @@ do
     { 208, 36, 16, 12 }, { 234, 30, 18, 13 }, { 262, 30, 18, 14 }, { 288, 46, 14, 12 },
     { 220, 60, 14, 10 }, { 246, 58, 13, 9 }, { 280, 66, 12, 9 }, { 200, 18, 10, 9 },
   }
-  local R2 = { { 0, P.ember }, { 1, ORANGE }, { 2, P.gold } }
-  local all = HP.mask()
-  for _, k in ipairs(cl) do all:add(E(k[1], k[2], k[3], k[4])) end
-  rim(all, INK)
-  for i, k in ipairs(cl) do
-    local R = (i % 3 == 0) and P.gold or (i % 3 == 1) and P.ember or ORANGE
-    leafy({ k }, R, (R == P.gold) and P.ember.base or P.gold.hi)
-  end
+  local shape = HP.mask()
+  for _, k in ipairs(cl) do shape:add(E(k[1], k[2], k[3], k[4])) end
+  foliage(shape, function(x, y)
+    local v = sin(x / 14 + y / 30) + cos(y / 11 - x / 40)
+    return v > 0.7 and P.gold or v < -0.5 and P.ember or ORANGE
+  end, { r = 6, step = 8, accent = P.gold.hi, dark = function(x, y) return y > 56 or (x > 286 and y > 34) end })
   -- squirrel on the branch end
-  local sq = E(292, 44, 3, 2):add(E(295, 41, 2, 2)):add(E(288, 40, 2, 4))
-  rim(sq, INK) form(sq, ORANGE, { s = 1 }) px(296, 41, INK)
+  local sq = E(287, 98, 2.5, 3.5):add(E(289, 93, 2, 2)):add(E(284, 92, 2, 4.5))
+  rim(sq, INK) form(sq, ORANGE, { s = 1 }) fm(Rm(287, 97, 288, 100), P.cream) px(290, 92, INK) px(288, 91, ORANGE.shade)
   -- birdhouse on trunk
   local bh = Rm(276, 76, 282, 84) rim(bh, INK) form(bh, P.sea, { s = 1 })
   fm(c:poly{ { 274, 77 }, { 279, 71 }, { 284, 77 } }, P.ember.base) fm(E(279, 80, 1, 1), INK)
@@ -402,30 +446,51 @@ do
   fm(E(171, 38, 1.5, 1.5):add(c:poly{ { 170, 37 }, { 173, 37 }, { 172, 33 } }), P.ember.base)
 end
 
+------------------------------------------------------------------ WELL + spring rocks (r1 c4)
+do
+  for _, r in ipairs({ { 216, 86, 4, 3 }, { 225, 85, 3, 2 }, { 213, 92, 3, 2 }, { 229, 90, 3, 2 } }) do
+    local m = E(r[1], r[2], r[3], r[4]) rim(m, INK) form(m, P.stone, { s = 1, l = 1 })
+  end
+  local cyl = Rm(232, 88, 248, 100):add(E(240, 100, 8, 2))
+  local posts = Rm(233, 76, 234, 88):add(Rm(246, 76, 247, 88))
+  local roof = c:poly{ { 228, 78 }, { 240, 68 }, { 252, 78 } }
+  local all = cyl:copy():add(posts):add(roof)
+  rim(all, INK)
+  form(posts, P.wood, { s = 0 })
+  form(cyl, P.stone, { s = 3, l = 1 })
+  for y = 90, 100, 3 do fm(Rm(232, y, 248, y):clip(cyl), P.stone.shade) end
+  for y = 88, 100, 3 do for x = 232 + (y % 2) * 2, 248, 5 do px(x, y + 1, P.stone.shade) end end
+  fm(E(240, 88, 8, 1.5), P.stone.deep) fm(Rm(234, 87, 246, 87), "#3a2228")
+  form(roof, P.ember, { s = 2 }) roof:each(function(x, y) if (y - 68) % 3 == 2 then px(x, y, P.ember.shade) end end)
+  fm(Rm(234, 80, 246, 80), P.wood.deep)
+  fm(c:line({ { 240, 80 }, { 240, 84 } }, 1), P.stone.base)
+  local bk = Rm(238, 84, 242, 87) rim(bk, INK) form(bk, P.wood, { s = 1 })
+end
+
 ------------------------------------------------------------------ BRIDGE + BEAR (quirk)
 do
   -- bear sits under the west end of the bridge (drawn before the deck so the deck shades him)
-  local body = E(194, 140, 7, 7)
-  local head = E(194, 130, 5.5, 4.5)
-  local ears = E(190, 126, 1.5, 1.5):add(E(198, 126, 1.5, 1.5))
+  local body = E(193, 149, 7, 6)
+  local head = E(193, 139, 5.5, 4.5)
+  local ears = E(189, 135, 1.5, 1.5):add(E(197, 135, 1.5, 1.5))
   local bear = body:copy():add(head):add(ears)
   rim(bear, INK)
   form(body, BEAR, { s = 2, l = 1 })
   form(head, BEAR, { s = 1, l = 1 })
   fm(ears, BEAR.shade)
-  fm(E(196, 132, 2.5, 1.5), "#d9b48a") px(197, 131, INK) px(198, 131, INK)
-  px(193, 129, INK) px(197, 129, INK)
+  fm(E(195, 141, 2.5, 1.5), "#d9b48a") px(196, 140, INK) px(197, 140, INK)
+  px(191, 138, INK) px(195, 138, INK)
   -- scarf
-  local sc = Rm(189, 134, 199, 136):add(Rm(190, 137, 192, 142))
-  form(sc, P.ember, { s = 1 }) px(190, 142, P.cream) px(192, 142, P.cream)
-  fm(E(194, 145, 4, 2), "#d9b48a")
+  local sc = Rm(188, 143, 198, 145):add(Rm(189, 146, 191, 151))
+  form(sc, P.ember, { s = 1 }) px(189, 151, P.cream) px(191, 151, P.cream)
+  fm(E(194, 152, 4, 2), "#d9b48a")
   -- rod + line + bobber
-  fm(c:line({ { 199, 140 }, { 214, 124 } }, 1), P.wood.deep)
-  fm(c:line({ { 214, 124 }, { 214, 138 } }, 1), P.stone.hi)
-  px(214, 139, P.ember.base) px(214, 140, P.cream)
+  fm(c:line({ { 198, 148 }, { 216, 128 } }, 1), P.wood.deep)
+  fm(c:line({ { 216, 128 }, { 216, 142 } }, 1), P.stone.hi)
+  px(216, 143, P.ember.base) px(216, 144, P.cream)
   -- bucket with a fish
-  local bk = Rm(181, 142, 186, 147) rim(bk, INK) form(bk, P.stone, { s = 1 })
-  fm(c:poly{ { 182, 141 }, { 185, 138 }, { 186, 141 } }, P.sea.shade)
+  local bk = Rm(179, 150, 184, 155) rim(bk, INK) form(bk, P.stone, { s = 1 })
+  fm(c:poly{ { 180, 149 }, { 183, 146 }, { 184, 149 } }, P.sea.shade)
   -- bridge: humped deck + rails
   local deck = c:line({ { 188, 126 }, { 200, 119 }, { 214, 118 }, { 228, 124 } }, 4)
   local rails = c:line({ { 189, 118 }, { 200, 112 }, { 214, 111 }, { 227, 117 } }, 1)
@@ -570,10 +635,10 @@ do
   local bv = E(288, 172, 4, 3):add(E(292, 170, 2, 2)):add(E(283, 174, 2.5, 1.5))
   rim(bv, INK) form(bv, BEAR, { s = 1 }) px(293, 169, INK) fm(Rm(282, 173, 284, 175), "#5a3a2e")
   -- cattails on the west bank
-  for i, x in ipairs({ 176, 180, 184, 188, 172 }) do
+  for i, x in ipairs({ 170, 177, 183, 190 }) do
     local top = 160 + (i * 7) % 9
-    fm(Rm(x, top, x, 192), P.moss.shade)
-    local h = Rm(x - 1, top, x + 1, top + 5) rim(h, INK) fm(h, P.wood.shade) px(x - 1, top, P.wood.base)
+    fm(Rm(x, top, x, 192), P.moss.shade) px(x, top - 1, P.moss.shade)
+    local h = Rm(x, top + 1, x + 1, top + 5) fm(h, P.wood.shade) px(x, top + 1, P.wood.base) px(x + 1, top + 5, P.wood.deep)
     fm(c:line({ { x, 186 }, { x - 3, 178 } }, 1), P.moss.base)
   end
   -- duck
@@ -605,18 +670,24 @@ do
     rim(m, INK) form(m, PUMP, { s = 1, l = 1 }) fm(Rm(p[1], p[2] - 4, p[1], p[2] - 3), P.moss.shade)
   end
   -- apple basket (r3 c2)
-  local bs = c:poly{ { 112, 178 }, { 128, 178 }, { 126, 188 }, { 114, 188 } }
-  rim(bs, INK) form(bs, P.wood, { s = 1 }) for y = 180, 187, 2 do fm(Rm(113, y, 127, y):clip(bs), P.wood.shade) end
-  for _, a in ipairs({ { 115, 176 }, { 119, 175 }, { 123, 176 }, { 117, 173 }, { 121, 172 }, { 126, 177 } }) do
+  local bs = c:poly{ { 106, 184 }, { 122, 184 }, { 120, 194 }, { 108, 194 } }
+  rim(bs, INK) form(bs, P.wood, { s = 1 }) for y = 186, 193, 2 do fm(Rm(107, y, 121, y):clip(bs), P.wood.shade) end
+  for _, a in ipairs({ { 109, 182 }, { 113, 181 }, { 117, 182 }, { 111, 179 }, { 115, 178 }, { 120, 183 } }) do
     local m = E(a[1], a[2], 2, 2) rim(m, P.ember.deep) form(m, P.ember, { s = 1 }) px(a[1] - 1, a[2] - 1, P.ember.hi)
   end
-  -- fox (r3 c2)
-  local fox = E(124, 164, 6, 3):add(E(131, 161, 3, 2.5)):add(c:poly{ { 129, 158 }, { 131, 155 }, { 132, 159 } })
-  local tail = c:line({ { 118, 163 }, { 112, 158 }, { 110, 154 } }, 3)
-  local legs2 = Rm(120, 166, 120, 169):add(Rm(128, 166, 128, 169))
-  local fx = fox:copy():add(tail):add(legs2)
-  rim(fx, INK) fm(legs2, "#3a2a33") form(fox, ORANGE, { s = 1 }) form(tail, ORANGE, { s = 1 })
-  fm(Rm(109, 153, 111, 155), P.cream) fm(E(133, 162, 1.5, 1), P.cream) px(132, 160, INK) px(135, 162, INK)
+  -- fox sneaking toward the basket, one apple already in its mouth (r3 c2)
+  local body = E(132, 178, 7, 3.5)
+  local head = E(123, 175, 3.5, 3):add(c:poly{ { 121, 174 }, { 116, 177 }, { 121, 178 } })
+  local ears = c:poly{ { 121, 173 }, { 122, 168 }, { 124, 172 } }:add(c:poly{ { 124, 172 }, { 126, 168 }, { 127, 173 } })
+  local tail = c:line({ { 139, 177 }, { 144, 172 }, { 149, 171 } }, 4)
+  local legs2 = Rm(127, 181, 127, 184):add(Rm(130, 181, 130, 183)):add(Rm(135, 181, 135, 184)):add(Rm(138, 181, 138, 183))
+  local fx = body:copy():add(head):add(ears):add(tail):add(legs2)
+  rim(fx, INK) fm(legs2, "#3a2a33")
+  form(tail, ORANGE, { s = 1 }) fm(E(150, 171, 2, 2):clip(tail:grow(1)), P.cream)
+  form(body, ORANGE, { s = 1, l = 1 }) form(head, ORANGE, { s = 1 }) fm(ears, ORANGE.shade)
+  fm(Rm(118, 177, 122, 178), P.cream) fm(E(132, 180, 4, 1):clip(body), "#ffe0b8")
+  px(116, 177, INK) px(122, 174, INK) px(122, 175, INK)
+  local ap = E(116, 179, 1.5, 1.5) rim(ap, P.ember.deep) fm(ap, P.ember.base) px(116, 178, P.ember.hi)
   -- mushrooms (r3 c0/c2, r2 c5)
   local function shroom(x, y, s, R)
     local cap = E(x, y - s, s + 1, s * 0.7):clip(Rm(x - s - 2, y - 2 * s, x + s + 2, y - s + 1))
