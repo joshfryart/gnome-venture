@@ -937,7 +937,7 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
   <p>You have <b><?= $nbeds ?></b> beds. At garden level <?= (int)$plot['garden_level'] ?> this garden holds up to <b><?= $bcap * $bcap ?></b>
     (up to <?= (int)setting('max_plot_size') ** 2 ?> as it levels). New beds appear in your yard like decor: move them with ✏️ Design yard.</p>
   <?php if ($room > 0): ?>
-    <p class="help">Next <?= min(4, $room) ?> beds cost <b><?= money($bc) ?></b><?= $bi ? ' + ' . e(upgrade_mats_text($bi)) : '' ?> (Timber Planks are made in Satchel → Crafting → Building). Each purchase costs <?= (int)setting('bed_add_growth_pct') ?>% more than the last.</p>
+    <p class="help">Next <?= min(4, $room) ?> beds cost <b><?= money($bc) ?></b><?= $bi ? ' + ' . e(upgrade_mats_text($bi)) : '' ?> (Timber Planks are made in Satchel → Crafting → Building). Each 4 beds the garden has make the next ones cost <?= (int)setting('bed_add_growth_pct') ?>% more, up to 6× the first price.</p>
     <form method="post" class="inline" data-confirm="Add <?= min(4, $room) ?> beds for <?= number_format($bc) ?><?= $bi ? ' and ' . e(upgrade_mats_text($bi)) : '' ?>?"><?= csrf_field() ?>
       <input type="hidden" name="do" value="expand"><button class="btn small">➕ Add <?= min(4, $room) ?> beds</button></form>
   <?php else: ?>

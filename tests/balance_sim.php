@@ -4,7 +4,7 @@ $_SERVER['REQUEST_METHOD']='GET'; $_SERVER['HTTP_HOST']='x'; $_SERVER['REQUEST_U
 require 'includes/bootstrap.php'; require 'includes/garden_logic.php'; require_once 'includes/items.php';
 $IL = item_lookups();
 $S = fn($k) => (int)setting($k);
-echo "settings: bed_add_cost=", $S('bed_add_cost'), " land_deed_cost=", $S('land_deed_cost'), " start_plot=", $S('starting_plot_size'), " max_plot=", $S('max_plot_size'), " seed_save=", $S('seed_save_chance'), "\n";
+echo "settings: bed_add_cost=", $S('bed_add_cost'), " bed_add_growth_pct=", $S('bed_add_growth_pct'), " land_deed_cost=", $S('land_deed_cost'), " start_plot=", $S('starting_plot_size'), " max_plot=", $S('max_plot_size'), " seed_save=", $S('seed_save_chance'), "\n";
 $rows = [];
 foreach (q('SELECT p.*, si.base_price AS seedp, pi.id AS pid, pi.name AS pname, pi.slug AS pslug, pi.base_price AS prodbase, pi.category AS pcat, pi.effects, pi.rarity FROM plants p JOIN items si ON si.id = p.seed_item_id JOIN items pi ON pi.id = p.produce_item_id')->fetchAll() as $p) {
     if ($p['kind'] === 'cover') continue;

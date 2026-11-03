@@ -207,6 +207,7 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         upgrade_163_run();                // v1.6.3: adopt-a-stop limit 3, worm colony 12 hours (upgrade163.php)
         require_once __DIR__ . '/upgrade170.php'; upgrade_170_run();   // v1.7.0: garden reactions become guestbook stamps
         require_once __DIR__ . '/upgrade193.php'; upgrade_193_run();   // v1.9.3: road life: weather problems, cond tags on problems, creatures, gatherables
+        require_once __DIR__ . '/upgrade249.php'; upgrade_249_run();   // after 2.4.89: bed growth 20%, Guess the Weight jackpot cap and growth (only old defaults)
         boot_step('ensure_lair_bosses', function () {
             require_once __DIR__ . '/landmarks.php';
             ensure_lair_bosses();    // each lair's own legendary creature (v0.7.26)

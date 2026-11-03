@@ -1452,14 +1452,19 @@ function bed_room(array $plot): int
     return max(0, $max * $max - (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ?', [$plot['id']]));
 }
 
-/** What the next purchase costs: [petals, [slug => qty]]. Both climb by bed_add_growth_pct per purchase made. */
-function bed_add_cost(array $plot): array
+/** What the next purchase of $n beds costs: [petals, [slug => qty]]. Priced by beds owned past the starting square (not by purchases made):
+ *  each 4 beds owned make the price bed_add_growth_pct more, up to 6x the first price; a partial buy pays per bed (n/4). bed_adds is history only. */
+function bed_add_cost(array $plot, ?int $n = null): array
 {
-    $mult = (1 + max(0, (int)setting('bed_add_growth_pct')) / 100) ** bed_adds($plot);
+    $n ??= max(1, min(4, bed_room($plot)));
+    $start = max(2, (int)setting('starting_plot_size'));
+    $beds = (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ?', [$plot['id']]);
+    $k = max(0, ($beds - $start * $start) / 4);
+    $mult = min(6, (1 + max(0, (int)setting('bed_add_growth_pct')) / 100) ** $k) * $n / 4;
     $items = [];
     foreach (explode(',', (string)setting('bed_add_items')) as $pair) {
-        [$s, $n] = array_map('trim', explode(':', $pair) + [1 => 0]);
-        if ($s !== '' && (int)$n > 0) $items[$s] = (int)ceil((int)$n * $mult - 1e-9);
+        [$s, $q] = array_map('trim', explode(':', $pair) + [1 => 0]);
+        if ($s !== '' && (int)$q > 0) $items[$s] = (int)ceil((int)$q * $mult - 1e-9);   // 2 planks x 6 = 12 at most
     }
     return [(int)round((int)setting('bed_add_cost') * $mult), $items];
 }
@@ -1477,7 +1482,7 @@ function expand_plot(int $uid): array
             : 'Your garden needs a higher garden level before it can hold more beds. Harvests raise it.'];
     }
     $n = min(4, $room);
-    [$cost, $items] = bed_add_cost($plot);
+    [$cost, $items] = bed_add_cost($plot, $n);
     $adds = bed_adds($plot) + 1;   // (counted before the new beds go in)
     db()->beginTransaction();
     if ($cost > 0 && !take_petals((int)$uid, (int)$cost)) {

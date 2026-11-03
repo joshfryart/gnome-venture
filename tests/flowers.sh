@@ -94,10 +94,17 @@ get "arrange.php?t=show"; chk "show page lists the leader" "$(grep -c 'arrleader
 dbx "UPDATE arrangement_entries SET week='2000-W01' WHERE user_id=$SID"
 C1=$(db "SELECT coins FROM users WHERE id=$SID")
 get "arrange.php?t=show"
-chk "judged: placed 1" "$(db "SELECT placed FROM arrangement_entries WHERE user_id=$SID")" 1
+chk "quiet week (1 gnome < fair_min_entries 3): nobody placed" "$(db "SELECT placed FROM arrangement_entries WHERE user_id=$SID")" 0
+chk "taking-part thanks paid" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 100
+get "arrange.php?t=show"
+chk "not paid twice" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 100
+dbx "UPDATE arrangement_entries SET placed=NULL WHERE user_id=$SID; INSERT OR REPLACE INTO settings (name,value) VALUES ('fair_min_entries','1')"
+C1=$(db "SELECT coins FROM users WHERE id=$SID"); get "arrange.php?t=show"
+chk "enough gnomes: judged, placed 1" "$(db "SELECT placed FROM arrangement_entries WHERE user_id=$SID")" 1
 chk "prize paid" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 800
 get "arrange.php?t=show"
 chk "not paid twice" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 800
+dbx "DELETE FROM settings WHERE name='fair_min_entries'"
 
 echo "== drying rack: real timer"
 dbx "UPDATE user_items SET qty=4 WHERE user_id=$SID AND item_id IN ($R,$D,$C,$L)"

@@ -330,6 +330,9 @@ function arrangements_owned(int $uid): array
 
 // ---------- the Arrangements show (weekly) ----------
 
+const ARR_QUIET_COINS = 100;   // a quiet week (fewer than fair_min_entries gnomes entered): every entrant gets this and ARR_QUIET_XP, no placing, no ribbon
+const ARR_QUIET_XP = 10;
+
 function arr_prizes(): array
 {
     $p = array_map(fn($v) => max(0, (int)trim($v)), explode(',', (string)setting('arrange_prizes')));
@@ -383,10 +386,18 @@ function settle_arrangements(): void
         $rows = q('SELECT e.* FROM arrangement_entries e JOIN users u ON u.id = e.user_id WHERE e.week = ? AND e.placed IS NULL AND ' . gnome_in_play_sql('u')
             . ' ORDER BY e.score DESC, e.entered_at, e.id', [$week])->fetchAll();
         $rank = 0;
+        $quiet = count($rows) < max(1, (int)setting('fair_min_entries'));   // a quiet week: no placings, everyone gets the taking-part thanks
         foreach ($rows as $r) {
             $rank++;
             db()->beginTransaction();
-            if (q('UPDATE arrangement_entries SET placed = ? WHERE id = ? AND placed IS NULL', [$rank, $r['id']])->rowCount() === 1) {
+            if (q('UPDATE arrangement_entries SET placed = ? WHERE id = ? AND placed IS NULL', [$quiet ? 0 : $rank, $r['id']])->rowCount() === 1) {   // a quiet week places nobody (0)
+                if ($quiet) {
+                    q('UPDATE users SET coins = coins + ? WHERE id = ?', [ARR_QUIET_COINS, $r['user_id']]);
+                    add_xp((int)$r['user_id'], ARR_QUIET_XP, 'Arrangements show');
+                    notify((int)$r['user_id'], '💐 A quiet week at the Arrangements show: the judges thank you for “' . $r['title'] . '” (' . (int)$r['score'] . '/100). Here’s ' . money(ARR_QUIET_COINS) . ' and ' . ARR_QUIET_XP . ' XP for taking part.');
+                    db()->commit();
+                    continue;
+                }
                 $coins = (int)$prizes[min($rank, 4) - 1];
                 q('UPDATE users SET coins = coins + ?' . ($rank <= 3 ? ', ribbons = ribbons + 1' : '') . ' WHERE id = ?', [$coins, $r['user_id']]);
                 add_xp((int)$r['user_id'], [1 => 30, 2 => 20, 3 => 10][$rank] ?? 5, 'Arrangements show');

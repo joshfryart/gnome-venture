@@ -233,7 +233,7 @@ $IL = null;
     $prev = arrangement_leaders($prevWeek, 3); ?>
   <section class="box">
     <h2>🎗️ The Arrangements show</h2>
-    <p class="help">Each week the show judges the best arrangement entered. The top three win <?= money($pz[0]) ?>, <?= money($pz[1]) ?> and <?= money($pz[2]) ?> and a ribbon; everyone else who enters gets <?= money($pz[3]) ?>.
+    <p class="help">Each week the show judges the best arrangement entered. The top three win <?= money($pz[0]) ?>, <?= money($pz[1]) ?> and <?= money($pz[2]) ?> and a ribbon; everyone else who enters gets <?= money($pz[3]) ?>. In a quiet week (fewer than <?= max(1, (int)setting('fair_min_entries')) ?> gnomes entered) nobody is placed and every entrant gets <?= money(ARR_QUIET_COINS) ?> and <?= ARR_QUIET_XP ?> XP.
       One entry each. The arrangement you enter <b>stays at the show</b>, and a better one swaps in (the old one comes home). Judging in <?= e(nice_time(job_period_left('weekly'))) ?>.</p>
     <?php if ($mineEntry): ?><p>Your entry: <b>“<?= e($mineEntry['title']) ?>”</b>, <?= (int)$mineEntry['score'] ?>/100</p><?php endif; ?>
     <?php if (!$owned): ?><p class="muted">You have no arrangements. <a href="<?= e(url('arrange.php')) ?>">Make one</a>.</p>

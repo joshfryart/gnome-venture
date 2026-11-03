@@ -61,11 +61,12 @@ get $A carve.php >/dev/null; gt "townsfolk on carve.php" "$(grep -c 'class="tfol
 get $A show.php >/dev/null; has "show note says gnomes only" $H 'Prizes and places are for gnomes only'
 # same list for everyone and stable between loads
 get $A show.php >/dev/null; cp $H $T/s1.html; get $B show.php >/dev/null; ok "same townsfolk for another gnome" "$(grep -o 'townsfolk' $T/s1.html | wc -l)" "$(grep -o 'townsfolk' $H | wc -l)"
-# fairness: last week's show with two gnomes and the townsfolk: gnomes are placed 1 and 2, nothing is stored for NPCs
+# fairness: last week's show with two gnomes and the townsfolk: townsfolk do not count as entrants, so it is a quiet week (fewer than fair_min_entries 3): nobody placed, nothing stored for NPCs
 LW=$(php -r 'echo gmdate("o-\WW", time()-7*86400-0);')
 dbx "INSERT INTO show_entries (week,user_id,crop,size,entered_at) VALUES ('$LW',$SID,'pumpkin',3.1,datetime('now','-6 days')),('$LW',$BID,'pumpkin',2.0,datetime('now','-6 days'))"
 get $A show.php >/dev/null
-ok "show: gnome places are 1 and 2 (townsfolk take none)" "$(db "SELECT group_concat(placed) FROM (SELECT placed FROM show_entries WHERE week='$LW' ORDER BY placed)")" "1,2"
+ok "show: quiet week, nobody placed (townsfolk not counted)" "$(db "SELECT group_concat(placed) FROM (SELECT placed FROM show_entries WHERE week='$LW' ORDER BY placed)")" "0,0"
+ok "show: quiet week pays the taking-part thanks, no ribbon" "$(db "SELECT COUNT(*) FROM notices WHERE user_id IN ($SID,$BID) AND text LIKE '%quiet week%'")" 2
 ok "show: no NPC rows stored" "$(db "SELECT COUNT(*) FROM show_entries WHERE user_id NOT IN ($SID,$BID)")" 0
 # the toggle
 dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('townsfolk_entries','0')"; php -r '' ; get $A show.php >/dev/null; ok "toggle off: no townsfolk" "$(grep -c 'class="tfolk"' $H)" 0

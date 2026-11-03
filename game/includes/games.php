@@ -777,9 +777,9 @@ function settle_marrows(): void
             }
             set_setting('marrow_pot', (string)max(0, (int)setting('marrow_jackpot')));
         } else {
-            set_setting('marrow_pot', (string)min(max(0, (int)setting('marrow_jackpot_max')), $pot + max(0, (int)setting('marrow_jackpot_grow'))));
+            set_setting('marrow_pot', (string)max($pot, min(max(0, (int)setting('marrow_jackpot_max')), $pot + max(0, (int)setting('marrow_jackpot_grow')))));   // a pot already over a lowered cap stays until won
         }
-        $close = max(0, (int)setting('marrow_close_prize'));
+        $close = count($claimed) >= 2 ? max(0, (int)setting('marrow_close_prize')) : 0;   // the consolation needs someone to be closest against
         foreach ($claimed as $r) {
             if ($exact && (int)$r['grams'] === $w) continue;
             $first = !$exact && $r['rank'] === 1;

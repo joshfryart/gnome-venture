@@ -31,6 +31,7 @@ page_header('Village Show');
         ['⏳', 'Judging.', 'At the end of the week, when the weekly reset comes.'],
         ['🥇', 'Prizes.', '1st ' . money(SHOW_PRIZES[1][0]) . ' and a rare seed, 2nd ' . money(SHOW_PRIZES[2][0]) . ', 3rd ' . money(SHOW_PRIZES[3][0]) . '. The top three also get a 🎀 ribbon.'],
         ['🎁', 'Everyone else.', 'Anyone who enters gets ' . money(25) . ' for taking part.'],
+        ['🌙', 'Quiet weeks.', 'If fewer than ' . max(1, (int)setting('fair_min_entries')) . ' gnomes entered, nobody is placed: every entrant gets ' . money(SHOW_QUIET_COINS) . ' and ' . SHOW_QUIET_XP . ' XP for taking part.'],
     ]);
     echo '<p><a href="' . e(url('games.php?tab=contests')) . '">← Contests</a></p>';
     page_footer(); return;
