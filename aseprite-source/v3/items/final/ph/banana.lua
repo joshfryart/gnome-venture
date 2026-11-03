@@ -21,7 +21,7 @@ local CUTS = { 0.2, 0.38, 0.55, 0.72, 0.88 }
 -- two fingers from the crown at the upper right, curving down then sweeping left and slightly up at the tips
 local CX, CY = 45, 15
 local fingers = {
-  { p = { { CX - 1, CY + 2 }, { 40, 30 }, { 31, 41 }, { 12, 39 } }, wmax = 4.3 },   -- back
+  { p = { { CX - 1, CY + 2 }, { 38, 27 }, { 29, 36 }, { 11, 33 } }, wmax = 4.3 },   -- back
   { p = { { CX + 1, CY + 3 }, { 47, 36 }, { 36, 52 }, { 15, 51 } }, wmax = 4.6 },   -- front
 }
 local function hw(wmax) return function(t)
@@ -34,7 +34,7 @@ for _, f in ipairs(fingers) do
   f.m, f.n, f.T, f.S, f.samp = G.tube(f.p, hw(f.wmax))
 end
 -- crown stalk (painted first; fingers' necks sit over its bottom)
-local sm, sn, ST, SS = X.cyl(CX + 0.5, CY + 3, CX + 3, CY - 8, function(t) return 2.0 - t * 0.3 end)
+local sm, sn, ST, SS = X.cyl(CX + 0.5, CY + 3, CX + 2.5, CY - 5, function(t) return 2.0 - t * 0.3 end)
 local stok = { r = { name = "stem" } }
 local sb = {}
 X.ao(sb, sm, fingers[1].m:copy():add(fingers[2].m), 2, -1)
@@ -42,9 +42,9 @@ G.toneN(c, sm, sn, STEM, { tok = stok, cuts = CUTS, bias = sb })
 -- fibrous lengthwise lines on the stalk
 sm:each(function(x, y) local k = K(x, y) if abs(SS[k] - 0.25) < 0.16 and ST[k] > 0.25 then c:put(x, y, STEM[2], stok) end end)
 -- pale cut end (end grain), slightly oval, with fibre dots
-local cap = G.rell(CX + 3.2, CY - 8.2, 0.97, -0.24, 2.0, 1.3)
+local cap = G.rell(CX + 2.7, CY - 5.2, 0.97, -0.24, 2.0, 1.3)
 cap:each(function(x, y) c:put(x, y, (x + y) % 3 == 0 and "#b9b07a" or "#e2dcaa", stok) end)
-c:put(floor(CX + 4), floor(CY - 8), "#8f8a5a", stok)
+c:put(floor(CX + 3), floor(CY - 5), "#8f8a5a", stok)
 
 for fi, f in ipairs(fingers) do
   local tok = { r = { name = "finger" .. fi } }
