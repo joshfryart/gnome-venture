@@ -27,8 +27,8 @@ c:part(c:rect(33, 64, 47, 74), "skinA")
 c:part(c:ellipse(40, 50, 19, 17), "skinA")
 c:eyeLocked(30, 44) c:eyeLocked(43, 44)
 c:cheek(27, 54) c:cheek(50, 54)
-c:fillMask(c:ellipse(41, 56, 4, 3), P.ink)
-c:px(40, 55, P.stone.hi)
+c:fillMask(c:rect(38, 53, 43, 55), P.ink) c:px(37, 58, P.skinA.deep) c:px(38, 59, P.skinA.deep) c:px(39, 59, P.skinA.deep) c:px(40, 59, P.skinA.deep) c:px(41, 59, P.skinA.deep) c:px(42, 58, P.skinA.deep)
+
 -- scarf
 c:part(c:poly{ {26,70},{40,76},{54,70},{56,76},{40,82},{24,76} }, "ember")
 c:part(c:rect(46, 76, 52, 92), "ember", { band = 2 })
