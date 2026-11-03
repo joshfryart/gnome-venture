@@ -80,7 +80,7 @@ for _, p in ipairs{ { 1, 1 }, { 0, 2 }, { 2, 0 } } do if disc:has(dx + p[1], dy 
 -- rose (left, front): sphere + spiral petal lines
 local rx, ry = 25, 22
 local rose = A.ellM(rx, ry, 6.2, 5.6)
-local iro = bloom(rose, rx, ry, 6.5, RO)
+local iro = bloom(rose, rx, ry, 6.5, RO, { 0.12, 0.26, 0.42, 0.6, 0.8 })
 local a = 0.3
 while a < 2 * pi * 2.1 do
   local rr = 0.7 + a * 0.36
