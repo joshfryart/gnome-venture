@@ -1,6 +1,6 @@
 # Changelog
 
-## Next version (unreleased; version number is the owner's call)
+## 2.4.90
 - **Patch note: a full garden is now within reach, and the shows stop paying for being alone.** Adding beds costs far less (all 144 beds about 31,600 Petals, not 170 million), and a quiet show week thanks every entrant instead of crowning the only one.
 - **Beds are priced by beds owned (T1.1).** `bed_add_cost()` uses `k = (beds - start²) / 4`, multiplier `min(6, (1 + growth)^k)`, Petals `round(200 x mult x n/4)`, planks `ceil(2 x mult x n/4)` (12 at most). A partial buy (fewer than 4 beds of room) pays per bed and no longer jumps the curve. `bed_add_growth_pct` default 50 -> 20. `bed_adds` is still written, for history only.
 - **No prizes for being alone (T1.2).** Village Show and Arrangements show: with fewer than `fair_min_entries` (3) gnomes entered, nobody is placed (`placed` 0), every entrant gets 100 Petals and 10 XP, no ribbon ("a quiet week"). Guess the Weight: the closest-guess consolation needs 2 or more guessers; `marrow_jackpot_max` 25,000 -> 10,000, `marrow_jackpot_grow` 1,000 -> 500 (a pot already above the new cap is not cut, it waits to be won).
