@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Welcome flow mockups</title>
+<style>
+:root{--bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;--line:#c9a96e;--line-2:#9a6b3f;--brand:#2f5a2a;--brand-soft:#c8d09f;--brand-line:#7ab55c;--accent:#e8a317;--on-fill:#f2e4c0;--felt:#3d2a1c;--felt-ink:#f2e4c0;--thread:#e8a317;--drop:#c9a96e;--ol:#2a1a10;--info-soft:#a9d6ea;--info-ink:#1f4a6a;--tap:44px;--gut:16px;--font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#888;font-family:var(--font);color:var(--ink);font-size:16px}
+.deck{display:flex;flex-wrap:wrap;gap:24px;padding:24px;justify-content:center}
+body.only .deck{padding:0;gap:0;display:block}
+body.only .frame{display:none}
+body.only .frame.show{display:flex}
+.frame{width:412px;min-height:915px;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.hdr{height:52px;background:var(--felt);color:var(--felt-ink);display:flex;align-items:center;justify-content:center;font-weight:700;border-bottom:2px dashed var(--thread)}
+.main{flex:1;padding:12px var(--gut) 8px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+/* progress: 3 pixel icons */
+.prog{display:flex;align-items:center;gap:6px}
+.prog i{width:36px;height:36px;display:grid;place-items:center;background:var(--surface);border:2px solid var(--line-2);font-style:normal;font-size:18px;color:var(--muted)}
+.prog i.done{background:var(--brand);border-color:var(--ol);color:var(--on-fill)}
+.prog i.now{background:var(--brand-soft);border-color:var(--brand);box-shadow:0 0 0 2px var(--ol)}
+.prog b{width:16px;height:4px;background:var(--line)}
+.prog b.done{background:var(--brand)}
+/* placeholders (NEW art) */
+.ph{border:2px solid #e00;background:repeating-linear-gradient(45deg,rgba(238,0,0,.05) 0 6px,transparent 6px 12px);display:flex;align-items:flex-end;justify-content:center;font-size:11px;line-height:1.2;color:#e00;font-weight:700;padding:3px;text-align:center}
+.ex{border:2px dashed var(--line-2);background:var(--brand-soft);display:flex;align-items:flex-end;justify-content:center;font-size:11px;color:var(--ink-2);padding:3px;text-align:center}
+/* Wren */
+.wren{display:flex;align-items:flex-start;gap:8px;width:100%;text-align:left}
+.wren .ph{flex:0 0 96px;height:96px}
+.bubble{flex:1;background:var(--surface);border:2px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;padding:10px 12px;font-size:15px;line-height:1.35;position:relative}
+.bubble:before{content:"";position:absolute;left:-10px;top:30px;width:10px;height:12px;background:var(--ol);clip-path:polygon(100% 0,0 50%,100% 100%)}
+.bubble b{color:var(--brand)}
+.more{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);min-width:var(--tap);padding:0 10px;color:var(--muted);font-weight:700;font-size:14px;background:none;border:0;cursor:pointer}
+/* stage */
+.stage{position:relative;width:100%;height:230px;display:grid;place-items:center}
+.stage .ph.bg{position:absolute;inset:0}
+.stage .ex{position:relative;width:160px;height:200px;align-items:center}
+.nameinput{width:100%;min-height:var(--tap);border:2px solid var(--ol);background:#fff;padding:0 12px;font:inherit;text-align:center}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
+.rowlab{font-size:22px;width:32px;text-align:center}
+.sw{width:44px;height:44px;border:2px solid var(--ol);padding:0;position:relative;cursor:pointer}
+.sw.on{box-shadow:0 0 0 2px var(--bg),0 0 0 5px var(--brand)}
+.sw.on:after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-shadow:0 0 2px #000;font-weight:900}
+/* village cards */
+.vcards{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.vcard{background:var(--surface);border:2px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;padding:6px;display:flex;flex-direction:column;gap:6px;align-items:center;cursor:pointer;min-height:var(--tap)}
+.vcard.on{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px var(--brand),var(--drop) 4px 4px 0}
+.vcard .ph{width:100%;height:92px}
+.vcard h3{margin:0;font-size:16px}
+.heroes{display:flex;gap:4px;align-items:center}
+.slot{width:36px;height:36px;background:var(--surface-2);border:2px solid var(--line-2);display:grid;place-items:center;font-size:20px;position:relative}
+.plus{font-size:12px;font-weight:700;color:var(--muted);padding:0 4px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+/* pack tiles */
+.packs{width:100%;display:flex;flex-direction:column;gap:10px}
+.pack{background:var(--surface);border:2px solid var(--ol);box-shadow:var(--drop) 3px 3px 0;padding:8px;text-align:left}
+.pack header{display:flex;align-items:center;gap:8px;min-height:var(--tap);font-weight:700}
+.pack header .ph{width:32px;height:32px;flex:0 0 32px;font-size:8px;padding:0}
+.pack header span.n{margin-left:auto;font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.grid .slot{width:100%;aspect-ratio:1;height:auto}
+.badge{position:absolute;right:-4px;bottom:-4px;background:var(--ink-2);color:var(--on-fill);font-size:10px;font-weight:700;padding:0 3px;line-height:14px;border:1px solid var(--ol)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.stat{background:var(--surface);border:2px solid var(--ol);padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap)}
+.stat .ic{font-size:24px}.stat b{font-size:18px}.stat small{font-size:11px;color:var(--muted)}
+/* sticky bottom */
+.cta{position:sticky;bottom:0;background:var(--felt);border-top:2px dashed var(--thread);padding:10px var(--gut);display:flex;flex-direction:column;align-items:center;gap:2px}
+.btn{width:100%;min-height:48px;background:var(--brand);color:var(--on-fill);border:2px solid var(--ol);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);font:inherit;font-weight:700;font-size:17px;cursor:pointer}
+.back{color:var(--felt-ink);font-size:14px;min-height:var(--tap);display:inline-flex;align-items:center;padding:0 16px;text-decoration:none}
+.cap{position:absolute;top:56px;right:4px;font-size:10px;background:#000;color:#fff;padding:1px 4px;display:none}
+.note{width:412px;color:#fff;font-size:13px;text-align:center}
+</style></head><body>
+<div class="deck">
+
+<!-- ============ STEP 1 ============ -->
+<section class="frame" id="s1">
+  <div class="hdr">Welcome to the Hollow</div>
+  <div class="main">
+    <div class="prog" role="img" aria-label="Step 1 of 3: your gnome"><i class="now">🧙</i><b></b><i>🏡</i><b></b><i>🌱</i></div>
+    <div class="wren">
+      <div class="ph">Wren portrait 96x96</div>
+      <div class="bubble">Well now! A brand-new gnome, fresh out of the toadstool. <b>Who are you?</b>
+        <button class="more" aria-expanded="false">More ▾</button></div>
+    </div>
+    <div class="stage">
+      <div class="ph bg">Stage backdrop (meadow + mushroom ring) 380x230</div>
+      <div class="ex">Existing gnome_avatar() SVG, 160px</div>
+    </div>
+    <input class="nameinput" placeholder="Your gnome's name" aria-label="Your gnome's name" value="Bramble Puddlefoot">
+    <div class="row" role="radiogroup" aria-label="Hat colour">
+      <span class="rowlab">🎩</span>
+      <button class="sw on" style="background:#c0392b" title="Red hat" aria-label="Red hat"></button>
+      <button class="sw" style="background:#2f6fb0" title="Blue hat" aria-label="Blue hat"></button>
+      <button class="sw" style="background:#2f8a3a" title="Green hat" aria-label="Green hat"></button>
+      <button class="sw" style="background:#e8a317" title="Gold hat" aria-label="Gold hat"></button>
+      <button class="sw" style="background:#7a5cc0" title="Purple hat" aria-label="Purple hat"></button>
+    </div>
+    <div class="row" role="radiogroup" aria-label="Beard colour">
+      <span class="rowlab">🧔</span>
+      <button class="sw" style="background:#f2f2f2" title="White beard" aria-label="White beard"></button>
+      <button class="sw on" style="background:#9a9a9a" title="Grey beard" aria-label="Grey beard"></button>
+      <button class="sw" style="background:#8a5a2b" title="Brown beard" aria-label="Brown beard"></button>
+      <button class="sw" style="background:#2a1a10" title="Black beard" aria-label="Black beard"></button>
+      <button class="sw" style="background:#d9722b" title="Ginger beard" aria-label="Ginger beard"></button>
+    </div>
+  </div>
+  <div class="cta"><button class="btn">Next: pick your village →</button></div>
+</section>
+
+<!-- ============ STEP 2 ============ -->
+<section class="frame" id="s2">
+  <div class="hdr">Welcome to the Hollow</div>
+  <div class="main">
+    <div class="prog" role="img" aria-label="Step 2 of 3: village"><i class="done">✓</i><b class="done"></b><i class="now">🏡</i><b></b><i>🌱</i></div>
+    <div class="wren">
+      <div class="ph">Wren portrait 96x96</div>
+      <div class="bubble">Lovely to meet you, <b>Bramble</b>! Where shall we plant your first garden in the <b>Maplewold</b>?
+        <button class="more" aria-expanded="false">More ▾</button></div>
+    </div>
+    <div class="vcards" role="radiogroup" aria-label="Village">
+      <div class="vcard on" role="radio" aria-checked="true" tabindex="0">
+        <div class="ph">Poppyburrow village scene 160x100</div>
+        <h3>Poppyburrow</h3>
+        <div class="heroes"><span class="slot">🫛</span><span class="slot">🥕</span><span class="slot">🍓</span><span class="plus">+5</span></div>
+      </div>
+      <div class="vcard" role="radio" aria-checked="false" tabindex="0">
+        <div class="ph">Honeybrook village scene 160x100</div>
+        <h3>Honeybrook</h3>
+        <div class="heroes"><span class="slot">🌻</span><span class="slot">🍯</span><span class="slot">🫐</span><span class="plus">+4</span></div>
+      </div>
+    </div>
+    <p class="hint">Each village sends you off with its own welcome basket.</p>
+    <p class="hint">Roads here are gentle. Further out, the world gets wilder.</p>
+  </div>
+  <div class="cta"><button class="btn">Next: name your garden →</button><a class="back" href="#s1">← Back</a></div>
+</section>
+
+<!-- ============ STEP 3 ============ -->
+<section class="frame" id="s3">
+  <div class="hdr">Welcome to the Hollow</div>
+  <div class="main">
+    <div class="prog" role="img" aria-label="Step 3 of 3: first garden"><i class="done">✓</i><b class="done"></b><i class="done">✓</i><b class="done"></b><i class="now">🌱</i></div>
+    <div class="wren">
+      <div class="ph">Wren portrait 96x96</div>
+      <div class="bubble"><b>Poppyburrow</b> it is! Every good garden needs a name.</div>
+    </div>
+    <input class="nameinput" aria-label="Garden name" value="Bramble's Garden">
+    <div class="stats">
+      <div class="stat"><span class="ic">🌸</span><b>500</b><small>petals</small></div>
+      <div class="stat"><span class="ic">▦</span><b>4×4</b><small>plot</small></div>
+      <div class="stat"><span class="ic">⚡</span><b>20</b><small>energy</small></div>
+    </div>
+    <div class="packs">
+      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Maplewold seeds <span class="n">8 ▾</span></header>
+        <div class="grid"><span class="slot">🫛<i class="badge">×2</i></span><span class="slot">🥕<i class="badge">×2</i></span><span class="slot">🍓<i class="badge">×1</i></span><span class="slot">🌽<i class="badge">×2</i></span><span class="slot">🍅<i class="badge">×3</i></span></div></div>
+      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Village basket <span class="n">5 ▾</span></header>
+        <div class="grid"><span class="slot">🍓<i class="badge">×3</i></span><span class="slot">🫐<i class="badge">×2</i></span><span class="slot">🌻<i class="badge">×1</i></span><span class="slot">🍯<i class="badge">×1</i></span><span class="slot">🥚<i class="badge">×2</i></span></div></div>
+      <div class="pack"><header><div class="ph">Pack icon 32x32</div>Everyday kit <span class="n">7 ▾</span></header>
+        <div class="grid"><span class="slot">🪏<i class="badge">×1</i></span><span class="slot">💧<i class="badge">×1</i></span><span class="slot">🌱<i class="badge">×6</i></span><span class="slot">📖<i class="badge">×1</i></span><span class="plus">+3</span></div></div>
+    </div>
+  </div>
+  <div class="cta"><button class="btn">🌱 Plant my first garden</button><a class="back" href="#s2">← Change village</a></div>
+</section>
+</div>
+<script>
+if (/^#s[123]$/.test(location.hash)) { document.body.classList.add('only'); document.querySelector(location.hash).classList.add('show'); }
+</script>
+</body></html>
