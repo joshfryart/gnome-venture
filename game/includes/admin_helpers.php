@@ -51,7 +51,7 @@ function render_shop_coverage(int $shopId): void
     echo '</table></div><p class="help">Hover a square to see who is working. Times are server time (UTC).</p></div>';
 }
 
-// ---- v2.4.93: "Start counting again" for the XP sources, Usage and Retention pages ----
+// ---- v2.4.94: "Start counting again" for the XP sources, Usage and Retention pages ----
 /** UTC datetime the area was last reset, or '' for never. Usage and Retention count only from then on; nothing else is touched. */
 function stats_baseline(string $area): string
 {

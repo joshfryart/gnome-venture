@@ -1,5 +1,5 @@
 #!/bin/bash
-# v2.4.93: admin "Start counting again" on XP sources, Usage and Retention. Fresh SQLite install in a private copy.
+# v2.4.94: admin "Start counting again" on XP sources, Usage and Retention. Fresh SQLite install in a private copy.
 # Usage: tests/statsreset.sh [GAME_COPY_DIR] [PORT] [ROUTER]
 HERE=$(cd "$(dirname "$0")" && pwd)
 GAME=${1:-}; PORT=${2:-8796}; ROUTER=${3:-$HERE/router.php}

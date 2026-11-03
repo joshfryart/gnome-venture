@@ -4,7 +4,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';   // v1.6.3
 $me = require_admin();
-stats_reset_handle('xp', 'xp.php');   // v2.4.93
+stats_reset_handle('xp', 'xp.php');   // v2.4.94
 
 $days = [];
 for ($i = 0; $i < 7; $i++) $days[] = hollow_date('Y-m-d', time() - $i * 86400);

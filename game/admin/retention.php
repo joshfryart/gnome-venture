@@ -4,7 +4,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';
 $me = require_admin();
-stats_reset_handle('retention', 'retention.php');   // v2.4.93
+stats_reset_handle('retention', 'retention.php');   // v2.4.94
 $base = stats_baseline('retention');   // '' = never reset; else only players who signed up after it
 $baseT = $base !== '' ? (strtotime($base . ' UTC') ?: 0) : 0;
 

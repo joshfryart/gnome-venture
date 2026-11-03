@@ -4,7 +4,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';
 $me = require_admin();
-stats_reset_handle('usage', 'usage.php');   // v2.4.93
+stats_reset_handle('usage', 'usage.php');   // v2.4.94
 $base = stats_baseline('usage');   // '' = never reset; else count only from then on
 $snap = $base !== '' ? (json_decode((string)setting('stats_usage_snap'), true) ?: []) : [];
 
@@ -27,7 +27,7 @@ $groups = usage_feature_list();
 $count = function (string $table, string $ucol, string $tcol, string $kind) use ($PLAYERS, $cut_dt, $cut_day, $base, $snap): ?array {
     try {
         $in = "$ucol IN ($PLAYERS)";
-        $from = $base === '' ? null : ($kind === 'day' ? substr($base, 0, 10) : $base);   // v2.4.93: after a reset, count only from then on
+        $from = $base === '' ? null : ($kind === 'day' ? substr($base, 0, 10) : $base);   // v2.4.94: after a reset, count only from then on
         $since = ($tcol !== '' && $from !== null) ? " AND $tcol >= " . db()->quote($from) : '';
         $all = q("SELECT COUNT(*) AS n, COUNT(DISTINCT $ucol) AS u FROM $table WHERE $in$since")->fetch();
         $out = ['n' => (int)$all['n'], 'u' => (int)$all['u'], 'n7' => null, 'u7' => null];

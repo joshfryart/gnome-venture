@@ -1,8 +1,10 @@
 # Changelog
 
-## 2.4.93
+## 2.4.94
 - **Levels slow down again.** 2.4.67's gentler curve (steepness 15%, action XP +9% a level) made late levels about 1.75x too quick (a gnome went 27 to 31 in hours). Now steepness 20% and action XP +6% a level past level 10 (settings `xp_steep_percent`, `xp_action_scale_percent`; changed once on upgrade, only where the row still holds 15 / 9). 27 to 31 costs 87,360 XP, was 68,370. Nobody loses a level.
 - **Admin: reset XP sources, Usage and Retention.** Each of the three pages has a **Start counting again** box. XP sources clears its XP log (gnome XP and levels are untouched). Usage and Retention keep a reset date and count only from then on (Usage rows with no date column show the change since the reset, players "–"; Retention counts players who signed up after it). Nothing in the game is deleted. Settings `stats_reset_usage`, `stats_reset_retention`, `stats_usage_snap`.
+
+## 2.4.93
 - **Home header no longer overflows on phones.** The place, weather and Calling lines wrap inside the box; the boosts line shows two boosts and a count (full list with times on Stats).
 - **Calling card wording trimmed:** one legend line instead of a note on every task; tile says "Not started" / "Active".
 - **Fix: "Reach N steps off the road" now counts when you slip back into the wilds.** Coming back from a place found off the path put you at your old depth without telling the Calling, so a gnome already 7 steps out only counted after the next step. (Event tasks, like this one, still count only from the moment the chapter is taken.)
