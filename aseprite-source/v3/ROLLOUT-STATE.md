@@ -30,3 +30,6 @@ Seeds at 16 px reduce to a blob; ginseng seed leaf looks like cannabis; badger c
 
 ## Run 2 is split in 3 parts (2026-11-03)
 `rollout/run2-part1.json`, `part2`, `part3` (140 items each). Ready-to-paste Workflow args: `rollout/run2-part1.args.json` (tag B1), `part2` (B2), `part3` (B3). Launch each with the Workflow tool, `scriptPath` = `aseprite-source/v3/rollout/items-run.js` (single Opus pass, NO fix round, Sonnet drafts first), args = the contents of the args file. Different AIs can take different parts in parallel (they write to different files; they share the concurrency limit). Verify with `python3 rollout/check.py run2-part1.json`.
+
+## Run 2 part 1 status (2026-11-03)
+91/140 have Opus art (`_aB1` helper in the .lua); the last 49 (`ph/camellia-seed` .. `ph/chestnut`) are Sonnet drafts only. Finish with `rollout/run2-part1-remaining.args.json` (tag B1r, skipDraft). Details: `HANDOFF.md`.
