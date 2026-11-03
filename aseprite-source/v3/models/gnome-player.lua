@@ -37,6 +37,12 @@ local function under(c, m, hex, x0, x1)
   m:each(function(x, y) if not m:has(x, y + 1) and (not x0 or (x >= x0 and x <= x1)) then c:put(x, y, hex) end end)
 end
 
+-- remap: fold rarely used tones into a neighbour so the sprite stays near the colour budget
+local function remap(c, map)
+  local m = {}
+  for k, v in pairs(map) do m[k:lower()] = v:lower() end
+  for i, h in pairs(c.pix) do if m[h] then c.pix[i] = m[h] end end
+end
 local function frame(p, grey)
   local c = HP.canvas{ w = 64, h = 80, name = "gnome" }
   local b, sx = -p.bob, p.sx or 0
@@ -97,7 +103,7 @@ local function frame(p, grey)
   local nose = c:ellipse(X(33.5), 42.5 + b, 2.5, 2)
   form(c, nose, cp(P.skinA), { off = 1, frac = 0.35, inner = false })
   under(c, nose, P.skinA.shade)
-  c:put(X(32), 41 + b, P.skinA.hi) c:put(X(33), 41 + b, P.skinA.hi)
+  c:put(X(32), 41 + b, P.cream)
   -- eyes, cheeks
   c:eyeSmall(X(28), 39 + b) c:eyeSmall(X(38), 39 + b)
   c:cheek(X(25), 42 + b) c:cheek(X(41), 42 + b)
@@ -113,12 +119,12 @@ local function frame(p, grey)
   c:put(X(29), 17 + b, hat.deep) c:put(X(28), 18 + b, hat.deep) c:put(X(30), 17 + b, hat.shade)
   local bell = c:ellipse(X(21.5) + bx, 21.5 + b + by, 2, 2)
   form(c, bell, "gold", { off = 1, frac = 0.3 })
-  c:put(X(21) + bx, 20 + b + by, P.gold.hi)
   c:put(X(21) + bx, 23 + b + by, P.gold.deep) c:put(X(22) + bx, 23 + b + by, P.gold.deep)
   -- hat band stitch along the front rim arc (the one seam)
   local pts = {}
   for x = 21, 45, 2 do pts[#pts + 1] = { X(x), math.floor(33.5 + 3.5 * math.sqrt(math.max(0, 1 - ((x - 33) / 14.5) ^ 2)) - 1.5 + b + 0.5) } end
   c:stitch(pts)
+  remap(c, { [P.gold.deep] = P.wood.deep, [P.skinA.deep] = P.wood.deep })
   c:finish{ outline = true }
   HP.assertClean(c)
   return c

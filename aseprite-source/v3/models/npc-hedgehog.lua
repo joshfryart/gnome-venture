@@ -40,6 +40,12 @@ local SP = {
 }
 -- inner quill chevrons ("^": pale apex, shade arms), staggered rows on the dome top
 local QU = { { 24, 29 }, { 30, 27 }, { 36, 27 }, { 41, 30 }, { 20, 34 }, { 27, 32 }, { 33, 31 }, { 39, 33 }, { 44, 36 } }
+-- remap: fold rarely used tones into a neighbour so the sprite stays near the colour budget
+local function remap(c, map)
+  local m = {}
+  for k, v in pairs(map) do m[k:lower()] = v:lower() end
+  for i, h in pairs(c.pix) do if m[h] then c.pix[i] = m[h] end end
+end
 local function frame(p)
   local c = HP.canvas{ w = 64, h = 80, name = NAME }
   local b, sx = -p.bob, p.sx or 0
@@ -119,6 +125,7 @@ local function frame(p)
   for _, e in ipairs({ { 23, 0.2 }, { 41, 0.6 } }) do
     form(c, c:ellipse(X(e[1]), 35 + b, 1.5, 1.5), cp(P.skinA), { off = 1, frac = e[2] })
   end
+  remap(c, { [P.skinA.deep] = P.wood.deep, [P.ember.deep] = P.wood.deep })
   c:finish{ outline = true }
   HP.assertClean(c)
   return c
