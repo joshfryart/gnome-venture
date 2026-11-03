@@ -1,0 +1,22 @@
+local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\\\][^/\\\\]*$")
+local D = dofile(DIR .. "/../_helpers/_dA2.lua")
+local c = D.new("ico-chicken")
+local CR, INK, ell = D.CR, D.INK, D.ell
+-- ico-chicken: plump brown hen in profile facing right, red comb and wattle, gold beak, fanned tail, two thin gold legs.
+-- quirk: a cracked egg at her feet with a fluffy chick peeking out.
+c:groundShadow(30, 58, 20, 2)
+D.fill(c:rect(24, 48, 25, 56), "#f0a030") D.fill(c:rect(33, 48, 34, 56), "#f0a030")
+D.fill(c:rect(22, 56, 27, 57), "#d98322") D.fill(c:rect(31, 56, 36, 57), "#d98322")
+D.lit(c:poly{ {10, 22}, {18, 28}, {18, 40}, {8, 36}, {5, 26} }, D.FUR, 2)
+D.lit(ell(29, 38, 16, 13, 0.2), D.FUR, 8, { amb = 0.1 })
+D.lit(ell(26, 40, 9, 6, 0.3), D.FUR, 4, { bias = -1 })
+D.poly(c, { {20, 38}, {27, 40}, {33, 38} }, D.FUR[1]) D.poly(c, { {21, 42}, {28, 43}, {32, 41} }, D.FUR[2])
+D.lit(c:ellipse(42, 22, 8, 8), D.FUR, 6, { amb = 0.1 })
+D.lit(c:rect(36, 11, 44, 15):add(c:ellipse(38, 12, 3, 3)):add(c:ellipse(43, 12, 3, 3)), D.RED, 2)
+D.fill(c:poly{ {48, 22}, {56, 24}, {48, 28} }, "#f8cc3e"); D.rect(48, 25, 54, 25, "#c27a22")
+D.lit(c:ellipse(47, 31, 3, 3), D.RED, 2)
+c:eyeSmall(43, 19)
+D.fill(c:ellipse(53, 54, 4, 3), D.CR); D.fill(c:rect(51, 51, 53, 52), "#ffd98a")
+D.fill(c:ellipse(53, 50, 2, 2), "#f8cc3e"); D.px(52, 49, INK) D.px(54, 49, INK) D.px(53, 50, "#f0a030")
+D.px(51, 54, "#c9a98a") D.px(53, 55, "#c9a98a") D.px(52, 53, "#c9a98a")
+D.fin()
