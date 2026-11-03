@@ -1,0 +1,32 @@
+# v3 lib: Hearth Pop (hp.lua)
+Run: `/tmp/aseq/squashfs-root/AppRun -b --script-param out=<dir>/ --script x.lua`
+```lua
+local HP = dofile("<path>/v3/lib/hp.lua")   -- resolves palette.lua next to itself
+local c = HP.canvas{w=64,h=64,scale=4,name="acorn"}
+```
+Coordinates: 0-based pixels, inclusive rect corners. Hard pixels only (no blending).
+
+## Files
+`palette.lua` (P.ink, P.cream, P.<ramp>.{hi,base,shade,deep}), `hearth-pop-50.gpl`, `hp.lua`, `contact.py`, `example.lua`, `out/`.
+
+## Masks (return mask; make them with c: or HP.)
+`c:rect(x0,y0,x1,y1)` `c:rrect(x0,y0,x1,y1,r)` `c:ellipse(cx,cy,rx,ry)` (centre may be .5; spans cx-rx..cx+rx) `c:poly{{x,y},..}` `c:line({{x,y},..}, w)`.
+Mask methods: `:add(m) :cut(m) :clip(m)` (mutate, return self), `:copy() :shift(dx,dy) :grow(n) :shrink(n) :edge()` (new masks), `:has(x,y) :count() :bbox()`.
+`c:fillMask(mask, hex)` flat fill.
+
+## Painting
+- `c:part(mask, ramp|"name", opts)` base, then ONE shade band lower-right (`band` default 2, 3 if mask >=600 px; auto-reduced if it would cover >45%; `noshade`), then the single pop (2x1 `hi`, upper-left interior; `pop={x=,y=,horizontal=true}`, `nopop`), then 1px `deep` line on pixels touching an earlier part of a different ramp (`inner=false` disables). Later parts paint over earlier ones.
+- `c:px(x,y,hex)`, `c:paint(rows,x,y,map)` (map char -> "#hex" | "ramp.tone"; `.`/space = skip), `c:sparkle(x,y)` (cream plus, centre x,y)
+- `c:eyeSmall(x,y)` top-left of 2x3 ink pill + cream glint upper-left; `c:eyeLocked(x,y)` top-left of 5x5 cream disc (cut corners), 3x3 ink pupil, glint on pupil upper-left
+- `c:cheek(x,y)` 2x1 petal base (top-left); `c:stitch(points)` gold dashes 2 on 1 off along polyline; `c:button(x,y)` 3x3 gold centred
+- `c:groundShadow(cx,cy,rx,ry)` 2-tone stone ellipse; draw FIRST. Not outlined itself, but the object's outline overwrites it where they meet.
+- Scenes: `c:bands(y0,y1,rampName,n)` n<=4 flat bands, darkest on top; `c:hem(y[,x0,x1])` gold 2-on-1-off.
+- `c:finish{outline=true}` one 1px ink outline on every transparent (or shadow) pixel 4-adjacent to a painted object pixel, inside the canvas only. `outline=false` skips (scenes). Call once, last.
+
+## Output
+- `c:save{aseprite=path, png=path, scale=n}`: .aseprite always native size; PNG nearest-neighbour scaled (default `scale` from HP.canvas). Folders are created.
+- `HP.sheet{cellw=,cellh=,frames={c1,c2..},tags={{name="idle",from=1,to=2}}}:save{aseprite=,png=,scale=}` horizontal strip PNG + multi-frame .aseprite with tags.
+- `HP.report(c|Image)` prints and returns {w,h,bbox,margin,distinct,offPalette,semi,blackWhite,isolated}; `HP.assertClean(c)` errors on off-palette / semi / pure black or white (ink and cream allowed).
+
+## contact.py
+`python3 contact.py out.html a.png b.png ...`; `python3 contact.py --compare out.html orig.png new.png [o2 n2 ...]`. Standalone HTML, pixelated, 100% / x2-x4 / 50% on grey and dark.
