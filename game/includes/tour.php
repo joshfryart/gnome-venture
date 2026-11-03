@@ -15,7 +15,7 @@ const TOUR_STEPS = [
     ['water', 'Water it', 'Plants only grow while they’re watered. One watering lasts several hours, so you can come and go as you please. {energy}', 'Go to my garden', 'garden.php'],
     ['eat', 'Eat your welcome snack', 'Open your satchel and eat a crop from your welcome basket. Even raw crops give a little energy and a short buff, so a hungry gnome can always eat something from the satchel. Cooked dishes give much more.', 'Open my satchel', 'inventory.php'],
     ['visit:book', 'Open your Almanac', 'Your Almanac fills itself in as you grow crops, cut flowers, visit villages and meet creatures. Milestones in it pay rewards.', 'Open my Almanac', 'book.php'],
-    ['visit:gnome', 'Meet your gnome', 'Here are your stats, your gnome level and your gardens. At level 5 you’ll choose a calling: it gives you a new hat and perks that grow as you level up.', 'See my gnome', 'gnome.php'],
+    ['visit:gnome', 'Meet your gnome', 'Here are your stats, your gnome level and your gardens. At level 5 you’ll choose a calling: it gives you a new hat and perks that grow as you level up.', 'See my gnome', 'gnome.php?tab=gnome'],
     ['visit:world', 'Look around the world', 'This is where you are. Tap a stop on the road to head there, wander off the path for finds, or open the Gather tab to forage close by. Places you’ve walked to are one tap away under Fast travel.', 'Look around', 'world.php'],
     ['visit:shop', 'Visit a shop', 'Shops are staffed around the clock and restock every so often. Twigg’s Seed Emporium in Mossbottom is open to everyone, wherever you are. Tap an item to fill your basket.', 'Find a shop', '{twigg}'],
     ['harvest', 'Harvest your first crop', 'When your plant is ready, harvest it from your garden. You might save some seeds, and your Almanac gets a new page. Then the Hollow is yours to explore!', 'Go to my garden', 'garden.php'],
@@ -155,7 +155,11 @@ function tour_box(int $step): string
     }
     $here = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
     $n = count(TOUR_STEPS);
-    $go = $here !== explode('?', $link)[0] ? '<a class="btn small" href="' . e(url($link)) . '">' . e($label) . ' →</a>' : '';
+    [$lp, $lq] = array_pad(explode('?', $link, 2), 2, '');   // next version: a link with a ?tab= (My Gnome) counts as "here" only on that tab
+    parse_str($lq, $lqa);
+    $atLink = $here === $lp;
+    foreach ($lqa as $k => $v) if (!is_string($v) || (string)($_GET[$k] ?? '') !== $v) $atLink = false;
+    $go = !$atLink ? '<a class="btn small" href="' . e(url($link)) . '">' . e($label) . ' →</a>' : '';
     $skip = '<form method="post" action="' . e(url('tour.php')) . '" class="inline" data-confirm="Skip the rest of Wren’s tour? You won’t get the reward at the end.">'
         . csrf_field() . '<input type="hidden" name="do" value="skip"><button class="skip">Skip the tour</button></form>';
     // v1.6.2: the big card shows the first time this step is seen (per login); after that a one-line chip that opens on tap

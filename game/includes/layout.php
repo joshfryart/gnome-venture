@@ -10,7 +10,7 @@ require_once __DIR__ . '/seo.php';   // v0.8.8: search engines and link previews
 const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.php', 'carve.php', 'show.php', 'games.php', 'adventure.php', 'garden.php',
     // v0.7.47: most game pages update in place
     'world.php', 'trek.php', 'town.php', 'inventory.php', 'shop.php', 'crafting.php', 'jobs.php', 'gnome.php', 'community.php', 'market.php', 'folk.php', 'tend.php', 'book.php', 'gotm.php', 'event.php',
-    'festival.php', 'marketday.php', 'hollow.php', 'pals.php', 'index.php',   // v1.2.0: festival + market-day stalls, the Hollow, friends and the Today tabs update in place too
+    'festival.php', 'marketday.php', 'hollow.php', 'pals.php', 'index.php',   // v1.2.0: festival + market-day stalls, the Hollow, friends and the Today tabs update in place too (gnome.php above: the home page's TODAY / MY GNOME tabs)
     'mushroom.php', 'letters.php', 'fair.php', 'pest.php', 'gourmand.php'];   // v1.4.0: the last three game pages update in place too
 
 function page_header(string $title, bool $admin = false): void
@@ -36,7 +36,7 @@ function page_header(string $title, bool $admin = false): void
         if (!is_post() && !tour_active($u)) maybe_random_event($u);   // rare little surprises (v0.7.19)
         $eventHtml = event_box_html();
     }
-    if (!$admin && $tourStep > 0 && isset(TOUR_PAGES[$page])) {
+    if (!$admin && $tourStep > 0 && isset(TOUR_PAGES[$page]) && !($page === 'gnome.php' && !empty($GLOBALS['gv_today_page']))) {   // next version: the home page's TODAY tab is not "meeting your gnome"; its MY GNOME tab is
         $tourStep = tour_event((int)$u['id'], TOUR_PAGES[$page]);
         foreach (tour_messages() as $m) flash($m);
     }
@@ -115,7 +115,7 @@ function page_header(string $title, bool $admin = false): void
 </div>
 <?php if ($u && !$admin && !$onboarding) echo status_strip($u); ?>
 </header>
-<?php if ($u && !$admin && !$onboarding) { require_once __DIR__ . '/festival.php'; echo festival_bar_html($page === 'index.php' && helper_slot($u) === 'fest'); }   // v1.0.0: bunting while a festival runs. v1.6.3: the full banner only on Today; elsewhere on a phone it is an icon in the status line ?>
+<?php if ($u && !$admin && !$onboarding) { require_once __DIR__ . '/festival.php'; echo festival_bar_html(!empty($GLOBALS['gv_today_page']) && helper_slot($u) === 'fest'); }   // v1.0.0: bunting while a festival runs. v1.6.3: the full banner only on Today (now the home page's TODAY tab); elsewhere on a phone it is an icon in the status line ?>
 <?php if ($u && !$admin && !$onboarding && !empty($u['guest'])) { require_once __DIR__ . '/guest.php'; echo guest_strip_html($u); }   // v2.0.75: guest garden strip ?>
 <div class="chrome2"><?php if ($u && !$admin && !$onboarding && $page !== 'adventure.php') echo adventure_topbar($u);
 if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.php'], true)) { require_once __DIR__ . '/destination.php'; echo dest_strip_html($u); }   // v2.0.65: trip strip ?>
@@ -339,8 +339,8 @@ function status_strip(array $u): string
     if (hp_on()) {   // v2.3.9: health beside the level bar (live out on an adventure)
         [$hpNow, $hpMax] = hp_display($u);
         $hpTitle = 'Health ' . $hpNow . '/' . $hpMax;
-        $hpPill = '<span class="st hp" title="' . e($hpTitle) . '"><a href="' . e(url('gnome.php')) . '">❤️ ' . hp_bar_html($hpNow, $hpMax, 'hpbar-s') . ' <b>' . $hpNow . '</b>/' . $hpMax . '</a></span>';
-        $hpLine = '<a class="stl" href="' . e(url('gnome.php')) . '" title="' . e($hpTitle) . '">❤️ ' . hp_bar_html($hpNow, $hpMax, 'hpbar-s') . '</a>';
+        $hpPill = '<span class="st hp" title="' . e($hpTitle) . '"><a href="' . e(url('gnome.php?tab=gnome')) . '">❤️ ' . hp_bar_html($hpNow, $hpMax, 'hpbar-s') . ' <b>' . $hpNow . '</b>/' . $hpMax . '</a></span>';
+        $hpLine = '<a class="stl" href="' . e(url('gnome.php?tab=gnome')) . '" title="' . e($hpTitle) . '">❤️ ' . hp_bar_html($hpNow, $hpMax, 'hpbar-s') . '</a>';
     }
     $rest = hollow_chip(hollow_user_region($u))   // v1.0.0: season · weather · part of the day
         . ($glevel ? '<span class="st lvl glvl">🏡 Garden level <b>' . $glevel . '</b></span>' : '')
@@ -348,7 +348,7 @@ function status_strip(array $u): string
         . (($pots = cook_pots_on() ? cook_ready_count((int)$u['id']) : 0) > 0 ? '<span class="st hot"><a href="' . e(url('inventory.php?tab=craft&c=cooking')) . '">🍳 ' . $pots . ' ready</a></span>' : '')   // v0.9.4: finished pots waiting
         . (($jars = pantry_ready_count((int)$u['id'])) > 0 ? '<span class="st hot"><a href="' . e(url('inventory.php?tab=craft&c=pantry')) . '">🫙 ' . $jars . ' ready</a></span>' : '');   // v0.9.8: finished Pantry jars waiting
     $sp = (int)$u['stat_points'];
-    $statHot = $sp > 0 ? '<span class="st hot"><a href="' . e(url('gnome.php')) . '">✨ ' . $sp . ' stat point' . ($sp === 1 ? '' : 's') . ' to spend</a></span>' : '';
+    $statHot = $sp > 0 ? '<span class="st hot"><a href="' . e(url('gnome.php?tab=stats')) . '">✨ ' . $sp . ' stat point' . ($sp === 1 ? '' : 's') . ' to spend</a></span>' : '';
     $titleP = $u['title'] ? '<span class="st title">“' . e($u['title']) . '”</span>' : '';
     $hn = hollow_now(hollow_user_region($u));
     require_once __DIR__ . '/festival.php';
@@ -359,14 +359,14 @@ function status_strip(array $u): string
         . '</div>'
         // v1.6.3: phone line, no fold (Joshua: less info): level + small XP bar · season day + weather · festival icon · ready/stat badges
         . '<div class="stfold"><div class="stsum">'
-        . '<a class="stl" href="' . e(url('gnome.php')) . '" title="Gnome level ' . (int)$u['level'] . ': ' . number_format((int)$u['xp']) . '/' . number_format(xp_for_level((int)$u['level'] + 1)) . ' XP">🌱 <b>' . (int)$u['level'] . '</b> '
+        . '<a class="stl" href="' . e(url('gnome.php?tab=gnome')) . '" title="Gnome level ' . (int)$u['level'] . ': ' . number_format((int)$u['xp']) . '/' . number_format(xp_for_level((int)$u['level'] + 1)) . ' XP">🌱 <b>' . (int)$u['level'] . '</b> '
         . '<progress class="xpbar" aria-label="XP to next level" max="' . max(1, xp_for_level((int)$u['level'] + 1) - xp_for_level((int)$u['level'])) . '" value="' . max(0, min((int)$u['xp'], xp_for_level((int)$u['level'] + 1)) - xp_for_level((int)$u['level'])) . '"></progress></a>'
         . $hpLine
         . '<a class="stl" href="' . e(url('world.php?tab=seasons#seasons')) . '" title="' . e($hn['season_label'] . ' day ' . (int)$hn['season_day'] . ' · ' . $hn['weather_label']) . '">' . $hn['season_emoji'] . ' ' . e($hn['season_label']) . ' ' . (int)$hn['season_day'] . ' ' . $hn['weather_emoji'] . '</a>'
         . ($fest ? '<a class="stl" href="' . e(url('festival.php')) . '" aria-label="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '" title="' . e($fest['name']) . ' · day ' . (int)$fest['day'] . '/' . (int)$fest['days'] . '">' . e($fest['icon']) . '</a>' : '')
         . ($pots > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=cooking')) . '" title="Pots ready" aria-label="' . $pots . ' pots ready">🍳 ' . $pots . '</a>' : '')
         . ($jars > 0 ? '<a class="stbadge" href="' . e(url('inventory.php?tab=craft&c=pantry')) . '" title="Jars ready" aria-label="' . $jars . ' jars ready">🫙 ' . $jars . '</a>' : '')
-        . ($sp > 0 ? '<a class="stbadge" href="' . e(url('gnome.php')) . '" title="Stat points to spend" aria-label="' . $sp . ' stat points to spend">✨ ' . $sp . '</a>' : '') . '</div></div>'
+        . ($sp > 0 ? '<a class="stbadge" href="' . e(url('gnome.php?tab=stats')) . '" title="Stat points to spend" aria-label="' . $sp . ' stat points to spend">✨ ' . $sp . '</a>' : '') . '</div></div>'
         // v1.4.0: the low/out-of-energy band is gone (Joshua: too persistent); the ⚡ chip in the header shows energy
         . '</div>';
     return $h;
@@ -667,7 +667,7 @@ function nav_sheet(array $u, string $page): string
     // menu icons: [file, emoji, label, badge, icon slug]. Account sits under the groups; Games moved into Out & about.
     $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
     $groups = [
-        'You' => [['gnome.php', '🧙', 'My Gnome', '', 'gnome'], ['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
+        'You' => [['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
         'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'],   // T2.1: no Arranging tile (Satchel → Arrange, and the show is on the Village Show page)
             ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
         'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
@@ -683,11 +683,11 @@ function nav_sheet(array $u, string $page): string
     if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)
     require_once __DIR__ . '/destination.php';
     $ds = function_exists('dest_status') ? dest_status($u) : null;
-    $h = '<div class="navhead"><a class="navme" href="' . e(url('gnome.php')) . '">' . gnome_avatar_pals($u, 40) . '<span><b>' . e(gnome_name($u)) . '</b></span></a>'
+    $h = '<div class="navhead"><a class="navme" href="' . e(url('gnome.php?tab=gnome')) . '">' . gnome_avatar_pals($u, 40) . '<span><b>' . e(gnome_name($u)) . '</b></span></a>'
         . '<button type="button" class="navx" aria-label="Close the menu">✕</button></div>'
         . '<div class="navrow"><p class="navstatus' . ($ds ? '' : ' nodest') . '"><span class="navpetals">' . money((int)$u['coins']) . ($ds ? ' · ' : '') . '</span>'   // v2.4.91: Petals hidden from 721px (the header pill shows them)
         . ($ds ? '🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'
-        . '<a class="navhome" href="' . e(url('index.php?today=1')) . '"><span class="nti">' . nav_icon('today', '🏠', 20) . '</span> Today</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to Today   // v1.0.0.1: one row on a phone
+        . '<a class="navhome' . ($page === 'gnome.php' ? ' on" aria-current="page' : '') . '" href="' . e(url('gnome.php')) . '"><span class="nti">' . nav_icon('today', '🏠', 20) . '</span> Home</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to it   // v1.0.0.1: one row on a phone   // next version: the one menu entry for the home page (Today + My Gnome); the My Gnome tile is gone
     foreach ($groups as $name => $tiles) {
         // menu icons: the groups stay open on every screen (no folding any more)
         $tl = '';
@@ -722,8 +722,8 @@ function right_rail(array $u): string
     require_once __DIR__ . '/crafting.php';
     $uid = (int)$u['id'];
     $onToday = !empty($GLOBALS['gv_today_page']);   // v1.9.2: the Today page already shows weather, boosts and jobs, so its rail keeps only Messages, Market and Pots
-    $today = $onToday ? '' : '<section class="rbox rtoday" aria-labelledby="rt-today"><h3 id="rt-today">🏠 Today</h3><p><a class="rgo" href="' . e(url('index.php?today=1')) . '">Go to Today →</a></p></section>';   // v2.0.89: a way back to Today, just under Messages
-    $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . $today . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
+    // next version: no "Go to Today" box any more (Today is the home page: the logo and the menu's Home go there)
+    $h = '<aside class="rail" aria-label="Right now"><div class="railsrv">' . ($onToday ? '' : hollow_rail_section(hollow_user_region($u))) . market_rail_section();   // v1.0.0 (+ wave 2b: market)
     $pots = cook_pots_list($uid);
     if ($pots) {
         $rd = count(array_filter($pots, fn($p) => $p['left'] <= 0 && empty($p['pal'])));

@@ -16,7 +16,7 @@ function today_social_prepare(array $u): void
 }
 
 /** The one compact "Hollow today" box that goes under the main Today grid. */   // v1.0.2
-/** v1.2.0: $part 'home' = First Week + daily card only (Home tab); 'hollow' = jars + Pulse (Hollow tab); 'all' = everything. */
+/** v1.2.0: $part 'home' = First Week + daily card only (Home tab); 'hollow' = jars + Pulse (Hollow tab); 'all' = everything; 'line' = one line (jars + who is about) for the home page's TODAY tab. */
 function today_social_html(array $u, string $part = 'all'): string
 {
     require_once __DIR__ . '/hollow_goals.php';
@@ -25,6 +25,16 @@ function today_social_html(array $u, string $part = 'all'): string
     require_once __DIR__ . '/festival.php';
     require_once __DIR__ . '/tour.php';
     $uid = (int)$u['id'];
+    if ($part === 'line') {   // next version: the home page's TODAY tab: one line (jar %, festival %, who is about) with an Open link
+        $bits = [];
+        foreach (hollow_goals_active() as $g) {
+            $st = hollow_goal_state($g);
+            $bits[] = '<span>' . e($g['icon']) . (!empty($g['festival']) ? ' Festival ' : ' Jar ') . max(0, min(100, (int)$st['pct'])) . '%</span>';
+        }
+        $n = (int)hollow_pulse($u)['about']['n'];
+        $bits[] = '<span>👥 ' . ($n > 0 ? $n . ' about' : 'just you') . '</span>';
+        return '<div class="box hollowtoday htone"><a class="htrow htline" href="' . e(url('community.php?t=jar')) . '"><span class="htt">' . implode(' · ', $bits) . '</span><span class="tgo">Open →</span></a></div>';
+    }
     $slot = helper_slot($u);   // one extra helper per load, after the tour
     $rows = '';
     // Jars: one row each (Hollow + festival)

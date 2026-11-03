@@ -7,10 +7,9 @@ $news = q('SELECT title, body, created_at FROM news WHERE published = 1 ORDER BY
 $freshNews = $news && strtotime($news[0]['created_at'] . ' UTC') > time() - 3 * 86400;
 $u = current_user();
 $today = $u && (int)($u['onboarded'] ?? 1) === 1;   // v0.7.48: a "Today" page for players
-// v1.9.2: Today is one page again (no tabs); the old ?t=out / ?t=hollow links land on their part of it
-if (!$allNews && $u && $today && isset($_GET['t'])) redirect('index.php?today=1' . ($_GET['t'] === 'out' ? '#todaycards' : ($_GET['t'] === 'hollow' ? '#hollowtoday' : '')));
-// v2.0.90: My Gnome is the home page for players; Today is still at index.php?today=1
-if (!$allNews && $u && $today && !isset($_GET['today'])) redirect('gnome.php');
+// Next version: Today is the TODAY tab of the home page (gnome.php). Every old address lands there: index.php, ?today=1, and the
+// old ?t=out / ?t=hollow links on their part of it. Only ?news=all (every news post) still draws here.
+if (!$allNews && $u && $today) redirect('gnome.php' . (($_GET['t'] ?? '') === 'out' ? '#todaycards' : (($_GET['t'] ?? '') === 'hollow' ? '#hollowtoday' : '')));
 if ($today) $GLOBALS['gv_today_page'] = true;   // v1.9.2: layout.php hides the rail boxes this page already shows
 if ($today) {   // the Today cards live in includes/today_view.php (gnome.php shows them on its TODAY tab)
     require_once __DIR__ . '/includes/today_view.php';
