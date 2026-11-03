@@ -70,6 +70,41 @@ function village_welcome_pack(int $villageId): array
     return $out;
 }
 
+/**
+ * v2.4.96: icon for one pack row ([id, name, qty, kind, label, icon]); same choice as seed_chips() in welcome.php.
+ * Later this can return an <img class="pxl"> without changing the slot layout.
+ */
+function pack_icon(array $s): string
+{
+    $label = (string)($s[4] ?? $s[1]);
+    if (empty($s[5]) && isset($s[3])) return catalog_kind_icon((string)$s[3]);
+    if (preg_match('/\bseeds?\b/i', $label)) return '🌱';
+    return name_emoji($label) ?: (!empty($s[5]) ? (string)$s[5] : '🎒');
+}
+
+/**
+ * v2.4.96: welcome-flow item slots. $names = true puts the short name under each slot (the basket);
+ * $max cuts the list (the step-3 cards show the first 5). Slot = 46 px box, icon centred, "×N" badge bottom-right.
+ */
+function pack_slots(array $list, bool $names = false, ?int $max = null): string
+{
+    $out = '';
+    foreach ($max === null ? $list : array_slice($list, 0, $max) as $s) {
+        $label = (string)($s[4] ?? $s[1]);
+        $n = (int)$s[2];
+        $slot = '<span class="slot" role="img" title="' . e($label) . '" aria-label="' . e($label) . ', ' . $n . '"><span class="ico">' . pack_icon($s) . '</span><i class="badge">×' . $n . '</i></span>';
+        $out .= $names ? '<span class="witem">' . $slot . '<small>' . e($label) . '</small></span>' : $slot;
+    }
+    return $out;
+}
+
+/** v2.4.96: a 44 px square colour tile for the hat / beard rows. The colour is an SVG fill (no inline style); the name is on title and aria-label. */
+function swatch_tile(string $name, string $value, string $color, string $label, bool $checked, string $part): string
+{
+    return '<label class="sw" title="' . e($label) . '"><input type="radio" name="' . e($name) . '" value="' . e($value) . '" data-part="' . e($part) . '" aria-label="' . e($label) . '"' . ($checked ? ' checked' : '') . '>'
+        . '<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="' . e($color) . '"/></svg><b class="tick" aria-hidden="true">✓</b></label>';
+}
+
 function swatch(string $color, int $r = 11): string
 {
     return '<svg width="' . ($r * 2) . '" height="' . ($r * 2) . '" viewBox="0 0 ' . ($r * 2) . ' ' . ($r * 2) . '" aria-hidden="true">'
