@@ -1,81 +1,52 @@
--- pear (final pass, Opus, aC32_5). Slim, slightly leaning green-gold pear: narrow neck flowing into a round base (soft
--- union of two circles), per-pixel light (6-tone green-gold), a warm blush on the sun side, russet freckles (lenticels),
--- a russet cap at the stem end, waxy bloom specks, one specular + small neck glint, cool reflected light lower right,
--- dark calyx dimple at the base. Curved woody stem with a ring scar, one leaf with midrib and veins, AO where they meet.
--- quirk: a single dewdrop is sliding down the shade side of the pear.
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aC32_5.lua")
-local HP, X, K = A.HP, A.X, A.K
-local floor, abs, sin, cos, pi, max, min, sqrt, exp, log = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.exp, math.log
-local c = A.new("pear")
-
-local PEAR  = { "#2c4428", "#46682c", "#6e9232", "#9cba3c", "#c8d852", "#ecf094" }
-local BLUSH = { "#4a2a26", "#7a3c2a", "#a85a30", "#c87c38", "#e0a24a", "#f4cc7c" }
-local RUS   = { "#4a3420", "#6e4e2a", "#8e6a36", "#ac8644" }
-local STEM  = { "#3a2420", "#5e3a2a", "#86583a", "#ae7e52" }
-local LEAF  = { "#173f36", "#21593f", "#2e7646", "#45954c", "#6ab455", "#9dd06c" }
-local SPEC, BOUNCE = "#fffbe6", "#7fb6a4"
-
--- body: soft union of a small top circle and a large base circle; slight lean (top to the right)
-local C1, R1, C2, R2 = 23, 6.0, 43, 11.6
-local function cx(y) return 32 + (43 - y) * 0.09 end
+-- pear (lean W2_12)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "pear" }
+local GR = { "#26452e", "#3b6a30", "#5f8f2f", "#92b438", "#c4d04c", "#eee77a" }
+local BL = { "#6b4a1e", "#9a6a22", "#c88a30", "#e6b250" }
+local LF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
+local cuts = { 0.22, 0.4, 0.56, 0.72, 0.87 }
+c:groundShadow(31, 55, 11, 2)
+local Y0, Y1 = 22, 53
 local function hw(y)
-  if y <= C1 then return sqrt(max(0, R1 * R1 - (y - C1) ^ 2)) end
-  if y >= C2 then return sqrt(max(0, R2 * R2 - (y - C2) ^ 2)) end
-  local s = (y - C1) / (C2 - C1)
-  s = s * s * (3 - 2 * s)
-  return R1 + (R2 - R1) * s ^ 1.15
+  local t = (y - Y0) / (Y1 - Y0)
+  if t < 0.35 then return 3.4 + 5.5 * (t / 0.35) ^ 1.3 end
+  local u = (t - 0.35) / 0.65
+  return 8.9 + 5.6 * sin(min(1, u * 1.15) * pi / 2) ^ 0.7 * (1 - u ^ 4) - 0.6
 end
 local body = HP.mask()
-for y = 16, 55 do local h, x0 = hw(y), cx(y)
-  if h > 0.6 then for x = floor(x0 - h + 0.5), floor(x0 + h - 0.5) do body:set(x, y) end end end
-local n = A.body(body, 31, 40, 14, 6, 0.55)
+for y = Y0, Y1 do local h = hw(y) local cx = 32 - (Y1 - y) * 0.02
+  for x = floor(cx - h + 0.5), floor(cx + h - 0.5) do body:set(x, y) end end
+local n = X.pillow(body, 9)
+local v = X.light(n, { amb = 0.08, wrap = 0.2 })
+-- ripeness: green top, yellow-ish blush low-left via bias
 local bias = {}
--- AO under the stem foot
-X.ao(bias, body, c:rect(32, 13, 35, 15), 2, -1)
--- blush region (sun side of the base), wavy edge
-local blush = HP.mask()
 body:each(function(x, y)
-  local d = ((x - 26) / 7.5) ^ 2 + ((y - 39) / 9) ^ 2 + (X.hash(x, y, 3) - 0.5) * 0.35
-  if d < 1 then blush:set(x, y) end
+  local k = K(x, y)
+  if y > 36 and x < 30 and X.hash(x, y, 3) > 0.35 then bias[k] = 1 end
+  if y < 30 then bias[k] = -1 end
 end)
-local green = body:copy():cut(blush)
-local tok = { r = { name = "pear" } }
-local gi, v = A.shade(c, green, n, PEAR, { amb = 0.06, wrap = 0.22, bias = bias, tok = tok })
-local bi = A.shade(c, blush, n, BLUSH, { amb = 0.06, wrap = 0.22, bias = bias, tok = tok })
-local idx = {}
-for k, i in pairs(gi) do idx[k] = i end
-for k, i in pairs(bi) do idx[k] = i end
--- russet cap at the stem end + freckles
-body:each(function(x, y) local k = K(x, y)
-  local i = idx[k]
-  if y < 19 + floor(X.hash(x, 0, 5) * 2) then c:put(x, y, RUS[max(1, min(4, i - 1))], tok)
-  elseif i >= 3 and X.hash(x, y, 7) > 0.955 and y > 21 then c:put(x, y, blush:has(x, y) and BLUSH[2] or RUS[3], tok) end
-end)
--- waxy bloom: pale specks on the lit interior
-body:shrink(2):each(function(x, y) local k = K(x, y)
-  if v[k] and v[k] > 0.62 and X.hash(x, y, 13) > 0.86 then c:put(x, y, blush:has(x, y) and BLUSH[6] or PEAR[6], tok) end
-end)
--- cool reflected light, lower right edge
-local rim = X.rim(n)
-body:edge():each(function(x, y) if rim[K(x, y)] > 0.62 and y > 30 and y < 53 then c:put(x, y, BOUNCE, tok) end end)
--- calyx dimple at the base
-for _, p in ipairs{ {31, 54, RUS[1]}, {32, 54, RUS[1]}, {30, 53, RUS[2]}, {33, 53, RUS[2]}, {31, 53, RUS[1]}, {32, 55, RUS[2]} } do
-  if body:has(p[1], p[2]) then c:put(p[1], p[2], p[3], tok) end end
--- specular on the base + small glint on the neck
-c:px(24, 36, SPEC) c:px(25, 36, SPEC) c:px(24, 37, BLUSH[6]) c:px(26, 35, BLUSH[6])
-c:px(31, 20, PEAR[6]) c:px(31, 21, SPEC)
-
--- quirk: dewdrop on the shade side (glass: dark rim, pale core, bright glint)
-local drop = { "....", ".ab.", "abcb", "bccb", "bccd", ".bd." }
-A.map(c, drop, 38, 39, { a = "#e8f8ee", b = "#5f9a7e", c = "#b6e0c0", d = "#3a6a5a" })
-c:px(39, 45, PEAR[1]) c:px(40, 45, PEAR[2])   -- tiny contact shade under the drop
-
--- stem: curved woody tube with a ring scar
-local sm, sn = A.stem(c, { { 33, 17 }, { 33, 13 }, { 35, 10 }, { 37, 7 } }, function(t) return 1.15 - t * 0.35 end, STEM, { cut = body })
-c:px(33, 13, STEM[1]) c:px(34, 13, STEM[2])
-c:px(37, 7, STEM[4])
--- leaf off the stem, to the right
-local lm = A.leaf(c, 35, 11, 43, 5, 52, 10, 3.6, LEAF, { cut = sm, vs = 3 })
--- AO on the leaf where it meets the stem
-for _, p in ipairs{ {36, 11}, {36, 10}, {37, 11} } do if lm:has(p[1], p[2]) then c:px(p[1], p[2], LEAF[1]) end end
-A.save(c, "pear")
+G.tone(c, body, v, GR, cuts, bias)
+-- brown russet patch
+local patch = HP.mask() patch:add(c:ellipse(27, 43, 5, 4))
+patch:each(function(x, y) if X.hash(x, y, 7) > 0.25 and body:has(x, y) then c:px(x, y, BL[2 + floor(X.hash(x, y, 8) * 2)]) end end)
+c:px(26, 41, BL[4]) c:px(25, 42, BL[3])
+-- lenticels
+for _, p in ipairs{ {36,38},{39,44},{34,48},{30,33},{40,50},{37,32} } do c:px(p[1], p[2], GR[1]) end
+-- bloom spec
+c:px(25, 34, "#fffbe0") c:px(26, 34, "#fffbe0") c:px(25, 35, GR[6]) c:px(27, 33, GR[6])
+-- cool bounce lower-right
+body:edge():each(function(x, y) if x > 38 and y > 40 then c:px(x, y, "#6fa0a0") end end)
+-- stem curving right
+G.line(c, { {32,22}, {32,19}, {33,16}, {35,14}, {37,13} }, BL[2])
+G.line(c, { {33,22}, {33,19}, {34,16}, {36,14} }, BL[1])
+c:px(32, 20, BL[3]) c:px(33, 17, BL[3])
+c:px(31, 23, GR[1]) c:px(33, 23, GR[1]) c:px(32, 23, GR[1])
+-- leaf off stem
+local lm, ln = G.tube({ {36,15}, {42,9}, {47,8}, {52,12} }, function(t) return 0.8 + 3.0 * sin(pi * t) ^ 0.7 end)
+G.tone(c, lm, X.light(ln, { amb = 0.12, wrap = 0.25 }), LF, cuts)
+G.line(c, { {37,14}, {44,10}, {50,11} }, LF[6])
+-- quirk: dew drop on belly
+c:px(38, 41, "#d8f4f0") c:px(38, 42, "#8fd0c8") c:px(39, 42, "#5a9aa0")
+G.fin(c, "pear")
