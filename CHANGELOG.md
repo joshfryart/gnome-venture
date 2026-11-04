@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.07
+- **Trail page opens on the map**: the strip and tile map are scrolled into view on every load and move (it could open at the bottom). Needs 2.5.06.
+
 ## 2.5.06
 - **Trail page tidy**: no scene picture or route ribbon over the tile map (the strip says it); "Latest" is now a brief pop-up that fades; the map is centred on screen after each move. Needs 2.5.05.
 
