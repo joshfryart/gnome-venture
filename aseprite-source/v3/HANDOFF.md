@@ -21,6 +21,8 @@ Branch: `ccr-c4d6c653-u81tm0` (repo `joshfryart/gnome-venture`). Never push to m
 - **Part 2 (B2) DONE: 140/140 Opus, 0 draft-only** (`ph/chestnut-seed` .. `ph/elderberry-seed`, grep `_aB2`; last 5 via `B2r`). **Part 3 (B3) DONE: 140/140 Opus, 0 draft-only** (`ph/ember-shell` .. `ph/grapefruit`, grep `_aB3`). **Run 2 is complete: 420/420.** Next: runs 3 and 4.
 - **Run 3 part 2 (C2) DONE and merged here: 140/140 Opus (97 first pass `_aC2`, 43 via `C2r`), 0 draft-only** (`ph/lemon-cordial` .. `ph/nav-together`). See `rollout/RUN3-PART2-NOTE.md`.
 
+- **Run 4 part 2 (D2) DONE 139/139 Sonnet (markers D2s, D2o). See ROLLOUT-STATE.md.**
+
 ## What is NEXT (in order)
 1. **Run 3 part 1 (C1) DONE 140/140 Opus (grep `_aC1`). **Run 3 part 3 (C3) DONE 140/140 Opus (grep `_aC3`).** Run 3 part 2 (C2) done (see above). Run 3 COMPLETE (420/420). Run 4 (D1 running; D2, D3 open; D2 split args `run4-part2-seeds|others.args.json`, see ROLLOUT-STATE.md).** **Runs 3 and 4 are split** (2026-11-04): `rollout/run3-part1|2|3.json` (140 each, `ph/grapefruit-marmalade` .. `ph/poi`, tags C1-C3) and `rollout/run4-part1|2|3.json` (139/139/138, `ph/poinsettia-seed` .. `ph/zinnia-seed`, tags D1-D3), ready args `rollout/runN-partM.args.json`. Launch each with the Workflow tool (scriptPath `aseprite-source/v3/rollout/items-run.js`, args = file contents), ~9M tokens each, ~50M total. Run 2 is DONE.
 2. Remaining static ph items = run3 (420) + run4 (416) = 836; after that every static 64x64 item is done.
