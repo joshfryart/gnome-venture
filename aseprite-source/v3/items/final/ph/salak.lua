@@ -31,7 +31,7 @@ for y = 4, 60 do for x = 4, 60 do
 end end
 
 -- peel window: one lobed wedge on the right flank
-local win = G.rell(36.5, 38, DX, DY, 8.4, 4.4):clip(body)
+local win = G.rell(35.2, 37.5, DX, DY, 9.0, 5.2):clip(body)
 local skin = body:copy():cut(win)
 
 -- scale lattice bias
@@ -67,20 +67,20 @@ local ftok = { r = { name = "flesh" } }
 X.tone(c, win, X.light(fn, { amb = 0.2, wrap = 0.4 }), CR, { cuts = { 0.2, 0.36, 0.52, 0.68, 0.84 }, bias = fb, tok = ftok })
 -- seam groove between the two cloves along the window axis
 win:each(function(x, y)
-  local s = ((x - 36.5) * PX + (y - 38) * PY)
-  local a = ((x - 36.5) * DX + (y - 38) * DY)
+  local s = ((x - 35.2) * PX + (y - 37.5) * PY)
+  local a = ((x - 35.2) * DX + (y - 37.5) * DY)
   if abs(s - 0.4) < 0.55 and abs(a) < 7.5 then c:put(x, y, CR[2], ftok) end
   if abs(s - 1.4) < 0.5 and abs(a) < 6.5 then c:put(x, y, CR[5], ftok) end
 end)
 -- seed in the lower end of the lobe
-local sm, sn = G.oval(35.4, 42.6, 2.6, 3.3, 0.2, 0.9)
+local sm, sn = G.oval(34.4, 42.4, 2.7, 3.4, 0.2, 0.9)
 sm:clip(win)
 G.toneN(c, sm, sn, SEED, { tok = { r = { name = "seed" } }, cuts = { 0.2, 0.36, 0.52, 0.68, 0.86 }, amb = 0.1, wrap = 0.25 })
 sm:edge():each(function(x, y) if x + y > 70 then c:put(x, y, SEED[1]) end end)
-c:put(34, 40, "#fff1d6") c:put(35, 40, "#e8c698")
+c:put(33, 40, "#fff1d6") c:put(34, 40, "#e8c698")
 -- skin edge thickness: dark rind line, pale pith line below it
 win:grow(1):cut(win):each(function(x, y) if skin:has(x, y) then
-  local out = (x - 36.5) * PX + (y - 38) * PY > 0
+  local out = (x - 35.2) * PX + (y - 37.5) * PY > 0
   c:put(x, y, out and SK[2] or SK[1]) end end)
 win:grow(2):cut(win:grow(1)):each(function(x, y) if skin:has(x, y) and x + y < 72 and (x + y) % 2 == 0 then c:put(x, y, SK[3]) end end)
 
