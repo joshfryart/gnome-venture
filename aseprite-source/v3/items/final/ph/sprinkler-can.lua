@@ -1,55 +1,59 @@
--- sprinkler-can (lean D2o_5)
+-- sprinkler-can (lean W2_21)
+-- Tall slim teal enamel can, brass hoop bands, arched top handle, long angled spout with a brass rose; sprout label (quirk).
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "sprinkler-can" }
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(m, ramp, R, o) o = o or {}
-  local n = X.pillow(m, R or 4)
-  local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
+local sqrt, max, min, floor = math.sqrt, math.max, math.min, math.floor
+local TEAL  = { "#26304f", "#2a4d66", "#2f7a85", "#4aa59a", "#86cfa6", "#c9f0c0" }
+local BRASS = { "#4a2f2a", "#7a4a2c", "#b0753a", "#d9a24e", "#f2cf7a", "#fff0b8" }
+local tok = { r = { name = "can" } }
+c:groundShadow(31, 56, 17, 3)
+-- handle arch (behind body)
+local hm, hn = G.tube({ {23, 28}, {20, 8}, {40, 8}, {37, 28} }, function(t) return 1.8 end)
+G.tone(c, hm, X.light(hn, { amb = 0.12, wrap = 0.3 }), BRASS, nil, nil, tok)
+-- spout
+local sm, sn = G.tube({ {40, 49}, {47, 47}, {48, 34}, {51, 25} }, function(t) return 2.9 - 1.5 * t end)
+G.tone(c, sm, X.light(sn, { amb = 0.12, wrap = 0.3 }), TEAL, nil, nil, tok)
+-- body (cylinder shading)
+local body = c:rrect(19, 28, 41, 53, 3)
+local n = {}
+body:each(function(x, y)
+  local nx = max(-0.97, min(0.97, (x - 30.5) / 11.8))
+  n[K(x, y)] = { nx, 0, sqrt(1 - nx * nx) }
+end)
+local v = X.light(n, { amb = 0.1, wrap = 0.25 })
+G.tone(c, body, v, TEAL, nil, nil, tok)
+body:each(function(x, y) if x == 23 and y > 34 and y < 48 then c:px(x, y, TEAL[6]) end end)
+-- brass hoop bands
+for _, b in ipairs{ {29, 31}, {49, 51} } do
+  local bm = c:rect(19, b[1], 41, b[2])
+  bm:cut(c:rect(0, 0, 0, 0))
+  G.tone(c, bm, v, BRASS, nil, nil, tok)
 end
-local function tshade(m, n, ramp, o) o = o or {}
-  local v = X.light(n, { amb = o.amb or 0.12, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return v
-end
-local MET = { "#2c3a52", "#475b78", "#6a82a0", "#8fa8c0", "#b7cde0", "#e4f0f8" }
-local GRN = { "#1f4a34", "#2f6b44", "#4b9650", "#7cc460" }
-c:groundShadow(28, 54, 13, 2)
--- spout (behind body)
-local sm, sn = G.tube({ {34, 47}, {40, 40}, {46, 30}, {50, 23} }, function(t) return 2.6 - 1.0 * t end)
-tshade(sm, sn, MET)
--- rose head
-local rose = G.rell(52, 21, 0.83, 0.55, 5.2, 2.6)
-shade(rose, MET, 3)
-for _, p in ipairs{ {49,23},{51,22},{53,21},{55,20},{50,21},{52,19},{54,18} } do rose:has(p[1], p[2]) c:px(p[1], p[2], MET[1]) end
-c:px(50, 19, MET[6])
--- body
-local body = c:rrect(16, 29, 37, 52, 3)
-shade(body, MET, 7)
--- top opening
-local rim = c:ellipse(26.5, 29, 10.5, 2.6)
-rim:each(function(x, y) c:px(x, y, MET[1]) end)
-c:ellipse(26.5, 29.6, 8.5, 1.6):each(function(x, y) c:px(x, y, "#16202c") end)
-rim:edge():each(function(x, y) c:px(x, y, (y < 29 and x < 27) and MET[6] or MET[3]) end)
--- hoops, rivets, grain streak
-for _, y in ipairs{ 34, 46 } do
-  for x = 17, 36 do
-    if body:has(x, y) then c:px(x, y, MET[2]) end
-    if body:has(x, y + 1) then c:px(x, y + 1, (x < 24) and MET[5] or MET[3]) end
-  end
-end
-for _, y in ipairs{ 40 } do for x = 20, 33, 4 do c:px(x, y, MET[5]) c:px(x + 1, y + 1, MET[1]) end end
-for y = 36, 44 do c:px(20, y, MET[6]) end
--- handle arc
-local hm, hn = G.tube({ {18, 30}, {13, 11}, {37, 9}, {35, 30} }, function(t) return 1.7 end)
-hm:cut(c:ellipse(26.5, 29, 10, 2.4):copy():shrink(0))
-tshade(hm, hn, MET)
--- quirk: a painted seedling decal
-local d = { {27,41,GRN[2]}, {27,42,GRN[2]}, {27,43,GRN[1]}, {26,40,GRN[3]}, {25,39,GRN[4]}, {28,39,GRN[3]}, {29,38,GRN[4]}, {26,44,"#6b3f28"}, {27,44,"#6b3f28"}, {28,44,"#6b3f28"} }
-for _, p in ipairs(d) do c:px(p[1], p[2], p[3]) end
--- water drops
-for _, p in ipairs{ {57,27}, {59,31}, {56,34}, {60,26}, {58,38} } do c:px(p[1], p[2], "#6cc0f0") c:px(p[1], p[2] + 1, "#2f86c8") end
-c:px(57, 26, "#f0fbff")
+c:fillMask(c:rect(20, 32, 40, 32), TEAL[1])
+c:fillMask(c:rect(20, 52, 40, 52), TEAL[1])
+for _, p in ipairs{ {22, 30}, {38, 30}, {22, 50}, {38, 50} } do c:px(p[1], p[2], BRASS[6]) end
+-- open top
+local top = c:ellipse(30, 28, 11, 3)
+c:fillMask(top, "#141a2c")
+local rim = top:copy():cut(top:copy():shrink(1))
+G.tone(c, rim, v, BRASS, nil, nil, tok)
+c:px(26, 29, TEAL[1]) c:px(34, 29, TEAL[1])
+-- label plate with sprout
+c:fillMask(c:rect(25, 36, 35, 46), "#e8dcb8")
+c:fillMask(c:rect(25, 46, 35, 46), "#b8a47c")
+c:fillMask(c:rect(35, 36, 35, 46), "#c8b88e")
+for x = 25, 35 do c:px(x, 36, "#fff5d8") end
+c:px(30, 44, "#6a4a2c") c:px(30, 43, "#4b9650") c:px(30, 42, "#4b9650")
+c:px(29, 41, "#70b45a") c:px(28, 40, "#70b45a") c:px(31, 41, "#32764b") c:px(32, 40, "#32764b")
+-- rose
+local rose = G.rell(52, 22, 0.85, 0.5, 5.2, 2.6)
+G.tone(c, rose, X.light(X.pillow(rose, 3), { amb = 0.12, wrap = 0.3 }), BRASS, nil, nil, tok)
+for _, p in ipairs{ {49, 22}, {51, 21}, {53, 23}, {55, 22}, {52, 24} } do c:px(p[1], p[2], BRASS[1]) end
+c:px(50, 20, BRASS[6])
+-- spout joint collar
+c:fillMask(c:rect(47, 24, 52, 25), BRASS[3])
+-- droplets
+for _, p in ipairs{ {56, 28}, {58, 32}, {55, 36}, {57, 41} } do c:px(p[1], p[2], "#5aa8f0") c:px(p[1], p[2] + 1, "#2f6fc0") end
+c:px(56, 27, "#d8f0ff") c:px(58, 31, "#d8f0ff")
 G.fin(c, "sprinkler-can")
