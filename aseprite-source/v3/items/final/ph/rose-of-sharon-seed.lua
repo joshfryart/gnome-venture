@@ -26,6 +26,15 @@ for _, s in ipairs(seeds) do
   local nm = HP.mask() nm:set(s.hx, s.hy) s.m:cut(nm)
 end
 
+-- quirk: magenta petal under the torn tip
+local pm, pn = G.oval(51, 54, 5.4, 3.3, -0.45, 0.6)
+local ptok = { r = { name = "petal" } }
+G.toneN(c, pm, pn, PET, { tok = ptok, cuts = CUTS, amb = 0.1, wrap = 0.3 })
+pm:each(function(x, y)
+  if (x - 47) ^ 2 + (y - 56) ^ 2 < 5.5 then c:put(x, y, (x + y) % 2 == 0 and "#6a1450" or "#8c1e5a", ptok) end
+end)
+A.line(c, 49, 54, 55, 51, PET[2], ptok) A.line(c, 50, 53, 54, 50, PET[6], ptok)
+
 -- leaf scrap: ovate, toothed, torn at the tip
 local PER = 5.6
 local lm, ln, LT, LS, len = G.blade(6, 52, 24, 55, 52, 44, function(t)
@@ -63,18 +72,6 @@ lm:edge():each(function(x, y) local k = K(x, y)
 -- torn fibres: pale fringe just inside the tear
 lm:each(function(x, y) local k = K(x, y)
   if LT[k] > 0.74 and not lm:has(x + 1, y + 1) and X.hash(x, y, 9) > 0.45 and not bias[k] then c:put(x, y, LEAF[6], ltok) end end)
--- petiole stub
-for _, q in ipairs{ { 5, 53, 3 }, { 4, 54, 3 }, { 3, 55, 2 } } do c:put(q[1], q[2], LEAF[q[3]], ltok) end
-
--- quirk: magenta petal under the torn tip
-local pm, pn = G.oval(53, 56, 5.4, 3.3, -0.45, 0.6)
-pm:cut(lm)
-local ptok = { r = { name = "petal" } }
-G.toneN(c, pm, pn, PET, { tok = ptok, cuts = CUTS, amb = 0.1, wrap = 0.3 })
-pm:each(function(x, y)
-  if (x - 49) ^ 2 + (y - 58) ^ 2 < 5.5 then c:put(x, y, (x + y) % 2 == 0 and "#6a1450" or "#8c1e5a", ptok) end
-end)
-A.line(c, 51, 56, 57, 53, PET[2], ptok) A.line(c, 52, 55, 56, 52, PET[6], ptok)
 
 -- sprout from the split seed D: stem, cotyledons, first true leaf
 local D = seeds[4]
@@ -128,7 +125,7 @@ for i, s in ipairs(seeds) do
   ring:each(function(x, y)
     local over = false
     for j = i + 1, #seeds do if seeds[j].m:has(x, y) then over = true end end
-    if not over and X.hash(x, y, 40 + i) > 0.46 and not (x == s.hx and y == s.hy) then
+    if not over and X.hash(x, y, 40 + i) > 0.6 and not (x == s.hx and y == s.hy) then
       c:put(x, y, (x + y < s[1] + s[2]) and HAIR_HI or HAIR_LO, tok) end
   end)
   local sx, sy = G.specAt(s.m, s.n, 30)

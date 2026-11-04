@@ -9,7 +9,7 @@ const GR = args.group || 3
 const OUT = args.outDir || '/home/user/gnome-venture/aseprite-source/v3/items/final'
 const SP = '/tmp/claude-0/-home-user-gnome-venture/24dbc14e-ae34-540a-ac1a-cc6317049307/scratchpad'
 const label = (it) => `${it.folder}/${it.name}`
-const prompt = (g, gi) => `You are the pixel ARTIST for Gnome Venture (Aseprite 1.3.18 + Lua). Repo /home/user/gnome-venture/aseprite-source. Read ONLY: v3/lib/CHEATSHEET.md and the one exemplar it names. Do not read the style guide, README or other items.
+const prompt = (g, gi) => `You are the pixel ARTIST for Gnome Venture (Aseprite 1.3.18 + Lua). Repo /home/user/gnome-venture/aseprite-source. Read ONLY: v3/lib/CHEATSHEET.md and the one exemplar ${args.exemplar ? args.exemplar + ' (use this instead of the one the cheat sheet names)' : 'it names'}. Do not read the style guide, README or other items.
 Draw these ${g.length} items, 64x64, ink-outlined, each structurally unique: ${g.map(label).join(', ')}. Old art for reference only (view upscaled to learn what the item is, then draw NEW): /home/user/gnome-venture/game/assets/img/<folder>/<name>.png
 Outputs: ${OUT}/<folder>/<name>.lua/.png/.aseprite (mkdir -p; run with --script-param out=${OUT}/<folder>/). Each .lua must be self-contained and start with a comment line "-- <name> (lean ${tag}_${gi})". Contact sheet only in ${SP}/l${tag}_${gi}/. Never edit or delete shared files. Single pass. Reply under 50 words: weak items.`
 const groups = []

@@ -133,7 +133,7 @@ function A.hempPaint(c, m, n, U, S, ramp, o)
     local k = K(x, y)
     local ph = (U[k] / per + S[k] * kk) % 1
     local i = idx[k]
-    if ph < 0.2 then i = i - 2 elseif ph < 0.32 then i = i - 1 elseif ph > 0.52 and ph < 0.64 then i = i + 1 end
+    if ph < 0.22 then i = i - 3 elseif ph < 0.36 then i = i - 1 elseif ph > 0.5 and ph < 0.68 then i = i + 1 end
     i = A.clamp(i, #ramp) idx[k] = i
     c:put(x, y, ramp[i])
   end)
