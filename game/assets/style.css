@@ -7064,3 +7064,10 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 .hubsvg .hs.homelit .ring { fill: rgba(255, 214, 102, .75); }
 .hubsvg .hs.dim .ring { fill: rgba(60, 50, 40, .55); }
 .hubchip.homelit { border-color: var(--brand-fill); }
+/* Trail walk: text is centered here, always (action rows, headings, the encounter popover) */
+.trailui, .trailui h3, .trailui p, .trailui .help, .trailui .choicelist, .trailui .choicelist *, .trailui .btn, .trailui .choice, .trailui .encounter * { text-align: center; }
+.trailui .choicelist button, .trailui .choiceform button { justify-content: center; align-items: center; text-align: center; }
+.trailfoot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+.trailfoot .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+dialog.trailpop .pickbox { width: min(560px, 100%); }
+dialog.trailpop .panel.box { margin: 0; border: 0; box-shadow: none; }

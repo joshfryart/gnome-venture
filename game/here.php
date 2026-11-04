@@ -9,6 +9,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/here_view.php';
 require_once __DIR__ . '/includes/place_ui.php';
+require_once __DIR__ . '/includes/trail_tiles.php';
 $u = require_login();
 $uid = (int)$u['id'];
 if (!gnav_on() && !is_admin()) redirect('town.php');
@@ -24,6 +25,7 @@ $kindIcons = ['village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lai
 <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
 <h1><?= $kindIcons[loc_real_kind($node)] ?? '📍' ?> <?= e($node['name']) ?></h1>
 <p class="hereinfo"><span class="muted">🕰️ It’s <?= e(hour_label(hollow_hour())) ?> in the Hollow, <?= e(hollow_date('l')) ?></span></p>
+<?= trail_resume_html($u) /* a walk put away by Wander off the Trail */ ?>
 <?= dest_resume_html($u) ?>
 <?= here_view($u, $node, $debug, $open) ?>
 <?= gnav_tools_html($u, 'here.php') ?>

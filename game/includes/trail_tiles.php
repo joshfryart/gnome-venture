@@ -93,10 +93,10 @@ function trail_scene_make(int $uid, int $expId, array $route): bool
     try {
         dm_scene_purge($uid);
         $S = trail_sections($route);
-        [$map, $tokens] = trail_map_make((int)$route['id'] . '|' . $uid . '|' . $expId . '|0');
+        [$map, $tokens] = trail_map_make((int)$route['id'] . '|' . $uid . '|' . $expId . '|0');   // 'sx' keeps the seed stable if the walk is resumed under a new expedition id
         $seen = tm_seen_new($map['w'], $map['h']);
         tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
-        $st = ['sec' => 0, 'S' => $S, 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+        $st = ['sec' => 0, 'S' => $S, 'sx' => $expId, 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
         db_insert('walk_scene', ['user_id' => $uid, 'exp_id' => $expId, 'map_key' => 'trail:' . (int)$route['id'], 'x' => $map['entry'][0], 'y' => $map['entry'][1], 'seen' => $seen, 'state' => json_encode($st), 'updated_at' => now()]);
         return true;
     } catch (Throwable $e) {
@@ -113,7 +113,7 @@ function trail_scene(array $exp): ?array
     if (!$row || !str_starts_with((string)$row['map_key'], 'trail:')) return null;
     $st = json_decode((string)$row['state'], true);
     if (!is_array($st) || !isset($st['sec'], $st['S'], $st['phase'])) return null;
-    [$map] = trail_map_make((int)substr((string)$row['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)$exp['id'] . '|' . (int)$st['sec']);
+    [$map] = trail_map_make((int)substr((string)$row['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)($st['sx'] ?? $exp['id']) . '|' . (int)$st['sec']);
     return ['row' => $row, 'old' => (string)$row['state'], 'map' => $map, 'x' => (int)$row['x'], 'y' => (int)$row['y'], 'seen' => (string)$row['seen'], 'st' => $st];
 }
 
@@ -211,11 +211,11 @@ function trail_next(array $u, array &$exp): array
     $sec = (int)$sc['st']['sec'];
     if ($sec + 1 >= (int)$sc['st']['S']) return [false, 'That was the last section. Head into the place.'];
     $nsec = $sec + 1;
-    [$map, $tokens] = trail_map_make((int)substr((string)$sc['row']['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)$exp['id'] . '|' . $nsec);
+    [$map, $tokens] = trail_map_make((int)substr((string)$sc['row']['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)($sc['st']['sx'] ?? $exp['id']) . '|' . $nsec);
     $seen = tm_seen_new($map['w'], $map['h']);
     tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
     $new = $sc;
-    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
@@ -310,4 +310,77 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
         . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
         . '<p class="tmlegend" aria-hidden="true"><span>⚔️ Something stirs</span><span>✨ A find</span><span>🚪 The way on</span></p></div>';
     return $out;
+}
+
+/** Gather on the stretch you are on (the existing gather_here: same tools, same energy). [ok, message] */
+function trail_gather(array $u, array &$exp, string $tool): array
+{
+    if (!trail_scene($exp)) return [false, 'Not on a tile walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    require_once __DIR__ . '/gathering.php';
+    $land = (string)(exp_scene($exp)['land'] ?? 'grassland');
+    [$ok, $line] = gather_here($u, $land, $tool);
+    exp_log($exp, $line);
+    return [$ok, ''];
+}
+
+/**
+ * Wander off the Trail (the existing explore_start: from the place the walk began, 1 energy, only from a place on a road). The walk is put away
+ * in the session and ended; when the gnome is back on the road at that place, "Resume" brings the same section back (same map, same tokens).
+ * [ok, message]
+ */
+function trail_wander(array $u, array &$exp): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc) return [false, 'Not on a tile walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    require_once __DIR__ . '/explore.php';
+    if (!on_road((int)$exp['from_id'])) return [false, 'You can only wander off from a place on a road.'];
+    q("UPDATE expeditions SET status = 'done' WHERE id = ?", [$exp['id']]);   // explore_start refuses while a walk is active
+    [$ok, $msg] = explore_start($u);
+    if (!$ok) { q("UPDATE expeditions SET status = 'active' WHERE id = ?", [$exp['id']]); return [false, $msg]; }
+    $_SESSION['trail_resume'] = ['uid' => (int)$u['id'], 'route' => (int)$exp['route_id'], 'from' => (int)$exp['from_id'], 'to' => (int)$exp['to_id'], 'level' => (int)$exp['level'], 'scaled' => (int)$exp['scaled'],
+        'x' => $sc['x'], 'y' => $sc['y'], 'seen' => $sc['seen'], 'state' => json_encode($sc['st']), 'at' => time()];
+    $exp['status'] = 'done';
+    $exp['encounter'] = null;
+    exp_log($exp, '🌿 You step off the Trail. (Come back to the road to pick it up again.)');
+    dm_scene_drop((int)$exp['id']);
+    return [true, $msg . ' Your walk waits at ' . (string)q_val('SELECT name FROM locations WHERE id = ?', [$exp['from_id']]) . '.'];
+}
+
+/** The walk put away by trail_wander, if it can be picked up here and now: null or the snapshot. */
+function trail_resume_offer(array $u): ?array
+{
+    $r = $_SESSION['trail_resume'] ?? null;
+    if (!is_array($r) || (int)$r['uid'] !== (int)$u['id'] || time() - (int)$r['at'] > 6 * 3600) return null;
+    if ((int)($u['location_id'] ?? 0) !== (int)$r['from'] || active_expedition((int)$u['id'])) return null;
+    return $r;
+}
+
+/** Pick the put-away walk up again at no energy: a new expedition row, the same scene. [ok, message] */
+function trail_resume(array $u): array
+{
+    $r = trail_resume_offer($u);
+    if (!$r) return [false, 'There is no walk to resume here.'];
+    $st = json_decode((string)$r['state'], true);
+    $route = q_one('SELECT * FROM routes WHERE id = ?', [$r['route']]);
+    if (!is_array($st) || !$route) { unset($_SESSION['trail_resume']); return [false, 'That walk is gone.'];}
+    $gc = gnome_combat($u, true);
+    $id = db_insert('expeditions', ['level' => (int)$r['level'], 'scaled' => (int)$r['scaled'], 'user_id' => $u['id'], 'from_id' => $r['from'], 'to_id' => $r['to'], 'route_id' => $r['route'],
+        'steps_total' => (int)$st['S'], 'step' => (int)$st['sec'], 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'],
+        'log' => json_encode(['🍄 You pick the Trail up again.']), 'started_at' => now(), 'arrive_at' => now()]);
+    db_insert('walk_scene', ['user_id' => $u['id'], 'exp_id' => $id, 'map_key' => 'trail:' . (int)$r['route'], 'x' => (int)$r['x'], 'y' => (int)$r['y'], 'seen' => (string)$r['seen'], 'state' => (string)$r['state'], 'updated_at' => now()]);
+    unset($_SESSION['trail_resume']);
+    return [true, '🍄 You pick the Trail up where you left it.'];
+}
+
+/** A one-tap bar offering the resume (empty when there is nothing to resume). */
+function trail_resume_html(array $u): string
+{
+    $r = trail_resume_offer($u);
+    if (!$r) return '';
+    $to = (string)q_val('SELECT name FROM locations WHERE id = ?', [$r['to']]);
+    $st = json_decode((string)$r['state'], true) ?: [];
+    return '<form method="post" action="' . e(url('adventure.php')) . '" class="box destresume trailui">' . csrf_field() . '<input type="hidden" name="do" value="trail_resume">'
+        . '<span>🍄 Your walk to <b>' . e($to) . '</b> is waiting (section ' . ((int)($st['sec'] ?? 0) + 1) . ' of ' . (int)($st['S'] ?? 1) . ').</span> <button class="btn small">↩ Resume it</button></form>';
 }

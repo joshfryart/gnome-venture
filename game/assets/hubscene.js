@@ -9,7 +9,7 @@
     var t = ev.target;
     if (!t.closest) return;
     var hs = t.closest('[data-pop]');
-    if (hs && hs.closest('.hubscene, .gnavtools') && plain(ev)) {
+    if (hs && hs.closest('.hubscene, .gnavtools, .trailui') && plain(ev)) {
       var d = document.getElementById(hs.getAttribute('data-pop'));
       if (d && window.gvOpenDlg) {
         ev.preventDefault();
@@ -40,4 +40,16 @@
   document.addEventListener('close', function (ev) {   // 'close' does not bubble: capture phase
     if (ev.target.classList && ev.target.classList.contains('hubpop') && back) { try { back.focus(); } catch (e) {} back = null; }
   }, true);
+  /* The encounter on a Trail walk is a popover that cannot be dismissed until it is settled: open it as a real modal on load and after an in-place page swap. */
+  function trailPops() {
+    document.querySelectorAll('dialog.trailpop').forEach(function (d) {
+      if (d.getAttribute('data-up')) return;
+      d.setAttribute('data-up', '1');
+      d.addEventListener('cancel', function (ev) { ev.preventDefault(); });   // Esc does nothing
+      if (d.showModal && !d.matches(':modal')) { try { d.close(); d.showModal(); } catch (e) {} }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', trailPops);
+  document.addEventListener('gv:swapped', trailPops);
+  trailPops();
 })();

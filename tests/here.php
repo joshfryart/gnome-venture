@@ -55,6 +55,11 @@ if ($withDb && ($argv[2] ?? '') === 'cli') {   // (php tests/here.php GAME cli .
         q('UPDATE npc_friends SET last_gift = NULL WHERE user_id = ?', [$uidx]);
         echo "$nid $item\n";
     }
+    if ($cmd === 'forceenc') {   // a creature in front of the gnome
+        $cid = (int)q_val('SELECT id FROM creatures ORDER BY level, id LIMIT 1'); $hp = (int)q_val('SELECT hp FROM creatures WHERE id = ?', [$cid]);
+        q("UPDATE expeditions SET encounter = ? WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')", [json_encode(['type' => 'creature', 'id' => $cid, 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => $hp, 'max' => $hp, 'bark' => 0, 'poison' => 0, 'used' => false])]);
+        echo "ok\n";
+    }
     if ($cmd === 'active') { echo (int)q_val("SELECT COUNT(*) FROM expeditions WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')") . "\n"; }
     if ($cmd === 'walk') {
         $u = q_one("SELECT * FROM users WHERE username = 'sprout'");
@@ -348,6 +353,38 @@ if ($withDb) {
     [$okw] = start_expedition($u, (int)$r['id']); $exp = active_expedition((int)$u['id']);
     [$bk] = trail_back(me(), $exp); save_exp($exp);
     ok('turn back: the walk ends, the gnome stays where they were, no scene left', $bk && !active_expedition((int)$u['id']) && (int)q_val("SELECT location_id FROM users WHERE username = 'sprout'") === $town && !q_val('SELECT COUNT(*) FROM walk_scene WHERE exp_id = ?', [$exp['id']]));
+    // gather, wander and resume
+    sset('gnav_on', '1'); sset('gnav_tiles', '1');
+    $u = put($town, ['energy' => 50]);
+    start_expedition($u, (int)$r['id']); $exp = active_expedition((int)$u['id']);
+    $sc0 = trail_scene($exp);
+    $_SESSION = $_SESSION ?? [];
+    [$wk, $wm] = trail_wander(me(), $exp); save_exp($exp);
+    $expNow = active_expedition((int)$u['id']);
+    ok('wander off the Trail: the walk is put away and an explore starts', $wk && $expNow && $expNow['kind'] === 'explore', $wm);
+    ok('...from the place the walk began, and the old walk is done', (int)$expNow['from_id'] === $town && !trail_scene($expNow));
+    ok('...and no resume is offered while still wandering', trail_resume_offer(me()) === null);
+    q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);   // back on the road
+    $offer = trail_resume_offer(me());
+    ok('back at the place: the walk can be resumed', $offer !== null && (int)$offer['x'] === $sc0['x']);
+    ok('the resume bar shows', str_contains(trail_resume_html(me()), 'value="trail_resume"'));
+    $energyBefore = (int)q_val("SELECT energy FROM users WHERE username = 'sprout'");
+    [$rk] = trail_resume(me());
+    $exp2 = active_expedition((int)$u['id']); $sc2 = $exp2 ? trail_scene($exp2) : null;
+    ok('resume: a new walk, no energy charged, the same section and tokens', $rk && $sc2 && (int)$exp2['id'] !== (int)$exp['id'] && (int)q_val("SELECT energy FROM users WHERE username = 'sprout'") === $energyBefore && $sc2['map']['t'] === $sc0['map']['t'] && $sc2['st']['tokens'] === $sc0['st']['tokens'] && $sc2['x'] === $sc0['x']);
+    ok('only once: nothing left to resume', trail_resume_offer(me()) === null);
+    $u = me();
+    q("UPDATE users SET energy = 0 WHERE id = ?", [$u['id']]);
+    [$wk2, $wm2] = trail_wander(me(), $exp2);
+    ok('no energy: wander is refused and the walk stays', !$wk2 && active_expedition((int)$u['id']) && trail_scene(active_expedition((int)$u['id'])) !== null, $wm2);
+    q("UPDATE users SET energy = 50 WHERE id = ?", [$u['id']]);
+    $exp2 = active_expedition((int)$u['id']);
+    $ge = trail_gather(me(), $exp2, 'nonsense');
+    ok('gather with a tool that does not exist is refused, nothing breaks', $ge[0] === false);
+    $exp2['encounter'] = json_encode(['type' => 'creature', 'id' => 1]);
+    ok('gather and wander are refused while something blocks the way', trail_gather(me(), $exp2, 'basket')[0] === false && trail_wander(me(), $exp2)[0] === false);
+    q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
+    sset('gnav_tiles', '1');
     // a timer walk in progress when the flag flips stays a timer walk
     sset('gnav_tiles', '0');
     $u = put($town, ['energy' => 50]);
