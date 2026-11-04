@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.4.99
+## 2.5.00
 - **Satchel and Crafting items are now big square tiles.** Every item in the Satchel shelves (Seeds, Crops, Food, Soil, Tools and the rest) and in all Crafting menus is a tile: 72 px picture on top (was 28 to 32 px), name under it, 3 per row on a phone and as many as fit on a computer.
 - **Count is a badge on the picture** (`×13`). Extra notes (in use, broken, untasted) sit under the name. Crafting tiles keep their line under the name (time and energy, "short 2", "N/M found"). The status stripe moved from the left edge to the top edge.
 - Code: `sh_shelves()` in `includes/shelves.php` (picture now `lg` art, `.shic` / `.shqty` wrappers, bag `small` no longer starts with the count); `.shelves .shpill*` rules in `assets/style.css`. Picture size is one variable, `--shic` (72 px). The art is 64 px, so 64 px is the crisp size if 72 looks uneven.
