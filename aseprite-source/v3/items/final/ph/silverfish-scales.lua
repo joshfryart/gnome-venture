@@ -1,34 +1,54 @@
--- silverfish-scales (lean D2o_0)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
+-- silverfish-scales (lean W2_18)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
-local c
-local function shade(m, ramp, R, o) local n = X.pillow(m, R) return G.toneN(c, m, n, ramp, o), n end
-c = HP.canvas{ w = 64, h = 64, scale = 1, name = "silverfish-scales" }
-local SIL = { "#3e4a6e", "#5f7096", "#8499b8", "#aebfd6", "#d3deea", "#f4f8fc" }
-local IRI = { "#4e3d6e", "#6e5a92", "#9580b8", "#bba6d6", "#dccaea", "#f6eefa" }
-local function scale(cx, cy, rx, ry, ang, ramp)
-  local m, n = G.oval(cx, cy, rx, ry, ang, 0.7)
-  G.toneN(c, m, n, ramp)
-  local l = X.light(n, { amb = 0.08, wrap = 0.25 })
-  local rx0, ry0 = cx + sin(ang) * ry * 0.95, cy - cos(ang) * ry * 0.95
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "silverfish-scales" }
+local floor, rad, cos, sin, sqrt, atan2, abs = math.floor, math.rad, math.cos, math.sin, math.sqrt, math.atan, math.abs
+local SIL = { "#4a4f78", "#6b7499", "#8f9bbb", "#b4c0d8", "#d8e0ee", "#f4f8fc" }
+local VIO = { "#4d3f7a", "#6f5fa0", "#9482be", "#b7a8d8", "#d9cfee", "#f6f0fc" }
+local TEA = { "#2f6b7c", "#3f93a0", "#6dbdb8", "#a2dccb", "#d2f1de", "#f2fff0" }
+local PNK = { "#8a4a82", "#b66aa0", "#d98fb8", "#efb8cc", "#f8d9de", "#fff2ee" }
+local function scale(ox, oy, dir, r, ramp, half)
+  half = half or 62
+  local pts = { { ox, oy } }
+  for k = 0, 14 do
+    local a = rad(dir - half + 2 * half * k / 14)
+    local rr = (k == 0 or k == 14) and r * 0.85 or r
+    pts[#pts + 1] = { floor(ox + cos(a) * rr + 0.5), floor(oy + sin(a) * rr + 0.5) }
+  end
+  local m = c:poly(pts)
+  local rim = m:copy():cut(m:copy():shrink(1))
   m:each(function(x, y)
-    local d = sqrt((x - rx0)^2 + (y - ry0)^2)
-    local a = atan(y - ry0, x - rx0)
-    local lit = (l[K(x, y)] or 0) > 0.5
-    if d > 3 and floor(d) % 3 == 0 then c:px(x, y, lit and ramp[4] or ramp[2])
-    elseif d > 3 and (a * 7 / pi) % 1 < 0.13 then c:px(x, y, lit and ramp[6] or ramp[3]) end
+    local dx, dy = x - ox, y - oy
+    local d = sqrt(dx * dx + dy * dy) / r
+    local ang = math.deg(math.atan(dy, dx)) - dir
+    local i = 4
+    if d < 0.35 then i = 2
+    elseif d > 0.78 then i = (dx * cos(rad(dir + 90)) + dy * sin(rad(dir + 90)) < 0) and 5 or 3 end
+    if d > 0.4 then
+      local fr = ((ang + half) / (2 * half) * 6) % 1
+      if fr < 0.16 then i = i - 1 end
+    end
+    if rim:has(x, y) then i = 1 end
+    c:put(x, y, ramp[math.max(1, i)], { r = { name = "scale" } })
   end)
-  m:edge():each(function(x, y) c:px(x, y, (x + y) < (cx + cy) and ramp[5] or ramp[1]) end)
-  return m, n
+  local sx, sy = floor(ox + cos(rad(dir - 25)) * r * 0.8 + 0.5), floor(oy + sin(rad(dir - 25)) * r * 0.8 + 0.5)
+  c:px(sx, sy, ramp[6])
 end
-scale(48, 22, 5, 9, 1.1, IRI)
-scale(24, 41, 13, 10, 0.4, SIL)
-scale(42, 43, 12, 9, -0.3, SIL)
-local cm, cn = scale(33, 26, 12, 10, 0.1, SIL)
-local sx, sy = G.specAt(cm, cn, 30)
-c:sparkle(sx + 1, sy + 1)
--- quirk: a bead of water on the pile
-c:fillMask(c:poly{ {50, 50}, {52, 53}, {52, 55}, {50, 56}, {48, 55}, {48, 53} }, "#6fa8dc")
-c:px(49, 53, "#e4f2ff") c:px(51, 55, "#3b6ea5")
-G.save(c, "silverfish-scales")
+c:groundShadow(32, 56, 19, 2)
+local rows = {
+  { 48, { 26, 38 } }, { 40, { 20, 32, 44 } }, { 32, { 14, 26, 38, 50 } }, { 24, { 20, 32, 44 } }, { 16, { 26, 38 } },
+}
+local n = 0
+for _, row in ipairs(rows) do
+  for _, x in ipairs(row[2]) do
+    n = n + 1
+    local ramp = (n % 4 == 0) and VIO or SIL
+    local j = (X.hash(x, row[1], 5) - 0.5) * 18
+    scale(x, row[1], 90 + j, 7 + floor(X.hash(x, row[1], 6) * 2), ramp)
+  end
+end
+-- quirk: a loose iridescent scale standing off the patch, with a dew drop
+scale(47, 13, -40, 8, TEA, 55)
+c:px(55, 9, PNK[4]) c:px(56, 10, PNK[3]) c:px(55, 11, PNK[2])
+c:px(10, 24, "#cdd5e8") c:px(8, 30, "#cdd5e8") c:px(55, 44, "#cdd5e8") c:px(51, 54, "#cdd5e8") c:px(12, 50, "#cdd5e8")
+G.fin(c, "silverfish-scales")

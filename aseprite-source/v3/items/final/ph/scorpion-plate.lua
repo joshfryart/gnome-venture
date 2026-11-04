@@ -1,168 +1,69 @@
--- scorpion-plate (final, artist D14_3, Sonnet high). One carapace plate off a desert scorpion: a slim tapering shield
--- with a notched front edge, a raised central keel and two diagonal ridges forming a Y, two curved suture furrows,
--- a finely granulated surface and a serrated margin. Lit from a real height field (ridges, furrows and every granule
--- get their own highlight and shadow), amber-brown chitin in a 6-tone ramp, waxy specular on the left shoulder.
--- quirk: the two glossy median eyes sit on a little raised mound at the front, so the plate seems to stare back.
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\\\][^/\\\\]*$") .. "/../_helpers/_aD14_3.lua")
-local HP, X, K = A.HP, A.X, A.K
-local floor, abs, sin, cos, sqrt, max, min = math.floor, math.abs, math.sin, math.cos, math.sqrt, math.max, math.min
+-- scorpion-plate (lean W2_17)
+-- Chitin breastplate: shingled tergite bands narrowing downward under a domed carapace with keel and two eyes,
+-- granulated amber shell, leather side straps. Quirk: a tiny stinger charm hangs from the bottom band.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function lit(m, R, amb, wrap) return X.light(X.pillow(m, R), { amb = amb or 0.08, wrap = wrap or 0.25 }) end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "scorpion-plate" }
-
-local CHIT = A.ramp("#bc7430")
-local EYE  = A.ramp("#3a2840")
-local CREAM, SPEC = "#fff4d6", "#ffefb0"
-local tok = { r = { name = "chit" } }
-
--- outline mask
-local Y0, Y1 = 8, 50
-local function hw(y) return 10.2 + 7.4 * (max(0, y - 9) / 38) ^ .8 end
-local function ytop(x) return 8 + 4.2 * (min(1, abs(x - 32) / 12) ^ 2.2) end
-local function ybot(x) return 50 - 2.6 * (1 - min(1, abs(x - 32) / 18) ^ 2) end
-local pl = HP.mask()
-for y = Y0, Y1 do
-  local w = hw(y)
-  for x = floor(32 - w + .5), floor(32 + w - .5) do
-    if y >= ytop(x) and y <= ybot(x) then pl:set(x, y) end
-  end
+local AM = { "#3a2218", "#6a3d22", "#9a5e2c", "#c58a3c", "#e6b45a", "#fadc92" }
+local LT = { "#2e1a1c", "#52302a", "#7c4c38", "#a67352" }
+local ST = { "#2a1a2a", "#4a2c3a", "#7a4a54" }
+local CUT = { 0.2, 0.38, 0.55, 0.72, 0.88 }
+-- straps (behind)
+local function strap(p)
+  local m, n, T = G.tube(p, function(t) return 1.6 end)
+  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.3 }), LT, { 0.3, 0.55, 0.8 })
+  m:each(function(x, y) if (T[K(x, y)] * 9) % 1 < 0.15 then c:px(x, y, LT[1]) end end)
 end
--- round the four corners a touch
-for _, p in ipairs{ { 22, 8 }, { 42, 8 }, { 22, 9 }, { 42, 9 } } do end
-local function corner(x, y) pl:cut(c:rect(x, y, x, y)) end
-local bx0, by0, bx1, by1 = pl:bbox()
--- serrated margin on the lower side edges
-pl:each(function(x, y) end)
-local ser = {}
-for y = 27, 46, 6 do
-  local w = hw(y)
-  local lx, rx = floor(32 - w + .5), floor(32 + w - .5)
-  corner(lx, y) corner(rx, y)
-  corner(lx, y + 1) corner(rx, y + 1)
-  if lx + 1 <= 32 then corner(lx, y + 2) corner(rx, y + 2) end
+strap({ {22, 14}, {10, 14}, {8, 28}, {14, 38} })
+strap({ {42, 14}, {54, 14}, {56, 28}, {50, 38} })
+-- bands, bottom up
+local bands = { {24, 52, 8}, {22, 45, 10}, {20, 38, 12}, {19, 31, 13}, {18, 24, 14} }
+local function band(y0, y1, hw, id)
+  local m = c:rrect(32 - hw, y0, 32 + hw - 1, y1, 4)
+  local v = lit(m, 5, 0.06, 0.2)
+  local bias = {}
+  m:each(function(x, y) local k = K(x, y)
+    if y >= y1 - 1 then bias[k] = -1 end
+    if (x * 7 + y * 13) % 11 == 0 and X.hash(x, y, id) > 0.4 then bias[k] = 1 end
+  end)
+  G.tone(c, m, v, AM, CUT, bias)
+  m:each(function(x, y)
+    if abs(x - 32) <= 0.5 and y < y1 - 1 then c:px(x, y, AM[5]) end
+    if abs(x - 32) == 2 and y < y1 - 1 and y > y0 + 1 then c:px(x, y, AM[2]) end
+  end)
+  -- side spikes
+  c:px(32 - hw - 1, y1 - 3, AM[4]) c:px(32 - hw - 2, y1 - 4, AM[5])
+  c:px(32 + hw, y1 - 3, AM[2]) c:px(32 + hw + 1, y1 - 4, AM[3])
 end
--- soften pixel stair at rear corners
-pl:each(function(x, y) end)
-
----------------------------------------------------------------- height field
-local dist = X.dist(pl)
-local R = 6.5
-local function h0(x, y)
-  local d = dist[K(x, y)]
-  if not d then return 0 end
-  local t = min(d + .5, R) / R
-  return R * sqrt(1 - (1 - t) ^ 2)
-end
-local function segd(px, py, ax, ay, bx, by)
-  local vx, vy = bx - ax, by - ay
-  local t = max(0, min(1, ((px - ax) * vx + (py - ay) * vy) / (vx * vx + vy * vy)))
-  local dx, dy = px - (ax + vx * t), py - (ay + vy * t)
-  return sqrt(dx * dx + dy * dy), t
-end
-local ridges = {
-  { 32, 14, 32, 47, 2.8, 3.6 },       -- keel
-  { 31, 18, 17.5, 42, 2.4, 2.7 },     -- left diagonal
-  { 33, 18, 46.5, 42, 2.4, 2.7 },     -- right diagonal
-}
-local bumps = {}
-pl:each(function(x, y)
-  -- granules on a loose lattice, hashed; kept off the ridges and the far margin
-  local gx, gy = x % 3, (y + (x // 3) % 2 * 1) % 3
-  if (x % 4 == 1) and ((y + (x // 4) * 2) % 4 == 1) and A.hash(x, y, 7) > .3 then bumps[K(x, y)] = .75 end
+band(46, 54, 8, 1) band(39, 47, 10, 2) band(32, 40, 12, 3)
+-- stinger charm (quirk), hangs from bottom band
+local sm, sn = G.tube({ {32, 53}, {32, 57}, {38, 58}, {37, 53} }, function(t) return 1.5 * (1 - t) + 0.5 end)
+G.tone(c, sm, X.light(sn, { amb = 0.1, wrap = 0.3 }), { "#2a1a2a", "#5a2c4a", "#8e4a6a", "#c07a8a" }, { 0.3, 0.55, 0.8 })
+c:px(37, 53, "#fff0e0")
+-- upper band and carapace
+band(25, 33, 13, 4)
+local car = c:rrect(18, 9, 45, 26, 6)
+local cv = lit(car, 9, 0.05, 0.2)
+local cb = {}
+car:each(function(x, y) local k = K(x, y)
+  if y >= 25 then cb[k] = -1 end
+  if (x * 5 + y * 9) % 10 == 0 and X.hash(x, y, 9) > 0.35 then cb[k] = 1 end
 end)
-local function furrow(x, y)
-  -- two curved transverse sutures (concave grooves)
-  local f = 0
-  for _, yy in ipairs{ 28, 38 } do
-    local cy = yy + 3.4 * (abs(x - 32) / 17) ^ 2
-    local d = abs(y - cy)
-    if d < 1.9 and abs(x - 32) > 4 then f = f - 2.4 * (1 - d / 1.9) end
-  end
-  return f
-end
-local function hf(x, y)
-  if not pl:has(x, y) then return 0 end
-  local h = h0(x, y)
-  for _, r in ipairs(ridges) do
-    local d = segd(x, y, r[1], r[2], r[3], r[4])
-    if d < r[5] then h = h + r[6] * (1 - (d / r[5]) ^ 2) end
-  end
-  h = h + furrow(x, y) + (bumps[K(x, y)] or 0)
-  return h
-end
--- eye mound
-local MX, MY = 32, 15
-local function mound(x, y)
-  local d = sqrt((x - MX) ^ 2 + ((y - MY) * 1.25) ^ 2)
-  if d < 5.2 then return 2.4 * (1 - (d / 5.2) ^ 2) end
-  return 0
-end
-
-local n, v = {}, nil
-local hcache = {}
-pl:each(function(x, y) hcache[K(x, y)] = hf(x, y) + mound(x, y) end)
-local function H(x, y) local k = K(x, y) return hcache[k] or (pl:has(x, y) and 0 or (hcache[K(x, y)] or 0)) end
-local S = 1.5
-pl:each(function(x, y)
-  local gx = (H(x + 1, y) - H(x - 1, y)) / 2 * S
-  local gy = (H(x, y + 1) - H(x, y - 1)) / 2 * S
-  local l = sqrt(gx * gx + gy * gy + 1)
-  n[K(x, y)] = { -gx / l, -gy / l, 1 / l }
+G.tone(c, car, cv, AM, CUT, cb)
+car:each(function(x, y)
+  if abs(x - 32) <= 0.5 and y > 19 and y < 25 then c:px(x, y, AM[5]) end
+  if abs(abs(x - 32) - 7) < 0.6 and y > 18 and y < 24 then c:px(x, y, AM[2]) end
 end)
-
-local bias = {}
--- ambient: darker toward the lower right margin and in the furrows
-pl:each(function(x, y)
-  local k = K(x, y)
-  if furrow(x, y) < -.6 then bias[k] = -1 end
-end)
-local _, idx = A.paint(c, pl, n, CHIT, { amb = .06, wrap = .22, cuts = { .22, .4, .56, .72, .87 }, tok = tok, adj = function(x, y, i)
-  local k = K(x, y)
-  local d = dist[k] or 9
-  -- margin: one dark row on the shade edges, one lit chamfer row on the upper-left
-  if d < 1.2 and (not pl:has(x + 1, y + 1) or not pl:has(x + 1, y) or not pl:has(x, y + 1)) then i = i - 1 end
-  return i + (bias[k] or 0)
-end })
-
--- keel centre: bright seam stripe with dark flank shown by the height field already; add a polished edge line
-for y = 18, 45 do
-  if (y % 5) ~= 0 then c:px(31, y, CHIT[5]) end
+-- eyes mound + eyes
+local mound = c:ellipse(32, 15, 6.5, 4)
+G.tone(c, mound, lit(mound, 4, 0.05, 0.2), AM, CUT)
+for _, e in ipairs{ {29, 15}, {35, 15} } do
+  local em = c:ellipse(e[1], e[2], 1.7, 1.9)
+  c:fillMask(em, ST[1]) c:px(e[1] - 1, e[2] - 1, "#fff0e0")
 end
--- granule glints on the lit side only (pairs of 1px)
-pl:each(function(x, y)
-  if bumps[K(x, y)] and x < 30 and y < 30 and A.hash(x, y, 2) > .55 then c:px(x, y, CHIT[6]) end
-end)
-
----------------------------------------------------------------- front: eye mound + median eyes (quirk)
-do
-  local mm = HP.mask()
-  for y = 8, 22 do for x = 24, 40 do if mound(x, y) > .9 then mm:set(x, y) end end end
-  -- the mound is already lit by the height field; ambient ring where it meets the plate
-  local ring = mm:grow(1):cut(mm)
-  ring:each(function(x, y) if pl:has(x, y) then c:px(x, y, CHIT[1]) end end)
-  -- eyes: two glossy dark beads with a bright glint
-  for _, ex in ipairs{ 29.5, 34.5 } do
-    local em = c:ellipse(ex, 15, 2, 2)
-    local en = X.sphere(ex - .5, 14.5, 2.2, em)
-    A.paint(c, em, en, EYE, { amb = .05, wrap = .15, cuts = { .25, .45, .62, .78, .9 } })
-    c:px(floor(ex - 1.5), 14, CREAM)
-  end
-  -- under-lip shadow of the mound
-  for x = 28, 36 do if pl:has(x, 19) then c:px(x, 19, CHIT[2]) end end
-end
-
----------------------------------------------------------------- side eyes: three tiny beads each flank (reads as a cluster)
-for _, p in ipairs{ { 23, 13 }, { 22, 15 }, { 24, 16 } } do
-  if pl:has(p[1], p[2]) then c:px(p[1], p[2], EYE[2]) c:px(p[1] - 0, p[2] - 0, EYE[2]) end
-end
-for _, p in ipairs{ { 41, 13 }, { 42, 15 }, { 40, 16 } } do
-  if pl:has(p[1], p[2]) then c:px(p[1], p[2], EYE[2]) end
-end
-
-
--- waxy specular on the left shoulder
-c:px(21, 24, SPEC) c:px(22, 24, SPEC) c:px(21, 25, CHIT[6])
-c:px(20, 33, SPEC) c:px(20, 34, CHIT[6])
--- cool bounce light on the lower right rim
-local rim = X.rim(n)
-pl:edge():each(function(x, y) if (rim[K(x, y)] or 0) > .72 and y > 28 then c:px(x, y, "#8a7ab8") end end)
-
-A.fin(c, "scorpion-plate")
+c:px(25, 17, ST[1]) c:px(39, 17, ST[1]) c:px(24, 18, ST[2]) c:px(40, 18, ST[2])
+c:px(22, 12, AM[6]) c:px(23, 12, AM[6]) c:px(23, 11, AM[5])
+c:sparkle(50, 10)
+G.fin(c, "scorpion-plate")

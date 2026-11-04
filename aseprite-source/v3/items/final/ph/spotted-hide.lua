@@ -1,48 +1,41 @@
--- spotted-hide (lean D2o_5)
+-- spotted-hide (lean W2_20)
+-- Tanned spotted hide stretched on a wooden pole, hung by two cords: four leg stubs, short tail, rosette spots, stitched hem on one leg (quirk).
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "spotted-hide" }
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(m, ramp, R, o) o = o or {}
-  local n = X.pillow(m, R or 4)
-  local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
-end
-local function tshade(m, n, ramp, o) o = o or {}
-  local v = X.light(n, { amb = o.amb or 0.12, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return v
-end
-local HIDE = { "#5a3320", "#8a5530", "#b87a40", "#d9a35c", "#efc983", "#fbe6b0" }
-local body = c:ellipse(32, 33, 11, 14)
-body:add(G.rell(18, 19, -0.71, -0.71, 9, 4.8)):add(G.rell(46, 19, 0.71, -0.71, 9, 4.8))
-body:add(G.rell(18, 47, -0.71, 0.71, 9, 4.8)):add(G.rell(46, 47, 0.71, 0.71, 9, 4.8))
-body:add(G.rell(32, 14, 0, -1, 7, 4.2)):add(G.rell(32, 52, 0, 1, 7, 2.2))
--- ragged torn edge
-local nib = HP.mask()
-body:edge():each(function(x, y) if X.hash(x, y, 9) > 0.8 then nib:set(x, y) end end)
-body:cut(nib)
+local HIDE = { "#6a3a22", "#8f5a2c", "#b57a38", "#d49c4c", "#ecc070", "#f8dc98" }
+local SPOT = { "#2e1a18", "#4a2a20", "#6a4026" }
+local WOOD = { "#4a2a22", "#6e4030", "#945a3c", "#bb7f50" }
+local ht = { r = { name = "hide" } }
+-- pole
+c:fillMask(c:rect(8, 7, 56, 9), WOOD[3])
+c:fillMask(c:rect(8, 7, 56, 7), WOOD[4]) c:fillMask(c:rect(8, 9, 56, 9), WOOD[2])
+c:px(8, 8, WOOD[1]) c:px(56, 8, WOOD[1])
+-- hide body: torso + 4 legs + tail
+local m = c:poly{ {26,13},{38,13},{44,17},{52,16},{54,22},{47,27},{46,33},{52,40},{49,46},{43,42},{40,46},{38,52},{34,56},{32,52},{30,56},{26,52},{24,46},{21,42},{15,46},{12,40},{18,33},{17,27},{10,22},{12,16},{20,17} }
+local n = X.pillow(m, 7)
 local bias = {}
-X.ao(bias, body, c:ellipse(32, 33, 4, 5), 3, -1)
-shade(body, HIDE, 8, { bias = bias })
--- hem: lit upper-left, shaded lower-right
-local inner = body:copy():shrink(1)
-body:each(function(x, y) if not inner:has(x, y) then c:px(x, y, (x + y < 64) and HIDE[5] or HIDE[2]) end end)
--- fur grain flecks
-body:each(function(x, y) if inner:has(x, y) and X.hash(x, y, 3) > 0.93 then c:px(x, y, HIDE[4]) end end)
--- spots
-local spots = { {28,24,2.4}, {38,30,2.8}, {27,38,2.2}, {36,42,2.4}, {32,33,1.5}, {17,17,1.8}, {47,17,1.8}, {17,48,1.8}, {47,46,2}, {32,12,1.5}, {43,23,1.4}, {23,31,1.3} }
+m:each(function(x, y) if X.hash(x, y, 3) > 0.9 then bias[K(x, y)] = -1 end end)
+-- spots: rosettes (dark ring + warm core)
+local spots = { {28,20,3},{38,22,3},{21,26,2},{44,30,2},{32,30,3},{25,36,3},{39,38,3},{31,44,2},{16,40,1},{49,41,1},{14,19,1},{50,20,1},{33,15,1} }
+local spm = HP.mask()
+for _, s in ipairs(spots) do spm:add(c:ellipse(s[1], s[2], s[3], s[3])) end
+spm:cut(m:copy():shrink(1):add(HP.mask()) and HP.mask() or HP.mask())
+G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), HIDE, { 0.2, 0.38, 0.55, 0.72, 0.88 }, bias, ht)
 for _, s in ipairs(spots) do
-  local sm = c:ellipse(s[1], s[2], s[3], s[3] * 0.85):clip(inner)
-  sm:each(function(x, y) c:px(x, y, "#3a2018") end)
-  sm:each(function(x, y) if x >= s[1] and y >= s[2] then c:px(x, y, "#24130f") end end)
-  if sm:has(floor(s[1] - 1), floor(s[2] - 1)) then c:px(floor(s[1] - 1), floor(s[2] - 1), "#6e4a34") end
+  local cx, cy, r = s[1], s[2], s[3]
+  local sp = c:ellipse(cx, cy, r, r):clip(m:copy():shrink(1))
+  c:fillMask(sp, SPOT[2])
+  if r >= 2 then c:fillMask(c:ellipse(cx, cy, r - 1, r - 1), SPOT[1]) end
+  c:px(cx - r, cy - 1, SPOT[3])
 end
--- quirk: a crude stitched repair seam on the right hind flap
-for i = 0, 5 do local x, y = 38 + i * 1.6, 41 + i * 1.7
-  c:px(floor(x), floor(y), "#2b1c26") c:px(floor(x) + 1, floor(y) - 1, HIDE[1]) end
--- tail tuft + eye-hole nicks on head flap
-c:px(32, 57, "#3a2018") c:px(31, 56, "#3a2018") c:px(33, 56, "#3a2018")
-c:px(30, 11, "#24130f") c:px(34, 11, "#24130f")
+-- tail tuft at bottom
+c:px(32, 57, HIDE[2]) c:px(32, 58, SPOT[2]) c:px(32, 59, SPOT[1])
+-- cords from pole to the front legs
+G.line(c, { {17,10},{16,14},{14,19} }, "#d8c8a0") G.line(c, { {47,10},{48,14},{50,19} }, "#d8c8a0")
+c:px(14, 19, "#8a7a58") c:px(50, 19, "#8a7a58")
+-- stitched hem on lower-left leg (quirk)
+for _, p in ipairs{ {16,43},{18,45},{20,47} } do c:px(p[1], p[2], "#e8dcc0") end
+-- highlight
+c:px(24, 20, HIDE[6]) c:px(25, 20, HIDE[6]) c:px(23, 21, HIDE[5])
 G.fin(c, "spotted-hide")
