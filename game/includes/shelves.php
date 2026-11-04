@@ -135,7 +135,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $tags = '<span class="tag">' . $gIc . ' ' . e($kind) . '</span>' . ($rl !== 'C' ? ' <span class="tag rarword r' . $rl . '">' . e($rw) . '</span>' : '')
               . ($status === 'use' ? ' <span class="tag shok">In use</span>' : ($isTool ? ' <span class="tag">Spare</span>' : '')) . ($flag !== '' ? ' <span class="tag shflag">' . e($flag) . '</span>' : '');
         $sub = 'You have <b>×' . number_format((int)$i['qty']) . '</b>' . ($price > 0 ? ' · worth ' . money($price) . ' each' : '');
-        $small = '×' . number_format((int)$i['qty']) . ($status === 'use' ? ' · in use' : '') . ($broken ? ' · broken' : '') . ($untasted ? ' · ✨' . ($perm ? ' rare taste' : ' untasted') : '');
+        $small = implode(' · ', array_filter([$status === 'use' ? 'in use' : '', $broken ? 'broken' : '', $untasted ? '✨' . ($perm ? 'rare taste' : 'untasted') : '']));   // the ×count is the badge on the tile's icon
         $out[] = [
             'id' => $id, 'item' => $i, 'name' => (string)$i['name'], 'count' => (int)$i['qty'], 'status' => $status, 'group' => $g, 'flag' => $flag, 'rarity' => $rl,
             'small' => e($small), 'tags' => $tags, 'sub' => $sub, 'panel' => $b . ($acts ? '<div class="p2acts shacts">' . implode('', $acts) . '</div>' : ''),
@@ -276,8 +276,9 @@ function sh_shelves(array $entries, array $defs, array $open, int $selId, string
             $pid = ($surface === 'bag' ? 'i' : 'r') . $e['id'];
             $o .= '<a class="shpill ' . e($e['status']) . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '"'
                 . ' aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '" data-cat="' . e((string)($e['item']['category'] ?? '')) . '" data-qty="' . (int)($e['count'] ?? 0) . '" data-name="' . e(mb_strtolower((string)$e['name'])) . '" data-got="' . e((string)($e['item']['got_at'] ?? '')) . '"' . (!empty($e['untasted']) ? ' data-un="1"' : '') . '>'
-                . '<span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'sm') : '❔') . '</span>'
-                . '<span class="shpt"><b>' . e($e['name']) . '</b><small>' . $e['small'] . '</small></span>'
+                . '<span class="shic"><span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'lg') : '❔') . '</span>'
+                . ($e['count'] !== null ? '<em class="shqty">×' . number_format((int)$e['count']) . '</em>' : '') . '</span>'
+                . '<span class="shpt"><b>' . e($e['name']) . '</b>' . ($e['small'] !== '' ? '<small>' . $e['small'] . '</small>' : '') . '</span>'
                 . ($e['flag'] !== '' ? '<i class="shnew' . ($e['flag'] === 'Rare taste!' ? ' taste' : '') . '" aria-hidden="true"></i><span class="vh"> (' . e($e['flag']) . ')</span>' : '') . "</a>\n";
             $head = $e['head'] ?? ('<div class="shdh"><span class="p2big" aria-hidden="true">' . sh_icon($e['item'], 'lg') . '</span><span class="p2dt"><b class="p2name">' . e($e['name']) . '</b>'
                   . '<span class="p2tags">' . $e['tags'] . '</span><small class="p2sub">' . $e['sub'] . '</small></span>');
