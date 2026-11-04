@@ -40,3 +40,6 @@ DONE: 140/140 Opus-finished, 0 draft-only (verified by grepping each .lua for `_
 
 ## Run 2 part 3 (B3) status (2026-11-04)
 DONE: 140/140 Opus-finished, 0 draft-only (grep `_aB3`; check.py 140 items, 0 missing, 0 bad). Run `wf_d47b4919-017`, 41 agents, ~5.0M subagent tokens, no failures. `ph/ember-shell` .. `ph/grapefruit`. Weak (agents' own notes): ember-spark (flat facets, faint core), ensete (muddy rings, stem like a leek), feast-dunewhisper-pilaf (rice vs platter hue), feast-egg-pie (small wedge), feast-isles-ackee-pot (pod reads as figure), feast-spicepeak-thali (katoris blend), finger-lime (pale rind), garden-gate-cross (busy), fox-fang (tangled thong), frost-fur (reads as tassel), frog-skin (boxy), ginseng (reads as cross), glory-bower-seed, gerbera-seed, fireweed-seed, flamboyant-seed. Seeds at 16 px still blob-prone.
+
+## Runs 3 and 4 split (2026-11-04)
+run3 -> `run3-part1..3` (140 each; tags C1,C2,C3; part1 starts `ph/grapefruit-marmalade`, part3 ends `ph/poi`). run4 -> `run4-part1..3` (139/139/138; tags D1,D2,D3; `ph/poinsettia-seed` .. `ph/zinnia-seed`). Args: `rollout/runN-partM.args.json`. Not started.

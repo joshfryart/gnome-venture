@@ -21,7 +21,7 @@ Branch: `ccr-c4d6c653-u81tm0` (repo `joshfryart/gnome-venture`). Never push to m
 - **Part 2 (B2) DONE: 140/140 Opus, 0 draft-only** (`ph/chestnut-seed` .. `ph/elderberry-seed`, grep `_aB2`; last 5 via `B2r`). **Part 3 (B3) DONE: 140/140 Opus, 0 draft-only** (`ph/ember-shell` .. `ph/grapefruit`, grep `_aB3`). **Run 2 is complete: 420/420.** Next: runs 3 and 4.
 
 ## What is NEXT (in order)
-1. **Split run 3 (420) and run 4 (416) into parts of 140** (like run2-partN.json + args with tags C1-C3, D1-D3), then launch each part: ~9M tokens each, 6 parts, ~50M total. Run 2 (all 3 parts) is DONE.
+1. **Runs 3 and 4 are split** (2026-11-04): `rollout/run3-part1|2|3.json` (140 each, `ph/grapefruit-marmalade` .. `ph/poi`, tags C1-C3) and `rollout/run4-part1|2|3.json` (139/139/138, `ph/poinsettia-seed` .. `ph/zinnia-seed`, tags D1-D3), ready args `rollout/runN-partM.args.json`. Launch each with the Workflow tool (scriptPath `aseprite-source/v3/rollout/items-run.js`, args = file contents), ~9M tokens each, ~50M total. Run 2 is DONE.
 2. Remaining static ph items = run3 (420) + run4 (416) = 836; after that every static 64x64 item is done.
 3. Left out on purpose: `flowers/*` heads (tintable rig needed), `-anim` strips, odd-size UI (`items/`, `fx/`, `steps/`, `roadkinds/`, `ui/`), gather and craftmap scenes, creatures, mini, catfish, puzzles, the 82 portraits redo + 22 species portraits, `acts`, 13 regions, banners/homes/wonders/stages/tiers/trek tiles/landing.
 4. Rebuild the before/after PDF and update the artifact sheet after each batch.
