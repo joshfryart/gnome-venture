@@ -27,7 +27,7 @@ f7d7bcb2bcf0118c9a62b40d57280ea8f729b4bd  admin/update.php
 a8ee7d16da7542d10b9cef727b4ce44a676435f8  admin/upload.php
 5fb06e46834212d06d313be4f7b06ec427746481  admin/usage.php
 4866d9121a003c587301a7792c6c1b7518fda832  admin/xp.php
-b35e4cd9f5fdc59b4935fcdaa5631be1179f72da  adventure.php
+a91738a700093fdc5e9aaa86fdbfa0a25c275163  adventure.php
 ad5c4b3bc413c8b4a5d70e6f8acf928452a6668d  arrange.php
 d0f0dd4cb3f4f29a2758143b32c01dee257e8924  assets/admin.css
 434f3d68330f7d0a44dba637b963904545b9301f  assets/admin.js
@@ -8680,7 +8680,7 @@ c669ec571e848d73050df20b531f62404cb825ba  assets/race.js
 e0a44d521e7397e9e26157c8bade0490e6f7b729  assets/site.js
 2caaf2f2ebd43a526ee13091cd5a0975e7333472  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
-bd697baf3e9f9c9e75c639b551f765df31418b94  assets/style.css
+3d0fef05aaa203300e92695b12354bdf7adcecee  assets/style.css
 e1f89c01e8da7da7b212bf05cdedf9b772237d27  assets/tilemap.js
 a48a5bcd24b97d26a62911ccb9a486bda9b5ed90  assets/tour.js
 63317a981a517ffb59c54050031e88460230fcf2  assets/trekcamp.js
