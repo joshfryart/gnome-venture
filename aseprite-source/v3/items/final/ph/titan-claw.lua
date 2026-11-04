@@ -1,29 +1,38 @@
--- titan-claw (lean D3o_4)
+-- titan-claw (lean W2_34)
+-- Big hooked talon hanging point-down: ridged horn, dark keratin tip, leather-bound root with a cord loop; chipped notch quirk.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function paint(c, m, ramp, f) m:each(function(x, y) local i = floor(f(x, y) + 0.5); c:put(x, y, ramp[max(1, min(#ramp, i))]) end) end
-local H = function(x, y, s) return X.hash(x, y, s) end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "titan-claw" }
-local BN = { "#5a3a2a", "#8a5c3a", "#b88852", "#dcb878", "#f0d9a0", "#fff2cc" }
-local LT = { "#2e1c1a", "#4e2e24", "#74442e", "#9a6038" }
-c:groundShadow(26, 55, 15, 2)
-local m, n, T = G.tube({ {20,47},{16,31},{28,17},{50,9} }, function(t) return 1.0 + 8.2 * (1 - t) ^ 0.8 end)
-local v = X.light(n, { amb = 0.1, wrap = 0.3 })
-G.tone(c, m, v, BN, { 0.2, 0.4, 0.56, 0.72, 0.88 })
-m:each(function(x, y) local k = K(x, y); local t = T[k]
-  if t > 0.16 and ((t * 11) % 1) < 0.14 then c:put(x, y, BN[2]) end      -- growth ridges
-  if t > 0.84 then c:put(x, y, (t > 0.93) and "#6a2e24" or "#9a4a30") end    -- dark tip
-  if t < 0.14 then c:put(x, y, LT[1 + floor(v[k] * 3.99)]) end           -- leather cuff
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local HORN = { "#5b4a58", "#8a7466", "#b99f84", "#dcc7a0", "#f3e6c2", "#fff8e4" }
+local TIP  = { "#2b1c2e", "#4a2f3c", "#6e4450", "#93606a" }
+local LEA  = { "#3a2218", "#5e3a24", "#85552e", "#aa7a42" }
+c:groundShadow(34, 56, 12, 2)
+local m, n, T, S = G.tube({ {22, 14}, {20, 40}, {46, 40}, {46, 52} }, function(t) return 6.2 * (1 - t) ^ 0.8 + 0.7 end)
+local v = X.light(n, { amb = 0.12, wrap = 0.25 })
+local bias = {}
+m:each(function(x, y) local k = K(x, y)
+  local t = T[k]
+  local ring = (t * 40) % 4
+  if ring < 0.7 and t > 0.12 and t < 0.8 then bias[k] = -1 end
 end)
--- cuff stitching + studs
-for _, p in ipairs{ {14,49},{18,48},{22,47},{26,46} } do end
-m:each(function(x, y) local k = K(x, y); if T[k] < 0.14 and (x + y) % 4 == 0 then c:put(x, y, "#e0c080") end end)
--- gloss streak on the lit side, quirk: hairline crack
-for t = 0.25, 0.7, 0.05 do
-  local f = t / 1
-  local x = floor(20 - 7 * sin(f * 2.4) + 0.5)
-end
-c:put(21, 38, BN[6]) c:put(21, 37, BN[6]) c:put(22, 35, BN[6]) c:put(23, 33, BN[5]) c:put(26, 29, BN[6]) c:put(25, 30, BN[5])
-c:put(27, 36, BN[1]) c:put(28, 37, BN[1]) c:put(28, 38, BN[2]) c:put(29, 39, BN[1])
+G.tone(c, m, v, HORN, { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias)
+-- dark keratin tip
+local tipm = HP.mask()
+m:each(function(x, y) if T[K(x, y)] > 0.8 then tipm:set(x, y) end end)
+G.tone(c, tipm, v, TIP, { 0.25, 0.5, 0.75 })
+-- spec streak along upper-left of horn
+m:each(function(x, y) local k = K(x, y)
+  if S[k] < -0.35 and S[k] > -0.55 and T[k] > 0.2 and T[k] < 0.7 then c:px(x, y, HORN[6]) end
+end)
+-- leather binding at root
+local bind = HP.mask()
+m:each(function(x, y) if T[K(x, y)] < 0.17 then bind:set(x, y) end end)
+G.tone(c, bind, v, LEA, { 0.3, 0.6, 0.85 })
+bind:each(function(x, y) if (x + y) % 4 == 0 then c:px(x, y, LEA[1]) end end)
+-- cord loop
+G.line(c, { {19, 10}, {17, 7}, {19, 5}, {23, 5}, {25, 7}, {24, 10} }, LEA[4])
+c:px(18, 8, LEA[2]) c:px(24, 9, LEA[2])
+-- quirk: chip notch on the outer curve
+c:px(32, 45, HORN[1]) c:px(33, 45, HORN[2]) c:px(32, 46, HORN[1])
 G.fin(c, "titan-claw")

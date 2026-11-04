@@ -1,50 +1,51 @@
--- wild-rice (lean D3o_12)
+-- wild-rice (lean W2_38)
+-- Tall slim rice plant: jointed stalk, open drooping panicle of awned grains (upper branches rise, lower ones hang), two arching blades, tiny water ripple.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
-local function shade(c, m, ramp, R, o) o = o or {}
-  local n = X.pillow(m, R or 4)
-  local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
-end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "wild-rice" }
--- slim wild rice stalk: curved culm with node, two arching leaf blades, drooping panicle of long dark grains with awns. quirk: one grain has split open to show white kernel.
-local STEM = { "#4a6a3a", "#6f9448", "#9cbc62", "#cbdc88" }
-local LEAF = { "#1f4a35", "#2f6b40", "#46904a", "#6cb455", "#9ccd6c" }
-local GR = { "#3a2a22", "#5b4330", "#85613c", "#b08650", "#d6b072" }
-local ltok = { r = { name = "leaf" } }
--- leaf blades
-local function blade(pts, wmax)
-  local m, n = G.tube(pts, function(t) return wmax * sin(pi * min(1, t * 0.9 + 0.08)) ^ 0.7 + 0.4 end)
-  shade(c, m, LEAF, 3, { amb = 0.12, wrap = 0.3, tok = ltok })
-  local mid = G.tube(pts, function(t) return 0.5 end)
-  mid:each(function(x, y) c:px(x, y, LEAF[5]) end)
+local sin, cos, pi = math.sin, math.cos, math.pi
+local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#a8d870" }
+local STEM  = { "#4a5a30", "#76843e", "#a4ac58", "#d2cc82" }
+local GRAIN = { "#2e2020", "#4e3428", "#74503a", "#a07c50", "#cfa86a", "#f0d490" }
+local tok = { r = { name = "rice" } }
+c:groundShadow(33, 55, 14, 2)
+c:fillMask(c:ellipse(33, 55, 12, 1.5), "#6a8ec0") c:fillMask(c:ellipse(32, 55, 7, 1), "#a8c8e8")
+local function tone(m, n, ramp, cuts) G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, cuts, nil, tok) end
+-- blades
+local function blade(pts, w)
+  local m, n = G.tube(pts, function(t) return w * (1 - t) ^ 0.7 + 0.5 end)
+  tone(m, n, LEAF, { 0.2, 0.38, 0.55, 0.72, 0.87 })
+  for i = 1, 3 do local p = pts[i]; c:px(math.floor(p[1] + 0.5), math.floor(p[2] + 0.5), LEAF[6]) end
 end
-blade({ {30, 54}, {16, 50}, {10, 40}, {8, 30} }, 2.4)
-blade({ {33, 54}, {46, 49}, {54, 42}, {55, 31} }, 2.2)
--- culm
-local sm, sn = G.tube({ {32, 58}, {31, 46}, {33, 32}, {35, 15} }, function(t) return 1.8 - 0.5 * t end)
-shade(c, sm, STEM, 2, { amb = 0.2, wrap = 0.3 })
-c:fillMask(c:rect(30, 45, 33, 45), STEM[1]) c:px(30, 44, STEM[4])
--- panicle
-local function grain(x, y, ux, uy, split)
-  local m = G.rell(x, y, ux, uy, 3.6, 1.5)
-  shade(c, m, GR, 2, { amb = 0.15, wrap = 0.3 })
-  c:px(floor(x - ux * 1.5), floor(y - uy * 1.5 - 1), GR[5])
-  -- awn
-  local ex, ey = x + ux * 3.8, y + uy * 3.8
-  G.line(c, { {floor(ex), floor(ey)}, {floor(ex + ux * 4), floor(ey + uy * 4)} }, GR[3])
-  if split then c:px(floor(x), floor(y), "#f4ecd2") c:px(floor(x + ux), floor(y + uy), "#f4ecd2") end
-end
+blade({ { 31, 54 }, { 24, 46 }, { 16, 44 }, { 9, 50 } }, 2.4)
+blade({ { 34, 54 }, { 41, 42 }, { 49, 38 }, { 56, 40 } }, 2.2)
+-- stalk
+local sm, sn = G.tube({ { 32, 54 }, { 32, 44 }, { 33, 30 }, { 33, 16 } }, function(t) return 1.6 - t * 0.5 end)
+tone(sm, sn, STEM, { 0.3, 0.6, 0.85 })
+for _, y in ipairs{ 48, 38, 28 } do c:px(31, y, STEM[1]) c:px(32, y, STEM[1]) c:px(34, y, STEM[1]) c:px(33, y + 1, STEM[2]) end
+-- panicle branches: {from, ctrl, to}, grains hang at the tips
 local br = {
-  { {35, 15}, {30, 12}, {26, 17}, {24, 24} }, { {35, 15}, {38, 10}, {43, 14}, {45, 21} },
-  { {35, 18}, {33, 18}, {31, 24}, {30, 31} }, { {35, 20}, {40, 20}, {42, 26}, {41, 32} },
+  { 33, 17, 36, 10, 38, 7 }, { 33, 17, 29, 10, 28, 6 },
+  { 33, 20, 41, 18, 45, 25 }, { 33, 22, 25, 19, 21, 27 },
+  { 33, 25, 40, 26, 41, 35 }, { 33, 27, 26, 28, 24, 37 },
 }
-for _, b in ipairs(br) do
-  local m = G.tube(b, function(t) return 0.5 end)
-  m:each(function(x, y) c:px(x, y, STEM[2]) end)
+local function grain(x, y, a)
+  local m, n = G.tube({ { x, y }, { x + cos(a) * 1.5, y + sin(a) * 1.5 }, { x + cos(a) * 3, y + sin(a) * 3 }, { x + cos(a) * 5, y + sin(a) * 5 } },
+    function(t) return 1.5 * sin(pi * (t * 0.85 + 0.12)) ^ 0.6 + 0.2 end)
+  tone(m, n, GRAIN, { 0.2, 0.38, 0.55, 0.72, 0.87 })
+  c:px(math.floor(x + cos(a) * 6 + 0.5), math.floor(y + sin(a) * 6 + 0.5), GRAIN[3])      -- awn
 end
-grain(24, 27, -0.1, 1, false) grain(26, 20, -0.5, 0.85, false) grain(45, 24, 0.1, 1, false) grain(43, 17, 0.5, 0.85, false)
-grain(30, 34, -0.1, 1, true) grain(41, 35, 0.1, 1, false) grain(35, 8, 0.1, -1, false) grain(33, 24, 0, 1, false)
+for _, b in ipairs(br) do
+  local ax, ay, cx, cy, ex, ey = table.unpack(b)
+  local pts = {}
+  for i = 0, 3 do local t = i / 3; local u = 1 - t
+    pts[#pts + 1] = { u * u * ax + 2 * u * t * cx + t * t * ex, u * u * ay + 2 * u * t * cy + t * t * ey } end
+  local m, n = G.tube(pts, function(t) return 0.8 end)
+  tone(m, n, STEM, { 0.3, 0.6, 0.85 })
+  local drop = ey >= 20
+  grain(ex, ey, drop and pi / 2 or -pi / 2 + (ex - ax) * 0.03)
+  if drop then grain(pts[3][1], pts[3][2] + 1, pi / 2 + (ex < ax and 0.5 or -0.5)) end
+end
+-- quirk: one grain has burst, showing pale kernel
+c:px(41, 33, GRAIN[6]) c:px(42, 34, GRAIN[5])
 G.fin(c, "wild-rice")

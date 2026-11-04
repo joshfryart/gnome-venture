@@ -1,74 +1,66 @@
--- tide-bucket (lean D3o_2)
--- Tapered driftwood pail: pale salt-bleached staves, two rusty hoops, dark brine inside the oval rim, thin rope handle on knots. Quirk: a tiny crab claw waving over the rim.
+-- tide-bucket (lean W2_33)
+-- Tall tapered wooden bucket, brimming with seawater, twisted rope bail, two verdigris hoops, wet-dark base.
+-- Quirk: an orange starfish clinging to the staves.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tide-bucket" }
-local floor, abs, sqrt = math.floor, math.abs, math.sqrt
-local WOOD = { "#4a3640", "#6f5252", "#947466", "#b8977f", "#d6b99c", "#efdcc0" }
-local IRON = { "#3a2b3a", "#5b4150", "#8a5a4e", "#b8745a", "#dc9a70", "#f5c79a" }
-local ROPE = { "#6a5240", "#947a58", "#bba078", "#dcc596", "#f1e2b8", "#fff4d6" }
-local BRINE= { "#1c2c44", "#2a4768", "#3d6a8a", "#62a0b0", "#a6dcdc", "#e6fbf4" }
-local CRAB = { "#7a2a30", "#a8403a", "#d2614a", "#ee8a5c", "#fbb77e", "#ffe0b0" }
-c:groundShadow(32, 57, 18, 2)
-local Y0, Y1, CX = 24, 54, 32
-local function hw(y) return 17 - 4 * (y - Y0) / (Y1 - Y0) end
+local floor, abs, sin, max, min = math.floor, math.abs, math.sin, math.max, math.min
+local function cl(v) return max(0, min(1, v)) end
+local WOOD = { "#3a2630", "#5e4040", "#86604a", "#ab8460", "#cba87a", "#e6cc9c" }
+local WATER = { "#1c4f7c", "#2a76a6", "#3ea0c4", "#6cc6d8", "#a6e6e8", "#e6fbf8" }
+local HOOP = { "#1f4a4a", "#2f6e68", "#4a9488", "#7cc4aa" }
+local STAR = { "#8c2e1c", "#bf4a22", "#e8742e", "#f6a64e" }
+local CX, Y0, Y1 = 32, 24, 54
+local function hw(y) return 14 - (y - Y0) / (Y1 - Y0) * 4 end
+c:groundShadow(33, 57, 16, 2)
+-- rope bail (behind): arcs over the top
+local rm, rn, rT = G.tube({ { 19, 25 }, { 19, -2 }, { 45, -2 }, { 45, 25 } }, function() return 1.6 end)
+G.tone(c, rm, X.light(rn, { amb = 0.15, wrap = 0.3 }), { "#6e5230", "#94733f", "#b8975a", "#d8bc80", "#f0dca8", "#fff2c8" }, { 0.2, 0.4, 0.58, 0.75, 0.9 })
+rm:each(function(x, y) if floor(rT[K(x, y)] * 38 + (y > 0 and 0 or 0)) % 2 == 0 then c:px(x, y, "#6e5230") end end)
+-- body
 local body = HP.mask()
 for y = Y0, Y1 do local h = hw(y) for x = floor(CX - h + 0.5), floor(CX + h - 0.5) do body:set(x, y) end end
--- body bottom is a gentle curve
-local bot = HP.mask()
-body:each(function(x, y) local u = (x - CX) / hw(y); if y > Y1 - 2 * (u * u) then bot:set(x, y) end end)
-body:cut(bot)
-local v, bias = {}, {}
-body:each(function(x, y)
-  local u = (x - CX) / hw(y)
-  local s = 0.84 - 0.30 * (u + 1) / 2 * 1.9 + 0.08 * (1 - u * u)
-  local stave = (x - (CX - 17)) % 6
-  if stave == 0 then s = s - 0.18 end
-  if stave == 1 then s = s + 0.05 end
-  -- grain flecks
-  if X.hash(x, y, 7) > 0.93 and stave > 1 then s = s - 0.12 end
-  v[K(x, y)] = math.max(0, math.min(1, s))
-end)
-G.tone(c, body, v, WOOD)
+body:add(c:ellipse(CX, Y1, 10, 2.5))
+local v = {}
+body:each(function(x, y) local u = (x - (CX - hw(math.min(y, Y1)))) / (2 * hw(math.min(y, Y1)))
+  local g = X.hash(x // 1, floor(y / 6), 5) * 0.06
+  v[K(x, y)] = cl(0.95 - u * 0.95 + g - (y - Y0) * 0.006) end)
+local bias = {}
+body:each(function(x, y) if y > 48 then bias[K(x, y)] = -1 end end)
+G.tone(c, body, v, WOOD, { 0.2, 0.38, 0.55, 0.72, 0.88 }, bias)
+-- stave seams (follow taper)
+for i = -2, 2 do
+  for y = Y0 + 3, Y1 - 1 do
+    local h = hw(y)
+    local x = floor(CX + i * (h / 2.5) + 0.5)
+    if i ~= 0 or true then c:px(x, y, WOOD[2]) if i < 0 then c:px(x - 1, y, WOOD[5]) end end
+  end
+end
 -- hoops
-local function hoop(y0, h)
-  for y = y0, y0 + h - 1 do for x = floor(CX - hw(y) + 0.5), floor(CX + hw(y) - 0.5) do
-    if body:has(x, y) then
-      local u = (x - CX) / hw(y)
-      local i = (u < -0.5) and 5 or (u < 0.1 and 4 or (u < 0.6 and 3 or 2))
-      if y == y0 + h - 1 then i = math.max(1, i - 2) end
-      c:px(x, y, IRON[i])
-    end
-  end end
-  c:px(CX + 5, y0 + 1, IRON[1]) c:px(CX - 9, y0 + 1, IRON[1])
+for _, hy in ipairs{ 30, 47 } do
+  for dy = 0, 2 do local y = hy + dy
+    for x = floor(CX - hw(y) + 0.5), floor(CX + hw(y) - 0.5) do
+      local u = (x - (CX - hw(y))) / (2 * hw(y))
+      c:px(x, y, dy == 0 and HOOP[u < 0.55 and 4 or 3] or (dy == 1 and HOOP[u < 0.6 and 3 or 2] or HOOP[u < 0.5 and 2 or 1]))
+    end end
+  c:px(CX - 5, hy + 1, HOOP[4]) c:px(CX + 4, hy + 1, HOOP[1])
 end
-hoop(30, 3) hoop(46, 3)
--- ellipse rim, brine inside
-local rim = c:ellipse(CX, Y0, 17, 4)
-local inner = c:ellipse(CX, Y0 + 1, 15, 3)
-local rv = {}
-rim:each(function(x, y) local u = (x - CX) / 17; rv[K(x, y)] = math.max(0, math.min(1, 0.85 - 0.4 * (u + 1) / 2 + (y < Y0 and 0.06 or -0.1))) end)
-G.tone(c, rim, rv, WOOD)
-local bv = {}
-inner:each(function(x, y) bv[K(x, y)] = math.max(0, math.min(1, 0.35 + 0.5 * (y - Y0 + 2) / 5 - 0.1 * (x - CX) / 15)) end)
-G.tone(c, inner, bv, BRINE)
-for _, p in ipairs{ {26,Y0+1},{27,Y0+1},{38,Y0+2} } do c:px(p[1], p[2], BRINE[6]) end
--- crab claw over rim (quirk): arm + pincer
-for _, p in ipairs{ {44,Y0-1,3},{45,Y0-2,3},{45,Y0-3,2},{46,Y0-4,4},{47,Y0-4,3},{48,Y0-5,5},{48,Y0-6,4},{50,Y0-6,4},{49,Y0-7,5},{47,Y0-7,3},{50,Y0-5,3},{49,Y0-5,2},{47,Y0-6,2},{46,Y0-5,2},{45,Y0-1,2} } do
-  c:px(p[1], p[2], CRAB[p[3]])
-end
-c:px(48, Y0 - 6, CRAB[6])
--- rope handle: thin arc, knots at rim holes
-local rm, rn = G.tube({ {16, Y0}, {14, 5}, {50, 5}, {48, Y0} }, function(t) return 1.1 end)
-local rv2 = X.light(rn, { amb = 0.1, wrap = 0.3 })
-rm:cut(body)
-G.tone(c, rm, rv2, ROPE)
-rm:each(function(x, y) if (x + y) % 4 == 0 then c:px(x, y, ROPE[2]) end end)
-for _, kx in ipairs{ 16, 48 } do
-  c:fillMask(c:ellipse(kx, Y0 + 1, 2, 2), ROPE[3]) c:px(kx - 1, Y0, ROPE[5]) c:px(kx + 1, Y0 + 2, ROPE[1])
-end
--- AO under rim on staves
-for x = floor(CX - 16), floor(CX + 16) do if body:has(x, Y0 + 4) then c:px(x, Y0 + 4, WOOD[1]) end end
--- glint on lit stave
-c:px(19, 36, WOOD[6]) c:px(19, 37, WOOD[6]) c:px(20, 35, WOOD[6])
+-- top rim ring + water
+local rim = c:ellipse(CX, Y0, 14, 4)
+G.tone(c, rim, (function() local t = {} rim:each(function(x, y) t[K(x, y)] = cl(0.95 - (x - 18) / 28 * 0.8) end) return t end)(), WOOD, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+local wat = c:ellipse(CX, Y0 + 0.5, 12, 2.7)
+wat:each(function(x, y) local w = (y - (Y0 - 2)) / 5
+  local t = 3 + ((x + 2 * y) % 7 == 0 and 1 or 0) - (w > 0.7 and 1 or 0) - (w > 0.9 and 1 or 0)
+  c:px(x, y, WATER[max(1, t)]) end)
+for x = 24, 28 do c:px(x, Y0 - 1, WATER[5]) end c:px(25, Y0 - 1, WATER[6]) c:px(37, Y0 + 1, WATER[5])
+-- spill drip on right side
+c:px(CX + 12, Y0 + 2, WATER[4]) c:px(CX + 12, Y0 + 3, WATER[3]) c:px(CX + 12, Y0 + 4, WATER[4])
+-- starfish
+local pts = {}
+for i = 0, 9 do local a = -math.pi / 2 + i * math.pi / 5; local r = (i % 2 == 0) and 5.2 or 2.1
+  pts[#pts + 1] = { 38 + r * math.cos(a), 39 + r * math.sin(a) } end
+local star = c:poly(pts)
+star:each(function(x, y) local t = 3 - ((x - 36) * 0.3 + (y - 37) * 0.25)
+  c:px(x, y, STAR[cl((t - 1) / 3) * 3 // 1 + 1 > 4 and 4 or cl((t - 1) / 3) * 3 // 1 + 1]) end)
+c:px(38, 39, STAR[1]) c:px(37, 37, STAR[4]) c:px(39, 40, STAR[2])
 G.fin(c, "tide-bucket")

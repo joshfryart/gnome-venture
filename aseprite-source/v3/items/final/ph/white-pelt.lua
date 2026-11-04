@@ -1,42 +1,46 @@
--- white-pelt (lean D3o_12)
+-- white-pelt (lean W2_38)
+-- Fluffy winter pelt seen from above: long body, small head left, four dangling paws, bushy tail with dark tip, tufted edge, leather peeking lower-right.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
-local function shade(c, m, ramp, R, o) o = o or {}
-  local n = X.pillow(m, R or 4)
-  local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
-end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "white-pelt" }
--- fluffy scalloped fleece rug with head, ears, leg stubs, curl tail; tan hide rim lower-right. quirk: sleepy smile.
-local FUR = { "#8f86b0", "#b8b0cc", "#d9d3e2", "#efeaee", "#fbf6ec", "#fffdf6" }
-local u = HP.mask()
-for y = 8, 58 do for x = 6, 58 do
-  local dx, dy = x - 32, (y - 35) / 0.82
-  local a = atan2(dy, dx)
-  local R = 17.5 + 2.0 * sin(7 * a + 1) + 1.1 * sin(13 * a + 2)
-  if sqrt(dx * dx + dy * dy) <= R then u:set(x, y) end
-end end
-for _, L in ipairs{ {13, 21}, {51, 21}, {13, 47}, {51, 47} } do u:add(c:ellipse(L[1], L[2], 5, 4)) end
-local head = c:ellipse(32, 14, 6, 5)
-u:add(head) u:add(c:ellipse(25, 10, 2, 3)) u:add(c:ellipse(39, 10, 2, 3))
-u:add(c:ellipse(32, 56, 3, 3))
-local hide = u:shift(2, 2) hide:cut(u)
-c:fillMask(hide, "#b98a5c")
-hide:each(function(x, y) if not hide:has(x, y + 1) or not hide:has(x - 1, y) then c:px(x, y, "#8a5a3f") end end)
-local n, v = shade(c, u, FUR, 9, { amb = 0.2, wrap = 0.35 })
-u:each(function(x, y)
-  local h = X.hash(x, y, 5)
-  if h > 0.93 and not u:has(x + 1, y + 2) == false then c:px(x, y, FUR[2]) c:px(x + 1, y + 1, FUR[2]) end
-  if h < 0.05 and v[K(x, y)] > 0.55 then c:px(x, y, FUR[6]) c:px(x - 1, y - 1, FUR[6]) end
+local abs, sin, cos, sqrt = math.abs, math.sin, math.cos, math.sqrt
+local FUR = { "#7f78a8", "#a9a4c8", "#cdcae0", "#e8e6f0", "#f8f6fa", "#fffafc" }
+local LEA = { "#5a3a30", "#8a5c3e", "#b98456" }
+local tok = { r = { name = "fur" } }
+c:groundShadow(34, 50, 20, 3)
+local body = c:ellipse(33, 32, 15, 9)
+local parts = {
+  c:ellipse(17, 28, 6, 5), c:ellipse(18, 27, 4, 3),           -- head + snout lump
+  c:ellipse(24, 19, 4, 3), c:ellipse(40, 19, 4, 3),           -- front/back paws up
+  c:ellipse(24, 45, 4, 4), c:ellipse(41, 45, 4, 4),           -- lower paws
+  c:ellipse(51, 36, 8, 5),                                    -- tail
+}
+-- ears
+local ears = c:ellipse(15, 22, 2, 2):add(c:ellipse(20, 22, 2, 2))
+for _, p in ipairs(parts) do body:add(p) end
+body:add(ears)
+-- tufted edge: ragged by hash
+local m = HP.mask()
+body:each(function(x, y) m:set(x, y) end)
+body:edge():each(function(x, y) if X.hash(x, y, 7) > 0.55 then m:cut(c:rect(x, y, x, y)) end end)
+local tufts = body:edge():grow(1)
+tufts:each(function(x, y) if X.hash(x, y, 9) > 0.8 and not body:has(x, y) then m:set(x, y) end end)
+-- leather underside, offset lower-right
+local lea = m:copy():shift(1, 2); lea:cut(m)
+c:fillMask(lea, LEA[2]) lea:edge():each(function(x, y) c:px(x, y, LEA[1]) end)
+local n = X.pillow(m, 8)
+local v = X.light(n, { amb = 0.18, wrap = 0.4 })
+G.tone(c, m, v, FUR, { 0.15, 0.3, 0.5, 0.72, 0.9 }, nil, tok)
+-- fur strokes
+m:each(function(x, y)
+  if X.hash(x, y, 2) > 0.86 and v[K(x, y)] > 0.3 then c:px(x, y, FUR[3]) c:px(x + 1, y + 1, FUR[2]) end
+  if X.hash(x, y, 5) > 0.93 then c:px(x, y, FUR[6]) end
 end)
--- tail curl
-c:px(32, 56, FUR[4]) c:px(31, 55, FUR[6])
--- face (quirk)
-c:px(28, 14, "#6b5a74") c:px(29, 15, "#6b5a74") c:px(30, 14, "#6b5a74")
-c:px(34, 14, "#6b5a74") c:px(35, 15, "#6b5a74") c:px(36, 14, "#6b5a74")
-c:px(32, 17, "#e59aa5") c:px(31, 19, "#6b5a74") c:px(32, 20, "#6b5a74") c:px(33, 19, "#6b5a74")
-c:px(26, 9, "#e8b6c0") c:px(38, 9, "#e8b6c0")
-c:px(22, 26, FUR[6]) c:px(23, 26, FUR[6]) c:px(23, 27, FUR[6])
+-- dark tail tip (quirk), nose, eyes
+c:fillMask(c:ellipse(57, 37, 2.2, 2.2):cut(c:ellipse(52, 36, 5, 4)), "#3a2a3a")
+c:px(58, 36, "#5a4a5a")
+c:px(12, 29, "#3a2a3a") c:px(13, 29, "#3a2a3a") c:px(15, 26, "#3a2a3a") c:px(19, 26, "#3a2a3a")
+c:px(16, 28, "#e8a0a8") c:px(15, 22, "#e8b0b8") c:px(20, 22, "#e8b0b8")
+-- paw claws hint
+for _, p in ipairs{ {23,48}, {25,48}, {40,48}, {42,48}, {23,16}, {25,16}, {39,16}, {41,16} } do c:px(p[1], p[2], FUR[1]) end
 G.fin(c, "white-pelt")

@@ -1,0 +1,25 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Crop tile mockup tight</title>
+<style>
+body{margin:0;background:#2a1a12;color:#f1e3c8;font:14px system-ui}
+h2{margin:16px 10px 6px;font-size:15px;color:#e0b86a}
+.wrap{display:flex;flex-wrap:wrap;gap:20px;padding:0 10px 20px}
+.col{width:360px}.col.d{width:760px}
+.g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+.d .g{grid-template-columns:repeat(6,minmax(0,1fr))}
+.t{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 2px 4px;background:#3c281c;border:1px solid #6b4528;text-align:center;position:relative;min-width:0}
+.t .ic{position:relative;width:72px;height:72px}
+.t img{image-rendering:pixelated;width:72px;height:72px;display:block}
+.t em{position:absolute;right:-4px;bottom:0;font:700 12px/1 system-ui;font-style:normal;background:#1e120c;color:#f1e3c8;border:1px solid #6b4528;padding:2px 4px}
+.t b{font-size:12.5px;line-height:1.1;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.2em;display:flex;align-items:flex-start;justify-content:center}
+.t i{position:absolute;top:3px;right:3px;width:8px;height:8px;background:#e8a317}
+</style>
+<h2>Mobile — 3 per row, 72px icon, count badge on icon</h2>
+<div class=wrap id=m></div>
+<h2>Desktop — 6 per row, 72px icon (same as mobile)</h2>
+<div class=wrap id=d></div>
+<script>
+const it=[['carrot','Carrot','13'],['lettuce','Lettuce','20',1],['oats','Oats','41',1],['radish','Radish','12'],['apple','Apple','1'],['tomato','Tomato','6'],['carrot','Kidney Bean','4',1],['oats','Wild Strawberries','1',1],['lettuce','Four-leaf Clover','1']];
+const h=()=>'<div class=g>'+it.map(([s,n,q,f])=>`<div class=t>${f?'<i></i>':''}<span class=ic><img src="../../game/assets/img/ph/${s}.png" alt=""><em>×${q}</em></span><b>${n}</b></div>`).join('')+'</div>';
+m.innerHTML=`<div class=col>${h()}</div>`;d.innerHTML=`<div class="col d">${h()}</div>`;
+</script>

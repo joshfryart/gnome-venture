@@ -1,52 +1,37 @@
--- tomatillo (lean D3o_5)
--- A green sticky fruit peeking out of its papery lantern husk: ribbed tan husk with five scalloped lobes,
--- fruit showing between the lobes, curled stem tip.
--- quirk: one husk lobe is torn and curled up.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- tomatillo (lean W2_35)
+-- papery lantern husk with ribs, green fruit peeking below; quirk: a torn husk slit showing fruit
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tomatillo" }
-local sin, cos, pi, sqrt, abs, floor, max = math.sin, math.cos, math.pi, math.sqrt, math.abs, math.floor, math.max
-local function sh(m, ramp, R, amb, wrap, bias, tok)
-  local n = X.pillow(m, R)
-  local v = X.light(n, { amb = amb or 0.1, wrap = wrap or 0.25 })
-  G.tone(c, m, v, ramp, nil, bias, tok)
-  return n, v
-end
-local TG = { "#2a4a2c", "#40692f", "#5f9238", "#88b840", "#b4d85a", "#e2f290" }
-local TAN = { "#5e4630", "#8e7048", "#bf9e62", "#dcc486", "#efdcaa", "#fff4d0" }
--- fruit
-local fruit = c:ellipse(32, 43, 14, 12)
-local fn, fv = sh(fruit, TG, 11, 0.06, 0.25)
-fruit:each(function(x, y) if X.hash(x, y, 3) > 0.93 and fv[K(x, y)] > 0.5 then c:px(x, y, TG[6]) end end)
-c:px(26, 38, "#fffff0") c:px(27, 38, "#fffff0") c:px(25, 39, TG[6])
--- husk
-local function bottom(x) return 50 - 7 * abs(sin((x - 32) * pi / 11)) end
-local husk = HP.mask()
-for y = 13, 50 do for x = 14, 50 do
-  local u = (y - 33) / 20
-  local hw = 17 * (1 - abs(u) ^ 2.2) ^ 0.62
-  if y < 33 then hw = 17 * (1 - abs(u) ^ 1.9) ^ 0.75 end
-  if abs(x - 32) <= hw and y <= bottom(x) then husk:set(x, y) end
-end end
-local hn, hv = sh(husk, TAN, 9, 0.2, 0.35)
-husk:each(function(x, y) local h = X.hash(x, y, 9) if h > 0.92 then c:px(x, y, TAN[5]) elseif h < 0.05 then c:px(x, y, TAN[2]) end end)
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c = HP.canvas{ w=64, h=64, scale=1, name="tomatillo" }
+local HUSK={"#6b5238","#98794f","#c4a56e","#e0c88f","#f0e0aa","#fff3cc"}
+local FR={"#1f4a2c","#2f6b34","#4d9140","#76b84c","#a3d462","#d2ee8c"}
+local ST={"#3b4f26","#5f7a32","#8fa84a","#bcd075"}
+c:groundShadow(32,54,13,2)
+local fruit=c:ellipse(32,43,11,9)
+G.toneN(c,fruit,X.pillow(fruit,9),FR,{})
+local husk=c:ellipse(32,32,13,16):add(c:poly{{32,12},{26,20},{38,20}})
+husk:cut(c:rect(0,45,63,63))
+-- scalloped bottom
+for x=19,45 do local s=floor(abs(((x-19)%6)-3)*0.8) for y=44-s+1,46 do husk:cut(c:rect(x,y,x,y)) end end
+local hn=X.pillow(husk,13)
+G.toneN(c,husk,hn,HUSK,{})
 -- ribs
-for _, ex in ipairs{ 21, 26.5, 32, 37.5, 43 } do
-  local pts = { {32, 15}, {32 + (ex - 32) * 0.5, 26}, {32 + (ex - 32) * 0.9, 38}, {ex, bottom(ex) - 1} }
-  c:line(pts, 1):each(function(x, y) if husk:has(x, y) then c:px(x, y, TAN[2]) end end)
-  local p2 = {}
-  for i, p in ipairs(pts) do p2[i] = { p[1] - 1, p[2] } end
-  c:line(p2, 1):each(function(x, y) if husk:has(x, y) and hv[K(x, y)] > 0.55 then c:px(x, y, TAN[5]) end end)
-end
--- cross veins
-for _, yy in ipairs{ 24, 31, 38 } do
-  for x = 17, 47 do if husk:has(x, yy + floor(sin(x * 0.9) + 0.5)) and X.hash(x, yy, 5) > 0.6 then c:px(x, yy + floor(sin(x * 0.9) + 0.5), TAN[3]) end end
-end
--- shade under lobes onto fruit
-for x = 16, 48 do local b = bottom(x) if husk:has(x, floor(b)) then c:px(x, floor(b), TAN[1]) end end
--- torn curled lobe (quirk) at right tip
-c:px(44, 49, TAN[5]) c:px(45, 48, TAN[6]) c:px(45, 47, TAN[3]) c:px(44, 47, TAN[1])
+husk:each(function(x,y)
+  local u=(x-32)/13
+  for _,r in ipairs{-0.8,-0.45,-0.12,0.22,0.58,0.88} do
+    local rx=32+r*13*sqrt(max(0,1-((y-32)/16)^2))*1.0
+    if abs(x-rx)<0.5 and y>16 and y<44 then c:put(x,y, r>0.1 and HUSK[1] or HUSK[2]) end
+  end
+  if (y*3+x)%11==0 and X.hash(x,y,3)>0.6 and u<0.3 then c:put(x,y,HUSK[5]) end
+end)
+-- torn slit quirk showing fruit
+for i=0,5 do c:put(36+floor(i*0.4),36+i,FR[4]) c:put(37+floor(i*0.4),36+i,FR[2]) end
+c:put(36,36,FR[6])
+-- glint
+c:put(25,26,HUSK[6]) c:put(26,25,HUSK[6]) c:put(25,27,HUSK[5])
 -- stem
-local sm, sn = G.tube({ {32, 15}, {32, 12}, {33, 9}, {36, 8} }, function(t) return 1.8 - 0.7 * t end)
-G.tone(c, sm, X.light(sn, { amb = 0.15, wrap = 0.3 }), { "#4a5a2c", "#6a8038", "#9ab04c", "#c8d878" }, { 0.3, 0.55, 0.8 })
-G.fin(c, "tomatillo")
+local sm,sn=G.tube({{32,12},{32,9},{34,6},{36,5}},function(t) return 1.8-0.5*t end)
+G.toneN(c,sm,sn,ST,{})
+c:put(30,13,HUSK[1]) c:put(34,13,HUSK[1])
+G.save(c,"tomatillo")
