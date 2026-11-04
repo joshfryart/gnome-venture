@@ -1,4 +1,17 @@
-# Gnome Venture: to-do (updated 2026-11-03; current version and history: CHANGELOG.md. The NOW blocks below are older release notes)
+# Gnome Venture: to-do (updated 2026-11-04; current version and history: CHANGELOG.md. The NOW blocks below are older release notes)
+
+## NOW (2.4.98, 2026-11-04): HEARTH POP ART RELEASE. BUILT, slim zip `releases/GnomeVenture-2.4.98-web-update.zip` (needs 2.4.96+; also carries 2.4.97), manifest `tests/manifests/2.4.98.txt`. Joshua uploads.
+- **DONE:** 1,662 item and icon PNGs replaced with v3 art, same names (`assets/img/ph`, `games`, `ico`); the game already prefers `.png`. 179 weak ones carry a pink 2 px border (`aseprite-source/v3/rollout/weak.txt`, regenerate with `python3 rollout/export_game.py` from `aseprite-source/v3`). No code or schema change.
+- **OPEN (art):** all in `claude/todo-art-v3.md` (redo the 179 weak, flower heads, portraits, models, scenes, plus the new pictures the navigation plan needs). Method for all: Sonnet medium.
+- **OPEN (build):** the graphical-navigation plan `claude/plan-graphical-nav.md` (Phases 0-7, flags `gnav_on` / `gnav_tiles` / `gnav_craft` / `gnav_tree`; ships as releases A: Here + sprites + nav, B: Trail tiles, C: Residential + Door, D: Crafting + Treehouse + Pal Yard). Starts after the art above lands; Phase 0 is recon only.
+- **Not run for 2.4.98:** MySQL, `upgrade_check.sh`, full CI, real-phone check of the new art (check item art at 24/40/64 px display sizes, dark theme, `image-rendering: pixelated` present on every `<img>`).
+- Art pipeline history and state: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`.
+
+## PLANNED (consolidated, in order)
+1. Josh reviews the pink-bordered art on the live site; list fixes in `weak.txt`.
+2. Art: see `claude/todo-art-v3.md` (A redo, B left out, C new pictures for navigation).
+3. Build the graphical navigation (`claude/plan-graphical-nav.md`): Phase 1 foundations, 2a-2c Here + sprites + nav (release A), 2d Trail tiles (B), 3 Residential + Door (C), 4 Crafting workshop + 5 Treehouse / Pal Yard (D), 6 admin layout editor + art briefs, 7 release mechanics.
+4. Open items from the older blocks below (phone checks, MySQL/`upgrade_check.sh`, README screenshots, UI consolidation) stay open until ticked off.
 
 ## NOW (2.4.96, 2026-11-03): WELCOME FLOW REDESIGN + 2.4.94/95. BUILT and LIVE, slim zip `releases/GnomeVenture-2.4.96-web-update.zip` (needs 2.4.93+; also carries 2.4.94 and 2.4.95), manifest `tests/manifests/2.4.96.txt`. Full notes: `claude/handoff-2.4.96.md`.
 - **DONE (CHANGELOG 2.4.94 to 2.4.96):** new-player Welcome flow (progress tiles, Wren bubble with "More", stage, village cards, top-down basket, pack cards, sticky bar; 11 PNGs in `assets/img/welcome/` and `assets/img/villages/`); admin "Start counting again" on XP sources, Usage and Retention (2.4.94); fresh start clears lazily created tables (2.4.95).
