@@ -128,19 +128,19 @@ A.contact(c, cap2, M[1], mm)
 c:px(49, 53, M[4]) c:px(50, 52, M[3]) c:px(55, 53, M[4])   -- grass blades at the stems
 
 -- snail on the crown
-local sh = c:ellipse(33.5, 9.5, 3.4, 3.4)
-local sn = X.sphere(33, 9, 3.4, sh)
+local OY = 2
+local sh = c:ellipse(33.5, 9.5 + OY, 3.4, 3.4)
+local sn = X.sphere(33, 9 + OY, 3.4, sh)
 A.shade(c, sh, sn, Y, { amb = 0.1, wrap = 0.3 })
 for _, p in ipairs{ { 33, 9 }, { 34, 9 }, { 34, 8 }, { 33, 7 }, { 32, 7 }, { 31, 8 }, { 31, 9 }, { 32, 11 }, { 33, 11 }, { 34, 11 }, { 35, 10 } } do
-  if sh:has(p[1], p[2]) then c:px(p[1], p[2], Y[2]) end
+  if sh:has(p[1], p[2] + OY) then c:px(p[1], p[2] + OY, Y[2]) end
 end
-c:px(31, 7, Y[6]) c:px(32, 6, Y[6])
-for x = 30, 38 do c:px(x, 12, CR[x > 34 and 5 or 4]) end
-for x = 29, 38 do c:px(x, 13, CR[x < 31 and 2 or 3]) end
-for x = 37, 40 do for yy = 11, 12 do c:px(x, yy, CR[5]) end end
-c:px(40, 13, CR[3]) c:px(39, 13, CR[3])
-c:px(38, 10, CR[4]) c:px(38, 9, CR[4]) c:px(38, 8, A.INK)
-c:px(40, 10, CR[4]) c:px(40, 9, CR[3]) c:px(41, 8, A.INK) c:px(40, 8, CR[3])
-c:px(29, 13, CR[1])
+c:px(31, 7 + OY, Y[6]) c:px(32, 6 + OY, Y[6])
+for x = 31, 37 do c:px(x, 12 + OY, CR[x > 34 and 5 or 4]) end
+for x = 30, 38 do c:px(x, 13 + OY, CR[x < 32 and 1 or 2]) end
+for x = 37, 39 do for yy = 11, 12 do c:px(x, yy + OY, CR[4]) end end
+c:px(39, 13 + OY, CR[2])
+c:px(38, 10 + OY, CR[4]) c:px(38, 9 + OY, CR[4]) c:px(38, 8 + OY, A.INK)
+c:px(40, 11 + OY, CR[3]) c:px(40, 10 + OY, CR[3]) c:px(40, 9 + OY, A.INK)
 
 A.fin(c, "root_cellar-mossy")
