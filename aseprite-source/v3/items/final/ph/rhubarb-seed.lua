@@ -34,7 +34,7 @@ local sm = {}
 for i, s in ipairs(seeds) do sm[i] = { seedMasks(s[1], s[2], s[3]) } end
 for i, s in ipairs(seeds) do
   local w = sm[i][1]
-  w:shift(1, 2):each(function(x, y) if scrap:has(x, y) and not w:has(x, y) then bias[K(x, y)] = -2 end end)
+  w:shift(1, 1):each(function(x, y) if scrap:has(x, y) and not w:has(x, y) then bias[K(x, y)] = -1 end end)
 end
 local tok = { r = { name = "leaf" } }
 A.lit(c, scrap, LEAF, 4, { amb = 0.12, wrap = 0.3, bias = bias, tok = tok })
@@ -63,7 +63,7 @@ for y = 33, 62 do
 end
 
 -- sprouting stem + cotyledons + first leaf (behind the right seed)
-local stp = { { 44, 47 }, { 43, 39 }, { 45, 29 }, { 43, 21 } }
+local stp = { { 44, 47 }, { 43, 40 }, { 45, 32 }, { 43, 25 } }
 local stm, stn = G.tube(stp, function(t) return 1.5 - 0.35 * t end)
 X.tone(c, stm, X.light(stn, { amb = 0.12, wrap = 0.3 }), PINK, { cuts = { 0.22, 0.42, 0.6, 0.78, 0.9 }, tok = { r = { name = "stem" } } })
 local ltok = { r = { name = "leaf2" } }
@@ -76,10 +76,10 @@ local function cot(cx, cy, rx, ry, ang)
   m:copy():shift(1, 2):cut(m):each(function(x, y) if scrap:has(x, y) then c:px(x, y, LEAF[1]) end end)
   return m
 end
-cot(38.5, 33.5, 4.8, 2.2, -0.5)
-cot(50, 32, 4.8, 2.2, 0.45)
+cot(38.5, 36.5, 4.8, 2.2, -0.5)
+cot(50, 35, 4.8, 2.2, 0.45)
 -- crinkled cordate first leaf, palmate red veins
-local blade = c:ellipse(39.5, 14.5, 5.8, 5.6):add(c:ellipse(47, 14.5, 5.8, 5.6)):add(c:ellipse(43.3, 10.5, 7.5, 5.2)):add(c:rect(41, 17, 45, 20))
+local blade = c:ellipse(39.5, 18.5, 5.8, 5.4):add(c:ellipse(47, 18.5, 5.8, 5.4)):add(c:poly{ {36,16},{50.5,16},{43.3,6} }):add(c:ellipse(43.3, 15, 6.5, 5)):cut(c:poly{ {43.3,21},{41,26},{45.6,26} })
 local cut = {}
 blade:each(function(x, y) if (x * 7 + y * 3) % 11 == 0 and not blade:copy():shrink(1):has(x, y) then cut[#cut + 1] = { x, y } end end)
 for _, p in ipairs(cut) do blade:cut(c:rect(p[1], p[2], p[1], p[2])) end
@@ -87,16 +87,16 @@ local bb = {}
 blade:each(function(x, y) bb[K(x, y)] = floor(sin(x * 1.3 + y * 0.8) * 0.95) end)
 A.lit(c, blade, LEAF, 4.5, { amb = 0.12, wrap = 0.3, bias = bb, tok = ltok })
 local bv = blade:copy():shrink(1)
-for _, q in ipairs{ {35,12},{37,7},{43,5},{49,7},{52,12} } do
-  A.line(c, 43, 19, q[1], q[2], function(i, n) return i < n * 0.6 and VEIN2 or VEIN end, bv)
+for _, q in ipairs{ {35,17},{37,11},{43,8},{49,11},{52,17} } do
+  A.line(c, 43, 23, q[1], q[2], function(i, n) return i < n * 0.6 and VEIN2 or VEIN end, bv)
 end
-for y = 17, 20 do c:px(43, y, PINK[3]) end
+for y = 21, 24 do c:px(43, y, PINK[3]) end
 blade:copy():cut(bv):each(function(x, y) if (x + y) % 3 == 0 then c:px(x, y, LEAF[5]) end end)
-c:px(41, 9, LEAF[6]) c:px(42, 9, LEAF[6])
+c:px(41, 12, LEAF[6]) c:px(42, 12, LEAF[6])
 -- husk hat on the right cotyledon tip (quirk)
-local hat = c:poly{ { 53, 28 }, { 56, 30 }, { 52, 31 } }
+local hat = c:poly{ { 53, 31 }, { 56, 33 }, { 52, 34 } }
 A.lit(c, hat, WING, 1.2)
-c:px(54, 29, WING[6]) c:px(53, 31, WING[1])
+c:px(54, 32, WING[6]) c:px(53, 34, WING[1])
 
 -- seeds
 local function drawSeed(i)

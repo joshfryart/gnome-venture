@@ -42,11 +42,11 @@ for y = 33, 52 do c:px(44, y, "#3a86b0") end
 local lab = c:rrect(24, 37, 39, 52, 1)
 A.lit(c, lab, CRM, 1.6, { amb = 0.1 })
 lab:copy():cut(lab:copy():shrink(1)):each(function(x, y) c:px(x, y, (x > 36 or y > 49) and CRM[1] or CRM[2]) end)
-A.line(c, 31, 44, 30, 49, "#d04060") A.line(c, 32, 44, 31, 49, "#ec6280") A.line(c, 33, 44, 34, 48, "#a02a4a") A.line(c, 34, 44, 35, 48, "#d04060")
-c:px(30, 50, "#a02a4a")
-local lf = c:ellipse(32, 41, 4, 2.2)
+A.line(c, 32, 41, 28, 48, "#d04060") A.line(c, 33, 41, 29, 48, "#ec6280") A.line(c, 32, 41, 33, 49, "#a02a4a") A.line(c, 33, 41, 34, 49, "#d04060") A.line(c, 33, 41, 38, 47, "#a02a4a") A.line(c, 34, 41, 39, 47, "#ec6280")
+c:px(28, 49, "#a02a4a") c:px(33, 50, "#a02a4a")
+local lf = c:ellipse(32, 40, 3, 1.6)
 A.lit(c, lf, LEAF, 1.5)
-for x = 29, 35 do c:px(x, 41, LEAF[6]) end c:px(31, 40, LEAF[5]) c:px(33, 42, LEAF[2])
+for x = 30, 34 do c:px(x, 40, LEAF[6]) end c:px(31, 39, LEAF[5]) c:px(33, 41, LEAF[2])
 for x = 27, 36, 2 do c:px(x, 51, CRM[1]) end
 
 -- cloth cover: cap, gathered waist, pleated scalloped skirt
