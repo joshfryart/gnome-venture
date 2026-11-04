@@ -7156,3 +7156,7 @@ dialog.trailpop.trailsmall .choicelist { margin: 6px 0; }
 dialog.trailpop:not(.trailsmall) .gvs { max-height: 26dvh; }
 dialog.trailpop .fightbtns .choice { padding-top: 3px; padding-bottom: 3px; }
 dialog.trailpop .fightbtns .choice-title { font-size: 13px; }
+/* 2.5.13: Wander off plays in a popover over the Trail section (read-only behind it) */
+dialog.trailpop.wanderpop .pickbox { width: min(560px, 96vw); max-height: 92dvh; }
+dialog.trailpop.wanderpop .hubcard { text-align: left; }
+.wanderbehind .tmgrid button { pointer-events: none; }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.14
+- **Wander off is one popover, no page change**: the confirm card still shows first; after Wander off, the whole wander (the existing explore screen) plays in a popover over the Trail section, which stays visible but untappable behind it. When the wander ends, the Trail walk is picked up again by itself (no Resume tap). Needs 2.5.13.
+
 ## 2.5.13
 - **Wander off is a popover**: tapping it opens a small card (what it does, ⚡1, Wander off or Stay on the Trail). Works without script via `?w=1`. Needs 2.5.12.
 

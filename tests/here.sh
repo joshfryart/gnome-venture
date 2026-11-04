@@ -147,6 +147,17 @@ cli set gnav_tiles 1 >/dev/null
 cli clearenc >/dev/null
 R=$(post adventure.php -d do=trail_back)
 chk "Turn back ends the walk" "$([[ $(cli active | tail -1) == 0 ]] && echo 1)" "$(cli active | tail -1)"
+echo "== wander off plays in a popover; the walk comes back by itself"
+cli tilewalk | grep -q '^ok' && cli clearenc >/dev/null
+R=$(post adventure.php -d do=trail_wander)
+get adventure.php >/dev/null
+chk "wandering: the page is the Trail section (read-only) with the wander in a popover" "$(grep -q 'class="wanderbehind"' $TD/here-p.html && grep -q 'class="tilemap' $TD/here-p.html && grep -q 'trailpop wanderpop' $TD/here-p.html && echo 1)"
+chk "...and the section behind it cannot be tapped (no reachable tile)" "$(grep -q 'tmt reach' $TD/here-p.html && echo 0 || echo 1)"
+cli endexp >/dev/null
+R=$(get adventure.php)
+get adventure.php >/dev/null
+chk "the wander is over: the Trail walk is back on the page, no popover" "$(grep -q 'class="tilemap' $TD/here-p.html && ! grep -q 'wanderpop' $TD/here-p.html && echo 1)" "$R"
+R=$(post adventure.php -d do=trail_back)
 cli set gnav_tiles 0 >/dev/null; cli set gnav_on 0 >/dev/null
 echo "== layout editor and lint tool"
 chk "tools/lint_here.php passes on the shipped layouts" "$(php "$HERE/../tools/lint_here.php" "$GAME" >/dev/null 2>&1 && echo 1)"

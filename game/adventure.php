@@ -165,6 +165,7 @@ if (is_post()) {
     }
     redirect(safe_back('adventure.php'));
 }
+if (!$exp && trail_resume_offer($u)) { [$rok, $rmsg] = trail_resume($u); flash($rmsg, $rok ? 'ok' : 'err'); redirect('adventure.php'); }   // the wander is over: back to the Trail, no page to click through
 refresh_energy($u);   // v2.3.94: a GET showed the energy from the last POST ("too tired" after a rest)
 
 // Show the last finished expedition's log if there's no active one
@@ -199,6 +200,10 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
 }
 
 page_header('On the mycelium');
+// graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
+$wanderView = null;
+if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
+if ($wanderView) { echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true) . '</div>'; ob_start(); }
 ?>
 <?php $isExplore = ($last['kind'] ?? 'walk') === 'explore'; $kind = $last['kind'] ?? 'walk'; $isWalk = !in_array($kind, ['delve', 'lair', 'explore'], true);   // v2.0.51: a road walk gets the route ribbon instead of the heading, status line and route strip ?>
 <?php if ($kind === 'delve' || $kind === 'lair'): ?>
@@ -531,4 +536,5 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
 <?php if (!in_array($kind, ['delve', 'lair'], true)): ?>
 <p class="tmlinks worldlink"><a href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ World map →</a></p>
 <?php endif; ?>
+<?php if ($wanderView): $wInner = ob_get_clean(); ?><dialog class="picker hubpop trailpop wanderpop" id="trailpop" open aria-label="Off the Trail"><div class="pickbox"><div class="hubcard"><?= $wInner ?></div></div></dialog><?php endif; ?>
 <?php page_footer();
