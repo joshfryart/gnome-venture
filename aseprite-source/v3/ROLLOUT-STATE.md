@@ -32,7 +32,8 @@ Seeds at 16 px reduce to a blob; ginseng seed leaf looks like cannabis; badger c
 `rollout/run2-part1.json`, `part2`, `part3` (140 items each). Ready-to-paste Workflow args: `rollout/run2-part1.args.json` (tag B1), `part2` (B2), `part3` (B3). Launch each with the Workflow tool, `scriptPath` = `aseprite-source/v3/rollout/items-run.js` (single Opus pass, NO fix round, Sonnet drafts first), args = the contents of the args file. Different AIs can take different parts in parallel (they write to different files; they share the concurrency limit). Verify with `python3 rollout/check.py run2-part1.json`.
 
 ## Run 2 part 1 status (2026-11-03)
-91/140 have Opus art (`_aB1` helper in the .lua); the last 49 (`ph/camellia-seed` .. `ph/chestnut`) are Sonnet drafts only. Finish with `rollout/run2-part1-remaining.args.json` (tag B1r, skipDraft). Details: `HANDOFF.md`.
+## Run 2 part 1 DONE (2026-11-04)
+140/140 Opus (`_aB1`), verified. Parts 2 and 3 also done (below). Run 2 complete: 420/420. See `HANDOFF.md`.
 
 ## Run 2 part 2 (B2) status (2026-11-04)
 DONE: 140/140 Opus-finished, 0 draft-only (verified by grepping each .lua for `_aB2`; check.py 140 items, 0 missing, 0 bad). Main run (`wf_a33306ba-cfe`) was killed by a container restart with 135 done; the last 5 (egusi-soup, elder-pelt, elderberry, elderberry-cordial, elderberry-seed) were finished by relaunch tag `B2r`, `skipDraft`. Weak: elder-pelt (first render looked like a starfish, legs reshaped), elderberry-seed (seeds read as plain tan lumps, faint wrinkle texture; flat leaf top edge). Seeds at 16 px remain blob-prone.
