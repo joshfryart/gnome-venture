@@ -25,22 +25,36 @@ function hub_id(string $s): string
     return preg_replace('/[^A-Za-z0-9_-]/', '', $s) ?: 'x';
 }
 
+/** Button art for a hotspot (assets/img/hs/hs-<key>.png), or '' so the emoji shows. Key: 'hs' if given, else the id without 's-'; exits (id e<n>) use their compass letter 'a' and goal state. */
+function hub_hs_icon(array $h): string
+{
+    $id = (string)($h['id'] ?? '');
+    if (isset($h['hs'])) $k = (string)$h['hs'];
+    elseif (preg_match('/^e\d+$/', $id)) { if (empty($h['a'])) return ''; $k = 'exit-' . $h['a'] . (($h['cls'] ?? '') === 'goal' ? '-goal' : ''); }
+    else $k = preg_replace('/^s-/', '', $id);
+    if (!preg_match('/^[A-Za-z-]+$/', $k)) return '';
+    $rel = 'assets/img/hs/hs-' . $k . '.png';
+    return function_exists('pixel_has') && pixel_has($rel) ? url($rel) : '';
+}
+
 /** One hotspot as an SVG link. 44 px tap target at 412 px wide = r >= 26 units on a 480 canvas (r is scaled for other widths). */
 function hub_hotspot(array $h, array $L): string
 {
     $id = hub_id((string)$h['id']);
     $x = (int)$h['x']; $y = (int)$h['y'];
     $r = (int)($h['r'] ?? max(26, (int)round((int)$L['w'] * 26 / 480)));
-    $cls = 'hs' . (($h['cls'] ?? '') !== '' ? ' ' . preg_replace('/[^a-z0-9 _-]/i', '', (string)$h['cls']) : '');
     $icon = (string)($h['icon'] ?? '');
-    $s = (int)round($r * 0.62);
+    if ($icon === '') $icon = hub_hs_icon($h);
+    $art = $icon !== '' && strpos($icon, '/hs/') !== false;
+    $cls = 'hs' . ($art ? ' hsart' : '') . (($h['cls'] ?? '') !== '' ? ' ' . preg_replace('/[^a-z0-9 _-]/i', '', (string)$h['cls']) : '');
+    $s = (int)round($r * ($art ? 0.92 : 0.62));
     $label = (string)($h['label'] ?? '');
     $chip = (string)($h['chip'] ?? '');
     $a = '<a class="' . $cls . '" id="hs-' . $id . '" href="' . e((string)$h['href']) . '" aria-label="' . e($label . ($chip !== '' ? ', ' . $chip : '')) . '"'
         . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '>'
         . '<title>' . e($label) . '</title>'
         . '<circle class="hit" cx="' . $x . '" cy="' . $y . '" r="' . $r . '"/>'
-        . '<circle class="ring" cx="' . $x . '" cy="' . $y . '" r="' . ($r - 6) . '"/>';
+        . '<circle class="ring" cx="' . $x . '" cy="' . $y . '" r="' . ($art ? $r - 1 : $r - 6) . '"/>';
     if ($icon !== '') $a .= '<image class="pix" href="' . e($icon) . '" x="' . ($x - $s) . '" y="' . ($y - $s) . '" width="' . ($s * 2) . '" height="' . ($s * 2) . '" image-rendering="pixelated"/>';
     else $a .= '<text class="emo" x="' . $x . '" y="' . ($y + (int)round($s * 0.45)) . '" text-anchor="middle" font-size="' . (int)round($s * 1.3) . '" aria-hidden="true">' . e((string)($h['emoji'] ?? '📍')) . '</text>';
     return $a . '</a>';

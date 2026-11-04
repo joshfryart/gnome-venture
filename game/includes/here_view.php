@@ -128,7 +128,7 @@ function here_exits(array $u, array $node, array $L, string $back): array
             if ($goal) $body .= '<p>🧭 This is the next leg of your route.</p>';
             $body .= here_form('adventure.php', ['do' => 'start', 'route_id' => $rid], '▶ Set off' . ($cost ? ' (⚡' . $cost . ')' : ' (free)'));
         }
-        $out[] = ['id' => 'e' . $rid, 'x' => $pos['x'], 'y' => $pos['y'], 'label' => $label, 'chip' => $chip, 'cls' => $cls, 'emoji' => $isRoad ? '🛣️' : '🌿',
+        $out[] = ['id' => 'e' . $rid, 'x' => $pos['x'], 'y' => $pos['y'], 'label' => $label, 'chip' => $chip, 'cls' => $cls, 'emoji' => $isRoad ? '🛣️' : '🌿', 'a' => $anchor,
                   'href' => url($back . '?o=e' . $rid), 'card' => $body];
     }
     // routes that did not fit the template's anchors: one link to the World page, which lists every way
@@ -151,9 +151,9 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
     $want = [];
     foreach ($L['spots'] ?? [] as $s) $want[(string)$s['k']] = $s;
     $hot = [];
-    $add = function (string $k, string $label, string $emoji, string $href, string $card = '', string $chip = '', string $cls = '') use (&$hot, $want, $back) {
+    $add = function (string $k, string $label, string $emoji, string $href, string $card = '', string $chip = '', string $cls = '') use (&$hot, $want, $back, $kind) {
         if (!isset($want[$k])) return;
-        $hot[] = ['id' => 's-' . $k, 'x' => (int)$want[$k]['x'], 'y' => (int)$want[$k]['y'], 'label' => $label, 'emoji' => $emoji, 'chip' => $chip, 'cls' => $cls,
+        $hot[] = ['hs' => ($k === 'mouth' && $kind === 'lair') ? 'mouth-lair' : $k, 'id' => 's-' . $k, 'x' => (int)$want[$k]['x'], 'y' => (int)$want[$k]['y'], 'label' => $label, 'emoji' => $emoji, 'chip' => $chip, 'cls' => $cls,
                   'href' => $card !== '' ? url($back . '?o=s-' . $k) : $href, 'card' => $card];
     };
     if ($kind === 'town') {

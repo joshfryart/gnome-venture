@@ -7064,6 +7064,13 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 .hubreg { list-style: none; margin: 0; padding: 0; }
 .hubreg .rrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 6px 0; border-bottom: 1px solid var(--line); min-height: 44px; }
 .gnavtools { margin: 8px 0; }
+.hubsvg .hs.hsart .ring { fill: none; stroke: transparent; }
+.hubsvg .hs.hsart:hover .ring, .hubsvg .hs.hsart:focus-visible .ring { stroke: var(--focus); stroke-width: 3; }
+.hubsvg .hs.hsart.goal .ring { stroke: var(--brand-fill); }
+.hubsvg .hs.hsart .pix { transition: filter .15s; }
+.hubsvg .hs.hsart:hover .pix, .hubsvg .hs.hsart:focus-visible .pix { filter: brightness(1.15); }
+.hubsvg .hs.hsart.locked .pix { filter: grayscale(1) brightness(.8); }
+.hubsvg .hs.hsart.ruin .pix { filter: sepia(.8) brightness(.7) contrast(.9); }
 .hubsvg .hs.homelit .ring { fill: rgba(255, 214, 102, .75); }
 .hubsvg .hs.dim .ring { fill: rgba(60, 50, 40, .55); }
 .hubchip.homelit { border-color: var(--brand-fill); }
