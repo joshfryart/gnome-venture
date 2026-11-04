@@ -471,7 +471,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   $tLand = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?>
   <div class="trailui">
   <?php if ($tPhase === 'confirm'): ?>
-  <dialog class="picker hubpop trailpop" id="trailpop" open aria-label="The way on"><div class="pickbox"><div class="hubcard trailui">
+  <dialog class="picker hubpop trailpop trailsmall" id="trailpop" open aria-label="The way on"><div class="pickbox"><div class="hubcard trailui">
     <h3><?= $tLast ? e($to['name']) . ' is just ahead.' : 'The way on lies ahead.' ?></h3>
     <p class="help"><?= $tLast ? 'Head into ' . e($to['name']) . '? No more energy.' : 'Section ' . ((int)$trailSc['st']['sec'] + 1) . ' of ' . (int)$trailSc['st']['S'] . ' done. Continuing is free.' ?></p>
     <div class="choicelist">

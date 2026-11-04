@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.10
+- **Trail "way on" popover is a small card** over the map, not the full-screen sheet (the fight popover stays full size). Needs 2.5.09.
+
 ## 2.5.09
 - **Trail "The way on lies ahead" is a popover over the map** (with Continue or Head into, and a free Turn back). The Section text card above the buttons is now one line. Needs 2.5.08.
 
