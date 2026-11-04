@@ -25,6 +25,9 @@ Branch: `ccr-c4d6c653-u81tm0` (repo `joshfryart/gnome-venture`). Never push to m
 
 - **Run 4 part 3 (D3) DONE 138/138 Sonnet (markers D3s, D3o). See ROLLOUT-STATE.md.**
 
+## LIVE (2026-11-04): release 2.4.98
+All 1,662 item/icon PNGs exported into `game/assets/img/{ph,games,ico}` with `rollout/export_game.py`; 179 weak ones (`rollout/weak.txt`) carry the pink 2 px border. Slim zip `releases/GnomeVenture-2.4.98-web-update.zip` (needs 2.4.96+). Re-export after any art change: `cd aseprite-source/v3 && python3 rollout/export_game.py`, then bump the version and run `tests/build_update.sh`. New art to-do: `claude/todo-art-v3.md`. Project to-do: `claude/todo.md`. Next build: `claude/plan-graphical-nav.md`.
+
 ## REVIEW RULE: pink border on weak art (Josh, 2026-11-04)
 When the art goes live in the game, every image marked "weak" gets a bright pink (#ff2bd6) 2 px border so Josh can spot it against the rest and judge/redo it. Do this in the wiring/export step ONLY (copy the PNG, add the border; never change the source art in `items/final/`). Weak lists: the "Weak" lines per part in ROLLOUT-STATE.md (agents' own notes) plus whatever Josh flags. TODO: collect them into `rollout/weak.txt` (one `folder/name` per line) and write `rollout/pinkify.py` that reads it.
 
