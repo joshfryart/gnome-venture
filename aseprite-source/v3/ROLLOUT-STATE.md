@@ -52,3 +52,5 @@ DONE: 140/140 Opus-finished, 0 draft-only (grep `_aC3`; check.py 140 items, 0 mi
 
 ## Run 4: art step = Sonnet high (2026-11-04)
 Josh's decision after the D1t test (3 items, ~215k tokens incl. draft): run 4 uses Sonnet high for the art step. `items-run.js` takes optional args `artModel` / `artEffort` (default opus). `run4-part1..3.args.json` already carry them. Markers: Sonnet-high art shows `_aD1`, `_aD2`, `_aD3` in the .lua just like Opus did, so the model is NOT recorded in the file: run 4 = all Sonnet high. D1 launched run `wf_50515a6a-c74`.
+## Run 3 part 2 (C2) — 2026-11-04
+Branch `c2-01Qem`. 140/140 Opus-finished (97 in C2, 43 in C2r after the 5-hour limit killed 12 art groups), 0 draft-only. ~4.9M subagent tokens total (3.6M + 1.3M). Note: `run3-part2.json` entries are `{folder,name}` objects. See `rollout/RUN3-PART2-NOTE.md`.
