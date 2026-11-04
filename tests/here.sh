@@ -112,7 +112,11 @@ R=$(get treehouse.php); chk "treehouse renders" "$([[ $R == 200* ]] && grep -q '
 R=$(get palyard.php); chk "pal yard renders (or sends the level-gated gnome to Pal Jobs)" "$([[ $R == 200* || $R == *paljobs.php ]] && echo 1)" "$R"
 chk "no inline style/script on the picture pages" "$(for pg in workshop treehouse; do get $pg.php >/dev/null; sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo bad; done | grep -q bad && echo 0 || echo 1)"
 get gnome.php >/dev/null; chk "menu: Crafting and Games point at the pictures when on" "$(grep -q 'href="/treehouse.php"' $TD/here-p.html && grep -q 'href="/workshop.php"' $TD/here-p.html && echo 1)"
+R=$(get 'workshop.php?frag=potions'); chk "workshop fragment: the potions section as json html" "$([[ $R == 200* ]] && grep -q '"ok":true' $TD/here-p.html && grep -q 'Potions' $TD/here-p.html && echo 1)" "$R"
+R=$(get 'workshop.php?frag=nonsense'); chk "workshop fragment: an unknown section is a 404 json" "$([[ $R == 404* ]] && echo 1)" "$R"
+chk "workshop card has the loader box and the page link" "$(get 'workshop.php?o=potions' >/dev/null; grep -q 'class="wsfrag" data-frag="potions"' $TD/here-p.html && grep -q 'assets/workshop.js' $TD/here-p.html && echo 1)"
 cli set gnav_craft 0 >/dev/null; cli set gnav_tree 0 >/dev/null
+R=$(get 'workshop.php?frag=potions'); chk "flag off: the fragment is not served to players" "$([[ $R == 302* ]] && echo 1)" "$R"
 echo "== the Trail as tiles (gnav_tiles)"
 cli set gnav_on 1 >/dev/null; login >/dev/null
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"

@@ -7133,3 +7133,7 @@ dialog.trailpop .encounter > .fightgrid { order: 6; grid-template-columns: 1fr 1
 dialog.trailpop .encounter > .fightgrid .fcard { padding: 4px 6px; }
 dialog.trailpop .encounter > .fightgrid .fcard * { font-size: 12px; margin-top: 0; margin-bottom: 0; }
 dialog.trailpop .encounter > .fightgrid .portrait, dialog.trailpop .encounter > .fightgrid img.fcard-pic { display: none; }
+/* Workshop cards carry a whole crafting section: a wider sheet, content scrolls inside */
+dialog.hubpop:has(.wsfrag) .pickbox { width: min(760px, 100%); max-height: calc(100dvh - 16px); }
+dialog.hubpop .wsfrag[aria-busy="true"] { opacity: .6; }
+dialog.hubpop .wsfrag { margin: 8px 0; }
