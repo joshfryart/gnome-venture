@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.01
+- **Picture navigation, release A (off by default).** New setting `gnav_on` (Admin → Settings, default off = the game is exactly as before). When on: a **Here** page (`here.php`) shows where the gnome stands as a picture, with each way out as a path, things to do as hotspots and villagers as sprites; a tap opens a card that holds the normal button (Set off, Rest, Stay, Go in, Wander off the Trail). Login and welcome-back land on Here (setting `gnav_login_here`; Account → "Start on" lets a player pick Home). Bottom bar and menu "Here" open it. World and Here get **Fast travel** and **GPS** buttons. Admins can preview Here while the setting is off.
+- No art needed: without `scenes/here-<key>.png` the page draws its own sky and ground; villagers use sprite, mini, bust or emoji. Layouts are in `includes/data/here_layouts.json` (admin overrides go in the new table `here_layouts`). New column `users.start_page`.
+- `gnav_tiles` and `gnav_enter_energy` exist but do nothing yet (Trail tiles are not built). `landmark.php` can return to Here.
+- Tests: `tests/here.php`, `tests/here.sh`. Plan: `claude/plan-graphical-nav.md`.
+
 ## 2.4.98
 - **New "Hearth Pop" art for 1,662 items and icons.** Same file names, so nothing in the code changes: `game/assets/img/ph/` (item, seed, food, tool, building and pelt art, including the 14 `nav-*` and stage art), `game/assets/img/games/` and `game/assets/img/ico/` now hold the v3 pixel art (64x64, slim shapes, 5-6 tone ramps, one small quirk each, 1px ink outline). The game already prefers `<name>.png` over the old `.svg`, so the new art shows straight away; the old SVGs stay as the fallback. Flower heads are not included (they need a tintable rig).
 - **Review aid: 179 images wear a bright pink 2 px border.** These are the ones the artists or Josh marked weak (tiny seeds, look-alikes, muddy materials). The border is only in the game copy; the source art is untouched, and `aseprite-source/v3/rollout/weak.txt` plus `rollout/export_game.py` regenerate it (remove a line from `weak.txt` and re-run to clear one).
