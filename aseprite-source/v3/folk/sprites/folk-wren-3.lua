@@ -85,13 +85,13 @@ local function frame(p)
   -- head
   local head = c:ellipse(32, Y(46), 14, 12)
   c:part(head, PL, { band = 2 })
-  c:part(c:ellipse(32, Y(56), 8, 3):clip(head), BL, { nopop = true })
+  c:part(c:ellipse(32, Y(57), 6, 2):clip(head), BL, { nopop = true })
   dots(c, { {26,Y(37)},{30,Y(36)},{35,Y(37)},{39,Y(39)} }, PL.shade, PL)
   for _, s in ipairs{ { {21,Y(43)},{22,Y(42)},{28,Y(42)} }, { {36,Y(42)},{42,Y(42)},{43,Y(43)} } } do c:fillMask(c:line(s, 1), CR) end
   if p.blink then for _, x in ipairs{ 24, 37 } do for i = 0, 3 do c:put(x + i, Y(45), P.ink) end end
   else eye(c, 24, Y(43)) eye(c, 37, Y(43)) end
   c:cheek(21, Y(49)) c:cheek(41, Y(49))
-  local beak = c:poly{ {29.5,Y(48)},{34.5,Y(48)},{32,Y(53)} }
+  local beak = c:poly{ {29.5,Y(47)},{35.5,Y(47)},{32.5,Y(55)} }
   c:part(beak, BK, { nopop = true })
   c:put(31, Y(48), BK.hi, BK) c:put(31, Y(50), BK.deep, BK) c:put(32, Y(50), BK.deep, BK)
   -- headwear

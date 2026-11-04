@@ -80,16 +80,16 @@ end
 local head = c:ellipse(39.5, 46, 20, 18)
 for _, a in ipairs{ 150, 170, 190, 350, 10, 30 } do local r = math.rad(a) head:add(HP.ellipse(39.5 + math.cos(r) * 19.5, 46 + math.sin(r) * 17.5, 1.5, 1.5)) end
 c:part(head, PL, { band = 3, pop = { x = 27, y = 35 } })
-c:part(c:ellipse(39.5, 61, 11, 5):clip(head), BL, { band = 1, nopop = true })
+c:part(c:ellipse(39.5, 63, 8, 2.5):clip(head), BL, { band = 1, nopop = true })
 dots(c, { {31,32},{37,30},{44,31},{49,34},{28,36},{52,38},{34,34},{42,34} }, PL.shade, PL)
 dots(c, { {24,50},{25,52},{55,50},{54,52},{22,46},{57,46} }, PL.deep, PL)
 for _, s in ipairs{ { {23,42},{25,40},{34,40} }, { {45,40},{54,40},{56,42} } } do c:fillMask(c:line(s, 2), CR) end
 c:eyeLocked(29, 43) c:eyeLocked(46, 43)
 c:cheek(25, 53) c:cheek(52, 53)
-local beak = c:poly{ {35,50},{44,50},{39.5,58} }
+local beak = c:poly{ {34.5,48},{44.5,48},{39.5,62} }
 c:part(beak, BK, { band = 1, nopop = true })
 dots(c, { {37,51},{38,51} }, BK.hi, BK)
-dots(c, { {37,54},{38,54},{39,54},{40,54},{41,54},{42,54} }, P.ink)
+dots(c, { {37,54},{38,55},{39,55},{40,55},{41,54} }, P.ink)
 dots(c, { {41,51} }, BK.deep, BK)
 -- headwear
 if V == 1 then
