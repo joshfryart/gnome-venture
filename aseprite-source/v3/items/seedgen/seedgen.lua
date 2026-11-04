@@ -1,4 +1,5 @@
 -- seedgen: parametric seed-on-leaf-scrap generator, derived from items/batch2/blueberry-seed.lua (Opus).
+-- P extras: scrap={ax,ay,cx,cy,bx,by} scrapW scrapExp sprout=pair|blades|trio|single leafw marks=pits|spots|stripes|none markc extra=function(ctx) quirk="none"|"hat"
 -- Usage: dofile(dir.."/seedgen/seedgen.lua")(P)  P = {name,dir,leaf,sleaf,seed,stem,root,vein,gloss,cool,red,sl,sw,taper,drop,leafw,quirk}
 return function(P)
 local DEF = {
@@ -49,10 +50,11 @@ for _, s in ipairs(seeds) do
 end
 
 -- leaf scrap -------------------------------------------------------------------------------------
-local lm, ln, LT, LS, len = G.blade(7, 55, 28, 52, 57, 40, function(t)
+local SC = P.scrap or {7, 55, 28, 52, 57, 40}
+local lm, ln, LT, LS, len = G.blade(SC[1], SC[2], SC[3], SC[4], SC[5], SC[6], function(t)
   if t > 0.985 then return -1 end
   local u = min(1, t * 0.92 + 0.08)
-  return max(0.45, 6.3 * sin(pi * u ^ 1.2) ^ 0.72)
+  return max(0.45, (P.scrapW or 6.3) * sin(pi * u ^ 1.2) ^ (P.scrapExp or 0.72))
 end, { fold = 0.42 })
 -- fine serration: nibble every 3rd edge pixel on the outer half
 local bias = {}
@@ -118,8 +120,22 @@ local function sleaf(ax, ay, cx, cy, bx, by, w, veins)
   m:edge():each(function(x, y) local k = K(x, y) if S[k] > 0.6 and T[k] > 0.15 and T[k] < 0.85 then c:put(x, y, COOL, tok) end end)
   return m, S, T
 end
-local L1 = sleaf(32, 20, 25, 13, 16, 13, P.leafw or 3.6, { 4, 8 })
-local L2 = sleaf(34, 20, 40, 12, 49, 11, P.leafw or 3.6, { 4, 8 })
+local kind = P.sprout or "pair"
+local lw = P.leafw or 3.6
+if kind == "pair" then
+  sleaf(32, 20, 25, 13, 16, 13, lw, { 4, 8 })
+  sleaf(34, 20, 40, 12, 49, 11, lw, { 4, 8 })
+elseif kind == "blades" then   -- grass-like: three thin blades
+  sleaf(32, 22, 26, 12, 20, 4, lw * 0.5, { 6 })
+  sleaf(33, 22, 36, 11, 42, 3, lw * 0.5, { 6 })
+  sleaf(33, 21, 33, 12, 33, 2, lw * 0.45, { 6 })
+elseif kind == "trio" then   -- trifoliate: two side leaflets + a top one
+  sleaf(32, 21, 26, 17, 20, 18, lw, { 3, 6 })
+  sleaf(34, 21, 40, 17, 46, 18, lw, { 3, 6 })
+  sleaf(33, 20, 31, 12, 33, 4, lw, { 4, 8 })
+else   -- single big leaf
+  sleaf(33, 21, 28, 9, 38, 3, lw * 1.3, { 4, 8, 12 })
+end
 -- terminal bud between the pair
 local bud = { {33, 17, SLEAF[5]}, {33, 16, SLEAF[6]}, {34, 16, SLEAF[4]}, {34, 15, SLEAF[5]}, {34, 14, SLEAF[3]}, {33, 18, SLEAF[4]}, {34, 17, SLEAF[3]} }
 for _, p in ipairs(bud) do c:put(p[1], p[2], p[3], { r = { name = "bud" } }) end
@@ -131,8 +147,11 @@ for i, s in ipairs(seeds) do
   local tok = { r = { name = "seed" .. i } }
   local idx = X.tone(c, s.m, X.light(s.n, { amb = 0.06, wrap = 0.22 }), SEED, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.86 }, tok = tok })
   -- pitted coat: a few deep pits on the mid tones
+  local mk = P.marks or "pits"
   s.m:shrink(1):each(function(x, y) local k = K(x, y)
-    if idx[k] >= 3 and idx[k] <= 5 and X.hash(x, y, 31 + i) > 0.72 then c:put(x, y, SEED[idx[k] - 2], tok) end end)
+    if mk == "pits" and idx[k] >= 3 and idx[k] <= 5 and X.hash(x, y, 31 + i) > 0.72 then c:put(x, y, SEED[idx[k] - 2], tok)
+    elseif mk == "spots" and X.hash(x, y, 77 + i) > 0.8 then c:put(x, y, P.markc or SEED[1], tok)
+    elseif mk == "stripes" and (x * 7 + y * 3) % 4 == 0 and idx[k] >= 2 then c:put(x, y, P.markc or SEED[1], tok) end end)
   -- hilum: pale dot near the pointed end
   local hx, hy = floor(s[1] + cos(s[5]) * (s[3] - 0.6) + .5), floor(s[2] + sin(s[5]) * (s[3] - 0.6) + .5)
   if s.m:has(hx, hy) then c:put(hx, hy, "#efd2a0", tok) end
@@ -144,6 +163,7 @@ for _, p in ipairs{ {28, 44}, {30, 44}, {29, 45} } do if sp.m:has(p[1], p[2]) th
 c:put(29, 44, STEM[2], { r = { name = "seed3" } })
 
 -- quirk: empty seed coat sitting on the tip of the right sprout leaf like a hat
+if P.extra then P.extra{ c = c, G = G, X = X, K = K, HP = HP, seeds = seeds, sprout = SPROUT, lm = lm, stm = stm } end
 if P.quirk == "none" then G.save(c, NAME) return end
 local hat = seedMask(49, 9, 2.4, 1.7, -2.4)
 local hn = X.pillow(hat, 2)

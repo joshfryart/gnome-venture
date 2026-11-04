@@ -87,8 +87,8 @@ end
 -- grit, wet glints, pebbles
 for _, q in ipairs{ {22,21},{27,18},{36,15},{41,20},{44,23},{30,22} } do c:px(q[1], q[2], "#d6c0a0") end
 for _, q in ipairs{ {26,16},{38,18},{33,21},{20,23} } do c:px(q[1], q[2], "#c8967a") c:px(q[1] + 1, q[2], "#a87258") end
-for _, q in ipairs{ {39,21,0.2}, {24,19,-0.3} } do
-  local m = A.ell(q[1], q[2], 2.3, 1.6, q[3])
+for _, q in ipairs{ {40,22,0.2,2.4,1.7}, {21,22,-0.3,1.4,1.0} } do
+  local m = A.ell(q[1], q[2], q[4], q[5], q[3])
   m:shift(1, 1):each(function(x, y) if heap:has(x, y) and not m:has(x, y) then c:px(x, y, SOIL[1]) end end)
   A.pill(c, m, STONE, 1.5, {})
   c:px(q[1] - 1, q[2] - 1, "#e2e0e6")
