@@ -1,127 +1,139 @@
--- poinsettia-seed (final pass, Sonnet). Poinsettia (Euphorbia pulcherrima): three plump, round-ish grey-brown seeds,
--- mottled with dark flecks and a pale caruncle cap, resting on a torn scrap of the lobed, pointed poinsettia leaf
--- (shallow side lobes, pale midrib reddening toward the stalk, angled veins, V fold, cool reflected lower edge,
--- AO + contact shadow under every seed). The middle seed has germinated: a rose-red stem, two broad oval cotyledons
--- and a pair of first true leaves with a pointed lobed blade, so the plant reads at a glance.
--- Material: seeds per-pixel dome light on a 6-tone ramp with hash mottle and a cream caruncle; leaf 6-tone ramp.
--- History: Sonnet draft replaced.
--- quirk: the seedling's growing tip already wears a tiny red bract star with a gold dot.
+-- poinsettia-seed (D10 final, Sonnet high). Four small mottled grey-brown poinsettia seeds (each with a pale caruncle knob)
+-- on a torn, pointed-lobed poinsettia leaf scrap (midrib, swept veins, V-fold light, cool reflected edge, AO + contact
+-- shadow under each seed). A seedling stands from the scrap: pale-green stem with a red node, two round cotyledons, a big
+-- lobed true leaf and a small second leaf that show the real poinsettia leaf shape (ovate, pointed, notched lobes).
+-- quirk: the seedling is already crowned with a tiny three-petal red bract rosette and a yellow cyathium dot.
 local NAME = "poinsettia-seed"
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aD1t0_0.lua")
+local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local A = dofile(DIR .. "/../_helpers/_aD10_0.lua")
 local HP, X, K = A.HP, A.X, A.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
 local c = A.new(NAME)
+local LEAF = { "#12362f", "#1c5139", "#29703f", "#3f9048", "#62b052", "#94cc68" }
+local VEIN, COOL = "#c6e68e", "#3a6c72"
+local SEED = { "#2a1b1f", "#43312c", "#654a3a", "#8b6b4e", "#b08d68", "#d6b88e" }
+local STEM = { "#4f8a55", "#86b86c", "#b8dc92", "#e2f2bc" }
+local RED = { "#5a1020", "#8c1a2c", "#c02a34", "#e04a3c", "#f47a4a", "#ffb070" }
+local ltok = { r = { name = "leaf" } }
+local stok = { r = { name = "stem" } }
 
-local LEAF  = { "#143a36", "#1f5740", "#2c7646", "#43954b", "#68b556", "#9fd26e" }
-local YLEAF = { "#1d4a3a", "#2f6c42", "#478f4a", "#66b054", "#8fcc64", "#c4e688" }
-local VEIN, COOL = "#c8e69a", "#3a6c72"
-local SEED  = { "#2a1c1e", "#44302e", "#614640", "#80645a", "#a28a78", "#c9b6a0" }
-local STEM  = { "#8a2f46", "#bc4c58", "#e07a70", "#f6ac90" }
-local BRACT = { "#7a1a32", "#b82a3c", "#e04a44", "#ff7a5c" }
-local GOLD  = "#ffd25a"
+-- seeds: cx, cy, rx, ry, angle
+local seeds = { { 14, 50, 3.6, 2.8, 0.15 }, { 22, 46.5, 3.5, 2.7, -0.3 }, { 22.5, 54, 3.5, 2.7, 0.2 }, { 30.5, 51, 3.4, 2.7, -0.15 } }
+for _, s in ipairs(seeds) do s.m, s.n = A.oval(s[1], s[2], s[3], s[4], s[5], 0.8) end
 
--- ---------------------------------------------------------------- leaf scrap (lobed, pointed blade, torn)
-local PET = { 6, 57 }
-local lm, ln, LT, LS, len = A.blade(8, 57, 27, 49.5, 56, 51, function(t)
-  if t > 0.99 then return -1 end
-  return max(0.5, 8.4 * sin(pi * min(1, t * 0.96 + 0.05)) ^ 0.8)
-end, { fold = 0.38 })
-local cut = {}
--- shallow lobes: wedge notches (two on the upper margin, one below), then a torn tip
-local notches = { { 0.34, -1, 0.1, 0.5 }, { 0.6, -1, 0.1, 0.5 }, { 0.48, 1, 0.08, 0.5 } }
-lm:each(function(x, y) local k = K(x, y)
-  local t, s = LT[k], LS[k]
-  for _, nn in ipairs(notches) do
-    local d = abs(t - nn[1])
-    if (s * nn[2] > 0) and d < nn[3] and abs(s) > 1 - nn[4] * (1 - d / nn[3]) then cut[#cut + 1] = k end
-  end
-  local rag = 0.93 + 0.03 * X.hash(floor(s * 5), 7, 3)
-  if t > rag then cut[#cut + 1] = k end
-  if (x - 53) ^ 2 / 5 + (y - 55.6) ^ 2 / 3.4 < 1 then cut[#cut + 1] = k end    -- torn bite, lower right
-end)
-for _, k in ipairs(cut) do lm.s[k] = nil end
+-- lobed leaf with notches (list of {t0, side, width, depth}), veins; returns mask, T, S, len
+local function lobed(ax, ay, cx, cy, bx, by, wmax, notches, per, o)
+  o = o or {}
+  local m, n, T, S, len = A.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.95 + 0.05)
+    return max(0.5, wmax * sin(pi * u ^ 1.1) ^ 0.7)
+  end, { fold = o.fold or 0.38 })
+  local cut = {}
+  m:each(function(x, y) local k = K(x, y) local t, s = T[k], S[k]
+    for _, nt in ipairs(notches) do
+      if (s > 0 and 1 or -1) == nt[2] then
+        local f = max(0, 1 - abs(t - nt[1]) / nt[3])
+        if f > 0 and abs(s) > 1 - nt[4] * f then cut[#cut + 1] = k end
+      end
+    end
+    if o.torn and t < 0.04 + 0.1 * X.hash(x, y, 5) then cut[#cut + 1] = k end
+  end)
+  for _, k in ipairs(cut) do m.s[k] = nil end
+  return m, n, T, S, len
+end
+local function paintLeaf(m, n, T, S, len, per, bias, o)
+  o = o or {}
+  X.tone(c, m, X.light(n, { amb = 0.18, wrap = 0.3 }), LEAF, { cuts = { 0.12, 0.27, 0.43, 0.6, 0.78 }, bias = bias, tok = ltok })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if bias and bias[k] then return end
+    if abs(s) < (o.rib or 0.15) and t > 0.03 and t < 0.94 then c:put(x, y, s <= 0 and VEIN or LEAF[3], ltok) return end
+    local ph = (t * len - abs(s) * 3.4) / per
+    local f = abs((ph - floor(ph)) - 0.5) * 2
+    if f > 0.86 and abs(s) > 0.2 and abs(s) < 0.78 and t > 0.06 and t < 0.9 then c:put(x, y, s < 0 and LEAF[6] or LEAF[2], ltok) end
+  end)
+end
 
-local seeds = { { 16, 51, 3.5, 3.1, -0.3 }, { 29, 49, 3.7, 3.2, 0.2 }, { 44, 52, 3.4, 3.0, 0.5 } }
-for _, s in ipairs(seeds) do s.m = A.oval(s[1], s[2], s[3], s[4], s[5], 0.9) end
-
+-- scrap
+local lm, ln, LT, LS, len = lobed(7, 49, 30, 53, 55, 41, 8.2,
+  { { 0.38, -1, 0.07, 0.62 }, { 0.54, 1, 0.07, 0.62 }, { 0.72, -1, 0.06, 0.6 } }, 5.5, { torn = true })
 local bias = {}
 for _, s in ipairs(seeds) do X.ao(bias, lm, s.m, 1, -1) A.cast(bias, lm, s.m, 1, 2, -1) end
-local ltok = { r = { name = "leaf" } }
-A.toneN(c, lm, ln, LEAF, { bias = bias, tok = ltok, cuts = { 0.14, 0.3, 0.46, 0.64, 0.82 }, amb = 0.14, wrap = 0.3 })
--- midrib (pale, reddening toward the stalk) + angled side veins
-lm:each(function(x, y) local k = K(x, y)
-  if bias[k] then return end
-  local s, t = LS[k], LT[k]
-  if abs(s) < 0.15 and t > 0.02 and t < 0.93 then
-    c:put(x, y, (t < 0.3 and s <= 0) and STEM[3] or (s <= 0 and VEIN or LEAF[3]), ltok)
-  else
-    local ph = ((t * len - abs(s) * 5.0) % 6.2)
-    if ph < 0.95 and abs(s) > 0.18 and abs(s) < 0.78 and t > 0.1 and t < 0.9 then c:put(x, y, s < 0 and LEAF[5] or LEAF[2], ltok) end
-  end
-end)
+local foot = c:ellipse(38, 48, 2, 1)
+X.ao(bias, lm, foot, 1, -1)
+paintLeaf(lm, ln, LT, LS, len, 5.5, bias)
 lm:edge():each(function(x, y) local k = K(x, y)
   if not bias[k] and LS[k] > 0.62 and LT[k] > 0.1 and LT[k] < 0.88 then c:put(x, y, COOL, ltok) end end)
--- rose-red petiole stub
-for _, q in ipairs{ { 7, 57, 3 }, { 6, 58, 3 }, { 5, 58, 2 }, { 4, 59, 2 }, { 8, 58, 1 }, { 6, 59, 1 } } do c:put(q[1], q[2], STEM[q[3]], ltok) end
 
--- ---------------------------------------------------------------- sprout from the middle seed
-local stok = { r = { name = "stem" } }
-local sp = { { 29, 47 }, { 28, 38 }, { 31, 32 }, { 30, 21 } }
-local sm, sn = A.tube(sp, function(t) return 1.1 end)
-sm:cut(seeds[2].m)
-A.shade(c, sm, sn, STEM, { amb = 0.14, wrap = 0.3, cuts = { 0.3, 0.55, 0.8 }, tok = stok })
--- cotyledons: broad ovals on short stalks, sagging outward
-local function coty(cx, cy, ang, ra, rb)
-  local m = A.rell(cx, cy, cos(ang), sin(ang), ra, rb)
+-- sprout: stem
+local sm, sn, ST, SS = A.tube({ { 38, 49 }, { 38, 42 }, { 39, 33 }, { 38, 24 } }, function(t) return 1.3 - 0.3 * t end)
+X.tone(c, sm, X.light(sn, { amb = 0.15, wrap = 0.3 }), STEM, { cuts = { 0.3, 0.55, 0.8 }, tok = stok })
+-- reddish node where the cotyledons leave
+for _, p in ipairs{ { 37, 39 }, { 38, 39 }, { 39, 39 }, { 38, 40 } } do if sm:has(p[1], p[2]) then c:put(p[1], p[2], p[1] == 37 and RED[4] or RED[3], stok) end end
+-- cotyledons: two round, plump
+local function cotyl(ax, ay, cx, cy, bx, by)
+  local m, n, T, S = A.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    return max(0.5, 2.5 * sin(pi * min(1, t * 0.85 + 0.15)) ^ 0.55)
+  end, { fold = 0.3 })
   m:cut(sm)
-  local n = A.dome(m, cx - 0.8, cy - 0.8, ra + 0.5, 1.6, 0.55)
-  A.shade(c, m, n, YLEAF, { tok = ltok, amb = 0.08, wrap = 0.25, cuts = { 0.2, 0.38, 0.55, 0.7, 0.86 } })
-  for t = -ra + 1, ra - 1.2, 0.5 do local x, y = floor(cx + cos(ang) * t + 0.5), floor(cy + sin(ang) * t + 0.5)
-    if m:has(x, y) then c:put(x, y, YLEAF[t < 0 and 6 or 3], ltok) end end
+  X.tone(c, m, X.light(n, { amb = 0.14, wrap = 0.3 }), LEAF, { cuts = A.CUTS6, tok = ltok })
+  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.1 and T[k] < 0.85 then c:put(x, y, S[k] <= 0 and LEAF[6] or LEAF[3], ltok) end end)
   return m
 end
-coty(22.5, 36.8, 0.28, 4.8, 2.7)
-coty(37.5, 35.6, -0.3, 4.8, 2.7)
--- first true leaves: pointed ovate blades with a small side lobe, rising to either side of the stem
-local function tleaf(ax, ay, cx, cy, bx, by, w)
-  local m, T, S, idx = A.leaf(c, ax, ay, cx, cy, bx, by, w, YLEAF, { tok = ltok, vs = 3.0, vein = VEIN, pw = 0.7 })
+local cl = cotyl(37, 41, 31, 42, 28, 37)
+local cr = cotyl(39, 41, 45, 42, 49, 37)
+-- true leaves
+local bm, bn, BT, BS, blen = lobed(38, 30, 28, 29, 22, 17, 4.6, { { 0.45, -1, 0.1, 0.55 }, { 0.62, 1, 0.1, 0.55 } }, 4.2, { fold = 0.32 })
+bm:cut(sm)
+paintLeaf(bm, bn, BT, BS, blen, 4.2, nil, { rib = 0.2 })
+local rm, rn, RT, RS, rlen = lobed(39, 29, 46, 28, 52, 20, 3.2, { { 0.5, 1, 0.12, 0.5 } }, 4, { fold = 0.3 })
+rm:cut(sm):cut(bm)
+paintLeaf(rm, rn, RT, RS, rlen, 4, nil, { rib = 0.22 })
+-- contact shadow where leaves cross the stem
+for _, p in ipairs{ { 37, 30 }, { 37, 31 }, { 40, 30 } } do if sm:has(p[1], p[2]) then c:put(p[1], p[2], STEM[1], stok) end end
+-- bract rosette (quirk): three tapered red petals over a yellow cyathium dot
+local function petal(x1, y1, x2, y2, x3, y3, x4, y4)
+  local m, n, T = A.tube({ { x1, y1 }, { x2, y2 }, { x3, y3 }, { x4, y4 } }, function(t) return 1.6 * (1 - t) ^ 0.6 + 0.35 end)
+  X.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), RED, { cuts = A.CUTS6, tok = { r = { name = "bract" } } })
   return m
 end
-tleaf(30, 27, 22, 25, 16, 17, 3.6)
-tleaf(31, 27, 38, 24, 44, 14, 3.6)
-for _, q in ipairs{ { 30, 27, 3 }, { 30, 26, 2 }, { 31, 26, 3 }, { 29, 28, 2 } } do c:put(q[1], q[2], STEM[q[3]], stok) end
--- growing tip: a short stalk and the red bract star (quirk)
-A.pl({ { 30, 22 }, { 30, 19 } }):each(function(x, y) c:put(x, y, STEM[3], stok) end)
-c:put(31, 21, STEM[1], stok) c:put(31, 20, STEM[1], stok)
-local btok = { r = { name = "bract" } }
-for _, q in ipairs{ { 29, 15, 3 }, { 30, 15, 4 }, { 31, 15, 3 }, { 28, 16, 2 }, { 29, 16, 3 }, { 31, 16, 3 }, { 32, 16, 2 },
-  { 30, 13, 4 }, { 30, 14, 3 }, { 29, 17, 2 }, { 31, 17, 2 }, { 27, 17, 1 }, { 33, 17, 1 }, { 30, 12, 3 } } do c:put(q[1], q[2], BRACT[q[3]], btok) end
-c:put(30, 16, GOLD, btok) c:put(30, 17, "#e0922a", btok)
+petal(38, 25, 33, 23, 31, 20, 30, 17)
+petal(38, 25, 43, 23, 45, 20, 46, 17)
+petal(38, 25, 38, 21, 38, 18, 38, 14)
+c:fillMask(c:rect(37, 25, 39, 25), "#f7d84a")
+c:put(37, 24, "#c9a21e", stok) c:put(39, 24, "#fff2a0", stok)
 
--- ---------------------------------------------------------------- seeds last (mottle, caruncle, glint)
+-- seeds last: mottled coat, raphe line, pale caruncle
 for i, s in ipairs(seeds) do
   local vis = s.m:copy()
   local sb = {}
   for j = i + 1, #seeds do vis:cut(seeds[j].m) X.ao(sb, s.m, seeds[j].m, 1, -1) end
   local tok = { r = { name = "seed" .. i } }
-  local n = A.dome(s.m, s[1] - 0.5, s[2] - 0.6, s[3] + 0.3, 1.8, 0.65)
-  local idx = A.shade(c, vis, n, SEED, { tok = tok, bias = sb, amb = 0.06, wrap = 0.22, cuts = { 0.16, 0.32, 0.5, 0.68, 0.86 } })
-  vis:each(function(x, y)                                     -- dark flecks + a few pale ones (marbled coat)
-    local h = X.hash(x, y, 50 + i)
-    local k = K(x, y)
-    if h > 0.84 and (idx[k] or 1) >= 2 then A.step(c, idx, SEED, x, y, -2, tok)
-    elseif h < 0.07 and (idx[k] or 1) >= 3 then A.step(c, idx, SEED, x, y, 1, tok) end
-  end)
-  -- caruncle: cream cap at the blunt end
   local ca, sa = cos(s[5]), sin(s[5])
-  local hx, hy = floor(s[1] + ca * (s[3] - 0.9) + 0.5), floor(s[2] + sa * (s[3] - 0.9) + 0.5)
-  if i == 2 then hx, hy = floor(s[1] - ca * (s[3] - 0.9) + 0.5), floor(s[2] - sa * (s[3] - 0.9) + 0.5) end
-  for _, d in ipairs{ { 0, 0 }, { 1, 0 }, { 0, 1 } } do if vis:has(hx + d[1], hy + d[2]) then c:put(hx + d[1], hy + d[2], "#f0e2c4", tok) end end
-  -- one glint
-  local gx, gy = floor(s[1] - 1.4 + 0.5), floor(s[2] - 1.3 + 0.5)
-  if vis:has(gx, gy) then c:put(gx, gy, "#f6ead2", tok) end
+  local flip = ((-sa) + ca) > 0 and 1 or -1
+  local v = X.light(s.n, { amb = 0.08, wrap = 0.28 })
+  vis:each(function(x, y) local k = K(x, y)
+    local dx, dy = x - s[1], y - s[2]
+    local u, w = (dx * ca + dy * sa) / (s[3] + .45), flip * (-dx * sa + dy * ca) / (s[4] + .45)
+    local id = floor(v[k] * 6) + 1
+    id = max(1, min(6, id))
+    local h = X.hash(x, y, 11)
+    if h < 0.2 then id = id - 2 elseif h > 0.9 then id = id + 1 end
+    if abs(w) < 0.3 and abs(u) < 0.75 then id = id - 1 end    -- raphe groove
+    if u > -0.2 and u < 0.1 and w < -0.35 and w > -0.8 then id = 6 end   -- lit streak
+    if sb[k] then id = id - 1 end
+    c:put(x, y, SEED[max(1, min(6, id))], tok)
+  end)
+  -- caruncle on the left end
+  local kx, ky = s[1] - ca * (s[3] + 0.9), s[2] - sa * (s[3] + 0.9)
+  local xi, yi = floor(kx + .5), floor(ky + .5)
+  if not s.m:has(xi, yi) then
+    c:put(xi, yi, "#f2e2bc", tok) c:put(xi, yi + 1, "#b9a07a", tok)
+    if not s.m:has(xi - 1, yi) then c:put(xi - 1, yi, "#d8c598", tok) end
+  end
 end
--- germination split on the sprouting seed
-c:put(28, 46, SEED[1]) c:put(29, 46, STEM[2], stok)
+c:put(12, 49, SEED[6], { r = { name = "seed1" } })
+c:sparkle(47, 50)
 
 A.save(c, NAME)
