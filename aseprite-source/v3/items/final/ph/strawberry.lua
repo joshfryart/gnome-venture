@@ -1,51 +1,57 @@
--- strawberry (lean D2o_15)
--- Plump heart-cone berry, glossy red with yellow seed pits, five-point leafy calyx and curled stem.
--- quirk: a neat bite is gone from the lower right showing pale pink flesh.
+-- strawberry (lean W2_31)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "strawberry" }
-local function shade(m, R, ramp, o) o = o or {}
-  local n = X.pillow(m, R)
-  local v = X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
-end
-local function inter(a, b) local m = HP.mask() a:each(function(x, y) if b:has(x, y) then m:set(x, y) end end) return m end
-local RED  = { "#4a1022", "#7a1a2c", "#b02a30", "#d9453a", "#f06d52", "#ffa882" }
+local RED = { "#5a0f2e", "#8a1535", "#b8203a", "#dc3a3f", "#f2625a", "#ff9a84" }
 local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local FLESH = { "#a24a52", "#d27a7a", "#efa6a0", "#fbd0c4", "#fff0e0" }
-c:groundShadow(32, 56, 12, 2)
-local Y0, Y1 = 22, 54
-local function hw(y) local t = (y - Y0) / (Y1 - Y0)
-  if t < 0.34 then return 15 * sin(min(1, (t + 0.05) / 0.39) * pi / 2) ^ 0.6 end
-  return 15 * ((1 - t) / 0.66) ^ 0.8 + 0.6 end
-local B = HP.mask()
-for y = Y0, Y1 do local h = hw(y) for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do B:set(x, y) end end
-local bite = c:ellipse(46, 44, 5, 5) bite:add(c:ellipse(43, 51, 4, 3.5)) bite:add(c:ellipse(48, 37, 3.5, 3.5))
-local fl = inter(B, bite:copy():grow(2)) fl:cut(bite)
-B:cut(bite)
-local n, v = shade(B, 11, RED, { amb = 0.05 })
-local seedZone = B:copy():shrink(2)
-for y = 27, 52, 4 do for x = 14, 52, 5 do
-  local xx = x + ((y - 27) / 4 % 2) * 2.5
-  xx = floor(xx)
-  if seedZone:has(xx, y) and not fl:has(xx, y) and seedZone:has(xx, y + 1) then
-    c:px(xx, y, "#f6d25a") c:px(xx, y + 1, "#c88a2a") c:px(xx - 1, y, RED[2])
-  end end end
-shade(fl, 3, FLESH)
-fl:each(function(x, y) if X.hash(x, y, 3) > 0.9 then c:px(x, y, FLESH[5]) end end)
--- spec
-c:px(20, 31, "#fff0e0") c:px(21, 31, "#fff0e0") c:px(20, 32, RED[6]) c:px(22, 30, RED[6]) c:px(19, 33, RED[6])
--- calyx
-local dirs = { {-1, 0.15}, {-0.7, 0.75}, {0.0, 1}, {0.7, 0.75}, {1, 0.15} }
-for _, d in ipairs(dirs) do
-  local l = sqrt(d[1]^2 + d[2]^2) local ux, uy = d[1] / l, d[2] / l
-  local m = G.rell(32 + ux * 5.5, 23 + uy * 5, ux, uy, 6, 2.2)
-  shade(m, 2.5, LEAF, { amb = 0.15 })
-  for t = 1, 5 do c:px(floor(32 + ux * t * 1.1 + 0.5), floor(23 + uy * t * 1.0 + 0.5), LEAF[6]) end
+local ltok = { r = { name = "leaf" } }
+local Y0, Y1 = 22, 56
+local function hw(y)
+  local t = (y - Y0) / (Y1 - Y0)
+  if t < 0.4 then return 15 * sin(min(1, (t + 0.1) / 0.5) * pi / 2) ^ 0.6 end
+  return 15 * ((1 - t) / 0.6) ^ 0.9 + 0.4
 end
-local sm, sn = G.tube({ {32, 23}, {31, 16}, {35, 11}, {39, 12} }, function(t) return 1.5 - t * 0.6 end)
-G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), LEAF, { 0.2, 0.4, 0.6, 0.78, 0.9 })
-c:px(38, 12, LEAF[5]) c:px(39, 13, LEAF[2])
+local b = HP.mask()
+for y = Y0, Y1 do local h = hw(y) for x = floor(32 - h + 0.5), floor(32 + h - 0.5 + 1) - 1 do b:set(x, y) end end
+local n = X.pillow(b, 10)
+local v = X.light(n, { amb = 0.08, wrap = 0.2 })
+local bias = {}
+X.ao(bias, b, c:rect(26, 18, 38, Y0), 3, -1)
+G.tone(c, b, v, RED, { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias)
+-- seeds in pits
+local inn = b:copy():shrink(2)
+for row = 0, 8 do
+  for col = -4, 4 do
+    local x = 32 + col * 5 + ((row % 2) * 2.5 > 0 and 2 or 0) - 0
+    local y = 27 + row * 3.6
+    x, y = floor(x), floor(y)
+    if inn:has(x, y) and inn:has(x, y + 1) and inn:has(x - 1, y) then
+      c:px(x - 1, y, RED[1]) c:px(x - 1, y + 1, RED[2])
+      c:px(x, y, "#f5dc7c") c:px(x, y + 1, "#c99a3c")
+    end
+  end
+end
+-- glossy spec
+c:px(23, 31, "#fff0ea") c:px(24, 31, "#fff0ea") c:px(23, 32, RED[6]) c:px(25, 30, RED[6])
+-- cool reflected light lower right
+b:edge():each(function(x, y) if x > 36 and y > 34 and y < 50 and X.hash(x, y, 3) > 0.4 then c:px(x, y, "#c0405f") end end)
+-- unripe pale tip (quirk)
+for _, p in ipairs{ {32,55},{32,54},{31,54},{33,54},{32,53} } do if b:has(p[1], p[2]) then c:px(p[1], p[2], "#f0b79a") end end
+-- calyx
+local function lf(pts, w)
+  local m, nn = G.tube(pts, function(t) return w * sin(pi * min(1, t * 0.85 + 0.12)) ^ 0.7 + 0.6 end)
+  G.tone(c, m, X.light(nn, { amb = 0.15, wrap = 0.3 }), LEAF, { 0.2, 0.38, 0.55, 0.7, 0.86 }, nil, ltok)
+  return m
+end
+lf({ {32,23},{24,21},{18,23},{15,28} }, 2.6)
+lf({ {32,23},{40,21},{46,23},{49,28} }, 2.6)
+lf({ {32,23},{26,25},{22,29},{22,34} }, 2.2)
+lf({ {32,23},{38,25},{42,29},{42,34} }, 2.2)
+lf({ {32,23},{31,20},{28,18},{27,16} }, 1.8)
+-- stem
+local sm, sn = G.tube({ {32,22},{32,17},{33,13},{36,10} }, function(t) return 1.8 - 0.6 * t end)
+G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }, { 0.3, 0.55, 0.8 })
+-- dew drop on left leaf
+c:px(19, 25, "#d8f2f0") c:px(20, 25, "#9ad0d4") c:px(19, 26, "#6aa8b8")
 G.fin(c, "strawberry")
