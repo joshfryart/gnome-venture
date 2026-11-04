@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.13
+- **Wander off is a popover**: tapping it opens a small card (what it does, ⚡1, Wander off or Stay on the Trail). Works without script via `?w=1`. Needs 2.5.12.
+
 ## 2.5.12
 - **Fight popover, smaller and tidier**: 380 px wide, shorter picture and buttons; the odds line ("You hit 90% ...") sits between the picture and the buttons; the green and red stat cards at the bottom are gone (the picture shows both health bars). Needs 2.5.11.
 

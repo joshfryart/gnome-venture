@@ -241,9 +241,14 @@ if ($wi && !$isWalk): ?>
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
-    <?php if (on_road((int)$exp['from_id'])): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_wander"><button class="btn alt" title="Leave the Trail for the wilds. Your walk waits for you on the road. ⚡1">🌿 Wander off <small>⚡1</small></button></form><?php endif; ?>
+    <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>
   </div>
+  <?php if (on_road((int)$exp['from_id'])): ?><dialog class="picker hubpop trailsmall" id="hubpop-twander" aria-labelledby="hubpop-twander-t"<?= !empty($_GET['w']) ? ' open' : '' ?>><div class="pickbox">
+    <div class="pickhead"><h3 id="hubpop-twander-t">🌿 Wander off the Trail?</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
+    <div class="hubcard trailui"><p class="help">Leave the Trail for the wilds. ⚡1. Your walk waits for you on the road, and you can resume it from there.</p>
+      <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_wander"><button class="btn">🌿 Wander off <small>⚡1</small></button></form>
+      <a class="btn alt" href="<?= e(url('adventure.php')) ?>" data-pop-close>Stay on the Trail</a></div></div></dialog><?php endif; ?>
   <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tgather-t">🧺 Gather here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard"><?= gather_here_box($u, $tLand0, url('adventure.php'), '') ?></div></div></dialog>
