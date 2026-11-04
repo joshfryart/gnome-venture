@@ -7086,3 +7086,48 @@ dialog.trailpop .panel.box h3 { font-size: 1.05rem; margin: 6px 0; }
 /* The battle picture at the top of the encounter popover (stage.js draws the units on it) */
 dialog.trailpop .gvs { width: 100%; max-width: none; margin: 0 0 6px; border: 2px solid var(--line); box-sizing: border-box; }
 @media (max-height: 640px) { dialog.trailpop .gvs { max-height: 34dvh; } }
+/* Combat buttons in the popover: small stylized tiles (Gnome Venture pixel look: stepped corners, a bevel, moss / rust / bark colours).
+   Attack and the other first actions form a 2-up grid; Fight on, Auto-win and the snack row sit under as slim tiles. Details stay in the sub line (one line). */
+dialog.trailpop .fightbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0 2px; }
+dialog.trailpop .fightbtns .choiceform { margin: 0; display: block; min-width: 0; }
+dialog.trailpop .fightbtns .choiceform:first-child { grid-column: 1 / -1; }
+dialog.trailpop .fightbtns .choiceform:nth-child(n+4) .choice { min-height: 36px; }
+dialog.trailpop .fightbtns .choice {
+  --gvt-edge: #9a6b3f; --gvt-fill: #4a2c1a; --gvt-hi: #6a4326; --gvt-lo: #2e1a0e; --gvt-cut: 4px;
+  position: relative; width: 100%; min-height: 44px; padding: 4px 8px; margin: 0; border: 0; border-radius: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; color: var(--ink);
+  background: var(--gvt-edge);
+  clip-path: polygon(0 var(--gvt-cut), var(--gvt-cut) var(--gvt-cut), var(--gvt-cut) 0, calc(100% - var(--gvt-cut)) 0, calc(100% - var(--gvt-cut)) var(--gvt-cut), 100% var(--gvt-cut), 100% calc(100% - var(--gvt-cut)), calc(100% - var(--gvt-cut)) calc(100% - var(--gvt-cut)), calc(100% - var(--gvt-cut)) 100%, var(--gvt-cut) 100%, var(--gvt-cut) calc(100% - var(--gvt-cut)), 0 calc(100% - var(--gvt-cut)));
+}
+dialog.trailpop .fightbtns .choice::before {
+  content: ""; position: absolute; inset: 2px; z-index: 0; background: linear-gradient(var(--gvt-hi) 0 12%, var(--gvt-fill) 12% 82%, var(--gvt-lo) 82%);
+  clip-path: polygon(0 var(--gvt-cut), var(--gvt-cut) var(--gvt-cut), var(--gvt-cut) 0, calc(100% - var(--gvt-cut)) 0, calc(100% - var(--gvt-cut)) var(--gvt-cut), 100% var(--gvt-cut), 100% calc(100% - var(--gvt-cut)), calc(100% - var(--gvt-cut)) calc(100% - var(--gvt-cut)), calc(100% - var(--gvt-cut)) 100%, var(--gvt-cut) 100%, var(--gvt-cut) calc(100% - var(--gvt-cut)), 0 calc(100% - var(--gvt-cut)));
+}
+dialog.trailpop .fightbtns .choice > * { position: relative; z-index: 1; }
+dialog.trailpop .fightbtns .choice.primary { --gvt-edge: #a8d070; --gvt-fill: #2f5a2a; --gvt-hi: #4a7d3a; --gvt-lo: #1f3d1c; }
+dialog.trailpop .fightbtns .choiceform:has([value="flee"]) .choice, dialog.trailpop .fightbtns .choiceform:has([name="do"][value="flee"]) .choice { --gvt-edge: #d98a6a; --gvt-fill: #6b2f22; --gvt-hi: #8a4430; --gvt-lo: #451d14; }
+dialog.trailpop .fightbtns .choice:hover, dialog.trailpop .fightbtns .choice:focus-visible { --gvt-edge: var(--gold, #f5cf6a); filter: brightness(1.12); }
+dialog.trailpop .fightbtns .choice:active { transform: translateY(1px); }
+dialog.trailpop .fightbtns .choice:disabled { filter: grayscale(.7) brightness(.7); cursor: default; }
+dialog.trailpop .fightbtns .choice-ico { flex: none; display: inline-flex; width: 18px; height: 18px; }
+dialog.trailpop .fightbtns .choice-ico img { width: 18px; height: 18px; }
+dialog.trailpop .fightbtns .choice-body { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0; }
+dialog.trailpop .fightbtns .choice-title { font-size: 14px; letter-spacing: .02em; text-shadow: 1px 1px #000; }
+dialog.trailpop .fightbtns .choice-sub { display: block; max-width: 100%; font-size: 11px; line-height: 1.15; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+dialog.trailpop .fightbtns .choice-badge { flex: none; font-size: 12px; padding: 0 5px; background: #00000066; border: 1px solid #00000099; }
+@media (max-width: 360px) { dialog.trailpop .fightbtns .choice-sub { display: none; } }
+dialog.trailpop .fightbtns .choiceform:nth-child(n+2) { grid-column: auto; }
+dialog.trailpop .encounter .fightbtns.choicelist > form:nth-child(n+2) { grid-column: auto; }
+dialog.trailpop .encounter .fightbtns.choicelist { grid-template-columns: 1fr 1fr; }
+dialog.trailpop .encounter .fightbtns .choice-sub { display: block; -webkit-line-clamp: unset; }
+/* Fight popover order: picture, then the buttons, then the odds, the latest result, the folds, and last the compact stat cards. */
+dialog.trailpop .encounter { display: flex; flex-direction: column; }
+dialog.trailpop .encounter > * { order: 5; }
+dialog.trailpop .encounter > .fightbtns { order: 1; }
+dialog.trailpop .encounter > .fodds { order: 2; text-align: center; margin: 6px 0 2px; }
+dialog.trailpop .encounter > .frounds, dialog.trailpop .encounter > .roadresult, dialog.trailpop .encounter > .advlatest { order: 3; }
+dialog.trailpop .encounter > details, dialog.trailpop .encounter > .helpfold { order: 4; }
+dialog.trailpop .encounter > .fightgrid { order: 6; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; font-size: 12px; }
+dialog.trailpop .encounter > .fightgrid .fcard { padding: 4px 6px; }
+dialog.trailpop .encounter > .fightgrid .fcard * { font-size: 12px; margin-top: 0; margin-bottom: 0; }
+dialog.trailpop .encounter > .fightgrid .portrait, dialog.trailpop .encounter > .fightgrid img.fcard-pic { display: none; }
