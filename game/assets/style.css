@@ -7077,8 +7077,8 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 .trailtoast .roadresult, .trailtoast .advlatest { margin: 0; box-shadow: 0 6px 20px #0008; background: var(--panel, #3a2a1c); text-align: center; }
 @keyframes trailtoast { 0% { opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { .trailtoast { animation-duration: 6s; } }
-.trailfoot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
-.trailfoot .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+.trailfoot { display: flex; flex-wrap: nowrap; gap: 6px; justify-content: center; margin: 10px 0; }
+.trailfoot .btn { flex: 1 1 0; min-width: 0; padding: 6px 8px; font-size: .82rem; line-height: 1.15; flex-direction: column; gap: 0; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 dialog.trailpop .pickbox { width: min(560px, 100%); }
 dialog.trailpop .panel.box { margin: 0; border: 0; box-shadow: none; }
 /* Combat and other encounters on a tile map: a popover over the screen, sized to it. Full screen on a phone, a centred card from 721px; the content scrolls inside, so every option stays reachable. */
@@ -7144,3 +7144,7 @@ dialog.trailpop .encounter > .fightgrid .portrait, dialog.trailpop .encounter > 
 dialog.hubpop:has(.wsfrag) .pickbox { width: min(760px, 100%); max-height: calc(100dvh - 16px); }
 dialog.hubpop .wsfrag[aria-busy="true"] { opacity: .6; }
 dialog.hubpop .wsfrag { margin: 8px 0; }
+
+.trailfoot form { flex: 1 1 0; min-width: 0; display: flex; margin: 0; }
+.trailfoot form .btn { width: 100%; }
+.trailfoot > a.btn { flex: 1 1 0; }

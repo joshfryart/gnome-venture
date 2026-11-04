@@ -238,6 +238,16 @@ if ($wi && !$isWalk): ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
 <?= trail_view_html($u, $exp, $trailSc, (bool)$enc) ?>
+<?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
+  <div class="trailfoot">
+    <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
+    <?php if (on_road((int)$exp['from_id'])): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_wander"><button class="btn alt" title="Leave the Trail for the wilds. Your walk waits for you on the road. ⚡1">🌿 Wander off <small>⚡1</small></button></form><?php endif; ?>
+    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>
+  </div>
+  <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">
+    <div class="pickhead"><h3 id="hubpop-tgather-t">🧺 Gather here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
+    <div class="hubcard"><?= gather_here_box($u, $tLand0, url('adventure.php'), '') ?></div></div></dialog>
+</div>
 <?php elseif ($isWalk): ?>
 <?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
 <?php else: ?>
@@ -470,14 +480,6 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     <h3>🍃 Section <?= (int)$trailSc['st']['sec'] + 1 ?> of <?= (int)$trailSc['st']['S'] ?></h3>
     <p class="help">Tap a lit tile to walk. ⚔️ and ✨ wait on some tiles. Reach 🚪 to go on. Walking is free.</p>
   <?php endif; ?>
-  <div class="trailfoot">
-    <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
-    <?php if (on_road((int)$exp['from_id'])): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_wander"><button class="btn alt" title="Leave the Trail for the wilds. Your walk waits for you on the road. ⚡1">🌿 Wander off the Trail <small>⚡1</small></button></form><?php endif; ?>
-    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back <small>free</small></button></form>
-  </div>
-  <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">
-    <div class="pickhead"><h3 id="hubpop-tgather-t">🧺 Gather here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
-    <div class="hubcard"><?= gather_here_box($u, $tLand, url('adventure.php'), '') ?></div></div></dialog>
   </div>
 
 <?php elseif ((int)$exp['step'] < (int)$exp['steps_total']): ?>
