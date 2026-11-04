@@ -11,7 +11,7 @@ local floor, ceil, sqrt, max, min, abs, sin, cos, pi = math.floor, math.ceil, ma
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "rope" }
 local HM = A.HEMP
 local H = A.hash
-local OY = -3
+local OY = -1
 
 c:groundShadow(29, 47, 19, 3)
 
