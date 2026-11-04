@@ -45,6 +45,16 @@ if ($withDb && ($argv[2] ?? '') === 'cli') {   // (php tests/here.php GAME cli .
         }
     }
     if ($cmd === 'clearenc') { q("UPDATE expeditions SET encounter = NULL WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')"); echo "ok\n"; }
+    if ($cmd === 'athome') {   // put the gnome where most villagers live; print "<npc id> <item id>"
+        $loc = (int)q_val("SELECT home_location_id FROM npcs WHERE active = 1 AND traveller IS NULL AND home_location_id IS NOT NULL GROUP BY home_location_id ORDER BY COUNT(*) DESC, home_location_id LIMIT 1");
+        $uidx = (int)q_val("SELECT id FROM users WHERE username = 'sprout'");
+        q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$uidx]); q('UPDATE users SET location_id = ? WHERE id = ?', [$loc, $uidx]);
+        $nid = (int)q_val('SELECT id FROM npcs WHERE active = 1 AND traveller IS NULL AND home_location_id = ? ORDER BY id LIMIT 1', [$loc]);
+        $item = (int)q_val("SELECT id FROM items WHERE tradable = 1 AND category NOT IN ('tool','broken') ORDER BY id LIMIT 1");
+        require_once $game . '/includes/items.php'; give_item($uidx, $item, 2);
+        q('UPDATE npc_friends SET last_gift = NULL WHERE user_id = ?', [$uidx]);
+        echo "$nid $item\n";
+    }
     if ($cmd === 'active') { echo (int)q_val("SELECT COUNT(*) FROM expeditions WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')") . "\n"; }
     if ($cmd === 'walk') {
         $u = q_one("SELECT * FROM users WHERE username = 'sprout'");
@@ -253,7 +263,7 @@ if ($withDb) {
     $out = hub_scene('generic', $hot, [], ['layout' => $L, 'alt' => 'x', 'open' => 'a']);
     ok('label is escaped', !str_contains($out, 'Door <b>') && str_contains($out, 'Door &lt;b&gt;'));
     ok('?o=<id> opens that card (no JS)', str_contains($out, 'id="hubpop-a"') && str_contains($out, 'hubpop-a" aria-labelledby="hubpop-a-t" open'));
-    $out2 = hub_scene('generic', $hot, [], ['layout' => $L, 'alt' => 'x']);
+    $out2 = hub_scene('zz-noart', $hot, [], ['layout' => $L, 'alt' => 'x']);
     ok('closed by default', !str_contains($out2, ' open>') && !str_contains($out2, 'aria-labelledby="hubpop-a-t" open'));
     ok('no art file: drawn sky and ground', str_contains($out2, 'class="sky"') && str_contains($out2, 'class="ground"'));
     $big = $L; $big['w'] = 960; $big['h'] = 540;
@@ -352,6 +362,46 @@ if ($withDb) {
     q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
     sset('gnav_tiles', '0'); sset('gnav_on', '0');
 
+    echo "== residential and door\n";
+    require_once $game . '/includes/residential.php';
+    $homeLoc = (int)q_val("SELECT home_location_id FROM npcs WHERE active = 1 AND traveller IS NULL AND home_location_id IS NOT NULL GROUP BY home_location_id ORDER BY COUNT(*) DESC, home_location_id LIMIT 1");
+    $homes = npcs_homed_at($homeLoc);
+    ok('the place with most villagers has homes', count($homes) >= 2, "loc $homeLoc");
+    ok('homes are in id order', array_column($homes, 'id') === (function ($a) { sort($a); return $a; })(array_column($homes, 'id')));
+    ok('travellers and inactive villagers have no house', !array_filter($homes, fn($n) => $n['traveller'] !== null || (int)$n['active'] !== 1));
+    $firstIds = array_column($homes, 'id');
+    q("DELETE FROM npcs WHERE slug = 'zz-newcomer'");
+    $newId = db_insert('npcs', ['slug' => 'zz-newcomer', 'name' => 'Zed Newcomer', 'species' => 'frog', 'personality' => 'Shy', 'home_location_id' => $homeLoc, 'active' => 1]);
+    $after = array_column(npcs_homed_at($homeLoc), 'id');
+    ok('a new villager takes the next slot, nobody else moves', array_slice($after, 0, count($firstIds)) === $firstIds && end($after) === $newId);
+    q('DELETE FROM npcs WHERE id = ?', [$newId]);
+    ok('templates: 3 houses -> 4-slot street, 6 -> 6, 7 -> 8, 30 -> 8 per page', resid_template(3) === ['resid-4', 4] && resid_template(6) === ['resid-6', 6] && resid_template(7) === ['resid-8', 8] && resid_template(30)[1] === 8);
+    $u = put($homeLoc);
+    [$rh, $pages] = resid_view($u, player_node($u), 1);
+    ok('the street renders one house per villager (page 1)', substr_count($rh, 'id="hs-h') === min(count($homes), resid_template(count($homes))[1]));
+    ok('an unmet villager shows no name on the street', !str_contains($rh, (string)$homes[0]['name']) || resid_met((int)$u['id'], (int)$homes[0]['id']));
+    $n1 = $homes[0];
+    ok('door_allowed: at the home place', door_allowed($u, $n1));
+    $other = (int)q_val("SELECT id FROM locations WHERE id <> ? ORDER BY id LIMIT 1", [$homeLoc]);
+    $uo = put($other);
+    ok('door_allowed: not from another place', !door_allowed($uo, $n1));
+    ok('gift at a door refused from elsewhere', npc_gift_door($uo, (int)$n1['id'], 1)[0] === false);
+    // lights: force home / away by schedule-free hours: an npc with no schedule rows is home all day
+    q('DELETE FROM npc_schedules WHERE npc_id = ?', [$n1['id']]);
+    $u = put($homeLoc);
+    ok('no plans = at home: window lit, Knock links to the visit', str_contains(door_view($u, $n1, 1), 'villagers.php?id=' . $n1['id'] . '&amp;home=1'));
+    q('INSERT INTO npc_schedules (npc_id, days, start_hour, end_hour, activity, location_id) VALUES (?, ?, 0, 0, ?, ?)', [$n1['id'], 'all', 'visiting', $homeLoc]);
+    $dv = door_view($u, $n1, 1, 'knock');
+    ok('out all day: dark window, Knock shows the message and no visit link', str_contains($dv, 'No light on') && !str_contains($dv, 'villagers.php?id=' . $n1['id'] . '&amp;home=1'), substr(strip_tags($dv), 0, 0));
+    q("UPDATE users SET coins = coins WHERE id = ?", [$u['id']]);
+    $item = (int)q_val("SELECT id FROM items WHERE tradable = 1 AND category NOT IN ('tool','broken') ORDER BY id LIMIT 1");
+    give_item((int)$u['id'], $item, 3);
+    q('DELETE FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$u['id'], $n1['id']]);
+    [$g1, $gm1] = npc_gift_door($u, (int)$n1['id'], $item);
+    ok('a gift can be left at the door of an unmet, absent villager', $g1 && str_contains($gm1, 'door'), $gm1);
+    [$g2, $gm2] = npc_gift_door($u, (int)$n1['id'], $item);
+    ok('only once a day (shared with handed gifts)', !$g2, $gm2);
+    ok('friendship went up, but only by the door share', (int)q_val('SELECT points FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$u['id'], $n1['id']]) > 0);
     echo "== flag helpers\n";
     ok('gnav_start_here is off with the flag off', !gnav_start_here(me()));
     sset('gnav_on', '1');

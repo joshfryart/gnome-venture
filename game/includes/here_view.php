@@ -17,6 +17,7 @@ require_once __DIR__ . '/maps.php';
 require_once __DIR__ . '/npc_life.php';
 require_once __DIR__ . '/items.php';
 require_once __DIR__ . '/place_ui.php';   // go_level_chip
+require_once __DIR__ . '/residential.php';   // npcs_homed_at
 
 /**
  * Energy to step onto a path from a place. THE one place that works this out: the Here exit chips show it, and for the timer walk it is
@@ -162,11 +163,12 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         }
         $add('shops', 'Shops', '🏪', url('town.php?view=shops'));
         // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
-        if (is_file(APP_ROOT . '/residential.php')) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
-    } elseif ($kind === 'village' || $kind === 'stop') {
+        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
+    } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture
         $add('do', 'Do here', '🎯', url('town.php'));
         $add('people', 'Villagers', '👥', url('town.php?t=folk'));
         $add('stop', 'Rest stop', '🪧', url('town.php?t=stop'));
+        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
         if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $add('garden', 'Your garden', '🌱', url('garden.php'));
     } elseif (in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) {
         $lm = landmark_at((int)$node['id']);

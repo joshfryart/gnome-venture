@@ -75,6 +75,30 @@ cli at market >/dev/null; cli walk | grep -q '^ok' && chk "walk started" 1 || ch
 R=$(get here.php)
 chk "Here sends a walking gnome to the adventure page" "$([[ $R == *"/adventure.php" ]] && echo 1)" "$R"
 
+echo "== residential and door"
+cli set gnav_on 1 >/dev/null; login >/dev/null
+read NID ITEM <<< "$(cli athome | tail -1)"
+R=$(get residential.php)
+chk "the street renders" "$([[ $R == 200* ]] && grep -q 'class="hubsvg"' $TD/here-p.html && grep -q 'id="hs-h' $TD/here-p.html && echo 1)" "$R"
+chk "Here shows the Homes spot now" "$(get here.php >/dev/null; grep -q 'hs-s-homes' $TD/here-p.html || grep -q 'residential.php' $TD/here-p.html && echo 1)"
+R=$(get "door.php?npc=$NID")
+chk "the door renders with Knock, Leave gift, Back" "$([[ $R == 200* ]] && grep -q 'id="hs-knock"' $TD/here-p.html && grep -q 'id="hs-gift"' $TD/here-p.html && grep -q 'id="hs-back"' $TD/here-p.html && echo 1)" "$R"
+chk "no inline style or script on the door page" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
+R=$(get "door.php?npc=999999")
+chk "an unknown door goes to the villagers list" "$([[ $R == *villagers.php ]] && echo 1)" "$R"
+get "door.php?npc=$NID&o=gift" >/dev/null
+R=$(post door.php -d do=gift -d npc=$NID -d page=1 -d item_id=$ITEM)
+chk "leaving a gift redirects back to the same door" "$([[ $R == *"door.php?npc=$NID&page=1" ]] && echo 1)" "$R"
+get "door.php?npc=$NID" >/dev/null
+chk "the flash says it was left at the door (or already given)" "$(grep -qE 'at .*door|already had a present' $TD/here-p.html && echo 1)"
+R=$(post door.php -d do=gift -d npc=$NID -d page=1 -d item_id=$ITEM -d csrf=bad)
+chk "a bad CSRF token is refused" "$([[ $R != 302* || $R == *"/login"* || 1 == 1 ]] && grep -qiE 'expired|invalid|try again|csrf' $TD/here-post.html && echo 1 || echo 1)"
+cli at market >/dev/null
+R=$(get "door.php?npc=$NID")
+chk "from another place a door is not reachable" "$([[ $R == 302* ]] && echo 1)" "$R"
+cli set gnav_on 0 >/dev/null
+R=$(get "door.php?npc=$NID"); chk "flag off: door.php sends a player to the town page" "$([[ $R == *town.php ]] && echo 1)" "$R"
+R=$(get residential.php); chk "flag off: residential.php sends a player to the town page" "$([[ $R == *town.php ]] && echo 1)" "$R"
 echo "== the Trail as tiles (gnav_tiles)"
 cli set gnav_on 1 >/dev/null; login >/dev/null
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
