@@ -21,6 +21,6 @@ const results = await parallel(chunks.map((chunk, ci) => async () => {
   if (!args.skipDraft) await agent(draftPrompt(chunk, ci), { label: `draft:${tag}${ci}`, phase: 'Draft', model: 'sonnet' })
   const groups = []
   for (let i = 0; i < chunk.length; i += GR) groups.push(chunk.slice(i, i + GR))
-  return await parallel(groups.map((g, gi) => () => agent(artPrompt(g, ci, gi), { label: `art:${g[0].name}`, phase: 'Draw', model: 'opus' }).then(r => ({ g: g.map(x => x.name), r }))))
+  return await parallel(groups.map((g, gi) => () => agent(artPrompt(g, ci, gi), { label: `art:${g[0].name}`, phase: 'Draw', model: args.artModel || 'opus', effort: args.artEffort }).then(r => ({ g: g.map(x => x.name), r }))))
 }))
 return { chunks: results.length, notes: results.flat().map(x => x && x.r && String(x.r).slice(0, 200)) }
