@@ -1,5 +1,17 @@
 # Gnome Venture: to-do (updated 2026-11-04; current version and history: CHANGELOG.md. The NOW blocks below are older release notes)
 
+## ART TODO: the wander area (Wander off the Trail), added 2026-11-04
+Code today (2.5.17): the wander card (`wander_card_html()` in `adventure.php`) is text + emoji only, over the dimmed Trail section. Nothing below is wired yet unless it says so; each item is a drop-in with an emoji fallback, red-border placeholder first (same rule as the Here pictures).
+- **Fight backdrops, wired:** `assets/img/scenes/fight-<land>.png` for the 9 landscapes: coast, mountain, forest, desert, rainforest, grassland, wetland, tundra, island. Only `fight-generic.png` (red-border placeholder) exists. Used by every fight popover (Trail, delve, lair, wander). Same size as the generic one.
+- **Wander card banner, NOT wired (needs ~10 lines):** one wide strip per landscape, `scenes/wander-<land>.png` (9), shown at the top of the card in place of the plain header. Plus a `wander-deep.png` variant for the Deep wilds tier (step 9+) and a darker `wander-wild.png` for the dangerous tiers, so the strip itself says how far out you are.
+- **Four tier badges, NOT wired:** Gentle, Medium (Wild), Dangerous, Deep wilds as small pixel badges (24 px) next to "step N"; today only words.
+- **Move icons, NOT wired (emoji now):** 5 small pixel icons, 24 px, for Go deeper, Keep exploring, Step back, Back to the Trail, Visit a found place (now 🌿 🔁 ↩️ 🛣️ 🚶). Name them `wander-<move>.png` (`deeper`, `roam`, `back`, `return`, `visit`).
+- **Found-place marker, NOT wired:** a small signpost / glow for "you spotted a place" on the Visit button and on the card header.
+- **Step-off / step-back transition, NOT wired:** a 4 to 6 frame strip of the gnome leaving the Trail edge and coming back (used when the card opens and when Back to the Trail puts the section back). Short, skippable, reduced-motion safe.
+- **Behind the card (the dimmed Trail section):** the tile art for the Trail sections is script-drawn SVG today (ground, walls, path, 🚪 exit, ⚔️ and ✨ tokens). A real per-landscape tileset (9 lands x ground, edge, path, exit, fight token, find token) would help the wander too, since it is the picture behind the card.
+- **Ring map (existing):** the round "hoop" map for exploring is code-drawn; a hand-drawn rim and centre medallion would match the new cards, optional.
+- **Placeholders to replace as a set:** `fight-generic.png` plus the 17 `here-*`, `resid-*`, `door-*` and the three page pictures listed in the earlier NOW block. `php tools/lint_here.php` checks sizes; `tools/gen_here_placeholders.py --fight` regenerates the fight placeholder.
+
 ## NOW (2.5.05, 2026-11-04): Trail strip + GPS hand-off + workshop popover DONE (slim zip 2.5.05, needs 2.5.04; 2.5.04 is Josh art). Still open: balance_sim for gnav_enter_energy, docs (artguide/README/DESIGN), treehouse trophies/dressing, animation layers, MySQL upgrade_check, phone checks, real art.
 
 ## NOW (nav A + 2d + editor + pictures, 2.5.03, 2026-11-04): GRAPHICAL NAVIGATION. everything is in the **2.5.03** slim zip (`releases/GnomeVenture-2.5.03-web-update.zip`, needs 2.5.02+; 2.5.01 and 2.5.02 are Josh's art releases; an early nav-only test zip was briefly called 2.5.01 and is superseded). Branch `claude/new-session-c6u77m` merged with main (2.5.02).
