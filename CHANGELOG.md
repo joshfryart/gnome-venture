@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.99
+- **Redone art for 179 items.** The 179 weak images from 2.4.98 (tiny seeds, look-alikes, muddy materials) are redrawn in v3 Hearth Pop, same file names, so nothing in the code changes: 55 seed icons and 124 other item, stage, fence, wall, shed, pelt and food images in `game/assets/img/ph/`. The pink 2 px review border is removed; `aseprite-source/v3/rollout/weak.txt` is now empty and `export_game.py` re-adds the border to any name put back in it.
+- Images you uploaded in Admin > Images still win over these files; re-upload the `gnome-venture-images-v3-*` zips to replace them.
+- No code, schema or setting changes. Only `bootstrap.php` (version) and image files.
+
 ## 2.4.98
 - **New "Hearth Pop" art for 1,662 items and icons.** Same file names, so nothing in the code changes: `game/assets/img/ph/` (item, seed, food, tool, building and pelt art, including the 14 `nav-*` and stage art), `game/assets/img/games/` and `game/assets/img/ico/` now hold the v3 pixel art (64x64, slim shapes, 5-6 tone ramps, one small quirk each, 1px ink outline). The game already prefers `<name>.png` over the old `.svg`, so the new art shows straight away; the old SVGs stay as the fallback. Flower heads are not included (they need a tintable rig).
 - **Review aid: 179 images wear a bright pink 2 px border.** These are the ones the artists or Josh marked weak (tiny seeds, look-alikes, muddy materials). The border is only in the game copy; the source art is untouched, and `aseprite-source/v3/rollout/weak.txt` plus `rollout/export_game.py` regenerate it (remove a line from `weak.txt` and re-run to clear one).
