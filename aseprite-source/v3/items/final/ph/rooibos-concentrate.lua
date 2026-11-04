@@ -45,13 +45,13 @@ local v = X.light(ln, { amb = 0.05, wrap = 0.35 })
 local rim = X.rim(ln)
 local bias = {}
 liq:each(function(x, y) local k = K(x, y)
-  if rim[k] and rim[k] > 0.5 then bias[k] = 2 end
-  if rim[k] and rim[k] > 0.75 then bias[k] = 3 end
+  if rim[k] and rim[k] > 0.5 then bias[k] = 1 end
+  if rim[k] and rim[k] > 0.78 then bias[k] = 2 end
   -- caustic: bright patch low right
-  if (x - 38) ^ 2 / 14 + (y - 49) ^ 2 / 6 < 1 then bias[k] = 3 end
+  if (x - 38) ^ 2 / 14 + (y - 49) ^ 2 / 6 < 1 then bias[k] = 2 end
   -- base darkness at the very bottom edge of the pool
 end)
-local idx = X.tone(c, liq, v, LIQ, { cuts = { 0.2, 0.4, 0.58, 0.74, 0.88 }, bias = bias, tok = ltok })
+local idx = X.tone(c, liq, v, LIQ, { cuts = { 0.34, 0.54, 0.7, 0.84, 0.95 }, bias = bias, tok = ltok })
 -- meniscus: bright line along the surface with a lit curve
 liq:each(function(x, y)
   if y == 24 then c:put(x, y, LIQ[6], ltok) end
@@ -62,12 +62,12 @@ c:put(35, 33, LIQ[5], ltok) c:put(36, 31, LIQ[5], ltok)
 
 -- label wrapping the belly, bowed like a smile
 local lab = HP.mask()
-for x = 21, 43 do
+for x = 24, 40 do
   local off = floor(((x - CX) ^ 2) * 0.016 + 0.5)
-  for y = 36 + off, 48 + off do if liq:has(x, y) then lab:set(x, y) end end
+  for y = 38 + off, 47 + off do if liq:has(x, y) then lab:set(x, y) end end
 end
 lab:each(function(x, y)
-  local u = (x - CX) / 11
+  local u = (x - CX) / 8
   local i = u < -0.6 and 4 or (u < 0.2 and 5 or (u < 0.55 and 4 or 3))
   if u > 0.8 then i = 2 end
   c:put(x, y, CREAM[i], lbtok)
@@ -78,13 +78,13 @@ lab:each(function(x, y)
 end)
 -- sprig stamp: stem + needle pairs (russet)
 local SP, SPD = "#9a4430", "#6a2c2c"
-for y = 39, 47 do local off = floor(((CX - CX) ^ 2) * 0.016 + 0.5) c:put(CX, y, SPD, lbtok) end
+for y = 40, 46 do local off = floor(((CX - CX) ^ 2) * 0.016 + 0.5) c:put(CX, y, SPD, lbtok) end
 for i = 0, 3 do
-  local y = 41 + i * 2
+  local y = 42 + i * 2
   c:put(CX - 1, y, SP, lbtok) c:put(CX - 2, y - 1, SP, lbtok)
   c:put(CX + 1, y, SPD, lbtok) c:put(CX + 2, y - 1, SPD, lbtok)
 end
-c:put(CX, 38, SP, lbtok)
+c:put(CX, 41, SP, lbtok)
 
 -- glass streak (specular) following the left curve + neck, and a small reflected dot
 for y = 34, 47 do
