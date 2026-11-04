@@ -16,21 +16,24 @@ require_once __DIR__ . '/journey.php';
 require_once __DIR__ . '/maps.php';
 require_once __DIR__ . '/npc_life.php';
 require_once __DIR__ . '/items.php';
+require_once __DIR__ . '/place_ui.php';   // go_level_chip
 
 /**
  * Energy to step onto a path from a place. THE one place that works this out: the Here exit chips show it, and for the timer walk it is
- * what start_expedition charges today (route_energy, free with a walking staff, free with fireflies). With gnav_tiles on (tile walks,
- * phase 2d) only the first step costs, gnav_enter_energy, and the same reductions apply.
+ * what start_expedition charges today (route_energy; free with fireflies). A walking staff frees a walk only by chance (staff_free rolls
+ * a die), so a PREVIEW (the default) shows the full price and never rolls; the code that really charges passes $roll = true.
+ * With gnav_tiles on (tile walks, phase 2d) only the first step costs, gnav_enter_energy, and the same reductions apply.
  */
-function route_enter_cost(array $u, array $route): int
+function route_enter_cost(array $u, array $route, bool $roll = false): int
 {
+    $road = ($route['kind'] ?? 'road') === 'road';
     if (setting('gnav_tiles') === '1') {
-        if (($route['kind'] ?? 'road') === 'road' && calling_perk($u, 'free_walks') > 0) return 0;
-        if ((int)($u['ev_quickwalk'] ?? 0) > 0 || staff_free((int)$u['id'])) return 0;
+        if ($road && calling_perk($u, 'free_walks') > 0) return 0;
+        if ((int)($u['ev_quickwalk'] ?? 0) > 0 || ($roll && staff_free((int)$u['id']))) return 0;
         return max(0, (int)setting('gnav_enter_energy'));
     }
     $c = route_energy($u, $route);
-    if ($c > 0 && ((int)($u['ev_quickwalk'] ?? 0) > 0 || staff_free((int)$u['id']))) return 0;
+    if ($c > 0 && ((int)($u['ev_quickwalk'] ?? 0) > 0 || ($roll && staff_free((int)$u['id'])))) return 0;
     return $c;
 }
 

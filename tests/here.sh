@@ -1,8 +1,82 @@
 #!/bin/bash
-# Graphical navigation (plan-graphical-nav.md): helpers, layouts, scene engine, the Here page. here.sh GAME PORT ROUTER. Run after walk.sh has installed (player "sprout", admin "admin").
-GAME=$1; PORT=$2; ROUTER=$3
-OUT=$(php "$(dirname "$0")/here.php" "$GAME" db 2>&1)
+# Graphical navigation (plan-graphical-nav.md): helpers, layouts, scene engine, the Here page, login and nav wiring.
+# here.sh GAME PORT ROUTER. Run after walk.sh has installed (player "sprout" at level 1, admin "admin"). Leaves gnav_on = 0.
+GAME=$1; PORT=$2; ROUTER=$3; BASE=http://127.0.0.1:$PORT
+TD="${TMPDIR:-/tmp}"
+HERE=$(dirname "$0")
+cli() { php "$HERE/here.php" "$GAME" cli "$@"; }
+ERR0=$(wc -l < "$GAME/data/error-log.txt" 2>/dev/null || echo 0)
+OUT=$(php "$HERE/here.php" "$GAME" db 2>&1)
 echo "$OUT"
 FAILS=$(echo "$OUT" | grep -c '^  FAIL')
 echo "$OUT" | grep -qE 'PHP (Fatal|Warning|Notice|Deprecated)|Fatal error' && FAILS=$((FAILS+1))
+php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >$TD/here-php.log 2>&1 & PID=$!; sleep 1
+trap "kill $PID 2>/dev/null; cli set gnav_on 0 >/dev/null" EXIT
+chk() { if [ "$2" = 1 ]; then echo "  ok   $1"; else echo "  FAIL $1 $3"; FAILS=$((FAILS+1)); fi; }
+C=$TD/here-ck
+csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
+login() { rm -f $C; curl -s -c $C -b $C $BASE/login.php > $TD/here-l.html; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $TD/here-l.html)" -d username=sprout -d 'password=TestPass123!' -o /dev/null -w '%{redirect_url}'; }
+get() { curl -s -c $C -b $C "$BASE/$1" -o $TD/here-p.html -w '%{http_code} %{redirect_url}'; }
+post() { curl -s -c $C -b $C -X POST "$BASE/$1" --data-urlencode "csrf=$(csrf $TD/here-p.html)" "${@:2}" -o $TD/here-post.html -w '%{http_code} %{redirect_url}'; }
+
+echo "== flag off: today's game exactly"
+cli set gnav_on 0 >/dev/null; cli at market >/dev/null
+chk "login lands on the home page" "$([[ $(login) == */gnome.php ]] && echo 1)"
+chk "here.php sends a player to the town page" "$([[ $(get here.php) == *"/town.php" ]] && echo 1)"
+get gnome.php >/dev/null
+chk "bottom bar Here points at town.php" "$(grep -q 'href="/town.php"[^>]*><span aria-hidden="true">📍\|href="/town.php"[^>]*><span aria-hidden="true"><img' $TD/here-p.html && echo 1)" "$(grep -o 'bottombar.\{0,600\}' $TD/here-p.html | head -c 300)"
+get world.php >/dev/null
+chk "World has no Fast travel / GPS strip" "$(grep -q 'gnavtools' $TD/here-p.html || echo 1)"
+get account.php >/dev/null
+chk "Account has no Start-on box" "$(grep -q 'id="startpage"' $TD/here-p.html || echo 1)"
+
+echo "== flag on"
+cli set gnav_on 1 >/dev/null
+chk "login lands on Here" "$([[ $(login) == */here.php ]] && echo 1)"
+R=$(get here.php)
+chk "here.php shows the picture" "$([[ $R == 200* ]] && grep -q 'class="hubsvg"' $TD/here-p.html && echo 1)" "$R"
+chk "no inline style or script on Here (CSP)" "$(grep -qE '\sstyle=|<script[^>]*>[^<]' <(sed -e 's/<script[^>]*src=[^>]*><\/script>//g' $TD/here-p.html | sed -n '/<main/,/<\/main>/p') && echo 0 || echo 1)"
+chk "picture script is loaded" "$(grep -q 'assets/hubscene.js' $TD/here-p.html && echo 1)"
+chk "Fast travel and GPS are on Here" "$(grep -q 'hubpop-ft' $TD/here-p.html && grep -q 'hubpop-gps' $TD/here-p.html && echo 1)"
+chk "bottom bar Here points at here.php" "$(grep -q 'href="/here.php"' $TD/here-p.html && echo 1)"
+chk "?o= opens a card without script" "$(get 'here.php?o=s-wild' >/dev/null; grep -q 'aria-labelledby="hubpop-s-wild-t" open' $TD/here-p.html && echo 1)"
+chk "a made-up ?o= is harmless" "$([[ $(get 'here.php?o=nope%22%3E') == 200* ]] && echo 1)"
+get world.php >/dev/null
+chk "World has the Fast travel / GPS strip" "$(grep -q 'gnavtools' $TD/here-p.html && grep -q 'hubpop-ft' $TD/here-p.html && grep -q 'hubpop-gps' $TD/here-p.html && echo 1)"
+chk "World loads the picture script" "$(grep -q 'assets/hubscene.js' $TD/here-p.html && echo 1)"
+get account.php >/dev/null
+chk "Account has the Start-on box" "$(grep -q 'id="startpage"' $TD/here-p.html && echo 1)"
+R=$(post account.php -d do=start_page -d start_page=home)
+get account.php >/dev/null
+chk "choosing Home is saved" "$(grep -q '<option value="home" selected' $TD/here-p.html && echo 1)"
+chk "a gnome who chose Home logs in to the home page" "$([[ $(login) == */gnome.php ]] && echo 1)"
+get account.php >/dev/null; post account.php -d do=start_page -d start_page=here >/dev/null
+chk "choosing Here is saved: login lands on Here" "$([[ $(login) == */here.php ]] && echo 1)"
+cli set gnav_login_here 0 >/dev/null
+chk "gnav_login_here off: login lands on the home page for all" "$([[ $(login) == */gnome.php ]] && echo 1)"
+cli set gnav_login_here 1 >/dev/null; login >/dev/null
+
+echo "== a haven card posts back to Here"
+LM=$(cli at haven | tail -1)
+get here.php >/dev/null
+chk "haven card has Rest and Stay forms to landmark.php" "$(grep -q 'action="/landmark.php"' $TD/here-p.html && grep -q 'name="do" value="rest"' $TD/here-p.html && grep -q 'name="do" value="stay"' $TD/here-p.html && echo 1)"
+R=$(post landmark.php -d lm=$LM -d do=rest -d back=here.php)
+chk "after Rest, back to Here" "$([[ $R == *"/here.php" ]] && echo 1)" "$R"
+R=$(post landmark.php -d lm=$LM -d do=rest -d back=%2F%2Fevil.example)
+chk "a foreign back address is ignored (World page)" "$([[ $R == *"/world.php" ]] && echo 1)" "$R"
+
+LM2=$(cli at lockedhaven | tail -1)
+if [ "${LM2:-0}" != 0 ]; then
+  get here.php >/dev/null
+  chk "a haven closed by the Journey shows why and has no Rest form" "$(grep -q 'closed for repairs' $TD/here-p.html && ! grep -q 'name="do" value="rest"' $TD/here-p.html && echo 1)"
+fi
+echo "== a walk in progress"
+cli at market >/dev/null; cli walk | grep -q '^ok' && chk "walk started" 1 || chk "walk started" 0
+R=$(get here.php)
+chk "Here sends a walking gnome to the adventure page" "$([[ $R == *"/adventure.php" ]] && echo 1)" "$R"
+
+echo "== no PHP problems"
+chk "no PHP warnings or fatals in the server log" "$(grep -iE 'fatal|warning|notice|deprecated' $TD/here-php.log | grep -q . && echo 0 || echo 1)" "$(grep -iE 'fatal|warning|notice' $TD/here-php.log | head -3)"
+NEW=$(tail -n +$((ERR0+1)) "$GAME/data/error-log.txt" 2>/dev/null | grep -E 'Error|Exception|Warning' | head -3)
+chk "no new entries in the game error log" "$([ -z "$NEW" ] && echo 1)" "$NEW"
 [ $FAILS -eq 0 ] && echo "all passed" || echo "$FAILS FAILED"; [ $FAILS -eq 0 ]

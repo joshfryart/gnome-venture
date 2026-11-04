@@ -10,3 +10,5 @@
 - Dialog helpers `gvOpenDlg/gvCloseDlg` are in `assets/site.js:2`; CSP `functions.php:164` (script-src 'self', style-src 'self'). Popover precedent: `assets/craftpop.js`, `dialog.craftpop` css `style.css:6480`.
 - Scene art lookup `scene_path()` `scene.php:16` (`assets/img/scenes/<kind>-<key>.png`); `npc_home_key()` `scene.php:222`; `npcs_at_spot/traveller_stop/npc_now/npc_home` `npc_life.php:124/153/169/201`.
 - Landscapes: coast mountain forest desert rainforest grassland wetland tundra island. Aseprite/img dirs untouched, so placeholder PNGs are NOT written into `assets/img/scenes`; the engine draws a code backdrop when the PNG is missing.
+- Plan divergence: `route_enter_cost()` as written calls `staff_free()`, which rolls a die (tools.php:209), so the preview would not equal the charge. Built: `route_enter_cost($u,$route,$roll=false)`; previews never roll (show full price), the charging code passes `$roll=true`. `start_expedition` is NOT changed in release A (timer walk keeps `route_energy`).
+- `safe_back()` (functions.php:102) already accepts `here.php`; `landmark.php` got `here` in `$safe` plus a `here.php` return branch.
