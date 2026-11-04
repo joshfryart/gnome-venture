@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.12
+- **Fight popover, smaller and tidier**: 380 px wide, shorter picture and buttons; the odds line ("You hit 90% ...") sits between the picture and the buttons; the green and red stat cards at the bottom are gone (the picture shows both health bars). Needs 2.5.11.
+
 ## 2.5.11
 - **Fight popover is smaller**: sized to its content (up to 440 px wide, 88% of the screen tall) instead of the whole screen. Needs 2.5.10.
 

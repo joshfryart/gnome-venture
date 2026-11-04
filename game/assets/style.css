@@ -7089,7 +7089,7 @@ dialog.trailpop .panel.box .choicelist { display: grid; gap: 6px; }
 dialog.trailpop .panel.box h3 { font-size: 1.05rem; margin: 6px 0; }
 @media (max-width: 720px) {
   dialog.trailpop { padding: 0; }
-  dialog.trailpop .pickbox { width: min(440px, 94vw); height: auto; max-height: 88dvh; border: 2px solid var(--line); }
+  dialog.trailpop .pickbox { width: min(380px, 92vw); height: auto; max-height: 86dvh; border: 2px solid var(--line); }
   dialog.trailpop .panel.box { padding: 6px; }
 }
 @media (max-height: 560px) { dialog.trailpop .panel.box .help { display: none; } }
@@ -7133,10 +7133,10 @@ dialog.trailpop .encounter .fightbtns .choice-sub { display: block; -webkit-line
 dialog.trailpop .encounter { display: flex; flex-direction: column; }
 dialog.trailpop .encounter > * { order: 5; }
 dialog.trailpop .encounter > .fightbtns { order: 1; }
-dialog.trailpop .encounter > .fodds { order: 2; text-align: center; margin: 6px 0 2px; }
+dialog.trailpop .encounter > .fodds { order: 0; text-align: center; margin: 6px 0 2px; }
 dialog.trailpop .encounter > .frounds, dialog.trailpop .encounter > .roadresult, dialog.trailpop .encounter > .advlatest { order: 3; }
 dialog.trailpop .encounter > details, dialog.trailpop .encounter > .helpfold { order: 4; }
-dialog.trailpop .encounter > .fightgrid { order: 6; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; font-size: 12px; }
+dialog.trailpop .encounter > .fightgrid { display: none; order: 6; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; font-size: 12px; }
 dialog.trailpop .encounter > .fightgrid .fcard { padding: 4px 6px; }
 dialog.trailpop .encounter > .fightgrid .fcard * { font-size: 12px; margin-top: 0; margin-bottom: 0; }
 dialog.trailpop .encounter > .fightgrid .portrait, dialog.trailpop .encounter > .fightgrid img.fcard-pic { display: none; }
@@ -7153,3 +7153,6 @@ dialog.hubpop .wsfrag { margin: 8px 0; }
 dialog.trailpop.trailsmall .pickbox { width: min(340px, 92vw); height: auto; max-height: 70dvh; border: 2px solid var(--line); }
 dialog.trailpop.trailsmall .hubcard { padding: 10px 12px; }
 dialog.trailpop.trailsmall .choicelist { margin: 6px 0; }
+dialog.trailpop:not(.trailsmall) .gvs { max-height: 26dvh; }
+dialog.trailpop .fightbtns .choice { padding-top: 3px; padding-bottom: 3px; }
+dialog.trailpop .fightbtns .choice-title { font-size: 13px; }
