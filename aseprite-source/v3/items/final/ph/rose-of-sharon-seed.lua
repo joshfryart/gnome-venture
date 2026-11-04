@@ -27,13 +27,13 @@ for _, s in ipairs(seeds) do
 end
 
 -- quirk: magenta petal under the torn tip
-local pm, pn = G.oval(51, 54, 5.4, 3.3, -0.45, 0.6)
+local pm, pn = G.oval(49, 55, 5.4, 3.3, -0.45, 0.6)
 local ptok = { r = { name = "petal" } }
 G.toneN(c, pm, pn, PET, { tok = ptok, cuts = CUTS, amb = 0.1, wrap = 0.3 })
 pm:each(function(x, y)
-  if (x - 47) ^ 2 + (y - 56) ^ 2 < 5.5 then c:put(x, y, (x + y) % 2 == 0 and "#6a1450" or "#8c1e5a", ptok) end
+  if (x - 45) ^ 2 + (y - 57) ^ 2 < 5.5 then c:put(x, y, (x + y) % 2 == 0 and "#6a1450" or "#8c1e5a", ptok) end
 end)
-A.line(c, 49, 54, 55, 51, PET[2], ptok) A.line(c, 50, 53, 54, 50, PET[6], ptok)
+A.line(c, 47, 55, 53, 52, PET[2], ptok) A.line(c, 48, 54, 52, 51, PET[6], ptok)
 
 -- leaf scrap: ovate, toothed, torn at the tip
 local PER = 5.6

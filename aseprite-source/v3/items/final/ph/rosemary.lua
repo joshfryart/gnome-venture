@@ -8,15 +8,15 @@ local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/
 local G, HP, X, K = A.G, A.HP, A.X, A.K
 local floor, abs, sin, cos, atan2, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.atan, math.pi, math.max, math.min, math.sqrt
 local c = G.new2(NAME)
-local NEED = { "#10292d", "#17413a", "#235c46", "#37795a", "#5a9d68", "#92c68a" }
-local SILV = "#8fb0a8"
+local NEED = { "#1c4a34", "#2a6840", "#3f8a4a", "#5eae58", "#86cc72", "#b4e89a" }
+local SILV = "#b4d0c4"
 local BARK = { "#3a2420", "#5a382c", "#7e5238", "#a2704a", "#c89466", "#e8bc88" }
 local FLOW = { "#2c2a6a", "#443fa6", "#6663d8", "#8a89f0", "#b4b6ff", "#dcdeff" }
 local ntok, btok, ftok = { r = { name = "needle" } }, { r = { name = "bark" } }, { r = { name = "flower" } }
 
-local main = { { 18, 55 }, { 15, 40 }, { 29, 30 }, { 44, 15 } }
+local main = { { 18, 55 }, { 19, 38 }, { 28, 26 }, { 43, 13 } }
 local sx0, sy0 = G.bez(main, 0.3)
-local shoot = { { sx0, sy0 }, { 14, 40 }, { 10, 33 }, { 10, 24 } }
+local shoot = { { sx0, sy0 }, { 15, 38 }, { 11, 31 }, { 11, 22 } }
 
 local function frame(p, t)
   local x, y = G.bez(p, t)
@@ -30,7 +30,7 @@ local function needles(p, t0, t1, step, L0, side)
   while t <= t1 do
     local x, y, a = frame(p, t)
     local L = L0 * (1 - 0.42 * t)
-    A.needle(c, x, y, a + side * 0.62, L, 0.8, NEED, ntok, { silver = (side > 0) and SILV or nil, bias = (side < 0) and -1 or 0 })
+    A.needle(c, x, y, a + side * 0.55, L, 0.75, NEED, ntok, { silver = (side > 0) and SILV or nil, bias = (side < 0) and -1 or 0 })
     t = t + step
   end
 end
@@ -44,21 +44,21 @@ local function stem(p, w0, w1, cutBase)
 end
 
 -- far layer, stems, near layer
-needles(main, 0.1, 1.0, 0.04, 7.4, -1) needles(shoot, 0.12, 1.0, 0.07, 5.8, -1)
+needles(main, 0.1, 1.0, 0.04, 9, -1) needles(shoot, 0.12, 1.0, 0.07, 7, -1)
 stem(shoot, 1.0, 0.5, false) stem(main, 1.5, 0.7, true)
-needles(main, 0.1, 1.0, 0.04, 7.4, 1) needles(shoot, 0.12, 1.0, 0.07, 5.8, 1)
+needles(main, 0.1, 1.0, 0.04, 9, 1) needles(shoot, 0.12, 1.0, 0.07, 7, 1)
 do local x, y, a = frame(main, 1.0) A.needle(c, x, y, a, 4.5, 0.7, NEED, ntok) end
 do local x, y, a = frame(shoot, 1.0) A.needle(c, x, y, a, 3.8, 0.7, NEED, ntok) end
 
 -- flowers on little stalks
-local fl = { { main, 0.5, 1 }, { main, 0.62, -1 }, { main, 0.74, 1 }, { main, 0.86, -1 }, { main, 0.95, 1 }, { shoot, 0.66, -1 }, { shoot, 0.92, 1 } }
+local fl = { { main, 0.5, 1 }, { main, 0.74, 1 }, { main, 0.86, -1 }, { main, 0.97, 1 }, { shoot, 0.66, -1 }, { shoot, 0.92, 1 } }
 local flowerAt = {}
 for i, f in ipairs(fl) do
   local x, y, a = frame(f[1], f[2])
   local nx, ny = -sin(a) * f[3], cos(a) * f[3]
-  local fx, fy = x + nx * 4.4, y + ny * 4.4
+  local fx, fy = x + nx * 5, y + ny * 5
   A.line(c, x, y, fx, fy, NEED[3], ntok)
-  local m, n = G.oval(fx, fy, 2.3, 1.7, a + pi / 2 + 0.3 * f[3], 0.9)
+  local m, n = G.oval(fx, fy, 1.9, 1.4, a + pi / 2 + 0.3 * f[3], 0.9)
   G.toneN(c, m, n, FLOW, { tok = ftok, cuts = A.CUTS, amb = 0.12, wrap = 0.3 })
   local ix, iy = floor(fx + 0.5), floor(fy + 0.5)
   -- lower lip + dark throat
