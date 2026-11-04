@@ -1,0 +1,7 @@
+HP.report region-maplewold: size 300x200 bbox 0,0,299,199 margin l0 t0 r0 b0
+  distinct colours 103 | off-palette px 17708 | semi-transparent 0 | pure black/white 0 | isolated px 0
+  cells row 0: 21 26 16 30 19 17
+  cells row 1: 31 40 26 38 32 30
+  cells row 2: 34 38 38 36 23 17
+  cells row 3: 13 20 34 30 31 37
+  cells min distinct: 13
