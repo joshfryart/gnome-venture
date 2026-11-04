@@ -63,7 +63,28 @@ def fname(k):
         return (k if k != 'door' else 'door-cottage').replace(':', '-') + '.png'
     return 'here-' + k.replace(':', '-') + '.png'
 
+def fight_bg(path, w=480, h=270):
+    # the battle backdrop of the encounter popover: sky, a far line, ground, two standing marks (hero left, foe right); red border = placeholder
+    im = Image.new('RGB', (w, h), (150, 190, 215))
+    d = ImageDraw.Draw(im)
+    hz = int(h * 0.42)
+    d.rectangle([0, hz, w, h], fill=(122, 160, 96))
+    d.rectangle([0, hz + int(h * 0.30), w, h], fill=(104, 140, 82))
+    d.line([0, hz, w, hz], fill=(80, 110, 64), width=2)
+    for cx, col in ((int(w * 0.25), (60, 120, 60)), (int(w * 0.75), (170, 60, 60))):
+        d.ellipse([cx - 44, int(h * 0.80) - 10, cx + 44, int(h * 0.80) + 10], outline=col, width=2)
+    f = font(max(9, w // 40))
+    d.text((8, 6), 'PLACEHOLDER fight backdrop %dx%d' % (w, h), fill=(200, 30, 30), font=f)
+    d.rectangle([0, 0, w - 1, h - 1], outline=(220, 20, 20), width=3)
+    im.save(path, optimize=True)
+
 def main(argv):
+    if argv and argv[0] == '--fight':   # tools/gen_here_placeholders.py --fight [OUTDIR]: scenes/fight-generic.png
+        out = argv[1] if len(argv) > 1 else os.path.join(ROOT, 'game', 'assets', 'img', 'scenes')
+        os.makedirs(out, exist_ok=True)
+        fight_bg(os.path.join(out, 'fight-generic.png'))
+        print('wrote fight-generic.png to', out)
+        return
     out = os.path.join(ROOT, 'game', 'assets', 'img', 'scenes')
     lay = os.path.join(ROOT, 'game', 'includes', 'data', 'here_layouts.json')
     keys = []

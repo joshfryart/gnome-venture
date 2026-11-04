@@ -151,8 +151,8 @@ function gnome_stage_ico(array $u): string
 }
 
 /** v2.0.43: the Adventure stage: your gnome on the land's scene, and the creature opposite in a fight. */
-function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): string
-{
+function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc, string $bgKind = 'stage', string $id = 'advstage'): string
+{   // $bgKind 'fight' = the battle backdrop of the encounter popover (scenes/fight-<land>.png, else fight-generic.png, else a drawn colour)
     require_once __DIR__ . '/items.php';
     $land = (string)($scene['land'] ?? 'grassland');
     $fight = $enc && ($enc['type'] ?? '') === 'creature';
@@ -181,7 +181,8 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): 
     // v2.0.67: the picture follows today's weather and the time of day (scene_stage_key); the fallback colours stay the plain land
     $we = scene_stage_weather($u, $scene);
     $dp = function_exists('hollow_daypart') ? hollow_daypart() : 'day';
-    return scene_stage('stage', scene_stage_key($land, $we, $dp), $units, 'advstage', $land, ['dp' => $dp, 'we' => $we, 'baked' => scene_stage_baked($land, $we, $dp)]);
+    if ($bgKind === 'fight') return scene_stage('fight', scene_path('fight', $land) !== '' ? $land : 'generic', $units, $id, $land, ['dp' => $dp, 'baked' => true]);
+    return scene_stage('stage', scene_stage_key($land, $we, $dp), $units, $id, $land, ['dp' => $dp, 'we' => $we, 'baked' => scene_stage_baked($land, $we, $dp)]);
 }
 
 /**

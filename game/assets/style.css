@@ -7083,3 +7083,6 @@ dialog.trailpop .panel.box h3 { font-size: 1.05rem; margin: 6px 0; }
   dialog.trailpop .panel.box { padding: 6px; }
 }
 @media (max-height: 560px) { dialog.trailpop .panel.box .help { display: none; } }
+/* The battle picture at the top of the encounter popover (stage.js draws the units on it) */
+dialog.trailpop .gvs { width: 100%; max-width: none; margin: 0 0 6px; border: 2px solid var(--line); box-sizing: border-box; }
+@media (max-height: 640px) { dialog.trailpop .gvs { max-height: 34dvh; } }
