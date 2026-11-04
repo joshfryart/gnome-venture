@@ -125,6 +125,7 @@ chk "adventure page shows the tile map and its buttons" "$(grep -q 'class="tilem
 chk "no inline style or script on the tile page" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
 chk "Turn back is offered" "$(grep -q 'value="trail_back"' $TD/here-p.html && echo 1)"
 chk "footer: Gather, Wander off, Turn back are there and centered (trailui)" "$(grep -q 'class="trailui"' $TD/here-p.html && grep -q 'class="trailfoot"' $TD/here-p.html && grep -q 'hubpop-tgather' $TD/here-p.html && grep -q 'value="trail_wander"' $TD/here-p.html && grep -q 'value="trail_back"' $TD/here-p.html && echo 1)"
+chk "top strip: Trail name, Section X of Y, energy chip" "$(grep -q 'class="trailstrip trailui"' $TD/here-p.html && grep -q 'class="tsec">Section 1 of' $TD/here-p.html && grep -q 'class="tchip"' $TD/here-p.html && echo 1)"
 chk "the Gather card is a popover with the gather form" "$(grep -q 'id="hubpop-tgather"' $TD/here-p.html && grep -q 'id="gx-gather-form"' $TD/here-p.html && echo 1)"
 R=$(get 'adventure.php?g=1'); chk "?g=1 opens the Gather card without script" "$(grep -q 'aria-labelledby="hubpop-tgather-t" open' $TD/here-p.html && echo 1)"
 cli forceenc >/dev/null; get adventure.php >/dev/null

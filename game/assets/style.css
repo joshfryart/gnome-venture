@@ -7070,6 +7070,9 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 /* Trail walk: text is centered here, always (action rows, headings, the encounter popover) */
 .trailui, .trailui h3, .trailui p, .trailui .help, .trailui .choicelist, .trailui .choicelist *, .trailui .btn, .trailui .choice, .trailui .encounter * { text-align: center; }
 .trailui .choicelist button, .trailui .choiceform button { justify-content: center; align-items: center; text-align: center; }
+.trailstrip { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; align-items: center; margin: 4px 0 8px; padding: 6px 10px; font-size: .9rem; border: 1px solid var(--line, #0003); border-radius: 10px; }
+.trailstrip .tchip, .trailstrip .thp { white-space: nowrap; }
+.trailstrip .hpbar { width: 70px; vertical-align: middle; }
 .trailfoot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
 .trailfoot .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 dialog.trailpop .pickbox { width: min(560px, 100%); }

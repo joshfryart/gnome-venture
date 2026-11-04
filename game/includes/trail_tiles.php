@@ -243,6 +243,22 @@ function trail_can_arrive(array $exp): bool
     return $sc && $sc['st']['phase'] === 'confirm' && (int)$sc['st']['sec'] + 1 >= (int)$sc['st']['S'] && !$exp['encounter'];
 }
 
+/** The slim strip over the tile map: Trail to <place>, Section X of Y, energy chip, HP bar. Centered (class trailui), no inline style. */
+function trail_strip_html(array $u, array $exp, array $sc): string
+{
+    require_once __DIR__ . '/health.php';
+    $to = q_one('SELECT name FROM locations WHERE id = ?', [(int)$exp['to_id']]);
+    $en = (int)$u['energy'];
+    $o = '<div class="trailstrip trailui" role="status"><b>🛣️ Trail to ' . e((string)($to['name'] ?? 'the next place')) . '</b>'
+        . '<span class="tsec">Section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '</span>'
+        . '<span class="tchip" title="Energy">⚡ ' . $en . '/' . max_energy($u) . '</span>';
+    if (hp_on()) {
+        [$hp, $max] = hp_display($u);
+        $o .= '<span class="thp" title="Health">❤️ ' . hp_bar_html($hp, $max, 'hpbar-s') . ' ' . $hp . '/' . $max . '</span>';
+    }
+    return $o . '</div>';
+}
+
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
 function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
 {
@@ -304,7 +320,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
     }
     $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
-    $out = '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
+    $out = trail_strip_html($u, $exp, $sc) . '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
         . '<div class="tilemap tm-cave" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'

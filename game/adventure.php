@@ -153,6 +153,11 @@ if (is_post()) {
             flash($chain[1], $chain[0] ? 'ok' : 'err');
             if ($chain[0]) redirect('adventure.php');
         }
+        // graphical navigation: a pass-through stop on a remembered route (leg not auto-started) goes straight to its next "Head into" card
+        if (gnav_on() && ($u2 = q_one('SELECT * FROM users WHERE id = ?', [$uid])) && (int)($u2['dest_id'] ?? 0)) {
+            $hn = player_node($u2);
+            if (!dest_is_town($hn) && ($hp = dest_path($uid, (int)$hn['id'], (int)$u2['dest_id']))) redirect('here.php?o=e' . (int)$hp[0]['id']);
+        }
         $dest = q_one('SELECT kind FROM locations WHERE id = ?', [$arrivedAt]);
         $kind = $dest['kind'] ?? '';
         // v0.7.61: every place has its page on town.php (town square, rest stop, haven…). local.php never existed.
