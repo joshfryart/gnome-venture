@@ -1,40 +1,36 @@
--- thorn-fang (lean D3o_1)
+-- thorn-fang (lean W2_33)
+-- A long curved bone fang hung from a leather-wrapped base and cord loop; ringed growth lines, hollow tip chip,
+-- and a small green thorn stuck in the flank (quirk).
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function clampi(i, a, b) if not b then a, b = 1, a end return max(a, min(b, i)) end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "thorn-fang" }
-local FANG = { "#3a2018", "#6a3a1e", "#9a5a28", "#c8863a", "#e8b45c", "#fff0a8" }
-local BARK = { "#2a2018", "#4a3426", "#6e4e34", "#8f6a46", "#b08a5c" }
-local CORD = { "#5a3a22", "#8a5a34", "#b88650", "#d9ad74" }
-local MOSS = { "#2f5a3a", "#437a45", "#5f9a4e", "#88b95e" }
-c:groundShadow(40, 58, 8, 1)
+local floor, abs, sin, max, min = math.floor, math.abs, math.sin, math.max, math.min
+local BONE = { "#5a4668", "#8a7088", "#b99d95", "#dcc4a6", "#f2e2c0", "#fff8e2" }
+local LEATH = { "#2e1a16", "#4c2a20", "#6e4228", "#926038", "#b88450" }
+local GREEN = { "#1f4a2e", "#2f6e3a", "#4a9448", "#7cbf5c" }
+c:groundShadow(35, 58, 9, 2)
+local fm, fn, T, S = G.tube({ { 22, 14 }, { 47, 10 }, { 52, 38 }, { 31, 55 } },
+  function(t) return 5.6 * (1 - t) ^ 0.8 + 0.4 end)
+local v = X.light(fn, { amb = 0.1, wrap = 0.25 })
+G.tone(c, fm, v, BONE, { 0.2, 0.38, 0.55, 0.7, 0.86 })
+fm:each(function(x, y) local k = K(x, y)
+  local t = T[k]
+  if t > 0.2 and (t * 15) % 1 < 0.1 and abs(S[k]) < 0.8 then c:px(x, y, S[k] <= 0 and BONE[3] or BONE[2]) end
+  if S[k] < -0.4 and S[k] > -0.65 and t > 0.25 and t < 0.8 then c:px(x, y, BONE[6]) end   -- streak
+  if S[k] > 0.8 then c:px(x, y, BONE[1]) end end)
+-- chipped tip
+c:px(32, 54, BONE[1]) c:px(33, 53, BONE[2])
+-- leather wrap on the base
+local wrap = HP.mask()
+fm:each(function(x, y) if T[K(x, y)] < 0.16 then wrap:set(x, y) end end)
+G.tone(c, wrap, v, LEATH, { 0.2, 0.4, 0.58, 0.76, 0.9 })
+wrap:each(function(x, y) if (x + y) % 4 == 0 then c:px(x, y, LEATH[1]) end end)
+for y = 7, 12 do end
 -- cord loop
-local ring = c:ellipse(27, 9, 6, 4):cut(c:ellipse(27, 9, 4, 2))
-ring:each(function(x, y) c:px(x, y, CORD[((x + y) % 2 == 0) and 3 or 2]) end)
-for x = 24, 30 do c:px(x, 5, CORD[4]) end
--- fang
-local P = { {27,17}, {42,17}, {49,36}, {39,56} }
-local m, n, T, S = G.tube(P, function(t) return 6.2 * (1 - t) ^ 0.65 + 0.35 end)
-local idx = G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), FANG, { 0.2, 0.36, 0.52, 0.7, 0.88 })
-m:each(function(x, y)
-  local k = K(x, y)
-  local t, s = T[k], S[k]
-  if abs(s + 0.4) < 0.12 and t > 0.12 and t < 0.85 then c:px(x, y, FANG[6]) end
-  for _, rt in ipairs{ 0.24, 0.4, 0.56 } do
-    if abs(t - rt) < 0.018 and s > -0.8 then c:px(x, y, FANG[clampi((idx[k] or 3) - 1, 6)]) end
-  end
-  if t > 0.88 then c:px(x, y, FANG[clampi((idx[k] or 3) + 1, 6)]) end
-end)
--- bark collar
-local col = c:rrect(23, 10, 31, 24, 2)
-local cn = X.pillow(col, 5)
-G.tone(c, col, X.light(cn, { amb = 0.15, wrap = 0.3 }), BARK, { 0.2, 0.4, 0.6, 0.8 })
-col:each(function(x, y) if x % 3 == 1 and X.hash(x, y, 5) > 0.35 then c:px(x, y, BARK[1]) end end)
-c:px(24, 12, BARK[5]) c:px(24, 13, BARK[5])
--- cord passes through a hole in the collar
-c:px(26, 13, BARK[1]) c:px(27, 13, BARK[1]) c:px(27, 12, CORD[3])
--- quirk: moss tuft and a leaf-bud on the collar
-for _, p in ipairs{ {24,22,3}, {25,22,2}, {26,23,3}, {29,23,2}, {25,23,1}, {23,21,4}, {30,22,3} } do c:px(p[1], p[2], MOSS[p[3]]) end
-c:px(22, 20, MOSS[3]) c:px(21, 19, MOSS[4])
+local ring = c:ellipse(18, 11, 5, 5):cut(c:ellipse(18, 11, 3, 3))
+ring:each(function(x, y) c:px(x, y, (x + y) % 3 == 0 and "#e3c88c" or (x < 18 and "#c9a266" or "#8e6a3c")) end)
+-- thorn stuck in the flank
+local th = c:poly{ { 41, 22 }, { 47, 19 }, { 43, 26 } }
+G.tone(c, th, (function() local t = {} th:each(function(x, y) t[K(x, y)] = max(0, min(1, 0.9 - (x - 41) * 0.1 - (y - 19) * 0.05)) end) return t end)(), GREEN, { 0.25, 0.5, 0.75 })
+c:px(46, 19, GREEN[4])
 G.fin(c, "thorn-fang")

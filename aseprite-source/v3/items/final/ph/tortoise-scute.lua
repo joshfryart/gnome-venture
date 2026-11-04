@@ -1,39 +1,38 @@
--- tortoise-scute (lean D3o_7)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- tortoise-scute (lean W2_36)
+-- A single shed carapace plate seen slightly from above: thick hexagonal slab with a raised top face,
+-- concentric growth-ring grooves, darker seam rim, and a visible side thickness with layered keratin.
+-- quirk: one corner is chipped off and a tiny moss sprig clings to the cut.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tortoise-scute" }
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CU = { 0.2, 0.38, 0.55, 0.72, 0.87 }
-local function sh(m, ramp, R, bias, tok)
-  local n = X.pillow(m, R)
-  local v = X.light(n, { amb = 0.1, wrap = 0.25 })
-  G.tone(c, m, v, ramp, CU, bias, tok)
-  return n, v
+local c = HP.canvas{ w=64, h=64, scale=1, name="tortoise-scute" }
+c:groundShadow(32,54,20,3)
+local amber = { hi="#ffe38a", base="#d9a83a", shade="#a8731f", deep="#5d3a18" }
+local side  = { hi="#c89432", base="#a8731f", shade="#7a4c1a", deep="#4a2c16" }
+local function hex(cx,cy,rx,ry) return c:poly{{cx-rx,cy},{cx-rx/2,cy-ry},{cx+rx/2,cy-ry},{cx+rx,cy},{cx+rx/2,cy+ry},{cx-rx/2,cy+ry}} end
+-- thickness: same hex shifted down
+local slab = hex(32,29,22,16)
+local under = slab:copy():shift(0,6):cut(slab)
+local body = slab:copy():add(slab:copy():shift(0,6))
+-- chipped corner (right)
+local chip = c:poly{{50,30},{56,33},{54,44},{47,40}}
+body:cut(chip)
+local top = slab:copy():cut(chip)
+local sd = body:copy():cut(top)
+c:part(sd, side, {band=2})
+for y=36,40,2 do sd:each(function(x,yy) if yy==y and X.hash(x,yy,5)>0.2 then c:px(x,yy,side.deep) end end) end
+c:part(top, amber, {band=3})
+-- rim seam
+local inner = hex(32,29,19,13):cut(chip)
+top:copy():cut(inner):each(function(x,y) if X.hash(x,y,1)>0.1 then c:px(x,y,amber.shade) end end)
+-- growth rings
+for _,r in ipairs{{15,10,amber.deep},{10,7,amber.shade},{5,3.5,amber.deep}} do
+  local o = hex(32,29,r[1],r[2]); local i = hex(32,29,r[1]-1.6,r[2]-1.2)
+  o:cut(i):cut(chip):each(function(x,y) c:px(x,y,r[3]) end)
+  -- highlight just inside upper-left
+  i:each(function(x,y) if y<29 and x<32 and not i:copy():shrink(1):has(x,y) then c:px(x,y,amber.hi) end end)
 end
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local R = { "#3a3320", "#5e5128", "#85722f", "#aa9440", "#cdb860", "#eadc92" }
-local hex = c:poly{ {32,6},{54,19},{54,45},{32,58},{10,45},{10,19} }
-hex:cut(c:poly{ {54,40},{48,46},{58,50} })   -- quirk: chipped corner
-sh(hex, R, 14)
-local rim = hex:copy():cut(hex:copy():shrink(3))
-rim:each(function(x, y) if x + y < 64 then c:px(x, y, R[5]) else c:px(x, y, R[2]) end end)
-for k = 1, 3 do
-  local inner = hex:copy():shrink(2 + k * 4)
-  local ring = inner:copy():cut(inner:copy():shrink(1))
-  local lr = ring:copy():shift(1, 1):cut(ring):clip(inner)
-  lr:each(function(x, y) c:px(x, y, R[5]) end)
-  ring:each(function(x, y) c:px(x, y, (x + y < 64) and R[2] or R[1]) end)
-end
--- seams from corners
-for _, s in ipairs{ {{32,6},{32,13}}, {{54,19},{48,23}}, {{54,45},{48,41}}, {{32,58},{32,51}}, {{10,45},{16,41}}, {{10,19},{16,23}} } do
-  G.line(c, s, R[1])
-end
-local ar = c:poly{ {32,23},{39,27},{39,35},{32,39},{25,35},{25,27} }
-sh(ar, R, 5)
-c:px(30, 28, R[6]) c:px(31, 28, R[6])
--- moss
-local moss = c:ellipse(15, 43, 5, 3):clip(hex)
-sh(moss, LEAF, 3)
-c:px(13, 41, LEAF[6]) c:px(17, 45, LEAF[1])
-c:px(18, 19, "#fff6d8") c:px(19, 19, "#fff6d8") c:px(18, 20, R[6])
-G.fin(c, "tortoise-scute")
+c:px(31,28,amber.hi) c:px(32,28,amber.hi) c:px(25,22,"#fff6d0") c:px(26,22,"#fff6d0")
+-- moss sprig on chip
+c:part(c:ellipse(49,40,3,2), "moss")
+c:px(48,38,"#c4e07a")
+G.save(c, "tortoise-scute")

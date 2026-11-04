@@ -1,142 +1,62 @@
--- tool_shed-1 (lean D3o_6)
-local NAME = "tool_shed-1"
+-- tool_shed-1 (lean W2_35)
+-- slate-roofed plank shed with X-braced double door, round window, hung shovel and rake; quirk: a chimney-less weathervane hen
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local floor, ceil, abs, max, min, sin, cos, sqrt = math.floor, math.ceil, math.abs, math.max, math.min, math.sin, math.cos, math.sqrt
-local WOOD  = { "#3c2318", "#5e3822", "#82522f", "#a8703e", "#c8914f", "#e3b574" }
-local WOODD = { "#24140e", "#3a2116", "#523020", "#6c412a", "#875636", "#a26b42" }
-local DOOR  = { "#2a1712", "#46261b", "#623623", "#7e4a2c", "#9a6238", "#b87a46" }
-local SLATE = { "#2f3144", "#464a63", "#5f647f", "#7d829b", "#a0a5b9", "#c4c8d6" }
-local PINK  = { "#5c1f3d", "#8a2f56", "#bb4574", "#e0689a", "#f28fb8", "#ffc0d8" }
-local BLUE  = { "#2c4170", "#3f5e9a", "#5b82bf", "#82a8dc", "#a9caf0", "#d4e8fa" }
-local MOSS  = { "#1f3a24", "#2f5a30", "#437a38", "#62a044", "#8cc45a", "#b8dd7a" }
-local STONE = { "#3b3a46", "#55546a", "#74728a", "#9694a8", "#b8b6c6", "#d8d6e2" }
-local RED   = { "#5a1420", "#8c1f2b", "#c1343a", "#e0524a", "#f27d63", "#ffb08a" }
-local WH    = { "#8e93aa", "#b9bdd0", "#dfe2ee", "#f4f5fb", "#fff9f2" }
-local MET   = { "#2e3444", "#4b5568", "#7686a0", "#a9b8c9", "#dfe8ef" }
-local BRICK = { "#4a1f24", "#74302d", "#a14a3a", "#c4684a", "#e08a62" }
-local GLASS = { "#2a3f6b", "#4e7bb5", "#8fc0e8", "#d6f0ff" }
-local LAMP  = { "#b8651c", "#e8962a", "#ffc94a", "#ffe98a", "#fff8cf" }
-local GOLD, INK = "#f2c14e", "#2b1c26"
-local function cl(t, n) return max(1, min(n, floor(t + 0.5))) end
-local function px(x, y, h) x = floor(x + 0.5) y = floor(y + 0.5) if x >= 0 and x < 64 and y >= 0 and y < 64 then c:px(x, y, h) end end
-local function rect(x0, y0, x1, y1, h) for y = y0, y1 do for x = x0, x1 do px(x, y, h) end end end
-local function scan(pts, f)
-  local ymin, ymax = 1e9, -1e9
-  for _, p in ipairs(pts) do ymin = min(ymin, p[2]) ymax = max(ymax, p[2]) end
-  for y = floor(ymin), ceil(ymax) - 1 do
-    local sy, xs = y + 0.5, {}
-    for i = 1, #pts do
-      local a, b = pts[i], pts[i % #pts + 1]
-      if (a[2] <= sy and b[2] > sy) or (b[2] <= sy and a[2] > sy) then
-        xs[#xs + 1] = a[1] + (sy - a[2]) * (b[1] - a[1]) / (b[2] - a[2])
-      end
-    end
-    table.sort(xs)
-    for i = 1, #xs - 1, 2 do for x = ceil(xs[i] - 0.5), ceil(xs[i + 1] - 0.5) - 1 do f(x, y) end end
-  end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c = HP.canvas{ w=64, h=64, scale=1, name="tool_shed-1" }
+local WD={"#3a2316","#5b3820","#7d5230","#a06c3f","#c28c52"}
+local SL={"#2e3348","#454c68","#5f6788","#7f87a8","#a3abc8"}
+local MT={"#4a4f5e","#7a8196","#aeb5c6","#e0e5f0"}
+c:groundShadow(32,54,24,2)
+-- walls
+local wall=c:rect(12,28,51,52)
+wall:each(function(x,y)
+  local plank=floor((x-12)/5)
+  local base=3+((plank%3==1) and 0 or 1)
+  local col=WD[base]
+  if (x-12)%5==0 then col=WD[1] end
+  if x<20 and (x-12)%5~=0 then col=WD[min(5,base+1)] end
+  if y>48 then col=WD[max(1,base-1)] end
+  if X.hash(x,y,5)>0.93 and (x-12)%5~=0 then col=WD[1] end
+  c:put(x,y,col)
+end)
+-- roof
+local roof=c:poly{{32,6},{56,28},{8,28}}
+roof:cut(c:rect(0,0,63,5))
+roof:each(function(x,y)
+  local row=floor((y-6)/3)
+  local col=SL[3]
+  if (y-6)%3==2 then col=SL[1] elseif (y-6)%3==0 then col=SL[4] end
+  if x<32-(y-6)*0.5 +4 then col=SL[min(5,((y-6)%3==2) and 2 or 4)] end
+  if (x+row*3)%7==0 and (y-6)%3~=2 then col=SL[2] end
+  c:put(x,y,col)
+end)
+for x=7,56 do c:put(x,29,SL[1]) end
+-- door
+local door=c:rect(24,36,39,52)
+door:each(function(x,y) c:put(x,y,(x==31 or x==32) and WD[1] or WD[2]) end)
+for i=0,15 do
+  local y=36+floor(i*16/16)
+  c:put(24+i,y,WD[4]) c:put(39-i,y,WD[4])
 end
-local function ell(cx, cy, rx, ry, f)
-  for y = floor(cy - ry), ceil(cy + ry) do for x = floor(cx - rx), ceil(cx + rx) do
-    local dx, dy = (x + 0.5 - cx) / rx, (y + 0.5 - cy) / ry
-    if dx * dx + dy * dy <= 1 then f(x, y, dx, dy) end
-  end end
-end
-local function line(x0, y0, x1, y1, h, w)
-  local n = max(abs(x1 - x0), abs(y1 - y0))
-  for i = 0, n do local t = n == 0 and 0 or i / n
-    local x, y = x0 + (x1 - x0) * t, y0 + (y1 - y0) * t
-    px(x, y, h) if w and w > 1 then px(x + 1, y, h) end end
-end
--- vertical plank colour at (x,y) in box
-local function woodpx(x, y, x0, y0, x1, y1, R, pw, adj)
-  local i, u = floor((x - x0) / pw), (x - x0) % pw
-  local t = (i % 2 == 0) and 4 or 3
-  if (y - y0) / (y1 - y0 + 1) > 0.78 then t = t - 1 end
-  if (x - x0) > (x1 - x0) * 0.8 then t = t - 1 end
-  if u == 0 then t = t + 1 elseif u == pw - 1 then t = 2 end
-  local h = X.hash(x, y, i + 7)
-  if u > 0 and u < pw - 1 then
-    if h > 0.92 then t = t - 1 elseif h < 0.04 then t = t + 1 end
-    if u == 2 and (y + i * 3) % 9 < 3 then t = t - 1 end
-  end
-  if adj then t = t + adj(x, y) end
-  return R[cl(t, 6)]
-end
-local function wood(x0, y0, x1, y1, R, pw, adj)
-  for y = y0, y1 do for x = x0, x1 do px(x, y, woodpx(x, y, x0, y0, x1, y1, R, pw, adj)) end end
-end
-local function clap(x0, y0, x1, y1, R, rh)
-  for y = y0, y1 do for x = x0, x1 do
-    local u = (y - y0) % rh
-    local t = 4
-    if u == 0 then t = 5 elseif u == rh - 1 then t = 2 elseif u == rh - 2 then t = 3 end
-    if (x - x0) > (x1 - x0) * 0.78 then t = t - 1 end
-    if X.hash(x, y, 3) > 0.94 then t = t - 1 end
-    if (x * 5 + floor((y - y0) / rh) * 11) % 17 == 0 and u > 0 then t = t - 1 end
-    px(x, y, R[cl(t, 6)])
-  end end
-end
-local function shingle(pts, R, rh, y0, mx)
-  scan(pts, function(x, y)
-    local r, u = floor((y - y0) / rh), (y - y0) % rh
-    local sx = (x + (r % 2) * 3) % 6
-    local t = 3
-    if u == 0 then t = 4 elseif u == rh - 1 then t = 2 end
-    if sx == 0 and u > 0 then t = 2 end
-    if x < mx - 9 then t = t + 1 elseif x > mx + 9 then t = t - 1 end
-    if X.hash(x, y, 5) > 0.93 then t = t + 1 end
-    px(x, y, R[cl(t, 6)])
-  end)
-end
-local function door(x0, y0, x1, y1, R, xb)
-  wood(x0, y0, x1, y1, R, floor((x1 - x0 + 1) / 2))
-  rect(x0, y0, x1, y0, R[1]) rect(x0, y0, x0, y1, R[1]) rect(x1, y0, x1, y1, R[1])
-  local mx = floor((x0 + x1) / 2) rect(mx, y0, mx, y1, R[1])
-  if xb then
-    line(x0 + 1, y0 + 1, x1 - 1, y1 - 1, R[1]) line(x1 - 1, y0 + 1, x0 + 1, y1 - 1, R[1])
-    line(x0 + 2, y0 + 1, x1 - 1, y1 - 2, R[5]) line(x1 - 2, y0 + 1, x0 + 1, y1 - 2, R[5])
-  end
-end
-local function shovel(x, y, h)
-  for i = 0, h - 8 do px(x, y + i, WOOD[5]) px(x + 1, y + i, WOOD[3]) px(x + 2, y + i, WOOD[2]) end
-  px(x - 1, y, WOOD[4]) px(x, y, WOOD[5]) px(x + 2, y, WOOD[3])
-  local ws = { 3, 5, 5, 5, 3, 1 }
-  for j = 1, 6 do local w = ws[j]
-    for k = 0, w - 1 do
-      local t = (k == 0 and 4) or (k == w - 1 and 2) or 3
-      if j == 1 then t = 5 end
-      px(x + 1 - floor(w / 2) + k, y + h - 8 + j, MET[t])
-    end
-  end
-end
-local function rake(x, y, h)
-  for i = 0, h - 5 do px(x, y + i, WOOD[5]) px(x + 1, y + i, WOOD[3]) px(x + 2, y + i, WOOD[2]) end
-  for k = -2, 4 do px(x + k, y + h - 4, k < 0 and MET[4] or MET[3]) end
-  px(x + 4, y + h - 4, MET[2])
-  for _, k in ipairs{ -2, 0, 2, 4 } do px(x + k, y + h - 3, MET[3]) px(x + k, y + h - 2, MET[2]) end
-end
-local function glassbox(x0, y0, x1, y1)
-  for y = y0, y1 do for x = x0, x1 do
-    local t = (x - x0) / max(1, x1 - x0) + (y - y0) / max(1, y1 - y0)
-    px(x, y, GLASS[cl(4 - t * 1.6, 4)])
-  end end
-end
-c:groundShadow(32, 57, 26, 3)
-wood(9, 32, 54, 55, WOOD, 5)
-rect(9, 32, 10, 55, WOOD[2]) rect(53, 32, 54, 55, WOOD[1])
-rect(9, 34, 54, 34, WOOD[1]) for x = 10, 54, 3 do px(x, 35, GOLD) end
-shingle({ { 16, 13 }, { 47, 13 }, { 58, 32 }, { 5, 32 } }, SLATE, 3, 13, 32)
-rect(16, 13, 47, 13, SLATE[5]) rect(5, 32, 58, 32, SLATE[2]) rect(6, 33, 57, 33, SLATE[1])
-line(16, 14, 6, 31, SLATE[5]) line(47, 14, 57, 31, SLATE[1])
-px(21, 16, SLATE[6]) px(22, 16, SLATE[6]) px(20, 17, SLATE[6])
-door(25, 38, 38, 55, DOOR, true)
-px(30, 47, GOLD) px(33, 47, GOLD)
-rect(23, 55, 40, 56, STONE[3]) rect(23, 56, 40, 56, STONE[2]) rect(23, 55, 25, 55, STONE[5])
--- hanging tools
-px(14, 36, MET[1]) shovel(14, 37, 17)
-px(48, 36, MET[1]) rake(48, 37, 17)
--- quirk: a little mouse at the door
-rect(41, 54, 43, 55, "#a9a5b8") px(41, 53, "#a9a5b8") px(43, 53, "#a9a5b8") px(40, 54, "#e8a0b0") px(44, 55, "#e8a0b0") px(45, 55, "#e8a0b0") px(42, 54, "#2b1c26")
-G.save(c, NAME)
+for y=36,52 do c:put(24,y,WD[4]) c:put(39,y,WD[1]) end
+for x=24,39 do c:put(x,36,WD[4]) end
+c:put(30,44,MT[4]) c:put(33,44,MT[4])
+-- window (round) in gable
+local win=c:ellipse(32,19,4,4)
+G.toneN(c,win,X.pillow(win,4),{"#2a4a6a","#3f7396","#6fa8c8","#a6d6ea","#e6f6fb","#f4fbff"},{})
+for y=15,23 do c:put(32,y,SL[1]) end
+for x=28,36 do c:put(x,19,SL[1]) end
+-- shovel on wall
+for y=31,44 do c:put(17,y,WD[1]) c:put(16,y,WD[5]) end
+local blade=c:ellipse(16,47,3,4)
+G.toneN(c,blade,X.pillow(blade,4),MT,{})
+-- rake on wall
+for y=31,45 do c:put(46,y,WD[1]) c:put(45,y,WD[5]) end
+for x=43,49 do c:put(x,46,MT[2]) end
+for x=43,49,2 do c:put(x,47,MT[2]) c:put(x,48,MT[1]) end
+-- step
+for x=22,41 do c:put(x,53,"#8d8a9c") c:put(x,54,"#5f5c70") end
+-- quirk: tiny weathervane hen on peak
+c:put(32,5,MT[3]) c:put(33,4,"#d9482f") c:put(34,4,"#d9482f") c:put(33,3,"#d9482f") c:put(35,3,"#f2b632")
+G.save(c,"tool_shed-1")

@@ -1,40 +1,51 @@
--- wind-chime (lean D3o_13)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
-local function blade(ax, ay, cx, cy, bx, by, wf) return (G.tube({ {ax,ay}, {cx,cy}, {cx,cy}, {bx,by} }, wf)) end
+-- wind-chime (lean W2_39)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUTS = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local WOOD = { "#2e1d1f", "#4b2e2a", "#6e4330", "#93603b", "#b98650", "#dcb36f" }
-local COPPER = { "#3a2230", "#6a3a35", "#a05a3a", "#d08a48", "#efb964", "#fff0a8" }
-local STONE = { "#2f3040", "#4a4a5e", "#6a6a7c", "#8d8d98", "#b2b0b4", "#d8d4d0" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local function sh(c, m, ramp, R, amb) local n = X.pillow(m, R or 3) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUTS) end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "wind-chime" }
--- hanging cord + ring
-G.line(c, { {32,5}, {32,12} }, "#c8b890") c:px(31,5,"#e8dcb0")
-local ring = c:ellipse(32, 6, 2, 2) c:px(32,4,"#a89868")
--- round wooden top disc
-local top = c:ellipse(32, 14, 15, 3)
-sh(c, top, WOOD, 3)
-for x = 20, 44, 4 do c:px(x, 14, WOOD[2]) end
--- strings
-local lens = { {19,31}, {25,39}, {32,26}, {39,44}, {45,34} }
-local rampM = { "#1f3a4a", "#2e5a6a", "#4a8a94", "#7cbcb8", "#b4e4d0", "#f0fff0" }
-for i, L in ipairs(lens) do
-  local x, len = L[1], L[2]
-  G.line(c, { {x,16}, {x,19} }, "#c8b890")
-  local tube = c:rect(x - 1, 19, x + 1, 19 + len - 12)
-  sh(c, tube, i % 2 == 0 and rampM or COPPER, 1.6)
-  c:px(x - 1, 21, "#fff6e0")
-  c:fillMask(c:rect(x - 1, 19 + len - 12, x + 1, 19 + len - 12), i % 2 == 0 and rampM[1] or COPPER[1])
+local sin, pi, abs, floor = math.sin, math.pi, math.abs, math.floor
+local WOOD = { "#3a2113", "#5c3519", "#84501f", "#aa6f2c", "#cf9444", "#efbc6a" }
+local SIL  = { "#2f4757", "#4a6e80", "#74a0ae", "#a6cdd2", "#d6ecea", "#fbffff" }
+local BRS  = { "#5a3410", "#8a5516", "#b9791f", "#e0a032", "#f5c957", "#fff0a0" }
+local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
+local CORD = "#d9c08a"
+local tk = { r = { name = "x" } }
+-- hanger ring + cord
+local ring = c:ellipse(32, 6, 3.2, 3.2) ring:cut(c:ellipse(32, 6, 1.4, 1.4))
+c:fillMask(ring, BRS[4]) c:px(30, 4, BRS[6]) c:px(34, 8, BRS[2])
+for y = 9, 12 do c:px(32, y, CORD) end
+-- wooden disc
+local d = c:rrect(16, 13, 48, 17, 2)
+local n = X.pillow(d, 3)
+G.toneN(c, d, n, WOOD, { tok = tk })
+d:each(function(x, y) if y == 15 and X.hash(x, y, 3) > 0.7 then c:px(x, y, WOOD[2]) end end)
+for _, x in ipairs{ 20, 26, 38, 44 } do c:px(x, 16, BRS[5]) end
+-- tubes
+local tubes = { {17, 22, BRS}, {23, 30, SIL}, {37, 27, SIL}, {43, 19, BRS} }
+for _, t in ipairs(tubes) do
+  local x0, len, R = t[1], t[2], t[3]
+  local y0 = 21
+  c:px(x0 + 1, 18, CORD) c:px(x0 + 1, 19, CORD) c:px(x0 + 2, 18, CORD) c:px(x0 + 2, 19, CORD) c:px(x0 + 1, 20, R[2]) c:px(x0 + 2, 20, R[2])
+  for y = y0, y0 + len - 1 do
+    local cols = { R[5], R[4], R[3], R[2] }
+    for i = 0, 3 do c:px(x0 + i, y, cols[i + 1]) end
+    if y == y0 or y == y0 + 1 then for i = 0, 3 do c:px(x0 + i, y, R[i == 0 and 3 or 1]) end end
+    if y == y0 + 5 then for i = 0, 3 do c:px(x0 + i, y, R[i == 0 and 4 or 2]) end end
+    if y == y0 + len - 1 then for i = 0, 3 do c:px(x0 + i, y, R[1]) end end
+    if y > y0 + 7 and y < y0 + len - 5 and (y - y0) % 6 < 3 then c:px(x0, y, R[6]) end
+  end
+  c:px(x0 + 3, y0 + len - 2, R[1])
 end
--- clapper centre + wind sail
-G.line(c, { {32,17}, {32,36} }, "#c8b890")
-local clap = c:ellipse(32, 38, 3, 3)
-sh(c, clap, WOOD, 2)
-G.line(c, { {32,41}, {32,46} }, "#c8b890")
--- sail: leaf-shaped wood catcher with cut-out star (quirk)
-local sail = blade(32, 46, 27, 52, 32, 59, function(t) return 4.2 * sin(pi * t) ^ 0.8 end)
-sh(c, sail, WOOD, 3)
-c:px(32, 52, "#ffe9a0") c:px(31, 52, "#ffe9a0") c:px(32, 51, "#ffe9a0") c:px(32, 53, "#ffe9a0") c:px(33, 52, "#ffe9a0")
-G.fin(c, "wind-chime")
+-- clapper cord, ball
+for y = 17, 38 do c:px(32, y, CORD) end
+for y = 18, 36, 4 do c:px(32, y, "#a88a52") end
+local b = c:ellipse(32, 40, 3.2, 3.2)
+G.toneN(c, b, X.pillow(b, 3.2), WOOD, { tok = tk })
+c:px(31, 38, WOOD[6])
+-- sail: little leaf hanging below
+local m, nn, T, S = G.blade(32, 44, 37, 50, 31, 57, function(t) return 4.3 * sin(pi * t) ^ 0.8 end)
+G.toneN(c, m, nn, LEAF, { tok = tk })
+m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.1 and T[k] < 0.9 then c:px(x, y, LEAF[6]) end end)
+c:px(32, 43, CORD)
+-- quirk: glint sparkle by the clapper
+c:sparkle(41, 45)
+G.save(c, "wind-chime")
