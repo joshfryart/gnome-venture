@@ -471,7 +471,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   <?= act_choice('return', '🛣️', 'Head to the road', 'Free · keep everything', ['free', 'free']) ?>
   </div>
   <details class="wfold wmore"><summary>More</summary><?= $wmore ?><p class="help">If you’re knocked out, you wake up on the road with all your things.</p></details>   <?php // v2.1.11: the long notes, folded ?>
-  <?php if ($dep >= 1): $gOpen = !empty($_SESSION['gather_reveal']);   // v2.1.11: gather lives in a fold, open when a find has just come in ?>
+  <?php if ($dep >= 1): $gOpen = !$wanderView && !empty($_SESSION['gather_reveal']);   // v2.1.11: gather lives in a fold, open when a find has just come in ?>
   <details class="wfold wgather"<?= $gOpen ? ' open' : '' ?>><summary>🧺 Gather here</summary><?= gather_here_box($u, explore_land($exp), url('adventure.php'), '') ?></details>   <?php // v0.7.80 ?>
   <?php endif; ?>
 

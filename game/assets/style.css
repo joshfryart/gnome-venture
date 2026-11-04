@@ -7172,3 +7172,9 @@ dialog.wanderpop .rr-title { font-size: .95rem; }
 dialog.wanderpop .rr-sub { font-size: .8rem; }
 dialog.wanderpop .choicelist .choice { padding-top: 6px; padding-bottom: 6px; }
 dialog.wanderpop .hubcard { padding: 8px 10px calc(10px + var(--sab, 0px)); }
+/* 2.5.15: wander popover order: what happened, then the buttons, then the folds and journal */
+dialog.wanderpop .advgrid.wander .choicelist { order: 1; }
+dialog.wanderpop .advgrid.wander .wfold { order: 5; }
+dialog.wanderpop .advgrid.wander details:not(.wfold) { order: 6; }
+dialog.wanderpop .worldlink, dialog.wanderpop .hoopcap { display: none; }
+dialog.wanderpop .wfold { border-top: 0; }
