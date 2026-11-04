@@ -7115,7 +7115,6 @@ dialog.trailpop .fightbtns .choice-body { min-width: 0; display: flex; flex-dire
 dialog.trailpop .fightbtns .choice-title { font-size: 14px; letter-spacing: .02em; text-shadow: 1px 1px #000; }
 dialog.trailpop .fightbtns .choice-sub { display: block; max-width: 100%; font-size: 11px; line-height: 1.15; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 dialog.trailpop .fightbtns .choice-badge { flex: none; font-size: 12px; padding: 0 5px; background: #00000066; border: 1px solid #00000099; }
-@media (max-width: 360px) { dialog.trailpop .fightbtns .choice-sub { display: none; } }
 dialog.trailpop .fightbtns .choiceform:nth-child(n+2) { grid-column: auto; }
 dialog.trailpop .encounter .fightbtns.choicelist > form:nth-child(n+2) { grid-column: auto; }
 dialog.trailpop .encounter .fightbtns.choicelist { grid-template-columns: 1fr 1fr; }

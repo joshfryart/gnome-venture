@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.5.03
+- **Picture navigation, the rest (all still off by default).** Settings: `gnav_tiles` (Trail tiles), `gnav_craft` (Crafting workshop picture), `gnav_tree` (Treehouse and Pal Yard pictures); all need `gnav_on`. Admins can open every new page while the setting is off.
+- **The Trail as tile sections** (`gnav_tiles`): 1 energy to step onto a Trail, then walk tile sections (fights and finds on tiles), a free Continue with an event rolled once between sections, Turn back is free, and the last step heads into the place. Also on the page: Gather here (popover), Wander off the Trail (the walk waits and Resume brings the same section back), centered text. A walk that began as a timer walk stays one.
+- **Fights and other encounters on tile maps are a popover** (Trail, delve and lair maps): a battle picture on top (placeholder `fight-generic.png`, real art `fight-<land>.png`), small stylized buttons under it, odds and log, the stat cards last. It cannot be closed until settled.
+- **Residential and Door** (`residential.php`, `door.php`, a Homes spot on Here): a street of houses with lit windows, a door with Knock (only when they are home), Leave gift (any time, once a day, half friendship) and Back.
+- **Crafting workshop, Treehouse, Pal Yard** (`workshop.php`, `treehouse.php`, `palyard.php`): picture pages with popovers that link into the existing pages, found pals on perches, pals at their job sites. The old pages stay.
+- **Admin → Images & art → Picture layouts**: drag the slots of every picture, lint, save, reset, copy. `tools/lint_here.php` and `tools/gen_here_placeholders.py` (red-border placeholder pictures, included: `scenes/here-*`, `resid-*`, `door-*`, `craft-workshop`, `tree-house`, `yard-pals`, `fight-generic`).
+- Fix: none to existing features; `npc_gift()` gets an optional door mode (default off). Needs 2.5.01 or newer (2.5.02 art update is not touched).
+
 ## 2.5.01
 - **Picture navigation, release A (off by default).** New setting `gnav_on` (Admin → Settings, default off = the game is exactly as before). When on: a **Here** page (`here.php`) shows where the gnome stands as a picture, with each way out as a path, things to do as hotspots and villagers as sprites; a tap opens a card that holds the normal button (Set off, Rest, Stay, Go in, Wander off the Trail). Login and welcome-back land on Here (setting `gnav_login_here`; Account → "Start on" lets a player pick Home). Bottom bar and menu "Here" open it. World and Here get **Fast travel** and **GPS** buttons. Admins can preview Here while the setting is off.
 - No art needed: without `scenes/here-<key>.png` the page draws its own sky and ground; villagers use sprite, mini, bust or emoji. Layouts are in `includes/data/here_layouts.json` (admin overrides go in the new table `here_layouts`). New column `users.start_page`.
