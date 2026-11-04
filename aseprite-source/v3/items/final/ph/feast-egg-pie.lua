@@ -40,8 +40,8 @@ local back = c:poly{ { 32, 30 }, { 59, 22 }, { 59, 31 }, { 32, 39 } }:clip(notch
 local floorm = notch:copy():cut(back):clip(c:rect(0, 0, 63, 42)):cut(T)
 -- floor only where not the front tin wall
 floorm = notch:copy():cut(back):clip(c:rect(0, 0, 63, 41))
-local fv = {} floorm:each(function(x, y) fv[K(x, y)] = 0.35 + 0.012 * (x - 32) * -1 + 0.01 * (y - 36) end)
-X.tone(c, floorm, fv, TIN, { cuts = CUTS })
+local fv = {} floorm:each(function(x, y) fv[K(x, y)] = 0.45 + 0.012 * (32 - x) + 0.015 * (y - 36) end)
+X.tone(c, floorm, fv, CUST, { cuts = CUTS })
 local bv = {} back:each(function(x, y) bv[K(x, y)] = 0.82 - 0.012 * (x - 32) - 0.02 * (y - (30 - (x - 32) * 0.3)) end)
 local bidx = X.tone(c, back, bv, CUST, { cuts = CUTS })
 -- crust layer on the top of the cut face
@@ -65,14 +65,14 @@ local ring = top:copy():cut(top:copy():shrink(2))
 top:each(function(x, y)
   local k = K(x, y)
   local i = idx[k] or 3
-  local a, b = (x + y) % 7, (x - y) % 7
+  local a, b = (x + y) % 8, (x - y) % 8
   if ring:has(x, y) then
     c:px(x, y, CRUST[(x % 3 == 0) and max(1, i - 1) or min(6, i + 1)])
-  elseif a < 2 or b < 2 then
+  elseif a < 3 or b < 3 then
     c:px(x, y, CRUST[min(6, i + 1)])
-  elseif a == 2 or b == 2 then
+  elseif a == 3 or b == 3 then
     c:px(x, y, CRUST[max(1, i - 1)])
-  elseif a == 4 and b == 4 then
+  elseif a == 5 and b == 5 then
     c:px(x, y, CUST[3])
   end
 end)

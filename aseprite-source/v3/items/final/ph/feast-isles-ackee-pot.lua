@@ -11,17 +11,17 @@ local ACK = { "#a8741a", "#cf9a24", "#eab93a", "#f7d559", "#fde88c", "#fff6c4" }
 local WOOD = { "#4a2a1c", "#6e4226", "#946036", "#b8804a", "#d6a468", "#ecc690" }
 local RED = { "#4a1218", "#7a1c24", "#a82e2a", "#d44a30", "#ee7040", "#ffa066" }
 
-c:groundShadow(35, 54, 22, 3)
+c:groundShadow(35, 54, 20, 3)
 -- legs
 for _, lx in ipairs{ 27, 43 } do
   local lm = c:rect(lx, 48, lx + 3, 52)
   G.toneN(c, lm, X.pillow(lm, 2), IRON, {})
 end
 -- handles (ear loops)
-local hl, hln = G.tube({ { 21, 33 }, { 13, 31 }, { 13, 40 }, { 21, 41 } }, function() return 1.5 end)
-G.toneN(c, hl, hln, IRON, {})
-local hr, hrn = G.tube({ { 51, 33 }, { 59, 31 }, { 59, 40 }, { 51, 41 } }, function() return 1.5 end)
-G.toneN(c, hr, hrn, IRON, {})
+for _, hx in ipairs{ 18, 54 } do
+  local ring = c:ellipse(hx, 37, 3, 5):cut(c:ellipse(hx, 37, 1, 3))
+  G.toneN(c, ring, X.pillow(ring, 2), IRON, {})
+end
 -- body
 local body, bn = G.oval(36, 38, 17, 13, 0, 1.2)
 local bb = {}
@@ -56,11 +56,11 @@ G.toneN(c, sm, sn, WOOD, {})
 sm:each(function(x, y) if (x * 2 + y) % 5 == 0 then c:px(x, y, WOOD[2]) end end)
 c:px(53, 6, WOOD[6])
 -- ackee pod (quirk)
-local pod, pn = G.oval(13, 49, 8, 4.2, -0.35, 1.3)
+local pod, pn = G.oval(15, 49, 7, 3.8, -0.35, 1.3)
 G.toneN(c, pod, pn, RED, {})
-local sl = G.oval(13, 48.5, 5.6, 1.9, -0.35, 1)
-G.toneN(c, sl, select(2, G.oval(13, 48.5, 5.6, 1.9, -0.35, 1)), ACK, {})
-c:fillMask(c:rect(11, 47, 12, 48), "#14101c") c:fillMask(c:rect(15, 46, 16, 47), "#14101c")
-c:px(11, 47, "#6a6a88") c:px(15, 46, "#6a6a88")
-c:px(9, 47, RED[6]) c:px(10, 46, RED[6])
+local sl = G.oval(15, 48.5, 5, 1.8, -0.35, 1)
+G.toneN(c, sl, select(2, G.oval(15, 48.5, 5, 1.8, -0.35, 1)), ACK, {})
+c:fillMask(c:rect(13, 47, 14, 48), "#14101c") c:fillMask(c:rect(17, 46, 18, 47), "#14101c")
+c:px(13, 47, "#6a6a88") c:px(17, 46, "#6a6a88")
+c:px(11, 47, RED[6]) c:px(12, 46, RED[6])
 G.save(c, NAME)

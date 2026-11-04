@@ -1,45 +1,53 @@
--- lavender-border-cross (final, Opus single pass): a four-way crossing of the raised lavender border, 3/4 view.
--- Plus-shaped plank bed (walls only on the near faces, shadowed where the cross-arm meets the down-leg), soil with AO,
--- six needle mounds + whorled violet spikes painted back to front, and at the hub a little wooden marker stake
--- (grain, bevel, nail) whose board carries a painted lavender sprig.
--- quirk: the marker board hangs a pixel crooked, hammered in at a tilt.
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aC15_1.lua")
-local c = A.new("lavender-border-cross")
-A.bed(c, { { 7, 28, 56, 38 }, { 25, 16, 37, 50 } }, 4)
-local W, P, S = A.WOOD, A.PUR, A.STEM
-local cl = {
-  { 31, 19, { 8, 10, 8 }, { -1, 0, 1 } },
-  { 12, 33, { 10, 12, 9 }, { -2, 0, 2 } },
-  { 20, 33, { 11, 13, 10 }, { -2, 0, 1 } },
-  { 43, 33, { 10, 13, 11 }, { -1, 0, 2 } },
-  { 51, 33, { 9, 11, 10 }, { -2, 0, 2 } },
-  { 31, 45, { 9, 11, 9 }, { -2, 0, 2 } },
-}
-local function stake()
-  local oy = 4
-  -- post
-  for y = 27, 38 do c:put(30, y, W[5]) c:put(31, y, W[4]) c:put(32, y, W[2]) end
-  c:put(31, 38, W[1]) c:put(30, 38, W[3])
-  -- board, crooked: the right half sits 1px lower
-  for y = 0, 6 do for x = 0, 10 do
-    local xx, yy = 26 + x, 20 + oy + y + ((x >= 6) and 1 or 0)
-    local t = 5
-    if y == 0 then t = 6 elseif y == 6 then t = 3 elseif x == 10 then t = 3 elseif x == 0 then t = 6 end
-    if t == 5 and (y == 2 or y == 4) and (x + y) % 4 ~= 0 then t = 4 end
-    c:put(xx, yy, W[t])
-  end end
-  -- painted sprig on the board
-  local function q(x, y, h) c:put(x, y + oy, h) end
-  q(29, 25, S[2]) q(30, 24, S[2]) q(31, 23, P[3]) q(32, 22, P[4]) q(31, 22, P[5]) q(32, 23, P[2])
-  q(33, 24, P[3]) q(34, 24, P[4])
-  -- nail
-  q(35, 22, "#d8d4e0") q(35, 23, "#74758c")
+-- lavender-border-cross (lean W2_7)
+-- Plus-shaped raised wooden bed seen from slightly above: soil, five sage mounds each topped with purple spikes, a bee (quirk).
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "lavender-border-cross" }
+local WOOD = { "#3a2418", "#5a3a22", "#7e5430", "#a1713f", "#c28e55" }
+local SOIL = { "#2c1c18", "#44291f", "#5e3a28" }
+local SAGE = { "#2b4a42", "#42695a", "#6a917a", "#93b89b", "#c0d8b8" }
+local PUR  = { "#3a2466", "#5a3a96", "#7c58b8", "#a483d4", "#d2b6ee" }
+local STEM = { "#3e6b46", "#6a9a58" }
+c:groundShadow(32, 56, 22, 3)
+local function cross(dy)
+  local m = HP.mask()
+  m:add(c:rect(6, 36 + dy, 57, 47 + dy)) m:add(c:rect(24, 22 + dy, 39, 56 + dy - 4))
+  return m
 end
-local done = false
-table.sort(cl, function(a, b) return a[2] < b[2] end)
-for _, q in ipairs(cl) do
-  if q[2] > 33 and not done then stake() done = true end
-  A.clump(c, q[1], q[2], { hs = q[3], leans = q[4] })
-  if q[2] == 20 then end
+local top = cross(0)
+local front = cross(4)
+c:part(front, { WOOD[1], WOOD[2], WOOD[3], WOOD[4] })
+-- wood grain on front face
+front:each(function(x, y) if not top:has(x, y) and (x + y) % 5 == 0 then c:px(x, y, WOOD[1]) end end)
+c:part(top, { WOOD[2], WOOD[3], WOOD[4], WOOD[5] })
+top:each(function(x, y) if X.hash(x, y, 2) > 0.9 then c:px(x, y, WOOD[2]) end end)
+local soil = top:copy():shrink(2)
+soil:each(function(x, y) c:px(x, y, SOIL[1 + floor(X.hash(x, y, 8) * 2.99)]) end)
+-- bolts
+for _, p in ipairs{ {8,38},{55,38},{26,24},{37,24} } do c:px(p[1], p[2], WOOD[1]) c:px(p[1], p[2] - 1, WOOD[5]) end
+local function mound(cx, cy, rx, ry)
+  local mm, mn = G.oval(cx, cy, rx, ry, 0, 1.3)
+  G.toneN(c, mm, mn, SAGE)
+  for i = 1, 5 do local x, y = cx + floor((X.hash(i, cx, 4) - 0.5) * rx * 1.4), cy + floor((X.hash(i, cy, 6) - 0.5) * ry) if mm:has(x, y) then c:px(x, y, SAGE[5]) end end
 end
-A.save2(c, "lavender-border-cross")
+local function spike(x, y, h)
+  for yy = y, y - h + 4 do c:px(x, yy, (yy % 2 == 0) and STEM[2] or STEM[1]) end
+  local yt = y - h + 3
+  for i = 0, 4 do
+    local yy = yt - i
+    local w = (i == 4) and 0 or ((i % 2 == 0) and 1 or 0)
+    for xx = x - w, x + w do c:px(xx, yy, PUR[(xx <= x and 4 or 3) - (i == 4 and 1 or 0) + (i % 2)]) end
+    c:px(x + w + 1, yy, PUR[2])
+  end
+  c:px(x, yt - 5, PUR[5]) c:px(x - 1, yt - 2, PUR[5])
+end
+local M = { {32,28,6,4,{30,32,34},{9,11,8}}, {13,41,6,4,{11,14,16},{9,12,8}}, {51,41,6,4,{49,51,54},{9,11,8}}, {32,41,6,4,{30,33,35},{9,12,10}}, {32,50,6,3,{30,33,35},{8,10,8}} }
+for _, M1 in ipairs(M) do
+  mound(M1[1], M1[2], M1[3], M1[4])
+  for i, sx in ipairs(M1[5]) do spike(sx, M1[2] - 1, M1[6][i]) end
+end
+-- bee (quirk)
+c:px(44, 31, "#f2c14a") c:px(45, 31, "#2b1c26") c:px(46, 31, "#f2c14a") c:px(47, 31, "#2b1c26") c:px(48, 31, "#f2c14a")
+c:px(45, 30, "#e8f4ff") c:px(46, 29, "#e8f4ff") c:px(47, 30, "#e8f4ff") c:px(44, 30, "#e8f4ff")
+G.save(c, "lavender-border-cross")

@@ -21,7 +21,7 @@ local rim = m:copy():shrink(1)
 local dm, dn = G.oval(32, 45, 21, 6.6, 0, 3.5)
 local dv = X.light(dn, { amb = 0.1, wrap = 0.2 })
 local dbias = {}
-dm:each(function(x, y) dbias[K(x, y)] = -1.2 + (y - 40) * 0.12 end)
+dm:each(function(x, y) if y < 42 then dbias[K(x, y)] = -1 end end)
 X.tone(c, dm, dv, BRASS, { cuts = { 0.3, 0.5, 0.68, 0.82, 0.93 }, bias = dbias })
 -- tray rim glint
 for x = 14, 24 do c:px(x, 39 + floor((24 - x) * 0.0), BRASS[6]) end
@@ -43,7 +43,7 @@ mound:add(c:ellipse(32, 45, 17, 4))
 local mn = X.pillow(mound, 12)
 local mv = X.light(mn, { amb = 0.08, wrap = 0.2 })
 local mb = {}
-mound:each(function(x, y) if y > 42 then mb[K(x, y)] = -0.6 end end)
+mound:each(function(x, y) if y > 42 then mb[K(x, y)] = -1 end end)
 X.tone(c, mound, mv, RICE, { cuts = { 0.22, 0.4, 0.58, 0.74, 0.88 }, bias = mb })
 -- grains and garnish
 local inner = mound:copy():shrink(1)

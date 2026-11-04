@@ -1,86 +1,43 @@
--- marzipan (aC22_4, Opus single pass). A slim baked marzipan log lying on a slight diagonal, its top scored in a
--- diamond lattice toasted gold-brown at the ridges, the right end cut clean to show the pale almond paste with
--- flecks; a small marzipan strawberry (sugar seeds, green paste calyx)
--- sits at the front left. Material: soft matte paste lighting (6 tones), toasted ridges, sugar dusting, cut face
--- flecks, AO and contact shadows where the pieces touch.
--- quirk: a bite has been taken out of the cut end.
-local G = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aC22_4.lua")
+-- marzipan (lean W2_9)
+-- A pale-gold marzipan loaf drawn in 3/4 view (top face + front face), crimped along the top edge, a pink sugar rose
+-- with two green leaves on top and a whole almond pressed in the front. Quirk: a thumbprint dent on the end face.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, max, min, sqrt, abs = math.floor, math.max, math.min, math.sqrt, math.abs
-local c = G.new("marzipan")
-c:groundShadow(32, 44, 24, 2)
-local M = G.MARZ
-local TOAST = { "#5a2c22", "#84452a", "#b06a34", "#d49444", "#ecbc62", "#f8dc96" }
-
--- log: tube with a rounded left end, cut right end
-local p = { { 9, 24 }, { 20, 26 }, { 32, 28 }, { 44, 31 } }
-local lm, ln, LT, LS, samp = G.tube(p, function(t)
-  if t < 0.1 then return 7.2 * sqrt(1 - ((0.1 - t) / 0.1) ^ 2) + 0.3 end
-  return 7.2
-end)
-local lb = {}
-local lidx, ltok = G.shade(c, lm, ln, M, { bias = lb, amb = 0.12, wrap = 0.3 })
--- toasted diamond lattice on the lit upper half
-lm:each(function(x, y) local k = K(x, y)
-  local t, s = LT[k], LS[k]
-  if s < 0.35 and t > 0.08 and t < 0.97 then
-    local u = t * 30
-    local a, b = (u + s * 6) % 5, (u - s * 6) % 5
-    if a < 0.7 or b < 0.7 then
-      local i = lidx[k] or 3
-      c:put(x, y, TOAST[max(1, min(6, i))], ltok)
-    end
-  end
-end)
--- sugar dusting specks on the top
-for _, q in ipairs{ { 14, 20 }, { 19, 21 }, { 25, 22 }, { 30, 23 }, { 22, 20 }, { 36, 25 } } do
-  if lm:has(q[1], q[2]) then c:put(q[1], q[2], "#fff6e4", ltok) end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "marzipan" }
+local MZ = { "#9c7c4c", "#c4a066", "#dcbb7c", "#ecd290", "#f6e4aa", "#fff4cc" }
+local ROSE = { "#7a1f3e", "#a8305a", "#d0507a", "#ee7a9a", "#f9a8bc", "#ffd8e0" }
+local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
+local ALM = { "#4a2c18", "#744522", "#a06a38", "#c8924e", "#e6b878", "#f6dca8" }
+c:groundShadow(32, 54, 21, 3)
+local front = c:rrect(10, 33, 44, 51, 2)
+local top = c:poly{ {10,33}, {18,23}, {52,23}, {44,33} }
+local side = c:poly{ {44,33}, {52,23}, {52,41}, {44,51} }
+local function paint(m, R, amb, ramp)
+  G.tone(c, m, X.light(X.pillow(m, R), { amb = amb, wrap = 0.3 }), ramp, { 0.2, 0.36, 0.52, 0.7, 0.88 })
 end
--- cut face at the right end (ellipse perpendicular to the axis)
-local e = samp[#samp]
-local face = G.oval(e.x - e.tx * 0.6, e.y - e.ty * 0.6, 2.6, 7.4, math.atan(e.ty, e.tx), 1)
-local fm = face
-fm:each(function(x, y)
-  local dx, dy = x - e.x, y - e.y
-  local inner = (abs(dx * e.tx + dy * e.ty) < 1.6) and (abs(dx * e.px + dy * e.py) < 6)
-  c:put(x, y, inner and M[6] or M[5], ltok)
-end)
--- face rim shade lower edge + almond flecks
-fm:edge():each(function(x, y) if (x - e.x) * e.px + (y - e.y) * e.py > 2 then c:put(x, y, M[4], ltok) end end)
-for _, d in ipairs{ { -3, M[3] }, { 0, M[4] }, { 3, M[3] }, { -1, "#fff8ea" } } do
-  local x, y = floor(e.x + e.px * d[1] + .5), floor(e.y + e.py * d[1] + .5)
-  if fm:has(x, y) then c:put(x, y, d[2], ltok) end
-end
-local logAll = lm:copy():add(fm)
-
--- quirk: a bite taken out of the top of the cut end (scalloped tooth marks, pale paste inside)
-local bite = HP.mask()
-for _, q in ipairs{ { 43.5, 24.2, 2.6 }, { 40.6, 23.4, 2.1 } } do bite:add((G.oval(q[1], q[2], q[3], q[3], 0, 1))) end
-bite:clip(logAll)
-bite:each(function(x, y) c.pix[y * c.w + x] = nil c.own[y * c.w + x] = nil end)
-bite:grow(1):cut(bite):each(function(x, y) if logAll:has(x, y) then
-  c:put(x, y, (x + y) % 2 == 0 and M[6] or M[4], ltok) end end)
-c:put(37, 23, "#fff8ea", ltok)
--- strawberry at the front left
-local bm, bn = G.oval(16, 37, 4.6, 5.2, -0.2, 1)
--- taper toward the bottom (heart shape)
-local cut = HP.mask()
-bm:each(function(x, y) local dy = y - 37 if dy > 1 and abs(x - 15.5 - (dy) * 0.25) > 4.6 - (dy - 1) * 0.9 then cut:set(x, y) end end)
-bm:cut(cut)
-local bB = {}
-G.cast(bB, bm, lm, 1, 1, 0)
-local bI, bTok = G.shade(c, bm, bn, G.STRAW, { bias = bB, amb = 0.1, wrap = 0.25 })
-local rim = X.rim(bn)
-bm:edge():each(function(x, y) if (rim[K(x, y)] or 0) > 0.75 then c:put(x, y, "#b84a6e", bTok) end end)
-for _, s in ipairs{ { 14, 36 }, { 17, 35 }, { 19, 38 }, { 15, 39 }, { 17, 41 }, { 13, 38 } } do
-  if bm:has(s[1], s[2]) then c:put(s[1], s[2], "#ffe6a0", bTok) if bm:has(s[1] + 1, s[2] + 1) then c:put(s[1] + 1, s[2] + 1, G.STRAW[2], bTok) end end
-end
-c:put(13, 34, G.SPEC, bTok)
--- calyx
-local cal = HP.mask()
-for _, q in ipairs{ { 12, 32 }, { 13, 32 }, { 14, 32 }, { 15, 32 }, { 16, 32 }, { 17, 32 }, { 18, 32 }, { 19, 32 }, { 13, 31 }, { 15, 31 }, { 16, 31 }, { 18, 31 }, { 16, 30 }, { 15, 33 }, { 17, 33 } } do cal:set(q[1], q[2]) end
-local calN = X.pillow(cal, 1)
-local caI, caTok = G.shade(c, cal, calN, G.LEAF, { amb = 0.2 })
-c:put(16, 29, G.LEAF[3]) c:put(16, 28, G.LEAF[4])
-
-G.save(c, "ph", "marzipan")
+paint(top, 9, 0.35, MZ) paint(front, 9, 0.2, MZ) paint(side, 8, 0.0, MZ)
+side:each(function(x, y) if X.hash(x, y, 2) > 0.5 then c:px(x, y, MZ[1]) end end)
+-- granular texture
+front:each(function(x, y) local h = X.hash(x, y, 9) if h > 0.93 then c:px(x, y, MZ[5]) elseif h < 0.05 then c:px(x, y, MZ[2]) end end)
+top:each(function(x, y) if X.hash(x, y, 7) > 0.92 then c:px(x, y, MZ[6]) end end)
+-- crimp along top front edge
+for x = 11, 43 do if x % 3 ~= 2 then c:px(x, 33, MZ[6]) c:px(x, 34, MZ[2]) else c:px(x, 34, MZ[1]) end end
+for i = 0, 8 do c:px(44 + i, 33 - i + 0, MZ[1]) end
+-- rose on top
+local rc = c:ellipse(30, 26, 6, 4)
+paint(rc, 4, 0.1, ROSE)
+for _, p in ipairs{ {28,25},{29,25},{30,24},{31,25},{32,26},{31,27},{29,27},{28,26},{30,26} } do c:px(p[1], p[2], ROSE[p[1] % 2 == 0 and 2 or 4]) end
+c:px(30, 26, ROSE[1]) c:px(29, 24, ROSE[6]) c:px(28, 24, ROSE[6])
+c:fillMask(c:ellipse(38, 27, 3, 1.5), LEAF[3]) c:px(37, 27, LEAF[5]) c:px(40, 27, LEAF[2])
+c:fillMask(c:ellipse(22, 27, 3, 1.5), LEAF[3]) c:px(21, 27, LEAF[5]) c:px(24, 27, LEAF[2])
+-- almond on front
+local al = c:ellipse(22, 42, 6, 4)
+al:cut(c:rect(0,0,0,0))
+paint(al, 4, 0.1, ALM)
+for x = 18, 26 do c:px(x, 42 + (x % 2), ALM[2]) end
+c:px(20, 40, ALM[6]) c:px(21, 40, ALM[6])
+-- thumbprint on side
+for _, p in ipairs{ {47,38},{48,37},{49,38},{48,39},{47,40} } do c:px(p[1], p[2], MZ[1]) end
+c:px(48, 38, MZ[3])
+G.fin(c, "marzipan")

@@ -1,81 +1,55 @@
--- millipede-plate (final, Opus single pass). A shed millipede armour plate: a slim arch of nine overlapping
--- chitin rings (glossy plum-brown, each ring barrel-lit with a bright leading lip, a deep groove and AO where it
--- tucks under the next), bright orange keel edges along the outer rim, a cool reflected light on the inner curve,
--- a white specular streak over the crown, pale hollow ends where it stands, 2-tone ground shadow.
--- quirk: one tiny jointed orange leg is still hanging on, near the right foot.
-local NAME = "millipede-plate"
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aC23_3.lua")
-local G, HP, X, K = A.G, A.HP, A.X, A.K
-local floor, abs, sin, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.pi, math.max, math.min, math.sqrt
-local c = G.new2(NAME)
-local CH = { "#1e1222", "#38192a", "#5a2630", "#803a36", "#aa5a40", "#d88a5a" }
-local KEEL = { "#7a2a1e", "#b8461e", "#e6702a", "#ffa24a", "#ffd486" }
-local COOL = "#5a5a8a"
-local HOLE = { "#3a1a24", "#5a3036", "#d8a87a" }
-
-c:groundShadow(32, 53, 22, 1.5)
-
-local NSEG = 9
-local am, an, AT, AS, AAL, ATG, alen, AD = A.tube({ { 12, 52 }, { 10, 6 }, { 54, 6 }, { 52, 52 } }, function(t)
-  return 3.9 - 0.5 * abs(t - 0.5)
-end)
-local seg = alen / NSEG
-local tok = { r = { name = "plate" } }
-local n2, bias, F = {}, {}, {}
-am:each(function(x, y) local k = K(x, y)
-  local a = AAL[k]
-  local i = floor(a / seg)
-  local f = a / seg - i
-  F[k] = f
-  local g, nn = ATG[k], an[k]
-  local bump = (f - 0.42) * 1.1                              -- each ring bulges like a barrel
-  n2[k] = { G.norm(nn[1] + g.tx * bump, nn[2] + g.ty * bump, nn[3]) }
-  if f > 0.86 then bias[k] = -1 end                          -- tucked under the next ring
-end)
-local idx = G.toneN(c, am, n2, CH, { tok = tok, bias = bias, cuts = { 0.12, 0.26, 0.42, 0.6, 0.78 }, amb = 0.08, wrap = 0.3 })
--- outer side = away from the arch centre
-local function outward(x, y, k)
-  local g = ATG[k]
-  local cx, cy = 32, 44
-  local ox, oy = g.x - cx, g.y - cy
-  return AD[k] * ((g.px * ox + g.py * oy) > 0 and 1 or -1)
+-- millipede-plate (lean W2_9)
+-- A banded armour plate: nine overlapping lacquered copper segments swept along an S curve like a flattened millipede,
+-- tiny legs fringing the lower edge, a dark head cap with one amber eye at the upper end. Quirk: one bent leg.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "millipede-plate" }
+local CU = { "#3a1a16", "#5e2a1c", "#8c4222", "#b9622c", "#e08a3c", "#f8c070" }
+local CU2 = { "#32161c", "#52243a", "#7c3a3e", "#a85a48", "#d0805a", "#f0b088" }
+local HEAD = { "#1e1218", "#3a2230", "#5a3a46", "#7a5262", "#a07884", "#c8a8ae" }
+local P = { {13,52}, {10,26}, {52,44}, {50,13} }
+c:groundShadow(32, 57, 16, 2)
+local N = 9
+local segs = {}
+for i = 0, N - 1 do
+  local t = 0.04 + 0.86 * i / (N - 1)
+  local x, y = G.bez(P, t)
+  local x2, y2 = G.bez(P, t + 0.01)
+  local x1, y1 = G.bez(P, t - 0.01)
+  local ux, uy = x2 - x1, y2 - y1
+  local l = sqrt(ux * ux + uy * uy) ux, uy = ux / l, uy / l
+  segs[#segs + 1] = { x = x, y = y, ux = ux, uy = uy }
 end
-local rimL = X.rim(n2)
-local spec = X.spec(n2, 24)
-am:each(function(x, y) local k = K(x, y)
-  local f, o, w = F[k], outward(x, y, k), ATG[k].w
-  local a = AAL[k]
-  if a < 0.6 or a > alen - 0.6 then return end
-  -- groove between rings (1 px, deep), lit lip right after it
-  if f < 1 / seg * 1.0 and a > 1 then c:put(x, y, CH[1], tok) return end
-  if f < 2 / seg and a > 1 then c:put(x, y, CH[min(6, (idx[k] or 3) + 1)], tok) end
-  -- orange keels on the outer rim
-  if o > w - 1.6 then
-    local ki = 3 + ((idx[k] or 3) >= 4 and 1 or 0) - ((f > 0.8) and 1 or 0)
-    if f < 2 / seg then ki = ki + 1 end
-    c:put(x, y, KEEL[max(1, min(5, ki))], tok)
-    return
-  end
-  if o < -(w - 1.3) and (rimL[k] or 0) > 0.35 and f < 0.8 then c:put(x, y, COOL, tok) return end
-  if (spec[k] or 0) > 0.55 and f > 0.15 and f < 0.75 then c:put(x, y, A.CREAM, tok) end
-end)
--- hollow ends where the arch stands: dark inside with a pale cut rim, one row
-for _, e in ipairs { { 0, 1 }, { 1, -1 } } do
-  am:each(function(x, y) local k = K(x, y)
-    local a = AAL[k]
-    local near = e[1] == 0 and a < 1.2 or e[1] == 1 and a > alen - 1.2
-    if near then
-      local o = outward(x, y, k)
-      local w = ATG[k].w
-      if abs(o) > w - 1.2 then c:put(x, y, HOLE[3], tok) else c:put(x, y, HOLE[1], tok) end
-    end
+-- legs first (under plates)
+for i, s in ipairs(segs) do
+  local px, py = -s.uy, s.ux
+  if px + py < 0 then px, py = -px, -py end
+  local x0, y0 = s.x + px * 6.5, s.y + py * 6.5
+  local bend = (i == 5) and 1 or 0
+  G.line(c, { {floor(x0 + 0.5), floor(y0 + 0.5)}, {floor(x0 + px * 2.5 + 0.5 + bend), floor(y0 + py * 2.5 + 0.5)}, {floor(x0 + px * 3.5 + 0.5 + bend * 2), floor(y0 + py * 3.5 + 0.5 + bend)} }, i % 2 == 0 and CU[2] or CU[3])
+end
+for i = N, 1, -1 do
+  local s = segs[i]
+  local m = G.rell(s.x, s.y, s.ux, s.uy, 3.9, 7.4)
+  local R = 4.2
+  local n = X.pillow(m, R)
+  local ramp = (i % 2 == 0) and CU or CU2
+  local bias = {}
+  G.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.22 }), ramp, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+  -- dark seam on the trailing edge
+  m:edge():each(function(x, y)
+    local dx, dy = x - s.x, y - s.y
+    if dx * s.ux + dy * s.uy < -1.5 then c:px(x, y, ramp[1]) end
   end)
+  -- glint
+  local gx, gy = floor(s.x - 2.5 + 0.5), floor(s.y - 2.5 + 0.5)
+  if i % 2 == 1 then c:px(gx, gy, ramp[6]) end
 end
-
--- quirk: one tiny jointed leg on the inner side of the right foot
-local ltok = { r = { name = "leg" } }
-for _, p in ipairs { { 45, 41, 3 }, { 44, 42, 4 }, { 43, 43, 3 }, { 43, 44, 2 }, { 44, 45, 3 }, { 44, 46, 2 } } do
-  if not am:has(p[1], p[2]) then c:put(p[1], p[2], KEEL[p[3]], ltok) end
-end
-
-G.save2(c, NAME)
+-- head cap on the last segment
+local h = segs[N]
+local hm = G.rell(h.x + h.ux * 2.5, h.y + h.uy * 2.5, h.ux, h.uy, 4.6, 5.4)
+G.tone(c, hm, X.light(X.pillow(hm, 5), { amb = 0.1, wrap = 0.25 }), HEAD, nil)
+local ex, ey = floor(h.x + h.ux * 3 - 1.5 + 0.5), floor(h.y + h.uy * 3 - 0.5)
+c:px(ex, ey, "#ffc23a") c:px(ex, ey + 1, "#c67a1a") c:px(ex - 1, ey - 1, HEAD[6])
+G.fin(c, "millipede-plate")
