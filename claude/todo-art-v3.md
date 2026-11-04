@@ -49,3 +49,6 @@ Canvas for all pictures: **480x270** (Josh still deciding; code reads size from 
 
 ## RULE (Josh, 2026-11-04): no human villagers
 Every NPC portrait and 2.5D sprite is a creature, or a gnome that is clearly different from the player gnome. Old human-looking NPC art (e.g. Auntie Mossbead, now a turtle) is redesigned as a fitting creature, keeping name and mood. Check all 82 portraits and `ph/npc-*` art. The player gnome needs front/back/side views and a 6-frame walk cycle (tile-walk): test in `aseprite-source/v3/gnome-dir/`.
+
+## RULE (Josh, 2026-11-04): single pass only
+Scene and picture art is ONE initial pass by Opus medium. No draft-then-rich second pass for now (it may come back later).
