@@ -1,10 +1,15 @@
 # Changelog
 
-## 2.5.04
+## 2.5.05
 - **Workshop popover loads the real crafting section** (`workshop.php?frag=<key>` JSON fragment + `assets/workshop.js`): Make, Collect and filters work inside the card; "All areas" closes it.
 - **Trail strip**: a slim centered strip over the tile map: Trail to the place, Section X of Y, energy chip, HP bar.
 - **GPS hand-off** (picture navigation on): after a leg ends at a pass-through stop on a remembered route, you land on Here with that next leg's "Continue to" card open. Each leg still charges its own start energy. Towns still pause as before.
-- Needs 2.5.03. No new tables.
+- Needs 2.5.04. No new tables.
+
+## 2.5.04
+- **Real Here pictures for town, village and haven** (test). `game/assets/img/scenes/here-town.png`, `here-village.png` and `here-haven.png` replace the placeholders. Same size (480x270), drawn to the existing layout slots in `here_layouts.json` (8 exit stubs, spots, stand points), so no code or layout changes. The other Here pictures stay placeholders. Admin > Picture layouts shows the slot dots over them.
+- Images uploaded in Admin > Images or scene uploads still win over these files.
+- No code, schema or setting changes. Only `bootstrap.php` (version) and 3 image files.
 
 ## 2.5.03
 - **Picture navigation (all off by default; this release carries release A, the Here page, and the rest).** New setting `gnav_on` (Admin → Settings): a Here picture page (`here.php`), login lands on Here (`gnav_login_here`, Account → Start on), bottom bar and menu Here, Fast travel and GPS buttons on World and Here. Further settings: Settings: `gnav_tiles` (Trail tiles), `gnav_craft` (Crafting workshop picture), `gnav_tree` (Treehouse and Pal Yard pictures); all need `gnav_on`. Admins can open every new page while the setting is off.
