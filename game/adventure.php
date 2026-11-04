@@ -226,7 +226,7 @@ if ($wi && !$isWalk): ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
-<?php if ($exp): echo adventure_stage_html($u, $exp, $scene, $enc); endif; ?>
+<?php if ($exp && !$trailSc): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
 <?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
 <?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc) ?>
 <?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>
@@ -237,7 +237,6 @@ if ($wi && !$isWalk): ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
-<?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
 <?= trail_view_html($u, $exp, $trailSc, (bool)$enc) ?>
 <?php elseif ($isWalk): ?>
 <?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
@@ -261,7 +260,8 @@ if ($resultCard): ?>
 <?php elseif ($log && !($enc && in_array($enc['type'] ?? '', ['choice', 'meet', 'problem'], true))): // v0.7.61: what just happened, right under the map so you don't have to scroll to the journal (v1.9.4: not while the card says the same thing) ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
 <?php endif;
-$latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card already shows the rounds
+$latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';
+if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div class="trailtoast" role="status">' . $latestHtml . '</div>' : ''; }   // tile page: what just happened pops up briefly (CSS fade), not a card in the page   // a fight card already shows the rounds
 ?>
 <?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>
 </div>

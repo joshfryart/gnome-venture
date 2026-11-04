@@ -7073,6 +7073,10 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 .trailstrip { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; align-items: center; margin: 4px 0 8px; padding: 6px 10px; font-size: .9rem; border: 1px solid var(--line, #0003); border-radius: 10px; }
 .trailstrip .tchip, .trailstrip .thp { white-space: nowrap; }
 .trailstrip .hpbar { width: 70px; vertical-align: middle; }
+.trailtoast { position: fixed; left: 50%; top: 70px; transform: translateX(-50%); z-index: 60; width: min(92vw, 420px); pointer-events: none; animation: trailtoast 4s ease forwards; }
+.trailtoast .roadresult, .trailtoast .advlatest { margin: 0; box-shadow: 0 6px 20px #0008; background: var(--panel, #3a2a1c); text-align: center; }
+@keyframes trailtoast { 0% { opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .trailtoast { animation-duration: 6s; } }
 .trailfoot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
 .trailfoot .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 dialog.trailpop .pickbox { width: min(560px, 100%); }
