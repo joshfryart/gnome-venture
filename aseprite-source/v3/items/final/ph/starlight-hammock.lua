@@ -1,47 +1,54 @@
--- starlight-hammock (lean D2o_12)
--- Navy woven hammock slung between two posts on twisted ropes, stitched with golden stars; star tassel dangles below.
+-- starlight-hammock (lean W2_27)
+-- Two carved posts, twisted rope hooks and a sagging indigo woven cloth sewn with gold stars. Quirk: a tiny star charm dangles on a thread.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local sin, cos, pi, abs, floor, max, min, sqrt, atan2 = math.sin, math.cos, math.pi, math.abs, math.floor, math.max, math.min, math.sqrt, math.atan
-local function solid(c, m, ramp, R, amb) local n = X.pillow(m, R) local idx = G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp) return n, idx end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function shade(c, m, ramp, R, o) o = o or {} local n = X.pillow(m, R) local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 }) G.tone(c, m, v, ramp, o.cuts, o.bias) return n, v end
+local function maskf(x0, y0, x1, y1, f) local m = HP.mask() for y = y0, y1 do for x = x0, x1 do if f(x, y) then m:set(x, y) end end end return m end
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "starlight-hammock" }
-local WOOD = { "#3a2218", "#5a3624", "#7d4d30", "#a2693c", "#c58a52", "#e3b072" }
-local NAVY = { "#161a44", "#232f70", "#3a52a4", "#5a80cc", "#8cb0ea", "#c8defa" }
-local ROPE = { "#6b4a2b", "#9a6f3e", "#c79a5a", "#e8c98a" }
-c:groundShadow(32, 57, 27, 2)
-for _, r in ipairs{ {5, 9}, {54, 58} } do
-  local p = c:rect(r[1], 14, r[2], 57)
-  solid(c, p, WOOD, 3.2)
-  for y = 18, 55, 3 do if X.hash(r[1], y, 5) > 0.45 then c:px(r[1] + 2, y, WOOD[2]) end end
-  c:fillMask(c:ellipse((r[1] + r[2]) / 2, 14, 3, 2), WOOD[5])
+local WOOD = { "#3a2218", "#5b3a24", "#7f5233", "#a2703f", "#c4935a", "#e0b983" }
+local NAVY = { "#171b45", "#24296a", "#33409a", "#4a5fc0", "#6f86dc", "#a2b6f2" }
+local ROPE = { "#6b5130", "#98763f", "#c49e5a", "#e6cc8c" }
+local GOLD = "#ffd95a"
+c:groundShadow(32, 57, 24, 3)
+-- posts
+for _, px in ipairs{ 8, 51 } do
+  local m = maskf(px, 13, px + 5, 56, function(x, y) return true end)
+  m:add(maskf(px - 1, 9, px + 6, 14, function(x, y) return ((x - px - 2.5) / 4.5)^2 + ((y - 12) / 3.5)^2 <= 1 end))
+  local n = X.pillow(m, 4)
+  local v = X.light(n, { amb = 0.1, wrap = 0.2 })
+  G.tone(c, m, v, WOOD, { 0.2, 0.38, 0.55, 0.72, 0.87 })
+  m:each(function(x, y) if (x - px) % 3 == 1 and X.hash(x, floor(y / 5), 5) > 0.4 and y > 15 then c:px(x, y, WOOD[2]) end end)
+  c:px(px + 1, 11, WOOD[6]) c:px(px + 1, 10, WOOD[5])
+  c:fillMask(c:rect(px - 1, 54, px + 6, 56), WOOD[1])
 end
-local ROPEC = ROPE
-local function rope(pts) G.line(c, pts, ROPE[2]) for i, p in ipairs(pts) do end end
-local function topy(x) local u = (x - 31.5) / 13.5 return 22 + 16 * (1 - u * u) end
-local function boty(x) local u = (x - 31.5) / 13.5 return topy(x) + 2 + 9 * max(0, 1 - u * u) ^ 0.8 end
-local cloth = HP.mask()
-for x = 18, 45 do for y = floor(topy(x)), floor(boty(x)) do cloth:set(x, y) end end
--- ropes (behind cloth ends)
-for _, d in ipairs{ -1, 0, 1 } do
-  G.line(c, { {9, 21 + d}, {18, 22 + d * 1} }, ROPE[2])
-  G.line(c, { {54, 21 + d}, {45, 22 + d * 1} }, ROPE[2])
-end
-for x = 10, 17, 2 do c:px(x, 21, ROPE[4]) end
-for x = 46, 53, 2 do c:px(x, 21, ROPE[4]) end
-c:fillMask(c:ellipse(9, 21, 1.5, 2), ROPE[3]) c:fillMask(c:ellipse(54, 21, 1.5, 2), ROPE[3])
-local n, idx = solid(c, cloth, NAVY, 5.5)
-cloth:each(function(x, y) local k = K(x, y)
-  if (x + y) % 3 == 0 and idx[k] and idx[k] > 1 then c:px(x, y, NAVY[idx[k] - 1]) end
-  if (x - y) % 7 == 0 and idx[k] and idx[k] < 6 and idx[k] > 2 then c:px(x, y, NAVY[idx[k] + 1]) end
+-- cloth
+local function top(x) return 21 + 15 * sin(pi * (x - 14) / 36) end
+local cloth = maskf(14, 18, 50, 52, function(x, y)
+  local u = (x - 14) / 36
+  if u < 0 or u > 1 then return false end
+  local t = top(x)
+  return y >= t and y <= t + 2 + 11 * sin(pi * u) ^ 0.8
 end)
-local function star(x, y)
-  if not (cloth:has(x - 1, y) and cloth:has(x + 1, y) and cloth:has(x, y - 1) and cloth:has(x, y + 1)) then return end
-  for _, d in ipairs{ {-1, 0}, {1, 0}, {0, -1}, {0, 1} } do c:px(x + d[1], y + d[2], "#f5c842") end
-  c:px(x, y, "#fff6a0")
-end
-star(25, 40) star(35, 44) star(31, 37) star(40, 38) star(21, 36)
--- quirk: star tassel
-G.line(c, { {31, 49}, {31, 52} }, ROPE[3])
-for _, d in ipairs{ {-2, 0}, {-1, 0}, {1, 0}, {2, 0}, {0, -1}, {0, 1}, {0, 2}, {-1, 1}, {1, 1} } do c:px(31 + d[1], 54 + d[2], "#f5c842") end
-c:px(31, 54, "#fff6a0") c:px(31, 56, "#c9902a")
+local n = X.pillow(cloth, 6)
+local v = X.light(n, { amb = 0.14, wrap = 0.3 })
+G.tone(c, cloth, v, NAVY, { 0.18, 0.34, 0.5, 0.68, 0.86 })
+cloth:each(function(x, y) if (x + y) % 2 == 0 and X.hash(x, y, 6) > 0.55 then c:px(x, y, v[K(x, y)] > 0.5 and NAVY[4] or NAVY[2]) end end)
+cloth:copy():cut(cloth:copy():shrink(1)):each(function(x, y) if y < 30 then c:px(x, y, NAVY[5]) end end)
+local function star(x, y) c:px(x, y, GOLD) c:px(x - 1, y, GOLD) c:px(x + 1, y, GOLD) c:px(x, y - 1, GOLD) c:px(x, y + 1, GOLD) c:px(x - 1, y - 1, "#c98f2a") end
+star(26, 34) star(37, 37) star(32, 30)
+c:px(20, 28, GOLD) c:px(44, 29, GOLD) c:px(31, 42, "#fff1b0") c:px(41, 33, "#fff1b0")
+-- ropes from posts to cloth ends
+G.line(c, { {13, 18}, {15, 20}, {16, 22}, {17, 24} }, ROPE[3])
+G.line(c, { {14, 18}, {16, 20}, {17, 22}, {18, 24} }, ROPE[1])
+G.line(c, { {51, 18}, {49, 20}, {48, 22}, {47, 24} }, ROPE[3])
+G.line(c, { {50, 18}, {48, 20}, {47, 22}, {46, 24} }, ROPE[1])
+c:fillMask(c:rect(12, 16, 15, 18), ROPE[2]) c:fillMask(c:rect(48, 16, 51, 18), ROPE[2])
+c:px(13, 17, ROPE[4]) c:px(49, 17, ROPE[4])
+c:px(14, 20, ROPE[1]) c:px(49, 21, ROPE[1])
+-- charm (quirk)
+G.line(c, { {32, 49}, {32, 51} }, ROPE[3])
+c:fillMask(c:rect(31, 52, 33, 52), GOLD) c:fillMask(c:rect(30, 53, 34, 53), GOLD) c:fillMask(c:rect(31, 54, 33, 54), GOLD) c:px(30, 55, GOLD) c:px(34, 55, GOLD) c:px(32, 51, ROPE[2])
+c:px(32, 53, "#fff1b0")
 G.fin(c, "starlight-hammock")

@@ -20,7 +20,7 @@ Task: build the code for Gnome Venture's graphical navigation, release A first. 
 - Player text says "Trail"; code and tables keep `road`.
 - New tables via a `*_schema()` function; new settings via the `*_settings()` pattern in `trek_data.php`.
 
-**Git:** work on your own new branch from `main`, commit and push often, never push to main, no PRs. Do not change `APP_VERSION` or CHANGELOG (Josh releases: the art release is 2.4.99, nav release A comes after). Do not touch `aseprite-source/` or `game/assets/img/`.
+**Git:** the plan and prompt are not on `main` yet: branch from `ccr-4352abc3-t2n2rj` (it has main plus the plan, todos and 2.4.98), commit and push often, never push to main, no PRs. Do not change `APP_VERSION` or CHANGELOG (Josh releases: the art release is 2.4.99, nav release A comes after). Do not touch `aseprite-source/` or `game/assets/img/`.
 
 **Tests:** run the suites the plan's "Tests" section names plus `tests/here.sh` after each step. Report real failures; never skip a test to get green.
 

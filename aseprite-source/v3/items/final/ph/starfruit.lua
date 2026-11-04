@@ -1,58 +1,60 @@
--- starfruit (lean D2o_12)
--- Whole ribbed carambola leaning on a cut star slice (with a bite taken out of one point).
+-- starfruit (lean W2_27)
+-- Ridged oblong carambola with wavy outline and green tips, plus a cut star slice with seeds. Quirk: a juice drip on the slice.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local sin, cos, pi, abs, floor, max, min, sqrt, atan2 = math.sin, math.cos, math.pi, math.abs, math.floor, math.max, math.min, math.sqrt, math.atan
-local function solid(c, m, ramp, R, amb) local n = X.pillow(m, R) local idx = G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp) return n, idx end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function shade(c, m, ramp, R, o) o = o or {} local n = X.pillow(m, R) local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 }) G.tone(c, m, v, ramp, o.cuts, o.bias) return n, v end
+local function maskf(x0, y0, x1, y1, f) local m = HP.mask() for y = y0, y1 do for x = x0, x1 do if f(x, y) then m:set(x, y) end end end return m end
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "starfruit" }
-local YEL = { "#a8531c", "#d6821f", "#f0a820", "#f8c93a", "#fde06a", "#fff3a8" }
-local GRN = { "#3d6a2c", "#5e8f2e", "#8cb336", "#b5cf48", "#d6e262", "#eef5a0" }
-c:groundShadow(34, 55, 22, 2)
-local CX = 21
-local body = HP.mask()
-for y = 11, 53 do
-  local t = (y - 11) / 42
-  local h = 11 * sin(pi * (0.07 + 0.86 * t)) ^ 0.55
-  local cx = CX + (0.5 - t) * 3
-  for x = floor(cx - h + 0.5), floor(cx + h - 0.5) do body:set(x, y) end
-end
-local n = X.pillow(body, 10)
-local v = X.light(n, { amb = 0.12, wrap = 0.3 })
-local top = body:copy():cut(c:rect(0, 18, 63, 63))
-local bot = body:copy():cut(c:rect(0, 0, 63, 47))
-local mid = body:copy():cut(top):cut(bot)
-G.tone(c, mid, v, YEL) G.tone(c, top, v, GRN) G.tone(c, bot, v, GRN)
-for _, u in ipairs{ -0.62, 0, 0.62 } do
-  for y = 15, 49 do
-    local t = (y - 11) / 42
-    local h = 11 * sin(pi * (0.07 + 0.86 * t)) ^ 0.55
-    local x = floor(CX + (0.5 - t) * 3 + u * h * 0.9 + 0.5)
-    if body:has(x, y) then
-      c:px(x, y, (y < 19 or y > 45) and GRN[5] or YEL[5])
-      if body:has(x + 1, y) and u < 0.5 then c:px(x + 1, y, (y < 19 or y > 45) and GRN[2] or YEL[2]) end
-    end
+local YEL = { "#8a4a1c", "#b9741f", "#e0a22c", "#f5c63e", "#ffe063", "#fff4a8" }
+local GRN = { "#3a5a2a", "#5f8a32", "#8db13e", "#b5cf55" }
+local STEM = { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }
+c:groundShadow(34, 56, 24, 3)
+local CX, Y0, Y1 = 22, 10, 52
+local function hw(y) local t = (y - Y0) / (Y1 - Y0) return 9 * sin(pi * min(1, max(0, t))) ^ 0.5 + 0.7 * sin(y * 1.1) end
+local fr = HP.mask()
+for y = Y0, Y1 do local h = hw(y) for x = floor(CX - h + 0.5), floor(CX + h - 0.5) do fr:set(x, y) end end
+local n = X.pillow(fr, 9)
+local v = X.light(n, { amb = 0.08, wrap = 0.25 })
+G.tone(c, fr, v, YEL, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+fr:each(function(x, y)
+  local h = hw(y)
+  local f = (x - CX) / h
+  for _, r in ipairs{ -0.62, -0.2, 0.22, 0.64 } do
+    if abs(f - r) < 0.5 / h + 0.02 then c:px(x, y, v[K(x, y)] > 0.5 and YEL[3] or YEL[2]) end
   end
-end
-c:px(15, 22, "#fffbe0") c:px(15, 23, "#fffbe0") c:px(16, 21, YEL[6])
--- stem + leaf
-G.line(c, { {22, 11}, {22, 8}, {24, 6} }, "#5a3a22") c:px(23, 8, "#8a5a32")
-c:fillMask(c:poly{ {24, 7}, {28, 5}, {30, 7}, {26, 8} }, "#5e8f2e") c:px(27, 6, "#b5cf48")
+  if y < Y0 + 7 or y > Y1 - 7 then
+    local g = (y < Y0 + 7) and (Y0 + 7 - y) or (y - (Y1 - 7))
+    if g > 3 + X.hash(x, y, 2) * 2 then c:px(x, y, v[K(x, y)] > 0.55 and GRN[3] or GRN[2]) elseif g > 1.5 then c:px(x, y, v[K(x, y)] > 0.55 and YEL[4] or GRN[3]) end
+  end
+end)
+-- ridge shadow edge + specular
+fr:edge():each(function(x, y) if x > CX and y > 22 and y < 46 then c:px(x, y, YEL[1]) end end)
+c:px(17, 20, "#fffbe8") c:px(17, 21, "#fffbe8") c:px(18, 19, YEL[6]) c:px(17, 24, YEL[6])
+-- stem + tiny leaf
+local sm = G.tube({ {22, 10}, {22, 7}, {24, 4}, {27, 4} }, function(t) return 1.5 - 0.4 * t end)
+shade(c, sm, STEM, 1.5)
+c:fillMask(c:ellipse(29, 3, 2, 1), GRN[3]) c:px(30, 3, GRN[4])
 -- star slice
-local CXs, CYs = 45, 42
-local pts, core = {}, {}
-for i = 0, 9 do
-  local a = -pi / 2 + i * pi / 5
-  local r = (i % 2 == 0) and 12.5 or 6.4
-  pts[#pts + 1] = { floor(CXs + r * cos(a) + 0.5), floor(CYs + r * sin(a) + 0.5) }
-  local r2 = (i % 2 == 0) and 8 or 3.6
-  core[#core + 1] = { floor(CXs + r2 * cos(a) + 0.5), floor(CYs + r2 * sin(a) + 0.5) }
-end
-local slice = c:poly(pts):cut(c:ellipse(45, 29, 3, 2.4))
-solid(c, slice, YEL, 5, 0.25)
-slice:copy():shrink(1):each(function(x, y) end)
-c:fillMask(c:poly(core), "#fff3c0")
-for i = 0, 9, 2 do local a = -pi / 2 + i * pi / 5 G.line(c, { {CXs, CYs}, {floor(CXs + 7 * cos(a) + 0.5), floor(CYs + 7 * sin(a) + 0.5)} }, "#f0b038") end
-c:px(CXs, CYs, "#d6821f")
-c:px(42, 37, "#6b3a1c") c:px(43, 37, "#6b3a1c") c:px(48, 45, "#6b3a1c") c:px(49, 45, "#6b3a1c") c:px(39, 47, "#6b3a1c")
-c:px(41, 33, "#fffbe0") c:px(42, 33, "#fff3a8")
+local cx, cy, Ro, Ri = 46, 40, 13, 6.2
+local star = maskf(30, 24, 62, 56, function(x, y)
+  local dx, dy = x - cx, y - cy
+  local ang = math.atan(dy, dx) + pi / 2
+  local s = (ang % (2 * pi / 5)) / (2 * pi / 5)
+  local k = 1 - abs(s * 2 - 1)
+  local r = Ri + (Ro - Ri) * (k ^ 0.9)
+  return sqrt(dx*dx + dy*dy) <= r * 0.5 + (Ro * 0.5) * (k ^ 0.9) * 0.0 + r * 0.5
+end)
+local sn = X.pillow(star, 5)
+local sv = X.light(sn, { amb = 0.18, wrap = 0.35 })
+G.tone(c, star, sv, YEL, { 0.12, 0.26, 0.4, 0.58, 0.8 })
+local rind = star:copy():shrink(2)
+star:copy():cut(rind):each(function(x, y) c:px(x, y, GRN[3]) end)
+star:copy():cut(star:copy():shrink(1)):each(function(x, y) if x + y < 84 then c:px(x, y, GRN[4]) end end)
+rind:each(function(x, y) if (x - cx)^2 + (y - cy)^2 < 9 then c:px(x, y, YEL[6]) end end)
+c:px(43, 38, "#6b3a1c") c:px(44, 39, "#6b3a1c") c:px(49, 43, "#6b3a1c") c:px(48, 42, "#8a4a1c")
+c:px(41, 33, "#fffbe8") c:px(42, 33, "#fffbe8") c:px(40, 35, YEL[6])
+-- juice drip (quirk)
+c:px(52, 52, YEL[5]) c:px(52, 53, YEL[4]) c:px(52, 54, YEL[3])
 G.fin(c, "starfruit")

@@ -1,96 +1,65 @@
--- stone-wall-end (lean D2o_14)
--- Wall ending in a tall pillar capped with a round boulder (quirk), arm trailing off to the left with a mossy end.
+-- stone-wall-end (lean W2_29)
+local NAME = "stone-wall-end"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stone-wall-end" }
-local floor, min, max = math.floor, math.min, math.max
-local COOL = { "#3d3650", "#5b546e", "#7d7690", "#a09ab0", "#c4bfd0", "#e6e2ee" }
-local WARM = { "#443a3a", "#655858", "#887878", "#ab9c96", "#cfc2ba", "#ece2dc" }
-local WOOD = { "#3a2216", "#5c3a22", "#7e5230", "#a06c3e", "#c48e54", "#e0b274" }
-local IRON = { "#25252f", "#3c3c4c", "#5c5c72", "#8a8aa2", "#b8b8cc", "#e4e4f0" }
-local MOSS = { "#2c4a30", "#3f6a3a", "#5c8c46", "#86b25a" }
-local MORT = "#40354f"
-local function clamp(i) return max(1, min(6, i)) end
-local function blk(x0, y0, x1, y1, shift, seed)
-  local R = X.hash(x0, y0, seed) > 0.5 and COOL or WARM
-  local w, h = x1 - x0, y1 - y0
-  for y = y0, y1 do for x = x0, x1 do
-    local u, v = x - x0, y - y0
-    local skip = (w > 3 and h > 2) and ((u == 0 or u == w) and (v == 0 or v == h))
-    if not skip then
-      local i = 3
-      if v == 0 then i = 5 elseif u == 0 then i = 4 elseif v == h then i = 1 elseif u == w then i = 2 end
-      local hs = X.hash(x, y, seed + 7)
-      if i == 3 then if hs > 0.88 then i = 4 elseif hs < 0.1 then i = 2 end end
-      if u == 1 and v == 1 and w > 4 and X.hash(x0, y0, seed + 3) > 0.55 then i = 6 end
-      c:px(x, y, R[clamp(i + shift)])
+local floor, abs, max, min, sqrt = math.floor, math.abs, math.max, math.min, math.sqrt
+local STONE = { "#2f2a3d", "#4a4459", "#6c657a", "#8f889a", "#b6aebb", "#d9d2d6" }
+local WARM  = { "#3d3238", "#5e4d50", "#85706a", "#a8917f", "#c9b496", "#e6d6b4" }
+local MOSS  = { "#1f3d33", "#2f5e3c", "#4b8545", "#78ae56", "#a8d06c" }
+local SPEC = "#fff6f2"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+-- brick-coursed wall run: top coping strip (lit), mortar, per-brick tone, top-left light, bottom-right shade
+local function bricks(x0, y0, x1, y1, seed, vertical)
+  local m = c:rect(x0, y0, x1, y1)
+  m:each(function(x, y)
+    local ry = y - y0
+    local row = floor(ry / 5)
+    local off = (row % 2) * 4 + floor(X.hash(row, 3, seed) * 3)
+    local bx = x - x0 + off
+    local col = floor(bx / 8)
+    local h = X.hash(col, row, seed + 7)
+    local ramp = (h > 0.78) and WARM or STONE
+    local lvl = 3 + floor(h * 2.4) % 3 - 1
+    local colr = ramp[max(2, min(5, lvl))]
+    local mort = (ry % 5 == 4) or (bx % 8 == 7)
+    if not vertical and ry < 3 then colr = STONE[5 - (ry == 2 and 1 or 0)]; if ry == 0 then colr = STONE[6] end
+    elseif mort then colr = STONE[1]
+    else
+      if ry % 5 == 0 or bx % 8 == 0 then colr = ramp[min(6, lvl + 1)] end
+      if ry % 5 == 3 then colr = ramp[max(1, lvl - 1)] end
+      if X.hash(x, y, seed + 2) > 0.9 then colr = ramp[max(1, lvl - 1)] end
     end
-  end end
+    if x >= x1 - 1 then colr = STONE[2] end            -- right edge in shade
+    if y >= y1 - 1 and not vertical then colr = STONE[1] end  -- base AO
+    c:px(x, y, colr)
+  end)
+  return m
 end
-local function courses(x0, y0, x1, y1, ch, seed, shift, wmin, wmax)
-  c:fillMask(c:rect(x0, y0, x1, y1), MORT)
-  local y, r = y0, 0
-  while y <= y1 do
-    local yb = y + ch - 2
-    if y1 - y < ch then yb = y1 end
-    local x = x0 - ((r % 2 == 1) and floor(wmax / 2) or 0)
-    while x <= x1 do
-      local w = wmin + floor(X.hash(x, y, seed) * (wmax - wmin + 1))
-      local bx1 = x + w - 2
-      if bx1 >= x1 - 1 then bx1 = x1 end
-      local bx0 = max(x, x0)
-      if bx1 - bx0 >= 2 then blk(bx0, y, bx1, yb, shift, seed + r) end
-      x = x + w
-      if bx1 == x1 then break end
-    end
-    y = y + ch - 1 + 1 - 0 ; r = r + 1
-    if yb == y1 then break end
-  end
+local function dome(mask, R, ramp, bias)
+  local n = X.pillow(mask, R)
+  G.tone(c, mask, X.light(n, { amb = 0.1, wrap = 0.2 }), ramp, { 0.2, 0.38, 0.55, 0.72, 0.87 })
+  return n
 end
--- horizontal wall arm seen 3/4: top face (10 deep) + front face (11 high), base at B
-local function harm(x0, x1, B)
-  courses(x0, B - 20, x1, B - 11, 4, 11, 2, 3, 5)
-  courses(x0, B - 10, x1, B, 5, 21, 0, 4, 7)
-  for x = x0, x1 do c:px(x, B - 10, MORT) end
-end
-local function pillar(x0, B, w, H)
-  local x1 = x0 + w - 1
-  courses(x0, B - H + 1, x1, B, 5, 31, 0, 4, 6)
-  c:fillMask(c:rect(x0, B - H - 9, x1, B - H), MORT)
-  blk(x0, B - H - 9, x1, B - H, 2, 41)
-  blk(x0 + 2, B - H - 7, x1 - 2, B - H - 2, 1, 43)
-  for x = x0, x1 do c:px(x, B - H + 1, COOL[1]) end
-end
-local function varm(cx, y0, y1) -- top face strip (8 wide), no front
-  courses(cx - 4, y0, cx + 3, y1, 4, 51, 2, 3, 5)
-end
-local function sarm(cx, B, ey) -- toward viewer: top face then end front
-  varm(cx, B - 10, ey - 11)
-  courses(cx - 4, ey - 10, cx + 3, ey, 5, 61, 0, 3, 5)
-  for x = cx - 4, cx + 3 do c:px(x, ey - 10, MORT) end
-end
-local function tuft(x, y)
-  c:px(x, y, MOSS[2]) c:px(x - 1, y - 1, MOSS[3]) c:px(x + 1, y - 1, MOSS[3]) c:px(x, y - 1, MOSS[2]) c:px(x, y - 2, MOSS[4])
-end
-local function flower(x, y, col)
-  c:px(x, y, MOSS[2]) c:px(x, y - 1, MOSS[3])
-  c:px(x, y - 3, "#ffe27a")
-  c:px(x - 1, y - 3, col) c:px(x + 1, y - 3, col) c:px(x, y - 4, col) c:px(x, y - 2, col)
-end
-local function moss(x0, y0, x1, y1, seed)
-  for y = y0, y1 do for x = x0, x1 do
-    if X.hash(x, y, seed) > 0.45 then c:px(x, y, MOSS[1 + floor(X.hash(x, y, seed + 1) * 4) % 4]) end
-  end end
+local function tuft(x, y, n)
+  for i = 0, n - 1 do c:px(x + i, y, MOSS[3 - (i % 2)]) c:px(x + i, y - 1 - (i % 2), MOSS[4 - (i % 2)]) end
 end
 
-c:groundShadow(32, 48, 28, 3)
-harm(5, 46, 46)
-pillar(41, 46, 14, 24)
--- boulder on the pillar
-local bm = G.rell(48, 14, 1, 0, 6.5, 5.2)
-local bn = X.pillow(bm, 5)
-G.tone(c, bm, X.light(bn, { amb = 0.1, wrap = 0.25 }), WARM, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-c:px(45, 11, WARM[6]) c:px(46, 10, WARM[6])
-moss(5, 36, 8, 46, 9)
-tuft(14, 26)
-G.fin(c, "stone-wall-end")
+c:groundShadow(33, 46, 22, 3)
+bricks(9, 28, 44, 43, 33, false)
+-- rounded boulder end-cap, split by a crack, with a sprouting seedling (quirk)
+local rock = c:ellipse(46, 33, 10, 13)
+rock:add(c:rect(40, 27, 46, 43))
+dome(rock, 9, WARM)
+for i = 0, 2 do c:px(41 + i, 21 + i, SPEC) end
+c:px(40, 24, WARM[6]) c:px(41, 23, WARM[6])
+for _, p in ipairs{ {47,24},{47,25},{48,26},{48,27},{47,28},{47,29},{46,30},{47,31} } do c:px(p[1], p[2], WARM[1]) end
+c:px(48, 28, WARM[2]) c:px(48, 29, WARM[2])
+for _, p in ipairs{ {49,24},{50,24},{50,23},{46,23} } do c:px(p[1], p[2], MOSS[3]) end
+c:px(47, 23, MOSS[4]) c:px(48, 23, MOSS[4])
+-- seedling poking from the crack
+c:px(47, 22, MOSS[3]) c:px(47, 21, MOSS[3]) c:px(46, 20, MOSS[4]) c:px(45, 20, MOSS[5]) c:px(48, 20, MOSS[4]) c:px(49, 19, MOSS[5]) c:px(48, 19, MOSS[3])
+-- ivy running up the wall
+for _, p in ipairs{ {12,40},{12,39},{13,38},{13,37},{12,36},{12,35},{11,34} } do c:px(p[1], p[2], MOSS[2]) end
+c:px(11, 38, MOSS[4]) c:px(14, 36, MOSS[4]) c:px(11, 35, MOSS[4]) c:px(13, 34, MOSS[5])
+tuft(18, 28, 3)
+G.fin(c, NAME)
