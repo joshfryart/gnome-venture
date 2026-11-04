@@ -75,6 +75,8 @@ cli at market >/dev/null; cli walk | grep -q '^ok' && chk "walk started" 1 || ch
 R=$(get here.php)
 chk "Here sends a walking gnome to the adventure page" "$([[ $R == *"/adventure.php" ]] && echo 1)" "$R"
 
+echo "== layout editor and lint tool"
+chk "tools/lint_here.php passes on the shipped layouts" "$(php "$HERE/../tools/lint_here.php" "$GAME" >/dev/null 2>&1 && echo 1)"
 echo "== no PHP problems"
 chk "no PHP warnings or fatals in the server log" "$(grep -iE 'fatal|warning|notice|deprecated' $TD/here-php.log | grep -q . && echo 0 || echo 1)" "$(grep -iE 'fatal|warning|notice' $TD/here-php.log | head -3)"
 NEW=$(tail -n +$((ERR0+1)) "$GAME/data/error-log.txt" 2>/dev/null | grep -E 'Error|Exception|Warning' | head -3)

@@ -57,3 +57,20 @@ function here_ensure_schema(): bool
         return $ok = false;
     }
 }
+
+/** Make the here_layouts table if the upgrade has not yet (admin editor; reading it never needs it). */
+function here_ensure_layouts_table(): bool
+{
+    static $ok = null;
+    if ($ok !== null) return $ok;
+    try { q('SELECT 1 FROM here_layouts LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try {
+        $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        [$t] = here_schema('', '', $sqlite ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        foreach ($t as $sql) db()->exec($sql);
+        return $ok = true;
+    } catch (Throwable $e) {
+        error_log('here_ensure_layouts_table: ' . $e->getMessage());
+        return $ok = false;
+    }
+}
