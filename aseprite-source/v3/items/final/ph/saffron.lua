@@ -36,12 +36,12 @@ local function leaf(ax, ay, cx, cy, bx, by, w, name, dark)
   end)
   return m
 end
-local leafBack = leaf(31, 56, 24, 50, 20, 37, 1.5, "leafB", true)
-local leafL = leaf(30, 56, 14, 54, 9, 31, 2.0, "leafL")
-local leafR = leaf(34, 56, 52, 54, 55, 33, 2.0, "leafR")
+local leafBack = leaf(31, 54, 24, 48, 21, 35, 1.5, "leafB", true)
+local leafL = leaf(30, 54, 14, 52, 8, 29, 2.0, "leafL")
+local leafR = leaf(34, 54, 50, 52, 56, 31, 2.0, "leafR")
 
 -- ---------- stem tube + paper bracts ----------
-local sm, sn, ST = G.tube({ { 32, 53 }, { 32, 48 }, { 32, 43 }, { 32, 36 } }, function(t) return 1.5 - 0.2 * t end)
+local sm, sn, ST = G.tube({ { 32, 51 }, { 32, 47 }, { 32, 44 }, { 32, 40 } }, function(t) return 1.5 - 0.2 * t end)
 X.tone(c, sm, X.light(sn, { amb = 0.15, wrap = 0.3 }), STEM, { cuts = { 0.3, 0.55, 0.8 }, tok = tok("stem") })
 local function bract(ax, ay, cx, cy, bx, by)
   local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t)
@@ -50,12 +50,12 @@ local function bract(ax, ay, cx, cy, bx, by)
   G.toneN(c, m, n, { "#9d98c0", "#c4c0dc", "#e2dfee", "#f6f4fa" }, { tok = tok("bract"), cuts = { 0.3, 0.55, 0.8 }, amb = 0.2, wrap = 0.3 })
   return m
 end
-bract(31, 54, 27, 49, 26, 44)
-bract(33, 54, 37, 49, 38, 45)
+bract(31, 52, 26, 48, 25, 42)
+bract(33, 52, 38, 48, 39, 43)
 
 -- ---------- corm ----------
 do
-  local m = c:ellipse(32, 55, 6.4, 3.7)
+  local m = c:ellipse(32, 53, 6.2, 3.4)
   local n = X.pillow(m, 4)
   local v = X.light(n, { amb = 0.08, wrap = 0.25 })
   local bias = {}
@@ -65,9 +65,9 @@ do
   end)
   X.tone(c, m, v, CORM, { cuts = { 0.2, 0.38, 0.55, 0.72, 0.88 }, bias = bias, tok = tok("corm") })
   -- papery neck fringe at the top, pale
-  for _, p in ipairs{ { 28, 52, 5 }, { 29, 51, 4 }, { 35, 52, 4 }, { 36, 52, 3 }, { 31, 51, 5 }, { 34, 51, 5 } } do c:px(p[1], p[2], CORM[p[3]]) end
+  for _, p in ipairs{ { 28, 50, 5 }, { 29, 49, 4 }, { 35, 50, 4 }, { 36, 50, 3 }, { 31, 49, 5 }, { 34, 49, 5 } } do c:px(p[1], p[2], CORM[p[3]]) end
   -- root fibres
-  for _, p in ipairs{ { 28, 59, 3 }, { 29, 60, 2 }, { 32, 59, 3 }, { 32, 60, 2 }, { 36, 59, 3 }, { 37, 60, 2 } } do c:px(p[1], p[2], CORM[p[3]]) end
+  for _, p in ipairs{ { 28, 57, 3 }, { 29, 58, 2 }, { 32, 57, 3 }, { 32, 58, 2 }, { 36, 57, 3 }, { 37, 58, 2 } } do c:px(p[1], p[2], CORM[p[3]]) end
 end
 
 -- ---------- petals ----------
@@ -78,11 +78,11 @@ local function petal(ax, ay, cx, cy, bx, by, w, fold)
   end, { fold = fold or 0.45 })
   return { m = m, n = n, T = T, S = S }
 end
-local bl = petal(32, 37, 21, 24, 24, 8, 5.2)
-local br = petal(32, 37, 43, 24, 40, 8, 5.2)
-local fl = petal(31, 40, 14, 34, 18, 13, 6.2)
-local fr = petal(33, 40, 50, 34, 46, 13, 6.2)
-local lip = petal(32, 40, 32, 32, 32, 21, 5.4, 0.35)
+local bl = petal(32, 39, 26, 31, 27, 19, 3.4)
+local br = petal(32, 39, 38, 31, 37, 19, 3.4)
+local fl = petal(31, 41, 20, 37, 22, 22, 3.8)
+local fr = petal(33, 41, 44, 37, 42, 22, 3.8)
+local lip = petal(32, 41, 32, 34, 32, 26, 3.3, 0.35)
 
 local function paintPetal(p, ramp, bias, name, veins)
   local tk = tok(name)
@@ -108,7 +108,7 @@ paintPetal(bl, INNER, bb, "backL", true)
 paintPetal(br, INNER, bb, "backR", true)
 -- throat glow
 do
-  local gm = c:ellipse(32, 30, 4.2, 5.4)
+  local gm = c:ellipse(32, 28, 3.2, 5.6)
   gm:cut(front)
   local gn = X.sphere(32, 30, 5, gm)
   X.tone(c, gm, X.light(gn, { amb = 0.3, wrap = 0.5 }), GLOW, { cuts = { 0.4, 0.55, 0.7, 0.82, 0.92 }, tok = tok("glow") })
@@ -121,20 +121,27 @@ local function anther(ax, ay, bx, by)
   m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.15 and T[k] > 0.15 and T[k] < 0.85 then c:put(x, y, ANTH[1], tok("anther")) end end)
   return m
 end
-local an1 = anther(28, 33, 27, 22)
-local an2 = anther(36, 33, 37, 22)
+local an1 = anther(29, 31, 28, 19)
+local an2 = anther(35, 31, 36, 19)
 
 -- stigma threads (painted before the front petals, droop parts re-painted after)
 local threads = {}
 local function thread(p, w0)
-  local m, n, T, S = G.tube(p, function(t) return w0 + 1.0 * max(0, (t - 0.8) / 0.2) end)
+  local m, n, T, S = G.tube(p, function(t) return w0 + 0.9 * max(0, (t - 0.8) / 0.2) end)
   local idx = X.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.3 }), THR, { cuts = { 0.22, 0.4, 0.58, 0.74, 0.9 }, tok = tok("thread") })
   threads[#threads + 1] = { m = m, T = T, idx = idx }
   return m
 end
-thread({ { 33, 28 }, { 33, 11 }, { 47, 8 }, { 50, 24 } }, 0.55)
-thread({ { 31, 28 }, { 31, 12 }, { 17, 9 }, { 14, 24 } }, 0.55)
-thread({ { 32, 28 }, { 32, 8 }, { 22, 12 }, { 27, 18 } }, 0.55)  -- curls into a ring (quirk)
+thread({ { 32, 30 }, { 33, 15 }, { 44, 8 }, { 48, 21 } }, 0.7)
+thread({ { 32, 30 }, { 31, 15 }, { 20, 8 }, { 16, 21 } }, 0.7)
+do local m, n = G.tube({ { 32, 30 }, { 32, 24 }, { 32, 19 }, { 32, 15 } }, function(t) return 0.7 end)
+  local idx = X.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.3 }), THR, { cuts = { 0.22, 0.4, 0.58, 0.74, 0.9 }, tok = tok("thread") })
+  local ro = c:ellipse(32, 11.5, 3.6, 3.6)
+  local ri = c:ellipse(32, 11.5, 1.6, 1.6)
+  ro:cut(ri)
+  local rn = X.sphere(31.5, 11, 3.8, ro)
+  X.tone(c, ro, X.light(rn, { amb = 0.1, wrap = 0.4 }), THR, { cuts = { 0.22, 0.4, 0.58, 0.74, 0.9 }, tok = tok("thread") })
+  c:px(29, 9, THR[6]) c:px(30, 8, THR[5]) end -- thread knots into a ring (quirk)
 
 -- front petals (cover the thread bases), lip first as it sits in front
 local fb = {}
@@ -144,11 +151,20 @@ fl.m:cut(lip.m) fr.m:cut(lip.m)
 paintPetal(fl, VIO, fb, "frontL", true)
 paintPetal(fr, VIO, fb, "frontR", true)
 local lb = {}
+lip.m:each(function(x, y) lb[K(x, y)] = 1 end)
 paintPetal(lip, VIO, lb, "lip", true)
+-- seams: dark line where a front petal meets its neighbour
+local function seam(m, other, hex)
+  m:each(function(x, y)
+    if (other:has(x + 1, y) or other:has(x - 1, y) or other:has(x, y + 1) or other:has(x, y - 1)) and not other:has(x, y) then c:put(x, y, hex, tok("seam")) end
+  end)
+end
+seam(lip.m, fl.m, VIO[1]) seam(lip.m, fr.m, VIO[1])
+seam(fl.m, back, VIO[2]) seam(fr.m, back, VIO[2])
 -- cool reflected edge on the lower-right rims
 for _, p in ipairs{ fr, lip } do
   local rim = X.rim(p.n)
-  p.m:edge():each(function(x, y) if rim[K(x, y)] > 0.55 and y > 26 then c:px(x, y, "#7a82e0") end end)
+  p.m:edge():each(function(x, y) if rim[K(x, y)] > 0.55 and y > 33 then c:px(x, y, "#7a82e0") end end)
 end
 -- thread drooping parts over the petals: contact shadow then the thread itself
 local petalsAll = HP.mask() petalsAll:add(fl.m):add(fr.m):add(lip.m):add(bl.m):add(br.m)
@@ -164,9 +180,9 @@ for _, th in ipairs(threads) do
   -- bright trumpet lip
 end
 -- glossy specular on the lip petal + one on the left front petal
-c:px(30, 28, "#fff4d6") c:px(31, 28, "#fff4d6") c:px(30, 29, VIO[6])
-c:px(17, 24, VIO[6]) c:px(17, 25, VIO[6])
+c:px(31, 35, "#fff4d6") c:px(32, 35, "#fff4d6") c:px(31, 36, VIO[6])
+c:px(21, 31, VIO[6]) c:px(21, 32, VIO[6])
 -- stem foot shadow where bracts meet corm
-for _, p in ipairs{ { 30, 52 }, { 31, 52 }, { 33, 52 }, { 34, 52 } } do c:px(p[1], p[2], CORM[2]) end
+for _, p in ipairs{ { 30, 50 }, { 31, 50 }, { 33, 50 }, { 34, 50 } } do c:px(p[1], p[2], CORM[2]) end
 
 G.save2(c, "saffron")
