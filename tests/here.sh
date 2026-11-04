@@ -151,9 +151,9 @@ echo "== wander off plays in a popover; the walk comes back by itself"
 cli tilewalk | grep -q '^ok' && cli clearenc >/dev/null
 R=$(post adventure.php -d do=trail_wander)
 get adventure.php >/dev/null
-chk "wandering: the page is the Trail section (read-only) with the wander in a popover" "$(grep -q 'class="wanderbehind"' $TD/here-p.html && grep -q 'class="tilemap' $TD/here-p.html && grep -q 'trailpop wanderpop' $TD/here-p.html && echo 1)"
+chk "wandering: the page is the Trail section (read-only) with the wander in a popover" "$(grep -q 'class="wanderbehind"' $TD/here-p.html && grep -q 'class="tilemap' $TD/here-p.html && grep -q 'class="picker hubpop trailpop trailsmall wanderpop"' $TD/here-p.html && grep -q 'class="wc-grid"' $TD/here-p.html && grep -q 'name="do" value="deeper"' $TD/here-p.html && grep -q 'value="return"' $TD/here-p.html && echo 1)"
 chk "...and the section behind it cannot be tapped (no reachable tile)" "$(grep -q 'tmt reach' $TD/here-p.html && echo 0 || echo 1)"
-cli endexp >/dev/null
+R=$(post adventure.php -d do=return)
 R=$(get adventure.php)
 get adventure.php >/dev/null
 chk "the wander is over: the Trail walk is back on the page, no popover" "$(grep -q 'class="tilemap' $TD/here-p.html && ! grep -q 'wanderpop' $TD/here-p.html && echo 1)" "$R"

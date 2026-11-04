@@ -7178,3 +7178,21 @@ dialog.wanderpop .advgrid.wander .wfold { order: 5; }
 dialog.wanderpop .advgrid.wander details:not(.wfold) { order: 6; }
 dialog.wanderpop .worldlink, dialog.wanderpop .hoopcap { display: none; }
 dialog.wanderpop .wfold { border-top: 0; }
+/* 2.5.16: the wander card (nothing in front of you): header, result, moves, gather */
+dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
+.wcard { text-align: center; }
+.wc-head { display: flex; flex-direction: column; gap: 2px; margin: 2px 0 8px; }
+.wc-head span { font-size: .8rem; color: var(--ink-2, #cdb); }
+.wc-res { display: flex; gap: 8px; align-items: center; justify-content: center; text-align: left; padding: 8px 10px; margin: 0 0 8px; border: 1px solid var(--line); border-top: 3px solid #6ea84a; background: #0003; }
+.wc-res.bad { border-top-color: #b04a3a; }
+.wc-res .wc-ico { font-size: 1.4rem; }
+.wc-res small { display: block; font-size: .8rem; opacity: .85; }
+.wc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0 0 6px; }
+.wc-b { margin: 0; display: block; min-width: 0; }
+.wc-btn { position: relative; width: 100%; min-height: 48px; padding: 6px 30px 6px 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; gap: 0; }
+.wc-btn .wc-bt { font-weight: 700; font-size: .9rem; }
+.wc-btn small { font-size: .7rem; opacity: .85; }
+.wc-btn i { position: absolute; top: 4px; right: 5px; font-style: normal; font-size: .72rem; padding: 0 4px; background: #0006; border: 1px solid #0008; }
+.wcard .wfold { text-align: left; margin: 6px 0 0; }
+.wc-foot { font-size: .75rem; margin: 8px 0 0; opacity: .8; }
+.wanderhide { height: 0; overflow: hidden; }

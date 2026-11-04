@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.17
+- **Wander redesigned for the Trail**: when nothing is in front of you, Wander off shows one small purpose-built card over the Trail section: a header (land, step, tier, danger), what just happened, the moves as small cards (Go deeper, Keep exploring, Step back, Back to the Trail, Visit a found place) and a Gather here fold. Fights, choices and meetings out there use the same popover as on the Trail. The old explore page is no longer shown behind a Trail wander. Needs 2.5.16.
+
 ## 2.5.16
 - **Wander popover, more tidy**: buttons come right after what just happened; Gather here stays folded; the long map caption and World map link are gone; folds and Journal sit last. Needs 2.5.15.
 

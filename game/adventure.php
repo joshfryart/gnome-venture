@@ -199,11 +199,54 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
         . $extra . choice_row($icon, $title, $sub, $badge, $cls, $attrs) . '</form>';
 }
 
+/** Wander off the Trail, nothing in front of you: one compact popover over the Trail section. Header, what just happened, the four moves, a gather fold. */
+function wander_card_html(array $u, array $exp, array $last, array $log, array $from, array $L): string
+{
+    require_once __DIR__ . '/includes/explore.php';
+    require_once __DIR__ . '/includes/gathering.php';
+    $dep = (int)$exp['depth'];
+    [$hereTier] = explore_tier(max(1, $dep));
+    [$nextTier] = explore_tier($dep + 1);
+    $nextLvl = explore_level($u, $dep + 1, $exp);
+    $hereLvl = explore_level($u, max(1, $dep), $exp);
+    $lastLine = $log ? (string)end($log) : '';
+    $res = '';
+    if ($lastLine !== '' && !str_contains($lastLine, 'You step off the Trail')) {
+        [$cls, $ico, $title, $sub] = road_result_parts($lastLine);
+        $res = '<div class="wc-res ' . e($cls) . '" aria-live="polite"><span class="wc-ico" aria-hidden="true">' . e($ico) . '</span><span><b>' . e($title) . '</b>' . ($sub !== '' ? '<small>' . e($sub) . '</small>' : '') . '</span></div>';
+    } else {
+        $res = '<div class="wc-res"><span>The wild mycelium stretches away from the road…</span></div>';
+    }
+    $btn = fn(string $do, string $ico, string $title, string $sub, string $cost, string $cls = '', string $extra = '') =>
+        '<form method="post" class="wc-b">' . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '">' . $extra
+        . '<button class="btn wc-btn ' . e($cls) . '"><span class="wc-bt">' . $ico . ' ' . e($title) . '</span><small>' . e($sub) . '</small><i>' . e($cost) . '</i></button></form>';
+    $o = '<dialog class="picker hubpop trailpop trailsmall wanderpop" id="trailpop" open aria-label="Off the Trail"><div class="pickbox"><div class="hubcard trailui wcard">'
+        . '<div class="wc-head"><b>🌿 Off the Trail</b><span>' . $L[0] . ' ' . e($L[1]) . ' · step ' . $dep . ' · ' . e($hereTier) . ' · danger ' . (int)$last['level'] . '</span></div>'
+        . $res;
+    $foundId = (int)($_SESSION['explore_found'] ?? 0);
+    if ($foundId && ($fl = q_one('SELECT id, name FROM locations WHERE id = ?', [$foundId]))) {
+        $o .= '<div class="wc-grid">' . $btn('visit', '🚶', 'Visit ' . $fl['name'], 'then come back', 'free', 'primary', '<input type="hidden" name="place" value="' . $foundId . '">') . '</div>';
+    }
+    $o .= '<div class="wc-grid">'
+        . $btn('deeper', '🌿', 'Go deeper', $nextTier . ' · danger ' . $nextLvl, '⚡1', 'primary')
+        . ($dep >= 1 ? $btn('roam', '🔁', 'Keep exploring', $hereTier . ' · danger ' . $hereLvl, '⚡1') : '')
+        . ($dep >= 2 ? $btn('back', '↩️', 'Step back', explore_tier($dep - 1)[0], '⚡1') : '')
+        . $btn('return', '🛣️', 'Back to the Trail', 'free · keep everything', 'free', 'alt')
+        . '</div>';
+    if ($dep >= 1) $o .= '<details class="wfold wgather"><summary>🧺 Gather here</summary>' . gather_here_box($u, explore_land($exp), url('adventure.php'), '') . '</details>';
+    $o .= '<p class="help wc-foot">Knocked out? You wake on the road with all your things.</p></div></div></dialog>';
+    return $o;
+}
+
 page_header('On the mycelium');
 // graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
-if ($wanderView) { echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true) . '</div>'; ob_start(); }
+if ($wanderView) {
+    echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true) . '</div>';
+    if (!$enc) { echo wander_card_html($u, $exp, $last, $log, $from, $L); page_footer(); exit; }   // nothing in front of you: the purpose-built wander card
+    ob_start();   // something in front of you: the usual encounter popover (fight, choice, meeting), the old page hidden behind it
+}
 ?>
 <?php $isExplore = ($last['kind'] ?? 'walk') === 'explore'; $kind = $last['kind'] ?? 'walk'; $isWalk = !in_array($kind, ['delve', 'lair', 'explore'], true);   // v2.0.51: a road walk gets the route ribbon instead of the heading, status line and route strip ?>
 <?php if ($kind === 'delve' || $kind === 'lair'): ?>
@@ -287,7 +330,7 @@ if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div class="trailto
 </div>
 
 
-<?php $trailPop = ($trailSc || $mapMode || $dv2Scene) && $enc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
+<?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView) && $enc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
 if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>
@@ -536,5 +579,5 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
 <?php if (!in_array($kind, ['delve', 'lair'], true)): ?>
 <p class="tmlinks worldlink"><a href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ World map →</a></p>
 <?php endif; ?>
-<?php if ($wanderView): $wInner = ob_get_clean(); ?><dialog class="picker hubpop trailpop wanderpop" id="trailpop" open aria-label="Off the Trail"><div class="pickbox"><div class="hubcard"><?= $wInner ?></div></div></dialog><?php endif; ?>
+<?php if ($wanderView): ?><div class="wanderhide"><?= ob_get_clean() ?></div><?php endif; ?>
 <?php page_footer();
