@@ -1,0 +1,25 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Crop tile mockup</title>
+<style>
+body{margin:0;background:#2a1a12;color:#f1e3c8;font:14px system-ui}
+h2{margin:16px 10px 6px;font-size:15px;color:#e0b86a}
+.wrap{display:flex;flex-wrap:wrap;gap:20px;padding:0 10px 20px}
+.col{width:360px}.col.d{width:640px}
+.g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.d .g{grid-template-columns:repeat(5,minmax(0,1fr))}
+.t{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;background:#3c281c;border:1px solid #6b4528;text-align:center;position:relative;min-width:0}
+.t img{image-rendering:pixelated;width:48px;height:48px}
+.d .t img{width:56px;height:56px}
+.t b{font-size:13px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t small{color:#c9b390;font-size:12px;line-height:1}
+.t i{position:absolute;top:4px;right:4px;width:8px;height:8px;background:#e8a317}
+</style>
+<h2>Mobile — 3 square tiles per row, 48px icon</h2>
+<div class=wrap id=m></div>
+<h2>Desktop — 5 per row, 56px icon</h2>
+<div class=wrap id=d></div>
+<script>
+const it=[['carrot','Carrot','×13'],['lettuce','Lettuce','×20',1],['oats','Oats','×41',1],['radish','Radish','×12'],['apple','Apple','×1'],['tomato','Tomato','×6'],['carrot','Kidney Bean','×4',1],['oats','Wild Strawberries','×1',1],['lettuce','Four-leaf Clover','×1']];
+const h=()=>'<div class=g>'+it.map(([s,n,q,f])=>`<div class=t>${f?'<i></i>':''}<img src="../../game/assets/img/ph/${s}.png" alt=""><b>${n}</b><small>${q}</small></div>`).join('')+'</div>';
+m.innerHTML=`<div class=col>${h()}</div>`;d.innerHTML=`<div class="col d">${h()}</div>`;
+</script>

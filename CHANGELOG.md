@@ -1,9 +1,15 @@
 # Changelog
 
-## 2.4.99
+## 2.5.01
 - **Redone art for 179 items.** The 179 weak images from 2.4.98 (tiny seeds, look-alikes, muddy materials) are redrawn in v3 Hearth Pop, same file names, so nothing in the code changes: 55 seed icons and 124 other item, stage, fence, wall, shed, pelt and food images in `game/assets/img/ph/`. The pink 2 px review border is removed; `aseprite-source/v3/rollout/weak.txt` is now empty and `export_game.py` re-adds the border to any name put back in it.
 - Images you uploaded in Admin > Images still win over these files; re-upload the `gnome-venture-images-v3-*` zips to replace them.
 - No code, schema or setting changes. Only `bootstrap.php` (version) and image files.
+
+## 2.5.00
+- **Satchel and Crafting items are now big square tiles.** Every item in the Satchel shelves (Seeds, Crops, Food, Soil, Tools and the rest) and in all Crafting menus is a tile: 72 px picture on top (was 28 to 32 px), name under it, 3 per row on a phone and as many as fit on a computer.
+- **Count is a badge on the picture** (`×13`). Extra notes (in use, broken, untasted) sit under the name. Crafting tiles keep their line under the name (time and energy, "short 2", "N/M found"). The status stripe moved from the left edge to the top edge.
+- Code: `sh_shelves()` in `includes/shelves.php` (picture now `lg` art, `.shic` / `.shqty` wrappers, bag `small` no longer starts with the count); `.shelves .shpill*` rules in `assets/style.css`. Picture size is one variable, `--shic` (72 px). The art is 64 px, so 64 px is the crisp size if 72 looks uneven.
+- No schema or setting changes.
 
 ## 2.4.98
 - **New "Hearth Pop" art for 1,662 items and icons.** Same file names, so nothing in the code changes: `game/assets/img/ph/` (item, seed, food, tool, building and pelt art, including the 14 `nav-*` and stage art), `game/assets/img/games/` and `game/assets/img/ico/` now hold the v3 pixel art (64x64, slim shapes, 5-6 tone ramps, one small quirk each, 1px ink outline). The game already prefers `<name>.png` over the old `.svg`, so the new art shows straight away; the old SVGs stay as the fallback. Flower heads are not included (they need a tintable rig).
