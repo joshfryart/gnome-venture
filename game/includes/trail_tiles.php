@@ -1,0 +1,313 @@
+<?php
+declare(strict_types=1);
+/**
+ * Graphical navigation, phase 2d: the Trail as tile sections (setting gnav_tiles, needs gnav_on).
+ *
+ * The expeditions row stays the source of truth (fights, knock_out, logs, GPS "continue", perks and the double-start guard all keep working);
+ * this is a new VIEW of the same walk. A walk that starts with the flag on gets a walk_scene row (map_key 'trail:...'). A walk with no such row
+ * stays a timer walk: decided per walk, never in the middle of one. Sections = routes.steps clamped 1..6. Energy is paid ONCE, when stepping onto
+ * section 1 (start_expedition, route_enter_cost); the Continue between sections is free. expeditions.step mirrors the finished sections,
+ * steps_total = sections, arrive_at = start (time is not used).
+ *
+ * Flow: walk the section (tap a tile) -> reach the exit tile -> confirm (Continue / Turn back) -> an in-between event is rolled ONCE (saved
+ * with a compare-and-swap on the scene state, so a double tap or a second tab cannot skip a section or roll twice) -> next section ... the last
+ * confirm is "Head into <place>" (the existing arrive()). Fights, finds, problems and meets are the existing ones (next_step() / pick_creature() /
+ * give_find()), shown by the existing encounter cards on adventure.php.
+ * Not built yet: Gather and Wander off the Trail while on a section (they need a walk-free state; see claude/nav-recon.md).
+ */
+require_once __DIR__ . '/delve_map.php';
+require_once __DIR__ . '/tilemap.php';
+require_once __DIR__ . '/here_schema.php';
+
+const TRAIL_W = 11;
+const TRAIL_H = 7;
+
+/** Are tile walks on? (Both flags, and the walk_scene table.) */
+function trail_on(): bool
+{
+    return gnav_on() && setting('gnav_tiles') === '1' && dm_table_ok();
+}
+
+/** Sections in a path: its steps, 1..6. */
+function trail_sections(array $route): int
+{
+    return max(1, min(6, (int)($route['steps'] ?? 3)));
+}
+
+/** The energy the walk charges at the start when tiles are on, before staff and fireflies (those stay in start_expedition). */
+function trail_base_cost(array $u, array $route): int
+{
+    if (($route['kind'] ?? 'road') === 'road' && calling_perk($u, 'free_walks') > 0) return 0;
+    return max(0, (int)setting('gnav_enter_energy'));
+}
+
+/**
+ * One section's map and tokens, from a seed (pure: same seed, same section). Entry 'S' on the left edge, exit '9' on the right edge, a winding
+ * floor between, a few extra floor cells for width. Tokens: 0-2 fights ('E') and 1-3 finds ('F') on floor, never next to the entry or exit.
+ * Returns [map, tokens [[x, y, kind]]].
+ */
+function trail_map_make(string $seed): array
+{
+    $rng = tm_rng($seed);
+    $g = array_fill(0, TRAIL_H, array_fill(0, TRAIL_W, '#'));
+    $ys = $rng(1, TRAIL_H - 2);
+    $ye = $rng(1, TRAIL_H - 2);
+    $y = $ys;
+    $g[$ys][0] = 'S';
+    for ($x = 1; $x <= TRAIL_W - 2; $x++) {
+        $g[$y][$x] = '.';
+        if ($x < TRAIL_W - 2) {
+            $r = $rng(1, 100);
+            $toward = $ye <=> $y;
+            $ny = $r <= 45 && $toward !== 0 ? $y + $toward : ($r <= 70 ? $y + ($rng(0, 1) ? 1 : -1) : $y);
+            $ny = max(1, min(TRAIL_H - 2, $ny));
+            while ($y !== $ny) { $y += $ny <=> $y; $g[$y][$x] = '.'; }
+        }
+    }
+    while ($y !== $ye) { $y += $ye <=> $y; $g[$y][TRAIL_W - 2] = '.'; }
+    $g[$ye][TRAIL_W - 1] = '9';
+    for ($i = 0, $n = $rng(6, 11); $i < $n; $i++) {   // width: floor next to floor
+        $x = $rng(1, TRAIL_W - 2);
+        $yy = $rng(1, TRAIL_H - 2);
+        if ($g[$yy][$x] !== '#') continue;
+        foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) {
+            if (($g[$yy + $dy][$x + $dx] ?? '#') === '.') { $g[$yy][$x] = $rng(0, 3) === 0 ? ',' : '.'; break; }
+        }
+    }
+    $floor = [];
+    for ($yy = 0; $yy < TRAIL_H; $yy++) for ($x = 3; $x <= TRAIL_W - 4; $x++) if ($g[$yy][$x] === '.' || $g[$yy][$x] === ',') $floor[] = [$x, $yy];
+    $tokens = [];
+    $want = array_merge(array_fill(0, $rng(0, 2), 'E'), array_fill(0, $rng(1, 3), 'F'));
+    foreach ($want as $k) {
+        if (!$floor) break;
+        $i = $rng(0, count($floor) - 1);
+        [$tx, $ty] = array_splice($floor, $i, 1)[0];
+        $tokens[] = [$tx, $ty, $k];
+    }
+    return [tm_parse(array_map(fn($r) => implode('', $r), $g)), $tokens];
+}
+
+/** Start the scene of a new walk: section 1, the gnome at the entry. Never breaks the start if it fails. Returns true when made. */
+function trail_scene_make(int $uid, int $expId, array $route): bool
+{
+    try {
+        dm_scene_purge($uid);
+        $S = trail_sections($route);
+        [$map, $tokens] = trail_map_make((int)$route['id'] . '|' . $uid . '|' . $expId . '|0');
+        $seen = tm_seen_new($map['w'], $map['h']);
+        tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
+        $st = ['sec' => 0, 'S' => $S, 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+        db_insert('walk_scene', ['user_id' => $uid, 'exp_id' => $expId, 'map_key' => 'trail:' . (int)$route['id'], 'x' => $map['entry'][0], 'y' => $map['entry'][1], 'seen' => $seen, 'state' => json_encode($st), 'updated_at' => now()]);
+        return true;
+    } catch (Throwable $e) {
+        error_log('trail_scene_make: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** The tile scene of an active walk, or null (a timer walk). */
+function trail_scene(array $exp): ?array
+{
+    if (($exp['kind'] ?? 'walk') !== 'walk' || ($exp['status'] ?? '') !== 'active' || !dm_table_ok()) return null;
+    $row = q_one('SELECT * FROM walk_scene WHERE exp_id = ? AND user_id = ?', [(int)$exp['id'], (int)$exp['user_id']]);
+    if (!$row || !str_starts_with((string)$row['map_key'], 'trail:')) return null;
+    $st = json_decode((string)$row['state'], true);
+    if (!is_array($st) || !isset($st['sec'], $st['S'], $st['phase'])) return null;
+    [$map] = trail_map_make((int)substr((string)$row['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)$exp['id'] . '|' . (int)$st['sec']);
+    return ['row' => $row, 'old' => (string)$row['state'], 'map' => $map, 'x' => (int)$row['x'], 'y' => (int)$row['y'], 'seen' => (string)$row['seen'], 'st' => $st];
+}
+
+/** Save a scene change only if nobody changed it meanwhile (a double tap, a second tab). True = this call won. */
+function trail_save(array $sc): bool
+{
+    return q('UPDATE walk_scene SET x = ?, y = ?, seen = ?, state = ?, updated_at = ? WHERE id = ? AND state = ?',
+        [$sc['x'], $sc['y'], $sc['seen'], json_encode($sc['st']), now(), $sc['row']['id'], $sc['old']])->rowCount() === 1;
+}
+
+/** The token on a tile (index) or -1. */
+function trail_token_at(array $sc, int $x, int $y): int
+{
+    foreach ($sc['st']['tokens'] as $i => $t) if ((int)$t[0] === $x && (int)$t[1] === $y) return $i;
+    return -1;
+}
+
+/** Closes tiles: a token that is not done yet is only walked ONTO as the goal (a fight or find waits there), never through. */
+function trail_gate(array $sc, ?int $gx = null, ?int $gy = null): callable
+{
+    return function (int $x, int $y, string $t) use ($sc, $gx, $gy): bool {
+        $i = trail_token_at($sc, $x, $y);
+        if ($i < 0 || (int)$sc['st']['tokens'][$i][3] === 1) return true;
+        return $x === $gx && $y === $gy;
+    };
+}
+
+/** What waits on a token tile: a fight ('E', or a find when no creature fits here) or a find ('F'). */
+function trail_token_event(array $u, array &$exp, string $kind): void
+{
+    $scene = exp_scene($exp);
+    if ($kind === 'E') {
+        $cap = exp_easy_cap($u, $exp);
+        $c = pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap);
+        if ($c) {
+            $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
+                'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
+            exp_log($exp, '⚔️ ' . (preg_match('/^[AEIOU]/i', $c['name']) ? 'An ' : 'A ') . $c['name'] . ' blocks your way!');
+            return;
+        }
+    }
+    $exp['encounter'] = null;
+    exp_log($exp, give_find($u, $scene));
+    rest_heal($exp);
+}
+
+/**
+ * The event between two sections, rolled once: 40% nothing but the view, otherwise whatever a space of the old walk could bring
+ * (a fight, a problem, a choice card, somebody on the road, a find). Reuses next_step() so every card, reward and rule is the existing one.
+ */
+function trail_roll_event(array $u, array &$exp): void
+{
+    if (random_int(1, 100) <= 40) {
+        $scene = exp_scene($exp);
+        if ($line = road_line($scene, ['seed' => road_line_seed($exp, (int)$exp['step'] + 1)])) exp_log($exp, '🍃 ' . $line);
+        return;
+    }
+    $keep = (int)$exp['step'];
+    next_step($u, $exp);
+    $exp['step'] = $keep;
+}
+
+/** A tap on a tile of the section. [ok, message]. The scene is saved with a compare-and-swap, so a second tab cannot repeat it. */
+function trail_go(array $u, array &$exp, int $tx, int $ty): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc) return [false, 'There is no tile map for this walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    if ($sc['st']['phase'] !== 'section') return [false, 'Choose Continue or Turn back first.'];
+    $map = $sc['map'];
+    $t = tm_tile($map, $tx, $ty);
+    if ($t === '#' || $t === ' ') return [false, 'That is solid rock.'];
+    if ($sc['x'] === $tx && $sc['y'] === $ty) return [false, 'You are already here.'];
+    $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty));
+    if (!$path) return [false, 'There is no way there from here.'];
+    $walked = array_merge([[$sc['x'], $sc['y']]], $path);
+    $sc['x'] = $tx;
+    $sc['y'] = $ty;
+    $i = trail_token_at($sc, $tx, $ty);
+    $fire = null;
+    if ($i >= 0 && (int)$sc['st']['tokens'][$i][3] === 0) { $sc['st']['tokens'][$i][3] = 1; $fire = (string)$sc['st']['tokens'][$i][2]; }
+    if ($t === '9') $sc['st']['phase'] = 'confirm';
+    if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
+    if ($fire !== null) trail_token_event($u, $exp, $fire);
+    $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
+    return [true, ''];
+}
+
+/** Continue past the exit tile (free): the event is rolled once, the next section starts. [ok, message] */
+function trail_next(array $u, array &$exp): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc || $sc['st']['phase'] !== 'confirm') return [false, 'Nothing to continue from.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    $sec = (int)$sc['st']['sec'];
+    if ($sec + 1 >= (int)$sc['st']['S']) return [false, 'That was the last section. Head into the place.'];
+    $nsec = $sec + 1;
+    [$map, $tokens] = trail_map_make((int)substr((string)$sc['row']['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)$exp['id'] . '|' . $nsec);
+    $seen = tm_seen_new($map['w'], $map['h']);
+    tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
+    $new = $sc;
+    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+    $new['x'] = $map['entry'][0];
+    $new['y'] = $map['entry'][1];
+    $new['seen'] = $seen;
+    if (!trail_save($new)) return [false, 'You already went on.'];   // the other tab won: no second event
+    $exp['step'] = $nsec;
+    trail_roll_event($u, $exp);
+    $exp['step'] = $nsec;
+    return [true, ''];
+}
+
+/** Turn back: free. The walk ends where it began; everything found stays found. */
+function trail_back(array $u, array &$exp): array
+{
+    $exp['status'] = 'done';
+    $exp['encounter'] = null;
+    exp_log($exp, '↩️ You turn back along the thread.');
+    dm_scene_drop((int)$exp['id']);
+    return [true, 'You turned back. No energy lost, nothing lost.'];
+}
+
+/** The "arrive" step: only from the confirm of the last section. [ok, message] (the caller then runs arrive()). */
+function trail_can_arrive(array $exp): bool
+{
+    $sc = trail_scene($exp);
+    return $sc && $sc['st']['phase'] === 'confirm' && (int)$sc['st']['sec'] + 1 >= (int)$sc['st']['S'] && !$exp['encounter'];
+}
+
+/** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
+function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
+{
+    require_once __DIR__ . '/trek_art.php';
+    $map = $sc['map'];
+    $w = $map['w']; $h = $map['h'];
+    $win = tm_window($sc['x'], $sc['y'], DM_VIEW, DM_VIEW);
+    $land = (string)(exp_scene($exp)['land'] ?? 'forest');
+    $phase = (string)$sc['st']['phase'];
+    $tokens = [];
+    foreach ($sc['st']['tokens'] as [$tx, $ty, $k, $done]) {
+        if ($tx === $sc['x'] && $ty === $sc['y']) continue;
+        $tokens[] = [$tx, $ty, $k === 'E' ? '⚔️' : '✨', $k === 'E' ? 'ember' : 'gold', (bool)$done];
+    }
+    [$ex, $ey] = $map['spots']['9'];
+    if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
+    $gate = trail_gate($sc);
+    $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
+    $open = str_repeat('0', $w * $h);
+    $lit = [];
+    for ($y = 0; $y < $h; $y++) for ($x = 0; $x < $w; $x++) {
+        $t = tm_tile($map, $x, $y);
+        if ($t === '#') continue;
+        $ok = isset($reach[$y * $w + $x]);
+        $tk = trail_token_at($sc, $x, $y);
+        if (!$ok && $tk >= 0 && !(int)$sc['st']['tokens'][$tk][3]) foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) if (isset($reach[($y + $dy) * $w + $x + $dx]) && $x + $dx >= 0 && $x + $dx < $w) $ok = true;
+        if (!$ok && $t === '9') foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) if (isset($reach[($y + $dy) * $w + $x + $dx]) && $x + $dx >= 0 && $x + $dx < $w) $ok = true;
+        if ($ok) { $lit[$y * $w + $x] = true; $open[$y * $w + $x] = ($tk >= 0 && !(int)$sc['st']['tokens'][$tk][3]) || $t === '9' ? '2' : '1'; }
+    }
+    $walk = null;
+    $wk = $_SESSION['dm_walk'] ?? null;
+    unset($_SESSION['dm_walk']);
+    if (is_array($wk) && (int)($wk['e'] ?? 0) === (int)$exp['id'] && time() - (int)($wk['t'] ?? 0) <= 30 && is_array($wk['p'] ?? null) && count($wk['p']) > 1) {
+        $p = array_map(fn($pt) => [(int)$pt[0], (int)$pt[1]], $wk['p']);
+        $last = end($p);
+        if ($last[0] === $sc['x'] && $last[1] === $sc['y']) $walk = ['p' => $p];
+    }
+    $svg = tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
+        'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
+    $btn = '';
+    for ($j = 0; $j < DM_VIEW; $j++) for ($i = 0; $i < DM_VIEW; $i++) {
+        $x = $win['x0'] + $i; $y = $win['y0'] + $j;
+        $t = tm_tile($map, $x, $y);
+        $cls = 'tmt' . (($i === 0 || $j === 0 || $i === DM_VIEW - 1 || $j === DM_VIEW - 1) ? ' ring' : '');
+        $me = $x === $sc['x'] && $y === $sc['y'];
+        $tap = $x >= 0 && $x < $w && $y >= 0 && $y < $h && isset($lit[$y * $w + $x]) && !$busy && $phase === 'section';
+        $label = '';
+        if ($t === '#' || $t === ' ') $cls .= $t === ' ' ? ' fog' : ' wall';
+        else {
+            $cls .= $tap ? ' reach' : '';
+            $tk = trail_token_at($sc, $x, $y);
+            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = $sc['st']['tokens'][$tk][2] === 'E' ? ($done ? 'Fight, done' : 'Something stirs here') : ($done ? 'Find, done' : 'Something to find'); }
+            elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
+            elseif ($t === 'S') $label = 'Where this stretch begins';
+        }
+        if ($me) { $cls .= ' here'; $label = 'You are here'; }
+        $dis = !$tap;
+        $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
+    }
+    $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
+    if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
+    $out = '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
+        . '<div class="tilemap tm-cave" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
+        . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
+        . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
+        . '<p class="tmlegend" aria-hidden="true"><span>⚔️ Something stirs</span><span>✨ A find</span><span>🚪 The way on</span></p></div>';
+    return $out;
+}

@@ -75,6 +75,25 @@ cli at market >/dev/null; cli walk | grep -q '^ok' && chk "walk started" 1 || ch
 R=$(get here.php)
 chk "Here sends a walking gnome to the adventure page" "$([[ $R == *"/adventure.php" ]] && echo 1)" "$R"
 
+echo "== the Trail as tiles (gnav_tiles)"
+cli set gnav_on 1 >/dev/null; login >/dev/null
+chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
+get adventure.php >/dev/null
+chk "adventure page shows the tile map and its buttons" "$(grep -q 'class="tilemap' $TD/here-p.html && grep -q 'name="do" value="trail_go"' $TD/here-p.html && grep -q 'Section 1 of' $TD/here-p.html && echo 1)"
+chk "no inline style or script on the tile page" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
+chk "Turn back is offered" "$(grep -q 'value="trail_back"' $TD/here-p.html && echo 1)"
+T=$(cli tilego | tail -1); XY=${T%% *}
+R=$(post adventure.php -d do=trail_go -d go=$XY)
+chk "tapping a lit tile walks (redirect back)" "$([[ $R == 302* ]] && echo 1)" "$R $XY"
+R=$(post adventure.php -d do=trail_go -d go=0,0)
+get adventure.php >/dev/null
+chk "a tap on a tile nobody may walk is refused, page still fine" "$(grep -q 'class="tilemap' $TD/here-p.html || grep -q 'encounter' $TD/here-p.html && echo 1)"
+R=$(post adventure.php -d do=trail_next)
+chk "Continue before the exit is refused (still section 1)" "$([[ $(cli tilego | tail -1) == *" section 0 "* || $(cli tilego | tail -1) == *" 0 "* ]] && echo 1)" "$(cli tilego | tail -1)"
+cli clearenc >/dev/null
+R=$(post adventure.php -d do=trail_back)
+chk "Turn back ends the walk" "$([[ $(cli active | tail -1) == 0 ]] && echo 1)" "$(cli active | tail -1)"
+cli set gnav_tiles 0 >/dev/null; cli set gnav_on 0 >/dev/null
 echo "== layout editor and lint tool"
 chk "tools/lint_here.php passes on the shipped layouts" "$(php "$HERE/../tools/lint_here.php" "$GAME" >/dev/null 2>&1 && echo 1)"
 rm -f $C; curl -s -c $C -b $C $BASE/login.php > $TD/here-l.html; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $TD/here-l.html)" -d username=admin -d 'password=TestPassword123' -o /dev/null

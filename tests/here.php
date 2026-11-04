@@ -25,6 +25,27 @@ if ($withDb && ($argv[2] ?? '') === 'cli') {   // (php tests/here.php GAME cli .
         q("UPDATE users SET location_id = ?, level = 20, energy = 80, start_page = NULL WHERE id = ?", [$id, $uidx]);
         echo (int)q_val('SELECT id FROM landmarks WHERE location_id = ?', [$id]) . "\n";
     }
+    if ($cmd === 'tilewalk' || $cmd === 'tilego') {   // tilewalk: flags on + a tile walk from the market | tilego: print a tile the gnome may tap now (x,y)
+        require_once $game . '/includes/trail_tiles.php';
+        $u = q_one("SELECT * FROM users WHERE username = 'sprout'");
+        if ($cmd === 'tilewalk') {
+            set_setting('gnav_on', '1'); set_setting('gnav_tiles', '1'); setting('__reload__');
+            q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
+            $mk = (int)q_val("SELECT id FROM locations WHERE kind = 'market' ORDER BY id LIMIT 1");
+            q("UPDATE users SET location_id = ?, level = 20, energy = 50, ev_quickwalk = 0 WHERE id = ?", [$mk, $u['id']]);
+            $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+            [$ok2, $m] = start_expedition($u, (int)visible_routes($u, $mk)[0]['id']);
+            echo $ok2 ? "ok\n" : "FAIL $m\n";
+        } else {
+            $exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
+            $t = null;
+            foreach ($sc['st']['tokens'] as $tk) if (!$tk[3] && tm_path($sc['map'], $sc['x'], $sc['y'], $tk[0], $tk[1], trail_gate($sc, $tk[0], $tk[1]))) { $t = [$tk[0], $tk[1]]; break; }
+            $t ??= $sc['map']['spots']['9'];
+            echo $t[0] . ',' . $t[1] . ' ' . $sc['st']['phase'] . ' ' . $sc['st']['sec'] . ' ' . (int)($exp['encounter'] !== null) . "\n";
+        }
+    }
+    if ($cmd === 'clearenc') { q("UPDATE expeditions SET encounter = NULL WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')"); echo "ok\n"; }
+    if ($cmd === 'active') { echo (int)q_val("SELECT COUNT(*) FROM expeditions WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')") . "\n"; }
     if ($cmd === 'walk') {
         $u = q_one("SELECT * FROM users WHERE username = 'sprout'");
         $r = visible_routes($u, (int)player_node($u)['id'])[0];
@@ -241,6 +262,95 @@ if ($withDb) {
     ok('sprites drawn far first (high on screen first, so near ones cover them)', strpos($near, 'id="sp-high"') < strpos($near, 'id="sp-low"'));
     ok('twin off on request', !str_contains(hub_scene('generic', $hot, [], ['layout' => $L, 'alt' => 'x', 'twin' => false]), 'hubtwin'));
     ok('admin debug draws every slot', str_contains(hub_scene('generic', [], [], ['layout' => $L, 'alt' => 'x', 'debug' => true]), 'fill="#d33"'));
+
+    echo "== trail tiles (gnav_tiles)\n";
+    require_once $game . '/includes/trail_tiles.php';
+    [$m1, $t1] = trail_map_make('seed-a'); [$m2, $t2] = trail_map_make('seed-a'); [$m3] = trail_map_make('seed-b');
+    ok('same seed = same section', $m1 === $m2 && $t1 === $t2);
+    ok('another seed = another section', $m1['t'] !== $m3['t']);
+    $allOk = true; $conn = true; $tokOk = true; $tokCount = true;
+    for ($i = 0; $i < 300; $i++) {
+        [$m, $t] = trail_map_make("sweep-$i");
+        $allOk = $allOk && $m['w'] === TRAIL_W && $m['h'] === TRAIL_H && $m['entry'] !== null && isset($m['spots']['9']);
+        $reach = tm_reach($m, $m['entry'][0], $m['entry'][1]);
+        $conn = $conn && isset($reach[$m['spots']['9'][1] * $m['w'] + $m['spots']['9'][0]]);
+        $e = 0; $f = 0;
+        foreach ($t as [$tx, $ty, $k]) { $tokOk = $tokOk && in_array(tm_tile($m, $tx, $ty), ['.', ','], true) && isset($reach[$ty * $m['w'] + $tx]); $k === 'E' ? $e++ : $f++; }
+        $tokCount = $tokCount && $e <= 2 && $f >= 0 && $f <= 3 && count(array_unique(array_map(fn($x) => $x[0] . ',' . $x[1], $t))) === count($t);
+    }
+    ok('300 sections: size, entry and exit present', $allOk);
+    ok('300 sections: the exit can be reached from the entry', $conn);
+    ok('300 sections: every token on reachable floor, none stacked, at most 2 fights', $tokOk && $tokCount);
+    ok('sections = steps clamped 1..6', trail_sections(['steps' => 0]) === 1 && trail_sections(['steps' => 3]) === 3 && trail_sections(['steps' => 40]) === 6);
+    sset('gnav_on', '1'); sset('gnav_tiles', '0');
+    ok('trail_on needs both flags', !trail_on());
+    sset('gnav_tiles', '1'); ok('both flags on = on', trail_on());
+    sset('gnav_enter_energy', '1');
+    $u = put($town, ['ev_quickwalk' => 0, 'energy' => 50]);
+    $r = visible_routes($u, $town)[0];
+    $r3 = q_one('SELECT * FROM routes WHERE id = ?', [$r['id']]);
+    $before = (int)me()['energy'];
+    [$okw, $msg] = start_expedition($u, (int)$r['id']);
+    $exp = active_expedition((int)$u['id']);
+    $spent = $before - (int)q_val("SELECT energy FROM users WHERE username = 'sprout'");
+    ok('a tile walk starts', $okw && $exp, $msg);
+    ok('energy charged = the number Here showed (one to step on)', $spent === route_enter_cost($u, $r3) && $spent === 1, "spent $spent");
+    $sc = trail_scene($exp);
+    ok('scene made, section 1, steps_total = sections', $sc && (int)$sc['st']['sec'] === 0 && (int)$exp['steps_total'] === trail_sections($r3), json_encode($exp['steps_total']));
+    $S = (int)$exp['steps_total'];
+    $energy0 = (int)q_val("SELECT energy FROM users WHERE username = 'sprout'");
+    // walk every section: tap the tokens' tiles, then the exit, fight/problems are cleared by force
+    $done = true;
+    for ($sec = 0; $sec < $S; $sec++) {
+        $exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
+        $guard = 0;
+        while ($sc['st']['phase'] === 'section' && $guard++ < 12) {
+            $next = null;
+            foreach ($sc['st']['tokens'] as $t) if (!$t[3] && tm_path($sc['map'], $sc['x'], $sc['y'], $t[0], $t[1], trail_gate($sc, $t[0], $t[1]))) { $next = [$t[0], $t[1]]; break; }   // one a player can reach now
+            $ex9 = $sc['map']['spots']['9'];
+            if ($next === null || tm_path($sc['map'], $sc['x'], $sc['y'], $ex9[0], $ex9[1], trail_gate($sc, $ex9[0], $ex9[1]))) { if ($next === null || !count(array_filter($sc['st']['tokens'], fn($t) => !$t[3]))) $next = $ex9; }
+            if ($exp['encounter']) { q('UPDATE expeditions SET encounter = NULL WHERE id = ?', [$exp['id']]); $exp['encounter'] = null; }
+            [$g, $gm] = trail_go(me(), $exp, (int)$next[0], (int)$next[1]);
+            if (!$g) { $done = false; echo "  note trail_go failed: $gm\n"; break 2; }
+            save_exp($exp);
+            $exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
+        }
+        q('UPDATE expeditions SET encounter = NULL WHERE id = ?', [$exp['id']]); $exp['encounter'] = null;
+        ok("section " . ($sec + 1) . ": the exit tile asks to continue", $sc['st']['phase'] === 'confirm');
+        if ($sec + 1 < $S) {
+            $keep = $sc;
+            [$n1] = trail_next(me(), $exp); $stepAfter = (int)$exp['step']; save_exp($exp);
+            $exp2 = active_expedition((int)$u['id']);
+            [$n2] = trail_next(me(), $exp2);   // a second tab pressing Continue again
+            ok("section " . ($sec + 1) . ": Continue works once, the second tap does nothing", $n1 && !$n2);
+            ok("  and expeditions.step mirrors the finished sections", $stepAfter === $sec + 1);
+        }
+    }
+    ok('the whole Trail was walked with every token tapped', $done);
+    ok('Go and Continue never charged energy (no fights were fought here)', (int)q_val("SELECT energy FROM users WHERE username = 'sprout'") >= $energy0);
+    $exp = active_expedition((int)$u['id']);
+    ok('the last confirm can arrive', trail_can_arrive($exp));
+    $exp['encounter'] = null; arrive(me(), $exp); dm_scene_drop((int)$exp['id']); save_exp($exp);
+    ok('arrived: the gnome is at the far end', (int)q_val("SELECT location_id FROM users WHERE username = 'sprout'") === (int)$exp['to_id']);
+    ok('the scene is gone after arriving', trail_scene($exp) === null);
+    // turn back
+    $u = put($town, ['energy' => 50]);
+    [$okw] = start_expedition($u, (int)$r['id']); $exp = active_expedition((int)$u['id']);
+    [$bk] = trail_back(me(), $exp); save_exp($exp);
+    ok('turn back: the walk ends, the gnome stays where they were, no scene left', $bk && !active_expedition((int)$u['id']) && (int)q_val("SELECT location_id FROM users WHERE username = 'sprout'") === $town && !q_val('SELECT COUNT(*) FROM walk_scene WHERE exp_id = ?', [$exp['id']]));
+    // a timer walk in progress when the flag flips stays a timer walk
+    sset('gnav_tiles', '0');
+    $u = put($town, ['energy' => 50]);
+    start_expedition($u, (int)$r['id']); $exp = active_expedition((int)$u['id']);
+    sset('gnav_tiles', '1');
+    ok('a walk that began as a timer walk has no tile scene, even with tiles on now', trail_scene($exp) === null);
+    q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
+    // two walks started in one instant: still only one
+    $u = put($town, ['energy' => 50]);
+    start_expedition($u, (int)$r['id']); [$again] = start_expedition(me(), (int)$r['id']);
+    ok('a second start while walking is refused (no second charge)', !$again);
+    q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
+    sset('gnav_tiles', '0'); sset('gnav_on', '0');
 
     echo "== flag helpers\n";
     ok('gnav_start_here is off with the flag off', !gnav_start_here(me()));

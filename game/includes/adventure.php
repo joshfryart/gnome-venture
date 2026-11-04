@@ -215,7 +215,9 @@ function start_expedition(array $u, int $routeId): array
         $dest = q_one('SELECT * FROM locations WHERE id = ?', [$to]);
         if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest))) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
     }
-    $cost = route_energy($u, $route);
+    require_once __DIR__ . '/trail_tiles.php';   // graphical navigation 2d
+    $trail = trail_on();   // tile walk: one energy to step on, the rest of the Trail is free; a timer walk is unchanged
+    $cost = $trail ? trail_base_cost($u, $route) : route_energy($u, $route);
     $staffWear = null;
     $roadFree = $cost === 0;   // v0.9.1: a Master Wayfinder's road walk is already free
     if ($cost > 0 && staff_free((int)$u['id'])) {   // v0.7.30: the walking staff carries you (v0.7.86: and wears a little); v0.9.1: a free walk doesn't touch the staff
@@ -247,6 +249,7 @@ function start_expedition(array $u, int $routeId): array
         if ($cost > 0) q('UPDATE users SET energy = energy + ? WHERE id = ?', [$cost, $u['id']]);
         return [false, 'You’re already on the road.'];
     }
+    if ($trail && trail_scene_make((int)$u['id'], $newExp, $route)) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
     return [true, '🍄 You step onto the mycelium. ' . ($quickWalk && !$quick ? '💨 Quick walk. ' : '') . ($cost ? '(−' . $cost . ' energy)' : ($roadFree ? '🧭 A Wayfinder knows the road: no energy used.' : '🦯 Your staff makes light work of it: no energy used.'))
         . ($staffWear ? ' ' . $staffWear : '')];
 }
