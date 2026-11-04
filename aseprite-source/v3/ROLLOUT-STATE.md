@@ -49,3 +49,6 @@ DONE: 140/140 Opus-finished, 0 draft-only (grep `_aC1`; check.py 140 items, 0 mi
 
 ## Run 3 part 3 (C3) status (2026-11-04)
 DONE: 140/140 Opus-finished, 0 draft-only (grep `_aC3`; check.py 140 items, 0 missing, 0 bad). Run `wf_8f23d088-558`, 41 agents, ~4.9M subagent tokens, no failures. `ph/nav-town` .. `ph/poi`. Weak (agents' notes): nav-villagers (tunic reshaped, not re-viewed), noni (busy skin, ripe patch recoloured unchecked), oak-log (rings faint), okra-seed (blobby leaf), opening-day-bunting (only 32px tall, mushy weave), pea-seed (low contrast), pear (hard blush edge), peanut-toast (butter close to crust), periwinkle-seed (pod reads as a smile), picket-fence-tee (thin zipper-like branch), picket-fence-cross (overlap), pickled-lotus-root (reads as cookies), pigeon-pea (pod thin), pine-log (noisy bark), pluot-jam (22px jar), petunia-seed. Seeds at 16 px still blob-prone.
+
+## Run 4: art step = Sonnet high (2026-11-04)
+Josh's decision after the D1t test (3 items, ~215k tokens incl. draft): run 4 uses Sonnet high for the art step. `items-run.js` takes optional args `artModel` / `artEffort` (default opus). `run4-part1..3.args.json` already carry them. Markers: Sonnet-high art shows `_aD1`, `_aD2`, `_aD3` in the .lua just like Opus did, so the model is NOT recorded in the file: run 4 = all Sonnet high. D1 launched run `wf_50515a6a-c74`.
