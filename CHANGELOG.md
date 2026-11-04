@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.02
+- **Creature villagers.** All 81 NPC portraits in `game/assets/img/ph/npc-<slug>.png` are redrawn in v3 Hearth Pop (80x100). Every villager is now a creature (hedgehog, field mouse, frog, snail, tortoise, moth, beetle, otter, elephant and more; old human-looking art was redesigned to fit the name and mood). Same file names, so nothing in the code changes.
+- **New 2.5D villager sprites** in `game/assets/img/sprite/npc-<slug>.png`: 64x96 cells, 4-frame idle strip (256x96), feet at bottom-centre. Not used by any page yet (they are for the graphical-navigation build).
+- Images uploaded in Admin > Images win over these files: upload `gnome-venture-images-v3-npc-portraits.zip` to replace old portraits.
+- No code, schema or setting changes. Only `bootstrap.php` (version) and image files.
+
 ## 2.5.01
 - **Redone art for 179 items.** The 179 weak images from 2.4.98 (tiny seeds, look-alikes, muddy materials) are redrawn in v3 Hearth Pop, same file names, so nothing in the code changes: 55 seed icons and 124 other item, stage, fence, wall, shed, pelt and food images in `game/assets/img/ph/`. The pink 2 px review border is removed; `aseprite-source/v3/rollout/weak.txt` is now empty and `export_game.py` re-adds the border to any name put back in it.
 - Images you uploaded in Admin > Images still win over these files; re-upload the `gnome-venture-images-v3-*` zips to replace them.
