@@ -129,6 +129,16 @@ function here_layouts_all(): array
     return $all;
 }
 
+/** The scene picture file (under assets/img/scenes) a layout key is drawn on. Mirrored in tools/gen_here_placeholders.py. */
+function here_layout_file(string $key): string
+{
+    if (str_starts_with($key, 'resid-')) return $key . '.png';
+    return match ($key) {
+        'door' => 'door-cottage.png', 'workshop' => 'craft-workshop.png', 'treehouse' => 'tree-house.png', 'yard' => 'yard-pals.png',
+        default => 'here-' . str_replace(':', '-', $key) . '.png',
+    };
+}
+
 /**
  * Lint one layout. Returns a list of problems ([] = fine). Rules (plan 6): every slot inside 0..w / 0..h, stand slots at least 28 units
  * from every exit and spot, exits at least 40 apart, horizon above every stand slot, at least 4 stand slots (when the layout has a 'stand'
@@ -144,7 +154,7 @@ function here_lint_layout(array $L): array
         if (!is_array($p) || !isset($p['x'], $p['y']) || $p['x'] < 0 || $p['x'] > $w || $p['y'] < 0 || $p['y'] > $h) $bad[] = $what . ' outside the picture';
     };
     $pts = [];
-    foreach (['exits' => 'exit', 'spots' => 'spot', 'stand' => 'stand', 'houses' => 'house'] as $key => $what) {
+    foreach (['exits' => 'exit', 'spots' => 'spot', 'stand' => 'stand', 'houses' => 'house', 'pals' => 'perch'] as $key => $what) {
         foreach ($L[$key] ?? [] as $i => $p) { $in($what . ' ' . $i, $p); if (is_array($p) && isset($p['x'], $p['y'])) $pts[$key][$i] = $p; }
     }
     $dist = fn($a, $b) => sqrt((($a['x'] - $b['x']) ** 2) + (($a['y'] - $b['y']) ** 2));

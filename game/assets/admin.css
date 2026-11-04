@@ -96,3 +96,4 @@ body.admin .side .navtile .ntl { white-space: normal; overflow: visible; text-ov
 .hereedit .hdot { cursor: grab; } .hereedit .hdot:focus-visible circle { stroke: #000; stroke-width: 2; }
 .heretab { border-collapse: collapse; margin: 0 0 12px; } .heretab th, .heretab td { padding: 3px 8px; text-align: left; } .heretab input[type=number] { width: 5.5em; }
 .hg-exits { color: #d33; } .hg-spots { color: #36c; } .hg-stand { color: #2a2; } .hg-houses { color: #c80; }
+.hg-pals { color: #a3a; }

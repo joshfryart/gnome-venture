@@ -42,6 +42,9 @@ def draw(key, L, name=None):
         x, y = int(s['x']), int(s['y'])
         d.rectangle([x - 16, y - 16, x + 16, y + 10], outline=(40, 80, 160), width=2, fill=(238, 232, 214))
         d.text((x - 14, y - 8), s['k'][:6], fill=(30, 60, 130), font=f)
+    for p in L.get('pals', []):
+        x, y = int(p['x']), int(p['y'])
+        d.ellipse([x - 12, y - 12, x + 12, y + 12], outline=(160, 60, 160), width=2)
     for i, p in enumerate(L.get('houses', [])):
         x, y = int(p['x']), int(p['y'])
         d.rectangle([x - 28, y - 30, x + 28, y + 14], outline=(150, 100, 40), width=2, fill=(228, 206, 160))
@@ -53,6 +56,9 @@ def draw(key, L, name=None):
 
 def fname(k):
     # street and door layouts keep their own file names (scenes/resid-<n>.png, scenes/door-<key>.png); the rest are scenes/here-<key>.png
+    m = {'workshop': 'craft-workshop.png', 'treehouse': 'tree-house.png', 'yard': 'yard-pals.png'}
+    if k in m:
+        return m[k]
     if k.startswith('resid-') or k.startswith('door'):
         return (k if k != 'door' else 'door-cottage').replace(':', '-') + '.png'
     return 'here-' + k.replace(':', '-') + '.png'

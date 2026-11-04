@@ -99,6 +99,20 @@ chk "from another place a door is not reachable" "$([[ $R == 302* ]] && echo 1)"
 cli set gnav_on 0 >/dev/null
 R=$(get "door.php?npc=$NID"); chk "flag off: door.php sends a player to the town page" "$([[ $R == *town.php ]] && echo 1)" "$R"
 R=$(get residential.php); chk "flag off: residential.php sends a player to the town page" "$([[ $R == *town.php ]] && echo 1)" "$R"
+echo "== workshop, treehouse, pal yard (pages)"
+cli set gnav_on 1 >/dev/null; cli set gnav_craft 0 >/dev/null; cli set gnav_tree 0 >/dev/null; login >/dev/null; cli at market >/dev/null
+R=$(get workshop.php); chk "flag off: workshop.php sends a player to the old crafting page" "$([[ $R == *inventory.php?tab=craft ]] && echo 1)" "$R"
+R=$(get treehouse.php); chk "flag off: treehouse.php sends a player to Games" "$([[ $R == *games.php ]] && echo 1)" "$R"
+R=$(get palyard.php); chk "flag off: palyard.php sends a player to Pal Jobs" "$([[ $R == *paljobs.php ]] && echo 1)" "$R"
+get gnome.php >/dev/null; chk "menu: Crafting and Games still point at the old pages" "$(grep -q 'href="/games.php"' $TD/here-p.html && echo 1)"
+cli set gnav_craft 1 >/dev/null; cli set gnav_tree 1 >/dev/null
+R=$(get workshop.php); chk "workshop renders with 7 hotspots" "$([[ $R == 200* ]] && [[ $(grep -o 'id="hs-[a-z]*"' $TD/here-p.html | sort -u | wc -l) -ge 7 ]] && echo 1)" "$R"
+get 'workshop.php?o=cooking' >/dev/null; chk "workshop: ?o= opens a card with the link into the crafting page" "$(grep -q 'aria-labelledby="hubpop-cooking-t" open' $TD/here-p.html && grep -q 'tab=craft&amp;c=cooking' $TD/here-p.html && echo 1)"
+R=$(get treehouse.php); chk "treehouse renders" "$([[ $R == 200* ]] && grep -q 'id="hs-parlour"' $TD/here-p.html && echo 1)" "$R"
+R=$(get palyard.php); chk "pal yard renders (or sends the level-gated gnome to Pal Jobs)" "$([[ $R == 200* || $R == *paljobs.php ]] && echo 1)" "$R"
+chk "no inline style/script on the picture pages" "$(for pg in workshop treehouse; do get $pg.php >/dev/null; sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo bad; done | grep -q bad && echo 0 || echo 1)"
+get gnome.php >/dev/null; chk "menu: Crafting and Games point at the pictures when on" "$(grep -q 'href="/treehouse.php"' $TD/here-p.html && grep -q 'href="/workshop.php"' $TD/here-p.html && echo 1)"
+cli set gnav_craft 0 >/dev/null; cli set gnav_tree 0 >/dev/null
 echo "== the Trail as tiles (gnav_tiles)"
 cli set gnav_on 1 >/dev/null; login >/dev/null
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"

@@ -15,7 +15,7 @@ $keys = array_keys($all);
 sort($keys);
 $key = (string)($_REQUEST['key'] ?? 'generic');
 if (!preg_match('/^[a-z0-9:_-]{1,60}$/', $key)) $key = 'generic';
-$GROUPS = ['exits' => 'Exits (compass paths)', 'spots' => 'Spots (named things)', 'stand' => 'Stand points (where villagers stand)', 'houses' => 'House slots (Residential)'];
+$GROUPS = ['exits' => 'Exits (compass paths)', 'spots' => 'Spots (named things)', 'stand' => 'Stand points (where villagers stand)', 'houses' => 'House slots (Residential)', 'pals' => 'Pal perches (Treehouse)'];
 $msg = '';
 $lintOnly = null;
 
@@ -26,7 +26,7 @@ function here_layout_from_post(array $base): array
     $L['w'] = max(64, min(4000, (int)($_POST['w'] ?? $base['w'] ?? 480)));
     $L['h'] = max(64, min(4000, (int)($_POST['h'] ?? $base['h'] ?? 270)));
     $L['horizon'] = max(0, min($L['h'], (int)($_POST['horizon'] ?? $base['horizon'] ?? 0)));
-    foreach (['exits', 'spots', 'stand', 'houses'] as $g) {
+    foreach (['exits', 'spots', 'stand', 'houses', 'pals'] as $g) {
         $rows = [];
         foreach ((array)($_POST['x'][$g] ?? []) as $i => $x) {
             $y = $_POST['y'][$g][$i] ?? '';
@@ -76,9 +76,9 @@ if (is_post()) {
 $L = $lintOnly[0] ?? ($all[$key] ?? $all['generic'] ?? ['w' => 480, 'h' => 270, 'horizon' => 112]);
 $problems = $lintOnly[1] ?? here_lint_layout($L);
 $W = (int)$L['w']; $H = (int)$L['h']; $hz = (int)($L['horizon'] ?? 0);
-$file = str_starts_with($key, 'resid-') ? 'scenes/' . $key . '.png' : ($key === 'door' ? 'scenes/door-cottage.png' : 'scenes/here-' . str_replace(':', '-', $key) . '.png');
+$file = 'scenes/' . here_layout_file($key);
 $art = is_file(APP_ROOT . '/assets/img/' . $file) ? url('assets/img/' . $file) : '';
-$cols = ['exits' => '#d33', 'spots' => '#36c', 'stand' => '#2a2', 'houses' => '#c80'];
+$cols = ['exits' => '#d33', 'spots' => '#36c', 'stand' => '#2a2', 'houses' => '#c80', 'pals' => '#a3a'];
 page_header('Picture layouts', true);
 ?>
 <?php admin_crumbs('here_layout.php'); ?>
@@ -98,7 +98,7 @@ page_header('Picture layouts', true);
 <?php endforeach; endforeach; ?>
 </svg>
 <p class="help"><?= $art ? 'Art: ' . e($file) : 'No art file yet (' . e($file) . '): a drawn sky and ground is shown.' ?> · size <input type="number" name="w" value="<?= $W ?>" min="64" max="4000" aria-label="Width"> × <input type="number" name="h" value="<?= $H ?>" min="64" max="4000" aria-label="Height"> · horizon y <input type="number" name="horizon" value="<?= $hz ?>" min="0" max="<?= $H ?>" aria-label="Horizon"></p>
-<?php foreach ($GROUPS as $g => $title): $rows = $L[$g] ?? []; if (!$rows && !in_array($g, ['stand', 'spots', 'exits', 'houses'], true)) continue; $rows[] = ['x' => '', 'y' => '']; ?>
+<?php foreach ($GROUPS as $g => $title): $rows = $L[$g] ?? []; if (!$rows && !in_array($g, ['stand', 'spots', 'exits', 'houses', 'pals'], true)) continue; $rows[] = ['x' => '', 'y' => '']; ?>
 <h3 class="hg-<?= $g ?>"><?= e($title) ?></h3>
 <table class="heretab"><tr><?php if ($g === 'exits' || $g === 'spots'): ?><th><?= $g === 'exits' ? 'Anchor' : 'Name' ?></th><?php endif; ?><th>x</th><th>y</th><th>Remove</th></tr>
 <?php foreach ($rows as $i => $p): $new = $p['x'] === ''; ?><tr data-g="<?= $g ?>" data-i="<?= $i ?>">

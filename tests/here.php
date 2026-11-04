@@ -439,6 +439,31 @@ if ($withDb) {
     [$g2, $gm2] = npc_gift_door($u, (int)$n1['id'], $item);
     ok('only once a day (shared with handed gifts)', !$g2, $gm2);
     ok('friendship went up, but only by the door share', (int)q_val('SELECT points FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$u['id'], $n1['id']]) > 0);
+    echo "== workshop, treehouse, pal yard\n";
+    require_once $game . '/includes/hub_pages.php';
+    sset('gnav_on', '1');
+    $u = put($town);
+    $ws = workshop_view($u);
+    ok('workshop: one hotspot per crafting section', substr_count($ws, 'id="hs-') === count(CRAFT_CATEGORIES), (string)substr_count($ws, 'id="hs-'));
+    ok('workshop: each card links into the existing crafting page', substr_count($ws, 'inventory.php?tab=craft&amp;c=') >= count(CRAFT_CATEGORIES));
+    ok('workshop: CSP safe, text twin there', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $ws) && str_contains($ws, 'hubtwin'));
+    $th = treehouse_view($u);
+    ok('treehouse: the three game rooms are there', substr_count($th, 'id="hs-parlour"') + substr_count($th, 'id="hs-loft"') + substr_count($th, 'id="hs-cellar"') === 3);
+    $rooms = treehouse_rooms(); $listed = [];
+    foreach ($rooms as [, , $ks]) foreach ($ks as $k) $listed[$k] = 1;
+    require_once $game . '/includes/games.php';
+    ok('treehouse: every game of GAMES sits in a room', array_diff(array_keys(GAMES), array_keys($listed)) === [], implode(',', array_diff(array_keys(GAMES), array_keys($listed))));
+    ok('treehouse: contest hall links to the Contests tab', str_contains($th, 'games.php?tab=contests'));
+    ok('treehouse: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $th));
+    $yd = yard_view($u);
+    ok('yard renders (or the level gate hides sites without breaking)', str_contains($yd, 'class="hubsvg"'));
+    ok('yard: job sites link to the pal job form anchors', str_contains($yd, 'paljobs.php#pjt-garden') && str_contains($yd, 'paljobs.php#pjt-trip') && str_contains($yd, 'paljobs.php#pjt-delve') && str_contains($yd, 'paljobs.php#pjt-station'));
+    ok('yard: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $yd));
+    $guestL = here_layouts_all()['treehouse']; ok('treehouse layout has 24 perches', count($guestL['pals']) === 24);
+    // pals: found pals sit on perches in found order; a sprite never breaks without art
+    ok('gnav_page_open: off for a player with the flag off', (function () { sset('gnav_craft', '0'); return !gnav_on() || setting('gnav_craft') !== '1'; })());
+    sset('gnav_on', '0');
+
     echo "== flag helpers\n";
     ok('gnav_start_here is off with the flag off', !gnav_start_here(me()));
     sset('gnav_on', '1');

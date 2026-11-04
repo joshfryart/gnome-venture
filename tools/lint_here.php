@@ -8,11 +8,11 @@ $bad = 0;
 foreach (here_lint_all($all) as $k => $p) { foreach ($p as $m) { echo "FAIL layout $k: $m\n"; $bad++; } }
 $files = [];
 foreach ($all as $k => $L) {
-    $f = str_starts_with($k, 'resid-') ? $k . '.png' : ($k === 'door' ? 'door-cottage.png' : 'here-' . str_replace(':', '-', $k) . '.png');
+    $f = here_layout_file($k);
     $files[$f] = [$k, (int)$L['w'], (int)$L['h']];
     if ($k === 'door') foreach (['cottage', 'burrow', 'treehouse', 'hut', 'stone', 'boat'] as $hk) $files['door-' . $hk . '.png'] = [$k, (int)$L['w'], (int)$L['h']];
 }
-foreach (glob($game . '/assets/img/scenes/{here-*,resid-*,door-*}.png', GLOB_BRACE) ?: [] as $path) {
+foreach (glob($game . '/assets/img/scenes/{here-*,resid-*,door-*,craft-*,tree-*,yard-*}.png', GLOB_BRACE) ?: [] as $path) {
     $f = basename($path);
     $sz = @getimagesize($path);
     if (!$sz || $sz[2] !== IMAGETYPE_PNG) { echo "FAIL $f is not a PNG\n"; $bad++; continue; }

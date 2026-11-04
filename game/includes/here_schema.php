@@ -13,6 +13,8 @@ function here_settings(): array
         'gnav_on' => ['label' => 'Picture navigation: the Here page, and Here in the bottom bar and menu (off = today’s game exactly)', 'type' => 'bool', 'default' => '0'],
         'gnav_tiles' => ['label' => 'Picture navigation: walk the Trail as tile sections (needs the above; not built yet)', 'type' => 'bool', 'default' => '0'],
         'gnav_enter_energy' => ['label' => 'Picture navigation: energy to step onto the Trail from a place (tile walks only; the number shown is the number charged)', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 100],
+        'gnav_craft' => ['label' => 'Picture navigation: the Crafting workshop picture (needs gnav_on; the old crafting pages stay)', 'type' => 'bool', 'default' => '0'],
+        'gnav_tree' => ['label' => 'Picture navigation: the Treehouse (Games, Puzzle Pals) and the Pal Yard pictures (needs gnav_on; the old pages stay)', 'type' => 'bool', 'default' => '0'],
         'gnav_login_here' => ['label' => 'Picture navigation: logging in lands on Here (a player can pick Home in Account)', 'type' => 'bool', 'default' => '1'],
     ];
 }
@@ -73,4 +75,10 @@ function here_ensure_layouts_table(): bool
         error_log('here_ensure_layouts_table: ' . $e->getMessage());
         return $ok = false;
     }
+}
+
+/** Is one of the picture pages (flag 'gnav_craft' or 'gnav_tree') open to this viewer? Players need gnav_on and the flag; admins can always preview. */
+function gnav_page_open(string $flag): bool
+{
+    return is_admin() || (gnav_on() && setting($flag) === '1');
 }

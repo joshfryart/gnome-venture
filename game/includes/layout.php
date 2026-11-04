@@ -270,10 +270,10 @@ function page_area(string $page): string
         $groups = [
             'garden' => 'garden tend yard spit worms',
             'world' => 'seasons world town here residential door adventure visit landmark journey gather carve explore destination maps passport',
-            'kitchen' => 'kitchen crafting',
+            'kitchen' => 'kitchen crafting workshop',
             'book' => 'book guide memory marrow',
             'market' => 'market shop inventory fair jobs',
-            'community' => 'community letters profile folk friends show gotm race games puzzles gifsaw jigsaw puzzlepals paljobs rainbarrel gnomebeds event hollow pals festival firstweek back daily',
+            'community' => 'treehouse palyard community letters profile folk friends show gotm race games puzzles gifsaw jigsaw puzzlepals paljobs rainbarrel gnomebeds event hollow pals festival firstweek back daily',
         ];
         foreach ($groups as $area => $pages) foreach (explode(' ', $pages) as $p) $map[$p . '.php'] = $area;
     }
@@ -679,9 +679,9 @@ function nav_sheet(array $u, string $page): string
     // menu icons: [file, emoji, label, badge, icon slug]. Account sits under the groups; Games moved into Out & about.
     $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
     $groups = [
-        'You' => [['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
+        'You' => [['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], [gnav_on() && setting('gnav_craft') === '1' ? 'workshop.php' : 'inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
         'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'],   // T2.1: no Arranging tile (Satchel → Arrange, and the show is on the Village Show page)
-            ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
+            [gnav_on() && setting('gnav_tree') === '1' ? 'treehouse.php' : 'games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
         'Out & about' => [['world.php', '🌍', 'World', '', 'world'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
         'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
