@@ -5,7 +5,7 @@ Repo `joshfryart/gnome-venture`. Make your own new branch from `main`, commit an
 Art rule everywhere: a missing image shows NOTHING extra (no emoji circle, no blank disc). Text labels are always centred.
 
 ## 1. Rest-stop villager art (art done, code not wired)
-- Art: `aseprite-source/v3/folk/sprites/folk-<species>-<n>.png` (63, each 256x96 = 4-frame idle strip, feet baseline y=90) and `folk/portraits/folk-<species>-<n>.png` (63, 80x100). Species: grasshopper ladybird bumblebee beetle wren moth snail tortoise frog toad dragonfly gecko butterfly firefly hedgehog field-mouse hare cricket mole wood-mouse shrew mouse (check the folder listing for the exact set, n = 1..3).
+- Art: `aseprite-source/v3/folk/sprites/folk-<species>-<n>.png` (63, each 256x96 = 4-frame idle strip, feet baseline y=90) and `folk/portraits/folk-<species>-<n>.png` (63, 80x100). Species: grasshopper ladybird bumblebee beetle wren moth snail tortoise frog toad dragonfly gecko butterfly firefly hedgehog field-mouse wood-mouse hare cricket mole shrew (20 species x 3 = 63 incl. all listed; the folder listing is the truth). `STOP_SPECIES` also uses plain "Mouse" (mountain, tundra): map it to field-mouse.
 - Code: `game/includes/stop_folk.php` (`STOP_SPECIES`) and `local.php::stop_folk_img()` currently pick art by species only. Change to pick variant `n` = 1 + (crc32(villager name or id) % number of variants present), so a villager always gets the same art. Fallback to the old species image, then the bust.
 - Export: sprites to `game/assets/img/sprite/`, portraits to wherever the stop-folk portrait code reads (find it; same `ph/` mechanism the named NPCs use is fine). Do not rename the source files.
 
