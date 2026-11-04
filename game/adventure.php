@@ -471,13 +471,15 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   $tLand = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?>
   <div class="trailui">
   <?php if ($tPhase === 'confirm'): ?>
+  <dialog class="picker hubpop trailpop" id="trailpop" open aria-label="The way on"><div class="pickbox"><div class="hubcard trailui">
     <h3><?= $tLast ? e($to['name']) . ' is just ahead.' : 'The way on lies ahead.' ?></h3>
     <p class="help"><?= $tLast ? 'Head into ' . e($to['name']) . '? No more energy.' : 'Section ' . ((int)$trailSc['st']['sec'] + 1) . ' of ' . (int)$trailSc['st']['S'] . ' done. Continuing is free.' ?></p>
     <div class="choicelist">
       <?= $tLast ? act_choice('trail_arrive', '🏡', 'Head into ' . $to['name'], 'Walk in · free', '', 'primary') : act_choice('trail_next', '🍄', 'Continue along the Trail', 'Section ' . ((int)$trailSc['st']['sec'] + 2) . ' of ' . (int)$trailSc['st']['S'] . ' · free', '', 'primary') ?>
     </div>
+    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt small">↩️ Turn back <small>free</small></button></form>
+  </div></div></dialog>
   <?php else: ?>
-    <h3>🍃 Section <?= (int)$trailSc['st']['sec'] + 1 ?> of <?= (int)$trailSc['st']['S'] ?></h3>
     <p class="help">Tap a lit tile to walk. ⚔️ and ✨ wait on some tiles. Reach 🚪 to go on. Walking is free.</p>
   <?php endif; ?>
   </div>

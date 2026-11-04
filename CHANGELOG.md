@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.09
+- **Trail "The way on lies ahead" is a popover over the map** (with Continue or Head into, and a free Turn back). The Section text card above the buttons is now one line. Needs 2.5.08.
+
 ## 2.5.08
 - **Trail page scroll fix**: the old adventure scroll helper no longer drags the Trail tile page to the bottom (e.g. after tapping Here while on the road). Needs 2.5.07.
 
