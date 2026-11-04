@@ -46,3 +46,6 @@ Canvas for all pictures: **480x270** (Josh still deciding; code reads size from 
 4. Sprites for the villagers that stand on the most scenes first.
 5. Workshop, Treehouse, Pal Yard (one picture each, Phases 4-5).
 6. Everything in B at your priority.
+
+## RULE (Josh, 2026-11-04): no human villagers
+Every NPC portrait and 2.5D sprite is a creature, or a gnome that is clearly different from the player gnome. Old human-looking NPC art (e.g. Auntie Mossbead, now a turtle) is redesigned as a fitting creature, keeping name and mood. Check all 82 portraits and `ph/npc-*` art. The player gnome needs front/back/side views and a 6-frame walk cycle (tile-walk): test in `aseprite-source/v3/gnome-dir/`.
