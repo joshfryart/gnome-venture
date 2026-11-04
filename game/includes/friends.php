@@ -130,7 +130,7 @@ function npc_talk(array $u, int $npcId): array
 {
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
-    if (!$npc || (!$door && !npc_here($u, $npcId))) return [false, 'They aren’t around right now.'];
+    if (!$npc || !npc_here($u, $npcId)) return [false, 'They aren’t around right now.'];
     $f = friendship($uid, $npcId);
     $today = hollow_date('Y-m-d');   // v0.7.85: the Hollow's day (midnight Halifax), like the landmarks and towns
     if ($f['last_talk'] === $today) return [false, $npc['name'] . ' has already had a good chat with you today.'];
@@ -177,7 +177,7 @@ function npc_gift(array $u, int $npcId, int $itemId, bool $door = false): array
 {   // $door (graphical navigation): a gift left at the door while they are out: no npc_here check, half the friendship
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
-    if (!$npc || !npc_here($u, $npcId)) return [false, 'They aren’t around right now.'];
+    if (!$npc || (!$door && !npc_here($u, $npcId))) return [false, 'They aren’t around right now.'];
     $f = friendship($uid, $npcId);
     $today = hollow_date('Y-m-d');   // v0.7.85: the Hollow's day
     if ($f['last_gift'] === $today) return [false, $npc['name'] . ' has already had a present from you today.'];

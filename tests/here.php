@@ -427,13 +427,14 @@ if ($withDb) {
     q('DELETE FROM npc_schedules WHERE npc_id = ?', [$n1['id']]);
     $u = put($homeLoc);
     ok('no plans = at home: window lit, Knock links to the visit', str_contains(door_view($u, $n1, 1), 'villagers.php?id=' . $n1['id'] . '&amp;home=1'));
-    q('INSERT INTO npc_schedules (npc_id, days, start_hour, end_hour, activity, location_id) VALUES (?, ?, 0, 0, ?, ?)', [$n1['id'], 'all', 'visiting', $homeLoc]);
+    q('INSERT INTO npc_schedules (npc_id, days, start_hour, end_hour, activity, location_id) VALUES (?, ?, 0, 0, ?, ?)', [$n1['id'], 'all', 'visiting', (int)q_val("SELECT id FROM locations WHERE kind = 'market' AND region <> (SELECT region FROM locations WHERE id = ?) ORDER BY id DESC LIMIT 1", [$homeLoc])]);
     $dv = door_view($u, $n1, 1, 'knock');
     ok('out all day: dark window, Knock shows the message and no visit link', str_contains($dv, 'No light on') && !str_contains($dv, 'villagers.php?id=' . $n1['id'] . '&amp;home=1'), substr(strip_tags($dv), 0, 0));
     q("UPDATE users SET coins = coins WHERE id = ?", [$u['id']]);
     $item = (int)q_val("SELECT id FROM items WHERE tradable = 1 AND category NOT IN ('tool','broken') ORDER BY id LIMIT 1");
     give_item((int)$u['id'], $item, 3);
     q('DELETE FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$u['id'], $n1['id']]);
+    ok('a handed gift to someone who is out in a far region is refused (they are not around)', npc_gift($u, (int)$n1['id'], $item)[0] === false);
     [$g1, $gm1] = npc_gift_door($u, (int)$n1['id'], $item);
     ok('a gift can be left at the door of an unmet, absent villager', $g1 && str_contains($gm1, 'door'), $gm1);
     [$g2, $gm2] = npc_gift_door($u, (int)$n1['id'], $item);
