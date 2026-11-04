@@ -286,7 +286,7 @@ end
 
 -- PUMPKIN WHEELBARROW + BEANSTALK (quirk)
 do
-  local g = G(172, 110)
+  local g = G(176, 110)
   -- beanstalk first (behind pumpkins)
   local pts, leaves = {}, {}
   for i = 0, 40 do
@@ -305,10 +305,10 @@ do
   local tray = g.P{ { 2, -20 }, { 32, -20 }, { 28, -8 }, { 7, -8 } }
   local wheel = g.P{ { 1, -10 }, { 5, -12 }, { 9, -10 }, { 10, -6 }, { 9, -2 }, { 5, 0 }, { 1, -2 }, { 0, -6 } }
   local leg = g.R(25, -8, 27, 0)
-  local handle = g.L({ { 28, -16 }, { 38, -10 } }, 2)
+  local handle = g.L({ { 28, -16 }, { 33, -12 } }, 2)
   local pk = { { 9, -22, 6, 5 }, { 25, -22, 6, 5 }, { 17, -25, 6, 5 } }
   local pm = HP.mask() for _, p in ipairs(pk) do pm:add(g.E(p[1], p[2], p[3], p[4])) end
-  shadowE(191, 110, 18, 2)
+  shadowE(194, 110, 18, 2)
   edge("wheelbarrow", U(stalk, curl, lm, tray, wheel, leg, handle, pm), LEAF.deep)
   form(stalk, LEAF, { s = 1 })
   fm(curl, LEAF.shade)
@@ -331,11 +331,11 @@ end
 
 -- NOTICE BOARD
 do
-  local g = G(216, 110)
+  local g = G(226, 110)
   local posts = U(g.R(6, -44, 10, 0), g.R(42, -44, 46, 0))
   local frame = g.R(0, -50, 52, -14)
   local cap = g.P{ { -4, -49 }, { 6, -58 }, { 46, -58 }, { 56, -49 } }
-  shadowE(242, 110, 26, 3)
+  shadowE(252, 110, 26, 3)
   edge("Notice Board", U(posts, frame, cap), DARKW.deep)
   form(posts, DARKW, { s = 1 })
   form(frame, DARKW, { s = 2 })
@@ -371,7 +371,7 @@ end
 
 -- SCARECROW with TEAPOT HAT (quirk)
 do
-  local g = G(280, 110)
+  local g = G(288, 110)
   local pole = g.R(10, -40, 12, 0)
   local arms = g.R(0, -33, 22, -31)
   local shirt = g.P{ { 4, -35 }, { 18, -35 }, { 17, -18 }, { 5, -18 } }
@@ -381,7 +381,7 @@ do
   local spout = g.L({ { 4, -53 }, { 1, -56 }, { 0, -58 } }, 2)
   local handle = g.L({ { 17, -55 }, { 20, -55 }, { 20, -51 }, { 17, -50 } }, 1)
   local lid = g.R(9, -60, 13, -58)
-  shadowE(291, 110, 9, 2)
+  shadowE(299, 110, 9, 2)
   edge(nil, U(pole, arms, shirt, hands, head, pot, spout, handle, lid), "#3a3046")
   form(pole, WOOD, { s = 1 }) form(arms, WOOD, { s = 1 })
   form(shirt, P.sea, { s = 2 })
@@ -400,12 +400,12 @@ end
 
 -- OAK with a KITE caught in it (quirk)
 do
-  local g = G(304, 110)
+  local g = G(312, 110)
   local trunk = U(g.P{ { 20, 0 }, { 23, -30 }, { 29, -30 }, { 33, 0 } }, g.L({ { 25, -26 }, { 16, -36 } }, 2), g.L({ { 28, -26 }, { 36, -38 } }, 2))
-  local can = U(g.E(14, -52, 13, 11), g.E(30, -60, 15, 12), g.E(42, -48, 12, 11), g.E(26, -44, 16, 9), g.E(8, -42, 8, 6))
-  local kite = g.P{ { 45, -76 }, { 52, -68 }, { 45, -57 }, { 39, -68 } }
-  local tail = g.L({ { 45, -57 }, { 47, -50 }, { 44, -44 }, { 47, -38 }, { 45, -32 } }, 1)
-  shadowE(330, 110, 22, 3)
+  local can = U(g.E(14, -52, 13, 11), g.E(30, -60, 15, 12), g.E(39, -48, 10, 10), g.E(26, -44, 16, 9))
+  local kite = g.P{ { 39, -76 }, { 46, -68 }, { 39, -57 }, { 33, -68 } }
+  local tail = g.L({ { 39, -57 }, { 41, -50 }, { 38, -44 }, { 41, -38 }, { 39, -32 } }, 1)
+  shadowE(338, 110, 22, 3)
   edge(nil, U(trunk, can, kite, tail), HEDGE.deep)
   BOX[#BOX + 1] = { "oak", { U(trunk, can):bbox() } }
   form(trunk, WOOD, { s = 2 })
@@ -419,12 +419,12 @@ do
   fm(g.R(10, -58, 12, -58), HEDGE.hi) fm(g.R(24, -68, 27, -68), HEDGE.hi)
   -- kite: 4 quarters
   fm(kite, P.petal.base)
-  fm(g.P{ { 45, -76 }, { 52, -68 }, { 45, -68 } }, P.gold.base)
-  fm(g.P{ { 39, -68 }, { 45, -68 }, { 45, -57 } }, P.gold.shade)
-  fm(g.P{ { 45, -68 }, { 52, -68 }, { 45, -57 } }, P.petal.shade)
-  fm(g.L({ { 45, -76 }, { 45, -57 } }, 1), WOOD.deep) fm(g.L({ { 39, -68 }, { 52, -68 } }, 1), WOOD.deep)
+  fm(g.P{ { 39, -76 }, { 46, -68 }, { 39, -68 } }, P.gold.base)
+  fm(g.P{ { 33, -68 }, { 39, -68 }, { 39, -57 } }, P.gold.shade)
+  fm(g.P{ { 39, -68 }, { 46, -68 }, { 39, -57 } }, P.petal.shade)
+  fm(g.L({ { 39, -76 }, { 39, -57 } }, 1), WOOD.deep) fm(g.L({ { 33, -68 }, { 46, -68 } }, 1), WOOD.deep)
   fm(tail, P.stone.deep)
-  for _, b in ipairs({ { 47, -50, P.ember.base }, { 46, -43, P.sea.base }, { 46, -36, P.gold.base } }) do
+  for _, b in ipairs({ { 41, -50, P.ember.base }, { 40, -43, P.sea.base }, { 40, -36, P.gold.base } }) do
     fm(g.R(b[1] - 2, b[2], b[1] - 1, b[2] + 1), b[3]) fm(g.R(b[1] + 1, b[2], b[1] + 2, b[2] + 1), b[3])
   end
 end
@@ -515,53 +515,53 @@ end
 
 -- TRADER STALL (striped awning, baskets)
 do
-  local g = G(138, 192)
-  local posts = U(g.R(3, -36, 6, 0), g.R(63, -36, 66, 0))
-  local back = g.R(4, -36, 65, -16)
-  local counter = g.R(0, -16, 69, 0)
-  local awn = g.P{ { -3, -35 }, { 3, -47 }, { 66, -47 }, { 72, -35 } }
+  local g = G(137, 192)
+  local posts = U(g.R(3, -36, 6, 0), g.R(53, -36, 56, 0))
+  local back = g.R(4, -36, 55, -16)
+  local counter = g.R(0, -16, 59, 0)
+  local awn = g.P{ { -3, -35 }, { 3, -47 }, { 56, -47 }, { 62, -35 } }
   local scal = HP.mask()
-  for i = 0, 10 do scal:add(g.E(-1 + i * 7 + 3, -35, 3, 2):clip(g.R(-4, -35, 74, -32))) end
+  for i = 0, 9 do scal:add(g.E(-1 + i * 7 + 3, -35, 3, 2):clip(g.R(-4, -35, 64, -32))) end
   -- baskets + fruit
   local bask, fruit = HP.mask(), {}
-  for i, bx in ipairs({ 5, 26, 47 }) do
-    bask:add(g.P{ { bx, -24 }, { bx + 17, -24 }, { bx + 15, -16 }, { bx + 2, -16 } })
-    local f = U(g.E(bx + 4, -26, 3, 3), g.E(bx + 9, -27, 3, 3), g.E(bx + 14, -26, 3, 3), g.E(bx + 7, -29, 3, 2), g.E(bx + 11, -29, 3, 2))
+  for i, bx in ipairs({ 5, 22, 39 }) do
+    bask:add(g.P{ { bx, -24 }, { bx + 15, -24 }, { bx + 13, -16 }, { bx + 2, -16 } })
+    local f = U(g.E(bx + 4, -26, 3, 3), g.E(bx + 11, -26, 3, 3), g.E(bx + 7, -28, 3, 3))
     fruit[i] = f
     bask:add(f)
   end
-  shadowE(173, 193, 38, 3)
+  shadowE(167, 193, 33, 3)
   edge("Trader Stall", U(posts, back, counter, awn, scal, bask), "#5a2630")
   fm(back, "#6e4038")
   fm(g.R(4, -36, 65, -34), "#4e2c2e")
   -- shelf with jars at the back
-  fm(g.R(6, -27, 63, -26), WOOD.shade)
+  fm(g.R(6, -27, 53, -26), WOOD.shade)
   form(posts, WOOD, { s = 1 })
   form(counter, WOOD, { s = 2 })
-  fm(g.R(0, -16, 69, -15), WOOD.hi) fm(g.R(0, -14, 69, -14), WOOD.deep)
-  for x = 9, 66, 12 do fm(g.R(x, -13, x, -1), WOOD.shade) end
+  fm(g.R(0, -16, 59, -15), WOOD.hi) fm(g.R(0, -14, 59, -14), WOOD.deep)
+  for x = 9, 56, 12 do fm(g.R(x, -13, x, -1), WOOD.shade) end
   -- painted counter sign plate (no text: a little apple emblem)
-  local plate = g.R(27, -11, 42, -4)
-  rim(plate, WOOD.deep) fm(plate, P.cream) fm(g.R(33, -9, 36, -6), P.ember.base) g.px(34, -10, LEAF.base) g.px(33, -9, P.ember.hi)
+  local plate = g.R(22, -11, 37, -4)
+  rim(plate, WOOD.deep) fm(plate, P.cream) fm(g.R(28, -9, 31, -6), P.ember.base) g.px(29, -10, LEAF.base) g.px(28, -9, P.ember.hi)
   -- awning stripes
   awn:each(function(x, y)
     local k = floor((x - 135) / 7)
     px(x, y, k % 2 == 0 and P.ember.base or P.cream)
   end)
   awn:each(function(x, y) if not awn:has(x, y - 1) then px(x, y, ((x - 135) // 7) % 2 == 0 and P.ember.hi or "#ffffe8") end end)
-  for x = 135, 210 do if awn:has(x, 192 - 36) then px(x, 192 - 36, D(c:get(x, 192 - 36), .82)) end end
+  for x = 134, 200 do if awn:has(x, 192 - 36) then px(x, 192 - 36, D(c:get(x, 192 - 36), .82)) end end
   scal:each(function(x, y) local k = floor((x - 135) / 7) px(x, y, k % 2 == 0 and P.ember.shade or "#e8d6b4") end)
   -- baskets
-  for i, bx in ipairs({ 5, 26, 47 }) do
-    local b = g.P{ { bx, -24 }, { bx + 17, -24 }, { bx + 15, -16 }, { bx + 2, -16 } }
+  for i, bx in ipairs({ 5, 22, 39 }) do
+    local b = g.P{ { bx, -24 }, { bx + 15, -24 }, { bx + 13, -16 }, { bx + 2, -16 } }
     form(b, P.gold, { s = 1 })
     b:each(function(x, y) if (x + y) % 3 == 0 then px(x, y, P.gold.shade) end end)
-    fm(g.R(bx, -24, bx + 17, -24), P.gold.deep)
+    fm(g.R(bx, -24, bx + 15, -24), P.gold.deep)
     local R = ({ P.ember, { hi = "#ffd07a", base = "#f59a32", shade = "#c96a2a", deep = "#7a3a22" }, LEAF })[i]
     form(fruit[i], R, { s = 1 })
     fruit[i]:each(function(x, y) if fruit[i]:has(x, y + 1) and not fruit[i]:has(x, y) then end end)
-    fm(g.R(bx + 4, -29, bx + 4, -29), R.hi) fm(g.R(bx + 10, -30, bx + 10, -30), R.hi)
-    g.px(bx + 8, -31, LEAF.deep)
+    g.px(bx + 3, -28, R.hi) g.px(bx + 6, -30, R.hi) g.px(bx + 10, -28, R.hi)
+    g.px(bx + 7, -32, LEAF.deep)
   end
 end
 
@@ -654,49 +654,53 @@ end
 -- REST BENCH (slatted wooden park bench, cushion, teapot)
 do
   local g = G(18, 262)
-  local postL, postR = g.R(5, -46, 9, -18), g.R(64, -46, 68, -18)
-  local slat1 = g.RR(1, -45, 72, -40, 2)
-  local slat2 = g.RR(1, -36, 72, -32, 2)
+  -- side frames: back post rises above the backrest with a rounded cap; armrest over a front post
+  local postL, postR = g.RR(2, -50, 7, -16, 2), g.RR(66, -50, 71, -16, 2)
+  local slat1 = g.R(8, -46, 65, -42)
+  local slat2 = g.R(8, -38, 65, -34)
   local seat = g.RR(-1, -22, 74, -16, 2)
-  local legs = U(g.P{ { 5, -16 }, { 10, -16 }, { 9, 0 }, { 4, 0 } }, g.P{ { 63, -16 }, { 68, -16 }, { 69, 0 }, { 64, 0 } })
-  local stretch = g.R(8, -7, 65, -5)
-  local cushion = g.RR(9, -29, 35, -21, 4)
-  local pot = g.RR(46, -33, 60, -23, 4)
-  local spout = g.L({ { 45, -28 }, { 42, -31 }, { 41, -34 } }, 2)
-  local handle = g.L({ { 60, -31 }, { 63, -31 }, { 63, -26 }, { 60, -25 } }, 2)
-  local lid = U(g.R(50, -36, 56, -34), g.R(52, -38, 54, -37))
-  shadowE(55, 263, 38, 3, .78)
-  edge("Rest Bench", U(postL, postR, slat1, slat2, seat, legs, stretch, cushion, pot, spout, handle, lid), HONEY.deep)
-  -- the gap between the back slats and under the seat must show ground: draw only the wood
-  form(U(postL, postR), HONEY, { s = 1 })
+  local armL, armR = g.RR(-4, -32, 10, -28, 2), g.RR(63, -32, 77, -28, 2)
+  local frontL, frontR = g.R(-2, -28, 1, -22), g.R(72, -28, 75, -22)
+  local legs = U(g.P{ { 2, -16 }, { 8, -16 }, { 7, 0 }, { 1, 0 } }, g.P{ { 65, -16 }, { 71, -16 }, { 72, 0 }, { 66, 0 } })
+  local stretch = g.R(7, -7, 66, -5)
+  local cushion = g.RR(12, -30, 34, -21, 4)
+  local pot = g.RR(42, -33, 55, -23, 4)
+  local spout = g.L({ { 41, -28 }, { 38, -31 }, { 37, -34 } }, 2)
+  local handle = g.L({ { 55, -31 }, { 58, -31 }, { 58, -26 }, { 55, -25 } }, 2)
+  local lid = U(g.R(45, -36, 51, -34), g.R(47, -38, 49, -37))
+  shadowE(55, 263, 40, 3, .78)
+  edge("Rest Bench", U(postL, postR, slat1, slat2, seat, armL, armR, frontL, frontR, legs, stretch, cushion, pot, spout, handle, lid), HONEY.deep)
   for _, s in ipairs({ slat1, slat2 }) do
     form(s, HONEY, { s = 1, deep = true })
     s:each(function(x, y) if hash(x, y) % 9 == 0 and s:has(x + 1, y) then px(x, y, HONEY.shade) px(x + 1, y, HONEY.shade) end end)
   end
-  -- end grain on the slat ends + screws
-  for _, y in ipairs({ -43, -34 }) do g.px(7, y, HONEY.deep) g.px(66, y, HONEY.deep) end
+  form(U(postL, postR), HONEY, { s = 1 })
+  for _, y in ipairs({ -44, -36 }) do g.px(4, y, HONEY.deep) g.px(68, y, HONEY.deep) end -- bolts
   form(legs, HONEY, { s = 1 })
   form(stretch, HONEY, { s = 0 })
-  fm(g.R(8, -5, 65, -5), HONEY.shade)
-  -- seat: lit top face + darker front face
+  fm(g.R(7, -5, 66, -5), HONEY.shade)
+  -- seat: lit top face + darker front face with plank joints
   fm(seat, HONEY.base)
   fm(g.R(-1, -22, 74, -21):clip(seat), HONEY.hi)
   fm(g.R(-1, -19, 74, -16):clip(seat), HONEY.shade)
   fm(g.R(-1, -16, 74, -16):clip(seat), HONEY.deep)
   for x = 4, 70, 11 do fm(g.R(x, -19, x + 3, -19), HONEY.base) end
-  -- cushion (blue, tufted, slight sag)
+  -- armrests on front posts
+  form(U(frontL, frontR), HONEY, { s = 1 })
+  for _, a in ipairs({ armL, armR }) do form(a, HONEY, { s = 1, deep = true }) end
+  -- cushion (blue, tufted)
   rim(cushion, P.sea.deep)
   form(cushion, P.sea, { s = 2, deep = true })
-  fm(g.R(9, -26, 35, -26):clip(cushion:shrink(1)), P.sea.shade)
-  for _, b in ipairs({ 16, 28 }) do g.px(b, -26, P.sea.deep) g.px(b, -27, P.cream) end
-  fm(g.R(11, -28, 14, -28), P.sea.hi)
+  fm(g.R(12, -26, 34, -26):clip(cushion:shrink(1)), P.sea.shade)
+  for _, b in ipairs({ 18, 28 }) do g.px(b, -26, P.sea.deep) g.px(b, -27, P.cream) end
+  fm(g.R(14, -29, 17, -29), P.sea.hi)
   -- teapot (red with cream polka dots)
   form(U(pot, spout, handle), P.ember, { s = 2 })
-  form(lid, P.ember, { s = 0 }) g.px(53, -38, P.ember.hi)
-  fm(g.R(46, -34, 60, -34):clip(lid:grow(1)), P.ember.deep)
-  for _, dt in ipairs({ { 49, -30 }, { 55, -29 }, { 51, -26 }, { 57, -32 } }) do g.px(dt[1], dt[2], P.cream) end
-  fm(g.R(48, -32, 49, -32), P.ember.hi)
-  fm(g.L({ { 43, -38 }, { 44, -40 }, { 43, -42 } }, 1), "#f6f6f0") -- steam
+  form(lid, P.ember, { s = 0 }) g.px(48, -38, P.ember.hi)
+  fm(g.R(42, -34, 55, -34):clip(lid:grow(1)), P.ember.deep)
+  for _, dt in ipairs({ { 45, -30 }, { 51, -29 }, { 47, -26 }, { 52, -32 } }) do g.px(dt[1], dt[2], P.cream) end
+  fm(g.R(44, -32, 45, -32), P.ember.hi)
+  fm(g.L({ { 38, -38 }, { 39, -40 }, { 38, -42 } }, 1), "#f6f6f0") -- steam
 end
 
 -- FISHING POND (water, reeds, lily pad, rod + float)
@@ -837,8 +841,8 @@ end
 -- stand points: plain ground radius 28 (circle) around each
 local LAY = {
   spots = {
-    { "rest", "Rest Bench", 55, 240 }, { "trader", "Trader Stall", 173, 168 }, { "well", "Wishing Well", 247, 164 },
-    { "table", "Long Table", 376, 174 }, { "board", "Notice Board", 242, 80 }, { "seeds", "Seed Swap", 348, 238 },
+    { "rest", "Rest Bench", 55, 240 }, { "trader", "Trader Stall", 167, 168 }, { "well", "Wishing Well", 247, 164 },
+    { "table", "Long Table", 376, 174 }, { "board", "Notice Board", 252, 80 }, { "seeds", "Seed Swap", 348, 238 },
     { "forage", "Forage Patch", 41, 172 }, { "pond", "Fishing Pond", 207, 242 }, { "homes", "Cottages", 78, 80 },
     { "wild", "Wild Trail", 430, 100 } },
 }
