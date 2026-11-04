@@ -7020,3 +7020,41 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 .tourbox .tourlist { list-style: none; margin: 0 0 6px; padding: 0; }
 .tourbox .tourlist li { position: relative; padding: 2px 0 2px 24px; line-height: 1.35; }
 .tourbox .tourlist li::before { content: ""; position: absolute; left: 2px; top: 4px; width: 16px; height: 16px; background: url("img/ico/ico-petal.png") center / contain no-repeat; image-rendering: pixelated; }
+
+/* ===== graphical navigation (plan-graphical-nav.md): picture pages. Scene engine includes/hub_scene.php + assets/hubscene.js ===== */
+.hubscene { margin: 0 0 12px; }
+.hubsvg { display: block; width: 100%; height: auto; border: 2px solid var(--line); background: var(--surface-2); }
+.hubsvg .sky { fill: #bfe1ee; } .hubsvg .ground { fill: #9fc27a; } .hubsvg .horizon { stroke: #5f7f4a; stroke-width: 1; }
+.hubsvg .hub-tint { pointer-events: none; }
+:root[data-theme="dark"] .hubsvg .hub-tint { opacity: .32; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) .hubsvg .hub-tint { opacity: .32; } }
+.hubsvg .hs, .hubsvg .hsp { cursor: pointer; outline: none; }
+.hubsvg .hs .hit { fill: transparent; }
+.hubsvg .hs .ring { fill: rgba(255, 243, 200, .55); stroke: var(--line-2); stroke-width: 2; }
+.hubsvg .hs:hover .ring, .hubsvg .hs:focus-visible .ring, .hubchip.lit { stroke: var(--focus); stroke-width: 3; }
+.hubsvg .hs.goal .ring { stroke: var(--brand-fill); stroke-width: 3; animation: hubpulse 1.4s ease-in-out infinite; }
+.hubsvg .hs.locked .ring, .hubsvg .hs.ruin .ring { fill: rgba(60, 40, 30, .55); stroke-dasharray: 4 3; }
+.hubsvg .hsp .hit { fill: transparent; }
+.hubsvg .hsp:hover .fb, .hubsvg .hsp:focus-visible .fb { stroke: var(--focus); stroke-width: 2; }
+.hubsvg .shadow { fill: rgba(0, 0, 0, .28); }
+.hubsvg .fb { fill: var(--surface); stroke: var(--line-2); stroke-width: 1.5; }
+.hubsvg .emo { pointer-events: none; }
+@keyframes hubpulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .hubsvg .hs.goal .ring { animation: none; } }
+.hubleg { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.hubchip { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 10px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 700; }
+.hubchip small { font-weight: 400; color: var(--muted); }
+.hubchip.goal { border-color: var(--brand-fill); }
+.hubchip.locked, .hubchip.ruin { opacity: .75; border-style: dashed; }
+.hubchip:hover, .hubchip:focus-visible { border-color: var(--focus); }
+dialog.hubpop .hubcard { padding: 10px 14px 14px; overflow-y: auto; overscroll-behavior: contain; }
+dialog.hubpop .hubcard form { margin: 8px 0 0; }
+dialog.hubpop .hubcard .btn { min-height: 44px; }
+.hubtwin { margin: 10px 0; }
+.hubtwin > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 6px; }
+.hubtwin-l { margin: 0; padding-left: 20px; } .hubtwin-l li { padding: 4px 0; }
+a.pickx { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.hereinfo { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; margin: 6px 0; }
+.heretools { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.heretools .btn { min-height: 44px; }
+.startrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
