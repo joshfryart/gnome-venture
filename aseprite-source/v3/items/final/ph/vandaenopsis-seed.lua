@@ -1,8 +1,9 @@
--- vandaenopsis-seed (seed D3s_1)
+-- vandaenopsis-seed (seed W1_7)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="vandaenopsis-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3a3028","#5a4a36","#7a6446","#9a825a","#bca070","#dcc490"}, leaf={"#244e40","#2c6a52","#38866a","#54a284","#80bea2","#aad8c0"}, sleaf={"#3a9070","#58aa88","#78c4a0","#98dab6","#b8eccc","#d6f8e2"}, stem={"#4a6a50","#648a66","#7ea87c","#6cb078","#8cc894"}, root={"#c8d4c0","#dce4d4","#f0f4ec"},
-vein="#c0e8d4", gloss="#e8dcb0", cool="#40408a", red="#a85090",
-sl=0.5, sw=0.6, taper=0.4, drop={4}, marks="none", markc="#9a825a", scrap={5,55,26,53,59,44}, scrapW=5, scrapExp=0.95, sprout="blades", leafw=4.6, quirk="none",
-extra=function(ctx) for i=0,5 do ctx.c:put(40+i,50+i%2,"#e8dcc0",{r={name="q"}}) end end
+seed={"#7a6a2a","#a08c34","#c4aa44","#e0c85c","#f2de7c","#fcf0a8"}, leaf={"#1e5a3a","#2a7448","#3a9054","#52ac60","#72c474","#96dc90"}, sleaf={"#2e8a50","#44a860","#60c470","#80dc86","#a2f0a2","#c8ffc4"},
+stem={"#3a5a3a","#547a48","#6e9a54","#58b060","#74cc78"}, root={"#c8d8c0","#dce8d4","#f0f8ea"},
+vein="#a8e4a4", gloss="#fffbd8", cool="#3a3a7a", red="#8a4a6a",
+sl=1.4, sw=0.6, taper=0.4, drop={4,1}, marks="none", markc="#8a7a30",
+scrap={6,53,30,54,58,46}, scrapW=5, scrapExp=0.4, sprout="single", leafw=3, quirk="none"
 })

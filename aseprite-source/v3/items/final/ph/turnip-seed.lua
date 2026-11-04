@@ -1,7 +1,9 @@
--- turnip-seed (seed D3s_1)
+-- turnip-seed (seed W1_7)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="turnip-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2a1620","#48222e","#6a3038","#8a4440","#a65c4c","#c07c60"}, leaf={"#2a5c34","#367a40","#46984c","#62b25e","#8ccc78","#b4e496"}, sleaf={"#46a844","#66c45a","#86dc72","#a6ee90","#c4f8ac","#e0fcc8"}, stem={"#5a4a6a","#786488","#9a84a4","#78b858","#98d070"}, root={"#f0e4ec","#f8f0f4","#fffafc"},
-vein="#d0f0a0", gloss="#d8a890", cool="#402a60", red="#9a3a78",
-sl=0.5, sw=0.7, taper=0, drop={4,1}, marks="none", markc="#8a4440", scrap={7,55,27,51,57,41}, scrapW=7.2, scrapExp=0.62, sprout="pair", leafw=4.8, quirk="none"
+seed={"#2a1218","#4a1e22","#6e3028","#8e4a30","#ac6a3c","#cc8c4e"}, leaf={"#2a5a30","#3a7a36","#52963e","#6cb248","#8cca58","#acdf74"}, sleaf={"#3a8a3a","#52aa44","#6cc650","#8ce06a","#acf48a","#ccffb0"},
+stem={"#6a3a6a","#8a4e82","#a8649c","#4c9a42","#68b858"}, root={"#f0e4ec","#f8f0f4","#fffafc"},
+vein="#b8e090", gloss="#ffe0b8", cool="#3a2a6a", red="#a04a7a",
+sl=1.0, sw=1.0, taper=0, drop={4}, marks="pits", markc="#2a1218",
+scrap={7,56,26,48,57,41}, scrapW=7, scrapExp=0.9, sprout="pair", leafw=4.2, quirk="none"
 })

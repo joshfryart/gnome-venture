@@ -1,8 +1,8 @@
--- snapdragon-seed (seed D2s_0)
+-- snapdragon-seed (seed W1_5)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="snapdragon-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#1a1420","#2e2230","#4a3444","#6a4a58","#8a6670","#b08c90"}, leaf={"#1c4a3a","#2a6644","#3a8450","#58a458","#80c068","#b0dc88"}, sleaf={"#2a7a4a","#42a058","#62c068","#88dc80","#b0f0a0","#d8ffc0"}, stem={"#3a6a40","#4a8450","#62a060","#78c070","#98dc88"}, root={"#e8dcc0","#f4ecd4","#fff8e4"},
-vein="#a0d890", gloss="#d8c8d8", cool="#4a3c78", red="#a04a5a",
-sl=0.5, sw=0.65, taper=0.1, drop={4}, marks="pits", markc="#120c16",
-scrap={6,54,28,50,58,42}, scrapW=4.6, scrapExp=0.6, sprout="pair", leafw=2.8, quirk="none",
+seed={"#1a1420","#2e2230","#46303a","#614248","#82605a","#a88470"}, leaf={"#1f4a38","#2c6a44","#3c8a4c","#58a85a","#82c46a","#b2dc86"}, sleaf={"#2c7a50","#3c9a58","#58b866","#7cd078","#a4e290","#cef0a8"}, stem={"#2a5e3c","#3c7c4a","#589a56","#7cb868","#a2d27c"}, root={"#f0e4c8","#e0cca4","#c8ac80"},
+vein="#8cd080", gloss="#d8c0b0", cool="#3a2c5a", red="#a8484e",
+sl=0.6, sw=0.7, taper=0.1, drop={4}, marks="pits", markc="#0e0a14",
+scrap={7,55,28,50,58,42}, scrapW=4.6, scrapExp=0.55, sprout="pair", leafw=3.0, quirk="none"
 })

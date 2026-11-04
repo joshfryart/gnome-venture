@@ -1,7 +1,8 @@
--- statice-seed (seed D2s_1)
+-- statice-seed (seed W1_5)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-  name="statice-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-  seed={"#5a3a40","#80583e","#a67c4c","#c8a064","#e2c07c","#f4dc9c"}, leaf={"#1e3a40","#2a5a56","#3a7a68","#58a080","#80c49a","#a8e0b0"}, sleaf={"#2e5a50","#48806a","#68a884","#8ccc9c","#aee4b0","#d0f4c4"}, stem={"#4a3a50","#6a5a60","#8a8070","#5a9a60","#7cc070"}, root={"#f4e8cc","#e0cca4","#c4a87c"},
-  vein="#c8f0d0", gloss="#fff0c8", cool="#4a3a7a", red="#d05a8a",
-  sl=0.6, sw=0.6, taper=0.3, drop={4,1}, marks="none", markc="#a67c4c", scrap={6,52,26,56,58,42}, scrapW=6.8, scrapExp=0.6, sprout="pair", leafw=3.2, quirk="none",
+name="statice-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+seed={"#4a1e22","#6e2c2c","#923e36","#b45a44","#d48058","#f0aa7c"}, leaf={"#244a50","#2c6a6a","#3c8a80","#58a898","#80c4b0","#aadcc8"}, sleaf={"#2c7a72","#3c9a88","#58b69c","#7cd0b2","#a4e4cc","#ccf2e0"}, stem={"#2a5a58","#3c7a6c","#58987c","#7cb490","#a2cea8"}, root={"#f4e8d4","#e2ccae","#c8ae88"},
+vein="#98d8c0", gloss="#f6cfae", cool="#3c3270", red="#a8446c",
+sl=0.95, sw=0.65, taper=0.35, drop={4}, marks="stripes", markc="#e8b0a0",
+scrap={8,56,28,48,57,40}, scrapW=6.8, scrapExp=0.95, sprout="single", leafw=4.4, quirk="hat"
 })

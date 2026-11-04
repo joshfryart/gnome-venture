@@ -1,7 +1,9 @@
--- vanilla-seed (seed D3s_1)
+-- vanilla-seed (seed W1_7)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="vanilla-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#08060a","#14101a","#221a2a","#342a40","#4a3e58","#665a78"}, leaf={"#245a3c","#2e7648","#3c9258","#58ac6c","#84c68a","#aedeac"}, sleaf={"#40a058","#60bc6c","#80d484","#a0e8a0","#c0f6bc","#dcfcd4"}, stem={"#3a6a40","#528a52","#6ca466","#88c280","#a4da9a"}, root={"#e0e4c0","#eef0d4","#fcfce8"},
-vein="#c4f0c0", gloss="#9088b0", cool="#2a2a70", red="#6a9a50",
-sl=0.45, sw=0.55, taper=0, drop={4,1}, marks="spots", markc="#3a2e4a", scrap={6,55,28,53,58,43}, scrapW=7.4, scrapExp=0.5, sprout="single", leafw=5, quirk="none"
+seed={"#0e0a14","#1c1224","#2e2038","#443050","#62487a","#8a6aa0"}, leaf={"#1c6030","#26803a","#34a046","#4cbc54","#6cd462","#92ea7c"}, sleaf={"#2c9a3c","#44bc4e","#60d860","#84f07a","#a8ff9a","#ccffbc"},
+stem={"#2c6a34","#3e8a40","#54a84c","#66c056","#82d870"}, root={"#e6e4c8","#f2f0dc","#fffcec"},
+vein="#a0f090", gloss="#e0d0ff", cool="#2a2a6e", red="#7a5a3a",
+sl=0.8, sw=0.8, taper=0.1, drop={4}, marks="pits", markc="#5a4070",
+scrap={7,55,29,51,57,41}, scrapW=7, scrapExp=0.8, sprout="trio", leafw=4, quirk="hat"
 })

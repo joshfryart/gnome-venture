@@ -1,8 +1,8 @@
--- starfruit-seed (seed D2s_0)
+-- starfruit-seed (seed W1_5)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="starfruit-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#6a5030","#8e7044","#b09460","#d0b47c","#e8d09c","#faecc4"}, leaf={"#3a7a2a","#50983a","#6cb44c","#8cd062","#acea7c","#d0ffa4"}, sleaf={"#5ab43c","#78d050","#98e868","#b8fc88","#d4ffac","#ecffd0"}, stem={"#8a5a3a","#a47448","#bc8e5a","#7cb450","#98cc66"}, root={"#f0e4c4","#faf0d8","#fffcee"},
-vein="#e0ffb4", gloss="#fffce8", cool="#6a5a88", red="#d89a3c",
-sl=1.0, sw=0.95, taper=0.35, drop={4,1}, marks="stripes", markc="#8a6a3a",
-scrap={6,54,28,48,56,38}, scrapW=6.4, scrapExp=0.75, sprout="pair", leafw=3.2, quirk="none",
+seed={"#5a2a14","#7c3c1c","#a05424","#c47432","#e29c4c","#f6c880"}, leaf={"#1c5a30","#2a7a3a","#3c9a46","#58b858","#82d070","#b0e690"}, sleaf={"#3c9a3c","#58b84a","#78d05c","#9ce47c","#c0f2a0","#e2fcc4"}, stem={"#2a6034","#3c7e3e","#58a04c","#80bc60","#a8d47c"}, root={"#f8ecc8","#e8d4a0","#d0b478"},
+vein="#a0e088", gloss="#ffe4a4", cool="#4a2c5a", red="#c8483c",
+sl=1.3, sw=1.1, taper=0.25, drop={4}, marks="stripes", markc="#8c3c1c",
+scrap={7,55,30,51,57,41}, scrapW=7.2, scrapExp=0.9, sprout="pair", leafw=4.0, quirk="none"
 })

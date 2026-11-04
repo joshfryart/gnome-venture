@@ -1,6 +1,8 @@
--- winter-rye-seed (seed D3s_2)
+-- winter-rye-seed (seed W1_8)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="winter-rye-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3a3a2a","#5a5a38","#807a44","#a49a58","#c4b878","#e4d89c"}, leaf={"#1e4a3a","#2c685a","#3c887a","#58a898","#7cc4b4","#a8dcd0"}, sleaf={"#3a9a6a","#58bc84","#7cd8a0","#a0eebc","#c4fcd8","#e4ffec"}, stem={"#4a6a58","#5e8a6e","#78a888","#94c8a0","#b0e4ba"}, root={"#f0ecd0","#dcd4b0","#c4bc94"},
-vein="#c0f0e0", gloss="#f4eec0", cool="#4a4a8a", red="#7a5a7a", sl=1.25, sw=0.65, taper=0.1, drop={4}, marks="stripes", markc="#5a5a38", scrap={5,56,24,54,58,40}, scrapW=4.6, scrapExp=0.58, sprout="blades", leafw=2.8, quirk="none"
+seed={"#4a3c28","#6c5a38","#8e7a4c","#b09c64","#ccb87e","#e4d49e"}, leaf={"#244a48","#34665c","#4a8470","#68a288","#8cc0a0","#b4dcbc"}, sleaf={"#38806a","#50a082","#70bc98","#92d4b0","#b4ecc8","#d4fce0"},
+stem={"#4a6a58","#668a6c","#84a884","#7cc08c","#a0dca8"}, root={"#f0e8d0","#dccfae","#c4b48c"}, vein="#c8f0dc", gloss="#f8f4d8", cool="#383a64", red="#8a6858",
+sl=1.15, sw=0.75, taper=0.25, drop={4,1}, marks="stripes", markc="#4a3a26",
+scrap={8,55,30,50,56,44}, scrapW=4.4, scrapExp=0.5, sprout="blades", leafw=3.0, quirk="none"
 })

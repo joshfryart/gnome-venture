@@ -1,7 +1,6 @@
--- stock-seed (seed D2s_1)
+-- stock-seed (seed W1_6)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-  name="stock-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-  seed={"#4a3224","#6e4a30","#946a3e","#b88e52","#d8b26e","#f0d490"}, leaf={"#34524e","#4a6e68","#68887e","#88a898","#aac4b0","#cce0c8"}, sleaf={"#4a7068","#6a9080","#8cb098","#acccb0","#cce4c4","#e4f4dc"}, stem={"#5a4a58","#7a6a6a","#9a8e80","#7aa488","#9cc49c"}, root={"#f4e8cc","#e0cca4","#c4a87c"},
-  vein="#e8f4e4", gloss="#fff4d8", cool="#4a3a7a", red="#9a5a8a",
-  sl=0.75, sw=0.85, taper=0, drop={4,1}, marks="none", markc="#946a3e", scrap={6,54,28,48,58,44}, scrapW=5.6, scrapExp=0.8, sprout="pair", leafw=3.0, quirk="none",
+ name="stock-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#3a2a1e","#5c4228","#80603a","#a2824e","#c4a468","#e4cc90"}, leaf={"#34484a","#4c6860","#6a8878","#8aa890","#a8c4a8","#c8dcc0"}, sleaf={"#4c7058","#6a9072","#88b08a","#a8d0a0","#c8e8b8","#e0f4d0"}, stem={"#6a5a54","#887468","#a89484","#7aa07a","#9cc090"}, root={"#e8dcc4","#f4ecd8","#fffaec"},
+ vein="#b8d0b4", gloss="#f4e8c0", cool="#4a4a6a", red="#8a5a6a", sl=0.8, sw=1.2, taper=0, drop={4}, marks="none", markc="#d8c088", scrap={6,54,26,54,58,42}, scrapW=6.0, scrapExp=0.8, sprout="pair", leafw=3.4, quirk="none"
 })

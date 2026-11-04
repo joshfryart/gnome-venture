@@ -1,9 +1,8 @@
--- snowdrop-seed (seed D2s_0)
+-- snowdrop-seed (seed W1_5)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="snowdrop-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#101a22","#1e2e36","#304650","#486068","#6a8890","#9ab8bc"}, leaf={"#2a5a6a","#3a7a84","#4a9a98","#68b8aa","#90d0bc","#c0ecd4"}, sleaf={"#3a8a8a","#52aaa0","#74c8b0","#9ce0c0","#c4f4d8","#e8fff0"}, stem={"#4a7a6a","#5a9a80","#74b498","#8ccaa8","#a8e0bc"}, root={"#ece4cc","#f8f0dc","#fffaec"},
-vein="#c0f0dc", gloss="#e8f4f8", cool="#34508c", red="#7a6aa0",
-sl=0.85, sw=0.75, taper=0.25, drop={4,1}, marks="none", markc="#f0ecd8",
-scrap={6,56,24,54,58,38}, scrapW=5.0, scrapExp=0.5, sprout="blades", leafw=2.4, quirk="none",
-extra=function(ctx) local c=ctx.c for i=0,2 do c:put(20+i,47+i,"#f4f0dc",{r={name="q"}}) c:put(21+i,47+i,"#d8d0b4",{r={name="q"}}) end end,
+seed={"#6a5a3a","#8c7848","#b09a5c","#d2bc7c","#ecdca0","#faf0cc"}, leaf={"#1c4a50","#2a6a66","#3c8a78","#58a890","#82c4a6","#b0dcc0"}, sleaf={"#2c7a6a","#3c9a7c","#58b890","#7cd0a4","#a4e4bc","#cef2d4"}, stem={"#2a5e50","#3c7c62","#589a74","#7cb88a","#a2d29e"}, root={"#f6eed8","#e8d8b4","#d0b88c"},
+vein="#a4dcc0", gloss="#fff8dc", cool="#3a3a6a", red="#8a6a8a",
+sl=1.2, sw=0.9, taper=0.3, drop={4}, marks="none", markc="#8c7848",
+scrap={6,56,28,50,58,44}, scrapW=4.2, scrapExp=0.45, sprout="blades", leafw=2.6, quirk="none"
 })

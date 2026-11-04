@@ -1,11 +1,15 @@
--- yuzu-seed (seed D3s_3)
+-- yuzu-seed (seed W1_9)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="yuzu-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#4a3a2a","#7a6040","#a88a50","#cca868","#e8c884","#fce8b0"},
-leaf={"#143a28","#1e5a34","#2a7a3c","#3c9c44","#5cc050","#8ce070"},
-sleaf={"#2c8a3c","#44ac48","#64cc54","#88e468","#aef888","#d0ffa8"},
-stem={"#4a6a3a","#68884a","#88a85a","#98c468","#b4e084"},
-root={"#f0e4c4","#faf0d4","#fffae4"},
-vein="#b8f090", gloss="#fff4c8", cool="#5a4a7a", red="#a0743c",
-sl=0.95, sw=1.1, taper=0.35, drop={4}, marks="pits", markc="#8a6a38",
-scrap={8,54,30,56,56,44}, scrapW=7.2, scrapExp=0.9, sprout="pair", leafw=3.2, quirk="hat"})
+  name="yuzu-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+  seed={"#6a4a3a","#8f6a48","#b88c58","#d8ae70","#ecca8c","#f9e4b0"},
+  leaf={"#12351f","#1d5030","#2a7040","#3c9050","#5cae5c","#86c870"},
+  sleaf={"#2a6a34","#3c8a40","#58a84a","#7cc65a","#a4de6c","#caf08a"},
+  stem={"#4a3a2a","#6a5236","#8a6e44","#5c8a3a","#7aa84a"},
+  root={"#d8c8a0","#ecdcb4","#f8eccc"},
+  vein="#c4e28a", gloss="#d8f0a0", cool="#2a2058", red="#c8883a",
+  sl=1.0, sw=0.8, taper=0.3, drop={4},
+  marks="stripes", markc="#a07848",
+  scrap={7,55,28,52,57,40}, scrapW=6.8, scrapExp=0.8,
+  sprout="pair", leafw=3.6,
+  quirk="none",
+})

@@ -1,92 +1,44 @@
--- candied-chestnuts (final pass, Opus). Three marrons glaces heaped in a fluted gold-foil cup: each chestnut is a
--- rounded body drawn up to a short point with a dark tuft, glossy amber syrup glaze (6 tones, sphere+pillow light,
--- cream specular plus a 2x1 hi), faint sugar crust on the crown, cool reflected light on the shade side, AO where they
--- touch. The cup has a rolled lip, vertical flutes and a 2-tone ground shadow.
--- quirk: a bead of syrup has run off the front chestnut, over the lip and down a flute.
-local NAME = "candied-chestnuts"
-local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local A = dofile(DIR .. "/../_helpers/_aB1r0_0.lua")
-local HP, X, K = A.HP, A.X, A.K
-local floor, abs, sqrt, max, min = math.floor, math.abs, math.sqrt, math.max, math.min
-local c = A.new(NAME)
+-- candied-chestnuts (lean W2_0)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function egg(cx, y0, y1, w, pw) local m = HP.mask() for y = y0, y1 do local t = (y - y0) / (y1 - y0); local h = w * sin(pi * t ^ pw) ^ 0.8 + 0.5; for x = floor(cx - h + 0.5), floor(cx + h - 0.5) do m:set(x, y) end end return m end
+local function shade(c, m, R, ramp, bias, o) local n = X.pillow(m, R); return n, G.tone(c, m, X.light(n, o or { amb = 0.1, wrap = 0.25 }), ramp, nil, bias) end
 
-local GLZ = { "#3a171c", "#5e2622", "#883b25", "#b2582b", "#d8823a", "#f6b866" }
-local COOLR = "#7a4a5a"
-local FOIL = { "#7a4420", "#a8642a", "#d08e32", "#eab43e", "#f8d66a", "#fff0b0" }
-local SUG = "#f6dcb0"
-
-c:groundShadow(32, 55, 17, 1.4)
-
--- chestnut mask: round body + short point on top
-local function nut(cx, cy, rx, ry)
-  local m = HP.ellipse(cx, cy, rx, ry)
-  m:add(HP.poly{ { cx - 2.6, cy - ry + 1.5 }, { cx + 2.6, cy - ry + 1.5 }, { cx + 0.5, cy - ry - 2.6 } })
-  return m
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "candied-chestnuts" }
+local GL = { "#4a1f10", "#7a3a14", "#a85a1c", "#d08428", "#eeb04a", "#ffd985" }
+local PAP = { "#8f7fa8", "#b4a6c4", "#d9cfdb", "#f1ebec", "#fffaf2" }
+local RB = { "#5c1226", "#8a1d3a", "#b83150", "#e0566e" }
+c:groundShadow(32, 57, 21, 3)
+-- three glazed marrons
+local function marron(cx, cy, r, sd)
+  local m = egg(cx, cy - r, cy + r - 1, r + 0.5, 0.8)
+  local bias = {}
+  m:each(function(x, y) local k = K(x, y)
+    if (x + floor(y * 0.5)) % 4 == 0 and X.hash(x, y, sd) > 0.5 then bias[k] = -1 end end)
+  local n = X.pillow(m, r + 1)
+  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.3 }), GL, nil, bias)
+  c:px(cx - r // 2 - 1, cy - r // 2, "#fffbe6") c:px(cx - r // 2, cy - r // 2 - 1, "#fffbe6") c:px(cx - r // 2 - 1, cy - r // 2 + 1, GL[6])
+  c:px(cx, cy - r, GL[2]) c:px(cx, cy - r - 1, "#c9a45c")
 end
-local nuts = {
-  { 32, 31, 7.2, 6.4 },
-  { 22, 38, 7.0, 6.2 },
-  { 42, 38, 7.0, 6.2 },
-}
-for _, s in ipairs(nuts) do s.m = nut(s[1], s[2], s[3], s[4]) s.n = A.body(s.m, s[1] - 0.3, s[2] + 0.5, s[3] + 0.5, 3, 0.6) end
-
--- cup geometry (front), used for AO on nuts
-local cup = HP.poly{ { 12.5, 42 }, { 52.5, 42 }, { 48.5, 54 }, { 16.5, 54 } }
-local lip = HP.rect(12, 41, 52, 43)
-
-for i, s in ipairs(nuts) do
-  local tok = { r = { name = "nut" .. i } }
-  local b = {}
-  for j = i + 1, #nuts do X.ao(b, s.m, nuts[j].m, 1, -1) end
-  X.ao(b, s.m, lip, 2, -1)
-  local idx = A.shade(c, s.m, s.n, GLZ, { tok = tok, bias = b, cuts = { 0.12, 0.27, 0.43, 0.6, 0.78 }, amb = 0.06, wrap = 0.2 })
-  -- cool reflected light on the lower-right rim
-  s.m:edge():each(function(x, y)
-    local dx, dy = x - s[1], y - s[2]
-    if dx > 2 and dy > -1 and not b[K(x, y)] then c:put(x, y, COOLR, tok) end
-  end)
-  -- dark tuft at the point, pale ridge just below it
-  local tx, ty = floor(s[1] + 0.5), floor(s[2] - s[4] - 2)
-  c:put(tx, ty, GLZ[1], tok) c:put(tx, ty + 1, GLZ[2], tok) c:put(tx - 1, ty + 2, GLZ[5], tok)
-  -- sugar crust: a few pale crystals on the lit crown
-  for _, o in ipairs{ { -3, -3 }, { -1, -4 }, { -4, -1 }, { 1, -3 } } do
-    local x, y = floor(s[1] + o[1] + 0.5), floor(s[2] + o[2] + 0.5)
-    if s.m:has(x, y) and (x + y) % 2 == 0 then c:put(x, y, SUG, tok) end
-  end
-  -- gloss: cream specular + 2x1 hi
-  local gx, gy = A.glint(c, s.m, s.n, GLZ[6], 30, tok)
-  if gx and s.m:has(gx + 1, gy + 1) then c:put(gx + 1, gy + 1, GLZ[6], tok) end
-end
--- vein-like glaze streak on the back nut (stripes of a real chestnut showing through)
-for _, p in ipairs{ { 35, 29 }, { 36, 31 }, { 36, 33 } } do c:put(p[1], p[2], GLZ[3]) end
-
--- cup body: flutes + vertical-axis light
-local ftok = { r = { name = "foil" } }
-local cn, cb = {}, {}
-cup:each(function(x, y)
-  local t = max(-0.95, min(0.95, ((x - 12) / 41) * 2 - 1))
-  cn[K(x, y)] = { A.norm(t, 0.15, sqrt(1 - t * t)) }
-  local f = x % 3
-  cb[K(x, y)] = (f == 0) and -1 or (f == 1 and 1 or 0)
-  if y >= 52 then cb[K(x, y)] = (cb[K(x, y)] or 0) - 1 end
-end)
-A.shade(c, cup, cn, FOIL, { tok = ftok, bias = cb, cuts = { 0.14, 0.3, 0.48, 0.66, 0.84 }, amb = 0.12, wrap = 0.35 })
--- rolled lip: bright rounded band, crimped
-lip:each(function(x, y)
-  local t = (x - 12) / 40
-  local col
-  if y == 41 then col = t < 0.55 and FOIL[6] or FOIL[4]
-  elseif y == 42 then col = t < 0.5 and FOIL[5] or FOIL[3]
-  else col = t < 0.6 and FOIL[3] or FOIL[2] end
-  if x % 3 == 0 and y ~= 41 then col = FOIL[2] end
-  c:put(x, y, col, ftok)
-end)
-c:put(12, 41, FOIL[4], ftok) c:put(52, 41, FOIL[3], ftok)
-
--- quirk: syrup drip from the front-left nut over the lip and down a flute
-local DR = { GLZ[3], GLZ[4], GLZ[5] }
-for y = 41, 47 do c:put(26, y, y < 47 and DR[2] or DR[1]) c:put(25, y, (y < 46) and DR[3] or DR[2]) end
-c:put(25, 48, DR[1]) c:put(26, 48, DR[1]) c:put(25, 49, GLZ[2])
-c:put(25, 42, A.CREAM)
-
-A.done(c, NAME)
+marron(32, 22, 9, 1)
+marron(21, 33, 8, 2)
+marron(43, 33, 8, 3)
+-- pleated paper cup
+local cup = HP.mask()
+for y = 36, 55 do local t = (y - 36) / 19; local h = 17 - 6 * t; for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do cup:set(x, y) end end
+local cn = X.pillow(cup, 20)
+G.tone(c, cup, X.light(cn, { amb = 0.3, wrap = 0.4 }), PAP, { 0.2, 0.4, 0.62, 0.82 })
+cup:each(function(x, y) if (x % 3 == 0) and y > 38 then c:px(x, y, x < 32 and PAP[2] or PAP[1]) end end)
+-- ruffled rim
+for x = 15, 49 do local y = 36 + ((x % 3 == 1) and -1 or 0); c:px(x, y, PAP[5]); c:px(x, y + 1, PAP[3]) end
+-- ribbon band with bow
+c:fillMask(c:rect(14, 46, 50, 48), RB[2]) c:fillMask(c:rect(14, 46, 50, 46), RB[4]) c:fillMask(c:rect(14, 48, 50, 48), RB[1])
+c:fillMask(c:ellipse(28, 47, 3, 2.2), RB[3]) c:fillMask(c:ellipse(36, 47, 3, 2.2), RB[3])
+c:fillMask(c:rect(31, 46, 33, 48), RB[2]) c:px(31, 46, RB[4])
+c:line({ {32, 49}, {30, 53} }, 1):each(function(x, y) c:px(x, y, RB[3]) end)
+c:line({ {33, 49}, {35, 53} }, 1):each(function(x, y) c:px(x, y, RB[2]) end)
+-- sugar crystals (quirk) and a syrup drip
+for _, p in ipairs{ {12, 28}, {50, 26}, {30, 14}, {36, 8}, {17, 25}, {47, 38} } do c:sparkle(p[1], p[2]) end
+c:fillMask(c:rect(40, 40, 40, 44), GL[4]) c:px(40, 45, GL[5]) c:px(40, 45, GL[3])
+G.fin(c, "candied-chestnuts")
