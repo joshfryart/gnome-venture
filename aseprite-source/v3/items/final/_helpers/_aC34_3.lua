@@ -1,0 +1,260 @@
+-- _aC34_3.lua: private helpers for chunk C34 pickles (kale, kohlrabi, lotus-root, mushrooms). Copy of _aC34_1 + jar/piece/frill helpers.
+-- Wraps v3/lib/hp.lua + hpx.lua read-only. Lathe bodies (per-pixel normals), glass overlay, leaves, recentre + save.
+local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
+local LIB = DIR .. "/../../../lib/"
+local HP = dofile(LIB .. "hp.lua")
+local X = dofile(LIB .. "hpx.lua") X.init(HP)
+local K = X.K
+local floor, ceil, sqrt, max, min, abs = math.floor, math.ceil, math.sqrt, math.max, math.min, math.abs
+local A = { HP = HP, X = X, K = K, P = HP.P }
+local function norm(x, y, z) local l = sqrt(x*x + y*y + z*z) return x/l, y/l, z/l end
+A.norm = norm
+
+function A.new(name) local c = HP.canvas{ w = 64, h = 64, scale = 1, name = name } A.c, A.name = c, name return c end
+
+local function rgb(h) return tonumber(h:sub(2,3),16), tonumber(h:sub(4,5),16), tonumber(h:sub(6,7),16) end
+function A.mix(a, b, t)
+  local r1, g1, b1 = rgb(a) local r2, g2, b2 = rgb(b)
+  return string.format("#%02x%02x%02x", floor(r1 + (r2 - r1) * t + .5), floor(g1 + (g2 - g1) * t + .5), floor(b1 + (b2 - b1) * t + .5))
+end
+-- recolour existing pixels of mask toward hex by t (keeps owner)
+function A.tint(c, m, hex, t)
+  m:each(function(x, y) local h = c:get(x, y) if h then c.pix[y * c.w + x] = A.mix(h, hex, t) end end)
+end
+
+-- lathe body: rows y0..y1, half width hw(y) (nil = none). Returns mask, normals, NX (signed -1..1 across)
+function A.lathe(cx, y0, y1, hw, slope)
+  local m, n, NX = HP.mask(), {}, {}
+  for y = y0, y1 do local w = hw(y) if w then
+    local wa, wb = hw(y - 1) or w, hw(y + 1) or w
+    local dw = (wb - wa) / 2 * (slope or 1)
+    for x = floor(cx - w - 1), ceil(cx + w + 1) do
+      local d = x + .5 - cx
+      if abs(d) <= w then
+        m:set(x, y)
+        local sn = max(-.97, min(.97, d / (w + .35)))
+        local nz = sqrt(1 - sn * sn)
+        local k = K(x, y)
+        n[k] = { norm(sn, -dw * nz, nz) }
+        NX[k] = sn
+      end
+    end
+  end end
+  return m, n, NX
+end
+
+A.CUT6 = { .18, .34, .5, .64, .8 }
+function A.tone(c, m, n, ramp, o)
+  o = o or {}
+  local v = X.light(n, { amb = o.amb or .08, wrap = o.wrap or .25 })
+  local cuts = o.cuts
+  if not cuts then
+    if #ramp == 6 then cuts = A.CUT6 else cuts = {} for i = 1, #ramp - 1 do cuts[i] = i / #ramp end end
+  end
+  local idx, tok = X.tone(c, m, v, ramp, { cuts = cuts, bias = o.bias, tok = o.tok, name = o.name })
+  return idx, tok, v
+end
+
+function A.rell(cx, cy, ux, uy, ra, rb)
+  local m = HP.mask()
+  local R = ceil(max(ra, rb)) + 1
+  for y = floor(cy) - R, floor(cy) + R do for x = floor(cx) - R, floor(cx) + R do
+    local dx, dy = x + .5 - cx, y + .5 - cy
+    local a = dx * ux + dy * uy
+    local b = -dx * uy + dy * ux
+    if (a / ra)^2 + (b / rb)^2 <= 1.0 then m:set(x, y) end
+  end end
+  return m
+end
+function A.bez(p, t)
+  local u = 1 - t
+  return u^3*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t^3*p[4][1],
+         u^3*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t^3*p[4][2]
+end
+
+A.GLASS = { "#3e5f8f", "#6c9cc8", "#9cc8e4", "#c4e6f4", "#e2f5fb", "#f7fdff" }
+A.LEAF = { "#173f36", "#21593f", "#2e7646", "#45954c", "#6ab455", "#9dd06c" }
+A.METAL = { "#2f3050", "#4a4c68", "#74758c", "#a2a2b4", "#cfcfdc", "#f2f2f8" }
+A.SPEC = "#fff4d6"
+
+-- glass look over contents already painted in `inner`: left highlight band, pale core, dark right band, cool bounce.
+-- NX[k] = across coordinate (-1 lit edge .. 1 shade edge). ys/ye limit rows. walls (body - inner) toned glass.
+function A.glass(c, body, inner, n, NX, o)
+  o = o or {}
+  inner:each(function(x, y)
+    local k = K(x, y) local s = NX[k]
+    if s and (not o.ys or y >= o.ys) then
+      local h = c:get(x, y)
+      if h then
+        if s > -.74 and s < -.5 and (o.hiRow == nil or o.hiRow(y)) then h = A.mix(h, "#f4fbff", .62)
+        elseif s > -.34 and s < -.24 and (y % 9) < 6 then h = A.mix(h, "#eaf8ff", .28)
+        elseif s > .86 then h = A.mix(h, "#bfeaf0", .38)
+        elseif s > .6 then h = A.mix(h, "#24304f", .26) end
+        c.pix[y * c.w + x] = h
+      end
+    end
+  end)
+  local wall = body:copy():cut(inner)
+  if o.wallClip then wall:clip(o.wallClip) end
+  local wn = {} wall:each(function(x, y) wn[K(x, y)] = n[K(x, y)] end)
+  return A.tone(c, wall, wn, A.GLASS, { amb = .25, wrap = .4, tok = o.tok })
+end
+
+-- leaf blade (pillow normals) from base (bx,by) along (ux,uy); midrib darker
+function A.leaf(c, bx, by, ux, uy, len, wid, ramp, o)
+  o = o or {}
+  local l = sqrt(ux*ux + uy*uy) ux, uy = ux / l, uy / l
+  local m = A.rell(bx + ux * len / 2, by + uy * len / 2, ux, uy, len / 2 + .3, wid)
+  local n = X.pillow(m, o.R or 1.6)
+  local idx = A.tone(c, m, n, ramp or A.LEAF, { amb = .12, wrap = .3, tok = o.tok, bias = o.bias })
+  if not o.norib then
+    for i = 1, floor(len) - 2 do
+      local x, y = floor(bx + ux * i + .5), floor(by + uy * i + .5)
+      if m:has(x, y) then local k = K(x, y) c:put(x, y, (ramp or A.LEAF)[max(1, (idx[k] or 3) - 1)], o.tok) end
+    end
+  end
+  return m
+end
+
+-- shift all drawn pixels so the outlined bbox is centred on the canvas
+function A.recentre(c)
+  local x0, y0, x1, y1 = 1e9, 1e9, -1e9, -1e9
+  for i, _ in pairs(c.pix) do local x, y = i % c.w, i // c.w
+    x0, y0, x1, y1 = min(x0, x), min(y0, y), max(x1, x), max(y1, y) end
+  local W, Hh = x1 - x0 + 3, y1 - y0 + 3
+  local dx = floor((c.w - W) / 2 + .5) - (x0 - 1)
+  local dy = floor((c.h - Hh) / 2 + .5) - (y0 - 1)
+  local pix, own = {}, {}
+  for i, v in pairs(c.pix) do local x, y = i % c.w + dx, i // c.w + dy pix[y * c.w + x] = v own[y * c.w + x] = c.own[i] end
+  c.pix, c.own = pix, own
+  print(string.format("recentre dx %d dy %d (outlined %dx%d)", dx, dy, W, Hh))
+end
+
+function A.fin(c, name)
+  A.recentre(c)
+  c:finish()
+  HP.assertClean(c)
+  HP.report(c)
+  local out = app.params.out or (DIR .. "/../ph/")
+  c:save{ aseprite = out .. name .. ".aseprite", png = out .. name .. ".png", scale = 1 }
+end
+
+-- 1px line (Bresenham), optional clip mask, optional tok
+function A.ln(c, x0, y0, x1, y1, hex, clip, tok)
+  x0, y0, x1, y1 = floor(x0 + .5), floor(y0 + .5), floor(x1 + .5), floor(y1 + .5)
+  local dx, dy = abs(x1 - x0), -abs(y1 - y0)
+  local sx, sy = x0 < x1 and 1 or -1, y0 < y1 and 1 or -1
+  local err = dx + dy
+  while true do
+    if not clip or clip:has(x0, y0) then c:put(x0, y0, hex, tok) end
+    if x0 == x1 and y0 == y1 then break end
+    local e2 = 2 * err
+    if e2 >= dy then err = err + dy x0 = x0 + sx end
+    if e2 <= dx then err = err + dx y0 = y0 + sy end
+  end
+end
+-- tube along cubic bezier p with half width wfn(t): mask, normals, T, S (S signed across, + = lower-right)
+function A.tube(p, wfn, N)
+  N = N or 160
+  local samp = {}
+  for i = 0, N do local t = i / N local x, y = A.bez(p, t) samp[#samp + 1] = { x = x, y = y, t = t, w = wfn(t) } end
+  for i, s in ipairs(samp) do
+    local a, b = samp[max(1, i - 1)], samp[min(#samp, i + 1)]
+    local tx, ty = b.x - a.x, b.y - a.y local l = sqrt(tx*tx + ty*ty) tx, ty = tx / l, ty / l
+    local px, py = -ty, tx
+    if px + py < 0 then px, py = -px, -py end
+    s.tx, s.ty, s.px, s.py = tx, ty, px, py
+  end
+  local m, n, T, S = HP.mask(), {}, {}, {}
+  for y = 0, 63 do for x = 0, 63 do
+    local best, bs = 1e9, nil
+    for _, s in ipairs(samp) do
+      local dx, dy = x + .5 - s.x, y + .5 - s.y
+      local q = dx*dx + dy*dy
+      if q < best then best, bs = q, s end
+    end
+    local d = sqrt(best)
+    if d <= bs.w and (bs.t > 0 and bs.t < 1 or abs((x + .5 - bs.x) * bs.tx + (y + .5 - bs.y) * bs.ty) < .7) then
+      m:set(x, y)
+      local s = ((x + .5 - bs.x) * bs.px + (y + .5 - bs.y) * bs.py) / (bs.w + .4)
+      s = max(-.97, min(.97, s))
+      local nz = sqrt(1 - s * s)
+      local k = K(x, y)
+      n[k] = { norm(bs.px * s, bs.py * s, nz) }
+      T[k], S[k] = bs.t, s
+    end
+  end end
+  return m, n, T, S, samp
+end
+-- sphere-lit blob (union of circles each with own sphere normals; later circles on top)
+function A.bumps(list)
+  local m, n = HP.mask(), {}
+  for _, b in ipairs(list) do
+    local cx, cy, r = b[1], b[2], b[3]
+    local bm = HP.mask()
+    for y = floor(cy - r - 1), floor(cy + r + 1) do for x = floor(cx - r - 1), floor(cx + r + 1) do
+      local dx, dy = x + .5 - cx, y + .5 - cy
+      if dx*dx + dy*dy <= r*r then bm:set(x, y) end end end
+    local sn = X.sphere(cx - .5, cy - .5, r, bm)
+    for k, v in pairs(sn) do n[k] = v end
+    m:add(bm)
+  end
+  return m, n
+end
+-- set pixels of mask from canvas toward hex
+function A.wash(c, m, hex, t) A.tint(c, m, hex, t) end
+
+-- paint piece m (normals n) with ramp; dark separation where it overlaps earlier pieces in occ; contact shadow on them
+function A.piece(c, m, n, ramp, occ, o)
+  o = o or {}
+  if o.clip then m:clip(o.clip) end
+  local idx = A.tone(c, m, n, ramp, o)
+  if occ then
+    m:edge():each(function(x, y)
+      if (occ:has(x + 1, y) and not m:has(x + 1, y)) or (occ:has(x - 1, y) and not m:has(x - 1, y))
+        or (occ:has(x, y + 1) and not m:has(x, y + 1)) or (occ:has(x, y - 1) and not m:has(x, y - 1)) then
+        c:put(x, y, ramp[o.sep or 2], o.tok) end end)
+    local sh = m:shift(1, 1):add(m:shift(0, 1)):cut(m)
+    sh:each(function(x, y) if occ:has(x, y) then local h = c:get(x, y) if h then c.pix[y * c.w + x] = A.mix(h, o.shadow or "#2a1830", .3) end end end)
+    occ:add(m)
+  end
+  return idx
+end
+
+A.AIR = { "#8fbcd8", "#addaec", "#c8e8f4", "#ddf3fa", "#ecf9fd", "#f7fdff" }
+-- glass jar: lathe body, brine below `level`, air above. J = {body,inner,n,NX,liq,air}
+function A.jar(c, cx, y0, y1, hw, level, brine, o)
+  o = o or {}
+  local body, n, NX = A.lathe(cx, y0, y1, hw)
+  local inner = body:shrink(1)
+  inner:each(function(x, y) if y > y1 - (o.base or 2) then inner.s[K(x, y)] = nil end end)
+  local liq, air = HP.mask(), HP.mask()
+  inner:each(function(x, y) if y >= level then liq:set(x, y) else air:set(x, y) end end)
+  local ln, an = {}, {}
+  liq:each(function(x, y) ln[K(x, y)] = n[K(x, y)] end)
+  air:each(function(x, y) an[K(x, y)] = n[K(x, y)] end)
+  A.tone(c, liq, ln, brine, { amb = .3, wrap = .45 })
+  A.tone(c, air, an, A.AIR, { amb = .3, wrap = .45 })
+  liq:each(function(x, y) if y == level then c:put(x, y, brine[6]) elseif y == level + 1 and NX[K(x, y)] < .3 then c:put(x, y, brine[5]) end end)
+  return { body = body, inner = inner, n = n, NX = NX, liq = liq, air = air, level = level, cx = cx, y0 = y0, y1 = y1 }
+end
+
+-- frilly leaf (union of sphere-lit circles along a bezier); returns mask, normals
+function A.frill(p, wmax, N, rr)
+  local list = {}
+  N = N or 10
+  for i = 0, N do
+    local t = i / N
+    local x, y = A.bez(p, t)
+    local x2, y2 = A.bez(p, min(1, t + .02))
+    if t >= 1 then local xa, ya = A.bez(p, .98) x2, y2 = x + (x - xa), y + (y - ya) end
+    local tx, ty = x2 - x, y2 - y local l = sqrt(tx*tx + ty*ty) tx, ty = tx / l, ty / l
+    local w = wmax * (math.sin(math.pi * (.12 + t * .8))) ^ .7
+    list[#list + 1] = { x, y, max(1.2, w * .55) }
+    for _, s in ipairs{ -1, 1 } do
+      list[#list + 1] = { x - ty * s * w * .62, y + tx * s * w * .62, max(1, (rr or .5) * w + .4) }
+    end
+  end
+  return A.bumps(list)
+end
+return A
