@@ -1,58 +1,56 @@
--- stage-tuber-2 (lean D2o_11)
+-- stage-tuber-2 (lean W2_26)
+-- Potato half-buried in a soil heap; first sprout of two leaf pairs and a curled bud. Quirk: a pale grub peeking out.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-tuber-2" }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local SOIL = { "#2e1f26", "#4a2e2c", "#6b4332", "#8c5a3a", "#ad7646", "#cf9a5c" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local TUB  = { "#5a3a2e", "#7e5638", "#a67a48", "#c99d62", "#e3be80", "#f3dba0" }
-local ltok, stok = { r = { name = "leaf" } }, { r = { name = "soil" } }
-local function soil(cx, cy, rx, ry, furrows)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local n = X.pillow(m, ry + 2)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), SOIL, nil, nil, stok)
-  m:each(function(x, y)
-    local h = X.hash(x, y, 3)
-    if h > 0.94 then c:put(x, y, SOIL[2], stok) elseif h < 0.05 then c:put(x, y, SOIL[5], stok) end
+local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
+local SOIL  = { "#2e1d24", "#4a2d2c", "#6b4330", "#8c5c3a", "#aa7a4c", "#c79a64" }
+local SPOT  = { "#2e1d24", "#4a2d2c", "#6b4330" }
+local CUTS  = { 0.2, 0.38, 0.55, 0.7, 0.86 }
+local ltok = { r = { name = "leaf" } }
+local function blade(c, ax, ay, bx, by, wmax, ramp)
+  local m, n, T, S = X.cyl(ax, ay, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    return max(0.6, wmax * sin(pi * min(1, t * 0.93 + 0.07)) ^ 0.7)
   end)
-  if furrows then for i = 1, furrows do
-    local yy = cy - ry + 3 + i * 2.6
-    for x = cx - rx + 4, cx + rx - 4 do local y = floor(yy + 0.5 + 0.6 * sin((x - cx) * 0.25 + i))
-      if m:has(x, y) then c:put(x, y, SOIL[2], stok) if m:has(x, y - 1) then c:put(x, y - 1, SOIL[5], stok) end end end
-  end end
+  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ramp or LEAF, CUTS, nil, ltok)
+  m:each(function(x, y) local k = K(x, y)
+    local s, t = S[k], T[k]
+    if abs(s) < 0.2 and t < 0.93 and t > 0.1 then c:put(x, y, s <= 0 and LEAF[6] or LEAF[3], ltok) end
+  end)
   return m
 end
-local function leaf(p, wmax, o)
-  o = o or {}
-  local m, n, T, S = G.tube(p, function(t)
-    if t > 0.99 then return -1 end
-    local s = max(0, sin(pi * t))
-    local b = wmax * s ^ (o.pw or 0.7)
-    if o.serr then b = b + 0.5 * sin(t * 40) * s end
-    if t < 0.22 then b = min(b, 0.7 + t * 2) end
-    return max(0.6, b)
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), LEAF, nil, nil, ltok)
-  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
-    if abs(s) < 0.18 and t > 0.12 and t < 0.92 then c:put(x, y, s <= 0 and LEAF[6] or LEAF[3], ltok) end
-    if o.vein and abs(s) > 0.3 and abs(s) < 0.8 and t > 0.3 and t < 0.9 and (floor((t * 40) - abs(s) * 6) % 5 == 0) then c:put(x, y, s <= 0 and LEAF[5] or LEAF[2], ltok) end
-    if o.yellow and t > o.yellow then c:put(x, y, s <= 0 and "#e6d36a" or "#b9a23e", ltok) end
-  end)
-  return m, T
-end
-local function tuber(cx, cy, rx, ry)
+local function soil(c, cx, cy, rx, ry, seed)
   local m = c:ellipse(cx, cy, rx, ry)
-  G.tone(c, m, X.light(X.pillow(m, ry + 1), { amb = 0.1, wrap = 0.25 }), TUB, nil, nil, { r = { name = "tuber" } })
-  m:each(function(x, y) if X.hash(x, y, 8) > 0.9 then c:put(x, y, TUB[2]) end end)
-  c:put(floor(cx + rx * 0.2), floor(cy), TUB[1]) c:put(floor(cx - rx * 0.4), floor(cy + 1), TUB[1])
-  c:put(floor(cx - rx * 0.5), floor(cy - ry * 0.5), TUB[6])
+  local v = X.light(X.pillow(m, ry), { amb = 0.1, wrap = 0.3 })
+  G.tone(c, m, v, SOIL, { 0.2, 0.36, 0.52, 0.68, 0.84 })
+  m:copy():shrink(1):each(function(x, y) local h = X.hash(x, y, seed)
+    if h > 0.9 then c:px(x, y, SOIL[6]) elseif h < 0.08 then c:px(x, y, SOIL[1]) end end)
   return m
 end
-
-soil(32, 52, 19, 7)
-tuber(21, 51, 5, 3.4)
-leaf({ {32,48},{27,44},{22,43},{17,41} }, 2.8)
-leaf({ {32,48},{37,43},{42,42},{47,40} }, 2.8)
-leaf({ {32,48},{31,42},{33,38},{32,31} }, 3.2)
-c:fillMask(c:ellipse(45, 52, 2, 1.4), SOIL[6]) c:put(44, 51, "#e8c890")
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-tuber-2" }
+local PO = { "#4b2f2a", "#6e4630", "#93633e", "#b78350", "#d4a468", "#ecc88a" }
+c:groundShadow(32, 54, 21, 3)
+soil(c, 32, 50, 22, 8, 3)
+-- potato body: lumpy
+local pm = HP.mask()
+pm:add(c:ellipse(30, 45, 14, 8)) pm:add(c:ellipse(40, 46, 8, 6)) pm:add(c:ellipse(22, 47, 6, 5))
+pm:cut(c:rect(0, 49, 63, 63))
+local pv = X.light(X.pillow(pm, 7), { amb = 0.08, wrap = 0.25 })
+G.tone(c, pm, pv, PO, { 0.2, 0.38, 0.54, 0.7, 0.86 })
+-- eyes with brow + pitted dots
+for _, e in ipairs{ {24,44},{34,42},{41,46},{29,47} } do c:px(e[1], e[2], PO[1]) c:px(e[1]+1, e[2]-1, PO[6]) c:px(e[1]-1, e[2], PO[2]) end
+pm:copy():shrink(1):each(function(x, y) if X.hash(x, y, 8) > 0.93 then c:px(x, y, PO[2]) end end)
+c:px(25, 40, "#fff3dc") c:px(26, 40, "#fff3dc") c:px(27, 39, PO[6])
+-- soil lip in front
+for x = 14, 50 do if X.hash(x, 1, 5) > 0.35 then c:px(x, 49, SOIL[4]) c:px(x, 50, SOIL[3]) end end
+-- sprout: stem + two leaf pairs + curled bud
+local sm, sn = G.tube({ {30, 43}, {30, 38}, {31, 34}, {31, 30} }, function(t) return 1.3 - 0.3 * t end)
+G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }, { 0.3, 0.55, 0.8 })
+blade(c, 30, 37, 16, 31, 3.4) blade(c, 31, 36, 46, 30, 3.4)
+blade(c, 31, 31, 21, 20, 3.0) blade(c, 31, 30, 41, 19, 3.0)
+G.line(c, { {31, 30}, {31, 27}, {32, 25}, {34, 25}, {34, 27} }, LEAF[4])
+c:px(33, 24, LEAF[6]) c:px(34, 26, LEAF[5])
+-- quirk: grub
+G.line(c, { {41, 49}, {43, 48}, {45, 49} }, "#f2e6c8") c:px(45, 49, "#8a5a3a") c:px(42, 48, "#fffaf0")
 G.fin(c, "stage-tuber-2")
