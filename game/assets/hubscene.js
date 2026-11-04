@@ -9,7 +9,7 @@
     var t = ev.target;
     if (!t.closest) return;
     var hs = t.closest('[data-pop]');
-    if (hs && hs.closest('.hubscene') && plain(ev)) {
+    if (hs && hs.closest('.hubscene, .gnavtools') && plain(ev)) {
       var d = document.getElementById(hs.getAttribute('data-pop'));
       if (d && window.gvOpenDlg) {
         ev.preventDefault();

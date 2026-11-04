@@ -27,3 +27,33 @@ function here_schema(string $PK, string $ID, string $END): array
     )$END"];
     return [$t, [], [['users', 'start_page', 'VARCHAR(8) NULL']]];   // start_page: NULL = the default, 'here' or 'home'
 }
+
+/** Is the picture navigation on for everyone? */
+function gnav_on(): bool
+{
+    return setting('gnav_on') === '1';
+}
+
+/** Does this gnome use Here as the first page after login / welcome back? (gnav_on, gnav_login_here, and not their own "Home" choice) */
+function gnav_start_here(array $u): bool
+{
+    return gnav_on() && setting('gnav_login_here') === '1' && ($u['start_page'] ?? null) !== 'home';
+}
+
+/**
+ * Make sure users.start_page and here_layouts exist. The upgrade makes them when the version changes; this covers the days between
+ * uploading the files and the upgrade running. Returns true when the column is there.
+ */
+function here_ensure_schema(): bool
+{
+    static $ok = null;
+    if ($ok !== null) return $ok;
+    try { q('SELECT start_page FROM users LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try {
+        db()->exec('ALTER TABLE users ADD COLUMN start_page VARCHAR(8) NULL');
+        return $ok = true;
+    } catch (Throwable $e) {
+        error_log('here_ensure_schema: ' . $e->getMessage());
+        return $ok = false;
+    }
+}

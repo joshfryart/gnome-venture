@@ -100,6 +100,7 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v1.4.0: Fight on replay, for the fight card and the walk bar */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.6: delve chest opening treat */ ?>
+<?php if (!$admin && $u && in_array($page, ['here.php', 'world.php'], true) && gnav_on()): ?><script src="<?= e(url('assets/hubscene.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* graphical navigation: picture pages (includes/hub_scene.php) */ ?>
 <?php if (!$admin && $u && $page === 'inventory.php'): ?><script src="<?= e(url('assets/craftpop.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/shpop.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v2.4.0: crafting scene popovers */ ?>
 </head>
 <body class="<?= $admin ? 'admin' : 'game' ?>"<?= $admin ? '' : ' data-area="' . e(page_area($page)) . '"' ?><?= !$admin && (in_array($page, AJAX_PAGES, true) || !empty($GLOBALS['AJAX_PAGE'])) ? ' data-ajax' : '' ?>>
@@ -268,7 +269,7 @@ function page_area(string $page): string
         $map = [];
         $groups = [
             'garden' => 'garden tend yard spit worms',
-            'world' => 'seasons world town adventure visit landmark journey gather carve explore destination maps passport',
+            'world' => 'seasons world town here adventure visit landmark journey gather carve explore destination maps passport',
             'kitchen' => 'kitchen crafting',
             'book' => 'book guide memory marrow',
             'market' => 'market shop inventory fair jobs',
@@ -399,10 +400,10 @@ function page_footer(): void
 <?php if ($u && !$inAdmin && (int)($u['onboarded'] ?? 1) === 1) echo right_rail($u); ?>
 </div>
 <?php if ($u && !$inAdmin && (int)($u['onboarded'] ?? 1) === 1):   // v0.7.48: the places you use most, always in reach on a phone
-    $tabs = [['garden.php', '🌱', 'Garden'], ['world.php', '🌍', 'World'], ['inventory.php', '👜', 'Satchel'], ['town.php', '📍', 'Here'], ['jobs.php', '📋', 'Tasks']]; ?>
+    $tabs = [['garden.php', '🌱', 'Garden'], ['world.php', '🌍', 'World'], ['inventory.php', '👜', 'Satchel'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here'], ['jobs.php', '📋', 'Tasks']]; ?>
 <nav class="bottombar" aria-label="Quick links">
   <?php $rdy = (int)($_SESSION['nav_badges']['garden'] ?? 0);   // v1.0.0.1: the menu's "ready" badge, now on the bar's Garden
-  foreach ($tabs as [$f, $i, $l]): ?><a href="<?= e(url($f)) ?>"<?= $page === $f ? ' class="on" aria-current="page"' : '' ?>><span aria-hidden="true"><?= $i ?></span><?= $l ?><?php if ($f === 'garden.php' && $rdy): ?><b class="barpip" aria-label="<?= $rdy ?> ready"><?= $rdy ?></b><?php endif; ?><?php if ($f === 'jobs.php' && ($jr = (int)($_SESSION['nav_badges']['jobs'] ?? 0))): ?><b class="barpip" aria-label="<?= $jr ?> ready"><?= $jr ?></b><?php endif; ?></a><?php endforeach; ?>
+  foreach ($tabs as [$f, $i, $l]): ?><a href="<?= e(url($f)) ?>"<?= $page === $f || ($f === 'here.php' && $page === 'town.php') ? ' class="on" aria-current="page"' : '' ?>><span aria-hidden="true"><?= $i ?></span><?= $l ?><?php if ($f === 'garden.php' && $rdy): ?><b class="barpip" aria-label="<?= $rdy ?> ready"><?= $rdy ?></b><?php endif; ?><?php if ($f === 'jobs.php' && ($jr = (int)($_SESSION['nav_badges']['jobs'] ?? 0))): ?><b class="barpip" aria-label="<?= $jr ?> ready"><?= $jr ?></b><?php endif; ?></a><?php endforeach; ?>
   <button type="button" class="menubtn more" aria-controls="sidenav" aria-expanded="false"><span aria-hidden="true">☰</span>More</button>
 </nav>
 <?php endif; ?>
@@ -681,7 +682,7 @@ function nav_sheet(array $u, string $page): string
         'You' => [['book.php', '📖', 'Almanac', '', 'almanac'], ['inventory.php', '🎒', 'Satchel', '', 'satchel'], ['inventory.php?tab=craft', '🔨', 'Crafting', '', 'crafting']],
         'Hobbies' => [['garden.php', '🏡', 'Garden', $b['garden'] ? $b['garden'] . ' ready' : '', 'garden'],   // T2.1: no Arranging tile (Satchel → Arrange, and the show is on the Village Show page)
             ['games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
-        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], ['town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
+        'Out & about' => [['world.php', '🌍', 'World', '', 'world'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
         'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
     ];

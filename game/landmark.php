@@ -41,9 +41,10 @@ $repair = (int)($_POST['repair'] ?? 0);
 flash($msg, $ok ? 'ok' : 'err');
 // v0.7.77: repairs go back to wherever the gnome was (town square, quests tab or the world map), only to our own pages
 $back = (string)($_POST['back'] ?? '');
-$safe = preg_match('#^(town|world|index|jobs)\.php(\?[^\s]*)?$#', $back) && !str_contains($back, '//') ? $back : 'world.php';
+$safe = preg_match('#^(town|world|index|jobs|here)\.php(\?[^\s]*)?$#', $back) && !str_contains($back, '//') ? $back : 'world.php';
 redirect(match (true) {
     str_starts_with($do, 'repair_') => $safe,
     $ok && in_array($do, ['delve', 'lair'], true) => 'adventure.php',
+    $safe === 'here.php' => 'here.php',   // graphical navigation: a haven or wonder card on the Here page comes back to it
     default => 'world.php',
 });

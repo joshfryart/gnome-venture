@@ -10,9 +10,9 @@ if (is_post()) {
     csrf_check();
     [$ok, $msg] = welcome_back_open($u, ($_POST['do'] ?? '') === 'basket');
     if ($msg !== '') flash($msg, $ok ? 'ok' : 'err');
-    redirect('index.php');
+    redirect(gnav_start_here($u) ? 'here.php' : 'index.php');
 }
-if (!welcome_back_due($u)) redirect('index.php');
+if (!welcome_back_due($u)) redirect(gnav_start_here($u) ? 'here.php' : 'index.php');
 $s = welcome_back_summary($u);
 page_header('Welcome back');
 ?>

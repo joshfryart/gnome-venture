@@ -103,6 +103,7 @@ $badge = function (int $min, int $max = 0) use ($lvl): string {
 page_header('World');
 ?>
 <?= place_switcher_html($node, 'world') ?>
+<?php if (gnav_on()) { require_once __DIR__ . '/includes/here_view.php'; echo gnav_tools_html($u, 'world.php'); }   // graphical navigation: Fast travel + GPS up front ?>
 <?php $mapCode = !empty($node['region_id']) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$node['region_id']]) : ''; ?>
 <?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World', '', place_chips($u)) ?>
 <?php $canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.0.x: Wander is a tab, not a Go-panel button ?>
