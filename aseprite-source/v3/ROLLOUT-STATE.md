@@ -65,3 +65,6 @@ DONE: 139/139 art-step finished by Sonnet high (grep `_aD1`; check.py 139 items,
 Branch `d3-run4`. 138/138 done. Seeds D3s 40/40 (~254k tokens), others D3o 98/98 (~1.44M tokens, 17 agents, 0 errors, ~22 min). Total ~1.69M. Sonnet, lower fidelity. Args: `rollout/run4-part3-seeds|others.args.json`.
 Weak seeds: thyme, teff, tibetan-gentian, turnip, vanilla, vandaenopsis, wasabi, white-clover, wild-gardenia (tiny/invisible); wild-rice, winter-rye (dark); tangelo~tangor, yerba-mate~yuzu look alike.
 Weak others: tomatillo, tomato, white-pelt, wasp-stinger, wind-harp, wing-dust, wing-scale-lantern, wind-chime, yogurt, yuzu, tortoise-scute, triticale, tide-shell, tide-bucket, tile-bark-path, titan-claw, thorn-fang, tool_shed-lantern/-1/-mossy, wild-rice, wild-strawberries, wattle-fence corner/end (charms barely visible).
+
+## Review rule (2026-11-04)
+Weak images get a bright pink (#ff2bd6) 2 px border in the live/wired copy only (see HANDOFF.md). Weak list file `rollout/weak.txt` + `pinkify.py` still to write.

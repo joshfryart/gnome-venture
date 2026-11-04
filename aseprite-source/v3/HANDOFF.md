@@ -25,6 +25,9 @@ Branch: `ccr-c4d6c653-u81tm0` (repo `joshfryart/gnome-venture`). Never push to m
 
 - **Run 4 part 3 (D3) DONE 138/138 Sonnet (markers D3s, D3o). See ROLLOUT-STATE.md.**
 
+## REVIEW RULE: pink border on weak art (Josh, 2026-11-04)
+When the art goes live in the game, every image marked "weak" gets a bright pink (#ff2bd6) 2 px border so Josh can spot it against the rest and judge/redo it. Do this in the wiring/export step ONLY (copy the PNG, add the border; never change the source art in `items/final/`). Weak lists: the "Weak" lines per part in ROLLOUT-STATE.md (agents' own notes) plus whatever Josh flags. TODO: collect them into `rollout/weak.txt` (one `folder/name` per line) and write `rollout/pinkify.py` that reads it.
+
 ## What is NEXT (in order)
 1. **Run 3 part 1 (C1) DONE 140/140 Opus (grep `_aC1`). **Run 3 part 3 (C3) DONE 140/140 Opus (grep `_aC3`).** Run 3 part 2 (C2) done (see above). Run 3 COMPLETE (420/420). Run 4 (D1 running; D2, D3 open; D2 split args `run4-part2-seeds|others.args.json`, see ROLLOUT-STATE.md).** **Runs 3 and 4 are split** (2026-11-04): `rollout/run3-part1|2|3.json` (140 each, `ph/grapefruit-marmalade` .. `ph/poi`, tags C1-C3) and `rollout/run4-part1|2|3.json` (139/139/138, `ph/poinsettia-seed` .. `ph/zinnia-seed`, tags D1-D3), ready args `rollout/runN-partM.args.json`. Launch each with the Workflow tool (scriptPath `aseprite-source/v3/rollout/items-run.js`, args = file contents), ~9M tokens each, ~50M total. Run 2 is DONE.
 2. Remaining static ph items = run3 (420) + run4 (416) = 836; after that every static 64x64 item is done.
