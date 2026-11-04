@@ -170,7 +170,7 @@ $gc = gnome_combat($u, true);
 $L = LANDSCAPES[$scene['land']] ?? ['🌱', 'Wilds', ''];
 $dmScene = ($exp && dm_on()) ? dm_scene($exp) : null;   // v2.0.6: a delve or lair that has a map (the list still works for it)
 $mapMode = $dmScene && dm_pref() === 'map';
-$trailSc = ($exp && trail_on()) ? trail_scene($exp) : null;   // graphical navigation 2d: a walk that began as tile sections
+$trailSc = $exp ? trail_scene($exp) : null;   // graphical navigation 2d: a walk that began as tile sections stays one, even if gnav_tiles is switched off meanwhile
 $dv2Scene = ($exp && ($exp['kind'] ?? '') === 'delve') ? dv2_scene($exp) : null;   // v2.3.1: a delve with the route menu and tile floors
 
 function act(string $do, string $label, string $extra = '', string $class = ''): string

@@ -100,7 +100,7 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v1.4.0: Fight on replay, for the fight card and the walk bar */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.6: delve chest opening treat */ ?>
-<?php if (!$admin && $u && in_array($page, ['here.php', 'world.php'], true) && gnav_on()): ?><script src="<?= e(url('assets/hubscene.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* graphical navigation: picture pages (includes/hub_scene.php) */ ?>
+<?php if (!$admin && $u && gnav_on()): /* on every page: world.php and others are swapped in place (AJAX_PAGES), so the script must already be there */ ?><script src="<?= e(url('assets/hubscene.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* graphical navigation: picture pages (includes/hub_scene.php) */ ?>
 <?php if (!$admin && $u && $page === 'inventory.php'): ?><script src="<?= e(url('assets/craftpop.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/shpop.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v2.4.0: crafting scene popovers */ ?>
 </head>
 <body class="<?= $admin ? 'admin' : 'game' ?>"<?= $admin ? '' : ' data-area="' . e(page_area($page)) . '"' ?><?= !$admin && (in_array($page, AJAX_PAGES, true) || !empty($GLOBALS['AJAX_PAGE'])) ? ' data-ajax' : '' ?>>
