@@ -1,7 +1,10 @@
 # Changelog
 
+## 2.5.08
+- **Trail page scroll fix**: the old adventure scroll helper no longer drags the Trail tile page to the bottom (e.g. after tapping Here while on the road). Needs 2.5.07.
+
 ## 2.5.07
-- **Trail page opens on the map**: the strip and tile map are scrolled into view on every load and move (it could open at the bottom). Needs 2.5.06. The old adventure scroll helper no longer drags the page to the bottom on the Trail tile page.
+- **Trail page opens on the map**: the strip and tile map are scrolled into view on every load and move (it could open at the bottom). Needs 2.5.06.
 - **Trail buttons under the map**: Gather here, Wander off and Turn back sit in one small row right under the tile map.
 
 ## 2.5.06
