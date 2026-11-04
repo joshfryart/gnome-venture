@@ -7071,3 +7071,15 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 .trailfoot .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 dialog.trailpop .pickbox { width: min(560px, 100%); }
 dialog.trailpop .panel.box { margin: 0; border: 0; box-shadow: none; }
+/* Combat and other encounters on a tile map: a popover over the screen, sized to it. Full screen on a phone, a centred card from 721px; the content scrolls inside, so every option stays reachable. */
+dialog.trailpop { padding: 0; align-items: center; justify-content: center; }
+dialog.trailpop .pickbox { width: min(640px, 100%); max-height: calc(100dvh - 16px); height: auto; display: flex; flex-direction: column; border: 2px solid var(--line); }
+dialog.trailpop .hubcard { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 10px calc(14px + var(--sab, 0px)); -webkit-overflow-scrolling: touch; }
+dialog.trailpop .panel.box .choicelist { display: grid; gap: 6px; }
+dialog.trailpop .panel.box h3 { font-size: 1.05rem; margin: 6px 0; }
+@media (max-width: 720px) {
+  dialog.trailpop { padding: 0; }
+  dialog.trailpop .pickbox { width: 100%; height: 100dvh; max-height: 100dvh; border: 0; }
+  dialog.trailpop .panel.box { padding: 6px; }
+}
+@media (max-height: 560px) { dialog.trailpop .panel.box .help { display: none; } }

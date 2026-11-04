@@ -47,6 +47,7 @@
       d.setAttribute('data-up', '1');
       d.addEventListener('cancel', function (ev) { ev.preventDefault(); });   // Esc does nothing
       if (d.showModal && !d.matches(':modal')) { try { d.close(); d.showModal(); } catch (e) {} }
+      d.setAttribute('tabindex', '-1'); try { d.focus({ preventScroll: true }); } catch (e) {}   // no stray focus ring on the first fold
     });
   }
   document.addEventListener('DOMContentLoaded', trailPops);
