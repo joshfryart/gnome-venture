@@ -20,7 +20,7 @@ def font(sz):
     except TypeError:
         return ImageFont.load_default()
 
-def draw(key, L):
+def draw(key, L, name=None):
     w, h, hz = int(L['w']), int(L['h']), int(L.get('horizon', 0))
     im = Image.new('RGB', (w, h), (191, 225, 238))
     d = ImageDraw.Draw(im)
@@ -47,7 +47,7 @@ def draw(key, L):
         d.rectangle([x - 28, y - 30, x + 28, y + 14], outline=(150, 100, 40), width=2, fill=(228, 206, 160))
         d.rectangle([x - 6, y - 4, x + 6, y + 14], fill=(110, 70, 40))
         d.text((x - 6, y - 26), str(i + 1), fill=(90, 50, 20), font=f)
-    d.text((6, 4), 'PLACEHOLDER ' + fname(key)[:-4] + '  ' + str(w) + 'x' + str(h), fill=(200, 30, 30), font=f)
+    d.text((6, 4), 'PLACEHOLDER ' + (name or fname(key)[:-4]) + '  ' + str(w) + 'x' + str(h), fill=(200, 30, 30), font=f)
     d.rectangle([0, 0, w - 1, h - 1], outline=(220, 20, 20), width=2)
     return im
 
@@ -72,6 +72,11 @@ def main(argv):
     for k in keys or list(data):
         if k not in data:
             print('no such layout:', k, file=sys.stderr); continue
+        if k == 'door':   # one shared door per home kind (door-<homekey>.png), lit/dark comes from the page
+            for hk in ('cottage', 'burrow', 'treehouse', 'hut', 'stone', 'boat'):
+                draw(k, data[k], 'door-' + hk).save(os.path.join(out, 'door-' + hk + '.png'), optimize=True)
+                n += 1
+            continue
         draw(k, data[k]).save(os.path.join(out, fname(k)), optimize=True)
         n += 1
     print('wrote', n, 'pictures to', out)

@@ -269,7 +269,7 @@ function page_area(string $page): string
         $map = [];
         $groups = [
             'garden' => 'garden tend yard spit worms',
-            'world' => 'seasons world town here adventure visit landmark journey gather carve explore destination maps passport',
+            'world' => 'seasons world town here residential door adventure visit landmark journey gather carve explore destination maps passport',
             'kitchen' => 'kitchen crafting',
             'book' => 'book guide memory marrow',
             'market' => 'market shop inventory fair jobs',

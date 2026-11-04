@@ -10,11 +10,13 @@ $files = [];
 foreach ($all as $k => $L) {
     $f = str_starts_with($k, 'resid-') ? $k . '.png' : ($k === 'door' ? 'door-cottage.png' : 'here-' . str_replace(':', '-', $k) . '.png');
     $files[$f] = [$k, (int)$L['w'], (int)$L['h']];
+    if ($k === 'door') foreach (['cottage', 'burrow', 'treehouse', 'hut', 'stone', 'boat'] as $hk) $files['door-' . $hk . '.png'] = [$k, (int)$L['w'], (int)$L['h']];
 }
 foreach (glob($game . '/assets/img/scenes/{here-*,resid-*,door-*}.png', GLOB_BRACE) ?: [] as $path) {
     $f = basename($path);
     $sz = @getimagesize($path);
     if (!$sz || $sz[2] !== IMAGETYPE_PNG) { echo "FAIL $f is not a PNG\n"; $bad++; continue; }
+    if (!isset($files[$f]) && str_starts_with($f, 'door-')) $files[$f] = ['door', (int)$all['door']['w'], (int)$all['door']['h']];   // door-<slug>.png: a villager's own door
     if (!isset($files[$f])) { echo "note $f has no layout of its own (a layout for it will fall back to a shared one)\n"; continue; }
     [$k, $w, $h] = $files[$f];
     if ($sz[0] !== $w || $sz[1] !== $h) { echo "FAIL $f is {$sz[0]}x{$sz[1]}, layout $k is {$w}x{$h}\n"; $bad++; }
