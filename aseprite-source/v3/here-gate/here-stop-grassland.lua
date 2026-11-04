@@ -401,7 +401,7 @@ local function cottage(x0, x1, base, wallH, top, o)
   local wy = base - wallH
   local mid = floor((x0 + x1) / 2)
   local wall = Rm(x0 + 2, wy, x1 - 2, base)
-  local roof = c:poly{ { x0 - 3, wy + 3 }, { x0 + 1, top + 6 }, { mid - 3, top }, { mid + 3, top }, { x1 - 1, top + 6 }, { x1 + 3, wy + 3 } }
+  local roof = c:poly{ { x0 - 3, wy + 3 }, { x0 + 2, top + 4 }, { mid - 4, top }, { mid + 4, top }, { x1 - 2, top + 4 }, { x1 + 3, wy + 3 } }
   local chim = o.ch and Rm(o.ch, top - 2, o.ch + 3, top + 8) or HP.mask()
   local all = wall:copy():add(roof):add(chim)
   rim(all, "#5a3c2a")
@@ -433,12 +433,12 @@ local function cottage(x0, x1, base, wallH, top, o)
   fm(Rm(wx - 1, wy + 10, wx + 5, wy + 10), WOOD.shade)
   for k = 0, 3 do px(wx + k * 2 - 1 + 1, wy + 10 - 1 + 0, k % 2 == 0 and P.petal.base or P.ember.base) end
   if o.round then -- round attic window in the thatch
-    local rw = E(mid, top + 8, 1.5, 1.5) rim(rw, TH.deep) fm(rw, P.gold.base) px(mid - 1, top + 7, P.gold.hi)
+    local rw = E(mid, top + 5, 1.5, 1.5) rim(rw, TH.deep) fm(rw, P.gold.base) px(mid - 1, top + 4, P.gold.hi)
   end
 end
-cottage(145, 162, 61, 10, 38, { ch = 156, doorX = 148, winX = 154, doorR = WOOD })
-cottage(128, 147, 64, 11, 39, { doorX = 131, winX = 139, round = true, doorR = TEAL })
-cottage(162, 179, 63, 10, 40, { ch = 165, doorX = 172, winX = 165, doorR = { hi = "#ff8a5c", base = "#e8493b", shade = "#b52e3f", deep = "#6e2038" } })
+cottage(145, 162, 61, 12, 41, { ch = 156, doorX = 148, winX = 154, doorR = WOOD })
+cottage(128, 147, 64, 13, 43, { doorX = 131, winX = 139, round = true, doorR = TEAL })
+cottage(162, 179, 63, 13, 42, { ch = 165, doorX = 172, winX = 165, doorR = { hi = "#ff8a5c", base = "#e8493b", shade = "#b52e3f", deep = "#6e2038" } })
 -- a rose bush between cottages + picket fence bit
 for _, b in ipairs({ { 148, 62 }, { 161, 63 } }) do
   local m = E(b[1], b[2], 2.5, 2) fm(m, P.moss.shade) px(b[1] - 1, b[2] - 1, P.moss.base) px(b[1], b[2] - 1, P.petal.base) px(b[1] + 1, b[2], P.ember.base)
