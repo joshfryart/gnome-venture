@@ -9,19 +9,19 @@ local c = A.new(NAME)
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
 local GR, SO, ST, WD, IR = A.GRASS, A.SOIL, A.STONE, A.WOOD, A.IRON
 
-local CX, YB = 32, 49
-local DX = 34                     -- door centre (barrel takes the left)
-c:groundShadow(CX + 1, YB + 8, 25, 2)
-local m = A.dome(CX, YB, 24, 28, 2.4, -2)
-local W, H, TH = 7, 19, 3
+local CX, YB = 33, 48
+local DX = 35                     -- door centre (barrel takes the left)
+c:groundShadow(CX + 1, YB + 8, 23, 2)
+local m = A.dome(CX, YB, 22, 31, 2.4, -2)
+local W, H, TH = 7, 17, 3
 local outer = A.arch(DX, YB, W + TH, H + TH)
-local beam = c:rect(DX - 14, YB - 26, DX + 13, YB - 23)
+local beam = c:rect(DX - 14, YB - 24, DX + 13, YB - 21)
 -- tilted sign mask
-local sx, sy = DX + 8, YB - 19
+local sx, sy = DX + 8, YB - 17
 local sign = HP.mask()
 for x = 0, 9 do for y = 0, 6 do sign:set(sx + x, sy + y + floor(x * 0.3)) end end
 local barrelM = HP.mask()
-for y = YB - 12, YB do for x = 6, 17 do barrelM:set(x, y) end end
+for y = YB - 12, YB do for x = 7, 18 do barrelM:set(x, y) end end
 
 local bias = {}
 for _, p in ipairs{ outer, beam, sign } do
@@ -48,9 +48,9 @@ for _, p in ipairs{ { 20, 31 }, { 49, 40 }, { 41, 21 } } do
 end
 
 -- soil lip
-local soil = A.soil(c, CX, YB, 25, 4)
+local soil = A.soil(c, CX, YB, 23, 4)
 A.soilPaint(c, soil, 2)
-for x = CX - 24, CX + 24, 3 do
+for x = CX - 22, CX + 22, 3 do
   local d = (X.hash(x, 1, 15) > .5) and 2 or 1
   for y = YB - 4, YB - 4 + d do c:put(x, y, GR[3], gtok) c:put(x + 1, y, GR[2], gtok) end
 end
@@ -68,21 +68,21 @@ local btok = { r = { name = "beam" } }
 local bb = {}
 A.pill(c, beam, WD, 1.8, { tok = btok, amb = .12 })
 for x = DX - 12, DX + 11 do
-  if X.hash(x, 3, 5) > .45 then c:put(x, YB - 25, WD[3], btok) end
-  if X.hash(x, 4, 6) > .6 then c:put(x, YB - 24, WD[2], btok) end
+  if X.hash(x, 3, 5) > .45 then c:put(x, YB - 23, WD[3], btok) end
+  if X.hash(x, 4, 6) > .6 then c:put(x, YB - 22, WD[2], btok) end
 end
 -- end grain squares with growth rings
 for _, ex in ipairs{ DX - 14, DX + 12 } do
-  for y = YB - 26, YB - 23 do c:put(ex, y, WD[6], btok) c:put(ex + 1, y, WD[5], btok) end
-  c:put(ex, YB - 25, WD[4], btok) c:put(ex + 1, YB - 24, WD[3], btok)
+  for y = YB - 24, YB - 21 do c:put(ex, y, WD[6], btok) c:put(ex + 1, y, WD[5], btok) end
+  c:put(ex, YB - 23, WD[4], btok) c:put(ex + 1, YB - 22, WD[3], btok)
 end
-c:put(DX - 11, YB - 26, WD[6], btok) c:put(DX - 10, YB - 26, WD[6], btok)
+c:put(DX - 11, YB - 24, WD[6], btok) c:put(DX - 10, YB - 24, WD[6], btok)
 -- shadow under the lintel on the stone/turf
 for x = DX - 12, DX + 11 do
-  if not beam:has(x, YB - 22) and not outer:has(x, YB - 22) then c:put(x, YB - 22, GR[2]) end
+  if not beam:has(x, YB - 20) and not outer:has(x, YB - 20) then c:put(x, YB - 20, GR[2]) end
 end
 -- two nails
-c:put(DX - 6, YB - 24, IR[5], btok) c:put(DX + 6, YB - 24, IR[5], btok)
+c:put(DX - 6, YB - 22, IR[5], btok) c:put(DX + 6, YB - 22, IR[5], btok)
 
 -- quirk: crooked sign on two chains of different lengths
 local stok = { r = { name = "sign" } }
@@ -96,9 +96,9 @@ end)
 local function chain(x, y0, y1)
   for y = y0, y1 do c:put(x, y, ((y - y0) % 2 == 0) and IR[5] or IR[2]) end
 end
-chain(sx + 1, YB - 22, sy)
-chain(sx + 8, YB - 22, sy + floor(8 * 0.3) - 1)
-c:put(sx + 1, YB - 23, IR[6]) c:put(sx + 8, YB - 23, IR[6])
+chain(sx + 1, YB - 20, sy)
+chain(sx + 8, YB - 20, sy + floor(8 * 0.3) - 1)
+c:put(sx + 1, YB - 20, IR[6]) c:put(sx + 8, YB - 20, IR[6])
 -- tiny painted carrot (orange wedge + green top)
 local O = A.CARROT
 c:put(sx + 2, sy + 3, O[5]) c:put(sx + 3, sy + 3, O[4]) c:put(sx + 4, sy + 3, O[3]) c:put(sx + 5, sy + 4, O[2])
@@ -121,17 +121,18 @@ slab(DX - 13, DX + 12, YB + 4, 0)
 c:put(DX + 3, YB + 5, ST[6]) c:put(DX + 4, YB + 5, ST[6])
 
 -- barrel by the wall
-local bm = A.barrel(c, 11, YB - 11, 12, 6)
+local bm = A.barrel(c, 13, YB - 11, 12, 6)
 -- contact: turf darkened under its left lip, shadow on the soil to its right
-for y = YB - 8, YB do c:put(18, y, GR[1]) end
-c:put(17, YB + 1, SO[1]) c:put(16, YB + 1, SO[1])
+for y = YB - 8, YB do c:put(19, y, GR[1]) end
+c:put(18, YB + 1, SO[1]) c:put(17, YB + 1, SO[1])
 -- a bung and a drip
-c:put(11, YB - 5, WD[1]) c:put(12, YB - 5, WD[2]) c:put(11, YB - 4, WD[3])
+c:put(13, YB - 5, WD[1]) c:put(14, YB - 5, WD[2]) c:put(13, YB - 4, WD[3])
 
 -- small flag on the crown (pole leans a touch)
-local px, top = CX - 7, 8
-A.flag(c, px, 24, top, { len = 11, hgt = 7, taper = .15 })
-c:put(px - 1, 24, SO[4]) c:put(px + 2, 24, SO[4])
+local px, top = CX - 6, YB - 31 - 5
+local foot = YB - 31 + 4
+A.flag(c, px, foot, top, { len = 11, hgt = 7, taper = .15 })
+c:put(px - 1, foot, SO[4]) c:put(px + 2, foot, SO[4])
 c:put(px - 1, top + 2, "#fff0c8") c:put(px, top + 2, "#fff0c8") c:put(px + 1, top + 2, "#fff0c8") c:put(px + 2, top + 2, "#d8b878")
 c:put(px - 1, top + 6, "#fff0c8") c:put(px, top + 6, "#fff0c8") c:put(px + 1, top + 6, "#fff0c8") c:put(px + 2, top + 6, "#d8b878")
 A.save(c)
