@@ -1,5 +1,5 @@
 # Plan: graphical navigation ("Here" scenes, residential, door, tile routes) (2026-11-04)
-Status: **not built, plan only.** Starts after v3 art lands. Owner: Josh. Written against 2.4.97 (read the code named below before each phase; line numbers drift).
+Status (2026-11-04): Phases 0, 1, 2a-2d, and the layout editor/lint of 6 are built (see claude/todo.md NOW block for what is left); 3, 4, 5 and the rest of 6/7 are plan only. Owner: Josh. Written against 2.4.97 (read the code named below before each phase; line numbers drift).
 
 ## Goal
 Play by tapping pictures. Login lands on **Here**: a v3-style picture of where the gnome stands. Every way out is a path in the picture, every villager present is a 2.5D sprite standing in it. Towns open a **Residential** picture (all houses), each house opens a **Door** picture (Knock / Leave gift / Back). Routes become tile walks in sections, 1 energy a section. World keeps the maps and gains Fast travel and GPS up front.

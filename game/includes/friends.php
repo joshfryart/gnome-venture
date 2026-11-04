@@ -173,11 +173,11 @@ function npc_talk(array $u, int $npcId): array
     return [true, $msg];
 }
 
-function npc_gift(array $u, int $npcId, int $itemId): array
-{
+function npc_gift(array $u, int $npcId, int $itemId, bool $door = false): array
+{   // $door (graphical navigation): a gift left at the door while they are out: no npc_here check, half the friendship
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
-    if (!$npc || !npc_here($u, $npcId)) return [false, 'They aren’t around right now.'];
+    if (!$npc || (!$door && !npc_here($u, $npcId))) return [false, 'They aren’t around right now.'];
     $f = friendship($uid, $npcId);
     $today = hollow_date('Y-m-d');   // v0.7.85: the Hollow's day
     if ($f['last_gift'] === $today) return [false, $npc['name'] . ' has already had a present from you today.'];
@@ -199,6 +199,7 @@ function npc_gift(array $u, int $npcId, int $itemId): array
         default => [4, 'smiles politely. “How kind.”', null],
     };
     if ($pts > 0) $pts = (int)round($pts * (1 + 0.08 * max(0, function_exists('eff_mod') ? eff_mod($u, 'charm') : 0)));
+    if ($door && $pts > 0) $pts = max(1, intdiv($pts, 2));   // left at the door: half
     require_once __DIR__ . '/npc_life.php';
     $bday = npc_birthday_today($npc);
     if ($bday && $pts > 0) {   // v0.7.31: birthday gifts count three times
@@ -228,7 +229,7 @@ function npc_gift(array $u, int $npcId, int $itemId): array
     $xpNote = $xp > 0 ? ', +' . $xp . ' XP' : '';
     $after = friend_level($new);
     calling_event($uid, 'gift', (string)$npc['slug'], 1, ['cat' => (string)$item['category'], 'item' => (string)$item['slug'], 'npc' => (string)$npc['slug']]);   // v0.9.4 N7 (a refused or disliked gift counts as given)
-    return [true, '🎁 You give ' . $npc['name'] . ' 1 × ' . $item['name'] . '. ' . $npc['name'] . ' ' . $react . ' (' . ($pts >= 0 ? '+' : '') . $pts . ' friendship' . $xpNote . ')'
+    return [true, ($door ? '🎁 You leave 1 × ' . $item['name'] . ' at ' . $npc['name'] . '’s door. ' : '🎁 You give ' . $npc['name'] . ' 1 × ' . $item['name'] . '. ') . $npc['name'] . ' ' . $react . ' (' . ($pts >= 0 ? '+' : '') . $pts . ' friendship' . $xpNote . ')'
         . ($after['index'] > $before['index'] ? ' 💛 You are now: ' . $after['name'] . '!' : '')];
 }
 

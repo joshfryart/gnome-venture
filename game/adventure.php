@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/scene.php';   // v2.0.43: the stage
 require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.3.8: pal actives on the fight buttons
+require_once __DIR__ . '/includes/trail_tiles.php';   // graphical navigation 2d: the Trail as tile sections (gnav_tiles)
 $u = require_login();
 $uid = (int)$u['id'];
 
@@ -33,6 +34,11 @@ if (is_post()) {
         if ($do === 'dest_forget') { dest_set($uid, 0); flash('🧭 Route forgotten.', 'ok'); }
         else { dest_save_opts($uid); flash('🧭 Saved.', 'ok'); }
         redirect(safe_back($exp ? 'adventure.php' : 'world.php'));
+    }
+    if ($do === 'trail_resume') {   // graphical navigation 2d: pick a put-away walk up again
+        [$ok, $msg] = trail_resume($u);
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect($ok ? 'adventure.php' : 'here.php');
     }
     if ($do === 'explore') {
         [$ok, $msg] = explore_start($u);
@@ -112,6 +118,16 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_back', 'trail_arrive', 'trail_wander', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+            if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
+            elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
+            elseif ($do === 'gather') [$tok, $tmsg] = trail_gather($u, $exp, (string)($_POST['tool'] ?? ''));
+            elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
+            elseif ($do === 'trail_back') { [$tok, $tmsg] = trail_back($u, $exp); $visited = true; }
+            elseif (trail_can_arrive($exp)) { arrive($u, $exp); dm_scene_drop((int)$exp['id']); $arrivedAt = (int)$exp['to_id']; $tok = true; $tmsg = ''; }
+            else { $tok = false; $tmsg = 'Not there yet.'; }
+            if (!$tok && $tmsg !== '') flash($tmsg, 'err');
+            elseif ($tok && in_array($do, ['trail_back', 'trail_wander'], true)) flash($tmsg, 'ok');
         } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total']) {
             next_step($u, $exp);
         } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time()) {
@@ -161,6 +177,7 @@ $gc = gnome_combat($u, true);
 $L = LANDSCAPES[$scene['land']] ?? ['🌱', 'Wilds', ''];
 $dmScene = ($exp && dm_on()) ? dm_scene($exp) : null;   // v2.0.6: a delve or lair that has a map (the list still works for it)
 $mapMode = $dmScene && dm_pref() === 'map';
+$trailSc = $exp ? trail_scene($exp) : null;   // graphical navigation 2d: a walk that began as tile sections stays one, even if gnav_tiles is switched off meanwhile
 $dv2Scene = ($exp && ($exp['kind'] ?? '') === 'delve') ? dv2_scene($exp) : null;   // v2.3.1: a delve with the route menu and tile floors
 
 function act(string $do, string $label, string $extra = '', string $class = ''): string
@@ -214,6 +231,9 @@ if ($wi && !$isWalk): ?>
 <?php elseif ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
+<?php elseif ($trailSc): ?>
+<?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
+<?= trail_view_html($u, $exp, $trailSc, (bool)$enc) ?>
 <?php elseif ($isWalk): ?>
 <?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
 <?php else: ?>
@@ -242,6 +262,8 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
 </div>
 
 
+<?php $trailPop = ($trailSc || $mapMode || $dv2Scene) && $enc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
+if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>
 <?= $latestHtml ?>
@@ -429,6 +451,30 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <?php endif; ?>
 
 
+<?php elseif ($trailSc): // graphical navigation 2d: nothing in front of you. Text is centered here, always. ?>
+  <?php $tPhase = (string)$trailSc['st']['phase']; $tLast = (int)$trailSc['st']['sec'] + 1 >= (int)$trailSc['st']['S'];
+  $tLand = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?>
+  <div class="trailui">
+  <?php if ($tPhase === 'confirm'): ?>
+    <h3><?= $tLast ? e($to['name']) . ' is just ahead.' : 'The way on lies ahead.' ?></h3>
+    <p class="help"><?= $tLast ? 'Head into ' . e($to['name']) . '? No more energy.' : 'Section ' . ((int)$trailSc['st']['sec'] + 1) . ' of ' . (int)$trailSc['st']['S'] . ' done. Continuing is free.' ?></p>
+    <div class="choicelist">
+      <?= $tLast ? act_choice('trail_arrive', '🏡', 'Head into ' . $to['name'], 'Walk in · free', '', 'primary') : act_choice('trail_next', '🍄', 'Continue along the Trail', 'Section ' . ((int)$trailSc['st']['sec'] + 2) . ' of ' . (int)$trailSc['st']['S'] . ' · free', '', 'primary') ?>
+    </div>
+  <?php else: ?>
+    <h3>🍃 Section <?= (int)$trailSc['st']['sec'] + 1 ?> of <?= (int)$trailSc['st']['S'] ?></h3>
+    <p class="help">Tap a lit tile to walk. ⚔️ and ✨ wait on some tiles. Reach 🚪 to go on. Walking is free.</p>
+  <?php endif; ?>
+  <div class="trailfoot">
+    <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
+    <?php if (on_road((int)$exp['from_id'])): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_wander"><button class="btn alt" title="Leave the Trail for the wilds. Your walk waits for you on the road. ⚡1">🌿 Wander off the Trail <small>⚡1</small></button></form><?php endif; ?>
+    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back <small>free</small></button></form>
+  </div>
+  <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">
+    <div class="pickhead"><h3 id="hubpop-tgather-t">🧺 Gather here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
+    <div class="hubcard"><?= gather_here_box($u, $tLand, url('adventure.php'), '') ?></div></div></dialog>
+  </div>
+
 <?php elseif ((int)$exp['step'] < (int)$exp['steps_total']): ?>
   <?php $rl = road_line($scene, ['seed' => road_line_seed($exp, (int)$exp['step'] + 1), 'record' => false]);   // v1.9.3: the line the next space will log ?>
   <h3 class="roadline">🍃 <?= e($rl ?? 'The thread glows on ahead…') ?></h3>
@@ -457,6 +503,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <?php endif; ?>
 <?php endif; ?>
 </div>
+<?php if ($trailPop): ?></div></div></dialog><?php endif; ?>
 </div>
 <div class="gardenwrap">
 

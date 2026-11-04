@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.5.03
+- **Picture navigation (all off by default; this release carries release A, the Here page, and the rest).** New setting `gnav_on` (Admin → Settings): a Here picture page (`here.php`), login lands on Here (`gnav_login_here`, Account → Start on), bottom bar and menu Here, Fast travel and GPS buttons on World and Here. Further settings: Settings: `gnav_tiles` (Trail tiles), `gnav_craft` (Crafting workshop picture), `gnav_tree` (Treehouse and Pal Yard pictures); all need `gnav_on`. Admins can open every new page while the setting is off.
+- **The Trail as tile sections** (`gnav_tiles`): 1 energy to step onto a Trail, then walk tile sections (fights and finds on tiles), a free Continue with an event rolled once between sections, Turn back is free, and the last step heads into the place. Also on the page: Gather here (popover), Wander off the Trail (the walk waits and Resume brings the same section back), centered text. A walk that began as a timer walk stays one.
+- **Fights and other encounters on tile maps are a popover** (Trail, delve and lair maps): a battle picture on top (placeholder `fight-generic.png`, real art `fight-<land>.png`), small stylized buttons under it, odds and log, the stat cards last. It cannot be closed until settled.
+- **Residential and Door** (`residential.php`, `door.php`, a Homes spot on Here): a street of houses with lit windows, a door with Knock (only when they are home), Leave gift (any time, once a day, half friendship) and Back.
+- **Crafting workshop, Treehouse, Pal Yard** (`workshop.php`, `treehouse.php`, `palyard.php`): picture pages with popovers that link into the existing pages, found pals on perches, pals at their job sites. The old pages stay.
+- **Admin → Images & art → Picture layouts**: drag the slots of every picture, lint, save, reset, copy. `tools/lint_here.php` and `tools/gen_here_placeholders.py` (red-border placeholder pictures, included: `scenes/here-*`, `resid-*`, `door-*`, `craft-workshop`, `tree-house`, `yard-pals`, `fight-generic`).
+- Fix: none to existing features; `npc_gift()` gets an optional door mode (default off). Needs 2.5.02 or newer. New column `users.start_page`, new table `here_layouts`. Tests: `tests/here.php`, `tests/here.sh`; plan `claude/plan-graphical-nav.md`.
+
 ## 2.5.02
 - **Creature villagers.** All 81 NPC portraits in `game/assets/img/ph/npc-<slug>.png` are redrawn in v3 Hearth Pop (80x100). Every villager is now a creature (hedgehog, field mouse, frog, snail, tortoise, moth, beetle, otter, elephant and more; old human-looking art was redesigned to fit the name and mood). Same file names, so nothing in the code changes.
 - **New 2.5D villager sprites** in `game/assets/img/sprite/npc-<slug>.png`: 64x96 cells, 4-frame idle strip (256x96), feet at bottom-centre. Not used by any page yet (they are for the graphical-navigation build).

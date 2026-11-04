@@ -1478,5 +1478,7 @@ function schema_statements(string $driver): array
     [$ppt, $ppi, $ppc] = ppal_schema($PK, $ID, $END);
     require_once __DIR__ . '/gourmand.php';   // next version: the Gourmand's ledger and cook_pots.score
     [$gmt, $gmi, $gmc] = gourmand_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc)];
+    require_once __DIR__ . '/here_schema.php';   // graphical navigation: here_layouts + users.start_page
+    [$hrt, $hri, $hrc] = here_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc)];
 }

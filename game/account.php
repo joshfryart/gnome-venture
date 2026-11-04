@@ -27,6 +27,12 @@ if (is_post()) {
             q('UPDATE users SET easy_roads = ? WHERE id = ?', [empty($_POST['easy_roads']) ? 0 : 1, $u['id']]);
             return [true, empty($_POST['easy_roads']) ? 'Easy roads are off: roads next to home match your level and can be tough.' : 'Easy roads are on: roads next to home stay a few levels below you, with no legendary creatures.'];
         })(),
+        'start_page' => (function () use ($u) {   // graphical navigation: where logging in lands
+            if (!here_ensure_schema()) return [false, 'Could not save that right now.'];
+            $v = (string)($_POST['start_page'] ?? '');
+            q('UPDATE users SET start_page = ? WHERE id = ?', [$v === 'home' ? 'home' : 'here', $u['id']]);
+            return [true, $v === 'home' ? 'Saved: you start on Home.' : 'Saved: you start on Here.'];
+        })(),
         'resend' => (function () use ($u) {
             if (!empty($u['email_verified_at'])) return [true, 'Your email is already confirmed.'];
             if (rate_limited('verify:' . $u['id'], 3, 60)) return [false, 'Too many emails. Try again in an hour.'];
@@ -76,6 +82,14 @@ page_header('Account');
   <?= theme_choice() /* v1.6.5 */ ?>
   <p class="help">Dark is the default. “Match my phone” follows your phone’s own setting.</p>
 </div>
+<?php if (gnav_on()): $sp = ($u['start_page'] ?? null) === 'home' ? 'home' : 'here'; ?>
+<div class="box narrow" id="startpage">
+  <h2>🏁 Start on</h2>
+  <form method="post" class="form startrow"><?= csrf_field() ?><input type="hidden" name="do" value="start_page">
+    <label>When I log in, open <select name="start_page"><option value="here"<?= $sp === 'here' ? ' selected' : '' ?>>Here (the picture of where I am)</option><option value="home"<?= $sp === 'home' ? ' selected' : '' ?>>Home (today’s news and my gnome)</option></select></label>
+    <button class="btn small">Save</button></form>
+</div>
+<?php endif; ?>
 <div class="box narrow" id="easyroads">
   <h2>🛣️ Easy roads</h2>
   <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="do" value="easy_roads">

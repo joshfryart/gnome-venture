@@ -1,0 +1,14 @@
+# Nav recon (Phase 0): where code differs from the plan (2026-11-04)
+- No root `CLAUDE.md`; conventions are in root `README.md` + `game/README.md`.
+- Shipped data lives in `game/includes/data/` (`game/data/` is runtime, updates never touch it): layouts go to `includes/data/here_layouts.json`, not `data/`.
+- `trek_settings()` is `includes/trek_data.php:16` (not :34). Merge point for settings: `includes/functions.php:659`. Tables merge: `includes/schema.php:1478-1484`; columns list `$c` at `schema.php:1305`.
+- Walk table is `walk_scene` (cols user_id, exp_id, map_key, x, y, seen, state), `includes/delve_map.php:36`; no `phase`/`sec` yet (2d, not in release A).
+- Energy: `route_energy()` `adventure.php:197`, charged in `start_expedition` `adventure.php:203-218` (staff, ev_quickwalk, Wayfinder there).
+- Filter for hidden side paths: `dest_edges()` `destination.php:12` (side route to non-road place needs `place_known`); `start_expedition` repeats it at `adventure.php:212`.
+- Login redirect `login.php:34`; `back.php` goes to `index.php`/gnome. `landmark.php:44` `$safe` regex lists `town|world|index|jobs` (add `here` in 2c).
+- Bottom bar `layout.php:402` and menu `layout.php:684` both label `town.php` "Here". `AJAX_PAGES` `layout.php:10` (do not add `here.php`). `page_area()` `layout.php:264`.
+- Dialog helpers `gvOpenDlg/gvCloseDlg` are in `assets/site.js:2`; CSP `functions.php:164` (script-src 'self', style-src 'self'). Popover precedent: `assets/craftpop.js`, `dialog.craftpop` css `style.css:6480`.
+- Scene art lookup `scene_path()` `scene.php:16` (`assets/img/scenes/<kind>-<key>.png`); `npc_home_key()` `scene.php:222`; `npcs_at_spot/traveller_stop/npc_now/npc_home` `npc_life.php:124/153/169/201`.
+- Landscapes: coast mountain forest desert rainforest grassland wetland tundra island. Aseprite/img dirs untouched, so placeholder PNGs are NOT written into `assets/img/scenes`; the engine draws a code backdrop when the PNG is missing.
+- Plan divergence: `route_enter_cost()` as written calls `staff_free()`, which rolls a die (tools.php:209), so the preview would not equal the charge. Built: `route_enter_cost($u,$route,$roll=false)`; previews never roll (show full price), the charging code passes `$roll=true`. `start_expedition` is NOT changed in release A (timer walk keeps `route_energy`).
+- `safe_back()` (functions.php:102) already accepts `here.php`; `landmark.php` got `here` in `$safe` plus a `here.php` return branch.
