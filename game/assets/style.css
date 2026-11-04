@@ -7160,3 +7160,15 @@ dialog.trailpop .fightbtns .choice-title { font-size: 13px; }
 dialog.trailpop.wanderpop .pickbox { width: min(560px, 96vw); max-height: 92dvh; }
 dialog.trailpop.wanderpop .hubcard { text-align: left; }
 .wanderbehind .tmgrid button { pointer-events: none; }
+/* 2.5.14: tidy the wander popover: one title (the info line), smaller type, compact folds */
+dialog.wanderpop h1, dialog.wanderpop p.status { display: none; }
+dialog.wanderpop .wanderinfo { font-size: .85rem; line-height: 1.25; margin: 0 0 6px; }
+dialog.wanderpop h3 { font-size: 1rem; margin: 6px 0; }
+dialog.wanderpop .help, dialog.wanderpop .flash { font-size: .85rem; }
+dialog.wanderpop .wfold > summary { font-size: .95rem; padding: 6px 0; }
+dialog.wanderpop .wfold { margin: 4px 0; }
+dialog.wanderpop .roadresult { margin: 4px 0; }
+dialog.wanderpop .rr-title { font-size: .95rem; }
+dialog.wanderpop .rr-sub { font-size: .8rem; }
+dialog.wanderpop .choicelist .choice { padding-top: 6px; padding-bottom: 6px; }
+dialog.wanderpop .hubcard { padding: 8px 10px calc(10px + var(--sab, 0px)); }
