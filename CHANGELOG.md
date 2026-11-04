@@ -1,5 +1,48 @@
 # Changelog
 
+## 2.5.17
+- **Wander redesigned for the Trail**: when nothing is in front of you, Wander off shows one small purpose-built card over the Trail section: a header (land, step, tier, danger), what just happened, the moves as small cards (Go deeper, Keep exploring, Step back, Back to the Trail, Visit a found place) and a Gather here fold. Fights, choices and meetings out there use the same popover as on the Trail. The old explore page is no longer shown behind a Trail wander. Needs 2.5.16.
+
+## 2.5.16
+- **Wander popover, more tidy**: buttons come right after what just happened; Gather here stays folded; the long map caption and World map link are gone; folds and Journal sit last. Needs 2.5.15.
+
+## 2.5.15
+- **Wander popover tidied**: the big heading and the duplicate status box are gone (the info line next to the map says it once); smaller type, tighter buttons and folds. Needs 2.5.14.
+
+## 2.5.14
+- **Wander off is one popover, no page change**: the confirm card still shows first; after Wander off, the whole wander (the existing explore screen) plays in a popover over the Trail section, which stays visible but untappable behind it. When the wander ends, the Trail walk is picked up again by itself (no Resume tap). Needs 2.5.13.
+
+## 2.5.13
+- **Wander off is a popover**: tapping it opens a small card (what it does, ⚡1, Wander off or Stay on the Trail). Works without script via `?w=1`. Needs 2.5.12.
+
+## 2.5.12
+- **Fight popover, smaller and tidier**: 380 px wide, shorter picture and buttons; the odds line ("You hit 90% ...") sits between the picture and the buttons; the green and red stat cards at the bottom are gone (the picture shows both health bars). Needs 2.5.11.
+
+## 2.5.11
+- **Fight popover is smaller**: sized to its content (up to 440 px wide, 88% of the screen tall) instead of the whole screen. Needs 2.5.10.
+
+## 2.5.10
+- **Trail "way on" popover is a small card** over the map, not the full-screen sheet (the fight popover stays full size). Needs 2.5.09.
+
+## 2.5.09
+- **Trail "The way on lies ahead" is a popover over the map** (with Continue or Head into, and a free Turn back). The Section text card above the buttons is now one line. Needs 2.5.08.
+
+## 2.5.08
+- **Trail page scroll fix**: the old adventure scroll helper no longer drags the Trail tile page to the bottom (e.g. after tapping Here while on the road). Needs 2.5.07.
+
+## 2.5.07
+- **Trail page opens on the map**: the strip and tile map are scrolled into view on every load and move (it could open at the bottom). Needs 2.5.06.
+- **Trail buttons under the map**: Gather here, Wander off and Turn back sit in one small row right under the tile map.
+
+## 2.5.06
+- **Trail page tidy**: no scene picture or route ribbon over the tile map (the strip says it); "Latest" is now a brief pop-up that fades; the map is centred on screen after each move. Needs 2.5.05.
+
+## 2.5.05
+- **Workshop popover loads the real crafting section** (`workshop.php?frag=<key>` JSON fragment + `assets/workshop.js`): Make, Collect and filters work inside the card; "All areas" closes it.
+- **Trail strip**: a slim centered strip over the tile map: Trail to the place, Section X of Y, energy chip, HP bar.
+- **GPS hand-off** (picture navigation on): after a leg ends at a pass-through stop on a remembered route, you land on Here with that next leg's "Continue to" card open. Each leg still charges its own start energy. Towns still pause as before.
+- Needs 2.5.04. No new tables.
+
 ## 2.5.04
 - **Real Here pictures for town, village and haven** (test). `game/assets/img/scenes/here-town.png`, `here-village.png` and `here-haven.png` replace the placeholders. Same size (480x270), drawn to the existing layout slots in `here_layouts.json` (8 exit stubs, spots, stand points), so no code or layout changes. The other Here pictures stay placeholders. Admin > Picture layouts shows the slot dots over them.
 - Images uploaded in Admin > Images or scene uploads still win over these files.

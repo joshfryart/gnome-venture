@@ -7070,8 +7070,15 @@ a.pickx { display: flex; align-items: center; justify-content: center; text-deco
 /* Trail walk: text is centered here, always (action rows, headings, the encounter popover) */
 .trailui, .trailui h3, .trailui p, .trailui .help, .trailui .choicelist, .trailui .choicelist *, .trailui .btn, .trailui .choice, .trailui .encounter * { text-align: center; }
 .trailui .choicelist button, .trailui .choiceform button { justify-content: center; align-items: center; text-align: center; }
-.trailfoot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
-.trailfoot .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+.trailstrip { scroll-margin-top: 92px; display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; align-items: center; margin: 4px 0 8px; padding: 6px 10px; font-size: .9rem; border: 1px solid var(--line, #0003); border-radius: 10px; }
+.trailstrip .tchip, .trailstrip .thp { white-space: nowrap; }
+.trailstrip .hpbar { width: 70px; vertical-align: middle; }
+.trailtoast { position: fixed; left: 50%; top: 70px; transform: translateX(-50%); z-index: 60; width: min(92vw, 420px); pointer-events: none; animation: trailtoast 4s ease forwards; }
+.trailtoast .roadresult, .trailtoast .advlatest { margin: 0; box-shadow: 0 6px 20px #0008; background: var(--panel, #3a2a1c); text-align: center; }
+@keyframes trailtoast { 0% { opacity: 0; } 8% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .trailtoast { animation-duration: 6s; } }
+.trailfoot { display: flex; flex-wrap: nowrap; gap: 6px; justify-content: center; margin: 10px 0; }
+.trailfoot .btn { flex: 1 1 0; min-width: 0; padding: 6px 8px; font-size: .82rem; line-height: 1.15; flex-direction: column; gap: 0; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 dialog.trailpop .pickbox { width: min(560px, 100%); }
 dialog.trailpop .panel.box { margin: 0; border: 0; box-shadow: none; }
 /* Combat and other encounters on a tile map: a popover over the screen, sized to it. Full screen on a phone, a centred card from 721px; the content scrolls inside, so every option stays reachable. */
@@ -7082,7 +7089,7 @@ dialog.trailpop .panel.box .choicelist { display: grid; gap: 6px; }
 dialog.trailpop .panel.box h3 { font-size: 1.05rem; margin: 6px 0; }
 @media (max-width: 720px) {
   dialog.trailpop { padding: 0; }
-  dialog.trailpop .pickbox { width: 100%; height: 100dvh; max-height: 100dvh; border: 0; }
+  dialog.trailpop .pickbox { width: min(380px, 92vw); height: auto; max-height: 86dvh; border: 2px solid var(--line); }
   dialog.trailpop .panel.box { padding: 6px; }
 }
 @media (max-height: 560px) { dialog.trailpop .panel.box .help { display: none; } }
@@ -7126,10 +7133,66 @@ dialog.trailpop .encounter .fightbtns .choice-sub { display: block; -webkit-line
 dialog.trailpop .encounter { display: flex; flex-direction: column; }
 dialog.trailpop .encounter > * { order: 5; }
 dialog.trailpop .encounter > .fightbtns { order: 1; }
-dialog.trailpop .encounter > .fodds { order: 2; text-align: center; margin: 6px 0 2px; }
+dialog.trailpop .encounter > .fodds { order: 0; text-align: center; margin: 6px 0 2px; }
 dialog.trailpop .encounter > .frounds, dialog.trailpop .encounter > .roadresult, dialog.trailpop .encounter > .advlatest { order: 3; }
 dialog.trailpop .encounter > details, dialog.trailpop .encounter > .helpfold { order: 4; }
-dialog.trailpop .encounter > .fightgrid { order: 6; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; font-size: 12px; }
+dialog.trailpop .encounter > .fightgrid { display: none; order: 6; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 0; font-size: 12px; }
 dialog.trailpop .encounter > .fightgrid .fcard { padding: 4px 6px; }
 dialog.trailpop .encounter > .fightgrid .fcard * { font-size: 12px; margin-top: 0; margin-bottom: 0; }
 dialog.trailpop .encounter > .fightgrid .portrait, dialog.trailpop .encounter > .fightgrid img.fcard-pic { display: none; }
+/* Workshop cards carry a whole crafting section: a wider sheet, content scrolls inside */
+dialog.hubpop:has(.wsfrag) .pickbox { width: min(760px, 100%); max-height: calc(100dvh - 16px); }
+dialog.hubpop .wsfrag[aria-busy="true"] { opacity: .6; }
+dialog.hubpop .wsfrag { margin: 8px 0; }
+
+.trailfoot form { flex: 1 1 0; min-width: 0; display: flex; margin: 0; }
+.trailfoot form .btn { width: 100%; }
+.trailfoot > a.btn { flex: 1 1 0; }
+
+/* 2.5.09: the "way on" confirm is a small card over the map, not the full-screen fight sheet */
+dialog.trailpop.trailsmall .pickbox, dialog.hubpop.trailsmall .pickbox { width: min(340px, 92vw); height: auto; max-height: 70dvh; border: 2px solid var(--line); }
+dialog.trailpop.trailsmall .hubcard { padding: 10px 12px; }
+dialog.trailpop.trailsmall .choicelist { margin: 6px 0; }
+dialog.trailpop:not(.trailsmall) .gvs { max-height: 26dvh; }
+dialog.trailpop .fightbtns .choice { padding-top: 3px; padding-bottom: 3px; }
+dialog.trailpop .fightbtns .choice-title { font-size: 13px; }
+/* 2.5.13: Wander off plays in a popover over the Trail section (read-only behind it) */
+dialog.trailpop.wanderpop .pickbox { width: min(560px, 96vw); max-height: 92dvh; }
+dialog.trailpop.wanderpop .hubcard { text-align: left; }
+.wanderbehind .tmgrid button { pointer-events: none; }
+/* 2.5.14: tidy the wander popover: one title (the info line), smaller type, compact folds */
+dialog.wanderpop h1, dialog.wanderpop p.status { display: none; }
+dialog.wanderpop .wanderinfo { font-size: .85rem; line-height: 1.25; margin: 0 0 6px; }
+dialog.wanderpop h3 { font-size: 1rem; margin: 6px 0; }
+dialog.wanderpop .help, dialog.wanderpop .flash { font-size: .85rem; }
+dialog.wanderpop .wfold > summary { font-size: .95rem; padding: 6px 0; }
+dialog.wanderpop .wfold { margin: 4px 0; }
+dialog.wanderpop .roadresult { margin: 4px 0; }
+dialog.wanderpop .rr-title { font-size: .95rem; }
+dialog.wanderpop .rr-sub { font-size: .8rem; }
+dialog.wanderpop .choicelist .choice { padding-top: 6px; padding-bottom: 6px; }
+dialog.wanderpop .hubcard { padding: 8px 10px calc(10px + var(--sab, 0px)); }
+/* 2.5.15: wander popover order: what happened, then the buttons, then the folds and journal */
+dialog.wanderpop .advgrid.wander .choicelist { order: 1; }
+dialog.wanderpop .advgrid.wander .wfold { order: 5; }
+dialog.wanderpop .advgrid.wander details:not(.wfold) { order: 6; }
+dialog.wanderpop .worldlink, dialog.wanderpop .hoopcap { display: none; }
+dialog.wanderpop .wfold { border-top: 0; }
+/* 2.5.16: the wander card (nothing in front of you): header, result, moves, gather */
+dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
+.wcard { text-align: center; }
+.wc-head { display: flex; flex-direction: column; gap: 2px; margin: 2px 0 8px; }
+.wc-head span { font-size: .8rem; color: var(--ink-2, #cdb); }
+.wc-res { display: flex; gap: 8px; align-items: center; justify-content: center; text-align: left; padding: 8px 10px; margin: 0 0 8px; border: 1px solid var(--line); border-top: 3px solid #6ea84a; background: #0003; }
+.wc-res.bad { border-top-color: #b04a3a; }
+.wc-res .wc-ico { font-size: 1.4rem; }
+.wc-res small { display: block; font-size: .8rem; opacity: .85; }
+.wc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0 0 6px; }
+.wc-b { margin: 0; display: block; min-width: 0; }
+.wc-btn { position: relative; width: 100%; min-height: 48px; padding: 6px 30px 6px 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; gap: 0; }
+.wc-btn .wc-bt { font-weight: 700; font-size: .9rem; }
+.wc-btn small { font-size: .7rem; opacity: .85; }
+.wc-btn i { position: absolute; top: 4px; right: 5px; font-style: normal; font-size: .72rem; padding: 0 4px; background: #0006; border: 1px solid #0008; }
+.wcard .wfold { text-align: left; margin: 6px 0 0; }
+.wc-foot { font-size: .75rem; margin: 8px 0 0; opacity: .8; }
+.wanderhide { height: 0; overflow: hidden; }

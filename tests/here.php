@@ -44,6 +44,7 @@ if ($withDb && ($argv[2] ?? '') === 'cli') {   // (php tests/here.php GAME cli .
             echo $t[0] . ',' . $t[1] . ' ' . $sc['st']['phase'] . ' ' . $sc['st']['sec'] . ' ' . (int)($exp['encounter'] !== null) . "\n";
         }
     }
+    if ($cmd === 'endexp') { q("UPDATE expeditions SET status = 'done' WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')"); echo "ok\n"; }
     if ($cmd === 'clearenc') { q("UPDATE expeditions SET encounter = NULL WHERE status = 'active' AND user_id = (SELECT id FROM users WHERE username = 'sprout')"); echo "ok\n"; }
     if ($cmd === 'athome') {   // put the gnome where most villagers live; print "<npc id> <item id>"
         $loc = (int)q_val("SELECT home_location_id FROM npcs WHERE active = 1 AND traveller IS NULL AND home_location_id IS NOT NULL GROUP BY home_location_id ORDER BY COUNT(*) DESC, home_location_id LIMIT 1");

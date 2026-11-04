@@ -112,7 +112,11 @@ R=$(get treehouse.php); chk "treehouse renders" "$([[ $R == 200* ]] && grep -q '
 R=$(get palyard.php); chk "pal yard renders (or sends the level-gated gnome to Pal Jobs)" "$([[ $R == 200* || $R == *paljobs.php ]] && echo 1)" "$R"
 chk "no inline style/script on the picture pages" "$(for pg in workshop treehouse; do get $pg.php >/dev/null; sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo bad; done | grep -q bad && echo 0 || echo 1)"
 get gnome.php >/dev/null; chk "menu: Crafting and Games point at the pictures when on" "$(grep -q 'href="/treehouse.php"' $TD/here-p.html && grep -q 'href="/workshop.php"' $TD/here-p.html && echo 1)"
+R=$(get 'workshop.php?frag=potions'); chk "workshop fragment: the potions section as json html" "$([[ $R == 200* ]] && grep -q '"ok":true' $TD/here-p.html && grep -q 'Potions' $TD/here-p.html && echo 1)" "$R"
+R=$(get 'workshop.php?frag=nonsense'); chk "workshop fragment: an unknown section is a 404 json" "$([[ $R == 404* ]] && echo 1)" "$R"
+chk "workshop card has the loader box and the page link" "$(get 'workshop.php?o=potions' >/dev/null; grep -q 'class="wsfrag" data-frag="potions"' $TD/here-p.html && grep -q 'assets/workshop.js' $TD/here-p.html && echo 1)"
 cli set gnav_craft 0 >/dev/null; cli set gnav_tree 0 >/dev/null
+R=$(get 'workshop.php?frag=potions'); chk "flag off: the fragment is not served to players" "$([[ $R == 302* ]] && echo 1)" "$R"
 echo "== the Trail as tiles (gnav_tiles)"
 cli set gnav_on 1 >/dev/null; login >/dev/null
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
@@ -121,6 +125,7 @@ chk "adventure page shows the tile map and its buttons" "$(grep -q 'class="tilem
 chk "no inline style or script on the tile page" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
 chk "Turn back is offered" "$(grep -q 'value="trail_back"' $TD/here-p.html && echo 1)"
 chk "footer: Gather, Wander off, Turn back are there and centered (trailui)" "$(grep -q 'class="trailui"' $TD/here-p.html && grep -q 'class="trailfoot"' $TD/here-p.html && grep -q 'hubpop-tgather' $TD/here-p.html && grep -q 'value="trail_wander"' $TD/here-p.html && grep -q 'value="trail_back"' $TD/here-p.html && echo 1)"
+chk "top strip: Trail name, Section X of Y, energy chip" "$(grep -q 'class="trailstrip trailui"' $TD/here-p.html && grep -q 'class="tsec">Section 1 of' $TD/here-p.html && grep -q 'class="tchip"' $TD/here-p.html && echo 1)"
 chk "the Gather card is a popover with the gather form" "$(grep -q 'id="hubpop-tgather"' $TD/here-p.html && grep -q 'id="gx-gather-form"' $TD/here-p.html && echo 1)"
 R=$(get 'adventure.php?g=1'); chk "?g=1 opens the Gather card without script" "$(grep -q 'aria-labelledby="hubpop-tgather-t" open' $TD/here-p.html && echo 1)"
 cli forceenc >/dev/null; get adventure.php >/dev/null
@@ -142,6 +147,17 @@ cli set gnav_tiles 1 >/dev/null
 cli clearenc >/dev/null
 R=$(post adventure.php -d do=trail_back)
 chk "Turn back ends the walk" "$([[ $(cli active | tail -1) == 0 ]] && echo 1)" "$(cli active | tail -1)"
+echo "== wander off plays in a popover; the walk comes back by itself"
+cli tilewalk | grep -q '^ok' && cli clearenc >/dev/null
+R=$(post adventure.php -d do=trail_wander)
+get adventure.php >/dev/null
+chk "wandering: the page is the Trail section (read-only) with the wander in a popover" "$(grep -q 'class="wanderbehind"' $TD/here-p.html && grep -q 'class="tilemap' $TD/here-p.html && grep -q 'class="picker hubpop trailpop trailsmall wanderpop"' $TD/here-p.html && grep -q 'class="wc-grid"' $TD/here-p.html && grep -q 'name="do" value="deeper"' $TD/here-p.html && grep -q 'value="return"' $TD/here-p.html && echo 1)"
+chk "...and the section behind it cannot be tapped (no reachable tile)" "$(grep -q 'tmt reach' $TD/here-p.html && echo 0 || echo 1)"
+R=$(post adventure.php -d do=return)
+R=$(get adventure.php)
+get adventure.php >/dev/null
+chk "the wander is over: the Trail walk is back on the page, no popover" "$(grep -q 'class="tilemap' $TD/here-p.html && ! grep -q 'wanderpop' $TD/here-p.html && echo 1)" "$R"
+R=$(post adventure.php -d do=trail_back)
 cli set gnav_tiles 0 >/dev/null; cli set gnav_on 0 >/dev/null
 echo "== layout editor and lint tool"
 chk "tools/lint_here.php passes on the shipped layouts" "$(php "$HERE/../tools/lint_here.php" "$GAME" >/dev/null 2>&1 && echo 1)"

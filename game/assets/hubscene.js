@@ -50,6 +50,16 @@
       d.setAttribute('tabindex', '-1'); try { d.focus({ preventScroll: true }); } catch (e) {}   // no stray focus ring on the first fold
     });
   }
+  // the Trail map is the page: centre it on screen after a load or an in-place swap
+  function centreMap() {
+    var t = document.querySelector('.trailstrip');
+    if (!t || !document.querySelector('.tmwrap')) return;
+    var r = t.getBoundingClientRect(), m = document.querySelector('.tmwrap').getBoundingClientRect();
+    if (r.top < 0 || r.top > 120 || m.bottom > window.innerHeight - 70) t.scrollIntoView({ block: 'start' });   // strip + map in view (scroll-margin-top clears the header)
+  }
+  document.addEventListener('DOMContentLoaded', centreMap);
+  document.addEventListener('gv:swapped', centreMap);
+  window.addEventListener('load', function () { centreMap(); setTimeout(centreMap, 250); });
   document.addEventListener('DOMContentLoaded', trailPops);
   document.addEventListener('gv:swapped', trailPops);
   trailPops();
