@@ -33,3 +33,6 @@ Seeds at 16 px reduce to a blob; ginseng seed leaf looks like cannabis; badger c
 
 ## Run 2 part 1 status (2026-11-03)
 91/140 have Opus art (`_aB1` helper in the .lua); the last 49 (`ph/camellia-seed` .. `ph/chestnut`) are Sonnet drafts only. Finish with `rollout/run2-part1-remaining.args.json` (tag B1r, skipDraft). Details: `HANDOFF.md`.
+
+## Run 2 part 1 DONE (2026-11-04)
+140/140 Opus (`_aB1`), verified. Parts 2 and 3 open. See `HANDOFF.md`.
