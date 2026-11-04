@@ -43,3 +43,6 @@ DONE: 140/140 Opus-finished, 0 draft-only (grep `_aB3`; check.py 140 items, 0 mi
 
 ## Runs 3 and 4 split (2026-11-04)
 run3 -> `run3-part1..3` (140 each; tags C1,C2,C3; part1 starts `ph/grapefruit-marmalade`, part3 ends `ph/poi`). run4 -> `run4-part1..3` (139/139/138; tags D1,D2,D3; `ph/poinsettia-seed` .. `ph/zinnia-seed`). Args: `rollout/runN-partM.args.json`. Not started.
+
+## Run 3 part 1 (C1) status (2026-11-04)
+DONE: 140/140 Opus-finished, 0 draft-only (grep `_aC1`; check.py 140 items, 0 missing, 0 bad). Run `wf_8e03cf47-d65`, 41 agents, ~5.1M subagent tokens, no failures. `ph/grapefruit-marmalade` .. `ph/lemon`. Weak (agents' notes): gravel-path (busy pebbles), green-bean-seed, grilled-sardines (steam), hat-rootwarden (low contrast, roots like table legs), hazelnut (reads as acorn), hollowheart-tree (hollow reads as dark hole), holly-hedge (boxy), kangaroo-paw-seed (reads as chili), kava-seed, kiwi-seed (quirk blob), lavender-border-cross (wood on wood), leech-slime (leech too faint), lemming-fluff (stiff). Seeds at 16 px still blob-prone.
