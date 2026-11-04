@@ -39,12 +39,12 @@ end, { fold = 0.42 })
 -- torn left end: ragged diagonal bite
 lm:each(function(x, y)
   local jag = ({ 0, 2, 1, 3, 1, 0, 2 })[(y % 7) + 1]
-  if x + 0.7 * y < 62 + jag then lm.s[K(x, y)] = nil end
+  if x + 0.45 * (y - 50) < 11.5 + jag then lm.s[K(x, y)] = nil end
 end)
 local bias = {}
 for _, s in ipairs(seeds) do X.ao(bias, lm, s.bm, 1, -1) G.cast(bias, lm, s.wm, 1, 1, -1) end
 X.ao(bias, lm, germ.bm, 1, -1) X.ao(bias, lm, cap.m, 1, -1) G.cast(bias, lm, cap.m, 1, 2, -1)
-G.toneN(c, lm, ln, LEAF, { bias = bias, tok = ltok, cuts = { 0.12, 0.27, 0.43, 0.6, 0.78 }, amb = 0.18, wrap = 0.3 })
+G.toneN(c, lm, ln, LEAF, { bias = bias, tok = ltok, cuts = { 0.2, 0.36, 0.54, 0.72, 0.88 }, amb = 0.12, wrap = 0.25 })
 lm:each(function(x, y) local k = K(x, y) local s, t = LS[k], LT[k]
   if bias[k] then return end
   if abs(s) < 0.14 and t > 0.02 and t < 0.95 then c:put(x, y, s <= 0 and VEIN or LEAF[3], ltok) return end
@@ -59,7 +59,7 @@ lm:edge():each(function(x, y) local k = K(x, y)
   if not bias[k] and LS[k] > 0.62 and LT[k] > 0.08 and LT[k] < 0.9 then c:put(x, y, COOL, ltok) end end)
 -- torn edge: pale fibre pixels along the rip
 lm:each(function(x, y)
-  if (not lm:has(x - 1, y) or not lm:has(x, y + 1)) and x + 0.7 * y < 66 and X.hash(x, y, 5) > 0.45 then c:put(x, y, LEAF[6], ltok) end
+  if (not lm:has(x - 1, y) or not lm:has(x, y + 1)) and x + 0.45 * (y - 50) < 15 and X.hash(x, y, 5) > 0.45 then c:put(x, y, LEAF[6], ltok) end
 end)
 
 -- ---------- sprout (stem, cotyledons, true leaves)
