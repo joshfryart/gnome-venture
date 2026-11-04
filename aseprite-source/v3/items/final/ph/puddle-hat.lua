@@ -1,126 +1,59 @@
--- puddle-hat (D10 final, Sonnet high). A yellow oilskin sou'wester seen side-on: domed crown with panel seams and two
--- brass grommets, a short front brim and a long back brim that droops like a duck tail, ribbed with parallel stitch rows,
--- a red band round the crown and a chin strap hanging into the puddle it sits in. Oilskin sheen: bright streak on the crown,
--- darker underside on the drooping tail. Puddle: sea ramp with ripple rings and a dark reflection under the hat.
--- quirk: a single raindrop is still hanging off the front brim, with one ripple already spreading below it.
-local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local A = dofile(DIR .. "/../_helpers/_aD10_4.lua")
-local HP, X, K = A.HP, A.X, A.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = A.new("puddle-hat")
-
-local YEL = { "#7a3d1a", "#b5601c", "#e08a1c", "#f7b52a", "#ffd84e", "#fff3a0" }
-local EMB = { "#4a1a30", "#7d2438", "#b52e3f", "#e8493b", "#ff7a55", "#ffb08a" }
-local SEA = { "#2a4a7a", "#3a6ea6", "#5fa4c8", "#8ed0e0", "#b6f0e0", "#e4fbf4" }
-local BRASS = { "#6a4a1c", "#9a7424", "#c89a34", "#f0c860", "#fff0a8" }
-
+-- puddle-hat (lean W2_15)
+-- Straw hat dropped brim-down in a puddle: ringed woven brim, domed crown with a red band, ripple rings, a drip, a lily scrap.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "puddle-hat" }
+local abs, sqrt, floor = math.abs, math.sqrt, math.floor
+local WATER = { "#1f3f78", "#2b5a9c", "#3f7fbe", "#63a4d6", "#96cdea", "#d4f0f6" }
+local STRAW = { "#7a4a1e", "#a8692a", "#d08f35", "#eab04a", "#f6cf6c", "#fff0a8" }
+local RED   = { "#5a1428", "#8a1f36", "#b8323f", "#dc5650", "#f08a6e" }
+local LILY  = { "#1d4a35", "#2f6e46", "#4c9a52", "#80c468" }
 -- puddle
-local pud = c:ellipse(33, 52, 25, 6)
-local pn = {}
-pud:each(function(x, y) pn[K(x, y)] = { 0.0, 0.0, 1.0 } end)
-local ptok = { r = { name = "puddle" } }
-pud:each(function(x, y)
-  local d = ((x - 33) / 25.5) ^ 2 + ((y - 52) / 6.5) ^ 2
-  local i = 3
-  if d > 0.72 then i = 2 end
-  if d > 0.9 then i = 1 end
-  if y < 49 and d < 0.7 then i = 4 end
-  c:put(x, y, SEA[i], ptok)
-end)
--- ripple rings (hard 1px lines)
-local function ring(cx, cy, rx, ry, col)
-  for a = 0, 63 do
-    local t = a / 64 * 2 * pi
-    local x, y = floor(cx + cos(t) * rx + 0.5), floor(cy + sin(t) * ry + 0.5)
-    if pud:has(x, y) then c:put(x, y, col, ptok) end
-  end
-end
-ring(11, 54, 4, 1.4, SEA[5]) ring(11, 54, 7, 2.3, SEA[4])
-ring(56, 53, 3.6, 1.3, SEA[5])
--- dark reflection of the hat under it
-local refl = c:ellipse(33, 53, 19, 3)
-refl:clip(pud):each(function(x, y) c:put(x, y, ((x + y) % 2 == 0 and y > 52) and SEA[2] or SEA[1], ptok) end)
-for _, p in ipairs{ { 20, 51 }, { 36, 50 }, { 44, 52 } } do c:put(p[1], p[2], SEA[5], ptok) c:put(p[1] + 1, p[2], SEA[5], ptok) end
-
--- brim: front tip left, long back tail droops to the right
-local brim = c:poly{ { 8, 36 }, { 12, 35 }, { 15, 34 }, { 39, 34 }, { 46, 38 }, { 53, 43 }, { 58, 49 }, { 57, 53 }, { 52, 52 }, { 44, 49 }, { 34, 46 }, { 22, 45 }, { 13, 43 }, { 9, 40 } }
-local bn = X.pillow(brim, 3.0)
--- tilt: the tail faces down-right, darker
-local tail = {}
-brim:each(function(x, y) local k = K(x, y)
-  local tt = max(0, (x - 38) / 20)
-  local v = bn[k]
-  bn[k] = { A.norm(v[1] + tt * 0.35, v[2] + tt * 0.5, v[3]) }
-end)
-local btok = { r = { name = "brim" } }
-local bi = A.shade(c, brim, bn, YEL, { amb = 0.1, wrap = 0.28, tok = btok, cuts = { 0.24, 0.42, 0.58, 0.74, 0.88 } })
--- ribbed stitch rows parallel to the brim edge
-local dd = X.dist(brim)
-brim:each(function(x, y) local k = K(x, y)
-  local d = dd[k]
-  local i = bi[k] or 3
-  if (abs(d - 2.2) < 0.5 or abs(d - 4.6) < 0.5 or abs(d - 7.0) < 0.5) and d > 1.6 then c:put(x, y, YEL[max(1, i - 2)], btok)
-  elseif (abs(d - 3.0) < 0.5 or abs(d - 5.4) < 0.5) and d > 2.5 and i >= 3 then c:put(x, y, YEL[min(6, i + 1)], btok) end
-end)
--- seam where the tail folds
-for t = 0, 1, 0.04 do local x, y = floor(40 + 15 * t + 0.5), floor(35 + 12 * t * 0.9 + 0.5) if brim:has(x, y) then c:put(x, y, YEL[2], btok) end end
-
--- crown dome
-local crown = HP.mask()
-local cx, cy, rx, ry = 27, 33, 13.5, 15.5
-for y = 17, 36 do for x = 12, 42 do
-  local dx, dy = (x - cx) / rx, (y - cy) / ry
-  if dx * dx + dy * dy <= 1 and y <= 36 then crown:set(x, y) end
-end end
-local cn = {}
-crown:each(function(x, y) local k = K(x, y)
-  local dx, dy = (x - cx + 0.5) / (rx + 0.6), (y - cy + 0.5) / (ry + 0.6)
-  local q = max(0.03, 1 - dx * dx - dy * dy)
-  cn[k] = { A.norm(dx * 1.0, dy * 0.9, sqrt(q)) }
-end)
-local ctok = { r = { name = "crown" } }
-local cb = {}
-X.ao(cb, crown, c:rect(0, 36, 63, 40), 1, 0)
-A.shade(c, crown, cn, YEL, { amb = 0.1, wrap = 0.28, tok = ctok, cuts = { 0.22, 0.4, 0.56, 0.72, 0.88 } })
-local ci = X.tone(c, crown, X.light(cn, { amb = 0.1, wrap = 0.28 }), YEL, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.88 }, tok = ctok })
--- panel seams (curved, follow the dome)
-for _, k in ipairs{ -0.42, 0.38 } do
-  for y = 19, 31 do
-    local dy = (y - cy) / ry
-    local x = floor(cx + k * rx * sqrt(max(0, 1 - dy * dy)) + 0.5)
-    if crown:has(x, y) then
-      local i = ci[K(x, y)] or 3
-      c:put(x, y, YEL[max(1, i - 2)], ctok)
-      if crown:has(x - 1, y) and k < 0.5 then c:put(x - 1, y, YEL[min(6, i + 1)], ctok) end
-    end
-  end
-end
--- band round the base (red), with a shade row
-local band = HP.mask()
-crown:each(function(x, y) if y >= 31 then band:set(x, y) end end)
-local bandi = X.tone(c, band, X.light(cn, { amb = 0.1, wrap = 0.28 }), EMB, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.88 }, tok = { r = { name = "band" } } })
-band:each(function(x, y) if y == 31 then c:put(x, y, EMB[1], { r = { name = "band" } }) end end)
--- brass grommets on the crown
-for _, g in ipairs{ { 19, 26 }, { 19, 22 } } do
-  c:put(g[1], g[2], BRASS[3], ctok) c:put(g[1] + 1, g[2], BRASS[2], ctok) c:put(g[1], g[2] - 1, BRASS[5], ctok) c:put(g[1] + 1, g[2] - 1, BRASS[4], ctok)
-  c:put(g[1], g[2] + 1, BRASS[1], ctok) c:put(g[1] + 1, g[2] + 1, BRASS[1], ctok)
-end
--- oilskin sheen streak + specular
-for _, p in ipairs{ { 22, 20 }, { 21, 21 }, { 21, 22 }, { 20, 23 } } do c:put(p[1], p[2], YEL[6], ctok) end
-c:put(24, 19, YEL[6], ctok) c:put(25, 19, YEL[5], ctok)
--- a darker lower-right panel crease on the dome
-for y = 22, 29 do local x = floor(cx + 0.7 * rx * sqrt(max(0, 1 - ((y - cy) / ry) ^ 2)) + 0.5) if crown:has(x, y) then c:put(x, y, YEL[1], ctok) end end
-
--- chin strap: red, hangs from the band at the front into the puddle, brass buckle
-local strap = { { 15, 36 }, { 12, 41 }, { 11, 46 }, { 12, 51 } }
-local tm, tn = A.tube(strap, function(t) return 1.2 end)
-tm:cut(brim)
-X.tone(c, tm, X.light(tn, { amb = 0.1, wrap = 0.25 }), EMB, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.88 }, tok = { r = { name = "strap" } } })
-local bk = c:rect(10, 48, 14, 50)
-c:fillMask(bk, BRASS[3]) c:fillMask(c:rect(11, 49, 13, 49), BRASS[1]) c:px(10, 48, BRASS[5]) c:px(11, 48, BRASS[4])
--- ambient darkening where the front brim meets the crown
-for x = 13, 17 do if brim:has(x, 35) and not crown:has(x, 35) then c:put(x, 35, YEL[1], btok) end end
-
--- quirk: hanging raindrop under the front brim tip
-c:fillMask(c:rect(8, 41, 9, 42), SEA[4]) c:px(8, 43, SEA[3]) c:px(9, 43, SEA[3]) c:px(8, 41, SEA[6]) c:px(9, 44, SEA[2])
-A.save(c, "puddle-hat")
+local pud = c:ellipse(32, 47, 23, 9)
+local pn = X.pillow(pud, 9)
+local pv = X.light(pn, { amb = 0.5, wrap = 0.4 })
+pud:each(function(x, y) local d = ((x - 32) / 23)^2 + ((y - 47) / 9)^2
+  if X.hash(x, y, 3) > 0.86 then pv[K(x, y)] = pv[K(x, y)] + 0.12 end end)
+G.tone(c, pud, pv, WATER, { 0.2, 0.38, 0.55, 0.72, 0.9 })
+-- sky glint streaks on water
+for _, s in ipairs{ {46, 50, 4}, {14, 46, 3}, {40, 53, 3} } do for i = 0, s[3] - 1 do c:px(s[1] + i, s[2], WATER[6]) end end
+-- ripple ring around hat
+local rr = c:ellipse(32, 44, 21, 7)
+rr:cut(rr:copy():shrink(1))
+rr:each(function(x, y) if y > 41 and X.hash(x, y, 8) > 0.25 then c:px(x, y, WATER[5]) end end)
+-- brim
+local brim = c:ellipse(32, 41, 18, 6)
+local bn = X.pillow(brim, 5)
+local bv = X.light(bn, { amb = 0.3, wrap = 0.3 })
+brim:each(function(x, y)
+  local d = sqrt(((x - 32) / 18)^2 + ((y - 41) / 6)^2)
+  if floor(d * 8) % 2 == 0 then bv[K(x, y)] = bv[K(x, y)] - 0.13 end
+  if (x + floor(d * 8)) % 5 == 0 then bv[K(x, y)] = bv[K(x, y)] + 0.07 end end)
+G.tone(c, brim, bv, STRAW, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+-- water lapping over the front lip of the brim
+local lap = c:ellipse(32, 41, 18, 6)
+lap:each(function(x, y) if y >= 45 or (y >= 44 and X.hash(x, y, 2) > 0.5) then c:px(x, y, (x % 3 == 0) and WATER[4] or WATER[3]) end end)
+for x = 20, 44 do if X.hash(x, 44, 6) > 0.55 then c:px(x, 44, WATER[5]) end end
+-- crown (dome, clipped at brim)
+local crown = c:ellipse(32, 35, 10, 12)
+crown:cut(c:rect(0, 40, 63, 63))
+local cn = X.pillow(crown, 9)
+local cv = X.light(cn, { amb = 0.15, wrap = 0.25 })
+crown:each(function(x, y) if (x + y) % 4 == 0 then cv[K(x, y)] = cv[K(x, y)] - 0.07 end
+  if y < 33 and (x - y) % 5 == 0 then cv[K(x, y)] = cv[K(x, y)] + 0.06 end end)
+G.tone(c, crown, cv, STRAW, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+-- red band
+local band = crown:copy()
+band:cut(c:rect(0, 0, 63, 33)) band:cut(c:rect(0, 37, 63, 63))
+local bnn = X.pillow(crown, 9)
+G.tone(c, band, X.light(bnn, { amb = 0.15, wrap = 0.25 }), RED, { 0.25, 0.45, 0.65, 0.85 })
+for x = 23, 41 do if crown:has(x, 37) then c:px(x, 38, STRAW[1]) end end
+-- knot on band
+c:px(36, 34, RED[5]) c:px(37, 34, RED[4]) c:px(36, 35, RED[3])
+-- crown specular + glint
+c:px(27, 28, STRAW[6]) c:px(28, 28, STRAW[6]) c:px(27, 29, STRAW[5]) c:sparkle(25, 30)
+-- drip from brim edge (quirk) + landing ring
+c:px(15, 44, WATER[4]) c:px(15, 45, WATER[5])
+-- lily scrap
+c:fillMask(c:ellipse(52, 50, 3, 1), LILY[3]) c:px(51, 50, LILY[4]) c:px(54, 50, LILY[1]) c:px(53, 51, LILY[2])
+G.fin(c, "puddle-hat")

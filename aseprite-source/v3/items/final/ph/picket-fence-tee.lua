@@ -1,76 +1,59 @@
--- picket-fence-tee (final, Opus single pass). A T junction seen from a raised three-quarter view: a run of white
--- pickets left and right of a stout junction post (pyramid cap), and a branch receding toward the viewer drawn as
--- stacked picket tips between two side rails, ending on a short stub post. Sawn rail ends show paler end grain.
--- Material: bevelled grained boards, two-plane pyramid caps, iron nail heads, contact shadow of each nearer picket on
--- the one behind, AO where the branch meets the post. Ground shadow under the branch foot.
--- quirk: a little blue butterfly rests on the junction post cap.
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aC33_5.lua")
-local HP, X, K = A.HP, A.X, A.K
-local c = A.new("picket-fence-tee")
-local P, W, I = A.PAINT, A.WOOD, A.IRON
-
-c:groundShadow(32, 52, 9, 2)
-
--- back run: rails
-for i, ry in ipairs{ 13, 23 } do
-  local rm = c:rect(9, ry, 54, ry + 1)
-  A.board(c, rm, W, { R = 1, dir = "h", seed = i * 4, name = "rail" })
-  c:put(9, ry, W[6]) c:put(9, ry + 1, W[5]) c:put(54, ry, W[4]) c:put(54, ry + 1, W[3])
+-- picket-fence-tee (lean W2_13)
+-- Side elevation: a back run of pointed pickets on two rails, with a stem run coming toward the viewer (foreshortened) at a tall finial post.
+-- quirk: a tiny bluebird perched on the finial.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sqrt = math.floor, math.abs, math.sqrt
+local WOOD  = { "#3d2418", "#5e3a22", "#8a5a32", "#b0804a", "#d3a766" }
+local WHITE = { "#5d5a84", "#8d8aae", "#bdbcd2", "#e4e1e6", "#fbf6ea" }
+local BLUE  = { "#223a6e", "#31569a", "#4c7cc4", "#7aaae0", "#b4d6f5" }
+local function shade(x, y, x0, y0, x1, y1, R, base)
+  local i = base or 3
+  if x == x0 then i = i + 1 elseif x == x1 then i = i - 1 end
+  if y == y0 then i = i + 1 elseif y == y1 then i = i - 1 end
+  return R[math.max(1, math.min(#R, i))]
 end
--- back run: pickets
-local xs = { 11, 17, 23, 37, 43, 49 }
-for i, x in ipairs(xs) do
-  local top = 9 + ((i == 2 or i == 6) and 1 or 0)
-  local m = HP.mask()
-  m:set(x + 1, top) m:set(x + 2, top)
-  for y = top + 1, 28 do for xx = x, x + 3 do m:set(xx, y) end end
-  A.cast(c, m, 1, 1, -1)
-  A.board(c, m, P, { R = 1.3, dir = "v", seed = i * 6, dens = 0.22, name = "picket" })
-  c:put(x + 1, 14, I[2]) c:put(x + 1, 24, I[2])
-  for xx = x, x + 3 do A.step(c, xx, 28, -1) end
+local function box(c, x0, y0, x1, y1, R, base, grain)
+  for y = y0, y1 do for x = x0, x1 do
+    local col = shade(x, y, x0, y0, x1, y1, R, base)
+    if grain and X.hash(x, y, grain) > 0.82 and x > x0 and x < x1 then col = R[math.max(1, (base or 3) - 1)] end
+    c:put(x, y, col)
+  end end
 end
--- branch side rails (receding toward the viewer)
-for i, rx in ipairs{ 27, 36 } do
-  local rm = c:rect(rx, 27, rx + 1, 46)
-  A.board(c, rm, W, { R = 1, dir = "v", seed = 20 + i, name = "brail" })
+local NAME = "picket-fence-tee"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+c:fillMask(c:ellipse(32, 56, 12, 2), "#9a94a8") c:fillMask(c:ellipse(32, 56, 6, 1), "#7c7690")
+-- back run
+box(c, 6, 17, 57, 19, WOOD, 3, 2) box(c, 6, 28, 57, 30, WOOD, 3, 3)
+local function picket(x0)
+  local x1 = x0 + 4
+  for y = 11, 36 do for x = x0, x1 do
+    local row = y - 11
+    local half = (row == 0) and 0 or (row == 1) and 1 or 2
+    if abs(x - (x0 + 2)) <= half then
+      local col = WHITE[4]
+      if x == x0 then col = WHITE[5] elseif x == x1 then col = WHITE[2] elseif x == x1 - 1 then col = WHITE[3] end
+      if y >= 35 then col = WHITE[2] end
+      if (y == 17 or y == 18 or y == 28 or y == 29) and x ~= x0 then col = WHITE[3] end
+      if X.hash(x, y, 8) > 0.95 then col = WHITE[3] end
+      c:put(x, y, col)
+    end
+  end end
 end
--- junction post
-local pm = c:rect(29, 8, 34, 31)
-A.cast(c, pm, 1, 1, -1)
-A.board(c, pm, W, { R = 2, dir = "v", seed = 3, name = "post", knot = { 31, 20 } })
-local cm = c:rect(28, 6, 35, 7)
-A.board(c, cm, W, { R = 1, grain = false, name = "cap" })
-c:put(28, 6, W[6]) c:put(28, 7, W[5])
-local fm = HP.mask()
-for y = 2, 5 do local h = y - 2 for x = 31 - h, 32 + h do if x >= 29 and x <= 34 then fm:set(x, y) end end end
-A.pyramid(c, fm, 32, W)
--- branch: stacked picket tips, far to near
-local tops = { 29, 33, 37, 41 }
-for j, t in ipairs(tops) do
-  local m = HP.mask()
-  m:set(31, t) m:set(32, t)
-  for y = t + 1, t + 7 do for x = 30, 33 do m:set(x, y) end end
-  A.cast(c, m, 0, 1, -1) A.cast(c, m, 1, 1, -1)
-  A.sep(c, m, P)
-  A.sep(c, m, W)
-  A.board(c, m, P, { R = 1.2, dir = "v", seed = 40 + j, dens = 0.2, name = "bpicket" })
-  c:put(31, t + 3, I[2])
+for _, x in ipairs{ 6, 12, 18, 24, 40, 46, 52 } do picket(x) end
+-- front-coming run: stem rail foreshortened, picket ends stepping down and widening
+box(c, 29, 37, 34, 55, WOOD, 3, 4)
+for i, y in ipairs{ 38, 43, 48 } do
+  local w = 3 + i
+  box(c, 31 - w - 1, y, 28, y + 2, WHITE, 3) box(c, 35, y, 35 + w + 1, y + 2, WHITE, 3)
+  c:px(31 - w - 1, y, WHITE[2])
 end
--- stub post at the near end
-local sm = c:rect(29, 46, 34, 51)
-A.cast(c, sm, 0, -1, -1)
-A.board(c, sm, W, { R = 1.6, dir = "v", seed = 9, name = "stub" })
-for x = 29, 34 do c:put(x, 46, (x < 32) and W[6] or W[5]) end -- paler sawn top (end grain)
-c:put(31, 47, W[4]) c:put(32, 47, W[4])
-for x = 29, 34 do A.step(c, x, 51, -1) end
--- chipped paint + pop
-for _, p in ipairs{ { 18, 19 }, { 19, 19 }, { 18, 20 }, { 44, 24 }, { 31, 39 } } do c:put(p[1], p[2], W[4]) end
-c:put(12, 12, A.CREAM)
-
--- quirk: a blue butterfly on the cap (wings up)
-A.map(c, {
-  "SH.HS",
-  "SsksS",
-  ".dkd.",
-}, 33, 2, { S = "#3a86b0", s = "#5fc4c8", H = "#b6f0e0", d = "#2a4a7a", k = "#2b1c26" })
-A.save(c, "picket-fence-tee")
+-- junction post with ball finial
+box(c, 28, 8, 35, 38, WOOD, 3, 9)
+c:fillMask(c:ellipse(31.5, 6, 3.5, 3.5), WOOD[4]) c:px(30, 4, WOOD[5]) c:px(31, 4, WOOD[5]) c:px(33, 8, WOOD[2])
+box(c, 28, 8, 35, 9, WOOD, 2)
+-- front end post cap
+box(c, 28, 53, 35, 56, WOOD, 4)
+-- bluebird
+c:fillMask(c:ellipse(37, 2, 3, 2), BLUE[3]) c:px(35, 1, BLUE[4]) c:px(36, 1, BLUE[5]) c:px(39, 2, "#e8a63c") c:px(36, 3, "#f1b072") c:px(38, 1, "#2b1c26")
+G.save(c, NAME)

@@ -1,65 +1,54 @@
--- picket-fence-cross (final, Opus single pass): a four-way junction seen corner-on: a square post turned 45 degrees
--- with a blue painted pyramid cap, and four short picket arms running off on the two diagonals (an X). Material:
--- per-pixel pillow light, SW-facing run lit, SE-facing run in cool shade, end grain on the rail ends, nail heads,
--- grain streaks and a paint chip, a bright arris on the post edge, cap with lit/shade facets and a dark drip lip,
--- contact shadow behind pickets and AO at the feet, ground shadow.
--- quirk: somebody's red knitted mitten is hung to dry on the far right picket.
-local A = dofile(debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$") .. "/../_helpers/_aC33_4.lua")
-local floor, abs = math.floor, math.abs
-local c = A.new("picket-fence-cross")
-c:groundShadow(32, 46, 24, 5)
-local HGT = 20
--- back arms
-A.rail(c, 13, 29, 32, 32, 0.5, { ends = { "l" } })
-A.rail(c, 13, 29, 32, 40, 0.5, { ends = { "l" } })
-A.rail(c, 35, 51, 32, 32, -0.5, { ends = { "r" }, bias = -1 })
-A.rail(c, 35, 51, 32, 40, -0.5, { ends = { "r" }, bias = -1 })
-A.picket(c, 16, 37, HGT, 0.5, { grain = 1 })
-A.picket(c, 48, 37, HGT, -0.5, { bias = -1, grain = -1 })
-A.picket(c, 23, 41, HGT, 0.5, { grain = -1 })
-A.picket(c, 41, 41, HGT, -0.5, { bias = -1, grain = 1, chip = { -1, -10 } })
-local function nails(cx, sl) local y = 32 + floor(sl * (cx - 32)) + 1 A.nail(c, cx, y) A.nail(c, cx, y + 8) end
-nails(16, .5) nails(23, .5) nails(48, -.5) nails(41, -.5)
--- post + pyramid cap
-local P = A.post(c, 32, 48, 4, 26, { top = false })
-local CAP = { "#25365e", "#33528a", "#4776ad", "#64a0c8", "#93cbdf", "#c6ecef" }
-local peak = P.top[32] - 9
-local tok = { r = { name = "cap" } }
-for x = 27, 36 do
-  local d = x < 32 and (31 - x) or (x - 32)           -- 0 at the ridge
-  local yt = peak + floor(d * 1.25)
-  local yb = (P.top[math.max(28, math.min(35, x))] or P.top[32]) + 1
-  for y = yt, yb do
-    local lit = x < 32
-    local i = lit and 5 or 3
-    if y == yb then i = lit and 3 or 1                 -- lip in shade
-    elseif x == 31 and y < yt + 3 then i = 6           -- ridge catch-light
-    elseif lit and d >= 3 then i = 4
-    elseif not lit and d >= 3 then i = 2 end
-    c:put(x, y, CAP[i], tok)
-  end
+-- picket-fence-cross (lean W2_13)
+-- Plan view from above: a plus of four picket runs meeting at a blue-capped centre post; pickets are pointed tops seen from above.
+-- quirk: a ladybug walks on one picket.
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
+local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sqrt = math.floor, math.abs, math.sqrt
+local WOOD  = { "#3d2418", "#5e3a22", "#8a5a32", "#b0804a", "#d3a766" }
+local WHITE = { "#5d5a84", "#8d8aae", "#bdbcd2", "#e4e1e6", "#fbf6ea" }
+local BLUE  = { "#223a6e", "#31569a", "#4c7cc4", "#7aaae0", "#b4d6f5" }
+local function shade(x, y, x0, y0, x1, y1, R, base)
+  local i = base or 3
+  if x == x0 then i = i + 1 elseif x == x1 then i = i - 1 end
+  if y == y0 then i = i + 1 elseif y == y1 then i = i - 1 end
+  return R[math.max(1, math.min(#R, i))]
 end
-c:put(31, peak, CAP[6], tok) c:put(30, peak + 3, A.CREAM, tok)
--- front arms (after the post)
-A.rail(c, 35, 51, 32, 32, 0.5, { ends = { "r" } })
-A.rail(c, 35, 51, 32, 40, 0.5, { ends = { "r" } })
-A.rail(c, 13, 29, 32, 32, -0.5, { ends = { "l" }, bias = -1 })
-A.rail(c, 13, 29, 32, 40, -0.5, { ends = { "l" }, bias = -1 })
-A.picket(c, 23, 49, HGT, -0.5, { bias = -1, grain = 1 })
-A.picket(c, 41, 49, HGT, 0.5, { grain = -1 })
-A.picket(c, 16, 53, HGT, -0.5, { bias = -1, grain = -1 })
-A.picket(c, 48, 53, HGT, 0.5, { grain = 1, chip = { 1, -6 } })
-nails(23, -.5) nails(16, -.5) nails(41, .5) nails(48, .5)
--- quirk: mitten hung on the far right picket's point
-c:put(48, 18, A.INK)
-A.map(c, {
-  "..EE.",
-  ".EeEE",
-  "TEeEE",
-  "TEEEr",
-  ".EEEr",
-  ".cCc.",
-  ".CcC.",
-}, 46, 19, { E = "#e8493b", e = "#ff8a5c", r = "#b52e3f", T = "#c93a3c", c = "#fff4d6", C = "#e3c99a" })
-A.tuft(c, 31, 50) A.tuft(c, 12, 54) A.tuft(c, 51, 54)
-A.save(c, "picket-fence-cross")
+local function box(c, x0, y0, x1, y1, R, base, grain)
+  for y = y0, y1 do for x = x0, x1 do
+    local col = shade(x, y, x0, y0, x1, y1, R, base)
+    if grain and X.hash(x, y, grain) > 0.82 and x > x0 and x < x1 then col = R[math.max(1, (base or 3) - 1)] end
+    c:put(x, y, col)
+  end end
+end
+local NAME = "picket-fence-cross"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+-- ground shadow
+c:fillMask(c:rect(9, 33, 59, 38), "#9a94a8") c:fillMask(c:rect(35, 9, 38, 59), "#9a94a8")
+-- rails
+box(c, 7, 29, 56, 34, WOOD, 3, 5)
+box(c, 29, 7, 34, 56, WOOD, 3, 6)
+-- pickets as pointed square tops (lit from upper-left)
+local function pk(cx, cy)
+  for dy = -2, 2 do for dx = -2, 2 do
+    local x, y = cx + dx, cy + dy
+    local col = WHITE[4]
+    if dx + dy < -1 then col = WHITE[5] elseif dx + dy > 1 then col = WHITE[3] end
+    if dx == 0 and dy == 0 then col = WHITE[5] end
+    if dx == 2 or dy == 2 then col = WHITE[2] end
+    c:put(x, y, col)
+  end end
+  c:px(cx - 1, cy - 1, WHITE[5])
+end
+for _, p in ipairs{ 10, 16, 22, 41, 47, 53 } do pk(p, 31) pk(31, p) end
+-- centre post + pyramid cap
+box(c, 26, 26, 37, 37, WOOD, 3)
+for y = 27, 36 do for x = 27, 36 do
+  local dx, dy = x - 31.5, y - 31.5
+  local col
+  if abs(dx) > abs(dy) then col = dx < 0 and BLUE[4] or BLUE[2] else col = dy < 0 and BLUE[5] or BLUE[1] end
+  c:put(x, y, col)
+end end
+c:px(31, 31, BLUE[5]) c:px(32, 32, BLUE[3]) c:px(30, 30, "#fff6f2")
+-- ladybug quirk
+c:px(47, 30, "#d6303a") c:px(48, 30, "#d6303a") c:px(47, 31, "#d6303a") c:px(48, 31, "#a01e2c") c:px(46, 30, "#2b1c26")
+G.save(c, NAME)
