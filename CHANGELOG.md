@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.11
+- **Fight popover is smaller**: sized to its content (up to 440 px wide, 88% of the screen tall) instead of the whole screen. Needs 2.5.10.
+
 ## 2.5.10
 - **Trail "way on" popover is a small card** over the map, not the full-screen sheet (the fight popover stays full size). Needs 2.5.09.
 
