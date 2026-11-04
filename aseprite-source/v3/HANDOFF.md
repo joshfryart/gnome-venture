@@ -21,8 +21,8 @@ Branch: `ccr-c4d6c653-u81tm0` (repo `joshfryart/gnome-venture`). Never push to m
 - **Part 2 (B2) DONE: 140/140 Opus, 0 draft-only** (`ph/chestnut-seed` .. `ph/elderberry-seed`, grep `_aB2`; last 5 via `B2r`). **Part 3 (B3) DONE: 140/140 Opus, 0 draft-only** (`ph/ember-shell` .. `ph/grapefruit`, grep `_aB3`). **Run 2 is complete: 420/420.** Next: runs 3 and 4.
 
 ## What is NEXT (in order)
-1. **Run 2, three parts** (part 1 done; parts 2 and 3 open): `rollout/run2-part1.json|2|3` (140 each) with ready args `rollout/run2-partN.args.json` (tags B1,B2,B3). Launch with the Workflow tool: `scriptPath` = `aseprite-source/v3/rollout/items-run.js`, `args` = the file contents. Josh will assign parts to AIs; different parts can run in parallel (shared agent concurrency ~16). Sonnet drafts first (per 24-item chunk), then Opus in groups of 4, single pass, no fix round. Verify: `python3 aseprite-source/v3/rollout/check.py run2-part1.json` checks existence and size only; to prove Opus finished an item, grep its `.lua` for an Opus helper (`_aB...`; draft helpers are `_dB...`).
-2. Runs 3 and 4: `rollout/run3.json` (420), `run4.json` (416); not split yet, same script.
+1. **Split run 3 (420) and run 4 (416) into parts of 140** (like run2-partN.json + args with tags C1-C3, D1-D3), then launch each part: ~9M tokens each, 6 parts, ~50M total. Run 2 (all 3 parts) is DONE.
+2. Remaining static ph items = run3 (420) + run4 (416) = 836; after that every static 64x64 item is done.
 3. Left out on purpose: `flowers/*` heads (tintable rig needed), `-anim` strips, odd-size UI (`items/`, `fx/`, `steps/`, `roadkinds/`, `ui/`), gather and craftmap scenes, creatures, mini, catfish, puzzles, the 82 portraits redo + 22 species portraits, `acts`, 13 regions, banners/homes/wonders/stages/tiers/trek tiles/landing.
 4. Rebuild the before/after PDF and update the artifact sheet after each batch.
 5. Game code is NOT changed anywhere. Wiring PNGs (and the welcome flow) into `game/` is separate; see `../../handoff-codechangesforart.md` and `welcome-handoff.zip`.
