@@ -23,16 +23,16 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 3. JOSH: decisions needed
 - Review the 58 new build plans (2.5.68) on the live site or in `build_plans.txt`.
-- Upkeep: who owes it (built as anyone; adopter only?). Notice to adopter when a stop drops a tier.
+- DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
 - Approve new stage art (montages sent), then install `aseprite-source/v3/p7/out/derived-<land>/` into `assets/img/scenes/`.
 - P7 art order; craftmap 14 scenes skip?; redraw all 1,667 acts or only used; 480x270 canvas final?
-- Tile walks give ~40% more fights than timer walks (`tests/balance_sim.php` Walks): keep?
-- Art stand-ins for new-region Trail maps (`ART_LAND`: desert/island to coast, rainforest/wetland to forest, mountain to tundra), or send real route maps for other regions (`claude/prompt-route-maps.md`, `claude/route-list.md`).
-- Pet shops for Cat Fish (gates lane E below). Open Puzzles to players?
+- Josh to send real route maps for the other 11 regions (`claude/prompt-route-maps.md`, `claude/route-list.md`); stand-ins (`ART_LAND`) stay until then.
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
 
 ## 4. CODE: open
 **Trail / Here**
+- Tile walks: add Sneak and Hunt buttons (keep ~40% extra fights as default; Sneak fewer, Hunt more; check `tests/balance_sim.php` Walks).
+- Upkeep: anyone can pay, none owed; stop degrades a tier if unpaid. Check current code matches (no adopter-only gate, no forced notice).
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
 - `walk_scene` row deleted when a delve ends, so no delve-completion record.
@@ -65,7 +65,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Stop looks for 11 more types (only market done and desert/adobe looks).
 - Animal homes pre-v3; hand-polish procedural yard pieces (`tools/bake_*_art.py`); AI-1 paused: P1 weak items (46 left), P2 flower heads 19, P3 odd-size UI 41 (`claude/handoff-ai1-art.md`).
 - Variety: before/after pictures for 9 pilot places; progress picture; stop header picture per adopt tier (`claude/todo-art-variety.md`).
-- Cat Fish lane E (needs pet-shop go-ahead): 55 `cf-pet-<key>.png`, 11 banners `banner-<code>-pets`, 11 shopkeeper busts, `pet_slots` in `room-layout.json`, event props. Lane F: moving side-cat nap/bored, eye pixels on catch/nap frames (`claude/todo-art-catfish.md`).
+- Cat Fish lane E (pet shops open, unblocked): 55 `cf-pet-<key>.png`, 11 banners `banner-<code>-pets`, 11 shopkeeper busts, `pet_slots` in `room-layout.json`, event props. Lane F: moving side-cat nap/bored, eye pixels on catch/nap frames (`claude/todo-art-catfish.md`).
 - Method for AI art: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`; single Opus-medium pass per scene (see `claude/todo-art-v3.md` METHOD).
 
 ## 6. WATCH / SMALL
