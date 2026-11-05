@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.38
+- **Rest stop folk have their new pixel art**: the villagers of rest stops (20 kinds of animal, 3 looks each) now use the new standing sprites on the Here picture and the new portraits in their panel. Needs 2.5.37.
+
 ## 2.5.37
 - **Trail tiles, Hearth Pop v3 look, first test region (The Maplewold)**: the 16 Maplewold routes (41 sections, 22 tiles wide) now have hand-made maps (`includes/data/trail_maps.json`) drawn with new pixel art: blended ground, raised trees, rocks, hedges and pines that the gnome walks behind or in front of, per-land find spots with a searched state, the v3 gnome sprite, and a short caption under each map. Routes without a map, or sections without their baked picture, keep the old drawn look. Placeholders: the way-on tile and the fixed fight are red-outlined squares until their art is drawn.
 - **Fights are random encounters**: no more fight markers on the map. Each tile walked rolls (2% on floor, 8% on rough floor, +1% per quiet tile, never in the first 3 tiles or within 2 of the exit, at most 2 a section) and a hit stops the walk there; random fights never bring a boss. Only a delve's miniboss or a lair's boss is a fixed spot, on the last section. Between-section events are unchanged.
