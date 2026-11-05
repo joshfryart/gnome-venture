@@ -15,5 +15,6 @@ page_header('Pal Yard');
 ?>
 <h1>The Pal Yard</h1>
 <?= yard_view($u, $open) ?>
+<?= gnav_tools_html($u, 'palyard.php', false) /* v2.5.49: the Fast travel popover the round button opens */ ?>
 <p class="heretools"><a class="btn alt" href="<?= e(url('treehouse.php')) ?>">🌳 Treehouse</a> <a class="btn alt" href="<?= e(url('paljobs.php')) ?>">List version</a></p>
 <?php page_footer();

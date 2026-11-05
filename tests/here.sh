@@ -61,6 +61,11 @@ echo "== a haven card posts back to Here"
 LM=$(cli at haven | tail -1)
 get here.php >/dev/null
 chk "haven card has Rest and Stay forms to landmark.php" "$(grep -q 'action="/landmark.php"' $TD/here-p.html && grep -q 'name="do" value="rest"' $TD/here-p.html && grep -q 'name="do" value="stay"' $TD/here-p.html && echo 1)"
+chk "2.5.49: the haven shop spot is a popover with the pantry and Buy forms (not a link to World)" "$(grep -q 'id="hubpop-s-shop"' $TD/here-p.html && grep -A30 'id="hubpop-s-shop"' $TD/here-p.html | grep -q 'name="do" value="buy"' && echo 1)"
+get world.php >/dev/null
+chk "2.5.49: World (map first) shows the place's landmark panel (haven Rest / Stay)" "$(grep -q 'worldprimary' $TD/here-p.html && grep -q 'action="/landmark.php"' $TD/here-p.html && echo 1)"
+get 'world.php?tab=go' >/dev/null
+chk "2.5.49: the old Go stack still shows it once (no double panel)" "$([[ $(grep -c 'name="do" value="stay"' $TD/here-p.html) -le 2 ]] && echo 1)"
 R=$(post landmark.php -d lm=$LM -d do=rest -d back=here.php)
 chk "after Rest, back to Here" "$([[ $R == *"/here.php" ]] && echo 1)" "$R"
 R=$(post landmark.php -d lm=$LM -d do=rest -d back=%2F%2Fevil.example)

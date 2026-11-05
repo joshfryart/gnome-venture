@@ -299,7 +299,7 @@ function here_homes_card(array $homed, int $locId): string
 /** v2.5.35: the "Do here" fronts of a rest stop, each named for one thing to do there (Fish the pond, Light the lamps...). The stop's own pool picks them: what the
  *  weather, season or hour allows right now comes first (so they change with events), then the day's core and rotating picks. One popover per activity,
  *  its own buttons post to town.php (do=local) and come back to this picture. Returns [[label, emoji, card html], ...] by front; fewer acts than fronts leaves the rest out. */
-function here_do_fronts(array $u, array $node, string $back, int $fronts): array
+function here_do_fronts(array $u, array $node, string $back, int $fronts, bool $skipStall = false): array
 {
     if ($fronts < 1 || (string)$node['kind'] !== 'village') return $fronts > 0 ? array_fill(0, $fronts, ['Do here', '🎯', '<p><a class="btn" href="' . e(url('town.php')) . '">Open this place ›</a></p>']) : [];
     require_once __DIR__ . '/local.php';
@@ -307,7 +307,8 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts): array
     $visit = stop_visit_key($u);
     [$done] = stop_state((int)$u['id'], (int)$node['id'], $visit);
     $out = [];
-    foreach (array_slice($pool['offer'], 0, $fronts) as $a) {
+    $offer = $skipStall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];   // v2.5.49: the stalls have their own front (here_stall_fronts)
+    foreach (array_slice($offer, 0, $fronts) as $a) {
         $isDone = in_array((string)$a['slug'], $done, true);
         $folk = stop_folk_of($node)[0] ?? null;
         $blurb = stop_say((string)$a['blurb'], $node, $folk);
@@ -320,6 +321,45 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts): array
     return $out;
 }
 
+/** v2.5.49: the stall fronts of a rest stop (a layout spot that behaves as 'shops'; the market stop pictures' stall). The stop's own stalls are its buy / snack activities
+ *  (the "For sale" shelf of the stop page); each is one named row with its Buy button, which posts to town.php (do=local) and comes back to this picture. A stop with no
+ *  stall today returns []: here_spots then gives those spots back to "Do here". Returns [[label, emoji, card html], ...] by front. */
+function here_stall_fronts(array $u, array $node, string $back, int $fronts): array
+{
+    if ($fronts < 1 || (string)$node['kind'] !== 'village') return [];
+    require_once __DIR__ . '/local.php';
+    $stalls = array_values(array_filter(stop_pool($node)['offer'], fn($a) => in_array((string)$a['kind'], ['buy', 'snack'], true)));
+    if (!$stalls) return [];
+    [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
+    $row = function (array $a) use ($u, $node, $back, $done): string {
+        $isDone = in_array((string)$a['slug'], $done, true);
+        return '<div class="stallrow"><p><b>' . e((string)$a['icon']) . ' ' . e((string)$a['name']) . '</b></p>'
+            . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
+                : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>') . '</div>';
+    };
+    if ($fronts === 1 || count($stalls) === 1) return [['Stall', '🛒', implode('', array_map($row, $stalls))]];
+    $out = [];
+    foreach ($stalls as $i => $a) {
+        if ($i >= $fronts) break;
+        $out[$i] = $i === $fronts - 1 && count($stalls) > $fronts ? ['More stalls', '🛒', implode('', array_map($row, array_slice($stalls, $i)))] : [(string)$a['name'], (string)$a['icon'], $row($a)];
+    }
+    return $out;
+}
+
+/** v2.5.49: a haven's Haven shop popover: today's pantry (three or four things, one of each a day), each with its Buy button; landmark.php (do=buy) comes back to this picture. */
+function here_haven_shop_card(array $u, array $lm, string $back): string
+{
+    require_once __DIR__ . '/landmarks.php';
+    $uid = (int)$u['id'];
+    $rows = '';
+    foreach (haven_pantry($lm, $uid) as [$it, $price]) {
+        $done = landmark_done_today($uid, (int)$lm['id'], 'buy' . (int)$it['id']);
+        $rows .= '<li class="stallrow"><b>' . e((string)$it['name']) . '</b> <span class="muted">' . money($price) . '</span> '
+            . ($done ? '<span class="muted">✔ bought today</span>' : here_form('landmark.php', ['do' => 'buy', 'lm' => (int)$lm['id'], 'item_id' => (int)$it['id'], 'back' => $back], 'Buy · ' . money($price), 'btn small')) . '</li>';
+    }
+    return '<p class="muted">🧺 Today’s pantry. One of each a day; it changes tomorrow.</p>' . ($rows !== '' ? '<ul class="stallrows">' . $rows . '</ul>' : '<p class="muted">The shelves are bare today.</p>');
+}
+
 /** v2.5.40: the verb chip for each spot behaviour, shown next to its name in the list of places. */
 const HERE_VERBS = ['shops' => 'Shop', 'green' => 'Visit', 'tea' => 'Eat', 'teahouse' => 'Eat', 'board' => 'Read', 'library' => 'Read', 'special1' => 'Visit', 'special2' => 'Visit',
     'do' => 'Do', 'people' => 'Talk', 'stop' => 'Rest', 'homes' => 'Visit', 'garden' => 'Tend', 'fire' => 'Rest', 'shop' => 'Shop', 'investigate' => 'Explore', 'mouth' => 'Enter', 'wild' => 'Explore'];
@@ -330,6 +370,15 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
     $uid = (int)$u['id'];
     $want = [];   // behaviour key => the layout spots that do it. A spot's 'k' is its own id; an optional 'as' says which behaviour it has (several fronts may share one)
     foreach ($L['spots'] ?? [] as $s) $want[(string)($s['as'] ?? $s['k'])][] = $s;
+    $stall = [];
+    if (in_array($kind, ['village', 'stop', ''], true) && !empty($want['shops'])) {   // v2.5.49: a stop's stall is its Shops front; with no stall today its spots go back to "Do here" (in layout order)
+        $stall = here_stall_fronts($u, $node, $back, count($want['shops']));
+        if (!$stall) {
+            $want['do'] = [];
+            foreach ($L['spots'] ?? [] as $s) if (in_array((string)($s['as'] ?? $s['k']), ['do', 'shops'], true)) $want['do'][] = $s;
+            unset($want['shops']);
+        }
+    }
     $hot = [];
     $add = function (string $k, string|array $label, string $emoji, string $href, string $card = '', string $chip = '', string $cls = '') use (&$hot, $want, $back) {
         foreach ($want[$k] ?? [] as $n => $sp) {
@@ -357,7 +406,8 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
         if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
     } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture
-        $add('do', here_do_fronts($u, $node, $back, count($want['do'] ?? [])), '🎯', url('town.php'));
+        $add('do', here_do_fronts($u, $node, $back, count($want['do'] ?? []), $stall !== []), '🎯', url('town.php'));
+        if ($stall) $add('shops', $stall, '🛒', url('town.php'));
         $add('people', 'Villagers', '👥', url('town.php?t=folk'));
         foreach ($hot as &$hp) if (str_starts_with((string)$hp['id'], 's-people')) $hp['hl'] = 'street';   // v2.5.39: tapping it lights up the villagers standing under the picture
         unset($hp);
@@ -374,7 +424,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         if ($lm && $kind === 'haven') {
             $card = $note ?: ('<p>Rest your feet, or stay the night.</p><div class="heretools">' . here_form('landmark.php', $f + ['do' => 'rest'], '😌 Rest') . here_form('landmark.php', $f + ['do' => 'stay'], '🛏️ Stay') . '</div>');
             $add('fire', (string)$node['name'], '🔥', url('world.php'), $card, '', $lock ? 'locked' : ($ruin ? 'ruin' : ''));
-            $add('shop', 'Haven shop', '🧺', url('world.php'));
+            $add('shop', 'Haven shop', '🧺', url('world.php'), $lock || $ruin ? ($note ?: '') : here_haven_shop_card($u, $lm, $back));   // v2.5.49: the pantry in a popover
         } elseif ($lm && $kind === 'wonder') {
             $card = $note;
             if (!$card) {
