@@ -25,7 +25,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Review the 58 new build plans (2.5.68) on the live site or in `build_plans.txt`.
 - DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
 - Stage art APPROVED 2026-11-05 (contact sheet). `derived-<land>/` files are byte-identical to `game/assets/img/scenes/`, so already installed; nothing to copy.
-- P7 art order; craftmap 14 scenes skip?; redraw all 1,667 acts or only used; 480x270 canvas final?
+- DECIDED: craftmap 14 scenes: DRAW (not started). Acts: do not redraw all 1,667, keep stills, draw ~15 state props + 4 kind cards (see living-stops plan). Still open: P7 art order; 480x270 canvas final?
 - Josh to send real route maps for the other 11 regions (`claude/prompt-route-maps.md`, `claude/route-list.md`); stand-ins (`ART_LAND`) stay until then.
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
 
@@ -42,7 +42,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
 **Content**
  - Build plans: all 94 havens/wonders/delves have plans (2.5.68, Josh not yet reviewed the text). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
-- Stop acts: PROPOSAL `claude/plan-living-stops.md` (state, happenings, meters, calendar, threads, prop overlays) waiting on Josh's answers there; then `cookalong`/`tune`/`teach`/festival kinds; apply review notes for 691 acts.
+- Stop acts: `claude/plan-living-stops.md` DECIDED (per-player meters, perk for the area, text first). Step 2 built 2.5.72 UNRELEASED (happenings, headline, folk lines). Next: step 3 meters, 4 calendar, 5 props, 6 threads; then `cookalong`/`tune`/`teach`/festival kinds; apply review notes for 691 acts.
 - Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; village descriptions: FIXED, released 2.5.71 (each village = a blurb + a new quirk line from `village_quirks.txt`, fixed clash-free order; `tests/village_desc.php` checks 146 distinct; shows only where `village_blurb()` is used, i.e. the World page; stored text unchanged); stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), released 2.5.71; Haven text (10 havens reworded in `landmarks.txt` + upgrade step `haven_text_2571` for existing sites; released 2.5.71, not tested on a real upgrade); tundra thin.
 - Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
 - Delve redo: `delve_v2` built OFF (`claude/plan-delves.md`, `claude/checklist-delves.md`).

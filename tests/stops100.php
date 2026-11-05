@@ -25,6 +25,24 @@ function doit(string $slug, array $in = []): array { $u = me(); return local_do(
 function offered(array $loc): array { return array_column(stop_pool($loc)['offer'], 'slug'); }
 function today(): string { return hollow_date('Y-m-d'); }
 
+echo "== happenings (v2.5.72)\n";
+ok('happenings load', count(stop_happenings()) >= 6, (string)count(stop_happenings()));
+$mk = stopOfType('market');
+$nowM = stop_now($mk);
+ok('stop_now carries the happening id', array_key_exists('hp', $nowM));
+ok('the happening is the same twice (same stop, same day)', (stop_happening($mk, $nowM)['id'] ?? '') === (stop_happening($mk, $nowM)['id'] ?? ''));
+$seen = [];
+foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $l) { $n = stop_now($l); $seen[$n['hp']] = 1; }
+ok('different stops get different happenings today (at least 3 kinds across the world)', count($seen) >= 3, json_encode(array_keys($seen)));
+$p = stop_pool($mk, $nowM);
+ok('the pool says what is going on', isset($p['happening']) && ($p['happening']['id'] ?? '') === $nowM['hp'] || $nowM['hp'] === '');
+$hapN = count(array_filter($p['offer'], fn($a) => !empty($a['hap'])));
+ok('up to 3 happening acts, and they carry a matching tag', $hapN <= 3 && (!$p['happening'] || $hapN >= 1), "$hapN for " . ($p['happening']['id'] ?? 'none'));
+foreach ($p['offer'] as $a) if (!empty($a['hap'])) ok('a happening act matches the happening tags: ' . $a['slug'], array_intersect($p['happening']['tags'], stop_act_tags($a)) !== []);
+ok('no act is offered twice', count(array_unique(array_column($p['offer'], 'slug'))) === count($p['offer']));
+ok('hp= is a valid condition', stop_cond_parse('hp=market_day,quiet_day') === ['hp' => ['market_day', 'quiet_day']]);
+ok('every act can be tagged without error', count(array_filter(stop_acts(), fn($a) => stop_act_tags($a) !== [])) > 100, (string)count(array_filter(stop_acts(), fn($a) => stop_act_tags($a) !== [])));
+
 echo "== migration and data\n";
 ok('12 stop types', count(stop_types()) === 12);
 ok('at least 50 activities', count(stop_acts()) >= 50, (string)count(stop_acts()));

@@ -78,3 +78,13 @@ dp=dawn|Chatty|“You’re up early! I’ve been up since four. Let me tell you 
 dp=dusk|Cheerful|“What a lovely end to the day. Isn’t it, {name}?”
 -|Sleepy|“Mm? Oh. {name}. I wasn’t asleep. I was resting my eyes. Loudly.”
 dp=day|Sleepy|“Is it afternoon already? Nap time, nearly. Stay if you like, {name}.”
+hp=market_day|any|“Market day, {name}! Take a look at the stalls before the good things go.”
+hp=market_day|Chatty|“Everyone’s out today, {name}. I’ve sold three pies and heard five rumours.”
+hp=traveller|any|“Did you see the traveller, {name}? Pack bigger than they are.”
+hp=lost_thing|any|“Seen a lost thing anywhere, {name}? Half of {place} is looking.”
+hp=repairs|any|“Mind the ladder, {name}. We’re mending everything at once.”
+hp=repairs|Grumpy|“Hmph. If you’re standing there, you can hold the other end.”
+hp=cosy_weather|any|“Come in out of that, {name}. The kettle’s on and there’s room by the fire.”
+hp=harvest_glut|any|“Take some, {name}. Please. We have more apples than sense.”
+hp=night_watch|any|“Quiet one tonight, {name}. Sit with us and look up.”
+hp=quiet_day|any|“Nothing’s happening today, {name}, and I’m rather enjoying it.”

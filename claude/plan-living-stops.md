@@ -70,9 +70,17 @@ Admin page + tests per step (`tests/stops100.sh` pattern; add `tests/stopstate.p
 - **Redraw all 1,667 acts?** No. Keep the stills. Spend the art on ~15 state props plus the 4 placeholder kind cards (`act-craft/collect/tend/contest`).
 - **Used-only?** Moot. Untagged acts stay as filler.
 
-## 7. Questions for Josh
-1. Shared-by-everyone meters (my pick, makes stops feel alive and social) or per-player only (safer, less alive)?
-2. Does a completed meter give the adopter anything extra (cheaper upkeep, a perk), or stay cosmetic?
-3. Start with the text-only director (step 2), or with the picture props first?
-4. Which 3 happenings do you want first?
-5. Craftmap: your message began "Craftmap and think..." and I could not tell if that answered "skip the 14 craftmap scenes?". Skip them, or draw them?
+## 7. DECISIONS (Josh, 2026-11-05)
+1. **Meters are per player only** (stored in `stop_prog`, key `meter:<name>`), not shared. No griefing, no cap logic needed. The happening of the day stays shared by everyone at that stop (it is computed from stop + date, no state).
+2. **A full meter gives something extra for the area**: read as a perk on that stop for that player (e.g. an extra slot or a small bonus for some days, and a line in the Journal). Exact perk: decide when step 3 is built.
+3. **Text first.** Step 2 (director, headline, folk lines) built; picture props later.
+4. Happenings: Josh left it open, so I picked 8: quiet day, market day, traveller, lost thing, cosy weather, harvest glut, repair day, still night (`stop_happenings.txt`). Change freely.
+5. **Craftmap: draw the 14 scenes.** (Art task, not started.)
+
+## 8. BUILT 2.5.72 (UNRELEASED, branch only): step 2
+- `data/stop_happenings.txt` (8), `stop_happening()`, `stop_happenings()`, `stop_act_tags()` (acts tagged by keywords in name and blurb, `STOP_TAG_WORDS`) in `stops.php`.
+- `stop_now()` now carries `hp` (the happening id), so `hp=<id>` works as a condition in folk chat (10 new lines in `stop_chat.txt`).
+- `stop_pool()`: up to 3 happening acts first (taken out of the daily rotation, total offered unchanged); returns `happening`.
+- Headline strip (`.st-hap`) on the town stop card and on a happening act's card on the Here picture.
+- Tests: `tests/stops100.php` section "happenings" (129 checks pass in `stops100.sh`).
+- Next: step 3 (per-player meters + `needs=`/`moves=` on acts, notice board, perk), step 4 calendar, 5 props, 6 threads.

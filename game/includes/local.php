@@ -427,7 +427,7 @@ function local_panel(array $u, array $loc): string
     $tier = $adoption ? (int)$adoption['tier'] : 0;
 
     $h = '<section class="st" data-sh="' . (int)$t['hue'] . '" data-stop-type="' . e($type) . '" data-dp="' . e($now['dp']) . '">';
-    $h .= '<header class="st-head"><div class="st-art">' . stop_svg($type, 'icon', 'st-ico-lg') . '</div><div class="st-headtxt"><h2>' . e($t['name']) . '</h2><p class="st-amb">' . e($ambLine) . '</p>'
+    $h .= '<header class="st-head"><div class="st-art">' . stop_svg($type, 'icon', 'st-ico-lg') . '</div><div class="st-headtxt"><h2>' . e($t['name']) . '</h2><p class="st-amb">' . e($ambLine) . '</p>' . (($hp = $pool['happening'] ?? null) ? '<p class="st-hap"><b>' . e($hp['icon'] . ' ' . $hp['name']) . '</b> · ' . e(str_replace('{place}', (string)$loc['name'], $hp['headline'])) . '</p>' : '')
         . '<p class="st-chips"><span class="chip">' . HOLLOW_DAYPARTS[$now['dp']][0] . ' ' . HOLLOW_DAYPARTS[$now['dp']][1] . '</span><span class="chip">' . $wi['emoji'] . ' ' . e($wi['label']) . '</span><span class="chip">' . HOLLOW_SEASONS[$now['se']][0] . ' ' . HOLLOW_SEASONS[$now['se']][1] . '</span>'
         . ($tier ? '<span class="chip">★ Tier ' . $tier . '</span>' : '') . '</p></div></header>';
     if ($isNew || $stampMsgs) {

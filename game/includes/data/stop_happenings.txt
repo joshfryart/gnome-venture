@@ -1,0 +1,12 @@
+# What is going on at a stop today (v2.5.72). The same for everyone at that stop, picked per stop per UTC day (stop_happening() in stops.php).
+# id | icon | name | headline (a line shown on the stop card; {place}) | stop types (comma, or any) | when (same as activities: dp= se= we=, or -) | tags | weight
+# tags: acts whose name or blurb match one of these words-lists (see STOP_TAG_WORDS in stops.php) are offered first, up to 3.
+# Folk lines can use the happening as a condition: hp=market_day (stop_chat.txt).
+quiet_day|🍃|A quiet day|Nothing much is happening at {place} today. A good day to sit, mend and chat.|any|-|rest,lore,tend|5
+market_day|🧺|Market day|Stalls are out at {place} today, and everyone has something to sell or swap.|market,mill,inn,orchard,ferry|dp=dawn,day|trade,cook,play|4
+traveller|🎒|A traveller in town|A traveller has stopped at {place} with news from the road and a pack full of curiosities.|any|-|trade,lore,play|3
+lost_thing|🔎|Something is missing|Somebody has lost something at {place}, and the whole stop is looking for it.|any|dp=dawn,day,dusk|gather,fix,play|3
+cosy_weather|☔|A day for staying in|The weather has everyone indoors at {place}: kettles on, stories out.|any|we=rain,storm,snow,frost,fog|cook,lore,rest|5
+harvest_glut|🍎|Too much harvest|{place} has more harvest than it can eat. Everyone is picking, cooking and giving it away.|market,mill,inn,orchard,herb,camp|se=autumn|gather,cook,trade|4
+repairs|🔨|Repair day|The weather has been hard on {place}. Fences, roofs and ropes need hands.|any|se=autumn,winter,spring|fix,craft,tend|3
+night_watch|🌙|A still night|{place} is quiet and the sky is full. Folk have come out to watch and tell tales.|any|dp=dusk,night|lore,rest,play|3

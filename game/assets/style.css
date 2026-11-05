@@ -1930,6 +1930,7 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .st-headtxt { min-width: 0; }
 .st-head h2 { margin: 0 0 2px; font-size: 20px; color: inherit; }
 .st-amb { margin: 0 0 6px; font-style: italic; }
+.st-hap { margin: 0 0 8px; padding: 6px 10px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 4px; }   /* v2.5.72: what is going on here today */
 .st-chips { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .st-chips .chip { background: var(--surface); color: var(--ink); font-size: 12px; }
 /* time of day: the same stop looks different at dawn, dusk and night */

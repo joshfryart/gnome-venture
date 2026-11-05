@@ -403,7 +403,9 @@ function stop_now(array $loc): array
     $rc = stop_region_code($loc);
     $force = setting('stop_daypart_force');
     $dp = isset(HOLLOW_DAYPARTS[$force]) ? $force : hollow_daypart();
-    return ['dp' => $dp, 'se' => hollow_season(), 'we' => hollow_weather($rc !== '' ? $rc : null)];
+    $now = ['dp' => $dp, 'se' => hollow_season(), 'we' => hollow_weather($rc !== '' ? $rc : null)];
+    $now['hp'] = (string)(stop_happening($loc, $now)['id'] ?? '');   // v2.5.72: what is going on here today
+    return $now;
 }
 
 /** "dp=night,dusk/se=winter" => ['dp' => ['night','dusk'], 'se' => ['winter']] */
@@ -413,7 +415,7 @@ function stop_cond_parse(string $cond): array
     if (trim($cond) === '' || trim($cond) === '-') return $out;
     foreach (explode('/', $cond) as $part) {
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
-        if (in_array($k, ['dp', 'se', 'we'], true) && $v !== '') $out[$k] = array_values(array_filter(array_map('trim', explode(',', $v))));
+        if (in_array($k, ['dp', 'se', 'we', 'hp'], true) && $v !== '') $out[$k] = array_values(array_filter(array_map('trim', explode(',', $v))));
     }
     return $out;
 }
@@ -433,9 +435,73 @@ function stop_cond_text(string $cond): string
     foreach (stop_cond_parse($cond) as $k => $vals) {
         if ($k === 'dp') $bits[] = implode(' or ', array_map(fn($v) => STOP_DP_WORDS[$v] ?? $v, $vals));
         elseif ($k === 'se') $bits[] = 'in ' . implode(' or ', $vals);
+        elseif ($k === 'hp') $bits[] = 'on ' . implode(' or ', array_map(fn($v) => (stop_happenings()[$v]['name'] ?? $v), $vals)) . ' days';
         else $bits[] = 'when it’s ' . implode(' or ', array_map(fn($v) => STOP_WEATHER_WORDS[$v] ?? $v, $vals));
     }
     return implode(', ', $bits);
+}
+
+// ---------------------------------------------------------------- what is going on today (v2.5.72)
+
+/** @return array<string, array> the happenings from data/stop_happenings.txt by id: id, icon, name, headline, types, cond, tags, weight */
+function stop_happenings(): array
+{
+    static $h = null;
+    if ($h === null) {
+        $h = [];
+        foreach (stops_file_rows('stop_happenings.txt') as $r) {
+            if (count($r) < 8) continue;
+            $h[$r[0]] = ['id' => $r[0], 'icon' => $r[1], 'name' => $r[2], 'headline' => $r[3], 'types' => $r[4], 'cond' => $r[5],
+                'tags' => array_values(array_filter(array_map('trim', explode(',', $r[6])))), 'weight' => max(1, (int)$r[7])];
+        }
+    }
+    return $h;
+}
+
+/**
+ * What is going on at a stop today: one happening, the same for everyone at that stop all (UTC) day, from the stop's type and the time, season and weather.
+ * Deterministic from (stop, day): no table, no cron. $now = stop_now() without 'hp' (it is being made). Null = nothing special.
+ */
+function stop_happening(array $loc, array $now): ?array
+{
+    $type = stop_type_of($loc);
+    $fit = [];
+    foreach (stop_happenings() as $hp) {
+        $ts = array_map('trim', explode(',', $hp['types']));
+        if (!in_array('any', $ts, true) && !in_array($type, $ts, true)) continue;
+        if (!stop_cond_ok($hp['cond'], $now)) continue;
+        $fit[] = $hp;
+    }
+    if (!$fit) return null;
+    $total = array_sum(array_column($fit, 'weight'));
+    $roll = crc32('hap|' . hollow_date('Y-m-d') . '|' . ($loc['slug'] ?? $loc['name'] ?? '')) % $total;
+    foreach ($fit as $hp) { if ($roll < $hp['weight']) return $hp; $roll -= $hp['weight']; }
+    return $fit[0];
+}
+
+/** Words that tag an activity (by its name and blurb), so thousands of acts take part in a happening without being tagged by hand. */
+const STOP_TAG_WORDS = [
+    'trade' => ['haggle', 'swap', 'stall', 'sell', 'bargain', 'market', 'barter', 'trade', 'coin'],
+    'cook' => ['bake', 'stew', 'soup', 'pie', 'bread', 'tea', 'supper', 'cook', 'kitchen', 'feast', 'jam', 'cheese', 'boil', 'roast', 'flour'],
+    'play' => ['game', 'toss', 'race', 'contest', 'dance', 'song', 'sing', 'music', 'drum', 'fiddle', 'cards', 'skim', 'kite', 'puzzle', 'riddle'],
+    'lore' => ['tale', 'story', 'stories', 'gossip', 'legend', 'riddle', 'tell', 'rumour', 'news', 'listen', 'poem'],
+    'rest' => ['rest', 'soak', 'bath', 'bed', 'nap', 'quiet', 'sit', 'silence', 'warm', 'fire', 'hearth', 'lamp'],
+    'gather' => ['pick', 'herb', 'mushroom', 'berr', 'gather', 'forage', 'find', 'collect', 'search', 'harvest', 'fruit', 'nut', 'shell'],
+    'fix' => ['mend', 'fix', 'repair', 'rope', 'plank', 'saw', 'nail', 'patch', 'hammer', 'thatch', 'fence', 'roof', 'tinker'],
+    'craft' => ['carve', 'weave', 'make', 'build', 'knit', 'spin', 'dye', 'paint', 'polish', 'craft', 'whittle'],
+    'tend' => ['tend', 'water', 'prune', 'weed', 'sweep', 'chore', 'feed', 'groom', 'help'],
+];
+
+/** The tags of one activity row (cached by slug). */
+function stop_act_tags(array $a): array
+{
+    static $c = [];
+    $k = (string)($a['slug'] ?? '');
+    if ($k !== '' && isset($c[$k])) return $c[$k];
+    $text = strtolower((string)($a['name'] ?? '') . ' ' . (string)($a['blurb'] ?? ''));
+    $tags = [];
+    foreach (STOP_TAG_WORDS as $tag => $words) foreach ($words as $w) if (str_contains($text, $w)) { $tags[] = $tag; break; }
+    return $k !== '' ? $c[$k] = $tags : $tags;
 }
 
 // ---------------------------------------------------------------- what is on offer
@@ -501,16 +567,26 @@ function stop_pool(array $loc, ?array $now = null): array
         $a['explicit'] = $explicit;
         $plain[] = $a;
     }
+    // v2.5.72: the acts that fit today's happening come first (up to 3), taken out of the daily rotation
+    $hap = stop_happenings()[(string)($now['hp'] ?? '')] ?? null;
+    $hapActs = [];
+    if ($hap) {
+        $fitting = array_values(array_filter($plain, fn($a) => array_intersect($hap['tags'], stop_act_tags($a)) !== []));
+        usort($fitting, fn($x, $y) => crc32('hapact|' . $day . '|' . $loc['slug'] . '|' . $x['slug']) <=> crc32('hapact|' . $day . '|' . $loc['slug'] . '|' . $y['slug']));
+        $hapActs = array_map(fn($a) => $a + ['hap' => true], stop_diverse($fitting, 3, []));
+        $taken = array_column($hapActs, 'slug');
+        $plain = array_values(array_filter($plain, fn($a) => !in_array($a['slug'], $taken, true)));
+    }
     // fixed core first (type-specific before "any"), then a daily rotation from the rest
     usort($plain, fn($x, $y) => [$x['explicit'] ? 0 : 1, crc32('core|' . $loc['slug'] . '|' . $x['slug'])] <=> [$y['explicit'] ? 0 : 1, crc32('core|' . $loc['slug'] . '|' . $y['slug'])]);
     $core = stop_diverse($plain, max(1, (int)setting('stop_core')), []);   // v2.0.78: different kinds of thing where there are some
     $used = array_column($core, 'slug');
     $rest = array_values(array_filter($plain, fn($a) => !in_array($a['slug'], $used, true)));
     usort($rest, fn($x, $y) => crc32('day|' . $day . '|' . $loc['slug'] . '|' . $x['slug']) <=> crc32('day|' . $day . '|' . $loc['slug'] . '|' . $y['slug']));
-    $extra = stop_diverse($rest, max(0, (int)setting('stop_extra')), array_column($core, 'kind'));
+    $extra = stop_diverse($rest, max(0, (int)setting('stop_extra') - count($hapActs)), array_column($core, 'kind'));
     usort($special, fn($x, $y) => crc32('sp|' . $day . $loc['slug'] . $x['slug']) <=> crc32('sp|' . $day . $loc['slug'] . $y['slug']));
     $special = array_slice($special, 0, 3);
-    return ['offer' => array_merge($special, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp];
+    return ['offer' => array_merge($special, $hapActs, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp, 'happening' => $hap];
 }
 
 /** What's been done: [slugs this visit, number today at this stop, number today anywhere, rests today anywhere]. */

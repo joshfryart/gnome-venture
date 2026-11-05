@@ -321,7 +321,9 @@ function here_do_block(array $u, array $node, string $back, array $a, bool $isDo
 {
     $folk = stop_folk_of($node)[0] ?? null;
     $blurb = stop_say((string)$a['blurb'], $node, $folk);
+    $hp = !empty($a['hap']) ? (stop_happenings()[(string)(stop_now($node)['hp'] ?? '')] ?? null) : null;   // v2.5.72: an act that goes with today's happening says so
     return here_result_html($msg, $ok)
+        . ($hp ? '<p class="st-hap"><b>' . e($hp['icon'] . ' ' . $hp['name']) . '</b> · ' . e(str_replace('{place}', (string)$node['name'], $hp['headline'])) . '</p>' : '')
         . (!empty($a['now']) ? '<p><b>Right now</b> · ' . e(hollow_weather_info(stop_now($node)['we'], stop_now($node)['dp'])['label']) . '</p>' : '')
         . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
         . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
