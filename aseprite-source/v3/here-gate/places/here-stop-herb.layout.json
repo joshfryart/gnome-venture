@@ -1,0 +1,9 @@
+{"w":480,"h":270,"horizon":104,"view":"gate",
+"spots":[
+{"k":"do","name":"Herb Beds & Drying Racks","x":91,"y":192,"box":[16,128,166,256]},
+{"k":"people","name":"Fireside Table","x":395,"y":206,"box":[326,184,464,228]},
+{"k":"stop","name":"Stamp Post & Notice Board","x":313,"y":151,"box":[274,120,352,182]},
+{"k":"homes","name":"Herbalist Cottages","x":89,"y":91,"box":[20,58,158,124]},
+{"k":"wild","name":"Wild Trail","x":427,"y":138,"box":[388,98,466,180]}],
+"stand":[{"x":242,"y":134},{"x":204,"y":166},{"x":252,"y":180},{"x":196,"y":230},{"x":262,"y":212},{"x":300,"y":254}],
+"compass_clear":[380,230,480,270]}
