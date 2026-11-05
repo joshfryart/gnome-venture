@@ -265,7 +265,7 @@ gvAdvFold();
     pieces[k] = { k: k, el: el, x: num(el, 'data-x'), y: num(el, 'data-y'), w: num(el, 'data-w') || 1, h: num(el, 'data-h') || 1,
       rot: num(el, 'data-rot'), move: el.getAttribute('data-move') === '1', kind: el.getAttribute('data-kind'), id: num(el, 'data-id'),
       item: num(el, 'data-item'), tx: num(el, 'data-tx'), ty: num(el, 'data-ty'), name: el.getAttribute('data-name') || 'That',
-      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', pave: el.getAttribute('data-pave') || '', mask: -1 };
+      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', pave: el.getAttribute('data-pave') || '', art: el.getAttribute('data-art') || '', mask: -1 };
   });
   var snapBox = btn('snap'), gridBox = btn('grid');
   try { if (localStorage.getItem('gv-yard-grid') === '1') { gridBox.checked = true; yard.classList.add('showgrid'); } } catch (e) { /* storage may be off */ }
@@ -293,12 +293,36 @@ gvAdvFold();
     } else s += '<circle class="po" cx="50" cy="50" r="' + (fam === 'hedge' ? 20 : fam === 'wall' ? 18 : 11) + '"/>';
     return s + '</svg>';
   }
+  // Stones, log seats, toadstools and flower pots (v2.5.46): same rules as yard.php (fam_parse / yard_join_info): "<form>-<set>" in the piece's shape
+  var FAMF = ['', 'e', 's', 'a', 'u', 't', 'x', '1', 'pc', 'pnw', 'pne', 'psw', 'pse'], FAMSET = ['m', 'b', 's'], FB = { e: 2, s: 10, a: 6, u: 6, t: 14, x: 15 };
+  var FAMF_NAME = { '': 'automatic', e: 'end', s: 'straight', a: 'angle', u: 'curve', t: 'T', x: 'cross', '1': 'cluster', pc: 'one piece, centred', pnw: 'one piece, top left', pne: 'one piece, top right', psw: 'one piece, bottom left', pse: 'one piece, bottom right' };
+  var FAMS_NAMES = { steps: 1, logs: 1, toads: 1, pots: 1 };
+  function famParts(v) { var m = /^([eastux1]|p(?:c|nw|ne|sw|se))?-([bsm])$/.exec(v || ''); return m ? [m[1] || '', m[2]] : ['', 'm']; }
+  function famJoin(f, st) { return (!f && st === 'm') ? '' : f + '-' + st; }
+  function famPaint(p, cells) {
+    var parts = famParts(p.shape), form = parts[0], set = parts[1], m = 0, q = 0;
+    if (!form) {
+      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (cells[(p.x + a[1]) + ',' + (p.y + a[2])] === p.fam) m |= a[0]; });
+      var n = (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1) + ((m >> 3) & 1);
+      form = n === 0 ? '1' : n === 1 ? 'e' : n === 2 ? ((m === 5 || m === 10) ? 's' : 'u') : n === 3 ? 't' : 'x';
+      if (FB[form]) while (q < 3 && turn(FB[form], q) !== m) q++;
+    } else if (FB[form]) { q = (p.rot / 90) % 4; m = turn(FB[form], q); }
+    var key = form + '|' + set + '|' + q;
+    if (p.mask === key) return;
+    p.mask = key;
+    var im = p.el.querySelector('img.yimg');
+    if (!im) { im = document.createElement('img'); im.alt = ''; p.el.appendChild(im); }
+    im.className = 'yimg pix'; im.src = p.art + set + '-' + form + (FB[form] ? q : '') + '.png';
+    ['ra0', 'ra90', 'ra180', 'ra270'].forEach(function (c) { p.el.classList.remove(c); });
+    p.el.classList.add('fj', 'fi');
+  }
   function joinAll() {
     var cells = {}, k, p;
     for (k in pieces) { p = pieces[k]; if (p.fam && p.x >= 0) cells[p.x + ',' + p.y] = p.fam; }
     for (k in pieces) {
       p = pieces[k];
       if (!p.fam || p.x < 0) continue;
+      if (p.art && FAMS_NAMES[p.fam]) { famPaint(p, cells); continue; }
       if (p.fam === 'pave') {   // v2.5.43: paving blends into its eight neighbours (same rule as pave_mask() in includes/yard.php)
         var has = function (dx, dy) { return cells[(p.x + dx) + ',' + (p.y + dy)] === 'pave'; }, pm = 0;
         [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (has(a[1], a[2])) pm |= a[0]; });
@@ -406,9 +430,11 @@ gvAdvFold();
     var one = sel.length ? pieces[sel[0]] : null;
     btn('rotate').disabled = !(sel.length === 1 && one.kind !== 'bed');
     btn('shape').disabled = !(sel.length === 1 && one.fam && one.fam !== 'pave');
+    btn('size').disabled = !(sel.length === 1 && one.fam && FAMS_NAMES[one.fam]);
     joinAll();
     btn('away').disabled = !sel.length || sel.some(function (k) { return pieces[k].kind !== 'decor'; });
     if (traySel) say('Tap a square in the yard to place ' + traySel.name + '. Tap it in the tray again to stop.');
+    else if (sel.length === 1 && one.fam && FAMS_NAMES[one.fam]) say(one.name + ' picked (' + FAMF_NAME[famParts(one.shape)[0]] + ', ' + { m: 'mixed', b: 'big', s: 'small' }[famParts(one.shape)[1]] + '). Shape cycles the options, Size picks big, small or mixed, Rotate turns a chosen run.');
     else if (sel.length === 1 && one.fam && one.fam !== 'pave') say(one.name + ' picked (shape: ' + SHAPE_NAME[one.shape] + (one.shape ? '' : ', ' + shapeOf(one.mask)) + '). Shape picks a shape by hand; Rotate turns a lone piece or a chosen shape.');
     else if (sel.length === 1) say(one.name + ' picked. Drag it, or tap an empty square to move it there.');
     else if (sel.length > 1) say(sel.length + ' things picked. Drag one to move them all, or tap an empty square.');
@@ -471,7 +497,7 @@ gvAdvFold();
       if (bimg && !bfam) { var im0 = document.createElement('img'); im0.className = 'yimg'; im0.alt = ''; im0.src = bimg.replace(/\{shape\}|%7Bshape%7D/i, 'straight'); el.appendChild(im0); el.className += ' fi'; }
       yard.appendChild(el);
       p = pieces[k] = { k: k, el: el, x: -1, y: -1, w: w, h: h, rot: 0, move: true, kind: 'decor', id: 0, item: num(b, 'data-item'), name: b.getAttribute('data-name'),
-        fam: bfam, shape: '', img: bfam ? bimg : '', pave: b.getAttribute('data-pave') || '', mask: -1 };
+        fam: bfam, shape: '', img: bfam ? bimg : '', pave: b.getAttribute('data-pave') || '', art: b.getAttribute('data-art') || '', mask: -1 };
     }
     p.x = x; p.y = y;
     setPos(p.el, p);
@@ -592,8 +618,24 @@ gvAdvFold();
   btn('shape').addEventListener('click', function () {
     if (sel.length !== 1 || !pieces[sel[0]].fam || pieces[sel[0]].fam === 'pave') return;
     var p = pieces[sel[0]];
+    if (FAMS_NAMES[p.fam]) {   // v2.5.46: cycle the form, keep the size set
+      remember();
+      var fp = famParts(p.shape);
+      p.shape = famJoin(FAMF[(FAMF.indexOf(fp[0]) + 1) % FAMF.length], fp[1]);
+      p.mask = -1;
+      paintSel();
+      return;
+    }
     remember();
     p.shape = SHAPES[(SHAPES.indexOf(p.shape) + 1) % SHAPES.length];
+    p.mask = -1;
+    paintSel();
+  });
+  btn('size').addEventListener('click', function () {
+    if (sel.length !== 1 || !pieces[sel[0]].fam || !FAMS_NAMES[pieces[sel[0]].fam]) return;
+    var p = pieces[sel[0]], fp = famParts(p.shape);
+    remember();
+    p.shape = famJoin(fp[0], FAMSET[(FAMSET.indexOf(fp[1]) + 1) % FAMSET.length]);
     p.mask = -1;
     paintSel();
   });

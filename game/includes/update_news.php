@@ -666,6 +666,8 @@ function post_update_news(string $from): void
         "Untilled ground is now a mix of lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss and bare dirt, blending into patches. The grass behind your yard is bigger and no longer repeats."],
     '2.5.45' => ['🪴 Update 2.5.45: beds that show how they feel',
         "A growing bed has damp dark soil, a thirsty one turns pale and cracked, and a ripe one glows golden. You can read your garden at a glance."],
+    '2.5.46' => ['🪨 Update 2.5.46: stones, logs, toadstools and pots in lines',
+        "Stepping stones, log seats, toadstool rings and flower pots now line up by themselves: straight runs, corners, T-junctions and crossings. In Design your yard, Shape picks a straight, angled or curved look (or a single piece, centred or in a corner) and Size picks big, small or mixed."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

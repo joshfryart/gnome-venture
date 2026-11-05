@@ -402,6 +402,7 @@ function yard_family(array $o): string
 {
     if (($o['kind'] ?? '') !== 'decor' || (int)$o['bw'] !== 1 || (int)$o['bh'] !== 1) return '';
     $look = (string)$o['look'];
+    if (isset(FAM_LOOKS[$look])) return FAM_LOOKS[$look];   // v2.5.46
     if (str_contains($look, 'gate') && $o['type'] === 'fence') return 'gate';
     if ($o['type'] === 'fence') return str_contains($look, 'wall') ? 'wall' : 'fence';
     if ($o['type'] === 'path' && in_array($look, PAVE_LOOKS, true)) return 'pave';   // v2.5.43: surface paths blend into the ground and into each other
@@ -410,6 +411,22 @@ function yard_family(array $o): string
 
 /** v2.5.43: the path surfaces that join: look => material (assets/img/paths/{material}-{mask}.png). Stepping stones are loose stones (assets/img/paths/stones.png). */
 const PAVE_LOOKS = ['stone-path', 'bark-path', 'gravel-path', 'brick-path'];
+
+/**
+ * v2.5.46: small things that line up like fences: look => family. Stones, stumps, mushrooms and pots join their own kind (end, straight, angle, curve, tee, cross),
+ * or stand alone: a single cluster, or one piece centred or in a corner. The choice is kept in garden_objects.shape as "<form>-<set>" (<=8 chars):
+ * form e end | s straight | a angle | u curve | t tee | x cross | 1 cluster | pc pnw pne psw pse one piece; set b big | s small | m mixed ("" = automatic, mixed).
+ * Pictures: assets/img/fam/<family>-<set>-<form>.png (tools/bake_fam_art.py).
+ */
+const FAM_LOOKS = ['stepping-stones' => 'steps', 'log-seat' => 'logs', 'toadstool-ring' => 'toads', 'flower-pot' => 'pots'];
+const FAM_NAMES = ['steps', 'logs', 'toads', 'pots'];
+const FAM_BASE = ['e' => 2, 's' => 10, 'a' => 6, 'u' => 6, 't' => 14, 'x' => 15];
+
+/** A family piece's choice split into [form, set]; anything unreadable is automatic and mixed. */
+function fam_parse(string $v): array
+{
+    return preg_match('/^([eastux1]|p(?:c|nw|ne|sw|se))?-([bsm])$/', $v, $m) ? [$m[1] ?? '', $m[2]] : ['', 'm'];
+}
 
 /** The 8-neighbour mask of a paving square (N=1 E=2 S=4 W=8 NE=16 SE=32 SW=64 NW=128), a corner counting only when both its sides are paved. Same as tools/bake_path_art.py. */
 function pave_mask(array $cells, int $x, int $y): int
@@ -467,6 +484,23 @@ function yard_join_info(array $objects): array
         if (!isset($fam[$id])) continue;
         $x = (int)$o['x'];
         $y = (int)$o['y'];
+        if (in_array($fam[$id], FAM_NAMES, true)) {   // v2.5.46: stones, stumps, mushrooms and pots: a run, a cluster, or one piece
+            [$form, $set] = fam_parse((string)($o['shape'] ?? ''));
+            $mask = 0;
+            $q = 0;
+            if ($form === '' ) {
+                foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if (($cells[($x + $dx) . ',' . ($y + $dy)] ?? '') === $fam[$id]) $mask |= $bit;
+                $arms = ($mask & 1) + (($mask >> 1) & 1) + (($mask >> 2) & 1) + (($mask >> 3) & 1);
+                $form = $arms === 0 ? '1' : ($arms === 1 ? 'e' : ($arms === 2 ? (in_array($mask, [5, 10], true) ? 's' : 'u') : ($arms === 3 ? 't' : 'x')));
+                if (isset(FAM_BASE[$form])) while ($q < 3 && yard_turn(FAM_BASE[$form], $q) !== $mask) $q++;
+            } elseif (isset(FAM_BASE[$form])) {
+                $q = intdiv((int)$o['rot'], 90) % 4;
+                $mask = yard_turn(FAM_BASE[$form], $q);
+            }
+            $out[$id] = ['fam' => $fam[$id], 'mask' => $mask, 'shape' => '', 'chosen' => (string)($o['shape'] ?? ''), 'q' => $q,
+                'art' => 'assets/img/fam/' . $fam[$id] . '-' . $set . '-' . $form . (isset(FAM_BASE[$form]) ? $q : '') . '.png'];   // runs have four turned drawings
+            continue;
+        }
         if ($fam[$id] === 'pave') {   // v2.5.43: paving takes its look from all eight neighbours
             $out[$id] = ['fam' => 'pave', 'mask' => pave_mask($cells, $x, $y), 'shape' => '', 'chosen' => ''];
             continue;
@@ -508,6 +542,10 @@ function yard_join_svg(string $fam, int $mask): string
 /** What a joined piece shows: the item's own image if it has one ({shape} picks the file), otherwise the drawing. [html, extra classes] */
 function yard_join_inner(array $o, array $info): array
 {
+    if (isset($info['art'])) {   // v2.5.46
+        if (art_path($info['art']) !== '') return ['<img class="yimg pix" src="' . e(url($info['art'])) . '" alt="" loading="lazy">', ' fj fi'];
+        return ['<img class="yimg" src="' . e(url(yard_decor_image((string)$o['look'], (string)($o['image'] ?? '')))) . '" alt="" loading="lazy">', ' fi'];   // no picture drawn: the old one
+    }
     if ($info['fam'] === 'pave') {
         $img = pave_image((string)$o['look'], (int)$info['mask']);
         if ($img !== '') return ['<img class="yimg pix" src="' . e(url($img)) . '" alt="" loading="lazy">', ' fj fi pv'];
@@ -647,6 +685,7 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             [$inner, $more] = yard_join_inner($o, $ji);
             $cls .= $more;
             $fx = ' data-fam="' . e($ji['fam']) . '" data-shape="' . e($ji['chosen']) . '" data-img="' . e($o['image'] !== '' ? url($o['image']) : '') . '"';
+            if (in_array($ji['fam'], FAM_NAMES, true)) $fx .= ' data-art="' . e(url('assets/img/fam/' . $ji['fam'] . '-')) . '"';
             if ($ji['fam'] === 'pave') $fx .= ' data-pave="' . e(url('assets/img/paths/' . substr((string)$o['look'], 0, -5) . '-')) . '"';
         } elseif (($o['image'] ?? '') !== '' && $o['kind'] === 'decor') {   // image hook: an item with a picture shows it
             $inner = '<img class="yimg" src="' . e(url(str_replace('{shape}', 'straight', $o['image']))) . '" alt="" loading="lazy">';
@@ -835,6 +874,7 @@ function yard_save(array $u, int $plotId, string $json): array
 /** A shape the designer sent, kept only for pieces that join (and only a known shape). NULL = joins by itself. */
 function yard_clean_shape($shape, string $family): ?string
 {
+    if (in_array($family, FAM_NAMES, true)) return is_string($shape) && preg_match('/^([eastux1]|p(?:c|nw|ne|sw|se))?-([bsm])$/', $shape) ? $shape : null;   // v2.5.46
     return $family !== '' && is_string($shape) && in_array($shape, YARD_JOIN_SHAPES, true) ? $shape : null;
 }
 

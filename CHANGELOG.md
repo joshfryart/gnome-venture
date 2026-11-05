@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.46
+- **Stepping stones, log seats, toadstool rings and flower pots line up**: like fences, they join their own kind by themselves: end, straight, curve (a corner as an arc), tee and cross, with the pieces of neighbouring squares lining up across the edges. In the yard designer, **🔀 Shape** cycles automatic, end, straight, angle (a sharp corner), curve, T, cross, a cluster, or **one piece**, centred or in any corner of the square; **⚖️ Size** picks big, small or mixed (for one piece: large or small). Drawn by the new `tools/bake_fam_art.py` (360 pictures in `assets/img/fam/`, upright from every side). The old pictures stay for the tray and as a fallback. Needs 2.5.40.
 ## 2.5.45
 - **Soil states have their own art**: a planted bed shows damp, dark soil; a thirsty bed shows pale, dusty, cracked soil; a ripe bed shows warm golden soil with a few sparkles. They replace the flat brown squares behind the crops. New `tools/bake_soil_art.py` (`ph/tile-soil-planted.png`, `-thirsty.png`, `-ready.png`).
 ## 2.5.44
