@@ -1,0 +1,35 @@
+# Fight animation engine (own engine, rough pass 2026-11-05)
+
+Goal: fluid 2.5D fights on the trail tile map (mockup B: tilted board, upright sprites, HP bubbles over tiles). Cheap to author, cheap in tokens.
+Mockup: https://claude.ai/artifact/Jrj4LnTBFpVe3Sx8Eg9hRu (source was scratchpad `trailfight.html`; same ideas as below). Status: BRAINSTORM, nothing in game yet. Today fights open as the old encounter popover (`adventure.php:354`).
+
+## Core idea
+Fluid = motion maths, not many drawn frames. Few key poses + code tweens. Adding a creature or move = data, never new code.
+
+## Pieces
+1. **Rig data** (one JSON/PHP array per actor): sheet path, frame size (gnome25 = 64x80, 8 frames), named clips `{frames:[..], fps, loop}`, anchor (feet), facing.
+2. **Move table** (shared by all actors): `strike`, `hit`, `ko`, `guard`, `flee`, `idle`. Each = a track list `[t_ms, prop, value, ease]` over x, y, scale, rot, flash, shake. Props only: translateX/Y, scaleX/Y, rotate, brightness.
+3. **Motion rules** (free polish): anticipation (pull back 15% first), squash and stretch on lunge/land, ease-out on hit recoil, hit-stop 60-80ms on contact, small board shake on big hits, shadow shrinks with lift, damage number floats and fades, KO = tilt, drop, fade.
+4. **Runner**: one small JS file. Reads a move, runs it with Web Animations API (`el.animate`) so the browser does the tweening. Sequence = promise chain: `await run(me,'strike'); await run(foe,'hit'); await run(foe,'strike')...`. Needs no inline `style=` (CSP): set CSS vars/WAAPI only. Respect `prefers-reduced-motion` (skip to end state).
+5. **Sprite clips**: CSS `steps(n)` background-position on the sheet. Reuse walk strip for lunge, flash the idle frame for hit. Only draw extra frames when a move needs a new pose (attack, KO).
+6. **Variants for free**: gnome25 tint layers (hat/beard/scarf), CSS filter for flash/poison/frozen; flip with scaleX(-1) so one facing is drawn.
+7. **Layout**: grid cell size `--c`; actors sit N cells apart, lunge = (gap - 1) cells so they never overlap (mockup bug fixed 2026-11-05: gnome col 2, boar col 7, lunge 160%).
+8. **Server stays truth**: the fight result (damage, who dies) is rolled in PHP as today; the page only plays the log back as a script of moves. No game logic in the animation.
+
+## Token savers
+- One spec (this file) + one move table: new fights never re-explain the rig.
+- Art by script: Lua loops over frames/params in `aseprite-source/v3/`; Haiku-level agent can batch sprite frames, Sonnet checks one contact sheet.
+- Test by snapshot: headless Playwright shot at fixed times (0, 150, 300 ms) of each move, one contact sheet to look at, not live runs.
+- Ship slim: engine = one JS + one CSS + JSON, so the release zip stays tiny.
+
+## Rough build order
+1. Move table + runner with the current gnome and boar (no new art).
+2. Hook to the fight log (`trail_token_event`, `encounter_creature`) behind the `gnav_tiles` flag.
+3. Replace the encounter popover on tile maps with HP bubbles + buttons (option B).
+4. Draw missing poses: gnome attack/hit/KO, boar idle/attack/hit/KO, then other creatures by script.
+5. Tests: snapshot contact sheet, reduced-motion path, double-tap safe (queue moves).
+
+## Open questions for Josh
+- Keep mini pedestal creature art, or draw real battle sprites?
+- Fights from 2.5D delve/lair maps too, or trail only first?
+- Sound hooks per move (hit, KO)?
