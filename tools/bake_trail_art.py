@@ -147,6 +147,9 @@ def bake(job):
             gen2.ell(bp, x * T + jit + 32 + 3, PAD + y * T + T - 4, 24, 6, 1, tw, th)
             gen2.ell(bp, x * T + jit + 32 + 12, PAD + y * T + T - 3, 14, 4, 1, tw, th)
             objs.append([x, y, spec(land, x, y, rid), jit])
+    for lx, ly, lname, ljit in lms:   # a soft contact shadow on the ground under each landmark, like the wall objects have
+        lw = gen2.LANDMARKS[lname[3:]][0]; cx, cy = lx * T + 32 + ljit, PAD + ly * T + 60
+        gen2.ell(bp, cx + 4, cy, int(lw * .36), 7, 1, tw, th); gen2.ell(bp, cx + 8, cy + 1, int(lw * .24), 4, 1, tw, th)
     q = base.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
     path = os.path.join(IMG, "ground", f"{rid}-{si + 1}.png"); q.save(path, optimize=True)
     return rid, si, objs + [list(o) for o in lms]
