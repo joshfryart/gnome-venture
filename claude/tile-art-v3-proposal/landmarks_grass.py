@@ -226,7 +226,7 @@ def lm_wildflowers(rnd, cv):   # 300 x 140
         for k in range(h): cv.put(x + (lean * k // 8), y - k, M5[2] if k % 4 else M5[1])
         hx = x + lean * h // 8 + lean * 2
         for dx, dy in ((-4, 0), (4, 0), (0, -4), (0, 4), (-3, -3), (3, 3), (-3, 3), (3, -3), (-3, 0), (3, 0), (0, -3), (0, 3), (-2, -1), (2, 1), (-2, 1), (2, -1), (-1, -2), (1, 2), (-1, 2), (1, -2), (-2, 0), (2, 0), (0, -2), (0, 2), (-1, 0), (1, 0), (0, -1), (0, 1)): cv.put(hx + dx, hy + dy, c)
-        cv.put(hx - 3, hy - 3, c2); cv.put(hx - 4, hy, c2); cv.put(hx - 2, hy + 3, c2); cv.put(hx + 3, hy + 3, c2); ell(cv, hx, hy, 2, 2, G5[1])
+        cv.put(hx - 3, hy - 3, c2); cv.put(hx - 4, hy, c2); cv.put(hx - 2, hy + 3, c2); cv.put(hx + 3, hy + 3, c2); ell(cv, hx, hy, 1, 1, G5[1])
         if rnd.random() < .3: cv.put(hx - 1, hy - 1, INK); cv.put(hx + 1, hy - 1, INK); cv.put(hx - 1, hy + 1, INK); cv.put(hx, hy + 1, INK); cv.put(hx + 1, hy + 1, INK)   # nodding hello
 def puff(cv, cx, cy, r, rnd):
     ell(cv, cx, cy, r, r, RAMP["snow"][1]); ell(cv, cx - 1, cy - 1, r - 2, r - 2, CREAM)

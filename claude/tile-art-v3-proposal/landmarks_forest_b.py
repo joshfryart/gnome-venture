@@ -34,19 +34,19 @@ def grass_tufts(cv, x0, x1, y, rnd, n):
 def lm_ringlog(rnd, cv):   # 270 x 150
     cv_w = 270
     for x in range(70, 240):   # log body
-        top = 52 + (x // 9) % 2; bot = 134
+        top = 80 + (x // 9) % 2; bot = 136
         for y in range(top, bot):
             u = (y - top) / (bot - top); t = 0 if u < .12 else 1 if u < .35 else 2 if u < .65 else 3
             if (x * 5 + y * 3) % 17 == 0: t = min(3, t + 1)
             if (x // 5 + y // 12) % 7 == 0 and y % 4 == 0: t = 3
             cv.put(x, y, WD[t])
     for x in range(70, 240, 11):   # bark ridges
-        for y in range(58 + x % 7, 128, 1):
+        for y in range(86 + x % 7, 130, 1):
             if (y + x) % 5: cv.put(x, y, WD[3]) if (x // 11) % 2 else None
     for x in range(80, 232):   # moss on top
-        for y in range(48, 52 + (x * 3) % 9):
+        for y in range(76, 80 + (x * 3) % 9):
             if (x // 6) % 3 != 0: cv.put(x, y, r5(RAMP["moss"])[1 + (x + y) % 3 // 2 * 1])
-    for x in range(160, 215): cv.put(x, 54 + (x * 5) % 7, RAMP["moss"][2])
+    for x in range(160, 215): cv.put(x, 82 + (x * 5) % 7, RAMP["moss"][2])
     def face(x, y, nx, ny):
         d = math.sqrt(nx * nx + ny * ny)
         if d > .93: return WD[3]
@@ -54,17 +54,15 @@ def lm_ringlog(rnd, cv):   # 270 x 150
         k = int(d * 20)
         if k % 3 == 0 and d > .1: return WD[1] if (k // 3) % 2 else WD[2]
         return WD[0] if d < .12 else r5(WD)[1]
-    ell(cv, 66, 93, 34, 44, face)
-    for x in range(66, 70): cv.put(x, 92, WD[2])
-    for i, (x, y) in enumerate(((68, 60), (80, 126), (56, 110))): cv.put(x, y, CREAM)
+    ell(cv, 66, 108, 26, 30, face)
+    
+    for i, (x, y) in enumerate(((68, 84), (80, 128), (56, 120))): cv.put(x, y, CREAM)
     for i in range(6):   # tally pebbles on top
-        lump(cv, 120 + i * 13, 42, 5, 4, r5(RAMP["stone"]), rnd, 0)
-    toadstool(cv, 232, 70, .8, rnd); toadstool(cv, 246, 82, .5, rnd)
+        lump(cv, 120 + i * 13, 72, 5, 4, r5(RAMP["stone"]), rnd, 0)
+    toadstool(cv, 232, 98, .8, rnd); toadstool(cv, 246, 110, .5, rnd)
     for x in range(100, 250): cv.put(x, 138 + (x * 7) % 3, WD[3]) if x % 2 else None
     grass_tufts(cv, 20, 250, 143, rnd, 14)
     # question marks / lost count swirl
-    for dx, dy in ((20, 18), (21, 17), (22, 16), (23, 17), (23, 19), (22, 21), (22, 24)): cv.put(30 + dx, 8 + dy - 4, CREAM)
-    cv.put(52, 30, CREAM)
 
 def lm_woodpecker(rnd, cv):   # 170 x 270
     bark = [H(c) for c in ("#d9cfc0", "#b4a595", "#8a7a70", "#5a4a4f")]
@@ -101,16 +99,16 @@ def lm_woodpecker(rnd, cv):   # 170 x 270
     for _ in range(14): cv.put(rnd.randint(64, 108), 264 + rnd.randint(-1, 0), bark[2])
 
 def lm_toadring(rnd, cv):   # 260 x 130
-    cx, cy, rx, ry = 130, 74, 106, 36
+    cx, cy, rx, ry = 130, 70, 108, 22
     def g(x, y, nx, ny):
         return RAMP["moss"][1 if (x * 7 + y * 3) % 11 else 0]
-    ell(cv, cx, cy, rx - 8, ry - 6, g)
+    ell(cv, cx, cy + 4, rx - 8, ry - 3, g)
     n = 15; items = []
     for i in range(n):
         a = i / n * 6.2832 + .2
-        items.append((cy + int(math.sin(a) * ry) + 14, cx + int(math.cos(a) * rx), rnd.choice((.8, 1.0, 1.1, .9, 1.25))))
+        items.append((cy + int(math.sin(a) * ry) + 12, cx + int(math.cos(a) * rx), rnd.choice((.8, 1.0, 1.1, .9, 1.25))))
     for y, x, s in sorted(items): toadstool(cv, x, y, s * 1.15, rnd, "ember" if rnd.random() < .85 else "petal")
-    for x, y in ((120, 62), (150, 80), (100, 84)): 
+    for x, y in ((120, 68), (150, 78), (100, 80)): 
         for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)): cv.put(x + dx, y + dy, CREAM)
     grass_tufts(cv, 10, 250, 122, rnd, 16)
 
@@ -144,7 +142,7 @@ def lm_bramble(rnd, cv):   # 290 x 170
     for x, y in ((132, 114), (133, 114), (138, 116), (139, 116), (145, 114), (146, 114), (150, 116)): cv.put(x, y, CREAM); cv.put(x, y + 1, CREAM) if x % 2 else None
 
 def lm_greatstump(rnd, cv):   # 290 x 210
-    cx, top, rx, ry, hgt = 145, 54, 134, 40, 128
+    cx, top, rx, ry, hgt = 125, 46, 112, 32, 96
     for x in range(cx - rx, cx + rx):   # side
         nx = (x - cx) / rx
         y1 = int(top + ry * math.sqrt(max(0, 1 - nx * nx))); y2 = int(top + hgt + ry * math.sqrt(max(0, 1 - nx * nx))) + 4
@@ -155,8 +153,8 @@ def lm_greatstump(rnd, cv):   # 290 x 210
             if x % 9 == 0 and y % 4: tt = min(3, tt + 1)
             cv.put(x, y, WD[tt])
     for sx in (-1, 1):   # roots
-        for k in range(30):
-            x = cx + sx * (rx - 4 + k); y = top + hgt + ry // 2 + 20 + k // 5 * 1
+        for k in range(26):
+            x = cx + sx * (rx - 4 + k); y = top + hgt + ry // 2 + 10 + k // 5 * 1
             for h in range(14 - k // 3): cv.put(x, y - h + 6, WD[3 if h < 2 else 2 if sx < 0 else 3])
     def face(x, y, nx, ny):
         d = math.sqrt(nx * nx + ny * ny)
@@ -168,25 +166,25 @@ def lm_greatstump(rnd, cv):   # 290 x 210
     ell(cv, cx, top, rx, ry, face)
     for x in range(cx - 110, cx - 70): cv.put(x, top - 6 + (x * 3) % 4, WD[1]) if False else None
     # little round door and window: a stump that is a house
-    for y in range(top + 60, top + hgt + 24):
+    for y in range(top + hgt - 40, top + hgt + ry + 2):
         for x in range(cx - 14, cx + 14):
-            dy = y - (top + 62)
+            dy = y - (top + hgt - 38)
             if dy < 14 and (x - cx) ** 2 + (dy - 14) ** 2 > 14 ** 2: continue
             cv.put(x, y, INK if 2 < x - (cx - 14) < 25 else WD[3])
-    for y in range(top + 66, top + hgt + 24, 1): cv.put(cx + 9, y, WD[1]) if y > top + 76 else None
-    cv.put(cx + 6, top + 110, RAMP["gold"][0]); cv.put(cx + 7, top + 110, RAMP["gold"][1])
-    ell(cv, cx + 70, top + 78, 10, 10, lambda x, y, nx, ny: RAMP["gold"][0] if nx + ny < -.3 else INK if abs(nx) < .15 or abs(ny) < .15 else RAMP["sea"][1])
+    for y in range(top + 66, top + hgt + 24, 1): cv.put(cx + 9, y, WD[1]) if y > top + hgt - 24 else None
+    cv.put(cx + 6, top + hgt - 2, RAMP["gold"][0]); cv.put(cx + 7, top + hgt - 2, RAMP["gold"][1])
+    ell(cv, cx + 62, top + 56, 9, 9, lambda x, y, nx, ny: RAMP["gold"][0] if nx + ny < -.3 else INK if abs(nx) < .15 or abs(ny) < .15 else RAMP["sea"][1])
     for k in range(8): cv.put(cx + 70, top + 96 + k, WD[3]) if False else None
-    for x in range(cx - 120, cx - 40):   # moss cap on the left shoulder
+    for x in range(cx - 104, cx - 34):   # moss cap on the left shoulder
         for y in range(top + ry - 8, top + ry + 4 + (x * 7) % 8):
             if cv.get(x, y)[3] and cv.get(x, y) != INK and (x + y) % 3: cv.put(x, y, RAMP["moss"][1 + (x // 3) % 2])
-    toadstool(cv, cx - 70, top + 14, .7, rnd); toadstool(cv, cx - 56, top + 20, .5, rnd)
+    toadstool(cv, cx - 62, top + 12, .7, rnd); toadstool(cv, cx - 48, top + 18, .5, rnd)
     for k in range(5): line(cv, cx + 60 + k * 9, top + 6 - (k % 2) * 3, cx + 60 + k * 9, top - 4 - (k % 2) * 3, [RAMP["moss"][1], RAMP["moss"][0]], 1)
-    grass_tufts(cv, 8, 280, 205, rnd, 14)
+    grass_tufts(cv, 8, 240, 180, rnd, 12)
 
 def lm_larder(rnd, cv):   # 230 x 270
     C = r5(RAMP["leaf"])
-    trunk(cv, 115, 120, 262, 62, rnd)
+    trunk(cv, 115, 100, 192, 62, rnd)
     for cx, cy, rx, ry in ((115, 70, 70, 44), (60, 98, 46, 34), (172, 98, 46, 34), (115, 40, 46, 32), (100, 110, 38, 24), (140, 112, 38, 24)):
         lump(cv, cx, cy, rx, ry, C, rnd, .12)
     leaf_texture(cv, C, rnd, 140)
@@ -197,28 +195,27 @@ def lm_larder(rnd, cv):   # 230 x 270
             for k in range(4):
                 for j in range(4): cv.put(a + k, b + j, RAMP["gold"][2 if j > 0 else 3]) if j > 1 else cv.put(a + k, b + j, WD[1] if j == 0 else WD[2])
             cv.put(a + 1, b + 1, RAMP["gold"][0]) if False else None
-    hole(104, 170, 10, 14, ((-6, 0), (0, 1), (5, -1), (-2, -4)))
-    hole(130, 206, 9, 12, ((-5, 0), (1, 1), (-1, -4)))
-    hole(102, 236, 9, 10, ((-5, 0), (1, 1)))
+    hole(100, 140, 9, 13, ((-6, 0), (0, 1), (5, -1), (-2, -4)))
+    hole(126, 168, 8, 10, ((-5, 0), (1, 1), (-1, -4)))
     # squirrel peering from the right, eyes sideways
     S = r5(RAMP["ember"]); sq = [H("#e8a060"), H("#c9783d"), H("#a85a32"), H("#7a3f2a"), H("#5a2c26")]
     for k in range(40):   # tail
         for w in range(14): 
-            c = (sq[0] if w < 4 else sq[1] if w < 9 else sq[2]); xx = 166 + int(math.sin(k / 8) * 9) + w - (k // 4); cv.put(xx, 232 - k, c) if (k < 36 or w > 3) else None
-    lump(cv, 156, 226, 15, 20, sq, rnd, 0); lump(cv, 152, 232, 8, 11, [CREAM, CREAM, H("#f0d9a8"), H("#f0d9a8"), H("#f0d9a8")], rnd, 0)
-    lump(cv, 150, 198, 13, 12, sq, rnd, 0)
-    for dx in (-8, -9): cv.put(150 + dx + 6, 184, sq[3])
+            c = (sq[0] if w < 4 else sq[1] if w < 9 else sq[2]); xx = 166 + int(math.sin(k / 8) * 9) + w - (k // 4); cv.put(xx, 172 - k, c) if (k < 36 or w > 3) else None
+    lump(cv, 156, 166, 15, 20, sq, rnd, 0); lump(cv, 152, 172, 8, 11, [CREAM, CREAM, H("#f0d9a8"), H("#f0d9a8"), H("#f0d9a8")], rnd, 0)
+    lump(cv, 150, 138, 13, 12, sq, rnd, 0)
+    for dx in (-8, -9): cv.put(150 + dx + 6, 124, sq[3])
     for ex in (144, 154):
-        for dx in range(3): cv.put(ex + dx, 196, CREAM); cv.put(ex + dx, 197, CREAM)
-        cv.put(ex, 196, INK); cv.put(ex, 197, INK)
-    cv.put(146, 204, INK); cv.put(147, 204, INK); cv.put(148, 205, INK)
-    for p in range(2): cv.put(143 + p * 14, 180, sq[2]); cv.put(143 + p * 14, 181, sq[2]); cv.put(144 + p * 14, 179, sq[2])
+        for dx in range(3): cv.put(ex + dx, 136, CREAM); cv.put(ex + dx, 137, CREAM)
+        cv.put(ex, 136, INK); cv.put(ex, 137, INK)
+    cv.put(146, 144, INK); cv.put(147, 144, INK); cv.put(148, 145, INK)
+    for p in range(2): cv.put(143 + p * 14, 120, sq[2]); cv.put(143 + p * 14, 121, sq[2]); cv.put(144 + p * 14, 119, sq[2])
     for k, c in ((0, RAMP["gold"][1]), (1, RAMP["gold"][2])):   # acorn pile at roots
         pass
     for i in range(14):
-        a, b = 40 + i * 11 + rnd.randint(-3, 3), 262 + rnd.randint(-2, 1)
+        a, b = 40 + i * 11 + rnd.randint(-3, 3), 190 + rnd.randint(-2, 1)
         for k in range(4): cv.put(a + k, b, WD[1]); cv.put(a + k, b + 1, RAMP["gold"][2]); cv.put(a + k, b + 2, RAMP["gold"][3])
-    grass_tufts(cv, 30, 200, 266, rnd, 12)
+    grass_tufts(cv, 30, 200, 192, rnd, 12)
 
 def lm_beaverdam(rnd, cv):   # 290 x 150
     _pond(cv, 145, 70, 138, 52, rnd)
@@ -349,8 +346,8 @@ def lm_stickgate(rnd, cv):   # 250 x 200
 def lm_tunnelmouth(rnd, cv):   # 290 x 240
     M = r5(RAMP["moss"]); L = r5(RAMP["leaf"])
     cx = 145
-    lump(cv, cx, 150, 138, 92, [RAMP["moss"][0], RAMP["moss"][1], RAMP["moss"][2], RAMP["leaf"][2], RAMP["leaf"][3]], rnd, .12)
-    for cxx, cyy, r in ((70, 70, 30), (210, 74, 34), (140, 36, 38)): lump(cv, cxx, cyy + 50 if False else cyy + 30, r, int(r * .7), L, rnd, .12)
+    lump(cv, cx, 158, 138, 84, [RAMP["moss"][0], RAMP["moss"][1], RAMP["moss"][2], RAMP["leaf"][2], RAMP["leaf"][3]], rnd, .12)
+    for cxx, cyy, r in ((70, 84, 30), (210, 88, 34), (140, 76, 38)): lump(cv, cxx, cyy + 30, r, int(r * .7), L, rnd, .12)
     leaf_texture(cv, L, rnd, 120)
     # stone rim of the doorway
     ell(cv, cx, 162, 56, 66, lambda x, y, nx, ny: RAMP["stone"][0] if nx + ny < -.8 else RAMP["stone"][1] if nx + ny < -.1 else RAMP["stone"][2] if ny < .6 else RAMP["stone"][3])
@@ -394,22 +391,22 @@ def glowcap(cv, x, y, s, R, rnd, halo=True):
 
 def lm_glowtunnel(rnd, cv):   # 290 x 210
     cx, cy = 145, 112
-    ell(cv, cx, cy + 6, 140, 100, lambda x, y, nx, ny: RAMP["dusk"][0 if nx + ny < -.9 else 1 if nx + ny < -.2 else 2 if ny < .5 else 3] if (x + y) % 9 else RAMP["dusk"][2])   # rocky arch
+    ell(cv, cx, cy + 4, 140, 94, lambda x, y, nx, ny: RAMP["dusk"][0 if nx + ny < -.9 else 1 if nx + ny < -.2 else 2 if ny < .5 else 3] if (x + y) % 9 else RAMP["dusk"][2])   # rocky arch
     for _ in range(40): 
         a, b = rnd.randint(14, 276), rnd.randint(30, 190)
         if cv.get(a, b)[3] and cv.get(a, b) != INK: cv.put(a, b, RAMP["dusk"][3]); cv.put(a + 1, b, RAMP["dusk"][3])
     def inner(x, y, nx, ny):
         d = nx * nx + ny * ny
         return H("#1a1233") if d > .6 else H("#120c26") if d > .28 else H("#0a0818")
-    ell(cv, cx, cy + 18, 104, 84, inner)
+    ell(cv, cx, cy + 16, 104, 78, inner)
     for k in range(7):   # receding tunnel ribs
         r = 1 - k * .13
         for a in range(0, 360, 3):
-            x = cx + int(math.cos(math.radians(a)) * 104 * r); y = cy + 18 + int(math.sin(math.radians(a)) * 84 * r)
+            x = cx + int(math.cos(math.radians(a)) * 104 * r); y = cy + 16 + int(math.sin(math.radians(a)) * 78 * r)
             if cv.get(x, y)[3] and (a // 3) % 2: cv.put(x, y, H("#2c2150") if k % 2 else H("#241a44"))
     floor_y = 190
     for x in range(40, 250):   # floor
-        nx = (x - cx) / 104; fy = cy + 18 + int(84 * math.sqrt(max(0, 1 - nx * nx)))
+        nx = (x - cx) / 104; fy = cy + 16 + int(78 * math.sqrt(max(0, 1 - nx * nx)))
         for y in range(fy - 8, fy + 1): cv.put(x, y, H("#2c2150") if (x + y) % 3 else H("#1a1233")) if cv.get(x, y)[3] else None
     teal, vio = RAMP["sea"], RAMP["dusk"]
     for gx, gy, s, R in ((54, 178, 1.2, teal), (82, 190, .9, vio), (34, 150, .8, teal), (216, 182, 1.15, vio), (246, 160, .8, teal), (196, 192, .8, teal), (74, 162, .6, vio), (226, 140, .6, vio),
@@ -425,6 +422,6 @@ def lm_glowtunnel(rnd, cv):   # 290 x 210
         x, y = rnd.randint(70, 220), rnd.randint(70, 170); cv.put(x, y, teal[0]); cv.put(x + 1, y, teal[0])
 
 LM = {"312-ringlog": (270, 150, lm_ringlog), "312-woodpecker": (170, 270, lm_woodpecker), "312-toadring": (260, 130, lm_toadring),
-      "312-bramble": (290, 170, lm_bramble), "312-greatstump": (290, 210, lm_greatstump), "312-larder": (230, 270, lm_larder),
+      "312-bramble": (290, 170, lm_bramble), "312-greatstump": (250, 190, lm_greatstump), "312-larder": (230, 196, lm_larder),
       "313-beaverdam": (290, 150, lm_beaverdam), "313-mudslide": (250, 160, lm_mudslide), "313-lodge": (290, 220, lm_lodge),
       "313-stickgate": (250, 200, lm_stickgate), "313-tunnelmouth": (290, 240, lm_tunnelmouth), "313-glowtunnel": (290, 210, lm_glowtunnel)}
