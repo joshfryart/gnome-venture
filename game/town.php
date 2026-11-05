@@ -12,6 +12,8 @@ require_once __DIR__ . '/includes/place_ui.php';   // v2.0.61: town folk / actio
 $u = require_login();
 $uid = (int)$u['id'];
 $hub = !empty($_GET['hub']) || !empty($_POST['hub']);
+$ajax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch';   // the Here popovers (assets/hubscene.js) ask for a spot card and post its forms in place
+require_once __DIR__ . '/includes/spot_card.php';
 
 if (is_post()) {
     csrf_check();
@@ -36,6 +38,7 @@ if (is_post()) {
         'local' => (function () use ($u) { require_once __DIR__ . '/includes/local.php'; return local_do($u, player_node($u), (string)($_POST['kind'] ?? ''), $_POST); })(),
         default => [false, 'Unknown action.'],
     };
+    if ($ajax && (int)($_POST['spot'] ?? 0) > 0) spot_card_reply(require_login(), $hub, (int)$_POST['spot'], $msg, $ok);   // in place: the card comes back with the result
     flash($msg, $ok ? 'ok' : 'err');
     $spot = (int)($_POST['spot'] ?? 0);
     $stTab = ($do === 'local' && in_array($_POST['t'] ?? '', ['folk', 'stop'], true)) ? 't=' . $_POST['t'] : '';   // v1.3.0: rest-stop forms come back to their tab
@@ -73,6 +76,7 @@ $town = town_for($u, $hub);
 $q = $hub ? 'hub=1&' : '';
 $spot = !empty($_GET['spot']) ? q_one('SELECT * FROM town_spots WHERE id = ? AND region = ? AND active = 1', [(int)$_GET['spot'], $town]) : null;
 if ($spot) town_mark_present($uid, (int)$spot['id']);
+if ($ajax && $spot && isset($_GET['frag'])) spot_card_reply($u, $hub, (int)$spot['id']);
 $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 $uses = town_uses_today($uid);
 $quiz = $_SESSION['town_quiz'] ?? null;

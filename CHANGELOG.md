@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.22
+- **Here: everything resolves in a popover**: tapping a place in a town picture (Green, Café, Notice Board, Library, special places) opens a slim card that loads in place: one line about it, the things to do as compact rows, who is here as little faces (tap = their popover), favours / gossip, and Open full page last. Its buttons act without leaving the picture. Villager popovers show the portrait first. Under the picture there is one centred row of round icons with captions (Routes, World, Fast travel, GPS); the big place buttons, the List view and the Town square / World map / Villagers buttons are gone (a small "List of places" fold remains). Titles, clock, popover heads and actions are centred. Needs 2.5.21.
+
 ## 2.5.21
 - **Here pictures: named pills and a street line**: each tappable thing in a gate-view picture carries a small named pill (no overlaps), the compass and world globe are round icons in a row under the picture, and the villagers stand in a line under the picture in their 2.5D sprites with name pills (tap opens the villager popover: chat, gift, trade). Needs 2.5.20.
 

@@ -7244,9 +7244,20 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubsvg.chrome .hs.on .pill rect, .hubsvg.chrome .hs:hover .pill rect, .hubsvg.chrome .hs:focus-visible .pill rect, .hubsvg.chrome .hs.lit .pill rect { fill: #ffe9a3; }
 .hubsvg.chrome .hs.on .pill text, .hubsvg.chrome .hs:hover .pill text, .hubsvg.chrome .hs:focus-visible .pill text, .hubsvg.chrome .hs.lit .pill text { fill: #2a1a10; }
 .hubchip-t { font-weight: 700; }
-.hubnavbar { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; }
-.hubnavhint { flex: 1; color: var(--muted); font-size: .85rem; }
+.hubnavbar { list-style: none; margin: 10px 0 0; padding: 0; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.hubnavbar li { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.hubnavcap { font-size: .72rem; font-weight: 700; color: var(--muted); text-align: center; }
 .hubnavbtn.round { width: 48px; height: 48px; border-radius: 50%; border-color: #d4a017; }
+.hubfold { margin: 10px 0 0; text-align: center; } .hubfold summary { cursor: pointer; color: var(--muted); font-size: .85rem; } .hubfold .hubleg { justify-content: center; }
+/* centre things: title, clock, breadcrumbs, picture block, street names, popover heads, actions */
+.herepage h1, .herepage .hereinfo, .herepage .crumbs { text-align: center; }
+.hubpop .pickhead h3 { text-align: center; flex: 1; margin: 0; }
+.hubpop .sdesc, .hubpop .vmore, .hubpop .hubcard > p { text-align: center; }
+.hubpop .tact { justify-content: center; text-align: center; }
+.hubpop .tact small { text-align: center; }
+.hubpop .sfaces { justify-content: center; }
+.hubpop .heretools { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.hubpop .vpanel .vact { text-align: center; }
 .hubstreet { list-style: none; margin: 8px 0 0; padding: 8px 6px 10px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-end; gap: 6px 4px; background: linear-gradient(#8a6a44, #6d5033); border: 2px solid var(--line-2); border-radius: 6px; }
 .hubst { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 72px; min-height: 44px; text-decoration: none; }
 .hubst .stp { display: block; image-rendering: pixelated; }
@@ -7256,3 +7267,25 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubst:focus-visible { outline: 2px solid var(--focus); }
 .vlazy .vpanel { border: 0; padding: 0; box-shadow: none; }
 .vmore { margin: 8px 0 0; text-align: right; }
+
+/* Slim popovers (Here): short text, compact action rows, faces for people */
+.hubpop .pickbox { max-width: 420px; }
+.hubpop .hubcard { font-size: .95rem; }
+.hubpop .sdesc { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
+.hubpop .tacts { display: flex; flex-direction: column; gap: 6px; margin: 6px 0; }
+.hubpop .tact { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0; }
+.hubpop .tact .btn, .hubpop .heretools .btn { min-height: 44px; padding: 6px 12px; }
+.hubpop .tact .cost { font-weight: 400; opacity: .85; margin-left: 4px; }
+.hubpop .tact small { flex: 1 1 100%; margin: 0; }
+.hubpop .sfaces { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; padding-top: 8px; border-top: 1px dashed var(--line-2); }
+.hubpop .sface { display: flex; flex-direction: column; align-items: center; width: 64px; text-decoration: none; font-size: .72rem; font-weight: 700; text-align: center; color: var(--ink); }
+.hubpop .sfpic { display: block; border: 2px solid #d4a017; border-radius: 50%; background: #4a3020; width: 44px; height: 42px; image-rendering: pixelated; box-sizing: content-box; }
+.hubpop .sfemo { display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.hubpop .rumours { margin: 8px 0; font-size: .88rem; } .hubpop .rumours p { margin: 2px 0; }
+.hubpop .favours { border: 0; padding: 0; box-shadow: none; } .hubpop .favours h3 { font-size: 1rem; margin: 6px 0; } .hubpop .favour { padding: 6px 0; }
+/* the villager card: face first, then the one-line mood, then Chat / Give */
+.hubpop .vpanel .npchead { display: flex; gap: 10px; align-items: flex-start; }
+.hubpop .vpanel .npcpic { flex: 0 0 84px; } .hubpop .vpanel .npcpic .portrait { width: 84px; height: auto; border: 2px solid #d4a017; border-radius: 10px; }
+.hubpop .vpanel .npcid h2 { font-size: 1.05rem; margin: 0; } .hubpop .vpanel .npcid p { margin: 2px 0; font-size: .85rem; }
+.hubpop .vpanel .fondbar small { font-size: .72rem; }
+.hubpop .vpanel .vact { margin: 6px 0; } .hubpop .vpanel .btn { min-height: 44px; }

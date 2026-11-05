@@ -208,7 +208,10 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
     if ($kind === 'town') {
         $ts = here_town_spots($node);
         foreach (['green' => '🌳', 'teahouse' => '☕', 'board' => '📋', 'library' => '📚', 'special1' => '✨', 'special2' => '✨'] as $k => $emo) {
-            if (isset($ts[$k])) $add($k, (string)$ts[$k]['name'], $emo, url('town.php?' . ($node['kind'] === 'hub' ? 'hub=1&' : '') . 'spot=' . (int)$ts[$k]['id']));
+            if (isset($ts[$k])) {
+                $hq = ($node['kind'] === 'hub' ? 'hub=1&' : '');
+                $add($k, (string)$ts[$k]['name'], $emo, url('town.php?' . $hq . 'spot=' . (int)$ts[$k]['id']), here_lazy_card(url('town.php?' . $hq . 'spot=' . (int)$ts[$k]['id'] . '&frag=1'), url('town.php'), 'Open full page ›', ''));
+            }
         }
         $add('shops', 'Shops', '🏪', url('town.php?view=shops'));
         // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
@@ -297,10 +300,16 @@ function here_sprite(array $npc): array
     return ['src' => '', 'w' => 40, 'h' => 56, 'emoji' => $emoji];
 }
 
+/** A popover whose body loads in place: GET $get returns JSON {html}; forms inside it (data-vform) post to $post. Without JS the link is the way in. */
+function here_lazy_card(string $get, string $post, string $linkLabel, string $linkHref): string
+{
+    return '<div class="vlazy" data-get="' . e($get) . '" data-url="' . e($post) . '" data-csrf="' . e(csrf_token()) . '"><p class="muted">Loading…</p></div>';
+}
+
 /** A villager's popover: an empty shell; assets/hubscene.js loads the villager panel (chat, gift picker, trade) into it when it opens and posts its forms in place. */
 function here_npc_card(int $id): string
 {
-    return '<div class="vlazy" data-vload="' . $id . '" data-url="' . e(url('villagers.php')) . '" data-csrf="' . e(csrf_token()) . '"><p class="muted">Loading…</p></div>'
+    return here_lazy_card(url('villagers.php?id=' . $id), url('villagers.php'), '', '')
         . '<p class="vmore"><a href="' . e(url('villagers.php?id=' . $id)) . '">Open villager page ›</a></p>';
 }
 
@@ -335,10 +344,11 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     [$sprites, $over] = here_sprites($u, $node, $L, $kind);
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
     if ($gate) {
-        $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true;
+        $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
-            'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a></p>'],
+            'extra' => [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]],
+            'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a> <a class="btn alt" href="' . e(url('villagers.php')) . '">Villagers</a></p>'],
         ];
     }
     if ($over > 0) $opts['more'] = ['label' => '+' . $over . ' more villagers', 'href' => url('villagers.php')];
@@ -382,7 +392,7 @@ function here_text_list(array $u, array $node): string
  * "forget route" (adventure.php do=dest_forget) and walking options (do=dest_opts) forms and links to Seek. Without script each
  * button is a link to the old place (World travel fold, route panel).
  */
-function gnav_tools_html(array $u, string $back): string
+function gnav_tools_html(array $u, string $back, bool $buttons = true): string
 {
     require_once __DIR__ . '/world.php';
     require_once __DIR__ . '/seek.php';
@@ -409,9 +419,9 @@ function gnav_tools_html(array $u, string $back): string
         return '<dialog class="picker hubpop" id="hubpop-' . $id . '" aria-labelledby="hubpop-' . $id . '-t"><div class="pickbox"><div class="pickhead"><h3 id="hubpop-' . $id . '-t">' . $title . '</h3>'
             . '<button type="button" class="pickx" data-pop-close aria-label="Close">✕</button></div><div class="hubcard">' . $body . '</div></div></dialog>';
     };
-    return '<div class="gnavtools heretools">'
+    return ($buttons ? '<div class="gnavtools heretools">'
         . '<a class="btn" data-pop="hubpop-ft" href="' . e(url('world.php?tab=travel#fasttravel')) . '">🧭 Fast travel</a>'
-        . '<a class="btn" data-pop="hubpop-gps" href="' . e(url('world.php#gopanel')) . '">📡 GPS' . ($ds ? ' · ' . e(dest_name($uid, $ds[0])) : '') . '</a></div>'
+        . '<a class="btn" data-pop="hubpop-gps" href="' . e(url('world.php#gopanel')) . '">📡 GPS' . ($ds ? ' · ' . e(dest_name($uid, $ds[0])) : '') . '</a></div>' : '')
         . $card('ft', '🧭 Fast travel', '<p class="help">Hop to any region you’ve walked to. Home is free.</p><ul class="regionlist hubreg">' . $rows . '</ul>')
         . $card('gps', '📡 GPS', $gps);
 }

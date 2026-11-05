@@ -211,7 +211,7 @@ if ($withDb) {
         $h = $viewOf($id);
         ok("$k: the picture renders", str_contains($h, 'class="hubsvg') && str_contains($h, 'viewBox="0 0 480 270"'));
         ok("$k: CSP safe (no style=, no script, no on* handlers)", !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $h), substr($h, 0, 0));
-        ok("$k: has a text twin", str_contains($h, 'class="hubtwin"'));
+        ok("$k: has a text twin", str_contains($h, 'class="hubtwin"') || str_contains($h, 'class="hubfold"'));
         ok("$k: every hotspot is a real link", preg_match_all('/<a class="hs(?: [^"]*)?" /', $h) === preg_match_all('/<a class="hs(?: [^"]*)?" id="hs-[^"]+" href="[^"]+"/', $h));
     }
 
@@ -227,7 +227,14 @@ if ($withDb) {
         ok('gate view: compass and globe are there', str_contains($h, 'id="hs-routes"') && str_contains($h, 'id="hs-world"') && str_contains($h, 'hubpop-routes') && str_contains($h, 'Open region map'));
         ok('gate view: named pills on the picture, none overlapping', substr_count($h, '<g class="pill">') >= 5 && (function () use ($h) { preg_match_all('/<g class="pill"><rect x="(-?\d+)" y="(-?\d+)" width="(\d+)"/', $h, $m); $r = []; foreach ($m[1] as $i => $x) $r[] = [(int)$x, (int)$m[2][$i], (int)$m[3][$i]]; foreach ($r as $i => $a) foreach ($r as $j => $b) if ($i < $j && $a[0] < $b[0] + $b[2] && $b[0] < $a[0] + $a[2] && $a[1] < $b[1] + 16 && $b[1] < $a[1] + 16) return false; return true; })());
         ok('gate view: compass + globe are round icons in a bar under the picture, not on it', str_contains($h, 'class="hubnavbar"') && str_contains($h, 'hubnavbtn round') && !str_contains($h, 'class="hubnav"'));
-        ok('gate view: villagers stand in a line under the picture (not drawn in it)', !str_contains($h, 'class="hsp"') && (!str_contains($h, 'data-vload=') || str_contains($h, 'class="hubstreet"')));
+        ok('gate view: villagers stand in a line under the picture (not drawn in it)', !str_contains($h, 'class="hsp"') && (!str_contains($h, 'data-get=') || str_contains($h, 'class="hubstreet"')));
+        ok('gate view: town places open a popover that loads in place (no page hop)', substr_count($h, 'class="vlazy"') >= 3 && !str_contains($h, 'data-pop="hubpop-s-green" href="' . url('town.php')));
+        $ts1 = q_one("SELECT * FROM town_spots WHERE active = 1 AND kind = 'green' ORDER BY id LIMIT 1");
+        if ($ts1) {
+            require_once $game . '/includes/spot_card.php';
+            $card = spot_card_html(me(), $ts1, false);
+            ok('spot card: slim (description, actions, full-page link, forms post in place)', str_contains($card, 'class="sdesc"') && str_contains($card, 'Open full page') && !str_contains($card, '<form method="post">') && !str_contains($card, '<h1'));
+        }
 
     } else ok('one exit hotspot per visible route (up to 8)', substr_count($h, 'id="hs-e') === min(8, count($routes)), substr_count($h, 'id="hs-e') . ' vs ' . count($routes));
     // a side path to a place the gnome has not found stays hidden

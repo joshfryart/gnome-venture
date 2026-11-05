@@ -232,14 +232,15 @@ function hub_street(array $sprites): string
 }
 
 /** The compass and the globe as a bar of two wide buttons just UNDER the picture (gate view): nothing sits on the art. */
-function hub_navbar(array $routes, array $world): string
+function hub_navbar(array $routes, array $world, array $extra = []): string
 {
     $img = function (string $f, string $alt): string {
         return is_file(APP_ROOT . '/assets/img/ico/' . $f) ? '<img src="' . e(url('assets/img/ico/' . $f)) . '" width="28" height="28" alt="" decoding="async">' : e($alt);
     };
-    return '<div class="hubnavbar"><span class="hubnavhint">Tap a name or a villager</span>'
-        . '<a class="hubnavbtn round" id="hs-world" href="' . e((string)$world['href']) . '" data-pop="hubpop-world" aria-haspopup="dialog" aria-label="World map" title="World map">' . $img('ico-globe.png', 'World') . '</a>'
-        . '<a class="hubnavbtn round" id="hs-routes" href="' . e((string)$routes['href']) . '" data-pop="hubpop-routes" aria-haspopup="dialog" aria-label="Routes" title="Routes">' . $img('ico-compass.png', 'Routes') . '</a></div>';
+    $btn = fn(string $id, string $href, string $label, string $icon, string $pop) => '<li><a class="hubnavbtn round" id="hs-' . e($id) . '" href="' . e($href) . '" data-pop="hubpop-' . e($pop) . '" aria-haspopup="dialog" aria-label="' . e($label) . '">' . $img($icon, $label) . '</a><span class="hubnavcap">' . e($label) . '</span></li>';
+    $o = $btn('routes', (string)$routes['href'], 'Routes', 'ico-compass.png', 'routes') . $btn('world', (string)$world['href'], 'World', 'ico-globe.png', 'world');
+    foreach ($extra as $x) $o .= $btn((string)$x['id'], (string)$x['href'], (string)$x['label'], (string)$x['icon'], (string)$x['id']);
+    return '<ul class="hubnavbar" aria-label="Go somewhere">' . $o . '</ul>';
 }
 
 /** The picture page, whole: svg, legend, cards (dialogs) and the text twin. */
@@ -292,7 +293,7 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
             . '<span class="hubchip-t">' . e((string)($h['label'] ?? '')) . '</span>' . (($h['chip'] ?? '') !== '' ? ' <small class="hubchip-c">' . e((string)$h['chip']) . '</small>' : '') . '</a></li>';
     }
     if (!empty($opts['more'])) $leg .= '<li><a class="hubchip" href="' . e((string)$opts['more']['href']) . '"><span class="hubchip-t">' . e((string)$opts['more']['label']) . '</span></a></li>';
-    $out = '<div class="hubscene' . ($chrome ? ' chrome' : '') . '" data-hub="' . e($key) . '">' . ($chrome ? '<div class="hubstage">' . $svg . (!empty($opts['nav']) && empty($opts['navbar']) ? hub_navbuttons($opts['nav']['routes'], $opts['nav']['world']) : '') . '</div>' . (!empty($opts['nav']) && !empty($opts['navbar']) ? hub_navbar($opts['nav']['routes'], $opts['nav']['world']) : '') . (!empty($opts['street']) ? hub_street($sprites) : '') : $svg) . ($leg !== '' ? '<ul class="hubleg" aria-label="In this picture">' . $leg . '</ul>' : '');
+    $out = '<div class="hubscene' . ($chrome ? ' chrome' : '') . '" data-hub="' . e($key) . '">' . ($chrome ? '<div class="hubstage">' . $svg . (!empty($opts['nav']) && empty($opts['navbar']) ? hub_navbuttons($opts['nav']['routes'], $opts['nav']['world']) : '') . '</div>' . (!empty($opts['nav']) && !empty($opts['navbar']) ? hub_navbar($opts['nav']['routes'], $opts['nav']['world'], $opts['nav']['extra'] ?? []) : '') . (!empty($opts['street']) ? hub_street($sprites) : '') : $svg) . ($leg !== '' ? (!empty($opts['legfold']) ? '<details class="hubfold"><summary>List of places</summary><ul class="hubleg" aria-label="In this picture">' . $leg . '</ul></details>' : '<ul class="hubleg" aria-label="In this picture">' . $leg . '</ul>') : '');
 
     // cards: one <dialog> per hotspot/sprite with a card. 'open' shows that one (no-JS: it sits open under the picture)
     $open = (string)($opts['open'] ?? '');

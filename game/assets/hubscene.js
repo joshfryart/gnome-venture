@@ -75,19 +75,26 @@
     if (!res.html) { var p = document.createElement('p'); p.className = 'vmsg err'; p.textContent = res.msg || 'Could not load.'; box.appendChild(p); }
   }
   function lazyLoad(d) {
-    var box = d && d.querySelector ? d.querySelector('.vlazy[data-vload]') : null;
+    var box = d && d.querySelector ? d.querySelector('.vlazy[data-get]') : null;
     if (!box || box.getAttribute('data-ready')) return;
     box.setAttribute('data-ready', '1');
-    ask(box.getAttribute('data-url') + '?id=' + encodeURIComponent(box.getAttribute('data-vload')), { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
+    ask(box.getAttribute('data-get'), { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
   }
   document.addEventListener('submit', function (ev) {
     var f = ev.target.closest ? ev.target.closest('.vlazy [data-vform]') : null;
     if (!f) return;
-    ev.preventDefault();
+    ev.preventDefault(); ev.stopPropagation();   // capture phase, after the seed/food picker handler: nothing else swaps the page
     var box = f.closest('.vlazy');
     var fd = new FormData(f); fd.set('csrf', box.getAttribute('data-csrf'));
     var b = f.querySelector('button'); if (b) b.disabled = true;
     ask(box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
+  }, true);
+  /* a face in a place card opens that villager's popover when they are standing in the street line, else their page */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest ? ev.target.closest('a.sface[data-nid]') : null;
+    if (!a || !(ev.button === 0) || ev.ctrlKey || ev.metaKey) return;
+    var link = document.getElementById('sp-n' + a.getAttribute('data-nid'));
+    if (link && link.click) { ev.preventDefault(); var dlg = a.closest('dialog.hubpop'); if (dlg && window.gvCloseDlg) gvCloseDlg(dlg); link.click(); }
   });
   document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('dialog.hubpop[open]').forEach(lazyLoad); });
 })();
