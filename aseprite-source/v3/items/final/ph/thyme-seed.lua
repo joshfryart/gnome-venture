@@ -1,9 +1,9 @@
--- thyme-seed (seed W1_7)
+-- thyme-seed (seed E1_C)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="thyme-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2a1618","#4a2a22","#6e4030","#8c5a3a","#aa7448","#c8925c"}, leaf={"#4a6a58","#5e8466","#78a078","#92b88a","#acd0a0","#c8e6b8"}, sleaf={"#5a8a62","#76a874","#92c486","#aee09a","#c8f2b2","#e2ffd0"},
-stem={"#6a3a5a","#8a4e66","#a8647a","#7cae6a","#98c880"}, root={"#e8dcc4","#f4ead4","#fff4e2"},
-vein="#b8d8b0", gloss="#f4e0c0", cool="#3a2a5a", red="#a05a7a",
-sl=0.6, sw=0.6, taper=0, drop={4}, marks="pits", markc="#2a1a18",
-scrap={8,54,26,54,56,44}, scrapW=5.5, scrapExp=0.85, sprout="pair", leafw=2.6, quirk="none"
+seed={"#1a0e0c","#34201a","#523426","#724a32","#926642","#b48a5a"}, leaf={"#2a3a30","#3a5040","#4c6a50","#628660","#7ea474","#a2c090"}, sleaf={"#3a6a4a","#52886a","#6ea684","#90c29c","#b4dcb4","#d6f0d0"},
+stem={"#4a3a3a","#6a5446","#8a6e54","#5a8a5a","#84ac6c"}, root={"#efe2c4","#d9c49c","#b89a72"},
+vein="#cce4c4", gloss="#f6dcb4", cool="#4a3a6a", red="#8a4a7a",
+sl=0.8, sw=0.9, taper=0, drop={4}, marks="none", markc="#2a1a14",
+scrap={8,55,28,52,56,42}, scrapW=4.6, scrapExp=0.95, sprout="pair", leafw=3.0, quirk="none",
 })

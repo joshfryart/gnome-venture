@@ -1,9 +1,8 @@
--- lettuce-seed (seed W1_2)
+-- lettuce-seed (seed E1_A)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="lettuce-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3a3028","#5e5040","#8a7858","#b09c74","#d2c090","#ece0b4"}, leaf={"#3a5a24","#547a2c","#74983a","#96b84a","#b8d460","#d8ec84"}, sleaf={"#52842c","#74a838","#98c846","#bce05c","#d8f47c","#f0ffa4"},
-stem={"#6a5a3c","#8a7a50","#aa9a68","#8cb44c","#aed060"}, root={"#f4ecd8","#e0d4b4","#c8b894"},
-vein="#e8f4b0", gloss="#fff4cc", cool="#5a4a6a", red="#a8643c",
-sl=1.1, sw=0.6, taper=0.35, drop={4}, marks="stripes", markc="#4a3c2c",
-scrap={6,50,30,58,57,48}, scrapW=6.0, scrapExp=0.6, sprout="pair", leafw=3.0, quirk="none"
+seed={"#6a5a40","#8c7a58","#ae9c70","#cdbc8a","#e6d8a4","#f8f0c4"}, leaf={"#2a6a3a","#3c8a40","#58a844","#7cc450","#a4dc62","#c8f080"}, sleaf={"#3c9a4a","#5cbc54","#82d664","#a8ea78","#ccf894","#e6fcb0"}, stem={"#6a8a4a","#88aa54","#a4c860","#b4dc6c","#cef088"}, root={"#f8f0d8","#e8dcb8","#d0c096"},
+vein="#e0f4a8", gloss="#fffce0", cool="#4a4a80", red="#c08a50",
+sl=1.35, sw=0.7, taper=0.4, drop={4}, marks="stripes", markc="#6a5a40",
+scrap={6,56,26,52,58,42}, scrapW=7.0, scrapExp=0.55, sprout="pair", leafw=3.8, quirk="none",
 })

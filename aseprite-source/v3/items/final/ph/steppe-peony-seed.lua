@@ -1,7 +1,9 @@
--- steppe-peony-seed (seed W1_6)
+-- steppe-peony-seed (seed E1_C)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
- name="steppe-peony-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#1a1024","#2e1a3c","#472a58","#68407a","#8a5e9a","#b48cc0"}, leaf={"#1e3a3a","#2a5646","#3a7452","#549a5a","#7cbc6c","#a8dc88"}, sleaf={"#2c5a44","#3e7c50","#58a05c","#7cc468","#a4e080","#c8f0a0"}, stem={"#5a3a4a","#7c4c52","#a06458","#6a9a4a","#8cbc5c"}, root={"#e8d8c0","#f4e8d4","#fff4e4"},
- vein="#2a5a4a", gloss="#e0c8f0", cool="#3a2a6a", red="#a8305a", sl=1.3, sw=1.25, taper=0, drop={4,1}, marks="none", markc="#6a4a80", scrap={7,55,28,52,57,40}, scrapW=4.2, scrapExp=0.6, sprout="trio", leafw=2.6, quirk="none",
- extra=function(ctx) ctx.c:put(20,46,"#b83a4a",{r={name="q"}}) ctx.c:put(21,46,"#d85a60",{r={name="q"}}) ctx.c:put(20,47,"#8a2a46",{r={name="q"}}) end
+name="steppe-peony-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+seed={"#140a1c","#2a1636","#442452","#62386e","#8a5890","#b088b4"}, leaf={"#14301e","#1c4228","#265a30","#347436","#4c9040","#76ae52"}, sleaf={"#5a1e3a","#7a2e44","#a04050","#c0605a","#dc8a68","#f0b488"},
+stem={"#4a2a34","#6a3a40","#8a5448","#5a8a3a","#84b04a"}, root={"#efe2c4","#d9c49c","#b89a72"},
+vein="#98c860", gloss="#e8d0f0", cool="#4a2a7a", red="#c83a5a",
+sl=1.3, sw=1.3, taper=0, drop={4}, marks="none", markc="#2a1636",
+scrap={7,55,28,50,57,40}, scrapW=5.2, scrapExp=0.5, sprout="single", leafw=4.0, quirk="none",
 })

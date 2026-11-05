@@ -1,9 +1,9 @@
--- teff-seed (seed W1_7)
+-- teff-seed (seed E1_C)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="teff-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#5a4030","#86603e","#b08a52","#d2b070","#ead49a","#f8ecc4"}, leaf={"#2c5a38","#3e7a40","#5a9a44","#7cb84e","#a0d062","#c8e88a"}, sleaf={"#3c7a40","#58a048","#7cc452","#a0dc66","#c0f088","#e0ffb0"},
-stem={"#3c6a3a","#5a8a42","#7aa84c","#8cc455","#a8dc6a"}, root={"#e8dcc0","#f4ecd8","#fff6e4"},
-vein="#a6d070", gloss="#fff4d0", cool="#4a3a6a", red="#a85a3a",
-sl=0.5, sw=0.6, taper=0.1, drop={4,1}, marks="none", markc="#8a6a44",
-scrap={6,56,28,50,58,42}, scrapW=4.2, scrapExp=0.5, sprout="blades", leafw=2.4, quirk="none"
+seed={"#4a2a1a","#7a4a2a","#a8703c","#c89858","#e2be80","#f6e0aa"}, leaf={"#24401c","#34581e","#4a7424","#628e2c","#80aa3a","#a4c654"}, sleaf={"#3a7a28","#52962e","#70b23a","#92cc4a","#b4e460","#d4f884"},
+stem={"#5a3a30","#7a5a3a","#9a7a48","#68984a","#90bc58"}, root={"#efe2c4","#d9c49c","#b89a72"},
+vein="#c8e878", gloss="#fff2c0", cool="#4a3a6a", red="#b8603a",
+sl=0.75, sw=0.85, taper=0.05, drop={4}, marks="none", markc="#7a4a2a",
+scrap={6,56,26,50,58,36}, scrapW=3.0, scrapExp=0.45, sprout="blades", leafw=2.6, quirk="none",
 })
