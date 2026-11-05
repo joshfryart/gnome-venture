@@ -625,6 +625,15 @@ function post_update_news(string $from): void
     '2.3.9' => ['❤️ Update 2.3.9: health bars and Pantry rooms',
         "[list][*][b]Health[/b]: a health bar now sits next to your level bar at the top of every page, and the bar on My Gnome shows your real health, even while you are out adventuring.\n"
         . "[*][b]Pantry[/b]: jam, chutney, pickles, ferments and cordials each have their own room of jars, so a full jam shelf never stops you pickling.[/list]"],
+    '2.3.91' => ['👋 Update 2.3.91: pals say hello on Here, and matching skills stack',
+        "[list][*][b]Say hello[/b]: a Puzzle Pal waiting where you stand now shows its [b]Say hello[/b] card on the Here page too (rest stops and town squares), not only on World.\n"
+        . "[*][b]Pals with the same fight skill[/b] now give you one button at double strength (or more), instead of a second button.[/list]"],
+    '2.3.93' => ['🧭 Update 2.3.93: tidier pages and menus',
+        "[list][*][b]Top strip and World[/b]: the status chips wrap instead of scrolling sideways, and the World header picture no longer covers the title on tablets.\n"
+        . "[*][b]Menus and tabs[/b]: long labels wrap instead of being cut off, and the My Gnome and Mentor tabs wrap onto rows on phones so none are hidden.\n"
+        . "[*][b]Games[/b] has one Whisker Pond tile (Cat Fish), Games stays lit while you are in any of its games, and Pal Book and Pal Jobs share one tab row. \"Gnome friends\" is now just [b]Friends[/b].\n"
+        . "[*][b]Villagers[/b]: every villager link goes to the same Villagers page.\n"
+        . "[*][b]Easier taps[/b]: the logo, footer links and status badge are bigger targets, and keyboard focus shows clearly on the maps.[/list]"],
     '2.4.73' => ['🧺 Update 2.4.73: Collect all opens the chest, slimmer shop basket',
         "[list][*][b]Pal Jobs[/b]: [b]Collect all[/b] now opens the chest with everything your pals found, and the long list is a few short chips.\n[*][b]Shops on phones[/b]: the basket bar stays slim (its list scrolls inside) and shop squares sit four across.[/list]"],
     '2.4.74' => ['🟫 Update 2.4.74: square item tiles',
