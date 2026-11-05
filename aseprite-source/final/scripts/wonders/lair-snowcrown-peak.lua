@@ -37,16 +37,17 @@ for x = 0, W - 1 do
 end
 
 -- the main peak: irregular skyline, summit right of centre-ish, a notch, a sub-peak east
-local SKY = { {10,104},{22,96},{34,88},{46,80},{56,70},{64,64},{72,55},{79,50},{84,52},{88,47},{94,40},{100,33},{106,28},{110,22},{114,15},{117,11},{120,12},{123,15},{126,18},{129,17},{133,21},{137,20},{141,26},{147,32},{152,31},{157,37},{164,45},{172,52},{182,60},{194,70},{206,79},{218,88},{232,98},{240,102} }
+local SKY = { {0,104},{14,98},{30,88},{44,78},{56,70},{66,66},{76,60},{84,54},{90,56},{96,48},{104,40},{110,32},{116,24},{121,18},{125,13},{128,11},{131,14},{134,13},{138,19},{143,25},{148,29},{154,31},{160,32},{165,30},{169,26},{173,21},{176,17},{179,19},{183,26},{188,33},{192,31},{197,28},{201,32},{206,40},{214,52},{222,64},{230,78},{240,92} }
 local function skyline(x) return prof(SKY, x) + (hash(floor(x / 2), 7) - 0.5) * 2.2 + ((x % 9 == 4) and -1 or 0) end
 -- spur ridges (they make the faces): {x,y} polylines from crest down
 local SPURS = {
-  { {117,11},{108,30},{98,46},{88,62},{78,82},{70,104} },
-  { {117,11},{124,30},{132,46},{140,64},{150,84},{156,104} },
-  { {137,20},{150,40},{166,58},{184,80},{196,104} },
-  { {88,47},{84,60},{74,74},{60,92},{48,104} },
-  { {106,28},{104,44},{110,62},{114,80},{112,104} },
-  { {157,37},{170,56},{178,70} },
+  { {128,11},{118,30},{106,50},{94,72},{84,104} },
+  { {128,11},{138,30},{142,50},{140,72},{136,104} },
+  { {176,17},{168,36},{162,56},{160,80},{158,104} },
+  { {176,17},{186,40},{196,62},{204,84},{210,104} },
+  { {197,28},{208,50},{220,72},{228,104} },
+  { {90,56},{80,74},{66,90},{54,104} },
+  { {116,24},{112,44},{116,64},{118,104} },
 }
 local function segd(px, py, ax, ay, bx, by)
   local dx, dy = bx - ax, by - ay
@@ -60,7 +61,7 @@ local function height(x, y)
     for i = 2, #s do
       local d = segd(x, y, s[i - 1][1], s[i - 1][2], s[i][1], s[i][2])
       d = d + (hash(floor(x / 4) + si, floor(y / 3), 11) - 0.5) * 1.8   -- crags
-      local hv = 40 - d - y * 0.08 * (si > 3 and 1.4 or 1)
+      local hv = 40 - d - y * 0.08 * (si > 4 and 1.4 or 1)
       if hv > best then best = hv end
     end
   end
@@ -82,7 +83,8 @@ for x = 0, W - 1 do
     -- snow: the crown, plus fingers down the gullies and along the spur crests
     local sl = snowline(x)
     local crest = height(x, y) > 37.2
-    local snow = y < sl or (crest and y < sl + 16 and hash(floor(x / 2), floor(y / 3), 4) > 0.25) or (y < sl + 7 and t <= 2 and hash(x, floor(y / 2), 9) > 0.55)
+    local saddle = x >= 144 and x <= 172 and y < 46 + floor(2 * sin(x * 0.5))
+    local snow = saddle or y < sl or (crest and y < sl + 16 and hash(floor(x / 2), floor(y / 3), 4) > 0.25) or (y < sl + 7 and t <= 2 and hash(x, floor(y / 2), 9) > 0.55)
     if snow then
       isSnow[k] = true
       tone[k] = min(6, t + 1)
@@ -121,10 +123,10 @@ for x = 0, W - 1 do
   for y = top, min(tl, tr) - 2 do if not inM[y * W + x - 1] or not inM[y * W + x + 1] then c:px(x, y, "#4a3c5e") end end
 end
 -- a few wind-blown snow plumes off the summit
-for i, p in ipairs({ {121,10},{124,11},{127,12},{131,13},{126,9},{134,14} }) do c:px(p[1], p[2], i % 2 == 0 and "#e6eaf4" or "#d9e0ee") end
+for i, p in ipairs({ {132,10},{135,11},{138,12},{142,13},{137,9},{145,14},{180,16},{183,17},{186,18} }) do c:px(p[1], p[2], i % 2 == 0 and "#e6eaf4" or "#d9e0ee") end
 
 -- cloud belt around the peak
-L.cloud(c, 80, 80, 22, "#f4f0e0", "#cfd8e4"); L.cloud(c, 168, 84, 24, "#f4f0e0", "#cfd8e4"); L.cloud(c, 40, 90, 14, "#f4f0e0", "#cfd8e4")
+L.cloud(c, 150, 82, 20, "#f4f0e0", "#cfd8e4"); L.cloud(c, 214, 86, 18, "#f4f0e0", "#cfd8e4"); L.cloud(c, 20, 92, 12, "#f4f0e0", "#cfd8e4")
 -- foothill heath and savanna
 c:part(L.below(c, function(x) return 98 + math.sin(x * 0.05 + 1) * 5 end), GV.ramp("#6a9a3a"), { outline = false, gloss = false, cres = 3, deep = 4 })
 c:part(L.below(c, function(x) return 108 + math.sin(x * 0.06) * 3 end), GV.ramp("#c9a96e"), { outline = false, gloss = false, cres = 3, deep = 4 })
@@ -228,19 +230,20 @@ acacia(64, 108, 0.42, 7); acacia(182, 107, 0.5, 8); acacia(198, 104, 0.32, 9)
 -- giant lobelia on the slopes
 for _, p in ipairs({ {40,100},{46,104},{196,102} }) do c:fill(c:rect(p[1], p[2] - 8, p[1] + 1, p[2]), "#4a8a3e"); c:part(c:ellipse(p[1] + 0.5, p[2] - 10, 2.5, 4), GV.ramp("#a4b86a"), { flat = true }) end
 
-acacia(40, 132, 1.05, 3)
-acacia(210, 131, 0.95, 4)
+acacia(160, 133, 0.72, 3)
+acacia(214, 131, 0.95, 4)
 
+local D = -52   -- lion and rock sit left of centre so the summits show to his right
 -- the lion's rock
-c:part(c:poly({ {64,H},{72,118},{90,106},{150,106},{168,118},{176,H} }), GV.ramp("#a89a82"), { cres = 8, deep = 11, gloss = false })
-c:seam({ {82,120},{96,116},{104,122} }, { free = true, on = 3, off = 0, gap = "#4a3a2a" }); c:seam({ {140,118},{154,120},{160,126} }, { free = true, on = 3, off = 0, gap = "#4a3a2a" })
+c:part(c:poly({ {D+64,H},{D+72,118},{D+90,106},{D+150,106},{D+168,118},{D+176,H} }), GV.ramp("#a89a82"), { cres = 8, deep = 11, gloss = false })
+c:seam({ {D+82,120},{D+96,116},{D+104,122} }, { free = true, on = 3, off = 0, gap = "#4a3a2a" }); c:seam({ {D+140,118},{D+154,120},{D+160,126} }, { free = true, on = 3, off = 0, gap = "#4a3a2a" })
 -- rock strata and lichen
-for _, ln in ipairs({ { 74, 124, 92 }, { 148, 126, 164 }, { 70, 130, 86 }, { 156, 131, 172 } }) do
+for _, ln in ipairs({ { D+74, 124, D+92 }, { D+148, 126, D+164 }, { D+70, 130, D+86 }, { D+156, 131, D+172 } }) do
   for xx = ln[1], ln[3] do c:px(xx, ln[2] + ((xx // 5) % 2), "#8a7c66") end
 end
-for _, p in ipairs({ {94,110},{98,111},{152,112},{80,118},{166,124} }) do c:px(p[1], p[2], "#a4b86a"); c:px(p[1] + 1, p[2], "#c8d77a") end
+for _, p in ipairs({ {D+94,110},{D+98,111},{D+152,112},{D+80,118},{D+166,124} }) do c:px(p[1], p[2], "#a4b86a"); c:px(p[1] + 1, p[2], "#c8d77a") end
 -- the Mountain Lion
-local CX = 120
+local CX = 120 + D
 local TAWNY, MANE = GV.ramp("#d9a660"), GV.ramp("#8a4f2a")
 c:part(c:line({ {CX + 22, 108}, {CX + 34, 100}, {CX + 32, 84} }, 4), TAWNY, { cres = 2, deep = 3, gloss = false })   -- tail
 c:part(c:ellipse(CX + 32, 80, 4, 5), MANE, { cres = 2, deep = 3, gloss = false })
@@ -259,7 +262,7 @@ for k = 0, 4 do c:px(CX - 13 + k, (k < 3) and 58 or 59, "#2a1a10"); c:px(CX + 13
 c:fill(c:poly({ {CX - 8, 44}, {CX - 6, 39}, {CX - 3, 43}, {CX, 38}, {CX + 3, 43}, {CX + 6, 39}, {CX + 8, 44} }), "#eef0f8")
 c:px(CX, 39, "#fff1c8")
 -- birds and grass
-for _, g in ipairs({ {50,60},{180,66},{196,30} }) do c:px(g[1], g[2], "#2a1a10"); c:px(g[1] + 1, g[2] + 1, "#2a1a10"); c:px(g[1] + 2, g[2], "#2a1a10"); c:px(g[1] + 3, g[2] + 1, "#2a1a10"); c:px(g[1] + 4, g[2], "#2a1a10") end
-for _, x in ipairs({ 16, 44, 70, 176, 200, 228 }) do c:px(x, 126 + x % 4, "#a4b86a"); c:px(x + 1, 125 + x % 4, "#c8d77a"); c:px(x + 2, 126 + x % 4, "#a4b86a") end
+for _, g in ipairs({ {14,44},{186,62},{212,30} }) do c:px(g[1], g[2], "#2a1a10"); c:px(g[1] + 1, g[2] + 1, "#2a1a10"); c:px(g[1] + 2, g[2], "#2a1a10"); c:px(g[1] + 3, g[2] + 1, "#2a1a10"); c:px(g[1] + 4, g[2], "#2a1a10") end
+for _, x in ipairs({ 8, 132, 150, 176, 200, 228 }) do c:px(x, 126 + x % 4, "#a4b86a"); c:px(x + 1, 125 + x % 4, "#c8d77a"); c:px(x + 2, 126 + x % 4, "#a4b86a") end
 c:ground(CX, 113, 24, 2)
 L.finish(c, "lair-snowcrown-peak")

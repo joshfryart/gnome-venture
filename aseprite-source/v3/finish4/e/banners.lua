@@ -926,9 +926,9 @@ function P.dune(x, by, o)
       if xx <= cx then
         v = .66 + (1 - (yy - top[xx]) / max(1, h)) * .18
         local rip = (xx * 2 + yy * 5 + floor(GX.vn(xx, yy, 9, x) * 6)) % 9
-        if rip == 0 then v = v - .2 elseif rip == 1 then v = v + .1 end
+        if rip == 0 then v = v - (o.hard and .5 or .2) elseif rip == 1 then v = v + (o.hard and .2 or .1) end
       else
-        v = .3 + (GX.vn(xx, yy, 6, x) - .5) * .12 + ((xx - cx) / (x1 - cx)) * .18
+        v = (o.hard and .04 or .3) + (GX.vn(xx, yy, 6, x) - .5) * .12 + ((xx - cx) / (x1 - cx)) * .18
         if (yy - top[xx]) > h * .7 then v = v + .12 end
       end
       if yy > by - 1 then v = max(v, .5) end
@@ -936,6 +936,7 @@ function P.dune(x, by, o)
     end
     if xx == cx or xx == cx + 1 then c:px(xx, top[xx], D6[6]) end
     if xx > cx and xx < cx + w * .18 then c:px(xx, top[xx], D6[2]) end   -- crisp crest edge on the lee side
+    if o.hard and xx > cx and xx < cx + w * .3 then c:px(xx, top[xx], INK) end
     if xx < cx and xx > cx - w * .3 then c:px(xx, top[xx], D6[6]) end    -- sunlit crest line
   end
 end
@@ -953,6 +954,101 @@ function P.hoodoo(x, by, o)
   SH(x + 5, by, 7)
   L(m, function(xx, yy) local t = (by - yy) / h; return ST6[(t > .92) and 6 or ((floor(t * 6) % 2 == 0) and 4 or 2)] end, x,
     { R = 4, nr = true, tex = .2, amb = .3, fn = function(xx, yy) return -(xx - x) * .07 end })
+end
+
+
+-- natural weathered stone arch: thick irregular left pier, thinner leaning right pier, sagging span, wavy strata, lit upper-left
+function P.natarch(x, by, o)
+  local w, h, sd = o.w or 84, o.h or 52, o.seed or 23
+  local x0, x1 = floor(x - w * .5), floor(x + w * .5)
+  local hx0, hx1 = floor(x - w * .2), floor(x + w * .26)   -- opening
+  local m = mk()
+  for xx = x0, x1 do
+    local t = (xx - x0) / (x1 - x0)
+    -- outer skyline: rises steeply on the left, broad hump, slumped right shoulder
+    local prof = (t < .5) and (sin(t / .5 * pi * .5) ^ .55) or (.88 + .12 * cos((t - .5) / .5 * pi * .6)) * (1 - max(0, t - .8) / .2 * .55)
+    local top = floor(by - h * prof + (GX.vn(xx, 0, 5, sd) - .5) * 4 + ((t > .3 and t < .42) and 2 or 0))
+    -- underside of the span (opening): irregular, higher toward the left, sagging block on the right
+    local hb
+    if xx > hx0 and xx < hx1 then
+      local u = (xx - hx0) / (hx1 - hx0)
+      local arc = sqrt(max(0, 1 - ((u - .44) / .56) ^ 2))
+      hb = floor(by - h * .64 * arc ^ .7 + (GX.vn(xx, 1, 4, sd + 2) - .5) * 4 + ((u > .62 and u < .78) and 3 or 0))
+    end
+    local base = by + floor((GX.vn(xx, 2, 6, sd) - .5) * 2)
+    for yy = top, base do
+      if not hb or yy < hb then m:set(xx, yy) end
+    end
+  end
+  m = GX.rough(m, sd, 1)
+  SH(x + 12, by, w * .58)
+  local function band(xx, yy)
+    local t = (by - yy) / h + (GX.vn(xx, yy, 14, sd + 3) - .5) * .07 + sin(xx / 11 + sd) * .015 + (xx - x) / w * .06
+    local cuts, seq = { .14, .3, .44, .58, .74, .9 }, { 1, 4, 2, 5, 3, 4, 6 }
+    for i, ct in ipairs(cuts) do if t < ct then return seq[i], t, ct end end
+    return seq[#seq], t, 2
+  end
+  local function holeAt(xx, yy) return xx > hx0 and xx < hx1 and yy <= by and not m:has(xx, yy) end
+  L(m, function(xx, yy) return ST6[band(xx, yy)] end, sd, { R = 9, tex = .25, sc = 3, nr = true, amb = .3,
+    fn = function(xx, yy)
+      local _, t, ct = band(xx, yy)
+      local v = -(xx - x) / w * .55 + (1 - (by - yy) / h) * -.12
+      if ct - t < .02 then v = v - .3 end
+      if not m:has(xx, yy - 1) or not m:has(xx, yy - 2) then v = v + .3 end
+      if holeAt(xx, yy + 1) or holeAt(xx, yy + 2) then v = v - .45 end      -- underside of the span in shadow
+      if holeAt(xx - 1, yy) or holeAt(xx - 2, yy) then v = v + .25 end      -- inner face of the right pier catches light
+      if holeAt(xx + 1, yy) or holeAt(xx + 2, yy) then v = v - .3 end       -- inner face of the left pier in shade
+      local g = GX.vn(xx * 1.0, yy * .15, 3, sd + 5)
+      if g < .24 then v = v - .18 end
+      if H(xx // 2, yy // 2, sd) > .93 then v = v - .2 end                    -- pocking
+      return v
+    end })
+  m:each(function(xx, yy)
+    if (not m:has(xx - 1, yy) or not m:has(xx, yy - 1)) and xx < x + w * .1 and m:has(xx + 1, yy) and m:has(xx, yy + 1) then
+      c:px(xx, yy, STRATA[band(xx, yy)].hi)
+    end
+  end)
+  -- fallen blocks at the feet
+  for k, b in ipairs{ { -w * .55, 3, 2 }, { w * .1, 2, 1 }, { w * .55, 3, 2 } } do
+    L(E(mk(), floor(x + b[1]), by - 1, b[2], b[3]), STRATA[1], sd + k, { R = 2, nr = true, tex = .1, rimlight = true })
+  end
+end
+
+-- camel with articulated legs: walking pose, knees and hocks, splayed pads
+function P.camel(x, by, o)
+  local dir = o.dir or 1
+  local R6 = o.R or rp("#f0c890", "#c48c58", "#8e5e3c", "#5a3a2e")
+  local bcy = by - 17
+  local m = mk()
+  E(m, x, bcy, 11, 5)
+  E(m, x - 4 * dir, bcy - 5, 5, 4); E(m, x + 5 * dir, bcy - 5, 5, 4)    -- humps
+  -- neck: down-forward then up (camel S-curve)
+  local sx = x + 9 * dir
+  m:add(LN({ { sx, bcy - 1 }, { sx + 5 * dir, bcy + 1 }, { sx + 8 * dir, bcy - 4 }, { sx + 9 * dir, bcy - 10 } }, 3))
+  local hx, hy = sx + 11 * dir, bcy - 11
+  E(m, hx, hy, 3, 2); R(m, min(hx, hx + 4 * dir), hy, max(hx, hx + 4 * dir), hy + 1)
+  m:set(hx - dir, hy - 3); m:set(hx - dir, hy - 2)                       -- ear
+  -- legs: { hip x offset, knee dx, knee y, foot dx }
+  local legs = {
+    { -8, -3, 6, -5 },   -- back far: pushing off, hock behind
+    { -6, 1, 6, 3 },     -- back near: planted forward
+    { 6, 3, 7, 5 },      -- front far: reaching
+    { 8, 1, 7, -1 },     -- front near: under the body
+  }
+  for _, l in ipairs(legs) do
+    local hpx = x + l[1] * dir
+    local kx, ky = hpx + l[2] * dir, bcy + 3 + l[3]
+    local fx = hpx + l[4] * dir
+    m:add(LN({ { hpx, bcy + 2 }, { kx, ky } }, 3))
+    m:add(LN({ { kx, ky }, { fx, by - 1 } }, 2))
+    R(m, fx - 1, by - 1, fx + 1, by)                                       -- pad
+  end
+  m:add(LN({ { x - 11 * dir, bcy - 2 }, { x - 13 * dir, bcy + 3 }, { x - 12 * dir, bcy + 6 } }, 1))   -- tail
+  SH(x + 4, by, 14)
+  L(m, R6, x, { R = 4, nr = true, rimlight = true, tex = .3,
+    fn = function(xx, yy) return (yy > bcy + 4) and (((xx - x) * dir > 0) and -.05 or -.18) or 0 end })
+  c:px(hx + dir, hy - 1, INK)
+  c:px(hx + 4 * dir, hy + 1, R6.deep)
 end
 
 --------------------------------------------------------------------------- looks
@@ -1046,16 +1142,16 @@ look("desert", { sky = sky6("#58b4e0", "#80c8e4", "#a8dcdc", "#cce8c4", "#f4eab0
     { "hazemesas", 0, 84, { cols = { "#f6d4b0", "#e2b49c", "#c89890" }, list = { { 96, 64, 20, .4 }, { 214, 46, 14, .5 }, { 316, 38, 22, .3 }, { 430, 70, 16, .55 } } } },
     { "dune", 120, 90, { w = 240, h = 8, sk = .55, R = rp("#fff2c8", "#f2cc84", "#dcaa6c", "#b88060") } },
     { "dune", 380, 89, { w = 220, h = 7, sk = .6, R = rp("#fff2c8", "#f2cc84", "#dcaa6c", "#b88060") } },
-    { "arch", 70, 100, { w = 84, h = 52 } },
+    { "natarch", 70, 100, { w = 86, h = 54, seed = 23 } },
     { "butte", 300, 100, { w = 132, h = 74, seed = 31, notch = .25 } },
     { "butte", 452, 100, { w = 66, h = 46, seed = 57, notch = -.3, cuts = { .22, .4, .6, .78 }, seq = { 2, 1, 3, 4, 6 },
       lp = { { 0, .6 }, { .3, .5 }, { .36, .4 }, { .7, .36 }, { 1, .3 } }, rp = { { 0, .62 }, { .25, .54 }, { .32, .42 }, { .66, .38 }, { 1, .32 } } } },
     { "hoodoo", 196, 100, { h = 30 } },
     { "hoodoo", 210, 102, { h = 18 } },
-    { "dune", 150, 112, { w = 230, h = 12, sk = .6, down = 0 } },
-    { "dune", 400, 112, { w = 200, h = 10, sk = .55, down = 0 } },
+    { "dune", 150, 112, { w = 230, h = 13, sk = .6, down = 0, hard = true, R = rp("#fffbe0", "#f4c66a", "#c07e44", "#7e4630") } },
+    { "dune", 400, 112, { w = 200, h = 11, sk = .55, down = 0, hard = true, R = rp("#fffbe0", "#f4c66a", "#c07e44", "#7e4630") } },
     { "cactus", 150, 106, { h = 40, w = 4, arms = { { 22, 1, 9, 12 }, { 14, -1, 8, 8 } } } },
-    { "animal", 372, 108, { R = rp("#f4d4a0", "#d8a870", "#a87c54", "#70503e"), rx = 10, ry = 5, leg = 12, lw = 3, nx = 7, ny = 12, nw = 3, hrx = 3, hry = 2, snout = 2, humps = { -4, 4 }, tail = 4 } },
+    { "camel", 368, 108, {} },
     { "rock", 24, 108, { rx = 10, ry = 5, R = C.SANDST } } } })
 look("forest", { sky = sky6("#7cc8a0", "#98d4a0", "#b4e0a0", "#d0ecA0", "#e4f2b0", "#f4f6c0"), sun = nil, g = GR("#a8d870", "#68a850", "#3e7c48", "#24503e"), gy = 84, far = { { rp("#4c9c64", "#3c845c", "#2c6a50", "#224c44"), 68, 8, 14 } }, flw = { "#ff7aa8", "#ffe38a", "#fff4d0" },
   props = { { "tree", 56, 106, { h = 76, R = C.GREEN, seed = 81, tw = 3 } }, { "pine", 150, 106, { h = 80, n = 4 } }, { "mushroom", 200, 106, { r = 12 } }, { "pine", 250, 106, { h = 70, n = 4 } },

@@ -355,16 +355,17 @@ solid(c:rect(260, 104, 264, 116), DOCK, { sh = 1 })
 local ropeL, ropeR = { { 208, 139 } }, { { 273, 139 } }
 for _, z in ipairs({ 1.7, 2.6 }) do
   local yb = math.floor(ZY(z) + 0.5)
-  local w = math.max(3, math.floor(10 / z + 0.5))
-  local h = math.floor(36 / z + 0.5)
+  local w = math.max(4, math.floor(12 / z + 0.5))
+  local h = math.floor(38 / z + 0.5)
   for side = -1, 1, 2 do
     local ex = side < 0 and math.floor(DK_L(yb)) or math.ceil(DK_R(yb))
     local x0 = side < 0 and (ex - w + 1) or ex
     local m = c:rect(x0, yb - h, x0 + w - 1, yb + math.floor(5 / z))
+    m:grow(1):cut(m):each(function(x, y) P(x, y, "#2b1c26") end)       -- ink rim so the pilings read at phone size
     solid(m, WOOD, { sh = 1, tex = function(x, y, col) if (y + x) % 5 == 0 and col == WOOD[3] then return WOOD[2] end return col end })
     P(x0, yb - h, WOOD[4]); P(x0 + 1, yb - h, WOOD[4])
-    c:fillMask(c:rect(x0, yb - h + 2, x0 + w - 1, yb - h + 2 + math.floor(2 / z + 0.5)), THAT[2])
-    P(x0, yb - h + 2, THAT[4])
+    c:fillMask(c:rect(x0, yb - h + 2, x0 + w - 1, yb - h + 3 + math.floor(2 / z + 0.5)), THAT[3])
+    for x = x0, x0 + w - 1 do P(x, yb - h + 2, THAT[4]); P(x, yb - h + 4 + math.floor(2 / z + 0.5), THAT[1]) end
     local wy = yb + math.floor(5 / z) + 1
     for x = x0 - 2, x0 + w + 1 do if (x + wy) % 2 == 0 then P(x, wy, "#c4dce2") end end
     local rp = { x0 + (side < 0 and 0 or w - 1), yb - h + 3 }
@@ -391,7 +392,7 @@ local function swag(pts)
       local t = s / n
       local x = math.floor(a[1] + (b[1] - a[1]) * t + 0.5)
       local y = math.floor(a[2] + (b[2] - a[2]) * t + sag * 4 * t * (1 - t) + 0.5)
-      P(x, y, THAT[3]); P(x, y + 1, THAT[1])
+      P(x, y, THAT[4]); P(x, y + 1, THAT[3]); P(x, y + 2, THAT[1])
     end
   end
 end

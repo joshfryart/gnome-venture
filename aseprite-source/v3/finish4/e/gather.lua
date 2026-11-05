@@ -417,22 +417,23 @@ function S.vigpick()
   -- boulder with lit top-left and ore veins
   local rock = HP.poly({ {60, 100}, {58, 70}, {66, 52}, {82, 38}, {104, 32}, {124, 38}, {138, 54}, {140, 100} })
   c:rim(rock, INK)
+  local RK = { hi = "#b4a8a8", base = "#867a80", shade = "#625668", deep = "#42384c" }   -- darker, warmer rock so the steel head pops
   rock:each(function(x, y)
-    local t = R.stone.base
+    local t = RK.base
     local lx = (x - 100) * .6 + (y - 60) * .8
-    if lx < -22 then t = R.stone.hi elseif lx > 28 then t = R.stone.shade end
-    if lx > 46 then t = R.stone.deep end
-    if hs(x, y, 9) > .92 then t = (t == R.stone.hi) and R.stone.base or R.stone.shade end
-    if not rock:has(x - 1, y - 1) or not rock:has(x, y - 1) then t = R.stone.hi end
+    if lx < -22 then t = RK.hi elseif lx > 28 then t = RK.shade end
+    if lx > 46 then t = RK.deep end
+    if hs(x, y, 9) > .92 then t = (t == RK.hi) and RK.base or RK.shade end
+    if not rock:has(x - 1, y - 1) or not rock:has(x, y - 1) then t = RK.hi end
     put(x, y, t)
   end)
-  for _, ln_ in ipairs({ { {96, 38}, {100, 54}, {94, 66}, {98, 80} }, { {122, 54}, {114, 72}, {118, 90} }, { {72, 62}, {80, 74} } }) do c:fillMask(ln(ln_, 1), R.stone.deep) end
+  for _, ln_ in ipairs({ { {96, 38}, {100, 54}, {94, 66}, {98, 80} }, { {122, 54}, {114, 72}, {118, 90} }, { {72, 62}, {80, 74} } }) do c:fillMask(ln(ln_, 1), RK.deep) end
   -- crystal ore + gold flecks
   for _, p in ipairs({ {108, 70, 7}, {126, 84, 6}, {80, 86, 5} }) do obj(HP.poly({ {p[1], p[2] - p[3]}, {p[1] + 4, p[2]}, {p[1], p[2] + p[3] - 1}, {p[1] - 4, p[2]} }), R.sea); put(p[1] - 1, p[2] - 2, CREAM) end
   for _, p in ipairs({ {90, 52}, {114, 48}, {130, 66} }) do put(p[1], p[2], R.gold.base); put(p[1] + 1, p[2], R.gold.hi) end
   -- pick: wood handle up to a socketed iron head; crescent head, both ends drawn to sharp points that curve back
   -- toward the handle; the lower point bites the rock. Dark steel ramp so it separates from the grey stone.
-  local STEEL = { hi = "#e4e8f4", base = "#7a7e9c", shade = "#4e5070", deep = "#2e3050" }
+  local STEEL = { hi = "#f6faff", base = "#b8c4e0", shade = "#7884ac", deep = "#3c4268" }
   local d = { .87, .49 }        -- handle direction (towards the head)
   local pv = { -.49, .87 }      -- head axis (perpendicular)
   local C0 = { 90, 52 }         -- eye of the head
@@ -453,8 +454,8 @@ function S.vigpick()
   for i = #dn, 1, -1 do pts[#pts + 1] = dn[i] end
   local head = HP.poly(pts)
   -- cast shadow on the rock, offset down-right
-  head:each(function(x, y) if not head:has(x + 2, y + 2) and rock:has(x + 2, y + 2) then put(x + 2, y + 2, R.stone.deep) end end)
-  c:rim(head, INK)
+  head:each(function(x, y) if not head:has(x + 2, y + 2) and rock:has(x + 2, y + 2) then put(x + 2, y + 2, RK.deep) end end)
+  c:rim(head:grow(1), INK); c:rim(head, INK)
   head:each(function(x, y)
     -- signed distance across the head: negative = upper-left (lit) face
     local best, bs = 1e9, 0
@@ -466,12 +467,14 @@ function S.vigpick()
     end
     local t = STEEL.base
     if bs < -.45 then t = STEEL.hi elseif bs < -.05 then t = mix(STEEL.base, STEEL.hi, .45) elseif bs > .55 then t = STEEL.deep elseif bs > .2 then t = STEEL.shade end
+    if bs < -.2 and (not head:has(x - 1, y) or not head:has(x, y - 1)) then t = STEEL.hi end   -- bright lit edge
     put(x, y, t)
   end)
+  head:each(function(x, y) if not head:has(x + 1, y + 1) and not head:has(x + 1, y) then put(x, y, STEEL.deep) end end)
   -- socket collar around the eye, wedge, rivet
-  local col = HP.poly({ { C0[1] - 5, C0[2] - 2 }, { C0[1] - 1, C0[2] - 8 }, { C0[1] + 5, C0[2] - 4 }, { C0[1] + 2, C0[2] + 3 } })
-  obj(col, { hi = "#a6aac4", base = "#62668a", shade = "#3e4062", deep = "#2e3050" })
-  put(C0[1] - 1, C0[2] - 3, "#d98322"); put(C0[1], C0[2] - 3, "#f5cf6a"); put(C0[1] - 1, C0[2] - 4, "#f5cf6a")
+  local col = HP.poly({ { C0[1] - 6, C0[2] - 2 }, { C0[1] - 1, C0[2] - 9 }, { C0[1] + 6, C0[2] - 4 }, { C0[1] + 2, C0[2] + 4 } })
+  obj(col, { hi = "#ffe38a", base = "#e0a83a", shade = "#a8682a", deep = "#6e4020" })   -- gold socket
+  for _, q in ipairs({ { -2, -4, "#8a4a1f" }, { -1, -4, "#8a4a1f" }, { 0, -4, "#8a4a1f" }, { -2, -3, "#fff2a0" }, { -1, -3, "#f5cf6a" }, { 0, -3, "#d98322" }, { -1, -2, "#d98322" }, { 0, -2, "#8a4a1f" } }) do put(C0[1] + q[1], C0[2] + q[2], q[3]) end
   -- glints on the lit edge and the biting point
   local gx, gy = cpt(-.55); put(floor(gx - d[1] * 2), floor(gy - d[2] * 2), CREAM)
   local tx, ty = cpt(1); spark(floor(tx) + 1, floor(ty) + 3, CREAM)

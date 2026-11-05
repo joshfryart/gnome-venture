@@ -740,7 +740,7 @@ R["me"] = function(T)
   for _, p in ipairs({ {16, 30}, {19, 32}, {22, 30} }) do P2(p[1], p[2], "#b4aac4"); P2(p[1], p[2] + 1, "#b4aac4") end
   -- face
   local face = HP.mask()
-  for y = 16, 27 do for x = 12, 26 do local dx, dy = (x - 19) / 6.4, (y - 21.6) / 4.8; if dx * dx + dy * dy <= 1 then face:set(x, y) end end end
+  for y = 15, 28 do for x = 11, 27 do local dx, dy = (x - 19) / 6.8, (y - 21.4) / 5.8; if dx * dx + dy * dy <= 1 then face:set(x, y) end end end
   part(face, { hi = "#ffd8bc", base = "#f4b894", shade = "#d88c70" }, { rim = "#a8604c", rimTL = "#d88c70", l1 = .5 })
   for _, ex in ipairs({ 15, 22 }) do P2(ex, 20, INK); P2(ex + 1, 20, INK); P2(ex, 21, INK); P2(ex + 1, 21, INK); P2(ex, 20, "#fffaf0") end
   P2(14, 23, "#f5809f"); P2(24, 23, "#f5809f")
@@ -749,13 +749,13 @@ R["me"] = function(T)
   part(HP.poly({ {13, 26}, {17, 25}, {19, 26}, {21, 25}, {25, 26}, {23, 28}, {19, 27}, {15, 28} }), BEARD, { rim = "#6e6280", rimTL = "#8a7f98", l1 = .3 })
   -- hat, NOT clipped: wide brim over the ring top, cone with a bent tip that clears the ring (tip at y1)
   local HR = { hi = "#ff9a74", base = "#e8493b", shade = "#a8283a" }
-  local brim = HP.mask(); for y = 14, 19 do for x = 6, 32 do local dx, dy = (x - 19) / 12.6, (y - 16.2) / 2.0; if dx * dx + dy * dy <= 1 then brim:set(x, y) end end end
+  local brim = HP.mask(); for y = 11, 17 do for x = 6, 32 do local dx, dy = (x - 19) / 12.6, (y - 14.0) / 2.0; if dx * dx + dy * dy <= 1 then brim:set(x, y) end end end
   lit(T, brim, { hi = "#d2554a", base = "#b52e3f", shade = "#7e2038" }, { rim = INK, rimTL = INK, l1 = .55 })
-  local hat = HP.poly({ {10, 16}, {13, 11}, {16, 7}, {20, 4}, {24, 2}, {28, 1}, {30, 3}, {27, 5}, {25, 8}, {25, 12}, {28, 16} })
+  local hat = HP.poly({ {10, 14}, {13, 9}, {16, 6}, {20, 3}, {24, 2}, {28, 1}, {30, 3}, {27, 5}, {25, 7}, {25, 10}, {28, 14} })
   lit(T, hat, HR, { rim = INK, rimTL = INK, l1 = .42 })
-  for y = 11, 13 do for x = 9, 28 do if hat:has(x, y) and hat:has(x - 1, y) and hat:has(x + 1, y) then T.p(x, y, (y == 13) and "#d98322" or "#f5cf6a") end end end
-  T.p(17, 12, "#fffaf0"); T.p(18, 12, "#fffaf0")
-  for y = 6, 10 do for x = 12, 19 do if hat:has(x, y) and hat:has(x - 1, y) and x < 18 - (y - 6) then T.p(x, y, "#ffb48a") end end end
+  for y = 9, 11 do for x = 9, 28 do if hat:has(x, y) and hat:has(x - 1, y) and hat:has(x + 1, y) then T.p(x, y, (y == 11) and "#d98322" or "#f5cf6a") end end end
+  T.p(17, 10, "#fffaf0"); T.p(18, 10, "#fffaf0")
+  for y = 5, 8 do for x = 12, 19 do if hat:has(x, y) and hat:has(x - 1, y) and x < 18 - (y - 5) then T.p(x, y, "#ffb48a") end end end
   T.p(29, 0, "#f5cf6a"); T.p(30, 0, "#fff2a0"); T.p(31, 1, "#f5cf6a")
 end
 
