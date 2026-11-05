@@ -482,8 +482,9 @@ cfpost -d do=ballset -d key= >/dev/null; ok "back to the plain ball for free" "$
 dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
 cfpost -d do=scarfset -d key=blue >/dev/null; ok "scarf colour before buying: refused" "$(mget scarf)" 0
 cfpost -d do=scarfbuy >/dev/null; ok "the scarf costs 12 Yarn: ys=12, red to start" "$(mget ys),$(mget scarf)" "12,red"
-PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"')" -ge 1 ] && echo y || echo n)" y
-cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e\|tint-2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
+# v2.5.33: the profile draws the 2.5D gnome (gnome_sprite.php?...&s=<scarf hex>) instead of the layered SVG with data-part="scarf"; either shows the scarf
+PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"\|gnome_sprite.php[^"]*s=c0392b')" -ge 1 ] && echo y || echo n)" y
+cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e\|tint-2f5d9e\|gnome_sprite.php[^"]*s=2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
 cfpost -d do=scarfset -d key=nonsense >/dev/null; ok "unknown scarf colour refused: still blue" "$(mget scarf)" blue
 cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf off: gone from the profile" "$(echo "$PRF" | grep -c 'data-part="scarf"')" 0
 cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
