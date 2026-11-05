@@ -205,7 +205,7 @@ end
 feather(284, 162, 12, 1); feather(196, 168, 10, -1); feather(160, 226, 9, 1); feather(330, 214, 10, 1)
 -- quirk: a lost little red hat on a twig
 twigline(226, 168, 226, 156, TWIG.deep)
-for _, p in ipairs{ { 225, 155, "#e8493b" }, { 226, 155, "#e8493b" }, { 227, 155, "#b52e3f" }, { 226, 154, "#e8493b" }, { 226, 153, "#ff8a70" }, { 225, 156, "#b52e3f" }, { 227, 156, "#8a2038" } } do end
+for _, p in ipairs{ { 225, 155, "#e8493b" }, { 226, 155, "#e8493b" }, { 227, 155, "#b52e3f" }, { 226, 154, "#e8493b" }, { 226, 153, "#ff8a70" }, { 225, 156, "#b52e3f" }, { 227, 156, "#8a2038" } } do c:px(p[1], p[2], p[3]) end
 
 ---------------------------------------------------------------- the condor
 local SX, SY = 241, 104   -- shoulder centre
@@ -297,7 +297,7 @@ GX.lit(c, comb, GX.ramp6({ hi = "#ff8a78", base = "#d83a48", shade = "#9e2a48", 
 -- fierce brow + eyes
 for _, s in ipairs{ -1, 1 } do
   local ex = SX + s * 6
-  for i = 0, 5 do c:px(ex - s * 5 + s * i, 72 + (s * (i - 5) < -2 and 0 or 0) - (i > 2 and 0 or 0) + floor((5 - i) * .3 * -s * -1 * 1 + .5) - 0, INK) end
+  for i = 0, 5 do c:px(ex - s * 5 + s * i, 72 + floor((5 - i) * .35), INK) end
   local e = mk(); E(e, ex, 77, 3, 3)
   GX.lit(c, e, GX.ramp6({ hi = "#ffffff", base = "#fff0c8", shade = "#e8b868", deep = "#a8704a" }), { R = 3, tex = 0, seed = 1, ink = true })
   c:px(ex - s, 77, INK); c:px(ex, 77, INK); c:px(ex - s, 78, INK); c:px(ex, 78, INK); c:px(ex - s, 76, "#ffffff")
