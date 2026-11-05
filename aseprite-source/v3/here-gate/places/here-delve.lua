@@ -678,6 +678,114 @@ for i = 1, 40 do
   end
 end
 
+---------------------------------------------------------------- v2.5.40 polish setup
+local function protectedPx(x, y)
+  if x >= 380 and x < 480 and y >= 230 then return true end
+  for _, s in ipairs(STAND) do if abs(x - s[1]) <= 17 and abs(y - s[2]) <= 17 then return true end end
+  return false
+end
+local function sp(x, y, c)  -- guarded set: never inside stand / compass zones
+  if x < 0 or x >= W or y < 0 or y >= H or protectedPx(x, y) then return end
+  set(x, y, c)
+end
+local function spRect(x0, y0, x1, y1, c) for y = y0, y1 do for x = x0, x1 do sp(x, y, c) end end end
+local function spFill(m, c) m:each(function(x, y) sp(x, y, c) end) end
+local function spRim(m, c)
+  local r = {}
+  m:each(function(x, y)
+    for _, d in ipairs{ {1, 0}, {-1, 0}, {0, 1}, {0, -1} } do
+      local nx, ny = x + d[1], y + d[2]
+      if not m:has(nx, ny) then r[#r + 1] = { nx, ny } end
+    end
+  end)
+  for _, q in ipairs(r) do sp(q[1], q[2], c) end
+end
+local function spLine(x0, y0, x1, y1, c)
+  local n = max(abs(x1 - x0), abs(y1 - y0), 1)
+  for i = 0, n do sp(floor(x0 + (x1 - x0) * i / n + 0.5), floor(y0 + (y1 - y0) * i / n + 0.5), c) end
+end
+-- ground mask: flood fill over dirt-coloured pixels (ink outlines of props stop it)
+local function isDirt(x, y)
+  local r, g, b = hx(get(x, y))
+  return r >= 100 and r <= 185 and g >= 70 and g <= 135 and b >= 40 and b <= 100 and r > g and g > b and (r - b) >= 40 and (r - b) <= 90
+end
+local gm = mask()
+do
+  local stack = { {60, 172}, {60, 250}, {130, 200}, {200, 150}, {350, 150}, {360, 250}, {420, 190}, {250, 152}, {140, 160} }
+  while #stack > 0 do
+    local q = table.remove(stack)
+    local x, y = q[1], q[2]
+    if y >= 138 and not gm:has(x, y) and x >= 0 and x < W and y < H and isDirt(x, y) and not path:has(x, y) then
+      gm:add(x, y)
+      stack[#stack + 1] = { x + 1, y } stack[#stack + 1] = { x - 1, y }
+      stack[#stack + 1] = { x, y + 1 } stack[#stack + 1] = { x, y - 1 }
+    end
+  end
+end
+local DIRT = { "#6b4c3a", "#82583e", "#93703f", "#a8803f", "#b99356", "#c8a368" }
+local function gset(x, y, c) if gm:has(x, y) then sp(x, y, c) end end
+local function gtone(x, y, t) if gm:has(x, y) then sp(x, y, mix(get(x, y), t[1], t[2])) end end
+---------------------------------------------------------------- v2.5.40 polish pass 1 (ground variety, worn paths, flowers, pebbles)
+-- broad dithered bands of lighter sun-baked dirt and darker damp dirt (3 tones)
+for y = 140, 269 do for x = 0, 479 do
+  if gm:has(x, y) then
+    local nx, ny = floor(x / 6), floor(y / 4)
+    local n = hash(nx, ny, 301) * 0.6 + hash(floor(x / 18), floor(y / 11), 302) * 0.7
+    local chk = ((x + y) % 2 == 0)
+    if n > 1.0 and chk then sp(x, y, mix(get(x, y), "#c8a368", 0.45))
+    elseif n < 0.38 and chk then sp(x, y, mix(get(x, y), "#5c4234", 0.4)) end
+  end
+end end
+-- worn footpaths from the left shed door and the right trail down toward the road
+local function worn(pts)
+  for i = 1, #pts - 1 do
+    local a, b = pts[i], pts[i + 1]
+    local n = max(abs(b[1] - a[1]), abs(b[2] - a[2]))
+    for k = 0, n do
+      local x = floor(a[1] + (b[1] - a[1]) * k / n + 0.5)
+      local y = floor(a[2] + (b[2] - a[2]) * k / n + 0.5)
+      for w = -2, 2 do
+        local c = (abs(w) == 2) and ((x + y) % 2 == 0) or abs(w) < 2
+        if c then gset(x + w, y, mix(get(x + w, y), "#d2b27a", (abs(w) == 2) and 0.3 or 0.5)) end
+      end
+      if hash(x, y, 303) > 0.82 then gset(x + floor(hash(x, y, 304) * 5) - 2, y, "#7a5640") end
+    end
+  end
+end
+worn{ {96, 150}, {112, 160}, {124, 170}, {132, 180} }
+worn{ {360, 152}, {352, 162}, {346, 176}, {344, 190} }
+worn{ {120, 238}, {140, 232}, {150, 228} }
+-- pebbles (2-3 px, lit top-left, shadow lower-right)
+local function pebble(x, y, big)
+  if not gm:has(x, y) or not gm:has(x + 2, y + 1) then return end
+  sp(x + 1, y + 1, "#4a3830") sp(x + 2, y + 1, "#4a3830")
+  sp(x, y, "#a89a8a") sp(x + 1, y, "#8d7f72")
+  if big then sp(x, y - 1, "#c4b8a4") sp(x + 1, y - 1, "#a89a8a") sp(x + 2, y, "#6e6258") end
+end
+for _, p in ipairs{ {40,176,1},{70,160,0},{104,206,0},{122,196,1},{88,230,0},{60,244,0},{128,158,0},{196,160,0},{246,156,1},
+  {352,196,0},{372,182,1},{398,160,0},{436,194,0},{368,242,0},{356,228,1},{420,222,0},{214,150,0},{286,153,0},{40,206,0},{112,252,1} } do
+  pebble(p[1], p[2], p[3] == 1)
+end
+-- little flowers (3 kinds: yellow daisy, violet bell, red poppy) with leaves
+local function flower(x, y, kind)
+  if not gm:has(x, y) then return end
+  sp(x, y + 1, R_MOSS[2]) sp(x, y + 2, R_MOSS[1]) sp(x - 1, y + 2, R_MOSS[3]) sp(x + 1, y + 1, R_MOSS[3])
+  if kind == 1 then
+    sp(x, y - 1, "#f7e07a") sp(x - 1, y, "#fff3c4") sp(x + 1, y, "#fff3c4") sp(x, y, "#e8a030") sp(x, y + 1 - 1, "#e8a030")
+  elseif kind == 2 then
+    sp(x - 1, y - 1, "#b48ae0") sp(x, y - 1, "#8a5cc0") sp(x, y, "#5a3c8a") sp(x - 1, y, "#8a5cc0")
+  else
+    sp(x - 1, y, "#d0584a") sp(x + 1, y, "#d0584a") sp(x, y - 1, "#e8745a") sp(x, y, "#ffd27a")
+  end
+end
+for i, f in ipairs{ {52,168,1},{92,178,2},{118,214,3},{46,196,2},{132,236,1},{74,252,3},{196,158,2},{262,154,1},
+  {354,210,3},{388,176,1},{372,222,2},{434,172,3},{346,246,1},{100,160,3},{222,150,3},{128,222,2} } do flower(f[1], f[2], f[3]) end
+-- scattered fallen leaves (brown-gold)
+for i = 1, 26 do
+  local x = floor(hash(i, 3, 311) * 480) local y = 146 + floor(hash(i, 4, 312) * 120)
+  if gm:has(x, y) and gm:has(x + 1, y) then sp(x, y, "#a8602e") sp(x + 1, y, "#d48a3c") end
+end
+
 ---------------------------------------------------------------- 14. write canvas + layout
 local c = HP.canvas{ w = W, h = H, scale = 1, name = NAME }
 for y = 0, H - 1 do for x = 0, W - 1 do c:px(x, y, buf[y * W + x + 1] or "#3b2f5e") end end

@@ -533,6 +533,80 @@ for i, dx in ipairs({ -6, 0, 6 }) do
   c:put(x - 1, 31 + len, "#e4f4ff")
 end
 
+-- v2.5.40 polish pass 2: material cues (stone courses + chips, lichen, crystal facets + sparkles, wood, leaf veins)
+local function mput(m, x, y, col) if m:has(x, y) then gput(x, y, col) end end
+local function chip(m, x, y)
+  mput(m, x, y, STONE[6]); mput(m, x + 1, y, STONE[5]); mput(m, x, y + 1, STONE[5])
+  mput(m, x + 1, y + 1, STONE[1]); mput(m, x + 2, y + 1, STONE[1]); mput(m, x + 1, y + 2, STONE[2])
+end
+local function courses(m, y0, step, off, seed)
+  local x0, _, x1 = bbox(m)
+  for y = y0, 180, step do
+    for x = x0, x1 do
+      if hsh(x, y, seed) < 0.78 then mput(m, x, y + floor(sin(x / 5 + y) + 0.5), STONE[2]) end
+      if hsh(x, y, seed + 1) < 0.25 then mput(m, x, y + 1 + floor(sin(x / 5 + y) + 0.5), STONE[4]) end
+    end
+  end
+end
+courses(msL, 112, 15, 0, 401); courses(msR, 112, 15, 0, 402)
+for _, q in ipairs({ {104,104},{122,100},{110,150},{128,134},{104,170},{120,168} }) do chip(msL, q[1], q[2]) end
+for _, q in ipairs({ {330,116},{344,102},{348,128},{334,164},{346,168},{352,150} }) do chip(msR, q[1], q[2]) end
+-- lichen (pale yellow-green) on the weathered north/top-left faces + moss streaks
+for _, q in ipairs({ {102,120,3},{112,96,2},{104,152,3},{328,126,3},{340,98,2},{330,160,3} }) do
+  for dx = -q[3], q[3] do for dy = -1, 1 do
+    if hsh(q[1] + dx, q[2] + dy, 411) < 0.6 then mput(msL, q[1] + dx, q[2] + dy, "#a8b070"); mput(msR, q[1] + dx, q[2] + dy, "#a8b070") end
+  end end
+  mput(msL, q[1], q[2], "#d4d894"); mput(msR, q[1], q[2], "#d4d894")
+end
+-- trilithon: course joints, chips, lintel crack, moss drip
+local pil1 = c:poly{ {180,146}, {182,70}, {198,68}, {200,146} }
+local pil2 = c:poly{ {282,146}, {284,68}, {298,70}, {302,146} }
+local lintel = c:poly{ {172,58}, {306,54}, {310,68}, {174,72} }
+for _, m in ipairs({ pil1, pil2 }) do
+  local x0, _, x1 = bbox(m)
+  for y = 86, 140, 18 do for x = x0, x1 do mput(m, x, y, STONE[2]); if (x + y) % 3 == 0 then mput(m, x, y + 1, STONE[5]) end end end
+end
+for _, q in ipairs({ {186,100},{192,124},{289,90},{292,118},{187,80} }) do chip(pil1, q[1], q[2]); chip(pil2, q[1], q[2]) end
+for x = 190, 290, 2 do mput(lintel, x, 62 + floor((x - 190) / 33), STONE[2]) end
+for _, mx in ipairs({ 190, 214, 262, 296 }) do for y = 62, 66 do mput(lintel, mx, y, MOSS[y % 2 + 2]) end end
+mput(lintel, 240, 60, STONE[1]); mput(lintel, 241, 61, STONE[1]); mput(lintel, 241, 62, STONE[1]); mput(lintel, 242, 63, STONE[1])
+-- crystal: facet ramps (3 tones per face), sparkle crosses
+for y = 60, 138 do
+  if y % 2 == 0 then gput(241, y, CRY[4]); gput(242, y, CRY[3]) end
+  if y % 3 == 0 then gput(229, y, CRY[5]) end
+  gput(254, y, CRY[1]); if y % 2 == 1 then gput(253, y, CRY[2]) end
+end
+for y = 100, 138 do if y % 2 == 0 then gput(236 + (y % 4) // 2, y, CRY[3]) end end
+for _, q in ipairs({ {236,70},{244,96},{229,120},{252,110},{234,44} }) do
+  gput(q[1], q[2], "#f4fbff"); gput(q[1] - 1, q[2], CRY[5]); gput(q[1] + 1, q[2], CRY[5]); gput(q[1], q[2] - 1, CRY[5]); gput(q[1], q[2] + 1, CRY[5])
+end
+for _, q in ipairs({ {210,94},{209,112},{277,88},{279,104},{268,128} }) do
+  gput(q[1], q[2], "#f0e8ff"); gput(q[1], q[2] - 1, VIO[5]); gput(q[1] + 1, q[2], TEAL[5])
+end
+-- dais chips
+for _, q in ipairs({ {198,154},{230,156},{262,153},{280,157},{214,143},{250,144},{268,142} }) do
+  gput(q[1], q[2], STONE[1]); gput(q[1] + 1, q[2], STONE[1]); gput(q[1], q[2] - 1, STONE[5]); gput(q[1] + 1, q[2] - 1, STONE[6])
+end
+-- wild arch: chips, lichen, keystone, rust-brown stain
+for _, q in ipairs({ {394,150},{397,176},{396,204},{446,160},{448,190},{444,214},{404,126},{436,120},{420,112} }) do
+  gput(q[1], q[2], ARCH[5]); gput(q[1] + 1, q[2], ARCH[4]); gput(q[1], q[2] + 1, ARCH[4]); gput(q[1] + 1, q[2] + 1, ARCH[1]); gput(q[1] + 2, q[2] + 1, ARCH[1])
+end
+for _, q in ipairs({ {392,130,2},{398,182,3},{404,118,2},{446,206,2} }) do
+  for dx = -q[3], q[3] do for dy = -1, 1 do if arch:has(q[1] + dx, q[2] + dy) and hsh(q[1] + dx, q[2] + dy, 421) < 0.65 then gput(q[1] + dx, q[2] + dy, "#a8b070") end end end
+end
+for y = 106, 114 do mput(arch, 420, y, ARCH[1]); mput(arch, 421, y, ARCH[1]) end
+for y = 168, 190 do if hsh(1, y, 431) < 0.7 then mput(arch, 448, y, "#6a5048") end end
+-- signpost: grain, nails, rope binding
+for y = 188, 224 do if y % 4 ~= 0 then gput(378, y, WOOD[2]) end end
+c:put(364, 195, WOOD[5]); c:put(391, 195, WOOD[1])
+for y = 203, 206 do c:put(376, y, CREAM[3]); c:put(380, y, CREAM[3]); c:put(377, y, y % 2 == 0 and CREAM[2] or CREAM[4]); c:put(378, y, CREAM[2]); c:put(379, y, CREAM[3]) end
+-- lantern-flower leaves: midribs; mushroom gills
+for k = 0, 14 do c:put(40 - k, 186 - floor(k * 0.9), MOSS[5]) ; c:put(82 + k * 0 + floor(k * 0.7), 188 - k, MOSS[5]) end
+for _, q in ipairs({ {166,180,9},{152,180,6},{174,180,4} }) do
+  local hh = q[1] == 166 and 16 or (q[1] == 152 and 9 or 6)
+  for x = q[1] - q[3] + 2, q[1] + q[3] - 2, 2 do c:put(x, q[2] - hh + 2, CAP[2]) end
+end
+
 ---------------------------------------------------------------- layout + save
 c:finish{ outline = false }
 HP.assertClean(c)

@@ -626,6 +626,50 @@ do
   end
 end
 
+-------------------------------------------------------------------- v2.5.40 polish pass 2: material cues
+do
+  local S, D = R.stone, R.stone.d
+  -- well: stone chips, a crack, moss on the north-west lip and base, twisted rope
+  for _, p in ipairs({ { 156, 184 }, { 181, 193 }, { 193, 180 } }) do PG(p[1], p[2], S.h); PG(p[1] + 1, p[2], S.h); PG(p[1], p[2] + 1, D) end
+  for i = 0, 5 do PG(165 + i, 187 + floor(i / 2) * 2 - (i % 2), D) end
+  for x = 139, 156 do if hash(x, 9, 220) < 0.6 then PG(x, 171, "#6f9e48") PG(x, 170, hash(x, 3, 221) < 0.5 and "#4f7a3a" or "#6f9e48") end end
+  for _, p in ipairs({ { 143, 199 }, { 144, 198 }, { 146, 200 }, { 150, 201 }, { 148, 199 } }) do PG(p[1], p[2], "#4f7a3a"); PG(p[1] + 1, p[2], "#6f9e48") end
+  for y = 160, 170 do if y % 2 == 0 then PG(174, y, "#b8a888") PG(175, y, "#8a7a62") end end
+  -- well roof: moss patch on the shaded slope and two cracked tiles
+  for _, p in ipairs({ { 138, 152 }, { 140, 150 }, { 142, 148 }, { 139, 154 }, { 143, 151 } }) do PG(p[1], p[2], "#5f8c48") PG(p[1] + 1, p[2], "#4f7a3a") end
+  for _, p in ipairs({ { 170, 146 }, { 196, 150 } }) do PG(p[1], p[2], R.tile.d); PG(p[1] + 1, p[2] + 1, R.tile.d); PG(p[1] + 2, p[2] + 1, R.tile.h) end
+  -- noticeboard: wood grain on the posts, nail heads on the frame, torn corner on a note
+  for y = 144, 188, 5 do PG(297, y, R.wood.s); PG(298, y + 1, R.wood.d); PG(332, y + 2, R.wood.s); PG(333, y + 3, R.wood.d) end
+  for _, p in ipairs({ { 300, 147 }, { 330, 147 }, { 300, 176 }, { 330, 176 } }) do PG(p[1], p[2], R.brass.h) end
+  hl(290, 340, 143, R.teal.d); for x = 292, 338, 6 do PG(x, 135, R.teal.h); PG(x + 1, 139, R.teal.s) end
+  for x = 300, 330, 4 do PG(x, 177, R.cork.d) end
+  -- bench: knots, a bolt line and moss under the seat
+  PG(352, 164, R.teal.d); PG(353, 164, R.teal.d); PG(369, 168, R.teal.d); PG(361, 162, R.teal.h)
+  for x = 343, 379, 6 do PG(x, 177, R.teal.s) end
+  PG(346, 189, "#5f8c48"); PG(347, 189, "#4f7a3a"); PG(378, 189, "#5f8c48")
+  -- cottage A: cracks in plaster, chipped stones, thatch strands and a lichen patch
+  for i = 0, 5 do PG(66 + i, 118 + floor(i * 0.8), R.plaster.d) end
+  for _, p in ipairs({ { 54, 122 }, { 92, 126 }, { 78, 131 } }) do PG(p[1], p[2], R.stone.b); PG(p[1] + 1, p[2], R.stone.s); PG(p[1] + 1, p[2] + 1, R.plaster.d) end
+  for _, p in ipairs({ { 48, 100 }, { 72, 96 }, { 90, 99 }, { 60, 92 }, { 82, 90 } }) do vl(p[1], p[2], p[2] + 3, R.thatch.h); PG(p[1] + 1, p[2] + 3, R.thatch.d) end
+  for _, p in ipairs({ { 43, 108 }, { 44, 110 }, { 43, 112 } }) do PG(p[1], p[2], "#8aa062"); PG(p[1] + 1, p[2], "#6f9e48") end
+  -- cottage B: moss under the turf eave, brick-red chimney mortar joints
+  for x = 127, 150, 3 do PG(x, 108, "#6f9e48") PG(x + 1, 109, "#4f7a3a") end
+  for y = 113, 120, 3 do hl(154, 160, y, R.stone.d) end
+  -- stepping stones and trail: chips and a crack
+  for _, p in ipairs({ { 256, 218 }, { 236, 190 }, { 262, 148 } }) do end
+  -- right bramble trunk bark furrows
+  for y = 140, 200, 6 do PG(396 + (y % 4), y, R.bark.d); PG(402, y + 2, R.bark.h) end
+  -- signpost: rust streak on lantern cap, nail heads and weathered board edge
+  PG(346, 213, "#a8602a"); PG(348, 212, "#a8602a"); PG(347, 228, R.brass.d)
+  PG(313, 215, R.brass.d); PG(329, 215, R.brass.d); PG(313, 229, R.brass.d); PG(329, 229, R.brass.d)
+  for y = 210, 244, 6 do PG(329, y, R.dwood.d); PG(331, y + 3, R.dwood.h) end
+  -- picket fence: grain and a chipped top; gate planks
+  for x = 33, 125, 8 do PG(x + 1, 252, "#c8b8a0"); PG(x + 2, 254, "#c8b8a0") end
+  PG(105, 245, R.dwood.d); PG(41, 246, R.dwood.d)
+  -- garden soil: wet furrow glints
+  for x = 50, 112, 7 do PG(x, 208, R.soil.d); PG(x + 1, 224, R.soil.d) end
+end
+
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = out .. "here-village.aseprite", png = out .. "here-village.png", scale = 1 }

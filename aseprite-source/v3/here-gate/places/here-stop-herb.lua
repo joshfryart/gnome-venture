@@ -10,7 +10,14 @@ local c = HP.canvas{ w = W, h = H, scale = 1, name = NAME }
 local floor, max, min, abs, sin, cos = math.floor, math.max, math.min, math.abs, math.sin, math.cos
 
 ---------------------------------------------------------------- helpers
-local function P(x, y, col) x, y = floor(x), floor(y) if x >= 0 and y >= 0 and x < W and y < H then c:put(x, y, col) end end
+local GUARD = false
+local GST = { { 242, 134 }, { 204, 166 }, { 252, 180 }, { 196, 230 }, { 262, 212 }, { 300, 254 } }
+local function guarded(x, y)
+  if x >= 376 and y >= 226 then return true end
+  for _, p in ipairs(GST) do if abs(x - p[1]) <= 15 and abs(y - p[2]) <= 15 then return true end end
+  return false
+end
+local function P(x, y, col) x, y = floor(x), floor(y) if GUARD and guarded(x, y) then return end if x >= 0 and y >= 0 and x < W and y < H then c:put(x, y, col) end end
 local function R(x0, y0, x1, y1, col) for y = floor(y0), floor(y1) do for x = floor(x0), floor(x1) do P(x, y, col) end end end
 local function hs(x, y, s)
   local n = (x * 374761393 + y * 668265263 + (s or 0) * 982451653) & 0x7fffffff
@@ -34,7 +41,7 @@ local function glowAt(x, y, k)
   local r, g, b = hx(h)
   P(x, y, rgb(r + (255 - r) * k, g + (215 - g) * k * .9, b + (120 - b) * k * .5))
 end
-local function M(m, col) c:fillMask(m, col) end
+local function M(m, col) if GUARD then m:each(function(x, y) P(x, y, col) end) else c:fillMask(m, col) end end
 local function poly(p) return c:poly(p) end
 local function rect(a, b, cc, d) return c:rect(a, b, cc, d) end
 local function ell(a, b, cc, d) return c:ellipse(a, b, cc, d) end
@@ -159,6 +166,7 @@ end
 path:each(function(x, y) if y > 150 and y < 200 and (x - 2 * y) % 97 < 30 and hs(x, y, 4) > .55 then glowAt(x, y, .12) end end)
 
 ---------------------------------------------------------------- v2.5.40 polish pass 1: ground variety
+GUARD = true
 local STAND = { { 242, 134 }, { 204, 166 }, { 252, 180 }, { 196, 230 }, { 262, 212 }, { 300, 254 } }
 local function nearStand(x, y, r)
   for _, p in ipairs(STAND) do if abs(x - p[1]) < r and abs(y - p[2]) < r * .8 then return true end end
@@ -214,6 +222,7 @@ for i = 1, 150 do
   end
 end
 
+GUARD = false
 ---------------------------------------------------------------- building helper
 -- gable building facing viewer; side face recedes toward the VP.
 -- o = {x0,x1,yb,h,rh(roof h),f(recede), wall={dk,base,lt,deep}, roof={dk,base,lt,deep}, ink}
@@ -746,6 +755,7 @@ do
   end
 end
 
+GUARD = true
 ---------------------------------------------------------------- v2.5.40 polish pass 2: material cues
 do
   local function knot(x, y) P(x, y, "#4a2c22") P(x + 1, y, "#6b4232") P(x - 1, y, "#8a5a3c") P(x, y - 1, "#8a5a3c") P(x, y + 1, "#8a5a3c") end
@@ -1000,6 +1010,7 @@ do
   end
 end
 
+GUARD = false
 ---------------------------------------------------------------- GATE FRAME: rustic posts, beam, vines, lantern, herb charm
 do
   local postL = rect(0, 0, 13, H - 1)

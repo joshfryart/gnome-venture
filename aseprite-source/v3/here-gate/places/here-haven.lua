@@ -595,6 +595,65 @@ for i = 1, 30 do
   gp(x, y, col); gp(x + 1, y + 1, col)
 end
 
+------------------------------------------------------------------ v2.5.40 polish pass 2: material cues
+local function mk(x, y, col)
+  if x < 0 or y < 0 or x >= W or y >= H or guarded(x, y) then return end
+  local cur = c:get(x, y)
+  if cur and string.lower(cur) ~= string.lower(INK) then put(x, y, col) end
+end
+local function mkr(x0, y0, x1, y1, col) for y = y0, y1 do for x = x0, x1 do mk(x, y, col) end end end
+-- moss + lichen on north (top) edges of stone: cliff, arch, left wall, plinth
+for x = 156, 334, 1 do
+  if h(x, 9, 60) > 0.86 then
+    for y = 46, 108 do
+      local cur = c:get(x, y)
+      if cur and string.lower(cur) ~= string.lower(INK) and (cur == "#9c8790" or cur == "#7a6676" or cur == "#c0a3a0" or cur == "#5a4a63") then
+        mk(x, y, "#5f7a48"); mk(x + 1, y, "#4a6440"); mk(x, y + 1, "#6f8f50"); break
+      end
+    end
+  end
+end
+for _, m in ipairs({ { 390, 80, 408, 90 }, { 440, 80, 462, 92 }, { 16, 110, 38, 124 }, { 14, 200, 36, 208 }, { 116, 202, 134, 206 } }) do
+  for i = 1, 7 do
+    local x, y = m[1] + floor_(h(i, m[1], 61) * (m[3] - m[1])), m[2] + floor_(h(i, m[2], 61) * (m[4] - m[2]))
+    mk(x, y, "#5f7a48"); mk(x + 1, y, "#7f9f58"); mk(x, y + 1, "#4a6440")
+  end
+end
+-- chipped stone: pale chip highlights + dark crack lines on the left wall, arch and cliff
+local function chip(x, y) mk(x, y, "#d9ccc4"); mk(x + 1, y + 1, "#4a3f4c") end
+for _, q in ipairs({ { 20, 118 }, { 30, 160 }, { 24, 180 }, { 34, 196 }, { 392, 110 }, { 452, 108 }, { 396, 96 }, { 460, 100 }, { 200, 90 }, { 300, 86 }, { 170, 100 }, { 322, 100 }, { 232, 56 }, { 60, 205 }, { 140, 205 } }) do chip(q[1], q[2]) end
+for i = 0, 5 do mk(24 + i, 168 + floor_(i / 2), "#3b3048") end
+for i = 0, 6 do mk(444 - floor_(i / 2), 98 + i, "#35304a") end
+for i = 0, 6 do mk(188 + floor_(i / 2), 84 + i, "#3b3048") end
+-- roof shingles: darker row lines every 7 px with staggered ticks, sod drip of moss at the eave
+for y = 112, 124, 1 do end
+for x = 8, 176 do
+  local ty = floor_(110 - (x - 6) * 24 / 170)
+  for k = 7, 14, 7 do
+    mk(x, ty + k, "#3e2a22")
+    if (x + k) % 10 == 3 then mk(x, ty + k + 1, "#98684a"); mk(x, ty + k + 2, "#3e2a22") end
+  end
+  if h(x, 6, 62) > 0.82 then mk(x, ty + 15, "#5f7a48"); mk(x, ty + 16, "#4a6440") end
+end
+-- wood grain + knots on bunk posts, bench, cart posts, cart planks, sign
+for _, px in ipairs({ 98, 150 }) do for y = 110, 196, 9 do mk(px + 2 + floor_(h(y, px, 63) * 3), y, "#3e2619"); mk(px + 3, y + 1, "#3e2619") end
+  mk(px + 3, 150, "#2e1d1e"); mk(px + 2, 150, "#5f3a24"); mk(px + 3, 151, "#2e1d1e") end
+for x = 30, 92, 1 do if h(x, 3, 64) > 0.8 then mk(x, 230, "#5f3a24"); mk(x + 1, 230, "#5f3a24") end; if h(x, 4, 64) > 0.9 then mk(x, 233, "#3e2619") end end
+for x = 345, 432, 1 do if h(x, 5, 65) > 0.88 then mk(x, 174, "#2c5c63"); mk(x + 1, 174, "#2c5c63"); mk(x, 182, "#5ea3a6") end; if h(x, 6, 65) > 0.9 then mk(x, 190, "#1f3f46") end end
+mkr(347, 176, 348, 177, "#1f3f46"); mk(349, 178, "#5ea3a6")
+for y = 96, 126, 5 do mk(373, y, "#3e2619"); mk(374, y + 1, "#c18c58") end
+for x = 364, 390, 1 do if h(x, 7, 66) > 0.82 then mk(x, 97, "#8a5428"); mk(x, 103, "#8a5428") end end
+-- rope: coiled rope on cart shaft and bound hay-bale tie on the log rollers (twist = alternating 2 tones)
+for i = 0, 7 do mk(337 + floor_(i * 0.2), 196 + i, i % 2 == 0 and "#d8c6a6" or "#a88f78") end
+for i = 0, 5 do mk(344 + i, 190, i % 2 == 0 and "#d8c6a6" or "#a88f78"); mk(344 + i, 191, i % 2 == 0 and "#a88f78" or "#d8c6a6") end
+mk(350, 192, "#a88f78"); mk(350, 193, "#d8c6a6"); mk(351, 194, "#a88f78")
+-- rust streaks: horseshoe, lanterns' brackets, kettle handle
+for _, q in ipairs({ { 238, 24 }, { 238, 26 }, { 245, 23 }, { 243, 25 }, { 52, 44 }, { 60, 44 }, { 420, 44 }, { 428, 44 } }) do mk(q[1], q[2], "#9a5a30") end
+mk(238, 27, "#c0743a"); mk(244, 26, "#7a3e22")
+-- cloth folds: quilts get a diagonal fold crease and dark seam, pillows a dimple
+for _, b in ipairs({ { 49, 148 }, { 49, 180 }, { 107, 148 }, { 107, 180 } }) do
+  for i = 0, 6 do mk(b[1] + 14 + i * 3, b[2] + 1 + (i % 2), "#00000000" == "" and "#000" or "#8a3a30") end
+end
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. "here-haven.aseprite", png = OUT .. "here-haven.png", scale = 1 }
