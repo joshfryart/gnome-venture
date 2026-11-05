@@ -70,7 +70,7 @@ local SC={}
 SC["haven-lemon-grove-monastery"]=function()
   sky({"#8ab8d8","#a8c8d8","#d0d8d0","#f4dcb0","#ffd098","#ffc080"},170,2)
   cloud(80,40,24,CL,3); cloud(390,60,20,CL,4); cloud(230,28,16,CL,5)
-  hills(function(x) return 150+floor(10*sin(x/50)+6*sin(x/17)) end,{hi="#b8d098",base="#7ea870",shade="#527a5c",deep="#34503e"},4,200)
+  hills(function(x) return 150+floor(10*sin(x/50)+6*sin(x/17)) end,{hi="#b8d098",base="#7ea870",shade="#527a5c",deep="#34503e"},4,222)
   local yfn=function(x) return 212+floor(2*sin(x/40)) end
   GX.ground(c,yfn,{hi="#d8e078",base="#8ab850",shade="#4a8048",deep="#2e5238"},7,{top=.8,fall=.5})
   -- cypresses
@@ -117,7 +117,7 @@ end
 SC["haven-market-of-a-thousand-chilies"]=function()
   sky({"#78c0e8","#98d0ec","#c8e4e0","#f8ecc0","#ffe0a0"},180,2)
   cloud(70,40,22,CL,3); cloud(420,52,18,CL,4)
-  hills(function(x) return 150+floor(14*sin(x/70+1)+5*sin(x/13)) end,{hi="#d8a8c8",base="#a878a8",shade="#745890",deep="#4a3c70"},5,200)
+  hills(function(x) return 150+floor(14*sin(x/70+1)+5*sin(x/13)) end,{hi="#d8a8c8",base="#a878a8",shade="#745890",deep="#4a3c70"},5,222)
   GX.ground(c,function(x) return 210+floor(2*sin(x/30)) end,{hi="#ffe8b0",base="#f0c080",shade="#c8886a",deep="#8a5a5a"},7,{top=.86,fall=.5,tex=.3})
   local AW1={hi="#ff9a88",base="#e8403c",shade="#a02c4c",deep="#601c48"}
   local CRM={hi="#fffae8",base="#ffe8b8",shade="#e0b090",deep="#a07888"}
@@ -161,7 +161,7 @@ SC["haven-northern-lights-sauna"]=function()
   for x=0,479 do local cy=58+floor(26*sin(x/55)+10*sin(x/19+2)); local h=44+floor(14*sin(x/31))
     for k=0,h do local y=cy-floor(h/2)+k; local t=k/h; local col=t<.15 and "#7a58c8" or (t<.3 and "#58a8d8" or (t<.75 and AC[1+((x//3)+k//7)%2] or "#2a9880"))
       if (t>.85 and (x+k)%2==0) then col=nil end; if (t<.12 and (x+k)%2==1) then col=nil end; if col then px(x,y,col) end end end
-  hills(function(x) return 168+floor(8*sin(x/45)+4*sin(x/12)) end,{hi="#7888b8",base="#505c98",shade="#34407a",deep="#22285a"},4,205)
+  hills(function(x) return 168+floor(8*sin(x/45)+4*sin(x/12)) end,{hi="#7888b8",base="#505c98",shade="#34407a",deep="#22285a"},4,222)
   local yfn=function(x) return 208+floor(2*sin(x/37)) end
   GX.ground(c,yfn,{hi="#f8fcff",base="#c8d8f0",shade="#8a9ccc",deep="#5a6aa0"},7,{top=.88,fall=.45,tex=.25})
   local LOG={hi="#e8a868",base="#b8683c",shade="#843c40",deep="#4a2438"}

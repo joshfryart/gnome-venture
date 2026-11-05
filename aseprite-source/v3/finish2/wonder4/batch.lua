@@ -96,11 +96,11 @@ end
 local function bird(x, y, body, wing, beak)   -- little round bird facing right
   local m = ell(x, y, 6, 5)
   solid(m, body, { R = 5, tex = .08 })
-  c:fillMask(ell(x - 2, y + 1, 3, 2), wing)
+  c:fillMask(ell(x - 2, y + 1, 3, 2), wing[3])
   local bk = poly{ { x + 5, y - 2 }, { x + 9, y }, { x + 5, y + 1 } }
   inkfill(bk, beak)
   P(x + 2, y - 2, "#fff6dc"); P(x + 3, y - 2, INK); P(x + 3, y - 3, "#fff6dc")
-  for k = 0, 3 do P(x - 7 - k, y + 1 + k // 2, wing[3] and wing or INK) end
+  for k = 0, 3 do P(x - 7 - k, y + 1 + k // 2, wing[2]) end
 end
 local function note(x, y, col)   -- eighth note
   local hm = ell(x, y, 3, 2)
@@ -213,6 +213,7 @@ F["wonder-the-singing-waterfall"] = function()
   end
   c:cloud(40, 60, 54, "#f8f0e0", "#c8e6f0"); c:cloud(400, 40, 46, "#f8f0e0", "#c8e6f0")
   hills(function(x) return 130 + 14 * sin(x / 50) end, { "#2c5a58", "#3a7066", "#4c8a78", "#62a488", "#7cbc98", "#9cd0a8" }, 220, 3)
+  ground(function(x) return 200 end, { "#1c3a2a", "#2a5a34", "#3a7a3e", "#5aa04a", "#7cc058", "#a8e07c" }, 3)
   -- cliff behind
   local cl = poly{ { 120, 215 }, { 138, 120 }, { 170, 64 }, { 240, 50 }, { 310, 64 }, { 342, 120 }, { 360, 215 } }
   cl = GX.rough(cl, 3, 2)
@@ -332,7 +333,7 @@ F["wonder-the-sky-city-ruins"] = function()
   -- fallen blocks and moss
   for _, b in ipairs{ { 196, 154, 12 }, { 270, 156, 10 }, { 130, 156, 8 } } do local m = rect(b[1], b[2] - 6, b[1] + b[3], b[2] + 1); c:rim(m, INK); brick(m, MARB, 4, 8, 9); for x = b[1], b[1] + b[3] do P(x, b[2] - 6, GREEN[5]) end end
   -- quirk: a small blue bird on a broken column
-  bird(308, 158 - 48 - 6, { "#1e3a6a", "#2e5a9a", "#3e7ac0", "#5a9ae0", "#88c0f0", "#c0e0fc" }, { "#2e5a9a", "#1e3a6a" }, "#f5a03c")
+  bird(308, 158 - 48 - 6, { "#1e3a6a", "#2e5a9a", "#3e7ac0", "#5a9ae0", "#88c0f0", "#c0e0fc" }, { "#1e3a6a", "#1e3a6a", "#2e5a9a" }, "#f5a03c")
   sparkles({ { 120, 70 }, { 360, 60 }, { 200, 30 }, { 300, 36 } })
 end
 
@@ -651,7 +652,7 @@ F["wonder-volcano-spice-gardens"] = function()
   c:sparkle(150, 100); c:sparkle(330, 120)
 end
 
-F[name]()
+local ok, err = xpcall(F[name], debug.traceback); if not ok then print(err) end
 c:hem(2); c:hem(267)
 c:save{ aseprite = d .. "/out/" .. name .. ".aseprite", png = d .. "/out/" .. name .. ".png", scale = 1 }
 end
