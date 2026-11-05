@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.60
+- **New art**: 81 wonder/delve/haven/lair pictures, 29 banners, 27 gather pieces (slots, vignettes, flourishes, badges, felt, ribbons) redrawn in v3 style. Same sizes, drop-in. Pilot pictures kept.
+
 ## 2.5.59
 - **Rest stop card as tabs**: Hold, Upkeep (only on a fully built stop) and Garden, one section at a time, no script needed (radio tabs). Opens on Upkeep when it is due, else Hold, else Garden; after a hand-in or buy it comes back on the same tab.
 
