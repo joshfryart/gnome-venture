@@ -33,6 +33,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 **Trail / Here**
 - Tile walks: add Sneak and Hunt buttons (keep ~40% extra fights as default; Sneak fewer, Hunt more; check `tests/balance_sim.php` Walks).
 - Upkeep: anyone can pay, none owed; stop degrades a tier if unpaid. Check current code matches (no adopter-only gate, no forced notice).
+- Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); UNRELEASED, not phone-checked; no version bump yet. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
 - `walk_scene` row deleted when a delve ends, so no delve-completion record.

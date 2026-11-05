@@ -64,7 +64,7 @@ function workshop_view(array $u, string $open = ''): string
         $body = '<p class="muted">' . e((string)$desc) . '</p><p>' . (int)$f['have'] . ' of ' . (int)$f['total'] . ' recipes known.' . ($f['locked'] ? ' <b>Locked: ' . e((string)$f['badge']) . '.</b>' : ($f['badge'] !== '' ? ' <b>' . e((string)$f['badge']) . '.</b>' : '')) . '</p>'
             . ($f['locked'] ? '' : '<div class="wsfrag" data-frag="' . e($k) . '" data-url="' . e(url('workshop.php')) . '"><p class="muted">Loading…</p></div>')
             . '<p><a class="btn' . ($f['locked'] ? '' : ' alt') . '" href="' . e(url('inventory.php?tab=craft&c=' . $k)) . '">' . ($f['locked'] ? 'See what unlocks it' : 'Open ' . e($label) . ' as a page') . ' →</a></p>';
-        hubp_add($hot, $L, $k, ['label' => $label, 'emoji' => $emo[$k] ?? $icon, 'chip' => hubp_chip('Make', $chip), 'cls' => $f['locked'] ? 'locked' : '', 'href' => url('workshop.php?o=' . $k), 'card' => $body]);
+        hubp_add($hot, $L, $k, ['label' => $label, 'emoji' => $emo[$k] ?? $icon, 'chip' => hubp_chip('Make', $chip), 'cls' => 'ghost' . ($f['locked'] ? ' locked' : ''), 'href' => url('workshop.php?o=' . $k), 'card' => $body]);
     }
     return hub_scene($akey, $hot, [], ['layout' => $L, 'art' => $art, 'alt' => 'The crafting workshop', 'open' => $open, 'close_href' => url('workshop.php'), 'title' => 'List of crafting areas', 'twin_open' => false, 'nav' => hubp_nav('workshop'), 'navbar' => true]);   // v2.5.49: compass, globe and Fast travel under the picture
 }

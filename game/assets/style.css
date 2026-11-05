@@ -7059,6 +7059,8 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 .hubsvg .hs, .hubsvg .hsp { cursor: pointer; outline: none; }
 .hubsvg .hs .hit { fill: transparent; }
 .hubsvg .hs .ring { fill: rgba(255, 243, 200, .55); stroke: var(--line-2); stroke-width: 2; }
+.hubsvg .hs.ghost > :not(.hit):not(title) { display: none; }   /* workshop spots are invisible tap areas (no round icons on the picture) */
+.hubsvg .hs.ghost:focus-visible .hit { stroke: var(--focus); stroke-width: 2; }
 .hubsvg .hs:hover .ring, .hubsvg .hs:focus-visible .ring, .hubchip.lit { stroke: var(--focus); stroke-width: 3; }
 .hubsvg .hs.goal .ring { stroke: var(--brand-fill); stroke-width: 3; animation: hubpulse 1.4s ease-in-out infinite; }
 .hubsvg .hs.locked .ring, .hubsvg .hs.ruin .ring { fill: rgba(60, 40, 30, .55); stroke-dasharray: 4 3; }
