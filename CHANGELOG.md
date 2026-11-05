@@ -1,10 +1,13 @@
 # Changelog
 
+## 2.5.33
+- **The 2.5D gnome on My Gnome, Today and everywhere your gnome is shown**: the old pixel gnome is replaced by the new standing gnome (your hat, beard and scarf colours) on My Gnome, the Today page, the menu header, the Customise preview, profiles and fights. Pals still stand at its feet. The old picture is the fallback if the art is missing. The World page map opens centred on you at the standard zoom (the whole-world start in 2.5.31 is dropped). Needs 2.5.32.
+
 ## 2.5.32
 - The World page icon row no longer has a GPS button (Map, Fast travel, Gather, Shops, Wander). Needs 2.5.31.
 
 ## 2.5.31
-- **World map opens on the whole world**: the World page map no longer reopens zoomed in on a remembered spot (it was reusing the last zoom from the old folded map); it always starts fitted, and the hat button zooms to you. Needs 2.5.30.
+- **World map opens on you**: the World page map no longer reopens on a remembered zoom (it was reusing the last zoom from the old folded map); it always opens centred on you at the standard zoom. Needs 2.5.30.
 
 ## 2.5.30
 - **World page is the world map** (graphical navigation on): the top banner and the place-switcher row are gone and the page opens on the world map itself, full width. Tap a region to open its map below. Under the map: "You are here" and one centred row of round icons (Map, Fast travel, GPS, Gather, Shops, Wander) that also sits on top of the Gather and Shops pages. The old Go stack of cards stays on the Here page. Needs 2.5.29.

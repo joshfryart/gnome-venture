@@ -118,3 +118,12 @@ function gnome25_url(array $u, string $view = 'front'): string
     foreach (['hat' => 'h', 'beard' => 'b', 'scarf' => 's'] as $role => $k) if (isset($c[$role])) $q[$k] = ltrim($c[$role], '#');
     return url('gnome_sprite.php?' . http_build_query($q));
 }
+
+/** v2.5.33: the 2.5D gnome as a standing picture (front, idle frame) in the player's colours, same size ratio as gnome_avatar(). '' when the art is not there. */
+function gnome25_avatar(array $u, int $size = 96): string
+{
+    $url = gnome25_url($u, 'front');
+    if ($url === '') return '';
+    return '<svg class="gnomeart gnome25" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 64 80" role="img" aria-label="Your gnome">'
+        . '<image href="' . e($url) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></svg>';
+}
