@@ -438,7 +438,7 @@ function HH.faceFront(c, k, o)
     local lx, y = LX(q[1]), Y(q[2])
     c:put(lx, y, FACE.shade) c:put(W - lx, y, FACE.deep)
   end
-  for ly = 3, 8 do c:put(LX(1.5), Y(ly), FACE.hi) end
+  for ly = 4, 7 do c:put(LX(1.5), Y(ly), FACE.hi) end
   c:put(LX(2.5), Y(4), FACE.hi)
   -- right side of the snout a tone down
   for ly = 5, 10 do for dx = 1, 3 do local x = W - LX(dx) if face:has(x, Y(ly)) and c:get(x, Y(ly)) == FACE.base:lower() then c:put(x, Y(ly), FACE.shade) end end end
@@ -512,7 +512,7 @@ function HH.portraitFront(o)
   k.frontView = true
   if o.behind then o.behind(c, k) end
   -- spines continue down behind both shoulders
-  local flank = { { 18, 86, 10, 18, 150, 215 }, { 61, 86, 10, 18, -35, 30 } }
+  local flank = { { 22, 80, 8, 20, 165, 230 }, { 57, 80, 8, 20, -50, 15 } }
   HH.headFront(c, k, flank)
   k.spine:clip(c:rect(0, 0, 79, 99))
   k.torso = c:ellipse(39.5, 102, 25, 30):add(c:ellipse(39.5, hy + 22, 9, 7)):clip(c:rect(0, 0, 79, 99))
