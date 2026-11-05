@@ -1,95 +1,39 @@
--- npc-tumble-seedwell portrait (npc2 P1_36) species: hedgehog
--- Same design as the sprite: lavender quills with stuck seeds, crown sprout, peach face, long snout with
--- berry nose, pink smock with cream ruff, satchel strap; seed satchel with seeds peeking in frame. 80x100.
+-- npc-tumble-seedwell portrait (npc2 P1_36) species: hedgehog (rewrite 2026-11-05, shared lib/hedgehog.lua)
+-- Hedgehog seed-keeper, 3/4 view: mauve-brown spine mound with lilac tips and seeds stuck in it, a sprout growing
+-- from the crown, peach face + long snout + berry nose, pink smock with cream ruff, satchel strap + seed satchel. Moss disc.
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local HP = dofile(DIR .. "/../../lib/hp.lua")
-local P = HP.P
-local out = app.params.out or (DIR .. "/")
-local NAME = "npc-tumble-seedwell"
-local SPINE = { hi = "#c9b2f0", base = "#8a6fd0", shade = "#5a459e", deep = "#35295f" }
-local FACE  = { hi = "#ffe8c8", base = "#f0c89a", shade = "#c98f72", deep = "#7a4a46" }
-local SNOUT = { hi = P.cream, base = "#ffe8c8", shade = "#f0c89a", deep = "#c98f72" }
-local CR    = { hi = P.cream, base = P.cream, shade = P.stone.hi, deep = P.stone.base }
-local FLAP  = { hi = P.wood.hi, base = P.wood.hi, shade = P.wood.base, deep = P.wood.shade }
-local SMOCK, LEAF, BAG, NOSE = P.petal, P.moss, P.wood, "#5a2a4a"
-local c = HP.canvas{ w = 80, h = 100, scale = 1, name = NAME }
-local function keep(x, y, hex) if x >= 0 and y >= 0 and x < c.w and y < c.h then local o = c.own[y * c.w + x] if o then c:put(x, y, hex, o) end end end
-local function backdrop(r)
-  local disc = HP.ellipse(39.5, 44.5, 30.5, 30.5)
-  disc:each(function(x, y) if not c:get(x, y) then c:put(x, y, disc:has(x + 2, y + 2) and r.base or r.shade, "bg") end end)
-  local ring = disc:grow(1):cut(disc)
-  ring:each(function(x, y) if not c:get(x, y) then
-    local dk = false
-    for _, d in ipairs{ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do if c:get(x + d[1], y + d[2]) == r.shade then dk = true end end
-    c:put(x, y, dk and r.deep or r.shade, "bg") end end)
+local HH = dofile(DIR .. "/../../lib/hedgehog.lua")
+local P = HH.P
+local SP = { deep = "#33243e", shade = "#54405e", base = "#7a6080", hi = "#a88cc4", tip = "#e4d6f4" }
+local FACE = { hi = "#ffe8c8", base = "#f0c89a", shade = "#c98f72", deep = "#7a4a46" }
+local CR = { hi = P.cream, base = P.cream, shade = P.stone.hi, deep = P.stone.base }
+local SEED = { "#e8c27a", "#c8945a", "#7a4a36" }
+local NO = { band = 1, nopop = true, inner = false }
+local function seed(c, x, y)
+  c:put(x, y, SEED[1]) c:put(x + 1, y, SEED[2]) c:put(x, y + 1, SEED[2]) c:put(x + 1, y + 1, SEED[3]) c:put(x, y + 2, SEED[3])
 end
-local function spikes(m, cx, cy, rx, ry, a0, a1, step, len, half)
-  for a = a0, a1, step do
-    local r, h = math.rad(a), math.rad(half)
-    m:add(c:poly{ { cx + math.cos(r - h) * rx * .85, cy + math.sin(r - h) * ry * .85 },
-      { cx + math.cos(r + .12) * (rx + len), cy + math.sin(r + .12) * (ry + len) },
-      { cx + math.cos(r + h) * rx * .85, cy + math.sin(r + h) * ry * .85 } })
-  end
-  return m
-end
-local function quills(m, cx, cy, deg)
-  m:each(function(x, y)
-    local a = math.deg(math.atan(y + .5 - cy, x + .5 - cx)) % 360
-    local k, v = math.floor(a / deg) % 3, c:get(x, y)
-    if k == 0 and v == SPINE.base then keep(x, y, SPINE.shade)
-    elseif k == 0 and v == SPINE.shade then keep(x, y, SPINE.deep)
-    elseif k == 1 and v == SPINE.base and x < cx and y < cy then keep(x, y, SPINE.hi) end
-  end)
-end
-local function seed(x, y)
-  c:paint({ ".hb.", "hbbs", ".bs." }, x, y, { h = "gold.hi", b = "gold.base", s = "gold.shade" })
-end
--- quill mantle behind the shoulders
-local mt = c:ellipse(39.5, 84, 30, 13)
-spikes(mt, 39.5, 84, 30, 13, 150, 215, 16, 5, 7) spikes(mt, 39.5, 84, 30, 13, -35, 30, 16, 5, 7)
-c:part(mt, SPINE, { band = 2, nopop = true }) quills(mt, 39.5, 84, 6)
--- smock
-local body = c:ellipse(39.5, 106, 26, 30):clip(c:rect(0, 72, 79, 99))
-c:part(body, SMOCK, { band = 3 })
-for _, x in ipairs{ 31, 48 } do for y = 82, 99 do if body:shrink(1):has(x, y) then keep(x, y, SMOCK.shade) end end end
--- strap + seed satchel
-c:part(c:line({ { 25, 74 }, { 52, 99 } }, 3), BAG, { band = 1, nopop = true })
-c:part(c:rrect(52, 81, 73, 99, 3), BAG, { band = 2 })
-c:part(c:rrect(52, 81, 73, 89, 3), FLAP, { band = 1, sep = true })
-c:part(c:rect(61, 88, 63, 90), "gold", { band = 1, sep = true })
-c:stitch{ { 54, 92 }, { 71, 92 } }
-seed(54, 78) seed(59, 77) seed(64, 78)
-c:part(c:ellipse(52, 84, 3.5, 3), FACE, { band = 1 })
--- cream ruff
-local ruff = c:ellipse(39.5, 73, 13, 3)
-for _, x in ipairs{ 28, 33, 39.5, 46, 51 } do ruff:add(HP.ellipse(x, 75, 2, 2)) end
-c:part(ruff, CR, { band = 1 })
--- quilled head
-local hx, hy = 39.5, 44
-local sp = c:ellipse(hx, hy, 20, 18)
-spikes(sp, hx, hy, 20, 18, 150, 390, 15, 6, 7)
-c:part(sp, SPINE, { band = 3, nopop = true }) quills(sp, hx, hy, 5)
-seed(21, 31) seed(50, 25) seed(14, 47) seed(61, 44)
-for _, ex in ipairs{ 23, 56 } do
-  c:part(c:ellipse(ex, 40, 3.5, 3.5), FACE, { band = 1, nopop = true })
-  c:paint({ "pp", "pp" }, ex - 1, 40, { p = "petal.base" })
-end
-local face = c:ellipse(hx, 53, 15.5, 13)
-c:part(face, FACE, { band = 3, pop = { x = 29, y = 45 } })
-local hl = HP.mask()
-for _, x in ipairs{ 29, 34, 39.5, 45, 50 } do hl:add(c:poly{ { x - 2.5, 39 }, { x + 2.5, 39 }, { x, 45 } }) end
-c:part(hl:clip(face), SPINE, { band = 1, nopop = true, inner = false })
-c:part(c:ellipse(hx, 58.5, 6.5, 4.5), SNOUT, { band = 1, pop = { x = 36, y = 55 } })
-c:part(c:ellipse(hx, 61, 2.5, 1.6), { hi = P.petal.hi, base = NOSE, shade = NOSE, deep = P.ink }, { band = 1, inner = false, pop = { x = 38, y = 60 } })
-for _, q in ipairs{ { 36, 64 }, { 37, 65 }, { 38, 65 }, { 39, 64 }, { 40, 64 }, { 41, 65 }, { 42, 65 }, { 43, 64 } } do c:put(q[1], q[2], P.ink) end
-c:eyeLocked(29, 48) c:eyeLocked(46, 48)
-c:paint({ "PPP", "PPP" }, 24, 56, { P = "petal.base" }) c:paint({ "PPP", "PPP" }, 53, 56, { P = "petal.base" })
-c:put(24, 56, P.petal.hi) c:put(53, 56, P.petal.hi)
--- crown sprout
-c:part(c:line({ { 41, 27 }, { 42, 20 }, { 42, 14 } }, 2), LEAF, { band = 1, nopop = true, inner = false })
-c:part(c:ellipse(37, 13, 4, 2), LEAF, { band = 1, pop = { x = 34, y = 12 } })
-c:part(c:ellipse(47, 11, 4, 2), LEAF, { band = 1, sep = true, pop = { x = 45, y = 10 } })
-c:finish{ outline = true }
-backdrop(P.moss)
-HP.report(c) HP.assertClean(c)
-c:save{ aseprite = out .. NAME .. ".aseprite", png = out .. NAME .. ".png", scale = 1 }
+HH.portrait{ name = "npc-tumble-seedwell", out = app.params.out or (DIR .. "/"), SP = SP, FACE = FACE, seed = 36,
+  BG = P.moss,
+  body = function(c, k)
+    c:part(k.torso, P.petal, { band = 2, inner = false, pop = { x = 30, y = 84 } })
+    for x = 30, 66, 6 do local m = c:ellipse(x, 77, 3.5, 2.5) c:part(m, CR, NO) HH.under(c, m, CR.deep) end
+    local st = c:line({ { 62, 79 }, { 36, 99 } }, 3):clip(k.torso)
+    c:fillMask(st, P.wood.base)
+    st:each(function(x, y) if not st:has(x + 1, y + 1) then c:put(x, y, P.wood.deep) end end)
+  end,
+  spines = function(c, k)
+    for _, q in ipairs{ { 17, 40 }, { 24, 30 }, { 12, 56 }, { 30, 36 }, { 9, 72 }, { 20, 84 } } do seed(c, q[1], q[2]) end
+    local x, y = k.crown.x, k.crown.y
+    c:fillMask(c:line({ { x, y + 3 }, { x + 1, y - 6 } }, 1), P.moss.shade)
+    local l1 = c:ellipse(x - 3, y - 7, 3.5, 2) local l2 = c:ellipse(x + 4, y - 8, 3.5, 2)
+    c:part(l1, P.moss, NO) c:part(l2, P.moss, NO) c:put(x - 4, y - 8, P.moss.hi) c:put(x + 3, y - 9, P.moss.hi)
+  end,
+  front = function(c, k)
+    local sa = c:rrect(56, 84, 74, 99, 3)
+    c:part(sa, P.wood, { band = 2, inner = false, pop = { x = 58, y = 86 } })
+    local fl = c:rrect(55, 83, 75, 90, 3) c:part(fl, { hi = P.wood.hi, base = P.wood.hi, shade = P.wood.base, deep = P.wood.shade }, NO)
+    HH.under(c, fl, P.wood.deep)
+    c:part(c:rect(64, 89, 66, 91), P.gold, NO)
+    seed(c, 59, 81) seed(c, 63, 80) seed(c, 68, 81)
+  end,
+}
