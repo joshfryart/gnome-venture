@@ -128,6 +128,22 @@
     var b = f.querySelector('button'); if (b) b.disabled = true;
     ask(f.hasAttribute('data-sform') ? f.getAttribute('action') : box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
   }, true);
+  /* v2.5.67: a Do here / Stall popover posts in place: the activity comes back with what happened at the top (instead of the page reloading and the result landing
+     in a banner behind the popover). Without script the form posts as before and the result is flashed. */
+  document.addEventListener('submit', function (ev) {
+    var f = ev.target.closest ? ev.target.closest('.doblock form, .stallrow form') : null;
+    if (!f || ev.defaultPrevented) return;
+    var box = f.closest('.doblock, .stallrow');
+    if (!box || !box.getAttribute('data-post') || !window.fetch) return;
+    ev.preventDefault(); ev.stopPropagation();
+    var fd = new FormData(f); fd.set('card', 'do');
+    var sub = ev.submitter; if (sub && sub.name && !fd.has(sub.name)) fd.append(sub.name, sub.value);
+    f.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+    ask(box.getAttribute('data-post'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) {
+      if (res.html) { box.innerHTML = res.html; var r = box.querySelector('.doresult'); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' }); }
+      else { fill(box, res); }
+    });
+  }, true);
   /* "Villagers" on a picture: light up the villagers standing under it (and bring them into view) instead of leaving the page. No one drawn: the link works as normal. */
   document.addEventListener('click', function (ev) {
     var a = ev.target.closest ? ev.target.closest('[data-hl="street"]') : null;

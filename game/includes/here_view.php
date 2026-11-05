@@ -310,15 +310,53 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts, bool $
     $offer = $skipStall ? array_values(array_filter($pool['offer'], fn($a) => !in_array((string)$a['kind'], ['buy', 'snack'], true))) : $pool['offer'];   // v2.5.49: the stalls have their own front (here_stall_fronts)
     foreach (array_slice($offer, 0, $fronts) as $a) {
         $isDone = in_array((string)$a['slug'], $done, true);
-        $folk = stop_folk_of($node)[0] ?? null;
-        $blurb = stop_say((string)$a['blurb'], $node, $folk);
-        $card = (!empty($a['now']) ? '<p><b>Right now</b> · ' . e(hollow_weather_info(stop_now($node)['we'], stop_now($node)['dp'])['label']) . '</p>' : '')
-            . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
-            . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
-                : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>');
-        $out[] = [(string)$a['name'], (string)$a['icon'], $card];
+        $out[] = [(string)$a['name'], (string)$a['icon'], '<div class="doblock" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">' . here_do_block($u, $node, $back, $a, $isDone) . '</div>'];
     }
     return $out;
+}
+
+/** v2.5.67: the inside of one "Do here" activity card (what it is, and its buttons or "Done"). $msg = the result of the try just made, shown at the top, so a popover that
+ *  was posted in place (assets/hubscene.js, town.php card=do) tells the player what happened. */
+function here_do_block(array $u, array $node, string $back, array $a, bool $isDone, string $msg = '', bool $ok = true): string
+{
+    $folk = stop_folk_of($node)[0] ?? null;
+    $blurb = stop_say((string)$a['blurb'], $node, $folk);
+    return here_result_html($msg, $ok)
+        . (!empty($a['now']) ? '<p><b>Right now</b> · ' . e(hollow_weather_info(stop_now($node)['we'], stop_now($node)['dp'])['label']) . '</p>' : '')
+        . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
+        . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
+            : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>');
+}
+
+/** The result line of an action done in a popover. */
+function here_result_html(string $msg, bool $ok): string
+{
+    return $msg === '' ? '' : '<p class="vmsg ' . ($ok ? 'ok' : 'err') . ' doresult" role="status">' . e($msg) . '</p>';
+}
+
+/** The inside of one stall row (its name and Buy button or "Done"), with the result of the try just made on top. */
+function here_stall_row_html(array $u, array $node, string $back, array $a, bool $isDone, string $msg = '', bool $ok = true): string
+{
+    return '<p><b>' . e((string)$a['icon']) . ' ' . e((string)$a['name']) . '</b></p>' . here_result_html($msg, $ok)
+        . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
+            : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>');
+}
+
+/** v2.5.67: answer an in-place post from a Do here / Stall popover (town.php, card=do): the activity's block comes back with the result at the top. Exits. */
+function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $back = 'here.php'): void
+{
+    require_once __DIR__ . '/local.php';
+    $u = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]) ?: $u;
+    $node = player_node($u);
+    $a = null;
+    if (($node['kind'] ?? '') === 'village') foreach (stop_pool($node)['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
+    header('Content-Type: application/json; charset=utf-8');
+    if (!$a) { echo json_encode(['ok' => false, 'msg' => $msg !== '' ? $msg : 'That is not here any more.', 'html' => ''], JSON_UNESCAPED_SLASHES); exit; }
+    [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
+    $isDone = in_array($slug, $done, true);
+    $html = in_array((string)$a['kind'], ['buy', 'snack'], true) ? here_stall_row_html($u, $node, $back, $a, $isDone, $msg, $ok) : here_do_block($u, $node, $back, $a, $isDone, $msg, $ok);
+    echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => $html], JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
 /** v2.5.49: the stall fronts of a rest stop (a layout spot that behaves as 'shops'; the market stop pictures' stall). The stop's own stalls are its buy / snack activities
@@ -332,10 +370,7 @@ function here_stall_fronts(array $u, array $node, string $back, int $fronts): ar
     if (!$stalls) return [];
     [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
     $row = function (array $a) use ($u, $node, $back, $done): string {
-        $isDone = in_array((string)$a['slug'], $done, true);
-        return '<div class="stallrow"><p><b>' . e((string)$a['icon']) . ' ' . e((string)$a['name']) . '</b></p>'
-            . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
-                : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>') . '</div>';
+        return '<div class="stallrow" data-slug="' . e((string)$a['slug']) . '" data-post="' . e(url('town.php')) . '">' . here_stall_row_html($u, $node, $back, $a, in_array((string)$a['slug'], $done, true)) . '</div>';
     };
     if ($fronts === 1 || count($stalls) === 1) return [['Stall', '🛒', implode('', array_map($row, $stalls))]];
     $out = [];

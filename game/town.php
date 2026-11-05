@@ -39,6 +39,10 @@ if (is_post()) {
         'local' => (function () use ($u) { require_once __DIR__ . '/includes/local.php'; return local_do($u, player_node($u), (string)($_POST['kind'] ?? ''), $_POST); })(),
         default => [false, 'Unknown action.'],
     };
+    if ($ajax && ($_POST['card'] ?? '') === 'do' && $do === 'local') {   // v2.5.67: a Do here / Stall popover of the Here picture comes back with the result in place
+        require_once __DIR__ . '/includes/here_view.php';
+        here_do_reply(require_login(), (string)($_POST['kind'] ?? ''), $msg, $ok);
+    }
     if ($ajax && ($_POST['card'] ?? '') === 'stop') {   // v2.5.53: the Rest stop popover comes back with the result
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => stop_slim_card_html(require_login(), player_node(require_login()), $hub, $msg, $ok)], JSON_UNESCAPED_SLASHES);
