@@ -518,6 +518,367 @@ do
   c:edgeIn(sock, RED[1])
 end
 
+-- ===== v2.5.40 polish ===== helpers + pass 1 (ground variety)
+local LAWNSET = {}
+for _, yy in ipairs({ 120, 150, 200, 230 }) do for _, v in ipairs({ lawnCol(yy) }) do LAWNSET[v] = true end end
+local STANDS = { { 190, 252 }, { 250, 250 }, { 220, 204 }, { 240, 165 }, { 170, 214 }, { 320, 166 } }
+local function okG(x, y, pad)
+  pad = pad or 15
+  if x < 0 or y < 0 or x >= W or y >= H then return false end
+  if x >= 378 and y >= 228 then return false end
+  for _, s in ipairs(STANDS) do if abs(x - s[1]) < pad and abs(y - s[2]) < pad then return false end end
+  return true
+end
+local function onLawn(x, y)
+  local v = c:get(floor(x), floor(y))
+  return v and LAWNSET[v] and okG(x, y)
+end
+local function LP(x, y, col) if onLawn(x, y) then P(x, y, col) end end
+-- dithered tonal patches on the lawn (sun-warm and shade-cool)
+local function patch(cx, cy, rx, ry, col, s, dense)
+  for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+    local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+    if d < 1 and y > crest(x) + 2 then
+      local keep = (d < 0.45 and (x + y) % 2 == 0) or (d >= 0.45 and (x % 2 == 0 and y % 2 == 0)) or (dense and d < 0.2)
+      if keep and hash(x, y, s) < 0.9 then LP(x, y, col) end
+    end
+  end end
+end
+for i = 0, 22 do
+  local cx = floor(hash(i, 1, 201) * 470) + 5
+  local cy = 122 + floor(hash(i, 2, 201) * 142)
+  local rx, ry = 12 + floor(hash(i, 3, 201) * 16), 4 + floor(hash(i, 4, 201) * 6)
+  if i % 3 == 0 then patch(cx, cy, rx, ry, "#c4d67a", 210 + i) -- sun
+  elseif i % 3 == 1 then patch(cx, cy, rx, ry, "#7ea04c", 210 + i) -- cool shade
+  else patch(cx, cy, rx, ry, "#a8be5c", 210 + i) end
+end
+-- worn dirt tracks from the road to each stop
+local function track(pts, w, seed)
+  local m = c:line(pts, w)
+  m:each(function(x, y)
+    if onLawn(x, y) then
+      local hv = hash(x, y, seed)
+      P(x, y, hv < 0.12 and "#a98458" or (hv > 0.9 and "#e0c38e" or "#c9a874"))
+    end
+  end)
+  m:shrink(0):edge():each(function(x, y) if onLawn(x, y) and hash(x, y, seed + 1) < 0.55 then P(x, y, "#9c9a52") end end)
+end
+track({ { 166, 238 }, { 156, 241 }, { 144, 240 }, { 138, 243 } }, 4, 230)
+track({ { 197, 194 }, { 178, 191 }, { 160, 193 }, { 140, 189 }, { 122, 190 } }, 3, 232)
+track({ { 313, 232 }, { 304, 236 }, { 294, 238 }, { 284, 244 } }, 4, 234)
+-- flowers: five kinds, clustered
+local FL = { { "#f07aa0", "#f8c060" }, { "#fbf2dc", "#f8c060" }, { "#9fb0e0", "#fbf2dc" }, { "#f8c060", "#e8903c" }, { "#c88ad8", "#fbf2dc" } }
+for i = 0, 40 do
+  local cx = floor(hash(i, 5, 220) * 460) + 10
+  local cy = 120 + floor(hash(i, 6, 220) * 146)
+  local f = FL[1 + i % 5]
+  for k = 0, 3 do
+    local x, y = cx + floor(hash(i, k, 221) * 9) - 4, cy + floor(hash(i, k, 222) * 5) - 2
+    if onLawn(x, y) and onLawn(x, y + 1) then P(x, y, f[1]); P(x, y - 1, f[1]); P(x, y + 1, "#4f7a3a"); if k % 2 == 0 then P(x + 1, y, f[2]) end end
+  end
+end
+-- pebbles and fallen golden leaves
+for i = 0, 50 do
+  local x, y = floor(hash(i, 7, 230) * 470) + 4, 118 + floor(hash(i, 8, 230) * 150)
+  if onLawn(x, y) and onLawn(x + 2, y + 1) then
+    if i % 2 == 0 then P(x, y, "#b4a8a0"); P(x + 1, y, "#9a8c8a"); P(x, y + 1, "#7d6e72"); P(x + 1, y + 1, "#7d6e72"); P(x, y - 1, "#d8cdc0")
+    else P(x, y, "#e0a040"); P(x + 1, y, "#c8742c"); P(x + 1, y + 1, "#a85a28") end
+  end
+end
+-- scattered leaves and pebbles on the road itself
+for i = 0, 26 do
+  local y = 130 + floor(hash(i, 9, 240) * 138)
+  local x = floor(240 + (hash(i, 10, 240) * 2 - 1) * hw(y) * 0.9)
+  if okG(x, y, 15) and isPath(x, y) then
+    if i % 2 == 0 then P(x, y, "#d8923c"); P(x + 1, y, "#b8682c") else P(x, y, "#a8957c"); P(x + 1, y, "#8c7560") end
+  end
+end
+-- dandelion tufts and clover along the road shoulders
+for y = 150, 266, 5 do
+  for _, s in ipairs({ -1, 1 }) do
+    local x = floor(240 + s * (hw(y) + 3 + hash(y, s, 250) * 6))
+    if onLawn(x, y) then P(x, y, "#6a9240"); P(x + 1, y, "#6a9240"); P(x, y - 1, "#cfdc8c") ; if hash(y, s, 251) < 0.4 then P(x, y - 2, "#fbf2dc") end end
+  end
+end
+
+-- ===== v2.5.40 polish pass 2: material cues =====
+do
+  local function chip(x, y) P(x, y, STONE[1]); P(x + 1, y, STONE[2]); P(x, y + 1, STONE[5]); P(x + 1, y + 1, STONE[4]) end
+  -- tower: chipped blocks, hairline cracks, lichen on the shaded north (left) edge
+  for _, p in ipairs({ { 121, 74 }, { 98, 122 }, { 126, 128 }, { 100, 90 }, { 128, 150 }, { 118, 106 }, { 94, 134 } }) do chip(p[1], p[2]) end
+  for _, p in ipairs({ { 104, 68 }, { 105, 69 }, { 105, 70 }, { 106, 71 }, { 106, 72 }, { 126, 138 }, { 127, 139 }, { 127, 140 }, { 128, 141 }, { 99, 150 }, { 99, 151 }, { 100, 152 } }) do P(p[1], p[2], STONE[1]) end
+  for y = 70, 166 do
+    local lx = 86 + floor((y - 64) * 4 / 118)
+    for k = 0, 4 do
+      if hash(y, k, 301) < (0.55 - k * 0.11) then P(lx + k, y, hash(y, k, 302) < 0.5 and "#5f8a3e" or "#7aa64c") end
+    end
+  end
+  for i = 0, 18 do local x, y = 100 + floor(hash(i, 1, 303) * 30), 66 + floor(hash(i, 2, 303) * 100)
+    local v = c:get(x, y); if v and (v == STONE[4] or v == STONE[3]) then P(x, y, "#a0b070"); P(x + 1, y, "#8aa05c") end end
+  -- side face: darker courses, moss drip under the deck
+  for x = 139, 148 do if hash(x, 2, 304) < 0.7 then P(x, 66 + floor(hash(x, 3, 304) * 4), "#4a6a3a") end end
+  -- deck planks: nails and a split
+  for x = 70, 158, 6 do P(x, 58, IRON[3]) end
+  for x = 100, 108 do P(x, 60, BEAM[1]) end
+  -- cabin planks: knots and weathered bands
+  for _, p in ipairs({ { 92, 50 }, { 128, 46 }, { 106, 51 }, { 118, 36 } }) do P(p[1], p[2], CABIN[1]); P(p[1] + 1, p[2], CABIN[2]); P(p[1] - 1, p[2], CABIN[2]); P(p[1], p[2] - 1, CABIN[2]); P(p[1], p[2] + 1, CABIN[2]) end
+  -- roof: missing-shingle gaps and lighter patch tiles
+  for _, p in ipairs({ { 100, 28 }, { 118, 30 }, { 108, 24 }, { 126, 32 } }) do for dx = 0, 2 do P(p[1] + dx, p[2], ROOFR[1]); P(p[1] + dx, p[2] + 1, ROOFR[3]) end end
+  for dx = 0, 3 do P(94 + dx, 31, ROOFR[5]); P(94 + dx, 32, ROOFR[4]) end
+  -- beacon bowl: rust streaks and soot
+  for _, p in ipairs({ { 65, 31 }, { 66, 33 }, { 77, 30 }, { 79, 33 }, { 72, 32 } }) do P(p[1], p[2], "#a85a28"); P(p[1], p[2] + 1, "#c8742c") end
+  for x = 64, 82 do if hash(x, 5, 305) < 0.4 then P(x, 28, IRON[1]) end end
+  -- flag folds: wind ripples
+  for _, p in ipairs({ { 164, 19 }, { 165, 20 }, { 164, 26 }, { 172, 19 }, { 173, 20 }, { 172, 27 }, { 177, 19 }, { 178, 20 } }) do P(p[1], p[2], RED[3]) end
+  for _, p in ipairs({ { 168, 21 }, { 169, 22 }, { 175, 22 }, { 176, 23 } }) do P(p[1], p[2], RED[5]) end
+  -- ladder: rope lashing at the rungs and worn wood
+  for _, y in ipairs({ 100, 140 }) do local xl = floor(120 + 5 * (184 - y) / 126); for x = xl, xl + 1 do P(x, y, "#d8c4a2"); P(x, y + 1, "#8a7058") end end
+  -- door: iron studs and rusty hinge streaks
+  for _, p in ipairs({ { 99, 163 }, { 105, 163 }, { 111, 163 }, { 99, 169 }, { 105, 169 } }) do P(p[1], p[2], IRON[5]) end
+  for y = 161, 167 do P(98, y, "#a85a28") end
+  -- huts: thatch tufts hanging at the eave, cracked plaster
+  for x = 296, 358, 3 do if hash(x, 6, 306) < 0.7 then P(x, 102, THATCH[2]); if hash(x, 7, 306) < 0.4 then P(x, 103, THATCH[3]) end end end
+  for _, p in ipairs({ { 320, 76 }, { 330, 80 }, { 342, 92 }, { 312, 90 } }) do P(p[1], p[2], THATCH[2]); P(p[1] + 1, p[2], THATCH[1]); P(p[1] + 2, p[2], THATCH[2]) end
+  for _, p in ipairs({ { 312, 124 }, { 326, 128 }, { 346, 126 } }) do P(p[1], p[2], HONEY[1]); P(p[1] + 1, p[2] + 1, HONEY[1]) end
+  for x = 309, 355 do if hash(x, 8, 307) < 0.3 then P(x, 131, "#7aa64c") end end -- moss at the foot
+  for _, p in ipairs({ { 396, 124 }, { 404, 128 }, { 424, 122 } }) do for dy = 0, 2 do P(p[1], p[2] + dy, LAV[2]) end end -- peeling paint streaks
+  -- stamp post board: nail heads, woodgrain on frame, moss on roof north slope
+  for _, p in ipairs({ { 290, 216 }, { 348, 216 }, { 290, 240 }, { 348, 240 }, { 358, 218 }, { 372, 218 }, { 358, 229 }, { 372, 229 } }) do P(p[1], p[2], IRON[5]) end
+  for x = 289, 349 do if hash(x, 9, 308) < 0.2 then P(x, 227, BEAM[2]) end end
+  for _, p in ipairs({ { 292, 213 }, { 295, 211 }, { 300, 208 }, { 304, 206 } }) do P(p[1], p[2], "#7aa64c"); P(p[1] + 1, p[2], "#5f8a3e") end
+  -- hearth: soot above the mouth, chips, tea-stain on slab
+  for x = 33, 53 do if hash(x, 2, 309) < 0.8 then P(x, 232, "#2f2430") end end
+  for _, p in ipairs({ { 30, 228 }, { 55, 240 }, { 28, 246 }, { 57, 230 } }) do chip(p[1], p[2]) end
+  -- table: wine rings and plank gaps; canopy folds and a patch
+  for x = 74, 130 do if hash(x, 3, 310) < 0.2 then P(x, 227, CABIN[2]) end end
+  for x = 60, 142, 9 do P(x, 200, CLOTH[3]); P(x + 1, 201, CLOTH[3]) end
+  for dx = 0, 3 do for dy = 0, 2 do P(100 + dx, 198 + dy, (dx == 0 or dy == 2 or dx == 3) and CREAM[2] or CREAM[5]) end end
+  -- gate posts & arch: moss and lichen
+  for y = 172, 214, 3 do P(400, y, "#7aa64c"); P(401, y + 1, "#5f8a3e"); P(459, y, "#5f8a3e") end
+  -- far wall: moss caps
+  for x = 20, 460, 4 do if hash(x, 4, 311) < 0.5 then local y = crest(x) - 5; if c:get(x, y) then P(x, y, "#7aa64c") end end end
+end
+
+-- ===== v2.5.40 polish pass 3: lived-in props =====
+do
+  local INK = "#2b1c26"
+  local function prop(m, R, tex, o) o = o or {}; o.edge = false; paintTex(m, R, tex, o); c:edgeIn(m, INK); return m end
+  local function cast(pts) local m = c:poly(pts); m:each(function(x, y) if onLawn(x, y) then P(x, y, y < 165 and "#7d9a5a" or "#6c8a4c") end end) end
+  local function crate(x, y, w, h, R)
+    local m = c:rect(x, y, x + w, y + h)
+    prop(m, R, function(px, py, x0, y0)
+      if px - x0 == py - y0 or (px - x0) == (w - (py - y0)) then return 3 end
+            return (py - y0) % 4 == 0 and 5 or 4 end, { flat = true })
+    for xx = x + 1, x + w - 1 do P(xx, y + 1, R[5]) end
+    c:rect(x + 2, y + 2, x + w - 2, y + h - 2):edge():each(function(px, py) P(px, py, R[2]) end)
+    P(x + 1, y + 1, IRON[5]); P(x + w - 1, y + h - 1, IRON[5])
+  end
+  -- (1) crate stack + sack + barrel on the far-left lawn
+  cast{ { 22, 164 }, { 56, 164 }, { 64, 169 }, { 30, 169 } }
+  crate(24, 142, 18, 18, CABIN)
+  crate(26, 124, 14, 16, CORK)
+  local sack = c:poly{ { 44, 156 }, { 54, 152 }, { 57, 158 }, { 55, 164 }, { 44, 164 } }
+  prop(sack, CREAM, function(x, y) return (y == 153 or x == 50 and y < 160) and 3 or 4 end)
+  for x = 49, 52 do P(x, 154, "#8a7058") end
+  local bar = c:rect(60, 148, 72, 164)
+  prop(bar, BEAM, function(x, y, x0, y0) return ((x - x0) % 4 == 3) and 3 or 4 end)
+  for _, y in ipairs({ 151, 160 }) do for x = 60, 72 do P(x, y, IRON[3]) end end
+  for x = 61, 71 do P(x, 148, BEAM[5]) end
+  -- (2) rope coil
+  cast{ { 36, 190 }, { 56, 190 }, { 62, 194 }, { 40, 194 } }
+  for r = 0, 2 do
+    local m = c:ellipse(44, 182, 10 - r * 3, 5 - r)
+    local cols = { "#d8c4a2", "#b49a7c", "#f0e2c4" }
+    m:each(function(x, y) P(x, y, ((x + y) % 3 == 0) and "#8a7058" or cols[1 + r]) end)
+  end
+  c:ellipse(44, 182, 10, 5):edge():each(function(x, y) P(x, y, INK) end)
+  c:fillMask(c:ellipse(44, 182, 2, 1), "#3a2a3a")
+  for x = 52, 62 do P(x, 183 + floor((x - 52) / 4), "#b49a7c") end
+  -- (3) standard on a pole: swallowtail pennant against the sky
+  local pole = c:rect(26, 78, 27, 118); prop(pole, BEAM, nil, { flat = true })
+  P(26, 76, BRASS[5]); P(27, 76, BRASS[4]); P(26, 77, BRASS[3]); P(27, 77, BRASS[3])
+  local pen = c:poly{ { 28, 80 }, { 52, 82 }, { 46, 87 }, { 54, 93 }, { 28, 92 } }
+  prop(pen, BLUEP, function(x, y) return (y < 84) and 5 or ((x + y) % 7 == 0 and 3 or 4) end, { flat = true })
+  for x = 32, 44 do P(x, 86, "#f8c060") end
+  c:fillMask(c:poly{ { 30, 85 }, { 33, 87 }, { 30, 89 } }, "#f8c060")
+  cast{ { 24, 118 }, { 29, 118 }, { 40, 124 }, { 32, 124 } }
+  -- (4) bunting string from the deck to a post
+  local pb = c:rect(212, 92, 214, 140); prop(pb, BEAM, nil, { flat = true })
+  local pcols = { RED[4], "#f8c060", CLOTH[4], BLUEP[4], "#f07aa0" }
+  for x = 159, 212 do
+    local t = (x - 159) / 53
+    local y = floor(52 + t * 40 + 5 * sin(t * math.pi))
+    P(x, y, CREAM[2])
+    if (x - 159) % 7 == 3 then
+      local col = pcols[1 + floor((x - 159) / 7) % 5]
+      P(x - 1, y + 1, col); P(x, y + 1, col); P(x + 1, y + 1, col); P(x, y + 2, col); P(x, y + 3, col)
+      P(x - 1, y + 1, col)
+    end
+  end
+  cast{ { 210, 140 }, { 216, 140 }, { 232, 146 }, { 222, 146 } }
+  -- (5) map table with a pinned map and compass, east lawn
+  cast{ { 270, 160 }, { 300, 160 }, { 308, 165 }, { 276, 165 } }
+  for _, lx in ipairs({ 273, 296 }) do local l = c:rect(lx, 150, lx + 2, 161); prop(l, BEAM, nil, { flat = true }) end
+  local top = c:poly{ { 271, 142 }, { 301, 142 }, { 305, 151 }, { 267, 151 } }
+  prop(top, CABIN, function(x, y) return (y == 142) and 5 or ((x % 7 == 0) and 3 or 4) end)
+  local mp = c:poly{ { 275, 144 }, { 292, 144 }, { 294, 149 }, { 273, 149 } }
+  prop(mp, CREAM, nil, { flat = true })
+  for _, p in ipairs({ { 277, 147 }, { 280, 146 }, { 283, 147 }, { 286, 145 } }) do P(p[1], p[2], CLOTH[2]) end
+  P(289, 147, RED[4]); P(290, 146, RED[4]); P(288, 146, RED[4])
+  c:fillMask(c:ellipse(297, 145, 2, 1), BRASS[4]); P(297, 145, RED[4])
+  -- (6) signal brazier on a tripod, layered flame + sparks, warm glow on grass
+  cast{ { 340, 176 }, { 366, 176 }, { 376, 182 }, { 346, 182 } }
+  for _, d in ipairs({ { 346, 160, 340, 178 }, { 358, 160, 366, 178 }, { 352, 160, 352, 180 } }) do
+    c:fillMask(c:line({ { d[1], d[2] }, { d[3], d[4] } }, 2), BEAM[3])
+  end
+  c:edgeIn(c:line({ { 346, 160 }, { 340, 178 } }, 2), INK); c:edgeIn(c:line({ { 358, 160 }, { 366, 178 } }, 2), INK)
+  local bowl = c:poly{ { 340, 152 }, { 364, 152 }, { 360, 162 }, { 344, 162 } }
+  prop(bowl, IRON, function(x, y) return ((x + y) % 4 == 0) and 3 or 4 end)
+  for x = 340, 364 do P(x, 152, IRON[5]) end
+  for _, p in ipairs({ { 343, 158 }, { 355, 160 } }) do P(p[1], p[2], "#a85a28"); P(p[1], p[2] + 1, "#c8742c") end
+  local fl = c:poly{ { 342, 151 }, { 344, 142 }, { 347, 146 }, { 350, 134 }, { 354, 145 }, { 357, 138 }, { 360, 146 }, { 363, 151 } }
+  c:fillMask(fl, "#d8481e")
+  local fl2 = fl:shrink(2); c:fillMask(fl2, "#f6a43a")
+  local fl3 = fl2:shrink(2); c:fillMask(fl3, "#ffe08a")
+  for _, p in ipairs({ { 347, 130 }, { 358, 131 }, { 352, 127 }, { 362, 134 }, { 344, 135 } }) do P(p[1], p[2], "#f8c060") end
+  P(354, 124, "#ffe6a0")
+  for y = 164, 182 do for x = 332, 372 do
+    local d = ((x - 352) / 20) ^ 2 + ((y - 174) / 9) ^ 2
+    if d < 1 and (x + y) % 2 == 0 and d > 0.15 then LP(x, y, "#cdd86a") end
+  end end
+  -- (7) wheelbarrow with turnips beside the road (left)
+  cast{ { 192, 154 }, { 216, 154 }, { 222, 158 }, { 198, 158 } }
+  local tub = c:poly{ { 192, 140 }, { 214, 140 }, { 210, 150 }, { 196, 150 } }
+  prop(tub, CABIN, function(x, y) return ((y == 140) and 5) or ((x % 5 == 0) and 3 or 4) end)
+  for x = 194, 212 do P(x, 146, IRON[3]) end
+  for _, p in ipairs({ { 198, 138 }, { 204, 137 }, { 209, 138 } }) do
+    c:fillMask(c:ellipse(p[1], p[2], 2, 2), "#e8e0ec"); P(p[1], p[2] - 2, CLOTH[4]); P(p[1] + 1, p[2] - 3, CLOTH[5]); P(p[1] - 1, p[2] + 1, "#c88ad8")
+  end
+  c:fillMask(c:line({ { 213, 143 }, { 222, 138 } }, 2), BEAM[3]); P(222, 137, BEAM[1])
+  c:fillMask(c:ellipse(200, 152, 3, 3), IRON[3]); c:edgeIn(c:ellipse(200, 152, 3, 3), INK); P(200, 152, BRASS[4])
+  c:fillMask(c:line({ { 198, 150 }, { 192, 156 } }, 1), BEAM[2])
+  -- (8) wooden bucket + lantern on the table-side post
+  local bk = c:poly{ { 148, 232 }, { 158, 232 }, { 156, 244 }, { 150, 244 } }
+  prop(bk, CABIN, function(x, y) return ((x % 3 == 0) and 3 or 4) end)
+  for x = 149, 157 do P(x, 236, IRON[3]) end
+  for x = 149, 157 do P(x, 233, "#8fb8d8") end
+  cast{ { 148, 246 }, { 160, 246 }, { 168, 250 }, { 156, 250 } }
+end
+
+-- ===== v2.5.40 polish pass 4: light, depth, flora, frame =====
+do
+  local INK = "#2b1c26"
+  local SKY = {}
+  for _, v in ipairs({ "#5b6cb8", "#6f86c8", "#8ea3d8", "#b0bce2", "#d3c6dc", "#efcfc4", "#f8ddb4", "#fbefd8", "#d9b9cc", "#e4c4cc" }) do SKY[v] = true end
+  local function SP(x, y, col) local v = c:get(x, y); if v and SKY[v] then P(x, y, col) end end
+  local function glow(cx, cy, rx, ry, col, onFn)
+    for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+      local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+      if d < 1 and d > 0.12 and (x + y) % 2 == 0 and (d < 0.55 or (x % 2 == 0)) then onFn(x, y, col) end
+    end end
+  end
+  -- atmospheric haze: far lawn paler and cooler near the crest, far hills softly misted
+  for x = 0, W - 1 do
+    local cy = crest(x)
+    for k = 1, 7 do
+      if (x + cy + k) % 2 == 0 and (k < 4 or x % 2 == 0) then LP(x, cy + k, k < 4 and "#cfdc9c" or "#c4d68a") end
+    end
+    if x % 3 ~= 0 then SP(x, ridge3(x) + 1, "#b0bce2") end
+  end
+  for x = 0, W - 1, 2 do local y = ridge2(x) + 4; if c:get(x, y) == "#8fa9b8" then P(x, y, "#a3b8c6") end end
+  -- distant poplars (cool, light) with a soft warm rim on the left
+  for i, bx in ipairs({ 196, 203, 262, 270, 278, 214 }) do
+    local h = 15 + (i * 3) % 7
+    for y = 0, h do
+      local hw2 = floor(1 + 2.4 * math.sin(math.pi * (y + 1) / (h + 2)) ^ 0.7)
+      for x = -hw2, hw2 do
+        local col = (x < 0) and "#8fb09a" or ((x > 0 and y > h * 0.4) and "#5f8470" or "#76a088")
+        if y > h - 2 then col = "#5f8470" end
+        P(bx + x, 112 - h + y, col)
+      end
+    end
+  end
+  -- warm glow: beacon fire, gate lanterns, hut window, hearth, brazier
+  glow(73, 22, 20, 14, "#f8d890", SP)
+  glow(46, 38, 12, 14, "#f8e0a8", SP)
+  glow(434, 38, 12, 14, "#f8e0a8", SP)
+  glow(323, 112, 14, 12, "#e8c070", function(x, y, col) local v = c:get(x, y); if v and (v == HONEY[4] or v == HONEY[3] or v == HONEY[5]) then P(x, y, col) end end)
+  glow(401, 113, 12, 10, "#f0d890", function(x, y, col) local v = c:get(x, y); if v and (v == LAV[4] or v == LAV[3]) then P(x, y, col) end end)
+  glow(44, 244, 24, 10, "#e8a860", function(x, y, col) local v = c:get(x, y); if v and (v == STONE[4] or v == STONE[3] or v == STONE[5]) then P(x, y, col) end end)
+  glow(110, 44, 20, 8, "#f8d890", function(x, y, col) local v = c:get(x, y); if v and (v == CABIN[4] or v == CABIN[3]) then P(x, y, col) end end)
+  -- warm bounce under the cabin onto the deck and the tower top
+  for x = 90, 134 do if x % 2 == 0 then P(x, 56, BEAM[5]) end end
+  -- rim light: bright pixel on the upper-left edge of main props
+  local function rim(m, col, only)
+    m:each(function(x, y)
+      if not m:has(x - 1, y) or not m:has(x, y - 1) then
+        local v = c:get(x, y)
+        if v and v ~= INK and v ~= ROOFR[1] and v ~= STONE[1] and v ~= BEAM[1] and v ~= CABIN[1] and v ~= IRON[1] and v ~= TEAL[1] then
+          if not only or only(v) then P(x, y, col) end
+        end
+      end
+    end)
+  end
+  rim(c:poly{ { 78, 36 }, { 111, 17 }, { 146, 36 } }, "#f0a088")
+  rim(c:rect(88, 34, 134, 54), "#e4a068")
+  rim(c:poly{ { 86, 64 }, { 138, 64 }, { 142, 182 }, { 82, 182 } }:shrink(0), "#d8ccc0")
+  rim(c:poly{ { 284, 216 }, { 319, 199 }, { 354, 216 } }, "#8ad0b8")
+  rim(c:rect(356, 216, 374, 232), "#f09070")
+  rim(c:poly{ { 292, 101 }, { 332, 72 }, { 362, 98 }, { 310, 99 } }, "#fbe58c")
+  rim(c:poly{ { 376, 105 }, { 414, 76 }, { 452, 102 }, { 390, 103 } }, "#a8d27a")
+  rim(c:rect(308, 96, 356, 132), "#f0d4a8")
+  rim(c:rect(26, 224, 60, 252), "#d8ccc0")
+  rim(c:rect(166, 146, 170, 182), "#d09060")
+  -- extra cast shadows on the road from the posts (long, to the lower right)
+  -- flora: berry bush, sunflowers, ivy, ferns (each different)
+  local function blob(cx, cy, rx, ry, R, s)
+    for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+      local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+      if d < 1 - 0.3 * hash(x, y, s) then
+        local l = 4
+        if (x - cx) + (y - cy) > rx * 0.3 then l = 3 end
+        if (x - cx) + (y - cy) < -rx * 0.6 then l = 5 end
+        if hash(x, y, s + 1) < 0.14 then l = l - 1 end
+        if d > 0.75 then l = 2 end
+        P(x, y, R[max(2, l)])
+      end
+    end end
+  end
+  -- berry bush on the east lawn
+  for x = 362, 392 do if hash(x, 1, 401) < 0.9 then LP(x, 191, "#6c8a4c") end end
+  blob(372, 182, 11, 8, LEAF, 410)
+  for _, p in ipairs({ { 367, 180 }, { 373, 184 }, { 377, 178 }, { 370, 186 }, { 380, 183 } }) do P(p[1], p[2], "#c0305a"); P(p[1], p[2] - 1, "#f07aa0") end
+  -- sunflowers by the standard
+  for i, p in ipairs({ { 46, 124, 104 }, { 54, 124, 108 }, { 62, 124, 102 } }) do
+    for y = p[3] + 3, p[2] do P(p[1], y, "#3a6a40"); if y % 5 == 0 then P(p[1] + 1, y, "#4f8a48"); P(p[1] + 2, y - 1, "#4f8a48") end end
+    for dy = -3, 3 do for dx = -3, 3 do
+      local d = dx * dx + dy * dy
+      if d <= 10 then P(p[1] + dx, p[3] + dy, d <= 3 and "#5a3820" or (d <= 6 and "#f8c060" or "#e8903c")) end
+    end end
+    P(p[1] - 1, p[3] - 1, "#7a4e2c")
+  end
+  -- ivy and hanging leaves from the beam, top left and right
+  for _, s in ipairs({ { 18, 1, 30 }, { 444, 1, 41 } }) do
+    for k = 0, 17 do
+      local x = s[1] + k * (s[1] < 100 and 1 or 1) 
+      local len = 8 + floor(hash(k, 1, 420 + s[1]) * 18)
+      if (s[1] > 100 and k > 8) or s[1] < 100 and k < 20 then
+        for y = 15, 15 + len do
+          if hash(x, y, 421) < 0.75 then P(x, y, y % 3 == 0 and LEAF[5] or (y % 3 == 1 and LEAF[4] or LEAF[3])) end
+          if y == 15 + len then P(x, y, LEAF[2]) end
+        end
+      end
+    end
+  end
+  for _, p in ipairs({ { 22, 40 }, { 30, 36 }, { 454, 44 }, { 458, 38 } }) do P(p[1], p[2], "#f07aa0"); P(p[1] + 1, p[2], "#f8c060") end
+  -- ferns climbing the right pillar and tufts at the left pillar foot
+  for k = 0, 9 do
+    local y = 104 + k * 4
+    for i = 1, 7 do P(479 - i, y + floor(i / 3), LEAF[3 + (k % 2)]); P(479 - i, y + floor(i / 3) - 1, LEAF[5]) end
+  end
+  for y = 232, 268, 4 do for i = 1, 5 do P(i + 12, y - floor(i / 2), LEAF[4]); P(i + 12, y - floor(i / 2) - 1, LEAF[5]) end end
+end
+
 -- ===== GATE FRAME (stone pillars, timber beam, lanterns, bell) =====
 do
   local lp = c:rect(0, 0, 17, H - 1); paintTex(lp, PILLAR, stoneTex(9, 8, 41))

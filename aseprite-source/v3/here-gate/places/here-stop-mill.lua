@@ -129,6 +129,23 @@ for _, sx in ipairs({ 140, 170, 300, 322, 392, 450, 24 }) do
   local st = PL{ { sx - 3, 109 }, { sx, 102 }, { sx + 3, 109 } }; F(st, P.gold.base); c:edgeIn(st, P.gold.shade)
 end
 
+---------------------------------------------------------------- v2.5.40 polish pass 4a: atmospheric perspective + tree variety
+-- haze: far hills melt into warm mist near the field edge (dither bands, cooler/lighter with distance)
+for y = 86, 98 do for x = 0, W - 1 do
+  local k = (98 - y) / 12
+  if ((x + y) % 2 == 0 and hsh(x, y, 601) < .25 + .45 * (1 - k) * (y > 92 and 1 or .4)) and y < rd(fieldTop(x)) then c:put(x, y, (y < 92) and "#c4c0dc" or "#e4dcc0") end
+end end
+-- tree variety on the far hedgerow: poplar, orchard tree with fruit, dark cypress
+do
+  local pop = PL{ { 118, 98 }, { 115, 90 }, { 116, 80 }, { 118, 72 }, { 120, 80 }, { 121, 90 }, { 121, 98 } }
+  F(pop, "#86a05c"); shadeR(pop, "#5f7f52", .45); c:edgeIn(pop, "#4f6a4a"); vl(118, 74, 94, "#9db46c")
+  local ot = c:ellipse(268, 90, 10, 8); F(ot, "#8aaa58"); shadeR(ot, "#668a4e", .4); c:edgeIn(ot, "#4f6a4a")
+  for _, p in ipairs({ { 264, 88 }, { 270, 92 }, { 267, 94 }, { 273, 87 } }) do c:put(p[1], p[2], P.petal.base); c:put(p[1] + 1, p[2], P.petal.hi) end
+  vl(268, 98, 101, P.wood.shade)
+  local cy = PL{ { 430, 98 }, { 424, 96 }, { 427, 88 }, { 429, 80 }, { 432, 80 }, { 433, 88 }, { 436, 96 } }
+  F(cy, "#5a7a58"); shadeR(cy, "#466648", .45); c:edgeIn(cy, "#3c5a44"); vl(430, 82, 94, "#6f8f62")
+end
+
 ---------------------------------------------------------------- ground
 for y = HOR, H - 1 do
   local col = (y < 124 and "#b8c46a") or (y < 150 and "#a8c060") or (y < 200 and "#97b65a") or "#8aad54"
@@ -173,6 +190,70 @@ for i = 0, 4 do
   local fx, fy = 206 + i * 5, 182 + i * 4 - (i % 2) * 2
   F(R(fx, fy, fx + 1, fy + 2), "#c49d72"); c:put(fx, fy - 1, "#c49d72")
 end
+
+---------------------------------------------------------------- v2.5.40 polish pass 1: ground variety
+local STANDS = { { 194, 252 }, { 286, 252 }, { 240, 210 }, { 156, 192 }, { 346, 252 }, { 100, 258 } }
+local function freeP(x, y)
+  if x < 0 or y < 0 or x >= W or y >= H then return false end
+  if x >= 380 and y >= 230 then return false end
+  for _, s in ipairs(STANDS) do if math.abs(x - s[1]) < 17 and math.abs(y - s[2]) < 17 then return false end end
+  return true
+end
+local function gp(x, y, col) if freeP(x, y) then c:put(x, y, col) end end
+local function vn(x, y, sc, s) return .5 + .25 * sin(x / sc + hsh(s, 1, 5) * 6) + .25 * sin(y / (sc * .7) + x / (sc * 2.3) + hsh(s, 2, 5) * 6) end
+-- big soft tone patches in the grass (banded, no gradients)
+for y = HOR + 2, H - 1 do
+  for x = 0, W - 1 do
+    if not path:has(x, y) and freeP(x, y) then
+      local v = vn(x, y, 17, 3)
+      if v > .74 then c:put(x, y, (y < 170) and "#b2c866" or "#9fc060")
+      elseif v < .27 then c:put(x, y, (y < 170) and "#9db858" or "#80a64e")
+      elseif v < .31 and hsh(x, y, 301) < .5 then c:put(x, y, "#80a64e") end
+    end
+  end
+end
+-- path: packed-dust bands, mud near the edges, pebbles, worn ruts
+for y = HOR + 3, H - 1 do
+  for x = rd(L(y)) + 1, rd(Rr(y)) - 1 do
+    local v = vn(x, y, 9, 7)
+    if v > .78 then gp(x, y, "#e4c698") elseif v < .22 then gp(x, y, "#d0aa7c") end
+    if (x < L(y) + 5 or x > Rr(y) - 5) and hsh(x, y, 302) < .25 then gp(x, y, "#c49d72") end
+  end
+end
+for i = 0, 70 do
+  local y = HOR + 6 + floor(hsh(i, 1, 303) * 150); local x = rd(L(y)) + 4 + floor(hsh(i, 2, 303) * (Rr(y) - L(y) - 8))
+  if freeP(x, y) then c:put(x, y, P.stone.base); c:put(x + 1, y, P.stone.hi); c:put(x, y + 1, "#9c7a5a") end
+end
+-- worn side paths to the notice board, fire table and the arch
+for i = 0, 17 do local x = 128 - i * 1.3; local y = 232 + sin(i / 3) * 2 + i * .4; gp(rd(x), rd(y), "#d0aa7c"); gp(rd(x) + 1, rd(y) + 1, "#dcb98a"); gp(rd(x) - 1, rd(y), "#c49d72") end
+for i = 0, 14 do local x = 326 + i * 1.1; local y = 238 + sin(i / 2) * 1.5; gp(rd(x), rd(y), "#d0aa7c"); gp(rd(x) + 1, rd(y) + 1, "#dcb98a") end
+for i = 0, 22 do local x = 336 + i * 3.4; local y = 188 - i * .5 + sin(i / 2); gp(rd(x), rd(y), "#d0aa7c"); gp(rd(x) + 1, rd(y), "#dcb98a") end
+-- grass tufts, pebbles, fallen leaves, flowers
+for i = 0, 190 do
+  local x = floor(hsh(i, 1, 304) * W); local y = HOR + 8 + floor(hsh(i, 2, 304) * (H - HOR - 10))
+  if not path:has(x, y) and freeP(x, y) and not (y >= 146 and y <= 162 and sTop and false) then
+    local k = i % 5
+    if k == 0 then c:put(x, y, "#5f8a4a"); c:put(x - 1, y - 1, "#5f8a4a"); c:put(x + 1, y - 2, "#5f8a4a"); c:put(x, y - 1, "#6f9a52")
+    elseif k == 1 then c:put(x, y, P.stone.hi); c:put(x + 1, y, P.stone.base); c:put(x, y + 1, "#7a7a8a")
+    elseif k == 2 then c:put(x, y, "#c98a3c"); c:put(x + 1, y, "#e0a84a"); c:put(x, y + 1, "#a8652e")
+    elseif k == 3 then c:put(x, y, P.petal.base); c:put(x - 1, y, P.petal.hi); c:put(x + 1, y, P.petal.hi); c:put(x, y - 1, P.petal.hi); c:put(x, y + 1, P.petal.hi); c:put(x, y, P.gold.hi); c:put(x, y + 2, "#5f8a4a")
+    else c:put(x, y, P.cream); c:put(x - 1, y, P.sky.hi); c:put(x + 1, y, P.sky.hi); c:put(x, y - 1, P.sky.hi); c:put(x, y + 1, P.sky.hi); c:put(x, y, P.gold.base); c:put(x, y + 2, "#5f8a4a") end
+  end
+end
+
+-- v2.5.40 polish pass 4b (ground part, painted before the props so they sit on top)
+-- cast shadows all fall to the right (light from the top-left)
+for _, r in ipairs({ { 334, 118, 342, 140 }, { 392, 114, 400, 136 }, { 112, 118, 118, 141 }, { 216, 100, 224, 118 }, { 104, 202, 114, 240 }, { 126, 198, 134, 240 } }) do
+  for y = r[2], r[4] do for x = r[1], r[3] do if (x + y) % 2 == 0 or x < r[1] + 3 then gp(x, y, (y > 150) and "#6b8a56" or GSH) end end end
+end
+local function glowDither(cx, cy, rx, ry, col, p)
+  for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+    local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+    if d < 1 and (x + y) % 2 == 0 and hsh(x, y, 611) < p * (1 - d) then gp(x, y, col) end
+  end end
+end
+glowDither(303, 143, 14, 4, "#e8d27a", .8); glowDither(369, 140, 12, 4, "#e8d27a", .8)
+glowDither(338, 224, 32, 13, "#d8cc72", .9); glowDither(338, 224, 20, 9, "#e8d078", .9)
 
 ---------------------------------------------------------------- stream
 local function sTop(x) if x < 240 then return 146 + sin(x / 23) else return 146 + (x - 240) * .11 + sin(x / 23) end end
@@ -532,6 +613,170 @@ vl(240, 12, 18, P.stone.deep)
 for k = -3, 3 do F(LN({ { 240, 34 }, { 240 + k * 2, 22 } }, 1), P.gold.shade) end
 for k = -3, 3 do local gx = 240 + k * 2; F(R(gx - 1, 18 + math.abs(k), gx + 1, 23 + math.abs(k)), P.gold.base); c:put(gx - 1, 18 + math.abs(k), P.gold.hi) end
 F(R(237, 28, 243, 30), P.ember.base); c:put(236, 31, P.ember.shade); c:put(244, 31, P.ember.shade)
+
+---------------------------------------------------------------- v2.5.40 polish pass 2: material cues
+local function dots(list, col) for _, p in ipairs(list) do c:put(p[1], p[2], col) end end
+local function patch(x0, y0, x1, y1, cols, seed, p, mk) -- irregular clump of colours inside a box (optionally clipped to mask mk)
+  for y = y0, y1 do for x = x0, x1 do
+    if mk and not mk:has(x, y) then goto skip end
+    local e = math.min(x - x0, x1 - x, y - y0, y1 - y); if e > 0 or hsh(x, y, seed) < .5 then
+      if hsh(x, y, seed + 1) < (p or .8) then c:put(x, y, cols[1 + floor(hsh(x, y, seed + 2) * #cols)]) end end
+    ::skip::
+  end end
+end
+-- mill foundation: stone chips, lichen, moss on the shaded north (left) side
+for _, ch in ipairs({ { 30, 122 }, { 47, 129 }, { 61, 134 }, { 76, 124 }, { 84, 131 }, { 40, 137 } }) do
+  c:put(ch[1], ch[2], P.stone.deep); c:put(ch[1] + 1, ch[2], P.stone.deep); c:put(ch[1], ch[2] + 1, P.stone.shade); c:put(ch[1] + 2, ch[2] - 1, P.stone.hi)
+end
+patch(19, 117, 30, 140, { P.moss.base, P.moss.shade, P.moss.shade, P.moss.hi }, 401, .7)
+patch(56, 134, 66, 140, { P.moss.base, P.moss.shade }, 403, .6)
+dots({ { 70, 120 }, { 71, 120 }, { 72, 121 }, { 44, 118 }, { 45, 119 }, { 100, 128 }, { 101, 128 } }, "#d9b04a")  -- lichen
+-- mill walls: knots, nail heads, rain-streaks under the sill, moss under the eaves on the left
+for _, k in ipairs({ { 26, 98 }, { 36, 106 }, { 49, 77 }, { 88, 100 }, { 98, 94 }, { 104, 108 } }) do
+  c:put(k[1], k[2], P.wood.deep); c:put(k[1] + 1, k[2], P.wood.deep); c:put(k[1], k[2] + 1, P.wood.shade); c:put(k[1] + 1, k[2] + 1, P.wood.shade)
+end
+for _, wx in ipairs({ 38, 92 }) do for dy = 0, 6 do if dy % 3 ~= 2 then c:put(wx + (dy % 2), 89 + dy, P.wood.shade) end end end
+for x = 24, 104, 8 do c:put(x, 92, P.stone.shade) end
+patch(23, 67, 36, 71, { P.moss.base, P.moss.shade }, 405, .55)
+-- roof: mossy north-west slope, a couple of replaced lighter shingles, ridge cap
+patch(22, 56, 44, 66, { P.moss.shade, P.moss.base, P.moss.deep }, 407, .5, roof:shrink(1))
+for _, sh in ipairs({ { 80, 58 }, { 94, 63 }, { 50, 51 }, { 68, 60 } }) do F(R(sh[1], sh[2], sh[1] + 5, sh[2] + 2), P.sea.hi); hl(sh[1], sh[1] + 5, sh[2] + 3, P.sea.deep) end
+-- waterwheel: damp green on the lower paddles, drip streaks, rusty hub bolts
+for k = 1, 4 do local a = k * 45 * pi / 180; local px, py = WX + (WRr + 3) * cos(a), WY + (WRr + 3) * sin(a)
+  c:put(rd(px), rd(py), P.moss.shade); c:put(rd(px) - 1, rd(py) + 1, P.moss.base); c:put(rd(px) + 1, rd(py) + 1, P.moss.deep) end
+for _, d in ipairs({ { 122, 150 }, { 140, 151 }, { 160, 150 } }) do vl(d[1], d[2], d[2] + 3, P.sea.base); c:put(d[1], d[2] + 4, P.sea.hi) end
+dots({ { WX - 4, WY - 4 }, { WX + 4, WY - 4 }, { WX - 4, WY + 4 }, { WX + 4, WY + 4 } }, "#b3643a")
+dots({ { WX + 5, WY + 1 }, { WX + 5, WY + 2 } }, "#b3643a")
+-- granary thatch: darker bundle courses and a mossy ridge, plank knots
+for y = 62, 76, 5 do for x = 178, 222 do if groof:shrink(2):has(x, y) and (x + y) % 3 ~= 0 then c:put(x, y, P.gold.shade) end end end
+patch(178, 72, 192, 78, { P.moss.shade, P.gold.shade }, 411, .4, groof:shrink(1))
+for _, k in ipairs({ { 188, 94 }, { 210, 88 }, { 190, 80 } }) do c:put(k[1], k[2], "#6e4a2a"); c:put(k[1] + 1, k[2], "#6e4a2a") end
+-- cottage A: plaster cracks, damp at the base, flour handprints
+for _, p in ipairs({ { 289, 125 }, { 290, 126 }, { 290, 127 }, { 291, 128 }, { 316, 107 }, { 316, 108 }, { 317, 109 } }) do c:put(p[1], p[2], "#bfa682") end
+patch(281, 132, 295, 136, { P.moss.shade, "#d9c2a0" }, 413, .35)
+-- cottage B: stone chips, lichen, moss on the north (left) corner, cracked sill
+for _, ch in ipairs({ { 349, 126 }, { 357, 130 }, { 384, 112 }, { 370, 108 }, { 389, 128 } }) do c:put(ch[1], ch[2], P.stone.deep); c:put(ch[1] + 1, ch[2], P.stone.shade); c:put(ch[1], ch[2] - 1, P.stone.hi) end
+patch(347, 120, 356, 134, { P.moss.base, P.moss.shade, P.moss.hi }, 415, .6)
+dots({ { 380, 126 }, { 381, 126 }, { 381, 127 }, { 360, 106 }, { 361, 106 } }, "#d9b04a")
+-- hedge arch: a few thorny dark twigs and berry clusters
+for _, p in ipairs({ { 418, 120 }, { 456, 130 }, { 414, 140 }, { 458, 148 } }) do c:put(p[1], p[2], P.petal.base); c:put(p[1] + 1, p[2] + 1, P.petal.shade); c:put(p[1] + 2, p[2], P.petal.base) end
+-- signposts / notice board: cork pins, nails, wood cracks
+for _, p in ipairs({ { 30, 190 }, { 102, 190 }, { 30, 222 }, { 102, 222 }, { 66, 186 } }) do c:put(p[1], p[2], P.stone.hi) end
+for _, p in ipairs({ { 33, 205 }, { 34, 206 }, { 98, 200 }, { 98, 201 }, { 97, 202 } }) do c:put(p[1], p[2], "#8a5a36") end
+for y = 214, 236, 4 do c:put(35, y, P.wood.deep) end; for y = 200, 232, 5 do c:put(97, y, P.wood.deep) end
+for y = 205, 233, 6 do c:put(114, y, P.wood.shade) end
+for y = 132, 158, 5 do c:put(415, y, P.wood.deep) end
+dots({ { 408, 134 }, { 418, 139 }, { 424, 134 }, { 430, 138 } }, P.wood.shade) -- sign grain
+-- fire table: cloth folds, soot on the stones, charred log end
+for x = 358, 394, 12 do vl(x, 204, 211, P.ember.shade) end
+for _, p in ipairs({ { 325, 221 }, { 332, 224 }, { 340, 225 }, { 348, 224 } }) do c:put(p[1], p[2], P.stone.deep); c:put(p[1] + 1, p[2] - 1, P.stone.deep) end
+-- cart: rope around the shafts, rusty rim studs, plank nails
+F(LN({ { 457, 205 }, { 465, 223 } }, 1), P.gold.shade)
+for i = 0, 7 do local a = i * pi / 4; c:put(rd(428 + 7 * cos(a)), rd(218 + 7 * sin(a)), "#b3643a") end
+for x = 418, 452, 8 do c:put(x, 205, P.sea.deep) end
+-- gate frame: knots, deep cracks and moss on the north-facing post
+for _, p in ipairs({ { 4, 52 }, { 9, 120 }, { 3, 190 }, { 470, 70 }, { 474, 150 }, { 469, 220 } }) do c:put(p[1], p[2], P.wood.deep); c:put(p[1] + 1, p[2], P.wood.deep); c:put(p[1], p[2] + 1, P.wood.shade) end
+for y = 80, 100 do if y % 4 ~= 3 then c:put(2, y, P.wood.deep) end end
+for y = 150, 172 do if y % 5 ~= 4 then c:put(476, y, P.wood.deep) end end
+patch(0, 230, 6, 262, { P.moss.base, P.moss.shade, P.moss.hi }, 421, .5)
+
+---------------------------------------------------------------- v2.5.40 polish pass 3: lived-in props
+-- flour dust re-laid over the road bands, trailing from the mill yard to the bridge
+local function flourSpeck(cx, cy, rx, ry, seed)
+  for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+    local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+    if d < 1 and freeP(x, y) then local v = hsh(x, y, seed); if v < .55 - d * .3 then gp(x, y, "#f6e6c4") elseif v < .7 - d * .2 then gp(x, y, P.cream) end end
+  end end
+end
+flourSpeck(214, 178, 16, 5, 31); flourSpeck(228, 160, 9, 3, 35); flourSpeck(262, 172, 12, 3, 36); flourSpeck(236, 128, 10, 3, 34)
+for i = 0, 4 do local fx, fy = 206 + i * 5, 182 + i * 4 - (i % 2) * 2; F(R(fx, fy, fx + 1, fy + 2), "#c49d72"); c:put(fx, fy - 1, "#c49d72") end
+-- barrel (flour) by cottage A, banded
+local function barrel(x, y, w, h)
+  shadow(x - 1, y + h - 1, x + w + 5, y + h + 2, GSH)
+  local b = c:rrect(x, y, x + w, y + h, 3); F(b, P.wood.base); lightTL(b, P.wood.hi, 4); shadeR(b, P.wood.shade, .3)
+  hl(x + 1, x + w - 1, y + 3, P.stone.shade); hl(x + 1, x + w - 1, y + h - 3, P.stone.shade); vl(x + w // 2, y + 4, y + h - 4, P.wood.shade)
+  c:edgeIn(b, P.wood.deep); hl(x + 2, x + w - 2, y, "#f6e6c4")
+end
+barrel(264, 124, 10, 13); barrel(266, 112, 9, 11)
+-- wheat sheaves stacked by cottage B
+local function sheaf(x, y)
+  for k = -3, 3 do F(LN({ { x, y + 14 }, { x + k * 2, y } }, 1), P.gold.base) end
+  F(R(x - 5, y + 7, x + 5, y + 9), P.ember.base); c:put(x - 3, y + 1, P.gold.hi); c:put(x + 2, y + 2, P.gold.hi)
+  F(R(x - 4, y + 10, x + 4, y + 14), P.gold.shade); c:edgeIn(R(x - 6, y, x + 6, y + 14), P.gold.deep)
+end
+shadow(392, 133, 406, 139, GSH); sheaf(398, 122); sheaf(404, 124)
+-- millstone leaning on a block by the far bank, with a spilled sack of grain
+local MX, MY = 172, 178
+shadow(MX - 8, MY + 10, MX + 26, MY + 17)
+local blk1 = R(MX - 2, MY + 6, MX + 10, MY + 14); F(blk1, P.stone.base); lightTL(blk1, P.stone.hi, 4); c:edgeIn(blk1, P.stone.deep)
+local ms = oct(MX, MY, 12, 22.5); F(ms, P.stone.hi); shadeR(ms, P.stone.base, .4); c:edgeIn(ms, P.stone.deep)
+local hole = oct(MX, MY, 3, 22.5); F(hole, P.stone.deep)
+for k = 0, 7 do local a = k * pi / 4 + .2; F(LN({ { MX + 5 * cos(a), MY + 5 * sin(a) }, { MX + 10 * cos(a + .3), MY + 10 * sin(a + .3) } }, 1), P.stone.shade) end
+for i = 0, 14 do c:put(MX + 5 + floor(hsh(i, 1, 502) * 12), MY + 8 + floor(hsh(i, 2, 502) * 5), (i % 2 == 0) and P.gold.base or P.gold.hi) end
+-- wicker grain baskets by the notice board
+local function basket(x, y, w, h)
+  shadow(x, y + h - 1, x + w + 4, y + h + 2, GSH)
+  local b = c:rrect(x, y + 3, x + w, y + h, 3); F(b, "#c9944a")
+  b:each(function(px, py) if (px + py) % 3 == 0 then c:put(px, py, "#a8703a") end end)
+  shadeR(b, "#a8703a", .25); c:edgeIn(b, "#6e4a2a")
+  local top = R(x - 1, y + 2, x + w + 1, y + 4); F(top, "#e0b060"); c:edgeIn(top, "#6e4a2a")
+  for i = 0, w - 2 do c:put(x + 1 + i, y + 1 - (i % 3 == 1 and 1 or 0), (i % 2 == 0) and P.gold.hi or P.gold.base) end
+end
+basket(131, 216, 13, 9); basket(143, 220, 9, 7)
+-- ladle bucket and rake leaning at the mill door
+local bk = R(40, 112, 47, 118); F(bk, P.wood.base); hl(40, 47, 114, P.stone.shade); c:edgeIn(bk, P.wood.deep); hl(41, 46, 112, P.sea.base)
+F(LN({ { 46, 119 }, { 50, 102 } }, 1), P.wood.shade); hl(47, 53, 101, P.wood.deep); for x = 47, 53, 2 do c:put(x, 102, P.wood.deep) end
+-- spray droplets flung by the wheel (arcs of hard pixels)
+for i = 0, 22 do
+  local a = (150 + hsh(i, 1, 503) * 70) * pi / 180; local r = 31 + hsh(i, 2, 503) * 14
+  local x, y = rd(WX + r * cos(a)), rd(WY + r * sin(a))
+  if y >= 134 and y < 160 then c:put(x, y, (i % 3 == 0) and P.cream or P.sea.hi); if i % 4 == 0 then c:put(x, y + 1, P.sea.base) end end
+end
+for i = 0, 18 do local x = 118 + floor(hsh(i, 3, 503) * 52); c:put(x, 141 + floor(hsh(i, 4, 503) * 5), P.cream) end
+-- chalk marks of the day's tally on the mill wall by the sacks
+for i = 0, 3 do vl(27 + i * 2, 92, 95, P.cream) end; F(LN({ { 26, 95 }, { 34, 92 } }, 1), P.cream)
+-- sack with a scoop on the cart side and a fallen sack by the table end
+shadow(404, 232, 420, 237, GSH)
+local fs = c:rrect(404, 224, 415, 232, 3); F(fs, "#f2e4c4"); shadeR(fs, "#d2bd96", .35); c:edgeIn(fs, "#9a8268"); hl(406, 412, 226, "#9a8268")
+
+---------------------------------------------------------------- v2.5.40 polish pass 4b: key light top-left, rim, warm glows, foreground frame
+-- rim light (cool-warm pale edge) on the lit top-left slopes of the main roofs, wheel and board
+for y = 25, 69 do local x = rd(65 - (y - 24) * 55 / 46) + 2; c:put(x, y, P.sea.hi); c:put(x + 1, y, P.sea.base) end
+for y = 71, 100 do local x = rd(303 - (y - 70) * 31 / 31) + 2; c:put(x, y, P.petal.hi) end
+for y = 57, 79 do local x = rd(200 - (y - 56)) + 2; c:put(x, y, P.gold.hi); c:put(x + 1, y, "#fff0c8") end
+hl(30, 102, 185, P.wood.hi); hl(23, 28, 186, P.wood.hi)
+for k = 0, 7 do local a = (200 + k * 8) * pi / 180; c:put(rd(WX + (WRr + 1) * cos(a)), rd(WY + (WRr + 1) * sin(a)), P.cream) end
+for x = 342, 351 do c:put(x, 107 - (x - 342) // 2 * 2 + 0, P.moss.hi) end
+-- warm window / lantern / fire glow on neighbouring surfaces (dither only)
+glowDither(36, 40, 15, 12, "#ffe3a0", .9); glowDither(444, 40, 15, 12, "#ffe3a0", .9)   -- lantern halo in the sky
+for y = 200, 212 do if (y % 2 == 0) then c:put(353, y, P.gold.hi) end end   -- fire light on the table edge
+for x = 351, 360, 2 do c:put(x, 224, P.gold.base) end
+-- foreground frame: reeds, foxglove spires, ferns, poppies (clear of stand points and the compass corner)
+local function reed(x, y, h, lean)
+  for i = 0, h do c:put(x + rd(lean * i / h), y - i, (i % 4 == 3) and "#7aa250" or "#5f8a4a") end
+  if h > 8 then F(R(x + rd(lean) - 1, y - h - 4, x + rd(lean), y - h), "#7a4a2e"); c:put(x + rd(lean) - 1, y - h - 4, "#a8703a") end
+end
+for i, p in ipairs({ { 24, 156, 12, -2 }, { 28, 157, 15, 1 }, { 33, 156, 10, 3 }, { 150, 163, 11, 2 }, { 154, 164, 14, -2 }, { 232, 164, 10, -2 }, { 288, 169, 12, 2 }, { 292, 170, 9, -2 } }) do reed(p[1], p[2], p[3], p[4]) end
+local function fox(x, y, h)
+  vl(x, y - h, y, "#5f8a4a"); vl(x + 1, y - h + 4, y, "#4f7a42")
+  for i = 0, h - 4, 3 do c:put(x - 1, y - i - 2, P.dusk.base); c:put(x + 2, y - i - 3, P.dusk.hi); c:put(x, y - i - 3, P.dusk.hi); c:put(x + 1, y - i - 2, P.dusk.shade) end
+  F(R(x - 1, y - h - 2, x + 2, y - h), P.dusk.hi); c:put(x, y - h - 3, P.dusk.base)
+  for k = -1, 1 do F(LN({ { x, y }, { x + k * 4, y - 3 } }, 1), "#4f7a42") end
+end
+fox(22, 266, 16); fox(30, 267, 12); fox(66, 264, 14)
+local function fern(x, y, r)
+  for k = -3, 3 do local a = (270 + k * 28) * pi / 180
+    for i = 1, r do local px, py = rd(x + i * cos(a)), rd(y + i * sin(a) * .8); c:put(px, py, (i % 2 == 0) and "#4f7a42" or "#6f9a52"); if i % 3 == 0 then c:put(px + 1, py, "#7aa250") end end end
+end
+fern(46, 266, 9); fern(54, 267, 7); fern(174, 268, 8)
+for i = 0, 9 do local x, y = 140 + floor(hsh(i, 1, 621) * 34), 256 + floor(hsh(i, 2, 621) * 11)
+  if freeP(x, y) and freeP(x + 2, y) then c:put(x, y + 1, "#4f7a42"); c:put(x, y + 2, "#4f7a42"); c:put(x, y, P.ember.base); c:put(x - 1, y, P.ember.hi); c:put(x + 1, y, P.ember.base); c:put(x, y - 1, P.ember.shade); c:put(x, y, P.dusk.deep) end end
+-- berry bush on the bank by the bridge (round, lit top-left)
+do
+  local bsh = c:ellipse(300, 176, 10, 7); F(bsh, "#6f9a52"); shadeR(bsh, "#4f7a42", .4); c:edgeIn(bsh, "#3c5a44")
+  for _, p in ipairs({ { 295, 172 }, { 299, 170 }, { 303, 175 }, { 297, 177 }, { 305, 179 } }) do c:put(p[1], p[2], P.petal.base); c:put(p[1] + 1, p[2], P.petal.hi) end
+  hl(293, 298, 170, "#9db46c")
+end
 
 ---------------------------------------------------------------- save + layout
 c:finish{ outline = false }

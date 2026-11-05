@@ -488,6 +488,370 @@ for i = 1, 70 do
   end
 end
 
+-- v2.5.40 polish pass 1: ground variety (tone drifts, worn path, flowers, pebbles, fallen petals)
+local GROUND = {}
+for _, col in ipairs({ "#a6cf86", "#98c978", "#a4d277", R.grass.base, R.grass.hi, R.grass.shade }) do GROUND[col] = true end
+local function onGrass(x, y) local g = c:get(x, y) return g ~= nil and GROUND[g] == true end
+local function pathHW(y) return 8 + 72 * (y - 112) / 158 end
+local function offPath(x, y, m) return abs(x - 240) > pathHW(y) + (m or 3) end
+-- warm olive-gold drifts and cool teal hollows, dithered edges, big soft blobs
+do
+  local drifts = { {70, 190, 58, 16, 1}, {150, 238, 40, 13, 2}, {300, 214, 64, 16, 1}, {410, 160, 40, 10, 2}, {200, 160, 34, 8, 1}, {120, 128, 40, 7, 2}, {345, 128, 30, 6, 1}, {430, 255, 40, 9, 2} }
+  for y = 114, Hh - 1 do for x = 0, W - 1 do
+    if onGrass(x, y) and offPath(x, y, 6) and not nearStand(x, y, 15) then
+      for _, d in ipairs(drifts) do
+        local e = (x - d[1])^2 / d[3]^2 + (y - d[2])^2 / d[4]^2
+        if e < 1 then
+          local hh = H(x, y, 201)
+          local lim = (e < .45) and 1.0 or (e < .7 and .55 or .22)
+          if hh < lim then
+            if d[5] == 1 then c:put(x, y, (hh < .1) and "#d5d98a" or "#bdd27c") else c:put(x, y, (hh < .1) and "#4f8f62" or "#74b068") end
+          end
+        end
+      end
+    end
+  end end
+end
+-- foreground: darker rank grass along the bottom for depth
+for y = 250, Hh - 1 do for x = 16, 463 do
+  if onGrass(x, y) and offPath(x, y, 2) and not nearStand(x, y, 15) and H(x, y, 205) < (y - 246) / 40 then c:put(x, y, (H(x, y, 206) > .5) and R.grass.shade or "#6fab62") end
+end end
+-- worn trampled dirt where feet leave the stones (path spills into grass)
+for y = 120, 268 do
+  local e = pathHW(y)
+  for _, side in ipairs({ -1, 1 }) do
+    for k = 1, 5 do
+      local x = floor(240 + side * (e + k))
+      if onGrass(x, y) and H(x, y, 211) < .5 - k * .09 then c:put(x, y, (H(x, y, 212) > .5) and "#cdbb7e" or R.earth.base) end
+    end
+  end
+end
+-- scuffed bare patches near the stand points are NOT painted; elsewhere small dirt scars
+for _, sc in ipairs({ {72, 156, 7}, {330, 164, 6}, {160, 200, 6}, {388, 238, 5}, {268, 160, 5} }) do
+  if not nearStand(sc[1], sc[2], 18) then
+    for y = sc[2] - 2, sc[2] + 2 do for x = sc[1] - sc[3], sc[1] + sc[3] do
+      local e = ((x - sc[1]) / sc[3])^2 + ((y - sc[2]) / 2.2)^2
+      if e < 1 and onGrass(x, y) and H(x, y, 213) < .75 then c:put(x, y, (e > .6) and "#c4b87a" or R.earth.base) end
+    end end
+  end
+end
+-- pebbles (ink-edged pairs) and fallen blossom petals (pink drift from the tree)
+for i = 1, 26 do
+  local x = floor(H(i, 3, 221) * 420) + 30; local y = 128 + floor(H(i, 4, 221) * 138)
+  if onGrass(x, y) and onGrass(x + 2, y + 1) and offPath(x, y, 8) and not nearStand(x, y, 20) and not (x > 380 and y > 226) and not (x < 130 and y > 200) then
+    c:put(x, y, P.stone.base); c:put(x + 1, y, P.stone.hi); c:put(x, y + 1, P.stone.shade); c:put(x + 1, y + 1, P.stone.shade)
+  end
+end
+for i = 1, 60 do
+  local a = H(i, 5, 222) * 6.28; local r = 8 + H(i, 6, 222) * 46
+  local x = floor(162 + math.cos(a) * r * 1.5); local y = floor(150 + abs(math.sin(a)) * r * .6)
+  if y > 146 and onGrass(x, y) and not nearStand(x, y, 17) then
+    c:put(x, y, (i % 3 == 0) and P.petal.base or P.petal.hi)
+  end
+end
+-- flower clumps in three kinds: clover-white, buttercup-gold, violet bells
+for i = 1, 22 do
+  local cx = floor(H(i, 7, 231) * 400) + 40; local cy = 140 + floor(H(i, 8, 231) * 120)
+  local kind = i % 3
+  if offPath(cx, cy, 10) and not nearStand(cx, cy, 24) and not (cx > 375 and cy > 226) and not (cx < 130 and cy > 198) and not (cx > 385 and cy > 150) and not (cx < 125 and cy < 150) then
+    for k = 1, 4 do
+      local x = cx + floor((H(i, k, 232) - .5) * 14); local y = cy + floor((H(i, k, 233) - .5) * 6)
+      if onGrass(x, y) and onGrass(x, y + 1) then
+        if kind == 0 then c:put(x, y, P.cream); c:put(x, y + 1, R.grass.shade)
+        elseif kind == 1 then c:put(x, y, P.gold.base); c:put(x, y - 1, P.gold.hi); c:put(x, y + 1, R.grass.shade)
+        else c:put(x, y, P.dusk.base); c:put(x, y - 1, P.dusk.hi); c:put(x, y + 1, R.grass.deep); c:put(x, y + 2, R.grass.shade) end
+      end
+    end
+  end
+end
+
+-- v2.5.40 polish pass 2: material cues (stone chips/cracks/lichen, wood grain + knots + nails, thatch strands, rust, bark)
+local function crack(pts, col)
+  for i = 1, #pts - 1 do
+    local a, b = pts[i], pts[i + 1]
+    local n = max(abs(b[1] - a[1]), abs(b[2] - a[2]))
+    for k = 0, n do c:put(floor(a[1] + (b[1] - a[1]) * k / max(1, n) + .5), floor(a[2] + (b[2] - a[2]) * k / max(1, n) + .5), col) end
+  end
+end
+local function lichen(x, y, w, hgt, seed)
+  for yy = 0, hgt do for xx = 0, w do
+    local e = ((xx - w / 2) / (w / 2 + .5))^2 + ((yy - hgt / 2) / (hgt / 2 + .5))^2
+    if e < 1 and H(x + xx, y + yy, seed) > .3 then c:put(x + xx, y + yy, (H(xx, yy, seed + 1) > .6) and "#e4ecc0" or "#b9cf9a") end
+  end end
+end
+local function nail(x, y) c:put(x, y, P.stone.deep); c:put(x - 1, y - 1, P.wood.hi) end
+-- shrine steps and body: chips, cracks, pale lichen on the lit upper-left, rust streak under the niche
+crack({ {206, 140}, {209, 143}, {208, 147} }, P.stone.deep)
+crack({ {262, 139}, {264, 142}, {263, 144}, {266, 147} }, P.stone.deep)
+for _, ch in ipairs({ {216, 145}, {252, 141}, {275, 146}, {200, 143} }) do c:put(ch[1], ch[2], P.stone.deep); c:put(ch[1] + 1, ch[2], P.stone.hi); c:put(ch[1] + 1, ch[2] + 1, P.stone.shade) end
+crack({ {220, 109}, {222, 113}, {221, 118}, {224, 123} }, P.stone.deep)
+crack({ {258, 112}, {256, 116}, {258, 120} }, P.stone.deep)
+lichen(215, 98, 6, 3, 301); lichen(257, 99, 5, 3, 303); lichen(207, 131, 7, 2, 305); lichen(196, 140, 6, 2, 307)
+for y = 126, 136 do if y % 2 == 0 then c:put(231, y, "#a85a3a") end; if y % 3 == 0 then c:put(249, y, "#a85a3a") end end
+-- shrine roof: a worn pale tile and a dark gap, tile highlights
+for _, t in ipairs({ {232, 84}, {248, 90}, {214, 94} }) do c:fillMask(c:rect(t[1], t[2], t[1] + 3, t[2] + 1), P.ember.hi) end
+c:fillMask(c:rect(264, 92, 267, 93), P.ember.deep)
+-- path stones: hairline cracks, pale lichen on the far (north) lip
+for i, st in ipairs({ {484, 0} }) do end
+for y = 120, 266 do for x = 190, 290 do
+  local g = c:get(x, y)
+  if g == P.stone.base and H(x, y, 311) > .985 then c:put(x, y, P.stone.deep) end
+  if g == P.stone.hi and H(x, y, 312) > .93 then c:put(x, y, "#e4ecc0") end
+end end
+-- bench: grain streaks, knots, nails, worn seat front
+for x = 24, 96 do
+  if H(x, 0, 321) > .86 then c:put(x, 229, P.wood.deep); c:put(x + 1, 229, P.wood.shade) end
+  if H(x, 1, 322) > .88 then c:put(x, 211, P.wood.deep) end
+  if H(x, 2, 323) > .9 then c:put(x, 231, P.wood.hi) end
+end
+for _, k in ipairs({ {45, 228}, {78, 212} }) do c:fillMask(c:rect(k[1], k[2], k[1] + 2, k[2] + 1), P.wood.deep); c:put(k[1] + 1, k[2], P.wood.shade) end
+for _, nx in ipairs({ 24, 96 }) do nail(nx, 210); nail(nx, 229) end
+crack({ {29, 238}, {30, 242}, {29, 245} }, P.wood.deep); crack({ {91, 224}, {92, 228} }, P.wood.deep)
+-- hut A: knot holes, nails, loose thatch strands and ragged eave
+for _, k in ipairs({ {315, 136}, {350, 141}, {330, 118} }) do c:put(k[1], k[2], P.wood.deep); c:put(k[1] + 1, k[2], P.wood.deep); c:put(k[1], k[2] + 1, P.wood.shade) end
+for x = 311, 361, 6 do c:put(x, 145, P.wood.deep) end
+for x = 304, 366 do
+  if H(x, 0, 331) > .45 then c:put(x, 118, R.thatch.shade); if H(x, 1, 332) > .7 then c:put(x, 119, R.thatch.deep) end end
+end
+for y = 90, 112 do local x = 303 + floor((y - 90) * .3); if H(x, y, 333) > .6 then c:put(x, y, R.thatch.hi) end end
+crack({ {350, 98}, {352, 104}, {351, 110} }, R.thatch.deep)
+-- hut B: plaster cracks with exposed brick patch, slate chips, rusty nail streaks
+c:fillMask(c:rect(398, 125, 403, 129), "#c07a5e"); c:fillMask(c:rect(398, 125, 403, 125), "#e0a284"); c:fillMask(c:rect(398, 125, 403, 129):edge(), "#8e4f44")
+for x = 399, 402, 2 do c:put(x, 127, "#8e4f44") end
+crack({ {430, 128}, {433, 131}, {432, 135}, {435, 138} }, R.plaster.deep)
+crack({ {448, 112}, {446, 118}, {447, 122} }, R.plaster.shade)
+for _, t in ipairs({ {410, 90}, {432, 96}, {396, 100}, {452, 100} }) do c:fillMask(c:rect(t[1], t[2], t[1] + 3, t[2] + 1), P.dusk.hi) end
+for y = 129, 136 do if y % 2 == 0 then c:put(417, y, "#b98a6a") end end
+-- tree trunk: bark ridges, knot hole, moss on the north-west flank
+for y = 76, 140 do
+  local lx = 0
+  if H(y, 0, 341) > .7 then
+    local g = c:get(152 + floor((142 - y) * .05), y)
+  end
+end
+for _, k in ipairs({ {163, 118, 8}, {155, 104, 6}, {159, 128, 6} }) do crack({ {k[1], k[2]}, {k[1] + 1, k[2] + floor(k[3] / 2)}, {k[1], k[2] + k[3]} }, R.bark.deep) end
+c:fillMask(c:ellipse(160, 112, 2, 3), R.bark.deep); c:put(159, 111, R.bark.shade); c:put(160, 110, R.bark.hi)
+for _, m in ipairs({ {150, 126}, {153, 118}, {152, 110}, {148, 134}, {157, 136} }) do
+  if c:get(m[1], m[2]) ~= nil and c:get(m[1], m[2]) ~= "#8cc36a" then c:put(m[1], m[2], P.moss.base); c:put(m[1] + 1, m[2], P.moss.shade); c:put(m[1], m[2] - 1, P.moss.hi) end
+end
+-- notice board: nails in cork, stitched cord, curled note corners; frame grain
+for _, n in ipairs({ {44, 90}, {94, 89}, {44, 122}, {94, 122} }) do c:put(n[1], n[2], P.stone.deep); c:put(n[1] + 1, n[2], P.stone.hi) end
+for y = 90, 144 do if H(35, y, 351) > .8 then c:put(36, y, P.wood.deep) end; if H(99, y, 352) > .8 then c:put(100, y, P.wood.deep) end end
+crack({ {40, 124}, {97, 124} }, R.cork.deep)
+-- stamp box rust and bolts, kettle soot and rust
+for _, b in ipairs({ {105, 93}, {120, 93}, {105, 103}, {120, 103} }) do c:put(b[1], b[2], P.gold.hi) end
+for y = 100, 104 do c:put(106, y, "#8a3a30") end
+for _, r in ipairs({ {120, 228}, {126, 229}, {131, 226} }) do c:put(r[1], r[2], "#a85a3a"); c:put(r[1] + 1, r[2], "#8a3a30") end
+for x = 116, 132 do if H(x, 0, 361) > .6 then c:put(x, 223, P.stone.deep) end end
+-- arch: bark ridges, knots; sign grain; cairn chips
+for _, k in ipairs({ {401, 200}, {453, 206}, {402, 186}, {454, 186} }) do c:put(k[1], k[2], R.bark.deep); c:put(k[1] + 1, k[2], R.bark.deep); c:put(k[1], k[2] + 1, R.bark.shade) end
+for x = 414, 438, 4 do c:put(x, 193, P.gold.deep) end
+for _, ch in ipairs({ {133, 157}, {139, 152}, {135, 147} }) do c:put(ch[1], ch[2], P.stone.deep); c:put(ch[1] + 1, ch[2] - 1, P.stone.hi) end
+
+-- v2.5.40 polish pass 3: lived-in story props (lanterns, candles, ema rack, basin, broom, firewood, offerings, ribbons)
+local function inkOut(m) c:fillMask(m:grow(1):cut(m), P.ink) end
+local function sprop(m, r, o) surf(m, r, o); inkOut(m); return m end
+local function glowRing(cx, cy, rx, ry, col, ok)
+  for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+    local e = ((x - cx) / rx)^2 + ((y - cy) / ry)^2
+    if e < 1 and (x + y) % 2 == 0 and (e > .35 or H(x, y, 401) > .5) and ok(x, y) then c:put(x, y, col) end
+  end end
+end
+local function groundOnly(x, y) local g = c:get(x, y); return g ~= nil and (GROUND[g] or g == R.earth.base or g == R.earth.hi or g == "#cdbb7e" or g == R.earth.shade) end
+local function stoneOk(x, y) local g = c:get(x, y); return g ~= nil and (GROUND[g] or g == P.stone.base or g == P.stone.hi or g == P.stone.shade or g == R.earth.base) end
+local function flame(x, y, big)
+  c:put(x, y, P.gold.hi); c:put(x, y - 1, P.gold.base); c:put(x, y + 1, P.ember.base)
+  if big then c:put(x, y - 2, P.ember.hi); c:put(x - 1, y, P.gold.base); c:put(x + 1, y, P.gold.base) end
+end
+-- paired stone toro lanterns flanking the lower path (rim light left, shade right, warm ground glow)
+local function toro(cx, by)
+  shadow(cx + 1, by + 1, 8, 1)
+  glowRing(cx, by - 8, 16, 7, "#dede8a", groundOnly)
+  sprop(c:rect(cx - 5, by - 3, cx + 5, by), P.stone, { band = 1 })
+  sprop(c:rect(cx - 1, by - 11, cx + 1, by - 4), P.stone, { band = 1 })
+  sprop(c:rect(cx - 4, by - 18, cx + 4, by - 11), P.stone, { band = 2 })
+  c:fillMask(c:rect(cx - 2, by - 16, cx + 2, by - 13), P.gold.base); c:put(cx - 1, by - 15, P.gold.hi); c:put(cx, by - 15, P.cream)
+  sprop(c:poly{ {cx - 7, by - 19}, {cx + 7, by - 19}, {cx + 3, by - 24}, {cx - 3, by - 24} }, P.stone, { band = 1 })
+  c:put(cx, by - 25, P.stone.hi); c:put(cx, by - 26, P.ink)
+end
+toro(203, 173); toro(277, 173)
+-- candles on the shrine steps with warm glow on the stone
+for _, cx in ipairs({ 209, 271 }) do
+  glowRing(cx, 133, 10, 5, "#ead7a0", stoneOk)
+  c:fillMask(c:rect(cx - 1, 128, cx + 1, 133), P.cream); c:fillMask(c:rect(cx + 1, 128, cx + 1, 133), "#e8d6b0")
+  c:put(cx - 2, 134, P.wood.deep); c:put(cx + 2, 134, P.wood.deep); c:fillMask(c:rect(cx - 2, 134, cx + 2, 134), P.wood.shade)
+  c:fillMask(c:rect(cx - 2, 127, cx + 2, 127):cut(c:rect(cx, 127, cx, 127)), P.ink)
+  flame(cx, 126)
+end
+-- coins and a flower sprig on the altar edge and steps; incense stick holder
+for i, cx in ipairs({ 222, 258, 262, 226 }) do c:put(cx, 137 + (i % 2), P.gold.hi); c:put(cx + 1, 137 + (i % 2), P.gold.shade) end
+c:fillMask(c:rect(256, 134, 259, 137), P.sea.shade); c:fillMask(c:rect(256, 134, 259, 134), P.sea.hi); c:fillMask(c:rect(256, 134, 259, 137):edge(), P.sea.deep)
+c:put(257, 132, P.petal.base); c:put(258, 131, P.gold.hi); c:put(258, 133, P.moss.base); c:put(256, 133, P.moss.base)
+-- extra ribbons tied on lower branch tips (cloth fold: two tones and a notch)
+for _, rb in ipairs({ {145, 73, 8, P.petal}, {172, 70, 11, P.sea} }) do
+  for i = 0, rb[3] do
+    local xx = rb[1] + floor(sin(i / 2.5) + .5)
+    c:put(xx, rb[2] + i, rb[4].base); c:put(xx + 1, rb[2] + i, (i % 4 < 2) and rb[4].hi or rb[4].shade)
+  end
+  c:put(rb[1] + 1, rb[2] + rb[3] + 1, P.ink)
+  c:put(rb[1], rb[2] - 1, R.bark.deep); c:put(rb[1] + 1, rb[2] - 1, R.bark.deep)
+end
+-- ema prayer-plaque rack (two posts, rope, five wooden plaques, no marks but a small painted bloom)
+do
+  local x0, y0 = 152, 198
+  shadow(x0 + 17, y0 + 22, 20, 2)
+  sprop(c:rect(x0, y0, x0 + 3, y0 + 22), P.wood, { band = 1 })
+  sprop(c:rect(x0 + 30, y0, x0 + 33, y0 + 22), P.wood, { band = 1 })
+  sprop(c:rect(x0 - 2, y0 - 3, x0 + 35, y0), R.bark, { band = 1 })
+  for i = 0, 4 do
+    local px = x0 + 5 + i * 5
+    for y = y0 + 1, y0 + 3 do c:put(px + 1, y, R.thatch.shade) end
+    local col = ({ P.wood, R.cork, P.wood, R.cork, P.wood })[i + 1]
+    local m = c:poly{ {px, y0 + 4}, {px + 4, y0 + 4}, {px + 4, y0 + 12 - (i % 2) * 2}, {px + 2, y0 + 14 - (i % 2) * 2}, {px, y0 + 12 - (i % 2) * 2} }
+    surf(m, col, { band = 1, noside = true }); inkOut(m)
+    c:put(px + 2, y0 + 8, ({ P.petal.base, P.sea.base, P.ember.base, P.gold.base, P.dusk.base })[i + 1])
+    c:put(px + 1, y0 + 7, P.cream)
+  end
+end
+-- stone water basin with bamboo ladle (right, near wild trail)
+do
+  local bx, by = 367, 220
+  shadow(bx + 9, by + 1, 11, 2)
+  sprop(c:rect(bx + 3, by - 5, bx + 14, by), P.stone, { band = 2 })
+  sprop(c:rect(bx, by - 13, bx + 17, by - 5), P.stone, { band = 2 })
+  c:fillMask(c:rect(bx + 4, by - 11, bx + 13, by - 8), P.sea.shade); c:fillMask(c:rect(bx + 4, by - 11, bx + 8, by - 10), P.sea.hi); c:put(bx + 11, by - 9, P.sea.base)
+  c:fillMask(c:line({ {bx + 4, by - 15}, {bx + 16, by - 17} }, 1), P.moss.base)
+  c:fillMask(c:rect(bx + 13, by - 18, bx + 17, by - 16), P.moss.shade); c:put(bx + 4, by - 15, P.moss.hi)
+  c:put(bx + 2, by - 4, P.moss.base); c:put(bx + 4, by - 1, P.moss.shade); c:put(bx + 15, by - 3, P.moss.base)
+end
+-- keeper's broom leaning at hut A and a wooden bucket
+do
+  c:fillMask(c:line({ {366, 146}, {370, 126} }, 1), R.bark.base)
+  c:fillMask(c:poly{ {362, 147}, {370, 147}, {368, 140}, {364, 140} }, R.thatch.base)
+  for x = 363, 369, 2 do c:put(x, 146, R.thatch.deep) end
+  c:fillMask(c:rect(364, 142, 368, 142), R.bark.deep); c:put(364, 141, R.thatch.hi)
+  inkOut(c:poly{ {362, 147}, {370, 147}, {368, 140}, {364, 140} })
+  sprop(c:rect(373, 141, 381, 148), P.wood, { band = 1, tex = planksV(3, 373) })
+  c:fillMask(c:rect(373, 143, 381, 143), P.stone.shade); c:fillMask(c:rect(373, 147, 381, 147), P.stone.shade)
+  shadow(377, 149, 6, 1)
+end
+-- firewood stack and chopping stump beside the fire (people area, outside the bench)
+do
+  shadow(152, 258, 14, 2)
+  for r = 0, 2 do for k = 0, 3 - (r == 2 and 1 or 0) do
+    local lx, ly = 142 + k * 5 + (r == 1 and 2 or 0), 252 - r * 4
+    local m = c:ellipse(lx + 2, ly, 2.5, 2)
+    surf(m, P.wood, { band = 1 }); inkOut(m); c:put(lx + 2, ly, P.wood.hi); c:put(lx + 1, ly - 1, P.cream)
+  end end
+end
+-- two tea cups on the bench seat, rope-tied blanket roll
+for _, cx in ipairs({ 88, 94 }) do
+  c:fillMask(c:rect(cx, 222, cx + 3, 225), P.cream); c:fillMask(c:rect(cx + 2, 222, cx + 3, 225), "#e0d2c0"); c:put(cx + 4, 223, P.cream); c:put(cx + 4, 224, P.cream)
+  c:fillMask(c:rect(cx, 221, cx + 3, 221), P.moss.base); c:fillMask(c:rect(cx, 222, cx + 3, 225):edge(), P.ink)
+  c:put(cx + 1, 219, "#f3eaf5"); c:put(cx + 2, 217, "#f3eaf5")
+end
+for y = 221, 226 do c:put(70, y, R.thatch.base); c:put(76, y, R.thatch.base) end
+-- fallen blossoms and a handful of offered coins on the path stones
+for _, pc in ipairs({ {232, 186}, {246, 202}, {236, 225}, {250, 246}, {244, 168} }) do c:put(pc[1], pc[2], P.petal.hi); c:put(pc[1] + 1, pc[2], P.petal.base) end
+
+-- v2.5.40 polish pass 4: key light top-left (rim glints, shadows fall right), warm glows, haze on far hills, extra flora, foreground blades
+-- atmospheric perspective: far hills and treeline lighter and cooler
+do
+  local remap = { ["#6f9a84"] = "#86ac9e", ["#8aa8a2"] = "#9db6b8", ["#9fb7b0"] = "#b0c4c6", ["#a893cf"] = "#b5a3d9", ["#b9a6dc"] = "#c6b6e4" }
+  for y = 60, 111 do for x = 0, W - 1 do local g = c:get(x, y); if g and remap[g] then c:put(x, y, remap[g]) end end end
+end
+-- cast shadows: one direction (to the right and a touch down) on ground pixels only
+local SHC = "#689a6e"
+local function isGround(x, y) local g = c:get(x, y); return g ~= nil and (GROUND[g] or g == "#bdd27c" or g == "#d5d98a" or g == "#74b068" or g == "#4f8f62" or g == "#6fab62" or g == "#628a74" or g == "#557a6c") end
+local function cast(x1, yb, len, d)
+  for k = 0, d do
+    local y = yb + k
+    for x = x1 - 1 + k, x1 + len - k * 2 do
+      if isGround(x, y) and not nearStand(x, y, 14) and (k < d or (x + y) % 2 == 0) then c:put(x, y, (k == 0) and "#5e8c6a" or SHC) end
+    end
+  end
+end
+cast(286, 146, 16, 4); cast(362, 147, 14, 3); cast(452, 139, 12, 3); cast(170, 141, 40, 3); cast(121, 145, 12, 3)
+cast(198, 148, 8, 2); cast(208, 173, 8, 2); cast(284, 173, 8, 2); cast(143, 160, 8, 2); cast(100, 232 + 16, 12, 3)
+cast(187, 220, 8, 2); cast(385, 221, 9, 2); cast(140, 255, 10, 2); cast(381, 149, 7, 2)
+-- rim light: warm glints on lit upper-left faces of the main props
+local function rimL(m, col, skip)
+  m:each(function(x, y)
+    if not m:has(x - 1, y) and m:has(x + 1, y) and H(x, y, 501) > (skip or .25) then c:put(x + 1, y, col) end
+    if not m:has(x, y - 1) and m:has(x, y + 1) and H(x, y, 502) > (skip or .25) then c:put(x, y + 1, col) end
+  end)
+end
+rimL(roof, "#ffb08a", .35); rimL(body, "#f4eef4", .3); rimL(step1, "#f4eef4", .4); rimL(step2, "#f4eef4", .4)
+rimL(roofA, "#fff0a8", .35); rimL(wallA, "#f4c692", .35); rimL(roofB, "#d9c8f6", .35); rimL(wallB, "#fffaf0", .35)
+rimL(trunk, "#c68c70", .3); rimL(canopy, "#fff0f4", .45); rimL(board, "#d9a470", .5); rimL(nroof, "#c8f2ee", .4)
+rimL(kettle, P.stone.hi, .3)
+-- warm glows: fire on bench/ground, windows on their walls, niche on the steps
+glowRing(124, 250, 34, 12, "#e2dc82", isGround)
+glowRing(124, 250, 18, 7, "#f0e08a", isGround)
+for _, w in ipairs({ {351, 128, P.wood, "#d9a06c"}, {438, 117, nil, "#fff7dc"} }) do
+  for y = w[2] - 11, w[2] + 11 do for x = w[1] - 12, w[1] + 12 do
+    local e = ((x - w[1]) / 12)^2 + ((y - w[2]) / 11)^2
+    local g = c:get(x, y)
+    if e < 1 and (x + y) % 2 == 0 and g and (g == P.wood.hi or g == P.wood.base or g == R.plaster.base or g == R.plaster.hi) then c:put(x, y, w[4]) end
+  end end
+end
+glowRing(240, 142, 30, 4, "#ecdca8", stoneOk)
+-- far-side depth: faint pale haze dither over the base of the treeline
+for x = 0, W - 1 do if H(x, 0, 511) > .55 then local g = c:get(x, 110); if g and GROUND[g] == nil and g ~= P.ink then c:put(x, 110, "#dfe0ec") end end end
+-- flora variety: round berry shrub, slim cypress, orange maple sapling, pampas tufts, reeds
+local function bush(cx, by, rx, ry, base, berry)
+  cast(cx + rx, by, rx + 4, 2)
+  local m = c:ellipse(cx, by - ry, rx, ry):add(c:ellipse(cx - floor(rx / 2), by - ry - 2, floor(rx * .6), floor(ry * .7)))
+  surf(m, base, { band = 2, tex = function(x, y) local h = H(floor(x / 2), floor(y / 2), 521) if h > .75 then return 1 elseif h < .18 then return -1 end return 0 end })
+  inkOut(m)
+  for k = 1, 5 do c:put(cx - rx + 2 + floor(H(k, cx, 522) * (rx * 2 - 3)), by - ry - 2 + floor(H(k, by, 523) * ry * 1.6), berry) end
+end
+local function cypress(cx, by, hgt, wdt)
+  cast(cx + wdt, by, 12, 2)
+  local m = c:poly{ {cx - wdt, by}, {cx + wdt, by}, {cx + wdt - 1, by - floor(hgt * .45)}, {cx + 2, by - hgt}, {cx - 2, by - hgt}, {cx - wdt + 1, by - floor(hgt * .45)} }
+  surf(m, P.moss, { band = 3, tex = function(x, y) if (y + floor(x / 3)) % 4 == 0 then return -1 end if H(x, y, 531) > .9 then return 1 end return 0 end })
+  inkOut(m)
+  c:fillMask(c:rect(cx - 1, by + 1, cx + 1, by + 3), R.bark.base)
+end
+local function maple(cx, by)
+  cast(cx + 8, by, 10, 2)
+  c:fillMask(c:rect(cx - 1, by - 12, cx, by), R.bark.base); c:put(cx - 1, by - 8, R.bark.hi)
+  local m = c:ellipse(cx, by - 18, 9, 7):add(c:ellipse(cx - 6, by - 13, 5, 4)):add(c:ellipse(cx + 6, by - 14, 5, 4))
+  surf(m, P.ember, { band = 3, tex = function(x, y) local h = H(floor(x / 2), floor(y / 2), 541) if h > .72 then return 1 elseif h < .2 then return -1 end return 0 end })
+  inkOut(m)
+  for k = 1, 4 do c:put(cx - 6 + floor(H(k, cx, 542) * 12), by - 22 + floor(H(k, by, 543) * 9), P.gold.base) end
+end
+local function pampas(cx, by)
+  for k = -4, 4 do
+    local top = by - 8 + abs(k) * 1
+    c:fillMask(c:line({ {cx, by}, {cx + k * 2, top} }, 1), (k % 2 == 0) and "#c9c07a" or "#a9aa68")
+    c:put(cx + k * 2, top - 1, "#fff0c4"); if k % 2 == 0 then c:put(cx + k * 2, top - 2, "#f5e3a8") end
+  end
+  c:fillMask(c:rect(cx - 3, by, cx + 3, by), R.grass.shade)
+end
+bush(36, 186, 8, 5, P.moss, P.ember.base)
+bush(111, 200, 7, 4, R.grass, P.petal.base)
+cypress(340, 212, 30, 5)
+maple(124, 196)
+pampas(318, 206); pampas(58, 198); pampas(328, 150); pampas(16 + 66, 150)
+for _, rd in ipairs({ {300, 252}, {308, 258}, {204, 262} }) do pampas(rd[1], rd[2]) end
+-- foreground frame: tall dark blades creeping over the bottom edge, clear of the path and compass corner
+for x = 17, 462 do
+  local y = 269
+  if (x < 150 or (x > 330 and x < 378)) and H(x, 0, 551) > .62 then
+    local h = 3 + floor(H(x, 1, 552) * 5)
+    for k = 0, h do
+      local xx = x + floor(k * ((H(x, 2, 553) > .5) and .4 or -.4))
+      c:put(xx, y - k, (k > h - 2) and R.grass.base or R.grass.deep)
+    end
+  end
+end
+-- drifting petals through the sky and over the shrine ground
+for i = 1, 14 do
+  local x = 150 + floor(H(i, 1, 561) * 120); local y = 30 + floor(H(i, 2, 561) * 90)
+  local g = c:get(x, y); if g and not nearStand(x, y, 10) then c:put(x, y, (i % 2 == 0) and P.petal.hi or P.cream) end
+end
+
 ------------------------------------------------------------------ GATE FRAME: weathered timber posts + beam, straw rope, lantern, bell
 local lpost = c:rect(0, 0, 15, Hh - 1)
 local rpost = c:rect(464, 0, 479, Hh - 1)

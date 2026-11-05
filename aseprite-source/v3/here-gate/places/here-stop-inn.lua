@@ -159,6 +159,19 @@ for i = 0, 40 do
   end
 end
 
+-- v2.5.40 polish pass 4a: atmospheric haze on the far hills and pines (lighter, cooler with distance)
+do
+  local FARC = { ["#4a3f6e"]=true, ["#3c4a66"]=true, ["#35505a"]=true, ["#203640"]=true, ["#284048"]=true, ["#2e4a50"]=true, ["#38585a"]=true }
+  for y = 80, 111 do for x = 0, W - 1 do
+    local cur = c:get(x, y)
+    if FARC[cur] then
+      local p = (y - 80) / 34
+      local r = hash(x, y, 300)
+      if r < p * 0.75 then px(x, y, (cur == "#4a3f6e") and "#6a5a8c" or ((r < p * 0.3) and "#7a78a0" or "#5a6a88")) end
+    end
+  end end
+end
+
 ---------------------------------------------------------------- ground
 local function pathL(y) return 232 - 72 * (y - HOR) / 157 end
 local function pathR(y) return 248 + 72 * (y - HOR) / 157 end
@@ -227,6 +240,75 @@ pool(358, 228, 28, 5)
 local function shadow(m)
   m:each(function(x, y) if y > HOR then px(x, y, pathM:has(x, y) and "#6c5664" or "#3c4a44") end end)
 end
+
+-- v2.5.40 polish pass 1: ground variety (grass bands, worn dirt, flowers, leaves, pebbles)
+local STANDS = { {240,250},{198,210},{282,208},{240,162},{100,256},{345,254} }
+local function free(x, y, r)
+  for _, s in ipairs(STANDS) do
+    local dx, dy = x - s[1], y - s[2]
+    if dx * dx + dy * dy < r * r then return false end
+  end
+  return true
+end
+local GRASS = { ["#4a6446"]=true, ["#4e6a40"]=true, ["#547140"]=true }
+for y = HOR + 2, Hh - 1 do for x = 0, W - 1 do
+  if not pathM:has(x, y) and GRASS[c:get(x, y)] then
+    local n = sin(x / 17 + y / 9) + sin(x / 7 - y / 11) + sin((x + y) / 23)
+    local d = (y - HOR) / 158
+    if n > 1.5 then px(x, y, d < 0.15 and "#56704c" or "#5f7d46")
+    elseif n < -1.6 then px(x, y, "#43603a")
+    elseif n < -1.1 and hash(x, y, 8) < 0.4 then px(x, y, "#43603a") end
+  end
+end end
+-- worn dirt patches where feet go (door, table, board, well, trail)
+local function wear(cx, cy, rx, ry, seed)
+  c:ellipse(cx, cy, rx, ry):each(function(x, y)
+    if y > HOR and not pathM:has(x, y) and free(x, y, 16) then
+      local e = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+      if e < 0.55 or hash(x, y, seed) < (1 - e) * 1.6 then
+        px(x, y, hash(x, y, seed + 1) < 0.2 and "#7a6046" or "#8c7454")
+      end
+    end
+  end)
+end
+wear(116, 178, 26, 4, 140) wear(88, 238, 36, 5, 141) wear(358, 226, 22, 4, 142)
+wear(300, 182, 14, 3, 143) wear(404, 222, 18, 3, 144)
+-- footpaths from the road to the door, the table, the board and the trail
+local function foot(pts, seed)
+  for i = 1, #pts - 1 do
+    local a, b = pts[i], pts[i + 1]
+    local n = max(abs(b[1] - a[1]), abs(b[2] - a[2]))
+    for k = 0, n do
+      local x = floor(a[1] + (b[1] - a[1]) * k / n + .5)
+      local y = floor(a[2] + (b[2] - a[2]) * k / n + .5)
+      for dx = -1, 1 do if hash(x + dx, y, seed) < 0.75 and free(x + dx, y, 16) and not pathM:has(x + dx, y) then px(x + dx, y, "#8c7454") end end
+    end
+  end
+end
+foot({{176,178},{150,176},{128,178}}, 150) foot({{190,224},{150,230},{120,238}}, 151)
+foot({{300,200},{332,214},{352,224}}, 152) foot({{322,164},{300,176}}, 153) foot({{340,190},{380,200},{412,210}}, 154)
+-- flowers, leaves, pebbles in the grass (never near stand points)
+local FL = { "#e05a6a", "#f0d060", "#b49ae0", "#f4e8c0", "#f08aa0" }
+for y = HOR + 10, Hh - 2 do for x = 18, W - 20 do
+  if not pathM:has(x, y) and GRASS[c:get(x, y)] and free(x, y, 20) then
+    local r = hash(x, y, 160)
+    if r < 0.0042 then
+      local col = FL[1 + floor(hash(x, y, 161) * #FL)]
+      px(x, y, col) px(x, y + 1, "#3e5634")
+      if hash(x, y, 162) < 0.5 then px(x + 1, y, col) end
+    elseif r > 0.9975 then
+      px(x, y, "#c0642e") px(x + 1, y, "#d98a3a")
+    elseif r > 0.9955 then
+      px(x, y, "#a8a0a4") px(x + 1, y, "#8a8290") px(x, y + 1, "#5a4e5c") px(x + 1, y + 1, "#5a4e5c")
+    end
+  end
+end end
+-- fallen leaves and grit along the road edge
+for y = HOR + 6, Hh - 2 do for x = 100, 400 do
+  if pathM:has(x, y) and free(x, y, 18) and hash(x, y, 170) > 0.9972 then
+    px(x, y, "#c0642e") px(x + 1, y, "#d98a3a")
+  end
+end end
 
 ---------------------------------------------------------------- back pines behind the homes
 for _, t in ipairs({ {270,58,30}, {300,48,40}, {336,56,32}, {372,46,42}, {404,60,28} }) do
@@ -493,6 +575,235 @@ px(439, 170, "#1e4420") px(440, 170, "#1e4420") px(441, 170, "#1e4420")
 -- a small lantern hung from the branch
 for y = 146, 150 do px(424, y, "#3a2a30") end
 paint(rect(421, 151, 427, 159), Riron, function(x, y) if x > 421 and x < 427 and y > 152 and y < 158 then return GLOW[2] end end, { noshade = true })
+
+-- v2.5.40 polish pass 2: material cues (cracks, chips, moss, grain, rust, rope, cloth folds)
+local function dots(col, t) for _, p in ipairs(t) do px(p[1], p[2], col) end end
+local function seg(col, pts) for i = 1, #pts - 1 do
+  local a, b = pts[i], pts[i + 1]
+  local n = max(abs(b[1] - a[1]), abs(b[2] - a[2]))
+  for k = 0, n do px(floor(a[1] + (b[1] - a[1]) * k / n + .5), floor(a[2] + (b[2] - a[2]) * k / n + .5), col) end
+end end
+local MOSS, MOSSL, MOSSD = "#5a7a3a", "#7c9a4c", "#3c5a2c"
+-- inn plaster: hairline cracks, damp stains below sills, eave shadow
+seg("#9a7a66", {{110,92},{112,96},{111,100},{114,104},{113,108}})
+seg("#9a7a66", {{140,100},{142,104},{141,108}})
+seg("#9a7a66", {{52,118},{54,121},{53,124}})
+for _, wx in ipairs({ 30, 38, 46, 120, 130 }) do seg("#b8967c", {{wx, 119},{wx, 123}}) end
+for x = 24, 148 do if hash(x, 5, 200) < 0.7 then px(x, 88, Rplaster.s) end end
+-- stone courses: chips, cracks, mossy foot on the shady left, mortar glints
+for _, p in ipairs({ {28,131},{70,133},{94,150},{146,142},{93,134},{58,158},{26,148},{144,156},{92,162} }) do
+  px(p[1], p[2], Rstone.h) px(p[1] + 1, p[2], Rstone.h) px(p[1], p[2] + 1, Rstone.d) px(p[1] + 1, p[2] + 1, Rstone.d)
+end
+seg(Rstone.d, {{58,141},{60,144},{59,147}}) seg(Rstone.d, {{92,152},{94,155},{93,158}})
+for x = 22, 76 do for y = 158, 166 do
+  if hash(x, y, 201) < (0.55 - (x - 22) / 110) * (y - 157) / 9 then px(x, y, hash(x, y, 202) < 0.3 and MOSSL or (hash(x, y, 203) < 0.5 and MOSS or MOSSD)) end
+end end
+for x = 134, 150 do for y = 160, 166 do if hash(x, y, 204) < 0.22 then px(x, y, MOSS) end end end
+-- roof: moss on the shady lower-left, a few newer shingles, ridge cap, soot on the chimney
+for x = 14, 74 do for y = 60, 86 do
+  if roof:has(x, y) and hash(x, y, 205) < 0.28 * (y - 58) / 28 * (1 - (x - 14) / 80) then px(x, y, hash(x, y, 206) < 0.3 and MOSSL or MOSS) end
+end end
+for _, r in ipairs({ {118,66,124,70},{116,50,121,53},{82,70,88,73},{52,52,57,55} }) do
+  for y = r[2], r[4] do for x = r[1], r[3] do px(x, y, (y == r[2]) and "#d47a5c" or "#b45846") end end
+  for x = r[1], r[3] do px(x, r[4], "#5a2230") end
+end
+for x = 40, 132 do px(x, 38, "#d68a68") px(x, 39, "#7a3a3a") end
+for x = 45, 57 do if hash(x, 3, 207) < 0.6 then px(x, 21, "#241418") px(x, 22, "#3a2428") end end
+-- timber grain, knots and pegs
+for _, xx in ipairs({ 22, 56, 104, 146 }) do
+  for y = 92, 124, 7 do px(xx + 1, y, "#6e432c") px(xx + 3, y + 3, "#24140f") end
+  dots("#14090a", {{xx + 2, 102},{xx + 2, 103}}) dots("#6e432c", {{xx + 1, 101},{xx + 3, 104}})
+end
+for x = 24, 148, 9 do px(x, 85, "#6e432c") px(x + 3, 86, "#24140f") px(x + 4, 126, "#6e432c") end
+-- barrels: rust bloom on hoops, stave glints, drips
+for _, b in ipairs({ {136,151,150,168},{152,154,164,169} }) do
+  for _, hy in ipairs({ b[2] + 3, b[4] - 3 }) do
+    for x = b[1] + 1, b[3] - 1 do if hash(x, hy, 208) < 0.4 then px(x, hy, "#a8542a") end end
+  end
+  px(b[1] + 2, b[2] + 6, Rbarrel.h) px(b[1] + 2, b[2] + 7, Rbarrel.h) px(b[3] - 3, b[4] - 1, Rbarrel.d)
+end
+-- crate: nail heads and split
+dots(Riron.h, {{6,154},{18,154},{6,166},{18,166}}) seg(Rhoney.s, {{9,158},{11,162}})
+-- table: knots, mug rings, plank seams
+dots("#6e432c", {{82,198},{104,200},{132,197}}) dots("#4a2a14", {{83,198},{105,200},{133,197}})
+for x = 90, 98 do px(x, 199, "#8a5a2a") end
+seg("#8a5a2a", {{110,201},{116,201}})
+-- stable: loose straw at the eave, hay wisps, door grain
+for x = 176, 226, 3 do px(x, 102, Rthatch.h) px(x + 1, 103, Rthatch.b) px(x, 104, Rthatch.s) end
+dots(Rthatch.h, {{196,124},{198,125},{203,124},{206,125}})
+seg("#6e3028", {{186,112},{186,120}}) seg("#6e3028", {{214,112},{214,122}})
+-- saddle: cloth folds and a stitched edge
+seg(Rred.d, {{169,115},{171,119}}) seg(Rred.h, {{172,115},{173,118}})
+dots("#e8c890", {{168,121},{170,121},{172,121}})
+-- huts: nail rows, moss on the blue hut wall foot, shingle glints, step chips
+for y = 104, 128, 6 do px(266, y, Rhut1.d) px(320, y, Rhut1.d) end
+for x = 264, 292 do for y = 126, 132 do if hash(x, y, 209) < 0.26 * (y - 125) / 7 then px(x, y, MOSS) end end end
+for x = 340, 392, 2 do px(x, 124, Rhut2.d) end
+seg(Rhut2.d, {{353,116},{355,120},{354,124}}) dots(Rhut2.h, {{372,126},{385,128},{346,100}})
+for x = 332, 360 do for y = 80, 98 do if hash(x, y, 210) < 0.1 and abs(y - (68 + (x < 368 and (x - 332) * 0.9 or 0))) > 0 then if c:get(x, y) == Rplum.b then px(x, y, Rplum.h) end end end end
+dots(Rstone.h, {{296,132},{305,133},{310,132}})
+-- well: wet moss at the foot, cracked stones, rust and verdigris on the bucket, rope coil
+for x = 284, 316 do for y = 166, 174 do if hash(x, y, 211) < 0.3 * (y - 165) / 9 then px(x, y, MOSS) end end end
+seg(Rwellst.d, {{292,160},{294,163},{293,166}}) seg(Rwellst.d, {{306,158},{307,162}})
+dots("#a8542a", {{296,150},{302,152},{303,150}}) dots("#5eaaa2", {{297,148},{301,148}})
+for y = 143, 147 do px(300, y, "#a89878") end dots("#a89878", {{297,147},{298,148},{297,149}})
+-- board: nail heads, curled paper corners, pinned twine
+dots(Riron.h, {{337,184},{379,184},{337,204},{379,204},{340,186},{352,186},{355,188},{365,188}})
+dots(Rcream.d, {{350,198},{349,199}}) dots("#f0c0c8", {{364,200},{363,201}})
+seg("#d8c8a8", {{353,186},{358,184},{366,186}})
+for x = 334, 382 do if hash(x, 3, 212) < 0.2 then px(x, 192, Rteal.s) end end
+-- fire pit: soot streaks, chipped stones; log seat bark ridges
+for x = 24, 50, 2 do px(x, 214, "#24141a") px(x, 215, "#3a2224") end
+dots(Rstone.h, {{26,220},{40,222},{48,216}}) seg(Rstone.d, {{34,218},{35,222}})
+for x = 10, 30, 3 do px(x, 228, Rbark.h) px(x + 1, 230, Rbark.d) end
+dots("#d8c8a8", {{8,229},{8,230},{9,229}})
+-- trail trees: bark ridges, moss on the north (left) trunk face, branch stubs
+seg(Rbark.h, {{418,136},{419,160},{420,190}}) seg(Rbark.d, {{423,150},{423,180},{424,205}})
+for y = 150, 208 do if hash(417, y, 213) < 0.35 then px(417 + floor((y - 150) / 25), y, MOSS) end end
+seg(Rbark.h, {{451,140},{452,170},{452,200}}) seg(Rbark.d, {{455,136},{456,176},{456,200}})
+dots(MOSSL, {{451,160},{451,166},{452,188},{450,176}})
+-- signpost: grain and nail, pole cracks
+dots(Riron.h, {{430,168},{430,172}}) seg(Rbark.d, {{440,180},{440,200}}) seg(Rbark.h, {{439,178},{439,196}})
+-- stamp post hanger rope twist
+for y = 209, 213 do if y % 2 == 0 then px(384, y, "#a89878") end end
+-- porch lantern rust and glass sheen
+dots("#a8542a", {{134,138},{140,147},{138,137}}) px(135, 140, GLOW[1])
+
+-- v2.5.40 polish pass 3: lived-in story props (what happens at this stop)
+local Rlog = R("#3c2618", "#8a5a2a", "#c89a5a", "#e0b878")
+-- 1. firewood stack against the inn foot (left), logs end-on, with a split log on top
+shadow(rect(22, 168, 50, 171))
+paint(rect(22, 158, 48, 168), Rbark, nil, { noshade = true, nohi = true })
+for row = 0, 2 do for i = 0, 4 do
+  local cx, cy = 25 + i * 5 + (row % 2) * 2, 160 + row * 3 + (row == 0 and 0 or 1)
+  if cx < 47 then
+    paint(c:ellipse(cx, cy + 1, 2, 2), Rlog, nil, { noshade = true, nohi = true })
+    px(cx, cy + 1, "#a87a3e") px(cx - 1, cy, Rlog.h)
+  end
+end end
+paint(rect(24, 155, 44, 157), Rbark, planksH(2, 220, 155), { noshade = true })
+-- 2. broom leaning by the door, bristles at the foot
+paint(rect(94, 142, 95, 164), Rhoney, nil, { noshade = true, nohi = true })
+paint(poly{{92,162},{97,162},{98,168},{91,168}}, Rthatch, thatch(221), { noshade = true })
+px(93, 164, Rthatch.d) px(96, 166, Rthatch.d)
+-- 3. green travelling cloak on a peg on the inn side wall (story: guests stay the night)
+paint(rect(156, 124, 162, 125), Riron, nil, { noshade = true, nohi = true })
+paint(poly{{155,126},{163,126},{164,142},{160,145},{157,142},{154,143}}, R("#16301e", "#2a5a3a", "#3f7a4a", "#5a9a5a"), function(x, y)
+  if x == 159 and y > 128 then return "s" end
+  if y == 141 and x % 2 == 0 then return "d" end
+end, { sh = 2 })
+-- 4. mounting block beside the stable door
+shadow(poly{{212,138},{228,138},{232,141},{216,141}})
+paint(rect(218, 130, 230, 138), Rstone, bricks(6, 4, 222, 218, 130), { sh = 2 })
+paint(rect(214, 134, 222, 138), Rstone, nil, { sh = 2 })
+px(224, 131, Rstone.h) px(225, 131, Rstone.h)
+-- 5. wheelbarrow of hay in front of the stable
+shadow(poly{{178,134},{196,134},{200,137},{182,137}})
+paint(poly{{178,126},{194,126},{191,133},{181,133}}, Rhoney, planksH(3, 223, 126), { sh = 2 })
+for x = 180, 192, 2 do px(x, 124 + (x % 4) // 2, Rthatch.h) px(x + 1, 125, Rthatch.b) end
+paint(c:ellipse(185, 134, 2, 2), Riron, nil, { noshade = true })
+paint(rect(194, 127, 199, 128), Rhoney, nil, { noshade = true, nohi = true })
+-- 6. herb bundles hung to dry under the eave
+seg("#d8c8a8", {{141,90},{141,92}}) seg("#d8c8a8", {{145,90},{145,92}})
+paint(poly{{139,93},{143,93},{142,99},{140,99}}, R("#2a4a22", "#3f6a34", "#6a9a48", "#8ab85a"), nil, { noshade = true })
+paint(poly{{143,93},{147,93},{146,98},{144,98}}, R("#6a2a2a", "#a84a3a", "#d8683a", "#f09a4a"), nil, { noshade = true })
+-- 7. pewter mugs on the front bench and a mug left on the log seat
+for _, mx in ipairs({ 96, 130 }) do
+  paint(rect(mx, 209, mx + 3, 214), Rbrass, nil, { noshade = true }) px(mx, 209, Rcream.h) px(mx + 4, 210, Rbrass.d) px(mx + 4, 212, Rbrass.d)
+end
+paint(rect(22, 221, 25, 226), Rbrass, nil, { noshade = true }) px(22, 221, Rcream.h)
+-- 8. water barrel beside the blue hut, lid ajar, rope and a ladle
+shadow(rect(326, 131, 336, 134))
+paint(c:rrect(324, 119, 334, 133, 3), Rbarrel, planksV(3, 224, 324))
+for _, hy in ipairs({ 122, 130 }) do for x = 324, 334 do px(x, hy, Riron.b) end end
+px(324, 119, Rbarrel.h)
+for x = 325, 333 do px(x, 120, Rbarrel.d) end for x = 326, 332 do px(x, 121, "#5a7aa0") end
+-- 9. stacked sacks of grain by the huts' foot (right of hut 2 door)
+shadow(rect(396, 131, 406, 134))
+paint(c:ellipse(400, 128, 5, 4), R("#6a5a3a", "#b8a478", "#d8c496", "#efe0b8"), function(x, y) if y == 125 then return "d" end end, { sh = 2 })
+paint(c:ellipse(398, 122, 4, 3), R("#6a5a3a", "#b8a478", "#d8c496", "#efe0b8"), nil, { sh = 2 })
+px(400, 125, "#a88e66") px(399, 119, "#a88e66")
+-- 10. a bootscraper and doormat before the inn door
+paint(rect(104, 168, 126, 169), R("#5a3a22", "#a87444", "#c08a52", "#d8a468"), function(x, y) if x % 3 == 0 then return "s" end end, { noshade = true })
+paint(rect(92, 168, 98, 170), Riron, nil, { noshade = true })
+
+-- v2.5.40 polish pass 4b: key light top-left, warm glows, rim light, flora variety, foreground flora
+local sqrt = math.sqrt
+for y = 88, 118 do for x = 190, 410 do
+  local cur = c:get(x, y)
+  if (cur == Rpine.b or cur == Rpine.s or cur == Rpine.h) and hash(x, y, 301) < (y - 88) / 45 then px(x, y, (cur == Rpine.h) and "#4a6a6e" or "#3a5a62") end
+end end
+local GC = { ["#56704c"]=true, ["#5f7d46"]=true, ["#43603a"]=true, ["#4a6446"]=true, ["#4e6a40"]=true, ["#547140"]=true,
+             ["#8c7454"]=true, ["#7a6046"]=true, ["#3e5634"]=true, ["#6c8a4c"]=true, ["#5a6a3a"]=true, ["#6e7c48"]=true, ["#c29a6a"]=true }
+local function glow(m, cA, cB, solid)
+  m:each(function(x, y)
+    if y > HOR and GC[c:get(x, y)] and free(x, y, 16) then
+      if (x + y) % 2 == 0 then px(x, y, cA) elseif solid then px(x, y, cB) end
+    end
+  end)
+end
+-- window and door light spilling onto the ground in front of the inn
+glow(poly{{30,169},{56,169},{66,177},{36,177}}, "#8a8e4a", "#6e7c48")
+glow(poly{{64,169},{90,169},{100,178},{70,178}}, "#8a8e4a", "#6e7c48")
+glow(poly{{104,171},{128,171},{146,187},{96,187}}, "#b09c58", "#8a8e4a", true)
+-- fire glow on grass
+glow(c:ellipse(37, 219, 26, 10), "#9a8444", "#7a7c44", true)
+-- warm rim light on the fire-facing edges of the pit and log seat
+for x = 22, 30 do px(x, 210, "#e8a060") end for y = 211, 224 do px(22, y, "#c8804e") end
+for x = 8, 18 do px(x, 226, "#d8904e") end
+-- string lights warm the table top beneath them
+for x = 64, 150, 3 do px(x, 195, "#e8b868") end
+-- lantern halos in the evening sky (ring dither)
+local function halo(cx, cy, r)
+  for y = cy - r, cy + r do for x = cx - r, cx + r do
+    local d = sqrt((x - cx) ^ 2 + (y - cy) ^ 2)
+    local cur = c:get(x, y)
+    if d < r and d > 7 and y > 13 and x > 15 and x < W - 16 and (cur == SKY[1] or cur == SKY[2] or cur == SKY[3] or cur == SKY[4]) then
+      if d < r - 5 then px(x, y, "#5a4a7e") elseif (x + y) % 2 == 0 then px(x, y, "#4a4078") end
+    end
+  end end
+end
+halo(34, 36, 20) halo(446, 36, 20)
+-- rim light along the lit upper-left roof edge, and warm rim on the inn's door-side edges
+for x = 14, 40 do px(x, 87 - (x - 12) * 48 // 28 + 0, "#e89a84") end
+for y = 134, 164 do px(133, y, "#f0b060") end
+for y = 134, 150 do px(104, y, "#f0b060") end
+-- berry bush between the inn and the stable
+shadow(poly{{172,162},{192,162},{196,166},{176,166}})
+paint(c:rrect(172, 148, 190, 163, 6), Rbush, leafy(310))
+for _, b in ipairs({ {176,153},{181,157},{185,151},{178,159},{187,158} }) do px(b[1], b[2], "#d8384a") px(b[1], b[2] - 1, "#f08090") end
+-- hollyhock stalks beside the well (tall spires, new plant kind)
+for _, hx in ipairs({ 272, 276, 279 }) do
+  local top = 150 + (hx % 5) * 3
+  for y = top, 172 do px(hx, y, "#3c5a2c") end
+  for k = 0, 3 do
+    local by = top + k * 5
+    local col = ({ "#e05a8a", "#f4d0b0", "#b84a8a", "#f08aa0" })[1 + (hx + k) % 4]
+    px(hx - 1, by, col) px(hx + 1, by, col) px(hx, by - 1, col) px(hx, by, "#f0d060")
+  end
+  px(hx - 2, 170, "#5a7a3a") px(hx + 2, 169, "#5a7a3a") px(hx - 1, 171, "#7c9a4c") px(hx + 1, 171, "#7c9a4c")
+end
+-- foreground frame flora: dark ferns and foxglove at the lower edges (kept off every stand point)
+local function fern(bx, by, n, len, seed)
+  for i = 1, n do
+    local a = -3.14159 * (0.12 + 0.76 * (i - 1) / (n - 1))
+    local L = len * (0.7 + 0.3 * hash(i, seed, 320))
+    for t = 0, L do
+      local x = floor(bx + math.cos(a) * t + .5)
+      local y = floor(by + math.sin(a) * t * 0.8 + t * t / (L * 3) + .5)
+      px(x, y, (t % 5 == 0) and "#4a7058" or "#264438") px(x, y + 1, "#16282a")
+      if t > 3 and t % 3 == 0 then px(x, y - 1, "#29443c") px(x + (a < -1.57 and -1 or 1), y, "#1f3632") end
+    end
+  end
+end
+fern(26, 269, 7, 20, 1) fern(52, 269, 5, 14, 2) fern(310, 269, 6, 16, 3) fern(21, 140, 0, 0, 4)
+for _, fx in ipairs({ 40, 46, 316 }) do
+  for y = 252 + (fx % 7), 268 do px(fx, y, "#2a5a3a") px(fx + 1, y, "#1f3632") end
+  for k = 0, 4 do
+    local y = 254 + (fx % 7) + k * 3
+    px(fx - 1, y, "#9a4a9a") px(fx + 2, y + 1, "#b46ab0") px(fx - 2, y + 1, "#7a3a80")
+  end
+end
 
 ---------------------------------------------------------------- the gate frame (inn timber + lanterns)
 local fr = HP.mask():add(rect(0, 0, W - 1, 13)):add(rect(0, 0, 15, Hh - 1)):add(rect(W - 16, 0, W - 1, Hh - 1))

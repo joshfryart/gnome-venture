@@ -174,6 +174,105 @@ for y = VY + 8, Hh - 1, 3 do
   if H(y, 2, 41) > 0.4 then put(floor(r - 1), y, "#5e8c46") put(floor(r - 1), y - 1, "#78a850") end
 end
 
+-- v2.5.40 polish pass 1: ground variety (tonal patches, worn path, stepping stones, flowers, leaves, pebbles)
+local PL = {}
+PL.STAND = {{190, 244}, {278, 250}, {240, 212}, {214, 178}, {262, 150}, {338, 254}}
+function PL.free(x, y)
+  if x < 14 or x >= W - 14 or y <= VY + 1 or y >= Hh then return false end
+  if x >= 380 and y >= 230 then return false end
+  for _, s in ipairs(PL.STAND) do if abs(x - s[1]) <= 15 and abs(y - s[2]) <= 15 then return false end end
+  return true
+end
+function PL.grass(x, y) return PL.free(x, y) and gtype[y * W + x] == "grass" end
+function PL.path(x, y) return PL.free(x, y) and gtype[y * W + x] == "path" end
+function PL.patch(cx, cy, rx, ry, col)
+  local inner = ell(cx, cy, max(1, rx - 3), max(1, ry - 2))
+  ell(cx, cy, rx, ry):each(function(x, y)
+    if PL.grass(x, y) and (inner:has(x, y) or ((x + y) % 2 == 0 and H(x, y, 5) > 0.35)) then put(x, y, col) end
+  end)
+end
+-- tonal meadow patches: shaded clover (dark), sunlit (light), plus a cool haze near the horizon
+for _, p in ipairs({{172, 205, 24, 8}, {118, 150, 14, 4}, {300, 168, 20, 6}, {340, 180, 22, 5}, {404, 172, 28, 7}, {444, 150, 22, 5},
+  {60, 232, 18, 5}, {150, 238, 14, 6}, {312, 236, 14, 5}, {410, 214, 12, 4}, {208, 150, 12, 4}}) do PL.patch(p[1], p[2], p[3], p[4], "#68984a") end
+for _, p in ipairs({{190, 192, 14, 5}, {150, 124, 22, 4}, {292, 124, 26, 4}, {384, 120, 22, 3}, {420, 186, 18, 4}, {312, 150, 16, 4}, {170, 168, 18, 5},
+  {120, 128, 10, 3}, {354, 232, 12, 4}, {150, 252, 12, 4}}) do PL.patch(p[1], p[2], p[3], p[4], "#9cc866") end
+for x = 0, W - 1 do for y = VY + 1, VY + 5 do -- horizon haze: far ground paler and bluer
+  if gtype[y * W + x] == "grass" and ((x + y) % 2 == 0 or y == VY + 1) then put(x, y, (y <= VY + 2) and "#a8ccaa" or "#98c498") end
+end end
+-- worn path: sandy streaks on the crown, crumbly dithered edges, dark scuffs in the ruts
+pathM:each(function(x, y)
+  if PL.free(x, y) then
+    local l, r = pathEdge(y)
+    local fx = (x - l) / max(1, r - l)
+    local a = (x - VX) / (y - VY + 0.5)
+    if H(x // 5, y // 2, 61) > 0.78 and fx > 0.25 and fx < 0.75 and abs(abs(a) - 0.3) > 0.05 then put(x, y, "#f0d8a4") end
+    if abs(abs(a) - 0.3) < 0.035 and H(x, y, 62) > 0.7 then put(x, y, "#7a5a40") end
+    if (not pathM:has(x - 2, y) or not pathM:has(x + 2, y)) and (x + y) % 2 == 0 then put(x, y, "#b8946a") end
+    if H(x, y, 63) > 0.985 then put(x, y, "#6a4a34") end
+  end
+end)
+-- soil spill out of the path into the grass (crumbs)
+for y = VY + 12, Hh - 2 do
+  local l, r = pathEdge(y)
+  for _, sx in ipairs({floor(l) - 2, floor(r) + 3}) do
+    if H(sx, y, 64) > 0.72 and PL.grass(sx, y) then put(sx, y, "#c4a070") put(sx + (sx < VX and -1 or 1), y + 1, "#a88860") end
+  end
+end
+-- stepping stones leading from the road toward the three side spots
+function PL.stones(x0, y0, x1, y1, n, sz)
+  for i = 0, n - 1 do
+    local t = i / max(1, n - 1)
+    local x, y = floor(x0 + (x1 - x0) * t + (H(i, 1, 65) - 0.5) * 3), floor(y0 + (y1 - y0) * t + (H(i, 2, 65) - 0.5) * 2)
+    local rx = sz + (i % 2)
+    if PL.free(x, y) and PL.free(x + rx, y + 2) then
+      for dy = -1, 2 do for dx = -rx, rx do
+        local inside = abs(dx) <= rx - (abs(dy - 0.5) > 1 and 1 or 0)
+        if inside and dy <= 1 and not (abs(dx) == rx and dy ~= 0) then
+          put(x + dx, y + dy, (dy == -1 and "#d6d0d8") or (dy == 0 and "#b6b0be") or "#948ea2")
+        end
+      end end
+      for dx = -rx, rx + 1 do put(x + dx, y + 2, "#4e6a58") end
+      put(x - rx - 1, y, "#706a84") put(x + rx + 1, y, "#706a84")
+    end
+  end
+end
+PL.stones(166, 224, 148, 232, 4, 3)   -- road -> orchard crates
+PL.stones(286, 168, 312, 170, 4, 3)   -- road -> stamp post
+PL.stones(396, 164, 380, 172, 3, 2)   -- wild trail sign -> picnic
+-- wild flowers in drifts (kind by cluster)
+function PL.flower(x, y, k)
+  if not PL.grass(x, y) or not PL.grass(x + 1, y + 1) then return end
+  local pal = {{"#fde0ea", "#f4b8cc"}, {"#fbf4e6", "#ecbe44"}, {"#a0bede", "#6e8ebc"}, {"#fbe484", "#c8922a"}, {"#e4564a", "#8e2230"}, {"#d6b0e4", "#9a6cb8"}}
+  local p = pal[k]
+  put(x, y + 2, "#3e7a52") put(x, y + 1, "#58985e")
+  put(x, y - 1, p[1]) put(x - 1, y, p[1]) put(x + 1, y, p[1]) put(x, y + 0, p[2]) put(x, y - 0, p[2])
+end
+for i = 1, 34 do -- cluster centres
+  local cx, cy = 18 + floor(H(i, 1, 66) * 440), VY + 12 + floor(H(i, 2, 66) * 140)
+  local k = 1 + floor(H(i, 3, 66) * 6)
+  for j = 1, 3 + floor(H(i, 4, 66) * 6) do
+    PL.flower(cx + floor((H(j, i, 67) - 0.5) * 22), cy + floor((H(i, j, 68) - 0.5) * 9), (H(j, i, 69) > 0.7) and (1 + (k % 6)) or k)
+  end
+end
+-- clover/dark grass clumps, pebbles and fallen leaves
+for i = 1, 90 do
+  local x, y = 16 + floor(H(i, 1, 70) * 448), VY + 6 + floor(H(i, 2, 70) * 150)
+  if PL.grass(x, y) and PL.grass(x + 2, y + 1) then
+    put(x, y, "#4e7a3e") put(x + 1, y, "#5e8e46") put(x + 2, y, "#4e7a3e") put(x + 1, y - 1, "#7eae54")
+  end
+end
+for i = 1, 36 do
+  local x, y = 16 + floor(H(i, 1, 71) * 448), VY + 20 + floor(H(i, 2, 71) * 140)
+  if PL.grass(x, y) and PL.grass(x + 1, y + 1) then put(x, y, "#c8c2cc") put(x + 1, y, "#948ea2") put(x, y + 1, "#4e6a58") end
+end
+for i = 1, 60 do
+  local x, y = 16 + floor(H(i, 1, 72) * 448), VY + 14 + floor(H(i, 2, 72) * 140)
+  if (PL.grass(x, y) or PL.path(x, y)) and PL.free(x + 1, y + 1) then
+    local o = H(i, 3, 72) > 0.5
+    put(x, y, o and "#e8923a" or "#d4b040") put(x + 1, y, o and "#b4503a" or "#a07828")
+  end
+end
+
 ---------------------------------------------------------------- HOMES (far left): thatched cottage + stone hut
 -- cottage shadow
 shadowM(poly{{32, 136}, {100, 136}, {110, 141}, {40, 141}})
@@ -466,6 +565,92 @@ for x = 380, 436 do
 end
 obj(rect(434, 172, 436, 208), R.wood)
 obj(rect(366, 172, 368, 193), R.wood)
+
+-- v2.5.40 polish pass 2: material cues (moss/lichen north side, rust, rope, grain, nails, cracks, cloth folds)
+PL.MOSS = {"#5a8a3e", "#3e6a34", "#86b052"}
+PL.RUST = {"#a8603a", "#8a4a2c", "#d08848"}
+PL.LICH = {"#a8c4a0", "#8aa890", "#d0e0b8"}
+PL.STAIN = {"#b8a894", "#a29286", "#cdbfa6"}
+function PL.blob(m, cx, cy, rx, ry, cols, sd)
+  ell(cx, cy, rx, ry):each(function(x, y)
+    if m:has(x, y) then
+      local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+      if d < 0.55 or (d < 1 and (x + y) % 2 == 0) then
+        local h = H(x, y, sd or 3)
+        put(x, y, h > 0.78 and cols[3] or (h > 0.28 and cols[1] or cols[2]))
+      end
+    end
+  end)
+end
+function PL.rope(x0, y0, x1, y1)
+  local n = max(abs(x1 - x0), abs(y1 - y0))
+  for i = 0, n do put(floor(x0 + (x1 - x0) * i / max(1, n) + .5), floor(y0 + (y1 - y0) * i / max(1, n) + .5), (i % 2 == 0) and "#dcc090" or "#8e6c44") end
+end
+function PL.nail(x, y, rust) put(x, y, "#d6d0d8") put(x, y + 1, rust and PL.RUST[1] or R.wood[1]) end
+do
+  -- thatch: moss on the shaded top edge, straw strands, ridge ties
+  PL.blob(roof, 50, 63, 8, 4, PL.MOSS, 1) PL.blob(roof, 36, 76, 5, 6, PL.MOSS, 2) PL.blob(roof, 78, 62, 6, 3, PL.MOSS, 3)
+  for _, x in ipairs({32, 41, 53, 62, 71, 84, 92}) do for y = 68, 91 do if roof:has(x, y) and H(x, y, 4) > 0.5 then put(x, y, R.thatch[5]) put(x + 1, y + 1, R.thatch[2]) end end end
+  for _, x in ipairs({52, 64, 76}) do for y = 56, 59 do put(x, y, (y % 2 == 0) and "#dcc090" or "#8e6c44") end end
+  -- chimney soot
+  for x = 74, 82 do if (x % 2) == 0 then put(x, 50, R.stone[1]) end put(x, 51, ((x + 1) % 3 == 0) and R.stone[1] or R.stone[2]) end
+  PL.blob(rect(73, 50, 83, 70), 75, 66, 3, 4, PL.MOSS, 4)
+  -- plaster: damp streaks, base grime, hairline crack, beam grain and nails
+  for _, d in ipairs({{40, 4}, {44, 3}, {48, 5}, {51, 2}, {72, 4}, {78, 3}, {82, 5}, {74, 3}}) do for k = 0, d[2] do put(d[1], 109 + k + (d[1] > 60 and 0 or 0), PL.STAIN[1 + k % 2]) end end
+  for x = 31, 91 do for y = 131, 135 do if not (x > 40 and x < 56) and not (x > 68 and x < 88 and y < 134) and (x + y) % 3 == 0 and wall:has(x, y) and not beams:has(x, y) then put(x, y, R.plaster[2]) end end end
+  for i, p2 in ipairs({{55, 96}, {56, 98}, {55, 100}, {56, 102}, {57, 104}}) do put(p2[1], p2[2], "#8a7a7e") end
+  beams:each(function(x, y) if (y % 5 == 2) and H(x, y, 9) > 0.35 then put(x, y, "#523022") end end)
+  for _, n in ipairs({{31, 100}, {61, 100}, {91, 100}, {31, 124}, {61, 124}, {91, 124}, {45, 113}, {78, 113}}) do PL.nail(n[1], n[2], false) end
+  -- stone hut: quoins, chips, crack, lichen, moss; tile roof moss + patched tile
+  for _, y in ipairs({110, 118, 126, 133}) do for x = 110, 113 do put(x, y, R.stone[5]) put(x, y + 1, R.stone[4]) end end
+  for _, q in ipairs({{136, 128}, {137, 129}, {137, 131}, {138, 132}, {137, 134}}) do put(q[1], q[2], R.stone[1]) end
+  for _, q in ipairs({{117, 113}, {118, 113}, {142, 119}, {116, 128}, {121, 133}}) do put(q[1], q[2], R.stone[5]) put(q[1] + 1, q[2] + 1, R.stone[2]) end
+  PL.blob(rect(110, 108, 146, 136), 118, 110, 7, 2, PL.MOSS, 5) PL.blob(rect(121, 108, 146, 136), 143, 134, 6, 3, PL.MOSS, 6) PL.blob(rect(110, 108, 146, 136), 113, 112, 3, 3, PL.LICH, 7)
+  PL.blob(hroof, 112, 100, 7, 5, PL.MOSS, 8) PL.blob(hroof, 124, 91, 5, 2, PL.MOSS, 9)
+  for x = 126, 129 do put(x, 98, R.roof[1]) put(x, 99, R.roof[1]) end
+  for x = 133, 136 do put(x, 95, R.roof[5]) put(x, 96, R.roof[4]) put(x, 97, R.roof[3]) end
+  -- cider press: rusty hoops with drips, rope coil on the crank, grain, moss at the feet
+  for x = 175, 197 do for _, y in ipairs({132, 140}) do if H(x, y, 7) > 0.5 then put(x, y, PL.RUST[1 + (x % 2)]) end end end
+  for _, x in ipairs({178, 186, 193}) do put(x, 141, PL.RUST[2]) put(x, 142, PL.RUST[1]) end
+  for _, x in ipairs({177, 181, 185, 190, 194}) do for y = 134, 139 do if H(x, y, 8) > 0.35 then put(x, y, R.barrel[2]) end end end
+  for k = 0, 3 do put(180 + k * 2, 104, "#dcc090") put(181 + k * 2, 105, "#dcc090") put(180 + k * 2, 106, "#8e6c44") put(181 + k * 2, 107, "#8e6c44") end
+  PL.rope(194, 108, 195, 119) put(194, 120, "#8e6c44") put(195, 120, "#8e6c44") put(194, 121, "#dcc090") put(195, 121, "#dcc090")
+  for x = 166, 206 do if H(x, 3, 12) > 0.6 then put(x, 113, R.wood[2]) end end
+  PL.blob(rect(165, 110, 207, 112), 170, 111, 6, 2, PL.MOSS, 10)
+  PL.blob(rect(168, 138, 172, 145), 170, 144, 4, 3, PL.MOSS, 11) PL.blob(rect(200, 138, 204, 145), 202, 144, 4, 3, PL.MOSS, 12)
+  -- notice board: tile moss, rusty nails, knot in the post
+  PL.blob(sroof, 301, 97, 7, 3, PL.MOSS, 13) PL.blob(sroof, 330, 94, 5, 1, PL.MOSS, 14)
+  for _, n in ipairs({{302, 106}, {366, 106}, {302, 137}, {366, 137}}) do PL.nail(n[1], n[2], true) end
+  put(314, 128, R.wood[1]) put(315, 128, R.wood[1]) put(314, 129, R.pale[2]) put(315, 127, R.pale[2])
+  PL.blob(rect(312, 150, 356, 160), 314, 158, 4, 3, PL.MOSS, 15) PL.blob(rect(312, 150, 356, 160), 353, 158, 4, 3, PL.MOSS, 16)
+  for _, y in ipairs({148, 152}) do put(360, y, R.cream[4]) put(362, y, R.cream[4]) put(361, y + 1, R.cream[4]) end
+  -- tree: bark crevices, lichen north-west, moss in the roots
+  for _, x in ipairs({53, 57, 61}) do for y = 204, 242 do if trunk:has(x, y) and H(x, y // 6, 12) > 0.55 then put(x, y, R.wood[1]) put(x + 1, y, R.wood[2]) end end end
+  PL.blob(trunk, 52, 212, 3, 5, PL.LICH, 17) PL.blob(trunk, 47, 248, 5, 5, PL.MOSS, 18) PL.blob(trunk, 62, 228, 2, 3, PL.LICH, 19)
+  -- ladder twine repair, crate nails and a split slat
+  for _, x0 in ipairs({91, 103}) do for k = 0, 2 do for x = x0, x0 + 2 do put(x, 224 + k, (k % 2 == 0) and "#dcc090" or "#8e6c44") end end end
+  for _, cr in ipairs({{104, 238, 127, 258}, {129, 238, 150, 258}, {114, 214, 140, 236}}) do
+    PL.nail(cr[1] + 2, cr[2] + 2, false) PL.nail(cr[3] - 2, cr[2] + 2, false) PL.nail(cr[1] + 2, cr[4] - 3, false) PL.nail(cr[3] - 2, cr[4] - 3, false)
+  end
+  for y = 241, 246 do put(119, y, R.wood[1]) put(120, y + 1, R.pale[4]) end
+  -- picnic: cloth folds and a turned corner, table grain/knots/rings, fire-ring soot and chips
+  for y = 198, 225 do for _, x0 in ipairs({349, 305}) do
+    local x = floor(x0 + (y - 198) * (x0 > 340 and 0.12 or -0.4))
+    if blank:has(x, y) and blank:has(x + 1, y) then put(x, y, R.cloth[1 + (y % 3 == 0 and 1 or 0)]) put(x + 1, y, R.cloth[5]) end
+  end end
+  for _, t in ipairs({{301, 225}, {302, 224}, {303, 223}, {302, 225}, {303, 225}, {304, 225}, {303, 224}, {304, 224}, {305, 225}}) do put(t[1], t[2], R.cream[4]) end
+  put(301, 226, R.cloth[1]) put(302, 226, R.cloth[1]) put(303, 226, R.cloth[1]) put(304, 226, R.cloth[1]) put(305, 226, R.cloth[1])
+  for x = 369, 433 do if H(x // 5, 2, 9) > 0.45 then put(x, 197, R.pale[2]) end if H(x // 4, 5, 9) > 0.6 then put(x, 199, R.pale[2]) end end
+  for _, k in ipairs({{398, 196}, {421, 197}}) do put(k[1], k[2], R.wood[2]) put(k[1] + 1, k[2], R.wood[2]) put(k[1], k[2] + 1, R.pale[2]) end
+  for _, x in ipairs({371, 431}) do put(x, 195, "#d6d0d8") end
+  for x = 439, 459 do if H(x, 2, 14) > 0.45 then put(x, 211, R.stone[1]) end if H(x, 4, 14) > 0.7 then put(x, 212, R.stone[1]) end end
+  for _, q in ipairs({{444, 217}, {451, 221}, {456, 214}}) do put(q[1], q[2], R.stone[5]) put(q[1] + 1, q[2], R.stone[4]) end
+  PL.blob(rect(438, 210, 460, 224), 441, 222, 4, 3, PL.MOSS, 20)
+  -- signpost: weathering and nails; arrow board rust runs
+  for y = 106, 156 do if H(393, y // 3, 15) > 0.62 then put(392, y, R.pale[2]) end end
+  PL.nail(388, 112, true) PL.nail(388, 118, true) put(388, 114, PL.RUST[2]) put(388, 120, PL.RUST[2])
+  PL.blob(rect(391, 148, 395, 158), 392, 156, 3, 3, PL.MOSS, 21)
+end
 
 ---------------------------------------------------------------- falling petals
 for i = 1, 70 do

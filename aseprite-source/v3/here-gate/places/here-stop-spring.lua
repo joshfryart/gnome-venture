@@ -175,6 +175,77 @@ for i = 0, 140 do
   end
 end
 
+-- v2.5.40 polish pass 1: ground variety (tone patches, worn paths, flowers, pebbles, leaves)
+local STAND = { {240,166},{190,196},{296,198},{222,244},{110,250},{340,250} }
+local function nearStand(x, y, r)
+  for _, s in ipairs(STAND) do if abs(x - s[1]) <= r and abs(y - s[2]) <= r then return true end end
+  return false
+end
+local function vnoise(x, y, sc, sd)
+  local gx, gy = x / sc, y / sc
+  local ix, iy = floor(gx), floor(gy)
+  local fx, fy = gx - ix, gy - iy
+  fx = fx * fx * (3 - 2 * fx) fy = fy * fy * (3 - 2 * fy)
+  local a, b, cc, d = hsh(ix, iy, sd), hsh(ix + 1, iy, sd), hsh(ix, iy + 1, sd), hsh(ix + 1, iy + 1, sd)
+  return (a + (b - a) * fx) + ((cc + (d - cc) * fx) - (a + (b - a) * fx)) * fy
+end
+for y = 114, H - 1 do for x = 0, W - 1 do
+  do
+    local g = c:get(x, y)
+    local n = vnoise(x, y * 1.8, 34, 201)
+    local o = hsh(x, y, 203)
+    if n > .62 and (n > .68 or o > .5) then
+      c:put(x, y, mix(g, "#d6d890", .28)) -- sunlit meadow
+    elseif n < .34 and (n < .28 or o > .5) then
+      c:put(x, y, mix(g, "#3f7a62", .3)) -- cool shaded clover
+    end
+  end
+end end
+-- worn dirt tracks: pool -> boards, huts -> boards, fire -> boards (broken, 2 tones)
+local function wornPath(pts, wd)
+  local m = c:line(pts, wd)
+  m:each(function(x, y)
+    if not nearStand(x, y, 14) then
+      local o = hsh(x, y, 207)
+      if o > .22 then
+        local g = c:get(x, y)
+        c:put(x, y, o > .86 and "#d4b88a" or (o < .4 and mix(g, "#a88a62", .55) or mix(g, "#bc9c72", .7)))
+      end
+    end
+  end)
+end
+wornPath({ {160,196},{180,200},{200,202},{222,200} }, 4)
+wornPath({ {96,140},{110,156},{150,176},{196,168} }, 3)
+wornPath({ {330,204},{300,206},{268,208} }, 4)
+wornPath({ {206,142},{222,138},{232,136} }, 3)
+-- flowers in clusters (3 kinds)
+local FL = { {"#f4f0e0","#f0c860"}, {"#f27a9a","#ffe0a0"}, {"#9a8ae0","#f4f0e0"}, {"#f0b84a","#fff2c8"} }
+for i = 0, 70 do
+  local cx = 6 + floor(hsh(i, 5, 211) * 468)
+  local cy = 150 + floor(hsh(i, 6, 211) * 114)
+  local kind = FL[1 + floor(hsh(i, 7, 211) * 4)]
+  for k = 0, 2 do
+    local x = cx + floor((hsh(i, k, 213) - .5) * 14)
+    local y = cy + floor((hsh(i, k, 215) - .5) * 6)
+    if not nearStand(x, y, 15) and not (x > 380 and y > 228) then
+      c:put(x, y + 1, "#3e7a3a")
+      c:put(x, y, kind[1]) c:put(x - 1, y, kind[1]) c:put(x + 1, y, kind[1]) c:put(x, y - 1, kind[1]) c:put(x, y + 1 - 0, kind[2])
+    end
+  end
+end
+-- pebbles and fallen leaves
+for i = 0, 90 do
+  local x, y = floor(hsh(i, 8, 221) * W), 132 + floor(hsh(i, 9, 221) * 136)
+  if not nearStand(x, y, 15) and not (x > 380 and y > 228) then
+    if i % 3 == 0 then
+      c:put(x, y, "#a8a4b4") c:put(x + 1, y, "#8c88a0") c:put(x, y + 1, "#6c6882") c:put(x + 1, y + 1, "#6c6882") c:put(x, y - 1, "#d0ccdc")
+    else
+      local lc = (i % 2 == 0) and "#d89a3e" or "#c8603a"
+      c:put(x, y, lc) c:put(x + 1, y, mix(lc, VIO, .35)) c:put(x - 1, y + 1, mix(lc, WARM, .3))
+    end
+  end
+end
+
 ---------------------------------------------------------------- dirt track to the wild arch
 local track = Pm{ {250,150},{300,153},{350,153},{398,149},{446,146},{446,157},{398,159},{350,163},{300,163},{250,159} }
 solid(track, ramp("#bc9c72"), function(x, y) local v = hsh(x, y, 61) return v < .1 and -1 or (v > .93 and 1 or 0) end, { edge = false, side = 2, bot = 2 })
@@ -566,6 +637,266 @@ local ch = Pm{ {232,20},{248,20},{248,30},{240,34},{232,30} }
 solid(ch, ramp("#b0804e"), nil)
 fill(Pm{ {240,22},{244,27},{243,30},{237,30},{236,27} }, "#4fb4bc")
 c:put(238, 27, "#d4f2f4")
+
+-- v2.5.40 polish pass 3: lived-in story props (outside spot boxes, clear of stand points)
+do
+  local function ring(cx, cy, rx, ry, col, m)
+    for a = 0, 63 do
+      local x, y = floor(cx + cos(a / 10.2) * rx + .5), floor(cy + sin(a / 10.2) * ry + .5)
+      if m:has(x, y) then c:put(x, y, col) end
+    end
+  end
+  -- ripple rings + a leaf afloat on the pool
+  ring(70, 198, 7, 3, "#d4f2f4", poolI) ring(70, 198, 12, 5, "#8ed8e0", poolI)
+  ring(130, 186, 5, 2, "#d4f2f4", poolI) ring(130, 186, 9, 4, "#8ed8e0", poolI)
+  ring(52, 206, 4, 2, "#d4f2f4", poolI)
+  fill(R(84, 205, 87, 206), "#d8a040") c:put(86, 204, "#c8602a")
+  -- wet rock sheen on teapot rock
+  for x = 106, 118 do if hsh(x, 1, 401) > .3 and rk:has(x, 197) then c:put(x, 197, "#c4dce0") end end
+  -- stepping stones across the meadow toward the pool
+  local sts = { {124,231,7,3}, {137,228,6,3}, {149,230,7,3}, {160,227,5,2} }
+  for _, st in ipairs(sts) do
+    gshadow(st[1] + 2, st[2] + 3, st[3] + 1, 2, .3)
+    local m = c:ellipse(st[1], st[2], st[3], st[4])
+    solid(m, ramp("#9c98ac"), speck, { side = .7 })
+    c:put(st[1] - 2, st[2] - 2, "#d0ccdc") c:put(st[1] - 1, st[2] - 2, "#d0ccdc")
+    c:put(st[1] + 1, st[2], "#bfe4e8")
+  end
+  -- tin-cup hook post with ladle
+  gshadow(88, 238, 9, 2)
+  fill(R(85, 220, 88, 237), "#7a5038") fill(R(85, 220, 85, 237), "#a07048") c:put(87, 236, "#3a2418")
+  fill(R(79, 222, 94, 223), "#5e3a2a")
+  for k, col in ipairs({ "#c8c4d4", "#e0b04a", "#c8c4d4" }) do
+    local x = 79 + k * 4
+    c:put(x, 224, "#5e3a2a")
+    local m = R(x - 1, 225, x + 1, 229) solid(m, ramp(col), nil, { edge = false })
+    c:put(x + 2, 226, mix(col, VIO, .45)) c:put(x - 1, 225, "#fff6e0")
+  end
+  fill(c:line({ {91,224},{92,233} }, 1), "#a07a40") fill(R(90, 233, 94, 235), "#8c88a0") c:put(91, 234, "#cdc6d8")
+  -- wooden bucket with rope
+  gshadow(324, 238, 8, 2)
+  local bkt = Pm{ {318,227},{330,227},{329,237},{319,237} }
+  solid(bkt, ramp("#a06a40"), planksV(3), { side = .7 })
+  fill(R(318, 230, 329, 230), "#4a3a46") fill(R(319, 234, 329, 234), "#4a3a46")
+  fill(R(319, 227, 329, 227), "#4fb4bc") c:put(322, 227, "#d4f2f4")
+  fill(c:line({ {318,227},{323,221},{329,227} }, 1), "#c8a060")
+  for k = 0, 4 do c:put(330 + k, 236 + (k % 2), "#c8a060") end
+  -- mossy stones and fern clump
+  mrock{ {128,266},{130,257},{139,253},{150,257},{152,266} }
+  fern(132, 256, -2.0, 14, 0.25, "#3e7a3a", "#7ab456", .35)
+  fern(148, 258, -1.1, 12, 0.3, "#3e7a3a", "#88c060", .35)
+  -- firewood stack near the fire (below table box)
+  gshadow(364, 232, 12, 2)
+  for r = 0, 1 do for k = 0, 3 - r do
+    local x, y = 346 + k * 7 + r * 3, 222 + r * 5
+    local m = c:ellipse(x + 3, y + 2, 3, 2)
+    solid(m, ramp("#8a5a3a"), nil, { side = .7 })
+    c:put(x + 3, y + 2, "#d8b07a") c:put(x + 2, y + 1, "#e8c890")
+  end end
+  -- puddle with sheen, and spring crocuses
+  local pud = c:ellipse(146, 244, 8, 2)
+  pud:each(function(x, y) c:put(x, y, y < 244 and "#7ac8d0" or "#4fb4bc") end)
+  c:put(143, 243, "#d4f2f4") c:put(144, 243, "#d4f2f4") c:put(149, 244, "#8ed8e0")
+  for _, p in ipairs({ {136,238},{141,239},{132,239} }) do
+    c:put(p[1], p[2] + 1, "#3e7a3a") c:put(p[1], p[2] + 2, "#3e7a3a")
+    c:put(p[1], p[2], "#a08ae8") c:put(p[1] - 1, p[2] - 1, "#c8b8f4") c:put(p[1] + 1, p[2] - 1, "#a08ae8")
+  end
+  -- mushrooms by the left rocks
+  for _, p in ipairs({ {84,244},{89,246} }) do
+    fill(R(p[1], p[2] + 2, p[1], p[2] + 4), "#f0e4c8")
+    fill(R(p[1] - 2, p[2], p[1] + 2, p[2] + 1), "#d8503e") c:put(p[1] - 1, p[2], "#f6ecd2") c:put(p[1] + 1, p[2] + 1, "#a02e34")
+  end
+end
+
+-- v2.5.40 polish pass 2: material cues (grain, courses, chips, moss, lichen, rust, rope)
+do
+  local function pm(m, x, y, col) if m:has(x, y) then c:put(x, y, col) end end
+  local function seg(m, x0, y0, x1, y1, col)
+    local n = max(abs(x1 - x0), abs(y1 - y0), 1)
+    for i = 0, n do pm(m, floor(x0 + (x1 - x0) * i / n + .5), floor(y0 + (y1 - y0) * i / n + .5), col) end
+  end
+  local function knot(m, x, y, d, l) pm(m, x, y, d) pm(m, x + 1, y, d) pm(m, x, y + 1, l) pm(m, x - 1, y, l) end
+  local function moss(m, x, y, w, h)
+    for yy = y, y + h do for xx = x, x + w do
+      if m:has(xx, yy) and hsh(xx, yy, 301) > .3 + (yy - y) / (h + 2) * .6 then
+        c:put(xx, yy, hsh(xx, yy, 303) > .6 and "#9cc060" or "#5e8a3a")
+      end
+    end end
+  end
+  local function lichen(m, x, y, col) pm(m, x, y, col) pm(m, x + 1, y, col) pm(m, x, y + 1, mix(col, "#fff2c8", .3)) pm(m, x - 1, y + 1, col) end
+  -- hut A thatch: twine bands and bright straw streaks, moss on north-left shoulder
+  for _, k in ipairs({ 0, 1 }) do
+    local yy = 88 + k * 9
+    for x = 20, 84 do if ar:has(x, yy) then c:put(x, yy, (x % 4 < 2) and "#5a6a30" or "#8a7a3c") end end
+  end
+  for i = 0, 40 do
+    local x, y = 28 + floor(hsh(i, 1, 311) * 50), 80 + floor(hsh(i, 2, 311) * 28)
+    for k = 0, 3 do pm(ar, x + floor(k * .3), y + k, "#c4cc72") end
+  end
+  moss(ar, 22, 94, 18, 14) moss(ar, 40, 76, 8, 8)
+  -- hut A walls: knots, iron strap hinges (rust), lintel
+  for _, p in ipairs({ {34,128},{70,119},{46,108},{58,134},{76,131} }) do knot(aw, p[1], p[2], "#6e4628", "#d8a470") end
+  for _, y in ipairs({ 120, 132 }) do
+    fill(R(50, y, 55, y + 1), "#3a2a30") c:put(55, y, "#b8643a") c:put(53, y, "#b8643a")
+  end
+  fill(R(49, 114, 63, 115), "#5e3a2a")
+  -- hut B: plaster cracks + stains, shingle moss, damp at foot
+  seg(bwm, 104, 126, 107, 131, "#a89a80") seg(bwm, 107, 131, 106, 134, "#a89a80")
+  seg(bwm, 138, 122, 141, 126, "#a89a80") seg(bwm, 141, 126, 140, 130, "#a89a80")
+  for x = 98, 148 do if hsh(x, 3, 313) > .35 then c:put(x, 135, "#a89a80") end if hsh(x, 4, 313) > .6 then c:put(x, 134, "#9a8e78") end end
+  moss(brf, 94, 98, 22, 4) moss(brf, 130, 96, 14, 5)
+  for _, p in ipairs({ {110,88},{128,92},{140,84} }) do fill(R(p[1], p[2], p[1] + 3, p[2]), "#2e6a66") end
+  -- bathhouse: shingle moss, missing shingles, plank knots, door lintel, steps wear
+  moss(broof, 166, 82, 26, 6) moss(broof, 200, 84, 22, 5)
+  for _, p in ipairs({ {176,78},{204,84},{190,70} }) do fill(R(p[1], p[2], p[1] + 4, p[2] + 2), "#6e2c30") c:put(p[1] + 1, p[2], "#8a3a38") end
+  for _, p in ipairs({ {172,106},{210,108},{176,98},{212,104} }) do knot(bw, p[1], p[2], "#5a3a2c", "#b88868") end
+  fill(R(182, 92, 202, 93), "#4e3224")
+  -- notice board: nails, twine, curled corner, post grain
+  for _, p in ipairs({ {277,100},{329,100},{277,127},{329,127} }) do c:put(p[1], p[2], "#d8d2c4") c:put(p[1] + 1, p[2] + 1, "#3a2a30") end
+  for _, p in ipairs(papers) do c:put(p[1], p[2], "#e83a3a") c:put(p[3], p[4], mix(p[5], VIO, .5)) c:put(p[3] - 1, p[4], mix(p[5], WARM, .6)) end
+  for y = 100, 146, 6 do pm(p1, 281, y, "#3a2418") pm(p2, 323, y + 2, "#3a2418") end
+  moss(p1, 280, 138, 4, 8) moss(p2, 322, 140, 4, 6)
+  -- stamp box: iron corner plates with rust
+  for _, p in ipairs({ {289,131},{314,131},{289,141},{314,141} }) do fill(R(p[1], p[2], p[1] + 2, p[2] + 2), "#4a3640") c:put(p[1] + 1, p[2] + 1, "#b8643a") end
+  -- rock arch: bright chips, dark cracks, orange lichen, course lines
+  for _, p in ipairs({ {386,110,389,118},{458,108,455,118},{416,84,420,88},{440,86,444,90},{384,130,387,140},{458,130,456,142} }) do
+    seg(at, p[1], p[2], p[3], p[4], "#5e5870") seg(lc, p[1], p[2], p[3], p[4], "#5e5870") seg(rc, p[1], p[2], p[3], p[4], "#5e5870")
+    c:put(p[1] + 1, p[2] - 1, "#cdc6d8") c:put(p[1] + 2, p[2] - 1, "#cdc6d8")
+  end
+  for _, p in ipairs({ {382,115},{396,125},{454,126},{460,115},{412,82},{436,90},{388,140} }) do lichen(lc, p[1], p[2], "#d8a04a") lichen(rc, p[1], p[2], "#d8a04a") lichen(at, p[1], p[2], "#c8c060") end
+  for y = 100, 156, 8 do for x = 376, 398 do if lc:has(x, y) and hsh(x, y, 317) > .4 then c:put(x, y, "#6e6884") end end
+    for x = 448, 464 do if rc:has(x, y) and hsh(x, y, 319) > .4 then c:put(x, y, "#6e6884") end end end
+  moss(lc, 376, 140, 22, 16) moss(rc, 448, 144, 16, 12)
+  -- pool ring: wet sheen on inner edge stones, chips, lichen, drips
+  poolI:grow(1):cut(poolI):each(function(x, y) if ring:has(x, y) and hsh(x, y, 321) > .55 then c:put(x, y, "#d0e8ec") end end)
+  for i = 0, 18 do
+    local a = i * .35 + .2
+    local x, y = floor(92 + cos(a) * 62 + .5), floor(190 + sin(a) * 25 + .5)
+    if ring:has(x, y) then c:put(x, y, "#5c5670") c:put(x + 1, y, "#cdc6d8") end
+  end
+  for _, p in ipairs({ {50,170},{138,172},{60,212},{128,210} }) do lichen(ring, p[1], p[2], "#d8c060") end
+  -- fountain pillar: crack, moss streak below spout, rust stain
+  seg(pil, 48, 164, 50, 175, "#7a748a") seg(pil, 38, 172, 40, 180, "#7a748a")
+  for y = 160, 181 do if hsh(y, 1, 323) > .3 then pm(pil, 53, y, "#6e9a44") end end
+  moss(cap, 31, 146, 26, 2)
+  -- fire ring: soot above flames, charred log ends; log bench rings
+  for x = 382, 408 do if fr:has(x, 192) and hsh(x, 2, 325) > .4 then c:put(x, 192, "#3a2a2e") end end
+  for _, x in ipairs({ 342, 352, 361 }) do seg(lg, x, 200, x, 208, "#5a3a24") end
+  for y = 202, 213 do if hsh(y, 3, 327) > .5 then c:put(420, y, "#5a3a24") end end
+  seg(sm, 424, 208, 428, 212, "#5a3a24")
+  -- boardwalk: knots, worn centre stripe, rust nail heads
+  for _, p in ipairs({ {232,150},{250,166},{228,200},{256,214},{234,236},{270,248},{214,262} }) do
+    knot(pathM, p[1], p[2], "#5e4430", "#c8a276")
+  end
+  for y = 176, 268 do if hsh(y, 4, 329) > .35 then pm(pathM, 240 + floor(sin(y / 11) * 2), y, "#c8a276") end end
+  -- gate posts and beam: chips, lichen, moss drip; iron straps with rust at the lantern hooks
+  for _, p in ipairs({ {4,60},{10,140},{6,210},{9,100},{470,70},{474,150},{468,200} }) do
+    local pp = p[1] < 100 and lp or rp
+    seg(pp, p[1], p[2], p[1] + 3, p[2] + 4, "#5a5470") c:put(p[1] + 1, p[2] - 1, "#cdc6d8") lichen(pp, p[1] + 2, p[2] + 14, "#d8c060")
+  end
+  for _, x in ipairs({ 34, 446 }) do fill(R(x - 6, 0, x + 6, 2), "#4a3640") for k = -5, 5, 5 do c:put(x + k, 1, "#b8643a") end end
+  for _, x in ipairs({ 22, 90, 170, 300, 400 }) do knot(beam, x, 7, "#5e3a24", "#c8946a") end
+end
+
+-- v2.5.40 polish pass 4: light and depth (key light top-left, shadows fall right, warm spill, haze, flora, frame)
+do
+  local function isGrass(g) local r, gg, b = rgb(g) return gg > r and gg > b end
+  -- cast shadows fall lower-right on grass
+  local function castR(x0, y0, x1, y1, len)
+    for y = y0, y1 do for x = x0, x1 do
+      local d = (x - x0)
+      local yy = y
+      local g = c:get(x, yy)
+      if g and isGrass(g) and not nearStand(x, yy, 14) and d <= len and ((y - y0) <= (y1 - y0) * (1 - d / (len + 2))) then
+        c:put(x, yy, mix(g, VIO, .34))
+      end
+    end end
+  end
+  castR(80, 134, 92, 140, 12) castR(148, 132, 160, 138, 12) castR(220, 112, 232, 116, 12)
+  castR(336, 144, 352, 150, 14) castR(366, 154, 378, 158, 10) castR(154, 172, 164, 178, 10) castR(76, 134, 86, 140, 8)
+  castR(341, 196, 350, 200, 9) castR(224, 130, 232, 137, 8) castR(55, 262, 68, 268, 12) castR(470, 226, 479, 232, 8)
+  castR(96, 262, 112, 266, 10)
+  -- warm spill from windows / lanterns / fire onto nearby surfaces
+  local function warm(cx, cy, rx, ry, amt, col)
+    for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+      local d = sqrt(((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2)
+      local g = (x >= 0 and y >= 0 and x < W and y < H) and c:get(x, y)
+      if g and d < 1 then
+        local r = rgb(g)
+        if r < 232 then c:put(x, y, mix(g, col or "#ffc46a", amt * (1 - d) * (hsh(x, y, 411) > .35 and 1 or .6))) end
+      end
+    end end
+  end
+  warm(36, 141, 14, 3, .5) warm(104, 138, 14, 3, .5) warm(173, 118, 10, 3, .45) warm(211, 118, 10, 3, .45)
+  warm(395, 205, 56, 24, .38, "#ffb060")
+  warm(34, 36, 18, 14, .3) warm(446, 36, 18, 14, .3)
+  -- rim light (top-left lit edges) on roofs and arch
+  for _, m in ipairs({ ar, brf, broof, srf, at }) do
+    m:each(function(x, y)
+      if (not m:has(x - 1, y) or not m:has(x, y - 1)) then
+        local g = c:get(x, y) if g and hsh(x, y, 413) > .25 then c:put(x, y, mix(g, "#fff2c8", .45)) end
+      end
+    end)
+  end
+  -- atmospheric haze: far boardwalk + far bathhouse go lighter and cooler
+  for y = 112, 140 do for x = 232, 248 do
+    local g = c:get(x, y)
+    if g and pathM:has(x, y) then c:put(x, y, mix(g, "#d8cce4", .3 * (1 - (y - 112) / 28))) end
+  end end
+  tint(broof, "#d8c8e0", .1) tint(bw, "#d8c8e0", .1)
+  tint(gap, "#c8d8e8", .12)
+  -- flora variety: blossom tree, berry bush, reeds, birch sapling
+  local function blossom(cx, by, r)
+    fill(R(cx - 1, by - r, cx + 1, by), "#6a4a3c") fill(R(cx - 1, by - r, cx - 1, by), "#8a6a54")
+    gshadow(cx + 3, by, r, 2, .3)
+    for dy = -r, r do for dx = -r - 2, r + 2 do
+      if (dx / (r + 2)) ^ 2 + (dy / r) ^ 2 <= 1 and hsh(cx + dx, by - r * 2 + dy, 421) > .12 then
+        local x, y = cx + dx, by - r * 2 + dy
+        local lit = (dx + dy < -2)
+        c:put(x, y, lit and "#ffd8e4" or ((dx + dy > 3) and "#d878a0" or "#f4a8c4"))
+      end
+    end end
+    for k = 0, 8 do c:put(cx - r + floor(hsh(k, 1, 423) * r * 2), by - r + 2 + floor(hsh(k, 2, 423) * 4), "#f6ecd2") end
+  end
+  blossom(253, 118, 8)
+  local function bush(cx, by, rx, ry, col, berry)
+    gshadow(cx + 3, by + 1, rx, 2, .3)
+    local m = c:ellipse(cx, by - ry, rx, ry)
+    solid(m, ramp(col), function(x, y) return hsh(x, y, 427) > .8 and 1 or (hsh(x, y, 429) < .15 and -1 or 0) end, { side = .65 })
+    for k = 0, 6 do local x, y = cx - rx + 2 + floor(hsh(k, 3, 431) * (rx * 2 - 3)), by - ry * 2 + 2 + floor(hsh(k, 4, 431) * (ry * 2 - 3))
+      if m:has(x, y) then c:put(x, y, berry) c:put(x + 1, y, mix(berry, VIO, .4)) end end
+  end
+  bush(166, 134, 9, 5, "#4e8a48", "#e0506a")
+  -- reeds / cattails by the pool
+  for _, p in ipairs({ {30,216},{34,218},{27,219} }) do
+    for t = 0, 12 do c:put(p[1] + floor(t * .1), p[2] - t, t < 3 and "#4e7a3a" or "#6a9a44") end
+    fill(R(p[1], p[2] - 15, p[1] + 1, p[2] - 11), "#7a4a30") c:put(p[1], p[2] - 16, "#5a3a24")
+  end
+  -- birch sapling beside the left rocks
+  for t = 0, 14 do c:put(94, 266 - t, (t % 3 == 0) and "#4a3a40" or "#eae2d6") c:put(95, 266 - t, "#c4bcc8") end
+  for _, p in ipairs({ {91,252},{97,250},{93,247},{98,255},{90,258} }) do
+    fill(R(p[1], p[2], p[1] + 3, p[2] + 2), "#a8c860") c:put(p[1], p[2], "#d8e890") c:put(p[1] + 3, p[2] + 2, "#6a9a3c")
+  end
+  -- foreground frame: dark grass and fern fronds at lower-left and across the bottom, clear of stand points and compass
+  for i = 0, 70 do
+    local x = floor(hsh(i, 1, 441) * 372)
+    local y = 262 + floor(hsh(i, 2, 441) * 8)
+    if not nearStand(x, y - 4, 12) and y < 270 and not pathM:has(x, y) then
+      local L = 4 + floor(hsh(i, 3, 441) * 5)
+      for k = 0, L do
+        local lean = floor((hsh(i, 4, 441) - .5) * k * .5)
+        c:put(x + lean, y - k + 4, k > L - 2 and "#a8cc70" or ((k % 2 == 0) and "#3e7a3a" or "#4e8a44"))
+      end
+    end
+  end
+  fern(10, 270, -1.3, 20, 0.28, "#2e6a38", "#68a850", .35)
+  fern(16, 272, -0.8, 14, 0.32, "#2e6a38", "#68a850", .35)
+  -- dark foreground vignette dither along the bottom rows
+  for y = 266, 269 do for x = 0, 379 do
+    local g = c:get(x, y)
+    if g and not pathM:has(x, y) and (x + y) % 2 == 0 then c:put(x, y, mix(g, DEEPV, .3)) end
+  end end
+end
 
 c:finish{ outline = false }
 HP.assertClean(c)
