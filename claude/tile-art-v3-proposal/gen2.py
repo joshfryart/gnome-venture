@@ -2,7 +2,7 @@
 sprites per land, a search icon. Hard pixels only. Run: python3 -I gen2.py <repo-root>"""
 import json, math, random, sys, os, zlib
 from PIL import Image
-ROOT = sys.argv[1]; OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pass2"); os.makedirs(OUT, exist_ok=True)
+ROOT = sys.argv[1] if len(sys.argv) > 1 else ""; OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pass2")
 T = 64; OBJ_H = 96
 def H(h): return tuple(int(h[i:i+2], 16) for i in (1, 3, 5)) + (255,)
 def mix(a, b, t): return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3)) + (255,)
@@ -554,6 +554,7 @@ def compose(land, rows, seed, player=None, finds=(), done_finds=(), blend=True):
     return base, pad
 
 def main():
+    os.makedirs(OUT, exist_ok=True)
     by = {r["route_id"]: r for r in json.load(open(os.path.join(OUT, "../../maplewold-trail-maps/maplewold_trail_maps.json")))}
     scenes = [("grassland", 228, 0), ("forest", 304, 0), ("coast", 307, 0), ("tundra", 309, 0), ("tundra", 315, 4)]
     meta = {}
@@ -604,6 +605,7 @@ def overlay_sheet():
             ov = lay.copy(); mk = terrain_layer(land, ["".join(r) for r in g], m)
             sheet.paste(lay, (4 + m * (T + 4), 4 + li * (T + 4)))
     sheet.save(os.path.join(OUT, "edge-masks.png"))
-overlay_sheet()
 LANDS = ("grassland", "forest", "coast", "tundra")
-main()
+if __name__ == "__main__":
+    overlay_sheet()
+    main()

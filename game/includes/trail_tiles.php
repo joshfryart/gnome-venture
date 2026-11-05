@@ -18,6 +18,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/delve_map.php';
 require_once __DIR__ . '/tilemap.php';
 require_once __DIR__ . '/here_schema.php';
+require_once __DIR__ . '/trail_art.php';
 
 const TRAIL_W = 11;
 const TRAIL_H = 7;
@@ -43,11 +44,15 @@ function trail_base_cost(array $u, array $route): int
 
 /**
  * One section's map and tokens, from a seed (pure: same seed, same section). Entry 'S' on the left edge, exit '9' on the right edge, a winding
- * floor between, a few extra floor cells for width. Tokens: 0-2 fights ('E') and 1-3 finds ('F') on floor, never next to the entry or exit.
+ * floor between, a few extra floor cells for width. Tokens: 1-3 finds ('F') on floor, never next to the entry or exit. Fights are not tokens: they
+ * are rolled while walking (trail_encounter_index); only an authored delve/lair route has a fixed 'E' (miniboss/boss) on its last section.
+ * A seed 'routeId|uid|expId|section' of an AUTHORED route (includes/data/trail_maps.json) gives that route's hand-made section instead.
  * Returns [map, tokens [[x, y, kind]]].
  */
 function trail_map_make(string $seed): array
 {
+    $sp = explode('|', $seed);
+    if (count($sp) === 4 && ctype_digit($sp[0]) && ctype_digit($sp[3]) && ($art = trail_authored_section((int)$sp[0], (int)$sp[3]))) return trail_map_authored($art);
     $rng = tm_rng($seed);
     $g = array_fill(0, TRAIL_H, array_fill(0, TRAIL_W, '#'));
     $ys = $rng(1, TRAIL_H - 2);
@@ -77,7 +82,7 @@ function trail_map_make(string $seed): array
     $floor = [];
     for ($yy = 0; $yy < TRAIL_H; $yy++) for ($x = 3; $x <= TRAIL_W - 4; $x++) if ($g[$yy][$x] === '.' || $g[$yy][$x] === ',') $floor[] = [$x, $yy];
     $tokens = [];
-    $want = array_merge(array_fill(0, $rng(0, 2), 'E'), array_fill(0, $rng(1, 3), 'F'));
+    $want = array_fill(0, $rng(1, 3), 'F');
     foreach ($want as $k) {
         if (!$floor) break;
         $i = $rng(0, count($floor) - 1);
@@ -141,13 +146,35 @@ function trail_gate(array $sc, ?int $gx = null, ?int $gy = null): callable
     };
 }
 
-/** What waits on a token tile: a fight ('E', or a find when no creature fits here) or a find ('F'). */
-function trail_token_event(array $u, array &$exp, string $kind): void
+/**
+ * A fixed boss: the creature for the E spot of a lair (a boss) or delve (a miniboss, a large creature), else any creature that fits.
+ * Easy roads never meet one (pick_creature's cap rule).
+ */
+function trail_pick_fixed(array $scene, int $cap, string $boss): ?array
+{
+    $land = (string)$scene['land'];
+    $level = (int)$scene['level'];
+    if ($cap > 0 || $boss === '') return pick_creature($land, $level, false, false, $cap);
+    $want = $boss === 'boss' ? 'boss' : 'large';
+    $pool = array_values(array_filter(road_rows('creatures'), fn($c) => ($c['landscapes'] === 'any' || in_array($land, array_map('trim', explode(',', (string)$c['landscapes'])), true))
+        && $c['size'] === $want && (int)$c['level'] <= $level + ($want === 'boss' ? 8 : 4)));
+    if ($pool) {
+        $b = $pool[array_rand($pool)];
+        return (int)$b['level'] < $level ? scale_creature($b, $level) : $b;
+    }
+    return pick_creature($land, $level, $boss === 'boss', false, $cap);
+}
+
+/**
+ * What waits on a tile: a fight (a random encounter 'R' rolled on the walk, or the fixed boss spot 'E'; a find when no creature fits here)
+ * or a find ('F'). Random fights never bring a boss.
+ */
+function trail_token_event(array $u, array &$exp, string $kind, string $boss = ''): void
 {
     $scene = exp_scene($exp);
-    if ($kind === 'E') {
+    if ($kind === 'E' || $kind === 'R') {
         $cap = exp_easy_cap($u, $exp);
-        $c = pick_creature($scene['land'], $scene['level'], !$scene['scaled'], false, $cap);
+        $c = $kind === 'E' ? trail_pick_fixed($scene, $cap, $boss) : pick_creature($scene['land'], $scene['level'], false, false, $cap);
         if ($c) {
             $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
                 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
@@ -189,15 +216,21 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($sc['x'] === $tx && $sc['y'] === $ty) return [false, 'You are already here.'];
     $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty));
     if (!$path) return [false, 'There is no way there from here.'];
+    [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0));
+    if ($stop !== null) {   // something rustles: the walk stops on that tile and a random fight starts
+        $path = array_slice($path, 0, $stop + 1);
+        [$tx, $ty] = end($path);
+        $t = tm_tile($map, $tx, $ty);
+    }
     $walked = array_merge([[$sc['x'], $sc['y']]], $path);
     $sc['x'] = $tx;
     $sc['y'] = $ty;
     $i = trail_token_at($sc, $tx, $ty);
-    $fire = null;
-    if ($i >= 0 && (int)$sc['st']['tokens'][$i][3] === 0) { $sc['st']['tokens'][$i][3] = 1; $fire = (string)$sc['st']['tokens'][$i][2]; }
+    $fire = $stop !== null ? 'R' : null;
+    if ($stop === null && $i >= 0 && (int)$sc['st']['tokens'][$i][3] === 0) { $sc['st']['tokens'][$i][3] = 1; $fire = (string)$sc['st']['tokens'][$i][2]; }
     if ($t === '9') $sc['st']['phase'] = 'confirm';
     if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
-    if ($fire !== null) trail_token_event($u, $exp, $fire);
+    if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''));
     $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
     return [true, ''];
 }
@@ -296,8 +329,11 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
         $last = end($p);
         if ($last[0] === $sc['x'] && $last[1] === $sc['y']) $walk = ['p' => $p];
     }
-    $svg = tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-        'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
+    $art = !empty($map['art']) && trail_art_ready($map['art']);   // an authored section with its baked picture: the Hearth Pop v3 look
+    $svg = $art
+        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk])
+        : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
+            'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) for ($i = 0; $i < DM_VIEW; $i++) {
         $x = $win['x0'] + $i; $y = $win['y0'] + $j;
@@ -310,7 +346,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
         else {
             $cls .= $tap ? ' reach' : '';
             $tk = trail_token_at($sc, $x, $y);
-            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = $sc['st']['tokens'][$tk][2] === 'E' ? ($done ? 'Fight, done' : 'Something stirs here') : ($done ? 'Find, done' : 'Something to find'); }
+            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = $sc['st']['tokens'][$tk][2] === 'E' ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
             elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
             elseif ($t === 'S') $label = 'Where this stretch begins';
         }
@@ -324,7 +360,8 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
         . '<div class="tilemap tm-cave" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
-        . '<p class="tmlegend" aria-hidden="true"><span>⚔️ Something stirs</span><span>✨ A find</span><span>🚪 The way on</span></p></div>';
+        . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
+        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
     return $out;
 }
 

@@ -7196,3 +7196,8 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .wcard .wfold { text-align: left; margin: 6px 0 0; }
 .wc-foot { font-size: .75rem; margin: 8px 0 0; opacity: .8; }
 .wanderhide { height: 0; overflow: hidden; }
+
+/* Trail tiles, Hearth Pop v3 look (includes/trail_art.php): pixel art stays crisp when the css scales it */
+.tilemap .tmbg.tpix { image-rendering: pixelated; }
+.tilemap .tmbg.tpix image { image-rendering: pixelated; }
+.tmcap { text-align: center; margin: 6px 12px 0; font-size: 14px; font-style: italic; color: var(--muted); text-wrap: balance; }
