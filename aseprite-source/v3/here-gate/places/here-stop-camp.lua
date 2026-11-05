@@ -337,12 +337,41 @@ end
 obj(c:line({ { 214, 180 }, { 262, 168 } }, 5), LOG, { lit = 1, sh = 1 })
 obj(c:line({ { 266, 180 }, { 218, 168 } }, 5), LOG, { lit = 1, sh = 1 })
 -- flames
-local fl = { { 212, 178 }, { 216, 162 }, { 221, 150 }, { 226, 160 }, { 229, 144 }, { 236, 156 }, { 241, 134 }, { 248, 152 }, { 255, 142 }, { 258, 160 }, { 264, 150 }, { 268, 178 } }
-local function scaled(p, sx, sy) local o = {} for i, v in ipairs(p) do o[i] = { floor(FX + (v[1] - FX) * sx + 0.5), floor(178 + (v[2] - 178) * sy + 0.5) } end return o end
-obj(poly(fl), EMBER, { edge = EMBER[4], lit = 1, sh = 1 })
-c:fillMask(poly(scaled(fl, 0.72, 0.74)), GOLD[2])
-c:fillMask(poly(scaled(fl, 0.45, 0.45)), GOLD[1])
-c:fillMask(poly(scaled(fl, 0.22, 0.22)), "#fff6c8")
+-- v2.5.40 polish: layered flame tongues (outer red, orange body, yellow, white core) that flicker past the kettle
+local function tongue(cx, by, h, w, lean)
+  local m = HP.mask()
+  for y = by, by - h, -1 do
+    local t = (by - y) / h
+    local hw = w * math.sin(math.pi * math.min(1, (t * 0.92 + 0.08)) ^ 0.75) * (1 - t * 0.35)
+    local off = lean * t * t
+    for x = floor(cx + off - hw + 0.5), floor(cx + off + hw + 0.5) do m:set(x, y) end
+  end
+  return m
+end
+local function flame(cx, by, h, w, lean)
+  local m = tongue(cx, by, h, w, lean)
+  obj(m, EMBER, { edge = EMBER[4], lit = 1, sh = 1 })
+  local m2 = m:shrink(2)
+  if m2:count() > 0 then c:fillMask(m2, EMBER[1]) end
+  local m3 = m:shrink(4)
+  if m3:count() > 0 then c:fillMask(m3, GOLD[2]) end
+  local m4 = m:shrink(6)
+  if m4:count() > 0 then c:fillMask(m4, GOLD[1]) end
+  local m5 = m:shrink(8)
+  if m5:count() > 0 then c:fillMask(m5, "#fff6c8") end
+end
+flame(240, 178, 44, 20, 0)
+flame(222, 178, 30, 11, -5)
+flame(258, 178, 34, 12, 6)
+flame(231, 178, 38, 9, 2)
+flame(249, 178, 28, 9, -3)
+flame(213, 178, 16, 6, -3)
+flame(267, 178, 18, 6, 3)
+-- sparks lifting off the fire
+for _, p in ipairs({ { 226, 128 }, { 253, 121 }, { 218, 120 }, { 264, 126 }, { 236, 112 }, { 247, 106 } }) do
+  c:put(p[1], p[2], GOLD[1]); c:put(p[1] + 1, p[2], GOLD[2])
+end
+c:put(212, 116, EMBER[1]); c:put(270, 112, EMBER[1])
 -- tripod
 obj(c:line({ { 240, 116 }, { 195, 188 } }, 3), WOOD, { lit = 1, sh = 1 })
 obj(c:line({ { 240, 116 }, { 285, 188 } }, 3), WOOD, { lit = 1, sh = 1 })
@@ -396,6 +425,35 @@ for _, b in ipairs({ { 404, 182, 9, 7 }, { 412, 166, 10, 7 }, { 426, 156, 11, 6 
 end
 for _, f in ipairs({ { 402, 178 }, { 416, 160 }, { 430, 152 }, { 446, 154 }, { 458, 168 }, { 411, 172 } }) do
   c:put(f[1], f[2], SEA[1]); c:put(f[1] + 1, f[2], SEA[2]); c:put(f[1], f[2] + 1, SEA[2])
+end
+-- v2.5.40 polish: bark grooves, root flares, leaf clumps in 3 tones, ferns and a mushroom at the trunk feet
+for _, t in ipairs({ { 404, 200, 222 }, { 460, 200, 222 } }) do
+  for y = t[2], t[3], 4 do
+    local gx = t[1] + ((y // 4) % 2 == 0 and -1 or 1)
+    c:put(gx, y, BARK[4]); c:put(gx, y + 1, BARK[4])
+  end
+  c:put(t[1] - 2, t[2] + 3, BARK[1]); c:put(t[1] - 2, t[2] + 11, BARK[1])
+end
+obj(poly{ { 398, 228 }, { 402, 220 }, { 407, 220 }, { 410, 228 } }, BARK, { lit = 1, sh = 1 })
+obj(poly{ { 454, 228 }, { 458, 220 }, { 463, 220 }, { 466, 228 } }, BARK, { lit = 1, sh = 1 })
+for _, b in ipairs({ { 404, 182, 9, 7 }, { 412, 166, 10, 7 }, { 426, 156, 11, 6 }, { 442, 156, 10, 6 }, { 454, 168, 9, 7 }, { 460, 186, 6, 8 } }) do
+  for _ = 1, 9 do
+    local px, py = b[1] + math.random(-b[3] + 2, b[3] - 2), b[2] + math.random(-b[4] + 2, b[4] - 2)
+    local r = math.random()
+    c:put(px, py, r < 0.4 and MOSS[4] or (r < 0.75 and MOSS[1] or "#e8f0a0"))
+    if r < 0.4 then c:put(px + 1, py, MOSS[3]) end
+  end
+end
+local function fern(fx, fy)
+  for _, d in ipairs({ { -4, -3 }, { -2, -6 }, { 0, -7 }, { 2, -6 }, { 4, -3 } }) do
+    c:fillMask(c:line({ { fx, fy }, { fx + d[1], fy + d[2] } }, 1), MOSS[3])
+    c:put(fx + d[1], fy + d[2], MOSS[1])
+  end
+end
+fern(399, 226); fern(468, 224); fern(415, 224)
+for _, m in ipairs({ { 452, 224 }, { 410, 226 } }) do
+  c:fillMask(c:rect(m[1], m[2], m[1] + 3, m[2] + 1), "#f5809f"); c:put(m[1] + 1, m[2], "#ffc4d8")
+  c:put(m[1] + 1, m[2] + 2, CREAM[2]); c:put(m[1] + 2, m[2] + 2, CREAM[3])
 end
 -- signpost
 shadow(poly{ { 404, 222 }, { 424, 222 }, { 428, 226 }, { 408, 226 } })
