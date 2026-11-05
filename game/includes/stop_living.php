@@ -17,9 +17,9 @@ const STOP_METERS = [
 const STOP_METER_OF_TAG = ['fix' => 'repairs', 'craft' => 'repairs', 'cook' => 'larder', 'gather' => 'larder', 'tend' => 'larder',
     'play' => 'cheer', 'lore' => 'cheer', 'trade' => 'cheer', 'rest' => 'cheer'];
 const STOP_METER_GAIN = 10;    // per thing done
-const STOP_METER_DECAY = 6;    // per day, worked out when read (no cron)
+const STOP_METER_DECAY = 3;    // per day, worked out when read (no cron)
 const STOP_METER_AFTER = 30;   // where a meter restarts after it fills
-const STOP_PERK_DAYS = 3;
+const STOP_PERK_DAYS = 7;
 const STOP_FAMILIARITY = ['stranger' => 0, 'regular' => 3, 'local' => 20, 'pillar' => 60];
 
 function stop_days_between(string $from, string $to): int
