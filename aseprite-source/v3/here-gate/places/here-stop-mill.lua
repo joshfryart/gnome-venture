@@ -704,9 +704,9 @@ local function sheaf(x, y)
   F(R(x - 5, y + 7, x + 5, y + 9), P.ember.base); c:put(x - 3, y + 1, P.gold.hi); c:put(x + 2, y + 2, P.gold.hi)
   F(R(x - 4, y + 10, x + 4, y + 14), P.gold.shade); c:edgeIn(R(x - 6, y, x + 6, y + 14), P.gold.deep)
 end
-shadow(392, 133, 406, 139, GSH); sheaf(398, 122); sheaf(404, 124)
+shadow(334, 134, 346, 139, GSH); sheaf(340, 123)
 -- millstone leaning on a block by the far bank, with a spilled sack of grain
-local MX, MY = 172, 178
+local MX, MY = 184, 174
 shadow(MX - 8, MY + 10, MX + 26, MY + 17)
 local blk1 = R(MX - 2, MY + 6, MX + 10, MY + 14); F(blk1, P.stone.base); lightTL(blk1, P.stone.hi, 4); c:edgeIn(blk1, P.stone.deep)
 local ms = oct(MX, MY, 12, 22.5); F(ms, P.stone.hi); shadeR(ms, P.stone.base, .4); c:edgeIn(ms, P.stone.deep)
@@ -768,7 +768,7 @@ local function fern(x, y, r)
   for k = -3, 3 do local a = (270 + k * 28) * pi / 180
     for i = 1, r do local px, py = rd(x + i * cos(a)), rd(y + i * sin(a) * .8); c:put(px, py, (i % 2 == 0) and "#4f7a42" or "#6f9a52"); if i % 3 == 0 then c:put(px + 1, py, "#7aa250") end end end
 end
-fern(46, 266, 9); fern(54, 267, 7); fern(174, 268, 8)
+fern(46, 266, 9); fern(54, 267, 7); fern(158, 268, 8)
 for i = 0, 9 do local x, y = 140 + floor(hsh(i, 1, 621) * 34), 256 + floor(hsh(i, 2, 621) * 11)
   if freeP(x, y) and freeP(x + 2, y) then c:put(x, y + 1, "#4f7a42"); c:put(x, y + 2, "#4f7a42"); c:put(x, y, P.ember.base); c:put(x - 1, y, P.ember.hi); c:put(x + 1, y, P.ember.base); c:put(x, y - 1, P.ember.shade); c:put(x, y, P.dusk.deep) end end
 -- berry bush on the bank by the bridge (round, lit top-left)

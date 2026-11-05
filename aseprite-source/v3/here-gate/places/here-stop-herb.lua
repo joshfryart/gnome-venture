@@ -946,7 +946,7 @@ do
       end
     end end
   end
-  rimLit(18, 184, 175, 253) rimLit(300, 122, 350, 180) rimLit(174, 85, 220, 152) rimLit(284, 120, 296, 180) rimLit(326, 190, 412, 230)
+  rimLit(18, 184, 175, 253) rimLit(300, 122, 350, 180) rimLit(174, 85, 220, 152) rimLit(284, 120, 296, 180) rimLit(326, 190, 412, 228)
   -- warm spill: copper lantern on beam/post (above), still firebox on the ground, kettle fire on bench + table, windows on walls
   ell(186, 156, 15, 3):each(function(x, y) if (isGrass(x, y) or path:has(x, y)) and not nearStand(x, y, 15) then glowAt(x, y, .16) end end)
   ell(186, 156, 8, 2):each(function(x, y) if (isGrass(x, y) or path:has(x, y)) and not nearStand(x, y, 15) then glowAt(x, y, .14) end end)
