@@ -52,6 +52,8 @@ document.addEventListener("DOMContentLoaded",function(){
     var p = picked(f), kind = f.getAttribute('data-pj-kind'), send = f.querySelector('[data-pj-send] span'), back = f.querySelector('[data-pj-back]');
     var n = pickedAll(f).length;
     if (send) send.textContent = n > 1 ? 'Send ' + n + ' pals' : (p ? 'Send ' + nameOf(p) : 'Tick a pal to send');
+    var allb = f.querySelector('.pjall');   // keeps the shortcut's words true after a Cancel or a single tick
+    if (allb) { var fr = f.querySelectorAll('input[name="pals[]"]:not(:disabled):not([data-pj-party])'); allb.textContent = Array.prototype.every.call(fr, function (c) { return c.checked; }) ? 'Clear all' : 'Select all free pals (' + fr.length + ')'; }
     var sb = f.querySelector('[data-pj-send]'); if (sb) sb.disabled = n < 1;   // v2.3.98: always visible, live once a pal is ticked
     if (!back) return;
     var t = now();
@@ -93,11 +95,28 @@ document.addEventListener("DOMContentLoaded",function(){
       });
       f.querySelector('.pjfaces').after(more);
     }
+    var freeBoxes = function () { return Array.prototype.filter.call(f.querySelectorAll('input[name="pals[]"]:not(:disabled)'), function (c) { return !c.hasAttribute('data-pj-party'); }); };
+    if (freeBoxes().length > 1 && f.querySelector('.pjfaces')) {   // v2.5.49: "Select all free pals": rested pals that are not on the party (those need their own tick); JS only
+      var all = document.createElement('button');
+      all.type = 'button';
+      all.className = 'linkbtn pjall';
+      all.textContent = 'Select all free pals (' + freeBoxes().length + ')';
+      all.addEventListener('click', function () {
+        var boxes = freeBoxes(), on = boxes.some(function (c) { return !c.checked; });
+        f.querySelectorAll('.pjfaces > li').forEach(function (li) { li.hidden = false; });
+        var mr = f.querySelector('.pjmore'); if (mr) mr.remove();
+        boxes.forEach(function (c) { c.checked = on; });
+        all.textContent = on ? 'Clear all' : 'Select all free pals (' + boxes.length + ')';
+        f.dispatchEvent(new Event('change', { bubbles: true }));
+        forms.forEach(function (o) { if (o !== f && on && picked(o)) { pickedAll(o).forEach(function (c) { c.checked = false; }); update(o); } });
+      });
+      f.querySelector('.pjfaces').before(all);
+    }
     f.querySelectorAll('input[data-pj-step]').forEach(function (inp) {   // potion stepper: big targets, never past min/max
       var wrap = document.createElement('div');
       wrap.className = 'pjstepper';
       wrap.setAttribute('role', 'group');
-      wrap.setAttribute('aria-label', 'Potions to pack');
+      wrap.setAttribute('aria-label', inp.getAttribute('data-pj-label') || 'Potions to pack');
       var mk = function (d, label, txt) {
         var b = document.createElement('button');
         b.type = 'button';
