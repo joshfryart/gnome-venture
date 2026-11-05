@@ -1415,8 +1415,8 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
   .selbar .selon { padding: 4px 8px; max-width: 100%; min-width: 0; box-sizing: border-box; }
   .selbar .selon > p:first-child { max-width: 100%; min-width: 0; }
   .selbar .selon p { margin: 4px 0; gap: 6px; }
-  .selbar .selon > p:first-child { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
-  .selbar .selon > p:first-child > * { flex: 0 0 auto; }
+  .selbar .selon > p:first-child { flex-wrap: wrap; gap: 4px 6px; }   /* v2.5.51: the quick picks wrap (a scrolling row showed one pick at a time); the count has its own line */
+  .selbar .selon > p:first-child > b { flex: 0 0 100%; }
   .selbar .selon > p:first-child .btn { padding: 2px 8px; font-size: 13px; min-height: 30px; }
   .selbar .selon .help { display: none; }
   .selon:not([hidden]) .selacts { padding: 6px 8px; gap: 6px; }
