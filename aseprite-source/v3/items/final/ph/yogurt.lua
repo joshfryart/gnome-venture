@@ -1,59 +1,66 @@
--- yogurt (lean W2_40)
--- Squat glazed crock with swirled yogurt peak, one blueberry on top, a spoon leaning in, a drip down the side.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- yogurt (lean P1b_O19)
+local NAME = "yogurt"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function L(n,o) return X.light(n, o or { amb = 0.1, wrap = 0.25 }) end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "yogurt" }
-local CER = { "#2f4f7a", "#40699a", "#5a8cc0", "#82b4dc", "#b2d6ee", "#e6f4fb" }
-local YOG = { "#9aa0c8", "#c3c4e0", "#e2dff0", "#f6f1f6", "#fffaf8" }
-local SPN = { "#6d6a7c", "#9c9aab", "#cfcdd6", "#f2f1f5" }
-c:groundShadow(32, 52, 18, 2)
--- crock body: wide, rounded bottom
-local body = HP.mask()
-for y = 34, 51 do
-  local t = (y - 34) / 17
-  local h = 17 * (1 - t^3.2 * 0.38) * sqrt(1 - max(0, t - 0.7)^2 * 6)
-  for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do body:set(x, y) end
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local function tone(m, n, ramp, o) return G.toneN(c, m, n, ramp, o) end
+local function ball(cx, cy, rx, ry, ang, ramp, o) local m, n = G.oval(cx, cy, rx, ry, ang, o and o.flat) tone(m, n, ramp, o) return m, n end
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, vein)
+  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t)) ^ 0.7 + 0.3 end)
+  tone(m, n, ramp)
+  if vein then m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.17 and T[k] > 0.08 and T[k] < 0.92 then c:put(x, y, vein) end end) end
+  return m
 end
-local n = X.pillow(body, 11)
-local v = L(n, { amb = 0.12, wrap = 0.25 })
-G.tone(c, body, v, CER, { 0.2, 0.38, 0.55, 0.72, 0.88 })
--- glaze band + dots
-for x = 16, 48 do if body:has(x, 41) then c:px(x, 41, CER[1]) end if body:has(x, 42) then c:px(x, 42, CER[5]) end end
-for _, p in ipairs{ {22,46},{28,47},{35,46},{41,45} } do c:px(p[1], p[2], CER[5]) end
--- rim
-local rim = c:ellipse(32, 34, 17, 4)
-G.tone(c, rim, L(X.pillow(rim, 5)), CER, { 0.2, 0.4, 0.6, 0.8, 0.9 })
--- yogurt surface
-local surf = c:ellipse(32, 34, 14, 2.6)
-c:fillMask(surf, YOG[2])
--- swirled peak
-local peak = HP.mask()
-for y = 22, 34 do
-  local t = (y - 22) / 12
-  local h = 12 * sin(min(1, t * 1.2 + 0.05) * pi / 2) ^ 0.7
-  if y < 25 then h = max(0, (y - 21) * 1.2) end
-  for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do peak:set(x, y) end
+local function tube(p, w, ramp) local m, n = G.tube(p, function(t) return type(w) == "function" and w(t) or w end) tone(m, n, ramp) return m end
+local function cylrect(x0, y0, x1, y1, ramp)
+  local m, n = HP.mask(), {}
+  local hw, cx = (x1 - x0 + 1) / 2, (x0 + x1) / 2
+  for y = y0, y1 do for x = x0, x1 do m:set(x, y) local nx = max(-0.95, min(0.95, (x - cx) / (hw + 0.3))) n[K(x, y)] = { G.norm(nx, 0, sqrt(1 - nx * nx)) } end end
+  tone(m, n, ramp) return m
 end
-local pn = X.pillow(peak, 8)
-G.tone(c, peak, L(pn, { amb = 0.25, wrap = 0.3 }), YOG, { 0.25, 0.5, 0.72, 0.9 })
--- swirl lines
-for _, s in ipairs{ {26,30,35,28}, {27,33,38,31}, {29,26,35,25} } do G.line(c, { {s[1],s[2]},{(s[1]+s[3])/2,s[2]-1},{s[3],s[4]} }, YOG[1]) end
--- curled tip
-G.line(c, { {32,21},{33,20},{34,21} }, YOG[2])
--- blueberry quirk
-local bb = c:ellipse(35, 25, 3, 2.8)
-G.tone(c, bb, L(X.pillow(bb, 3)), { "#1d1f4a", "#2f3a86", "#4a5cb4", "#7e8fd8" }, { 0.3, 0.55, 0.8 })
-c:px(35, 24, "#aab8f0") c:px(36, 26, "#1d1f4a")
--- spoon leaning in from right
-local sh = G.tube({ {42,31},{45,27},{48,22},{51,15} }, function(t) return 1.1 end)
-G.tone(c, sh, L(X.pillow(sh, 2)), SPN, { 0.3, 0.6, 0.85 })
-local sb = G.rell(41, 32, 0.7, -0.7, 3.4, 2.2)
-G.tone(c, sb, L(X.pillow(sb, 2.5)), SPN, { 0.3, 0.55, 0.8 })
--- drip down the side
-for y = 35, 40 do c:px(21, y, YOG[3]) c:px(22, y, YOG[4]) end
-c:px(21, 41, YOG[2]) c:px(22, 41, YOG[3]) c:px(22, 42, YOG[3]) c:px(22, 40, YOG[5])
--- glint
-c:px(21, 36, CER[6]) c:px(22, 44, CER[6]) c:px(20, 38, CER[6])
-G.fin(c, "yogurt")
+
+-- yogurt: glass jar, fruit layer under creamy yogurt with a swirled peak, spoon standing in, one drip down the glass
+local CR = { "#8a80aa", "#b8aecc", "#dcd2e0", "#f2e8e4", "#fff6e6", "#fffdf2" }
+local FR = { "#3e1038", "#6a1a4e", "#9a2860", "#c43c74", "#e8688c", "#ffa8b0" }
+local GL = { "#33467c", "#5578b2", "#86abd6", "#b8d8ea", "#def2f6", "#f6fdff" }
+local MT = { "#2e3f66", "#4a6a9a", "#7098bc", "#a0c4da", "#d0e8f0", "#f4ffff" }
+-- spoon
+tube({ {47, 3}, {44, 10}, {40, 16}, {38, 22} }, 1.3, MT)
+local bowl, bn = G.oval(37, 24, 3, 4.2, 0.3, 1)
+tone(bowl, bn, MT)
+-- jar body
+local jar = c:rrect(13, 24, 51, 56, 6)
+local cn = {}
+jar:each(function(x, y) local nx = max(-0.95, min(0.95, (x - 32) / 20)) cn[K(x, y)] = { G.norm(nx, 0, sqrt(1 - nx * nx)) } end)
+-- contents
+local fruit = HP.mask() local yog = HP.mask()
+jar:each(function(x, y) if y >= 45 + floor(sin(x * 0.45) * 1.0 + 0.5) then fruit:set(x, y) else yog:set(x, y) end end)
+tone(yog, cn, CR)
+tone(fruit, cn, FR)
+fruit:each(function(x, y) if X.hash(x, y, 4) > 0.9 then c:px(x, y, FR[6]) elseif X.hash(x, y, 8) > 0.9 then c:px(x, y, FR[1]) end end)
+-- domed top + swirl
+local top, tn = G.oval(32, 24, 19, 5, 0, 1)
+tone(top, tn, CR)
+local sw, sn2 = G.oval(32, 18, 7, 5, 0, 1)
+tone(sw, sn2, CR)
+local sw2, sn3 = G.oval(32, 13, 4, 3, 0, 1)
+tone(sw2, sn3, CR)
+c:px(33, 9, CR[4]) c:px(33, 10, CR[3]) c:px(32, 10, CR[4])
+for _, p in ipairs{ {28, 18}, {29, 19}, {31, 20}, {35, 18}, {36, 19} } do c:px(p[1], p[2], CR[2]) end
+-- glass wall
+local ring = jar:copy():cut(jar:copy():shrink(2))
+local rn = X.pillow(jar, 6)
+tone(ring, rn, GL)
+for y = 29, 51 do c:put(18, y, GL[6]) end
+c:put(19, 29, GL[5]) c:put(19, 30, GL[5]) c:put(18, 52, GL[5])
+-- rim band
+c:fillMask(c:rect(15, 25, 49, 25), GL[4])
+c:fillMask(c:rect(17, 26, 47, 26), GL[2])
+-- drip (quirk)
+c:fillMask(c:rect(40, 25, 42, 34), CR[5]) c:fillMask(c:rect(42, 27, 42, 34), CR[3])
+local dr, dn = G.oval(41, 36, 2.6, 3.2, pi / 2, 1)
+tone(dr, dn, CR)
+c:px(40, 34, CR[6])
+
+G.save(c, NAME)

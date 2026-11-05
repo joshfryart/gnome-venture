@@ -1,51 +1,67 @@
--- wing-scale-lantern (lean W2_40)
--- Hanging hex lantern shingled with overlapping butterfly-wing scales, warm glow slit, tassel bead beneath.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- wing-scale-lantern (lean P1b_O19)
+local NAME = "wing-scale-lantern"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function L(n,o) return X.light(n, o or { amb = 0.1, wrap = 0.25 }) end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "wing-scale-lantern" }
-local BRASS = { "#4a2a2c", "#7a4a30", "#a9702e", "#d49a3e", "#f0c768", "#fff0a6" }
-local INK = "#5a2540"
--- ring + chain
-G.line(c, { {30,6},{32,5},{34,6},{34,8},{32,9},{30,8},{30,6} }, BRASS[4])
-for y = 10, 11 do c:px(32, y, (y % 2 == 0) and BRASS[5] or BRASS[2]) end
--- cap (trapezoid)
-local cap = c:poly{ {32,12},{39,15},{43,17},{21,17},{25,15} }
-G.tone(c, cap, L(X.pillow(cap, 4)), BRASS, { 0.2, 0.4, 0.6, 0.8, 0.92 })
--- body
-local function hw(y) local t = (y - 17) / 25 return 11 + 2.5 * sin(t * pi) end
-local body = HP.mask()
-for y = 17, 42 do local h = hw(y) for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do body:set(x, y) end end
-local n = X.pillow(body, 12)
-local v = L(n, { amb = 0.25, wrap = 0.35 })
-local SC = { "#b0405e", "#d8587a", "#f27f8c", "#f9a56e", "#fcc86a", "#fff0a0" }
-body:each(function(x, y)
-  local row = floor((y - 17) / 5)
-  local ry = (y - 17) % 5
-  local off = (row % 2 == 0) and 0 or 3
-  local cx = (x + off) % 6
-  -- scallop: bottom edge curves up at scale centre
-  local edge = 4 - floor(abs(cx - 2.5) * 0.9)
-  local k = v[K(x, y)] or 0.5
-  local glow = 1 - min(1, abs(x - 32) / 9)
-  local t = min(1, max(0, k * 0.7 + glow * 0.35 - (y - 17) * 0.004))
-  local idx = 1 + floor(t * 5.99)
-  if ry == edge then idx = max(1, idx - 2) c:px(x, y, SC[idx])
-  elseif ry > edge then c:px(x, y, SC[max(1, idx - 2)])
-  else c:px(x, y, SC[idx]) end
-  if ry == 1 and cx == 2 and X.hash(x, y, 5) > 0.4 then c:px(x, y, SC[6]) end
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local function tone(m, n, ramp, o) return G.toneN(c, m, n, ramp, o) end
+local function ball(cx, cy, rx, ry, ang, ramp, o) local m, n = G.oval(cx, cy, rx, ry, ang, o and o.flat) tone(m, n, ramp, o) return m, n end
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, vein)
+  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t)) ^ 0.7 + 0.3 end)
+  tone(m, n, ramp)
+  if vein then m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.17 and T[k] > 0.08 and T[k] < 0.92 then c:put(x, y, vein) end end) end
+  return m
+end
+local function tube(p, w, ramp) local m, n = G.tube(p, function(t) return type(w) == "function" and w(t) or w end) tone(m, n, ramp) return m end
+local function cylrect(x0, y0, x1, y1, ramp)
+  local m, n = HP.mask(), {}
+  local hw, cx = (x1 - x0 + 1) / 2, (x0 + x1) / 2
+  for y = y0, y1 do for x = x0, x1 do m:set(x, y) local nx = max(-0.95, min(0.95, (x - cx) / (hw + 0.3))) n[K(x, y)] = { G.norm(nx, 0, sqrt(1 - nx * nx)) } end end
+  tone(m, n, ramp) return m
+end
+
+-- wing scale lantern: brass lantern whose panes are monarch-style butterfly wing, glowing from within, antenna finial
+local BR = { "#3b2410", "#6a421a", "#9a6a26", "#c99436", "#ecc258", "#fff0a0" }
+local OR = { "#5a1c10", "#a63a14", "#e0641c", "#f59a2a", "#ffc84a", "#fff0a0" }
+local DK = "#2a1418"
+-- handle
+tube({ {24, 14}, {24, 4}, {40, 4}, {40, 14} }, 1.3, BR)
+-- antennae finial
+tube({ {32, 12}, {31, 7}, {28, 5}, {26, 7} }, 0.55, BR)
+tube({ {32, 12}, {33, 7}, {36, 5}, {38, 7} }, 0.55, BR)
+ball(26, 8, 1.4, 1.4, 0, BR) ball(38, 8, 1.4, 1.4, 0, BR)
+-- roof
+local roof = c:poly{ {32, 12}, {47, 23}, {17, 23} }
+tone(roof, X.pillow(roof, 5), BR)
+c:fillMask(c:rect(17, 23, 47, 24), BR[1])
+-- panes (wing)
+local pane = c:rect(21, 25, 43, 47)
+pane:each(function(x, y)
+  local dx, dy = (x - 32) / 11.5, (y - 36) / 12.5
+  local d = sqrt(dx * dx + dy * dy) + (X.hash(x, y, 3) - 0.5) * 0.18
+  local i = d < 0.3 and 6 or d < 0.5 and 5 or d < 0.72 and 4 or d < 0.95 and 3 or d < 1.2 and 2 or 1
+  c:put(x, y, OR[i])
 end)
--- glowing seam slit
-for y = 19, 40 do c:px(32, y, (y % 5 == 4) and SC[4] or "#fff6c0") end
--- frame ribs
-for y = 17, 42 do local h = hw(y) c:px(floor(32 - h + 0.5), y, BRASS[2]) c:px(floor(32 + h - 0.5), y, BRASS[1]) end
--- bottom cap + tassel
-local bot = c:poly{ {22,42},{42,42},{38,45},{26,45} }
-G.tone(c, bot, L(X.pillow(bot, 3)), BRASS, { 0.25, 0.5, 0.75, 0.9 })
-for y = 46, 47 do c:px(32, y, BRASS[3]) end
-local bead = c:ellipse(32, 50, 2.6, 3)
-G.tone(c, bead, L(X.pillow(bead, 3)), SC, { 0.2, 0.4, 0.6, 0.8 })
-c:px(31, 49, SC[6])
-c:px(25, 25, "#fff6c0") c:px(24, 26, "#fff6c0")
-G.fin(c, "wing-scale-lantern")
+-- wing veins fanning from lower centre
+local function vein(x0, y0, x1, y1)
+  local steps = max(abs(x1 - x0), abs(y1 - y0))
+  for i = 0, steps do c:put(floor(x0 + (x1 - x0) * i / steps + 0.5), floor(y0 + (y1 - y0) * i / steps + 0.5), DK) end
+end
+vein(32, 47, 32, 26) vein(32, 47, 24, 27) vein(32, 47, 40, 27) vein(32, 47, 22, 36) vein(32, 47, 42, 36)
+-- dark margin with pale spots
+for y = 25, 47 do for x = 21, 43 do
+  if x <= 23 or x >= 41 or y >= 45 then c:put(x, y, DK) end
+end end
+for y = 28, 44, 4 do c:px(22, y, "#fff0d0") c:px(42, y, "#fff0d0") end
+for x = 25, 40, 4 do c:px(x, 46, "#fff0d0") end
+-- frame posts and bands
+for _, x in ipairs{ 19, 20 } do for y = 25, 47 do c:put(x, y, x == 19 and BR[5] or BR[3]) end end
+for _, x in ipairs{ 44, 45 } do for y = 25, 47 do c:put(x, y, x == 44 and BR[3] or BR[1]) end end
+for x = 19, 45 do c:put(x, 25, BR[1]) c:put(x, 26, BR[2]) end
+-- base
+local base = c:rrect(16, 48, 48, 54, 2)
+tone(base, X.pillow(base, 4), BR)
+ball(32, 57, 2.6, 2.4, 0, BR)
+c:px(31, 56, BR[6])
+
+G.save(c, NAME)

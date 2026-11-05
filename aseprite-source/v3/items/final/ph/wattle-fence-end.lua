@@ -1,46 +1,111 @@
--- wattle-fence-end (lean W2_38)
--- Four hazel stakes with three woven withy rows (over/under), pointed tops of uneven height, last withy curls out.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- wattle-fence-end (lean P1b_O18)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "wattle-fence-end" }
-local abs, sin, min, max = math.abs, math.sin, math.min, math.max
-local STAKE = { "#3d2a2c", "#5e3d36", "#845a43", "#aa7c55", "#cfa570", "#ecd0a0" }
-local WITHY = { "#4a2e24", "#74442c", "#a06a3a", "#c98f50", "#e8b56a", "#f8d896" }
-local SOIL  = { "#3a2a2e", "#5a4036", "#7a5a44" }
-local tok = { r = { name = "wood" } }
-c:groundShadow(33, 53, 21, 3)
-c:fillMask(c:ellipse(33, 52, 20, 3), SOIL[2])
-c:fillMask(c:ellipse(31, 51, 17, 2), SOIL[3])
-local function tone(m, n, ramp, cuts) G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), ramp, cuts or { 0.2, 0.38, 0.55, 0.72, 0.87 }, nil, tok) end
-local xs, tops = { 20, 29, 38, 47 }, { 13, 9, 15, 11 }
-local rows = { 21, 30, 39 }
-local function withy(x0, x1, y, hw, ph)
-  local pts = {}
-  for i = 0, 3 do local t = i / 3; pts[#pts + 1] = { x0 + (x1 - x0) * t, y + sin(t * 6.3 + ph) * 0.8 } end
-  local m, n = G.tube(pts, function(t) return hw end)
-  tone(m, n, WITHY)
-  return m
+local floor, abs, max, min, sin, cos, pi, sqrt = math.floor, math.abs, math.max, math.min, math.sin, math.cos, math.pi, math.sqrt
+local function cl(i, n) return max(1, min(n, i)) end
+local NAME = "wattle-fence-end"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local ROD = { "#6a5638", "#8f7650", "#b89c68", "#d9c28c", "#efdfa8", "#fcf2cc" }
+local STK = { "#3f2f2c", "#5c4338", "#7e5e48", "#a07f5e", "#c3a47c", "#e2c9a0" }
+local RIB = { "#5e1226", "#9c1f36", "#d63a48", "#ff7a80" }
+local tR, tS, tX = { r = { name = "rod" } }, { r = { name = "stake" } }, { r = { name = "charm" } }
+local PER, SW, RH = 8, 3, 4
+local function rodc(yy, sh, u, v)
+  local b = (yy == 0 and 5) or (yy == 1 and 4) or (yy == 2 and 3) or 2
+  b = b + sh
+  local h = X.hash(u, v, 3)
+  if h > 0.9 then b = b - 1 elseif h < 0.05 and yy < 2 then b = b + 1 end
+  return ROD[cl(b, 6)]
 end
-for r, y in ipairs(rows) do withy(15, 52, y, 1.7, r) end
-for i, x in ipairs(xs) do
-  local m, n = G.tube({ { x, tops[i] }, { x, tops[i] + 14 }, { x, 40 }, { x, 52 } }, function(t) return t < 0.12 and 0.8 + t * 12 or 2.2 end)
-  tone(m, n, STAKE)
-  for y = tops[i] + 6, 50, 5 do if X.hash(x, y, 3) > 0.4 then c:px(x - 1 + (y % 2), y, STAKE[2]) end end  -- grain
+-- weave cell colour at panel coords (u>=0, v>=0)
+local function weave(u, v, sh, H)
+  local k, r = floor(u / PER), floor(v / RH)
+  local uu, yy = u - k * PER, v - r * RH
+  local over = (k + r) % 2 == 0
+  local low = (v > H - 5) and -1 or 0
+  if uu < SW and over then
+    local b = (uu == 0 and 5) or (uu == 1 and 4) or 3
+    if yy == 0 then b = b - 2 elseif yy == 3 then b = b - 1 end
+    return STK[cl(b + sh + low, 6)], tS
+  end
+  local sh2 = sh + low
+  if (uu == 7 and ((k + 1 + r) % 2 == 0)) or (uu == SW and over) then sh2 = sh2 - 1 end
+  if uu < SW and not over and yy == 0 then sh2 = sh2 + 1 end
+  return rodc(yy, sh2, u, v), tR
 end
--- over crossings
-for r, y in ipairs(rows) do
-  for i, x in ipairs(xs) do
-    if (i + r) % 2 == 0 then
-      local m, n = G.tube({ { x - 4, y }, { x - 1, y }, { x + 1, y }, { x + 4, y } }, function(t) return 1.7 end)
-      tone(m, n, WITHY)
+local function stakeTop(k, uu, v, sh)
+  local th = 3 + floor(X.hash(k, 0, 9) * 3)
+  if uu >= SW or v < -th or (v == -th and uu ~= 1) then return nil end
+  local b = (uu == 0 and 5) or (uu == 1 and 4) or 3
+  if v == -th then b = 6 end
+  return STK[cl(b + sh, 6)]
+end
+local function post(x0, ytop, ybot, ramp)
+  local prof = { 5, 6, 5, 4, 3, 2, 2 }
+  for y = ytop, ybot do for i = 0, 6 do
+    local x = x0 + i
+    local skip = (y == ytop and (i < 2 or i > 4)) or (y == ytop + 1 and (i < 1 or i > 5))
+    if not skip then
+      local b = prof[i + 1]
+      if y <= ytop + 2 then b = b + 1 end
+      local h = X.hash(x, y, 7)
+      if h > 0.9 then b = b - 1 elseif (y + i) % 5 == 0 and h > 0.5 then b = b - 1 end
+      c:put(x, y, ramp[cl(b, 6)], tS)
+    end
+  end end
+end
+local function twine(x0, x1, y)
+  for x = x0, x1 do for d = 0, 1 do c:put(x, y + d, ((x + d) % 2 == 0) and "#e8d8a8" or "#9a8458", tX) end end
+end
+local function bow(x, y, tails)
+  c:fillMask(c:rect(x - 1, y - 1, x + 1, y + 1), RIB[3]) c:px(x - 1, y - 1, RIB[4]) c:px(x + 1, y + 1, RIB[2])
+  c:px(x - 3, y - 1, RIB[3]) c:px(x - 3, y, RIB[2]) c:px(x - 2, y - 2, RIB[4]) c:px(x + 3, y - 1, RIB[3]) c:px(x + 3, y, RIB[2]) c:px(x + 2, y - 2, RIB[4])
+  for _, tl in ipairs(tails) do
+    local tx, len = tl[1], tl[2]
+    for d = 1, len do
+      c:put(x + tx, y + 1 + d, RIB[(d % 3 == 0) and 2 or 3], tX) c:put(x + tx + 1, y + 1 + d, RIB[2], tX)
+    end
+    c:put(x + tx, y + 2 + len, RIB[2], tX) c:put(x + tx + 1, y + 1 + len, RIB[1], tX)
+  end
+end
+c:groundShadow(32, 52, 26, 4)
+local X0, Y0, H, W = 14, 26, 24, 35
+local ext = { 5, 2, 4, 1, 5, 3 }
+for x = X0 - 6, X0 + W do
+  local u = x - X0
+  local k, uu = floor(u / PER), u % PER
+  for y = Y0 - 6, Y0 + H - 1 do
+    local v = y - Y0
+    if v >= 0 then
+      if u >= 0 then local col, tk = weave(u, v, 0, H) c:put(x, y, col, tk)
+      else
+        local r, yy = floor(v / RH), v % RH
+        local e = ext[r + 1]
+        if -u <= e then
+          local col = rodc(yy, 0, u, v)
+          if -u == e and yy > 0 and yy < 3 then col = ROD[6] elseif -u == e then col = ROD[4] end
+          c:put(x, y, col, tR)
+        end
+      end
+    elseif u >= 0 then
+      local col = stakeTop(k, uu, v, 0) if col then c:put(x, y, col, tS) end
     end
   end
 end
--- shadow under withies on stakes
-for _, y in ipairs(rows) do for _, x in ipairs(xs) do c:px(x + 2, y + 2, STAKE[1]) end end
--- quirk: curled withy end + a sprouted leaf on a stake
-G.line(c, { { 52, 30 }, { 54, 29 }, { 55, 27 }, { 54, 25 }, { 52, 25 } }, WITHY[4])
-c:px(53, 30, WITHY[2]) c:px(52, 26, WITHY[5])
-c:fillMask(c:ellipse(25, 8, 3, 1.5), "#5fa34f") c:px(23, 8, "#9ccd6c") c:px(26, 9, "#2f6a46")
-for _, p in ipairs{ {12,52}, {14,51}, {50,52}, {53,51}, {33,53} } do c:px(p[1], p[2], "#5fa34f") c:px(p[1], p[2]-1, "#9ccd6c") end
-G.fin(c, "wattle-fence-end")
+post(49, 12, 52, STK)
+c:fillMask(c:ellipse(52, 10, 3, 2), STK[5]) c:px(51, 9, STK[6]) c:px(54, 11, STK[3]) c:px(53, 12, STK[2])
+twine(49, 55, 38)
+twine(49, 55, 46)
+bow(52, 25, { { -2, 7 }, { 1, 9 } })
+-- charm cluster hung from the post: hoop + feather + bead
+for d = 0, 3 do c:px(47, 28 + d, "#e8d8a8") end
+local ring = c:ellipse(47, 35, 3, 3):cut(c:ellipse(47, 35, 1, 1))
+ring:each(function(x, y) c:put(x, y, (x + y < 82) and "#ffd860" or "#a86a1c", tX) end)
+c:px(45, 33, "#fff6c0")
+for d = 0, 7 do c:px(47, 39 + d, d < 5 and "#7ad0c8" or "#3a8f8c") c:px(48, 39 + d, d % 2 == 0 and "#b8f0e6" or "#4aa89c") c:px(46, 40 + d, d % 3 == 0 and "#3a8f8c" or "#b8f0e6") end
+c:fillMask(c:rect(44, 30, 45, 31), "#3a78d8") c:px(44, 30, "#b8e4ff")
+-- grass tufts
+for _, g in ipairs{ {16, 50}, {40, 51} } do
+  c:px(g[1], g[2], "#2f7a34") c:px(g[1] + 1, g[2] - 1, "#52b040") c:px(g[1] + 1, g[2], "#2f7a34") c:px(g[1] - 1, g[2] - 1, "#86d850") c:px(g[1] + 2, g[2] - 2, "#86d850")
+end
+G.save(c, NAME)

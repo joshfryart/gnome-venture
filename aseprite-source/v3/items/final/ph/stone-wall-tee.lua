@@ -1,62 +1,68 @@
--- stone-wall-tee (lean W2_30)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stone-wall-tee (lean P1b_O15)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stone-wall-tee" }
-local floor, abs = math.floor, math.abs
-local S = { "#2e2940", "#4a4562", "#6a6483", "#8d86a0", "#b3acb8", "#d6cdc8" }
-local WARM = { "#5b4a58", "#7d6a6c", "#a08a82", "#c5ae9c" }
-local function px(x, y, col) if x >= 0 and x < 64 and y >= 0 and y < 64 then c:px(x, y, col) end end
--- masonry block: courses of 5px, staggered joints, per-brick tone + bevel
-local function masonry(x0, y0, x1, y1, seed)
-  for y = y0, y1 do for x = x0, x1 do px(x, y, S[1]) end end
-  local row, y = 0, y0
-  while y <= y1 do
-    local h = math.min(4, y1 - y)
-    local x = x0 - ((row * 3 + seed) % 5)
-    while x <= x1 do
-      local w = 6 + floor(X.hash(x, y, seed) * 5)
-      local r = X.hash(x + 7, y + 3, seed + 1)
-      local base = r < 0.25 and 3 or (r < 0.8 and 2 or 4)
-      local warm = r > 0.86
-      for yy = 0, h - 1 do for xx = 0, w - 2 do
-        local X1, Y1 = x + xx, y + yy
-        if X1 >= x0 and X1 <= x1 and Y1 <= y1 then
-          local t = base
-          if yy == 0 then t = t + 1 elseif yy == h - 1 and h > 2 then t = t - 1 end
-          if xx == 0 then t = math.max(t, base + 1) end
-          if xx == w - 2 then t = t - 1 end
-          t = math.max(2, math.min(6, t))
-          px(X1, Y1, warm and WARM[math.min(4, t - 1)] or S[t - 0 > 6 and 6 or t])
-        end
-      end end
-      x = x + w
-    end
-    y = y + h + 1; row = row + 1
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local H = X.hash
+local NAME = "stone-wall-tee"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local ST = { "#443a52", "#61546d", "#807085", "#a08f98", "#c3b3ae", "#e6d8cc" }
+local MORT = "#32283d"
+local MOSS = { "#1f3b2c", "#2f5a34", "#4b8040", "#76a84c", "#a6cc66" }
+c:groundShadow(32, 55, 26, 3)
+local bar = c:rect(6, 14, 57, 31)
+local stem = c:rect(21, 32, 42, 52)
+local shape = bar:copy():add(stem)
+-- courses: {ya, yb, offset, seed}
+local courses = { {14,22,0,1}, {23,31,7,2}, {32,39,3,3}, {40,46,9,4}, {47,52,5,5} }
+for _, cr in ipairs(courses) do
+  local ya, yb, off, sd = cr[1], cr[2], cr[3], cr[4]
+  local xs, x = {}, 6 - off
+  while x < 60 do xs[#xs + 1] = x x = x + 11 + floor(H(x, ya, sd) * 6) end
+  xs[#xs + 1] = x
+  for i = 1, #xs - 1 do
+    local bx0, bx1 = xs[i] + 1, xs[i + 1] - 1
+    local base = 3 + floor(H(i, sd, 7) * 2.2)
+    for y = ya, yb do for xx = bx0 - 1, bx1 do
+      if shape:has(xx, y) then
+        local idx
+        if y == yb or xx == bx0 - 1 then idx = 0
+        elseif y == ya then idx = 6
+        elseif y == ya + 1 then idx = 5
+        elseif xx == bx0 then idx = base + 1
+        elseif xx == bx1 or y == yb - 1 then idx = base - 1
+        else idx = base; local h = H(xx, y, 9) if h > 0.9 then idx = base + 1 elseif h < 0.08 then idx = base - 1 end end
+        if idx >= 1 and y >= 32 and y <= 34 then idx = idx - (35 - y > 2 and 2 or 1) end
+        if idx >= 1 and xx >= 36 and y >= 32 then idx = idx - 1 end
+        if idx == 0 then c:put(xx, y, MORT) else c:put(xx, y, ST[max(1, min(6, idx))]) end
+      end
+    end end
   end
 end
-local function capstone(x0, y0, x1, y1)
-  for y = y0, y1 do for x = x0, x1 do
-    local t = 5
-    if y == y0 then t = 6 elseif y == y1 then t = 3 elseif y == y1 - 1 then t = 4 end
-    if x == x1 then t = t - 1 end
-    px(x, y, S[t])
-  end end
-  px(x0 + 2, y0 + 1, S[6]) px(x0 + 3, y0 + 2, S[4]) px(x1 - 3, y0 + 2, S[4])
+-- right-end shading of the bar
+for y = 14, 31 do c:put(57, y, ST[2]) c:put(56, y, ST[3]) end
+-- cracks / chips
+for _, p in ipairs{ {16,18},{17,19},{42,26},{43,27},{44,27},{30,36},{31,37},{27,43} } do c:put(p[1], p[2], ST[1]) end
+-- moss tufts on top
+local function tuft(x0, x1, h, seed)
+  local n = x1 - x0 + 1
+  for x = x0, x1 do
+    local hh = max(1, floor(h * sin(pi * (x - x0 + 0.5) / n) + H(x, 1, seed) * 1.2 + 0.3))
+    for dy = 0, hh do
+      local y = 14 - dy
+      local i = (dy == hh) and 5 or (dy >= hh - 1 and 4 or 3)
+      c:put(x, y, MOSS[i])
+    end
+    c:put(x, 15, MOSS[2]) if H(x, 2, seed) > 0.5 then c:put(x, 16, MOSS[3]) end
+  end
 end
-local function moss(x, y, n) for i = 0, n - 1 do px(x + i, y, "#5f9a4c") px(x + i, y - 1 + (i % 2), "#8fc462") end px(x, y, "#3d6b3c") end
-
-c:groundShadow(32, 58, 24, 3)
-masonry(5, 18, 58, 32, 7)            -- back wall face
-for x = 5, 58 do px(x, 13, S[6]) for y = 14, 16 do px(x, y, S[5]) end px(x, 17, S[4]) end
--- branch wall coming toward the viewer
-masonry(24, 40, 39, 58, 21)
-for x = 24, 39 do for y = 33, 38 do local t = (y == 33) and 6 or ((y == 38) and 3 or 5) px(x, y, S[t]) end end
-for y = 33, 38 do px(39, y, S[3]) px(24, y, S[6]) end
-for y = 33, 58 do px(39, y, S[2]) end
-px(30, 35, S[4]) px(33, 36, S[4])
--- junction cap stone where the two walls meet
-capstone(22, 29, 41, 34)
-moss(26, 58, 4) moss(8, 32, 3)
-px(31, 30, "#f6d34a") px(30, 30, "#fff6f2") px(32, 30, "#fff6f2") px(31, 29, "#fff6f2")  -- quirk: daisy on the junction
-
-G.fin(c, "stone-wall-tee")
+tuft(11, 17, 3, 1) tuft(29, 36, 4, 2) tuft(49, 54, 3, 3)
+-- moss creeping in crevices
+for _, p in ipairs{ {22,50},{23,50},{24,51},{22,51},{23,51},{22,52},{23,52},{24,52},{25,52},{40,52},{41,52},{41,51},{8,31},{9,31},{10,31},{9,30},{46,23},{47,23},{47,22},{26,39},{27,39},{27,38} } do
+  c:put(p[1], p[2], MOSS[H(p[1], p[2], 3) > 0.5 and 3 or 2])
+end
+c:put(22, 49, MOSS[4]) c:put(41, 50, MOSS[4])
+-- quirk: tiny pink flower on the tallest tuft
+c:put(33, 10, MOSS[3]) c:put(33, 11, MOSS[3])
+c:put(33, 8, "#ffffff" == "" and "" or "#f5a3c0") c:put(32, 9, "#f5a3c0") c:put(34, 9, "#e0709f") c:put(33, 10, "#e0709f")
+c:put(33, 9, "#ffd966") c:put(32, 8, "#ffd0e0")
+G.save(c, NAME)

@@ -1,72 +1,53 @@
--- triticale (lean W2_37)
--- Slim wheat-rye ear: staggered plump grains on a curved rachis, a fan of long awns, jointed stem, two blue-green flag leaves.
--- quirk: a dewdrop hangs from one awn tip.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- triticale (lean P1b_O18)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "triticale" }
-local sin, cos, pi, sqrt, max, min = math.sin, math.cos, math.pi, math.sqrt, math.max, math.min
-local GR  = { "#5a2a1c", "#8a4a22", "#b8741f", "#d9a03a", "#efc65c", "#fbe69a" }
-local ST  = { "#4d5a2c", "#6f7f3a", "#98a54c", "#c2c96c", "#e0e590", "#f4f4b8" }
-local LF  = { "#173e48", "#1f5a52", "#2f7a58", "#4b9a60", "#76b66c", "#a6d084" }
-local AW  = "#e6c070"
-local AW2 = "#b88a3c"
-local tok = { r = { name = "p" } }
-local function shade(m, ramp, R, o)
-  local n = X.pillow(m, R)
-  local v = X.light(n, { amb = 0.1, wrap = 0.25 })
-  G.tone(c, m, v, ramp, nil, o, tok)
-  return n, v
+local floor, abs, max, min, sin, cos, pi, sqrt = math.floor, math.abs, math.max, math.min, math.sin, math.cos, math.pi, math.sqrt
+local function cl(i, n) return max(1, min(n, i)) end
+local NAME = "triticale"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local STK  = { "#34502c", "#4f7a38", "#7aa244", "#a9c35a", "#d2de80", "#eef6b0" }
+local LEAF = { "#1c3640", "#274f50", "#376e58", "#52905e", "#7bb374", "#abd68e" }
+local GR   = { "#51415a", "#7a5f4a", "#a98648", "#d3ad55", "#efd078", "#fff0a8" }
+local AW   = { "#7e6038", "#b8923f", "#e0bc58" }
+local tk = { r = { name = "p" } }
+c:groundShadow(30, 59, 11, 2)
+local function leaf(ax, ay, qx, qy, bx, by, wmax)
+  local m, n, T, S = G.blade(ax, ay, qx, qy, bx, by, function(t) if t > 0.99 then return -1 end return 0.5 + wmax * sin(pi * t ^ 0.8) ^ 0.8 end)
+  G.toneN(c, m, n, LEAF, { tok = tk })
+  m:each(function(x, y) local k = K(x, y) local s = S[k]
+    if s and abs(s) < 0.2 and T[k] > 0.08 and T[k] < 0.9 then c:put(x, y, s <= 0 and LEAF[6] or LEAF[3], tk) end end)
 end
-c:groundShadow(32, 57, 9, 2)
--- leaves
-local function leaf(p, w)
-  local m, n, T, S = G.tube(p, function(t) return w * sin(pi * min(1, t * 1.02)) ^ 0.7 + 0.3 end)
-  local v = X.light(n, { amb = 0.12, wrap = 0.25 })
-  G.tone(c, m, v, LF, nil, nil, tok)
-  m:each(function(x, y) local k = K(x, y)
-    if math.abs(S[k]) < 0.22 and T[k] > 0.12 and T[k] < 0.9 then c:put(x, y, S[k] <= 0 and LF[5] or LF[3], tok) end end)
-  return m
-end
-leaf({ {32, 47}, {22, 42}, {14, 42}, {8, 50} }, 2.6)
-leaf({ {32, 50}, {40, 46}, {48, 47}, {55, 53} }, 2.2)
--- stem + node
-local sm, sn = G.tube({ {31, 58}, {31, 52}, {33, 42}, {33, 33} }, function(t) return 1.6 end)
-shade(sm, ST, 1.8)
-for x = 29, 34 do if sm:has(x, 48) then c:px(x, 48, ST[2]) end if sm:has(x, 47) then c:px(x, 47, ST[1]) end end
--- ear: grains along curved rachis
-local P = { {33, 34}, {32, 26}, {34, 18}, {35, 11} }
-local rach = G.tube(P, function(t) return 0.9 end)
-c:fillMask(rach, ST[2])
-local N = 7
-for i = 0, N do
-  local t = i / N
+leaf(29, 47, 15, 38, 6, 47, 3.0)
+leaf(30, 41, 44, 31, 56, 40, 2.8)
+-- stalk with node
+local sm, sn, sT = G.tube({ {30, 58}, {28, 48}, {31, 38}, {33, 30} }, function(t) return 1.8 - 0.5 * t end)
+G.toneN(c, sm, sn, STK, { tok = tk })
+sm:each(function(x, y) local t = sT[K(x, y)] if abs(t - 0.3) < 0.025 then c:put(x, y, STK[1], tk) elseif abs(t - 0.3) < 0.05 then c:put(x, y, STK[2], tk) end end)
+-- ear: grain pairs along a bowed axis
+local P = { {33, 30}, {34, 23}, {38, 17}, {43, 15} }
+local awns = {}
+for i = 8, 1, -1 do
+  local t = (i - 0.5) / 8
   local x, y = G.bez(P, t)
-  local x2, y2 = G.bez(P, min(1, t + 0.03))
-  local ux, uy = x2 - x, y2 - y
-  local l = sqrt(ux * ux + uy * uy) ux, uy = ux / l, uy / l
-  local sz = 1 - 0.3 * t
+  local x2, y2 = G.bez(P, min(1, t + 0.01))
+  local tx, ty = x2 - x, y2 - y local l = sqrt(tx * tx + ty * ty) tx, ty = tx / l, ty / l
+  local px, py = -ty, tx
+  local ang = math.atan(ty, tx)
   for _, s in ipairs{ -1, 1 } do
-    local off = (i % 2 == 0) and 0 or 1.6
-    local cx, cy = x + s * 2.9 * sz, y + (s > 0 and off or 1.6 - off) - 1
-    local gx, gy = ux + s * 0.35, uy
-    local gl = sqrt(gx * gx + gy * gy)
-    local m = G.rell(cx, cy, gx / gl, gy / gl, 3.6 * sz, 2.2 * sz)
-    shade(m, GR, 2.2)
-    c:px(math.floor(cx), math.floor(cy), GR[3])
-    -- crease
-    c:px(math.floor(cx + s * 0.4), math.floor(cy + 1), GR[2])
-    if i % 2 == 0 and s < 0 or i % 2 == 1 and s > 0 then c:px(math.floor(cx - 1), math.floor(cy - 1), GR[6]) end
+    local gx, gy = x + px * s * 2.0, y + py * s * 2.0
+    local m, n = G.oval(gx, gy, 3.0, 1.9, ang + s * 0.3, 0.9)
+    G.toneN(c, m, n, GR, { tok = tk })
+    m:edge():each(function(ex, ey) c:put(ex, ey, (ex + ey > gx + gy) and GR[1] or GR[2], tk) end)
+    if (i + (s > 0 and 1 or 0)) % 2 == 0 then awns[#awns + 1] = { gx + tx * 2.8, gy + ty * 2.8, ang + s * 0.2, i } end
   end
 end
--- awns: thin straws fanning from the ear tip and flanks
-local awns = {
-  { 35, 10, 30, 1 }, { 36, 9, 36, 0 }, { 36, 10, 43, 2 }, { 34, 12, 25, 4 },
-  { 38, 15, 47, 9 }, { 29, 18, 20, 9 }, { 37, 22, 49, 17 },
-}
 for _, a in ipairs(awns) do
-  G.line(c, { {a[1], a[2]}, { (a[1] + a[3]) / 2 + 0.5, (a[2] + a[4]) / 2 }, {a[3], a[4]} }, AW)
+  for d = 0, 12 do
+    local ax, ay = a[1] + cos(a[3]) * d, a[2] + sin(a[3]) * d
+    c:put(floor(ax + 0.5), floor(ay + 0.5), d < 5 and AW[2] or (d % 4 == 3 and AW[1] or AW[3]), tk)
+  end
 end
-c:px(30, 1, AW2) c:px(26, 4, AW2)
--- quirk: dewdrop
-c:px(36, 1, "#dff4ff") c:px(36, 2, "#7fb4e0") c:px(35, 2, "#bfe4ff")
-G.fin(c, "triticale")
+-- quirk: dewdrop on the left blade
+local dx, dy = floor((0.25 * 29 + 0.5 * 15 + 0.25 * 6) + 0.5), floor((0.25 * 47 + 0.5 * 38 + 0.25 * 47) + 0.5) - 2
+c:px(dx, dy, "#f4fcff") c:px(dx + 1, dy, "#8fd2f2") c:px(dx, dy + 1, "#6ab4e6") c:px(dx + 1, dy + 1, "#3a78b8")
+G.save(c, NAME)

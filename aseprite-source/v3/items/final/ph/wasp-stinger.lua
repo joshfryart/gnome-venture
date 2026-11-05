@@ -1,45 +1,56 @@
--- wasp-stinger (lean W2_37)
--- A severed striped abdomen tip (amber and black bands, fuzzy rim) with a long curved glossy-black needle that hooks back;
--- one tiny barb on the inner curve. quirk: a bead of green venom swells at the tip.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- wasp-stinger (lean P1b_O18)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "wasp-stinger" }
-local sin, pi, sqrt, floor = math.sin, math.pi, math.sqrt, math.floor
-local NE = { "#120e1c", "#241b33", "#3a2d4e", "#574a70", "#8478a0", "#c9c0e0" }
-local AM = { "#6b3510", "#9a5612", "#c98616", "#ecb524", "#f8d84c", "#fff2a4" }
-local BK = { "#100c18", "#1e1729", "#30263f", "#463a58", "#625479", "#8a7ca4" }
-local tok = { r = { name = "p" } }
-c:groundShadow(34, 58, 11, 2)
--- needle
-local P = { {26, 26}, {43, 24}, {53, 38}, {43, 55} }
-local m, n, T, S = G.tube(P, function(t) return 3.0 * (1 - t) ^ 0.9 + 0.35 end)
-local v = X.light(n, { amb = 0.08, wrap = 0.2 })
-G.tone(c, m, v, NE, { 0.25, 0.45, 0.62, 0.78, 0.92 }, nil, tok)
-m:each(function(x, y) local k = K(x, y)
-  if S[k] < -0.3 and S[k] > -0.65 and T[k] > 0.1 and T[k] < 0.8 then c:put(x, y, NE[5], tok) end
-  if S[k] < -0.4 and S[k] > -0.6 and T[k] > 0.25 and T[k] < 0.5 then c:put(x, y, NE[6], tok) end end)
--- barb on the inner curve
-for _, p in ipairs{ {47, 46}, {46, 47}, {45, 49}, {47, 47}, {46, 48} } do c:px(p[1], p[2], NE[3]) end
-c:px(46, 45, NE[5])
--- venom bead
-c:px(43, 56, "#6bd66a") c:px(43, 57, "#2f9a54") c:px(42, 57, "#a8f090") c:px(44, 57, "#2f9a54") c:px(43, 58, "#1f6a44")
--- abdomen
-local ux, uy = 0.72, 0.69
-local ab = G.rell(18, 19, ux, uy, 12.5, 8.6)
-local an = X.pillow(ab, 8)
-local av = X.light(an, { amb = 0.08, wrap = 0.25 })
-local amber, black = HP.mask(), HP.mask()
-ab:each(function(x, y)
-  local a = (x - 18) * ux + (y - 19) * uy
-  local band = floor((a + 12.5) / 4.2)
-  if band % 2 == 0 or band > 5 then black:set(x, y) else amber:set(x, y) end
+local floor, abs, max, min, sin, cos, pi, sqrt = math.floor, math.abs, math.max, math.min, math.sin, math.cos, math.pi, math.sqrt
+local function cl(i, n) return max(1, min(n, i)) end
+local NAME = "wasp-stinger"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local YEL = { "#6b4a12", "#a8731a", "#d9a424", "#f5c936", "#ffe35c", "#fff5a0" }
+local BLK = { "#14101c", "#241a30", "#362848", "#4a3a60", "#65527e", "#8a76a2" }
+local NDL = { "#4a3228", "#78583e", "#a8855a", "#d2b484", "#ecdcaa", "#fff6d8" }
+local VEN = { "#1f4a2a", "#2f7a34", "#52b040", "#86d850", "#c0f078", "#f0ffc0" }
+local tk = { r = { name = "p" } }
+-- needle with barbs
+local NP = { {32, 31}, {37, 38}, {41, 46}, {43, 52} }
+local nm, nn, nT = G.tube(NP, function(t) return 1.7 * (1 - t) + 0.6 end)
+G.toneN(c, nm, nn, NDL, { tok = tk })
+for _, t in ipairs{ 0.38, 0.58, 0.78 } do
+  local x, y = G.bez(NP, t)
+  local x2, y2 = G.bez(NP, t + 0.01)
+  local tx, ty = x2 - x, y2 - y local l = sqrt(tx * tx + ty * ty) tx, ty = tx / l, ty / l
+  local px, py = -ty, tx
+  for _, s in ipairs{ -1, 1 } do
+    local function q(a, b, col) c:put(floor(x + px * s * a - tx * b + 0.5), floor(y + py * s * a - ty * b + 0.5), col, tk) end
+    q(1.6, 0, NDL[3]) q(2.4, 0.6, NDL[2]) q(2.9, 1.8, NDL[1])
+  end
+end
+-- venom drop
+local dm, dn = G.oval(43.5, 55.5, 2.5, 3.2, pi / 2, 1)
+G.toneN(c, dm, dn, VEN, { tok = tk })
+c:px(42, 54, VEN[6]) c:px(42, 55, VEN[5])
+-- striped abdomen
+local BP = { {9, 8}, {17, 16}, {26, 25}, {34, 33} }
+local bm, bn, bT = G.tube(BP, function(t)
+  if t < 0.3 then return 11 * sqrt(max(0, 1 - ((t - 0.3) / 0.3) ^ 2)) end
+  return 11 * (1 - (t - 0.3) / 0.7) ^ 0.7
 end)
-G.tone(c, amber, av, AM, nil, nil, tok)
-G.tone(c, black, av, BK, nil, nil, tok)
--- band seams (dark creases) + fuzz specks
-amber:each(function(x, y) if X.hash(x, y, 7) > 0.93 then c:px(x, y, AM[5]) end end)
--- specular
-c:px(11, 13, "#fffbe8") c:px(12, 12, "#fffbe8") c:px(10, 14, AM[5])
--- stinger socket ring
-c:px(27, 26, BK[3]) c:px(26, 27, BK[3]) c:px(28, 27, BK[2])
-G.fin(c, "wasp-stinger")
+local ym, km = HP.mask(), HP.mask()
+bm:each(function(x, y)
+  local t = bT[K(x, y)]
+  local blk = (t >= 0.22 and t < 0.35) or (t >= 0.5 and t < 0.63) or (t >= 0.76 and t < 0.86) or t >= 0.93
+  if blk then km:set(x, y) else ym:set(x, y) end
+end)
+local v = X.light(bn, { amb = 0.08, wrap = 0.25 })
+local cuts = { 0.26, 0.44, 0.6, 0.75, 0.88 }
+X.tone(c, ym, v, YEL, { cuts = cuts, tok = tk })
+X.tone(c, km, v, BLK, { cuts = cuts, tok = tk })
+-- stripe seams (AO line where bands meet)
+bm:each(function(x, y)
+  local t = bT[K(x, y)]
+  for _, e in ipairs{ 0.22, 0.35, 0.5, 0.63, 0.76, 0.86 } do
+    if abs(t - e) < 0.012 then c:put(x, y, (x + y) % 2 == 0 and BLK[1] or YEL[1], tk) end
+  end
+end)
+local sx, sy = G.specAt(bm, bn, 40)
+if sx then c:px(sx, sy, "#fffbe0") c:px(sx + 1, sy, "#fffbe0") c:px(sx, sy + 1, YEL[6]) end
+G.save(c, NAME)

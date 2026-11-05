@@ -50,7 +50,7 @@ local pebbles = {}
 local safe = inner:copy():shrink(2)
 local function place(x, y, rx, ry, ramp)
   for _, p in ipairs(pebbles) do
-    if ((x - p[1]) / (rx + p[3] + 0.8)) ^ 2 + ((y - p[2]) / (ry + p[4] + 0.6)) ^ 2 < 1 then return false end
+    if ((x - p[1]) / (rx + p[3] + 0.3)) ^ 2 + ((y - p[2]) / (ry + p[4] + 0.2)) ^ 2 < 1 then return false end
   end
   local m, n = G.oval(x, y, rx, ry, 0, 0.9)
   local ok = true
@@ -64,11 +64,12 @@ end
 place(32, 33, 3.4, 2.6, RAMPS[4])   -- quartz
 c:px(31, 32, "#fff8f0") c:px(30, 33, "#ffe8f4") c:px(33, 34, "#c8a8c8")
 place(21, 32, 2.2, 1.6, RAMPS[1])
-for i = 1, 600 do
-  local x = 11 + floor(hx(i, 1, 21) * 42)
-  local y = 23 + floor(hx(i, 2, 21) * 21)
-  local f = floor(hx(i, 3, 21) * 4) + 1
-  place(x, y, 1.6 + hx(i, 4, 21) * 1.5, 1.2 + hx(i, 5, 21) * 0.9, RAMPS[f])
+math.randomseed(7)
+for i = 1, 1500 do
+  local x = 11 + math.random() * 42
+  local y = 23 + math.random() * 21
+  local f = math.random(1, 4)
+  place(floor(x), floor(y), 1.5 + math.random() * 1.2, 1.2 + math.random() * 0.7, RAMPS[f])
 end
 -- weed
 for _, p in ipairs{ {41, 28, "#2f8040"}, {41, 27, "#4da44c"}, {40, 26, "#7cc660"}, {42, 26, "#7cc660"}, {39, 25, "#b0e284"}, {43, 25, "#b0e284"} } do c:px(p[1], p[2], p[3]) end

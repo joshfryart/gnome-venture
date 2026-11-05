@@ -1,57 +1,55 @@
--- stuffed-peppers-goat (lean W2_31)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stuffed-peppers-goat (lean P1b_O15)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stuffed-peppers-goat" }
-local PEP = { "#4a0f26", "#7a1530", "#a81f34", "#d03a3a", "#ee6048", "#ff9a72" }
-local CHS = { "#8a7f9a", "#b2a9bc", "#d8d0d6", "#f0eae4", "#fbf6ec", "#fffdf6" }
+local H = X.hash
+local NAME = "stuffed-peppers-goat"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local RED = { "#4b0f2a", "#7d1530", "#b01f33", "#d93a3a", "#f06a4c", "#ff9b6e" }
+local CH = { "#8b7490", "#b8a8a8", "#dccfbc", "#f3e8d2", "#fff6e2", "#fffdf2" }
 local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local ltok = { r = { name = "leaf" } }
-c:groundShadow(32, 55, 22, 3)
--- pepper boat
-local shell = c:ellipse(32, 36, 22, 18)
-shell:cut(c:rect(0, 0, 63, 31))
-shell:add(c:ellipse(32, 31, 22, 4))
-local n = X.pillow(shell, 14)
-local v = X.light(n, { amb = 0.1, wrap = 0.22 })
-local bias = {}
-shell:each(function(x, y)
-  for _, gx in ipairs{ 20 + floor((y - 31) * -0.25), 44 + floor((y - 31) * 0.25), 32 } do
-    if x == gx and y > 36 and y < 52 then bias[K(x, y)] = -1 end
-  end
+local RY = 36
+c:groundShadow(32, 56, 24, 3)
+-- pepper bowl
+local full, fn = G.oval(32, RY, 24, 20, 0, 1)
+local bowl = full:copy()
+full:each(function(x, y) if y < RY then bowl:cut(c:rect(x, y, x, y)) end end)
+G.toneN(c, bowl, fn, RED, { amb = 0.1, wrap = 0.2 })
+-- faint rib creases
+for _, p in ipairs{ {22,46},{22,47},{23,48},{23,49},{42,46},{42,47},{41,48},{41,49},{32,50},{32,51},{32,52} } do c:put(p[1], p[2], RED[2]) end
+-- gloss streak on bowl
+for _, p in ipairs{ {16,42},{16,43},{17,44},{17,45},{18,46} } do c:put(p[1], p[2], RED[6]) end
+c:put(15, 41, "#fffaf0")
+-- rim ellipse and lining
+local rimM, rn = G.oval(32, RY, 24, 6.5, 0, 2)
+G.toneN(c, rimM, rn, RED, { amb = 0.3, wrap = 0.4 })
+local lin = c:ellipse(32, RY, 21, 4.4)
+lin:each(function(x, y) c:put(x, y, y > RY and "#e3a23a" or "#b8421f") end)
+-- goat cheese dome
+local cm, cn = G.oval(32, 35, 20, 15, 0, 1)
+local dome = cm:copy()
+cm:each(function(x, y) if y > 37 then dome:cut(c:rect(x, y, x, y)) end end)
+local ci, cv = G.toneN(c, dome, cn, CH, { amb = 0.1, wrap = 0.3 })
+dome:each(function(x, y)
+  local k = K(x, y)
+  if y < 31 and cv[k] > 0.35 and H(floor(x / 2), floor(y / 2), 5) > 0.62 then c:put(x, y, (H(x, y, 2) > 0.5) and "#e0a64e" or "#c2833a") end
+  if H(x, y, 8) > 0.93 then c:put(x, y, LEAF[3]) end
+  if H(x, y, 12) > 0.965 then c:put(x, y, "#4a3a44") end
 end)
-G.tone(c, shell, v, PEP, { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias)
-c:px(16, 40, "#fff0e4") c:px(16, 41, "#fff0e4") c:px(17, 39, PEP[6]) c:px(17, 43, PEP[6])
--- stem nub at left end
-local sm, sn = G.tube({ {12,35},{9,33},{7,30},{8,27} }, function(t) return 2.4 - 1.0 * t end)
-G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }, { 0.3, 0.55, 0.8 })
--- goat cheese stuffing
-local ch = c:ellipse(32, 30, 18, 9)
-ch:cut(c:rect(0, 34, 63, 63))
-local cn = X.pillow(ch, 9)
-local cv = X.light(cn, { amb = 0.15, wrap = 0.3 })
-local cb = {}
-ch:each(function(x, y) if y > 24 and X.hash(x, y, 7) > 0.8 then cb[K(x, y)] = -1 end end)
-G.tone(c, ch, cv, CHS, { 0.17, 0.33, 0.5, 0.66, 0.82 }, cb)
--- toasted patches
-ch:each(function(x, y)
-  local h = X.hash(floor(x / 2), floor(y / 2), 9)
-  if y < 29 and cv[K(x, y)] > 0.35 and h > 0.72 and ch:has(x, y - 1) and ch:has(x + 1, y) then
-    c:px(x, y, h > 0.88 and "#b97a3c" or "#e0aa62")
-  end
-end)
--- herb flecks
-for _, p in ipairs{ {24,29},{28,26},{33,28},{37,26},{41,30},{30,31},{36,32},{26,32} } do if ch:has(p[1], p[2]) then c:px(p[1], p[2], LEAF[4]) c:px(p[1] + 1, p[2], LEAF[2]) end end
-c:px(27, 24, CHS[6]) c:px(28, 24, CHS[6]) c:px(26, 25, "#ffffff" == nil and "" or CHS[5])
--- cheese drip over rim (quirk)
-for _, p in ipairs{ {44,33},{44,34},{44,35},{45,35} } do c:px(p[1], p[2], CHS[4]) end
-c:px(44, 36, CHS[3])
--- basil sprig
-local function lf(pts, w)
-  local m, nn = G.tube(pts, function(t) return w * sin(pi * min(1, t * 0.85 + 0.1)) ^ 0.7 + 0.5 end)
-  G.tone(c, m, X.light(nn, { amb = 0.15, wrap = 0.3 }), LEAF, { 0.2, 0.38, 0.55, 0.7, 0.86 }, nil, ltok)
+-- cheese drips over the front rim
+for _, d in ipairs{ {44, 37, 5}, {22, 38, 3} } do
+  for dy = 0, d[3] do c:put(d[1], d[2] + dy, CH[4]) c:put(d[1] + 1, d[2] + dy, CH[3]) c:put(d[1] - 1, d[2] + dy, CH[5]) end
+  c:put(d[1] + 1, d[2] + d[3], CH[2]) c:put(d[1], d[2] + d[3] + 1, CH[3])
 end
-lf({ {34,26},{36,21},{40,17},{45,17} }, 3.0)
-lf({ {34,26},{32,22},{29,18},{25,17} }, 2.6)
-lf({ {34,26},{34,22},{34,18},{34,14} }, 2.2)
-G.fin(c, "stuffed-peppers-goat")
+-- glint
+c:put(24, 25, CH[6]) c:put(25, 25, CH[6]) c:put(24, 26, CH[6])
+-- basil leaf (quirk) + small sprig
+local bm, bn = G.oval(38, 21, 7, 3.6, -0.6, 1.2)
+G.toneN(c, bm, bn, LEAF, { amb = 0.1, wrap = 0.3 })
+for t = -5, 5 do c:put(floor(38 + cos(-0.6) * t + 0.5), floor(21 + sin(-0.6) * t + 0.5), LEAF[6]) end
+local bm2, bn2 = G.oval(29, 22, 5, 2.6, 0.5, 1.2)
+G.toneN(c, bm2, bn2, LEAF, { amb = 0.1, wrap = 0.3 })
+-- pepper stem at upper-left shoulder
+local sm, sn = G.tube({ {12, 38}, {9, 34}, {8, 29}, {10, 26} }, function(t) return 2.2 - 0.6 * t end)
+G.toneN(c, sm, sn, LEAF, { amb = 0.12, wrap = 0.3 })
+G.save(c, NAME)

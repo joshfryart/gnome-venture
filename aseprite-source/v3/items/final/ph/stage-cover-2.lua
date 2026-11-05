@@ -1,47 +1,64 @@
--- stage-cover-2 (lean W2_21)
--- Low dirt bed with four young clover plants of different heights, trifoliate leaflets with pale chevrons; a ladybird on the tallest leaf (quirk).
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-cover-2 (lean P1b_O10)
+-- Growth stage 2 of ground cover: soil mound with three tall clover stems carrying big trifoliate leaves with pale chevrons, two seed leaves at the base, a ladybird on the tallest leaflet (quirk).
+local NAME = "stage-cover-2"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-cover-2" }
-local sqrt, max, min, floor, cos, sin, pi = math.sqrt, math.max, math.min, math.floor, math.cos, math.sin, math.pi
-local SOIL  = { "#2c1b1f", "#4d2f2a", "#744a35", "#9b6a44", "#c28f58", "#dfb87a" }
-local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local STALK = { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }
-local tok = { r = { name = "p" } }
-c:groundShadow(32, 57, 24, 3)
-local mound = c:ellipse(32, 50, 23, 7):add(c:ellipse(32, 46, 16, 6))
-local n = X.pillow(mound, 8)
-local v = X.light(n, { amb = 0.1, wrap = 0.25 })
-G.tone(c, mound, v, SOIL, nil, nil, tok)
-mound:each(function(x, y)
-  local h = X.hash(x, y, 7)
-  if h > 0.93 and v[K(x, y)] > 0.3 then c:px(x, y, SOIL[2]) elseif h < 0.04 then c:px(x, y, SOIL[6]) end
-end)
--- pebbles
-for _, p in ipairs{ {18, 52}, {44, 54}, {26, 55}, {50, 50} } do c:px(p[1], p[2], SOIL[5]) c:px(p[1] + 1, p[2], SOIL[3]) c:px(p[1], p[2] + 1, SOIL[1]) end
-local plants = {
-  { 22, 47, 19, 29, 4.4 }, { 32, 46, 33, 19, 5.0 }, { 42, 47, 45, 27, 4.4 }, { 50, 50, 52, 38, 3.6 },
-}
-for pi_, P in ipairs(plants) do
-  local bx, by, tx, ty, r = P[1], P[2], P[3], P[4], P[5]
-  local sm, sn = G.tube({ {bx, by}, {bx, by - 6}, {(bx + tx) / 2 + 0.5, (by + ty) / 2}, {tx, ty + 2} }, function(t) return 0.9 end)
-  G.tone(c, sm, X.light(sn, { amb = 0.15, wrap = 0.3 }), STALK, { 0.3, 0.6, 0.85 }, nil, tok)
-  for k, ang in ipairs{ -150, -90, -30 } do
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function paint(c, m, ramp, vf, nm, adj)
+  local tok = { r = { name = nm } }
+  local nr = #ramp
+  m:each(function(x, y)
+    local v = vf(x, y)
+    local i = 1 + floor(max(0, min(0.999, v)) * nr)
+    if adj then i = adj(x, y, i, v) or i end
+    c:put(x, y, ramp[max(1, min(nr, i))], tok)
+  end)
+end
+local function T(nm) return { r = { name = nm } } end
+local function blob(c, m, R, ramp, nm, amb, wrap, adj)
+  local v = X.light(X.pillow(m, R), { amb = amb or 0.1, wrap = wrap or 0.25 })
+  paint(c, m, ramp, function(x, y) return v[K(x, y)] end, nm, adj)
+end
+local SOIL = { "#1e1218", "#3a2420", "#5e3a2a", "#86583a", "#ae7e4a" }
+local LEAF = { "#143a2c", "#20603a", "#38884a", "#5cae54", "#8ed068", "#c4ee90" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+c:groundShadow(32, 56, 24, 3)
+local soil = c:ellipse(32, 50, 22, 7)
+soil:add(c:ellipse(32, 47, 15, 6))
+blob(c, soil, 9, SOIL, "soil", 0.1, 0.2, function(x, y, i) local h = X.hash(x, y, 5) if h > 0.9 then return 5 elseif h < 0.07 then return 1 end end)
+for _, p in ipairs{ {16,52},{17,52},{48,52},{49,52},{47,53} } do c:put(p[1], p[2], "#b8a898", T"pb") end
+for _, p in ipairs{ {18,53},{50,53} } do c:put(p[1], p[2], "#6a5a60", T"pb") end
+local STALK = { "#2c5a3a", "#4a8450", "#7cb468", "#b4dc8c" }
+local function clover(bx, by, tx, ty, r, midx)
+  local sm, sn = G.tube({ {bx, by}, {bx, by - 8}, {(bx + tx) / 2, (by + ty) / 2 + 4}, {tx, ty + 3} }, function(t) return 1.1 end)
+  local sv = X.light(sn, { amb = 0.15, wrap = 0.3 })
+  paint(c, sm, STALK, function(x, y) return sv[K(x, y)] end, "stalk")
+  local out = {}
+  for k, ang in ipairs{ -155, -90, -25 } do
     local a = ang * pi / 180
     local ux, uy = cos(a), sin(a)
-    local d = (k == 2) and r * 0.95 or r * 0.85
-    local lm = G.rell(tx + ux * d, ty + uy * d, ux, uy, r, r * 0.78)
-    local ln = X.pillow(lm, 3)
-    G.tone(c, lm, X.light(ln, { amb = 0.12, wrap = 0.3 }), LEAF, nil, nil, tok)
-    -- pale chevron
-    for s = 1, 3 do
-      local cx, cy = tx + ux * (d - r * 0.4 + s * 0.8), ty + uy * (d - r * 0.4 + s * 0.8)
-      c:px(floor(cx + 0.5), floor(cy + 0.5), LEAF[5])
+    local d = r * 0.95
+    local lm, ln = G.oval(tx + ux * d, ty + uy * d, r, r * 0.85, a, 1)
+    local lv = X.light(ln, { amb = 0.1, wrap = 0.3 })
+    paint(c, lm, LEAF, function(x, y) return lv[K(x, y)] end, "leaf")
+    -- pale chevron (V toward the stem)
+    local cx, cy = tx + ux * (d + 0.5), ty + uy * (d + 0.5)
+    for s = -2, 2 do
+      local px, py = -uy * s, ux * s
+      c:put(floor(cx + px - ux * (2 - abs(s) * 0.7) + 0.5), floor(cy + py - uy * (2 - abs(s) * 0.7) + 0.5), LEAF[6], T"chev")
     end
   end
 end
--- ladybird on tallest plant, top leaflet
-c:fillMask(c:ellipse(34, 12, 2, 2), "#d8312e")
-c:px(33, 11, "#ff7a62") c:px(35, 13, "#8c1c28") c:px(34, 12, "#2b1c26") c:px(32, 12, "#2b1c26") c:px(35, 10, "#2b1c26")
-c:px(34, 9, "#2b1c26")
-G.fin(c, "stage-cover-2")
+-- seed leaves at the base
+for _, s in ipairs{ -1, 1 } do
+  local m, n = G.oval(32 + s * 8, 46, 4, 2.2, s * -0.35, 1)
+  local v = X.light(n, { amb = 0.1, wrap = 0.3 })
+  paint(c, m, LEAF, function(x, y) return v[K(x, y)] end, "cot")
+end
+clover(20, 47, 17, 29, 5.2)
+clover(44, 47, 47, 26, 5.2)
+clover(32, 46, 32, 16, 5.8)
+-- ladybird
+c:fillMask(c:ellipse(33, 11, 2.4, 2), "#d8312e")
+c:put(32, 10, "#ff8a6a", T"lb") c:put(34, 12, "#8c1c28", T"lb") c:put(33, 11, "#2b1c26", T"lb") c:put(31, 11, "#2b1c26", T"lb") c:put(34, 9, "#2b1c26", T"lb") c:put(35, 10, "#2b1c26", T"lb")
+G.save(c, NAME)

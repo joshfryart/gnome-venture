@@ -1,46 +1,48 @@
--- white-pelt (lean W2_38)
--- Fluffy winter pelt seen from above: long body, small head left, four dangling paws, bushy tail with dark tip, tufted edge, leather peeking lower-right.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- white-pelt (lean P1b_O18)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "white-pelt" }
-local abs, sin, cos, sqrt = math.abs, math.sin, math.cos, math.sqrt
-local FUR = { "#7f78a8", "#a9a4c8", "#cdcae0", "#e8e6f0", "#f8f6fa", "#fffafc" }
-local LEA = { "#5a3a30", "#8a5c3e", "#b98456" }
-local tok = { r = { name = "fur" } }
-c:groundShadow(34, 50, 20, 3)
-local body = c:ellipse(33, 32, 15, 9)
-local parts = {
-  c:ellipse(17, 28, 6, 5), c:ellipse(18, 27, 4, 3),           -- head + snout lump
-  c:ellipse(24, 19, 4, 3), c:ellipse(40, 19, 4, 3),           -- front/back paws up
-  c:ellipse(24, 45, 4, 4), c:ellipse(41, 45, 4, 4),           -- lower paws
-  c:ellipse(51, 36, 8, 5),                                    -- tail
-}
--- ears
-local ears = c:ellipse(15, 22, 2, 2):add(c:ellipse(20, 22, 2, 2))
-for _, p in ipairs(parts) do body:add(p) end
-body:add(ears)
--- tufted edge: ragged by hash
-local m = HP.mask()
-body:each(function(x, y) m:set(x, y) end)
-body:edge():each(function(x, y) if X.hash(x, y, 7) > 0.55 then m:cut(c:rect(x, y, x, y)) end end)
-local tufts = body:edge():grow(1)
-tufts:each(function(x, y) if X.hash(x, y, 9) > 0.8 and not body:has(x, y) then m:set(x, y) end end)
--- leather underside, offset lower-right
-local lea = m:copy():shift(1, 2); lea:cut(m)
-c:fillMask(lea, LEA[2]) lea:edge():each(function(x, y) c:px(x, y, LEA[1]) end)
-local n = X.pillow(m, 8)
-local v = X.light(n, { amb = 0.18, wrap = 0.4 })
-G.tone(c, m, v, FUR, { 0.15, 0.3, 0.5, 0.72, 0.9 }, nil, tok)
--- fur strokes
-m:each(function(x, y)
-  if X.hash(x, y, 2) > 0.86 and v[K(x, y)] > 0.3 then c:px(x, y, FUR[3]) c:px(x + 1, y + 1, FUR[2]) end
-  if X.hash(x, y, 5) > 0.93 then c:px(x, y, FUR[6]) end
+local floor, abs, max, min, sin, cos, pi, sqrt = math.floor, math.abs, math.max, math.min, math.sin, math.cos, math.pi, math.sqrt
+local function cl(i, n) return max(1, min(n, i)) end
+local NAME = "white-pelt"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local WH  = { "#7f84ac", "#a9aed0", "#cfd4e8", "#e8ecf6", "#f7f9fd", "#fcfdff" }
+local LEA = { "#4a3030", "#6e4a3e", "#946a50" }
+local BLK = { "#14121c", "#262034", "#3a3050", "#5a4e78" }
+local tk, tt = { r = { name = "fur" } }, { r = { name = "tail" } }
+c:groundShadow(30, 52, 24, 3)
+local M = HP.mask()
+M:add(c:ellipse(31, 32, 16, 10))
+M:add(c:line({ {21, 26}, {14, 15} }, 6)) M:add(c:line({ {21, 38}, {14, 49} }, 6))
+M:add(c:line({ {41, 26}, {47, 15} }, 6)) M:add(c:line({ {41, 38}, {47, 49} }, 6))
+M:add(c:ellipse(13, 32, 7, 5)) M:add(c:ellipse(7, 32, 3, 2))
+M:add(c:ellipse(12, 26, 2, 2)) M:add(c:ellipse(12, 38, 2, 2))
+-- ragged edge
+local M2 = M:copy()
+M:grow(1):cut(M):each(function(x, y) if X.hash(x, y, 3) > 0.62 then M2:set(x, y) end end)
+M:edge():each(function(x, y) if X.hash(x, y, 8) < 0.22 then M2.s[K(x, y)] = nil end end)
+-- tail (ermine black tip)
+local TP = { {44, 33}, {48, 34}, {51, 38}, {52, 44} }
+local tm, tn, tT = G.tube(TP, function(t) return 3.4 - 1.2 * t end)
+local tw, tb = HP.mask(), HP.mask()
+tm:each(function(x, y) if tT[K(x, y)] > 0.68 then tb:set(x, y) else tw:set(x, y) end end)
+local tv = X.light(tn, { amb = 0.1, wrap = 0.3 })
+local cuts = { 0.26, 0.44, 0.6, 0.75, 0.88 }
+X.tone(c, tw, tv, WH, { cuts = cuts, tok = tt })
+X.tone(c, tb, tv, BLK, { cuts = cuts, tok = tt })
+-- leather underside rim
+c:fillMask(M2:shift(1, 2):cut(M2), LEA[1])
+c:fillMask(M2:shift(0, 1):cut(M2), LEA[2])
+c:fillMask(M2:shift(-1, 1):cut(M2):cut(M2:shift(0, 1)), LEA[3])
+-- fur
+local n = X.pillow(M2, 7)
+local bias = {}
+M2:each(function(x, y)
+  local s = (x + y * 3) % 7
+  local h = X.hash(x, y, 2)
+  if s == 0 and h > 0.35 then bias[K(x, y)] = -1 elseif s == 3 and h > 0.5 then bias[K(x, y)] = 1 end
 end)
--- dark tail tip (quirk), nose, eyes
-c:fillMask(c:ellipse(57, 37, 2.2, 2.2):cut(c:ellipse(52, 36, 5, 4)), "#3a2a3a")
-c:px(58, 36, "#5a4a5a")
-c:px(12, 29, "#3a2a3a") c:px(13, 29, "#3a2a3a") c:px(15, 26, "#3a2a3a") c:px(19, 26, "#3a2a3a")
-c:px(16, 28, "#e8a0a8") c:px(15, 22, "#e8b0b8") c:px(20, 22, "#e8b0b8")
--- paw claws hint
-for _, p in ipairs{ {23,48}, {25,48}, {40,48}, {42,48}, {23,16}, {25,16}, {39,16}, {41,16} } do c:px(p[1], p[2], FUR[1]) end
-G.fin(c, "white-pelt")
+G.toneN(c, M2, n, WH, { tok = tk, bias = bias, amb = 0.12, wrap = 0.3 })
+-- spine parting + glints
+for x = 22, 42, 2 do c:px(x, 32, WH[2]) end
+c:px(24, 25, "#fffdf6") c:px(25, 25, "#fffdf6") c:px(24, 26, "#fffdf6") c:px(23, 24, WH[5]) c:px(26, 26, WH[5])
+G.save(c, NAME)

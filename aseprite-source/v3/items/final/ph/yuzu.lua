@@ -1,55 +1,64 @@
--- yuzu (lean W2_41)
--- Slightly squat bumpy-skinned citrus: 6-tone yellow, pitted oil-gland dimples, button calyx, short twig with a thorn,
--- and a winged (double-lobed) citrus leaf. Quirk: the thorn.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- yuzu (lean P1b_O19)
+local NAME = "yuzu"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "yuzu" }
-local sin, cos, abs, sqrt, floor = math.sin, math.cos, math.abs, math.sqrt, math.floor
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local function tone(m, n, ramp, o) return G.toneN(c, m, n, ramp, o) end
+local function ball(cx, cy, rx, ry, ang, ramp, o) local m, n = G.oval(cx, cy, rx, ry, ang, o and o.flat) tone(m, n, ramp, o) return m, n end
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, vein)
+  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t)) ^ 0.7 + 0.3 end)
+  tone(m, n, ramp)
+  if vein then m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.17 and T[k] > 0.08 and T[k] < 0.92 then c:put(x, y, vein) end end) end
+  return m
+end
+local function tube(p, w, ramp) local m, n = G.tube(p, function(t) return type(w) == "function" and w(t) or w end) tone(m, n, ramp) return m end
+local function cylrect(x0, y0, x1, y1, ramp)
+  local m, n = HP.mask(), {}
+  local hw, cx = (x1 - x0 + 1) / 2, (x0 + x1) / 2
+  for y = y0, y1 do for x = x0, x1 do m:set(x, y) local nx = max(-0.95, min(0.95, (x - cx) / (hw + 0.3))) n[K(x, y)] = { G.norm(nx, 0, sqrt(1 - nx * nx)) } end end
+  tone(m, n, ramp) return m
+end
 
-local YEL  = { "#8a6a1c", "#b88e1f", "#dcb02a", "#f1cc3c", "#fbe36a", "#fff4a8" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local WOOD = { "#4a3226", "#6e4a30", "#97693f" }
-local ltok = { r = { name = "leaf" } }
-
-c:groundShadow(32, 53, 14, 3)
-
--- twig + thorn
-G.line(c, { {32, 22}, {32, 19}, {30, 15}, {27, 12} }, WOOD[2])
-c:px(31, 17, WOOD[3]) c:px(32, 20, WOOD[1])
-c:px(33, 15, WOOD[1]) c:px(34, 14, WOOD[2]) c:px(35, 14, WOOD[3]) -- thorn pointing right
-c:px(34, 15, WOOD[1])
-
--- winged leaf: terminal blade + broad wing at base
-local wing = G.rell(42, 18, 0.9, -0.2, 4.2, 3.4)
-local blade = G.rell(48, 14, 0.8, -0.6, 7, 3.4)
-local lm = wing:copy():add(blade)
-local ln = X.pillow(lm, 3)
-G.tone(c, lm, X.light(ln, { amb = 0.15, wrap = 0.3 }), LEAF, { 0.2, 0.38, 0.55, 0.7, 0.86 }, nil, ltok)
-G.line(c, { {35, 20}, {41, 18}, {46, 15}, {52, 11} }, LEAF[6])
-G.line(c, { {41, 18}, {44, 20} }, LEAF[2])
-c:px(43, 15, LEAF[2]) c:px(46, 17, LEAF[2]) c:px(48, 12, LEAF[5]) c:px(50, 14, LEAF[2])
-
--- fruit
-local fm = c:ellipse(32, 37, 16, 14)
-local n = X.pillow(fm, 9)
-local v = X.light(n, { amb = 0.08, wrap = 0.22 })
+-- yuzu: round bumpy golden rind pitted with pores, a green patch, short stem, a single winged-petiole leaf
+local RIND = { "#6b4a0c", "#a47a12", "#d1a31e", "#eecb2e", "#fbe35a", "#fff39a" }
+local LF = { "#10382c", "#1c5a36", "#2f7e3e", "#4fa44a", "#7cc65c", "#b0e084" }
+local GRN = { "#2e5a22", "#4a7c26", "#6a9c30", "#9ac040" }
+local cx, cy, rx, ry = 31, 39, 17, 15
+local m = HP.mask()
+for y = cy - 20, cy + 20 do for x = cx - 22, cx + 22 do
+  local dx, dy = (x - cx) / rx, (y - cy) / ry
+  local d = sqrt(dx * dx + dy * dy)
+  local a = atan2(dy, dx)
+  local bump = 0.05 * sin(a * 9 + 0.5) + 0.035 * sin(a * 15 + 2) + 0.02 * sin(a * 23)
+  if d <= 1 + bump then m:set(x, y) end
+end end
+-- leaf behind stem
+local lf = leaf(36, 20, 43, 8, 57, 11, 5.6, LF, LF[6])
+local wg, wn = G.oval(39, 17, 2.4, 1.6, -0.6, 1)
+tone(wg, wn, LF)
+tube({ {33, 24}, {33, 20}, {35, 18}, {36, 19} }, 1.1, { "#3a2a14", "#5a4220", "#7a5c30", "#9a7c48", "#b89c60", "#d4ba80" })
+local n = X.pillow(m, 14)
+local v = X.light(n, { amb = 0.1, wrap = 0.2 })
 local bias = {}
-fm:each(function(x, y)
-  local h = X.hash(x, y, 7)
-  if h > 0.86 then bias[K(x, y)] = -1 end
-  -- oil-gland pits on a loose lattice
-  if (x * 2 + y * 3) % 7 == 0 and X.hash(x, y, 3) > 0.35 then bias[K(x, y)] = -1 end
+tone(m, n, RIND, { bias = bias })
+-- green patch (quirk)
+m:each(function(x, y) if v[K(x, y)] > 0.35 and ((x - 44) ^ 2 + (y - 31) ^ 2) < 16 and X.hash(x, y, 2) > 0.2 then
+  c:put(x, y, GRN[(v[K(x, y)] > 0.6) and 4 or 3]) end end)
+-- pores: dark dimple + pale lit lip up-left
+local taken = {}
+m:copy():shrink(2):each(function(x, y)
+  if X.hash(x, y, 3) > 0.86 and not taken[K(x - 1, y)] and not taken[K(x, y - 1)] and not taken[K(x - 1, y - 1)] and not taken[K(x + 1, y - 1)] then
+    taken[K(x, y)] = true
+    c:px(x, y, RIND[2]) c:px(x + 1, y + 1, RIND[1])
+    if v[K(x, y)] > 0.4 then c:px(x - 1, y - 1, RIND[6]) end
+  end
 end)
-X.ao(bias, fm, c:rect(28, 21, 36, 23), 2, -1)
-G.tone(c, fm, v, YEL, { 0.17, 0.34, 0.5, 0.66, 0.82 }, bias)
--- bumpy rim highlight dimples
-fm:copy():shrink(1):each(function(x, y)
-  if v[K(x, y)] > 0.72 and X.hash(x, y, 11) > 0.88 then c:px(x, y, YEL[6]) end
-end)
--- spec
-c:px(23, 29, "#fffbe8") c:px(24, 29, "#fffbe8") c:px(23, 30, "#fffbe8") c:px(25, 28, YEL[6])
--- warm green tint near top (unripe) and calyx button
-c:px(30, 24, LEAF[3]) c:px(34, 24, LEAF[3]) c:px(31, 23, LEAF[4]) c:px(33, 23, LEAF[4])
-c:px(31, 25, YEL[1]) c:px(32, 25, YEL[1]) c:px(33, 25, YEL[1])
-c:px(32, 24, WOOD[1]) c:px(32, 23, WOOD[2])
-G.fin(c, "yuzu")
+-- calyx + glint
+local cal = G.oval(33, 23, 3.4, 1.6, 0, 1)
+tone(cal, select(2, G.oval(33, 23, 3.4, 1.6, 0, 1)), GRN.dummy or { "#1e3a18", "#2e5a22", "#4a7c26", "#6a9c30", "#9ac040", "#c8e070" })
+c:px(22, 32) c:px(22, 31, "#fffbd0") c:px(23, 31, "#fffbd0") c:px(23, 30, "#fffbd0") c:px(22, 32, "#fffbd0")
+-- thorn
+c:px(26, 25, "#4a7c26") c:px(25, 24, "#9ac040")
+
+G.save(c, NAME)

@@ -1,40 +1,52 @@
--- stirrup-hoe (lean W2_28)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stirrup-hoe (lean P1b_O13)
+local NAME = "stirrup-hoe"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stirrup-hoe" }
-local WOOD = { "#3d2318", "#5e3a22", "#855331", "#a87040", "#c9914f", "#e8b872" }
-local IRON = { "#2f3550", "#4c5878", "#6f7fa0", "#96a8c4", "#bccbdc", "#e6eef4" }
-local RED = { "#6b1f33", "#a02f45", "#d14d56" }
-local function toned(m, ramp, R, o)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), ramp, { 0.2, 0.38, 0.55, 0.7, 0.86 })
-end
--- handle
-local hm, hn = G.tube({ {12, 55}, {20, 45}, {26, 35}, {32, 26} }, function(t) return 1.5 + 0.5 * t end)
-G.tone(c, hm, X.light(hn, { amb = 0.12, wrap = 0.3 }), WOOD, { 0.2, 0.38, 0.55, 0.7, 0.86 })
-hm:each(function(x, y)
-  if X.hash(x, y, 7) > 0.8 then c:px(x, y, WOOD[2]) end
-  if y >= 47 and y <= 50 then c:px(x, y, (y == 47 or y == 50) and RED[1] or ((x + y) % 2 == 0 and RED[3] or RED[2])) end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function T(nm) return { r = { name = nm } } end
+local WOOD = { "#2e1a14", "#4c2c1e", "#6e4428", "#946238", "#b88450", "#dcaa72" }
+local ST = { "#1e2438", "#364060", "#566488", "#7e90b0", "#a8bad4", "#e8f4ff" }
+c:groundShadow(24, 57, 20, 3)
+-- handle: gently bowed diagonal pole
+local hm, hn, Ht = G.tube({ {6, 56}, {13, 47}, {20, 38}, {27, 29} }, function(t) return 1.9 end)
+G.toneN(c, hm, hn, WOOD, { tok = T("handle"), cuts = {0.2,0.38,0.55,0.72,0.88}, amb = 0.1, wrap = 0.25 })
+hm:each(function(x, y) local t = Ht[K(x, y)] if X.hash(x, y, 4) > 0.82 then c:put(x, y, WOOD[2], T("handle")) end
+  if X.hash(x, y, 7) > 0.9 then c:put(x, y, WOOD[5], T("handle")) end end)
+-- red cloth wrap with a fluttering tail (quirk)
+for _, p in ipairs{ {11,50},{12,49},{13,48},{14,47},{15,46},{10,51} } do
+  for _, d in ipairs{ {0,0},{1,0},{0,1} } do local x, y = p[1] + d[1], p[2] + d[2] if hm:has(x, y) then c:put(x, y, (p[1] % 2 == 0) and "#d83a3a" or "#9a1e2e", T("wrap")) end end end
+for _, p in ipairs{ {16,48},{17,49},{18,49},{19,50},{19,51} } do c:put(p[1], p[2], "#d83a3a", T("wrap")) end
+c:put(17, 48, "#ff8a7a", T("wrap")) c:put(20, 51, "#9a1e2e", T("wrap"))
+-- neck rising to the head
+local nm, nn = G.tube({ {27, 29}, {29, 26}, {31, 24}, {33, 22} }, function(t) return 2.2 end)
+G.toneN(c, nm, nn, ST, { tok = T("neck"), cuts = {0.2,0.38,0.55,0.72,0.88}, amb = 0.1, wrap = 0.3 })
+-- ferrule band
+for _, p in ipairs{ {25,31},{26,31},{27,31},{28,31},{25,32},{26,32} } do end
+local fer = G.tube({ {24, 32}, {25, 31}, {26, 30}, {27, 29} }, function(t) return 2.8 end)
+fer:each(function(x, y) c:put(x, y, ((x + y) % 2 == 0) and ST[2] or ST[3], T("fer")) end)
+-- stirrup head: flat loop with a sharp bottom edge
+local M = HP.mask()
+M:add(c:rect(30, 8, 56, 24))
+M:cut(c:rect(36, 13, 50, 19))
+local sh1, sh2 = M:shift(1, 1), M:shift(-1, -1)
+local sh1b, sh2b = M:shift(2, 2), M:shift(-2, -2)
+M:each(function(x, y)
+  local col = ST[4]
+  if not sh2:has(x, y) then col = ST[2]
+  elseif not sh2b:has(x, y) then col = ST[3] end
+  if not sh1b:has(x, y) then col = ST[5] end
+  if not sh1:has(x, y) then col = ST[6] end
+  c:put(x, y, col, T("head"))
 end)
-c:px(11, 56, WOOD[1]) c:px(12, 56, WOOD[1])
--- stirrup head: flat D loop, bevelled
-local head = c:rect(28, 10, 52, 26)
-head:cut(c:rect(33, 14, 47, 22))
-toned(head, IRON, 5)
-head:each(function(x, y)
-  local l = not head:has(x - 1, y) or not head:has(x, y - 1)
-  local d = not head:has(x + 1, y) or not head:has(x, y + 1)
-  if l and not d then c:px(x, y, IRON[5]) elseif d and not l then c:px(x, y, IRON[1]) end
-end)
-for x = 30, 36 do c:px(x, 11, IRON[6]) end
-c:px(50, 24, IRON[2]) c:px(49, 25, IRON[2])
--- shadow inside the loop on the lower edge
-for x = 33, 47 do c:px(x, 22, IRON[1]) end
--- socket collar + rivet
-local col = c:rect(29, 24, 35, 29)
-toned(col, IRON, 3)
-for x = 29, 35 do c:px(x, 29, IRON[1]) end
-c:px(32, 26, IRON[6]) c:px(32, 27, IRON[2])
--- quirk: a tiny weed sprout poking through the loop
-for _, p in ipairs{ {40, 21, 2}, {40, 20, 2}, {41, 19, 3}, {39, 19, 3} } do c:px(p[1], p[2], p[3] == 2 and "#47803f" or "#94c45c") end
-G.fin(c, "stirrup-hoe")
+-- mid-tone streak and bolt
+for x = 32, 54 do if X.hash(x, 0, 3) > 0.45 and M:has(x, 10) then c:put(x, 10, ST[5], T("head")) end end
+c:fillMask(c:rect(31, 24, 52, 24), ST[1])
+for x = 32, 50 do c:put(x, 23, ST[6], T("head")) end
+c:put(33, 11, ST[6], T("head")) c:put(33, 10, ST[6], T("head")) c:put(32, 11, ST[5], T("head"))
+-- rivets
+for _, p in ipairs{ {32,21},{54,21},{54,11} } do c:put(p[1], p[2], ST[1], T("rv")) c:put(p[1] - 1, p[2] - 1, ST[6], T("rv")) end
+-- dirt clod stuck on the edge
+for _, p in ipairs{ {45,26},{46,26},{47,26},{44,27},{45,27},{46,27},{47,27},{48,27},{46,28} } do c:put(p[1], p[2], (p[2] == 27 or p[1] == 47) and "#5e3a2a" or "#86583a", T("clod")) end
+c:put(45, 26, "#ae7e4a", T("clod")) c:put(48, 28, "#3a2420", T("clod"))
+G.save(c, NAME)
