@@ -24,7 +24,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 ## 3. JOSH: decisions needed
 - Review the 58 new build plans (2.5.68) on the live site or in `build_plans.txt`.
 - DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
-- Approve new stage art (montages sent), then install `aseprite-source/v3/p7/out/derived-<land>/` into `assets/img/scenes/`.
+- Stage art APPROVED 2026-11-05 (contact sheet). `derived-<land>/` files are byte-identical to `game/assets/img/scenes/`, so already installed; nothing to copy.
 - P7 art order; craftmap 14 scenes skip?; redraw all 1,667 acts or only used; 480x270 canvas final?
 - Josh to send real route maps for the other 11 regions (`claude/prompt-route-maps.md`, `claude/route-list.md`); stand-ins (`ART_LAND`) stay until then.
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
