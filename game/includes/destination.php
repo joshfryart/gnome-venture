@@ -127,13 +127,10 @@ function dest_is_town(array $loc): bool
     return in_array($loc['kind'] ?? '', ['market', 'hub', 'village'], true);
 }
 
-/** The "keep walking" / "pause at towns" checkboxes. */
+/** v2.5.63: the GPS always stops at every stop, so there is nothing to choose any more: just say so. */
 function dest_opts_html(array $u): string
 {
-    $auto = (int)($u['dest_auto'] ?? 1) === 1;
-    $pause = (int)($u['dest_pause_towns'] ?? 0) === 1;
-    return '<label class="destopt"><input type="checkbox" name="dest_auto" value="1"' . ($auto ? ' checked' : '') . '> 🧭 Keep walking after each stop</label> '
-        . '<label class="destopt"><input type="checkbox" name="dest_pause" value="1"' . ($pause ? ' checked' : '') . '> ⏸️ Pause at towns &amp; rest stops</label>';
+    return '<span class="destopt">⏸️ The GPS stops at every stop. Tap Set off to go on.</span>';
 }
 
 /**
@@ -195,7 +192,7 @@ function dest_panel(array $u, int $toId, bool $continue = false): string
     $first = $plan['path'][0];
     $h .= '<form method="post" action="' . e(url('adventure.php')) . '" class="destgo">' . csrf_field()
         . '<input type="hidden" name="do" value="start"><input type="hidden" name="dest" value="' . $toId . '">'
-        . '<details class="dpoptsfold"><summary>⚙️ Walking options</summary><div class="dpopts">' . dest_opts_html($u) . '</div></details>' . $fast
+        . '<p class="dpopts">' . dest_opts_html($u) . '</p>' . $fast
         . '<div class="dpgobar"><button class="btn dpset">▶ Set off · ' . (int)$first['steps'] . ' steps to ' . e(dest_name($uid, $stops[0]['loc'])) . '</button></div></form>';
     return $h . '</div>';
 }
@@ -244,8 +241,8 @@ function dest_set_off(array $u, int $toId): array
 }
 
 /**
- * After a walk's arrival: when "keep walking" is on, start the next leg. Returns null (nothing to say: not heading anywhere,
- * keep-walking off, or the goal was reached) or [started, message]. Call AFTER the finished walk is saved.
+ * After a walk's arrival on a remembered route: remember the stop and stop there (v2.5.63: the GPS never walks on by itself). Returns null (nothing
+ * to say: not heading anywhere, or the goal was reached) or [false, message]. Call AFTER the finished walk is saved.
  */
 function dest_chain_after_arrival(int $uid): ?array
 {
@@ -255,20 +252,9 @@ function dest_chain_after_arrival(int $uid): ?array
     $here = player_node($u);
     if ((int)$here['id'] === $destId) { dest_set($uid, 0); return null; }
     dest_trail_save($uid, array_merge(dest_trail($u), [(int)$here['id']]));   // v0.9.5: remember we passed here
-    if (!(int)($u['dest_auto'] ?? 1)) return null;
-    if (active_expedition($uid)) return null;
-    if ((int)$u['dest_chain'] >= max(1, (int)setting('dest_max_chain'))) return [false, '🧭 That’s a long way! Stopping for a breather. Tap Set off to go on.'];
-    if ((int)($u['dest_pause_towns'] ?? 0) && dest_is_town($here)) return [false, '🧭 Paused at ' . $here['name'] . '. Look around, then tap Set off to go on.'];   // v1.0.4: rest stops count
-    $path = dest_path($uid, (int)$here['id'], $destId);
-    if (!$path) return [false, '🧭 You don’t know a way on from here. Your route stops here.'];
-    refresh_energy($u);
-    $cost = route_energy($u, $path[0]);
-    if ($cost > 0 && (int)$u['energy'] < $cost && !staff_free($uid)) return [false, '🧭 Too tired to walk on (⚡' . $cost . ' needed). Rest, then tap Set off.'];
-    [$ok, $msg] = start_expedition($u, (int)$path[0]['id']);
-    if (!$ok) return [false, '🧭 ' . $msg];
-    q('UPDATE users SET dest_chain = dest_chain + 1 WHERE id = ?', [$uid]);
-    $next = q_one('SELECT * FROM locations WHERE id = ?', [(int)$path[0]['a_id'] === (int)$here['id'] ? (int)$path[0]['b_id'] : (int)$path[0]['a_id']]);
-    return [true, '🧭 Walking on to ' . ($next ? dest_name($uid, $next) : 'the next stop') . '…'];
+    // v2.5.63: the GPS always stops at every stop (towns, rest stops and every pass-through place); the player taps Set off to go on.
+    // The old keep-walking / pause-at-towns options are gone (the columns stay in the schema, unused).
+    return [false, '🧭 Stopped at ' . $here['name'] . '. Look around, then tap Set off to go on.'];
 }
 
 /** For the Today page and the World page: [location, stops left] while heading somewhere, else null (and clears it on arrival). */

@@ -851,7 +851,7 @@ function route_fold_html(array $u, array $exp, ?array $wi): string
         $li .= '<li class="' . ($behind ? '' : 'todo') . '">' . route_img($pin, 'pinv') . route_stop_img($st, 'st')
             . '<span><b>' . e($seen ? (string)$st['name'] : '???') . '</b>' . ($note !== '' ? '<small>' . e($note) . '</small>' : '') . '</span></li>';
     }
-    $opts = $wi ? '<form method="post" class="inline routeopts">' . csrf_field() . '<input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="adventure.php">' . dest_opts_html($u) . ' <button class="btn ghost">Save</button></form>' : '';
+    $opts = $wi ? '<p class="routeopts">' . dest_opts_html($u) . '</p>' : '';
     return '<details class="routefold"><summary>Route <small>' . count($j['stops']) . ' stops</small></summary><div class="in"><ol class="routelist">' . $li . '</ol>' . $opts . '</div></details>';
 }
 /** v2.0.44: tier colours for the hoop (felt rings), light to deep. Palette: moss, gold, ember, dusk (art style guide Part A). */

@@ -625,8 +625,7 @@ function gnav_tools_html(array $u, string $back, bool $buttons = true): string
     if ($ds) {
         $gps = '<p>🏁 Heading to <b>' . e(dest_name($uid, $ds[0])) . '</b> · ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') . ' left</p>'
             . here_form('adventure.php', ['do' => 'dest_forget', 'back' => $back], '✕ Forget route', 'btn alt')
-            . '<form method="post" action="' . e(url('adventure.php')) . '" class="routeopts">' . csrf_field() . '<input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="' . e($back) . '">'
-            . dest_opts_html($u) . ' <button class="btn small">Save</button></form>';
+            . '<p class="routeopts">' . dest_opts_html($u) . '</p>';
     }
     $gps .= '<p><a class="btn alt" href="' . e(url('world.php?tab=gather')) . '">🎯 Seek something</a> <a class="btn alt" href="' . e(url('world.php?tab=map#regionmap')) . '">🗺️ Pick a place on the map</a></p>';
     $card = function (string $id, string $title, string $body) {

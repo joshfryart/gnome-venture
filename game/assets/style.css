@@ -7409,3 +7409,6 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .st-slim .st-needs li > span { min-width: 0; }
 .st-slim .st-needs form { display: flex; gap: 4px; align-items: center; flex: 0 0 auto; }
 .st-slim .st-needs input[type=number] { width: 3.6em; padding: 2px 4px; min-height: 30px; }
+
+/* v2.5.63: no tiny dots over the trail map when tapping to move: the reachable-tile dots, the path-preview dots and the footprints are hidden (the end ring and the tile highlight stay) */
+.tilemap .tmt.reach::after, .tilemap .tmpv .tmpv-dot, .tilemap .tmfeet { display: none; }

@@ -150,14 +150,10 @@ if (is_post()) {
         require_once __DIR__ . '/includes/destination.php';   // v0.9.3: keep walking to the next stop of the route
         $chain = dest_chain_after_arrival($uid);
         if ($chain) {
-            flash($chain[1], $chain[0] ? 'ok' : 'err');
+            flash($chain[1], 'ok');
             if ($chain[0]) redirect('adventure.php');
         }
-        // graphical navigation: a pass-through stop on a remembered route (leg not auto-started) goes straight to its next "Head into" card
-        if (gnav_on() && ($u2 = q_one('SELECT * FROM users WHERE id = ?', [$uid])) && (int)($u2['dest_id'] ?? 0)) {
-            $hn = player_node($u2);
-            if (!dest_is_town($hn) && ($hp = dest_path($uid, (int)$hn['id'], (int)$u2['dest_id']))) redirect('here.php?o=e' . (int)$hp[0]['id']);
-        }
+        // v2.5.63: the GPS stops at every stop, pass-through places included, so there is no skipping ahead to the next "Head into" card any more
         $dest = q_one('SELECT kind FROM locations WHERE id = ?', [$arrivedAt]);
         $kind = $dest['kind'] ?? '';
         // v0.7.61: every place has its page on town.php (town square, rest stop, haven…). local.php never existed.
@@ -291,10 +287,7 @@ if ($wanderView) {
 $wi = $exp ? dest_walk_info($u, $exp) : null;   // v0.9.3
 if ($wi && !$isWalk): ?>
 <div class="routestrip"><div class="routestrip-summary">🏁 <b><?= e(dest_name($uid, $wi['loc'])) ?></b> · leg <?= (int)$wi['k'] ?> of <?= (int)$wi['n'] ?> · <?= (int)$wi['left'] ?> stop<?= (int)$wi['left'] === 1 ? '' : 's' ?> left</div>
-  <details class="routeopts-collapse">
-    <summary>Travel options</summary>
-    <form method="post" class="inline routeopts"><?= csrf_field() ?><input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="adventure.php"><?= dest_opts_html($u) ?> <button class="btn ghost">Save</button></form>
-  </details>
+  <p class="routeopts"><?= dest_opts_html($u) ?></p>
 </div>
 <?php endif; ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
@@ -583,10 +576,8 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
       $nextName = dest_name($uid, $wi['next']);
       $goalName = dest_name($uid, $wi['loc']);
       $thenTxt = (int)$wi['next']['id'] === (int)$wi['loc']['id'] ? 'on to <b>' . e($nextName) . '</b> (your destination)' : 'on to <b>' . e($nextName) . '</b>, then toward <b>' . e($goalName) . '</b> (your destination)';
-      if ((int)($u['dest_auto'] ?? 1) && (int)($u['dest_pause_towns'] ?? 0) && $arr && dest_is_town($arr)): ?>
-    <p class="help">⏸️ You’ll pause at <b><?= e((string)$arr['name']) ?></b> to look around. Tap Set off when you’re ready, then <?= $thenTxt ?>.</p>
-    <?php else: ?>
-    <p class="help"><?= (int)($u['dest_auto'] ?? 1) ? '🧭 After this stop: walk ' . $thenTxt . ' (⚡' . (int)$wi['next_energy'] . ') as soon as you arrive.' : '🧭 Next stop on your route after this one: ' . e($nextName) . '.' ?></p>
+      if ($arr): ?>
+    <p class="help">⏸️ You’ll stop at <b><?= e((string)$arr['name']) ?></b> to look around. Tap Set off when you’re ready, then <?= $thenTxt ?> (⚡<?= (int)$wi['next_energy'] ?>).</p>
     <?php endif; ?>
   <?php endif; ?>
 <?php endif; ?>
