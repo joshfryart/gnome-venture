@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.64
+- **Art**: hedgehogs redrawn as real hedgehogs (8 NPC portraits and sprites, 3 folk portraits and sprites); gnome player layers get a 1px skin rim around the eyes so they stay readable on dark skin. Same sizes, drop-in.
+
 ## 2.5.63
 - **Art pass 2.5**: 133 weak items redrawn (64x64); 46 seed pictures now seed packets; 4 kind cards (craft, collect, tend, contest) drawn; scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown Peak, turtle scutes, kava circle, banner-desert, trek-me, vig-pick); world map and all 14 region maps richer; 11 desert/adobe looks for rest stops; village, haven, delve and lair redrawn at hero scale; Maplewold market gets its Beaver Pond front (special2); jigsaw place crops regenerated. Same sizes, drop-in. Pink border stays on the few items still weak.
 
