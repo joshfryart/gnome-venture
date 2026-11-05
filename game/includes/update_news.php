@@ -654,6 +654,8 @@ function post_update_news(string $from): void
         "The animal villagers at rest stops now have the new pixel art: a standing figure under the Here picture and a new portrait when you talk to them."],
     '2.5.39' => ['👥 Update 2.5.39: Villagers lights up the villagers',
         "On a rest stop picture, tap [b]Villagers[/b] and the folk standing under the picture are highlighted and brought into view."],
+    '2.5.40' => ['🚶 Update 2.5.40: your gnome really walks',
+        "[list][*]On the Trail your gnome now faces the way it walks and steps as it goes.\n[*][b]Homes[/b] on a picture opens a popover with your neighbours.\n[*]The list of places says what each spot is for (Shop, Talk, Rest...).[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

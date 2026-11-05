@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.40
+- **Homes popover**: the Homes spot on a picture opens a popover with the neighbours' faces and a link to the street of doors.
+- **Verb chips**: the list of places shows what each spot is for (Shop, Talk, Rest, Do, Explore, Enter, Tend, Visit, Eat, Read).
+- **The walking gnome**: on the Trail the 2.5D gnome now faces the way it walks (front, back, side, flipped for west) and steps through its walk frames. Needs 2.5.39.
+
 ## 2.5.39
 - **Villagers pill lights up the villagers**: on a rest stop picture, tapping Villagers scrolls to the villagers standing under it and highlights them (if no one is there it opens the Folk tab as before). Needs 2.5.38.
 
