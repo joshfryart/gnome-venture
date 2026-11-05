@@ -319,6 +319,8 @@ ok('visits come more often with Gardening', pj_garden_step(1) > pj_garden_step(8
 ensure_helpers();
 $H = []; foreach (q('SELECT * FROM helpers ORDER BY wage')->fetchAll() as $hr) $H[(string)$hr['skills']] = $hr;
 $slow = q_one("SELECT * FROM plants WHERE kind <> 'cover' ORDER BY grow_minutes DESC, id LIMIT 1");   // the slowest crop stays thirsty, not ready
+q('UPDATE plants SET grow_minutes = 100000 WHERE id = ?', [$slow['id']]);   // day speed (season/weather by Hollow date) can make a 6 h crop ready inside the 9 h replay; keep it thirsty on any clock
+$slow = q_one('SELECT * FROM plants WHERE id = ?', [$slow['id']]);
 $rad = q_one("SELECT * FROM plants WHERE slug = 'radish'");
 $T = q('SELECT id FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 3', [$plot])->fetchAll(PDO::FETCH_COLUMN);
 $ago = fn(int $h): string => gmdate('Y-m-d H:i:s', time() - $h * 3600);
