@@ -1195,7 +1195,7 @@ function trek_act_riddle(array &$run, array $u, int $answer, string $how = ''): 
         if (empty($s['data']['item'])) return;
         [$slug, $qty] = array_pad(explode(':', (string)$s['data']['item'], 2), 2, '1');
         $iid = trek_item_id($slug);
-        if ($iid) trek_pack_add((int)$run['id'], $iid, (int)$qty);   // TODO: Lanternroot is only an item for now (no crop yet)
+        if ($iid) trek_pack_add((int)$run['id'], $iid, (int)$qty);
         trek_say($run, '🎁 You receive ' . (int)$qty . ' × ' . trek_item_name($iid) . ' (carried).');
     };
     if ($how === 'seed') {
