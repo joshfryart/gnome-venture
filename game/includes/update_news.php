@@ -644,6 +644,8 @@ function post_update_news(string $from): void
         . "[*][b]Callings[/b] say when a chapter has not started yet, and there is a free trip to your calling mentor.\n"
         . "[*][b]Fixes[/b]: a second browser tab can no longer overwrite your garden with an old copy, energy no longer refunds or double-credits, and the Home header fits on phones.\n"
         . "[*][b]Coming (being tested, switched on by an admin for now)[/b]: a picture way to get around. [b]Here[/b] shows a picture of where you stand; tap a named place to open a small card (shops, the café, the board, villagers with chat and gifts) without leaving the picture. Routes, World, Fast travel and GPS are round icons under it. The Trail is walked as tile sections with your gnome, fights and finds on the tiles, and a pop-up card for each fight or choice. The World page opens on the world map. New pictures for every kind of place, fight backdrops and wander banners come with it.[/list]"],
+    '2.5.35' => ['🎯 Update 2.5.35: every "Do here" has a name',
+        "On a rest stop's picture, each spot to do something is now named for the thing itself, with its icon. What you see changes with the weather, season and time of day. Tap one to do it right there."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

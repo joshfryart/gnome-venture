@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.35
+- **Named things to do at rest stops**: each "Do here" spot on a stop's picture is now one activity, named and with its icon (what the weather, season or hour allows comes first, then the day's picks). Its popover has the buttons, and doing it brings you back to the picture. Needs 2.5.34.
+
 ## 2.5.34
 - **Pictures for every kind of place**: Here pictures with named, tappable spots for the 11 rest-stop types (camp, ferry, herb garden, inn, jetty, mill, orchard, shrine, spring, tower, workshop), village, haven, wonder, delve and lair, plus a plain-place picture for any stop type without its own. Three fight backdrops (open, wood, dark) cover every land, three wander banners (generic, wild, deep) and ten wander icons are in. Importer `tools/import_gate_layouts.py` gained the place list and trims hit boxes off the compass corner. News post for everything since 2.4.92. Needs 2.5.33.
 
