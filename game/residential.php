@@ -11,12 +11,14 @@ refresh_energy($u);
 if (active_expedition((int)$u['id'])) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }
 $node = player_node($u);
 if ((int)($_GET['loc'] ?? $node['id']) !== (int)$node['id'] || !npcs_homed_at((int)$node['id'])) redirect('here.php');   // you must be there; no homes, no street
-[$html, $pages] = resid_view($u, $node, (int)($_GET['page'] ?? 1));
+$open = preg_match('/^[A-Za-z0-9_-]{1,40}$/', (string)($_GET['o'] ?? '')) ? (string)$_GET['o'] : '';
+[$html, $pages] = resid_view($u, $node, (int)($_GET['page'] ?? 1), $open);
 page_header('Homes of ' . $node['name']);
 ?>
 <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <a href="<?= e(url('here.php')) ?>"><?= e($node['name']) ?></a> › <b>Homes</b></p>
 <h1>🏠 Homes of <?= e($node['name']) ?></h1>
 <p class="help">Tap a house to go to its door. A lit window means someone is home.</p>
 <?= $html ?>
+<?= gnav_tools_html($u, 'residential.php', false) /* the Fast travel popover for the round button */ ?>
 <p class="heretools"><a class="btn alt" href="<?= e(url('here.php')) ?>">⬅️ Back to the square</a></p>
 <?php page_footer();

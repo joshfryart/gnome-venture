@@ -463,6 +463,7 @@ img.postimg { max-width: 100%; height: auto; border-radius: var(--radius); displ
 .tile.planted { background: var(--t-planted); }
 .tile.ready { background: var(--t-ready); }
 .tile.thirsty { background: var(--t-thirsty); }
+.tile.tilled.wet { background: #5b3d24; }   /* v2.5.49: bare tilled soil in the rain (img/ph/tile-tilled-wet.png) */
 .tile.notill { background: var(--t-notill); }
 .tile.nt { box-shadow: inset 0 0 0 3px var(--t-nt); }
 .tile.sel.nt { box-shadow: inset 0 0 0 3px var(--t-nt); }
@@ -1409,6 +1410,18 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
   .selon:not([hidden]) .selacts > * { flex: 0 0 auto; margin: 0; }
   .selon:not([hidden]) .selacts { flex-wrap: nowrap !important; justify-content: flex-start; align-items: center; }
   body.game:has(.selon:not([hidden])) { padding-bottom: calc(var(--bar) + var(--sab) + 72px); }
+  /* v2.5.49: a compact select bar on a phone: the count and the quick picks sit in one scrolling row, the help line goes, the action buttons are smaller */
+  .selbar { max-width: 100%; min-width: 0; }
+  .selbar .selon { padding: 4px 8px; max-width: 100%; min-width: 0; box-sizing: border-box; }
+  .selbar .selon > p:first-child { max-width: 100%; min-width: 0; }
+  .selbar .selon p { margin: 4px 0; gap: 6px; }
+  .selbar .selon > p:first-child { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+  .selbar .selon > p:first-child > * { flex: 0 0 auto; }
+  .selbar .selon > p:first-child .btn { padding: 2px 8px; font-size: 13px; min-height: 30px; }
+  .selbar .selon .help { display: none; }
+  .selon:not([hidden]) .selacts { padding: 6px 8px; gap: 6px; }
+  .selon:not([hidden]) .selacts .btn { padding: 4px 10px; font-size: 14px; min-height: 36px; }
+  body.game:has(.selon:not([hidden])) { padding-bottom: calc(var(--bar) + var(--sab) + 56px); }
   .backtoyard { display: inline; }
 }
 
@@ -6965,7 +6978,7 @@ a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpac
 .vcard .vil { width: 160px; max-width: 100%; height: 100px; object-fit: contain; }
 .vcard .vfall { display: grid; place-items: center; font-size: 40px; border: 2px solid var(--ol); background: var(--brand-soft); }
 .vfall.ls-coast { background: #a9d6ea; } .vfall.ls-mountain { background: #c9c5bc; } .vfall.ls-forest { background: #7ab55c; } .vfall.ls-desert { background: #f5cf6a; }
-.vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
+.vfall.ls-island { background: #9fd8d0; } .vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
 .vcard .vname { font-weight: 700; font-size: 16px; color: var(--ink); text-align: center; }
 .vcard:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand), var(--drop) 4px 4px 0; }
 .vcard:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
@@ -7054,6 +7067,25 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 .hubsvg .shadow { fill: rgba(0, 0, 0, .28); }
 .hubsvg .fb { fill: var(--surface); stroke: var(--line-2); stroke-width: 1.5; }
 .hubsvg .emo { pointer-events: none; }
+/* Animation layers (layout "anim" list): classes only; nothing moves under prefers-reduced-motion */
+.hubsvg .hanim, .hubsvg .dress { pointer-events: none; }
+.hubsvg .hanim { transform-box: fill-box; transform-origin: 50% 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .hubsvg .hanim { animation-duration: 4s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+  .hubsvg .hanim.spd-slow { animation-duration: 6.4s; } .hubsvg .hanim.spd-fast { animation-duration: 2.4s; }
+  .hubsvg .hanim.fx-sway { animation-name: hanimsway; }
+  .hubsvg .hanim.fx-bob { animation-name: hanimbob; animation-duration: 3s; }
+  .hubsvg .hanim.fx-twinkle { animation-name: hanimtwinkle; animation-duration: 2.5s; }
+  .hubsvg .hanim.fx-drift { animation-name: hanimdrift; animation-duration: 12s; animation-direction: alternate; }
+  .hubsvg .hanim.fx-flicker { animation-name: hanimflicker; animation-duration: 1.2s; }
+  .hubsvg .hanim.fx-pulse { animation-name: hanimpulse; animation-duration: 3s; transform-origin: 50% 50%; }
+}
+@keyframes hanimsway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes hanimbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes hanimtwinkle { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes hanimdrift { 0% { transform: translateX(-12px); } 100% { transform: translateX(12px); } }
+@keyframes hanimflicker { 0%, 100% { opacity: 1; } 30% { opacity: .8; } 60% { opacity: .95; } 80% { opacity: .7; } }
+@keyframes hanimpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 @keyframes hubpulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .25; } }
 @media (prefers-reduced-motion: reduce) { .hubsvg .hs.goal .ring { animation: none; } }
 .hubleg { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -7212,6 +7244,13 @@ dialog.trailpop.wanderpop .hubcard { text-align: left; }
 .wc-banner { margin: -4px -4px 6px; line-height: 0; }
 .wc-banner img.wc-banner-img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
 .wc-mv, .wc-tier, .wc-found { vertical-align: middle; image-rendering: pixelated; }
+/* 2.5.49: step-off / step-back strip: 4 to 6 frames of 96 x 64, plays once and holds the last frame */
+.wc-step { width: 96px; height: 64px; overflow: hidden; margin: 0 auto 6px; line-height: 0; }
+.wc-step.flip { transform: scaleX(-1); }
+.wc-step img { display: block; max-width: none; image-rendering: pixelated; animation-duration: .7s; animation-fill-mode: forwards; animation-timing-function: steps(3); }
+.wc-step img.ws-n4 { animation-name: wsn4; animation-timing-function: steps(3); } .wc-step img.ws-n5 { animation-name: wsn5; animation-timing-function: steps(4); } .wc-step img.ws-n6 { animation-name: wsn6; animation-timing-function: steps(5); }
+@keyframes wsn4 { to { transform: translateX(-288px); } } @keyframes wsn5 { to { transform: translateX(-384px); } } @keyframes wsn6 { to { transform: translateX(-480px); } }
+@media (prefers-reduced-motion: reduce) { .wc-step img { animation: none; } .wc-step img.ws-n4 { transform: translateX(-288px); } .wc-step img.ws-n5 { transform: translateX(-384px); } .wc-step img.ws-n6 { transform: translateX(-480px); } }
 .wanderbehind .tmgrid button { pointer-events: none; }
 /* 2.5.14: tidy the wander popover: one title (the info line), smaller type, compact folds */
 dialog.wanderpop h1, dialog.wanderpop p.status { display: none; }

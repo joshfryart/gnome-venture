@@ -23,7 +23,7 @@ echo "== a visitor (not logged in)"
 chk "index.php is the front page" "$(to index.php)" "200 "
 chk "gnome.php asks to log in" "$(to gnome.php | cut -c1-3)" 302
 
-dbx "UPDATE users SET tour_step = 0 WHERE username = 'sprout'"
+dbx "UPDATE users SET tour_step = 0, tour_ask = 0 WHERE username = 'sprout'"
 get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPass123!' >/dev/null
 echo "== a player: the old addresses"
 chk "index.php -> gnome.php" "$(to index.php)" "302 $BASE/gnome.php"
@@ -56,13 +56,13 @@ hasnt "no link to index.php?today=1 anywhere" 'index.php?today=1'
 hasnt "no Go to Today rail box" 'rtoday'
 
 echo "== tour step 7 (Meet your gnome) ticks on MY GNOME, not on landing on TODAY"
-dbx "UPDATE users SET tour_step = 7 WHERE username = 'sprout'"
+dbx "UPDATE users SET tour_step = 7, tour_ask = 0 WHERE username = 'sprout'"
 get gnome.php >/dev/null
 chk "landing on TODAY: still on step 7" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT tour_step FROM users WHERE username=\"sprout\"")->fetchColumn();')" 7
 has "...and the tour card links to MY GNOME" 'href="/gnome.php?tab=gnome">See my gnome'
 get 'gnome.php?tab=gnome' >/dev/null
 chk "opening MY GNOME: step 8" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT tour_step FROM users WHERE username=\"sprout\"")->fetchColumn();')" 8
-dbx "UPDATE users SET tour_step = 0 WHERE username = 'sprout'"
+dbx "UPDATE users SET tour_step = 0, tour_ask = 0 WHERE username = 'sprout'"
 
 echo "== php errors"
 if grep -iE 'fatal|warning|notice|deprecated|parse error' $LOG; then FAILS=$((FAILS+1)); else echo "  (none)"; fi

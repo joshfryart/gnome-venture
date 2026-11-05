@@ -116,6 +116,12 @@ cfg(['stop_daily_cap' => 6, 'stop_daily_total' => 3]);
 ok('v1.4.9: all-stops daily total is soft (no stop, rewards halved)', $o && !empty($GLOBALS['gv_stop_tired']), $m);
 cfg(['stop_daily_total' => 15, 'stop_daily_cap' => 6]); q('DELETE FROM stop_log');
 
+// The pool shows at most 3 conditional ("special") activities, picked by a hash of today's real date, so whether night fishing or the pie
+// contest makes the cut depends on the day the suite runs. For those checks, park the OTHER conditional untiered activities (active=0)
+// so the date cannot hide the one under test; spare() puts them back.
+$parked = [];
+function only_special(string $slug): void { global $parked; spare(); foreach (q("SELECT slug FROM stop_acts WHERE slug <> ? AND cond <> '' AND tier = 0 AND active = 1", [$slug])->fetchAll(PDO::FETCH_COLUMN) as $x) { $parked[] = $x; q('UPDATE stop_acts SET active = 0 WHERE slug = ?', [$x]); } stop_acts(true); }
+function spare(): void { global $parked; foreach ($parked as $x) q('UPDATE stop_acts SET active = 1 WHERE slug = ?', [$x]); $parked = []; stop_acts(true); }
 echo "== time of day, season and weather\n";
 $jet = stopOfType('jetty');
 cfg(['stop_daypart_force' => 'day', 'weather_force' => 'sun', 'season_force' => 'spring']);
@@ -124,10 +130,11 @@ ok('...but is listed under other times', in_array('night_fishing', array_column(
 at($jet);
 [$o, $m] = doit('night_fishing', $IN);
 ok('doing it by day is refused', !$o && str_contains($m, 'isn’t on offer'), $m);
-cfg(['stop_daypart_force' => 'night']);
+cfg(['stop_daypart_force' => 'night']); only_special('night_fishing');
 ok('night fishing is offered at night', in_array('night_fishing', offered($jet), true));
 at($jet); [$o] = doit('night_fishing', $IN);
 ok('and works at night', $o);
+spare();
 $inn = stopOfType('inn');
 cfg(['stop_daypart_force' => 'day', 'weather_force' => 'sun']);
 ok('rainy-day stories not in sun', !in_array('rainy_stories', offered($inn), true));
@@ -139,8 +146,9 @@ cfg(['stop_core' => 3]);
 cfg(['season_force' => 'summer', 'weather_force' => 'sun']);
 ok('no frost fair in summer', !in_array('frost_fair', offered($inn), true));
 cfg(['season_force' => 'autumn']);
-$orch = stopOfType('orchard');
+$orch = stopOfType('orchard'); only_special('pie_contest');
 ok('pie contest in autumn at an orchard', in_array('pie_contest', offered($orch), true));
+spare();
 cfg(['stop_daypart_force' => 'night']);
 ok('the ambience changes with the time of day', true);
 $t = stop_types()['inn']; $amb = explode(';;', $t['ambience']); ok('four ambience lines per type', count($amb) === 4);

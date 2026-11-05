@@ -12,5 +12,6 @@ page_header('Games');   // the Games menu entry lights up for this page too
 ?>
 <h1>The Great Treehouse</h1>
 <?= treehouse_view($u, $open) ?>
+<?= gnav_tools_html($u, 'treehouse.php', false) /* v2.5.49: the Fast travel popover the round button opens */ ?>
 <p class="heretools"><a class="btn alt" href="<?= e(url('games.php?view=list')) ?>">List version</a></p>
 <?php page_footer();

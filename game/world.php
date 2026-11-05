@@ -158,6 +158,7 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
     <p class="help maphelp">Tap a region to open its map. 🎩 you · 🍄 Mossbottom is reachable from anywhere.</p>
   </div>
   <?= $youpill . $wnav ?>
+  <?php require_once __DIR__ . '/includes/letters.php'; echo letters_box($u) . landmark_panel($u, $node);   // v2.5.49: the Lost Letter and the place's own panel were only on the old Go stack ?>
 <?php endif; ?>
 <?php if (!$gn || $selRegion !== null): ?>
 <?php if (myc_on() && region_art_path($mapRegion) === ''):   // the pixel-art region map is the default whenever its picture is there ?>

@@ -1547,7 +1547,7 @@ function expand_plot(int $uid): array
         [$yw, $yh] = yard_size($plot);
         $grid = [];
         foreach (q('SELECT yx, yy FROM plot_tiles WHERE plot_id = ? AND yx IS NOT NULL', [$plotId])->fetchAll() as $t) yard_mark($grid, (int)$t['yx'], (int)$t['yy'], 1, 1);
-        foreach (q('SELECT x, y, w, h FROM garden_objects WHERE plot_id = ? AND x >= 0', [$plotId])->fetchAll() as $o) yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h']);
+        foreach (q('SELECT x, y, w, h, shape FROM garden_objects WHERE plot_id = ? AND x >= 0', [$plotId])->fetchAll() as $o) yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], '1', yard_quads($o['shape'], (int)$o['w'], (int)$o['h']));
         $c = q('SELECT AVG(yx) AS cx, AVG(yy) AS cy FROM plot_tiles WHERE plot_id = ? AND yx IS NOT NULL', [$plotId])->fetch();
         $spot = yard_free_spot($grid, $yw, $yh, 2, 2, $c && $c['cx'] !== null ? [(int)round((float)$c['cx']), (int)round((float)$c['cy'])] : null);
     }

@@ -52,6 +52,7 @@ page_header('Art & style guide', true);
   <p>Every icon, at 16, 24 and 48 px, dark and light</p>
   <p>UI style sheet: colours, type, spacing, components</p>
   <p>Joshua’s UI rules and the do / don’t list</p>
+  <p>Catalogue of the Here, door and treehouse pictures (file names, sizes, optional layers)</p>
 </details>
 <details class="fold"><summary>Update it</summary>
   <p class="help">After icons change, run <code>python3 tests/build_guide.py</code> in the project. It rebuilds the PDF from the icon files. Ship <code>assets/guides/</code> with the next release.</p>

@@ -65,7 +65,7 @@ page_header($plot['garden_name'] ?: 'A garden');
 
 <div class="gardenwrap">
   <div>
-    <div class="yardwrap"><?= render_yard($plot, $tiles, $plants, $objs, 'visit') ?></div>
+    <div class="yardwrap"><?= render_yard($plot, $tiles, $plants, $objs, 'visit', null, ['thirsty' => setting('social169_water_on') === '1'])   // v2.5.49: with friend watering on, visitors see which squares are thirsty (the button already counts them) ?></div>
     <p class="yardbar">
       <span>🌼 Curb appeal <b><?= $appeal ?></b> (<?= e(appeal_word($appeal)) ?>)</span>
       <?= social169_garden_counts($plotId) ?>

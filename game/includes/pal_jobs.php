@@ -176,6 +176,16 @@ function pj_ensure_content(): void
             'max_stock' => 12, 'restock_chance' => 60, 'current_stock' => 0, 'current_price' => 50]);
     }
     alchemy_ensure_items();   // the Alchemy Table's other potions (their recipes are in data/crafts.txt)
+    // v2.5.49: shelves for the newer potions too, dearer than crafting them (price_min..max around 1.2 to 1.5 x the base price), small stock; Grand is scarce. Adds only.
+    if ($shop) {
+        foreach (['strong-healing-potion' => [150, 190, 6, 40], 'grand-healing-elixir' => [480, 600, 2, 15], 'lucky-draught' => [85, 105, 5, 40], 'sages-draught' => [85, 105, 5, 40],
+                  'stoneskin-brew' => [80, 100, 5, 40], 'swiftfoot-elixir' => [85, 105, 5, 40], 'garden-tonic' => [38, 48, 10, 50]] as $slug => [$lo, $hi, $max, $chance]) {
+            $pid = item_id_by_slug($slug);
+            if (!$pid || q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $pid])) continue;
+            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $pid, 'price_min' => $lo, 'price_max' => $hi, 'max_stock' => $max, 'restock_chance' => $chance,
+                'current_stock' => 0, 'current_price' => intdiv($lo + $hi, 2)]);
+        }
+    }
 }
 
 // ---------------- the random roll (seeded, so a job's result is fixed when it starts) ----------------
@@ -242,6 +252,79 @@ function pj_can_send(array $u, string $palUid, bool $unequip = false): array
     $away = (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND state IN ('active','ready')", [$uid]);
     if ($away >= pj_max_away()) return [null, 'That is as many jobs at once as your pals can manage (' . pj_max_away() . '). Collect or wait.'];
     return [$p, ''];
+}
+
+/**
+ * v2.5.49: what a pal packs for a trip or delve: [slug => n] in drink order (weakest tier first), at most 5 in all. $potions = Healing Potions, $more = [slug => n] for the stronger
+ * tiers (ALCHEMY_HEAL: strong-healing-potion, grand-healing-elixir). Unknown slugs and counts under 1 are dropped.
+ */
+function pj_pack(int $potions, array $more = []): array
+{
+    $want = [PJ_POTION => max(0, $potions)];
+    foreach ($more as $slug => $n) if (isset(ALCHEMY_HEAL[$slug]) && $slug !== PJ_POTION) $want[$slug] = max(0, (int)$n);
+    $left = 5; $out = [];
+    foreach (ALCHEMY_HEAL as $slug => $_) {
+        $n = min($left, (int)($want[$slug] ?? 0));
+        if ($n > 0) { $out[$slug] = $n; $left -= $n; }
+    }
+    return $out;
+}
+
+/** A sim's potion argument as a pack: an int is that many Healing Potions (older callers and tests), an array is already a pack. */
+function pj_pack_of(int|array $potions): array
+{
+    return is_array($potions) ? array_filter(array_map('intval', $potions), fn($n) => $n > 0) : pj_pack($potions);
+}
+
+/** Drink the weakest packed potion: removes it from $pack and returns the HP it gives a pal with $max HP (0 = nothing left). */
+function pj_pack_drink(array &$pack, int $max): int
+{
+    foreach (ALCHEMY_HEAL as $slug => $_) {
+        if (($pack[$slug] ?? 0) > 0) { $pack[$slug]--; return $slug === PJ_POTION ? PJ_POTION_HEAL : alchemy_pal_heal($slug, $max); }
+    }
+    return 0;
+}
+
+/** What a sim reports for its pack: total used, and the per-tier numbers the Collect step needs to hand the rest back. */
+function pj_pack_report(array $packed, array $left): array
+{
+    $used = [];
+    foreach ($packed as $slug => $n) if (($d = $n - (int)($left[$slug] ?? 0)) > 0) $used[$slug] = $d;
+    return ['potions_used' => array_sum($used), 'pack' => $packed, 'pack_used' => $used];
+}
+
+/** What is left of a sim result's pack: pack minus pack_used, per tier. */
+function pj_pack_left(array $res): array
+{
+    $o = [];
+    foreach ((array)($res['pack'] ?? []) as $slug => $n) if (($d = (int)$n - (int)($res['pack_used'][$slug] ?? 0)) > 0) $o[$slug] = $d;
+    return $o;
+}
+
+/** Take a pack out of the satchel. All or nothing; false = not enough of some tier. */
+function pj_take_pack(int $uid, array $pack): bool
+{
+    $took = [];
+    foreach ($pack as $slug => $n) {
+        $id = alchemy_item_id($slug);
+        if ($id > 0 && give_item($uid, $id, -$n)) { $took[$slug] = $n; continue; }
+        foreach ($took as $s2 => $n2) give_item($uid, alchemy_item_id($s2), $n2);
+        return false;
+    }
+    return true;
+}
+
+function pj_give_pack(int $uid, array $pack): void
+{
+    foreach ($pack as $slug => $n) if ($n > 0 && ($id = alchemy_item_id($slug))) give_item($uid, $id, $n);
+}
+
+/** "2 Healing Potions, 1 Grand Healing Elixir" for messages. */
+function pj_pack_words(array $pack): string
+{
+    $o = [];
+    foreach ($pack as $slug => $n) { $nm = (string)q_val('SELECT name FROM items WHERE slug = ?', [$slug]); $o[] = $n . ' ' . ($nm !== '' ? $nm : $slug); }
+    return implode(', ', $o);
 }
 
 /** Take n potions out of the satchel for a job. False = not enough. */
@@ -379,8 +462,14 @@ function pj_recall_scale(array $r, float $frac, int $potions): array
     $r['items'] = $items;
     foreach (['makes', 'xp_base'] as $k) if (isset($r[$k])) $r[$k] = (int)floor((int)$r[$k] * $keep);
     $r['rounds'] = (int)floor((int)($r['rounds'] ?? 0) * $frac);
-    $used = (int)ceil((int)($r['potions_used'] ?? 0) * $frac);
-    $r['potions_used'] = $used; $r['potions_back'] = max(0, $potions - $used);
+    if (!empty($r['pack'])) {   // v2.5.49: a pack with stronger tiers: scale each tier's drinks, the rest come back per tier
+        $pu = []; $pb = [];
+        foreach ((array)$r['pack'] as $slug => $n) { $d = min((int)$n, (int)ceil((int)($r['pack_used'][$slug] ?? 0) * $frac)); if ($d > 0) $pu[$slug] = $d; if ((int)$n - $d > 0) $pb[$slug] = (int)$n - $d; }
+        $r['pack_used'] = $pu; $r['pack_back'] = $pb; $r['potions_used'] = array_sum($pu); $r['potions_back'] = array_sum($pb);
+    } else {
+        $used = (int)ceil((int)($r['potions_used'] ?? 0) * $frac);
+        $r['potions_used'] = $used; $r['potions_back'] = max(0, $potions - $used);
+    }
     $r['recalled'] = true;
     return $r;
 }
@@ -439,8 +528,9 @@ function pj_tools(int $uid): array
  * Roll a whole trip now. Returns ['rounds' => done, 'items' => [[item_id, qty, name]...], 'hp' => left, 'potions_used' => n, 'fainted' => bool, 'log' => [lines]].
  * Each round (30 minutes of the trip): a danger roll, then a find roll. Rare finds need Adventuring 5. A hurt pal drinks a potion at 40% HP; 0 HP ends the trip.
  */
-function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hours, int $potions, string $seed, int $luckBonus = 0): array
+function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hours, int|array $potions, string $seed, int $luckBonus = 0): array
 {
+    $pack = pj_pack_of($potions); $packed = $pack;
     $rng = pj_rng($seed);
     $pal = $p['pal'];
     $pal['luck'] = (int)($pal['luck'] ?? 0) + max(0, $luckBonus);   // a Lucky Draught packed for the trip
@@ -460,9 +550,9 @@ function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hour
             $dmg = 2 + $rng(4) + intdiv($rounds, 6);
             $hp -= $dmg;
             $log[] = 'Round ' . $r . ': a scare, -' . $dmg . ' HP.';
-            if ($hp <= intdiv($p['max'] * 4, 10) && $hp > 0 && $potions - $used > 0) {
+            if ($hp <= intdiv($p['max'] * 4, 10) && $hp > 0 && array_sum($pack) > 0) {
                 $used++;
-                $hp = min($p['max'], $hp + PJ_POTION_HEAL);
+                $hp = min($p['max'], $hp + pj_pack_drink($pack, (int)$p['max']));
                 $log[] = 'Drank a potion.';
             }
             if ($hp <= 0) { $hp = 0; $fainted = true; $done = $r - 1; $log[] = 'Out of HP: heading home.'; break; }
@@ -477,17 +567,17 @@ function pj_roll_trip(array $p, string $land, string $tool, int $tier, int $hour
             }
         }
     }
-    return ['rounds' => $done, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => array_slice($log, 0, 12)];
+    return ['rounds' => $done, 'items' => array_values($items), 'hp' => $hp, 'fainted' => $fainted, ...pj_pack_report($packed, $pack), 'log' => array_slice($log, 0, 12)];
 }
 
-function pj_trip_send(array $u, string $palUid, string $land, string $tool, int $hours, int $potions, bool $unequip = false, bool $luck = false): array
+function pj_trip_send(array $u, string $palUid, string $land, string $tool, int $hours, int $potions, bool $unequip = false, bool $luck = false, array $more = []): array
 {
     $uid = (int)$u['id'];
     if (!isset(LANDSCAPES[$land])) return [false, 'Pick a place to go.'];
     if (!in_array($hours, PJ_TRIP_HOURS, true)) return [false, 'Pick 1, 3 or 8 hours.'];
     $tier = tool_tier($uid, $tool);
     if (!in_array($tool, PJ_TOOLS, true) || $tier < 1) return [false, 'Equip a gathering tool you own.'];
-    $potions = max(0, min(5, $potions));
+    $pack = pj_pack($potions, $more); $potions = array_sum($pack);   // v2.5.49: Healing Potions plus the stronger tiers, 5 in all
     [$p, $err] = pj_can_send($u, $palUid, $unequip);
     if (!$p) return [false, $err];
     if (pj_runs_today($uid) >= pj_runs_per_day()) return [false, 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').'];
@@ -495,10 +585,11 @@ function pj_trip_send(array $u, string $palUid, string $land, string $tool, int 
     $seed = bin2hex(random_bytes(6));
     $luckId = $luck ? alchemy_item_id(ALCHEMY_LUCK) : 0;
     if ($luck && (!$luckId || !give_item($uid, $luckId, -1))) return [false, 'You do not have a Lucky Draught.'];
-    if (!pj_take_potions($uid, $potions)) { if ($luck) give_item($uid, $luckId, 1); return [false, 'You do not have ' . $potions . ' Healing Potion' . ($potions === 1 ? '' : 's') . '.']; }
-    if (!pj_claim_pal($uid, $palUid, 'trip')) { if ($potions) give_item($uid, pj_potion_id(), $potions); if ($luck) give_item($uid, $luckId, 1); return [false, $p['name'] . ' is already out.']; }
-    $res = pj_roll_trip($p, $land, $tool, $tier, $hours, $potions, $seed, $luck ? ALCHEMY_LUCK_PAL : 0);
+    if (!pj_take_pack($uid, $pack)) { if ($luck) give_item($uid, $luckId, 1); return [false, 'You do not have ' . pj_pack_words($pack) . '.']; }
+    if (!pj_claim_pal($uid, $palUid, 'trip')) { pj_give_pack($uid, $pack); if ($luck) give_item($uid, $luckId, 1); return [false, $p['name'] . ' is already out.']; }
+    $res = pj_roll_trip($p, $land, $tool, $tier, $hours, $pack, $seed, $luck ? ALCHEMY_LUCK_PAL : 0);
     $res['potions_back'] = $potions - $res['potions_used'];
+    $res['pack_back'] = pj_pack_left($res);
     if ($luck) $res['luck'] = ALCHEMY_LUCK_PAL;
     $secs = $res['fainted'] ? max(600, (int)($hours * 3600 * ($res['rounds'] / ($hours * 2)))) : $hours * 3600;
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'trip', 'target' => $land, 'plot_id' => null, 'day' => landmark_day(), 'tool' => $tool,
@@ -755,8 +846,9 @@ function pj_cleared_delves(int $uid): array
 }
 
 /** Roll a delve re-run: 5 rooms; each is a fight against the delve's level. The chest pays about 60% of a real clear and never gives first-clear extras. */
-function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
+function pj_roll_delve(array $p, array $lm, int|array $potions, string $seed): array
 {
+    $pack = pj_pack_of($potions); $packed = $pack;
     $rng = pj_rng($seed);
     $pal = $p['pal'];
     $a = $p['a'];
@@ -777,8 +869,8 @@ function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
         } else {
             $log[] = 'Room ' . $r . ': cleared.';
         }
-        while ($hp > 0 && $hp <= intdiv($p['max'] * 4, 10) && $potions - $used > 0) {
-            $used++; $hp = min($p['max'], $hp + PJ_POTION_HEAL); $log[] = 'Drank a potion.';
+        while ($hp > 0 && $hp <= intdiv($p['max'] * 4, 10) && array_sum($pack) > 0) {
+            $used++; $hp = min($p['max'], $hp + pj_pack_drink($pack, (int)$p['max'])); $log[] = 'Drank a potion.';
         }
         if ($hp <= 0) { $hp = 0; $fainted = true; $log[] = 'Out of HP: heading home.'; break; }
         $rooms = $r;
@@ -793,7 +885,7 @@ function pj_roll_delve(array $p, array $lm, int $potions, string $seed): array
             if ($it) $items[(int)$it['id']] = [(int)$it['id'], ($items[(int)$it['id']][1] ?? 0) + 1, (string)$it['name']];
         }
     }
-    return ['rounds' => $rooms, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => $log];
+    return ['rounds' => $rooms, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'fainted' => $fainted, ...pj_pack_report($packed, $pack), 'log' => $log];
 }
 
 /** How a pal picks its way on a route, by calling: first kind in the list wins (Wayfinder the safe way, Thornblade the fights). Others go as the seed falls. */
@@ -808,8 +900,9 @@ const PJ_ROUTE_PREF = [
  * a few Petals. The pal turns back at the guardian's hall (never fights it) and brings home about 60% of a clear, as before.
  * Same result keys as pj_roll_delve ('rounds' is scaled to DELVE_ROOMS so the time out and the XP stay the same), plus 'path' (the node kinds taken).
  */
-function pj_roll_delve_route(array $p, array $lm, int $potions, string $seed, string $routeSeed): array
+function pj_roll_delve_route(array $p, array $lm, int|array $potions, string $seed, string $routeSeed): array
 {
+    $pack = pj_pack_of($potions); $packed = $pack;
     require_once __DIR__ . '/delve_v2.php';
     $rng = pj_rng($seed);
     $pal = $p['pal'];
@@ -860,8 +953,8 @@ function pj_roll_delve_route(array $p, array $lm, int $potions, string $seed, st
             $moleCoins += 5 + $lvl;
             $log[] = $label . ': Mo the mole found a few Petals.';
         }
-        while ($hp > 0 && $hp <= intdiv($p['max'] * 4, 10) && $potions - $used > 0) {
-            $used++; $hp = min($p['max'], $hp + PJ_POTION_HEAL); $log[] = 'Drank a potion.';
+        while ($hp > 0 && $hp <= intdiv($p['max'] * 4, 10) && array_sum($pack) > 0) {
+            $used++; $hp = min($p['max'], $hp + pj_pack_drink($pack, (int)$p['max'])); $log[] = 'Drank a potion.';
         }
         if ($hp <= 0) { $hp = 0; $fainted = true; $log[] = 'Out of HP: heading home.'; break; }
         $done = $r + 1;
@@ -879,13 +972,13 @@ function pj_roll_delve_route(array $p, array $lm, int $potions, string $seed, st
         }
     }
     $rounds = $walk > 0 ? (int)round(DELVE_ROOMS * $done / $walk) : 0;
-    return ['rounds' => $rounds, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'potions_used' => $used, 'fainted' => $fainted, 'log' => $log, 'path' => $path];
+    return ['rounds' => $rounds, 'coins' => $coins, 'items' => array_values($items), 'hp' => $hp, 'fainted' => $fainted, ...pj_pack_report($packed, $pack), 'log' => $log, 'path' => $path];
 }
 
-function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $unequip = false): array
+function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $unequip = false, array $more = []): array
 {
     $uid = (int)$u['id'];
-    $potions = max(0, min(5, $potions));
+    $pack = pj_pack($potions, $more); $potions = array_sum($pack);   // v2.5.49
     $lm = null;
     foreach (pj_cleared_delves($uid) as $d) if ((int)$d['id'] === $lmId) $lm = $d;
     if (!$lm) return [false, 'Your pal can only re-run a delve you have cleared yourself.'];
@@ -893,16 +986,17 @@ function pj_delve_send(array $u, string $palUid, int $lmId, int $potions, bool $
     if (!$p) return [false, $err];
     if (pj_runs_today($uid) >= pj_runs_per_day()) return [false, 'Your pals have done enough trips and delves for today (' . pj_runs_per_day() . ').'];
     if (q_val("SELECT 1 FROM ppal_jobs WHERE user_id = ? AND kind = 'delve' AND target = ? AND day = ?", [$uid, (string)$lmId, landmark_day()])) return [false, 'That delve needs a day to settle.'];
-    if (!pj_take_potions($uid, $potions)) return [false, 'You do not have ' . $potions . ' Healing Potion' . ($potions === 1 ? '' : 's') . '.'];
-    if (!pj_claim_pal($uid, $palUid, 'delve')) { if ($potions) give_item($uid, pj_potion_id(), $potions); return [false, $p['name'] . ' is already out.']; }
+    if (!pj_take_pack($uid, $pack)) return [false, 'You do not have ' . pj_pack_words($pack) . '.'];
+    if (!pj_claim_pal($uid, $palUid, 'delve')) { pj_give_pack($uid, $pack); return [false, $p['name'] . ' is already out.']; }
     require_once __DIR__ . '/delve_map.php';
     if (dv_on()) {
         require_once __DIR__ . '/delve_v2.php';
-        $res = pj_roll_delve_route($p, $lm, $potions, bin2hex(random_bytes(6)), dv2_seed($uid, $lmId));
+        $res = pj_roll_delve_route($p, $lm, $pack, bin2hex(random_bytes(6)), dv2_seed($uid, $lmId));
     } else {
-        $res = pj_roll_delve($p, $lm, $potions, bin2hex(random_bytes(6)));
+        $res = pj_roll_delve($p, $lm, $pack, bin2hex(random_bytes(6)));
     }
     $res['potions_back'] = $potions - $res['potions_used'];
+    $res['pack_back'] = pj_pack_left($res);
     $secs = $res['fainted'] ? max(600, (int)(3600 * $res['rounds'] / DELVE_ROOMS)) : 3600;
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'delve', 'target' => (string)$lmId, 'plot_id' => null, 'day' => landmark_day(), 'tool' => null,
         'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $secs), 'last_tick' => now(), 'potions' => $potions, 'state' => 'active', 'result' => json_encode($res)]);
@@ -949,7 +1043,8 @@ function pj_collect(array $u, int $jobId): array
     if ($isStation && !empty($r['stop'])) $lines[] = 'ℹ️ ' . $r['stop'];
     $used = (int)($r['potions_used'] ?? 0);
     $back = (int)($r['potions_back'] ?? 0);
-    if ($back) give_item($uid, pj_potion_id(), $back);
+    if (!empty($r['pack'])) pj_give_pack($uid, (array)($r['pack_back'] ?? []));   // v2.5.49: each tier goes back as itself
+    elseif ($back) give_item($uid, pj_potion_id(), $back);
     $tot['used'] = $used; $tot['back'] = $back;
     if ($used || $back) $lines[] = '🧪 ' . ($used ? 'Drank ' . $used . ' potion' . ($used > 1 ? 's' : '') : '') . ($used && $back ? ', ' : '') . ($back ? $back . ' back in your satchel' : '') . '.';
     if ($isStation && $p) {   // v2.4.61: the XP of those makes is split: half to the gnome (Crafting XP), half to the pal's Crafting skill

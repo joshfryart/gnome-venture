@@ -34,6 +34,12 @@ function hubp_add(array &$hot, array $L, string $k, array $h): void
     $hot[] = ['id' => $k, 'x' => $p[0], 'y' => $p[1]] + ($box ? ['box' => $box] : []) + $h;
 }
 
+/** v2.5.49: a verb chip (Make, Play, Send...) with the page's own note after it ("Make · 3 ready"), like the verb chips on Here. */
+function hubp_chip(string $verb, string $note = ''): string
+{
+    return $note === '' ? $verb : $verb . ' · ' . $note;
+}
+
 /** A card body: a paragraph, optional extra html, and the open-the-page button. */
 function hubp_card(string $text, string $linkHref, string $linkLabel, string $extra = ''): string
 {
@@ -58,22 +64,25 @@ function workshop_view(array $u, string $open = ''): string
         $body = '<p class="muted">' . e((string)$desc) . '</p><p>' . (int)$f['have'] . ' of ' . (int)$f['total'] . ' recipes known.' . ($f['locked'] ? ' <b>Locked: ' . e((string)$f['badge']) . '.</b>' : ($f['badge'] !== '' ? ' <b>' . e((string)$f['badge']) . '.</b>' : '')) . '</p>'
             . ($f['locked'] ? '' : '<div class="wsfrag" data-frag="' . e($k) . '" data-url="' . e(url('workshop.php')) . '"><p class="muted">Loading…</p></div>')
             . '<p><a class="btn' . ($f['locked'] ? '' : ' alt') . '" href="' . e(url('inventory.php?tab=craft&c=' . $k)) . '">' . ($f['locked'] ? 'See what unlocks it' : 'Open ' . e($label) . ' as a page') . ' →</a></p>';
-        hubp_add($hot, $L, $k, ['label' => $label, 'emoji' => $emo[$k] ?? $icon, 'chip' => $chip, 'cls' => $f['locked'] ? 'locked' : '', 'href' => url('workshop.php?o=' . $k), 'card' => $body]);
+        hubp_add($hot, $L, $k, ['label' => $label, 'emoji' => $emo[$k] ?? $icon, 'chip' => hubp_chip('Make', $chip), 'cls' => $f['locked'] ? 'locked' : '', 'href' => url('workshop.php?o=' . $k), 'card' => $body]);
     }
-    return hub_scene($akey, $hot, [], ['layout' => $L, 'art' => $art, 'alt' => 'The crafting workshop', 'open' => $open, 'close_href' => url('workshop.php'), 'title' => 'List of crafting areas', 'twin_open' => false]);
+    return hub_scene($akey, $hot, [], ['layout' => $L, 'art' => $art, 'alt' => 'The crafting workshop', 'open' => $open, 'close_href' => url('workshop.php'), 'title' => 'List of crafting areas', 'twin_open' => false, 'nav' => hubp_nav('workshop'), 'navbar' => true]);   // v2.5.49: compass, globe and Fast travel under the picture
 }
 
 // ------------------------------------------------------------------ shared chrome: compass + globe cards
 
-/** The Routes and World cards of a picture page (the compass and the globe, bottom-right). They link back to Here, the sibling picture and the World; nothing is rebuilt. */
-function hubp_nav(string $page): array
+/** The Routes and World cards of a picture page (the compass and the globe). They link back to Here, the sibling picture and the World; nothing is rebuilt.
+ *  $page = the page name (workshop, treehouse, palyard, residential, door); $q = extra query for the no-script ?o= links (residential and door need their place / villager). */
+function hubp_nav(string $page, string $q = ''): array
 {
-    $sib = $page === 'treehouse' ? ['palyard.php', '🌳 Pal Yard'] : ['treehouse.php', '🌳 Treehouse'];
+    $sib = ['treehouse' => ['palyard.php', '🌳 Pal Yard'], 'palyard' => ['treehouse.php', '🌳 Treehouse'], 'workshop' => ['inventory.php?tab=craft', '🎒 Crafting list'],
+            'residential' => ['town.php', '🏘️ Town square'], 'door' => ['residential.php', '🏠 The street']][$page] ?? ['town.php', '🏘️ Town'];
     $li = fn(string $href, string $label) => '<li class="trow"><a class="btn" href="' . e(url($href)) . '">' . $label . '</a></li>';
     $routes = '<p class="muted">Where to next? One tap travels.</p><ul class="trows">'
         . (gnav_on() ? $li('here.php', '📍 Here') : '') . $li($sib[0], $sib[1]) . $li('town.php', '🏘️ Town') . $li('world.php', '🗺️ World') . '</ul>';
     $world = '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a></p>';
-    return ['routes' => ['href' => url($page . '.php?o=routes'), 'title' => 'Routes', 'card' => $routes], 'world' => ['href' => url($page . '.php?o=world'), 'title' => 'World map', 'card' => $world],
+    $base = $page . '.php?' . ($q !== '' ? $q . '&' : '');
+    return ['routes' => ['href' => url($base . 'o=routes'), 'title' => 'Routes', 'card' => $routes], 'world' => ['href' => url($base . 'o=world'), 'title' => 'World map', 'card' => $world],
             'extra' => [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')]]];   // like the gate pictures: Routes, World and Fast travel as round buttons under the picture
 }
 
@@ -172,15 +181,15 @@ function treehouse_view(array $u, string $open = ''): string
         $rows = '';
         foreach ($keys as $k) $rows .= treehouse_game_card($u, (string)$k);
         if ($rows === '') continue;
-        hubp_add($hot, $L, (string)$id, ['label' => $label, 'emoji' => $emoji, 'href' => url('treehouse.php?o=' . $id), 'card' => '<ul class="trows">' . $rows . '</ul>']);
+        hubp_add($hot, $L, (string)$id, ['label' => $label, 'emoji' => $emoji, 'chip' => 'Play', 'href' => url('treehouse.php?o=' . $id), 'card' => '<ul class="trows">' . $rows . '</ul>']);
     }
     // Puzzle Room: Jeff's puzzles, behind puzzles_open (closed shutters and the reason when it is not open yet)
     $pzOpen = setting('puzzles_open') === '1' || is_admin();
-    hubp_add($hot, $L, 'puzzles', ['label' => 'Puzzle Room', 'emoji' => '🧩', 'cls' => $pzOpen ? '' : 'locked', 'href' => url('treehouse.php?o=puzzles'),
+    hubp_add($hot, $L, 'puzzles', ['label' => 'Puzzle Room', 'emoji' => '🧩', 'chip' => 'Play', 'cls' => $pzOpen ? '' : 'locked', 'href' => url('treehouse.php?o=puzzles'),
         'card' => $pzOpen ? '<p>Jeff’s puzzle games: GIFsaw moving jigsaws, Jigsaw and more. Just for fun, no daily limit.</p><p><a class="btn" href="' . e(url('puzzles.php?from=treehouse')) . '">Go in</a></p>'
                           : '<p class="muted">🔒 The Puzzle Room is still being tidied. It opens soon.</p>']);
     $cfOpen = catfish_open();
-    hubp_add($hot, $L, 'catfish', ['label' => 'Cat Fish nook', 'emoji' => '🐱', 'cls' => $cfOpen ? '' : 'locked', 'href' => url('treehouse.php?o=catfish'),
+    hubp_add($hot, $L, 'catfish', ['label' => 'Cat Fish nook', 'emoji' => '🐱', 'chip' => 'Play', 'cls' => $cfOpen ? '' : 'locked', 'href' => url('treehouse.php?o=catfish'),
         'card' => $cfOpen ? '<p>Adopt a cat and dangle a toy fishing rod. Upgrade it and the cat keeps catching fish, even while you are away.</p><p><a class="btn" href="' . e(url('catfish.php?from=treehouse')) . '">Visit the nook</a></p>'
                           : '<p class="muted">🔒 The Cat Fish nook is shuttered for now. It opens soon.</p>']);
     // Contest hall and trophy shelf: this week's high scores (game_top), the Contests tab, Expert trophies
@@ -194,9 +203,13 @@ function treehouse_view(array $u, string $open = ''): string
     }
     $trophies = 0;
     if (ppal_open() && !is_guest($u)) { try { $trophies = (int)q_val('SELECT COUNT(*) FROM ppal_trophies WHERE user_id = ?', [$uid]); } catch (Throwable $e) {} }
-    hubp_add($hot, $L, 'contests', ['label' => 'Contest hall', 'emoji' => '🏆', 'href' => url('treehouse.php?o=contests'),
+    $topGames = 0;   // games where you hold this week's top score (feeds the 'top' trophy layers)
+    if (!is_guest($u)) foreach (array_keys(GAMES) as $gk) {
+        try { if ((int)q_val("SELECT s.user_id FROM game_scores s JOIN users x ON x.id = s.user_id WHERE s.game = ? AND s.week = ? AND x.banned = 0 GROUP BY s.user_id ORDER BY MAX(s.score) DESC, MIN(s.id) LIMIT 1", [$gk, job_period_key('weekly')]) === $uid) $topGames++; } catch (Throwable $e) {}
+    }
+    hubp_add($hot, $L, 'contests', ['label' => 'Contest hall', 'emoji' => '🏆', 'chip' => 'Read', 'href' => url('treehouse.php?o=contests'),
         'card' => '<h4>🏅 This week’s high scores</h4>' . ($top !== '' ? '<ul class="tshelf">' . $top . '</ul>' : '<p class="muted">Nobody has scored yet this week.</p>') . '<p class="help">High scores reset every week.</p>'
-            . ($trophies > 0 ? '<h4>🏆 Trophy shelf</h4><p>' . $trophies . ' Expert jigsaw trophy' . ($trophies === 1 ? '' : ' trophies') . '.</p>' : '')
+            . ($trophies > 0 || $topGames > 0 ? '<h4>🏆 Trophy shelf</h4><p>' . ($trophies > 0 ? $trophies . ' Expert jigsaw trophy' . ($trophies === 1 ? '' : ' trophies') . '.' : '') . ($topGames > 0 ? ' Top score this week in ' . $topGames . ' game' . ($topGames === 1 ? '' : 's') . '.' : '') . '</p>' : '')
             . '<p><a class="btn" href="' . e(url('games.php?tab=contests')) . '">Contests →</a></p>']);
     $sprites = [];
     $more = null;
@@ -207,7 +220,7 @@ function treehouse_view(array $u, string $open = ''): string
     if ($showPals) {   // the Yard door: needs pals (pj_open is the level gate)
         $yardCard = $pjOn ? '<p>Your pals at work: gardens, trips, delves and stations.</p><p><a class="btn" href="' . e(url('palyard.php')) . '">Open the Pal Yard</a></p>'
             : ($showPals ? '<p class="muted">🔒 The Pal Yard opens at gnome level ' . pj_min_level() . '.</p>' : '');
-        if ($yardCard !== '') hubp_add($hot, $L, 'yard', ['label' => 'Pal Yard', 'emoji' => '🌳', 'cls' => $pjOn ? '' : 'locked', 'href' => url($pjOn ? 'palyard.php' : 'treehouse.php?o=yard'), 'card' => $yardCard]);
+        if ($yardCard !== '') hubp_add($hot, $L, 'yard', ['label' => 'Pal Yard', 'emoji' => '🌳', 'chip' => 'Enter', 'cls' => $pjOn ? '' : 'locked', 'href' => url($pjOn ? 'palyard.php' : 'treehouse.php?o=yard'), 'card' => $yardCard]);
     }
     if ($showPals) {
         $pals = array_values(pj_pals($uid));   // found order, append-only
@@ -216,7 +229,7 @@ function treehouse_view(array $u, string $open = ''): string
         try { foreach (q('SELECT pal_uid FROM ppal_found WHERE user_id = ? ORDER BY found_at, id', [$uid])->fetchAll() as $n => $r) $ord[(string)$r['pal_uid']] = $n; } catch (Throwable $e) {}
         $jobs = [];
         foreach (pj_jobs($uid, true) as $j) $jobs[(string)$j['pal_uid']] = $j;
-        hubp_add($hot, $L, 'books', ['label' => 'Pal Book', 'emoji' => '📚', 'href' => url('puzzlepals.php'), 'card' => '']);
+        hubp_add($hot, $L, 'books', ['label' => 'Pal Book', 'emoji' => '📚', 'chip' => 'Read', 'href' => url('puzzlepals.php'), 'card' => '']);
         $perches = $L['pals'] ?? [];
         $party = $L['party'] ?? [];
         $seen = hub_seen_get($uid, 'treehouse');
@@ -251,6 +264,10 @@ function treehouse_view(array $u, string $open = ''): string
         }
         hub_seen_set($uid, 'treehouse');
     }
+    foreach (here_layers_present($L, 'trophies', $art, $akey) as $t) {   // trophy shelf in the Contest hall: only layers whose picture exists, from the same data as the card
+        $n = ($t['kind'] ?? '') === 'expert' ? $trophies : $topGames;
+        if ($n >= max(1, (int)($t['at'] ?? 1))) $dress[] = ['k' => 'trophy-' . $t['k'], 'x' => (int)$t['x'], 'y' => (int)$t['y'], 'w' => (int)$t['w'], 'h' => (int)$t['h'], 'src' => $t['src']];
+    }
     $o = ['layout' => $L, 'art' => $art, 'alt' => 'The Great Treehouse', 'open' => $open, 'close_href' => url('treehouse.php'), 'title' => 'List of rooms', 'more' => $more, 'chrome' => true, 'pills' => true, 'dress' => $dress, 'nav' => hubp_nav('treehouse'), 'navbar' => true, 'legfold' => true, 'legtitle' => 'List of rooms', 'legtidy' => true, 'twin' => false];
     return hub_scene($akey, $hot, $sprites, $o) . $hint;
 }
@@ -279,15 +296,15 @@ function yard_view(array $u, string $open = ''): string
         $js = $byKind[$kind] ?? [];
         $ready = count(array_filter($js, fn($j) => $j['state'] === 'ready'));
         $chip = $js ? count($js) . ' out' . ($ready ? ' · ' . $ready . ' ready' : '') : '';
-        hubp_add($hot, $L, $kind, ['label' => $label, 'emoji' => $emoji, 'chip' => $chip, 'cls' => $ready ? 'goal' : '', 'href' => url('palyard.php?o=' . $kind),
+        hubp_add($hot, $L, $kind, ['label' => $label, 'emoji' => $emoji, 'chip' => hubp_chip('Send', $chip), 'cls' => $ready ? 'goal' : '', 'href' => url('palyard.php?o=' . $kind),
             'card' => '<div class="yardsite">' . $caps . ($js ? '<p>' . count($js) . ' here now. The ledger has the countdowns.</p>' : '') . pjv_post($c, $kind) . '</div>']);
     }
     $hurt = array_filter($pals, fn($p) => $p['status'] === 'home' && $p['hp'] < $p['max']);
     $low = array_filter($hurt, fn($p) => $p['hp'] < (int)ceil($p['max'] * 0.4));
-    hubp_add($hot, $L, 'sick', ['label' => 'Sick bay', 'emoji' => '🩹', 'chip' => $hurt ? count($hurt) . ' hurt' : '', 'href' => url('palyard.php?o=sick'),
+    hubp_add($hot, $L, 'sick', ['label' => 'Sick bay', 'emoji' => '🩹', 'chip' => hubp_chip('Tend', $hurt ? count($hurt) . ' hurt' : ''), 'href' => url('palyard.php?o=sick'),
         'card' => '<div class="yardsite"><p>' . ($hurt ? count($hurt) . ' pal' . (count($hurt) === 1 ? ' is' : 's are') . ' hurt. A Healing Potion fixes them up.' : 'Nobody is hurt.') . '</p>' . pjv_home($c) . '</div>']);
     $anyReady = count(array_filter($jobs, fn($j) => $j['state'] === 'ready'));
-    hubp_add($hot, $L, 'board', ['label' => 'Ledger', 'emoji' => '📋', 'chip' => count($jobs) . ' of ' . (int)$c['maxAway'] . ' out' . ($anyReady ? ' · ' . $anyReady . ' ready' : ''), 'cls' => $anyReady ? 'goal' : '', 'href' => url('palyard.php?o=board'),
+    hubp_add($hot, $L, 'board', ['label' => 'Ledger', 'emoji' => '📋', 'chip' => hubp_chip('Read', count($jobs) . ' of ' . (int)$c['maxAway'] . ' out' . ($anyReady ? ' · ' . $anyReady . ' ready' : '')), 'cls' => $anyReady ? 'goal' : '', 'href' => url('palyard.php?o=board'),
         'card' => '<div class="yardsite">' . ($pals ? pjv_ledger($c) : '<p class="muted">Nobody is out. Find pals first.</p>') . '</div>']);
     // pals: at work they stand at their site (with a progress bar, or a Collect bubble); the rest stand on the yard's stand slots (at most 5). More than a site holds: the Ledger lists them.
     $at = [];

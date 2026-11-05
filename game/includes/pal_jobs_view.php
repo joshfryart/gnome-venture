@@ -115,9 +115,18 @@ $blocked = function (string $kind) use ($stOk, $left, $maxAway, $runsLeft, $tool
     if (!$home) return 'Everyone is out on a job.';
     return '';
 };
-$potionField = fn(string $kind): string => '<div class="pjfield"><label for="pjpot-' . $kind . '">Potions to pack</label>'
-    . '<div class="pjstep"><input type="number" id="pjpot-' . $kind . '" name="potions" value="' . min(2, $potMax) . '" min="0" max="' . $potMax . '" inputmode="numeric" data-pj-step>'
-    . '<small class="muted">' . ($potions ? 'of ' . $potions . ' · up to 5' : 'You have none') . '</small></div></div>';
+$potionField = function (string $kind) use ($potions, $potMax, $heals): string {
+    $h = '<div class="pjfield"><label for="pjpot-' . $kind . '">Potions to pack</label>'
+        . '<div class="pjstep"><input type="number" id="pjpot-' . $kind . '" name="potions" value="' . min(2, $potMax) . '" min="0" max="' . $potMax . '" inputmode="numeric" data-pj-step>'
+        . '<small class="muted">' . ($potions ? 'of ' . $potions . ' · up to 5' : 'You have none') . '</small></div>';
+    foreach ($heals as $hs => $hv) {   // v2.5.49: Strong Healing Potions and Grand Healing Elixirs can be packed too (5 potions in all)
+        if ($hs === PJ_POTION) continue;
+        $f = $hs === 'strong-healing-potion' ? 'potions_strong' : 'potions_grand';
+        $h .= '<label for="pjpot-' . $kind . '-' . $f . '">' . e($hv['name']) . ' <small class="muted">' . e(alchemy_pal_label($hs)) . ' · of ' . (int)$hv['qty'] . '</small></label>'
+            . '<div class="pjstep"><input type="number" id="pjpot-' . $kind . '-' . $f . '" name="' . $f . '" value="0" min="0" max="' . min(5, (int)$hv['qty']) . '" inputmode="numeric" data-pj-step data-pj-label="' . e($hv['name']) . ' to pack"></div>';
+    }
+    return $h . '</div>';
+};
 $seg = function (string $name, string $legend, array $vals, int $on, callable $fmt): string {
     $h = '<fieldset class="pjfield pjseg"><legend>' . e($legend) . '</legend><div class="pjsegs">';
     foreach ($vals as $v) $h .= '<label><input type="radio" name="' . $name . '" value="' . (int)$v . '"' . ($v === $on ? ' checked' : '') . '><span>' . e($fmt($v)) . '</span></label>';
