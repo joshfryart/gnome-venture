@@ -707,9 +707,8 @@ do
   rim(372, 129, 146, .3) rim(424, 160, 210, .22) rim(436, 197, 220, .26) rim(20, 201, 208, .3) rim(28, 211, 225, .26)
   for x = 22, 76 do gmix(x, 98 + floor(max(0, 22 - (x - 22)) * 0 + 0), RIM, 0) end
   for x = 30, 88, 1 do gmix(x, 200, RIM, .2) end -- sunlit log top
-  grect(76, 200, 87, 209, "#ffb550", .2)  -- fire spill on the log's right end
-  grect(130, 214, 148, 232, "#ffb550", .1)
-  gmask(c:rect(146, 213, 150, 232), "#ffb550", .16)
+  for y = 200, 209 do for x = 74, 87 do if (x + y) % 2 == 0 then gmix(x, y, "#ffb550", .22) end end end -- fire spill on the log's right end (dithered)
+  for y = 214, 232 do for x = 138, 150 do if (x + y) % 2 == 0 then gmix(x, y, "#ffb550", .16) end end end
   -- sunflowers
   local function sunflower(x, y, h)
     for k = 0, h do gput(x, y - k, "#4c8a3c") gput(x + 1, y - k, "#3f7a38") end
