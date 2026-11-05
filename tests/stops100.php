@@ -142,6 +142,9 @@ ok('a circle shows once a meter has moved, with the meter list', str_contains($c
 stop_meter_add($lu, $lid, 'cheer', 120);
 $chip = stop_perk_chip(me(), $lkLoc);
 ok('the circle lists the perks and counts them', str_contains($chip, 'pkdot on">1<') && str_contains($chip, 'Cheer is full'));
+ok('the round Perks button is offered with a perk, next to the others', ($pn = stop_perk_nav(me(), $lkLoc)) && $pn['id'] === 'perks' && $pn['label'] === 'Perks' && is_file(__DIR__ . '/../game/assets/img/ico/' . $pn['icon']));
+ok('and the perk card has the list', str_contains(stop_perk_body(me(), $lkLoc), 'Cheer is full') && str_contains(stop_perk_body(me(), $lkLoc), 'Meters'));
+ok('no round button off a stop', stop_perk_nav(me(), ['kind' => 'wonder', 'id' => $lid, 'name' => 'x']) === null);
 ok('no circle off a stop', stop_perk_chip(me(), ['kind' => 'wonder', 'id' => $lid, 'name' => 'x']) === '');
 ok('the circle has no inline styles', !str_contains($chip, 'style='));
 q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);

@@ -329,21 +329,23 @@ function stop_board_html(array $u, array $loc): string
     return $h . '<p class="help">Your standing here: <b>' . e(ucfirst(stop_fam_level($uid, $lid))) . '</b> · ' . stop_fam_count($uid, $lid) . ' things done at this stop.</p></div>';
 }
 
-/**
- * A small circle by the 🌍 in the page trail of a stop: shows once acts here have moved a meter or a perk runs, and opens a list of the perks (and meters) at this place.
- * '' when there is nothing to show or the place is not a stop. A plain <details>, so it works without script.
- */
-function stop_perk_chip(array $u, array $node): string
+/** What the perk list shows for a place: [perks (meter => last day), meters with a value (meter => 0..99)]. */
+function stop_perk_data(array $u, array $node): array
 {
-    if (($node['kind'] ?? '') !== 'village') return '';
+    if (($node['kind'] ?? '') !== 'village') return [[], []];
     $uid = (int)$u['id'];
     $lid = (int)$node['id'];
-    $perks = stop_perks($uid, $lid);
     $meters = [];
     foreach (STOP_METERS as $k => $m) if (($v = stop_meter_get($uid, $lid, $k)) > 0) $meters[$k] = $v;
+    return [stop_perks($uid, $lid), $meters];
+}
+
+/** The inside of the perk list (name, perks, meters), or '' when there is nothing to show. */
+function stop_perk_body(array $u, array $node): string
+{
+    [$perks, $meters] = stop_perk_data($u, $node);
     if (!$perks && !$meters) return '';
-    $h = '<details class="pkchip"><summary aria-label="' . ($perks ? count($perks) . ' perk' . (count($perks) === 1 ? '' : 's') . ' here' : 'Your progress here') . '"><span class="pkdot' . ($perks ? ' on' : '') . '">' . ($perks ? count($perks) : '') . '</span></summary><div class="pkpop"><b>' . e((string)$node['name']) . '</b>';
-    $h .= '<h4>Perks</h4>';
+    $h = '<p><b>' . e((string)$node['name']) . '</b></p><h4>Perks</h4>';
     if ($perks) {
         $h .= '<ul>';
         foreach ($perks as $m => $until) $h .= '<li>' . STOP_METERS[$m][0] . ' ' . e(STOP_METERS[$m][1]) . ' is full: one more thing to do here <small class="muted">until ' . e(date('j M', strtotime($until))) . '</small></li>';
@@ -351,5 +353,23 @@ function stop_perk_chip(array $u, array $node): string
     } else $h .= '<p class="muted">None yet. Fill a bar to earn one.</p>';
     $h .= '<h4>Meters</h4><ul>';
     foreach (STOP_METERS as $k => [$ico, $lab]) $h .= '<li>' . $ico . ' ' . e($lab) . ' <meter min="0" max="100" value="' . ($meters[$k] ?? 0) . '">' . ($meters[$k] ?? 0) . '%</meter></li>';
-    return $h . '</ul></div></details>';
+    return $h . '</ul>';
+}
+
+/** The round Perks button for the row under the picture (next to World) as a hub_navbar "extra" entry, or null when there is nothing to show. */
+function stop_perk_nav(array $u, array $node): ?array
+{
+    return stop_perk_body($u, $node) === '' ? null : ['id' => 'perks', 'label' => 'Perks', 'icon' => 'ico-medal-gold.png', 'href' => url('town.php')];
+}
+
+/**
+ * A small circle by the 🌍 in the page trail of the plain stop page (town.php): shows once acts here have moved a meter or a perk runs, and opens a list of the perks
+ * (and meters) at this place. The picture page (here.php) has the round Perks button instead. '' when nothing to show. A plain <details>, so it works without script.
+ */
+function stop_perk_chip(array $u, array $node): string
+{
+    $body = stop_perk_body($u, $node);
+    if ($body === '') return '';
+    $n = count(stop_perk_data($u, $node)[0]);
+    return '<details class="pkchip"><summary aria-label="' . ($n ? $n . ' perk' . ($n === 1 ? '' : 's') . ' here' : 'Your progress here') . '"><span class="pkdot' . ($n ? ' on' : '') . '">' . ($n ?: '') . '</span></summary><div class="pkpop">' . $body . '</div></details>';
 }

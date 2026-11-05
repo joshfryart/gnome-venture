@@ -22,7 +22,7 @@ page_header($node['name']);
 $kindIcons = ['village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lair' => '🐉', 'delve' => '🕳️', 'market' => '🏘️', 'hub' => '🏛️'];
 ?>
 <?php if (!gnav_on()): ?><p class="box notice">👀 Preview for admins: picture navigation is switched off for players (Admin → Settings → gnav_on).</p><?php endif; ?>
-<div class="herepage"><div class="crumbs">🌍<?= (function () use ($u, $node) { require_once __DIR__ . '/includes/stops.php'; return stop_perk_chip($u, $node); })() ?> <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></div>
+<div class="herepage"><div class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></div>
 <h1><?= $kindIcons[loc_real_kind($node)] ?? '📍' ?> <?= e($node['name']) ?></h1>
 <p class="hereinfo"><span class="muted">🕰️ It’s <?= e(hour_label(hollow_hour())) ?> in the Hollow, <?= e(hollow_date('l')) ?></span></p>
 <?php require_once __DIR__ . '/includes/explore.php'; ?>

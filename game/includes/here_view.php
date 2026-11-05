@@ -599,7 +599,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
         $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
-            'extra' => [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]],
+            'extra' => array_merge((function () use ($u, $node): array { require_once __DIR__ . '/stops.php'; $pk = stop_perk_nav($u, $node); return $pk ? [$pk] : []; })(), [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]]),
             'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a> <a class="btn alt" href="' . e(url('villagers.php')) . '">Villagers</a></p>'],
         ];
     }
@@ -674,5 +674,6 @@ function gnav_tools_html(array $u, string $back, bool $buttons = true): string
         . '<a class="btn" data-pop="hubpop-ft" href="' . e(url('world.php?tab=travel#fasttravel')) . '">🧭 Fast travel</a>'
         . '<a class="btn" data-pop="hubpop-gps" href="' . e(url('world.php#gopanel')) . '">📡 GPS' . ($ds ? ' · ' . e(dest_name($uid, $ds[0])) : '') . '</a></div>' : '')
         . $card('ft', '🧭 Fast travel', '<p class="help">Hop to any region you’ve walked to. Home is free.</p><ul class="regionlist hubreg">' . $rows . '</ul>')
-        . $card('gps', '📡 GPS', $gps);
+        . $card('gps', '📡 GPS', $gps)
+        . (($pb = (function () use ($u): string { require_once __DIR__ . '/stops.php'; return stop_perk_body($u, player_node($u)); })()) !== '' ? $card('perks', '🏅 Perks here', $pb) : '');
 }
