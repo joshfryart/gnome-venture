@@ -404,7 +404,7 @@ function page_footer(): void
     $tabs = [['garden.php', '🌱', 'Garden'], ['world.php', '🌍', 'World'], ['inventory.php', '👜', 'Satchel'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here'], ['jobs.php', '📋', 'Tasks']]; ?>
 <nav class="bottombar" aria-label="Quick links">
   <?php $rdy = (int)($_SESSION['nav_badges']['garden'] ?? 0);   // v1.0.0.1: the menu's "ready" badge, now on the bar's Garden
-  foreach ($tabs as [$f, $i, $l]): ?><a href="<?= e(url($f)) ?>"<?= $page === $f || ($f === 'here.php' && $page === 'town.php') ? ' class="on" aria-current="page"' : '' ?>><span aria-hidden="true"><?= $i ?></span><?= $l ?><?php if ($f === 'garden.php' && $rdy): ?><b class="barpip" aria-label="<?= $rdy ?> ready"><?= $rdy ?></b><?php endif; ?><?php if ($f === 'jobs.php' && ($jr = (int)($_SESSION['nav_badges']['jobs'] ?? 0))): ?><b class="barpip" aria-label="<?= $jr ?> ready"><?= $jr ?></b><?php endif; ?></a><?php endforeach; ?>
+  foreach ($tabs as [$f, $i, $l]): ?><a href="<?= e(url($f)) ?>"<?= $page === $f || ($f === 'here.php' && ($page === 'town.php' || (gnav_on() && $page === 'adventure.php'))) ? ' class="on" aria-current="page"' : '' ?>><span aria-hidden="true"><?= $i ?></span><?= $l ?><?php if ($f === 'garden.php' && $rdy): ?><b class="barpip" aria-label="<?= $rdy ?> ready"><?= $rdy ?></b><?php endif; ?><?php if ($f === 'jobs.php' && ($jr = (int)($_SESSION['nav_badges']['jobs'] ?? 0))): ?><b class="barpip" aria-label="<?= $jr ?> ready"><?= $jr ?></b><?php endif; ?></a><?php endforeach; ?>
   <button type="button" class="menubtn more" aria-controls="sidenav" aria-expanded="false"><span aria-hidden="true">☰</span>More</button>
 </nav>
 <?php endif; ?>
