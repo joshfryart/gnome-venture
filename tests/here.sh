@@ -42,7 +42,8 @@ chk "bottom bar Here points at here.php" "$(grep -q 'href="/here.php"' $TD/here-
 chk "?o= opens a card without script" "$(get 'here.php?o=s-wild' >/dev/null; grep -q 'aria-labelledby="hubpop-s-wild-t" open' $TD/here-p.html && echo 1)"
 chk "a made-up ?o= is harmless" "$([[ $(get 'here.php?o=nope%22%3E') == 200* ]] && echo 1)"
 get world.php >/dev/null
-chk "World has the Fast travel / GPS strip" "$(grep -q 'gnavtools' $TD/here-p.html && grep -q 'hubpop-ft' $TD/here-p.html && grep -q 'hubpop-gps' $TD/here-p.html && echo 1)"
+chk "World has the round icon row with Fast travel / GPS" "$(grep -q 'worldnav' $TD/here-p.html && grep -q 'hubpop-ft' $TD/here-p.html && grep -q 'hubpop-gps' $TD/here-p.html && echo 1)"
+chk "World opens on the world map, no banner" "$(grep -q 'worldprimary' $TD/here-p.html && ! grep -q '<header class="ph' $TD/here-p.html && echo 1)"
 chk "World loads the picture script" "$(grep -q 'assets/hubscene.js' $TD/here-p.html && echo 1)"
 get account.php >/dev/null
 chk "Account has the Start-on box" "$(grep -q 'id="startpage"' $TD/here-p.html && echo 1)"

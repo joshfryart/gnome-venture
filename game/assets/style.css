@@ -7313,3 +7313,11 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubpop .shpage .tabs { justify-content: center; }
 .hubpop .shpage .status, .hubpop .shpage .shopintro { font-size: .9rem; }
 .hubpop .shpage img { max-width: 100%; height: auto; }
+
+/* v2.5.30: World page with graphical navigation: the world map first, no banner */
+.worldprimary .mapwrap { margin: 0; }
+.worldprimary .help { text-align: center; margin: 6px 0; }
+.youpill { text-align: center; margin: 8px 0; }
+.youpill a { display: inline-block; padding: 5px 14px; border-radius: 16px; border: 2px solid #d4a017; background: #1d120b; color: #fff; text-decoration: none; font-weight: 700; }
+.hubnavbtn.round { cursor: pointer; }
+button.hubnavbtn { font: inherit; color: inherit; padding: 0; }

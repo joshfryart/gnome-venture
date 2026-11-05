@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.30
+- **World page is the world map** (graphical navigation on): the top banner and the place-switcher row are gone and the page opens on the world map itself, full width. Tap a region to open its map below. Under the map: "You are here" and one centred row of round icons (Map, Fast travel, GPS, Gather, Shops, Wander) that also sits on top of the Gather and Shops pages. The old Go stack of cards stays on the Here page. Needs 2.5.29.
+
 ## 2.5.29
 - **Shops open as the shop, in the popover**: tapping a shop on a town picture shows the shop itself (who is at the counter, Buy / Sell, volunteer) right in the popover, with no "Step in" tap. Buying, selling and Sell/Buy tabs work in place. The Mossbottom Shops popover lists the hub shops; tapping one opens it in the same card, with ‹ All shops to go back. Open full page stays at the bottom. Needs 2.5.28.
 
