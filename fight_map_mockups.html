@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fight on map</title>
+<style>
+:root{--bg:#150d08;--card:#3b2a1e;--c2:#4a3526;--line:#6b4f35;--tx:#e9d7a8;--mut:#a99470;--gold:#d9b04a;--red:#e0566e;--grn:#2fae62}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 system-ui,sans-serif;padding:16px}
+h1{font-size:18px;margin:0 0 12px}.row{display:flex;flex-wrap:wrap;gap:20px}.col{width:360px;max-width:100%}
+.lab{font-weight:700;color:var(--gold);margin:0 0 6px}.note{font-size:12px;color:var(--mut);margin:6px 0 0}
+.phone{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;position:relative;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(11,1fr);gap:1px}
+.t{aspect-ratio:1;background:#5b7a3a;font-size:13px;display:grid;place-items:center;position:relative}
+.t.p{background:#a58a5a}.t.r{background:#4a4a52}.t.f{background:#3f6a2e}
+.t.me::after{content:"🧙";position:absolute;font-size:16px}
+.t.en::after{content:"🐗";position:absolute;font-size:16px}
+.t.hit{outline:2px solid var(--red);z-index:2;animation:pl 1s infinite}
+@keyframes pl{50%{outline-color:#fff}}
+.hp{height:8px;background:#2a1c12;border-radius:5px;overflow:hidden}.hp i{display:block;height:100%;background:var(--red)}.hp.g i{background:var(--grn)}
+.btn{background:var(--c2);border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:8px 10px;text-align:center;font-weight:700}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+/* A strip */
+.strip{margin-top:8px;background:var(--c2);border:1px solid var(--line);border-radius:8px;padding:8px}
+.vs{display:flex;align-items:center;gap:8px;margin-bottom:6px}.vs .n{flex:1}
+/* B bubbles */
+.bub{position:absolute;background:var(--card);border:2px solid var(--gold);border-radius:10px;padding:6px 8px;width:150px;font-size:12px;z-index:5}
+.bub.e{left:42%;top:14%;border-color:var(--red)}.bub.m{left:6%;top:48%}
+.dmg{position:absolute;left:55%;top:36%;color:#fff;font-weight:900;font-size:22px;text-shadow:0 2px 0 var(--red),0 0 6px #000;z-index:6}
+/* C zoom */
+.zoom{position:relative}.zoom .grid{filter:brightness(.45)}
+.arena{position:absolute;inset:12% 6%;background:linear-gradient(#6c8f46,#3f6a2e);border:2px solid var(--gold);border-radius:10px;padding:10px;display:flex;flex-direction:column;justify-content:space-between}
+.fig{display:flex;justify-content:space-around;font-size:44px}
+</style></head><body>
+<h1>Trail fight on the map (tile map stays; no old encounter card)</h1><div class="row">
+
+<div class="col"><p class="lab">A · Fight strip under the map</p><div class="phone">
+<div class="grid" id="ga"></div>
+<div class="strip"><div class="vs"><span style="font-size:28px">🐗</span><div class="n"><b>Wild Boar</b><div class="hp"><i style="width:60%"></i></div></div></div>
+<div class="vs"><span style="font-size:28px">🧙</span><div class="n"><b>You</b><div class="hp g"><i style="width:85%"></i></div></div></div>
+<div class="btns"><div class="btn">⚔️ Strike</div><div class="btn">🛡️ Guard</div><div class="btn">🏃 Flee</div></div></div>
+</div><p class="note">Map stays visible, enemy tile pulses. Least change: swaps the popover for a strip. Phone-friendly.</p></div>
+
+<div class="col"><p class="lab">B · Bubbles on the tiles</p><div class="phone">
+<div class="grid" id="gb"></div>
+<div class="bub e">🐗 <b>Boar</b><div class="hp"><i style="width:60%"></i></div></div>
+<div class="bub m">🧙 <b>You</b><div class="hp g"><i style="width:85%"></i></div></div><div class="dmg">-4</div>
+<div class="btns"><div class="btn">⚔️ Strike</div><div class="btn">🛡️ Guard</div><div class="btn">🏃 Flee</div></div>
+</div><p class="note">Bars float over the two tiles, damage pops on the map. Most "on the map" feel; tight on small screens.</p></div>
+
+<div class="col"><p class="lab">C · Map zooms into an arena</p><div class="phone zoom">
+<div class="grid" id="gc"></div>
+<div class="arena"><div class="vs"><div class="n"><b>🐗 Wild Boar</b><div class="hp"><i style="width:60%"></i></div></div></div>
+<div class="fig"><span>🧙</span><span>🐗</span></div>
+<div><div class="vs"><div class="n"><b>You</b><div class="hp g"><i style="width:85%"></i></div></div></div>
+<div class="btns"><div class="btn">⚔️ Strike</div><div class="btn">🛡️ Guard</div><div class="btn">🏃 Flee</div></div></div></div>
+</div><p class="note">Map dims, battle field opens over it. Closest to a popover but themed to the tile. Most art work.</p></div>
+
+</div><script>
+function g(id){var h='',c=['','p','p','f','','r','','p','f','',''];for(var y=0;y<7;y++)for(var x=0;x<11;x++){var k=(y==3)?'p':((x+y)%5==0?'f':(x*y%7==3?'r':''));var e='';if(y==3&&x==3)e=' me';if(y==3&&x==4)e=' en hit';h+='<div class="t '+k+e+'"></div>'}document.getElementById(id).innerHTML=h}
+g('ga');g('gb');g('gc');
+</script></body></html>
