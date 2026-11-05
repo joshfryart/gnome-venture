@@ -1,5 +1,5 @@
 -- gather scene-forest, Hearth Pop v3 PILOT. 480x270 native (scale 1). Single pass.
--- The satchel (x290-432, y64-214) is kept from the live art because satchel-front.png overlays it; redone with the satchel later.
+-- Satchel back comes from satchel.lua (shared by every scene); satchel-front.png overlays it.
 -- Quirk: a hollow in the log with two gold eyes watching.
 local d = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(d .. "/../lib/hp.lua")
@@ -141,23 +141,7 @@ for i = 0, 70 do   -- fallen leaves
   px(x, y, col); px(x + 1, y, col); px(x, y + 1, "#8f4a1f")
 end
 
----------------------------------------------------------------- satchel: keep live art inside its own outline
-fm(E(360, 213, 78, 5), "#24604a")   -- satchel contact shadow, before the satchel
-local old = Image{ fromFile = d .. "/../../../game/assets/img/gather/scene-forest.png" }
-local function isBrown(x, y)
-  local p = old:getPixel(x, y); local r, g, b = app.pixelColor.rgbaR(p), app.pixelColor.rgbaG(p), app.pixelColor.rgbaB(p)
-  return r > g + 3
-end
-local seen, stack = {}, { { 360, 120 } }
-while #stack > 0 do
-  local p = table.remove(stack); local x, y = p[1], p[2]
-  local k = y * 480 + x
-  if x >= 286 and x <= 436 and y >= 60 and y <= 216 and not seen[k] and isBrown(x, y) and not (x <= 290 and y >= 100 and y <= 131) then
-    seen[k] = true
-    local pc = old:getPixel(x, y)
-    px(x, y, string.format("#%02x%02x%02x", app.pixelColor.rgbaR(pc), app.pixelColor.rgbaG(pc), app.pixelColor.rgbaB(pc)))
-    stack[#stack + 1] = { x + 1, y }; stack[#stack + 1] = { x - 1, y }; stack[#stack + 1] = { x, y + 1 }; stack[#stack + 1] = { x, y - 1 }
-  end
-end
+---------------------------------------------------------------- satchel back (shared)
+dofile(d .. "/satchel.lua").back(c)
 
 c:save{ aseprite = d .. "/out/" .. NAME .. ".aseprite", png = d .. "/out/" .. NAME .. ".png", scale = 1 }
