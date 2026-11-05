@@ -6974,7 +6974,7 @@ a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpac
 .vcard .vil { width: 160px; max-width: 100%; height: 100px; object-fit: contain; }
 .vcard .vfall { display: grid; place-items: center; font-size: 40px; border: 2px solid var(--ol); background: var(--brand-soft); }
 .vfall.ls-coast { background: #a9d6ea; } .vfall.ls-mountain { background: #c9c5bc; } .vfall.ls-forest { background: #7ab55c; } .vfall.ls-desert { background: #f5cf6a; }
-.vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
+.vfall.ls-island { background: #9fd8d0; } .vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
 .vcard .vname { font-weight: 700; font-size: 16px; color: var(--ink); text-align: center; }
 .vcard:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand), var(--drop) 4px 4px 0; }
 .vcard:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }

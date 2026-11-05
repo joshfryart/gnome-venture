@@ -83,6 +83,19 @@ function pack_icon(array $s): string
 }
 
 /**
+ * v2.5.49: the picture file for a village card on the Welcome page, relative to the game folder (assets/img/villages/<slugified name>.png), or '' when there is none or it is not
+ * a readable PNG: the card then shows the landscape emoji instead. Never throws, never warns, so a village with an odd name or no art cannot break the page.
+ */
+function village_card_art(string $name): string
+{
+    $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(slugify($name)));
+    if ($slug === '') return '';
+    $rel = 'assets/img/villages/' . $slug . '.png';
+    $abs = APP_ROOT . '/' . $rel;
+    return (is_file($abs) && is_readable($abs) && filesize($abs) > 0) ? $rel : '';
+}
+
+/**
  * v2.4.96: welcome-flow item slots. $names = true puts the short name under each slot (the basket);
  * $max cuts the list (the step-3 cards show the first 5). Slot = 46 px box, icon centred, "×N" badge bottom-right.
  */
