@@ -142,6 +142,12 @@
     ask(box.getAttribute('data-post'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) {
       if (res.html) { box.innerHTML = res.html; var r = box.querySelector('.doresult'); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' }); }
       else { fill(box, res); }
+      var h = res.hdr;   // the header's energy and coin pills follow what the activity cost or paid
+      if (h) {
+        var en = document.querySelector('.hdr-energy'), co = document.querySelector('.hdr-coins');
+        if (en) { en.textContent = '\u26A1 ' + h.energy + '/' + h.max; en.setAttribute('aria-label', 'Energy ' + h.energy + ' of ' + h.max); en.setAttribute('title', h.title); en.classList.toggle('empty', h.energy <= 0); }
+        if (co) { co.textContent = '\uD83E\uDE99 ' + h.coins_text; co.setAttribute('aria-label', h.coins_label); }
+      }
     });
   }, true);
   /* "Villagers" on a picture: light up the villagers standing under it (and bring them into view) instead of leaving the page. No one drawn: the link works as normal. */

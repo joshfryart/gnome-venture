@@ -45,7 +45,7 @@ d73a68e0810458fe3ed3a30c0f416777e5dcebc7  assets/guides/Gnome-Venture-Style-Guid
 75b37445e62d65c65f33608d89d6d7c501745217  assets/guides/Gnome-Venture-Style-Guide.pdf
 10cffd050bf9ac5d76458f81f5b5e46c1b84d2dd  assets/hereedit.js
 9e6e08f43212eb0fd8017854d1c938c24993ab18  assets/hoop.js
-3ce7858e4c1c1ec1981f12459b88d7c1c6b89b3c  assets/hubscene.js
+e779f6be9b566ef8184cdeb3123c4ddd8e148876  assets/hubscene.js
 a5d9cc504320956c03f84ad7bd0113c9fad90848  assets/img/acts/act-any-anim.png
 c42bf719c598fc205a42ecc3920a1e0cbce1cecb  assets/img/acts/act-any.png
 d01132444652ba6df52fa4d29c2f7639a5c8bd29  assets/img/acts/act-axe-anim.png
@@ -10212,7 +10212,7 @@ e8105f613ab86461bed4c23973fcdd65fa3baa14  includes/guest.php
 fbd3c2262934976ac173e52e7a068b00fcf1cdaf  includes/health.php
 d34a29476889b2ec64d5b0c04e9baa2d502115ea  includes/here_layout.php
 323e40aa8f63b828a2738b7923c644172b7ad244  includes/here_schema.php
-f3964839db1a1e64569439e786b7ab9ab2df1faf  includes/here_view.php
+349860a49457b20a3044c4fcfab0d1d57fda79a1  includes/here_view.php
 9cc45589e7d0c76b17504842cbf84b79bfcb2e53  includes/hired_help.php
 45a017f6affc1522c4e52a01027c679164d529a9  includes/hollow_clock.php
 9034e40c739ef7c541693db3d48bc18b2f0753d9  includes/hollow_goals.php
