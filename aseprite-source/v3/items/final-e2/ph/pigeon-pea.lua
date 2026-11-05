@@ -13,25 +13,25 @@ local PG = { "#16402a", "#215c36", "#33803f", "#58a448", "#86c85c", "#bfe88a" }
 local IN = { "#6a7a30", "#9aae48", "#c8d86c", "#e8f0a0" }
 local SD = { "#5a3a22", "#a8845a", "#d8c08a", "#f2e4b8", "#fff6d8" }
 local MAR = "#6a1e3a"
-c:groundShadow(32, 58, 26, 3)
+c:groundShadow(32, 56, 24, 3)
 local function bz(p, t) local u = 1 - t
   return u*u*u*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t*t*t*p[4][1], u*u*u*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t*t*t*p[4][2] end
 -- hanging closed pod + stem + leaves (top)
-local sm = G.tube({ { 28, 6 }, { 30, 12 }, { 36, 14 }, { 42, 14 } }, function(t) return 1.1 end)
+local sm = G.tube({ { 28, 10 }, { 30, 15 }, { 36, 17 }, { 42, 17 } }, function(t) return 1.1 end)
 local stn = X.pillow(sm, 1.5) G.toneN(c, sm, stn, { "#3c2a1a", "#5e4228", "#86603a", "#a8844e", "#c8a468", "#e0c488" }, { tok = { r = { name = "stem" } } })
 local function leaf(ax, ay, cx, cy, bx, by, w)
   local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t) if t > 0.985 then return -1 end local u = min(1, t * 0.9 + 0.1) return max(0.5, w * sin(pi * u ^ 1.2) ^ 0.75) end, { fold = 0.5 })
   G.toneN(c, m, n, PG, { tok = { r = { name = "lf" .. ax } }, cuts = { .18, .34, .5, .66, .82 }, amb = 0.1, wrap = 0.2 })
   m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.05 and T[k] < 0.9 then P(x, y, S[k] <= 0 and PG[6] or PG[2]) end end)
 end
-leaf(28, 7, 20, 2, 10, 6, 3.4)
-leaf(28, 7, 18, 12, 9, 14, 3.4)
-local hp = { { 41, 14 }, { 43, 24 }, { 49, 28 }, { 50, 34 } }
+leaf(28, 11, 20, 6, 10, 9, 3.4)
+leaf(28, 11, 18, 16, 9, 17, 3.4)
+local hp = { { 41, 17 }, { 43, 25 }, { 49, 29 }, { 50, 35 } }
 local pm, pn, PT = G.tube(hp, function(t) return 1.5 + 2.6 * sin(pi * min(1, t * 1.05)) ^ 0.6 end)
 G.toneN(c, pm, pn, PG, { tok = { r = { name = "pod2" } }, cuts = { .18, .34, .5, .66, .82 }, amb = 0.12, wrap = 0.25 })
 pm:each(function(x, y) if X.hash(x, y, 3) > 0.8 then P(x, y, MAR) end end)
 -- big open pod (crescent, seeds exposed)
-local bp = { { 8, 30 }, { 14, 62 }, { 50, 62 }, { 56, 28 } }
+local bp = { { 8, 32 }, { 14, 56 }, { 50, 56 }, { 56, 30 } }
 local wf = function(t) return 1.3 + 5.2 * sin(pi * t) ^ 0.55 end
 local m, n, T = G.tube(bp, wf)
 G.toneN(c, m, n, PG, { tok = { r = { name = "pod" } }, cuts = { .18, .34, .5, .66, .82 }, amb = 0.12, wrap = 0.25 })

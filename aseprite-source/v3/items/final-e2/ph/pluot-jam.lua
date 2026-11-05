@@ -10,7 +10,7 @@ local function dome(m, ramp, R, name, o) local n = X.pillow(m, R) local t = { to
 local W = { "#4e4e78", "#7c7ca4", "#aeaecb", "#d4d4e6", "#ecebf4", "#fbfaff" }
 local D = { "#3a2418", "#5e3a22", "#8a5a30", "#ae7a40", "#cf9c58", "#e8c07c" }
 local JM = { "#2a0c2e", "#5a1646", "#8a2258", "#b8386a", "#dc5a7c", "#f58aa0" }
-local GL = { "#4c4a78", "#8a92b4", "#bcc8de", "#e4eef8", "#ffffff" }
+local GL = { "#4c4a78", "#8a92b4", "#bcc8de", "#e4eef8", "#fff8f0" }
 local CL = { "#b8742c", "#e09a3a", "#f4c460", "#fae090", "#fff2bc" }
 local TW = { "#5a3a1e", "#8e6034", "#c08c50" }
 c:groundShadow(32, 56, 22, 3)

@@ -46,6 +46,10 @@ local function bl(ax, ay, cx, cy, bx, by, w, ramp, tag, o)
   return m, n, T, S
 end
 local function tb(pts, w, ramp, tag)
+  if #pts == 2 then local a, b = pts[1], pts[2]
+    pts = { a, { a[1] + (b[1] - a[1]) / 3, a[2] + (b[2] - a[2]) / 3 }, { a[1] + (b[1] - a[1]) * 2 / 3, a[2] + (b[2] - a[2]) * 2 / 3 }, b }
+  elseif #pts == 3 then local a, q, b = pts[1], pts[2], pts[3]
+    pts = { a, { a[1] + (q[1] - a[1]) * 2 / 3, a[2] + (q[2] - a[2]) * 2 / 3 }, { b[1] + (q[1] - b[1]) * 2 / 3, b[2] + (q[2] - b[2]) * 2 / 3 }, b } end
   local m, n, T = G.tube(pts, function(t) return type(w) == "function" and w(t) or w end)
   tn(m, n, ramp, tag, { amb = .15, wrap = .3 })
   return m

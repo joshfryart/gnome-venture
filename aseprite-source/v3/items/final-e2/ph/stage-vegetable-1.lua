@@ -46,6 +46,10 @@ local function bl(ax, ay, cx, cy, bx, by, w, ramp, tag, o)
   return m, n, T, S
 end
 local function tb(pts, w, ramp, tag)
+  if #pts == 2 then local a, b = pts[1], pts[2]
+    pts = { a, { a[1] + (b[1] - a[1]) / 3, a[2] + (b[2] - a[2]) / 3 }, { a[1] + (b[1] - a[1]) * 2 / 3, a[2] + (b[2] - a[2]) * 2 / 3 }, b }
+  elseif #pts == 3 then local a, q, b = pts[1], pts[2], pts[3]
+    pts = { a, { a[1] + (q[1] - a[1]) * 2 / 3, a[2] + (q[2] - a[2]) * 2 / 3 }, { b[1] + (q[1] - b[1]) * 2 / 3, b[2] + (q[2] - b[2]) * 2 / 3 }, b } end
   local m, n, T = G.tube(pts, function(t) return type(w) == "function" and w(t) or w end)
   tn(m, n, ramp, tag, { amb = .15, wrap = .3 })
   return m
@@ -87,6 +91,6 @@ bl(32, 39, 28, 34, 25, 27, 2.6, { "#1a5a30", "#2a7a3a", "#42a04a", "#66c05a", "#
 bl(32, 39, 36, 34, 39, 28, 2.6, { "#1a5a30", "#2a7a3a", "#42a04a", "#66c05a", "#92dc72", "#c4f09a" }, "t2", { serr = true })
 -- quirk: a dewdrop on the right seed leaf
 local dm, dn = G.oval(44, 36, 1.9, 2.2, 0, 1)
-tn(dm, dn, { "#2a5a7a", "#3f86a8", "#68b4d0", "#a0dcea", "#d4f4f8", "#ffffff" }, "dew")
-c:put(43, 35, "#ffffff", { r = { name = "dew" } })
+tn(dm, dn, { "#2a5a7a", "#3f86a8", "#68b4d0", "#a0dcea", "#d4f4f8", "#f8fcff" }, "dew")
+c:put(43, 35, "#f8fcff", { r = { name = "dew" } })
 G.save(c, NAME)
