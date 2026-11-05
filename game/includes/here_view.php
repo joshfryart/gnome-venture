@@ -288,6 +288,14 @@ function here_shop_fronts(array $u, array $node, int $fronts): array
     return $out;
 }
 
+/** v2.5.40: the Homes popover: who lives here, a face each (a villager standing in the line opens their card, else their page), and the way to the street of doors. */
+function here_homes_card(array $homed, int $locId): string
+{
+    require_once __DIR__ . '/spot_card.php';
+    $h = '<p>' . count($homed) . ' ' . (count($homed) === 1 ? 'home' : 'homes') . ' here. Tap a neighbour.</p><div class="sfaces" aria-label="Who lives here">' . implode('', array_map('spot_face', $homed)) . '</div>';
+    return $h . '<p class="vmore"><a href="' . e(url('residential.php?loc=' . $locId)) . '">Walk the street of doors ›</a></p>';
+}
+
 /** v2.5.35: the "Do here" fronts of a rest stop, each named for one thing to do there (Fish the pond, Light the lamps...). The stop's own pool picks them: what the
  *  weather, season or hour allows right now comes first (so they change with events), then the day's core and rotating picks. One popover per activity,
  *  its own buttons post to town.php (do=local) and come back to this picture. Returns [[label, emoji, card html], ...] by front; fewer acts than fronts leaves the rest out. */
@@ -312,6 +320,10 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts): array
     return $out;
 }
 
+/** v2.5.40: the verb chip for each spot behaviour, shown next to its name in the list of places. */
+const HERE_VERBS = ['shops' => 'Shop', 'green' => 'Visit', 'tea' => 'Eat', 'teahouse' => 'Eat', 'board' => 'Read', 'library' => 'Read', 'special1' => 'Visit', 'special2' => 'Visit',
+    'do' => 'Do', 'people' => 'Talk', 'stop' => 'Rest', 'homes' => 'Visit', 'garden' => 'Tend', 'fire' => 'Rest', 'shop' => 'Shop', 'investigate' => 'Explore', 'mouth' => 'Enter', 'wild' => 'Explore'];
+
 /** Things to do at this place: hotspots on the template's named spots. */
 function here_spots(array $u, array $node, array $L, string $back, string $kind): array
 {
@@ -325,8 +337,9 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
                 if (!isset($label[$n])) continue;
                 [$lab, $emo, $crd] = $label[$n];
             } else { $lab = $label; $emo = $emoji; $crd = $card; }
+            $verb = $chip !== '' ? $chip : (HERE_VERBS[$k] ?? '');   // v2.5.40: the verb chip (Shop, Talk, Rest...) in the list of places
             $id = 's-' . $k . ($n > 0 ? '-' . ($n + 1) : '');   // the id follows the behaviour (stable links), a second front with the same behaviour gets -2, -3
-            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $lab, 'emoji' => $emo, 'chip' => $chip, 'cls' => $cls,
+            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $lab, 'emoji' => $emo, 'chip' => $verb, 'cls' => $cls,
                   'href' => $crd !== '' ? url($back . '?o=' . $id) : $href, 'card' => $crd];
             if (isset($sp['box'])) $h['box'] = $sp['box'];
             $hot[] = $h;
@@ -342,14 +355,14 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         }
         $add('shops', here_shop_fronts($u, $node, count($want['shops'] ?? [])), '🏪', url('town.php?view=shops'));
         // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
-        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
+        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
     } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture
         $add('do', here_do_fronts($u, $node, $back, count($want['do'] ?? [])), '🎯', url('town.php'));
         $add('people', 'Villagers', '👥', url('town.php?t=folk'));
         foreach ($hot as &$hp) if (str_starts_with((string)$hp['id'], 's-people')) $hp['hl'] = 'street';   // v2.5.39: tapping it lights up the villagers standing under the picture
         unset($hp);
         $add('stop', 'Rest stop', '🪧', url('town.php?t=stop'));
-        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
+        if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
         if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $add('garden', 'Your garden', '🌱', url('garden.php'));
     } elseif (in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) {
         $lm = landmark_at((int)$node['id']);

@@ -412,7 +412,10 @@ function trek_art_me(array $u): string
     if (!function_exists('gnome_avatar')) return '';
     require_once __DIR__ . '/gnome25.php';
     if (($g25 = gnome25_url($u)) !== '') {   // the 2.5D gnome rig (idle frame), in the player's own colours
-        return '<svg class="tkrig" x="-20" y="-36" width="40" height="50" viewBox="0 0 64 80" overflow="hidden" aria-hidden="true"><image href="' . e($g25) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></svg>';
+        // v2.5.40: front (shown), back and side strips: the walk (assets/tilemap.js) picks the view by direction and steps through frames 3-8 (2 idle first)
+        $img = fn(string $v, string $href, string $extra = '') => '<g class="tkv" data-v="' . $v . '"' . $extra . '><image href="' . e($href) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></g>';
+        return '<svg class="tkrig" x="-20" y="-36" width="40" height="50" viewBox="0 0 64 80" overflow="hidden" aria-hidden="true">' . $img('front', $g25)
+            . $img('back', gnome25_url($u, 'back') ?: $g25, ' display="none"') . $img('side', gnome25_url($u, 'side') ?: $g25, ' display="none"') . '</svg>';
     }
     $svg = gnome_avatar($u, 24);
     if (!preg_match('~<svg[^>]*>(.*)</svg>\s*$~s', $svg, $m)) return '';

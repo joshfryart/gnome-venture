@@ -77,6 +77,9 @@
     this.svg = this.cam ? ext : box.querySelector('.tmbg');
     this.me = this.svg ? this.svg.querySelector('.tmme') : null;
     this.rig = !!(this.me && this.me.querySelector('.tkrig'));
+    this.views = {};   /* v2.5.40: the gnome's front / back / side strips; frame 0-1 idle, 2-7 walk */
+    if (this.rig) { var vs = this.me.querySelectorAll('.tkv'); for (i = 0; i < vs.length; i++) this.views[vs[i].getAttribute('data-v')] = vs[i]; }
+    this.view = 'front'; this.flip = false; this.fr = 0;
     this.chip = box.querySelector('.tmchip');
     this.feet = this.svg ? this.svg.querySelectorAll('.tmft') : [];
     var T = num(box, 'data-tile') || 42, x0 = num(box, this.cam ? 'data-ex0' : 'data-x0'), y0 = num(box, this.cam ? 'data-ey0' : 'data-y0');
@@ -104,6 +107,7 @@
       if (n > self.n) self.reveal(n);
       var f = k - n, a = self.pts[n], b = self.pts[n + 1];
       var wx = a[0] + (b[0] - a[0]) * f, wy = a[1] + (b[1] - a[1]) * f;
+      if (self.rig) self.pose(b[0] - a[0], b[1] - a[1], k);
       self.put(wx, wy - (self.rig ? 0 : Math.sin(Math.PI * f) * 6));   /* v2.5.27: the 2.5D gnome glides (no hop), so it stays dead centre */
       self.look(wx, wy);
       self.raf = window.requestAnimationFrame(self.tick);
@@ -117,6 +121,26 @@
     document.addEventListener('touchstart', this.skip, true);
     this.raf = window.requestAnimationFrame(this.tick);
   }
+  /* The walking gnome: the strip for the heading (side flips for west), and a walk frame (3 per tile). dx, dy = this step; k = steps walked so far. */
+  Walk.prototype.pose = function (dx, dy, k) {
+    var v = Math.abs(dx) >= Math.abs(dy) ? 'side' : (dy < 0 ? 'back' : 'front');
+    if (!dx && !dy) v = this.view;
+    var flip = v === 'side' && dx < 0, f = 2 + (Math.floor(k * 3) % 6);
+    if (v === this.view && flip === this.flip && f === this.fr) return;
+    for (var n in this.views) {
+      var g = this.views[n], on = n === v, im = g.firstChild;
+      g.setAttribute('display', on ? 'inline' : 'none');
+      if (on) {
+        im.setAttribute('x', String(-64 * f));
+        if (flip) g.setAttribute('transform', 'translate(64 0) scale(-1 1)'); else g.removeAttribute('transform');
+      }
+    }
+    this.view = v; this.flip = flip; this.fr = f;
+  };
+  Walk.prototype.rest = function () {   /* back to the standing gnome, facing the way it last walked */
+    if (!this.rig) return;
+    for (var n in this.views) { var g = this.views[n]; if (n === this.view) g.firstChild.setAttribute('x', '0'); }
+  };
   Walk.prototype.put = function (x, y) {
     if (this.me) this.me.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')');
   };
@@ -159,6 +183,7 @@
     document.removeEventListener('touchstart', this.skip, true);
     var last = this.pts[this.pts.length - 1];
     this.put(last[0], last[1]);
+    this.rest();
     if (this.cam) { this.box.classList.remove('tmcam'); this.svg.removeAttribute('style'); }   /* back to the plain final picture */
     this.box.classList.remove('tmplay');
     for (var i = 0; i < this.feet.length; i++) this.feet[i].setAttribute('class', 'tmft on');
