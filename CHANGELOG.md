@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.26
+- **No ring behind your gnome on the Trail**: the round marker behind your 2.5D gnome is gone on the Trail and delve tile maps too, leaving the gnome and its shadow on the tile. Needs 2.5.25.
+
 ## 2.5.25
 - **Gnome stands on the tile**: on the Trail, delve and trek maps your 2.5D gnome is bigger, has a shadow and no ring around it, so it no longer looks like an event token. The old round icon remains as the fallback. Also fixes a place card that could error when a villager was listed. Needs 2.5.24.
 
