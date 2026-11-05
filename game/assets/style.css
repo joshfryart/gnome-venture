@@ -463,6 +463,7 @@ img.postimg { max-width: 100%; height: auto; border-radius: var(--radius); displ
 .tile.planted { background: var(--t-planted); }
 .tile.ready { background: var(--t-ready); }
 .tile.thirsty { background: var(--t-thirsty); }
+.tile.tilled.wet { background: #5b3d24; }   /* v2.5.49: bare tilled soil in the rain (img/ph/tile-tilled-wet.png) */
 .tile.notill { background: var(--t-notill); }
 .tile.nt { box-shadow: inset 0 0 0 3px var(--t-nt); }
 .tile.sel.nt { box-shadow: inset 0 0 0 3px var(--t-nt); }

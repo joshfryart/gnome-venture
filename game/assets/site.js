@@ -318,13 +318,13 @@ gvAdvFold();
   }
   function joinAll() {
     var cells = {}, k, p;
-    for (k in pieces) { p = pieces[k]; if (p.fam && p.x >= 0) cells[p.x + ',' + p.y] = p.fam; }
+    for (k in pieces) { p = pieces[k]; if (p.fam && p.x >= 0) cells[p.x + ',' + p.y] = p.fam; else if (p.kind === 'bed' && p.x >= 0) cells[p.x + ',' + p.y] = 'bed'; }
     for (k in pieces) {
       p = pieces[k];
       if (!p.fam || p.x < 0) continue;
       if (p.art && FAMS_NAMES[p.fam]) { famPaint(p, cells); continue; }
       if (p.fam === 'pave') {   // v2.5.43: paving blends into its eight neighbours (same rule as pave_mask() in includes/yard.php)
-        var has = function (dx, dy) { return cells[(p.x + dx) + ',' + (p.y + dy)] === 'pave'; }, pm = 0;
+        var has = function (dx, dy) { return cells[(p.x + dx) + ',' + (p.y + dy)] === 'pave' || cells[(p.x + dx) + ',' + (p.y + dy)] === 'bed'; }, pm = 0;   // v2.5.49: bed squares count as joined
         [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (has(a[1], a[2])) pm |= a[0]; });
         [[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]].forEach(function (a) { if ((pm & a[1]) && (pm & a[2]) && has(a[3], a[4])) pm |= a[0]; });
         if (p.mask === pm) continue;

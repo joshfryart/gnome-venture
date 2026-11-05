@@ -456,9 +456,10 @@ function fam_parse(string $v): array
 }
 
 /** The 8-neighbour mask of a paving square (N=1 E=2 S=4 W=8 NE=16 SE=32 SW=64 NW=128), a corner counting only when both its sides are paved. Same as tools/bake_path_art.py. */
-function pave_mask(array $cells, int $x, int $y): int
+function pave_mask(array $cells, int $x, int $y, array $beds = []): int
 {
-    $has = fn(int $dx, int $dy): bool => ($cells[($x + $dx) . ',' . ($y + $dy)] ?? '') === 'pave';
+    // v2.5.49: a bed square next to a path (tilled, planted, or untilled) counts as joined: the path runs flush up to it instead of fading into turf with a strip of grass between
+    $has = fn(int $dx, int $dy): bool => ($cells[($x + $dx) . ',' . ($y + $dy)] ?? '') === 'pave' || isset($beds[($x + $dx) . ',' . ($y + $dy)]);
     $m = 0;
     foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if ($has($dx, $dy)) $m |= $bit;
     foreach ([[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]] as [$bit, $a, $b, $dx, $dy]) if (($m & $a) && ($m & $b) && $has($dx, $dy)) $m |= $bit;
@@ -496,7 +497,7 @@ function yard_shape_of(int $mask): string
  * (the override column) uses it, turned by its rotation; a lone piece is a straight run turned by its rotation; otherwise the arms
  * are whichever of the four sides have a piece of the same family.
  */
-function yard_join_info(array $objects): array
+function yard_join_info(array $objects, array $beds = []): array
 {
     $cells = [];
     $fam = [];
@@ -529,7 +530,7 @@ function yard_join_info(array $objects): array
             continue;
         }
         if ($fam[$id] === 'pave') {   // v2.5.43: paving takes its look from all eight neighbours
-            $out[$id] = ['fam' => 'pave', 'mask' => pave_mask($cells, $x, $y), 'shape' => '', 'chosen' => ''];
+            $out[$id] = ['fam' => 'pave', 'mask' => pave_mask($cells, $x, $y, $beds), 'shape' => '', 'chosen' => ''];
             continue;
         }
         $pick = (string)($o['shape'] ?? '');
@@ -596,11 +597,13 @@ const COVER_KINDS = ['dirt', 'dirt', 'dirt', 'lawn', 'lawn', 'lawn', 'clover', '
  * v2.5.44: what covers each untilled square: "yard x,y" => [kind, mask]. The kind comes from where the bed is (2 x 2 beds share one, a few are plain lawn), so a square keeps its
  * covering; the mask says which of the eight neighbours (in the yard) have the same covering, so they blend (same rule and bit order as tools/bake_path_art.py).
  */
-function yard_covers(array $tiles): array
+function yard_covers(array $tiles, array $pave = []): array
 {
     $kind = [];
+    $beds = $pave;   // v2.5.49: tilled, planted and no-till squares (and paths) count as joined: a covering runs flush up to them instead of fading into turf
     foreach ($tiles as $row) foreach ($row as $t) {
-        if ($t['yx'] === null || $t['plant_id'] || (int)$t['tilled'] || ($t['method'] ?? '') === 'notill') continue;
+        if ($t['yx'] === null) continue;
+        if ($t['plant_id'] || (int)$t['tilled'] || ($t['method'] ?? '') === 'notill') { $beds[(int)$t['yx'] . ',' . (int)$t['yy']] = true; continue; }
         $x = (int)$t['x']; $y = (int)$t['y'];
         $k = COVER_KINDS[(int)(((crc32('c' . ($x >> 1) . ',' . ($y >> 1)) & 0xffff) / 65536) * count(COVER_KINDS))];
         if ((crc32('l' . $x . ',' . $y) & 0xffff) / 65535 < .18) $k = 'lawn';
@@ -609,7 +612,7 @@ function yard_covers(array $tiles): array
     $out = [];
     foreach ($kind as $pos => $k) {
         [$x, $y] = array_map('intval', explode(',', $pos));
-        $has = fn(int $dx, int $dy): bool => ($kind[($x + $dx) . ',' . ($y + $dy)] ?? '') === $k;
+        $has = fn(int $dx, int $dy): bool => ($kind[($x + $dx) . ',' . ($y + $dy)] ?? '') === $k || isset($beds[($x + $dx) . ',' . ($y + $dy)]);
         $m = 0;
         foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if ($has($dx, $dy)) $m |= $bit;
         foreach ([[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]] as [$bit, $a, $b, $dx, $dy]) if (($m & $a) && ($m & $b) && $has($dx, $dy)) $m |= $bit;
@@ -624,9 +627,18 @@ function tile_icon_html(string $icon): string
     return str_starts_with($icon, '<img class="phtile') ? $icon : e($icon);
 }
 
-/** How one bed square looks: [classes, icon, label, badge html]. */
-function tile_view(array $t, array $plants, bool $owner = true, array $covers = []): array
+/** v2.5.49: is it raining (or storming) over this garden today? Bare tilled soil then shows wet. Same rule as the rain that waters crops (garden_day_fx). */
+function yard_raining(int $plotId): bool
 {
+    static $c = [];
+    if (!isset($c[$plotId])) $c[$plotId] = function_exists('gfx_on') && gfx_on() && setting('rain_waters') !== '0' && in_array(garden_weather_on($plotId), ['rain', 'storm'], true);
+    return $c[$plotId];
+}
+
+/** How one bed square looks: [classes, icon, label, badge html]. */
+function tile_view(array $t, array $plants, bool $owner = true, array $covers = [], bool $showThirst = false): array
+{
+    $sees = $owner || $showThirst;   // thirst is the owner's to see, unless the visit page lets friends water (visit.php passes thirsty)
     $cls = 'wild';
     $icon = '';
     $label = 'Untilled ground';
@@ -634,16 +646,17 @@ function tile_view(array $t, array $plants, bool $owner = true, array $covers = 
     if ($t['plant_id'] && isset($plants[(int)$t['plant_id']])) {
         $p = $plants[(int)$t['plant_id']];
         $info = tile_info($t, $p);
-        $cls = 'planted' . ($info['ready'] ? ' ready' : '') . ($info['thirsty'] && $owner ? ' thirsty' : '');
+        $cls = 'planted' . ($info['ready'] ? ' ready' : '') . ($info['thirsty'] && $sees ? ' thirsty' : '');
         $icon = $info['ready'] ? catalog_kind_icon((string)$p['kind']) : ($info['stage'] <= 1 ? '🌱' : '🌿');
         $sn = $info['ready'] ? 4 : ($info['stage'] <= 1 ? 1 : ($info['stage'] === 2 ? 2 : 3));   // v1.5.2: a crop-stage placeholder, if drawn
         if (($sp = ph_img('stage-' . (string)$p['kind'] . '-' . $sn, 28, '', 'phtile')) !== '') $icon = $sp;
         // v2.5.43: a ripe crop shows its own harvest picture (cabbage looked like the shared melon-on-a-vine ripe art); no picture, or a tree/cover crop, keeps the kind art
         if ($info['ready'] && !in_array((string)$p['kind'], ['tree', 'cover'], true) && !empty($p['slug']) && ($rp = ph_img((string)$p['slug'], 28, '', 'phtile ripe')) !== '') $icon = $rp;
-        $label = $p['name'] . ($info['ready'] ? ' (ready!)' : ($owner ? ($info['thirsty'] ? ' (thirsty)' : ' (' . nice_time($info['time_left']) . ' left)') : ' (growing)'));
+        $label = $p['name'] . ($info['ready'] ? ' (ready!)' : ($sees && $info['thirsty'] ? ' (thirsty)' : ($owner ? ' (' . nice_time($info['time_left']) . ' left)' : ' (growing)')));
     } elseif ((int)$t['tilled']) {
         $cls = $t['method'] === 'notill' ? 'notill' : 'tilled';
         $label = $t['method'] === 'notill' ? 'No-till bed' : 'Tilled soil';
+        if ($t['method'] !== 'notill' && yard_raining((int)$t['plot_id'])) { $cls .= ' wet'; $label = 'Tilled soil (wet with rain)'; }   // v2.5.49: rain darkens bare tilled soil (tile-tilled-wet.png)
         if ($owner && ts($t['settle_until']) > time()) $label .= ' (settling)';
     }
     if ($t['method'] === 'notill') {
@@ -664,7 +677,7 @@ function tile_view(array $t, array $plants, bool $owner = true, array $covers = 
         if (str_contains($cls, 'thirsty')) $badge .= '<i>💧</i>';
     }
     if ($icon === '' && !str_contains($cls, 'planted')) {
-        $gk = str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? 'tilled' : 'wild');
+        $gk = str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? (str_contains($cls, ' wet') ? 'tilled-wet' : 'tilled') : 'wild');
         $gp = '';
         if ($gk === 'wild' && ($cv = $covers[(int)$t['yx'] . ',' . (int)$t['yy']] ?? null) !== null) {   // v2.5.44: untilled ground is lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss or bare dirt
             $rel = $cv[0] === 'lawn' ? 'assets/img/cover/lawn-' . (1 + (((int)$t['x'] * 5 + (int)$t['y'] * 11) % 6)) . '.png' : 'assets/img/cover/' . $cv[0] . '-' . $cv[1] . '.png';
@@ -699,7 +712,9 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
     $bonus = $mode === 'own' ? yard_bonus_map((int)$plot['id']) : [];
     $html = '<div class="yard yc' . $yw . ' yr' . $yh . ($mode === 'mini' ? ' mini' : '') . ($mode === 'edit' ? ' editing' : '') . '"'
         . ($mode === 'edit' ? ' data-yard-edit data-w="' . $yw . '" data-h="' . $yh . '"' : '') . '>';
-    $joins = yard_join_info($objects);   // v0.9.5: fences, walls and hedges take their shape from their neighbours
+    $beds = [];
+    foreach ($tiles as $row) foreach ($row as $t) if ($t['yx'] !== null) $beds[(int)$t['yx'] . ',' . (int)$t['yy']] = true;
+    $joins = yard_join_info($objects, $beds);   // v0.9.5: fences, walls and hedges take their shape from their neighbours
     foreach ($objects as $o) {
         if ((int)$o['x'] < 0 && $mode !== 'edit') continue;
         $ji = $joins[(int)$o['id']] ?? null;
@@ -746,11 +761,14 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             $html .= '<div class="' . $cls . '" role="img" aria-label="' . e($title) . '" title="' . e($title) . '">' . $inner . '</div>';
         }
     }
-    $covers = yard_covers($tiles);
+    $pave = [];
+    foreach ($objects as $o) if ((int)$o['x'] >= 0 && ($joins[(int)$o['id']]['fam'] ?? '') === 'pave') $pave[(int)$o['x'] . ',' . (int)$o['y']] = true;
+    $covers = yard_covers($tiles, $pave);
+    $showThirst = !empty($extra['thirsty']);   // v2.5.49: a visit page shows thirst when friends can water
     foreach ($tiles as $row) {
         foreach ($row as $t) {
             if ($t['yx'] === null) continue;
-            [$cls, $icon, $label, $badge] = tile_view($t, $plants, $owner, $covers);
+            [$cls, $icon, $label, $badge] = tile_view($t, $plants, $owner, $covers, $showThirst);
             $pos = yard_pos((int)$t['yx'], (int)$t['yy'], 1, 1);
             $tx = (int)$t['x'];
             $ty = (int)$t['y'];
