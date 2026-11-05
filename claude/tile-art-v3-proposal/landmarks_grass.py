@@ -26,6 +26,8 @@ def line(cv, x0, y0, x1, y1, c, w=1):
         x = x0 + (x1 - x0) * i / n; y = y0 + (y1 - y0) * i / n
         for dx in range(w):
             for dy in range(w): cv.put(int(round(x)) + dx - w // 2, int(round(y)) + dy - w // 2, c)
+def hline(cv, x0, x1, y, c):
+    for x in range(x0, x1): cv.put(x, y, c)
 def hsh(u): return 0 if u < .15 else 1 if u < .4 else 2 if u < .72 else 3
 def box(cv, x0, x1, y0, y1, R, rnd, speck=.06): _col(cv, x0, x1, y0, y1, R, rnd, speck)
 def planks(cv, x0, x1, y0, y1, R, rnd, pw=9):
@@ -214,20 +216,52 @@ def lm_picnicrise(rnd, cv):   # 300 x 150
     for x in range(8, 290, 10): cv.put(x, 140, M5[3])
 
 # ------------------------------------------------------------------ 236
-def lm_wildflowers(rnd, cv):   # 300 x 140
-    lump(cv, 150, 124, 146, 44, M5, rnd, .1); tufts(cv, rnd, 14, 286, 134, 20)
-    cols = [(P5[1], P5[0]), (G5[1], G5[0]), (D5[1], D5[0]), (CREAM, A5[0]), (E5[1], E5[0]), (SEA5[1], SEA5[0])]
+def bigflower(cv, x, y, h, kind, rnd, lean=1):
+    """tall stem with a big head; kind 0 daisy, 1 poppy, 2 lupin spike, 3 tulip, 4 sunny"""
+    for k in range(h):
+        xx = x + int(math.sin(k / 9.0 + x) * 2) + lean * k // 14
+        cv.put(xx, y - k, M5[2] if k % 4 else M5[1]); cv.put(xx + 1, y - k, M5[3])
+        if k % 17 == 8:
+            for j in range(6): cv.put(xx + (lean * j), y - k - j // 2, M5[1])
+    hx = x + int(math.sin(h / 9.0 + x) * 2) + lean * h // 14; hy = y - h
+    if kind == 0 or kind == 4:
+        pc = CREAM if kind == 0 else G5[1]; pc2 = A5[0] if kind == 0 else G5[0]; r = 9 if kind == 4 else 8
+        for a in range(0, 360, 30):
+            px, py = hx + int(math.cos(math.radians(a)) * r), hy + int(math.sin(math.radians(a)) * r); ell(cv, px, py, 3, 3, pc if a % 60 else pc2)
+        ell(cv, hx, hy, 5, 5, E5[2] if kind == 4 else G5[2]); ell(cv, hx - 1, hy - 1, 3, 3, W5[1] if kind == 4 else G5[1])
+        if rnd.random() < .5: cv.put(hx - 2, hy, INK); cv.put(hx + 2, hy, INK); cv.put(hx - 1, hy + 2, INK); cv.put(hx, hy + 3, INK); cv.put(hx + 1, hy + 2, INK)
+    elif kind == 1:
+        ell(cv, hx, hy, 8, 7, E5[1]); ell(cv, hx - 2, hy - 2, 5, 4, E5[0]); ell(cv, hx, hy + 2, 3, 3, E5[3]); cv.put(hx - 4, hy + 6, E5[2])
+    elif kind == 2:
+        for k in range(7):
+            ell(cv, hx + (k % 2) * 2 - 1, hy + k * 5 - 8, 5 - k // 3, 3, D5[1 if k % 2 else 0]); cv.put(hx + (k % 2) * 2 - 1, hy + k * 5 - 8, D5[3])
+    else:
+        ell(cv, hx, hy, 6, 8, P5[1]); ell(cv, hx - 2, hy - 2, 3, 5, P5[0]); poly(cv, [(hx - 6, hy - 4), (hx - 3, hy - 11), (hx, hy - 4), (hx + 3, hy - 11), (hx + 6, hy - 4)], P5[1]); cv.put(hx, hy - 6, P5[3])
+def gnomehat(cv, x, y, s=1):
+    """a gnome hat tipped over on the ground, brim to the right"""
+    for k in range(34 * s):
+        h = max(1, int((34 * s - k) * .45)); xx = x - 30 * s + k
+        for dy in range(h): cv.put(xx, y - dy - (k // 12 if k < 24 else 2), E5[1 if dy < h // 2 else 2] if dy < h - 1 else E5[3])
+    ell(cv, x + 6 * s, y - 4, 5 * s, 8 * s, CREAM); ell(cv, x + 6 * s, y - 4, 3 * s, 6 * s, A5[1])
+    ell(cv, x - 30 * s, y - 2, 3, 3, CREAM)   # pompom
+def lm_wildflowers(rnd, cv):   # 300 x 170
+    lump(cv, 150, 164, 146, 40, M5, rnd, .1); tufts(cv, rnd, 14, 286, 166, 24)
     fl = []
-    for _ in range(150):
-        x = rnd.randint(14, 286); y = rnd.randint(96, 134)
-        if ((x - 150) / 140.0) ** 2 + ((y - 124) / 44.0) ** 2 < 1.0 or y > 128: fl.append((y, x))
+    for _ in range(46):
+        x = rnd.randint(16, 284); y = rnd.randint(126, 164)
+        if ((x - 150) / 140.0) ** 2 + ((y - 164) / 40.0) ** 2 < 1.0: fl.append((y, x))
     for y, x in sorted(fl):
-        h = rnd.randint(22, 52); lean = rnd.choice((-1, 1)); c, c2 = rnd.choice(cols); hy = y - h
-        for k in range(h): cv.put(x + (lean * k // 8), y - k, M5[2] if k % 4 else M5[1])
-        hx = x + lean * h // 8 + lean * 2
-        for dx, dy in ((-4, 0), (4, 0), (0, -4), (0, 4), (-3, -3), (3, 3), (-3, 3), (3, -3), (-3, 0), (3, 0), (0, -3), (0, 3), (-2, -1), (2, 1), (-2, 1), (2, -1), (-1, -2), (1, 2), (-1, 2), (1, -2), (-2, 0), (2, 0), (0, -2), (0, 2), (-1, 0), (1, 0), (0, -1), (0, 1)): cv.put(hx + dx, hy + dy, c)
-        cv.put(hx - 3, hy - 3, c2); cv.put(hx - 4, hy, c2); cv.put(hx - 2, hy + 3, c2); cv.put(hx + 3, hy + 3, c2); ell(cv, hx, hy, 1, 1, G5[1])
-        if rnd.random() < .3: cv.put(hx - 1, hy - 1, INK); cv.put(hx + 1, hy - 1, INK); cv.put(hx - 1, hy + 1, INK); cv.put(hx, hy + 1, INK); cv.put(hx + 1, hy + 1, INK)   # nodding hello
+        back = (y - 126) / 38.0
+        h = int(rnd.randint(50, 92) - back * 14); bigflower(cv, x, y, h, rnd.choice((0, 0, 1, 2, 3, 4, 1, 4)), rnd, rnd.choice((-1, 1)))
+    gnomehat(cv, 70, 160, 1)
+    for k in range(3): ell(cv, 108 + k * 5, 158 - k, 4, 3, G5[1 + k % 2])   # a picnic sandwich, abandoned
+    box(cv, 214, 246, 148, 164, LT5, rnd, .1)
+    for x in range(214, 246, 4): rect(cv, x, 148, x + 2, 164, CREAM)
+    for x in range(214, 246, 8): rect(cv, x, 148, x + 4, 152, E5[1])
+    for k in range(10): cv.put(224 + k, 140 - (k * (9 - k)) // 5, W5[2]); cv.put(225 + k, 140 - (k * (9 - k)) // 5, W5[3])   # basket handle
+    bee(cv, 182, 40); bee(cv, 104, 70)
+    for k in range(8): cv.put(186 + k * 3, 44 + (k * 5) % 9, CREAM) if k % 2 else None
+    for k in range(6): cv.put(108 + k * 3, 74 - (k * 5) % 7, CREAM) if k % 2 else None
 def puff(cv, cx, cy, r, rnd):
     ell(cv, cx, cy, r, r, RAMP["snow"][1]); ell(cv, cx - 1, cy - 1, r - 2, r - 2, CREAM)
     for a in range(0, 360, 15):
@@ -247,31 +281,41 @@ def lm_dandelions(rnd, cv):   # 250 x 190
         disc(cv, x, y - 1, 5, G5)
     for k in range(14): cv.put(160 + k * 5, 10 + (k * 7) % 23, CREAM)   # wishes drifting off
     for i, (x, y) in enumerate(((190, 20), (210, 8), (232, 34), (70, 14), (24, 30), (112, 6))): sparkle(cv, x, y) if i % 2 == 0 else (cv.put(x, y, CREAM), cv.put(x + 1, y, CREAM), cv.put(x, y + 3, CREAM))
-def lm_stonebridge(rnd, cv):   # 280 x 140
-    ell(cv, 140, 124, 138, 12, SEA5[2]); rect(cv, 0, 112, 280, 132, SEA5[2])
-    for x in range(0, 280, 11): cv.put(x, 118 + (x // 11) % 3 * 3, SEA5[0]); cv.put(x + 1, 118 + (x // 11) % 3 * 3, SEA5[0]); cv.put(x + 2, 119 + (x // 11) % 3 * 3, CREAM)
-    deck = lambda x: int(40 + 24 * ((x - 140) / 100.0) ** 2)
+def lm_stonebridge(rnd, cv):   # 300 x 200
+    ell(cv, 150, 188, 148, 12, SEA5[2]); rect(cv, 0, 176, 300, 198, SEA5[2])
+    for x in range(0, 300, 11): cv.put(x, 182 + (x // 11) % 3 * 3, SEA5[0]); cv.put(x + 1, 182 + (x // 11) % 3 * 3, SEA5[0]); cv.put(x + 2, 183 + (x // 11) % 3 * 3, CREAM)
+    deck = lambda x: int(76 + 40 * ((x - 150) / 118.0) ** 2)
     def brick(x, y):
-        row = (y - 30) // 10; u = (x - 40) / 200.0; t = hsh(u)
-        if (y - 30) % 10 == 0 or (x + (row % 2) * 8) % 16 == 0: return S5[3]
+        row = (y - 40) // 10; u = (x - 32) / 236.0; t = hsh(u)
+        if (y - 40) % 10 == 0 or (x + (row % 2) * 8) % 16 == 0: return S5[3]
         if (x * 7 + y * 3) % 17 == 0: t = min(4, t + 1)
         return S5[t]
     def shape(d):
-        pts = [(40, 116)] + [(x, deck(x)) for x in range(40, 241, 4)] + [(240, 116)]; d.polygon(pts, fill=255)
+        pts = [(32, 182)] + [(x, deck(x)) for x in range(32, 269, 4)] + [(268, 182)]; d.polygon(pts, fill=255)
     fillmask(cv, shape, brick)
-    for x in range(40, 241):   # parapet cap
+    for x in range(32, 269):
         for y in range(deck(x) - 5, deck(x)): cv.put(x, y, S5[0] if y < deck(x) - 2 else S5[1])
-    for x in range(44, 238, 16): rect(cv, x, deck(x) - 8, x + 9, deck(x) - 5, S5[0]); rect(cv, x, deck(x) - 5, x + 9, deck(x) - 4, S5[3])
-    fillmask(cv, lambda d: d.ellipse((98, 70, 182, 132), fill=255), lambda x, y: INK if y < 100 else SEA5[2] if y < 118 else SEA5[1])
-    for x in range(96, 184):
-        for y in (68, 69): cv.put(x, y, S5[0]) if cv.get(x, y)[3] and cv.get(x, y) != INK and ((x - 140) / 42.0) ** 2 + ((y - 101) / 31.0) ** 2 < 1.1 else None
-    for k in range(0, 360, 8):   # keystone ring
-        x = 140 + int(round(math.cos(math.radians(k)) * 43)); y = 101 + int(round(math.sin(math.radians(k)) * 33))
-        if y < 104: cv.put(x, y, S5[0] if k % 24 else S5[3]); cv.put(x, y - 1, S5[1])
-    for x, y in ((60, 80), (200, 92), (110, 54), (170, 60)): lump(cv, x, y, 8, 5, M5, rnd, 0)
-    box(cv, 226, 232, 8, 40, W5, rnd, 0); poly(cv, [(232, 10), (258, 17), (232, 24)], E5[1])   # a proud little flag
-    for x in (6, 250): flower(cv, x, 108, CREAM, G5[1], 1)
-    _reeds(cv, 8, 124, 3, rnd)
+    for x in range(36, 266, 16): rect(cv, x, deck(x) - 9, x + 9, deck(x) - 5, S5[0]); rect(cv, x, deck(x) - 5, x + 9, deck(x) - 4, S5[3])
+    fillmask(cv, lambda d: d.ellipse((92, 118, 208, 200), fill=255), lambda x, y: INK if y < 150 else SEA5[2] if y < 184 else SEA5[1])
+    for k in range(0, 360, 7):   # keystone ring
+        x = 150 + int(round(math.cos(math.radians(k)) * 59)); y = 160 + int(round(math.sin(math.radians(k)) * 43))
+        if y < 164: cv.put(x, y, S5[0] if k % 21 else S5[3]); cv.put(x, y - 1, S5[1])
+    for x in range(100, 200): cv.put(x, 118, INK) if cv.get(x, 118)[3] == 0 else None
+    # ivy: lumps on the walls and vines hanging
+    for x, y in ((56, 112), (76, 98), (226, 120), (246, 100), (112, 96), (190, 94), (44, 140)): lump(cv, x, y, 9, 6, L5, rnd, .05)
+    for x, y0, n in ((60, 118, 26), (80, 104, 20), (230, 126, 30), (248, 106, 24), (116, 102, 16), (48, 146, 20)):
+        for k in range(n): cv.put(x + int(math.sin(k / 3.0) * 1.5), y0 + k, L5[2] if k % 3 else L5[1])
+        lump(cv, x, y0 + n, 3, 3, L5, rnd, 0)
+    for x in (110, 130, 170, 192): flower(cv, x, deck(x) - 13, CREAM if x % 20 else P5[1], G5[1], 1)
+    # proud little flag on the crown of the arch
+    box(cv, 148, 152, 20, deck(150) - 8, W5, rnd, 0); poly(cv, [(152, 22), (182, 31), (152, 40)], E5[1]); poly(cv, [(152, 22), (168, 27), (152, 30)], E5[0]); ell(cv, 150, 20, 3, 3, G5[1])
+    # the troll-sized toll sign
+    box(cv, 14, 21, 96, 182, W5, rnd, 0); box(cv, 36, 43, 96, 182, W5, rnd, 0)
+    box(cv, 0, 56, 62, 114, W5, rnd, .08); rect(cv, 0, 62, 56, 64, W5[0]); rect(cv, 0, 112, 56, 114, W5[3]); rect(cv, 0, 62, 2, 114, W5[0]); rect(cv, 54, 62, 56, 114, W5[3])
+    for yy, ln in ((72, 40), (82, 34), (92, 44)): hline(cv, 8, 8 + ln, yy, INK); hline(cv, 8, 8 + ln, yy + 1, W5[3])
+    ell(cv, 14, 103, 4, 3, S5[1]); ell(cv, 24, 103, 4, 3, S5[2]); ell(cv, 34, 103, 4, 3, S5[1]); cv.put(48, 104, E5[1])
+    for x in (6,): flower(cv, x, 178, CREAM, G5[1], 1)
+    _reeds(cv, 260, 190, 4, rnd)
 def lm_beanpoles(rnd, cv):   # 280 x 210
     for i, (cx, h, base) in enumerate(((46, 126, 190), (112, 166, 196), (178, 150, 200), (240, 118, 192))):
         top = base - h
@@ -444,34 +488,59 @@ def lm_sugarshack(rnd, cv):   # 280 x 260
     bucket(cv, rnd, 250, 244, 22, 20)
     for x in range(10, 270): cv.put(x, 250 if (x * 7) % 5 else 251, M5[2])
     for x in range(8, 272, 5): cv.put(x, 249, M5[1])
-def lm_pancakelane(rnd, cv):   # 300 x 160
-    poly(cv, [(122, 54), (178, 54), (296, 158), (4, 158)], A5[1])
-    fillmask(cv, lambda d: d.polygon([(122, 54), (178, 54), (296, 158), (4, 158)], fill=255), lambda x, y: A5[1] if (x * 3 + y * 5) % 17 else A5[2])
-    for i, y in enumerate(range(60, 154, 14)):   # wobbly footprints, the gnome who followed his nose
-        cx = 150 + int(30 * math.sin(i * 1.1) * (y - 50) / 100.0)
-        for dx in (-5, 5): rect(cv, cx + dx, y, cx + dx + 3, y + 5, A5[3])
-    def fence(side):
-        for i in range(6):
-            f = i / 5.0; y = int(62 + f * 86); x = int(122 + side * (0 + f * 0) - side * 0) ; x = int(150 + side * (28 + f * 112)); s = .5 + f * .75
-            h = int(40 * s); w = max(3, int(7 * s))
-            box(cv, x - w // 2, x + w // 2 + 1, y - h, y, W5, rnd, 0)
-            if i < 5:
-                f2 = (i + 1) / 5.0; y2 = int(62 + f2 * 86); x2 = int(150 + side * (28 + f2 * 112)); h2 = int(40 * (.5 + f2 * .75))
-                for off in (.35, .7): line(cv, x, y - int(h * off), x2, y2 - int(h2 * off), W5[2], max(2, int(3 * s)))
-            pr = int(10 + 12 * s); py = y - h
-            for k in range(3 + (i % 2)):   # pancake stack on each post
-                ell(cv, x, py - 3 - k * 4 * s, pr, int(3 * s) + 1, G5[1]); ell(cv, x, py - 4 - k * 4 * s, pr - 1, int(3 * s), G5[0] if k % 2 else A5[0])
-            rect(cv, x - 2, py - 6 - (3 + (i % 2)) * int(4 * s), x + 3, py - 3 - (3 + (i % 2)) * int(4 * s), G5[0] if i % 2 else CREAM)
-            for k in range(0, pr, 4): cv.put(x - pr + 2 + k, py - 4 - (3 + (i % 2) - 1) * int(4 * s) + 3, E5[2] if False else W5[2])
-    fence(-1); fence(1)
-    for x0 in (96, 150, 204):   # the smell, in wiggles
-        for y in range(4, 70):
+def lm_pancakelane(rnd, cv):   # 320 x 236
+    cx = 160
+    for i in range(4):   # the road is a tall stack of pancakes
+        cy = 214 - i * 15; rx = 150 - i * 3
+        ell(cv, cx, cy + 13, rx, 24, G5[3]); rect(cv, cx - rx, cy, cx + rx + 1, cy + 14, G5[2])
+        for x in range(cx - rx, cx + rx + 1):   # side shading and a darker butter-brown seam
+            u = (x - cx + rx) / (2.0 * rx)
+            for y in range(cy, cy + 14): cv.put(x, y, G5[1] if u < .3 and y < cy + 9 else G5[2] if u < .7 or y > cy + 9 else G5[3])
+            cv.put(x, cy + 14 + int(math.sin(x / 5.0) * 1.5), G5[3])
+        ell(cv, cx, cy, rx, 24, G5[1] if i < 3 else A5[1])
+    top = 214 - 3 * 15
+    ell(cv, cx, top, 147, 23, A5[0]); ell(cv, cx, top + 1, 138, 20, A5[1])
+    for x in range(30, 290):   # toasty griddle freckles
+        for y in range(top - 18, top + 22):
+            if ((x - cx) / 138.0) ** 2 + ((y - top - 1) / 20.0) ** 2 < 1 and (x * 13 + y * 7) % 41 == 0: cv.put(x, y, A5[2])
+    for i, y in enumerate(range(top - 12, top + 18, 7)):   # wobbly footprints, the gnome who followed his nose
+        px = cx - 40 + int(34 * math.sin(i * 1.3)) + i * 3
+        for dx in (-5, 5): rect(cv, px + dx, y, px + dx + 3, y + 4, A5[3])
+    # syrup river: from a pat of butter down over the front edge, dripping down the stack
+    rect(cv, 126, top - 20, 144, top - 12, CREAM); rect(cv, 126, top - 20, 144, top - 19, G5[0]); rect(cv, 126, top - 13, 144, top - 12, G5[1])
+    for y in range(top - 12, top + 24):
+        mx = 150 + int(math.sin((y - top) / 6.0) * 10) + (y - top) // 3; w = 14 + (y - top) // 3
+        for x in range(mx - w // 2, mx + w // 2): cv.put(x, y, G5[0] if x == mx - w // 2 + 1 and y % 3 else LT5[2] if x < mx - 1 else LT5[3] if x > mx + w // 4 else LT5[2])
+    for dx, ln in ((-14, 18), (-2, 36), (10, 26), (22, 14)):
+        x0 = 150 + 14 + dx; y0 = top + 24
+        for k in range(ln): rect(cv, x0, y0 + k, x0 + 6, y0 + k + 1, LT5[2] if k < ln - 3 else LT5[3])
+        ell(cv, x0 + 3, y0 + ln, 4, 4, LT5[2]); cv.put(x0 + 1, y0 + ln - 1, G5[0])
+    def post(x, y, n):
+        box(cv, x - 3, x + 4, y - 30, y, W5, rnd, 0)
+        for k in range(n):
+            ell(cv, x, y - 33 - k * 7, 19, 7, G5[2]); ell(cv, x, y - 36 - k * 7, 19, 7, G5[1]); ell(cv, x, y - 37 - k * 7, 16, 5, G5[0] if k % 2 else A5[0])
+        rect(cv, x - 4, y - 46 - n * 7, x + 4, y - 41 - n * 7, CREAM); rect(cv, x - 4, y - 41 - n * 7, x + 4, y - 40 - n * 7, G5[0])
+    for i, x in enumerate((38, 72, 106)): post(x, top + 6 + i * 4 - 8 if False else top + 2 + (2 - i) * 0, 2 + i % 2)
+    for i, x in enumerate((214, 248)): post(x, top + 2, 3 - i % 2)
+    # big fork signpost
+    fx = 284
+    for x in range(fx - 4, fx + 5):
+        for y in range(36, top + 4): cv.put(x, y, S5[0 if x < fx - 2 else 1 if x < fx else 2 if x < fx + 3 else 3])
+    for tx in (fx - 12, fx - 4, fx + 4, fx + 12):
+        for y in range(6, 40): cv.put(tx, y, S5[0 if y < 30 else 1]); cv.put(tx + 1, y, S5[2]) if True else None
+        cv.put(tx, 5, S5[0])
+    for x in range(fx - 12, fx + 14): rect(cv, x, 36, x + 1, 44 + (4 if 4 < abs(x - fx) else 0), S5[1] if x < fx else S5[2])
+    box(cv, 216, 280, 52, 76, W5, rnd, .08); rect(cv, 216, 52, 280, 54, W5[0]); rect(cv, 216, 74, 280, 76, W5[3])
+    poly(cv, [(206, 64), (218, 52), (218, 76)], W5[1]); hline(cv, 224, 270, 60, INK); hline(cv, 224, 262, 66, INK); hline(cv, 224, 252, 71, INK)
+    box(cv, fx - 2, fx + 2, 40, 52, S5, rnd, 0)
+    for x0 in (88, 140, 190):   # the smell, in wiggles
+        for y in range(50, 120):
             cv.put(x0 + int(6 * math.sin(y / 6.0 + x0)), y, CREAM if y % 3 else G5[0]); cv.put(x0 + 1 + int(6 * math.sin(y / 6.0 + x0)), y, G5[0])
 LM = {
     "232-beehive": (250, 210, lm_beehive), "232-berrypatch": (240, 130, lm_berrypatch), "232-logbridge": (300, 160, lm_logbridge),
     "232-well": (180, 240, lm_well), "232-crossroads": (220, 240, lm_crossroads), "232-picnicrise": (300, 150, lm_picnicrise),
-    "236-wildflowers": (300, 140, lm_wildflowers), "236-dandelions": (250, 190, lm_dandelions), "236-stonebridge": (280, 140, lm_stonebridge),
+    "236-wildflowers": (300, 170, lm_wildflowers), "236-dandelions": (250, 190, lm_dandelions), "236-stonebridge": (300, 200, lm_stonebridge),
     "236-beanpoles": (280, 210, lm_beanpoles), "236-windmill": (260, 252, lm_windmill), "236-haywagon": (270, 180, lm_haywagon),
     "311-taprow": (290, 240, lm_taprow), "311-bucketstacks": (230, 230, lm_bucketstacks), "311-sugarshack": (280, 260, lm_sugarshack),
-    "311-pancakelane": (300, 160, lm_pancakelane),
+    "311-pancakelane": (320, 236, lm_pancakelane),
 }

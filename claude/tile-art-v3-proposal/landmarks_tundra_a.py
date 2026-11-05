@@ -105,7 +105,7 @@ def curve(cv, pts_fn, n, c, hi=None, every=5):
 
 # ------------------------------------------------------------------ 309
 def lm_frozenpond(rnd, cv):   # 330 x 170
-    cx, cy, rx, ry = 165, 100, 146, 42
+    cx, cy, rx, ry = 165, 104, 146, 48
     TH = 11
     # front thickness of the ice shelf, then the packed-snow rim on top of it
     ellfill(cv, cx, cy + TH, rx + 9, ry + 7, lambda x, y, nx, ny: SN[3] if ny + nx * .2 > -.1 else None)
@@ -156,15 +156,15 @@ def lm_frozenpond(rnd, cv):   # 330 x 170
     bx = stx - 20   # bucket and one fish tail
     rect(cv, bx, sty + 2, bx + 12, sty + 12, ST[1]); rect(cv, bx, sty + 2, bx + 12, sty + 4, ST[0]); rect(cv, bx + 9, sty + 4, bx + 12, sty + 12, ST[3])
     for k in range(5): cv.put(bx + 4 + k // 2, sty - 1 - k, EM[1]); cv.put(bx + 6 + k // 2, sty - 1 - k, EM[2])
-    # a gnome hat sitting politely on the bank
-    hatx, haty = cx - 100, cy - 34
-    poly(cv, [(hatx - 10, haty), (hatx + 10, haty), (hatx + 6, haty - 22), (hatx + 9, haty - 32)], EM[1])
-    poly(cv, [(hatx - 10, haty), (hatx - 2, haty), (hatx + 3, haty - 22), (hatx + 9, haty - 32)], EM[0])
-    for x in range(hatx - 13, hatx + 14): cv.put(x, haty + 1, SN[0]); cv.put(x, haty + 2, SN[1]); cv.put(x, haty + 3, SN[2])
     # snow banks on the far side and at the two ends, so the plate looks sunk into the ground
     for a in range(200, 341, 7):
         x = cx + math.cos(math.radians(a)) * (rx + 12); y = cy + math.sin(math.radians(a)) * (ry + 9) + 2
         lump(cv, int(x), int(y), rnd.randint(11, 16), rnd.randint(7, 10), SN, rnd, .05)
+    # a gnome hat sitting politely on the bank
+    hatx, haty = cx - 96, cy - ry - 4
+    poly(cv, [(hatx - 10, haty), (hatx + 10, haty), (hatx + 6, haty - 22), (hatx + 9, haty - 32)], EM[1])
+    poly(cv, [(hatx - 10, haty), (hatx - 2, haty), (hatx + 3, haty - 22), (hatx + 9, haty - 32)], EM[0])
+    for x in range(hatx - 13, hatx + 14): cv.put(x, haty + 1, SN[0]); cv.put(x, haty + 2, SN[1]); cv.put(x, haty + 3, SN[2])
     for x, y, a, b in ((cx - rx - 10, cy + 6, 22, 14), (cx + rx + 10, cy + 8, 22, 14), (cx - 110, cy + 44, 30, 9), (cx + 100, cy + 46, 34, 9)):
         lump(cv, x, y, a, b, SN, rnd, .05)
     for x, y in ((cx - 60, cy - 10), (cx + 20, cy - 24), (cx + 110, cy - 6)): gen2.sparkle(cv, x, y, False)
@@ -339,49 +339,107 @@ def drift(cv, x0, x1, base, h, u0, rnd):
             for j in range(rnd.randint(5, 9)): cv.put(x + j, y + j // 5, SN[3])
 
 
-def lm_driftpass(rnd, cv):   # 290 x 140
-    B = 136
-    drift(cv, 6, 118, B - 8, 96, .78, rnd)
-    drift(cv, 90, 200, B - 4, 110, .2, rnd)
-    drift(cv, 172, 284, B, 90, .8, rnd)
-    # zig-zag signpost with a scarf
-    for y in range(80, B): cv.put(143, y, WD[2]); cv.put(144, y, WD[3]); cv.put(142, y, WD[1])
-    for (x0, y0, d) in ((144, 84, 1), (142, 98, -1)):
-        poly(cv, [(x0, y0), (x0 + d * 26, y0), (x0 + d * 33, y0 + 5), (x0 + d * 26, y0 + 10), (x0, y0 + 10)], WD[0] if d > 0 else WD[1])
-        for k in range(5): cv.put(x0 + d * (6 + k * 4), y0 + 5, WD[3])
-    for k in range(10): cv.put(138 - k // 2, 94 + k, PT[1]); cv.put(139 - k // 2, 94 + k, PT[2])
-    for x in range(10, 280): cv.put(x, B + 1, SN[3]) if (x * 3) % 7 == 0 else None
+def lm_driftpass(rnd, cv):   # 340 x 196
+    B = 192
+    drift(cv, 4, 150, B - 10, 112, .8, rnd)
+    drift(cv, 100, 244, B - 6, 150, .3, rnd)
+    drift(cv, 210, 336, B, 118, .78, rnd)
+    # cornices: the wind has curled each crest over like a wave
+    for (x, y, w) in ((118, 76, 34), (136, 44, 34), (306, 80, 34)):
+        lump(cv, x, y + 4, w // 2, 9, SN, rnd, .04)
+        for k in range(w // 3): cv.put(x - w // 2 + k * 3, y + 14 + (k % 2), SN[3])
+        lump(cv, x - 16, y + 12, 9, 6, SN, rnd, .04)
+    # scoops carved by the wind, in long lit arcs
+    for (x0, y0, ln) in ((30, 140, 40), (96, 120, 36), (150, 150, 46), (214, 126, 34), (262, 150, 44)):
+        for j in range(ln):
+            y = y0 + int(6 * math.sin(j / ln * math.pi) * -1) + j // 8
+            if not cv.get(x0 + j, y + 3)[3]: continue
+            cv.put(x0 + j, y, SN[0]); cv.put(x0 + j, y + 1, SN[1]); cv.put(x0 + j, y + 2, SN[3]) if j % 2 == 0 else None
+    # zig-zag signpost with a scarf, planted in front of the middle drift
+    px = 168
+    post(cv, px - 1, 84, B - 2, 5, WD)
+    lump(cv, px + 1, B - 2, 18, 6, SN, rnd, .05)
+    for (x0, y0, d) in ((px + 4, 92, 1), (px - 2, 110, -1), (px + 4, 128, 1)):
+        poly(cv, [(x0, y0), (x0 + d * 36, y0), (x0 + d * 46, y0 + 7), (x0 + d * 36, y0 + 14), (x0, y0 + 14)], WD[0] if d > 0 else WD[1])
+        rect(cv, min(x0, x0 + d * 36), y0 + 12, max(x0, x0 + d * 36), y0 + 14, WD[3])
+        for k in range(5): cv.put(x0 + d * (7 + k * 6), y0 + 6, WD[3]); cv.put(x0 + d * (8 + k * 6), y0 + 6, WD[3])
+    for k in range(18): cv.put(px - 4 - k // 3, 88 + k, PT[1]); cv.put(px - 3 - k // 3, 88 + k, PT[2]); cv.put(px - 5 - k // 3, 88 + k, PT[0]) if k % 3 == 0 else None
+    lump(cv, px + 2, 82, 6, 5, SN, rnd, 0)
+    # a half-buried boot, sole to the sky, with a trail of footprints that stops right at it
+    bx, by = 288, 172
+    lump(cv, bx, by + 6, 26, 9, SN, rnd, .05)
+    rect(cv, bx - 5, by - 24, bx + 5, by, WD[2]); rect(cv, bx - 5, by - 24, bx - 2, by, WD[1]); rect(cv, bx + 3, by - 24, bx + 5, by, WD[3])
+    rect(cv, bx - 6, by - 28, bx + 6, by - 24, PT[1]); rect(cv, bx - 6, by - 28, bx + 6, by - 27, PT[0])   # cuff
+    for k in range(3): rect(cv, bx - 6 + k * 4, by - 26, bx - 4 + k * 4, by - 24, PT[2])
+    poly(cv, [(bx + 5, by - 4), (bx + 17, by - 8), (bx + 17, by), (bx + 5, by)], WD[2])
+    lump(cv, bx + 2, by + 2, 14, 6, SN, rnd, 0)
+    for i in range(8):
+        x, y = 190 + i * 9, B - 8 - (i % 2) * 3
+        if i % 2 == 0: rect(cv, x, y, x + 3, y + 2, SN[3])
+    for x, y in ((110, 18), (250, 30)): gen2.sparkle(cv, x, y, False)
+    for x in range(10, 330): cv.put(x, B + 1, SN[3]) if (x * 3) % 7 == 0 else None
 
 
-def lm_sledtrack(rnd, cv):   # 280 x 100
-    lump(cv, 140, 62, 134, 32, SN, rnd, .06)
-    for y in range(58, 96):
-        for x in range(10, 270):
-            if cv.get(x, y)[3] == 0 and ((x - 140) / 134) ** 2 + ((y - 62) / 32) ** 2 <= 1: cv.put(x, y, SN[3])
-    def path(x): return 70 + 10 * math.sin(x / 26.0 + .5) + (x - 20) * -.0
-    for off, col in ((-5, SN[3]), (5, SN[3])):   # two runner grooves
-        for x in range(24, 250):
-            y = int(round(path(x) + off + (x - 24) / 40))
-            cv.put(x, y, col); cv.put(x, y + 1, SN[2]) if x % 2 == 0 else None
-    for x in range(28, 246, 6):   # frozen bounce marks
-        y = int(round(path(x) + (x - 24) / 40))
-        cv.put(x, y - 1, SN[0]); cv.put(x + 1, y - 1, SN[0])
-    sx, sy = 206, 84   # the sled
-    for x in range(sx, sx + 40):
-        for y in range(sy - 12, sy - 4): cv.put(x, y, WD[1] if y < sy - 9 else WD[2])
-    for x in range(sx - 2, sx + 44): cv.put(x, sy - 3, ST[3]); cv.put(x, sy - 2, ST[2])
-    for x in range(sx + 38, sx + 46): cv.put(x, sy - 5 - (x - sx - 38) // 3, ST[2])
-    for x in range(sx + 2, sx + 38, 8):
-        for y in range(sy - 4, sy - 1): cv.put(x, y, WD[3])
-    for x in range(sx + 6, sx + 36): cv.put(x, sy - 12, PT[1]) if (x // 4) % 2 else cv.put(x, sy - 12, SN[0])
-    for k in range(18): cv.put(sx + 44 + k, sy - 6 + k // 3, EM[2])   # trailing rope
-    # a lost mitten on a stick
-    mx = 60
-    for y in range(24, 60): cv.put(mx, y, WD[2]); cv.put(mx + 1, y, WD[3])
-    lump(cv, mx + 1, 20, 8, 10, EM, rnd, .05)
-    lump(cv, mx - 8, 22, 3, 5, EM, rnd, 0)
-    for x in range(mx - 6, mx + 8): cv.put(x, 28, SN[0]); cv.put(x, 29, SN[1])
-    for x in range(mx - 6, mx + 8): cv.put(x, 30, PT[1]) if False else None
+def lm_sledtrack(rnd, cv):   # 340 x 170
+    cx, cy, rx, ry = 170, 118, 160, 40
+    # a long mound of packed snow with a thick front lip
+    ellfill(cv, cx, cy + 10, rx, ry, lambda x, y, nx, ny: SN[3] if ny > -.1 else None)
+    ellfill(cv, cx, cy + 8, rx, ry, lambda x, y, nx, ny: SN[4] if ny > .55 else None)
+    for a in range(190, 351, 9):   # a lumpy back bank so the mound stands up
+        lump(cv, int(cx + math.cos(math.radians(a)) * (rx - 6)), int(cy + math.sin(math.radians(a)) * (ry - 2)), 15, 10, SN, rnd, .05)
+    def top(x, y, nx, ny):
+        u = ny * .55 + nx * .35; t = 0 if u < -.42 else 1 if u < -.05 else 2 if u < .5 else 3
+        if rnd.random() < .05: t = max(0, min(4, t + rnd.choice((-1, 1))))
+        return SN[t]
+    ellfill(cv, cx, cy + 3, rx - 10, ry - 8, top)
+    # snow ramp, left: a wedge with a sharp lit lip and a shaded face
+    slab(cv, [(14, 130), (56, 108), (108, 58), (126, 66), (126, 134), (14, 134)], SN, rnd, sx=.3, sy=.7, speck=.04)
+    rect(cv, 108, 62, 127, 134, SN[3]); rect(cv, 120, 66, 127, 134, SN[4])
+    for y in range(64, 134, 4): rect(cv, 110, y, 117, y + 1, SN[2])
+    for x in range(18, 108, 3): cv.put(x, 129 - (x - 14) * 70 // 94 - 1, CREAM)
+    # two deep runners, grooves with a shaded far wall and a lit near lip, wobbling away from the ramp lip towards the sled
+    def yc(x): return 104 + (x - 130) * .2 + 7 * math.sin(x / 24.0)
+    for off in (-8, 6):
+        for x in range(130, 222):
+            y = int(round(yc(x) + off))
+            for dy, t in ((-3, 2), (-2, 3), (-1, 4), (0, 4), (1, 1), (2, 0)): cv.put(x, y + dy, SN[t])
+            if x % 9 == 0: cv.put(x, y + 3, SN[0])
+    for x in range(126, 218, 7):   # frozen bounce marks between the runners
+        y = int(round(yc(x) - 1)); cv.put(x, y - 2, SN[0]); cv.put(x + 1, y - 2, SN[0]); cv.put(x, y - 3, SN[1])
+    # the parked sled, with a flag, a cushion and a trailing rope
+    sx, sb = 226, 150
+    for x in range(sx - 2, sx + 62):   # runners: two steel bars curling up at the nose
+        cv.put(x, sb, ST[2]); cv.put(x, sb - 1, ST[0]); cv.put(x, sb + 1, ST[3])
+    for k in range(8): cv.put(sx + 62 + k // 2, sb - 1 - k, ST[1]); cv.put(sx + 62 + k // 2, sb - k, ST[0])
+    for x in (sx + 6, sx + 28, sx + 50): rect(cv, x, sb - 9, x + 4, sb, WD[3])
+    for y in range(sb - 18, sb - 9):   # plank deck
+        for x in range(sx - 2, sx + 64): cv.put(x, y, WD[1 if y < sb - 15 else 2]); cv.put(x, y, WD[0]) if y == sb - 18 else None
+    for x in range(sx + 6, sx + 62, 10): rect(cv, x, sb - 18, x + 1, sb - 9, WD[3])
+    rect(cv, sx - 2, sb - 10, sx + 64, sb - 9, WD[3])
+    rect(cv, sx - 2, sb - 36, sx + 4, sb - 9, WD[2]); rect(cv, sx - 2, sb - 36, sx, sb - 9, WD[1])   # backrest
+    rect(cv, sx - 2, sb - 36, sx + 4, sb - 34, WD[0])
+    for x in range(sx + 6, sx + 40): rect(cv, x, sb - 24, x + 1, sb - 18, PT[1] if (x // 5) % 2 else PT[0])   # striped cushion
+    lump(cv, sx + 22, sb - 24, 17, 4, PT, rnd, 0)
+    line(cv, [(sx + 66, sb - 12), (sx + 76, sb - 4), (sx + 88, sb - 2)], EM[2], 1)   # rope
+    rect(cv, sx + 86, sb - 4, sx + 90, sb, EM[1])
+    # the flag: pole in the bank, triangular pennant
+    fx = 306
+    post(cv, fx, 56, 142, 3, WD)
+    poly(cv, [(fx + 3, 58), (fx + 34, 68), (fx + 3, 80)], EM[1]); poly(cv, [(fx + 3, 58), (fx + 22, 64), (fx + 3, 68)], EM[0])
+    cv.put(fx + 1, 54, GD[0]); cv.put(fx + 1, 55, GD[0]); cv.put(fx + 2, 55, GD[0])
+    lump(cv, fx + 1, 142, 12, 5, SN, rnd, 0)
+    # a lost mitten on a stick (the caption's one lost mitten), left in front of the ramp
+    mx = 40
+    post(cv, mx, 74, 120, 3, WD)
+    lump(cv, mx + 1, 66, 8, 10, EM, rnd, .05); lump(cv, mx - 7, 70, 3, 5, EM, rnd, 0)
+    for x in range(mx - 6, mx + 9): cv.put(x, 74, SN[0]); cv.put(x, 75, SN[1])
+    lump(cv, mx + 1, 120, 10, 4, SN, rnd, 0)
+    # small gnome footprints trudging back up, snowballs, drifts
+    for i in range(10):
+        x, y = 136 + i * 8, 134 + int(3 * math.sin(i)); cv.put(x, y, SN[3]); cv.put(x + 1, y, SN[3]); cv.put(x, y + 1, SN[3]) if i % 2 == 0 else cv.put(x + 3, y - 1, SN[3])
+    for x, y in ((190, 138), (200, 140)): lump(cv, x, y, 4, 4, SN, rnd, 0)
+    lump(cv, 24, 144, 20, 8, SN, rnd, .05); lump(cv, 150, 158, 42, 6, SN, rnd, .05)
+    for x, y in ((90, 70), (150, 54)): gen2.sparkle(cv, x, y, False)
 
 
 def lm_comb(rnd, cv):   # 290 x 190
@@ -490,30 +548,67 @@ def lm_skyhill(rnd, cv):   # 290 x 190
         gen2.sparkle(cv, x, y, False)
 
 
-def lm_starstones(rnd, cv):   # 270 x 110
-    cx, cy, rx, ry = 135, 62, 128, 38
-    for y in range(cy - ry, cy + ry + 11):   # round slate floor with a front lip
-        for x in range(cx - rx, cx + rx + 1):
-            e = (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2
-            e2 = (x - cx) ** 2 / rx ** 2 + (y - cy - 9) ** 2 / ry ** 2
-            if e <= 1:
-                u = (y - cy) / ry * .5 + (x - cx) / rx * .4
-                t = 0 if u < -.4 else 1 if u < -.05 else 2 if u < .45 else 3
-                if (x * 3 + y * 5) % 17 == 0: t = max(0, t - 1)
-                cv.put(x, y, DU[min(3, t + 1)] if False else ST[1 + (t > 1) + (t > 2)])
-            elif e2 <= 1 and y > cy: cv.put(x, y, ST[4 - 1])
+def menhir(cv, cx, base, w, h, R, rnd, lean=0, dots=None):
+    """A tall standing stone: tapered slab, snow cap, carved constellation dots (GD) joined by faint lines."""
+    top = base - h
+    pts = [(cx - w // 2, base), (cx - w // 2 + 3 + lean, top + 12), (cx - w // 2 + 9 + lean, top + 2), (cx + w // 2 - 7 + lean, top), (cx + w // 2 - 1 + lean, top + 14), (cx + w // 2, base)]
+    slab(cv, pts, R, rnd, sx=.75, sy=.25, speck=.09)
+    for k in range(3):   # strata
+        yy = top + 24 + k * (h // 4); line(cv, [(cx - w // 2 + 3, yy), (cx + w // 2 - 3, yy + 2)], R[3])
+    if dots:
+        ps = [(cx - w // 2 + int(u * w), top + int(v * h)) for u, v in dots]
+        for a, b in zip(ps, ps[1:]): line(cv, [a, b], R[4] if R[2] != GD[2] else GD[3])
+        for x, y in ps:
+            rect(cv, x - 1, y - 1, x + 1, y + 1, CREAM); cv.put(x, y, GD[1])
+    lump(cv, cx + lean * .5 - 1, top + 3, w // 2 + 1, 6, SN, rnd, .05)
+
+
+def lm_starstones(rnd, cv):   # 340 x 200
+    cx, cy, rx, ry = 170, 160, 160, 34
+    TH = 10
+    ellfill(cv, cx, cy + TH, rx, ry, lambda x, y, nx, ny: ST[3] if ny > -.2 else None)
+    ellfill(cv, cx, cy + TH - 2, rx, ry, lambda x, y, nx, ny: ST[4] if ny > .5 else None)
+    def floor(x, y, nx, ny):
+        u = ny * .5 + nx * .4; t = 0 if u < -.4 else 1 if u < -.05 else 2 if u < .45 else 3
+        if (x * 3 + y * 5) % 17 == 0: t = max(0, t - 1)
+        if abs(x // 24 - (y + (x // 24) % 2 * 6) // 12) % 5 == 0 and (x % 24 == 0 or y % 12 == 0): t = min(4, t + 1)   # flagstone seams
+        return ST[1 + (t > 1) + (t > 2)]
+    ellfill(cv, cx, cy, rx, ry, floor)
     for x in range(cx - rx + 4, cx + rx - 3):   # frost rim
         y = int(cy - ry * math.sqrt(max(0, 1 - ((x - cx) / rx) ** 2)))
         cv.put(x, y + 1, SN[0]); cv.put(x, y + 2, SN[1]) if x % 3 else None
-    pts = [(46, 52), (78, 66), (112, 58), (140, 72), (170, 58), (200, 44), (226, 54), (112, 82), (60, 82), (180, 82), (92, 40), (150, 40)]
-    lines = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (1, 8), (2, 7), (7, 3), (4, 9), (2, 10), (4, 11)]
-    for a, b in lines: line(cv, [pts[a], pts[b]], ST[3] if False else SN[0], 1)
+    # the star chart inlaid in the floor: dots joined by lines
+    pts = [(40, 160), (70, 174), (104, 162), (136, 178), (170, 160), (206, 168), (240, 176), (276, 160), (300, 166), (120, 148), (220, 150)]
+    for a, b in ((0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (2, 9), (4, 10), (10, 5)):
+        line(cv, [pts[a], pts[b]], SN[1], 1)
     for i, (x, y) in enumerate(pts):
-        big = i in (3, 5)
-        lump(cv, x, y, 15 if big else 10 + (i % 3) * 2, 7 if big else 5 + i % 2, GD if i == 5 else (SN if i % 2 else ST), rnd, .08)
-        for k in range(4): cv.put(x - 3 + k, y - 2 - (k == 3), CREAM) if i in (3, 5) else None
-    for x, y in ((24, 74), (240, 72), (126, 96)):
-        lump(cv, x, y, 6, 3, ST, rnd, .05)
+        big = i in (3, 6)
+        rect(cv, x - 2, y - 1, x + 2, y + 2, GD[1] if big else SN[0]); cv.put(x - 1, y - 1, CREAM)
+    # the standing stones in a half-ring at the back, then the glowing gold star stone in the middle
+    menhir(cv, 36, 160, 34, 76, ST, rnd, lean=-2, dots=[(.2, .2), (.55, .35), (.4, .62), (.8, .8)])
+    menhir(cv, 82, 148, 40, 104, ST, rnd, lean=1, dots=[(.7, .12), (.3, .3), (.55, .5), (.25, .72), (.6, .86)])
+    menhir(cv, 258, 148, 40, 98, ST, rnd, lean=-1, dots=[(.25, .15), (.6, .28), (.45, .5), (.78, .62), (.4, .84)])
+    menhir(cv, 304, 160, 34, 70, ST, rnd, lean=2, dots=[(.3, .22), (.7, .4), (.45, .7)])
+    menhir(cv, 170, 142, 52, 118, GD, rnd, lean=0)
+    star5(cv, 170, 62, 15, CREAM); star5(cv, 170, 63, 9, GD[0])   # carved star, lit from within
+    for ang in range(0, 360, 45):   # glow rays
+        for k in range(5, 11):
+            x = 170 + int(math.cos(math.radians(ang)) * (16 + k)); y = 62 + int(math.sin(math.radians(ang)) * (16 + k))
+            if cv.get(x, y)[3] and cv.get(x, y) in tuple(GD): cv.put(x, y, GD[0])
+    for x, y in ((140, 24), (202, 20), (170, 6), (118, 60), (224, 48)): gen2.sparkle(cv, x, y, False)
+    for x, y in ((150, 22), (190, 36)): cv.put(x, y, GD[0]); cv.put(x + 1, y, GD[0])
+    # star-chart table, front right: a stone slab with the chart pinned on it
+    tx, ty = 262, 186
+    for lx in (tx - 26, tx + 22): rect(cv, lx, ty - 18, lx + 5, ty, ST[2]); rect(cv, lx, ty - 18, lx + 2, ty, ST[1]); rect(cv, lx + 3, ty - 18, lx + 5, ty, ST[3])
+    slab(cv, [(tx - 36, ty - 26), (tx + 24, ty - 30), (tx + 36, ty - 22), (tx - 28, ty - 18)], ST, rnd, sx=.5, sy=.5, speck=.04)
+    rect(cv, tx - 30, ty - 18, tx + 34, ty - 15, ST[3])
+    poly(cv, [(tx - 26, ty - 25), (tx + 18, ty - 28), (tx + 26, ty - 22), (tx - 20, ty - 20)], CREAM)
+    for i, (x, y) in enumerate(((-16, -24), (-6, -26), (4, -24), (-2, -22), (12, -25), (18, -23))): cv.put(tx + x, ty + y, DU[1]); cv.put(tx + x + 1, ty + y, DU[1])
+    line(cv, [(tx - 16, ty - 24), (tx - 6, ty - 26), (tx + 4, ty - 24), (tx + 12, ty - 25)], DU[2], 1)
+    cv.put(tx + 26, ty - 26, GD[1]); cv.put(tx + 27, ty - 26, GD[1]); cv.put(tx + 26, ty - 27, GD[0])   # a lost pencil
+    line(cv, [(tx + 22, ty - 24), (tx + 33, ty - 25)], GD[2], 2)
+    lump(cv, 28, 186, 22, 8, SN, rnd, .05); lump(cv, 156, 192, 40, 7, SN, rnd, .05); lump(cv, 318, 190, 22, 8, SN, rnd, .05)
+    for x, y in ((92, 180), (205, 182)): lump(cv, x, y, 6, 3, ST, rnd, .05)
 
 
 def lm_auroracamp(rnd, cv):   # 300 x 250
@@ -640,12 +735,12 @@ LM = {
     "309-snowmen": (290, 190, lm_snowmen),
     "309-icecave": (270, 220, lm_icecave),
     "309-auroraledge": (260, 170, lm_auroraledge),
-    "310-driftpass": (290, 140, lm_driftpass),
-    "310-sledtrack": (280, 100, lm_sledtrack),
+    "310-driftpass": (340, 196, lm_driftpass),
+    "310-sledtrack": (340, 170, lm_sledtrack),
     "310-combridge": (290, 190, lm_comb),
     "310-icicurtain": (250, 194, lm_icicurtain),
     "316-skyhill": (290, 190, lm_skyhill),
-    "316-starstones": (270, 110, lm_starstones),
+    "316-starstones": (340, 200, lm_starstones),
     "316-auroracamp": (300, 250, lm_auroracamp),
     "316-kettletree": (240, 232, lm_kettletree),
 }
