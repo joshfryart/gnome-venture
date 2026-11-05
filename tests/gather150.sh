@@ -25,8 +25,9 @@ W=$T/w.html; curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $W
 
 echo "== the scene (forest, nothing gathered yet)"
 has $W '<section class="gx gatherbox" aria-label="Gather here">' "the satchel section"
-has $W 'class="gx-scene pix" src="/assets/img/gather/scene-forest.png?v=' "scene art (landscape scene), same origin, versioned"
-has $W 'class="gx-front pix" src="/assets/img/gather/satchel-front.png?v=' "satchel front art"
+has $W 'class="gx-scene pix" src="/assets/img/gather/scene3\?-forest[a-z-]*\.png?v=' "scene art (landscape scene, v3 layered or old), same origin, versioned"
+has $W 'class="gx-front pix" src="/assets/img/gather/satchel-front[a-z-]*\.png?v=' "satchel front art (any skin or time of day)"
+has $W 'class="gx-back pix" src="/assets/img/gather/satchel-back-leather[a-z-]*\.png?v=' "satchel back layer (default leather skin, v2.5.50)"
 hasnt $W 'class="gx-banner' "no banner before a gather"
 has $W 'class="gx-chip">' "land and energy chips"
 grep -q 'class="gx-chip">⚡ 60 / [0-9]' $W || grep -q 'class="gx-chip"><img[^>]*ico-[a-z-]*[^>]*> 60 / [0-9]' $W && echo "ok   energy chip shows 60 / max" || echo "FAIL energy chip: $(grep -o 'class="gx-chip">[^<]*' $W | tr '\n' ' ')"
