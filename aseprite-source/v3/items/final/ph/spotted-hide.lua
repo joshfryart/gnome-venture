@@ -1,41 +1,62 @@
--- spotted-hide (lean W2_20)
--- Tanned spotted hide stretched on a wooden pole, hung by two cords: four leg stubs, short tail, rosette spots, stitched hem on one leg (quirk).
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- spotted-hide (lean P1b_O10)
+-- A cream cow-style pelt draped over a wooden rail: four dangling legs and a tail, big irregular chestnut-black patches, fur-tuft edge, one patch mended with blue cross-stitches (quirk).
+local NAME = "spotted-hide"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "spotted-hide" }
-local HIDE = { "#6a3a22", "#8f5a2c", "#b57a38", "#d49c4c", "#ecc070", "#f8dc98" }
-local SPOT = { "#2e1a18", "#4a2a20", "#6a4026" }
-local WOOD = { "#4a2a22", "#6e4030", "#945a3c", "#bb7f50" }
-local ht = { r = { name = "hide" } }
--- pole
-c:fillMask(c:rect(8, 7, 56, 9), WOOD[3])
-c:fillMask(c:rect(8, 7, 56, 7), WOOD[4]) c:fillMask(c:rect(8, 9, 56, 9), WOOD[2])
-c:px(8, 8, WOOD[1]) c:px(56, 8, WOOD[1])
--- hide body: torso + 4 legs + tail
-local m = c:poly{ {26,13},{38,13},{44,17},{52,16},{54,22},{47,27},{46,33},{52,40},{49,46},{43,42},{40,46},{38,52},{34,56},{32,52},{30,56},{26,52},{24,46},{21,42},{15,46},{12,40},{18,33},{17,27},{10,22},{12,16},{20,17} }
-local n = X.pillow(m, 7)
-local bias = {}
-m:each(function(x, y) if X.hash(x, y, 3) > 0.9 then bias[K(x, y)] = -1 end end)
--- spots: rosettes (dark ring + warm core)
-local spots = { {28,20,3},{38,22,3},{21,26,2},{44,30,2},{32,30,3},{25,36,3},{39,38,3},{31,44,2},{16,40,1},{49,41,1},{14,19,1},{50,20,1},{33,15,1} }
-local spm = HP.mask()
-for _, s in ipairs(spots) do spm:add(c:ellipse(s[1], s[2], s[3], s[3])) end
-spm:cut(m:copy():shrink(1):add(HP.mask()) and HP.mask() or HP.mask())
-G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), HIDE, { 0.2, 0.38, 0.55, 0.72, 0.88 }, bias, ht)
-for _, s in ipairs(spots) do
-  local cx, cy, r = s[1], s[2], s[3]
-  local sp = c:ellipse(cx, cy, r, r):clip(m:copy():shrink(1))
-  c:fillMask(sp, SPOT[2])
-  if r >= 2 then c:fillMask(c:ellipse(cx, cy, r - 1, r - 1), SPOT[1]) end
-  c:px(cx - r, cy - 1, SPOT[3])
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function paint(c, m, ramp, vf, nm, adj)
+  local tok = { r = { name = nm } }
+  local nr = #ramp
+  m:each(function(x, y)
+    local v = vf(x, y)
+    local i = 1 + floor(max(0, min(0.999, v)) * nr)
+    if adj then i = adj(x, y, i, v) or i end
+    c:put(x, y, ramp[max(1, min(nr, i))], tok)
+  end)
 end
--- tail tuft at bottom
-c:px(32, 57, HIDE[2]) c:px(32, 58, SPOT[2]) c:px(32, 59, SPOT[1])
--- cords from pole to the front legs
-G.line(c, { {17,10},{16,14},{14,19} }, "#d8c8a0") G.line(c, { {47,10},{48,14},{50,19} }, "#d8c8a0")
-c:px(14, 19, "#8a7a58") c:px(50, 19, "#8a7a58")
--- stitched hem on lower-left leg (quirk)
-for _, p in ipairs{ {16,43},{18,45},{20,47} } do c:px(p[1], p[2], "#e8dcc0") end
--- highlight
-c:px(24, 20, HIDE[6]) c:px(25, 20, HIDE[6]) c:px(23, 21, HIDE[5])
-G.fin(c, "spotted-hide")
+local function T(nm) return { r = { name = nm } } end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local CREAM = { "#6e4a48", "#a47c68", "#d0a882", "#ecd0a2", "#f9e6bc", "#fff6dc" }
+local DARK = { "#1e1018", "#3c2220", "#5e3a2a", "#85553a" }
+local WOOD = { "#2e1a14", "#573320", "#80522c", "#a97a42", "#cfa062" }
+c:groundShadow(32, 58, 20, 2)
+local hide = HP.mask()
+hide:add(c:poly{ {10,13},{54,13},{58,21},{53,28},{56,38},{53,47},{47,46},{44,39},{39,41},{38,49},{35,57},{30,57},{28,49},{25,41},{20,42},{19,49},{13,48},{10,39},{13,31},{7,23} })
+local n = X.pillow(hide, 9)
+local v = X.light(n, { amb = 0.12, wrap = 0.3 })
+-- spots
+local spots = HP.mask()
+local function spot(cx, cy, rx, ry, seed)
+  local m = HP.mask()
+  for y = floor(cy - ry - 2), floor(cy + ry + 2) do for x = floor(cx - rx - 2), floor(cx + rx + 2) do
+    local a = math.atan2(y - cy, x - cx)
+    local wob = 1 + 0.28 * sin(a * 3 + seed) + 0.15 * sin(a * 5 + seed * 2)
+    local q = ((x - cx) / (rx * wob)) ^ 2 + ((y - cy) / (ry * wob)) ^ 2
+    if q <= 1 then m:set(x, y) end
+  end end
+  return m:cut(hide.copy and hide:copy():shrink(1):add(HP.mask()) and (function() local o = HP.mask() o:add(c:rect(0, 0, 63, 63)) o:cut(hide:copy():shrink(1)) return o end)() or HP.mask())
+end
+local S = { spot(22, 22, 7, 6, 1), spot(42, 20, 6, 5, 2.5), spot(33, 34, 5, 6, 4), spot(16, 38, 3, 4, 5.5), spot(48, 38, 3, 5, 7), spot(37, 49, 2, 3, 8) }
+for _, s in ipairs(S) do spots:add(s) end
+paint(c, hide, CREAM, function(x, y) return v[K(x, y)] + 0.1 * sin(x * 0.55) end, "hide", function(x, y, i)
+  if X.hash(x, y, 3) > 0.93 then return i + 1 end
+end)
+for _, s in ipairs(S) do
+  paint(c, s, DARK, function(x, y) return v[K(x, y)] * 0.9 + 0.05 end, "spot")
+end
+-- fur tufts on the edge
+hide:edge():each(function(x, y) if X.hash(x, y, 9) > 0.6 and y > 14 then c:put(x, y, CREAM[5], T"hide") end end)
+-- rail on top
+local rail = c:rect(4, 7, 60, 11)
+paint(c, rail, WOOD, function(x, y) return (y == 7 and 0.9) or (y == 8 and 0.65) or (y == 9 and 0.45) or (y == 10 and 0.25) or 0.05 end, "wood", function(x, y, i) if (x * 7 + y) % 11 == 0 then return i - 1 end end)
+c:fillMask(c:rect(4, 7, 5, 11), WOOD[2]) c:put(4, 8, WOOD[5], T"wood")
+c:fillMask(c:rect(8, 12, 9, 12), WOOD[1]) c:fillMask(c:rect(54, 12, 55, 12), WOOD[1])
+-- AO under rail
+for x = 10, 53 do c:put(x, 14, CREAM[1], T"hide") end
+-- blue cross-stitch mend on the left spot
+local st = "#4aa8d8"
+for _, p in ipairs{ {19,19},{19,24},{22,19},{22,24},{25,19},{25,24} } do c:put(p[1], p[2], st, T"st") end
+for _, p in ipairs{ {20,21},{20,22},{23,21},{23,22} } do c:put(p[1], p[2], "#2a6a9c", T"st") end
+-- gloss spec on creamy shoulder
+c:put(13, 18, CREAM[6], T"hide") c:put(14, 18, CREAM[6], T"hide")
+G.save(c, NAME)

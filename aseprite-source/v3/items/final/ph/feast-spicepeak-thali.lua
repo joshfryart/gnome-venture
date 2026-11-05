@@ -1,49 +1,65 @@
--- feast-spicepeak-thali (lean W2_3)
+-- feast-spicepeak-thali (lean P1b_O1)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function T(c, m, R, ramp, amb) local n = X.pillow(m, R) local v = X.light(n, {amb = amb or 0.1, wrap = 0.25}) X.tone(c, m, v, ramp, {cuts = {.22,.4,.56,.72,.86}}) return n, v end
+local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+
 local NAME = "feast-spicepeak-thali"
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local STEEL = { "#4d4f78", "#6f77a3", "#97a3c6", "#bfcbe0", "#e2eaf4", "#fbfdff" }
-local RICE = { "#b9803f", "#d9a24e", "#efc466", "#f8dc88", "#fdeeb0", "#fffbe0" }
-local CURRY = { "#6e2a1e", "#9a3b22", "#c75a2a", "#e5822f", "#f3a94a", "#fbd27a" }
-local GREEN = { "#1f4a35", "#2f6e44", "#47934f", "#6fb85a", "#9bd36e", "#c6ec94" }
-local RED = { "#6b1420", "#9c1f2a", "#cc3030", "#ea5a3a", "#f78b5a", "#ffc08a" }
-c:groundShadow(32, 52, 24, 4)
-local plate = c:ellipse(32, 41, 24, 12)
-T(c, plate, 14, STEEL)
-local well = c:ellipse(32, 42, 19, 8.5)
-T(c, well, 10, { STEEL[2], STEEL[3], STEEL[4], STEEL[5], STEEL[5], STEEL[6] }, 0.3)
--- three katori bowls (back row) with curry
+local STEEL = { "#3b4064", "#5d6a96", "#8d9cc4", "#bccae2", "#e4edf7", "#fffaf0" }
+local RICE = { "#9a8aa8", "#c8bccb", "#e8dfe4", "#f9f2ea", "#fffaf0", "#fffaf0" }
+local CHILI = { "#5c0f1c", "#9a1626", "#d32a2c", "#f2503a", "#ff8a5a", "#ffc79a" }
+local CURRY = { "#8a2c0e", "#c4501a", "#ec7a22", "#ffa23a", "#ffc866", "#ffe6a0" }
+local SAAG = { "#1d4a2c", "#2c6e34", "#43953c", "#6bb84a", "#9ad866", "#cdf09a" }
+local DAL = { "#a8700e", "#d29a1c", "#f2c42e", "#ffe04e", "#fff08a", "#fffbd0" }
+c:groundShadow(32, 55, 25, 3)
+-- plate
+local pl = c:ellipse(32, 38, 26, 15)
+local plate = c:ellipse(32, 41, 26, 14):add(pl)
+local pv = {}
+plate:each(function(x, y) pv[K(x, y)] = 0.85 - 0.6 * ((x - 6) / 52) - (y > 46 and 0.15 or 0) end)
+X.tone(c, plate, pv, STEEL, { cuts = { 0.2, 0.38, 0.55, 0.72, 0.88 } })
+local well = c:ellipse(32, 38, 22, 12)
+G.toneN(c, well, X.pillow(well, 12), STEEL, { amb = 0.35, wrap = 0.5, cuts = { 0.2, 0.4, 0.62, 0.8, 0.92 } })
+local ring = pl:copy():cut(c:ellipse(32, 38, 23.5, 13))
+ring:each(function(x, y) if y < 38 then c:px(x, y, STEEL[5]) end end)
+-- katoris
 local function bowl(cx, cy, rx, ry, ramp)
-  local body = c:ellipse(cx, cy + 2, rx, ry + 1)
-  T(c, body, 5, STEEL)
-  local top = c:ellipse(cx, cy, rx - 1, ry)
-  T(c, top, 4, ramp, 0.2)
-  c:px(cx - 2, cy - 1, ramp[6]) c:px(cx - 1, cy - 1, ramp[5])
+  local o = c:ellipse(cx, cy, rx, ry)
+  local ob = c:ellipse(cx, cy + 2, rx, ry):add(o)
+  G.toneN(c, ob, X.pillow(ob, 4), STEEL, {})
+  local i = c:ellipse(cx, cy, rx - 1.5, ry - 1)
+  G.toneN(c, i, X.pillow(i, 3), ramp, { amb = 0.15 })
+  return i
 end
-bowl(17, 38, 6, 3, CURRY)
-bowl(47, 38, 6, 3, GREEN)
-bowl(32, 33, 5, 2.5, RED)
--- naan wedge front-left
-local naan = c:poly{{13,46},{24,43},{27,48},{19,51}}
-T(c, naan, 4, RICE, 0.2)
-c:px(18, 46, RICE[1]) c:px(22, 47, RICE[1]) c:px(20, 49, RICE[1])
--- rice cone (spicepeak)
+local i1 = bowl(15, 40, 6.5, 4, CURRY)
+local i2 = bowl(49, 40, 6.5, 4, SAAG)
+local i3 = bowl(32, 50, 7, 4, DAL)
+i1:each(function(x, y) if X.hash(x, y, 2) > 0.9 then c:px(x, y, CURRY[6]) end end)
+c:px(13, 38, CURRY[6]) c:px(14, 38, CURRY[6])
+c:px(47, 38, SAAG[6]) c:px(51, 41, SAAG[1])
+c:px(30, 48, DAL[6]) c:px(31, 48, DAL[6])
+-- rice cone
 local cone = HP.mask()
-for y = 20, 47 do local t = (y - 20) / 27 local h = 1 + t * 10.5 for x = floor(34 - h), floor(34 + h) do cone:set(x, y) end end
-cone:add(c:ellipse(34, 46, 11.5, 3.5))
-local n = X.pillow(cone, 8)
-local v = X.light(n, {amb = 0.08, wrap = 0.25})
-X.tone(c, cone, v, RICE, {cuts = {.2,.38,.54,.7,.86}})
-cone:each(function(x, y) if X.hash(x, y, 3) > 0.9 and v[K(x, y)] > 0.4 then c:px(x, y, RICE[6]) elseif X.hash(x, y, 8) > 0.93 then c:px(x, y, RICE[1]) end end)
--- red spice drizzle bands down the cone
-for _, s in ipairs{{30,30},{37,34},{33,40}} do c:px(s[1], s[2], RED[3]) c:px(s[1]+1, s[2], RED[2]) c:px(s[1]+1, s[2]+1, RED[4]) end
--- chili on the peak (quirk: curled tip)
-local ch = G.tube({{34,21},{35,16},{33,12},{35,8}}, function(t) return 2.0 * (1 - t) + 0.6 end)
-local cm, cn = ch
-T(c, cm, 2.2, RED)
-c:px(34, 14, RED[6]) c:px(35, 21, GREEN[3]) c:px(34, 22, GREEN[2]) c:px(33, 21, GREEN[4])
-c:sparkle(14, 36)
+for y = 14, 43 do local t = (y - 14) / 29
+  local h = 0.4 + 14 * t ^ 0.85
+  if y > 40 then h = h - (y - 40) * 1.2 end
+  for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do cone:set(x, y) end end
+local cv = {}
+cone:each(function(x, y) local h = 0.4 + 14 * ((y - 14) / 29) ^ 0.85
+  local f = 0.92 - 0.75 * ((x - (32 - h)) / (2 * h + 0.01)) ^ 0.9
+  if y > 38 then f = f - 0.12 * (y - 38) / 4 end
+  cv[K(x, y)] = max(0, min(1, f)) end)
+local idx = X.tone(c, cone, cv, RICE, { cuts = { 0.16, 0.34, 0.5, 0.66, 0.82 } })
+cone:each(function(x, y) local h = X.hash(x, y, 8)
+  if h > 0.86 then c:px(x, y, RICE[(h > 0.95) and 6 or 2]) end
+  if X.hash(x, y, 9) > 0.965 then c:px(x, y, "#f2b42a") end end)
+-- chili spire (quirk: red peak with green stem)
+local chm, chn = G.tube({ {33, 20}, {31, 15}, {32, 11}, {30, 7} }, function(t) return 2.4 * (1 - t) + 0.3 end)
+G.toneN(c, chm, chn, CHILI, { amb = 0.1 })
+c:px(32, 14, CHILI[6]) c:px(32, 16, CHILI[5]) c:px(33, 18, CHILI[1])
+c:fillMask(c:rect(34, 20, 36, 20), SAAG[3]) c:px(37, 19, SAAG[2]) c:px(35, 21, SAAG[1])
+-- chili flakes on cone
+for _, p in ipairs{ {28,26},{36,30},{31,33},{25,38},{38,36},{33,24},{29,31} } do c:px(p[1], p[2], CHILI[3]) c:px(p[1] + 1, p[2], CHILI[4]) end
+-- steam
+c:px(26, 9, "#f6f2ff") c:px(27, 8, "#dcd6f0") c:px(26, 7, "#f6f2ff") c:px(25, 6, "#dcd6f0")
 G.save(c, NAME)

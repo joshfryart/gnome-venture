@@ -1,45 +1,65 @@
--- spider-silk (lean W2_20)
--- Wooden drop spindle: slim stick with round whorl disc, a spun cone of pale silk wound around it, loose thread looping down to a tiny dangling spider (quirk).
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- spider-silk (lean P1b_O10)
+-- A wooden drop-spindle wound with a fat cone of pale silk (diagonal thread wraps), a loose strand drooping to a tiny dangling spider (quirk: red hourglass).
+local NAME = "spider-silk"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "spider-silk" }
-local abs, sin = math.abs, math.sin
-local WOOD = { "#4a2a22", "#6e4030", "#945a3c", "#bb7f50", "#dca872" }
-local SILK = { "#6f7ba8", "#97a4c8", "#c3cde2", "#e6ecf6", "#f8fbff", "#fffaf0" }
-local st = { r = { name = "silk" } }
-c:groundShadow(30, 57, 8, 2)
--- stick
-c:fillMask(c:rect(29, 6, 31, 54), WOOD[3])
-c:fillMask(c:rect(29, 6, 29, 54), WOOD[4]) c:fillMask(c:rect(31, 6, 31, 54), WOOD[2])
-for _, y in ipairs{ 12, 20, 33, 47 } do c:px(30, y, WOOD[1]) end
-c:px(29, 8, WOOD[5]) c:px(29, 9, WOOD[5])
--- hook at top
-c:fillMask(c:line({ {30,6},{30,4},{33,4},{33,6} }, 1), WOOD[3])
--- whorl disc
-local wh = c:ellipse(30, 46, 8, 2)
-G.tone(c, wh, X.light(X.pillow(wh, 3), { amb = 0.15, wrap = 0.3 }), WOOD, { 0.2, 0.4, 0.6, 0.8 }, nil, nil)
--- silk cone: wide at bottom (y43) narrowing to top (y16)
-local cone = HP.mask()
-for y = 16, 43 do
-  local t = (y - 16) / 27
-  local h = 1.5 + 9 * (t ^ 0.8)
-  for x = math.floor(30 - h + 0.5), math.floor(30 + h - 0.5) do cone:set(x, y) end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function paint(c, m, ramp, vf, nm, adj)
+  local tok = { r = { name = nm } }
+  local nr = #ramp
+  m:each(function(x, y)
+    local v = vf(x, y)
+    local i = 1 + floor(max(0, min(0.999, v)) * nr)
+    if adj then i = adj(x, y, i, v) or i end
+    c:put(x, y, ramp[max(1, min(nr, i))], tok)
+  end)
 end
-local n = X.pillow(cone, 6)
-local v = X.light(n, { amb = 0.1, wrap = 0.25 })
-local bias = {}
-cone:each(function(x, y)
-  local w = (x - 30) * 0.9 + (y - 16) * 0.8   -- diagonal winding
-  if w % 3 < 1 then bias[K(x, y)] = -1 end
+local function blob(c, m, R, ramp, nm, amb, wrap, adj)
+  local v = X.light(X.pillow(m, R), { amb = amb or 0.1, wrap = wrap or 0.25 })
+  paint(c, m, ramp, function(x, y) return v[K(x, y)] end, nm, adj)
+end
+local function LINE(c, pts, hex) c:line(pts, 1):each(function(x, y) c:put(x, y, hex, { r = { name = "ln" } }) end) end
+local function T(nm) return { r = { name = nm } } end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local SILK = { "#5a5688", "#8683b4", "#b4b4d8", "#d8d9ee", "#eef0fa", "#fbfcff" }
+local WOOD = { "#2e1a14", "#573320", "#80522c", "#a97a42", "#cfa062" }
+local SP = { "#1a1020", "#34203c", "#563660" }
+c:groundShadow(30, 56, 17, 3)
+-- spindle shaft + hook
+local sh = c:rect(30, 7, 32, 54)
+paint(c, sh, WOOD, function(x, y) return x == 30 and 0.8 or (x == 31 and 0.5 or 0.2) end, "wood")
+c:put(31, 6, WOOD[4], T"wood") c:put(32, 5, WOOD[3], T"wood") c:put(33, 5, WOOD[3], T"wood") c:put(34, 6, WOOD[2], T"wood")
+-- whorl disc at the base
+local wh = c:ellipse(31, 51, 11, 3)
+blob(c, wh, 4, WOOD, "wood", 0.15, 0.3)
+c:fillMask(c:rect(21, 52, 41, 52), WOOD[1])
+-- silk cone
+local cone = HP.mask()
+for y = 14, 48 do
+  local t = (y - 14) / 34
+  local h = 13.5 * t ^ 0.75
+  if y > 44 then h = h * (1 - (y - 44) * 0.12) end
+  for x = floor(31 - h + 0.5), floor(31 + h) do cone:set(x, y) end
+end
+local R = {}
+paint(c, cone, SILK, function(x, y)
+  local nx = (x - 31) / (14 * ((y - 14) / 34) ^ 0.75 + 1)
+  local nz = sqrt(max(0, 1 - nx * nx))
+  return 0.15 + 0.85 * max(0, -nx * 0.62 + nz * 0.7)
+end, "silk", function(x, y, i)
+  local w = (y + (x - 31) * 0.55) % 3.6
+  if w < 1 then return i - 1 end
+  if w >= 2.6 and w < 3.6 then return i + 0 end
 end)
-G.tone(c, cone, v, SILK, { 0.17, 0.33, 0.5, 0.66, 0.82 }, bias, st)
--- loose thread from cone bottom, loop, to spider
-local th = "#c3cde2"
-G.line(c, { {38,42},{42,45},{45,50},{44,54},{41,54},{40,51} }, th)
-G.line(c, { {41,54},{41,56} }, "#e6ecf6")
--- spider: body + legs
-c:fillMask(c:ellipse(41, 58, 2, 1), "#2f2438")
-c:px(40, 57, "#6a5a7a") c:px(41, 59, "#2b1c26")
-for _, p in ipairs{ {38,56},{38,58},{38,60},{44,56},{44,58},{44,60} } do c:px(p[1], p[2], "#4a3a5c") end
-c:px(40, 59, "#4a3a5c") c:px(42, 59, "#4a3a5c")
-G.fin(c, "spider-silk")
+-- glints on wraps
+for _, p in ipairs{ {26, 36}, {27, 35}, {28, 31}, {29, 27}, {30, 23} } do c:put(p[1], p[2], SILK[6], T"silk") end
+-- strand drooping from the cone to the spider
+LINE(c, { {39, 42}, {42, 45}, {45, 46}, {47, 44}, {47, 47}, {47, 50} }, SILK[3])
+-- spider
+local body = c:ellipse(47, 53, 2, 2)
+blob(c, body, 2.5, SP, "spider", 0.2, 0.3)
+c:put(47, 54, "#d8283c", T"spider")
+c:put(46, 52, SP[3], T"spider")
+local legs = { {45,51,43,50},{45,53,43,54},{45,54,44,56},{49,51,51,50},{49,53,51,54},{49,54,50,56} }
+for _, l in ipairs(legs) do LINE(c, { {l[1], l[2]}, {l[3], l[4]} }, SP[2]) end
+G.save(c, NAME)

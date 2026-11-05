@@ -1,86 +1,62 @@
--- feast-egg-pie (lean W2_2)
--- Lattice-topped egg pie in a tin, one wedge cut out showing custard and a boiled-egg slice.
--- quirk: an egg-shaped steam vent in the middle of the crust.
+-- feast-egg-pie (lean P1b_O1)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+
 local NAME = "feast-egg-pie"
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local floor, sqrt, max, min = math.floor, math.sqrt, math.max, math.min
-local CRUST = { "#6e3412", "#98521c", "#c27a2c", "#e0a043", "#f2c46a", "#fde39a" }
-local CUST = { "#b07a14", "#d9a52a", "#f0c545", "#f9dc6a", "#fdeea0", "#fff4c0" }
-local TIN = { "#4a5470", "#6f7b9a", "#97a3bd", "#bfc9dc", "#e0e7f2", "#f4f8ff" }
-local EGGW = { "#9aa0b8", "#c4c8d8", "#e6e6ee", "#f6f4f2", "#fffaf0", "#fffdf6" }
-local YOLK = { "#c0561a", "#e68a1e", "#f7b32a", "#ffd04a", "#ffe68a", "#fff2b8" }
-local CUTS = { 0.22, 0.4, 0.58, 0.74, 0.88 }
-
-c:groundShadow(32, 52, 25, 3)
-local T = G.oval(32, 30, 23, 9, 0, 3)
-local side = HP.mask() side:add(c:rect(9, 35, 55, 43)) side:add(c:ellipse(32, 43, 23, 8))
-local band = T:shift(0, 5):add(T)
-local W = c:poly{ { 32, 30 }, { 59, 22 }, { 59, 58 }, { 41, 58 } }
-local function cylN(m, cx, rx)
-  local n = {}
-  m:each(function(x, y) local nx = max(-0.95, min(0.95, (x - cx) / rx)) n[K(x, y)] = { G.norm(nx, 0.3, sqrt(1 - nx * nx)) } end)
-  return n
-end
--- tin outer wall
-local tinm = side:copy():cut(T:shift(0, 5))
-G.toneN(c, tinm, cylN(tinm, 32, 23), TIN, { cuts = CUTS })
-tinm:each(function(x, y) if (x % 5 == 0) and y > 44 and y < 49 then c:px(x, y, TIN[2]) end end)
--- tin rim lip
-local lip = HP.mask()
-for x = 9, 55 do local nx = (x - 32) / 23.5 local y = 35 + floor(8.5 * (1 - sqrt(max(0, 1 - nx * nx))) * 0 ) lip:set(x, 43) end
--- crust side band
-local cb = band:copy():cut(T):cut(W)
-G.toneN(c, cb, cylN(cb, 32, 23), CRUST, { cuts = CUTS })
--- notch interior: back wall (custard) + floor (tin)
-local foot = HP.mask() foot:add(T):add(band):add(side)
-local notch = W:copy():clip(foot)
-local back = c:poly{ { 32, 30 }, { 59, 22 }, { 59, 31 }, { 32, 39 } }:clip(notch)
-local floorm = notch:copy():cut(back):clip(c:rect(0, 0, 63, 42)):cut(T)
--- floor only where not the front tin wall
-floorm = notch:copy():cut(back):clip(c:rect(0, 0, 63, 41))
-local fv = {} floorm:each(function(x, y) fv[K(x, y)] = 0.45 + 0.012 * (32 - x) + 0.015 * (y - 36) end)
-X.tone(c, floorm, fv, CUST, { cuts = CUTS })
-local bv = {} back:each(function(x, y) bv[K(x, y)] = 0.82 - 0.012 * (x - 32) - 0.02 * (y - (30 - (x - 32) * 0.3)) end)
-local bidx = X.tone(c, back, bv, CUST, { cuts = CUTS })
--- crust layer on the top of the cut face
-back:each(function(x, y)
-  local ty = 30 - (x - 32) * (8 / 27)
-  if y <= ty + 1.2 then c:px(x, y, CRUST[5]) elseif y <= ty + 2.4 then c:px(x, y, CRUST[3]) end
+local TIN = { "#3a3f66", "#5a6694", "#8794bd", "#b4c1dc", "#dbe5f2", "#f6faff" }
+local CRUST = { "#5e2a1c", "#8c3f1e", "#b8601f", "#dd8a2c", "#f2b24a", "#ffd97a" }
+local FILL = { "#b9742a", "#e0a032", "#f5c844", "#ffe27a", "#fff1b0", "#fffbe0" }
+local WHITE = { "#8a86b0", "#b5b2d0", "#dcdaea", "#f3f1f6", "#fffaf0", "#fffaf0" }
+local YOLK = { "#b8431a", "#e0661a", "#f58a1e", "#ffae24", "#ffd04a", "#ffe98a" }
+c:groundShadow(32, 50, 22, 4)
+local CX, CY = 32, 33
+-- tin: fluted side
+local side = c:ellipse(CX, CY + 9, 21, 11):add(c:rect(CX - 21, CY, CX + 21, CY + 9))
+local sv = {}
+side:each(function(x, y) local f = 0.9 - 0.8 * ((x - 11) / 42) ^ 0.9
+  if (x % 4) == 0 then f = f - 0.2 end
+  if y > CY + 9 then f = f - 0.12 * (y - CY - 9) / 3 end
+  sv[K(x, y)] = max(0, min(1, f)) end)
+X.tone(c, side, sv, TIN, { cuts = { 0.2, 0.38, 0.55, 0.72, 0.88 } })
+-- crust top
+local top = c:ellipse(CX, CY, 21, 11)
+local n = X.pillow(top, 5)
+G.toneN(c, top, n, CRUST, { amb = 0.2, wrap = 0.35 })
+-- crimped rim
+local inner = c:ellipse(CX, CY, 16, 8)
+top:copy():cut(inner):each(function(x, y)
+  local a = floor(atan(y - CY, (x - CX) / 1.9) * 9 / pi + 0.5)
+  c:px(x, y, (a % 2 == 0) and CRUST[5] or CRUST[2])
+  if (a % 2 == 0) and y < CY then c:px(x, y, CRUST[6]) end
 end)
--- egg slice on cut face
-local em, en = G.oval(43, 33, 5, 2.7, -0.28, 1)
-G.toneN(c, em, en, EGGW, {})
-local ym, yn = G.oval(43, 33, 2.4, 1.4, -0.28, 1)
-G.toneN(c, ym, yn, YOLK, {})
-c:px(42, 32, YOLK[6])
-for _, p in ipairs{ { 36, 35 }, { 50, 28 }, { 47, 31 } } do c:px(p[1], p[2], "#6aa44a") end
--- top crust
-local top = T:copy():cut(W)
-local tn = X.pillow(T, 8)
-local tv = X.light(tn, { amb = 0.15, wrap = 0.3 })
-local idx = X.tone(c, top, tv, CRUST, { cuts = CUTS })
-local ring = top:copy():cut(top:copy():shrink(2))
-top:each(function(x, y)
-  local k = K(x, y)
-  local i = idx[k] or 3
-  local a, b = (x + y) % 8, (x - y) % 8
-  if ring:has(x, y) then
-    c:px(x, y, CRUST[(x % 3 == 0) and max(1, i - 1) or min(6, i + 1)])
-  elseif a < 3 or b < 3 then
-    c:px(x, y, CRUST[min(6, i + 1)])
-  elseif a == 3 or b == 3 then
-    c:px(x, y, CRUST[max(1, i - 1)])
-  elseif a == 5 and b == 5 then
-    c:px(x, y, CUST[3])
-  end
+-- lattice over filling
+inner:each(function(x, y)
+  local a, b = (x + 2 * y) % 8, (x - 2 * y) % 8
+  if a < 2 or b < 2 then c:px(x, y, (x + y < CX + CY) and CRUST[5] or CRUST[3])
+    if a < 1 and b < 1 then c:px(x, y, CRUST[2]) end
+  else c:px(x, y, FILL[(y > CY) and 2 or 3]) end
 end)
--- egg vent
-local vm, vn = G.oval(31, 29, 3, 2.1, 0, 1)
-vm:clip(top)
-vm:each(function(x, y) c:px(x, y, CRUST[1]) end)
-c:px(30, 29, YOLK[3]) c:px(31, 29, YOLK[4]) c:px(30, 28, EGGW[5])
--- spec
-c:px(21, 25, CRUST[6]) c:px(22, 25, CRUST[6]) c:px(20, 26, CRUST[6])
+-- wedge cut out (lower right): filling + egg
+local wedge = HP.mask()
+top:each(function(x, y) local a = atan(y - CY, (x - CX) / 1.9)
+  if a > 0.05 and a < 0.85 and (x - CX) > 1 then wedge:set(x, y) end end)
+local face = wedge:copy():grow(1):cut(wedge):clip(top)
+face:each(function(x, y) c:px(x, y, (x + y) % 3 == 0 and CRUST[3] or CRUST[4]) end)
+local fm = wedge:copy()
+fm:each(function(x, y) local t = (y - CY) / 11
+  c:px(x, y, FILL[3 + ((x + y) % 5 == 0 and 1 or 0)])
+  if X.hash(x, y, 3) > 0.9 then c:px(x, y, FILL[2]) end end)
+local eg = c:ellipse(46, 37, 6, 3.4)
+G.toneN(c, eg, X.pillow(eg, 3), WHITE, {})
+local yk = c:ellipse(46, 36, 2.6, 2)
+G.toneN(c, yk, X.pillow(yk, 2), YOLK, {})
+c:px(45, 35, "#fffaf0")
+-- yolk peeking through a lattice hole (quirk)
+c:fillMask(c:rect(24, 30, 25, 31), YOLK[3]) c:px(24, 30, YOLK[6]) c:px(25, 31, YOLK[1])
+-- crust glints
+c:px(22, 28, CRUST[6]) c:px(23, 27, CRUST[6]) c:px(36, 26, CRUST[6])
+-- tin rim highlight
+c:px(14, CY + 6, TIN[6]) c:px(14, CY + 7, TIN[6])
 G.save(c, NAME)

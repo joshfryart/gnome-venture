@@ -1,39 +1,61 @@
--- pine-log (lean W2_14)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- pine-log (lean P1b_O7)
+-- Fat horizontal pine log: plated furrowed bark (6-tone brown, cylinder-lit), cut end with growth rings + crack,
+-- a snapped branch stub on top. quirk: a tiny green needle sprig sprouts from the stub.
+local NAME = "pine-log"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "pine-log" }
-local sin, pi, abs, sqrt = math.sin, math.pi, math.abs, math.sqrt
-local BARK = { "#2e1c18", "#4a2c22", "#6b4130", "#8a5a3c", "#a9764a", "#c6955f" }
-local WOOD = { "#a8672f", "#c98a45", "#e0a95e", "#efc67e", "#f7dc9e", "#fdeec4" }
-local NEED = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local CUT = { 0.2, 0.38, 0.55, 0.72, 0.87 }
-c:groundShadow(29, 50, 20, 3)
--- body
-local bm, bn = G.tube({ {15,36}, {27,35}, {39,34}, {49,33} }, function(t) return 10.5 - 1.5 * t end)
-local v = X.light(bn, { amb = 0.1, wrap = 0.2 })
-local bias = {}
-bm:each(function(x, y) if (x * 3 + y) % 7 == 0 and X.hash(x, y, 3) > 0.35 then bias[K(x, y)] = -1 end end)
-G.tone(c, bm, v, BARK, CUT, bias)
--- bark plates: darker vertical-ish fissures along the length
-for _, f in ipairs{ {21,28,30}, {30,27,29}, {39,28,26} } do
-  for y = 0, 12 do c:px(f[1] + math.floor(y * 0.15), f[2] + y, BARK[1]) end
-end
--- end face (left)
-local face = c:ellipse(14, 36, 5, 11)
-local fn = X.pillow(face, 12)
-G.tone(c, face, X.light(fn, { amb = 0.55, wrap = 0.1 }), WOOD, CUT)
-face:each(function(x, y)
-  local d = sqrt(((x - 14) / 5) ^ 2 + ((y - 36) / 11) ^ 2)
-  if (d * 5) % 1 < 0.28 and d > 0.12 then c:px(x, y, WOOD[1]) end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local BARK = { "#2a1618", "#4a2a22", "#6e4030", "#94603c", "#b8814c", "#dca868" }
+local WOOD = { "#a8683a", "#d0904c", "#eab466", "#f6d088", "#fde6a8", "#fff4cc" }
+local NEED = { "#1d4a36", "#2c6b3e", "#45903f", "#74b84c", "#a6d86a" }
+c:groundShadow(34, 47, 25, 3)
+-- body: cylinder along x, y 20..41
+local body = c:rect(14, 20, 53, 41)
+c:rect(53, 22, 54, 39):each(function(x, y) body:set(x, y) end)
+body:cut(c:rect(14, 20, 15, 20)); body:cut(c:rect(53, 20, 54, 21)); body:cut(c:rect(53, 40, 54, 41))
+local n = {}
+body:each(function(x, y)
+  local ny = (y - 30.5) / 11.5
+  local nz = sqrt(max(0.04, 1 - ny * ny))
+  local nx = (x > 48) and (x - 48) / 8 or 0
+  n[K(x, y)] = { G.norm(nx, ny, nz) }
 end)
-c:px(14, 36, BARK[2]) c:px(13, 35, BARK[3])
-c:fillMask(face:copy():edge(), BARK[3])
--- branch stub with ring (quirk: sprouting needles)
-local st = c:ellipse(35, 26, 3, 2)
-c:fillMask(st, WOOD[2]) c:px(35, 26, WOOD[1]) c:px(34, 25, WOOD[5])
-for _, nd in ipairs{ {-3,-4}, {-1,-6}, {1,-6}, {3,-4}, {0,-7} } do
-  c:line({ {35, 25}, {35 + nd[1], 25 + nd[2]} }, 1, NEED[3 + (nd[1] % 2)])
-end
--- bark highlight upper-left
-for x = 19, 41 do c:px(x, 26 + math.floor((x - 19) * -0.05), BARK[6]) end
-G.fin(c, "pine-log")
+local bias = {}
+body:each(function(x, y)
+  local k = K(x, y)
+  local w = y + sin(x * 0.35 + floor(y / 5) * 1.7) * 1.4
+  local m4 = w % 4.6
+  if m4 < 0.9 and X.hash(floor(x / 6), floor(y / 4), 3) > 0.15 then bias[k] = -2
+  elseif m4 < 1.8 then bias[k] = -1
+  elseif X.hash(floor(x / 5), floor(y / 3), 8) > 0.72 and m4 > 3.2 then bias[k] = 1 end
+  if X.hash(x, y, 5) > 0.93 then bias[k] = (bias[k] or 0) - 1 end
+end)
+G.toneN(c, body, n, BARK, { bias = bias, amb = 0.1, wrap = 0.2 })
+-- top branch stub
+local stub = c:rect(32, 15, 36, 21)
+stub:cut(c:rect(32, 15, 32, 15))
+stub:each(function(x, y) c:put(x, y, (x == 32) and BARK[4] or (x == 36 and BARK[2] or BARK[3])) end)
+c:fillMask(c:rect(32, 15, 35, 16), WOOD[3]) c:px(33, 15, WOOD[5]) c:px(36, 15, BARK[1])
+c:px(34, 18, BARK[2]) c:px(35, 19, BARK[2])
+-- needle sprig (quirk)
+local function nd(x0, y0, x1, y1, col) c:fillMask(c:line({ { x0, y0 }, { x1, y1 } }, 1), col) end
+nd(34, 15, 34, 9, NEED[2]) nd(34, 13, 29, 10, NEED[3]) nd(34, 13, 39, 10, NEED[3]) nd(34, 11, 30, 7, NEED[4]) nd(34, 11, 38, 7, NEED[4])
+nd(34, 9, 34, 6, NEED[5]) c:px(34, 14, NEED[1]) c:px(32, 11, NEED[2])
+-- cut end: ellipse w/ rings
+local cap = c:ellipse(14, 31, 6, 11)
+local cn = {}
+cap:each(function(x, y) cn[K(x, y)] = { G.norm((x - 14) / 7 - 0.1, (y - 31) / 12 - 0.15, 1.4) } end)
+local ring = {}
+cap:each(function(x, y)
+  local d = sqrt(((x - 15) / 6.3) ^ 2 + ((y - 31) / 11.2) ^ 2) * 7.5
+  local k = K(x, y)
+  if d > 6.6 then ring[k] = -3 elseif floor(d) % 2 == 0 then ring[k] = -1 else ring[k] = 0 end
+  if abs(y - 31) < 1 and x > 15 and x < 21 then ring[k] = -3 end -- crack
+end)
+G.toneN(c, cap, cn, WOOD, { bias = ring, amb = 0.5, wrap = 0.3, cuts = { 0.3, 0.45, 0.6, 0.75, 0.88 } })
+c:px(11, 25, WOOD[6]) c:px(12, 24, WOOD[6]) c:px(10, 27, WOOD[5])
+cap:edge():each(function(x, y) if x <= 14 and y > 28 then c:px(x, y, BARK[4]) end end)
+-- bark highlight streak + AO under the cap rim
+for x = 22, 46 do if X.hash(x, 1, 2) > 0.3 then c:px(x, 22, BARK[6]) end end
+G.save(c, NAME)

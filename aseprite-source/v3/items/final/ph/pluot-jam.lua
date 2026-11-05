@@ -1,38 +1,59 @@
--- pluot-jam (lean W2_14)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- pluot-jam (lean P1b_O7)
+-- Straight glass jar of glossy plum-purple jam, teal screw lid, cream label with a speckled pluot, glass rim light
+-- and a streak highlight. quirk: a jam drip has run over the lid edge and down the glass.
+local NAME = "pluot-jam"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "pluot-jam" }
-local JAM  = { "#2a0f33", "#4a1950", "#712468", "#9a3a7c", "#c05a8a", "#e68aa0" }
-local GLASS= { "#5a6a8e", "#8798b8", "#b3c4da", "#d9e6f0", "#f1f8fb", "#f8fcff" }
-local LID  = { "#6a4414", "#98661f", "#c68d32", "#e6b24e", "#f6d27e", "#fff0b4" }
-local PAPER= { "#b8a47c", "#d8c79c", "#efe2bc", "#fbf3d8" }
-local CUT = { 0.2, 0.38, 0.55, 0.72, 0.87 }
-c:groundShadow(32, 54, 15, 3)
--- jar glass outline
-local jar = c:rrect(17, 22, 47, 53, 5)
-local jn = X.pillow(jar, 9)
-G.tone(c, jar, X.light(jn, { amb = 0.35, wrap = 0.3 }), GLASS, CUT)
--- jam fill
-local fill = c:rrect(19, 26, 45, 51, 4)
-local fn = X.pillow(fill, 9)
-G.tone(c, fill, X.light(fn, { amb = 0.1, wrap = 0.3 }), JAM, CUT)
-fill:each(function(x, y) if X.hash(x, y, 7) > 0.93 and y > 28 then c:px(x, y, JAM[5]) end end)
--- label: paper with a plum half
-local lab = c:rect(22, 34, 42, 46)
-G.tone(c, lab, X.light(X.pillow(lab, 6), { amb = 0.6, wrap = 0.2 }), PAPER, { 0.3, 0.6, 0.85 })
-local pl = c:ellipse(32, 40, 4, 4)
-G.tone(c, pl, X.light(X.pillow(pl, 4), { amb = 0.1, wrap = 0.3 }), JAM, CUT)
-c:px(30, 38, JAM[6]) c:px(32, 36, "#4b9650") c:px(33, 35, "#70b45a")
-for x = 23, 41, 2 do c:px(x, 35, PAPER[1]) end
--- glass streak + spec
-for y = 28, 48 do c:px(20, y, GLASS[5]) end
-c:px(21, 27, GLASS[6]) c:px(22, 27, GLASS[6])
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local JAM  = { "#2a0f3c", "#4c1a58", "#722670", "#9a3a86", "#c25c9c", "#ea92c0" }
+local LID  = { "#12383e", "#1c5658", "#2a7a70", "#40a088", "#6cc4a0", "#a6e6c0" }
+local GLAS = { "#5a7894", "#8cb0c8", "#bcdcec", "#e4f6fc" }
+local PAP  = { "#a89478", "#d0bc98", "#ecdcb8", "#fff4d8" }
+local PLU  = { "#3a1648", "#5e2a6c", "#8a4488", "#b46ca8", "#d89ac8" }
+c:groundShadow(32, 56, 17, 2)
+local jar = c:rrect(15, 21, 48, 54, 5)
+local neck = c:rect(17, 17, 46, 22)
+local inner = jar:copy():shrink(2)
+-- glass body
+local gn = X.pillow(jar, 6)
+G.toneN(c, jar, gn, GLAS, { cuts = { 0.4, 0.7, 0.9 }, amb = 0.3, wrap = 0.3 })
+c:fillMask(neck, GLAS[2])
+-- jam
+local jn = X.pillow(inner, 9)
+local bias = {}
+X.ao(bias, inner, c:rect(0, 0, 63, 23), 2, -1)
+G.toneN(c, inner, jn, JAM, { bias = bias, amb = 0.05, wrap = 0.2 })
+inner:each(function(x, y) if X.hash(x, y, 7) > 0.97 and y > 26 then c:px(x, y, JAM[2]) end end)
+-- label
+local lab = c:rrect(19, 33, 44, 47, 2)
+c:fillMask(lab, PAP[3])
+lab:edge():each(function(x, y) c:px(x, y, (x + y > 70) and PAP[1] or PAP[2]) end)
+for x = 21, 42, 2 do c:px(x, 35, PAP[1]) end
+-- pluot: round, speckled purple with green blush, leaf
+local pm = c:ellipse(31, 41, 4, 4)
+local pn = X.pillow(pm, 4.5)
+G.toneN(c, pm, pn, PLU, { amb = 0.1 })
+pm:each(function(x, y) if X.hash(x, y, 9) > 0.85 then c:px(x, y, "#e8c8a0") end end)
+c:px(29, 39, "#f4e0f4") c:px(30, 38, "#f4e0f4")
+c:px(31, 36, "#3f8f4c") c:px(32, 36, "#62ad55") c:px(33, 35, "#3f8f4c") c:px(33, 36, "#2b7046")
+c:px(31, 37, "#5a3a2a")
+for x = 21, 42 do c:px(x, 45, PAP[2]) end
 -- lid
-local lid = c:rrect(18, 15, 46, 23, 2)
-G.tone(c, lid, X.light(X.pillow(lid, 5), { amb = 0.2, wrap = 0.3 }), LID, CUT)
-for x = 20, 44, 3 do c:px(x, 19, LID[2]) end
-c:px(21, 16, LID[6]) c:px(22, 16, LID[6])
--- quirk: a drip of jam over the rim
-for y = 22, 28 do c:px(41, y, JAM[3]) c:px(42, y, JAM[2]) end
-c:fillMask(c:ellipse(42, 29, 1.5, 1.8), JAM[4]) c:px(41, 28, JAM[6])
-G.fin(c, "pluot-jam")
+local lid = c:rrect(14, 9, 49, 20, 3)
+local ln = X.pillow(lid, 5)
+local lb = {}
+lid:each(function(x, y) if y == 17 or y == 12 then lb[K(x, y)] = -2 end if x % 3 == 0 and y > 13 and y < 17 then lb[K(x, y)] = -1 end end)
+G.toneN(c, lid, ln, LID, { bias = lb, amb = 0.15, wrap = 0.3 })
+for x = 18, 28 do c:px(x, 10, LID[6]) end
+c:px(30, 10, LID[5])
+-- glass streak + rim light + spec
+for y = 25, 49 do c:px(17, y, GLAS[4]) end
+c:px(18, 27, GLAS[4]) c:px(18, 28, GLAS[4]) c:px(19, 29, JAM[6]) c:px(19, 30, JAM[6])
+for y = 24, 47 do c:px(46, y, "#7aa0c4") end
+c:px(45, 44, JAM[6]) c:px(24, 29, "#fff0fa") c:px(25, 29, "#fff0fa")
+for y = 23, 52 do c:px(15, y, GLAS[3]) end
+-- drip quirk
+for y = 20, 27 do c:px(44, y, JAM[3]) c:px(45, y, JAM[4]) end
+c:px(44, 28, JAM[3]) c:px(45, 28, JAM[5]) c:px(45, 29, JAM[6]) c:px(44, 29, JAM[3]) c:px(44, 20, LID[1]) c:px(45, 20, JAM[2])
+G.save(c, NAME)

@@ -1,33 +1,41 @@
--- fox-fang (lean W2_3)
+-- fox-fang (lean P1b_O1)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function T(c, m, R, ramp, amb) local n = X.pillow(m, R) local v = X.light(n, {amb = amb or 0.1, wrap = 0.25}) X.tone(c, m, v, ramp, {cuts = {.22,.4,.56,.72,.86}}) return n, v end
+local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+
 local NAME = "fox-fang"
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local BONE = { "#8a7a8c", "#b5a8ad", "#d8cdc0", "#eee5d2", "#faf3e2", "#fffaf0" }
-local LEATH = { "#3a2220", "#5e3a2c", "#855437", "#a97646", "#cf9c62", "#ecc88e" }
-local CORD = { "#4a3a5a", "#6f5a82", "#9a85a8" }
-c:groundShadow(32, 54, 12, 2)
--- cord loop up top (twisted)
-local loop = G.tube({{27,18},{22,8},{34,5},{33,16}}, function(t) return 1.1 end)
-local lm = loop
-for _, p in ipairs{} do end
-lm:each(function(x, y) c:px(x, y, ((x + y) % 3 == 0) and CORD[3] or CORD[2]) end)
--- fang: curved cone from wide base (upper-left) to sharp tip (lower-right)
-local fang, fn = G.tube({{28,20},{30,32},{38,42},{50,50}}, function(t) return 6.2 * (1 - t) ^ 0.85 + 0.4 end)
-T(c, fang, 6, BONE)
--- enamel gloss streak + pulp-cavity shade
-fang:each(function(x, y) if x < 33 and y > 24 and y < 34 and fang:has(x - 2, y) and not fang:has(x - 3, y) then c:px(x, y, BONE[6]) end end)
-c:px(29, 27, BONE[6]) c:px(30, 29, BONE[6]) c:px(47, 49, BONE[1])
--- leather wrap around base with stitches
-local wrap = c:rect(22, 19, 35, 27)
-wrap:clip(c:rect(22, 19, 35, 27))
-T(c, c:rrect(22, 18, 35, 27, 2), 4, LEATH)
-for x = 24, 34, 3 do c:px(x, 20, LEATH[6]) c:px(x + 1, 22, LEATH[1]) c:px(x, 24, LEATH[6]) c:px(x + 1, 26, LEATH[1]) end
--- band cuts
-for y = 19, 27, 4 do for x = 23, 34 do c:px(x, y, LEATH[1]) end end
--- quirk: tiny chip nick near the tip
-c:px(44, 44, 0 == 1 and "#000" or BONE[2])
-c:sparkle(18, 36)
+local IV = { "#6a5a7a", "#9a8aa6", "#c8bccb", "#ece2de", "#fff6e6", "#fffaf0" }
+local FUR = { "#7a2a10", "#b84a14", "#e8701c", "#ff9a34", "#ffc468", "#fff0cc" }
+local CORD = { "#0e3c4a", "#176472", "#2a94a0", "#58c4c0", "#a0eadc" }
+local AMB = { "#5a3418", "#8a5a24", "#b8863a" }
+c:groundShadow(36, 57, 15, 3)
+local fm, fn, T = G.tube({ {19, 17}, {14, 38}, {32, 52}, {52, 54} }, function(t)
+  return 0.5 + 6.3 * (1 - t) ^ 0.75 end)
+G.toneN(c, fm, fn, IV, { amb = 0.12, wrap = 0.3 })
+-- amber root stain and enamel groove
+fm:each(function(x, y) local t = T[K(x, y)]
+  if t < 0.14 then c:px(x, y, (t < 0.07) and AMB[2] or AMB[3]) end end)
+for t = 0.2, 0.8, 0.03 do local x, y = G.bez({ {19, 17}, {14, 38}, {32, 52}, {52, 54} }, t)
+  c:px(floor(x + 1.2 * (1 - t) + 0.5), floor(y + 0.5), IV[2]) end
+-- spec streak
+for _, p in ipairs{ {15,27},{15,29},{16,32},{18,36} } do c:px(p[1], p[2], IV[6]) end
+-- chip near tip (quirk)
+
+-- pierced hole + cord loop through it
+c:fillMask(c:ellipse(19, 21, 1.6, 1.6), IV[1]) c:px(19, 21, CORD[1])
+local loop = c:ellipse(20, 11, 6, 6):cut(c:ellipse(20, 11, 3.5, 3.5))
+local lm = loop:copy()
+G.toneN(c, lm, X.pillow(lm, 1.5), CORD, { amb = 0.2, cuts = { 0.25, 0.45, 0.65, 0.85 } })
+loop:each(function(x, y) if (x + y) % 3 == 0 then c:px(x, y, CORD[2]) end end)
+-- wrap band of cord with fur tuft
+for i = 0, 2 do for dx = -6, 6 do
+  local y = 26 + i * 2 + floor(dx * 0.25)
+  local x = 15 + dx
+  if fm:has(x, y) then c:px(x, y, (i % 2 == 0) and CORD[3] or CORD[1]) end end end
+local tuft = HP.mask()
+tuft:add(c:poly{ {9,27},{6,18},{12,24},{12,14},{16,23},{18,12},{20,23},{25,17},{23,27} })
+tuft:cut(fm)
+G.toneN(c, tuft, X.pillow(tuft, 2.5), FUR, { amb = 0.25, wrap = 0.4 })
+tuft:each(function(x, y) if y < 20 and X.hash(x, y, 1) > 0.5 then c:px(x, y, FUR[6]) end end)
 G.save(c, NAME)

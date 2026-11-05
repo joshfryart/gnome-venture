@@ -1,50 +1,44 @@
--- silver-birch (lean W2_18)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- silver-birch (lean P1b_O9)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "silver-birch" }
-local floor, abs = math.floor, math.abs
-local BARK = { "#6f6783", "#9e98ae", "#c9c6d2", "#e8e6ec", "#f8f6f6", "#fffefc" }
-local LEAF = { "#2d5b3f", "#3f7d4a", "#5fa055", "#86c064", "#b2dc7e" }
-local MARK, TWIG = "#3b3340", "#8a7a7c"
-c:groundShadow(32, 55, 11, 2)
--- grass tufts
-for _, g in ipairs{ {24,55},{26,54},{40,55},{42,54},{43,55} } do c:px(g[1], g[2], LEAF[2]) end
-for _, g in ipairs{ {25,54},{41,54} } do c:px(g[1], g[2], LEAF[4]) end
--- branches
-local br = {
-  { {31,26},{27,22},{22,22},{17,24},{14,28} },
-  { {34,19},{39,16},{45,16},{49,19},{51,24} },
-  { {32,13},{28,10},{24,10},{21,13} },
-}
-for _, b in ipairs(br) do G.line(c, b, TWIG) end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+
+local NAME = "silver-birch"
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local BARK = { "#6d6c92", "#9a9bbb", "#c5c7d9", "#e4e5ee", "#f6f4ef", "#fffdf4" }
+local LEAF = { "#2f5a2e", "#47792f", "#69993a", "#8fb843", "#b9d452", "#e2ea7c" }
+local MARK = { "#2e2230", "#4a3a4a" }
+c:groundShadow(32, 56, 11, 2)
+-- drooping branches first (behind trunk)
+local function branch(p, lv)
+  local m, n = G.tube(p, function(t) return 1.1 - 0.5 * t end)
+  G.toneN(c, m, n, BARK)
+  for _, L in ipairs(lv) do
+    local lm, ln = G.oval(L[1], L[2], 2.4, 3.3, L[3], 0.9)
+    G.toneN(c, lm, ln, LEAF, { amb = 0.1 })
+    c:px(L[1], L[2], LEAF[2])
+  end
+end
+branch({ {31, 24}, {24, 16}, {14, 18}, {10, 28} }, { {18, 17, 1.2}, {12, 21, 0.5}, {10, 27, 0.1}, {22, 14, 0.3}, {14, 14, 1.0}, {9, 33, 0.0} })
+branch({ {33, 22}, {42, 12}, {52, 16}, {54, 26} }, { {44, 13, 0.6}, {51, 17, 1.4}, {54, 24, 0.1}, {48, 10, 0.3}, {55, 30, 0.0}, {38, 16, 1.0} })
+branch({ {32, 16}, {30, 9}, {36, 6}, {38, 11} }, { {30, 7, 0.4}, {36, 5, 0.9}, {38, 10, 0.1}, {33, 9, 0.5}, {27, 12, 1.0} })
 -- trunk
-local tm, tn = G.tube({ {31,55},{35,41},{29,27},{33,9} }, function(t) return 3.2 - 1.9 * t end)
-G.tone(c, tm, X.light(tn, { amb = 0.15, wrap = 0.3 }), BARK, { 0.2, 0.38, 0.55, 0.72, 0.88 })
--- lenticel dashes + dark roots
-for _, y in ipairs{ 54, 49, 44, 39, 34, 29, 24, 19, 15 } do
-  tm:each(function(x, yy)
-    if yy == y and X.hash(x, y, 7) > 0.35 and x % 4 ~= 3 then c:px(x, yy, MARK) end
-  end)
-end
-tm:each(function(x, y) if y >= 52 and X.hash(x, y, 9) > 0.55 then c:px(x, y, BARK[1]) end end)
+local tm, tn, T, S = G.tube({ {30, 54}, {31, 40}, {33, 28}, {32, 14} }, function(t) return 3.6 - 1.4 * t end)
+G.toneN(c, tm, tn, BARK, { amb = 0.1, wrap = 0.2 })
+-- black chevron lenticels
+tm:each(function(x, y)
+  local k = K(x, y)
+  local row = (y + floor(x * 0.5)) % 6
+  if row == 0 and abs(S[k]) < 0.8 and T[k] < 0.9 and X.hash(floor(x / 2), floor(y / 6), 5) > 0.35 then
+    c:px(x, y, S[k] > 0.2 and MARK[1] or MARK[2])
+  end
+end)
+-- root flare + basal dark band
+for _, p in ipairs{ {26, 55}, {27, 55}, {37, 55}, {36, 55}, {25, 56}, {38, 56} } do c:px(p[1], p[2], BARK[2]) end
+tm:each(function(x, y) if y >= 52 then c:px(x, y, S[K(x, y)] > 0 and MARK[2] or BARK[1]) end end)
 -- quirk: peeling bark curl
-for _, p in ipairs{ {35,37},{36,36},{37,36},{38,37},{37,38} } do c:px(p[1], p[2], BARK[5]) end
-c:px(36, 37, BARK[2]) c:px(37, 37, BARK[1]) c:px(35, 38, BARK[2])
--- hanging twigs, leaves, catkins
-local tw = { {22,22,5},{17,24,6},{14,28,5},{27,23,3},{39,16,4},{45,16,6},{49,19,6},{51,24,5},{24,10,5},{21,13,6},{28,10,3} }
-local function leaf(x, y)
-  local m = c:poly{ { x, y - 3 }, { x + 2, y }, { x, y + 3 }, { x - 2, y } }
-  m:each(function(px, py)
-    local i = (px < x and py <= y) and 4 or ((px > x and py > y) and 2 or 3)
-    c:px(px, py, LEAF[i])
-  end)
-  c:px(x, y, LEAF[2]) c:px(x, y - 1, LEAF[2]) c:px(x - 1, y - 1, LEAF[5])
-end
-for i, t in ipairs(tw) do
-  G.line(c, { {t[1], t[2]}, {t[1], t[2] + t[3]} }, TWIG)
-  leaf(t[1] - 2, t[2] + 2 + (i % 2)) leaf(t[1] + 1, t[2] + t[3] + 1)
-end
-for _, k in ipairs{ {31,26},{34,19} } do
-  for j = 1, 4 do c:px(k[1] + 1, k[2] + j, j % 2 == 0 and "#c9a45a" or "#e3c97a") end
-end
-G.fin(c, "silver-birch")
+local pm, pn = G.tube({ {33, 33}, {39, 32}, {41, 36}, {37, 38} }, function(t) return 1.5 - 0.5 * t end)
+G.toneN(c, pm, pn, { "#8a6b52", "#b48a5c", "#d9b080", "#f0d4a4", "#fbe9c4", "#fff6dc" }, { amb = 0.1 })
+c:px(34, 33, "#fff6dc") c:px(35, 33, "#fff6dc")
+c:px(30, 24, BARK[6]) c:px(30, 25, BARK[6])
+G.save(c, NAME)
