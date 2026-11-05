@@ -54,7 +54,7 @@ function S.rose()
   local ROSE = { hi = "#f4b8a0", base = "#d07a78", shade = "#9a4a66", deep = "#5e2c4c" }
   local FAR  = { hi = "#f8d4b8", base = "#e8a898", shade = "#c47e86", deep = "#9a5a74" }
   local SAND = { hi = "#fbe2b0", base = "#e8b880", shade = "#c08068", deep = "#7a4658" }
-  GX.bands(c, 0, 150, { "#8c7cb8", "#b890b4", "#e8a8a4", "#f6c8a0", "#fbe2b8" }, 3, .2)
+  GX.bands(c, 0, 200, { "#8c7cb8", "#b890b4", "#e8a8a4", "#f6c8a0", "#fbe2b8" }, 3, .2)
   -- far wall with temple
   local far = mk()
   for x = 120, 360 do local top = 58 + floor((vn(x, 0, 18, 7) - .5) * 20) + floor(abs(x - 240) * .12)
@@ -221,7 +221,7 @@ function S.sea()
     local t = (y - 140) / 60
     local v = .35 + t * .1 + (vn(x * .4, y, 5, 3) - .5) * .3
     local col = pick(R6{ hi = "#4e80a8", base = "#2e5882", shade = "#1e3a60", deep = "#142448" }, v)
-    if abs(x - 292) < 22 - t * 6 and H(x // 3, y // 2, 4) > .45 + t * .2 then col = "#f4ecc4" end
+    if abs(x - 292) < 22 - t * 6 and (y + floor(H(x // 6, y, 4) * 3)) % 3 == 0 and H(x // 5, y, 4) > .3 + t * .3 then col = "#f4ecc4" end
     c:px(x, y, col) end end
   local moon = blob(292, 56, 14, 14, { hi = "#fffbe0", base = "#f4ecc4", shade = "#d4c8b0", deep = "#a8a0b8" }, 5, { R = 14, ink = false, tex = .15 })
   glow(292, 56, 26, {}) 
@@ -285,6 +285,7 @@ end
 ---------------------------------------------------------------- 4 snow leopard ledges
 function S.snow()
   GX.bands(c, 0, 200, { "#4e4a98", "#7a5ca8", "#b878b0", "#e898a8", "#f8b8a0", "#fcd8b0" }, 3, .22)
+  c:fillMask(c:rect(0, 200, 479, 269), "#5a4478")
   for i = 0, 30 do c:px(floor(H(i, 1, 2) * 478), floor(H(i, 2, 2) * 60), "#f4e8f8") end
   glow(380, 108, 40, {})
   local function peak(cx, by, h, w, seed, R)
@@ -410,6 +411,7 @@ end
 ---------------------------------------------------------------- 6 the long wall walk
 function S.wall()
   GX.bands(c, 0, 160, { "#5a98d0", "#7cb4dc", "#a8d0e4", "#d0e4e8", "#f4ecd8" }, 3, .2)
+  c:fillMask(c:rect(0, 150, 479, 269), "#9a6068")
   c:cloud(60, 36, 60, "#fffaf0", "#d8e4ec"); c:cloud(380, 24, 50, "#fffaf0", "#d8e4ec")
   for i = 0, 4 do local x = 100 + i * 70; c:px(x, 50 + (i % 3) * 8, INK); c:px(x + 1, 49 + (i % 3) * 8, INK); c:px(x - 1, 49 + (i % 3) * 8, INK) end
   local function hills(top, R, seed, a)

@@ -172,7 +172,7 @@ SC["haven-northern-lights-sauna"]=function()
   -- roof with snow
   poly({{250,132},{450,132},{418,92},{282,92}},{hi="#7a5a78",base="#5a3e5e",shade="#3c2a4a",deep="#241a38"},{R=20,seed=5})
   local sn=mk(); for x=246,454 do local t=(x<350) and (x-246)/104 or (454-x)/104; local top=88+floor((1-t)*36*.4+0); for y=top,138-floor(t*0)-floor((x*7)%3) do if y<=138 and ((y<=100+floor((1-t)*30)) or H(x//4,0,3)<.5) then sn:set(x,y) end end end
-  local snow=poly({{244,136},{456,136},{424,90},{276,90}},{hi="#ffffff",base="#e8f0ff",shade="#a8b8e0",deep="#6a78b0"},{R=24,seed=6,ink=true})
+  local snow=poly({{244,136},{456,136},{424,90},{276,90}},{hi="#ffffff",base="#e8f0ff",shade="#a8b8e0",deep="#6a78b0"},{R=24,seed=6})
   for x=252,448,10 do local w=3+floor(H(x,1,2)*3); for y=136,140+floor(H(x,2,3)*5) do if (x-350)^2<(180^2) then fill(x,y,x+w,y,(y>138) and "#a8b8e0" or "#e8f0ff") end end end
   -- chimney + steam
   box(392,62,412,100,{hi="#c0a8b0",base="#8a7488",shade="#5c4a68",deep="#382c48"},{R=8,seed=7}); fill(390,60,414,64,INK); fill(391,61,413,62,"#b8a0b0")
@@ -501,7 +501,7 @@ end
 local name=app.params.name or "all"
 for n,f in pairs(SC) do
   if name=="all" or name==n then
-    c=HP.canvas{w=480,h=270,scale=1,name=n}; f()
+    c=HP.canvas{w=480,h=270,scale=1,name=n}; local ok,e=xpcall(f,debug.traceback); if not ok then print(e) end
     c:save{aseprite=d.."/out/"..n..".aseprite",png=d.."/out/"..n..".png",scale=1}
   end
 end
