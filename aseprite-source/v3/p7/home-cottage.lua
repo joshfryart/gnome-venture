@@ -324,7 +324,7 @@ for _, p in ipairs{ {386,120},{412,114},{396,108},{420,124} } do c:px(p[1], p[2]
 -- re-ink log fronts lit by flame
 for y = 170, 175 do for x = 386, 414 do if H(x, y, 5) < .3 then c:px(x, y, "#a8381e") end end end
 -- window glass glint (hard)
-for i = 0, 5 do c:px(WX0+6+i, WY0+4-i//2+i, "#ffffff"):px(WX0+7+i, WY0+4+i, "#fff4e0") end
+for i = 0, 5 do c:px(WX0+6+i, WY0+4-i//2+i, "#fff4e0"):px(WX0+7+i, WY0+4+i, "#fff4e0") end
 
 local out = d.."/out"
 c:save{ aseprite=out.."/home-cottage.aseprite", png=out.."/home-cottage.png", scale=1 }
