@@ -109,7 +109,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     $road = road_of((int)$node['id']);
     page_header($node['name']);
     ?>
-    <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
+    <p class="crumbs">🌍<?= (function () use ($u, $node) { require_once __DIR__ . '/includes/stops.php'; return stop_perk_chip($u, $node); })() ?> <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
     <?= place_switcher_html($node, 'here') ?>
     <?php if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); }   // a waiting Puzzle Pal shows on the Here page too, not only World ?>
     <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>

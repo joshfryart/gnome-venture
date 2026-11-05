@@ -49,6 +49,7 @@ KIND=$(grep -oE 'name="kind" value="[a-z_]+"' $H | sed -n 8p | sed 's/.*value="\
 echo "post an activity -> $(post town.php -d do=local -d kind=chores -d opt=0)"
 get town.php >/dev/null; flashes=$(grep -oE 'class="flash (ok|err)">[^<]*' $H | head -2); echo "flash: $flashes"
 get "town.php?view=passport" >/dev/null; echo "passport -> $(get "town.php?view=passport")  stamps=$(grep -c 'class="st-stamp has' $H) sets=$(grep -c 'class="st-sets"' $H)"
+get town.php >/dev/null; grep -q 'class="pkchip"' $H || { echo "FAIL no perk circle after doing an act (v2.5.74)"; RC=1; }
 get index.php >/dev/null; echo "today card mentions the stop: $(grep -c 'rest stop' $H)"
 echo "== admin pages"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null

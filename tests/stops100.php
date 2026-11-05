@@ -133,6 +133,18 @@ $r2 = doit('thread_go');
 ok('the last beat ends the story and pays', $r2[0] === true && str_contains((string)$r2[1], 'The end') && (int)me()['coins'] > $coin, json_encode($r2));
 ok('a finished story is not offered again', (function () use ($lu, $lkLoc, $tid) { $o = stop_thread_offer($lu, $lkLoc); return !$o || $o['thread'] !== $tid; })());
 ok('every thread reward names real items', (function () { foreach (stop_threads() as $t) if (preg_match_all('/item=([a-z0-9-]+)/', $t['reward'], $m)) foreach ($m[1] as $sl) if (!q_val('SELECT 1 FROM items WHERE slug = ?', [$sl])) return false; return true; })());
+// the perk circle by the world icon
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
+ok('no circle when nothing has moved', stop_perk_chip(me(), $lkLoc) === '');
+stop_meter_add($lu, $lid, 'larder', 20);
+$chip = stop_perk_chip(me(), $lkLoc);
+ok('a circle shows once a meter has moved, with the meter list', str_contains($chip, 'pkchip') && str_contains($chip, 'Larder') && !str_contains($chip, 'pkdot on'));
+stop_meter_add($lu, $lid, 'cheer', 120);
+$chip = stop_perk_chip(me(), $lkLoc);
+ok('the circle lists the perks and counts them', str_contains($chip, 'pkdot on">1<') && str_contains($chip, 'Cheer is full'));
+ok('no circle off a stop', stop_perk_chip(me(), ['kind' => 'wonder', 'id' => $lid, 'name' => 'x']) === '');
+ok('the circle has no inline styles', !str_contains($chip, 'style='));
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
 // the notice board
 $board = stop_board_html(me(), $lkLoc);
 ok('the notice board has its three parts and a standing', str_contains($board, 'Coming up') && str_contains($board, 'Needs help') && str_contains($board, 'Done lately') && str_contains($board, 'Your standing'));
