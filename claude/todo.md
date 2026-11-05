@@ -11,7 +11,8 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Flags `gnav_on`, `gnav_tree`, `gnav_tiles` default 0 (check Admin before assuming).
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
-## 2. JOSH: phone checks (nothing below has been seen on a phone)
+## 2. JOSH: phone checks
+- Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
 - Trail landmarks 2.5.66 (all 16 routes), GPS auto-stop, hidden dots; Do here popover results + live header pills 2.5.67.
 - Trail walk camera; select bar; Rest stop card (tabs, stamp, adopt non-maxed stop, hand-in, upkeep, buy deed); new doors/streets/workshop pictures.
 - 2.5.60 to 2.5.62 art: wonders, banners, gather art, journal, landing, region maps, trek tiles.
