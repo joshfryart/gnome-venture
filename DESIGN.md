@@ -95,6 +95,13 @@ Hard pixel corners everywhere: `--radius 0`, `--radius-sm 0`, `--pill 0`. Compon
 - **Dialogs** are `<dialog>` with `gvOpenDlg` / `gvCloseDlg`; confirmations via `data-confirm` or `gvAsk`; never `alert()`/`confirm()`.
 - **Icons:** own pixel art `nav-*` and `ph/*` first, then placeholder, then emoji fallback.
 
+## Here, door and treehouse pictures
+Picture pages (Here, Residential, Door, Workshop, Treehouse, Pal Yard) are one inline SVG per page: a 480 x 270 pixel-art backdrop, hit areas from the layout, creatures and layers on top. Art is optional everywhere and degrades to a drawn sky and ground.
+- **Look:** pixel art with the 1 px umber outline, no baked-in people or animals (villagers and pals are sprites), no circles, no names in the art (tags are code, centred, in the stitched-toy style with gold brackets on tap). Dark theme is a tint (`.hub-tint`), not a second picture.
+- **Rules:** CSP means no inline styles: positions are SVG attributes, motion and state are classes. Every image keeps `image-rendering: pixelated`. Tap areas are the painted thing (`box`), never overlapping, never in the compass corner; a text list of the same places is always under the picture.
+- **Animation layers** (`.hanim.fx-*`) move by CSS only and stop under `prefers-reduced-motion`.
+- **Files and sizes:** `claude/art-brief-here.md`; the catalogue is in the art guide (Part E).
+
 ## Do's and Don'ts
 Do:
 - Centre text, headings, cards, buttons and result lines.
