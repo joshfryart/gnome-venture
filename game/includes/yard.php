@@ -513,6 +513,8 @@ function tile_view(array $t, array $plants, bool $owner = true): array
         $icon = $info['ready'] ? catalog_kind_icon((string)$p['kind']) : ($info['stage'] <= 1 ? '🌱' : '🌿');
         $sn = $info['ready'] ? 4 : ($info['stage'] <= 1 ? 1 : ($info['stage'] === 2 ? 2 : 3));   // v1.5.2: a crop-stage placeholder, if drawn
         if (($sp = ph_img('stage-' . (string)$p['kind'] . '-' . $sn, 28, '', 'phtile')) !== '') $icon = $sp;
+        // v2.5.43: a ripe crop shows its own harvest picture (cabbage looked like the shared melon-on-a-vine ripe art); no picture, or a tree/cover crop, keeps the kind art
+        if ($info['ready'] && !in_array((string)$p['kind'], ['tree', 'cover'], true) && !empty($p['slug']) && ($rp = ph_img((string)$p['slug'], 28, '', 'phtile ripe')) !== '') $icon = $rp;
         $label = $p['name'] . ($info['ready'] ? ' (ready!)' : ($owner ? ($info['thirsty'] ? ' (thirsty)' : ' (' . nice_time($info['time_left']) . ' left)') : ' (growing)'));
     } elseif ((int)$t['tilled']) {
         $cls = $t['method'] === 'notill' ? 'notill' : 'tilled';

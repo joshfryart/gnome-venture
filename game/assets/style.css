@@ -1061,6 +1061,7 @@ a.rend:hover b { text-decoration: underline; }
 .yard .tile { width: auto; height: auto; margin: 2px; font-size: calc(var(--cell) * .48); }
 .yard .tile .grade { font-size: 8px; line-height: 12px; }
 .yard .tile.planted .phtile { transform: scale(1.25); transform-origin: 50% 60%; }   /* v2.5.43: crop art was small in its square (the picture has ~25% margin); grow it so it fills the bed */
+.yard .tile.planted .phtile.ripe { transform: scale(1.15); }
 .yard .tile.planted i, .yard .tile.planted s { z-index: 1; }
 .yard .tile:not(.nt) { box-shadow: inset 0 0 0 2px rgba(92, 62, 30, .55); }
 .yard .tile.wild { background: #b7cf86; }
