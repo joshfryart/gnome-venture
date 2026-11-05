@@ -121,6 +121,18 @@ function trail_encounter_index(array $map, array $path, int $quiet, int $fights,
     return [null, $quiet, $fights];
 }
 
+/** Picture size [w, h] of a raised thing. Landmarks (lm-*) have their own sizes, read from the PNG; everything else is the 64 x 96 frame. */
+function trail_art_obj_size(string $key): array
+{
+    static $cache = [];
+    if (!str_starts_with($key, 'lm-')) return [64, 96];
+    if (!isset($cache[$key])) {
+        $sz = preg_match('/^lm-[a-z0-9-]+$/', $key) ? @getimagesize(dirname(__DIR__) . '/assets/img/trail/obj/' . $key . '.png') : false;
+        $cache[$key] = $sz ? [(int)$sz[0], (int)$sz[1]] : [64, 96];
+    }
+    return $cache[$key];
+}
+
 function trail_art_url(string $rel): string
 {
     $p = 'assets/img/trail/' . $rel;
@@ -198,10 +210,16 @@ function trail_art_svg(array $map, array $state): string
     $items = [];   // [feet row, column, markup]
     $in = fn(float $x, float $y, float $w, float $h): bool => $x + $w > 0 && $y + $h > 0 && $x < $W && $y < $H;
     foreach ($art['objs'] as [$ox, $oy, $key, $jit]) {
-        $X = ($ox - $x0) * $C + $jit * $k;
-        $Y = (($oy - $y0) * TRAIL_ART_PX - 29) * $k;
-        if (!$in($X, $Y, 64 * $k, 96 * $k)) continue;
-        $items[] = [$oy + .5, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n(64 * $k) . '" height="' . $n(96 * $k) . '"/>'];
+        [$bw, $bh] = trail_art_obj_size($key);
+        if ($bw === 64 && $bh === 96) {   // trees, hedges, rocks: one 64 x 96 frame, feet near the bottom of the tile
+            $X = ($ox - $x0) * $C + $jit * $k;
+            $Y = (($oy - $y0) * TRAIL_ART_PX - 29) * $k;
+        } else {   // v2.5.63: landmarks (lm-*) are any size: centred on their tile, bottom edge = feet, a little above the tile's lower edge
+            $X = ($ox - $x0) * $C + (32 - $bw / 2 + $jit) * $k;
+            $Y = (($oy - $y0) * TRAIL_ART_PX + 62 - $bh) * $k;
+        }
+        if (!$in($X, $Y, $bw * $k, $bh * $k)) continue;
+        $items[] = [$oy + .5, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
     }
     $marks = '';
     foreach ($state['tokens'] ?? [] as $tk) {

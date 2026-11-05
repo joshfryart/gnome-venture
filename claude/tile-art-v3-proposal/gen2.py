@@ -336,7 +336,9 @@ def water(land, seed):
             for k in range(9): cv.put(x + k, y + (k * 2 // 3) % 4, R[3], True)
     return cv.im
 
-# ---------------------------------------------------------------- landmarks: one named feature of a route, drawn as a raised sprite (64 x 96, feet near y 88)
+# ---------------------------------------------------------------- landmarks: one named feature of a route, drawn LARGE (a few tiles wide and tall) so the
+# walker reads as a small gnome beside it. Each has its own canvas; the sprite is cropped top and bottom, its bottom edge is the feet line, and it is centred
+# on its tile (trail_art.php reads the size from the PNG). Hard pixels, the same ramps and lumps as the trees.
 def _col(cv, x0, x1, y0, y1, R, rnd, speck=.08):
     """Rectangle shaded left (lit) to right (shade), with a little speckle."""
     for x in range(x0, x1):
@@ -350,86 +352,168 @@ def _pond(cv, cx, cy, rx, ry, rnd, R=None):
     for y in range(cy - ry, cy + ry + 1):
         for x in range(cx - rx, cx + rx + 1):
             if (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 <= 1:
-                t = 2 if y > cy else 1 if y > cy - ry // 2 else 0
+                t = 3 if y > cy + ry // 2 else 2 if y > cy else 1 if y > cy - ry // 2 else 0
                 if (x * 5 + y * 3) % 9 == 0: t = max(0, t - 1)
                 cv.put(x, y, R[t])
-    for _ in range(4):
-        x, y = rnd.randint(cx - rx + 4, cx + rx - 8), rnd.randint(cy - ry + 2, cy + ry - 2)
-        for k in range(4):
-            if cv.get(x + k, y)[3]: cv.put(x + k, y, R[0])
-def lm_scarecrow(rnd, cv):
+    for _ in range(rx // 6):   # glints
+        x, y = rnd.randint(cx - rx + 10, cx + rx - 18), rnd.randint(cy - ry + 4, cy + ry - 4)
+        if (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 > .8: continue
+        for k in range(rnd.randint(5, 9)): cv.put(x + k, y, R[0]); cv.put(x + k + 1, y + 1, R[2]) if k > 1 else None
+def _reeds(cv, x, y, n, rnd):
+    for i in range(n):
+        xx, h = x + i * 4 + rnd.randint(-1, 1), rnd.randint(20, 40)
+        for k in range(h): cv.put(xx + (k * 3 // h) % 2, y - k, RAMP["moss"][1 if k % 5 else 0])
+        if i % 2 == 0:
+            for k in range(8): cv.put(xx, y - h - k, RAMP["wood"][2]); cv.put(xx + 1, y - h - k, RAMP["wood"][3])
+def lm_scarecrow(rnd, cv):   # 160 x 250
     W = RAMP["wood"]
-    for y in range(36, 90): cv.put(31, y, W[1]); cv.put(32, y, W[2]); cv.put(33, y, W[3])
-    for x in range(12, 53): cv.put(x, 51, W[1]); cv.put(x, 52, W[2]); cv.put(x, 53, W[3])
-    for x0 in (10, 48):   # straw hands
-        for k in range(5): cv.put(x0 + k, 50 + k % 2, RAMP["sand"][k % 3]); cv.put(x0 + k, 54 - k % 3, RAMP["sand"][1 + k % 2])
-    lump(cv, 32, 62, 10, 11, r5(RAMP["sea"]), rnd, .06)
-    for x, y in ((28, 60), (29, 60), (28, 61), (29, 61), (35, 66), (36, 66), (35, 67), (36, 67)):   # patches
-        cv.put(x, y, RAMP["ember"][1]); 
-    cv.put(28, 60, RAMP["ember"][0]); cv.put(35, 66, RAMP["ember"][0])
-    for x in range(22, 43): cv.put(x, 72, RAMP["sand"][1]); cv.put(x, 73, RAMP["sand"][2]) if x % 2 else None   # straw hem
-    lump(cv, 32, 41, 8, 8, r5(RAMP["sand"]), rnd, .08)
-    cv.put(29, 40, INK); cv.put(35, 40, INK); cv.put(29, 41, INK); cv.put(35, 41, INK)
-    for x in range(30, 35): cv.put(x, 46, RAMP["ember"][2]) if x % 2 else cv.put(x, 45, RAMP["ember"][2])
-    for x in range(19, 46):   # hat brim
-        for y in (33, 34): cv.put(x, y, W[1] if y == 33 else W[2])
-    lump(cv, 32, 29, 9, 8, r5(RAMP["wood"]), rnd, .06)
-    for x in range(23, 42): cv.put(x, 32, RAMP["petal"][1])   # ribbon
-    cv.put(40, 31, RAMP["gold"][0]); cv.put(41, 30, RAMP["gold"][1])
-def lm_haybales(rnd, cv):
-    for cx, cy, rx, ry in ((19, 79, 15, 10), (45, 79, 15, 10), (32, 61, 15, 11)):
+    for y in range(70, 246):
+        for k, c in enumerate((W[0], W[1], W[1], W[2], W[2], W[3])): cv.put(77 + k, y, c)
+    for x in range(22, 140):   # crossbar
+        for k, c in enumerate((W[0], W[1], W[1], W[2], W[3])): cv.put(x, 112 + k, c)
+    for x0, d in ((12, 1), (138, -1)):   # straw hands
+        for k in range(18): cv.put(x0 + k * d, 110 + (k * 7) % 5, RAMP["sand"][k % 3]); cv.put(x0 + k * d, 117 - (k * 5) % 6, RAMP["sand"][1 + k % 2]); cv.put(x0 + k * d + d, 113 + k % 4, RAMP["sand"][0])
+    lump(cv, 80, 146, 30, 36, r5(RAMP["sea"]), rnd, .07)   # shirt
+    for px_, py_ in ((64, 132), (92, 160), (70, 168)):   # patches, stitched
+        for dx in range(10):
+            for dy in range(10): cv.put(px_ + dx, py_ + dy, RAMP["ember"][1 if dx + dy < 12 else 2])
+        for dx in range(0, 10, 2): cv.put(px_ + dx, py_, CREAM); cv.put(px_ + dx, py_ + 9, CREAM)
+    for k in range(4): cv.put(80, 120 + k * 8, RAMP["gold"][1]); cv.put(81, 121 + k * 8, RAMP["gold"][2])   # buttons
+    for x in range(52, 109):   # ragged straw hem
+        for y in range(176, 176 + 5 + (x * 7) % 9): cv.put(x, y, RAMP["sand"][1 + (x + y) % 2])
+    lump(cv, 80, 92, 24, 24, r5(RAMP["sand"]), rnd, .1)   # sack head
+    for ex in (70, 90):
+        for dx in range(4):
+            for dy in range(5): cv.put(ex + dx, 88 + dy, INK)
+        cv.put(ex, 88, CREAM)
+    for x in range(70, 92): cv.put(x, 106 + (3 if 76 < x < 86 else 1 if x % 2 else 0), RAMP["ember"][2])   # stitched smile
+    for x in range(70, 92, 3): cv.put(x, 104, RAMP["wood"][2])
+    for x in range(46, 115):   # hat brim
+        for y in range(68, 75): cv.put(x, y, W[0] if y == 68 else W[1] if y < 71 else W[2] if y < 74 else W[3])
+    lump(cv, 80, 56, 24, 20, r5(RAMP["wood"]), rnd, .07)   # crown
+    for x in range(58, 103): cv.put(x, 66, RAMP["petal"][1]); cv.put(x, 65, RAMP["petal"][0]); cv.put(x, 67, RAMP["petal"][2])   # ribbon
+    for k in range(8): cv.put(100 + k, 62 - k, RAMP["gold"][min(2, k // 3)]); cv.put(101 + k, 62 - k, RAMP["gold"][1])   # feather
+    for x in range(48, 112): cv.put(x, 250 - 6, RAMP["moss"][2]) if x % 3 == 0 else None
+def lm_haybales(rnd, cv):   # 210 x 150
+    for cx, cy, rx, ry in ((58, 108, 46, 32), (152, 108, 46, 32), (105, 62, 46, 34)):
         lump(cv, cx, cy, rx, ry, r5(RAMP["gold"]), rnd, .16)
-        for k in (-8, -2, 5):   # twine
-            for y in range(cy - ry + 1, cy + ry):
-                if cv.get(cx + k, y)[3] and cv.get(cx + k, y) != INK: cv.put(cx + k, y, RAMP["wood"][2] if y % 2 else RAMP["wood"][1])
-        for _ in range(14):   # straw ends
-            x, y = rnd.randint(cx - rx + 2, cx + rx - 2), rnd.randint(cy - ry + 2, cy + ry - 2)
-            if cv.get(x, y)[3] and cv.get(x, y) != INK: cv.put(x, y, RAMP["gold"][0]); cv.put(x + 1, y + 1, RAMP["gold"][3])
-def lm_ford(rnd, cv):
-    _pond(cv, 32, 80, 30, 9, rnd)
-    for cx, cy in ((14, 78), (32, 83), (50, 77)):
-        lump(cv, cx, cy, 7, 4, r5(RAMP["stone"]), rnd, .1)
-        for k in range(-6, 7):   # foam ring
-            if cv.get(cx + k, cy + 5)[3] == 0 or cv.get(cx + k, cy + 5) in r5(RAMP["sea"]): cv.put(cx + k, cy + 5, CREAM)
-def lm_pondmill(rnd, cv):
-    _pond(cv, 24, 82, 22, 8, rnd)
+        for k in range(-30, 40, 16):   # twine, three bands per bale
+            for y in range(cy - ry + 2, cy + ry - 1):
+                if cv.get(cx + k, y)[3] and cv.get(cx + k, y) != INK:
+                    for w in (0, 1): cv.put(cx + k + w, y, RAMP["wood"][2] if y % 2 else RAMP["wood"][1])
+        for _ in range(60):   # straw
+            x, y = rnd.randint(cx - rx + 3, cx + rx - 3), rnd.randint(cy - ry + 3, cy + ry - 3)
+            if cv.get(x, y)[3] and cv.get(x, y) != INK:
+                for k in range(rnd.randint(3, 6)): cv.put(x + k, y, RAMP["gold"][0]); cv.put(x + k, y + 1, RAMP["gold"][3]) if k > 1 else None
+    for k in range(18):   # loose straw on the ground
+        x = rnd.randint(8, 200); y = 142 + rnd.randint(0, 3)
+        for j in range(rnd.randint(4, 8)): cv.put(x + j, y, RAMP["gold"][1 + j % 2])
+def lm_ford(rnd, cv):   # 270 x 110
+    _pond(cv, 135, 66, 128, 38, rnd)
+    for cx, cy, rx, ry in ((50, 66, 22, 12), (135, 84, 25, 13), (216, 62, 22, 12), (92, 74, 11, 6), (176, 72, 11, 6)):
+        lump(cv, cx, cy, rx, ry, r5(RAMP["stone"]), rnd, .1)
+        for k in range(-rx, rx + 1):   # foam ring
+            if cv.get(cx + k, cy + ry + 1)[3] == 0 or cv.get(cx + k, cy + ry + 1) in r5(RAMP["sea"]): cv.put(cx + k, cy + ry + 1, CREAM)
+    _reeds(cv, 10, 78, 5, rnd); _reeds(cv, 236, 74, 5, rnd)
+def lm_pondmill(rnd, cv):   # 290 x 250
+    _pond(cv, 92, 214, 84, 30, rnd)
     W, C = r5(RAMP["wood"]), r5(RAMP["sand"])
-    _col(cv, 36, 58, 56, 86, C, rnd)
-    for y in range(40, 56):   # roof
-        hw = (y - 40) * 11 // 15 + 2
-        for x in range(47 - hw, 47 + hw + 1): cv.put(x, y, RAMP["ember"][0 if x < 44 else 1 if x < 50 else 2] if (y + x) % 7 else RAMP["ember"][3])
-    for y in range(70, 86): cv.put(46, y, W[3]); cv.put(47, y, W[3]); cv.put(48, y, W[3]); cv.put(49, y, W[2])   # door
-    for y in range(62, 67):
-        for x in range(40, 44): cv.put(x, y, RAMP["sea"][0] if y == 62 else RAMP["sea"][2])
-    for a in range(0, 360, 45):   # wheel
-        for r in range(0, 9): cv.put(30 + int(round(math.cos(math.radians(a)) * r)), 76 + int(round(math.sin(math.radians(a)) * r)), W[1] if a % 90 == 0 else W[2])
-    for a in range(0, 360, 12): cv.put(30 + int(round(math.cos(math.radians(a)) * 9)), 76 + int(round(math.sin(math.radians(a)) * 9)), W[3])
-    cv.put(30, 76, RAMP["gold"][1])
-def lm_apple(rnd, cv):
-    c = tree(2, "leaf"); cv.im.alpha_composite(c); cv.p = cv.im.load()
-    for _ in range(40):   # big red apples on the crown, so it reads as the apple tree and not one more tree
-        if sum(1 for q in cv.im.getdata() if q == RAMP["ember"][1]) > 14 * 6: break
-        x, y = rnd.randrange(12, 50), rnd.randrange(20, 60)
-        if all(cv.get(x + dx, y + dy)[3] and cv.get(x + dx, y + dy) != INK and cv.get(x + dx, y + dy) not in RAMP["wood"] for dx in range(3) for dy in range(3)):
-            for dx in range(3):
-                for dy in range(3): cv.put(x + dx, y + dy, RAMP["ember"][1] if dx + dy < 3 else RAMP["ember"][2])
-            cv.put(x, y, RAMP["ember"][0]); cv.put(x + 1, y - 1, RAMP["moss"][1])
-    for a in range(0, 360, 36):   # ring of clover round the foot
-        x, y = 32 + int(round(math.cos(math.radians(a)) * 26)), 87 + int(round(math.sin(math.radians(a)) * 5))
-        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)): cv.put(x + dx, y + dy, RAMP["moss"][2] if (dx or dy) else RAMP["moss"][1])
-        if a % 72 == 0: cv.put(x, y, CREAM)
-    for k in range(4):   # fallen apples
-        x = 22 + k * 7; cv.put(x, 90, RAMP["ember"][1]); cv.put(x + 1, 90, RAMP["ember"][2])
-def lm_hedgerow(rnd, cv):
-    c = hedge(1); cv.im.alpha_composite(c); cv.p = cv.im.load()
-    for cx, cy, rx, ry in ((16, 52, 8, 9), (47, 55, 7, 7)):   # trimmed topiary, with strong opinions
-        lump(cv, cx, cy, rx, ry, r5(RAMP["moss"]), rnd, .1)
-        for y in range(cy + ry, 64): cv.put(cx, y, RAMP["wood"][2]); cv.put(cx + 1, y, RAMP["wood"][3])
-    cv.put(13, 50, INK); cv.put(18, 50, INK); cv.put(13, 51, CREAM); cv.put(18, 51, CREAM)   # a face on the big one
-    for x in range(14, 18): cv.put(x, 55, RAMP["ember"][2])
-LANDMARKS = {"scarecrow": lm_scarecrow, "haybales": lm_haybales, "ford": lm_ford, "pondmill": lm_pondmill, "apple": lm_apple, "hedgerow": lm_hedgerow}
+    _col(cv, 158, 262, 114, 238, C, rnd)   # walls
+    for y in (150, 190): 
+        for x in range(158, 262): cv.put(x, y, W[2]); cv.put(x, y + 1, W[3])   # timber bands
+    for x in (160, 208, 258):
+        for y in range(114, 238): cv.put(x, y, W[2]); cv.put(x + 1, y, W[3])
+    for y in range(52, 118):   # roof
+        hw = (y - 52) * 62 // 66 + 6
+        for x in range(210 - hw, 210 + hw + 1):
+            row = (y // 7) % 2; col = RAMP["ember"][0 if x < 186 else 1 if x < 220 else 2]
+            if (x + row * 6) % 12 == 0 or y % 7 == 0: col = RAMP["ember"][3]
+            cv.put(x, y, col)
+    for y in range(196, 238):   # door
+        for x in range(190, 226): cv.put(x, y, W[1] if x < 204 else W[2]); 
+    for y in range(196, 238, 8):
+        for x in range(190, 226): cv.put(x, y, W[3])
+    cv.put(216, 220, RAMP["gold"][1]); cv.put(217, 220, RAMP["gold"][0])
+    for wx in (176, 236):   # windows
+        for y in range(132, 150):
+            for x in range(wx, wx + 14): cv.put(x, y, RAMP["sea"][0] if y < 138 else RAMP["sea"][2])
+        for x in range(wx, wx + 14): cv.put(x, 131, W[3]); cv.put(x, 150, W[3])
+        for y in range(131, 151): cv.put(wx + 7, y, W[3])
+    for a in range(0, 360, 30):   # waterwheel: spokes, rim, paddles
+        for r in range(4, 40): cv.put(142 + int(round(math.cos(math.radians(a)) * r)), 206 + int(round(math.sin(math.radians(a)) * r)), W[1] if a % 90 == 0 else W[2])
+    for a in range(0, 360, 3):
+        for r in (38, 39, 40): cv.put(142 + int(round(math.cos(math.radians(a)) * r)), 206 + int(round(math.sin(math.radians(a)) * r)), W[3])
+    for a in range(0, 360, 30):
+        x, y = 142 + int(round(math.cos(math.radians(a)) * 44)), 206 + int(round(math.sin(math.radians(a)) * 44))
+        for dx in range(-4, 5):
+            for dy in range(-3, 4): cv.put(x + dx, y + dy, W[1] if dx < 0 else W[2])
+    for dx in range(-5, 6):
+        for dy in range(-5, 6):
+            if dx * dx + dy * dy <= 25: cv.put(142 + dx, 206 + dy, RAMP["gold"][1] if dx + dy < 0 else RAMP["gold"][2])
+    for k in range(5): cv.put(120 + k * 8, 236, RAMP["sea"][0]); cv.put(121 + k * 8, 237, CREAM)   # splash
+def lm_apple(rnd, cv):   # 230 x 280
+    trunk(cv, 115, 190, 270, 38, rnd)
+    R = r5(RAMP["leaf"])
+    L = [(115, 100, 82, 66), (52, 138, 54, 46), (178, 138, 54, 46), (80, 176, 56, 40), (150, 176, 56, 40), (115, 152, 68, 44)]
+    for l in sorted(L, key=lambda a: a[1] + rnd.random()): lump(cv, *l, R, rnd)
+    for x in range(78, 152):   # crown shadow over the trunk
+        for y in range(190, 230):
+            c = cv.get(x, y)
+            if c[3] and c in RAMP["wood"]: cv.put(x, y, darker(c, 1 if y < 214 else 2))
+    leaf_texture(cv, R, rnd, 700)
+    n = 0
+    for _ in range(400):   # big red apples
+        if n >= 26: break
+        x, y = rnd.randrange(30, 195), rnd.randrange(46, 190)
+        if all(cv.get(x + dx, y + dy)[3] and cv.get(x + dx, y + dy) != INK and cv.get(x + dx, y + dy) not in RAMP["wood"] and cv.get(x + dx, y + dy) not in RAMP["ember"] for dx in range(-1, 9) for dy in range(-3, 8)):
+            n += 1
+            for dx in range(7):
+                for dy in range(7):
+                    if (dx - 3) ** 2 + (dy - 3) ** 2 <= 11: cv.put(x + dx, y + dy, RAMP["ember"][0 if dx + dy < 4 else 1 if dx + dy < 8 else 2])
+            cv.put(x + 3, y - 1, RAMP["wood"][2]); cv.put(x + 4, y - 2, RAMP["moss"][1]); cv.put(x + 5, y - 2, RAMP["moss"][0])
+    for a in range(0, 360, 12):   # ring of clover round the foot
+        x, y = 115 + int(round(math.cos(math.radians(a)) * 92)), 268 + int(round(math.sin(math.radians(a)) * 9))
+        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0)): cv.put(x + dx, y + dy, RAMP["moss"][2] if (dx or dy) else RAMP["moss"][1])
+        if a % 36 == 0: cv.put(x, y - 1, CREAM); cv.put(x + 1, y - 1, CREAM)
+    for k in range(7):   # fallen apples
+        x = 70 + k * 13 + rnd.randint(-2, 2)
+        for dx in range(5):
+            for dy in range(4): cv.put(x + dx, 270 + dy, RAMP["ember"][1 if dx + dy < 5 else 2])
+def lm_hedgerow(rnd, cv):   # 290 x 190
+    R = r5(RAMP["moss"])
+    for y in range(76, 172):
+        for x in range(6, 284):
+            t = (0 if (y < 90 and x % 90 < 52) else 1) if y < 112 else 2 if y < 134 else 3 if y < 160 else 4
+            if rnd.random() < .16: t = max(0, min(4, t + rnd.choice((-1, 1))))
+            cv.put(x, y, R[t])
+    for y in range(76, 172):   # scalloped top, rounded ends
+        for x in range(6, 284):
+            c = min(x - 6, 283 - x); r = max(0, 14 - c); bump = 3 if (x // 11) % 2 else 0
+            if y < 76 + r + bump or y > 171 - r: cv.p[x, y] = (0, 0, 0, 0)
+    for x in range(6, 284):
+        if cv.get(x, 134)[3]: cv.put(x, 134, R[3])
+    leaf_texture(cv, R, rnd, 420)
+    for cx, cy, rx, ry, face in ((78, 54, 30, 34, True), (214, 62, 22, 26, False)):   # trimmed topiary, with strong opinions
+        for y in range(cy + ry - 4, 100):
+            for k in range(6): cv.put(cx - 3 + k, y, RAMP["wood"][1 + k // 2] if k < 5 else RAMP["wood"][3])
+        lump(cv, cx, cy, rx, ry, R, rnd, .1); leaf_texture(cv, R, rnd, 60)
+        if face:
+            for ex in (cx - 11, cx + 6):
+                for dx in range(6):
+                    for dy in range(7): cv.put(ex + dx, cy - 6 + dy, CREAM if dx < 4 and dy < 6 else INK)
+                for dx in range(3):
+                    for dy in range(4): cv.put(ex + 1 + dx, cy - 4 + dy, INK)
+            for x in range(cx - 10, cx + 12): cv.put(x, cy + 12 + (4 if cx - 5 < x < cx + 5 else 2 if x % 2 else 0), RAMP["ember"][2])
+            for k in range(6): cv.put(cx - 22 + k, cy - 22 - k, W_ if False else RAMP["wood"][2])   # a stray twig
+    for k in range(6):   # flowers on the hedge
+        x, y = 30 + k * 44 + rnd.randint(-6, 6), 118 + rnd.randint(0, 24)
+        for dx, dy, c in ((0, 0, CREAM), (-3, 0, RAMP["petal"][1]), (3, 0, RAMP["petal"][1]), (0, -3, RAMP["petal"][0]), (0, 3, RAMP["petal"][2])): cv.put(x + dx, y + dy, c)
+        cv.put(x, y, RAMP["gold"][1])
+LANDMARKS = {"scarecrow": (160, 250, lm_scarecrow), "haybales": (210, 150, lm_haybales), "ford": (270, 110, lm_ford), "pondmill": (290, 250, lm_pondmill),
+             "apple": (230, 280, lm_apple), "hedgerow": (290, 190, lm_hedgerow)}
 def landmark(name):
-    cv = Cv(T, OBJ_H); LANDMARKS[name](random.Random(f"lm{name}"), cv); outline(cv); return cv.im
+    w, h, fn = LANDMARKS[name]; cv = Cv(w, h); fn(random.Random(f"lm{name}"), cv); outline(cv)
+    top, bot = cv.im.getbbox()[1], cv.im.getbbox()[3]; return cv.im.crop((0, top, w, bot))
 
 # ---------------------------------------------------------------- find spots (open / done) and the search icon
 def sparkle(cv, x, y, big=True):
