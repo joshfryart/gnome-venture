@@ -1,5 +1,8 @@
 # Changelog
 
+
+## 2.5.65
+- **Art**: all 387 seed pictures are now seed packets; the 11 hedgehog portraits are drawn head-on. Same sizes, drop-in.
 ## 2.5.64
 - **Art**: hedgehogs redrawn as real hedgehogs (8 NPC portraits and sprites, 3 folk portraits and sprites); gnome player layers get a 1px skin rim around the eyes so they stay readable on dark skin. Same sizes, drop-in.
 
