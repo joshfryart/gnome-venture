@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.32
+- The World page icon row no longer has a GPS button (Map, Fast travel, Gather, Shops, Wander). Needs 2.5.31.
+
 ## 2.5.31
 - **World map opens on the whole world**: the World page map no longer reopens zoomed in on a remembered spot (it was reusing the last zoom from the old folded map); it always starts fitted, and the hat button zooms to you. Needs 2.5.30.
 

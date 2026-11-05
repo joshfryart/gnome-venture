@@ -129,7 +129,6 @@ $navb = function (string $label, string $icon, string $attrs, bool $on = false) 
 $wnav = '<ul class="hubnavbar worldnav" aria-label="World">'
     . $navb('Map', 'ico-globe.png', 'href="' . e(url('world.php')) . '"', $tab === 'map')
     . $navb('Fast travel', 'ico-boot.png', 'href="' . e(url('world.php?tab=travel#fasttravel')) . '" data-pop="hubpop-ft" aria-haspopup="dialog"')
-    . $navb('GPS', 'ico-map-pin.png', 'href="' . e(url('world.php#gopanel')) . '" data-pop="hubpop-gps" aria-haspopup="dialog"')
     . $navb('Gather', 'ico-basket.png', 'href="' . e(url('world.php?tab=gather')) . '"', $tab === 'gather')
     . $navb('Shops', 'ico-shop.png', 'href="' . e(url('world.php?tab=markets')) . '"', $tab === 'markets')
     . ($canWander ? '<li><button type="submit" form="wanderform" class="hubnavbtn round" aria-label="Wander off the path" title="Wander off the path">' . $ico('ico-leaf.png', 'Wander') . '</button><span class="hubnavcap">Wander</span></li>' : '')
