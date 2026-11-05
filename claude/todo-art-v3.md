@@ -59,3 +59,8 @@ Scene and picture art is ONE initial pass by Opus medium. No draft-then-rich sec
 - Per scene output: `.lua/.png/.aseprite` + `.layout.json` {w,h,horizon,view,spots[{k,name,x,y,box}],stand[],compass_clear}.
 - Stops are PARAMETRIC: one script per stop TYPE, looks chosen by `--script-param pal=<landscape_region>` from a PALETTES table (colour ramps by role + flora/roofStyle/wallStyle/skyStyle/hillStyle choices). Pilot: `v3/here-gate/pilot-market.lua` (market hamlet; looks grassland_maplewold and desert_adobe). A new look = one new table entry. Stop uniqueness = type (landmark) x landscape (backdrop/flora) x region (architecture skin) x name (quirk prop by slug hash). Next types: mill, ferry, inn, jetty, herb, orchard, shrine, spring, tower, workshop, camp.
 - Approved references: `here-market-maplewold-v5` (town, hero scale), `pilot-market-*` (stop looks), `here-market-maplewold-v4` (rich fronts). Mockups: `v3/here-gate/mockup-*.png`.
+
+## Status (towns)
+- DONE: 15 main town gate scenes (mossbottom + 14 regions) + Maplewold v5, in `aseprite-source/v3/here-gate/towns/`. Imported to game on branch `ccr-4352abc3-code` (not on main).
+- Weak spots to repaint if Josh dislikes: coralscatter wave (dome) + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box.
+- NEXT art: stop looks for other 11 types (only market done), village/haven hero-scale, folk wiring, hotspot/nav icons.
