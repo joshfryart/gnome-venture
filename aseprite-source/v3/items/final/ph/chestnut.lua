@@ -1,47 +1,50 @@
--- chestnut (lean W2_0)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- chestnut (lean P1pilot)
+local NAME = "chestnut"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function egg(cx, y0, y1, w, pw) local m = HP.mask() for y = y0, y1 do local t = (y - y0) / (y1 - y0); local h = w * sin(pi * t ^ pw) ^ 0.8 + 0.5; for x = floor(cx - h + 0.5), floor(cx + h - 0.5) do m:set(x, y) end end return m end
-local function shade(c, m, R, ramp, bias, o) local n = X.pillow(m, R); return n, G.tone(c, m, X.light(n, o or { amb = 0.1, wrap = 0.25 }), ramp, nil, bias) end
-
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "chestnut" }
-local BR = { "#2e1612", "#4f2418", "#74361e", "#9a4e28", "#c06f3a", "#e09a58" }
-local HU = { "#2f4a22", "#43692a", "#5f8c32", "#86ae45", "#b3cf63" }
-local LIN = { "#8d6f4a", "#b9976a", "#dcc392", "#f2e6c4" }
-c:groundShadow(32, 56, 22, 3)
--- open husk flaps (back), cream lining
-for _, f in ipairs{ {-1}, {1} } do
-  local s = f[1]
-  local m = G.rell(32 + s * 15, 41, s * 0.62, -0.78, 12, 4.6)
-  shade(c, m, 4, LIN)
-  local rim = m:copy():shrink(1)
-end
--- chestnut
-local nut = egg(32, 9, 47, 12.5, 0.72)
-local n, idx = shade(c, nut, 11, BR, nil, { amb = 0.08, wrap = 0.2 })
-local streak = HP.mask()
-nut:each(function(x, y) if (x * 3 + floor(y * 0.15 * (x - 32))) % 5 == 0 and y > 18 and y < 43 and X.hash(x, y, 7) > 0.35 then c:px(x, y, BR[x < 32 and 2 or 1]) end end)
-c:fillMask(c:rect(30, 6, 30, 11), "#b89a62") c:fillMask(c:rect(34, 6, 34, 11), "#b89a62")
-c:px(31, 12, "#e8d6a0") c:px(33, 12, "#e8d6a0") c:px(31, 11, BR[2]) c:px(32, 12, "#d9c48a") c:px(32, 11, "#d9c48a")
--- spec
-for _, p in ipairs{ {26, 22}, {26, 23}, {27, 21}, {27, 22}, {26, 24} } do c:px(p[1], p[2], "#fff1d8") end
-c:px(28, 20, BR[6]) c:px(25, 25, BR[6])
--- husk bowl front
-local bowl = HP.mask()
-for y = 43, 56 do local t = (y - 43) / 13; local h = 22 * (1 - t ^ 2.2) ^ 0.5 + 1; for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do bowl:set(x, y) end end
-local bn = X.pillow(bowl, 8)
-G.tone(c, bowl, X.light(bn, { amb = 0.1, wrap = 0.3 }), HU, nil, nil)
--- spines
-bowl:edge():each(function(x, y)
-  if (x * 7 + y) % 4 == 0 and (y < 54 or x % 2 == 0) then
-    local dx = (x - 32) / 22; local dy = (y - 46) / 10
-    local l = sqrt(dx * dx + dy * dy) + 0.01; dx, dy = dx / l, dy / l
-    c:line({ {x, y}, {floor(x + dx * 3 + 0.5), floor(y + dy * 3 + 0.5)} }, 1):each(function(a, b) c:px(a, b, HU[1]) end)
-    c:px(floor(x + dx * 3 + 0.5), floor(y + dy * 3 + 0.5), "#d9c860")
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local NUT = { "#2a120f", "#4e2216", "#7a3a1c", "#a5582a", "#c97a3a", "#e8a460" }
+local BUR = { "#16341f", "#245a2a", "#3a8034", "#5ea23c", "#8cc352", "#c4e47a" }
+local TAN = { "#9a7a4e", "#c4a46c", "#e6cc92" }
+-- nut (egg, tip up)
+local nut = HP.mask()
+for y = 14, 46 do local t = (y - 14) / 32; local h = 12.5 * sin(min(1, t * 1.15 + 0.05) * pi / 2 + 0) ^ 0.7 * (t < 0.15 and (0.5 + t * 3.3) or 1)
+  for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do nut:set(x, y) end end
+local n = ball(nut, 12, NUT, "nut", { amb = 0.08, wrap = 0.2 })
+-- tiger stripes
+local idx = {}
+nut:each(function(x, y) local w = (x - 32) * 0.9 + sin(y * 0.35) * 1.2
+  if floor((w + 40) / 3) % 2 == 0 and y > 22 and y < 41 and (x + y) % 2 == 0 and X.hash(x, y, 3) > 0.25 then c:put(x, y, NUT[2], { r = { name = "nut" } }) end end)
+local bx, by = G.specAt(nut, n, 24)
+for _, p in ipairs{ {23,24},{24,23},{23,25},{24,24},{25,23} } do if nut:has(p[1], p[2]) then c:put(p[1], p[2], p[1]+p[2] < 48 and "#fff0d0" or NUT[6], { r = { name = "nut" } }) end end
+-- tassel tip
+for _, p in ipairs{ {32,13},{32,12},{31,11},{33,11},{32,14} } do c:put(p[1], p[2], NUT[1], { r = { name = "tuft" } }) end
+c:put(31,12,"#7a5a38") c:put(33,12,"#7a5a38")
+-- pale matte hilum patch at the bottom
+local hil = c:ellipse(32, 42, 8, 3):clip(nut)
+G.toneN(c, hil, X.pillow(hil, 3), TAN, { tok = { r = { name = "hil" } }, cuts = {0.3,0.65}, amb = 0.15, wrap = 0.3 })
+-- burr bowl: lower half, in front
+local bowl = c:ellipse(32, 44, 19, 13)
+bowl:cut(c:rect(0, 0, 63, 43))
+-- ragged lip
+local lip = HP.mask() bowl:each(function(x, y) if y == 44 and (x % 3 == 1) then lip:set(x, y) end end) bowl:cut(lip)
+ball(bowl, 12, BUR, "bowl", { amb = 0.05, wrap = 0.2 })
+-- inner rim shadow + soft lining
+for x = 15, 49 do if bowl:has(x, 45) then c:put(x, 45, BUR[1], { r = { name = "bowl" } }) end end
+-- spikes radiating
+local cx, cy = 32, 43
+for i = 0, 15 do
+  local a = -0.12 + pi * 1.24 * i / 15
+  local rx, ry = 19, 13
+  local x0, y0 = cx + cos(a) * (rx - 1), cy + sin(a) * (ry - 1)
+  local x1, y1 = cx + cos(a) * (rx + 5 + (i % 2) * 2), cy + sin(a) * (ry + 5 + (i % 2) * 2)
+  if y1 >= 40 then
+    local m = c:line({ {floor(x0 + 0.5), floor(y0 + 0.5)}, {floor(x1 + 0.5), floor(y1 + 0.5)} }, 1)
+    m:each(function(x, y) if not bowl:has(x, y) then local d = sqrt((x - x1)^2 + (y - y1)^2) c:put(x, y, d < 1.6 and BUR[6] or BUR[4], { r = { name = "spike" } }) end end)
   end
-end)
-for _, p in ipairs{ {18, 49}, {24, 52}, {30, 53}, {38, 52}, {44, 49}, {34, 47}, {26, 46} } do c:px(p[1], p[2], HU[5]) end
--- quirk: nut peeks with a pale hilum scar over the husk lip
-c:fillMask(c:ellipse(32, 44, 4, 1.3), "#d9bf86") c:px(31, 44, "#f2e4b8") c:px(34, 45, BR[2])
-G.fin(c, "chestnut")
+end
+-- highlights on bowl
+for _, p in ipairs{ {20,50},{21,50},{22,51},{25,53},{26,54} } do if bowl:has(p[1], p[2]) then c:put(p[1], p[2], BUR[5], { r = { name = "bowl" } }) end end
+G.save(c, NAME)

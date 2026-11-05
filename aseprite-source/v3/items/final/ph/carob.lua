@@ -1,48 +1,42 @@
--- carob (lean W2_0)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- carob (lean P1pilot)
+local NAME = "carob"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function egg(cx, y0, y1, w, pw) local m = HP.mask() for y = y0, y1 do local t = (y - y0) / (y1 - y0); local h = w * sin(pi * t ^ pw) ^ 0.8 + 0.5; for x = floor(cx - h + 0.5), floor(cx + h - 0.5) do m:set(x, y) end end return m end
-local function shade(c, m, R, ramp, bias, o) local n = X.pillow(m, R); return n, G.tone(c, m, X.light(n, o or { amb = 0.1, wrap = 0.25 }), ramp, nil, bias) end
-
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "carob" }
-local PD = { "#24120f", "#3d1d15", "#5c2c1c", "#7d3f26", "#a05a34", "#c58452" }
-local LF = { "#17342f", "#1f4d3b", "#2e6a46", "#47884f", "#6aa85a", "#98c872" }
-local TW = { "#3a2619", "#5b3d28", "#80593a", "#a8805a" }
-local lt = { r = { name = "leaf" } }
--- twig (top right) with two round leaflets
-local tm, tn = G.tube({ {54, 3}, {51, 7}, {47, 9}, {43, 12} }, function(t) return 1.6 - 0.3 * t end)
-G.tone(c, tm, X.light(tn, { amb = 0.2, wrap = 0.3 }), TW)
-for _, L in ipairs{ {52, 4, 59, 3, 3.3}, {50, 6, 56, 11, 3.0} } do
-  local ax, ay, bx, by, w = L[1], L[2], L[3], L[4], L[5]
-  local len = sqrt((bx-ax)^2 + (by-ay)^2)
-  local m = G.rell((ax+bx)/2, (ay+by)/2, (bx-ax)/len, (by-ay)/len, len/2 + 0.5, w)
-  local n = X.pillow(m, w + 1)
-  G.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), LF, nil, nil, lt)
-  G.line(c, { {floor(ax+0.5), floor(ay+0.5)}, {floor(bx+0.5), floor(by+0.5)} }, LF[6])
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local POD = { "#1f0e0c", "#3e1c14", "#6a3220", "#8f4a2c", "#b26a3c", "#d9955a" }
+local LEAF = { "#14352e", "#1f5a3c", "#2e8046", "#4aa44e", "#7cc860", "#b4e888" }
+local SEED = { "#2a1410", "#4a2218", "#6e3a22", "#94562e" }
+-- twig
+local tm, tn = G.tube({ {50,8}, {46,10}, {42,12}, {38,14} }, function(t) return 1.1 end)
+G.toneN(c, tm, tn, { "#3a2214", "#5e3a20", "#86582c", "#a87c40" }, { tok = { r = { name = "twig" } }, cuts = {0.3,0.55,0.8} })
+-- leaflets (round, glossy)
+local function leaflet(cx, cy, rx, ry, nm)
+  local m = c:ellipse(cx, cy, rx, ry)
+  ball(m, 3.5, LEAF, nm, { amb = 0.1, wrap = 0.2 })
+  m:each(function(x, y) if abs(x - cx) < 1 and abs(y - cy) < ry - 1 then c:put(x, y, LEAF[6], { r = { name = nm } }) end end)
 end
--- pods: a long curved one and a shorter one, hanging from the twig
-local function pod(pts, wmax, seed, ends)
-  local m, n, T = G.tube(pts, function(t) return wmax * (1 - (2*t - 1)^6) ^ 0.5 + 0.9 end)
-  local bias = {}
-  m:each(function(x, y) local k = K(x, y); local t = T[k] or 0
-    local bump = (t * 9 + X.hash(floor(t*9), 0, seed) * 0.6) % 1
-    if bump < 0.2 and t > 0.12 and t < 0.88 then bias[k] = -1 end
-    if X.hash(x, y, seed) > 0.93 then bias[k] = 1 end
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.2 }), PD, nil, bias)
-  return m, n, T
+leaflet(54, 5, 4, 3, "l1") leaflet(48, 4, 3, 3, "l2") leaflet(56, 12, 3, 3, "l3") leaflet(42, 6, 3, 3, "l4")
+-- pod: long curved bean, hangs from twig, bows left
+local pm, pn, PT = G.tube({ {40,13}, {18,20}, {13,40}, {24,56} }, function(t) return 5.2 * sin(pi * min(1, t * 0.9 + 0.08)) ^ 0.5 + 1.0 end)
+local bias = {}
+G.toneN(c, pm, pn, POD, { tok = { r = { name = "pod" } }, cuts = {0.2,0.38,0.56,0.74,0.88}, amb = 0.06, wrap = 0.18 })
+-- leathery wrinkles across the pod
+pm:each(function(x, y) local k = K(x, y) local t = PT[k]
+  if floor(t * 38 + (x % 2) * 0.5) % 4 == 0 and X.hash(x, y, 8) > 0.35 then c:put(x, y, POD[2], { r = { name = "pod" } }) end end)
+-- seed ridge line along the outer edge
+pm:edge():each(function(x, y) if x < 22 and y > 24 then c:put(x, y, POD[1], { r = { name = "pod" } }) end end)
+-- cut window showing seeds (pod snapped open near lower end)
+local win = c:ellipse(19, 47, 4, 6):clip(pm)
+win:each(function(x, y) c:put(x, y, "#e8c98a", { r = { name = "pulp" } }) end)
+win:shrink(1):each(function(x, y) c:put(x, y, "#c9954e", { r = { name = "pulp" } }) end)
+for _, s in ipairs{ {19,44}, {18,48}, {19,52} } do
+  local m = c:ellipse(s[1], s[2], 2, 1)
+  m:each(function(x, y) c:put(x, y, SEED[(x < s[1]) and 4 or 3], { r = { name = "seed" } }) end)
+  c:put(s[1] - 1, s[2] - 1, "#c88a5a", { r = { name = "seed" } })
 end
-local m1, n1 = pod({ {45, 12}, {18, 18}, {10, 40}, {18, 56} }, 3.6, 3)
-local m2, n2 = pod({ {43, 12}, {47, 28}, {40, 44}, {36, 57} }, 3.2, 9)
--- sutures: pale ridge along the lit edge, stem caps
-m1:copy():shrink(1):each(function(x, y) end)
-for _, m in ipairs{ m1, m2 } do
-  m:edge():each(function(x, y) if x + y < 52 and X.hash(x, y, 2) > 0.45 and not m:copy():shrink(1):has(x, y) then c:px(x, y, PD[6]) end end)
-end
-c:fillMask(c:ellipse(44, 12, 2, 1.6), TW[3]) c:px(43, 11, TW[4])
--- spec dabs
-for _, p in ipairs{ {26, 17}, {27, 17}, {12, 32}, {45, 24}, {45, 25} } do c:px(p[1], p[2], "#e8b88a") end
--- quirk: tail of the short pod curls into a tiny split showing a seed
-c:px(36, 56, "#d9a96a") c:px(37, 56, "#5a2b14")
-G.fin(c, "carob")
+-- spec streak
+for _, p in ipairs{ {26,17},{25,17},{24,18},{20,21},{19,22},{16,28},{15,30},{14,34} } do if pm:has(p[1], p[2]) then c:put(p[1], p[2], POD[6], { r = { name = "pod" } }) end end
+for _, p in ipairs{ {16,29},{15,32} } do c:put(p[1], p[2], "#ffd9a4", { r = { name = "pod" } }) end
+G.save(c, NAME)

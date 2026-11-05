@@ -1,34 +1,37 @@
--- ember-spark (lean W2_1)
--- A cooling charcoal lump split by glowing cracks, a four-point spark star and loose flecks rising from it.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- ember-spark (lean P1pilot)
+local NAME = "ember-spark"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "ember-spark" }
-local COAL = { "#1e1620", "#2e2230", "#443540", "#5e4750", "#7d5d5c", "#9b7a6c" }
-local lump = c:poly{ {19,41},{21,33},{28,29},{36,30},{44,34},{47,42},{42,50},{31,52},{22,49} }
-local n = X.pillow(lump, 10)
-local v = X.light(n, { amb = 0.08, wrap = 0.25 })
-local bias = {}
-lump:each(function(x, y) local k = K(x, y) if X.hash(x, y, 2) > 0.8 then bias[k] = -1 end end)
-G.tone(c, lump, v, COAL, { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias)
--- glowing cracks: deep red, orange core, yellow hot spot
-local cracks = {
-  { {26,34},{28,38},{27,43},{30,47} },
-  { {36,32},{35,37},{38,41},{40,46} },
-  { {28,38},{33,40},{38,41} },
-}
-for _, L in ipairs(cracks) do G.line(c, L, "#b32a1c") end
-for _, L in ipairs(cracks) do for i = 1, #L do c:px(L[i][1], L[i][2], "#ff8a2a") end end
-c:px(28, 38, "#ffd35a") c:px(33, 40, "#ffd35a") c:px(35, 37, "#ffc04a") c:px(38, 41, "#ffe48a")
-c:px(30, 34, COAL[6]) c:px(29, 33, COAL[6])
--- spark star above (quirk)
-local sx, sy = 36, 17
-for d = 1, 6 do local col = d < 3 and "#ffe48a" or (d < 5 and "#ff9a2e" or "#d9501e")
-  c:px(sx, sy - d, col) c:px(sx, sy + d, col) end
-for d = 1, 4 do local col = d < 3 and "#ffe48a" or "#ff9a2e"
-  c:px(sx - d, sy, col) c:px(sx + d, sy, col) end
-c:px(sx - 1, sy - 1, "#fff3b8") c:px(sx + 1, sy - 1, "#ffd35a") c:px(sx - 1, sy + 1, "#ffd35a") c:px(sx + 1, sy + 1, "#ff9a2e")
-c:px(sx, sy, "#fffbe6")
--- loose flecks
-c:px(24, 24, "#ff9a2e") c:px(46, 25, "#ffc04a") c:px(28, 14, "#d9501e") c:px(44, 14, "#ff9a2e") c:px(22, 29, "#d9501e")
-G.fin(c, "ember-spark")
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local COAL = { "#120d16", "#241a2c", "#3a2c42", "#54425a", "#725c72", "#968096" }
+local HOT = { "#8c1a10", "#d03a12", "#f2701a", "#ffb02a", "#ffe066", "#fffbd0" }
+c:groundShadow(32, 56, 17, 3)
+-- angular faceted coal chunk
+local ch = c:poly{ {14,50},{12,38},{19,29},{29,26},{39,28},{48,34},{52,44},{46,53},{30,56},{20,55} }
+local n = X.pillow(ch, 10)
+G.toneN(c, ch, n, COAL, { tok = { r = { name = "coal" } }, cuts = {0.2,0.4,0.58,0.76,0.9}, amb = 0.06, wrap = 0.15 })
+-- hard facet planes: lit top-left face, dark lower-right
+ch:each(function(x, y) local f = (x - 32) * 0.7 + (y - 40) * 0.5
+  if f > 6 then c:put(x, y, COAL[1], { r = { name = "coal" } }) end
+  if (x - 14) + (y - 29) * 1.2 < 12 and (x + y) % 2 == 0 and y < 38 then c:put(x, y, COAL[5], { r = { name = "coal" } }) end end)
+-- glowing cracks (jagged, white-hot cores)
+local cr = { { {30,28},{29,33},{33,36},{31,42},{35,46},{33,53} }, { {33,36},{40,35},{46,40} }, { {31,42},{23,43},{19,48} }, { {35,46},{43,48} } }
+for _, p in ipairs(cr) do
+  local m = c:line(p, 1)
+  m:each(function(x, y) c:put(x, y, HOT[3], { r = { name = "crack" } }) end)
+  m:shrink(0)
+  for i = 1, #p do c:put(p[i][1], p[i][2], HOT[5], { r = { name = "crack" } }) end
+  m:grow(1):cut(m):clip(ch):each(function(x, y) if (x + y) % 2 == 0 then c:put(x, y, HOT[1], { r = { name = "glow" } }) end end)
+end
+c:put(33,36,HOT[6]) c:put(31,42,HOT[6]) c:put(35,46,HOT[6])
+-- flame tongue licking up from the top crack (quirk)
+local fl = c:poly{ {28,28},{27,22},{30,16},{29,11},{33,17},{34,12},{37,20},{36,27} }
+local fn = X.pillow(fl, 5)
+G.toneN(c, fl, fn, { HOT[1], HOT[2], HOT[3], HOT[4], HOT[5], HOT[6] }, { tok = { r = { name = "flame" } }, cuts = {0.15,0.3,0.5,0.7,0.88}, amb = 0.2, wrap = 0.1, bias = nil })
+-- flying sparks
+for _, p in ipairs{ {18,16},{45,14},{50,24},{12,26},{40,6},{22,8} } do c:put(p[1], p[2], HOT[5], { r = { name = "sp" } }) end
+c:sparkle(46, 12) 
+c:put(18,17,HOT[3]) c:put(50,25,HOT[3])
+G.save(c, NAME)
