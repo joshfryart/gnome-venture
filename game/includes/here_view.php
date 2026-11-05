@@ -297,6 +297,13 @@ function here_sprite(array $npc): array
     return ['src' => '', 'w' => 40, 'h' => 56, 'emoji' => $emoji];
 }
 
+/** A villager's popover: an empty shell; assets/hubscene.js loads the villager panel (chat, gift picker, trade) into it when it opens and posts its forms in place. */
+function here_npc_card(int $id): string
+{
+    return '<div class="vlazy" data-vload="' . $id . '" data-url="' . e(url('villagers.php')) . '" data-csrf="' . e(csrf_token()) . '"><p class="muted">Loading…</p></div>'
+        . '<p class="vmore"><a href="' . e(url('villagers.php?id=' . $id)) . '">Open villager page ›</a></p>';
+}
+
 /** Sprites for the villagers present, placed on the stand slots. Returns [sprites, overflow count]. */
 function here_sprites(array $u, array $node, array $L, string $kind): array
 {
@@ -306,7 +313,8 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
     foreach ($pairs as [$slot, $n]) {
         $sp = here_sprite($n);
         $out[] = ['id' => 'n' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'name' => (string)$n['name'], 'href' => url('villagers.php?id=' . (int)$n['id']),
-                  'mark' => npc_birthday_today($n) ? '🎂' : ''] + $sp;
+                  'mark' => npc_birthday_today($n) ? '🎂' : '',
+                  'card' => here_npc_card((int)$n['id'])] + $sp;
     }
     return [$out, $over];
 }
@@ -327,7 +335,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     [$sprites, $over] = here_sprites($u, $node, $L, $kind);
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
     if ($gate) {
-        $opts['chrome'] = true;
+        $opts['chrome'] = true; $opts['pins'] = true; $opts['navbar'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
             'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a></p>'],

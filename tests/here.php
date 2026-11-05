@@ -225,6 +225,11 @@ if ($withDb) {
         ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains($h, '<circle'));
         ok('gate view: the compass card holds every route named by its destination, one Set off each', substr_count($h, 'name="route_id"') >= 1 && substr_count($h, 'name="route_id"') <= count($routes), substr_count($h, 'name="route_id"') . ' vs ' . count($routes));
         ok('gate view: compass and globe are there', str_contains($h, 'id="hs-routes"') && str_contains($h, 'id="hs-world"') && str_contains($h, 'hubpop-routes') && str_contains($h, 'Open region map'));
+        preg_match_all('/<g class="pin"><rect[^>]*\/><text[^>]*>(\d+)<\/text>/', $h, $pm); preg_match_all('/<b class="hubn" aria-hidden="true">(\d+)<\/b>/', $h, $lm);
+        ok('gate view: pins numbered 1..N and the legend carries the same numbers', count($pm[1]) > 0 && $pm[1] === $lm[1] && $pm[1] === array_map('strval', range(1, count($pm[1]))));
+        ok('gate view: no words painted on the picture (no tag text)', !str_contains($h, 'class="tag"'));
+        ok('gate view: compass + globe sit in a bar under the picture, not on it', str_contains($h, 'class="hubnavbar"') && !str_contains($h, 'class="hubnav"'));
+        ok('gate view: villagers get a popover shell that loads the panel', !str_contains($h, 'class="hsp"') || str_contains($h, 'data-vload='));
     } else ok('one exit hotspot per visible route (up to 8)', substr_count($h, 'id="hs-e') === min(8, count($routes)), substr_count($h, 'id="hs-e') . ' vs ' . count($routes));
     // a side path to a place the gnome has not found stays hidden
     $hid = null;

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.20
+- **Here pictures, clearer**: each tappable thing in a gate-view picture has a numbered pin (no tiny words on the art), and the list under the picture carries the same numbers, with the villagers listed as rows too. The compass (Routes) and globe (World map) are now a bar under the picture. Tapping a villager opens a popover with the full villager panel (Chat, Give a gift with the item picker, trade) that works in place, with "Open villager page" at the bottom. Needs 2.5.19.
+
 ## 2.5.19
 - **Villager sprites no longer show four copies**: the Here picture drew a villager's whole 4-frame sheet (four bees in a row); it now draws one frame. Tap areas and name tags in the picture scenes are always visible (dashed outline, gold corners, names on small phones too). Needs 2.5.18.
 

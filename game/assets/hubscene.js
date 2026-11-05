@@ -17,7 +17,7 @@
         if (d.hasAttribute('open') && !d.matches(':modal')) d.removeAttribute('open');   // a no-JS card shown inline: reopen it as a real modal
         document.querySelectorAll('.hubscene .on').forEach(function (o) { o.classList.remove('on'); });
         hs.classList.add('on');   // tapped state: gold brackets + lit tag (chrome pictures)
-        back = hs; gvOpenDlg(d);
+        back = hs; gvOpenDlg(d); lazyLoad(d);
       }
       return;
     }
@@ -65,4 +65,29 @@
   document.addEventListener('DOMContentLoaded', trailPops);
   document.addEventListener('gv:swapped', trailPops);
   trailPops();
+
+  /* A villager's popover: the villager panel (chat, gift picker, trade) loads into the card when it opens; its forms post in place (same JSON as villagers.php). */
+  function ask(url, init) {
+    return fetch(url, init).then(function (r) { return r.json(); }).catch(function () { return { ok: false, msg: 'Could not reach the server. Check your connection and try again.', html: '' }; });
+  }
+  function fill(box, res) {
+    box.innerHTML = res.html || '';
+    if (!res.html) { var p = document.createElement('p'); p.className = 'vmsg err'; p.textContent = res.msg || 'Could not load.'; box.appendChild(p); }
+  }
+  function lazyLoad(d) {
+    var box = d && d.querySelector ? d.querySelector('.vlazy[data-vload]') : null;
+    if (!box || box.getAttribute('data-ready')) return;
+    box.setAttribute('data-ready', '1');
+    ask(box.getAttribute('data-url') + '?id=' + encodeURIComponent(box.getAttribute('data-vload')), { credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
+  }
+  document.addEventListener('submit', function (ev) {
+    var f = ev.target.closest ? ev.target.closest('.vlazy [data-vform]') : null;
+    if (!f) return;
+    ev.preventDefault();
+    var box = f.closest('.vlazy');
+    var fd = new FormData(f); fd.set('csrf', box.getAttribute('data-csrf'));
+    var b = f.querySelector('button'); if (b) b.disabled = true;
+    ask(box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
+  });
+  document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('dialog.hubpop[open]').forEach(lazyLoad); });
 })();

@@ -7237,3 +7237,16 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .wcard .wfold { text-align: left; margin: 6px 0 0; }
 .wc-foot { font-size: .75rem; margin: 8px 0 0; opacity: .8; }
 .wanderhide { height: 0; overflow: hidden; }
+
+/* Here, gate view: numbered pins on the picture, the same numbers in the legend, the compass + globe as a bar under the picture, villager popovers */
+.hubsvg.chrome .pin rect { fill: #ffd24a; stroke: #2a1a10; stroke-width: 2; }
+.hubsvg.chrome .pin text { fill: #2a1a10; font-weight: 800; pointer-events: none; }
+.hubsvg.chrome .hs.on .pin rect, .hubsvg.chrome .hs:hover .pin rect, .hubsvg.chrome .hs:focus-visible .pin rect, .hubsvg.chrome .hs.lit .pin rect { fill: #fff; }
+.hubn { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 5px; background: #ffd24a; color: #2a1a10; font-weight: 800; border: 2px solid #2a1a10; box-sizing: border-box; }
+.hubn-p { background: #e8d6b0; }
+.hubchip-t { font-weight: 700; }
+.hubchip-npc .hubchip-c { margin-left: auto; }
+.hubnavbar { display: flex; gap: 8px; margin: 8px 0 0; }
+.hubnavbtn.wide { flex: 1; width: auto; gap: 8px; font-weight: 700; border-radius: 8px; }
+.vlazy .vpanel { border: 0; padding: 0; box-shadow: none; }
+.vmore { margin: 8px 0 0; text-align: right; }
