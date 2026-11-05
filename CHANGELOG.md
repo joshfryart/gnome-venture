@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.62
+- **Art polish pass**: 37 wonder pictures redrawn richer (pink river dolphins, animals, havens, delves), 7 banners, journal sea/nwe/oc, world map, trek me + ripples, vig-rod/pick, slot-forage. **Fix**: rarity flourishes are 4-frame 96px sparkle sheets again (2.5.60 had drawn them as bands).
+
 ## 2.5.61
 - **More new art**: 14 journal emblems, 7 landing pictures, 14 region maps (same layout, repainted) plus world map, 46 trek tiles. Same sizes, drop-in.
 
